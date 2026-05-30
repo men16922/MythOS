@@ -1,0 +1,393 @@
+from __future__ import annotations
+
+import os
+import shutil
+from dataclasses import asdict, dataclass, field, replace
+from pathlib import Path
+from typing import Protocol
+
+from mythos_core import AssetRecord, Scene
+from mythos_core.clock import utc_now
+from mythos_core.ids import new_asset_id
+from mythos_image_agent.config import PROJECT_ROOT, AgentConfig
+from mythos_image_agent.generator import generate_image
+from mythos_image_agent.img2img import generate_image_img2img
+from mythos_image_agent.postprocess import apply_diegetic_overlay, apply_y2k_crt_effect
+from mythos_memory import MythOSStore
+from mythos_runtime.observability import get_logger, timed
+from mythos_runtime.scenario import load_scenario
+from mythos_runtime.visual_queue import VisualJobQueue
+
+
+@dataclass(frozen=True)
+class VisualGenerationRequest:
+    player_id: str
+    loop_id: str
+    scene_id: str
+    prompt: str
+    seed: int = 42
+    width: int = 1024
+    height: int = 1024
+    steps: int = 4
+    provider: str = "flux_local_mps"
+    model_id: str = "black-forest-labs/FLUX.1-schnell"
+    enabled: bool = True
+    metadata: dict = field(default_factory=dict)
+    scenario_id: str = "neo-seoul"
+    # Set for async jobs so pending/processing/succeeded records share one asset row.
+    asset_id: str | None = None
+
+
+@dataclass(frozen=True)
+class VisualGenerationResult:
+    asset: AssetRecord
+    status: str
+    storage_uri: str
+    error: str | None = None
+
+    @property
+    def ok(self) -> bool:
+        return self.status == "succeeded"
+
+
+class VisualProvider(Protocol):
+    def generate(self, request: VisualGenerationRequest, output_path: Path) -> Path:
+        raise NotImplementedError
+
+
+class StorageAdapter(Protocol):
+    def store(self, source_path: Path, request: VisualGenerationRequest) -> str:
+        raise NotImplementedError
+
+
+@dataclass(frozen=True)
+class LocalFluxProvider:
+    config: AgentConfig = field(default_factory=AgentConfig)
+
+    def generate(self, request: VisualGenerationRequest, output_path: Path) -> Path:
+        reference_image = request.metadata.get("reference_image")
+        if reference_image and Path(reference_image).exists():
+            return generate_image_img2img(
+                reference_path=Path(reference_image),
+                prompt=request.prompt,
+                output_path=output_path,
+                config=self.config,
+                strength=request.metadata.get("img2img_strength", 0.6),
+                model_id_override=request.model_id,
+                seed=request.seed,
+                steps=request.steps,
+                width=request.width,
+                height=request.height,
+            )
+
+        return generate_image(
+            prompt=request.prompt,
+            output_path=output_path,
+            config=self.config,
+            model_id_override=request.model_id,
+            seed=request.seed,
+            steps=request.steps,
+            width=request.width,
+            height=request.height,
+        )
+
+
+@dataclass(frozen=True)
+class MfluxProvider:
+    """Apple MLX (mflux) backend — faster + quantized; supports img2img via reference."""
+
+    config: AgentConfig = field(default_factory=AgentConfig)
+
+    def generate(self, request: VisualGenerationRequest, output_path: Path) -> Path:
+        from mythos_image_agent.mflux_generator import generate_image_mflux
+
+        reference_image = request.metadata.get("reference_image")
+        ref = reference_image if reference_image and Path(reference_image).exists() else None
+        return generate_image_mflux(
+            prompt=request.prompt,
+            output_path=output_path,
+            seed=request.seed,
+            steps=request.steps,
+            width=request.width,
+            height=request.height,
+            quantize=self.config.mflux_quantize,
+            guidance=self.config.guidance_scale,
+            reference_path=ref,
+            image_strength=request.metadata.get("img2img_strength", 0.6) if ref else None,
+        )
+
+
+def default_visual_provider(config: AgentConfig | None = None) -> VisualProvider:
+    """Pick the image backend from config/env (`IMAGE_BACKEND`)."""
+    cfg = config or AgentConfig()
+    if cfg.image_backend.lower() == "mflux":
+        return MfluxProvider(cfg)
+    return LocalFluxProvider(cfg)
+
+
+@dataclass(frozen=True)
+class FilesystemStorageAdapter:
+    root_dir: Path = PROJECT_ROOT / "outputs" / "images"
+
+    def store(self, source_path: Path, request: VisualGenerationRequest) -> str:
+        target = self.root_dir / request.player_id / request.loop_id / f"{request.scene_id}.png"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if source_path.resolve() != target.resolve():
+            shutil.copy2(source_path, target)
+        return str(target)
+
+
+@dataclass(frozen=True)
+class MinIOStorageAdapter:
+    endpoint_url: str = os.getenv("S3_ENDPOINT_URL", "http://localhost:9000")
+    access_key: str = os.getenv("S3_ACCESS_KEY", "mythos")
+    secret_key: str = os.getenv("S3_SECRET_KEY", "mythos-local-secret")
+    bucket: str = os.getenv("S3_BUCKET_ASSETS", "mythos-assets")
+
+    def store(self, source_path: Path, request: VisualGenerationRequest) -> str:
+        try:
+            import boto3
+        except ImportError as exc:
+            raise RuntimeError("boto3 is required for MinIO uploads") from exc
+
+        key = f"images/{request.player_id}/{request.loop_id}/{request.scene_id}.png"
+        client = boto3.client(
+            "s3",
+            endpoint_url=self.endpoint_url,
+            aws_access_key_id=self.access_key,
+            aws_secret_access_key=self.secret_key,
+        )
+        client.upload_file(
+            str(source_path),
+            self.bucket,
+            key,
+            ExtraArgs={"ContentType": "image/png"},
+        )
+        return f"s3://{self.bucket}/{key}"
+
+
+class VisualService:
+    def __init__(
+        self,
+        provider: VisualProvider | None = None,
+        storage: StorageAdapter | None = None,
+        store: MythOSStore | None = None,
+        work_dir: Path | None = None,
+    ) -> None:
+        self.provider = provider or default_visual_provider()
+        self.storage = storage or FilesystemStorageAdapter()
+        self.store = store
+        self.work_dir = work_dir or PROJECT_ROOT / "outputs" / "visual-work"
+        self.logger = get_logger("mythos.visual")
+
+    def generate_for_scene(
+        self,
+        scene: Scene,
+        player_id: str,
+        request_overrides: dict | None = None,
+    ) -> VisualGenerationResult:
+        request = self._request_from_scene(scene, player_id, request_overrides or {})
+        return self.generate(request)
+
+    def enqueue_for_scene(
+        self,
+        scene: Scene,
+        player_id: str,
+        queue: VisualJobQueue,
+        storage_kind: str,
+        request_overrides: dict | None = None,
+    ) -> VisualGenerationResult:
+        """Record a `pending` asset and enqueue an async job; returns immediately."""
+        request = self._request_from_scene(scene, player_id, request_overrides or {})
+        request = replace(request, asset_id=new_asset_id())
+        pending = self._record(request=request, status="pending", storage_uri="", error=None)
+        queue.enqueue(
+            {
+                "asset_id": request.asset_id,
+                "storage_kind": storage_kind,
+                "request": asdict(request),
+            }
+        )
+        self.logger.info(
+            "visual job enqueued",
+            extra={
+                "player_id": player_id,
+                "loop_id": request.loop_id,
+                "scene_id": request.scene_id,
+                "asset_id": request.asset_id,
+                "queue_depth": queue.depth(),
+            },
+        )
+        return pending
+
+    def generate(self, request: VisualGenerationRequest) -> VisualGenerationResult:
+        if not request.enabled:
+            return self._record(
+                request=request,
+                status="disabled",
+                storage_uri="",
+                error=None,
+            )
+
+        # Async jobs carry a pre-minted asset_id; flag it processing before the
+        # (slow) provider call so the UI can show a "generating" state.
+        if request.asset_id is not None:
+            self._record(request=request, status="processing", storage_uri="", error=None)
+
+        output_path = self._work_output_path(request)
+        try:
+            with timed(
+                "mythos.visual.generate",
+                self.logger,
+                "visual generation finished",
+                player_id=request.player_id,
+                loop_id=request.loop_id,
+                scene_id=request.scene_id,
+                provider=request.provider,
+                model_id=request.model_id,
+            ):
+                generated_path = self.provider.generate(request, output_path)
+
+                # Apply Y2K Post-processing with intensity based on autonomy level
+                autonomy_level = request.metadata.get("autonomy_level", 1)
+                # Scale intensity from 0.5 (LV 1) to 2.5 (LV 5)
+                glitch_intensity = 0.5 + (autonomy_level - 1) * 0.5
+
+                if request.metadata.get("y2k_effect", True):
+                    apply_y2k_crt_effect(generated_path, intensity=glitch_intensity)
+
+                # Apply Diegetic Overlay
+                if request.metadata.get("diegetic_overlay", True):
+                    apply_diegetic_overlay(
+                        generated_path,
+                        text=request.metadata.get("overlay_title", "NEO-SEOUL"),
+                        status_lines=request.metadata.get("overlay_status", []),
+                    )
+
+                storage_uri = self.storage.store(generated_path, request)
+            return self._record(
+                request=request,
+                status="succeeded",
+                storage_uri=storage_uri,
+                error=None,
+            )
+        except Exception as exc:
+            return self._record(
+                request=request,
+                status="failed",
+                storage_uri="",
+                error=str(exc),
+            )
+
+    def _request_from_scene(
+        self, scene: Scene, player_id: str, overrides: dict
+    ) -> VisualGenerationRequest:
+        prompt = scene.visual_brief or scene.narration
+        scenario_id = overrides.get("scenario_id", "neo-seoul")
+        scenario = load_scenario(scenario_id)
+
+        # Get autonomy level for visual scaling
+        player = self.store.get_player(player_id) if self.store else None
+        autonomy_level = 1
+        if player and isinstance(player.traits, dict):
+            autonomy_level = int(player.traits.get("autonomy_level", 1))
+
+        # Character/Concept Detection for img2img (Identity/Mood steering)
+        reference_image = None
+        detected_tag = None
+        lower_prompt = prompt.lower()
+
+        # 1. Check characters first (highest priority for identity)
+        for key, rel_path in scenario.character_map.items():
+            if key in lower_prompt:
+                reference_image = str(PROJECT_ROOT / "resources" / scenario_id / rel_path)
+                detected_tag = key
+                break
+
+        # 2. Check concept images if no character detected
+        if not reference_image:
+            for key, rel_path in scenario.concept_map.items():
+                if key in lower_prompt:
+                    reference_image = str(PROJECT_ROOT / "resources" / scenario_id / rel_path)
+                    detected_tag = key
+                    break
+
+        metadata = {
+            **overrides.get("metadata", {}),
+            "overlay_title": scene.location,
+            "overlay_status": [f"SIGNAL: {player_id[:8]}", f"LOC: {scene.location}"],
+            "img2img_strength": 0.6 if detected_tag in scenario.character_map else 0.45,
+            "autonomy_level": autonomy_level,
+        }
+        if reference_image:
+            metadata["reference_image"] = reference_image
+            metadata["detected_tag"] = detected_tag
+
+        return VisualGenerationRequest(
+            player_id=player_id,
+            loop_id=scene.loop_id,
+            scene_id=scene.scene_id,
+            prompt=prompt,
+            seed=overrides.get("seed", 42),
+            width=overrides.get("width", 1024),
+            height=overrides.get("height", 1024),
+            steps=overrides.get("steps", 4),
+            provider=overrides.get("provider", "flux_local_mps"),
+            model_id=overrides.get("model_id", "black-forest-labs/FLUX.1-schnell"),
+            enabled=overrides.get("enabled", True),
+            metadata=metadata,
+            scenario_id=scenario_id,
+        )
+
+    def _work_output_path(self, request: VisualGenerationRequest) -> Path:
+        return self.work_dir / request.loop_id / f"{request.scene_id}.png"
+
+    def _record(
+        self,
+        request: VisualGenerationRequest,
+        status: str,
+        storage_uri: str,
+        error: str | None,
+    ) -> VisualGenerationResult:
+        metadata = {
+            **request.metadata,
+            "status": status,
+        }
+        if error:
+            metadata["error"] = error
+        asset = AssetRecord(
+            asset_id=request.asset_id or new_asset_id(),
+            scene_id=request.scene_id,
+            loop_id=request.loop_id,
+            provider=request.provider,
+            model_id=request.model_id,
+            prompt=request.prompt,
+            seed=request.seed,
+            width=request.width,
+            height=request.height,
+            steps=request.steps,
+            storage_uri=storage_uri,
+            metadata=metadata,
+            created_at=utc_now(),
+            status=status,
+        )
+        if self.store is not None:
+            self.store.save_asset(asset)
+        self.logger.info(
+            "visual asset recorded",
+            extra={
+                "player_id": request.player_id,
+                "loop_id": request.loop_id,
+                "scene_id": request.scene_id,
+                "asset_id": asset.asset_id,
+                "provider": request.provider,
+                "model_id": request.model_id,
+                "status": status,
+            },
+        )
+        return VisualGenerationResult(
+            asset=asset,
+            status=status,
+            storage_uri=storage_uri,
+            error=error,
+        )

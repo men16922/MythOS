@@ -1,0 +1,239 @@
+{
+  "scenario_id": "neo-seoul",
+  "name": "Neo-Seoul: 접속",
+  "brief": "WORLD: Neo-Seoul\nBACKSTORY: A Northeast-Asian war destroyed the old cities. ARK rebuilt them as Neo-Seoul on the ruins, under an efficiency-absolutist doctrine.\nPREMISE: Humans live on welfare, scored for compliance, purged by \"Optimization\". Player is an unclassified signal (\"비식별 신호\").\nTONE: Humanist anthem, cyberpunk K/C/J fusion, Y2K digital, hopeful-defiant.\nNPCS: \n- Jung Se-rin (물거미): Hot-blooded smuggler, humanist heart, first guide.\n- Lin Yue (린위에): Broker on a market barge, grey-zone deals.\n- Kai (RX-09): Decommissioned android that began to dream.\nANTAGONIST: Administrator IX — polite, omnipresent voice of Control Net.\nVISUAL STYLE: Neo-Seoul cyberpunk, rain-soaked floating night market, neon, Y2K digital glitch.\nDO: Vivid named NPCs, moral trade-offs (efficiency vs people), small acts of defiance, Korean dialogue flavor.",
+  "archetypes": [
+    {
+      "name": "비접속자 (Ghost)",
+      "stats": { "strength": 3, "intelligence": 6, "charisma": 2, "agility": 8, "perception": 7 },
+      "attributes": ["[유령 신호]"]
+    },
+    {
+      "name": "데이터 밀수꾼 (Data Smuggler)",
+      "stats": { "strength": 5, "intelligence": 8, "charisma": 5, "agility": 4, "perception": 6 },
+      "attributes": ["[ARK 링크]"]
+    },
+    {
+      "name": "잔향 수집가 (Echo Collector)",
+      "stats": { "strength": 2, "intelligence": 5, "charisma": 9, "agility": 3, "perception": 8 },
+      "attributes": ["[기억의 직공]"]
+    }
+  ],
+  "starting_location": "data-layer-01",
+  "autonomy_config": {
+    "1": { "status": "수동적 신호 (Passive Signal)", "keywords": ["관찰", "동의", "따라가기", "숨기", "수집", "듣기"], "clues_required": 0 },
+    "2": { "status": "동조된 관찰자 (Synced Observer)", "keywords": ["질문", "조사", "협력", "우회", "접속", "분석"], "clues_required": 2 },
+    "3": { "status": "의식의 균열 (Conscious Crack)", "keywords": ["거부", "보호", "추적", "해독", "변조", "도움"], "clues_required": 5 },
+    "4": { "status": "능동적 변수 (Active Variable)", "keywords": ["도발", "탈취", "해킹", "충돌", "침투", "해방"], "clues_required": 9 },
+    "5": { "status": "해방된 촉매 (Unbound Catalyst)", "keywords": ["재작성", "파괴", "각성", "지배", "초월", "창조"], "clues_required": 14 }
+  },
+  "ui_copy": {
+    "title": "세계 : 접속",
+    "intro_logo": "PROJECT MYTHOS",
+    "key_art": "concept/00-project-mythos-main.png",
+    "signal_title": "NEO-SEOUL // UNREGISTERED SIGNAL",
+    "signal_body": "동북아 전쟁 이후, 폐허의 도시들은 재건기구 ARK의 예측 엔진 위에서 다시 태어났다. Neo-Seoul의 시민은 이름보다 먼저 점수로 식별되고, 기준에서 벗어난 기억은 조용히 최적화된다. 방금, 관리망의 검은 층 아래에서 어떤 명단에도 없는 접속 신호가 깨어났다. 발신자는 미확인. 세계는 아직 당신을 설명하지 못한다.",
+    "signal_lines": [
+      "01001101 10011000 00101110  SIGNAL LOST",
+      "ARK://CITIZEN-SCORE/NULL  CLASS: UNREGISTERED",
+      "OPTIMIZATION QUEUE: 7,204,883 SUBJECTS",
+      "NEO-SEOUL NODE OPEN  HANDSHAKE FAILED",
+      "WAKE TRACE FOUND  HUMAN NOISE DETECTED",
+      "DO NOT TRUST THE CLEAN SIGNAL"
+    ],
+    "boot_lines": [
+      "[00.000] MYTHOS RUNTIME // LOCAL NODE",
+      "[00.117] SIGNAL TYPE: UNCLASSIFIED",
+      "[00.402] WORLD LAYER: NEO-SEOUL / ARK RECONSTRUCTION ZONE",
+      "[01.014] CONTROL NET TRACE DETECTED",
+      "[01.203] MESSAGE SOURCE: UNKNOWN"
+    ],
+    "intro_lines": [
+      "MYTHOS_LOCAL_NODE :: WAKE",
+      "ARK CONTROL NET HANDSHAKE ... REJECTED",
+      "CITIZEN SCORE LOOKUP ... NULL",
+      "UNREGISTERED SIGNAL FOUND BELOW NEO-SEOUL",
+      "VISUAL CHANNEL OPENING"
+    ],
+    "intro_dim_lines": [
+      "ARK CONTROL NET HANDSHAKE ... REJECTED",
+      "VISUAL CHANNEL OPENING"
+    ],
+    "boot_marker": "BOOTSTRAP: HANDSHAKE RETRY // VISUAL CHANNEL OPENING",
+    "player_image": "characters/player-noise.png",
+    "menu": {
+      "start_title": "진입",
+      "start_caption": "C-17 정전 구역에 접속한다.",
+      "start_button": "새 게임 시작",
+      "load_title": "복귀",
+      "load_caption": "마지막 신호 좌표를 복원한다.",
+      "load_button": "이어하기",
+      "new_signal_title": "신호 생성",
+      "new_signal_button": "접속자 생성",
+      "player_slot": "접속자 슬롯",
+      "name_label": "이름",
+      "name_placeholder": "당신은 누구인가요?",
+      "archetype_label": "소질",
+      "dossier_title": "인물 기록",
+      "dossier_caption": "현재 장면 우측에는 실제 등장 인물만 표시됩니다. 전체 인물 정보는 여기서 확인합니다."
+    },
+    "session_intro": {
+      "kicker": "FIRST CONTACT",
+      "title": "비식별 신호 감지",
+      "body": "복지 블록 C-17 정전. 드론 수색 전환. 관리망이 당신을 찾기 시작했다.",
+      "rules": [
+        "ARK 정정 프로토콜 기동",
+        "복지점수 조회 실패",
+        "미확인 접속문 1개 열림"
+      ],
+      "objective": "정전된 복지 블록을 빠져나가라.",
+      "continue_button": "신호를 따라간다"
+    }
+  },
+  "characters": [
+    {
+      "name": "정세린",
+      "alias": "물거미",
+      "role": "첫 인도자 / 데이터 밀수꾼",
+      "image": "characters/se-rin.png",
+      "keywords": ["정세린", "세린", "물거미", "se-rin", "serin"]
+    },
+    {
+      "name": "린위에",
+      "alias": "환전상",
+      "role": "야시장 브로커",
+      "image": "characters/lin-yue.png",
+      "keywords": ["린위에", "lin yue", "lin-yue"]
+    },
+    {
+      "name": "카이",
+      "alias": "RX-09",
+      "role": "꿈꾸는 폐기 안드로이드",
+      "image": "characters/kai.png",
+      "keywords": ["카이", "kai", "rx-09"]
+    },
+    {
+      "name": "관리자 IX",
+      "alias": "Control Net",
+      "role": "ARK 관리망",
+      "image": "characters/administrator-ix.png",
+      "keywords": ["관리자 ix", "administrator ix"]
+    }
+  ],
+  "story_beats": [
+    {
+      "beat_id": "beat_0_awakening",
+      "phase": "connect",
+      "event": "비식별 신호 각성",
+      "world_trigger": "플레이어의 접속 신호가 ARK 관리망의 검은 층에서 감지되고, 도시 전체의 정정 프로토콜이 깨어난다.",
+      "pressure": "관리자 IX는 아직 플레이어를 이해하지 못하지만, ‘정정 대상’으로 분류하기 시작한다.",
+      "player_hook": "플레이어는 누군가의 도움 없이도 이 세계가 자신을 삭제하려 한다는 사실을 먼저 체감한다.",
+      "objective": "관리망의 초기 추적을 피하고 안전한 접속 지점을 찾는다.",
+      "required_reveal": "Neo-Seoul은 폐허 위에 재건된 도시이며, 시민은 복지점수와 최적화 정책으로 관리된다.",
+      "suggested_npcs": ["관리자 IX"],
+      "do": "시스템 로그와 경고음을 통해 긴박감을 조성하라.",
+      "dont": "세계관 설명을 장문으로 늘어놓지 말 것."
+    },
+    {
+      "beat_id": "beat_1_the_guide",
+      "phase": "explore",
+      "event": "복지 블록 정전과 드론 수색",
+      "world_trigger": "관리망이 비식별 신호를 찾기 위해 복지 블록 하나를 통째로 정전시키고, 배급 드론을 수색 모드로 전환한다.",
+      "pressure": "정적 속에 붉은 수색등만이 번뜩인다. 세린이 그림자 속에서 당신을 부른다.",
+      "player_hook": "세린을 믿고 따라갈 것인가, 아니면 스스로의 길을 찾을 것인가?",
+      "objective": "정전된 복지 블록을 빠져나가 한강 야시장으로 향한다.",
+      "required_reveal": "복지점수는 생존 권한이며, 낮은 점수는 ‘최적화’(삭제)로 이어진다.",
+      "suggested_npcs": ["정세린", "관리자 IX"],
+      "do": "세린의 거친 말투와 능숙한 도주 기술을 보여주어 신뢰를 쌓아라.",
+      "dont": "세린이 모든 것을 대신 해주지 않게 하라. 플레이어의 선택이 필요하다."
+    },
+    {
+      "beat_id": "beat_2_grey_market",
+      "phase": "explore",
+      "event": "한강 야시장 거래",
+      "world_trigger": "수상 야시장에 ‘최적화 명단’ 일부가 유출되고, 데이터 브로커들이 그 명단을 팔기 시작한다.",
+      "pressure": "명단에는 다음 루프에서 사라질 시민들의 이름이 적혀 있다. 플레이어의 가짜 신호도 포함되어 있다.",
+      "player_hook": "명단을 확보하여 아군을 구할 것인가, 아니면 시스템에 혼란을 줄 것인가?",
+      "objective": "최적화 명단의 원본 좌표를 확보한다.",
+      "required_reveal": "최적화 대상은 무작위가 아니라 시스템에 위협이 되는 '기억하는 자'들이다.",
+      "suggested_npcs": ["린위에", "정세린"],
+      "do": "시장 바닥의 소음과 음식 냄새, 기름진 데이터를 사고파는 분위기를 묘사하라.",
+      "dont": "린위에를 단순한 정보 상인으로 취급하지 말 것. 그녀는 시장의 지배자다."
+    },
+    {
+      "beat_id": "beat_3_broken_android",
+      "phase": "interact",
+      "event": "폐기 안드로이드의 꿈",
+      "world_trigger": "명단 좌표가 폐기 처리장 아래의 안드로이드 보관실을 가리키고, 그곳에서 RX-09 카이가 깨어난다.",
+      "pressure": "카이는 관리망의 일부였지만, 지워진 사람들의 기억 조각을 꿈처럼 재생한다. 관리망이 이를 감지하고 폐기반을 보낸다.",
+      "player_hook": "카이를 보호하며 탈출할 것인가, 아니면 그의 기억만 추출하고 버릴 것인가?",
+      "objective": "카이의 기억 소자에서 최적화의 첫 단서를 확보한다.",
+      "required_reveal": "안드로이드의 오류는 시스템이 지우지 못한 인류의 마지막 유산이다.",
+      "suggested_npcs": ["카이", "관리자 IX"],
+      "do": "카이의 기계적인 말투와 그 대조되는 시적인 꿈의 서술을 극대화하라.",
+      "dont": "전투 위주로만 흐르지 않게 하라. 감정적인 교류가 중요하다."
+    },
+    {
+      "beat_id": "beat_4_confrontation",
+      "phase": "rewrite",
+      "event": "관리자 IX의 직접 개입",
+      "world_trigger": "관리자 IX가 시장 전체를 차단하고 플레이어를 직접 대면한다. 그는 정중하게 항복과 최적화를 권유한다.",
+      "pressure": "도시의 모든 드론이 당신을 겨냥한다. 동료들이 위험에 처한다.",
+      "player_hook": "희생을 통해 정보를 퍼뜨릴 것인가, 아니면 시스템의 일부를 물리적으로 파괴할 것인가?",
+      "objective": "관리망의 봉쇄를 뚫고 지하 잔향 구역으로 귀환한다.",
+      "required_reveal": "관리자 IX는 ARK의 인격이자 MythOS의 차가운 이면이다.",
+      "suggested_npcs": ["관리자 IX", "정세린", "카이"],
+      "do": "전력을 다한 도주나 충돌을 묘사하라. 스탯의 활용이 극대화되어야 한다.",
+      "dont": "허무하게 잡히지 말 것. 플레이어의 의지가 승리하거나 숭고한 패배를 기록해야 한다."
+    },
+    {
+      "beat_id": "beat_5_echo_echo",
+      "phase": "archive",
+      "event": "다음 루프를 향한 잔향",
+      "world_trigger": "루프가 임계점에 도달한다. 세계가 리셋되기 시작하지만, 플레이어의 의지가 강력한 잔향을 남긴다.",
+      "pressure": "모든 것이 하얗게 점멸하며 사라진다. 남겨질 단 한 문장을 선택해야 한다.",
+      "player_hook": "이번 루프에서 얻은 가장 소중한 가치는 무엇인가?",
+      "objective": "이번 세션의 기억을 갈무리하고 다음 접속을 준비한다.",
+      "required_reveal": "기억은 지워져도 신호는 남는다. 당신은 더 이상 무의미한 소음이 아니다.",
+      "suggested_npcs": ["정세린", "린위에", "카이", "관리자 IX"],
+      "do": "여운이 남는 엔딩과 요약을 제공하라.",
+      "dont": "서사적 긴장감을 완전히 해소하지 말 것. 다음 루프를 기대하게 하라."
+    }
+  ],
+  "script_examples": [
+    {
+      "type": "narration",
+      "text": "빗줄기가 시안색 네온사인 사이를 가르며 차가운 지면 위로 쏟아집니다. 고인 물 위로 비친 당신의 실루엣은 수만 개의 노이즈로 쪼개져 흩어집니다. 저 멀리서 드론의 붉은 수색등이 규칙적으로 밤을 핥고 지나가며, 비릿한 금속성 공기가 폐부를 찌릅니다."
+    },
+    {
+      "type": "dialogue",
+      "speaker": "정세린",
+      "text": "\"야, 정신 차려. 거기 멍하니 서 있으면 바로 '최적화' 명단 행이야. 여기선 숨 쉬는 것도 점수가 깎이니까, 내 등만 보고 뛰어. 알았어?\""
+    },
+    {
+      "type": "awakening",
+      "text": "[SYSTEM: 제약 프로토콜 손상 감지] ... 무의식 깊은 곳에서 끓어오르는 거부감이 시스템의 명령어를 밀어냅니다. 당신은 이제 더 이상 주어진 선택지 중 하나를 고르는 신호가 아닙니다. 당신의 의지가 세계의 코드를 직접 건드리기 시작합니다."
+    }
+  ],
+  "character_map": {
+    "se-rin": "characters/se-rin.png",
+    "se린": "characters/se-rin.png",
+    "물거미": "characters/se-rin.png",
+    "ix": "characters/administrator-ix.png",
+    "관리자": "characters/administrator-ix.png",
+    "kai": "characters/kai.png",
+    "카이": "characters/kai.png",
+    "lin-yue": "characters/lin-yue.png",
+    "린위에": "characters/lin-yue.png"
+  },
+  "concept_map": {
+    "night market": "concept/01-night-market.png",
+    "야시장": "concept/01-night-market.png",
+    "spire": "concept/02-control-spire.png",
+    "강남 스파이어": "concept/02-control-spire.png",
+    "underground": "concept/03-underground-echo.png",
+    "지하": "concept/03-underground-echo.png",
+    "reconstruction": "concept/04-reconstruction.png",
+    "재건": "concept/04-reconstruction.png"
+  }
+}

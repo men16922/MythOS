@@ -1,0 +1,122 @@
+- generic [ref=e2]:
+  - generic [ref=e8]:
+    - generic [ref=e10]:
+      - paragraph [ref=e14]: 화면
+      - radiogroup "화면" [ref=e15] [cursor=pointer]:
+        - generic [ref=e16]:
+          - radio "플레이어" [checked]
+          - paragraph [ref=e21]: 플레이어
+        - generic [ref=e22]:
+          - radio "개발자"
+          - paragraph [ref=e27]: 개발자
+    - heading "세계" [level=2] [ref=e31]
+    - generic [ref=e34] [cursor=pointer]:
+      - checkbox "AI 게임마스터" [checked]
+      - generic [ref=e38]:
+        - paragraph [ref=e40]: AI 게임마스터
+        - button "Help for AI 게임마스터" [ref=e44]:
+          - img [ref=e45]
+    - generic [ref=e50] [cursor=pointer]:
+      - checkbox "대표 이미지 생성"
+      - generic [ref=e54]:
+        - paragraph [ref=e56]: 대표 이미지 생성
+        - button "Help for 대표 이미지 생성" [ref=e60]:
+          - img [ref=e61]
+    - paragraph [ref=e68]: "플레이어 프리셋: 384x384 / 1 step"
+  - generic [ref=e3]:
+    - banner [ref=e71]:
+      - generic [ref=e73]:
+        - button "keyboard_double_arrow_right" [ref=e76] [cursor=pointer]:
+          - generic [ref=e78]: keyboard_double_arrow_right
+        - generic [ref=e79]:
+          - generic [ref=e254]:
+            - img "Running..." [ref=e255]:
+              - img [ref=e256]
+            - button "Stop" [ref=e260] [cursor=pointer]
+          - button "Deploy" [ref=e81] [cursor=pointer]:
+            - generic [ref=e83]: Deploy
+          - button "Main menu" [ref=e85] [cursor=pointer]:
+            - img [ref=e86]
+    - generic [ref=e89]:
+      - 'heading "세계 : 접속" [level=1] [ref=e94]':
+        - text: "세계 : 접속"
+        - generic [ref=e95]:
+          - link "Link to heading":
+            - /url: "#e16193be"
+            - img
+      - generic [ref=e97]:
+        - generic [ref=e104]:
+          - generic [ref=e105]: 01001101 10011000 00101110 SIGNAL LOST
+          - generic [ref=e106]: "ARK://CITIZEN-SCORE/NULL CLASS: UNREGISTERED"
+          - generic [ref=e107]: "OPTIMIZATION QUEUE: 7,204,883 SUBJECTS"
+          - generic [ref=e108]: NEO-SEOUL NODE OPEN HANDSHAKE FAILED
+          - generic [ref=e109]: WAKE TRACE FOUND HUMAN NOISE DETECTED
+          - generic [ref=e110]: DO NOT TRUST THE CLEAN SIGNAL
+          - generic [ref=e111]: NEO-SEOUL // UNREGISTERED SIGNAL
+          - generic [ref=e112]: 동북아 전쟁 이후, 폐허의 도시들은 재건기구 ARK의 예측 엔진 위에서 다시 태어났다. Neo-Seoul의 시민은 이름보다 먼저 점수로 식별되고, 기준에서 벗어난 기억은 조용히 최적화된다. 방금, 관리망의 검은 층 아래에서 어떤 명단에도 없는 접속 신호가 깨어났다. 발신자는 미확인. 세계는 아직 당신을 설명하지 못한다.
+          - generic [ref=e114]: "BOOTSTRAP: HANDSHAKE RETRY // VISUAL CHANNEL OPENING"
+        - generic [ref=e119]:
+          - button "Fullscreen" [ref=e124] [cursor=pointer]:
+            - img [ref=e125]
+          - img "0" [ref=e130]
+      - generic [ref=e136]:
+        - text: "[00.000] MYTHOS RUNTIME // LOCAL NODE"
+        - text: "[00.117] SIGNAL TYPE: UNCLASSIFIED"
+        - text: "[00.402] WORLD LAYER: NEO-SEOUL / ARK RECONSTRUCTION ZONE"
+        - text: "[01.014] CONTROL NET TRACE DETECTED"
+        - text: "[01.203] MESSAGE SOURCE: UNKNOWN"
+      - generic [ref=e138]:
+        - paragraph [ref=e142]: 접속자 슬롯
+        - generic [ref=e144]:
+          - generic [ref=e145]:
+            - generic [ref=e146]: 12 (player_cf7c8367fb1f4b53aac3714f385b3dbd)
+            - combobox "Selected 12 (player_cf7c8367fb1f4b53aac3714f385b3dbd). 접속자 슬롯" [ref=e148]
+          - img "open" [ref=e150]
+      - generic [ref=e153]:
+        - generic [ref=e155]:
+          - heading "START" [level=3] [ref=e160]:
+            - text: START
+            - generic [ref=e161]:
+              - link "Link to heading":
+                - /url: "#start"
+                - img
+          - paragraph [ref=e166]: 새 루프를 열고 Neo-Seoul의 첫 장면으로 진입한다.
+          - button "새 게임 시작" [active] [ref=e169] [cursor=pointer]:
+            - paragraph [ref=e173]: 새 게임 시작
+          - paragraph [ref=e268]: Running MythOS runtime...
+        - generic [ref=e175]:
+          - heading "LOAD" [level=3] [ref=e180]:
+            - text: LOAD
+            - generic [ref=e181]:
+              - link "Link to heading":
+                - /url: "#load"
+                - img
+          - paragraph [ref=e186]: 가장 최근 저장된 세션을 복원한다.
+          - button "이어하기" [ref=e189] [cursor=pointer]:
+            - paragraph [ref=e193]: 이어하기
+      - separator [ref=e200]
+      - heading "NEW SIGNAL" [level=3] [ref=e205]:
+        - text: NEW SIGNAL
+        - generic [ref=e206]:
+          - link "Link to heading":
+            - /url: "#new-signal"
+            - img
+      - generic [ref=e208]:
+        - paragraph [ref=e212]: 이름
+        - textbox "이름" [ref=e215]:
+          - /placeholder: 당신은 누구인가요?
+      - generic [ref=e217]:
+        - paragraph [ref=e221]: 소질
+        - generic [ref=e223]:
+          - generic [ref=e224]:
+            - generic [ref=e225]: 비접속자 (Ghost)
+            - combobox "Selected 비접속자 (Ghost). 소질" [ref=e227]
+          - img "open" [ref=e229]
+      - button "접속자 생성" [ref=e233] [cursor=pointer]:
+        - paragraph [ref=e237]: 접속자 생성
+      - separator [ref=e242]
+      - group [ref=e245]:
+        - generic "keyboard_arrow_right 인물 기록" [ref=e246] [cursor=pointer]:
+          - generic [ref=e247]:
+            - generic [ref=e249]: keyboard_arrow_right
+            - paragraph [ref=e252]: 인물 기록

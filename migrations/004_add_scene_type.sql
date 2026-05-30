@@ -1,0 +1,1 @@
+ALTER TABLE scenes ADD COLUMN scene_type TEXT NOT NULL DEFAULT 'static';

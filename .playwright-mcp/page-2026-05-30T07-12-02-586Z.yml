@@ -1,0 +1,123 @@
+- generic [ref=e2]:
+  - generic [ref=e11]:
+    - heading "Runtime" [level=2] [ref=e15]
+    - generic [ref=e18] [cursor=pointer]:
+      - checkbox "Fallback narrative" [checked]
+      - paragraph [ref=e24]: Fallback narrative
+    - generic [ref=e27] [cursor=pointer]:
+      - checkbox "Generate image"
+      - paragraph [ref=e33]: Generate image
+    - generic [ref=e35]:
+      - paragraph [ref=e39]: Image storage
+      - radiogroup "Image storage" [ref=e40]:
+        - generic [ref=e41]:
+          - radio "filesystem" [checked] [disabled]
+          - paragraph [ref=e46]: filesystem
+        - generic [ref=e47]:
+          - radio "minio" [disabled]
+          - paragraph [ref=e52]: minio
+    - generic [ref=e54]:
+      - paragraph [ref=e58]: Image width
+      - generic [ref=e59]:
+        - spinbutton "Image width" [ref=e62]: "512"
+        - generic [ref=e63]:
+          - button [ref=e64] [cursor=pointer]:
+            - img [ref=e65]
+          - button [ref=e67] [cursor=pointer]:
+            - img [ref=e68]
+    - generic [ref=e71]:
+      - paragraph [ref=e75]: Image height
+      - generic [ref=e76]:
+        - spinbutton "Image height" [ref=e79]: "512"
+        - generic [ref=e80]:
+          - button [ref=e81] [cursor=pointer]:
+            - img [ref=e82]
+          - button [ref=e84] [cursor=pointer]:
+            - img [ref=e85]
+    - generic [ref=e88]:
+      - paragraph [ref=e92]: Image steps
+      - generic [ref=e93]:
+        - spinbutton "Image steps" [ref=e96]: "1"
+        - generic [ref=e97]:
+          - button [disabled] [ref=e98]:
+            - img [ref=e99]
+          - button [ref=e101] [cursor=pointer]:
+            - img [ref=e102]
+    - separator [ref=e108]
+    - link "Adminer" [ref=e111] [cursor=pointer]:
+      - /url: http://localhost:8080
+      - paragraph [ref=e115]: Adminer
+    - link "MinIO" [ref=e118] [cursor=pointer]:
+      - /url: http://localhost:9001
+      - paragraph [ref=e122]: MinIO
+    - link "Jaeger" [ref=e125] [cursor=pointer]:
+      - /url: http://localhost:16686
+      - paragraph [ref=e129]: Jaeger
+  - generic [ref=e3]:
+    - banner [ref=e132]:
+      - generic [ref=e135]:
+        - button "Deploy" [ref=e137] [cursor=pointer]:
+          - generic [ref=e139]: Deploy
+        - button "Main menu" [ref=e141] [cursor=pointer]:
+          - img [ref=e142]
+    - generic [ref=e145]:
+      - heading "Project MythOS" [level=1] [ref=e150]:
+        - text: Project MythOS
+        - generic [ref=e151]:
+          - link "Link to heading":
+            - /url: "#project-myth-os"
+            - img
+      - generic [ref=e153]:
+        - generic [ref=e155]:
+          - heading "Player" [level=3] [ref=e160]:
+            - text: Player
+            - generic [ref=e161]:
+              - link "Link to heading":
+                - /url: "#player"
+                - img
+          - paragraph [ref=e166]: No saved players yet.
+          - group [ref=e169]:
+            - generic "keyboard_arrow_down Manual player" [ref=e170] [cursor=pointer]:
+              - generic [ref=e171]:
+                - generic [ref=e173]: keyboard_arrow_down
+                - paragraph [ref=e176]: Manual player
+            - generic [ref=e178]:
+              - generic [ref=e180]:
+                - paragraph [ref=e184]: Player ID
+                - textbox "Player ID" [ref=e187]:
+                  - /placeholder: ""
+              - generic [ref=e189]:
+                - paragraph [ref=e193]: Display name
+                - textbox "Display name" [ref=e196]:
+                  - /placeholder: ""
+                  - text: First Connector
+              - button "Create / Update Player" [ref=e199] [cursor=pointer]:
+                - paragraph [ref=e203]: Create / Update Player
+              - button "Use Player ID" [ref=e206] [cursor=pointer]:
+                - paragraph [ref=e210]: Use Player ID
+          - heading "Loop" [level=3] [ref=e215]:
+            - text: Loop
+            - link "Link to heading" [ref=e217] [cursor=pointer]:
+              - /url: "#loop"
+              - img [ref=e218]
+          - group [ref=e222]:
+            - generic "keyboard_arrow_down Manual loop" [ref=e223] [cursor=pointer]:
+              - generic [ref=e224]:
+                - generic [ref=e226]: keyboard_arrow_down
+                - paragraph [ref=e229]: Manual loop
+            - generic [ref=e233]:
+              - paragraph [ref=e237]: Loop ID
+              - textbox "Loop ID" [ref=e240]:
+                - /placeholder: ""
+          - generic [ref=e242]:
+            - button "New Loop" [disabled] [ref=e247]:
+              - paragraph [ref=e251]: New Loop
+            - button "Resume" [ref=e256] [cursor=pointer]:
+              - paragraph [ref=e260]: Resume
+          - button "Archive Loop" [disabled] [ref=e263]:
+            - paragraph [ref=e267]: Archive Loop
+        - generic [ref=e269]:
+          - alert [ref=e272]:
+            - paragraph [ref=e276]: "'PostgresMythOSStore' object has no attribute 'list_players'"
+          - status [ref=e279]:
+            - paragraph [ref=e283]: Create a player and start a loop.

@@ -1,0 +1,42 @@
+# OpenTelemetry Collector config for local MythOS.
+#
+# Ingests OTLP (gRPC 4317 / HTTP 4318) from the runtime on the host and forwards
+# traces to the Jaeger all-in-one over the compose network. Logs and metrics are
+# accepted and logged to the collector's stdout for now (no backend wired yet).
+# See docs/DESIGN.md section 13 for the intended span/field schema.
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch: {}
+
+exporters:
+  # Forward traces to Jaeger's OTLP receiver inside the compose network.
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+  # Surface metrics/logs on the collector's own stdout during local dev.
+  debug:
+    verbosity: normal
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp/jaeger]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]

@@ -1,0 +1,153 @@
+- generic [ref=e2]:
+  - generic [ref=e11]:
+    - heading "Runtime" [level=2] [ref=e15]
+    - generic [ref=e18] [cursor=pointer]:
+      - checkbox "Fallback narrative" [checked]
+      - paragraph [ref=e24]: Fallback narrative
+    - generic [ref=e27] [cursor=pointer]:
+      - checkbox "Generate image"
+      - paragraph [ref=e33]: Generate image
+    - generic [ref=e35]:
+      - paragraph [ref=e39]: Image storage
+      - radiogroup "Image storage" [ref=e40]:
+        - generic [ref=e41]:
+          - radio "filesystem" [checked] [disabled]
+          - paragraph [ref=e46]: filesystem
+        - generic [ref=e47]:
+          - radio "minio" [disabled]
+          - paragraph [ref=e52]: minio
+    - generic [ref=e54]:
+      - paragraph [ref=e58]: Image width
+      - generic [ref=e59]:
+        - spinbutton "Image width" [ref=e62]: "512"
+        - generic [ref=e63]:
+          - button [ref=e64] [cursor=pointer]:
+            - img [ref=e65]
+          - button [ref=e67] [cursor=pointer]:
+            - img [ref=e68]
+    - generic [ref=e71]:
+      - paragraph [ref=e75]: Image height
+      - generic [ref=e76]:
+        - spinbutton "Image height" [ref=e79]: "512"
+        - generic [ref=e80]:
+          - button [ref=e81] [cursor=pointer]:
+            - img [ref=e82]
+          - button [ref=e84] [cursor=pointer]:
+            - img [ref=e85]
+    - generic [ref=e88]:
+      - paragraph [ref=e92]: Image steps
+      - generic [ref=e93]:
+        - spinbutton "Image steps" [ref=e96]: "1"
+        - generic [ref=e97]:
+          - button [disabled] [ref=e98]:
+            - img [ref=e99]
+          - button [ref=e101] [cursor=pointer]:
+            - img [ref=e102]
+    - separator [ref=e108]
+    - link "Adminer" [ref=e111] [cursor=pointer]:
+      - /url: http://localhost:8080
+      - paragraph [ref=e115]: Adminer
+    - link "MinIO" [ref=e118] [cursor=pointer]:
+      - /url: http://localhost:9001
+      - paragraph [ref=e122]: MinIO
+    - link "Jaeger" [ref=e125] [cursor=pointer]:
+      - /url: http://localhost:16686
+      - paragraph [ref=e129]: Jaeger
+  - generic [ref=e3]:
+    - banner [ref=e132]:
+      - generic [ref=e135]:
+        - button "Deploy" [ref=e137] [cursor=pointer]:
+          - generic [ref=e139]: Deploy
+        - button "Main menu" [ref=e141] [cursor=pointer]:
+          - img [ref=e142]
+    - generic [ref=e145]:
+      - heading "Project MythOS" [level=1] [ref=e150]:
+        - text: Project MythOS
+        - generic [ref=e151]:
+          - link "Link to heading":
+            - /url: "#project-myth-os"
+            - img
+      - generic [ref=e153]:
+        - generic [ref=e155]:
+          - heading "Player" [level=3] [ref=e160]:
+            - text: Player
+            - generic [ref=e161]:
+              - link "Link to heading":
+                - /url: "#player"
+                - img
+          - generic [ref=e163]:
+            - paragraph [ref=e167]: Player ID
+            - textbox "Player ID" [ref=e170]:
+              - /placeholder: ""
+              - text: player_streamlit_m10b
+          - generic [ref=e172]:
+            - paragraph [ref=e176]: Display name
+            - textbox "Display name" [ref=e179]:
+              - /placeholder: ""
+              - text: Streamlit M10
+          - button "Create / Update Player" [ref=e182] [cursor=pointer]:
+            - paragraph [ref=e186]: Create / Update Player
+          - button "Use Player ID" [ref=e189] [cursor=pointer]:
+            - paragraph [ref=e193]: Use Player ID
+          - heading "Loop" [level=3] [ref=e198]:
+            - text: Loop
+            - generic [ref=e199]:
+              - link "Link to heading":
+                - /url: "#loop"
+                - img
+          - generic [ref=e201]:
+            - paragraph [ref=e205]: Loop ID
+            - textbox "Loop ID" [ref=e208]:
+              - /placeholder: ""
+              - text: loop_f478979d44964d04ba2bac315159dec4
+          - generic [ref=e210]:
+            - button "New Loop" [active] [ref=e215] [cursor=pointer]:
+              - paragraph [ref=e219]: New Loop
+            - button "Resume" [ref=e224] [cursor=pointer]:
+              - paragraph [ref=e228]: Resume
+          - button "Archive Loop" [ref=e231] [cursor=pointer]:
+            - paragraph [ref=e235]: Archive Loop
+        - generic [ref=e237]:
+          - status [ref=e240]:
+            - paragraph [ref=e244]: phase=explore, scene=Signal at the Threshold
+          - paragraph [ref=e256]: loop_id=loop_f478979d44964d04ba2bac315159dec4 / scene_id=scene_caa74d11e2ee4bcd9e6ab1e6f073d918
+          - generic [ref=e258]:
+            - generic [ref=e263]:
+              - paragraph [ref=e266]: Phase
+              - paragraph [ref=e269]: explore
+            - generic [ref=e274]:
+              - paragraph [ref=e277]: Stability
+              - paragraph [ref=e280]: "70"
+            - generic [ref=e285]:
+              - paragraph [ref=e288]: Tension
+              - paragraph [ref=e291]: "22"
+          - heading "Signal at the Threshold" [level=2] [ref=e408]:
+            - text: Signal at the Threshold
+            - generic [ref=e297]:
+              - link "Link to heading":
+                - /url: "#signal-at-the-threshold"
+                - img
+          - paragraph [ref=e302]: data-layer-01
+          - paragraph [ref=e307]: A pale access gate opens inside a silent server hall. The Connector's name flickers once, then the world waits for intent.
+          - group [ref=e394]:
+            - generic "keyboard_arrow_right Echoes (1)" [ref=e395] [cursor=pointer]:
+              - generic [ref=e396]:
+                - generic [ref=e398]: keyboard_arrow_right
+                - paragraph [ref=e401]: Echoes (1)
+          - separator [ref=e412]
+          - heading "Choices" [level=3] [ref=e417]:
+            - text: Choices
+            - generic [ref=e418]:
+              - link "Link to heading":
+                - /url: "#choices"
+                - img
+          - button "Approach the signal [explore]" [ref=e421] [cursor=pointer]:
+            - paragraph [ref=e425]: Approach the signal [explore]
+          - button "Listen for an echo [interact]" [ref=e428] [cursor=pointer]:
+            - paragraph [ref=e432]: Listen for an echo [interact]
+          - generic [ref=e434]:
+            - paragraph [ref=e438]: Free action
+            - textbox "Free action" [ref=e441]:
+              - /placeholder: Describe what the Connector does
+          - button "Send Action" [disabled] [ref=e444]:
+            - paragraph [ref=e448]: Send Action

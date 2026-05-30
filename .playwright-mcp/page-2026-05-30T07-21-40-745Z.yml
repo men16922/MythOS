@@ -1,0 +1,115 @@
+- generic [ref=e2]:
+  - generic [ref=e11]:
+    - heading "Runtime" [level=2] [ref=e15]
+    - generic [ref=e18] [cursor=pointer]:
+      - checkbox "Fallback narrative" [checked]
+      - paragraph [ref=e24]: Fallback narrative
+    - generic [ref=e27] [cursor=pointer]:
+      - checkbox "Generate image"
+      - paragraph [ref=e33]: Generate image
+    - generic [ref=e35]:
+      - paragraph [ref=e39]: Image storage
+      - radiogroup "Image storage" [ref=e40]:
+        - generic [ref=e41]:
+          - radio "filesystem" [checked] [disabled]
+          - paragraph [ref=e46]: filesystem
+        - generic [ref=e47]:
+          - radio "minio" [disabled]
+          - paragraph [ref=e52]: minio
+    - generic [ref=e54]:
+      - paragraph [ref=e58]: Image width
+      - generic [ref=e59]:
+        - spinbutton "Image width" [ref=e62]: "512"
+        - generic [ref=e63]:
+          - button [ref=e64] [cursor=pointer]:
+            - img [ref=e65]
+          - button [ref=e67] [cursor=pointer]:
+            - img [ref=e68]
+    - generic [ref=e71]:
+      - paragraph [ref=e75]: Image height
+      - generic [ref=e76]:
+        - spinbutton "Image height" [ref=e79]: "512"
+        - generic [ref=e80]:
+          - button [ref=e81] [cursor=pointer]:
+            - img [ref=e82]
+          - button [ref=e84] [cursor=pointer]:
+            - img [ref=e85]
+    - generic [ref=e88]:
+      - paragraph [ref=e92]: Image steps
+      - generic [ref=e93]:
+        - spinbutton "Image steps" [ref=e96]: "1"
+        - generic [ref=e97]:
+          - button [disabled] [ref=e98]:
+            - img [ref=e99]
+          - button [ref=e101] [cursor=pointer]:
+            - img [ref=e102]
+    - separator [ref=e108]
+    - link "Adminer" [ref=e111] [cursor=pointer]:
+      - /url: http://localhost:8080
+      - paragraph [ref=e115]: Adminer
+    - link "MinIO" [ref=e118] [cursor=pointer]:
+      - /url: http://localhost:9001
+      - paragraph [ref=e122]: MinIO
+    - link "Jaeger" [ref=e125] [cursor=pointer]:
+      - /url: http://localhost:16686
+      - paragraph [ref=e129]: Jaeger
+  - generic [ref=e3]:
+    - banner [ref=e132]:
+      - generic [ref=e135]:
+        - button "Deploy" [ref=e137] [cursor=pointer]:
+          - generic [ref=e139]: Deploy
+        - button "Main menu" [ref=e141] [cursor=pointer]:
+          - img [ref=e142]
+    - generic [ref=e145]:
+      - heading "Project MythOS" [level=1] [ref=e150]:
+        - text: Project MythOS
+        - generic [ref=e151]:
+          - link "Link to heading":
+            - /url: "#project-myth-os"
+            - img
+      - generic [ref=e153]:
+        - generic [ref=e155]:
+          - heading "Player" [level=3] [ref=e160]:
+            - text: Player
+            - generic [ref=e161]:
+              - link "Link to heading":
+                - /url: "#player"
+                - img
+          - generic [ref=e163]:
+            - paragraph [ref=e167]: Saved players
+            - generic [ref=e169]:
+              - generic [ref=e170]:
+                - generic [ref=e171]: Phase12 Connector (player_phase12_b343ec0ae3ea43daa6f9fe0b6f475c89)
+                - combobox "Selected Phase12 Connector (player_phase12_b343ec0ae3ea43daa6f9fe0b6f475c89). Saved players" [ref=e173]
+              - img "open" [ref=e175]
+          - button "Use Selected Player" [ref=e179] [cursor=pointer]:
+            - paragraph [ref=e183]: Use Selected Player
+          - group [ref=e186]:
+            - generic "keyboard_arrow_right Manual player" [ref=e187] [cursor=pointer]:
+              - generic [ref=e188]:
+                - generic [ref=e190]: keyboard_arrow_right
+                - paragraph [ref=e193]: Manual player
+          - heading "Loop" [level=3] [ref=e198]:
+            - text: Loop
+            - generic [ref=e199]:
+              - link "Link to heading":
+                - /url: "#loop"
+                - img
+          - group [ref=e202]:
+            - generic "keyboard_arrow_down Manual loop" [ref=e203] [cursor=pointer]:
+              - generic [ref=e204]:
+                - generic [ref=e206]: keyboard_arrow_down
+                - paragraph [ref=e209]: Manual loop
+            - generic [ref=e213]:
+              - paragraph [ref=e217]: Loop ID
+              - textbox "Loop ID" [ref=e220]:
+                - /placeholder: ""
+          - generic [ref=e222]:
+            - button "New Loop" [disabled] [ref=e227]:
+              - paragraph [ref=e231]: New Loop
+            - button "Resume" [ref=e236] [cursor=pointer]:
+              - paragraph [ref=e240]: Resume
+          - button "Archive Loop" [disabled] [ref=e243]:
+            - paragraph [ref=e247]: Archive Loop
+        - status [ref=e252]:
+          - paragraph [ref=e256]: Create a player and start a loop.

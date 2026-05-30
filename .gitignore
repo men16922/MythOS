@@ -1,0 +1,23 @@
+.DS_Store
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+.env
+outputs/*
+!outputs/.gitkeep
+
+# Local Docker volume data (docker-compose.local.yml)
+.docker/
+
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.safetensors
+*.ckpt
+*.pt
+*.pth

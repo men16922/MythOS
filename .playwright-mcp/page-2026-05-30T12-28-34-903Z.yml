@@ -1,0 +1,118 @@
+- generic [ref=e2]:
+  - generic [ref=e8]:
+    - generic [ref=e10]:
+      - paragraph [ref=e14]: 화면
+      - radiogroup "화면" [ref=e15] [cursor=pointer]:
+        - generic [ref=e16]:
+          - radio "플레이어" [checked]
+          - paragraph [ref=e21]: 플레이어
+        - generic [ref=e22]:
+          - radio "개발자"
+          - paragraph [ref=e27]: 개발자
+    - heading "세계" [level=2] [ref=e31]
+    - generic [ref=e34] [cursor=pointer]:
+      - checkbox "AI 게임마스터" [checked]
+      - generic [ref=e38]:
+        - paragraph [ref=e40]: AI 게임마스터
+        - button "Help for AI 게임마스터" [ref=e44]:
+          - img [ref=e45]
+    - generic [ref=e50] [cursor=pointer]:
+      - checkbox "대표 이미지 생성"
+      - generic [ref=e54]:
+        - paragraph [ref=e56]: 대표 이미지 생성
+        - button "Help for 대표 이미지 생성" [ref=e60]:
+          - img [ref=e61]
+    - paragraph [ref=e68]: "플레이어 프리셋: 384x384 / 1 step"
+  - generic [ref=e3]:
+    - banner [ref=e71]:
+      - generic [ref=e73]:
+        - button "keyboard_double_arrow_right" [ref=e76] [cursor=pointer]:
+          - generic [ref=e78]: keyboard_double_arrow_right
+        - generic [ref=e79]:
+          - button "Deploy" [ref=e81] [cursor=pointer]:
+            - generic [ref=e83]: Deploy
+          - button "Main menu" [ref=e85] [cursor=pointer]:
+            - img [ref=e86]
+    - generic [ref=e89]:
+      - 'heading "세계 : 접속" [level=1] [ref=e94]':
+        - text: "세계 : 접속"
+        - generic [ref=e95]:
+          - link "Link to heading":
+            - /url: "#e16193be"
+            - img
+      - generic [ref=e241]:
+        - tablist [ref=e243]:
+          - tab "서사 접속" [selected] [ref=e244] [cursor=pointer]:
+            - paragraph [ref=e246]: 서사 접속
+          - tab "Codex (기억의 별자리)" [ref=e247] [cursor=pointer]:
+            - paragraph [ref=e249]: Codex (기억의 별자리)
+        - tabpanel "서사 접속" [ref=e252]:
+          - generic [ref=e255]:
+            - generic [ref=e257]:
+              - heading "The Undercurrent Market" [level=2] [ref=e262]:
+                - text: The Undercurrent Market
+                - generic [ref=e263]:
+                  - link "Link to heading":
+                    - /url: "#the-undercurrent-market"
+                    - img
+              - generic [ref=e268]: LOC // Neon-Drenched Market Stall (Data-Layer 01)
+              - generic [ref=e273]:
+                - generic [ref=e274]: OBJECTIVE
+                - generic [ref=e275]: Follow Se-rin's lead through the dense, unregulated market section to find a safe point to stabilize the signal.
+              - generic [ref=e277]:
+                - generic [ref=e284]:
+                  - generic [ref=e285]: PHASE
+                  - generic [ref=e286]: 탐색
+                - generic [ref=e288]:
+                  - generic [ref=e293]:
+                    - generic [ref=e294]: STABILITY
+                    - generic [ref=e295]: "95"
+                  - progressbar "progress" [ref=e299]
+                - generic [ref=e303]:
+                  - generic [ref=e308]:
+                    - generic [ref=e309]: TENSION
+                    - generic [ref=e310]: "45"
+                  - progressbar "progress" [ref=e314]
+              - paragraph [ref=e321]: The air in the market is a humid mix of fried street food, ozone, and cheap synth-perfume. Neon signs in Korean and fragmented English glitch across the wet pavement, reflecting the overhead rain. Jung Se-rin moves with the practiced grace of a survivor, pulling you deeper into the labyrinthine stalls. She keeps glancing over her shoulder, her hand resting near the worn, utility-grade pistol holstered at her hip. The signal thrumming beneath your skin feels erratic, like a trapped bird beating against glass. A stall selling questionable bio-ware emits a high-pitched whine, drawing your attention away from Se-rin's urgent whispers. You are in the unregulated underbelly of Neo-Seoul, where the Control Net's reach is frayed, but the danger from raiders and overzealous 'Optimizers' is equally potent.
+              - separator [ref=e326]
+              - heading "행동 선언" [level=3] [ref=e331]:
+                - text: 행동 선언
+                - generic [ref=e332]:
+                  - link "Link to heading":
+                    - /url: "#71170b21"
+                    - img
+              - button "Ask Se-rin about the 'source' of the signal." [ref=e335] [cursor=pointer]:
+                - paragraph [ref=e339]: Ask Se-rin about the 'source' of the signal.
+              - button "Try to move away from the main thoroughfare, deeper into the stalls." [ref=e342] [cursor=pointer]:
+                - paragraph [ref=e346]: Try to move away from the main thoroughfare, deeper into the stalls.
+              - button "Attempt to discreetly scan the surrounding electronics for stable frequencies." [ref=e349] [cursor=pointer]:
+                - paragraph [ref=e353]: Attempt to discreetly scan the surrounding electronics for stable frequencies.
+              - generic [ref=e355]:
+                - paragraph [ref=e359]: 직접 행동을 선언한다
+                - textbox "직접 행동을 선언한다" [ref=e362]:
+                  - /placeholder: 무엇을 하시겠습니까?
+              - button "선언" [disabled] [ref=e365]:
+                - paragraph [ref=e369]: 선언
+            - generic [ref=e371]:
+              - heading "CHARACTER" [level=3] [ref=e376]:
+                - text: CHARACTER
+                - generic [ref=e377]:
+                  - link "Link to heading":
+                    - /url: "#character"
+                    - img
+              - generic [ref=e380]:
+                - button "Fullscreen" [ref=e385] [cursor=pointer]:
+                  - img [ref=e386]
+                - img "0" [ref=e391]
+              - generic [ref=e396]:
+                - generic [ref=e397]: 물거미
+                - generic [ref=e398]: 정세린
+                - generic [ref=e399]: 첫 인도자 / 데이터 밀수꾼
+              - generic [ref=e402]:
+                - button "Fullscreen" [ref=e407] [cursor=pointer]:
+                  - img [ref=e408]
+                - img "0" [ref=e413]
+              - generic [ref=e418]:
+                - generic [ref=e419]: Control Net
+                - generic [ref=e420]: 관리자 IX
+                - generic [ref=e421]: ARK 관리망

@@ -37,6 +37,8 @@
 
 ## Immediate Follow-up
 
+- `[ ]` 전투 스킬/아이템 실행 연결: `PlayerAction(type="skill"|"item")`, cooldown/cost, 회복/버프/이동 효과.
+- `[ ]` 동료/파티 참전 연결: `_party.members`와 `scenario.json["combat"]["allies"]`를 사용해 ally combatant 투입.
 - `[ ]` 브라우저에서 Player View 스트리밍 회귀 확인: 새 게임 시작, 선택지, 자유 행동에서 본문 창이 고정되고 로딩 텍스트는 별도 패널에만 표시되는지 확인한다.
 
 ## Phase 11. Streamlit Demo Polish
@@ -218,6 +220,30 @@ GM 시드 브리프·캐릭터·아트를 주입/연출한다.
 설계 스냅샷: `docs/plans/2026-05-31-causality-system-design.md`
 
 - `[x]` `scenario.json` v2 대개편: 메인/사이드 아크, NPC 아젠다, 엔딩 매트릭스, 시네마틱 훅 정의.
+
+## Phase 30+. Roguelike/CRPG Combat Track — `[x]` 기반 완료, 후속 진행
+
+목표: 서사형 TRPG 위에 만족스러운 전술 전투와 로그라이크 압박을 얹는다.
+설계/현황: `docs/BATTLE_ADVICE.md`, 계획 스냅샷: `docs/plans/2026-05-31-roguelike-combat.md`.
+
+완료:
+
+- `[x]` 결정적 전투 엔진: 다이스, initiative, 위치/사거리, 명중/피해/치명타, AI, 승패.
+- `[x]` `CombatService`: `_combat`, `_party`, `_inventory`, `_run` 수명주기, loot, HP carry-over.
+- `[x]` 런타임 배선: `start_combat`, `combat_action`, 합성 combat scene, 패배 시 loop ended + Echo.
+- `[x]` 서사 트리거: `world_delta.start_combat`, `world_delta.spawn_encounters`, LLM 지시/검증/상태 병합.
+- `[x]` 작전 지도 접촉: contact 배치, 이동, 플레이어 타일 충돌 시 전투, 해결 contact 마킹.
+- `[x]` 전투 UI: 장면 이미지 / tactical board / command-result 3열, party/enemy roster, portrait, HP bar.
+- `[x]` tactical board 직접 이동: 플레이어 신호 선택 후 같은 보드 안의 이동 가능 칸 클릭.
+- `[x]` 전투 결과 UI: 생존/격파/HP/라운드/피해/명중/루트/판정 문구 정산, 승리 후 다음 장면, 패배 후 메인 복귀.
+
+후속:
+
+- `[ ]` 스킬 실행: `scenario.json["combat"]["skills"]`를 `PlayerAction(type="skill")`과 엔진 효과로 연결.
+- `[ ]` 아이템 실행: `nanopatch`, `stim_shard` 등 소비품을 action economy 안에 연결.
+- `[ ]` 동료 참전: 정세린/카이 같은 `allies`를 narrative unlock 후 `_party.members`로 저장하고 combatant로 투입.
+- `[ ]` 도주 후 contact 처리: 성공 도주 시 접촉을 defeated가 아니라 roaming/alerted로 유지.
+- `[ ]` 필요 시 Streamlit custom component 기반 drag/drop tactical board 검토.
 - `[x]` `ScenarioConfig` v2 로딩: `main_arcs`, `side_arcs`, `npc_agendas`, `endings`, `system_prompt` 지원.
 - `[x]` 시스템 프롬프트 동적 주입: 시나리오별 GM 지침을 코드 하드코딩에서 분리.
 - `[x]` Gear World 인과율 지침: 나비효과, 미래 이벤트 예약, NPC 위치/아젠다 추적을 GM 컨텍스트에 반영.

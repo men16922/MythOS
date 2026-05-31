@@ -19,12 +19,13 @@
 - Echo 저장 및 다음 loop carry-over.
 - **BGM 시스템**: 로컬 AI(MusicGen) 기반의 고품질 음원(4분 분량) 자동 생성 및 상황별 동적 재생 인프라 구축 완료. 브라우저 자동 재생 정책 대응을 위한 'WAKE SYSTEM' 부팅 단계 도입.
 - **플레이어 스트리밍 UX**: 서사 본문은 고정된 스크립트 창에 누적되고 내부에서 자동 스크롤되며, 로딩은 별도 터미널 패널에만 노출. 플레이어 HUD의 별도 결과 배너는 제거됨.
+- **로그라이크/CRPG 전투 루프**: 작전 지도 접촉, 사전 정의 encounter pool, 엔진 권위 턴제 전투, 적/아군 portrait, tactical board 직접 이동, roster HP, 전투 결과 정산, 패배 후 메인 복귀 흐름 구현.
 
 ## Latest Verified Baseline
 
 검증 완료:
 
-- `make test` (71 tests, 2 skipped)
+- `make test` (110 tests, 2 skipped)
 - `make test-db`
 - `make smoke-local`
 - **BGM 동적 전환**: 메인(Title) ↔ 인게임 상황별(Calm/Tense/Unstable) BGM 격리 및 전환 로직 검증.
@@ -35,7 +36,7 @@
 - Browser Streamlit filesystem image preview.
 - Browser Streamlit MinIO image URI.
 - Browser Streamlit Ollama narrative mode.
-- `make lint`, `make typecheck`, `make test` (76 tests, 2 skipped), `compileall streamlit_app.py src tests` PASS.
+- `make lint`, `make typecheck`, `make test` (110 tests, 2 skipped) PASS.
 
 ## Active Focus
 
@@ -184,9 +185,11 @@ Phase 23 진행됨 (진행도 기반 세계 진화):
 
 바로 다음 (수행 예정 작업):
 
-1. `[ ]` (선택) **IP-Adapter 실배선** — 캐릭터 얼굴-ID를 장면 전반에 강하게 고정(가중치 다운로드 필요).
-2. `[ ]` (선택) **인과율/NPC 아젠다 가시화** — 예약 이벤트, NPC 위치/목적, 나비효과를 Developer 뷰나 Codex에 노출.
-3. `[ ]` (선택) **클라우드 확장 설계** — Streamlit 이후 Web UI와 원격 visual worker/스토리지 경계를 설계.
+1. `[ ]` **전투 스킬/아이템 실행** — `PlayerAction(type="skill"|"item")`, cooldown/cost, `nanopatch`/`stim_shard` 효과를 엔진에 연결.
+2. `[ ]` **동료/파티 참전** — `scenario.json["combat"]["allies"]`와 `_party.members`를 연결해 정세린/카이 같은 동료를 ally combatant로 투입.
+3. `[ ]` (선택) **IP-Adapter 실배선** — 캐릭터 얼굴-ID를 장면 전반에 강하게 고정(가중치 다운로드 필요).
+4. `[ ]` (선택) **인과율/NPC 아젠다 가시화** — 예약 이벤트, NPC 위치/목적, 나비효과를 Developer 뷰나 Codex에 노출.
+5. `[ ]` (선택) **클라우드 확장 설계** — Streamlit 이후 Web UI와 원격 visual worker/스토리지 경계를 설계.
 
 ## Open Risks
 
@@ -204,6 +207,7 @@ Phase 23 진행됨 (진행도 기반 세계 진화):
   img2img 정체성 스티어링도 mflux로 동작. (남은 점: 실 워커 브라우저 회귀, 필요 시 4-bit.)
 - `world_memories`는 retention window + `archive_rollup` 통계 압축으로 무한 증가를 막는다. `narrative_shards`는 아직 limit 쿼리로만 소비를 제한하고 별도 압축은 없다.
 - Ollama output은 여전히 repair path를 탈 수 있으므로, provider 품질 메트릭을 별도로 추적할 필요가 있다.
+- 전술 보드는 현재 Streamlit 버튼 기반 클릭-투-무브다. 드래그 앤 드롭이나 HTML 이미지 셀 직접 클릭은 custom component 도입 전까지 제한된다.
 
 ## Source Of Truth
 

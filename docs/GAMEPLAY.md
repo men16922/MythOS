@@ -49,6 +49,7 @@
 | 주사위/판정 | `world_delta` (GM이 산출) | 성공/부분성공/실패 read로 결과 가시화 |
 | 캐릭터 시트 | (없음) `PlayerProfile`만 | 접속자 페르소나/소질(trait) 추가 |
 | 생존 규칙(체력/광기) | `stability` / `tension` | 생존 클럭으로 연출, 붕괴=세션 종결 |
+| 전술 전투 | `mythos_combat` + `CombatService` | 스킬/아이템/동료 참전 연결 |
 | 퀘스트/목표 | (암묵적) | 세션 목표 + 단서(clue) 추적 |
 | 캠페인 기억 | `Echo`, `WorldMemory`, `NarrativeShard`, rollup | Codex(별자리)로 플레이어에게 노출 |
 | 데자뷰/연결고리 | `NoveltyController`, Echo carry-over | 해금/회상 연출 |
@@ -97,6 +98,31 @@
 4. 생존 클럭(안정도/긴장도)을 디제틱하게 갱신한다.
 
 > 명시적 주사위 UI는 MVP 범위 밖. 판정은 GM 서술 + delta read로 표현한다(원하면 후속에 라이트 다이스 도입 가능).
+
+### 6.3 로그라이크/CRPG 전투 루프
+
+현재 구현된 전투는 서사 GM 판정이 아니라 **엔진 권위 전술 서브모드**다.
+
+1. 일반 장면에서 `world_delta.start_combat` 또는 `world_delta.spawn_encounters`가 발생한다.
+2. `spawn_encounters`는 작전 지도 주변에 적 접촉을 배치하고, 접촉 이동/플레이어 이동으로 같은 타일에 닿으면 전투가 시작된다.
+3. `CombatEngine`이 initiative, 이동, 사거리, 명중, 피해, 치명타, 도주, 적 AI, 승패를 판정한다.
+4. Streamlit Player View는 장면 이미지 / tactical board / 명령 패널을 함께 보여준다.
+5. 활성 전투에서 플레이어는 tactical board의 주인공 신호를 선택하고, 같은 보드 안의 이동 가능 칸을 직접 클릭한다.
+6. 공격은 표적 카드에서 수행하며, 방어/도주도 명령 패널에서 처리한다.
+7. 종료 후 combat result panel이 파티 생존, 적 격파, HP, 라운드/턴, 피해 교환, 명중/치명타, 루트, 판정 문구를 정산한다.
+8. 승리/도주는 다음 장면으로 진행하고, 패배/세션 종료는 메인 접속 화면으로 돌아가 START/LOAD/NEW SIGNAL을 다시 선택한다.
+
+데이터는 `scenario.json["combat"]`에 있다.
+
+- `weapons`: 기본 공격 프로필.
+- `skills`: 아직 엔진 액션 미연결인 액티브 스킬 풀.
+- `allies`: 아직 전투 참전 미연결인 동료 후보 풀.
+- `bestiary`: 적 stat block과 portrait.
+- `items`: 소비품/키/재료.
+- `loot_tables`: 가중 전리품.
+- `encounters`: 위험도, 가중치, 지도 배치 거리, 적 조합, 보상.
+
+후속 우선순위는 스킬/아이템 실행과 동료 참전이다.
 
 ## 7. 진행 / 메타 시스템
 

@@ -7,6 +7,7 @@ from typing import Any, TypedDict, cast
 
 import streamlit as st
 
+from mythos_combat import PlayerAction
 from mythos_core import LoopPhase, LoopState, PlayerProfile, Scene, utc_now
 from mythos_core.mapgrid import current_tile
 from mythos_memory import PostgresMythOSStore
@@ -1619,7 +1620,22 @@ def _player_active_screen(snapshot: RuntimeSnapshot, options: RuntimeOptions) ->
     with tab_story:
         story_col, dossier_col = st.columns([0.68, 0.32], gap="large")
         with story_col:
-            _render_player_image(snapshot)
+            combat = snapshot.combat
+            if combat:
+                image_col, radar_col, command_col = st.columns([0.32, 0.38, 0.30], gap="medium")
+                with image_col:
+                    _render_player_image(snapshot)
+                with radar_col:
+                    _render_combat_radar(loop, combat, options)
+                with command_col:
+                    if not combat.get("finished"):
+                        action_area = st.empty()
+                        with action_area.container():
+                            _render_combat_controls(loop, combat, options, action_area)
+                    else:
+                        _render_combat_outcome(loop, combat, options)
+            else:
+                _render_player_image(snapshot)
             st.header(scene.title)
             st.markdown(
                 f'<div class="status-line">{_scene_status_line(snapshot)}</div>',
@@ -1658,6 +1674,8 @@ def _player_active_screen(snapshot: RuntimeSnapshot, options: RuntimeOptions) ->
                         lambda service: service.start_loop(loop.player_id, options),
                         on_success=_set_snapshot,
                     )
+                _render_player_memory(loop, overview)
+            elif combat and not combat.get("finished"):
                 _render_player_memory(loop, overview)
             else:
                 # Wrap the interactive controls so they can be cleared the moment
@@ -1737,6 +1755,518 @@ def _player_active_screen(snapshot: RuntimeSnapshot, options: RuntimeOptions) ->
         overview = _load_memory_overview(loop.player_id)
         if overview is not None:
             _render_codex_view(snapshot, overview, options.scenario_id)
+
+
+def _render_combat_radar(loop: LoopState, combat: dict[str, Any], options: RuntimeOptions) -> None:
+    scenario_id = options.scenario_id
+    radar = combat.get("radar", {})
+    if isinstance(radar, dict):
+        if combat.get("finished"):
+            st.markdown(_render_tactical_board_html(radar, scenario_id), unsafe_allow_html=True)
+        else:
+            _render_tactical_board_interactive(loop, combat, options)
+        _render_combat_roster(radar, scenario_id)
+    outcome = combat.get("outcome")
+    if outcome:
+        rewards = combat.get("rewards", {})
+        items = rewards.get("items", []) if isinstance(rewards, dict) else []
+        suffix = f" · loot: {', '.join(items)}" if items else ""
+        st.caption(f"COMBAT // {outcome}{suffix}")
+
+
+def _render_tactical_board_interactive(
+    loop: LoopState, combat: dict[str, Any], options: RuntimeOptions
+) -> None:
+    radar = combat.get("radar", {})
+    if not isinstance(radar, dict):
+        return
+    available = combat.get("available", {})
+    reachable = available.get("reachable", []) if isinstance(available, dict) else []
+    reachable_set = {
+        (int(tile[0]), int(tile[1]))
+        for tile in reachable
+        if isinstance(tile, list) and len(tile) == 2
+    }
+    arena = radar.get("arena", {"w": 8, "h": 6})
+    w, h = int(arena.get("w", 8)), int(arena.get("h", 6))
+    blips = [blip for blip in radar.get("blips", []) if isinstance(blip, dict)]
+    by_cell = {
+        (int(blip.get("x", 0)), int(blip.get("y", 0))): blip
+        for blip in blips
+        if blip.get("alive", True)
+    }
+    player_pos = _combat_player_pos(radar)
+    selected = st.session_state.get("combat_selected_unit") == "player"
+    title = f"ROUND // {int(radar.get('round', 1)):02d}"
+    st.markdown(
+        "<style>"
+        ".tac-live-wrap{background:rgba(2,10,9,.96);border:1px solid rgba(41,255,198,.38);border-radius:6px;padding:12px;color:#d8fff7}"
+        ".tac-live-head{font:800 12px 'SF Mono',Menlo,monospace;color:#29ffc6;letter-spacing:1px;margin-bottom:8px}"
+        ".tac-live-help{font:11px 'SF Mono',Menlo,monospace;color:#8fd8ca;margin-bottom:8px}"
+        "</style>"
+        f'<div class="tac-live-wrap"><div class="tac-live-head">TACTICAL BOARD :: {title}</div>'
+        '<div class="tac-live-help">플레이어 신호를 누른 뒤, 강조된 칸을 바로 선택해 이동합니다.</div></div>',
+        unsafe_allow_html=True,
+    )
+    for y in range(h - 1, -1, -1):
+        cols = st.columns(w, gap="small")
+        for x in range(w):
+            coord = (x, y)
+            blip = by_cell.get(coord)
+            is_player = bool(blip and blip.get("faction") == "player")
+            is_enemy = bool(blip and blip.get("faction") == "enemy")
+            is_ally = bool(blip and blip.get("faction") == "ally")
+            is_reachable = coord in reachable_set
+            if is_player:
+                label = "◎"
+                help_text = "플레이어 신호 선택"
+                disabled = False
+            elif is_enemy:
+                label = "■"
+                help_text = str(blip.get("name", "enemy")) if blip else "enemy"
+                disabled = True
+            elif is_ally:
+                label = "◆"
+                help_text = str(blip.get("name", "ally")) if blip else "ally"
+                disabled = True
+            elif selected and is_reachable:
+                label = f"{x},{y}"
+                help_text = f"{x},{y}로 이동"
+                disabled = False
+            else:
+                label = "·" if is_reachable else " "
+                help_text = "이동 가능" if is_reachable else "이동 불가"
+                disabled = True
+            with cols[x]:
+                if st.button(
+                    label,
+                    key=f"tac_board:{loop.loop_id}:{x}:{y}",
+                    width="stretch",
+                    disabled=disabled,
+                    help=help_text,
+                ):
+                    if is_player:
+                        st.session_state.combat_selected_unit = "" if selected else "player"
+                        st.rerun()
+                    elif player_pos is not None and selected and is_reachable:
+                        st.session_state.combat_selected_unit = ""
+                        _run_action(
+                            lambda service, chosen_dest=coord: service.combat_action(
+                                loop.loop_id,
+                                PlayerAction(type="wait", move_to=chosen_dest),
+                                options,
+                            ),
+                            on_success=_set_snapshot,
+                        )
+
+
+def _render_tactical_board_html(radar: dict[str, Any], scenario_id: str) -> str:
+    arena = radar.get("arena", {"w": 8, "h": 6})
+    w, h = int(arena.get("w", 8)), int(arena.get("h", 6))
+    blips = [blip for blip in radar.get("blips", []) if isinstance(blip, dict)]
+    by_cell = {
+        (int(blip.get("x", 0)), int(blip.get("y", 0))): blip
+        for blip in blips
+        if blip.get("alive", True)
+    }
+    rows: list[str] = []
+    for gy in range(h - 1, -1, -1):
+        cells: list[str] = []
+        for gx in range(w):
+            blip = by_cell.get((gx, gy))
+            if blip is None:
+                cells.append('<div class="tac-cell tac-empty"></div>')
+                continue
+            faction = str(blip.get("faction", ""))
+            portrait = _combat_portrait_data_uri(blip, scenario_id)
+            glyph = html.escape(str(blip.get("glyph", "●")))
+            name = html.escape(str(blip.get("name", "")))
+            hp = int(blip.get("hp", 0))
+            max_hp = max(1, int(blip.get("max_hp", 1)))
+            pct = max(0, min(100, int((hp / max_hp) * 100)))
+            avatar = (
+                f'<img src="{portrait}" alt="" />'
+                if portrait
+                else f'<span class="tac-glyph">{glyph}</span>'
+            )
+            cells.append(
+                f'<div class="tac-cell tac-{html.escape(faction)}" title="{name}">'
+                f'{avatar}<div class="tac-hp"><span style="width:{pct}%"></span></div></div>'
+            )
+        rows.append('<div class="tac-row">' + "".join(cells) + "</div>")
+    outcome = radar.get("outcome")
+    title = f"OUTCOME // {html.escape(str(outcome))}" if outcome else f"ROUND // {int(radar.get('round', 1)):02d}"
+    return (
+        """<style>
+        .tac-wrap{background:rgba(2,10,9,.96);border:1px solid rgba(41,255,198,.38);border-radius:6px;padding:12px;color:#d8fff7}
+        .tac-head{font:800 12px 'SF Mono',Menlo,monospace;color:#29ffc6;letter-spacing:1px;margin-bottom:10px}
+        .tac-grid{display:inline-block;background:#030b0b;border:1px solid #143b34;padding:7px;border-radius:5px}
+        .tac-row{display:flex}
+        .tac-cell{position:relative;width:44px;height:44px;margin:2px;border-radius:5px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+        .tac-empty{background:#071211;border:1px solid #12231f}
+        .tac-player{background:#082720;border:1px solid #29ffc6;box-shadow:0 0 10px rgba(41,255,198,.35)}
+        .tac-enemy{background:#2a0710;border:1px solid #ff5a7a;box-shadow:0 0 10px rgba(255,90,122,.28);animation:tac-pulse 1.15s steps(2,end) infinite}
+        .tac-ally{background:#07182a;border:1px solid #5aa0ff}
+        .tac-cell img{width:100%;height:100%;object-fit:cover;display:block}
+        .tac-glyph{font:900 18px 'SF Mono',Menlo,monospace}
+        .tac-hp{position:absolute;left:4px;right:4px;bottom:4px;height:4px;background:rgba(0,0,0,.65)}
+        .tac-hp span{display:block;height:4px;background:#29ffc6}
+        .tac-enemy .tac-hp span{background:#ff5a7a}
+        @keyframes tac-pulse{0%{opacity:1}50%{opacity:.72}100%{opacity:1}}
+        </style>"""
+        + '<div class="tac-wrap">'
+        + f'<div class="tac-head">TACTICAL BOARD :: {title}</div>'
+        + '<div class="tac-grid">'
+        + "".join(rows)
+        + "</div></div>"
+    )
+
+
+def _render_combat_outcome(
+    loop: LoopState, combat: dict[str, Any], options: RuntimeOptions
+) -> None:
+    outcome_raw = str(combat.get("outcome") or "resolved")
+    outcome = html.escape(outcome_raw)
+    rewards = combat.get("rewards", {})
+    items = rewards.get("items", []) if isinstance(rewards, dict) else []
+    loot = ", ".join(str(item) for item in items) if items else "none"
+    radar = combat.get("radar", {})
+    blips = [blip for blip in radar.get("blips", []) if isinstance(blip, dict)] if isinstance(radar, dict) else []
+    party = [blip for blip in blips if blip.get("faction") in {"player", "ally"}]
+    enemies = [blip for blip in blips if blip.get("faction") == "enemy"]
+    defeated = len([blip for blip in enemies if not blip.get("alive", True)])
+    survivors = len([blip for blip in party if blip.get("alive", True)])
+    player_blip = next((blip for blip in party if blip.get("faction") == "player"), None)
+    player_portrait = ""
+    if player_blip is not None:
+        player_portrait_uri = _combat_portrait_data_uri(player_blip, options.scenario_id)
+        if player_portrait_uri:
+            player_name = html.escape(str(player_blip.get("name", "PLAYER")))
+            player_portrait = (
+                f'<div class="combat-result-portrait"><img src="{player_portrait_uri}" alt="" />'
+                f'<div class="combat-result-portrait-label">{player_name}</div></div>'
+            )
+    summary = combat.get("summary", {})
+    summary = summary if isinstance(summary, dict) else {}
+    player_hp = int(summary.get("player_hp", 0) or 0)
+    player_max_hp = int(summary.get("player_max_hp", 0) or 0)
+    hp_label = f"{player_hp}/{player_max_hp}" if player_max_hp else "n/a"
+    damage_dealt = int(summary.get("damage_dealt", 0) or 0)
+    damage_taken = int(summary.get("damage_taken", 0) or 0)
+    rounds = int(summary.get("rounds", 0) or 0)
+    turns = int(summary.get("turns", 0) or 0)
+    hits = int(summary.get("hits", 0) or 0)
+    misses = int(summary.get("misses", 0) or 0)
+    crits = int(summary.get("crits", 0) or 0)
+    verdict = _combat_verdict(outcome_raw, damage_dealt, damage_taken, defeated, len(enemies))
+    result_label = {
+        "player_victory": "교전 승리",
+        "fled": "이탈 성공",
+        "player_defeat": "신호 소실",
+    }.get(outcome_raw, "교전 종료")
+    st.markdown(
+        "<style>"
+        ".combat-result{border:1px solid rgba(41,255,198,.42);background:linear-gradient(180deg,rgba(2,21,18,.96),rgba(2,10,9,.96));border-radius:6px;padding:14px;color:#d8fff7}"
+        ".combat-result-top{display:flex;gap:12px;align-items:center;margin-bottom:10px}"
+        ".combat-result-portrait{width:74px;height:74px;position:relative;flex:0 0 74px;border:1px solid rgba(41,255,198,.45);background:#020b0a;overflow:hidden;border-radius:5px;box-shadow:0 0 12px rgba(41,255,198,.15)}"
+        ".combat-result-portrait img{width:100%;height:100%;object-fit:cover;display:block;filter:contrast(1.12) saturate(1.08)}"
+        ".combat-result-portrait-label{position:absolute;left:4px;right:4px;bottom:4px;font:800 9px 'SF Mono',Menlo,monospace;color:#eafff9;background:rgba(0,0,0,.62);padding:2px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}"
+        ".combat-result-heading{min-width:0;flex:1}"
+        ".combat-result-kicker{font:800 11px 'SF Mono',Menlo,monospace;color:#29ffc6;letter-spacing:1px;margin-bottom:8px}"
+        ".combat-result-title{font:900 24px 'SF Mono',Menlo,monospace;color:#eafff9;margin-bottom:10px}"
+        ".combat-result-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}"
+        ".combat-result-stat{border:1px solid rgba(120,220,200,.22);background:rgba(5,18,17,.72);border-radius:5px;padding:8px}"
+        ".combat-result-label{font:10px 'SF Mono',Menlo,monospace;color:#78cfc0;letter-spacing:.5px}"
+        ".combat-result-value{font:800 15px 'SF Mono',Menlo,monospace;color:#eafff9;margin-top:3px}"
+        ".combat-result-copy{font:12px 'SF Mono',Menlo,monospace;color:#9eddd1;line-height:1.5;margin-top:8px}"
+        "</style>"
+        f'<div class="combat-result"><div class="combat-result-top">{player_portrait}'
+        f'<div class="combat-result-heading"><div class="combat-result-kicker">COMBAT RESULT :: {outcome}</div>'
+        f'<div class="combat-result-title">{html.escape(result_label)}</div></div></div>'
+        '<div class="combat-result-grid">'
+        f'<div class="combat-result-stat"><div class="combat-result-label">PARTY ONLINE</div><div class="combat-result-value">{survivors}/{len(party)}</div></div>'
+        f'<div class="combat-result-stat"><div class="combat-result-label">HOSTILES DOWN</div><div class="combat-result-value">{defeated}/{len(enemies)}</div></div>'
+        f'<div class="combat-result-stat"><div class="combat-result-label">PLAYER HP</div><div class="combat-result-value">{html.escape(hp_label)}</div></div>'
+        f'<div class="combat-result-stat"><div class="combat-result-label">ROUND / TURN</div><div class="combat-result-value">{rounds}/{turns}</div></div>'
+        f'<div class="combat-result-stat"><div class="combat-result-label">DAMAGE DEALT</div><div class="combat-result-value">{damage_dealt}</div></div>'
+        f'<div class="combat-result-stat"><div class="combat-result-label">DAMAGE TAKEN</div><div class="combat-result-value">{damage_taken}</div></div>'
+        f'<div class="combat-result-stat"><div class="combat-result-label">HIT / MISS / CRIT</div><div class="combat-result-value">{hits}/{misses}/{crits}</div></div>'
+        f'<div class="combat-result-stat"><div class="combat-result-label">LOOT</div><div class="combat-result-value">{html.escape(loot)}</div></div>'
+        '</div>'
+        f'<div class="combat-result-copy">{html.escape(verdict)}</div>'
+        '<div class="combat-result-copy">전투 기록을 정산하고 서사 루프를 다음 장면으로 넘길 수 있습니다.</div></div>',
+        unsafe_allow_html=True,
+    )
+    if outcome_raw == "player_defeat" or loop.phase is LoopPhase.ENDED:
+        if st.button("메인 화면으로 돌아가기", key=f"combat_return_home:{loop.loop_id}", width="stretch"):
+            _return_to_player_main(loop.player_id)
+            st.rerun()
+        return
+    if st.button("전투 정산 후 다음 장면으로 진행", key=f"combat_continue:{loop.loop_id}", width="stretch"):
+        st.session_state.combat_selected_unit = ""
+        _run_action(
+            lambda service: service.choose(
+                loop.loop_id,
+                action="전투 결과를 정리하고 다음 장면으로 이동한다.",
+                options=options,
+            ),
+            on_success=_set_snapshot,
+        )
+
+
+def _combat_verdict(
+    outcome: str, damage_dealt: int, damage_taken: int, defeated: int, enemy_count: int
+) -> str:
+    if outcome == "player_victory":
+        if damage_taken == 0:
+            return "판정: 완전 제압. 소모 없이 적대 신호를 끊었습니다."
+        if damage_dealt >= damage_taken * 2:
+            return "판정: 우세 승리. 피해 교환비가 안정적입니다."
+        return "판정: 소모전 승리. 다음 인카운터 전 회복 수단을 점검해야 합니다."
+    if outcome == "fled":
+        return "판정: 전술 이탈. 생존은 확보했지만 접촉 신호가 세계에 흔적을 남겼습니다."
+    if outcome == "player_defeat":
+        if defeated > 0:
+            return "판정: 치명적 패배. 일부 적을 제거했지만 파티 신호가 유지되지 못했습니다."
+        if enemy_count > 1:
+            return "판정: 포위 붕괴. 수적 열세를 줄이기 전에 전선이 무너졌습니다."
+        return "판정: 신호 붕괴. 방어/회복/이탈 판단이 너무 늦었습니다."
+    return "판정: 교전 종료. 기록을 다음 장면에 반영합니다."
+
+
+def _render_combat_roster(radar: dict[str, Any], scenario_id: str) -> None:
+    blips = [blip for blip in radar.get("blips", []) if isinstance(blip, dict)]
+    if not blips:
+        return
+    party = [blip for blip in blips if blip.get("faction") in {"player", "ally"}]
+    enemies = [blip for blip in blips if blip.get("faction") == "enemy"]
+    st.markdown(
+        _combat_roster_html("PARTY", party, scenario_id)
+        + _combat_roster_html("ENEMY", enemies, scenario_id),
+        unsafe_allow_html=True,
+    )
+
+
+def _combat_roster_html(title: str, blips: list[dict[str, Any]], scenario_id: str) -> str:
+    if not blips:
+        return ""
+    cards = []
+    for blip in blips:
+        hp = int(blip.get("hp", 0))
+        max_hp = max(1, int(blip.get("max_hp", 1)))
+        pct = max(0, min(100, int((hp / max_hp) * 100)))
+        dead = " roster-dead" if not blip.get("alive", True) else ""
+        avatar = _combat_avatar_html(blip, scenario_id)
+        name = html.escape(str(blip.get("name", "")))
+        pos = f'{int(blip.get("x", 0))},{int(blip.get("y", 0))}'
+        cards.append(
+            f'<div class="roster-card{dead}">{avatar}<div class="roster-main">'
+            f'<div class="roster-name">{name}</div>'
+            f'<div class="roster-hp"><span style="width:{pct}%"></span></div>'
+            f'<div class="roster-meta">HP {hp}/{max_hp} · POS {pos}</div>'
+            f'</div></div>'
+        )
+    return (
+        """<style>
+        .roster-title{margin-top:10px;color:#88ffe6;font:700 11px 'SF Mono',Menlo,monospace;letter-spacing:1px}
+        .roster-card{display:flex;gap:8px;align-items:center;margin:6px 0;padding:7px;border:1px solid rgba(80,180,160,.24);background:rgba(5,18,17,.72);border-radius:5px;overflow:hidden}
+        .roster-avatar{width:34px;height:34px;flex:0 0 34px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(80,180,160,.35);color:#29ffc6;font:700 16px 'SF Mono',Menlo,monospace;background:#04100f}
+        .roster-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+        .roster-main{min-width:0;flex:1}
+        .roster-name{font-size:12px;color:#eafff9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .roster-hp{height:5px;background:#172521;margin:4px 0}
+        .roster-hp span{display:block;height:5px;background:#29ffc6}
+        .roster-meta{font-size:10px;color:#8fbab0;font-family:'SF Mono',Menlo,monospace}
+        .roster-dead{opacity:.45;filter:grayscale(1)}
+        </style>"""
+        + f'<div class="roster-title">{html.escape(title)}</div>'
+        + "".join(cards)
+    )
+
+
+def _combat_avatar_html(blip: dict[str, Any], scenario_id: str) -> str:
+    portrait = _combat_portrait_data_uri(blip, scenario_id)
+    if portrait:
+        return f'<div class="roster-avatar"><img src="{portrait}" alt="" /></div>'
+    return f'<div class="roster-avatar">{html.escape(str(blip.get("glyph", "●")))}</div>'
+
+
+def _combat_portrait_data_uri(blip: dict[str, Any], scenario_id: str) -> str | None:
+    portrait = str(blip.get("portrait", "")).strip() or _combat_portrait_from_scenario(
+        blip, scenario_id
+    )
+    if not portrait:
+        return None
+    path = PROJECT_ROOT / "resources" / scenario_id / portrait
+    if not path.exists():
+        return None
+    encoded = base64.b64encode(path.read_bytes()).decode("ascii")
+    return f"data:image/png;base64,{encoded}"
+
+
+def _combat_portrait_from_scenario(blip: dict[str, Any], scenario_id: str) -> str:
+    if blip.get("faction") == "player":
+        return "characters/player-noise.png"
+    scenario = load_scenario(scenario_id)
+    bestiary = scenario.combat.get("bestiary", {}) if isinstance(scenario.combat, dict) else {}
+    blip_id = str(blip.get("id", ""))
+    blip_name = str(blip.get("name", ""))
+    for key, entry in bestiary.items():
+        if not isinstance(entry, dict):
+            continue
+        entry_id = str(entry.get("id", key))
+        if blip_id.startswith(entry_id) or blip_name == str(entry.get("name", "")):
+            return str(entry.get("image", ""))
+    return ""
+
+
+def _render_combat_controls(
+    loop: LoopState,
+    combat: dict[str, Any],
+    options: RuntimeOptions,
+    action_area,
+) -> None:
+    available = combat.get("available", {})
+    if not isinstance(available, dict) or not available.get("can_act", False):
+        st.info("전술 신호를 동기화하는 중입니다.")
+        return
+
+    targets = [target for target in available.get("targets", []) if isinstance(target, dict)]
+    radar = combat.get("radar", {})
+    player_pos = _combat_player_pos(radar if isinstance(radar, dict) else {})
+    selected_unit = st.session_state.get("combat_selected_unit")
+    st.markdown(
+        "<style>"
+        ".combat-command-panel{border:1px solid rgba(41,255,198,.35);background:rgba(2,10,9,.93);border-radius:6px;padding:12px;color:#d8fff7}"
+        ".combat-command-kicker{font:700 11px 'SF Mono',Menlo,monospace;color:#29ffc6;letter-spacing:1px;margin-bottom:6px}"
+        ".combat-command-title{font:800 22px 'SF Mono',Menlo,monospace;color:#eafff9;margin-bottom:8px}"
+        ".combat-command-copy{font:12px 'SF Mono',Menlo,monospace;color:#8fd8ca;line-height:1.45;margin-bottom:8px}"
+        ".target-card{border:1px solid rgba(255,90,122,.28);background:rgba(30,6,11,.64);border-radius:5px;padding:8px;margin:6px 0}"
+        ".target-name{color:#ffdce3;font-weight:800;font-size:13px}"
+        ".target-meta{color:#d99aa8;font:11px 'SF Mono',Menlo,monospace}"
+        "</style>"
+        '<div class="combat-command-panel"><div class="combat-command-kicker">COMMAND CONSOLE</div>'
+        '<div class="combat-command-title">전투 명령</div>'
+        '<div class="combat-command-copy">이동은 전술 보드에서 직접 처리합니다. 표적은 사거리 안에서만 공격할 수 있습니다.</div></div>',
+        unsafe_allow_html=True,
+    )
+
+    if targets:
+        st.caption("표적")
+        for index, target in enumerate(targets[:4]):
+            target_id = str(target.get("id", ""))
+            in_range = bool(target.get("in_range"))
+            distance = int(target.get("distance", 0))
+            hp = int(target.get("hp", 0))
+            max_hp = int(target.get("max_hp", 0))
+            name = html.escape(str(target.get("name", target_id)))
+            st.markdown(
+                f'<div class="target-card"><div class="target-name">{name}</div>'
+                f'<div class="target-meta">HP {hp}/{max_hp} · DIST {distance} · '
+                f'{"IN RANGE" if in_range else "OUT OF RANGE"}</div></div>',
+                unsafe_allow_html=True,
+            )
+            if st.button(
+                "공격",
+                key=f"combat_attack:{loop.loop_id}:{target_id}:{index}",
+                width="stretch",
+                disabled=not in_range,
+            ):
+                action_area.empty()
+                _run_action(
+                    lambda service, chosen_id=target_id: service.combat_action(
+                        loop.loop_id,
+                        PlayerAction(type="attack", target_id=chosen_id),
+                        options,
+                    ),
+                    on_success=_set_snapshot,
+                )
+
+    if player_pos is not None:
+        st.caption(
+            "전술 보드: 플레이어 신호 선택됨"
+            if selected_unit == "player"
+            else "전술 보드의 플레이어 신호를 눌러 이동 범위를 엽니다."
+        )
+
+    c1, c2 = st.columns(2)
+    with c1:
+        if st.button("방어", width="stretch"):
+            action_area.empty()
+            _run_action(
+                lambda service: service.combat_action(
+                    loop.loop_id,
+                    PlayerAction(type="defend"),
+                    options,
+                ),
+                on_success=_set_snapshot,
+            )
+    with c2:
+        if st.button("도주", width="stretch"):
+            action_area.empty()
+            _run_action(
+                lambda service: service.combat_action(
+                    loop.loop_id,
+                    PlayerAction(type="flee"),
+                    options,
+                ),
+                on_success=_set_snapshot,
+            )
+
+
+def _render_move_board(
+    loop: LoopState,
+    player_pos: tuple[int, int],
+    reachable: list,
+    radar: dict[str, Any],
+    options: RuntimeOptions,
+    action_area,
+) -> None:
+    arena = radar.get("arena", {"w": 8, "h": 6})
+    w, h = int(arena.get("w", 8)), int(arena.get("h", 6))
+    reachable_set = {(int(tile[0]), int(tile[1])) for tile in reachable if len(tile) == 2}
+    occupied = {
+        (int(blip.get("x", 0)), int(blip.get("y", 0)))
+        for blip in radar.get("blips", [])
+        if isinstance(blip, dict) and blip.get("alive", True) and blip.get("faction") != "player"
+    }
+    min_x = max(0, player_pos[0] - 2)
+    max_x = min(w - 1, player_pos[0] + 2)
+    min_y = max(0, player_pos[1] - 2)
+    max_y = min(h - 1, player_pos[1] + 2)
+    st.caption(f"이동 보드 · 현재 {player_pos[0]},{player_pos[1]}")
+    for y in range(max_y, min_y - 1, -1):
+        cols = st.columns(max_x - min_x + 1)
+        for col_index, x in enumerate(range(min_x, max_x + 1)):
+            coord = (x, y)
+            is_player = coord == player_pos
+            is_occupied = coord in occupied
+            disabled = (coord not in reachable_set and not is_player) or is_occupied
+            label = "◎" if is_player else ("×" if is_occupied else f"{x},{y}")
+            with cols[col_index]:
+                if st.button(
+                    label,
+                    key=f"combat_cell:{loop.loop_id}:{x}:{y}",
+                    width="stretch",
+                    disabled=disabled,
+                ):
+                    action_area.empty()
+                    move_to = None if is_player else coord
+                    _run_action(
+                        lambda service, chosen_dest=move_to: service.combat_action(
+                            loop.loop_id,
+                            PlayerAction(type="wait", move_to=chosen_dest),
+                            options,
+                        ),
+                        on_success=_set_snapshot,
+                    )
+
+
+def _combat_player_pos(radar: dict[str, Any]) -> tuple[int, int] | None:
+    for blip in radar.get("blips", []):
+        if isinstance(blip, dict) and blip.get("faction") == "player":
+            return int(blip.get("x", 0)), int(blip.get("y", 0))
+    return None
 
 
 def _render_codex_view(
@@ -2535,12 +3065,28 @@ def _render_minimap(loop: LoopState, radius: int = 2) -> None:
         return
     cx, cy = int(cur["x"]), int(cur["y"])
     by_coord = {(int(t["x"]), int(t["y"])): k for k, t in tiles.items()}
+    encounter_map = loop.state.get("_encounter_map", {}) if isinstance(loop.state, dict) else {}
+    contacts = encounter_map.get("contacts", {}) if isinstance(encounter_map, dict) else {}
+    live_contacts = [
+        contact
+        for contact in contacts.values()
+        if isinstance(contact, dict) and contact.get("state") not in {"defeated"}
+    ]
+    contacts_by_coord: dict[tuple[int, int], dict[str, Any]] = {
+        (int(contact.get("x", 0)), int(contact.get("y", 0))): contact for contact in live_contacts
+    }
 
     rows: list[str] = []
     for gy in range(cy + radius, cy - radius - 1, -1):  # north (higher y) on top
         cells: list[str] = []
         for gx in range(cx - radius, cx + radius + 1):
             key = by_coord.get((gx, gy))
+            contact = contacts_by_coord.get((gx, gy))
+            if contact is not None:
+                glyph = html.escape(str(contact.get("glyph", "!")))
+                name = html.escape(str(contact.get("name", "enemy contact")))
+                cells.append(f'<div class="mm-cell mm-enemy" title="{name}">{glyph}</div>')
+                continue
             if key is None:
                 cells.append('<div class="mm-cell mm-empty"></div>')
                 continue
@@ -2562,12 +3108,15 @@ def _render_minimap(loop: LoopState, radius: int = 2) -> None:
     .mm-visited{background:#16202b;border:1px solid #2c3e50;color:#7f9bb3}
     .mm-current{background:#1f6feb;border:1px solid #5aa0ff;color:#fff;
       box-shadow:0 0 8px rgba(90,160,255,.7)}
+    .mm-enemy{background:#3a1018;border:1px solid #ff5a7a;color:#ff8aa1;
+      box-shadow:0 0 8px rgba(255,90,122,.5);animation:mm-blink 1s steps(2,end) infinite}
+    @keyframes mm-blink{0%{opacity:1}50%{opacity:.35}100%{opacity:1}}
     </style>
     """
-    html = '<div class="minimap">' + "".join(rows) + "</div>"
+    minimap_html = '<div class="minimap">' + "".join(rows) + "</div>"
     st.markdown("작전 지도", help="방문한 위치의 동적 지도. 파란 칸이 현재 위치입니다.")
-    st.markdown(style + html, unsafe_allow_html=True)
-    st.caption(f"좌표 {cx}, {cy} · 탐사 {len(tiles)}곳 · {cur.get('name', '')}")
+    st.markdown(style + minimap_html, unsafe_allow_html=True)
+    st.caption(f"좌표 {cx}, {cy} · 탐사 {len(tiles)}곳 · 접촉 {len(live_contacts)} · {cur.get('name', '')}")
 
 
 def _format_elapsed(delta: Any) -> str:
@@ -2586,6 +3135,18 @@ def _set_player(player_id: str, clear_loop: bool = False) -> None:
     st.session_state.message = f"player_id={player_id}"
 
 
+def _return_to_player_main(player_id: str) -> None:
+    st.session_state.player_id = player_id
+    st.session_state.pending_player_id_input = player_id
+    st.session_state.loop_id = ""
+    st.session_state.pending_loop_id_input = ""
+    st.session_state.loop_id_input = ""
+    st.session_state.show_session_intro = False
+    st.session_state.combat_selected_unit = ""
+    st.session_state.message = "메인 화면으로 돌아왔습니다."
+    st.session_state.error = ""
+
+
 def _set_snapshot(snapshot: RuntimeSnapshot) -> None:
     st.session_state.player_id = snapshot.player.player_id
     st.session_state.pending_player_id_input = snapshot.player.player_id
@@ -2593,6 +3154,8 @@ def _set_snapshot(snapshot: RuntimeSnapshot) -> None:
     st.session_state.pending_loop_id_input = snapshot.loop.loop_id
     st.session_state.pending_free_action_input = ""
     st.session_state.pending_player_free_action = ""
+    if snapshot.combat is None or snapshot.combat.get("finished"):
+        st.session_state.combat_selected_unit = ""
     st.session_state.message = f"phase={snapshot.loop.phase.value}, scene={snapshot.scene.title}"
     if snapshot.image_result is not None:
         st.session_state.message += f", image={snapshot.image_result.status}"

@@ -15,6 +15,90 @@ YYYY-MM-DD
 
 ## 2026-05-31
 
+- Status: [x] 전투 결과 UX + 전술 보드 직접 이동 + 주인공/적 portrait 표시 최신화.
+- Changed:
+  - 활성 전투에서 중앙 `TACTICAL BOARD` 자체를 조작 보드로 사용. 플레이어 신호 `◎`를 선택하면 같은 보드 안의 이동 가능 칸을 직접 클릭해 이동.
+  - 별도 “이동 좌표/이동 보드” UI 제거. 전투 명령 패널은 공격/방어/도주 중심으로 축소.
+  - 전투 결과 패널 추가: 파티 생존, 적 격파, 플레이어 HP, 라운드/턴, 준 피해/받은 피해, 명중/빗나감/치명타, 루트, 판정 문구를 계산해 표시.
+  - `RuntimeSessionService`가 combat summary를 snapshot에 포함하도록 확장. 종료 전투 resume 시에도 결과 계산 유지.
+  - 전투 종료 후 비전투 장면에서는 종료된 combat payload를 더 이상 내려주지 않도록 `resume()` 조정.
+  - 주인공 portrait(`characters/player-noise.png`)를 tactical board/roster/result panel에 표시.
+  - 패배/세션 종료 버튼은 새 세션을 즉시 만들지 않고 `메인 화면으로 돌아가기`로 변경. 메인 화면에서 START/LOAD/NEW SIGNAL 선택.
+- Verified: `make lint`, `make typecheck`, `make test`(110, 2 skipped) PASS. `make streamlit` 재시작 완료: `http://localhost:8501`.
+- Blockers: Streamlit 기본 버튼 기반이라 HTML 이미지 셀 자체 drag/drop은 미구현. 필요 시 custom component가 필요.
+- Next: 스킬 실행(`PlayerAction(type="skill")`), 아이템 사용, 동료 참전, drag/drop custom component 검토.
+
+## 2026-05-31
+
+- Status: [x] 플레이어 전투 초상 + 선택 후 이동 범위 UX + 스킬/동료 풀 설계 반영.
+- Changed:
+  - 플레이어 blip도 `characters/player-noise.png`를 썸네일로 사용하도록 UI fallback 추가.
+  - 명령 콘솔 HTML 들여쓰기 문제 수정(코드블록처럼 노출되던 `<div class="combat-command-panel">` 제거).
+  - 전투 조작을 “플레이어 신호 선택 → 이동 가능 칸 표시 → 칸 선택” 흐름으로 변경.
+  - `scenario.json["combat"]`에 `skills` 풀 추가: 신호 도약, 과부하 일격, 패킷 사격, 엄호 노이즈, 패치 프로토콜.
+  - `scenario.json["combat"]`에 `allies` 풀 추가: 정세린/카이, 숨겨진 recruit keywords, unlock flags, portrait, weapons, skills, stats.
+  - `docs/BATTLE_ADVICE.md`에 현재 데이터 테이블 구조와 CRPG/JRPG식 스킬 역할 모델 정리.
+- Verified: JSON parse, `make lint`, `make typecheck`, `make test`(110, 2 skipped) PASS. `make streamlit` 재시작 완료: `http://localhost:8501`.
+- Blockers: 스킬 실행/동료 전투 참전은 아직 데이터 풀만 있고 엔진 액션으로 미연결.
+- Next: `PlayerAction(type="skill")`, skill cooldown/cost, `_party.members` ally spawn 구현.
+
+## 2026-05-31
+
+- Status: [x] SRPG식 전술 보드 1차 적용 + 기존 전투 상태에서도 적 초상 역매핑.
+- Changed:
+  - 중앙 `TACTICAL RADAR`를 큰 셀 기반 `TACTICAL BOARD`로 교체. 플레이어/적 blip을 44px 셀에 표시하고, 적은 초상 썸네일+HP strip으로 식별 가능하게 변경.
+  - `portrait`가 없는 기존 저장 전투 상태도 scenario bestiary의 `id/name -> image` 매핑으로 초상을 복원하도록 UI fallback 추가.
+  - 화살표 이동 UI 제거. 현재 위치 주변의 이동 가능 칸을 직접 클릭하는 SRPG식 이동 보드로 변경(점유 칸은 `×`, 현재 위치는 `◎`).
+  - 드래그 이동은 Streamlit 기본 위젯만으로는 안정적 이벤트 전달이 어려워, 우선 클릭-투-무브 방식으로 구현. 추후 custom component로 drag/drop 확장 가능.
+- Verified: `make lint`, `make typecheck`, `make test`(110, 2 skipped) PASS. `make streamlit` 재시작 완료: `http://localhost:8501`.
+- Blockers: Browser 플러그인 `iab` 세션 불가로 직접 시각 QA는 미수행.
+- Next: 실제 화면에서 board cell 크기/명령 콘솔 밀도 확인 후 custom component 기반 drag/drop 필요 여부 결정.
+
+## 2026-05-31
+
+- Status: [x] 전투 UX 재배치 + 적 초상 리소스 연결 + roster HTML 노출 버그 수정.
+- Changed:
+  - 전투 화면 상단을 이미지 / 레이더+상태 / 명령 콘솔 3분할로 재구성. 전투 명령이 서사 텍스트 아래로 밀리지 않도록 이동.
+  - 표적 선택 radio와 이동 좌표 selectbox 제거. 표적별 공격 버튼, 3x3 방향 이동/대기 버튼, 방어/도주 버튼으로 전투 조작 재설계.
+  - roster HTML이 코드블록으로 출력되던 문제 수정(들여쓰기 있는 multiline HTML 제거).
+  - 적 초상 4종 생성 및 `resources/neo-seoul/enemies/`에 저장: maintenance drone, sentinel drone, enforcer unit, glitch wraith.
+  - `Combatant.portrait` + radar `portrait` 필드 추가, bestiary `image`를 roster avatar로 렌더.
+  - Neo-Seoul system prompt에 `spawn_encounters` 설명 추가.
+- Verified: `make lint`, `make typecheck`, `make test`(110, 2 skipped) PASS. `make streamlit` 재시작 완료: `http://localhost:8501`.
+- Blockers: Browser 플러그인 `iab` 세션 불가로 직접 시각 QA는 미수행.
+- Next: 브라우저에서 실제 레이아웃 확인 후 command console 폭/타깃 카드 밀도 미세 조정.
+
+## 2026-05-31
+
+- Status: [x] 작전 지도 기반 로밍 인카운터 + 적/파티 상태 UI + 밸런싱 설계 추가.
+- Changed:
+  - `src/mythos_runtime/encounter_map.py` 추가: `_encounter_map.contacts`로 사전 정의 인카운터를 작전 지도 주변에 배치, 턴마다 이동, 플레이어 현재 타일과 충돌 시 전투 트리거.
+  - `world_delta.spawn_encounters` 스키마/파서/검증/상태 병합 추가. LLM은 즉시 전투(`start_combat`)와 지도 배치(`spawn_encounters`)를 구분 가능.
+  - `RuntimeSessionService`가 서사 장면 커밋 후 encounter map tick을 수행하고, 접촉 충돌 시 `CombatService.begin()`으로 전환.
+  - 전투 종료 보상 적용 시 동일 encounter contact를 `defeated`로 마킹.
+  - Player 작전 미니맵에 적 접촉 blip 표시(붉은 점멸), 전투 레이더 옆에 PARTY/ENEMY roster(HP bar/좌표/상태) 추가.
+  - Neo-Seoul encounter에 `risk`, `weight`, `map_distance` 밸런싱 메타 추가.
+  - `docs/BATTLE_ADVICE.md` 상단에 MythOS용 로그라이크/CRPG 인카운터 테이블, 위험도, 보상, 소모품, 파티/적 UI 설계 정리.
+- Verified: `make lint`, `make typecheck`, `make test`(110, 2 skipped) PASS. `make streamlit` 재시작 완료: `http://localhost:8501`.
+- Blockers: Browser 플러그인 `iab` 세션 불가로 시각적 브라우저 QA는 미수행.
+- Next: `nanopatch`/`stim_shard` 아이템 사용 액션과 `_party.members` 동료 전투 참여 구현.
+
+## 2026-05-31
+
+- Status: [x] 로그라이크 전투 UI 연결 + 서사 기반 전투 트리거 완료.
+- Changed:
+  - Player 화면에서 전투 중 `snapshot.combat`를 감지해 장면 이미지 옆에 터미널 레이더(`render_radar_html`)를 표시하고, 공격/이동/방어/도주 전투 명령을 `combat_action`에 연결.
+  - `resume()`이 활성/종료 전투 스냅샷을 복원하도록 해 Streamlit rerun 이후에도 레이더와 전투 액션이 유지됨.
+  - 전투 Scene에 `visual_brief`를 채우고 `scene_type="combat"`을 이미지 key beat로 처리해 전투 장면 이미지 생성 대상에 포함.
+  - `world_delta.start_combat` / `grant_items` / `hp`를 스키마·파서·검증·루프 상태 병합에 추가. 서사 장면이 `start_combat` encounter id를 요청하면 런타임이 즉시 엔진 권위 전투로 전환.
+  - Neo-Seoul 시스템 프롬프트에 전투 트리거 필드와 엔진 권위 규칙 추가.
+  - 테스트 추가: 전투 중 resume 복원, `world_delta.start_combat` → combat Scene 전환.
+- Verified: `make lint`, `make typecheck`, `make test`(107, 2 skipped) PASS. `make streamlit` 실행 중: `http://localhost:8501`.
+- Blockers: Browser 플러그인 `iab` 세션이 사용 불가하여 시각적 브라우저 QA는 수행하지 못함.
+- Next: 실제 플레이 세션에서 LLM이 어떤 빈도로 `start_combat`를 발생시키는지 튜닝하고, 소비 아이템 사용(`nanopatch`, `stim_shard`)을 전투 액션에 연결.
+
+## 2026-05-31
+
 - Status: [x] Player 화면 깜빡임 제거 + 행동 선택 후 행동창 숨김.
 - Changed:
   - 스크립트 창을 `components.html`(iframe)에서 `st.markdown` 일반 div로 교체. 매 rerun/스트리밍 글자마다 iframe 문서가 통째로 리로드되며 발생하던 흰 플래시(깜빡임) 제거.
@@ -24,6 +108,45 @@ YYYY-MM-DD
 - Verified: `make lint`, `make typecheck`, `make test`(76, 2 skipped) PASS.
 - Blockers: 브라우저에서 실제 깜빡임 체감 회귀 및 column-reverse 단문 장면 정렬 확인은 미실행.
 - Next: 브라우저에서 연속 행동 선언 시 깜빡임 없음 + 행동창 숨김/재표시 확인.
+
+## 2026-05-31
+
+- Status: [x] 로그라이크 전투 Phase B3(세션 배선) + Phase C 코어(레이더 HTML 렌더러). 검증 완료.
+- Changed:
+  - `RuntimeSnapshot.combat` 필드 추가(전투 턴에만 채움: radar/available/finished/outcome/rewards).
+  - `RuntimeSessionService`에 `CombatService` 주입 + `start_combat(loop_id, encounter_id)` / `combat_action(loop_id, PlayerAction)` 추가. 합성 combat Scene(`scene_type="combat"`, narration=prose, choices=[]) 영속, 종료 시 encounter_reward→stability/tension, 패배 시 **퍼머데스→loop ENDED + Echo + world_event**.
+  - `render_radar`에 `encounter_id` 추가(전투 장면 location 정확화).
+  - `src/mythos_runtime/combat_ui.py`: `render_radar_html(radar)` — 격자+블립(적은 CSS blink)+HP바+턴/결과. iframe 없이 `st.markdown` div로 렌더(깜빡임 방지), XSS escape.
+  - 테스트: `tests/test_session_combat.py`(4: 전투개시·active요구·완주·퍼머데스), `tests/test_combat_ui.py`(3: 격자/연락처·escape·결과표시).
+- Verified(exit code): ruff 0 · mypy 0(76 files) · unittest 0(105, skipped 2).
+- Blockers: **하네스 불안정** — `streamlit_app.py`(2600줄) 읽기가 줄 중복/빈 응답으로 깨져, UI 최종 연결은 보류(블라인드 편집 시 파일 손상 위험). 백엔드는 전부 완료·검증됨.
+- Next: 읽기 안정화 후 `_player_active_screen`에 전투 분기 연결 — `snapshot.combat`/`CombatService.is_active(loop)`면 서사 선택지 대신 (a) 이미지 옆 `render_radar_html` 패널, (b) 전투 액션(공격+타겟/이동/방어/도주) 버튼→`combat_action`. + B1 `world_delta.start_combat` 트리거.
+
+## 2026-05-31
+
+- Status: [x] 로그라이크 전투 Phase B — 내레이터/레이더 + B3 오케스트레이션 코어(`CombatService`).
+- Changed:
+  - `src/mythos_combat/narrator.py`: 전투 로그→한국어 산문(`narrate_since`) + 레이더 UI 스냅샷(`render_radar`) + `narrate_outcome`. 엔진 권위, LLM 없이도 다이나믹 텍스트.
+  - `src/mythos_runtime/combat_service.py`(`CombatService`/`CombatTurnResult`): `loop.state`의 `_combat`/`_party`/`_inventory`/`_run` 수명주기 관리. `begin`(시나리오 풀→인카운터 개시), `act`(플레이어 행동→엔진 resolve→prose/radar), 종료 시 전리품(loot_table 가중 추첨)→인벤토리, HP 런 간 계승, encounters_cleared/dead 갱신. 순수(DB/UI 무관).
+  - 테스트: `tests/test_combat_service.py`(5: 개시·완주·전리품·결정성·HP 계승), narrator 테스트 3건.
+- Verified(exit code): ruff 0 · mypy 0(73 files) · unittest 0(98, skipped 2).
+- Blockers: 없음. (세션 배선 B3·world_delta B1·레이더 UI C·메타 D 미착수.)
+- Next: `RuntimeSessionService.start_combat`/`combat_action` 추가(합성 combat Scene + 영속 + 퍼머데스→Echo), 이어서 Streamlit 레이더 전술 UI.
+
+## 2026-05-31
+
+- Status: [x] 로그라이크 전투 Phase A — 결정적 전투 엔진 + 사전 정의 풀(UI/프롬프트 전 단계).
+- Changed:
+  - 설계: `docs/plans/2026-05-31-roguelike-combat.md`(엔진 권위 + LLM 서술, 턴제·위치/거리 전술, TRPG 스탯+다이스, 퍼머데스→Echo).
+  - `src/mythos_core/dice.py`: 시드 결정적 다이스(`d20`, `2d6+3` 표기, 가중 선택).
+  - `src/mythos_combat/`(신규): `models`(Combatant/Weapon/CombatState, JSON 직렬화), `engine`(initiative·이동·근접/원거리 명중·데미지·크리·적/아군 AI·도주·승패), `factory`(정본 5스탯→HP/방어/이동; 전투는 strength·agility), `encounter`(시나리오 풀→전투).
+  - 전투 상태는 `loop.state` JSON 보관 → DB 마이그레이션 불필요.
+  - `resources/neo-seoul/scenario.json`에 `combat` 풀(weapons 8, bestiary 4, items 5, loot 3, encounters 4, archetype_loadout) + `ScenarioConfig.combat` 로더.
+  - 테스트: `tests/test_dice.py`(6), `tests/test_combat_engine.py`(8: 결정적 리플레이·종료·직렬화·사거리·시나리오 풀 인카운터).
+- Verified: `make lint`, `make typecheck`(64 files), `make test`(90, 2 skipped) PASS.
+- Blockers: 없음. (런타임 배선=Phase B, 터미널 레이더 UI=Phase C, 로그라이크 메타=Phase D 미착수.)
+- Next: Phase B — 전투 서브모드 배선, world_delta 확장, 전투 로그→서사, 퍼머데스→Echo.
+- 참고: 이 세션 초반 streamlit 깜빡임 수정/행동창 숨김 작업은 하네스 오류로 디스크에 반영되지 않았음(미적용). 필요 시 재작업.
 
 ## 2026-05-31
 

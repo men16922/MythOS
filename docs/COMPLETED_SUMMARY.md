@@ -63,6 +63,16 @@
 | M28 | Multi-Ending Matrix | Humanity, Dominance, Resilience, Insight 지표 기반 다중 결말 구조 정의 |
 | M29 | Scenario v2 | `scenario.json`을 메인/사이드 아크, NPC 아젠다, 엔딩, 시네마틱 훅, 동적 `system_prompt` 구조로 확장 |
 
+## Roguelike/CRPG Combat Track
+
+| ID | Milestone | Result |
+| --- | --- | --- |
+| M30 | Combat Engine | 결정적 다이스, initiative, 위치 이동, 사거리, 명중/피해/치명타, 적 AI, 승패 판정 구현 |
+| M31 | Combat Runtime | `CombatService`, `RuntimeSessionService.start_combat`, `combat_action`, combat scene 영속, 퍼머데스/Echo 처리 구현 |
+| M32 | Encounter Map | `world_delta.spawn_encounters`, 작전 지도 접촉 배치/이동/충돌 전투 트리거, contact resolved 처리 구현 |
+| M33 | Tactical UI | 장면 이미지 옆 tactical board, party/enemy roster, 적/주인공 portrait, board 직접 이동, 공격/방어/도주 명령 구현 |
+| M34 | Combat Result | 전투 종료 결과 패널, combat summary, 다음 장면 진행, 패배 후 메인 복귀 흐름 구현 |
+
 ## MVP Verification Summary
 
 검증 완료:
@@ -77,7 +87,7 @@
 - Browser visual play: filesystem preview, MinIO `s3://mythos-assets/...png` URI.
 - Browser narrative play: fallback off 상태에서 Ollama scene 생성.
 - Streamlit polish regression: saved player 선택, saved loop resume, archive, next loop Echo carry-over.
-- Current lightweight verification: `make lint`, `make typecheck`, `make test` (69 tests, 2 skipped).
+- Current lightweight verification: `make lint`, `make typecheck`, `make test` (110 tests, 2 skipped).
 
 ## Completed Architecture Baseline
 
@@ -88,6 +98,7 @@
 - `st.session_state`는 view state만 저장한다.
 - 이미지 생성은 플레이어 뷰에서 핵심 비트 중심으로 자동 생성되며, 기본 저장소는 MinIO다.
 - 이미지 생성 기본 백엔드는 Apple MLX `mflux`이고, diffusers FLUX 경로는 폴백으로 유지한다.
+- 전투 판정은 `mythos_combat` 엔진이 권위이며, LLM은 인카운터 배치/서사 연결을 지시하고 결과 판정 자체는 하지 않는다.
 
 ## Archive Reference
 

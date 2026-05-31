@@ -191,6 +191,21 @@ def _merge_state(state: dict, state_delta: dict) -> dict:
     flags = set(merged.get("flags", []))
     flags.update(state_delta.get("flags", []))
     merged["flags"] = sorted(flags)
+    grant_items = state_delta.get("grant_items", [])
+    if isinstance(grant_items, list) and grant_items:
+        inventory = list(merged.get("_inventory", []))
+        inventory.extend(grant_items)
+        merged["_inventory"] = inventory
+    hp = state_delta.get("hp")
+    if isinstance(hp, int):
+        party = dict(merged.get("_party", {}))
+        party["player_hp"] = max(0, hp)
+        merged["_party"] = party
+    spawn_encounters = state_delta.get("spawn_encounters", [])
+    if isinstance(spawn_encounters, list) and spawn_encounters:
+        merged["_pending_spawn_encounters"] = [
+            str(encounter_id) for encounter_id in spawn_encounters if isinstance(encounter_id, str)
+        ]
     return merged
 
 

@@ -4,6 +4,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Any
 
+from mythos_combat import PlayerAction, render_radar
 from mythos_core import (
     Echo,
     LoopPhase,
@@ -17,6 +18,7 @@ from mythos_core import (
     new_loop_id,
     new_memory_id,
     new_player_id,
+    new_scene_id,
     new_shard_id,
 )
 from mythos_core.clock import utc_now
@@ -27,6 +29,8 @@ from mythos_narrative import NarrativeDirector, NarrativeStreamEvent, ScenePaylo
 from mythos_narrative.codex import CodexService
 from mythos_narrative.variation import NoveltyController
 from mythos_runtime.audio_service import AudioService
+from mythos_runtime.combat_service import CombatService, CombatTurnResult
+from mythos_runtime.encounter_map import mark_encounter_resolved, tick_encounter_map
 from mythos_runtime.observability import get_logger, span
 from mythos_runtime.options import (
     MemoryOverview,
@@ -59,6 +63,7 @@ class RuntimeSessionService:
         novelty: NoveltyController | None = None,
         codex: CodexService | None = None,
         audio: AudioService | None = None,
+        combat: CombatService | None = None,
     ) -> None:
         self.store = store
         self.director = director or NarrativeDirector()
@@ -66,6 +71,7 @@ class RuntimeSessionService:
         self.novelty = novelty or NoveltyController()
         self.codex = codex or CodexService()
         self.audio = audio or AudioService(store)
+        self.combat = combat or CombatService()
         self.logger = get_logger("mythos.session")
 
     def create_player(
@@ -151,6 +157,10 @@ class RuntimeSessionService:
             transition = self.engine.apply_scene_payload(loop, scene, payload)
         if not transition.ok:
             raise RuntimeError(_format_errors(transition.errors))
+        loop_after_map, _ = self._advance_encounter_map(
+            transition.loop, payload, options, scene.turn_index
+        )
+        transition = replace(transition, loop=loop_after_map)
 
         with self.store.transaction():
             self.store.save_loop(transition.loop)
@@ -297,6 +307,10 @@ class RuntimeSessionService:
             transition = self.engine.apply_scene_payload(loop, scene, payload, player_event)
         if not transition.ok:
             raise RuntimeError(_format_errors(transition.errors))
+        loop_after_map, triggered_combat = self._advance_encounter_map(
+            transition.loop, payload, options, scene.turn_index
+        )
+        transition = replace(transition, loop=loop_after_map)
 
         with self.store.transaction():
             self.store.save_loop(transition.loop)
@@ -322,7 +336,7 @@ class RuntimeSessionService:
                 "bgm": bgm_path,
             },
         )
-        return RuntimeSnapshot(
+        snapshot = RuntimeSnapshot(
             player=player,
             loop=transition.loop,
             scene=scene,
@@ -331,6 +345,11 @@ class RuntimeSessionService:
             echo=transition.echo,
             bgm_path=bgm_path,
         )
+        requested_combat = _requested_combat_id(payload)
+        next_combat = requested_combat or triggered_combat
+        if next_combat and not CombatService.is_active(transition.loop):
+            return self._begin_requested_combat(player, transition.loop, next_combat, options)
+        return snapshot
 
     def stream_choose(
         self,
@@ -396,7 +415,13 @@ class RuntimeSessionService:
             )
             yield RuntimeStreamEvent(kind="final", snapshot=snapshot)
 
-    def resume(self, loop_id: str | None = None, player_id: str | None = None) -> RuntimeSnapshot:
+    def resume(
+        self,
+        loop_id: str | None = None,
+        player_id: str | None = None,
+        options: RuntimeOptions | None = None,
+    ) -> RuntimeSnapshot:
+        options = options or RuntimeOptions()
         loop = None
         if loop_id:
             loop = self.store.get_loop(loop_id)
@@ -413,12 +438,16 @@ class RuntimeSessionService:
             raise RuntimeError(f"loop_id={loop.loop_id} has no scenes")
 
         bgm_path = self.audio.get_current_bgm(loop, scene)
+        combat = None
+        if scene.scene_type == "combat" or CombatService.is_active(loop):
+            combat = self._combat_snapshot(loop, options)
         return RuntimeSnapshot(
             player=player,
             loop=loop,
             scene=scene,
             assets=self.store.list_assets(loop.loop_id),
             bgm_path=bgm_path,
+            combat=combat,
         )
 
     def memory_overview(self, player_id: str, limit: int = 8) -> MemoryOverview:
@@ -566,6 +595,226 @@ class RuntimeSessionService:
             echo=echo,
         )
 
+    def start_combat(
+        self,
+        loop_id: str,
+        encounter_id: str,
+        options: RuntimeOptions | None = None,
+    ) -> RuntimeSnapshot:
+        options = options or RuntimeOptions()
+        loop = self._require_loop(loop_id)
+        if loop.phase is LoopPhase.ENDED:
+            raise RuntimeError(f"loop_id={loop.loop_id} is ended")
+        player = self._require_player(loop.player_id)
+        scenario = load_scenario(options.scenario_id)
+        stats = player.traits.get("stats", {}) if isinstance(player.traits, dict) else {}
+        archetype = player.traits.get("archetype") if isinstance(player.traits, dict) else None
+
+        with span("mythos.session.combat_start", player_id=player.player_id, loop_id=loop.loop_id):
+            result = self.combat.begin(
+                loop,
+                scenario_combat=scenario.combat,
+                encounter_id=encounter_id,
+                player_name=player.display_name,
+                player_stats={k: int(v) for k, v in stats.items() if isinstance(v, int | float)},
+                archetype=archetype,
+        )
+        return self._commit_combat_turn(player, result, "combat started", options)
+
+    def _advance_encounter_map(
+        self,
+        loop: LoopState,
+        payload: ScenePayload,
+        options: RuntimeOptions,
+        turn_index: int,
+    ) -> tuple[LoopState, str | None]:
+        if CombatService.is_active(loop):
+            return loop, None
+        scenario = load_scenario(options.scenario_id)
+        pending = loop.state.get("_pending_spawn_encounters", [])
+        requested = [
+            encounter_id
+            for encounter_id in [*payload.world_delta.spawn_encounters, *pending]
+            if isinstance(encounter_id, str)
+        ]
+        state, triggered = tick_encounter_map(
+            loop.state,
+            combat_pool=scenario.combat,
+            seed=loop.seed,
+            turn_index=turn_index,
+            requested=requested,
+        )
+        state.pop("_pending_spawn_encounters", None)
+        return replace(loop, state=state), triggered
+
+    def combat_action(
+        self,
+        loop_id: str,
+        action: PlayerAction,
+        options: RuntimeOptions | None = None,
+    ) -> RuntimeSnapshot:
+        options = options or RuntimeOptions()
+        loop = self._require_loop(loop_id)
+        if loop.phase is LoopPhase.ENDED:
+            raise RuntimeError(f"loop_id={loop.loop_id} is ended")
+        if not CombatService.is_active(loop):
+            raise RuntimeError(f"loop_id={loop.loop_id} has no active combat")
+        player = self._require_player(loop.player_id)
+        scenario = load_scenario(options.scenario_id)
+        with span("mythos.session.combat_action", player_id=player.player_id, loop_id=loop.loop_id):
+            result = self.combat.act(loop, action, scenario_combat=scenario.combat)
+        return self._commit_combat_turn(player, result, "combat action applied", options)
+
+    def _commit_combat_turn(
+        self,
+        player: PlayerProfile,
+        result: CombatTurnResult,
+        log_message: str,
+        options: RuntimeOptions,
+    ) -> RuntimeSnapshot:
+        loop = result.loop
+        previous_scene = self.store.get_latest_scene(loop.loop_id)
+        turn_index = (previous_scene.turn_index + 1) if previous_scene else 0
+        radar = result.radar
+        encounter_id = radar.get("encounter_id") if isinstance(radar, dict) else None
+        scene = Scene(
+            scene_id=new_scene_id(),
+            loop_id=loop.loop_id,
+            turn_index=turn_index,
+            title=f"교전 R{result.radar.get('round', 1)}",
+            location=str(encounter_id or loop.location_id),
+            narration=result.prose or "전투가 이어진다.",
+            choices=[],
+            visual_brief=_combat_visual_brief(result.radar),
+            created_at=utc_now(),
+            objective="적대 신호를 제압하거나 이탈하라.",
+            action_result=result.outcome,
+            scene_type="combat",
+        )
+
+        echo: Echo | None = None
+        if result.finished:
+            loop = self._apply_combat_rewards(loop, result)
+            if result.outcome == "player_defeat":
+                loop, echo = self._combat_permadeath(loop, scene)
+
+        with self.store.transaction():
+            self.store.save_loop(loop)
+            self.store.save_scene(scene)
+            if echo is not None:
+                _save_echo_memory(self.store, loop.player_id, echo)
+
+        image_result = self._maybe_generate_image(options, loop, scene, player.player_id)
+        bgm_path = self.audio.get_current_bgm(loop, scene)
+        self.logger.info(
+            log_message,
+            extra={
+                "player_id": player.player_id,
+                "loop_id": loop.loop_id,
+                "scene_id": scene.scene_id,
+                "status": "succeeded",
+                "combat_finished": result.finished,
+                "combat_outcome": result.outcome,
+            },
+        )
+        return RuntimeSnapshot(
+            player=player,
+            loop=loop,
+            scene=scene,
+            assets=self.store.list_assets(loop.loop_id),
+            image_result=image_result,
+            echo=echo,
+            bgm_path=bgm_path,
+            combat={
+                "radar": result.radar,
+                "available": result.available,
+                "finished": result.finished,
+                "outcome": result.outcome,
+                "rewards": result.rewards,
+                "summary": _combat_summary(result),
+            },
+        )
+
+    def _begin_requested_combat(
+        self,
+        player: PlayerProfile,
+        loop: LoopState,
+        encounter_id: str,
+        options: RuntimeOptions,
+    ) -> RuntimeSnapshot:
+        scenario = load_scenario(options.scenario_id)
+        encounters = scenario.combat.get("encounters", {}) if isinstance(scenario.combat, dict) else {}
+        if encounter_id not in encounters:
+            raise RuntimeError(f"unknown combat encounter requested: {encounter_id}")
+        stats = player.traits.get("stats", {}) if isinstance(player.traits, dict) else {}
+        archetype = player.traits.get("archetype") if isinstance(player.traits, dict) else None
+        result = self.combat.begin(
+            loop,
+            scenario_combat=scenario.combat,
+            encounter_id=encounter_id,
+            player_name=player.display_name,
+            player_stats={k: int(v) for k, v in stats.items() if isinstance(v, int | float)},
+            archetype=archetype,
+        )
+        return self._commit_combat_turn(player, result, "combat triggered by scene", options)
+
+    def _combat_snapshot(
+        self, loop: LoopState, options: RuntimeOptions
+    ) -> dict[str, Any] | None:
+        state = CombatService.load_state(loop)
+        if state is None:
+            return None
+        scenario = load_scenario(options.scenario_id)
+        available = self.combat.engine.available_actions(state) if state.active else {}
+        rewards: dict[str, Any] = {}
+        if not state.active and state.outcome:
+            encounter = scenario.combat.get("encounters", {}).get(state.encounter_id, {})
+            rewards = {"outcome": state.outcome, "encounter_reward": encounter.get("reward", {})}
+        return {
+            "radar": render_radar(state),
+            "available": available,
+            "finished": not state.active,
+            "outcome": state.outcome,
+            "rewards": rewards,
+            "summary": _combat_summary_from_state(state),
+        }
+
+    def _apply_combat_rewards(self, loop: LoopState, result: CombatTurnResult) -> LoopState:
+        reward = result.rewards.get("encounter_reward", {}) if isinstance(result.rewards, dict) else {}
+        if not isinstance(reward, dict):
+            return loop
+        encounter_id = result.radar.get("encounter_id") if isinstance(result.radar, dict) else None
+        loop = replace(loop, state=mark_encounter_resolved(loop.state, str(encounter_id) if encounter_id else None))
+        stability = _clamp_score(loop.stability + int(reward.get("stability", 0)))
+        tension = _clamp_score(loop.tension + int(reward.get("tension", 0)))
+        if stability == loop.stability and tension == loop.tension:
+            return loop
+        return replace(loop, stability=stability, tension=tension)
+
+    def _combat_permadeath(self, loop: LoopState, scene: Scene) -> tuple[LoopState, Echo]:
+        event = create_world_event(
+            loop.loop_id,
+            scene.turn_index + 1,
+            "combat_defeat",
+            "Connector signal lost in combat.",
+            {"phase": "ended"},
+        )
+        echo = Echo(
+            echo_id=f"echo_{event.event_id.removeprefix('event_')}",
+            source_loop_id=loop.loop_id,
+            source_event_id=event.event_id,
+            symbol="fallen",
+            text=f"{scene.title}: 신호 소실",
+        )
+        ended = replace(
+            loop,
+            phase=LoopPhase.ENDED,
+            ended_at=utc_now(),
+            active_echoes=[*loop.active_echoes, echo],
+        )
+        self.store.append_event(event)
+        return ended, echo
+
     def _maybe_generate_image(
         self, options: RuntimeOptions, loop: LoopState, scene: Scene, player_id: str
     ) -> VisualGenerationResult | None:
@@ -593,6 +842,10 @@ class RuntimeSessionService:
             transition = self.engine.apply_scene_payload(loop, scene, payload, player_event)
         if not transition.ok:
             raise RuntimeError(_format_errors(transition.errors))
+        loop_after_map, triggered_combat = self._advance_encounter_map(
+            transition.loop, payload, options, scene.turn_index
+        )
+        transition = replace(transition, loop=loop_after_map)
 
         with self.store.transaction():
             self.store.save_loop(transition.loop)
@@ -616,7 +869,7 @@ class RuntimeSessionService:
         if player_event is not None:
             extra["event_id"] = player_event.event_id
         self.logger.info(log_message, extra=extra)
-        return RuntimeSnapshot(
+        snapshot = RuntimeSnapshot(
             player=player,
             loop=transition.loop,
             scene=scene,
@@ -625,6 +878,11 @@ class RuntimeSessionService:
             echo=transition.echo,
             bgm_path=bgm_path,
         )
+        requested_combat = _requested_combat_id(payload)
+        next_combat = requested_combat or triggered_combat
+        if next_combat and not CombatService.is_active(transition.loop):
+            return self._begin_requested_combat(player, transition.loop, next_combat, options)
+        return snapshot
 
     def _fallback_stream_event(self, context) -> Iterator[NarrativeStreamEvent]:
         scene, payload = self.director.fallback_scene(context)
@@ -642,6 +900,60 @@ class RuntimeSessionService:
         if loop is None:
             raise RuntimeError(f"loop not found: {loop_id}")
         return loop
+
+
+def _combat_summary(result: CombatTurnResult) -> dict[str, Any]:
+    state = CombatService.load_state(result.loop)
+    if state is None:
+        return {}
+    return _combat_summary_from_state(state)
+
+
+def _combat_summary_from_state(state) -> dict[str, Any]:
+    damage_dealt = 0
+    damage_taken = 0
+    hits = 0
+    misses = 0
+    crits = 0
+    moves = 0
+    defeated: list[str] = []
+    for entry in state.log:
+        actor = state.by_id(entry.actor)
+        target_id = str(entry.detail.get("target", ""))
+        target = state.by_id(target_id) if target_id else None
+        damage = int(entry.detail.get("damage", 0) or 0)
+        if entry.action in {"hit", "defeat"}:
+            hits += 1
+            if bool(entry.detail.get("crit", False)):
+                crits += 1
+            if actor is not None and target is not None:
+                if actor.faction in {"player", "ally"} and target.faction == "enemy":
+                    damage_dealt += damage
+                elif actor.faction == "enemy" and target.faction in {"player", "ally"}:
+                    damage_taken += damage
+        elif entry.action == "miss":
+            misses += 1
+        elif entry.action == "move":
+            moves += 1
+        if entry.action == "defeat" and target is not None:
+            defeated.append(target.name)
+
+    player = state.player()
+    living_enemies = len(state.living_enemies())
+    return {
+        "rounds": state.round,
+        "turns": len([entry for entry in state.log if entry.action not in {"start", "end"}]),
+        "damage_dealt": damage_dealt,
+        "damage_taken": damage_taken,
+        "hits": hits,
+        "misses": misses,
+        "crits": crits,
+        "moves": moves,
+        "defeated": defeated,
+        "living_enemies": living_enemies,
+        "player_hp": player.hp if player else 0,
+        "player_max_hp": player.max_hp if player else 0,
+    }
 
 
 def _resolve_action(scene: Scene, choice_id: str | None, action: str | None) -> str:
@@ -1008,6 +1320,31 @@ def _tone_from_loop(loop: LoopState) -> str:
 
 def _clamp_score(value: int) -> int:
     return max(0, min(100, value))
+
+
+def _requested_combat_id(payload: ScenePayload) -> str | None:
+    encounter_id = payload.world_delta.start_combat
+    if encounter_id and encounter_id.strip():
+        return encounter_id.strip()
+    for flag in payload.world_delta.flags:
+        if flag.startswith("start_combat:"):
+            return flag.split(":", 1)[1].strip() or None
+    return None
+
+
+def _combat_visual_brief(radar: dict[str, Any]) -> str:
+    blips = radar.get("blips", []) if isinstance(radar, dict) else []
+    enemies = [
+        str(blip.get("name", "enemy"))
+        for blip in blips
+        if isinstance(blip, dict) and blip.get("faction") == "enemy" and blip.get("alive", True)
+    ]
+    enemy_text = ", ".join(enemies[:3]) if enemies else "hostile signals"
+    return (
+        "Cinematic cyberpunk tactical combat scene in Neo-Seoul, "
+        f"player signal facing {enemy_text}, neon rain, ARK surveillance grid, "
+        "dynamic action, sharp readable silhouettes."
+    )
 
 
 def _symbol_from_scene(scene: Scene) -> str:

@@ -27,6 +27,7 @@ class ScenarioConfig:
     endings: list[dict[str, Any]] = field(default_factory=list)
     cinematic_sfx: dict[str, str] = field(default_factory=dict)
     autonomy_config: dict[str, dict[str, Any]] = field(default_factory=dict)
+    combat: dict[str, Any] = field(default_factory=dict)
 
 
 @lru_cache(maxsize=16)
@@ -55,4 +56,5 @@ def load_scenario(scenario_id: str) -> ScenarioConfig:
         endings=data.get("endings", []),
         cinematic_sfx=data.get("cinematic_sfx", {}),
         autonomy_config=data.get("autonomy_config", {}),
+        combat=data.get("combat", {}),
     )

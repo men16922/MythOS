@@ -10,14 +10,20 @@ __pycache__/
 outputs/*
 !outputs/.gitkeep
 
+# Audio Assets
+*.wav
+*.mp3
+
 # Local Docker volume data (docker-compose.local.yml)
 .docker/
 
-*.png
-*.jpg
-*.jpeg
-*.webp
-*.safetensors
-*.ckpt
-*.pt
-*.pth
+# AI Agent Junk
+.claude/
+.gemini/
+.playwright-mcp/
+
+# Tooling Caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/

@@ -62,6 +62,11 @@ class Validator:
             stability=_clamp_delta(payload.world_delta.stability),
             tension=_clamp_delta(payload.world_delta.tension),
             flags=list(payload.world_delta.flags),
+            clues=list(payload.world_delta.clues),
+            start_combat=payload.world_delta.start_combat,
+            spawn_encounters=list(payload.world_delta.spawn_encounters),
+            grant_items=list(payload.world_delta.grant_items),
+            hp=payload.world_delta.hp,
         )
         if clamped_delta != payload.world_delta:
             repaired = replace(repaired, world_delta=clamped_delta)

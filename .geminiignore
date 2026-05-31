@@ -1,0 +1,30 @@
+# Gemini ignore - Optimize context for Gemini CLI
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.docker/
+.playwright-mcp/
+.claude/
+.gemini/
+outputs/
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.wav
+*.mp3
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+*.log
+node_modules/
+dist/
+build/
+.DS_Store
+# Scenario binary resources are context-heavy and non-readable
+resources/neo-seoul/audio/

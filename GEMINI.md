@@ -1,6 +1,6 @@
 # MythOS Local Runtime: Project Instructions
 
-This document provides foundational context and mandates for the MythOS Local Runtime project, a narrative engine prototype leveraging local LLMs and image generation.
+이 문서는 Gemini CLI 에이전트를 위한 기초 명령 및 지침이다. 모든 설계의 근간은 `CORE_MANDATES.md`를, 현재 작업의 상세 맥락은 `CONTEXT_BRIDGE.md`를 최우선으로 참조한다.
 
 ## Project Overview
 

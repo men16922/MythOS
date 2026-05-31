@@ -287,10 +287,27 @@ def _repair_world_delta(value: dict[str, Any]) -> dict[str, Any]:
         flags = [flags]
     if not isinstance(flags, list):
         flags = []
+    grant_items = value.get("grant_items", [])
+    if isinstance(grant_items, str):
+        grant_items = [grant_items]
+    if not isinstance(grant_items, list):
+        grant_items = []
+    start_combat = value.get("start_combat")
+    spawn_encounters = value.get("spawn_encounters", [])
+    if isinstance(spawn_encounters, str):
+        spawn_encounters = [spawn_encounters]
+    if not isinstance(spawn_encounters, list):
+        spawn_encounters = []
+    hp = value.get("hp")
     return {
         "stability": value.get("stability", 0) if isinstance(value.get("stability", 0), int) else 0,
         "tension": value.get("tension", 0) if isinstance(value.get("tension", 0), int) else 0,
         "flags": [str(flag) for flag in flags if isinstance(flag, str)],
+        "clues": value.get("clues", []) if isinstance(value.get("clues", []), list) else [],
+        "start_combat": start_combat if isinstance(start_combat, str) else None,
+        "spawn_encounters": [str(item) for item in spawn_encounters if isinstance(item, str)],
+        "grant_items": [str(item) for item in grant_items if isinstance(item, str)],
+        "hp": hp if isinstance(hp, int) and not isinstance(hp, bool) else None,
     }
 
 
@@ -314,7 +331,38 @@ def _parse_world_delta(value: Any, errors: list[str]) -> WorldDelta:
         errors.append("world_delta.clues must be a list of objects")
         clues = []
 
-    return WorldDelta(stability=stability, tension=tension, flags=flags, clues=clues)
+    start_combat = value.get("start_combat")
+    if start_combat is not None and not isinstance(start_combat, str):
+        errors.append("world_delta.start_combat must be string or null")
+        start_combat = None
+
+    grant_items = value.get("grant_items", [])
+    if not isinstance(grant_items, list) or not all(isinstance(item, str) for item in grant_items):
+        errors.append("world_delta.grant_items must be a list of strings")
+        grant_items = []
+
+    spawn_encounters = value.get("spawn_encounters", [])
+    if not isinstance(spawn_encounters, list) or not all(
+        isinstance(item, str) for item in spawn_encounters
+    ):
+        errors.append("world_delta.spawn_encounters must be a list of strings")
+        spawn_encounters = []
+
+    hp = value.get("hp")
+    if hp is not None and (isinstance(hp, bool) or not isinstance(hp, int)):
+        errors.append("world_delta.hp must be integer or null")
+        hp = None
+
+    return WorldDelta(
+        stability=stability,
+        tension=tension,
+        flags=flags,
+        clues=clues,
+        start_combat=start_combat,
+        spawn_encounters=spawn_encounters,
+        grant_items=grant_items,
+        hp=hp,
+    )
 
 
 def _int_delta(value: Any, key: str, errors: list[str]) -> int:

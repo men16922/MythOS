@@ -16,7 +16,16 @@ from mythos_core import (
 MAX_NARRATION_CHARS = 2200
 MAX_VISUAL_BRIEF_CHARS = 700
 MAX_CHOICES = 4
-ALLOWED_WORLD_DELTA_KEYS = {"stability", "tension", "flags", "clues"}
+ALLOWED_WORLD_DELTA_KEYS = {
+    "stability",
+    "tension",
+    "flags",
+    "clues",
+    "start_combat",
+    "spawn_encounters",
+    "grant_items",
+    "hp",
+}
 
 # JSON schema handed to Ollama (structured outputs) so the model is grammar-constrained
 # to emit the exact ScenePayload shape on the first try — this removes the costly second
@@ -56,6 +65,10 @@ SCENE_JSON_SCHEMA: dict[str, Any] = {
                 "tension": {"type": "integer"},
                 "flags": {"type": "array", "items": {"type": "string"}},
                 "clues": {"type": "array", "items": {"type": "object"}},
+                "start_combat": {"type": ["string", "null"]},
+                "spawn_encounters": {"type": "array", "items": {"type": "string"}},
+                "grant_items": {"type": "array", "items": {"type": "string"}},
+                "hp": {"type": ["integer", "null"]},
             },
         },
         "end_condition": {"type": ["string", "null"]},
@@ -70,14 +83,27 @@ class WorldDelta:
     tension: int = 0
     flags: list[str] = field(default_factory=list)
     clues: list[dict[str, Any]] = field(default_factory=list)
+    start_combat: str | None = None
+    spawn_encounters: list[str] = field(default_factory=list)
+    grant_items: list[str] = field(default_factory=list)
+    hp: int | None = None
 
     def as_state_delta(self) -> dict[str, Any]:
-        return {
+        delta: dict[str, Any] = {
             "stability": self.stability,
             "tension": self.tension,
             "flags": list(self.flags),
             "clues": list(self.clues),
         }
+        if self.start_combat:
+            delta["start_combat"] = self.start_combat
+        if self.spawn_encounters:
+            delta["spawn_encounters"] = list(self.spawn_encounters)
+        if self.grant_items:
+            delta["grant_items"] = list(self.grant_items)
+        if self.hp is not None:
+            delta["hp"] = self.hp
+        return delta
 
 
 @dataclass(frozen=True)

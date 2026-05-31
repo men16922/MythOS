@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Literal
+from typing import Any, Literal
 
 from mythos_core import (
     AssetRecord,
@@ -46,6 +46,8 @@ class RuntimeSnapshot:
     image_result: VisualGenerationResult | None = None
     echo: Echo | None = None
     bgm_path: str | None = None
+    # Populated only on combat turns: {radar, available, finished, outcome, rewards}.
+    combat: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)

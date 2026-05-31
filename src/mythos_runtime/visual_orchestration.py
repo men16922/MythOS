@@ -61,6 +61,8 @@ def is_key_beat(loop: LoopState, scene: Scene) -> bool:
     """Whether this scene warrants a costly representative image."""
     if scene.turn_index == 0:
         return True
+    if scene.scene_type == "combat":
+        return True
     if loop.phase in {LoopPhase.REWRITE, LoopPhase.ARCHIVE, LoopPhase.ENDED}:
         return True
     if loop.tension >= 70 or loop.stability <= 30:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from typing import Any
 
 from mythos_core import Choice
@@ -31,11 +32,11 @@ def parse_scene_payload(raw_payload: str | dict[str, Any]) -> ScenePayload:
 
     title = _required_str(scene, "title", errors)
     location = _required_str(scene, "location", errors)
-    narration = _required_str(scene, "narration", errors)
+    narration = _clean_player_text(_required_str(scene, "narration", errors))
     visual_brief = _required_str(scene, "visual_brief", errors)
     choices = _parse_choices(scene.get("choices"), errors)
-    objective = scene.get("objective")
-    action_result = scene.get("action_result")
+    objective = _optional_clean_str(scene.get("objective"))
+    action_result = _optional_clean_str(scene.get("action_result"))
     world_delta = _parse_world_delta(data.get("world_delta", {}), errors)
     end_condition = data.get("end_condition")
 
@@ -178,6 +179,44 @@ def _required_str(data: dict[str, Any], key: str, errors: list[str]) -> str:
         errors.append(f"scene.{key} must be a non-empty string")
         return ""
     return value.strip()
+
+
+def _optional_clean_str(value: Any) -> str | None:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return _clean_player_text(value)
+    return str(value)
+
+
+def _clean_player_text(value: str) -> str:
+    cleaned = re.sub(
+        r"\[\s*(?:cinematic\s*)?sfx\s*:\s*[^\]]+\]",
+        lambda match: _sfx_to_prose(match.group(0)),
+        value,
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(
+        r"(?:cinematic\s*)?sfx\s*:\s*[A-Z0-9 _-]+",
+        lambda match: _sfx_to_prose(match.group(0)),
+        cleaned,
+        flags=re.IGNORECASE,
+    )
+    cleaned = re.sub(r"(?<=[.!?])(?=\S)", " ", cleaned)
+    return re.sub(r"[ \t]{2,}", " ", cleaned).strip()
+
+
+def _sfx_to_prose(raw: str) -> str:
+    normalized = raw.lower()
+    if "scratch" in normalized or "static" in normalized:
+        return "치직, 긁히는 정전기가 귓속을 스쳤다."
+    if "glitch" in normalized:
+        return "짧은 글리치음이 허공을 찢었다."
+    if "hum" in normalized:
+        return "낮은 기계음이 바닥 아래에서 울렸다."
+    if "alarm" in normalized or "siren" in normalized:
+        return "멀리서 경보음이 번졌다."
+    return "짧은 전자음이 공기를 흔들었다."
 
 
 def _parse_choices(value: Any, errors: list[str]) -> list[Choice]:

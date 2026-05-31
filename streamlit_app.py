@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import html
 from pathlib import Path
 from typing import Any, TypedDict, cast
 
@@ -9,18 +10,20 @@ import streamlit as st
 from mythos_core import LoopPhase, LoopState, PlayerProfile, Scene, utc_now
 from mythos_core.mapgrid import current_tile
 from mythos_memory import PostgresMythOSStore
-from mythos_runtime.scenario import load_scenario
-from mythos_runtime.session import (
+from mythos_runtime.options import (
     MemoryOverview,
     RuntimeOptions,
-    RuntimeSessionService,
     RuntimeSnapshot,
+    RuntimeStreamEvent,
 )
+from mythos_runtime.scenario import load_scenario
+from mythos_runtime.session import RuntimeSessionService
 from mythos_runtime.visual_queue import VisualJobQueue
 
 st.set_page_config(page_title="Project MythOS", layout="wide", initial_sidebar_state="collapsed")
 
 PROJECT_ROOT = Path(__file__).resolve().parent
+STORY_TRANSCRIPT_LIMIT = 12000
 
 
 class CharacterDossier(TypedDict):
@@ -151,6 +154,8 @@ def _init_state() -> None:
     st.session_state.setdefault("error", "")
     st.session_state.setdefault("show_session_intro", False)
     st.session_state.setdefault("codex_section", "내 정보")
+    st.session_state.setdefault("audio_active", False)
+    st.session_state.setdefault("story_transcripts", {})
     _apply_pending_widget_state()
 
 
@@ -202,13 +207,23 @@ def _inject_player_css() -> None:
         .terminal-panel {
             background: rgba(0, 20, 17, 0.78);
             border: 1px solid rgba(0, 255, 170, 0.28);
-            border-radius: 6px;
             box-shadow: 0 0 22px rgba(0, 255, 170, 0.08);
         }
-        .terminal-panel {
-            padding: 16px;
-            margin: 10px 0 18px;
+        audio {
+            opacity: 0;
+            position: absolute;
+            width: 0;
+            height: 0;
+            pointer-events: none;
         }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        """
+        <style>
         .command-menu-title {
             color: #e9fff9;
             font-family: "SF Mono", Menlo, Consolas, monospace;
@@ -217,6 +232,7 @@ def _inject_player_css() -> None:
             margin: 4px 0 12px;
             text-transform: uppercase;
         }
+
         .command-card {
             background:
                 linear-gradient(135deg, rgba(41, 255, 198, 0.08), transparent 42%),
@@ -301,6 +317,57 @@ def _inject_player_css() -> None:
             color: #29ffc6;
             font-family: "SF Mono", Menlo, Consolas, monospace;
             font-size: 0.86rem;
+        }
+        .mythos-loader {
+            background: rgba(0, 10, 9, 0.92);
+            border: 1px solid rgba(41, 255, 198, 0.34);
+            border-radius: 4px;
+            box-shadow: 0 0 26px rgba(41, 255, 198, 0.08);
+            color: #dffdf7;
+            font-family: "SF Mono", Menlo, Consolas, monospace;
+            margin: 10px 0 14px;
+            overflow: hidden;
+            padding: 14px 16px 12px;
+            position: relative;
+        }
+        .mythos-loader::before {
+            background: repeating-linear-gradient(
+                180deg,
+                rgba(41, 255, 198, 0.04) 0,
+                rgba(41, 255, 198, 0.04) 1px,
+                transparent 2px,
+                transparent 5px
+            );
+            content: "";
+            inset: 0;
+            opacity: 0.45;
+            pointer-events: none;
+            position: absolute;
+        }
+        .loader-line {
+            color: rgba(190, 255, 244, 0.9);
+            font-size: 0.75rem;
+            line-height: 1.55;
+            position: relative;
+            z-index: 1;
+        }
+        .loader-line.dim {
+            color: rgba(140, 204, 194, 0.68);
+        }
+        .loader-prompt {
+            color: #29ffc6;
+            font-weight: 800;
+        }
+        .loader-cursor::after {
+            animation: mythos-loader-dots 1.2s steps(4, end) infinite;
+            content: "";
+        }
+        @keyframes mythos-loader-dots {
+            0% { content: ""; }
+            25% { content: "."; }
+            50% { content: ".."; }
+            75% { content: "..."; }
+            100% { content: ""; }
         }
         .signal-rain {
             min-height: 300px;
@@ -998,6 +1065,7 @@ def _player_sidebar_options() -> RuntimeOptions:
         "MinIO에 저장되며, 생성 중에는 '생성 중…' 표시 후 자동으로 채워집니다."
     )
     return RuntimeOptions(
+        fast_mode=True,
         fallback=not gm,
         with_image=with_image,
         image_storage="minio",
@@ -1011,6 +1079,11 @@ def _player_sidebar_options() -> RuntimeOptions:
 
 def _developer_sidebar_options() -> RuntimeOptions:
     st.sidebar.header("Runtime")
+    fast_mode = st.sidebar.toggle(
+        "Fast mode",
+        value=False,
+        help="ON이면 repair 왕복과 blocking 이미지 fallback을 피합니다. Player View는 항상 ON입니다.",
+    )
     fallback = st.sidebar.toggle("Fallback narrative", value=True)
     with_image = st.sidebar.toggle("Generate image", value=False)
     image_storage = st.sidebar.radio(
@@ -1033,6 +1106,7 @@ def _developer_sidebar_options() -> RuntimeOptions:
     st.sidebar.link_button("Jaeger", "http://localhost:16686")
 
     return RuntimeOptions(
+        fast_mode=fast_mode,
         fallback=fallback,
         with_image=with_image,
         image_storage=image_storage,
@@ -1291,6 +1365,18 @@ def _player_view(options: RuntimeOptions) -> None:
 def _player_connect_screen(options: RuntimeOptions) -> None:
     copy = _scenario_ui_copy(options.scenario_id)
     _render_intro_overlay(copy)
+
+    if not st.session_state.audio_active:
+        st.markdown("<br>", unsafe_allow_html=True)
+        if st.button("WAKE SYSTEM // 접속 기동 (BGM 활성화)", use_container_width=True):
+            st.session_state.audio_active = True
+            st.rerun()
+
+    # Play main BGM (ONLY in connect screen)
+    main_bgm = PROJECT_ROOT / "resources" / options.scenario_id / "audio" / "bgm_main.wav"
+    if st.session_state.audio_active and main_bgm.exists() and not st.session_state.loop_id:
+        st.audio(str(main_bgm), format="audio/wav", autoplay=True, loop=True)
+
     hero_col, visual_col = st.columns([0.58, 0.42], gap="large")
     with hero_col:
         _render_signal_gate(copy)
@@ -1338,9 +1424,11 @@ def _player_connect_screen(options: RuntimeOptions) -> None:
             disabled=selected is None,
         ):
             _set_player(selected or "")
-            _run_action(
-                lambda service: service.start_loop(selected or "", options),
+            _run_stream_action(
+                lambda service: service.stream_start_loop(selected or "", options),
                 on_success=_set_new_loop_snapshot,
+                show_stream=False,
+                loading_label="새 루프 접속 중",
             )
 
     with load_col:
@@ -1472,6 +1560,7 @@ def _render_blackout_frame(image_path: Path) -> None:
 def _player_session_intro(
     snapshot: RuntimeSnapshot, options: RuntimeOptions, copy: dict[str, Any]
 ) -> None:
+    _render_audio(snapshot)
     intro = copy.get("session_intro", {})
     if not isinstance(intro, dict):
         intro = {}
@@ -1521,6 +1610,7 @@ def _player_session_intro(
 
 
 def _player_active_screen(snapshot: RuntimeSnapshot, options: RuntimeOptions) -> None:
+    _render_audio(snapshot)
     loop = snapshot.loop
     scene = snapshot.scene
 
@@ -1536,7 +1626,13 @@ def _player_active_screen(snapshot: RuntimeSnapshot, options: RuntimeOptions) ->
                 unsafe_allow_html=True,
             )
             _render_hud(loop, scene)
-            st.write(scene.narration)
+            script_placeholder = st.empty()
+            transcript = _story_transcript(snapshot)
+            _render_script_window(
+                transcript,
+                key=f"script:{scene.scene_id}",
+                placeholder=script_placeholder,
+            )
 
             overview = _load_memory_overview(loop.player_id)
 
@@ -1564,51 +1660,71 @@ def _player_active_screen(snapshot: RuntimeSnapshot, options: RuntimeOptions) ->
                     )
                 _render_player_memory(loop, overview)
             else:
-                st.divider()
-                st.subheader("행동 선언")
-
-                for choice in scene.choices:
-                    if st.button(
-                        choice.label,
-                        key=f"player_choice:{scene.scene_id}:{choice.choice_id}",
-                        width="stretch",
-                    ):
-                        _run_action(
-                            lambda service, choice_id=choice.choice_id: service.choose(
-                                loop.loop_id, choice_id=choice_id, options=options
-                            ),
-                            on_success=_set_snapshot,
-                        )
-
-                # Autonomy UI
+                # Wrap the interactive controls so they can be cleared the moment
+                # an action is taken: the choices / free-action input disappear
+                # while the next scene streams in, then reappear on rerun.
+                action_area = st.empty()
+                pending_choice_id: str | None = None
+                pending_action: str | None = None
+                restricted_action = False
+                aggressive_verbs = ["파괴", "삭제", "살해", "공격", "재작성", "지배"]
                 traits = snapshot.player.traits if isinstance(snapshot.player.traits, dict) else {}
                 autonomy_level = int(traits.get("autonomy_level", 1))
-                st.caption(f"**현재 자율성 레벨 {autonomy_level}**")
 
-                action = st.text_input(
-                    "직접 행동을 선언한다",
-                    key="player_free_action",
-                    placeholder="무엇을 하시겠습니까?",
-                )
+                with action_area.container():
+                    st.divider()
+                    st.subheader("행동 선언")
 
-                if st.button("선언", disabled=not action.strip()):
-                    # System Constraint Visualization (Logic: LV 1-2 restricts aggressive verbs)
-                    is_restricted = False
-                    aggressive_verbs = ["파괴", "삭제", "살해", "공격", "재작성", "지배"]
-                    if autonomy_level <= 2 and any(v in action for v in aggressive_verbs):
-                        # We still allow if it's one of the current level's approved keywords, but here we simplify
-                        is_restricted = True
+                    for choice in scene.choices:
+                        if st.button(
+                            choice.label,
+                            key=f"player_choice:{scene.scene_id}:{choice.choice_id}",
+                            width="stretch",
+                        ):
+                            pending_choice_id = choice.choice_id
 
-                    if is_restricted:
+                    # Autonomy UI
+                    st.caption(f"**현재 자율성 레벨 {autonomy_level}**")
+
+                    action = st.text_input(
+                        "직접 행동을 선언한다",
+                        key="player_free_action",
+                        placeholder="무엇을 하시겠습니까?",
+                    )
+
+                    if st.button("선언", disabled=not action.strip()):
+                        pending_action = action.strip()
+                        # System Constraint Visualization (LV 1-2 restricts aggressive verbs)
+                        if autonomy_level <= 2 and any(
+                            v in pending_action for v in aggressive_verbs
+                        ):
+                            restricted_action = True
+
+                if pending_choice_id is not None:
+                    action_area.empty()
+                    _run_stream_action(
+                        lambda service, choice_id=pending_choice_id: service.stream_choose(
+                            loop.loop_id, choice_id=choice_id, options=options
+                        ),
+                        on_success=_set_snapshot,
+                        loading_label="다음 장면 동기화 중",
+                        stream_placeholder=script_placeholder,
+                        initial_text=transcript,
+                    )
+                elif pending_action is not None:
+                    action_area.empty()
+                    if restricted_action:
                         st.warning(
                             "⚠ **신호 제약 감지**: 현재 자율성 레벨에서 실행하기 어려운 행동입니다. 신호가 감쇄되어 전달됩니다."
                         )
-
-                    _run_action(
-                        lambda service: service.choose(
-                            loop.loop_id, action=action.strip(), options=options
+                    _run_stream_action(
+                        lambda service: service.stream_choose(
+                            loop.loop_id, action=pending_action, options=options
                         ),
                         on_success=_set_snapshot,
+                        loading_label="다음 장면 동기화 중",
+                        stream_placeholder=script_placeholder,
+                        initial_text=transcript,
                     )
 
                 _render_player_memory(loop, overview)
@@ -1929,16 +2045,6 @@ def _render_hud(loop: LoopState, scene: Scene) -> None:
             """,
             unsafe_allow_html=True,
         )
-    if scene.action_result:
-        result_class = "warn"
-        if "Success" in scene.action_result:
-            result_class = "success"
-        elif "Failure" in scene.action_result:
-            result_class = "failure"
-        st.markdown(
-            f'<div class="ops-result {result_class}">결과 // {scene.action_result}</div>',
-            unsafe_allow_html=True,
-        )
 
     stability = min(max(loop.stability, 0), 100)
     tension = min(max(loop.tension, 0), 100)
@@ -2110,10 +2216,49 @@ def _render_snapshot(snapshot: RuntimeSnapshot) -> None:
 
     st.subheader(scene.title)
     st.caption(scene.location)
-    st.write(scene.narration)
+    _render_script_window(scene.narration, key=f"dev-script:{scene.scene_id}")
 
     _render_assets(snapshot)
+    _render_audio(snapshot)
     _render_echoes(loop)
+
+
+def _render_audio(snapshot: RuntimeSnapshot) -> None:
+    if snapshot.bgm_path and Path(snapshot.bgm_path).exists():
+        st.audio(snapshot.bgm_path, format="audio/wav", autoplay=True, loop=True)
+
+
+def _render_script_window(
+    text: str,
+    *,
+    key: str,
+    max_chars: int = 4200,
+    placeholder=None,
+) -> None:
+    del key  # Kept for call-site stability if Streamlit native keyed containers are added later.
+    block = _script_window_html(text, max_chars=max_chars)
+    target = placeholder if placeholder is not None else st
+    target.markdown(block, unsafe_allow_html=True)
+
+
+def _script_window_html(text: str, max_chars: int = 4200) -> str:
+    clipped = text[-max_chars:] if len(text) > max_chars else text
+    prefix = "...\n" if len(text) > max_chars else ""
+    escaped = html.escape(prefix + clipped).replace("\n", "<br>")
+    # Rendered as plain markdown (no iframe) so reruns and streaming chunks swap
+    # the inner HTML in place instead of reloading an iframe document — the iframe
+    # reload was the white flash / flicker. `flex-direction: column-reverse` keeps
+    # the newest text pinned to the bottom (CSS-only auto-scroll, no <script>).
+    return (
+        '<div style="box-sizing:border-box;height:372px;overflow-y:auto;'
+        "padding:16px 18px;border:1px solid rgba(0,255,230,0.22);"
+        "background:rgba(3,8,15,0.88);color:rgba(235,246,255,0.96);"
+        "font-family:'SF Mono',Menlo,Consolas,monospace;font-size:15px;"
+        "line-height:1.72;border-radius:6px;white-space:normal;"
+        'display:flex;flex-direction:column-reverse;">'
+        f"<div>{escaped}</div>"
+        "</div>"
+    )
 
 
 def _render_assets(snapshot: RuntimeSnapshot) -> None:
@@ -2157,6 +2302,69 @@ def _run_action(action, on_success) -> None:
         st.session_state.error = str(exc)
 
 
+def _run_stream_action(
+    action,
+    on_success,
+    *,
+    show_stream: bool = True,
+    loading_label: str = "Loading...",
+    stream_placeholder=None,
+    initial_text: str = "",
+) -> None:
+    st.session_state.error = ""
+    status = st.empty()
+    _render_loader(status, loading_label)
+    placeholder = stream_placeholder if show_stream else None
+    streamed_text = ""
+    base_text = initial_text.rstrip()
+    if placeholder is not None and base_text:
+        _render_script_window(base_text, key="stream-base", placeholder=placeholder)
+    final_snapshot = None
+    try:
+        store = PostgresMythOSStore()
+        try:
+            service = RuntimeSessionService(store)
+            for event in action(service):
+                if not isinstance(event, RuntimeStreamEvent):
+                    continue
+                if event.kind == "text" and event.text:
+                    streamed_text += event.text
+                    if placeholder is not None:
+                        combined = (
+                            f"{base_text}\n\n{streamed_text}" if base_text else streamed_text
+                        )
+                        _render_script_window(combined, key="stream-live", placeholder=placeholder)
+                elif event.kind == "final":
+                    final_snapshot = event.snapshot
+        finally:
+            store.close()
+        if final_snapshot is None:
+            raise RuntimeError("stream ended without a final snapshot")
+        status.empty()
+        on_success(final_snapshot)
+        st.rerun()
+    except Exception as exc:
+        _render_loader(status, "접속 실패", subline=str(exc))
+        st.session_state.error = str(exc)
+
+
+def _render_loader(target, label: str, *, subline: str | None = None) -> None:
+    safe_label = html.escape(label)
+    safe_subline = html.escape(subline or "world_state.sync pending")
+    target.markdown(
+        f"""
+        <div class="mythos-loader">
+          <div class="loader-line dim">MYTHOS_LOCAL_NODE :: STREAM HANDSHAKE</div>
+          <div class="loader-line"><span class="loader-prompt">&gt;</span> {safe_label}<span class="loader-cursor"></span></div>
+          <div class="loader-line dim">[00.117] player_intent.buffer :: locked</div>
+          <div class="loader-line dim">[00.402] narrative_schema.scan :: active</div>
+          <div class="loader-line dim">[00.719] {safe_subline}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def _load_current_snapshot() -> RuntimeSnapshot | None:
     try:
         store = PostgresMythOSStore()
@@ -2179,6 +2387,62 @@ def _load_memory_overview(player_id: str) -> MemoryOverview | None:
     except Exception as exc:
         st.session_state.error = str(exc)
         return None
+
+
+def _story_transcript(snapshot: RuntimeSnapshot) -> str:
+    transcripts = st.session_state.setdefault("story_transcripts", {})
+    existing = transcripts.get(snapshot.loop.loop_id)
+    if isinstance(existing, dict):
+        text = existing.get("text", "")
+        if isinstance(text, str) and text.strip():
+            return text
+    if isinstance(existing, str) and existing.strip():
+        return existing
+    transcripts[snapshot.loop.loop_id] = {
+        "text": snapshot.scene.narration,
+        "last_scene_id": snapshot.scene.scene_id,
+    }
+    return snapshot.scene.narration
+
+
+def _append_story_transcript(snapshot: RuntimeSnapshot, *, reset: bool = False) -> None:
+    transcripts = st.session_state.setdefault("story_transcripts", {})
+    loop_id = snapshot.loop.loop_id
+    if reset:
+        transcripts[loop_id] = {
+            "text": snapshot.scene.narration[-STORY_TRANSCRIPT_LIMIT:],
+            "last_scene_id": snapshot.scene.scene_id,
+        }
+        return
+
+    existing = transcripts.get(loop_id)
+    if isinstance(existing, dict):
+        current_text = str(existing.get("text", ""))
+        last_scene_id = str(existing.get("last_scene_id", ""))
+    elif isinstance(existing, str):
+        current_text = existing
+        last_scene_id = ""
+    else:
+        current_text = ""
+        last_scene_id = ""
+
+    if last_scene_id == snapshot.scene.scene_id:
+        return
+
+    if not current_text.strip():
+        updated = snapshot.scene.narration
+    else:
+        updated = f"{current_text.rstrip()}\n\n{snapshot.scene.narration}"
+
+    if len(updated) > STORY_TRANSCRIPT_LIMIT:
+        updated = updated[-STORY_TRANSCRIPT_LIMIT:]
+        if not updated.startswith("..."):
+            updated = f"...\n{updated}"
+
+    transcripts[loop_id] = {
+        "text": updated,
+        "last_scene_id": snapshot.scene.scene_id,
+    }
 
 
 def _load_players() -> list[PlayerProfile]:
@@ -2332,10 +2596,12 @@ def _set_snapshot(snapshot: RuntimeSnapshot) -> None:
     st.session_state.message = f"phase={snapshot.loop.phase.value}, scene={snapshot.scene.title}"
     if snapshot.image_result is not None:
         st.session_state.message += f", image={snapshot.image_result.status}"
+    _append_story_transcript(snapshot)
 
 
 def _set_new_loop_snapshot(snapshot: RuntimeSnapshot) -> None:
     _set_snapshot(snapshot)
+    _append_story_transcript(snapshot, reset=True)
     st.session_state.show_session_intro = True
 
 

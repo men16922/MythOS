@@ -20,6 +20,7 @@ if load_dotenv is not None:
 class AgentConfig:
     ollama_base_url: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
     ollama_model: str = os.getenv("OLLAMA_MODEL", "gemma4:latest")
+    ollama_timeout_seconds: float = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "4.5"))
     hf_token: str | None = os.getenv("HF_TOKEN") or os.getenv("HUGGING_FACE_HUB_TOKEN")
     image_model_id: str = os.getenv("IMAGE_MODEL_ID", "black-forest-labs/FLUX.1-schnell")
     # Image backend: "mflux" (Apple MLX, ~20x faster + quantized, default) or "diffusers"

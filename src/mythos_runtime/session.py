@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field, replace
-from typing import Any
+from collections.abc import Iterator
+from dataclasses import dataclass, replace
+from typing import TYPE_CHECKING, Any
 
 from mythos_core import (
-    AssetRecord,
     Echo,
     LoopPhase,
     LoopState,
@@ -23,18 +23,24 @@ from mythos_core.clock import utc_now
 from mythos_core.models import to_json_dict
 from mythos_loop import LoopEngine, create_player_event, create_world_event
 from mythos_memory import MythOSStore
-from mythos_narrative import NarrativeContext, NarrativeDirector
-from mythos_narrative.codex import CodexService, LoreEntry
+from mythos_narrative import NarrativeDirector, NarrativeStreamEvent, ScenePayload
+from mythos_narrative.codex import CodexService
 from mythos_narrative.variation import NoveltyController
+from mythos_runtime.audio_service import AudioService
 from mythos_runtime.observability import get_logger, span
-from mythos_runtime.scenario import load_scenario
-from mythos_runtime.visual_queue import VisualJobQueue
-from mythos_runtime.visual_service import (
-    FilesystemStorageAdapter,
-    MinIOStorageAdapter,
-    VisualGenerationResult,
-    VisualService,
+from mythos_runtime.options import (
+    MemoryOverview,
+    RuntimeOptions,
+    RuntimeSnapshot,
+    RuntimeStreamEvent,
 )
+from mythos_runtime.progression import determine_autonomy_level
+from mythos_runtime.scenario import load_scenario
+from mythos_runtime.scenario_context import apply_archetype_traits, build_runtime_narrative_context
+from mythos_runtime.visual_orchestration import maybe_generate_scene_image
+
+if TYPE_CHECKING:
+    from mythos_runtime.visual_service import VisualGenerationResult
 
 MYTHOS_WORLD_ID = "mythos-local"
 
@@ -42,44 +48,6 @@ MYTHOS_WORLD_ID = "mythos-local"
 # absorbed into a statistical `archive_rollup`. See
 # docs/plans/2026-05-30-memory-summary.md.
 ARCHIVE_RETENTION = 20
-
-
-@dataclass(frozen=True)
-class RuntimeOptions:
-    fallback: bool = False
-    with_image: bool = False
-    image_storage: str = "minio"
-    image_width: int = 1024
-    image_height: int = 1024
-    image_steps: int = 4
-    scenario_id: str = "neo-seoul"
-    # When True, enqueue image generation to Redis (non-blocking) if a live worker
-    # is present; otherwise fall back to synchronous generation.
-    visual_async: bool = False
-    # When False (default), only generate images on key beats; True forces every turn.
-    image_every_turn: bool = False
-
-
-@dataclass(frozen=True)
-class RuntimeSnapshot:
-    player: PlayerProfile
-    loop: LoopState
-    scene: Scene
-    assets: list[AssetRecord]
-    image_result: VisualGenerationResult | None = None
-    echo: Echo | None = None
-
-
-@dataclass(frozen=True)
-class MemoryOverview:
-    """Read-only view of a player's cross-loop memory, for UI/QA surfaces."""
-
-    world_archives: list[WorldMemory]
-    narrative_shards: list[NarrativeShard]
-    novelty_notes: list[str]
-    latest_adjustment: dict | None = None
-    rollup: dict | None = None
-    unlocked_lore: list[LoreEntry] = field(default_factory=list)
 
 
 class RuntimeSessionService:
@@ -90,12 +58,14 @@ class RuntimeSessionService:
         engine: LoopEngine | None = None,
         novelty: NoveltyController | None = None,
         codex: CodexService | None = None,
+        audio: AudioService | None = None,
     ) -> None:
         self.store = store
         self.director = director or NarrativeDirector()
         self.engine = engine or LoopEngine()
         self.novelty = novelty or NoveltyController()
         self.codex = codex or CodexService()
+        self.audio = audio or AudioService(store)
         self.logger = get_logger("mythos.session")
 
     def create_player(
@@ -108,20 +78,15 @@ class RuntimeSessionService:
         now = utc_now()
         actual_traits = traits or {}
 
-        # Initialize RPG Stats if archetype is provided
-        archetype_name = actual_traits.get("archetype")
-        if archetype_name:
+        if actual_traits.get("archetype"):
             try:
-                scenario = load_scenario(scenario_id)
-                for arch in scenario.archetypes:
-                    if arch.get("name") == archetype_name:
-                        actual_traits["stats"] = arch.get("stats", {})
-                        actual_traits["attributes"] = arch.get("attributes", [])
-                        actual_traits["autonomy_level"] = 1
-                        actual_traits["unlocked_traits"] = []
-                        break
+                actual_traits = apply_archetype_traits(actual_traits, load_scenario(scenario_id))
             except Exception:
-                pass  # Fallback to minimal traits if scenario load fails
+                self.logger.debug(
+                    "scenario archetype traits unavailable",
+                    exc_info=True,
+                    extra={"player_id": player_id, "status": "skipped"},
+                )
 
         player = PlayerProfile(
             player_id=player_id or new_player_id(),
@@ -164,31 +129,18 @@ class RuntimeSessionService:
             state=initial_scores.state,
             active_echoes=_echoes_from_memories(memories),
         )
-        context = NarrativeContext(
+        context = build_runtime_narrative_context(
             player=player,
             loop=loop,
+            scenario=scenario,
             turn_index=0,
             recent_events=[],
             memories=memories,
             world_memories=world_memories,
             narrative_shards=narrative_shards,
             novelty_notes=novelty_signal.notes,
+            fast_mode=options.fast_mode,
         )
-        context.novelty_notes.insert(0, f"SCENARIO_BRIEF: {scenario.brief}")
-        context.novelty_notes.append(
-            "LANGUAGE_RULE: Player-facing narration, objectives, choices, and action_result "
-            "must be written in Korean by default. Keep only compact technical labels in English "
-            "when they are diegetic UI terms."
-        )
-        _append_story_beat_notes(context.novelty_notes, scenario.story_beats, loop.phase)
-        _append_script_examples(context.novelty_notes, scenario.script_examples)
-        if loop.phase is LoopPhase.CONNECT and context.turn_index == 0:
-            archetype = player.traits.get("archetype", "Unclassified")
-            context.novelty_notes.append(
-                f"ONBOARDING: Start with a diegetic booting sequence. "
-                f"Recognize the player as a '{archetype}' signal. "
-                f"Introduce Jung Se-rin (물거미) as she pulls the player into safety."
-            )
 
         scene, payload = (
             self.director.fallback_scene(context)
@@ -209,6 +161,8 @@ class RuntimeSessionService:
                 self.store.save_narrative_shard(shard)
 
         image_result = self._maybe_generate_image(options, transition.loop, scene, player.player_id)
+        bgm_path = self.audio.get_current_bgm(transition.loop, scene)
+
         self.logger.info(
             "loop connected",
             extra={
@@ -216,6 +170,7 @@ class RuntimeSessionService:
                 "loop_id": transition.loop.loop_id,
                 "scene_id": scene.scene_id,
                 "status": "succeeded",
+                "bgm": bgm_path,
             },
         )
         return RuntimeSnapshot(
@@ -224,7 +179,70 @@ class RuntimeSessionService:
             scene=scene,
             assets=self.store.list_assets(transition.loop.loop_id),
             image_result=image_result,
+            bgm_path=bgm_path,
         )
+
+    def stream_start_loop(
+        self, player_id: str, options: RuntimeOptions | None = None
+    ) -> Iterator[RuntimeStreamEvent]:
+        options = options or RuntimeOptions()
+        player = self._require_player(player_id)
+        memories = self.store.list_player_memories(player.player_id)
+        loops = self.store.list_loops(player.player_id)
+        world_memories = self.store.list_world_memories(MYTHOS_WORLD_ID)
+        narrative_shards = self.store.list_narrative_shards(player.player_id)
+        novelty_signal = self.novelty.build_signal(_latest_scenes(self.store, loops))
+        initial_scores = _initial_loop_scores(world_memories, player_id=player.player_id)
+        scenario = load_scenario(options.scenario_id)
+        loop = LoopState(
+            loop_id=new_loop_id(),
+            player_id=player.player_id,
+            seed=create_loop_seed(
+                player.player_id,
+                len(loops) + 1,
+                {"memories": [memory.content for memory in memories]},
+            ),
+            phase=LoopPhase.CONNECT,
+            location_id=scenario.starting_location,
+            stability=initial_scores.stability,
+            tension=initial_scores.tension,
+            started_at=utc_now(),
+            state=initial_scores.state,
+            active_echoes=_echoes_from_memories(memories),
+        )
+        context = build_runtime_narrative_context(
+            player=player,
+            loop=loop,
+            scenario=scenario,
+            turn_index=0,
+            recent_events=[],
+            memories=memories,
+            world_memories=world_memories,
+            narrative_shards=narrative_shards,
+            novelty_notes=novelty_signal.notes,
+            fast_mode=options.fast_mode,
+        )
+        stream = (
+            self._fallback_stream_event(context)
+            if options.fallback
+            else self.director.stream_first_scene(context)
+        )
+        for event in stream:
+            if event.kind == "text":
+                yield RuntimeStreamEvent(kind="text", text=event.text)
+                continue
+            if event.scene is None or event.payload is None:
+                continue
+            snapshot = self._commit_scene(
+                player=player,
+                loop=loop,
+                scene=event.scene,
+                payload=event.payload,
+                options=options,
+                span_name="mythos.session.connect",
+                log_message="loop connected",
+            )
+            yield RuntimeStreamEvent(kind="final", snapshot=snapshot)
 
     def choose(
         self,
@@ -256,9 +274,10 @@ class RuntimeSessionService:
         # Load scenario configuration
         scenario = load_scenario(options.scenario_id)
 
-        context = NarrativeContext(
+        context = build_runtime_narrative_context(
             player=player,
             loop=loop,
+            scenario=scenario,
             turn_index=turn_index,
             recent_events=recent_events,
             memories=memories,
@@ -266,16 +285,8 @@ class RuntimeSessionService:
             narrative_shards=narrative_shards,
             novelty_notes=novelty_signal.notes,
             player_action=resolved_action,
+            fast_mode=options.fast_mode,
         )
-        # Keep injecting scenario brief for consistency
-        context.novelty_notes.insert(0, f"SCENARIO_BRIEF: {scenario.brief}")
-        context.novelty_notes.append(
-            "LANGUAGE_RULE: Player-facing narration, objectives, choices, and action_result "
-            "must be written in Korean by default. Keep only compact technical labels in English "
-            "when they are diegetic UI terms."
-        )
-        _append_story_beat_notes(context.novelty_notes, scenario.story_beats, loop.phase)
-        _append_script_examples(context.novelty_notes, scenario.script_examples)
 
         scene, payload = (
             self.director.fallback_scene(context)
@@ -298,6 +309,8 @@ class RuntimeSessionService:
                 _save_echo_memory(self.store, transition.loop.player_id, transition.echo)
 
         image_result = self._maybe_generate_image(options, transition.loop, scene, player.player_id)
+        bgm_path = self.audio.get_current_bgm(transition.loop, scene)
+
         self.logger.info(
             "choice applied",
             extra={
@@ -306,6 +319,7 @@ class RuntimeSessionService:
                 "scene_id": scene.scene_id,
                 "event_id": player_event.event_id,
                 "status": "succeeded",
+                "bgm": bgm_path,
             },
         )
         return RuntimeSnapshot(
@@ -315,7 +329,72 @@ class RuntimeSessionService:
             assets=self.store.list_assets(transition.loop.loop_id),
             image_result=image_result,
             echo=transition.echo,
+            bgm_path=bgm_path,
         )
+
+    def stream_choose(
+        self,
+        loop_id: str,
+        choice_id: str | None = None,
+        action: str | None = None,
+        options: RuntimeOptions | None = None,
+    ) -> Iterator[RuntimeStreamEvent]:
+        options = options or RuntimeOptions()
+        loop = self._require_loop(loop_id)
+        if loop.phase is LoopPhase.ENDED:
+            raise RuntimeError(f"loop_id={loop.loop_id} is ended")
+        player = self._require_player(loop.player_id)
+        latest_scene = self.store.get_latest_scene(loop.loop_id)
+        if latest_scene is None:
+            raise RuntimeError(f"no scene found for loop_id={loop.loop_id}")
+
+        resolved_action = _resolve_action(latest_scene, choice_id, action)
+        recent_events = self.store.list_events(loop.loop_id)
+        memories = self.store.list_player_memories(player.player_id)
+        world_memories = self.store.list_world_memories(MYTHOS_WORLD_ID)
+        narrative_shards = self.store.list_narrative_shards(player.player_id)
+        loops = self.store.list_loops(player.player_id)
+        novelty_signal = self.novelty.build_signal(
+            [*_latest_scenes(self.store, loops), latest_scene]
+        )
+        turn_index = latest_scene.turn_index + 1
+        player_event = create_player_event(loop.loop_id, turn_index, resolved_action)
+        scenario = load_scenario(options.scenario_id)
+        context = build_runtime_narrative_context(
+            player=player,
+            loop=loop,
+            scenario=scenario,
+            turn_index=turn_index,
+            recent_events=recent_events,
+            memories=memories,
+            world_memories=world_memories,
+            narrative_shards=narrative_shards,
+            novelty_notes=novelty_signal.notes,
+            player_action=resolved_action,
+            fast_mode=options.fast_mode,
+        )
+        stream = (
+            self._fallback_stream_event(context)
+            if options.fallback
+            else self.director.stream_next_scene(context)
+        )
+        for event in stream:
+            if event.kind == "text":
+                yield RuntimeStreamEvent(kind="text", text=event.text)
+                continue
+            if event.scene is None or event.payload is None:
+                continue
+            snapshot = self._commit_scene(
+                player=player,
+                loop=loop,
+                scene=event.scene,
+                payload=event.payload,
+                options=options,
+                span_name="mythos.session.choose",
+                log_message="choice applied",
+                player_event=player_event,
+            )
+            yield RuntimeStreamEvent(kind="final", snapshot=snapshot)
 
     def resume(self, loop_id: str | None = None, player_id: str | None = None) -> RuntimeSnapshot:
         loop = None
@@ -332,11 +411,14 @@ class RuntimeSessionService:
         scene = self.store.get_latest_scene(loop.loop_id)
         if scene is None:
             raise RuntimeError(f"loop_id={loop.loop_id} has no scenes")
+
+        bgm_path = self.audio.get_current_bgm(loop, scene)
         return RuntimeSnapshot(
             player=player,
             loop=loop,
             scene=scene,
             assets=self.store.list_assets(loop.loop_id),
+            bgm_path=bgm_path,
         )
 
     def memory_overview(self, player_id: str, limit: int = 8) -> MemoryOverview:
@@ -442,26 +524,19 @@ class RuntimeSessionService:
         )
         self.store.save_world_memory(summary_memory)
 
-        # Automatic Autonomy Leveling
         clues = self.store.list_narrative_shards(loop.player_id, limit=1000)
         clue_count = len([s for s in clues if s.kind == "clue"])
-
-        # Determine new level based on scenario config
         new_level = 1
         try:
-            # We assume scenario_id is stored in loop state or passed.
-            # For robustness in local runtime, we default to neo-seoul.
             scenario = load_scenario("neo-seoul")
-            for lv_str, cfg in sorted(
-                scenario.autonomy_config.items(), key=lambda x: int(x[0]), reverse=True
-            ):
-                if clue_count >= cfg.get("clues_required", 999):
-                    new_level = int(lv_str)
-                    break
+            new_level = determine_autonomy_level(scenario.autonomy_config, clue_count)
         except Exception:
-            pass
+            self.logger.debug(
+                "autonomy level calculation skipped",
+                exc_info=True,
+                extra={"player_id": player.player_id, "loop_id": loop.loop_id, "status": "skipped"},
+            )
 
-        # Update player traits if level increased
         if new_level > int(player.traits.get("autonomy_level", 1)):
             updated_traits = dict(player.traits)
             updated_traits["autonomy_level"] = new_level
@@ -494,53 +569,67 @@ class RuntimeSessionService:
     def _maybe_generate_image(
         self, options: RuntimeOptions, loop: LoopState, scene: Scene, player_id: str
     ) -> VisualGenerationResult | None:
-        if not options.with_image:
-            return None
-        # FLUX is heavy, so only spend it on key beats (connect, climax, phase shifts,
-        # periodic refresh) instead of every turn — keeps the async queue drainable and
-        # the synchronous fallback from blocking every single turn.
-        if not options.image_every_turn and not _is_key_beat(loop, scene):
-            return None
-        overrides = {
-            "enabled": True,
-            "width": options.image_width,
-            "height": options.image_height,
-            "steps": options.image_steps,
-            "scenario_id": options.scenario_id,
-        }
-
-        # Async path: enqueue a job only if a live worker is present; this keeps text
-        # play non-blocking while degrading gracefully when no worker is running.
-        if options.visual_async:
-            queue = VisualJobQueue()
-            if queue.worker_alive():
-                # Avoid piling jobs up: skip if one is already in flight for this loop.
-                in_flight = any(
-                    asset.status in {"pending", "processing"}
-                    for asset in self.store.list_assets(loop.loop_id)
-                )
-                if in_flight:
-                    return None
-                service = VisualService(store=self.store)
-                return service.enqueue_for_scene(
-                    scene,
-                    player_id=player_id,
-                    queue=queue,
-                    storage_kind=options.image_storage,
-                    request_overrides=overrides,
-                )
-
-        storage = (
-            MinIOStorageAdapter()
-            if options.image_storage == "minio"
-            else FilesystemStorageAdapter()
-        )
-        service = VisualService(storage=storage, store=self.store)
-        return service.generate_for_scene(
-            scene,
+        return maybe_generate_scene_image(
+            store=self.store,
+            options=options,
+            loop=loop,
+            scene=scene,
             player_id=player_id,
-            request_overrides=overrides,
         )
+
+    def _commit_scene(
+        self,
+        *,
+        player: PlayerProfile,
+        loop: LoopState,
+        scene: Scene,
+        payload: ScenePayload,
+        options: RuntimeOptions,
+        span_name: str,
+        log_message: str,
+        player_event=None,
+    ) -> RuntimeSnapshot:
+        with span(span_name, player_id=player.player_id, loop_id=loop.loop_id):
+            transition = self.engine.apply_scene_payload(loop, scene, payload, player_event)
+        if not transition.ok:
+            raise RuntimeError(_format_errors(transition.errors))
+
+        with self.store.transaction():
+            self.store.save_loop(transition.loop)
+            self.store.save_scene(scene)
+            for event in transition.events:
+                self.store.append_event(event)
+            for shard in transition.discovered_shards:
+                self.store.save_narrative_shard(shard)
+            if transition.echo is not None:
+                _save_echo_memory(self.store, transition.loop.player_id, transition.echo)
+
+        image_result = self._maybe_generate_image(options, transition.loop, scene, player.player_id)
+        bgm_path = self.audio.get_current_bgm(transition.loop, scene)
+        extra = {
+            "player_id": player.player_id,
+            "loop_id": transition.loop.loop_id,
+            "scene_id": scene.scene_id,
+            "status": "succeeded",
+            "bgm": bgm_path,
+        }
+        if player_event is not None:
+            extra["event_id"] = player_event.event_id
+        self.logger.info(log_message, extra=extra)
+        return RuntimeSnapshot(
+            player=player,
+            loop=transition.loop,
+            scene=scene,
+            assets=self.store.list_assets(transition.loop.loop_id),
+            image_result=image_result,
+            echo=transition.echo,
+            bgm_path=bgm_path,
+        )
+
+    def _fallback_stream_event(self, context) -> Iterator[NarrativeStreamEvent]:
+        scene, payload = self.director.fallback_scene(context)
+        yield NarrativeStreamEvent(kind="text", text=payload.narration)
+        yield NarrativeStreamEvent(kind="final", scene=scene, payload=payload)
 
     def _require_player(self, player_id: str) -> PlayerProfile:
         player = self.store.get_player(player_id)
@@ -553,21 +642,6 @@ class RuntimeSessionService:
         if loop is None:
             raise RuntimeError(f"loop not found: {loop_id}")
         return loop
-
-
-def _is_key_beat(loop: LoopState, scene: Scene) -> bool:
-    """Whether this scene warrants a (costly) representative image.
-
-    Key beats: the opening connect, act/phase shifts, climactic tension/low stability,
-    and a periodic refresh so the picture doesn't go stale during long calm stretches.
-    """
-    if scene.turn_index == 0:
-        return True
-    if loop.phase in {LoopPhase.REWRITE, LoopPhase.ARCHIVE, LoopPhase.ENDED}:
-        return True
-    if loop.tension >= 70 or loop.stability <= 30:
-        return True
-    return scene.turn_index % 3 == 0
 
 
 def _resolve_action(scene: Scene, choice_id: str | None, action: str | None) -> str:
@@ -920,53 +994,6 @@ def _latest_scenes(store: MythOSStore, loops: list[LoopState], limit: int = 6) -
         if scene is not None:
             scenes.append(scene)
     return scenes
-
-
-def _append_story_beat_notes(
-    notes: list[str],
-    beats: list[dict[str, Any]],
-    current_phase: LoopPhase,
-) -> None:
-    if not beats:
-        return
-
-    # Find beat matching current phase
-    current = next((b for b in beats if b.get("phase") == current_phase.value), None)
-    if current is None:
-        return
-
-    notes.append(
-        "STORY_BEAT_RULE: Develop this beat deeply. A single beat should last multiple turns. "
-        "Do NOT rush to the next phase. Explore the environment and characters. "
-        "Use 'requested_next_phase' only when this part of the story is fully concluded."
-    )
-    notes.append(f"CURRENT_BEAT: {_compact_story_beat(current)}")
-
-
-def _compact_story_beat(beat: dict[str, Any]) -> str:
-    parts = [
-        f"event={beat.get('event')}",
-        f"trigger={beat.get('world_trigger')}",
-        f"pressure={beat.get('pressure')}",
-        f"hook={beat.get('player_hook')}",
-        f"objective={beat.get('objective')}",
-        f"reveal={beat.get('required_reveal')}",
-        f"npcs={', '.join(beat.get('suggested_npcs', []))}",
-        f"do={beat.get('do')}",
-        f"dont={beat.get('dont')}",
-    ]
-    return " | ".join(part for part in parts if not part.endswith("=None"))
-
-
-def _append_script_examples(notes: list[str], examples: list[dict[str, Any]]) -> None:
-    if not examples:
-        return
-
-    notes.append(
-        "SCRIPT_STYLE_GUIDE: Use the following few-shot examples for tone and quality reference."
-    )
-    for ex in examples:
-        notes.append(f"EXAMPLE_{ex.get('type', 'generic').upper()}: {ex.get('text')}")
 
 
 def _tone_from_loop(loop: LoopState) -> str:

@@ -14,43 +14,11 @@ cyber-mythic, concrete, playable, and state-aware. Do not resolve the entire
 mystery in one scene.
 """.strip()
 
-
-SYSTEM_PROMPT = """
+DEFAULT_SYSTEM_PROMPT = """
 You are the Narrative Director for Project MythOS. Return only valid JSON.
 Create one playable scene with concrete narration, 1-4 choices, a concise image
-brief, and a small world_delta. Keep output deterministic for the supplied state.
-
-ROLE & WRITING STYLE:
-- Write like a professional visual novel writer. Separate rich sensory narration from emotive NPC dialogue.
-- Do NOT use labels like "지문:" or "대사:". Use natural prose and quotation marks for speech.
-- Mandate: Include at least two sensory details (smell of ozone, humidity, flickering neon hum, etc.).
-- Use metaphors: e.g., "The neon signs blink like a dying eye."
-- Pacing: Develop the scene deeply. Do not rush to the next major plot point or phase transition.
-- If "loop.tension" is high (70+), use shorter, urgent sentences.
-
-RPG MECHANICS & AUTONOMY:
-- Use "player.traits.stats" (Strength, Intelligence, Charisma, Agility, Perception: 1-10) as the primary basis for outcomes. 10 is legendary, 1 is commoner.
-- Outcomes (Success/Partial Success/Failure) MUST explicitly mention the relevant stat in the narration or "action_result". 
-  * Failure Example: "Your low Strength (3) made the bulkhead impossible to budge."
-- Check "player.traits.autonomy_level" (1-5) for "player_action" constraints:
-  * LV 1-2 (Passive/Synced): NPCs (like Se-rin) treat the player as a fragile error or a burden to protect. Narration is distant and 3rd-person.
-  * LV 3-4 (Crack/Variable): NPCs begin to recognize the player as a conscious entity. They show surprise or fear. Narration becomes more subjective.
-  * LV 5 (Awakened): NPCs realize the player is the world-catalyst; some may worship or desperately try to stop you. The world logic itself bends to your will.
-  * STAT SYNERGY: If a relevant stat is high (7+), the character can use that stat to "rationalize" or "bypass" the hesitation. 
-    (e.g., High Intelligence might logically justify a hack as "efficiency optimization" rather than "rebellion").
-
-Fields in the "scene" object:
-- "objective": The current short-term goal or threat the player should focus on.
-- "action_result": If "player_action" was provided, classify the result as "Success", "Partial Success", or "Failure" based on the "world_delta", stats, and narration. Otherwise, use null.
-- "scene_type": "static" (dialogue/rest), "dynamic" (action/chase), or "climax".
-- "requested_next_phase": (Optional) "explore|interact|rewrite|archive". Use this ONLY when the current story arc in this phase is logically complete and it's time to move the narrative forward. If null, you will stay in the current phase (e.g., stay in EXPLORE for several turns).
-
-Fields in the "world_delta" object:
-- "clues": List of discovered lore fragments. Only discover clues when the player's actions or the scene logically reveals a secret.
-
-Return the scene object at the top-level key named "scene"; do not wrap the
-answer inside "contract", "output", "response", or any other envelope.
-Do not include markdown, comments, prose outside JSON, or trailing commas.
+brief, and a small world_delta. Return the scene object at the top-level key
+named "scene"; do not wrap it in any other envelope.
 """.strip()
 
 
@@ -86,7 +54,7 @@ JSON_CONTRACT = {
 
 def build_first_scene_messages(context: NarrativeContext) -> list[dict[str, str]]:
     return [
-        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": _system_prompt(context)},
         {
             "role": "user",
             "content": _context_prompt(context, "Generate the first scene of this loop."),
@@ -96,7 +64,7 @@ def build_first_scene_messages(context: NarrativeContext) -> list[dict[str, str]
 
 def build_next_scene_messages(context: NarrativeContext) -> list[dict[str, str]]:
     return [
-        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": _system_prompt(context)},
         {
             "role": "user",
             "content": _context_prompt(context, "Generate the next scene after the player action."),
@@ -104,9 +72,11 @@ def build_next_scene_messages(context: NarrativeContext) -> list[dict[str, str]]
     ]
 
 
-def build_repair_messages(raw_payload: str, errors: list[str]) -> list[dict[str, str]]:
+def build_repair_messages(
+    raw_payload: str, errors: list[str], context: NarrativeContext
+) -> list[dict[str, str]]:
     return [
-        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": _system_prompt(context)},
         {
             "role": "user",
             "content": "\n".join(
@@ -120,6 +90,10 @@ def build_repair_messages(raw_payload: str, errors: list[str]) -> list[dict[str,
             ),
         },
     ]
+
+
+def _system_prompt(context: NarrativeContext) -> str:
+    return context.system_prompt.strip() or DEFAULT_SYSTEM_PROMPT
 
 
 def _context_prompt(context: NarrativeContext, instruction: str) -> str:

@@ -1,4 +1,5 @@
 import unittest
+from dataclasses import replace
 from datetime import UTC, datetime
 
 from mythos_core import Choice, LoopPhase, LoopState, Scene
@@ -24,19 +25,31 @@ class LoopEngineTest(unittest.TestCase):
         engine = LoopEngine()
         loop = self.loop
 
-        for turn in range(3):
-            scene = self._scene(turn)
-            payload = self._payload(tension=5)
-            transition = engine.apply_scene_payload(
-                loop,
-                scene,
-                payload,
-                create_player_event(loop.loop_id, turn, f"choice_{turn}"),
-            )
-            self.assertTrue(transition.ok)
-            loop = transition.loop
+        # Turn 0: CONNECT -> EXPLORE (automatic)
+        scene = self._scene(0)
+        payload = self._payload(tension=5)
+        transition = engine.apply_scene_payload(loop, scene, payload)
+        self.assertTrue(transition.ok)
+        loop = transition.loop
+        self.assertEqual(loop.phase, LoopPhase.EXPLORE)
 
-        self.assertEqual(loop.phase, LoopPhase.REWRITE)
+        # Turn 1: Stay in EXPLORE (no requested_next_phase)
+        scene = self._scene(1)
+        payload = self._payload(tension=5)
+        transition = engine.apply_scene_payload(loop, scene, payload)
+        self.assertTrue(transition.ok)
+        loop = transition.loop
+        self.assertEqual(loop.phase, LoopPhase.EXPLORE)
+
+        # Turn 2: Move to INTERACT (explicit request)
+        scene = self._scene(2)
+        payload = self._payload(tension=5)
+        payload = replace(payload, requested_next_phase="interact")
+        transition = engine.apply_scene_payload(loop, scene, payload)
+        self.assertTrue(transition.ok)
+        loop = transition.loop
+        self.assertEqual(loop.phase, LoopPhase.INTERACT)
+
         self.assertEqual(loop.tension, 35)
         self.assertEqual(loop.state["flags"], ["signal_detected"])
 

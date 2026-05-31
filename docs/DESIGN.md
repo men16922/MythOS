@@ -232,7 +232,28 @@ Visual Service는 현재 `mythos_image_agent`를 감싸는 runtime service다.
 - `torch_dtype=torch.bfloat16`.
 - Apple Silicon MPS.
 
-개발 smoke 설정:
+### 5.8 Audio Service
+
+Audio Service는 게임의 서사적 분위기에 맞춘 배경음악(BGM)을 관리하고 생성하는 런타임 서비스다.
+
+책임:
+- 루프 상태(`Stability`, `Tension`)를 분석하여 적절한 BGM 테마 선택.
+- 로컬 AI 모델(MusicGen)을 사용한 고품질 음원 생성.
+- 자동 재생 및 심리스한 사운드 전환 제어.
+
+구성 요소:
+- **AudioProvider (Protocol)**: 오디오 소스 획득 인터페이스.
+- **StaticAudioProvider**: 사전에 생성된 테마곡 파일들을 상태값에 따라 매핑.
+- **scripts/gen_bgm_single.py**: Meta MusicGen Medium 모델을 활용해 MPS 가속으로 4분 분량의 고품질 WAV 음원을 생성하는 도구.
+
+BGM 매핑 로직:
+- `bgm_unstable`: Stability < 30 (글리치, 불안정)
+- `bgm_tense`: Tension > 70 (긴박, 추격)
+- `bgm_calm`: Default (사이버펑크 앰비언트)
+- `bgm_main`: 접속 화면 전용 (시네마틱 테마)
+
+## 6. Docker Compose 리소스 설계
+
 
 ```bash
 python agent.py "세계:접속 첫 장면" --steps 1 --width 512 --height 512

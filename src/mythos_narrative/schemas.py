@@ -100,10 +100,12 @@ class NarrativeContext:
     player: PlayerProfile
     loop: LoopState
     turn_index: int
-    recent_events: list[WorldEvent] = field(default_factory=list)
+    recent_events: list[WorldEvent]
     memories: list[PlayerMemory] = field(default_factory=list)
     world_memories: list[WorldMemory] = field(default_factory=list)
     narrative_shards: list[NarrativeShard] = field(default_factory=list)
     novelty_notes: list[str] = field(default_factory=list)
     player_action: str | None = None
     validator_feedback: list[str] = field(default_factory=list)
+    system_prompt: str = ""
+    fast_mode: bool = False

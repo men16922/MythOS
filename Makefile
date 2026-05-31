@@ -89,8 +89,8 @@ smoke:
 
 streamlit:
 	@pkill -f "streamlit run streamlit_app.py" 2>/dev/null && echo "stopped previous streamlit" || true
-	@echo "logs: MYTHOS_LOG_LEVEL=$${MYTHOS_LOG_LEVEL:-INFO} (set =DEBUG for more); image logs -> make visual-worker-logs"
-	MYTHOS_LOG_LEVEL=$${MYTHOS_LOG_LEVEL:-INFO} $(VENV)/bin/streamlit run streamlit_app.py --server.port=8501
+	@echo "logs: set MYTHOS_DEBUG=1 or MYTHOS_LOG_LEVEL=DEBUG; speed: MYTHOS_FAST_MODE=1; image logs -> make visual-worker-logs"
+	$(VENV)/bin/streamlit run streamlit_app.py --server.port=8501
 
 streamlit-stop:
 	@pkill -f "streamlit run streamlit_app.py" && echo "streamlit stopped" || echo "no streamlit running"

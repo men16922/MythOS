@@ -37,6 +37,7 @@ class NarrativeDirectorTest(unittest.TestCase):
                 started_at=now,
             ),
             turn_index=0,
+            recent_events=[],
         )
 
     def test_generates_scene_from_provider_payload(self) -> None:
@@ -143,6 +144,7 @@ class NarrativeDirectorTest(unittest.TestCase):
             player=self.context.player,
             loop=self.context.loop,
             turn_index=0,
+            recent_events=[],
             novelty_notes=["Avoid reusing recent scene titles: Threshold."],
         )
         provider = FakeProvider(
@@ -258,6 +260,7 @@ def _scene_response(title: str) -> str:
             player=self.context.player,
             loop=self.context.loop,
             turn_index=0,
+            recent_events=[],
             novelty_notes=["Avoid reusing recent scene titles: Signal at the Threshold."],
             world_memories=[
                 WorldMemory(

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 import sys
 from collections.abc import Iterator
 from contextlib import contextmanager
@@ -10,17 +9,31 @@ from datetime import UTC, datetime
 from time import perf_counter
 from typing import Any
 
+from mythos_runtime.settings import load_runtime_settings
+
 _TRACING_CONFIGURED = False
 
 
 class JsonFormatter(logging.Formatter):
+    def __init__(self, debug: bool = False) -> None:
+        super().__init__()
+        self.debug = debug
+
     def format(self, record: logging.LogRecord) -> str:
-        payload = {
+        payload: dict[str, Any] = {
             "ts": datetime.fromtimestamp(record.created, UTC).isoformat(),
             "level": record.levelname.lower(),
             "logger": record.name,
             "message": record.getMessage(),
         }
+        if self.debug:
+            payload.update(
+                {
+                    "module": record.module,
+                    "func": record.funcName,
+                    "line": record.lineno,
+                }
+            )
         for key in (
             "player_id",
             "loop_id",
@@ -47,13 +60,20 @@ def configure_logging(level: str | None = None) -> None:
     # our INFO structured logs. propagate=False also avoids double-printing through the
     # host's handlers.
     logger = logging.getLogger("mythos")
-    final_level = (level or os.getenv("MYTHOS_LOG_LEVEL") or "INFO").upper()
+    settings = load_runtime_settings()
+    final_level = (level or settings.log_level).upper()
     logger.setLevel(final_level)
     logger.propagate = False
+    for handler in list(logger.handlers):
+        if (
+            isinstance(handler.formatter, JsonFormatter)
+            and handler.formatter.debug != settings.debug
+        ):
+            logger.removeHandler(handler)
     has_json_handler = any(isinstance(h.formatter, JsonFormatter) for h in logger.handlers)
     if not has_json_handler:
         handler = logging.StreamHandler(sys.stderr)
-        handler.setFormatter(JsonFormatter())
+        handler.setFormatter(JsonFormatter(debug=settings.debug))
         logger.addHandler(handler)
 
 
@@ -75,17 +95,17 @@ def configure_tracing() -> bool:
     except ImportError:
         return False
 
-    endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4318").rstrip("/")
+    settings = load_runtime_settings()
     provider = TracerProvider(
         resource=Resource.create(
             {
-                "service.name": os.getenv("OTEL_SERVICE_NAME", "mythos-local"),
-                "deployment.environment": os.getenv("MYTHOS_ENV", "local"),
+                "service.name": settings.service_name,
+                "deployment.environment": settings.environment,
             }
         )
     )
     provider.add_span_processor(
-        BatchSpanProcessor(OTLPSpanExporter(endpoint=f"{endpoint}/v1/traces"))
+        BatchSpanProcessor(OTLPSpanExporter(endpoint=f"{settings.otel_endpoint}/v1/traces"))
     )
     trace.set_tracer_provider(provider)
     _TRACING_CONFIGURED = True

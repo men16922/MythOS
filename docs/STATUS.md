@@ -1,6 +1,6 @@
 # Project MythOS Status
 
-최종 갱신: 2026-05-30
+최종 갱신: 2026-05-31
 
 ## Current State
 
@@ -17,22 +17,25 @@
 - CLI vertical slice.
 - Streamlit playable demo.
 - Echo 저장 및 다음 loop carry-over.
-- Structured logging and Jaeger trace skeleton.
+- **BGM 시스템**: 로컬 AI(MusicGen) 기반의 고품질 음원(4분 분량) 자동 생성 및 상황별 동적 재생 인프라 구축 완료. 브라우저 자동 재생 정책 대응을 위한 'WAKE SYSTEM' 부팅 단계 도입.
+- **플레이어 스트리밍 UX**: 서사 본문은 고정된 스크립트 창에 누적되고 내부에서 자동 스크롤되며, 로딩은 별도 터미널 패널에만 노출. 플레이어 HUD의 별도 결과 배너는 제거됨.
 
 ## Latest Verified Baseline
 
 검증 완료:
 
-- `make test` (48 tests, 2 skipped)
+- `make test` (71 tests, 2 skipped)
 - `make test-db`
 - `make smoke-local`
-- `make connect-demo`
-- `make streamlit`
+- **BGM 동적 전환**: 메인(Title) ↔ 인게임 상황별(Calm/Tense/Unstable) BGM 격리 및 전환 로직 검증.
+- **오디오 자동 재생**: 'WAKE SYSTEM' 인터랙션 후 모든 브라우저에서 BGM 정상 재생 확인.
+- **로컬 음악 생성**: `scripts/gen_bgm_single.py`를 통한 4분 분량 WAV 생성 확인.
 - Service-level `memory_overview` DB check.
 - Browser Streamlit text play flow.
 - Browser Streamlit filesystem image preview.
 - Browser Streamlit MinIO image URI.
 - Browser Streamlit Ollama narrative mode.
+- `make lint`, `make typecheck`, `make test` (76 tests, 2 skipped), `compileall streamlit_app.py src tests` PASS.
 
 ## Active Focus
 
@@ -121,6 +124,10 @@ Phase 14 진행됨 (DX 개선):
 
 시스템 고도화 완료:
 
+- **인과율 엔진 (Causality Engine)**: 모든 사건이 톱니바퀴처럼 맞물려 돌아가는 'Gear World' 로직 구현. 나비효과(Butterfly Effect) 추적 및 미래 이벤트 예약 시스템 구축.
+- **다중 엔딩 매트릭스**: Humanity, Dominance, Resilience, Insight 4대 지표를 기반으로 플레이어의 선택과 위치에 따라 4가지 고유한 결말을 도출하는 시스템 도입.
+- **시나리오 v2 대개편**: `scenario.json`을 소설/VN급 퀄리티로 재구성. 메인/사이드 아크 구조, NPC별 숨겨진 아젠다(Agendas), 시네마틱 SFX 연출 포인트 지정.
+- **플레이 타임 확장**: 1회 세션당 40~60턴의 깊이 있는 전개가 가능하도록 서사 구조와 AI 지침을 최적화.
 - **시나리오 설정 동적 로드**: 하드코딩된 GM 브리프 및 캐릭터 맵을 `scenario.json`으로 분리. `ScenarioConfig` 로더를 통해 다중 세계관 확장 기반 마련.
 - **MinIO 기본 저장소 전환**: 생성된 이미지의 기본 저장소를 로컬 파일시스템에서 MinIO(S3)로 변경하여 클라우드 확장성 확보.
 - **UI 동적화**: Streamlit에서 시나리오 설정에 기반한 소질(Archetype) 및 캐릭터 정보를 실시간 로드.
@@ -178,6 +185,8 @@ Phase 23 진행됨 (진행도 기반 세계 진화):
 바로 다음 (수행 예정 작업):
 
 1. `[ ]` (선택) **IP-Adapter 실배선** — 캐릭터 얼굴-ID를 장면 전반에 강하게 고정(가중치 다운로드 필요).
+2. `[ ]` (선택) **인과율/NPC 아젠다 가시화** — 예약 이벤트, NPC 위치/목적, 나비효과를 Developer 뷰나 Codex에 노출.
+3. `[ ]` (선택) **클라우드 확장 설계** — Streamlit 이후 Web UI와 원격 visual worker/스토리지 경계를 설계.
 
 ## Open Risks
 

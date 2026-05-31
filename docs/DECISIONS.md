@@ -2,6 +2,53 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-05-31
+
+### Move Scenario-Specific GM Instructions Into `scenario.json`
+
+Decision: store scenario-specific GM instructions in `resources/neo-seoul/scenario.json`
+as `system_prompt`, and pass that prompt through `ScenarioConfig`, `RuntimeSessionService`,
+and `NarrativeDirector` instead of keeping one hardcoded global system prompt in
+`prompts.py`.
+
+Reason: Neo-Seoul is now a full scenario with its own arcs, NPC agendas, ending matrix,
+and prose rules. Keeping those instructions in code made new scenarios expensive and
+encouraged runtime-specific prompt edits in shared narrative modules. Scenario-owned
+prompts keep content, tone, and rule variants close to the scenario data.
+
+Impact: `prompts.py` remains responsible for reusable prompt assembly, while the
+scenario file owns world-specific GM policy. Tests and smoke paths must construct or load
+a scenario config when they expect scenario-specific behavior.
+
+### Adopt Scenario v2 Gear World Causality
+
+Decision: upgrade Neo-Seoul scenario data and GM context around a "Gear World" model:
+main arcs, side arcs, hidden NPC agendas, location/action causality, butterfly-effect
+flags, and a four-axis ending matrix (Humanity, Dominance, Resilience, Insight).
+
+Reason: the playable target moved from a short demo loop to a 40-60 turn single-player
+TRPG session. Static scene prompts are not enough for long-form play; the world needs
+stateful pressures that continue moving around the player and make choices accumulate
+toward distinct endings.
+
+Impact: `scenario.json` is now the center of scenario design. `ScenarioConfig` must stay
+schema-tolerant for future worlds, and developer/debug views should eventually expose
+causality state, pending effects, and NPC agenda movement if deeper QA is needed.
+
+### Use `mflux` As The Default Local Image Backend
+
+Decision: make Apple MLX `mflux` the default image backend with quantization support,
+while keeping the diffusers FLUX path as an explicit fallback.
+
+Reason: diffusers on MPS caused high memory pressure and slow per-step latency when
+coexisting with Ollama. `mflux` with 4-bit or 8-bit quantization keeps the local Apple
+Silicon path viable for playable sessions, especially when paired with a single worker
+lock to prevent duplicate model loads.
+
+Impact: default visual generation expects `IMAGE_BACKEND=mflux`; diffusers remains
+available via configuration. Performance QA should focus on worker singleton behavior,
+quantization level, image size/steps, and gemma/Ollama coexistence.
+
 ## 2026-05-30
 
 ### Enter Phase 13: Cache FLUX Pipeline + Redis Async Visual Jobs

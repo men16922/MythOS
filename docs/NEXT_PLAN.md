@@ -35,6 +35,10 @@
 - `make connect-demo`
 - `make streamlit`
 
+## Immediate Follow-up
+
+- `[ ]` 브라우저에서 Player View 스트리밍 회귀 확인: 새 게임 시작, 선택지, 자유 행동에서 본문 창이 고정되고 로딩 텍스트는 별도 패널에만 표시되는지 확인한다.
+
 ## Phase 11. Streamlit Demo Polish
 
 목표: 현재 “작동하는 데모”를 “계속 사용하기 편한 데모”로 만든다.
@@ -196,17 +200,40 @@ GM 시드 브리프·캐릭터·아트를 주입/연출한다.
 목표: 게임플레이에 수치적 깊이를 더하고, 서사 품질을 노벨 게임 수준으로 비약적으로 향상시킨다. 
 세부 계획: `docs/feedback/0530-1.md`
 
-### Phase 21. RPG 데이터 구조화
-- `[ ]` `PlayerProfile.traits` 내 스탯(신호 강도, 해석 지능, 공명 감도) 및 자율성 레벨 저장.
-- `[ ]` 시나리오(`scenario.json`)에 따른 초기 스탯 부여 및 레벨업 로직.
+### Phase 21. RPG 데이터 구조화 — `[x]` 완료
+- `[x]` `PlayerProfile.traits` 내 5대 핵심 스탯 및 자율성 레벨 저장.
+- `[x]` 시나리오(`scenario.json`)에 따른 초기 스탯 부여 및 단서 기반 레벨업 로직.
 
-### Phase 25 & 26. 서사 품질 및 스테이징 고도화
-- `[ ]` **NPC 화법**: 캐릭터별 고유 말투 및 페르소나 강화.
-- `[ ]` **작가적 지문**: 오감 묘사(Show, Don't Tell) 및 비유적 서술 강제.
-- `[ ]` **스테이징**: 장면 타입(정적/동적/절정) 및 영화적 카메라 워킹(클로즈업 등) 지문 삽입.
-- `[ ]` **자율성 가드레일**: 저레벨 시 플레이어의 과격한 명령에 대한 캐릭터의 내적 갈등/거부 연출.
+### Phase 22-26. RPG 판정·자율성·서사 품질 고도화 — `[x]` 완료
+- `[x]` **RPG 기반 판정**: AI GM이 스탯(1-10)을 근거로 성공/부분 성공/실패를 판정하고 텍스트에 반영.
+- `[x]` **NPC 화법**: 캐릭터별 고유 말투 및 페르소나 강화.
+- `[x]` **작가적 지문**: 오감 묘사(Show, Don't Tell), 비유적 서술, 지문/대사 라벨 제거.
+- `[x]` **스테이징**: 장면 타입(정적/동적/절정), 시네마틱 SFX/카메라 워킹 지침 반영.
+- `[x]` **자율성 가드레일**: 저레벨 시 과격한 명령의 제약/거부 연출, 고스탯 시 우회 가능성 반영.
+- `[x]` **진행도 기반 세계 진화**: 자율성 레벨에 따른 NPC 반응, 시점/문체, 이미지 글리치 강도 변화.
+
+## Phase 27+. Causality & Scenario v2 Track — `[x]` 기반 완료, 후속 선택
+
+목표: Neo-Seoul을 정적인 무대가 아니라 NPC 아젠다와 플레이어 선택이 맞물리는 인과율 기반 세계로 확장한다.
+설계 스냅샷: `docs/plans/2026-05-31-causality-system-design.md`
+
+- `[x]` `scenario.json` v2 대개편: 메인/사이드 아크, NPC 아젠다, 엔딩 매트릭스, 시네마틱 훅 정의.
+- `[x]` `ScenarioConfig` v2 로딩: `main_arcs`, `side_arcs`, `npc_agendas`, `endings`, `system_prompt` 지원.
+- `[x]` 시스템 프롬프트 동적 주입: 시나리오별 GM 지침을 코드 하드코딩에서 분리.
+- `[x]` Gear World 인과율 지침: 나비효과, 미래 이벤트 예약, NPC 위치/아젠다 추적을 GM 컨텍스트에 반영.
+- `[x]` 다중 엔딩 매트릭스: Humanity, Dominance, Resilience, Insight 지표 기반 결말 방향 정의.
+- `[ ]` (선택) 인과율 예약 이벤트를 UI/디버그 패널에서 명시적으로 추적.
+- `[ ]` (선택) NPC 아젠다/위치 상태를 미니맵 또는 Codex에 노출.
+
+## Visual Performance Follow-up — `[x]` 핵심 완료, 후속 선택
+
+- `[x]` Apple MLX `mflux` 백엔드를 기본 이미지 생성 경로로 전환.
+- `[x]` 4-bit 양자화와 단일 워커 락으로 메모리 경합 및 중복 FLUX 로드 완화.
+- `[x]` 플레이어 프리셋을 512x512 / 4 step으로 조정해 img2img 유효 스텝 0 문제 수정.
+- `[ ]` (선택) IP-Adapter 실배선으로 캐릭터 얼굴-ID 고정 강화.
+- `[ ]` (선택) 실 플레이 중 per-step latency를 추가 계측하고 size/steps 프리셋 튜닝.
 
 ## Priority Recommendation
 
-로컬 MVP를 위한 Playable Game Track (Phase 15-19) 및 기초 DX 개선 (Phase 14)이 모두 성공적으로 완료되었습니다. 
-다음 목표는 IP-Adapter 통합을 통한 시각적 퀄리티 고도화(선택)이거나, 클라우드 확장을 위한 설계(Web UI, Async Visual)가 될 수 있습니다.
+로컬 MVP, Playable Game Track, RPG/서사 고도화, 인과율 기반 시나리오 v2, mflux 이미지 성능 개선이 모두 완료되었습니다.
+다음 목표는 IP-Adapter 통합을 통한 시각적 정체성 강화(선택), 인과율/NPC 아젠다의 UI 가시화, 또는 클라우드 확장을 위한 Web UI 설계입니다.

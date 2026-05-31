@@ -107,3 +107,29 @@ class NarrativeParserTest(unittest.TestCase):
         )
 
         self.assertEqual(len(payload.visual_brief), 700)
+
+    def test_converts_cinematic_sfx_labels_to_player_prose(self) -> None:
+        payload = parse_scene_payload(
+            {
+                "scene": {
+                    "title": "Static",
+                    "location": "data-layer-01",
+                    "narration": "[Cinematic SFX: SCRATCHING STATIC] 신호가 열린다.",
+                    "objective": "SFX: DEEP HUM 문을 찾는다.",
+                    "action_result": "Partial Success. [SFX: GLITCH POP]",
+                    "choices": [
+                        {
+                            "choice_id": "choice_1",
+                            "label": "Enter",
+                            "intent": "explore",
+                        }
+                    ],
+                    "visual_brief": "A static gate.",
+                },
+                "world_delta": {"stability": 0, "tension": 1, "flags": []},
+            }
+        )
+
+        self.assertEqual(payload.narration, "치직, 긁히는 정전기가 귓속을 스쳤다. 신호가 열린다.")
+        self.assertEqual(payload.objective, "낮은 기계음이 바닥 아래에서 울렸다. 문을 찾는다.")
+        self.assertEqual(payload.action_result, "Partial Success. 짧은 글리치음이 허공을 찢었다.")

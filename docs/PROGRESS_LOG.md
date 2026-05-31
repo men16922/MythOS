@@ -15,6 +15,106 @@ YYYY-MM-DD
 
 ## 2026-05-31
 
+- Status: [x] Player 화면 깜빡임 제거 + 행동 선택 후 행동창 숨김.
+- Changed:
+  - 스크립트 창을 `components.html`(iframe)에서 `st.markdown` 일반 div로 교체. 매 rerun/스트리밍 글자마다 iframe 문서가 통째로 리로드되며 발생하던 흰 플래시(깜빡임) 제거.
+  - 자동 스크롤을 JS(`scrollTop`) 대신 CSS `flex-direction: column-reverse`로 처리(최신 텍스트가 하단 고정, iframe 불필요).
+  - 미사용이 된 `streamlit.components.v1` import 제거.
+  - 선택지/자유 행동 입력을 `st.empty()` 컨테이너로 감싸고, 행동 선택 즉시 `action_area.empty()`로 비운 뒤 다음 장면을 스트리밍. 다음 장면 도착(rerun) 시 새 선택지가 다시 표시되도록 변경.
+- Verified: `make lint`, `make typecheck`, `make test`(76, 2 skipped) PASS.
+- Blockers: 브라우저에서 실제 깜빡임 체감 회귀 및 column-reverse 단문 장면 정렬 확인은 미실행.
+- Next: 브라우저에서 연속 행동 선언 시 깜빡임 없음 + 행동창 숨김/재표시 확인.
+
+## 2026-05-31
+
+- Status: [x] Player transcript window 정리 — 로딩 분리, 누적 스크롤, 결과 배너 제거.
+- Changed:
+  - 플레이어 서사 본문을 `story_transcripts` 상태로 누적하고, 고정된 스크립트 창에서 계속 아래로 이어지게 조정.
+  - 로딩 메시지는 본문이 아닌 별도 terminal loader 패널에서만 표시되도록 분리.
+  - 플레이어 HUD의 별도 `action_result` 배너를 제거해 판정 표시가 본문 흐름을 끊지 않도록 정리.
+  - 표시용 transcript는 최근 4,200자, 내부 누적은 12,000자로 제한해 장면이 유기적으로 이어지되 과도한 누적은 방지.
+- Verified: `make lint`, `make typecheck`, `make test`(76, 2 skipped), `compileall streamlit_app.py src tests` PASS.
+- Blockers: 브라우저에서 실제 선택지/자유 행동 연속 클릭 시 자동 스크롤 체감 회귀 확인은 아직 미실행.
+- Next: 브라우저에서 새 게임 시작 및 연속 행동 선언 흐름을 확인.
+
+## 2026-05-31
+
+- Status: [x] Player View streaming UX 조정 — 새 게임 시작 전환/Loading/스크립트 창/SFX 누출 수정.
+- Changed:
+  - 새 게임 시작은 connect screen 아래에 streaming text를 출력하지 않고 `Loading new loop...` 상태만 표시한 뒤 세션 화면으로 전환.
+  - 선택지/자유 행동 streaming에는 `Loading next scene...` 상태 표시 추가.
+  - Player/Developer 서사 본문을 스크롤 가능한 script window로 렌더링하고 최근 4200자만 표시.
+  - LLM이 `[Cinematic SFX: ...]`/`SFX: ...` 같은 제작 지시 태그를 출력하면 parser에서 자연어 효과음 문장으로 변환.
+  - `scenario.json` system prompt에서 SFX를 bracket label이 아니라 자연스러운 효과음 묘사로 쓰도록 지침 수정.
+- Verified: `make lint`, `make typecheck`, `make test`(76, 2 skipped), `compileall streamlit_app.py src tests` PASS.
+- Blockers: 없음.
+- Next: 실제 브라우저에서 새 게임 시작/선택지 streaming 체감 회귀 확인.
+
+## 2026-05-31
+
+- Status: [x] BGM 재생 안정화 및 메인/인게임 격리 완료.
+- Changed:
+  - `streamlit_app.py`: 메인 BGM과 인게임 BGM의 호출 시점을 `loop_id` 존재 여부로 엄격히 분리 (메인 곡이 인게임에서 계속 들리는 문제 해결).
+  - `st.audio` 오류 수정: 지원되지 않는 `key` 파라미터 제거 및 로직 최적화.
+  - CSS 리팩토링: 누락된 중괄호 보정 및 오디오 태그 은닉 스타일(`opacity: 0`) 안정화.
+- Verified: `make streamlit` 실행 후 'WAKE SYSTEM' -> '새 게임 시작' 흐름에서 BGM이 중첩 없이 정상 전환됨을 확인.
+- Next: (선택) NPC 대사 텍스트를 음성으로 변환하는 로컬 TTS(Bark 등) 연동 검토.
+
+## 2026-05-31
+- Changed:
+  - `mythos_runtime.audio_service` 신설: `AudioProvider` 프로토콜 및 `StaticAudioProvider` 구현.
+  - 게임 수치(`Tension`, `Stability`)에 따른 동적 BGM 전환 로직 구축 (Calm, Tense, Unstable).
+  - `scripts/gen_bgm_single.py`: MusicGen Medium 모델을 사용한 4분 분량 고품질 음원 생성 스크립트 작성.
+  - `streamlit_app.py`: BGM 플레이어 UI 은닉(CSS `opacity: 0`), 자동 재생(`autoplay`), 루프 재생(`loop`) 적용.
+  - 브라우저 자동 재생 정책 대응: 첫 상호작용 유도를 위한 "WAKE SYSTEM" 부팅 단계 도입.
+  - `RuntimeSessionService` 및 `RuntimeSnapshot`에 오디오 경로 정보 통합.
+- Verified: `make test` PASS(71); M4 Max 로컬 음원 생성 확인; Streamlit 내 상황별 BGM 전환 및 무한 반복 재생 검증.
+- Next: (선택) LLM이 직접 장면별 음악 프롬프트를 생성하는 실시간 생성 모드 탐색.
+
+## 2026-05-31
+- Changed:
+  - Player View와 CLI 기본값을 fast behavior로 설정: Ollama timeout, repair round-trip 생략, async 이미지 worker 부재 시 sync fallback 생략.
+  - Developer View에 `Fast mode` 토글 추가(기본 OFF)로 품질/QA 모드 선택 가능.
+  - `MYTHOS_FAST_MODE`는 전역 override 용도로 유지하되, 플레이어가 별도로 켤 필요 없게 변경.
+  - `OLLAMA_TIMEOUT_SECONDS` 설정 추가(기본 4.5초) 및 Ollama OpenAI client timeout 적용.
+  - `OllamaJSONProvider.stream()` 추가: OpenAI-compatible streaming chunks 수신.
+  - `NarrationFieldExtractor`/`NarrativeStreamEvent` 추가: structured JSON stream에서 `narration` 필드만 실시간 추출하고 최종 JSON은 끝에서 파싱.
+  - `NarrativeDirector.stream_first_scene()` / `stream_next_scene()` 추가: UI가 텍스트 chunk를 먼저 표시하고 final event로 기존 ScenePayload를 받을 수 있는 기반 마련.
+  - `load_scenario()`에 LRU cache 적용해 반복 JSON 파일 로딩 제거.
+- Verified: `make lint`, `make typecheck`, `make test`(75, 2 skipped) PASS.
+- Blockers: 실제 Streamlit 화면에 streaming chunk를 연결하는 작업은 후속. JSON 구조상 완료 판정/상태 저장은 최종 JSON 수신 후 가능하다.
+- Next: Streamlit `st.write_stream` 또는 placeholder 기반으로 `NarrativeDirector.stream_*`를 Player View에 연결.
+
+## 2026-05-31
+
+- Status: [x] 런타임 리팩토링 및 env 기반 디버그 로그 설정 완료.
+- Changed:
+  - `mythos_runtime.settings` 신설: `.env` 로딩, `MYTHOS_DEBUG`, `MYTHOS_LOG_LEVEL`, OTel 설정 해석을 중앙화.
+  - `observability.py`: `MYTHOS_DEBUG=1`이면 기본 로그 레벨을 DEBUG로 올리고 JSON 로그에 module/function/line 포함.
+  - `mythos_runtime.scenario_context` 신설: 소질 기반 traits 초기화와 시나리오/언어/인과율 노트 조립을 `RuntimeSessionService`에서 분리.
+  - `mythos_runtime.options` 신설: `RuntimeOptions`, `RuntimeSnapshot`, `MemoryOverview`를 서비스 구현에서 분리.
+  - `mythos_runtime.visual_orchestration` 신설: 핵심 비트 판단, async enqueue, sync fallback 이미지 생성 정책 분리.
+  - `mythos_runtime.progression` 신설: 단서 수 기반 자율성 레벨 계산을 순수 함수로 분리.
+  - `session.py`: 중복 `NarrativeContext` 생성 로직 제거, archetype traits 로직 모듈화, 실패 시 debug 로그로 관측 가능하게 변경.
+  - `prompts.py`/`director.py`: scenario별 system prompt를 context에서 직접 해석하고 fallback 기본 프롬프트 제공.
+  - `.env.example`/`Makefile`: `MYTHOS_DEBUG` 사용법 반영, `make streamlit`이 로그 레벨을 강제하지 않도록 수정.
+- Verified: `make lint`, `make typecheck`, `make test`(73, 2 skipped) PASS; `MYTHOS_DEBUG=1`에서 DEBUG 레벨 및 debug formatter 활성 확인.
+- Blockers: 없음.
+- Next: (선택) `RuntimeSessionService.archive()`의 memory rollup/summary 저장 경로를 별도 archive service로 추가 분리.
+
+## 2026-05-31
+
+- Status: [x] 문서 정합성 정리 — 최신 구현 상태를 NEXT_PLAN/COMPLETED_SUMMARY/DECISIONS에 반영.
+- Changed:
+  - `NEXT_PLAN.md`: Phase 21-26 완료 체크, Phase 27+ 인과율/시나리오 v2 트랙, mflux 이미지 성능 후속 정리.
+  - `COMPLETED_SUMMARY.md`: RPG/서사 고도화, 시나리오 v2/인과율, mflux 백엔드 완료 마일스톤 추가.
+  - `DECISIONS.md`: 동적 시나리오 system prompt, Gear World 인과율, mflux 기본 백엔드 결정 기록.
+- Verified: 문서만 변경. 직전 확인 기준 `make lint`, `make typecheck`, `make test` PASS.
+- Blockers: 없음.
+- Next: (선택) 인과율 예약 이벤트/NPC 아젠다를 개발자 UI에 노출.
+
+## 2026-05-31
+
 - Status: [x] 이미지 진단 — async 정상(턴 비차단), 느림은 메모리경합 + img2img 1-step 버그.
 - Changed:
   - **진단**: 워커 로그상 턴은 enqueue 즉시 종료(비차단 OK). 이미지 per-step이 6~13s로 느렸던
@@ -29,6 +129,27 @@ YYYY-MM-DD
 - Blockers: 브라우저 등 외부 앱이 메모리를 점유하면 다시 swap→감속 가능. 동시 모델은 worker
   하나로 제한됨(락). 더 줄이려면 narrative 모델 경량화.
 - Next: (선택) 플레이 중 실측 per-step 재확인, 필요 시 size/steps 추가 튜닝.
+
+## 2026-05-31
+
+- Status: [x] 시스템 프롬프트 동적 주입 및 테스트 안정화 완료.
+- Changed:
+  - `scenario.json`: `system_prompt` 필드를 추가하여 GM 지침을 시나리오별로 분리.
+  - `scenario.py`: `ScenarioConfig` 및 로더가 `system_prompt`를 읽어오도록 확장.
+  - `prompts.py`: 하드코딩된 `SYSTEM_PROMPT` 제거 및 동적 주입 구조로 변경.
+  - `director.py` & `session.py`: 시나리오 설정의 프롬프트를 서사 생성 파이프라인에 전달하도록 수정.
+  - `tests/test_loop_engine.py`: 페이즈 전환 로직 변경(AI 주도)에 맞춰 테스트 케이스 업데이트.
+- Verified: make lint && make typecheck PASS; make smoke-local PASS.
+
+## 2026-05-31
+
+- Status: [x] 인과율 엔진 및 시나리오 v2 대개편 완료.
+- Changed:
+  - `scenario.json`: 소설/비주얼 노벨급 퀄리티로 전면 재구성 (메인/사이드 아크, NPC 아젠다, 다중 엔딩 매트릭스).
+  - `scenario.py`: v2 스키마(`main_arcs`, `side_arcs`, `npc_agendas`, `endings`) 대응을 위한 `ScenarioConfig` 확장.
+  - `session.py`: 인과율 엔진 로직 통합. NPC 아젠다 및 나비효과 추적을 위한 프롬프트 지침 주입.
+  - `prompts.py`: 'Gear World' 인과율 시스템 및 4대 엔딩 지표(Humanity, Dominance, Resilience, Insight) 관리 지침 전면 개편.
+- Verified: make lint && make typecheck PASS; 시나리오 v2 로딩 및 AI GM의 아젠다 인식 확인.
 
 ## 2026-05-31
 

@@ -13,7 +13,8 @@ from mythos_core import (
 from mythos_core.clock import utc_now
 from mythos_memory import PostgresMythOSStore
 from mythos_runtime.observability import get_logger
-from mythos_runtime.session import RuntimeOptions, RuntimeSessionService
+from mythos_runtime.options import RuntimeOptions
+from mythos_runtime.session import RuntimeSessionService
 from mythos_runtime.visual_service import MinIOStorageAdapter, VisualService
 
 LOGGER = get_logger("mythos.cli")
@@ -88,6 +89,11 @@ def _add_runtime_flags(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--image-width", type=int, default=1024)
     parser.add_argument("--image-height", type=int, default=1024)
     parser.add_argument("--image-steps", type=int, default=4)
+    parser.add_argument(
+        "--quality-mode",
+        action="store_true",
+        help="Disable fast-mode shortcuts and allow slower repair/sync fallback paths.",
+    )
 
 
 def _new_player(args: argparse.Namespace, store: PostgresMythOSStore) -> int:
@@ -151,6 +157,7 @@ def _archive(args: argparse.Namespace, store: PostgresMythOSStore) -> int:
 
 def _runtime_options(args: argparse.Namespace) -> RuntimeOptions:
     return RuntimeOptions(
+        fast_mode=not args.quality_mode,
         fallback=args.fallback,
         with_image=args.with_image,
         image_storage="filesystem" if args.filesystem_image else "minio",

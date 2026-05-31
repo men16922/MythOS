@@ -17,10 +17,10 @@ from mythos_runtime.session import (
     _has_archive_world_memory,
     _has_narrative_shard,
     _initial_loop_scores,
-    _is_key_beat,
     _merge_archive_rollup,
     _player_rollup,
 )
+from mythos_runtime.visual_orchestration import is_key_beat
 
 
 def _loop(phase=LoopPhase.EXPLORE, stability=70, tension=20):
@@ -52,24 +52,24 @@ def _scene(turn_index):
 
 class KeyBeatTest(unittest.TestCase):
     def test_connect_turn_is_key_beat(self):
-        self.assertTrue(_is_key_beat(_loop(), _scene(0)))
+        self.assertTrue(is_key_beat(_loop(), _scene(0)))
 
     def test_quiet_mid_turn_is_not_key_beat(self):
         # turn 1, calm gauges, ordinary phase -> skip image
-        self.assertFalse(_is_key_beat(_loop(stability=70, tension=20), _scene(1)))
+        self.assertFalse(is_key_beat(_loop(stability=70, tension=20), _scene(1)))
 
     def test_phase_shift_is_key_beat(self):
-        self.assertTrue(_is_key_beat(_loop(phase=LoopPhase.ARCHIVE), _scene(1)))
+        self.assertTrue(is_key_beat(_loop(phase=LoopPhase.ARCHIVE), _scene(1)))
 
     def test_climax_tension_is_key_beat(self):
-        self.assertTrue(_is_key_beat(_loop(tension=85), _scene(1)))
+        self.assertTrue(is_key_beat(_loop(tension=85), _scene(1)))
 
     def test_low_stability_is_key_beat(self):
-        self.assertTrue(_is_key_beat(_loop(stability=20), _scene(2)))
+        self.assertTrue(is_key_beat(_loop(stability=20), _scene(2)))
 
     def test_periodic_refresh_every_third_turn(self):
-        self.assertTrue(_is_key_beat(_loop(), _scene(3)))
-        self.assertFalse(_is_key_beat(_loop(), _scene(4)))
+        self.assertTrue(is_key_beat(_loop(), _scene(3)))
+        self.assertFalse(is_key_beat(_loop(), _scene(4)))
 
 
 def _archive_memory(loop_id, player_id, stability, tension, created, phase="ended"):

@@ -45,6 +45,7 @@ def main(argv: list[str] | None = None) -> int:
             started_at=now,
         ),
         turn_index=0,
+        recent_events=[],
     )
 
     director = NarrativeDirector()

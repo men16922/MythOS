@@ -71,6 +71,18 @@ def tick_encounter_map(
     for contact_id, contact in list(contacts.items()):
         if contact.get("state") == "defeated":
             continue
+        cooldown = int(contact.get("cooldown", 0))
+        if cooldown > 0:
+            if int(contact.get("last_turn", -1)) < turn_index:
+                contact = _move_contact_away(
+                    contact,
+                    current,
+                    seed=f"{seed}:cooldown:{turn_index}:{contact_id}",
+                )
+                contact["last_turn"] = turn_index
+            contact["cooldown"] = cooldown - 1
+            contacts[contact_id] = contact
+            continue
         if int(contact.get("last_turn", -1)) < turn_index:
             contact = _move_contact(contact, current, seed=f"{seed}:move:{turn_index}:{contact_id}")
             contact["last_turn"] = turn_index
@@ -101,6 +113,26 @@ def mark_encounter_resolved(state: dict[str, Any], encounter_id: str | None) -> 
     for contact in contacts.values():
         if contact.get("encounter_id") == encounter_id:
             contact["state"] = "defeated"
+    new_state = dict(state)
+    new_state[ENCOUNTER_MAP_KEY] = {**encounter_map, "contacts": contacts}
+    return new_state
+
+
+def mark_encounter_alerted(state: dict[str, Any], encounter_id: str | None) -> dict[str, Any]:
+    if not encounter_id:
+        return state
+    encounter_map = state.get(ENCOUNTER_MAP_KEY) if isinstance(state, dict) else None
+    if not isinstance(encounter_map, dict):
+        return state
+    contacts = {
+        str(key): dict(value)
+        for key, value in encounter_map.get("contacts", {}).items()
+        if isinstance(value, dict)
+    }
+    for contact in contacts.values():
+        if contact.get("encounter_id") == encounter_id:
+            contact["state"] = "alerted"
+            contact["cooldown"] = max(1, int(contact.get("cooldown", 0)))
     new_state = dict(state)
     new_state[ENCOUNTER_MAP_KEY] = {**encounter_map, "contacts": contacts}
     return new_state
@@ -164,6 +196,21 @@ def _move_contact(contact: dict[str, Any], player: tuple[int, int], *, seed: str
     return {**contact, "x": cx + step_x, "y": cy + step_y}
 
 
+def _move_contact_away(contact: dict[str, Any], player: tuple[int, int], *, seed: str) -> dict[str, Any]:
+    dice = Dice(seed)
+    cx, cy = int(contact.get("x", 0)), int(contact.get("y", 0))
+    px, py = player
+    steps = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (1, 1), (-1, 1), (1, -1)]
+    scored = [
+        (max(abs((cx + sx) - px), abs((cy + sy) - py)), sx, sy)
+        for sx, sy in steps
+    ]
+    best_distance = max(distance for distance, _, _ in scored)
+    best_steps = [(sx, sy) for distance, sx, sy in scored if distance == best_distance]
+    step_x, step_y = dice.choice(best_steps)
+    return {**contact, "x": cx + step_x, "y": cy + step_y}
+
+
 def _weighted_encounter_id(encounters: dict[str, Any], dice: Dice) -> str:
     ids = list(encounters)
     weights = [float(encounters[eid].get("weight", 1)) for eid in ids]
@@ -192,4 +239,9 @@ def _encounter_enemy_brief(
     return result
 
 
-__all__ = ["ENCOUNTER_MAP_KEY", "mark_encounter_resolved", "tick_encounter_map"]
+__all__ = [
+    "ENCOUNTER_MAP_KEY",
+    "mark_encounter_alerted",
+    "mark_encounter_resolved",
+    "tick_encounter_map",
+]

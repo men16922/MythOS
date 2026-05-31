@@ -30,7 +30,11 @@ from mythos_narrative.codex import CodexService
 from mythos_narrative.variation import NoveltyController
 from mythos_runtime.audio_service import AudioService
 from mythos_runtime.combat_service import CombatService, CombatTurnResult
-from mythos_runtime.encounter_map import mark_encounter_resolved, tick_encounter_map
+from mythos_runtime.encounter_map import (
+    mark_encounter_alerted,
+    mark_encounter_resolved,
+    tick_encounter_map,
+)
 from mythos_runtime.observability import get_logger, span
 from mythos_runtime.options import (
     MemoryOverview,
@@ -600,11 +604,18 @@ class RuntimeSessionService:
         loop_id: str,
         encounter_id: str,
         options: RuntimeOptions | None = None,
+        party_members: list[dict[str, Any]] | None = None,
     ) -> RuntimeSnapshot:
         options = options or RuntimeOptions()
         loop = self._require_loop(loop_id)
         if loop.phase is LoopPhase.ENDED:
             raise RuntimeError(f"loop_id={loop.loop_id} is ended")
+        if party_members:
+            party = dict(loop.state.get("_party", {})) if isinstance(loop.state, dict) else {}
+            party["members"] = [dict(member) for member in party_members]
+            state = dict(loop.state) if isinstance(loop.state, dict) else {}
+            state["_party"] = party
+            loop = replace(loop, state=state)
         player = self._require_player(loop.player_id)
         scenario = load_scenario(options.scenario_id)
         stats = player.traits.get("stats", {}) if isinstance(player.traits, dict) else {}
@@ -780,11 +791,17 @@ class RuntimeSessionService:
         }
 
     def _apply_combat_rewards(self, loop: LoopState, result: CombatTurnResult) -> LoopState:
+        encounter_id = result.radar.get("encounter_id") if isinstance(result.radar, dict) else None
+        encounter_id = str(encounter_id) if encounter_id else None
+        if result.outcome == "player_fled":
+            return replace(loop, state=mark_encounter_alerted(loop.state, encounter_id))
+        if result.outcome != "player_victory":
+            return loop
+
         reward = result.rewards.get("encounter_reward", {}) if isinstance(result.rewards, dict) else {}
         if not isinstance(reward, dict):
             return loop
-        encounter_id = result.radar.get("encounter_id") if isinstance(result.radar, dict) else None
-        loop = replace(loop, state=mark_encounter_resolved(loop.state, str(encounter_id) if encounter_id else None))
+        loop = replace(loop, state=mark_encounter_resolved(loop.state, encounter_id))
         stability = _clamp_score(loop.stability + int(reward.get("stability", 0)))
         tension = _clamp_score(loop.tension + int(reward.get("tension", 0)))
         if stability == loop.stability and tension == loop.tension:

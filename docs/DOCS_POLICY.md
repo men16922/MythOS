@@ -1,8 +1,8 @@
 # Documentation Policy
 
-최종 갱신: 2026-05-30
+최종 갱신: 2026-05-31
 
-이 문서는 Project MythOS 문서를 계속 업데이트하기 위한 운영 규칙이다. 목표는 현재 상태를 빠르게 파악하면서도, 날짜별 계획과 완료 이력을 잃지 않는 것이다.
+이 문서는 Project MythOS 문서를 계속 업데이트하기 위한 운영 규칙이다. 목표는 현재 상태를 빠르게 파악하면서도, 날짜별 계획과 완료 이력을 잃지 않는 것이다. 토큰 사용을 줄이기 위해 에이전트용 압축 진입점을 별도로 유지한다.
 
 ## Core Principle
 
@@ -17,13 +17,14 @@
 항상 최신 상태로 유지한다.
 
 - `STATUS.md`: 현재 구현 상태, active focus, open risks.
+- `AGENT_BRIEF.md`: 에이전트가 먼저 읽는 압축 문맥, 현재 초점, 읽기 순서.
 - `NEXT_PLAN.md`: 지금부터 진행할 rolling plan.
 - `README.md`: 실행/사용 안내와 주요 docs index.
 - `docs/README.md`: docs 전체 navigation.
 
 규칙:
 
-- 작업 묶음이 끝나면 `STATUS.md`를 갱신한다.
+- 작업 묶음이 끝나면 `AGENT_BRIEF.md`와 `STATUS.md`를 갱신한다.
 - 다음 작업 방향이 바뀌면 `NEXT_PLAN.md`를 갱신한다.
 - README에는 상세 계획을 길게 넣지 않고 링크만 둔다.
 
@@ -49,7 +50,7 @@
 
 ## Incremental Progress
 
-증분 작업은 `PROGRESS_LOG.md`에 최신 항목을 위로 append한다.
+증분 작업은 `PROGRESS_LOG.md`에 최신 항목을 위로 append한다. current log는 짧게 유지하고, 긴 상세 이력은 월별 archive로 옮긴다.
 
 항목 형식:
 
@@ -67,7 +68,7 @@ YYYY-MM-DD
 - 모든 작은 편집을 기록하지 않는다.
 - 사용자에게 의미 있는 작업 단위가 끝났을 때 기록한다.
 - 검증 명령이나 브라우저 확인이 있으면 `Verified`에 남긴다.
-- `PROGRESS_LOG.md`가 길어지면 월별 archive로 분리한다.
+- `PROGRESS_LOG.md`가 길어지면 월별 archive로 분리하고 current log에는 archive 링크와 최신 항목만 남긴다.
 
 월별 archive 예:
 
@@ -131,14 +132,15 @@ YYYY-MM-DD
 
 작업 시작:
 
-1. `STATUS.md` 확인.
-2. `NEXT_PLAN.md` 확인.
-3. 필요하면 `docs/plans/YYYY-MM-DD-<topic>.md` 작성.
+1. `AGENT_BRIEF.md` 확인.
+2. `STATUS.md` 확인.
+3. `NEXT_PLAN.md` 확인.
+4. 필요하면 `docs/plans/YYYY-MM-DD-<topic>.md` 작성.
 
 작업 완료:
 
-1. `PROGRESS_LOG.md`에 증분 로그 추가.
-2. `STATUS.md` 갱신.
+1. `PROGRESS_LOG.md`에 짧은 증분 로그 추가.
+2. `AGENT_BRIEF.md`와 `STATUS.md` 갱신.
 3. milestone 완료 시 `COMPLETED_SUMMARY.md` 갱신.
 4. 결정이 생겼으면 `DECISIONS.md` 갱신.
 5. 오래된 계획/문서가 중복되면 요약 후 archive/delete 여부 판단.

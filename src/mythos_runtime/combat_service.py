@@ -19,6 +19,7 @@ from typing import Any
 from mythos_combat import (
     CombatEngine,
     PlayerAction,
+    build_ally_combatant,
     build_encounter,
     build_player_combatant,
     combat_state_from_dict,
@@ -27,7 +28,7 @@ from mythos_combat import (
     narrate_since,
     render_radar,
 )
-from mythos_combat.models import CombatState
+from mythos_combat.models import Combatant, CombatState
 from mythos_core import LoopState
 from mythos_core.dice import Dice
 
@@ -73,6 +74,7 @@ class CombatService:
         seed: str | None = None,
     ) -> CombatTurnResult:
         weapon_ids = loadout_for_archetype(scenario_combat, archetype)
+        skill_ids = list(scenario_combat.get("skills", {}).keys())
         player = build_player_combatant(
             combatant_id="player",
             name=player_name,
@@ -82,10 +84,17 @@ class CombatService:
             x=0,
             y=0,
             hp=self._carried_hp(loop),
+            skills=skill_ids,
         )
+        allies = self._build_allies(loop, scenario_combat)
         combat_seed = seed or f"{loop.seed}:combat:{encounter_id}"
         state = build_encounter(
-            scenario_combat, encounter_id, player=player, seed=combat_seed, engine=self.engine
+            scenario_combat,
+            encounter_id,
+            player=player,
+            allies=allies,
+            seed=combat_seed,
+            engine=self.engine,
         )
         loop = self._store_combat(loop, state)
         prose = narrate_since(state, 0)
@@ -101,10 +110,35 @@ class CombatService:
         state = self.load_state(loop)
         if state is None or not state.active:
             raise RuntimeError("no active combat for this loop")
+
+        inventory = list(loop.state.get("_inventory", [])) if isinstance(loop.state, dict) else []
+        skill_def: dict[str, Any] | None = None
+        item_def: dict[str, Any] | None = None
+        item_available = False
+        if action.type == "skill" and action.skill_id:
+            skill_def = scenario_combat.get("skills", {}).get(action.skill_id)
+            cost = skill_def.get("cost", {}) if isinstance(skill_def, dict) else {}
+            item_cost = cost.get("item") if isinstance(cost, dict) else None
+            item_available = self._has_item(inventory, str(item_cost)) if item_cost else True
+        elif action.type == "item" and action.item_id:
+            item_def = scenario_combat.get("items", {}).get(action.item_id)
+            item_available = self._has_item(inventory, action.item_id)
+
         before = len(state.log)
-        state = self.engine.take_player_turn(state, action)
+        state = self.engine.take_player_turn(
+            state, action, skill_def=skill_def, item_def=item_def, item_available=item_available
+        )
+
+        # Consume any items the engine flagged as used this turn (detail["consumed"]).
+        inventory_changed = False
+        for entry in state.log[before:]:
+            consumed = entry.detail.get("consumed") if isinstance(entry.detail, dict) else None
+            if consumed:
+                inventory, removed = self._remove_item(inventory, str(consumed))
+                inventory_changed = inventory_changed or removed
+
         prose = narrate_since(state, before)
-        loop = self._store_combat(loop, state)
+        loop = self._store_combat(loop, state, inventory if inventory_changed else None)
         return self._build_result(loop, state, prose, scenario_combat)
 
     # --- internals ------------------------------------------------------
@@ -159,7 +193,7 @@ class CombatService:
             run["dead"] = True
 
         player = state.player()
-        party = {"player_hp": player.hp if player else 0}
+        party = self._finish_party_state(loop, state, player.hp if player else 0)
 
         new_state = dict(loop.state) if isinstance(loop.state, dict) else {}
         new_state["_combat"] = combat_state_to_dict(state)
@@ -175,10 +209,103 @@ class CombatService:
         }
         return replace(loop, state=new_state), rewards
 
-    def _store_combat(self, loop: LoopState, state: CombatState) -> LoopState:
+    def _store_combat(
+        self, loop: LoopState, state: CombatState, inventory: list[Any] | None = None
+    ) -> LoopState:
         new_state = dict(loop.state) if isinstance(loop.state, dict) else {}
         new_state["_combat"] = combat_state_to_dict(state)
+        if inventory is not None:
+            new_state["_inventory"] = inventory
         return replace(loop, state=new_state)
+
+    def _build_allies(self, loop: LoopState, scenario_combat: dict[str, Any]) -> list[Combatant]:
+        allies_pool = scenario_combat.get("allies", {})
+        if not isinstance(allies_pool, dict):
+            return []
+        weapons_pool = scenario_combat.get("weapons", {})
+        party = loop.state.get("_party") if isinstance(loop.state, dict) else None
+        party = party if isinstance(party, dict) else {}
+        members = self._party_members(party)
+        flags = set(loop.state.get("flags", [])) if isinstance(loop.state, dict) else set()
+        built = []
+        for ally_id, entry in allies_pool.items():
+            if not isinstance(entry, dict):
+                continue
+            actual_id = str(entry.get("id", ally_id))
+            member = members.get(actual_id)
+            unlock_flags = {str(flag) for flag in entry.get("unlock_flags", [])}
+            unlocked = bool(member) or bool(unlock_flags.intersection(flags))
+            if not unlocked:
+                continue
+            hp = member.get("hp") if isinstance(member, dict) else None
+            if isinstance(hp, int | float) and int(hp) <= 0:
+                continue
+            built.append(
+                build_ally_combatant(
+                    entry=entry,
+                    weapons_pool=weapons_pool,
+                    x=0,
+                    y=0,
+                    hp=int(hp) if isinstance(hp, int | float) else None,
+                )
+            )
+        return built
+
+    @staticmethod
+    def _party_members(party: dict[str, Any]) -> dict[str, dict[str, Any]]:
+        raw = party.get("members", [])
+        members: dict[str, dict[str, Any]] = {}
+        if not isinstance(raw, list):
+            return members
+        for entry in raw:
+            if isinstance(entry, str):
+                members[entry] = {"id": entry}
+            elif isinstance(entry, dict):
+                member_id = str(entry.get("id", ""))
+                if member_id:
+                    members[member_id] = dict(entry)
+        return members
+
+    def _finish_party_state(
+        self, loop: LoopState, state: CombatState, player_hp: int
+    ) -> dict[str, Any]:
+        previous = loop.state.get("_party") if isinstance(loop.state, dict) else None
+        previous = previous if isinstance(previous, dict) else {}
+        members_by_id = self._party_members(previous)
+        for combatant in state.combatants:
+            if combatant.faction != "ally":
+                continue
+            member = members_by_id.get(combatant.id, {"id": combatant.id, "name": combatant.name})
+            member["id"] = combatant.id
+            member["name"] = combatant.name
+            member["hp"] = combatant.hp
+            member["max_hp"] = combatant.max_hp
+            members_by_id[combatant.id] = member
+        party: dict[str, Any] = {"player_hp": player_hp}
+        if members_by_id:
+            party["members"] = list(members_by_id.values())
+        return party
+
+    @staticmethod
+    def _item_id(entry: Any) -> str:
+        if isinstance(entry, dict):
+            return str(entry.get("id", ""))
+        return str(entry)
+
+    @classmethod
+    def _has_item(cls, inventory: list[Any], item_id: str) -> bool:
+        return any(cls._item_id(entry) == item_id for entry in inventory)
+
+    @classmethod
+    def _remove_item(cls, inventory: list[Any], item_id: str) -> tuple[list[Any], bool]:
+        out: list[Any] = []
+        removed = False
+        for entry in inventory:
+            if not removed and cls._item_id(entry) == item_id:
+                removed = True
+                continue
+            out.append(entry)
+        return out, removed
 
     def _carried_hp(self, loop: LoopState) -> int | None:
         party = loop.state.get("_party") if isinstance(loop.state, dict) else None

@@ -2,7 +2,7 @@
 
 작성일: 2026-05-29
 
-이 문서는 `DRAFT.md`의 Project MythOS / 세계:접속 기획을 바탕으로 한 시스템 설계 문서다. 목표는 로컬 환경에서 플레이 가능한 MythOS 루프 프로토타입을 만들되, 나중에 Web UI와 클라우드 환경으로 확장 가능한 경계면을 먼저 잡는 것이다. 현재 구현 상태는 `STATUS.md`, 다음 계획은 `NEXT_PLAN.md`, M0-M10 상세 archive는 `archive/IMPLEMENTATION_M0_M10.md`를 기준으로 한다.
+이 문서는 `docs/archive/DRAFT.md`의 Project MythOS / 세계:접속 기획을 바탕으로 한 시스템 설계 문서다. 목표는 로컬 환경에서 플레이 가능한 MythOS 루프 프로토타입을 만들되, 나중에 Web UI와 클라우드 환경으로 확장 가능한 경계면을 먼저 잡는 것이다. 현재 구현 상태는 `docs/STATUS.md`, 다음 계획은 `docs/NEXT_PLAN.md`, M0-M10 상세 archive는 `docs/archive/IMPLEMENTATION_M0_M10.md`를 기준으로 한다.
 
 설계 원칙, 리스크 대응, Mermaid 다이어그램, 하드웨어/기술 스택 근거는 이 문서 하단의 부록(§17–§20)에 통합되어 있다. SQL 스키마의 권위 있는 출처는 `migrations/001_init.sql`이며, §7에 표기된 테이블 정의는 설계 의도를 보여주는 참고용이다.
 

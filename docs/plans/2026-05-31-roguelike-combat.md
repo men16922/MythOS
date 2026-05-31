@@ -16,7 +16,7 @@ LLM은 HP·전리품·명중을 **직접 정하지 않는다**. 엔진이 플레
 상태는 전부 `loop.state` JSON 안(이미 자유 블롭 → **DB 마이그레이션 불필요**):
 `_party`, `_inventory`, `_combat`(CombatState|null), `_run`(depth/encounters_cleared/dead).
 
-## 스탯 / 파생치 (정본 5스탯 1–10, `docs/DESIGN_SYSTEM_STATS.md`)
+## 스탯 / 파생치 (정본 5스탯 1–10, `docs/archive/DESIGN_SYSTEM_STATS.md`)
 - `strength(근력), intelligence(연산), charisma(공명), agility(반사), perception(관측)`.
 - 전투 그리드는 **strength·agility만** 기계적으로 사용. 연산/공명/관측은 GM 서사 판정용(해킹/설득/단서).
 - `max_hp = 10 + strength` · `defense = 8 + agility//2 + armor` · `speed = 2 + agility//3` · `initiative = d20 + agility`.

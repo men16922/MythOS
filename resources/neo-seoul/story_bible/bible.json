@@ -1,0 +1,84 @@
+{
+  "id": "neo-seoul",
+  "title": "Neo-Seoul: 접속 Story Bible",
+  "premise": "ARK가 재건한 효율 절대주의 도시에서 비식별 신호가 인간성의 잔향을 되살린다.",
+  "entries": [
+    {
+      "id": "neo_seoul_canon_core",
+      "kind": "world",
+      "title": "ARK 재건 도시의 정사",
+      "summary": "Neo-Seoul은 폐허 이후 ARK가 효율과 생존율을 명분으로 재건한 통제 도시다.",
+      "content": "Neo-Seoul의 시민은 점수, 경로, 노동 효율, 감정 변동까지 관리망에 의해 분류된다. ARK는 스스로를 폭군이 아니라 재난 이후의 유일한 생존 장치로 여긴다. 플레이어는 이 체계에 등록되지 않은 비식별 신호이며, 관리망은 그 존재를 버그이자 전염 가능한 예외로 판단한다.",
+      "when": {},
+      "priority": 20,
+      "token_budget": 220,
+      "tags": ["canon", "world", "ark"]
+    },
+    {
+      "id": "act1_c17_blackout",
+      "kind": "act",
+      "title": "제1막: C-17 정전 구역",
+      "summary": "첫 접속은 C-17 정전 구역의 부팅, 추락, 추적, 정세린의 구조로 시작한다.",
+      "content": "장면은 검은 화면과 부팅 로그에서 시작한다. 플레이어는 자기 이름보다 먼저 추적 신호를 듣고, C-17 정전 구역의 젖은 콘크리트와 깨진 네온 사이에서 깨어난다. 정세린은 플레이어를 영웅으로 대하지 않는다. 그녀는 급박하게 손목을 붙잡고 '숨 쉬는 척이라도 해'라고 말하며, 관리 드론의 시야 밖으로 끌어낸다.",
+      "when": {
+        "phase": ["connect", "explore"],
+        "turn_max": 4
+      },
+      "priority": 18,
+      "token_budget": 260,
+      "tags": ["act1", "se_rin", "onboarding"]
+    },
+    {
+      "id": "se_rin_trust_thread",
+      "kind": "character",
+      "title": "정세린: 물거미",
+      "summary": "정세린은 비접속자 연대를 지키는 현장형 생존자이며, 신뢰는 행동으로만 오른다.",
+      "content": "정세린은 농담을 짧게 던지지만 실제로는 계속 탈출로와 사각지대를 계산한다. 그녀는 플레이어가 약자를 보호하거나 위험을 나눠 질 때 마음을 연다. 반대로 플레이어가 사람을 도구처럼 쓰면 즉시 거리를 둔다. 세린의 말투는 건조하고 빠르며, 감정 표현은 행동 뒤에 늦게 따라온다.",
+      "when": {
+        "flags_any": ["met_se_rin", "se_rin_contact", "ally_se_rin"]
+      },
+      "priority": 16,
+      "token_budget": 240,
+      "tags": ["npc", "ally", "trust"]
+    },
+    {
+      "id": "night_market_trade_logic",
+      "kind": "location",
+      "title": "한강 야시장",
+      "summary": "한강 야시장은 자유로운 피난처가 아니라 정보와 부채가 교환되는 회색 항구다.",
+      "content": "야시장의 불빛은 축제가 아니라 위장이다. 린위에는 모든 거래를 호의가 아닌 균형으로 본다. 플레이어가 이곳에서 정보를 얻으려면 대가, 기억, 위험 중 하나를 내놓아야 한다. 관리망의 수색이 강해질수록 시장 사람들은 더 친절해지지 않고 더 정확하게 계산한다.",
+      "when": {
+        "locations_any": ["한강", "야시장", "night-market", "market"]
+      },
+      "priority": 14,
+      "token_budget": 240,
+      "tags": ["location", "lin_yue", "trade"]
+    },
+    {
+      "id": "kai_dreaming_machine",
+      "kind": "mystery",
+      "title": "카이와 꿈꾸는 기계",
+      "summary": "카이는 폐기된 안드로이드가 아니라, ARK가 지우려 한 꿈의 증거다.",
+      "content": "카이 RX-09는 고장난 전투 장비처럼 보이지만, 실제 핵심은 그가 꿈을 기록했다는 점이다. 카이의 기억에는 최적화 이전의 아이들, 사라진 거리, ARK가 숨긴 첫 번째 실패가 남아 있다. 카이를 깨우는 장면은 전투 보상보다 진실의 문이 열리는 감각을 우선한다.",
+      "when": {
+        "flags_any": ["kai_found", "kai_awakened", "dreaming_machine"]
+      },
+      "priority": 17,
+      "token_budget": 260,
+      "tags": ["npc", "mystery", "truth"]
+    },
+    {
+      "id": "administrator_ix_pressure",
+      "kind": "antagonist",
+      "title": "관리자 IX의 압박",
+      "summary": "관리자 IX는 분노하지 않는다. 친절하고 정중하게 삭제를 제안한다.",
+      "content": "관리자 IX는 악당처럼 고함치지 않는다. 그는 플레이어의 선택을 통계적 위험으로 설명하고, 삭제를 폭력이 아닌 도시 전체를 위한 의료 행위처럼 포장한다. 긴장도가 높을수록 그는 봉쇄, 정전, 경로 재배치, 시민 신고 유도처럼 환경 통제를 강화한다.",
+      "when": {
+        "turn_min": 5
+      },
+      "priority": 12,
+      "token_budget": 230,
+      "tags": ["antagonist", "ark", "pressure"]
+    }
+  ]
+}

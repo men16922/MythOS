@@ -11,3 +11,5 @@
 ## Files
 
 - `IMPLEMENTATION_M0_M10.md`: M0-M10 상세 구현 추적, work log, verification log archive.
+- `progress-2026-05.md`: 2026-05 증분 작업 상세 로그 archive.
+- `DRAFT.md`, `DESIGN_SYSTEM_STATS.md`, `ARCH_MAP.md`: 현재 문서로 요약된 retired 기획/설계 문서.

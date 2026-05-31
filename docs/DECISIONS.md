@@ -4,6 +4,23 @@
 
 ## 2026-05-31
 
+### Use A Local JSON Bridge For Combat UI Actions
+
+Decision: move active combat presentation into one self-contained iframe and route
+per-turn actions through a localhost-only JSON bridge
+(`src/mythos_runtime/combat_server.py`) instead of Streamlit widgets and per-action
+fragment reruns.
+
+Reason: Streamlit reruns remounted the tactical board iframe on every move/attack,
+causing visible flicker and leaking the hidden action input as a white box. Keeping the
+combat UI mounted and updating it with fetch responses removes the remount path while
+leaving `CombatService`, the deterministic engine, and persistence schemas unchanged.
+
+Impact: combat actions now cross a 127.0.0.1 HTTP boundary inside the local Streamlit
+process. The bridge is demo-local, request-scoped, and covered by handler tests.
+Future combat UI work should extend the iframe payload/API rather than reintroducing
+per-action Streamlit controls.
+
 ### Move Scenario-Specific GM Instructions Into `scenario.json`
 
 Decision: store scenario-specific GM instructions in `resources/neo-seoul/scenario.json`

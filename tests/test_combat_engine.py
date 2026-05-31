@@ -165,6 +165,157 @@ class CombatEngineTest(unittest.TestCase):
         self.assertTrue(took_damage)
 
 
+SKILLS = load_scenario("neo-seoul").combat["skills"]
+ITEMS = load_scenario("neo-seoul").combat["items"]
+
+
+def _skilled_player(x: int = 0, y: int = 0, **stat_overrides: int):
+    stats = {"strength": 8, "intelligence": 9, "charisma": 5, "agility": 6, "perception": 6}
+    stats.update(stat_overrides)
+    return build_player_combatant(
+        combatant_id="player",
+        name="당신",
+        stats=stats,
+        weapon_ids=["vibro_blade"],
+        weapons_pool=WEAPONS,
+        x=x,
+        y=y,
+        skills=list(SKILLS.keys()),
+    )
+
+
+class CombatSkillTest(unittest.TestCase):
+    def test_player_grants_focus_and_skills(self) -> None:
+        engine = CombatEngine()
+        state = engine.start([_skilled_player()], [_drone(x=3)], seed="grant", arena=(8, 6))
+        player = state.player()
+        assert player is not None
+        self.assertGreater(player.max_focus, 0)
+        self.assertEqual(player.focus, player.max_focus)
+        actions = engine.available_actions(state)
+        self.assertIn("focus", actions)
+        self.assertEqual({s["id"] for s in actions["skills"]}, set(SKILLS.keys()))
+
+    def test_packet_shot_hits_at_range_and_spends_focus(self) -> None:
+        engine = CombatEngine()
+        state = engine.start(
+            [_skilled_player(x=0, y=0)], [_drone(x=4, y=0, hp=40, defense=1)],
+            seed="packet", arena=(10, 6),
+        )
+        enemy = state.living_enemies()[0]
+        before_hp = enemy.hp
+        before_focus = state.player().focus  # type: ignore[union-attr]
+        state = engine.take_player_turn(
+            state, PlayerAction(type="skill", skill_id="packet_shot"),
+            skill_def=SKILLS["packet_shot"],
+        )
+        after = state.by_id(enemy.id)
+        assert after is not None
+        self.assertLess(after.hp, before_hp)
+        self.assertTrue(any(e.action == "skill" for e in state.log))
+        # focus spent (2) then regen (+1) creates a real resource tradeoff.
+        self.assertEqual(state.player().focus, before_focus - 1)  # type: ignore[union-attr]
+
+    def test_skill_on_cooldown_is_rejected(self) -> None:
+        engine = CombatEngine()
+        state = engine.start(
+            [_skilled_player(x=0, y=0)], [_drone(x=1, y=0, hp=80, defense=1)],
+            seed="cooldown", arena=(8, 6),
+        )
+        round_before = state.round
+        state = engine.take_player_turn(
+            state, PlayerAction(type="skill", skill_id="overload_strike"),
+            skill_def=SKILLS["overload_strike"],
+        )
+        # overload_strike cd=2: after one full turn (round tick -1) it is still on cooldown.
+        log_len = len(state.log)
+        round_mid = state.round
+        state = engine.take_player_turn(
+            state, PlayerAction(type="skill", skill_id="overload_strike"),
+            skill_def=SKILLS["overload_strike"],
+        )
+        self.assertTrue(any("재충전" in e.text for e in state.log[log_len:]))
+        # Rejected action does not hand the turn to enemies -> round unchanged.
+        self.assertEqual(state.round, round_mid)
+        self.assertGreater(round_mid, round_before)
+
+    def test_covering_noise_applies_defense_buff(self) -> None:
+        engine = CombatEngine()
+        state = engine.start(
+            [_skilled_player(x=0, y=0)], [_drone(x=5, y=0, hp=80, defense=1)],
+            seed="cover", arena=(10, 6),
+        )
+        state = engine.take_player_turn(
+            state, PlayerAction(type="skill", skill_id="covering_noise"),
+            skill_def=SKILLS["covering_noise"],
+        )
+        self.assertTrue(any("방어 +" in e.text for e in state.log))
+
+    def test_patch_protocol_requires_item(self) -> None:
+        engine = CombatEngine()
+        # Immobile, far enemy so it cannot retaliate and skew the heal assertions.
+        state = engine.start(
+            [_skilled_player(x=0, y=0)], [_drone(x=9, y=5, hp=80, defense=1, speed=0)],
+            seed="patch", arena=(10, 6),
+        )
+        player = state.player()
+        assert player is not None
+        player.hp = 4
+        # Without the item: rejected, no heal.
+        state = engine.take_player_turn(
+            state, PlayerAction(type="skill", skill_id="patch_protocol"),
+            skill_def=SKILLS["patch_protocol"], item_available=False,
+        )
+        self.assertEqual(state.player().hp, 4)  # type: ignore[union-attr]
+        # With the item: heals and flags the consumed resource.
+        state = engine.take_player_turn(
+            state, PlayerAction(type="skill", skill_id="patch_protocol"),
+            skill_def=SKILLS["patch_protocol"], item_available=True,
+        )
+        self.assertGreater(state.player().hp, 4)  # type: ignore[union-attr]
+        self.assertTrue(
+            any(e.detail.get("consumed") == "nanopatch" for e in state.log if e.detail)
+        )
+
+    def test_item_nanopatch_heals_and_focus_item_restores(self) -> None:
+        engine = CombatEngine()
+        state = engine.start(
+            [_skilled_player(x=0, y=0)], [_drone(x=9, y=5, hp=80, defense=1, speed=0)],
+            seed="item", arena=(10, 6),
+        )
+        player = state.player()
+        assert player is not None
+        player.hp = 3
+        player.focus = 0
+        state = engine.take_player_turn(
+            state, PlayerAction(type="item", item_id="nanopatch"),
+            item_def=ITEMS["nanopatch"], item_available=True,
+        )
+        self.assertGreater(state.player().hp, 3)  # type: ignore[union-attr]
+        state = engine.take_player_turn(
+            state, PlayerAction(type="item", item_id="stim_shard"),
+            item_def=ITEMS["stim_shard"], item_available=True,
+        )
+        self.assertGreater(state.player().focus, 0)  # type: ignore[union-attr]
+
+    def test_defend_restores_focus_as_recharge_turn(self) -> None:
+        engine = CombatEngine()
+        state = engine.start(
+            [_skilled_player(x=0, y=0)], [_drone(x=9, y=5, hp=80, defense=1, speed=0)],
+            seed="defend-focus", arena=(10, 6),
+        )
+        player = state.player()
+        assert player is not None
+        player.focus = 0
+
+        state = engine.take_player_turn(state, PlayerAction(type="defend"))
+
+        player = state.player()
+        assert player is not None
+        self.assertEqual(player.focus, 2)
+        self.assertTrue(any(e.detail.get("focus_gained") == 1 for e in state.log if e.detail))
+
+
 class ScenarioPoolEncounterTest(unittest.TestCase):
     def test_neo_seoul_encounter_runs_from_pool(self) -> None:
         combat_pool = load_scenario("neo-seoul").combat

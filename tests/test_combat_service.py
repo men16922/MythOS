@@ -113,6 +113,58 @@ class CombatServiceTest(unittest.TestCase):
         assert player is not None
         self.assertEqual(player.hp, 7)
 
+    def test_party_members_spawn_as_allies(self) -> None:
+        service = CombatService()
+        loop = _loop(state={"_party": {"members": [{"id": "se_rin", "hp": 9}]}})
+        result = self._begin(service, loop)
+        state = CombatService.load_state(result.loop)
+        assert state is not None
+        ally = state.by_id("se_rin")
+        self.assertIsNotNone(ally)
+        assert ally is not None
+        self.assertEqual(ally.faction, "ally")
+        self.assertEqual(ally.hp, 9)
+        self.assertEqual(ally.portrait, "characters/se-rin.png")
+        self.assertEqual(len(result.radar["blips"]), 4)  # player + ally + 2 drones
+
+    def test_unlock_flag_spawns_ally_and_persists_hp(self) -> None:
+        service = CombatService()
+        loop = _loop(state={"flags": ["trusted_se_rin"]})
+        result = self._begin(service, loop)
+        state = CombatService.load_state(result.loop)
+        assert state is not None
+        ally = state.by_id("se_rin")
+        self.assertIsNotNone(ally)
+        assert ally is not None
+        ally.hp = 5
+        party = service._finish_party_state(result.loop, state, player_hp=10)
+        members = party.get("members", [])
+        se_rin = next(member for member in members if member["id"] == "se_rin")
+        self.assertEqual(se_rin["hp"], 5)
+
+    def test_item_action_consumes_from_inventory(self) -> None:
+        service = CombatService()
+        loop = _loop(state={"_inventory": [{"id": "nanopatch", "name": "나노패치"}]})
+        result = self._begin(service, loop)
+        loop = result.loop
+        self.assertEqual(len(loop.state.get("_inventory", [])), 1)
+        result = service.act(
+            loop, PlayerAction(type="item", item_id="nanopatch"), scenario_combat=POOL
+        )
+        self.assertEqual(len(result.loop.state.get("_inventory", [])), 0)
+
+    def test_skill_action_routes_and_exposes_focus(self) -> None:
+        service = CombatService()
+        result = self._begin(service, _loop())
+        self.assertIn("focus", result.available)
+        self.assertTrue(result.available.get("skills"))
+        out = service.act(
+            result.loop,
+            PlayerAction(type="skill", skill_id="packet_shot"),
+            scenario_combat=POOL,
+        )
+        self.assertTrue(out.prose.strip())
+
     def _play_end(self, service: CombatService):
         return _play_to_end(service, self._begin(service, _loop()))
 

@@ -20,11 +20,12 @@ _NEIGHBORS = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 
 
 @dataclass
 class PlayerAction:
-    type: str = "wait"  # attack|defend|flee|wait|item
+    type: str = "wait"  # attack|defend|flee|wait|skill|item
     target_id: str | None = None
     weapon_id: str | None = None
     move_to: tuple[int, int] | None = None
     item_id: str | None = None
+    skill_id: str | None = None
 
 
 class CombatEngine:
@@ -65,32 +66,56 @@ class CombatEngine:
         self._run_opening(state)
         return state
 
-    def take_player_turn(self, state: CombatState, action: PlayerAction) -> CombatState:
+    def take_player_turn(
+        self,
+        state: CombatState,
+        action: PlayerAction,
+        *,
+        skill_def: dict[str, Any] | None = None,
+        item_def: dict[str, Any] | None = None,
+        item_available: bool = False,
+    ) -> CombatState:
         if not state.active:
             return state
         player = state.player()
         if player is None or not player.alive:
             return state
 
-        dice = self._dice(state)
-        if action.move_to is not None:
-            self._move_player(state, player, action.move_to)
-
-        if action.type == "attack":
-            self._player_attack(state, player, action, dice)
-        elif action.type == "defend":
-            player.defending = True
-            self._log(state, player, "defend", f"{player.name}이(가) 방어 태세를 취한다.")
-        elif action.type == "flee":
-            self._player_flee(state, player, dice)
+        # `spent` is False when the action was rejected (no focus / on cooldown /
+        # missing item / no valid target) so the turn is NOT handed to the enemies.
+        spent = True
+        if action.type == "skill":
+            spent = self._player_skill(state, player, action, skill_def, item_available)
         elif action.type == "item":
-            self._log(state, player, "info", f"{player.name}은(는) 잠시 호흡을 고른다.")
+            spent = self._player_item(state, player, action, item_def, item_available)
         else:
-            self._log(state, player, "info", f"{player.name}은(는) 상황을 살핀다.")
+            dice = self._dice(state)
+            if action.move_to is not None:
+                self._move_player(state, player, action.move_to)
+            if action.type == "attack":
+                self._player_attack(state, player, action, dice)
+            elif action.type == "defend":
+                player.defending = True
+                gained = self._restore_focus(player, 1)
+                detail = {"focus_gained": gained} if gained else {}
+                self._log(
+                    state,
+                    player,
+                    "defend",
+                    f"{player.name}이(가) 방어 태세를 취하며 집중을 가다듬는다.",
+                    detail,
+                )
+            elif action.type == "flee":
+                self._player_flee(state, player, dice)
+            else:
+                self._log(state, player, "info", f"{player.name}은(는) 상황을 살핀다.")
 
         self._check_outcome(state)
         if not state.active or state.outcome == "player_fled":
             return self._finish(state)
+
+        if not spent:
+            return state
 
         self._run_until_player(state)
         if not state.active:
@@ -119,6 +144,12 @@ class CombatEngine:
             "reachable": self._reachable_tiles(state, player),
             "targets": targets,
             "weapons": [w.id for w in player.weapons],
+            "focus": player.focus,
+            "max_focus": player.max_focus,
+            "skills": [
+                {"id": skill_id, "cooldown": int(player.cooldowns.get(skill_id, 0))}
+                for skill_id in player.skills
+            ],
         }
 
     # --- dice & logging -------------------------------------------------
@@ -239,6 +270,245 @@ class CombatEngine:
                 state, player, "info", f"{player.name}이(가) 이탈에 실패했다. 적이 길을 막는다.", {"dc": dc, "total": total}
             )
 
+    # --- skills & items -------------------------------------------------
+    def _player_skill(
+        self,
+        state: CombatState,
+        player: Combatant,
+        action: PlayerAction,
+        skill_def: dict[str, Any] | None,
+        item_available: bool,
+    ) -> bool:
+        if not isinstance(skill_def, dict):
+            self._log(state, player, "info", f"{player.name}: 알 수 없는 스킬이다.")
+            return False
+        skill_id = str(skill_def.get("id", action.skill_id or ""))
+        name = str(skill_def.get("name", skill_id))
+
+        remaining = int(player.cooldowns.get(skill_id, 0))
+        if remaining > 0:
+            self._log(state, player, "info", f"{name}은(는) 재충전 중이다. (R-{remaining})")
+            return False
+        cost = skill_def.get("cost", {}) if isinstance(skill_def.get("cost"), dict) else {}
+        focus_cost = int(cost.get("focus", 0))
+        if focus_cost > player.focus:
+            self._log(state, player, "info", f"{name}을(를) 발동할 집중이 부족하다.")
+            return False
+        item_cost = cost.get("item")
+        if item_cost and not item_available:
+            self._log(state, player, "info", f"{name}에 필요한 자원이 없다.")
+            return False
+
+        effect = skill_def.get("effect", {}) if isinstance(skill_def.get("effect"), dict) else {}
+        skill_range = int(skill_def.get("range", 1))
+
+        # Pre-validate damage target (so a whiffed cast does not burn focus/turn).
+        target: Combatant | None = None
+        if "damage" in effect or "damage_bonus" in effect:
+            target = state.by_id(action.target_id)
+            if target is None or not target.alive:
+                target = self._nearest_enemy_in_range(state, player, skill_range)
+            if target is None:
+                self._log(state, player, "info", f"{name}: 사거리 안에 표적이 없다.")
+                return False
+
+        detail: dict[str, Any] = {"skill": skill_id}
+        if item_cost:
+            detail["consumed"] = str(item_cost)
+        self._log(state, player, "skill", f"{player.name}이(가) {name}을(를) 발동한다.", detail)
+
+        dice = self._dice(state)
+        if "move" in effect:
+            self._skill_move(
+                state, player, action.move_to, int(effect.get("move", player.speed))
+            )
+        if target is not None:
+            self._skill_attack(state, player, target, name, effect, dice)
+        if "defense_bonus" in effect:
+            player.defense_buff = int(effect.get("defense_bonus", 0))
+            player.defense_buff_turns = max(1, int(effect.get("duration", 1)))
+            self._log(
+                state, player, "defend",
+                f"{player.name} 주위로 엄호 노이즈가 퍼진다. (방어 +{player.defense_buff})",
+            )
+        if "heal" in effect:
+            healed = self._apply_heal(player, str(effect.get("heal", "0")), dice)
+            self._log(state, player, "info", f"{player.name}이(가) {healed} 회복했다.")
+
+        player.focus = max(0, player.focus - focus_cost)
+        player.cooldowns[skill_id] = int(skill_def.get("cooldown", 0))
+        return True
+
+    def _player_item(
+        self,
+        state: CombatState,
+        player: Combatant,
+        action: PlayerAction,
+        item_def: dict[str, Any] | None,
+        item_available: bool,
+    ) -> bool:
+        if not isinstance(item_def, dict):
+            self._log(state, player, "info", f"{player.name}: 사용할 수 없는 아이템이다.")
+            return False
+        if not item_available:
+            self._log(state, player, "info", f"{player.name}: 해당 아이템을 갖고 있지 않다.")
+            return False
+        item_id = str(item_def.get("id", action.item_id or ""))
+        name = str(item_def.get("name", item_id))
+        effect = str(item_def.get("effect", ""))
+        detail: dict[str, Any] = {"item": item_id, "consumed": item_id}
+        dice = self._dice(state)
+        if effect == "heal":
+            healed = self._apply_heal(player, str(item_def.get("heal", "2d6")), dice)
+            self._log(
+                state, player, "item", f"{player.name}이(가) {name}을(를) 써 {healed} 회복했다.", detail
+            )
+            return True
+        if effect == "focus":
+            bonus = int(item_def.get("bonus", 1))
+            detail["focus_gained"] = self._restore_focus(player, bonus)
+            self._log(
+                state, player, "item", f"{player.name}이(가) {name}으로 집중을 회복했다.", detail
+            )
+            return True
+        self._log(state, player, "info", f"{name}은(는) 전투 중 사용할 수 없다.")
+        return False
+
+    def _skill_move(
+        self, state: CombatState, player: Combatant, dest: tuple[int, int] | None, max_move: int
+    ) -> None:
+        if dest is not None:
+            dx, dy = dest
+            if (
+                self._in_bounds(state, dx, dy)
+                and not self._occupied(state, dx, dy, player)
+                and distance(player.x, player.y, dx, dy) <= max_move
+            ):
+                player.x, player.y = dx, dy
+                self._log(
+                    state, player, "move",
+                    f"{player.name}이(가) 신호 도약으로 ({dx}, {dy})로 이동한다.",
+                    {"to": [dx, dy]},
+                )
+            return
+        # No destination given: gap-close toward the nearest enemy.
+        enemies = state.living_enemies()
+        if not enemies:
+            return
+        foe = min(enemies, key=lambda e: distance(player.x, player.y, e.x, e.y))
+        budget = max_move
+        moved = False
+        while budget > 0 and distance(player.x, player.y, foe.x, foe.y) > 1:
+            best: tuple[int, int] | None = None
+            best_metric = distance(player.x, player.y, foe.x, foe.y)
+            for ox, oy in _NEIGHBORS:
+                nx, ny = player.x + ox, player.y + oy
+                if not self._in_bounds(state, nx, ny) or self._occupied(state, nx, ny, player):
+                    continue
+                metric = distance(nx, ny, foe.x, foe.y)
+                if metric < best_metric:
+                    best_metric = metric
+                    best = (nx, ny)
+            if best is None:
+                break
+            player.x, player.y = best
+            moved = True
+            budget -= 1
+        if moved:
+            self._log(
+                state, player, "move",
+                f"{player.name}이(가) 신호 도약으로 ({player.x}, {player.y})로 파고든다.",
+                {"to": [player.x, player.y]},
+            )
+
+    def _skill_attack(
+        self,
+        state: CombatState,
+        player: Combatant,
+        target: Combatant,
+        skill_name: str,
+        effect: dict[str, Any],
+        dice: Dice,
+    ) -> None:
+        stat = max(player.stat("strength"), player.stat("agility"))
+        roll = dice.d20()
+        total = roll + stat + int(effect.get("to_hit_bonus", 0))
+        crit = roll == 20
+        dc = target.effective_defense
+        if not crit and total < dc:
+            self._log(
+                state, player, "miss",
+                f"{player.name}의 {skill_name}이(가) {target.name}을(를) 빗나갔다.",
+                {"roll": roll, "total": total, "dc": dc, "target": target.id},
+            )
+            return
+        if "damage" in effect:
+            damage = dice.roll(str(effect["damage"]))
+        else:
+            weapon = player.primary_weapon()
+            damage = dice.roll(weapon.damage) if weapon else dice.roll("1d4")
+        if "damage_bonus" in effect:
+            damage += dice.roll(str(effect["damage_bonus"]))
+        armor_pen = int(effect.get("armor_pen", 0))
+        damage = max(1, damage - max(0, target.armor - armor_pen))
+        if crit:
+            damage *= 2
+        target.hp = max(0, target.hp - damage)
+        detail = {
+            "roll": roll, "total": total, "dc": dc, "damage": damage, "crit": crit,
+            "target": target.id, "target_hp": target.hp, "target_max_hp": target.max_hp,
+        }
+        if target.hp <= 0:
+            target.alive = False
+            self._log(
+                state, player, "defeat",
+                f"{player.name}의 {skill_name}이(가) {target.name}을(를) 쓰러뜨렸다! ({damage} 피해)",
+                detail,
+            )
+        else:
+            tag = "치명타! " if crit else ""
+            self._log(
+                state, player, "hit",
+                f"{tag}{player.name}의 {skill_name}이(가) {target.name}에게 {damage} 피해.",
+                detail,
+            )
+
+    def _apply_heal(self, combatant: Combatant, heal_dice: str, dice: Dice) -> int:
+        amount = dice.roll(heal_dice)
+        before = combatant.hp
+        combatant.hp = min(combatant.max_hp, combatant.hp + amount)
+        return combatant.hp - before
+
+    def _restore_focus(self, combatant: Combatant, amount: int) -> int:
+        before = combatant.focus
+        cap = combatant.max_focus if combatant.max_focus else before + amount
+        combatant.focus = min(cap, combatant.focus + max(0, amount))
+        return combatant.focus - before
+
+    def _nearest_enemy_in_range(
+        self, state: CombatState, player: Combatant, reach: int
+    ) -> Combatant | None:
+        candidates = [
+            e for e in state.living_enemies()
+            if distance(player.x, player.y, e.x, e.y) <= reach
+        ]
+        if not candidates:
+            return None
+        return min(candidates, key=lambda e: (distance(player.x, player.y, e.x, e.y), e.hp))
+
+    def _tick_player_round(self, player: Combatant) -> None:
+        """Per-round upkeep for the player: focus regen, cooldowns, expiring buffs."""
+        if player.max_focus:
+            player.focus = min(player.max_focus, player.focus + 1)
+        for skill_id in list(player.cooldowns):
+            player.cooldowns[skill_id] -= 1
+            if player.cooldowns[skill_id] <= 0:
+                del player.cooldowns[skill_id]
+        if player.defense_buff_turns > 0:
+            player.defense_buff_turns -= 1
+            if player.defense_buff_turns <= 0:
+                player.defense_buff = 0
+
     # --- enemy / ally AI ------------------------------------------------
     def _run_opening(self, state: CombatState) -> None:
         player = state.player()
@@ -267,6 +537,7 @@ class CombatEngine:
             if i == player_idx:
                 state.round += 1
                 player.defending = False
+                self._tick_player_round(player)
                 state.turn_ptr = player_idx
                 return
             actor = state.by_id(state.order[i])

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import unittest
 from contextlib import contextmanager
+from dataclasses import replace
 from datetime import UTC, datetime
 
 from mythos_combat import CombatEngine, PlayerAction
@@ -9,7 +10,8 @@ from mythos_combat.models import distance
 from mythos_core import Choice, LoopPhase, LoopState, PlayerProfile, Scene
 from mythos_memory.store import MythOSStore
 from mythos_narrative import ScenePayload, WorldDelta
-from mythos_runtime.combat_service import CombatService
+from mythos_runtime.combat_service import CombatService, CombatTurnResult
+from mythos_runtime.encounter_map import ENCOUNTER_MAP_KEY
 from mythos_runtime.options import RuntimeOptions
 from mythos_runtime.session import RuntimeSessionService
 
@@ -159,6 +161,23 @@ class SessionCombatTest(unittest.TestCase):
         assert stored is not None
         self.assertTrue(CombatService.is_active(stored))
 
+    def test_start_combat_can_override_party_members_for_simulation(self) -> None:
+        snap = self.service.start_combat(
+            self.loop_id,
+            "patrol_ambush",
+            self.options,
+            party_members=[{"id": "se_rin"}],
+        )
+
+        assert snap.combat is not None
+        blips = snap.combat["radar"]["blips"]
+        se_rin = next(blip for blip in blips if blip["id"] == "se_rin")
+        self.assertEqual(se_rin["faction"], "ally")
+        stored = self.store.get_loop(self.loop_id)
+        assert stored is not None
+        members = stored.state.get("_party", {}).get("members", [])
+        self.assertEqual(members[0]["id"], "se_rin")
+
     def test_resume_restores_active_combat_payload(self) -> None:
         started = self.service.start_combat(self.loop_id, "patrol_ambush", self.options)
         resumed = self.service.resume(loop_id=started.loop.loop_id, options=self.options)
@@ -220,6 +239,75 @@ class SessionCombatTest(unittest.TestCase):
         self.assertTrue(snap.combat["finished"])
         self.assertIn(snap.combat["outcome"], {"player_victory", "player_defeat", "player_fled"})
         self.assertFalse(CombatService.is_active(snap.loop))
+
+    def test_victory_rewards_mark_encounter_defeated(self) -> None:
+        loop = self.store.get_loop(self.loop_id)
+        assert loop is not None
+        loop = replace(
+            loop,
+            state={
+                ENCOUNTER_MAP_KEY: {
+                    "contacts": {
+                        "c1": {
+                            "id": "c1",
+                            "encounter_id": "patrol_ambush",
+                            "state": "engaged",
+                        }
+                    }
+                }
+            },
+        )
+        result = CombatTurnResult(
+            loop=loop,
+            prose="",
+            radar={"encounter_id": "patrol_ambush"},
+            available={},
+            finished=True,
+            outcome="player_victory",
+            rewards={"encounter_reward": {"stability": 2, "tension": -1}},
+        )
+
+        updated = self.service._apply_combat_rewards(loop, result)
+
+        contact = updated.state[ENCOUNTER_MAP_KEY]["contacts"]["c1"]
+        self.assertEqual(contact["state"], "defeated")
+        self.assertEqual(updated.stability, 72)
+        self.assertEqual(updated.tension, 19)
+
+    def test_flee_keeps_encounter_contact_alerted_without_rewards(self) -> None:
+        loop = self.store.get_loop(self.loop_id)
+        assert loop is not None
+        loop = replace(
+            loop,
+            state={
+                ENCOUNTER_MAP_KEY: {
+                    "contacts": {
+                        "c1": {
+                            "id": "c1",
+                            "encounter_id": "patrol_ambush",
+                            "state": "engaged",
+                        }
+                    }
+                }
+            },
+        )
+        result = CombatTurnResult(
+            loop=loop,
+            prose="",
+            radar={"encounter_id": "patrol_ambush"},
+            available={},
+            finished=True,
+            outcome="player_fled",
+            rewards={"encounter_reward": {"stability": 2, "tension": -1}},
+        )
+
+        updated = self.service._apply_combat_rewards(loop, result)
+
+        contact = updated.state[ENCOUNTER_MAP_KEY]["contacts"]["c1"]
+        self.assertEqual(contact["state"], "alerted")
+        self.assertEqual(contact["cooldown"], 1)
+        self.assertEqual(updated.stability, 70)
+        self.assertEqual(updated.tension, 20)
 
     def test_defeat_triggers_permadeath(self) -> None:
         loop_id = _seed_loop(self.store, "p2", "잔향 수집가 (Collector)")

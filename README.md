@@ -8,14 +8,17 @@ Project MythOS / 세계:접속의 로컬 MVP 런타임입니다.
 
 ## Project Docs
 
-- `docs/DRAFT.md`: Project MythOS / 세계:접속 기획 (비전·세계관).
+- `docs/AGENT_BRIEF.md`: 에이전트용 압축 문맥과 읽기 순서.
+- `docs/PROJECT_OVERVIEW.md`: **Project MythOS 핵심 소개 & 기획/기술 구조 요약** (입문 추천).
 - `docs/DESIGN.md`: 시스템 설계 — 컴포넌트, 런타임 시퀀스, PostgreSQL 스키마, 설계 원칙·리스크·Mermaid 다이어그램·하드웨어 스택 근거(부록 §17–§20) 통합.
-- `docs/README.md`: 문서 구조와 업데이트 흐름.
+- `docs/GAMEPLAY.md`: 게임플레이/TRPG 기획 — 스탯, 특성, 자율성 진행도, 튜토리얼 맵 및 전술 전투 설계.
+- `docs/README.md`: 전체 문서 구조와 업데이트 흐름 가이드.
 - `docs/DOCS_POLICY.md`: 날짜별 계획, 증분 로그, archive/delete 정책.
 - `docs/STATUS.md`: 현재 구현 상태와 active focus.
 - `docs/NEXT_PLAN.md`: 로컬 MVP 이후 rolling plan.
 - `docs/plans/`: 날짜별 계획 스냅샷.
-- `docs/archive/IMPLEMENTATION_M0_M10.md`: M0-M10 상세 구현 archive.
+- `docs/archive/`: 구 기획 초안(`DRAFT.md`), 구 스탯 상세서, 구 아키텍처 맵 및 과거 구현 이력 보관소.
+- `harness/`: AI 에이전트 자율 연동용 하네스 맥락 및 코어 제약 공유 폴더 (`CONTEXT_BRIDGE.md`, `CORE_MANDATES.md`).
 
 ## Prerequisites
 

@@ -58,6 +58,12 @@ class Combatant:
     alive: bool = True
     loot_table: str | None = None
     portrait: str = ""
+    focus: int = 0  # skill resource (spent on skills, regen each round)
+    max_focus: int = 0
+    skills: list[str] = field(default_factory=list)  # skill ids the combatant can use
+    cooldowns: dict[str, int] = field(default_factory=dict)  # skill_id -> rounds remaining
+    defense_buff: int = 0  # temporary defense bonus from skills (e.g. covering_noise)
+    defense_buff_turns: int = 0  # rounds the defense_buff persists
 
     @property
     def is_player(self) -> bool:
@@ -65,7 +71,7 @@ class Combatant:
 
     @property
     def effective_defense(self) -> int:
-        return self.defense + (4 if self.defending else 0)
+        return self.defense + (4 if self.defending else 0) + max(0, self.defense_buff)
 
     def stat(self, name: str) -> int:
         return int(self.stats.get(name, 0))

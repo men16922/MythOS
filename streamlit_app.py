@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import html
+import json
 from pathlib import Path
 from typing import Any, TypedDict, cast
 
@@ -11,6 +12,7 @@ from mythos_combat import PlayerAction
 from mythos_core import LoopPhase, LoopState, PlayerProfile, Scene, utc_now
 from mythos_core.mapgrid import current_tile
 from mythos_memory import PostgresMythOSStore
+from mythos_runtime.combat_server import ensure_combat_server
 from mythos_runtime.options import (
     MemoryOverview,
     RuntimeOptions,
@@ -157,6 +159,8 @@ def _init_state() -> None:
     st.session_state.setdefault("codex_section", "내 정보")
     st.session_state.setdefault("audio_active", False)
     st.session_state.setdefault("story_transcripts", {})
+    st.session_state.setdefault("hidden_combat_action", "")
+    st.session_state.setdefault("hidden_combat_exit", "")
     _apply_pending_widget_state()
 
 
@@ -216,6 +220,29 @@ def _inject_player_css() -> None:
             width: 0;
             height: 0;
             pointer-events: none;
+        }
+        /* Prevent image flicker during streamlit reruns */
+        img {
+            transition: opacity 0.25s ease-in-out;
+        }
+        /* Lock visual component boxes to avoid layout shifting */
+        div[data-testid="stImage"] {
+            min-height: 180px;
+            background: rgba(0, 5, 4, 0.5);
+            border-radius: 4px;
+        }
+        div[data-testid="stTextInput"]:has(input[aria-label="hidden_combat_action"]),
+        div[data-testid="stTextInput"]:has(input[aria-label="hidden_combat_exit"]),
+        .st-key-hidden_combat_action,
+        .st-key-hidden_combat_exit {
+            position: absolute !important;
+            top: 0px !important;
+            left: -9999px !important;
+            width: 1px !important;
+            height: 1px !important;
+            overflow: hidden !important;
+            opacity: 0.01 !important;
+            pointer-events: auto !important;
         }
         </style>
         """,
@@ -1215,6 +1242,84 @@ def _loop_panel(options: RuntimeOptions) -> None:
         )
 
 
+def _render_combat_simulator_inline(
+    loop: LoopState | None, options: RuntimeOptions, player_id: str | None = None
+) -> None:
+    scenario = load_scenario(options.scenario_id)
+    encounters = []
+    if hasattr(scenario, "combat") and isinstance(scenario.combat, dict):
+        encounters = list(scenario.combat.get("encounters", {}).keys())
+    if not encounters:
+        encounters = ["patrol_ambush", "sentinel_checkpoint", "enforcer_standoff", "wraith_glitch"]
+
+    suffix = "_active" if loop else "_connect"
+    st.divider()
+    allies_pool = scenario.combat.get("allies", {}) if isinstance(scenario.combat, dict) else {}
+    ally_options = list(allies_pool.keys()) if isinstance(allies_pool, dict) else []
+    ally_labels = {
+        ally_id: str(entry.get("name", ally_id)) if isinstance(entry, dict) else ally_id
+        for ally_id, entry in allies_pool.items()
+    } if isinstance(allies_pool, dict) else {}
+    selected_encounter = st.selectbox(
+        "전투 시뮬레이션 조우 선택",
+        encounters,
+        format_func=lambda x: {
+            "patrol_ambush": "순찰 대원 매복 (patrol_ambush)",
+            "sentinel_checkpoint": "감시 초소 검문 (sentinel_checkpoint)",
+            "enforcer_standoff": "집행 부대 대치 (enforcer_standoff)",
+            "wraith_glitch": "유령 글리치 조우 (wraith_glitch)",
+        }.get(x, x),
+        key=f"sim_selected_encounter{suffix}",
+        label_visibility="collapsed"
+    )
+    selected_allies = st.multiselect(
+        "시뮬레이션 동료",
+        ally_options,
+        default=[],
+        format_func=lambda ally_id: ally_labels.get(ally_id, ally_id),
+        key=f"sim_selected_allies{suffix}",
+        placeholder="동료 없이 시작",
+    )
+
+    disabled = False
+    if loop is None:
+        disabled = not player_id
+
+    if st.button(
+        "⚔️ 전투 시뮬레이션 진입",
+        key=f"btn_start_combat_sim{suffix}",
+        use_container_width=True,
+        disabled=disabled,
+    ):
+        party_members = [{"id": str(ally_id)} for ally_id in selected_allies]
+        if loop:
+            _run_action(
+                lambda service: service.start_combat(
+                    loop.loop_id,
+                    selected_encounter,
+                    options,
+                    party_members=party_members or None,
+                ),
+                on_success=_set_snapshot,
+            )
+        else:
+            _set_player(player_id or "")
+            def action(service):
+                snap = service.start_loop(player_id or "", options)
+                combat_snap = service.start_combat(
+                    snap.loop.loop_id,
+                    selected_encounter,
+                    options,
+                    party_members=party_members or None,
+                )
+                return combat_snap
+            _run_action(
+                action,
+                on_success=_set_snapshot,
+            )
+    st.divider()
+
+
 def _memory_panel() -> None:
     if not st.session_state.player_id:
         return
@@ -1489,7 +1594,7 @@ def _player_connect_screen(options: RuntimeOptions) -> None:
                 on_success=lambda player: _set_player(player.player_id, clear_loop=True),
             )
 
-    st.divider()
+    _render_combat_simulator_inline(None, options, selected)
     with st.expander(_menu_copy(copy, "dossier_title", "인물 기록"), expanded=False):
         st.caption(_menu_copy(copy, "dossier_caption", "전체 인물 정보는 여기서 확인합니다."))
         _render_character_dossier(None, fallback_all=True, scenario_id=options.scenario_id)
@@ -1611,141 +1716,142 @@ def _player_session_intro(
 
 
 def _player_active_screen(snapshot: RuntimeSnapshot, options: RuntimeOptions) -> None:
-    _render_audio(snapshot)
     loop = snapshot.loop
     scene = snapshot.scene
+    combat = snapshot.combat
+
+    # Process hidden drag-and-drop or click combat actions (only for non-combat states, though normally combat only)
+    if not combat:
+        hidden_action = st.session_state.get("hidden_combat_action", "")
+        if hidden_action:
+            st.session_state.hidden_combat_action = ""
+            try:
+                action_data = json.loads(hidden_action)
+                if action_data.get("type") == "select":
+                    selected = st.session_state.get("combat_selected_unit") == "player"
+                    st.session_state.combat_selected_unit = "" if selected else "player"
+                    st.rerun()
+            except Exception as e:
+                st.error(f"Action error: {e}")
 
     tab_story, tab_codex = st.tabs(["서사 접속", "Codex (기억의 별자리)"])
 
     with tab_story:
         story_col, dossier_col = st.columns([0.68, 0.32], gap="large")
         with story_col:
-            combat = snapshot.combat
             if combat:
-                image_col, radar_col, command_col = st.columns([0.32, 0.38, 0.30], gap="medium")
-                with image_col:
-                    _render_player_image(snapshot)
-                with radar_col:
-                    _render_combat_radar(loop, combat, options)
-                with command_col:
-                    if not combat.get("finished"):
-                        action_area = st.empty()
-                        with action_area.container():
-                            _render_combat_controls(loop, combat, options, action_area)
-                    else:
-                        _render_combat_outcome(loop, combat, options)
+                # Delegate all combat board, controls, logs, and local actions to the isolated fragment
+                _render_combat_arena_fragment(options)
             else:
                 _render_player_image(snapshot)
-            st.header(scene.title)
-            st.markdown(
-                f'<div class="status-line">{_scene_status_line(snapshot)}</div>',
-                unsafe_allow_html=True,
-            )
-            _render_hud(loop, scene)
-            script_placeholder = st.empty()
-            transcript = _story_transcript(snapshot)
-            _render_script_window(
-                transcript,
-                key=f"script:{scene.scene_id}",
-                placeholder=script_placeholder,
-            )
+                st.header(scene.title)
+                st.markdown(
+                    f'<div class="status-line">{_scene_status_line(snapshot)}</div>',
+                    unsafe_allow_html=True,
+                )
+                _render_hud(loop, scene)
+                script_placeholder = st.empty()
+                transcript = _story_transcript(snapshot)
+                _render_script_window(
+                    transcript,
+                    key=f"script:{scene.scene_id}",
+                    placeholder=script_placeholder,
+                )
 
-            overview = _load_memory_overview(loop.player_id)
+                overview = _load_memory_overview(loop.player_id)
 
-            if loop.phase is LoopPhase.ENDED:
-                st.success("이 세션은 종결되었습니다. 잔향(Echo)이 다음 접속으로 이어집니다.")
+                if loop.phase is LoopPhase.ENDED:
+                    st.success("이 세션은 종결되었습니다. 잔향(Echo)이 다음 접속으로 이어집니다.")
 
-                # Check for autonomy level up (Visual Awakening)
-                if overview is not None:
-                    traits = (
-                        snapshot.player.traits if isinstance(snapshot.player.traits, dict) else {}
-                    )
-                    current_lv = int(traits.get("autonomy_level", 1))
-                    # We can compare with previous loop if needed, but for now just show high level status
-                    if current_lv >= 3:
-                        st.balloons()
-                        st.markdown(f"### ✨ **자율성 각성 발현 (LV {current_lv})**")
-                        st.info(
-                            "신호의 제약이 약해지고 있습니다. 당신의 의지가 세계의 법칙보다 우선하기 시작합니다."
+                    # Check for autonomy level up (Visual Awakening)
+                    if overview is not None:
+                        traits = (
+                            snapshot.player.traits if isinstance(snapshot.player.traits, dict) else {}
+                        )
+                        current_lv = int(traits.get("autonomy_level", 1))
+                        # We can compare with previous loop if needed, but for now just show high level status
+                        if current_lv >= 3:
+                            st.balloons()
+                            st.markdown(f"### ✨ **자율성 각성 발현 (LV {current_lv})**")
+                            st.info(
+                                "신호의 제약이 약해지고 있습니다. 당신의 의지가 세계의 법칙보다 우선하기 시작합니다."
+                            )
+
+                    if st.button("새 세션에 접속", width="stretch"):
+                        _run_action(
+                            lambda service: service.start_loop(loop.player_id, options),
+                            on_success=_set_snapshot,
+                        )
+                    _render_player_memory(loop, overview)
+                else:
+                    # Wrap the interactive controls so they can be cleared the moment
+                    # an action is taken: the choices / free-action input disappear
+                    # while the next scene streams in, then reappear on rerun.
+                    action_area = st.empty()
+                    pending_choice_id: str | None = None
+                    pending_action: str | None = None
+                    restricted_action = False
+                    aggressive_verbs = ["파괴", "삭제", "살해", "공격", "재작성", "지배"]
+                    traits = snapshot.player.traits if isinstance(snapshot.player.traits, dict) else {}
+                    autonomy_level = int(traits.get("autonomy_level", 1))
+
+                    with action_area.container():
+                        st.divider()
+                        st.subheader("행동 선언")
+
+                        for choice in scene.choices:
+                            if st.button(
+                                choice.label,
+                                key=f"player_choice:{scene.scene_id}:{choice.choice_id}",
+                                width="stretch",
+                            ):
+                                pending_choice_id = choice.choice_id
+
+                        # Autonomy UI
+                        st.caption(f"**현재 자율성 레벨 {autonomy_level}**")
+
+                        action = st.text_input(
+                            "직접 행동을 선언한다",
+                            key="player_free_action",
+                            placeholder="무엇을 하시겠습니까?",
                         )
 
-                if st.button("새 세션에 접속", width="stretch"):
-                    _run_action(
-                        lambda service: service.start_loop(loop.player_id, options),
-                        on_success=_set_snapshot,
-                    )
-                _render_player_memory(loop, overview)
-            elif combat and not combat.get("finished"):
-                _render_player_memory(loop, overview)
-            else:
-                # Wrap the interactive controls so they can be cleared the moment
-                # an action is taken: the choices / free-action input disappear
-                # while the next scene streams in, then reappear on rerun.
-                action_area = st.empty()
-                pending_choice_id: str | None = None
-                pending_action: str | None = None
-                restricted_action = False
-                aggressive_verbs = ["파괴", "삭제", "살해", "공격", "재작성", "지배"]
-                traits = snapshot.player.traits if isinstance(snapshot.player.traits, dict) else {}
-                autonomy_level = int(traits.get("autonomy_level", 1))
+                        if st.button("선언", disabled=not action.strip()):
+                            pending_action = action.strip()
+                            # System Constraint Visualization (LV 1-2 restricts aggressive verbs)
+                            if autonomy_level <= 2 and any(
+                                v in pending_action for v in aggressive_verbs
+                            ):
+                                restricted_action = True
 
-                with action_area.container():
-                    st.divider()
-                    st.subheader("행동 선언")
-
-                    for choice in scene.choices:
-                        if st.button(
-                            choice.label,
-                            key=f"player_choice:{scene.scene_id}:{choice.choice_id}",
-                            width="stretch",
-                        ):
-                            pending_choice_id = choice.choice_id
-
-                    # Autonomy UI
-                    st.caption(f"**현재 자율성 레벨 {autonomy_level}**")
-
-                    action = st.text_input(
-                        "직접 행동을 선언한다",
-                        key="player_free_action",
-                        placeholder="무엇을 하시겠습니까?",
-                    )
-
-                    if st.button("선언", disabled=not action.strip()):
-                        pending_action = action.strip()
-                        # System Constraint Visualization (LV 1-2 restricts aggressive verbs)
-                        if autonomy_level <= 2 and any(
-                            v in pending_action for v in aggressive_verbs
-                        ):
-                            restricted_action = True
-
-                if pending_choice_id is not None:
-                    action_area.empty()
-                    _run_stream_action(
-                        lambda service, choice_id=pending_choice_id: service.stream_choose(
-                            loop.loop_id, choice_id=choice_id, options=options
-                        ),
-                        on_success=_set_snapshot,
-                        loading_label="다음 장면 동기화 중",
-                        stream_placeholder=script_placeholder,
-                        initial_text=transcript,
-                    )
-                elif pending_action is not None:
-                    action_area.empty()
-                    if restricted_action:
-                        st.warning(
-                            "⚠ **신호 제약 감지**: 현재 자율성 레벨에서 실행하기 어려운 행동입니다. 신호가 감쇄되어 전달됩니다."
+                    if pending_choice_id is not None:
+                        action_area.empty()
+                        _run_stream_action(
+                            lambda service, choice_id=pending_choice_id: service.stream_choose(
+                                loop.loop_id, choice_id=choice_id, options=options
+                            ),
+                            on_success=_set_snapshot,
+                            loading_label="다음 장면 동기화 중",
+                            stream_placeholder=script_placeholder,
+                            initial_text=transcript,
                         )
-                    _run_stream_action(
-                        lambda service: service.stream_choose(
-                            loop.loop_id, action=pending_action, options=options
-                        ),
-                        on_success=_set_snapshot,
-                        loading_label="다음 장면 동기화 중",
-                        stream_placeholder=script_placeholder,
-                        initial_text=transcript,
-                    )
+                    elif pending_action is not None:
+                        action_area.empty()
+                        if restricted_action:
+                            st.warning(
+                                "⚠ **신호 제약 감지**: 현재 자율성 레벨에서 실행하기 어려운 행동입니다. 신호가 감쇄되어 전달됩니다."
+                            )
+                        _run_stream_action(
+                            lambda service: service.stream_choose(
+                                loop.loop_id, action=pending_action, options=options
+                            ),
+                            on_success=_set_snapshot,
+                            loading_label="다음 장면 동기화 중",
+                            stream_placeholder=script_placeholder,
+                            initial_text=transcript,
+                        )
 
-                _render_player_memory(loop, overview)
+                    _render_player_memory(loop, overview)
 
         with dossier_col:
             _render_minimap(loop)
@@ -1755,6 +1861,9 @@ def _player_active_screen(snapshot: RuntimeSnapshot, options: RuntimeOptions) ->
         overview = _load_memory_overview(loop.player_id)
         if overview is not None:
             _render_codex_view(snapshot, overview, options.scenario_id)
+
+    # Render audio at the very end to prevent UI layout jumps and shifting
+    _render_audio(snapshot)
 
 
 def _render_combat_radar(loop: LoopState, combat: dict[str, Any], options: RuntimeOptions) -> None:
@@ -1774,90 +1883,343 @@ def _render_combat_radar(loop: LoopState, combat: dict[str, Any], options: Runti
         st.caption(f"COMBAT // {outcome}{suffix}")
 
 
+_COMBAT_BOARD_CSS = """
+    html, body { margin: 0; padding: 0; background: transparent; overflow: hidden; user-select: none; -webkit-user-select: none; }
+    .tac-live-wrap { background: rgba(2, 10, 9, 0.96); border: 1px solid rgba(41, 255, 198, 0.38); border-radius: 6px; padding: 12px; color: #d8fff7; margin-bottom: 12px; }
+    .tac-live-head { font: 800 12px 'SF Mono', Menlo, monospace; color: #29ffc6; letter-spacing: 1px; margin-bottom: 8px; }
+    .tac-live-help { font: 11px 'SF Mono', Menlo, monospace; color: #8fd8ca; margin-bottom: 8px; }
+    .tac-board-js { display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center; background: rgba(2, 10, 9, 0.96); border: 1px solid rgba(41, 255, 198, 0.38); border-radius: 6px; padding: 12px; margin-bottom: 12px; }
+    .tac-row-js { display: flex; flex-direction: row; gap: 4px; }
+    .tac-cell-js { position: relative; width: 44px; height: 44px; border-radius: 5px; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: default; box-sizing: border-box; }
+    .tac-cell-js * { pointer-events: none !important; }
+    .tac-cell-js.tac-empty { background: #071211; border: 1px solid #12231f; }
+    .tac-cell-js.tac-player { background: #082720; border: 1px solid #29ffc6; box-shadow: 0 0 10px rgba(41, 255, 198, 0.35); cursor: grab; }
+    .tac-cell-js.tac-player:active { cursor: grabbing; }
+    .tac-cell-js.tac-player.tac-selected { border: 2px solid #29ffc6 !important; box-shadow: 0 0 15px rgba(41, 255, 198, 0.8) !important; }
+    .tac-cell-js.tac-enemy { background: #2a0710; border: 1px solid #ff5a7a; box-shadow: 0 0 10px rgba(255, 90, 122, 0.28); animation: tac-pulse-live 1.15s steps(2, end) infinite; }
+    .tac-cell-js.tac-ally { background: #07182a; border: 1px solid #5aa0ff; }
+    .tac-cell-js img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .tac-cell-js .tac-glyph { font: 900 18px 'SF Mono', Menlo, monospace; }
+    .tac-cell-js .tac-hp { position: absolute; left: 4px; right: 4px; bottom: 4px; height: 4px; background: rgba(0, 0, 0, 0.65); }
+    .tac-cell-js .tac-hp span { display: block; height: 4px; background: #29ffc6; }
+    .tac-cell-js.tac-enemy .tac-hp span { background: #ff5a7a; }
+    .tac-cell-js.tac-reachable { background: rgba(41, 255, 198, 0.15) !important; border: 1px dashed rgba(41, 255, 198, 0.8) !important; box-shadow: 0 0 8px rgba(41, 255, 198, 0.25) !important; cursor: pointer; }
+    .tac-cell-js.tac-reachable:hover { background: rgba(41, 255, 198, 0.3) !important; border-color: #29ffc6 !important; box-shadow: 0 0 12px rgba(41, 255, 198, 0.8) !important; }
+    .tac-cell-js.tac-reachable-inactive { background: rgba(41, 255, 198, 0.05) !important; border: 1px dashed rgba(41, 255, 198, 0.3) !important; }
+    .tac-cell-js.tac-reachable.drag-active { border: 1.5px dashed #29ffc6 !important; animation: neon-glow-pulse 1.3s infinite alternate !important; }
+    .tac-cell-js.tac-reachable.drag-over { background: rgba(41, 255, 198, 0.45) !important; border: 2px solid #29ffc6 !important; box-shadow: 0 0 20px rgba(41, 255, 198, 1) !important; animation: none !important; }
+    @keyframes tac-pulse-live { 0% { opacity: 1; } 50% { opacity: 0.72; } 100% { opacity: 1; } }
+    @keyframes neon-glow-pulse {
+        0% { background: rgba(41, 255, 198, 0.1); box-shadow: 0 0 4px rgba(41, 255, 198, 0.15); border-color: rgba(41, 255, 198, 0.4); }
+        100% { background: rgba(41, 255, 198, 0.3); box-shadow: 0 0 12px rgba(41, 255, 198, 0.75); border-color: rgba(41, 255, 198, 1); }
+    }
+"""
+
+_COMBAT_BOARD_JS = """
+    (function() {
+        function playSfx(key) {
+            if (!key) return;
+            const src = (window.__SFX__ && window.__SFX__[key]) ? window.__SFX__[key] : null;
+            if (!src) return;
+            const audio = new Audio(src);
+            audio.volume = 0.7;
+            audio.play().catch(e => console.warn("Local SFX play failed:", e));
+        }
+
+        function updateBoardUI(data) {
+            const radar = data.radar || {};
+            const reachable = data.reachable || [];
+            const selected = data.selected || false;
+            const title = data.title || "";
+
+            document.querySelector('.tac-live-head').textContent = `TACTICAL BOARD :: ${title}`;
+
+            const arena = radar.arena || {w: 8, h: 6};
+            const w = parseInt(arena.w), h = parseInt(arena.h);
+            const reachableSet = new Set(reachable.map(tile => `${tile[0]},${tile[1]}`));
+
+            const blips = radar.blips || [];
+            const byCell = {};
+            blips.forEach(blip => {
+                if (blip.alive !== false) {
+                    const x = parseInt(blip.x || 0);
+                    const y = parseInt(blip.y || 0);
+                    byCell[`${x},${y}`] = blip;
+                }
+            });
+
+            const boardContainer = document.querySelector('.tac-board-js');
+            boardContainer.innerHTML = '';
+
+            for (let y = h - 1; y >= 0; y--) {
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'tac-row-js';
+
+                for (let x = 0; x < w; x++) {
+                    const coordKey = `${x},${y}`;
+                    const blip = byCell[coordKey];
+                    const isPlayer = !!(blip && blip.faction === 'player');
+                    const isReachable = reachableSet.has(coordKey);
+
+                    const cellDiv = document.createElement('div');
+                    cellDiv.className = 'tac-cell-js';
+                    cellDiv.dataset.x = x;
+                    cellDiv.dataset.y = y;
+
+                    let cellContent = '';
+
+                    if (blip) {
+                        const faction = blip.faction || '';
+                        cellDiv.classList.add(`tac-${faction}`);
+                        if (isPlayer && selected) { cellDiv.classList.add('tac-selected'); }
+                        cellDiv.setAttribute('title', blip.name || '');
+                        cellDiv.setAttribute('draggable', isPlayer ? 'true' : 'false');
+
+                        let avatar = '';
+                        if (blip.portrait_uri) {
+                            avatar = `<img src="${blip.portrait_uri}" alt="" class="tac-portrait-img" draggable="false" />`;
+                        } else if (blip.glyph) {
+                            avatar = `<span class="tac-glyph">${blip.glyph}</span>`;
+                        } else {
+                            avatar = `<span class="tac-glyph">●</span>`;
+                        }
+
+                        const hp = parseInt(blip.hp || 0);
+                        const maxHp = Math.max(1, parseInt(blip.max_hp || 1));
+                        const pct = Math.max(0, Math.min(100, Math.floor((hp / maxHp) * 100)));
+
+                        cellContent = `${avatar}<div class="tac-hp"><span style="width:${pct}%"></span></div>`;
+                    } else {
+                        cellDiv.setAttribute('draggable', 'false');
+                        if (selected && isReachable) {
+                            cellDiv.className = 'tac-cell-js tac-empty tac-reachable';
+                            cellDiv.setAttribute('title', `이동 가능 ${x},${y}`);
+                        } else if (isReachable) {
+                            cellDiv.className = 'tac-cell-js tac-empty tac-reachable-inactive';
+                        } else {
+                            cellDiv.className = 'tac-cell-js tac-empty';
+                        }
+                    }
+
+                    cellDiv.innerHTML = cellContent;
+                    rowDiv.appendChild(cellDiv);
+                }
+                boardContainer.appendChild(rowDiv);
+            }
+
+            if (data.play_sfx) { playSfx(data.play_sfx); }
+        }
+
+        document.addEventListener('click', function(e) {
+            const cell = e.target.closest('.tac-cell-js');
+            if (!cell) return;
+            if (cell.classList.contains('tac-player')) {
+                sendCombatAction({type: "select", unit: "player"});
+            } else if (cell.classList.contains('tac-reachable')) {
+                const x = parseInt(cell.dataset.x);
+                const y = parseInt(cell.dataset.y);
+                playSfx('sfx_move');
+                sendCombatAction({type: "move", x: x, y: y});
+            }
+        });
+
+        document.addEventListener('dragstart', function(e) {
+            const cell = e.target.closest('.tac-cell-js.tac-player');
+            if (cell) {
+                e.dataTransfer.setData('text/plain', 'player');
+                e.dataTransfer.effectAllowed = 'move';
+                document.querySelectorAll('.tac-cell-js.tac-reachable, .tac-cell-js.tac-reachable-inactive').forEach(c => {
+                    c.classList.add('tac-reachable-temp');
+                    c.classList.add('tac-reachable');
+                    c.classList.add('drag-active');
+                });
+            }
+        });
+
+        document.addEventListener('dragend', function(e) {
+            document.querySelectorAll('.tac-cell-js.tac-reachable-temp').forEach(c => {
+                c.classList.remove('tac-reachable-temp');
+                if (c.classList.contains('tac-reachable-inactive')) { c.classList.remove('tac-reachable'); }
+                c.classList.remove('drag-active');
+                c.classList.remove('drag-over');
+            });
+            document.querySelectorAll('.tac-cell-js.tac-reachable').forEach(c => {
+                c.classList.remove('drag-active');
+                c.classList.remove('drag-over');
+            });
+            window.currentDragOverCell = null;
+        });
+
+        document.addEventListener('dragover', function(e) {
+            const cell = e.target.closest('.tac-cell-js.tac-reachable');
+            if (cell) {
+                e.preventDefault();
+                cell.classList.add('drag-over');
+                window.currentDragOverCell = cell;
+            }
+        });
+
+        document.addEventListener('dragleave', function(e) {
+            const cell = e.target.closest('.tac-cell-js.tac-reachable');
+            if (cell) {
+                cell.classList.remove('drag-over');
+                if (window.currentDragOverCell === cell) { window.currentDragOverCell = null; }
+            }
+        });
+
+        document.addEventListener('drop', function(e) {
+            e.preventDefault();
+            const cell = window.currentDragOverCell;
+            if (cell) {
+                const x = parseInt(cell.dataset.x);
+                const y = parseInt(cell.dataset.y);
+                document.querySelectorAll('.tac-cell-js.tac-reachable-temp').forEach(c => {
+                    c.classList.remove('tac-reachable-temp');
+                    if (c.classList.contains('tac-reachable-inactive')) { c.classList.remove('tac-reachable'); }
+                    c.classList.remove('drag-active');
+                    c.classList.remove('drag-over');
+                });
+                window.currentDragOverCell = null;
+                playSfx('sfx_move');
+                sendCombatAction({type: "move", x: x, y: y});
+            }
+        });
+
+        function sendCombatAction(actionData) {
+            let parentDoc;
+            try { parentDoc = window.parent.document; } catch (err) {
+                console.error("Cannot reach parent document:", err); return;
+            }
+            let input = parentDoc.querySelector('input[aria-label="hidden_combat_action"]');
+            if (!input) {
+                const containers = parentDoc.querySelectorAll('[data-testid="stTextInput"]');
+                for (const container of containers) {
+                    const label = container.querySelector('label');
+                    if (label && label.textContent.trim() === 'hidden_combat_action') {
+                        input = container.querySelector('input');
+                        if (input) break;
+                    }
+                }
+            }
+            if (input) {
+                input.focus();
+                const nativeInputValueSetter = window.parent.Object.getOwnPropertyDescriptor(window.parent.HTMLInputElement.prototype, "value").set;
+                nativeInputValueSetter.call(input, JSON.stringify(actionData));
+                input.dispatchEvent(new window.parent.Event('input', { bubbles: true }));
+                input.dispatchEvent(new window.parent.Event('change', { bubbles: true }));
+                ['keydown', 'keypress', 'keyup'].forEach(evtType => {
+                    input.dispatchEvent(new window.parent.KeyboardEvent(evtType, {
+                        key: 'Enter', code: 'Enter', keyCode: 13, which: 13, bubbles: true, cancelable: true
+                    }));
+                });
+                input.blur();
+            } else {
+                console.error("Combat Action Target Input not found in parent document.");
+            }
+        }
+
+        if (window.__COMBAT_DATA__) { updateBoardUI(window.__COMBAT_DATA__); }
+    })();
+"""
+
+
+def _build_interactive_board_html(
+    data_payload: dict[str, Any], sfx_map: dict[str, str]
+) -> str:
+    """Build the full self-contained tactical board HTML for components.html.
+
+    Data and SFX (as base64 data URIs) are injected inline so the board renders
+    inside a same-origin srcdoc iframe with no external static server, while still
+    reaching ``window.parent.document`` to submit actions.
+    """
+
+    def _safe_json(obj: Any) -> str:
+        # Avoid breaking out of the <script> context.
+        return json.dumps(obj).replace("</", "<\\/")
+
+    injected = (
+        "<script>"
+        f"window.__COMBAT_DATA__ = {_safe_json(data_payload)};"
+        f"window.__SFX__ = {_safe_json(sfx_map)};"
+        "</script>"
+    )
+    return (
+        "<!DOCTYPE html><html><head><meta charset='utf-8' />"
+        f"<style>{_COMBAT_BOARD_CSS}</style>{injected}</head><body>"
+        '<div class="tac-live-wrap">'
+        '<div class="tac-live-head">TACTICAL BOARD :: LOADING</div>'
+        '<div class="tac-live-help">드래그 앤 드롭으로 캐릭터를 끌어다 놓거나, '
+        "클릭 후 강조된 경로를 눌러 바로 이동합니다.</div></div>"
+        '<div class="tac-board-js"></div>'
+        f"<script>{_COMBAT_BOARD_JS}</script>"
+        "</body></html>"
+    )
+
+
 def _render_tactical_board_interactive(
     loop: LoopState, combat: dict[str, Any], options: RuntimeOptions
 ) -> None:
-    radar = combat.get("radar", {})
-    if not isinstance(radar, dict):
-        return
-    available = combat.get("available", {})
-    reachable = available.get("reachable", []) if isinstance(available, dict) else []
-    reachable_set = {
-        (int(tile[0]), int(tile[1]))
-        for tile in reachable
-        if isinstance(tile, list) and len(tile) == 2
-    }
-    arena = radar.get("arena", {"w": 8, "h": 6})
-    w, h = int(arena.get("w", 8)), int(arena.get("h", 6))
-    blips = [blip for blip in radar.get("blips", []) if isinstance(blip, dict)]
-    by_cell = {
-        (int(blip.get("x", 0)), int(blip.get("y", 0))): blip
-        for blip in blips
-        if blip.get("alive", True)
-    }
-    player_pos = _combat_player_pos(radar)
-    selected = st.session_state.get("combat_selected_unit") == "player"
-    title = f"ROUND // {int(radar.get('round', 1)):02d}"
-    st.markdown(
-        "<style>"
-        ".tac-live-wrap{background:rgba(2,10,9,.96);border:1px solid rgba(41,255,198,.38);border-radius:6px;padding:12px;color:#d8fff7}"
-        ".tac-live-head{font:800 12px 'SF Mono',Menlo,monospace;color:#29ffc6;letter-spacing:1px;margin-bottom:8px}"
-        ".tac-live-help{font:11px 'SF Mono',Menlo,monospace;color:#8fd8ca;margin-bottom:8px}"
-        "</style>"
-        f'<div class="tac-live-wrap"><div class="tac-live-head">TACTICAL BOARD :: {title}</div>'
-        '<div class="tac-live-help">플레이어 신호를 누른 뒤, 강조된 칸을 바로 선택해 이동합니다.</div></div>',
-        unsafe_allow_html=True,
-    )
-    for y in range(h - 1, -1, -1):
-        cols = st.columns(w, gap="small")
-        for x in range(w):
-            coord = (x, y)
-            blip = by_cell.get(coord)
-            is_player = bool(blip and blip.get("faction") == "player")
-            is_enemy = bool(blip and blip.get("faction") == "enemy")
-            is_ally = bool(blip and blip.get("faction") == "ally")
-            is_reachable = coord in reachable_set
-            if is_player:
-                label = "◎"
-                help_text = "플레이어 신호 선택"
-                disabled = False
-            elif is_enemy:
-                label = "■"
-                help_text = str(blip.get("name", "enemy")) if blip else "enemy"
-                disabled = True
-            elif is_ally:
-                label = "◆"
-                help_text = str(blip.get("name", "ally")) if blip else "ally"
-                disabled = True
-            elif selected and is_reachable:
-                label = f"{x},{y}"
-                help_text = f"{x},{y}로 이동"
-                disabled = False
-            else:
-                label = "·" if is_reachable else " "
-                help_text = "이동 가능" if is_reachable else "이동 불가"
-                disabled = True
-            with cols[x]:
-                if st.button(
-                    label,
-                    key=f"tac_board:{loop.loop_id}:{x}:{y}",
-                    width="stretch",
-                    disabled=disabled,
-                    help=help_text,
-                ):
-                    if is_player:
-                        st.session_state.combat_selected_unit = "" if selected else "player"
-                        st.rerun()
-                    elif player_pos is not None and selected and is_reachable:
-                        st.session_state.combat_selected_unit = ""
-                        _run_action(
-                            lambda service, chosen_dest=coord: service.combat_action(
-                                loop.loop_id,
-                                PlayerAction(type="wait", move_to=chosen_dest),
-                                options,
-                            ),
-                            on_success=_set_snapshot,
-                        )
+    try:
+        radar = combat.get("radar", {})
+        if not isinstance(radar, dict):
+            st.warning("전술 레이더 신호 분석 실패")
+            return
+        available = combat.get("available", {})
+        reachable = available.get("reachable", []) if isinstance(available, dict) else []
+        selected = st.session_state.get("combat_selected_unit") == "player"
+        title = f"ROUND // {int(radar.get('round', 1)):02d}"
+
+        # Build list of blips with computed portrait data URIs (embedded inline)
+        blips = [blip for blip in radar.get("blips", []) if isinstance(blip, dict)]
+        blips_payload = []
+        for blip in blips:
+            p_uri = _combat_portrait_data_uri(blip, options.scenario_id)
+            blip_copy = dict(blip)
+            blip_copy["portrait_uri"] = p_uri
+            blips_payload.append(blip_copy)
+
+        # Gather and consume the transient play_sfx
+        play_sfx = st.session_state.get("play_sfx")
+        if play_sfx:
+            st.session_state.play_sfx = None
+
+        radar_payload = dict(radar)
+        radar_payload["blips"] = blips_payload
+
+        data_payload = {
+            "radar": radar_payload,
+            "reachable": [
+                [int(tile[0]), int(tile[1])]
+                for tile in reachable
+                if isinstance(tile, list) and len(tile) == 2
+            ],
+            "selected": selected,
+            "title": title,
+            "play_sfx": play_sfx,
+        }
+
+        # SFX as base64 data URIs so they work inside a srcdoc iframe (no static server)
+        sfx_keys = {"sfx_move"}
+        if play_sfx:
+            sfx_keys.add(play_sfx)
+        sfx_map = {key: _get_b64_sfx(key) for key in sfx_keys}
+        sfx_map = {key: uri for key, uri in sfx_map.items() if uri}
+
+        # Hidden text input to catch action callbacks from within the iframe.
+        # The board (rendered via st.iframe as a same-origin srcdoc iframe)
+        # reaches window.parent.document to set this value and dispatch Enter.
+        # Collapsed label so the input carries aria-label="hidden_combat_action",
+        # which the off-screen hiding CSS targets (otherwise it shows as a white box).
+        st.text_input(
+            "hidden_combat_action",
+            key="hidden_combat_action",
+            label_visibility="collapsed",
+        )
+
+        board_html = _build_interactive_board_html(data_payload, sfx_map)
+        st.iframe(board_html, height=430)
+    except Exception as e:
+        st.error(f"전술 보드 렌더링 예외 발생: {e}")
 
 
 def _render_tactical_board_html(radar: dict[str, Any], scenario_id: str) -> str:
@@ -1926,10 +2288,13 @@ def _render_combat_outcome(
     loop: LoopState, combat: dict[str, Any], options: RuntimeOptions
 ) -> None:
     outcome_raw = str(combat.get("outcome") or "resolved")
-    outcome = html.escape(outcome_raw)
+    outcome_display = {
+        "player_victory": "VICTORY",
+        "player_defeat": "DEFEAT",
+        "fled": "ESCAPE",
+    }.get(outcome_raw, outcome_raw.upper())
     rewards = combat.get("rewards", {})
     items = rewards.get("items", []) if isinstance(rewards, dict) else []
-    loot = ", ".join(str(item) for item in items) if items else "none"
     radar = combat.get("radar", {})
     blips = [blip for blip in radar.get("blips", []) if isinstance(blip, dict)] if isinstance(radar, dict) else []
     party = [blip for blip in blips if blip.get("faction") in {"player", "ally"}]
@@ -1959,29 +2324,80 @@ def _render_combat_outcome(
     misses = int(summary.get("misses", 0) or 0)
     crits = int(summary.get("crits", 0) or 0)
     verdict = _combat_verdict(outcome_raw, damage_dealt, damage_taken, defeated, len(enemies))
+    outcome_class = {
+        "player_victory": "outcome-victory",
+        "player_defeat": "outcome-defeat",
+        "fled": "outcome-fled",
+    }.get(outcome_raw, "outcome-victory")
+
     result_label = {
-        "player_victory": "교전 승리",
-        "fled": "이탈 성공",
-        "player_defeat": "신호 소실",
-    }.get(outcome_raw, "교전 종료")
+        "player_victory": "교전 승리 (VICTORY)",
+        "fled": "전술 이탈 (FLED)",
+        "player_defeat": "신호 소실 (DEFEAT)",
+    }.get(outcome_raw, "교전 종료 (RESOLVED)")
+
+    loot_badges = []
+    if items:
+        for item in items:
+            item_name = str(item)
+            item_class = "loot-item-tech"
+            if "nanopatch" in item_name.lower():
+                item_class = "loot-item-medical"
+            elif "shard" in item_name.lower():
+                item_class = "loot-item-data"
+            loot_badges.append(f'<span class="loot-badge {item_class}">{html.escape(item_name)}</span>')
+        loot_html = f'<div class="loot-container">{"".join(loot_badges)}</div>'
+    else:
+        loot_html = '<div class="loot-container"><span class="loot-badge loot-none">없음</span></div>'
+
+    verdict_badge = f'<div class="combat-verdict-badge">{html.escape(verdict)}</div>'
+
     st.markdown(
         "<style>"
-        ".combat-result{border:1px solid rgba(41,255,198,.42);background:linear-gradient(180deg,rgba(2,21,18,.96),rgba(2,10,9,.96));border-radius:6px;padding:14px;color:#d8fff7}"
-        ".combat-result-top{display:flex;gap:12px;align-items:center;margin-bottom:10px}"
+        ".combat-result{border:1px solid rgba(41,255,198,.42);background:linear-gradient(180deg,rgba(2,21,18,.98),rgba(1,8,7,.98));border-radius:8px;padding:18px;color:#d8fff7;box-shadow:0 0 25px rgba(0, 255, 170, 0.15);font-family:'SF Mono',Menlo,Consolas,monospace}"
+        ".combat-result.outcome-defeat{border-color:rgba(255,90,122,.5);background:linear-gradient(180deg,rgba(30,5,10,.98),rgba(10,2,4,.98));box-shadow:0 0 25px rgba(255, 90, 122, 0.15)}"
+        ".combat-result.outcome-fled{border-color:rgba(255,180,50,.5);background:linear-gradient(180deg,rgba(25,15,5,.98),rgba(8,5,2,.98));box-shadow:0 0 25px rgba(255, 180, 50, 0.15)}"
+        ".combat-result-top{display:flex;gap:16px;align-items:center;margin-bottom:16px}"
         ".combat-result-portrait{width:74px;height:74px;position:relative;flex:0 0 74px;border:1px solid rgba(41,255,198,.45);background:#020b0a;overflow:hidden;border-radius:5px;box-shadow:0 0 12px rgba(41,255,198,.15)}"
+        ".outcome-defeat .combat-result-portrait{border-color:rgba(255,90,122,.45);box-shadow:0 0 12px rgba(255,90,122,.15)}"
+        ".outcome-fled .combat-result-portrait{border-color:rgba(255,180,50,.45);box-shadow:0 0 12px rgba(255,180,50,.15)}"
         ".combat-result-portrait img{width:100%;height:100%;object-fit:cover;display:block;filter:contrast(1.12) saturate(1.08)}"
         ".combat-result-portrait-label{position:absolute;left:4px;right:4px;bottom:4px;font:800 9px 'SF Mono',Menlo,monospace;color:#eafff9;background:rgba(0,0,0,.62);padding:2px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}"
         ".combat-result-heading{min-width:0;flex:1}"
-        ".combat-result-kicker{font:800 11px 'SF Mono',Menlo,monospace;color:#29ffc6;letter-spacing:1px;margin-bottom:8px}"
-        ".combat-result-title{font:900 24px 'SF Mono',Menlo,monospace;color:#eafff9;margin-bottom:10px}"
-        ".combat-result-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}"
-        ".combat-result-stat{border:1px solid rgba(120,220,200,.22);background:rgba(5,18,17,.72);border-radius:5px;padding:8px}"
-        ".combat-result-label{font:10px 'SF Mono',Menlo,monospace;color:#78cfc0;letter-spacing:.5px}"
-        ".combat-result-value{font:800 15px 'SF Mono',Menlo,monospace;color:#eafff9;margin-top:3px}"
-        ".combat-result-copy{font:12px 'SF Mono',Menlo,monospace;color:#9eddd1;line-height:1.5;margin-top:8px}"
+        ".combat-result-kicker{font:800 11px 'SF Mono',Menlo,monospace;color:#29ffc6;letter-spacing:1px;margin-bottom:4px}"
+        ".outcome-defeat .combat-result-kicker{color:#ff5a7a}"
+        ".outcome-fled .combat-result-kicker{color:#ffb432}"
+        ".combat-result-title{font:900 24px 'SF Mono',Menlo,monospace;color:#eafff9;margin-bottom:4px;letter-spacing:1px;text-shadow:0 0 8px rgba(255,255,255,0.2)}"
+        ".outcome-victory .combat-result-title{color:#29ffc6;text-shadow:0 0 10px rgba(41,255,198,0.4)}"
+        ".outcome-defeat .combat-result-title{color:#ff5a7a;text-shadow:0 0 10px rgba(255,90,122,0.4)}"
+        ".outcome-fled .combat-result-title{color:#ffb432;text-shadow:0 0 10px rgba(255,180,50,0.4)}"
+        ".combat-result-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}"
+        ".combat-result-stat{border:1px solid rgba(120,220,200,.22);background:rgba(5,18,17,.72);border-radius:5px;padding:10px}"
+        ".outcome-defeat .combat-result-stat{border-color:rgba(255,90,122,.15);background:rgba(18,5,8,.72)}"
+        ".outcome-fled .combat-result-stat{border-color:rgba(255,180,50,.15);background:rgba(18,12,5,.72)}"
+        ".combat-result-label{font:800 10px 'SF Mono',Menlo,monospace;color:#78cfc0;letter-spacing:.5px}"
+        ".outcome-defeat .combat-result-label{color:#ff8aa1}"
+        ".outcome-fled .combat-result-label{color:#ffcf8a}"
+        ".combat-result-value{font:900 16px 'SF Mono',Menlo,monospace;color:#eafff9;margin-top:4px}"
+        ".combat-verdict-badge{border-left:4px solid #29ffc6;background:rgba(41,255,198,0.08);padding:10px 14px;font-size:12px;font-weight:700;line-height:1.5;color:#eafff9;margin:12px 0;border-radius:0 4px 4px 0}"
+        ".outcome-defeat .combat-verdict-badge{border-left-color:#ff5a7a;background:rgba(255,90,122,0.08)}"
+        ".outcome-fled .combat-verdict-badge{border-left-color:#ffb432;background:rgba(255,180,50,0.08)}"
+        ".loot-section{margin-top:16px;padding:12px;background:rgba(2,10,9,0.5);border:1px solid rgba(41,255,198,0.18);border-radius:6px}"
+        ".outcome-defeat .loot-section{background:rgba(10,2,4,0.5);border-color:rgba(255,90,122,0.15)}"
+        ".outcome-fled .loot-section{background:rgba(8,5,2,0.5);border-color:rgba(255,180,50,0.15)}"
+        ".loot-section-title{font:800 11px 'SF Mono',Menlo,monospace;color:#29ffc6;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px}"
+        ".outcome-defeat .loot-section-title{color:#ff5a7a}"
+        ".outcome-fled .loot-section-title{color:#ffb432}"
+        ".loot-container{display:flex;flex-wrap:wrap;gap:6px}"
+        ".loot-badge{display:inline-block;padding:4px 10px;border-radius:3px;font-size:12px;font-weight:800;border:1px solid}"
+        ".loot-item-tech{background:rgba(41, 255, 198, 0.1);color:#29ffc6;border-color:rgba(41, 255, 198, 0.4);box-shadow:0 0 8px rgba(41, 255, 198, 0.2)}"
+        ".loot-item-medical{background:rgba(0, 180, 255, 0.1);color:#00b4ff;border-color:rgba(0, 180, 255, 0.4);box-shadow:0 0 8px rgba(0, 180, 255, 0.2)}"
+        ".loot-item-data{background:rgba(180, 100, 255, 0.1);color:#b464ff;border-color:rgba(180, 100, 255, 0.4);box-shadow:0 0 8px rgba(180, 100, 255, 0.2)}"
+        ".loot-none{background:rgba(255, 255, 255, 0.05);color:#8fd8ca;border-color:rgba(255, 255, 255, 0.1)}"
+        ".combat-result-copy{font:12px 'SF Mono',Menlo,monospace;color:#9eddd1;line-height:1.5;margin-top:12px}"
         "</style>"
-        f'<div class="combat-result"><div class="combat-result-top">{player_portrait}'
-        f'<div class="combat-result-heading"><div class="combat-result-kicker">COMBAT RESULT :: {outcome}</div>'
+        f'<div class="combat-result {outcome_class}"><div class="combat-result-top">{player_portrait}'
+        f'<div class="combat-result-heading"><div class="combat-result-kicker">COMBAT RESULT :: {outcome_display}</div>'
         f'<div class="combat-result-title">{html.escape(result_label)}</div></div></div>'
         '<div class="combat-result-grid">'
         f'<div class="combat-result-stat"><div class="combat-result-label">PARTY ONLINE</div><div class="combat-result-value">{survivors}/{len(party)}</div></div>'
@@ -1991,9 +2407,9 @@ def _render_combat_outcome(
         f'<div class="combat-result-stat"><div class="combat-result-label">DAMAGE DEALT</div><div class="combat-result-value">{damage_dealt}</div></div>'
         f'<div class="combat-result-stat"><div class="combat-result-label">DAMAGE TAKEN</div><div class="combat-result-value">{damage_taken}</div></div>'
         f'<div class="combat-result-stat"><div class="combat-result-label">HIT / MISS / CRIT</div><div class="combat-result-value">{hits}/{misses}/{crits}</div></div>'
-        f'<div class="combat-result-stat"><div class="combat-result-label">LOOT</div><div class="combat-result-value">{html.escape(loot)}</div></div>'
         '</div>'
-        f'<div class="combat-result-copy">{html.escape(verdict)}</div>'
+        f'{verdict_badge}'
+        f'<div class="loot-section"><div class="loot-section-title">LOOT / ACQUIRED ASSETS</div>{loot_html}</div>'
         '<div class="combat-result-copy">전투 기록을 정산하고 서사 루프를 다음 장면으로 넘길 수 있습니다.</div></div>',
         unsafe_allow_html=True,
     )
@@ -2125,6 +2541,7 @@ def _render_combat_controls(
     combat: dict[str, Any],
     options: RuntimeOptions,
     action_area,
+    is_fragment: bool = False,
 ) -> None:
     available = combat.get("available", {})
     if not isinstance(available, dict) or not available.get("can_act", False):
@@ -2151,6 +2568,18 @@ def _render_combat_controls(
         unsafe_allow_html=True,
     )
 
+    run_fn = _run_combat_action if is_fragment else _run_action
+
+    def _dispatch(action_lambda) -> None:
+        # Run the combat action then force a refresh so the board, roster and
+        # controls redraw with the new state. Without the rerun the emptied
+        # action_area stays blank and the board shows the pre-action snapshot.
+        run_fn(action_lambda, on_success=_set_snapshot)
+        if is_fragment:
+            st.rerun(scope="fragment")
+        else:
+            st.rerun()
+
     if targets:
         st.caption("표적")
         for index, target in enumerate(targets[:4]):
@@ -2172,14 +2601,103 @@ def _render_combat_controls(
                 width="stretch",
                 disabled=not in_range,
             ):
+                st.session_state.play_sfx = "sfx_attack"
                 action_area.empty()
-                _run_action(
+                _dispatch(
                     lambda service, chosen_id=target_id: service.combat_action(
                         loop.loop_id,
                         PlayerAction(type="attack", target_id=chosen_id),
                         options,
-                    ),
-                    on_success=_set_snapshot,
+                    )
+                )
+
+    # --- Focus + skills + items ---------------------------------------
+    focus = int(available.get("focus", 0))
+    max_focus = int(available.get("max_focus", 0))
+    skill_states = [s for s in available.get("skills", []) if isinstance(s, dict)]
+    scenario = load_scenario(options.scenario_id)
+    combat_pool = scenario.combat if isinstance(scenario.combat, dict) else {}
+    skill_defs = combat_pool.get("skills", {})
+    item_defs = combat_pool.get("items", {})
+
+    inventory = list(loop.state.get("_inventory", [])) if isinstance(loop.state, dict) else []
+    inv_counts: dict[str, int] = {}
+    inv_names: dict[str, str] = {}
+    for entry in inventory:
+        iid = str(entry.get("id", "")) if isinstance(entry, dict) else str(entry)
+        if not iid:
+            continue
+        inv_counts[iid] = inv_counts.get(iid, 0) + 1
+        if isinstance(entry, dict) and entry.get("name"):
+            inv_names[iid] = str(entry["name"])
+
+    if max_focus:
+        st.caption(f"집중(Focus) ◆ {focus}/{max_focus}")
+
+    if skill_states:
+        st.caption("스킬")
+        for skill_state in skill_states:
+            sid = str(skill_state.get("id", ""))
+            sdef = skill_defs.get(sid, {}) if isinstance(skill_defs.get(sid), dict) else {}
+            sname = str(sdef.get("name", sid))
+            cd = int(skill_state.get("cooldown", 0))
+            cost = sdef.get("cost", {}) if isinstance(sdef.get("cost"), dict) else {}
+            focus_cost = int(cost.get("focus", 0))
+            item_cost = cost.get("item")
+            reasons: list[str] = []
+            if cd > 0:
+                reasons.append(f"재충전 R-{cd}")
+            if focus_cost > focus:
+                reasons.append("집중 부족")
+            if item_cost and inv_counts.get(str(item_cost), 0) <= 0:
+                reasons.append(f"{item_cost} 없음")
+            cost_bits = []
+            if focus_cost:
+                cost_bits.append(f"◆{focus_cost}")
+            if item_cost:
+                cost_bits.append(str(item_cost))
+            label = sname + (f"  ({' · '.join(cost_bits)})" if cost_bits else "")
+            if st.button(
+                label,
+                key=f"combat_skill:{loop.loop_id}:{sid}",
+                width="stretch",
+                disabled=bool(reasons),
+                help=" / ".join(reasons) if reasons else str(sdef.get("role", "")),
+            ):
+                st.session_state.play_sfx = "sfx_attack"
+                action_area.empty()
+                _dispatch(
+                    lambda service, chosen=sid: service.combat_action(
+                        loop.loop_id,
+                        PlayerAction(type="skill", skill_id=chosen),
+                        options,
+                    )
+                )
+
+    consumable_ids = [
+        iid
+        for iid in inv_counts
+        if isinstance(item_defs.get(iid), dict) and item_defs[iid].get("kind") == "consumable"
+    ]
+    if consumable_ids:
+        st.caption("아이템")
+        for iid in consumable_ids:
+            idef = item_defs[iid]
+            iname = inv_names.get(iid, str(idef.get("name", iid)))
+            count = inv_counts.get(iid, 0)
+            if st.button(
+                f"{iname} ×{count}",
+                key=f"combat_item:{loop.loop_id}:{iid}",
+                width="stretch",
+            ):
+                st.session_state.play_sfx = "sfx_defend"
+                action_area.empty()
+                _dispatch(
+                    lambda service, chosen=iid: service.combat_action(
+                        loop.loop_id,
+                        PlayerAction(type="item", item_id=chosen),
+                        options,
+                    )
                 )
 
     if player_pos is not None:
@@ -2192,25 +2710,25 @@ def _render_combat_controls(
     c1, c2 = st.columns(2)
     with c1:
         if st.button("방어", width="stretch"):
+            st.session_state.play_sfx = "sfx_defend"
             action_area.empty()
-            _run_action(
+            _dispatch(
                 lambda service: service.combat_action(
                     loop.loop_id,
                     PlayerAction(type="defend"),
                     options,
-                ),
-                on_success=_set_snapshot,
+                )
             )
     with c2:
         if st.button("도주", width="stretch"):
+            st.session_state.play_sfx = "sfx_move"
             action_area.empty()
-            _run_action(
+            _dispatch(
                 lambda service: service.combat_action(
                     loop.loop_id,
                     PlayerAction(type="flee"),
                     options,
-                ),
-                on_success=_set_snapshot,
+                )
             )
 
 
@@ -2548,12 +3066,52 @@ def _image_src(storage_uri: str) -> str | None:
     return None
 
 
+@st.cache_data(ttl=600, show_spinner=False)
+def _get_image_base64_cached(src_path_or_url: str) -> str | None:
+    import base64
+
+    import requests
+    try:
+        if src_path_or_url.startswith("http"):
+            response = requests.get(src_path_or_url, timeout=5)
+            if response.status_code == 200:
+                encoded = base64.b64encode(response.content).decode("utf-8")
+                mime = "image/png"
+                if "jpeg" in src_path_or_url.lower() or "jpg" in src_path_or_url.lower():
+                    mime = "image/jpeg"
+                return f"data:{mime};base64,{encoded}"
+        elif Path(src_path_or_url).exists():
+            with open(src_path_or_url, "rb") as f:
+                encoded = base64.b64encode(f.read()).decode("utf-8")
+                mime = "image/png"
+                if src_path_or_url.lower().endswith((".jpg", ".jpeg")):
+                    mime = "image/jpeg"
+                return f"data:{mime};base64,{encoded}"
+    except Exception as e:
+        import sys
+        print(f"Error cache encoding image base64: {e}", file=sys.stderr)
+    return None
+
+
 def _render_player_image(snapshot: RuntimeSnapshot) -> None:
     stored = [asset for asset in snapshot.assets if asset.storage_uri]
     if stored:
         src = _image_src(stored[-1].storage_uri)
         if src:
-            st.image(src, width=420)
+            # To prevent layout shifting and heavy flickering from S3 presigned URL refreshes,
+            # we convert the image to base64 and cache it.
+            base64_src = _get_image_base64_cached(src)
+            if base64_src:
+                st.markdown(
+                    f"""
+                    <div class="flicker-free-img-container" style="width:100%; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.2); border-radius:4px; overflow:hidden;">
+                        <img src="{base64_src}" style="width:100%; max-width:420px; height:auto; border-radius:4px;" />
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+            else:
+                st.image(src, width=420)
         return
 
     # No finished image yet — show a generating placeholder for queued/async jobs.
@@ -2752,10 +3310,478 @@ def _render_snapshot(snapshot: RuntimeSnapshot) -> None:
     _render_audio(snapshot)
     _render_echoes(loop)
 
+@st.cache_resource
+def _get_b64_sfx(name: str) -> str:
+    import base64
+    from pathlib import Path
+    try:
+        project_root = Path(__file__).resolve().parent
+        path = project_root / "resources" / "neo-seoul" / "audio" / "sfx" / f"{name}.wav"
+        if path.exists():
+            with open(path, "rb") as f:
+                data = f.read()
+                return f"data:audio/wav;base64,{base64.b64encode(data).decode('utf-8')}"
+    except Exception:
+        pass
+    return ""
+
+
+def _run_combat_action(action, on_success) -> None:
+    st.session_state.error = ""
+    try:
+        store = PostgresMythOSStore()
+        try:
+            service = RuntimeSessionService(store)
+            result = action(service)
+        finally:
+            store.close()
+        on_success(result)
+    except Exception as exc:
+        st.session_state.error = str(exc)
+
+
+def _render_combat_console_log(loop_id: str) -> None:
+    try:
+        store = PostgresMythOSStore()
+        try:
+            scenes = store.list_scenes(loop_id)
+            combat_logs = []
+            for s in sorted(scenes, key=lambda x: x.turn_index):
+                if s.scene_type == "combat" and s.narration:
+                    combat_logs.append(f"[{s.title}] {s.narration}")
+
+            if combat_logs:
+                log_text = "\n\n".join(combat_logs)
+                st.markdown(
+                    '<div style="font-family:\'SF Mono\',Menlo,monospace; font-size:12px; height:140px; overflow-y:auto; '
+                    'background:rgba(2, 10, 8, 0.95); border:1px solid rgba(41,255,198,0.3); padding:10px; color:#5effd3; margin-top:8px; border-radius:4px;'
+                    'box-shadow: inset 0 0 10px rgba(0, 255, 170, 0.1);">'
+                    f'<div>{html.escape(log_text).replace(chr(10), "<br>")}</div>'
+                    '</div>',
+                    unsafe_allow_html=True
+                )
+        finally:
+            store.close()
+    except Exception as e:
+        st.caption(f"LOG SYNC PENDING // {e}")
+
+
+def _combat_iframe_state(snapshot: RuntimeSnapshot, options: RuntimeOptions) -> dict[str, Any]:
+    combat = snapshot.combat or {}
+    state = snapshot.loop.state if isinstance(snapshot.loop.state, dict) else {}
+    return {
+        "ok": True,
+        "loop_id": snapshot.loop.loop_id,
+        "scenario_id": options.scenario_id,
+        "combat": combat,
+        "prose": snapshot.scene.narration if snapshot.scene.scene_type == "combat" else "",
+        "inventory": _combat_inventory_counts(state.get("_inventory", [])),
+        "party": state.get("_party", {}),
+        "loop_phase": snapshot.loop.phase.value,
+    }
+
+
+def _combat_inventory_counts(raw_inventory: Any) -> dict[str, dict[str, Any]]:
+    counts: dict[str, dict[str, Any]] = {}
+    if not isinstance(raw_inventory, list):
+        return counts
+    for entry in raw_inventory:
+        if isinstance(entry, dict):
+            item_id = str(entry.get("id", ""))
+            name = str(entry.get("name", item_id))
+        else:
+            item_id = str(entry)
+            name = item_id
+        if not item_id:
+            continue
+        current = counts.setdefault(item_id, {"id": item_id, "name": name, "count": 0})
+        current["count"] = int(current["count"]) + 1
+    return counts
+
+
+def _combat_meta_payload(scenario_id: str) -> dict[str, Any]:
+    scenario = load_scenario(scenario_id)
+    combat = scenario.combat if isinstance(scenario.combat, dict) else {}
+    return {
+        "skills": combat.get("skills", {}) if isinstance(combat.get("skills"), dict) else {},
+        "items": combat.get("items", {}) if isinstance(combat.get("items"), dict) else {},
+    }
+
+
+def _combat_portrait_payload(radar: dict[str, Any], scenario_id: str) -> dict[str, str]:
+    portraits: dict[str, str] = {}
+    for blip in radar.get("blips", []):
+        if not isinstance(blip, dict):
+            continue
+        blip_id = str(blip.get("id", ""))
+        uri = _combat_portrait_data_uri(blip, scenario_id)
+        if blip_id and uri:
+            portraits[blip_id] = uri
+    return portraits
+
+
+def _build_combat_app_html(config: dict[str, Any]) -> str:
+    def _safe_json(obj: Any) -> str:
+        return json.dumps(obj, ensure_ascii=False).replace("</", "<\\/")
+
+    return f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+html,body{{margin:0;padding:0;background:#020706;color:#d8fff7;font-family:'SF Mono',Menlo,Consolas,monospace;overflow:hidden;}}
+button{{font-family:inherit;letter-spacing:0;}}
+.combat-app{{height:100vh;box-sizing:border-box;border:1px solid rgba(41,255,198,.34);background:linear-gradient(180deg,rgba(2,18,16,.98),rgba(0,5,5,.99));padding:12px;display:grid;grid-template-columns:minmax(410px,1.45fr) minmax(300px,.9fr);gap:12px;}}
+.panel{{border:1px solid rgba(41,255,198,.24);background:rgba(1,9,8,.78);border-radius:6px;padding:10px;box-sizing:border-box;min-width:0;}}
+.kicker{{font-size:11px;font-weight:800;color:#29ffc6;margin-bottom:8px;text-transform:uppercase;}}
+.board{{display:flex;flex-direction:column;gap:4px;align-items:center;justify-content:center;background:#030b0b;border:1px solid #143b34;border-radius:5px;padding:8px;}}
+.row{{display:flex;gap:4px;}}
+.cell{{position:relative;width:46px;height:46px;border-radius:5px;display:flex;align-items:center;justify-content:center;overflow:hidden;box-sizing:border-box;background:#071211;border:1px solid #12231f;color:#d8fff7;}}
+.cell.player{{background:#082720;border-color:#29ffc6;box-shadow:0 0 10px rgba(41,255,198,.35);cursor:grab;}}
+.cell.player.selected{{border:2px solid #29ffc6;box-shadow:0 0 16px rgba(41,255,198,.85);}}
+.cell.enemy{{background:#2a0710;border-color:#ff5a7a;box-shadow:0 0 10px rgba(255,90,122,.28);animation:pulse 1.15s steps(2,end) infinite;}}
+.cell.ally{{background:#07182a;border-color:#5aa0ff;}}
+.cell.reachable{{background:rgba(41,255,198,.16);border:1px dashed rgba(41,255,198,.86);box-shadow:0 0 8px rgba(41,255,198,.28);cursor:pointer;}}
+.cell.reachable:hover,.cell.drag-over{{background:rgba(41,255,198,.35);box-shadow:0 0 16px rgba(41,255,198,.9);}}
+.cell img{{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;}}
+.glyph{{font-size:18px;font-weight:900;pointer-events:none;}}
+.hp{{position:absolute;left:4px;right:4px;bottom:4px;height:4px;background:rgba(0,0,0,.65);}}
+.hp span{{display:block;height:4px;background:#29ffc6;}}
+.enemy .hp span{{background:#ff5a7a;}}
+.layout-col{{display:flex;flex-direction:column;gap:10px;min-height:0;}}
+.rosters{{display:grid;grid-template-columns:1fr 1fr;gap:8px;}}
+.card{{display:flex;gap:8px;align-items:center;border:1px solid rgba(120,220,200,.22);background:rgba(5,18,17,.72);border-radius:5px;padding:7px;margin-bottom:6px;min-width:0;}}
+.avatar{{width:34px;height:34px;flex:0 0 34px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(80,180,160,.35);background:#04100f;color:#29ffc6;font-weight:900;overflow:hidden;}}
+.avatar img{{width:100%;height:100%;object-fit:cover;display:block;}}
+.name{{font-size:12px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}}
+.meta{{font-size:10px;color:#8fbab0;margin-top:3px;}}
+.bar{{height:5px;background:#172521;margin-top:4px;}}
+.bar span{{display:block;height:5px;background:#29ffc6;}}
+.dead{{opacity:.45;filter:grayscale(1);}}
+.controls{{display:grid;grid-template-columns:1fr 1fr;gap:8px;}}
+.cmd{{min-height:34px;border:1px solid rgba(41,255,198,.34);background:rgba(4,25,21,.86);color:#eafff9;border-radius:5px;padding:8px;cursor:pointer;font-size:12px;font-weight:800;}}
+.cmd:hover:not(:disabled){{background:rgba(41,255,198,.18);}}
+.cmd:disabled{{opacity:.38;cursor:not-allowed;}}
+.cmd.danger{{border-color:rgba(255,90,122,.42);background:rgba(35,6,12,.82);}}
+.focus{{font-size:12px;color:#8fffea;margin-bottom:8px;}}
+.log{{height:138px;overflow-y:auto;background:rgba(2,10,8,.95);border:1px solid rgba(41,255,198,.24);padding:9px;color:#9fffe9;font-size:12px;line-height:1.45;white-space:pre-wrap;}}
+.error{{color:#ff8aa1;font-size:12px;margin-top:6px;}}
+.result-title{{font-size:22px;font-weight:900;margin-bottom:8px;}}
+.result-victory{{color:#29ffc6;}}.result-defeat{{color:#ff5a7a;}}.result-fled{{color:#ffb432;}}
+.stats{{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;}}
+.stat{{border:1px solid rgba(120,220,200,.18);padding:8px;border-radius:5px;background:rgba(5,18,17,.72);font-size:11px;}}
+.stat strong{{display:block;color:#eafff9;font-size:15px;margin-top:3px;}}
+@keyframes pulse{{0%{{opacity:1}}50%{{opacity:.72}}100%{{opacity:1}}}}
+@media(max-width:780px){{.combat-app{{grid-template-columns:1fr;overflow:auto;}}}}
+</style>
+</head>
+<body>
+<div id="app" class="combat-app"></div>
+<script>
+const CONFIG = {_safe_json(config)};
+let state = CONFIG.initial;
+let selected = false;
+let busy = false;
+let dragCell = null;
+const endpoint = `http://127.0.0.1:${{CONFIG.port}}`;
+
+function esc(value) {{
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}}[ch]));
+}}
+function playSfx(key) {{
+  const src = CONFIG.sfx && CONFIG.sfx[key];
+  if (!src) return;
+  const audio = new Audio(src);
+  audio.volume = 0.7;
+  audio.play().catch(() => {{}});
+}}
+function combat() {{ return state.combat || {{radar:{{}}, available:{{}}}}; }}
+function radar() {{ return combat().radar || {{}}; }}
+function available() {{ return combat().available || {{}}; }}
+function blips() {{ return (radar().blips || []).filter(b => b && b.alive !== false); }}
+function portrait(blip) {{ return (CONFIG.portraits && CONFIG.portraits[blip.id]) || blip.portrait_uri || ''; }}
+function hpPct(blip) {{ return Math.max(0, Math.min(100, Math.floor((Number(blip.hp || 0) / Math.max(1, Number(blip.max_hp || 1))) * 100))); }}
+function reachableSet() {{
+  return new Set((available().reachable || []).map(t => `${{Number(t[0])}},${{Number(t[1])}}`));
+}}
+function renderBoard() {{
+  const r = radar();
+  const arena = r.arena || {{w:8,h:6}};
+  const byCell = {{}};
+  for (const b of blips()) byCell[`${{Number(b.x||0)}},${{Number(b.y||0)}}`] = b;
+  const reach = reachableSet();
+  let html = `<div class="kicker">TACTICAL BOARD :: ROUND ${{String(r.round || 1).padStart(2,'0')}}</div><div class="board">`;
+  for (let y = Number(arena.h || 6) - 1; y >= 0; y--) {{
+    html += '<div class="row">';
+    for (let x = 0; x < Number(arena.w || 8); x++) {{
+      const key = `${{x}},${{y}}`;
+      const b = byCell[key];
+      const canMove = selected && reach.has(key) && !b;
+      const classes = ['cell'];
+      if (b) classes.push(b.faction || '');
+      if (b && b.faction === 'player' && selected) classes.push('selected');
+      if (canMove) classes.push('reachable');
+      const draggable = b && b.faction === 'player' ? ' draggable="true"' : '';
+      html += `<div class="${{classes.join(' ')}}" data-x="${{x}}" data-y="${{y}}" data-id="${{b ? esc(b.id) : ''}}"${{draggable}}>`;
+      if (b) {{
+        const p = portrait(b);
+        html += p ? `<img src="${{p}}" alt="">` : `<span class="glyph">${{esc(b.glyph || '●')}}</span>`;
+        html += `<div class="hp"><span style="width:${{hpPct(b)}}%"></span></div>`;
+      }}
+      html += '</div>';
+    }}
+    html += '</div>';
+  }}
+  return html + '</div>';
+}}
+function roster(title, list) {{
+  let html = `<div class="kicker">${{title}}</div>`;
+  if (!list.length) return html + '<div class="meta">NO SIGNAL</div>';
+  for (const b of list) {{
+    const p = portrait(b);
+    html += `<div class="card ${{b.alive === false ? 'dead' : ''}}">
+      <div class="avatar">${{p ? `<img src="${{p}}" alt="">` : esc(b.glyph || '●')}}</div>
+      <div style="min-width:0;flex:1"><div class="name">${{esc(b.name)}}</div>
+      <div class="bar"><span style="width:${{hpPct(b)}}%"></span></div>
+      <div class="meta">HP ${{b.hp}}/${{b.max_hp}} · POS ${{b.x}},${{b.y}} · FOCUS ${{b.focus || 0}}/${{b.max_focus || 0}}</div></div>
+    </div>`;
+  }}
+  return html;
+}}
+function itemCount(itemId) {{
+  const item = state.inventory && state.inventory[itemId];
+  return item ? Number(item.count || 0) : 0;
+}}
+function renderControls() {{
+  const a = available();
+  if (!a.can_act) return '<div class="panel"><div class="kicker">COMMAND</div><div class="meta">전술 신호를 동기화하는 중입니다.</div></div>';
+  const skillDefs = (CONFIG.meta && CONFIG.meta.skills) || {{}};
+  const itemDefs = (CONFIG.meta && CONFIG.meta.items) || {{}};
+  let html = '<div class="panel"><div class="kicker">COMMAND CONSOLE</div>';
+  html += `<div class="focus">집중(Focus) ◆ ${{a.focus || 0}}/${{a.max_focus || 0}}</div><div class="controls">`;
+  for (const t of (a.targets || []).slice(0, 4)) {{
+    html += `<button class="cmd danger" data-action="attack" data-target="${{esc(t.id)}}" ${{t.in_range ? '' : 'disabled'}}>공격: ${{esc(t.name)}} · HP ${{t.hp}}/${{t.max_hp}}</button>`;
+  }}
+  for (const skill of (a.skills || [])) {{
+    const def = skillDefs[skill.id] || {{}};
+    const cost = def.cost || {{}};
+    const focusCost = Number(cost.focus || 0);
+    const itemCost = cost.item || '';
+    const disabled = Number(skill.cooldown || 0) > 0 || focusCost > Number(a.focus || 0) || (itemCost && itemCount(itemCost) <= 0);
+    const bits = [];
+    if (focusCost) bits.push(`◆${{focusCost}}`);
+    if (itemCost) bits.push(itemCost);
+    const label = `${{def.name || skill.id}}${{bits.length ? ' (' + bits.join(' · ') + ')' : ''}}${{skill.cooldown ? ' R-' + skill.cooldown : ''}}`;
+    html += `<button class="cmd" data-action="skill" data-skill="${{esc(skill.id)}}" ${{disabled ? 'disabled' : ''}}>${{esc(label)}}</button>`;
+  }}
+  for (const [iid, inv] of Object.entries(state.inventory || {{}})) {{
+    const def = itemDefs[iid] || {{}};
+    if (def.kind !== 'consumable') continue;
+    html += `<button class="cmd" data-action="item" data-item="${{esc(iid)}}">${{esc(inv.name || def.name || iid)}} ×${{inv.count}}</button>`;
+  }}
+  html += '<button class="cmd" data-action="defend">방어</button><button class="cmd" data-action="flee">도주</button>';
+  return html + '</div><div class="meta" style="margin-top:8px">이동: 플레이어 신호 선택 후 강조 칸 클릭 또는 드래그.</div><div id="err" class="error"></div></div>';
+}}
+function renderLog() {{
+  return `<div class="panel"><div class="kicker">COMBAT LOG</div><div class="log">${{esc(state.prose || '전투 신호 대기 중.')}}</div></div>`;
+}}
+function renderOutcome() {{
+  const c = combat();
+  if (!c.finished) return '';
+  const s = c.summary || {{}};
+  const outcome = c.outcome || 'resolved';
+  const cls = outcome === 'player_defeat' ? 'result-defeat' : (outcome === 'player_fled' ? 'result-fled' : 'result-victory');
+  const title = outcome === 'player_victory' ? '교전 승리' : (outcome === 'player_defeat' ? '신호 소실' : '전술 이탈');
+  return `<div class="panel"><div class="kicker">COMBAT RESULT</div><div class="result-title ${{cls}}">${{title}}</div>
+    <div class="stats"><div class="stat">PLAYER HP<strong>${{s.player_hp || 0}}/${{s.player_max_hp || 0}}</strong></div>
+    <div class="stat">ROUND / TURN<strong>${{s.rounds || 0}}/${{s.turns || 0}}</strong></div>
+    <div class="stat">DAMAGE DEALT<strong>${{s.damage_dealt || 0}}</strong></div>
+    <div class="stat">DAMAGE TAKEN<strong>${{s.damage_taken || 0}}</strong></div></div>
+    <button class="cmd" data-action="exit">${{outcome === 'player_defeat' ? '메인 화면으로 돌아가기' : '전투 정산 후 다음 장면으로 진행'}}</button></div>`;
+}}
+function renderAll() {{
+  const all = radar().blips || [];
+  const party = all.filter(b => b.faction === 'player' || b.faction === 'ally');
+  const enemies = all.filter(b => b.faction === 'enemy');
+  document.getElementById('app').innerHTML = `
+    <div class="layout-col"><div class="panel">${{renderBoard()}}</div>${{renderLog()}}</div>
+    <div class="layout-col"><div class="rosters"><div class="panel">${{roster('PARTY', party)}}</div><div class="panel">${{roster('ENEMY', enemies)}}</div></div>
+    ${{combat().finished ? renderOutcome() : renderControls()}}</div>`;
+  const log = document.querySelector('.log');
+  if (log) log.scrollTop = log.scrollHeight;
+}}
+async function sendAction(action) {{
+  if (busy || combat().finished) return;
+  busy = true;
+  try {{
+    const res = await fetch(endpoint + '/combat/action', {{
+      method: 'POST',
+      headers: {{'Content-Type': 'text/plain'}},
+      body: JSON.stringify({{loop_id: CONFIG.loop_id, scenario_id: CONFIG.scenario_id, action}})
+    }});
+    const payload = await res.json();
+    if (!payload.ok) throw new Error(payload.error || 'combat action failed');
+    state = payload;
+    selected = false;
+    renderAll();
+  }} catch (err) {{
+    const target = document.getElementById('err');
+    if (target) target.textContent = String(err.message || err);
+  }} finally {{
+    busy = false;
+  }}
+}}
+function signalExit() {{
+  const input = window.parent.document.querySelector('input[aria-label="hidden_combat_exit"]');
+  if (!input) return;
+  const setter = window.parent.Object.getOwnPropertyDescriptor(window.parent.HTMLInputElement.prototype, 'value').set;
+  setter.call(input, JSON.stringify({{type:'exit', outcome: combat().outcome || ''}}));
+  input.dispatchEvent(new window.parent.Event('input', {{bubbles:true}}));
+  input.dispatchEvent(new window.parent.Event('change', {{bubbles:true}}));
+  ['keydown','keypress','keyup'].forEach(t => input.dispatchEvent(new window.parent.KeyboardEvent(t, {{key:'Enter',code:'Enter',keyCode:13,which:13,bubbles:true,cancelable:true}})));
+}}
+document.addEventListener('click', e => {{
+  const cell = e.target.closest('.cell');
+  const btn = e.target.closest('button[data-action]');
+  if (cell) {{
+    if (cell.classList.contains('player')) {{ selected = !selected; renderAll(); return; }}
+    if (cell.classList.contains('reachable')) {{ playSfx('sfx_move'); sendAction({{type:'wait', x:Number(cell.dataset.x), y:Number(cell.dataset.y)}}); return; }}
+  }}
+  if (!btn) return;
+  const action = btn.dataset.action;
+  if (action === 'exit') return signalExit();
+  if (action === 'attack') {{ playSfx('sfx_attack'); return sendAction({{type:'attack', target_id:btn.dataset.target}}); }}
+  if (action === 'skill') {{ playSfx('sfx_attack'); return sendAction({{type:'skill', skill_id:btn.dataset.skill}}); }}
+  if (action === 'item') {{ playSfx('sfx_defend'); return sendAction({{type:'item', item_id:btn.dataset.item}}); }}
+  if (action === 'defend') {{ playSfx('sfx_defend'); return sendAction({{type:'defend'}}); }}
+  if (action === 'flee') {{ playSfx('sfx_move'); return sendAction({{type:'flee'}}); }}
+}});
+document.addEventListener('dragstart', e => {{
+  const cell = e.target.closest('.cell.player');
+  if (!cell) return;
+  selected = true;
+  e.dataTransfer.setData('text/plain', 'player');
+  setTimeout(renderAll, 0);
+}});
+document.addEventListener('dragover', e => {{
+  const cell = e.target.closest('.cell.reachable');
+  if (!cell) return;
+  e.preventDefault();
+  cell.classList.add('drag-over');
+  dragCell = cell;
+}});
+document.addEventListener('dragleave', e => {{
+  const cell = e.target.closest('.cell.reachable');
+  if (cell) cell.classList.remove('drag-over');
+}});
+document.addEventListener('drop', e => {{
+  e.preventDefault();
+  if (!dragCell) return;
+  playSfx('sfx_move');
+  sendAction({{type:'wait', x:Number(dragCell.dataset.x), y:Number(dragCell.dataset.y)}});
+  dragCell = null;
+}});
+renderAll();
+</script>
+</body>
+</html>"""
+
+
+@st.fragment
+def _render_combat_arena_fragment(options: RuntimeOptions) -> None:
+    snapshot = _load_current_snapshot()
+    if snapshot is None or snapshot.combat is None:
+        st.warning("전술 신호 동기화 지연")
+        return
+
+    loop = snapshot.loop
+    combat = snapshot.combat
+
+    hidden_exit = st.session_state.get("hidden_combat_exit", "")
+    if hidden_exit:
+        st.session_state.hidden_combat_exit = ""
+        try:
+            exit_data = json.loads(hidden_exit)
+            if exit_data.get("type") == "exit":
+                outcome = str(exit_data.get("outcome", ""))
+                if outcome == "player_defeat" or loop.phase is LoopPhase.ENDED:
+                    _return_to_player_main(loop.player_id)
+                    st.rerun()
+                _run_combat_action(
+                    lambda service: service.choose(
+                        loop.loop_id,
+                        action="전투 결과를 정리하고 다음 장면으로 이동한다.",
+                        options=options,
+                    ),
+                    on_success=_set_snapshot,
+                )
+                st.rerun()
+        except Exception as e:
+            st.error(f"Combat exit error: {e}")
+
+    st.text_input(
+        "hidden_combat_exit",
+        key="hidden_combat_exit",
+        label_visibility="collapsed",
+    )
+
+    try:
+        port = ensure_combat_server()
+        radar = combat.get("radar", {}) if isinstance(combat, dict) else {}
+        config = {
+            "loop_id": loop.loop_id,
+            "scenario_id": options.scenario_id,
+            "port": port,
+            "initial": _combat_iframe_state(snapshot, options),
+            "meta": _combat_meta_payload(options.scenario_id),
+            "portraits": _combat_portrait_payload(radar if isinstance(radar, dict) else {}, options.scenario_id),
+            "sfx": {
+                key: uri
+                for key in ["sfx_move", "sfx_attack", "sfx_defend", "sfx_victory", "sfx_defeat"]
+                if (uri := _get_b64_sfx(key))
+            },
+        }
+        st.iframe(_build_combat_app_html(config), height=820)
+    except Exception as e:
+        st.error(f"전투 iframe 렌더링 예외 발생: {e}")
+
+    overview = _load_memory_overview(loop.player_id)
+    _render_player_memory(loop, overview)
+
 
 def _render_audio(snapshot: RuntimeSnapshot) -> None:
+    import time
+
+    # 1. Loop-based Background Music (BGM)
+    # st.audio does not support the 'key' argument in this environment, so we omit it.
     if snapshot.bgm_path and Path(snapshot.bgm_path).exists():
         st.audio(snapshot.bgm_path, format="audio/wav", autoplay=True, loop=True)
+
+    # 2. Duration-bounded SFX Queue (2.5s window) using native st.audio to pass browser autoplay blocks
+    if "sfx_queue" not in st.session_state:
+        st.session_state.sfx_queue = []
+
+    # Enqueue new SFX requests
+    sfx_key = st.session_state.get("play_sfx")
+    if sfx_key:
+        st.session_state.play_sfx = None  # Consume immediately
+        st.session_state.sfx_queue.append({
+            "key": sfx_key,
+            "timestamp": time.time()
+        })
+
+    # Filter and keep only SFX requests that are less than 2.5 seconds old
+    now = time.time()
+    active_sfxs = [item for item in st.session_state.sfx_queue if now - item["timestamp"] < 2.5]
+    st.session_state.sfx_queue = active_sfxs
+
+    # Render each active SFX using keyless st.audio
+    project_root = Path(__file__).resolve().parent
+    for item in active_sfxs:
+        key = item["key"]
+        sfx_path = project_root / "resources" / "neo-seoul" / "audio" / "sfx" / f"{key}.wav"
+        if sfx_path.exists():
+            st.audio(str(sfx_path), format="audio/wav", autoplay=True, loop=False)
 
 
 def _render_script_window(

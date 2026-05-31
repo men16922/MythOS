@@ -27,6 +27,7 @@ def build_encounter(
     encounter_id: str,
     *,
     player: Combatant,
+    allies: list[Combatant] | None = None,
     seed: str,
     engine: CombatEngine | None = None,
 ) -> CombatState:
@@ -60,9 +61,23 @@ def build_encounter(
             )
             index += 1
 
+    party = [player, *(allies or [])]
     player.x, player.y = 0, height // 2
+    ally_slots = [
+        (0, max(0, height // 2 - 1)),
+        (0, min(height - 1, height // 2 + 1)),
+        (1, height // 2),
+        (1, max(0, height // 2 - 1)),
+        (1, min(height - 1, height // 2 + 1)),
+    ]
+    occupied = {(player.x, player.y)}
+    for ally, (ax, ay) in zip(allies or [], ally_slots, strict=False):
+        if (ax, ay) in occupied:
+            continue
+        ally.x, ally.y = ax, ay
+        occupied.add((ax, ay))
     return engine.start(
-        [player], enemies, seed=seed, arena=(width, height), encounter_id=encounter_id
+        party, enemies, seed=seed, arena=(width, height), encounter_id=encounter_id
     )
 
 

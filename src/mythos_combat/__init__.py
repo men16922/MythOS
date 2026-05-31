@@ -9,7 +9,12 @@ from __future__ import annotations
 
 from .encounter import build_encounter, loadout_for_archetype
 from .engine import CombatEngine, PlayerAction
-from .factory import build_enemy_combatant, build_player_combatant, weapon_from_dict
+from .factory import (
+    build_ally_combatant,
+    build_enemy_combatant,
+    build_player_combatant,
+    weapon_from_dict,
+)
 from .models import (
     Combatant,
     CombatLogEntry,
@@ -30,6 +35,7 @@ __all__ = [
     "combat_state_from_dict",
     "combat_state_to_dict",
     "build_enemy_combatant",
+    "build_ally_combatant",
     "build_player_combatant",
     "weapon_from_dict",
     "build_encounter",

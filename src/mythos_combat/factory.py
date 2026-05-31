@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from .models import ENEMY, PLAYER, Combatant, Weapon
+from .models import ALLY, ENEMY, PLAYER, Combatant, Weapon
 
 _DEFAULT_STATS = {
     "strength": 5,
@@ -30,6 +30,11 @@ def derive_defense(stats: dict[str, int], armor: int = 0) -> int:
 
 def derive_speed(stats: dict[str, int]) -> int:
     return 2 + int(stats.get("agility", 5)) // 3
+
+
+def derive_max_focus(stats: dict[str, int]) -> int:
+    """Skill resource. Driven by 연산(intelligence) so smarter connectors cast more."""
+    return 2 + int(stats.get("intelligence", 5)) // 3
 
 
 def weapon_from_dict(data: dict[str, Any]) -> Weapon:
@@ -64,12 +69,14 @@ def build_player_combatant(
     x: int,
     y: int,
     hp: int | None = None,
+    skills: list[str] | None = None,
 ) -> Combatant:
     merged = {
         **_DEFAULT_STATS,
         **{k: int(v) for k, v in stats.items() if isinstance(v, int | float)},
     }
     max_hp = derive_max_hp(merged)
+    max_focus = derive_max_focus(merged)
     return Combatant(
         id=combatant_id,
         name=name,
@@ -84,6 +91,9 @@ def build_player_combatant(
         weapons=_resolve_weapons(weapon_ids, weapons_pool),
         ai="player",
         blip="◎",
+        focus=max_focus,
+        max_focus=max_focus,
+        skills=list(skills or []),
     )
 
 
@@ -118,11 +128,49 @@ def build_enemy_combatant(
     )
 
 
+def build_ally_combatant(
+    *,
+    entry: dict[str, Any],
+    weapons_pool: dict[str, dict[str, Any]],
+    x: int,
+    y: int,
+    hp: int | None = None,
+) -> Combatant:
+    stats = {
+        **_DEFAULT_STATS,
+        **{k: int(v) for k, v in entry.get("stats", {}).items() if isinstance(v, int | float)},
+    }
+    max_hp = int(entry.get("hp", derive_max_hp(stats)))
+    max_focus = derive_max_focus(stats)
+    return Combatant(
+        id=str(entry.get("id", "ally")),
+        name=str(entry.get("name", entry.get("id", "동료"))),
+        faction=ALLY,
+        hp=max(0, min(max_hp, hp if hp is not None else max_hp)),
+        max_hp=max_hp,
+        x=x,
+        y=y,
+        stats=stats,
+        defense=int(entry.get("defense", derive_defense(stats, int(entry.get("armor", 0))))),
+        speed=int(entry.get("speed", derive_speed(stats))),
+        armor=int(entry.get("armor", 0)),
+        weapons=_resolve_weapons(list(entry.get("weapons", [])), weapons_pool),
+        ai=str(entry.get("ai", "melee")),
+        blip=str(entry.get("blip", "◆")),
+        portrait=str(entry.get("image", "")),
+        focus=max_focus,
+        max_focus=max_focus,
+        skills=[str(skill_id) for skill_id in entry.get("skills", [])],
+    )
+
+
 __all__ = [
     "build_player_combatant",
     "build_enemy_combatant",
+    "build_ally_combatant",
     "weapon_from_dict",
     "derive_max_hp",
     "derive_defense",
     "derive_speed",
+    "derive_max_focus",
 ]

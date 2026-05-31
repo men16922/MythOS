@@ -175,10 +175,10 @@
       "잔향 수집가 (Collector)": ["shock_baton"]
     },
     "skills": {
-      "signal_step": {"id": "signal_step", "name": "신호 도약", "role": "mobility", "cost": {"focus": 1}, "range": 4, "cooldown": 2, "effect": {"move": 4, "ignore_occupied": true}, "tags": ["movement", "escape"]},
-      "overload_strike": {"id": "overload_strike", "name": "과부하 일격", "role": "damage", "cost": {"focus": 1}, "range": 1, "cooldown": 2, "effect": {"damage_bonus": "1d6", "armor_pen": 2}, "tags": ["melee", "burst"]},
-      "packet_shot": {"id": "packet_shot", "name": "패킷 사격", "role": "damage", "cost": {"focus": 1}, "range": 5, "cooldown": 1, "effect": {"damage": "1d8", "to_hit_bonus": 1}, "tags": ["ranged"]},
-      "covering_noise": {"id": "covering_noise", "name": "엄호 노이즈", "role": "defense", "cost": {"focus": 1}, "range": 4, "cooldown": 3, "effect": {"defense_bonus": 3, "duration": 1}, "tags": ["support", "evasion"]},
+      "signal_step": {"id": "signal_step", "name": "신호 도약", "role": "mobility", "cost": {"focus": 2}, "range": 4, "cooldown": 2, "effect": {"move": 4, "ignore_occupied": true}, "tags": ["movement", "escape"]},
+      "overload_strike": {"id": "overload_strike", "name": "과부하 일격", "role": "damage", "cost": {"focus": 2}, "range": 1, "cooldown": 2, "effect": {"damage_bonus": "1d6", "armor_pen": 2}, "tags": ["melee", "burst"]},
+      "packet_shot": {"id": "packet_shot", "name": "패킷 사격", "role": "damage", "cost": {"focus": 2}, "range": 5, "cooldown": 1, "effect": {"damage": "1d8", "to_hit_bonus": 1}, "tags": ["ranged"]},
+      "covering_noise": {"id": "covering_noise", "name": "엄호 노이즈", "role": "defense", "cost": {"focus": 2}, "range": 4, "cooldown": 3, "effect": {"defense_bonus": 3, "duration": 1}, "tags": ["support", "evasion"]},
       "patch_protocol": {"id": "patch_protocol", "name": "패치 프로토콜", "role": "healing", "cost": {"item": "nanopatch"}, "range": 3, "cooldown": 0, "effect": {"heal": "2d6"}, "tags": ["item", "heal"]}
     },
     "allies": {
@@ -193,7 +193,7 @@
     },
     "items": {
       "nanopatch": {"id": "nanopatch", "name": "나노패치", "kind": "consumable", "effect": "heal", "heal": "2d6", "rarity": "common"},
-      "stim_shard": {"id": "stim_shard", "name": "자극 파편", "kind": "consumable", "effect": "focus", "bonus": 2, "rarity": "uncommon"},
+      "stim_shard": {"id": "stim_shard", "name": "자극 파편", "kind": "consumable", "effect": "focus", "bonus": 3, "rarity": "uncommon"},
       "access_key": {"id": "access_key", "name": "접근 키", "kind": "key", "rarity": "uncommon"},
       "data_fragment": {"id": "data_fragment", "name": "데이터 파편", "kind": "data", "rarity": "rare"},
       "drone_scrap": {"id": "drone_scrap", "name": "드론 잔해", "kind": "material", "rarity": "common"}

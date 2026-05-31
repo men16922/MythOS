@@ -14,6 +14,11 @@ from mythos_core import (
 )
 from mythos_narrative import NarrativeContext
 from mythos_runtime.scenario import ScenarioConfig
+from mythos_runtime.story_bible import (
+    load_story_bible,
+    select_story_bible_entries,
+    story_bible_notes,
+)
 
 LANGUAGE_RULE = (
     "LANGUAGE_RULE: Player-facing narration, objectives, choices, and action_result "
@@ -78,6 +83,10 @@ def build_runtime_narrative_context(
             f"Recognize the player as a '{archetype}' signal. "
             f"Introduce Jung Se-rin (물거미) as she pulls the player into safety."
         )
+
+    bible = load_story_bible(scenario.scenario_id)
+    entries = select_story_bible_entries(bible, loop, turn_index=turn_index)
+    notes.extend(story_bible_notes(entries))
 
     return NarrativeContext(
         player=player,

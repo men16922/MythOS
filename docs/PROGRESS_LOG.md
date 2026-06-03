@@ -15,6 +15,17 @@ YYYY-MM-DD
 
 ## 2026-06-03
 
+- Status: [x] WS visual_status 합류 — API 이미지 생성 + 실시간 그림 전달.
+- Changed:
+  - 문제: 지금까지 API는 글만 보내고 이미지를 생성하지 않아 slice 3 presigned URL·기존 visual_worker·slice 2 WS가 end-to-end로 안 엮임. PoC 이미지 칸이 항상 비어 있었음.
+  - `src/mythos_api/app.py`: WS begin/choose 메시지에 `with_image`/`visual_async`/`image_every_turn` 전달. snapshot 송신 후 `_emit_visual_status`로 씬 이미지 라이프사이클을 `visual_status` 프레임으로 스트리밍 — 동기 생성은 즉시 terminal, 비동기(Redis worker)는 pending 통보 후 store 폴링(최대 30s)으로 processing→succeeded(presigned url)/failed. `_terminal_visual_frame`/`_find_asset`/`_visual_frame` 헬퍼.
+  - `src/mythos_api/static/{index.html,app.js}`: "이미지" 토글 추가, visual_status 수신 시 pending/processing은 "그림 생성 중", succeeded는 presigned url로 이미지 교체.
+  - `tests/test_api.py`(+4): `_terminal_visual_frame`(succeeded url 서명/failed 무 url/pending None) + `_find_asset` 단위 검증(FLUX/Redis 불요).
+- Verified: `make test`(180 tests, 2 skipped), `make lint`, `make typecheck` 통과.
+- Next: (선택) 옵션 A 풀 Next.js/Vite SPA + PixiJS Canvas 전술 보드 별도 트랙. 또는 Open Risks(narrative_shards 압축, JSONB→전용 테이블 migration).
+
+## 2026-06-03
+
 - Status: [x] P3 Web UI 디커플링 slice 4(B) — 경량 PoC 레퍼런스 클라이언트 구현.
 - Changed:
   - `src/mythos_api/static/index.html` + `app.js`(신규): Node 툴체인 없는 vanilla JS 클라이언트. connect → WS begin → 토큰 실시간 누적 → snapshot 확정 → 선택지 클릭 → WS choose 재스트리밍. `assets/resolve`로 presigned 이미지 렌더, `combat.radar`는 `<canvas>` blip 최소 시각화.

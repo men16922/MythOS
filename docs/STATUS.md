@@ -17,8 +17,8 @@ Project MythOS 로컬 플레이어블 MVP는 구현 완료 상태다. Streamlit 
 
 ## Latest Verified Baseline
 
-- `make test` (176 tests, 2 skipped)
-- `mythos_api` FastAPI `/api/v1` 어댑터: `tests/test_api.py`(17) — health/connect/begin/active/choose/combat REST + WebSocket `loops/stream`(begin→token→snapshot, 동일 소켓 choose, 오류 프레임) + `assets/resolve`(presigned URL) + 정적 PoC 클라이언트(`/`, `/app.js`, API 비가림)를 in-memory store TestClient로 검증(DB/Ollama 불요). `MinIOStorageAdapter.presigned_url`은 boto3 mock 단위 테스트로 검증.
+- `make test` (180 tests, 2 skipped)
+- `mythos_api` FastAPI `/api/v1` 어댑터: `tests/test_api.py`(21) — health/connect/begin/active/choose/combat REST + WebSocket `loops/stream`(begin→token→snapshot, 동일 소켓 choose, 오류 프레임) + `assets/resolve`(presigned URL) + 정적 PoC 클라이언트(`/`, `/app.js`, API 비가림) + visual_status 프레임 로직(`_terminal_visual_frame`/`_find_asset`)을 in-memory store TestClient로 검증(DB/Ollama/FLUX 불요). `MinIOStorageAdapter.presigned_url`은 boto3 mock 단위 테스트로 검증.
 - API 라이브 부팅: `python -m mythos_api` → `/`·`/app.js`·`/api/v1/health` 200, `auth/connect`이 실제 Postgres에 플레이어 기록 확인.
 - `make typecheck`
 - `make smoke-local`
@@ -47,7 +47,7 @@ Project MythOS 로컬 플레이어블 MVP는 구현 완료 상태다. Streamlit 
 
 P2 IP-Adapter 캐릭터 일관성, P1 비주얼 레이턴시 계측은 코드 반영·커밋 완료. **P3 Web UI 디커플링 실구현에 착수했고 slice 1(FastAPI `/api/v1` REST 어댑터)을 완료**했다.
 
-- `mythos_api` 패키지(신규): `create_app` 팩토리가 `RuntimeSessionService`를 `/api/v1`로 노출(`auth/connect`, `loops/begin|active|choose`, `combat/begin|action`, `health`) + WebSocket 토큰 스트리밍(`loops/stream`, §2.2) + 자산 presigned URL 변환(`assets/resolve`, §5.2) + 경량 PoC 클라이언트(`/`에 `static/{index.html,app.js}` 서빙). Streamlit 무변경 추가형. optional `web` extra(`pip install -e ".[web]"`), 실행은 `python -m mythos_api`(또는 `mythos-api`).
+- `mythos_api` 패키지(신규): `create_app` 팩토리가 `RuntimeSessionService`를 `/api/v1`로 노출(`auth/connect`, `loops/begin|active|choose`, `combat/begin|action`, `health`) + WebSocket 토큰 스트리밍 + `visual_status` 이미지 프레임(`loops/stream`, §2.2) + 자산 presigned URL 변환(`assets/resolve`, §5.2) + 경량 PoC 클라이언트(`/`에 `static/{index.html,app.js}` 서빙). WS begin/choose가 `with_image`/`visual_async`를 받아 이미지 생성을 트리거하고, 완성 시 presigned URL을 푸시한다. Streamlit 무변경 추가형. optional `web` extra(`pip install -e ".[web]"`), 실행은 `python -m mythos_api`(또는 `mythos-api`).
 - 다음 트랙(선택): 옵션 A 풀 Next.js/Vite SPA + PixiJS Canvas 전술 보드(§3,§4, Node 툴체인 신설). 완료 시 `loops/stream`에 `visual_status` 프레임 합류. 권위 설계는 `docs/plans/2026-06-03-web-ui-decoupling.md`, 프론트 결정은 `docs/plans/2026-06-03-frontend-slice4.md`.
 
 ## Completed Tracks

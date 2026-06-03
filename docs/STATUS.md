@@ -17,7 +17,7 @@ Project MythOS 로컬 플레이어블 MVP는 구현 완료 상태다. Streamlit 
 
 ## Latest Verified Baseline
 
-- `make test` (180 tests, 2 skipped)
+- `make test` (181 tests, 2 skipped)
 - `mythos_api` FastAPI `/api/v1` 어댑터: `tests/test_api.py`(21) — health/connect/begin/active/choose/combat REST + WebSocket `loops/stream`(begin→token→snapshot, 동일 소켓 choose, 오류 프레임) + `assets/resolve`(presigned URL) + 정적 PoC 클라이언트(`/`, `/app.js`, API 비가림) + visual_status 프레임 로직(`_terminal_visual_frame`/`_find_asset`)을 in-memory store TestClient로 검증(DB/Ollama/FLUX 불요). `MinIOStorageAdapter.presigned_url`은 boto3 mock 단위 테스트로 검증.
 - API 라이브 부팅: `python -m mythos_api` → `/`·`/app.js`·`/api/v1/health` 200, `auth/connect`이 실제 Postgres에 플레이어 기록 확인.
 - `make typecheck`
@@ -76,7 +76,7 @@ P2 IP-Adapter 캐릭터 일관성, P1 비주얼 레이턴시 계측은 코드 �
 ## Open Risks
 
 - `narrative_shards`는 limit query로 소비량만 제한하고 별도 장기 압축은 아직 없다.
-- Ollama output은 repair/fallback path를 탈 수 있으므로 provider 품질 메트릭 추적이 계속 필요하다.
+- Ollama output은 repair/fallback path를 탈 수 있다. provider 품질 메트릭(outcome + total/degraded/success_ratio)은 `mythos.narrative.outcome` OTel 스팬과 구조화 로그로 방출돼 Jaeger/로그에서 관측 가능하다. 다만 누적 집계의 영속 저장/대시보드는 아직 없다(필요 시 WorldMemory rollup 또는 전용 테이블).
 - IP-Adapter는 아직 실배선 전이라 캐릭터 얼굴-ID 고정은 img2img 레퍼런스 기반이다.
 - 동료 AI는 현재 기본 NPC 공격 로직을 사용한다. 동료 스킬 자동 사용/전술 성향 고도화는 아직 없다.
 - 추가 전투 밸런스는 실제 플레이 로그 기반으로 재조정할 수 있다.

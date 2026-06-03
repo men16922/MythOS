@@ -15,6 +15,16 @@ YYYY-MM-DD
 
 ## 2026-06-03
 
+- Status: [x] P3 consolidation(`make api` + `docs/API.md`) + provider 품질 메트릭 OTel/로그 방출.
+- Changed:
+  - `Makefile`: `make api`/`api-stop` 타겟, `make setup`이 `.[dev,web]` 설치. `docs/API.md`(신규): 실행법/엔드포인트표/WS 프레임/RuntimeSnapshot 형태.
+  - `src/mythos_narrative/director.py`: `_record_outcome`이 outcome + 누적 집계(total/degraded/success_ratio)를 `mythos.narrative.outcome` OTel 스팬과 구조화 로그로 방출 — per-request director 리셋과 무관하게 provider 저하 관측. 저장소/마이그레이션 무변경.
+  - `tests/test_narrative_director.py`(+1): outcome 로그의 누적 지표 포함 검증.
+- Verified: `make test`(181 tests, 2 skipped), `make lint`, `make typecheck` 통과. `make api` 라이브 부팅 `/`·`/api/v1/health` 200.
+- Next: (선택) 옵션 A 풀 SPA, 또는 provider 메트릭 영속 집계/대시보드, JSONB→전용 테이블 migration.
+
+## 2026-06-03
+
 - Status: [x] WS visual_status 합류 — API 이미지 생성 + 실시간 그림 전달.
 - Changed:
   - 문제: 지금까지 API는 글만 보내고 이미지를 생성하지 않아 slice 3 presigned URL·기존 visual_worker·slice 2 WS가 end-to-end로 안 엮임. PoC 이미지 칸이 항상 비어 있었음.

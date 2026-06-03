@@ -15,6 +15,26 @@ YYYY-MM-DD
 
 ## 2026-06-03
 
+- Status: [x] PoC UI/UX 개선 방안 문서화(라이브 스크린샷 기반).
+- Changed:
+  - 라이브 PoC 스크린샷 2장 검토 → 문제점(이미지 압도/본문 가독성/선택지 바/HUD 빈약/색 불일치/전투 캔버스 휑함) 진단.
+  - `docs/plans/2026-06-03-poc-ux-improvement.md`(신규): PoC는 Streamlit과 별개의 레퍼런스 클라이언트임을 명시하고, Streamlit UX 언어(녹청 터미널 팔레트·command-card 선택지·HUD metric·이미지 크기 통제·SF Mono)를 참고한 파일별(`index.html`/`app.js`) 개선 제안 + 3 Phase 스코프 + 비목표 정리.
+  - STATUS/NEXT_PLAN/AGENT_BRIEF에 PoC UX 개선 트랙 연동.
+- Verified: 문서 작업(코드 변경 없음). 기존 `make test`(181) 영향 없음.
+- Next: 승인 시 Phase 1(팔레트·레이아웃·선택지 카드·HUD·이미지 통제) 구현.
+
+## 2026-06-03
+
+- Status: [x] 레퍼런스(reference.md) 기반 피드백 및 기능 추가 백로그 도출.
+- Changed:
+  - `reference.md`의 명작 게임(Citizen Sleeper, Disco Elysium, Slay the Princess 등) 핵심 디자인 요소와 MythOS의 현재 구현 상태 분석.
+  - 신규 아티팩트 `reference_feedback_list.md`를 생성하여 자원 제약 선택지, 스탯별 내면 독백, 내러티브 잔향, 전술 Intent 가시화, 동료 전술 성향 다각화 등의 액션 아이템 설계.
+  - `docs/NEXT_PLAN.md`에 '레퍼런스 기반 내러티브 & 전술 피드백 반영 (Backlog)' 신규 섹션으로 계획 반영 완료.
+- Verified: `make typecheck`, `make lint` 통과.
+- Next: 프론트엔드 분리(slice 4 옵션 A 풀 SPA) 또는 백로그 항목(자원 제약 선택지/내면 독백) 우선순위 구현 개시.
+
+## 2026-06-03
+
 - Status: [x] API 이미지 경로 라이브 E2E 검증 + WS 폴링 창 상향.
 - Changed:
   - 실가동 인프라(Postgres/MinIO/Redis + 실행 중 visual worker + Ollama)에서 API begin(async image)→Redis→worker→FLUX→MinIO→DB `succeeded`까지 실제 동작 확인. `/assets/resolve` presigned URL HTTP GET → 200/image/png/유효 PNG(1.1MB).

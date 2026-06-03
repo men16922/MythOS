@@ -103,8 +103,20 @@
   - `[x]` slice 3: S3 presigned URL 자산 전달 (설계 §5.2). 분산 visual worker(`visual_worker.py`, Redis BRPOP+heartbeat)는 기존 구현됨. `MinIOStorageAdapter.presigned_url` + `POST /api/v1/assets/resolve`로 논리 s3:// URI를 만료시간 있는 HTTPS URL로 가상화.
   - `[x]` visual_status WS 합류: WS begin/choose에 `with_image`/`visual_async` 전달, snapshot 후 `_emit_visual_status`가 씬 이미지 라이프사이클을 `visual_status`(pending→processing→succeeded+presigned url/failed) 프레임으로 스트리밍. 동기는 즉시 terminal, 비동기는 store 폴링. PoC는 "이미지" 토글로 표시.
   - `[~]` slice 4: 프론트엔드. **옵션 B(경량 PoC 레퍼런스 클라이언트) 완료** — `src/mythos_api/static/{index.html,app.js}` vanilla JS가 connect→WS begin→토큰 스트림→choose→이미지(visual_status)→combat blip을 한 화면으로 실증, FastAPI가 `/`에 직접 서빙. 결정/스펙은 `docs/plans/2026-06-03-frontend-slice4.md`.
+    - `[ ]` PoC UI/UX 개선(Streamlit UX 언어 참고): 이미지 크기 통제, 본문 가독성, 선택지 command-card, HUD 게이지, 녹청 터미널 팔레트 통일, 전투 캔버스 보강. 방안: `docs/plans/2026-06-03-poc-ux-improvement.md` (Phase 1 가독성 → 2 전투/연출 → 3 반응형). 빌드리스 유지.
     - `[ ]` 옵션 A(별도 트랙): Next.js/Vite SPA + PixiJS Canvas 전술 보드 (설계 §3, §4). Node 툴체인·CI Node job 신설.
 - `[x]` CI 도입: `.github/workflows/ci.yml` (Python 3.11 setup/lint/typecheck/test).
+
+### 7. 레퍼런스 기반 내러티브 & 전술 피드백 반영 (Backlog)
+
+[reference_feedback_list.md](file:///Users/men1692/.gemini/antigravity-cli/brain/b647f336-dc52-4ac3-b66b-2f71d3bef114/reference_feedback_list.md) 분석에 기반하여 차기 버전에서 대응할 백로그 항목들입니다.
+
+- `[ ]` **자원 제약형 선택지 (Citizen Sleeper)**: `stability` / `tension` 임계값 도달 시 강제 불이익 선택지 락 또는 자원 소모형 액션 프레임워크 구축.
+- `[ ]` **스탯 기반 내면 독백 분화 (Disco Elysium)**: 최고 스탯 성향에 대응하는 내면 지문을 AI GM이 생성할 수 있도록 Prompt/Context 주입기 구현.
+- `[ ]` **루프 내러티브 잔향 (Slay the Princess)**: `RunSummary` 핵심 결정을 다음 루프의 `NarrativeContext`로 연계하여 NPC 반응 분화.
+- `[ ]` **적 인텐트 가시화 (Into the Breach)**: `CombatService` 및 전술 보드 렌더러에 적의 다음 턴 행동 의도(Intent) 표시.
+- `[ ]` **동료 전술 성향 다각화 (Shadowrun)**: `ally` 캐릭터성(서포터, 스트라이커 등)에 맞춘 커스텀 AI 전략 및 스킬 자동 가동.
+
 
 ## Completed Baseline
 

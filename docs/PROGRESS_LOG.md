@@ -15,6 +15,17 @@ YYYY-MM-DD
 
 ## 2026-06-03
 
+- Status: [x] P3 Web UI 디커플링 slice 4(B) — 경량 PoC 레퍼런스 클라이언트 구현.
+- Changed:
+  - `src/mythos_api/static/index.html` + `app.js`(신규): Node 툴체인 없는 vanilla JS 클라이언트. connect → WS begin → 토큰 실시간 누적 → snapshot 확정 → 선택지 클릭 → WS choose 재스트리밍. `assets/resolve`로 presigned 이미지 렌더, `combat.radar`는 `<canvas>` blip 최소 시각화.
+  - `src/mythos_api/app.py`: 모든 라우트 등록 후 `StaticFiles(html=True)`를 `/`에 마운트(API/WS 우선). `pyproject.toml` package-data로 `static/*` 포함.
+  - `tests/test_api.py`(+3): `GET /` 200, `GET /app.js` 200, `/api/v1/health`가 정적 마운트에 가려지지 않음 검증.
+  - 결정/스펙 문서: `docs/plans/2026-06-03-frontend-slice4.md` (옵션 B 먼저 → 추후 옵션 A 풀 SPA).
+- Verified: `make test`(176 tests, 2 skipped), `make lint`, `make typecheck` 통과. 라이브 부팅 `python -m mythos_api`로 `/`·`/app.js`·`/api/v1/health` 200, `auth/connect`이 실제 Postgres에 플레이어 기록 확인.
+- Next: (선택) 옵션 A 풀 Next.js/Vite SPA + PixiJS Canvas 전술 보드를 별도 트랙으로. visual_status WS 프레임 합류.
+
+## 2026-06-03
+
 - Status: [x] P3 Web UI 디커플링 slice 3 — S3 presigned URL 자산 전달 구현.
 - Changed:
   - `src/mythos_runtime/visual_service.py`: `MinIOStorageAdapter._client()` 헬퍼로 boto3 client 생성 분리, `presigned_url(storage_uri, expires_in=600)` 추가. 논리 `s3://bucket/key`를 만료시간 있는 HTTPS presigned URL로 변환, 비-s3 URI는 그대로 통과, malformed는 ValueError (설계 §5.2).

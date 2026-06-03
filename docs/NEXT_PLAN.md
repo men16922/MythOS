@@ -101,7 +101,8 @@
 - `[~]` P3 Web UI 실구현 — **slice 1·2·3 완료**: `mythos_api` FastAPI `/api/v1` REST 어댑터 + WebSocket 토큰 스트리밍 + S3 presigned URL 자산 전달, optional `web` extra, `python -m mythos_api`. `tests/test_api.py`(14) 통과. 남은 slice:
   - `[x]` slice 2: WebSocket 토큰 스트리밍 `/api/v1/loops/stream` (설계 §2.2). begin/choose 이벤트를 `stream_start_loop`/`stream_choose`에 매핑, `iterate_in_threadpool` 브리지, token/snapshot/error 프레임.
   - `[x]` slice 3: S3 presigned URL 자산 전달 (설계 §5.2). 분산 visual worker(`visual_worker.py`, Redis BRPOP+heartbeat)는 기존 구현됨. `MinIOStorageAdapter.presigned_url` + `POST /api/v1/assets/resolve`로 논리 s3:// URI를 만료시간 있는 HTTPS URL로 가상화.
-  - `[ ]` slice 4: Next.js/Vite 프론트엔드 + Canvas 전술 보드 (설계 §3, §4). 완료 시 `loops/stream`에 `visual_status` 프레임 합류.
+  - `[~]` slice 4: 프론트엔드. **옵션 B(경량 PoC 레퍼런스 클라이언트) 완료** — `src/mythos_api/static/{index.html,app.js}` vanilla JS가 connect→WS begin→토큰 스트림→choose→presigned 이미지→combat blip을 한 화면으로 실증, FastAPI가 `/`에 직접 서빙. 결정/스펙은 `docs/plans/2026-06-03-frontend-slice4.md`.
+    - `[ ]` 옵션 A(별도 트랙): Next.js/Vite SPA + PixiJS Canvas 전술 보드 (설계 §3, §4). Node 툴체인·CI Node job 신설. 완료 시 `loops/stream`에 `visual_status` 프레임 합류.
 - `[x]` CI 도입: `.github/workflows/ci.yml` (Python 3.11 setup/lint/typecheck/test).
 
 ## Completed Baseline

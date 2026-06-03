@@ -15,6 +15,15 @@ YYYY-MM-DD
 
 ## 2026-06-03
 
+- Status: [x] API 이미지 경로 라이브 E2E 검증 + WS 폴링 창 상향.
+- Changed:
+  - 실가동 인프라(Postgres/MinIO/Redis + 실행 중 visual worker + Ollama)에서 API begin(async image)→Redis→worker→FLUX→MinIO→DB `succeeded`까지 실제 동작 확인. `/assets/resolve` presigned URL HTTP GET → 200/image/png/유효 PNG(1.1MB).
+  - 발견: 실 FLUX 1024px 생성이 WS 30s 폴링 창을 초과 → `src/mythos_api/app.py`의 `_VISUAL_POLL_TRIES` 30→90으로 상향(느린 생성에서도 succeeded 프레임 전달). 단위 테스트/lint/typecheck 무영향.
+- Verified: 위 라이브 E2E PASS, `tests/test_api.py`(21) 통과.
+- Next: (선택) 옵션 A 풀 SPA, provider 메트릭 영속 집계, JSONB→전용 테이블 migration.
+
+## 2026-06-03
+
 - Status: [x] P3 consolidation(`make api` + `docs/API.md`) + provider 품질 메트릭 OTel/로그 방출.
 - Changed:
   - `Makefile`: `make api`/`api-stop` 타겟, `make setup`이 `.[dev,web]` 설치. `docs/API.md`(신규): 실행법/엔드포인트표/WS 프레임/RuntimeSnapshot 형태.

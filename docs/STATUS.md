@@ -20,6 +20,7 @@ Project MythOS 로컬 플레이어블 MVP는 구현 완료 상태다. Streamlit 
 - `make test` (181 tests, 2 skipped)
 - `mythos_api` FastAPI `/api/v1` 어댑터: `tests/test_api.py`(21) — health/connect/begin/active/choose/combat REST + WebSocket `loops/stream`(begin→token→snapshot, 동일 소켓 choose, 오류 프레임) + `assets/resolve`(presigned URL) + 정적 PoC 클라이언트(`/`, `/app.js`, API 비가림) + visual_status 프레임 로직(`_terminal_visual_frame`/`_find_asset`)을 in-memory store TestClient로 검증(DB/Ollama/FLUX 불요). `MinIOStorageAdapter.presigned_url`은 boto3 mock 단위 테스트로 검증.
 - API 라이브 부팅: `python -m mythos_api` → `/`·`/app.js`·`/api/v1/health` 200, `auth/connect`이 실제 Postgres에 플레이어 기록 확인.
+- **이미지 경로 라이브 E2E 검증(2026-06-03)**: 실가동 인프라(Postgres/MinIO/Redis + 실행 중 visual worker + Ollama)에서 API begin(async image)→Redis 큐→worker→FLUX 생성→MinIO 저장(`s3://mythos-assets/...`)→DB asset `succeeded`까지 동작 확인. `/assets/resolve` presigned URL을 HTTP GET 시 200·image/png·유효 PNG(1.1MB) 반환. 단, 실 FLUX 생성이 WS 기존 30s 폴링 창을 초과해 `_VISUAL_POLL_TRIES`를 90s로 상향(느린 생성에서도 succeeded 프레임 전달).
 - `make typecheck`
 - `make smoke-local`
 - Streamlit headless boot 200 OK

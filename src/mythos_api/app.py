@@ -35,9 +35,11 @@ STATIC_DIR = Path(__file__).parent / "static"
 
 # Terminal vs. in-flight image asset statuses, and bounded polling for the
 # async (Redis worker) path so a never-finishing job can't hang the socket.
+# The window must comfortably cover a real FLUX generation: a live run on MPS
+# at 1024px exceeded 30s, so the succeeded frame was missed; 90s gives margin.
 _TERMINAL_VISUAL = {"succeeded", "failed", "disabled"}
 _VISUAL_POLL_INTERVAL_S = 1.0
-_VISUAL_POLL_TRIES = 30
+_VISUAL_POLL_TRIES = 90
 
 
 # --- Request models ---------------------------------------------------------

@@ -161,26 +161,47 @@ class MinIOStorageAdapter:
     secret_key: str = os.getenv("S3_SECRET_KEY", "mythos-local-secret")
     bucket: str = os.getenv("S3_BUCKET_ASSETS", "mythos-assets")
 
-    def store(self, source_path: Path, request: VisualGenerationRequest) -> str:
+    def _client(self):  # type: ignore[no-untyped-def]
         try:
             import boto3
         except ImportError as exc:
-            raise RuntimeError("boto3 is required for MinIO uploads") from exc
-
-        key = f"images/{request.player_id}/{request.loop_id}/{request.scene_id}.png"
-        client = boto3.client(
+            raise RuntimeError("boto3 is required for MinIO/S3 access") from exc
+        return boto3.client(
             "s3",
             endpoint_url=self.endpoint_url,
             aws_access_key_id=self.access_key,
             aws_secret_access_key=self.secret_key,
         )
-        client.upload_file(
+
+    def store(self, source_path: Path, request: VisualGenerationRequest) -> str:
+        key = f"images/{request.player_id}/{request.loop_id}/{request.scene_id}.png"
+        self._client().upload_file(
             str(source_path),
             self.bucket,
             key,
             ExtraArgs={"ContentType": "image/png"},
         )
         return f"s3://{self.bucket}/{key}"
+
+    def presigned_url(self, storage_uri: str, expires_in: int = 600) -> str:
+        """Sign a time-limited HTTPS GET URL for an ``s3://bucket/key`` address.
+
+        Direct bucket access is not exposed to clients; the read API virtualizes
+        the logical ``storage_uri`` into a short-lived presigned URL (design §5.2).
+        Non-``s3://`` URIs (e.g. local filesystem paths) are returned unchanged.
+        """
+        if not storage_uri.startswith("s3://"):
+            return storage_uri
+        without_scheme = storage_uri[len("s3://") :]
+        bucket, _, key = without_scheme.partition("/")
+        if not key:
+            raise ValueError(f"malformed s3 uri: {storage_uri}")
+        url = self._client().generate_presigned_url(
+            "get_object",
+            Params={"Bucket": bucket, "Key": key},
+            ExpiresIn=expires_in,
+        )
+        return str(url)
 
 
 class VisualService:

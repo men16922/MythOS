@@ -345,3 +345,36 @@ class VisualServiceTest(unittest.TestCase):
             image_encoder_folder=None,
         )
         self.assertEqual(pipe, mock_flux_instance)
+
+
+class MinIOPresignTest(unittest.TestCase):
+    def test_non_s3_uri_returns_unchanged(self) -> None:
+        from mythos_runtime.visual_service import MinIOStorageAdapter
+
+        adapter = MinIOStorageAdapter()
+        self.assertEqual(adapter.presigned_url("/tmp/a.png"), "/tmp/a.png")
+
+    def test_malformed_s3_uri_raises(self) -> None:
+        from mythos_runtime.visual_service import MinIOStorageAdapter
+
+        adapter = MinIOStorageAdapter()
+        with self.assertRaises(ValueError):
+            adapter.presigned_url("s3://bucket-only")
+
+    @unittest.mock.patch("boto3.client")
+    def test_s3_uri_is_presigned(self, mock_client_factory) -> None:
+        from mythos_runtime.visual_service import MinIOStorageAdapter
+
+        mock_client = unittest.mock.MagicMock()
+        mock_client.generate_presigned_url.return_value = "https://signed/url"
+        mock_client_factory.return_value = mock_client
+
+        adapter = MinIOStorageAdapter(bucket="mythos-assets")
+        url = adapter.presigned_url("s3://mythos-assets/images/p/l/s.png", expires_in=120)
+
+        self.assertEqual(url, "https://signed/url")
+        mock_client.generate_presigned_url.assert_called_once_with(
+            "get_object",
+            Params={"Bucket": "mythos-assets", "Key": "images/p/l/s.png"},
+            ExpiresIn=120,
+        )

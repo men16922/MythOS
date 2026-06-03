@@ -20,7 +20,7 @@ from fastapi.testclient import TestClient
 from test_session_combat import _InMemoryStore, _seed_loop
 
 from mythos_api.app import create_app
-from mythos_api.service import get_service
+from mythos_api.service import get_service, get_storage_adapter
 from mythos_runtime.session import RuntimeSessionService
 
 
@@ -155,6 +155,49 @@ class ApiStreamTest(unittest.TestCase):
             ws.send_json({"event": "begin", "player_id": "ghost", "fallback": True})
             frame = ws.receive_json()
             self.assertEqual(frame["type"], "error")
+
+
+class _FakeStorage:
+    """Storage adapter stub that signs s3 URIs without hitting boto3/MinIO."""
+
+    def presigned_url(self, storage_uri: str, expires_in: int = 600) -> str:
+        if not storage_uri.startswith("s3://"):
+            return storage_uri
+        return f"https://signed.example/{storage_uri[len('s3://'):]}?ttl={expires_in}"
+
+
+class ApiAssetResolveTest(unittest.TestCase):
+    def test_non_s3_uri_passes_through(self) -> None:
+        # Real adapter, but non-s3 input returns early without any boto3 call.
+        client = _client(_InMemoryStore())
+        response = client.post(
+            "/api/v1/assets/resolve",
+            json={"storage_uri": "/tmp/outputs/scene.png"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["url"], "/tmp/outputs/scene.png")
+
+    def test_malformed_s3_uri_is_bad_request(self) -> None:
+        client = _client(_InMemoryStore())
+        response = client.post(
+            "/api/v1/assets/resolve",
+            json={"storage_uri": "s3://bucket-only"},
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_s3_uri_is_presigned(self) -> None:
+        app = create_app()
+        app.dependency_overrides[get_storage_adapter] = lambda: _FakeStorage()
+        client = TestClient(app)
+        response = client.post(
+            "/api/v1/assets/resolve",
+            json={"storage_uri": "s3://mythos-assets/images/p/l/s.png", "expires_in": 120},
+        )
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body["expires_in"], 120)
+        self.assertTrue(body["url"].startswith("https://signed.example/"))
+        self.assertIn("ttl=120", body["url"])
 
 
 class ApiCombatFlowTest(unittest.TestCase):

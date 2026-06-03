@@ -20,10 +20,11 @@ from pydantic import BaseModel, Field
 from starlette.concurrency import iterate_in_threadpool
 
 from mythos_api.serializers import player_to_dict, snapshot_to_dict
-from mythos_api.service import get_service
+from mythos_api.service import get_service, get_storage_adapter
 from mythos_runtime.combat_server import combat_action_response, combat_state_response
 from mythos_runtime.options import RuntimeOptions, RuntimeStreamEvent
 from mythos_runtime.session import RuntimeSessionService
+from mythos_runtime.visual_service import MinIOStorageAdapter
 
 API_PREFIX = "/api/v1"
 
@@ -62,6 +63,11 @@ class CombatActionRequest(BaseModel):
     loop_id: str = Field(min_length=1)
     action: dict[str, Any]
     scenario_id: str = "neo-seoul"
+
+
+class AssetResolveRequest(BaseModel):
+    storage_uri: str = Field(min_length=1)
+    expires_in: int = Field(default=600, ge=1, le=86400)
 
 
 # --- Error mapping ----------------------------------------------------------
@@ -216,6 +222,19 @@ def create_app() -> FastAPI:
             )
         except RuntimeError as exc:
             raise _as_http_error(exc) from exc
+
+    @app.post(f"{API_PREFIX}/assets/resolve")
+    def resolve_asset(
+        body: AssetResolveRequest,
+        storage: MinIOStorageAdapter = Depends(get_storage_adapter),
+    ) -> dict[str, Any]:
+        # Virtualize the logical s3:// storage_uri into a short-lived presigned
+        # HTTPS URL; non-s3 URIs pass through unchanged (design §5.2).
+        try:
+            url = storage.presigned_url(body.storage_uri, expires_in=body.expires_in)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        return {"url": url, "expires_in": body.expires_in}
 
     @app.websocket(f"{API_PREFIX}/loops/stream")
     async def loops_stream(

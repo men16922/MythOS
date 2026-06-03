@@ -13,6 +13,7 @@ from collections.abc import Iterator
 
 from mythos_memory import PostgresMythOSStore
 from mythos_runtime.session import RuntimeSessionService
+from mythos_runtime.visual_service import MinIOStorageAdapter
 
 
 def get_service() -> Iterator[RuntimeSessionService]:
@@ -22,3 +23,8 @@ def get_service() -> Iterator[RuntimeSessionService]:
         yield RuntimeSessionService(store)
     finally:
         store.close()
+
+
+def get_storage_adapter() -> MinIOStorageAdapter:
+    """FastAPI dependency yielding the S3/MinIO adapter for URL signing."""
+    return MinIOStorageAdapter()

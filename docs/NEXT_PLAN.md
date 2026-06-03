@@ -108,15 +108,19 @@
     - `[ ]` 옵션 A(별도 트랙): Next.js/Vite SPA + PixiJS Canvas 전술 보드 (설계 §3, §4). Node 툴체인·CI Node job 신설.
 - `[x]` CI 도입: `.github/workflows/ci.yml` (Python 3.11 setup/lint/typecheck/test).
 
-### 7. 레퍼런스 기반 내러티브 & 전술 피드백 반영 (Backlog)
+### 7. 게임플레이 깊이 — 레퍼런스 기반 내러티브 & 전술 (★ 활성 우선순위)
 
-[reference_feedback_list.md](file:///Users/men1692/.gemini/antigravity-cli/brain/b647f336-dc52-4ac3-b66b-2f71d3bef114/reference_feedback_list.md) 분석에 기반하여 차기 버전에서 대응할 백로그 항목들입니다.
+**현재 우선 트랙이다.** 공유 계층(엔진/내러티브/전투)을 깊게 만드는 작업이라 Streamlit(현 플레이 레이어)과 API 버전에 동시 반영된다. UI 표면은 이미 풍부하므로, 플레이 깊이를 높이는 데 집중한다. (두 프론트 차이: `docs/STREAMLIT_VS_API.md`)
 
-- `[ ]` **자원 제약형 선택지 (Citizen Sleeper)**: `stability` / `tension` 임계값 도달 시 강제 불이익 선택지 락 또는 자원 소모형 액션 프레임워크 구축.
-- `[ ]` **스탯 기반 내면 독백 분화 (Disco Elysium)**: 최고 스탯 성향에 대응하는 내면 지문을 AI GM이 생성할 수 있도록 Prompt/Context 주입기 구현.
-- `[ ]` **루프 내러티브 잔향 (Slay the Princess)**: `RunSummary` 핵심 결정을 다음 루프의 `NarrativeContext`로 연계하여 NPC 반응 분화.
-- `[ ]` **적 인텐트 가시화 (Into the Breach)**: `CombatService` 및 전술 보드 렌더러에 적의 다음 턴 행동 의도(Intent) 표시.
-- `[ ]` **동료 전술 성향 다각화 (Shadowrun)**: `ally` 캐릭터성(서포터, 스트라이커 등)에 맞춘 커스텀 AI 전략 및 스킬 자동 가동.
+우선순위:
+
+- `[ ]` **P1 — 루프 내러티브 잔향 (Slay the Princess)**: `RunSummary` 핵심 결정을 다음 루프의 `NarrativeContext`로 연계하여 NPC 반응/씬 분화. 루프형 게임 정체성의 핵심. 백엔드(narrative/runtime) 중심, 양쪽 프론트 자동 반영.
+- `[ ]` **P2 — 자원 제약형 선택지 (Citizen Sleeper)**: `stability`/`tension` 임계값 도달 시 강제 불이익 선택지 락 또는 자원 소모형 액션 프레임워크. 스테이크/긴장 부여.
+- `[ ]` **P3 — 적 인텐트 가시화 (Into the Breach)**: `CombatService`가 적의 다음 턴 의도(Intent)를 노출하고, 전투 보드(Streamlit iframe + API radar)에 렌더. 전술 깊이.
+- `[ ]` **P4 — 스탯 기반 내면 독백 분화 (Disco Elysium)**: 최고 스탯 성향에 대응하는 내면 지문을 AI GM이 생성하도록 Prompt/Context 주입.
+- `[ ]` **P4 — 동료 전술 성향 다각화 (Shadowrun)**: `ally` 캐릭터성(서포터/스트라이커)에 맞춘 커스텀 AI 전략·스킬 자동 가동. (동료 자동 힐/회피는 이미 구현됨 — 성향 분화가 후속.)
+
+> §6 PoC→Streamlit 패리티(S2~)는 **보류**(필요 시 기회적). 순수 단일 프론트 UI 폴리시는 회수가 낮으므로 깊이 작업 이후로 미룬다.
 
 
 ## Completed Baseline

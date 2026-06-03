@@ -28,7 +28,8 @@
 - 최신 Player View hotfix: `새 게임 시작`은 선택 player가 없어도 player 생성 후 시작한다. `"null"` combat request sentinel은 무시한다. 오프닝 시네마틱은 raw HTML 노출 방지를 위해 iframe으로 렌더한다.
 - P3 Web UI 디커플링 slice 1·2·3·4(B) 완료: `src/mythos_api/`가 `RuntimeSessionService`를 FastAPI `/api/v1` REST(`auth/connect`, `loops/begin|active|choose`, `combat/begin|action`, `health`) + WebSocket 토큰 스트리밍 + `visual_status` 이미지 프레임(`loops/stream`) + 자산 presigned URL 변환(`assets/resolve`)으로 노출하고, 경량 PoC 클라이언트(`static/{index.html,app.js}`)를 `/`에 서빙. WS begin/choose가 `with_image`/`visual_async`로 이미지 생성을 트리거하고 완성 시 presigned URL을 푸시한다(글 먼저, 그림은 나중에 채움). Streamlit 무변경 추가형, optional `web` extra, `python -m mythos_api`로 실행. 테스트는 `tests/test_api.py`(in-memory TestClient, 21 tests). 분산 visual worker는 `visual_worker.py`로 기존 구현됨.
 - 이미지 경로는 라이브 E2E 검증됨(begin→worker→FLUX→MinIO→presigned→GET 200/PNG). PoC는 Streamlit과 별개의 레퍼런스 클라이언트다.
-- 그다음(선택): (a) PoC UI/UX 개선 — Streamlit UX 언어(녹청 터미널·command-card·HUD·이미지 크기 통제) 참고, 빌드리스 유지. 방안 `docs/plans/2026-06-03-poc-ux-improvement.md`. (b) 옵션 A 풀 Next.js/Vite SPA + PixiJS Canvas. 프론트 결정 `docs/plans/2026-06-03-frontend-slice4.md`, 백엔드 설계 `docs/plans/2026-06-03-web-ui-decoupling.md`.
+- **현재 방향(2026-06-03): 게임플레이 깊이 우선.** 두 번째 프론트 UI 복제(PoC 패리티 S2~)보다 공유 계층(엔진/내러티브/전투) 깊이를 키운다 — Streamlit·API 양쪽에 동시 반영되기 때문. 활성 백로그는 `NEXT_PLAN` §7(P1 루프 내러티브 잔향 → P2 자원 제약 선택지 → P3 적 인텐트 → P4 내면 독백/동료 성향). 두 프론트 차이는 `docs/STREAMLIT_VS_API.md`.
+- 보류(기회적): PoC UX(`docs/plans/2026-06-03-poc-ux-improvement.md`)·패리티(`docs/plans/2026-06-03-poc-parity-roadmap.md`)·옵션 A 풀 SPA. API 백엔드(`mythos_api`)는 완성·유지.
 
 ## Read Order
 

@@ -15,6 +15,16 @@ YYYY-MM-DD
 
 ## 2026-06-03
 
+- Status: [x] 방향 전환 — 게임플레이 깊이 우선(공유 계층). docs 최신화.
+- Changed:
+  - 결정: 두 번째 프론트(API/PoC) UI 복제(패리티 S2~)보다 공유 계층(엔진/내러티브/전투) 게임플레이 깊이를 우선. 근거: 게임은 UI 표면은 풍부하나 플레이 깊이가 얕고, 공유 계층 작업은 Streamlit(현 플레이 레이어)·API 양쪽에 동시 반영되어 프론트 방향과 무관하게 회수됨.
+  - `NEXT_PLAN` §7을 "게임플레이 깊이(★ 활성 우선순위)"로 승격·재정렬: P1 루프 내러티브 잔향 → P2 자원 제약형 선택지 → P3 적 인텐트 가시화 → P4 내면 독백/동료 전술 성향. §6 PoC 패리티(S2~)는 보류.
+  - `STATUS` Active Focus·`AGENT_BRIEF` 방향 갱신. 두 프론트 차이는 `docs/STREAMLIT_VS_API.md`.
+- Verified: 문서 작업(코드 변경 없음).
+- Next: P1 루프 내러티브 잔향 — `RunSummary` 핵심 결정 → 다음 루프 `NarrativeContext` 연계.
+
+## 2026-06-03
+
 - Status: [x] 온보딩 화면 노출 버그 수정 + Streamlit/API 비교 문서.
 - Changed:
   - 버그: 시작 전 `#play`가 `hidden`인데도 빈 플레이 영역(게이지/로그)이 온보딩 아래 노출됨. 원인은 `main { display: grid }`가 `hidden` 속성을 덮어씀 → `[hidden] { display: none !important; }` 추가로 수정.

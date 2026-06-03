@@ -48,10 +48,10 @@ Project MythOS 로컬 플레이어블 MVP는 구현 완료 상태다. Streamlit 
 
 ## Active Focus
 
-P2 IP-Adapter 캐릭터 일관성, P1 비주얼 레이턴시 계측은 코드 반영·커밋 완료. **P3 Web UI 디커플링 실구현에 착수했고 slice 1(FastAPI `/api/v1` REST 어댑터)을 완료**했다.
+**방향 전환(2026-06-03): 두 번째 프론트(API/PoC) UI 복제보다 공유 계층의 게임플레이 깊이를 우선한다.** 근거: 게임은 UI 표면은 풍부하나 플레이 깊이가 얕고, 엔진/내러티브/전투(공유 계층) 작업은 Streamlit(현 플레이 레이어, `DECISIONS` "Keep Streamlit As MVP Demo Layer")과 API 버전에 **동시 반영**되어 프론트 방향과 무관하게 낭비가 없다. 두 프론트 차이는 `docs/STREAMLIT_VS_API.md` 참조.
 
-- `mythos_api` 패키지(신규): `create_app` 팩토리가 `RuntimeSessionService`를 `/api/v1`로 노출(`auth/connect`, `loops/begin|active|choose`, `combat/begin|action`, `health`) + WebSocket 토큰 스트리밍 + `visual_status` 이미지 프레임(`loops/stream`, §2.2) + 자산 presigned URL 변환(`assets/resolve`, §5.2) + 경량 PoC 클라이언트(`/`에 `static/{index.html,app.js}` 서빙). WS begin/choose가 `with_image`/`visual_async`를 받아 이미지 생성을 트리거하고, 완성 시 presigned URL을 푸시한다. Streamlit 무변경 추가형. optional `web` extra(`pip install -e ".[web]"`), 실행은 `python -m mythos_api`(또는 `mythos-api`).
-- 다음 트랙(선택): (a) PoC UI/UX 개선 — 라이브 스크린샷 기준 이미지 크기 통제·본문 가독성·선택지 command-card·HUD 게이지·녹청 터미널 팔레트 통일·전투 캔버스 보강. Streamlit UX 언어 참고, 빌드리스 유지. 방안 `docs/plans/2026-06-03-poc-ux-improvement.md`. (b) 옵션 A 풀 Next.js/Vite SPA + PixiJS Canvas(§3,§4, Node 툴체인). 권위 설계 `docs/plans/2026-06-03-web-ui-decoupling.md`, 프론트 결정 `docs/plans/2026-06-03-frontend-slice4.md`.
+- 다음 작업: `NEXT_PLAN` §7 레퍼런스 기반 게임플레이 깊이 백로그. 우선순위 P1 루프 내러티브 잔향 → P2 자원 제약형 선택지 → P3 적 인텐트 가시화 → P4 스탯 기반 내면 독백/동료 전술 성향.
+- 완료 인프라(유지): P3 Web UI 디커플링 백엔드(`mythos_api` FastAPI `/api/v1` REST + WS 스트리밍 + `visual_status` + presigned + PoC 클라이언트), PoC UX(팔레트/레이아웃/HUD/전투 조작)와 S1 온보딩/세션. PoC→Streamlit 패리티(S2~) 트랙은 **보류**(필요 시 기회적으로). 옵션 A 풀 SPA 전환은 S3~S4 재평가 지점.
 
 ## Completed Tracks
 

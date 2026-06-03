@@ -15,6 +15,15 @@ YYYY-MM-DD
 
 ## 2026-06-03
 
+- Status: [x] PoC UI/UX Phase 2·3 — 전투 캔버스/타입라이터 + 반응형/로그 마감.
+- Changed:
+  - `src/mythos_api/static/app.js`(Phase 2): 전투 캔버스가 실제 `radar.arena.w/h` 사용·컨테이너 폭 반응형(dpr). blip 팩션 색·이름 라벨·HP 막대(비율 색)·사망 디밍·현재 턴 노란 링·방어 호·`available.reachable` 사거리 셀 하이라이트. 타입라이터: 토큰 큐 → 글자 단위 적응적 출력, 완료 후 캐럿 제거 + 선택지 노출.
+  - `src/mythos_api/static/index.html`(Phase 3): main max-width 1320px 중앙 정렬, 560/900px 반응형, 접이식 로그 `<details>`, 터미널 스크롤바.
+- Verified: `tests/test_api.py`(21) 통과, `node --check app.js` OK, 라이브 부팅 `/` 200 + gauge/command-card/log-panel/image-frame 서빙 확인. 브라우저 육안·전투 캔버스 실트리거는 사용자 확인 예정.
+- Next: PoC UX 방안 3 Phase 모두 완료. (선택) 옵션 A 풀 SPA 또는 reference 백로그 항목.
+
+## 2026-06-03
+
 - Status: [x] PoC UI/UX Phase 1 구현 — 녹청 터미널 팔레트·레이아웃·선택지 카드·HUD·이미지 통제.
 - Changed:
   - `src/mythos_api/static/index.html`+`app.js`: 시안/블루 → Streamlit 녹청 터미널 팔레트(스캔라인·글로우·SF Mono). 본문 중심 2단 레이아웃(좌 씬 카드 + 우 340px aside), 내러티브 70ch·15.5px + 스트리밍 캐럿. 선택지를 command-card([n] 핫키+라벨+intent, hover 글로우, 키보드 1-9)로. HUD STABILITY/TENSION 게이지 막대(위험도 색) + 루프/국면/위치 메타. 이미지 full-bleed → aspect 1:1 프레임 크기 통제 + 플레이스홀더/페이드인.

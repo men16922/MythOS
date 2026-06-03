@@ -103,7 +103,7 @@
   - `[x]` slice 3: S3 presigned URL 자산 전달 (설계 §5.2). 분산 visual worker(`visual_worker.py`, Redis BRPOP+heartbeat)는 기존 구현됨. `MinIOStorageAdapter.presigned_url` + `POST /api/v1/assets/resolve`로 논리 s3:// URI를 만료시간 있는 HTTPS URL로 가상화.
   - `[x]` visual_status WS 합류: WS begin/choose에 `with_image`/`visual_async` 전달, snapshot 후 `_emit_visual_status`가 씬 이미지 라이프사이클을 `visual_status`(pending→processing→succeeded+presigned url/failed) 프레임으로 스트리밍. 동기는 즉시 terminal, 비동기는 store 폴링. PoC는 "이미지" 토글로 표시.
   - `[~]` slice 4: 프론트엔드. **옵션 B(경량 PoC 레퍼런스 클라이언트) 완료** — `src/mythos_api/static/{index.html,app.js}` vanilla JS가 connect→WS begin→토큰 스트림→choose→이미지(visual_status)→combat blip을 한 화면으로 실증, FastAPI가 `/`에 직접 서빙. 결정/스펙은 `docs/plans/2026-06-03-frontend-slice4.md`.
-    - `[x]` PoC UI/UX 개선(Streamlit UX 언어 참고, 빌드리스). 방안: `docs/plans/2026-06-03-poc-ux-improvement.md`. **Phase 1·2·3 완료** — 녹청 터미널 팔레트·본문 중심 2단 레이아웃·command-card 선택지(+키보드)·HUD 게이지·이미지 aspect 프레임(P1); 전투 캔버스 반응형/라벨/HP/사거리 링·타입라이터(P2); 와이드 중앙정렬/반응형·접이식 로그(P3). 브라우저 육안은 사용자 확인.
+    - `[x]` PoC UI/UX 개선(Streamlit UX 언어 참고, 빌드리스). 방안: `docs/plans/2026-06-03-poc-ux-improvement.md`. **Phase 1·2·3 + 전투 플레이어블 완료** — 녹청 터미널 팔레트·2단 레이아웃·command-card 선택지·HUD 게이지·이미지 프레임(P1); 전투 캔버스 반응형/라벨/HP/사거리 링·타입라이터(P2); 반응형/접이식 로그(P3); **전투 조작 컨트롤**(표적/공격/스킬/방어/도주·보드 클릭 이동·`combat/action` 루프·종료 배너). 브라우저 육안은 사용자 확인.
     - `[ ]` 옵션 A(별도 트랙): Next.js/Vite SPA + PixiJS Canvas 전술 보드 (설계 §3, §4). Node 툴체인·CI Node job 신설.
 - `[x]` CI 도입: `.github/workflows/ci.yml` (Python 3.11 setup/lint/typecheck/test).
 

@@ -15,6 +15,17 @@ YYYY-MM-DD
 
 ## 2026-06-03
 
+- Status: [x] PoC 전투 플레이어블화 — combat action 컨트롤(스크린샷 피드백 반영).
+- Changed:
+  - 피드백: 전투 진입 시 보드만 보이고 조작 수단이 없었음.
+  - `src/mythos_api/static/index.html`: 좌측 씬 패널에 `#combat-controls` + 스타일(표적 칩·행동/스킬 버튼·FOCUS/라운드 바·종료 배너).
+  - `src/mythos_api/static/app.js`: 스냅샷 combat 활성 시 choices 대신 전투 컨트롤(finalizeScene 분기). `combat.available` 기반 표적(사거리)·공격/방어/대기/도주·스킬(쿨다운). `doCombatAction`→`POST /api/v1/combat/action`로 prose·보드·컨트롤 갱신. 보드 reachable 칸 클릭 이동. 종료 outcome 배너(승리/도주→계속 WS choose, 패배→새 루프).
+  - `tests/test_api.py`: app.js가 `combat/action`을 구동하는지 검증.
+- Verified: `tests/test_api.py`(21) 통과, `node --check app.js` OK, 라이브 flow(connect→begin→combat/begin→action) 200·타깃/스킬/reachable/prose 확인.
+- Next: 브라우저 육안(스크린샷) 확인 후 추가 조정. (선택) 옵션 A 풀 SPA.
+
+## 2026-06-03
+
 - Status: [x] PoC UI/UX Phase 2·3 — 전투 캔버스/타입라이터 + 반응형/로그 마감.
 - Changed:
   - `src/mythos_api/static/app.js`(Phase 2): 전투 캔버스가 실제 `radar.arena.w/h` 사용·컨테이너 폭 반응형(dpr). blip 팩션 색·이름 라벨·HP 막대(비율 색)·사망 디밍·현재 턴 노란 링·방어 호·`available.reachable` 사거리 셀 하이라이트. 타입라이터: 토큰 큐 → 글자 단위 적응적 출력, 완료 후 캐럿 제거 + 선택지 노출.

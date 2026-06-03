@@ -1945,7 +1945,15 @@ def _render_blackout_frame(image_path: Path) -> None:
 def _player_session_intro(
     snapshot: RuntimeSnapshot, options: RuntimeOptions, copy: dict[str, Any]
 ) -> None:
-    _render_audio(snapshot)
+    import dataclasses
+
+    bgm_main_path = PROJECT_ROOT / "resources" / options.scenario_id / "audio" / "bgm_main.wav"
+    if bgm_main_path.exists():
+        temp_snapshot = dataclasses.replace(snapshot, bgm_path=str(bgm_main_path))
+    else:
+        temp_snapshot = snapshot
+    _render_audio(temp_snapshot)
+
     intro = copy.get("session_intro", {})
     if not isinstance(intro, dict):
         intro = {}
@@ -1996,11 +2004,13 @@ def _player_session_intro(
 
 
 def _render_opening_cinematic(intro: dict[str, Any], scenario_id: str) -> bool:
+    import json
+
     raw_shots = intro.get("cinematic_shots", [])
     if not isinstance(raw_shots, list):
         return False
 
-    shot_markup = []
+    shots_data = []
     for raw in raw_shots:
         if not isinstance(raw, dict):
             continue
@@ -2009,27 +2019,30 @@ def _render_opening_cinematic(intro: dict[str, Any], scenario_id: str) -> bool:
         if not rel_image or not image_path.exists():
             continue
         encoded = base64.b64encode(image_path.read_bytes()).decode("ascii")
-        shot_markup.append(
-            f"""
-            <div class="opening-shot">
-              <img src="data:image/png;base64,{encoded}" alt="{html.escape(str(raw.get("title", "opening")))}" />
-              <div class="opening-shot-copy">
-                <div class="opening-shot-kicker">{html.escape(str(raw.get("kicker", "OPENING")))}</div>
-                <div class="opening-shot-title">{html.escape(str(raw.get("title", "")))}</div>
-                <div class="opening-shot-body">{html.escape(str(raw.get("body", "")))}</div>
-              </div>
-            </div>
-            """
+        shots_data.append(
+            {
+                "image_base64": f"data:image/png;base64,{encoded}",
+                "kicker": str(raw.get("kicker", "OPENING")),
+                "title": str(raw.get("title", "")),
+                "body": str(raw.get("body", "")),
+            }
         )
 
-    if not shot_markup:
+    if not shots_data:
         return False
 
-    st.iframe(_opening_cinematic_html("".join(shot_markup)), height=560)
+    glitch_path = PROJECT_ROOT / "resources" / scenario_id / "audio" / "sfx" / "sfx_glitch.wav"
+    glitch_audio_data_uri = ""
+    if glitch_path.exists():
+        glitch_base64 = base64.b64encode(glitch_path.read_bytes()).decode("ascii")
+        glitch_audio_data_uri = f"data:audio/wav;base64,{glitch_base64}"
+
+    shots_json = json.dumps(shots_data, ensure_ascii=False)
+    st.iframe(_opening_cinematic_html(shots_json, glitch_audio_data_uri), height=560)
     return True
 
 
-def _opening_cinematic_html(shots_html: str) -> str:
+def _opening_cinematic_html(shots_json: str, glitch_audio_data_uri: str) -> str:
     return f"""<!DOCTYPE html>
 <html>
 <head>
@@ -2038,12 +2051,11 @@ def _opening_cinematic_html(shots_html: str) -> str:
   html, body {{
     background: transparent;
     margin: 0;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
     overflow: hidden;
   }}
   .opening-cinema {{
-    background:
-      linear-gradient(180deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.78)),
-      rgba(0, 10, 9, 0.9);
+    background: rgba(3, 8, 15, 0.95);
     border: 1px solid rgba(41, 255, 198, 0.34);
     border-radius: 6px;
     box-shadow: 0 0 32px rgba(41, 255, 198, 0.12);
@@ -2053,34 +2065,52 @@ def _opening_cinematic_html(shots_html: str) -> str:
     position: relative;
     width: 100%;
   }}
-  .opening-cinema-grid {{
-    background: rgba(41, 255, 198, 0.22);
-    display: grid;
-    gap: 1px;
-    grid-template-columns: 1fr;
-    height: 100%;
-  }}
-  .opening-shot {{
-    background: #020706;
-    min-height: 0;
-    overflow: hidden;
+  .slide-container {{
     position: relative;
+    width: 100%;
+    height: 380px;
+    overflow: hidden;
+    background: #020706;
   }}
-  .opening-shot img {{
-    filter: saturate(1.08) contrast(1.05);
+  .slide-img {{
+    width: 100%;
     height: 100%;
-    inset: 0;
     object-fit: cover;
     position: absolute;
-    width: 100%;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
   }}
-  .opening-shot::after {{
+  .slide-img.active {{
+    opacity: 1;
+    z-index: 1;
+  }}
+  
+  /* Ken Burns Effect */
+  @keyframes kenburns-1 {{
+    0% {{ transform: scale(1.0) translate(0, 0); }}
+    100% {{ transform: scale(1.15) translate(-1%, -2%); }}
+  }}
+  @keyframes kenburns-2 {{
+    0% {{ transform: scale(1.15) translate(1%, 2%); }}
+    100% {{ transform: scale(1.0) translate(0, 0); }}
+  }}
+  .kenburns-active-1 {{
+    animation: kenburns-1 10s ease-out forwards;
+  }}
+  .kenburns-active-2 {{
+    animation: kenburns-2 10s ease-out forwards;
+  }}
+
+  /* Scanlines Overlay */
+  .scanlines {{
     background:
-      linear-gradient(180deg, transparent 20%, rgba(0, 0, 0, 0.82) 100%),
+      linear-gradient(180deg, transparent 20%, rgba(0, 0, 0, 0.5) 100%),
       repeating-linear-gradient(
         0deg,
-        rgba(41, 255, 198, 0.08) 0,
-        rgba(41, 255, 198, 0.08) 1px,
+        rgba(41, 255, 198, 0.04) 0,
+        rgba(41, 255, 198, 0.04) 1px,
         transparent 2px,
         transparent 5px
       );
@@ -2088,50 +2118,291 @@ def _opening_cinematic_html(shots_html: str) -> str:
     inset: 0;
     pointer-events: none;
     position: absolute;
+    z-index: 2;
   }}
-  .opening-shot-copy {{
-    bottom: 0;
-    left: 0;
+
+  /* Glitch Screen Filter */
+  @keyframes glitch-anim {{
+    0% {{
+      filter: hue-rotate(0deg) contrast(1) saturate(1);
+      transform: skew(0deg);
+    }}
+    10% {{
+      filter: hue-rotate(90deg) contrast(1.5) saturate(1.8) brightness(1.2);
+      transform: skew(5deg) scaleY(1.05);
+    }}
+    20% {{
+      filter: hue-rotate(-90deg) contrast(2) saturate(2) brightness(0.8);
+      transform: skew(-5deg) scaleX(0.95);
+    }}
+    30% {{
+      filter: hue-rotate(0deg) contrast(1.2) saturate(1.2);
+      transform: skew(0deg);
+    }}
+  }}
+  .glitch-active {{
+    animation: glitch-anim 0.3s steps(2) forwards;
+  }}
+
+  /* Text & Caption Panel */
+  .caption-panel {{
+    background: rgba(2, 7, 6, 0.9);
+    border-top: 1px solid rgba(41, 255, 198, 0.2);
+    height: 180px;
     padding: 16px;
-    position: absolute;
-    right: 0;
-    z-index: 1;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 3;
   }}
-  .opening-shot-kicker {{
+  .kicker {{
     color: #29ffc6;
-    font-family: "SF Mono", Menlo, Consolas, monospace;
-    font-size: 0.68rem;
+    font-size: 0.72rem;
     font-weight: 800;
     margin-bottom: 6px;
     text-transform: uppercase;
+    letter-spacing: 1.5px;
   }}
-  .opening-shot-title {{
+  .title {{
     color: #f2fffb;
-    font-family: "SF Mono", Menlo, Consolas, monospace;
-    font-size: 1rem;
+    font-size: 1.05rem;
     font-weight: 900;
-    line-height: 1.35;
+    line-height: 1.4;
+    margin-bottom: 8px;
   }}
-  .opening-shot-body {{
+  .body-text {{
     color: #b8ded6;
-    font-family: "SF Mono", Menlo, Consolas, monospace;
-    font-size: 0.76rem;
-    line-height: 1.5;
-    margin-top: 8px;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    height: 70px;
+    overflow-y: auto;
+  }}
+  .cursor {{
+    display: inline-block;
+    background-color: #29ffc6;
+    width: 6px;
+    height: 12px;
+    margin-left: 2px;
+    animation: blink 0.8s infinite;
+  }}
+  @keyframes blink {{
+    0%, 100% {{ opacity: 0; }}
+    50% {{ opacity: 1; }}
+  }}
+
+  /* Navigation UI */
+  .nav-btn {{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(3, 8, 15, 0.6);
+    border: 1px solid rgba(41, 255, 198, 0.3);
+    color: #29ffc6;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 1rem;
+    z-index: 10;
+    transition: all 0.3s;
+    border-radius: 4px;
+  }}
+  .nav-btn:hover {{
+    background: rgba(41, 255, 198, 0.2);
+    border-color: #29ffc6;
+    box-shadow: 0 0 8px rgba(41, 255, 198, 0.5);
+  }}
+  .btn-prev {{ left: 16px; }}
+  .btn-next {{ right: 16px; }}
+  
+  /* Dots Indicator */
+  .dots-container {{
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+  }}
+  .dot {{
+    width: 8px;
+    height: 8px;
+    background: rgba(41, 255, 198, 0.3);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s;
+  }}
+  .dot.active {{
+    background: #29ffc6;
+    box-shadow: 0 0 8px #29ffc6;
   }}
 </style>
 </head>
 <body>
   <div class="opening-cinema">
-    <div class="opening-cinema-grid">
-      {shots_html}
+    <!-- Image Slideshow -->
+    <div class="slide-container" id="slideContainer">
+      <div class="scanlines"></div>
+      <!-- Dynamically generated slides go here -->
+    </div>
+    
+    <!-- Navigation Buttons -->
+    <button class="nav-btn btn-prev" onclick="prevSlide()">◀</button>
+    <button class="nav-btn btn-next" onclick="nextSlide()">▶</button>
+    
+    <!-- Dots Indicators -->
+    <div class="dots-container" id="dotsContainer"></div>
+
+    <!-- Text Caption Area -->
+    <div class="caption-panel">
+      <div class="kicker" id="kickerText">SHOT 01</div>
+      <div class="title" id="titleText">TITLE</div>
+      <div class="body-text"><span id="bodyText"></span><span class="cursor" id="textCursor"></span></div>
     </div>
   </div>
+
+  <audio id="glitchAudio" preload="auto"></audio>
+
+  <script>
+    const shots = {shots_json};
+    const glitchAudioSrc = "{glitch_audio_data_uri}";
+    let currentIndex = 0;
+    let autoPlayTimer = null;
+    let typingTimer = null;
+
+    // Load Glitch Sound
+    const audioEl = document.getElementById("glitchAudio");
+    if (glitchAudioSrc) {{
+      audioEl.src = glitchAudioSrc;
+    }}
+
+    // Initialize slide images and indicator dots
+    const slideContainer = document.getElementById("slideContainer");
+    const dotsContainer = document.getElementById("dotsContainer");
+
+    shots.forEach((shot, index) => {{
+      // Create Image element
+      const img = document.createElement("img");
+      img.src = shot.image_base64;
+      img.className = "slide-img";
+      img.id = `slide-img-${{index}}`;
+      slideContainer.appendChild(img);
+
+      // Create Dot element
+      const dot = document.createElement("div");
+      dot.className = `dot ${{index === 0 ? 'active' : ''}}`;
+      dot.onclick = () => selectSlide(index);
+      dotsContainer.appendChild(dot);
+    }});
+
+    function playGlitchSFX() {{
+      if (glitchAudioSrc) {{
+        audioEl.currentTime = 0;
+        audioEl.play().catch(err => console.log("Autoplay blocked or audio error:", err));
+      }}
+    }}
+
+    function triggerVisualGlitch() {{
+      const container = document.getElementById("slideContainer");
+      container.classList.remove("glitch-active");
+      // Force repaint to restart animation
+      void container.offsetWidth;
+      container.classList.add("glitch-active");
+    }}
+
+    function typeWriter(text, elementId, speed = 30) {{
+      const element = document.getElementById(elementId);
+      element.innerHTML = "";
+      let i = 0;
+      
+      if (typingTimer) {{
+        clearInterval(typingTimer);
+      }}
+
+      const cursor = document.getElementById("textCursor");
+      cursor.style.display = "inline-block";
+
+      typingTimer = setInterval(() => {{
+        if (i < text.length) {{
+          element.innerHTML += text.charAt(i);
+          i++;
+        }} else {{
+          clearInterval(typingTimer);
+        }}
+      }}, speed);
+    }}
+
+    function showSlide(index) {{
+      // Normalize index
+      if (index >= shots.length) index = 0;
+      if (index < 0) index = shots.length - 1;
+
+      // Reset previous active elements
+      document.querySelectorAll(".slide-img").forEach((img, idx) => {{
+        img.className = "slide-img"; // clear active & kenburns
+      }});
+      document.querySelectorAll(".dot").forEach((dot, idx) => {{
+        dot.classList.toggle("active", idx === index);
+      }});
+
+      // Update current slide image animation style
+      const activeImg = document.getElementById(`slide-img-${{index}}`);
+      activeImg.classList.add("active");
+      
+      // Alternate Ken Burns animation styles to give dynamic feel
+      if (index % 2 === 0) {{
+        activeImg.classList.add("kenburns-active-1");
+      }} else {{
+        activeImg.classList.add("kenburns-active-2");
+      }}
+
+      // Update UI Text
+      const shot = shots[index];
+      document.getElementById("kickerText").textContent = shot.kicker;
+      document.getElementById("titleText").textContent = shot.title;
+      
+      // Typewriter for body text
+      typeWriter(shot.body, "bodyText", 25);
+
+      // Play SFX & trigger screen glitch on transition
+      if (currentIndex !== index) {{
+        playGlitchSFX();
+        triggerVisualGlitch();
+      }}
+
+      currentIndex = index;
+      resetAutoPlay();
+    }}
+
+    function nextSlide() {{
+      showSlide(currentIndex + 1);
+    }}
+
+    function prevSlide() {{
+      showSlide(currentIndex - 1);
+    }}
+
+    function selectSlide(index) {{
+      if (index !== currentIndex) {{
+        showSlide(index);
+      }}
+    }}
+
+    function resetAutoPlay() {{
+      if (autoPlayTimer) {{
+        clearInterval(autoPlayTimer);
+      }}
+      autoPlayTimer = setInterval(nextSlide, 7000); // Change slide every 7 seconds
+    }}
+
+    // Initialize first slide (no glitch sound on initial load to avoid browser blocks)
+    showSlide(0);
+  </script>
 </body>
 </html>"""
 
 
 def _player_active_screen(snapshot: RuntimeSnapshot, options: RuntimeOptions) -> None:
+    if st.session_state.error:
+        st.error(st.session_state.error)
     loop = snapshot.loop
     scene = snapshot.scene
     combat = snapshot.combat
@@ -2202,7 +2473,6 @@ def _player_active_screen(snapshot: RuntimeSnapshot, options: RuntimeOptions) ->
                             lambda service: service.start_loop(loop.player_id, options),
                             on_success=_set_snapshot,
                         )
-                    _render_player_memory(loop, overview)
                 else:
                     # Wrap the interactive controls so they can be cleared the moment
                     # an action is taken: the choices / free-action input disappear
@@ -2272,8 +2542,6 @@ def _player_active_screen(snapshot: RuntimeSnapshot, options: RuntimeOptions) ->
                             stream_placeholder=script_placeholder,
                             initial_text=transcript,
                         )
-
-                    _render_player_memory(loop, overview)
 
         with dossier_col:
             _render_minimap(loop)
@@ -3241,7 +3509,7 @@ def _render_codex_view(
         elif section == "인벤토리":
             _render_codex_inventory(snapshot, overview)
         else:
-            _render_codex_lore(overview)
+            _render_codex_lore(snapshot.loop, overview)
 
 
 def _render_codex_rail(
@@ -3448,8 +3716,26 @@ def _render_codex_characters(snapshot: RuntimeSnapshot, scenario_id: str) -> Non
     _render_character_dossier(None, fallback_all=True, scenario_id=scenario_id)
 
 
-def _render_codex_lore(overview: MemoryOverview) -> None:
+def _render_codex_lore(loop: LoopState, overview: MemoryOverview) -> None:
     st.markdown('<div class="codex-section-title">기억의 별자리</div>', unsafe_allow_html=True)
+
+    # 1. Active Echoes (회상 잔향)
+    if loop.active_echoes:
+        st.subheader(f"회상 잔향 ({len(loop.active_echoes)}개)")
+        st.write("이전 루프에서 남겨진 접속자의 기억 잔해(잔향)들이 현재 세계선에 잔존하여 서사 전개와 인물들의 비의도적 기억 반응에 반영됩니다.")
+        for echo in loop.active_echoes:
+            st.markdown(f"**{echo.symbol}** · {echo.text}")
+        st.divider()
+
+    # 2. Accumulated Loops (압축된 세계선의 기억)
+    if overview.rollup:
+        loop_count = overview.rollup.get("loop_count", 0)
+        st.subheader("압축된 세계선의 기억")
+        st.caption(f"이전 세계들의 흔적 · 총 {loop_count}개의 루프 기록이 기억의 별자리 인프라로 압축되어 영속화되었습니다.")
+        st.divider()
+
+    # 3. Unlocked Lore (해금된 세계 정보)
+    st.subheader("해금된 세계 정보 (Lore)")
     if not overview.unlocked_lore:
         st.info("아직 해금된 세계관 정보가 없습니다. 더 많은 단서를 수집하세요.")
     else:
@@ -3459,11 +3745,14 @@ def _render_codex_lore(overview: MemoryOverview) -> None:
                 st.caption(f"관련 태그: {', '.join(entry.tags)}")
 
     st.divider()
+
+    # 4. Collected Clues (수집된 단서)
     st.subheader("수집된 단서 (Clues)")
     clue_shards = [s for s in overview.narrative_shards if s.kind == "clue"]
     if not clue_shards:
         st.write("발견된 단서가 없습니다.")
     else:
+        st.write(f"현재까지 수집된 총 {len(overview.narrative_shards)}개의 단서 파편들입니다.")
         for shard in clue_shards:
             st.markdown(f"**[{shard.symbol}]** {shard.text}")
 
@@ -3657,20 +3946,7 @@ def _scene_characters(
     return []
 
 
-def _render_player_memory(loop: LoopState, overview: MemoryOverview | None) -> None:
-    if loop.active_echoes:
-        with st.expander(f"회상 — 잔향 {len(loop.active_echoes)}", expanded=False):
-            for echo in loop.active_echoes:
-                st.write(f"**{echo.symbol}** · {echo.text}")
-
-    if overview is not None and (overview.narrative_shards or overview.rollup):
-        with st.expander("기억의 별자리 (Codex)", expanded=False):
-            st.caption(f"모은 단서 {len(overview.narrative_shards)}")
-            for shard in overview.narrative_shards[:8]:
-                st.write(f"· {shard.text}")
-            if overview.rollup:
-                loop_count = overview.rollup.get("loop_count", 0)
-                st.caption(f"이전 세계들의 기억 · {loop_count}개 루프가 별자리로 압축됨")
+# _render_player_memory removed and integrated into _render_codex_lore
 
 
 def _play_panel(options: RuntimeOptions) -> None:
@@ -4145,7 +4421,10 @@ def _render_combat_arena_fragment(options: RuntimeOptions) -> None:
             if exit_data.get("type") == "exit":
                 outcome = str(exit_data.get("outcome", ""))
                 if outcome == "player_defeat" or loop.phase is LoopPhase.ENDED:
-                    _return_to_player_main(loop.player_id)
+                    _run_action(
+                        lambda service: service.resume(loop.loop_id),
+                        on_success=_set_snapshot,
+                    )
                     st.rerun()
                 _run_combat_action(
                     lambda service: service.choose(
@@ -4186,9 +4465,6 @@ def _render_combat_arena_fragment(options: RuntimeOptions) -> None:
         st.iframe(_build_combat_app_html(config), height=820)
     except Exception as e:
         st.error(f"전투 iframe 렌더링 예외 발생: {e}")
-
-    overview = _load_memory_overview(loop.player_id)
-    _render_player_memory(loop, overview)
 
 
 def _render_audio(snapshot: RuntimeSnapshot) -> None:
@@ -4402,6 +4678,9 @@ def _load_save_slots(player_id: str) -> list[SaveSlot]:
         finally:
             store.close()
     except Exception as exc:
+        import traceback
+        traceback.print_exc()
+        st.error(f"저장 슬롯 로드 중 오류 발생: {exc}")
         st.session_state.error = str(exc)
         return []
 

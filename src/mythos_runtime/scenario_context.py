@@ -76,13 +76,33 @@ def build_runtime_narrative_context(
     notes.extend(_scenario_structure_notes(scenario))
     notes.append(CAUSALITY_ENGINE_RULE)
 
-    if loop.phase is LoopPhase.CONNECT and turn_index == 0:
+    if loop.phase is LoopPhase.CONNECT or (loop.phase is LoopPhase.EXPLORE and turn_index <= 2):
         archetype = player.traits.get("archetype", "Unclassified")
-        notes.append(
-            f"ONBOARDING: Start with a diegetic booting sequence. "
-            f"Recognize the player as a '{archetype}' signal. "
-            f"Introduce Jung Se-rin (물거미) as she pulls the player into safety."
-        )
+        if turn_index == 0:
+            notes.append(
+                f"ONBOARDING_ACT1_SHOT1: 당신은 오프닝의 첫 번째 플레이 가능한 장면을 작성하고 있습니다. "
+                f"주제: '빗속에서 세린이 당신을 발견한다' (Shot 01 // Arrival). "
+                f"세린은 C-17 구역의 비 내리는 어두운 네온 골목에서 비등록 '{archetype}' 신호인 플레이어를 발견합니다. "
+                f"빗소리, 차가운 콘크리트, 머리 위를 훑는 감시 드론 등의 감각적 디테일을 서사하십시오. "
+                f"세린이 당신을 발견하고 아직 지워지지 않았는지(살아있는지) 확인하는 순간에 집중하십시오. "
+                f"이 장면의 모든 서사와 선택지는 반드시 한국어(Korean)로 작성되어야 합니다. 반응을 선택할 수 있는 동적인 선택지를 제공하십시오."
+            )
+        elif turn_index == 1:
+            notes.append(
+                "ONBOARDING_ACT1_SHOT2: 당신은 오프닝의 두 번째 플레이 가능한 장면을 작성하고 있습니다. "
+                "주제: '정세린, 물거미' (Shot 02 // First Contact). "
+                "세린이 플레이어의 손목을 낚아채며 일으켜 세웁니다. 대사: '등록 안 됐지? 야, 그럼 너 아직 사람이네. 뛰어.' "
+                "촉각적 긴장감, 신체적 액팅, 그리고 플레이어를 보호하면서도 퉁명스러운 세린의 행동에 집중하십시오. "
+                "이 장면의 모든 서사와 선택지는 반드시 한국어(Korean)로 작성되어야 합니다. 달리거나 세린에게 질문할 수 있는 활동적인 선택지를 제공하십시오."
+            )
+        elif turn_index == 2:
+            notes.append(
+                "ONBOARDING_ACT1_SHOT3: 당신은 오프닝의 세 번째 플레이 가능한 장면을 작성하고 있습니다. "
+                "주제: '엔진이 켜지고, 도시는 적이 된다' (Shot 03 // Ignition). "
+                "세린이 바이크 엔진을 켭니다. 수색등이 빗줄기를 뚫고 골목을 훑는 순간, 어두운 골목을 뚫고 바이크가 가속합니다. "
+                "고속 질주 액션, 엔진의 굉음, 감시망 탈출, 그리고 바이크를 모는 세린의 거친 액팅에 집중하십시오. "
+                "이 장면의 모든 서사와 선택지는 반드시 한국어(Korean)로 작성되어야 합니다. 꽉 잡거나 뒤를 돌아보는 등의 선택지를 제공하십시오."
+            )
 
     bible = load_story_bible(scenario.scenario_id)
     entries = select_story_bible_entries(bible, loop, turn_index=turn_index)

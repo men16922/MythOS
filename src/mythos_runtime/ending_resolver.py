@@ -1,5 +1,4 @@
-from __future__ import annotations
-
+import ast
 import logging
 import re
 from typing import Any
@@ -9,6 +8,90 @@ from mythos_runtime.progression import determine_autonomy_level
 from mythos_runtime.scenario import ScenarioConfig
 
 logger = logging.getLogger("mythos.ending_resolver")
+
+
+class ASTConditionEvaluator:
+    """
+    Safely evaluate simple boolean and comparison conditions from AST.
+    Prevents arbitrary code execution by only allowing whitelisted AST node types.
+    """
+
+    def __init__(self, namespace: dict[str, Any]) -> None:
+        self.namespace = namespace
+
+    def evaluate(self, expression: str) -> bool:
+        try:
+            tree = ast.parse(expression, mode="eval")
+            return bool(self._eval_node(tree.body))
+        except Exception as e:
+            raise ValueError(f"AST evaluation error: {e}") from e
+
+    def _eval_node(self, node: ast.AST) -> Any:
+        if isinstance(node, ast.Expression):
+            return self._eval_node(node.body)
+        elif isinstance(node, ast.Constant):
+            return node.value
+        elif isinstance(node, ast.Name):
+            if node.id in self.namespace:
+                return self.namespace[node.id]
+            raise NameError(f"Name '{node.id}' is not defined in allowed namespace")
+        elif isinstance(node, ast.Compare):
+            left = self._eval_node(node.left)
+            for op, comparator in zip(node.ops, node.comparators):
+                right = self._eval_node(comparator)
+                if not self._eval_compare(left, op, right):
+                    return False
+                left = right
+            return True
+        elif isinstance(node, ast.BoolOp):
+            values = [self._eval_node(val) for val in node.values]
+            if isinstance(node.op, ast.And):
+                return all(values)
+            elif isinstance(node.op, ast.Or):
+                return any(values)
+            raise NotImplementedError(f"Boolean operator {type(node.op)} is not supported")
+        elif isinstance(node, ast.UnaryOp):
+            operand = self._eval_node(node.operand)
+            if isinstance(node.op, ast.Not):
+                return not operand
+            elif isinstance(node.op, ast.USub):
+                return -operand
+            elif isinstance(node.op, ast.UAdd):
+                return +operand
+            raise NotImplementedError(f"Unary operator {type(node.op)} is not supported")
+        elif isinstance(node, ast.BinOp):
+            left = self._eval_node(node.left)
+            right = self._eval_node(node.right)
+            if isinstance(node.op, ast.Add):
+                return left + right
+            elif isinstance(node.op, ast.Sub):
+                return left - right
+            elif isinstance(node.op, ast.Mult):
+                return left * right
+            elif isinstance(node.op, ast.Div):
+                return left / right
+            raise NotImplementedError(f"Binary operator {type(node.op)} is not supported")
+        else:
+            raise TypeError(f"AST node type {type(node)} is not allowed or supported")
+
+    def _eval_compare(self, left: Any, op: ast.cmpop, right: Any) -> bool:
+        if isinstance(op, ast.Gt):
+            return bool(left > right)
+        elif isinstance(op, ast.GtE):
+            return bool(left >= right)
+        elif isinstance(op, ast.Lt):
+            return bool(left < right)
+        elif isinstance(op, ast.LtE):
+            return bool(left <= right)
+        elif isinstance(op, ast.Eq):
+            return bool(left == right)
+        elif isinstance(op, ast.NotEq):
+            return bool(left != right)
+        elif isinstance(op, ast.In):
+            return bool(left in right)
+        elif isinstance(op, ast.NotIn):
+            return bool(left not in right)
+        raise NotImplementedError(f"Comparison operator {type(op)} is not supported")
 
 
 class EndingResolver:
@@ -105,8 +188,8 @@ class EndingResolver:
 
             processed_cond = cls._preprocess_condition(condition)
             try:
-                # Evaluate expression safely using restricting globals
-                result = eval(processed_cond, eval_namespace)
+                # Evaluate expression safely using ASTConditionEvaluator
+                result = ASTConditionEvaluator(eval_namespace).evaluate(processed_cond)
                 if bool(result):
                     logger.info(f"Ending condition matched: ending_id={ending_id} ('{title}')")
                     return ending_id, title

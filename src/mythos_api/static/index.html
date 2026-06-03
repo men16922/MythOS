@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>세계 : 접속 — MythOS API PoC</title>
+  <style>
+    :root { --cyan: #38e8ff; --bg: #070b14; --panel: #0e1626; --ink: #cfe8ff; --dim: #5f7a9b; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--ink);
+      font-family: "SF Mono", ui-monospace, Menlo, monospace; line-height: 1.6;
+    }
+    header { padding: 14px 20px; border-bottom: 1px solid #1b2840; }
+    header h1 { margin: 0; font-size: 15px; letter-spacing: 2px; color: var(--cyan); }
+    header span { color: var(--dim); font-size: 12px; }
+    main { display: grid; grid-template-columns: 1fr 360px; gap: 16px; padding: 16px 20px; }
+    @media (max-width: 880px) { main { grid-template-columns: 1fr; } }
+    .panel { background: var(--panel); border: 1px solid #1b2840; border-radius: 8px; padding: 14px; }
+    #scene-title { color: var(--cyan); margin: 0 0 8px; font-size: 14px; letter-spacing: 1px; }
+    #narration { white-space: pre-wrap; min-height: 120px; font-size: 14px; }
+    #choices { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+    button {
+      background: #0c2030; color: var(--cyan); border: 1px solid var(--cyan);
+      border-radius: 6px; padding: 9px 12px; font: inherit; cursor: pointer; text-align: left;
+    }
+    button:hover:not(:disabled) { background: #103048; }
+    button:disabled { opacity: 0.4; cursor: default; }
+    input[type=text] {
+      background: #0c2030; color: var(--ink); border: 1px solid #2a3b57;
+      border-radius: 6px; padding: 8px; font: inherit; width: 100%;
+    }
+    label.inline { display: flex; align-items: center; gap: 6px; color: var(--dim); font-size: 12px; }
+    .row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+    #scene-img { width: 100%; border-radius: 6px; border: 1px solid #1b2840; display: none; margin-top: 12px; }
+    #combat { width: 100%; border: 1px solid #1b2840; border-radius: 6px; display: none; margin-top: 12px; background: #050a12; }
+    #log { font-size: 11px; color: var(--dim); white-space: pre-wrap; max-height: 200px; overflow: auto; }
+    .meta { font-size: 12px; color: var(--dim); }
+    .meta b { color: var(--ink); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>세계 : 접속 — API PoC 클라이언트</h1>
+    <span>REST + WebSocket + presigned URL 계약을 한 화면으로 실증한다.</span>
+  </header>
+  <main>
+    <section class="panel">
+      <div class="row">
+        <input type="text" id="display-name" placeholder="플레이어 이름" value="테스터" />
+        <label class="inline"><input type="checkbox" id="fallback" checked /> fallback</label>
+        <button id="start" style="white-space:nowrap">접속 + 루프 시작</button>
+      </div>
+      <div class="meta" id="status">대기 중.</div>
+      <h2 id="scene-title"></h2>
+      <div id="narration"></div>
+      <div id="choices"></div>
+      <img id="scene-img" alt="scene" />
+      <canvas id="combat" width="320" height="240"></canvas>
+    </section>
+    <aside class="panel">
+      <div class="meta" id="gauges"></div>
+      <hr style="border-color:#1b2840" />
+      <div id="log"></div>
+    </aside>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

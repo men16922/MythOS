@@ -13,9 +13,11 @@ request bodies instead of being inferred from an auth context.
 from __future__ import annotations
 
 from collections.abc import Iterator
+from pathlib import Path
 from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.concurrency import iterate_in_threadpool
 
@@ -27,6 +29,7 @@ from mythos_runtime.session import RuntimeSessionService
 from mythos_runtime.visual_service import MinIOStorageAdapter
 
 API_PREFIX = "/api/v1"
+STATIC_DIR = Path(__file__).parent / "static"
 
 
 # --- Request models ---------------------------------------------------------
@@ -248,5 +251,10 @@ def create_app() -> FastAPI:
                 await _run_stream(websocket, service, message)
         except WebSocketDisconnect:
             return
+
+    # Serve the PoC reference client at "/" (design slice 4 option B). Mounted
+    # last so the API/WebSocket routes above take precedence over the catch-all.
+    if STATIC_DIR.is_dir():
+        app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
 
     return app

@@ -42,6 +42,27 @@ class ApiHealthTest(unittest.TestCase):
         self.assertEqual(response.json(), {"status": "ok"})
 
 
+class ApiStaticClientTest(unittest.TestCase):
+    def test_root_serves_poc_client(self) -> None:
+        client = _client(_InMemoryStore())
+        response = client.get("/")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("API PoC", response.text)
+
+    def test_app_js_is_served(self) -> None:
+        client = _client(_InMemoryStore())
+        response = client.get("/app.js")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("loops/stream", response.text)
+
+    def test_api_route_not_shadowed_by_static_mount(self) -> None:
+        # The catch-all static mount must not intercept /api/v1 routes.
+        client = _client(_InMemoryStore())
+        response = client.get("/api/v1/health")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"status": "ok"})
+
+
 class ApiNarrativeFlowTest(unittest.TestCase):
     def setUp(self) -> None:
         self.store = _InMemoryStore()

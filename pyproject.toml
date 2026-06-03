@@ -51,6 +51,9 @@ mythos-api = "mythos_api.__main__:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+mythos_api = ["static/*"]
+
 [tool.ruff]
 line-length = 100
 target-version = "py311"

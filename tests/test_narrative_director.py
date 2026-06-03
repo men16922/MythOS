@@ -239,6 +239,20 @@ class NarrativeDirectorTest(unittest.TestCase):
         self.assertEqual(director.metrics.counts["fallback"], 1)
         self.assertEqual(director.metrics.ratios()["success"], 0.5)
 
+    def test_outcome_emits_running_aggregate(self) -> None:
+        provider = FakeProvider([_scene_response("One")])
+        director = NarrativeDirector(provider)
+
+        with self.assertLogs("mythos.narrative", level="INFO") as captured:
+            director.generate_first_scene(self.context)
+
+        record = next(r for r in captured.records if r.getMessage() == "narrative outcome")
+        fields = record.__dict__
+        self.assertEqual(fields["outcome"], "success")
+        self.assertEqual(fields["total"], 1)
+        self.assertEqual(fields["degraded"], 0)
+        self.assertEqual(fields["success_ratio"], 1.0)
+
 
 def _scene_response(title: str) -> str:
     return json.dumps(

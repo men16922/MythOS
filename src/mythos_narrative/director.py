@@ -12,7 +12,7 @@ from mythos_core import Choice, Scene
 from mythos_core.clock import utc_now
 from mythos_core.ids import new_scene_id
 from mythos_image_agent.config import AgentConfig
-from mythos_runtime.observability import get_logger, timed
+from mythos_runtime.observability import get_logger, span, timed
 from mythos_runtime.settings import load_runtime_settings
 
 from .parser import NarrativeParseError, parse_scene_payload, repair_scene_payload
@@ -360,6 +360,22 @@ class NarrativeDirector:
 
     def _record_outcome(self, context: NarrativeContext, outcome: str) -> None:
         self.metrics.record(outcome)
+        ratios = self.metrics.ratios()
+        # Per-generation in-memory counters reset when a new director is built
+        # (e.g. the per-request API path), so also emit the outcome + running
+        # aggregate to an OTel span and the structured log. That makes provider
+        # degradation observable in Jaeger across processes, independent of any
+        # single director's lifetime.
+        with span(
+            "mythos.narrative.outcome",
+            player_id=context.player.player_id,
+            loop_id=context.loop.loop_id,
+            outcome=outcome,
+            total=self.metrics.total,
+            degraded=self.metrics.degraded,
+            success_ratio=ratios[OUTCOME_SUCCESS],
+        ):
+            pass
         self.logger.info(
             "narrative outcome",
             extra={
@@ -367,6 +383,9 @@ class NarrativeDirector:
                 "loop_id": context.loop.loop_id,
                 "status": "fallback" if outcome == OUTCOME_FALLBACK else "succeeded",
                 "outcome": outcome,
+                "total": self.metrics.total,
+                "degraded": self.metrics.degraded,
+                "success_ratio": ratios[OUTCOME_SUCCESS],
             },
         )
 

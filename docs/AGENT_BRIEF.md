@@ -26,8 +26,8 @@
 - Ending Resolver 구현 완료: archive/permadeath 시 scenario ending condition을 동적으로 안전하게 평가하고 `RunSummary.ending_id`/`ending_label`에 저장한다.
 - Developer 인과율 모니터 구현 완료: active flags, metric score, ending condition matching 상태를 실시간 노출한다.
 - 최신 Player View hotfix: `새 게임 시작`은 선택 player가 없어도 player 생성 후 시작한다. `"null"` combat request sentinel은 무시한다. 오프닝 시네마틱은 raw HTML 노출 방지를 위해 iframe으로 렌더한다.
-- P3 Web UI 디커플링 slice 1 완료: `src/mythos_api/`가 `RuntimeSessionService`를 FastAPI `/api/v1` REST로 노출(`auth/connect`, `loops/begin|active|choose`, `combat/begin|action`, `health`). Streamlit 무변경 추가형, optional `web` extra, `python -m mythos_api`로 실행. 테스트는 `tests/test_api.py`(in-memory TestClient).
-- 그다음: P3 slice 2 WebSocket 토큰 스트리밍(`/api/v1/loops/stream`, `stream_choose` 연동) → 분산 visual worker + S3 presigned URL → Next.js/Canvas 프론트엔드. 설계는 `docs/plans/2026-06-03-web-ui-decoupling.md`.
+- P3 Web UI 디커플링 slice 1·2 완료: `src/mythos_api/`가 `RuntimeSessionService`를 FastAPI `/api/v1` REST(`auth/connect`, `loops/begin|active|choose`, `combat/begin|action`, `health`) + WebSocket 토큰 스트리밍(`loops/stream`)으로 노출. Streamlit 무변경 추가형, optional `web` extra, `python -m mythos_api`로 실행. 테스트는 `tests/test_api.py`(in-memory TestClient, REST+WS 11 tests).
+- 그다음: P3 slice 3 분산 visual worker(`visual_worker.py`, Redis BRPOP+Redlock) + S3 presigned URL → slice 4 Next.js/Canvas 프론트엔드. 설계는 `docs/plans/2026-06-03-web-ui-decoupling.md`.
 
 ## Read Order
 

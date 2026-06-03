@@ -15,6 +15,15 @@ YYYY-MM-DD
 
 ## 2026-06-03
 
+- Status: [x] P3 Web UI 디커플링 slice 2 — WebSocket 토큰 스트리밍 `/api/v1/loops/stream` 구현.
+- Changed:
+  - `src/mythos_api/app.py`: `@app.websocket("/api/v1/loops/stream")` 추가. 인바운드 `{"event":"begin"|"choose", ...}`를 `stream_start_loop`/`stream_choose`에 매핑하고, 블로킹 동기 제너레이터를 `iterate_in_threadpool`로 async 브리지해 이벤트 루프 비차단. 프레임: `token`/`snapshot`/`error`. 하나의 소켓에서 begin/choose 반복 처리.
+  - `tests/test_api.py`: WebSocket 4 tests(begin→token→snapshot, 동일 소켓 choose 연속, unknown event/없는 player 오류 프레임).
+- Verified: `make test`(167 tests, 2 skipped), `make lint`, `make typecheck` 전체 통과.
+- Next: P3 slice 3 — 분산 visual worker(`visual_worker.py`, Redis BRPOP + Redlock heartbeat) + S3 presigned URL 자산 전달(설계 §5). 완료 시 `loops/stream`에 `visual_status` 프레임 합류.
+
+## 2026-06-03
+
 - Status: [x] P3 Web UI 디커플링 slice 1 — FastAPI `/api/v1` REST 백엔드 어댑터 구현.
 - Changed:
   - `src/mythos_api/`(신규): `create_app` 팩토리(`app.py`), 스냅샷/플레이어 직렬화(`serializers.py`, `to_json_dict` 기반 GameState 계약), 요청별 Postgres store 주입 dependency(`service.py`), uvicorn 엔트리포인트(`__main__.py`).

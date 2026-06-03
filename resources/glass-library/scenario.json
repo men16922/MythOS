@@ -153,9 +153,9 @@
       "miro": {"id": "miro", "name": "미로", "alias": "잊힌 독자", "recruit_keywords": ["미로", "잊힌 독자", "반납 카드"], "unlock_flags": ["miro_trust", "miro_return_card_found"], "hp": 10, "defense": 12, "speed": 5, "ai": "coward", "blip": "◆", "weapons": ["index_dagger"], "skills": ["silent_shelve"], "stats": {"strength": 2, "agility": 7, "perception": 6}}
     },
     "bestiary": {
-      "loose_page": {"id": "loose_page", "name": "찢긴 페이지 떼", "hp": 8, "defense": 12, "speed": 5, "armor": 0, "ai": "coward", "blip": "✧", "weapons": ["index_dagger"], "loot_table": "archive_scraps", "stats": {"strength": 2, "agility": 7, "perception": 5}, "intro": "찢긴 페이지들이 새처럼 접히며 플레이어의 이름을 베어내려 든다."},
-      "white_binder": {"id": "white_binder", "name": "백색 제본사", "hp": 18, "defense": 14, "speed": 3, "armor": 1, "ai": "melee", "blip": "✚", "weapons": ["binder_knife"], "loot_table": "sealed_index", "stats": {"strength": 6, "agility": 4, "perception": 7}, "intro": "흰 장갑을 낀 제본사가 금속 칼을 펴며 조용히 길을 막는다."},
-      "censor_seal": {"id": "censor_seal", "name": "검열 인장", "hp": 12, "defense": 13, "speed": 2, "armor": 0, "ai": "ranged", "blip": "●", "weapons": ["silence_stamp"], "loot_table": "sealed_index", "stats": {"strength": 3, "agility": 2, "perception": 8}, "intro": "허공에 뜬 흰 인장이 문장을 지우는 빛을 쏜다."}
+      "loose_page": {"id": "loose_page", "name": "찢긴 페이지 떼", "hp": 11, "defense": 13, "speed": 5, "armor": 0, "ai": "coward", "blip": "✧", "weapons": ["index_dagger"], "loot_table": "archive_scraps", "stats": {"strength": 2, "agility": 7, "perception": 5}, "intro": "찢긴 페이지들이 새처럼 접히며 플레이어의 이름을 베어내려 든다."},
+      "white_binder": {"id": "white_binder", "name": "백색 제본사", "hp": 22, "defense": 15, "speed": 3, "armor": 2, "ai": "melee", "blip": "✚", "weapons": ["binder_knife"], "loot_table": "sealed_index", "stats": {"strength": 6, "agility": 4, "perception": 7}, "intro": "흰 장갑을 낀 제본사가 금속 칼을 펴며 조용히 길을 막는다."},
+      "censor_seal": {"id": "censor_seal", "name": "검열 인장", "hp": 15, "defense": 14, "speed": 2, "armor": 0, "ai": "ranged", "blip": "●", "weapons": ["silence_stamp"], "loot_table": "sealed_index", "stats": {"strength": 3, "agility": 2, "perception": 8}, "intro": "허공에 뜬 흰 인장이 문장을 지우는 빛을 쏜다."}
     },
     "items": {
       "memory_slip": {"id": "memory_slip", "name": "기억 쪽지", "kind": "data", "rarity": "common"},
@@ -164,7 +164,7 @@
       "repair_tape": {"id": "repair_tape", "name": "복원 테이프", "kind": "consumable", "effect": "heal", "heal": "2d6", "rarity": "common"}
     },
     "loot_tables": {
-      "archive_scraps": [{"item": "memory_slip", "weight": 3}, {"item": "repair_tape", "weight": 1}],
+      "archive_scraps": [{"item": "memory_slip", "weight": 4}, {"item": "repair_tape", "weight": 1}],
       "sealed_index": [{"item": "glass_bookmark", "weight": 2}, {"item": "ink_ampoule", "weight": 1}]
     },
     "encounters": {

@@ -2,7 +2,17 @@
   "scenario_id": "neo-seoul",
   "name": "Neo-Seoul: 접속 (접속자 각성)",
   "version": "2.0.0",
-  "brief": "WORLD: Neo-Seoul. 폐허 위에 ARK가 재건한 효율 절대주의 도시. \nPREMISE: 당신은 시스템의 통제를 벗어난 '비식별 신호'입니다. \nTONE: 인간찬가, Y2K 디지털 잔향, 처절한 저항. \nPHILOSOPHY: 살아남는 것은 기술이지만, 사람이 되는 것은 선택입니다.",
+  "brief": "WORLD: Neo-Seoul. 폐허 위에 ARK가 재건한 효율 절대주의 도시. \nPREMISE: 당신은 시스템의 통제를 벗어난 '비식별 신호'입니다. \nTONE: 인간찬가, Y2K 디지털 잔향, 처절한 저항. \nPHILOSOPHY: 살아남는 것은 선택이지만, 사람이 되는 것은 결단입니다.",
+  "character_map": {
+    "se-rin": "characters/se-rin.png",
+    "kai": "characters/kai.png",
+    "lin-yue": "characters/lin-yue.png"
+  },
+  "concept_map": {
+    "night market": "concept/01-night-market.png",
+    "control spire": "concept/02-control-spire.png",
+    "underground": "concept/03-underground-echo.png"
+  },
   
   "archetypes": [
     {
@@ -308,10 +318,10 @@
       "kai": {"id": "kai", "name": "카이", "alias": "RX-09", "recruit_keywords": ["카이", "RX-09", "꿈꾸는 폐기 안드로이드", "폐기 안드로이드"], "unlock_flags": ["rebooted_kai", "kai_dream_awake"], "hp": 18, "defense": 14, "speed": 3, "ai": "melee", "blip": "◇", "image": "characters/kai.png", "weapons": ["overload_gauntlet"], "skills": ["overload_strike"], "stats": {"strength": 8, "agility": 3, "perception": 5}}
     },
     "bestiary": {
-      "maintenance_drone": {"id": "maintenance_drone", "name": "정비 드론", "hp": 9, "defense": 12, "speed": 4, "armor": 0, "ai": "melee", "blip": "●", "image": "enemies/maintenance-drone.png", "weapons": ["cutter_claw"], "loot_table": "drone_scrap", "stats": {"strength": 4, "agility": 5, "perception": 4}, "intro": "녹슨 정비 드론이 집게발을 펼치며 다가온다."},
-      "sentinel_drone": {"id": "sentinel_drone", "name": "감시 드론", "hp": 11, "defense": 13, "speed": 3, "armor": 0, "ai": "ranged", "blip": "✦", "image": "enemies/sentinel-drone.png", "weapons": ["drone_laser"], "loot_table": "drone_scrap", "stats": {"strength": 3, "agility": 6, "perception": 7}, "intro": "감시 드론의 광학 렌즈가 붉게 점멸하며 조준선을 그린다."},
-      "enforcer_unit": {"id": "enforcer_unit", "name": "집행 유닛", "hp": 20, "defense": 14, "speed": 4, "armor": 2, "ai": "melee", "blip": "✚", "image": "enemies/enforcer-unit.png", "weapons": ["shock_baton"], "loot_table": "enforcer_core", "stats": {"strength": 7, "agility": 4, "perception": 5}, "intro": "중장갑 집행 유닛이 충격 봉을 끌며 바닥을 울린다."},
-      "glitch_wraith": {"id": "glitch_wraith", "name": "글리치 망령", "hp": 14, "defense": 15, "speed": 5, "armor": 0, "ai": "coward", "blip": "✺", "image": "enemies/glitch-wraith.png", "weapons": ["arc_lance"], "loot_table": "data_cache", "stats": {"strength": 3, "agility": 7, "perception": 8}, "intro": "공간이 일그러지며 글리치 망령이 깜빡인다."}
+      "maintenance_drone": {"id": "maintenance_drone", "name": "정비 드론", "hp": 12, "defense": 13, "speed": 4, "armor": 0, "ai": "melee", "blip": "●", "image": "enemies/maintenance-drone.png", "weapons": ["cutter_claw"], "loot_table": "drone_scrap", "stats": {"strength": 4, "agility": 5, "perception": 4}, "intro": "녹슨 정비 드론이 집게발을 펼치며 다가온다."},
+      "sentinel_drone": {"id": "sentinel_drone", "name": "감시 드론", "hp": 14, "defense": 14, "speed": 3, "armor": 0, "ai": "ranged", "blip": "✦", "image": "enemies/sentinel-drone.png", "weapons": ["drone_laser"], "loot_table": "drone_scrap", "stats": {"strength": 3, "agility": 6, "perception": 7}, "intro": "감시 드론의 광학 렌즈가 붉게 점멸하며 조준선을 그린다."},
+      "enforcer_unit": {"id": "enforcer_unit", "name": "집행 유닛", "hp": 24, "defense": 15, "speed": 4, "armor": 3, "ai": "melee", "blip": "✚", "image": "enemies/enforcer-unit.png", "weapons": ["shock_baton"], "loot_table": "enforcer_core", "stats": {"strength": 7, "agility": 4, "perception": 5}, "intro": "중장갑 집행 유닛이 충격 봉을 끌며 바닥을 울린다."},
+      "glitch_wraith": {"id": "glitch_wraith", "name": "글리치 망령", "hp": 18, "defense": 16, "speed": 5, "armor": 0, "ai": "coward", "blip": "✺", "image": "enemies/glitch-wraith.png", "weapons": ["arc_lance"], "loot_table": "data_cache", "stats": {"strength": 3, "agility": 7, "perception": 8}, "intro": "공간이 일그러지며 글리치 망령이 깜빡인다."}
     },
     "items": {
       "nanopatch": {"id": "nanopatch", "name": "나노패치", "kind": "consumable", "effect": "heal", "heal": "2d6", "rarity": "common"},
@@ -321,9 +331,9 @@
       "drone_scrap": {"id": "drone_scrap", "name": "드론 잔해", "kind": "material", "rarity": "common"}
     },
     "loot_tables": {
-      "drone_scrap": [{"item": "drone_scrap", "weight": 3}, {"item": "nanopatch", "weight": 1}],
-      "enforcer_core": [{"item": "access_key", "weight": 2}, {"item": "stim_shard", "weight": 2}, {"item": "nanopatch", "weight": 1}],
-      "data_cache": [{"item": "data_fragment", "weight": 3}, {"item": "stim_shard", "weight": 1}]
+      "drone_scrap": [{"item": "drone_scrap", "weight": 4}, {"item": "nanopatch", "weight": 1}],
+      "enforcer_core": [{"item": "access_key", "weight": 2}, {"item": "stim_shard", "weight": 1}, {"item": "nanopatch", "weight": 1}],
+      "data_cache": [{"item": "data_fragment", "weight": 4}, {"item": "stim_shard", "weight": 1}]
     },
     "encounters": {
       "patrol_ambush": {"id": "patrol_ambush", "name": "순찰 매복", "location_hint": "복지 블록", "risk": 1, "weight": 4, "map_distance": 2, "arena": {"width": 8, "height": 6}, "enemies": [{"bestiary": "maintenance_drone", "count": 2}], "reward": {"tension": 8}},

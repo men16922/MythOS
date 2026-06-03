@@ -31,6 +31,17 @@ class PlayerAction:
 class CombatEngine:
     """Turn-based tactical resolver. Pure + deterministic given the seed."""
 
+    def __init__(self, skills_pool: dict[str, Any] | None = None) -> None:
+        if skills_pool is None:
+            try:
+                from mythos_runtime.scenario import load_scenario
+
+                self.skills_pool = load_scenario("neo-seoul").combat.get("skills", {})
+            except Exception:
+                self.skills_pool = {}
+        else:
+            self.skills_pool = skills_pool
+
     def start(
         self,
         party: list[Combatant],
@@ -580,10 +591,77 @@ class CombatEngine:
             i = (i + 1) % n
 
     def _npc_turn(self, state: CombatState, actor: Combatant) -> None:
+        self._tick_npc_round(actor)
         if actor.faction == ENEMY:
             self._enemy_turn(state, actor)
         elif actor.faction == ALLY:
             self._ally_turn(state, actor)
+
+    def _tick_npc_round(self, actor: Combatant) -> None:
+        """Per-round upkeep for NPCs/Allies: focus regen, cooldowns, expiring buffs."""
+        if actor.max_focus:
+            actor.focus = min(actor.max_focus, actor.focus + 1)
+        for skill_id in list(actor.cooldowns):
+            actor.cooldowns[skill_id] -= 1
+            if actor.cooldowns[skill_id] <= 0:
+                del actor.cooldowns[skill_id]
+        if actor.defense_buff_turns > 0:
+            actor.defense_buff_turns -= 1
+            if actor.defense_buff_turns <= 0:
+                actor.defense_buff = 0
+
+    def _execute_npc_skill(
+        self,
+        state: CombatState,
+        actor: Combatant,
+        skill_id: str,
+        skill_def: dict[str, Any],
+        target: Combatant | None = None,
+    ) -> bool:
+        name = str(skill_def.get("name", skill_id))
+        cost = skill_def.get("cost", {}) if isinstance(skill_def.get("cost"), dict) else {}
+        focus_cost = int(cost.get("focus", 0))
+        effect = skill_def.get("effect", {}) if isinstance(skill_def.get("effect"), dict) else {}
+
+        detail = {"skill": skill_id}
+        self._log(state, actor, "skill", f"{actor.name}이(가) {name}을(를) 발동한다.", detail)
+
+        dice = self._dice(state)
+        if target is not None and ("damage" in effect or "damage_bonus" in effect):
+            self._skill_attack(state, actor, target, name, effect, dice)
+        if "defense_bonus" in effect:
+            actor.defense_buff = int(effect.get("defense_bonus", 0))
+            actor.defense_buff_turns = max(1, int(effect.get("duration", 1)))
+            self._log(
+                state,
+                actor,
+                "defend",
+                f"{actor.name} 주위로 엄호 노이즈가 퍼진다. (방어 +{actor.defense_buff})",
+            )
+        if "heal" in effect:
+            heal_target = target if target is not None else actor
+            healed = self._apply_heal(heal_target, str(effect.get("heal", "0")), dice)
+            self._log(
+                state,
+                actor,
+                "info",
+                f"{actor.name}이(가) {heal_target.name}의 HP를 {healed} 회복시켰다.",
+            )
+        if "move" in effect:
+            move_budget = int(effect.get("move", actor.speed))
+            weapon = actor.primary_weapon()
+            reach = weapon.effective_range if weapon else 1
+            desired_dist = max(reach + 3, 6) if actor.ai == "coward" else max(1, reach)
+            move_ref = (
+                target
+                if target is not None
+                else (state.living_enemies()[0] if state.living_enemies() else actor)
+            )
+            self._move_to_band(state, actor, move_ref, desired=desired_dist, budget=move_budget)
+
+        actor.focus = max(0, actor.focus - focus_cost)
+        actor.cooldowns[skill_id] = int(skill_def.get("cooldown", 0))
+        return True
 
     def _enemy_turn(self, state: CombatState, enemy: Combatant) -> None:
         dice = self._dice(state)
@@ -611,6 +689,59 @@ class CombatEngine:
         target = min(enemies, key=lambda t: (distance(ally.x, ally.y, t.x, t.y), t.hp))
         weapon = ally.primary_weapon()
         reach = weapon.effective_range if weapon else 1
+
+        # Check if ally wants to use skills dynamically
+        for skill_id in ally.skills:
+            if skill_id not in self.skills_pool:
+                continue
+            skill_def = self.skills_pool[skill_id]
+            cost = skill_def.get("cost", {}) if isinstance(skill_def.get("cost"), dict) else {}
+            focus_cost = int(cost.get("focus", 0))
+            if ally.focus < focus_cost or skill_id in ally.cooldowns:
+                continue
+
+            effect = (
+                skill_def.get("effect", {}) if isinstance(skill_def.get("effect"), dict) else {}
+            )
+
+            # Case 1: Healing Skill
+            if "heal" in effect:
+                skill_range = int(skill_def.get("range", 3))
+                friendlies = [
+                    c for c in state.combatants if c.alive and c.faction in ("player", ALLY)
+                ]
+                wounded = [
+                    f
+                    for f in friendlies
+                    if f.hp <= int(f.max_hp * 0.6)
+                    and distance(ally.x, ally.y, f.x, f.y) <= skill_range
+                ]
+                if wounded:
+                    heal_target = min(wounded, key=lambda f: f.hp / f.max_hp)
+                    self._execute_npc_skill(state, ally, skill_id, skill_def, heal_target)
+                    return
+
+            # Case 2: Defense/Buff Skill
+            elif "defense_bonus" in effect:
+                if ally.defense_buff_turns <= 0:
+                    self._execute_npc_skill(state, ally, skill_id, skill_def)
+                    return
+
+            # Case 3: Damage/Attack Skill
+            elif "damage" in effect or "damage_bonus" in effect:
+                skill_range = int(skill_def.get("range", 1))
+                self._move_to_band(state, ally, target, desired=skill_range)
+                if distance(ally.x, ally.y, target.x, target.y) <= skill_range:
+                    self._execute_npc_skill(state, ally, skill_id, skill_def, target)
+                    return
+
+            # Case 4: Mobility/Flee Skill
+            elif "move" in effect:
+                if ally.ai == "coward" and ally.hp <= max(1, int(ally.max_hp * 0.3)):
+                    self._execute_npc_skill(state, ally, skill_id, skill_def, target)
+                    return
+
+        # Standard attack fallback
         self._move_to_band(state, ally, target, desired=reach)
         if weapon and self._weapon_in_range(ally, target, weapon):
             self._attack(state, ally, target, weapon, dice)
@@ -634,9 +765,16 @@ class CombatEngine:
             )
 
     def _move_to_band(
-        self, state: CombatState, mover: Combatant, target: Combatant, *, desired: int
+        self,
+        state: CombatState,
+        mover: Combatant,
+        target: Combatant,
+        *,
+        desired: int,
+        budget: int | None = None,
     ) -> None:
-        budget = mover.speed
+        if budget is None:
+            budget = mover.speed
         moved = False
         while budget > 0:
             current = distance(mover.x, mover.y, target.x, target.y)

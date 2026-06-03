@@ -15,7 +15,7 @@ from mythos_combat import (
     narrate_since,
     render_radar,
 )
-from mythos_combat.models import distance
+from mythos_combat.models import Combatant, Weapon, distance
 from mythos_runtime.scenario import load_scenario
 
 WEAPONS = {
@@ -348,6 +348,166 @@ class CombatSkillTest(unittest.TestCase):
         assert player is not None
         self.assertEqual(player.focus, 2)
         self.assertTrue(any(e.detail.get("focus_gained") == 1 for e in state.log if e.detail))
+
+    def test_ally_uses_covering_noise_automatically(self) -> None:
+        engine = CombatEngine()
+
+        ally = Combatant(
+            id="se_rin",
+            name="정세린",
+            faction="ally",
+            hp=14,
+            max_hp=14,
+            x=2,
+            y=2,
+            stats={"strength": 4, "agility": 7, "perception": 7},
+            defense=13,
+            speed=5,
+            focus=2,
+            max_focus=4,
+            skills=["covering_noise"],
+            weapons=[
+                Weapon(id="rivet_carbine", name="리벳 카빈", kind="ranged", range=4, damage="1d6")
+            ],
+        )
+        drone = _drone(x=5, y=2)
+
+        state = engine.start([_player(x=0, y=0), ally], [drone], seed="ally-cover-noise")
+        state.order = ["se_rin", "player", "drone"]
+        state.turn_ptr = 0
+
+        if ally.defense_buff != 3:
+            engine._npc_turn(state, ally)
+
+        self.assertEqual(ally.defense_buff, 3)
+        self.assertEqual(ally.defense_buff_turns, 1)
+        self.assertTrue(any("엄호 노이즈" in e.text for e in state.log))
+
+    def test_ally_uses_packet_shot_automatically(self) -> None:
+        engine = CombatEngine()
+
+        ally = Combatant(
+            id="se_rin",
+            name="정세린",
+            faction="ally",
+            hp=14,
+            max_hp=14,
+            x=2,
+            y=2,
+            stats={"strength": 4, "agility": 7, "perception": 7},
+            defense=13,
+            speed=5,
+            focus=1,
+            max_focus=4,
+            skills=["packet_shot"],
+            weapons=[
+                Weapon(id="rivet_carbine", name="리벳 카빈", kind="ranged", range=4, damage="1d6")
+            ],
+        )
+        drone = _drone(x=6, y=2, hp=20)
+
+        state = engine.start([_player(x=0, y=0), ally], [drone], seed="ally-packet-shot")
+        state.order = ["se_rin", "player", "drone"]
+        state.turn_ptr = 0
+
+        # If she hasn't used packet_shot yet, trigger her turn
+        has_cast = any("패킷 사격" in e.text for e in state.log)
+        if not has_cast:
+            engine._npc_turn(state, ally)
+
+        self.assertTrue(any("패킷 사격" in e.text for e in state.log))
+
+    def test_ally_uses_restore_margin_automatically(self) -> None:
+        engine = CombatEngine()
+        engine.skills_pool["restore_margin"] = {
+            "id": "restore_margin",
+            "name": "여백 복원",
+            "cost": {"focus": 2},
+            "range": 3,
+            "effect": {"heal": "1d8"},
+            "cooldown": 2,
+        }
+
+        ally = Combatant(
+            id="io",
+            name="이오",
+            faction="ally",
+            hp=12,
+            max_hp=12,
+            x=2,
+            y=2,
+            stats={"strength": 2, "agility": 4, "perception": 8},
+            defense=14,
+            speed=4,
+            focus=2,
+            max_focus=4,
+            skills=["restore_margin"],
+            weapons=[
+                Weapon(id="catalog_beam", name="목록 광선", kind="ranged", range=4, damage="1d6")
+            ],
+        )
+
+        player = _player(x=1, y=2)
+        player.max_hp = 15
+        player.hp = 5
+        drone = _drone(x=5, y=2, hp=20)
+
+        state = engine.start([player, ally], [drone], seed="ally-restore-margin")
+
+        # If Io has already cast restore_margin during opening, player hp is healed
+        has_cast = any("여백 복원" in e.text for e in state.log)
+        if not has_cast:
+            state.order = ["io", "player", "drone"]
+            state.turn_ptr = 0
+            engine._npc_turn(state, ally)
+
+        p = state.player()
+        assert p is not None
+        self.assertGreater(p.hp, 5)
+        self.assertTrue(any("여백 복원" in e.text for e in state.log))
+
+    def test_ally_uses_silent_shelve_automatically(self) -> None:
+        engine = CombatEngine()
+        engine.skills_pool["silent_shelve"] = {
+            "id": "silent_shelve",
+            "name": "무음 서가 이동",
+            "cost": {"focus": 2},
+            "range": 4,
+            "effect": {"move": 4},
+            "cooldown": 2,
+        }
+
+        ally = Combatant(
+            id="miro",
+            name="미로",
+            faction="ally",
+            hp=2,
+            max_hp=10,
+            x=2,
+            y=2,
+            stats={"strength": 2, "agility": 7, "perception": 6},
+            defense=12,
+            speed=5,
+            focus=2,
+            max_focus=4,
+            skills=["silent_shelve"],
+            weapons=[Weapon(id="index_dagger", name="색인 단검", kind="melee", damage="1d6")],
+            ai="coward",
+        )
+
+        drone = _drone(x=3, y=2, hp=20)
+
+        start_x, start_y = ally.x, ally.y
+        state = engine.start([_player(x=0, y=0), ally], [drone], seed="ally-silent-shelve")
+
+        has_cast = any("무음 서가 이동" in e.text for e in state.log)
+        if not has_cast:
+            state.order = ["miro", "player", "drone"]
+            state.turn_ptr = 0
+            engine._npc_turn(state, ally)
+
+        self.assertNotEqual((ally.x, ally.y), (start_x, start_y))
+        self.assertTrue(any("무음 서가 이동" in e.text for e in state.log))
 
 
 class ScenarioPoolEncounterTest(unittest.TestCase):

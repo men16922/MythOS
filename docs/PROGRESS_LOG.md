@@ -15,6 +15,18 @@ YYYY-MM-DD
 
 ## 2026-06-03
 
+- Status: [x] P3 Web UI 디커플링 slice 1 — FastAPI `/api/v1` REST 백엔드 어댑터 구현.
+- Changed:
+  - `src/mythos_api/`(신규): `create_app` 팩토리(`app.py`), 스냅샷/플레이어 직렬화(`serializers.py`, `to_json_dict` 기반 GameState 계약), 요청별 Postgres store 주입 dependency(`service.py`), uvicorn 엔트리포인트(`__main__.py`).
+  - 엔드포인트 7개: `health`, `auth/connect`, `loops/begin`, `loops/active`, `loops/choose`, `combat/begin`, `combat/action`. combat은 `combat_server` 응답 헬퍼 재사용. RuntimeError→404/409 매핑.
+  - `pyproject.toml`: optional `web` extra(fastapi/uvicorn/httpx), `mythos-api` 콘솔 스크립트.
+  - `tests/test_api.py`(신규, 7 tests): TestClient + in-memory store 주입으로 DB/Ollama 없이 검증.
+- Verified: `make test`(163 tests, 2 skipped), `make lint`, `make typecheck`, `make smoke-local` 전체 통과. `create_app` 라우트 7개 등록 확인.
+- Blockers: 인증 레이어 부재로 id를 요청 바디로 명시 전달(설계 대비 의도적 편차). 실 Postgres 연동 라이브 부팅은 미검증(unit은 in-memory).
+- Next: P3 slice 2 — WebSocket 토큰 스트리밍(`/api/v1/loops/stream`, `stream_choose` 연동).
+
+## 2026-06-03
+
 - Status: [x] 미커밋 작업 트리(P1 레이턴시/P2 IP-Adapter/동료 AI/엔딩 AST/CI) 검증 후 논리 단위 커밋 정리.
 - Changed:
   - 17개 수정 파일 + 신규(`.github/workflows/ci.yml`, P2/P3 plan docs)를 combat / visual / runtime-ui / ci / docs 5개 커밋으로 분리.

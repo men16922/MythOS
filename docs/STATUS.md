@@ -17,7 +17,8 @@ Project MythOS 로컬 플레이어블 MVP는 구현 완료 상태다. Streamlit 
 
 ## Latest Verified Baseline
 
-- `make test` (156 tests, 2 skipped)
+- `make test` (163 tests, 2 skipped)
+- `mythos_api` FastAPI `/api/v1` 어댑터: `tests/test_api.py`(7) — health/connect/begin/active/choose/combat 흐름을 in-memory store TestClient로 검증(DB/Ollama 불요), `create_app` 라우트 7개 등록 확인.
 - `make typecheck`
 - `make smoke-local`
 - Streamlit headless boot 200 OK
@@ -43,12 +44,10 @@ Project MythOS 로컬 플레이어블 MVP는 구현 완료 상태다. Streamlit 
 
 ## Active Focus
 
-다음 우선순위는 **P2 IP-Adapter 기반 캐릭터 비주얼 일관성** 및 **P3 Web UI/FastAPI 아키텍처 설계**이다.
+P2 IP-Adapter 캐릭터 일관성, P1 비주얼 레이턴시 계측은 코드 반영·커밋 완료. **P3 Web UI 디커플링 실구현에 착수했고 slice 1(FastAPI `/api/v1` REST 어댑터)을 완료**했다.
 
-목표:
-
-- FLUX 이미지 생성 시 캐릭터 일관성을 확보하기 위해 캐릭터 레퍼런스 이미지 가중치 주입.
-- FastAPI REST/WebSocket API 기반의 프론트엔드-백엔드 분리 아키텍처 구체화.
+- `mythos_api` 패키지(신규): `create_app` 팩토리가 `RuntimeSessionService`를 `/api/v1`로 노출(`auth/connect`, `loops/begin|active|choose`, `combat/begin|action`, `health`). Streamlit 무변경 추가형. optional `web` extra(`pip install -e ".[web]"`), 실행은 `python -m mythos_api`(또는 `mythos-api`).
+- 다음 slice: WebSocket 토큰 스트리밍(§2.2) → 분산 visual worker + S3 presigned URL(§5) → Next.js/Canvas 프론트엔드(§3,§4). 권위 설계는 `docs/plans/2026-06-03-web-ui-decoupling.md`.
 
 ## Completed Tracks
 

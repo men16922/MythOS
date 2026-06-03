@@ -74,9 +74,9 @@
 - `[x]` run summary 기반 meta progression/unlock 평가 및 `PlayerMemory(kind="meta_progression")` 저장.
 - `[x]` 새 루프 시작 시 unlocked starting item과 meta progression state 반영.
 - `[x]` 명시적 엔딩 조건 경로 추가: `EndingResolver` 모듈을 도입하고 `loop.state` 기반 조건식 평가를 통해 `RunSummary.ending_id`/`ending_label` 저장 확장. (P0)
-- `[ ]` P0 엔딩 리졸버 조건식 안전화: `eval` 기반 조건식을 AST/whitelist evaluator로 교체하거나 명시 DSL로 제한.
-- `[ ]` P0 Neo-Seoul/Glass Library ending condition 점검: 실제 `loop.state.flags`, clue count, stability/tension/autonomy와 조건식이 맞는지 검증.
-- `[ ]` P0 Player View 엔딩 표시 검증: 최종 화면/기록 보관소/메타 진행도에서 ending label이 일관되게 보이는지 확인.
+- `[x]` P0 엔딩 리졸버 조건식 안전화: `eval` 기반 조건식을 AST/whitelist evaluator로 교체하거나 명시 DSL로 제한.
+- `[x]` P0 Neo-Seoul/Glass Library ending condition 점검: 실제 `loop.state.flags`, clue count, stability/tension/autonomy와 조건식이 맞는지 검증.
+- `[x]` P0 Player View 엔딩 표시 검증: 최종 화면/기록 보관소/메타 진행도에서 ending label이 일관되게 보이는지 확인.
 - `[x]` 메인 메뉴 `LOAD`를 active loop/save slot UX로 정리하고, ended loop는 기록 보관소로 분리.
 - `[x]` autosave metadata와 명시적 `SAVE` 버튼 추가.
 
@@ -90,14 +90,14 @@
 ### 5. 시각/서사 후속 선택
 
 - `[x]` 인과율/엔딩 디버그 모니터 초도 노출: Developer 뷰에서 active flags, metric score, ending condition matching 상태 확인.
-- `[ ]` 인과율 예약 이벤트, NPC 위치/아젠다 노출 고도화: Developer 뷰나 Codex에 NPC 아젠다 스탯 진행도와 예약 이벤트 타임라인을 시각화. (P1)
-- `[ ]` 실 플레이 중 이미지 per-step latency 계측: `visual_service` 내 생성 단계 시간 측정, OTel 스팬/로그 연동 및 steps 프리셋 최적화. (P1)
-- `[ ]` IP-Adapter/pose reference 실배선: Apple Silicon MPS 환경에서 FLUX 이미지 생성 시 캐릭터 일관성을 확보하기 위해 캐릭터 레퍼런스 이미지 경로 및 가중치 주입. (P2)
+- `[x]` 인과율 예약 이벤트, NPC 위치/아젠다 노출 고도화: Developer 뷰나 Codex에 NPC 아젠다 스탯 진행도와 예약 이벤트 타임라인을 시각화. (P1)
+- `[x]` 실 플레이 중 이미지 per-step latency 계측: `visual_service` 내 생성 단계 시간 측정, OTel 스팬/로그 연동 및 steps 프리셋 최적화. (P1)
+- `[x]` IP-Adapter/pose reference 실배선: Apple Silicon MPS 환경에서 FLUX 이미지 생성 시 캐릭터 일관성을 확보하기 위해 캐릭터 레퍼런스 이미지 경로 및 가중치 주입. (P2)
 
 ### 6. 제품화 후속 선택
 
-- `[ ]` Streamlit 이후 Web UI 경계 설계: FastAPI 등으로 HTTP/WebSocket API 구축 및 Next.js/Vite 기반 프론트엔드로의 디커플링 아키텍처 설계. (P3)
-- `[ ]` 원격 visual worker/storage/cloud 확장 설계: 분산 Redis Queue 비주얼 워커와 MinIO/S3 오브젝트 스토리지 통합 설계. (P3)
+- `[x]` Streamlit 이후 Web UI 경계 설계: FastAPI 등으로 HTTP/WebSocket API 구축 및 Next.js/Vite 기반 프론트엔드로의 디커플링 아키텍처 설계. (P3)
+- `[x]` 원격 visual worker/storage/cloud 확장 설계: 분산 Redis Queue 비주얼 워커와 MinIO/S3 오브젝트 스토리지 통합 설계. (P3)
 - `[ ]` CI 도입 가능성 검토.
 
 ## Completed Baseline

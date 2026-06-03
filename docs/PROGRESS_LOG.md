@@ -15,6 +15,63 @@ YYYY-MM-DD
 
 ## 2026-06-03
 
+- Status: [x] Ollama API 타임아웃 튜닝 및 전투 종료 후 메인 화면 튕김 UX 흐름 개선 완료.
+- Changed:
+  - `config.py` (`src/mythos_image_agent/config.py`):
+    - 로컬 LLM(Gemma 4) 기동 시 첫 토큰 생성 지연에 따른 타임아웃 예외(`APITimeoutError`)를 방지하기 위해 `ollama_timeout_seconds` 기본값을 4.5초에서 30.0초로 상향 조정.
+  - `streamlit_app.py`:
+    - 전투가 패배(`player_defeat`) 처리되거나 루프가 종결(`LoopPhase.ENDED`)되어 정산 버튼을 클릭했을 때, 이전처럼 메인 접속 화면으로 즉각 리다이렉트되어 진행이 끊기던 버그성 UX 흐름 수정.
+    - 튕기지 않고 스냅샷을 갱신하여 부모 창에 루프 아카이브 성공/패배 메시지 및 런 히스토리, 해금 결과(`LoopPhase.ENDED` 상태 뷰)를 유저에게 그대로 렌더링하도록 갱신.
+- Verified: `make lint`, `make typecheck`, `make test` (156 tests), `make smoke-local` 전체 통과.
+- Next: P2 IP-Adapter 캐릭터 비주얼 일관성 및 Web UI 아키텍처 연계 진행.
+
+## 2026-06-03
+
+- Status: [x] 세린 오프닝 연출(Ken Burns, 타이프라이터, Glitch SFX) 및 한국어화 튜닝, Codex 진척도/기억 단일화 통합 완료.
+- Changed:
+  - `streamlit_app.py`:
+    - `_player_session_intro` 및 `_render_opening_cinematic`, `_opening_cinematic_html`을 전면 개편.
+    - 단일 그리드로 표시되던 세린의 오프닝 씬들을 CSS Ken Burns 확대/축소, Typewriter 한글 타이핑 효과, 슬라이드 간 수동/자동 전환(7초)이 가능한 HTML5 sequential 슬라이드쇼로 탈바꿈.
+    - 슬라이드가 전환될 때마다 `sfx_glitch.wav` 효과음 재생 및 화면 글리치 필터(0.3초)가 동기화되어 작동하도록 구현.
+    - 오프닝 첫 접속 단계 시 BGM을 네오서울 메인 테마(`bgm_main.wav`)로 오버라이드하여 재생하도록 연계.
+    - 메인 이야기 뷰 및 전투 뷰 하단에 흩어져 노출되던 "회상 잔향(Echo)"과 "모은 단서" 뷰(`_render_player_memory`)를 완전히 지우고, Codex(기억의 별자리) 탭의 `_render_codex_lore` 메뉴 하단에 유기적으로 통합 렌더링.
+    - `SAVE` 버튼 동작 실패 및 `AUTOSAVE :: 슬롯 준비 중`에서 멈추는 에러 원인을 즉각 추적할 수 있도록 예외 발생 시 콘솔 traceback 출력 및 active 화면 상단에 붉은 에러 박스로 실시간 가시화 처리.
+  - `scenario_context.py` (`src/mythos_runtime/scenario_context.py`):
+    - `ONBOARDING_ACT1_SHOT1 / SHOT2 / SHOT3` 프롬프트 지시사항 및 씬 묘사 조건들을 완벽하게 한국어로 번역하여 AI 게임 마스터가 한글 씬 및 선택지들을 일관되게 생성하도록 프롬프트 최적화.
+- Verified: `make lint`, `make typecheck`, `make test` (156 tests), `make smoke-local` 전체 통과.
+- Next: P2 IP-Adapter 캐릭터 비주얼 일관성 및 Web UI 아키텍처 연계 진행.
+
+## 2026-06-03
+
+- Status: [x] 동료 AI 전술 고도화, 전술 전투 밸런스 최종 조율, CI 파이프라인 도입 완료.
+- Changed:
+  - `engine.py` (`src/mythos_combat/engine.py`):
+    - 동료 AI 스킬 선택 로직을 하드코딩 방식에서 데이터 중심의 범용적 동적 스킬 평가 루프(Generic Skill Evaluation Loop)로 전면 개편.
+    - 힐링 스킬(`restore_margin`)을 보유한 동료가 범위 내 부상당한 아군(HP <= 60%)을 찾아 자동으로 치료하도록 AI 행동 패턴 연동.
+    - 이동/탈출 스킬(`silent_shelve`, `signal_step` 등)을 보유한 겁쟁이(coward) AI 동료가 체력이 낮을 때 자동으로 텔레포트/이동 회피를 수행하도록 배선.
+    - `_execute_npc_skill` 및 `_move_to_band`를 리팩토링하여 아군 대상 힐링 처리 및 이동 효과(`move`) 처리 연계.
+  - `scenario.json` (`resources/neo-seoul/scenario.json`, `resources/glass-library/scenario.json`):
+    - 정비 드론, 감시 드론, 집행 유닛 등 주요 적들의 HP, 방어력, 장갑을 상향하여 동료 합류 시의 전투 긴장감 유지.
+    - 전술 소모품(나노패치, 자극 파편) 획득 밸런스 조정을 위해 전리품 획득 확률(Loot Table Weights) 하향 튜닝.
+  - `.github/workflows/ci.yml` (신규):
+    - GitHub Actions 지속적 통합 워크플로우 구성. 파이썬 3.11 환경에서 `make setup`, `make lint`, `make typecheck`, `make test`를 자동 실행하여 회귀 버그 방지 체계 마련.
+  - `tests/test_combat_engine.py`:
+    - 동료의 자동 힐링(`test_ally_uses_restore_margin_automatically`) 및 자동 이동 회피(`test_ally_uses_silent_shelve_automatically`) 검증을 위한 단위 테스트 추가.
+- Verified: `make test` (156 tests), `make lint`, `make typecheck`, `make smoke-local` 전체 통과.
+- Next: P2 IP-Adapter 캐릭터 비주얼 일관성 및 Web UI 아키텍처 연계 진행.
+
+## 2026-06-03
+
+- Status: [x] P1 이미지 생성 레이턴시 계측 및 최적화 프리셋 구현 완료.
+- Changed:
+  - `visual_service.py` (`src/mythos_runtime/visual_service.py`): 이미지 생성(`provider_ms`), Y2K/오버레이 필터 적용(`postprocess_ms`), 스토리지 업로드(`storage_ms`)의 구간별 시간과 총 소요 시간(`latency_ms`)을 계측하도록 고도화.
+  - `observability.py` (`src/mythos_runtime/observability.py`): JsonFormatter에 계측 필드를 추가해 로깅 시 전송하며, `set_span_attribute()` 헬퍼를 도입해 OTel 스팬 속성에 주입.
+  - `streamlit_app.py`: Player View 장면 이미지 하단에 구간별 레이턴시 캡션을 렌더링하고, 플레이어용 해상도/steps 프리셋(Fast, Balanced, Quality, Ultra) 선택박스를 사이드바에 추가.
+- Verified: `make lint`, `make typecheck`, `make test`(148 tests), `make smoke-local`, `make test-db` 전체 통과.
+- Next: P2 IP-Adapter 캐릭터 비주얼 일관성 도입 진행.
+
+## 2026-06-03
+
 - Status: [x] EndingResolver, 인과율/아젠다 디버그 모니터, Player View hotfix 기준선 최신화.
 - Changed:
   - `EndingResolver` (`src/mythos_runtime/ending_resolver.py`) 신규 구현: `loop.state.flags` 내 Humanity/Insight/Resilience/Dominance 점수를 파싱/계산하고, `scenario.json`에 정의된 endings 조건식을 제한된 namespace에서 평가.
@@ -213,3 +270,31 @@ YYYY-MM-DD
 - Verified: 문서 링크/크기 확인.
 - Blockers: 없음.
 - Next: 동료/파티 참전 작업 시 `STATUS.md`와 `NEXT_PLAN.md`만 갱신하고 상세 구현 기록은 필요한 만큼만 append.
+
+## 2026-06-03
+
+- Status: [x] P2 (IP-Adapter 캐릭터 비주얼 일관성 실배선) 및 P3 (Web UI 디커플링 아키텍처 설계) 완료.
+- Changed:
+  - `src/mythos_image_agent/config.py`: IP-Adapter 레포, 가중치명, CLIP 이미지 인코더 설정 속성 추가.
+  - `src/mythos_image_agent/pipeline_cache.py`: `get_flux_ip_adapter_pipeline` 추가 (CLIP Image Encoder CPU 격리 로딩, base components 공유 생성, IP-Adapter 가중치 탑재).
+  - `src/mythos_image_agent/generator.py`: `generate_image`에 `ip_adapter_image_path`/`ip_adapter_scale` 추가 배선 및 비사용 시 scale 0.0 처리.
+  - `src/mythos_runtime/visual_service.py`: `_request_from_scene`에서 캐릭터 포트레이트 일치 시 `use_ip_adapter=True` 자동 설정, `LocalFluxProvider` 내 IP-Adapter 생성 분기 배선.
+  - `resources/neo-seoul/scenario.json`: 누락되었던 `character_map` 및 `concept_map` 정보 추가 설정.
+  - `docs/plans/2026-06-03-web-ui-decoupling.md` 및 `docs/plans/2026-06-03-p2-p3-implementation.md` 작성: Next.js/Vite 상태 바인딩, REST/WebSocket API boundary 규격, Canvas 기반 전술 전투 보드 설계 및 Redis Queue/S3 락 사양 정의.
+  - `tests/test_visual_service.py`: 캐릭터 감지(IP-Adapter 활성화), 개념 감지(IP-Adapter 비활성), LocalFluxProvider 분기 라우팅, `get_flux_ip_adapter_pipeline` mock 단위 테스트 추가.
+- Verified: `make test` (152 tests, 2 skipped), `make typecheck`, `make smoke-local` 전부 성공 통과.
+- Blockers: 없음.
+- Next: P0 EndingResolver 조건식 AST/whitelist evaluator 교체 및 시나리오 엔딩 조건식 정합성 점검.
+
+## 2026-06-03
+
+- Status: [x] 1순위 (P0 EndingResolver AST 안전화 및 시나리오 정합성 점검), 2순위 (P1 DB Connection Churn 최적화), 3순위 (P1 NPC 아젠다 & 이벤트 타임라인 디벨로퍼 뷰 고도화) 완료.
+- Changed:
+  - `src/mythos_runtime/ending_resolver.py`: `ASTConditionEvaluator` 구현. `eval`을 AST 파서/화이트리스트 기반 조건식 평가로 교체하여 RCE 보안 위험을 구조적으로 제거.
+  - `tests/test_ending_resolver.py`: AST 평가식 및 논리 연산자, `flags contains` 조건 검증을 기존 유닛 테스트로 안정 작동 확인.
+  - `streamlit_app.py`:
+    - `@st.cache_resource` 데코레이터를 이용한 싱글톤 `get_shared_store()` 헬퍼 도입. 모든 UI 액션/스트림/로더에서 DB Store를 매번 생성하고 닫던 오버헤드(Connection Churn)를 완전히 제거하여 반응성 향상.
+    - Developer panel (`_causality_monitor_panel`)에 NPC 아젠다 Goal/Rules 노출 및 매칭 활성 플래그 표시, `store.list_events`를 활용한 월드 이벤트 히스토리 타임라인(Causality Event Timeline) 시각화 보강.
+- Verified: `make test` (152 tests, 2 skipped), `make typecheck`, `make smoke-local` 전부 성공 통과.
+- Blockers: 없음.
+- Next: P1/P2 동료 AI/행동 및 전술 밸런싱 고도화.

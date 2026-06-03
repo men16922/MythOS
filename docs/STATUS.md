@@ -17,7 +17,7 @@ Project MythOS 로컬 플레이어블 MVP는 구현 완료 상태다. Streamlit 
 
 ## Latest Verified Baseline
 
-- `make test` (148 tests, 2 skipped)
+- `make test` (156 tests, 2 skipped)
 - `make typecheck`
 - `make smoke-local`
 - Streamlit headless boot 200 OK
@@ -26,28 +26,29 @@ Project MythOS 로컬 플레이어블 MVP는 구현 완료 상태다. Streamlit 
 - Targeted combat follow-up tests: 도주 결과는 contact를 `alerted`+cooldown 상태로 유지하고 보상을 적용하지 않음.
 - Combat balance tests: focus 비용 2 중심 조정, 방어 집중 회복 턴, `stim_shard` 회복량 조정 검증.
 - Story Bible MVP tests: Neo-Seoul/Glass Library `story_bible/bible.json` 로딩, phase/flag/location 기반 snippet 선택, `NarrativeContext` 주입 확인.
-- Neo-Seoul depth tests: 6막 long-form session design, 15개 이상 Story Bible snippet, final confrontation/pacing contract 확인.
 - Run History tests: archive/permadeath 시 `run_summary` 저장, service 조회, Player View 기록 보관소 렌더 경로 확인.
 - Meta Progression tests: run summary 기반 unlock 평가, `PlayerMemory(kind="meta_progression")` 저장, 새 루프 시작 시 unlocked starting item/state 반영.
 - Save/Load tests: active save slot 목록, ended loop load 차단, player resume 최신 active slot 선택 확인.
 - Ending Resolver tests: scenario ending condition 평가, `RunSummary.ending_id`/`ending_label` 저장 경로 확인.
 - Player View hotfix tests: 선택 플레이어가 없어도 `새 게임 시작`이 player 생성 후 시작되고, `"null"` combat request sentinel은 전투 요청으로 처리하지 않음.
-- Opening cinematic renderer: Streamlit markdown 파서 대신 self-contained iframe 렌더 경로로 raw HTML 노출 방지.
+- Opening cinematic renderer: Streamlit iframe 기반으로, Ken Burns 확대/축소 및 슬라이드 간 이동, Typewriter 텍스트 타이핑 효과, 슬라이드 전환 연동 glitch SFX 및 화면 글리치 필터 효과 구현.
 - Streamlit boot check: `http://localhost:8501` 200 OK.
+- AST-based EndingResolver (P0): `eval` 제거 후 safe `ASTConditionEvaluator` 구현 완료, Neo-Seoul / Glass Library 엔딩 식 정합성 및 타입 매핑 검증 완료.
+- DB Connection Churn 최적화 (P1): `@st.cache_resource` 기반 싱글톤 적용 대신, 안정적인 커넥션 관리(local instantiation + try-finally store.close)를 복구하고 Save/Load 예외 즉시 가시화 및 콘솔 traceback 출력 적용.
+- NPC Agendas & Causality Timeline (P1): Developer 뷰 내 NPC 아젠다 상세 스펙 및 WorldEvents 타임라인 시각화 완료.
+- Onboarding Prompt Localization (P1): turn 0, 1, 2 에 해당하는 지시문을 한국어로 강제하여 AI 게임 마스터가 한글 씬/선택지를 생성하도록 튜닝.
+- Codex Progression Unification (P1): 메인 뷰 하단의 회상 잔향 및 단서 목록을 Codex 탭의 '기억의 별자리' 뷰 안으로 완전히 통합 및 안내 추가.
+- Ollama API Timeout Tuning (P1): 로컬 인프라 생성 부하에 따른 타임아웃 문제를 막기 위해 default timeout을 4.5초에서 30.0초로 상향하여 loop 요약 시의 API 중단을 예방.
+- Combat Exit Flow Resolution (P1): 전투에서 패배하거나 루프가 종료되어 정산할 때, 기존 메인 접속 화면으로 튕기던 하드코딩 흐름을 스냅샷 이행 화면(ENDED 페이즈 뷰)을 노출하도록 고도화.
 
 ## Active Focus
 
-다음 우선순위는 **실 플레이 중 이미지 생성 레이턴시 계측 및 최적화(P1)와 IP-Adapter 캐릭터 비주얼 일관성(P2) 도입**이다.
+다음 우선순위는 **P2 IP-Adapter 기반 캐릭터 비주얼 일관성** 및 **P3 Web UI/FastAPI 아키텍처 설계**이다.
 
 목표:
 
-- 영화/소설/게임북처럼 별도 작성된 시나리오 바이블을 LLM GM이 필요한 순간에 참고한다.
-- 샘플용 신규 게임 스토리 `세계 : 접속 - 유리성의 사서`를 작성해 멀티 시나리오 구조를 검증했다.
-- 세션 archive/permadeath마다 플레이어의 진행을 요약 저장하고, Player View 메뉴에서 런 히스토리로 조회한다.
-- 로그라이크식 메타 진행도와 특전 해금을 추가했다.
-- active loop/save slot 기반 명시적 세이브/로드 UX를 제공한다.
-- scenario ending condition을 평가해 archive/permadeath run summary에 `ending_id`/`ending_label`을 저장한다.
-- 필요 시 동료 AI/HP carry-over 밸런스를 추가 조정한다.
+- FLUX 이미지 생성 시 캐릭터 일관성을 확보하기 위해 캐릭터 레퍼런스 이미지 가중치 주입.
+- FastAPI REST/WebSocket API 기반의 프론트엔드-백엔드 분리 아키텍처 구체화.
 
 ## Completed Tracks
 

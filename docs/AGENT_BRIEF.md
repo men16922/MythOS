@@ -16,7 +16,7 @@
 - 완료: 전투 스킬/아이템 실행, 전투 이동/blank 버그 수정, 전투화면 단일 iframe 재구성, 동료/파티 참전, 도주 후 contact alerted 유지, focus/skill 밸런스 정리.
 - 전투 UI는 `src/mythos_runtime/combat_server.py`의 localhost JSON bridge와 `streamlit_app.py`의 `_build_combat_app_html`이 담당한다. 전투 중 per-action Streamlit rerun은 제거했고, 종료 시에만 Streamlit으로 돌아온다.
 - 동료 참전은 `_party.members` 또는 scenario ally `unlock_flags`가 `loop.state["flags"]`와 맞을 때 `CombatService.begin`에서 ally combatant로 투입된다.
-- 다음 우선순위: 실 플레이 중 이미지 생성 레이턴시 계측 및 최적화(P1)와 IP-Adapter 캐릭터 비주얼 일관성(P2) 도입이다. 권위 계획은 `docs/plans/2026-05-31-story-bible-save-load.md`.
+- 다음 우선순위: IP-Adapter 캐릭터 비주얼 일관성(P2) 도입이다. 권위 계획은 `docs/plans/2026-05-31-story-bible-save-load.md`.
 - Story Bible MVP는 `src/mythos_runtime/story_bible.py`와 `resources/neo-seoul/story_bible/bible.json`로 시작했다. `scenario_context`가 phase/location/flags에 맞는 snippet만 `NarrativeContext.novelty_notes`에 주입한다.
 - 주력 콘텐츠는 Neo-Seoul 01이다. `resources/neo-seoul/scenario.json`과 `resources/neo-seoul/story_bible/bible.json`은 1회 1시간/40-60턴 소설형 세션을 목표로 6막 구조, pacing contract, 관계/단서/클라이맥스 snippet을 포함한다.
 - 샘플 게임북 `세계 : 접속 - 유리성의 사서`는 멀티 시나리오 구조 검증용으로 `docs/scenarios/02-glass-library.md`, `resources/glass-library/scenario.json`, `resources/glass-library/story_bible/bible.json`에 있다.

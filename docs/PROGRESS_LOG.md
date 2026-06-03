@@ -15,6 +15,14 @@ YYYY-MM-DD
 
 ## 2026-06-03
 
+- Status: [x] PoC UI/UX Phase 1 구현 — 녹청 터미널 팔레트·레이아웃·선택지 카드·HUD·이미지 통제.
+- Changed:
+  - `src/mythos_api/static/index.html`+`app.js`: 시안/블루 → Streamlit 녹청 터미널 팔레트(스캔라인·글로우·SF Mono). 본문 중심 2단 레이아웃(좌 씬 카드 + 우 340px aside), 내러티브 70ch·15.5px + 스트리밍 캐럿. 선택지를 command-card([n] 핫키+라벨+intent, hover 글로우, 키보드 1-9)로. HUD STABILITY/TENSION 게이지 막대(위험도 색) + 루프/국면/위치 메타. 이미지 full-bleed → aspect 1:1 프레임 크기 통제 + 플레이스홀더/페이드인.
+- Verified: `tests/test_api.py`(21) 통과, 라이브 WS begin으로 HUD/choices(label+intent) 필드 수신 확인. 브라우저 육안은 사용자 확인 예정.
+- Next: PoC Phase 2(전투 캔버스 반응형·라벨·HP·사거리 링, 타입라이터 다듬기) → Phase 3(반응형·로그).
+
+## 2026-06-03
+
 - Status: [x] PoC UI/UX 개선 방안 문서화(라이브 스크린샷 기반).
 - Changed:
   - 라이브 PoC 스크린샷 2장 검토 → 문제점(이미지 압도/본문 가독성/선택지 바/HUD 빈약/색 불일치/전투 캔버스 휑함) 진단.

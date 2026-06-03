@@ -22,6 +22,9 @@
       --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
     }
     * { box-sizing: border-box; }
+    /* `main { display: grid }` would otherwise override the `hidden` attribute,
+       leaking the empty play area onto the onboarding screen. */
+    [hidden] { display: none !important; }
     html, body { height: 100%; }
     body {
       margin: 0;

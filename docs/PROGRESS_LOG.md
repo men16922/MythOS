@@ -15,6 +15,16 @@ YYYY-MM-DD
 
 ## 2026-06-03
 
+- Status: [x] 온보딩 화면 노출 버그 수정 + Streamlit/API 비교 문서.
+- Changed:
+  - 버그: 시작 전 `#play`가 `hidden`인데도 빈 플레이 영역(게이지/로그)이 온보딩 아래 노출됨. 원인은 `main { display: grid }`가 `hidden` 속성을 덮어씀 → `[hidden] { display: none !important; }` 추가로 수정.
+  - `docs/STREAMLIT_VS_API.md`(신규): 두 프론트엔드의 아키텍처/전송/상태/기능 패리티/공유 요소/선택 기준 정리.
+  - STATUS Source Of Truth에 비교 문서 포인터 추가.
+- Verified: `tests/test_api.py`(22) 통과, 라이브 `/` 200 + `[hidden]` 규칙 서빙 확인. (전투 렉 해소도 사용자 확인됨.)
+- Next: S2 Codex/기억(memory_overview API + Codex 탭).
+
+## 2026-06-03
+
 - Status: [x] 전투 종료 LLM 멈춤 수정 + PoC→패리티 로드맵 + S1 온보딩/세션.
 - Changed:
   - fix(combat): 전투 패배(루프 종료) 시 `summarize_loop`가 fallback/fast 모드에서도 Ollama를 동기 호출해 8.3s 멈추던 것 → `use_llm` 게이트로 결정론 요약, 22ms로 단축. `director.summarize_loop(events, *, use_llm)`, `_commit_combat_turn`에서 `not(options.fallback or fast_mode)`로 게이트.

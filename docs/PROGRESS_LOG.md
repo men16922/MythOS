@@ -15,6 +15,15 @@ YYYY-MM-DD
 
 ## 2026-06-03
 
+- Status: [x] 미커밋 작업 트리(P1 레이턴시/P2 IP-Adapter/동료 AI/엔딩 AST/CI) 검증 후 논리 단위 커밋 정리.
+- Changed:
+  - 17개 수정 파일 + 신규(`.github/workflows/ci.yml`, P2/P3 plan docs)를 combat / visual / runtime-ui / ci / docs 5개 커밋으로 분리.
+  - `.gitignore`에 `screenshots/` 추가, `NEXT_PLAN`의 마지막 미완료 항목 `CI 도입`을 `[x]`로 마감.
+- Verified: `make test`(156 tests, 2 skipped), `make lint`, `make typecheck` 전체 통과. 작업 트리 clean.
+- Next: P3 Web UI 디커플링 실구현(FastAPI 백엔드 어댑터). 설계는 `docs/plans/2026-06-03-web-ui-decoupling.md`.
+
+## 2026-06-03
+
 - Status: [x] Ollama API 타임아웃 튜닝 및 전투 종료 후 메인 화면 튕김 UX 흐름 개선 완료.
 - Changed:
   - `config.py` (`src/mythos_image_agent/config.py`):

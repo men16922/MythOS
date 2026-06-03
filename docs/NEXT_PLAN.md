@@ -98,7 +98,7 @@
 
 - `[x]` Streamlit 이후 Web UI 경계 설계: FastAPI 등으로 HTTP/WebSocket API 구축 및 Next.js/Vite 기반 프론트엔드로의 디커플링 아키텍처 설계. (P3)
 - `[x]` 원격 visual worker/storage/cloud 확장 설계: 분산 Redis Queue 비주얼 워커와 MinIO/S3 오브젝트 스토리지 통합 설계. (P3)
-- `[ ]` CI 도입 가능성 검토.
+- `[x]` CI 도입: `.github/workflows/ci.yml` (Python 3.11 setup/lint/typecheck/test).
 
 ## Completed Baseline
 

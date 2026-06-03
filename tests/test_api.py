@@ -12,6 +12,7 @@ import sys
 import unittest
 from collections.abc import Iterator
 from pathlib import Path
+from typing import Any, cast
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -101,6 +102,59 @@ class ApiNarrativeFlowTest(unittest.TestCase):
             json={"player_id": "ghost", "fallback": True},
         )
         self.assertEqual(response.status_code, 404)
+
+
+def _drain_to_snapshot(ws: Any) -> dict[str, Any]:
+    frame = ws.receive_json()
+    while frame["type"] == "token":
+        frame = ws.receive_json()
+    return cast(dict[str, Any], frame)
+
+
+class ApiStreamTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.store = _InMemoryStore()
+        self.client = _client(self.store)
+        self.client.post(
+            "/api/v1/auth/connect",
+            json={"display_name": "테스터", "player_id": "player_ws"},
+        )
+
+    def test_begin_streams_token_then_snapshot(self) -> None:
+        with self.client.websocket_connect("/api/v1/loops/stream") as ws:
+            ws.send_json({"event": "begin", "player_id": "player_ws", "fallback": True})
+            first = ws.receive_json()
+            self.assertEqual(first["type"], "token")
+            self.assertTrue(first["content"])
+            snapshot = _drain_to_snapshot(ws)
+            self.assertEqual(snapshot["type"], "snapshot")
+            self.assertTrue(snapshot["data"]["loop_id"].startswith("loop_"))
+
+    def test_choose_streams_on_same_socket(self) -> None:
+        with self.client.websocket_connect("/api/v1/loops/stream") as ws:
+            ws.send_json({"event": "begin", "player_id": "player_ws", "fallback": True})
+            begin = _drain_to_snapshot(ws)
+            loop_id = begin["data"]["loop_id"]
+            choice_id = begin["data"]["active_scene"]["choices"][0]["choice_id"]
+
+            ws.send_json(
+                {"event": "choose", "loop_id": loop_id, "choice_id": choice_id, "fallback": True}
+            )
+            advanced = _drain_to_snapshot(ws)
+            self.assertEqual(advanced["data"]["loop_id"], loop_id)
+            self.assertGreaterEqual(advanced["data"]["active_scene"]["turn_index"], 1)
+
+    def test_unknown_event_returns_error(self) -> None:
+        with self.client.websocket_connect("/api/v1/loops/stream") as ws:
+            ws.send_json({"event": "nope"})
+            frame = ws.receive_json()
+            self.assertEqual(frame["type"], "error")
+
+    def test_begin_missing_player_returns_error(self) -> None:
+        with self.client.websocket_connect("/api/v1/loops/stream") as ws:
+            ws.send_json({"event": "begin", "player_id": "ghost", "fallback": True})
+            frame = ws.receive_json()
+            self.assertEqual(frame["type"], "error")
 
 
 class ApiCombatFlowTest(unittest.TestCase):

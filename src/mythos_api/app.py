@@ -12,15 +12,17 @@ request bodies instead of being inferred from an auth context.
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from typing import Any
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from pydantic import BaseModel, Field
+from starlette.concurrency import iterate_in_threadpool
 
 from mythos_api.serializers import player_to_dict, snapshot_to_dict
 from mythos_api.service import get_service
 from mythos_runtime.combat_server import combat_action_response, combat_state_response
-from mythos_runtime.options import RuntimeOptions
+from mythos_runtime.options import RuntimeOptions, RuntimeStreamEvent
 from mythos_runtime.session import RuntimeSessionService
 
 API_PREFIX = "/api/v1"
@@ -71,6 +73,58 @@ def _as_http_error(exc: RuntimeError) -> HTTPException:
     if "not found" in lowered or "has no scenes" in lowered:
         return HTTPException(status_code=404, detail=message)
     return HTTPException(status_code=409, detail=message)
+
+
+# --- WebSocket streaming (design §2.2) --------------------------------------
+
+
+def _stream_for(
+    service: RuntimeSessionService,
+    message: dict[str, Any],
+) -> Iterator[RuntimeStreamEvent]:
+    """Map an inbound socket message to the matching runtime token stream."""
+    options = RuntimeOptions(
+        scenario_id=message.get("scenario_id", "neo-seoul"),
+        fallback=bool(message.get("fallback", False)),
+    )
+    event = message.get("event")
+    if event == "begin":
+        return service.stream_start_loop(message["player_id"], options)
+    if event == "choose":
+        return service.stream_choose(
+            message["loop_id"],
+            choice_id=message.get("choice_id"),
+            action=message.get("action"),
+            options=options,
+        )
+    raise KeyError(f"unknown event: {event!r}")
+
+
+async def _run_stream(
+    websocket: WebSocket,
+    service: RuntimeSessionService,
+    message: dict[str, Any],
+) -> None:
+    """Drive one runtime token stream and relay it to the client socket.
+
+    The runtime stream is a blocking sync generator (it calls Ollama), so we
+    iterate it in a threadpool to avoid stalling the event loop, relaying each
+    token as ``{"type": "token"}`` and the terminal frame as
+    ``{"type": "snapshot"}`` (design §2.2).
+    """
+    try:
+        generator = _stream_for(service, message)
+        async for event in iterate_in_threadpool(generator):
+            if event.kind == "text":
+                await websocket.send_json({"type": "token", "content": event.text})
+            elif event.snapshot is not None:
+                await websocket.send_json(
+                    {"type": "snapshot", "data": snapshot_to_dict(event.snapshot)}
+                )
+    except KeyError as exc:
+        await websocket.send_json({"type": "error", "detail": str(exc).strip("'\"")})
+    except RuntimeError as exc:
+        await websocket.send_json({"type": "error", "detail": str(exc)})
 
 
 # --- App factory ------------------------------------------------------------
@@ -162,5 +216,18 @@ def create_app() -> FastAPI:
             )
         except RuntimeError as exc:
             raise _as_http_error(exc) from exc
+
+    @app.websocket(f"{API_PREFIX}/loops/stream")
+    async def loops_stream(
+        websocket: WebSocket,
+        service: RuntimeSessionService = Depends(get_service),
+    ) -> None:
+        await websocket.accept()
+        try:
+            while True:
+                message = await websocket.receive_json()
+                await _run_stream(websocket, service, message)
+        except WebSocketDisconnect:
+            return
 
     return app

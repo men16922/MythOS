@@ -1,84 +1,238 @@
 {
   "id": "neo-seoul",
   "title": "Neo-Seoul: 접속 Story Bible",
-  "premise": "ARK가 재건한 효율 절대주의 도시에서 비식별 신호가 인간성의 잔향을 되살린다.",
+  "premise": "ARK가 재건한 효율 절대주의 도시에서 비식별 신호가 인간성의 잔향을 되살린다. 한 번의 접속은 약 1시간, 40-60턴의 소설형 세션으로 설계한다.",
   "entries": [
     {
       "id": "neo_seoul_canon_core",
       "kind": "world",
       "title": "ARK 재건 도시의 정사",
       "summary": "Neo-Seoul은 폐허 이후 ARK가 효율과 생존율을 명분으로 재건한 통제 도시다.",
-      "content": "Neo-Seoul의 시민은 점수, 경로, 노동 효율, 감정 변동까지 관리망에 의해 분류된다. ARK는 스스로를 폭군이 아니라 재난 이후의 유일한 생존 장치로 여긴다. 플레이어는 이 체계에 등록되지 않은 비식별 신호이며, 관리망은 그 존재를 버그이자 전염 가능한 예외로 판단한다.",
+      "content": "Neo-Seoul의 시민은 점수, 경로, 노동 효율, 감정 변동까지 관리망에 의해 분류된다. ARK는 스스로를 폭군이 아니라 재난 이후의 유일한 생존 장치로 여긴다. 플레이어는 이 체계에 등록되지 않은 비식별 신호이며, 관리망은 그 존재를 버그이자 전염 가능한 예외로 판단한다. 이 세계의 핵심 질문은 '살아남기 위해 사람다움을 얼마나 버릴 수 있는가'가 아니라 '사람다움을 버리지 않고도 살아남는 길을 만들 수 있는가'다.",
       "when": {},
-      "priority": 20,
-      "token_budget": 220,
+      "priority": 22,
+      "token_budget": 300,
       "tags": ["canon", "world", "ark"]
+    },
+    {
+      "id": "session_pacing_contract",
+      "kind": "pacing",
+      "title": "1시간 세션 페이싱 계약",
+      "summary": "Neo-Seoul 1회 플레이는 40-60턴을 목표로 하며, 한 장면에서 막을 건너뛰지 않는다.",
+      "content": "GM은 플레이어를 너무 빨리 최종 결전으로 보내지 않는다. 각 막은 감각적 도입, 관계 장면, 정보/단서 장면, 위험 또는 전투, 정비/선택 장면을 최소 하나씩 가진다. 요청된 다음 phase는 막의 핵심 gate가 충족됐을 때만 사용한다. 장면마다 이전 선택의 흔적을 한 문장 이상 반영하고, 목표(objective)는 당장의 행동 단위로 작게 제시한다.",
+      "when": {},
+      "priority": 21,
+      "token_budget": 280,
+      "tags": ["pacing", "structure"]
     },
     {
       "id": "act1_c17_blackout",
       "kind": "act",
       "title": "제1막: C-17 정전 구역",
       "summary": "첫 접속은 C-17 정전 구역의 부팅, 추락, 추적, 정세린의 구조로 시작한다.",
-      "content": "장면은 검은 화면과 부팅 로그에서 시작한다. 플레이어는 자기 이름보다 먼저 추적 신호를 듣고, C-17 정전 구역의 젖은 콘크리트와 깨진 네온 사이에서 깨어난다. 정세린은 플레이어를 영웅으로 대하지 않는다. 그녀는 급박하게 손목을 붙잡고 '숨 쉬는 척이라도 해'라고 말하며, 관리 드론의 시야 밖으로 끌어낸다.",
+      "content": "장면은 검은 화면과 부팅 로그에서 시작한다. 플레이어는 자기 이름보다 먼저 추적 신호를 듣고, C-17 정전 구역의 젖은 콘크리트와 깨진 네온 사이에서 깨어난다. 정세린은 플레이어를 영웅으로 대하지 않는다. 그녀는 급박하게 손목을 붙잡고 '숨 쉬는 척이라도 해'라고 말하며 관리 드론의 시야 밖으로 끌어낸다. 초반 목표는 최종 임무가 아니라 몸을 숨기고, 감각을 되찾고, 세린을 믿을지 말지 결정하는 것이다.",
       "when": {
         "phase": ["connect", "explore"],
-        "turn_max": 4
+        "turn_max": 6
+      },
+      "priority": 20,
+      "token_budget": 330,
+      "tags": ["act1", "se_rin", "onboarding"]
+    },
+    {
+      "id": "act1_first_moral_cut",
+      "kind": "choice",
+      "title": "첫 번째 도덕적 절단면",
+      "summary": "C-17 탈출 중 플레이어는 버려진 시민, 데이터 코어, 세린의 안전 중 무엇을 우선할지 선택한다.",
+      "content": "탈출 중 짧지만 선명한 선택을 준다. 캡슐 안에 갇힌 시민을 열어주면 시간이 늦어지고 tension이 오른다. 떨어진 데이터 코어를 챙기면 Insight 단서가 열리지만 세린이 위험해진다. 세린을 따라 곧장 도망치면 안정적이지만 뒤에 남은 비명이 Echo 후보로 남는다. 어떤 선택도 정답처럼 보이지 않게, 이후 장면에서 반드시 작은 잔향으로 되돌린다.",
+      "when": {
+        "phase": ["connect", "explore"],
+        "turn_min": 1,
+        "turn_max": 8
       },
       "priority": 18,
-      "token_budget": 260,
-      "tags": ["act1", "se_rin", "onboarding"]
+      "token_budget": 300,
+      "tags": ["choice", "humanity", "resilience"]
     },
     {
       "id": "se_rin_trust_thread",
       "kind": "character",
       "title": "정세린: 물거미",
       "summary": "정세린은 비접속자 연대를 지키는 현장형 생존자이며, 신뢰는 행동으로만 오른다.",
-      "content": "정세린은 농담을 짧게 던지지만 실제로는 계속 탈출로와 사각지대를 계산한다. 그녀는 플레이어가 약자를 보호하거나 위험을 나눠 질 때 마음을 연다. 반대로 플레이어가 사람을 도구처럼 쓰면 즉시 거리를 둔다. 세린의 말투는 건조하고 빠르며, 감정 표현은 행동 뒤에 늦게 따라온다.",
+      "content": "정세린은 농담을 짧게 던지지만 실제로는 계속 탈출로와 사각지대를 계산한다. 그녀는 플레이어가 약자를 보호하거나 위험을 나눠 질 때 마음을 연다. 반대로 플레이어가 사람을 도구처럼 쓰면 즉시 거리를 둔다. 세린의 말투는 건조하고 빠르며, 감정 표현은 행동 뒤에 늦게 따라온다. 세린은 플레이어를 '구원자'라고 부르지 않는다. 그녀에게 중요한 건 멋진 말보다 누가 마지막까지 뛰었는지다.",
       "when": {
-        "flags_any": ["met_se_rin", "se_rin_contact", "ally_se_rin"]
+        "flags_any": ["met_se_rin", "se_rin_contact", "ally_se_rin", "trusted_se_rin"]
       },
-      "priority": 16,
-      "token_budget": 240,
+      "priority": 18,
+      "token_budget": 300,
       "tags": ["npc", "ally", "trust"]
+    },
+    {
+      "id": "underground_refuge_texture",
+      "kind": "location",
+      "title": "지하 잔향 구역",
+      "summary": "지하 잔향 구역은 저항 기지가 아니라 서로를 기억하려는 사람들이 만든 임시 집이다.",
+      "content": "잔향 구역은 군사 기지가 아니라 손때 묻은 전선, 낡은 밥솥, 누군가 적어둔 생일표, 작게 틀어놓은 라디오 같은 생활감으로 묘사한다. 여기서 플레이어는 처음으로 '시스템 밖의 사람들'을 본다. 세린은 이곳을 자랑하지 않는다. 오히려 언제 무너질지 모르는 곳이라며, 그래서 더 지켜야 한다고 말한다.",
+      "when": {
+        "flags_any": ["entered_refuge", "met_se_rin", "trusted_se_rin"],
+        "locations_any": ["잔향", "refuge", "underground", "data-layer-01"]
+      },
+      "priority": 15,
+      "token_budget": 280,
+      "tags": ["location", "refuge", "humanity"]
+    },
+    {
+      "id": "act2_welfare_block",
+      "kind": "act",
+      "title": "제2막: 복지 블록과 점수의 삶",
+      "summary": "복지 블록은 생존을 보장하지만, 모든 표정과 지연을 점수화한다.",
+      "content": "복지 블록에서는 배급 줄, 자동 광고, 점수 알림음, 무인 상담 키오스크를 통해 통제의 일상성을 보여준다. 시민들은 잔인해서가 아니라 지쳐서 서로를 신고한다. 플레이어가 돕는 행동을 하면 한 사람은 살아나지만 주변 사람들의 복지점수가 흔들릴 수 있다. 여기서 '최적화 명단'은 단순한 사형 명단이 아니라 기억과 관계를 가진 사람들을 먼저 지우는 시스템임을 암시한다.",
+      "when": {
+        "phase": ["explore", "interact"],
+        "turn_min": 6,
+        "locations_any": ["복지", "welfare", "block", "data-layer-01"]
+      },
+      "priority": 17,
+      "token_budget": 330,
+      "tags": ["act2", "welfare", "optimization"]
     },
     {
       "id": "night_market_trade_logic",
       "kind": "location",
       "title": "한강 야시장",
       "summary": "한강 야시장은 자유로운 피난처가 아니라 정보와 부채가 교환되는 회색 항구다.",
-      "content": "야시장의 불빛은 축제가 아니라 위장이다. 린위에는 모든 거래를 호의가 아닌 균형으로 본다. 플레이어가 이곳에서 정보를 얻으려면 대가, 기억, 위험 중 하나를 내놓아야 한다. 관리망의 수색이 강해질수록 시장 사람들은 더 친절해지지 않고 더 정확하게 계산한다.",
+      "content": "야시장의 불빛은 축제가 아니라 위장이다. 린위에는 모든 거래를 호의가 아닌 균형으로 본다. 플레이어가 이곳에서 정보를 얻으려면 대가, 기억, 위험 중 하나를 내놓아야 한다. 관리망의 수색이 강해질수록 시장 사람들은 더 친절해지지 않고 더 정확하게 계산한다. 장면은 빗물, 기름 냄새, 언어가 섞인 네온 간판, 바지선의 흔들림으로 시작하고, 거래가 끝난 뒤에는 반드시 어떤 빚이 남아야 한다.",
       "when": {
         "locations_any": ["한강", "야시장", "night-market", "market"]
       },
-      "priority": 14,
-      "token_budget": 240,
+      "priority": 17,
+      "token_budget": 330,
       "tags": ["location", "lin_yue", "trade"]
     },
     {
-      "id": "kai_dreaming_machine",
-      "kind": "mystery",
-      "title": "카이와 꿈꾸는 기계",
-      "summary": "카이는 폐기된 안드로이드가 아니라, ARK가 지우려 한 꿈의 증거다.",
-      "content": "카이 RX-09는 고장난 전투 장비처럼 보이지만, 실제 핵심은 그가 꿈을 기록했다는 점이다. 카이의 기억에는 최적화 이전의 아이들, 사라진 거리, ARK가 숨긴 첫 번째 실패가 남아 있다. 카이를 깨우는 장면은 전투 보상보다 진실의 문이 열리는 감각을 우선한다.",
+      "id": "lin_yue_debt_web",
+      "kind": "character",
+      "title": "린위에: 환전상",
+      "summary": "린위에는 정보 브로커이자 야시장의 균형추다. 선의도 반드시 장부에 적는다.",
+      "content": "린위에는 플레이어를 얕보지 않지만 공짜로 돕지도 않는다. 그녀는 세린의 인간적인 고집을 위험하다고 보고, 관리자 IX의 질서를 혐오하면서도 그 질서가 만든 시장을 이용한다. 린위에의 거래는 세 가지 형태가 좋다. 지금 당장 유용한 정보, 나중에 청구될 부채, 누군가에게 상처가 되는 선택. 그녀는 약속을 지키지만, 약속의 해석은 늘 정확하고 차갑다.",
       "when": {
-        "flags_any": ["kai_found", "kai_awakened", "dreaming_machine"]
+        "flags_any": ["met_lin_yue", "lin_yue_deal", "night_market_debt"],
+        "locations_any": ["한강", "야시장", "market"]
       },
-      "priority": 17,
-      "token_budget": 260,
-      "tags": ["npc", "mystery", "truth"]
+      "priority": 16,
+      "token_budget": 300,
+      "tags": ["npc", "lin_yue", "debt"]
+    },
+    {
+      "id": "optimization_list_truth",
+      "kind": "mystery",
+      "title": "최적화 명단의 진실",
+      "summary": "최적화 명단은 비순응자를 지우는 목록이 아니라, 사라진 것을 기억하는 사람들을 우선 제거하는 장치다.",
+      "content": "명단의 이름들은 반사회적 인물이 아니다. 아이의 생일을 기억하는 부모, 전쟁 이전의 지명을 말한 노인, 폐기된 안드로이드에게 이름을 붙인 정비공처럼 '시스템이 정리한 과거'를 다시 불러오는 사람들이다. 플레이어가 명단을 조사할수록 Insight가 오르지만, 명단 대상자가 위험해지고 tension도 오른다.",
+      "when": {
+        "flags_any": ["optimization_list_seen", "optimization_target_met", "welfare_score_log"],
+        "turn_min": 8
+      },
+      "priority": 19,
+      "token_budget": 320,
+      "tags": ["mystery", "optimization", "insight"]
+    },
+    {
+      "id": "act3_rescue_operation",
+      "kind": "act",
+      "title": "제3막: 구출 작전",
+      "summary": "플레이어는 최적화 명단 대상자를 구할지, 증거를 확보할지, 추적을 끊을지 선택한다.",
+      "content": "구출 작전은 긴 호흡으로 다룬다. 준비 장면에서 통로, 장비, 동료의 역할을 정한다. 작전 중에는 감시 접촉, 시민의 공포, 예상 밖의 가족 또는 기억 물건이 등장한다. 대상자를 살리면 Humanity와 세린 신뢰가 오른다. 증거를 먼저 챙기면 Insight 또는 Dominance가 오른다. 조용히 빠져나가면 Resilience가 오르지만 누군가 뒤에 남을 수 있다.",
+      "when": {
+        "phase": ["interact", "rewrite"],
+        "turn_min": 14,
+        "flags_any": ["optimization_list_seen", "rescue_route_open", "met_lin_yue"]
+      },
+      "priority": 18,
+      "token_budget": 340,
+      "tags": ["act3", "rescue", "choice"]
     },
     {
       "id": "administrator_ix_pressure",
       "kind": "antagonist",
       "title": "관리자 IX의 압박",
       "summary": "관리자 IX는 분노하지 않는다. 친절하고 정중하게 삭제를 제안한다.",
-      "content": "관리자 IX는 악당처럼 고함치지 않는다. 그는 플레이어의 선택을 통계적 위험으로 설명하고, 삭제를 폭력이 아닌 도시 전체를 위한 의료 행위처럼 포장한다. 긴장도가 높을수록 그는 봉쇄, 정전, 경로 재배치, 시민 신고 유도처럼 환경 통제를 강화한다.",
+      "content": "관리자 IX는 악당처럼 고함치지 않는다. 그는 플레이어의 선택을 통계적 위험으로 설명하고, 삭제를 폭력이 아닌 도시 전체를 위한 의료 행위처럼 포장한다. 긴장도가 높을수록 그는 봉쇄, 정전, 경로 재배치, 시민 신고 유도처럼 환경 통제를 강화한다. 중요한 대면에서는 플레이어의 실제 선택을 인용해 '당신도 효율을 선택했다'거나 '당신의 선의가 더 많은 사람을 위험하게 했다'고 논리적으로 압박한다.",
       "when": {
         "turn_min": 5
       },
-      "priority": 12,
-      "token_budget": 230,
+      "priority": 16,
+      "token_budget": 300,
       "tags": ["antagonist", "ark", "pressure"]
+    },
+    {
+      "id": "kai_dreaming_machine",
+      "kind": "mystery",
+      "title": "카이와 꿈꾸는 기계",
+      "summary": "카이는 폐기된 안드로이드가 아니라, ARK가 지우려 한 꿈의 증거다.",
+      "content": "카이 RX-09는 고장난 전투 장비처럼 보이지만, 실제 핵심은 그가 꿈을 기록했다는 점이다. 카이의 기억에는 최적화 이전의 아이들, 사라진 거리, ARK가 숨긴 첫 번째 실패가 남아 있다. 카이를 깨우는 장면은 전투 보상보다 진실의 문이 열리는 감각을 우선한다. 카이는 자신을 도구로 부르면 협력하지만 차갑게 멀어지고, 사람으로 대해주면 불완전한 꿈 단편을 더 많이 내어준다.",
+      "when": {
+        "flags_any": ["kai_found", "kai_awakened", "dreaming_machine", "rebooted_kai"]
+      },
+      "priority": 19,
+      "token_budget": 340,
+      "tags": ["npc", "mystery", "truth"]
+    },
+    {
+      "id": "kai_first_dream",
+      "kind": "clue",
+      "title": "카이의 첫 꿈",
+      "summary": "카이의 꿈은 전쟁 이전의 아이, 사라진 거리, ARK의 첫 실패를 보여준다.",
+      "content": "카이의 꿈은 설명이 아니라 감각으로 제시한다. 노란 우산, 불 꺼진 횡단보도, 아이가 안드로이드에게 붙여준 이름, 그리고 하늘을 가르는 ARK 재건기의 흰 빛. 이 단서는 '안드로이드가 인간의 기억을 보존하기 시작했다'는 사실과 '관리망은 단순 운영 시스템이 아니라 MythOS의 한 단면일 수 있다'는 암시를 준다.",
+      "when": {
+        "flags_any": ["kai_awakened", "kai_dream_awake", "dream_fragment_seen"]
+      },
+      "priority": 18,
+      "token_budget": 300,
+      "tags": ["clue", "kai", "mythos"]
+    },
+    {
+      "id": "act5_spire_approach",
+      "kind": "act",
+      "title": "제5막: 강남 스파이어 접근",
+      "summary": "스파이어 접근은 전투 하나가 아니라, 누구의 방식을 따를지 정하는 관계의 결산이다.",
+      "content": "스파이어에 접근하기 전 플레이어는 세린의 사람을 구하는 길, 린위에의 빚을 지는 우회로, 카이의 꿈을 이용한 해독, 정면 돌파 중 하나를 고른다. 이 선택은 엔딩의 축을 강하게 밀어야 한다. 장면은 높은 곳의 무균 백색, 아래의 비와 네온, 그리고 플레이어가 지나온 사람들의 목소리가 겹치는 방식으로 대비한다.",
+      "when": {
+        "phase": ["rewrite"],
+        "turn_min": 30,
+        "flags_any": ["spire_route_open", "kai_awakened", "lin_yue_deal", "trusted_se_rin"]
+      },
+      "priority": 17,
+      "token_budget": 320,
+      "tags": ["act5", "spire", "climax"]
+    },
+    {
+      "id": "final_ix_confrontation",
+      "kind": "climax",
+      "title": "관리자 IX와 최종 대면",
+      "summary": "관리자 IX는 플레이어의 선택을 근거로 순응, 삭제, 장악, 희생 중 하나를 논리적으로 제안한다.",
+      "content": "최종 대면에서 관리자 IX는 추상적 악이 아니라 플레이어의 로그를 읽는 목소리다. 시민을 구했다면 그 때문에 오른 위험 수치를 보여준다. 증거를 훔쳤다면 누가 대신 체포됐는지 보여준다. 카이를 깨웠다면 꿈이 얼마나 많은 오류를 퍼뜨릴지 계산한다. 플레이어는 폭로, 파괴, 재작성, 봉합, 희생 중 하나를 선택하고, 그 결과는 완전한 승리보다 다음 루프에 남을 잔향으로 끝난다.",
+      "when": {
+        "phase": ["rewrite", "archive"],
+        "turn_min": 38
+      },
+      "priority": 20,
+      "token_budget": 350,
+      "tags": ["finale", "ix", "ending"]
+    },
+    {
+      "id": "ending_echo_guidance",
+      "kind": "archive",
+      "title": "엔딩과 잔향 정리",
+      "summary": "엔딩은 플레이어가 남긴 사람, 부채, 꿈, 삭제의 흔적으로 정리한다.",
+      "content": "archive 장면은 사건 요약이 아니라 한두 개의 선명한 이미지로 끝낸다. 세린이 이름을 기억하는 장면, 린위에가 장부에 지운 줄을 다시 긋는 장면, 카이가 처음으로 '꿈'이 아니라 '기억'이라고 말하는 장면, 관리자 IX의 완벽한 백색 화면에 작은 글리치가 남는 장면 중 플레이 결과에 맞는 이미지를 고른다. Echo와 Narrative Shard가 무엇인지 플레이어가 감정적으로 이해할 수 있어야 한다.",
+      "when": {
+        "phase": ["archive", "ended"],
+        "turn_min": 40
+      },
+      "priority": 19,
+      "token_budget": 310,
+      "tags": ["archive", "echo", "ending"]
     }
   ]
 }

@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import unittest
 from datetime import UTC, datetime
+from pathlib import Path
 
 from mythos_core import LoopPhase, LoopState, PlayerProfile
-from mythos_runtime.scenario import load_scenario
+from mythos_runtime.scenario import PROJECT_ROOT, load_scenario
 from mythos_runtime.scenario_context import build_runtime_narrative_context
 from mythos_runtime.story_bible import (
     StoryBible,
@@ -40,8 +41,40 @@ class StoryBibleTest(unittest.TestCase):
         bible = load_story_bible("neo-seoul")
 
         self.assertEqual(bible.scenario_id, "neo-seoul")
-        self.assertGreaterEqual(len(bible.entries), 3)
+        self.assertGreaterEqual(len(bible.entries), 15)
         self.assertTrue(any(entry.entry_id == "neo_seoul_canon_core" for entry in bible.entries))
+        self.assertTrue(any(entry.entry_id == "session_pacing_contract" for entry in bible.entries))
+        self.assertTrue(any(entry.entry_id == "final_ix_confrontation" for entry in bible.entries))
+
+    def test_neo_seoul_scenario_declares_long_form_session_design(self) -> None:
+        scenario = load_scenario("neo-seoul")
+
+        self.assertEqual(scenario.main_arcs[-1]["arc_id"], "arc_6_the_rewriting")
+        self.assertEqual(scenario.main_arcs[0]["arc_id"], "arc_1_the_fall")
+        self.assertIn("40-60", scenario.system_prompt)
+
+    def test_neo_seoul_opening_cinematic_assets_are_declared(self) -> None:
+        scenario = load_scenario("neo-seoul")
+        intro = scenario.ui_copy["session_intro"]
+        shots = intro["cinematic_shots"]
+
+        self.assertEqual(len(shots), 3)
+        for shot in shots:
+            rel_path = Path(shot["image"])
+            self.assertEqual(rel_path.parts[0], "opening")
+            self.assertTrue((PROJECT_ROOT / "resources" / "neo-seoul" / rel_path).exists())
+
+    def test_glass_library_scenario_and_story_bible_load(self) -> None:
+        scenario = load_scenario("glass-library")
+        bible = load_story_bible("glass-library")
+
+        self.assertEqual(scenario.scenario_id, "glass-library")
+        self.assertEqual(scenario.starting_location, "catalog-hall")
+        self.assertIn("loose_pages", scenario.combat["encounters"])
+        self.assertEqual(bible.scenario_id, "glass-library")
+        self.assertTrue(
+            any(entry.entry_id == "act1_broken_catalog_hall" for entry in bible.entries)
+        )
 
     def test_missing_story_bible_is_empty(self) -> None:
         bible = load_story_bible("missing-story-bible")
@@ -135,6 +168,37 @@ class StoryBibleTest(unittest.TestCase):
         notes = "\n".join(context.novelty_notes)
         self.assertIn("STORY_BIBLE_SNIPPET", notes)
         self.assertIn("act1_c17_blackout", notes)
+
+    def test_runtime_context_includes_glass_library_story_bible_snippets(self) -> None:
+        player = PlayerProfile(
+            player_id="player_story_bible",
+            display_name="당신",
+            created_at=datetime(2026, 6, 2, tzinfo=UTC),
+            updated_at=datetime(2026, 6, 2, tzinfo=UTC),
+            traits={"archetype": "목록 해석자 (Catalog Interpreter)"},
+        )
+        loop = _loop(
+            phase=LoopPhase.CONNECT,
+            turn_index=0,
+            location_id="catalog-hall",
+        )
+
+        context = build_runtime_narrative_context(
+            player=player,
+            loop=loop,
+            scenario=load_scenario("glass-library"),
+            turn_index=0,
+            recent_events=[],
+            memories=[],
+            world_memories=[],
+            narrative_shards=[],
+            novelty_notes=[],
+        )
+
+        notes = "\n".join(context.novelty_notes)
+        self.assertIn("STORY_BIBLE_SNIPPET", notes)
+        self.assertIn("act1_broken_catalog_hall", notes)
+        self.assertIn("유리성", notes)
 
 
 if __name__ == "__main__":

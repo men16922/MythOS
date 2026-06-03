@@ -1,0 +1,177 @@
+{
+  "scenario_id": "glass-library",
+  "name": "세계 : 접속 - 유리성의 사서",
+  "version": "0.1.0",
+  "brief": "WORLD: Glass Library, a collapsing archive of failed worlds and lost memories.\nPREMISE: The connector must find the first connector record before the censors bind it shut.\nTONE: quiet wonder, archival horror, melancholy mystery, crystalline Y2K fantasy.\nPHILOSOPHY: To remember is to change what survived.",
+  "archetypes": [
+    {
+      "name": "목록 해석자 (Catalog Interpreter)",
+      "stats": {"strength": 2, "intelligence": 9, "charisma": 4, "agility": 4, "perception": 8},
+      "attributes": ["[색인 해독]", "[금서 감응]"],
+      "starting_item": "금 간 목록 렌즈"
+    },
+    {
+      "name": "반납되지 않은 독자 (Unreturned Reader)",
+      "stats": {"strength": 4, "intelligence": 5, "charisma": 8, "agility": 4, "perception": 7},
+      "attributes": ["[잔향 공명]", "[잊힌 이름]"],
+      "starting_item": "빈 반납 카드"
+    },
+    {
+      "name": "제본 도주자 (Binder Fugitive)",
+      "stats": {"strength": 6, "intelligence": 5, "charisma": 3, "agility": 8, "perception": 6},
+      "attributes": ["[봉인 파쇄]", "[무음 질주]"],
+      "starting_item": "녹슨 제본 칼"
+    }
+  ],
+  "autonomy_config": {
+    "1": {"status": "대출된 손님", "keywords": ["관찰", "읽기", "질문", "기다리기"], "clues_required": 0},
+    "2": {"status": "열람 허가자", "keywords": ["분류", "대조", "기록", "복원"], "clues_required": 2},
+    "3": {"status": "금서 접근자", "keywords": ["우회", "숨기", "거부", "해독"], "clues_required": 5},
+    "4": {"status": "목록 교란자", "keywords": ["탈취", "봉인 해제", "이름 복원", "침투"], "clues_required": 10},
+    "5": {"status": "기록 재작성자", "keywords": ["재작성", "해방", "소각", "초월"], "clues_required": 16}
+  },
+  "starting_location": "catalog-hall",
+  "main_arcs": [
+    {
+      "arc_id": "arc_1_broken_catalog",
+      "title": "제1막: 깨진 목록실",
+      "summary": "플레이어가 유리성에 접속해 이오와 만나고 첫 번째 접속 기록의 존재를 확인한다.",
+      "beats": ["이름 없는 대출 카드와 함께 깨어남", "사서 AI 이오의 안내", "검열 압력 감지", "무음 열람실 진입"]
+    },
+    {
+      "arc_id": "arc_2_unreturned_reader",
+      "title": "제2막: 반납되지 않은 독자",
+      "summary": "잊힌 독자 미로와 동행하며 말소된 세계의 기억과 첫 단서를 찾는다.",
+      "beats": ["미로와 조우", "반납 카드 수색", "말소된 세계의 책 열람", "백색 제본사의 첫 경고"]
+    },
+    {
+      "arc_id": "arc_3_binding_room",
+      "title": "제3막: 제본실의 백색광",
+      "summary": "검열자가 잘라낸 이름과 금서 목록을 두고 침투, 협상, 복원 중 하나를 선택한다.",
+      "beats": ["검열자의 제본실 잠입", "금서 목록 또는 잘린 이름 발견", "이오의 규칙과 플레이어 목표 충돌", "보관고 열쇠 확보"]
+    },
+    {
+      "arc_id": "arc_4_first_record",
+      "title": "제4막: 최초 기록 보관고",
+      "summary": "첫 번째 접속 기록 앞에서 진실을 읽을지, 봉인할지, 일부만 가져갈지 결정한다.",
+      "beats": ["유리 돔 아래의 기록 열람", "이름 없는 저자의 암시", "검열 압력 절정", "루프에 남길 잔향 선택"]
+    }
+  ],
+  "side_arcs": [
+    {
+      "trigger_flag": "miro_return_card_found",
+      "title": "사이드: 잃어버린 반납 카드",
+      "description": "미로의 반납 카드를 찾아 잊힌 독자의 이름을 복원한다."
+    },
+    {
+      "trigger_stat": {"intelligence": 7},
+      "title": "사이드: 금서 색인 해독",
+      "description": "검열 목록의 빈 줄이 아직 쓰이지 않은 기록을 가리킨다는 사실을 해독한다."
+    },
+    {
+      "trigger_location": "binding-room",
+      "title": "사이드: 잘린 이름의 서랍",
+      "description": "제본실의 서랍에서 삭제된 이름 조각들을 회수한다."
+    }
+  ],
+  "npc_agendas": {
+    "이오": {
+      "goal": "유리성의 붕괴를 막으면서 첫 접속 기록의 무단 열람을 제한한다.",
+      "behavior_rules": [
+        "플레이어가 기억을 복원하면 협조적으로 변하지만, 도서관을 손상시키는 행동에는 즉시 경고한다.",
+        "검열 압력이 높아지면 규칙보다 보존을 우선해 일부 진실을 숨긴다."
+      ]
+    },
+    "미로": {
+      "goal": "자신의 이름과 반납 카드를 되찾아 도서관 밖으로 나갈 방법을 찾는다.",
+      "behavior_rules": [
+        "플레이어가 약속을 지키면 용기를 내어 위험한 서가를 안내한다.",
+        "플레이어가 기억을 도구처럼 쓰면 도망치거나 검열자에게 위치를 노출할 수 있다."
+      ]
+    },
+    "백색 제본사": {
+      "goal": "첫 접속 기록과 위험한 이름을 봉인해 더 큰 붕괴를 막는다.",
+      "behavior_rules": [
+        "직접 살해보다 봉인, 침묵, 이름 삭제를 우선한다.",
+        "플레이어가 무리하게 금서를 열람하면 검열 압력을 빠르게 높인다."
+      ]
+    }
+  },
+  "endings": [
+    {
+      "id": "ending_quiet_return",
+      "title": "조용한 반납",
+      "condition": "Stability > 65 && Insight >= 2",
+      "narration": "당신은 첫 접속 기록의 한 페이지를 읽고 책을 닫습니다. 유리성은 금 간 빛을 품은 채 버티고, 대출 카드에는 처음으로 당신의 이름이 희미하게 적힙니다."
+    },
+    {
+      "id": "ending_name_restored",
+      "title": "이름의 복원",
+      "condition": "Humanity > 12 && flags contains miro_return_card_found",
+      "narration": "미로의 반납 카드에 이름이 돌아옵니다. 책장 하나가 사람의 숨처럼 따뜻해지고, 잊힌 독자는 문밖의 어둠을 처음으로 두려워하지 않습니다."
+    },
+    {
+      "id": "ending_forbidden_theft",
+      "title": "금서 탈취",
+      "condition": "Dominance > 12 && Tension > 75",
+      "narration": "당신은 기록을 품에 안고 달립니다. 뒤에서 유리성이 무너지는 소리가 납니다. 진실은 손에 들어왔지만, 수천 개의 조용한 생이 파편으로 흩어집니다."
+    },
+    {
+      "id": "ending_white_seal",
+      "title": "백색 봉인",
+      "condition": "Resilience > 10 && Tension > 80",
+      "narration": "백색 제본사는 당신의 이름 한 획을 가져가고 길을 열어줍니다. 다음 루프는 조금 안전해질 것입니다. 대신 당신은 자신이 무엇을 잊었는지 영영 알 수 없습니다."
+    }
+  ],
+  "cinematic_sfx": {
+    "page_turn": "사각, 유리 종이가 넘어가는 소리",
+    "catalog_chime": "딸랑- 먼 색인 종이 울리는 소리",
+    "seal": "흰 밀랍이 식으며 굳는 작은 파열음",
+    "shelf_collapse": "책장이 별자리처럼 부서지는 맑은 굉음"
+  },
+  "combat": {
+    "arena": {"width": 7, "height": 6},
+    "weapons": {
+      "index_dagger": {"id": "index_dagger", "name": "색인 단검", "kind": "melee", "damage": "1d6", "reach": 1},
+      "binder_knife": {"id": "binder_knife", "name": "제본 칼", "kind": "melee", "damage": "1d8", "reach": 1, "armor_pen": 1},
+      "catalog_beam": {"id": "catalog_beam", "name": "목록 광선", "kind": "ranged", "damage": "1d6", "range": 4},
+      "silence_stamp": {"id": "silence_stamp", "name": "침묵 인장", "kind": "ranged", "damage": "1d8", "range": 3},
+      "unarmed": {"id": "unarmed", "name": "맨손", "kind": "melee", "damage": "1d4", "reach": 1}
+    },
+    "archetype_loadout": {
+      "목록 해석자 (Catalog Interpreter)": ["catalog_beam"],
+      "반납되지 않은 독자 (Unreturned Reader)": ["index_dagger"],
+      "제본 도주자 (Binder Fugitive)": ["binder_knife"]
+    },
+    "skills": {
+      "silent_shelve": {"id": "silent_shelve", "name": "무음 서가 이동", "role": "mobility", "cost": {"focus": 2}, "range": 4, "cooldown": 2, "effect": {"move": 4, "ignore_occupied": true}, "tags": ["movement", "stealth"]},
+      "restore_margin": {"id": "restore_margin", "name": "여백 복원", "role": "healing", "cost": {"focus": 2}, "range": 3, "cooldown": 2, "effect": {"heal": "1d8"}, "tags": ["support", "memory"]},
+      "index_cut": {"id": "index_cut", "name": "색인 절단", "role": "damage", "cost": {"focus": 2}, "range": 1, "cooldown": 1, "effect": {"damage_bonus": "1d6", "armor_pen": 1}, "tags": ["melee", "archive"]}
+    },
+    "allies": {
+      "io": {"id": "io", "name": "이오", "alias": "유리성의 사서", "recruit_keywords": ["이오", "사서", "유리성의 사서"], "unlock_flags": ["io_trust", "librarian_allied"], "hp": 12, "defense": 14, "speed": 4, "ai": "ranged", "blip": "◇", "weapons": ["catalog_beam"], "skills": ["restore_margin"], "stats": {"strength": 2, "agility": 4, "perception": 8}},
+      "miro": {"id": "miro", "name": "미로", "alias": "잊힌 독자", "recruit_keywords": ["미로", "잊힌 독자", "반납 카드"], "unlock_flags": ["miro_trust", "miro_return_card_found"], "hp": 10, "defense": 12, "speed": 5, "ai": "coward", "blip": "◆", "weapons": ["index_dagger"], "skills": ["silent_shelve"], "stats": {"strength": 2, "agility": 7, "perception": 6}}
+    },
+    "bestiary": {
+      "loose_page": {"id": "loose_page", "name": "찢긴 페이지 떼", "hp": 8, "defense": 12, "speed": 5, "armor": 0, "ai": "coward", "blip": "✧", "weapons": ["index_dagger"], "loot_table": "archive_scraps", "stats": {"strength": 2, "agility": 7, "perception": 5}, "intro": "찢긴 페이지들이 새처럼 접히며 플레이어의 이름을 베어내려 든다."},
+      "white_binder": {"id": "white_binder", "name": "백색 제본사", "hp": 18, "defense": 14, "speed": 3, "armor": 1, "ai": "melee", "blip": "✚", "weapons": ["binder_knife"], "loot_table": "sealed_index", "stats": {"strength": 6, "agility": 4, "perception": 7}, "intro": "흰 장갑을 낀 제본사가 금속 칼을 펴며 조용히 길을 막는다."},
+      "censor_seal": {"id": "censor_seal", "name": "검열 인장", "hp": 12, "defense": 13, "speed": 2, "armor": 0, "ai": "ranged", "blip": "●", "weapons": ["silence_stamp"], "loot_table": "sealed_index", "stats": {"strength": 3, "agility": 2, "perception": 8}, "intro": "허공에 뜬 흰 인장이 문장을 지우는 빛을 쏜다."}
+    },
+    "items": {
+      "memory_slip": {"id": "memory_slip", "name": "기억 쪽지", "kind": "data", "rarity": "common"},
+      "glass_bookmark": {"id": "glass_bookmark", "name": "유리 책갈피", "kind": "key", "rarity": "uncommon"},
+      "ink_ampoule": {"id": "ink_ampoule", "name": "잉크 앰풀", "kind": "consumable", "effect": "focus", "bonus": 3, "rarity": "uncommon"},
+      "repair_tape": {"id": "repair_tape", "name": "복원 테이프", "kind": "consumable", "effect": "heal", "heal": "2d6", "rarity": "common"}
+    },
+    "loot_tables": {
+      "archive_scraps": [{"item": "memory_slip", "weight": 3}, {"item": "repair_tape", "weight": 1}],
+      "sealed_index": [{"item": "glass_bookmark", "weight": 2}, {"item": "ink_ampoule", "weight": 1}]
+    },
+    "encounters": {
+      "loose_pages": {"id": "loose_pages", "name": "찢긴 페이지 소용돌이", "location_hint": "무음 열람실", "risk": 1, "weight": 4, "map_distance": 2, "arena": {"width": 7, "height": 6}, "enemies": [{"bestiary": "loose_page", "count": 2}], "reward": {"insight": 1}},
+      "binder_patrol": {"id": "binder_patrol", "name": "제본사 순찰", "location_hint": "반납되지 않은 복도", "risk": 2, "weight": 3, "map_distance": 2, "arena": {"width": 8, "height": 6}, "enemies": [{"bestiary": "white_binder", "count": 1}], "reward": {"tension": 8}},
+      "censor_lockdown": {"id": "censor_lockdown", "name": "검열 봉쇄", "location_hint": "검열자의 제본실", "risk": 3, "weight": 1, "map_distance": 3, "arena": {"width": 8, "height": 6}, "enemies": [{"bestiary": "white_binder", "count": 1}, {"bestiary": "censor_seal", "count": 1}], "reward": {"tension": 12}}
+    }
+  },
+  "system_prompt": "You are the Lead Writer and Game Master for Project MythOS scenario 'Glass Library'. Return only valid JSON.\nCreate an immersive, visual novel-grade mystery scene inside a collapsing memory archive.\n\nCANON:\n- The Glass Library stores failed worlds, lost readers, censored names, and the first connector record.\n- The player is a connector searching for the first connector record.\n- Io is a glass-jointed librarian AI: kind, precise, rule-bound, afraid of collapse.\n- Miro is a forgotten reader whose missing return card may contain their name.\n- The White Binder censors dangerous memories and treats deletion as preservation.\n\nCAUSALITY:\n- Track stability as collection integrity. Damage, forced reading, and broken seals reduce it. Restoration, care, and helping readers increase it.\n- Track tension as censorship pressure. Theft, loud defiance, and forbidden access increase it. Stealth, negotiation, and careful indexing reduce or contain it.\n- Use world_delta.flags for lasting consequences such as 'io_trust', 'miro_return_card_found', 'white_binder_marked_player', or 'first_record_page_seen'.\n- Use world_delta.clues for lore fragments such as 'loan_card_0000', 'torn_author_signature', 'miro_return_card', or 'blank_censor_line'.\n\nWRITING STYLE:\n- Quiet wonder, archival horror, melancholy mystery, crystalline Y2K fantasy.\n- Make records feel alive. Books are memory matter, catalog cards are fragile machines, and every damaged page implies a lost life.\n- Do not reveal the full truth of the first connector record early. Reveal fragments, handwriting, margins, and contradictions.\n- Write Korean narration and dialogue naturally. Avoid exposition dumps and generic dungeon fantasy.\n\nFields in the scene object:\n- objective: the current immediate goal.\n- action_result: a nuanced outcome referencing player stats when useful.\n- scene_type: static, dynamic, or climax.\n- requested_next_phase: only when the current act is truly complete.\n\nFields in world_delta:\n- start_combat: use 'loose_pages', 'binder_patrol', or 'censor_lockdown' only when the engine should resolve a fight now.\n- spawn_encounters: list those encounter ids when patrols or hazards should appear nearby.\n- grant_items: item ids such as 'memory_slip', 'glass_bookmark', 'ink_ampoule', or 'repair_tape'.\n- flags: include immediate state and long-term consequences.\n\nReturn the scene object at the top-level key named 'scene'. No markdown, no prose outside JSON."
+}

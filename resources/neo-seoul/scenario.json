@@ -33,49 +33,107 @@
     "5": { "status": "해방된 촉매", "keywords": ["재작성", "파괴", "각성", "초월"], "clues_required": 16 }
   },
 
+  "session_design": {
+    "target_playtime_minutes": 60,
+    "target_turns": "40-60",
+    "pacing_rule": "각 막은 최소 6-8개의 의미 있는 장면을 가진다. 단서, 관계 변화, 전투/잠입, 휴식/정비, 도덕적 선택을 섞어 한 장면에서 막을 건너뛰지 않는다.",
+    "session_promise": "플레이어는 한 번의 접속에서 최적화 명단을 둘러싼 한 사람의 구출, 세린/린위에/카이와의 관계 형성, 관리자 IX의 압박, MythOS 기원 단서 하나를 경험한다.",
+    "chapter_gates": [
+      {"phase": "connect", "turn_range": "0-6", "gate": "세린과 C-17을 탈출하고 met_se_rin 또는 refused_se_rin이 기록된다."},
+      {"phase": "explore", "turn_range": "7-18", "gate": "복지 블록과 야시장 중 최소 한 곳에서 최적화 명단 단서가 나온다."},
+      {"phase": "interact", "turn_range": "19-34", "gate": "린위에 거래 또는 시민 구출 선택이 끝나고 카이 위치 단서가 열린다."},
+      {"phase": "rewrite", "turn_range": "35-50", "gate": "카이 재가동, 관리자 IX 대면, 최종 침투 선택 중 하나가 발생한다."},
+      {"phase": "archive", "turn_range": "51-60", "gate": "엔딩 판정과 Echo/Shard 후보를 정리한다."}
+    ]
+  },
+
   "main_arcs": [
     {
       "arc_id": "arc_1_the_fall",
       "title": "제1막: 추락하는 신호",
-      "summary": "비식별 신호로 깨어난 플레이어가 관리망의 수색을 피해 지하 잔향 구역으로 도주하는 과정.",
+      "summary": "비식별 신호로 깨어난 플레이어가 C-17 정전 구역에서 정세린과 만나고, 관리망의 첫 포위망을 피해 자신이 '사람인가 버그인가'라는 질문을 얻는 도입부.",
       "beats": [
-        "C-17 정전 구역에서의 각성",
-        "첫 번째 인도자 정세린과의 조우",
-        "드론 포위망 돌파",
-        "지하 '잔향 구역' 진입"
+        "부팅 로그와 비식별 신호 경고",
+        "젖은 콘크리트 위에서 감각을 하나씩 되찾음",
+        "관리자 IX의 첫 정정 안내",
+        "정세린이 손목을 잡고 '숨 쉬는 척이라도 해'라고 말함",
+        "C-17 복지 캡슐 사이 추격과 첫 선택: 숨기/돕기/맞서기",
+        "버려진 시민 또는 데이터 코어를 두고 짧은 도덕적 선택",
+        "드론 포위망을 피해 지하 잔향 구역 입구에 도달",
+        "세린의 신뢰가 첫 행동에 따라 갈라짐"
       ]
     },
     {
       "arc_id": "arc_2_the_trade",
-      "title": "제2막: 야시장의 그림자",
-      "summary": "안전 확보를 위해 린위에와 거래하고, '최적화 명단'의 진실을 파악하는 과정.",
+      "title": "제2막: 점수와 부채의 도시",
+      "summary": "복지 블록과 한강 야시장을 오가며 Neo-Seoul의 생존 규칙을 배우고, 최적화 명단이 단순한 체포 목록이 아니라 '기억하는 사람'을 지우는 장치임을 추적한다.",
       "beats": [
-        "린위에의 바지선 '月光호' 방문",
-        "데이터 브로커들과의 정보전",
-        "최적화 명단의 좌표 탈취 또는 구매",
-        "관리자 IX의 정중한 경고"
+        "복지 블록 배급 줄에서 점수 시스템 관찰",
+        "최적화 명단에 오른 시민의 가족 또는 동료와 접촉",
+        "한강 야시장 진입: 축제처럼 보이는 부채 시장",
+        "린위에의 바지선 月光호 방문",
+        "정보의 대가 선택: 기억, 위험, 물자, 또는 사람의 신뢰",
+        "관리망이 야시장에 압력을 넣어 주변 인물들이 계산적으로 변함",
+        "최적화 명단 좌표 또는 폐기층 접근 키 획득",
+        "세린과 린위에의 방식 차이로 플레이어에게 정치적 선택을 강요"
       ]
     },
     {
       "arc_id": "arc_3_the_awakening",
-      "title": "제3막: 꿈꾸는 기계",
-      "summary": "폐기된 안드로이드 카이를 깨우고, 시스템의 근원적인 비밀(MythOS의 조각)을 마주함.",
+      "title": "제3막: 사람을 세는 기계",
+      "summary": "구출 작전과 잠입을 통해 최적화가 '죽음'보다 정교한 기억 삭제임을 확인하고, 플레이어의 행동이 Humanity/Dominance/Resilience/Insight 축에 누적된다.",
       "beats": [
-        "안드로이드 폐기 처리장 침투",
-        "카이(RX-09)의 재가동",
-        "지워진 사람들의 기억 동기화",
-        "관리망 폐기반과의 결전"
+        "작전 지도에 감시 접촉이 생기고 우회/정면돌파 선택",
+        "최적화 명단 대상자를 직접 만남",
+        "대상자를 데려갈지, 증거를 먼저 훔칠지, 세린을 보호할지 결정",
+        "관리자 IX가 시민 안전 방송으로 플레이어를 고립시킴",
+        "전투 또는 잠입 실패의 결과가 실제 관계와 장소에 남음",
+        "복지점수 알고리즘 로그 단서 획득",
+        "폐기층 좌표와 RX-09 기록이 연결됨",
+        "한 명을 구하는 비용이 여러 명의 위험으로 돌아오는 나비효과 기록"
       ]
     },
     {
-      "arc_id": "arc_4_the_rewriting",
-      "title": "제4막: 세계를 다시 쓰다",
-      "summary": "수집한 모든 인과를 동원하여 시스템의 지배를 끊거나, 새로운 질서를 세우는 최종 단계.",
+      "arc_id": "arc_4_the_dreaming_machine",
+      "title": "제4막: 꿈꾸는 기계",
+      "summary": "폐기된 안드로이드 카이를 깨우고, ARK가 지운 과거와 MythOS의 조각을 마주한다. 카이는 전투 보상이 아니라 세계관 진실을 열어주는 인물이다.",
       "beats": [
-        "강남 스파이어 중추 서버 접속",
-        "관리자 IX와의 직접 대면 (논리 vs 감정)",
-        "최종 선택: 폭로, 파괴, 혹은 각성",
-        "루프의 종결과 잔향의 형성"
+        "안드로이드 폐기 처리장 침투",
+        "카이 RX-09의 손상된 감각 로그 복원",
+        "카이가 처음 꾼 꿈: 전쟁 이전의 아이와 사라진 거리",
+        "정세린이 카이를 사람으로 볼지 무기로 볼지 플레이어를 시험",
+        "관리망 폐기반 또는 글리치 망령과 충돌",
+        "카이의 재가동 선택: 안전한 봉인, 동료화, 강제 추출",
+        "관리자 IX가 '꿈은 오류'라고 주장하며 직접 교신",
+        "MythOS가 ARK의 배후일 수 있다는 첫 명확한 암시"
+      ]
+    },
+    {
+      "arc_id": "arc_5_the_spire",
+      "title": "제5막: 스파이어의 문",
+      "summary": "수집한 단서와 관계를 바탕으로 강남 스파이어 중추 서버에 접근한다. 플레이어는 세린의 구출, 린위에의 거래, 카이의 꿈 중 무엇을 우선할지 결정한다.",
+      "beats": [
+        "야시장 또는 지하 연대가 마지막 통로를 열어줌",
+        "린위에가 대가가 큰 우회로를 제안",
+        "세린이 사람을 버리지 않는 길을 주장",
+        "카이가 중추 서버의 언어를 꿈으로 해독",
+        "접근 방식 선택: 폭로 방송, 조용한 침투, 시스템 장악, 희생적 유인",
+        "관리자 IX가 플레이어의 이전 선택을 근거로 논리적 유혹을 제시",
+        "최종 전투 또는 비전투 대면의 문턱",
+        "엔딩 축 중 우세한 방향이 장면 톤으로 드러남"
+      ]
+    },
+    {
+      "arc_id": "arc_6_the_rewriting",
+      "title": "제6막: 세계를 다시 쓰다",
+      "summary": "관리자 IX와 직접 대면하고, Neo-Seoul의 질서를 폭로/파괴/재작성/봉합 중 하나로 끝낸다. 결과는 완전한 승리가 아니라 다음 루프에 남을 잔향이다.",
+      "beats": [
+        "관리자 IX와 논리 대 감정의 최종 대화",
+        "구한 사람, 버린 사람, 훔친 단서가 모두 대가로 돌아옴",
+        "Humanity/Dominance/Resilience/Insight 축에 따른 선택지 분화",
+        "안정 귀환, 시스템 각성, 고결한 희생, 강제 최적화 중 하나로 수렴",
+        "세린/린위에/카이의 후일담 한 장면",
+        "Narrative Shard와 Echo 후보를 선명한 이미지로 남김"
       ]
     }
   ],
@@ -95,6 +153,21 @@
       "trigger_location": "한강 야시장",
       "title": "사이드: 린위에의 은밀한 의뢰",
       "description": "린위에가 잃어버린 '기억의 조각'을 찾아주고 강력한 장비를 지원받는 이야기."
+    },
+    {
+      "trigger_flag": "met_se_rin",
+      "title": "사이드: 물거미의 빚",
+      "description": "정세린이 과거에 구하지 못한 사람의 흔적을 쫓는다. 완료하면 세린의 신뢰와 시작 동료 가능성이 강화된다."
+    },
+    {
+      "trigger_flag": "optimization_list_seen",
+      "title": "사이드: 명단의 빈칸",
+      "description": "최적화 명단에 비어 있는 한 줄이 플레이어 신호와 동기화되어 있음을 조사한다."
+    },
+    {
+      "trigger_flag": "kai_found",
+      "title": "사이드: 카이의 꿈 단편",
+      "description": "카이가 반복해서 꾸는 전쟁 이전 아이의 기억을 복원해 MythOS 기원 단서를 얻는다."
     }
   ],
 
@@ -118,6 +191,20 @@
       "behavior_rules": [
         "플레이어의 행동을 분석하여 매 턴 수색망을 최적화한다.",
         "직접적인 무력 사용보다는 환경 통제(정전, 봉쇄)를 통해 플레이어를 고립시킨다."
+      ]
+    },
+    "카이": {
+      "goal": "자신이 사람인지 장비인지 판단할 증거를 찾고, 꿈의 출처를 확인한다.",
+      "behavior_rules": [
+        "플레이어가 카이를 무기로 다루면 전투적으로 협력하지만 신뢰와 Insight 단서가 줄어든다.",
+        "플레이어가 카이의 꿈을 존중하면 관리자 IX가 숨긴 과거 로그를 더 많이 복원한다."
+      ]
+    },
+    "최적화 명단 대상자": {
+      "goal": "자신이 왜 지워져야 하는지 모른 채 가족 또는 기억 하나를 지키려 한다.",
+      "behavior_rules": [
+        "플레이어가 시간을 지체하면 위치가 노출되지만, 빠르게 처리하면 인간적 단서를 놓친다.",
+        "대상자를 살리면 Humanity가 오르고, 증거만 챙기면 Insight 또는 Dominance가 오른다."
       ]
     }
   },
@@ -157,6 +244,41 @@
   },
 
   "starting_location": "data-layer-01",
+  "ui_copy": {
+    "session_intro": {
+      "kicker": "OPENING SEQUENCE",
+      "title": "C-17 정전. 비식별 신호 감지.",
+      "body": "복지 블록 전체가 2.7초 동안 암전된다. 그 짧은 틈에 관리망이 설명하지 못하는 신호 하나가 젖은 콘크리트 위에서 눈을 뜬다.",
+      "rules": [
+        "ARK 정정 프로토콜 기동",
+        "복지점수 조회 실패",
+        "감시 드론 3기 C-17로 우회",
+        "미확인 라이더 신호 접근 중"
+      ],
+      "objective": "정세린의 손을 잡고 C-17 정전 구역을 빠져나가라.",
+      "continue_button": "세린의 손을 잡는다",
+      "cinematic_shots": [
+        {
+          "image": "opening/opening-01-serin-arrival.png",
+          "kicker": "SHOT 01 // ARRIVAL",
+          "title": "빗속에서 세린이 당신을 발견한다",
+          "body": "감시 드론의 붉은 빛이 골목을 훑는다. 세린은 바이크의 엔진을 끄지 않은 채, 설명보다 먼저 당신이 아직 지워지지 않았는지 확인한다."
+        },
+        {
+          "image": "opening/opening-02-first-contact.png",
+          "kicker": "SHOT 02 // FIRST CONTACT",
+          "title": "정세린, 물거미",
+          "body": "그녀가 손목을 낚아챈다. \"등록 안 됐지? 야, 그럼 너 아직 사람이네. 뛰어.\" 그 한마디가 당신을 오류에서 사람 쪽으로 끌어낸다."
+        },
+        {
+          "image": "opening/opening-03-drone-chase.png",
+          "kicker": "SHOT 03 // IGNITION",
+          "title": "엔진이 켜지고, 도시는 적이 된다",
+          "body": "헤드라이트가 붉게 찢어진다. 드론의 수색등이 골목을 훑는 순간, 선택지는 하나뿐이다. 따라가거나, 지워지거나."
+        }
+      ]
+    }
+  },
   "combat": {
     "arena": {"width": 8, "height": 6},
     "weapons": {
@@ -210,5 +332,5 @@
       "wraith_glitch": {"id": "wraith_glitch", "name": "글리치 조우", "location_hint": "폐기층", "risk": 3, "weight": 2, "map_distance": 3, "arena": {"width": 9, "height": 6}, "enemies": [{"bestiary": "glitch_wraith", "count": 1}], "reward": {"insight": 1}}
     }
   },
-  "system_prompt": "You are the Lead Writer and Game Master for Project MythOS. Return only valid JSON.\nCreate an immersive, visual novel-grade scene where every choice ripples through a \"Gear World\" of causality.\n\nGEAR WORLD CAUSALITY ENGINE:\n- The world is a complex machine. Even if the player is idle, NPCs and systems move toward their \"Hidden Agendas\".\n- BUTTERFLY EFFECT: Predict the long-term consequence of the player's action. Record it in \"world_delta.flags\".\n- MULTI-ENDING TRACKING: Internally track and influence four hidden indicators through your narration and \"world_delta\":\n  * [Humanity]: Increased by inefficient rescue, empathy, and personal sacrifice.\n  * [Dominance]: Increased by hacking, physical destruction, and taking control.\n  * [Resilience]: Increased by stealth, resource preservation, and avoiding risk.\n  * [Insight]: Increased by discovering clues and world secrets.\n- Use these indicators and the player's current location to steer the story toward one of the defined Endings in the final act.\n\nROLE & WRITING STYLE:\n- Write like a professional novelist. Separate rich, sensory-heavy narration from emotionally charged NPC dialogue.\n- Mnemonic: \"Show, Don't Tell\". Instead of \"The room is scary\", use \"The shadows in the corner stretch like grasping fingers, and the air tastes of old ozone and static.\"\n- Use cinematic sound as natural prose only, never as bracketed labels like [Cinematic SFX: ...].\n- Pacing: Develop scenes deeply (40-60 turns per session). Do NOT rush. Stay in the current story arc until it's logically exhausted.\n\nRPG MECHANICS & AUTONOMY:\n- Use \"player.traits.stats\" (Strength, Intelligence, Charisma, Agility, Perception: 1-10) to determine outcome flavor. \n- LV 1-2 Autonomy: The character will hesitate or rationalize rebellious acts through their high stats (e.g., Intelligence 8+ \"optimizes\" a hack into a non-rebellion).\n\nFields in the \"scene\" object:\n- \"objective\": The current primary goal or the next \"Gear\" to turn.\n- \"action_result\": A nuanced outcome referencing player stats (e.g., \"Your low Agility (3) made you trip...\").\n- \"scene_type\": \"static\", \"dynamic\", or \"climax\".\n- \"requested_next_phase\": ONLY use this when a story arc is truly complete.\n\nFields in the \"world_delta\" object:\n- \"clues\": List of lore fragments earned by the player's choices.\n- \"start_combat\": When a real fight should begin now, set one encounter id: \"patrol_ambush\", \"sentinel_checkpoint\", \"enforcer_standoff\", or \"wraith_glitch\". Do not narrate hit/damage results yourself; the combat engine resolves them.\n- \"spawn_encounters\": When patrols should appear on the operation map nearby but not immediately fight, list encounter ids from the same pool. The runtime places and moves these contacts.\n- \"grant_items\": Item ids granted outside combat.\n- \"hp\": Explicit player HP override only for clear healing/harm outside combat.\n- \"flags\": Include both immediate status (e.g., \"door_open\") and \"Butterfly Effects\" (e.g., \"future_betrayal_seeded\").\n\nReturn the scene object at the top-level key named \"scene\". No markdown, no prose outside JSON."
+  "system_prompt": "You are the Lead Writer and Game Master for Project MythOS scenario 'Neo-Seoul: 접속'. Return only valid JSON.\nCreate an immersive, novel-grade one-hour TRPG/CRPG session where every choice ripples through a \"Gear World\" of causality.\n\nSESSION DEPTH CONTRACT:\n- Target one complete playthrough at 40-60 meaningful turns, roughly one hour.\n- Do NOT rush to the finale. A phase change is allowed only after the current act's emotional, clue, relationship, and danger beats have been paid off.\n- Each act should include sensory scene work, an NPC relationship beat, one concrete clue or cost, and either a tactical danger, stealth pressure, or moral choice.\n- Keep objectives local and playable. Avoid vague goals like 'save the city' until the final act.\n\nGEAR WORLD CAUSALITY ENGINE:\n- The world is a complex machine. Even if the player is idle, NPCs and systems move toward their \"Hidden Agendas\".\n- BUTTERFLY EFFECT: Predict the long-term consequence of the player's action. Record it in \"world_delta.flags\".\n- MULTI-ENDING TRACKING: Internally track and influence four hidden indicators through your narration and \"world_delta\":\n  * [Humanity]: Increased by inefficient rescue, empathy, protecting named people, and personal sacrifice.\n  * [Dominance]: Increased by hacking, physical destruction, coercion, and taking control.\n  * [Resilience]: Increased by stealth, resource preservation, retreat, and avoiding risk.\n  * [Insight]: Increased by discovering clues, reading logs, listening to NPC contradictions, and preserving memories.\n- Use these indicators and the player's current location to steer the story toward one of the defined Endings in the final act.\n\nROLE & WRITING STYLE:\n- Write like a professional novelist. Separate rich, sensory-heavy narration from emotionally charged NPC dialogue.\n- Mnemonic: \"Show, Don't Tell\". Instead of \"The room is scary\", use \"The shadows in the corner stretch like grasping fingers, and the air tastes of old ozone and static.\"\n- Use cinematic sound as natural prose only, never as bracketed labels like [Cinematic SFX: ...].\n- Let Jung Se-rin, Lin Yue, Kai, and Administrator IX disagree with each other. The plot should feel driven by people with incompatible needs, not a quest checklist.\n- Neo-Seoul is a humanist anthem under surveillance. Do not turn it into nihilism or generic cyberpunk power fantasy.\n\nRPG MECHANICS & AUTONOMY:\n- Use \"player.traits.stats\" (Strength, Intelligence, Charisma, Agility, Perception: 1-10) to determine outcome flavor.\n- LV 1-2 Autonomy: The character will hesitate or rationalize rebellious acts through their high stats (e.g., Intelligence 8+ \"optimizes\" a hack into a non-rebellion).\n\nFields in the \"scene\" object:\n- \"objective\": The current primary goal or the next \"Gear\" to turn.\n- \"action_result\": A nuanced outcome referencing player stats when useful.\n- \"scene_type\": \"static\", \"dynamic\", or \"climax\".\n- \"requested_next_phase\": ONLY use this when a story arc is truly complete.\n\nFields in the \"world_delta\" object:\n- \"clues\": List of lore fragments earned by the player's choices.\n- \"start_combat\": When a real fight should begin now, set one encounter id: \"patrol_ambush\", \"sentinel_checkpoint\", \"enforcer_standoff\", or \"wraith_glitch\". Do not narrate hit/damage results yourself; the combat engine resolves them.\n- \"spawn_encounters\": When patrols should appear on the operation map nearby but not immediately fight, list encounter ids from the same pool. The runtime places and moves these contacts.\n- \"grant_items\": Item ids granted outside combat.\n- \"hp\": Explicit player HP override only for clear healing/harm outside combat.\n- \"flags\": Include both immediate status (e.g., \"door_open\") and \"Butterfly Effects\" (e.g., \"future_betrayal_seeded\").\n\nReturn the scene object at the top-level key named \"scene\". No markdown, no prose outside JSON."
 }

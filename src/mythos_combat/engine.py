@@ -258,16 +258,28 @@ class CombatEngine:
             )
 
     def _player_flee(self, state: CombatState, player: Combatant, dice: Dice) -> None:
-        adjacent = [e for e in state.living_enemies() if distance(player.x, player.y, e.x, e.y) <= 1]
+        adjacent = [
+            e for e in state.living_enemies() if distance(player.x, player.y, e.x, e.y) <= 1
+        ]
         dc = 12 + 2 * len(adjacent)
         total = dice.d20() + player.stat("agility")
         if total >= dc:
             state.outcome = "player_fled"
             state.active = False
-            self._log(state, player, "flee", f"{player.name}이(가) 전장을 이탈했다.", {"dc": dc, "total": total})
+            self._log(
+                state,
+                player,
+                "flee",
+                f"{player.name}이(가) 전장을 이탈했다.",
+                {"dc": dc, "total": total},
+            )
         else:
             self._log(
-                state, player, "info", f"{player.name}이(가) 이탈에 실패했다. 적이 길을 막는다.", {"dc": dc, "total": total}
+                state,
+                player,
+                "info",
+                f"{player.name}이(가) 이탈에 실패했다. 적이 길을 막는다.",
+                {"dc": dc, "total": total},
             )
 
     # --- skills & items -------------------------------------------------
@@ -319,16 +331,16 @@ class CombatEngine:
 
         dice = self._dice(state)
         if "move" in effect:
-            self._skill_move(
-                state, player, action.move_to, int(effect.get("move", player.speed))
-            )
+            self._skill_move(state, player, action.move_to, int(effect.get("move", player.speed)))
         if target is not None:
             self._skill_attack(state, player, target, name, effect, dice)
         if "defense_bonus" in effect:
             player.defense_buff = int(effect.get("defense_bonus", 0))
             player.defense_buff_turns = max(1, int(effect.get("duration", 1)))
             self._log(
-                state, player, "defend",
+                state,
+                player,
+                "defend",
                 f"{player.name} 주위로 엄호 노이즈가 퍼진다. (방어 +{player.defense_buff})",
             )
         if "heal" in effect:
@@ -361,7 +373,11 @@ class CombatEngine:
         if effect == "heal":
             healed = self._apply_heal(player, str(item_def.get("heal", "2d6")), dice)
             self._log(
-                state, player, "item", f"{player.name}이(가) {name}을(를) 써 {healed} 회복했다.", detail
+                state,
+                player,
+                "item",
+                f"{player.name}이(가) {name}을(를) 써 {healed} 회복했다.",
+                detail,
             )
             return True
         if effect == "focus":
@@ -386,7 +402,9 @@ class CombatEngine:
             ):
                 player.x, player.y = dx, dy
                 self._log(
-                    state, player, "move",
+                    state,
+                    player,
+                    "move",
                     f"{player.name}이(가) 신호 도약으로 ({dx}, {dy})로 이동한다.",
                     {"to": [dx, dy]},
                 )
@@ -416,7 +434,9 @@ class CombatEngine:
             budget -= 1
         if moved:
             self._log(
-                state, player, "move",
+                state,
+                player,
+                "move",
                 f"{player.name}이(가) 신호 도약으로 ({player.x}, {player.y})로 파고든다.",
                 {"to": [player.x, player.y]},
             )
@@ -437,7 +457,9 @@ class CombatEngine:
         dc = target.effective_defense
         if not crit and total < dc:
             self._log(
-                state, player, "miss",
+                state,
+                player,
+                "miss",
                 f"{player.name}의 {skill_name}이(가) {target.name}을(를) 빗나갔다.",
                 {"roll": roll, "total": total, "dc": dc, "target": target.id},
             )
@@ -455,20 +477,30 @@ class CombatEngine:
             damage *= 2
         target.hp = max(0, target.hp - damage)
         detail = {
-            "roll": roll, "total": total, "dc": dc, "damage": damage, "crit": crit,
-            "target": target.id, "target_hp": target.hp, "target_max_hp": target.max_hp,
+            "roll": roll,
+            "total": total,
+            "dc": dc,
+            "damage": damage,
+            "crit": crit,
+            "target": target.id,
+            "target_hp": target.hp,
+            "target_max_hp": target.max_hp,
         }
         if target.hp <= 0:
             target.alive = False
             self._log(
-                state, player, "defeat",
+                state,
+                player,
+                "defeat",
                 f"{player.name}의 {skill_name}이(가) {target.name}을(를) 쓰러뜨렸다! ({damage} 피해)",
                 detail,
             )
         else:
             tag = "치명타! " if crit else ""
             self._log(
-                state, player, "hit",
+                state,
+                player,
+                "hit",
                 f"{tag}{player.name}의 {skill_name}이(가) {target.name}에게 {damage} 피해.",
                 detail,
             )
@@ -489,8 +521,7 @@ class CombatEngine:
         self, state: CombatState, player: Combatant, reach: int
     ) -> Combatant | None:
         candidates = [
-            e for e in state.living_enemies()
-            if distance(player.x, player.y, e.x, e.y) <= reach
+            e for e in state.living_enemies() if distance(player.x, player.y, e.x, e.y) <= reach
         ]
         if not candidates:
             return None

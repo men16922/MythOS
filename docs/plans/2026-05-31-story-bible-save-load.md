@@ -279,34 +279,37 @@ MVP:
 
 ### Phase C. Sample Scenario
 
-- `[ ]` `docs/scenarios/02-glass-library.md` 작성.
-- `[ ]` `resources/glass-library/scenario.json` 최소 작성.
-- `[ ]` `resources/glass-library/story_bible/bible.json` 작성.
-- `[ ]` fallback smoke로 로딩 확인.
+- `[x]` `docs/scenarios/02-glass-library.md` 작성.
+- `[x]` `resources/glass-library/scenario.json` 최소 작성.
+- `[x]` `resources/glass-library/story_bible/bible.json` 작성.
+- `[x]` unit test로 로딩 확인.
 
 ### Phase D. Run History MVP
 
-- `[ ]` `RunSummary` 생성 함수 추가.
-- `[ ]` archive/permadeath/ending 경로에서 저장.
-- `[ ]` `memory_overview` 또는 별도 service로 run summaries 조회.
-- `[ ]` Player View `기록 보관소` 메뉴 추가.
-- `[ ]` unit tests.
+- `[x]` `RunSummary` 생성 함수 추가.
+- `[x]` archive/permadeath 경로에서 저장.
+- `[x]` 명시적 ending condition 경로 초도 통합 및 `ending_id`/`ending_label` 저장 확장.
+- `[x]` ending condition evaluator 안전화 및 시나리오별 조건 보강.
+- `[x]` `memory_overview` 및 별도 service로 run summaries 조회.
+- `[x]` Player View `기록 보관소` 메뉴 추가.
+- `[x]` unit tests.
 
 ### Phase E. Meta Progression MVP
 
-- `[ ]` unlock rule data 정의.
-- `[ ]` run summary 기반 unlock 평가.
-- `[ ]` PlayerMemory 또는 WorldMemory에 meta progression 저장.
-- `[ ]` 새 루프 시작 시 unlocked traits/items/allies를 선택지 또는 초기 state에 반영.
-- `[ ]` unit tests.
+- `[x]` unlock rule data 정의.
+- `[x]` run summary 기반 unlock 평가.
+- `[x]` PlayerMemory에 meta progression 저장.
+- `[x]` 새 루프 시작 시 unlocked traits/items/allies를 PlayerProfile traits 및 초기 state/inventory에 반영.
+- `[x]` unit tests.
 
 ### Phase F. Save/Load UX
 
-- `[ ]` 메인 메뉴에 active loop `LOAD` 목록 정리.
-- `[ ]` save slot metadata 생성/갱신.
-- `[ ]` 명시적 `SAVE` 버튼 또는 autosave 표기.
-- `[ ]` ended loop는 기록 보관소로 이동하도록 구분.
-- `[ ]` Streamlit smoke/browser regression.
+- `[x]` 메인 메뉴에 active loop `LOAD` 목록 정리.
+- `[x]` save slot metadata 생성/갱신.
+- `[x]` 명시적 `SAVE` 버튼 또는 autosave 표기.
+- `[x]` ended loop는 기록 보관소로 이동하도록 구분.
+- `[x]` Streamlit smoke regression.
+- `[!]` Browser screenshot regression은 in-app Browser `iab` 세션 미사용으로 미검증.
 
 ## Verification
 

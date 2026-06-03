@@ -185,16 +185,16 @@ class NarrativeDirector:
             result = event.get("result", "")
             prompt += f"- {actor}: {action} -> {result}\n"
 
-        response = self.provider.generate(
-            [
-                {
-                    "role": "system",
-                    "content": "You are a poetic chronicler of the MythOS universe.",
-                },
-                {"role": "user", "content": prompt},
-            ]
-        )
         try:
+            response = self.provider.generate(
+                [
+                    {
+                        "role": "system",
+                        "content": "You are a poetic chronicler of the MythOS universe.",
+                    },
+                    {"role": "user", "content": prompt},
+                ]
+            )
             parsed = json.loads(response)
             if isinstance(parsed, dict) and "summary" in parsed:
                 return str(parsed["summary"])

@@ -1,8 +1,16 @@
 # Neo-Seoul — 시나리오 01 비주얼 리소스
 
-시나리오 `docs/scenarios/01-neo-seoul-connect.md`의 컨셉아트 및 캐릭터 이미지.
-FLUX.1-schnell(MPS)로 생성. 아트 디렉션: 세기말/Y2K 디지털 + 한·중·일 사이버펑크
+시나리오 `docs/scenarios/01-neo-seoul-connect.md`의 컨셉아트, 캐릭터 이미지, 적 이미지.
+아트 디렉션: 세기말/Y2K 디지털 + 한·중·일 사이버펑크
 (딥네이비 + 사이버 시안 + 골드 네온, CRT 스캔라인/글리치).
+
+## 생성 정책
+
+- 사전 제작 고품질 키아트, 주요 캐릭터, 적/bestiary 이미지는 FLUX 또는 imagegen 중 결과 품질이 좋은 쪽을 선택한다.
+- 게임 중 장면에 따라 동적으로 생성되는 대표 이미지는 속도와 로컬 실행성을 위해 `mflux`를 사용한다.
+- 반복 등장 캐릭터는 기준 이미지를 먼저 확정하고, 이후 파생 컷은 그 기준 이미지를 reference로 삼는다.
+- 적은 가능한 한 런타임 동적 생성이 아니라 `resources/neo-seoul/enemies/` 아래의 사전 제작 전투 자산으로 관리한다.
+- imagegen 결과를 프로젝트에 쓰려면 반드시 `resources/` 아래로 복사하고, 기본 생성 경로에만 남겨두지 않는다.
 
 ## 재생성
 
@@ -30,9 +38,21 @@ FLUX.1-schnell(MPS)로 생성. 아트 디렉션: 세기말/Y2K 디지털 + 한·
 | --- | --- | --- |
 | `se-rin.png` | 341→img2img | 정세린 «물거미» — 한국, 긴 흑발의 반항적·신비로운 사이버펑크 인도자(final-a를 img2img refuge로 다듬은 정식 포트레이트; 원본 final-a는 `variants/`에 보존) |
 | `se-rin-biker.png` | 332 | 정세린 — 네온 바이크 장면 샷(인트로 비트용) |
-| `lin-yue.png` | 412 | 린위에 «환전상» — 중국계, 옥좌의 암흑가 거물(v2-a, 임팩트 리파인) |
+| `lin-yue.png` | imagegen | 린위에 «환전상» — 거래와 부채의 여왕, 기억 코인과 부채 장부를 든 한강 야시장 브로커 |
 | `kai.png` | 423 | 카이 RX-09 — 일본계 폐기 **남성형** 안드로이드, 푸른 발광 눈(v2-b) |
 | `administrator-ix.png` | 432 | 관리자 IX — ARK 관리망의 거대 구조물(v2-a) |
+
+### enemies/
+
+전투 bestiary는 가능한 사전 제작 자산으로 관리한다. 런타임 전투 UI와 `scenario.json["combat"]["bestiary"]`
+는 아래 이미지를 직접 참조한다.
+
+| 파일 | 적 |
+| --- | --- |
+| `maintenance-drone.png` | 정비 드론 |
+| `sentinel-drone.png` | 감시 드론 |
+| `enforcer-unit.png` | 집행 유닛 |
+| `glitch-wraith.png` | 글리치 망령 |
 
 `characters/variants/`는 Se-rin 반복 후보(close-up/bike/helmet, fusion, biker, final)를 보관한다.
 정식 채택본은 위 표의 `se-rin.png`(final-a 기반 img2img refuge 버전)와 `se-rin-biker.png`(biker-b, seed 332)이며,

@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any
 
 from mythos_combat import PlayerAction, render_radar
 from mythos_core import (
+    AssetRecord,
     Echo,
     LoopPhase,
     LoopState,
@@ -13,6 +14,7 @@ from mythos_core import (
     PlayerMemory,
     PlayerProfile,
     Scene,
+    WorldEvent,
     WorldMemory,
     create_loop_seed,
     new_loop_id,
@@ -35,14 +37,25 @@ from mythos_runtime.encounter_map import (
     mark_encounter_resolved,
     tick_encounter_map,
 )
+from mythos_runtime.ending_resolver import EndingResolver
 from mythos_runtime.observability import get_logger, span
 from mythos_runtime.options import (
     MemoryOverview,
+    RunSummary,
     RuntimeOptions,
     RuntimeSnapshot,
     RuntimeStreamEvent,
+    SaveSlot,
 )
-from mythos_runtime.progression import determine_autonomy_level
+from mythos_runtime.progression import (
+    MetaProgression,
+    apply_meta_progression_to_state,
+    determine_autonomy_level,
+    evaluate_meta_progression,
+    latest_meta_progression,
+    meta_progression_to_content,
+    traits_with_meta_progression,
+)
 from mythos_runtime.scenario import load_scenario
 from mythos_runtime.scenario_context import apply_archetype_traits, build_runtime_narrative_context
 from mythos_runtime.visual_orchestration import maybe_generate_scene_image
@@ -123,6 +136,12 @@ class RuntimeSessionService:
         initial_scores = _initial_loop_scores(world_memories, player_id=player.player_id)
         loop_index = len(loops) + 1
         scenario = load_scenario(options.scenario_id)
+        meta_progression = latest_meta_progression(memories, player.player_id, options.scenario_id)
+        initial_state = apply_meta_progression_to_state(
+            {**initial_scores.state, "scenario_id": options.scenario_id},
+            meta_progression,
+            scenario.combat,
+        )
         loop = LoopState(
             loop_id=new_loop_id(),
             player_id=player.player_id,
@@ -136,7 +155,7 @@ class RuntimeSessionService:
             stability=initial_scores.stability,
             tension=initial_scores.tension,
             started_at=utc_now(),
-            state=initial_scores.state,
+            state=initial_state,
             active_echoes=_echoes_from_memories(memories),
         )
         context = build_runtime_narrative_context(
@@ -169,6 +188,7 @@ class RuntimeSessionService:
         with self.store.transaction():
             self.store.save_loop(transition.loop)
             self.store.save_scene(scene)
+            _save_slot_autosave(self.store, transition.loop, scene, assets=[])
             for event in transition.events:
                 self.store.append_event(event)
             for shard in transition.discovered_shards:
@@ -208,6 +228,12 @@ class RuntimeSessionService:
         novelty_signal = self.novelty.build_signal(_latest_scenes(self.store, loops))
         initial_scores = _initial_loop_scores(world_memories, player_id=player.player_id)
         scenario = load_scenario(options.scenario_id)
+        meta_progression = latest_meta_progression(memories, player.player_id, options.scenario_id)
+        initial_state = apply_meta_progression_to_state(
+            {**initial_scores.state, "scenario_id": options.scenario_id},
+            meta_progression,
+            scenario.combat,
+        )
         loop = LoopState(
             loop_id=new_loop_id(),
             player_id=player.player_id,
@@ -221,7 +247,7 @@ class RuntimeSessionService:
             stability=initial_scores.stability,
             tension=initial_scores.tension,
             started_at=utc_now(),
-            state=initial_scores.state,
+            state=initial_state,
             active_echoes=_echoes_from_memories(memories),
         )
         context = build_runtime_narrative_context(
@@ -319,6 +345,7 @@ class RuntimeSessionService:
         with self.store.transaction():
             self.store.save_loop(transition.loop)
             self.store.save_scene(scene)
+            _save_slot_autosave(self.store, transition.loop, scene, assets=[])
             for event in transition.events:
                 self.store.append_event(event)
             for shard in transition.discovered_shards:
@@ -430,12 +457,14 @@ class RuntimeSessionService:
         if loop_id:
             loop = self.store.get_loop(loop_id)
         elif player_id:
-            loops = self.store.list_loops(player_id)
-            loop = loops[0] if loops else None
+            slots = self.list_save_slots(player_id)
+            loop = self.store.get_loop(slots[0].loop_id) if slots else None
         else:
             raise RuntimeError("resume requires loop_id or player_id")
         if loop is None:
             raise RuntimeError("loop not found")
+        if loop.phase is LoopPhase.ENDED:
+            raise RuntimeError("ended loop is archived in run history, not loadable")
         player = self._require_player(loop.player_id)
         scene = self.store.get_latest_scene(loop.loop_id)
         if scene is None:
@@ -454,6 +483,38 @@ class RuntimeSessionService:
             combat=combat,
         )
 
+    def list_active_loops(self, player_id: str) -> list[LoopState]:
+        self._require_player(player_id)
+        return [
+            loop for loop in self.store.list_loops(player_id) if loop.phase is not LoopPhase.ENDED
+        ]
+
+    def list_save_slots(self, player_id: str, limit: int = 20) -> list[SaveSlot]:
+        self._require_player(player_id)
+        memory_by_loop = _latest_save_slot_memories(self.store.list_player_memories(player_id))
+        slots = []
+        for loop in self.list_active_loops(player_id):
+            scene = self.store.get_latest_scene(loop.loop_id)
+            if scene is None:
+                continue
+            assets = self.store.list_assets(loop.loop_id)
+            slots.append(
+                _save_slot_from_loop(loop, scene, memory_by_loop.get(loop.loop_id), assets)
+            )
+        slots.sort(key=lambda slot: slot.saved_at, reverse=True)
+        return slots[:limit]
+
+    def save_slot(self, loop_id: str, label: str | None = None) -> SaveSlot:
+        loop = self._require_loop(loop_id)
+        if loop.phase is LoopPhase.ENDED:
+            raise RuntimeError("ended loop is archived in run history, not saveable")
+        scene = self.store.get_latest_scene(loop.loop_id)
+        if scene is None:
+            raise RuntimeError(f"loop_id={loop.loop_id} has no scenes")
+        memory = _save_slot_memory(loop, scene, self.store.list_assets(loop.loop_id), label=label)
+        self.store.save_player_memory(memory)
+        return _save_slot_from_memory(memory)
+
     def memory_overview(self, player_id: str, limit: int = 8) -> MemoryOverview:
         player = self._require_player(player_id)
         loops = self.store.list_loops(player.player_id)
@@ -468,21 +529,71 @@ class RuntimeSessionService:
             and memory.content.get("player_id") == player.player_id
         ][-limit:]
         latest_adjustment = None
+        overview_scenario_id = "neo-seoul"
         for loop in loops:
             if isinstance(loop.state, dict):
+                scenario_id = loop.state.get("scenario_id")
+                if isinstance(scenario_id, str) and scenario_id:
+                    overview_scenario_id = scenario_id
                 adj = loop.state.get("initial_world_memory_adjustment")
                 if isinstance(adj, dict):
                     latest_adjustment = adj
-                    break
 
         return MemoryOverview(
             world_archives=world_archives,
+            run_summaries=self.list_run_summaries(player.player_id, limit=limit),
             narrative_shards=narrative_shards[:limit],
             novelty_notes=novelty_signal.notes,
             latest_adjustment=latest_adjustment,
             rollup=_player_rollup(world_memories, player.player_id),
+            meta_progression=meta_progression_to_content(
+                latest_meta_progression(
+                    self.store.list_player_memories(player.player_id),
+                    player.player_id,
+                    overview_scenario_id,
+                )
+            ),
             unlocked_lore=self.codex.get_unlocked_lore(narrative_shards),
         )
+
+    def list_run_summaries(self, player_id: str, limit: int = 20) -> list[RunSummary]:
+        self._require_player(player_id)
+        summaries = [
+            _run_summary_from_memory(memory)
+            for memory in self.store.list_world_memories(MYTHOS_WORLD_ID)
+            if memory.kind == "run_summary"
+            and isinstance(memory.content, dict)
+            and memory.content.get("player_id") == player_id
+        ]
+        summaries.sort(key=lambda summary: summary.ended_at, reverse=True)
+        return summaries[:limit]
+
+    def _apply_meta_progression(
+        self,
+        player: PlayerProfile,
+        run_summary_memory: WorldMemory,
+    ) -> tuple[WorldMemory, PlayerMemory, PlayerProfile]:
+        scenario_id = str(run_summary_memory.content.get("scenario_id") or "neo-seoul")
+        previous = latest_meta_progression(
+            self.store.list_player_memories(player.player_id),
+            player.player_id,
+            scenario_id,
+        )
+        progress, unlocks = evaluate_meta_progression(
+            previous,
+            _run_summary_from_memory(run_summary_memory),
+        )
+        updated_content = dict(run_summary_memory.content)
+        updated_content["unlocks_granted"] = unlocks
+        updated_summary = replace(
+            run_summary_memory,
+            content=updated_content,
+            updated_at=utc_now(),
+        )
+        meta_memory = _meta_progression_memory(progress)
+        updated_traits = traits_with_meta_progression(player.traits, progress)
+        updated_player = replace(player, traits=updated_traits, updated_at=utc_now())
+        return updated_summary, meta_memory, updated_player
 
     def archive(self, loop_id: str) -> RuntimeSnapshot:
         loop = self._require_loop(loop_id)
@@ -512,14 +623,44 @@ class RuntimeSessionService:
             symbol=_symbol_from_scene(latest_scene),
             text=f"{latest_scene.title}: archived",
         )
+        # Resolve ending if not already set in loop.state
+        narrative_shards = self.store.list_narrative_shards(loop.player_id, limit=1000)
+        clue_count = len([s for s in narrative_shards if s.kind == "clue"])
+
+        ending_id = loop.state.get("ending_id")
+        ending_label = loop.state.get("ending_label")
+        if not ending_id or ending_label == "Archived Loop":
+            scenario_id = str(loop.state.get("scenario_id") or "neo-seoul")
+            try:
+                scenario = load_scenario(scenario_id)
+                resolved_id, resolved_label = EndingResolver.resolve_ending(
+                    loop, scenario, clue_count
+                )
+                if resolved_id:
+                    ending_id = resolved_id
+                    ending_label = resolved_label
+            except Exception as e:
+                self.logger.warning(
+                    f"Failed to resolve ending in archive for loop {loop.loop_id}: {e}",
+                    exc_info=True,
+                )
+
+        loop_state = dict(loop.state)
+        if ending_id:
+            loop_state["ending_id"] = ending_id
+        if ending_label:
+            loop_state["ending_label"] = ending_label
+
         ended_loop = replace(
             loop,
             phase=LoopPhase.ENDED,
             ended_at=utc_now(),
             active_echoes=[*loop.active_echoes, echo],
+            state=loop_state,
         )
+        world_memories = self.store.list_world_memories(MYTHOS_WORLD_ID)
         has_world_archive = _has_archive_world_memory(
-            self.store.list_world_memories(MYTHOS_WORLD_ID),
+            world_memories,
             loop_id=loop.loop_id,
             player_id=loop.player_id,
         )
@@ -527,6 +668,25 @@ class RuntimeSessionService:
             self.store.list_narrative_shards(loop.player_id, limit=100),
             loop_id=loop.loop_id,
         )
+        has_run_summary = _has_run_summary(world_memories, loop_id=loop.loop_id)
+        events = [*self.store.list_events(loop.loop_id), event]
+        event_dicts = [to_json_dict(e) for e in events]
+        summary_text = self.director.summarize_loop(event_dicts)
+        narrative_shards = self.store.list_narrative_shards(loop.player_id, limit=1000)
+        run_summary_memory = _run_summary_memory_from_archive(
+            ended_loop,
+            latest_scene,
+            events,
+            narrative_shards,
+            summary_text,
+        )
+        meta_memory: PlayerMemory | None = None
+        snapshot_player = player
+        if not has_run_summary:
+            run_summary_memory, meta_memory, snapshot_player = self._apply_meta_progression(
+                player,
+                run_summary_memory,
+            )
         with self.store.transaction():
             self.store.save_loop(ended_loop)
             self.store.append_event(event)
@@ -537,31 +697,16 @@ class RuntimeSessionService:
                 self.store.save_narrative_shard(
                     _narrative_shard_from_archive(ended_loop, latest_scene, echo)
                 )
+            if not has_run_summary:
+                self.store.save_world_memory(run_summary_memory)
+                if meta_memory is not None:
+                    self.store.save_player_memory(meta_memory)
+                    self.store.create_player(snapshot_player)
 
-        # Generate and save loop summary
-        events = self.store.list_events(loop.loop_id)
-        event_dicts = [to_json_dict(e) for e in events]
-        summary_text = self.director.summarize_loop(event_dicts)
-        summary_memory = WorldMemory(
-            memory_id=new_memory_id(),
-            world_id=MYTHOS_WORLD_ID,
-            kind="loop_summary",
-            content={
-                "loop_id": loop.loop_id,
-                "player_id": loop.player_id,
-                "summary": summary_text,
-            },
-            weight=1.0,
-            created_at=utc_now(),
-            updated_at=utc_now(),
-        )
-        self.store.save_world_memory(summary_memory)
-
-        clues = self.store.list_narrative_shards(loop.player_id, limit=1000)
-        clue_count = len([s for s in clues if s.kind == "clue"])
+        clue_count = len([s for s in narrative_shards if s.kind == "clue"])
         new_level = 1
         try:
-            scenario = load_scenario("neo-seoul")
+            scenario = load_scenario(str(ended_loop.state.get("scenario_id") or "neo-seoul"))
             new_level = determine_autonomy_level(scenario.autonomy_config, clue_count)
         except Exception:
             self.logger.debug(
@@ -570,12 +715,11 @@ class RuntimeSessionService:
                 extra={"player_id": player.player_id, "loop_id": loop.loop_id, "status": "skipped"},
             )
 
-        if new_level > int(player.traits.get("autonomy_level", 1)):
-            updated_traits = dict(player.traits)
+        if new_level > int(snapshot_player.traits.get("autonomy_level", 1)):
+            updated_traits = dict(snapshot_player.traits)
             updated_traits["autonomy_level"] = new_level
-            # Also potentially add a trait for leveling up
-            updated_player = replace(player, traits=updated_traits, updated_at=utc_now())
-            self.store.create_player(updated_player)  # Upsert
+            snapshot_player = replace(snapshot_player, traits=updated_traits, updated_at=utc_now())
+            self.store.create_player(snapshot_player)
             self.logger.info(
                 "player autonomy level up",
                 extra={"player_id": player.player_id, "new_level": new_level},
@@ -592,7 +736,7 @@ class RuntimeSessionService:
             },
         )
         return RuntimeSnapshot(
-            player=player,
+            player=snapshot_player,
             loop=ended_loop,
             scene=latest_scene,
             assets=self.store.list_assets(loop.loop_id),
@@ -629,7 +773,7 @@ class RuntimeSessionService:
                 player_name=player.display_name,
                 player_stats={k: int(v) for k, v in stats.items() if isinstance(v, int | float)},
                 archetype=archetype,
-        )
+            )
         return self._commit_combat_turn(player, result, "combat started", options)
 
     def _advance_encounter_map(
@@ -704,16 +848,58 @@ class RuntimeSessionService:
         )
 
         echo: Echo | None = None
+        combat_event: WorldEvent | None = None
         if result.finished:
             loop = self._apply_combat_rewards(loop, result)
             if result.outcome == "player_defeat":
                 loop, echo = self._combat_permadeath(loop, scene)
+            combat_event = create_world_event(
+                loop.loop_id,
+                turn_index,
+                "combat_finished",
+                result.outcome,
+                {
+                    "combat_outcome": result.outcome,
+                    "encounter_id": encounter_id,
+                },
+            )
+
+        run_summary_memory: WorldMemory | None = None
+        meta_memory: PlayerMemory | None = None
+        snapshot_player = player
+        if result.finished and loop.phase is LoopPhase.ENDED:
+            world_memories = self.store.list_world_memories(MYTHOS_WORLD_ID)
+            if not _has_run_summary(world_memories, loop_id=loop.loop_id):
+                events = self.store.list_events(loop.loop_id)
+                if combat_event is not None:
+                    events = [*events, combat_event]
+                event_dicts = [to_json_dict(event) for event in events]
+                summary_text = self.director.summarize_loop(event_dicts)
+                run_summary_memory = _run_summary_memory_from_archive(
+                    loop,
+                    scene,
+                    events,
+                    self.store.list_narrative_shards(loop.player_id, limit=1000),
+                    summary_text,
+                )
+                run_summary_memory, meta_memory, snapshot_player = self._apply_meta_progression(
+                    player,
+                    run_summary_memory,
+                )
 
         with self.store.transaction():
             self.store.save_loop(loop)
             self.store.save_scene(scene)
+            _save_slot_autosave(self.store, loop, scene, assets=[])
+            if combat_event is not None:
+                self.store.append_event(combat_event)
             if echo is not None:
                 _save_echo_memory(self.store, loop.player_id, echo)
+            if run_summary_memory is not None:
+                self.store.save_world_memory(run_summary_memory)
+                if meta_memory is not None:
+                    self.store.save_player_memory(meta_memory)
+                    self.store.create_player(snapshot_player)
 
         image_result = self._maybe_generate_image(options, loop, scene, player.player_id)
         bgm_path = self.audio.get_current_bgm(loop, scene)
@@ -729,7 +915,7 @@ class RuntimeSessionService:
             },
         )
         return RuntimeSnapshot(
-            player=player,
+            player=snapshot_player,
             loop=loop,
             scene=scene,
             assets=self.store.list_assets(loop.loop_id),
@@ -754,7 +940,9 @@ class RuntimeSessionService:
         options: RuntimeOptions,
     ) -> RuntimeSnapshot:
         scenario = load_scenario(options.scenario_id)
-        encounters = scenario.combat.get("encounters", {}) if isinstance(scenario.combat, dict) else {}
+        encounters = (
+            scenario.combat.get("encounters", {}) if isinstance(scenario.combat, dict) else {}
+        )
         if encounter_id not in encounters:
             raise RuntimeError(f"unknown combat encounter requested: {encounter_id}")
         stats = player.traits.get("stats", {}) if isinstance(player.traits, dict) else {}
@@ -769,9 +957,7 @@ class RuntimeSessionService:
         )
         return self._commit_combat_turn(player, result, "combat triggered by scene", options)
 
-    def _combat_snapshot(
-        self, loop: LoopState, options: RuntimeOptions
-    ) -> dict[str, Any] | None:
+    def _combat_snapshot(self, loop: LoopState, options: RuntimeOptions) -> dict[str, Any] | None:
         state = CombatService.load_state(loop)
         if state is None:
             return None
@@ -798,7 +984,9 @@ class RuntimeSessionService:
         if result.outcome != "player_victory":
             return loop
 
-        reward = result.rewards.get("encounter_reward", {}) if isinstance(result.rewards, dict) else {}
+        reward = (
+            result.rewards.get("encounter_reward", {}) if isinstance(result.rewards, dict) else {}
+        )
         if not isinstance(reward, dict):
             return loop
         loop = replace(loop, state=mark_encounter_resolved(loop.state, encounter_id))
@@ -823,11 +1011,54 @@ class RuntimeSessionService:
             symbol="fallen",
             text=f"{scene.title}: 신호 소실",
         )
+        # Resolve ending if not already set in loop.state
+        narrative_shards = self.store.list_narrative_shards(loop.player_id, limit=1000)
+        clue_count = len([s for s in narrative_shards if s.kind == "clue"])
+
+        ending_id = loop.state.get("ending_id")
+        ending_label = loop.state.get("ending_label")
+        if not ending_id or ending_label == "Archived Loop":
+            scenario_id = str(loop.state.get("scenario_id") or "neo-seoul")
+            try:
+                scenario = load_scenario(scenario_id)
+                resolved_id, resolved_label = EndingResolver.resolve_ending(
+                    loop, scenario, clue_count
+                )
+                if resolved_id:
+                    ending_id = resolved_id
+                    ending_label = resolved_label
+                else:
+                    # Fallback for combat defeat
+                    has_erasure = any(e.get("id") == "ending_erasure" for e in scenario.endings)
+                    if has_erasure:
+                        ending_id = "ending_erasure"
+                        ending_label = "강제 최적화 (Forced Erasure)"
+                    elif scenario.endings:
+                        ending_id = scenario.endings[-1].get("id")
+                        ending_label = scenario.endings[-1].get("title") or "Ended Loop"
+                    else:
+                        ending_id = None
+                        ending_label = "Combat Defeat"
+            except Exception as e:
+                self.logger.warning(
+                    f"Failed to resolve ending in combat permadeath for loop {loop.loop_id}: {e}",
+                    exc_info=True,
+                )
+                ending_id = "ending_erasure"
+                ending_label = "강제 최적화 (Forced Erasure)"
+
+        loop_state = dict(loop.state)
+        if ending_id:
+            loop_state["ending_id"] = ending_id
+        if ending_label:
+            loop_state["ending_label"] = ending_label
+
         ended = replace(
             loop,
             phase=LoopPhase.ENDED,
             ended_at=utc_now(),
             active_echoes=[*loop.active_echoes, echo],
+            state=loop_state,
         )
         self.store.append_event(event)
         return ended, echo
@@ -867,6 +1098,7 @@ class RuntimeSessionService:
         with self.store.transaction():
             self.store.save_loop(transition.loop)
             self.store.save_scene(scene)
+            _save_slot_autosave(self.store, transition.loop, scene, assets=[])
             for event in transition.events:
                 self.store.append_event(event)
             for shard in transition.discovered_shards:
@@ -1028,6 +1260,140 @@ def _save_echo_memory(store: MythOSStore, player_id: str, echo: Echo) -> PlayerM
     return memory
 
 
+def _meta_progression_memory(progress: MetaProgression) -> PlayerMemory:
+    now = utc_now()
+    return PlayerMemory(
+        memory_id=new_memory_id(),
+        player_id=progress.player_id,
+        kind="meta_progression",
+        content=meta_progression_to_content(progress),
+        weight=1.0,
+        created_at=now,
+        updated_at=now,
+    )
+
+
+def _save_slot_autosave(
+    store: MythOSStore,
+    loop: LoopState,
+    scene: Scene,
+    assets: list[AssetRecord],
+) -> PlayerMemory | None:
+    if loop.phase is LoopPhase.ENDED:
+        return None
+    memory = _save_slot_memory(loop, scene, assets, label=None)
+    store.save_player_memory(memory)
+    return memory
+
+
+def _save_slot_memory(
+    loop: LoopState,
+    scene: Scene,
+    assets: list[AssetRecord],
+    label: str | None,
+) -> PlayerMemory:
+    now = utc_now()
+    slot = {
+        "slot_id": f"slot_{loop.loop_id}",
+        "player_id": loop.player_id,
+        "loop_id": loop.loop_id,
+        "scenario_id": str(loop.state.get("scenario_id") or "neo-seoul"),
+        "label": label or _default_save_slot_label(loop, scene),
+        "scene_title": scene.title,
+        "phase": loop.phase.value,
+        "saved_at": now.isoformat(),
+        "stability": loop.stability,
+        "tension": loop.tension,
+        "turn_index": scene.turn_index,
+        "in_combat": CombatService.is_active(loop) or scene.scene_type == "combat",
+        "asset_id": _latest_asset_id(assets, scene.scene_id),
+        "metadata": {
+            "location_id": loop.location_id,
+            "location": scene.location,
+            "autosave": label is None,
+        },
+    }
+    return PlayerMemory(
+        memory_id=new_memory_id(),
+        player_id=loop.player_id,
+        kind="save_slot",
+        content=slot,
+        weight=1.0,
+        created_at=now,
+        updated_at=now,
+    )
+
+
+def _save_slot_from_loop(
+    loop: LoopState,
+    scene: Scene,
+    memory: PlayerMemory | None,
+    assets: list[AssetRecord],
+) -> SaveSlot:
+    if memory is not None:
+        content = dict(memory.content)
+        content.setdefault("phase", loop.phase.value)
+        content.setdefault("stability", loop.stability)
+        content.setdefault("tension", loop.tension)
+        content.setdefault("turn_index", scene.turn_index)
+        content.setdefault("scene_title", scene.title)
+        content.setdefault(
+            "in_combat", CombatService.is_active(loop) or scene.scene_type == "combat"
+        )
+        return _save_slot_from_content(content, fallback_saved_at=memory.created_at.isoformat())
+    return _save_slot_from_memory(_save_slot_memory(loop, scene, assets, label=None))
+
+
+def _save_slot_from_memory(memory: PlayerMemory) -> SaveSlot:
+    return _save_slot_from_content(memory.content, fallback_saved_at=memory.created_at.isoformat())
+
+
+def _save_slot_from_content(content: dict[str, Any], fallback_saved_at: str) -> SaveSlot:
+    metadata = content.get("metadata")
+    return SaveSlot(
+        slot_id=str(content.get("slot_id") or f"slot_{content.get('loop_id', '')}"),
+        player_id=str(content.get("player_id") or ""),
+        loop_id=str(content.get("loop_id") or ""),
+        scenario_id=str(content.get("scenario_id") or "neo-seoul"),
+        label=str(content.get("label") or "Autosave"),
+        scene_title=str(content.get("scene_title") or "Untitled Scene"),
+        phase=str(content.get("phase") or "connect"),
+        saved_at=str(content.get("saved_at") or fallback_saved_at),
+        stability=int(content.get("stability") or 0),
+        tension=int(content.get("tension") or 0),
+        turn_index=int(content.get("turn_index") or 0),
+        in_combat=bool(content.get("in_combat")),
+        asset_id=str(content["asset_id"]) if content.get("asset_id") is not None else None,
+        metadata=metadata if isinstance(metadata, dict) else {},
+    )
+
+
+def _latest_save_slot_memories(memories: list[PlayerMemory]) -> dict[str, PlayerMemory]:
+    latest: dict[str, PlayerMemory] = {}
+    for memory in memories:
+        if memory.kind != "save_slot":
+            continue
+        loop_id = memory.content.get("loop_id")
+        if not isinstance(loop_id, str) or not loop_id:
+            continue
+        current = latest.get(loop_id)
+        if current is None or memory.created_at > current.created_at:
+            latest[loop_id] = memory
+    return latest
+
+
+def _default_save_slot_label(loop: LoopState, scene: Scene) -> str:
+    combat = "전투 중 " if CombatService.is_active(loop) or scene.scene_type == "combat" else ""
+    return f"{combat}{scene.title}"
+
+
+def _latest_asset_id(assets: list[AssetRecord], scene_id: str) -> str | None:
+    for asset in reversed(assets):
+        if asset.scene_id == scene_id:
+            return asset.asset_id
+    return assets[-1].asset_id if assets else None
+
+
 def _world_memory_from_archive(loop: LoopState, scene: Scene) -> WorldMemory:
     now = utc_now()
     return WorldMemory(
@@ -1049,6 +1415,85 @@ def _world_memory_from_archive(loop: LoopState, scene: Scene) -> WorldMemory:
     )
 
 
+def _run_summary_memory_from_archive(
+    loop: LoopState,
+    scene: Scene,
+    events: list[WorldEvent],
+    shards: list[NarrativeShard],
+    summary_text: str,
+) -> WorldMemory:
+    now = utc_now()
+    clues = [
+        shard.symbol
+        for shard in shards
+        if shard.loop_id == loop.loop_id and (shard.kind == "clue" or shard.metadata.get("clue_id"))
+    ]
+    content = {
+        "run_id": f"run_{loop.loop_id}",
+        "player_id": loop.player_id,
+        "loop_id": loop.loop_id,
+        "scenario_id": str(loop.state.get("scenario_id") or "neo-seoul"),
+        "started_at": loop.started_at.isoformat(),
+        "ended_at": (loop.ended_at or now).isoformat(),
+        "ending_id": loop.state.get("ending_id"),
+        "ending_label": str(loop.state.get("ending_label") or "Archived Loop"),
+        "final_title": scene.title,
+        "final_location": scene.location,
+        "phase": loop.phase.value,
+        "stability": loop.stability,
+        "tension": loop.tension,
+        "turns": scene.turn_index + 1,
+        "combats_won": _count_combat_outcomes(events, "player_victory"),
+        "combats_lost": _count_combat_outcomes(events, "player_defeat"),
+        "clues_collected": clues,
+        "allies_met": _allies_from_loop_state(loop.state),
+        "unlocks_granted": [],
+        "summary_text": summary_text,
+        "metadata": {
+            "event_count": len(events),
+            "scene_id": scene.scene_id,
+            "source": "archive",
+        },
+    }
+    return WorldMemory(
+        memory_id=new_memory_id(),
+        world_id=MYTHOS_WORLD_ID,
+        kind="run_summary",
+        content=content,
+        weight=1.0,
+        created_at=now,
+        updated_at=now,
+    )
+
+
+def _run_summary_from_memory(memory: WorldMemory) -> RunSummary:
+    content = memory.content
+    metadata = content.get("metadata")
+    return RunSummary(
+        run_id=str(content.get("run_id") or f"run_{content.get('loop_id', memory.memory_id)}"),
+        player_id=str(content.get("player_id") or ""),
+        loop_id=str(content.get("loop_id") or ""),
+        scenario_id=str(content.get("scenario_id") or "neo-seoul"),
+        started_at=str(content.get("started_at") or memory.created_at.isoformat()),
+        ended_at=str(content.get("ended_at") or memory.created_at.isoformat()),
+        ending_id=str(content["ending_id"]) if content.get("ending_id") is not None else None,
+        ending_label=str(content.get("ending_label") or "Archived Loop"),
+        final_title=str(content.get("final_title") or "Untitled Run"),
+        final_location=str(content.get("final_location") or ""),
+        phase=str(content.get("phase") or "ended"),
+        stability=int(content.get("stability") or 0),
+        tension=int(content.get("tension") or 0),
+        turns=int(content.get("turns") or 0),
+        combats_won=int(content.get("combats_won") or 0),
+        combats_lost=int(content.get("combats_lost") or 0),
+        clues_collected=[str(item) for item in content.get("clues_collected", [])],
+        allies_met=[str(item) for item in content.get("allies_met", [])],
+        unlocks_granted=[str(item) for item in content.get("unlocks_granted", [])],
+        summary_text=str(content.get("summary_text") or content.get("summary") or ""),
+        metadata=metadata if isinstance(metadata, dict) else {},
+    )
+
+
 def _has_archive_world_memory(memories: list[WorldMemory], loop_id: str, player_id: str) -> bool:
     for memory in memories:
         content = memory.content
@@ -1062,8 +1507,43 @@ def _has_archive_world_memory(memories: list[WorldMemory], loop_id: str, player_
     return False
 
 
+def _has_run_summary(memories: list[WorldMemory], loop_id: str) -> bool:
+    for memory in memories:
+        content = memory.content
+        if (
+            memory.kind == "run_summary"
+            and isinstance(content, dict)
+            and content.get("loop_id") == loop_id
+        ):
+            return True
+    return False
+
+
 def _has_narrative_shard(shards: list[NarrativeShard], loop_id: str) -> bool:
     return any(shard.loop_id == loop_id for shard in shards)
+
+
+def _count_combat_outcomes(events: list[WorldEvent], outcome: str) -> int:
+    count = 0
+    for event in events:
+        delta = event.state_delta if isinstance(event.state_delta, dict) else {}
+        if delta.get("combat_outcome") == outcome:
+            count += 1
+    return count
+
+
+def _allies_from_loop_state(state: dict[str, Any]) -> list[str]:
+    party = state.get("_party")
+    if not isinstance(party, dict):
+        return []
+    members = party.get("members")
+    if not isinstance(members, list):
+        return []
+    allies = []
+    for member in members:
+        if isinstance(member, dict) and member.get("id"):
+            allies.append(str(member["id"]))
+    return allies
 
 
 def _player_rollup(world_memories: list[WorldMemory], player_id: str | None) -> dict | None:
@@ -1341,12 +1821,22 @@ def _clamp_score(value: int) -> int:
 
 def _requested_combat_id(payload: ScenePayload) -> str | None:
     encounter_id = payload.world_delta.start_combat
-    if encounter_id and encounter_id.strip():
-        return encounter_id.strip()
+    encounter_id = _normalized_request_id(encounter_id)
+    if encounter_id:
+        return encounter_id
     for flag in payload.world_delta.flags:
         if flag.startswith("start_combat:"):
-            return flag.split(":", 1)[1].strip() or None
+            return _normalized_request_id(flag.split(":", 1)[1])
     return None
+
+
+def _normalized_request_id(value: str | None) -> str | None:
+    if value is None:
+        return None
+    cleaned = value.strip()
+    if not cleaned or cleaned.lower() in {"null", "none", "false", "undefined", "nil"}:
+        return None
+    return cleaned
 
 
 def _combat_visual_brief(radar: dict[str, Any]) -> str:

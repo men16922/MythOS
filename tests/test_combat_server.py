@@ -63,9 +63,7 @@ class CombatServerTest(unittest.TestCase):
 
         self.assertTrue(response["ok"])
         player = next(
-            blip
-            for blip in response["combat"]["radar"]["blips"]
-            if blip["faction"] == "player"
+            blip for blip in response["combat"]["radar"]["blips"] if blip["faction"] == "player"
         )
         self.assertEqual((player["x"], player["y"]), (x, y))
 

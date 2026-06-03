@@ -4,6 +4,7 @@ import unittest
 from contextlib import contextmanager
 from dataclasses import replace
 from datetime import UTC, datetime
+from typing import Any, cast
 
 from mythos_combat import CombatEngine, PlayerAction
 from mythos_combat.models import distance
@@ -25,6 +26,7 @@ class _InMemoryStore(MythOSStore):
         self.scenes: dict[str, list] = {}
         self.events: list = []
         self.player_memories: list = []
+        self.world_memories: list = []
 
     # players
     def create_player(self, player) -> None:
@@ -75,10 +77,10 @@ class _InMemoryStore(MythOSStore):
 
     # unused-by-combat surface
     def save_world_memory(self, memory) -> None:
-        pass
+        self.world_memories.append(memory)
 
     def list_world_memories(self, world_id) -> list:
-        return []
+        return [memory for memory in self.world_memories if memory.world_id == world_id]
 
     def save_narrative_shard(self, shard) -> None:
         pass
@@ -98,6 +100,11 @@ class _InMemoryStore(MythOSStore):
             yield
 
         return _txn()
+
+
+class _SummaryDirector:
+    def summarize_loop(self, events):
+        return "전투 종료 기록."
 
 
 def _seed_loop(store: _InMemoryStore, player_id: str, archetype: str) -> str:
@@ -132,7 +139,7 @@ def _seed_loop(store: _InMemoryStore, player_id: str, archetype: str) -> str:
 class SessionCombatTest(unittest.TestCase):
     def setUp(self) -> None:
         self.store = _InMemoryStore()
-        self.service = RuntimeSessionService(self.store, director=None)
+        self.service = RuntimeSessionService(self.store, director=cast(Any, _SummaryDirector()))
         self.options = RuntimeOptions(fallback=True)
         self.loop_id = _seed_loop(self.store, "p1", "비접속자 (Ghost)")
 
@@ -224,6 +231,44 @@ class SessionCombatTest(unittest.TestCase):
         self.assertEqual(snap.scene.scene_type, "combat")
         assert snap.combat is not None
         self.assertEqual(snap.combat["radar"]["encounter_id"], "patrol_ambush")
+
+    def test_scene_world_delta_null_string_does_not_trigger_combat(self) -> None:
+        player = self.store.get_player("p1")
+        loop = self.store.get_loop(self.loop_id)
+        assert player is not None
+        assert loop is not None
+        scene = Scene(
+            scene_id="scene_no_trigger",
+            loop_id=loop.loop_id,
+            turn_index=0,
+            title="Quiet Corridor",
+            location="loc",
+            narration="No patrol answers.",
+            choices=[Choice("c1", "Continue", "explore")],
+            visual_brief="A quiet alley.",
+            created_at=datetime(2026, 5, 31, tzinfo=UTC),
+        )
+        payload = ScenePayload(
+            title=scene.title,
+            location=scene.location,
+            narration=scene.narration,
+            choices=scene.choices,
+            visual_brief=scene.visual_brief or "",
+            world_delta=WorldDelta(start_combat="null", flags=["start_combat:none"]),
+        )
+
+        snap = self.service._commit_scene(
+            player=player,
+            loop=loop,
+            scene=scene,
+            payload=payload,
+            options=self.options,
+            span_name="test",
+            log_message="test",
+        )
+
+        self.assertIsNone(snap.combat)
+        self.assertEqual(snap.scene.scene_id, "scene_no_trigger")
 
     def test_combat_action_requires_active_combat(self) -> None:
         with self.assertRaises(RuntimeError):
@@ -320,7 +365,10 @@ class SessionCombatTest(unittest.TestCase):
                 display_name=weak.display_name,
                 created_at=weak.created_at,
                 updated_at=weak.updated_at,
-                traits={"archetype": "잔향 수집가 (Collector)", "stats": {"strength": 1, "agility": 1}},
+                traits={
+                    "archetype": "잔향 수집가 (Collector)",
+                    "stats": {"strength": 1, "agility": 1},
+                },
             )
         )
         snap = self.service.start_combat(loop_id, "enforcer_standoff", self.options)
@@ -333,6 +381,12 @@ class SessionCombatTest(unittest.TestCase):
         if snap.combat["outcome"] == "player_defeat":
             self.assertIs(snap.loop.phase, LoopPhase.ENDED)
             self.assertIsNotNone(snap.echo)
+            summaries = [
+                memory for memory in self.store.world_memories if memory.kind == "run_summary"
+            ]
+            self.assertEqual(len(summaries), 1)
+            self.assertEqual(summaries[0].content["loop_id"], loop_id)
+            self.assertEqual(summaries[0].content["combats_lost"], 1)
 
 
 if __name__ == "__main__":

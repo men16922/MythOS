@@ -41,10 +41,11 @@ class StaticAudioProvider:
     def get_bgm_for_state(self, loop_state: LoopState, scene: Scene) -> str | None:
         # Check if combat is active and select dynamic battle soundtracks
         from mythos_runtime.combat_service import CombatService
+
         if scene.scene_type == "combat" or CombatService.is_active(loop_state):
             combat_state = CombatService.load_state(loop_state)
             filename = "bgm_combat_normal.wav"
-            
+
             if combat_state:
                 # 1. Crisis Check: Player HP is low (<= 35% of max HP)
                 player_unit = None
@@ -56,11 +57,17 @@ class StaticAudioProvider:
                     filename = "bgm_combat_crisis.wav"
                 else:
                     # 2. Boss Check: Encounter ID contains 'boss' or contains high-risk enemies
-                    encounter_id = combat_state.encounter_id.lower() if combat_state.encounter_id else ""
-                    is_boss = "boss" in encounter_id or any("boss" in u.name.lower() or u.max_hp >= 25 for u in combat_state.combatants if u.faction == "enemy")
+                    encounter_id = (
+                        combat_state.encounter_id.lower() if combat_state.encounter_id else ""
+                    )
+                    is_boss = "boss" in encounter_id or any(
+                        "boss" in u.name.lower() or u.max_hp >= 25
+                        for u in combat_state.combatants
+                        if u.faction == "enemy"
+                    )
                     if is_boss:
                         filename = "bgm_combat_boss.wav"
-            
+
             audio_path = self.base_path / filename
             if audio_path.exists():
                 return str(audio_path)

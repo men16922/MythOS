@@ -315,9 +315,7 @@ class CombatService:
                 return hp
         return None
 
-    def _roll_loot(
-        self, scenario_combat: dict[str, Any], table_id: str, dice: Dice
-    ) -> str | None:
+    def _roll_loot(self, scenario_combat: dict[str, Any], table_id: str, dice: Dice) -> str | None:
         table = scenario_combat.get("loot_tables", {}).get(table_id)
         if not table:
             return None

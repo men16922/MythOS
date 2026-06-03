@@ -33,7 +33,9 @@ def ensure_combat_server() -> int:
         server = ThreadingHTTPServer(("127.0.0.1", 0), _CombatRequestHandler)
         _SERVER = server
         _SERVER_PORT = int(server.server_address[1])
-        thread = threading.Thread(target=server.serve_forever, name="mythos-combat-server", daemon=True)
+        thread = threading.Thread(
+            target=server.serve_forever, name="mythos-combat-server", daemon=True
+        )
         thread.start()
         return _SERVER_PORT
 
@@ -47,7 +49,9 @@ def combat_action_response(
     """Apply one combat action and return the new combat payload."""
     action = _player_action_from_dict(action_dict)
     snapshot = service.combat_action(loop_id, action, _combat_options(scenario_id))
-    return _snapshot_response(service, snapshot.loop.loop_id, scenario_id, snapshot.combat, snapshot.scene.narration)
+    return _snapshot_response(
+        service, snapshot.loop.loop_id, scenario_id, snapshot.combat, snapshot.scene.narration
+    )
 
 
 def combat_state_response(

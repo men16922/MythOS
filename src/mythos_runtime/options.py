@@ -58,12 +58,59 @@ class RuntimeStreamEvent:
 
 
 @dataclass(frozen=True)
+class RunSummary:
+    """Player-facing record of a completed or archived loop."""
+
+    run_id: str
+    player_id: str
+    loop_id: str
+    scenario_id: str
+    started_at: str
+    ended_at: str
+    ending_id: str | None
+    ending_label: str
+    final_title: str
+    final_location: str
+    phase: str
+    stability: int
+    tension: int
+    turns: int
+    combats_won: int
+    combats_lost: int
+    clues_collected: list[str]
+    allies_met: list[str]
+    unlocks_granted: list[str]
+    summary_text: str
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
+class SaveSlot:
+    slot_id: str
+    player_id: str
+    loop_id: str
+    scenario_id: str
+    label: str
+    scene_title: str
+    phase: str
+    saved_at: str
+    stability: int
+    tension: int
+    turn_index: int
+    in_combat: bool = False
+    asset_id: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(frozen=True)
 class MemoryOverview:
     """Read-only view of a player's cross-loop memory, for UI/QA surfaces."""
 
     world_archives: list[WorldMemory]
     narrative_shards: list[NarrativeShard]
     novelty_notes: list[str]
+    run_summaries: list[RunSummary] = field(default_factory=list)
     latest_adjustment: dict | None = None
     rollup: dict | None = None
+    meta_progression: dict | None = None
     unlocked_lore: list[LoreEntry] = field(default_factory=list)

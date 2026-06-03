@@ -1,7 +1,7 @@
 # Project MythOS Next Plan
 
 작성일: 2026-05-30
-최종 갱신: 2026-05-31
+최종 갱신: 2026-06-03
 
 이 문서는 앞으로 할 일만 유지하는 rolling plan이다. 완료된 phase 상세는 `docs/COMPLETED_SUMMARY.md`, `docs/archive/progress-2026-05.md`, `docs/plans/`를 본다.
 
@@ -57,7 +57,7 @@
 - `[x]` focus 재생량과 skill cost 밸런스 재검토. 주요 스킬 focus 비용을 2로 조정하고, 방어를 집중 회복 턴으로 강화.
 - `[x]` custom component 기반 drag/drop tactical board 재검토. 현 단일 iframe 보드가 안정적으로 동작하므로 필수 작업은 없음. 드래그앤드롭은 후속 UI 고도화 선택지로만 유지.
 
-### 4. Story Bible / Run History / Save Load — 다음 제품화 트랙
+### 4. Story Bible / Run History / Save Load — `[~]` 엔딩 보강 진행 중
 
 권위 계획: **`docs/plans/2026-05-31-story-bible-save-load.md`**
 
@@ -67,11 +67,18 @@
 
 - `[x]` `story_bible.py` loader/selector 추가. 현재 phase/location/flags/NPC 상태에 맞는 바이블 조각만 `NarrativeContext`에 주입.
 - `[x]` Neo-Seoul 최소 story bible 작성 및 기존 `scenario.json`/`docs/scenarios/01-neo-seoul-connect.md`와 연결.
-- `[ ]` 샘플 신규 시나리오 `세계 : 접속 - 유리성의 사서` 작성(`docs/scenarios/02-glass-library.md`, `resources/glass-library/`).
-- `[ ]` 엔딩/archive/permadeath 시 `RunSummary` 생성 및 저장.
-- `[ ]` Player View `기록 보관소` 메뉴에서 런 히스토리 목록/상세 조회.
-- `[ ]` run summary 기반 meta progression/unlock 평가 및 저장.
-- `[ ]` 메인 메뉴 `LOAD`를 active loop/save slot UX로 정리하고, ended loop는 기록 보관소로 분리.
+- `[x]` 샘플 신규 시나리오 `세계 : 접속 - 유리성의 사서` 작성(`docs/scenarios/02-glass-library.md`, `resources/glass-library/`).
+- `[x]` Neo-Seoul 01을 주력 1시간 세션으로 심화. 6막/40-60턴 구조, 장면 밀도 원칙, 관계/단서/클라이맥스 Story Bible snippet 확장.
+- `[x]` archive/permadeath 시 `RunSummary` 생성 및 `WorldMemory(kind="run_summary")` 저장.
+- `[x]` Player View `기록 보관소` 메뉴에서 런 히스토리 목록/상세 조회.
+- `[x]` run summary 기반 meta progression/unlock 평가 및 `PlayerMemory(kind="meta_progression")` 저장.
+- `[x]` 새 루프 시작 시 unlocked starting item과 meta progression state 반영.
+- `[x]` 명시적 엔딩 조건 경로 추가: `EndingResolver` 모듈을 도입하고 `loop.state` 기반 조건식 평가를 통해 `RunSummary.ending_id`/`ending_label` 저장 확장. (P0)
+- `[ ]` P0 엔딩 리졸버 조건식 안전화: `eval` 기반 조건식을 AST/whitelist evaluator로 교체하거나 명시 DSL로 제한.
+- `[ ]` P0 Neo-Seoul/Glass Library ending condition 점검: 실제 `loop.state.flags`, clue count, stability/tension/autonomy와 조건식이 맞는지 검증.
+- `[ ]` P0 Player View 엔딩 표시 검증: 최종 화면/기록 보관소/메타 진행도에서 ending label이 일관되게 보이는지 확인.
+- `[x]` 메인 메뉴 `LOAD`를 active loop/save slot UX로 정리하고, ended loop는 기록 보관소로 분리.
+- `[x]` autosave metadata와 명시적 `SAVE` 버튼 추가.
 
 완료 기준:
 
@@ -82,14 +89,15 @@
 
 ### 5. 시각/서사 후속 선택
 
-- `[ ]` IP-Adapter 실배선으로 캐릭터 얼굴-ID 고정 강화.
-- `[ ]` 인과율 예약 이벤트, NPC 위치/아젠다를 Developer 뷰나 Codex에 노출.
-- `[ ]` 실 플레이 중 이미지 per-step latency 계측 및 size/steps 프리셋 튜닝.
+- `[x]` 인과율/엔딩 디버그 모니터 초도 노출: Developer 뷰에서 active flags, metric score, ending condition matching 상태 확인.
+- `[ ]` 인과율 예약 이벤트, NPC 위치/아젠다 노출 고도화: Developer 뷰나 Codex에 NPC 아젠다 스탯 진행도와 예약 이벤트 타임라인을 시각화. (P1)
+- `[ ]` 실 플레이 중 이미지 per-step latency 계측: `visual_service` 내 생성 단계 시간 측정, OTel 스팬/로그 연동 및 steps 프리셋 최적화. (P1)
+- `[ ]` IP-Adapter/pose reference 실배선: Apple Silicon MPS 환경에서 FLUX 이미지 생성 시 캐릭터 일관성을 확보하기 위해 캐릭터 레퍼런스 이미지 경로 및 가중치 주입. (P2)
 
 ### 6. 제품화 후속 선택
 
-- `[ ]` Streamlit 이후 Web UI 경계 설계.
-- `[ ]` 원격 visual worker/storage/cloud 확장 설계.
+- `[ ]` Streamlit 이후 Web UI 경계 설계: FastAPI 등으로 HTTP/WebSocket API 구축 및 Next.js/Vite 기반 프론트엔드로의 디커플링 아키텍처 설계. (P3)
+- `[ ]` 원격 visual worker/storage/cloud 확장 설계: 분산 Redis Queue 비주얼 워커와 MinIO/S3 오브젝트 스토리지 통합 설계. (P3)
 - `[ ]` CI 도입 가능성 검토.
 
 ## Completed Baseline

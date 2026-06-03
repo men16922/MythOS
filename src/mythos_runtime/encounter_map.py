@@ -196,15 +196,14 @@ def _move_contact(contact: dict[str, Any], player: tuple[int, int], *, seed: str
     return {**contact, "x": cx + step_x, "y": cy + step_y}
 
 
-def _move_contact_away(contact: dict[str, Any], player: tuple[int, int], *, seed: str) -> dict[str, Any]:
+def _move_contact_away(
+    contact: dict[str, Any], player: tuple[int, int], *, seed: str
+) -> dict[str, Any]:
     dice = Dice(seed)
     cx, cy = int(contact.get("x", 0)), int(contact.get("y", 0))
     px, py = player
     steps = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (1, 1), (-1, 1), (1, -1)]
-    scored = [
-        (max(abs((cx + sx) - px), abs((cy + sy) - py)), sx, sy)
-        for sx, sy in steps
-    ]
+    scored = [(max(abs((cx + sx) - px), abs((cy + sy) - py)), sx, sy) for sx, sy in steps]
     best_distance = max(distance for distance, _, _ in scored)
     best_steps = [(sx, sy) for distance, sx, sy in scored if distance == best_distance]
     step_x, step_y = dice.choice(best_steps)

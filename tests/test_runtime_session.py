@@ -1,15 +1,20 @@
 import unittest
 from datetime import UTC, datetime
+from typing import Any, cast
 
 from mythos_core import (
     LoopPhase,
     LoopState,
     NarrativeShard,
+    PlayerMemory,
     PlayerProfile,
     Scene,
+    WorldEvent,
     WorldMemory,
 )
+from mythos_loop import create_world_event
 from mythos_memory.store import MythOSStore
+from mythos_runtime.options import RuntimeOptions
 from mythos_runtime.session import (
     RuntimeSessionService,
     _archives_to_compact,
@@ -412,6 +417,266 @@ class MemoryOverviewTest(unittest.TestCase):
         self.assertEqual(overview.latest_adjustment["tension_delta"], 8)
 
 
+class _SummaryDirector:
+    def summarize_loop(self, events):
+        return f"요약된 접속 기록 {len(events)}건."
+
+
+class _ArchiveStore(MythOSStore):
+    def __init__(self) -> None:
+        self.players: dict[str, PlayerProfile] = {}
+        self.loops: dict[str, LoopState] = {}
+        self.scenes: dict[str, list[Scene]] = {}
+        self.events: list[WorldEvent] = []
+        self.player_memories: list[PlayerMemory] = []
+        self.world_memories: list[WorldMemory] = []
+        self.shards: list[NarrativeShard] = []
+
+    def create_player(self, player) -> None:
+        self.players[player.player_id] = player
+
+    def get_player(self, player_id):
+        return self.players.get(player_id)
+
+    def list_players(self) -> list:
+        return list(self.players.values())
+
+    def save_loop(self, loop) -> None:
+        self.loops[loop.loop_id] = loop
+
+    def get_loop(self, loop_id):
+        return self.loops.get(loop_id)
+
+    def list_loops(self, player_id) -> list:
+        return [loop for loop in self.loops.values() if loop.player_id == player_id]
+
+    def save_scene(self, scene) -> None:
+        self.scenes.setdefault(scene.loop_id, []).append(scene)
+
+    def get_latest_scene(self, loop_id):
+        scenes = self.scenes.get(loop_id, [])
+        return scenes[-1] if scenes else None
+
+    def get_scene_by_turn(self, loop_id, turn_index):
+        for scene in self.scenes.get(loop_id, []):
+            if scene.turn_index == turn_index:
+                return scene
+        return None
+
+    def append_event(self, event) -> None:
+        self.events.append(event)
+
+    def list_events(self, loop_id) -> list:
+        return [event for event in self.events if event.loop_id == loop_id]
+
+    def save_player_memory(self, memory) -> None:
+        self.player_memories.append(memory)
+
+    def list_player_memories(self, player_id) -> list:
+        return [memory for memory in self.player_memories if memory.player_id == player_id]
+
+    def save_world_memory(self, memory) -> None:
+        self.world_memories.append(memory)
+
+    def list_world_memories(self, world_id) -> list:
+        return [memory for memory in self.world_memories if memory.world_id == world_id]
+
+    def save_narrative_shard(self, shard) -> None:
+        self.shards.append(shard)
+
+    def list_narrative_shards(self, player_id, limit=8) -> list:
+        return [shard for shard in self.shards if shard.player_id == player_id][:limit]
+
+    def list_assets(self, loop_id) -> list:
+        return []
+
+    def save_asset(self, asset) -> None:
+        pass
+
+    def transaction(self):
+        from contextlib import contextmanager
+
+        @contextmanager
+        def _txn():
+            yield
+
+        return _txn()
+
+
+class RunHistoryTest(unittest.TestCase):
+    def test_archive_saves_and_lists_run_summary(self) -> None:
+        now = datetime(2026, 6, 3, tzinfo=UTC)
+        store = _ArchiveStore()
+        store.create_player(
+            PlayerProfile(
+                player_id="player_1",
+                display_name="Connector",
+                created_at=now,
+                updated_at=now,
+            )
+        )
+        store.save_loop(
+            LoopState(
+                loop_id="loop_1",
+                player_id="player_1",
+                seed="seed_1",
+                phase=LoopPhase.EXPLORE,
+                location_id="catalog-hall",
+                stability=63,
+                tension=42,
+                started_at=now,
+                state={
+                    "scenario_id": "glass-library",
+                    "_party": {"members": [{"id": "io"}]},
+                },
+            )
+        )
+        store.save_scene(
+            Scene(
+                scene_id="scene_1",
+                loop_id="loop_1",
+                turn_index=4,
+                title="깨진 목록실",
+                location="catalog-hall",
+                narration="기록의 먼지가 빛난다.",
+                choices=[],
+                visual_brief="",
+                created_at=now,
+            )
+        )
+        store.append_event(
+            create_world_event(
+                "loop_1",
+                3,
+                "combat_finished",
+                "player_victory",
+                {"combat_outcome": "player_victory"},
+            )
+        )
+        store.save_narrative_shard(
+            NarrativeShard(
+                shard_id="shard_1",
+                loop_id="loop_1",
+                player_id="player_1",
+                symbol="loan_card_0000",
+                emotional_tone="mystery",
+                text="첫 접속자의 대출 카드.",
+                weight=1.0,
+                created_at=now,
+                kind="clue",
+            )
+        )
+
+        service = RuntimeSessionService(store, director=cast(Any, _SummaryDirector()))
+        service.archive("loop_1")
+
+        summaries = service.list_run_summaries("player_1")
+
+        self.assertEqual(len(summaries), 1)
+        summary = summaries[0]
+        self.assertEqual(summary.loop_id, "loop_1")
+        self.assertEqual(summary.scenario_id, "glass-library")
+        self.assertEqual(summary.final_title, "깨진 목록실")
+        self.assertEqual(summary.turns, 5)
+        self.assertEqual(summary.combats_won, 1)
+        self.assertEqual(summary.clues_collected, ["loan_card_0000"])
+        self.assertEqual(summary.allies_met, ["io"])
+        self.assertIn("요약된 접속 기록", summary.summary_text)
+        self.assertIn("unlocked_traits:loop_veteran", summary.unlocks_granted)
+
+        overview = service.memory_overview("player_1")
+        self.assertEqual([item.loop_id for item in overview.run_summaries], ["loop_1"])
+        self.assertIsNotNone(overview.meta_progression)
+        assert overview.meta_progression is not None
+        self.assertEqual(overview.meta_progression["runs_completed"], 1)
+        self.assertIn("loop_veteran", store.players["player_1"].traits["unlocked_traits"])
+
+        next_loop = (
+            RuntimeSessionService(store, director=None)
+            .start_loop(
+                "player_1",
+                RuntimeOptions(fallback=True, scenario_id="glass-library"),
+            )
+            .loop
+        )
+        self.assertEqual(next_loop.state["meta_progression"]["runs_completed"], 1)
+        inventory_ids = [item["id"] for item in next_loop.state["_inventory"]]
+        self.assertIn("memory_slip", inventory_ids)
+
+    def test_save_slots_include_only_active_loops_and_resume_latest_slot(self) -> None:
+        now = datetime(2026, 6, 3, tzinfo=UTC)
+        store = _ArchiveStore()
+        store.create_player(
+            PlayerProfile(
+                player_id="player_1",
+                display_name="Connector",
+                created_at=now,
+                updated_at=now,
+            )
+        )
+        active_old = LoopState(
+            loop_id="loop_old",
+            player_id="player_1",
+            seed="seed_old",
+            phase=LoopPhase.EXPLORE,
+            location_id="loc",
+            stability=70,
+            tension=20,
+            started_at=now,
+            state={"scenario_id": "neo-seoul"},
+        )
+        active_new = LoopState(
+            loop_id="loop_new",
+            player_id="player_1",
+            seed="seed_new",
+            phase=LoopPhase.INTERACT,
+            location_id="loc",
+            stability=65,
+            tension=35,
+            started_at=_at(now, 1),
+            state={"scenario_id": "neo-seoul"},
+        )
+        ended = LoopState(
+            loop_id="loop_ended",
+            player_id="player_1",
+            seed="seed_ended",
+            phase=LoopPhase.ENDED,
+            location_id="loc",
+            stability=40,
+            tension=80,
+            started_at=_at(now, 2),
+            ended_at=_at(now, 3),
+            state={"scenario_id": "neo-seoul"},
+        )
+        for loop in (active_old, active_new, ended):
+            store.save_loop(loop)
+            store.save_scene(
+                Scene(
+                    scene_id=f"scene_{loop.loop_id}",
+                    loop_id=loop.loop_id,
+                    turn_index=2,
+                    title=f"Scene {loop.loop_id}",
+                    location="loc",
+                    narration="n",
+                    choices=[],
+                    visual_brief="",
+                    created_at=loop.started_at,
+                )
+            )
+        service = RuntimeSessionService(store, director=None)
+        service.save_slot("loop_old", label="Old")
+        service.save_slot("loop_new", label="New")
+
+        slots = service.list_save_slots("player_1")
+
+        self.assertEqual([slot.loop_id for slot in slots], ["loop_new", "loop_old"])
+        self.assertEqual(slots[0].label, "New")
+        resumed = service.resume(player_id="player_1", options=RuntimeOptions(fallback=True))
+        self.assertEqual(resumed.loop.loop_id, "loop_new")
+        with self.assertRaises(RuntimeError):
+            service.resume(loop_id="loop_ended")
+
+
 class _FakeCompactionStore(MythOSStore):
     """In-memory store covering the surface _compact_player_archives touches."""
 
@@ -598,6 +863,61 @@ class ArchiveRollupTest(unittest.TestCase):
         adjustment = scores.state["initial_world_memory_adjustment"]
         self.assertIn("rollup_trend", adjustment["reasons"])
         self.assertEqual(adjustment["rollup_loops"], 6)
+
+    def test_archive_resolves_ending(self) -> None:
+        now = datetime(2026, 6, 3, tzinfo=UTC)
+        store = _ArchiveStore()
+        store.create_player(
+            PlayerProfile(
+                player_id="player_1",
+                display_name="Connector",
+                created_at=now,
+                updated_at=now,
+            )
+        )
+        store.save_loop(
+            LoopState(
+                loop_id="loop_1",
+                player_id="player_1",
+                seed="seed_1",
+                phase=LoopPhase.EXPLORE,
+                location_id="catalog-hall",
+                stability=63,
+                tension=42,
+                started_at=now,
+                state={
+                    "scenario_id": "glass-library",
+                    "flags": ["humanity_15", "miro_return_card_found"],
+                },
+            )
+        )
+        store.save_scene(
+            Scene(
+                scene_id="scene_1",
+                loop_id="loop_1",
+                turn_index=4,
+                title="깨진 목록실",
+                location="catalog-hall",
+                narration="기록의 먼지가 빛난다.",
+                choices=[],
+                visual_brief="",
+                created_at=now,
+            )
+        )
+
+        service = RuntimeSessionService(store, director=cast(Any, _SummaryDirector()))
+        service.archive("loop_1")
+
+        summaries = service.list_run_summaries("player_1")
+        self.assertEqual(len(summaries), 1)
+        summary = summaries[0]
+        self.assertEqual(summary.ending_id, "ending_name_restored")
+        self.assertEqual(summary.ending_label, "이름의 복원")
+
+        archived_loop = store.get_loop("loop_1")
+        self.assertIsNotNone(archived_loop)
+        self.assertEqual(archived_loop.state.get("ending_id"), "ending_name_restored")
+        self.assertEqual(archived_loop.state.get("ending_label"), "이름의 복원")
 
 
 def _at(base, offset_seconds):

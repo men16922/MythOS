@@ -85,6 +85,23 @@ class NarrativeParserTest(unittest.TestCase):
         self.assertEqual(payload.world_delta.stability, 0)
         self.assertEqual(payload.world_delta.flags, ["changed"])
 
+    def test_start_combat_null_string_is_ignored(self) -> None:
+        payload = parse_scene_payload(
+            {
+                "scene": {
+                    "title": "Quiet",
+                    "location": "data-layer-01",
+                    "narration": "No enemy appears.",
+                    "choices": [{"label": "Continue", "intent": "explore"}],
+                    "visual_brief": "A quiet corridor.",
+                },
+                "world_delta": {"start_combat": "null", "flags": ["start_combat:none"]},
+            }
+        )
+
+        self.assertIsNone(payload.world_delta.start_combat)
+        self.assertEqual(payload.world_delta.flags, ["start_combat:none"])
+
     def test_visual_brief_is_clamped(self) -> None:
         payload = parse_scene_payload(
             {

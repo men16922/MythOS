@@ -76,9 +76,7 @@ def build_encounter(
             continue
         ally.x, ally.y = ax, ay
         occupied.add((ax, ay))
-    return engine.start(
-        party, enemies, seed=seed, arena=(width, height), encounter_id=encounter_id
-    )
+    return engine.start(party, enemies, seed=seed, arena=(width, height), encounter_id=encounter_id)
 
 
 __all__ = ["build_encounter", "loadout_for_archetype"]

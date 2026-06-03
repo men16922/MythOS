@@ -292,7 +292,7 @@ def _repair_world_delta(value: dict[str, Any]) -> dict[str, Any]:
         grant_items = [grant_items]
     if not isinstance(grant_items, list):
         grant_items = []
-    start_combat = value.get("start_combat")
+    start_combat = _nullable_string(value.get("start_combat"))
     spawn_encounters = value.get("spawn_encounters", [])
     if isinstance(spawn_encounters, str):
         spawn_encounters = [spawn_encounters]
@@ -304,7 +304,7 @@ def _repair_world_delta(value: dict[str, Any]) -> dict[str, Any]:
         "tension": value.get("tension", 0) if isinstance(value.get("tension", 0), int) else 0,
         "flags": [str(flag) for flag in flags if isinstance(flag, str)],
         "clues": value.get("clues", []) if isinstance(value.get("clues", []), list) else [],
-        "start_combat": start_combat if isinstance(start_combat, str) else None,
+        "start_combat": start_combat,
         "spawn_encounters": [str(item) for item in spawn_encounters if isinstance(item, str)],
         "grant_items": [str(item) for item in grant_items if isinstance(item, str)],
         "hp": hp if isinstance(hp, int) and not isinstance(hp, bool) else None,
@@ -331,10 +331,14 @@ def _parse_world_delta(value: Any, errors: list[str]) -> WorldDelta:
         errors.append("world_delta.clues must be a list of objects")
         clues = []
 
-    start_combat = value.get("start_combat")
-    if start_combat is not None and not isinstance(start_combat, str):
+    raw_start_combat = value.get("start_combat")
+    start_combat = _nullable_string(raw_start_combat)
+    if (
+        start_combat is None
+        and raw_start_combat is not None
+        and not isinstance(raw_start_combat, str)
+    ):
         errors.append("world_delta.start_combat must be string or null")
-        start_combat = None
 
     grant_items = value.get("grant_items", [])
     if not isinstance(grant_items, list) or not all(isinstance(item, str) for item in grant_items):
@@ -370,3 +374,12 @@ def _int_delta(value: Any, key: str, errors: list[str]) -> int:
         errors.append(f"{key} must be an integer")
         return 0
     return max(-25, min(25, value))
+
+
+def _nullable_string(value: Any) -> str | None:
+    if not isinstance(value, str):
+        return None
+    cleaned = value.strip()
+    if not cleaned or cleaned.lower() in {"null", "none", "false", "undefined", "nil"}:
+        return None
+    return cleaned

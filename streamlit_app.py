@@ -13,11 +13,14 @@ from mythos_core import LoopPhase, LoopState, PlayerProfile, Scene, utc_now
 from mythos_core.mapgrid import current_tile
 from mythos_memory import PostgresMythOSStore
 from mythos_runtime.combat_server import ensure_combat_server
+from mythos_runtime.ending_resolver import EndingResolver
 from mythos_runtime.options import (
     MemoryOverview,
+    RunSummary,
     RuntimeOptions,
     RuntimeSnapshot,
     RuntimeStreamEvent,
+    SaveSlot,
 )
 from mythos_runtime.scenario import load_scenario
 from mythos_runtime.session import RuntimeSessionService
@@ -140,6 +143,7 @@ def _developer_view() -> None:
     with left:
         _player_panel(options)
         _loop_panel(options)
+        _causality_monitor_panel()
         _memory_panel()
     with right:
         _play_panel(options)
@@ -381,6 +385,94 @@ def _inject_player_css() -> None:
         }
         .loader-line.dim {
             color: rgba(140, 204, 194, 0.68);
+        }
+        .opening-cinema {
+            background:
+                linear-gradient(180deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.78)),
+                rgba(0, 10, 9, 0.9);
+            border: 1px solid rgba(41, 255, 198, 0.34);
+            border-radius: 6px;
+            box-shadow: 0 0 32px rgba(41, 255, 198, 0.12);
+            margin: 6px 0 18px;
+            overflow: hidden;
+            position: relative;
+        }
+        .opening-cinema-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1fr);
+            gap: 1px;
+            background: rgba(41, 255, 198, 0.22);
+        }
+        .opening-shot {
+            background: #020706;
+            min-height: 330px;
+            overflow: hidden;
+            position: relative;
+        }
+        .opening-shot:first-child {
+            min-height: 410px;
+        }
+        .opening-shot img {
+            filter: saturate(1.08) contrast(1.05);
+            height: 100%;
+            inset: 0;
+            object-fit: cover;
+            position: absolute;
+            width: 100%;
+        }
+        .opening-shot::after {
+            background:
+                linear-gradient(180deg, transparent 20%, rgba(0, 0, 0, 0.82) 100%),
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(41, 255, 198, 0.08) 0,
+                    rgba(41, 255, 198, 0.08) 1px,
+                    transparent 2px,
+                    transparent 5px
+                );
+            content: "";
+            inset: 0;
+            pointer-events: none;
+            position: absolute;
+        }
+        .opening-shot-copy {
+            bottom: 0;
+            left: 0;
+            padding: 18px;
+            position: absolute;
+            right: 0;
+            z-index: 1;
+        }
+        .opening-shot-kicker {
+            color: #29ffc6;
+            font-family: "SF Mono", Menlo, Consolas, monospace;
+            font-size: 0.72rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        .opening-shot-title {
+            color: #f2fffb;
+            font-family: "SF Mono", Menlo, Consolas, monospace;
+            font-size: 1.12rem;
+            font-weight: 900;
+            line-height: 1.35;
+        }
+        .opening-shot-body {
+            color: #b8ded6;
+            font-family: "SF Mono", Menlo, Consolas, monospace;
+            font-size: 0.82rem;
+            line-height: 1.55;
+            margin-top: 10px;
+        }
+        @media (max-width: 900px) {
+            .opening-cinema-grid {
+                grid-template-columns: 1fr;
+            }
+            .opening-shot,
+            .opening-shot:first-child {
+                min-height: 340px;
+            }
         }
         .loader-prompt {
             color: #29ffc6;
@@ -1195,25 +1287,25 @@ def _player_panel(options: RuntimeOptions) -> None:
 
 def _loop_panel(options: RuntimeOptions) -> None:
     st.subheader("Loop")
-    loops = _load_loops(st.session_state.player_id) if st.session_state.player_id else []
-    if loops:
-        current_index = _index_for_loop(loops, st.session_state.loop_id)
-        selected_loop_id = st.selectbox(
-            "Saved loops",
-            [loop.loop_id for loop in loops],
+    slots = _load_save_slots(st.session_state.player_id) if st.session_state.player_id else []
+    if slots:
+        current_index = _index_for_save_slot(slots, st.session_state.loop_id)
+        selected_slot_id = st.selectbox(
+            "Active save slots",
+            [slot.loop_id for slot in slots],
             index=current_index,
-            format_func=lambda loop_id: _format_loop_option(loops, loop_id),
+            format_func=lambda loop_id: _format_save_slot_option(slots, loop_id),
             key="selected_loop_id",
         )
         if st.button("Use Selected Loop", width="stretch"):
             _run_action(
-                lambda service: service.resume(loop_id=selected_loop_id),
+                lambda service: service.resume(loop_id=selected_slot_id),
                 on_success=_set_snapshot,
             )
     elif st.session_state.player_id:
-        st.caption("No saved loops for this player yet.")
+        st.caption("No active save slots for this player yet.")
 
-    with st.expander("Manual loop", expanded=not loops):
+    with st.expander("Manual loop", expanded=not slots):
         st.text_input("Loop ID", key="loop_id_input")
 
     col_a, col_b = st.columns(2)
@@ -1256,10 +1348,14 @@ def _render_combat_simulator_inline(
     st.divider()
     allies_pool = scenario.combat.get("allies", {}) if isinstance(scenario.combat, dict) else {}
     ally_options = list(allies_pool.keys()) if isinstance(allies_pool, dict) else []
-    ally_labels = {
-        ally_id: str(entry.get("name", ally_id)) if isinstance(entry, dict) else ally_id
-        for ally_id, entry in allies_pool.items()
-    } if isinstance(allies_pool, dict) else {}
+    ally_labels = (
+        {
+            ally_id: str(entry.get("name", ally_id)) if isinstance(entry, dict) else ally_id
+            for ally_id, entry in allies_pool.items()
+        }
+        if isinstance(allies_pool, dict)
+        else {}
+    )
     selected_encounter = st.selectbox(
         "전투 시뮬레이션 조우 선택",
         encounters,
@@ -1270,7 +1366,7 @@ def _render_combat_simulator_inline(
             "wraith_glitch": "유령 글리치 조우 (wraith_glitch)",
         }.get(x, x),
         key=f"sim_selected_encounter{suffix}",
-        label_visibility="collapsed"
+        label_visibility="collapsed",
     )
     selected_allies = st.multiselect(
         "시뮬레이션 동료",
@@ -1304,6 +1400,7 @@ def _render_combat_simulator_inline(
             )
         else:
             _set_player(player_id or "")
+
             def action(service):
                 snap = service.start_loop(player_id or "", options)
                 combat_snap = service.start_combat(
@@ -1313,6 +1410,7 @@ def _render_combat_simulator_inline(
                     party_members=party_members or None,
                 )
                 return combat_snap
+
             _run_action(
                 action,
                 on_success=_set_snapshot,
@@ -1330,12 +1428,37 @@ def _memory_panel() -> None:
     st.subheader("Memory")
     if (
         not overview.world_archives
+        and not overview.run_summaries
         and not overview.narrative_shards
         and not overview.novelty_notes
         and not overview.rollup
     ):
         st.caption("No cross-loop memory yet. Archive a loop to seed it.")
         return
+
+    _render_run_history(overview.run_summaries, expanded=bool(overview.run_summaries))
+
+    if overview.meta_progression:
+        progress = overview.meta_progression
+        with st.expander("Meta progression", expanded=False):
+            st.write(
+                f"runs {progress.get('runs_completed', 0)}, "
+                f"clues {progress.get('total_clues', 0)}, "
+                f"combat {progress.get('total_combats_won', 0)}W/"
+                f"{progress.get('total_combats_lost', 0)}L"
+            )
+            unlock_lines = []
+            for key in (
+                "unlocked_traits",
+                "unlocked_allies",
+                "unlocked_starting_items",
+                "codex_unlocks",
+            ):
+                values = progress.get(key)
+                if isinstance(values, list) and values:
+                    unlock_lines.append(f"{key}: " + ", ".join(str(value) for value in values))
+            for line in unlock_lines:
+                st.caption(line)
 
     if overview.rollup:
         rollup = overview.rollup
@@ -1393,6 +1516,131 @@ def _memory_panel() -> None:
 def _top_items(histogram: dict, limit: int) -> list[str]:
     items = sorted(histogram.items(), key=lambda kv: kv[1], reverse=True)[:limit]
     return [f"{key} ({count})" for key, count in items]
+
+
+def _render_run_history(summaries: list[RunSummary], expanded: bool = False) -> None:
+    with st.expander(f"기록 보관소 ({len(summaries)})", expanded=expanded):
+        if summaries:
+            for summary in summaries:
+                ended = summary.ended_at.replace("T", " ").split("+", 1)[0]
+                st.write(
+                    f"**{summary.final_title}** — {summary.scenario_id} / "
+                    f"{summary.ending_label} / {ended}"
+                )
+                st.caption(
+                    f"turns {summary.turns}, stability {summary.stability}, "
+                    f"tension {summary.tension}, combat {summary.combats_won}W/"
+                    f"{summary.combats_lost}L"
+                )
+                if summary.summary_text:
+                    st.write(summary.summary_text)
+                details = []
+                if summary.clues_collected:
+                    details.append("clues: " + ", ".join(summary.clues_collected))
+                if summary.allies_met:
+                    details.append("allies: " + ", ".join(summary.allies_met))
+                if summary.unlocks_granted:
+                    details.append("unlocks: " + ", ".join(summary.unlocks_granted))
+                if details:
+                    st.caption(" / ".join(details))
+        else:
+            st.caption("None yet.")
+
+
+def _causality_monitor_panel() -> None:
+    if not st.session_state.loop_id:
+        return
+    snapshot = _load_current_snapshot()
+    if snapshot is None or snapshot.loop is None:
+        return
+
+    loop = snapshot.loop
+    st.subheader("Causality & NPC Agendas")
+
+    # 1. Metric Scores
+    overview = _load_memory_overview(loop.player_id)
+    clue_count = 0
+    if overview and overview.narrative_shards:
+        clue_count = len(
+            [s for s in overview.narrative_shards if s.kind == "clue" and s.loop_id == loop.loop_id]
+        )
+
+    scores = EndingResolver.calculate_scores(loop, clue_count)
+
+    cols = st.columns(4)
+    metrics = ["Humanity", "Insight", "Resilience", "Dominance"]
+    colors = ["#4ade80", "#60a5fa", "#f472b6", "#fbbf24"]
+    for col, metric, color in zip(cols, metrics, colors):
+        score = scores.get(metric, 0)
+        col.markdown(
+            f"""
+            <div style="background: rgba(0, 20, 17, 0.78); border: 1px solid {color}33; border-radius: 6px; padding: 10px; text-align: center;">
+                <span style="color: {color}; font-weight: bold; font-size: 14px;">{metric}</span><br/>
+                <span style="font-size: 24px; font-family: monospace; color: #d6fff6;">{score}</span>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    st.write("")
+
+    # 2. Flags & Butterfly Effects
+    flags = loop.state.get("flags", [])
+    with st.expander(f"Active Flags & Butterfly Effects ({len(flags)})", expanded=False):
+        if flags:
+            st.code("\n".join(flags), language="text")
+        else:
+            st.caption("No active flags in this loop.")
+
+    # 3. NPC Agendas and Endings Check
+    scenario_id = str(loop.state.get("scenario_id") or "neo-seoul")
+    try:
+        scenario = load_scenario(scenario_id)
+        if scenario.endings:
+            with st.expander(f"Endings & Conditions ({len(scenario.endings)})", expanded=False):
+                for ending in scenario.endings:
+                    ending_id = ending.get("id")
+                    title = ending.get("title") or "Unnamed Ending"
+                    condition = ending.get("condition") or "No condition"
+
+                    resolved_id, resolved_label = EndingResolver.resolve_ending(
+                        loop, scenario, clue_count
+                    )
+                    is_active = resolved_id == ending_id
+
+                    color_tag = (
+                        "color: #4ade80; font-weight: bold;" if is_active else "color: #6b7280;"
+                    )
+                    status_text = " [Active]" if is_active else ""
+
+                    st.markdown(
+                        f"""
+                        <div style="padding: 4px 0;">
+                            <span style="{color_tag}">• {title} ({ending_id}){status_text}</span><br/>
+                            <code style="font-size: 11px; margin-left: 15px;">Condition: {condition}</code>
+                        </div>
+                        """,
+                        unsafe_allow_html=True,
+                    )
+    except Exception as e:
+        st.error(f"Error loading ending monitor: {e}")
+
+
+def _render_save_slot_status(loop: LoopState) -> None:
+    slots = _load_save_slots(loop.player_id)
+    current = next((slot for slot in slots if slot.loop_id == loop.loop_id), None)
+    if current is None:
+        st.caption("AUTOSAVE :: 슬롯 준비 중")
+    else:
+        saved_at = current.saved_at.replace("T", " ").split("+", 1)[0]
+        combat_marker = " / 전투 중" if current.in_combat else ""
+        st.caption(f"AUTOSAVE :: {saved_at} / {current.phase}{combat_marker}")
+    if loop.phase is not LoopPhase.ENDED and st.button("SAVE", key=f"save_slot:{loop.loop_id}"):
+        label = current.label if current is not None else "Manual Save"
+        _run_action(
+            lambda service: service.save_slot(loop.loop_id, label=label),
+            on_success=lambda _slot: _set_message("저장 슬롯을 갱신했습니다."),
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -1503,6 +1751,12 @@ def _player_connect_screen(options: RuntimeOptions) -> None:
 
     players = _load_players()
     selected = None
+    selected_slots: list[SaveSlot] = []
+    scenario = load_scenario(options.scenario_id)
+    archetype_names = [
+        a.get("name") if isinstance(a, dict) else str(a) for a in scenario.archetypes
+    ]
+    default_archetype = str(archetype_names[0]) if archetype_names else "Unclassified"
     if players:
         selected = st.selectbox(
             _menu_copy(copy, "player_slot", "접속자 슬롯"),
@@ -1511,6 +1765,7 @@ def _player_connect_screen(options: RuntimeOptions) -> None:
             format_func=lambda player_id: _format_player_option(players, player_id),
             key="player_view_selected_player_id",
         )
+        selected_slots = _load_save_slots(selected)
     start_col, load_col, make_col = st.columns([0.34, 0.33, 0.33], gap="large")
 
     with start_col:
@@ -1527,11 +1782,24 @@ def _player_connect_screen(options: RuntimeOptions) -> None:
         if st.button(
             _menu_copy(copy, "start_button", "새 게임 시작"),
             width="stretch",
-            disabled=selected is None,
         ):
+            name_value = str(st.session_state.get("player_new_name") or "First Connector")
+            archetype_value = str(st.session_state.get("player_new_archetype") or default_archetype)
+
+            def start_action(service):
+                player_id = selected
+                if not player_id:
+                    player = service.create_player(
+                        name_value,
+                        traits={"archetype": archetype_value},
+                        scenario_id=options.scenario_id,
+                    )
+                    player_id = player.player_id
+                yield from service.stream_start_loop(player_id, options)
+
             _set_player(selected or "")
             _run_stream_action(
-                lambda service: service.stream_start_loop(selected or "", options),
+                start_action,
                 on_success=_set_new_loop_snapshot,
                 show_stream=False,
                 loading_label="새 루프 접속 중",
@@ -1548,14 +1816,27 @@ def _player_connect_screen(options: RuntimeOptions) -> None:
             """,
             unsafe_allow_html=True,
         )
+        selected_load_loop_id = None
+        if selected_slots:
+            selected_load_loop_id = st.selectbox(
+                "LOAD SLOT",
+                [slot.loop_id for slot in selected_slots],
+                format_func=lambda loop_id: _format_save_slot_option(selected_slots, loop_id),
+                key="player_load_slot",
+                label_visibility="collapsed",
+            )
+        else:
+            st.caption(
+                "이어갈 활성 저장 슬롯이 없습니다. 새 게임을 시작하거나 기록 보관소를 확인하세요."
+            )
         if st.button(
             _menu_copy(copy, "load_button", "이어하기"),
             width="stretch",
-            disabled=selected is None,
+            disabled=selected is None or not selected_load_loop_id,
         ):
             _set_player(selected or "")
             _run_action(
-                lambda service: service.resume(player_id=selected or ""),
+                lambda service: service.resume(loop_id=selected_load_loop_id),
                 on_success=_set_snapshot,
             )
 
@@ -1575,10 +1856,6 @@ def _player_connect_screen(options: RuntimeOptions) -> None:
             key="player_new_name",
             placeholder=_menu_copy(copy, "name_placeholder", "당신은 누구인가요?"),
         )
-        scenario = load_scenario(options.scenario_id)
-        archetype_names = [
-            a.get("name") if isinstance(a, dict) else str(a) for a in scenario.archetypes
-        ]
         archetype = st.selectbox(
             _menu_copy(copy, "archetype_label", "소질"),
             archetype_names,
@@ -1595,6 +1872,8 @@ def _player_connect_screen(options: RuntimeOptions) -> None:
             )
 
     _render_combat_simulator_inline(None, options, selected)
+    if selected:
+        _render_run_history(_load_run_summaries(selected), expanded=False)
     with st.expander(_menu_copy(copy, "dossier_title", "인물 기록"), expanded=False):
         st.caption(_menu_copy(copy, "dossier_caption", "전체 인물 정보는 여기서 확인합니다."))
         _render_character_dossier(None, fallback_all=True, scenario_id=options.scenario_id)
@@ -1707,12 +1986,149 @@ def _player_session_intro(
             st.session_state.show_session_intro = False
             st.rerun()
     with right:
-        player_image = (
-            PROJECT_ROOT / "resources" / options.scenario_id / _copy_str(copy, "player_image")
-        )
-        if player_image.exists():
-            _render_blackout_frame(player_image)
+        if not _render_opening_cinematic(intro, options.scenario_id):
+            player_image = (
+                PROJECT_ROOT / "resources" / options.scenario_id / _copy_str(copy, "player_image")
+            )
+            if player_image.exists():
+                _render_blackout_frame(player_image)
         st.caption(f"BLACKOUT // {snapshot.scene.title}")
+
+
+def _render_opening_cinematic(intro: dict[str, Any], scenario_id: str) -> bool:
+    raw_shots = intro.get("cinematic_shots", [])
+    if not isinstance(raw_shots, list):
+        return False
+
+    shot_markup = []
+    for raw in raw_shots:
+        if not isinstance(raw, dict):
+            continue
+        rel_image = str(raw.get("image", "")).strip()
+        image_path = PROJECT_ROOT / "resources" / scenario_id / rel_image
+        if not rel_image or not image_path.exists():
+            continue
+        encoded = base64.b64encode(image_path.read_bytes()).decode("ascii")
+        shot_markup.append(
+            f"""
+            <div class="opening-shot">
+              <img src="data:image/png;base64,{encoded}" alt="{html.escape(str(raw.get("title", "opening")))}" />
+              <div class="opening-shot-copy">
+                <div class="opening-shot-kicker">{html.escape(str(raw.get("kicker", "OPENING")))}</div>
+                <div class="opening-shot-title">{html.escape(str(raw.get("title", "")))}</div>
+                <div class="opening-shot-body">{html.escape(str(raw.get("body", "")))}</div>
+              </div>
+            </div>
+            """
+        )
+
+    if not shot_markup:
+        return False
+
+    st.iframe(_opening_cinematic_html("".join(shot_markup)), height=560)
+    return True
+
+
+def _opening_cinematic_html(shots_html: str) -> str:
+    return f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  html, body {{
+    background: transparent;
+    margin: 0;
+    overflow: hidden;
+  }}
+  .opening-cinema {{
+    background:
+      linear-gradient(180deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.78)),
+      rgba(0, 10, 9, 0.9);
+    border: 1px solid rgba(41, 255, 198, 0.34);
+    border-radius: 6px;
+    box-shadow: 0 0 32px rgba(41, 255, 198, 0.12);
+    box-sizing: border-box;
+    height: 560px;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+  }}
+  .opening-cinema-grid {{
+    background: rgba(41, 255, 198, 0.22);
+    display: grid;
+    gap: 1px;
+    grid-template-columns: 1fr;
+    height: 100%;
+  }}
+  .opening-shot {{
+    background: #020706;
+    min-height: 0;
+    overflow: hidden;
+    position: relative;
+  }}
+  .opening-shot img {{
+    filter: saturate(1.08) contrast(1.05);
+    height: 100%;
+    inset: 0;
+    object-fit: cover;
+    position: absolute;
+    width: 100%;
+  }}
+  .opening-shot::after {{
+    background:
+      linear-gradient(180deg, transparent 20%, rgba(0, 0, 0, 0.82) 100%),
+      repeating-linear-gradient(
+        0deg,
+        rgba(41, 255, 198, 0.08) 0,
+        rgba(41, 255, 198, 0.08) 1px,
+        transparent 2px,
+        transparent 5px
+      );
+    content: "";
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+  }}
+  .opening-shot-copy {{
+    bottom: 0;
+    left: 0;
+    padding: 16px;
+    position: absolute;
+    right: 0;
+    z-index: 1;
+  }}
+  .opening-shot-kicker {{
+    color: #29ffc6;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.68rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }}
+  .opening-shot-title {{
+    color: #f2fffb;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 1rem;
+    font-weight: 900;
+    line-height: 1.35;
+  }}
+  .opening-shot-body {{
+    color: #b8ded6;
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.76rem;
+    line-height: 1.5;
+    margin-top: 8px;
+  }}
+</style>
+</head>
+<body>
+  <div class="opening-cinema">
+    <div class="opening-cinema-grid">
+      {shots_html}
+    </div>
+  </div>
+</body>
+</html>"""
 
 
 def _player_active_screen(snapshot: RuntimeSnapshot, options: RuntimeOptions) -> None:
@@ -1740,6 +2156,7 @@ def _player_active_screen(snapshot: RuntimeSnapshot, options: RuntimeOptions) ->
         story_col, dossier_col = st.columns([0.68, 0.32], gap="large")
         with story_col:
             if combat:
+                _render_save_slot_status(loop)
                 # Delegate all combat board, controls, logs, and local actions to the isolated fragment
                 _render_combat_arena_fragment(options)
             else:
@@ -1750,6 +2167,7 @@ def _player_active_screen(snapshot: RuntimeSnapshot, options: RuntimeOptions) ->
                     unsafe_allow_html=True,
                 )
                 _render_hud(loop, scene)
+                _render_save_slot_status(loop)
                 script_placeholder = st.empty()
                 transcript = _story_transcript(snapshot)
                 _render_script_window(
@@ -1766,7 +2184,9 @@ def _player_active_screen(snapshot: RuntimeSnapshot, options: RuntimeOptions) ->
                     # Check for autonomy level up (Visual Awakening)
                     if overview is not None:
                         traits = (
-                            snapshot.player.traits if isinstance(snapshot.player.traits, dict) else {}
+                            snapshot.player.traits
+                            if isinstance(snapshot.player.traits, dict)
+                            else {}
                         )
                         current_lv = int(traits.get("autonomy_level", 1))
                         # We can compare with previous loop if needed, but for now just show high level status
@@ -1792,7 +2212,9 @@ def _player_active_screen(snapshot: RuntimeSnapshot, options: RuntimeOptions) ->
                     pending_action: str | None = None
                     restricted_action = False
                     aggressive_verbs = ["파괴", "삭제", "살해", "공격", "재작성", "지배"]
-                    traits = snapshot.player.traits if isinstance(snapshot.player.traits, dict) else {}
+                    traits = (
+                        snapshot.player.traits if isinstance(snapshot.player.traits, dict) else {}
+                    )
                     autonomy_level = int(traits.get("autonomy_level", 1))
 
                     with action_area.container():
@@ -2123,9 +2545,7 @@ _COMBAT_BOARD_JS = """
 """
 
 
-def _build_interactive_board_html(
-    data_payload: dict[str, Any], sfx_map: dict[str, str]
-) -> str:
+def _build_interactive_board_html(data_payload: dict[str, Any], sfx_map: dict[str, str]) -> str:
     """Build the full self-contained tactical board HTML for components.html.
 
     Data and SFX (as base64 data URIs) are injected inline so the board renders
@@ -2257,7 +2677,11 @@ def _render_tactical_board_html(radar: dict[str, Any], scenario_id: str) -> str:
             )
         rows.append('<div class="tac-row">' + "".join(cells) + "</div>")
     outcome = radar.get("outcome")
-    title = f"OUTCOME // {html.escape(str(outcome))}" if outcome else f"ROUND // {int(radar.get('round', 1)):02d}"
+    title = (
+        f"OUTCOME // {html.escape(str(outcome))}"
+        if outcome
+        else f"ROUND // {int(radar.get('round', 1)):02d}"
+    )
     return (
         """<style>
         .tac-wrap{background:rgba(2,10,9,.96);border:1px solid rgba(41,255,198,.38);border-radius:6px;padding:12px;color:#d8fff7}
@@ -2296,7 +2720,11 @@ def _render_combat_outcome(
     rewards = combat.get("rewards", {})
     items = rewards.get("items", []) if isinstance(rewards, dict) else []
     radar = combat.get("radar", {})
-    blips = [blip for blip in radar.get("blips", []) if isinstance(blip, dict)] if isinstance(radar, dict) else []
+    blips = (
+        [blip for blip in radar.get("blips", []) if isinstance(blip, dict)]
+        if isinstance(radar, dict)
+        else []
+    )
     party = [blip for blip in blips if blip.get("faction") in {"player", "ally"}]
     enemies = [blip for blip in blips if blip.get("faction") == "enemy"]
     defeated = len([blip for blip in enemies if not blip.get("alive", True)])
@@ -2345,10 +2773,14 @@ def _render_combat_outcome(
                 item_class = "loot-item-medical"
             elif "shard" in item_name.lower():
                 item_class = "loot-item-data"
-            loot_badges.append(f'<span class="loot-badge {item_class}">{html.escape(item_name)}</span>')
+            loot_badges.append(
+                f'<span class="loot-badge {item_class}">{html.escape(item_name)}</span>'
+            )
         loot_html = f'<div class="loot-container">{"".join(loot_badges)}</div>'
     else:
-        loot_html = '<div class="loot-container"><span class="loot-badge loot-none">없음</span></div>'
+        loot_html = (
+            '<div class="loot-container"><span class="loot-badge loot-none">없음</span></div>'
+        )
 
     verdict_badge = f'<div class="combat-verdict-badge">{html.escape(verdict)}</div>'
 
@@ -2407,18 +2839,22 @@ def _render_combat_outcome(
         f'<div class="combat-result-stat"><div class="combat-result-label">DAMAGE DEALT</div><div class="combat-result-value">{damage_dealt}</div></div>'
         f'<div class="combat-result-stat"><div class="combat-result-label">DAMAGE TAKEN</div><div class="combat-result-value">{damage_taken}</div></div>'
         f'<div class="combat-result-stat"><div class="combat-result-label">HIT / MISS / CRIT</div><div class="combat-result-value">{hits}/{misses}/{crits}</div></div>'
-        '</div>'
-        f'{verdict_badge}'
+        "</div>"
+        f"{verdict_badge}"
         f'<div class="loot-section"><div class="loot-section-title">LOOT / ACQUIRED ASSETS</div>{loot_html}</div>'
         '<div class="combat-result-copy">전투 기록을 정산하고 서사 루프를 다음 장면으로 넘길 수 있습니다.</div></div>',
         unsafe_allow_html=True,
     )
     if outcome_raw == "player_defeat" or loop.phase is LoopPhase.ENDED:
-        if st.button("메인 화면으로 돌아가기", key=f"combat_return_home:{loop.loop_id}", width="stretch"):
+        if st.button(
+            "메인 화면으로 돌아가기", key=f"combat_return_home:{loop.loop_id}", width="stretch"
+        ):
             _return_to_player_main(loop.player_id)
             st.rerun()
         return
-    if st.button("전투 정산 후 다음 장면으로 진행", key=f"combat_continue:{loop.loop_id}", width="stretch"):
+    if st.button(
+        "전투 정산 후 다음 장면으로 진행", key=f"combat_continue:{loop.loop_id}", width="stretch"
+    ):
         st.session_state.combat_selected_unit = ""
         _run_action(
             lambda service: service.choose(
@@ -2474,13 +2910,13 @@ def _combat_roster_html(title: str, blips: list[dict[str, Any]], scenario_id: st
         dead = " roster-dead" if not blip.get("alive", True) else ""
         avatar = _combat_avatar_html(blip, scenario_id)
         name = html.escape(str(blip.get("name", "")))
-        pos = f'{int(blip.get("x", 0))},{int(blip.get("y", 0))}'
+        pos = f"{int(blip.get('x', 0))},{int(blip.get('y', 0))}"
         cards.append(
             f'<div class="roster-card{dead}">{avatar}<div class="roster-main">'
             f'<div class="roster-name">{name}</div>'
             f'<div class="roster-hp"><span style="width:{pct}%"></span></div>'
             f'<div class="roster-meta">HP {hp}/{max_hp} · POS {pos}</div>'
-            f'</div></div>'
+            f"</div></div>"
         )
     return (
         """<style>
@@ -2592,7 +3028,7 @@ def _render_combat_controls(
             st.markdown(
                 f'<div class="target-card"><div class="target-name">{name}</div>'
                 f'<div class="target-meta">HP {hp}/{max_hp} · DIST {distance} · '
-                f'{"IN RANGE" if in_range else "OUT OF RANGE"}</div></div>',
+                f"{'IN RANGE' if in_range else 'OUT OF RANGE'}</div></div>",
                 unsafe_allow_html=True,
             )
             if st.button(
@@ -3071,6 +3507,7 @@ def _get_image_base64_cached(src_path_or_url: str) -> str | None:
     import base64
 
     import requests
+
     try:
         if src_path_or_url.startswith("http"):
             response = requests.get(src_path_or_url, timeout=5)
@@ -3089,6 +3526,7 @@ def _get_image_base64_cached(src_path_or_url: str) -> str | None:
                 return f"data:{mime};base64,{encoded}"
     except Exception as e:
         import sys
+
         print(f"Error cache encoding image base64: {e}", file=sys.stderr)
     return None
 
@@ -3108,7 +3546,7 @@ def _render_player_image(snapshot: RuntimeSnapshot) -> None:
                         <img src="{base64_src}" style="width:100%; max-width:420px; height:auto; border-radius:4px;" />
                     </div>
                     """,
-                    unsafe_allow_html=True
+                    unsafe_allow_html=True,
                 )
             else:
                 st.image(src, width=420)
@@ -3310,10 +3748,12 @@ def _render_snapshot(snapshot: RuntimeSnapshot) -> None:
     _render_audio(snapshot)
     _render_echoes(loop)
 
+
 @st.cache_resource
 def _get_b64_sfx(name: str) -> str:
     import base64
     from pathlib import Path
+
     try:
         project_root = Path(__file__).resolve().parent
         path = project_root / "resources" / "neo-seoul" / "audio" / "sfx" / f"{name}.wav"
@@ -3353,12 +3793,12 @@ def _render_combat_console_log(loop_id: str) -> None:
             if combat_logs:
                 log_text = "\n\n".join(combat_logs)
                 st.markdown(
-                    '<div style="font-family:\'SF Mono\',Menlo,monospace; font-size:12px; height:140px; overflow-y:auto; '
-                    'background:rgba(2, 10, 8, 0.95); border:1px solid rgba(41,255,198,0.3); padding:10px; color:#5effd3; margin-top:8px; border-radius:4px;'
+                    "<div style=\"font-family:'SF Mono',Menlo,monospace; font-size:12px; height:140px; overflow-y:auto; "
+                    "background:rgba(2, 10, 8, 0.95); border:1px solid rgba(41,255,198,0.3); padding:10px; color:#5effd3; margin-top:8px; border-radius:4px;"
                     'box-shadow: inset 0 0 10px rgba(0, 255, 170, 0.1);">'
-                    f'<div>{html.escape(log_text).replace(chr(10), "<br>")}</div>'
-                    '</div>',
-                    unsafe_allow_html=True
+                    f"<div>{html.escape(log_text).replace(chr(10), '<br>')}</div>"
+                    "</div>",
+                    unsafe_allow_html=True,
                 )
         finally:
             store.close()
@@ -3734,7 +4174,9 @@ def _render_combat_arena_fragment(options: RuntimeOptions) -> None:
             "port": port,
             "initial": _combat_iframe_state(snapshot, options),
             "meta": _combat_meta_payload(options.scenario_id),
-            "portraits": _combat_portrait_payload(radar if isinstance(radar, dict) else {}, options.scenario_id),
+            "portraits": _combat_portrait_payload(
+                radar if isinstance(radar, dict) else {}, options.scenario_id
+            ),
             "sfx": {
                 key: uri
                 for key in ["sfx_move", "sfx_attack", "sfx_defend", "sfx_victory", "sfx_defeat"]
@@ -3765,10 +4207,7 @@ def _render_audio(snapshot: RuntimeSnapshot) -> None:
     sfx_key = st.session_state.get("play_sfx")
     if sfx_key:
         st.session_state.play_sfx = None  # Consume immediately
-        st.session_state.sfx_queue.append({
-            "key": sfx_key,
-            "timestamp": time.time()
-        })
+        st.session_state.sfx_queue.append({"key": sfx_key, "timestamp": time.time()})
 
     # Filter and keep only SFX requests that are less than 2.5 seconds old
     now = time.time()
@@ -3886,9 +4325,7 @@ def _run_stream_action(
                 if event.kind == "text" and event.text:
                     streamed_text += event.text
                     if placeholder is not None:
-                        combined = (
-                            f"{base_text}\n\n{streamed_text}" if base_text else streamed_text
-                        )
+                        combined = f"{base_text}\n\n{streamed_text}" if base_text else streamed_text
                         _render_script_window(combined, key="stream-live", placeholder=placeholder)
                 elif event.kind == "final":
                     final_snapshot = event.snapshot
@@ -3943,6 +4380,30 @@ def _load_memory_overview(player_id: str) -> MemoryOverview | None:
     except Exception as exc:
         st.session_state.error = str(exc)
         return None
+
+
+def _load_run_summaries(player_id: str) -> list[RunSummary]:
+    try:
+        store = PostgresMythOSStore()
+        try:
+            return RuntimeSessionService(store).list_run_summaries(player_id)
+        finally:
+            store.close()
+    except Exception as exc:
+        st.session_state.error = str(exc)
+        return []
+
+
+def _load_save_slots(player_id: str) -> list[SaveSlot]:
+    try:
+        store = PostgresMythOSStore()
+        try:
+            return RuntimeSessionService(store).list_save_slots(player_id)
+        finally:
+            store.close()
+    except Exception as exc:
+        st.session_state.error = str(exc)
+        return []
 
 
 def _story_transcript(snapshot: RuntimeSnapshot) -> str:
@@ -4039,6 +4500,13 @@ def _index_for_loop(loops: list[LoopState], loop_id: str) -> int:
     return 0
 
 
+def _index_for_save_slot(slots: list[SaveSlot], loop_id: str) -> int:
+    for index, slot in enumerate(slots):
+        if slot.loop_id == loop_id:
+            return index
+    return 0
+
+
 def _format_player_option(players: list[PlayerProfile], player_id: str) -> str:
     for player in players:
         if player.player_id == player_id:
@@ -4052,6 +4520,18 @@ def _format_loop_option(loops: list[LoopState], loop_id: str) -> str:
             return (
                 f"{loop.phase.value} / stability {loop.stability} / "
                 f"tension {loop.tension} ({loop.loop_id})"
+            )
+    return loop_id
+
+
+def _format_save_slot_option(slots: list[SaveSlot], loop_id: str) -> str:
+    for slot in slots:
+        if slot.loop_id == loop_id:
+            saved_at = slot.saved_at.replace("T", " ").split("+", 1)[0]
+            combat = " / combat" if slot.in_combat else ""
+            return (
+                f"{slot.label} / {slot.phase}{combat} / turn {slot.turn_index} / "
+                f"stability {slot.stability} / tension {slot.tension} / {saved_at}"
             )
     return loop_id
 
@@ -4142,7 +4622,9 @@ def _render_minimap(loop: LoopState, radius: int = 2) -> None:
     minimap_html = '<div class="minimap">' + "".join(rows) + "</div>"
     st.markdown("작전 지도", help="방문한 위치의 동적 지도. 파란 칸이 현재 위치입니다.")
     st.markdown(style + minimap_html, unsafe_allow_html=True)
-    st.caption(f"좌표 {cx}, {cy} · 탐사 {len(tiles)}곳 · 접촉 {len(live_contacts)} · {cur.get('name', '')}")
+    st.caption(
+        f"좌표 {cx}, {cy} · 탐사 {len(tiles)}곳 · 접촉 {len(live_contacts)} · {cur.get('name', '')}"
+    )
 
 
 def _format_elapsed(delta: Any) -> str:

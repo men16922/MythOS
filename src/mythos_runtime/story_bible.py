@@ -93,7 +93,10 @@ def select_story_bible_entries(
     selected: list[StoryBibleEntry] = []
     remaining = token_budget
     for _, entry in sorted(scored, key=lambda pair: (-pair[0], pair[1].entry_id)):
-        cost = max(1, min(entry.token_budget, _approx_tokens(entry.summary) + _approx_tokens(entry.content)))
+        cost = max(
+            1,
+            min(entry.token_budget, _approx_tokens(entry.summary) + _approx_tokens(entry.content)),
+        )
         if cost > remaining and selected:
             continue
         selected.append(entry)

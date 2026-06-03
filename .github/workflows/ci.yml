@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install Dependencies
+      run: |
+        make setup
+
+    - name: Run Ruff Linter
+      run: |
+        make lint
+
+    - name: Run Mypy Typecheck
+      run: |
+        make typecheck
+
+    - name: Run Unit Tests
+      run: |
+        make test

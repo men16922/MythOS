@@ -21,6 +21,7 @@ outputs/*
 .claude/
 .gemini/
 .playwright-mcp/
+screenshots/
 
 # Tooling Caches
 .pytest_cache/

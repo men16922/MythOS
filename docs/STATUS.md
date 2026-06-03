@@ -93,3 +93,4 @@ P2 IP-Adapter 캐릭터 일관성, P1 비주얼 레이턴시 계측은 코드 �
 - 상세 archive: `docs/archive/progress-2026-05.md`
 - 결정 기록: `docs/DECISIONS.md`
 - 제품화 계획: `docs/plans/2026-05-31-story-bible-save-load.md`
+- HTTP API 사용/엔드포인트: `docs/API.md` (`make api`)

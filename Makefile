@@ -3,12 +3,12 @@ VENV ?= .venv
 COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.local.yml
 
-.PHONY: setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db narrative-smoke narrative-smoke-fallback visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop lint format typecheck
+.PHONY: setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db narrative-smoke narrative-smoke-fallback visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop lint format typecheck
 
 setup:
 	$(PYTHON) -m venv $(VENV)
 	$(VENV)/bin/python -m pip install --upgrade pip
-	$(VENV)/bin/pip install -e ".[dev]"
+	$(VENV)/bin/pip install -e ".[dev,web]"
 
 lint:
 	$(VENV)/bin/ruff check .
@@ -94,6 +94,16 @@ streamlit:
 
 streamlit-stop:
 	@pkill -f "streamlit run streamlit_app.py" && echo "streamlit stopped" || echo "no streamlit running"
+
+# FastAPI backend adapter (P3 Web UI). Serves REST + WebSocket at /api/v1 and
+# the PoC client at /. Image generation needs infra-up + visual-worker.
+api:
+	@pkill -f "mythos_api" 2>/dev/null && echo "stopped previous api" || true
+	@echo "API: http://$${MYTHOS_API_HOST:-127.0.0.1}:$${MYTHOS_API_PORT:-8000}  (PoC client at /, endpoints under /api/v1)"
+	$(VENV)/bin/python -m mythos_api
+
+api-stop:
+	@pkill -f "mythos_api" && echo "api stopped" || echo "no api running"
 
 infra-up:
 	$(COMPOSE) -f $(COMPOSE_FILE) up -d

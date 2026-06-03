@@ -171,8 +171,17 @@ class NarrativeDirector:
         payload = _apply_novelty_guard(context, payload)
         return _scene_from_payload(context, payload), payload
 
-    def summarize_loop(self, events: list[dict[str, Any]]) -> str:
-        """Generates a poetic 2-3 sentence summary of the entire loop events."""
+    def summarize_loop(self, events: list[dict[str, Any]], *, use_llm: bool = True) -> str:
+        """Generates a poetic 2-3 sentence summary of the entire loop events.
+
+        ``use_llm=False`` (fallback/fast paths) returns a deterministic summary
+        without touching the provider. This keeps loop-end — notably combat
+        defeat — instant instead of blocking on a slow Ollama call (the provider
+        only raises on error, not on slowness, so the except below cannot guard
+        a merely-slow response).
+        """
+        if not use_llm:
+            return _fallback_loop_summary(events)
         prompt = (
             "Summarize the following sequence of events in a loop-based narrative. "
             "Focus on the player's key choices and the significant changes to the world. "

@@ -103,7 +103,11 @@ class _InMemoryStore(MythOSStore):
 
 
 class _SummaryDirector:
-    def summarize_loop(self, events):
+    def __init__(self):
+        self.summary_calls = []
+
+    def summarize_loop(self, events, *, use_llm=True):
+        self.summary_calls.append(use_llm)
         return "전투 종료 기록."
 
 
@@ -387,6 +391,11 @@ class SessionCombatTest(unittest.TestCase):
             self.assertEqual(len(summaries), 1)
             self.assertEqual(summaries[0].content["loop_id"], loop_id)
             self.assertEqual(summaries[0].content["combats_lost"], 1)
+            # In fallback/fast mode the loop-end summary must not call the LLM,
+            # so combat defeat resolves instantly instead of blocking on Ollama.
+            director = cast(Any, self.service.director)
+            self.assertTrue(director.summary_calls)
+            self.assertNotIn(True, director.summary_calls)
 
 
 if __name__ == "__main__":

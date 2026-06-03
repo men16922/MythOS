@@ -874,7 +874,11 @@ class RuntimeSessionService:
                 if combat_event is not None:
                     events = [*events, combat_event]
                 event_dicts = [to_json_dict(event) for event in events]
-                summary_text = self.director.summarize_loop(event_dicts)
+                # Combat defeat ends the loop mid-combat; never block the action
+                # response on a slow LLM summary in fallback/fast mode.
+                summary_text = self.director.summarize_loop(
+                    event_dicts, use_llm=not (options.fallback or options.fast_mode)
+                )
                 run_summary_memory = _run_summary_memory_from_archive(
                     loop,
                     scene,

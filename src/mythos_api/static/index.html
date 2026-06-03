@@ -60,9 +60,21 @@
     button:hover:not(:disabled) { box-shadow: 0 0 18px rgba(41, 255, 198, 0.22); }
     button:disabled { opacity: 0.4; cursor: default; }
 
-    /* Layout: main narrative column + fixed aside */
-    main { display: grid; grid-template-columns: 1fr 340px; gap: 18px; padding: 18px 22px; align-items: start; }
+    /* Layout: main narrative column + fixed aside (centered on wide screens) */
+    main { display: grid; grid-template-columns: 1fr 340px; gap: 18px; padding: 18px 22px; align-items: start; max-width: 1320px; margin: 0 auto; }
     @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+    @media (max-width: 560px) {
+      header { padding: 10px 14px; gap: 10px; }
+      main { padding: 14px; }
+      .controls input[type=text] { min-width: 110px; }
+      #narration { font-size: 14.5px; }
+    }
+    /* Thin terminal scrollbar */
+    #log::-webkit-scrollbar { width: 8px; }
+    #log::-webkit-scrollbar-thumb { background: var(--line); border-radius: 4px; }
+    #log-panel summary::-webkit-details-marker { display: none; }
+    #log-panel summary { margin-bottom: 0; }
+    #log-panel[open] summary { margin-bottom: 10px; }
     .panel {
       background: var(--panel); border: 1px solid var(--line);
       border-radius: 6px; box-shadow: 0 0 22px rgba(0, 255, 170, 0.07); padding: 16px;
@@ -173,10 +185,10 @@
         <canvas id="combat" width="320" height="240"></canvas>
       </div>
 
-      <div class="panel">
-        <p class="panel-title">로그</p>
+      <details class="panel" id="log-panel">
+        <summary class="panel-title" style="cursor:pointer; list-style:none;">로그 ▾</summary>
         <div id="log"></div>
-      </div>
+      </details>
     </aside>
   </main>
   <script src="app.js"></script>

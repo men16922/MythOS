@@ -36,9 +36,17 @@ dev = [
     "ruff>=0.4.0",
     "mypy>=1.10.0",
 ]
+# P3 Web UI decoupling: FastAPI backend adapter over RuntimeSessionService.
+# Optional so the core runtime / image agent install stays lean.
+web = [
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.29.0",
+    "httpx>=0.27.0",
+]
 
 [project.scripts]
 mythos-image-agent = "mythos_image_agent.cli:main"
+mythos-api = "mythos_api.__main__:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

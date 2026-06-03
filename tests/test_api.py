@@ -76,6 +76,8 @@ class ApiStaticClientTest(unittest.TestCase):
         response = client.get("/app.js")
         self.assertEqual(response.status_code, 200)
         self.assertIn("loops/stream", response.text)
+        # combat is playable: the client drives the combat action endpoint.
+        self.assertIn("/api/v1/combat/action", response.text)
 
     def test_api_route_not_shadowed_by_static_mount(self) -> None:
         # The catch-all static mount must not intercept /api/v1 routes.

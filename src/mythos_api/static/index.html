@@ -133,6 +133,31 @@
     .image-ph { position: absolute; color: var(--ink-dim); font-size: 12px; letter-spacing: 1px; text-align: center; padding: 0 12px; }
     #combat { width: 100%; border: 1px solid var(--line-soft); border-radius: 5px; display: none; margin-top: 12px; background: #030a08; }
 
+    /* Combat controls */
+    #combat-controls { margin-top: 16px; }
+    #combat-controls.active { border-top: 1px solid var(--line-soft); padding-top: 14px; }
+    .combat-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-size: 12px; }
+    .combat-bar .turn { color: var(--term); letter-spacing: 1px; }
+    .combat-bar .focus { color: var(--ink-dim); }
+    .cc-section { margin-bottom: 10px; }
+    .cc-label { font-size: 10px; letter-spacing: 2px; color: var(--term-dim); text-transform: uppercase; margin-bottom: 6px; }
+    .cc-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .cc-btn {
+      background: var(--panel-2); color: var(--term); border: 1px solid var(--line);
+      border-radius: 4px; padding: 7px 11px; font: inherit; font-size: 12.5px; cursor: pointer;
+      letter-spacing: 0.5px; transition: box-shadow .15s ease, border-color .15s ease;
+    }
+    .cc-btn:hover:not(:disabled) { border-color: var(--term); box-shadow: 0 0 14px rgba(41,255,198,0.18); }
+    .cc-btn:disabled { opacity: 0.35; cursor: default; }
+    .cc-btn.sel { border-color: var(--warn); color: var(--warn); box-shadow: 0 0 12px rgba(255,215,106,0.25); }
+    .cc-btn.danger { color: var(--danger); border-color: rgba(255,107,125,0.5); }
+    .cc-hint { font-size: 11px; color: var(--ink-dim); margin-top: 4px; }
+    .combat-outcome {
+      margin-top: 8px; padding: 12px 14px; border-radius: 5px; border: 1px solid var(--line);
+      background: rgba(41,255,198,0.06); color: var(--term);
+    }
+    .combat-outcome.lose { border-color: rgba(255,107,125,0.5); background: rgba(255,107,125,0.08); color: var(--danger); }
+
     /* Log */
     #log { font-size: 11px; color: var(--ink-dim); white-space: pre-wrap; max-height: 180px; overflow: auto; }
   </style>
@@ -159,6 +184,7 @@
         <h2 id="scene-title"></h2>
         <div id="narration"></div>
         <div id="choices"></div>
+        <div id="combat-controls"></div>
       </div>
     </section>
 

@@ -15,6 +15,10 @@ const state = {
   typer: null,
   streamDone: false,
   pendingSnapshot: null,
+  // combat (REST action loop, separate from the WS narrative stream)
+  combat: null,
+  combatTarget: null,
+  busy: false,
 };
 
 function log(line) {
@@ -39,11 +43,27 @@ async function api(path, body) {
 
 function renderSnapshot(snap) {
   state.loopId = snap.loop_id;
+  state.combat = snap.combat || null;
   const scene = snap.active_scene || {};
   $("scene-title").textContent = scene.title || "";
   renderHud(snap);
   resolveImage(snap.assets || []);
   renderCombat(snap.combat);
+}
+
+// After the narration finishes typing, show either narrative choices or, if a
+// combat is active in the snapshot, the combat action controls.
+function finalizeScene(snap) {
+  if (!snap) return;
+  const combat = snap.combat;
+  const cc = $("combat-controls");
+  if (combat && combat.radar && combat.finished === false) {
+    $("choices").innerHTML = "";
+    renderCombatControls(combat);
+  } else {
+    cc.className = ""; cc.innerHTML = "";
+    renderChoices((snap.active_scene || {}).choices || []);
+  }
 }
 
 function renderHud(snap) {
@@ -99,6 +119,7 @@ function renderCombat(combat) {
   const radar = combat && combat.radar;
   if (!radar || !radar.blips || !radar.blips.length) { canvas.style.display = "none"; return; }
   canvas.style.display = "block";
+  canvas.style.cursor = combat.available && combat.available.can_act ? "pointer" : "default";
 
   const cols = (radar.arena && radar.arena.w) || 8;
   const rows = (radar.arena && radar.arena.h) || 6;
@@ -163,6 +184,100 @@ function renderCombat(combat) {
   });
 }
 
+// --- combat action controls (REST /api/v1/combat/action loop) ---------------
+
+function ccSection(label, inner) {
+  return `<div class="cc-section"><div class="cc-label">${label}</div><div class="cc-row">${inner}</div></div>`;
+}
+
+function renderCombatControls(combat) {
+  state.combat = combat;
+  const cc = $("combat-controls");
+  cc.className = "active";
+  const av = combat.available || {};
+  const radar = combat.radar || {};
+  const enemies = (av.targets || []);
+  if (!state.combatTarget || !enemies.some((t) => t.id === state.combatTarget)) {
+    state.combatTarget = enemies[0] ? enemies[0].id : null;
+  }
+  if (!av.can_act) { cc.innerHTML = '<div class="cc-hint">상대 턴 진행 중…</div>'; return; }
+
+  let html = `<div class="combat-bar"><span class="turn">교전 · R${radar.round || 1}</span>` +
+    `<span class="focus">FOCUS ${av.focus ?? "—"}/${av.max_focus ?? "—"}</span></div>`;
+
+  if (enemies.length) {
+    html += ccSection("표적", enemies.map((t) =>
+      `<button class="cc-btn tgt ${t.id === state.combatTarget ? "sel" : ""}" data-tgt="${t.id}">` +
+      `${escapeHtml(t.name)} · HP ${t.hp}/${t.max_hp}${t.in_range ? "" : " · 사거리밖"}</button>`).join(""));
+  }
+
+  html += ccSection("행동",
+    `<button class="cc-btn" data-act="attack">공격</button>` +
+    `<button class="cc-btn" data-act="defend">방어</button>` +
+    `<button class="cc-btn" data-act="wait">대기</button>` +
+    `<button class="cc-btn danger" data-act="flee">도주</button>`);
+
+  if (av.skills && av.skills.length) {
+    html += ccSection("스킬", av.skills.map((s) =>
+      `<button class="cc-btn" data-skill="${s.id}" ${s.cooldown > 0 ? "disabled" : ""}>` +
+      `${escapeHtml(s.id)}${s.cooldown > 0 ? ` (CD ${s.cooldown})` : ""}</button>`).join(""));
+  }
+
+  html += `<div class="cc-hint">우측 전술 보드의 밝게 표시된 칸을 클릭하면 그 위치로 이동합니다.</div>`;
+  cc.innerHTML = html;
+
+  cc.querySelectorAll("[data-tgt]").forEach((b) => (b.onclick = () => { state.combatTarget = b.dataset.tgt; renderCombatControls(state.combat); }));
+  cc.querySelectorAll("[data-act]").forEach((b) => (b.onclick = () =>
+    doCombatAction({ type: b.dataset.act, target_id: b.dataset.act === "attack" ? state.combatTarget : undefined })));
+  cc.querySelectorAll("[data-skill]").forEach((b) => (b.onclick = () =>
+    doCombatAction({ type: "skill", skill_id: b.dataset.skill, target_id: state.combatTarget })));
+}
+
+async function doCombatAction(action) {
+  if (state.busy) return;
+  state.busy = true;
+  setStatus("행동 처리 중…");
+  try {
+    const r = await api("/api/v1/combat/action", { loop_id: state.loopId, action });
+    if (r.prose) $("narration").textContent = r.prose;
+    state.combat = r.combat;
+    renderCombat(r.combat);
+    if (r.combat.finished) renderCombatOutcome(r.combat);
+    else renderCombatControls(r.combat);
+    setStatus("행동 적용.");
+  } catch (e) {
+    setStatus("행동 실패: " + e.message); log(e.message);
+  } finally {
+    state.busy = false;
+  }
+}
+
+function renderCombatOutcome(combat) {
+  const cc = $("combat-controls");
+  cc.className = "active";
+  const lose = combat.outcome === "player_defeat";
+  const label = { player_victory: "승리", player_fled: "도주 성공", player_defeat: "패배" }[combat.outcome] || combat.outcome || "종료";
+  const btn = lose
+    ? `<button class="cc-btn" id="cc-restart">새 루프 시작 ▸</button>`
+    : `<button class="cc-btn" id="cc-continue">계속 ▸</button>`;
+  cc.innerHTML = `<div class="combat-outcome ${lose ? "lose" : ""}">교전 종료 — ${label}</div>` +
+    `<div class="cc-row" style="margin-top:10px">${btn}</div>`;
+  if (lose) $("cc-restart").onclick = streamBegin;
+  else $("cc-continue").onclick = continueAfterCombat;
+}
+
+function continueAfterCombat() {
+  if (state.streaming) return;
+  $("combat-controls").className = ""; $("combat-controls").innerHTML = "";
+  $("scene-img").classList.remove("shown");
+  beginStream("전투 이후 · 스트리밍…");
+  state.socket.send(JSON.stringify({
+    event: "choose", loop_id: state.loopId,
+    action: "전투의 여파를 살피고 다음 행동을 준비한다",
+    fallback: $("fallback").checked, ...imageOpts(),
+  }));
+}
+
 // --- visual_status (image arrives after the snapshot) -----------------------
 
 function onVisualStatus(msg) {
@@ -189,10 +304,10 @@ function startTyper() {
       state.queue = state.queue.slice(step);
       $("narration").innerHTML = escapeHtml(state.typed) + '<span class="caret">▌</span>';
     } else if (state.streamDone) {
-      // finished: drop caret and reveal choices
+      // finished: drop caret and reveal choices (or combat controls)
       clearInterval(state.typer); state.typer = null; state.streaming = false;
       $("narration").innerHTML = escapeHtml(state.typed);
-      if (state.pendingSnapshot) renderChoices((state.pendingSnapshot.active_scene || {}).choices || []);
+      finalizeScene(state.pendingSnapshot);
     }
   }, 14);
 }
@@ -272,6 +387,23 @@ document.addEventListener("keydown", (e) => {
   if (n >= 1 && n <= 9) {
     const btns = document.querySelectorAll("#choices button");
     if (btns[n - 1] && !btns[n - 1].disabled) btns[n - 1].click();
+  }
+});
+
+// click a highlighted (reachable) board cell to move there
+$("combat").addEventListener("click", (e) => {
+  const combat = state.combat;
+  if (!combat || !combat.radar || state.busy) return;
+  const av = combat.available || {};
+  if (!av.can_act) return;
+  const cols = (combat.radar.arena && combat.radar.arena.w) || 8;
+  const rows = (combat.radar.arena && combat.radar.arena.h) || 6;
+  const rect = e.target.getBoundingClientRect();
+  const cx = Math.floor((e.clientX - rect.left) / (rect.width / cols));
+  const cy = Math.floor((e.clientY - rect.top) / (rect.height / rows));
+  const reachable = av.reachable || [];
+  if (reachable.some(([x, y]) => x === cx && y === cy)) {
+    doCombatAction({ type: "wait", x: cx, y: cy }); // move only
   }
 });
 

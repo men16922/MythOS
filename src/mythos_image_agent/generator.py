@@ -38,28 +38,47 @@ def generate_image(
     steps: int | None = None,
     width: int | None = None,
     height: int | None = None,
+    ip_adapter_image_path: Path | None = None,
+    ip_adapter_scale: float = 0.6,
 ) -> Path:
     import torch
+    from diffusers.utils import load_image
 
-    from .pipeline_cache import get_flux_pipeline
+    from .pipeline_cache import get_flux_ip_adapter_pipeline, get_flux_pipeline
 
     model_id = model_id_override or config.image_model_id
+    target_width = width or config.default_width
+    target_height = height or config.default_height
 
-    # Loaded once per process and cached; subsequent scenes skip the ~24GB reload.
-    pipe = get_flux_pipeline(model_id, config)
+    kwargs: dict = {
+        "prompt": prompt,
+        "guidance_scale": config.guidance_scale,
+        "num_inference_steps": steps or config.default_steps,
+        "max_sequence_length": config.max_sequence_length,
+        "width": target_width,
+        "height": target_height,
+    }
+
+    if ip_adapter_image_path and Path(ip_adapter_image_path).exists():
+        print(f"Generating image with IP-Adapter (scale={ip_adapter_scale})...")
+        pipe = get_flux_ip_adapter_pipeline(model_id, config)
+        reference_image = (
+            load_image(str(ip_adapter_image_path))
+            .convert("RGB")
+            .resize((target_width, target_height))
+        )
+        pipe.set_ip_adapter_scale(ip_adapter_scale)
+        kwargs["ip_adapter_image"] = reference_image
+    else:
+        pipe = get_flux_pipeline(model_id, config)
+        if hasattr(pipe, "set_ip_adapter_scale"):
+            pipe.set_ip_adapter_scale(0.0)
 
     generator = torch.Generator("cpu").manual_seed(seed or config.default_seed)
+    kwargs["generator"] = generator
 
     print("Generating image...")
-    image = pipe(
-        prompt=prompt,
-        guidance_scale=config.guidance_scale,
-        num_inference_steps=steps or config.default_steps,
-        max_sequence_length=config.max_sequence_length,
-        generator=generator,
-        width=width or config.default_width,
-        height=height or config.default_height,
-    ).images[0]
+    image = pipe(**kwargs).images[0]
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     image.save(output_path)

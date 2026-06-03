@@ -4,6 +4,7 @@ import os
 import shutil
 from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
+from time import perf_counter
 from typing import Protocol
 
 from mythos_core import AssetRecord, Scene
@@ -14,7 +15,7 @@ from mythos_image_agent.generator import generate_image
 from mythos_image_agent.img2img import generate_image_img2img
 from mythos_image_agent.postprocess import apply_diegetic_overlay, apply_y2k_crt_effect
 from mythos_memory import MythOSStore
-from mythos_runtime.observability import get_logger, timed
+from mythos_runtime.observability import get_logger, set_span_attribute, timed
 from mythos_runtime.scenario import load_scenario
 from mythos_runtime.visual_queue import VisualJobQueue
 
@@ -66,19 +67,35 @@ class LocalFluxProvider:
 
     def generate(self, request: VisualGenerationRequest, output_path: Path) -> Path:
         reference_image = request.metadata.get("reference_image")
+        use_ip_adapter = request.metadata.get("use_ip_adapter", False)
+
         if reference_image and Path(reference_image).exists():
-            return generate_image_img2img(
-                reference_path=Path(reference_image),
-                prompt=request.prompt,
-                output_path=output_path,
-                config=self.config,
-                strength=request.metadata.get("img2img_strength", 0.6),
-                model_id_override=request.model_id,
-                seed=request.seed,
-                steps=request.steps,
-                width=request.width,
-                height=request.height,
-            )
+            if use_ip_adapter:
+                return generate_image(
+                    prompt=request.prompt,
+                    output_path=output_path,
+                    config=self.config,
+                    model_id_override=request.model_id,
+                    seed=request.seed,
+                    steps=request.steps,
+                    width=request.width,
+                    height=request.height,
+                    ip_adapter_image_path=Path(reference_image),
+                    ip_adapter_scale=request.metadata.get("ip_adapter_scale", 0.6),
+                )
+            else:
+                return generate_image_img2img(
+                    reference_path=Path(reference_image),
+                    prompt=request.prompt,
+                    output_path=output_path,
+                    config=self.config,
+                    strength=request.metadata.get("img2img_strength", 0.6),
+                    model_id_override=request.model_id,
+                    seed=request.seed,
+                    steps=request.steps,
+                    width=request.width,
+                    height=request.height,
+                )
 
         return generate_image(
             prompt=request.prompt,
@@ -235,6 +252,10 @@ class VisualService:
             self._record(request=request, status="processing", storage_uri="", error=None)
 
         output_path = self._work_output_path(request)
+        provider_ms = 0.0
+        postprocess_ms = 0.0
+        storage_ms = 0.0
+        overall_start = perf_counter()
         try:
             with timed(
                 "mythos.visual.generate",
@@ -246,9 +267,22 @@ class VisualService:
                 provider=request.provider,
                 model_id=request.model_id,
             ):
-                generated_path = self.provider.generate(request, output_path)
+                provider_start = perf_counter()
+                reference_image = request.metadata.get("reference_image")
+                if (
+                    request.metadata.get("bypass_generation")
+                    and reference_image
+                    and Path(reference_image).exists()
+                ):
+                    shutil.copy2(reference_image, output_path)
+                    generated_path = output_path
+                else:
+                    generated_path = self.provider.generate(request, output_path)
+                provider_ms = round((perf_counter() - provider_start) * 1000, 3)
+                set_span_attribute("mythos.visual.provider_ms", provider_ms)
 
                 # Apply Y2K Post-processing with intensity based on autonomy level
+                postprocess_start = perf_counter()
                 autonomy_level = request.metadata.get("autonomy_level", 1)
                 # Scale intensity from 0.5 (LV 1) to 2.5 (LV 5)
                 glitch_intensity = 0.5 + (autonomy_level - 1) * 0.5
@@ -263,17 +297,61 @@ class VisualService:
                         text=request.metadata.get("overlay_title", "NEO-SEOUL"),
                         status_lines=request.metadata.get("overlay_status", []),
                     )
+                postprocess_ms = round((perf_counter() - postprocess_start) * 1000, 3)
+                set_span_attribute("mythos.visual.postprocess_ms", postprocess_ms)
 
+                storage_start = perf_counter()
                 storage_uri = self.storage.store(generated_path, request)
+                storage_ms = round((perf_counter() - storage_start) * 1000, 3)
+                set_span_attribute("mythos.visual.storage_ms", storage_ms)
+
+            overall_ms = round((perf_counter() - overall_start) * 1000, 3)
+            # Record detailed segments in request metadata
+            detailed_request = replace(
+                request,
+                metadata={
+                    **request.metadata,
+                    "latency_ms": overall_ms,
+                    "provider_ms": provider_ms,
+                    "postprocess_ms": postprocess_ms,
+                    "storage_ms": storage_ms,
+                },
+            )
+
+            self.logger.info(
+                "visual segments latency detailed",
+                extra={
+                    "player_id": request.player_id,
+                    "loop_id": request.loop_id,
+                    "scene_id": request.scene_id,
+                    "latency_ms": overall_ms,
+                    "provider_ms": provider_ms,
+                    "postprocess_ms": postprocess_ms,
+                    "storage_ms": storage_ms,
+                },
+            )
+
             return self._record(
-                request=request,
+                request=detailed_request,
                 status="succeeded",
                 storage_uri=storage_uri,
                 error=None,
             )
         except Exception as exc:
+            overall_ms = round((perf_counter() - overall_start) * 1000, 3)
+            # Fallback metadata in case of partial success
+            error_request = replace(
+                request,
+                metadata={
+                    **request.metadata,
+                    "latency_ms": overall_ms,
+                    "provider_ms": provider_ms,
+                    "postprocess_ms": postprocess_ms,
+                    "storage_ms": storage_ms,
+                },
+            )
             return self._record(
-                request=request,
+                request=error_request,
                 status="failed",
                 storage_uri="",
                 error=str(exc),
@@ -304,6 +382,27 @@ class VisualService:
                 detected_tag = key
                 break
 
+        # 0. Check for opening cinematic shots on initial connect turns
+        if (
+            scene.turn_index <= 2
+            and scene.objective
+            and (
+                "정세린" in scene.narration
+                or "세린" in scene.narration
+                or "C-17" in scene.narration
+                or "드론" in scene.narration
+            )
+        ):
+            opening_shots = [
+                "opening/opening-01-serin-arrival.png",
+                "opening/opening-02-first-contact.png",
+                "opening/opening-03-drone-chase.png",
+            ]
+            if scene.turn_index < len(opening_shots):
+                rel_path = opening_shots[scene.turn_index]
+                reference_image = str(PROJECT_ROOT / "resources" / scenario_id / rel_path)
+                detected_tag = f"opening_shot_{scene.turn_index}"
+
         # 2. Check concept images if no character detected
         if not reference_image:
             for key, rel_path in scenario.concept_map.items():
@@ -316,12 +415,21 @@ class VisualService:
             **overrides.get("metadata", {}),
             "overlay_title": scene.location,
             "overlay_status": [f"SIGNAL: {player_id[:8]}", f"LOC: {scene.location}"],
-            "img2img_strength": 0.6 if detected_tag in scenario.character_map else 0.45,
+            "img2img_strength": 0.6
+            if (detected_tag and detected_tag in scenario.character_map)
+            else 0.45,
             "autonomy_level": autonomy_level,
         }
         if reference_image:
             metadata["reference_image"] = reference_image
             metadata["detected_tag"] = detected_tag
+            if detected_tag and detected_tag.startswith("opening_shot"):
+                metadata["bypass_generation"] = True
+            elif detected_tag and detected_tag in scenario.character_map:
+                metadata["use_ip_adapter"] = True
+                metadata["ip_adapter_scale"] = overrides.get("metadata", {}).get(
+                    "ip_adapter_scale", 0.6
+                )
 
         return VisualGenerationRequest(
             player_id=player_id,
@@ -373,18 +481,20 @@ class VisualService:
         )
         if self.store is not None:
             self.store.save_asset(asset)
-        self.logger.info(
-            "visual asset recorded",
-            extra={
-                "player_id": request.player_id,
-                "loop_id": request.loop_id,
-                "scene_id": request.scene_id,
-                "asset_id": asset.asset_id,
-                "provider": request.provider,
-                "model_id": request.model_id,
-                "status": status,
-            },
-        )
+        extra = {
+            "player_id": request.player_id,
+            "loop_id": request.loop_id,
+            "scene_id": request.scene_id,
+            "asset_id": asset.asset_id,
+            "provider": request.provider,
+            "model_id": request.model_id,
+            "status": status,
+        }
+        for k in ("latency_ms", "provider_ms", "postprocess_ms", "storage_ms"):
+            if k in request.metadata:
+                extra[k] = request.metadata[k]
+
+        self.logger.info("visual asset recorded", extra=extra)
         return VisualGenerationResult(
             asset=asset,
             status=status,

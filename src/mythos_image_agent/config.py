@@ -20,7 +20,7 @@ if load_dotenv is not None:
 class AgentConfig:
     ollama_base_url: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
     ollama_model: str = os.getenv("OLLAMA_MODEL", "gemma4:latest")
-    ollama_timeout_seconds: float = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "4.5"))
+    ollama_timeout_seconds: float = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "30.0"))
     hf_token: str | None = os.getenv("HF_TOKEN") or os.getenv("HUGGING_FACE_HUB_TOKEN")
     image_model_id: str = os.getenv("IMAGE_MODEL_ID", "black-forest-labs/FLUX.1-schnell")
     # Image backend: "mflux" (Apple MLX, ~20x faster + quantized, default) or "diffusers"
@@ -35,6 +35,11 @@ class AgentConfig:
     default_seed: int = int(os.getenv("IMAGE_SEED", "42"))
     guidance_scale: float = float(os.getenv("GUIDANCE_SCALE", "0.0"))
     max_sequence_length: int = int(os.getenv("MAX_SEQUENCE_LENGTH", "256"))
+    ip_adapter_repo: str = os.getenv("IP_ADAPTER_REPO", "XLabs-AI/flux-ip-adapter")
+    ip_adapter_weight_name: str = os.getenv("IP_ADAPTER_WEIGHT_NAME", "ip_adapter.safetensors")
+    ip_adapter_image_encoder: str = os.getenv(
+        "IP_ADAPTER_IMAGE_ENCODER", "openai/clip-vit-large-patch14"
+    )
 
     @property
     def hf_auth_token(self) -> str | bool | None:

@@ -43,6 +43,9 @@ class JsonFormatter(logging.Formatter):
             "provider",
             "model_id",
             "latency_ms",
+            "provider_ms",
+            "postprocess_ms",
+            "storage_ms",
             "status",
             "outcome",
         ):
@@ -156,3 +159,14 @@ def _span_attributes(fields: dict[str, Any]) -> dict[str, Any]:
         for key, value in fields.items()
         if value is not None and isinstance(value, str | int | float | bool)
     }
+
+
+def set_span_attribute(key: str, value: Any) -> None:
+    try:
+        from opentelemetry import trace
+
+        current_span = trace.get_current_span()
+        if current_span and current_span.is_recording():
+            current_span.set_attribute(key, value)
+    except ImportError:
+        pass

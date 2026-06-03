@@ -15,6 +15,18 @@ YYYY-MM-DD
 
 ## 2026-06-03
 
+- Status: [x] P3 Web UI 디커플링 slice 3 — S3 presigned URL 자산 전달 구현.
+- Changed:
+  - `src/mythos_runtime/visual_service.py`: `MinIOStorageAdapter._client()` 헬퍼로 boto3 client 생성 분리, `presigned_url(storage_uri, expires_in=600)` 추가. 논리 `s3://bucket/key`를 만료시간 있는 HTTPS presigned URL로 변환, 비-s3 URI는 그대로 통과, malformed는 ValueError (설계 §5.2).
+  - `src/mythos_api/app.py`: `POST /api/v1/assets/resolve`. storage_uri를 presigned URL로 가상화해 `{"url","expires_in"}` 반환, malformed s3는 400.
+  - `src/mythos_api/service.py`: `get_storage_adapter` dependency.
+  - `tests/test_api.py`(+3) / `tests/test_visual_service.py`(+3, boto3 mock으로 generate_presigned_url 인자 검증).
+  - 분산 visual worker(`visual_worker.py`, Redis BRPOP + heartbeat)는 기존 구현 — slice 3의 미구현 갭은 presigned URL 전달이었음.
+- Verified: `make test`(173 tests, 2 skipped), `make lint`, `make typecheck` 전체 통과.
+- Next: P3 slice 4 — Next.js/Vite 프론트엔드 + Canvas 전술 보드(설계 §3,§4). 완료 시 `loops/stream`에 `visual_status` 프레임 합류.
+
+## 2026-06-03
+
 - Status: [x] P3 Web UI 디커플링 slice 2 — WebSocket 토큰 스트리밍 `/api/v1/loops/stream` 구현.
 - Changed:
   - `src/mythos_api/app.py`: `@app.websocket("/api/v1/loops/stream")` 추가. 인바운드 `{"event":"begin"|"choose", ...}`를 `stream_start_loop`/`stream_choose`에 매핑하고, 블로킹 동기 제너레이터를 `iterate_in_threadpool`로 async 브리지해 이벤트 루프 비차단. 프레임: `token`/`snapshot`/`error`. 하나의 소켓에서 begin/choose 반복 처리.

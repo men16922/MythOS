@@ -98,10 +98,10 @@
 
 - `[x]` Streamlit 이후 Web UI 경계 설계: FastAPI 등으로 HTTP/WebSocket API 구축 및 Next.js/Vite 기반 프론트엔드로의 디커플링 아키텍처 설계. (P3)
 - `[x]` 원격 visual worker/storage/cloud 확장 설계: 분산 Redis Queue 비주얼 워커와 MinIO/S3 오브젝트 스토리지 통합 설계. (P3)
-- `[~]` P3 Web UI 실구현 — **slice 1·2 완료**: `mythos_api` FastAPI `/api/v1` REST 어댑터(`auth/connect`, `loops/begin|active|choose`, `combat/begin|action`, `health`) + WebSocket 토큰 스트리밍(`loops/stream`), optional `web` extra, `python -m mythos_api`. `tests/test_api.py`(11) 통과. 남은 slice:
+- `[~]` P3 Web UI 실구현 — **slice 1·2·3 완료**: `mythos_api` FastAPI `/api/v1` REST 어댑터 + WebSocket 토큰 스트리밍 + S3 presigned URL 자산 전달, optional `web` extra, `python -m mythos_api`. `tests/test_api.py`(14) 통과. 남은 slice:
   - `[x]` slice 2: WebSocket 토큰 스트리밍 `/api/v1/loops/stream` (설계 §2.2). begin/choose 이벤트를 `stream_start_loop`/`stream_choose`에 매핑, `iterate_in_threadpool` 브리지, token/snapshot/error 프레임.
-  - `[ ]` slice 3: 분산 visual worker(`visual_worker.py`, Redis BRPOP + Redlock heartbeat)와 S3 presigned URL 자산 전달 (설계 §5). 완료 시 `loops/stream`에 `visual_status` 프레임 합류.
-  - `[ ]` slice 4: Next.js/Vite 프론트엔드 + Canvas 전술 보드 (설계 §3, §4).
+  - `[x]` slice 3: S3 presigned URL 자산 전달 (설계 §5.2). 분산 visual worker(`visual_worker.py`, Redis BRPOP+heartbeat)는 기존 구현됨. `MinIOStorageAdapter.presigned_url` + `POST /api/v1/assets/resolve`로 논리 s3:// URI를 만료시간 있는 HTTPS URL로 가상화.
+  - `[ ]` slice 4: Next.js/Vite 프론트엔드 + Canvas 전술 보드 (설계 §3, §4). 완료 시 `loops/stream`에 `visual_status` 프레임 합류.
 - `[x]` CI 도입: `.github/workflows/ci.yml` (Python 3.11 setup/lint/typecheck/test).
 
 ## Completed Baseline

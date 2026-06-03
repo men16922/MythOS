@@ -15,6 +15,16 @@ YYYY-MM-DD
 
 ## 2026-06-03
 
+- Status: [x] 전투 종료 LLM 멈춤 수정 + PoC→패리티 로드맵 + S1 온보딩/세션.
+- Changed:
+  - fix(combat): 전투 패배(루프 종료) 시 `summarize_loop`가 fallback/fast 모드에서도 Ollama를 동기 호출해 8.3s 멈추던 것 → `use_llm` 게이트로 결정론 요약, 22ms로 단축. `director.summarize_loop(events, *, use_llm)`, `_commit_combat_turn`에서 `not(options.fallback or fast_mode)`로 게이트.
+  - `docs/plans/2026-06-03-poc-parity-roadmap.md`(신규): PoC→Streamlit 패리티 S1~S6 단계.
+  - S1: `GET /api/v1/scenarios`(시나리오+아키타입), 온보딩 화면(시나리오/아키타입 선택·이어하기), localStorage 세션 보존, `loops/active` resume, scenario_id 전파, phase=ended 엔딩 배너.
+- Verified: `make test`(182), `make lint`, `make typecheck` 통과. 라이브: 전투 패배 22ms, S1 flow(scenarios→connect→begin→resume) OK, `/` 온보딩 렌더.
+- Next: S2 Codex/기억(memory_overview API + Codex 탭).
+
+## 2026-06-03
+
 - Status: [x] PoC 전투 플레이어블화 — combat action 컨트롤(스크린샷 피드백 반영).
 - Changed:
   - 피드백: 전투 진입 시 보드만 보이고 조작 수단이 없었음.

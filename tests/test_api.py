@@ -87,6 +87,20 @@ class ApiStaticClientTest(unittest.TestCase):
         self.assertEqual(response.json(), {"status": "ok"})
 
 
+class ApiScenariosTest(unittest.TestCase):
+    def test_scenarios_lists_archetypes(self) -> None:
+        client = _client(_InMemoryStore())
+        response = client.get("/api/v1/scenarios")
+        self.assertEqual(response.status_code, 200)
+        scenarios = response.json()["scenarios"]
+        ids = {s["id"] for s in scenarios}
+        self.assertIn("neo-seoul", ids)
+        neo = next(s for s in scenarios if s["id"] == "neo-seoul")
+        self.assertTrue(neo["name"])
+        self.assertTrue(neo["archetypes"])
+        self.assertTrue(neo["archetypes"][0]["name"])
+
+
 class ApiNarrativeFlowTest(unittest.TestCase):
     def setUp(self) -> None:
         self.store = _InMemoryStore()

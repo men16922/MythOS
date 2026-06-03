@@ -27,11 +27,14 @@ from mythos_api.service import get_service, get_storage_adapter
 from mythos_core import AssetRecord
 from mythos_runtime.combat_server import combat_action_response, combat_state_response
 from mythos_runtime.options import RuntimeOptions, RuntimeSnapshot, RuntimeStreamEvent
+from mythos_runtime.scenario import load_scenario
 from mythos_runtime.session import RuntimeSessionService
 from mythos_runtime.visual_service import MinIOStorageAdapter, VisualGenerationResult
 
 API_PREFIX = "/api/v1"
 STATIC_DIR = Path(__file__).parent / "static"
+# Scenarios discoverable by the onboarding screen (resources/<id>/scenario.json).
+_SCENARIO_IDS = ("neo-seoul", "glass-library")
 
 # Terminal vs. in-flight image asset statuses, and bounded polling for the
 # async (Redis worker) path so a never-finishing job can't hang the socket.
@@ -245,6 +248,31 @@ def create_app() -> FastAPI:
     @app.get("/api/v1/health")
     def health() -> dict[str, str]:
         return {"status": "ok"}
+
+    @app.get(f"{API_PREFIX}/scenarios")
+    def scenarios() -> dict[str, Any]:
+        # Onboarding data: scenario list + selectable archetypes.
+        items: list[dict[str, Any]] = []
+        for sid in _SCENARIO_IDS:
+            try:
+                s = load_scenario(sid)
+            except Exception:
+                continue
+            items.append({
+                "id": sid,
+                "name": s.name,
+                "brief": s.brief,
+                "archetypes": [
+                    {
+                        "name": a.get("name"),
+                        "attributes": a.get("attributes", []),
+                        "starting_item": a.get("starting_item"),
+                        "stats": a.get("stats", {}),
+                    }
+                    for a in s.archetypes
+                ],
+            })
+        return {"scenarios": items}
 
     @app.post(f"{API_PREFIX}/auth/connect")
     def connect(

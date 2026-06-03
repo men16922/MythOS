@@ -4,9 +4,12 @@
 // streamlit_app.py (green terminal). See docs/plans/2026-06-03-poc-ux-improvement.md.
 
 const $ = (id) => document.getElementById(id);
+const LS_KEY = "mythos.session";
 const state = {
   playerId: null,
   loopId: null,
+  scenarioId: "neo-seoul",
+  archetype: null,
   socket: null,
   streaming: false,
   // typewriter queue: tokens land in `queue`, a timer drains chars into `typed`.
@@ -51,19 +54,33 @@ function renderSnapshot(snap) {
   renderCombat(snap.combat);
 }
 
-// After the narration finishes typing, show either narrative choices or, if a
-// combat is active in the snapshot, the combat action controls.
+// After the narration finishes typing, show either narrative choices, combat
+// controls (combat active), or the ended-run banner.
 function finalizeScene(snap) {
   if (!snap) return;
   const combat = snap.combat;
   const cc = $("combat-controls");
-  if (combat && combat.radar && combat.finished === false) {
+  if (snap.phase === "ended") {
+    $("choices").innerHTML = ""; cc.className = ""; cc.innerHTML = "";
+    renderEnded(snap);
+  } else if (combat && combat.radar && combat.finished === false) {
     $("choices").innerHTML = "";
     renderCombatControls(combat);
   } else {
     cc.className = ""; cc.innerHTML = "";
     renderChoices((snap.active_scene || {}).choices || []);
   }
+}
+
+function renderEnded(snap) {
+  const flags = (snap.state && snap.state.flags) || {};
+  const label = flags.ending_label || flags.ending_id || "";
+  $("choices").innerHTML =
+    `<div class="ended-banner"><div class="et">여정 종료</div>` +
+    (label ? `<div class="el">엔딩 · ${escapeHtml(String(label))}</div>` : "") +
+    `</div><div style="margin-top:12px"><button class="cc-btn" id="end-new">새 접속 ▸</button></div>`;
+  const b = document.getElementById("end-new");
+  if (b) b.onclick = leaveSession;
 }
 
 function renderHud(snap) {
@@ -238,7 +255,7 @@ async function doCombatAction(action) {
   state.busy = true;
   setStatus("행동 처리 중…");
   try {
-    const r = await api("/api/v1/combat/action", { loop_id: state.loopId, action });
+    const r = await api("/api/v1/combat/action", { loop_id: state.loopId, scenario_id: state.scenarioId, action });
     if (r.prose) $("narration").textContent = r.prose;
     state.combat = r.combat;
     renderCombat(r.combat);
@@ -272,7 +289,7 @@ function continueAfterCombat() {
   $("scene-img").classList.remove("shown");
   beginStream("전투 이후 · 스트리밍…");
   state.socket.send(JSON.stringify({
-    event: "choose", loop_id: state.loopId,
+    event: "choose", loop_id: state.loopId, scenario_id: state.scenarioId,
     action: "전투의 여파를 살피고 다음 행동을 준비한다",
     fallback: $("fallback").checked, ...imageOpts(),
   }));
@@ -354,29 +371,119 @@ function streamBegin() {
   $("scene-img").classList.remove("shown");
   $("image-ph").style.display = "block";
   beginStream("루프 생성 · 토큰 스트리밍…");
-  state.socket.send(JSON.stringify({ event: "begin", player_id: state.playerId, fallback: $("fallback").checked, ...imageOpts() }));
+  state.socket.send(JSON.stringify({ event: "begin", player_id: state.playerId, scenario_id: state.scenarioId, fallback: $("fallback").checked, ...imageOpts() }));
 }
 
 function sendChoose(choiceId) {
   if (state.streaming) return;
   $("scene-img").classList.remove("shown");
   beginStream("선택 적용 · 스트리밍…");
-  state.socket.send(JSON.stringify({ event: "choose", loop_id: state.loopId, choice_id: choiceId, fallback: $("fallback").checked, ...imageOpts() }));
+  state.socket.send(JSON.stringify({ event: "choose", loop_id: state.loopId, choice_id: choiceId, scenario_id: state.scenarioId, fallback: $("fallback").checked, ...imageOpts() }));
+}
+
+// --- onboarding / session ---------------------------------------------------
+
+let SCENARIOS = [];
+
+async function loadScenarios() {
+  try {
+    const data = await (await fetch("/api/v1/scenarios")).json();
+    SCENARIOS = data.scenarios || [];
+  } catch (e) { SCENARIOS = []; }
+  const sel = $("scenario-select");
+  sel.innerHTML = SCENARIOS.map((s) => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join("");
+  sel.onchange = () => { state.scenarioId = sel.value; renderArchetypes(); };
+  state.scenarioId = (SCENARIOS[0] && SCENARIOS[0].id) || "neo-seoul";
+  renderArchetypes();
+  // resume hint
+  const saved = loadSavedSession();
+  if (saved && saved.playerId) {
+    const r = $("resume");
+    r.style.display = "inline-block";
+    r.textContent = `이어하기 · ${saved.playerId.slice(0, 14)}…`;
+    r.onclick = () => resumeSession(saved);
+  }
+}
+
+function renderArchetypes() {
+  const sc = SCENARIOS.find((s) => s.id === state.scenarioId);
+  const box = $("archetypes");
+  const archs = (sc && sc.archetypes) || [];
+  state.archetype = archs[0] ? archs[0].name : null;
+  box.innerHTML = archs.map((a, i) =>
+    `<div class="arch-card ${i === 0 ? "sel" : ""}" data-arch="${escapeHtml(a.name)}">` +
+    `<div class="arch-name">${escapeHtml(a.name)}</div>` +
+    `<div class="arch-attrs">${(a.attributes || []).map(escapeHtml).join(" ")}</div>` +
+    (a.starting_item ? `<div class="arch-item">소지품 · ${escapeHtml(a.starting_item)}</div>` : "") +
+    `</div>`).join("");
+  box.querySelectorAll("[data-arch]").forEach((c) => (c.onclick = () => {
+    state.archetype = c.dataset.arch;
+    box.querySelectorAll(".arch-card").forEach((x) => x.classList.remove("sel"));
+    c.classList.add("sel");
+  }));
+}
+
+function saveSession() {
+  try { localStorage.setItem(LS_KEY, JSON.stringify({ playerId: state.playerId, scenarioId: state.scenarioId })); } catch (e) {}
+}
+function loadSavedSession() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || "null"); } catch (e) { return null; }
+}
+
+function showPlay(info) {
+  $("onboarding").style.display = "none";
+  $("play").hidden = false;
+  $("session-chip").style.display = "flex";
+  $("session-info").textContent = info;
+}
+
+function leaveSession() {
+  if (state.socket) { try { state.socket.close(); } catch (e) {} state.socket = null; }
+  state.loopId = null;
+  $("play").hidden = true;
+  $("session-chip").style.display = "none";
+  $("onboarding").style.display = "block";
+  loadScenarios();
 }
 
 async function start() {
   $("start").disabled = true;
+  $("ob-status").textContent = "접속 중…";
   try {
-    setStatus("접속 중…");
-    const player = await api("/api/v1/auth/connect", { display_name: $("display-name").value });
+    const player = await api("/api/v1/auth/connect", {
+      display_name: $("display-name").value, archetype: state.archetype, scenario_id: state.scenarioId,
+    });
     state.playerId = player.player_id;
-    log("접속: " + player.player_id);
+    saveSession();
+    showPlay(`${player.display_name} · ${state.scenarioId} · ${state.archetype || ""}`);
+    log("접속: " + player.player_id + " (" + (state.archetype || "-") + ")");
     await openSocket();
     streamBegin();
   } catch (err) {
-    setStatus("실패: " + err.message); log(err.message);
+    $("ob-status").textContent = "실패: " + err.message; log(err.message);
   } finally {
     $("start").disabled = false;
+  }
+}
+
+async function resumeSession(saved) {
+  $("resume").disabled = true;
+  $("ob-status").textContent = "이어하는 중…";
+  try {
+    state.playerId = saved.playerId;
+    state.scenarioId = saved.scenarioId || state.scenarioId;
+    const snap = await (await fetch(`/api/v1/loops/active?player_id=${encodeURIComponent(state.playerId)}&scenario_id=${encodeURIComponent(state.scenarioId)}`)).json();
+    if (snap.detail) throw new Error(snap.detail); // 404 → no active loop
+    showPlay(`${(snap.player && snap.player.display_name) || state.playerId} · ${state.scenarioId}`);
+    await openSocket();
+    renderSnapshot(snap);
+    $("narration").textContent = (snap.active_scene || {}).narration || "";
+    finalizeScene(snap);
+    setStatus("이어하기 완료.");
+  } catch (err) {
+    $("ob-status").textContent = "이어하기 실패: " + err.message;
+  } finally {
+    $("resume").disabled = false;
   }
 }
 
@@ -409,3 +516,5 @@ $("combat").addEventListener("click", (e) => {
 
 window.addEventListener("resize", () => { /* combat redraws on next snapshot */ });
 $("start").onclick = start;
+$("leave").onclick = leaveSession;
+loadScenarios();

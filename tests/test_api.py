@@ -11,6 +11,7 @@ from __future__ import annotations
 import sys
 import unittest
 from collections.abc import Iterator
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, cast
 
@@ -19,9 +20,30 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from fastapi.testclient import TestClient
 from test_session_combat import _InMemoryStore, _seed_loop
 
-from mythos_api.app import create_app
+from mythos_api.app import _find_asset, _terminal_visual_frame, create_app
 from mythos_api.service import get_service, get_storage_adapter
+from mythos_core import AssetRecord
 from mythos_runtime.session import RuntimeSessionService
+from mythos_runtime.visual_service import VisualGenerationResult
+
+
+def _asset(asset_id: str, status: str, storage_uri: str, loop_id: str = "loop_x") -> AssetRecord:
+    return AssetRecord(
+        asset_id=asset_id,
+        scene_id="scene_x",
+        loop_id=loop_id,
+        provider="flux_local_mps",
+        model_id="m",
+        prompt="p",
+        seed=1,
+        width=8,
+        height=8,
+        steps=1,
+        storage_uri=storage_uri,
+        metadata={},
+        created_at=datetime(2026, 6, 3, tzinfo=UTC),
+        status=status,
+    )
 
 
 def _client(store: _InMemoryStore) -> TestClient:
@@ -219,6 +241,59 @@ class ApiAssetResolveTest(unittest.TestCase):
         self.assertEqual(body["expires_in"], 120)
         self.assertTrue(body["url"].startswith("https://signed.example/"))
         self.assertIn("ttl=120", body["url"])
+
+
+class VisualStatusTest(unittest.TestCase):
+    def test_succeeded_result_signs_url(self) -> None:
+        result = VisualGenerationResult(
+            asset=_asset("asset_1", "succeeded", "s3://mythos-assets/i/s.png"),
+            status="succeeded",
+            storage_uri="s3://mythos-assets/i/s.png",
+            error=None,
+        )
+        frame = _terminal_visual_frame(cast(Any, _FakeStorage()), result)
+        assert frame is not None
+        self.assertEqual(frame["status"], "succeeded")
+        self.assertEqual(frame["asset_id"], "asset_1")
+        self.assertTrue(frame["url"].startswith("https://signed.example/"))
+
+    def test_failed_result_has_no_url(self) -> None:
+        result = VisualGenerationResult(
+            asset=_asset("asset_2", "failed", ""),
+            status="failed",
+            storage_uri="",
+            error="backend down",
+        )
+        frame = _terminal_visual_frame(cast(Any, _FakeStorage()), result)
+        assert frame is not None
+        self.assertEqual(frame["status"], "failed")
+        self.assertNotIn("url", frame)
+
+    def test_pending_result_is_in_flight(self) -> None:
+        result = VisualGenerationResult(
+            asset=_asset("asset_3", "pending", ""),
+            status="pending",
+            storage_uri="",
+            error=None,
+        )
+        self.assertIsNone(_terminal_visual_frame(cast(Any, _FakeStorage()), result))
+
+    def test_find_asset_by_id(self) -> None:
+        asset = _asset("asset_4", "succeeded", "s3://b/k.png", loop_id="loop_find")
+
+        class _AssetStore:
+            def list_assets(self, loop_id: str) -> list[AssetRecord]:
+                return [asset] if loop_id == "loop_find" else []
+
+        class _Svc:
+            store = _AssetStore()
+
+        service = cast(RuntimeSessionService, _Svc())
+        found = _find_asset(service, "loop_find", "asset_4")
+        self.assertIsNotNone(found)
+        assert found is not None
+        self.assertEqual(found.asset_id, "asset_4")
+        self.assertIsNone(_find_asset(service, "loop_find", "missing"))
 
 
 class ApiCombatFlowTest(unittest.TestCase):

@@ -108,6 +108,8 @@ function openSocket() {
     } else if (msg.type === "snapshot") {
       setStatus("장면 확정.");
       renderSnapshot(msg.data);
+    } else if (msg.type === "visual_status") {
+      onVisualStatus(msg);
     } else if (msg.type === "error") {
       setStatus("오류: " + msg.detail);
       log("WS error: " + msg.detail);
@@ -115,6 +117,27 @@ function openSocket() {
   };
   socket.onclose = () => log("WS 연결 종료.");
   return new Promise((resolve) => (socket.onopen = () => resolve(socket)));
+}
+
+function imageOpts() {
+  const on = $("with-image").checked;
+  return { with_image: on, visual_async: on, image_every_turn: on };
+}
+
+// Image arrives after the snapshot: pending/processing show a placeholder,
+// succeeded swaps in the presigned URL (design §2.2).
+function onVisualStatus(msg) {
+  const img = $("scene-img");
+  if (msg.status === "pending" || msg.status === "processing") {
+    setStatus("그림 생성 중… (" + msg.status + ")");
+  } else if (msg.status === "succeeded" && msg.url) {
+    setStatus("그림 완성.");
+    img.src = msg.url;
+    img.style.display = "block";
+  } else {
+    setStatus("그림 생성 실패: " + msg.status);
+    log("visual_status: " + msg.status);
+  }
 }
 
 function streamBegin() {
@@ -125,6 +148,7 @@ function streamBegin() {
       event: "begin",
       player_id: state.playerId,
       fallback: $("fallback").checked,
+      ...imageOpts(),
     })
   );
 }
@@ -139,6 +163,7 @@ function sendChoose(choiceId) {
       loop_id: state.loopId,
       choice_id: choiceId,
       fallback: $("fallback").checked,
+      ...imageOpts(),
     })
   );
 }

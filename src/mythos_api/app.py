@@ -12,6 +12,7 @@ request bodies instead of being inferred from an auth context.
 
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
@@ -19,17 +20,24 @@ from typing import Any
 from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
-from starlette.concurrency import iterate_in_threadpool
+from starlette.concurrency import iterate_in_threadpool, run_in_threadpool
 
 from mythos_api.serializers import player_to_dict, snapshot_to_dict
 from mythos_api.service import get_service, get_storage_adapter
+from mythos_core import AssetRecord
 from mythos_runtime.combat_server import combat_action_response, combat_state_response
-from mythos_runtime.options import RuntimeOptions, RuntimeStreamEvent
+from mythos_runtime.options import RuntimeOptions, RuntimeSnapshot, RuntimeStreamEvent
 from mythos_runtime.session import RuntimeSessionService
-from mythos_runtime.visual_service import MinIOStorageAdapter
+from mythos_runtime.visual_service import MinIOStorageAdapter, VisualGenerationResult
 
 API_PREFIX = "/api/v1"
 STATIC_DIR = Path(__file__).parent / "static"
+
+# Terminal vs. in-flight image asset statuses, and bounded polling for the
+# async (Redis worker) path so a never-finishing job can't hang the socket.
+_TERMINAL_VISUAL = {"succeeded", "failed", "disabled"}
+_VISUAL_POLL_INTERVAL_S = 1.0
+_VISUAL_POLL_TRIES = 30
 
 
 # --- Request models ---------------------------------------------------------
@@ -95,6 +103,9 @@ def _stream_for(
     options = RuntimeOptions(
         scenario_id=message.get("scenario_id", "neo-seoul"),
         fallback=bool(message.get("fallback", False)),
+        with_image=bool(message.get("with_image", False)),
+        visual_async=bool(message.get("visual_async", False)),
+        image_every_turn=bool(message.get("image_every_turn", False)),
     )
     event = message.get("event")
     if event == "begin":
@@ -109,9 +120,94 @@ def _stream_for(
     raise KeyError(f"unknown event: {event!r}")
 
 
+def _find_asset(
+    service: RuntimeSessionService, loop_id: str, asset_id: str
+) -> AssetRecord | None:
+    """Look up one asset by id within a loop (store has only list_assets)."""
+    for asset in service.store.list_assets(loop_id):
+        if asset.asset_id == asset_id:
+            return asset
+    return None
+
+
+def _visual_frame(
+    storage: MinIOStorageAdapter,
+    *,
+    status: str,
+    asset_id: str | None,
+    storage_uri: str | None,
+) -> dict[str, Any]:
+    """Build a visual_status frame, signing the URL on success (design §2.2)."""
+    frame: dict[str, Any] = {"type": "visual_status", "status": status, "asset_id": asset_id}
+    if status == "succeeded" and storage_uri:
+        frame["url"] = storage.presigned_url(storage_uri)
+    return frame
+
+
+def _terminal_visual_frame(
+    storage: MinIOStorageAdapter, result: VisualGenerationResult
+) -> dict[str, Any] | None:
+    """Frame for an already-resolved image; None if still in flight (pending)."""
+    asset_id = result.asset.asset_id if result.asset else None
+    if result.status in _TERMINAL_VISUAL:
+        return _visual_frame(
+            storage, status=result.status, asset_id=asset_id, storage_uri=result.storage_uri
+        )
+    return None
+
+
+async def _emit_visual_status(
+    websocket: WebSocket,
+    service: RuntimeSessionService,
+    storage: MinIOStorageAdapter,
+    snapshot: RuntimeSnapshot,
+) -> None:
+    """After the snapshot, stream the scene image lifecycle to the client.
+
+    Synchronous generation arrives already-resolved (one terminal frame). The
+    async Redis-worker path arrives ``pending``; we announce it and poll the
+    store until the worker marks the asset terminal, relaying processing →
+    succeeded/failed with a presigned URL on success.
+    """
+    result = snapshot.image_result
+    if result is None:
+        return
+    terminal = _terminal_visual_frame(storage, result)
+    if terminal is not None:
+        await websocket.send_json(terminal)
+        return
+
+    asset_id = result.asset.asset_id if result.asset else None
+    if asset_id is None:
+        return
+    loop_id = snapshot.loop.loop_id
+    await websocket.send_json(
+        {"type": "visual_status", "status": "pending", "asset_id": asset_id}
+    )
+    for _ in range(_VISUAL_POLL_TRIES):
+        await asyncio.sleep(_VISUAL_POLL_INTERVAL_S)
+        asset = await run_in_threadpool(_find_asset, service, loop_id, asset_id)
+        if asset is None:
+            continue
+        if asset.status in _TERMINAL_VISUAL:
+            await websocket.send_json(
+                _visual_frame(
+                    storage,
+                    status=asset.status,
+                    asset_id=asset_id,
+                    storage_uri=asset.storage_uri,
+                )
+            )
+            return
+        await websocket.send_json(
+            {"type": "visual_status", "status": "processing", "asset_id": asset_id}
+        )
+
+
 async def _run_stream(
     websocket: WebSocket,
     service: RuntimeSessionService,
+    storage: MinIOStorageAdapter,
     message: dict[str, Any],
 ) -> None:
     """Drive one runtime token stream and relay it to the client socket.
@@ -119,7 +215,8 @@ async def _run_stream(
     The runtime stream is a blocking sync generator (it calls Ollama), so we
     iterate it in a threadpool to avoid stalling the event loop, relaying each
     token as ``{"type": "token"}`` and the terminal frame as
-    ``{"type": "snapshot"}`` (design §2.2).
+    ``{"type": "snapshot"}``. After the snapshot we stream the scene image
+    lifecycle as ``{"type": "visual_status"}`` frames (design §2.2).
     """
     try:
         generator = _stream_for(service, message)
@@ -130,6 +227,7 @@ async def _run_stream(
                 await websocket.send_json(
                     {"type": "snapshot", "data": snapshot_to_dict(event.snapshot)}
                 )
+                await _emit_visual_status(websocket, service, storage, event.snapshot)
     except KeyError as exc:
         await websocket.send_json({"type": "error", "detail": str(exc).strip("'\"")})
     except RuntimeError as exc:
@@ -243,12 +341,13 @@ def create_app() -> FastAPI:
     async def loops_stream(
         websocket: WebSocket,
         service: RuntimeSessionService = Depends(get_service),
+        storage: MinIOStorageAdapter = Depends(get_storage_adapter),
     ) -> None:
         await websocket.accept()
         try:
             while True:
                 message = await websocket.receive_json()
-                await _run_stream(websocket, service, message)
+                await _run_stream(websocket, service, storage, message)
         except WebSocketDisconnect:
             return
 

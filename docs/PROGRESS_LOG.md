@@ -11,7 +11,7 @@
 - Status: [x] 정크 제거, historical 문서/스크립트 bin/ 이관, md 참조 정합화, session god-object 분해.
 - Changed:
   - 정크 제거: `.playwright-mcp/`(70), `.antigravitycli`, `report.md` 스텁 + `.gitignore` 보강.
-  - `bin/` 보관소 신설: `docs/archive`, 완료된 `docs/plans`(2026-05-31·06-03), `docs/feedback`, `reference.md`, `scratch/`를 이관하고 current docs 참조 경로 갱신. 활성 plan(2026-06-06/07)은 `docs/`에 유지.
+  - `bin/` 보관소 신설: `docs/archive`, 완료된 `docs/plans`(2026-05-31·06-03), `docs/feedback`, `reference.md`를 이관하고 current docs 참조 경로 갱신. 활성 plan(2026-06-06/07)은 `docs/`에 유지. (`scratch/`는 재사용 에셋 파이프라인 도구라 root에 유지.)
   - md 최적화: CLAUDE/GEMINI의 `harness/CORE_MANDATES·CONTEXT_BRIDGE` 경로 명시, GEMINI `session.py` 경로/React SPA 반영, AGENTS git-history 문구 교체, CONTEXT_BRIDGE 테스트 수·핸드오버 갱신.
   - `session.py` 1878→1349줄(-28%): `narrative_rollup.py`(장기기억 롤업 10함수)·`loop_scoring.py`(초기점수/톤/archive shard)·`combat_session_helpers.py`(전투 요약/요청/브리프 6함수)·`constants.py`(공유 상수) 추출. private 헬퍼는 session에서 re-export해 import 경로/테스트 호환 유지. 동작 변경 없음.
   - `engine.py`(1210)는 강결합 단일 상태기계라 분리 시 가독성 손해 → 유지. App.tsx/CombatCinema는 E2E 민감 단일 컴포넌트라 live QA 동반 점진 분리 권장(미착수).
@@ -61,7 +61,7 @@
   - `se-rin-attack/guard/skill/hit`을 동일 action sheet 기반 후보로 교체해 얼굴/의상/스케일 일관성 개선.
   - `player-noise`와 `kai`의 전신 idle 및 `attack/guard/skill/hit` 세트를 동일 action sheet 방식으로 생성/분할/실사용 교체.
   - `enforcer-unit`과 `glitch-wraith`의 전신 idle 및 `attack/guard/skill/hit` 세트를 동일 action sheet 방식으로 생성/분할/실사용 교체.
-  - `bin/scratch/normalize_combat_pose_sheet.py` 추가: RGBA action sheet를 pose별 512x768 PNG로 분할/정규화하고 preview sheet 생성.
+  - `scratch/normalize_combat_pose_sheet.py` 추가: RGBA action sheet를 pose별 512x768 PNG로 분할/정규화하고 preview sheet 생성.
   - `docs/plans/2026-06-07-combat-portrait-pipeline.md` 추가/최신화: idle -> action sheet -> chroma-key 제거 -> 분할 -> `combat_images` 연결 절차, chroma-key 선택, 검수/폐기 기준 정리.
   - `outputs/combat-sprite-compare/gemini/`의 Se-rin 외부 모델 후보는 canonical이 아니라 비교/보류 자료로 분류.
 - Verified: `python -m json.tool resources/neo-seoul/scenario.json`, enemy combat PNG 10개 `RGBA + 512x768` 확인, `.venv/bin/python -m unittest tests.test_combat_service`, `make frontend-build`, `make frontend-lint`.
@@ -81,7 +81,7 @@
 
 - Status: [x] 전투 지도 기본 표시는 기존 섬네일 portrait를 유지하고, 공격/스킬/피격 프레임에만 전투 pose 이미지를 쓰도록 배선.
 - Changed:
-  - `bin/scratch/build_combat_pose_assets.py`로 Neo-Seoul player/allies/enemies 7종 × 4 pose RGBA 자산 생성.
+  - `scratch/build_combat_pose_assets.py`로 Neo-Seoul player/allies/enemies 7종 × 4 pose RGBA 자산 생성.
   - `Combatant.combat_images` -> `render_radar` -> React `CombatBlip.combat_images` 직렬화.
   - `combatCanvas.ts`는 평상시 원형 섬네일을 렌더하고, `combatEffects.ts`가 공격/스킬/피격 타이밍에 `attack`/`skill`/`hit` pose를 지정한 프레임에서만 전신 action art를 표시.
 - Verified: JSON validation, `make frontend-build`, `make frontend-lint`, `make python-typecheck`, `make test`, `make test-e2e`.

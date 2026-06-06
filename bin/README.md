@@ -9,5 +9,4 @@
 - `docs/archive/` — 장문 설계 원문(`DESIGN_FULL_*`, `GAMEPLAY_FULL_*`, `DRAFT`), 완료 마일스톤 상세(`IMPLEMENTATION_M0_M10`), 과거 progress 로그(`progress-2026-05`, `progress-2026-06`) 등.
 - `docs/plans/` — 완료/구식 dated plan(2026-05-31, 2026-06-03 시기). 활성 plan은 `docs/plans/`에 남아 있다.
 - `docs/feedback/` — 과거 피드백 메모.
-- `scratch/` — 일회성 전투 에셋 생성/정규화/비교 파이프라인 스크립트.
 - `reference.md` — 2026-06-03 시점 레퍼런스/액션 아이템 메모.

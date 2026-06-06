@@ -44,7 +44,7 @@
   enforcer_unit, glitch_wraith.
 - 전투포즈/사이드뷰 적합 프롬프트 작성. 캐릭터 일관성은 기존 portrait를 Redux 레퍼런스로 사용.
 - 산출물: `resources/neo-seoul/characters/combat/<name>.png`, `resources/neo-seoul/enemies/combat/<name>.png`
-  (투명 배경 또는 어두운 배경, 일관 화각). 생성 스크립트/메모는 `bin/scratch/`.
+  (투명 배경 또는 어두운 배경, 일관 화각). 생성 스크립트/메모는 `scratch/`.
 - 배선: scenario combat 엔트리/ bestiary에 `combat_image`(없으면 `combat/<name>.png` 컨벤션) →
   blip에 `combat_portrait` 추가 직렬화. 프론트는 combat art 우선, 없으면 기존 portrait 폴백.
 

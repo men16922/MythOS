@@ -35,11 +35,15 @@
 - `[x]` Phase 3 1차: `combatAnim.ts` role/tags 스킬 애니메이션 레지스트리 구현 + `combatEffects.ts` 배선.
 - `[x]` 스킬 아이콘 컷인: `resources/neo-seoul/skills/<skill_id>.png` 5종 생성 + `CombatCinema` 표시.
 
+완료(추가):
+
+- `[x]` Phase 4: `CombatControls` 스킬 아이콘 액션바 — `available.skills`의 name/role/tags/cost/range/cooldown 기반 data-driven 아이콘 타일, cost/range 배지, cooldown 오버레이, FOCUS 부족 비활성, role 색상, tooltip. 스킬명 텍스트 유지로 E2E 셀렉터 호환.
+- `[x]` frontend lint 부채 정리: `CombatLogDetail`에 target_id/skill_id/skill 추가해 `combatEffects.ts` any 캐스트 제거, `CombatCinema` setState-in-effect를 render-time 조정 패턴으로 교체.
+
 다음:
 
-- `[ ]` Phase 2: action art 표시 위치/스케일/지속시간/가독성 polish.
+- `[ ]` Phase 2: action art 표시 위치/스케일/지속시간/가독성 polish (live QA 필요).
 - `[ ]` Phase 3 마감: role/tags 별 고유 모션 다양화 + reduced-motion 대응.
-- `[ ]` Phase 4: `CombatControls` icon action bar + tooltip/cost/cooldown badges.
 - `[ ]` Phase 5: E2E/live QA 회귀 + 전체 `make test` 통과 후 커밋/PR.
 
 ## Priority 2 — Progression Skills / Archetypes

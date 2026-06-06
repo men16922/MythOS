@@ -6,6 +6,19 @@
 `docs/archive/progress-2026-06.md`, 2026-05 로그는
 `docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-07 — Phase 4: Combat Skill Icon Action Bar
+
+- Status: [x] `CombatControls` 스킬 아이콘 액션바 구현 + frontend lint 부채 정리.
+- Changed:
+  - `CombatControls.tsx`: 스킬을 아이콘 타일로 렌더(`/resources/<scenario>/skills/<id>.png`), name/role/tags/cost/range/cooldown 기반 data-driven. cost(◆focus/▣item)·range 배지, cooldown 오버레이, FOCUS 부족 시 비활성, role별 색상, hover/tooltip. 아이콘 로드 실패 시 role 글리프 fallback. 기본 행동(공격/방어/대기/도주)에 글리프 추가. 스킬명 텍스트 유지로 E2E `:has-text` 셀렉터 호환.
+  - `StoryPanel.tsx`: 두 `CombatControls` 렌더에 `scenarioId` 전달.
+  - `index.css`: `.cc-skill*` 아이콘 바 스타일(role 색상 변수, 배지, CD 오버레이).
+  - `types.ts`: `CombatLogDetail`에 `target_id/skill_id/skill` 추가.
+  - `combatEffects.ts`: 위 타입 추가로 `as any` 캐스트 3곳 제거.
+  - `CombatCinema.tsx`: skillName 변경 시 imgError 리셋을 setState-in-effect → render-time 조정 패턴으로 교체(lint 경고 해소).
+- Verified: `make frontend-lint` clean, `make frontend-build` clean, `tests/playwright/test_e2e_play_checklist.py` 전체 그린(스킬 아이콘 PNG 200 로드 확인).
+- Next: Phase 2 연출 polish(live QA), Phase 3 모션 다양화 + reduced-motion.
+
 ## 2026-06-07 — Skill Animation Registry · Skill Icons · Drone Combat Art (working tree)
 
 - Status: [/] 작업 트리 반영, 미커밋. combat 연출/아트 배치 작업의 추가 증분.

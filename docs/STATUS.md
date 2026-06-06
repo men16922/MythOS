@@ -18,6 +18,7 @@ Project MythOS는 로컬 플레이어블 MVP를 넘어 React SPA + FastAPI API +
 - Playwright E2E regression gate with updated timeline synchronizations.
 - Combat presentation overhaul: basic action signal cards, self-targeting 2-poster layouts, and standalone utility skill cinematic zoom triggers.
 - `combatAnim.ts` role/tags skill animation registry wired into `combatEffects.ts`; per-skill icon cut-ins (`skills/<skill_id>.png`) in `CombatCinema`.
+- Phase 4 `CombatControls` 스킬 아이콘 액션바: data-driven 아이콘 타일 + cost/range 배지 + cooldown 오버레이 + FOCUS 게이팅 + tooltip.
 - Drone enemies(`maintenance-drone`, `sentinel-drone`) promoted with full combat action sheets — 4 combat-art enemies total.
 
 Recent verified baseline recorded in docs:

@@ -25,6 +25,7 @@ outputs/*
 .claude/
 .gemini/
 .playwright-mcp/
+.antigravitycli/
 screenshots/
 
 # Tooling Caches

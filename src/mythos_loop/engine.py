@@ -53,6 +53,31 @@ class LoopEngine:
             return LoopTransition(loop=loop, events=[], errors=phase_validation.errors)
 
         state_delta = repaired_payload.world_delta.as_state_delta()
+        # Ensure proper Se-rin flags during the onboarding phase of Neo-Seoul based on player choices
+        scenario_id = loop.state.get("scenario_id") if isinstance(loop.state, dict) else None
+        if scenario_id == "neo-seoul" and scene.turn_index <= 2:
+            flags = state_delta.setdefault("flags", [])
+            action_text = ""
+            if chosen_event is not None and chosen_event.actor == Actor.PLAYER:
+                action_text = chosen_event.action or ""
+            
+            # Keywords matching
+            met_keywords = ["따라", "수락", "동의", "손을", "신뢰", "오토바이", "타기", "탑승", "잡는다", "동행", "협력"]
+            refused_keywords = ["거절", "거부", "혼자", "독자", "경계", "피해", "숨기", "은신", "기다린다", "분석"]
+            
+            is_met = any(kw in action_text for kw in met_keywords)
+            is_refused = any(kw in action_text for kw in refused_keywords)
+            
+            if is_refused and not is_met:
+                if "refused_se_rin" not in flags:
+                    flags.append("refused_se_rin")
+                if "met_se_rin" in flags:
+                    flags.remove("met_se_rin")
+            else:
+                if "met_se_rin" not in flags:
+                    flags.append("met_se_rin")
+                if "refused_se_rin" in flags:
+                    flags.remove("refused_se_rin")
         state = _merge_state(loop.state, state_delta)
         # Lay the scene's location onto the dynamic tile map (persisted in loop.state).
         state = update_map(state, scene.location, scene.turn_index)

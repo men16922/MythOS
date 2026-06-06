@@ -1131,6 +1131,9 @@ class RuntimeSessionService:
             clues_collected=self._clues_collected(player.player_id),
         )
         requested_combat = _requested_combat_id(payload)
+        scenario_id = transition.loop.state.get("scenario_id") if isinstance(transition.loop.state, dict) else None
+        if scenario_id == "neo-seoul" and scene.turn_index < 2:
+            requested_combat = None
         next_combat = requested_combat or triggered_combat
         if next_combat and not CombatService.is_active(transition.loop):
             return self._begin_requested_combat(player, transition.loop, next_combat, options)

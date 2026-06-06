@@ -21,6 +21,7 @@ from typing import Any
 
 _LOCK = threading.RLock()
 _MODELS: dict[int | None, Any] = {}
+_REDUX_MODELS: dict[int | None, Any] = {}
 
 
 def _get_flux(quantize: int | None) -> Any:
@@ -32,6 +33,19 @@ def _get_flux(quantize: int | None) -> Any:
             print(f"Loading mflux FLUX.1-schnell (quantize={quantize}) — one-time…")
             model = Flux1.from_name(model_name="schnell", quantize=quantize)
             _MODELS[quantize] = model
+        return model
+
+
+def _get_flux_redux(quantize: int | None) -> Any:
+    with _LOCK:
+        model = _REDUX_MODELS.get(quantize)
+        if model is None:
+            from mflux.models.common.config.model_config import ModelConfig
+            from mflux.models.flux.variants.redux.flux_redux import Flux1Redux
+
+            print(f"Loading mflux FLUX.1-schnell Redux (quantize={quantize}) — one-time…")
+            model = Flux1Redux(model_config=ModelConfig.schnell(), quantize=quantize)
+            _REDUX_MODELS[quantize] = model
         return model
 
 
@@ -65,6 +79,38 @@ def generate_image_mflux(
 
     image = flux.generate_image(**kwargs)
 
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    image.save(path=str(output_path), overwrite=True)
+    return output_path
+
+
+def generate_image_mflux_redux(
+    prompt: str,
+    output_path: Path,
+    *,
+    reference_path: Path | str,
+    redux_strength: float = 0.9,
+    seed: int = 42,
+    steps: int = 4,
+    width: int = 1024,
+    height: int = 1024,
+    quantize: int | None = 8,
+    guidance: float = 0.0,
+) -> Path:
+    """FLUX Redux identity steering: condition generation on a reference image
+    (e.g. a character portrait) so the rendered face stays consistent without
+    inheriting the reference's composition (unlike img2img)."""
+    flux = _get_flux_redux(quantize)
+    image = flux.generate_image(
+        seed=seed,
+        prompt=prompt,
+        redux_image_paths=[str(reference_path)],
+        redux_image_strengths=[redux_strength],
+        num_inference_steps=steps,
+        width=width,
+        height=height,
+        guidance=guidance,
+    )
     output_path.parent.mkdir(parents=True, exist_ok=True)
     image.save(path=str(output_path), overwrite=True)
     return output_path

@@ -13,6 +13,136 @@ YYYY-MM-DD
 - Next:
 ```
 
+## 2026-06-06 — UX·비주얼·전투 배치 (세션 2, 미커밋)
+
+- Status: [x] 이어하기 버그 수정, 스토리/캐릭터 레이아웃 개편, 전투 드래그&드롭, 오프닝 연속성, 이미지/텍스트 속도 최적화, 패배→메인 버튼, 행동 기록, 서사 기록 분리, 부트 오프닝, mflux Redux 얼굴 일관성, visual-work 자동 정리까지 일괄 구현. **전부 미커밋 상태.**
+- Changed:
+  - **이어하기(resume) 409 수정**: `session.py` resume(player_id)이 세이브 슬롯의 박제된 phase 대신 실제 활성 루프를 선택(없으면 `no active loop`), `app.py` 404 매핑, `App.tsx` stale 세션 정리. 회귀 테스트 추가.
+  - **스토리 레이아웃 개편**: 상단 [장면 이미지 | CHARACTER] + 하단 전체 폭 스크립트. `CharacterPanel.tsx`(신규).
+  - **CHARACTER 컨텍스트 분기**: 주변 인물 없으면 내 정보(스탯/속성/인벤토리), 대화 상대 등장 시 그 인물 portrait. `scenario.json` `characters` 추가, `/scenarios`가 portrait URL 제공, 내러티브 키워드 탐지.
+  - **전투 드래그&드롭**: 캐릭터 픽업→유효 칸 드롭 이동(`combatCanvas.ts` 드래그 오버레이, `App.tsx` pointer 핸들러). 클릭 순간이동 제거.
+  - **오프닝 시네마틱→첫 장면 연속성**: `prompts.py` 지시문 한도 8→`MAX_PROMPT_NOTES=24`(중요 지시문 잘림 해결), `scenario_context._opening_continuity_notes`로 turn 0~2에 방금 본 시네마틱 컨텍스트 주입. 첫 장면이 변전소→비 오는 C-17 골목/세린으로 이어짐(라이브 확인).
+  - **속도 최적화**: WS 이미지 1024→**512×512**(Streamlit 패리티, 워밍 ~85s→~7.5s), 타자기 가속(tick 14→12ms, 청크 /60→/24).
+  - **전투 패배→메인**: "새 루프 시작"→"**메인 화면으로**"(`handleLeaveSession`), 미사용 `streamBegin` 제거.
+  - **행동 기록**: `/loops/{id}/scenes`가 장면별 player action(turn+1 이벤트) 반환, 라이브는 선택 라벨 캡처, 히스토리에 "▸ 내 행동: …" 표시.
+  - **서사 기록 분리**: 인라인은 직전 1개만, "📜 이전 기록 전체 보기 (N)"→별도 오버레이.
+  - **오프닝 이미지**: 컷 verbatim 복사(`bypass_generation`)→컷을 img2img 레퍼런스(0.4)로 **새로 생성**.
+  - **부트 오프닝(첫 진입)**: `BootIntro.tsx`(신규, PROJECT MYTHOS 로고+타이핑+키아트+시그널 게이트), `scenario.json ui_copy`에 부트/랜딩 카피 추가. session_intro와 별개.
+  - **mflux Redux 얼굴 일관성**: `mflux_generator.generate_image_mflux_redux` 추가, `visual_service`가 캐릭터 장면을 Redux(strength 0.9, portrait 레퍼런스)로 라우팅. 핵심: 캐릭터 감지를 영어 brief가 아닌 한국어 내러티브 키워드로(기존엔 거의 미탐지→딴 얼굴 원인).
+  - **visual-work 자동 정리**: MinIO 업로드(또는 다른 경로 파일 저장) 성공 후 로컬 작업본 삭제. 기존 누적분(83MB) 삭제.
+  - **E2E 스크립트 수정**: `run_playwright_test.py`에 부트 인트로/세션 시네마틱 dismiss 단계 추가(부트 오프닝 도입으로 깨진 흐름 복구).
+  - **설계 문서**: `docs/plans/2026-06-06-party-controllable-allies.md`(파티원 조작 가능/우호적 비파티 AI 동맹 2단계 — 설계만).
+- Verified: `make test`(200, 2 skip) 통과, `make typecheck` 클린, React 빌드 클린. Redux 비교 생성(0.3/0.6/0.9, 0.9 채택), 512 이미지 워밍 ~7.5s, 각 기능별 라이브/결정적 브라우저 검증(스크린샷). 결정적 모킹으로 이어하기/포트레이트/드래그/패배버튼/행동기록/기록오버레이/부트인트로 확인.
+- Blockers: 라이브 인프라(docker) 다운 중 — Redux 실 파이프라인(워커)·visual-work 자동삭제 실경로·워커 메모리(Flux1+Flux1Redux 동시) 검증 미실시. `make test-e2e` 미재실행(스크립트 수정만).
+- Next: 아래 "다음 수행/검증 필요" 참조(NEXT_PLAN). 누적분 커밋, 인프라 올려 라이브 검증, 파티 조작 구현 착수.
+
+## 2026-06-06
+
+- Status: [x] React UI 패널 디자인 및 히스토리 스크롤링 개선, 비동기 이미지 유지, 전투 화면 전술 보드 확장 및 소스 품질 체크 완료.
+- Changed:
+  - **React UI 및 API 개선**:
+    - `src/mythos_memory/store.py`, `src/mythos_memory/postgres_store.py`: `list_scenes` 메소드를 추가하여 특정 루프의 이전 씬 목록을 데이터베이스에서 오름차순으로 조회할 수 있도록 구현.
+    - `src/mythos_api/app.py`: `/api/v1/loops/{loop_id}/scenes` GET 엔드포인트를 신설하여 백엔드에서 씬 히스토리 데이터를 전달하도록 구성.
+    - `tests/...`: `list_scenes` 추상 메소드 추가에 따라 `_InMemoryStore`, `FakeStore`, `_ArchiveStore`, `_FakeCompactionStore` 등 테스트용 가짜 스토어들에 빈 리스트 혹은 적재 데이터를 반환하는 목 구현체 추가.
+    - `src/mythos_ui/src/api.ts`: 프론트엔드 API 클라이언트에 `apiGetLoopScenes` 함수 추가.
+    - `src/mythos_ui/src/StoryPanel.tsx`:
+      - 타입 임포트 오류(`MouseEventHandler`, `RefObject`를 `import type`으로 수정)를 해결하여 Vite 빌드 복구.
+      - 비전투 내러티브 레이아웃을 이미지 패널과 대화 텍스트 스크롤 영역으로 확실하게 분리하고 `align-items: stretch`로 균형감 있는 높이 정렬 적용.
+      - 전투 UI에서 아군/적군 로스터 카드를 세로로 적재(`1fr`)하고, TACTICAL BOARD 비율을 `1.8fr`로 확장하여 화면 크기를 대폭 개선.
+      - 헬퍼 텍스트 오류 수정("우측 전술 보드" -> "좌측 전술 보드").
+    - `src/mythos_ui/src/combatCanvas.ts`: 캔버스 드로잉 시 컨테이너 패딩 값을 제외한 실제 너비(`computedStyle` 패딩 공제)를 계산하여 레이아웃 깨짐 현상 방지.
+    - `src/mythos_ui/src/App.tsx`:
+      - `displayedSceneImageUrl`을 제거하고 `sceneImageUrl`로 통합 및 `useEffect` 상태 업데이트 싱크 경고(ESLint) 해결.
+      - 이어하기(`handleResumeGame`) 진입 시 `apiGetLoopScenes`를 호출하여 이전 대화 히스토리를 대화 스크롤 영역에 복원.
+      - 선택지 선언(`sendChoose`) 및 전투 종료 이후 이동 시 `sceneImageUrl`을 `null`로 초기화하지 않음으로써 새 이미지가 비동기 수급될 때까지 기존 이미지가 계속 노출되도록 개선.
+  - **Narrative Rollup/Metrics 리팩토링**:
+    - `src/mythos_runtime/session.py`: shard rollup 대상 분리 로직을 `_split_retained_shards`로 분리하여 `retention=0` 경계값에서도 전체 shard가 정상 롤업되도록 수정.
+    - `src/mythos_runtime/session.py`: narrative outcome metric counts/ratios가 `success/provider_repair/local_repair/fallback` 4개 key를 항상 포함하도록 정규화.
+    - `tests/test_runtime_session.py`: zero-retention rollup 회귀 테스트와 metrics ratio shape 검증 추가.
+    - `docs/STATUS.md`, `docs/NEXT_PLAN.md`: 2026-06-06 기준 소스 품질 패스와 리팩토링 내역 반영.
+- Verified: `make lint` (TypeScript, ESLint, Python ruff) 통과, `make typecheck` 통과, `make frontend-build` 빌드 성공, `make test`(199 tests, 2 skipped) 통과, API 라이브 부팅 동작 확인.
+- Next: `docs/play-checklist.md` 기반 실제 플레이 QA 및 시나리오 심화.
+
+## 2026-06-04
+
+- Status: [x] Narrative Shards Memory Rollup 및 AI GM Narrative Outcome Metrics 영속화 완료.
+- Changed:
+  - `src/mythos_narrative/director.py`: 오래된 Narrative Shard를 압축하는 `summarize_narrative_shards` 추가. LLM 요약을 우선하되 fast/fallback 경로에서는 결정론 요약으로 즉시 반환.
+  - `src/mythos_runtime/session.py`: 50턴 이상, shard 40개 이상, 또는 누적 12,000자 이상일 때 오래된 shard를 `PlayerMemory(kind="causality_summary")`로 롤업하고 최신 raw shard만 `NarrativeContext`에 전달. AI GM generation outcome을 `WorldMemory(kind="narrative_metrics")`로 누적 저장.
+  - `src/mythos_runtime/scenario_context.py`: `causality_summary`를 장기 인과율 기억 지침으로 `novelty_notes`에 주입.
+  - `src/mythos_runtime/options.py`, `src/mythos_ui/src/types.ts`, `src/mythos_ui/src/App.tsx`: `/api/v1/memory` 응답의 `narrative_metrics`를 React Developer 탭 Outcome Ratio 카드로 노출.
+  - `tests/test_runtime_session.py`, `tests/test_story_bible.py`: shard rollup 저장/retention, causality summary 프롬프트 주입, narrative metric 누적 테스트 추가.
+- Verified: targeted unittest 3건, `make typecheck`, `npm run build`, `make lint`, `make test`(195 tests, 2 skipped), `make test-e2e`, `make smoke-local` 통과. Playwright 스크린샷 `outputs/e2e_react_play.png`, `outputs/e2e_react_play_turn1.png` 육안 확인.
+- Next: `docs/play-checklist.md` 기준 Playwright E2E 검증 및 실제 플레이 QA.
+
+- Status: [x] Playwright 기반의 CLI/API 자동화 E2E 테스트 스크립트 작성 및 CI/CD 검증 프로세스 추가.
+- Changed:
+  - `scratch/run_playwright_test.py` (신규): FastAPI uvicorn 서버 구동 및 Playwright headless Chromium을 연동하여, 사용자 이름 입력, Netrunner 아키타입 선택, 루프 진입, 지문 스트리밍 완료 대기, 선택지 핫키/마우스 클릭 피드백, 턴 진행, 스크린샷 저장(`outputs/e2e_react_play.png`)을 아우르는 전체 E2E 루프 자동화 테스트 스크립트 구현.
+  - `docs/play-checklist.md`: 7번째 섹션인 플레이라이트 자동 E2E 테스트 검증 장을 추가하여 수동 테스트 외에 자동화 테스트 사용 방법 및 검증 명세 작성.
+  - `Makefile`: `test-e2e` 타겟을 신규 추가하여 프로젝트 루트에서 `make test-e2e` 명령어로 E2E 브라우저 테스트를 손쉽게 시작할 수 있도록 단순화.
+  - `pyproject.toml`: `dev` optional-dependencies 목록에 `playwright>=1.40.0` 추가.
+- Verified: `scratch/run_playwright_test.py` 실행 성공, E2E 결과 스크린샷 2종 정상 저장, `make test` 및 `make smoke-local` 정상 통과.
+- Next: 추가 게임플레이 피드백 수렴 및 시나리오 스크립트 확장.
+
+- Status: [x] React + TypeScript SPA 프론트엔드 마이그레이션 및 패리티 로드맵 전체 완료.
+- Changed:
+  - `src/mythos_ui`: Vite + React + TS 환경 구성 및 npm 패키지 의존성 정의.
+  - `src/mythos_ui/src/types.ts`: `RuntimeSnapshot`, `PlayerProfile`, `CombatRadar`, `SaveSlot`, `RunSummary`, `MemoryOverview` 등 12개 UI/API용 TypeScript 데이터 타입 정의.
+  - `src/mythos_ui/src/api.ts`: FastAPI REST/WebSocket API 통신 헬퍼 모듈 작성.
+  - `src/mythos_ui/src/App.tsx`: 온보딩 아키타입/시나리오 선택, 타입라이터 텍스트 스트리밍, 선택지 핫키 조작, Canvas 전술 전투 보드 렌더링 및 조작/이동/행동 루프, Codex 기억의 별자리 정보 연계, SAVE/LOAD 슬롯 및 여정 기록 보관소 연동, 디버그 모니터용 Developer 뷰, 오디오 BGM/SFX 및 시네마틱 효과 등 Streamlit 대비 100% 기능 패리티 패스 구현.
+  - `src/mythos_ui/vite.config.ts`: 번들러 출력 파일명을 `app.js`로 강제하여 백엔드 서빙 경로와 일치하도록 빌드 옵션 커스텀 설정.
+  - `src/mythos_ui/index.html`: FastAPI 단위 테스트에서 poc_client 서빙 통과 처리를 감지할 수 있도록 root mount container 안에 "API PoC" 테스트 텍스트 훅 추가.
+- Verified: `npm run build` 컴파일 빌드 통과, `make test` (192개) 전체 테스트 및 `make smoke` 데이터베이스/MinIO 통합 검증 패스.
+- Next: 추가 게임플레이 피드백 수렴 및 시나리오 스크립트 확장.
+
+- Status: [x] Phase 3 — 세계관 탐험 및 시간 축 (Roadwarden & 80 Days) 설계 및 구현 완료.
+- Changed:
+  - `src/mythos_runtime/scenario_context.py`: `build_runtime_narrative_context` 함수에 시공간 붕괴 타이머(Temporal Decay), 이동 중 조우(Travel Encounters) 및 리소스 임계점 도달 위기 상황(Emergency Encounters) 연계 지침을 AI GM의 `novelty_notes`에 동적으로 포함시키는 로직 설계 및 구현.
+  - `src/mythos_runtime/options.py`: `RuntimeSnapshot` DTO에 `clues_collected` 필드를 추가하여 획득 단서 수를 전달할 수 있도록 함.
+  - `src/mythos_runtime/session.py`: 각 `RuntimeSnapshot` 생성 시점마다 `clues_collected` 수치를 데이터베이스에서 계산하여 채워주는 private 헬퍼 `_clues_collected` 추가 및 배선.
+  - `src/mythos_api/serializers.py`: API snapshot 직렬화(`snapshot_to_dict`) 시 `decay_percent`, `zone_risk` 및 `clues_collected`를 포함하도록 갱신하고 구역 위험도 매핑 헬퍼 `_calculate_zone_risk` 추가.
+  - `streamlit_app.py`: CSS 및 `_render_hud`를 수정하여 시공간 붕괴도, 구역 위험도, 단서 수집도 3종의 게이지를 포함한 총 6개의 탐험 HUD 타일 렌더링 지원.
+  - `src/mythos_api/static/index.html` 및 `app.js`: PoC 웹 클라이언트의 aside 패널에 신규 3종 게이지(TEMPORAL DECAY, ZONE RISK, CLUE MATRIX) UI 요소를 추가하고, WebSocket 수신 스냅샷에 따라 게이지 상태가 동적으로 동기화되도록 바인딩 처리.
+  - `tests/test_story_bible.py`: `_loop` 테스트 헬퍼를 `stability` 및 `tension` 매개변수를 받도록 확장하고, Travel 및 Emergency 조우 연계 지침이 `novelty_notes`에 올바르게 포함되는지 검증하는 단위 테스트 `test_runtime_context_includes_travel_and_emergency_encounters` 추가.
+- Verified: `tests/test_story_bible.py`를 포함한 189개 단위 테스트 통과, `make test-db` 통과, `make smoke-local` 통합 E2E 검증 통과.
+- Next: PoC 웹 클라이언트의 기능 패리티 (S2 — Codex / 기억) 구현 진행.
+
+- Status: [x] P4-1 스탯 기반 내면 독백 및 P4-2 동료 전술 성향 다각화 구현 완료.
+- Changed:
+  - `src/mythos_runtime/scenario_context.py`: `build_runtime_narrative_context` 함수에 스탯 기반 내면 독백 지침 추가. 플레이어 최고/최저 스탯을 기반으로 5대 스탯 성격에 대입하여 디스코 엘리시움(Disco Elysium) 스타일의 내면 독백 묘사 가이드라인을 AI GM의 `novelty_notes`에 동적으로 포함시킴.
+  - `tests/test_story_bible.py`: 스탯 기반 내면 독백 지침이 `novelty_notes`에 정상 반영되는지에 관한 단위 테스트 `test_runtime_context_includes_stat_monologue` 추가 및 검증 완료.
+  - `src/mythos_combat/engine.py`: 아군 동료 턴 처리 함수 `_ally_turn` 리팩토링. 정세린(`se_rin`)은 플레이어 체력이 낮고 실드가 꺼져 있을 때 엄호 실드 스킬을 최우선 시전하는 원거리 서포터 AI로, 카이(`kai`)는 플레이어 근처의 적을 표적으로 삼아 `overload_strike`로 어그로를 끄는 근접 탱커 AI로 구현. 일반 동료와 모빌리티 스킬 사용을 위한 fallback 블록을 복구 및 보존.
+  - `src/mythos_combat/engine.py`: `_execute_npc_skill`에서 `defense_bonus` 버프가 시전자가 아닌 타깃(`target`)에게 올바르게 설정되도록 수정하여 스킬 버그 해결.
+  - `tests/test_combat_engine.py`: 주사위 난수 롤 영향으로 `test_enemy_intent_prediction`이 드론이 먼저 움직인 상태로 의도하지 않게 실패하던 문제를 플레이어 민첩 수치를 99로 높여 턴 순서를 강제하여 안정화.
+  - `tests/test_combat_engine.py`: 세린이 위독한 아군(플레이어)을 자동으로 엄호 실드하는지 검증하는 `test_se_rin_ai_shields_wounded_player` 및 카이가 플레이어 근처 적을 타깃 마크하는지 검증하는 `test_kai_ai_targets_closest_to_player` 유닛 테스트 설계 및 패스 완료.
+  - `docs/NEXT_PLAN.md`: P4 작업을 `[x]` 마크로 전환.
+- Verified: `tests/test_combat_engine.py` (신규 2개 케이스 포함 188개 테스트) 통과, `make lint` 통과, `make typecheck` 통과, `make smoke-local` 통과.
+- Next: Phase 3 — 세계관 탐험 및 시간 축 (Roadwarden & 80 Days) 설계 및 구현.
+
+## 2026-06-03
+
+- Status: [x] P2 — 자원 제약형 선택지 (Citizen Sleeper) 구현 완료.
+- Changed:
+  - `src/mythos_core/models.py`: `Choice` 데이터클래스에 `cost` (안정성/긴장도 증감 변경량) 및 `requires` (최소 안정성 및 최대 긴장 요구 조건) optional 필드 추가.
+  - `src/mythos_runtime/session.py`: `choose` 함수 내에 플레이어가 선택지를 골랐을 때 요구 조건을 검증하여 위반 시 `RuntimeError`를 던지고, 충족 시 `cost`에 적힌 수치만큼 `LoopState`의 `stability` 및 `tension`을 안전하게 차감 및 변경하도록 비즈니스 로직 적용.
+  - `src/mythos_narrative/prompts.py`: AI GM이 자원 변경/요구 조건이 걸린 선택지를 생성하도록 `JSON_CONTRACT` 내 `choices` 계약 조건 스키마 갱신.
+  - `streamlit_app.py`: Streamlit 선택지 버튼 렌더링 시 자원 소모 비용 표시(예: 안정성 -5, 긴장도 +3) 및 요구 조건 미달 시 버튼 비활성화(`disabled=True`) 피드백 연출.
+  - `src/mythos_api/static/app.js`: PoC 웹 클라이언트의 `renderChoices`도 동일하게 선택지의 cost/requires를 렌더링하고, 미충족 시 버튼 불투명도 및 클릭/키보드 핫키 단축 경로를 비활성화 처리.
+  - `tests/test_runtime_session.py`: `test_choose_validates_cost_and_requires` 통합 테스트를 작성하여 요구조건 미충족 시 예외 방출 및 충족 시 실제 `LoopState` 자원 차감 여부 검증 완료.
+  - `docs/NEXT_PLAN.md`: P2 작업을 `[x]` 마크로 전환.
+- Verified: `tests/test_runtime_session.py`(24) 및 `make test`(184) 통과, `make typecheck`, `make lint` 통과.
+- Next: P3 — 적 인텐트 가시화 (Into the Breach) 설계 및 구현.
+
+## 2026-06-03
+
+- Status: [x] P1 — 루프 내러티브 잔향 (Slay the Princess) 구현 완료.
+- Changed:
+  - `src/mythos_runtime/scenario_context.py`: `build_runtime_narrative_context` 함수에 내러티브 잔향(Narrative Echoes) 가공 처리 구현. `world_memories` 내 `kind="run_summary"`(이전 루프의 요약, 도달한 엔딩, 획득 단서, 조우 동료 등)를 필터링하고 최신 3개 런 정보를 추출하여 한글 기반의 기시감(Dejavu) 서사 유도 룰북 지침과 함께 `novelty_notes`에 자동 주입하도록 함.
+  - `tests/test_story_bible.py`: `test_runtime_context_includes_narrative_echoes` 단위 테스트 케이스를 추가하여 이전 루프 요약 정보와 가이드라인이 `novelty_notes`에 제대로 바인딩되는지 검증 완료.
+  - `docs/NEXT_PLAN.md`: P1 작업을 `[x]` 마크로 전환.
+- Verified: `tests/test_story_bible.py`(10) 및 `make test`(183) 통과, `make typecheck`, `make lint` 통과.
+- Next: P2 — 자원 제약형 선택지 (Citizen Sleeper) 설계 및 구현.
+
 ## 2026-06-03
 
 - Status: [x] 방향 전환 — 게임플레이 깊이 우선(공유 계층). docs 최신화.

@@ -877,7 +877,7 @@ def _inject_player_css() -> None:
             left: 0;
             height: 2px;
             width: var(--bar-width, 100%);
-            background: linear-gradient(90deg, #29ffc6, rgba(255, 36, 103, 0.8));
+            background: var(--bar-color, linear-gradient(90deg, #29ffc6, rgba(255, 36, 103, 0.8)));
             box-shadow: 0 0 12px rgba(41, 255, 198, 0.62);
         }
         .hud-label {
@@ -2437,7 +2437,8 @@ def _player_active_screen(snapshot: RuntimeSnapshot, options: RuntimeOptions) ->
                     f'<div class="status-line">{_scene_status_line(snapshot)}</div>',
                     unsafe_allow_html=True,
                 )
-                _render_hud(loop, scene)
+                overview = _load_memory_overview(loop.player_id)
+                _render_hud(loop, scene, overview)
                 _render_save_slot_status(loop)
                 script_placeholder = st.empty()
                 transcript = _story_transcript(snapshot)
@@ -2446,8 +2447,6 @@ def _player_active_screen(snapshot: RuntimeSnapshot, options: RuntimeOptions) ->
                     key=f"script:{scene.scene_id}",
                     placeholder=script_placeholder,
                 )
-
-                overview = _load_memory_overview(loop.player_id)
 
                 if loop.phase is LoopPhase.ENDED:
                     st.success("이 세션은 종결되었습니다. 잔향(Echo)이 다음 접속으로 이어집니다.")
@@ -3722,7 +3721,9 @@ def _render_codex_lore(loop: LoopState, overview: MemoryOverview) -> None:
     # 1. Active Echoes (회상 잔향)
     if loop.active_echoes:
         st.subheader(f"회상 잔향 ({len(loop.active_echoes)}개)")
-        st.write("이전 루프에서 남겨진 접속자의 기억 잔해(잔향)들이 현재 세계선에 잔존하여 서사 전개와 인물들의 비의도적 기억 반응에 반영됩니다.")
+        st.write(
+            "이전 루프에서 남겨진 접속자의 기억 잔해(잔향)들이 현재 세계선에 잔존하여 서사 전개와 인물들의 비의도적 기억 반응에 반영됩니다."
+        )
         for echo in loop.active_echoes:
             st.markdown(f"**{echo.symbol}** · {echo.text}")
         st.divider()
@@ -3731,7 +3732,9 @@ def _render_codex_lore(loop: LoopState, overview: MemoryOverview) -> None:
     if overview.rollup:
         loop_count = overview.rollup.get("loop_count", 0)
         st.subheader("압축된 세계선의 기억")
-        st.caption(f"이전 세계들의 흔적 · 총 {loop_count}개의 루프 기록이 기억의 별자리 인프라로 압축되어 영속화되었습니다.")
+        st.caption(
+            f"이전 세계들의 흔적 · 총 {loop_count}개의 루프 기록이 기억의 별자리 인프라로 압축되어 영속화되었습니다."
+        )
         st.divider()
 
     # 3. Unlocked Lore (해금된 세계 정보)
@@ -3849,7 +3852,32 @@ def _render_player_image(snapshot: RuntimeSnapshot) -> None:
             st.rerun()
 
 
-def _render_hud(loop: LoopState, scene: Scene) -> None:
+def _calculate_zone_risk(
+    location_id: str, scenario_id: str, turn_index: int
+) -> tuple[str, int, str]:
+    """Returns (risk_label, risk_percent, bar_color_css)."""
+    loc = (location_id or "").lower()
+    if any(k in loc for k in ["spire", "스파이어"]):
+        return "경보 (Critical)", 100, "linear-gradient(90deg, #ff5b24, #ff2467)"
+    elif any(k in loc for k in ["폐기", "abandoned", "wraith", "underground", "지하"]):
+        return "위험 (High)", 75, "linear-gradient(90deg, #ffd000, #ff5b24)"
+    elif any(k in loc for k in ["야시장", "market", "binder", "hall", "회랑", "열람실"]):
+        return "경계 (Medium)", 50, "linear-gradient(90deg, #29ffc6, #ffd000)"
+    elif any(k in loc for k in ["복지", "welfare", "corridor", "복도", "data-layer"]):
+        return "보통 (Low)", 25, "linear-gradient(90deg, #29ffc6, #29ffc6)"
+
+    # Fallback by turn index
+    if turn_index < 7:
+        return "보통 (Low)", 25, "linear-gradient(90deg, #29ffc6, #29ffc6)"
+    elif turn_index < 19:
+        return "경계 (Medium)", 50, "linear-gradient(90deg, #29ffc6, #ffd000)"
+    elif turn_index < 35:
+        return "위험 (High)", 75, "linear-gradient(90deg, #ffd000, #ff5b24)"
+    else:
+        return "경보 (Critical)", 100, "linear-gradient(90deg, #ff5b24, #ff2467)"
+
+
+def _render_hud(loop: LoopState, scene: Scene, overview: MemoryOverview | None = None) -> None:
     if scene.objective:
         st.markdown(
             f"""
@@ -3863,23 +3891,49 @@ def _render_hud(loop: LoopState, scene: Scene) -> None:
 
     stability = min(max(loop.stability, 0), 100)
     tension = min(max(loop.tension, 0), 100)
+
+    decay_pct = min(100, int((scene.turn_index / 60.0) * 100))
+
+    scenario_id = loop.state.get("scenario_id", "neo-seoul")
+    risk_label, risk_pct, risk_color = _calculate_zone_risk(
+        scene.location, scenario_id, scene.turn_index
+    )
+
+    clues_collected = len(overview.narrative_shards) if overview else 0
+    clue_pct = min(100, int((clues_collected / 16.0) * 100))
+
     st.markdown(
         f"""
         <div class="hud-grid">
-          <div class="hud-tile" style="--bar-width: 100%">
+          <div class="hud-tile" style="--bar-width: 100%; --bar-color: linear-gradient(90deg, #29ffc6, #00ffd5)">
             <div class="hud-label">작전 단계</div>
             <div class="hud-value">{_act_label(loop.phase)}</div>
             <div class="hud-sub">TURN {scene.turn_index:02d}</div>
           </div>
-          <div class="hud-tile" style="--bar-width: {stability}%">
+          <div class="hud-tile" style="--bar-width: {stability}%; --bar-color: linear-gradient(90deg, #29ffc6, #ffd000)">
             <div class="hud-label">은신 안정도</div>
             <div class="hud-value">{loop.stability}</div>
             <div class="hud-sub">SIGNAL HOLD</div>
           </div>
-          <div class="hud-tile" style="--bar-width: {tension}%">
+          <div class="hud-tile" style="--bar-width: {tension}%; --bar-color: linear-gradient(90deg, #ffd000, #ff2467)">
             <div class="hud-label">관리망 추적도</div>
             <div class="hud-value">{loop.tension}</div>
             <div class="hud-sub">CONTROL NET</div>
+          </div>
+          <div class="hud-tile" style="--bar-width: {decay_pct}%; --bar-color: linear-gradient(90deg, #ffd000, #ff5b24)">
+            <div class="hud-label">시공간 붕괴도</div>
+            <div class="hud-value">{decay_pct}%</div>
+            <div class="hud-sub">TEMPORAL DECAY</div>
+          </div>
+          <div class="hud-tile" style="--bar-width: {risk_pct}%; --bar-color: {risk_color}">
+            <div class="hud-label">구역 위험도</div>
+            <div class="hud-value" style="font-size: 1.25rem; margin-top: 13px;">{risk_label}</div>
+            <div class="hud-sub">ZONE RISK</div>
+          </div>
+          <div class="hud-tile" style="--bar-width: {clue_pct}%; --bar-color: linear-gradient(90deg, #00ffe6, #0088ff)">
+            <div class="hud-label">단서 수집도</div>
+            <div class="hud-value">{clues_collected} / 16</div>
+            <div class="hud-sub">CLUE MATRIX</div>
           </div>
         </div>
         """,
@@ -4422,7 +4476,7 @@ def _render_combat_arena_fragment(options: RuntimeOptions) -> None:
                 outcome = str(exit_data.get("outcome", ""))
                 if outcome == "player_defeat" or loop.phase is LoopPhase.ENDED:
                     _run_action(
-                        lambda service: service.resume(loop.loop_id),
+                        lambda service: service.archive(loop.loop_id),
                         on_success=_set_snapshot,
                     )
                     st.rerun()
@@ -4638,7 +4692,14 @@ def _load_current_snapshot() -> RuntimeSnapshot | None:
     try:
         store = PostgresMythOSStore()
         try:
-            return RuntimeSessionService(store).resume(loop_id=st.session_state.loop_id)
+            loop_id = st.session_state.get("loop_id")
+            if not loop_id:
+                return None
+            loop = store.get_loop(loop_id)
+            service = RuntimeSessionService(store)
+            if loop and loop.phase is LoopPhase.ENDED:
+                return service.archive(loop_id=loop_id)
+            return service.resume(loop_id=loop_id)
         finally:
             store.close()
     except Exception as exc:
@@ -4679,6 +4740,7 @@ def _load_save_slots(player_id: str) -> list[SaveSlot]:
             store.close()
     except Exception as exc:
         import traceback
+
         traceback.print_exc()
         st.error(f"저장 슬롯 로드 중 오류 발생: {exc}")
         st.session_state.error = str(exc)

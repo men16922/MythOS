@@ -1,8 +1,10 @@
 import unittest
+from dataclasses import replace
 from datetime import UTC, datetime
 from typing import Any, cast
 
 from mythos_core import (
+    Choice,
     LoopPhase,
     LoopState,
     NarrativeShard,
@@ -24,6 +26,8 @@ from mythos_runtime.session import (
     _initial_loop_scores,
     _merge_archive_rollup,
     _player_rollup,
+    _prepare_narrative_memory_context,
+    _save_narrative_metric_memory,
 )
 from mythos_runtime.visual_orchestration import is_key_beat
 
@@ -120,6 +124,12 @@ class _FakeMemoryStore(MythOSStore):
 
     def get_latest_scene(self, loop_id):
         return self._scenes.get(loop_id)
+
+    def list_scenes(self, loop_id: str) -> list:
+        val = self._scenes.get(loop_id)
+        if isinstance(val, list):
+            return val
+        return [val] if val is not None else []
 
     def create_player(self, player) -> None:
         pass
@@ -421,6 +431,10 @@ class _SummaryDirector:
     def summarize_loop(self, events):
         return f"요약된 접속 기록 {len(events)}건."
 
+    def summarize_narrative_shards(self, shards, *, existing_summary=None, use_llm=True):
+        prefix = f"{existing_summary} " if existing_summary else ""
+        return f"{prefix}장기 shard {len(shards)}개 요약."
+
 
 class _ArchiveStore(MythOSStore):
     def __init__(self) -> None:
@@ -462,6 +476,9 @@ class _ArchiveStore(MythOSStore):
             if scene.turn_index == turn_index:
                 return scene
         return None
+
+    def list_scenes(self, loop_id: str) -> list:
+        return self.scenes.get(loop_id, [])
 
     def append_event(self, event) -> None:
         self.events.append(event)
@@ -676,6 +693,54 @@ class RunHistoryTest(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             service.resume(loop_id="loop_ended")
 
+    def test_resume_by_player_skips_loop_that_ended_after_save(self) -> None:
+        # A save slot is created while the loop is active; the loop later ENDs.
+        # Player-resume must skip the stale slot rather than 409 on an ended loop.
+        now = datetime(2026, 6, 3, tzinfo=UTC)
+        store = _ArchiveStore()
+        store.create_player(
+            PlayerProfile(
+                player_id="player_1",
+                display_name="Connector",
+                created_at=now,
+                updated_at=now,
+            )
+        )
+        loop = LoopState(
+            loop_id="loop_x",
+            player_id="player_1",
+            seed="seed_x",
+            phase=LoopPhase.INTERACT,
+            location_id="loc",
+            stability=50,
+            tension=40,
+            started_at=now,
+            state={"scenario_id": "neo-seoul"},
+        )
+        store.save_loop(loop)
+        store.save_scene(
+            Scene(
+                scene_id="scene_x",
+                loop_id="loop_x",
+                turn_index=2,
+                title="Scene",
+                location="loc",
+                narration="n",
+                choices=[],
+                visual_brief="",
+                created_at=now,
+            )
+        )
+        service = RuntimeSessionService(store, director=None)
+        service.save_slot("loop_x", label="Mid-run")
+
+        # The loop subsequently ends (archived to run history).
+        store.save_loop(replace(loop, phase=LoopPhase.ENDED, ended_at=_at(now, 1)))
+
+        with self.assertRaises(RuntimeError) as ctx:
+            service.resume(player_id="player_1", options=RuntimeOptions(fallback=True))
+        self.assertIn("no active loop", str(ctx.exception))
+
 
 class _FakeCompactionStore(MythOSStore):
     """In-memory store covering the surface _compact_player_archives touches."""
@@ -716,6 +781,9 @@ class _FakeCompactionStore(MythOSStore):
 
     def get_latest_scene(self, loop_id) -> None:
         return None
+
+    def list_scenes(self, loop_id: str) -> list:
+        return []
 
     def save_scene(self, scene) -> None:
         pass
@@ -864,6 +932,108 @@ class ArchiveRollupTest(unittest.TestCase):
         self.assertIn("rollup_trend", adjustment["reasons"])
         self.assertEqual(adjustment["rollup_loops"], 6)
 
+    def test_narrative_shard_rollup_persists_summary_and_retains_recent_raw_shards(self) -> None:
+        store = _ArchiveStore()
+        shards = [
+            NarrativeShard(
+                shard_id=f"shard_{i}",
+                loop_id=f"loop_{i // 2}",
+                player_id="player_1",
+                symbol=f"symbol_{i}",
+                emotional_tone="uneasy" if i % 2 else "resolved",
+                text=f"오래된 장면 파편 {i}",
+                weight=1.0,
+                created_at=_at(self.now, i),
+                kind="clue" if i % 3 == 0 else "general",
+            )
+            for i in range(5)
+        ]
+
+        memories, retained = _prepare_narrative_memory_context(
+            store,
+            _SummaryDirector(),
+            "player_1",
+            [],
+            shards,
+            turn_index=51,
+            use_llm=False,
+            retention=2,
+            trigger_turn=50,
+            trigger_count=40,
+            trigger_chars=12_000,
+        )
+
+        self.assertEqual([shard.shard_id for shard in retained], ["shard_3", "shard_4"])
+        summaries = [memory for memory in store.player_memories if memory.kind == "causality_summary"]
+        self.assertEqual(len(summaries), 1)
+        summary = summaries[0]
+        self.assertEqual(summary.content["shard_count"], 3)
+        self.assertEqual(summary.content["covered_shard_ids"], ["shard_0", "shard_1", "shard_2"])
+        self.assertIn("symbol_0", summary.content["clue_symbols"])
+        self.assertIn("장기 shard 3개 요약", summary.content["summary_text"])
+        self.assertEqual([memory.kind for memory in memories], ["causality_summary"])
+
+    def test_narrative_shard_rollup_handles_zero_retention(self) -> None:
+        store = _ArchiveStore()
+        shards = [
+            NarrativeShard(
+                shard_id=f"shard_{i}",
+                loop_id="loop_1",
+                player_id="player_1",
+                symbol=f"symbol_{i}",
+                emotional_tone="uneasy",
+                text=f"오래된 장면 파편 {i}",
+                weight=1.0,
+                created_at=_at(self.now, i),
+            )
+            for i in range(3)
+        ]
+
+        _, retained = _prepare_narrative_memory_context(
+            store,
+            _SummaryDirector(),
+            "player_1",
+            [],
+            shards,
+            turn_index=51,
+            use_llm=False,
+            retention=0,
+        )
+
+        self.assertEqual(retained, [])
+        summary = next(memory for memory in store.player_memories if memory.kind == "causality_summary")
+        self.assertEqual(summary.content["covered_shard_ids"], ["shard_0", "shard_1", "shard_2"])
+
+    def test_narrative_metric_memory_accumulates_outcomes(self) -> None:
+        store = _ArchiveStore()
+
+        _save_narrative_metric_memory(
+            store,
+            player_id="player_1",
+            loop_id="loop_1",
+            outcome="success",
+        )
+        updated = _save_narrative_metric_memory(
+            store,
+            player_id="player_1",
+            loop_id="loop_1",
+            outcome="fallback",
+        )
+
+        self.assertEqual(updated.kind, "narrative_metrics")
+        self.assertEqual(
+            updated.content["counts"],
+            {"success": 1, "provider_repair": 0, "local_repair": 0, "fallback": 1},
+        )
+        self.assertEqual(updated.content["total"], 2)
+        self.assertEqual(updated.content["degraded"], 1)
+        self.assertEqual(updated.content["success_ratio"], 0.5)
+        self.assertEqual(
+            updated.content["ratios"],
+            {"success": 0.5, "provider_repair": 0.0, "local_repair": 0.0, "fallback": 0.5},
+        )
+        self.assertEqual(updated.content["last_outcome"], "fallback")
+
     def test_archive_resolves_ending(self) -> None:
         now = datetime(2026, 6, 3, tzinfo=UTC)
         store = _ArchiveStore()
@@ -918,6 +1088,191 @@ class ArchiveRollupTest(unittest.TestCase):
         self.assertIsNotNone(archived_loop)
         self.assertEqual(archived_loop.state.get("ending_id"), "ending_name_restored")
         self.assertEqual(archived_loop.state.get("ending_label"), "이름의 복원")
+
+    def test_choose_validates_cost_and_requires(self) -> None:
+        now = datetime(2026, 6, 3, tzinfo=UTC)
+        store = _ArchiveStore()
+        store.create_player(
+            PlayerProfile(
+                player_id="player_1",
+                display_name="Connector",
+                created_at=now,
+                updated_at=now,
+            )
+        )
+        store.save_loop(
+            LoopState(
+                loop_id="loop_1",
+                player_id="player_1",
+                seed="seed_1",
+                phase=LoopPhase.EXPLORE,
+                location_id="catalog-hall",
+                stability=20,
+                tension=50,
+                started_at=now,
+                state={"scenario_id": "glass-library"},
+            )
+        )
+        store.save_scene(
+            Scene(
+                scene_id="scene_1",
+                loop_id="loop_1",
+                turn_index=0,
+                title="갈림길",
+                location="catalog-hall",
+                narration="갈림길이 나타났다.",
+                choices=[
+                    Choice(
+                        choice_id="choice_ok",
+                        label="안전하게 전진",
+                        intent="explore",
+                        cost={"stability": -5, "tension": 10},
+                        requires={"stability_min": 10},
+                    ),
+                    Choice(
+                        choice_id="choice_fail_req",
+                        label="위험한 돌파",
+                        intent="explore",
+                        requires={"stability_min": 30},
+                    ),
+                ],
+                visual_brief="",
+                created_at=now,
+            )
+        )
+
+        class _FakeDirector:
+            def generate_next_scene(self, context):
+                from mythos_narrative import ScenePayload
+
+                payload = ScenePayload(
+                    title="다음 씬",
+                    location="catalog-hall",
+                    narration="무사히 진행했다.",
+                    choices=[Choice(choice_id="dummy", label="계속", intent="explore")],
+                    visual_brief="",
+                )
+                scene = Scene(
+                    scene_id="scene_2",
+                    loop_id="loop_1",
+                    turn_index=1,
+                    title="다음 씬",
+                    location="catalog-hall",
+                    narration="무사히 진행했다.",
+                    choices=[Choice(choice_id="dummy", label="계속", intent="explore")],
+                    visual_brief="",
+                    created_at=now,
+                )
+                return scene, payload
+
+        service = RuntimeSessionService(store, director=cast(Any, _FakeDirector()))
+
+        # 1. 요구 조건 미충족 시 선택 실패 검증
+        with self.assertRaises(RuntimeError) as ctx:
+            service.choose("loop_1", choice_id="choice_fail_req")
+        self.assertIn("안정성", str(ctx.exception))
+        self.assertIn("30 이상", str(ctx.exception))
+
+        # 2. 요구 조건 충족 및 비용 차감 검증
+        service.choose("loop_1", choice_id="choice_ok")
+
+        updated_loop = store.get_loop("loop_1")
+        self.assertIsNotNone(updated_loop)
+        self.assertEqual(updated_loop.stability, 15)
+        self.assertEqual(updated_loop.tension, 60)
+
+    def test_stream_choose_validates_cost_and_requires(self) -> None:
+        now = datetime(2026, 6, 3, tzinfo=UTC)
+        store = _ArchiveStore()
+        store.create_player(
+            PlayerProfile(
+                player_id="player_1",
+                display_name="Connector",
+                created_at=now,
+                updated_at=now,
+            )
+        )
+        store.save_loop(
+            LoopState(
+                loop_id="loop_1",
+                player_id="player_1",
+                seed="seed_1",
+                phase=LoopPhase.EXPLORE,
+                location_id="catalog-hall",
+                stability=20,
+                tension=50,
+                started_at=now,
+                state={"scenario_id": "glass-library"},
+            )
+        )
+        store.save_scene(
+            Scene(
+                scene_id="scene_1",
+                loop_id="loop_1",
+                turn_index=0,
+                title="갈림길",
+                location="catalog-hall",
+                narration="갈림길이 나타났다.",
+                choices=[
+                    Choice(
+                        choice_id="choice_ok",
+                        label="안전하게 전진",
+                        intent="explore",
+                        cost={"stability": -5, "tension": 10},
+                        requires={"stability_min": 10},
+                    ),
+                    Choice(
+                        choice_id="choice_fail_req",
+                        label="위험한 돌파",
+                        intent="explore",
+                        requires={"stability_min": 30},
+                    ),
+                ],
+                visual_brief="",
+                created_at=now,
+            )
+        )
+
+        class _FakeStreamDirector:
+            def stream_next_scene(self, context):
+                from mythos_narrative import NarrativeStreamEvent, ScenePayload
+
+                payload = ScenePayload(
+                    title="다음 씬",
+                    location="catalog-hall",
+                    narration="무사히 진행했다.",
+                    choices=[Choice(choice_id="dummy", label="계속", intent="explore")],
+                    visual_brief="",
+                )
+                scene = Scene(
+                    scene_id="scene_2",
+                    loop_id="loop_1",
+                    turn_index=1,
+                    title="다음 씬",
+                    location="catalog-hall",
+                    narration="무사히 진행했다.",
+                    choices=[Choice(choice_id="dummy", label="계속", intent="explore")],
+                    visual_brief="",
+                    created_at=now,
+                )
+                yield NarrativeStreamEvent(kind="text", text=scene.narration)
+                yield NarrativeStreamEvent(kind="final", scene=scene, payload=payload)
+
+        service = RuntimeSessionService(store, director=cast(Any, _FakeStreamDirector()))
+        options = RuntimeOptions()
+
+        with self.assertRaises(RuntimeError) as ctx:
+            list(service.stream_choose("loop_1", choice_id="choice_fail_req", options=options))
+        self.assertIn("안정성", str(ctx.exception))
+        self.assertIn("30 이상", str(ctx.exception))
+
+        events = list(service.stream_choose("loop_1", choice_id="choice_ok", options=options))
+        self.assertEqual(events[-1].kind, "final")
+
+        updated_loop = store.get_loop("loop_1")
+        self.assertIsNotNone(updated_loop)
+        self.assertEqual(updated_loop.stability, 15)
+        self.assertEqual(updated_loop.tension, 60)
 
 
 def _at(base, offset_seconds):

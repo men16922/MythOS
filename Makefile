@@ -2,23 +2,47 @@ PYTHON ?= python3
 VENV ?= .venv
 COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.local.yml
+FRONTEND_DIR ?= src/mythos_ui
 
-.PHONY: setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db narrative-smoke narrative-smoke-fallback visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop lint format typecheck
+.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop lint python-lint frontend-lint format typecheck python-typecheck frontend-build check
 
 setup:
 	$(PYTHON) -m venv $(VENV)
 	$(VENV)/bin/python -m pip install --upgrade pip
 	$(VENV)/bin/pip install -e ".[dev,web]"
+	$(MAKE) frontend-setup
+
+frontend-setup:
+	cd $(FRONTEND_DIR) && npm ci
 
 lint:
+	$(MAKE) python-lint
+	$(MAKE) frontend-lint
+
+python-lint:
 	$(VENV)/bin/ruff check .
+
+frontend-lint:
+	cd $(FRONTEND_DIR) && npm run lint
 
 format:
 	$(VENV)/bin/ruff format .
 	$(VENV)/bin/ruff check --select I --fix .
 
 typecheck:
+	$(MAKE) python-typecheck
+	$(MAKE) frontend-build
+
+python-typecheck:
 	$(VENV)/bin/mypy src tests
+
+frontend-build:
+	cd $(FRONTEND_DIR) && npm run build
+
+check:
+	$(MAKE) lint
+	$(MAKE) typecheck
+	$(MAKE) test
 
 doctor:
 	$(VENV)/bin/python agent.py --doctor
@@ -37,6 +61,12 @@ test:
 
 test-db:
 	MYTHOS_LOG_LEVEL=ERROR MYTHOS_RUN_DB_TESTS=1 $(VENV)/bin/python -m unittest discover -s tests -p 'test_postgres_store.py'
+
+test-e2e:
+	$(VENV)/bin/python scratch/run_playwright_test.py
+
+test-e2e-full:
+	$(VENV)/bin/python scratch/run_comprehensive_e2e_test.py
 
 narrative-smoke:
 	$(VENV)/bin/python -m mythos_narrative.smoke

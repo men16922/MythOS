@@ -99,6 +99,7 @@ class ApiScenariosTest(unittest.TestCase):
         self.assertTrue(neo["name"])
         self.assertTrue(neo["archetypes"])
         self.assertTrue(neo["archetypes"][0]["name"])
+        self.assertIn("endings", neo)
 
 
 class ApiNarrativeFlowTest(unittest.TestCase):
@@ -222,7 +223,7 @@ class _FakeStorage:
     def presigned_url(self, storage_uri: str, expires_in: int = 600) -> str:
         if not storage_uri.startswith("s3://"):
             return storage_uri
-        return f"https://signed.example/{storage_uri[len('s3://'):]}?ttl={expires_in}"
+        return f"https://signed.example/{storage_uri[len('s3://') :]}?ttl={expires_in}"
 
 
 class ApiAssetResolveTest(unittest.TestCase):
@@ -342,6 +343,59 @@ class ApiCombatFlowTest(unittest.TestCase):
         body = response.json()
         self.assertTrue(body["ok"])
         self.assertIn("combat", body)
+
+
+class ApiParityEndpointsTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.store = _InMemoryStore()
+        self.client = _client(self.store)
+        self.client.post(
+            "/api/v1/auth/connect",
+            json={"display_name": "테스터", "player_id": "player_test"},
+        )
+        self.begin_resp = self.client.post(
+            "/api/v1/loops/begin",
+            json={"player_id": "player_test", "fallback": True},
+        ).json()
+        self.loop_id = self.begin_resp["loop_id"]
+
+    def test_get_memory_overview(self) -> None:
+        response = self.client.get("/api/v1/memory", params={"player_id": "player_test"})
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertIn("narrative_shards", body)
+        self.assertIn("run_summaries", body)
+
+    def test_save_slots_flow(self) -> None:
+        # 1. Get initial slots
+        response = self.client.get("/api/v1/save-slots", params={"player_id": "player_test"})
+        self.assertEqual(response.status_code, 200)
+        slots_before = response.json()["slots"]
+        self.assertEqual(len(slots_before), 1)
+        self.assertNotEqual(slots_before[0]["label"], "테스트 수동 저장")
+
+        # 2. Make a manual save slot
+        save_resp = self.client.post(
+            "/api/v1/save-slots",
+            json={"loop_id": self.loop_id, "label": "테스트 수동 저장"},
+        )
+        self.assertEqual(save_resp.status_code, 200)
+        saved_slot = save_resp.json()
+        self.assertEqual(saved_slot["loop_id"], self.loop_id)
+        self.assertEqual(saved_slot["label"], "테스트 수동 저장")
+
+        # 3. Verify slot list has the updated slot
+        response = self.client.get("/api/v1/save-slots", params={"player_id": "player_test"})
+        self.assertEqual(response.status_code, 200)
+        slots_after = response.json()["slots"]
+        self.assertEqual(len(slots_after), 1)
+        self.assertEqual(slots_after[0]["label"], "테스트 수동 저장")
+
+    def test_get_runs(self) -> None:
+        response = self.client.get("/api/v1/runs", params={"player_id": "player_test"})
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertIn("runs", body)
 
 
 if __name__ == "__main__":

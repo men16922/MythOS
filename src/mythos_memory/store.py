@@ -66,6 +66,10 @@ class MythOSStore(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def list_scenes(self, loop_id: str) -> list[Scene]:
+        raise NotImplementedError
+
+    @abstractmethod
     def save_player_memory(self, memory: PlayerMemory) -> None:
         raise NotImplementedError
 

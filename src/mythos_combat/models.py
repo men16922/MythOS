@@ -81,6 +81,15 @@ class Combatant:
 
 
 @dataclass
+class EnemyIntent:
+    enemy_id: str
+    action: str  # "attack" | "move" | "flee" | "idle"
+    target_x: int
+    target_y: int
+    target_name: str | None = None
+
+
+@dataclass
 class CombatLogEntry:
     round: int
     actor: str
@@ -104,6 +113,7 @@ class CombatState:
     seed: str = ""
     rng_cursor: int = 0
     encounter_id: str | None = None
+    enemy_intents: list[EnemyIntent] = field(default_factory=list)
 
     def by_id(self, combatant_id: str | None) -> Combatant | None:
         return next((c for c in self.combatants if c.id == combatant_id), None)

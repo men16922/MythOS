@@ -1,5 +1,9 @@
 .DS_Store
 .venv/
+node_modules/
+src/mythos_ui/node_modules/
+src/mythos_ui/.vite/
+src/mythos_ui/.vite-temp/
 __pycache__/
 *.py[cod]
 *.egg-info/

@@ -120,6 +120,21 @@ class MfluxProvider:
 
         reference_image = request.metadata.get("reference_image")
         ref = reference_image if reference_image and Path(reference_image).exists() else None
+        if ref and request.metadata.get("use_redux"):
+            from mythos_image_agent.mflux_generator import generate_image_mflux_redux
+
+            return generate_image_mflux_redux(
+                prompt=request.prompt,
+                output_path=output_path,
+                reference_path=ref,
+                redux_strength=float(request.metadata.get("redux_strength", 0.9)),
+                seed=request.seed,
+                steps=request.steps,
+                width=request.width,
+                height=request.height,
+                quantize=self.config.mflux_quantize,
+                guidance=self.config.guidance_scale,
+            )
         return generate_image_mflux(
             prompt=request.prompt,
             output_path=output_path,
@@ -326,6 +341,22 @@ class VisualService:
                 storage_ms = round((perf_counter() - storage_start) * 1000, 3)
                 set_span_attribute("mythos.visual.storage_ms", storage_ms)
 
+                # Remove the local working copy now that the canonical artifact is
+                # stored elsewhere (MinIO upload, or a filesystem copy at a
+                # different path). Skip when the stored artifact IS this file
+                # (filesystem adapter pointed at the work dir). Prevents the
+                # outputs/visual-work/ dir from growing unbounded.
+                stored_is_work_file = (
+                    not storage_uri.startswith("s3://")
+                    and Path(storage_uri).resolve() == generated_path.resolve()
+                )
+                if not stored_is_work_file:
+                    try:
+                        generated_path.unlink(missing_ok=True)
+                        generated_path.parent.rmdir()  # best-effort: remove empty loop dir
+                    except OSError:
+                        pass
+
             overall_ms = round((perf_counter() - overall_start) * 1000, 3)
             # Record detailed segments in request metadata
             detailed_request = replace(
@@ -391,19 +422,17 @@ class VisualService:
         if player and isinstance(player.traits, dict):
             autonomy_level = int(player.traits.get("autonomy_level", 1))
 
-        # Character/Concept Detection for img2img (Identity/Mood steering)
+        # Character / Concept detection for identity-steered generation.
+        # Detection scans the Korean narration (+title +brief) because the LLM's
+        # English visual_brief rarely contains the character id, so matching only
+        # the prompt missed almost every character scene → faces drifted.
         reference_image = None
         detected_tag = None
+        is_character = False
         lower_prompt = prompt.lower()
+        detect_text = f"{scene.narration} {scene.title} {prompt}".lower()
 
-        # 1. Check characters first (highest priority for identity)
-        for key, rel_path in scenario.character_map.items():
-            if key in lower_prompt:
-                reference_image = str(PROJECT_ROOT / "resources" / scenario_id / rel_path)
-                detected_tag = key
-                break
-
-        # 0. Check for opening cinematic shots on initial connect turns
+        # 0. Opening cinematic turns keep the curated cut (visual continuity).
         if (
             scene.turn_index <= 2
             and scene.objective
@@ -424,7 +453,29 @@ class VisualService:
                 reference_image = str(PROJECT_ROOT / "resources" / scenario_id / rel_path)
                 detected_tag = f"opening_shot_{scene.turn_index}"
 
-        # 2. Check concept images if no character detected
+        # 1. Known character present (by keyword) → steer identity to their portrait.
+        if not reference_image:
+            for entry in scenario.characters:
+                image = str(entry.get("image", "")).strip()
+                keywords = entry.get("keywords", [])
+                if not image or not isinstance(keywords, list):
+                    continue
+                if any(str(kw).lower() in detect_text for kw in keywords if str(kw).strip()):
+                    reference_image = str(PROJECT_ROOT / "resources" / scenario_id / image)
+                    detected_tag = Path(image).stem  # stable, language-neutral tag
+                    is_character = True
+                    break
+
+        # 1b. Fallback to legacy character_map (id appears in the English brief).
+        if not reference_image:
+            for key, rel_path in scenario.character_map.items():
+                if key in lower_prompt:
+                    reference_image = str(PROJECT_ROOT / "resources" / scenario_id / rel_path)
+                    detected_tag = key
+                    is_character = True
+                    break
+
+        # 2. Concept images if no character detected.
         if not reference_image:
             for key, rel_path in scenario.concept_map.items():
                 if key in lower_prompt:
@@ -436,17 +487,23 @@ class VisualService:
             **overrides.get("metadata", {}),
             "overlay_title": scene.location,
             "overlay_status": [f"SIGNAL: {player_id[:8]}", f"LOC: {scene.location}"],
-            "img2img_strength": 0.6
-            if (detected_tag and detected_tag in scenario.character_map)
-            else 0.45,
+            "img2img_strength": 0.45,
             "autonomy_level": autonomy_level,
         }
         if reference_image:
             metadata["reference_image"] = reference_image
             metadata["detected_tag"] = detected_tag
-            if detected_tag and detected_tag.startswith("opening_shot"):
-                metadata["bypass_generation"] = True
-            elif detected_tag and detected_tag in scenario.character_map:
+            if detected_tag and str(detected_tag).startswith("opening_shot"):
+                # Fresh scene guided by the opening cut (not a verbatim copy).
+                metadata["img2img_strength"] = 0.4
+            elif is_character:
+                # Redux identity steering keeps the character's face consistent
+                # with their portrait without inheriting the reference composition.
+                metadata["use_redux"] = True
+                metadata["redux_strength"] = overrides.get("metadata", {}).get(
+                    "redux_strength", 0.9
+                )
+                # Kept for the diffusers (LocalFluxProvider) backend fallback.
                 metadata["use_ip_adapter"] = True
                 metadata["ip_adapter_scale"] = overrides.get("metadata", {}).get(
                     "ip_adapter_scale", 0.6

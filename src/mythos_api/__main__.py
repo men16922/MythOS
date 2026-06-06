@@ -1,7 +1,7 @@
 """Entry point: run the MythOS FastAPI adapter with uvicorn.
 
-    python -m mythos_api            # or: mythos-api
-    MYTHOS_API_HOST / MYTHOS_API_PORT override the bind address.
+python -m mythos_api            # or: mythos-api
+MYTHOS_API_HOST / MYTHOS_API_PORT override the bind address.
 """
 
 from __future__ import annotations

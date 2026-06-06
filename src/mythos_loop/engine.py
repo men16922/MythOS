@@ -22,7 +22,7 @@ class LoopTransition:
 
     @property
     def ok(self) -> bool:
-        return not self.errors
+        return not any(err.is_fatal for err in self.errors)
 
 
 class LoopEngine:
@@ -37,7 +37,8 @@ class LoopEngine:
         chosen_event: WorldEvent | None = None,
     ) -> LoopTransition:
         validation = self.validator.validate_scene_payload(loop, scene, payload)
-        if not validation.ok:
+        has_fatal = any(err.is_fatal for err in validation.errors)
+        if has_fatal:
             return LoopTransition(loop=loop, events=[], errors=validation.errors)
 
         if chosen_event is not None:
@@ -199,7 +200,14 @@ def _merge_state(state: dict, state_delta: dict) -> dict:
     hp = state_delta.get("hp")
     if isinstance(hp, int):
         party = dict(merged.get("_party", {}))
-        party["player_hp"] = max(0, hp)
+        current_hp = party.get("player_hp")
+        max_hp = party.get("player_max_hp")
+        if max_hp is None:
+            max_hp = 15
+        if current_hp is None:
+            current_hp = max_hp
+        party["player_hp"] = max(0, min(max_hp, current_hp + hp))
+        party["player_max_hp"] = max_hp
         merged["_party"] = party
     spawn_encounters = state_delta.get("spawn_encounters", [])
     if isinstance(spawn_encounters, list) and spawn_encounters:

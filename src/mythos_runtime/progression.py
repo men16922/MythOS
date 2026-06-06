@@ -1,9 +1,19 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
-from mythos_core import PlayerMemory
+from mythos_core import (
+    LoopState,
+    NarrativeShard,
+    PlayerMemory,
+    Scene,
+    WorldEvent,
+    WorldMemory,
+)
+from mythos_core.clock import utc_now
+from mythos_core.ids import new_memory_id
+from mythos_memory import MythOSStore
 from mythos_runtime.options import RunSummary
 
 
@@ -285,3 +295,174 @@ def _item_id(item: Any) -> str:
     if isinstance(item, dict):
         return str(item.get("id") or item.get("item") or item)
     return str(item)
+
+
+def _run_summary_from_memory(memory: WorldMemory) -> RunSummary:
+    content = memory.content
+    metadata = content.get("metadata")
+    return RunSummary(
+        run_id=str(content.get("run_id") or f"run_{content.get('loop_id', memory.memory_id)}"),
+        player_id=str(content.get("player_id") or ""),
+        loop_id=str(content.get("loop_id") or ""),
+        scenario_id=str(content.get("scenario_id") or "neo-seoul"),
+        started_at=str(content.get("started_at") or memory.created_at.isoformat()),
+        ended_at=str(content.get("ended_at") or memory.created_at.isoformat()),
+        ending_id=str(content["ending_id"]) if content.get("ending_id") is not None else None,
+        ending_label=str(content.get("ending_label") or "Archived Loop"),
+        final_title=str(content.get("final_title") or "Untitled Run"),
+        final_location=str(content.get("final_location") or ""),
+        phase=str(content.get("phase") or "ended"),
+        stability=int(content.get("stability") or 0),
+        tension=int(content.get("tension") or 0),
+        turns=int(content.get("turns") or 0),
+        combats_won=int(content.get("combats_won") or 0),
+        combats_lost=int(content.get("combats_lost") or 0),
+        clues_collected=[str(item) for item in content.get("clues_collected", [])],
+        allies_met=[str(item) for item in content.get("allies_met", [])],
+        unlocks_granted=[str(item) for item in content.get("unlocks_granted", [])],
+        summary_text=str(content.get("summary_text") or content.get("summary") or ""),
+        metadata=metadata if isinstance(metadata, dict) else {},
+    )
+
+
+MYTHOS_WORLD_ID = "world_mythos"
+
+
+class ProgressionService:
+    def __init__(self, store: MythOSStore) -> None:
+        self.store = store
+
+
+
+    def list_run_summaries(self, player_id: str, limit: int = 20) -> list[RunSummary]:
+        world_memories = self.store.list_world_memories(MYTHOS_WORLD_ID)
+        runs = []
+        for memory in world_memories:
+            if memory.kind == "run_summary" and memory.content.get("player_id") == player_id:
+                runs.append(_run_summary_from_memory(memory))
+        runs.sort(key=lambda r: r.ended_at, reverse=True)
+        return runs[:limit]
+
+    def apply_meta_progression(
+        self,
+        player_id: str,
+        loop: LoopState,
+        run_summary: RunSummary,
+    ) -> tuple[LoopState, list[str]]:
+        memories = self.store.list_player_memories(player_id)
+        scenario_id = run_summary.scenario_id
+        previous = latest_meta_progression(memories, player_id, scenario_id)
+        updated_progress, grants = evaluate_meta_progression(previous, run_summary)
+
+        memory = _meta_progression_memory(updated_progress)
+        self.store.save_player_memory(memory)
+
+        from mythos_runtime.scenario import load_scenario
+        scenario = load_scenario(scenario_id)
+        state_after = apply_meta_progression_to_state(loop.state, updated_progress, scenario.combat)
+        updated_loop = replace(loop, state=state_after)
+        return updated_loop, grants
+
+
+def _meta_progression_memory(progress: MetaProgression) -> PlayerMemory:
+    now = utc_now()
+    return PlayerMemory(
+        memory_id=new_memory_id(),
+        player_id=progress.player_id,
+        kind="meta_progression",
+        content=meta_progression_to_content(progress),
+        weight=1.0,
+        created_at=now,
+        updated_at=now,
+    )
+
+
+def _allies_from_loop_state(state: dict[str, Any]) -> list[str]:
+    party = state.get("_party")
+    if not isinstance(party, dict):
+        return []
+    members = party.get("members")
+    if not isinstance(members, list):
+        return []
+    allies = []
+    for member in members:
+        if isinstance(member, dict) and member.get("id"):
+            allies.append(str(member["id"]))
+    return allies
+
+
+def _world_memory_from_archive(loop: LoopState, scene: Scene) -> WorldMemory:
+    now = utc_now()
+    return WorldMemory(
+        memory_id=new_memory_id(),
+        world_id=MYTHOS_WORLD_ID,
+        kind="loop_archive",
+        content={
+            "loop_id": loop.loop_id,
+            "player_id": loop.player_id,
+            "final_title": scene.title,
+            "final_location": scene.location,
+            "phase": loop.phase.value,
+            "stability": loop.stability,
+            "tension": loop.tension,
+        },
+        weight=1.0,
+        created_at=now,
+        updated_at=now,
+    )
+
+
+def _run_summary_memory_from_archive(
+    loop: LoopState,
+    scene: Scene,
+    events: list[WorldEvent],
+    shards: list[NarrativeShard],
+    summary_text: str,
+) -> WorldMemory:
+    now = utc_now()
+    clues = [
+        shard.symbol
+        for shard in shards
+        if shard.loop_id == loop.loop_id and (shard.kind == "clue" or shard.metadata.get("clue_id"))
+    ]
+    allies = _allies_from_loop_state(loop.state)
+    combats_won = len([
+        e for e in events 
+        if e.loop_id == loop.loop_id and e.state_delta.get("combat_outcome") in ("victory", "player_victory")
+    ])
+    combats_lost = len([
+        e for e in events 
+        if e.loop_id == loop.loop_id and e.state_delta.get("combat_outcome") in ("defeat", "player_defeat")
+    ])
+
+    run_sum = {
+        "run_id": f"run_{loop.loop_id}",
+        "loop_id": loop.loop_id,
+        "player_id": loop.player_id,
+        "scenario_id": str(loop.state.get("scenario_id") or "neo-seoul"),
+        "started_at": loop.started_at.isoformat() if loop.started_at else now.isoformat(),
+        "ended_at": loop.ended_at.isoformat() if loop.ended_at else now.isoformat(),
+        "ending_id": loop.state.get("ending_id"),
+        "ending_label": loop.state.get("ending_label") or "Unknown",
+        "final_title": scene.title,
+        "final_location": scene.location,
+        "phase": loop.phase.value,
+        "stability": loop.stability,
+        "tension": loop.tension,
+        "turns": scene.turn_index + 1,
+        "clues_collected": clues,
+        "allies_met": allies,
+        "combats_won": combats_won,
+        "combats_lost": combats_lost,
+        "summary": summary_text,
+        "saved_at": now.isoformat(),
+    }
+    return WorldMemory(
+        memory_id=new_memory_id(),
+        world_id=MYTHOS_WORLD_ID,
+        kind="run_summary",
+        content=run_sum,
+        weight=1.0,
+        created_at=now,
+        updated_at=now,
+    )

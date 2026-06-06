@@ -58,6 +58,9 @@ class FakeStore(MythOSStore):
     def get_latest_scene(self, loop_id) -> None:
         return None
 
+    def list_scenes(self, loop_id: str) -> list:
+        return []
+
     def save_scene(self, scene) -> None:
         pass
 
@@ -187,6 +190,10 @@ class VisualServiceTest(unittest.TestCase):
         service = VisualService(provider=FakeProvider(), store=FakeStore())
         request = service._request_from_scene(scene, player_id="player_test", overrides={})
 
+        # Redux identity steering is the primary mechanism on the mflux backend;
+        # ip_adapter metadata is retained for the diffusers backend fallback.
+        self.assertTrue(request.metadata.get("use_redux"))
+        self.assertEqual(request.metadata.get("redux_strength"), 0.9)
         self.assertTrue(request.metadata.get("use_ip_adapter"))
         self.assertEqual(request.metadata.get("detected_tag"), "se-rin")
         ref_image = request.metadata.get("reference_image")

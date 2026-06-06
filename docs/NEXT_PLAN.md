@@ -1,7 +1,7 @@
 # Project MythOS Next Plan
 
 작성일: 2026-05-30
-최종 갱신: 2026-06-03
+최종 갱신: 2026-06-06
 
 이 문서는 앞으로 할 일만 유지하는 rolling plan이다. 완료된 phase 상세는 `docs/COMPLETED_SUMMARY.md`, `docs/archive/progress-2026-05.md`, `docs/plans/`를 본다.
 
@@ -14,7 +14,51 @@
 
 ## Immediate Priority
 
-### 1. 전투화면 단일 iframe 재구성 (flicker/흰박스 근본 해결) — `[x]` 완료
+### 1. 서사 메모리 장기 압축 레이어 구현 (Narrative Shards Memory Rollup) — `[x]` 완료
+
+목표: 턴 경과에 따라 비대해지는 서사 기록(`narrative_shards`)을 LLM 요약을 통해 장기 압축 및 롤업 처리하여, 컨텍스트 한계(Ollama 토큰 한계) 예방 및 장기 세션 안정성 확보.
+
+작업:
+- `[x]` 롤업 트리거 임계값 설정: 50턴 이상, shard 40개 이상, 누적 12,000자 이상.
+- `[x]` `RuntimeSessionService` 내 요약 핸들러 추가 및 `PlayerMemory(kind="causality_summary")` 구조 영속화.
+- `[x]` 요약 데이터(causality summary)를 `NarrativeContext`에 주입하고, 최신 raw shard만 컨텍스트에 남겨 토큰 사용량 최적화.
+
+### 2. AI GM 서사 품질 모니터링 영속화 및 대시보드화 — `[x]` 완료
+
+목표: Ollama JSON 스키마 파싱 실패율, degraded response, retry 횟수 등의 OTel 품질 메트릭을 DB에 영속화하고 개발자 뷰에서 가시화.
+
+작업:
+- `[x]` `narrative_metrics`를 `WorldMemory(kind="narrative_metrics")`로 집계/영속 저장.
+- `[x]` 기존 `/api/v1/memory` 응답에 `narrative_metrics`를 포함하고 React SPA 개발자 콘솔(Dev Tab)에 품질 지표(Outcome Ratio) 카드 배치.
+
+### 다음 수행/검증 필요 (2026-06-06 세션 2 후속) — ★ 활성
+
+세션 2 UX·비주얼·전투 배치(상세: `docs/PROGRESS_LOG.md`)는 **미커밋**이며, 로컬 인프라(docker)가 내려가 라이브 검증 일부가 보류됐다. 우선순위:
+
+라이브 검증(인프라 가동 필요 — `make infra-up` + visual worker + Ollama):
+- `[ ]` **Redux 얼굴 일관성 실 파이프라인**: 신규 게임에서 캐릭터 장면이 Redux(strength 0.9, portrait 레퍼런스)로 생성되어 MinIO 저장되고, CHARACTER 포트레이트와 얼굴이 일관되는지 실제 플레이로 확인.
+- `[ ]` **워커 메모리 모니터**: txt2img(Flux1)+Redux(Flux1Redux) 동시 적재 시 스왑/멈춤 재발 여부. 문제 시 오프닝 턴도 Redux로 통합해 모델 단일화하거나 동시 로드 제한.
+- `[ ]` **visual-work 자동 삭제** 실 워커 경로 동작 확인(업로드 후 로컬 작업본 제거), **512 이미지 속도** 라이브 재측정(워밍 ~8s 기대).
+- `[ ]` **오프닝 연속성** 라이브 LLM 재확인(turn 0~2가 비 오는 C-17/세린으로 이어지고 변전소로 리셋되지 않음).
+
+자동/회귀:
+- `[ ]` **`make test-e2e` 재실행**: 부트 인트로/세션 시네마틱 dismiss 단계를 반영한 `run_playwright_test.py`로 통과 확인(부트 오프닝 도입으로 진입 흐름 변경됨).
+
+수동 QA(`docs/play-checklist.md` 신규 항목):
+- `[ ]` 첫 진입 부트 오프닝, 서사 기록 오버레이/직전 1개 인라인, 장면별 "내 행동" 표시, 전투 드래그&드롭, 전투 패배→메인 화면 버튼, CHARACTER 포트레이트 분기(대화상대 등장).
+
+다음 구현:
+- `[ ]` **파티 조작 2단계** 구현: `docs/plans/2026-06-06-party-controllable-allies.md`(파티원=플레이어 조작 / 우호적 비파티=AI 동맹). 전투 엔진·UI 리팩터 — 설계 승인 시 단계별 PR.
+- `[ ]` `glass-library` Story Bible/시나리오 스크립트 확장 및 멀티 시나리오 회귀 플레이.
+
+### 소스 품질 체크 — `[x]` 완료
+
+작업:
+- `[x]` `make lint`, `make typecheck` 기준 Python 코드 품질 확인.
+- `[x]` Narrative Shards Memory Rollup 경계값 리팩토링: `retention=0`에서도 오래된 shard 전체가 정상 롤업되도록 split helper 추가.
+- `[x]` Narrative Outcome Metrics 응답 shape 안정화: 4개 outcome key를 항상 포함하도록 count/ratio 정규화.
+
+### 3. 전투화면 단일 iframe 재구성 (flicker/흰박스 근본 해결) — `[x]` 완료
 
 목표: 전투 표현 계층 전체를 자기완결형 iframe 하나로 모아 전투 중 Streamlit rerun을 없앤다.
 현재 구조(Streamlit 위젯 + per-action rerun + `st.iframe` remount)에서 **깜박임과 스킬창 흰 박스가
@@ -98,15 +142,16 @@
 
 - `[x]` Streamlit 이후 Web UI 경계 설계: FastAPI 등으로 HTTP/WebSocket API 구축 및 Next.js/Vite 기반 프론트엔드로의 디커플링 아키텍처 설계. (P3)
 - `[x]` 원격 visual worker/storage/cloud 확장 설계: 분산 Redis Queue 비주얼 워커와 MinIO/S3 오브젝트 스토리지 통합 설계. (P3)
-- `[~]` P3 Web UI 실구현 — **slice 1·2·3 완료**: `mythos_api` FastAPI `/api/v1` REST 어댑터 + WebSocket 토큰 스트리밍 + S3 presigned URL 자산 전달, optional `web` extra, `python -m mythos_api`. `tests/test_api.py`(14) 통과. 남은 slice:
+- `[x]` P3 Web UI 실구현 — **완료**: `mythos_api` FastAPI `/api/v1` REST 어댑터 + WebSocket 토큰 스트리밍 + S3 presigned URL 자산 전달, optional `web` extra, `python -m mythos_api`. `tests/test_api.py` 통과.
   - `[x]` slice 2: WebSocket 토큰 스트리밍 `/api/v1/loops/stream` (설계 §2.2). begin/choose 이벤트를 `stream_start_loop`/`stream_choose`에 매핑, `iterate_in_threadpool` 브리지, token/snapshot/error 프레임.
   - `[x]` slice 3: S3 presigned URL 자산 전달 (설계 §5.2). 분산 visual worker(`visual_worker.py`, Redis BRPOP+heartbeat)는 기존 구현됨. `MinIOStorageAdapter.presigned_url` + `POST /api/v1/assets/resolve`로 논리 s3:// URI를 만료시간 있는 HTTPS URL로 가상화.
   - `[x]` visual_status WS 합류: WS begin/choose에 `with_image`/`visual_async` 전달, snapshot 후 `_emit_visual_status`가 씬 이미지 라이프사이클을 `visual_status`(pending→processing→succeeded+presigned url/failed) 프레임으로 스트리밍. 동기는 즉시 terminal, 비동기는 store 폴링. PoC는 "이미지" 토글로 표시.
-  - `[~]` slice 4: 프론트엔드. **옵션 B(경량 PoC 레퍼런스 클라이언트) 완료** — `src/mythos_api/static/{index.html,app.js}` vanilla JS가 connect→WS begin→토큰 스트림→choose→이미지(visual_status)→combat blip을 한 화면으로 실증, FastAPI가 `/`에 직접 서빙. 결정/스펙은 `docs/plans/2026-06-03-frontend-slice4.md`.
-    - `[x]` PoC UI/UX 개선(Streamlit UX 언어 참고, 빌드리스). 방안: `docs/plans/2026-06-03-poc-ux-improvement.md`. **Phase 1·2·3 + 전투 플레이어블 완료** — 녹청 터미널 팔레트·2단 레이아웃·command-card 선택지·HUD 게이지·이미지 프레임(P1); 전투 캔버스 반응형/라벨/HP/사거리 링·타입라이터(P2); 반응형/접이식 로그(P3); **전투 조작 컨트롤**(표적/공격/스킬/방어/도주·보드 클릭 이동·`combat/action` 루프·종료 배너). 브라우저 육안은 사용자 확인.
-    - `[~]` PoC→Streamlit 패리티 로드맵(`docs/plans/2026-06-03-poc-parity-roadmap.md`): **S1 온보딩/세션 완료**(scenarios API·시나리오/아키타입 선택·이어하기·엔딩 배너). 남은 `[ ]` S2 Codex/기억 · `[ ]` S3 Save/Load·기록 · `[ ]` S4 전투 심화 · `[ ]` S5 오디오/시네마틱 · `[ ]` S6 Developer(선택). S3~S4에서 옵션 A 전환 재평가.
-    - `[ ]` 옵션 A(별도 트랙): Next.js/Vite SPA + PixiJS Canvas 전술 보드 (설계 §3, §4). Node 툴체인·CI Node job 신설.
+  - `[x]` slice 4: 프론트엔드. **Vite + React + TypeScript SPA 완료** — `src/mythos_ui` 리소스가 `connect`→WS begin→토큰 스트림→choose→이미지(visual_status)→전투 캔버스 조작/이동/행동 루프/로스터/로그/결과→Codex 탭(단서/로어/인벤토리/캐릭터/잔향)➔저장/로드 슬롯·기록 보관소➔Developer 인과율 모니터 뷰까지 전체 구현.
+    - `[x]` PoC UI/UX 개선(Streamlit UX 언어 참고, 빌드리스). 방안: `docs/plans/2026-06-03-poc-ux-improvement.md`. **Phase 1·2·3 + 전투 플레이어블 완료**.
+    - `[x]` PoC→Streamlit 패리티 로드맵(`docs/plans/2026-06-03-poc-parity-roadmap.md`): **S1~S6 전체 완료** (S1 온보딩/세션, S2 Codex/기억, S3 Save/Load·기록, S4 전투 심화, S5 오디오/시네마틱, S6 Developer 인과율 모니터).
+    - `[x]` 옵션 A: Vite + React + TS SPA 전술 보드, Codex, Dev 뷰 통합 렌더러로 전환 완료.
 - `[x]` CI 도입: `.github/workflows/ci.yml` (Python 3.11 setup/lint/typecheck/test).
+- `[x]` Playwright E2E 브라우저 테스트 자동화: `scratch/run_playwright_test.py` 스크립트 작성 및 `make test-e2e` 단축 명령어 통합 완료.
 
 ### 7. 게임플레이 깊이 — 레퍼런스 기반 내러티브 & 전술 (★ 활성 우선순위)
 
@@ -114,11 +159,12 @@
 
 우선순위:
 
-- `[ ]` **P1 — 루프 내러티브 잔향 (Slay the Princess)**: `RunSummary` 핵심 결정을 다음 루프의 `NarrativeContext`로 연계하여 NPC 반응/씬 분화. 루프형 게임 정체성의 핵심. 백엔드(narrative/runtime) 중심, 양쪽 프론트 자동 반영.
-- `[ ]` **P2 — 자원 제약형 선택지 (Citizen Sleeper)**: `stability`/`tension` 임계값 도달 시 강제 불이익 선택지 락 또는 자원 소모형 액션 프레임워크. 스테이크/긴장 부여.
-- `[ ]` **P3 — 적 인텐트 가시화 (Into the Breach)**: `CombatService`가 적의 다음 턴 의도(Intent)를 노출하고, 전투 보드(Streamlit iframe + API radar)에 렌더. 전술 깊이.
-- `[ ]` **P4 — 스탯 기반 내면 독백 분화 (Disco Elysium)**: 최고 스탯 성향에 대응하는 내면 지문을 AI GM이 생성하도록 Prompt/Context 주입.
-- `[ ]` **P4 — 동료 전술 성향 다각화 (Shadowrun)**: `ally` 캐릭터성(서포터/스트라이커)에 맞춘 커스텀 AI 전략·스킬 자동 가동. (동료 자동 힐/회피는 이미 구현됨 — 성향 분화가 후속.)
+- `[x]` **P1 — 루프 내러티브 잔향 (Slay the Princess)**: `RunSummary` 핵심 결정을 다음 루프의 `NarrativeContext`로 연계하여 NPC 반응/씬 분화. 루프형 게임 정체성의 핵심. 백엔드(narrative/runtime) 중심, 양쪽 프론트 자동 반영.
+- `[x]` **P2 — 자원 제약형 선택지 (Citizen Sleeper)**: `stability`/`tension` 임계값 도달 시 강제 불이익 선택지 락 또는 자원 소모형 액션 프레임워크. 스테이크/긴장 부여.
+- `[x]` **P3 — 적 인텐트 가시화 (Into the Breach)**: `CombatService`가 적의 다음 턴 의도(Intent)를 노출하고, 전투 보드(Streamlit iframe + API radar)에 렌더. 전술 깊이.
+- `[x]` **P4 — 스탯 기반 내면 독백 분화 (Disco Elysium)**: 최고 스탯 성향에 대응하는 내면 지문을 AI GM이 생성하도록 Prompt/Context 주입.
+- `[x]` **P4 — 동료 전술 성향 다각화 (Shadowrun)**: `ally` 캐릭터성(서포터/스트라이커)에 맞춘 커스텀 AI 전략·스킬 자동 가동. (동료 자동 힐/회피는 이미 구현됨 — 성향 분화가 후속.)
+- `[x]` **Phase 3 — 세계관 탐험 및 시간 축 (Roadwarden & 80 Days)**: 시간(턴) 경과 게이지(Temporal Decay Tracker), 구역 위험도 및 단서 수집 게이지 Streamlit 및 PoC 웹 UI 렌더링, 이동 중 조우(Travel Encounters) 및 리소스 임계점 위기 상황(Emergency Encounters) 연계 완료.
 
 > §6 PoC→Streamlit 패리티(S2~)는 **보류**(필요 시 기회적). 순수 단일 프론트 UI 폴리시는 회수가 낮으므로 깊이 작업 이후로 미룬다.
 

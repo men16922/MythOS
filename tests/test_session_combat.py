@@ -62,6 +62,9 @@ class _InMemoryStore(MythOSStore):
                 return scene
         return None
 
+    def list_scenes(self, loop_id: str) -> list:
+        return self.scenes.get(loop_id, [])
+
     # events / memories
     def append_event(self, event) -> None:
         self.events.append(event)

@@ -167,3 +167,24 @@ class LoopEngineTest(unittest.TestCase):
             world_delta=WorldDelta(stability=0, tension=tension, flags=["signal_detected"]),
             end_condition=end_condition,
         )
+
+    def test_player_hp_clamp_in_delta(self) -> None:
+        engine = LoopEngine()
+        
+        # Test case 1: Healing is capped at max HP
+        loop = replace(self.loop, state={"_party": {"player_hp": 15, "player_max_hp": 20}})
+        scene = self._scene(0)
+        payload = replace(self._payload(), world_delta=WorldDelta(hp=10))
+        
+        transition = engine.apply_scene_payload(loop, scene, payload)
+        self.assertTrue(transition.ok)
+        self.assertEqual(transition.loop.state["_party"]["player_hp"], 20)
+        self.assertEqual(transition.loop.state["_party"]["player_max_hp"], 20)
+
+        # Test case 2: Damage is clamped at 0
+        loop = replace(self.loop, state={"_party": {"player_hp": 15, "player_max_hp": 20}})
+        payload = replace(self._payload(), world_delta=WorldDelta(hp=-25))
+        
+        transition = engine.apply_scene_payload(loop, scene, payload)
+        self.assertTrue(transition.ok)
+        self.assertEqual(transition.loop.state["_party"]["player_hp"], 0)

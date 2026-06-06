@@ -117,6 +117,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if store is not None:
         store.close()
+        PostgresMythOSStore.close_pool()
 
     print(f"status={result.status}")
     print(f"storage_uri={result.storage_uri}")

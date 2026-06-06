@@ -19,6 +19,7 @@ ALLOWED_STATE_DELTA_KEYS = {"stability", "tension", "flags", "phase", "echo"}
 class ValidationError:
     code: str
     message: str
+    is_fatal: bool = True
 
 
 @dataclass(frozen=True)
@@ -44,8 +45,46 @@ class Validator:
         choice_result = self.validate_choices(payload.choices)
         errors.extend(choice_result.errors)
 
+        # Choices soft-repair
+        repaired_choices = list(payload.choices)
+        for i, choice in enumerate(repaired_choices):
+            c_id = choice.choice_id.strip() if choice.choice_id else ""
+            c_label = choice.label.strip() if choice.label else ""
+            c_intent = choice.intent.strip() if choice.intent else ""
+            if not c_id or not c_label or not c_intent:
+                repaired_choices[i] = replace(
+                    choice,
+                    choice_id=c_id or f"choice_{i}",
+                    label=c_label or "계속하기",
+                    intent=c_intent or "explore"
+                )
+
+        seen_ids = set()
+        for i, choice in enumerate(repaired_choices):
+            c_id = choice.choice_id
+            if c_id in seen_ids:
+                new_id = f"{c_id}_{i}"
+                repaired_choices[i] = replace(choice, choice_id=new_id)
+                seen_ids.add(new_id)
+            else:
+                seen_ids.add(c_id)
+
+        if len(repaired_choices) == 0:
+            from mythos_core import Choice
+            repaired_choices = [
+                Choice(choice_id="choice_default", label="계속하기", intent="explore")
+            ]
+        elif len(repaired_choices) > MAX_CHOICES:
+            repaired_choices = repaired_choices[:MAX_CHOICES]
+
+        if repaired_choices != payload.choices:
+            repaired = replace(repaired, choices=repaired_choices)
+
         if len(payload.narration) > MAX_NARRATION_CHARS:
-            errors.append(ValidationError("narration_too_long", "scene narration is too long"))
+            repaired = replace(
+                repaired,
+                narration=payload.narration[:MAX_NARRATION_CHARS].rstrip(),
+            )
 
         if len(payload.visual_brief) > MAX_VISUAL_BRIEF_CHARS:
             repaired = replace(
@@ -53,10 +92,8 @@ class Validator:
                 visual_brief=payload.visual_brief[:MAX_VISUAL_BRIEF_CHARS].rstrip(),
             )
 
-        if not _world_delta_keys_ok(payload.world_delta):
-            errors.append(
-                ValidationError("invalid_world_delta", "world_delta contains unsupported keys")
-            )
+        # Unsupported keys in world_delta will be naturally filtered out when building clamped_delta.
+        # We perform a soft-repair rather than a hard failure to avoid crashing the game.
 
         clamped_delta = WorldDelta(
             stability=_clamp_delta(payload.world_delta.stability),
@@ -80,17 +117,17 @@ class Validator:
     def validate_choices(self, choices: list[Choice]) -> ValidationResult:
         errors: list[ValidationError] = []
         if not (1 <= len(choices) <= MAX_CHOICES):
-            errors.append(ValidationError("invalid_choice_count", "scene choices must be 1-4"))
+            errors.append(ValidationError("invalid_choice_count", "scene choices must be 1-4", is_fatal=False))
         choice_ids = [choice.choice_id for choice in choices]
         if len(set(choice_ids)) != len(choice_ids):
-            errors.append(ValidationError("duplicate_choice_id", "choice ids must be unique"))
+            errors.append(ValidationError("duplicate_choice_id", "choice ids must be unique", is_fatal=False))
         for choice in choices:
             if (
                 not choice.choice_id.strip()
                 or not choice.label.strip()
                 or not choice.intent.strip()
             ):
-                errors.append(ValidationError("invalid_choice", "choice fields must be non-empty"))
+                errors.append(ValidationError("invalid_choice", "choice fields must be non-empty", is_fatal=False))
         return ValidationResult(ok=not errors, errors=errors)
 
     def validate_state_delta(self, state_delta: dict) -> ValidationResult:

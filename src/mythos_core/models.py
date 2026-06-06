@@ -61,6 +61,8 @@ class Choice:
     choice_id: str
     label: str
     intent: str
+    cost: dict[str, int] | None = None
+    requires: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)

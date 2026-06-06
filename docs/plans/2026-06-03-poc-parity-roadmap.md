@@ -1,7 +1,7 @@
 # PoC → Streamlit 패리티 로드맵
 
 작성일: 2026-06-03
-상태: In progress (S1 착수)
+상태: 완료 (React SPA 마이그레이션 및 패리티 완료)
 대상: `src/mythos_api/` (FastAPI 어댑터 + `static/` vanilla 클라이언트)
 
 PoC 웹 클라이언트를 현재 `streamlit_app.py` 수준의 플레이어 경험까지 끌어올리기 위한 단계 계획. 각 단계는 보통 **API 엔드포인트 추가 + 클라이언트 UI** 두 겹이다(PoC는 빌드리스 vanilla 유지).

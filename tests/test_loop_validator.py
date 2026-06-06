@@ -74,3 +74,31 @@ class ValidatorTest(unittest.TestCase):
         assert result.repaired_payload is not None
         self.assertEqual(result.repaired_payload.world_delta.stability, -25)
         self.assertEqual(result.repaired_payload.world_delta.tension, 25)
+
+    def test_repairs_invalid_choices(self) -> None:
+        payload = ScenePayload(
+            title="Threshold",
+            location="data-layer-01",
+            narration="The gate opens.",
+            choices=[
+                Choice("", "", ""),
+                Choice("dup", "First", "explore"),
+                Choice("dup", "Second", "explore"),
+            ],
+            visual_brief="A luminous gate.",
+            world_delta=WorldDelta(),
+        )
+
+        result = Validator().validate_scene_payload(self.loop, self.scene, payload)
+
+        self.assertFalse(result.ok)
+        repaired = result.repaired_payload
+        self.assertIsNotNone(repaired)
+        assert repaired is not None
+        self.assertEqual(len(repaired.choices), 3)
+        self.assertEqual(repaired.choices[0].choice_id, "choice_0")
+        self.assertEqual(repaired.choices[0].label, "계속하기")
+        self.assertEqual(repaired.choices[0].intent, "explore")
+        self.assertEqual(repaired.choices[1].choice_id, "dup")
+        self.assertEqual(repaired.choices[2].choice_id, "dup_2")
+        self.assertTrue(all(not err.is_fatal for err in result.errors))

@@ -8,6 +8,7 @@ from typing import Any
 import psycopg
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
+from psycopg_pool import ConnectionPool
 
 from mythos_core import (
     AssetRecord,
@@ -33,19 +34,38 @@ except ImportError:
 
 
 class PostgresMythOSStore(MythOSStore):
+    _pool: ConnectionPool[psycopg.Connection[dict[str, Any]]] | None = None
+
     def __init__(self, database_url: str | None = None) -> None:
         if load_dotenv is not None:
             load_dotenv()
         self.database_url = database_url or os.getenv(
             "DATABASE_URL", "postgresql://mythos:mythos@localhost:5432/mythos"
         )
+        if PostgresMythOSStore._pool is None:
+            PostgresMythOSStore._pool = ConnectionPool(
+                conninfo=str(self.database_url),
+                kwargs={"row_factory": dict_row},
+                min_size=1,
+                max_size=10,
+                open=True
+            )
         self._connection: psycopg.Connection[dict[str, Any]] | None = None
         self._transaction_depth = 0
 
     def close(self) -> None:
         if self._connection is not None:
-            self._connection.close()
+            if PostgresMythOSStore._pool is not None:
+                PostgresMythOSStore._pool.putconn(self._connection)
+            else:
+                self._connection.close()
             self._connection = None
+
+    @classmethod
+    def close_pool(cls) -> None:
+        if cls._pool is not None:
+            cls._pool.close()
+            cls._pool = None
 
     def create_player(self, profile: PlayerProfile) -> None:
         self._execute(
@@ -223,6 +243,13 @@ class PostgresMythOSStore(MythOSStore):
         if row is None:
             return None
         return self._scene_from_row(row)
+
+    def list_scenes(self, loop_id: str) -> list[Scene]:
+        rows = self._fetchall(
+            "SELECT * FROM scenes WHERE loop_id = %s ORDER BY turn_index ASC",
+            (loop_id,),
+        )
+        return [self._scene_from_row(row) for row in rows]
 
     def save_player_memory(self, memory: PlayerMemory) -> None:
         self._execute(
@@ -438,7 +465,11 @@ class PostgresMythOSStore(MythOSStore):
 
     def _connect(self) -> psycopg.Connection[dict[str, Any]]:
         if self._connection is None or self._connection.closed:
-            self._connection = psycopg.connect(str(self.database_url), row_factory=dict_row)
+            if PostgresMythOSStore._pool is not None:
+                self._connection = PostgresMythOSStore._pool.getconn()
+            else:
+                self._connection = psycopg.connect(str(self.database_url), row_factory=dict_row)
+        assert self._connection is not None
         return self._connection
 
     def _execute(self, sql: str, params: tuple[Any, ...]) -> None:

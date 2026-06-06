@@ -1,10 +1,10 @@
 # Project MythOS Status
 
-최종 갱신: 2026-06-03
+최종 갱신: 2026-06-06
 
 ## Current State
 
-Project MythOS 로컬 플레이어블 MVP는 구현 완료 상태다. Streamlit 플레이어/개발자 뷰, Neo-Seoul 시나리오, Codex/단서 해금, 인과율/다중 엔딩 구조, mflux 기반 비동기 이미지 생성, BGM/SFX, 전술 전투 루프, 단일 iframe 전투 UI, 동료 참전, 도주 후 contact 유지, Run History MVP, Meta Progression MVP, Save/Load UX MVP, Ending Resolver, Developer 인과율 모니터가 동작한다. 주력 콘텐츠는 Neo-Seoul 01이며, 1회 1시간/40-60턴 소설형 세션을 목표로 6막 구조와 Story Bible depth를 보강했다.
+Project MythOS 로컬 플레이어블 MVP 및 주요 명작 레퍼런스 기반 게임플레이 깊이 우선순위 백로그(P1~P4) 구현이 완료되었다. Streamlit 플레이어/개발자 뷰, Neo-Seoul 시나리오, Codex/단서 해금, 인과율/다중 엔딩 구조, mflux 기반 비동기 이미지 생성, BGM/SFX, 전술 전투 루프, 단일 iframe 전투 UI, 동료 참전(정세린/카이 고유 전술 AI 및 실드 버그 수정 완료), 도주 후 contact 유지, Run History MVP(루프 내러티브 잔향 연동), Meta Progression MVP, Save/Load UX MVP, 자원 제약형 선택지, 적 인텐트 가시화, 스탯 기반 내면 독백(Disco Elysium), Ending Resolver, Developer 인과율 모니터가 동작한다. 또한, Vite + React + TS SPA 클라이언트의 전체적인 동작성을 브라우저 상에서 자동으로 점검해주는 Playwright 기반 E2E 테스트 자동화 파이프라인(`make test-e2e`)이 신규 도입되어 검증 프로세스를 보강했다. 주력 콘텐츠는 Neo-Seoul 01이며, 1회 1시간/40-60턴 소설형 세션을 목표로 6막 구조와 Story Bible depth를 보강했다.
 
 핵심 런타임:
 
@@ -17,7 +17,10 @@ Project MythOS 로컬 플레이어블 MVP는 구현 완료 상태다. Streamlit 
 
 ## Latest Verified Baseline
 
-- `make test` (182 tests, 2 skipped)
+- `make test` (200 tests, 2 skipped) — 세션 2 배치 반영. `make typecheck` 클린, React 빌드 클린.
+- 세션 2 결정적/라이브 검증: 이어하기 활성 루프 선택, CHARACTER 포트레이트 분기(정세린), 전투 드래그&드롭(이동 액션 발생), 패배→메인 복귀, 장면별 행동 기록, 서사 기록 오버레이(N), 부트 오프닝→온보딩 전환, 512 이미지 워밍 ~7.5s, 오프닝 첫 장면이 비 오는 C-17/세린으로 연속, mflux Redux 0.9 얼굴 일관성 비교(`outputs/redux_compare_big.png`).
+- (이전) `make test` (196 tests, 2 skipped)
+- `make test-e2e` (Playwright 자동 E2E 테스트) 성공 검증 (outputs/e2e_react_play.png 및 outputs/e2e_react_play_turn1.png 스크린샷 캡처 확인)
 - 전투 종료 LLM 멈춤 수정: 전투 패배(루프 종료)가 fallback/fast 모드에서 8.3s→22ms (`summarize_loop` use_llm 게이트). 라이브 재측정 확인.
 - PoC S1 온보딩/세션: `GET /api/v1/scenarios` + 온보딩 화면(시나리오/아키타입 선택)·이어하기(`loops/active`)·엔딩 배너. 라이브 flow 확인.
 - `mythos_api` FastAPI `/api/v1` 어댑터: `tests/test_api.py`(21) — health/connect/begin/active/choose/combat REST + WebSocket `loops/stream`(begin→token→snapshot, 동일 소켓 choose, 오류 프레임) + `assets/resolve`(presigned URL) + 정적 PoC 클라이언트(`/`, `/app.js`, API 비가림) + visual_status 프레임 로직(`_terminal_visual_frame`/`_find_asset`)을 in-memory store TestClient로 검증(DB/Ollama/FLUX 불요). `MinIOStorageAdapter.presigned_url`은 boto3 mock 단위 테스트로 검증.
@@ -48,10 +51,32 @@ Project MythOS 로컬 플레이어블 MVP는 구현 완료 상태다. Streamlit 
 
 ## Active Focus
 
-**방향 전환(2026-06-03): 두 번째 프론트(API/PoC) UI 복제보다 공유 계층의 게임플레이 깊이를 우선한다.** 근거: 게임은 UI 표면은 풍부하나 플레이 깊이가 얕고, 엔진/내러티브/전투(공유 계층) 작업은 Streamlit(현 플레이 레이어, `DECISIONS` "Keep Streamlit As MVP Demo Layer")과 API 버전에 **동시 반영**되어 프론트 방향과 무관하게 낭비가 없다. 두 프론트 차이는 `docs/STREAMLIT_VS_API.md` 참조.
+Vite + React + TS SPA 기반의 독자적인 프론트엔드 포팅 및 Playwright 기반의 E2E 통합 테스트 검증 자동화가 완료되었습니다. 공유 계층 게임플레이 깊이 트랙(P1~P4 및 탐험 시공간 HUD/조우)과 Streamlit 패리티 구현이 100% 반영되어 최종 검증을 통과했습니다.
 
-- 다음 작업: `NEXT_PLAN` §7 레퍼런스 기반 게임플레이 깊이 백로그. 우선순위 P1 루프 내러티브 잔향 → P2 자원 제약형 선택지 → P3 적 인텐트 가시화 → P4 스탯 기반 내면 독백/동료 전술 성향.
-- 완료 인프라(유지): P3 Web UI 디커플링 백엔드(`mythos_api` FastAPI `/api/v1` REST + WS 스트리밍 + `visual_status` + presigned + PoC 클라이언트), PoC UX(팔레트/레이아웃/HUD/전투 조작)와 S1 온보딩/세션. PoC→Streamlit 패리티(S2~) 트랙은 **보류**(필요 시 기회적으로). 옵션 A 풀 SPA 전환은 S3~S4 재평가 지점.
+2026-06-06 기준으로 장기 세션 안정성 보강과 소스 품질 점검도 완료되었습니다.
+
+- **완료된 최신 작업**:
+  1. **서사 메모리 장기 압축 레이어 구현 (Narrative Shards Memory Rollup)**: 오래된 `narrative_shards`를 `PlayerMemory(kind="causality_summary")`로 압축하고, 최신 raw shard만 `NarrativeContext`에 남기도록 구성.
+  2. **AI GM 서사 품질 모니터링 영속화 (Narrative Outcome Metrics)**: `success/provider_repair/local_repair/fallback` outcome을 `WorldMemory(kind="narrative_metrics")`에 누적 저장하고 React Developer 탭 Outcome Ratio 카드로 노출.
+  3. **소스 품질 리팩토링**: shard rollup retention 경계값(`retention=0`) 처리와 narrative metric outcome ratio shape를 안정화하고 회귀 테스트를 추가.
+  4. **React SPA 클라이언트 디자인 개선 및 빌드 복구**: `StoryPanel.tsx` 타입 임포트 문제를 수정하여 Vite 빌드를 복구하고, 이미지/텍스트 영역을 물리적인 터미널 윈도우 스타일 패널로 시각적 분리 및 세로 정렬(높이 맞춤)을 고도화했습니다.
+  5. **대화 내역 비동기 스트리밍 & 이미지 유지**: 이전 대화 텍스트들이 자연스럽게 누적되어 올라가는 스크롤 구조를 구현하고, 선택 시 이미지를 비워버리지 않고 새 이미지가 완전히 생성/수급될 때까지 이전 이미지를 그대로 유지하게 하여 비동기 이미지 교체 딜레이 체감을 없앴습니다.
+  6. **씬 히스토리 데이터베이스 조회 엔드포인트 신설**: FastAPI에 `/api/v1/loops/{loop_id}/scenes` GET 엔드포인트를 추가하고, 프론트엔드 이어하기 진입 시 이전 대화의 텍스트 히스토리를 데이터베이스로부터 조회해 스크롤 대화창에 완벽히 복원해내도록 처리했습니다.
+  7. **전술 전투 UI 대폭 개선**: PARTY/ENEMY 로스터 영역을 수직으로 깔끔하게 배치하여 로스터 정보의 가독성을 확보함과 동시에, TACTICAL BOARD 영역을 `1.8fr 1fr` 그리드로 확대하여 시각적 스케일 및 조작 편의성을 대폭 보강했습니다.
+  8. **테스트 커버리지 보강**: 가짜 스토어들에 `list_scenes` 목킹 구현을 완료하여 `make test` 검증 baseline을 199개 전체 성공 상태로 복구 및 유지했습니다.
+
+2026-06-06 (세션 2)에 UX·비주얼·전투 배치를 일괄 구현했다(상세: `docs/PROGRESS_LOG.md` 최상단 "세션 2" 블록). **전부 미커밋 상태**다. 요약:
+
+- 이어하기 409 수정, 스토리/캐릭터 레이아웃 개편 + CHARACTER 컨텍스트 분기(내 정보↔대화상대 portrait), 전투 드래그&드롭, 오프닝 시네마틱→첫 장면 연속성, 이미지 512/타자기 속도 최적화, 전투 패배→메인 화면 버튼, 장면별 행동 기록, 서사 기록 별도 오버레이, 오프닝 이미지 컷 복사→재생성, 첫 진입 부트 오프닝, **mflux Redux 기반 캐릭터 얼굴 일관성**, visual-work 로컬 작업본 자동 정리.
+
+- **다음 수행/검증 필요** (상세: `docs/NEXT_PLAN.md` "다음 수행/검증 필요"):
+  1. 라이브 인프라(`make infra-up` + visual worker)로 **Redux 얼굴 일관성 실 파이프라인** 검증(캐릭터 장면이 Redux 생성→MinIO 저장→portrait와 일관).
+  2. 워커 **메모리** 모니터: txt2img(Flux1) + Redux(Flux1Redux) 동시 로드 시 스왑/멈춤 재발 여부(이전 멈춤 이력). 필요 시 오프닝도 Redux 통합해 단일 모델화.
+  3. **visual-work 자동 삭제** 실 워커 경로 동작 확인, **512 이미지 속도** 라이브 재확인.
+  4. **`make test-e2e` 재실행**(부트 인트로/세션 시네마틱 dismiss 단계 반영한 스크립트로 통과 확인).
+  5. `docs/play-checklist.md` 신규 항목 수동 QA(부트 오프닝/기록 오버레이/행동 기록/드래그&드롭/패배→메인/포트레이트 분기/오프닝 연속성).
+  6. 파티 조작 2단계 구현(`docs/plans/2026-06-06-party-controllable-allies.md`, 설계 승인 시).
+  7. 다중 시나리오(`glass-library`) 스크립트 및 Story Bible 확장.
 
 ## Completed Tracks
 
@@ -78,10 +103,11 @@ Project MythOS 로컬 플레이어블 MVP는 구현 완료 상태다. Streamlit 
 
 ## Open Risks
 
-- `narrative_shards`는 limit query로 소비량만 제한하고 별도 장기 압축은 아직 없다.
-- Ollama output은 repair/fallback path를 탈 수 있다. provider 품질 메트릭(outcome + total/degraded/success_ratio)은 `mythos.narrative.outcome` OTel 스팬과 구조화 로그로 방출돼 Jaeger/로그에서 관측 가능하다. 다만 누적 집계의 영속 저장/대시보드는 아직 없다(필요 시 WorldMemory rollup 또는 전용 테이블).
-- IP-Adapter는 아직 실배선 전이라 캐릭터 얼굴-ID 고정은 img2img 레퍼런스 기반이다.
-- 동료 AI는 현재 기본 NPC 공격 로직을 사용한다. 동료 스킬 자동 사용/전술 성향 고도화는 아직 없다.
+- `narrative_shards`는 오래된 raw shard를 원문 프롬프트에서 제외하고 `causality_summary` 메모리로 압축한다. DB row 자체는 보존하므로, 조회/삭제 정책이 필요해지면 별도 status/migration을 추가한다.
+- Ollama output은 repair/fallback path를 탈 수 있다. provider 품질 메트릭(outcome + total/degraded/success_ratio)은 `mythos.narrative.outcome` OTel 스팬과 구조화 로그로 방출되고, `WorldMemory(kind="narrative_metrics")`에도 누적 저장되어 Developer 뷰에서 볼 수 있다.
+- 캐릭터 얼굴 일관성은 mflux **Redux**(strength 0.9, portrait 레퍼런스)로 steering한다. img2img보다 낫지만 IP-Adapter만큼 얼굴을 핀포인트로 고정하진 않는다(FLUX-schnell 4스텝 한계). diffusers IP-Adapter 경로는 fallback 메타데이터로만 남아 있다.
+- 워커가 한 세션에서 txt2img(Flux1)와 Redux(Flux1Redux) 두 모델을 동시에 적재할 수 있다(각 ~7GB q4). 메모리 압박 시 멈춤 가능성 — 라이브 모니터 필요, 필요 시 오프닝도 Redux로 통합해 모델 단일화.
+- visual-work 로컬 작업본은 저장 성공 후 자동 삭제된다. 라이브 워커 경로에서의 실제 삭제 동작은 인프라 가동 후 확인 필요.
 - 추가 전투 밸런스는 실제 플레이 로그 기반으로 재조정할 수 있다.
 - Story Bible은 전체 문서를 프롬프트에 넣으면 토큰 낭비가 크므로, phase/location/flags 기반 snippet 선택 레이어가 필요하다.
 - RunSummary는 현재 `WorldMemory(kind="run_summary")` JSONB로 저장한다. 조회/필터가 늘어나면 별도 테이블 migration이 필요하다.
@@ -93,6 +119,7 @@ Project MythOS 로컬 플레이어블 MVP는 구현 완료 상태다. Streamlit 
 - 에이전트 진입점: `docs/AGENT_BRIEF.md`
 - 다음 계획: `docs/NEXT_PLAN.md`
 - 최신 로그: `docs/PROGRESS_LOG.md`
+- 플레이 검증 체크리스트: [docs/play-checklist.md](file:///Users/men1692/Desktop/local/MythOS/docs/play-checklist.md)
 - 상세 archive: `docs/archive/progress-2026-05.md`
 - 결정 기록: `docs/DECISIONS.md`
 - 제품화 계획: `docs/plans/2026-05-31-story-bible-save-load.md`

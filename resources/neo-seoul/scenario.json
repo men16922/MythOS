@@ -8,6 +8,36 @@
     "kai": "characters/kai.png",
     "lin-yue": "characters/lin-yue.png"
   },
+  "characters": [
+    {
+      "name": "정세린",
+      "alias": "물거미",
+      "role": "첫 인도자 / 데이터 밀수꾼",
+      "image": "characters/se-rin.png",
+      "keywords": ["정세린", "세린", "물거미", "se-rin", "serin"]
+    },
+    {
+      "name": "린위에",
+      "alias": "환전상",
+      "role": "야시장 브로커",
+      "image": "characters/lin-yue.png",
+      "keywords": ["린위에", "lin yue", "lin-yue"]
+    },
+    {
+      "name": "카이",
+      "alias": "RX-09",
+      "role": "꿈꾸는 폐기 안드로이드",
+      "image": "characters/kai.png",
+      "keywords": ["카이", "kai", "rx-09"]
+    },
+    {
+      "name": "관리자 IX",
+      "alias": "Control Net",
+      "role": "ARK 관리망",
+      "image": "characters/administrator-ix.png",
+      "keywords": ["관리자 ix", "administrator ix"]
+    }
+  ],
   "concept_map": {
     "night market": "concept/01-night-market.png",
     "control spire": "concept/02-control-spire.png",
@@ -255,6 +285,37 @@
 
   "starting_location": "data-layer-01",
   "ui_copy": {
+    "intro_logo": "PROJECT MYTHOS",
+    "key_art": "concept/00-project-mythos-main.png",
+    "signal_title": "NEO-SEOUL // UNREGISTERED SIGNAL",
+    "signal_body": "동북아 전쟁 이후, 폐허의 도시들은 재건기구 ARK의 예측 엔진 위에서 다시 태어났다. Neo-Seoul의 시민은 이름보다 먼저 점수로 식별되고, 기준에서 벗어난 기억은 조용히 최적화된다. 방금, 관리망의 검은 층 아래에서 어떤 명단에도 없는 접속 신호가 깨어났다. 발신자는 미확인. 세계는 아직 당신을 설명하지 못한다.",
+    "signal_lines": [
+      "01001101 10011000 00101110  SIGNAL LOST",
+      "ARK://CITIZEN-SCORE/NULL  CLASS: UNREGISTERED",
+      "OPTIMIZATION QUEUE: 7,204,883 SUBJECTS",
+      "NEO-SEOUL NODE OPEN  HANDSHAKE FAILED",
+      "WAKE TRACE FOUND  HUMAN NOISE DETECTED",
+      "DO NOT TRUST THE CLEAN SIGNAL"
+    ],
+    "boot_lines": [
+      "[00.000] MYTHOS RUNTIME // LOCAL NODE",
+      "[00.117] SIGNAL TYPE: UNCLASSIFIED",
+      "[00.402] WORLD LAYER: NEO-SEOUL / ARK RECONSTRUCTION ZONE",
+      "[01.014] CONTROL NET TRACE DETECTED",
+      "[01.203] MESSAGE SOURCE: UNKNOWN"
+    ],
+    "intro_lines": [
+      "MYTHOS_LOCAL_NODE :: WAKE",
+      "ARK CONTROL NET HANDSHAKE ... REJECTED",
+      "CITIZEN SCORE LOOKUP ... NULL",
+      "UNREGISTERED SIGNAL FOUND BELOW NEO-SEOUL",
+      "VISUAL CHANNEL OPENING"
+    ],
+    "intro_dim_lines": [
+      "ARK CONTROL NET HANDSHAKE ... REJECTED",
+      "VISUAL CHANNEL OPENING"
+    ],
+    "boot_marker": "BOOTSTRAP: HANDSHAKE RETRY // VISUAL CHANNEL OPENING",
     "session_intro": {
       "kicker": "OPENING SEQUENCE",
       "title": "C-17 정전. 비식별 신호 감지.",

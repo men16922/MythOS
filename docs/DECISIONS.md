@@ -2,6 +2,42 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-06-06
+
+### Use mflux Redux For Character Face Consistency
+
+Decision: 캐릭터 얼굴 일관성은 mflux **Redux**(레퍼런스 이미지 조건부 생성, strength 0.9, 캐릭터 portrait 레퍼런스)로 처리한다. 캐릭터 감지는 한국어 내러티브 키워드(`scenario.characters[].keywords`)로 하고, diffusers IP-Adapter 경로는 fallback 메타데이터(`use_ip_adapter`)로만 남긴다.
+
+Reason: 기본 백엔드 mflux는 IP-Adapter를 지원하지 않아 img2img(구도까지 상속)만 가능했고, 게다가 캐릭터 감지를 영어 visual_brief로만 해 실제로는 거의 미탐지 → 매 장면 다른 얼굴이 나왔다. Redux는 빠른 온디바이스 경로를 유지하면서 구도를 상속하지 않고 인물/스타일을 주입한다. diffusers IP-Adapter는 MPS에서 느리고 메모리 부담이 커 기본 경로로 부적합.
+
+Impact: 워커가 txt2img(Flux1)와 Redux(Flux1Redux) 두 모델을 동시 적재할 수 있어 메모리 모니터가 필요하다(필요 시 오프닝도 Redux로 통합해 단일 모델화). Redux는 IP-Adapter만큼 얼굴을 핀포인트 고정하진 않으며 FLUX-schnell 4스텝 한계가 있다. 얼굴 정밀도 최우선이면 diffusers IP-Adapter로 전환하는 옵션이 남아 있다.
+
+### Reuse Streamlit Player Image Preset (512×512) On The Web/WS Path
+
+Decision: WS(begin/choose) 이미지 생성 기본을 1024×1024에서 **512×512 / 4 step**으로 낮춰 Streamlit 플레이어 프리셋과 맞춘다.
+
+Reason: 1024는 워밍 후에도 ~70–100초로 측정돼 체감 지연이 컸다. 512는 워밍 ~7.5초로 ~10배 빠르고 비동기라 텍스트/플레이를 막지 않는다.
+
+Impact: PoC/React 장면 이미지 품질은 약간 낮아지지만 플레이 흐름이 크게 개선된다. 메시지로 width/height/steps override는 여전히 가능.
+
+## 2026-06-04
+
+### Differentiate Companion AI Behaviors (Shadowrun Style)
+
+Decision: implement character-specific tactical behaviors for story companions in the combat loop. Jung Se-rin (`se_rin`) acts as a ranged supporter prioritizing player shielding (using `covering_noise` dynamically on target), while Kai (`kai`) charges in as a melee defender taking aggro (using `overload_strike` on target closest to the player).
+
+Reason: previously, companion units relied on standard NPC behaviors which didn't reflect their character arcs or mechanical roles (e.g. Kai is supposed to be a defender, Se-rin a supporter). Having dedicated tactical profiles deepens the combat layer and gives companions mechanical weight.
+
+Impact: the `_ally_turn` method in the combat engine now checks unit IDs to dispatch tailored actions. Additionally, the `_execute_npc_skill` logic was corrected so that defensive buffs (`defense_bonus`) are applied to the target parameter (such as the player) instead of being hardcoded to the caster.
+
+### Dynamic Stat-Based Inner Monologue Prompts (Disco Elysium Style)
+
+Decision: analyze the player's profile stats dynamically to detect the highest and lowest traits, and inject explicit guidelines for these traits as distinct inner voices into the AI GM's `novelty_notes`.
+
+Reason: to enhance character immersion and make the 5 core stats feel like actual aspects of the player's consciousness rather than static numbers, echoing the inner-thought mechanic of Disco Elysium.
+
+Impact: `build_runtime_narrative_context` evaluates player stats and appends guidelines detailing how the highest stat should suggest logical/instinctual choices in parentheses (e.g. `(Intelligence: ...)`) and the lowest stat should occasionally prompt hesitation or misjudgments.
+
 ## 2026-05-31
 
 ### Use A Local JSON Bridge For Combat UI Actions

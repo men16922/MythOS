@@ -1,6 +1,6 @@
 # Completed Summary
 
-최종 갱신: 2026-05-31
+최종 갱신: 2026-06-06
 
 이 문서는 완료된 milestone의 압축 요약이다. 세부 작업 로그와 검증 기록은 `archive/IMPLEMENTATION_M0_M10.md`와 `PROGRESS_LOG.md`를 참고한다.
 
@@ -73,6 +73,31 @@
 | M33 | Tactical UI | 장면 이미지 옆 tactical board, party/enemy roster, 적/주인공 portrait, board 직접 이동, 공격/방어/도주 명령 구현 |
 | M34 | Combat Result | 전투 종료 결과 패널, combat summary, 다음 장면 진행, 패배 후 메인 복귀 흐름 구현 |
 
+## Gameplay Depth Track (Roadmap P1~P4)
+
+| ID | Milestone | Result |
+| --- | --- | --- |
+| P1 | 루프 내러티브 잔향 | 이전 루프의 주요 분기점(`run_summary`)을 Narrative Context에 기시감 가이드라인과 함께 자동 주입 |
+| P2 | 자원 제약형 선택지 | `stability`/`tension` 조건 위반 시 선택 비활성화 및 선택에 따른 자원 소모 경제 구축 |
+| P3 | 적 인텐트 가시화 | 적 유닛의 다음 턴 행동 의도(이동/공격/도주)를 미리 시뮬레이션 및 보드 가시화 |
+| P4-1 | 스탯 기반 내면 독백 | 최고/최저 스탯의 성격에 대입하여 디스코 엘리시움 풍의 내적 독백 가이드라인을 프롬프트에 주입 |
+| P4-2 | 동료 전술 성향 다각화 | 정세린(원거리 지원/실드), 카이(도발/탱커) 성향별 AI 결정 트리 구현 및 실드 적용 대상 버그 수정 |
+
+## Web UI Decoupling Track
+
+| ID | Milestone | Result |
+| --- | --- | --- |
+| S1-S6 | Web UI Parity & React SPA | FastAPI REST/WS 백엔드 어댑터 구축, WebSocket 토큰 스트리밍, MinIO presigned URL, React + TypeScript SPA 독립형 프론트엔드(온보딩, 6종 게이지 HUD, 타입라이터, 전투 Canvas 렌더러, Codex 기억의 별자리, Save/Load, Dev 모니터) 100% 기능 패리티 완료 |
+| E2E | Playwright 자동 E2E 테스트 | uvicorn 백그라운드 서버 기동 및 Playwright headless Chromium을 통한 가상 플레이어 자동 온보딩, 스트리밍 대기, 턴 진행, 화면 스냅샷 수집 및 리소스 자동 회수 파이프라인(`make test-e2e`) 구축 |
+
+## Long-Session Stability Track
+
+| ID | Milestone | Result |
+| --- | --- | --- |
+| L1 | Narrative Shards Memory Rollup | 오래된 `narrative_shards`를 `PlayerMemory(kind="causality_summary")`로 압축하고, 최신 raw shard만 Narrative Context에 전달하여 장기 세션 토큰 압박 완화 |
+| L2 | Narrative Outcome Metrics | AI GM generation outcome(`success/provider_repair/local_repair/fallback`)을 `WorldMemory(kind="narrative_metrics")`에 누적 저장하고 React Developer 탭 Outcome Ratio 카드로 표시 |
+| L3 | Rollup/Metrics Quality Pass | shard retention 경계값과 narrative metric response shape를 회귀 테스트로 고정 |
+
 ## MVP Verification Summary
 
 검증 완료:
@@ -87,7 +112,8 @@
 - Browser visual play: filesystem preview, MinIO `s3://mythos-assets/...png` URI.
 - Browser narrative play: fallback off 상태에서 Ollama scene 생성.
 - Streamlit polish regression: saved player 선택, saved loop resume, archive, next loop Echo carry-over.
-- Current lightweight verification: `make lint`, `make typecheck`, `make test` (110 tests, 2 skipped).
+- Automated browser E2E: `make test-e2e` (Playwright headless Chromium 온보딩/턴이동 성공 검증, outputs PNG 스냅샷 보관)
+- Current lightweight verification: `make lint`, `make typecheck`, `make test` (196 tests, 2 skipped), `make test-e2e`.
 
 ## Completed Architecture Baseline
 

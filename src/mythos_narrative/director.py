@@ -61,9 +61,11 @@ class NarrativeMetrics:
     """
 
     counts: dict[str, int] = field(default_factory=lambda: {outcome: 0 for outcome in _OUTCOMES})
+    last_outcome: str | None = None
 
     def record(self, outcome: str) -> None:
         self.counts[outcome] = self.counts.get(outcome, 0) + 1
+        self.last_outcome = outcome
 
     @property
     def total(self) -> int:
@@ -86,6 +88,7 @@ class NarrativeMetrics:
             "total": self.total,
             "degraded": self.degraded,
             "ratios": self.ratios(),
+            "last_outcome": self.last_outcome,
         }
 
 
@@ -211,6 +214,50 @@ class NarrativeDirector:
         except Exception:
             self.logger.debug("loop summary provider failed", exc_info=True)
             return _fallback_loop_summary(events)
+
+    def summarize_narrative_shards(
+        self,
+        shards: list[dict[str, Any]],
+        *,
+        existing_summary: str | None = None,
+        use_llm: bool = True,
+    ) -> str:
+        """Summarize old narrative shards for long-session prompt compaction."""
+        if not use_llm:
+            return _fallback_shard_summary(shards, existing_summary=existing_summary)
+        prompt = (
+            "Compress these MythOS narrative shards into a durable causality summary. "
+            "Preserve long-term consequences, recurring symbols, discovered clues, "
+            "NPC relationship shifts, and unresolved threats. Write in Korean. "
+            "Keep it under 5 compact bullet-like sentences. Do not quote the shards verbatim.\n\n"
+        )
+        if existing_summary:
+            prompt += f"Existing summary to update:\n{existing_summary}\n\n"
+        prompt += "Shards:\n"
+        for shard in shards:
+            symbol = shard.get("symbol", "")
+            tone = shard.get("emotional_tone", "")
+            kind = shard.get("kind", "general")
+            text = str(shard.get("text") or "")[:420]
+            prompt += f"- [{kind}] symbol={symbol} tone={tone}: {text}\n"
+
+        try:
+            response = self.provider.generate(
+                [
+                    {
+                        "role": "system",
+                        "content": "You are a concise memory archivist for Project MythOS.",
+                    },
+                    {"role": "user", "content": prompt},
+                ]
+            )
+            parsed = json.loads(response)
+            if isinstance(parsed, dict) and "summary" in parsed:
+                return str(parsed["summary"]).strip()
+            return response.strip()
+        except Exception:
+            self.logger.debug("narrative shard summary provider failed", exc_info=True)
+            return _fallback_shard_summary(shards, existing_summary=existing_summary)
 
     def _generate(
         self, context: NarrativeContext, messages: list[dict[str, str]]
@@ -498,3 +545,32 @@ def _fallback_loop_summary(events: list[dict[str, Any]]) -> str:
     last = events[-1]
     action = str(last.get("action") or "마지막 선택")
     return f"루프는 '{action}'의 잔향을 남기고 접혔다. 세계는 그 선택을 낮은 신호로 보관한다."
+
+
+def _fallback_shard_summary(
+    shards: list[dict[str, Any]], *, existing_summary: str | None = None
+) -> str:
+    if not shards:
+        return existing_summary or "아직 압축할 장기 서사 파편이 없다."
+    symbols: list[str] = []
+    tones: list[str] = []
+    clues: list[str] = []
+    for shard in shards:
+        symbol = str(shard.get("symbol") or "").strip()
+        tone = str(shard.get("emotional_tone") or "").strip()
+        kind = str(shard.get("kind") or "general")
+        if symbol:
+            symbols.append(symbol)
+        if tone:
+            tones.append(tone)
+        if kind == "clue" and symbol:
+            clues.append(symbol)
+    symbol_text = ", ".join(dict.fromkeys(symbols[:6])) or "이름 없는 신호"
+    tone_text = ", ".join(dict.fromkeys(tones[:4])) or "불안정한 잔향"
+    clue_text = ", ".join(dict.fromkeys(clues[:6])) or "확정 단서 없음"
+    prefix = f"{existing_summary.rstrip()} " if existing_summary else ""
+    return (
+        f"{prefix}장기 기억은 {len(shards)}개의 파편을 흡수했다. "
+        f"반복 상징은 [{symbol_text}], 정서는 [{tone_text}], 확정 단서는 [{clue_text}]로 남아 "
+        "다음 장면의 인과율 압력과 NPC 반응을 낮은 배경 신호로 조정한다."
+    ).strip()

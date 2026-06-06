@@ -57,6 +57,10 @@ class PostgresStoreTest(unittest.TestCase):
     def tearDown(self) -> None:
         self.store.close()
 
+    @classmethod
+    def tearDownClass(cls) -> None:
+        PostgresMythOSStore.close_pool()
+
     def test_player_loop_event_scene_asset_crud(self) -> None:
         self.store.create_player(self.player)
         self.assertEqual(self.store.get_player(self.player.player_id), self.player)

@@ -12,7 +12,7 @@ from typing import Any, cast
 
 from mythos_core import PlayerProfile
 from mythos_core.models import to_json_dict
-from mythos_runtime.options import RuntimeSnapshot
+from mythos_runtime.options import MemoryOverview, RunSummary, RuntimeSnapshot, SaveSlot
 
 
 def player_to_dict(player: PlayerProfile) -> dict[str, Any]:
@@ -20,11 +20,48 @@ def player_to_dict(player: PlayerProfile) -> dict[str, Any]:
     return cast(dict[str, Any], to_json_dict(player))
 
 
+def memory_overview_to_dict(overview: MemoryOverview) -> dict[str, Any]:
+    """Serialize a MemoryOverview for Codex and memory progression."""
+    return cast(dict[str, Any], to_json_dict(overview))
+
+
+def save_slot_to_dict(slot: SaveSlot) -> dict[str, Any]:
+    """Serialize a SaveSlot for slots listing and manual saving."""
+    return cast(dict[str, Any], to_json_dict(slot))
+
+
+def run_summary_to_dict(run: RunSummary) -> dict[str, Any]:
+    """Serialize a RunSummary for the run history list."""
+    return cast(dict[str, Any], to_json_dict(run))
+
+
+def _calculate_zone_risk(location_id: str, turn_index: int) -> str:
+    loc = (location_id or "").lower()
+    if any(k in loc for k in ["spire", "스파이어"]):
+        return "경보 (Critical)"
+    elif any(k in loc for k in ["폐기", "abandoned", "wraith", "underground", "지하"]):
+        return "위험 (High)"
+    elif any(k in loc for k in ["야시장", "market", "binder", "hall", "회랑", "열람실"]):
+        return "경계 (Medium)"
+    elif any(k in loc for k in ["복지", "welfare", "corridor", "복도", "data-layer"]):
+        return "보통 (Low)"
+
+    if turn_index < 7:
+        return "보통 (Low)"
+    elif turn_index < 19:
+        return "경계 (Medium)"
+    elif turn_index < 35:
+        return "위험 (High)"
+    else:
+        return "경보 (Critical)"
+
+
 def snapshot_to_dict(snapshot: RuntimeSnapshot) -> dict[str, Any]:
     """Serialize a RuntimeSnapshot into the frontend GameState contract."""
     loop = snapshot.loop
     scene = snapshot.scene
     state = loop.state if isinstance(loop.state, dict) else {}
+    decay_pct = min(100, int((scene.turn_index / 60.0) * 100))
     return {
         "player": to_json_dict(snapshot.player),
         "loop_id": loop.loop_id,
@@ -32,6 +69,9 @@ def snapshot_to_dict(snapshot: RuntimeSnapshot) -> dict[str, Any]:
         "location": loop.location_id,
         "stability": loop.stability,
         "tension": loop.tension,
+        "decay_percent": decay_pct,
+        "zone_risk": _calculate_zone_risk(loop.location_id, scene.turn_index),
+        "clues_collected": snapshot.clues_collected,
         # Metrics (humanity/insight/resilience/dominance) and autonomy live in
         # loop.state["flags"]; the client reads them from here.
         "state": to_json_dict(state),

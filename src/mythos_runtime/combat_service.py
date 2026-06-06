@@ -86,6 +86,7 @@ class CombatService:
             hp=self._carried_hp(loop),
             skills=skill_ids,
         )
+        player.portrait = "characters/player-noise.png"
         allies = self._build_allies(loop, scenario_combat)
         combat_seed = seed or f"{loop.seed}:combat:{encounter_id}"
         state = build_encounter(
@@ -281,7 +282,12 @@ class CombatService:
             member["hp"] = combatant.hp
             member["max_hp"] = combatant.max_hp
             members_by_id[combatant.id] = member
-        party: dict[str, Any] = {"player_hp": player_hp}
+        player_combatant = state.player()
+        player_max_hp = player_combatant.max_hp if player_combatant else player_hp
+        party: dict[str, Any] = {
+            "player_hp": player_hp,
+            "player_max_hp": player_max_hp,
+        }
         if members_by_id:
             party["members"] = list(members_by_id.values())
         return party

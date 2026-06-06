@@ -6,6 +6,11 @@ from mythos_core.models import to_json_dict
 
 from .schemas import NarrativeContext
 
+# Upper bound on authored GM directive notes included in a prompt. Notes are
+# bounded, short instructions; an over-tight cap was dropping the opening
+# continuity / onboarding directives off the end of the list.
+MAX_PROMPT_NOTES = 24
+
 CANONICAL_WORLD_CONTEXT = """
 Project MythOS / 세계:접속 is a loop-based narrative simulation.
 The player is a Connector entering unstable data layers. Each loop may reset the
@@ -24,28 +29,37 @@ named "scene"; do not wrap it in any other envelope.
 
 JSON_CONTRACT = {
     "scene": {
-        "title": "short scene title",
+        "title": "한국어로 작성된 장면 제목",
         "location": "location id or readable location",
         "scene_type": "static|dynamic|climax",
-        "narration": "playable scene narration",
-        "objective": "current primary objective",
+        "narration": "한국어로 작성된 소설적이고 감각적인 장면 묘사",
+        "objective": "한국어로 작성된 현재 구체적인 작전 목표",
         "action_result": "Success|Partial Success|Failure|null",
         "requested_next_phase": "explore|interact|rewrite|archive|null",
         "choices": [
             {
                 "choice_id": "choice_1",
-                "label": "short player-facing choice",
+                "label": "한국어로 작성된 플레이어의 선택지 설명",
                 "intent": "explore|interact|rewrite|archive",
+                "cost": {"stability": -5, "tension": 3},  # optional: 안정성/긴장도 소모 및 변화량
+                "requires": {
+                    "stability_min": 10,
+                    "tension_max": 80,
+                },  # optional: 필요 최소 안정성 / 최대 긴장 조건
             }
         ],
-        "visual_brief": "English image brief under 700 characters",
+        "visual_brief": "English image brief under 700 characters for FLUX generation",
     },
     "world_delta": {
         "stability": -3,
         "tension": 5,
         "flags": ["signal_detected"],
         "clues": [
-            {"symbol": "clue_id", "text": "description of the clue", "tags": ["tag1", "tag2"]}
+            {
+                "symbol": "clue_id",
+                "text": "한국어로 작성된 발견한 단서 조각 설명",
+                "tags": ["tag1", "tag2"],
+            }
         ],
     },
     "end_condition": None,
@@ -108,7 +122,10 @@ def _context_prompt(context: NarrativeContext, instruction: str) -> str:
         "memories": [to_json_dict(memory) for memory in context.memories[-8:]],
         "world_memories": [to_json_dict(memory) for memory in context.world_memories[-6:]],
         "narrative_shards": [to_json_dict(shard) for shard in context.narrative_shards[-8:]],
-        "novelty_notes": context.novelty_notes[-8:],
+        # novelty_notes carries the authored GM directives (opening continuity,
+        # onboarding shots, story-bible snippets, stat monologue, emergency rules).
+        # Keep a generous window so critical directives aren't silently dropped.
+        "novelty_notes": context.novelty_notes[-MAX_PROMPT_NOTES:],
         "player_action": context.player_action,
         "validator_feedback": context.validator_feedback,
     }

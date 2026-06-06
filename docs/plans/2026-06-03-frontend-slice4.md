@@ -1,7 +1,7 @@
 # P3 Slice 4 — Frontend 설계 결정
 
 작성일: 2026-06-03
-상태: Decided (B 먼저 → 추후 A)
+상태: 완료 (Vite + React + TS SPA 구현 완료)
 
 P3 백엔드(slice 1·2·3: REST + WebSocket 스트리밍 + presigned URL)가 완성되어
 프론트엔드가 붙을 수 있는 헤드리스 게임 엔진이 되었다. 이 문서는 프론트엔드

@@ -1,7 +1,7 @@
 # P2/P3 Implementation & Design Plan
 
 작성일: 2026-06-03
-상태: Draft / In Progress
+상태: 완료 (IP-Adapter 실배선 및 React SPA 구현 완료)
 
 이 문서는 IP-Adapter 기반 캐릭터 일관성 실배선(P2)의 구현 계획과 Streamlit 이후 Web UI 및 클라우드 비주얼 워커 디커플링 아키텍처 설계(P3)의 설계 사양을 정의한다.
 

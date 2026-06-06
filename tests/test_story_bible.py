@@ -4,7 +4,7 @@ import unittest
 from datetime import UTC, datetime
 from pathlib import Path
 
-from mythos_core import LoopPhase, LoopState, PlayerProfile
+from mythos_core import LoopPhase, LoopState, PlayerMemory, PlayerProfile
 from mythos_runtime.scenario import PROJECT_ROOT, load_scenario
 from mythos_runtime.scenario_context import build_runtime_narrative_context
 from mythos_runtime.story_bible import (
@@ -22,6 +22,8 @@ def _loop(
     turn_index: int = 3,
     flags: list[str] | None = None,
     location_id: str = "data-layer-01",
+    stability: int = 70,
+    tension: int = 20,
 ) -> LoopState:
     return LoopState(
         loop_id="loop_story_bible",
@@ -29,8 +31,8 @@ def _loop(
         seed="seed_story_bible",
         phase=phase,
         location_id=location_id,
-        stability=70,
-        tension=20,
+        stability=stability,
+        tension=tension,
         started_at=datetime(2026, 5, 31, tzinfo=UTC),
         state={"flags": flags or [], "turn_index": turn_index},
     )
@@ -199,6 +201,202 @@ class StoryBibleTest(unittest.TestCase):
         self.assertIn("STORY_BIBLE_SNIPPET", notes)
         self.assertIn("act1_broken_catalog_hall", notes)
         self.assertIn("유리성", notes)
+
+    def test_runtime_context_includes_narrative_echoes(self) -> None:
+        from mythos_core import WorldMemory
+
+        player = PlayerProfile(
+            player_id="player_story_bible",
+            display_name="당신",
+            created_at=datetime(2026, 6, 2, tzinfo=UTC),
+            updated_at=datetime(2026, 6, 2, tzinfo=UTC),
+            traits={"archetype": "비접속자 (Ghost)"},
+        )
+        loop = _loop(phase=LoopPhase.CONNECT, turn_index=0)
+
+        world_memories = [
+            WorldMemory(
+                memory_id="mem_1",
+                world_id="mythos_world",
+                kind="run_summary",
+                content={
+                    "ending_label": "네오 서울의 비접속자 엔딩",
+                    "turns": 45,
+                    "clues_collected": ["clue_se_rin_diary"],
+                    "allies_met": ["정세린"],
+                    "summary_text": "네오 서울 뒷골목에서 세린과 함께 도주했으나 신호가 붕괴됨",
+                },
+                weight=1.0,
+                created_at=datetime(2026, 6, 2, 10, 0, 0, tzinfo=UTC),
+                updated_at=datetime(2026, 6, 2, 10, 0, 0, tzinfo=UTC),
+            )
+        ]
+
+        context = build_runtime_narrative_context(
+            player=player,
+            loop=loop,
+            scenario=load_scenario("neo-seoul"),
+            turn_index=0,
+            recent_events=[],
+            memories=[],
+            world_memories=world_memories,
+            narrative_shards=[],
+            novelty_notes=[],
+        )
+
+        notes = "\n".join(context.novelty_notes)
+        self.assertIn("=== NARRATIVE ECHOES (이전 루프의 기억과 잔향) ===", notes)
+        self.assertIn("이전 루프의 선택에서 비롯된 영적/물리적 잔향", notes)
+        self.assertIn("네오 서울의 비접속자 엔딩", notes)
+        self.assertIn("clue_se_rin_diary", notes)
+        self.assertIn("정세린", notes)
+        self.assertIn("신호가 붕괴됨", notes)
+
+    def test_runtime_context_includes_causality_summary(self) -> None:
+        now = datetime(2026, 6, 3, tzinfo=UTC)
+        player = PlayerProfile(
+            player_id="player_story_bible",
+            display_name="당신",
+            created_at=now,
+            updated_at=now,
+            traits={"archetype": "비접속자 (Ghost)"},
+        )
+        loop = _loop(phase=LoopPhase.EXPLORE, turn_index=51)
+        memories = [
+            PlayerMemory(
+                memory_id="memory_causality",
+                player_id="player_story_bible",
+                kind="causality_summary",
+                content={
+                    "player_id": "player_story_bible",
+                    "summary_text": "세린과의 도주, 관리자 감시, 붉은 우산 단서가 장기 인과율로 압축됨.",
+                    "clue_symbols": ["red_umbrella"],
+                    "tone_histogram": {"uneasy": 3, "resolved": 1},
+                },
+                weight=1.0,
+                created_at=now,
+                updated_at=now,
+            )
+        ]
+
+        context = build_runtime_narrative_context(
+            player=player,
+            loop=loop,
+            scenario=load_scenario("neo-seoul"),
+            turn_index=51,
+            recent_events=[],
+            memories=memories,
+            world_memories=[],
+            narrative_shards=[],
+            novelty_notes=[],
+        )
+
+        notes = "\n".join(context.novelty_notes)
+        self.assertIn("=== CAUSALITY SUMMARY (장기 서사 압축 기억) ===", notes)
+        self.assertIn("오래된 Narrative Shard 원문을 압축한 장기 인과율 기억", notes)
+        self.assertIn("red_umbrella", notes)
+        self.assertIn("uneasy:3", notes)
+
+    def test_runtime_context_includes_stat_monologue(self) -> None:
+        player = PlayerProfile(
+            player_id="player_stat_test",
+            display_name="테스터",
+            created_at=datetime(2026, 6, 2, tzinfo=UTC),
+            updated_at=datetime(2026, 6, 2, tzinfo=UTC),
+            traits={
+                "archetype": "비접속자 (Ghost)",
+                "stats": {
+                    "strength": 8,
+                    "agility": 2,
+                    "intelligence": 5,
+                    "charisma": 4,
+                    "perception": 6,
+                },
+            },
+        )
+        loop = _loop(phase=LoopPhase.CONNECT, turn_index=0)
+
+        context = build_runtime_narrative_context(
+            player=player,
+            loop=loop,
+            scenario=load_scenario("neo-seoul"),
+            turn_index=0,
+            recent_events=[],
+            memories=[],
+            world_memories=[],
+            narrative_shards=[],
+            novelty_notes=[],
+        )
+
+        notes = "\n".join(context.novelty_notes)
+        self.assertIn(
+            "=== 스탯 기반 내면 독백 지침 (DISCO ELYSIUM STYLE INNER MONOLOGUE) ===", notes
+        )
+        self.assertIn("플레이어의 가장 뛰어난 특성은 근력 (Strength) (수치: 8)입니다.", notes)
+        self.assertIn("플레이어의 가장 취약한 특성은 민첩 (Agility) (수치: 2)입니다.", notes)
+
+    def test_runtime_context_includes_travel_and_emergency_encounters(self) -> None:
+        player = PlayerProfile(
+            player_id="player_encounter_test",
+            display_name="테스터",
+            created_at=datetime(2026, 6, 2, tzinfo=UTC),
+            updated_at=datetime(2026, 6, 2, tzinfo=UTC),
+            traits={"archetype": "비접속자 (Ghost)"},
+        )
+
+        # 1. Travel encounter test
+        loop = _loop(phase=LoopPhase.EXPLORE, turn_index=10, stability=80, tension=20)
+        context = build_runtime_narrative_context(
+            player=player,
+            loop=loop,
+            scenario=load_scenario("neo-seoul"),
+            turn_index=10,
+            recent_events=[],
+            memories=[],
+            world_memories=[],
+            narrative_shards=[],
+            novelty_notes=[],
+            player_action="한강 야시장으로 이동",
+        )
+        notes = "\n".join(context.novelty_notes)
+        self.assertIn("=== TRAVEL ENCOUNTER (이동 중 조우 이벤트) ===", notes)
+        self.assertIn("중간 조우(Travel Interception) 이벤트를 묘사", notes)
+
+        # 2. Emergency encounter (low stability)
+        loop_low_stab = _loop(phase=LoopPhase.EXPLORE, turn_index=10, stability=15, tension=25)
+        context_low_stab = build_runtime_narrative_context(
+            player=player,
+            loop=loop_low_stab,
+            scenario=load_scenario("neo-seoul"),
+            turn_index=10,
+            recent_events=[],
+            memories=[],
+            world_memories=[],
+            narrative_shards=[],
+            novelty_notes=[],
+            player_action="대기하기",
+        )
+        notes_low_stab = "\n".join(context_low_stab.novelty_notes)
+        self.assertIn("=== EMERGENCY ENCOUNTERS (리소스 임계점 위기 상황) ===", notes_low_stab)
+        self.assertIn("현재 [은신 안정도]가 매우 위험한 수준", notes_low_stab)
+
+        # 3. Emergency encounter (high tension)
+        loop_high_tens = _loop(phase=LoopPhase.EXPLORE, turn_index=10, stability=75, tension=85)
+        context_high_tens = build_runtime_narrative_context(
+            player=player,
+            loop=loop_high_tens,
+            scenario=load_scenario("neo-seoul"),
+            turn_index=10,
+            recent_events=[],
+            memories=[],
+            world_memories=[],
+            narrative_shards=[],
+            novelty_notes=[],
+            player_action="대기하기",
+        )
+        notes_high_tens = "\n".join(context_high_tens.novelty_notes)
+        self.assertIn("=== EMERGENCY ENCOUNTERS (리소스 임계점 위기 상황) ===", notes_high_tens)
+        self.assertIn("현재 [관리망 추적도]가 극히 높은 수준", notes_high_tens)
 
 
 if __name__ == "__main__":

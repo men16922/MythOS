@@ -20,6 +20,7 @@ dependencies = [
     "opentelemetry-sdk>=1.26.0",
     "pillow>=10.4.0",
     "psycopg[binary]>=3.2.0",
+    "psycopg-pool>=3.2.0",
     "protobuf>=4.25.0",
     "redis>=5.0.0",
     "python-dotenv>=1.0.1",
@@ -35,6 +36,7 @@ dependencies = [
 dev = [
     "ruff>=0.4.0",
     "mypy>=1.10.0",
+    "playwright>=1.40.0",
 ]
 # P3 Web UI decoupling: FastAPI backend adapter over RuntimeSessionService.
 # Optional so the core runtime / image agent install stays lean.
@@ -52,7 +54,7 @@ mythos-api = "mythos_api.__main__:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-mythos_api = ["static/*"]
+mythos_api = ["static/*", "static/assets/*"]
 
 [tool.ruff]
 line-length = 100

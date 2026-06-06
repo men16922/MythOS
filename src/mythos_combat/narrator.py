@@ -33,6 +33,16 @@ def render_radar(state: CombatState) -> dict[str, Any]:
         "arena": {"w": state.arena_w, "h": state.arena_h},
         "turn_order": list(state.order),
         "current": current_id,
+        "enemy_intents": [
+            {
+                "enemy_id": intent.enemy_id,
+                "action": intent.action,
+                "target_x": intent.target_x,
+                "target_y": intent.target_y,
+                "target_name": intent.target_name,
+            }
+            for intent in getattr(state, "enemy_intents", [])
+        ],
         "blips": [
             {
                 "id": c.id,

@@ -48,6 +48,7 @@ class RuntimeSnapshot:
     bgm_path: str | None = None
     # Populated only on combat turns: {radar, available, finished, outcome, rewards}.
     combat: dict[str, Any] | None = None
+    clues_collected: int = 0
 
 
 @dataclass(frozen=True)
@@ -112,5 +113,6 @@ class MemoryOverview:
     run_summaries: list[RunSummary] = field(default_factory=list)
     latest_adjustment: dict | None = None
     rollup: dict | None = None
+    narrative_metrics: dict | None = None
     meta_progression: dict | None = None
     unlocked_lore: list[LoreEntry] = field(default_factory=list)

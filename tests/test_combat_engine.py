@@ -576,6 +576,124 @@ class CombatNarratorTest(unittest.TestCase):
         self.assertEqual(state.outcome, "player_victory")
         self.assertIn("살아남", narrate_outcome(state))
 
+    def test_enemy_intent_prediction(self) -> None:
+        engine = CombatEngine()
+        # 1. 드론이 (3, 0)에 있고 플레이어가 (0, 0)에 있는 경우 -> 이동 후 사거리 도달하여 attack 예측
+        state = engine.start([_player(x=0, y=0)], [_drone(x=3, y=0)], seed="intent", arena=(8, 6))
+        engine.available_actions(state)
+
+        radar_snap = render_radar(state)
+        self.assertIn("enemy_intents", radar_snap)
+        intents = radar_snap["enemy_intents"]
+        self.assertEqual(len(intents), 1)
+        intent = intents[0]
+        self.assertEqual(intent["action"], "attack")
+        self.assertEqual(intent["target_x"], 0)
+        self.assertEqual(intent["target_y"], 0)
+
+        # 2. 드론이 (7, 0)에 있어서 speed 4로도 플레이어(0, 0) 사거리 1에 닿지 못하는 경우 -> 단순 move 예측
+        state2 = engine.start(
+            [_player(x=0, y=0, agility=99)], [_drone(x=7, y=0)], seed="intent2", arena=(8, 6)
+        )
+        engine.available_actions(state2)
+        intent2 = state2.enemy_intents[0]
+        self.assertEqual(intent2.action, "move")
+        self.assertEqual(intent2.target_x, 3)
+        self.assertEqual(intent2.target_y, 0)
+
+    def test_se_rin_ai_shields_wounded_player(self) -> None:
+        engine = CombatEngine()
+        engine.skills_pool["covering_noise"] = {
+            "id": "covering_noise",
+            "name": "엄호 노이즈",
+            "cost": {"focus": 2},
+            "range": 4,
+            "effect": {"defense_bonus": 3, "duration": 1},
+            "cooldown": 3,
+        }
+
+        ally = Combatant(
+            id="se_rin",
+            name="정세린",
+            faction="ally",
+            hp=14,
+            max_hp=14,
+            x=2,
+            y=2,
+            stats={"strength": 4, "agility": 7, "perception": 7},
+            defense=13,
+            speed=5,
+            focus=2,
+            max_focus=4,
+            skills=["covering_noise"],
+            weapons=[
+                Weapon(id="rivet_carbine", name="리벳 카빈", kind="ranged", range=4, damage="1d6")
+            ],
+        )
+        player = _player(x=1, y=2)
+        player.max_hp = 10
+        player.hp = 5
+        drone = _drone(x=5, y=2)
+
+        state = engine.start([player, ally], [drone], seed="se-rin-guard-player")
+        state.order = ["se_rin", "player", "drone"]
+        state.turn_ptr = 0
+
+        engine._npc_turn(state, ally)
+
+        self.assertEqual(player.defense_buff, 3)
+        self.assertEqual(player.defense_buff_turns, 1)
+        self.assertEqual(ally.defense_buff, 0)
+
+    def test_kai_ai_targets_closest_to_player(self) -> None:
+        engine = CombatEngine()
+        engine.skills_pool["overload_strike"] = {
+            "id": "overload_strike",
+            "name": "과부하 일격",
+            "cost": {"focus": 2},
+            "range": 1,
+            "effect": {"damage_bonus": "1d6", "armor_pen": 2},
+            "cooldown": 2,
+        }
+
+        ally = Combatant(
+            id="kai",
+            name="카이",
+            faction="ally",
+            hp=18,
+            max_hp=18,
+            x=2,
+            y=1,
+            stats={"strength": 8, "agility": 3, "perception": 5},
+            defense=14,
+            speed=3,
+            focus=2,
+            max_focus=4,
+            skills=["overload_strike"],
+            weapons=[
+                Weapon(
+                    id="overload_gauntlet",
+                    name="과부하 건틀릿",
+                    kind="melee",
+                    reach=1,
+                    damage="2d6",
+                )
+            ],
+        )
+
+        player = _player(x=0, y=0)
+        drone1 = _drone(entry_id="d1", x=3, y=1)
+        drone2 = _drone(entry_id="d2", x=1, y=0)
+
+        state = engine.start([player, ally], [drone1, drone2], seed="kai-aggro")
+        state.order = ["kai", "player", "d1", "d2"]
+        state.turn_ptr = 0
+
+        engine._npc_turn(state, ally)
+
+        skill_logs = [e for e in state.log if e.action == "skill" and e.actor == "kai"]
+        self.assertTrue(len(skill_logs) > 0)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -28,6 +28,8 @@
 | `COMPLETED_SUMMARY.md` | 완료 milestone 압축 기록 |
 | `DECISIONS.md` | 되돌리기 어려운 결정 |
 | `DOCS_POLICY.md` | 문서 운영 규칙 |
+| `IMAGE_POLICY.md` | 이미지 생성 규칙·로컬 파이프라인 |
+| `REFERENCES.md` | 디자인 레퍼런스 게임과 적용 포인트 |
 
 ## On-Demand Docs
 

@@ -8,15 +8,15 @@
 - **주 플레이 경로**: 현재 권장 플레이 경로는 React SPA다. `make dev-up`이 docker infra, DB migration, background visual worker, FastAPI API를 준비하고 `http://localhost:8000`을 서빙한다. Ollama는 Mac host에서 별도로 `ollama serve`가 필요하다.
 - **구현 완료 축**: Neo-Seoul 01, Story Bible snippet 주입, Run History, Meta Progression, Save/Load UX, Ending Resolver, Developer 인과율 모니터, 자원 제약 선택지, 적 인텐트, 스탯 기반 내면 독백, 전술 전투, 단일 iframe Streamlit 전투 UI, React SPA 패리티, Playwright E2E, narrative shard rollup, narrative metrics dashboard가 구현됐다.
 - **비주얼 파이프라인**: 기본 이미지 백엔드는 mflux/FLUX. 캐릭터 장면은 mflux Redux portrait reference로 라우팅해 얼굴 일관성을 보강한다. Redis visual worker -> MinIO -> presigned PNG 경로가 실검증됐다.
-- **최신 검증 기준**: `make test`는 202 tests, 2 skipped 기준 통과 기록이 있다. `make test-e2e`는 `?fallback=1&image=0` 결정적 React 경로로 부트 오프닝, 세션 인트로, 턴 0 선택지, 턴 1 전환을 검증한다.
+- **최신 검증 기준**: `make test`는 203 tests, 2 skipped 기준 통과 기록이 있다. `make test-e2e`는 `?fallback=1&image=0` 결정적 React 경로로 부트 오프닝, 세션 인트로, 턴 0 선택지, 턴 1 전환을 검증한다.
 - **문서 진입점**: 새 작업자는 전체 `docs/`를 통째로 읽지 말고 `docs/AGENT_BRIEF.md` -> `docs/STATUS.md` -> `docs/NEXT_PLAN.md` 순서로 시작한다. 필요한 경우에만 `docs/DESIGN.md`, `docs/GAMEPLAY.md`, 시나리오, dated plan, archive를 연다.
 
 ## Current Handover
 
-1. **남은 수동 QA**: `docs/play-checklist.md` 기준으로 Dev 탭 2열 균형 레이아웃 재확인, 전투 드래그&드롭, 전투 패배 -> 메인 화면, CHARACTER 포트레이트 분기, 오프닝 연속성 라이브 LLM 확인이 남아 있다.
+1. **진행 중 트랙(Priority 1)**: 전투 연출 개편. Phase 0~4 완료(전신 포즈 컷인, role/tags 스킬 애니메이션 레지스트리, 스킬 아이콘 컷인, combat-art 적 4종, `CombatControls` 스킬 아이콘 액션바). 남은 것은 Phase 2 연출 polish(위치/스케일/타이밍/가독성, live QA 필요), Phase 3 모션 다양화 + reduced-motion, Phase 5 E2E/live QA. 점검 기준은 `docs/play-checklist.md`.
 2. **장기 worker 안정성**: Redux 단독 job과 종료 cleanup은 검증됐지만, txt2img(Flux1) + Redux(Flux1Redux) 동시 적재 시 메모리/스왑 멈춤 재발 여부는 장기 플레이에서 관찰해야 한다.
-3. **다음 구현 후보**: `docs/plans/2026-06-06-party-controllable-allies.md`의 파티 조작 2단계. 파티원은 플레이어가 직접 조작하고, flag-only 우호 동맹은 기존 AI 자동 동맹으로 유지하는 방향이다.
-4. **다중 시나리오 후보**: `glass-library` Story Bible/시나리오 확장 및 멀티 시나리오 회귀 플레이.
+3. **다음 구현 후보(Priority 2~3)**: `docs/plans/2026-06-06-progression-skills-archetypes.md`(아키타입/스킬 해금) 및 `docs/plans/2026-06-06-party-controllable-allies.md`(파티 조작 2단계).
+4. **다중 시나리오 후보(Priority 4)**: `glass-library` Story Bible/시나리오 확장 및 멀티 시나리오 회귀 플레이.
 
 ## Open Risks
 

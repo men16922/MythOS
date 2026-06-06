@@ -1,6 +1,6 @@
 # MythOS Local Runtime: Project Instructions
 
-이 문서는 Gemini CLI 에이전트를 위한 기초 명령 및 지침이다. 모든 설계의 근간은 `CORE_MANDATES.md`를, 현재 작업의 상세 맥락은 `CONTEXT_BRIDGE.md`를 최우선으로 참조한다.
+이 문서는 Gemini CLI 에이전트를 위한 기초 명령 및 지침이다. 모든 설계의 근간은 `harness/CORE_MANDATES.md`를, 현재 작업의 상세 맥락은 `harness/CONTEXT_BRIDGE.md`를 최우선으로 참조한다.
 
 ## Project Overview
 
@@ -23,7 +23,7 @@ MythOS is an agentic, loop-based narrative simulation engine. Players act as "Co
 - **Object Storage**: MinIO (S3-compatible asset store)
 - **Infrastructure**: Docker Compose for databases and observability.
 - **Observability**: OpenTelemetry + Jaeger.
-- **UI**: Streamlit (Browser Demo) and CLI.
+- **UI**: FastAPI-served React + TypeScript SPA (recommended play path), with Streamlit (Browser Demo) and CLI as compatibility surfaces.
 
 ## Building and Running
 
@@ -52,7 +52,7 @@ MythOS is an agentic, loop-based narrative simulation engine. Players act as "Co
 - **Type Safety**: Strictly use Python type hints and `dataclasses` for domain models.
 - **Naming**: `snake_case` for modules/functions, `PascalCase` for classes, `UPPER_SNAKE_CASE` for constants.
 - **Patterns**: Prefer composition and provider interfaces (e.g., `Store`, `Director`, `VisualProvider`) to allow swapping backend implementations.
-- **State Management**: Orchestrate logic in `RuntimeSessionService` (`src/mythos_runtime/session_service.py`) rather than duplicating in entry points.
+- **State Management**: Orchestrate logic in `RuntimeSessionService` (`src/mythos_runtime/session.py`) rather than duplicating in entry points.
 
 ### Testing Guidelines
 - **Location**: All tests reside in `tests/` following the `test_*.py` pattern.

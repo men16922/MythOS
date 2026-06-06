@@ -37,7 +37,7 @@ Tests use Python `unittest` and are named `tests/test_*.py`. Keep pure unit test
 
 ## Commit & Pull Request Guidelines
 
-No git history is present in this checkout, so no repository-specific commit convention can be inferred. Use concise imperative commit subjects, for example `Add Streamlit loop controls`. PRs should include a short summary, verification commands, linked issue or task context, and screenshots for UI changes.
+Use concise, scoped imperative commit subjects (Conventional-Commits style is used in history, e.g. `feat(combat): ...`, `docs: ...`, `chore: ...`). PRs should include a short summary, verification commands, linked issue or task context, and screenshots for UI changes.
 
 ## Security & Configuration Tips
 

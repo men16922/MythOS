@@ -66,7 +66,15 @@ function InfraLinks() {
 
 export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
   return (
-    <div id="dev-tab-content">
+    <div
+      id="dev-tab-content"
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(320px, 392px))",
+        gap: "16px",
+        alignItems: "start",
+      }}
+    >
       <InfraLinks />
       <div className="panel" style={devPanelStyle}>
         <h2

@@ -86,23 +86,23 @@ def build_runtime_narrative_context(
         stat_descriptions = {
             "strength": {
                 "name": "근력 (Strength)",
-                "voice": "본능적이고 거칠며 물리적 파괴와 신체적 생존을 자극하는 육체의 목소리. 투박한 반말과 거친 어조를 사용하며 물리적 충돌과 정면 돌파를 부추깁니다. 예시: \"주먹으로 저 빌어먹을 보안 패널을 들이받아 부숴버려! 쇠붙이는 부서지게 되어 있다.\"",
+                "voice": '본능적이고 거칠며 물리적 파괴와 신체적 생존을 자극하는 육체의 목소리. 투박한 반말과 거친 어조를 사용하며 물리적 충돌과 정면 돌파를 부추깁니다. 예시: "주먹으로 저 빌어먹을 보안 패널을 들이받아 부숴버려! 쇠붙이는 부서지게 되어 있다."',
             },
             "intelligence": {
                 "name": "지능 (Intelligence)",
-                "voice": "냉정하고 분석적이며 논리와 데이터, 시스템 최적화를 추구하는 연산의 목소리. 철저히 논리적이고 건조한 기계식 종결어미(~다, ~하십시오)를 사용하며 분석적 조언을 제공합니다. 예시: \"대상 보안 시스템의 오동작 주기는 4.2초입니다. 우회로 진입 시 발각 확률은 12% 미만으로 최적화됩니다.\"",
+                "voice": '냉정하고 분석적이며 논리와 데이터, 시스템 최적화를 추구하는 연산의 목소리. 철저히 논리적이고 건조한 기계식 종결어미(~다, ~하십시오)를 사용하며 분석적 조언을 제공합니다. 예시: "대상 보안 시스템의 오동작 주기는 4.2초입니다. 우회로 진입 시 발각 확률은 12% 미만으로 최적화됩니다."',
             },
             "charisma": {
                 "name": "매력 (Charisma)",
-                "voice": "감정적이고 사교적이며 사람들의 심리와 가면 뒤의 진실을 읽는 감응의 목소리. 친근하고 부드럽거나 장난기 섞인 구어체 말투(~잖아, ~지 않아?, ~보렴)를 사용하며 타인의 감정에 공감하고 유도하는 조언을 합니다. 예시: \"저 여자의 눈망울이 불안하게 흔들리고 있잖아. 차갑게 밀쳐내기보단 빗속에서 따스한 시선을 건네보는 게 어때? 마음을 열어줄 거야.\"",
+                "voice": '감정적이고 사교적이며 사람들의 심리와 가면 뒤의 진실을 읽는 감응의 목소리. 친근하고 부드럽거나 장난기 섞인 구어체 말투(~잖아, ~지 않아?, ~보렴)를 사용하며 타인의 감정에 공감하고 유도하는 조언을 합니다. 예시: "저 여자의 눈망울이 불안하게 흔들리고 있잖아. 차갑게 밀쳐내기보단 빗속에서 따스한 시선을 건네보는 게 어때? 마음을 열어줄 거야."',
             },
             "agility": {
                 "name": "민첩 (Agility)",
-                "voice": "기민하고 신경질적이며 회피와 탈출, 위험 감지를 부추기는 반사의 목소리. 호흡이 짧고 급하며 다급한 명령형(~해, ~뛰어, ~서둘러!)과 느낌표를 다용하여 당장 움직이도록 다그칩니다. 예시: \"망설이면 끝이다! 몸이 먼저 반응하는 대로 당장 움직여, 셋 둘 하나, 지금 뛰어!\"",
+                "voice": '기민하고 신경질적이며 회피와 탈출, 위험 감지를 부추기는 반사의 목소리. 호흡이 짧고 급하며 다급한 명령형(~해, ~뛰어, ~서둘러!)과 느낌표를 다용하여 당장 움직이도록 다그칩니다. 예시: "망설이면 끝이다! 몸이 먼저 반응하는 대로 당장 움직여, 셋 둘 하나, 지금 뛰어!"',
             },
             "perception": {
                 "name": "관측 (Perception)",
-                "voice": "예리하고 미세한 흔적과 보이지 않는 신호, 감춰진 디테일을 포착하는 감각의 목소리. 묘사적이고 세밀하며 객관적인 어조(~다, ~을 포착함)를 사용하며 주변의 숨겨진 디테일과 이질감을 짚어냅니다. 예시: \"벽면 네온 간판의 미세한 스파크 소리가 규칙적이지 않다. 간판 뒤에 불법 도청 모듈이 숨겨져 있음을 시사한다.\"",
+                "voice": '예리하고 미세한 흔적과 보이지 않는 신호, 감춰진 디테일을 포착하는 감각의 목소리. 묘사적이고 세밀하며 객관적인 어조(~다, ~을 포착함)를 사용하며 주변의 숨겨진 디테일과 이질감을 짚어냅니다. 예시: "벽면 네온 간판의 미세한 스파크 소리가 규칙적이지 않다. 간판 뒤에 불법 도청 모듈이 숨겨져 있음을 시사한다."',
             },
         }
         valid_stats = {
@@ -222,8 +222,12 @@ def build_runtime_narrative_context(
         latest_summary = sorted(causality_summaries, key=lambda memory: memory.updated_at)[-1]
         content = latest_summary.content
         summary_text = str(content.get("summary_text") or "").strip()
-        clue_symbols = content.get("clue_symbols") if isinstance(content.get("clue_symbols"), list) else []
-        tone_histogram = content.get("tone_histogram") if isinstance(content.get("tone_histogram"), dict) else {}
+        clue_symbols = (
+            content.get("clue_symbols") if isinstance(content.get("clue_symbols"), list) else []
+        )
+        tone_histogram = (
+            content.get("tone_histogram") if isinstance(content.get("tone_histogram"), dict) else {}
+        )
         if summary_text:
             notes.append("=== CAUSALITY SUMMARY (장기 서사 압축 기억) ===")
             notes.append(
@@ -235,7 +239,9 @@ def build_runtime_narrative_context(
             if clue_symbols:
                 notes.append(f"장기 단서 축: {', '.join(str(item) for item in clue_symbols[:8])}")
             if tone_histogram:
-                dominant_tones = sorted(tone_histogram.items(), key=lambda item: item[1], reverse=True)[:4]
+                dominant_tones = sorted(
+                    tone_histogram.items(), key=lambda item: item[1], reverse=True
+                )[:4]
                 notes.append(
                     "반복 정서 축: "
                     + ", ".join(f"{tone}:{count}" for tone, count in dominant_tones)

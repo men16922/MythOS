@@ -60,14 +60,37 @@ class LoopEngine:
             action_text = ""
             if chosen_event is not None and chosen_event.actor == Actor.PLAYER:
                 action_text = chosen_event.action or ""
-            
+
             # Keywords matching
-            met_keywords = ["따라", "수락", "동의", "손을", "신뢰", "오토바이", "타기", "탑승", "잡는다", "동행", "협력"]
-            refused_keywords = ["거절", "거부", "혼자", "독자", "경계", "피해", "숨기", "은신", "기다린다", "분석"]
-            
+            met_keywords = [
+                "따라",
+                "수락",
+                "동의",
+                "손을",
+                "신뢰",
+                "오토바이",
+                "타기",
+                "탑승",
+                "잡는다",
+                "동행",
+                "협력",
+            ]
+            refused_keywords = [
+                "거절",
+                "거부",
+                "혼자",
+                "독자",
+                "경계",
+                "피해",
+                "숨기",
+                "은신",
+                "기다린다",
+                "분석",
+            ]
+
             is_met = any(kw in action_text for kw in met_keywords)
             is_refused = any(kw in action_text for kw in refused_keywords)
-            
+
             if is_refused and not is_met:
                 if "refused_se_rin" not in flags:
                     flags.append("refused_se_rin")

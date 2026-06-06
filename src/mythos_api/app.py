@@ -261,6 +261,7 @@ def create_app() -> FastAPI:
     @app.on_event("shutdown")
     def shutdown_event():
         from mythos_memory.postgres_store import PostgresMythOSStore
+
         PostgresMythOSStore.close_pool()
 
     @app.get("/api/v1/health")
@@ -317,13 +318,19 @@ def create_app() -> FastAPI:
                     # Combat-simulator metadata: selectable encounters and allies
                     # so the SPA can launch a fight directly from the main screen.
                     "encounters": [
-                        {"id": eid, "name": (enc.get("name") if isinstance(enc, dict) else eid) or eid}
+                        {
+                            "id": eid,
+                            "name": (enc.get("name") if isinstance(enc, dict) else eid) or eid,
+                        }
                         for eid, enc in (
                             s.combat.get("encounters", {}) if isinstance(s.combat, dict) else {}
                         ).items()
                     ],
                     "allies": [
-                        {"id": aid, "name": (ally.get("name") if isinstance(ally, dict) else aid) or aid}
+                        {
+                            "id": aid,
+                            "name": (ally.get("name") if isinstance(ally, dict) else aid) or aid,
+                        }
                         for aid, ally in (
                             s.combat.get("allies", {}) if isinstance(s.combat, dict) else {}
                         ).items()
@@ -386,9 +393,7 @@ def create_app() -> FastAPI:
             # The action taken *in* a scene is the player event that produced the
             # next scene (shared turn_index = scene.turn_index + 1).
             events = service.store.list_events(loop_id)
-            action_by_turn = {
-                e.turn_index: e.action for e in events if e.actor == Actor.PLAYER
-            }
+            action_by_turn = {e.turn_index: e.action for e in events if e.actor == Actor.PLAYER}
             return {
                 "scenes": [
                     {

@@ -158,9 +158,7 @@ class RuntimeSessionService:
         )
         return player
 
-    def _prepare_start_loop(
-        self, player_id: str, options: RuntimeOptions
-    ) -> _PreparedStartLoop:
+    def _prepare_start_loop(self, player_id: str, options: RuntimeOptions) -> _PreparedStartLoop:
         player = self._require_player(player_id)
         memories = self.store.list_player_memories(player.player_id)
         loops = self.store.list_loops(player.player_id)
@@ -170,7 +168,7 @@ class RuntimeSessionService:
         initial_scores = _initial_loop_scores(world_memories, player_id=player.player_id)
         scenario = load_scenario(options.scenario_id)
         meta_progression = latest_meta_progression(memories, player.player_id, options.scenario_id)
-        
+
         stats = player.traits.get("stats", {}) if isinstance(player.traits, dict) else {}
         max_hp = 10 + int(stats.get("strength", 5))
 
@@ -470,8 +468,11 @@ class RuntimeSessionService:
         # 1. world_archives (loop_archive)
         world_memories = self.store.list_world_memories(MYTHOS_WORLD_ID)
         world_archives = [
-            m for m in world_memories
-            if m.kind == "loop_archive" and isinstance(m.content, dict) and m.content.get("player_id") == player_id
+            m
+            for m in world_memories
+            if m.kind == "loop_archive"
+            and isinstance(m.content, dict)
+            and m.content.get("player_id") == player_id
         ]
         world_archives.sort(key=lambda m: m.created_at, reverse=True)
         world_archives = world_archives[:limit]
@@ -496,27 +497,18 @@ class RuntimeSessionService:
                     latest_adjustment = adj
                     break
         if not latest_adjustment:
-            adjustments = [
-                m for m in world_memories
-                if m.kind == "narrative_adjustment"
-            ]
+            adjustments = [m for m in world_memories if m.kind == "narrative_adjustment"]
             adjustments.sort(key=lambda m: m.created_at, reverse=True)
             latest_adjustment = adjustments[0].content if adjustments else None
 
         # 6. rollup
-        rollups = [
-            m for m in world_memories
-            if m.kind == "shard_rollup"
-        ]
+        rollups = [m for m in world_memories if m.kind == "shard_rollup"]
         rollups.sort(key=lambda m: m.created_at, reverse=True)
         rollup = rollups[0].content if rollups else None
 
         # 7. narrative_metrics
         player_memories = self.store.list_player_memories(player_id)
-        metrics = [
-            m for m in player_memories
-            if m.kind == "narrative_metrics"
-        ]
+        metrics = [m for m in player_memories if m.kind == "narrative_metrics"]
         metrics.sort(key=lambda m: m.created_at, reverse=True)
         narrative_metrics = metrics[0].content if metrics else None
 
@@ -531,7 +523,6 @@ class RuntimeSessionService:
         active_slots = self.save_load.list_save_slots(player_id)
         if active_slots:
             scenario_id = active_slots[0].scenario_id
-
 
         progress = (
             meta_progression_from_content(
@@ -987,9 +978,7 @@ class RuntimeSessionService:
         scenario_id = str(loop_state.get("scenario_id") or "neo-seoul")
         try:
             scenario = load_scenario(scenario_id)
-            resolved_id, resolved_label = EndingResolver.resolve_ending(
-                loop, scenario, clue_count
-            )
+            resolved_id, resolved_label = EndingResolver.resolve_ending(loop, scenario, clue_count)
             if resolved_id:
                 ending_id = resolved_id
                 ending_label = resolved_label
@@ -1139,7 +1128,11 @@ class RuntimeSessionService:
             clues_collected=self._clues_collected(player.player_id),
         )
         requested_combat = _requested_combat_id(payload)
-        scenario_id = transition.loop.state.get("scenario_id") if isinstance(transition.loop.state, dict) else None
+        scenario_id = (
+            transition.loop.state.get("scenario_id")
+            if isinstance(transition.loop.state, dict)
+            else None
+        )
         if scenario_id == "neo-seoul" and scene.turn_index < 2:
             requested_combat = None
         next_combat = requested_combat or triggered_combat
@@ -1347,11 +1340,6 @@ def _save_echo_memory(store: MythOSStore, player_id: str, echo: Echo) -> PlayerM
     return memory
 
 
-
-
-
-
-
 def _has_archive_world_memory(memories: list[WorldMemory], loop_id: str, player_id: str) -> bool:
     for memory in memories:
         content = memory.content
@@ -1416,9 +1404,7 @@ def _player_rollup(world_memories: list[WorldMemory], player_id: str | None) -> 
     return None
 
 
-def _latest_causality_summary(
-    memories: list[PlayerMemory], player_id: str
-) -> PlayerMemory | None:
+def _latest_causality_summary(memories: list[PlayerMemory], player_id: str) -> PlayerMemory | None:
     summaries = [
         memory
         for memory in memories
@@ -1477,7 +1463,9 @@ def _prepare_narrative_memory_context(
         memory_id=existing.memory_id if existing else new_memory_id(),
         player_id=player_id,
         kind="causality_summary",
-        content=_merge_causality_summary_content(existing.content if existing else None, absorbable, summary_text),
+        content=_merge_causality_summary_content(
+            existing.content if existing else None, absorbable, summary_text
+        ),
         weight=1.0,
         created_at=existing.created_at if existing else now,
         updated_at=now,
@@ -1529,7 +1517,9 @@ def _merge_causality_summary_content(
     symbol_histogram = dict(content.get("symbol_histogram", {}))
     window = dict(content.get("window", {})) if isinstance(content.get("window"), dict) else {}
     created_times = [
-        item for item in [window.get("first_created_at"), window.get("last_created_at")] if isinstance(item, str)
+        item
+        for item in [window.get("first_created_at"), window.get("last_created_at")]
+        if isinstance(item, str)
     ]
 
     for shard in absorbed:

@@ -44,9 +44,10 @@ class CombatEngine:
 
     def _build_deterministic_terrain(self, state: CombatState) -> None:
         import hashlib
-        seed_bytes = state.seed.encode('utf-8')
+
+        seed_bytes = state.seed.encode("utf-8")
         h = hashlib.sha256(seed_bytes).digest()
-        
+
         idx = 0
         for y in range(state.arena_h):
             for x in range(state.arena_w):
@@ -56,7 +57,7 @@ class CombatEngine:
                     continue
                 val = h[idx % len(h)]
                 idx += 1
-                
+
                 if val < 26:
                     state.elevations[key] = 1
                 elif val < 65:
@@ -353,7 +354,7 @@ class CombatEngine:
         def_key = f"{defender.x},{defender.y}"
         att_el = state.elevations.get(att_key, 0)
         def_el = state.elevations.get(def_key, 0)
-        
+
         el_bonus = 0
         el_dmg = 0
         if att_el > def_el:
@@ -697,7 +698,9 @@ class CombatEngine:
             return None
         return min(candidates, key=lambda e: (distance(player.x, player.y, e.x, e.y), e.hp))
 
-    def _apply_hazard_effect(self, state: CombatState, combatant: Combatant, hazard_type: str) -> None:
+    def _apply_hazard_effect(
+        self, state: CombatState, combatant: Combatant, hazard_type: str
+    ) -> None:
         dice = self._dice(state)
         if hazard_type == "acid":
             damage = max(1, dice.roll("1d4"))
@@ -936,9 +939,7 @@ class CombatEngine:
                 if ally.focus >= focus_cost:
                     skill_range = int(skill_def.get("range", 4))
                     if distance(ally.x, ally.y, player.x, player.y) <= skill_range:
-                        self._execute_npc_skill(
-                            state, ally, shield_skill_id, skill_def, player
-                        )
+                        self._execute_npc_skill(state, ally, shield_skill_id, skill_def, player)
                         return
 
             # 1-2. Self-defense: use shield skill on self if self has no defense buff
@@ -1156,7 +1157,11 @@ class CombatEngine:
         return any(c.alive and c.id != mover.id and c.x == x and c.y == y for c in state.combatants)
 
     def _weapon_in_range(
-        self, attacker: Combatant, defender: Combatant, weapon: Weapon | None, state: CombatState | None = None
+        self,
+        attacker: Combatant,
+        defender: Combatant,
+        weapon: Weapon | None,
+        state: CombatState | None = None,
     ) -> bool:
         if weapon is None:
             return False
@@ -1166,7 +1171,9 @@ class CombatEngine:
             def_el = state.elevations.get(f"{defender.x},{defender.y}", 0)
             if att_el > def_el:
                 bonus_range = 1
-        return distance(attacker.x, attacker.y, defender.x, defender.y) <= (weapon.effective_range + bonus_range)
+        return distance(attacker.x, attacker.y, defender.x, defender.y) <= (
+            weapon.effective_range + bonus_range
+        )
 
     def _select_weapon(self, combatant: Combatant, weapon_id: str | None) -> Weapon | None:
         if weapon_id is not None:

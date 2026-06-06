@@ -37,7 +37,9 @@ class SaveLoadService:
         self.store.save_player_memory(memory)
         return _save_slot_from_memory(memory)
 
-    def autosave(self, loop: LoopState, scene: Scene, assets: list[AssetRecord]) -> PlayerMemory | None:
+    def autosave(
+        self, loop: LoopState, scene: Scene, assets: list[AssetRecord]
+    ) -> PlayerMemory | None:
         if loop.phase is LoopPhase.ENDED:
             return None
         memory = _save_slot_memory(loop, scene, assets, label=None)

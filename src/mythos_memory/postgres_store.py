@@ -48,7 +48,7 @@ class PostgresMythOSStore(MythOSStore):
                 kwargs={"row_factory": dict_row},
                 min_size=1,
                 max_size=10,
-                open=True
+                open=True,
             )
         self._connection: psycopg.Connection[dict[str, Any]] | None = None
         self._transaction_depth = 0

@@ -332,8 +332,6 @@ class ProgressionService:
     def __init__(self, store: MythOSStore) -> None:
         self.store = store
 
-
-
     def list_run_summaries(self, player_id: str, limit: int = 20) -> list[RunSummary]:
         world_memories = self.store.list_world_memories(MYTHOS_WORLD_ID)
         runs = []
@@ -358,6 +356,7 @@ class ProgressionService:
         self.store.save_player_memory(memory)
 
         from mythos_runtime.scenario import load_scenario
+
         scenario = load_scenario(scenario_id)
         state_after = apply_meta_progression_to_state(loop.state, updated_progress, scenario.combat)
         updated_loop = replace(loop, state=state_after)
@@ -426,14 +425,22 @@ def _run_summary_memory_from_archive(
         if shard.loop_id == loop.loop_id and (shard.kind == "clue" or shard.metadata.get("clue_id"))
     ]
     allies = _allies_from_loop_state(loop.state)
-    combats_won = len([
-        e for e in events 
-        if e.loop_id == loop.loop_id and e.state_delta.get("combat_outcome") in ("victory", "player_victory")
-    ])
-    combats_lost = len([
-        e for e in events 
-        if e.loop_id == loop.loop_id and e.state_delta.get("combat_outcome") in ("defeat", "player_defeat")
-    ])
+    combats_won = len(
+        [
+            e
+            for e in events
+            if e.loop_id == loop.loop_id
+            and e.state_delta.get("combat_outcome") in ("victory", "player_victory")
+        ]
+    )
+    combats_lost = len(
+        [
+            e
+            for e in events
+            if e.loop_id == loop.loop_id
+            and e.state_delta.get("combat_outcome") in ("defeat", "player_defeat")
+        ]
+    )
 
     run_sum = {
         "run_id": f"run_{loop.loop_id}",

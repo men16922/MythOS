@@ -56,6 +56,7 @@ def render_radar(state: CombatState) -> dict[str, Any]:
                 "alive": c.alive,
                 "defending": c.defending,
                 "portrait": c.portrait,
+                "combat_images": dict(c.combat_images),
                 "hp_ratio": round(c.hp / c.max_hp, 3) if c.max_hp else 0.0,
                 "focus": c.focus,
                 "max_focus": c.max_focus,

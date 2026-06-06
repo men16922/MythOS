@@ -91,6 +91,14 @@ def build_player_combatant(
         weapons=_resolve_weapons(weapon_ids, weapons_pool),
         ai="player",
         blip="◎",
+        portrait="characters/player-noise.png",
+        combat_images={
+            "idle": "characters/combat/player-noise-idle.png",
+            "attack": "characters/combat/player-noise-attack.png",
+            "guard": "characters/combat/player-noise-guard.png",
+            "skill": "characters/combat/player-noise-skill.png",
+            "hit": "characters/combat/player-noise-hit.png",
+        },
         focus=max_focus,
         max_focus=max_focus,
         skills=list(skills or []),
@@ -125,6 +133,7 @@ def build_enemy_combatant(
         blip=str(entry.get("blip", "●")),
         loot_table=entry.get("loot_table"),
         portrait=str(entry.get("image", "")),
+        combat_images={str(k): str(v) for k, v in entry.get("combat_images", {}).items()},
     )
 
 
@@ -158,6 +167,7 @@ def build_ally_combatant(
         ai=str(entry.get("ai", "melee")),
         blip=str(entry.get("blip", "◆")),
         portrait=str(entry.get("image", "")),
+        combat_images={str(k): str(v) for k, v in entry.get("combat_images", {}).items()},
         focus=max_focus,
         max_focus=max_focus,
         skills=[str(skill_id) for skill_id in entry.get("skills", [])],

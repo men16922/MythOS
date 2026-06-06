@@ -58,6 +58,7 @@ class Combatant:
     alive: bool = True
     loot_table: str | None = None
     portrait: str = ""
+    combat_images: dict[str, str] = field(default_factory=dict)
     focus: int = 0  # skill resource (spent on skills, regen each round)
     max_focus: int = 0
     skills: list[str] = field(default_factory=list)  # skill ids the combatant can use

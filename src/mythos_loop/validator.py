@@ -56,7 +56,7 @@ class Validator:
                     choice,
                     choice_id=c_id or f"choice_{i}",
                     label=c_label or "계속하기",
-                    intent=c_intent or "explore"
+                    intent=c_intent or "explore",
                 )
 
         seen_ids = set()
@@ -71,6 +71,7 @@ class Validator:
 
         if len(repaired_choices) == 0:
             from mythos_core import Choice
+
             repaired_choices = [
                 Choice(choice_id="choice_default", label="계속하기", intent="explore")
             ]
@@ -117,17 +118,25 @@ class Validator:
     def validate_choices(self, choices: list[Choice]) -> ValidationResult:
         errors: list[ValidationError] = []
         if not (1 <= len(choices) <= MAX_CHOICES):
-            errors.append(ValidationError("invalid_choice_count", "scene choices must be 1-4", is_fatal=False))
+            errors.append(
+                ValidationError("invalid_choice_count", "scene choices must be 1-4", is_fatal=False)
+            )
         choice_ids = [choice.choice_id for choice in choices]
         if len(set(choice_ids)) != len(choice_ids):
-            errors.append(ValidationError("duplicate_choice_id", "choice ids must be unique", is_fatal=False))
+            errors.append(
+                ValidationError("duplicate_choice_id", "choice ids must be unique", is_fatal=False)
+            )
         for choice in choices:
             if (
                 not choice.choice_id.strip()
                 or not choice.label.strip()
                 or not choice.intent.strip()
             ):
-                errors.append(ValidationError("invalid_choice", "choice fields must be non-empty", is_fatal=False))
+                errors.append(
+                    ValidationError(
+                        "invalid_choice", "choice fields must be non-empty", is_fatal=False
+                    )
+                )
         return ValidationResult(ok=not errors, errors=errors)
 
     def validate_state_delta(self, state_delta: dict) -> ValidationResult:

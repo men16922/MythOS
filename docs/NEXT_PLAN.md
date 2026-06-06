@@ -101,3 +101,5 @@
 - `[ ]` 장기 플레이에서 Flux1 + Flux1Redux 동시 적재 메모리 모니터.
 - `[ ]` 필요 시 stale dated plan status header 정리.
 - `[ ]` 완료 milestone은 current docs에 길게 남기지 않고 `COMPLETED_SUMMARY.md`로 압축.
+- `[ ]` 프론트엔드 god-component 분해(App.tsx 1199·CombatCinema 1066): custom hook/모듈 추출. E2E 민감하므로 live QA 동반 점진 진행.
+- `[ ]` `bin/` 보관소 검토 후 불필요 항목 삭제(historical archive/plans/scratch).

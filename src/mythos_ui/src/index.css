@@ -1537,13 +1537,13 @@ main {
 /* ── Dev 탭 인프라 콘솔 링크 ─────────────────────────────────── */
 .infra-links {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 10px;
+  grid-template-columns: 1fr;
+  gap: 8px;
 }
 .infra-link {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   padding: 10px 12px;
   border: 1px solid var(--line-soft);
   border-radius: 5px;

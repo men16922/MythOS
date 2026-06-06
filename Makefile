@@ -4,7 +4,7 @@ COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
-.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop lint python-lint frontend-lint format typecheck python-typecheck frontend-build check
+.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -134,6 +134,29 @@ api:
 
 api-stop:
 	@pkill -f "mythos_api" && echo "api stopped" || echo "no api running"
+
+# One-command dev stack: docker infra + db migrate + visual worker(bg) + API(foreground).
+# Ollama is host-side (not docker); start it separately with `ollama serve`.
+# Ctrl+C stops the API; infra/worker keep running. Tear everything down: make dev-down.
+dev-up:
+	$(COMPOSE) -f $(COMPOSE_FILE) up -d
+	@echo "Waiting for Postgres to be ready..."
+	@for i in $$(seq 1 30); do \
+		$(COMPOSE) -f $(COMPOSE_FILE) exec -T postgres pg_isready -U mythos >/dev/null 2>&1 && break; \
+		sleep 1; \
+	done
+	@$(MAKE) db-migrate || echo "db-migrate skipped/failed (이미 적용됐을 수 있음)"
+	@$(MAKE) visual-worker-bg
+	@(curl -s -m 2 http://localhost:11434/api/tags >/dev/null 2>&1 && echo "Ollama: 실행 중") || echo "⚠ Ollama 미실행 — 별도 터미널에서 'ollama serve' (또는 온보딩에서 fallback 사용)"
+	@echo "------------------------------------------------------------"
+	@echo "▶ API 기동. Ctrl+C로 API만 종료(인프라/워커 유지). 전체 정리: make dev-down"
+	@echo "------------------------------------------------------------"
+	@$(MAKE) api
+
+dev-down:
+	-@$(MAKE) api-stop
+	-@$(MAKE) visual-worker-stop
+	$(COMPOSE) -f $(COMPOSE_FILE) down
 
 infra-up:
 	$(COMPOSE) -f $(COMPOSE_FILE) up -d

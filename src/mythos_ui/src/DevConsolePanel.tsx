@@ -15,9 +15,48 @@ const activeEndingStyle: CSSProperties = {
 };
 const inactiveEndingStyle: CSSProperties = { color: "#6b7280" };
 
+// 로컬 인프라 콘솔 링크 (Streamlit Developer 사이드바 패리티).
+// 브라우저 호스트 기준으로 URL을 만들어 원격 접속 시에도 동작.
+const INFRA_LINKS: { label: string; port: number; desc: string }[] = [
+  { label: "Adminer", port: 8080, desc: "PostgreSQL DB 뷰어" },
+  { label: "MinIO", port: 9001, desc: "오브젝트 스토리지 콘솔 (이미지 자산)" },
+  { label: "Redis", port: 8081, desc: "Redis Commander (visual job 큐)" },
+  { label: "Jaeger", port: 16686, desc: "분산 트레이스 (OTel)" },
+];
+
+function InfraLinks() {
+  const host = window.location.hostname || "localhost";
+  return (
+    <div className="panel">
+      <div className="cc-label" style={{ marginBottom: "10px" }}>
+        로컬 인프라 콘솔 (Local Infrastructure)
+      </div>
+      <div className="infra-links">
+        {INFRA_LINKS.map((l) => (
+          <a
+            key={l.label}
+            className="infra-link"
+            href={`http://${host}:${l.port}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span className="infra-link-name">{l.label} ▸</span>
+            <span className="infra-link-url">{`${host}:${l.port}`}</span>
+            <span className="infra-link-desc">{l.desc}</span>
+          </a>
+        ))}
+      </div>
+      <div className="infra-hint">
+        링크가 열리지 않으면 `make infra-up`으로 도커 인프라를 먼저 기동하세요.
+      </div>
+    </div>
+  );
+}
+
 export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
   return (
     <div id="dev-tab-content">
+      <InfraLinks />
       <div className="panel">
         <h2
           style={{

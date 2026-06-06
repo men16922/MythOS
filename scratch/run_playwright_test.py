@@ -1,3 +1,4 @@
+# ruff: noqa: E402, I001
 import multiprocessing
 import os
 import sys
@@ -13,14 +14,49 @@ from playwright.sync_api import sync_playwright
 from mythos_api.app import create_app
 
 
+APP_URL = "http://127.0.0.1:8080/?fallback=1&image=0"
+OUTPUT_DIR = Path(__file__).parent.parent / "outputs"
+
+
 def run_server():
     app = create_app()
     uvicorn.run(app, host="127.0.0.1", port=8080, log_level="error")
 
 
+def wait_for_interactive_scene(page, *, timeout: int = 60000) -> None:
+    page.wait_for_function(
+        """
+        () => {
+          const status = document.querySelector('#status')?.textContent || '';
+          const hasChoices = document.querySelectorAll('#choices button').length > 0;
+          const hasCombat = !!document.querySelector('#combat');
+          const hasEnded = document.body.textContent.includes('여정 종료');
+          const hasError = status.startsWith('오류:');
+          return hasChoices || hasCombat || hasEnded || hasError;
+        }
+        """,
+        timeout=timeout,
+    )
+    status = page.locator("#status").inner_text() if page.locator("#status").count() else ""
+    if status.startswith("오류:"):
+        raise RuntimeError(status)
+
+
+def page_diagnostics(page) -> str:
+    body_text = page.locator("body").inner_text(timeout=1000)
+    status = page.locator("#status").inner_text(timeout=1000) if page.locator("#status").count() else ""
+    return (
+        f"status={status!r}, "
+        f"choices={page.locator('#choices button').count()}, "
+        f"combat={page.locator('#combat').count()}, "
+        f"body={body_text[:1200]!r}"
+    )
+
+
 def run_test():
     server_process = multiprocessing.Process(target=run_server)
     server_process.start()
+    browser = None
 
     # Wait for server to boot
     time.sleep(3.0)
@@ -32,8 +68,8 @@ def run_test():
             browser = p.chromium.launch(headless=True)
             page = browser.new_page()
 
-            print("Navigating to http://127.0.0.1:8080...")
-            page.goto("http://127.0.0.1:8080/")
+            print(f"Navigating to {APP_URL}...")
+            page.goto(APP_URL)
 
             print(f"Page title: {page.title()}")
 
@@ -62,10 +98,12 @@ def run_test():
             print("Logged in successfully. Game screen loaded!")
 
             print("Waiting for narrative typewriter stream to finish...")
-            page.wait_for_selector("#choices button", timeout=20000)
+            wait_for_interactive_scene(page)
+            if page.locator("#choices button").count() == 0:
+                raise RuntimeError("Expected narrative choices after begin. " + page_diagnostics(page))
 
             # Capture screenshot
-            screenshot_path = str(Path(__file__).parent.parent / "outputs" / "e2e_react_play.png")
+            screenshot_path = str(OUTPUT_DIR / "e2e_react_play.png")
             os.makedirs(os.path.dirname(screenshot_path), exist_ok=True)
             print(f"Capturing screenshot: {screenshot_path}")
             page.screenshot(path=screenshot_path)
@@ -78,14 +116,17 @@ def run_test():
             print("Clicking first choice to progress turn...")
             first_choice.click()
 
+            page.wait_for_function(
+                "() => document.querySelectorAll('#choices button').length === 0",
+                timeout=10000,
+            )
+
             # Wait for turn 1 streaming
             print("Waiting for next narrative turn typewriter...")
-            time.sleep(5.0)
+            wait_for_interactive_scene(page)
 
             # Capture screenshot after turn 1 choice
-            screenshot_path_turn1 = str(
-                Path(__file__).parent.parent / "outputs" / "e2e_react_play_turn1.png"
-            )
+            screenshot_path_turn1 = str(OUTPUT_DIR / "e2e_react_play_turn1.png")
             print(f"Capturing second screenshot: {screenshot_path_turn1}")
             page.screenshot(path=screenshot_path_turn1)
 
@@ -93,13 +134,29 @@ def run_test():
             browser.close()
     except Exception as e:
         print(f"E2E Test Failed: {e}", file=sys.stderr)
+        try:
+            if "page" in locals():
+                os.makedirs(OUTPUT_DIR, exist_ok=True)
+                page.screenshot(path=str(OUTPUT_DIR / "e2e_failure.png"))
+                print("Failure diagnostics: " + page_diagnostics(page), file=sys.stderr)
+        except Exception as diag_error:
+            print(f"Failed to capture diagnostics: {diag_error}", file=sys.stderr)
         import traceback
 
         traceback.print_exc()
+        sys.exit(1)
     finally:
+        if browser is not None:
+            try:
+                browser.close()
+            except Exception:
+                pass
         print("Stopping uvicorn server...")
         server_process.terminate()
-        server_process.join()
+        server_process.join(timeout=5)
+        if server_process.is_alive():
+            server_process.kill()
+            server_process.join(timeout=5)
 
 
 if __name__ == "__main__":

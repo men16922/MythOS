@@ -45,8 +45,9 @@ export default function App() {
   const [scenarios, setScenarios] = useState<ScenarioInfo[]>([]);
   const [selectedScenarioId, setSelectedScenarioId] = useState("neo-seoul");
   const [selectedArchetype, setSelectedArchetype] = useState<string | null>(null);
-  const fallbackMode = false;
-  const withImage = true;
+  const urlParams = new URLSearchParams(window.location.search);
+  const fallbackMode = urlParams.get("fallback") === "1" || urlParams.get("fallback") === "true";
+  const withImage = !(urlParams.get("image") === "0" || urlParams.get("image") === "false");
   const [obStatus, setObStatus] = useState("");
   const [connected, setConnected] = useState(false);
   const [showIntro, setShowIntro] = useState(false);

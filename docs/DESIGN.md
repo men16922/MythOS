@@ -1,6 +1,6 @@
 # Project MythOS Design
 
-최종 갱신: 2026-06-06
+최종 갱신: 2026-06-07
 
 이 파일은 현재 아키텍처를 빠르게 파악하기 위한 압축본이다. 장문 설계 원문은
 `bin/docs/archive/DESIGN_FULL_2026-06-06.md`, 실제 DB 스키마 권위는 `migrations/`를 따른다.
@@ -9,7 +9,7 @@
 
 Project MythOS는 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG/CRPG다.
 
-- Core orchestration: `src/mythos_runtime/session.py`의 `RuntimeSessionService`.
+- Core orchestration: `src/mythos_runtime/session.py`의 `RuntimeSessionService` (장기기억 롤업/루프 점수/전투 글루 헬퍼는 `narrative_rollup.py`/`loop_scoring.py`/`combat_session_helpers.py`로 분리, 공유 상수는 `constants.py`).
 - Domain: `src/mythos_core`.
 - Memory/persistence: `src/mythos_memory` + PostgreSQL.
 - Narrative: `src/mythos_narrative` + Ollama.

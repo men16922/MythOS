@@ -117,7 +117,7 @@
 - Browser narrative play: fallback off 상태에서 Ollama scene 생성.
 - Streamlit polish regression: saved player 선택, saved loop resume, archive, next loop Echo carry-over.
 - Automated browser E2E: `make test-e2e` (Playwright headless Chromium 온보딩/턴이동 성공 검증, outputs PNG 스냅샷 보관)
-- Current lightweight verification: `make lint`, `make typecheck`, `make test` (202 tests, 2 skipped), `make test-e2e`.
+- Current lightweight verification: `make lint`, `make typecheck`, `make test` (203 tests, 2 skipped), `make test-e2e`.
 
 ## Completed Architecture Baseline
 

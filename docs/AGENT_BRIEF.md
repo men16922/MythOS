@@ -16,14 +16,15 @@ Project MythOS는 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG
 - PostgreSQL/MinIO/Redis/OTel/Jaeger 로컬 인프라 구성.
 - Neo-Seoul 01이 주력 시나리오, `glass-library`는 확장 샘플.
 - Story Bible, Codex, Run History, Meta Progression, Save/Load, Ending Resolver 구현.
-- 전술 전투, 동료 참전, 적 인텐트, 전투 VFX Phase 1, CombatCinema 전신 action pose, Playwright E2E 구현.
+- 전술 전투, 동료 참전, 적 인텐트, 전투 VFX Phase 1, CombatCinema 전신 action pose, role/tags 스킬 애니메이션, 스킬 아이콘 액션바(Phase 4), Playwright E2E 구현. combat-art 적 4종.
 - mflux/FLUX image worker, Redux 캐릭터 일관성, MinIO asset path 검증 완료.
+- `session.py`는 narrative_rollup/loop_scoring/combat_session_helpers/constants로 책임 분리됨(공개 API 동일).
 
 ## Active Work
 
 다음 우선순위는 `docs/NEXT_PLAN.md`가 권위다.
 
-1. 전투 연출 개편: party 3인 + humanoid enemy 전신 action pose 적용 완료, 다음은 표시 위치/스케일/타이밍 polish.
+1. 전투 연출 개편: 전신 action pose·스킬 애니메이션 레지스트리·아이콘 액션바(Phase 4)까지 완료, 다음은 Phase 2 표시 위치/스케일/타이밍/가독성 polish(live QA).
 2. 진행도 해금: Ghost-only 시작, 아키타입 게이트, base/learned 스킬 필터, Codex Skill 탭.
 3. 파티 조작 2단계: 파티원은 플레이어 직접 조작, 비파티 동맹은 AI 유지.
 4. `glass-library` Story Bible/시나리오 확장.

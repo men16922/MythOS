@@ -21,14 +21,18 @@ Project MythOS는 로컬 플레이어블 MVP를 넘어 React SPA + FastAPI API +
 - Phase 4 `CombatControls` 스킬 아이콘 액션바: data-driven 아이콘 타일 + cost/range 배지 + cooldown 오버레이 + FOCUS 게이팅 + tooltip.
 - Drone enemies(`maintenance-drone`, `sentinel-drone`) promoted with full combat action sheets — 4 combat-art enemies total.
 
+Repo hygiene (2026-06-07):
+
+- 정크 제거(`.playwright-mcp`/`.antigravitycli`/`report.md`), historical 문서/완료 plan은 `bin/`으로 이관(활성 plan만 `docs/plans/`).
+- `session.py` 1878→1349줄: `narrative_rollup.py`/`loop_scoring.py`/`combat_session_helpers.py`/`constants.py`로 책임 분리(공개 API·import 경로 호환 유지). `scratch/`는 재사용 에셋 파이프라인이라 root 유지.
+- 문서 정리: `ADULT_VISUAL_POLICY.md`→`IMAGE_POLICY.md`(이미지 파이프라인 실무 가이드), `bin/reference.md`→`docs/REFERENCES.md`(디자인 레퍼런스).
+
 Recent verified baseline recorded in docs:
 
-- `make test`: 202 tests, 2 skipped.
-- Python typecheck, frontend lint/build, `make test-e2e`: clean.
+- `make test`: 203 tests, 2 skipped (전투 연출/아트/리팩토링 일체 커밋 완료).
+- frontend lint/build clean, `tests/playwright/test_e2e_play_checklist.py` green (refactored 서버 기동 포함).
 - Redux worker live path: Redis queue -> mflux Redux -> MinIO -> presigned PNG GET 200.
-- CombatCinema action sheet path: party 3인 and humanoid enemies(`enforcer-unit`, `glitch-wraith`) have `idle/attack/guard/skill/hit` runtime assets.
-- Latest full regression (working tree, 2026-06-07): `make test` 203 tests / 2 skipped OK, combat sprite 35개 모두 `RGBA + 512x768`, skill icon 5종, `make frontend-build` clean.
-- 주의: 위 전투 연출/아트 작업 일체는 아직 미커밋 상태(`feat/poc-ux-visual-combat-batch` 작업 트리). 커밋/PR 정리만 남음.
+- Combat assets: party 3인 + 적 4종(`enforcer-unit`/`glitch-wraith`/`maintenance-drone`/`sentinel-drone`) `idle/attack/guard/skill/hit` 35종 `RGBA 512x768`, skill icon 5종.
 
 ## Active Focus
 

@@ -54,6 +54,14 @@
 - `[x]` 전투 드래그&드롭, 전투 패배→메인 화면 버튼, CHARACTER 포트레이트 분기(대화상대 등장), 오프닝 연속성 라이브 LLM 재확인 완료.
 
 다음 구현 (우선순위 순):
+- `[~]` **전투 연출 개편: 다키스트 던전식 캐릭터 아트 + 스킬 애니메이션 (★ 활성)** — `docs/plans/2026-06-06-combat-darkest-dungeon-presentation.md`. 추상 무기 컷인 → 캐릭터 아트 주인공 + role/tags 구동 스킬 애니메이션 + 아이콘 액션바. **그리드 엔진 무변경**(연출·UI·직렬화 계층만). 화면구조(그리드 위 스프라이트)·아트(생성)·애니메이션(role+tags) 방향 사용자 확정.
+  - `[x]` 선행: **전투 빈 화면 수정 + log/지형 직렬화 배선** — 전투 스냅샷에 `log`/`elevations`/`covers`/`hazards` 추가(`serialize_combat_log`·`CombatTurnResult`·`session`), 프론트 `combat.log` 가드 + `CombatCinema` `useEffect` deps 버그 차단. build/lint/typecheck/`make test`(202) 통과.
+  - `[x]` Phase 0: 백엔드 스킬 메타 노출 — `engine._skill_action_info()`로 `available.skills`에 `role/tags/name/cost/range` 직렬화, `types.ts CombatSkillInfo` 확장. 런타임 확인 + 테스트 통과.
+  - `[ ]` Phase 1: 전투포즈 캐릭터 아트 생성(mflux Redux, portrait=레퍼런스) → `characters/combat/`·`enemies/combat/`, blip `combat_portrait` 직렬화 + portrait 폴백. **FLUX/MPS 환경 필요.**
+  - `[ ]` Phase 2: 보드 원형 blip → 서있는 캐릭터 스프라이트(`combatCanvas.ts`, Y-sort/그림자). reduced-motion 정적 경로 유지.
+  - `[ ]` Phase 3: role+tags 구동 스킬 애니메이션 레지스트리(`combatAnim.ts`) — 슬래시/사격/블링크/힐/실드. 컷인은 치명타/처치 등 특별 순간으로 강등/대체.
+  - `[ ]` Phase 4: SVG 아이콘 → 액션 버튼(`combatIcons.tsx` + `CombatControls` 아이콘+툴팁+비용/CD 배지).
+  - `[ ]` Phase 5: reduced-motion/E2E/빌드·린트·타입·테스트 + 라이브 QA.
 - `[ ]` **전투 이펙트 개선 (시각적)** — `docs/plans/2026-06-06-combat-visual-effects.md`. 클라이언트 스냅샷 diff → rAF 애니메이션 큐로 이동/공격/피격/사망/**스킬(role·tags 기반)** 연출 + SFX 임팩트 동기. 백엔드 무변경(Phase 1), instant/reduced-motion 경로로 E2E 보호. **승인 게이트 없음 — 선행 착수 가능.**
   - `[x]` Phase 1: rAF 루프 + `combatDiff`(prev→next 순수 diff) + 이동/데미지/힐 트윈 + 데미지 숫자/임팩트 플래시 + HP 바 드레인 + 사망 페이드 + 스킬 캐스트 커넥터 + SFX 임팩트 동기. **가해자 추론**으로 적/동료 공격도 lunge/트레이서(라이브 컨펌). 라이브 점검용 **전투 시뮬레이터**(온보딩 화면) 추가. instant/reduced-motion 경로로 E2E 보호. `make frontend-build`·lint·mypy·`make test-e2e`(스크래치+전투 체크리스트)·`test_api`(25) 통과.
   - `[ ]` Phase 1 후속(선택): JS 테스트 러너(vitest) 도입 후 `combatDiff` 단위 테스트, 라이브 플레이 시각 QA.

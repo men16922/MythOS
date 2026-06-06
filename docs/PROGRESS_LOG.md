@@ -13,6 +13,19 @@ YYYY-MM-DD
 - Next:
 ```
 
+## 2026-06-06 — 전투 빈 화면 수정(log/지형 직렬화 배선) + DD식 연출 트랙 설계 & Phase 0
+
+- Status: [x] 진행 중이던 전술 지형 + 풀스크린 컷인(`CombatCinema`) 작업이 백엔드 직렬화 미연결로 공격/스킬 시 **빈 화면(React 크래시)**을 유발 → 전체 배선으로 수정. 이어 "다키스트 던전식 캐릭터 아트 + 스킬 애니메이션" 연출 개편 트랙을 설계 확정하고 **Phase 0(백엔드 스킬 메타 노출)** 구현.
+- Changed:
+  - 근본 원인: 전투 스냅샷이 `log`/`elevations`/`covers`/`hazards`를 안 보내는데 프론트가 `combat.log.slice()`를 가드 없이 호출 → `useEffect` 내 TypeError → React 트리 언마운트(빈 화면). 모든 전투 상태 전이(공격/스킬/이동 직후)에서 발생.
+  - 백엔드 직렬화 배선: `narrator.serialize_combat_log()` 신설(`__init__` re-export), `CombatTurnResult`에 `log`/`elevations`/`covers`/`hazards` 필드 추가(`_build_result`에서 채움), `session.py` 두 스냅샷 지점(`_commit_combat_turn`·`_combat_snapshot`)에 `log`+지형 4키 추가. → 보드 지형 렌더 + 컷인 데이터가 실제로 공급됨.
+  - 프론트 방어: `App.tsx` `combat.log` 가드(`?? []`) + 컷인 remount `key`. `CombatCinema.tsx` `onFinish`/`onImpact`를 ref로 분리해 `useEffect` deps에서 제거(부모 리렌더가 타이머 리셋→컷인 미종료로 또 빈 화면 되는 잠재버그 차단). `types.ts` `CombatLogDetail` 타입드 detail.
+  - Phase 0: `engine._skill_action_info()` — `available.skills`에 `role/tags/name/cost/range` 직렬화. `types.ts CombatSkillInfo` 확장. → 아이콘/스킬 애니메이션을 하드코딩 없이 데이터 구동할 토대.
+  - 신규 계획: `docs/plans/2026-06-06-combat-darkest-dungeon-presentation.md`(그리드 유지 + 캐릭터 스프라이트 / 전투 아트 생성 / role+tags 애니메이션 / 아이콘 액션바, 5단계). 화면구조·아트·애니메이션 방향 사용자 확정.
+- Verified: 런타임 스냅샷에 `log`+지형+스킬 메타 포함 확인(공격 후 `hit` detail에 target/damage/crit). `make test`(202, 2 skip), `make python-typecheck`(93 files), `make frontend-lint`/`frontend-build` 클린.
+- Blockers: 없음. Phase 1 전투 아트 생성은 로컬 FLUX/MPS 환경 필요. 컷인(SVG 홀로그램)은 Phase 3에서 캐릭터 연출로 대체/강등 예정.
+- Next: Phase 1(전투 아트 생성, FLUX 환경 필요) 또는 Phase 2~4(placeholder portrait로 스프라이트/애니메이션/아이콘 선구현) 중 택일.
+
 ## 2026-06-06 — 전투 보드 시각 이펙트 (Phase 1) + 진행도/스킬 트랙 설계
 
 - Status: [x] 정적 전투 캔버스를 rAF 애니메이터로 전환해 이동/데미지/사망/스킬 연출 도입(Phase 1). 수동 QA 전 항목 마감 후 신규 트랙(전투 이펙트·진행도 해금/스킬트리) 설계 확정 및 우선순위 1번 구현.

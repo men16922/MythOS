@@ -30,13 +30,24 @@ interface SfxTrigger {
   fired?: boolean;
 }
 
-interface Connector {
-  ax: number;
-  ay: number;
-  tx: number;
-  ty: number;
+// An inferred attack: attacker -> target. Every damage event gets one so the
+// aggressor is visible (a melee lunge or a ranged tracer), not just the victim.
+interface Attack {
+  aId: string;
+  tId: string;
+  start: number; // tracer/lunge lead-in
+  impactAt: number; // aligns with the damage event start
+  melee: boolean;
   color: string;
   skill: boolean;
+}
+
+function partySide(faction: string): "enemy" | "party" {
+  return faction === "enemy" ? "enemy" : "party";
+}
+
+function cheb(ax: number, ay: number, bx: number, by: number): number {
+  return Math.max(Math.abs(ax - bx), Math.abs(ay - by));
 }
 
 // Drives combat board animation: diffs the previous board against the next one,
@@ -111,12 +122,12 @@ export class CombatAnimator {
     deathEvents.forEach((ev, i) => sched.push({ ev, start: deathBase + i * 90, dur: DEATH_DUR }));
 
     const firstHitStart = hitEvents.length ? hitBase : 0;
-    const connector = this.buildConnector(next, events, opts.dispatched);
-    const connectorEnd = connector ? firstHitStart + 220 : 0;
+    const attacks = this.buildAttacks(next, hitEvents, hitBase, opts.dispatched);
 
     let total = 0;
     sched.forEach((s) => (total = Math.max(total, s.start + s.dur)));
-    total = Math.min(TOTAL_CAP, Math.max(total, connectorEnd));
+    attacks.forEach((a) => (total = Math.max(total, a.impactAt + 160)));
+    total = Math.min(TOTAL_CAP, total);
 
     // --- Sfx triggers --------------------------------------------------------
     const sfx: SfxTrigger[] = [];
@@ -129,35 +140,17 @@ export class CombatAnimator {
       return b ? [b.x, b.y] : [0, 0];
     };
 
+    // Current rendered cell position of a blip: its move-tween override if any,
+    // else its settled position.
+    const curPos = (overlay: CombatOverlay, id: string): [number, number] => {
+      const ov = overlay.blips?.[id];
+      if (ov?.cellX != null && ov.cellY != null) return [ov.cellX, ov.cellY];
+      return blipPos(id);
+    };
+
     const computeOverlay = (t: number): CombatOverlay => {
       const overlay: CombatOverlay = { blips: {}, floats: [], fx: [] };
       const ovFor = (id: string) => overlay.blips![id] || (overlay.blips![id] = {});
-
-      if (connector && t < connectorEnd) {
-        const cl = clamp01(t / Math.max(1, connectorEnd));
-        overlay.fx!.push({
-          kind: "tracer",
-          x1: connector.ax,
-          y1: connector.ay,
-          x2: connector.tx,
-          y2: connector.ty,
-          color: connector.color,
-          alpha: 0.85 * (1 - cl),
-          width: connector.skill ? 2.6 : 1.8,
-        });
-        if (connector.skill && t < 320) {
-          const cp = clamp01(t / 320);
-          overlay.fx!.push({
-            kind: "ring",
-            cellX: connector.ax,
-            cellY: connector.ay,
-            cellR: 0.28 + 0.2 * cp,
-            color: connector.color,
-            alpha: 0.7 * (1 - cp),
-            width: 2,
-          });
-        }
-      }
 
       for (const s of sched) {
         const local = (t - s.start) / s.dur;
@@ -218,6 +211,57 @@ export class CombatAnimator {
         }
       }
 
+      // Attacker effects: drawn after move tweens so they reference live
+      // positions. Melee attackers lunge toward the target; ranged attackers
+      // fire a tracer; a skill cast adds a ring on the attacker.
+      for (const atk of attacks) {
+        const winEnd = atk.impactAt + 150;
+        if (t < atk.start || t > winEnd) continue;
+        const [ax, ay] = curPos(overlay, atk.aId);
+        const [tx, ty] = curPos(overlay, atk.tId);
+        // 0 → 1 (wind-up to impact) → 0 (recover)
+        const lead = Math.max(1, atk.impactAt - atk.start);
+        const pulse =
+          t <= atk.impactAt
+            ? easeOut(clamp01((t - atk.start) / lead))
+            : 1 - clamp01((t - atk.impactAt) / 150);
+
+        if (atk.melee) {
+          // Lunge the attacker ~0.4 cell toward the target and back.
+          const dx = tx - ax;
+          const dy = ty - ay;
+          const len = Math.hypot(dx, dy) || 1;
+          const ov = ovFor(atk.aId);
+          if (ov.cellX == null) ov.cellX = ax;
+          if (ov.cellY == null) ov.cellY = ay;
+          ov.cellX += (dx / len) * 0.42 * pulse;
+          ov.cellY += (dy / len) * 0.42 * pulse;
+        } else {
+          overlay.fx!.push({
+            kind: "tracer",
+            x1: ax + 0.5,
+            y1: ay + 0.5,
+            x2: tx + 0.5,
+            y2: ty + 0.5,
+            color: atk.color,
+            alpha: 0.85 * pulse,
+            width: atk.skill ? 2.6 : 1.8,
+          });
+        }
+        if (atk.skill && t < atk.start + 320) {
+          const cp = clamp01((t - atk.start) / 320);
+          overlay.fx!.push({
+            kind: "ring",
+            cellX: ax + 0.5,
+            cellY: ay + 0.5,
+            cellR: 0.28 + 0.2 * cp,
+            color: atk.color,
+            alpha: 0.7 * (1 - cp),
+            width: 2,
+          });
+        }
+      }
+
       return overlay;
     };
 
@@ -244,30 +288,61 @@ export class CombatAnimator {
     this.raf = requestAnimationFrame(frame);
   }
 
-  // Derive a cast / attack connector from the player's dispatched action (the
-  // one thing the snapshot diff can't recover: who acted on whom).
-  private buildConnector(
+  // One attack per damage event so every aggressor is visible. The snapshot
+  // diff can't say who hit whom, so we infer the attacker: the player's
+  // dispatched target is exact; otherwise the nearest living opposite-side unit.
+  private buildAttacks(
     next: CombatState,
-    events: CombatEvent[],
+    hitEvents: CombatEvent[],
+    hitBase: number,
     dispatched?: CombatAction | null
-  ): Connector | null {
-    if (!dispatched || !dispatched.target_id) return null;
-    if (dispatched.type !== "attack" && dispatched.type !== "skill") return null;
-    const actor = next.radar.blips.find((b) => b.faction === "player");
-    const target = next.radar.blips.find((b) => b.id === dispatched.target_id);
-    if (!actor || !target) return null;
-    const tEv = events.find(
-      (e) => e.id === target.id && (e.kind === "damage" || e.kind === "heal")
-    );
-    const color = tEv?.kind === "heal" ? "#7dff9b" : "#ff8a98";
-    return {
-      ax: actor.x + 0.5,
-      ay: actor.y + 0.5,
-      tx: target.x + 0.5,
-      ty: target.y + 0.5,
-      color,
-      skill: dispatched.type === "skill",
-    };
+  ): Attack[] {
+    const blips = next.radar.blips;
+    const byId = (id: string) => blips.find((b) => b.id === id);
+    const attacks: Attack[] = [];
+
+    hitEvents.forEach((ev, i) => {
+      if (ev.kind !== "damage") return; // heals get the green float, no aggressor
+      const target = byId(ev.id);
+      if (!target) return;
+      const tSide = partySide(target.faction);
+
+      let attacker = null as (typeof blips)[number] | null;
+      let skill = false;
+      if (
+        dispatched &&
+        dispatched.target_id === ev.id &&
+        (dispatched.type === "attack" || dispatched.type === "skill")
+      ) {
+        attacker = blips.find((b) => b.faction === "player") || null;
+        skill = dispatched.type === "skill";
+      }
+      if (!attacker) {
+        const cands = blips.filter(
+          (b) => b.alive !== false && b.id !== ev.id && partySide(b.faction) !== tSide
+        );
+        attacker = cands.reduce<(typeof blips)[number] | null>((best, b) => {
+          if (!best) return b;
+          return cheb(b.x, b.y, target.x, target.y) < cheb(best.x, best.y, target.x, target.y)
+            ? b
+            : best;
+        }, null);
+      }
+      if (!attacker) return;
+
+      const impactAt = hitBase + i * 130;
+      attacks.push({
+        aId: attacker.id,
+        tId: target.id,
+        start: Math.max(0, impactAt - 120),
+        impactAt,
+        melee: cheb(attacker.x, attacker.y, target.x, target.y) <= 1,
+        color: attacker.faction === "enemy" ? "#ff6b7d" : "#8fffea",
+        skill,
+      });
+    });
+
+    return attacks;
   }
 }
 

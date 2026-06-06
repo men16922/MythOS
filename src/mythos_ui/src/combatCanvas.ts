@@ -93,6 +93,7 @@ export interface BlipOverride {
   flashColor?: string;
   alpha?: number; // overrides blip alpha (death fade)
   scale?: number; // radius multiplier (impact pop / lunge)
+  pose?: "idle" | "attack" | "skill" | "hit" | "guard";
 }
 
 export interface FloatText {
@@ -117,6 +118,54 @@ export interface CombatOverlay {
   shakeY?: number;
 }
 
+function loadImage(url: string, onLoad: () => void): HTMLImageElement {
+  let img = imageCache[url];
+  if (!img) {
+    img = new Image();
+    img.src = url;
+    img.onload = onLoad;
+    imageCache[url] = img;
+  }
+  return img;
+}
+
+function combatImagePath(b: CombatBlip, pose: BlipOverride["pose"]): string {
+  const images = b.combat_images || {};
+  const currentPose = pose || "idle";
+  return images[currentPose] || images.idle || "";
+}
+
+function drawBlipSprite(
+  ctx: CanvasRenderingContext2D,
+  canvas: HTMLCanvasElement,
+  combat: CombatState,
+  scenarioId: string,
+  b: CombatBlip,
+  cx: number,
+  cy: number,
+  r: number,
+  pose: BlipOverride["pose"]
+): boolean {
+  const spritePath = combatImagePath(b, pose);
+  if (!spritePath) return false;
+
+  const imgUrl = `/resources/${scenarioId}/${spritePath}`;
+  const img = loadImage(imgUrl, () => {
+    drawCombatCanvas(canvas, combat, scenarioId);
+  });
+  if (!img.complete || img.naturalWidth <= 0) return false;
+
+  const w = r * 2.35;
+  const h = w * 1.5;
+  const x = cx - w / 2;
+  const y = cy - h + r * 0.76;
+
+  ctx.save();
+  ctx.drawImage(img, x, y, w, h);
+  ctx.restore();
+  return true;
+}
+
 // Draw a blip's portrait (or a faction-colored disc fallback) clipped to a circle.
 function drawBlipPortrait(
   ctx: CanvasRenderingContext2D,
@@ -134,15 +183,7 @@ function drawBlipPortrait(
   }
   if (portraitPath) {
     const imgUrl = `/resources/${scenarioId}/${portraitPath}`;
-    let img = imageCache[imgUrl];
-    if (!img) {
-      img = new Image();
-      img.src = imgUrl;
-      img.onload = () => {
-        drawCombatCanvas(canvas, combat, scenarioId);
-      };
-      imageCache[imgUrl] = img;
-    }
+    const img = loadImage(imgUrl, () => drawCombatCanvas(canvas, combat, scenarioId));
     if (img.complete && img.naturalWidth > 0) {
       ctx.save();
       ctx.beginPath();
@@ -539,7 +580,11 @@ export function drawCombatCanvas(
     // --- Vertical Billboard Card Position ---
     const cardCy = cy - r * 1.1;
 
-    drawBlipPortrait(ctx, canvas, combat, scenarioId, b, cx, cardCy, r);
+    const pose = ov?.pose || (ov?.flash && ov.flash > 0 ? "hit" : (b.defending ? "guard" : "idle"));
+    const drewSprite = drawBlipSprite(ctx, canvas, combat, scenarioId, b, cx, cy, r, pose);
+    if (!drewSprite) {
+      drawBlipPortrait(ctx, canvas, combat, scenarioId, b, cx, cardCy, r);
+    }
 
     // Flash/Stagger overlay tints
     if (ov?.flash && ov.flash > 0) {
@@ -547,7 +592,11 @@ export function drawCombatCanvas(
       ctx.globalAlpha = Math.min(0.7, ov.flash * 0.7);
       ctx.fillStyle = ov.flashColor || "#ff6b7d";
       ctx.beginPath();
-      ctx.arc(cx, cardCy, r, 0, Math.PI * 2);
+      if (drewSprite) {
+        ctx.ellipse(cx, cy - r * 1.1, r * 1.05, r * 1.5, 0, 0, Math.PI * 2);
+      } else {
+        ctx.arc(cx, cardCy, r, 0, Math.PI * 2);
+      }
       ctx.fill();
       ctx.restore();
       ctx.globalAlpha = ov?.alpha != null ? ov.alpha : baseAlpha;
@@ -558,7 +607,7 @@ export function drawCombatCanvas(
       ctx.strokeStyle = "#cfe";
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(cx, cardCy, r + 2.5, -0.6, 3.74);
+      ctx.ellipse(cx, drewSprite ? cy - r * 1.05 : cardCy, r + 8, drewSprite ? r * 1.55 : r + 2.5, 0, -0.6, 3.74);
       ctx.stroke();
       ctx.restore();
     }
@@ -573,7 +622,7 @@ export function drawCombatCanvas(
         ctx.fillText(
           intent.action === "attack" ? "⚔️" : intent.action === "flee" ? "🏃" : "👣",
           cx,
-          cardCy
+          drewSprite ? cy - r * 1.1 : cardCy
         );
       }
     }
@@ -584,13 +633,13 @@ export function drawCombatCanvas(
     ctx.font = `bold ${Math.max(9, Math.round(cfg.stepY * 0.4))}px "SF Mono", monospace`;
     ctx.textAlign = "center";
     ctx.textBaseline = "alphabetic";
-    ctx.fillText((b.name || b.id || "").slice(0, 8), cx, cardCy - r - 4);
+    ctx.fillText((b.name || b.id || "").slice(0, 8), cx, (drewSprite ? cy - r * 2.85 : cardCy - r) - 4);
 
     // HP Bar
     if (b.max_hp) {
       const bw = r * 1.8;
       const bxp = cx - bw / 2;
-      const byp = cardCy + r + 4;
+      const byp = drewSprite ? cy + r * 0.76 : cardCy + r + 4;
 
       ctx.fillStyle = "rgba(0,0,0,0.6)";
       ctx.fillRect(bxp, byp, bw, 3);

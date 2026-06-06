@@ -3,6 +3,7 @@ import type { CombatOverlay } from "./combatCanvas";
 import { diffCombat } from "./combatDiff";
 import type { CombatEvent } from "./combatDiff";
 import type { CombatAction, CombatState } from "./types";
+import { getSkillFx, LOCAL_SKILL_REGISTRY } from "./combatAnim";
 
 const easeOut = (t: number): number => 1 - Math.pow(1 - t, 3);
 const clamp01 = (t: number): number => (t < 0 ? 0 : t > 1 ? 1 : t);
@@ -41,6 +42,8 @@ interface Attack {
   color: string;
   skill: boolean;
   hitStopTriggered?: boolean;
+  role?: string;
+  tags?: string[];
 }
 
 function partySide(faction: string): "enemy" | "party" {
@@ -98,7 +101,8 @@ export class CombatAnimator {
       }
     };
 
-    if (opts.instant || events.length === 0) {
+    const hasDispatchedSkill = opts.dispatched?.type === "skill";
+    if (opts.instant || (events.length === 0 && !hasDispatchedSkill)) {
       drawCombatCanvas(canvas, next, this.scenarioId);
       if (events.some((e) => e.kind === "move") && !events.some((e) => e.kind === "damage")) {
         opts.onSfx?.("sfx_move");
@@ -233,7 +237,10 @@ export class CombatAnimator {
           if (ov.cellY == null) ov.cellY = ay;
           ov.cellX += (dx / len) * 0.42 * pulse;
           ov.cellY += (dy / len) * 0.42 * pulse;
+          ov.pose = atk.skill ? "skill" : "attack";
         } else {
+          const ov = ovFor(atk.aId);
+          ov.pose = atk.skill ? "skill" : "attack";
           overlay.fx!.push({
             kind: "tracer",
             x1: ax + 0.5,
@@ -260,19 +267,24 @@ export class CombatAnimator {
           const pushAmt = (atk.skill ? 0.32 : 0.18) * stagPulse;
           tOv.cellX += (dx / len) * pushAmt;
           tOv.cellY += (dy / len) * pushAmt;
+          tOv.pose = "hit";
         }
 
         if (atk.skill && t < atk.start + 320) {
-          const cp = clamp01((t - atk.start) / 320);
-          overlay.fx!.push({
-            kind: "ring",
-            cellX: ax + 0.5,
-            cellY: ay + 0.5,
-            cellR: 0.28 + 0.2 * cp,
-            color: atk.color,
-            alpha: 0.7 * (1 - cp),
-            width: 2,
-          });
+          const localT = t - atk.start;
+          const dur = 320;
+          const skillFx = getSkillFx(
+            atk.role || "fallback",
+            atk.tags || [],
+            localT,
+            dur,
+            ax,
+            ay,
+            tx,
+            ty,
+            atk.color
+          );
+          overlay.fx!.push(...skillFx);
         }
       }
 
@@ -358,14 +370,102 @@ export class CombatAnimator {
     const byId = (id: string) => blips.find((b) => b.id === id);
     const attacks: Attack[] = [];
 
+    // Manually register dispatched or log-based utility skills (like mobility or defense buffs)
+    // that don't trigger direct damage/heal events, ensuring their canvas FX render.
+    let utilityRegistered = false;
+
+    // A. Dispatched player utility skill
+    if (dispatched && dispatched.type === "skill" && dispatched.skill_id) {
+      const caster = blips.find((b) => b.faction === "player");
+      const target = dispatched.target_id ? byId(dispatched.target_id) : caster;
+      if (caster && target) {
+        const staticMeta = LOCAL_SKILL_REGISTRY[dispatched.skill_id];
+        const role = staticMeta?.role || "fallback";
+        const tags = staticMeta?.tags || [];
+        
+        const alreadyCovered = hitEvents.some(ev => ev.id === target.id && (ev.kind === "damage" || ev.kind === "heal"));
+        if (!alreadyCovered) {
+          const impactAt = hitBase;
+          attacks.push({
+            aId: caster.id,
+            tId: target.id,
+            start: Math.max(0, impactAt - 120),
+            impactAt,
+            melee: false,
+            color: "#8fffea",
+            skill: true,
+            role,
+            tags,
+          });
+          utilityRegistered = true;
+        }
+      }
+    }
+
+    // B. NPC / Log-based utility skill (for AI turns or fallback)
+    if (!utilityRegistered && next.log) {
+      const lastActorEntry = next.log.slice().reverse().find(entry => entry.actor !== "system");
+      if (lastActorEntry) {
+        const actorLogs = next.log.filter(entry => entry.actor === lastActorEntry.actor);
+        const lastLog = actorLogs[actorLogs.length - 1];
+        const prevLog = actorLogs[actorLogs.length - 2];
+        let skillLog = null;
+        if (lastLog && lastLog.action === "skill") {
+          skillLog = lastLog;
+        } else if (prevLog && prevLog.action === "skill") {
+          const validFollowUps = ["hit", "info", "defend", "miss", "defeat"];
+          if (lastLog && validFollowUps.includes(lastLog.action)) {
+            skillLog = prevLog;
+          }
+        }
+        if (skillLog) {
+          const caster = blips.find(b => b.id === lastActorEntry.actor);
+          let targetId = (skillLog.detail as any).target || (skillLog.detail as any).target_id;
+          if (!targetId && lastLog && lastLog.action === "hit") {
+            targetId = (lastLog.detail as any).target;
+          }
+          if (!targetId && lastLog && lastLog.action === "defend") {
+            targetId = lastLog.actor; // self-target
+          }
+          const target = targetId ? byId(targetId) : caster;
+          if (caster && target) {
+            const skillId = (skillLog.detail as any).skill_id as string || (skillLog.detail as any).skill as string || "";
+            const staticMeta = LOCAL_SKILL_REGISTRY[skillId];
+            const role = staticMeta?.role || "fallback";
+            const tags = staticMeta?.tags || [];
+            
+            const alreadyCovered = hitEvents.some(ev => ev.id === target.id);
+            if (!alreadyCovered) {
+              const impactAt = hitBase;
+              attacks.push({
+                aId: caster.id,
+                tId: target.id,
+                start: Math.max(0, impactAt - 120),
+                impactAt,
+                melee: false,
+                color: caster.faction === "enemy" ? "#ff6b7d" : (caster.faction === "player" ? "#8fffea" : "#7dff9b"),
+                skill: true,
+                role,
+                tags,
+              });
+            }
+          }
+        }
+      }
+    }
+
     hitEvents.forEach((ev, i) => {
-      if (ev.kind !== "damage") return; // heals get the green float, no aggressor
+      if (ev.kind !== "damage" && ev.kind !== "heal") return;
+      const isHeal = ev.kind === "heal";
       const target = byId(ev.id);
       if (!target) return;
       const tSide = partySide(target.faction);
 
       let attacker = null as (typeof blips)[number] | null;
       let skill = false;
+      let role: string | undefined = undefined;
+      let tags: string[] | undefined = undefined;
+
       if (
         dispatched &&
         dispatched.target_id === ev.id &&
@@ -373,10 +473,32 @@ export class CombatAnimator {
       ) {
         attacker = blips.find((b) => b.faction === "player") || null;
         skill = dispatched.type === "skill";
+        if (skill && dispatched.skill_id) {
+          const skInfo = next.available?.skills?.find(sk => sk.id === dispatched.skill_id);
+          if (skInfo) {
+            role = skInfo.role;
+            tags = skInfo.tags;
+          } else {
+            const staticMeta = LOCAL_SKILL_REGISTRY[dispatched.skill_id];
+            if (staticMeta) {
+              role = staticMeta.role;
+              tags = staticMeta.tags;
+            }
+          }
+        }
       }
+      // 2. Try to find the exact attacker from the combat log history
+      if (!attacker && next.log) {
+        const lastActorEntry = next.log.slice().reverse().find(entry => entry.actor !== "system");
+        if (lastActorEntry) {
+          attacker = blips.find(b => b.id === lastActorEntry.actor) || null;
+        }
+      }
+
+      // 3. Fallback to proximity-based matching if still not found
       if (!attacker) {
         const cands = blips.filter(
-          (b) => b.alive !== false && b.id !== ev.id && partySide(b.faction) !== tSide
+          (b) => b.alive !== false && b.id !== ev.id && (isHeal ? partySide(b.faction) === tSide : partySide(b.faction) !== tSide)
         );
         attacker = cands.reduce<(typeof blips)[number] | null>((best, b) => {
           if (!best) return b;
@@ -385,17 +507,45 @@ export class CombatAnimator {
             : best;
         }, null);
       }
-      if (!attacker) return;
+
+      // For AI and fallback matching, check log history to detect skill details
+      if (attacker) {
+        const actorLogs = next.log?.filter(entry => entry.actor === attacker?.id) || [];
+        const lastLog = actorLogs[actorLogs.length - 1];
+        const prevLog = actorLogs[actorLogs.length - 2];
+        let skillLog = null;
+        if (lastLog && lastLog.action === "skill") {
+          skillLog = lastLog;
+        } else if (prevLog && prevLog.action === "skill") {
+          const validFollowUps = ["hit", "info", "defend", "miss", "defeat"];
+          if (lastLog && validFollowUps.includes(lastLog.action)) {
+            skillLog = prevLog;
+          }
+        }
+        if (skillLog) {
+          skill = true;
+          const skillId = (skillLog.detail as any).skill_id as string || (skillLog.detail as any).skill as string || "";
+          if (skillId) {
+            const staticMeta = LOCAL_SKILL_REGISTRY[skillId];
+            if (staticMeta) {
+              role = staticMeta.role;
+              tags = staticMeta.tags;
+            }
+          }
+        }
+      }
 
       const impactAt = hitBase + i * 130;
       attacks.push({
-        aId: attacker.id,
+        aId: attacker ? attacker.id : ev.id,
         tId: target.id,
         start: Math.max(0, impactAt - 120),
         impactAt,
-        melee: cheb(attacker.x, attacker.y, target.x, target.y) <= 1,
-        color: attacker.faction === "enemy" ? "#ff6b7d" : "#8fffea",
+        melee: isHeal ? false : (attacker ? cheb(attacker.x, attacker.y, target.x, target.y) <= 1 : false),
+        color: isHeal ? "#7dff9b" : (attacker && attacker.faction === "enemy" ? "#ff6b7d" : "#8fffea"),
         skill,
+        role,
+        tags,
       });
     });
 

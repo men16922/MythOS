@@ -94,6 +94,7 @@ export interface CombatBlip {
   alive?: boolean;
   defending?: boolean;
   portrait?: string;
+  combat_images?: Record<string, string>;
   focus?: number;
   max_focus?: number;
 }

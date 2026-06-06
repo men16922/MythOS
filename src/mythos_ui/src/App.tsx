@@ -50,6 +50,7 @@ interface CombatCinemaContext {
   attacker: CombatBlip;
   defender: CombatBlip;
   damage: number;
+  kind: "attack" | "skill" | "defend";
   crit: boolean;
   skillName?: string;
   miss?: boolean;
@@ -800,7 +801,7 @@ export default function App() {
     }
     const animator = animatorRef.current;
     const combat = finalizedSnapshot?.combat || null;
-    if (!canvasRef.current || !combat) {
+    if (!combat) {
       prevCombatRef.current = combat;
       return;
     }
@@ -809,23 +810,69 @@ export default function App() {
     dispatchedActionRef.current = null;
     if (prev && prev !== combat) {
       const newLogs = (combat.log ?? []).slice(prev.log?.length ?? 0);
-      const combatHits = newLogs.filter((entry: CombatLogEntry) => ["hit", "defeat", "miss"].includes(entry.action));
+      const cinematicActions = new Set(["hit", "defeat", "miss", "defend"]);
+      
+      const hasFollowUpActors = new Set<string>();
+      newLogs.forEach((entry: CombatLogEntry) => {
+        if (cinematicActions.has(entry.action)) {
+          hasFollowUpActors.add(entry.actor);
+        }
+      });
 
-      if (combatHits.length > 0 && !fallbackMode && !prefersReducedMotion()) {
+      const hasCinematicEvent = newLogs.some((entry: CombatLogEntry) => {
+        if (cinematicActions.has(entry.action)) return true;
+        if (entry.action === "skill" && !hasFollowUpActors.has(entry.actor)) return true;
+        return false;
+      });
+
+      if (hasCinematicEvent && !fallbackMode && !prefersReducedMotion()) {
         const queueItems: CombatCinemaContext[] = [];
-        combatHits.forEach((entry: CombatLogEntry) => {
+        const latestSkillByActor = new Map<string, string>();
+
+        newLogs.forEach((entry: CombatLogEntry) => {
+          if (entry.action === "skill") {
+            const skillId = typeof entry.detail?.skill === "string" ? entry.detail.skill : undefined;
+            const skillName = entry.detail?.skill_name || skillId || "SKILL";
+            latestSkillByActor.set(entry.actor, skillName);
+
+            // If this actor has no follow-up hit/defend/miss logs in this turn, trigger utility skill cinema immediately
+            if (!hasFollowUpActors.has(entry.actor)) {
+              const attackerBlip = combat.radar.blips.find((b) => b.id === entry.actor);
+              const targetId = entry.detail?.target || entry.actor;
+              const defenderBlip = combat.radar.blips.find((b) => b.id === targetId);
+
+              if (attackerBlip && defenderBlip) {
+                queueItems.push({
+                  attacker: attackerBlip,
+                  defender: defenderBlip,
+                  damage: entry.detail?.damage || 0,
+                  kind: "skill",
+                  crit: !!entry.detail?.crit,
+                  skillName,
+                  miss: false,
+                });
+              }
+            }
+            return;
+          }
+          if (!cinematicActions.has(entry.action)) return;
+
           const attackerBlip = combat.radar.blips.find((b) => b.id === entry.actor);
-          const targetId = entry.detail?.target;
+          const targetId = entry.detail?.target || (entry.action === "defend" ? entry.actor : undefined);
           const defenderBlip = combat.radar.blips.find((b) => b.id === targetId);
 
           if (attackerBlip && defenderBlip) {
-            const isPlayerActor = entry.actor === combat.radar.blips.find(b => b.faction === "player" || b.faction === "ally")?.id;
-            const skillName = entry.detail?.skill_name || (isPlayerActor && dispatched?.type === "skill" ? dispatched.skill_id : undefined);
+            const isPartyActor = attackerBlip.faction === "player" || attackerBlip.faction === "ally";
+            const skillName = entry.detail?.skill_name
+              || latestSkillByActor.get(entry.actor)
+              || (isPartyActor && dispatched?.type === "skill" ? dispatched.skill_id : undefined);
+            const kind = entry.action === "defend" ? "defend" : (skillName ? "skill" : "attack");
 
             queueItems.push({
               attacker: attackerBlip,
               defender: defenderBlip,
               damage: entry.detail?.damage || 0,
+              kind,
               crit: !!entry.detail?.crit,
               skillName,
               miss: entry.action === "miss",
@@ -843,13 +890,20 @@ export default function App() {
         }
       }
 
+      if (!canvasRef.current) {
+        prevCombatRef.current = combat;
+        return;
+      }
+
       animator.animate(prev, combat, {
         dispatched,
         instant: fallbackMode || prefersReducedMotion(),
         onSfx: playSfx,
       });
     } else {
-      animator.drawStatic(combat);
+      if (canvasRef.current) {
+        animator.drawStatic(combat);
+      }
     }
     prevCombatRef.current = combat;
     // playSfx is intentionally omitted: this effect must fire only on combat
@@ -1088,9 +1142,11 @@ export default function App() {
       {cinemaContext && (
         <CombatCinema
           key={`${cinemaContext.attacker.id}->${cinemaContext.defender.id}#${cinemaQueue.length}`}
+          scenarioId={selectedScenarioId}
           attacker={cinemaContext.attacker}
           defender={cinemaContext.defender}
           damage={cinemaContext.damage}
+          kind={cinemaContext.kind}
           crit={cinemaContext.crit}
           skillName={cinemaContext.skillName}
           miss={cinemaContext.miss}

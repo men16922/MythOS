@@ -13,6 +13,19 @@ YYYY-MM-DD
 - Next:
 ```
 
+## 2026-06-06 — 전투 보드 시각 이펙트 (Phase 1) + 진행도/스킬 트랙 설계
+
+- Status: [x] 정적 전투 캔버스를 rAF 애니메이터로 전환해 이동/데미지/사망/스킬 연출 도입(Phase 1). 수동 QA 전 항목 마감 후 신규 트랙(전투 이펙트·진행도 해금/스킬트리) 설계 확정 및 우선순위 1번 구현.
+- Changed:
+  - `src/mythos_ui/src/combatDiff.ts`(신규): prev→next `CombatState`를 blip id 기준으로 diff해 move/damage/heal/death/defend 이벤트로 역산(순수함수).
+  - `src/mythos_ui/src/combatEffects.ts`(신규): `CombatAnimator`가 diff+디스패치 액션으로 짧은 스태거 타임라인을 만들고 rAF 루프로 프레임별 오버레이 렌더 — 이동 ease 트윈, 임팩트 플래시+떠오르는 데미지/힐 숫자, HP 바 드레인, 사망 페이드, 스킬 캐스트 커넥터(트레이서+링). SFX를 임팩트 프레임에 동기. `prefersReducedMotion`/`?fallback=1` instant 경로로 최종 상태 동기 settle.
+  - `src/mythos_ui/src/combatCanvas.ts`: `drawCombatCanvas`에 선택적 `overlay`(blip override/floats/fx) 추가, 정적 경로는 그대로 유지.
+  - `src/mythos_ui/src/App.tsx`: 전투 상태 변경 시 애니메이터 구동, 디스패치 액션을 커넥터용으로 전달, 애니메이션 중 드래그 게이팅, 디스패치 시점 SFX 제거(임팩트 프레임으로 이동).
+  - 설계 문서 신규: `docs/plans/2026-06-06-combat-visual-effects.md`, `docs/plans/2026-06-06-progression-skills-archetypes.md`(하이브리드 모델: 깨달음 이벤트 해금 + 통찰 포인트 Codex 스킬트리). NEXT_PLAN/STATUS 트랙 반영, 수동 QA 항목 전부 마감.
+- Verified: `make frontend-build`(tsc -b + vite, 클린), `npm run lint`(0 error/0 warning), `make test-e2e`(scratch 스크립트) 통과, `tests/playwright/test_e2e_play_checklist.py` 전투 경로(캔버스 렌더→드래그 이동 instant SFX→패배 배너→메인 복귀) 통과. Python 무변경.
+- Blockers: 없음. JS 테스트 러너 부재로 `combatDiff` 단위 테스트는 vitest 도입 후로 미룸. 애니메이션 시각 품질은 라이브 플레이 QA 권장.
+- Next: 우선순위 2번 — 진행도 해금/스킬트리 Phase 1(아키타입 게이트 + base/learned 스킬 필터 + Codex Skill 탭).
+
 ## 2026-06-06 — 한글 깨짐 대응, 스탯 비주얼 아이콘 및 선택지 UI 고도화
 
 - Status: [x] Gemma/Ollama 한글 깨짐 hex 바이트 자동 복구, 스탯별 사이버펑크 네온 아이콘 연동, 마크다운 볼드 렌더러 추가, 선택지 스탯 키워드 간소화 및 인텐트 카테고리화 완료.

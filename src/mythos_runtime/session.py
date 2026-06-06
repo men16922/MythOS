@@ -78,8 +78,14 @@ from mythos_runtime.narrative_rollup import (
     _player_rollup,
     _prepare_narrative_memory_context,
 )
+from mythos_runtime.combat_session_helpers import (
+    _combat_defeat_fallback_ending,
+    _combat_summary,
+    _combat_summary_from_state,
+    _combat_visual_brief,
+    _requested_combat_id,
+)
 from mythos_runtime.loop_scoring import (
-    InitialLoopScores,
     _clamp_score,
     _initial_loop_scores,
     _latest_scenes,
@@ -1186,72 +1192,6 @@ class RuntimeSessionService:
             return 0
 
 
-def _combat_summary(result: CombatTurnResult) -> dict[str, Any]:
-    state = CombatService.load_state(result.loop)
-    if state is None:
-        return {}
-    return _combat_summary_from_state(state)
-
-
-def _combat_summary_from_state(state) -> dict[str, Any]:
-    damage_dealt = 0
-    damage_taken = 0
-    hits = 0
-    misses = 0
-    crits = 0
-    moves = 0
-    defeated: list[str] = []
-    for entry in state.log:
-        actor = state.by_id(entry.actor)
-        target_id = str(entry.detail.get("target", ""))
-        target = state.by_id(target_id) if target_id else None
-        damage = int(entry.detail.get("damage", 0) or 0)
-        if entry.action in {"hit", "defeat"}:
-            hits += 1
-            if bool(entry.detail.get("crit", False)):
-                crits += 1
-            if actor is not None and target is not None:
-                if actor.faction in {"player", "ally"} and target.faction == "enemy":
-                    damage_dealt += damage
-                elif actor.faction == "enemy" and target.faction in {"player", "ally"}:
-                    damage_taken += damage
-        elif entry.action == "miss":
-            misses += 1
-        elif entry.action == "move":
-            moves += 1
-        if entry.action == "defeat" and target is not None:
-            defeated.append(target.name)
-
-    player = state.player()
-    living_enemies = len(state.living_enemies())
-    return {
-        "rounds": state.round,
-        "turns": len([entry for entry in state.log if entry.action not in {"start", "end"}]),
-        "damage_dealt": damage_dealt,
-        "damage_taken": damage_taken,
-        "hits": hits,
-        "misses": misses,
-        "crits": crits,
-        "moves": moves,
-        "defeated": defeated,
-        "living_enemies": living_enemies,
-        "player_hp": player.hp if player else 0,
-        "player_max_hp": player.max_hp if player else 0,
-    }
-
-
-def _combat_defeat_fallback_ending(
-    endings: list[dict[str, Any]],
-) -> tuple[str | None, str]:
-    has_erasure = any(ending.get("id") == "ending_erasure" for ending in endings)
-    if has_erasure:
-        return "ending_erasure", "강제 최적화 (Forced Erasure)"
-    if endings:
-        ending = endings[-1]
-        return ending.get("id"), ending.get("title") or "Ended Loop"
-    return None, "Combat Defeat"
-
-
 def _resolve_action(scene: Scene, choice_id: str | None, action: str | None) -> str:
     if action:
         return action
@@ -1394,41 +1334,6 @@ def _allies_from_loop_state(state: dict[str, Any]) -> list[str]:
         if isinstance(member, dict) and member.get("id"):
             allies.append(str(member["id"]))
     return allies
-
-
-def _requested_combat_id(payload: ScenePayload) -> str | None:
-    encounter_id = payload.world_delta.start_combat
-    encounter_id = _normalized_request_id(encounter_id)
-    if encounter_id:
-        return encounter_id
-    for flag in payload.world_delta.flags:
-        if flag.startswith("start_combat:"):
-            return _normalized_request_id(flag.split(":", 1)[1])
-    return None
-
-
-def _normalized_request_id(value: str | None) -> str | None:
-    if value is None:
-        return None
-    cleaned = value.strip()
-    if not cleaned or cleaned.lower() in {"null", "none", "false", "undefined", "nil"}:
-        return None
-    return cleaned
-
-
-def _combat_visual_brief(radar: dict[str, Any]) -> str:
-    blips = radar.get("blips", []) if isinstance(radar, dict) else []
-    enemies = [
-        str(blip.get("name", "enemy"))
-        for blip in blips
-        if isinstance(blip, dict) and blip.get("faction") == "enemy" and blip.get("alive", True)
-    ]
-    enemy_text = ", ".join(enemies[:3]) if enemies else "hostile signals"
-    return (
-        "Cinematic cyberpunk tactical combat scene in Neo-Seoul, "
-        f"player signal facing {enemy_text}, neon rain, ARK surveillance grid, "
-        "dynamic action, sharp readable silhouettes."
-    )
 
 
 def _symbol_from_scene(scene: Scene) -> str:

@@ -1,6 +1,6 @@
 # Project MythOS - React + TS SPA 플레이 검증 체크리스트
 
-이 문서는 Vite + React + TypeScript 기반으로 마이그레이션된 신규 웹 SPA 클라이언트(`http://localhost:8000`)의 동작 정합성을 실제 플레이(Manual Play)를 하며 최종 검증하기 위한 가이드라인입니다.
+이 문서는 Vite + React + TypeScript 기반 웹 SPA 클라이언트의 동작 정합성을 실제 플레이(Manual Play)로 최종 검증하기 위한 가이드라인입니다. 수동 플레이는 기본적으로 `make dev-up` 또는 `make api`로 띄운 `http://localhost:8000`을 사용합니다. 자동 E2E 스크립트는 테스트 전용 uvicorn 서버를 `http://127.0.0.1:8080/?fallback=1&image=0`에 임시로 띄웁니다.
 
 ---
 
@@ -95,13 +95,14 @@
 
 ## 7. 플레이라이트 자동 E2E 테스트 검증
 
-웹 SPA 클라이언트(`http://localhost:8080`)의 핵심 접속 및 턴 진행 흐름을 자동으로 시뮬레이션하고 검증하기 위해 Playwright 기반의 E2E 테스트 환경이 구축되어 있습니다. 수동 테스트에 앞서 이 자동 검증 도구를 통해 기본적인 빌드와 WebSocket 데이터 흐름의 건전성을 빠르게 체크할 수 있습니다.
+웹 SPA 클라이언트의 핵심 접속 및 턴 진행 흐름을 자동으로 시뮬레이션하고 검증하기 위해 Playwright 기반의 E2E 테스트 환경이 구축되어 있습니다. 자동 E2E는 `scratch/run_playwright_test.py`가 테스트 전용 서버를 `http://127.0.0.1:8080/?fallback=1&image=0`에 띄워 실행합니다. 수동 테스트에 앞서 이 자동 검증 도구를 통해 기본적인 빌드와 WebSocket 데이터 흐름의 건전성을 빠르게 체크할 수 있습니다.
 
 최근 검증:
 
 *   [x] 2026-06-06 `make test-e2e` 통과.
 *   [x] `outputs/e2e_react_play.png` 및 `outputs/e2e_react_play_turn1.png` 스크린샷 생성/육안 확인.
-*   [~] 자동 E2E는 fallback 내러티브 경로를 사용하므로 한국어 LLM 출력 품질은 별도 수동 플레이에서 확인 필요.
+*   [x] 실패 시 non-zero exit 및 `outputs/e2e_failure.png` 진단 캡처 경로 확인.
+*   [~] 자동 E2E는 `?fallback=1&image=0` 결정적 경로를 사용하므로 한국어 LLM 출력 품질과 실 이미지 UX는 별도 수동 플레이에서 확인 필요.
 
 ### 7.1. 선행 요구 조건 및 드라이버 설치
 테스트를 실행하기 전에 Playwright 라이브러리와 Chromium 브라우저 바이너리가 필요합니다.
@@ -160,4 +161,4 @@ make test-e2e
     *   첫 번째 선택지(`#choices button:first-child`)를 자동 클릭해 API 및 씬 상태 전환 요청을 송신하는가?
     *   턴 1 씬 전환 완료 후, 갱신된 화면을 `outputs/e2e_react_play_turn1.png` 파일로 2차 기록하는가?
 *   [x] **프로세스 해제**:
-    *   검증 성공 후 브라우저 자원을 닫고 백그라운드 FastAPI 서버를 `multiprocessing.Process.terminate`로 누수 없이 안전하게 회수하는가?
+    *   검증 성공 후 브라우저 자원을 닫고 백그라운드 FastAPI 서버를 `terminate -> join(timeout) -> kill fallback`으로 누수 없이 안전하게 회수하는가?

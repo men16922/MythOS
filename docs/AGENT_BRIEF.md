@@ -7,9 +7,9 @@
 ## Snapshot
 
 - Project MythOS는 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG/CRPG다.
-- UI는 Streamlit, 핵심 오케스트레이션은 `RuntimeSessionService`가 담당한다.
+- UI는 Streamlit 데모와 FastAPI-served React + TS SPA가 공존한다. 핵심 오케스트레이션은 `RuntimeSessionService`가 담당한다.
 - 상태 저장은 PostgreSQL, 이미지/미디어는 MinIO, visual job은 Redis worker, LLM은 Ollama, 이미지 백엔드는 mflux/FLUX다.
-- 로컬 MVP, 플레이어 뷰, Neo-Seoul 시나리오, Codex, 인과율/엔딩 구조, mflux 이미지 성능 개선, 전술 전투, 단일 iframe 전투 UI, 동료 참전, 도주 후 contact 유지 정책, Run History, Meta Progression, Save/Load UX는 구현됨.
+- 로컬 MVP, 플레이어 뷰, Neo-Seoul 시나리오, Codex, 인과율/엔딩 구조, mflux 이미지 성능 개선, 전술 전투, 단일 iframe 전투 UI, 동료 참전, 도주 후 contact 유지 정책, Run History, Meta Progression, Save/Load UX, React SPA, Playwright E2E는 구현됨.
 
 ## Current Focus
 
@@ -32,7 +32,11 @@
 - React SPA 클라이언트 UX/디자인 개선 완료: 타입 임포트 해결로 Vite 빌드를 정상 복구했고, 내러티브 영역의 좌우 2열 패널 분할 고도화 및 세로 높이 정렬(`align-items: stretch`)을 적용함. 대화 이력의 스크롤 스트리밍을 연동하고, 새 이미지 수급 전까지 이전 이미지를 자연스럽게 띄워두는 비동기 지연 보완책을 마련함.
 - 씬 히스토리 데이터베이스 조회 연동 완료: `/api/v1/loops/{loop_id}/scenes` 엔드포인트를 API 서버 및 리액트 연동 클라이언트에 배선하여 이어하기 진입 시에도 이전 대화 기록을 온전히 스크롤 영역에 복원함.
 - 전술 전투 화면 UX 대폭 개선 완료: 아군/적군 로스터 영역의 수직 정렬(`grid-template-columns: 1fr`)을 적용하여 카드의 정보 밀도를 살리고, TACTICAL BOARD의 화면 비율을 `1.8fr 1fr`로 크게 넓힘으로써 전투 플레이 조작성과 전술판 시인성을 대폭 확장함.
-- **현재 방향 (2026-06-06): 검증 및 시나리오 심화.** React SPA 프론트엔드 통합, IP-Adapter/게임플레이 깊이(P1~P4), 장기 메모리 안정화까지 완료된 상태이므로, `docs/play-checklist.md` 기반 실제 플레이 검증과 다중 시나리오(유리성의 사서) 확장 우선. 두 프론트 차이는 `docs/STREAMLIT_VS_API.md`.
+- Playwright E2E 게이트 복구 완료: React SPA는 `?fallback=1&image=0` URL 모드로 결정적 E2E를 실행한다. `scratch/run_playwright_test.py`는 부트 오프닝→세션 인트로→턴 0 선택지→턴 1 전환을 검증하고 실패 시 non-zero exit 및 `outputs/e2e_failure.png`를 남긴다. Project-local Playwright MCP 설정은 `.codex/.mcp.json`에 포함한다.
+- Redux visual worker 실파이프라인 검증 완료: 세린 캐릭터 장면 512×512/4-step Redux job이 Redis worker→MinIO→presigned PNG GET 200으로 성공했고, `outputs/visual-work` 작업본 삭제도 확인했다. Cold Redux latency는 17.3s(provider 17.1s).
+- Visual worker 종료 안정화 완료: heartbeat lock owner token 유지, SIGTERM/KeyboardInterrupt 시 `release_worker_slot()`, Postgres pool 명시 close 적용. 빈 queue worker SIGTERM 검증에서 heartbeat 1→0 및 프로세스 잔류 없음 확인.
+- Dev 실행 경로: 풀 플레이는 docker 인프라 + API + visual worker + Ollama가 필요하다. 권장 명령은 `make dev-up`(infra/migrate/worker/API)과 `make dev-down`; React Dev 탭에는 Adminer/MinIO/Redis/Jaeger 링크가 있다.
+- **현재 방향 (2026-06-06): 커밋 정리, 수동 QA, 파티 조작 2단계.** React SPA 프론트엔드 통합, 게임플레이 깊이(P1~P4), 장기 메모리/E2E/worker 안정화까지 완료된 상태이므로, 먼저 누적 변경분을 커밋 가능 단위로 정리하고 `docs/play-checklist.md` 기반 실제 플레이 검증 후 파티 조작 2단계 또는 다중 시나리오 확장을 진행한다. 두 프론트 차이는 `docs/STREAMLIT_VS_API.md`.
 
 ## Read Order
 
@@ -49,8 +53,10 @@
 
 - 기본 검증: `make test`
 - 타입/린트: `make lint`, `make typecheck`
+- React E2E: `make test-e2e`
 - 런타임 흐름 변경: `make smoke-local`
 - DB/MinIO persistence 변경: `make smoke`
+- React/API 풀스택 실행: `make dev-up` / `make dev-down`
 - 데모 실행: `make streamlit`
 
 ## Guardrails

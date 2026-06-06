@@ -13,6 +13,29 @@ YYYY-MM-DD
 - Next:
 ```
 
+## 2026-06-06 — Dev 인프라 콘솔 링크 + 원클릭 dev 스택
+
+- Status: [x] React Dev 탭에 로컬 인프라 콘솔 링크(Streamlit Developer 사이드바 패리티) 추가, `make dev-up`/`dev-down` 원클릭 스택 도입. 플레이 중 "이어하기 Failed to fetch" 원인 진단.
+- Changed:
+  - `src/mythos_ui/src/DevConsolePanel.tsx` + `index.css`: `InfraLinks` 카드 — Adminer(8080)/MinIO 콘솔(9001)/Redis Commander(8081)/Jaeger(16686)를 브라우저 호스트 기준 URL로 새 탭 링크(설명 + `make infra-up` 안내).
+  - `Makefile`: `dev-up`(infra-up → postgres readiness 대기 → db-migrate → visual-worker-bg → Ollama 확인 → API foreground), `dev-down`(api/worker stop + infra down). `.PHONY` 갱신. → docker+API+워커를 명령 하나로 기동.
+- Verified: React 빌드 클린, `make -n dev-up`/`dev-down` 파싱 정상, 결정적 브라우저 검증으로 Dev 탭 인프라 링크 4개 렌더(`outputs/dev_infra_links.png`).
+- Diagnosed: "이어하기 Failed to fetch" = **API 서버 미기동**(docker만 떠 있고 `python -m mythos_api`가 죽어 있었음; 온보딩은 캐시된 페이지/React 상태로 보였던 것). 서버 재기동 후 `/loops/active` 200 확인. → `make dev-up`으로 재발 방지.
+- Next: 누적분 커밋, play-checklist 수동 QA, 파티 조작 2단계.
+
+## 2026-06-06 — E2E 게이트 및 Redux worker 실검증
+
+- Status: [x] Playwright 자동 E2E를 다시 신뢰 가능한 회귀 게이트로 복구하고, Redux 캐릭터 이미지 worker 실파이프라인을 검증.
+- Changed:
+  - React SPA가 URL 파라미터 `?fallback=1&image=0`를 읽어 자동 E2E에서 결정적 fallback/no-image 경로를 강제할 수 있게 수정.
+  - `scratch/run_playwright_test.py`가 선택지/전투/종료/오류 중 안정 상태를 기다리도록 보강하고, 실패 시 `sys.exit(1)` 및 `outputs/e2e_failure.png` 진단 캡처를 남기도록 수정.
+  - Redis stale heartbeat를 정리하고 foreground worker로 pending Redux job을 처리해 실제 오류를 관찰할 수 있게 함.
+  - Visual worker heartbeat가 소유자 토큰을 유지하고, SIGTERM/KeyboardInterrupt 종료 시 자기 lock만 해제하도록 `VisualJobQueue.release_worker_slot()` 및 signal cleanup 경로 추가.
+  - worker 종료 시 Postgres pool을 명시적으로 닫아 mflux/worker 검증 후 프로세스와 heartbeat가 남지 않도록 정리.
+- Verified: `make frontend-build`, `py_compile scratch/run_playwright_test.py`, `make test-e2e`, `make typecheck`, `make test`(202 tests, 2 skipped) 통과. 세린 캐릭터 장면 512×512/4-step Redux worker job 성공: DB asset metadata `use_redux=true`, reference `se-rin.png`, MinIO presigned PNG GET 200, `outputs/visual-work` 작업본 삭제, cold latency 17.3s(provider 17.1s). 빈 queue worker SIGTERM 검증: heartbeat 1→0, 프로세스 잔류 없음.
+- Blockers: txt2img(Flux1)+Redux(Flux1Redux) 동시 적재 시 장기 메모리/스왑 안정성은 아직 추가 플레이 모니터 필요.
+- Next: 세션 2 변경분 커밋 정리 또는 파티 조작 2단계 구현 착수.
+
 ## 2026-06-06 — UX·비주얼·전투 배치 (세션 2, 미커밋)
 
 - Status: [x] 이어하기 버그 수정, 스토리/캐릭터 레이아웃 개편, 전투 드래그&드롭, 오프닝 연속성, 이미지/텍스트 속도 최적화, 패배→메인 버튼, 행동 기록, 서사 기록 분리, 부트 오프닝, mflux Redux 얼굴 일관성, visual-work 자동 정리까지 일괄 구현. **전부 미커밋 상태.**
@@ -33,7 +56,7 @@ YYYY-MM-DD
   - **E2E 스크립트 수정**: `run_playwright_test.py`에 부트 인트로/세션 시네마틱 dismiss 단계 추가(부트 오프닝 도입으로 깨진 흐름 복구).
   - **설계 문서**: `docs/plans/2026-06-06-party-controllable-allies.md`(파티원 조작 가능/우호적 비파티 AI 동맹 2단계 — 설계만).
 - Verified: `make test`(200, 2 skip) 통과, `make typecheck` 클린, React 빌드 클린. Redux 비교 생성(0.3/0.6/0.9, 0.9 채택), 512 이미지 워밍 ~7.5s, 각 기능별 라이브/결정적 브라우저 검증(스크린샷). 결정적 모킹으로 이어하기/포트레이트/드래그/패배버튼/행동기록/기록오버레이/부트인트로 확인.
-- Blockers: 라이브 인프라(docker) 다운 중 — Redux 실 파이프라인(워커)·visual-work 자동삭제 실경로·워커 메모리(Flux1+Flux1Redux 동시) 검증 미실시. `make test-e2e` 미재실행(스크립트 수정만).
+- Blockers: Redux 실 파이프라인(워커)·visual-work 자동삭제 실경로·`make test-e2e`는 후속 E2E 게이트 복구 작업에서 완료 확인. Flux1+Flux1Redux 동시 적재 메모리 장기 안정성만 추가 플레이 모니터 필요.
 - Next: 아래 "다음 수행/검증 필요" 참조(NEXT_PLAN). 누적분 커밋, 인프라 올려 라이브 검증, 파티 조작 구현 착수.
 
 ## 2026-06-06

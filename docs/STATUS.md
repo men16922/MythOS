@@ -17,9 +17,21 @@ Project MythOS 로컬 플레이어블 MVP 및 주요 명작 레퍼런스 기반 
 
 ## Latest Verified Baseline
 
-- `make test` (200 tests, 2 skipped) — 세션 2 배치 반영. `make typecheck` 클린, React 빌드 클린.
+- `make test` (202 tests, 2 skipped) — 세션 2 배치 및 worker lock cleanup 테스트 반영. `make lint`, `make typecheck` 클린, React 빌드 클린.
+- `make test-e2e` — fallback/no-image URL 모드(`?fallback=1&image=0`)로 부트 오프닝→세션 인트로→턴 0 선택지→턴 1 전환 통과. 실패 시 non-zero exit 및 `outputs/e2e_failure.png` 진단 캡처 경로 보강.
+- Redux 실 파이프라인 라이브 검증 — worker queue로 세린 캐릭터 장면 512×512/4-step Redux job 처리 성공. DB asset metadata `use_redux=true`, reference `resources/neo-seoul/characters/se-rin.png`, MinIO presigned PNG GET 200, `outputs/visual-work` 작업본 삭제 확인. Cold Redux latency 17.3s(provider 17.1s).
+- Visual worker 종료 안정화 — heartbeat lock owner token 유지, SIGTERM/KeyboardInterrupt 시 lock release, Postgres pool 명시 close 적용. 빈 queue worker SIGTERM 검증에서 heartbeat 1→0 및 프로세스 잔류 없음 확인.
 - 세션 2 결정적/라이브 검증: 이어하기 활성 루프 선택, CHARACTER 포트레이트 분기(정세린), 전투 드래그&드롭(이동 액션 발생), 패배→메인 복귀, 장면별 행동 기록, 서사 기록 오버레이(N), 부트 오프닝→온보딩 전환, 512 이미지 워밍 ~7.5s, 오프닝 첫 장면이 비 오는 C-17/세린으로 연속, mflux Redux 0.9 얼굴 일관성 비교(`outputs/redux_compare_big.png`).
+- Dev 탭 로컬 인프라 콘솔 링크(Adminer/MinIO/Redis/Jaeger) 렌더 확인(`outputs/dev_infra_links.png`). `make dev-up`/`dev-down` 원클릭 스택 파싱 검증.
 - (이전) `make test` (196 tests, 2 skipped)
+
+## 로컬 실행 (Local Run)
+
+풀 플레이엔 4개 서비스가 필요하다: **docker 인프라 + API + visual worker + Ollama**(Ollama는 호스트, `ollama serve`).
+
+- 원클릭: **`make dev-up`** — docker infra → postgres 대기 → db-migrate → visual-worker(bg) → Ollama 확인 → API(foreground). Ctrl+C로 API만 종료. 전체 정리: **`make dev-down`**.
+- 개별: `make infra-up` + `make api` + `make visual-worker-bg` (+ `ollama serve`).
+- API 미기동 시 브라우저 `이어하기`가 `Failed to fetch`로 실패한다(온보딩은 캐시로 보일 수 있음). 인프라 콘솔 URL은 React Dev 탭에서 확인.
 - `make test-e2e` (Playwright 자동 E2E 테스트) 성공 검증 (outputs/e2e_react_play.png 및 outputs/e2e_react_play_turn1.png 스크린샷 캡처 확인)
 - 전투 종료 LLM 멈춤 수정: 전투 패배(루프 종료)가 fallback/fast 모드에서 8.3s→22ms (`summarize_loop` use_llm 게이트). 라이브 재측정 확인.
 - PoC S1 온보딩/세션: `GET /api/v1/scenarios` + 온보딩 화면(시나리오/아키타입 선택)·이어하기(`loops/active`)·엔딩 배너. 라이브 flow 확인.
@@ -70,10 +82,10 @@ Vite + React + TS SPA 기반의 독자적인 프론트엔드 포팅 및 Playwrig
 - 이어하기 409 수정, 스토리/캐릭터 레이아웃 개편 + CHARACTER 컨텍스트 분기(내 정보↔대화상대 portrait), 전투 드래그&드롭, 오프닝 시네마틱→첫 장면 연속성, 이미지 512/타자기 속도 최적화, 전투 패배→메인 화면 버튼, 장면별 행동 기록, 서사 기록 별도 오버레이, 오프닝 이미지 컷 복사→재생성, 첫 진입 부트 오프닝, **mflux Redux 기반 캐릭터 얼굴 일관성**, visual-work 로컬 작업본 자동 정리.
 
 - **다음 수행/검증 필요** (상세: `docs/NEXT_PLAN.md` "다음 수행/검증 필요"):
-  1. 라이브 인프라(`make infra-up` + visual worker)로 **Redux 얼굴 일관성 실 파이프라인** 검증(캐릭터 장면이 Redux 생성→MinIO 저장→portrait와 일관).
-  2. 워커 **메모리** 모니터: txt2img(Flux1) + Redux(Flux1Redux) 동시 로드 시 스왑/멈춤 재발 여부(이전 멈춤 이력). 필요 시 오프닝도 Redux 통합해 단일 모델화.
-  3. **visual-work 자동 삭제** 실 워커 경로 동작 확인, **512 이미지 속도** 라이브 재확인.
-  4. **`make test-e2e` 재실행**(부트 인트로/세션 시네마틱 dismiss 단계 반영한 스크립트로 통과 확인).
+  1. ~~라이브 인프라(`make infra-up` + visual worker)로 **Redux 얼굴 일관성 실 파이프라인** 검증~~ 완료: 캐릭터 장면 Redux 생성→MinIO 저장→presigned PNG 확인.
+  2. 워커 **종료 안정성**은 보강 완료: heartbeat owner token 유지, 종료 시 lock release, Postgres pool 명시 close, SIGTERM 검증 완료. 다만 txt2img(Flux1) + Redux(Flux1Redux) 동시 로드 시 스왑/멈춤 재발 여부(이전 멈춤 이력)는 장기 플레이 모니터 필요.
+  3. ~~**visual-work 자동 삭제** 실 워커 경로 동작 확인, **512 이미지 속도** 라이브 재확인~~ 완료: 작업본 삭제 및 Redux cold 17.3s 확인.
+  4. ~~**`make test-e2e` 재실행**~~ 완료: 부트 인트로/세션 시네마틱 dismiss 및 fallback/no-image E2E 모드로 통과 확인.
   5. `docs/play-checklist.md` 신규 항목 수동 QA(부트 오프닝/기록 오버레이/행동 기록/드래그&드롭/패배→메인/포트레이트 분기/오프닝 연속성).
   6. 파티 조작 2단계 구현(`docs/plans/2026-06-06-party-controllable-allies.md`, 설계 승인 시).
   7. 다중 시나리오(`glass-library`) 스크립트 및 Story Bible 확장.
@@ -106,13 +118,13 @@ Vite + React + TS SPA 기반의 독자적인 프론트엔드 포팅 및 Playwrig
 - `narrative_shards`는 오래된 raw shard를 원문 프롬프트에서 제외하고 `causality_summary` 메모리로 압축한다. DB row 자체는 보존하므로, 조회/삭제 정책이 필요해지면 별도 status/migration을 추가한다.
 - Ollama output은 repair/fallback path를 탈 수 있다. provider 품질 메트릭(outcome + total/degraded/success_ratio)은 `mythos.narrative.outcome` OTel 스팬과 구조화 로그로 방출되고, `WorldMemory(kind="narrative_metrics")`에도 누적 저장되어 Developer 뷰에서 볼 수 있다.
 - 캐릭터 얼굴 일관성은 mflux **Redux**(strength 0.9, portrait 레퍼런스)로 steering한다. img2img보다 낫지만 IP-Adapter만큼 얼굴을 핀포인트로 고정하진 않는다(FLUX-schnell 4스텝 한계). diffusers IP-Adapter 경로는 fallback 메타데이터로만 남아 있다.
-- 워커가 한 세션에서 txt2img(Flux1)와 Redux(Flux1Redux) 두 모델을 동시에 적재할 수 있다(각 ~7GB q4). 메모리 압박 시 멈춤 가능성 — 라이브 모니터 필요, 필요 시 오프닝도 Redux로 통합해 모델 단일화.
-- visual-work 로컬 작업본은 저장 성공 후 자동 삭제된다. 라이브 워커 경로에서의 실제 삭제 동작은 인프라 가동 후 확인 필요.
+- 워커가 한 세션에서 txt2img(Flux1)와 Redux(Flux1Redux) 두 모델을 동시에 적재할 수 있다(각 ~7GB q4). Redux 단독 worker job과 종료 cleanup은 성공했지만, 동시 적재 메모리 압박/멈춤 여부는 장기 플레이 모니터 필요.
+- visual-work 로컬 작업본은 저장 성공 후 자동 삭제된다. Redux worker→MinIO 실경로에서 작업본 및 빈 loop dir 삭제 확인 완료.
 - 추가 전투 밸런스는 실제 플레이 로그 기반으로 재조정할 수 있다.
 - Story Bible은 전체 문서를 프롬프트에 넣으면 토큰 낭비가 크므로, phase/location/flags 기반 snippet 선택 레이어가 필요하다.
 - RunSummary는 현재 `WorldMemory(kind="run_summary")` JSONB로 저장한다. 조회/필터가 늘어나면 별도 테이블 migration이 필요하다.
 - MetaProgression은 현재 `PlayerMemory(kind="meta_progression")`, SaveSlot은 `PlayerMemory(kind="save_slot")` JSONB로 저장한다. 조회/필터가 늘어나면 별도 테이블 migration이 필요하다.
-- EndingResolver 조건식은 현재 제한된 namespace의 expression 평가 경로다. operator whitelist/AST 기반 evaluator로 안전성을 높이는 보강이 필요하다.
+- EndingResolver 조건식은 `ASTConditionEvaluator` 기반 제한 evaluator로 전환되어 `eval` 경로는 제거됐다. 새 시나리오 조건식을 추가할 때는 지원 연산자/타입 매핑 테스트를 함께 추가해야 한다.
 
 ## Source Of Truth
 

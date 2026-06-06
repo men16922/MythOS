@@ -42,7 +42,9 @@
 | --- | --- | --- |
 | M13 | Async Visual Jobs | Redis 기반 비동기 이미지 잡, 워커 heartbeat, pending/processing/succeeded 상태, MinIO presigned 표시 구현 |
 | M13.5 | mflux Visual Backend | Apple MLX `mflux` 기본 전환, 4-bit 양자화, 단일 워커 락, img2img 4-step 프리셋으로 이미지 지연과 메모리 경합 완화 |
+| M13.6 | Redux Worker Pipeline & Cleanup | mflux Redux 캐릭터 identity steering을 worker→MinIO 실경로로 검증하고, heartbeat owner token 유지/lock release/Postgres pool close로 worker 종료 잔류 방지 |
 | M14 | Developer Experience | Ruff(Lint/Format), Mypy(Type Check) 도입, Makefile 명령어 정비 및 전역 타입 에러 해결 |
+| M14.5 | Local Dev Stack UX | `make dev-up`/`dev-down` 원클릭 스택과 React Dev 탭 인프라 콘솔 링크(Adminer/MinIO/Redis/Jaeger) 추가 |
 | M20 | Configuration Decoupling | 하드코딩된 시나리오 설정을 `scenario.json`으로 분리, MinIO를 기본 이미지 저장소로 지정 |
 
 ## RPG & Narrative Quality Track (Phase 21-26)
@@ -88,7 +90,7 @@
 | ID | Milestone | Result |
 | --- | --- | --- |
 | S1-S6 | Web UI Parity & React SPA | FastAPI REST/WS 백엔드 어댑터 구축, WebSocket 토큰 스트리밍, MinIO presigned URL, React + TypeScript SPA 독립형 프론트엔드(온보딩, 6종 게이지 HUD, 타입라이터, 전투 Canvas 렌더러, Codex 기억의 별자리, Save/Load, Dev 모니터) 100% 기능 패리티 완료 |
-| E2E | Playwright 자동 E2E 테스트 | uvicorn 백그라운드 서버 기동 및 Playwright headless Chromium을 통한 가상 플레이어 자동 온보딩, 스트리밍 대기, 턴 진행, 화면 스냅샷 수집 및 리소스 자동 회수 파이프라인(`make test-e2e`) 구축 |
+| E2E | Playwright 자동 E2E 테스트 | uvicorn 백그라운드 서버 기동 및 Playwright headless Chromium을 통한 가상 플레이어 자동 온보딩, 스트리밍 대기, 턴 진행, 화면 스냅샷 수집, 실패 non-zero exit/진단 캡처, 리소스 자동 회수 파이프라인(`make test-e2e`) 구축 |
 
 ## Long-Session Stability Track
 
@@ -113,7 +115,7 @@
 - Browser narrative play: fallback off 상태에서 Ollama scene 생성.
 - Streamlit polish regression: saved player 선택, saved loop resume, archive, next loop Echo carry-over.
 - Automated browser E2E: `make test-e2e` (Playwright headless Chromium 온보딩/턴이동 성공 검증, outputs PNG 스냅샷 보관)
-- Current lightweight verification: `make lint`, `make typecheck`, `make test` (196 tests, 2 skipped), `make test-e2e`.
+- Current lightweight verification: `make lint`, `make typecheck`, `make test` (202 tests, 2 skipped), `make test-e2e`.
 
 ## Completed Architecture Baseline
 

@@ -2,9 +2,9 @@
 
 Project MythOS / 세계:접속의 로컬 MVP 런타임입니다.
 
-현재 로컬 MVP(M0-M10)는 완료 상태입니다. Streamlit 브라우저 데모와 CLI 모두에서 플레이어 생성, 루프 시작, 선택, free-form action, resume, archive/Echo 저장, 다음 루프 Echo 반영, 선택적 FLUX 이미지 생성, PostgreSQL/MinIO 저장, structured log/Jaeger trace까지 로컬에서 동작합니다.
+현재 로컬 MVP 이후 React + FastAPI 플레이 경로까지 구현된 상태입니다. FastAPI-served React SPA, Streamlit 브라우저 데모, CLI 모두에서 플레이어 생성, 루프 시작, 선택, free-form action, resume, archive/Echo 저장, 다음 루프 Echo 반영, 선택적 FLUX 이미지 생성, PostgreSQL/MinIO 저장, Redis visual worker, structured log/Jaeger trace까지 로컬에서 동작합니다.
 
-기존 로컬 이미지 생성 에이전트도 유지됩니다. Ollama의 로컬 LLM이 한글 아이디어를 FLUX용 영어 프롬프트로 확장하고, Diffusers의 `black-forest-labs/FLUX.1-schnell`이 Apple Silicon MPS에서 이미지를 생성합니다.
+기존 로컬 이미지 생성 에이전트도 유지됩니다. Ollama의 로컬 LLM이 한글 아이디어를 FLUX용 영어 프롬프트로 확장하고, 기본 이미지 백엔드인 mflux/FLUX.1-schnell이 Apple Silicon에서 이미지를 생성합니다. 캐릭터 장면은 mflux Redux 레퍼런스 이미지 경로로 라우팅해 얼굴 일관성을 보강합니다.
 
 ## Project Docs
 
@@ -65,12 +65,36 @@ ollama run gemma4
 ```bash
 make doctor
 make smoke
+make test-e2e
 ```
 
 `doctor`는 Python 버전, MPS 사용 가능 여부, 필수 패키지 설치 여부, Ollama 연결 여부를 확인합니다. FLUX 가중치는 로드하지 않습니다.
 기본 이미지 모델이 gated repo라 `HF_TOKEN`이 없거나 모델 접근 승인이 안 되어 있으면 이 단계에서 실패합니다.
 
 `make smoke`는 compileall, unit tests, fallback narrative smoke, visual fake PNG smoke, DB integration test, MinIO upload smoke를 실행합니다.
+`make test-e2e`는 FastAPI + React SPA를 임시 서버로 띄우고 `?fallback=1&image=0` 결정적 경로에서 Playwright headless Chromium 회귀 테스트를 실행합니다. 실패 시 non-zero exit와 `outputs/e2e_failure.png`를 남깁니다.
+
+## Play The React Web App
+
+권장 로컬 플레이 경로입니다. Docker 인프라, DB migration, background visual worker, FastAPI 서버를 한 번에 준비합니다. Ollama는 Mac host에서 별도로 실행되어야 합니다.
+
+```bash
+ollama serve
+make dev-up
+```
+
+브라우저에서 `http://localhost:8000`을 엽니다. API는 같은 서버의 `/api/v1` 아래에서 REST/WebSocket을 제공합니다. Dev 탭에는 로컬 인프라 콘솔 링크가 있습니다.
+
+- Adminer: `http://localhost:8080`
+- MinIO Console: `http://localhost:9001`
+- Redis Commander: `http://localhost:8081`
+- Jaeger: `http://localhost:16686`
+
+정리:
+
+```bash
+make dev-down
+```
 
 ## Play The Streamlit Demo
 
@@ -150,6 +174,8 @@ make db-shell
 - Adminer: `http://localhost:8080`
 - MinIO API: `http://localhost:9000`
 - MinIO Console: `http://localhost:9001`
+- Redis: `localhost:6379`
+- Redis Commander: `http://localhost:8081`
 - Jaeger: `http://localhost:16686`
 - OTLP HTTP: `http://localhost:4318`
 
@@ -177,13 +203,14 @@ make visual-smoke-flux-tiny
 
 `visual-smoke-flux-tiny`는 실제 FLUX.1-schnell을 128x128, 1 step으로 호출합니다.
 
-## Image Backend (mflux / diffusers)
+## Image Backend (mflux / Redux / diffusers)
 
 이미지 생성 백엔드는 `.env`의 `IMAGE_BACKEND`로 선택합니다.
 
 - `mflux` (기본, 권장) — Apple MLX 네이티브 + 양자화. 같은 `FLUX.1-schnell` 가중치로
   diffusers/MPS 대비 약 20배 빠르고(512x512/4step warm ≈ 8초), 메모리도 적게 씁니다
   (8-bit ≈ 12GB, 4-bit ≈ 7GB). `MFLUX_QUANTIZE`로 8 또는 4 선택.
+- `mflux Redux` — 캐릭터 장면에서 레퍼런스 portrait(`resources/neo-seoul/characters/...`)를 사용해 인물 일관성을 보강합니다. Redux worker 실경로는 Redis job → MinIO asset → presigned URL까지 검증되어 있습니다.
 - `diffusers` — PyTorch/MPS 폴백.
 
 ```bash
@@ -205,27 +232,34 @@ t = time.time()
 generate_image_mflux(prompt, Path("outputs/mflux-test.png"), seed=42, steps=4, width=512, height=512, quantize=8)
 print(f"done in {time.time()-t:.1f}s -> outputs/mflux-test.png")
 
-# img2img(캐릭터 정체성 스티어링): 레퍼런스 이미지 + strength
-generate_image_mflux(
+# Redux(캐릭터 정체성 스티어링): 레퍼런스 이미지 + strength
+from mythos_image_agent.mflux_generator import generate_image_mflux_redux
+
+generate_image_mflux_redux(
     "Se-rin in a neon blackout alley, cinematic",
-    Path("outputs/mflux-i2i.png"),
+    Path("outputs/mflux-redux.png"),
     seed=42, steps=4, width=512, height=512, quantize=8,
-    reference_path="resources/neo-seoul/characters/se-rin.png", image_strength=0.6,
+    reference_path="resources/neo-seoul/characters/se-rin.png", redux_strength=0.9,
 )
-print("img2img -> outputs/mflux-i2i.png")
+print("redux -> outputs/mflux-redux.png")
 PY
 ```
 
 첫 실행은 양자화 로드(~10초)가 1회 포함되고, 이후 생성은 한 자릿수 초입니다. 가중치는 기존
 Hugging Face 캐시를 재사용합니다(`FLUX.1-schnell`은 gated repo라 `HF_TOKEN`/로그인 필요).
 
-### 런타임 경로로 테스트 (Streamlit/워커)
+### 런타임 경로로 테스트 (React/Streamlit/워커)
 
 ```bash
 make visual-smoke-flux-tiny   # 기본 백엔드(mflux)로 실제 생성 1장
 make visual-worker            # 비동기 워커(자동 기동도 됨) — 로그: make visual-worker-logs
-make streamlit                # 플레이어 뷰에서 핵심 장면 전환 시 자동 생성, MinIO 저장
+make dev-up                   # React/API 플레이 경로 + worker + infra
+make streamlit                # Streamlit 플레이어 뷰에서 핵심 장면 전환 시 자동 생성, MinIO 저장
 ```
+
+## Playwright MCP
+
+프로젝트 로컬 MCP 설정은 `.codex/.mcp.json`에 있습니다. Codex에서 Playwright MCP를 붙여 브라우저 조작 도구로 사용할 수 있고, 재현 가능한 회귀 검증은 여전히 `make test-e2e`가 기준입니다.
 
 ## Generate
 

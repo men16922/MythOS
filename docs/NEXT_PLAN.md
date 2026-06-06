@@ -33,16 +33,20 @@
 
 ### 다음 수행/검증 필요 (2026-06-06 세션 2 후속) — ★ 활성
 
-세션 2 UX·비주얼·전투 배치(상세: `docs/PROGRESS_LOG.md`)는 **미커밋**이며, 로컬 인프라(docker)가 내려가 라이브 검증 일부가 보류됐다. 우선순위:
+세션 2 UX·비주얼·전투 배치와 후속 E2E/Redux/worker cleanup/dev-up 작업(상세: `docs/PROGRESS_LOG.md`)은 **미커밋**이다. 라이브 검증 핵심 항목은 대부분 완료됐고, 다음 우선순위는 커밋 정리와 수동 QA다.
+
+정리/릴리즈:
+- `[ ]` **누적 변경분 커밋 정리**: 세션 2 UX·비주얼·전투 배치, E2E 게이트 복구, Redux worker 실검증/cleanup, Dev 인프라 링크/`make dev-up`, `.codex/.mcp.json`을 포함해 diff를 기능 단위로 점검하고 커밋 가능 상태로 정리.
+- `[ ]` **수동 QA 실행**: `docs/play-checklist.md` 신규 항목을 실제 React/API/worker/Ollama 경로에서 확인하고, 실패 항목은 별도 fix로 분리.
 
 라이브 검증(인프라 가동 필요 — `make infra-up` + visual worker + Ollama):
-- `[ ]` **Redux 얼굴 일관성 실 파이프라인**: 신규 게임에서 캐릭터 장면이 Redux(strength 0.9, portrait 레퍼런스)로 생성되어 MinIO 저장되고, CHARACTER 포트레이트와 얼굴이 일관되는지 실제 플레이로 확인.
-- `[ ]` **워커 메모리 모니터**: txt2img(Flux1)+Redux(Flux1Redux) 동시 적재 시 스왑/멈춤 재발 여부. 문제 시 오프닝 턴도 Redux로 통합해 모델 단일화하거나 동시 로드 제한.
-- `[ ]` **visual-work 자동 삭제** 실 워커 경로 동작 확인(업로드 후 로컬 작업본 제거), **512 이미지 속도** 라이브 재측정(워밍 ~8s 기대).
+- `[x]` **Redux 얼굴 일관성 실 파이프라인**: 세린 캐릭터 장면을 worker queue로 처리해 Redux(strength 0.9, portrait 레퍼런스) metadata가 기록되고 MinIO `s3://mythos-assets/...` 저장 및 presigned PNG GET 200 확인.
+- `[/]` **워커 메모리/종료 모니터**: Redux 단독 512×512/4-step job은 성공(모델 로드 포함 17.3s, provider 17.1s). worker 종료 cleanup은 heartbeat owner token 유지, SIGTERM/KeyboardInterrupt lock release, Postgres pool 명시 close로 보강했고 빈 queue worker SIGTERM 검증 통과. txt2img(Flux1)+Redux(Flux1Redux) 동시 적재 스왑/멈춤 재발 여부는 아직 장기 플레이로 추가 확인 필요.
+- `[x]` **visual-work 자동 삭제** 실 워커 경로 동작 확인(업로드 후 `outputs/visual-work/<loop>/<scene>.png` 및 빈 loop dir 제거), **512 이미지 속도** 라이브 재측정(Redux cold 17.3s).
 - `[ ]` **오프닝 연속성** 라이브 LLM 재확인(turn 0~2가 비 오는 C-17/세린으로 이어지고 변전소로 리셋되지 않음).
 
 자동/회귀:
-- `[ ]` **`make test-e2e` 재실행**: 부트 인트로/세션 시네마틱 dismiss 단계를 반영한 `run_playwright_test.py`로 통과 확인(부트 오프닝 도입으로 진입 흐름 변경됨).
+- `[x]` **`make test-e2e` 재실행**: 부트 인트로/세션 시네마틱 dismiss 단계와 fallback/no-image E2E URL 모드를 반영한 `run_playwright_test.py`로 통과 확인. 실패 시 non-zero exit와 `outputs/e2e_failure.png` 진단 스크린샷을 남기도록 보강.
 
 수동 QA(`docs/play-checklist.md` 신규 항목):
 - `[ ]` 첫 진입 부트 오프닝, 서사 기록 오버레이/직전 1개 인라인, 장면별 "내 행동" 표시, 전투 드래그&드롭, 전투 패배→메인 화면 버튼, CHARACTER 포트레이트 분기(대화상대 등장).

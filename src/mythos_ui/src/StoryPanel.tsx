@@ -67,7 +67,7 @@ export function StoryPanel({
   // log lives in a separate overlay so the main view stays uncluttered.
   const INLINE_HISTORY_LIMIT = 1;
   const inlineHistory = narrativeHistory.slice(-INLINE_HISTORY_LIMIT);
-  const hiddenCount = narrativeHistory.length - inlineHistory.length;
+  const hasNarrativeHistory = narrativeHistory.length > 0;
 
   // Auto scroll to bottom when new streaming text arrives or history updates
   useEffect(() => {
@@ -158,12 +158,12 @@ export function StoryPanel({
         <div className="panel narrative-script-panel">
             <div className="narrative-scroll-area">
               {/* 전체 기록은 별도 화면(오버레이)에서. 인라인은 직전 장면만 유지 */}
-              {hiddenCount > 0 && (
+              {hasNarrativeHistory && (
                 <button
                   className="history-open-btn"
                   onClick={() => setShowHistory(true)}
                 >
-                  📜 이전 기록 전체 보기 ({narrativeHistory.length})
+                  📜 서사 기록 전체 보기 ({narrativeHistory.length})
                 </button>
               )}
 

@@ -38,3 +38,14 @@ export function choiceCostLabel(choice: SceneChoice): string {
   }
   return changes.length > 0 ? ` (${changes.join(", ")})` : "";
 }
+
+export function cleanChoiceLabel(label: string): string {
+  if (!label) return "";
+  const stats = ["근력", "지능", "매력", "민첩", "관측", "통찰"];
+  let cleaned = label;
+  for (const stat of stats) {
+    const regex = new RegExp(`\\((${stat})[^)]*\\)`, "g");
+    cleaned = cleaned.replace(regex, `($1)`);
+  }
+  return cleaned;
+}

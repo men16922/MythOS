@@ -34,6 +34,209 @@ interface StoryPanelProps {
   scenarioCharacters?: ScenarioCharacter[];
 }
 
+const decodeGarbageBytes = (text: string): string => {
+  if (!text) return "";
+  const regex = /(?:<0x([0-9A-Fa-f]{2})>)+/g;
+  return text.replace(regex, (match) => {
+    const byteMatches = match.match(/0x([0-9A-Fa-f]{2})/g);
+    if (!byteMatches) return match;
+    const bytes = new Uint8Array(
+      byteMatches.map((bm) => parseInt(bm.substring(2), 16))
+    );
+    try {
+      return new TextDecoder("utf-8").decode(bytes);
+    } catch {
+      return match;
+    }
+  });
+};
+
+const renderBoldText = (text: string): React.ReactNode[] => {
+  if (!text) return [];
+  const parts = text.split(/\*\*([\s\S]*?)\*\*/g);
+  return parts.map((part, i) => {
+    if (i % 2 === 1) {
+      return <strong key={i}>{part}</strong>;
+    }
+    return part;
+  });
+};
+
+const renderFormattedNarration = (rawText: string, turnIndex: number) => {
+  if (!rawText) return null;
+  const text = decodeGarbageBytes(rawText);
+
+  // 복합 정규식: (스탯: 수치) + 임의의 조사 + "대사"
+  // 예: (민첩: 8)의 목소리가 귓가를 때린다. "멍하니 서 있지 마!"
+  const complexRegex = /\((근력|지능|매력|민첩|관측):\s*(\d+)\)([^"]*?)("[^"]+")/g;
+  
+  // 단순 정규식: (스탯: 대사)
+  // 예: (민첩: 지금 여기서 망설이면 끝이다...)
+  const simpleRegex = /\((근력|지능|매력|민첩|관측):\s*([^)]+)\)/g;
+
+  const parts: React.ReactNode[] = [];
+  const matches: {
+    index: number;
+    length: number;
+    statName: string;
+    statValue?: string;
+    description?: string;
+    statText: string;
+  }[] = [];
+
+  // 1. 복합 패턴 매칭
+  let matchComplex: RegExpExecArray | null;
+  complexRegex.lastIndex = 0;
+  while ((matchComplex = complexRegex.exec(text)) !== null) {
+    matches.push({
+      index: matchComplex.index,
+      length: matchComplex[0].length,
+      statName: matchComplex[1],
+      statValue: matchComplex[2],
+      description: matchComplex[3] ? matchComplex[3].trim() : undefined,
+      statText: matchComplex[4]
+    });
+  }
+
+  // 2. 단순 패턴 매칭 (복합 패턴과 겹치지 않는 것만 추가)
+  let matchSimple: RegExpExecArray | null;
+  simpleRegex.lastIndex = 0;
+  while ((matchSimple = simpleRegex.exec(text)) !== null) {
+    const cur = matchSimple;
+    const isOverlapping = matches.some(m => 
+      (cur.index >= m.index && cur.index < m.index + m.length) ||
+      (cur.index + cur[0].length > m.index && cur.index + cur[0].length <= m.index + m.length)
+    );
+    if (!isOverlapping) {
+      matches.push({
+        index: cur.index,
+        length: cur[0].length,
+        statName: cur[1],
+        statText: cur[2]
+      });
+    }
+  }
+
+  // 인덱스 순으로 정렬
+  matches.sort((a, b) => a.index - b.index);
+
+  let lastIndex = 0;
+  for (const m of matches) {
+    if (m.index > lastIndex) {
+      parts.push(...renderBoldText(text.substring(lastIndex, m.index)));
+    }
+
+    let color = "#888888";
+    let iconUrl = "";
+    
+    switch (m.statName) {
+      case "근력":
+        color = "#FF5555";
+        iconUrl = "/assets/icons/stat_strength.png";
+        break;
+      case "지능":
+        color = "#8BE9FD";
+        iconUrl = "/assets/icons/stat_intelligence.png";
+        break;
+      case "매력":
+        color = "#FFB86C";
+        iconUrl = "/assets/icons/stat_charisma.png";
+        break;
+      case "민첩":
+        color = "#50FA7B";
+        iconUrl = "/assets/icons/stat_agility.png";
+        break;
+      case "관측":
+        color = "#F1FA8C";
+        iconUrl = "/assets/icons/stat_perception.png";
+        break;
+    }
+
+    const fallbackEmoji = m.statName === "근력" ? "💪" :
+                          m.statName === "지능" ? "🧠" :
+                          m.statName === "매력" ? "🗣️" :
+                          m.statName === "민첩" ? "🏃‍♂️" : "👁️";
+
+    parts.push(
+      <span
+        key={m.index}
+        className="inner-monologue-wrapper"
+        style={{ display: "block", margin: "8px 0" }}
+      >
+        {turnIndex === 0 && (
+          <span 
+            className="monologue-guide"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              fontSize: "11px",
+              color: "#00FFCC",
+              backgroundColor: "rgba(0, 255, 204, 0.08)",
+              border: "1px dashed rgba(0, 255, 204, 0.3)",
+              borderRadius: "4px",
+              padding: "4px 8px",
+              marginBottom: "6px"
+            }}
+          >
+            <span>💡</span>
+            <span><strong>스탯 속삭임:</strong> 플레이어의 높은 특성(현재: {m.statName})이 머릿속 내면의 독백으로 조언을 건넵니다.</span>
+          </span>
+        )}
+        <span
+          className="inner-monologue"
+          style={{
+            color,
+            fontStyle: "italic",
+            display: "block",
+            padding: "8px 12px",
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            borderLeft: `3px solid ${color}`,
+            borderRadius: "0 4px 4px 0",
+          }}
+        >
+          <span style={{ marginRight: "6px", display: "inline-flex", alignItems: "center", verticalAlign: "middle" }}>
+            <img 
+              src={iconUrl} 
+              alt={m.statName} 
+              style={{ width: "16px", height: "16px", objectFit: "contain" }}
+              onError={(e) => {
+                (e.target as HTMLElement).style.display = "none";
+                const parent = (e.target as HTMLElement).parentElement;
+                if (parent && !parent.querySelector(".fallback-emoji")) {
+                  const fallbackSpan = document.createElement("span");
+                  fallbackSpan.className = "fallback-emoji";
+                  fallbackSpan.innerText = fallbackEmoji;
+                  parent.appendChild(fallbackSpan);
+                }
+              }}
+            />
+          </span>
+          {m.statValue ? (
+            <>
+              <strong>[{m.statName} {m.statValue}]</strong>
+              {m.description ? ` ${m.description} ` : " "}
+              <span style={{ color: "#ffffff", fontStyle: "normal" }}>{renderBoldText(m.statText)}</span>
+            </>
+          ) : (
+            <>
+              <strong>[{m.statName}]</strong> {renderBoldText(m.statText)}
+            </>
+          )}
+        </span>
+      </span>
+    );
+
+    lastIndex = m.index + m.length;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(...renderBoldText(text.substring(lastIndex)));
+  }
+
+  return <>{parts}</>;
+};
+
 export function StoryPanel({
   status,
   snapshot,
@@ -189,7 +392,7 @@ export function StoryPanel({
                   {snapshot?.active_scene?.title || ""}
                 </h2>
                 <div id="narration">
-                  {displayedNarration}
+                  {renderFormattedNarration(displayedNarration, snapshot?.active_scene?.turn_index ?? 0)}
                   {isStreaming && <span className="caret">▌</span>}
                 </div>
               </div>

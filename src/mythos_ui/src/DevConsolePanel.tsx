@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 
 import type { RuntimeSnapshot } from "./types";
 import type { DevConsoleData } from "./viewModels";
@@ -14,16 +14,21 @@ const activeEndingStyle: CSSProperties = {
   fontWeight: "bold",
 };
 const inactiveEndingStyle: CSSProperties = { color: "#6b7280" };
-const devPanelStyle: CSSProperties = { maxWidth: "392px" };
+
+const devPanelStyle: CSSProperties = {
+  width: "100%",
+  boxSizing: "border-box",
+  marginTop: 0,
+};
+
 const devStackStyle: CSSProperties = {
   display: "flex",
   flexDirection: "column",
   gap: "8px",
-  maxWidth: "360px",
+  width: "100%",
 };
 
 // 로컬 인프라 콘솔 링크 (Streamlit Developer 사이드바 패리티).
-// 브라우저 호스트 기준으로 URL을 만들어 원격 접속 시에도 동작.
 const INFRA_LINKS: { label: string; port: number; desc: string }[] = [
   { label: "Adminer", port: 8080, desc: "PostgreSQL DB 뷰어" },
   { label: "MinIO", port: 9001, desc: "오브젝트 스토리지 콘솔 (이미지 자산)" },
@@ -34,8 +39,8 @@ const INFRA_LINKS: { label: string; port: number; desc: string }[] = [
 function InfraLinks() {
   const host = window.location.hostname || "localhost";
   return (
-    <div className="panel" style={devPanelStyle}>
-      <div className="cc-label" style={{ marginBottom: "10px" }}>
+    <div className="panel" style={{ ...devPanelStyle, marginTop: 0 }}>
+      <div className="cc-label" style={{ marginBottom: "12px", borderBottom: "1px solid var(--line-soft)", paddingBottom: "6px" }}>
         로컬 인프라 콘솔 (Local Infrastructure)
       </div>
       <div
@@ -57,7 +62,7 @@ function InfraLinks() {
           </a>
         ))}
       </div>
-      <div className="infra-hint">
+      <div className="infra-hint" style={{ marginTop: "12px", fontSize: "11px", color: "var(--ink-dim)" }}>
         링크가 열리지 않으면 `make infra-up`으로 도커 인프라를 먼저 기동하세요.
       </div>
     </div>
@@ -66,169 +71,191 @@ function InfraLinks() {
 
 export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
   return (
-    <div
-      id="dev-tab-content"
-      style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(320px, 392px))",
-        gap: "16px",
-        alignItems: "start",
-      }}
-    >
-      <InfraLinks />
-      <div className="panel" style={devPanelStyle}>
-        <h2
-          style={{
-            color: "var(--term)",
-            fontSize: "16px",
-            margin: "0 0 16px",
-          }}
-        >
-          개발자 콘솔
-        </h2>
-
-        <div className="cc-label" style={{ marginBottom: "8px" }}>
-          Butterfly Effect Metrics (인과율 메트릭)
-        </div>
-        <div
-          style={{
-            ...devStackStyle,
-            marginBottom: "20px",
-          }}
-        >
-          {Object.entries(data.scores).map(([key, value], idx) => {
-            const color = scoreColors[idx % scoreColors.length];
-            return (
-              <div
-                key={key}
-                style={{
-                  background: "rgba(0, 20, 17, 0.78)",
-                  border: `1px solid ${color}33`,
-                  borderRadius: "6px",
-                  padding: "10px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: "12px",
-                }}
-              >
-                <span
-                  style={{
-                    color,
-                    fontWeight: "bold",
-                    fontSize: "12px",
-                  }}
-                >
-                  {key}
-                </span>
-                <span
-                  style={{
-                    fontSize: "22px",
-                    fontFamily: "var(--mono)",
-                    color: "#d6fff6",
-                  }}
-                >
-                  {value}
-                </span>
-              </div>
-            );
-          })}
+    <div style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}>
+      <div
+        id="dev-tab-content"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+          gap: "16px",
+          alignItems: "start",
+          width: "100%",
+        }}
+      >
+        {/* Left Column Stack */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}>
+          {/* Card 1: 로컬 인프라 */}
+          <InfraLinks />
+          
+          {/* Card 3: AI GM 품질 지표 */}
+          <NarrativeMetricsPanel data={data} />
         </div>
 
-        <NarrativeMetricsPanel data={data} />
-
-        <div
-          className="codex-grid"
-          style={{ gridTemplateColumns: "1fr", maxWidth: "360px" }}
-        >
-          <div className="codex-sec">
-            <div className="codex-sec-title">
-              Active Flags & Butterfly Effects
+        {/* Right Column Stack */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}>
+          {/* Card 2: 인과율 메트릭 */}
+          <div className="panel" style={{ ...devPanelStyle, marginTop: 0 }}>
+            <div className="cc-label" style={{ marginBottom: "12px", borderBottom: "1px solid var(--line-soft)", paddingBottom: "6px" }}>
+              인과율 메트릭 (Causality Metrics)
             </div>
-            <div
-              className="codex-list"
-              style={{ fontFamily: "var(--mono)", fontSize: "11.5px" }}
-            >
-              {data.flags.length > 0 ? (
-                data.flags.map((flag, idx) => (
-                  <div className="codex-item" key={idx}>
-                    {flag}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+              {Object.entries(data.scores).map(([key, value], idx) => {
+                const color = scoreColors[idx % scoreColors.length];
+                return (
+                  <div
+                    key={key}
+                    style={{
+                      background: "rgba(0, 20, 17, 0.4)",
+                      border: `1px solid ${color}33`,
+                      borderRadius: "6px",
+                      padding: "10px",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-start",
+                      gap: "4px",
+                    }}
+                  >
+                    <span
+                      style={{
+                        color,
+                        fontWeight: "bold",
+                        fontSize: "11px",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      {key}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: "24px",
+                        fontFamily: "var(--mono)",
+                        color: "#d6fff6",
+                        lineHeight: 1,
+                      }}
+                    >
+                      {value}
+                    </span>
                   </div>
-                ))
-              ) : (
-                <div style={{ color: "var(--ink-dim)" }}>
-                  활성 플래그가 없습니다.
-                </div>
-              )}
+                );
+              })}
             </div>
           </div>
 
-          <div className="codex-sec">
-            <div className="codex-sec-title">시나리오 엔딩 및 도달 가능성</div>
-            <div className="codex-list" style={{ fontSize: "11.5px" }}>
-              {data.endings.length > 0 ? (
-                data.endings.map((ending) => {
-                  const isActive = data.activeEndingId === ending.id;
-                  return (
-                    <div
-                      className="codex-item"
-                      style={{ padding: "4px 0" }}
-                      key={ending.id}
-                    >
+          {/* Card 4: 분기 및 엔딩 도달 가능성 */}
+          <div className="panel" style={{ ...devPanelStyle, marginTop: 0 }}>
+            <div className="cc-label" style={{ marginBottom: "12px", borderBottom: "1px solid var(--line-soft)", paddingBottom: "6px" }}>
+              분기 및 엔딩 도달 가능성 (Causality & Endings)
+            </div>
+            
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              {/* Active Flags */}
+              <div>
+                <div style={{ color: "var(--term-dim)", fontSize: "11px", textTransform: "uppercase", marginBottom: "6px", fontWeight: "bold" }}>
+                  Active Flags & Butterfly Effects
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "6px",
+                    maxHeight: "100px",
+                    overflowY: "auto",
+                    padding: "8px",
+                    background: "rgba(0,0,0,0.2)",
+                    borderRadius: "4px",
+                    border: "1px solid var(--line-soft)",
+                  }}
+                >
+                  {data.flags.length > 0 ? (
+                    data.flags.map((flag, idx) => (
                       <span
-                        style={
-                          isActive ? activeEndingStyle : inactiveEndingStyle
-                        }
-                      >
-                        • {ending.title} ({ending.id})
-                        {isActive ? " [Active]" : ""}
-                      </span>
-                      <br />
-                      <code
+                        key={idx}
                         style={{
-                          fontSize: "10px",
-                          color: "var(--ink-dim)",
-                          marginLeft: "12px",
-                          whiteSpace: "normal",
-                          overflowWrap: "anywhere",
+                          fontSize: "11px",
+                          background: "rgba(96, 165, 250, 0.15)",
+                          border: "1px solid rgba(96, 165, 250, 0.3)",
+                          padding: "2px 6px",
+                          borderRadius: "4px",
+                          color: "#60a5fa",
+                          fontFamily: "var(--mono)",
                         }}
                       >
-                        Condition: {ending.condition}
-                      </code>
-                    </div>
-                  );
-                })
-              ) : (
-                <div style={{ color: "var(--ink-dim)" }}>
-                  조회 가능한 엔딩 리스트가 없습니다.
+                        {flag}
+                      </span>
+                    ))
+                  ) : (
+                    <span style={{ color: "var(--ink-dim)", fontSize: "11px" }}>
+                      활성 플래그가 없습니다.
+                    </span>
+                  )}
                 </div>
-              )}
+              </div>
+
+              {/* Scenario Endings */}
+              <div>
+                <div style={{ color: "var(--term-dim)", fontSize: "11px", textTransform: "uppercase", marginBottom: "6px", fontWeight: "bold" }}>
+                  Scenario Endings
+                </div>
+                <div
+                  style={{
+                    maxHeight: "200px",
+                    overflowY: "auto",
+                    padding: "8px",
+                    background: "rgba(0,0,0,0.2)",
+                    borderRadius: "4px",
+                    border: "1px solid var(--line-soft)",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "8px",
+                  }}
+                >
+                  {data.endings.length > 0 ? (
+                    data.endings.map((ending) => {
+                      const isActive = data.activeEndingId === ending.id;
+                      return (
+                        <div
+                          key={ending.id}
+                          style={{
+                            borderBottom: "1px solid rgba(255,255,255,0.05)",
+                            paddingBottom: "6px",
+                          }}
+                        >
+                          <span
+                            style={
+                              isActive ? activeEndingStyle : inactiveEndingStyle
+                            }
+                          >
+                            • {ending.title} ({ending.id})
+                            {isActive ? " [Active]" : ""}
+                          </span>
+                          <br />
+                          <code
+                            style={{
+                              fontSize: "10px",
+                              color: "var(--ink-dim)",
+                              marginLeft: "12px",
+                              whiteSpace: "normal",
+                              overflowWrap: "anywhere",
+                            }}
+                          >
+                            Condition: {ending.condition}
+                          </code>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div style={{ color: "var(--ink-dim)", fontSize: "11px" }}>
+                      조회 가능한 엔딩 리스트가 없습니다.
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="codex-sec" style={{ marginTop: "16px" }}>
-          <div className="codex-sec-title">
-            Raw GameState Snapshot (원시 JSON 데이터)
-          </div>
-          <pre
-            style={{
-              fontSize: "10.5px",
-              color: "var(--ink-dim)",
-              background: "rgba(0,0,0,0.5)",
-              border: "1px solid var(--line-soft)",
-              padding: "10px",
-              borderRadius: "4px",
-              maxHeight: "240px",
-              maxWidth: "100%",
-              overflow: "auto",
-              margin: 0,
-              fontFamily: "var(--mono)",
-            }}
-          >
-            {JSON.stringify(snapshot, null, 2)}
-          </pre>
-        </div>
+        {/* Card 5: 원시 게임상태 스냅샷 (전체 너비 차지 & 탭 기반 구조화) */}
+        <SnapshotPanel snapshot={snapshot} />
       </div>
     </div>
   );
@@ -238,42 +265,81 @@ function NarrativeMetricsPanel({ data }: { data: DevConsoleData }) {
   const metrics = data.narrativeMetrics;
 
   return (
-    <div className="codex-sec" style={{ marginBottom: "16px" }}>
-      <div className="codex-sec-title">AI GM Outcome Ratio</div>
+    <div className="panel" style={{ ...devPanelStyle, marginTop: 0 }}>
+      <div className="cc-label" style={{ marginBottom: "12px", borderBottom: "1px solid var(--line-soft)", paddingBottom: "6px" }}>
+        AI GM 상태 (AI GM Outcome Ratio)
+      </div>
       {metrics ? (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "10px",
-            fontSize: "12px",
-            maxWidth: "360px",
-          }}
-        >
-          <div>
-            <div style={{ color: "var(--ink-dim)" }}>Total</div>
-            <strong>{metrics.total || 0}</strong>
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          {/* Metrics Grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
+            <div style={{ background: "rgba(0,0,0,0.2)", padding: "8px", borderRadius: "4px", border: "1px solid var(--line-soft)" }}>
+              <div style={{ color: "var(--ink-dim)", fontSize: "11px" }}>Total Requests</div>
+              <div style={{ fontSize: "18px", fontWeight: "bold", color: "#d6fff6", fontFamily: "var(--mono)" }}>{metrics.total || 0}</div>
+            </div>
+            <div style={{ background: "rgba(0,0,0,0.2)", padding: "8px", borderRadius: "4px", border: "1px solid var(--line-soft)" }}>
+              <div style={{ color: "var(--ink-dim)", fontSize: "11px" }}>Success Rate</div>
+              <div style={{ fontSize: "18px", fontWeight: "bold", color: (metrics.success_ratio ?? 0) > 0.8 ? "#4ade80" : "#fbbf24", fontFamily: "var(--mono)" }}>
+                {Math.round((metrics.success_ratio || 0) * 100)}%
+              </div>
+            </div>
+            <div style={{ background: "rgba(0,0,0,0.2)", padding: "8px", borderRadius: "4px", border: "1px solid var(--line-soft)" }}>
+              <div style={{ color: "var(--ink-dim)", fontSize: "11px" }}>Degraded / Retries</div>
+              <div style={{ fontSize: "18px", fontWeight: "bold", color: (metrics.degraded ?? 0) > 0 ? "#f472b6" : "var(--ink-dim)", fontFamily: "var(--mono)" }}>
+                {metrics.degraded || 0}
+              </div>
+            </div>
+            <div style={{ background: "rgba(0,0,0,0.2)", padding: "8px", borderRadius: "4px", border: "1px solid var(--line-soft)", minWidth: 0 }}>
+              <div style={{ color: "var(--ink-dim)", fontSize: "11px" }}>Last Outcome</div>
+              <div
+                style={{
+                  fontSize: "13px",
+                  fontWeight: "bold",
+                  color: "#60a5fa",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                }}
+                title={metrics.last_outcome}
+              >
+                {metrics.last_outcome || "n/a"}
+              </div>
+            </div>
           </div>
+
+          {/* Detailed counts */}
           <div>
-            <div style={{ color: "var(--ink-dim)" }}>Success</div>
-            <strong>{Math.round((metrics.success_ratio || 0) * 100)}%</strong>
-          </div>
-          <div>
-            <div style={{ color: "var(--ink-dim)" }}>Degraded</div>
-            <strong>
-              {metrics.degraded || 0} (
-              {Math.round((metrics.degraded_ratio || 0) * 100)}%)
-            </strong>
-          </div>
-          <div>
-            <div style={{ color: "var(--ink-dim)" }}>Last Outcome</div>
-            <strong>{metrics.last_outcome || "n/a"}</strong>
-          </div>
-          <div>
-            <div style={{ color: "var(--ink-dim)" }}>Counts</div>
-            <code style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>
-              {JSON.stringify(metrics.counts || {})}
-            </code>
+            <div style={{ color: "var(--term-dim)", fontSize: "11px", marginBottom: "6px", fontWeight: "bold" }}>
+              Detail Counts
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "4px",
+                padding: "8px",
+                background: "rgba(0,0,0,0.2)",
+                borderRadius: "4px",
+                border: "1px solid var(--line-soft)",
+              }}
+            >
+              {Object.entries(metrics.counts || {}).map(([k, v]) => (
+                <span
+                  key={k}
+                  style={{
+                    fontSize: "10.5px",
+                    background: "rgba(0, 255, 170, 0.1)",
+                    border: "1px solid rgba(0, 255, 170, 0.2)",
+                    padding: "2px 6px",
+                    borderRadius: "12px",
+                    color: "var(--term)",
+                    fontFamily: "var(--mono)",
+                  }}
+                >
+                  {k}: {v}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       ) : (
@@ -281,6 +347,278 @@ function NarrativeMetricsPanel({ data }: { data: DevConsoleData }) {
           아직 기록된 AI GM outcome 지표가 없습니다.
         </div>
       )}
+    </div>
+  );
+}
+
+type SnapshotTab = "overview" | "player" | "combat" | "raw";
+
+function SnapshotPanel({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
+  const [activeTab, setActiveTab] = useState<SnapshotTab>("overview");
+
+  if (!snapshot) {
+    return (
+      <div className="panel" style={{ ...devPanelStyle, gridColumn: "1 / -1", marginTop: 0 }}>
+        <div className="cc-label" style={{ marginBottom: "8px", borderBottom: "1px solid var(--line-soft)", paddingBottom: "6px" }}>
+          원시 게임상태 스냅샷 (Raw GameState)
+        </div>
+        <div style={{ color: "var(--ink-dim)", fontSize: "12px", padding: "16px", textAlign: "center" }}>
+          활성화된 게임 세션이 없습니다.
+        </div>
+      </div>
+    );
+  }
+
+  const tabStyle = (tab: SnapshotTab): CSSProperties => ({
+    padding: "4px 10px",
+    cursor: "pointer",
+    fontSize: "11px",
+    background: activeTab === tab ? "rgba(0, 255, 170, 0.12)" : "transparent",
+    border: "1px solid",
+    borderColor: activeTab === tab ? "var(--term)" : "rgba(255, 255, 255, 0.1)",
+    color: activeTab === tab ? "var(--term)" : "var(--ink-dim)",
+    borderRadius: "4px",
+    fontFamily: "var(--mono)",
+    transition: "all 0.15s ease",
+  });
+
+  return (
+    <div className="panel" style={{ ...devPanelStyle, gridColumn: "1 / -1", marginTop: 0 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "12px",
+          marginBottom: "12px",
+          borderBottom: "1px solid var(--line-soft)",
+          paddingBottom: "8px",
+        }}
+      >
+        <div className="cc-label" style={{ margin: 0 }}>
+          원시 게임상태 스냅샷 (Raw GameState)
+        </div>
+        
+        {/* Tabs */}
+        <div style={{ display: "flex", gap: "6px" }}>
+          <button style={tabStyle("overview")} onClick={() => setActiveTab("overview")}>OVERVIEW</button>
+          <button style={tabStyle("player")} onClick={() => setActiveTab("player")}>PLAYER</button>
+          <button style={tabStyle("combat")} onClick={() => setActiveTab("combat")}>COMBAT</button>
+          <button style={tabStyle("raw")} onClick={() => setActiveTab("raw")}>RAW JSON</button>
+        </div>
+      </div>
+
+      {/* Tab Contents */}
+      <div style={{ background: "rgba(0, 0, 0, 0.3)", borderRadius: "4px", border: "1px solid var(--line-soft)", padding: "12px", minHeight: "150px" }}>
+        {activeTab === "overview" && <SnapshotOverviewTab snapshot={snapshot} />}
+        {activeTab === "player" && <SnapshotPlayerTab snapshot={snapshot} />}
+        {activeTab === "combat" && <SnapshotCombatTab snapshot={snapshot} />}
+        {activeTab === "raw" && (
+          <pre
+            style={{
+              fontSize: "11px",
+              color: "var(--ink-dim)",
+              maxHeight: "350px",
+              width: "100%",
+              boxSizing: "border-box",
+              overflow: "auto",
+              margin: 0,
+              fontFamily: "var(--mono)",
+              background: "rgba(0,0,0,0.3)",
+              padding: "10px",
+              borderRadius: "4px",
+            }}
+          >
+            {JSON.stringify(snapshot, null, 2)}
+          </pre>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SnapshotOverviewTab({ snapshot }: { snapshot: RuntimeSnapshot }) {
+  const rowStyle: CSSProperties = {
+    display: "flex",
+    borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+    padding: "6px 0",
+    fontSize: "12px",
+  };
+  const labelStyle: CSSProperties = {
+    width: "180px",
+    color: "var(--ink-dim)",
+    fontFamily: "var(--mono)",
+    fontWeight: "bold",
+  };
+  const valStyle: CSSProperties = {
+    flex: 1,
+    color: "#d6fff6",
+    wordBreak: "break-all",
+  };
+
+  const fields = [
+    { label: "Loop ID", value: snapshot.loop_id },
+    { label: "Current Phase", value: snapshot.phase },
+    { label: "Current Location", value: snapshot.location },
+    { label: "Zone Risk", value: snapshot.zone_risk },
+    { label: "Stability", value: snapshot.stability },
+    { label: "Tension", value: snapshot.tension },
+    { label: "Decay Percent", value: `${snapshot.decay_percent}%` },
+    { label: "Clues Collected", value: snapshot.clues_collected },
+    { label: "Active Scene ID", value: snapshot.active_scene?.scene_id || "None" },
+    { label: "Active Scene Type", value: snapshot.active_scene?.scene_type || "None" },
+    { label: "BGM Asset", value: snapshot.bgm_path || "None" },
+  ];
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column" }}>
+      {fields.map((f, idx) => (
+        <div key={idx} style={rowStyle}>
+          <div style={labelStyle}>{f.label}</div>
+          <div style={valStyle}>{f.value}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SnapshotPlayerTab({ snapshot }: { snapshot: RuntimeSnapshot }) {
+  const player = snapshot.player;
+  if (!player) {
+    return <div style={{ color: "var(--ink-dim)", fontSize: "12px" }}>플레이어 정보가 존재하지 않습니다.</div>;
+  }
+
+  const traitsObj = player.traits || {};
+  const stats = (traitsObj.stats as Record<string, number>) || {};
+  const inventory = (traitsObj.inventory as string[]) || [];
+  const attributes = (traitsObj.attributes as string[]) || [];
+  const archetype = (traitsObj.archetype as string) || "Unknown";
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "12px", fontSize: "12px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+        <div>
+          <div style={{ color: "var(--term-dim)", fontWeight: "bold", marginBottom: "4px" }}>PROFILE</div>
+          <div style={{ padding: "8px", background: "rgba(0,0,0,0.2)", borderRadius: "4px", border: "1px solid var(--line-soft)" }}>
+            <div><strong>Player ID:</strong> <span style={{ fontFamily: "var(--mono)", fontSize: "11px" }}>{player.player_id}</span></div>
+            <div style={{ marginTop: "4px" }}><strong>Display Name:</strong> {player.display_name}</div>
+            <div style={{ marginTop: "4px" }}><strong>Archetype:</strong> {archetype}</div>
+          </div>
+        </div>
+        <div>
+          <div style={{ color: "var(--term-dim)", fontWeight: "bold", marginBottom: "4px" }}>STATS</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "6px", padding: "8px", background: "rgba(0,0,0,0.2)", borderRadius: "4px", border: "1px solid var(--line-soft)" }}>
+            {Object.entries(stats).map(([k, v]) => (
+              <div key={k} style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ color: "var(--ink-dim)", textTransform: "uppercase" }}>{k}</span>
+                <strong style={{ color: "var(--term)" }}>{v}</strong>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+        <div>
+          <div style={{ color: "var(--term-dim)", fontWeight: "bold", marginBottom: "4px" }}>ATTRIBUTES / TRAITS</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", padding: "8px", background: "rgba(0,0,0,0.2)", borderRadius: "4px", border: "1px solid var(--line-soft)", minHeight: "50px" }}>
+            {attributes.length > 0 ? (
+              attributes.map((attr: string, idx: number) => (
+                <span key={idx} style={{ fontSize: "11px", background: "rgba(96, 165, 250, 0.15)", border: "1px solid rgba(96, 165, 250, 0.3)", padding: "2px 6px", borderRadius: "4px", color: "#60a5fa" }}>
+                  {attr}
+                </span>
+              ))
+            ) : (
+              <span style={{ color: "var(--ink-dim)" }}>속성/특성이 없습니다.</span>
+            )}
+          </div>
+        </div>
+        <div>
+          <div style={{ color: "var(--term-dim)", fontWeight: "bold", marginBottom: "4px" }}>INVENTORY</div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", padding: "8px", background: "rgba(0,0,0,0.2)", borderRadius: "4px", border: "1px solid var(--line-soft)", minHeight: "50px" }}>
+            {inventory.length > 0 ? (
+              inventory.map((item: string, idx: number) => (
+                <span key={idx} style={{ fontSize: "11px", background: "rgba(251, 191, 36, 0.15)", border: "1px solid rgba(251, 191, 36, 0.3)", padding: "2px 6px", borderRadius: "4px", color: "#fbbf24" }}>
+                  {item}
+                </span>
+              ))
+            ) : (
+              <span style={{ color: "var(--ink-dim)" }}>인벤토리가 비어 있습니다.</span>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SnapshotCombatTab({ snapshot }: { snapshot: RuntimeSnapshot }) {
+  const combat = snapshot.combat;
+  if (!combat) {
+    return <div style={{ color: "var(--ink-dim)", fontSize: "12px" }}>현재 전투 상태가 아닙니다.</div>;
+  }
+
+  const radar = combat.radar;
+  const blips = radar?.blips || [];
+  const round = radar?.round || 1;
+  const finished = combat.finished;
+  const outcome = combat.outcome;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "12px", fontSize: "12px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+        <div>
+          <div style={{ color: "var(--term-dim)", fontWeight: "bold", marginBottom: "4px" }}>COMBAT OVERVIEW</div>
+          <div style={{ padding: "8px", background: "rgba(0,0,0,0.2)", borderRadius: "4px", border: "1px solid var(--line-soft)" }}>
+            <div><strong>Round:</strong> {round}</div>
+            <div style={{ marginTop: "4px" }}><strong>Status:</strong> {finished ? "Finished" : "Active"}</div>
+            {outcome && <div style={{ marginTop: "4px" }}><strong>Outcome:</strong> <span style={{ color: "var(--term)" }}>{outcome}</span></div>}
+            {radar?.arena && <div style={{ marginTop: "4px" }}><strong>Arena Size:</strong> {radar.arena.w} x {radar.arena.h}</div>}
+          </div>
+        </div>
+        <div>
+          <div style={{ color: "var(--term-dim)", fontWeight: "bold", marginBottom: "4px" }}>COMBATANTS ROSTER</div>
+          <div
+            style={{
+              maxHeight: "150px",
+              overflowY: "auto",
+              padding: "8px",
+              background: "rgba(0,0,0,0.2)",
+              borderRadius: "4px",
+              border: "1px solid var(--line-soft)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "4px",
+            }}
+          >
+            {blips.length > 0 ? (
+              blips.map((blip, idx) => {
+                const factionColors: Record<string, string> = {
+                  player: "#4ade80",
+                  ally: "#60a5fa",
+                  enemy: "#f472b6",
+                };
+                const color = factionColors[blip.faction] || "#fff";
+                const isCurrent = radar.current === blip.id;
+
+                return (
+                  <div key={idx} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid rgba(255,255,255,0.03)", paddingBottom: "2px" }}>
+                    <span style={{ color, fontWeight: isCurrent ? "bold" : "normal" }}>
+                      {isCurrent ? "▸ " : ""}{blip.name} ({blip.faction})
+                    </span>
+                    <span style={{ fontFamily: "var(--mono)" }}>
+                      HP: {blip.hp}/{blip.max_hp} | Position: ({blip.x}, {blip.y})
+                    </span>
+                  </div>
+                );
+              })
+            ) : (
+              <div style={{ color: "var(--ink-dim)" }}>등록된 유닛이 없습니다.</div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

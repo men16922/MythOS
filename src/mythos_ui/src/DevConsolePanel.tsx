@@ -31,11 +31,20 @@ function InfraLinks() {
       <div className="cc-label" style={{ marginBottom: "10px" }}>
         로컬 인프라 콘솔 (Local Infrastructure)
       </div>
-      <div className="infra-links">
+      <div
+        className="infra-links"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          maxWidth: "360px",
+        }}
+      >
         {INFRA_LINKS.map((l) => (
           <a
             key={l.label}
             className="infra-link"
+            style={{ width: "100%" }}
             href={`http://${host}:${l.port}`}
             target="_blank"
             rel="noopener noreferrer"

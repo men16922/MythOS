@@ -44,7 +44,9 @@ def wait_for_interactive_scene(page, *, timeout: int = 60000) -> None:
 
 def page_diagnostics(page) -> str:
     body_text = page.locator("body").inner_text(timeout=1000)
-    status = page.locator("#status").inner_text(timeout=1000) if page.locator("#status").count() else ""
+    status = (
+        page.locator("#status").inner_text(timeout=1000) if page.locator("#status").count() else ""
+    )
     return (
         f"status={status!r}, "
         f"choices={page.locator('#choices button').count()}, "
@@ -69,7 +71,9 @@ def run_test():
             page = browser.new_page()
 
             # Listen to browser console and errors
-            page.on("pageerror", lambda exc: print(f"❌ JavaScript Page Error: {exc}", file=sys.stderr))
+            page.on(
+                "pageerror", lambda exc: print(f"❌ JavaScript Page Error: {exc}", file=sys.stderr)
+            )
             page.on("console", lambda msg: print(f"ℹ️ Browser Console [{msg.type}]: {msg.text}"))
 
             print(f"Navigating to {APP_URL}...")
@@ -104,7 +108,9 @@ def run_test():
             print("Waiting for narrative typewriter stream to finish...")
             wait_for_interactive_scene(page)
             if page.locator("#choices button").count() == 0:
-                raise RuntimeError("Expected narrative choices after begin. " + page_diagnostics(page))
+                raise RuntimeError(
+                    "Expected narrative choices after begin. " + page_diagnostics(page)
+                )
 
             # Capture screenshot
             screenshot_path = str(OUTPUT_DIR / "e2e_react_play.png")

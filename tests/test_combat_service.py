@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from pathlib import Path
 
 from mythos_combat import CombatEngine, PlayerAction
 from mythos_combat.models import distance
@@ -10,6 +11,7 @@ from mythos_runtime.combat_service import CombatService
 from mythos_runtime.scenario import load_scenario
 
 POOL = load_scenario("neo-seoul").combat
+RESOURCE_ROOT = Path(__file__).resolve().parents[1] / "resources" / "neo-seoul"
 
 
 def _loop(seed: str = "seed1", state: dict | None = None) -> LoopState:
@@ -74,6 +76,26 @@ class CombatServiceTest(unittest.TestCase):
         self.assertEqual(len(result.radar["blips"]), 3)  # player + 2 drones
         self.assertTrue(result.available["can_act"])
 
+    def test_humanoid_enemy_combat_images_include_guard_pose(self) -> None:
+        bestiary = POOL["bestiary"]
+        for enemy_id, slug in (
+            ("enforcer_unit", "enforcer-unit"),
+            ("glitch_wraith", "glitch-wraith"),
+        ):
+            images = bestiary[enemy_id]["combat_images"]
+            self.assertEqual(
+                images,
+                {
+                    "idle": f"enemies/combat/{slug}-idle.png",
+                    "attack": f"enemies/combat/{slug}-attack.png",
+                    "guard": f"enemies/combat/{slug}-guard.png",
+                    "skill": f"enemies/combat/{slug}-skill.png",
+                    "hit": f"enemies/combat/{slug}-hit.png",
+                },
+            )
+            for path in images.values():
+                self.assertTrue((RESOURCE_ROOT / path).exists(), path)
+
     def test_full_fight_resolves_and_clears_active(self) -> None:
         service = CombatService()
         result = self._play_end(service)
@@ -115,7 +137,9 @@ class CombatServiceTest(unittest.TestCase):
 
     def test_party_members_spawn_as_allies(self) -> None:
         service = CombatService()
-        loop = _loop(state={"_party": {"members": [{"id": "se_rin", "hp": 9}]}})
+        loop = _loop(
+            state={"_party": {"members": [{"id": "se_rin", "hp": 9}, {"id": "kai", "hp": 11}]}}
+        )
         result = self._begin(service, loop)
         state = CombatService.load_state(result.loop)
         assert state is not None
@@ -125,7 +149,30 @@ class CombatServiceTest(unittest.TestCase):
         self.assertEqual(ally.faction, "ally")
         self.assertEqual(ally.hp, 9)
         self.assertEqual(ally.portrait, "characters/se-rin.png")
-        self.assertEqual(len(result.radar["blips"]), 4)  # player + ally + 2 drones
+        self.assertEqual(
+            ally.combat_images["idle"],
+            "characters/combat/se-rin-idle.png",
+        )
+        ally_blip = next(blip for blip in result.radar["blips"] if blip["id"] == "se_rin")
+        self.assertEqual(
+            ally_blip["combat_images"]["attack"],
+            "characters/combat/se-rin-attack.png",
+        )
+        self.assertEqual(
+            ally_blip["combat_images"]["guard"],
+            "characters/combat/se-rin-guard.png",
+        )
+        kai_blip = next(blip for blip in result.radar["blips"] if blip["id"] == "kai")
+        self.assertEqual(
+            kai_blip["combat_images"]["guard"],
+            "characters/combat/kai-guard.png",
+        )
+        player_blip = next(blip for blip in result.radar["blips"] if blip["faction"] == "player")
+        self.assertEqual(
+            player_blip["combat_images"]["guard"],
+            "characters/combat/player-noise-guard.png",
+        )
+        self.assertEqual(len(result.radar["blips"]), 5)  # player + 2 allies + 2 drones
 
     def test_unlock_flag_spawns_ally_and_persists_hp(self) -> None:
         service = CombatService()

@@ -964,7 +964,9 @@ class ArchiveRollupTest(unittest.TestCase):
         )
 
         self.assertEqual([shard.shard_id for shard in retained], ["shard_3", "shard_4"])
-        summaries = [memory for memory in store.player_memories if memory.kind == "causality_summary"]
+        summaries = [
+            memory for memory in store.player_memories if memory.kind == "causality_summary"
+        ]
         self.assertEqual(len(summaries), 1)
         summary = summaries[0]
         self.assertEqual(summary.content["shard_count"], 3)
@@ -1001,7 +1003,9 @@ class ArchiveRollupTest(unittest.TestCase):
         )
 
         self.assertEqual(retained, [])
-        summary = next(memory for memory in store.player_memories if memory.kind == "causality_summary")
+        summary = next(
+            memory for memory in store.player_memories if memory.kind == "causality_summary"
+        )
         self.assertEqual(summary.content["covered_shard_ids"], ["shard_0", "shard_1", "shard_2"])
 
     def test_narrative_metric_memory_accumulates_outcomes(self) -> None:

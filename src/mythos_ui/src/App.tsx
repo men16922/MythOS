@@ -10,6 +10,8 @@ import {
   apiSaveSlot,
   apiGetRuns,
   apiGetLoopScenes,
+  apiBegin,
+  apiCombatBegin,
   getWebSocketUrl,
 } from "./api";
 import { isChoiceDisabled } from "./choices";
@@ -498,6 +500,55 @@ export default function App() {
     }
   };
 
+  // Combat simulator: spin up a player + loop in fallback mode and drop straight
+  // into a chosen encounter, skipping the narrative path. Mirrors the Streamlit
+  // `_render_combat_simulator_inline` sandbox — used to exercise combat / VFX.
+  const handleSimulateCombat = async (encounterId: string, allyIds: string[]) => {
+    setIsBusy(true);
+    setObStatus("전투 시뮬레이션 준비 중…");
+    try {
+      const player = await apiConnect({
+        display_name: displayName || "시뮬레이터",
+        archetype: selectedArchetype,
+        scenario_id: selectedScenarioId,
+      });
+      setPlayerId(player.player_id);
+      saveSessionMetadata(player.player_id, selectedScenarioId);
+
+      const snap = await apiBegin({
+        player_id: player.player_id,
+        scenario_id: selectedScenarioId,
+        fallback: true,
+      });
+      const { combat } = await apiCombatBegin({
+        loop_id: snap.loop_id,
+        scenario_id: selectedScenarioId,
+        encounter_id: encounterId,
+        party_members: allyIds.map((id) => ({ id })),
+      });
+
+      const combatSnap = { ...snap, combat };
+      initAudio();
+      // Reset the animator baseline so the opening board draws statically
+      // (no spurious transition animation from a stale previous state).
+      prevCombatRef.current = null;
+      setLoopId(snap.loop_id);
+      setConnected(true);
+      setShowIntro(false);
+      setActiveTab("story");
+      setFinalizedSnapshot(combatSnap);
+      setLastSnapshot(combatSnap);
+      setObStatus("");
+      setStatus(`전투 시뮬레이션 진입 · ${encounterId}`);
+      logToConsole(`전투 시뮬: ${encounterId} (allies=${allyIds.join(",") || "none"})`);
+    } catch (err) {
+      setObStatus("시뮬레이션 실패: " + (err as Error).message);
+      logToConsole("전투 시뮬 실패: " + (err as Error).message);
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
   const handleResumeGame = async (saved: {
     playerId: string;
     scenarioId: string;
@@ -903,6 +954,7 @@ export default function App() {
           onArchetypeChange={setSelectedArchetype}
           onStartGame={handleStartGame}
           onResumeGame={handleResumeGame}
+          onSimulateCombat={handleSimulateCombat}
         />
       )}
 

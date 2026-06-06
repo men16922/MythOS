@@ -82,6 +82,15 @@ export async function apiCombatAction(params: {
   return apiPost<{ prose?: string; combat: CombatState }>("/api/v1/combat/action", params);
 }
 
+export async function apiCombatBegin(params: {
+  loop_id: string;
+  scenario_id: string;
+  encounter_id: string;
+  party_members?: { id: string }[];
+}): Promise<{ combat: CombatState }> {
+  return apiPost<{ combat: CombatState }>("/api/v1/combat/begin", params);
+}
+
 export async function apiResolveAsset(storageUri: string): Promise<{ url: string }> {
   return apiPost<{ url: string }>("/api/v1/assets/resolve", { storage_uri: storageUri });
 }

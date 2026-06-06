@@ -19,6 +19,11 @@ export interface ScenarioCharacter {
   portrait?: string | null;
 }
 
+export interface ScenarioRef {
+  id: string;
+  name: string;
+}
+
 export interface ScenarioInfo {
   id: string;
   name: string;
@@ -26,6 +31,8 @@ export interface ScenarioInfo {
   archetypes: ScenarioArchetype[];
   endings: ScenarioEnding[];
   characters?: ScenarioCharacter[];
+  encounters?: ScenarioRef[];
+  allies?: ScenarioRef[];
   ui_copy?: Record<string, unknown>;
 }
 

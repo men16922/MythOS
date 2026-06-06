@@ -79,6 +79,7 @@ class CombatBeginRequest(BaseModel):
     loop_id: str = Field(min_length=1)
     encounter_id: str = Field(min_length=1)
     scenario_id: str = "neo-seoul"
+    party_members: list[dict[str, Any]] | None = None
 
 
 class CombatActionRequest(BaseModel):
@@ -313,6 +314,20 @@ def create_app() -> FastAPI:
                         for c in s.characters
                         if c.get("name") and c.get("image")
                     ],
+                    # Combat-simulator metadata: selectable encounters and allies
+                    # so the SPA can launch a fight directly from the main screen.
+                    "encounters": [
+                        {"id": eid, "name": (enc.get("name") if isinstance(enc, dict) else eid) or eid}
+                        for eid, enc in (
+                            s.combat.get("encounters", {}) if isinstance(s.combat, dict) else {}
+                        ).items()
+                    ],
+                    "allies": [
+                        {"id": aid, "name": (ally.get("name") if isinstance(ally, dict) else aid) or aid}
+                        for aid, ally in (
+                            s.combat.get("allies", {}) if isinstance(s.combat, dict) else {}
+                        ).items()
+                    ],
                 }
             )
         return {"scenarios": items}
@@ -414,7 +429,12 @@ def create_app() -> FastAPI:
     ) -> dict[str, Any]:
         options = RuntimeOptions(scenario_id=body.scenario_id, fallback=True)
         try:
-            service.start_combat(body.loop_id, body.encounter_id, options)
+            service.start_combat(
+                body.loop_id,
+                body.encounter_id,
+                options,
+                party_members=body.party_members or None,
+            )
             return combat_state_response(service, body.loop_id, body.scenario_id)
         except RuntimeError as exc:
             raise _as_http_error(exc) from exc

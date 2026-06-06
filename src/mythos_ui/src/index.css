@@ -539,6 +539,46 @@ main {
   gap: 10px;
   align-items: center;
 }
+.combat-sim {
+  margin-top: 20px;
+  border: 1px dashed var(--line);
+  border-radius: 6px;
+  padding: 12px 14px;
+  background: rgba(255, 107, 125, 0.04);
+}
+.combat-sim > summary {
+  cursor: pointer;
+  color: var(--danger, #ff6b7d);
+  letter-spacing: 1px;
+  font-size: 13px;
+  user-select: none;
+}
+.combat-sim .sub {
+  display: block;
+  margin: 8px 0;
+}
+.combat-sim select {
+  width: 100%;
+}
+.sim-allies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.sim-ally {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  color: var(--ink);
+  font-size: 13px;
+}
+#sim-start {
+  border-color: var(--danger, #ff6b7d);
+  color: var(--danger, #ff6b7d);
+}
 .arch-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));

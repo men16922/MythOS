@@ -318,6 +318,7 @@ export function StoryPanel({
 
             <CombatControls
               combat={snapshot.combat}
+              scenarioId={scenarioId}
               selectedTargetId={combatTarget}
               onSelectTarget={onSelectCombatTarget}
               onAction={onCombatAction}
@@ -423,6 +424,7 @@ export function StoryPanel({
               <div style={{ marginTop: "16px" }}>
                 <CombatControls
                   combat={snapshot.combat}
+                  scenarioId={scenarioId}
                   selectedTargetId={combatTarget}
                   onSelectTarget={onSelectCombatTarget}
                   onAction={onCombatAction}

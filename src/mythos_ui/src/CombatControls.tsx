@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { enemyIntentLabel } from "./combatText";
-import type { CombatAction, CombatState } from "./types";
+import type { CombatAction, CombatSkillInfo, CombatState } from "./types";
 
 interface CombatControlsProps {
   combat: CombatState;
+  scenarioId: string;
   selectedTargetId: string | null;
   onSelectTarget: (targetId: string) => void;
   onAction: (action: CombatAction) => void;
@@ -17,14 +19,43 @@ function outcomeLabel(outcome: string): string {
   return outcome;
 }
 
+// Human-readable item labels for skill costs (e.g. patch_protocol -> nanopatch).
+const ITEM_LABELS: Record<string, string> = {
+  nanopatch: "나노패치",
+};
+
+/** Render a skill's cost dict as compact badges, e.g. {focus:2} -> "◆2". */
+function formatCost(cost?: Record<string, number | string>): string {
+  if (!cost) return "";
+  const parts: string[] = [];
+  if (cost.focus != null) parts.push(`◆${cost.focus}`);
+  if (cost.item != null) parts.push(`▣${ITEM_LABELS[String(cost.item)] ?? cost.item}`);
+  for (const [key, value] of Object.entries(cost)) {
+    if (key === "focus" || key === "item") continue;
+    parts.push(`${key} ${value}`);
+  }
+  return parts.join(" ");
+}
+
+const ROLE_LABELS: Record<string, string> = {
+  damage: "공격",
+  mobility: "기동",
+  defense: "방어",
+  healing: "회복",
+  support: "지원",
+};
+
 export function CombatControls({
   combat,
+  scenarioId,
   selectedTargetId,
   onSelectTarget,
   onAction,
   onReturnToMain,
   onContinue,
 }: CombatControlsProps) {
+  const [iconError, setIconError] = useState<Record<string, boolean>>({});
+
   if (combat.finished && combat.outcome) {
     return (
       <div id="combat-controls" className="active">
@@ -49,6 +80,64 @@ export function CombatControls({
   if (combat.finished) return null;
 
   const available = combat.available;
+  const focus = available?.focus ?? null;
+
+  const renderSkill = (skill: CombatSkillInfo) => {
+    const onCooldown = skill.cooldown > 0;
+    const name = skill.name || skill.id;
+    const focusCost = typeof skill.cost?.focus === "number" ? skill.cost.focus : 0;
+    const lowFocus = focus != null && focusCost > focus;
+    const disabled = onCooldown || lowFocus;
+    const costStr = formatCost(skill.cost);
+    const roleLabel = skill.role ? ROLE_LABELS[skill.role] ?? skill.role : "";
+    const iconSrc = `/resources/${scenarioId}/skills/${skill.id}.png`;
+
+    const tooltipParts = [name];
+    if (roleLabel) tooltipParts.push(roleLabel);
+    if (skill.range != null) tooltipParts.push(`사거리 ${skill.range}`);
+    if (costStr) tooltipParts.push(`코스트 ${costStr}`);
+    if (onCooldown) tooltipParts.push(`재사용 ${skill.cooldown}T`);
+    else if (lowFocus) tooltipParts.push("FOCUS 부족");
+    const tags = (skill.tags || []).join(" · ");
+    const tooltip = tooltipParts.join(" · ") + (tags ? `\n${tags}` : "");
+
+    return (
+      <button
+        key={skill.id}
+        className={`cc-skill ${skill.role ? `role-${skill.role}` : ""} ${
+          lowFocus && !onCooldown ? "low-focus" : ""
+        }`}
+        disabled={disabled}
+        title={tooltip}
+        onClick={() =>
+          onAction({
+            type: "skill",
+            skill_id: skill.id,
+            target_id: selectedTargetId || undefined,
+          })
+        }
+      >
+        <span className="cc-skill-icon">
+          {iconError[skill.id] ? (
+            <span className="cc-skill-glyph">{roleLabel.slice(0, 1) || "✦"}</span>
+          ) : (
+            <img
+              src={iconSrc}
+              alt={name}
+              onError={() => setIconError((prev) => ({ ...prev, [skill.id]: true }))}
+            />
+          )}
+          {onCooldown && <span className="cc-cd-overlay">CD {skill.cooldown}</span>}
+        </span>
+        <span className="cc-skill-name">{name}</span>
+        <span className="cc-skill-badges">
+          {costStr && <span className="cc-badge cost">{costStr}</span>}
+          {skill.range != null && <span className="cc-badge range">⌖{skill.range}</span>}
+        </span>
+      </button>
+    );
+  };
+
   return (
     <div id="combat-controls" className="active">
       <div className="combat-bar">
@@ -93,16 +182,16 @@ export function CombatControls({
                 className="cc-btn"
                 onClick={() => onAction({ type: "attack", target_id: selectedTargetId || undefined })}
               >
-                공격
+                ⚔ 공격
               </button>
               <button className="cc-btn" onClick={() => onAction({ type: "defend" })}>
-                방어
+                🛡 방어
               </button>
               <button className="cc-btn" onClick={() => onAction({ type: "wait" })}>
-                대기
+                ⌛ 대기
               </button>
               <button className="cc-btn danger" onClick={() => onAction({ type: "flee" })}>
-                도주
+                ✦ 도주
               </button>
             </div>
           </div>
@@ -110,40 +199,7 @@ export function CombatControls({
           {available.skills && available.skills.length > 0 && (
             <div className="cc-section">
               <div className="cc-label">스킬</div>
-              <div className="cc-row">
-                {(() => {
-                  const SKILL_NAMES: Record<string, { name: string; costStr?: string }> = {
-                    signal_step: { name: "신호 도약", costStr: "◆2" },
-                    overload_strike: { name: "과부하 일격", costStr: "◆2" },
-                    packet_shot: { name: "패킷 사격", costStr: "◆2" },
-                    covering_noise: { name: "엄호 노이즈", costStr: "◆2" },
-                    patch_protocol: { name: "패치 프로토콜", costStr: "nanopatch" },
-                  };
-                  return available.skills.map((skill) => {
-                    const onCooldown = skill.cooldown > 0;
-                    const meta = SKILL_NAMES[skill.id] || { name: skill.id };
-                    const costStr = meta.costStr ? ` (${meta.costStr})` : "";
-                    return (
-                      <button
-                        key={skill.id}
-                        className="cc-btn"
-                        disabled={onCooldown}
-                        onClick={() =>
-                          onAction({
-                            type: "skill",
-                            skill_id: skill.id,
-                            target_id: selectedTargetId || undefined,
-                          })
-                        }
-                      >
-                        {meta.name}
-                        {costStr}
-                        {onCooldown && ` (CD ${skill.cooldown})`}
-                      </button>
-                    );
-                  });
-                })()}
-              </div>
+              <div className="cc-skill-bar">{available.skills.map(renderSkill)}</div>
             </div>
           )}
 

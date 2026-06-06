@@ -420,16 +420,16 @@ export class CombatAnimator {
         }
         if (skillLog) {
           const caster = blips.find(b => b.id === lastActorEntry.actor);
-          let targetId = (skillLog.detail as any).target || (skillLog.detail as any).target_id;
+          let targetId = skillLog.detail.target || skillLog.detail.target_id;
           if (!targetId && lastLog && lastLog.action === "hit") {
-            targetId = (lastLog.detail as any).target;
+            targetId = lastLog.detail.target;
           }
           if (!targetId && lastLog && lastLog.action === "defend") {
             targetId = lastLog.actor; // self-target
           }
           const target = targetId ? byId(targetId) : caster;
           if (caster && target) {
-            const skillId = (skillLog.detail as any).skill_id as string || (skillLog.detail as any).skill as string || "";
+            const skillId = skillLog.detail.skill_id || skillLog.detail.skill || "";
             const staticMeta = LOCAL_SKILL_REGISTRY[skillId];
             const role = staticMeta?.role || "fallback";
             const tags = staticMeta?.tags || [];
@@ -524,7 +524,7 @@ export class CombatAnimator {
         }
         if (skillLog) {
           skill = true;
-          const skillId = (skillLog.detail as any).skill_id as string || (skillLog.detail as any).skill as string || "";
+          const skillId = skillLog.detail.skill_id || skillLog.detail.skill || "";
           if (skillId) {
             const staticMeta = LOCAL_SKILL_REGISTRY[skillId];
             if (staticMeta) {

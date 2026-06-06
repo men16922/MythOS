@@ -137,16 +137,21 @@ export const CombatCinema: React.FC<CombatCinemaProps> = ({
   const [phase, setPhase] = useState<"enter" | "attack" | "impact" | "exit">("enter");
   const [imgError, setImgError] = useState(false);
 
+  // Reset the image-error flag when the skill changes by adjusting state during
+  // render (React's recommended alternative to a setState-in-effect, which would
+  // trigger an extra cascading render).
+  const [prevSkillName, setPrevSkillName] = useState(skillName);
+  if (prevSkillName !== skillName) {
+    setPrevSkillName(skillName);
+    setImgError(false);
+  }
+
   const mode = skillName ? "skill" : (kind || "attack");
   const isDefend = mode === "defend";
   const isSelfTarget = attacker.id === defender.id;
 
   // 적군 공격이거나 회피(miss)인 경우 빠른 속도로 진행
   const isFast = attacker.faction === "enemy" || miss || isDefend;
-
-  useEffect(() => {
-    setImgError(false);
-  }, [skillName]);
 
   // Keep the latest callbacks in refs so the timeline effect can stay
   // mounted-once: if these were effect deps, every parent re-render would

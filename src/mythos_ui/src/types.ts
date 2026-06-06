@@ -149,9 +149,12 @@ export interface CombatAvailableActions {
 
 export interface CombatLogDetail {
   target?: string;
+  target_id?: string;
   damage?: number;
   crit?: boolean;
   skill_name?: string;
+  skill_id?: string;
+  skill?: string;
   [key: string]: unknown;
 }
 

@@ -493,6 +493,106 @@ main {
   color: var(--ink-dim);
   margin-top: 4px;
 }
+
+/* Skill icon action bar (Phase 4) */
+.cc-skill-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.cc-skill {
+  --role-color: var(--term);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 76px;
+  padding: 7px 5px 6px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  transition: box-shadow .15s ease, border-color .15s ease, transform .1s ease;
+}
+.cc-skill:hover:not(:disabled) {
+  border-color: var(--role-color);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--role-color) 22%, transparent);
+  transform: translateY(-1px);
+}
+.cc-skill:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.cc-skill.low-focus:disabled {
+  opacity: 0.5;
+}
+.cc-skill.role-damage { --role-color: var(--danger); }
+.cc-skill.role-mobility { --role-color: var(--term); }
+.cc-skill.role-defense { --role-color: #6ab8ff; }
+.cc-skill.role-healing { --role-color: #4fd98a; }
+.cc-skill.role-support { --role-color: var(--warn); }
+.cc-skill-icon {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 5px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--role-color) 45%, var(--line));
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cc-skill-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.cc-skill-glyph {
+  font-size: 20px;
+  color: var(--role-color);
+}
+.cc-cd-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 12, 16, 0.7);
+  color: var(--warn);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+.cc-skill-name {
+  font-size: 11px;
+  line-height: 1.15;
+  text-align: center;
+  color: var(--ink);
+  min-height: 13px;
+}
+.cc-skill-badges {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.cc-badge {
+  font-size: 9.5px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  letter-spacing: 0.3px;
+}
+.cc-badge.cost {
+  color: var(--term);
+  background: rgba(41, 255, 198, 0.1);
+}
+.cc-badge.range {
+  color: var(--ink-dim);
+  background: rgba(255, 255, 255, 0.05);
+}
 .combat-outcome {
   margin-top: 8px;
   padding: 12px 14px;

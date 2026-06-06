@@ -215,7 +215,7 @@ verification logs, decisions, and backlog in one file. The split keeps current
 status short, preserves historical detail, and makes incremental updates easier.
 
 Impact: the old `IMPLEMENTATION.md` was moved to
-`docs/archive/IMPLEMENTATION_M0_M10.md` as the M0-M10 detailed archive. New work
+`bin/docs/archive/IMPLEMENTATION_M0_M10.md` as the M0-M10 detailed archive. New work
 should update the split docs instead of appending everything to a single tracker.
 Obsolete documents should be summarized into the appropriate current doc before
 being archived or deleted.

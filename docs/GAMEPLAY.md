@@ -3,7 +3,7 @@
 최종 갱신: 2026-06-06
 
 이 파일은 현재 게임 규칙의 압축본이다. 장문 원문은
-`docs/archive/GAMEPLAY_FULL_2026-06-06.md`를 본다.
+`bin/docs/archive/GAMEPLAY_FULL_2026-06-06.md`를 본다.
 
 ## One-Line
 

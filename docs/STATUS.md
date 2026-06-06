@@ -55,4 +55,4 @@ Recent verified baseline recorded in docs:
 - Latest short log: `docs/PROGRESS_LOG.md`
 - Completed milestones: `docs/COMPLETED_SUMMARY.md`
 - Decisions: `docs/DECISIONS.md`
-- Long logs/design: `docs/archive/`
+- Long logs/design: `bin/docs/archive/`

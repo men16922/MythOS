@@ -1,7 +1,7 @@
 # 시나리오 01 — «Neo-Seoul: 접속»
 
 > 첫 번째 데모 플레이용 게임플레이 시나리오. 게임플레이 시스템 설계는 `docs/GAMEPLAY.md`,
-> 세계관 철학 archive는 `docs/archive/DRAFT.md`를 따른다. 이 문서는 **콘텐츠(시나리오 바이블)**이며 새 Phase가
+> 세계관 철학 archive는 `bin/docs/archive/DRAFT.md`를 따른다. 이 문서는 **콘텐츠(시나리오 바이블)**이며 새 Phase가
 > 아니다 — Playable Game Track(NEXT_PLAN Phase 15-19)이 구현할 첫 번째 세계다.
 
 최초 작성: 2026-05-30

@@ -33,8 +33,8 @@
 
 - `docs/plans/`: 특정 작업의 날짜별 설계 스냅샷. 최신 상태가 아닐 수 있으므로 `NEXT_PLAN.md`를 우선한다.
 - `docs/scenarios/`: 시나리오 기획 문서. 콘텐츠 변경 시에만 읽는다.
-- `docs/archive/`: 장문 설계/로그/과거 기획 보존소. 기본 컨텍스트에 넣지 않는다.
-- `docs/feedback/`: 과거 피드백 원문.
+- `bin/docs/archive/`: 장문 설계/로그/과거 기획 보존소. 기본 컨텍스트에 넣지 않는다.
+- `bin/docs/feedback/`: 과거 피드백 원문.
 
 ## Update Rules
 

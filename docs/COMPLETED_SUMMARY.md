@@ -2,7 +2,7 @@
 
 최종 갱신: 2026-06-07
 
-이 문서는 완료된 milestone의 압축 요약이다. 세부 작업 로그와 검증 기록은 `archive/IMPLEMENTATION_M0_M10.md`, `archive/progress-2026-05.md`, `archive/progress-2026-06.md`를 참고한다. 최신 짧은 로그만 `PROGRESS_LOG.md`에 남긴다.
+이 문서는 완료된 milestone의 압축 요약이다. 세부 작업 로그와 검증 기록은 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`, `bin/docs/archive/progress-2026-05.md`, `bin/docs/archive/progress-2026-06.md`를 참고한다. 최신 짧은 로그만 `PROGRESS_LOG.md`에 남긴다.
 
 ## MVP Milestones
 
@@ -16,7 +16,7 @@
 | M5 | Narrative Director | Ollama JSON scene, repair path, deterministic fallback scene 구현 |
 | M6 | Loop Engine | phase transition, validation, Echo activation, archive guard 구현 |
 | M7 | Visual Service integration | FLUX local adapter, filesystem/MinIO storage, asset metadata 저장 구현 |
-| M8 | CLI vertical slice | player 생성부터 archive/Echo/next loop까지 CLI 플레이 구현 |
+| M8 | CLI vertical slice | player 생성부터 bin/docs/archive/Echo/next loop까지 CLI 플레이 구현 |
 | M9 | Observability and QA | structured logging, OTel span skeleton, smoke aggregation 구현 |
 | M10 | Streamlit playable demo | 브라우저에서 player 생성, loop 진행, archive, Echo carry-over, 이미지/Ollama 확인 |
 
@@ -132,4 +132,4 @@
 
 ## Archive Reference
 
-M0-M10의 상세 체크리스트, work log, verification log는 `docs/archive/IMPLEMENTATION_M0_M10.md`에 보존한다.
+M0-M10의 상세 체크리스트, work log, verification log는 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`에 보존한다.

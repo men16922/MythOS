@@ -28,7 +28,7 @@
   계열/같은 프롬프트 컨셉에서 나와야 한다. 얼굴·체형을 바꾸지 않는 VFX 오버레이는 후보정으로 허용한다.
 - **action sheet 우선**: `attack/guard/skill/hit`은 한 캔버스에서 같이 생성한다. 독립 pose 생성은 fallback
   실험으로만 두고, 실사용 승격 전에 전체 preview sheet로 비교한다.
-- **외부 모델 도입 조건**: GCP/API 등 외부 모델을 쓰려면 먼저 `scratch/` 또는 문서에 실행 경로, 비용/자격증명
+- **외부 모델 도입 조건**: GCP/API 등 외부 모델을 쓰려면 먼저 `bin/scratch/` 또는 문서에 실행 경로, 비용/자격증명
   요구, 생성 프롬프트, 검수 시트를 남긴다.
 - **게임 키 우선**: `dash/dodge/victory`처럼 현재 런타임에 매핑되지 않은 포즈는 만들지 않는다. 필요한 경우
   먼저 `combat_images` 키와 `CombatCinema`/애니메이션 매핑을 추가한다.
@@ -116,7 +116,7 @@ python "${CODEX_HOME:-$HOME/.codex}/skills/.system/imagegen/scripts/remove_chrom
 4. **pose 분할/정규화**
 
 ```bash
-.venv/bin/python scratch/normalize_combat_pose_sheet.py \
+.venv/bin/python bin/scratch/normalize_combat_pose_sheet.py \
   --sheet outputs/combat-sprite-compare/imagen/<slug>-action-sheet-alpha.png \
   --slug <slug> \
   --poses attack guard skill hit \

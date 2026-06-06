@@ -3,7 +3,7 @@
 최종 갱신: 2026-06-07
 
 이 파일은 앞으로 할 일만 유지하는 rolling plan이다. 완료된 긴 체크리스트는
-`docs/COMPLETED_SUMMARY.md`, 상세 로그는 `docs/archive/progress-2026-06.md`, 개별 설계는
+`docs/COMPLETED_SUMMARY.md`, 상세 로그는 `bin/docs/archive/progress-2026-06.md`, 개별 설계는
 `docs/plans/`를 본다.
 
 ## Rules

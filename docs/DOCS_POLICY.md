@@ -24,11 +24,11 @@
 규칙:
 
 - `docs/` 전체를 자동으로 bulk-read하지 않는다.
-- `plans/`, `archive/`, `feedback/`는 on-demand 문서로 취급한다.
+- `plans/`, `bin/docs/archive/`, `feedback/`는 on-demand 문서로 취급한다.
 - `DESIGN.md`, `GAMEPLAY.md`, scenario docs는 관련 코드/콘텐츠를 실제로 바꿀 때만 연다.
 - `AGENT_BRIEF.md`는 60줄 이하, `STATUS.md`와 `NEXT_PLAN.md`는 각각 120줄 이하를 목표로 한다.
-- `DESIGN.md`는 압축 아키텍처 요약으로 유지한다. 장문 설계 원문은 `docs/archive/`에 보존한다.
-- `PROGRESS_LOG.md`가 120줄을 넘으면 최신 3-5개 항목만 남기고 나머지는 `docs/archive/progress-YYYY-MM.md`로 분리한다.
+- `DESIGN.md`는 압축 아키텍처 요약으로 유지한다. 장문 설계 원문은 `bin/docs/archive/`에 보존한다.
+- `PROGRESS_LOG.md`가 120줄을 넘으면 최신 3-5개 항목만 남기고 나머지는 `bin/docs/archive/progress-YYYY-MM.md`로 분리한다.
 - 완료된 task checklist가 current docs에 오래 남아 있으면 `COMPLETED_SUMMARY.md`로 압축하고 current docs에서는 링크만 유지한다.
 
 ## Current Docs
@@ -92,8 +92,8 @@ YYYY-MM-DD
 
 월별 archive 예:
 
-- `docs/archive/progress-2026-05.md`
-- `docs/archive/progress-2026-06.md`
+- `bin/docs/archive/progress-2026-05.md`
+- `bin/docs/archive/progress-2026-06.md`
 
 ## Completed Summary
 
@@ -132,7 +132,7 @@ YYYY-MM-DD
 1. 문서의 핵심 내용을 `COMPLETED_SUMMARY.md`, `DECISIONS.md`, `DESIGN.md`, 또는 `STATUS.md` 중 맞는 곳에 요약한다.
 2. `docs/README.md`에서 해당 문서의 상태를 `Retired` 또는 `Archive`로 표시한다.
 3. 링크가 남아 있는지 `rg "문서명"`으로 확인한다.
-4. 보존 가치가 있으면 `docs/archive/`로 이동한다.
+4. 보존 가치가 있으면 `bin/docs/archive/`로 이동한다.
 5. 중복이고 요약이 끝났으며 참조가 없으면 삭제한다.
 
 삭제 기준:
@@ -163,4 +163,4 @@ YYYY-MM-DD
 2. `AGENT_BRIEF.md`와 `STATUS.md` 갱신.
 3. milestone 완료 시 `COMPLETED_SUMMARY.md` 갱신.
 4. 결정이 생겼으면 `DECISIONS.md` 갱신.
-5. 오래된 계획/문서가 중복되면 요약 후 archive/delete 여부 판단.
+5. 오래된 계획/문서가 중복되면 요약 후 bin/docs/archive/delete 여부 판단.

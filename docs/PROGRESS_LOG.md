@@ -3,8 +3,8 @@
 최종 갱신: 2026-06-07
 
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그는
-`docs/archive/progress-2026-06.md`, 2026-05 로그는
-`docs/archive/progress-2026-05.md`를 본다.
+`bin/docs/archive/progress-2026-06.md`, 2026-05 로그는
+`bin/docs/archive/progress-2026-05.md`를 본다.
 
 ## 2026-06-07 — Phase 4: Combat Skill Icon Action Bar
 
@@ -50,7 +50,7 @@
   - `se-rin-attack/guard/skill/hit`을 동일 action sheet 기반 후보로 교체해 얼굴/의상/스케일 일관성 개선.
   - `player-noise`와 `kai`의 전신 idle 및 `attack/guard/skill/hit` 세트를 동일 action sheet 방식으로 생성/분할/실사용 교체.
   - `enforcer-unit`과 `glitch-wraith`의 전신 idle 및 `attack/guard/skill/hit` 세트를 동일 action sheet 방식으로 생성/분할/실사용 교체.
-  - `scratch/normalize_combat_pose_sheet.py` 추가: RGBA action sheet를 pose별 512x768 PNG로 분할/정규화하고 preview sheet 생성.
+  - `bin/scratch/normalize_combat_pose_sheet.py` 추가: RGBA action sheet를 pose별 512x768 PNG로 분할/정규화하고 preview sheet 생성.
   - `docs/plans/2026-06-07-combat-portrait-pipeline.md` 추가/최신화: idle -> action sheet -> chroma-key 제거 -> 분할 -> `combat_images` 연결 절차, chroma-key 선택, 검수/폐기 기준 정리.
   - `outputs/combat-sprite-compare/gemini/`의 Se-rin 외부 모델 후보는 canonical이 아니라 비교/보류 자료로 분류.
 - Verified: `python -m json.tool resources/neo-seoul/scenario.json`, enemy combat PNG 10개 `RGBA + 512x768` 확인, `.venv/bin/python -m unittest tests.test_combat_service`, `make frontend-build`, `make frontend-lint`.
@@ -60,8 +60,8 @@
 
 - Status: [x] 토큰 컨텍스트 최적화를 위해 current docs를 요약형으로 정리.
 - Changed:
-  - 장문 `PROGRESS_LOG.md`를 `docs/archive/progress-2026-06.md`로 이동.
-  - 장문 `DESIGN.md`를 `docs/archive/DESIGN_FULL_2026-06-06.md`로 이동하고, current `DESIGN.md`는 현재 아키텍처 요약본으로 축소.
+  - 장문 `PROGRESS_LOG.md`를 `bin/docs/archive/progress-2026-06.md`로 이동.
+  - 장문 `DESIGN.md`를 `bin/docs/archive/DESIGN_FULL_2026-06-06.md`로 이동하고, current `DESIGN.md`는 현재 아키텍처 요약본으로 축소.
   - `AGENT_BRIEF.md`, `STATUS.md`, `NEXT_PLAN.md`, `docs/README.md`를 중복 제거 중심으로 압축.
 - Verified: 문서 파일 크기/참조 확인.
 - Next: 새 작업 완료 시 이 파일에는 최신 3-5개 항목만 남기고 상세는 archive로 이동.
@@ -70,7 +70,7 @@
 
 - Status: [x] 전투 지도 기본 표시는 기존 섬네일 portrait를 유지하고, 공격/스킬/피격 프레임에만 전투 pose 이미지를 쓰도록 배선.
 - Changed:
-  - `scratch/build_combat_pose_assets.py`로 Neo-Seoul player/allies/enemies 7종 × 4 pose RGBA 자산 생성.
+  - `bin/scratch/build_combat_pose_assets.py`로 Neo-Seoul player/allies/enemies 7종 × 4 pose RGBA 자산 생성.
   - `Combatant.combat_images` -> `render_radar` -> React `CombatBlip.combat_images` 직렬화.
   - `combatCanvas.ts`는 평상시 원형 섬네일을 렌더하고, `combatEffects.ts`가 공격/스킬/피격 타이밍에 `attack`/`skill`/`hit` pose를 지정한 프레임에서만 전신 action art를 표시.
 - Verified: JSON validation, `make frontend-build`, `make frontend-lint`, `make python-typecheck`, `make test`, `make test-e2e`.

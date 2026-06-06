@@ -11,7 +11,7 @@ Project MythOS / 세계:접속은 Python 3.11+ 로컬 런타임 기반 1인용 S
 3. `docs/NEXT_PLAN.md`
 4. 필요한 경우 `docs/DESIGN.md`, `docs/GAMEPLAY.md`, `docs/API.md`
 
-문서 운영 원칙은 `docs/README.md`와 `docs/DOCS_POLICY.md`를 따른다. 장문 설계/로그는 `docs/archive/`에 보존한다.
+문서 운영 원칙은 `docs/README.md`와 `docs/DOCS_POLICY.md`를 따른다. 장문 설계/로그는 `bin/docs/archive/`에 보존한다.
 
 ## Requirements
 

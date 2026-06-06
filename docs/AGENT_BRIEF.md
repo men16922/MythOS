@@ -52,4 +52,4 @@ Project MythOS는 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG
 - Runtime orchestration은 UI/API에 복제하지 말고 `RuntimeSessionService`에 둔다.
 - 순수 unit test는 Docker 없이 유지한다. DB tests는 `MYTHOS_RUN_DB_TESTS=1` 경유.
 - Generated outputs, `.env`, tokens, `.docker/` data는 source artifact로 취급하지 않는다.
-- Current docs는 짧게 유지하고, 상세 기록은 `docs/archive/` 또는 dated plan으로 이동한다.
+- Current docs는 짧게 유지하고, 상세 기록은 `bin/docs/archive/` 또는 dated plan으로 이동한다.

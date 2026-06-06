@@ -3,7 +3,7 @@
 최종 갱신: 2026-06-06
 
 이 파일은 현재 아키텍처를 빠르게 파악하기 위한 압축본이다. 장문 설계 원문은
-`docs/archive/DESIGN_FULL_2026-06-06.md`, 실제 DB 스키마 권위는 `migrations/`를 따른다.
+`bin/docs/archive/DESIGN_FULL_2026-06-06.md`, 실제 DB 스키마 권위는 `migrations/`를 따른다.
 
 ## System Shape
 
@@ -111,4 +111,4 @@ Important standing decisions:
 - Scenario-specific GM instructions belong in `scenario.json`.
 - Combat state/result authority belongs to `mythos_combat`, not the LLM.
 - mflux is the default local image backend; Redux is used for character identity steering.
-- Current docs should stay short; long records move to `docs/archive/`.
+- Current docs should stay short; long records move to `bin/docs/archive/`.

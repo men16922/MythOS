@@ -12,6 +12,24 @@
 2. **Dated records**: 특정 날짜의 계획, 진행, 검증 기록.
 3. **Archive/retired docs**: 더 이상 직접 업데이트하지 않는 과거 문서.
 
+## Context Budget
+
+문서가 많아도 에이전트 시작 컨텍스트는 작아야 한다. 기본 읽기 예산은 아래 순서를 따른다.
+
+1. `AGENT_BRIEF.md`
+2. `STATUS.md`
+3. `NEXT_PLAN.md`
+4. 필요한 경우 `PROGRESS_LOG.md` 최상단 최신 항목
+
+규칙:
+
+- `docs/` 전체를 자동으로 bulk-read하지 않는다.
+- `plans/`, `archive/`, `feedback/`는 on-demand 문서로 취급한다.
+- `DESIGN.md`, `GAMEPLAY.md`, scenario docs는 관련 코드/콘텐츠를 실제로 바꿀 때만 연다.
+- `AGENT_BRIEF.md`는 80줄 이하, `STATUS.md`와 `NEXT_PLAN.md`는 각각 150줄 안팎을 목표로 한다.
+- `PROGRESS_LOG.md`가 300줄을 넘으면 최신 5개 전후 항목만 남기고 나머지는 `docs/archive/progress-YYYY-MM.md`로 분리한다.
+- 완료된 task checklist가 current docs에 오래 남아 있으면 `COMPLETED_SUMMARY.md`로 압축하고 current docs에서는 링크만 유지한다.
+
 ## Current Docs
 
 항상 최신 상태로 유지한다.

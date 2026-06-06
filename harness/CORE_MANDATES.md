@@ -1,22 +1,40 @@
 # Project MythOS: Core Engineering Mandates
 
-이 문서는 모든 AI 에이전트(Gemini, Claude, Cursor 등)가 준수해야 할 최상위 설계 및 엔지니어링 표준이다.
+이 문서는 모든 AI 에이전트(Gemini, Claude, Cursor 등)가 공유하는 최상위 설계 및 엔지니어링 표준이다. 에이전트별 문서보다 이 파일과 `docs/AGENT_BRIEF.md`를 우선한다.
 
-## 1. 기술 스택 원칙
-- **Language**: Python 3.11+ (Strict Typing 필수)
-- **Local-First**: 모든 모델 추론(LLM, Image, Audio)은 Apple Silicon MPS 가속 기반의 로컬 실행을 원칙으로 한다.
-- **Async Workflow**: 무거운 생성 작업은 Redis 기반 비동기 워커로 처리하며, UI(Streamlit)를 차단하지 않는다.
+## 1. Runtime Principles
 
-## 2. 데이터 및 저장소
-- **RDBMS**: PostgreSQL (JSONB를 활용한 유연한 상태 저장)
-- **Object Storage**: MinIO (S3-compatible) - 이미지 및 대용량 에셋 관리.
-- **Cache/Queue**: Redis - 비동기 잡 및 실시간 상태 락 관리.
+- **Language**: Python 3.11+ with explicit type hints and small dataclass-first domain boundaries.
+- **Local-first inference**: Ollama, mflux/FLUX, audio generation 등 모델 추론은 Apple Silicon host 로컬 실행을 기본값으로 둔다.
+- **Shared orchestration**: CLI, Streamlit, FastAPI/React 경로의 비즈니스 로직은 `RuntimeSessionService`에 둔다. entrypoint나 UI 계층에 loop orchestration을 복제하지 않는다.
+- **Frontend split**: React + TypeScript SPA is the recommended active play path. Streamlit remains a playable/demo path and compatibility surface.
 
-## 3. 코드 작성 규칙
-- **Pattern**: Composition over Inheritance. 기능별 Service/Provider 인터페이스(Protocol) 분리.
-- **Error Handling**: 생성 실패 시 서사적 Fallback 경로를 반드시 확보한다.
-- **Validation**: LLM 생성 데이터는 항상 `Myth Protocol Validator`를 거쳐야 한다.
+## 2. Data, Media, And Infra
 
-## 4. 에이전트 협업 수칙
-- 작업 완료 후 반드시 `CONTEXT_BRIDGE.md`에 다음 단계와 미결 사항을 기록한다.
-- 새로운 전역 규칙은 각 에이전트 전용 문서(`GEMINI.md` 등)가 아닌 이 문서(`CORE_MANDATES.md`)에 업데이트한다.
+- **RDBMS**: PostgreSQL with JSONB state/memory records.
+- **Object storage**: MinIO/S3-compatible storage for generated assets and large media.
+- **Queue/cache**: Redis for visual job queue, worker heartbeat, and transient locks.
+- **Observability**: structured logs and OpenTelemetry/Jaeger spans should stay wired for runtime flows.
+- **Generated assets**: `outputs/`, `.docker/`, `.env`, Hugging Face tokens, and generated model outputs are not source artifacts.
+
+## 3. Generation And Validation
+
+- **Narrative validation**: LLM-generated scenes must pass the Myth Protocol parser/validator path before state mutation.
+- **Fallback path**: narrative, visual, and summary generation failures need deterministic or user-visible fallback behavior.
+- **Context selection**: do not inject full Story Bible, full scenario, or full narrative shard history into prompts. Use phase/location/flags snippets and rolled-up `causality_summary`.
+- **Visual consistency**: character scenes should use the existing mflux Redux portrait reference route when available.
+
+## 4. Code And Test Discipline
+
+- Prefer composition and provider/service protocols over inheritance-heavy designs.
+- Keep pure unit tests independent of Docker. Gate DB tests behind `MYTHOS_RUN_DB_TESTS=1`.
+- For runtime flow changes, run at least `make test`; use `make smoke-local` for broader local runtime changes and `make smoke` for persistence/MinIO behavior.
+- For React/API UI changes, run `make frontend-build` or `make test-e2e` when the change touches user flow.
+
+## 5. Documentation And Handoff
+
+- Start with `docs/AGENT_BRIEF.md`, then `docs/STATUS.md`, then `docs/NEXT_PLAN.md`. Do not bulk-read `docs/` unless the task explicitly requires an audit.
+- Open `docs/DESIGN.md`, `docs/GAMEPLAY.md`, scenario docs, dated plans, and archive files only on demand.
+- Work completion should update the smallest relevant current docs. Use `PROGRESS_LOG.md` for short Changed/Verified/Next notes, and archive long history instead of expanding current docs indefinitely.
+- Update `harness/CONTEXT_BRIDGE.md` when the next agent's active context, risks, or next recommended task changes materially.
+- New global rules belong here, not in an agent-specific file.

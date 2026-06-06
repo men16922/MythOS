@@ -13,6 +13,16 @@ YYYY-MM-DD
 - Next:
 ```
 
+## 2026-06-06 — 한글 깨짐 대응, 스탯 비주얼 아이콘 및 선택지 UI 고도화
+
+- Status: [x] Gemma/Ollama 한글 깨짐 hex 바이트 자동 복구, 스탯별 사이버펑크 네온 아이콘 연동, 마크다운 볼드 렌더러 추가, 선택지 스탯 키워드 간소화 및 인텐트 카테고리화 완료.
+- Changed:
+  - `src/mythos_ui/src/StoryPanel.tsx`: `decodeGarbageBytes` 함수로 `<0xXX>` 16진수 바이트 시퀀스를 UTF-8 한글 문자로 자동 복구, `renderBoldText`를 도입하여 `**bold**` 패턴을 `<strong>` 태그로 렌더링.
+  - `src/mythos_ui/src/choices.ts`: `cleanChoiceLabel` 유틸 추가하여 장황한 스탯 괄호 문구(예: `(민첩 기반...)`)를 핵심 스탯 키워드 `(민첩)`으로 자동 정돈.
+  - `src/mythos_ui/src/ChoicePanel.tsx`: `cleanChoiceLabel`을 적용하고, `choices[].intent`를 친숙한 아이콘 태그(`🧭 탐색`, `💬 상호작용`, `✍️ 서사 개정`, `🗄️ 기록 보관`)로 매핑 및 외래 설명글 숨김 처리.
+  - `src/mythos_runtime/scenario_context.py`: `LANGUAGE_RULE`을 수정하여 AI GM이 선택지 인텐트에 오직 단일한 영문 표준 명칭만 사용하고, 스탯 연계 시 장황한 코멘트 대신 짧은 스탯명 괄호 형식만 출력하도록 유도.
+- Verified: `make lint`, `make typecheck`, `make frontend-build`, `make test` 모두 오류 없이 정상 통과 완료.
+
 ## 2026-06-06 — Dev 인프라 콘솔 링크 + 원클릭 dev 스택
 
 - Status: [x] React Dev 탭에 로컬 인프라 콘솔 링크(Streamlit Developer 사이드바 패리티) 추가, `make dev-up`/`dev-down` 원클릭 스택 도입. 플레이 중 "이어하기 Failed to fetch" 원인 진단.
@@ -36,9 +46,9 @@ YYYY-MM-DD
 - Blockers: txt2img(Flux1)+Redux(Flux1Redux) 동시 적재 시 장기 메모리/스왑 안정성은 아직 추가 플레이 모니터 필요.
 - Next: 세션 2 변경분 커밋 정리 또는 파티 조작 2단계 구현 착수.
 
-## 2026-06-06 — UX·비주얼·전투 배치 (세션 2, 미커밋)
+## 2026-06-06 — UX·비주얼·전투 배치 (세션 2)
 
-- Status: [x] 이어하기 버그 수정, 스토리/캐릭터 레이아웃 개편, 전투 드래그&드롭, 오프닝 연속성, 이미지/텍스트 속도 최적화, 패배→메인 버튼, 행동 기록, 서사 기록 분리, 부트 오프닝, mflux Redux 얼굴 일관성, visual-work 자동 정리까지 일괄 구현. **전부 미커밋 상태.**
+- Status: [x] 이어하기 버그 수정, 스토리/캐릭터 레이아웃 개편, 전투 드래그&드롭, 오프닝 연속성, 이미지/텍스트 속도 최적화, 패배→메인 버튼, 행동 기록, 서사 기록 분리, 부트 오프닝, mflux Redux 얼굴 일관성, visual-work 자동 정리까지 일괄 구현 및 커밋 완료.
 - Changed:
   - **이어하기(resume) 409 수정**: `session.py` resume(player_id)이 세이브 슬롯의 박제된 phase 대신 실제 활성 루프를 선택(없으면 `no active loop`), `app.py` 404 매핑, `App.tsx` stale 세션 정리. 회귀 테스트 추가.
   - **스토리 레이아웃 개편**: 상단 [장면 이미지 | CHARACTER] + 하단 전체 폭 스크립트. `CharacterPanel.tsx`(신규).

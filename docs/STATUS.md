@@ -23,6 +23,7 @@ Project MythOS 로컬 플레이어블 MVP 및 주요 명작 레퍼런스 기반 
 - Visual worker 종료 안정화 — heartbeat lock owner token 유지, SIGTERM/KeyboardInterrupt 시 lock release, Postgres pool 명시 close 적용. 빈 queue worker SIGTERM 검증에서 heartbeat 1→0 및 프로세스 잔류 없음 확인.
 - 세션 2 결정적/라이브 검증: 이어하기 활성 루프 선택, CHARACTER 포트레이트 분기(정세린), 전투 드래그&드롭(이동 액션 발생), 패배→메인 복귀, 장면별 행동 기록, 서사 기록 오버레이(N), 부트 오프닝→온보딩 전환, 512 이미지 워밍 ~7.5s, 오프닝 첫 장면이 비 오는 C-17/세린으로 연속, mflux Redux 0.9 얼굴 일관성 비교(`outputs/redux_compare_big.png`).
 - Dev 탭 로컬 인프라 콘솔 링크(Adminer/MinIO/Redis/Jaeger) 렌더 확인(`outputs/dev_infra_links.png`). `make dev-up`/`dev-down` 원클릭 스택 파싱 검증.
+- 2026-06-06 수동 QA 진행: `make dev-up` 경로에서 기본 접속/부트 오프닝/온보딩/새 게임, 이어하기 복원, 장면 전환, 장면별 `내 행동`, `📜 서사 기록 전체 보기` 오버레이, 텍스트 스트리밍 속도, 이미지 생성 체감 속도 확인. Dev 탭은 로컬 인프라 콘솔 세로 배치 확인 후 개발자 콘솔을 동일 폭 2열 카드 레이아웃으로 개선했으며 재확인 필요.
 - (이전) `make test` (196 tests, 2 skipped)
 
 ## 로컬 실행 (Local Run)
@@ -77,7 +78,7 @@ Vite + React + TS SPA 기반의 독자적인 프론트엔드 포팅 및 Playwrig
   7. **전술 전투 UI 대폭 개선**: PARTY/ENEMY 로스터 영역을 수직으로 깔끔하게 배치하여 로스터 정보의 가독성을 확보함과 동시에, TACTICAL BOARD 영역을 `1.8fr 1fr` 그리드로 확대하여 시각적 스케일 및 조작 편의성을 대폭 보강했습니다.
   8. **테스트 커버리지 보강**: 가짜 스토어들에 `list_scenes` 목킹 구현을 완료하여 `make test` 검증 baseline을 199개 전체 성공 상태로 복구 및 유지했습니다.
 
-2026-06-06 (세션 2)에 UX·비주얼·전투 배치를 일괄 구현했다(상세: `docs/PROGRESS_LOG.md` 최상단 "세션 2" 블록). **전부 미커밋 상태**다. 요약:
+2026-06-06 (세션 2)에 UX·비주얼·전투 배치를 일괄 구현했고, 후속 E2E/Redux worker/Dev stack/QA UI 수정까지 기능 단위 커밋 정리를 완료했다(상세: `docs/PROGRESS_LOG.md`). 요약:
 
 - 이어하기 409 수정, 스토리/캐릭터 레이아웃 개편 + CHARACTER 컨텍스트 분기(내 정보↔대화상대 portrait), 전투 드래그&드롭, 오프닝 시네마틱→첫 장면 연속성, 이미지 512/타자기 속도 최적화, 전투 패배→메인 화면 버튼, 장면별 행동 기록, 서사 기록 별도 오버레이, 오프닝 이미지 컷 복사→재생성, 첫 진입 부트 오프닝, **mflux Redux 기반 캐릭터 얼굴 일관성**, visual-work 로컬 작업본 자동 정리.
 
@@ -86,7 +87,7 @@ Vite + React + TS SPA 기반의 독자적인 프론트엔드 포팅 및 Playwrig
   2. 워커 **종료 안정성**은 보강 완료: heartbeat owner token 유지, 종료 시 lock release, Postgres pool 명시 close, SIGTERM 검증 완료. 다만 txt2img(Flux1) + Redux(Flux1Redux) 동시 로드 시 스왑/멈춤 재발 여부(이전 멈춤 이력)는 장기 플레이 모니터 필요.
   3. ~~**visual-work 자동 삭제** 실 워커 경로 동작 확인, **512 이미지 속도** 라이브 재확인~~ 완료: 작업본 삭제 및 Redux cold 17.3s 확인.
   4. ~~**`make test-e2e` 재실행**~~ 완료: 부트 인트로/세션 시네마틱 dismiss 및 fallback/no-image E2E 모드로 통과 확인.
-  5. `docs/play-checklist.md` 신규 항목 수동 QA(부트 오프닝/기록 오버레이/행동 기록/드래그&드롭/패배→메인/포트레이트 분기/오프닝 연속성).
+  5. `docs/play-checklist.md` 수동 QA 진행 중: 기본 접속/이어하기/기록 오버레이/행동 기록/텍스트 속도/이미지 속도는 확인 완료. Dev 탭 균형 레이아웃, 전투 드래그&드롭, 패배→메인, CHARACTER 포트레이트 분기, 오프닝 연속성은 추가 확인 필요.
   6. 파티 조작 2단계 구현(`docs/plans/2026-06-06-party-controllable-allies.md`, 설계 승인 시).
   7. 다중 시나리오(`glass-library`) 스크립트 및 Story Bible 확장.
 

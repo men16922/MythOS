@@ -31,13 +31,13 @@
 - `[x]` `narrative_metrics`를 `WorldMemory(kind="narrative_metrics")`로 집계/영속 저장.
 - `[x]` 기존 `/api/v1/memory` 응답에 `narrative_metrics`를 포함하고 React SPA 개발자 콘솔(Dev Tab)에 품질 지표(Outcome Ratio) 카드 배치.
 
-### 다음 수행/검증 필요 (2026-06-06 세션 2 후속) — ★ 활성
+### 다음 수행/검증 필요 (2026-06-06 QA 후속) — ★ 활성
 
-세션 2 UX·비주얼·전투 배치와 후속 E2E/Redux/worker cleanup/dev-up 작업(상세: `docs/PROGRESS_LOG.md`)은 **미커밋**이다. 라이브 검증 핵심 항목은 대부분 완료됐고, 다음 우선순위는 커밋 정리와 수동 QA다.
+세션 2 UX·비주얼·전투 배치와 후속 E2E/Redux/worker cleanup/dev-up/Dev 탭 UI 개선 작업은 커밋 정리까지 완료됐다. 라이브 검증 핵심 항목은 대부분 완료됐고, 다음 우선순위는 남은 수동 QA와 파티 조작 2단계다.
 
 정리/릴리즈:
-- `[ ]` **누적 변경분 커밋 정리**: 세션 2 UX·비주얼·전투 배치, E2E 게이트 복구, Redux worker 실검증/cleanup, Dev 인프라 링크/`make dev-up`, `.codex/.mcp.json`을 포함해 diff를 기능 단위로 점검하고 커밋 가능 상태로 정리.
-- `[ ]` **수동 QA 실행**: `docs/play-checklist.md` 신규 항목을 실제 React/API/worker/Ollama 경로에서 확인하고, 실패 항목은 별도 fix로 분리.
+- `[x]` **누적 변경분 커밋 정리**: 세션 2 UX·비주얼·전투 배치, E2E 게이트 복구, Redux worker 실검증/cleanup, Dev 인프라 링크/`make dev-up`, `.codex/.mcp.json`, QA UI fix까지 기능 단위 커밋 완료.
+- `[/]` **수동 QA 실행**: `docs/play-checklist.md` 기준 실제 React/API/worker/Ollama 경로 검증 진행 중. 기본 접속, 이어하기, 서사 기록/행동 기록, 텍스트 스트리밍, 이미지 생성 속도는 통과. Dev 탭 2열 균형 레이아웃은 수정 후 재확인 필요.
 
 라이브 검증(인프라 가동 필요 — `make infra-up` + visual worker + Ollama):
 - `[x]` **Redux 얼굴 일관성 실 파이프라인**: 세린 캐릭터 장면을 worker queue로 처리해 Redux(strength 0.9, portrait 레퍼런스) metadata가 기록되고 MinIO `s3://mythos-assets/...` 저장 및 presigned PNG GET 200 확인.
@@ -49,7 +49,9 @@
 - `[x]` **`make test-e2e` 재실행**: 부트 인트로/세션 시네마틱 dismiss 단계와 fallback/no-image E2E URL 모드를 반영한 `run_playwright_test.py`로 통과 확인. 실패 시 non-zero exit와 `outputs/e2e_failure.png` 진단 스크린샷을 남기도록 보강.
 
 수동 QA(`docs/play-checklist.md` 신규 항목):
-- `[ ]` 첫 진입 부트 오프닝, 서사 기록 오버레이/직전 1개 인라인, 장면별 "내 행동" 표시, 전투 드래그&드롭, 전투 패배→메인 화면 버튼, CHARACTER 포트레이트 분기(대화상대 등장).
+- `[x]` 기본 접속/부트 오프닝, 이어하기, 서사 기록 오버레이/직전 1개 인라인, 장면별 "내 행동" 표시, 텍스트 스트리밍 속도, 이미지 생성 속도.
+- `[/]` Dev 탭 UI: 로컬 인프라 콘솔 세로 배치 확인, 개발자 콘솔은 동일 폭 2열 카드 레이아웃으로 개선 후 재확인 필요.
+- `[ ]` 전투 드래그&드롭, 전투 패배→메인 화면 버튼, CHARACTER 포트레이트 분기(대화상대 등장), 오프닝 연속성 라이브 LLM 재확인.
 
 다음 구현:
 - `[ ]` **파티 조작 2단계** 구현: `docs/plans/2026-06-06-party-controllable-allies.md`(파티원=플레이어 조작 / 우호적 비파티=AI 동맹). 전투 엔진·UI 리팩터 — 설계 승인 시 단계별 PR.

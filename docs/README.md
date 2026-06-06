@@ -1,6 +1,13 @@
 # Project MythOS Docs
 
-이 디렉터리는 기획, 설계, 진행 상태, 증분 작업 로그를 분리해서 관리한다. AI 에이전트는 먼저 `AGENT_BRIEF.md`를 읽고, 필요한 상세 문서만 추가로 연다.
+이 디렉터리는 기획, 설계, 진행 상태, 증분 작업 로그를 분리해서 관리한다. AI 에이전트는 먼저 `AGENT_BRIEF.md`를 읽고, 필요한 상세 문서만 추가로 연다. `docs/` 전체를 한 번에 읽는 방식은 피한다.
+
+## Context-First Read Path
+
+1. 기본 진입: `AGENT_BRIEF.md` -> `STATUS.md` -> `NEXT_PLAN.md`.
+2. 최근 변경 확인이 필요할 때만 `PROGRESS_LOG.md` 최상단 최신 항목을 읽는다.
+3. 구조 변경 전에는 `DESIGN.md`, 게임 규칙 변경 전에는 `GAMEPLAY.md`, 콘텐츠 변경 전에는 해당 `scenarios/` 또는 `resources/*/story_bible/`만 연다.
+4. `plans/`, `archive/`, `feedback/`는 historical/on-demand 문서다. 현재 작업의 근거가 필요할 때만 파일명을 지정해서 연다.
 
 ## Document Map
 
@@ -24,7 +31,7 @@
 | `archive/progress-YYYY-MM.md` | 월별 상세 진행 로그 archive | `PROGRESS_LOG.md`가 길어질 때 |
 | `scenarios/NN-<topic>.md` | 게임플레이 시나리오 바이블(세계/캐릭터/세션) | 새 플레이 시나리오 작성 시 |
 | `plans/YYYY-MM-DD-<topic>.md` | 날짜별 계획 스냅샷 | 큰 작업 시작 전 |
-| `harness/` | AI 에이전트 연동용 하네스 설정 폴더 (`CONTEXT_BRIDGE.md`, `CORE_MANDATES.md`) | 에이전트 작업 간 맥락 전달 및 코어 제약 준수용 |
+| `../harness/` | AI 에이전트 연동용 루트 하네스 설정 폴더 (`CONTEXT_BRIDGE.md`, `CORE_MANDATES.md`) | 에이전트 작업 간 맥락 전달 및 코어 제약 준수용 |
 | `archive/` | 요약 완료된 과거 문서/월별 로그 | current doc에서 제외할 때 |
 
 ## Update Workflow
@@ -54,3 +61,4 @@
 - `NEXT_PLAN.md`는 살아있는 계획이다. 끝난 항목은 체크하고, 장기 보관은 `COMPLETED_SUMMARY.md`로 옮긴다.
 - `archive/IMPLEMENTATION_M0_M10.md`는 M0-M10 상세 archive로 유지하고, 새 작업의 주 관리 문서로 쓰지 않는다.
 - 날짜별 계획은 덮어쓰지 않고 `plans/`에 새 파일로 남긴다.
+- current docs가 길어지면 새 상세 문서를 만들기 전에 먼저 `COMPLETED_SUMMARY.md` 또는 월별 archive로 압축할 수 있는지 확인한다.

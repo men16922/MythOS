@@ -1,37 +1,26 @@
 # Agent Context Bridge
 
-이 파일은 에이전트 간 작업 맥락을 전달하는 '하네스'의 핵심 연결고리입니다. 다음 작업자가 현재 빌드된 상태를 기반으로 이어서 개발을 가동할 수 있도록 최신화되었습니다.
+이 파일은 에이전트 간 작업 맥락을 넘기는 루트 하네스다. 세부 상태의 source of truth는 `docs/AGENT_BRIEF.md`, `docs/STATUS.md`, `docs/NEXT_PLAN.md`이고, 이 파일은 다음 작업자가 즉시 방향을 잡기 위한 초압축 핸드오프로 유지한다.
 
-## 🟢 현재 활성 작업 (Active Context)
+## Active Context
 
-*   **주제**: RPG 로그라이크 전술 전투 시스템 및 Streamlit UI 통합.
-*   **상태**: **전술 보드(Tactical Board)의 드래그 앤 드롭 캐릭터 조작 완료 및 칩튠 효과음/BGM 분기 시스템 구축 완료.**
-    *   **Independent iframe Sandbox**: `st.components.v1.html` 기반으로 전술 보드를 iframe 내부에 완전 렌더링하여 JS 이벤트와 드래그 앤 드롭 완벽 처리.
-    *   **Drag & Drop Glow UX**: 캐릭터 썸네일을 직접 끌어다 이동 가능 타일에 놓으면 실시간 이동 연출 및 네온 맥박 글로잉 효과(`@keyframes neon-glow-pulse`) 적용.
-    *   **Offline Audio Synthesis**: `scripts/generate_sfx_resources.py`를 구현해 transformers 없이 numpy/scipy만을 사용해 6종의 고품질 칩튠 효과음(WAV) 및 8비트 사이버 루프 테크노 전투 BGM 3종을 1초 만에 완전 로컬 빌드 성공.
-    *   **Dynamic Combat BGM Scoping**: `audio_service.py` 내부에서 전투 활성화를 감지하고, 보스급 조우 시 `bgm_combat_boss.wav` 재생, 아군 HP 위독 위기 상태(최대 HP의 35% 이하) 시 `bgm_combat_crisis.wav` 재생, 일반 전투 시 `bgm_combat_normal.wav`로 동적 BGM 스위칭 완비.
-    *   **One-shot SFX Injection**: 이동(드롭/클릭), 공격(공격 버튼), 방어(방어 버튼), 도주(도주 버튼), 전투 종료 승리/패배(최초 1회) 시점에 `play_sfx` 상태를 지정하고 Rerun 시 중복 재생 차단용 플래그 락을 UI에 완벽히 적용.
-*   **검증(exit code)**: `make lint` 0 · `make typecheck` 0 · `make test` 0 (110 tests, 2 skipped) PASS. 로컬 BGM/SFX 사운드 출력 완벽 검증.
+- **프로젝트 상태**: Project MythOS는 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG/CRPG다. Streamlit 데모, FastAPI-served React + TypeScript SPA, CLI가 공존하며 핵심 orchestration은 `RuntimeSessionService`가 담당한다.
+- **주 플레이 경로**: 현재 권장 플레이 경로는 React SPA다. `make dev-up`이 docker infra, DB migration, background visual worker, FastAPI API를 준비하고 `http://localhost:8000`을 서빙한다. Ollama는 Mac host에서 별도로 `ollama serve`가 필요하다.
+- **구현 완료 축**: Neo-Seoul 01, Story Bible snippet 주입, Run History, Meta Progression, Save/Load UX, Ending Resolver, Developer 인과율 모니터, 자원 제약 선택지, 적 인텐트, 스탯 기반 내면 독백, 전술 전투, 단일 iframe Streamlit 전투 UI, React SPA 패리티, Playwright E2E, narrative shard rollup, narrative metrics dashboard가 구현됐다.
+- **비주얼 파이프라인**: 기본 이미지 백엔드는 mflux/FLUX. 캐릭터 장면은 mflux Redux portrait reference로 라우팅해 얼굴 일관성을 보강한다. Redis visual worker -> MinIO -> presigned PNG 경로가 실검증됐다.
+- **최신 검증 기준**: `make test`는 202 tests, 2 skipped 기준 통과 기록이 있다. `make test-e2e`는 `?fallback=1&image=0` 결정적 React 경로로 부트 오프닝, 세션 인트로, 턴 0 선택지, 턴 1 전환을 검증한다.
+- **문서 진입점**: 새 작업자는 전체 `docs/`를 통째로 읽지 말고 `docs/AGENT_BRIEF.md` -> `docs/STATUS.md` -> `docs/NEXT_PLAN.md` 순서로 시작한다. 필요한 경우에만 `docs/DESIGN.md`, `docs/GAMEPLAY.md`, 시나리오, dated plan, archive를 연다.
 
----
+## Current Handover
 
-## 🟡 다음 에이전트 가이드 (Handover)
+1. **남은 수동 QA**: `docs/play-checklist.md` 기준으로 Dev 탭 2열 균형 레이아웃 재확인, 전투 드래그&드롭, 전투 패배 -> 메인 화면, CHARACTER 포트레이트 분기, 오프닝 연속성 라이브 LLM 확인이 남아 있다.
+2. **장기 worker 안정성**: Redux 단독 job과 종료 cleanup은 검증됐지만, txt2img(Flux1) + Redux(Flux1Redux) 동시 적재 시 메모리/스왑 멈춤 재발 여부는 장기 플레이에서 관찰해야 한다.
+3. **다음 구현 후보**: `docs/plans/2026-06-06-party-controllable-allies.md`의 파티 조작 2단계. 파티원은 플레이어가 직접 조작하고, flag-only 우호 동맹은 기존 AI 자동 동맹으로 유지하는 방향이다.
+4. **다중 시나리오 후보**: `glass-library` Story Bible/시나리오 확장 및 멀티 시나리오 회귀 플레이.
 
-다음 단계로 아래 로그라이크 CRPG 시스템의 심화 구현을 제안합니다.
+## Open Risks
 
-1.  **전투 스킬 및 소비 아이템의 엔진 실배선**:
-    *   `PlayerAction(type="skill" | "item")` 액션 타입을 실제 전투 루프 로직에 연결.
-    *   `scenario.json`에 정의된 액티브 스킬 풀(신호 도약, 과부하 일격, 패키지 패치 등)의 Cooldown/Cost 및 `nanopatch`, `stim_shard` 아이템 효과 연동.
-2.  **동료/파티 참전**:
-    *   `scenario.json["combat"]["allies"]`에 명시된 아군 NPC(정세린, 카이 등)를 아군 전투원(Ally Combatant)으로 전술 보드에 소환하고 참전시키는 구조 배선.
-3.  **인과율/NPC 아젠다 Codex 가시화**:
-    *   예약된 미래 이벤트, NPC들의 숨겨진 목적과 나비효과 경로를 Codex나 Developer 뷰에 노출.
-
----
-
-## 🔴 위험 요소 및 미결 사항 (Open Issues)
-
-*   **mflux 추론 온디맨드 딜레이**:
-    *   Apple Silicon MPS(mflux) 8bit 백엔드가 도입되어 diffusers 대비 20배 빠르지만(512x512, 4steps 기준 약 8초), 첫 장면 생성 시의 가중치 로드 캐싱 오버헤드가 있으므로 비동기 Redis visual queue의 worker 기동 로그 관측이 필요합니다.
-*   **IP-Adapter 실배선**:
-    *   정세린, 카이 등 주역 캐릭터들의 Portrait 얼굴-ID를 FLUX 장면 전체에 지속 고정하기 위한 IP-Adapter 도입 검토 및 가중치 다운로드 병목 체크 필요.
+- Story Bible과 narrative shards는 전체 원문을 프롬프트에 넣지 않는다. phase/location/flags 기반 snippet 및 causality summary만 주입한다.
+- `narrative_shards` 원본 row는 보존되며 오래된 raw shard만 prompt에서 제외된다. 삭제/조회 정책이 필요하면 별도 migration 또는 status를 세운다.
+- Redux는 IP-Adapter 수준의 얼굴 고정은 아니다. FLUX-schnell 4 step 한계상 portrait reference steering으로 취급한다.
+- `RunSummary`, `MetaProgression`, `SaveSlot`, `narrative_metrics`는 현재 JSONB memory row에 저장된다. 조회/필터 요구가 커지면 별도 table migration 후보가 된다.

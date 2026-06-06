@@ -25,7 +25,8 @@ YYYY-MM-DD
 - Verified: `make frontend-build`(tsc -b + vite, 클린), `npm run lint`(0 error/0 warning), `make test-e2e`(scratch 스크립트) 통과, `tests/playwright/test_e2e_play_checklist.py` 전투 경로(캔버스 렌더→드래그 이동 instant SFX→패배 배너→메인 복귀) 통과. Python 무변경.
 - Blockers: 없음. JS 테스트 러너 부재로 `combatDiff` 단위 테스트는 vitest 도입 후로 미룸. 애니메이션 시각 품질은 라이브 플레이 QA 권장.
 - Added(전투 시뮬레이터): 라이브 VFX 점검을 위해 메인(온보딩) 화면에 Streamlit `_render_combat_simulator_inline` 패리티 전투 시뮬레이터 추가. `/api/v1/scenarios`가 선택 가능한 encounters/allies 노출, `CombatBeginRequest.party_members`→`start_combat` 전달, `OnboardingPanel`에 접이식 `전투 시뮬레이터`(조우 선택+동료 체크박스+진입), `handleSimulateCombat`(connect→begin(fallback)→combat/begin→전투 보드 직행, 세션 인트로 스킵). 라이브 검증: 4개 조우/2개 동료 노출, 풀 플로우 radar 정상, 헤드리스 브라우저로 player+정세린 vs 집행유닛 보드 진입(`outputs/sim_combat.png`). build/lint/mypy/`test_api`(25) 통과.
-- Next: 라이브로 전투 이펙트 확인(시뮬레이터로 행동 수행) → 이후 우선순위 2번(진행도 해금/스킬트리 Phase 1).
+- Fixed(가해자 이펙트): 공격 연출이 플레이어 디스패치 액션에만 그려져 적/동료가 때릴 때 맞는 쪽만 플래시 → "내 캐릭터만 이펙트" 현상. diff 데미지 이벤트별로 가해자를 추론(플레이어 디스패치 대상은 정확, 그 외 가장 가까운 살아있는 반대 진영)해 근접=lunge/원거리=트레이서를 진영 색으로 렌더. 라이브 확인 완료(사용자 컨펌). 미드 애니메이션 프레임에서 적 드론 멀티 유닛 교전 확인(`outputs/vfx_frame_*.png`).
+- Next: 우선순위 2번 — 진행도 해금/스킬트리 Phase 1(아키타입 게이트 + base/learned 스킬 필터 + Codex Skill 탭). 후속(선택): VFX Phase 2 juice, vitest+`combatDiff` 단위 테스트.
 
 ## 2026-06-06 — 한글 깨짐 대응, 스탯 비주얼 아이콘 및 선택지 UI 고도화
 

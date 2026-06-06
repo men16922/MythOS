@@ -88,7 +88,7 @@ Vite + React + TS SPA 기반의 독자적인 프론트엔드 포팅 및 Playwrig
   3. ~~**visual-work 자동 삭제** 실 워커 경로 동작 확인, **512 이미지 속도** 라이브 재확인~~ 완료: 작업본 삭제 및 Redux cold 17.3s 확인.
   4. ~~**`make test-e2e` 재실행**~~ 완료: 부트 인트로/세션 시네마틱 dismiss 및 fallback/no-image E2E 모드로 통과 확인.
   5. ~~`docs/play-checklist.md` 수동 QA~~ 완료: 기본 접속/이어하기/기록 오버레이/행동 기록/텍스트 속도/이미지 속도/Dev 탭 균형 레이아웃/전투 드래그&드롭/패배→메인/CHARACTER 포트레이트 분기/오프닝 연속성 전 항목 확인.
-  6. ~~전투 이펙트 개선(시각적) Phase 1~~ 완료 — `docs/plans/2026-06-06-combat-visual-effects.md`. 스냅샷 diff→rAF 애니메이터로 이동/데미지/힐/사망/스킬 캐스트 커넥터 + 데미지 숫자/HP 드레인 + SFX 임팩트 동기. instant/reduced-motion 경로로 E2E 보호. build/lint/E2E(전투 경로) 통과. (Phase 2 juice·Phase 3 백엔드 이벤트 로그는 후속)
+  6. ~~전투 이펙트 개선(시각적) Phase 1~~ 완료 — `docs/plans/2026-06-06-combat-visual-effects.md`. 스냅샷 diff→rAF 애니메이터로 이동/데미지/힐/사망/스킬 캐스트 커넥터 + 데미지 숫자/HP 드레인 + SFX 임팩트 동기. **가해자 추론**으로 적/동료 공격도 lunge/트레이서 연출(라이브 컨펌). instant/reduced-motion 경로로 E2E 보호. build/lint/mypy/E2E(전투 경로) 통과. 라이브 점검용 **전투 시뮬레이터**(온보딩 화면, `/combat/begin` + encounters/allies 노출)도 추가. (Phase 2 juice·Phase 3 백엔드 이벤트 로그는 후속)
   7. 진행도 해금: 아키타입·스킬·Codex Skill 트리 — `docs/plans/2026-06-06-progression-skills-archetypes.md`. 하이브리드 모델(깨달음 이벤트 해금 + 통찰 포인트 트리 투자). Ghost만 시작·진행도 해금, Ghost+세린=첫 튜토리얼→이후 시나리오, 캐릭터 맞춤 기본 스킬. `meta_progression` 버킷 확장.
   8. 파티 조작 2단계 구현(`docs/plans/2026-06-06-party-controllable-allies.md`, 설계 승인 시).
   9. 다중 시나리오(`glass-library`) 스크립트 및 Story Bible 확장.

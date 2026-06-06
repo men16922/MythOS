@@ -55,7 +55,7 @@
 
 다음 구현 (우선순위 순):
 - `[ ]` **전투 이펙트 개선 (시각적)** — `docs/plans/2026-06-06-combat-visual-effects.md`. 클라이언트 스냅샷 diff → rAF 애니메이션 큐로 이동/공격/피격/사망/**스킬(role·tags 기반)** 연출 + SFX 임팩트 동기. 백엔드 무변경(Phase 1), instant/reduced-motion 경로로 E2E 보호. **승인 게이트 없음 — 선행 착수 가능.**
-  - `[x]` Phase 1: rAF 루프 + `combatDiff`(prev→next 순수 diff) + 이동/데미지/힐 트윈 + 데미지 숫자/임팩트 플래시 + HP 바 드레인 + 사망 페이드 + 스킬 캐스트 커넥터 + SFX 임팩트 동기. instant/reduced-motion 경로로 E2E 보호. `make frontend-build`·lint·`make test-e2e`(스크래치+전투 체크리스트) 통과.
+  - `[x]` Phase 1: rAF 루프 + `combatDiff`(prev→next 순수 diff) + 이동/데미지/힐 트윈 + 데미지 숫자/임팩트 플래시 + HP 바 드레인 + 사망 페이드 + 스킬 캐스트 커넥터 + SFX 임팩트 동기. **가해자 추론**으로 적/동료 공격도 lunge/트레이서(라이브 컨펌). 라이브 점검용 **전투 시뮬레이터**(온보딩 화면) 추가. instant/reduced-motion 경로로 E2E 보호. `make frontend-build`·lint·mypy·`make test-e2e`(스크래치+전투 체크리스트)·`test_api`(25) 통과.
   - `[ ]` Phase 1 후속(선택): JS 테스트 러너(vitest) 도입 후 `combatDiff` 단위 테스트, 라이브 플레이 시각 QA.
   - `[ ]` Phase 2: 공격 lunge/슬래시·임팩트 파티클·사망 디졸브·hit-stop·스크린 셰이크(파티 조작 2단계 이후 권장).
   - `[ ]` Phase 3(선택): 백엔드 전투 이벤트 로그(crit/miss/multi-hit 정밀 연출).

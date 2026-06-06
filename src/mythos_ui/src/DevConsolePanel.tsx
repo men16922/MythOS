@@ -66,7 +66,7 @@ export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
   return (
     <div id="dev-tab-content">
       <InfraLinks />
-      <div className="panel">
+      <div className="panel" style={{ maxWidth: "720px" }}>
         <h2
           style={{
             color: "var(--term)",
@@ -82,10 +82,11 @@ export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
         </div>
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: "12px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "8px",
             marginBottom: "20px",
+            maxWidth: "360px",
           }}
         >
           {Object.entries(data.scores).map(([key, value], idx) => {
@@ -98,7 +99,10 @@ export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
                   border: `1px solid ${color}33`,
                   borderRadius: "6px",
                   padding: "10px",
-                  textAlign: "center",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "12px",
                 }}
               >
                 <span
@@ -110,7 +114,6 @@ export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
                 >
                   {key}
                 </span>
-                <br />
                 <span
                   style={{
                     fontSize: "22px",
@@ -127,7 +130,10 @@ export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
 
         <NarrativeMetricsPanel data={data} />
 
-        <div className="codex-grid">
+        <div
+          className="codex-grid"
+          style={{ gridTemplateColumns: "1fr", maxWidth: "720px" }}
+        >
           <div className="codex-sec">
             <div className="codex-sec-title">
               Active Flags & Butterfly Effects
@@ -176,6 +182,8 @@ export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
                           fontSize: "10px",
                           color: "var(--ink-dim)",
                           marginLeft: "12px",
+                          whiteSpace: "normal",
+                          overflowWrap: "anywhere",
                         }}
                       >
                         Condition: {ending.condition}
@@ -205,6 +213,7 @@ export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
               padding: "10px",
               borderRadius: "4px",
               maxHeight: "240px",
+              maxWidth: "100%",
               overflow: "auto",
               margin: 0,
               fontFamily: "var(--mono)",
@@ -227,10 +236,11 @@ function NarrativeMetricsPanel({ data }: { data: DevConsoleData }) {
       {metrics ? (
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+            display: "flex",
+            flexDirection: "column",
             gap: "10px",
             fontSize: "12px",
+            maxWidth: "360px",
           }}
         >
           <div>
@@ -252,9 +262,11 @@ function NarrativeMetricsPanel({ data }: { data: DevConsoleData }) {
             <div style={{ color: "var(--ink-dim)" }}>Last Outcome</div>
             <strong>{metrics.last_outcome || "n/a"}</strong>
           </div>
-          <div style={{ gridColumn: "1 / -1" }}>
+          <div>
             <div style={{ color: "var(--ink-dim)" }}>Counts</div>
-            <code>{JSON.stringify(metrics.counts || {})}</code>
+            <code style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>
+              {JSON.stringify(metrics.counts || {})}
+            </code>
           </div>
         </div>
       ) : (

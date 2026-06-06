@@ -62,9 +62,9 @@ class PostgresMythOSStore(MythOSStore):
             self._connection = None
 
     @classmethod
-    def close_pool(cls) -> None:
+    def close_pool(cls, timeout: float = 5.0) -> None:
         if cls._pool is not None:
-            cls._pool.close()
+            cls._pool.close(timeout=timeout)
             cls._pool = None
 
     def create_player(self, profile: PlayerProfile) -> None:

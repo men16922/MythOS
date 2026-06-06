@@ -12,6 +12,7 @@ synchronous generation).
 from __future__ import annotations
 
 import argparse
+import signal
 
 from mythos_memory.postgres_store import PostgresMythOSStore
 from mythos_runtime.observability import get_logger
@@ -61,6 +62,11 @@ def main(argv: list[str] | None = None) -> int:
         print("another visual worker is already running (lock held); exiting.")
         return 0
 
+    def _request_stop(signum: int, _frame: object) -> None:
+        raise KeyboardInterrupt(f"signal {signum}")
+
+    signal.signal(signal.SIGTERM, _request_stop)
+
     store = PostgresMythOSStore()
     print(f"visual worker started; consuming '{queue.url}' (Ctrl-C to stop)")
     try:
@@ -90,7 +96,9 @@ def main(argv: list[str] | None = None) -> int:
         print("\nvisual worker stopped")
         return 0
     finally:
+        queue.release_worker_slot()
         store.close()
+        PostgresMythOSStore.close_pool(timeout=0.2)
         queue.close()
 
 

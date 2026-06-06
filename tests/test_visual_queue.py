@@ -15,6 +15,37 @@ from mythos_runtime import (
 from mythos_runtime.visual_queue import VisualJobQueue
 
 
+class FakeRedis:
+    def __init__(self) -> None:
+        self.values: dict[str, str] = {}
+
+    def set(self, key: str, value: str, nx: bool = False, ex: int | None = None) -> bool:
+        if nx and key in self.values:
+            return False
+        self.values[key] = value
+        return True
+
+    def get(self, key: str) -> str | None:
+        return self.values.get(key)
+
+    def delete(self, key: str) -> int:
+        existed = key in self.values
+        self.values.pop(key, None)
+        return 1 if existed else 0
+
+    def exists(self, key: str) -> int:
+        return 1 if key in self.values else 0
+
+
+class LockQueue(VisualJobQueue):
+    def __init__(self, redis_client: FakeRedis) -> None:
+        super().__init__()
+        self.redis_client = redis_client
+
+    def _redis(self) -> FakeRedis:
+        return self.redis_client
+
+
 class UpsertStore(FakeStore):
     """FakeStore whose assets are queryable and upserted by id (like Postgres)."""
 
@@ -123,6 +154,33 @@ class VisualQueueTest(unittest.TestCase):
             self.assertEqual(len(stored), 1)
             self.assertEqual(stored[0].status, "succeeded")
             self.assertTrue(Path(stored[0].storage_uri).exists())
+
+    def test_worker_lock_token_survives_heartbeat_and_releases_on_shutdown(self) -> None:
+        redis_client = FakeRedis()
+        queue = LockQueue(redis_client)
+
+        self.assertTrue(queue.acquire_worker_slot())
+        first_token = redis_client.get("mythos:visual:worker:heartbeat")
+        self.assertIsNotNone(first_token)
+
+        queue.beat()
+        self.assertEqual(redis_client.get("mythos:visual:worker:heartbeat"), first_token)
+
+        contender = LockQueue(redis_client)
+        self.assertFalse(contender.acquire_worker_slot())
+
+        self.assertTrue(queue.release_worker_slot())
+        self.assertEqual(redis_client.exists("mythos:visual:worker:heartbeat"), 0)
+        self.assertFalse(queue.release_worker_slot())
+
+    def test_worker_lock_release_does_not_delete_another_worker_token(self) -> None:
+        redis_client = FakeRedis()
+        queue = LockQueue(redis_client)
+        self.assertTrue(queue.acquire_worker_slot())
+        redis_client.set("mythos:visual:worker:heartbeat", "other-host:999")
+
+        self.assertFalse(queue.release_worker_slot())
+        self.assertEqual(redis_client.get("mythos:visual:worker:heartbeat"), "other-host:999")
 
 
 if __name__ == "__main__":

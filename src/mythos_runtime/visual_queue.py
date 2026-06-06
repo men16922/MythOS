@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import os
+import socket
 import time
 from typing import Any
 
@@ -32,6 +33,7 @@ class VisualJobQueue:
             url if url is not None else os.getenv("REDIS_URL", "redis://localhost:6379/0")
         )
         self._client: Any = None
+        self._worker_token: str | None = None
 
     def _redis(self) -> Any:
         if self._client is None:
@@ -70,11 +72,10 @@ class VisualJobQueue:
 
         Prevents two workers from running at once (each would load its own ~24GB FLUX).
         """
-        import os
-        import socket
-
         token = f"{socket.gethostname()}:{os.getpid()}"
         got = self._redis().set(HEARTBEAT_KEY, token, nx=True, ex=HEARTBEAT_TTL_SECONDS)
+        if got:
+            self._worker_token = token
         return bool(got)
 
     def enqueue(self, job: dict[str, Any]) -> None:
@@ -99,7 +100,21 @@ class VisualJobQueue:
         return job
 
     def beat(self) -> None:
-        self._redis().set(HEARTBEAT_KEY, str(time.time()), ex=HEARTBEAT_TTL_SECONDS)
+        token = self._worker_token or str(time.time())
+        self._redis().set(HEARTBEAT_KEY, token, ex=HEARTBEAT_TTL_SECONDS)
+
+    def release_worker_slot(self) -> bool:
+        """Release this worker's single-instance lock if it still owns it."""
+        if self._worker_token is None:
+            return False
+        try:
+            current = self._redis().get(HEARTBEAT_KEY)
+            if current == self._worker_token:
+                self._redis().delete(HEARTBEAT_KEY)
+                return True
+            return False
+        finally:
+            self._worker_token = None
 
     def depth(self) -> int:
         try:

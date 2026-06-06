@@ -2,6 +2,27 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-06-07
+
+### Use Action Sheets As The Combat Pose Source Of Truth
+
+Decision: 전투 시네마 캐릭터 에셋은 모델 이름보다 **검증된 action sheet 결과**를 기준으로 승격한다.
+표준 포즈는 `idle/attack/guard/skill/hit`이며, `attack/guard/skill/hit`은 가능하면 한 캔버스 action
+sheet에서 함께 생성해 얼굴, 의상, 체형, 조명, 스케일을 고정한다. 2026-06-07 기준 canonical party
+3인(`Se-rin`, `player-noise`, `Kai`)은 Codex 내장 imagegen action sheet + chroma-key 제거 + 분할/정규화
+결과다.
+
+Reason: pose별 독립 생성은 Se-rin에서도 얼굴, 카메라, 의상, 액션 설득력이 흔들렸다. 반대로 같은
+프롬프트/같은 캔버스의 action sheet는 시네마에서 필요한 0.5~1초 포즈 판독성, VFX, 캐릭터 일관성을
+동시에 만족했다. Gemini/Imagen 3 같은 외부 모델은 후보로 평가할 수 있지만, 현재 repo에는 재현 가능한
+GCP API 실행 경로와 검증 산출물이 없다. 따라서 운영 지침은 특정 외부 모델을 강제하지 않고, 캐릭터별
+검수 시트가 통과한 산출물만 `resources/.../combat/`로 승격하는 방식으로 둔다.
+
+Impact: `docs/plans/2026-06-07-combat-portrait-pipeline.md`가 전투 포즈 제작의 운영 권위가 된다. 모델은
+캐릭터 단위로 섞지 않는 것이 원칙이지만, VFX/림라이트 같은 **얼굴·체형을 바꾸지 않는 후처리 오버레이**는
+별도 후보로 허용한다. 외부 모델을 도입할 경우에도 먼저 `outputs/combat-sprite-compare/` 아래 검수 시트와
+재현 명령을 남긴 뒤 실사용 경로로 승격한다.
+
 ## 2026-06-06
 
 ### Use mflux Redux For Character Face Consistency

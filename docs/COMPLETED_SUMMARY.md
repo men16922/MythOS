@@ -1,8 +1,8 @@
 # Completed Summary
 
-최종 갱신: 2026-06-06
+최종 갱신: 2026-06-07
 
-이 문서는 완료된 milestone의 압축 요약이다. 세부 작업 로그와 검증 기록은 `archive/IMPLEMENTATION_M0_M10.md`와 `PROGRESS_LOG.md`를 참고한다.
+이 문서는 완료된 milestone의 압축 요약이다. 세부 작업 로그와 검증 기록은 `archive/IMPLEMENTATION_M0_M10.md`, `archive/progress-2026-05.md`, `archive/progress-2026-06.md`를 참고한다. 최신 짧은 로그만 `PROGRESS_LOG.md`에 남긴다.
 
 ## MVP Milestones
 
@@ -24,7 +24,7 @@
 
 | ID | Milestone | Result |
 | --- | --- | --- |
-| M11 | Streamlit Demo Polish | saved player/loop selector, loop resume UX, active/archived 표시, asset/Echo layout 정리 |
+| M11 | Streamlit Polish | saved player/loop selector, loop resume UX, active/archived 표시, asset/Echo layout 정리 |
 
 ## Playable Game Track (Phase 15-19)
 
@@ -84,6 +84,8 @@
 | P3 | 적 인텐트 가시화 | 적 유닛의 다음 턴 행동 의도(이동/공격/도주)를 미리 시뮬레이션 및 보드 가시화 |
 | P4-1 | 스탯 기반 내면 독백 | 최고/최저 스탯의 성격에 대입하여 디스코 엘리시움 풍의 내적 독백 가이드라인을 프롬프트에 주입 |
 | P4-2 | 동료 전술 성향 다각화 | 정세린(원거리 지원/실드), 카이(도발/탱커) 성향별 AI 결정 트리 구현 및 실드 적용 대상 버그 수정 |
+| P4-3 | 외부 이미지 모델 후보 평가 | Se-rin 대상 Gemini/Imagen 후보를 비교 자료로 생성·검토하고, canonical 승격 기준을 action sheet 검수 방식으로 정리 |
+| P4-4 | Combat action pose pipeline | Se-rin/player-noise/Kai와 humanoid enemy 2종(enforcer-unit/glitch-wraith)에 `idle/attack/guard/skill/hit` 전신 combat assets 적용 |
 
 ## Web UI Decoupling Track
 

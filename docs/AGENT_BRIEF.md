@@ -1,67 +1,55 @@
 # Agent Brief
 
-최종 갱신: 2026-06-06
+최종 갱신: 2026-06-07
 
-이 파일은 AI 에이전트가 작업 시작 시 가장 먼저 읽는 압축 문맥이다. 상세 설계가 필요할 때만 링크된 문서를 연다.
+이 파일은 작업 시작용 압축 문맥이다. 상세는 링크된 문서를 필요한 순간에만 연다.
 
 ## Snapshot
 
-- Project MythOS는 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG/CRPG다.
-- UI는 Streamlit 데모와 FastAPI-served React + TS SPA가 공존한다. 핵심 오케스트레이션은 `RuntimeSessionService`가 담당한다.
-- 상태 저장은 PostgreSQL, 이미지/미디어는 MinIO, visual job은 Redis worker, LLM은 Ollama, 이미지 백엔드는 mflux/FLUX다.
-- 로컬 MVP, 플레이어 뷰, Neo-Seoul 시나리오, Codex, 인과율/엔딩 구조, mflux 이미지 성능 개선, 전술 전투, 단일 iframe 전투 UI, 동료 참전, 도주 후 contact 유지 정책, Run History, Meta Progression, Save/Load UX, React SPA, Playwright E2E는 구현됨.
+Project MythOS는 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG/CRPG다. AI GM(Ollama)이 장면을 진행하고, 전술 전투는 별도 deterministic combat engine이 판정한다.
 
-## Current Focus
+현재 baseline:
 
-- 완료: 전투 스킬/아이템 실행, 전투화면 단일 iframe 재구성, 동료/파티 참전, 도주 후 contact alerted 유지, focus/skill 밸런스 정리, IP-Adapter 캐릭터 비주얼 일관성(P2) 도입.
-- 전투 UI는 `src/mythos_runtime/combat_server.py`의 localhost JSON bridge와 `streamlit_app.py`의 `_build_combat_app_html`이 담당한다. 전투 중 per-action Streamlit rerun은 제거했고, 종료 시에만 Streamlit으로 돌아온다.
-- 동료 참전은 `_party.members` 또는 scenario ally `unlock_flags`가 `loop.state["flags"]`와 맞을 때 `CombatService.begin`에서 ally combatant로 투입된다.
-- Story Bible MVP는 `src/mythos_runtime/story_bible.py`와 `resources/neo-seoul/story_bible/bible.json`로 시작했다. `scenario_context`가 phase/location/flags에 맞는 snippet만 `NarrativeContext.novelty_notes`에 주입한다.
-- 주력 콘텐츠는 Neo-Seoul 01이다. `resources/neo-seoul/scenario.json`과 `resources/neo-seoul/story_bible/bible.json`은 1회 1시간/40-60턴 소설형 세션을 목표로 6막 구조, pacing contract, 관계/단서/클라이맥스 snippet을 포함한다.
-- 샘플 게임북 `세계 : 접속 - 유리성의 사서`는 멀티 시나리오 구조 검증용으로 `docs/scenarios/02-glass-library.md`, `resources/glass-library/scenario.json`, `resources/glass-library/story_bible/bible.json`에 있다.
-- Run History MVP is 구현됨. archive/permadeath 시 `WorldMemory(kind="run_summary")`가 저장되고, `RuntimeSessionService.list_run_summaries()`와 Player View `기록 보관소`에서 조회한다.
-- Meta Progression MVP is 구현됨. run summary 기반으로 trait/ally/starting item/codex unlock을 누적하고 `PlayerMemory(kind="meta_progression")`에 저장하며, 새 루프 시작 state/inventory에 반영한다.
-- Save/Load UX MVP is 구현됨. active loop만 `SaveSlot`으로 LOAD 대상이 되고, autosave metadata는 `PlayerMemory(kind="save_slot")`에 저장된다. Player View에는 LOAD slot 선택과 명시적 `SAVE` 버튼이 있다. ended loop는 기록 보관소 대상이다.
-- Ending Resolver 구현 완료: archive/permadeath 시 scenario ending condition을 동적으로 안전하게 평가하고 `RunSummary.ending_id`/`ending_label`에 저장한다.
-- Developer 인과율 모니터 구현 완료: active flags, metric score, ending condition matching 상태를 실시간 노출한다.
-- 최신 Player View hotfix: `새 게임 시작`은 선택 player가 없어도 player 생성 후 시작한다. `"null"` combat request sentinel은 무시한다. 오프닝 시네마틱은 raw HTML 노출 방지를 위해 iframe으로 렌더한다.
-- P3 Web UI 디커플링 slice 1·2·3·4 전체 완료: `src/mythos_api/`가 `RuntimeSessionService`를 FastAPI `/api/v1` REST + WebSocket 토큰 스트리밍 + `visual_status` 이미지 프레임(`loops/stream`) + 자산 presigned URL 변환(`assets/resolve`)으로 노출하고, 신규 React + TS SPA 클라이언트(`src/mythos_ui`)를 `/`에 빌드 및 서빙. API 백엔드는 완성·유지.
-- Narrative Shards Memory Rollup 구현 완료: 오래된 `narrative_shards`는 `PlayerMemory(kind="causality_summary")`로 압축되고, 최신 raw shard만 Narrative Context에 전달된다.
-- Narrative Outcome Metrics 영속화 완료: AI GM outcome(`success/provider_repair/local_repair/fallback`)은 `WorldMemory(kind="narrative_metrics")`로 누적 저장되며 React Developer 탭 Outcome Ratio 카드에 표시된다.
-- 2026-06-06 소스 품질 패스 완료: shard rollup `retention=0` 경계값과 narrative metrics 4-outcome response shape를 회귀 테스트로 고정했다.
-- React SPA 클라이언트 UX/디자인 개선 완료: 타입 임포트 해결로 Vite 빌드를 정상 복구했고, 내러티브 영역의 좌우 2열 패널 분할 고도화 및 세로 높이 정렬(`align-items: stretch`)을 적용함. 대화 이력의 스크롤 스트리밍을 연동하고, 새 이미지 수급 전까지 이전 이미지를 자연스럽게 띄워두는 비동기 지연 보완책을 마련함.
-- 씬 히스토리 데이터베이스 조회 연동 완료: `/api/v1/loops/{loop_id}/scenes` 엔드포인트를 API 서버 및 리액트 연동 클라이언트에 배선하여 이어하기 진입 시에도 이전 대화 기록을 온전히 스크롤 영역에 복원함.
-- 전술 전투 화면 UX 대폭 개선 완료: 아군/적군 로스터 영역의 수직 정렬(`grid-template-columns: 1fr`)을 적용하여 카드의 정보 밀도를 살리고, TACTICAL BOARD의 화면 비율을 `1.8fr 1fr`로 크게 넓힘으로써 전투 플레이 조작성과 전술판 시인성을 대폭 확장함.
-- Playwright E2E 게이트 복구 완료: React SPA는 `?fallback=1&image=0` URL 모드로 결정적 E2E를 실행한다. `scratch/run_playwright_test.py`는 부트 오프닝→세션 인트로→턴 0 선택지→턴 1 전환을 검증하고 실패 시 non-zero exit 및 `outputs/e2e_failure.png`를 남긴다. Project-local Playwright MCP 설정은 `.codex/.mcp.json`에 포함한다.
-- Redux visual worker 실파이프라인 검증 완료: 세린 캐릭터 장면 512×512/4-step Redux job이 Redis worker→MinIO→presigned PNG GET 200으로 성공했고, `outputs/visual-work` 작업본 삭제도 확인했다. Cold Redux latency는 17.3s(provider 17.1s).
-- Visual worker 종료 안정화 완료: heartbeat lock owner token 유지, SIGTERM/KeyboardInterrupt 시 `release_worker_slot()`, Postgres pool 명시 close 적용. 빈 queue worker SIGTERM 검증에서 heartbeat 1→0 및 프로세스 잔류 없음 확인.
-- Dev 실행 경로: 풀 플레이는 docker 인프라 + API + visual worker + Ollama가 필요하다. 권장 명령은 `make dev-up`(infra/migrate/worker/API)과 `make dev-down`; React Dev 탭에는 Adminer/MinIO/Redis/Jaeger 링크가 있다.
-- **현재 방향 (2026-06-06): 커밋 정리, 수동 QA, 파티 조작 2단계.** React SPA 프론트엔드 통합, 게임플레이 깊이(P1~P4), 장기 메모리/E2E/worker 안정화까지 완료된 상태이므로, 먼저 누적 변경분을 커밋 가능 단위로 정리하고 `docs/play-checklist.md` 기반 실제 플레이 검증 후 파티 조작 2단계 또는 다중 시나리오 확장을 진행한다. 두 프론트 차이는 `docs/STREAMLIT_VS_API.md`.
+- `RuntimeSessionService`가 CLI/Streamlit/FastAPI 공통 orchestration을 담당.
+- React + TypeScript SPA와 FastAPI `/api/v1` REST/WS adapter 구현 완료.
+- Streamlit demo도 유지되며 같은 runtime service를 호출.
+- PostgreSQL/MinIO/Redis/OTel/Jaeger 로컬 인프라 구성.
+- Neo-Seoul 01이 주력 시나리오, `glass-library`는 확장 샘플.
+- Story Bible, Codex, Run History, Meta Progression, Save/Load, Ending Resolver 구현.
+- 전술 전투, 동료 참전, 적 인텐트, 전투 VFX Phase 1, CombatCinema 전신 action pose, Playwright E2E 구현.
+- mflux/FLUX image worker, Redux 캐릭터 일관성, MinIO asset path 검증 완료.
+
+## Active Work
+
+다음 우선순위는 `docs/NEXT_PLAN.md`가 권위다.
+
+1. 전투 연출 개편: party 3인 + humanoid enemy 전신 action pose 적용 완료, 다음은 표시 위치/스케일/타이밍 polish.
+2. 진행도 해금: Ghost-only 시작, 아키타입 게이트, base/learned 스킬 필터, Codex Skill 탭.
+3. 파티 조작 2단계: 파티원은 플레이어 직접 조작, 비파티 동맹은 AI 유지.
+4. `glass-library` Story Bible/시나리오 확장.
 
 ## Read Order
 
 1. 현재 상태: `docs/STATUS.md`
 2. 다음 작업: `docs/NEXT_PLAN.md`
-3. 작업 로그: `docs/PROGRESS_LOG.md`
+3. 최신 로그: `docs/PROGRESS_LOG.md`
 4. 구조 변경 전: `docs/DESIGN.md`
 5. 게임 규칙 변경 전: `docs/GAMEPLAY.md`
-6. 시나리오 변경 전: `docs/scenarios/01-neo-seoul-connect.md`
-7. Story Bible/Save Load 변경 전: `docs/plans/2026-05-31-story-bible-save-load.md`
-8. 과거 상세 로그: `docs/archive/`
+6. 시나리오 변경 전: `docs/scenarios/*` 또는 `resources/<scenario>/story_bible/*`
 
 ## Commands
 
 - 기본 검증: `make test`
-- 타입/린트: `make lint`, `make typecheck`
-- React E2E: `make test-e2e`
-- 런타임 흐름 변경: `make smoke-local`
-- DB/MinIO persistence 변경: `make smoke`
-- React/API 풀스택 실행: `make dev-up` / `make dev-down`
-- 데모 실행: `make streamlit`
+- Python 품질: `make lint`, `make typecheck`
+- React 품질: `make frontend-lint`, `make frontend-build`
+- Browser E2E: `make test-e2e`
+- Runtime smoke: `make smoke-local`
+- Persistence/MinIO: `make smoke`, `make test-db`
+- Full local dev: `make dev-up` / `make dev-down`
 
 ## Guardrails
 
-- 순수 unit test는 Docker 없이 유지한다. DB 테스트는 `MYTHOS_RUN_DB_TESTS=1` 경유.
-- 런타임 orchestration은 CLI/Streamlit에 복제하지 말고 `RuntimeSessionService`에 둔다.
-- generated outputs, `.env`, 토큰, `.docker/` 데이터는 소스 취급하지 않는다.
-- 문서 갱신은 현재 문서에 요약, 상세 이력은 archive/plans로 분산한다.
+- Runtime orchestration은 UI/API에 복제하지 말고 `RuntimeSessionService`에 둔다.
+- 순수 unit test는 Docker 없이 유지한다. DB tests는 `MYTHOS_RUN_DB_TESTS=1` 경유.
+- Generated outputs, `.env`, tokens, `.docker/` data는 source artifact로 취급하지 않는다.
+- Current docs는 짧게 유지하고, 상세 기록은 `docs/archive/` 또는 dated plan으로 이동한다.

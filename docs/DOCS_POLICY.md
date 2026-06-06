@@ -1,6 +1,6 @@
 # Documentation Policy
 
-최종 갱신: 2026-05-31
+최종 갱신: 2026-06-06
 
 이 문서는 Project MythOS 문서를 계속 업데이트하기 위한 운영 규칙이다. 목표는 현재 상태를 빠르게 파악하면서도, 날짜별 계획과 완료 이력을 잃지 않는 것이다. 토큰 사용을 줄이기 위해 에이전트용 압축 진입점을 별도로 유지한다.
 
@@ -26,17 +26,18 @@
 - `docs/` 전체를 자동으로 bulk-read하지 않는다.
 - `plans/`, `archive/`, `feedback/`는 on-demand 문서로 취급한다.
 - `DESIGN.md`, `GAMEPLAY.md`, scenario docs는 관련 코드/콘텐츠를 실제로 바꿀 때만 연다.
-- `AGENT_BRIEF.md`는 80줄 이하, `STATUS.md`와 `NEXT_PLAN.md`는 각각 150줄 안팎을 목표로 한다.
-- `PROGRESS_LOG.md`가 300줄을 넘으면 최신 5개 전후 항목만 남기고 나머지는 `docs/archive/progress-YYYY-MM.md`로 분리한다.
+- `AGENT_BRIEF.md`는 60줄 이하, `STATUS.md`와 `NEXT_PLAN.md`는 각각 120줄 이하를 목표로 한다.
+- `DESIGN.md`는 압축 아키텍처 요약으로 유지한다. 장문 설계 원문은 `docs/archive/`에 보존한다.
+- `PROGRESS_LOG.md`가 120줄을 넘으면 최신 3-5개 항목만 남기고 나머지는 `docs/archive/progress-YYYY-MM.md`로 분리한다.
 - 완료된 task checklist가 current docs에 오래 남아 있으면 `COMPLETED_SUMMARY.md`로 압축하고 current docs에서는 링크만 유지한다.
 
 ## Current Docs
 
 항상 최신 상태로 유지한다.
 
-- `STATUS.md`: 현재 구현 상태, active focus, open risks.
+- `STATUS.md`: 현재 구현 상태, 검증 baseline, active focus, open risks.
 - `AGENT_BRIEF.md`: 에이전트가 먼저 읽는 압축 문맥, 현재 초점, 읽기 순서.
-- `NEXT_PLAN.md`: 지금부터 진행할 rolling plan.
+- `NEXT_PLAN.md`: 완료 항목이 아니라 지금부터 진행할 열린 작업.
 - `README.md`: 실행/사용 안내와 주요 docs index.
 - `docs/README.md`: docs 전체 navigation.
 
@@ -87,6 +88,7 @@ YYYY-MM-DD
 - 사용자에게 의미 있는 작업 단위가 끝났을 때 기록한다.
 - 검증 명령이나 브라우저 확인이 있으면 `Verified`에 남긴다.
 - `PROGRESS_LOG.md`가 길어지면 월별 archive로 분리하고 current log에는 archive 링크와 최신 항목만 남긴다.
+- 상세 변경 이력은 current docs에 복사하지 않는다. current docs에는 "현재 판단에 필요한 압축 상태"만 남긴다.
 
 월별 archive 예:
 

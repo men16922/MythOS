@@ -32,9 +32,11 @@ import type {
   WebSocketMessage,
   AssetInfo,
   CombatAction,
+  CombatState,
 } from "./types";
 import { drawCombatCanvas, combatCellFromPoint } from "./combatCanvas";
 import type { CombatDragOverlay } from "./combatCanvas";
+import { CombatAnimator, prefersReducedMotion } from "./combatEffects";
 import { LS_KEY, parseResumeSession } from "./sessionStorage";
 import type { ResumeSessionData } from "./sessionStorage";
 import { buildCodexLists, buildDevConsoleData } from "./viewModels";
@@ -107,6 +109,12 @@ export default function App() {
 
   // Canvas Ref
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  // Combat board animation: the animator diffs prev→next combat states and
+  // tweens movement / damage / death; the dispatched action lets it draw the
+  // attack/cast connector the snapshot diff can't recover.
+  const animatorRef = useRef<CombatAnimator | null>(null);
+  const prevCombatRef = useRef<CombatState | null>(null);
+  const dispatchedActionRef = useRef<CombatAction | null>(null);
   const websocketRef = useRef<WebSocket | null>(null);
   const reconnectAttemptsRef = useRef(0);
   const maxReconnectAttempts = 5;
@@ -621,9 +629,9 @@ export default function App() {
     setIsBusy(true);
     setStatus("행동 처리 중…");
 
-    if (action.type === "attack" || action.type === "skill") playSfx("sfx_attack");
-    else if (action.type === "defend") playSfx("sfx_defend");
-    else playSfx("sfx_move");
+    // Hand the dispatched action to the board animator (for the attack/cast
+    // connector); impact SFX now fire on the animation's impact frame.
+    dispatchedActionRef.current = action;
 
     try {
       const response = await apiCombatAction({
@@ -651,11 +659,7 @@ export default function App() {
       };
       setFinalizedSnapshot(updatedSnapshot);
       setLastSnapshot(updatedSnapshot);
-
-      if (response.combat.finished) {
-        if (response.combat.outcome === "player_defeat") playSfx("sfx_defeat");
-        else playSfx("sfx_victory");
-      }
+      // Victory/defeat SFX fire at the end of the board animation (see CombatAnimator).
       setStatus("행동 적용.");
     } catch (e) {
       setStatus("행동 실패: " + (e as Error).message);
@@ -719,12 +723,38 @@ export default function App() {
   }, [finalizedSnapshot, sendChoose]);
 
   // --- Canvas Combat drawing logic ---
+  // When the combat state changes we diff prev→next and animate the transition;
+  // when combat first appears (or under reduced-motion / fallback E2E mode) we
+  // draw the final board synchronously so the settled state is never lost.
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const combat = finalizedSnapshot?.combat;
-    if (!canvas || !combat) return;
-    drawCombatCanvas(canvas, combat, selectedScenarioId);
-  }, [finalizedSnapshot, selectedScenarioId]);
+    if (!animatorRef.current) {
+      animatorRef.current = new CombatAnimator(() => canvasRef.current, selectedScenarioId);
+    } else {
+      animatorRef.current.setScenario(selectedScenarioId);
+    }
+    const animator = animatorRef.current;
+    const combat = finalizedSnapshot?.combat || null;
+    if (!canvasRef.current || !combat) {
+      prevCombatRef.current = combat;
+      return;
+    }
+    const prev = prevCombatRef.current;
+    const dispatched = dispatchedActionRef.current;
+    dispatchedActionRef.current = null;
+    if (prev && prev !== combat) {
+      animator.animate(prev, combat, {
+        dispatched,
+        instant: fallbackMode || prefersReducedMotion(),
+        onSfx: playSfx,
+      });
+    } else {
+      animator.drawStatic(combat);
+    }
+    prevCombatRef.current = combat;
+    // playSfx is intentionally omitted: this effect must fire only on combat
+    // state changes, not on every render that recreates the SFX closure.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [finalizedSnapshot, selectedScenarioId, fallbackMode]);
 
   // Combat board drag & drop: pick up the current actor's blip, drag it to a
   // reachable tile, and drop to move. A plain click no longer teleports the unit.
@@ -740,7 +770,7 @@ export default function App() {
   const handleCanvasPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const combat = finalizedSnapshot?.combat;
     const canvas = canvasRef.current;
-    if (!combat?.radar || !canvas || isBusy) return;
+    if (!combat?.radar || !canvas || isBusy || animatorRef.current?.isAnimating()) return;
     const av = combat.available;
     if (!av || !av.can_act) return;
 

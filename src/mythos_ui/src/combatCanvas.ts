@@ -18,6 +18,40 @@ export interface CombatDragOverlay {
   valid: boolean;
 }
 
+// --- Animation overlay (see combatEffects.ts) ---------------------------------
+// Per-blip render overrides, floating numbers, and transient effects, all in
+// *cell coordinates* so the animator stays resolution-independent; this draw
+// converts them to pixels using the cell size it computes for the canvas.
+export interface BlipOverride {
+  cellX?: number; // fractional cell index (overrides blip.x for a move tween)
+  cellY?: number;
+  hpRatio?: number; // overrides the drawn HP bar (drain/heal tween)
+  flash?: number; // 0..1 impact flash intensity
+  flashColor?: string;
+  alpha?: number; // overrides blip alpha (death fade)
+  scale?: number; // radius multiplier (impact pop / lunge)
+}
+
+export interface FloatText {
+  cellX: number; // fractional cell coords; cellY decreases to rise
+  cellY: number;
+  text: string;
+  color: string;
+  alpha: number;
+  size?: number; // px
+}
+
+export type CombatFx =
+  | { kind: "tracer"; x1: number; y1: number; x2: number; y2: number; color: string; alpha: number; width?: number }
+  | { kind: "ring"; cellX: number; cellY: number; cellR: number; color: string; alpha: number; width?: number }
+  | { kind: "spark"; cellX: number; cellY: number; cellR: number; color: string; alpha: number };
+
+export interface CombatOverlay {
+  blips?: Record<string, BlipOverride>;
+  floats?: FloatText[];
+  fx?: CombatFx[];
+}
+
 // Draw a blip's portrait (or a faction-colored disc fallback) clipped to a circle.
 function drawBlipPortrait(
   ctx: CanvasRenderingContext2D,
@@ -64,7 +98,8 @@ export function drawCombatCanvas(
   canvas: HTMLCanvasElement,
   combat: CombatState,
   scenarioId: string,
-  drag?: CombatDragOverlay
+  drag?: CombatDragOverlay,
+  overlay?: CombatOverlay
 ): void {
   const radar = combat.radar;
   if (!radar || !radar.blips || radar.blips.length === 0) return;
@@ -95,6 +130,7 @@ export function drawCombatCanvas(
   const cw = cssW / cols;
   const ch = cssH / rows;
   const reach = combat.available?.reachable || [];
+  const blipFx = overlay?.blips || {};
 
   reach.forEach(([x, y]) => {
     const isTarget =
@@ -148,10 +184,31 @@ export function drawCombatCanvas(
     }
   });
 
+  // Transient effects drawn under the blips (tracers / cast connectors).
+  (overlay?.fx || []).forEach((fx) => {
+    if (fx.kind === "tracer") {
+      ctx.save();
+      ctx.globalAlpha = fx.alpha;
+      ctx.strokeStyle = fx.color;
+      ctx.lineWidth = fx.width || 2;
+      ctx.shadowColor = fx.color;
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.moveTo(fx.x1 * cw, fx.y1 * ch);
+      ctx.lineTo(fx.x2 * cw, fx.y2 * ch);
+      ctx.stroke();
+      ctx.restore();
+    }
+  });
+
   radar.blips.forEach((b) => {
-    const cx = b.x * cw + cw / 2;
-    const cy = b.y * ch + ch / 2;
-    const r = Math.min(cw, ch) * 0.38;
+    const ov = blipFx[b.id];
+    const bx = ov?.cellX != null ? ov.cellX : b.x;
+    const by = ov?.cellY != null ? ov.cellY : b.y;
+    const cx = bx * cw + cw / 2;
+    const cy = by * ch + ch / 2;
+    const scale = ov?.scale != null ? ov.scale : 1;
+    const r = Math.min(cw, ch) * 0.38 * scale;
     const alive = b.alive !== false;
     const isDragged = drag != null && drag.blipId === b.id;
 
@@ -170,7 +227,8 @@ export function drawCombatCanvas(
       return;
     }
 
-    ctx.globalAlpha = alive ? 1 : 0.3;
+    const baseAlpha = alive ? 1 : 0.3;
+    ctx.globalAlpha = ov?.alpha != null ? ov.alpha : baseAlpha;
 
     if (radar.current && b.id === radar.current) {
       ctx.strokeStyle = "rgba(255,215,106,0.9)";
@@ -181,6 +239,18 @@ export function drawCombatCanvas(
     }
 
     drawBlipPortrait(ctx, canvas, combat, scenarioId, b, cx, cy, r);
+
+    // Impact flash tints the blip toward its damage/heal color.
+    if (ov?.flash && ov.flash > 0) {
+      ctx.save();
+      ctx.globalAlpha = Math.min(0.7, ov.flash * 0.7);
+      ctx.fillStyle = ov.flashColor || "#ff6b7d";
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      ctx.globalAlpha = ov?.alpha != null ? ov.alpha : baseAlpha;
+    }
 
     if (b.defending) {
       ctx.strokeStyle = "#cfe";
@@ -214,18 +284,57 @@ export function drawCombatCanvas(
 
     if (b.max_hp) {
       const bw = cw * 0.7;
-      const bx = cx - bw / 2;
-      const by = cy + r + 3;
+      const bxp = cx - bw / 2;
+      const byp = cy + r + 3;
 
       ctx.fillStyle = "rgba(0,0,0,0.6)";
-      ctx.fillRect(bx, by, bw, 3);
+      ctx.fillRect(bxp, byp, bw, 3);
 
-      const ratio = b.hp_ratio != null ? b.hp_ratio : b.hp / b.max_hp;
+      const baseRatio = b.hp_ratio != null ? b.hp_ratio : b.hp / b.max_hp;
+      const ratio = ov?.hpRatio != null ? ov.hpRatio : baseRatio;
       ctx.fillStyle = ratio > 0.5 ? "#7dff9b" : ratio > 0.25 ? "#ffd76a" : "#ff6b7d";
-      ctx.fillRect(bx, by, bw * Math.max(0, ratio), 3);
+      ctx.fillRect(bxp, byp, bw * Math.max(0, ratio), 3);
     }
 
     ctx.globalAlpha = 1;
+  });
+
+  // Transient effects drawn over the blips (impact rings / sparks).
+  (overlay?.fx || []).forEach((fx) => {
+    if (fx.kind === "ring") {
+      ctx.save();
+      ctx.globalAlpha = fx.alpha;
+      ctx.strokeStyle = fx.color;
+      ctx.lineWidth = fx.width || 2;
+      ctx.beginPath();
+      ctx.arc(fx.cellX * cw, fx.cellY * ch, fx.cellR * Math.min(cw, ch), 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    } else if (fx.kind === "spark") {
+      ctx.save();
+      ctx.globalAlpha = fx.alpha;
+      ctx.fillStyle = fx.color;
+      ctx.shadowColor = fx.color;
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.arc(fx.cellX * cw, fx.cellY * ch, fx.cellR * Math.min(cw, ch), 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  });
+
+  // Floating damage / heal numbers, drawn last so they sit on top of everything.
+  (overlay?.floats || []).forEach((f) => {
+    ctx.save();
+    ctx.globalAlpha = f.alpha;
+    ctx.fillStyle = f.color;
+    ctx.font = `bold ${f.size || 14}px "SF Mono", monospace`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.shadowColor = "rgba(0,0,0,0.8)";
+    ctx.shadowBlur = 3;
+    ctx.fillText(f.text, f.cellX * cw, f.cellY * ch);
+    ctx.restore();
   });
 
   // Lifted ghost: draw the dragged blip at the cursor with a glow so the pick-up

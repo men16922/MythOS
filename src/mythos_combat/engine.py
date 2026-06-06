@@ -42,6 +42,28 @@ class CombatEngine:
         else:
             self.skills_pool = skills_pool
 
+    def _build_deterministic_terrain(self, state: CombatState) -> None:
+        import hashlib
+        seed_bytes = state.seed.encode('utf-8')
+        h = hashlib.sha256(seed_bytes).digest()
+        
+        idx = 0
+        for y in range(state.arena_h):
+            for x in range(state.arena_w):
+                key = f"{x},{y}"
+                # Ensure starting edges are clear
+                if x <= 1 or x >= state.arena_w - 2:
+                    continue
+                val = h[idx % len(h)]
+                idx += 1
+                
+                if val < 26:
+                    state.elevations[key] = 1
+                elif val < 65:
+                    state.covers[key] = "full" if val % 2 == 0 else "half"
+                elif val < 81:
+                    state.hazards[key] = "electro" if val % 2 == 0 else "acid"
+
     def start(
         self,
         party: list[Combatant],
@@ -60,6 +82,7 @@ class CombatEngine:
             seed=seed,
             encounter_id=encounter_id,
         )
+        self._build_deterministic_terrain(state)
         roll = self._dice(state)
         for combatant in state.combatants:
             combatant.initiative = roll.d20() + combatant.stat("agility")
@@ -158,10 +181,25 @@ class CombatEngine:
             "weapons": [w.id for w in player.weapons],
             "focus": player.focus,
             "max_focus": player.max_focus,
-            "skills": [
-                {"id": skill_id, "cooldown": int(player.cooldowns.get(skill_id, 0))}
-                for skill_id in player.skills
-            ],
+            "skills": [self._skill_action_info(skill_id, player) for skill_id in player.skills],
+        }
+
+    def _skill_action_info(self, skill_id: str, player: Combatant) -> dict[str, Any]:
+        """Skill payload for the UI: cooldown + presentation/animation metadata.
+
+        ``role``/``tags`` let the web client pick icons and skill-specific
+        animations data-driven (see docs/plans/2026-06-06-combat-darkest-dungeon-
+        presentation.md) instead of hardcoding per skill id.
+        """
+        definition = self.skills_pool.get(skill_id, {}) or {}
+        return {
+            "id": skill_id,
+            "cooldown": int(player.cooldowns.get(skill_id, 0)),
+            "name": str(definition.get("name", skill_id)),
+            "role": definition.get("role"),
+            "tags": list(definition.get("tags", []) or []),
+            "cost": dict(definition.get("cost", {}) or {}),
+            "range": definition.get("range"),
         }
 
     def update_enemy_intents(self, state: CombatState) -> None:
@@ -309,20 +347,51 @@ class CombatEngine:
     ) -> None:
         melee = not weapon.is_ranged
         stat = attacker.stat("strength") if melee else attacker.stat("agility")
+
+        # 1. 고저차 연산
+        att_key = f"{attacker.x},{attacker.y}"
+        def_key = f"{defender.x},{defender.y}"
+        att_el = state.elevations.get(att_key, 0)
+        def_el = state.elevations.get(def_key, 0)
+        
+        el_bonus = 0
+        el_dmg = 0
+        if att_el > def_el:
+            el_bonus = 2
+            el_dmg = 1
+
+        # 2. 엄폐 연산 (원거리 사격 시 방어 가산)
+        cover_defense_bonus = 0
+        if weapon.is_ranged:
+            cover_type = state.covers.get(def_key, "none")
+            if cover_type == "half":
+                cover_defense_bonus = 3
+            elif cover_type == "full":
+                cover_defense_bonus = 6
+
         roll = dice.d20()
-        total = roll + stat + weapon.to_hit_bonus
+        total = roll + stat + weapon.to_hit_bonus + el_bonus
         crit = roll == 20
-        dc = defender.effective_defense
+        dc = defender.effective_defense + cover_defense_bonus
+
         if not crit and total < dc:
             self._log(
                 state,
                 attacker,
                 "miss",
                 f"{attacker.name}의 {weapon.name} 공격이 {defender.name}을(를) 빗나갔다.",
-                {"roll": roll, "total": total, "dc": dc, "target": defender.id},
+                {
+                    "roll": roll,
+                    "total": total,
+                    "dc": dc,
+                    "target": defender.id,
+                    "high_ground": att_el > def_el,
+                    "cover_applied": cover_defense_bonus > 0,
+                },
             )
             return
-        damage = dice.roll(weapon.damage) + (stat // 2 if melee else stat // 3)
+
+        damage = dice.roll(weapon.damage) + (stat // 2 if melee else stat // 3) + el_dmg
         damage = max(1, damage - max(0, defender.armor - weapon.armor_pen))
         if crit:
             damage *= 2
@@ -336,6 +405,8 @@ class CombatEngine:
             "target": defender.id,
             "target_hp": defender.hp,
             "target_max_hp": defender.max_hp,
+            "high_ground": att_el > def_el,
+            "cover_applied": cover_defense_bonus > 0,
         }
         if defender.hp <= 0:
             defender.alive = False
@@ -626,8 +697,42 @@ class CombatEngine:
             return None
         return min(candidates, key=lambda e: (distance(player.x, player.y, e.x, e.y), e.hp))
 
-    def _tick_player_round(self, player: Combatant) -> None:
-        """Per-round upkeep for the player: focus regen, cooldowns, expiring buffs."""
+    def _apply_hazard_effect(self, state: CombatState, combatant: Combatant, hazard_type: str) -> None:
+        dice = self._dice(state)
+        if hazard_type == "acid":
+            damage = max(1, dice.roll("1d4"))
+            combatant.hp = max(0, combatant.hp - damage)
+            combatant.defense = max(5, combatant.defense - 1)
+            self._log(
+                state,
+                combatant,
+                "info",
+                f"⚠️ {combatant.name}이(가) 산성 액체 지대에서 {damage} 피해를 입고 장갑이 부식됩니다! (방어력 -1)",
+                {"damage": damage, "hp": combatant.hp},
+            )
+        elif hazard_type == "electro":
+            damage = max(1, dice.roll("1d6"))
+            combatant.hp = max(0, combatant.hp - damage)
+            combatant.focus = 0
+            self._log(
+                state,
+                combatant,
+                "info",
+                f"⚠️ {combatant.name}이(가) 누전 지대에서 {damage} 전기 피해를 입고 기절(과부하)하여 집중력을 잃습니다!",
+                {"damage": damage, "hp": combatant.hp},
+            )
+        if combatant.hp <= 0:
+            combatant.alive = False
+            self._log(
+                state,
+                combatant,
+                "defeat",
+                f"💀 {combatant.name}이(가) 지형 위험 요소로 인해 쓰러졌습니다.",
+                {"target": combatant.id},
+            )
+
+    def _tick_player_round(self, state: CombatState, player: Combatant) -> None:
+        """Per-round upkeep for the player: focus regen, cooldowns, expiring buffs, terrain hazards."""
         if player.max_focus:
             player.focus = min(player.max_focus, player.focus + 1)
         for skill_id in list(player.cooldowns):
@@ -638,6 +743,12 @@ class CombatEngine:
             player.defense_buff_turns -= 1
             if player.defense_buff_turns <= 0:
                 player.defense_buff = 0
+
+        # Hazard check
+        key = f"{player.x},{player.y}"
+        hazard = state.hazards.get(key)
+        if hazard and player.alive:
+            self._apply_hazard_effect(state, player, hazard)
 
     # --- enemy / ally AI ------------------------------------------------
     def _run_opening(self, state: CombatState) -> None:
@@ -667,7 +778,7 @@ class CombatEngine:
             if i == player_idx:
                 state.round += 1
                 player.defending = False
-                self._tick_player_round(player)
+                self._tick_player_round(state, player)
                 state.turn_ptr = player_idx
                 return
             actor = state.by_id(state.order[i])
@@ -679,14 +790,14 @@ class CombatEngine:
             i = (i + 1) % n
 
     def _npc_turn(self, state: CombatState, actor: Combatant) -> None:
-        self._tick_npc_round(actor)
+        self._tick_npc_round(state, actor)
         if actor.faction == ENEMY:
             self._enemy_turn(state, actor)
         elif actor.faction == ALLY:
             self._ally_turn(state, actor)
 
-    def _tick_npc_round(self, actor: Combatant) -> None:
-        """Per-round upkeep for NPCs/Allies: focus regen, cooldowns, expiring buffs."""
+    def _tick_npc_round(self, state: CombatState, actor: Combatant) -> None:
+        """Per-round upkeep for NPCs/Allies: focus regen, cooldowns, expiring buffs, terrain hazards."""
         if actor.max_focus:
             actor.focus = min(actor.max_focus, actor.focus + 1)
         for skill_id in list(actor.cooldowns):
@@ -697,6 +808,12 @@ class CombatEngine:
             actor.defense_buff_turns -= 1
             if actor.defense_buff_turns <= 0:
                 actor.defense_buff = 0
+
+        # Hazard check
+        key = f"{actor.x},{actor.y}"
+        hazard = state.hazards.get(key)
+        if hazard and actor.alive:
+            self._apply_hazard_effect(state, actor, hazard)
 
     def _execute_npc_skill(
         self,
@@ -1039,11 +1156,17 @@ class CombatEngine:
         return any(c.alive and c.id != mover.id and c.x == x and c.y == y for c in state.combatants)
 
     def _weapon_in_range(
-        self, attacker: Combatant, defender: Combatant, weapon: Weapon | None
+        self, attacker: Combatant, defender: Combatant, weapon: Weapon | None, state: CombatState | None = None
     ) -> bool:
         if weapon is None:
             return False
-        return distance(attacker.x, attacker.y, defender.x, defender.y) <= weapon.effective_range
+        bonus_range = 0
+        if state is not None and weapon.is_ranged:
+            att_el = state.elevations.get(f"{attacker.x},{attacker.y}", 0)
+            def_el = state.elevations.get(f"{defender.x},{defender.y}", 0)
+            if att_el > def_el:
+                bonus_range = 1
+        return distance(attacker.x, attacker.y, defender.x, defender.y) <= (weapon.effective_range + bonus_range)
 
     def _select_weapon(self, combatant: Combatant, weapon_id: str | None) -> Weapon | None:
         if weapon_id is not None:

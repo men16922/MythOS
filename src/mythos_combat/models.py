@@ -114,6 +114,9 @@ class CombatState:
     rng_cursor: int = 0
     encounter_id: str | None = None
     enemy_intents: list[EnemyIntent] = field(default_factory=list)
+    elevations: dict[str, int] = field(default_factory=dict)
+    covers: dict[str, str] = field(default_factory=dict)
+    hazards: dict[str, str] = field(default_factory=dict)
 
     def by_id(self, combatant_id: str | None) -> Combatant | None:
         return next((c for c in self.combatants if c.id == combatant_id), None)

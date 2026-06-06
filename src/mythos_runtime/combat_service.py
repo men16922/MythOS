@@ -27,6 +27,7 @@ from mythos_combat import (
     loadout_for_archetype,
     narrate_since,
     render_radar,
+    serialize_combat_log,
 )
 from mythos_combat.models import Combatant, CombatState
 from mythos_core import LoopState
@@ -42,6 +43,12 @@ class CombatTurnResult:
     finished: bool
     outcome: str | None = None
     rewards: dict[str, Any] = field(default_factory=dict)
+    # Structured combat log + deterministic terrain for the web client's
+    # per-hit cinematic / board rendering (mirrors CombatState fields).
+    log: list[dict[str, Any]] = field(default_factory=list)
+    elevations: dict[str, int] = field(default_factory=dict)
+    covers: dict[str, str] = field(default_factory=dict)
+    hazards: dict[str, str] = field(default_factory=dict)
 
 
 class CombatService:
@@ -151,6 +158,12 @@ class CombatService:
         scenario_combat: dict[str, Any],
     ) -> CombatTurnResult:
         radar = render_radar(state)
+        log = serialize_combat_log(state.log)
+        terrain: dict[str, Any] = {
+            "elevations": dict(state.elevations),
+            "covers": dict(state.covers),
+            "hazards": dict(state.hazards),
+        }
         if state.active:
             return CombatTurnResult(
                 loop=loop,
@@ -158,6 +171,8 @@ class CombatService:
                 radar=radar,
                 available=self.engine.available_actions(state),
                 finished=False,
+                log=log,
+                **terrain,
             )
         loop, rewards = self._finish(loop, state, scenario_combat)
         return CombatTurnResult(
@@ -168,6 +183,8 @@ class CombatService:
             finished=True,
             outcome=state.outcome,
             rewards=rewards,
+            log=log,
+            **terrain,
         )
 
     def _finish(

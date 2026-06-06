@@ -4,7 +4,7 @@ from collections.abc import Iterator
 from dataclasses import dataclass, replace
 from typing import TYPE_CHECKING, Any
 
-from mythos_combat import PlayerAction, render_radar
+from mythos_combat import PlayerAction, render_radar, serialize_combat_log
 from mythos_core import (
     Echo,
     LoopPhase,
@@ -914,6 +914,10 @@ class RuntimeSessionService:
                 "outcome": result.outcome,
                 "rewards": result.rewards,
                 "summary": _combat_summary(result),
+                "log": result.log,
+                "elevations": result.elevations,
+                "covers": result.covers,
+                "hazards": result.hazards,
             },
             clues_collected=self._clues_collected(player.player_id),
         )
@@ -960,6 +964,10 @@ class RuntimeSessionService:
             "outcome": state.outcome,
             "rewards": rewards,
             "summary": _combat_summary_from_state(state),
+            "log": serialize_combat_log(state.log),
+            "elevations": dict(state.elevations),
+            "covers": dict(state.covers),
+            "hazards": dict(state.hazards),
         }
 
     def _resolved_ending_state(

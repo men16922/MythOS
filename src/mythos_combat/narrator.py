@@ -65,6 +65,26 @@ def render_radar(state: CombatState) -> dict[str, Any]:
     }
 
 
+def serialize_combat_log(entries: list[CombatLogEntry]) -> list[dict[str, Any]]:
+    """Plain-dict combat log for the web client.
+
+    The React client diffs ``prev.log`` → ``next.log`` to drive per-hit
+    cinematics and board animation, so the structured entries (round/actor/
+    action/detail) must survive serialization, not just the rendered prose.
+    """
+    return [
+        {
+            "round": entry.round,
+            "actor": entry.actor,
+            "actor_name": entry.actor_name,
+            "action": entry.action,
+            "text": entry.text,
+            "detail": entry.detail,
+        }
+        for entry in entries
+    ]
+
+
 def narrate_since(state: CombatState, since_index: int) -> str:
     """Render log entries from ``since_index`` onward into Korean prose."""
     entries = state.log[since_index:]
@@ -113,4 +133,10 @@ def _pick(dice: Dice, options: list[str]) -> str:
     return str(dice.choice(options))
 
 
-__all__ = ["render_radar", "narrate_since", "narrate_entries", "narrate_outcome"]
+__all__ = [
+    "render_radar",
+    "serialize_combat_log",
+    "narrate_since",
+    "narrate_entries",
+    "narrate_outcome",
+]

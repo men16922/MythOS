@@ -40,6 +40,7 @@ interface Attack {
   melee: boolean;
   color: string;
   skill: boolean;
+  hitStopTriggered?: boolean;
 }
 
 function partySide(faction: string): "enemy" | "party" {
@@ -149,7 +150,7 @@ export class CombatAnimator {
     };
 
     const computeOverlay = (t: number): CombatOverlay => {
-      const overlay: CombatOverlay = { blips: {}, floats: [], fx: [] };
+      const overlay: CombatOverlay = { blips: {}, floats: [], fx: [], shakeX: 0, shakeY: 0 };
       const ovFor = (id: string) => overlay.blips![id] || (overlay.blips![id] = {});
 
       for (const s of sched) {
@@ -211,15 +212,12 @@ export class CombatAnimator {
         }
       }
 
-      // Attacker effects: drawn after move tweens so they reference live
-      // positions. Melee attackers lunge toward the target; ranged attackers
-      // fire a tracer; a skill cast adds a ring on the attacker.
+      // Attacker & Defender effects
       for (const atk of attacks) {
         const winEnd = atk.impactAt + 150;
         if (t < atk.start || t > winEnd) continue;
         const [ax, ay] = curPos(overlay, atk.aId);
         const [tx, ty] = curPos(overlay, atk.tId);
-        // 0 → 1 (wind-up to impact) → 0 (recover)
         const lead = Math.max(1, atk.impactAt - atk.start);
         const pulse =
           t <= atk.impactAt
@@ -227,7 +225,6 @@ export class CombatAnimator {
             : 1 - clamp01((t - atk.impactAt) / 150);
 
         if (atk.melee) {
-          // Lunge the attacker ~0.4 cell toward the target and back.
           const dx = tx - ax;
           const dy = ty - ay;
           const len = Math.hypot(dx, dy) || 1;
@@ -248,6 +245,23 @@ export class CombatAnimator {
             width: atk.skill ? 2.6 : 1.8,
           });
         }
+
+        // Stagger the target on impact: 150ms starting from impactAt
+        if (t >= atk.impactAt) {
+          const stagDur = 150;
+          const stagProgress = clamp01((t - atk.impactAt) / stagDur);
+          const stagPulse = Math.sin(stagProgress * Math.PI); // 0 -> 1 -> 0
+          const dx = tx - ax;
+          const dy = ty - ay;
+          const len = Math.hypot(dx, dy) || 1;
+          const tOv = ovFor(atk.tId);
+          if (tOv.cellX == null) tOv.cellX = tx;
+          if (tOv.cellY == null) tOv.cellY = ty;
+          const pushAmt = (atk.skill ? 0.32 : 0.18) * stagPulse;
+          tOv.cellX += (dx / len) * pushAmt;
+          tOv.cellY += (dy / len) * pushAmt;
+        }
+
         if (atk.skill && t < atk.start + 320) {
           const cp = clamp01((t - atk.start) / 320);
           overlay.fx!.push({
@@ -262,13 +276,56 @@ export class CombatAnimator {
         }
       }
 
+      // Screen shake calculation
+      let shakeX = 0;
+      let shakeY = 0;
+      for (const atk of attacks) {
+        if (t >= atk.impactAt && t < atk.impactAt + 240) {
+          const age = t - atk.impactAt;
+          const ratio = 1 - age / 240;
+          const amp = (atk.skill ? 8.5 : 4.5) * ratio;
+          shakeX += Math.sin(age * 0.18) * amp;
+          shakeY += Math.cos(age * 0.22) * amp;
+        }
+      }
+      overlay.shakeX = shakeX;
+      overlay.shakeY = shakeY;
+
       return overlay;
     };
 
-    const t0 = performance.now();
+    let lastTime = performance.now();
+    let accumT = 0;
+    let hitStopRemaining = 0;
     this.animating = true;
+
     const frame = (): void => {
-      const t = performance.now() - t0;
+      const now = performance.now();
+      let dt = now - lastTime;
+      lastTime = now;
+
+      // Hit-stop logic: freeze timeline progress
+      if (hitStopRemaining > 0) {
+        hitStopRemaining -= dt;
+        if (hitStopRemaining < 0) {
+          dt = -hitStopRemaining;
+          hitStopRemaining = 0;
+        } else {
+          dt = 0;
+        }
+      }
+
+      accumT += dt;
+      const t = accumT;
+
+      // Trigger hit-stop on impact
+      for (const atk of attacks) {
+        if (!atk.hitStopTriggered && t >= atk.impactAt) {
+          atk.hitStopTriggered = true;
+          hitStopRemaining = atk.skill ? 55 : 35; // Brief freeze (55ms / 35ms)
+        }
+      }
+
       sfx.forEach((tr) => {
         if (!tr.fired && t >= tr.at) {
           tr.fired = true;

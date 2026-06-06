@@ -23,7 +23,13 @@ from .models import (
     combat_state_from_dict,
     combat_state_to_dict,
 )
-from .narrator import narrate_entries, narrate_outcome, narrate_since, render_radar
+from .narrator import (
+    narrate_entries,
+    narrate_outcome,
+    narrate_since,
+    render_radar,
+    serialize_combat_log,
+)
 
 __all__ = [
     "CombatEngine",
@@ -41,6 +47,7 @@ __all__ = [
     "build_encounter",
     "loadout_for_archetype",
     "render_radar",
+    "serialize_combat_log",
     "narrate_since",
     "narrate_entries",
     "narrate_outcome",

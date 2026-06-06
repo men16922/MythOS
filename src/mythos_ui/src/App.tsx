@@ -35,13 +35,25 @@ import type {
   AssetInfo,
   CombatAction,
   CombatState,
+  CombatBlip,
+  CombatLogEntry,
 } from "./types";
 import { drawCombatCanvas, combatCellFromPoint } from "./combatCanvas";
 import type { CombatDragOverlay } from "./combatCanvas";
 import { CombatAnimator, prefersReducedMotion } from "./combatEffects";
+import { CombatCinema } from "./CombatCinema";
 import { LS_KEY, parseResumeSession } from "./sessionStorage";
 import type { ResumeSessionData } from "./sessionStorage";
 import { buildCodexLists, buildDevConsoleData } from "./viewModels";
+
+interface CombatCinemaContext {
+  attacker: CombatBlip;
+  defender: CombatBlip;
+  damage: number;
+  crit: boolean;
+  skillName?: string;
+  miss?: boolean;
+}
 
 export default function App() {
   // --- Connection / Onboarding State ---
@@ -108,6 +120,9 @@ export default function App() {
   // --- Combat Control State ---
   const [combatTarget, setCombatTarget] = useState<string | null>(null);
   const [combatLog, setCombatLog] = useState<string>("");
+  const [cinemaContext, setCinemaContext] = useState<CombatCinemaContext | null>(null);
+  const [cinemaQueue, setCinemaQueue] = useState<CombatCinemaContext[]>([]);
+  const pendingTransitionRef = useRef<{ prev: CombatState; next: CombatState } | null>(null);
 
   // Canvas Ref
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -793,6 +808,41 @@ export default function App() {
     const dispatched = dispatchedActionRef.current;
     dispatchedActionRef.current = null;
     if (prev && prev !== combat) {
+      const newLogs = (combat.log ?? []).slice(prev.log?.length ?? 0);
+      const combatHits = newLogs.filter((entry: CombatLogEntry) => ["hit", "defeat", "miss"].includes(entry.action));
+
+      if (combatHits.length > 0 && !fallbackMode && !prefersReducedMotion()) {
+        const queueItems: CombatCinemaContext[] = [];
+        combatHits.forEach((entry: CombatLogEntry) => {
+          const attackerBlip = combat.radar.blips.find((b) => b.id === entry.actor);
+          const targetId = entry.detail?.target;
+          const defenderBlip = combat.radar.blips.find((b) => b.id === targetId);
+
+          if (attackerBlip && defenderBlip) {
+            const isPlayerActor = entry.actor === combat.radar.blips.find(b => b.faction === "player" || b.faction === "ally")?.id;
+            const skillName = entry.detail?.skill_name || (isPlayerActor && dispatched?.type === "skill" ? dispatched.skill_id : undefined);
+
+            queueItems.push({
+              attacker: attackerBlip,
+              defender: defenderBlip,
+              damage: entry.detail?.damage || 0,
+              crit: !!entry.detail?.crit,
+              skillName,
+              miss: entry.action === "miss",
+            });
+          }
+        });
+
+        if (queueItems.length > 0) {
+          pendingTransitionRef.current = { prev, next: combat };
+          setCinemaQueue(queueItems);
+          setCinemaContext(queueItems[0]);
+
+          prevCombatRef.current = combat;
+          return;
+        }
+      }
+
       animator.animate(prev, combat, {
         dispatched,
         instant: fallbackMode || prefersReducedMotion(),
@@ -1033,6 +1083,60 @@ export default function App() {
             onLoad={handleResumeGame}
           />
         </main>
+      )}
+
+      {cinemaContext && (
+        <CombatCinema
+          key={`${cinemaContext.attacker.id}->${cinemaContext.defender.id}#${cinemaQueue.length}`}
+          attacker={cinemaContext.attacker}
+          defender={cinemaContext.defender}
+          damage={cinemaContext.damage}
+          crit={cinemaContext.crit}
+          skillName={cinemaContext.skillName}
+          miss={cinemaContext.miss}
+          onImpact={(defenderId, dmg) => {
+            if (!pendingTransitionRef.current) return;
+            const { prev } = pendingTransitionRef.current;
+            if (!prev || !prev.radar || !prev.radar.blips) return;
+
+            const tempCombat = {
+              ...prev,
+              radar: {
+                ...prev.radar,
+                blips: prev.radar.blips.map((b) => {
+                  if (b.id === defenderId) {
+                    const nextHp = Math.max(0, b.hp - dmg);
+                    return {
+                      ...b,
+                      hp: nextHp,
+                      hp_ratio: b.max_hp ? nextHp / b.max_hp : 0,
+                    };
+                  }
+                  return b;
+                }),
+              },
+            };
+            animatorRef.current?.drawStatic(tempCombat);
+          }}
+          onFinish={() => {
+            const nextQueue = cinemaQueue.slice(1);
+            setCinemaQueue(nextQueue);
+            if (nextQueue.length > 0) {
+              setCinemaContext(nextQueue[0]);
+            } else {
+              setCinemaContext(null);
+              if (pendingTransitionRef.current) {
+                const { prev: p, next: n } = pendingTransitionRef.current;
+                pendingTransitionRef.current = null;
+                animatorRef.current?.animate(p, n, {
+                  dispatched: null,
+                  instant: false,
+                  onSfx: playSfx,
+                });
+              }
+            }
+          }}
+        />
       )}
     </>
   );

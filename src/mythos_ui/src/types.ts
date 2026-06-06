@@ -128,6 +128,13 @@ export interface CombatTargetInfo {
 export interface CombatSkillInfo {
   id: string;
   cooldown: number;
+  // Presentation/animation metadata (Phase 0). role/tags drive icon + skill
+  // animation selection on the client; absent for legacy payloads.
+  name?: string;
+  role?: string;
+  tags?: string[];
+  cost?: Record<string, number | string>;
+  range?: number;
 }
 
 export interface CombatAvailableActions {
@@ -139,11 +146,32 @@ export interface CombatAvailableActions {
   reachable?: [number, number][];
 }
 
+export interface CombatLogDetail {
+  target?: string;
+  damage?: number;
+  crit?: boolean;
+  skill_name?: string;
+  [key: string]: unknown;
+}
+
+export interface CombatLogEntry {
+  round: number;
+  actor: string;
+  actor_name: string;
+  action: string;
+  text: string;
+  detail: CombatLogDetail;
+}
+
 export interface CombatState {
   finished: boolean;
   outcome?: "player_victory" | "player_fled" | "player_defeat" | string;
   radar: CombatRadar;
   available?: CombatAvailableActions;
+  elevations?: Record<string, number>;
+  covers?: Record<string, string>;
+  hazards?: Record<string, string>;
+  log?: CombatLogEntry[];
 }
 
 export interface CombatAction {

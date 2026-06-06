@@ -68,6 +68,10 @@ def run_test():
             browser = p.chromium.launch(headless=True)
             page = browser.new_page()
 
+            # Listen to browser console and errors
+            page.on("pageerror", lambda exc: print(f"❌ JavaScript Page Error: {exc}", file=sys.stderr))
+            page.on("console", lambda msg: print(f"ℹ️ Browser Console [{msg.type}]: {msg.text}"))
+
             print(f"Navigating to {APP_URL}...")
             page.goto(APP_URL)
 

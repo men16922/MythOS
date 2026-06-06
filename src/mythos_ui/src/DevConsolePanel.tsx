@@ -14,6 +14,13 @@ const activeEndingStyle: CSSProperties = {
   fontWeight: "bold",
 };
 const inactiveEndingStyle: CSSProperties = { color: "#6b7280" };
+const devPanelStyle: CSSProperties = { maxWidth: "392px" };
+const devStackStyle: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "8px",
+  maxWidth: "360px",
+};
 
 // 로컬 인프라 콘솔 링크 (Streamlit Developer 사이드바 패리티).
 // 브라우저 호스트 기준으로 URL을 만들어 원격 접속 시에도 동작.
@@ -27,18 +34,13 @@ const INFRA_LINKS: { label: string; port: number; desc: string }[] = [
 function InfraLinks() {
   const host = window.location.hostname || "localhost";
   return (
-    <div className="panel">
+    <div className="panel" style={devPanelStyle}>
       <div className="cc-label" style={{ marginBottom: "10px" }}>
         로컬 인프라 콘솔 (Local Infrastructure)
       </div>
       <div
         className="infra-links"
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "8px",
-          maxWidth: "360px",
-        }}
+        style={devStackStyle}
       >
         {INFRA_LINKS.map((l) => (
           <a
@@ -66,7 +68,7 @@ export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
   return (
     <div id="dev-tab-content">
       <InfraLinks />
-      <div className="panel" style={{ maxWidth: "720px" }}>
+      <div className="panel" style={devPanelStyle}>
         <h2
           style={{
             color: "var(--term)",
@@ -82,11 +84,8 @@ export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
         </div>
         <div
           style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "8px",
+            ...devStackStyle,
             marginBottom: "20px",
-            maxWidth: "360px",
           }}
         >
           {Object.entries(data.scores).map(([key, value], idx) => {
@@ -132,7 +131,7 @@ export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
 
         <div
           className="codex-grid"
-          style={{ gridTemplateColumns: "1fr", maxWidth: "720px" }}
+          style={{ gridTemplateColumns: "1fr", maxWidth: "360px" }}
         >
           <div className="codex-sec">
             <div className="codex-sec-title">

@@ -87,9 +87,11 @@ Vite + React + TS SPA 기반의 독자적인 프론트엔드 포팅 및 Playwrig
   2. 워커 **종료 안정성**은 보강 완료: heartbeat owner token 유지, 종료 시 lock release, Postgres pool 명시 close, SIGTERM 검증 완료. 다만 txt2img(Flux1) + Redux(Flux1Redux) 동시 로드 시 스왑/멈춤 재발 여부(이전 멈춤 이력)는 장기 플레이 모니터 필요.
   3. ~~**visual-work 자동 삭제** 실 워커 경로 동작 확인, **512 이미지 속도** 라이브 재확인~~ 완료: 작업본 삭제 및 Redux cold 17.3s 확인.
   4. ~~**`make test-e2e` 재실행**~~ 완료: 부트 인트로/세션 시네마틱 dismiss 및 fallback/no-image E2E 모드로 통과 확인.
-  5. `docs/play-checklist.md` 수동 QA 진행 중: 기본 접속/이어하기/기록 오버레이/행동 기록/텍스트 속도/이미지 속도는 확인 완료. Dev 탭 균형 레이아웃, 전투 드래그&드롭, 패배→메인, CHARACTER 포트레이트 분기, 오프닝 연속성은 추가 확인 필요.
-  6. 파티 조작 2단계 구현(`docs/plans/2026-06-06-party-controllable-allies.md`, 설계 승인 시).
-  7. 다중 시나리오(`glass-library`) 스크립트 및 Story Bible 확장.
+  5. ~~`docs/play-checklist.md` 수동 QA~~ 완료: 기본 접속/이어하기/기록 오버레이/행동 기록/텍스트 속도/이미지 속도/Dev 탭 균형 레이아웃/전투 드래그&드롭/패배→메인/CHARACTER 포트레이트 분기/오프닝 연속성 전 항목 확인.
+  6. 전투 이펙트 개선(시각적) — `docs/plans/2026-06-06-combat-visual-effects.md`. 스냅샷 diff→rAF 애니메이션 큐로 이동/공격/피격/사망/스킬(role·tags) 연출 + SFX 동기. 승인 게이트 없음, 선행 착수 가능(Phase 1).
+  7. 진행도 해금: 아키타입·스킬·Codex Skill 트리 — `docs/plans/2026-06-06-progression-skills-archetypes.md`. 하이브리드 모델(깨달음 이벤트 해금 + 통찰 포인트 트리 투자). Ghost만 시작·진행도 해금, Ghost+세린=첫 튜토리얼→이후 시나리오, 캐릭터 맞춤 기본 스킬. `meta_progression` 버킷 확장.
+  8. 파티 조작 2단계 구현(`docs/plans/2026-06-06-party-controllable-allies.md`, 설계 승인 시).
+  9. 다중 시나리오(`glass-library`) 스크립트 및 Story Bible 확장.
 
 ## Completed Tracks
 

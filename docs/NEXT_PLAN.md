@@ -33,27 +33,35 @@
 
 ### 다음 수행/검증 필요 (2026-06-06 QA 후속) — ★ 활성
 
-세션 2 UX·비주얼·전투 배치와 후속 E2E/Redux/worker cleanup/dev-up/Dev 탭 UI 개선 작업은 커밋 정리까지 완료됐다. 라이브 검증 핵심 항목은 대부분 완료됐고, 다음 우선순위는 남은 수동 QA와 파티 조작 2단계다.
+세션 2 UX·비주얼·전투 배치와 후속 E2E/Redux/worker cleanup/dev-up/Dev 탭 UI 개선 작업은 커밋 정리까지 완료됐다. 수동 QA까지 전부 통과했고, 다음 우선순위는 파티 조작 2단계와 glass-library 확장이다.
 
 정리/릴리즈:
 - `[x]` **누적 변경분 커밋 정리**: 세션 2 UX·비주얼·전투 배치, E2E 게이트 복구, Redux worker 실검증/cleanup, Dev 인프라 링크/`make dev-up`, `.codex/.mcp.json`, QA UI fix까지 기능 단위 커밋 완료.
-- `[/]` **수동 QA 실행**: `docs/play-checklist.md` 기준 실제 React/API/worker/Ollama 경로 검증 진행 중. 기본 접속, 이어하기, 서사 기록/행동 기록, 텍스트 스트리밍, 이미지 생성 속도는 통과. Dev 탭 2열 균형 레이아웃은 수정 후 재확인 필요.
+- `[x]` **수동 QA 실행**: `docs/play-checklist.md` 기준 실제 React/API/worker/Ollama 경로 검증 완료. 기본 접속, 이어하기, 서사 기록/행동 기록, 텍스트 스트리밍, 이미지 생성 속도, Dev 탭 2열 균형 레이아웃, 전투 드래그&드롭, 패배→메인, CHARACTER 포트레이트 분기, 오프닝 연속성까지 전 항목 통과.
 
 라이브 검증(인프라 가동 필요 — `make infra-up` + visual worker + Ollama):
 - `[x]` **Redux 얼굴 일관성 실 파이프라인**: 세린 캐릭터 장면을 worker queue로 처리해 Redux(strength 0.9, portrait 레퍼런스) metadata가 기록되고 MinIO `s3://mythos-assets/...` 저장 및 presigned PNG GET 200 확인.
 - `[/]` **워커 메모리/종료 모니터**: Redux 단독 512×512/4-step job은 성공(모델 로드 포함 17.3s, provider 17.1s). worker 종료 cleanup은 heartbeat owner token 유지, SIGTERM/KeyboardInterrupt lock release, Postgres pool 명시 close로 보강했고 빈 queue worker SIGTERM 검증 통과. txt2img(Flux1)+Redux(Flux1Redux) 동시 적재 스왑/멈춤 재발 여부는 아직 장기 플레이로 추가 확인 필요.
 - `[x]` **visual-work 자동 삭제** 실 워커 경로 동작 확인(업로드 후 `outputs/visual-work/<loop>/<scene>.png` 및 빈 loop dir 제거), **512 이미지 속도** 라이브 재측정(Redux cold 17.3s).
-- `[ ]` **오프닝 연속성** 라이브 LLM 재확인(turn 0~2가 비 오는 C-17/세린으로 이어지고 변전소로 리셋되지 않음).
+- `[x]` **오프닝 연속성** 라이브 LLM 재확인 완료(turn 0~2가 비 오는 C-17/세린으로 이어지고 변전소로 리셋되지 않음).
 
 자동/회귀:
 - `[x]` **`make test-e2e` 재실행**: 부트 인트로/세션 시네마틱 dismiss 단계와 fallback/no-image E2E URL 모드를 반영한 `run_playwright_test.py`로 통과 확인. 실패 시 non-zero exit와 `outputs/e2e_failure.png` 진단 스크린샷을 남기도록 보강.
 
 수동 QA(`docs/play-checklist.md` 신규 항목):
 - `[x]` 기본 접속/부트 오프닝, 이어하기, 서사 기록 오버레이/직전 1개 인라인, 장면별 "내 행동" 표시, 텍스트 스트리밍 속도, 이미지 생성 속도.
-- `[/]` Dev 탭 UI: 로컬 인프라 콘솔 세로 배치 확인, 개발자 콘솔은 동일 폭 2열 카드 레이아웃으로 개선 후 재확인 필요.
-- `[ ]` 전투 드래그&드롭, 전투 패배→메인 화면 버튼, CHARACTER 포트레이트 분기(대화상대 등장), 오프닝 연속성 라이브 LLM 재확인.
+- `[x]` Dev 탭 UI: 로컬 인프라 콘솔 세로 배치 확인, 개발자 콘솔 동일 폭 2열 카드 레이아웃 재확인 완료.
+- `[x]` 전투 드래그&드롭, 전투 패배→메인 화면 버튼, CHARACTER 포트레이트 분기(대화상대 등장), 오프닝 연속성 라이브 LLM 재확인 완료.
 
-다음 구현:
+다음 구현 (우선순위 순):
+- `[ ]` **전투 이펙트 개선 (시각적)** — `docs/plans/2026-06-06-combat-visual-effects.md`. 클라이언트 스냅샷 diff → rAF 애니메이션 큐로 이동/공격/피격/사망/**스킬(role·tags 기반)** 연출 + SFX 임팩트 동기. 백엔드 무변경(Phase 1), instant/reduced-motion 경로로 E2E 보호. **승인 게이트 없음 — 선행 착수 가능.**
+  - `[ ]` Phase 1: rAF 루프 + `combatDiff` + 이동/데미지/힐 트윈 + role 기반 스킬 임팩트 + SFX 동기.
+  - `[ ]` Phase 2: 공격 lunge/슬래시·임팩트 파티클·사망 디졸브·hit-stop·스크린 셰이크(파티 조작 2단계 이후 권장).
+  - `[ ]` Phase 3(선택): 백엔드 전투 이벤트 로그(crit/miss/multi-hit 정밀 연출).
+- `[ ]` **진행도 해금: 아키타입·스킬·Codex Skill 트리** — `docs/plans/2026-06-06-progression-skills-archetypes.md`. **확정 모델: 하이브리드**(깨달음 이벤트가 스킬 해금 → 통찰 포인트로 Codex 트리에서 습득/강화). Ghost만 시작·나머지 아키타입 진행도 해금, Ghost+세린 오프닝=첫 튜토리얼→이후 시나리오 개방, 캐릭터 맞춤 기본 스킬→이벤트 획득. 기존 `meta_progression` 버킷 확장.
+  - `[ ]` Phase 1: 아키타입 해금 게이트 + base/learned 스킬 필터(`combat_service`) + Codex Skill 탭(효과 표시·이벤트 해금만).
+  - `[ ]` Phase 2: 통찰 포인트 + 스킬트리 투자(습득/강화 엔드포인트, 선행 노드 게이팅).
+  - `[ ]` Phase 3: 깨달음 서사 연출 + 시나리오 간 진행 개방 UX.
 - `[ ]` **파티 조작 2단계** 구현: `docs/plans/2026-06-06-party-controllable-allies.md`(파티원=플레이어 조작 / 우호적 비파티=AI 동맹). 전투 엔진·UI 리팩터 — 설계 승인 시 단계별 PR.
 - `[ ]` `glass-library` Story Bible/시나리오 스크립트 확장 및 멀티 시나리오 회귀 플레이.
 

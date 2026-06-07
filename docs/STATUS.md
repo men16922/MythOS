@@ -27,9 +27,22 @@ Repo hygiene (2026-06-07):
 - `session.py` 1878→1349줄: `narrative_rollup.py`/`loop_scoring.py`/`combat_session_helpers.py`/`constants.py`로 책임 분리(공개 API·import 경로 호환 유지). `scratch/`는 재사용 에셋 파이프라인이라 root 유지.
 - 문서 정리: `ADULT_VISUAL_POLICY.md`→`IMAGE_POLICY.md`(이미지 파이프라인 실무 가이드), `bin/reference.md`→`docs/REFERENCES.md`(디자인 레퍼런스).
 
+Progression Phase 2·3 (2026-06-07):
+
+- Phase 2: 통찰 포인트 적립(run+2/clue+1/win+1), `GET/POST /api/v1/players/{id}/skills` 트리/투자 API, Codex 습득/강화 버튼, tier(requires) 선행 게이팅. 전투 가용 스킬은 archetype base + learned만.
+- Phase 3: 깨달음 알림 배너(최근 런 신규 해금 스킬, localStorage 1회 dismiss), 시나리오 간 해금 게이팅(`scenario.unlock`; Neo-Seoul 기본 해금, glass-library는 튜토리얼 완료 시).
+
+Scenario Expansion / 데이터 주도 진행도 (2026-06-07):
+
+- 진행도 grant를 scenario.json 데이터 주도로 전환(`archetypes[].unlock`·`combat.skills[].epiphany`+`combat.epiphanies`). 깨달음은 해금만(자동 습득 제거)→통찰 습득과 일관. 시나리오 교차 오염 + `load_scenario` lru_cache 오염 버그 수정. glass-library를 progression/presentation 패리티(base_skills/archetype_base_skills/epiphanies/ui_copy)로 보강.
+
+Controllable Party Allies (2026-06-07):
+
+- 전투 턴 루프를 controllable-actor stop으로 일반화. `_party.members` 소속 동료는 플레이어가 직접 조작(턴에서 정지, active actor 기준 행동), flag 해금 비파티 동맹은 AI 유지. 패배 판정 = 조작 가능 유닛 전멸. UI는 현재 차례(플레이어/동료) 표시.
+
 Recent verified baseline recorded in docs:
 
-- `make test`: 203 tests, 2 skipped (전투 연출/아트/리팩토링 일체 커밋 완료).
+- `make test`: 223 tests, 2 skipped.
 - frontend lint/build clean, `tests/playwright/test_e2e_play_checklist.py` green (refactored 서버 기동 포함).
 - Redux worker live path: Redis queue -> mflux Redux -> MinIO -> presigned PNG GET 200.
 - Combat assets: party 3인 + 적 4종(`enforcer-unit`/`glitch-wraith`/`maintenance-drone`/`sentinel-drone`) `idle/attack/guard/skill/hit` 35종 `RGBA 512x768`, skill icon 5종.
@@ -39,9 +52,9 @@ Recent verified baseline recorded in docs:
 권위 계획: `docs/NEXT_PLAN.md`.
 
 1. **Combat presentation upgrade**: 기본 지도 섬네일은 유지하고, CombatCinema 전신 action pose 파이프라인을 기준으로 표시 위치/스케일/타이밍 polish.
-2. **Progression skills/archetypes**: Ghost-only start, archetype unlock gates, base/learned skill filtering, Codex Skill tab.
-3. **Controllable party allies**: party members become player-controllable; friendly non-party allies remain AI-driven.
-4. **Scenario expansion**: `glass-library` Story Bible and script depth.
+2. **Progression skills/archetypes**: Phase 1·2·3 완료(아키타입 게이트, base/learned 필터, Codex 통찰 투자 트리, 깨달음 배너, 시나리오 간 해금). 다음 신규 트랙은 Priority 3.
+3. ~~**Controllable party allies**~~: 완료(파티원 직접 조작, 비파티 동맹 AI 유지).
+4. **Scenario expansion**: glass-library 진행도/프레젠테이션 패리티 완료. 남은 것은 서사(arcs/endings/Story Bible) 깊이 + 전투 아트 확장.
 
 ## Open Risks
 

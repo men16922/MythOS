@@ -5,6 +5,7 @@ import unittest
 from mythos_combat import (
     CombatEngine,
     PlayerAction,
+    build_ally_combatant,
     build_encounter,
     build_enemy_combatant,
     build_player_combatant,
@@ -693,6 +694,71 @@ class CombatNarratorTest(unittest.TestCase):
 
         skill_logs = [e for e in state.log if e.action == "skill" and e.actor == "kai"]
         self.assertTrue(len(skill_logs) > 0)
+
+
+class ControllableAllyTest(unittest.TestCase):
+    def _ally(self, *, controllable: bool) -> Combatant:
+        entry = {
+            "id": "kai",
+            "name": "카이",
+            "hp": 18,
+            "defense": 12,
+            "speed": 3,
+            "stats": {"strength": 8, "agility": 3, "perception": 5},
+            "weapons": ["claw"],
+            "ai": "melee",
+            "skills": [],
+        }
+        return build_ally_combatant(
+            entry=entry, weapons_pool=WEAPONS, x=1, y=1, controllable=controllable
+        )
+
+    def test_controllable_party_member_waits_for_input(self) -> None:
+        engine = CombatEngine()
+        ally = self._ally(controllable=True)
+        state = engine.start([_player(0, 0), ally], [_drone(x=7, y=5, hp=40)], seed="ctrl")
+        state.order = ["player", "kai", "drone"]
+        state.turn_ptr = 0
+
+        state = engine.take_player_turn(state, PlayerAction(type="defend"))
+
+        actor = state.active_actor()
+        self.assertIsNotNone(actor)
+        assert actor is not None
+        self.assertEqual(actor.id, "kai")
+        actions = engine.available_actions(state)
+        self.assertTrue(actions["can_act"])
+        self.assertEqual(actions["active_actor_id"], "kai")
+        self.assertFalse(actions["is_player"])
+
+    def test_party_member_cannot_flee(self) -> None:
+        engine = CombatEngine()
+        ally = self._ally(controllable=True)
+        state = engine.start([_player(0, 0), ally], [_drone(x=7, y=5, hp=40)], seed="noflee")
+        state.order = ["player", "kai", "drone"]
+        state.turn_ptr = 0
+        state = engine.take_player_turn(state, PlayerAction(type="defend"))
+        self.assertEqual(state.active_actor().id, "kai")  # type: ignore[union-attr]
+
+        # Flee is rejected for party members: turn is not consumed, still kai's turn.
+        state = engine.take_player_turn(state, PlayerAction(type="flee"))
+        self.assertEqual(state.active_actor().id, "kai")  # type: ignore[union-attr]
+        self.assertNotEqual(state.outcome, "player_fled")
+
+    def test_ai_ally_auto_resolves_turn(self) -> None:
+        engine = CombatEngine()
+        ally = self._ally(controllable=False)
+        state = engine.start([_player(0, 0), ally], [_drone(x=2, y=1, hp=40)], seed="aiAlly")
+        state.order = ["player", "kai", "drone"]
+        state.turn_ptr = 0
+
+        state = engine.take_player_turn(state, PlayerAction(type="defend"))
+
+        actor = state.active_actor()
+        self.assertIsNotNone(actor)
+        assert actor is not None
+        self.assertEqual(actor.id, "player")  # control returns to the player
+        self.assertTrue(any(e.actor == "kai" for e in state.log))  # ally acted via AI
 
 
 if __name__ == "__main__":

@@ -1,4 +1,5 @@
 import gc
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -8,9 +9,11 @@ import scipy.io.wavfile as wav
 SR = 22050  # Sampling rate
 OUT_DIR = Path("resources/neo-seoul/audio")
 SFX_DIR = OUT_DIR / "sfx"
+SKILL_SFX_DIR = SFX_DIR / "skills"
 
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 SFX_DIR.mkdir(parents=True, exist_ok=True)
+SKILL_SFX_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # Helper: Lo-Fi/Bitcrush effect to apply over sound waves with Peak Limiter
@@ -44,6 +47,23 @@ def apply_lofi_effect(data, bit_depth=5, hiss_level=0.03, lowpass_window=2):
         data = data / new_max
 
     return data
+
+
+def apply_impact_punch(data, rate, sub_gain=0.14, transient_gain=1.8, transient_ms=70):
+    data = np.asarray(data, dtype=np.float32)
+    if len(data) == 0:
+        return data
+
+    transient_len = min(len(data), int(rate * transient_ms / 1000))
+    if transient_len > 0:
+        punch_env = np.ones_like(data)
+        punch_env[:transient_len] = np.linspace(transient_gain, 1.0, transient_len)
+        data = data * punch_env
+
+    t = np.arange(len(data), dtype=np.float32) / rate
+    sub = np.sin(2 * np.pi * 62 * t) * np.exp(-22 * t) * sub_gain
+    click = np.random.uniform(-1.0, 1.0, len(data)) * np.exp(-55 * t) * 0.05
+    return data + sub + click
 
 
 def save_wav(filename, data, rate=SR):
@@ -331,7 +351,7 @@ def synth_bgm_crisis():
 # --- AI GENERATION WITH FALLBACK ---
 
 
-def generate_sfx_with_ai():
+def generate_sfx_with_ai(task_names=None):
     import torch
 
     device = "mps" if torch.backends.mps.is_available() else "cpu"
@@ -347,20 +367,24 @@ def generate_sfx_with_ai():
     # We write lo-fi cyberpunk prompts for MusicGen to create 1-2s SFX beats/noises
     sfx_tasks = {
         "sfx_attack.wav": {
-            "prompt": "heavy lo-fi futuristic laser blast, distorted noise, 8-bit game strike, low sub punch",
-            "duration": 1.2,
+            "prompt": "short punchy cyberpunk combat impact sound effect, huge transient hit, low sub thump, distorted metal crack, bright laser snap, no speech, no melody, one-shot",
+            "duration": 0.9,
+            "punch": True,
         },
         "sfx_defend.wav": {
-            "prompt": "lo-fi industrial forcefield hum, metallic energy shield buzzing, analog static barrier",
-            "duration": 1.5,
+            "prompt": "short heavy cyberpunk energy shield block sound effect, metallic barrier slam, electrical static bloom, low impact thud, no speech, one-shot",
+            "duration": 1.0,
+            "punch": True,
         },
         "sfx_move.wav": {
-            "prompt": "heavy mechanical robotic servo motor click, short hydraulic piston release, lo-fi noise",
-            "duration": 0.8,
+            "prompt": "short cyberpunk dash movement sound effect, sharp servo burst, hydraulic whoosh, digital phase click, no speech, one-shot",
+            "duration": 0.7,
+            "punch": False,
         },
         "sfx_glitch.wav": {
-            "prompt": "extreme lo-fi bitcrushed digital signal error, crackling circuit static burst, Y2K glitch",
-            "duration": 1.5,
+            "prompt": "short aggressive bitcrushed digital glitch burst sound effect, broken circuit spark, harsh static snap, no speech, one-shot",
+            "duration": 0.8,
+            "punch": True,
         },
         "sfx_victory.wav": {
             "prompt": "triumphant retro cyberpunk synth melody chime, 8-bit victory swell, warm lo-fi tape brass",
@@ -371,6 +395,8 @@ def generate_sfx_with_ai():
             "duration": 2.2,
         },
     }
+    if task_names is not None:
+        sfx_tasks = {name: task for name, task in sfx_tasks.items() if name in task_names}
 
     for filename, config in sfx_tasks.items():
         print(f"\nGenerating {filename} via MusicGen AI model...")
@@ -387,8 +413,9 @@ def generate_sfx_with_ai():
         sampling_rate = model.config.audio_encoder.sampling_rate
         audio_data = audio_values[0, 0].cpu().numpy()
 
-        # Apply lo-fi and bitcrush post-processing to ensure dirty cyberpunk texture
-        audio_data = apply_lofi_effect(audio_data, bit_depth=5, hiss_level=0.03, lowpass_window=2)
+        if config.get("punch"):
+            audio_data = apply_impact_punch(audio_data, sampling_rate)
+        audio_data = apply_lofi_effect(audio_data, bit_depth=5, hiss_level=0.026, lowpass_window=2)
 
         save_wav(SFX_DIR / filename, audio_data, rate=sampling_rate)
 
@@ -399,6 +426,77 @@ def generate_sfx_with_ai():
         torch.mps.empty_cache()
     gc.collect()
     print("AI SFX Generation completed successfully.")
+
+
+def generate_skill_sfx_with_ai():
+    import torch
+
+    device = "mps" if torch.backends.mps.is_available() else "cpu"
+    print(f"Loading AI Model 'facebook/musicgen-small' for skill SFX on device: {device}")
+
+    from transformers import AutoProcessor, MusicgenForConditionalGeneration
+
+    model_id = "facebook/musicgen-small"
+    processor = AutoProcessor.from_pretrained(model_id)
+    model = MusicgenForConditionalGeneration.from_pretrained(model_id)
+    model.to(device)
+
+    skill_tasks = {
+        "signal_step.wav": {
+            "prompt": "short punchy cyberpunk teleport skill sound effect, sharp digital phase pop, stereo glitch whoosh, low snap, no speech, no melody, one-shot",
+            "duration": 0.85,
+            "punch": True,
+        },
+        "overload_strike.wav": {
+            "prompt": "short massive electric melee overload impact sound effect, huge capacitor slam, distorted thunder crack, metal punch, low sub hit, no speech, one-shot",
+            "duration": 1.0,
+            "punch": True,
+        },
+        "packet_shot.wav": {
+            "prompt": "short punchy futuristic packet railgun shot sound effect, sharp data laser muzzle snap, bright impact crack, low recoil thump, no speech, one-shot",
+            "duration": 0.85,
+            "punch": True,
+        },
+        "covering_noise.wav": {
+            "prompt": "short impactful defensive noise shield deployment sound effect, static wall slam, protective energy barrier bloom, heavy cyberpunk block, no speech, one-shot",
+            "duration": 1.0,
+            "punch": True,
+        },
+        "patch_protocol.wav": {
+            "prompt": "short tactile healing patch protocol sound effect, crisp medical injector click, warm digital repair chime, synth shimmer, no speech, one-shot",
+            "duration": 1.0,
+            "punch": False,
+        },
+    }
+
+    for filename, config in skill_tasks.items():
+        print(f"\nGenerating skill SFX {filename} via MusicGen AI model...")
+        print(f"Prompt: {config['prompt']}")
+
+        max_new_tokens = int(config["duration"] * 50)
+        inputs = processor(text=[config["prompt"]], padding=True, return_tensors="pt").to(device)
+
+        with torch.no_grad():
+            audio_values = model.generate(
+                **inputs,
+                max_new_tokens=max_new_tokens,
+                guidance_scale=3.2,
+            )
+
+        sampling_rate = model.config.audio_encoder.sampling_rate
+        audio_data = audio_values[0, 0].cpu().numpy()
+        if config.get("punch"):
+            audio_data = apply_impact_punch(audio_data, sampling_rate)
+        audio_data = apply_lofi_effect(audio_data, bit_depth=6, hiss_level=0.018, lowpass_window=2)
+
+        save_wav(SKILL_SFX_DIR / filename, audio_data, rate=sampling_rate)
+
+    del model
+    del processor
+    if device == "mps":
+        torch.mps.empty_cache()
+    gc.collect()
+    print("AI skill SFX generation completed successfully.")
 
 
 def generate_bgm_with_ai():
@@ -460,6 +558,23 @@ def generate_bgm_with_ai():
 
 
 if __name__ == "__main__":
+    if len(sys.argv) > 1 and sys.argv[1] == "skills-only":
+        print("--- GENERATING MYTHOS SKILL SFX WITH MUSICGEN ---")
+        generate_skill_sfx_with_ai()
+        print("--- SKILL SFX GENERATION COMPLETE ---")
+        raise SystemExit(0)
+
+    if len(sys.argv) > 1 and sys.argv[1] == "combat-impact":
+        print("--- GENERATING MYTHOS COMBAT IMPACT SFX WITH MUSICGEN ---")
+        generate_sfx_with_ai({
+            "sfx_attack.wav",
+            "sfx_defend.wav",
+            "sfx_move.wav",
+            "sfx_glitch.wav",
+        })
+        print("--- COMBAT IMPACT SFX GENERATION COMPLETE ---")
+        raise SystemExit(0)
+
     print("--- SYNTHESIZING MYTHOS AUDIO ASSETS ---")
 
     # 1. Try AI SFX generation first

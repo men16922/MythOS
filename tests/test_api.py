@@ -398,5 +398,102 @@ class ApiParityEndpointsTest(unittest.TestCase):
         self.assertIn("runs", body)
 
 
+class ApiSkillTreeTest(unittest.TestCase):
+    def setUp(self) -> None:
+        from mythos_runtime.progression import MetaProgression, _meta_progression_memory
+
+        self.store = _InMemoryStore()
+        self.client = _client(self.store)
+        self.client.post(
+            "/api/v1/auth/connect",
+            json={
+                "display_name": "테스터",
+                "player_id": "player_skill",
+                "archetype": "비접속자 (Ghost)",
+            },
+        )
+        self.store.save_player_memory(
+            _meta_progression_memory(
+                MetaProgression(
+                    player_id="player_skill",
+                    scenario_id="neo-seoul",
+                    unlocked_skills=["overload_strike"],
+                    insight_points=5,
+                )
+            )
+        )
+
+    def test_skill_tree_reports_actions(self) -> None:
+        response = self.client.get(
+            "/api/v1/players/player_skill/skills",
+            params={"scenario_id": "neo-seoul"},
+        )
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body["insight_points"], 5)
+        nodes = {n["id"]: n for n in body["skills"]}
+        self.assertEqual(nodes["overload_strike"]["status"], "unlocked")
+        self.assertEqual(nodes["overload_strike"]["action"], "learn")
+        self.assertEqual(nodes["signal_step"]["status"], "learned")
+
+    def test_learn_skill_spends_insight_and_persists(self) -> None:
+        response = self.client.post(
+            "/api/v1/players/player_skill/skills/learn",
+            json={"scenario_id": "neo-seoul", "skill_id": "overload_strike"},
+        )
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body["insight_points"], 2)
+        nodes = {n["id"]: n for n in body["skills"]}
+        self.assertEqual(nodes["overload_strike"]["status"], "learned")
+
+        # Persisted: a fresh tree read reflects the spend.
+        again = self.client.get(
+            "/api/v1/players/player_skill/skills",
+            params={"scenario_id": "neo-seoul"},
+        ).json()
+        self.assertEqual(again["insight_points"], 2)
+
+    def test_learn_locked_skill_is_bad_request(self) -> None:
+        response = self.client.post(
+            "/api/v1/players/player_skill/skills/learn",
+            json={"scenario_id": "neo-seoul", "skill_id": "covering_noise"},
+        )
+        self.assertEqual(response.status_code, 400)
+
+
+class ApiScenarioGatingTest(unittest.TestCase):
+    def _scenarios(self, client: TestClient, player_id: str | None = None) -> dict[str, Any]:
+        params = {"player_id": player_id} if player_id else None
+        body = client.get("/api/v1/scenarios", params=params).json()
+        return {s["id"]: s for s in body["scenarios"]}
+
+    def test_tutorial_always_unlocked_others_gated_for_new_player(self) -> None:
+        client = _client(_InMemoryStore())
+        scenarios = self._scenarios(client)
+        self.assertTrue(scenarios["neo-seoul"]["unlocked"])
+        self.assertFalse(scenarios["glass-library"]["unlocked"])
+        self.assertTrue(scenarios["glass-library"]["unlock_hint"])
+
+    def test_completing_tutorial_unlocks_others(self) -> None:
+        from mythos_runtime.progression import MetaProgression, _meta_progression_memory
+
+        store = _InMemoryStore()
+        client = _client(store)
+        client.post(
+            "/api/v1/auth/connect",
+            json={"display_name": "테스터", "player_id": "player_gate"},
+        )
+        store.save_player_memory(
+            _meta_progression_memory(
+                MetaProgression(
+                    player_id="player_gate", scenario_id="neo-seoul", runs_completed=1
+                )
+            )
+        )
+        scenarios = self._scenarios(client, "player_gate")
+        self.assertTrue(scenarios["glass-library"]["unlocked"])
+
+
 if __name__ == "__main__":
     unittest.main()

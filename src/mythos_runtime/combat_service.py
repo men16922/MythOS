@@ -81,7 +81,7 @@ class CombatService:
         seed: str | None = None,
     ) -> CombatTurnResult:
         weapon_ids = loadout_for_archetype(scenario_combat, archetype)
-        skill_ids = list(scenario_combat.get("skills", {}).keys())
+        skill_ids = self._player_skill_ids(loop, scenario_combat, archetype)
         player = build_player_combatant(
             combatant_id="player",
             name=player_name,
@@ -258,6 +258,9 @@ class CombatService:
             hp = member.get("hp") if isinstance(member, dict) else None
             if isinstance(hp, int | float) and int(hp) <= 0:
                 continue
+            # Party members (in _party.members) are player-controllable; allies
+            # unlocked only via story flags stay AI-driven.
+            is_party_member = bool(member)
             built.append(
                 build_ally_combatant(
                     entry=entry,
@@ -265,9 +268,47 @@ class CombatService:
                     x=0,
                     y=0,
                     hp=int(hp) if isinstance(hp, int | float) else None,
+                    controllable=is_party_member,
                 )
-            )
+        )
         return built
+
+    @staticmethod
+    def _player_skill_ids(
+        loop: LoopState,
+        scenario_combat: dict[str, Any],
+        archetype: str | None,
+    ) -> list[str]:
+        skills_pool = scenario_combat.get("skills", {})
+        if not isinstance(skills_pool, dict):
+            return []
+        valid_ids = set(skills_pool.keys())
+        state = loop.state if isinstance(loop.state, dict) else {}
+        meta = state.get("meta_progression")
+        meta = meta if isinstance(meta, dict) else {}
+        learned = [
+            skill_id
+            for skill_id in _string_list(meta.get("learned_skills"))
+            if skill_id in valid_ids
+        ]
+        base: list[str] = []
+        base_by_archetype = scenario_combat.get("archetype_base_skills", {})
+        if isinstance(base_by_archetype, dict) and archetype:
+            base = [
+                skill_id
+                for skill_id in _string_list(base_by_archetype.get(archetype))
+                if skill_id in valid_ids
+            ]
+
+        if not base:
+            base = [
+                skill_id
+                for skill_id in _string_list(scenario_combat.get("base_skills"))
+                if skill_id in valid_ids
+            ]
+
+        filtered = _ordered_unique([*base, *learned])
+        return filtered if filtered else list(skills_pool.keys())
 
     @staticmethod
     def _party_members(party: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -347,6 +388,23 @@ class CombatService:
         if not items:
             return None
         return str(dice.weighted_choice(items, weights))
+
+
+def _string_list(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(item) for item in value if item is not None]
+
+
+def _ordered_unique(values: list[str]) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for value in values:
+        if value in seen:
+            continue
+        seen.add(value)
+        out.append(value)
+    return out
 
 
 __all__ = ["CombatService", "CombatTurnResult"]

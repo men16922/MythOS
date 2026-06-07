@@ -16,6 +16,7 @@ outputs/*
 
 # Audio Assets
 *.wav
+!resources/neo-seoul/audio/**/*.wav
 *.mp3
 
 # Local Docker volume data (docker-compose.local.yml)

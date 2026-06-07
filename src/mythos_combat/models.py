@@ -65,10 +65,16 @@ class Combatant:
     cooldowns: dict[str, int] = field(default_factory=dict)  # skill_id -> rounds remaining
     defense_buff: int = 0  # temporary defense bonus from skills (e.g. covering_noise)
     defense_buff_turns: int = 0  # rounds the defense_buff persists
+    controllable: bool = False  # party member the player drives directly (vs AI ally)
 
     @property
     def is_player(self) -> bool:
         return self.faction == PLAYER
+
+    @property
+    def is_controllable(self) -> bool:
+        """The player themselves, or a party member the player commands directly."""
+        return self.faction == PLAYER or self.controllable
 
     @property
     def effective_defense(self) -> int:
@@ -127,6 +133,16 @@ class CombatState:
 
     def player(self) -> Combatant | None:
         return next((c for c in self.combatants if c.is_player), None)
+
+    def active_actor(self) -> Combatant | None:
+        """Combatant whose turn it is, per ``turn_ptr`` into the initiative order."""
+        if not self.order or not (0 <= self.turn_ptr < len(self.order)):
+            return None
+        return self.by_id(self.order[self.turn_ptr])
+
+    def living_controllables(self) -> list[Combatant]:
+        """Living player-driven combatants (player + party); empty ⇒ defeat."""
+        return [c for c in self.combatants if c.alive and c.is_controllable]
 
     def living_enemies(self) -> list[Combatant]:
         return self.living(ENEMY)

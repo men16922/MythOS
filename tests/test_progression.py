@@ -4,10 +4,34 @@ from datetime import UTC, datetime
 from mythos_runtime.options import RunSummary
 from mythos_runtime.progression import (
     MetaProgression,
+    _meta_progression_memory,
     apply_meta_progression_to_state,
+    build_skill_tree,
     determine_autonomy_level,
     evaluate_meta_progression,
+    learn_or_rank_skill,
+    scenario_unlock_met,
 )
+
+GHOST = "비접속자 (Ghost)"
+ECHO = "잔향 수집가 (Echo Collector)"
+
+# Minimal scenario combat block mirroring neo-seoul skill shape.
+_COMBAT = {
+    "archetype_base_skills": {
+        GHOST: ["signal_step", "packet_shot"],
+        ECHO: ["patch_protocol", "covering_noise"],
+    },
+    "skills": {
+        "signal_step": {"id": "signal_step", "name": "신호 도약", "tier": 0,
+                        "max_rank": 3, "rankup_cost": 2},
+        "packet_shot": {"id": "packet_shot", "name": "패킷 사격", "tier": 0,
+                        "max_rank": 3, "rankup_cost": 2},
+        "overload_strike": {"id": "overload_strike", "name": "과부하 일격", "tier": 1,
+                            "requires": ["packet_shot"], "insight_cost": 3,
+                            "rankup_cost": 2, "max_rank": 3},
+    },
+}
 
 
 class ProgressionTest(unittest.TestCase):
@@ -29,40 +53,48 @@ class ProgressionTest(unittest.TestCase):
 
         self.assertEqual(determine_autonomy_level(config, clue_count=10), 1)
 
-    def test_evaluate_meta_progression_grants_first_run_and_clue_unlocks(self) -> None:
-        progress = MetaProgression(player_id="player_1", scenario_id="glass-library")
-        summary = RunSummary(
-            run_id="run_1",
-            player_id="player_1",
-            loop_id="loop_1",
-            scenario_id="glass-library",
-            started_at=datetime(2026, 6, 3, tzinfo=UTC).isoformat(),
-            ended_at=datetime(2026, 6, 3, tzinfo=UTC).isoformat(),
-            ending_id=None,
-            ending_label="Archived Loop",
-            final_title="기록",
-            final_location="catalog-hall",
-            phase="ended",
-            stability=60,
-            tension=40,
-            turns=5,
-            combats_won=1,
-            combats_lost=0,
-            clues_collected=["loan_card_0000"],
-            allies_met=["io"],
-            unlocks_granted=[],
-            summary_text="요약",
+    def _run_summary(self, scenario_id: str, *, clues: int, won: int) -> RunSummary:
+        ts = datetime(2026, 6, 3, tzinfo=UTC).isoformat()
+        return RunSummary(
+            run_id="run_1", player_id="player_1", loop_id="loop_1", scenario_id=scenario_id,
+            started_at=ts, ended_at=ts, ending_id=None, ending_label="Archived Loop",
+            final_title="기록", final_location="x", phase="ended", stability=60, tension=40,
+            turns=5, combats_won=won, combats_lost=0,
+            clues_collected=[f"clue_{i}" for i in range(clues)], allies_met=["io"],
+            unlocks_granted=[], summary_text="요약",
         )
 
-        updated, grants = evaluate_meta_progression(progress, summary)
+    def test_evaluate_meta_progression_data_driven_neo_seoul(self) -> None:
+        progress = MetaProgression(player_id="player_1", scenario_id="neo-seoul")
+        updated, grants = evaluate_meta_progression(
+            progress, self._run_summary("neo-seoul", clues=3, won=1)
+        )
 
         self.assertEqual(updated.runs_completed, 1)
-        self.assertEqual(updated.total_clues, 1)
+        self.assertEqual(updated.total_clues, 3)
         self.assertIn("loop_veteran", updated.unlocked_traits)
         self.assertIn("io", updated.unlocked_allies)
-        self.assertIn("memory_slip", updated.unlocked_starting_items)
-        self.assertIn("repair_tape", updated.unlocked_starting_items)
-        self.assertIn("unlocked_allies:io", grants)
+        # Archetypes are data-driven from archetypes[].unlock.
+        self.assertIn("데이터 밀수꾼 (Data Smuggler)", updated.unlocked_archetypes)
+        self.assertIn("잔향 수집가 (Echo Collector)", updated.unlocked_archetypes)
+        # Epiphanies UNLOCK skills (learnable) — they are not auto-learned anymore.
+        self.assertIn("covering_noise", updated.unlocked_skills)
+        self.assertIn("overload_strike", updated.unlocked_skills)
+        self.assertIn("patch_protocol", updated.unlocked_skills)
+        self.assertEqual(updated.learned_skills, [])
+        self.assertEqual(updated.insight_points, 6)  # 2 run + 3 clues + 1 win
+
+    def test_evaluate_meta_progression_is_scenario_scoped(self) -> None:
+        # A glass-library run must not grant neo-seoul archetypes/skills.
+        progress = MetaProgression(player_id="player_1", scenario_id="glass-library")
+        updated, _ = evaluate_meta_progression(
+            progress, self._run_summary("glass-library", clues=3, won=1)
+        )
+        self.assertIn("반납되지 않은 독자 (Unreturned Reader)", updated.unlocked_archetypes)
+        self.assertIn("제본 도주자 (Binder Fugitive)", updated.unlocked_archetypes)
+        self.assertNotIn("데이터 밀수꾼 (Data Smuggler)", updated.unlocked_archetypes)
+        self.assertIn("restore_margin", updated.unlocked_skills)
+        self.assertNotIn("covering_noise", updated.unlocked_skills)
 
     def test_apply_meta_progression_to_state_grants_known_starting_items(self) -> None:
         progress = MetaProgression(
@@ -82,6 +114,113 @@ class ProgressionTest(unittest.TestCase):
         self.assertEqual(
             state["meta_progression"]["unlocked_starting_items"], ["memory_slip", "missing_item"]
         )
+        self.assertEqual(state["meta_progression"]["unlocked_archetypes"], ["비접속자 (Ghost)"])
+
+
+class InsightAccrualTest(unittest.TestCase):
+    def _summary(self, *, clues: int, won: int) -> RunSummary:
+        ts = datetime(2026, 6, 7, tzinfo=UTC).isoformat()
+        return RunSummary(
+            run_id="run_1", player_id="p", loop_id="l", scenario_id="neo-seoul",
+            started_at=ts, ended_at=ts, ending_id=None, ending_label="L",
+            final_title="t", final_location="x", phase="ended", stability=50,
+            tension=30, turns=3, combats_won=won, combats_lost=0,
+            clues_collected=[f"clue_{i}" for i in range(clues)], allies_met=[],
+            unlocks_granted=[], summary_text="",
+        )
+
+    def test_insight_accrues_per_run_clue_and_win(self) -> None:
+        progress = MetaProgression(player_id="p", scenario_id="neo-seoul")
+        updated, grants = evaluate_meta_progression(progress, self._summary(clues=2, won=1))
+        # 2 (run) + 2 (clues) + 1 (win)
+        self.assertEqual(updated.insight_points, 5)
+        self.assertIn("insight_points:+5", grants)
+
+    def test_insight_is_cumulative_across_runs(self) -> None:
+        progress = MetaProgression(player_id="p", scenario_id="neo-seoul", insight_points=4)
+        updated, _ = evaluate_meta_progression(progress, self._summary(clues=0, won=0))
+        self.assertEqual(updated.insight_points, 6)
+
+
+class SkillTreeAndLearnTest(unittest.TestCase):
+    def test_build_skill_tree_marks_base_unlocked_and_locked(self) -> None:
+        progress = MetaProgression(
+            player_id="p", scenario_id="neo-seoul",
+            unlocked_skills=["overload_strike"], insight_points=5,
+        )
+        nodes = {n["id"]: n for n in build_skill_tree(progress, _COMBAT, GHOST)}
+        self.assertEqual(nodes["signal_step"]["status"], "learned")
+        self.assertEqual(nodes["signal_step"]["action"], "rankup")
+        self.assertEqual(nodes["overload_strike"]["status"], "unlocked")
+        self.assertEqual(nodes["overload_strike"]["action"], "learn")
+        self.assertTrue(nodes["overload_strike"]["can_afford"])
+
+    def test_learn_unlocked_skill_spends_insight(self) -> None:
+        progress = MetaProgression(
+            player_id="p", scenario_id="neo-seoul",
+            unlocked_skills=["overload_strike"], insight_points=5,
+        )
+        updated = learn_or_rank_skill(progress, _COMBAT, "overload_strike", GHOST)
+        self.assertEqual(updated.insight_points, 2)
+        self.assertIn("overload_strike", updated.learned_skills)
+        self.assertEqual(updated.skill_ranks["overload_strike"], 1)
+
+    def test_rank_up_increments_and_caps_at_max(self) -> None:
+        progress = MetaProgression(
+            player_id="p", scenario_id="neo-seoul",
+            learned_skills=["overload_strike"], skill_ranks={"overload_strike": 2},
+            insight_points=5,
+        )
+        updated = learn_or_rank_skill(progress, _COMBAT, "overload_strike", GHOST)
+        self.assertEqual(updated.skill_ranks["overload_strike"], 3)
+        self.assertEqual(updated.insight_points, 3)
+        with self.assertRaises(ValueError):
+            learn_or_rank_skill(updated, _COMBAT, "overload_strike", GHOST)
+
+    def test_learn_rejects_locked_insufficient_and_prereq(self) -> None:
+        locked = MetaProgression(player_id="p", scenario_id="neo-seoul", insight_points=5)
+        with self.assertRaises(ValueError):
+            learn_or_rank_skill(locked, _COMBAT, "overload_strike", GHOST)
+
+        poor = MetaProgression(
+            player_id="p", scenario_id="neo-seoul",
+            unlocked_skills=["overload_strike"], insight_points=1,
+        )
+        with self.assertRaises(ValueError):
+            learn_or_rank_skill(poor, _COMBAT, "overload_strike", GHOST)
+
+        # Echo Collector base lacks packet_shot → prereq unmet.
+        prereq = MetaProgression(
+            player_id="p", scenario_id="neo-seoul",
+            unlocked_skills=["overload_strike"], insight_points=5,
+        )
+        with self.assertRaises(ValueError):
+            learn_or_rank_skill(prereq, _COMBAT, "overload_strike", ECHO)
+
+
+class ScenarioUnlockTest(unittest.TestCase):
+    def test_no_unlock_is_always_available(self) -> None:
+        self.assertTrue(scenario_unlock_met(None, [], "p"))
+        self.assertTrue(scenario_unlock_met({}, [], "p"))
+
+    def test_tutorial_completed_gates_until_first_run(self) -> None:
+        unlock = {"tutorial_completed": True}
+        self.assertFalse(scenario_unlock_met(unlock, [], "p"))
+        done = _meta_progression_memory(
+            MetaProgression(player_id="p", scenario_id="neo-seoul", runs_completed=1)
+        )
+        self.assertTrue(scenario_unlock_met(unlock, [done], "p"))
+
+    def test_runs_completed_threshold(self) -> None:
+        unlock = {"runs_completed": 2}
+        one = _meta_progression_memory(
+            MetaProgression(player_id="p", scenario_id="neo-seoul", runs_completed=1)
+        )
+        self.assertFalse(scenario_unlock_met(unlock, [one], "p"))
+        two = _meta_progression_memory(
+            MetaProgression(player_id="p", scenario_id="neo-seoul", runs_completed=2)
+        )
+        self.assertTrue(scenario_unlock_met(unlock, [two], "p"))
 
 
 if __name__ == "__main__":

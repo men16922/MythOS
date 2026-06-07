@@ -5,7 +5,7 @@ import { ChoicePanel } from "./ChoicePanel";
 import { CombatControls } from "./CombatControls";
 import { CombatLog } from "./CombatLog";
 import { CombatRoster } from "./CombatRoster";
-import type { CombatAction, RuntimeSnapshot, ScenarioCharacter } from "./types";
+import type { CombatAction, CombatBlip, CombatState, RuntimeSnapshot, ScenarioCharacter } from "./types";
 
 interface StoryPanelProps {
   status: string;
@@ -237,6 +237,105 @@ const renderFormattedNarration = (rawText: string, turnIndex: number) => {
   return <>{parts}</>;
 };
 
+const combatOutcomeLabel = (outcome?: string): string => {
+  if (outcome === "player_victory") return "승리";
+  if (outcome === "player_fled") return "도주 성공";
+  if (outcome === "player_defeat") return "패배";
+  return outcome || "종료";
+};
+
+const combatOutcomeCopy = (outcome?: string): string => {
+  if (outcome === "player_victory") {
+    return "위협 신호가 침묵하고, 살아남은 접속자들의 윤곽이 잔광 속에 고정됩니다.";
+  }
+  if (outcome === "player_fled") {
+    return "교전망을 벗어났습니다. 다음 장면으로 이동하기 전 재정비가 필요합니다.";
+  }
+  if (outcome === "player_defeat") {
+    return "접속이 붕괴했습니다. 이 루프는 기록으로 남고, 다음 접속의 잔향이 됩니다.";
+  }
+  return "교전이 종료되었습니다.";
+};
+
+const combatImageSrc = (scenarioId: string, blip: CombatBlip): string => {
+  const images = blip.combat_images || {};
+  const path = images.idle || images.guard || images.skill || blip.portrait || "";
+  return path ? `/resources/${scenarioId}/${path}` : "";
+};
+
+function CombatResultPanel({
+  combat,
+  scenarioId,
+  onReturnToMain,
+  onContinue,
+}: {
+  combat: CombatState;
+  scenarioId: string;
+  onReturnToMain: () => void;
+  onContinue: () => void;
+}) {
+  const outcome = combat.outcome;
+  const isVictory = outcome === "player_victory";
+  const isDefeat = outcome === "player_defeat";
+  const blips = combat.radar?.blips || [];
+  const party = blips.filter((b) => b.faction !== "enemy" && b.alive !== false).slice(0, 3);
+  const enemies = blips.filter((b) => b.faction === "enemy").slice(0, 3);
+
+  const renderBlip = (blip: CombatBlip, role: "hero" | "enemy") => {
+    const src = combatImageSrc(scenarioId, blip);
+    return (
+      <div key={blip.id} className={`combat-result-actor ${role}`}>
+        {src ? (
+          <img src={src} alt={blip.name || blip.id} draggable={false} />
+        ) : (
+          <span>{blip.name?.slice(0, 1) || blip.id.slice(0, 1)}</span>
+        )}
+        <small>{blip.name || blip.id}</small>
+      </div>
+    );
+  };
+
+  return (
+    <div className={`combat-result-panel ${isVictory ? "victory" : ""} ${isDefeat ? "defeat" : ""}`}>
+      <div className={`combat-outcome ${isDefeat ? "lose" : ""}`}>
+        교전 종료 — {combatOutcomeLabel(outcome)}
+      </div>
+
+      <div className="combat-result-visual">
+        <div className="combat-result-composite" aria-label="전투 결과 이미지">
+          <div className="combat-result-grid" />
+          <div className="combat-result-party">
+            {party.length > 0 ? (
+              party.map((b) => renderBlip(b, "hero"))
+            ) : (
+              <div className="combat-result-empty">NO PARTY SIGNAL</div>
+            )}
+          </div>
+          <div className="combat-result-enemies">
+            {enemies.map((b) => renderBlip(b, "enemy"))}
+          </div>
+          <div className="combat-result-stamp">
+            {isVictory ? "VICTORY" : isDefeat ? "LOOP COLLAPSE" : "DISENGAGED"}
+          </div>
+        </div>
+      </div>
+
+      <p className="combat-result-copy">{combatOutcomeCopy(outcome)}</p>
+      <div className="cc-row combat-result-actions">
+        {isDefeat ? (
+          <button className="cc-btn" onClick={onReturnToMain} id="cc-return-main">
+            메인 화면으로 ▸
+          </button>
+        ) : (
+          <button className="cc-btn" onClick={onContinue} id="cc-continue">
+            계속 ▸
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function StoryPanel({
   status,
   snapshot,
@@ -282,6 +381,7 @@ export function StoryPanel({
     snapshot &&
     snapshot.phase !== "ended" &&
     (!snapshot.combat || snapshot.combat.finished);
+  const finishedCombat = snapshot?.combat?.finished ? snapshot.combat : null;
 
   // 전투 진행 중인 경우, 가로 분할(Streamlit 스타일) 레이아웃 출력
   if (snapshot?.combat && !snapshot.combat.finished) {
@@ -335,6 +435,15 @@ export function StoryPanel({
   // 상단 행: 좌측 장면 이미지 + 우측 Character 창 / 하단: 전체 폭 대화 스크립트
   return (
     <div id="story-tab-content" className="narrative-layout">
+      {finishedCombat && !isStreaming && (
+        <CombatResultPanel
+          combat={finishedCombat}
+          scenarioId={scenarioId}
+          onReturnToMain={onReturnToMain}
+          onContinue={onContinueAfterCombat}
+        />
+      )}
+
       <div className="narrative-top-row">
         {/* 좌측: 장면 이미지 */}
         <div className="panel scene-image-panel">
@@ -420,7 +529,7 @@ export function StoryPanel({
               </div>
             )}
 
-            {!isStreaming && snapshot?.combat && (
+            {!isStreaming && snapshot?.combat && !snapshot.combat.finished && (
               <div style={{ marginTop: "16px" }}>
                 <CombatControls
                   combat={snapshot.combat}

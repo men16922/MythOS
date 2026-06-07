@@ -8,6 +8,7 @@ from mythos_core.dice import Dice
 from .models import (
     ALLY,
     ENEMY,
+    PLAYER,
     Combatant,
     CombatLogEntry,
     CombatState,
@@ -36,7 +37,10 @@ class CombatEngine:
             try:
                 from mythos_runtime.scenario import load_scenario
 
-                self.skills_pool = load_scenario("neo-seoul").combat.get("skills", {})
+                # Copy: load_scenario is lru_cached, so the returned combat dict is
+                # shared. Callers (and tests) mutate engine.skills_pool, which must
+                # not leak back into the cached scenario.
+                self.skills_pool = dict(load_scenario("neo-seoul").combat.get("skills", {}))
             except Exception:
                 self.skills_pool = {}
         else:
@@ -112,38 +116,49 @@ class CombatEngine:
     ) -> CombatState:
         if not state.active:
             return state
-        player = state.player()
-        if player is None or not player.alive:
+        # The acting unit is whoever the initiative pointer is on, as long as it is
+        # player-driven (the player or a controllable party member). AI allies and
+        # enemies are resolved by the engine in _run_until_controllable.
+        actor = state.active_actor()
+        if actor is None or not actor.alive or not actor.is_controllable:
             return state
 
         # `spent` is False when the action was rejected (no focus / on cooldown /
         # missing item / no valid target) so the turn is NOT handed to the enemies.
         spent = True
         if action.type == "skill":
-            spent = self._player_skill(state, player, action, skill_def, item_available)
+            spent = self._player_skill(state, actor, action, skill_def, item_available)
         elif action.type == "item":
-            spent = self._player_item(state, player, action, item_def, item_available)
+            spent = self._player_item(state, actor, action, item_def, item_available)
         else:
             dice = self._dice(state)
             if action.move_to is not None:
-                self._move_player(state, player, action.move_to)
+                self._move_player(state, actor, action.move_to)
             if action.type == "attack":
-                self._player_attack(state, player, action, dice)
+                self._player_attack(state, actor, action, dice)
             elif action.type == "defend":
-                player.defending = True
-                gained = self._restore_focus(player, 1)
+                actor.defending = True
+                gained = self._restore_focus(actor, 1)
                 detail = {"focus_gained": gained} if gained else {}
                 self._log(
                     state,
-                    player,
+                    actor,
                     "defend",
-                    f"{player.name}이(가) 방어 태세를 취하며 집중을 가다듬는다.",
+                    f"{actor.name}이(가) 방어 태세를 취하며 집중을 가다듬는다.",
                     detail,
                 )
             elif action.type == "flee":
-                self._player_flee(state, player, dice)
+                # Only the player can break off the engagement; party members must
+                # take a different action on their turn.
+                if actor.faction == PLAYER:
+                    self._player_flee(state, actor, dice)
+                else:
+                    self._log(
+                        state, actor, "info", f"{actor.name}은(는) 전열을 이탈할 수 없다."
+                    )
+                    spent = False
             else:
-                self._log(state, player, "info", f"{player.name}은(는) 상황을 살핀다.")
+                self._log(state, actor, "info", f"{actor.name}은(는) 상황을 살핀다.")
 
         self._check_outcome(state)
         if not state.active or state.outcome == "player_fled":
@@ -152,14 +167,14 @@ class CombatEngine:
         if not spent:
             return state
 
-        self._run_until_player(state)
+        self._run_until_controllable(state)
         if not state.active:
             return self._finish(state)
         return state
 
     def available_actions(self, state: CombatState) -> dict[str, Any]:
-        player = state.player()
-        if player is None or not player.alive or not state.active:
+        actor = state.active_actor()
+        if actor is None or not actor.alive or not state.active or not actor.is_controllable:
             return {"can_act": False, "targets": [], "reachable": []}
         targets: list[dict[str, Any]] = []
         for enemy in state.living_enemies():
@@ -167,8 +182,8 @@ class CombatEngine:
                 {
                     "id": enemy.id,
                     "name": enemy.name,
-                    "distance": distance(player.x, player.y, enemy.x, enemy.y),
-                    "in_range": self._weapon_in_range(player, enemy, player.primary_weapon()),
+                    "distance": distance(actor.x, actor.y, enemy.x, enemy.y),
+                    "in_range": self._weapon_in_range(actor, enemy, actor.primary_weapon()),
                     "hp": enemy.hp,
                     "max_hp": enemy.max_hp,
                 }
@@ -176,13 +191,16 @@ class CombatEngine:
         self.update_enemy_intents(state)
         return {
             "can_act": True,
-            "move_range": player.speed,
-            "reachable": self._reachable_tiles(state, player),
+            "active_actor_id": actor.id,
+            "active_actor_name": actor.name,
+            "is_player": actor.faction == PLAYER,
+            "move_range": actor.speed,
+            "reachable": self._reachable_tiles(state, actor),
             "targets": targets,
-            "weapons": [w.id for w in player.weapons],
-            "focus": player.focus,
-            "max_focus": player.max_focus,
-            "skills": [self._skill_action_info(skill_id, player) for skill_id in player.skills],
+            "weapons": [w.id for w in actor.weapons],
+            "focus": actor.focus,
+            "max_focus": actor.max_focus,
+            "skills": [self._skill_action_info(skill_id, actor) for skill_id in actor.skills],
         }
 
     def _skill_action_info(self, skill_id: str, player: Combatant) -> dict[str, Any]:
@@ -734,73 +752,8 @@ class CombatEngine:
                 {"target": combatant.id},
             )
 
-    def _tick_player_round(self, state: CombatState, player: Combatant) -> None:
-        """Per-round upkeep for the player: focus regen, cooldowns, expiring buffs, terrain hazards."""
-        if player.max_focus:
-            player.focus = min(player.max_focus, player.focus + 1)
-        for skill_id in list(player.cooldowns):
-            player.cooldowns[skill_id] -= 1
-            if player.cooldowns[skill_id] <= 0:
-                del player.cooldowns[skill_id]
-        if player.defense_buff_turns > 0:
-            player.defense_buff_turns -= 1
-            if player.defense_buff_turns <= 0:
-                player.defense_buff = 0
-
-        # Hazard check
-        key = f"{player.x},{player.y}"
-        hazard = state.hazards.get(key)
-        if hazard and player.alive:
-            self._apply_hazard_effect(state, player, hazard)
-
-    # --- enemy / ally AI ------------------------------------------------
-    def _run_opening(self, state: CombatState) -> None:
-        player = state.player()
-        if player is None:
-            return
-        player_idx = state.order.index(player.id)
-        for i in range(player_idx):
-            actor = state.by_id(state.order[i])
-            if actor and actor.alive and not actor.is_player:
-                self._npc_turn(state, actor)
-                self._check_outcome(state)
-                if not state.active:
-                    return
-        state.turn_ptr = player_idx
-
-    def _run_until_player(self, state: CombatState) -> None:
-        player = state.player()
-        if player is None:
-            return
-        n = len(state.order)
-        player_idx = state.order.index(player.id)
-        i = (player_idx + 1) % n
-        guard = 0
-        while guard < n * 3:
-            guard += 1
-            if i == player_idx:
-                state.round += 1
-                player.defending = False
-                self._tick_player_round(state, player)
-                state.turn_ptr = player_idx
-                return
-            actor = state.by_id(state.order[i])
-            if actor and actor.alive and not actor.is_player:
-                self._npc_turn(state, actor)
-                self._check_outcome(state)
-                if not state.active:
-                    return
-            i = (i + 1) % n
-
-    def _npc_turn(self, state: CombatState, actor: Combatant) -> None:
-        self._tick_npc_round(state, actor)
-        if actor.faction == ENEMY:
-            self._enemy_turn(state, actor)
-        elif actor.faction == ALLY:
-            self._ally_turn(state, actor)
-
-    def _tick_npc_round(self, state: CombatState, actor: Combatant) -> None:
-        """Per-round upkeep for NPCs/Allies: focus regen, cooldowns, expiring buffs, terrain hazards."""
+    def _tick_round_upkeep(self, state: CombatState, actor: Combatant) -> None:
+        """Per-turn upkeep for any combatant: focus regen, cooldowns, expiring buffs, hazards."""
         if actor.max_focus:
             actor.focus = min(actor.max_focus, actor.focus + 1)
         for skill_id in list(actor.cooldowns):
@@ -817,6 +770,54 @@ class CombatEngine:
         hazard = state.hazards.get(key)
         if hazard and actor.alive:
             self._apply_hazard_effect(state, actor, hazard)
+
+    # --- enemy / ally AI ------------------------------------------------
+    def _run_opening(self, state: CombatState) -> None:
+        """Auto-resolve NPC turns up to the first player-driven unit, then stop."""
+        n = len(state.order)
+        for i in range(n):
+            actor = state.by_id(state.order[i])
+            if not (actor and actor.alive):
+                continue
+            if actor.is_controllable:
+                state.turn_ptr = i
+                return
+            self._npc_turn(state, actor)
+            self._check_outcome(state)
+            if not state.active:
+                return
+        state.turn_ptr = 0
+
+    def _run_until_controllable(self, state: CombatState) -> None:
+        """Auto-resolve AI ally/enemy turns until the next player-driven unit's turn."""
+        n = len(state.order)
+        i = (state.turn_ptr + 1) % n
+        guard = 0
+        while guard < n * 3:
+            guard += 1
+            # A new round begins each time the pointer wraps to the top of the order.
+            if i == 0:
+                state.round += 1
+            actor = state.by_id(state.order[i])
+            if actor and actor.alive:
+                if actor.is_controllable:
+                    actor.defending = False
+                    self._tick_round_upkeep(state, actor)
+                    state.turn_ptr = i
+                    return
+                self._npc_turn(state, actor)
+                self._check_outcome(state)
+                if not state.active:
+                    return
+            i = (i + 1) % n
+        state.turn_ptr = i
+
+    def _npc_turn(self, state: CombatState, actor: Combatant) -> None:
+        self._tick_round_upkeep(state, actor)
+        if actor.faction == ENEMY:
+            self._enemy_turn(state, actor)
+        elif actor.faction == ALLY:
+            self._ally_turn(state, actor)
 
     def _execute_npc_skill(
         self,
@@ -1185,8 +1186,8 @@ class CombatEngine:
     def _check_outcome(self, state: CombatState) -> None:
         if state.outcome:
             return
-        player = state.player()
-        if player is not None and not player.alive:
+        # Defeat once every player-driven unit (player + controllable party) is down.
+        if not state.living_controllables():
             state.outcome = "player_defeat"
             state.active = False
         elif not state.living_enemies():

@@ -562,6 +562,18 @@ class RuntimeSessionService:
         self._require_player(player_id)
         return self.progression.list_run_summaries(player_id, limit)
 
+    def skill_tree(self, player_id: str, scenario_id: str) -> dict[str, Any]:
+        player = self._require_player(player_id)
+        archetype = player.traits.get("archetype") if isinstance(player.traits, dict) else None
+        return self.progression.skill_tree(player_id, scenario_id, archetype)
+
+    def learn_skill(
+        self, player_id: str, scenario_id: str, skill_id: str
+    ) -> dict[str, Any]:
+        player = self._require_player(player_id)
+        archetype = player.traits.get("archetype") if isinstance(player.traits, dict) else None
+        return self.progression.learn_skill(player_id, scenario_id, skill_id, archetype)
+
     def _apply_meta_progression(
         self,
         player: PlayerProfile,
@@ -573,9 +585,12 @@ class RuntimeSessionService:
             player.player_id,
             scenario_id,
         )
+        scenario = load_scenario(scenario_id)
         progress, unlocks = evaluate_meta_progression(
             previous,
             _run_summary_from_memory(run_summary_memory),
+            scenario.combat,
+            scenario.archetypes,
         )
         updated_content = dict(run_summary_memory.content)
         updated_content["unlocks_granted"] = unlocks

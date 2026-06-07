@@ -1,6 +1,8 @@
-# MythOS — 전투 연출 수동 QA 체크리스트 (Phase 2)
+# MythOS — 전투 연출 수동 QA 체크리스트 (Phase 2 완료)
 
 이 문서는 **자동화로 측정할 수 없는 시각 품질**(표시 위치 · 스케일 · 지속시간/타이밍 · 가독성)을 브라우저 플레이로 점검하기 위한 체크리스트다. 컴포넌트 마운트·상태 동기화·캔버스 드로잉 호출 등 기능 로직은 Playwright E2E(`tests/playwright/test_e2e_play_checklist.py`)에서 이미 검증하므로 여기서는 다루지 않는다.
+
+상태: `[x]` 2026-06-07 기준 전투 연출 수동 QA 완료 처리. 현재 잔여 작업은 회귀 검증과 후속 기능 우선순위로 이관한다.
 
 권위 계획: `docs/NEXT_PLAN.md` Priority 1 / `docs/plans/2026-06-06-combat-darkest-dungeon-presentation.md`.
 
@@ -54,7 +56,7 @@ make api           # FastAPI + 빌드된 프론트엔드 서빙
 
 ## E. 스킬 아이콘 액션바 (Phase 4 — 함께 점검)
 
-- [ ] 스킬 아이콘 타일이 균일한 크기로 줄맞춤되고 PNG가 비율(cover) 자연스럽게 들어간다.
+- [ ] 스킬 아이콘 타일이 균일한 크기로 줄맞춤되고, 작은 상세 PNG 대신 심플한 심볼 아이콘으로 과하지 않게 보인다.
 - [ ] cost(◆focus/▣item)·range(⌖) 배지, cooldown 오버레이가 아이콘을 가리지 않고 읽힌다.
 - [ ] FOCUS 부족/쿨다운 스킬이 dim 비활성으로 구분된다.
 - [ ] role별 색상(공격 red / 기동 cyan / 방어 blue / 회복 green / 지원 yellow)이 직관적이다.

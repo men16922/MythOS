@@ -1,7 +1,7 @@
 # 진행도 기반 해금: 아키타입 · 스킬 · Codex Skill 트리 — 설계안
 
 작성일: 2026-06-06
-상태: 설계 (구현 미착수)
+상태: Phase 1·2·3 구현 완료 (아키타입 게이트, base+learned 전투 스킬 필터, Codex 통찰 투자 트리 + learn/rank-up API + tier 게이팅, 깨달음 알림 배너 + 시나리오 간 해금 게이팅)
 관련: `docs/plans/2026-06-06-combat-visual-effects.md`(스킬 이펙트 데이터 공유), `docs/plans/2026-06-06-party-controllable-allies.md`(동료 스킬), `src/mythos_runtime/progression.py`(메타 진행 버킷)
 
 ## 목표
@@ -34,10 +34,10 @@ Codex > Skill 탭 = 트리 + 포인트 지출 화면
 
 ## 현재 상태 (코드 기준)
 
-- **아키타입**: `resources/<scenario>/scenario.json` `archetypes[]`에 3종, **항상 전부 선택**. `OnboardingPanel`/`/scenarios`가 그대로 노출.
-- **스킬 부여**: `src/mythos_runtime/combat_service.py:77` — `skill_ids = list(scenario_combat.get("skills", {}).keys())`로 **전체 스킬 무조건 부여**. 스킬 정의는 `role`(damage/healing/defense/mobility) + `tags` + `effect` + `cost`/`range`/`cooldown` 보유.
-- **메타 진행**: `progression.py`가 **룰 기반 grant 시스템**. 버킷 `unlocked_traits`/`unlocked_allies`/`unlocked_starting_items`/`codex_unlocks`를 run summary 조건(runs_completed/total_clues/combats_won/allies_met)으로 채움. `apply_meta_progression_to_state`가 루프 state에 주입.
-- **Codex**: `CodexPanel.tsx`에 단서/로어/인벤토리/잔향 4섹션. Skill 섹션 없음.
+- **아키타입**: `resources/<scenario>/scenario.json` `archetypes[]`에 `base_skills`/`unlock`/`unlock_hint` 추가. `/scenarios?player_id=...`가 메타 진행도를 읽어 `unlocked` 상태를 내려주고, `OnboardingPanel`은 잠긴 아키타입을 비활성 표시한다.
+- **스킬 부여**: `src/mythos_runtime/combat_service.py`가 선택 아키타입의 `archetype_base_skills`와 `meta_progression.learned_skills`를 중복 없이 합쳐 플레이어 전투 스킬로 사용한다. 더 이상 시나리오 전체 스킬을 무조건 부여하지 않는다.
+- **메타 진행**: `progression.py`가 기존 grant 시스템에 `unlocked_archetypes`/`unlocked_skills`/`learned_skills`/`skill_ranks`/`insight_points`/`epiphanies_seen` 버킷을 추가했다. Phase 1에서는 첫 런/단서/전투승리 조건으로 아키타입과 스킬을 자동 grant한다.
+- **Codex**: `CodexPanel.tsx`가 시나리오 스킬 정의와 snapshot 메타 진행도를 결합해 read-only Skill 트리를 표시한다. 포인트 소비/강화 버튼은 Phase 2 범위다.
 
 → 메타 진행이 이미 버킷 grant 구조라 **버킷 추가 + 게이트 적용**으로 확장 가능. 평행 시스템 불필요.
 
@@ -77,10 +77,13 @@ Codex > Skill 탭 = 트리 + 포인트 지출 화면
 - **Phase 1 — 아키타입 해금 + 기본/습득 스킬 필터 + Codex Skill 표시(읽기)**:
   - `unlocked_archetypes`/`learned_skills`/`base_skills`, 온보딩 게이트, combat_service 스킬 필터, Codex Skill 탭(효과 표시 + 보유/미보유 구분, 포인트 없음).
   - *깨달음=자동 grant(이벤트 해금만)로 먼저 동작.* 가장 안전, 즉시 가치.
+  - 상태: `[x]` 구현 완료.
 - **Phase 2 — 통찰 포인트 + 트리 투자(쓰기)**:
-  - `insight_points`/`skill_ranks`, 적립/소비, Codex 트리 노드 [습득]/[강화] 버튼 + 엔드포인트, 선행 노드(tier) 게이팅.
+  - `insight_points`/`skill_ranks`, 적립(run+2/clue+1/win+1)/소비, Codex 트리 노드 [습득]/[강화] 버튼 + 엔드포인트(`GET/POST /players/{id}/skills`), 선행 노드(`requires`) 게이팅.
+  - 상태: `[x]` 구현 완료.
 - **Phase 3 — 깨달음 서사 연출 + 시나리오 해금 흐름**:
-  - 깨달음 발생 시 전용 알림/연출(전투 이펙트 플랜의 연출 톤 재사용), 시나리오 간 진행 개방 UX.
+  - 깨달음 알림 배너(최근 런 `unlocks_granted`의 신규 스킬, 메인 화면 표시 + localStorage 1회 dismiss), 시나리오 간 해금 게이팅(`scenario.unlock` + `scenario_unlock_met`; Neo-Seoul 튜토리얼 기본 해금, glass-library는 튜토리얼 완료 시).
+  - 상태: `[x]` 구현 완료. 후속: 깨달음 인-루프 즉시 연출(현재 런 종료 후 배너), 통찰 밸런스 실측 조정.
 
 ## 검증 / 리스크
 

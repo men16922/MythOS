@@ -1,7 +1,7 @@
 # Technical Design Plan: 파티/동맹 2단계 전투 조작 (Controllable Party Allies)
 
 **작성일**: 2026-06-06  
-**상태**: 설계 승인 대기  
+**상태**: 구현 완료 (2026-06-07) — 실제 모듈은 `src/mythos_combat/{models,engine,factory}.py` + `src/mythos_runtime/combat_service.py`. 본 문서의 코드 스니펫은 설계 예시이며 메서드명은 일부 다름(`take_player_turn`/`_run_until_controllable`/`_tick_round_upkeep`).  
 **관련 문서**: [docs/plans/2026-06-06-party-controllable-allies.md](file:///Users/men1692/Desktop/local/MythOS/docs/plans/2026-06-06-party-controllable-allies.md)
 
 ---

@@ -25,9 +25,9 @@ Project MythOS는 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG
 다음 우선순위는 `docs/NEXT_PLAN.md`가 권위다.
 
 1. 전투 연출 개편: 전신 action pose·스킬 애니메이션 레지스트리·아이콘 액션바(Phase 4)까지 완료, 다음은 Phase 2 표시 위치/스케일/타이밍/가독성 polish(live QA).
-2. 진행도 해금: Ghost-only 시작, 아키타입 게이트, base/learned 스킬 필터, Codex Skill 탭.
-3. 파티 조작 2단계: 파티원은 플레이어 직접 조작, 비파티 동맹은 AI 유지.
-4. `glass-library` Story Bible/시나리오 확장.
+2. 진행도 해금: Phase 1·2·3 완료(아키타입 게이트, base/learned 필터, Codex 통찰 투자 트리 + learn/rank-up API, 깨달음 배너, 시나리오 간 해금 게이팅). 다음 신규 트랙은 파티 조작.
+3. 파티 조작 2단계: 완료(파티원 직접 조작, 비파티 동맹 AI 유지).
+4. `glass-library` 확장: 진행도/프레젠테이션 패리티 + 데이터 주도 진행도 완료. 남은 것은 서사(arcs/endings/Story Bible) 깊이 + 전투 아트.
 
 ## Read Order
 

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { enemyIntentLabel } from "./combatText";
 import type { CombatAction, CombatSkillInfo, CombatState } from "./types";
 
@@ -45,17 +44,22 @@ const ROLE_LABELS: Record<string, string> = {
   support: "지원",
 };
 
+const SKILL_SYMBOLS: Record<string, string> = {
+  signal_step: "⇄",
+  overload_strike: "⚡",
+  packet_shot: "⌖",
+  covering_noise: "◌",
+  patch_protocol: "+",
+};
+
 export function CombatControls({
   combat,
-  scenarioId,
   selectedTargetId,
   onSelectTarget,
   onAction,
   onReturnToMain,
   onContinue,
 }: CombatControlsProps) {
-  const [iconError, setIconError] = useState<Record<string, boolean>>({});
-
   if (combat.finished && combat.outcome) {
     return (
       <div id="combat-controls" className="active">
@@ -81,6 +85,8 @@ export function CombatControls({
 
   const available = combat.available;
   const focus = available?.focus ?? null;
+  const isPlayerTurn = available?.is_player !== false;
+  const activeName = available?.active_actor_name;
 
   const renderSkill = (skill: CombatSkillInfo) => {
     const onCooldown = skill.cooldown > 0;
@@ -90,7 +96,7 @@ export function CombatControls({
     const disabled = onCooldown || lowFocus;
     const costStr = formatCost(skill.cost);
     const roleLabel = skill.role ? ROLE_LABELS[skill.role] ?? skill.role : "";
-    const iconSrc = `/resources/${scenarioId}/skills/${skill.id}.png`;
+    const iconSymbol = SKILL_SYMBOLS[skill.id] || roleLabel.slice(0, 1) || "✦";
 
     const tooltipParts = [name];
     if (roleLabel) tooltipParts.push(roleLabel);
@@ -118,15 +124,7 @@ export function CombatControls({
         }
       >
         <span className="cc-skill-icon">
-          {iconError[skill.id] ? (
-            <span className="cc-skill-glyph">{roleLabel.slice(0, 1) || "✦"}</span>
-          ) : (
-            <img
-              src={iconSrc}
-              alt={name}
-              onError={() => setIconError((prev) => ({ ...prev, [skill.id]: true }))}
-            />
-          )}
+          <span className="cc-skill-symbol" aria-hidden="true">{iconSymbol}</span>
           {onCooldown && <span className="cc-cd-overlay">CD {skill.cooldown}</span>}
         </span>
         <span className="cc-skill-name">{name}</span>
@@ -141,7 +139,14 @@ export function CombatControls({
   return (
     <div id="combat-controls" className="active">
       <div className="combat-bar">
-        <span className="turn">교전 · R{combat.radar?.round || 1}</span>
+        <span className="turn">
+          교전 · R{combat.radar?.round || 1}
+          {available?.can_act && activeName && (
+            <span className={`active-actor ${isPlayerTurn ? "" : "ally"}`}>
+              {" "}· {isPlayerTurn ? activeName : `${activeName} (동료)`} 차례
+            </span>
+          )}
+        </span>
         <span className="focus">
           FOCUS {available?.focus ?? "—"}/{available?.max_focus ?? "—"}
         </span>
@@ -190,9 +195,11 @@ export function CombatControls({
               <button className="cc-btn" onClick={() => onAction({ type: "wait" })}>
                 ⌛ 대기
               </button>
-              <button className="cc-btn danger" onClick={() => onAction({ type: "flee" })}>
-                ✦ 도주
-              </button>
+              {isPlayerTurn && (
+                <button className="cc-btn danger" onClick={() => onAction({ type: "flee" })}>
+                  ✦ 도주
+                </button>
+              )}
             </div>
           </div>
 

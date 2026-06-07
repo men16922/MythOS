@@ -70,37 +70,58 @@ export function OnboardingPanel({
           value={selectedScenarioId}
           onChange={(e) => onScenarioChange(e.target.value)}
         >
-          {scenarios.map((scenario) => (
-            <option key={scenario.id} value={scenario.id}>
-              {scenario.name}
+          {scenarios.map((s) => (
+            <option key={s.id} value={s.id} disabled={s.unlocked === false}>
+              {s.name}
+              {s.unlocked === false ? " · 🔒 잠김" : ""}
             </option>
           ))}
         </select>
       </div>
+      {scenario?.unlocked === false && scenario.unlock_hint && (
+        <p className="ob-scenario-lock">🔒 {scenario.unlock_hint}</p>
+      )}
 
       <p className="panel-title">아키타입</p>
       <div className="arch-grid" id="archetypes">
-        {archetypes.map((archetype) => (
-          <div
-            key={archetype.name}
-            className={`arch-card ${
-              selectedArchetype === archetype.name ? "sel" : ""
-            }`}
-            onClick={() => onArchetypeChange(archetype.name)}
-          >
-            <div className="arch-name">{archetype.name}</div>
-            <div className="arch-attrs">
-              {(archetype.attributes || []).join(" ")}
-            </div>
-            {archetype.starting_item && (
-              <div className="arch-item">소지품 · {archetype.starting_item}</div>
-            )}
-          </div>
-        ))}
+        {archetypes.map((archetype) => {
+          const unlocked = archetype.unlocked !== false;
+          return (
+            <button
+              type="button"
+              key={archetype.name}
+              className={`arch-card ${selectedArchetype === archetype.name ? "sel" : ""} ${
+                unlocked ? "" : "locked"
+              }`}
+              disabled={!unlocked}
+              onClick={() => onArchetypeChange(archetype.name)}
+            >
+              <div className="arch-name">{archetype.name}</div>
+              <div className="arch-attrs">
+                {(archetype.attributes || []).join(" ")}
+              </div>
+              {archetype.starting_item && (
+                <div className="arch-item">소지품 · {archetype.starting_item}</div>
+              )}
+              {(archetype.base_skills || []).length > 0 && (
+                <div className="arch-item">
+                  기본 스킬 · {(archetype.base_skills || []).join(" / ")}
+                </div>
+              )}
+              {!unlocked && (
+                <div className="arch-lock">LOCKED · {archetype.unlock_hint || "진행도 필요"}</div>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       <div className="ob-actions">
-        <button disabled={isBusy} onClick={onStartGame} id="start">
+        <button
+          disabled={isBusy || !selectedArchetype || scenario?.unlocked === false}
+          onClick={onStartGame}
+          id="start"
+        >
           접속 · 루프 시작
         </button>
         {resumeSessionData && (

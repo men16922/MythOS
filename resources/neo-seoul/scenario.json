@@ -49,19 +49,26 @@
       "name": "비접속자 (Ghost)",
       "stats": { "strength": 3, "intelligence": 6, "charisma": 2, "agility": 8, "perception": 7 },
       "attributes": ["[유령 신호]", "[무음의 발걸음]"],
-      "starting_item": "말소된 ID 카드"
+      "starting_item": "말소된 ID 카드",
+      "base_skills": ["signal_step", "packet_shot"]
     },
     {
       "name": "데이터 밀수꾼 (Data Smuggler)",
       "stats": { "strength": 5, "intelligence": 8, "charisma": 5, "agility": 4, "perception": 6 },
       "attributes": ["[ARK 링크]", "[데이터 세탁]"],
-      "starting_item": "오버클럭된 덱"
+      "starting_item": "오버클럭된 덱",
+      "base_skills": ["packet_shot", "covering_noise"],
+      "unlock": {"runs_completed": 1},
+      "unlock_hint": "튜토리얼 루프를 한 번 보관하면 해금됩니다."
     },
     {
       "name": "잔향 수집가 (Echo Collector)",
       "stats": { "strength": 2, "intelligence": 5, "charisma": 9, "agility": 3, "perception": 8 },
       "attributes": ["[기억의 직공]", "[과거의 공명]"],
-      "starting_item": "금 간 데이터 큐브"
+      "starting_item": "금 간 데이터 큐브",
+      "base_skills": ["patch_protocol", "covering_noise"],
+      "unlock": {"total_clues": 3},
+      "unlock_hint": "단서 3개를 누적 수집하면 해금됩니다."
     }
   ],
 
@@ -364,15 +371,25 @@
     },
     "archetype_loadout": {
       "비접속자 (Ghost)": ["vibro_blade"],
-      "데이터 밀수꾼 (Smuggler)": ["rivet_carbine"],
-      "잔향 수집가 (Collector)": ["shock_baton"]
+      "데이터 밀수꾼 (Data Smuggler)": ["rivet_carbine"],
+      "잔향 수집가 (Echo Collector)": ["shock_baton"]
+    },
+    "archetype_base_skills": {
+      "비접속자 (Ghost)": ["signal_step", "packet_shot"],
+      "데이터 밀수꾼 (Data Smuggler)": ["packet_shot", "covering_noise"],
+      "잔향 수집가 (Echo Collector)": ["patch_protocol", "covering_noise"]
+    },
+    "epiphanies": {
+      "first_loop_archived": {"runs_completed": 1},
+      "first_combat_victory": {"total_combats_won": 1},
+      "first_clue": {"total_clues": 1}
     },
     "skills": {
-      "signal_step": {"id": "signal_step", "name": "신호 도약", "role": "mobility", "cost": {"focus": 2}, "range": 4, "cooldown": 2, "effect": {"move": 4, "ignore_occupied": true}, "tags": ["movement", "escape"]},
-      "overload_strike": {"id": "overload_strike", "name": "과부하 일격", "role": "damage", "cost": {"focus": 2}, "range": 1, "cooldown": 2, "effect": {"damage_bonus": "1d6", "armor_pen": 2}, "tags": ["melee", "burst"]},
-      "packet_shot": {"id": "packet_shot", "name": "패킷 사격", "role": "damage", "cost": {"focus": 2}, "range": 5, "cooldown": 1, "effect": {"damage": "1d8", "to_hit_bonus": 1}, "tags": ["ranged"]},
-      "covering_noise": {"id": "covering_noise", "name": "엄호 노이즈", "role": "defense", "cost": {"focus": 2}, "range": 4, "cooldown": 3, "effect": {"defense_bonus": 3, "duration": 1}, "tags": ["support", "evasion"]},
-      "patch_protocol": {"id": "patch_protocol", "name": "패치 프로토콜", "role": "healing", "cost": {"item": "nanopatch"}, "range": 3, "cooldown": 0, "effect": {"heal": "2d6"}, "tags": ["item", "heal"]}
+      "signal_step": {"id": "signal_step", "name": "신호 도약", "role": "mobility", "cost": {"focus": 2}, "range": 4, "cooldown": 2, "effect": {"move": 4, "ignore_occupied": true}, "tags": ["movement", "escape"], "tier": 0, "max_rank": 3, "rankup_cost": 2, "unlock_hint": "Ghost 기본 기동 스킬입니다."},
+      "overload_strike": {"id": "overload_strike", "name": "과부하 일격", "role": "damage", "cost": {"focus": 2}, "range": 1, "cooldown": 2, "effect": {"damage_bonus": "1d6", "armor_pen": 2}, "tags": ["melee", "burst"], "tier": 1, "epiphany": "first_combat_victory", "requires": ["packet_shot"], "insight_cost": 3, "rankup_cost": 2, "max_rank": 3, "unlock_hint": "전투 승리 후 과부하 전술 깨달음으로 해금됩니다."},
+      "packet_shot": {"id": "packet_shot", "name": "패킷 사격", "role": "damage", "cost": {"focus": 2}, "range": 5, "cooldown": 1, "effect": {"damage": "1d8", "to_hit_bonus": 1}, "tags": ["ranged"], "tier": 0, "max_rank": 3, "rankup_cost": 2, "unlock_hint": "Ghost 기본 원거리 스킬입니다."},
+      "covering_noise": {"id": "covering_noise", "name": "엄호 노이즈", "role": "defense", "cost": {"focus": 2}, "range": 4, "cooldown": 3, "effect": {"defense_bonus": 3, "duration": 1}, "tags": ["support", "evasion"], "tier": 1, "epiphany": "first_loop_archived", "requires": ["signal_step"], "insight_cost": 3, "rankup_cost": 2, "max_rank": 3, "unlock_hint": "첫 루프 보관 후 세린의 엄호 패턴을 학습하면 해금됩니다."},
+      "patch_protocol": {"id": "patch_protocol", "name": "패치 프로토콜", "role": "healing", "cost": {"item": "nanopatch"}, "range": 3, "cooldown": 0, "effect": {"heal": "2d6"}, "tags": ["item", "heal"], "tier": 1, "epiphany": "first_clue", "requires": ["packet_shot"], "insight_cost": 4, "rankup_cost": 2, "max_rank": 3, "unlock_hint": "첫 단서를 수집해 자가 복구 절차를 이해하면 해금됩니다."}
     },
     "allies": {
       "se_rin": {"id": "se_rin", "name": "정세린", "alias": "물거미", "recruit_keywords": ["정세린", "세린", "물거미", "첫 번째 인도자", "비접속자 연대"], "unlock_flags": ["met_se_rin", "trusted_se_rin"], "hp": 14, "defense": 13, "speed": 5, "ai": "ranged", "blip": "◆", "image": "characters/se-rin.png", "combat_images": {"idle": "characters/combat/se-rin-idle.png", "attack": "characters/combat/se-rin-attack.png", "guard": "characters/combat/se-rin-guard.png", "skill": "characters/combat/se-rin-skill.png", "hit": "characters/combat/se-rin-hit.png"}, "weapons": ["rivet_carbine"], "skills": ["covering_noise", "packet_shot"], "stats": {"strength": 4, "agility": 7, "perception": 7}},

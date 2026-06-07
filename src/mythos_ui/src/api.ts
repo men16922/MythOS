@@ -7,6 +7,7 @@ import type {
   RunSummary,
   CombatState,
   CombatAction,
+  SkillTreeResponse,
 } from "./types";
 
 const API_BASE = ""; // Relative to host (served on same port)
@@ -31,8 +32,9 @@ async function apiGet<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export async function apiGetScenarios(): Promise<{ scenarios: ScenarioInfo[] }> {
-  return apiGet<{ scenarios: ScenarioInfo[] }>("/api/v1/scenarios");
+export async function apiGetScenarios(playerId?: string | null): Promise<{ scenarios: ScenarioInfo[] }> {
+  const query = playerId ? `?player_id=${encodeURIComponent(playerId)}` : "";
+  return apiGet<{ scenarios: ScenarioInfo[] }>(`/api/v1/scenarios${query}`);
 }
 
 export async function apiConnect(params: {
@@ -112,6 +114,44 @@ export async function apiSaveSlot(params: {
 
 export async function apiGetRuns(playerId: string): Promise<{ runs: RunSummary[] }> {
   return apiGet<{ runs: RunSummary[] }>(`/api/v1/runs?player_id=${encodeURIComponent(playerId)}`);
+}
+
+export async function apiGetSkillTree(
+  playerId: string,
+  scenarioId: string
+): Promise<SkillTreeResponse> {
+  return apiGet<SkillTreeResponse>(
+    `/api/v1/players/${encodeURIComponent(playerId)}/skills?scenario_id=${encodeURIComponent(scenarioId)}`
+  );
+}
+
+export async function apiLearnSkill(params: {
+  player_id: string;
+  scenario_id: string;
+  skill_id: string;
+}): Promise<SkillTreeResponse> {
+  const res = await fetch(
+    `${API_BASE}/api/v1/players/${encodeURIComponent(params.player_id)}/skills/learn`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        scenario_id: params.scenario_id,
+        skill_id: params.skill_id,
+      }),
+    }
+  );
+  if (!res.ok) {
+    let detail = `${res.status}`;
+    try {
+      const data = await res.json();
+      if (data && typeof data.detail === "string") detail = data.detail;
+    } catch {
+      detail = await res.text();
+    }
+    throw new Error(detail);
+  }
+  return res.json() as Promise<SkillTreeResponse>;
 }
 
 export interface LoopSceneRecord {

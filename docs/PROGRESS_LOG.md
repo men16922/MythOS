@@ -6,6 +6,86 @@
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는
 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-07 — Scenario Expansion: 데이터 주도 진행도 + glass-library 패리티
+
+- Status: [x] 진행도 grant를 scenario.json 데이터 주도로 전환(시나리오 비종속), glass-library를 progression/presentation 패리티로 보강. 공유 캐시 오염 버그 수정.
+- Changed:
+  - `progression.py`: `evaluate_meta_progression`이 `archetypes[].unlock`·`combat.skills[].epiphany`(+`combat.epiphanies` 매핑)에서 아키타입/스킬 해금을 **데이터 주도**로 도출. 깨달음은 **해금만**(자동 습득 제거) → Phase 2 통찰 습득과 일관. `_condition_met` 헬퍼, `_DEFAULT_EPIPHANY_CONDITIONS`. 하드코딩 neo-seoul grant 제거(시나리오 교차 오염 버그 수정). 호출부(`ProgressionService`/`session.py`)가 scenario 전달.
+  - `scenario.py`: `ScenarioConfig.unlock`/`unlock_hint`(Phase 3) 외 — neo-seoul/glass `combat.epiphanies` 추가.
+  - `neo-seoul/scenario.json`: `combat.epiphanies` 추가.
+  - `glass-library/scenario.json`: 아키타입 `base_skills`/`unlock`/`unlock_hint`, `combat.archetype_base_skills`, `combat.epiphanies`, 스킬 `tier`/`epiphany`/`requires`/insight 비용, `ui_copy`(signal/boot/intro/session_intro) 추가.
+  - `mythos_combat/engine.py`: `CombatEngine`가 lru_cached scenario의 skills dict를 **복사**해 보관(테스트의 `engine.skills_pool[...]` 변형이 캐시를 오염시키던 버그 수정).
+- Verified: `make test` 223 tests / 2 skipped(+1 신규, 1 재작성), `make frontend-lint`/`make frontend-build`, `.venv/bin/python tests/playwright/test_e2e_play_checklist.py` 그린. neo-seoul/glass 진행도 시나리오 스코프 분리 확인.
+
+## 2026-06-07 — Controllable Party Allies (파티 조작 2단계)
+
+- Status: [x] 파티원 직접 조작 / 비파티 동맹 AI 유지. 전투 턴 루프를 player-only stop에서 controllable-actor stop으로 일반화.
+- Changed:
+  - `mythos_combat/models.py`: `Combatant.controllable` + `is_controllable` 프로퍼티, `CombatState.active_actor()`/`living_controllables()`.
+  - `mythos_combat/engine.py`: `_run_opening`/`_run_until_controllable`가 임의의 조작 가능 유닛에서 정지. `take_player_turn`·`available_actions`가 `active_actor` 기준으로 동작(도주는 PLAYER만, 파티원은 거부). `_check_outcome` 패배 판정 = 조작 가능 유닛 전멸. 라운드 upkeep 헬퍼 통합(`_tick_round_upkeep`). `available_actions`에 `active_actor_id/name`/`is_player` 노출.
+  - `mythos_combat/factory.py`: `build_ally_combatant(controllable=...)`.
+  - `mythos_runtime/combat_service.py`: `_build_allies`가 `_party.members` 소속만 `controllable=True`, flag 해금 동맹은 AI 유지.
+  - 프론트: `types.ts` `CombatAvailableActions`에 active actor 필드, `CombatControls`가 현재 차례(플레이어/동료) 표시 + 파티원 턴엔 도주 버튼 숨김, `index.css` `.active-actor`.
+- Verified: `make test` 222 tests / 2 skipped(+3 신규: 파티원 입력 대기, 파티원 도주 불가, AI 동맹 자동 진행), 단일 플레이어 회귀 무손상, `make frontend-lint`/`make frontend-build`, `.venv/bin/python tests/playwright/test_e2e_play_checklist.py` 그린.
+
+## 2026-06-07 — Progression Skills / Archetypes Phase 3 (깨달음 연출 + 시나리오 해금)
+
+- Status: [x] 시나리오 간 해금 게이팅 + 깨달음(새 해금 스킬) 알림 배너 구현.
+- Changed:
+  - `scenario.py`: `ScenarioConfig`에 `unlock`/`unlock_hint` 필드 + 로더.
+  - `progression.py`: `scenario_unlock_met`(tutorial_completed / runs_completed 조건; unlock 없으면 항상 해금) 추가.
+  - `glass-library/scenario.json`: `unlock={"tutorial_completed": true}` + 힌트(Neo-Seoul 튜토리얼 완료 시 해금).
+  - `app.py` `/scenarios`: 시나리오별 `unlocked`/`unlock_hint` 계산(플레이어 메타 기준), 메모리 조회 1회로 통합.
+  - 프론트: `types.ts`(`ScenarioInfo.unlocked/unlock_hint`, `RunSummary.unlocks_granted/scenario_id`), `OnboardingPanel`(잠긴 시나리오 옵션 disabled + 🔒 힌트 + start 게이팅), `App.tsx`(기본 선택을 첫 해금 시나리오로, 깨달음 배너 = 최근 런 `unlocks_granted`에서 신규 스킬 추출, localStorage 1회 dismiss), `viewModels.ts`(`buildEpiphanyNotice`), `index.css`(`.epiphany-banner`/`.ob-scenario-lock`).
+- Verified: `make test` 219 tests / 2 skipped(+5 신규), `make frontend-lint`, `make frontend-build`, `.venv/bin/python tests/playwright/test_e2e_play_checklist.py` 그린.
+
+## 2026-06-07 — Progression Skills / Archetypes Phase 2 (통찰 투자)
+
+- Status: [x] 통찰 포인트 적립 규칙, learn/rank-up API, Codex 습득/강화 버튼, tier 선행 게이팅 구현.
+- Changed:
+  - `progression.py`: 통찰 적립(`_insight_accrual` = run+2/clue+1/win+1)을 `evaluate_meta_progression`에 배선하고 grants에 `insight_points:+N` 기록. `build_skill_tree`(노드별 status/rank/max_rank/learn·rankup cost/requires/requires_met/action/can_afford), `learn_or_rank_skill`(해금·선행·잔액·최대랭크 검증 후 통찰 소비, ValueError로 사유 반환), `base_skills_for_archetype` 헬퍼 추가. `ProgressionService.skill_tree/learn_skill` 메서드로 메타 진행 영속화.
+  - `scenario.json`: combat 스킬에 `insight_cost`/`rankup_cost`/`max_rank`/`requires`(tier1 선행 노드) 메타 추가.
+  - `session.py`: `skill_tree`/`learn_skill` 서비스 메서드(플레이어 아키타입 기준).
+  - `app.py`: `GET /api/v1/players/{id}/skills`(트리 상태) + `POST /api/v1/players/{id}/skills/learn`(통찰 소비, 잘못된 액션 시 400) 엔드포인트, `LearnSkillRequest`.
+  - 프론트: `types.ts` `SkillTreeNode`/`SkillTreeResponse`, `api.ts` `apiGetSkillTree`/`apiLearnSkill`(detail 메시지 surfacing), `App.tsx` skillTree/learning/error 상태 + `loadSkillTree`/`handleLearnSkill`(codex 탭 진입 시 로드), `CodexPanel.tsx` 통찰 잔액 + 습득/강화 버튼 + 선행/잔액 비활성 + 에러 표시, `index.css` `.skill-tree-action`/`.skill-tree-error`.
+- Verified: `make test` 214 tests / 2 skipped(+9 신규), `make frontend-lint`, `make frontend-build`, `.venv/bin/python tests/playwright/test_e2e_play_checklist.py` 그린.
+
+## 2026-06-07 — Progression Skills / Archetypes Phase 1
+
+- Status: [x] 아키타입 해금 게이트, 전투 스킬 base+learned 필터, Codex read-only Skill 트리 구현.
+- Changed:
+  - `progression.py`: `unlocked_archetypes`/`unlocked_skills`/`learned_skills`/`skill_ranks`/`insight_points`/`epiphanies_seen` 메타 진행 버킷 추가. Ghost 기본 해금, 첫 런/단서/전투승리 조건으로 아키타입·스킬 자동 grant.
+  - `scenario.json`: 아키타입별 `base_skills`, unlock 조건/힌트, combat `archetype_base_skills`, 스킬 tier/epiphany/unlock_hint 메타 추가.
+  - `/api/v1/scenarios`: `player_id` 쿼리 기준 메타 진행도를 반영해 아키타입 `unlocked` 상태와 스킬 목록을 내려줌.
+  - `OnboardingPanel`: 잠긴 아키타입 disabled 표시, 기본 스킬/해금 힌트 노출.
+  - `CombatService`: 시나리오 전체 스킬 대신 선택 아키타입 기본 스킬 + learned 스킬만 플레이어 액션으로 노출.
+  - `CodexPanel`: snapshot/scenario 기반 read-only Skill 트리 추가(상태, 랭크, 역할, tier, cost/range/cooldown/tags/hint).
+- Verified: `make test` 205 tests / 2 skipped, `make frontend-lint`, `make frontend-build`, `.venv/bin/python tests/playwright/test_e2e_play_checklist.py`.
+
+## 2026-06-07 — BGM Retry + Combat SFX Impact Polish
+
+- Status: [x] BGM 무음 회귀 방지, MusicGen 기반 전투 효과음 타격감 강화, play-checklist 완료 처리.
+- Changed:
+  - `HeaderBar.tsx`/`App.tsx`/`index.css`: 최상단 우측 persistent BGM START/ON/OFF 토글 추가. 사용자 제스처로 오디오를 unlock하고 localStorage에 on/off 선호를 유지.
+  - `BootIntro` enter 흐름: 메인 화면 진입 클릭에서 `bgm_main.wav`를 즉시 재생해 시작 전 메인 BGM 무음 문제를 해소. 세션 종료 후 메인으로 돌아올 때도 BGM ON 상태면 main BGM으로 복귀.
+  - `App.tsx`: BGM 경로 정규화/재시도 로직 개선. 파일 로드 실패나 autoplay 차단 뒤 같은 BGM 경로가 재생 재시도를 막지 않도록 `currentBgmSrc`를 복구하고, 기존 재생 중인 곡만 early-return. 전투 시뮬레이터 직행도 `bgm_combat_normal.wav`를 명시적으로 재생.
+  - `App.tsx`: CombatCinema cue 볼륨을 상향하고 SFX volume clamp 추가.
+  - `scripts/generate_sfx_resources.py`: `combat-impact` 모드 추가. `facebook/musicgen-small`로 attack/defend/move/glitch를 짧고 강한 one-shot 프롬프트로 재생성하고 transient/sub punch 후처리 적용. `skills-only` 스킬 SFX도 동일 방향으로 프롬프트 강화.
+  - `tests/playwright/test_e2e_play_checklist.py`: mock BGM을 실제 wav 리소스 경로로 교체하고, request 이벤트 기반으로 exploration/combat BGM 및 skill/impact SFX 요청 검증.
+  - `docs/NEXT_PLAN.md`/`docs/play-checklist.md`: Priority 1 전투 연출을 현재 플레이 기준 완료 처리, 다음 신규 기능 우선순위를 Progression Skills / Archetypes로 정리.
+- Verified: MusicGen WAV 재생성 완료(32kHz, one-shot), `make frontend-lint`, `make frontend-build`, `.venv/bin/python tests/playwright/test_e2e_play_checklist.py` (`bgm_main.wav` 메인 진입/복귀 요청 포함).
+
+## 2026-06-07 — Combat Skill SFX + Combat Result Image
+
+- Status: [x] 전투 시네마 오버레이 스킬별 MusicGen SFX cue와 전투 종료 결과 이미지 패널 구현.
+- Changed:
+  - `CombatCinema.tsx`: enter/windup/impact/exit cue 콜백 추가, 스킬 카드 전용 SFX가 읽히도록 windup 타임라인 소폭 확장.
+  - `App.tsx`: CombatCinema cue를 스킬별 `audio/sfx/skills/<skill_id>.wav`와 impact/defend/move 공용 SFX에 연결. 오버레이 이후 보드 애니메이션은 승패 종료음만 재생해 타격음 중복을 줄임.
+  - `scripts/generate_sfx_resources.py`: `skills-only` 모드 추가, `facebook/musicgen-small`로 `signal_step/overload_strike/packet_shot/covering_noise/patch_protocol` 전용 SFX 5종 생성.
+  - `StoryPanel.tsx`/`index.css`: 전투 종료 시 `combat_images` 기반 합성 결과 이미지 패널 표시. 승리/도주/패배 copy와 기존 `계속`/`메인 화면으로` 액션 유지.
+  - Playwright E2E: CombatCinema phase sampling을 오디오 cue 타이밍에 맞게 안정화하고 `skills/packet_shot.wav`/`sfx_attack.wav` 요청 검증 추가.
+- Verified: `make frontend-lint`, `make frontend-build`, `.venv/bin/python tests/playwright/test_e2e_play_checklist.py`.
+
 ## 2026-06-07 — Repo 정리 + session.py 모듈화/책임분리
 
 - Status: [x] 정크 제거, historical 문서/스크립트 bin/ 이관, md 참조 정합화, session god-object 분해.

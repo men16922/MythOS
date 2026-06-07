@@ -3,12 +3,48 @@ export interface ScenarioArchetype {
   attributes: string[];
   starting_item?: string;
   stats?: Record<string, number>;
+  base_skills?: string[];
+  unlock?: Record<string, unknown> | null;
+  unlock_hint?: string;
+  unlocked?: boolean;
+}
+
+export interface ScenarioSkill {
+  id: string;
+  name: string;
+  role?: string;
+  tags?: string[];
+  cost?: Record<string, number | string>;
+  range?: number;
+  cooldown?: number;
+  tier?: number;
+  epiphany?: string;
+  unlock_hint?: string;
 }
 
 export interface ScenarioEnding {
   id: string;
   title: string;
   condition: string;
+}
+
+export interface SkillTreeNode extends ScenarioSkill {
+  status: "learned" | "unlocked" | "locked";
+  rank: number;
+  max_rank: number;
+  learn_cost: number;
+  rankup_cost: number;
+  requires: string[];
+  requires_met: boolean;
+  is_base: boolean;
+  action: "learn" | "rankup" | null;
+  action_cost: number;
+  can_afford: boolean;
+}
+
+export interface SkillTreeResponse {
+  insight_points: number;
+  skills: SkillTreeNode[];
 }
 
 export interface ScenarioCharacter {
@@ -29,11 +65,14 @@ export interface ScenarioInfo {
   name: string;
   brief: string;
   archetypes: ScenarioArchetype[];
+  skills?: ScenarioSkill[];
   endings: ScenarioEnding[];
   characters?: ScenarioCharacter[];
   encounters?: ScenarioRef[];
   allies?: ScenarioRef[];
   ui_copy?: Record<string, unknown>;
+  unlocked?: boolean;
+  unlock_hint?: string;
 }
 
 export interface PlayerProfile {
@@ -145,6 +184,10 @@ export interface CombatAvailableActions {
   targets?: CombatTargetInfo[];
   skills?: CombatSkillInfo[];
   reachable?: [number, number][];
+  // Whose turn it is — the player or a controllable party member.
+  active_actor_id?: string;
+  active_actor_name?: string;
+  is_player?: boolean;
 }
 
 export interface CombatLogDetail {
@@ -244,6 +287,8 @@ export interface RunSummary {
   ending_label?: string;
   turns: number;
   ended_at: string;
+  unlocks_granted?: string[];
+  scenario_id?: string;
 }
 
 export interface NarrativeShard {

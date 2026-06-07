@@ -33,6 +33,11 @@ from mythos_api.service import get_service, get_storage_adapter
 from mythos_core import Actor, AssetRecord
 from mythos_runtime.combat_server import combat_action_response, combat_state_response
 from mythos_runtime.options import RuntimeOptions, RuntimeSnapshot, RuntimeStreamEvent
+from mythos_runtime.progression import (
+    DEFAULT_ARCHETYPE,
+    latest_meta_progression,
+    scenario_unlock_met,
+)
 from mythos_runtime.scenario import load_scenario
 from mythos_runtime.session import RuntimeSessionService
 from mythos_runtime.visual_service import MinIOStorageAdapter, VisualGenerationResult
@@ -96,6 +101,11 @@ class ManualSaveRequest(BaseModel):
 class AssetResolveRequest(BaseModel):
     storage_uri: str = Field(min_length=1)
     expires_in: int = Field(default=600, ge=1, le=86400)
+
+
+class LearnSkillRequest(BaseModel):
+    skill_id: str = Field(min_length=1)
+    scenario_id: str = "neo-seoul"
 
 
 # --- Error mapping ----------------------------------------------------------
@@ -269,28 +279,62 @@ def create_app() -> FastAPI:
         return {"status": "ok"}
 
     @app.get(f"{API_PREFIX}/scenarios")
-    def scenarios() -> dict[str, Any]:
+    def scenarios(
+        player_id: str | None = None,
+        service: RuntimeSessionService = Depends(get_service),
+    ) -> dict[str, Any]:
         # Onboarding data: scenario list + selectable archetypes.
         items: list[dict[str, Any]] = []
+        memories = service.store.list_player_memories(player_id) if player_id else []
         for sid in _SCENARIO_IDS:
             try:
                 s = load_scenario(sid)
             except Exception:
                 continue
+            unlocked_archetypes = {DEFAULT_ARCHETYPE}
+            if player_id:
+                progress = latest_meta_progression(memories, player_id, sid)
+                unlocked_archetypes = set(progress.unlocked_archetypes)
+            scenario_unlocked = scenario_unlock_met(s.unlock, memories, player_id or "")
             items.append(
                 {
                     "id": sid,
                     "name": s.name,
                     "brief": s.brief,
                     "ui_copy": s.ui_copy,
+                    "unlocked": scenario_unlocked,
+                    "unlock_hint": "" if scenario_unlocked else s.unlock_hint,
                     "archetypes": [
                         {
                             "name": a.get("name"),
                             "attributes": a.get("attributes", []),
                             "starting_item": a.get("starting_item"),
                             "stats": a.get("stats", {}),
+                            "base_skills": a.get("base_skills", []),
+                            "unlock": a.get("unlock"),
+                            "unlock_hint": a.get("unlock_hint", ""),
+                            "unlocked": not bool(a.get("unlock"))
+                            or str(a.get("name")) in unlocked_archetypes,
                         }
                         for a in s.archetypes
+                    ],
+                    "skills": [
+                        {
+                            "id": skill_id,
+                            "name": skill.get("name", skill_id),
+                            "role": skill.get("role", ""),
+                            "tags": skill.get("tags", []),
+                            "cost": skill.get("cost", {}),
+                            "range": skill.get("range"),
+                            "cooldown": skill.get("cooldown", 0),
+                            "tier": skill.get("tier", 0),
+                            "epiphany": skill.get("epiphany"),
+                            "unlock_hint": skill.get("unlock_hint", ""),
+                        }
+                        for skill_id, skill in (
+                            s.combat.get("skills", {}) if isinstance(s.combat, dict) else {}
+                        ).items()
+                        if isinstance(skill, dict)
                     ],
                     "endings": [
                         {
@@ -508,6 +552,30 @@ def create_app() -> FastAPI:
         try:
             runs = service.list_run_summaries(player_id)
             return {"runs": [run_summary_to_dict(run) for run in runs]}
+        except RuntimeError as exc:
+            raise _as_http_error(exc) from exc
+
+    @app.get(f"{API_PREFIX}/players/{{player_id}}/skills")
+    def get_skill_tree(
+        player_id: str,
+        scenario_id: str = "neo-seoul",
+        service: RuntimeSessionService = Depends(get_service),
+    ) -> dict[str, Any]:
+        try:
+            return service.skill_tree(player_id, scenario_id)
+        except RuntimeError as exc:
+            raise _as_http_error(exc) from exc
+
+    @app.post(f"{API_PREFIX}/players/{{player_id}}/skills/learn")
+    def learn_skill(
+        player_id: str,
+        body: LearnSkillRequest,
+        service: RuntimeSessionService = Depends(get_service),
+    ) -> dict[str, Any]:
+        try:
+            return service.learn_skill(player_id, body.scenario_id, body.skill_id)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
         except RuntimeError as exc:
             raise _as_http_error(exc) from exc
 

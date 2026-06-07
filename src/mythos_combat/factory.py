@@ -144,6 +144,7 @@ def build_ally_combatant(
     x: int,
     y: int,
     hp: int | None = None,
+    controllable: bool = False,
 ) -> Combatant:
     stats = {
         **_DEFAULT_STATS,
@@ -171,6 +172,7 @@ def build_ally_combatant(
         focus=max_focus,
         max_focus=max_focus,
         skills=[str(skill_id) for skill_id in entry.get("skills", [])],
+        controllable=controllable,
     )
 
 

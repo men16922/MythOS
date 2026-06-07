@@ -2,25 +2,51 @@
   "scenario_id": "glass-library",
   "name": "세계 : 접속 - 유리성의 사서",
   "version": "0.1.0",
+  "unlock": {"tutorial_completed": true},
+  "unlock_hint": "Neo-Seoul 튜토리얼 루프를 한 번 완료하면 열립니다.",
   "brief": "WORLD: Glass Library, a collapsing archive of failed worlds and lost memories.\nPREMISE: The connector must find the first connector record before the censors bind it shut.\nTONE: quiet wonder, archival horror, melancholy mystery, crystalline Y2K fantasy.\nPHILOSOPHY: To remember is to change what survived.",
+  "ui_copy": {
+    "signal_title": "유리성 접속 신호",
+    "signal_body": "무너지는 기록의 도서관이 당신을 호출한다. 검열자가 첫 접속자의 기록을 봉인하기 전에 그것을 찾아라.",
+    "signal_lines": ["…유리 서가가 울린다…", "…반납되지 않은 이름이 깜빡인다…", "…검열 봉인이 다가온다…"],
+    "boot_lines": ["GLASS-LIBRARY 접속 프로토콜 초기화", "목록 색인 동기화…", "검열 감시망 회피 경로 탐색…"],
+    "boot_marker": "유리성",
+    "intro_lines": ["당신은 대출된 손님으로 유리성에 들어선다.", "기억은 읽는 순간 다시 쓰인다."],
+    "intro_dim_lines": ["남은 것을 기억하는 것은, 살아남은 것을 바꾸는 일이다."],
+    "session_intro": {
+      "kicker": "세계 : 접속",
+      "title": "유리성의 사서",
+      "body": "실패한 세계들의 기록이 유리 서가에 잠들어 있다. 검열자가 첫 접속자의 기록을 봉인하기 전에, 당신은 그것을 찾아 읽어야 한다.",
+      "rules": ["읽기는 곧 개입이다 — 기록을 열람할 때마다 세계가 미세하게 바뀐다.", "검열 봉인이 차오르면 서가가 닫힌다.", "단서를 모아 권한을 높여라."],
+      "objective": "첫 접속자의 기록을 찾아 봉인 전에 복원하라.",
+      "continue_button": "열람 시작 ▸"
+    }
+  },
   "archetypes": [
     {
       "name": "목록 해석자 (Catalog Interpreter)",
       "stats": {"strength": 2, "intelligence": 9, "charisma": 4, "agility": 4, "perception": 8},
       "attributes": ["[색인 해독]", "[금서 감응]"],
-      "starting_item": "금 간 목록 렌즈"
+      "starting_item": "금 간 목록 렌즈",
+      "base_skills": ["silent_shelve", "index_cut"]
     },
     {
       "name": "반납되지 않은 독자 (Unreturned Reader)",
       "stats": {"strength": 4, "intelligence": 5, "charisma": 8, "agility": 4, "perception": 7},
       "attributes": ["[잔향 공명]", "[잊힌 이름]"],
-      "starting_item": "빈 반납 카드"
+      "starting_item": "빈 반납 카드",
+      "base_skills": ["silent_shelve", "restore_margin"],
+      "unlock": {"runs_completed": 1},
+      "unlock_hint": "유리성 루프를 한 번 완료하면 해금됩니다."
     },
     {
       "name": "제본 도주자 (Binder Fugitive)",
       "stats": {"strength": 6, "intelligence": 5, "charisma": 3, "agility": 8, "perception": 6},
       "attributes": ["[봉인 파쇄]", "[무음 질주]"],
-      "starting_item": "녹슨 제본 칼"
+      "starting_item": "녹슨 제본 칼",
+      "base_skills": ["index_cut", "silent_shelve"],
+      "unlock": {"total_clues": 3},
+      "unlock_hint": "단서 3개를 누적 수집하면 해금됩니다."
     }
   ],
   "autonomy_config": {
@@ -143,10 +169,18 @@
       "반납되지 않은 독자 (Unreturned Reader)": ["index_dagger"],
       "제본 도주자 (Binder Fugitive)": ["binder_knife"]
     },
+    "archetype_base_skills": {
+      "목록 해석자 (Catalog Interpreter)": ["silent_shelve", "index_cut"],
+      "반납되지 않은 독자 (Unreturned Reader)": ["silent_shelve", "restore_margin"],
+      "제본 도주자 (Binder Fugitive)": ["index_cut", "silent_shelve"]
+    },
+    "epiphanies": {
+      "first_restoration": {"total_clues": 1}
+    },
     "skills": {
-      "silent_shelve": {"id": "silent_shelve", "name": "무음 서가 이동", "role": "mobility", "cost": {"focus": 2}, "range": 4, "cooldown": 2, "effect": {"move": 4, "ignore_occupied": true}, "tags": ["movement", "stealth"]},
-      "restore_margin": {"id": "restore_margin", "name": "여백 복원", "role": "healing", "cost": {"focus": 2}, "range": 3, "cooldown": 2, "effect": {"heal": "1d8"}, "tags": ["support", "memory"]},
-      "index_cut": {"id": "index_cut", "name": "색인 절단", "role": "damage", "cost": {"focus": 2}, "range": 1, "cooldown": 1, "effect": {"damage_bonus": "1d6", "armor_pen": 1}, "tags": ["melee", "archive"]}
+      "silent_shelve": {"id": "silent_shelve", "name": "무음 서가 이동", "role": "mobility", "cost": {"focus": 2}, "range": 4, "cooldown": 2, "effect": {"move": 4, "ignore_occupied": true}, "tags": ["movement", "stealth"], "tier": 0, "max_rank": 3, "rankup_cost": 2, "unlock_hint": "기본 기동 스킬입니다."},
+      "restore_margin": {"id": "restore_margin", "name": "여백 복원", "role": "healing", "cost": {"focus": 2}, "range": 3, "cooldown": 2, "effect": {"heal": "1d8"}, "tags": ["support", "memory"], "tier": 1, "epiphany": "first_restoration", "requires": ["silent_shelve"], "insight_cost": 4, "rankup_cost": 2, "max_rank": 3, "unlock_hint": "첫 단서를 복원해 여백을 되살리는 절차를 깨달으면 해금됩니다."},
+      "index_cut": {"id": "index_cut", "name": "색인 절단", "role": "damage", "cost": {"focus": 2}, "range": 1, "cooldown": 1, "effect": {"damage_bonus": "1d6", "armor_pen": 1}, "tags": ["melee", "archive"], "tier": 0, "max_rank": 3, "rankup_cost": 2, "unlock_hint": "기본 근접 스킬입니다."}
     },
     "allies": {
       "io": {"id": "io", "name": "이오", "alias": "유리성의 사서", "recruit_keywords": ["이오", "사서", "유리성의 사서"], "unlock_flags": ["io_trust", "librarian_allied"], "hp": 12, "defense": 14, "speed": 4, "ai": "ranged", "blip": "◇", "weapons": ["catalog_beam"], "skills": ["restore_margin"], "stats": {"strength": 2, "agility": 4, "perception": 8}},

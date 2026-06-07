@@ -5,6 +5,9 @@ interface HeaderBarProps {
   playerName?: string;
   archetype?: string;
   selectedArchetype?: string | null;
+  bgmEnabled: boolean;
+  bgmReady: boolean;
+  onToggleBgm: () => void;
   onLeaveSession: () => void;
 }
 
@@ -15,6 +18,9 @@ export function HeaderBar({
   playerName,
   archetype,
   selectedArchetype,
+  bgmEnabled,
+  bgmReady,
+  onToggleBgm,
   onLeaveSession,
 }: HeaderBarProps) {
   return (
@@ -24,6 +30,15 @@ export function HeaderBar({
         <span className="sub">MythOS React SPA · WS Streamer + Canvas Radar</span>
       </div>
       <div className="spacer"></div>
+      <button
+        type="button"
+        className={`bgm-toggle ${bgmEnabled ? "is-on" : "is-off"}`}
+        aria-pressed={bgmEnabled}
+        onClick={onToggleBgm}
+        title={bgmEnabled && bgmReady ? "BGM 끄기" : "BGM 켜기"}
+      >
+        BGM {bgmEnabled ? (bgmReady ? "ON" : "START") : "OFF"}
+      </button>
       {connected && (
         <div className="controls" id="session-chip">
           <span className="sub" id="session-info">

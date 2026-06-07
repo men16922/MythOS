@@ -10,6 +10,8 @@ import {
   apiSaveSlot,
   apiGetRuns,
   apiGetLoopScenes,
+  apiGetSkillTree,
+  apiLearnSkill,
   apiBegin,
   apiCombatBegin,
   getWebSocketUrl,
@@ -27,6 +29,7 @@ import { IntroPanel } from "./IntroPanel";
 import type { IntroData } from "./IntroPanel";
 import type {
   ScenarioInfo,
+  ScenarioArchetype,
   RuntimeSnapshot,
   MemoryOverview,
   SaveSlot,
@@ -37,6 +40,7 @@ import type {
   CombatState,
   CombatBlip,
   CombatLogEntry,
+  SkillTreeResponse,
 } from "./types";
 import { drawCombatCanvas, combatCellFromPoint } from "./combatCanvas";
 import type { CombatDragOverlay } from "./combatCanvas";
@@ -44,7 +48,12 @@ import { CombatAnimator, prefersReducedMotion } from "./combatEffects";
 import { CombatCinema } from "./CombatCinema";
 import { LS_KEY, parseResumeSession } from "./sessionStorage";
 import type { ResumeSessionData } from "./sessionStorage";
-import { buildCodexLists, buildDevConsoleData } from "./viewModels";
+import { buildCodexLists, buildDevConsoleData, buildEpiphanyNotice } from "./viewModels";
+
+const BGM_PREF_KEY = "mythos_bgm_enabled";
+
+const firstUnlockedArchetype = (archetypes: ScenarioArchetype[]) =>
+  archetypes.find((archetype) => archetype.unlocked !== false)?.name || null;
 
 interface CombatCinemaContext {
   attacker: CombatBlip;
@@ -55,6 +64,8 @@ interface CombatCinemaContext {
   skillName?: string;
   miss?: boolean;
 }
+
+type CombatCinemaCue = "enter" | "windup" | "impact" | "exit";
 
 export default function App() {
   // --- Connection / Onboarding State ---
@@ -68,6 +79,8 @@ export default function App() {
   const [obStatus, setObStatus] = useState("");
   const [connected, setConnected] = useState(false);
   const [showIntro, setShowIntro] = useState(false);
+  const [bgmEnabled, setBgmEnabled] = useState(() => localStorage.getItem(BGM_PREF_KEY) !== "off");
+  const [bgmReady, setBgmReady] = useState(false);
   // 앱 첫 진입(메인 화면) 시 1회 재생되는 부팅 오프닝.
   const [showBoot, setShowBoot] = useState(true);
 
@@ -89,6 +102,16 @@ export default function App() {
   const [runsHistory, setRunsHistory] = useState<RunSummary[]>([]);
   const [memoryOverview, setMemoryOverview] = useState<MemoryOverview | null>(null);
   const [saveLabelInput, setSaveLabelInput] = useState("");
+  const [skillTree, setSkillTree] = useState<SkillTreeResponse | null>(null);
+  const [learningSkillId, setLearningSkillId] = useState<string | null>(null);
+  const [skillError, setSkillError] = useState<string | null>(null);
+  const [dismissedEpiphany, setDismissedEpiphany] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem("mythos_epiphany_seen");
+    } catch {
+      return null;
+    }
+  });
 
   // --- Typewriter / Narration State ---
   const [displayedNarration, setDisplayedNarration] = useState("");
@@ -146,7 +169,13 @@ export default function App() {
 
   // --- Audio Engine Helpers ---
   const initAudio = () => {
-    if (audioContextActive.current) return;
+    setBgmReady(true);
+    if (audioContextActive.current) {
+      if (lastSnapshot?.bgm_path) {
+        playBgm(lastSnapshot.bgm_path);
+      }
+      return;
+    }
     audioContextActive.current = true;
     logToConsole("오디오 장치가 활성화되었습니다.");
     if (lastSnapshot?.bgm_path) {
@@ -154,69 +183,190 @@ export default function App() {
     }
   };
 
-  const playBgm = (bgmPath: string) => {
-    if (!audioContextActive.current || !bgmPath) return;
-
-    let srcUrl = bgmPath;
-    if (!bgmPath.startsWith("http") && !bgmPath.startsWith("/")) {
-      srcUrl = "/" + bgmPath;
+  const normalizeAudioUrl = (audioPath: string) => {
+    let srcUrl = audioPath.trim();
+    if (!srcUrl.startsWith("http") && !srcUrl.startsWith("/")) {
+      srcUrl = "/" + srcUrl;
     }
 
     if (srcUrl.includes("resources/")) {
       srcUrl = "/resources/" + srcUrl.substring(srcUrl.indexOf("resources/") + 10);
     }
 
-    if (currentBgmSrc.current === srcUrl) return;
-    currentBgmSrc.current = srcUrl;
+    return srcUrl;
+  };
 
-    if (bgmAudioRef.current) {
+  const playBgm = (bgmPath: string, forceEnabled = false) => {
+    if (!audioContextActive.current || !bgmPath || (!forceEnabled && !bgmEnabled)) return;
+
+    const srcUrl = normalizeAudioUrl(bgmPath);
+    const existing = bgmAudioRef.current;
+    if (currentBgmSrc.current === srcUrl && existing && !existing.paused && !existing.error) {
+      return;
+    }
+
+    if (existing && (currentBgmSrc.current !== srcUrl || existing.error)) {
       try {
-        bgmAudioRef.current.pause();
+        existing.pause();
       } catch {
         logToConsole("기존 BGM 정지 중 오류가 발생했습니다.");
       }
+      bgmAudioRef.current = null;
     }
 
-    logToConsole("배경 음악(BGM) 로드: " + srcUrl);
-    const audio = new Audio(srcUrl);
+    const audio = bgmAudioRef.current || new Audio(srcUrl);
     audio.loop = true;
-    audio.volume = 0.45;
+    audio.volume = 0.5;
+    audio.preload = "auto";
     bgmAudioRef.current = audio;
-    audio.play().catch(() => {
-      logToConsole("BGM 자동재생이 차단되었습니다. 상호작용 후 재생됩니다.");
+    currentBgmSrc.current = srcUrl;
+
+    audio.addEventListener("error", () => {
+      if (currentBgmSrc.current === srcUrl) {
+        currentBgmSrc.current = "";
+      }
+      logToConsole("BGM 파일 로드 실패: " + srcUrl);
+    }, { once: true });
+
+    logToConsole("배경 음악(BGM) 로드: " + srcUrl);
+    audio.play().then(() => {
+      currentBgmSrc.current = srcUrl;
+    }).catch(() => {
+      if (currentBgmSrc.current === srcUrl) {
+        currentBgmSrc.current = "";
+      }
+      logToConsole("BGM 재생이 차단되었습니다. 다음 상호작용에서 다시 시도합니다.");
     });
   };
 
-  const playSfx = (key: string) => {
+  const mainBgmPath = () => `resources/${selectedScenarioId}/audio/bgm_main.wav`;
+
+  const preferredBgmPath = () => finalizedSnapshot?.bgm_path || lastSnapshot?.bgm_path || mainBgmPath();
+
+  const pauseBgm = () => {
+    if (!bgmAudioRef.current) return;
+    try {
+      bgmAudioRef.current.pause();
+    } catch {
+      logToConsole("BGM 정지 중 오류가 발생했습니다.");
+    }
+  };
+
+  const handleToggleBgm = () => {
+    if (bgmEnabled && !audioContextActive.current) {
+      initAudio();
+      playBgm(preferredBgmPath(), true);
+      logToConsole("BGM START");
+      return;
+    }
+
+    if (bgmEnabled) {
+      setBgmEnabled(false);
+      localStorage.setItem(BGM_PREF_KEY, "off");
+      pauseBgm();
+      logToConsole("BGM OFF");
+      return;
+    }
+
+    setBgmEnabled(true);
+    localStorage.setItem(BGM_PREF_KEY, "on");
+    initAudio();
+    playBgm(preferredBgmPath(), true);
+    logToConsole("BGM ON");
+  };
+
+  const playSfx = (key: string, volume = 0.55) => {
     if (!audioContextActive.current) return;
     const scenario = finalizedSnapshot?.player?.traits?.scenario_id || selectedScenarioId;
     const srcUrl = `/resources/${scenario}/audio/sfx/${key}.wav`;
     const audio = new Audio(srcUrl);
-    audio.volume = 0.55;
+    audio.volume = Math.min(1, Math.max(0, volume));
+    audio.addEventListener("error", () => {
+      if (key.startsWith("skills/")) {
+        playSfx("sfx_glitch", Math.min(volume, 0.34));
+      }
+    }, { once: true });
     audio.play().catch(() => {
       logToConsole("SFX 재생이 차단되었거나 파일을 찾을 수 없습니다.");
     });
+  };
+
+  const skillSfxKey = (skillName?: string): string => {
+    const normalized = (skillName || "").replace(/\s+/g, "").toLowerCase();
+    if (normalized.includes("signal") || normalized.includes("신호")) return "skills/signal_step";
+    if (normalized.includes("overload") || normalized.includes("과부하")) return "skills/overload_strike";
+    if (normalized.includes("packet") || normalized.includes("패킷")) return "skills/packet_shot";
+    if (normalized.includes("covering") || normalized.includes("엄호")) return "skills/covering_noise";
+    if (normalized.includes("patch") || normalized.includes("패치")) return "skills/patch_protocol";
+    return "sfx_glitch";
+  };
+
+  const skillUsesGenericImpact = (skillName?: string): boolean => {
+    const normalized = (skillName || "").replace(/\s+/g, "").toLowerCase();
+    return normalized.includes("overload") ||
+      normalized.includes("과부하") ||
+      normalized.includes("packet") ||
+      normalized.includes("패킷");
+  };
+
+  const playCombatCinemaCue = (ctx: CombatCinemaContext, cue: CombatCinemaCue) => {
+    if (!audioContextActive.current) return;
+    const isSkill = ctx.kind === "skill" || Boolean(ctx.skillName);
+    const isDefend = ctx.kind === "defend";
+
+    if (cue === "enter" && isSkill) {
+      playSfx("sfx_glitch", 0.22);
+      return;
+    }
+
+    if (cue === "windup") {
+      if (isDefend) {
+        playSfx("sfx_defend", 0.55);
+      } else if (isSkill) {
+        playSfx(skillSfxKey(ctx.skillName), 0.76);
+      } else if (ctx.miss) {
+        playSfx("sfx_move", 0.5);
+      } else {
+        playSfx("sfx_attack", ctx.crit ? 0.78 : 0.56);
+      }
+      return;
+    }
+
+    if (cue === "impact") {
+      if (ctx.miss) {
+        playSfx("sfx_move", 0.58);
+      } else if (isDefend) {
+        playSfx("sfx_defend", 0.62);
+      } else if (!isSkill || skillUsesGenericImpact(ctx.skillName)) {
+        playSfx("sfx_attack", ctx.crit ? 0.94 : 0.78);
+      }
+    }
+  };
+
+  const playTerminalCombatSfx = (key: string) => {
+    if (key === "sfx_victory" || key === "sfx_defeat") {
+      playSfx(key);
+    }
   };
 
   // --- Onboarding & Setup effect ---
   useEffect(() => {
     const loadScenarios = async () => {
       try {
-        const data = await apiGetScenarios();
+        const data = await apiGetScenarios(resumeSessionData?.playerId);
         setScenarios(data.scenarios || []);
         if (data.scenarios.length > 0) {
-          setSelectedScenarioId(data.scenarios[0].id);
-          const archs = data.scenarios[0].archetypes || [];
-          if (archs.length > 0) {
-            setSelectedArchetype(archs[0].name);
-          }
+          const firstPlayable =
+            data.scenarios.find((s) => s.unlocked !== false) || data.scenarios[0];
+          setSelectedScenarioId(firstPlayable.id);
+          setSelectedArchetype(firstUnlockedArchetype(firstPlayable.archetypes || []));
         }
       } catch (e) {
         logToConsole("시나리오 목록 로드 실패: " + (e as Error).message);
       }
     };
     loadScenarios();
-  }, []);
+  }, [resumeSessionData?.playerId]);
 
   // --- WebSocket Streaming logic ---
   const startTyper = useCallback(() => {
@@ -444,6 +594,36 @@ export default function App() {
     } catch (e) {
       logToConsole("Codex 데이터 로드 실패: " + (e as Error).message);
     }
+    await loadSkillTree();
+  };
+
+  const loadSkillTree = async () => {
+    if (!playerId) return;
+    try {
+      const tree = await apiGetSkillTree(playerId, selectedScenarioId);
+      setSkillTree(tree);
+    } catch (e) {
+      logToConsole("스킬 트리 로드 실패: " + (e as Error).message);
+    }
+  };
+
+  const handleLearnSkill = async (skillId: string) => {
+    if (!playerId || learningSkillId) return;
+    setLearningSkillId(skillId);
+    setSkillError(null);
+    try {
+      const tree = await apiLearnSkill({
+        player_id: playerId,
+        scenario_id: selectedScenarioId,
+        skill_id: skillId,
+      });
+      setSkillTree(tree);
+      logToConsole(`스킬 갱신: ${skillId} (통찰 잔액 ${tree.insight_points}p)`);
+    } catch (e) {
+      setSkillError((e as Error).message);
+    } finally {
+      setLearningSkillId(null);
+    }
   };
 
   // --- Session lifecycle handlers ---
@@ -461,7 +641,10 @@ export default function App() {
   const handleScenarioChange = (scenarioId: string) => {
     setSelectedScenarioId(scenarioId);
     const archs = scenarios.find((s) => s.id === scenarioId)?.archetypes || [];
-    setSelectedArchetype(archs.length > 0 ? archs[0].name : null);
+    setSelectedArchetype(firstUnlockedArchetype(archs));
+    if (!connected && bgmEnabled && audioContextActive.current) {
+      playBgm(`resources/${scenarioId}/audio/bgm_main.wav`);
+    }
   };
 
   const handleStartGame = async () => {
@@ -479,7 +662,7 @@ export default function App() {
       setConnected(true);
       setShowIntro(true);
       initAudio();
-      playBgm(`resources/${selectedScenarioId}/audio/bgm_main.wav`);
+      playBgm(mainBgmPath());
       logToConsole(`접속: ${player.player_id} (${selectedArchetype || "-"})`);
 
       const ws = await openSocket();
@@ -543,8 +726,12 @@ export default function App() {
         party_members: allyIds.map((id) => ({ id })),
       });
 
-      const combatSnap = { ...snap, combat };
+      const combatBgmPath = snap.bgm_path?.includes("bgm_combat")
+        ? snap.bgm_path
+        : `resources/${selectedScenarioId}/audio/bgm_combat_normal.wav`;
+      const combatSnap = { ...snap, combat, bgm_path: combatBgmPath };
       initAudio();
+      playBgm(combatBgmPath);
       // Reset the animator baseline so the opening board draws statically
       // (no spurious transition animation from a stale previous state).
       prevCombatRef.current = null;
@@ -641,14 +828,8 @@ export default function App() {
       }
       websocketRef.current = null;
     }
-    if (bgmAudioRef.current) {
-      try {
-        bgmAudioRef.current.pause();
-      } catch {
-        logToConsole("BGM 정지 중 오류가 발생했습니다.");
-      }
-      bgmAudioRef.current = null;
-    }
+    pauseBgm();
+    bgmAudioRef.current = null;
     currentBgmSrc.current = "";
     setLoopId(null);
     setConnected(false);
@@ -662,14 +843,18 @@ export default function App() {
     setActiveTab("story");
 
     // Refresh scenarios
-    apiGetScenarios()
+    const storedResume = parseResumeSession(localStorage.getItem(LS_KEY));
+    apiGetScenarios(storedResume?.playerId)
       .then((data) => {
         setScenarios(data.scenarios || []);
-        setResumeSessionData(parseResumeSession(localStorage.getItem(LS_KEY)));
+        setResumeSessionData(storedResume);
       })
       .catch((err: unknown) => {
         logToConsole("시나리오 목록 갱신 실패: " + (err as Error).message);
       });
+    if (bgmEnabled) {
+      playBgm(mainBgmPath());
+    }
   };
 
   const handleSaveSlotSubmit = async () => {
@@ -1003,8 +1188,22 @@ export default function App() {
 
   // --- Codex list rendering data mapping ---
   const codexLists = useMemo(() => {
-    return buildCodexLists(memoryOverview, finalizedSnapshot);
-  }, [memoryOverview, finalizedSnapshot]);
+    return buildCodexLists(memoryOverview, finalizedSnapshot, currentScenario);
+  }, [memoryOverview, finalizedSnapshot, currentScenario]);
+
+  const epiphanyNotice = useMemo(() => {
+    const notice = buildEpiphanyNotice(runsHistory, scenarios);
+    return notice && notice.loopId !== dismissedEpiphany ? notice : null;
+  }, [runsHistory, scenarios, dismissedEpiphany]);
+
+  const dismissEpiphany = useCallback((loopId: string) => {
+    setDismissedEpiphany(loopId);
+    try {
+      localStorage.setItem("mythos_epiphany_seen", loopId);
+    } catch {
+      /* ignore storage failures */
+    }
+  }, []);
 
   // --- Dev Console calculation ---
   const devConsoleData = useMemo(() => {
@@ -1033,6 +1232,9 @@ export default function App() {
         playerName={finalizedSnapshot?.player?.display_name}
         archetype={finalizedSnapshot?.player?.traits?.archetype}
         selectedArchetype={selectedArchetype}
+        bgmEnabled={bgmEnabled}
+        bgmReady={bgmReady}
+        onToggleBgm={handleToggleBgm}
         onLeaveSession={handleLeaveSession}
       />
 
@@ -1040,8 +1242,40 @@ export default function App() {
         <BootIntro
           uiCopy={currentScenario?.ui_copy}
           scenarioId={selectedScenarioId}
-          onEnter={() => setShowBoot(false)}
+          onEnter={() => {
+            setShowBoot(false);
+            if (bgmEnabled) {
+              initAudio();
+              playBgm(mainBgmPath(), true);
+            }
+          }}
         />
+      )}
+
+      {!connected && !showBoot && epiphanyNotice && (
+        <div className="epiphany-banner" id="epiphany-banner">
+          <div className="epiphany-head">
+            <span>✦ 새로운 깨달음</span>
+            <button
+              type="button"
+              onClick={() => dismissEpiphany(epiphanyNotice.loopId)}
+              aria-label="깨달음 알림 닫기"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="epiphany-body">
+            지난 루프의 경험으로 새로운 스킬이 해금되었습니다. Codex에서 통찰을 투자해 습득하세요.
+            <ul>
+              {epiphanyNotice.skills.map((skill) => (
+                <li key={skill.name}>
+                  <strong>{skill.name}</strong>
+                  {skill.hint ? ` — ${skill.hint}` : ""}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       )}
 
       {!connected && !showBoot && (
@@ -1111,7 +1345,13 @@ export default function App() {
             )}
 
             {activeTab === "codex" && codexLists && (
-              <CodexPanel codexLists={codexLists} />
+              <CodexPanel
+                codexLists={codexLists}
+                skillTree={skillTree}
+                onLearnSkill={handleLearnSkill}
+                learningSkillId={learningSkillId}
+                skillError={skillError}
+              />
             )}
 
             {activeTab === "dev" && devConsoleData && (
@@ -1174,6 +1414,7 @@ export default function App() {
             };
             animatorRef.current?.drawStatic(tempCombat);
           }}
+          onCue={(cue) => playCombatCinemaCue(cinemaContext, cue)}
           onFinish={() => {
             const nextQueue = cinemaQueue.slice(1);
             setCinemaQueue(nextQueue);
@@ -1187,7 +1428,7 @@ export default function App() {
                 animatorRef.current?.animate(p, n, {
                   dispatched: null,
                   instant: false,
-                  onSfx: playSfx,
+                  onSfx: playTerminalCombatSfx,
                 });
               }
             }

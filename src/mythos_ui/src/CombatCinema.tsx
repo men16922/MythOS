@@ -12,6 +12,7 @@ interface CombatCinemaProps {
   miss?: boolean;
   onFinish?: () => void;
   onImpact?: (defenderId: string, damage: number) => void; // HP 실시간 동기화 콜백
+  onCue?: (cue: "enter" | "windup" | "impact" | "exit") => void;
 }
 
 // Cyberpunk Skill Registry and Metadata
@@ -133,6 +134,7 @@ export const CombatCinema: React.FC<CombatCinemaProps> = ({
   miss = false,
   onFinish,
   onImpact,
+  onCue,
 }) => {
   const [phase, setPhase] = useState<"enter" | "attack" | "impact" | "exit">("enter");
   const [imgError, setImgError] = useState(false);
@@ -159,9 +161,11 @@ export const CombatCinema: React.FC<CombatCinemaProps> = ({
   // never fire — leaving the full-screen overlay stuck (a blank screen).
   const onFinishRef = useRef(onFinish);
   const onImpactRef = useRef(onImpact);
+  const onCueRef = useRef(onCue);
   useEffect(() => {
     onFinishRef.current = onFinish;
     onImpactRef.current = onImpact;
+    onCueRef.current = onCue;
   });
 
   useEffect(() => {
@@ -170,28 +174,45 @@ export const CombatCinema: React.FC<CombatCinemaProps> = ({
     let t3: ReturnType<typeof setTimeout>;
     let t4: ReturnType<typeof setTimeout>;
 
+    onCueRef.current?.("enter");
+
     if (isFast) {
-      // 1.0초 빠른 타임라인
-      t1 = setTimeout(() => setPhase("attack"), 200);
+      // 1.2초 빠른 타임라인
+      t1 = setTimeout(() => {
+        setPhase("attack");
+        onCueRef.current?.("windup");
+      }, 200);
       t2 = setTimeout(() => {
         setPhase("impact");
+        onCueRef.current?.("impact");
         onImpactRef.current?.(defender.id, damage);
-      }, 400);
-      t3 = setTimeout(() => setPhase("exit"), 800);
+      }, 650);
+      t3 = setTimeout(() => {
+        setPhase("exit");
+        onCueRef.current?.("exit");
+      }, 950);
       t4 = setTimeout(() => {
         onFinishRef.current?.();
-      }, 1000);
+      }, 1200);
     } else {
-      // 1.95초 표준 타임라인
-      t1 = setTimeout(() => setPhase("attack"), 400);
+      // 2.1초 표준 타임라인. The windup is intentionally readable because
+      // skill cards now carry dedicated audio cues.
+      t1 = setTimeout(() => {
+        setPhase("attack");
+        onCueRef.current?.("windup");
+      }, 400);
       t2 = setTimeout(() => {
         setPhase("impact");
+        onCueRef.current?.("impact");
         onImpactRef.current?.(defender.id, damage);
-      }, 750);
-      t3 = setTimeout(() => setPhase("exit"), 1650);
+      }, 1050);
+      t3 = setTimeout(() => {
+        setPhase("exit");
+        onCueRef.current?.("exit");
+      }, 1750);
       t4 = setTimeout(() => {
         onFinishRef.current?.();
-      }, 1950);
+      }, 2100);
     }
 
     return () => {

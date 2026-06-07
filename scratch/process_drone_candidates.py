@@ -1,12 +1,16 @@
 import glob
 from pathlib import Path
+
 from PIL import Image
 
 ROOT = Path("/Users/men1692/Desktop/local/MythOS")
-ARTIFACT_DIR = Path("/Users/men1692/.gemini/antigravity-cli/brain/e7f7e7f5-2868-4539-859a-54f3bbe56e43")
+ARTIFACT_DIR = Path(
+    "/Users/men1692/.gemini/antigravity-cli/brain/e7f7e7f5-2868-4539-859a-54f3bbe56e43"
+)
 OUT_CANDIDATE_DIR = ROOT / "resources" / "neo-seoul" / "enemies" / "combat-candidates"
 
 OUT_CANDIDATE_DIR.mkdir(parents=True, exist_ok=True)
+
 
 # Find latest generated candidates files
 def get_latest_file(pattern: str) -> Path | None:
@@ -14,6 +18,7 @@ def get_latest_file(pattern: str) -> Path | None:
     if not files:
         return None
     return Path(max(files, key=lambda f: Path(f).stat().st_mtime))
+
 
 maintenance_sheet = get_latest_file("maintenance_drone_candidates_*.png")
 sentinel_sheet = get_latest_file("sentinel_drone_candidates_*.png")
@@ -33,8 +38,9 @@ CROP_BOXES = {
     "attack": (10, 10, 502, 502),
     "guard": (522, 10, 1014, 502),
     "skill": (10, 522, 502, 1014),
-    "hit": (522, 522, 1014, 1014)
+    "hit": (522, 522, 1014, 1014),
 }
+
 
 def remove_chroma_green(img: Image.Image) -> Image.Image:
     """Removes bright green background #00ff00."""
@@ -53,10 +59,12 @@ def remove_chroma_green(img: Image.Image) -> Image.Image:
     img.putdata(new_data)
     return img
 
+
 def trim_alpha(img: Image.Image) -> Image.Image:
     alpha = img.getchannel("A")
     bbox = alpha.getbbox()
     return img.crop(bbox) if bbox else img
+
 
 def normalize(img: Image.Image, size=(512, 768), padding=28, bottom=18) -> Image.Image:
     canvas = Image.new("RGBA", size, (0, 0, 0, 0))
@@ -67,16 +75,18 @@ def normalize(img: Image.Image, size=(512, 768), padding=28, bottom=18) -> Image
     canvas.alpha_composite(img, (x, y))
     return canvas
 
+
 def process_candidate_sheet(sheet_path: Path, slug: str):
     sheet = Image.open(sheet_path).convert("RGBA")
     for pose, box in CROP_BOXES.items():
         cropped = sheet.crop(box)
         alpha_cropped = remove_chroma_green(cropped)
         normalized = normalize(alpha_cropped)
-        
+
         final_path = OUT_CANDIDATE_DIR / f"{slug}-candidate-{pose}.png"
         normalized.save(final_path)
         print(f"  Processed {pose} -> {final_path.relative_to(ROOT)}")
+
 
 def process_candidate_idle(idle_path: Path, slug: str):
     img = Image.open(idle_path).convert("RGBA")
@@ -85,6 +95,7 @@ def process_candidate_idle(idle_path: Path, slug: str):
     final_path = OUT_CANDIDATE_DIR / f"{slug}-candidate-idle.png"
     normalized.save(final_path)
     print(f"  Processed idle -> {final_path.relative_to(ROOT)}")
+
 
 # Process Maintenance Drone Candidates
 print("\nProcessing Maintenance Drone Candidates...")

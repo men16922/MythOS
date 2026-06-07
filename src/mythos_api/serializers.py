@@ -92,4 +92,5 @@ def snapshot_to_dict(snapshot: RuntimeSnapshot) -> dict[str, Any]:
         "echo": to_json_dict(snapshot.echo) if snapshot.echo else None,
         "bgm_path": snapshot.bgm_path,
         "combat": snapshot.combat,
+        "epiphanies_unlocked": snapshot.epiphanies_unlocked,
     }

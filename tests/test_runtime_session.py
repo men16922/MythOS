@@ -16,17 +16,19 @@ from mythos_core import (
 )
 from mythos_loop import create_world_event
 from mythos_memory.store import MythOSStore
-from mythos_runtime.options import RuntimeOptions
-from mythos_runtime.session import (
-    RuntimeSessionService,
+from mythos_runtime.narrative_rollup import (
     _archives_to_compact,
     _compact_player_archives,
-    _has_archive_world_memory,
-    _has_narrative_shard,
-    _initial_loop_scores,
     _merge_archive_rollup,
     _player_rollup,
     _prepare_narrative_memory_context,
+)
+from mythos_runtime.options import RuntimeOptions
+from mythos_runtime.session import (
+    RuntimeSessionService,
+    _has_archive_world_memory,
+    _has_narrative_shard,
+    _initial_loop_scores,
     _save_narrative_metric_memory,
 )
 from mythos_runtime.visual_orchestration import is_key_beat

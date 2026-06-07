@@ -14,6 +14,7 @@ from mythos_narrative import ScenePayload, WorldDelta
 from mythos_runtime.combat_service import CombatService, CombatTurnResult
 from mythos_runtime.encounter_map import ENCOUNTER_MAP_KEY
 from mythos_runtime.options import RuntimeOptions
+from mythos_runtime.progression import latest_meta_progression
 from mythos_runtime.session import RuntimeSessionService
 
 
@@ -325,6 +326,30 @@ class SessionCombatTest(unittest.TestCase):
         self.assertEqual(contact["state"], "defeated")
         self.assertEqual(updated.stability, 72)
         self.assertEqual(updated.tension, 19)
+
+    def test_victory_reward_insight_updates_meta_progression(self) -> None:
+        loop = self.store.get_loop(self.loop_id)
+        assert loop is not None
+        loop = replace(loop, state={**loop.state, "scenario_id": "neo-seoul"})
+        result = CombatTurnResult(
+            loop=loop,
+            prose="",
+            radar={"encounter_id": "wraith_glitch"},
+            available={},
+            finished=True,
+            outcome="player_victory",
+            rewards={"encounter_reward": {"insight": 2}},
+        )
+
+        updated = self.service._apply_combat_rewards(loop, result)
+
+        progress = latest_meta_progression(
+            self.store.list_player_memories(updated.player_id),
+            updated.player_id,
+            "neo-seoul",
+        )
+        self.assertEqual(progress.insight_points, 2)
+        self.assertEqual(updated.state["meta_progression"]["insight_points"], 2)
 
     def test_flee_keeps_encounter_contact_alerted_without_rewards(self) -> None:
         loop = self.store.get_loop(self.loop_id)

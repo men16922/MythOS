@@ -280,6 +280,9 @@ function CombatResultPanel({
   const blips = combat.radar?.blips || [];
   const party = blips.filter((b) => b.faction !== "enemy" && b.alive !== false).slice(0, 3);
   const enemies = blips.filter((b) => b.faction === "enemy").slice(0, 3);
+  const reward = combat.rewards?.encounter_reward || {};
+  const rewardEntries = Object.entries(reward).filter(([, value]) => value !== 0 && value !== "");
+  const items = combat.rewards?.items || [];
 
   const renderBlip = (blip: CombatBlip, role: "hero" | "enemy") => {
     const src = combatImageSrc(scenarioId, blip);
@@ -321,6 +324,29 @@ function CombatResultPanel({
       </div>
 
       <p className="combat-result-copy">{combatOutcomeCopy(outcome)}</p>
+      {(rewardEntries.length > 0 || items.length > 0) && (
+        <div className="combat-reward-summary">
+          <div className="combat-reward-title">획득 / 변화</div>
+          {rewardEntries.length > 0 && (
+            <div className="combat-reward-row">
+              {rewardEntries.map(([key, value]) => (
+                <span key={key} className="combat-reward-chip">
+                  {key === "insight" ? "통찰" : key === "tension" ? "추적도" : key === "stability" ? "안정도" : key} {Number(value) > 0 ? "+" : ""}{String(value)}
+                </span>
+              ))}
+            </div>
+          )}
+          {items.length > 0 && (
+            <div className="combat-reward-row">
+              {items.map((item, idx) => (
+                <span key={`${item}-${idx}`} className="combat-reward-chip item">
+                  전리품 {item}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
       <div className="cc-row combat-result-actions">
         {isDefeat ? (
           <button className="cc-btn" onClick={onReturnToMain} id="cc-return-main">
@@ -332,6 +358,36 @@ function CombatResultPanel({
           </button>
         )}
       </div>
+    </div>
+  );
+}
+
+function TacticalLegend({ combat }: { combat: CombatState }) {
+  const covers = Object.values(combat.covers || {});
+  const hazards = Object.values(combat.hazards || {});
+  const hasElevation = Object.values(combat.elevations || {}).some((v) => Number(v) > 0);
+  const intents = combat.radar?.enemy_intents || [];
+
+  const rows: { sym: string; text: string }[] = [];
+  rows.push({ sym: "⚔️/🏃/👣", text: "적 의도: 공격 예고 / 도주 / 이동" });
+  if (covers.includes("full")) rows.push({ sym: "▓", text: "엄호(강): 사선 차단 · 방어 보너스 큼" });
+  if (covers.includes("half")) rows.push({ sym: "▒", text: "엄호(약): 부분 방어 보너스" });
+  if (hazards.includes("acid")) rows.push({ sym: "☣", text: "산성 지대: 턴 종료 시 피해" });
+  if (hazards.includes("electro")) rows.push({ sym: "⚡", text: "전자 지대: 집중/방어 교란" });
+  if (hasElevation) rows.push({ sym: "▲", text: "고지: 명중·시야 유리, 이동 비용↑" });
+  if (intents.length === 0 && covers.length === 0 && hazards.length === 0 && !hasElevation) {
+    return null;
+  }
+
+  return (
+    <div className="tactical-legend">
+      <div className="tactical-legend-title">보드 범례</div>
+      {rows.map((r, i) => (
+        <div key={i} className="tactical-legend-row">
+          <span className="tactical-legend-sym">{r.sym}</span>
+          <span className="tactical-legend-text">{r.text}</span>
+        </div>
+      ))}
     </div>
   );
 }
@@ -364,6 +420,18 @@ export function StoryPanel({
 }: StoryPanelProps) {
   const scrollBottomRef = useRef<HTMLDivElement | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set());
+
+  // On an anchor (pre-authored impact beat), prefer its curated high-quality
+  // image; fall back to the async-generated scene image if it isn't placed yet.
+  const routeMap = snapshot?.state?._route_map;
+  const currentNode = routeMap?.current ? routeMap?.nodes?.[routeMap.current] : undefined;
+  const anchorImageUrl =
+    currentNode?.anchor && currentNode.image
+      ? `/resources/${scenarioId}/${currentNode.image}`
+      : "";
+  const anchorImageOk = anchorImageUrl && !brokenImages.has(anchorImageUrl);
+  const displayImageUrl = anchorImageOk ? anchorImageUrl : sceneImageUrl;
 
   // Keep only the most recent past scene inline for narrative flow; the full
   // log lives in a separate overlay so the main view stays uncluttered.
@@ -405,6 +473,7 @@ export function StoryPanel({
                   style={{ display: "block", touchAction: "none" }}
                 ></canvas>
               </div>
+              <TacticalLegend combat={snapshot.combat} />
             </div>
 
             <CombatLog log={combatLog} />
@@ -447,15 +516,22 @@ export function StoryPanel({
       <div className="narrative-top-row">
         {/* 좌측: 장면 이미지 */}
         <div className="panel scene-image-panel">
-          <div className="panel-title">장면 이미지</div>
+          <div className="panel-title">
+            {anchorImageOk && currentNode?.title ? `장면 · ${currentNode.title}` : "장면 이미지"}
+          </div>
           <div className="story-visuals" style={{ marginTop: "12px" }}>
             <div className={`image-frame ${glitchActive ? "glitch-active" : ""}`}>
-              {!sceneImageUrl && <div className="image-ph">{imagePlaceholderText}</div>}
-              {sceneImageUrl && (
+              {!displayImageUrl && <div className="image-ph">{imagePlaceholderText}</div>}
+              {displayImageUrl && (
                 <img
-                  src={sceneImageUrl}
-                  className={`shown ${kenBurnsActive ? "kenburns-active" : ""}`}
+                  src={displayImageUrl}
+                  className={`shown ${kenBurnsActive ? "kenburns-active" : ""} ${anchorImageOk ? "anchor-scene" : ""}`}
                   alt="scene"
+                  onError={() => {
+                    if (anchorImageUrl && displayImageUrl === anchorImageUrl) {
+                      setBrokenImages((prev) => new Set(prev).add(anchorImageUrl));
+                    }
+                  }}
                 />
               )}
             </div>
@@ -546,34 +622,45 @@ export function StoryPanel({
         </div>
 
       {/* 별도 화면: 전체 서사 기록 (스크립트 + 내 행동) */}
-      {showHistory && (
-        <div className="history-overlay" onClick={() => setShowHistory(false)}>
-          <div className="history-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="history-modal-head">
-              <span>서사 기록 · {narrativeHistory.length}장면</span>
-              <button className="history-close-btn" onClick={() => setShowHistory(false)}>
-                닫기 ✕
-              </button>
-            </div>
-            <div className="history-modal-body">
-              {narrativeHistory.length === 0 && (
-                <div className="char-empty">아직 기록된 장면이 없습니다.</div>
-              )}
-              {narrativeHistory.map((h, idx) => (
-                <div key={`${h.sceneId}-${idx}`} className="history-scene-block">
-                  <h3 className="history-scene-title">
-                    {String(idx + 1).padStart(2, "0")} · {h.title}
-                  </h3>
-                  <div className="history-scene-text">{h.text}</div>
-                  {h.action && (
-                    <div className="history-scene-action">▸ 내 행동: {h.action}</div>
-                  )}
-                </div>
-              ))}
+      {showHistory && (() => {
+        const recentHistory = narrativeHistory.slice(-20);
+        const offset = Math.max(0, narrativeHistory.length - 20);
+        const headerText = narrativeHistory.length > 20
+          ? `서사 기록 · 최근 20개 장면 (총 ${narrativeHistory.length}장면 중)`
+          : `서사 기록 · ${narrativeHistory.length}장면`;
+
+        return (
+          <div className="history-overlay" onClick={() => setShowHistory(false)}>
+            <div className="history-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="history-modal-head">
+                <span>{headerText}</span>
+                <button className="history-close-btn" onClick={() => setShowHistory(false)}>
+                  닫기 ✕
+                </button>
+              </div>
+              <div className="history-modal-body">
+                {narrativeHistory.length === 0 && (
+                  <div className="char-empty">아직 기록된 장면이 없습니다.</div>
+                )}
+                {recentHistory.map((h, index) => {
+                  const idx = offset + index;
+                  return (
+                    <div key={`${h.sceneId}-${idx}`} className="history-scene-block">
+                      <h3 className="history-scene-title">
+                        {String(idx + 1).padStart(2, "0")} · {h.title}
+                      </h3>
+                      <div className="history-scene-text">{h.text}</div>
+                      {h.action && (
+                        <div className="history-scene-action">▸ 내 행동: {h.action}</div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

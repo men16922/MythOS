@@ -23,13 +23,29 @@ _COMBAT = {
         ECHO: ["patch_protocol", "covering_noise"],
     },
     "skills": {
-        "signal_step": {"id": "signal_step", "name": "신호 도약", "tier": 0,
-                        "max_rank": 3, "rankup_cost": 2},
-        "packet_shot": {"id": "packet_shot", "name": "패킷 사격", "tier": 0,
-                        "max_rank": 3, "rankup_cost": 2},
-        "overload_strike": {"id": "overload_strike", "name": "과부하 일격", "tier": 1,
-                            "requires": ["packet_shot"], "insight_cost": 3,
-                            "rankup_cost": 2, "max_rank": 3},
+        "signal_step": {
+            "id": "signal_step",
+            "name": "신호 도약",
+            "tier": 0,
+            "max_rank": 3,
+            "rankup_cost": 2,
+        },
+        "packet_shot": {
+            "id": "packet_shot",
+            "name": "패킷 사격",
+            "tier": 0,
+            "max_rank": 3,
+            "rankup_cost": 2,
+        },
+        "overload_strike": {
+            "id": "overload_strike",
+            "name": "과부하 일격",
+            "tier": 1,
+            "requires": ["packet_shot"],
+            "insight_cost": 3,
+            "rankup_cost": 2,
+            "max_rank": 3,
+        },
     },
 }
 
@@ -56,12 +72,26 @@ class ProgressionTest(unittest.TestCase):
     def _run_summary(self, scenario_id: str, *, clues: int, won: int) -> RunSummary:
         ts = datetime(2026, 6, 3, tzinfo=UTC).isoformat()
         return RunSummary(
-            run_id="run_1", player_id="player_1", loop_id="loop_1", scenario_id=scenario_id,
-            started_at=ts, ended_at=ts, ending_id=None, ending_label="Archived Loop",
-            final_title="기록", final_location="x", phase="ended", stability=60, tension=40,
-            turns=5, combats_won=won, combats_lost=0,
-            clues_collected=[f"clue_{i}" for i in range(clues)], allies_met=["io"],
-            unlocks_granted=[], summary_text="요약",
+            run_id="run_1",
+            player_id="player_1",
+            loop_id="loop_1",
+            scenario_id=scenario_id,
+            started_at=ts,
+            ended_at=ts,
+            ending_id=None,
+            ending_label="Archived Loop",
+            final_title="기록",
+            final_location="x",
+            phase="ended",
+            stability=60,
+            tension=40,
+            turns=5,
+            combats_won=won,
+            combats_lost=0,
+            clues_collected=[f"clue_{i}" for i in range(clues)],
+            allies_met=["io"],
+            unlocks_granted=[],
+            summary_text="요약",
         )
 
     def test_evaluate_meta_progression_data_driven_neo_seoul(self) -> None:
@@ -121,12 +151,26 @@ class InsightAccrualTest(unittest.TestCase):
     def _summary(self, *, clues: int, won: int) -> RunSummary:
         ts = datetime(2026, 6, 7, tzinfo=UTC).isoformat()
         return RunSummary(
-            run_id="run_1", player_id="p", loop_id="l", scenario_id="neo-seoul",
-            started_at=ts, ended_at=ts, ending_id=None, ending_label="L",
-            final_title="t", final_location="x", phase="ended", stability=50,
-            tension=30, turns=3, combats_won=won, combats_lost=0,
-            clues_collected=[f"clue_{i}" for i in range(clues)], allies_met=[],
-            unlocks_granted=[], summary_text="",
+            run_id="run_1",
+            player_id="p",
+            loop_id="l",
+            scenario_id="neo-seoul",
+            started_at=ts,
+            ended_at=ts,
+            ending_id=None,
+            ending_label="L",
+            final_title="t",
+            final_location="x",
+            phase="ended",
+            stability=50,
+            tension=30,
+            turns=3,
+            combats_won=won,
+            combats_lost=0,
+            clues_collected=[f"clue_{i}" for i in range(clues)],
+            allies_met=[],
+            unlocks_granted=[],
+            summary_text="",
         )
 
     def test_insight_accrues_per_run_clue_and_win(self) -> None:
@@ -145,8 +189,10 @@ class InsightAccrualTest(unittest.TestCase):
 class SkillTreeAndLearnTest(unittest.TestCase):
     def test_build_skill_tree_marks_base_unlocked_and_locked(self) -> None:
         progress = MetaProgression(
-            player_id="p", scenario_id="neo-seoul",
-            unlocked_skills=["overload_strike"], insight_points=5,
+            player_id="p",
+            scenario_id="neo-seoul",
+            unlocked_skills=["overload_strike"],
+            insight_points=5,
         )
         nodes = {n["id"]: n for n in build_skill_tree(progress, _COMBAT, GHOST)}
         self.assertEqual(nodes["signal_step"]["status"], "learned")
@@ -157,8 +203,10 @@ class SkillTreeAndLearnTest(unittest.TestCase):
 
     def test_learn_unlocked_skill_spends_insight(self) -> None:
         progress = MetaProgression(
-            player_id="p", scenario_id="neo-seoul",
-            unlocked_skills=["overload_strike"], insight_points=5,
+            player_id="p",
+            scenario_id="neo-seoul",
+            unlocked_skills=["overload_strike"],
+            insight_points=5,
         )
         updated = learn_or_rank_skill(progress, _COMBAT, "overload_strike", GHOST)
         self.assertEqual(updated.insight_points, 2)
@@ -167,8 +215,10 @@ class SkillTreeAndLearnTest(unittest.TestCase):
 
     def test_rank_up_increments_and_caps_at_max(self) -> None:
         progress = MetaProgression(
-            player_id="p", scenario_id="neo-seoul",
-            learned_skills=["overload_strike"], skill_ranks={"overload_strike": 2},
+            player_id="p",
+            scenario_id="neo-seoul",
+            learned_skills=["overload_strike"],
+            skill_ranks={"overload_strike": 2},
             insight_points=5,
         )
         updated = learn_or_rank_skill(progress, _COMBAT, "overload_strike", GHOST)
@@ -183,16 +233,20 @@ class SkillTreeAndLearnTest(unittest.TestCase):
             learn_or_rank_skill(locked, _COMBAT, "overload_strike", GHOST)
 
         poor = MetaProgression(
-            player_id="p", scenario_id="neo-seoul",
-            unlocked_skills=["overload_strike"], insight_points=1,
+            player_id="p",
+            scenario_id="neo-seoul",
+            unlocked_skills=["overload_strike"],
+            insight_points=1,
         )
         with self.assertRaises(ValueError):
             learn_or_rank_skill(poor, _COMBAT, "overload_strike", GHOST)
 
         # Echo Collector base lacks packet_shot → prereq unmet.
         prereq = MetaProgression(
-            player_id="p", scenario_id="neo-seoul",
-            unlocked_skills=["overload_strike"], insight_points=5,
+            player_id="p",
+            scenario_id="neo-seoul",
+            unlocked_skills=["overload_strike"],
+            insight_points=5,
         )
         with self.assertRaises(ValueError):
             learn_or_rank_skill(prereq, _COMBAT, "overload_strike", ECHO)

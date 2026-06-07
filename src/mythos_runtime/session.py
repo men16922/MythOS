@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any
 
 from mythos_combat import PlayerAction, render_radar, serialize_combat_log
 from mythos_core import (
+    Choice,
     Echo,
     LoopPhase,
     LoopState,
@@ -20,7 +21,6 @@ from mythos_core import (
     new_memory_id,
     new_player_id,
     new_scene_id,
-    new_shard_id,
 )
 from mythos_core.clock import utc_now
 from mythos_core.models import to_json_dict
@@ -31,17 +31,45 @@ from mythos_narrative.codex import CodexService
 from mythos_narrative.variation import NoveltyController
 from mythos_runtime.audio_service import AudioService
 from mythos_runtime.combat_service import CombatService, CombatTurnResult
+from mythos_runtime.combat_session_helpers import (
+    _combat_defeat_fallback_ending,
+    _combat_summary,
+    _combat_summary_from_state,
+    _combat_visual_brief,
+    _requested_combat_id,
+)
+from mythos_runtime.constants import MYTHOS_WORLD_ID
 from mythos_runtime.encounter_map import (
     mark_encounter_alerted,
     mark_encounter_resolved,
     tick_encounter_map,
 )
+from mythos_runtime.route_map import ROUTE_MAP_KEY, build_route_map
+from mythos_runtime.route_runtime import (
+    advance_route,
+    junction_options,
+    node_encounter_id,
+    route_status,
+)
+from mythos_runtime.session_memory import record_beat
+
+ROUTE_CHOICE_PREFIX = "route:"
 from mythos_runtime.ending_resolver import EndingResolver
+from mythos_runtime.loop_scoring import (
+    _clamp_score,
+    _initial_loop_scores,
+    _latest_scenes,
+    _narrative_shard_from_archive,
+)
 from mythos_runtime.narrative_metrics import (
     director_metric_total as _director_metric_total,
 )
 from mythos_runtime.narrative_metrics import (
     save_narrative_metric_memory as _save_narrative_metric_memory,
+)
+from mythos_runtime.narrative_rollup import (
+    _compact_player_archives,
+    _prepare_narrative_memory_context,
 )
 from mythos_runtime.observability import get_logger, span
 from mythos_runtime.options import (
@@ -70,27 +98,6 @@ from mythos_runtime.progression import (
 from mythos_runtime.save_load import SaveLoadService
 from mythos_runtime.scenario import load_scenario
 from mythos_runtime.scenario_context import apply_archetype_traits, build_runtime_narrative_context
-from mythos_runtime.constants import MYTHOS_WORLD_ID
-from mythos_runtime.narrative_rollup import (
-    _archives_to_compact,
-    _compact_player_archives,
-    _merge_archive_rollup,
-    _player_rollup,
-    _prepare_narrative_memory_context,
-)
-from mythos_runtime.combat_session_helpers import (
-    _combat_defeat_fallback_ending,
-    _combat_summary,
-    _combat_summary_from_state,
-    _combat_visual_brief,
-    _requested_combat_id,
-)
-from mythos_runtime.loop_scoring import (
-    _clamp_score,
-    _initial_loop_scores,
-    _latest_scenes,
-    _narrative_shard_from_archive,
-)
 from mythos_runtime.visual_orchestration import maybe_generate_scene_image
 
 if TYPE_CHECKING:
@@ -191,14 +198,24 @@ class RuntimeSessionService:
         party.setdefault("player_hp", max_hp)
         party.setdefault("player_max_hp", max_hp)
         initial_state["_party"] = party
+
+        loop_seed = create_loop_seed(
+            player.player_id,
+            len(loops) + 1,
+            {"memories": [memory.content for memory in memories]},
+        )
+        # Procedurally generate this loop's operation map (deterministic from the
+        # loop seed). Pre-authored story anchors stay fixed; dynamic nodes between
+        # them vary per loop. Scenarios without a route_map config fall back to the
+        # legacy emergent `_map`.
+        route_map = build_route_map(scenario.route_map, loop_seed)
+        if route_map is not None:
+            initial_state[ROUTE_MAP_KEY] = route_map
+
         loop = LoopState(
             loop_id=new_loop_id(),
             player_id=player.player_id,
-            seed=create_loop_seed(
-                player.player_id,
-                len(loops) + 1,
-                {"memories": [memory.content for memory in memories]},
-            ),
+            seed=loop_seed,
             phase=LoopPhase.CONNECT,
             location_id=scenario.starting_location,
             stability=initial_scores.stability,
@@ -373,6 +390,7 @@ class RuntimeSessionService:
             log_message="choice applied",
             player_event=player_event,
             metric_total_before=metric_total_before,
+            route_target=_route_target_from_choice(choice_id),
         )
 
     def stream_choose(
@@ -410,6 +428,7 @@ class RuntimeSessionService:
                 log_message="choice applied",
                 player_event=player_event,
                 metric_total_before=metric_total_before,
+                route_target=_route_target_from_choice(choice_id),
             )
             yield RuntimeStreamEvent(kind="final", snapshot=snapshot)
 
@@ -457,6 +476,7 @@ class RuntimeSessionService:
             bgm_path=bgm_path,
             combat=combat,
             clues_collected=self._clues_collected(player.player_id),
+            epiphanies_unlocked=self._epiphanies_unlocked(player, loop),
         )
 
     def list_active_loops(self, player_id: str) -> list[LoopState]:
@@ -567,9 +587,7 @@ class RuntimeSessionService:
         archetype = player.traits.get("archetype") if isinstance(player.traits, dict) else None
         return self.progression.skill_tree(player_id, scenario_id, archetype)
 
-    def learn_skill(
-        self, player_id: str, scenario_id: str, skill_id: str
-    ) -> dict[str, Any]:
+    def learn_skill(self, player_id: str, scenario_id: str, skill_id: str) -> dict[str, Any]:
         player = self._require_player(player_id)
         archetype = player.traits.get("archetype") if isinstance(player.traits, dict) else None
         return self.progression.learn_skill(player_id, scenario_id, skill_id, archetype)
@@ -617,6 +635,7 @@ class RuntimeSessionService:
                 scene=latest_scene,
                 assets=self.store.list_assets(loop.loop_id),
                 clues_collected=self._clues_collected(player.player_id),
+                epiphanies_unlocked=self._epiphanies_unlocked(player, loop),
             )
 
         event = create_world_event(
@@ -733,6 +752,7 @@ class RuntimeSessionService:
             assets=self.store.list_assets(loop.loop_id),
             echo=echo,
             clues_collected=self._clues_collected(player.player_id),
+            epiphanies_unlocked=self._epiphanies_unlocked(snapshot_player, ended_loop),
         )
 
     def start_combat(
@@ -790,6 +810,7 @@ class RuntimeSessionService:
             seed=loop.seed,
             turn_index=turn_index,
             requested=requested,
+            allow_ambient=loop.tension >= 70 or loop.stability <= 30,
         )
         state.pop("_pending_spawn_encounters", None)
         return replace(loop, state=state), triggered
@@ -854,6 +875,7 @@ class RuntimeSessionService:
                 {
                     "combat_outcome": result.outcome,
                     "encounter_id": encounter_id,
+                    "rewards": result.rewards,
                 },
             )
 
@@ -936,6 +958,7 @@ class RuntimeSessionService:
                 "hazards": result.hazards,
             },
             clues_collected=self._clues_collected(player.player_id),
+            epiphanies_unlocked=self._epiphanies_unlocked(snapshot_player, loop),
         )
 
     def _begin_requested_combat(
@@ -1043,9 +1066,93 @@ class RuntimeSessionService:
         loop = replace(loop, state=mark_encounter_resolved(loop.state, encounter_id))
         stability = _clamp_score(loop.stability + int(reward.get("stability", 0)))
         tension = _clamp_score(loop.tension + int(reward.get("tension", 0)))
+        insight = max(0, int(reward.get("insight", 0) or 0))
+
+        if insight > 0:
+            scenario_id = str(loop.state.get("scenario_id") or "neo-seoul")
+            previous = latest_meta_progression(
+                self.store.list_player_memories(loop.player_id),
+                loop.player_id,
+                scenario_id,
+            )
+            progress = replace(previous, insight_points=previous.insight_points + insight)
+            scenario = load_scenario(scenario_id)
+            loop = replace(
+                loop,
+                state=apply_meta_progression_to_state(loop.state, progress, scenario.combat),
+            )
+            self.store.save_player_memory(_meta_progression_memory(progress))
+
         if stability == loop.stability and tension == loop.tension:
             return loop
         return replace(loop, stability=stability, tension=tension)
+
+    def _apply_route_node_reward(
+        self,
+        loop: LoopState,
+        node_id: str,
+        node: dict[str, Any],
+        perspective: dict[str, Any] | None,
+    ) -> LoopState:
+        """Apply a newly-entered route node's reward + perspective effect once.
+
+        Closes the "choice -> session impact" loop numerically: non-combat node
+        rewards (rest/market restore stability + HP, clue grants insight) and the
+        active anchor perspective's `effect` deltas land on the loop. Combat-type
+        nodes are skipped here — their encounter pays its own rewards. Applied
+        node ids are tracked in `_route_map.applied_rewards` to avoid re-applying
+        while the route lingers on the node across turns.
+        """
+        state = loop.state if isinstance(loop.state, dict) else {}
+        route = state.get(ROUTE_MAP_KEY)
+        if not isinstance(route, dict):
+            return loop
+        applied = list(route.get("applied_rewards", []))
+        if node_id in applied:
+            return loop
+
+        dstab = dtens = dins = 0
+        heal_frac = 0.0
+        if not node.get("combat"):
+            reward = node.get("reward") if isinstance(node.get("reward"), dict) else {}
+            dstab += int(reward.get("stability", 0) or 0)
+            dtens += int(reward.get("tension", 0) or 0)
+            dins += int(reward.get("insight", 0) or 0)
+            heal_frac = float(reward.get("heal_frac", 0.0) or 0.0)
+        if perspective:
+            effect = perspective.get("effect") if isinstance(perspective.get("effect"), dict) else {}
+            dstab += int(effect.get("stability", 0) or 0)
+            dtens += int(effect.get("tension", 0) or 0)
+            dins += int(effect.get("insight", 0) or 0)
+
+        new_state = dict(state)
+        new_route = {**route, "applied_rewards": [*applied, node_id]}
+        if heal_frac > 0:
+            new_route_party = _heal_party(new_state.get("_party"), heal_frac)
+            if new_route_party is not None:
+                new_state["_party"] = new_route_party
+        new_state[ROUTE_MAP_KEY] = new_route
+        loop = replace(loop, state=new_state)
+
+        if dins > 0:
+            scenario_id = str(loop.state.get("scenario_id") or "neo-seoul")
+            previous = latest_meta_progression(
+                self.store.list_player_memories(loop.player_id), loop.player_id, scenario_id
+            )
+            progress = replace(previous, insight_points=previous.insight_points + dins)
+            scenario = load_scenario(scenario_id)
+            loop = replace(
+                loop, state=apply_meta_progression_to_state(loop.state, progress, scenario.combat)
+            )
+            self.store.save_player_memory(_meta_progression_memory(progress))
+
+        if dstab or dtens:
+            loop = replace(
+                loop,
+                stability=_clamp_score(loop.stability + dstab),
+                tension=_clamp_score(loop.tension + dtens),
+            )
+        return loop
 
     def _combat_permadeath(
         self, loop: LoopState, scene: Scene
@@ -1105,6 +1212,7 @@ class RuntimeSessionService:
         log_message: str,
         player_event=None,
         metric_total_before: int | None = None,
+        route_target: str | None = None,
     ) -> RuntimeSnapshot:
         with span(span_name, player_id=player.player_id, loop_id=loop.loop_id):
             transition = self.engine.apply_scene_payload(loop, scene, payload, player_event)
@@ -1114,6 +1222,57 @@ class RuntimeSessionService:
             transition.loop, payload, options, scene.turn_index
         )
         transition = replace(transition, loop=loop_after_map)
+
+        # Advance the procedural route map: move the current node forward (honoring
+        # the player's junction pick), resolve anchor perspectives from accumulated
+        # flags, and tally ending influence. If the move enters a combat-type node,
+        # trigger that node's encounter so combat/patrol/boss nodes mean combat.
+        route_combat: str | None = None
+        if isinstance(transition.loop.state, dict) and transition.loop.state.get(ROUTE_MAP_KEY):
+            prev_route = transition.loop.state[ROUTE_MAP_KEY]
+            prev_current = prev_route.get("current")
+            routed_state = advance_route(
+                transition.loop.state,
+                turn_index=scene.turn_index,
+                seed=transition.loop.seed,
+                preferred_next=route_target,
+            )
+            transition = replace(transition, loop=replace(transition.loop, state=routed_state))
+            new_route = routed_state[ROUTE_MAP_KEY]
+            new_current = new_route.get("current")
+            if new_current and new_current != prev_current:
+                entered = new_route.get("nodes", {}).get(new_current, {})
+                scenario = load_scenario(options.scenario_id)
+                # Apply the entered node's reward + active perspective effect once.
+                status = route_status(transition.loop.state) or {}
+                rewarded = self._apply_route_node_reward(
+                    transition.loop, new_current, entered, status.get("perspective")
+                )
+                transition = replace(transition, loop=rewarded)
+                candidate = node_encounter_id(
+                    entered,
+                    scenario.route_map.get("combat_encounters"),
+                    seed=transition.loop.seed,
+                )
+                if candidate and candidate in scenario.combat.get("encounters", {}):
+                    route_combat = candidate
+
+        # Route junctions: at a layer boundary, replace this scene's choices with
+        # the branch options (next candidate nodes) so the player explicitly picks
+        # the next destination. In-layer turns keep the LLM's own choices.
+        if isinstance(transition.loop.state, dict) and transition.loop.state.get(ROUTE_MAP_KEY):
+            junction_opts = junction_options(transition.loop.state, turn_index=scene.turn_index)
+            if junction_opts:
+                scene = replace(scene, choices=_build_route_choices(junction_opts))
+
+        # Session memory: record a compact beat + recent-prose window so later
+        # scenes have a "story so far" to continue from (anti-repetition).
+        if isinstance(transition.loop.state, dict):
+            player_action = player_event.action if player_event is not None else None
+            beat_state = record_beat(
+                transition.loop.state, scene=scene, player_action=player_action
+            )
+            transition = replace(transition, loop=replace(transition.loop, state=beat_state))
 
         with self.store.transaction():
             self.store.save_loop(transition.loop)
@@ -1151,6 +1310,7 @@ class RuntimeSessionService:
             echo=transition.echo,
             bgm_path=bgm_path,
             clues_collected=self._clues_collected(player.player_id),
+            epiphanies_unlocked=self._epiphanies_unlocked(player, transition.loop),
         )
         requested_combat = _requested_combat_id(payload)
         scenario_id = (
@@ -1160,7 +1320,7 @@ class RuntimeSessionService:
         )
         if scenario_id == "neo-seoul" and scene.turn_index < 2:
             requested_combat = None
-        next_combat = requested_combat or triggered_combat
+        next_combat = requested_combat or triggered_combat or route_combat
         if next_combat and not CombatService.is_active(transition.loop):
             return self._begin_requested_combat(player, transition.loop, next_combat, options)
         return snapshot
@@ -1205,6 +1365,85 @@ class RuntimeSessionService:
             return len(self.store.list_narrative_shards(player_id))
         except Exception:
             return 0
+
+    def _epiphanies_unlocked(self, player: PlayerProfile, loop: LoopState) -> list[str]:
+        try:
+            from mythos_runtime.progression import check_mid_run_epiphanies, latest_meta_progression
+
+            scenario_id = str(loop.state.get("scenario_id") or "neo-seoul")
+            previous = latest_meta_progression(
+                self.store.list_player_memories(player.player_id),
+                player.player_id,
+                scenario_id,
+            )
+            events = self.store.list_events(loop.loop_id)
+            shards = self.store.list_narrative_shards(player.player_id, limit=1000)
+            return check_mid_run_epiphanies(previous, scenario_id, events, shards, loop.loop_id)
+        except Exception:
+            self.logger.warning("failed to calculate mid-run epiphanies", exc_info=True)
+            return []
+
+
+def _heal_party(party: Any, frac: float) -> dict[str, Any] | None:
+    """Restore player + party-member HP by a fraction of max (rest/market nodes)."""
+    if not isinstance(party, dict):
+        return None
+    frac = max(0.0, min(1.0, frac))
+    healed = dict(party)
+    max_hp = int(healed.get("player_max_hp", healed.get("player_hp", 0)) or 0)
+    if max_hp > 0:
+        cur = int(healed.get("player_hp", 0) or 0)
+        healed["player_hp"] = min(max_hp, cur + round(max_hp * frac))
+    members = healed.get("members")
+    if isinstance(members, dict):
+        new_members: dict[str, Any] = {}
+        for mid, member in members.items():
+            if isinstance(member, dict):
+                m = dict(member)
+                mmax = int(m.get("max_hp", m.get("hp", 0)) or 0)
+                if mmax > 0:
+                    m["hp"] = min(mmax, int(m.get("hp", 0) or 0) + round(mmax * frac))
+                new_members[mid] = m
+            else:
+                new_members[mid] = member
+        healed["members"] = new_members
+    return healed
+
+
+def _route_target_from_choice(choice_id: str | None) -> str | None:
+    if choice_id and choice_id.startswith(ROUTE_CHOICE_PREFIX):
+        return choice_id[len(ROUTE_CHOICE_PREFIX) :]
+    return None
+
+
+def _route_choice_badges(node: dict[str, Any]) -> str:
+    parts: list[str] = []
+    reward = node.get("reward") if isinstance(node.get("reward"), dict) else {}
+    if node.get("risk"):
+        parts.append(f"위험 {node.get('risk')}")
+    if reward.get("insight"):
+        parts.append(f"통찰 +{reward['insight']}")
+    if reward.get("stability"):
+        parts.append(f"안정 +{reward['stability']}")
+    if reward.get("tension"):
+        parts.append(f"추적 +{reward['tension']}")
+    return " · ".join(parts)
+
+
+def _build_route_choices(options: list[dict[str, Any]]) -> list[Choice]:
+    """Build branch choices from a junction's candidate next nodes."""
+    choices: list[Choice] = []
+    for node in options:
+        node_id = str(node.get("id"))
+        title = node.get("title") or node.get("label") or "다음 지점"
+        label = f"{title}(으)로 향한다 · {node.get('label')}"
+        badges = _route_choice_badges(node)
+        if badges:
+            label = f"{label} · {badges}"
+        choices.append(
+            Choice(choice_id=f"{ROUTE_CHOICE_PREFIX}{node_id}", label=label, intent="explore")
+        )
+    return choices
 
 
 def _resolve_action(scene: Scene, choice_id: str | None, action: str | None) -> str:

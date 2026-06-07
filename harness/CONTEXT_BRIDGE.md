@@ -8,16 +8,16 @@
 - **주 플레이 경로**: 현재 권장 플레이 경로는 React SPA다. `make dev-up`이 docker infra, DB migration, background visual worker, FastAPI API를 준비하고 `http://localhost:8000`을 서빙한다. Ollama는 Mac host에서 별도로 `ollama serve`가 필요하다.
 - **구현 완료 축**: Neo-Seoul 01, Story Bible snippet 주입, Run History, Meta Progression, Save/Load UX, Ending Resolver, Developer 인과율 모니터, 자원 제약 선택지, 적 인텐트, 스탯 기반 내면 독백, 전술 전투, 단일 iframe Streamlit 전투 UI, React SPA 패리티, Playwright E2E, narrative shard rollup, narrative metrics dashboard가 구현됐다.
 - **비주얼 파이프라인**: 기본 이미지 백엔드는 mflux/FLUX. 캐릭터 장면은 mflux Redux portrait reference로 라우팅해 얼굴 일관성을 보강한다. Redis visual worker -> MinIO -> presigned PNG 경로가 실검증됐다.
-- **최신 검증 기준**: `make test`는 223 tests, 2 skipped 기준 통과 기록이 있다. `make test-e2e`는 `?fallback=1&image=0` 결정적 React 경로로 부트 오프닝, 세션 인트로, 턴 0 선택지, 턴 1 전환을 검증한다.
+- **최신 검증 기준**: `make test`는 226 tests, 2 skipped 기준 통과 기록이 있다. `make test-e2e`는 `?fallback=1&image=0` 결정적 React 경로로 부트 오프닝, 세션 인트로, 턴 0 선택지, 턴 1 전환을 검증한다. Neo-Seoul fallback 12선택 장기 진행은 초반 강제 ambient 전투 없이 통과했다.
 - **문서 진입점**: 새 작업자는 전체 `docs/`를 통째로 읽지 말고 `docs/AGENT_BRIEF.md` -> `docs/STATUS.md` -> `docs/NEXT_PLAN.md` 순서로 시작한다. 필요한 경우에만 `docs/DESIGN.md`, `docs/GAMEPLAY.md`, 시나리오, dated plan, archive를 연다.
 
 ## Current Handover
 
-1. **Priority 1(전투 연출)**: Phase 0~4 + 후속 polish(role/tags 모션 다양화, reduced-motion 접근성) 완료. 남은 것은 표시 위치/스케일/타이밍/가독성 **live QA**(사람 점검)뿐. 점검 기준은 `docs/play-checklist.md`.
-2. **장기 worker 안정성**: Redux 단독 job과 종료 cleanup은 검증됐지만, txt2img(Flux1) + Redux(Flux1Redux) 동시 적재 시 메모리/스왑 멈춤 재발 여부는 장기 플레이에서 관찰해야 한다.
-3. **진행도 해금(Priority 2)**: Phase 1·2·3 완료(아키타입 게이트, base/learned 필터, Codex 통찰 투자 트리 + `GET/POST /players/{id}/skills`, tier 게이팅, 깨달음 배너, `scenario.unlock` 시나리오 간 해금).
-4. **파티 조작(Priority 3)**: 완료. 전투 턴 루프를 controllable-actor stop으로 일반화(`mythos_combat/{models,engine,factory}.py`), 파티원만 `controllable=True`.
-5. **시나리오 확장(Priority 4)**: 진행도 grant를 scenario.json 데이터 주도로 전환(시나리오 비종속), glass-library를 progression/presentation 패리티로 보강 완료. 남은 것은 glass-library 서사(arcs/endings/Story Bible) 깊이 + 전투 아트/스킬 확장.
+1. **Priority 1(Neo-Seoul 플레이 만족도)**: 새 최우선 트랙. Phase 1 문서 확정, Phase 2 데이터 보강, Phase 3 데이터 기준선 완료. P0 일부 구현 완료: `encounter_reward.insight`는 meta progression 통찰로 즉시 저장되고, 전투 결과 패널에 보상 변화가 표시되며, 초반 forced ambient combat은 high tension/low stability 전까지 억제된다. 다음은 live LLM 10장면 이후 장기 QA, 작전 지도 route-node 구현, Tactical Board legend/inspector다.
+2. **QA 기준**: 범용 수동 QA 문서는 폐기. Neo-Seoul 실제 플레이 확인 항목은 `docs/neo_seoul_live_qa.md`, 설계 rubric은 `docs/scenarios/01-neo-seoul-connect.md` §5.5, 작업 체크리스트는 `docs/NEXT_PLAN.md`를 따른다.
+3. **완료 축**: 전투 연출 live QA, 진행도 해금, 파티 조작, 데이터 주도 progression grant, React SPA 패리티, Playwright E2E는 완료 상태로 유지한다.
+4. **glass-library**: 현재 hold. progression/presentation 패리티까지 완료됐지만, 추가 서사(arcs/endings/Story Bible) 깊이와 전투 아트/스킬 확장은 Neo-Seoul 만족도 개선 이후로 미룬다.
+5. **장기 worker 안정성**: Redux 단독 job과 종료 cleanup은 검증됐지만, txt2img(Flux1) + Redux(Flux1Redux) 동시 적재 시 메모리/스왑 멈춤 재발 여부는 장기 플레이에서 관찰해야 한다.
 
 ## Open Risks
 

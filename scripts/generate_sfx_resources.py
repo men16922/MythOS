@@ -566,12 +566,14 @@ if __name__ == "__main__":
 
     if len(sys.argv) > 1 and sys.argv[1] == "combat-impact":
         print("--- GENERATING MYTHOS COMBAT IMPACT SFX WITH MUSICGEN ---")
-        generate_sfx_with_ai({
-            "sfx_attack.wav",
-            "sfx_defend.wav",
-            "sfx_move.wav",
-            "sfx_glitch.wav",
-        })
+        generate_sfx_with_ai(
+            {
+                "sfx_attack.wav",
+                "sfx_defend.wav",
+                "sfx_move.wav",
+                "sfx_glitch.wav",
+            }
+        )
         print("--- COMBAT IMPACT SFX GENERATION COMPLETE ---")
         raise SystemExit(0)
 

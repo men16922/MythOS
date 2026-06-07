@@ -22,6 +22,7 @@ def tick_encounter_map(
     turn_index: int,
     requested: list[str] | None = None,
     max_contacts: int = 4,
+    allow_ambient: bool = False,
 ) -> tuple[dict[str, Any], str | None]:
     """Advance roaming contacts and return a triggered encounter id, if any."""
     map_state = state.get("_map") if isinstance(state, dict) else None
@@ -54,8 +55,9 @@ def tick_encounter_map(
         )
         contacts[contact["id"]] = contact
 
-    if not contacts and encounters:
-        # Keep the map alive even when the LLM has not explicitly placed a patrol.
+    if allow_ambient and not contacts and encounters:
+        # Ambient contacts are reserved for high pressure states. In normal
+        # exploration, forced patrols make the story feel like unavoidable combat.
         encounter_id = _weighted_encounter_id(encounters, Dice(f"{seed}:ambient:{turn_index}"))
         contact = _build_contact(
             encounter_id,

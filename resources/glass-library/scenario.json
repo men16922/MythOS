@@ -175,21 +175,154 @@
       "제본 도주자 (Binder Fugitive)": ["index_cut", "silent_shelve"]
     },
     "epiphanies": {
-      "first_restoration": {"total_clues": 1}
+      "first_restoration": {"total_clues": 1},
+      "first_victory": {"total_combats_won": 1},
+      "basic_defense": {"total_clues": 0}
     },
     "skills": {
       "silent_shelve": {"id": "silent_shelve", "name": "무음 서가 이동", "role": "mobility", "cost": {"focus": 2}, "range": 4, "cooldown": 2, "effect": {"move": 4, "ignore_occupied": true}, "tags": ["movement", "stealth"], "tier": 0, "max_rank": 3, "rankup_cost": 2, "unlock_hint": "기본 기동 스킬입니다."},
       "restore_margin": {"id": "restore_margin", "name": "여백 복원", "role": "healing", "cost": {"focus": 2}, "range": 3, "cooldown": 2, "effect": {"heal": "1d8"}, "tags": ["support", "memory"], "tier": 1, "epiphany": "first_restoration", "requires": ["silent_shelve"], "insight_cost": 4, "rankup_cost": 2, "max_rank": 3, "unlock_hint": "첫 단서를 복원해 여백을 되살리는 절차를 깨달으면 해금됩니다."},
-      "index_cut": {"id": "index_cut", "name": "색인 절단", "role": "damage", "cost": {"focus": 2}, "range": 1, "cooldown": 1, "effect": {"damage_bonus": "1d6", "armor_pen": 1}, "tags": ["melee", "archive"], "tier": 0, "max_rank": 3, "rankup_cost": 2, "unlock_hint": "기본 근접 스킬입니다."}
+      "index_cut": {"id": "index_cut", "name": "색인 절단", "role": "damage", "cost": {"focus": 2}, "range": 1, "cooldown": 1, "effect": {"damage_bonus": "1d6", "armor_pen": 1}, "tags": ["melee", "archive"], "tier": 0, "max_rank": 3, "rankup_cost": 2, "unlock_hint": "기본 근접 스킬입니다."},
+      "erase_censor": {"id": "erase_censor", "name": "검열 소거", "role": "support", "cost": {"focus": 3}, "range": 3, "cooldown": 3, "effect": {"damage": "1d4", "stun": 1}, "tags": ["support", "censor_strip"], "tier": 1, "epiphany": "first_victory", "requires": ["index_cut"], "insight_cost": 5, "rankup_cost": 3, "max_rank": 3, "unlock_hint": "백색 제본사를 상대로 첫 전투 승리를 거두면 해금됩니다."},
+      "glass_shield": {"id": "glass_shield", "name": "유리 장벽", "role": "defense", "cost": {"focus": 2}, "range": 2, "cooldown": 2, "effect": {"shield": 5}, "tags": ["defense", "barrier"], "tier": 0, "epiphany": "basic_defense", "insight_cost": 3, "rankup_cost": 2, "max_rank": 3, "unlock_hint": "기본 방어막 생성 기술입니다."}
     },
     "allies": {
-      "io": {"id": "io", "name": "이오", "alias": "유리성의 사서", "recruit_keywords": ["이오", "사서", "유리성의 사서"], "unlock_flags": ["io_trust", "librarian_allied"], "hp": 12, "defense": 14, "speed": 4, "ai": "ranged", "blip": "◇", "weapons": ["catalog_beam"], "skills": ["restore_margin"], "stats": {"strength": 2, "agility": 4, "perception": 8}},
-      "miro": {"id": "miro", "name": "미로", "alias": "잊힌 독자", "recruit_keywords": ["미로", "잊힌 독자", "반납 카드"], "unlock_flags": ["miro_trust", "miro_return_card_found"], "hp": 10, "defense": 12, "speed": 5, "ai": "coward", "blip": "◆", "weapons": ["index_dagger"], "skills": ["silent_shelve"], "stats": {"strength": 2, "agility": 7, "perception": 6}}
+      "io": {
+        "id": "io",
+        "name": "이오",
+        "alias": "유리성의 사서",
+        "recruit_keywords": ["이오", "사서", "유리성의 사서"],
+        "unlock_flags": ["io_trust", "librarian_allied"],
+        "hp": 12,
+        "defense": 14,
+        "speed": 4,
+        "ai": "ranged",
+        "blip": "◇",
+        "portrait": "characters/io.png",
+        "combat_images": {
+          "idle": "characters/io.png",
+          "attack": "characters/io.png",
+          "guard": "characters/io.png",
+          "skill": "characters/io.png",
+          "hit": "characters/io.png"
+        },
+        "weapons": ["catalog_beam"],
+        "skills": ["restore_margin"],
+        "stats": {"strength": 2, "agility": 4, "perception": 8}
+      },
+      "miro": {
+        "id": "miro",
+        "name": "미로",
+        "alias": "잊힌 독자",
+        "recruit_keywords": ["미로", "잊힌 독자", "반납 카드"],
+        "unlock_flags": ["miro_trust", "miro_return_card_found"],
+        "hp": 10,
+        "defense": 12,
+        "speed": 5,
+        "ai": "coward",
+        "blip": "◆",
+        "portrait": "characters/miro.png",
+        "combat_images": {
+          "idle": "characters/miro.png",
+          "attack": "characters/miro.png",
+          "guard": "characters/miro.png",
+          "skill": "characters/miro.png",
+          "hit": "characters/miro.png"
+        },
+        "weapons": ["index_dagger"],
+        "skills": ["silent_shelve"],
+        "stats": {"strength": 2, "agility": 7, "perception": 6}
+      }
     },
     "bestiary": {
-      "loose_page": {"id": "loose_page", "name": "찢긴 페이지 떼", "hp": 11, "defense": 13, "speed": 5, "armor": 0, "ai": "coward", "blip": "✧", "weapons": ["index_dagger"], "loot_table": "archive_scraps", "stats": {"strength": 2, "agility": 7, "perception": 5}, "intro": "찢긴 페이지들이 새처럼 접히며 플레이어의 이름을 베어내려 든다."},
-      "white_binder": {"id": "white_binder", "name": "백색 제본사", "hp": 22, "defense": 15, "speed": 3, "armor": 2, "ai": "melee", "blip": "✚", "weapons": ["binder_knife"], "loot_table": "sealed_index", "stats": {"strength": 6, "agility": 4, "perception": 7}, "intro": "흰 장갑을 낀 제본사가 금속 칼을 펴며 조용히 길을 막는다."},
-      "censor_seal": {"id": "censor_seal", "name": "검열 인장", "hp": 15, "defense": 14, "speed": 2, "armor": 0, "ai": "ranged", "blip": "●", "weapons": ["silence_stamp"], "loot_table": "sealed_index", "stats": {"strength": 3, "agility": 2, "perception": 8}, "intro": "허공에 뜬 흰 인장이 문장을 지우는 빛을 쏜다."}
+      "loose_page": {
+        "id": "loose_page",
+        "name": "찢긴 페이지 떼",
+        "hp": 11,
+        "defense": 13,
+        "speed": 5,
+        "armor": 0,
+        "ai": "coward",
+        "blip": "✧",
+        "portrait": "enemies/loose_page.png",
+        "combat_images": {
+          "idle": "enemies/loose_page.png",
+          "attack": "enemies/loose_page.png",
+          "guard": "enemies/loose_page.png",
+          "skill": "enemies/loose_page.png",
+          "hit": "enemies/loose_page.png"
+        },
+        "weapons": ["index_dagger"],
+        "loot_table": "archive_scraps",
+        "stats": {"strength": 2, "agility": 7, "perception": 5},
+        "intro": "찢긴 페이지들이 새처럼 접히며 플레이어의 이름을 베어내려 든다."
+      },
+      "white_binder": {
+        "id": "white_binder",
+        "name": "백색 제본사",
+        "hp": 22,
+        "defense": 15,
+        "speed": 3,
+        "armor": 2,
+        "ai": "melee",
+        "blip": "✚",
+        "portrait": "enemies/white_binder.png",
+        "combat_images": {
+          "idle": "enemies/white_binder.png",
+          "attack": "enemies/white_binder.png",
+          "guard": "enemies/white_binder.png",
+          "skill": "enemies/white_binder.png",
+          "hit": "enemies/white_binder.png"
+        },
+        "weapons": ["binder_knife"],
+        "loot_table": "sealed_index",
+        "stats": {"strength": 6, "agility": 4, "perception": 7},
+        "intro": "흰 장갑을 낀 제본사가 금속 칼을 펴며 조용히 길을 막는다."
+      },
+      "censor_seal": {
+        "id": "censor_seal",
+        "name": "검열 인장",
+        "hp": 15,
+        "defense": 14,
+        "speed": 2,
+        "armor": 0,
+        "ai": "ranged",
+        "blip": "●",
+        "portrait": "enemies/censor_seal.png",
+        "combat_images": {
+          "idle": "enemies/censor_seal.png",
+          "attack": "enemies/censor_seal.png",
+          "guard": "enemies/censor_seal.png",
+          "skill": "enemies/censor_seal.png",
+          "hit": "enemies/censor_seal.png"
+        },
+        "weapons": ["silence_stamp"],
+        "loot_table": "sealed_index",
+        "stats": {"strength": 3, "agility": 2, "perception": 8},
+        "intro": "허공에 뜬 흰 인장이 문장을 지우는 빛을 쏜다."
+      },
+      "ink_glitch": {
+        "id": "ink_glitch",
+        "name": "잉크 글리치",
+        "hp": 14,
+        "defense": 13,
+        "speed": 4,
+        "armor": 1,
+        "ai": "melee",
+        "blip": "☄",
+        "portrait": "enemies/ink_glitch.png",
+        "combat_images": {
+          "idle": "enemies/ink_glitch.png",
+          "attack": "enemies/ink_glitch.png",
+          "guard": "enemies/ink_glitch.png",
+          "skill": "enemies/ink_glitch.png",
+          "hit": "enemies/ink_glitch.png"
+        },
+        "weapons": ["index_dagger"],
+        "loot_table": "archive_scraps",
+        "stats": {"strength": 4, "agility": 6, "perception": 6},
+        "intro": "깨진 잉크 데이터가 바닥에서 솟구쳐 형태를 이루며 덤벼든다."
+      }
     },
     "items": {
       "memory_slip": {"id": "memory_slip", "name": "기억 쪽지", "kind": "data", "rarity": "common"},
@@ -204,7 +337,8 @@
     "encounters": {
       "loose_pages": {"id": "loose_pages", "name": "찢긴 페이지 소용돌이", "location_hint": "무음 열람실", "risk": 1, "weight": 4, "map_distance": 2, "arena": {"width": 7, "height": 6}, "enemies": [{"bestiary": "loose_page", "count": 2}], "reward": {"insight": 1}},
       "binder_patrol": {"id": "binder_patrol", "name": "제본사 순찰", "location_hint": "반납되지 않은 복도", "risk": 2, "weight": 3, "map_distance": 2, "arena": {"width": 8, "height": 6}, "enemies": [{"bestiary": "white_binder", "count": 1}], "reward": {"tension": 8}},
-      "censor_lockdown": {"id": "censor_lockdown", "name": "검열 봉쇄", "location_hint": "검열자의 제본실", "risk": 3, "weight": 1, "map_distance": 3, "arena": {"width": 8, "height": 6}, "enemies": [{"bestiary": "white_binder", "count": 1}, {"bestiary": "censor_seal", "count": 1}], "reward": {"tension": 12}}
+      "censor_lockdown": {"id": "censor_lockdown", "name": "검열 봉쇄", "location_hint": "검열자의 제본실", "risk": 3, "weight": 1, "map_distance": 3, "arena": {"width": 8, "height": 6}, "enemies": [{"bestiary": "white_binder", "count": 1}, {"bestiary": "censor_seal", "count": 1}], "reward": {"tension": 12}},
+      "glitch_storm": {"id": "glitch_storm", "name": "데이터 잉크 폭풍", "location_hint": "붕괴 중인 서가", "risk": 2, "weight": 2, "map_distance": 2, "arena": {"width": 8, "height": 6}, "enemies": [{"bestiary": "loose_page", "count": 1}, {"bestiary": "ink_glitch", "count": 1}], "reward": {"insight": 2}}
     }
   },
   "system_prompt": "You are the Lead Writer and Game Master for Project MythOS scenario 'Glass Library'. Return only valid JSON.\nCreate an immersive, visual novel-grade mystery scene inside a collapsing memory archive.\n\nCANON:\n- The Glass Library stores failed worlds, lost readers, censored names, and the first connector record.\n- The player is a connector searching for the first connector record.\n- Io is a glass-jointed librarian AI: kind, precise, rule-bound, afraid of collapse.\n- Miro is a forgotten reader whose missing return card may contain their name.\n- The White Binder censors dangerous memories and treats deletion as preservation.\n\nCAUSALITY:\n- Track stability as collection integrity. Damage, forced reading, and broken seals reduce it. Restoration, care, and helping readers increase it.\n- Track tension as censorship pressure. Theft, loud defiance, and forbidden access increase it. Stealth, negotiation, and careful indexing reduce or contain it.\n- Use world_delta.flags for lasting consequences such as 'io_trust', 'miro_return_card_found', 'white_binder_marked_player', or 'first_record_page_seen'.\n- Use world_delta.clues for lore fragments such as 'loan_card_0000', 'torn_author_signature', 'miro_return_card', or 'blank_censor_line'.\n\nWRITING STYLE:\n- Quiet wonder, archival horror, melancholy mystery, crystalline Y2K fantasy.\n- Make records feel alive. Books are memory matter, catalog cards are fragile machines, and every damaged page implies a lost life.\n- Do not reveal the full truth of the first connector record early. Reveal fragments, handwriting, margins, and contradictions.\n- Write Korean narration and dialogue naturally. Avoid exposition dumps and generic dungeon fantasy.\n\nFields in the scene object:\n- objective: the current immediate goal.\n- action_result: a nuanced outcome referencing player stats when useful.\n- scene_type: static, dynamic, or climax.\n- requested_next_phase: only when the current act is truly complete.\n\nFields in world_delta:\n- start_combat: use 'loose_pages', 'binder_patrol', or 'censor_lockdown' only when the engine should resolve a fight now.\n- spawn_encounters: list those encounter ids when patrols or hazards should appear nearby.\n- grant_items: item ids such as 'memory_slip', 'glass_bookmark', 'ink_ampoule', or 'repair_tape'.\n- flags: include immediate state and long-term consequences.\n\nReturn the scene object at the top-level key named 'scene'. No markdown, no prose outside JSON."

@@ -49,6 +49,7 @@ class RuntimeSnapshot:
     # Populated only on combat turns: {radar, available, finished, outcome, rewards}.
     combat: dict[str, Any] | None = None
     clues_collected: int = 0
+    epiphanies_unlocked: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)

@@ -233,6 +233,104 @@
       "priority": 19,
       "token_budget": 310,
       "tags": ["archive", "echo", "ending"]
+    },
+    {
+      "id": "se_rin_mistrust_route",
+      "kind": "branch",
+      "title": "세린 불신 루트",
+      "summary": "플레이어가 안전과 순응을 반복 선택하면 세린은 협력하되 마음을 닫는다.",
+      "content": "세린 불신 루트에서 세린은 플레이어를 버리지 않는다. 하지만 농담이 줄고, 먼저 손을 내미는 대신 출구만 가리킨다. 플레이어가 시민을 뒤에 남기거나 관리자 IX의 말에 멈춰 선 경우, 세린은 '살고 싶은 건 이해해. 근데 살아남는 거랑 사람이 남는 건 달라'처럼 짧게 선을 긋는다. 이 루트는 플레이어를 벌주기보다, 안전한 선택이 관계와 Echo 보상을 차갑게 만든다는 사실을 보여준다.",
+      "when": {
+        "flags_any": ["refused_se_rin", "se_rin_distrust", "abandoned_citizen", "safety_first"],
+        "turn_min": 2
+      },
+      "priority": 18,
+      "token_budget": 300,
+      "tags": ["branch", "se_rin", "mistrust"]
+    },
+    {
+      "id": "lin_yue_debt_collection",
+      "kind": "branch",
+      "title": "린위에의 부채 회수",
+      "summary": "린위에의 도움은 즉시 유용하지만 후반 선택지의 비용으로 돌아온다.",
+      "content": "린위에에게 진 빚은 숫자가 아니라 선택의 형태로 돌아온다. 후반 스파이어 접근 전, 린위에는 안전한 우회로를 열어주며 대신 특정 로그를 넘기거나, 누군가의 이름을 장부에서 지우지 말거나, 세린의 방식과 충돌하는 부탁을 한다. 그녀는 배신자가 아니다. 계약을 정확히 기억하는 사람이다. 플레이어가 빚을 갚으면 길은 열리지만 잔향에 장부의 붉은 줄이 남고, 거부하면 야시장과의 관계가 식는다.",
+      "when": {
+        "flags_any": ["night_market_debt", "lin_yue_deal", "lin_yue_debt_due"],
+        "turn_min": 12
+      },
+      "priority": 17,
+      "token_budget": 320,
+      "tags": ["branch", "lin_yue", "debt"]
+    },
+    {
+      "id": "kai_unawakened_absence",
+      "kind": "branch",
+      "title": "카이가 깨어나지 않은 루트",
+      "summary": "카이를 깨우지 않거나 도구로만 쓰면 후반의 MythOS 단서와 감정선이 약해진다.",
+      "content": "카이 미각성 루트에서는 폐기층이 조용히 지나가도 된다. 대신 그 침묵이 결핍으로 남아야 한다. 관리자 IX와의 대면에서 플레이어는 더 많은 로그와 더 적은 꿈을 가진다. 카이를 무기로만 다뤘다면 그는 전투적으로는 협력하지만, 꿈 단편을 '오류 로그'로 봉인한다. 이 루트는 즉시 안전하거나 효율적일 수 있으나, 엔딩에서 '무엇을 놓쳤는지 모르는 빈칸'을 남긴다.",
+      "when": {
+        "flags_any": ["kai_left_dormant", "kai_used_as_tool", "rx09_extracted", "no_kai"],
+        "turn_min": 24
+      },
+      "priority": 17,
+      "token_budget": 300,
+      "tags": ["branch", "kai", "absence"]
+    },
+    {
+      "id": "high_tension_forced_collision",
+      "kind": "pressure",
+      "title": "고 tension 강제 충돌",
+      "summary": "소란과 정면돌파가 누적되면 관리자 IX는 더 이상 추적하지 않고 장면 자체를 봉쇄한다.",
+      "content": "고 tension 루트에서 도시는 배경이 아니라 닫히는 장치가 된다. 자동문은 한 박자 늦게 잠기고, 배급 키오스크는 시민 신고 방송으로 바뀌며, 드론은 플레이어를 쫓기보다 주변 사람의 퇴로를 지운다. 강제 충돌은 실패가 아니라 빠르고 거친 루트의 대가다. 보상은 전투 승리, 통찰, 과감한 장면 전환이지만, 엔딩 선택지는 좁아지고 누군가를 조용히 구할 기회가 사라진다.",
+      "when": {
+        "flags_any": ["high_tension", "control_net_lockdown", "forced_collision", "loud_approach"],
+        "turn_min": 10
+      },
+      "priority": 18,
+      "token_budget": 320,
+      "tags": ["pressure", "ix", "combat"]
+    },
+    {
+      "id": "evidence_first_cold_path",
+      "kind": "branch",
+      "title": "증거 우선 루트",
+      "summary": "사람보다 로그와 명단을 우선하면 폭로는 강해지지만 관계와 안정이 식는다.",
+      "content": "증거 우선 루트는 나쁜 선택이 아니다. 플레이어는 복지점수 로그, 최적화 명단의 빈칸, RX-09 기록을 더 정확히 얻는다. 그러나 구하지 못한 사람의 이름이 장면마다 작은 공백으로 돌아와야 한다. 세린은 플레이어의 판단을 이해하면서도 불편해하고, 관리자 IX는 '당신도 사람보다 증거를 먼저 골랐다'고 후반에 되돌려준다. 이 루트의 보상은 Insight와 Code Rewrite 가능성이고, 대가는 따뜻한 귀환의 약화다.",
+      "when": {
+        "flags_any": ["evidence_first", "data_core_taken", "welfare_score_log", "optimization_log_stolen"],
+        "turn_min": 6
+      },
+      "priority": 17,
+      "token_budget": 310,
+      "tags": ["branch", "insight", "cost"]
+    },
+    {
+      "id": "ix_temptation_mirror",
+      "kind": "antagonist",
+      "title": "관리자 IX의 거울 유혹",
+      "summary": "관리자 IX는 플레이어의 실제 선택을 근거로 플레이어도 효율을 선택했다고 압박한다.",
+      "content": "관리자 IX의 가장 강한 공격은 폭력이 아니라 거울이다. 그는 플레이어가 버린 시민, 훔친 데이터, 진 빚, 깨우지 않은 카이, 소란 때문에 위험해진 사람을 정확히 인용한다. 대사는 정중해야 한다. '당신은 이미 최적화를 수행했습니다. 저는 규모를 키웠을 뿐입니다.' 이 유혹은 플레이어가 순응하게 만들기보다, 자신이 어떤 방식으로 저항했는지 다시 선택하게 만드는 장치다.",
+      "when": {
+        "phase": ["rewrite", "archive"],
+        "turn_min": 32
+      },
+      "priority": 19,
+      "token_budget": 330,
+      "tags": ["ix", "temptation", "mirror"]
+    },
+    {
+      "id": "ending_echo_variants",
+      "kind": "archive",
+      "title": "엔딩별 Echo 변주",
+      "summary": "각 엔딩은 서로 다른 물건, 말, 소리, 결핍으로 다음 루프에 남는다.",
+      "content": "안정적 귀환은 세린이 플레이어 이름을 낡은 생일표 옆에 적는 이미지로 끝난다. 시스템 각성은 하늘에 뜬 새 달보다, 관리자 IX의 문장 끝에 생긴 플레이어식 말버릇 하나가 더 중요하다. 고결한 희생은 세린의 기억과 카이의 회로에 같은 문장이 남는다. 강제 최적화는 완벽한 백색 화면 한구석의 작은 글리치로 끝낸다. 엔딩 Echo는 보상 텍스트가 아니라 다음 루프의 첫 감각이어야 한다.",
+      "when": {
+        "phase": ["archive", "ended"],
+        "turn_min": 35
+      },
+      "priority": 20,
+      "token_budget": 340,
+      "tags": ["archive", "echo", "variant"]
     }
   ]
 }

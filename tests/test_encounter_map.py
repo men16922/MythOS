@@ -62,6 +62,30 @@ class EncounterMapTest(unittest.TestCase):
         self.assertEqual(triggered, "patrol_ambush")
         self.assertEqual(state[ENCOUNTER_MAP_KEY]["contacts"]["c1"]["state"], "engaged")
 
+    def test_no_ambient_contact_spawn_by_default(self) -> None:
+        state, triggered = tick_encounter_map(
+            self.state,
+            combat_pool=self.pool,
+            seed="seed",
+            turn_index=1,
+        )
+
+        self.assertIsNone(triggered)
+        self.assertEqual(state[ENCOUNTER_MAP_KEY]["contacts"], {})
+
+    def test_ambient_contact_spawn_when_allowed(self) -> None:
+        state, triggered = tick_encounter_map(
+            self.state,
+            combat_pool=self.pool,
+            seed="seed",
+            turn_index=1,
+            allow_ambient=True,
+        )
+
+        self.assertIsNone(triggered)
+        contacts = state[ENCOUNTER_MAP_KEY]["contacts"]
+        self.assertEqual(len(contacts), 1)
+
     def test_resolved_encounter_marks_matching_contacts_defeated(self) -> None:
         state, _ = tick_encounter_map(
             self.state,

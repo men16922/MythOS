@@ -48,12 +48,11 @@ Current implemented concepts:
 - Run History and run summaries.
 - Meta progression with traits/allies/items/codex unlocks.
 - Save/load for active loops; ended loops belong to history.
+- Archetype gates, skill unlock epiphanies, insight points, Codex Skill tree learning/rank-up.
 
-Planned next:
+Current focus:
 
-- Ghost-only initial archetype gate.
-- Skill unlocks through epiphany events.
-- Insight points for Codex Skill tree learning/rank-up.
+- Tune insight/skill rewards inside `neo-seoul` so progression improves replay motivation and combat choices.
 
 ## Combat
 
@@ -72,12 +71,17 @@ Current combat direction:
 - Icon action bar.
 - Controllable party allies.
 
+Current focus:
+
+- Tune Neo-Seoul encounters so each fight has a gameplay purpose: movement, focus use, ally protection, recovery, or escape pressure.
+
 ## Scenario / Story Bible
 
 - `scenario.json` contains runtime data and scenario-specific GM policy.
 - `story_bible/bible.json` contains author-written snippets.
 - Only relevant snippets should enter the prompt based on phase/location/flags/NPC state.
 - Neo-Seoul 01 is primary; `glass-library` is next expansion target.
+- As of 2026-06-07, `glass-library` expansion is on hold. Current priority is making Neo-Seoul 01 feel like a complete playable scenario.
 
 ## UI Rule
 

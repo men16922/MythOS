@@ -38,9 +38,11 @@ import type {
   AssetInfo,
   CombatAction,
   CombatState,
-  CombatBlip,
   CombatLogEntry,
   SkillTreeResponse,
+  CombatCinemaContext,
+  CombatSkillInfo,
+  ScenarioSkill,
 } from "./types";
 import { drawCombatCanvas, combatCellFromPoint } from "./combatCanvas";
 import type { CombatDragOverlay } from "./combatCanvas";
@@ -49,23 +51,10 @@ import { CombatCinema } from "./CombatCinema";
 import { LS_KEY, parseResumeSession } from "./sessionStorage";
 import type { ResumeSessionData } from "./sessionStorage";
 import { buildCodexLists, buildDevConsoleData, buildEpiphanyNotice } from "./viewModels";
-
-const BGM_PREF_KEY = "mythos_bgm_enabled";
+import { useAudio } from "./hooks/useAudio";
 
 const firstUnlockedArchetype = (archetypes: ScenarioArchetype[]) =>
   archetypes.find((archetype) => archetype.unlocked !== false)?.name || null;
-
-interface CombatCinemaContext {
-  attacker: CombatBlip;
-  defender: CombatBlip;
-  damage: number;
-  kind: "attack" | "skill" | "defend";
-  crit: boolean;
-  skillName?: string;
-  miss?: boolean;
-}
-
-type CombatCinemaCue = "enter" | "windup" | "impact" | "exit";
 
 export default function App() {
   // --- Connection / Onboarding State ---
@@ -79,8 +68,7 @@ export default function App() {
   const [obStatus, setObStatus] = useState("");
   const [connected, setConnected] = useState(false);
   const [showIntro, setShowIntro] = useState(false);
-  const [bgmEnabled, setBgmEnabled] = useState(() => localStorage.getItem(BGM_PREF_KEY) !== "off");
-  const [bgmReady, setBgmReady] = useState(false);
+
   // 앱 첫 진입(메인 화면) 시 1회 재생되는 부팅 오프닝.
   const [showBoot, setShowBoot] = useState(true);
 
@@ -136,10 +124,7 @@ export default function App() {
   const [kenBurnsActive, setKenBurnsActive] = useState(false);
   const [glitchActive, setGlitchActive] = useState(false);
 
-  // Audio Refs
-  const audioContextActive = useRef(false);
-  const bgmAudioRef = useRef<HTMLAudioElement | null>(null);
-  const currentBgmSrc = useRef("");
+
 
   // --- Combat Control State ---
   const [combatTarget, setCombatTarget] = useState<string | null>(null);
@@ -167,181 +152,23 @@ export default function App() {
     setConsoleLogs((prev) => prev + line + "\n");
   };
 
-  // --- Audio Engine Helpers ---
-  const initAudio = () => {
-    setBgmReady(true);
-    if (audioContextActive.current) {
-      if (lastSnapshot?.bgm_path) {
-        playBgm(lastSnapshot.bgm_path);
-      }
-      return;
-    }
-    audioContextActive.current = true;
-    logToConsole("오디오 장치가 활성화되었습니다.");
-    if (lastSnapshot?.bgm_path) {
-      playBgm(lastSnapshot.bgm_path);
-    }
-  };
-
-  const normalizeAudioUrl = (audioPath: string) => {
-    let srcUrl = audioPath.trim();
-    if (!srcUrl.startsWith("http") && !srcUrl.startsWith("/")) {
-      srcUrl = "/" + srcUrl;
-    }
-
-    if (srcUrl.includes("resources/")) {
-      srcUrl = "/resources/" + srcUrl.substring(srcUrl.indexOf("resources/") + 10);
-    }
-
-    return srcUrl;
-  };
-
-  const playBgm = (bgmPath: string, forceEnabled = false) => {
-    if (!audioContextActive.current || !bgmPath || (!forceEnabled && !bgmEnabled)) return;
-
-    const srcUrl = normalizeAudioUrl(bgmPath);
-    const existing = bgmAudioRef.current;
-    if (currentBgmSrc.current === srcUrl && existing && !existing.paused && !existing.error) {
-      return;
-    }
-
-    if (existing && (currentBgmSrc.current !== srcUrl || existing.error)) {
-      try {
-        existing.pause();
-      } catch {
-        logToConsole("기존 BGM 정지 중 오류가 발생했습니다.");
-      }
-      bgmAudioRef.current = null;
-    }
-
-    const audio = bgmAudioRef.current || new Audio(srcUrl);
-    audio.loop = true;
-    audio.volume = 0.5;
-    audio.preload = "auto";
-    bgmAudioRef.current = audio;
-    currentBgmSrc.current = srcUrl;
-
-    audio.addEventListener("error", () => {
-      if (currentBgmSrc.current === srcUrl) {
-        currentBgmSrc.current = "";
-      }
-      logToConsole("BGM 파일 로드 실패: " + srcUrl);
-    }, { once: true });
-
-    logToConsole("배경 음악(BGM) 로드: " + srcUrl);
-    audio.play().then(() => {
-      currentBgmSrc.current = srcUrl;
-    }).catch(() => {
-      if (currentBgmSrc.current === srcUrl) {
-        currentBgmSrc.current = "";
-      }
-      logToConsole("BGM 재생이 차단되었습니다. 다음 상호작용에서 다시 시도합니다.");
-    });
-  };
-
-  const mainBgmPath = () => `resources/${selectedScenarioId}/audio/bgm_main.wav`;
-
-  const preferredBgmPath = () => finalizedSnapshot?.bgm_path || lastSnapshot?.bgm_path || mainBgmPath();
-
-  const pauseBgm = () => {
-    if (!bgmAudioRef.current) return;
-    try {
-      bgmAudioRef.current.pause();
-    } catch {
-      logToConsole("BGM 정지 중 오류가 발생했습니다.");
-    }
-  };
-
-  const handleToggleBgm = () => {
-    if (bgmEnabled && !audioContextActive.current) {
-      initAudio();
-      playBgm(preferredBgmPath(), true);
-      logToConsole("BGM START");
-      return;
-    }
-
-    if (bgmEnabled) {
-      setBgmEnabled(false);
-      localStorage.setItem(BGM_PREF_KEY, "off");
-      pauseBgm();
-      logToConsole("BGM OFF");
-      return;
-    }
-
-    setBgmEnabled(true);
-    localStorage.setItem(BGM_PREF_KEY, "on");
-    initAudio();
-    playBgm(preferredBgmPath(), true);
-    logToConsole("BGM ON");
-  };
-
-  const playSfx = (key: string, volume = 0.55) => {
-    if (!audioContextActive.current) return;
-    const scenario = finalizedSnapshot?.player?.traits?.scenario_id || selectedScenarioId;
-    const srcUrl = `/resources/${scenario}/audio/sfx/${key}.wav`;
-    const audio = new Audio(srcUrl);
-    audio.volume = Math.min(1, Math.max(0, volume));
-    audio.addEventListener("error", () => {
-      if (key.startsWith("skills/")) {
-        playSfx("sfx_glitch", Math.min(volume, 0.34));
-      }
-    }, { once: true });
-    audio.play().catch(() => {
-      logToConsole("SFX 재생이 차단되었거나 파일을 찾을 수 없습니다.");
-    });
-  };
-
-  const skillSfxKey = (skillName?: string): string => {
-    const normalized = (skillName || "").replace(/\s+/g, "").toLowerCase();
-    if (normalized.includes("signal") || normalized.includes("신호")) return "skills/signal_step";
-    if (normalized.includes("overload") || normalized.includes("과부하")) return "skills/overload_strike";
-    if (normalized.includes("packet") || normalized.includes("패킷")) return "skills/packet_shot";
-    if (normalized.includes("covering") || normalized.includes("엄호")) return "skills/covering_noise";
-    if (normalized.includes("patch") || normalized.includes("패치")) return "skills/patch_protocol";
-    return "sfx_glitch";
-  };
-
-  const skillUsesGenericImpact = (skillName?: string): boolean => {
-    const normalized = (skillName || "").replace(/\s+/g, "").toLowerCase();
-    return normalized.includes("overload") ||
-      normalized.includes("과부하") ||
-      normalized.includes("packet") ||
-      normalized.includes("패킷");
-  };
-
-  const playCombatCinemaCue = (ctx: CombatCinemaContext, cue: CombatCinemaCue) => {
-    if (!audioContextActive.current) return;
-    const isSkill = ctx.kind === "skill" || Boolean(ctx.skillName);
-    const isDefend = ctx.kind === "defend";
-
-    if (cue === "enter" && isSkill) {
-      playSfx("sfx_glitch", 0.22);
-      return;
-    }
-
-    if (cue === "windup") {
-      if (isDefend) {
-        playSfx("sfx_defend", 0.55);
-      } else if (isSkill) {
-        playSfx(skillSfxKey(ctx.skillName), 0.76);
-      } else if (ctx.miss) {
-        playSfx("sfx_move", 0.5);
-      } else {
-        playSfx("sfx_attack", ctx.crit ? 0.78 : 0.56);
-      }
-      return;
-    }
-
-    if (cue === "impact") {
-      if (ctx.miss) {
-        playSfx("sfx_move", 0.58);
-      } else if (isDefend) {
-        playSfx("sfx_defend", 0.62);
-      } else if (!isSkill || skillUsesGenericImpact(ctx.skillName)) {
-        playSfx("sfx_attack", ctx.crit ? 0.94 : 0.78);
-      }
-    }
-  };
+  // --- Audio Hook ---
+  const {
+    bgmEnabled,
+    bgmReady,
+    initAudio,
+    playBgm,
+    pauseBgm,
+    handleToggleBgm,
+    playSfx,
+    playCombatCinemaCue,
+    resetAudioRefs,
+    mainBgmPath,
+  } = useAudio(
+    selectedScenarioId,
+    finalizedSnapshot?.bgm_path || lastSnapshot?.bgm_path,
+    logToConsole
+  );
 
   const playTerminalCombatSfx = (key: string) => {
     if (key === "sfx_victory" || key === "sfx_defeat") {
@@ -650,7 +477,7 @@ export default function App() {
     setSelectedScenarioId(scenarioId);
     const archs = scenarios.find((s) => s.id === scenarioId)?.archetypes || [];
     setSelectedArchetype(firstUnlockedArchetype(archs));
-    if (!connected && bgmEnabled && audioContextActive.current) {
+    if (!connected && bgmEnabled && bgmReady) {
       playBgm(`resources/${scenarioId}/audio/bgm_main.wav`);
     }
   };
@@ -837,8 +664,7 @@ export default function App() {
       websocketRef.current = null;
     }
     pauseBgm();
-    bgmAudioRef.current = null;
-    currentBgmSrc.current = "";
+    resetAudioRefs();
     setLoopId(null);
     setConnected(false);
     setLastSnapshot(null);
@@ -998,6 +824,10 @@ export default function App() {
       prevCombatRef.current = combat;
       return;
     }
+    if (activeTab !== "story") {
+      prevCombatRef.current = combat;
+      return;
+    }
     const prev = prevCombatRef.current;
     const dispatched = dispatchedActionRef.current;
     dispatchedActionRef.current = null;
@@ -1102,7 +932,7 @@ export default function App() {
     // playSfx is intentionally omitted: this effect must fire only on combat
     // state changes, not on every render that recreates the SFX closure.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [finalizedSnapshot, selectedScenarioId, fallbackMode]);
+  }, [finalizedSnapshot, selectedScenarioId, fallbackMode, activeTab]);
 
   // Combat board drag & drop: pick up the current actor's blip, drag it to a
   // reachable tile, and drop to move. A plain click no longer teleports the unit.
@@ -1213,6 +1043,46 @@ export default function App() {
     }
   }, []);
 
+  // --- In-Game Epiphany State ---
+  const [showInGameNotice, setShowInGameNotice] = useState<string | null>(null);
+  const inGameEpiphaniesRef = useRef<{ loopId: string | null; seen: Set<string> }>({
+    loopId: null,
+    seen: new Set(),
+  });
+  const epiphaniesUnlocked = finalizedSnapshot?.epiphanies_unlocked;
+
+  // Sync epiphany mid-run
+  useEffect(() => {
+    const activeLoopId = finalizedSnapshot?.loop_id || null;
+    if (inGameEpiphaniesRef.current.loopId !== activeLoopId) {
+      inGameEpiphaniesRef.current = { loopId: activeLoopId, seen: new Set() };
+    }
+    const epiphanies = epiphaniesUnlocked || [];
+    const newEpiphanies = epiphanies.filter(id => !inGameEpiphaniesRef.current.seen.has(id));
+    if (newEpiphanies.length === 0) return;
+
+    newEpiphanies.forEach(id => inGameEpiphaniesRef.current.seen.add(id));
+    const noticeId = newEpiphanies[0];
+    const showTimer = window.setTimeout(() => {
+      setShowInGameNotice(noticeId);
+    }, 0);
+    const hideTimer = window.setTimeout(() => {
+      setShowInGameNotice(null);
+    }, 5000);
+    return () => {
+      window.clearTimeout(showTimer);
+      window.clearTimeout(hideTimer);
+    };
+  }, [finalizedSnapshot?.loop_id, epiphaniesUnlocked]);
+
+  const getSkillName = (skillId: string) => {
+    const skillPool = finalizedSnapshot?.combat?.available?.skills || [];
+    const skill = skillPool.find((s: CombatSkillInfo) => s.id === skillId);
+    if (skill?.name) return skill.name;
+    const scenarioSkill = currentScenario?.skills?.find((s: ScenarioSkill) => s.id === skillId);
+    return scenarioSkill?.name || skillId;
+  };
+
   // --- Dev Console calculation ---
   const devConsoleData = useMemo(() => {
     return buildDevConsoleData(
@@ -1311,15 +1181,33 @@ export default function App() {
           scenarioId={selectedScenarioId}
           onAccept={() => {
             setShowIntro(false);
+            initAudio();
             if (finalizedSnapshot?.bgm_path) {
-              playBgm(finalizedSnapshot.bgm_path);
+              playBgm(finalizedSnapshot.bgm_path, true);
             } else if (lastSnapshot?.bgm_path) {
-              playBgm(lastSnapshot.bgm_path);
+              playBgm(lastSnapshot.bgm_path, true);
+            } else {
+              playBgm(mainBgmPath(), true);
             }
           }}
         />
       ) : connected && (
-        <main id="play">
+        <>
+          {showInGameNotice && (
+            <div
+              className="ingame-epiphany-banner"
+              id="ingame-epiphany-banner"
+              onClick={() => setShowInGameNotice(null)}
+            >
+              <div className="banner-title">✦ 실시간 깨달음 획득! ✦</div>
+              <div className="banner-body">
+                새로운 스킬이 해금되었습니다: <strong>{getSkillName(showInGameNotice)}</strong>
+                <br />
+                <span className="banner-hint">런 종료 후 메인 화면의 Codex에서 습득하실 수 있습니다.</span>
+              </div>
+            </div>
+          )}
+          <main id="play">
           <section>
             <TabNav activeTab={activeTab} onTabClick={handleTabClick} />
 
@@ -1385,6 +1273,7 @@ export default function App() {
             onLoad={handleResumeGame}
           />
         </main>
+        </>
       )}
 
       {cinemaContext && (

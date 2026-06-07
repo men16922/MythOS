@@ -95,6 +95,148 @@
       "priority": 15,
       "token_budget": 250,
       "tags": ["location", "choice", "climax"]
+    },
+    {
+      "id": "miro_unreturned_origin",
+      "kind": "lore",
+      "title": "미로의 말소된 기원",
+      "summary": "미로는 도서관 건립 이전 최초의 독자 연대 소속이었으며, 도서관의 기원을 밝혀줄 핵심 인물이다.",
+      "content": "미로의 사라진 이름은 검열관들이 도서관을 설립할 때 가장 먼저 지워버린 이름이다. 그는 단순히 반납 카드를 잊은 것이 아니라, 도서관이 격리하고 있는 '실패한 세계'의 유일한 생존자이기도 하다. 그의 이름이 완전히 복원되는 순간 도서관의 봉쇄 시스템은 그를 시스템 외부의 허가받지 않은 권한자로 식별하게 된다.",
+      "when": {
+        "flags_any": ["miro_trust", "miro_return_card_found"]
+      },
+      "priority": 15,
+      "token_budget": 250,
+      "tags": ["miro", "origin", "lore"]
+    },
+    {
+      "id": "library_decay_rules",
+      "kind": "world",
+      "title": "유리성의 결정화와 붕괴 법칙",
+      "summary": "도서관의 붕괴는 텍스트의 상실이며, 이는 물리적 결정화와 무음 구역의 형성으로 나타난다.",
+      "content": "유리성의 붕괴는 일반적인 파괴가 아니다. 기억의 소실은 물리적 공간을 소리가 통과하지 않는 완벽한 결정질 투명 유리로 변화시킨다. 붕괴율이 증가할수록 책장들은 투명한 유리벽으로 변해 접근할 수 없게 되며, 그 공백 속에서 차가운 검열 인장들이 자동으로 생성되어 남은 데이터를 격리한다.",
+      "when": {
+        "turn_min": 3
+      },
+      "priority": 13,
+      "token_budget": 230,
+      "tags": ["world", "decay", "rules"]
+    },
+    {
+      "id": "first_connector_trace",
+      "kind": "mystery",
+      "title": "첫 번째 접속자의 여백 궤적",
+      "summary": "최초 접속자의 메모는 기록 자체가 아니라, 검열되지 않은 텍스트 여백의 낙서 형태로만 존재한다.",
+      "content": "최초의 접속자는 검열관들의 눈을 피하기 위해 공식 서가에 기록을 남기지 않았다. 그는 도서관의 도서 목록, 반납 카드, 혹은 금서의 여백에 연필로 적은 낙서나 수정 의견의 형태로만 자신의 존재를 흘려두었다. 여백을 복원하는 행위는 이 지워진 낙서들을 다시 한 번 수면 위로 끌어올려 그가 도달한 결론을 해석하는 단서가 된다.",
+      "when": {
+        "flags_any": ["first_record_hint", "blank_censor_line"]
+      },
+      "priority": 17,
+      "token_budget": 260,
+      "tags": ["mystery", "trace", "connector"]
+    },
+    {
+      "id": "silent_reading_room_cost",
+      "kind": "location",
+      "title": "무음 열람실의 열람 대가",
+      "summary": "말소된 세계의 책은 단서를 주지만, 읽는 동안 플레이어의 기억 일부를 색인한다.",
+      "content": "무음 열람실에서는 모든 소리가 책등에 흡수된다. 플레이어가 말소된 세계의 책을 펼치면 장면은 정보와 감각을 동시에 제공해야 한다. 단서를 얻는 대신 stability가 흔들리거나, tension이 오르거나, 플레이어의 이름·얼굴·과거 선택 중 하나가 카드 조각처럼 잠시 도서관에 복사된다. 보상과 대가를 항상 함께 제시한다.",
+      "when": {
+        "phase": ["explore", "interact"],
+        "locations_any": ["silent-reading-room", "열람실", "무음"],
+        "turn_min": 2
+      },
+      "priority": 16,
+      "token_budget": 250,
+      "tags": ["location", "clue", "cost"]
+    },
+    {
+      "id": "unreturned_corridor_echoes",
+      "kind": "location",
+      "title": "반납되지 않은 복도의 잔향",
+      "summary": "반납되지 않은 복도는 읽다 만 기억과 돌아오지 못한 독자들이 같은 문장을 반복하는 장소다.",
+      "content": "반납되지 않은 복도에서는 책장이 문이 아니라 미완성된 삶의 복도처럼 이어진다. 실패한 독자들은 완전한 NPC가 아니라 한 문장, 한 손짓, 반납 날짜가 비어 있는 카드로 나타난다. 미로가 곁에 있다면 그는 특정 잔향을 알아보는 듯 멈칫하지만, 아직 자기 이름을 말하지 못한다.",
+      "when": {
+        "phase": ["explore", "interact"],
+        "locations_any": ["unreturned-corridor", "반납", "복도"],
+        "flags_any": ["met_miro", "miro_trust", "miro_return_card_found"]
+      },
+      "priority": 16,
+      "token_budget": 240,
+      "tags": ["location", "echo", "miro"]
+    },
+    {
+      "id": "forbidden_index_blank_line",
+      "kind": "clue",
+      "title": "금서 색인의 빈 줄",
+      "summary": "검열 목록의 빈 줄은 삭제된 기록이 아니라 아직 쓰이지 않은 위험한 기록을 가리킨다.",
+      "content": "금서 색인의 가장 위험한 항목은 검은 칠이 아니라 빈 줄이다. 이 빈 줄은 첫 접속 기록이 과거의 문서가 아니라 현재 플레이어의 선택에 의해 완성될 가능성을 암시한다. 해독에 성공하면 플레이어는 기록을 훔치는 것과 새로 쓰는 것 사이의 차이를 이해하고, 실패하면 검열자가 그 빈 줄에 플레이어의 이름을 먼저 적으려 한다.",
+      "when": {
+        "phase": ["interact", "rewrite"],
+        "flags_any": ["blank_censor_line", "forbidden_index_seen", "first_record_hint"],
+        "turn_min": 6
+      },
+      "priority": 18,
+      "token_budget": 260,
+      "tags": ["clue", "index", "first-record"]
+    },
+    {
+      "id": "io_trust_breakpoint",
+      "kind": "character",
+      "title": "이오의 신뢰 분기점",
+      "summary": "이오는 보존 규칙과 플레이어에 대한 신뢰 사이에서 갈라진다.",
+      "content": "이오의 신뢰는 단순 호감도가 아니다. 플레이어가 기록을 조심스럽게 복원하고 미로를 보호하면, 이오는 규칙의 빈틈을 알려주는 공범에 가까워진다. 반대로 봉인을 찢거나 책장을 소모품처럼 쓰면 이오는 부드러운 말투를 유지한 채 접근 권한을 회수한다. 분기 장면에서는 이오가 '저는 당신을 막아야 합니다'와 '저는 당신이 틀렸다고 확신하지 못합니다' 사이에서 흔들리게 한다.",
+      "when": {
+        "phase": ["interact", "rewrite"],
+        "flags_any": ["io_trust", "librarian_allied", "io_warning", "library_damaged"]
+      },
+      "priority": 17,
+      "token_budget": 260,
+      "tags": ["io", "trust", "branch"]
+    },
+    {
+      "id": "censor_combat_as_silencing",
+      "kind": "combat",
+      "title": "검열 전투의 서사 원칙",
+      "summary": "유리성 전투는 살상이 아니라 이름·문장·접근권을 지우는 검열 행위로 묘사한다.",
+      "content": "유리성의 적은 피를 흘리게 하기보다 문장을 비우고 이름을 접는다. 찢긴 페이지 떼는 선택지의 단어를 베어내고, 검열 인장은 대사를 흰 공백으로 덮으며, 백색 제본사는 접근 권한을 실로 묶는다. 승리하면 적을 파괴했다기보다 봉인 규칙의 예외를 만들거나 색인을 되찾은 것으로 묘사한다.",
+      "when": {
+        "phase": ["interact", "rewrite"],
+        "flags_any": ["combat_started", "first_victory", "censor_lockdown"],
+        "turn_min": 4
+      },
+      "priority": 15,
+      "token_budget": 240,
+      "tags": ["combat", "censorship", "presentation"]
+    },
+    {
+      "id": "first_record_vault_decision",
+      "kind": "climax",
+      "title": "최초 기록 보관고의 세 선택",
+      "summary": "보관고에서는 기록을 읽기, 복원하기, 훔치기, 봉인하기가 각각 다른 대가를 가진다.",
+      "content": "최초 기록 보관고는 유리 돔 아래에 있지만, 돔 안의 기록은 책 한 권이 아니라 여러 선택지로 갈라진다. 조심스럽게 읽으면 일부 진실과 안정이 남고, 미로의 이름을 복원하면 인간적 기억이 돌아오며, 강제로 가져가면 유리성은 무너지고, 백색 제본사와 거래하면 안전 대신 자기 이름의 일부를 잃는다. GM은 이 장면에서 정답을 만들지 말고 어떤 진실을 다음 루프에 남길지 묻는다.",
+      "when": {
+        "phase": ["rewrite"],
+        "locations_any": ["first-record-vault", "보관고", "유리 돔"],
+        "turn_min": 10
+      },
+      "priority": 20,
+      "token_budget": 290,
+      "tags": ["climax", "ending", "choice"]
+    },
+    {
+      "id": "archive_aftertaste_by_ending",
+      "kind": "ending",
+      "title": "엔딩별 루프 잔향",
+      "summary": "각 엔딩은 다음 루프에 남는 감각과 결핍이 달라야 한다.",
+      "content": "조용한 반납은 이름이 희미하게 적힌 대출 카드와 안정된 균열을 남긴다. 이름의 복원은 미로의 따뜻한 숨과 도서관 밖으로 난 작은 출구를 남긴다. 금서 탈취는 손에 들어온 진실과 파편화된 세계들의 죄책감을 남긴다. 백색 봉인은 안전해진 다음 루프와 자신이 잊은 것이 무엇인지 모르는 빈칸을 남긴다. ARCHIVE 장면은 승패보다 무엇이 보존되고 무엇이 삭제됐는지를 강조한다.",
+      "when": {
+        "phase": ["archive", "ended"],
+        "turn_min": 10
+      },
+      "priority": 19,
+      "token_budget": 280,
+      "tags": ["ending", "archive", "memory"]
     }
   ]
 }

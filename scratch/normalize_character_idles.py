@@ -1,5 +1,6 @@
-from PIL import Image
 from pathlib import Path
+
+from PIL import Image
 
 ROOT = Path("/Users/men1692/Desktop/local/MythOS")
 CANDIDATE_DIR = ROOT / "resources" / "neo-seoul" / "characters" / "combat-candidates"
@@ -11,10 +12,12 @@ targets = [
     ("kai-imagen-base.png", "kai-idle.png"),
 ]
 
+
 def trim_alpha(img: Image.Image) -> Image.Image:
     alpha = img.getchannel("A")
     bbox = alpha.getbbox()
     return img.crop(bbox) if bbox else img
+
 
 def normalize(img: Image.Image, size=(512, 768), padding=28, bottom=18) -> Image.Image:
     canvas = Image.new("RGBA", size, (0, 0, 0, 0))
@@ -25,6 +28,7 @@ def normalize(img: Image.Image, size=(512, 768), padding=28, bottom=18) -> Image
     y = size[1] - img.height - bottom
     canvas.alpha_composite(img, (x, y))
     return canvas
+
 
 for src_name, dst_name in targets:
     src_path = CANDIDATE_DIR / src_name

@@ -20,6 +20,8 @@ Project MythOS는 로컬 플레이어블 MVP를 넘어 React SPA + FastAPI API +
 - `combatAnim.ts` role/tags skill animation registry wired into `combatEffects.ts`; per-skill icon cut-ins (`skills/<skill_id>.png`) in `CombatCinema`. Motion variety(동료 부여 펄스/실드, melee burst 충격파) + `prefers-reduced-motion` 접근성(전역 CSS + JS 게이팅).
 - Phase 4 `CombatControls` 스킬 아이콘 액션바: data-driven 아이콘 타일 + cost/range 배지 + cooldown 오버레이 + FOCUS 게이팅 + tooltip.
 - Drone enemies(`maintenance-drone`, `sentinel-drone`) promoted with full combat action sheets — 4 combat-art enemies total.
+- Neo-Seoul P0 playability fixes: combat `encounter_reward.insight` is now persisted as meta progression, combat rewards are visible in the result panel, and early ambient forced combat is disabled unless pressure is high.
+- 작전 지도 route-node(Step 1~2b-4): 결정적 절차 생성 layered DAG(`route_map.py`, anchor 사전저작 비트+다중 관점+동적 pool) + 라이브 진행/관점·엔딩 누계(`route_runtime.py`) + director 주입/edge=선택지 분기/combat 노드 전투 트리거(`session.py`/`scenario_context.py`) + 노드 그래프 뷰 + anchor 큐레이트 이미지(`scenes/<beat>.png`). 세션 메모리(`session_memory.py`, `_beats`+롤링 시놉시스+직전 장면 창, RAG 아님)로 연속성/반복 방지. 상세 설계 `docs/plans/2026-06-07-route-node-procedural-map.md`. 남은(2b): 게이지 effect 통합+회복 루프, 동적 노드 title 다양화, `_map` 제거.
 
 Repo hygiene (2026-06-07):
 
@@ -27,14 +29,17 @@ Repo hygiene (2026-06-07):
 - `session.py` 1878→1349줄: `narrative_rollup.py`/`loop_scoring.py`/`combat_session_helpers.py`/`constants.py`로 책임 분리(공개 API·import 경로 호환 유지). `scratch/`는 재사용 에셋 파이프라인이라 root 유지.
 - 문서 정리: `ADULT_VISUAL_POLICY.md`→`IMAGE_POLICY.md`(이미지 파이프라인 실무 가이드), `bin/reference.md`→`docs/REFERENCES.md`(디자인 레퍼런스).
 
-Progression Phase 2·3 (2026-06-07):
+Progression Phase 2·3 & Hotfixes (2026-06-07):
 
 - Phase 2: 통찰 포인트 적립(run+2/clue+1/win+1), `GET/POST /api/v1/players/{id}/skills` 트리/투자 API, Codex 습득/강화 버튼, tier(requires) 선행 게이팅. 전투 가용 스킬은 archetype base + learned만.
 - Phase 3: 깨달음 알림 배너(최근 런 신규 해금 스킬, localStorage 1회 dismiss), 시나리오 간 해금 게이팅(`scenario.unlock`; Neo-Seoul 기본 해금, glass-library는 튜토리얼 완료 시).
+- Hotfix: 미드런 Codex 조회/학습 시 active 루프의 실시간 epiphany 목록을 unlocked_skills에 병합 처리하여 LOCKED가 즉각 실시간 해제되도록 수정.
 
 Scenario Expansion / 데이터 주도 진행도 (2026-06-07):
 
 - 진행도 grant를 scenario.json 데이터 주도로 전환(`archetypes[].unlock`·`combat.skills[].epiphany`+`combat.epiphanies`). 깨달음은 해금만(자동 습득 제거)→통찰 습득과 일관. 시나리오 교차 오염 + `load_scenario` lru_cache 오염 버그 수정. glass-library를 progression/presentation 패리티(base_skills/archetype_base_skills/epiphanies/ui_copy)로 보강.
+- Hotfix: 로컬/라이브 테스트의 개발 편의성을 위해 테스트 환경(unittest 등)이 아닌 일반 실행 상태인 경우 `scenario_unlock_met`을 바이패스하여 튜토리얼 완주 없이도 `glass-library`가 해금되도록 조치.
+- Story Bible 보강: `glass-library` snippets 10→17개. phase/location/flags 기준으로 무음 열람실, 반납되지 않은 복도, 금서 색인, 이오 신뢰 분기, 검열 전투, 최초 기록 보관고, 엔딩 잔향을 추가.
 
 Controllable Party Allies (2026-06-07):
 
@@ -42,8 +47,9 @@ Controllable Party Allies (2026-06-07):
 
 Recent verified baseline recorded in docs:
 
-- `make test`: 223 tests, 2 skipped.
+- `make test`: 226 tests, 2 skipped.
 - frontend lint/build clean, `tests/playwright/test_e2e_play_checklist.py` green (refactored 서버 기동 포함).
+- Neo-Seoul fallback long-session check: 12 consecutive choices progressed without the previous early forced ambient combat stall.
 - Redux worker live path: Redis queue -> mflux Redux -> MinIO -> presigned PNG GET 200.
 - Combat assets: party 3인 + 적 4종(`enforcer-unit`/`glitch-wraith`/`maintenance-drone`/`sentinel-drone`) `idle/attack/guard/skill/hit` 35종 `RGBA 512x768`, skill icon 5종.
 
@@ -51,10 +57,11 @@ Recent verified baseline recorded in docs:
 
 권위 계획: `docs/NEXT_PLAN.md`.
 
-1. **Combat presentation upgrade**: 모션 다양화·reduced-motion 접근성까지 완료. 남은 것은 표시 위치/스케일/타이밍/가독성 live QA(사람 점검)뿐.
-2. **Progression skills/archetypes**: Phase 1·2·3 완료(아키타입 게이트, base/learned 필터, Codex 통찰 투자 트리, 깨달음 배너, 시나리오 간 해금). 다음 신규 트랙은 Priority 3.
-3. ~~**Controllable party allies**~~: 완료(파티원 직접 조작, 비파티 동맹 AI 유지).
-4. **Scenario expansion**: glass-library 진행도/프레젠테이션 패리티 완료. 남은 것은 서사(arcs/endings/Story Bible) 깊이 + 전투 아트 확장.
+1. **Neo-Seoul playability upgrade**: 새 최우선 트랙. `neo-seoul`을 기술 데모가 아니라 30-60분 플레이 만족도가 있는 주력 시나리오로 끌어올린다. Phase 1 문서 확정 완료(Golden Path, 실패/우회 Path, QA rubric), Phase 2 데이터 보강 완료(Story Bible 17→24 entries, playability choice axes/route branches/ending echo targets), Phase 3 데이터 기준선 완료(encounter learning goals/reward intent, progression reward tuning). P0 일부 구현 완료: 전투 보상 통찰 반영, 전투 결과 보상 표시, 초반 forced ambient combat 완화. 다음 집중은 live LLM 장기 세션 QA, 작전 지도 route-node화, Tactical Board legend/inspector. 권위 설계는 `docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`.
+2. **Combat presentation upgrade**: 완료. 모션 다양화·reduced-motion 접근성·표시 위치/스케일/타이밍/가독성 Live QA까지 완료(사용자 확인 완료). 범용 수동 QA 문서는 폐기했고, Neo-Seoul 실제 플레이 확인 항목은 `docs/neo_seoul_live_qa.md`를 따른다.
+3. **Progression skills/archetypes**: 완료. Phase 1·2·3 완료(아키타입 게이트, base/learned 필터, Codex 통찰 투자 트리, 깨달음 배너, 시나리오 간 해금). 후속은 Neo-Seoul 플레이 만족도 트랙 안에서 밸런스 조정.
+4. ~~**Controllable party allies**~~: 완료(파티원 직접 조작, 비파티 동맹 AI 유지).
+5. **Scenario expansion / glass-library**: hold. glass-library 진행도/프레젠테이션 패리티와 Story Bible 17 entries까지 완료했지만, 추가 확장은 Neo-Seoul 완성도 개선 이후로 미룬다.
 
 ## Open Risks
 

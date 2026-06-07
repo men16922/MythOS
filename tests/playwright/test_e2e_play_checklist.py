@@ -234,7 +234,13 @@ def run_test():
             # Enable browser console logging to stdout for debugging
             page.on("console", lambda msg: print(f"[BROWSER CONSOLE] {msg.text}"))
             page.on("pageerror", lambda exc: print(f"[BROWSER ERROR] {exc}"))
-            page.on("request", lambda req: (requested_urls.append(req.url), print(f"[REQ] {req.method} {req.url}")))
+            page.on(
+                "request",
+                lambda req: (
+                    requested_urls.append(req.url),
+                    print(f"[REQ] {req.method} {req.url}"),
+                ),
+            )
             page.on("response", lambda res: print(f"[RES] {res.status} {res.url}"))
 
             # 1. Inject WebSocket Mocking & Canvas Spy Scripts before navigation
@@ -441,9 +447,7 @@ def run_test():
                                 "hp": 15,
                                 "max_hp": 15,
                                 "alive": True,
-                                "combat_images": {
-                                    "idle": "characters/player-noise.png"
-                                }
+                                "combat_images": {"idle": "characters/player-noise.png"},
                             },
                             {
                                 "id": "serin",
@@ -454,7 +458,7 @@ def run_test():
                                 "hp": 7,
                                 "max_hp": 10,
                                 "alive": True,
-                                "portrait": "characters/se-rin.png"
+                                "portrait": "characters/se-rin.png",
                             },
                             {
                                 "id": "maintenance_drone",
@@ -470,8 +474,8 @@ def run_test():
                                     "guard": "enemies/combat/maintenance-drone-guard.png",
                                     "attack": "enemies/combat/maintenance-drone-attack.png",
                                     "skill": "enemies/combat/maintenance-drone-skill.png",
-                                    "hit": "enemies/combat/maintenance-drone-hit.png"
-                                }
+                                    "hit": "enemies/combat/maintenance-drone-hit.png",
+                                },
                             },
                             {
                                 "id": "sentinel_drone",
@@ -484,13 +488,18 @@ def run_test():
                                 "alive": True,
                                 "combat_images": {
                                     "idle": "enemies/combat/sentinel-drone-idle.png",
-                                    "guard": "enemies/combat/sentinel-drone-guard.png"
-                                }
-                            }
+                                    "guard": "enemies/combat/sentinel-drone-guard.png",
+                                },
+                            },
                         ],
                         "current": "player",
                         "enemy_intents": [
-                            {"enemy_id": "maintenance_drone", "action": "attack", "target_x": 2, "target_y": 3}
+                            {
+                                "enemy_id": "maintenance_drone",
+                                "action": "attack",
+                                "target_x": 2,
+                                "target_y": 3,
+                            }
                         ],
                         "round": 1,
                     },
@@ -500,16 +509,64 @@ def run_test():
                         "max_focus": 3,
                         "reachable": [[2, 2], [2, 4], [3, 3], [1, 2], [1, 4]],
                         "skills": [
-                            {"id": "packet_shot", "name": "패킷 사격", "cost": 1, "role": "damage", "tags": ["ranged"]},
-                            {"id": "patch_protocol", "name": "패치 프로토콜", "cost": 1, "role": "healing", "tags": ["heal"]},
-                            {"id": "signal_step", "name": "신호 도약", "cost": 1, "role": "mobility", "tags": ["movement"]},
-                            {"id": "covering_noise", "name": "엄호 노이즈", "cost": 1, "role": "defense", "tags": ["support"]},
-                            {"id": "overload_strike", "name": "과부하 일격", "cost": 2, "role": "damage", "tags": ["melee"]}
+                            {
+                                "id": "packet_shot",
+                                "name": "패킷 사격",
+                                "cost": 1,
+                                "role": "damage",
+                                "tags": ["ranged"],
+                            },
+                            {
+                                "id": "patch_protocol",
+                                "name": "패치 프로토콜",
+                                "cost": 1,
+                                "role": "healing",
+                                "tags": ["heal"],
+                            },
+                            {
+                                "id": "signal_step",
+                                "name": "신호 도약",
+                                "cost": 1,
+                                "role": "mobility",
+                                "tags": ["movement"],
+                            },
+                            {
+                                "id": "covering_noise",
+                                "name": "엄호 노이즈",
+                                "cost": 1,
+                                "role": "defense",
+                                "tags": ["support"],
+                            },
+                            {
+                                "id": "overload_strike",
+                                "name": "과부하 일격",
+                                "cost": 2,
+                                "role": "damage",
+                                "tags": ["melee"],
+                            },
                         ],
                         "targets": [
-                            {"id": "maintenance_drone", "name": "정비 드론", "hp": 8, "max_hp": 8, "in_range": True},
-                            {"id": "sentinel_drone", "name": "감시 드론", "hp": 10, "max_hp": 10, "in_range": True},
-                            {"id": "serin", "name": "세린", "hp": 7, "max_hp": 10, "in_range": True}
+                            {
+                                "id": "maintenance_drone",
+                                "name": "정비 드론",
+                                "hp": 8,
+                                "max_hp": 8,
+                                "in_range": True,
+                            },
+                            {
+                                "id": "sentinel_drone",
+                                "name": "감시 드론",
+                                "hp": 10,
+                                "max_hp": 10,
+                                "in_range": True,
+                            },
+                            {
+                                "id": "serin",
+                                "name": "세린",
+                                "hp": 7,
+                                "max_hp": 10,
+                                "in_range": True,
+                            },
                         ],
                     },
                 },
@@ -543,7 +600,7 @@ def run_test():
                             {**snapshot_combat["combat"]["radar"]["blips"][0], "x": 3, "y": 3},
                             snapshot_combat["combat"]["radar"]["blips"][1],
                             snapshot_combat["combat"]["radar"]["blips"][2],
-                            snapshot_combat["combat"]["radar"]["blips"][3]
+                            snapshot_combat["combat"]["radar"]["blips"][3],
                         ],
                         "current": "player",
                         "enemy_intents": [],
@@ -552,7 +609,7 @@ def run_test():
                     "available": {
                         **snapshot_combat["combat"]["available"],
                         "reachable": [[3, 2], [3, 4], [4, 3], [2, 3]],
-                    }
+                    },
                 },
                 "player": mock_player,
             }
@@ -576,10 +633,7 @@ def run_test():
                         {
                             "actor": "player",
                             "action": "skill",
-                            "detail": {
-                                "skill_id": "packet_shot",
-                                "skill_name": "패킷 사격"
-                            }
+                            "detail": {"skill_id": "packet_shot", "skill_name": "패킷 사격"},
                         },
                         {
                             "actor": "player",
@@ -587,23 +641,26 @@ def run_test():
                             "detail": {
                                 "target": "maintenance_drone",
                                 "damage": 3,
-                                "skill_name": "패킷 사격"
-                            }
-                        }
+                                "skill_name": "패킷 사격",
+                            },
+                        },
                     ],
                     "radar": {
                         "arena": {"w": 8, "h": 6},
                         "blips": [
                             snapshot_combat_moved["combat"]["radar"]["blips"][0],
                             snapshot_combat_moved["combat"]["radar"]["blips"][1],
-                            {**snapshot_combat_moved["combat"]["radar"]["blips"][2], "hp": 5}, # maintenance_drone HP: 5
-                            snapshot_combat_moved["combat"]["radar"]["blips"][3]
+                            {
+                                **snapshot_combat_moved["combat"]["radar"]["blips"][2],
+                                "hp": 5,
+                            },  # maintenance_drone HP: 5
+                            snapshot_combat_moved["combat"]["radar"]["blips"][3],
                         ],
                         "current": "player",
                         "enemy_intents": [],
                         "round": 3,
                     },
-                    "available": snapshot_combat_moved["combat"]["available"]
+                    "available": snapshot_combat_moved["combat"]["available"],
                 },
                 "player": mock_player,
             }
@@ -628,14 +685,20 @@ def run_test():
                         "blips": [
                             snapshot_combat_ranged["combat"]["radar"]["blips"][0],
                             snapshot_combat_ranged["combat"]["radar"]["blips"][1],
-                            {**snapshot_combat_ranged["combat"]["radar"]["blips"][2], "defending": True},
-                            {**snapshot_combat_ranged["combat"]["radar"]["blips"][3], "defending": True}
+                            {
+                                **snapshot_combat_ranged["combat"]["radar"]["blips"][2],
+                                "defending": True,
+                            },
+                            {
+                                **snapshot_combat_ranged["combat"]["radar"]["blips"][3],
+                                "defending": True,
+                            },
                         ],
                         "current": "player",
                         "enemy_intents": [],
                         "round": 4,
                     },
-                    "available": snapshot_combat_ranged["combat"]["available"]
+                    "available": snapshot_combat_ranged["combat"]["available"],
                 },
                 "player": mock_player,
             }
@@ -659,25 +722,25 @@ def run_test():
                         {
                             "actor": "player",
                             "action": "skill",
-                            "detail": {
-                                "skill_id": "patch_protocol",
-                                "skill_name": "패치 프로토콜"
-                            }
+                            "detail": {"skill_id": "patch_protocol", "skill_name": "패치 프로토콜"},
                         }
                     ],
                     "radar": {
                         "arena": {"w": 8, "h": 6},
                         "blips": [
                             snapshot_combat_guard["combat"]["radar"]["blips"][0],
-                            {**snapshot_combat_guard["combat"]["radar"]["blips"][1], "hp": 10}, # serin HP: 10
+                            {
+                                **snapshot_combat_guard["combat"]["radar"]["blips"][1],
+                                "hp": 10,
+                            },  # serin HP: 10
                             snapshot_combat_guard["combat"]["radar"]["blips"][2],
-                            snapshot_combat_guard["combat"]["radar"]["blips"][3]
+                            snapshot_combat_guard["combat"]["radar"]["blips"][3],
                         ],
                         "current": "player",
                         "enemy_intents": [],
                         "round": 5,
                     },
-                    "available": snapshot_combat_guard["combat"]["available"]
+                    "available": snapshot_combat_guard["combat"]["available"],
                 },
                 "player": mock_player,
             }
@@ -700,19 +763,20 @@ def run_test():
                         {
                             "actor": "player",
                             "action": "skill",
-                            "detail": {
-                                "skill_id": "signal_step",
-                                "skill_name": "신호 도약"
-                            }
+                            "detail": {"skill_id": "signal_step", "skill_name": "신호 도약"},
                         }
                     ],
                     "radar": {
                         "arena": {"w": 8, "h": 6},
                         "blips": [
-                            {**snapshot_combat_heal["combat"]["radar"]["blips"][0], "x": 4, "y": 3}, # player at (4,3)
+                            {
+                                **snapshot_combat_heal["combat"]["radar"]["blips"][0],
+                                "x": 4,
+                                "y": 3,
+                            },  # player at (4,3)
                             snapshot_combat_heal["combat"]["radar"]["blips"][1],
                             snapshot_combat_heal["combat"]["radar"]["blips"][2],
-                            snapshot_combat_heal["combat"]["radar"]["blips"][3]
+                            snapshot_combat_heal["combat"]["radar"]["blips"][3],
                         ],
                         "current": "player",
                         "enemy_intents": [],
@@ -720,8 +784,8 @@ def run_test():
                     },
                     "available": {
                         **snapshot_combat_heal["combat"]["available"],
-                        "reachable": [[4, 2], [4, 4], [5, 3], [3, 3]]
-                    }
+                        "reachable": [[4, 2], [4, 4], [5, 3], [3, 3]],
+                    },
                 },
                 "player": mock_player,
             }
@@ -744,10 +808,7 @@ def run_test():
                         {
                             "actor": "player",
                             "action": "skill",
-                            "detail": {
-                                "skill_id": "covering_noise",
-                                "skill_name": "엄호 노이즈"
-                            }
+                            "detail": {"skill_id": "covering_noise", "skill_name": "엄호 노이즈"},
                         }
                     ],
                     "radar": {
@@ -756,13 +817,13 @@ def run_test():
                             snapshot_combat_mobility["combat"]["radar"]["blips"][0],
                             snapshot_combat_mobility["combat"]["radar"]["blips"][1],
                             snapshot_combat_mobility["combat"]["radar"]["blips"][2],
-                            snapshot_combat_mobility["combat"]["radar"]["blips"][3]
+                            snapshot_combat_mobility["combat"]["radar"]["blips"][3],
                         ],
                         "current": "player",
                         "enemy_intents": [],
                         "round": 7,
                     },
-                    "available": snapshot_combat_mobility["combat"]["available"]
+                    "available": snapshot_combat_mobility["combat"]["available"],
                 },
                 "player": mock_player,
             }
@@ -785,10 +846,7 @@ def run_test():
                         {
                             "actor": "player",
                             "action": "skill",
-                            "detail": {
-                                "skill_id": "overload_strike",
-                                "skill_name": "과부하 일격"
-                            }
+                            "detail": {"skill_id": "overload_strike", "skill_name": "과부하 일격"},
                         },
                         {
                             "actor": "player",
@@ -796,23 +854,27 @@ def run_test():
                             "detail": {
                                 "target": "maintenance_drone",
                                 "damage": 5,
-                                "skill_name": "과부하 일격"
-                            }
-                        }
+                                "skill_name": "과부하 일격",
+                            },
+                        },
                     ],
                     "radar": {
                         "arena": {"w": 8, "h": 6},
                         "blips": [
                             snapshot_combat_defense["combat"]["radar"]["blips"][0],
                             snapshot_combat_defense["combat"]["radar"]["blips"][1],
-                            {**snapshot_combat_defense["combat"]["radar"]["blips"][2], "hp": 0, "alive": False}, # maintenance_drone: dead
-                            snapshot_combat_defense["combat"]["radar"]["blips"][3]
+                            {
+                                **snapshot_combat_defense["combat"]["radar"]["blips"][2],
+                                "hp": 0,
+                                "alive": False,
+                            },  # maintenance_drone: dead
+                            snapshot_combat_defense["combat"]["radar"]["blips"][3],
                         ],
                         "current": "player",
                         "enemy_intents": [],
                         "round": 8,
                     },
-                    "available": snapshot_combat_defense["combat"]["available"]
+                    "available": snapshot_combat_defense["combat"]["available"],
                 },
                 "player": mock_player,
             }
@@ -827,10 +889,18 @@ def run_test():
                     "radar": {
                         "arena": {"w": 8, "h": 6},
                         "blips": [
-                            {**snapshot_combat_melee["combat"]["radar"]["blips"][0], "hp": 0, "alive": False}, # player dead
-                            {**snapshot_combat_melee["combat"]["radar"]["blips"][1], "hp": 0, "alive": False}, # serin dead
+                            {
+                                **snapshot_combat_melee["combat"]["radar"]["blips"][0],
+                                "hp": 0,
+                                "alive": False,
+                            },  # player dead
+                            {
+                                **snapshot_combat_melee["combat"]["radar"]["blips"][1],
+                                "hp": 0,
+                                "alive": False,
+                            },  # serin dead
                             snapshot_combat_melee["combat"]["radar"]["blips"][2],
-                            snapshot_combat_melee["combat"]["radar"]["blips"][3]
+                            snapshot_combat_melee["combat"]["radar"]["blips"][3],
                         ],
                     },
                 },
@@ -850,7 +920,9 @@ def run_test():
             def handle_combat_action(route):
                 resp = current_action_response[0]
                 if resp is not None:
-                    print(f"[API MOCK] Fulfilling combat action with: {resp.get('prose', 'no prose')}")
+                    print(
+                        f"[API MOCK] Fulfilling combat action with: {resp.get('prose', 'no prose')}"
+                    )
                     route.fulfill(json=resp)
                 else:
                     route.fulfill(json=snapshot_combat_moved)
@@ -1017,15 +1089,29 @@ def run_test():
             print(f"Image sources rendered initially: {image_srcs}")
 
             # Check that player-noise, maintenance-drone-idle, and sentinel-drone-idle were drawn (Checklist 1.1)
-            assert any("player-noise.png" in src for src in image_srcs), "player-noise sprite must be rendered!"
-            assert any("maintenance-drone-idle.png" in src for src in image_srcs), "maintenance-drone-idle sprite must be rendered!"
-            assert any("sentinel-drone-idle.png" in src for src in image_srcs), "sentinel-drone-idle sprite must be rendered!"
-            print("Verified (Checklist 1.1): Idle sprites for player, maintenance_drone, and sentinel_drone are rendering.")
+            assert any("player-noise.png" in src for src in image_srcs), (
+                "player-noise sprite must be rendered!"
+            )
+            assert any("maintenance-drone-idle.png" in src for src in image_srcs), (
+                "maintenance-drone-idle sprite must be rendered!"
+            )
+            assert any("sentinel-drone-idle.png" in src for src in image_srcs), (
+                "sentinel-drone-idle sprite must be rendered!"
+            )
+            print(
+                "Verified (Checklist 1.1): Idle sprites for player, maintenance_drone, and sentinel_drone are rendering."
+            )
 
             # Check that se-rin portrait fall back is used (Checklist 1.4)
-            assert any("se-rin.png" in src for src in image_srcs), "serin portrait fallback must be rendered!"
-            assert any(log["type"] == "arc" for log in draw_logs), "arc (circle) fallback for serin must be used!"
-            print("Verified (Checklist 1.4): Portrait fallback disk (arc + se-rin.png) is active for units without combat_images.")
+            assert any("se-rin.png" in src for src in image_srcs), (
+                "serin portrait fallback must be rendered!"
+            )
+            assert any(log["type"] == "arc" for log in draw_logs), (
+                "arc (circle) fallback for serin must be used!"
+            )
+            print(
+                "Verified (Checklist 1.4): Portrait fallback disk (arc + se-rin.png) is active for units without combat_images."
+            )
 
             # --- VERIFICATION B: Drag & Drop Unit Movement ---
             current_action_response[0] = snapshot_combat_moved
@@ -1088,9 +1174,9 @@ def run_test():
             phase_class = page.locator(".cinema-overlay").first.evaluate("el => el.className")
             print(f"CombatCinema sampled phase class: {phase_class}")
             if "phase-attack" in phase_class:
-                lunge_transform = page.locator(".cinema-overlay.phase-attack .actor-side.left").evaluate(
-                    "el => window.getComputedStyle(el).transform"
-                )
+                lunge_transform = page.locator(
+                    ".cinema-overlay.phase-attack .actor-side.left"
+                ).evaluate("el => window.getComputedStyle(el).transform")
                 print(f"Lunge transform matrix: {lunge_transform}")
                 assert "matrix" in lunge_transform, "Lunge transform matrix should be active!"
                 print("Verified (Checklist 3.1): Attacker card has Lunge physics applied.")
@@ -1102,20 +1188,30 @@ def run_test():
             audio_resources = requested_urls + page.evaluate(
                 """() => performance.getEntriesByType('resource').map((entry) => entry.name)"""
             )
-            assert any("skills/packet_shot.wav" in url for url in audio_resources), "Skill-specific windup SFX must be requested."
-            assert any("sfx_attack.wav" in url for url in audio_resources), "Impact SFX must be requested."
+            assert any("skills/packet_shot.wav" in url for url in audio_resources), (
+                "Skill-specific windup SFX must be requested."
+            )
+            assert any("sfx_attack.wav" in url for url in audio_resources), (
+                "Impact SFX must be requested."
+            )
             print("Verified: CombatCinema skill-specific windup and impact SFX were requested.")
 
-            impact_animation = page.locator(".cinema-overlay.phase-impact .actor-side.right").evaluate(
+            impact_animation = page.locator(
+                ".cinema-overlay.phase-impact .actor-side.right"
+            ).evaluate(
                 "el => window.getComputedStyle(el).animationName || window.getComputedStyle(el).animation"
             )
             print(f"Impact animation: {impact_animation}")
-            assert "staggerShake" in impact_animation, "staggerShake animation must be active on defender during impact!"
+            assert "staggerShake" in impact_animation, (
+                "staggerShake animation must be active on defender during impact!"
+            )
 
             # Damage pop-up check
             damage_pop = page.locator(".cinema-overlay.phase-impact .damage-number")
             assert damage_pop.count() > 0, "Damage number must pop up during impact!"
-            print("Verified (Checklist 3.2): Defender card has Knockback physics (staggerShake) applied.")
+            print(
+                "Verified (Checklist 3.2): Defender card has Knockback physics (staggerShake) applied."
+            )
 
             # Wait for CombatCinema to finish and close
             page.wait_for_selector(".cinema-overlay", state="detached", timeout=8000)
@@ -1126,7 +1222,9 @@ def run_test():
             logs = page.evaluate("window.canvasDrawLogs")
             line_logs = [log for log in logs if log["type"] == "lineTo"]
             assert len(line_logs) > 0, "Tracer beam lineTo must be called for packet_shot!"
-            print("Verified (Checklist 2.2): packet_shot ranged tracer beam successfully drawn on canvas.")
+            print(
+                "Verified (Checklist 2.2): packet_shot ranged tracer beam successfully drawn on canvas."
+            )
 
             # --- VERIFICATION D: Drone Guard 포즈 검증 (Checklist 4.1) ---
             print("Triggering Drone Guard state...")
@@ -1139,9 +1237,15 @@ def run_test():
             logs = page.evaluate("window.canvasDrawLogs")
             image_srcs = [log["src"] for log in logs if log["type"] == "drawImage"]
             print(f"Image sources rendered during guard: {image_srcs}")
-            assert any("maintenance-drone-guard.png" in src for src in image_srcs), "maintenance-drone-guard sprite must be rendered!"
-            assert any("sentinel-drone-guard.png" in src for src in image_srcs), "sentinel-drone-guard sprite must be rendered!"
-            print("Verified (Checklist 4.1): Drone Guard pose assets are successfully rendered when defending.")
+            assert any("maintenance-drone-guard.png" in src for src in image_srcs), (
+                "maintenance-drone-guard sprite must be rendered!"
+            )
+            assert any("sentinel-drone-guard.png" in src for src in image_srcs), (
+                "sentinel-drone-guard sprite must be rendered!"
+            )
+            print(
+                "Verified (Checklist 4.1): Drone Guard pose assets are successfully rendered when defending."
+            )
 
             # --- VERIFICATION E: Heal Skill (patch_protocol) Canvas FX (Checklist 2.4) ---
             print("Triggering Heal Skill (patch_protocol)...")
@@ -1161,18 +1265,32 @@ def run_test():
             logs = page.evaluate("window.canvasDrawLogs")
             ellipse_logs = [log for log in logs if log["type"] == "ellipse"]
             has_green_ring = any(
-                "7dff9b" in (log.get("strokeStyle") or "").lower() or
-                ("125" in (log.get("strokeStyle") or "") and "255" in (log.get("strokeStyle") or "") and "155" in (log.get("strokeStyle") or ""))
+                "7dff9b" in (log.get("strokeStyle") or "").lower()
+                or (
+                    "125" in (log.get("strokeStyle") or "")
+                    and "255" in (log.get("strokeStyle") or "")
+                    and "155" in (log.get("strokeStyle") or "")
+                )
                 for log in ellipse_logs
             )
             has_white_spark = any(
-                "ffffff" in (log.get("fillStyle") or "").lower() or
-                ("255" in (log.get("fillStyle") or "") and "255" in (log.get("fillStyle") or "") and "255" in (log.get("fillStyle") or ""))
+                "ffffff" in (log.get("fillStyle") or "").lower()
+                or (
+                    "255" in (log.get("fillStyle") or "")
+                    and "255" in (log.get("fillStyle") or "")
+                    and "255" in (log.get("fillStyle") or "")
+                )
                 for log in ellipse_logs
             )
-            assert has_green_ring, f"Green recovery aura ring must be drawn! Ellipse logs: {ellipse_logs}"
-            assert has_white_spark, f"White healing spark must be drawn! Ellipse logs: {ellipse_logs}"
-            print("Verified (Checklist 2.4): patch_protocol healing aura rings and sparks successfully drawn on canvas.")
+            assert has_green_ring, (
+                f"Green recovery aura ring must be drawn! Ellipse logs: {ellipse_logs}"
+            )
+            assert has_white_spark, (
+                f"White healing spark must be drawn! Ellipse logs: {ellipse_logs}"
+            )
+            print(
+                "Verified (Checklist 2.4): patch_protocol healing aura rings and sparks successfully drawn on canvas."
+            )
 
             # --- VERIFICATION F: Mobility Skill (signal_step) Canvas FX (Checklist 2.1) ---
             print("Triggering Mobility Skill (signal_step)...")
@@ -1192,12 +1310,18 @@ def run_test():
             logs = page.evaluate("window.canvasDrawLogs")
             ellipse_logs = [log for log in logs if log["type"] == "ellipse"]
             has_violet_ring = any(
-                "e07dff" in (log.get("strokeStyle") or "").lower() or
-                ("224" in (log.get("strokeStyle") or "") and "125" in (log.get("strokeStyle") or "") and "255" in (log.get("strokeStyle") or ""))
+                "e07dff" in (log.get("strokeStyle") or "").lower()
+                or (
+                    "224" in (log.get("strokeStyle") or "")
+                    and "125" in (log.get("strokeStyle") or "")
+                    and "255" in (log.get("strokeStyle") or "")
+                )
                 for log in ellipse_logs
             )
             assert has_violet_ring, f"Violet blink ring must be drawn! Ellipse logs: {ellipse_logs}"
-            print("Verified (Checklist 2.1): signal_step mobility collapsing/expanding rings successfully drawn on canvas.")
+            print(
+                "Verified (Checklist 2.1): signal_step mobility collapsing/expanding rings successfully drawn on canvas."
+            )
 
             # --- VERIFICATION G: Defense Skill (covering_noise) Canvas FX (Checklist 2.3) ---
             print("Triggering Defense Skill (covering_noise)...")
@@ -1217,12 +1341,18 @@ def run_test():
             logs = page.evaluate("window.canvasDrawLogs")
             ellipse_logs = [log for log in logs if log["type"] == "ellipse"]
             has_cyan_ring = any(
-                "8fffea" in (log.get("strokeStyle") or "").lower() or
-                ("143" in (log.get("strokeStyle") or "") and "255" in (log.get("strokeStyle") or "") and "234" in (log.get("strokeStyle") or ""))
+                "8fffea" in (log.get("strokeStyle") or "").lower()
+                or (
+                    "143" in (log.get("strokeStyle") or "")
+                    and "255" in (log.get("strokeStyle") or "")
+                    and "234" in (log.get("strokeStyle") or "")
+                )
                 for log in ellipse_logs
             )
             assert has_cyan_ring, f"Cyan barrier ring must be drawn! Ellipse logs: {ellipse_logs}"
-            print("Verified (Checklist 2.3): covering_noise defensive shield rings successfully drawn on canvas.")
+            print(
+                "Verified (Checklist 2.3): covering_noise defensive shield rings successfully drawn on canvas."
+            )
 
             # --- VERIFICATION H: Melee Skill (overload_strike) Canvas FX (Checklist 2.5) ---
             print("Triggering Melee Skill (overload_strike)...")
@@ -1243,12 +1373,20 @@ def run_test():
             logs = page.evaluate("window.canvasDrawLogs")
             ellipse_logs = [log for log in logs if log["type"] == "ellipse"]
             has_yellow_spark = any(
-                "ffd76a" in (log.get("fillStyle") or "").lower() or
-                ("255" in (log.get("fillStyle") or "") and "215" in (log.get("fillStyle") or "") and "106" in (log.get("fillStyle") or ""))
+                "ffd76a" in (log.get("fillStyle") or "").lower()
+                or (
+                    "255" in (log.get("fillStyle") or "")
+                    and "215" in (log.get("fillStyle") or "")
+                    and "106" in (log.get("fillStyle") or "")
+                )
                 for log in ellipse_logs
             )
-            assert has_yellow_spark, f"Yellow spark blast must be drawn! Ellipse logs: {ellipse_logs}"
-            print("Verified (Checklist 2.5): overload_strike melee hit spark explosion successfully drawn on canvas.")
+            assert has_yellow_spark, (
+                f"Yellow spark blast must be drawn! Ellipse logs: {ellipse_logs}"
+            )
+            print(
+                "Verified (Checklist 2.5): overload_strike melee hit spark explosion successfully drawn on canvas."
+            )
 
             # --- VERIFICATION I: Combat Defeat & Exit (Return to Main) ---
             print("Triggering Combat Defeat...")
@@ -1304,6 +1442,7 @@ def run_test():
         except Exception as diag_error:
             print(f"Failed to capture diagnostics: {diag_error}", file=sys.stderr)
         import traceback
+
         traceback.print_exc()
     finally:
         if browser is not None:

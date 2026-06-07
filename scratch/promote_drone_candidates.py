@@ -12,10 +12,10 @@ for drone in drones:
     for pose in poses:
         src_name = f"{drone}-candidate-{pose}.png"
         dst_name = f"{drone}-{pose}.png"
-        
+
         src_path = CANDIDATE_DIR / src_name
         dst_path = COMBAT_DIR / dst_name
-        
+
         if src_path.exists():
             shutil.copy(src_path, dst_path)
             print(f"Promoted: {src_name} -> {dst_name}")

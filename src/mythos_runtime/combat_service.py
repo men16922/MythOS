@@ -270,7 +270,7 @@ class CombatService:
                     hp=int(hp) if isinstance(hp, int | float) else None,
                     controllable=is_party_member,
                 )
-        )
+            )
         return built
 
     @staticmethod

@@ -535,11 +535,19 @@ export function drawCombatCanvas(
     const baseAlpha = alive ? 1 : 0.3;
     ctx.globalAlpha = ov?.alpha != null ? ov.alpha : baseAlpha;
 
-    // Draw active indicator (Yellow base ellipse ring)
+    // Draw active indicator (Yellow for AI/enemy, Mint for player/controllable ally)
     if (radar.current && b.id === radar.current) {
+      const isActiveActor = combat.available?.active_actor_id === b.id;
       ctx.save();
-      ctx.strokeStyle = "rgba(255,215,106,0.95)";
-      ctx.lineWidth = 2.2;
+      if (isActiveActor) {
+        ctx.strokeStyle = "#00ffa6";
+        ctx.lineWidth = 3.2;
+        ctx.shadowColor = "rgba(0, 255, 170, 0.85)";
+        ctx.shadowBlur = 10;
+      } else {
+        ctx.strokeStyle = "rgba(255,215,106,0.95)";
+        ctx.lineWidth = 2.2;
+      }
       ctx.beginPath();
       ctx.ellipse(cx, cy, r * 1.4, r * 0.7, 0, 0, Math.PI * 2);
       ctx.stroke();
@@ -584,6 +592,22 @@ export function drawCombatCanvas(
     const drewSprite = drawBlipSprite(ctx, canvas, combat, scenarioId, b, cx, cy, r, pose);
     if (!drewSprite) {
       drawBlipPortrait(ctx, canvas, combat, scenarioId, b, cx, cardCy, r);
+    }
+
+    // Draw active actor arrow pointer
+    if (radar.current && b.id === radar.current && combat.available?.active_actor_id === b.id) {
+      ctx.save();
+      ctx.fillStyle = "#00ffa6";
+      ctx.shadowColor = "rgba(0, 255, 170, 0.85)";
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      const arrowY = drewSprite ? cy - r * 3.1 : cardCy - r - 12;
+      ctx.moveTo(cx - 6, arrowY - 8);
+      ctx.lineTo(cx + 6, arrowY - 8);
+      ctx.lineTo(cx, arrowY);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
     }
 
     // Flash/Stagger overlay tints

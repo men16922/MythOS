@@ -71,7 +71,11 @@ def generate_image(
         kwargs["ip_adapter_image"] = reference_image
     else:
         pipe = get_flux_pipeline(model_id, config)
-        if hasattr(pipe, "set_ip_adapter_scale"):
+        # A plain FLUX pipeline exposes set_ip_adapter_scale via mixin even when
+        # no adapter is loaded; calling it then raises (no encoder_hid_proj).
+        # Only zero the scale when an IP adapter is actually present.
+        transformer = getattr(pipe, "transformer", None)
+        if getattr(transformer, "encoder_hid_proj", None) is not None:
             pipe.set_ip_adapter_scale(0.0)
 
     generator = torch.Generator("cpu").manual_seed(seed or config.default_seed)

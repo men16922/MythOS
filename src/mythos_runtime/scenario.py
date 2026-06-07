@@ -28,6 +28,7 @@ class ScenarioConfig:
     cinematic_sfx: dict[str, str] = field(default_factory=dict)
     autonomy_config: dict[str, dict[str, Any]] = field(default_factory=dict)
     combat: dict[str, Any] = field(default_factory=dict)
+    route_map: dict[str, Any] = field(default_factory=dict)
     unlock: dict[str, Any] | None = None
     unlock_hint: str = ""
 
@@ -59,6 +60,7 @@ def load_scenario(scenario_id: str) -> ScenarioConfig:
         cinematic_sfx=data.get("cinematic_sfx", {}),
         autonomy_config=data.get("autonomy_config", {}),
         combat=data.get("combat", {}),
+        route_map=data.get("route_map", {}),
         unlock=data.get("unlock"),
         unlock_hint=data.get("unlock_hint", ""),
     )

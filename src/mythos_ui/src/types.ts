@@ -219,6 +219,11 @@ export interface CombatState {
   covers?: Record<string, string>;
   hazards?: Record<string, string>;
   log?: CombatLogEntry[];
+  rewards?: {
+    items?: string[];
+    encounter_reward?: Record<string, number | string>;
+    [key: string]: unknown;
+  };
 }
 
 export interface CombatAction {
@@ -256,7 +261,51 @@ export interface GameStateRaw {
       state: string;
     }>;
   };
+  _route_map?: RouteMap;
   [key: string]: unknown;
+}
+
+export interface RoutePerspective {
+  id: string;
+  lens?: string;
+  axis?: string;
+  when?: string[];
+  summary?: string;
+  crosses?: string[];
+  effect?: Record<string, unknown>;
+  ending_influence?: string[];
+}
+
+export interface RouteNode {
+  id: string;
+  type: string;
+  layer: number;
+  arc?: string;
+  title?: string;
+  label?: string;
+  glyph?: string;
+  risk?: number;
+  reward?: Record<string, number>;
+  combat?: boolean;
+  anchor?: boolean;
+  col?: number;
+  beat?: string;
+  image?: string;
+  event?: string;
+  default_perspective?: string;
+  perspectives?: RoutePerspective[];
+}
+
+export interface RouteMap {
+  version?: number;
+  current?: string;
+  visited?: string[];
+  nodes?: Record<string, RouteNode>;
+  edges?: Record<string, string[]>;
+  layers?: string[][];
+  active_perspectives?: Record<string, string>;
+  ending_tally?: Record<string, number>;
+  ending_leaderboard?: [string, number][];
 }
 
 export interface RuntimeSnapshot {
@@ -274,6 +323,7 @@ export interface RuntimeSnapshot {
   bgm_path?: string;
   state?: GameStateRaw;
   player?: PlayerProfile;
+  epiphanies_unlocked?: string[];
 }
 
 export interface SaveSlot {
@@ -323,3 +373,15 @@ export interface WebSocketMessage {
   status?: "pending" | "processing" | "succeeded" | string;
   url?: string;
 }
+
+export interface CombatCinemaContext {
+  attacker: CombatBlip;
+  defender: CombatBlip;
+  damage: number;
+  kind: "attack" | "skill" | "defend";
+  crit: boolean;
+  skillName?: string;
+  miss?: boolean;
+}
+
+export type CombatCinemaCue = "enter" | "windup" | "impact" | "exit";

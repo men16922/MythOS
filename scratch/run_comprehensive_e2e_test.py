@@ -32,8 +32,13 @@ def run_test():
 
             # --- STEP 1: Onboarding ---
             print("[2/10] Navigating to http://127.0.0.1:8080...")
-            page.goto("http://127.0.0.1:8080/")
+            page.goto("http://127.0.0.1:8080/?fallback=1&image=0")
             assert "세계" in page.title() or "MythOS" in page.title(), "Title mismatch!"
+
+            # First-entry boot intro overlay — dismiss it to reach onboarding.
+            print("Dismissing boot intro...")
+            page.wait_for_selector(".boot-enter-btn", timeout=15000)
+            page.click(".boot-enter-btn")
 
             print("[3/10] Entering name & archetype selection...")
             page.fill("#display-name", "플레이라이트 마스터봇")
@@ -41,6 +46,12 @@ def run_test():
 
             print("[4/10] Clicking '접속 · 루프 시작'...")
             page.click("#start")
+
+            # Session-start cinematic (session_intro) — accept to reach the board.
+            print("Accepting session intro cinematic...")
+            page.wait_for_selector(".intro-accept-btn", timeout=40000)
+            page.click(".intro-accept-btn")
+
             page.wait_for_selector("#play", timeout=15000)
             print("Successfully entered dashboard view!")
 
@@ -178,11 +189,16 @@ def run_test():
 
             # Navigate again
             print("Re-navigating to homepage...")
-            page.goto("http://127.0.0.1:8080/")
+            page.goto("http://127.0.0.1:8080/?fallback=1&image=0")
 
             # Inject session data back to ensure it is present on landing page
             page.evaluate(f"() => localStorage.setItem('mythos.session', '{saved_session}')")
             page.reload()  # Reload to let React detect localStorage data
+
+            # First-entry boot intro overlay — dismiss it to reach onboarding.
+            print("Dismissing boot intro on reload...")
+            page.wait_for_selector(".boot-enter-btn", timeout=15000)
+            page.click(".boot-enter-btn")
 
             # Check if resume button is visible
             print("Waiting for resume button to be visible...")

@@ -29,21 +29,28 @@ export function CombatRoster({ combat, scenarioId }: CombatRosterProps) {
       portraitUrl = `/resources/${scenarioId}/characters/player-noise.png`;
     }
     const isCurrent = combat.radar?.current === b.id;
+    const isActiveActor = combat.available?.active_actor_id === b.id;
 
     return (
       <div
         key={b.id}
-        className={`roster-card ${isCurrent ? "active-turn" : ""} ${!alive ? "dead" : ""}`}
+        className={`roster-card ${isCurrent ? "active-turn" : ""} ${
+          isActiveActor ? "active-actor-turn" : ""
+        } ${!alive ? "dead" : ""}`}
       >
         <div className="roster-avatar-wrapper">
           {portraitUrl ? (
             <img src={portraitUrl} className="roster-avatar-img" alt="" />
           ) : (
             <div className="roster-avatar-placeholder" style={{ background: factionColor(b.faction) }}>
-              {b.name?.slice(0, 1) || "?"}
+               {b.name?.slice(0, 1) || "?"}
             </div>
           )}
-          {isCurrent && <div className="roster-active-badge">TURN</div>}
+          {isCurrent && (
+            <div className={`roster-active-badge ${isActiveActor ? "active-actor" : ""}`}>
+              {isActiveActor ? "ACTIVE" : "TURN"}
+            </div>
+          )}
         </div>
         <div className="roster-info">
           <div className="roster-header-row">

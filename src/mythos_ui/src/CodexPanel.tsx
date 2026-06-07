@@ -146,6 +146,9 @@ export function CodexPanel({
           <div className="codex-sec-title">
             스킬 트리 (Skills) · 통찰 {insight}p
           </div>
+          <div className="skill-tree-hint" style={{ marginBottom: "10px" }}>
+            통찰은 전투 보상, 루프 보관(+2), 단서 확보(+1), 전투 승리(+1)로 얻습니다.
+          </div>
           {skillError && <div className="skill-tree-error">{skillError}</div>}
           <div className="skill-tree-list">
             {skills.length > 0 ? (

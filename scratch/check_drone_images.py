@@ -1,5 +1,6 @@
-from PIL import Image
 from pathlib import Path
+
+from PIL import Image
 
 ROOT = Path("/Users/men1692/Desktop/local/MythOS")
 COMBAT_DIR = ROOT / "resources" / "neo-seoul" / "enemies" / "combat"
@@ -14,7 +15,7 @@ files = [
     "sentinel-drone-skill.png",
     "sentinel-drone-hit.png",
     "enforcer-unit-idle.png",
-    "enforcer-unit-attack.png"
+    "enforcer-unit-attack.png",
 ]
 
 for name in files:

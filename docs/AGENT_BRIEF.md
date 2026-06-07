@@ -24,10 +24,11 @@ Project MythOS는 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG
 
 다음 우선순위는 `docs/NEXT_PLAN.md`가 권위다.
 
-1. 전투 연출 개편: 전신 action pose·스킬 애니메이션 레지스트리·아이콘 액션바·모션 다양화·reduced-motion 접근성까지 완료. 남은 것은 표시 위치/스케일/타이밍/가독성 live QA(사람 점검)뿐.
-2. 진행도 해금: Phase 1·2·3 완료(아키타입 게이트, base/learned 필터, Codex 통찰 투자 트리 + learn/rank-up API, 깨달음 배너, 시나리오 간 해금 게이팅). 다음 신규 트랙은 파티 조작.
-3. 파티 조작 2단계: 완료(파티원 직접 조작, 비파티 동맹 AI 유지).
-4. `glass-library` 확장: 진행도/프레젠테이션 패리티 + 데이터 주도 진행도 완료. 남은 것은 서사(arcs/endings/Story Bible) 깊이 + 전투 아트.
+1. Neo-Seoul 플레이 만족도 개선: 새 최우선 트랙. `neo-seoul`을 기술 데모가 아니라 30-60분 동안 만족스럽게 플레이 가능한 주력 시나리오로 만든다. Phase 1 문서 확정, Phase 2 데이터 보강, Phase 3 데이터 기준선까지 완료. 남은 것은 combat/progression 수치·보상 적용과 UX 피드백 정리. 권위 계획은 `docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`.
+2. 전투 연출 개편: 완료(전신 action pose·스킬 애니메이션 레지스트리·아이콘 액션바·모션 다양화·reduced-motion·Live QA).
+3. 진행도 해금: 완료(아키타입 게이트, base/learned 필터, Codex 통찰 투자 트리 + learn/rank-up API, 깨달음 배너, 시나리오 간 해금 게이팅). 후속은 Neo-Seoul 트랙의 밸런스 조정으로 다룬다.
+4. 파티 조작 2단계: 완료(파티원 직접 조작, 비파티 동맹 AI 유지).
+5. `glass-library` 확장: hold. 진행도/프레젠테이션 패리티 + Story Bible 17 entries까지 완료했지만 추가 확장은 Neo-Seoul 완성도 개선 이후로 미룬다.
 
 ## Read Order
 

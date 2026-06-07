@@ -13,7 +13,9 @@ from mythos_core import (
     WorldMemory,
 )
 from mythos_narrative import NarrativeContext
+from mythos_runtime.route_runtime import junction_options, route_status
 from mythos_runtime.scenario import ScenarioConfig
+from mythos_runtime.session_memory import build_session_synopsis
 from mythos_runtime.story_bible import (
     load_story_bible,
     select_story_bible_entries,
@@ -38,6 +40,13 @@ CAUSALITY_ENGINE_RULE = (
     "4. BUTTERFLY EFFECTS: Every player choice must be seeded for future consequences. "
     "5. MULTI-ENDINGS: Guide the story toward an ending based on "
     "Humanity/Dominance/Resilience/Insight."
+)
+
+NEO_SEOUL_NAMING_RULE = (
+    "NEO-SEOUL NAMING RULE (고유명사 표기 고정):\n"
+    "- 정식 표기는 반드시 '정세린' 또는 축약 '세린'만 사용하십시오.\n"
+    "- '세리느', '세린느', 'Serine', 'Seline' 등 다른 표기는 절대 사용하지 마십시오.\n"
+    "- Lin Yue는 한국어 본문에서 '린위에', Kai RX-09는 '카이 RX-09', Administrator IX는 '관리자 IX'로 표기하십시오."
 )
 
 
@@ -77,6 +86,8 @@ def build_runtime_narrative_context(
     fast_mode: bool = False,
 ) -> NarrativeContext:
     notes = [f"SCENARIO_BRIEF: {scenario.brief}", *novelty_notes, LANGUAGE_RULE]
+    if scenario.scenario_id == "neo-seoul":
+        notes.append(NEO_SEOUL_NAMING_RULE)
     notes.extend(_scenario_structure_notes(scenario))
     notes.append(CAUSALITY_ENGINE_RULE)
 
@@ -183,6 +194,18 @@ def build_runtime_narrative_context(
     bible = load_story_bible(scenario.scenario_id)
     entries = select_story_bible_entries(bible, loop, turn_index=turn_index)
     notes.extend(story_bible_notes(entries))
+
+    # Session memory: "story so far" synopsis + the previous scene(s) verbatim,
+    # so scenes continue with continuity instead of re-describing the same beats.
+    if isinstance(loop.state, dict):
+        notes.extend(build_session_synopsis(loop.state))
+
+    # Route-node steering: after the scripted opening (turns 0-2), tell the GM
+    # which procedural node the player is standing on, from which authored
+    # perspective to narrate it, and which ending the route currently leans to.
+    if turn_index >= 3:
+        notes.extend(_route_director_notes(scenario, loop))
+        notes.extend(_route_junction_notes(loop, turn_index))
 
     # P1 — 루프 내러티브 잔향 (Slay the Princess) 처리
     run_summaries = [m for m in world_memories if m.kind == "run_summary"]
@@ -353,6 +376,59 @@ def _opening_continuity_notes(scenario: ScenarioConfig, turn_index: int) -> list
         "정세린은 이 구간 내내 플레이어 곁에 존재하며 함께 움직입니다."
     )
     return lines
+
+
+def _route_director_notes(scenario: ScenarioConfig, loop: LoopState) -> list[str]:
+    state = loop.state if isinstance(loop.state, dict) else {}
+    status = route_status(state)
+    if not status:
+        return []
+    node = status.get("node") or {}
+    if not node:
+        return []
+    perspective = status.get("perspective") or {}
+    leaderboard = status.get("ending_leaderboard") or []
+    ending_labels = {str(e.get("id")): str(e.get("title", e.get("id"))) for e in scenario.endings}
+
+    kind = "고정 스토리 비트(임팩트 장면)" if node.get("anchor") else "동적 경유 장면"
+    lines = [
+        "=== 작전 노드 가이드 (ROUTE NODE STEERING) ===",
+        f"현재 작전 노드: '{node.get('title') or node.get('label')}' · 유형 {node.get('label')} · {kind}.",
+        "지침: 이번 장면은 이 노드를 무대로 전개하십시오. 노드 유형의 성격(전투/단서/시장/정비/사건/대면 등)을 장면 분위기와 선택지에 반영하되, 묘사·대사·선택지 텍스트는 자유롭게 창작하십시오.",
+    ]
+    if perspective:
+        lines.append(
+            f"활성 시점(관점): '{perspective.get('lens')}' — {perspective.get('summary')} "
+            "이 관점의 정서와 시선으로 장면을 서술하십시오."
+        )
+        crosses = perspective.get("crosses") or []
+        if crosses:
+            lines.append(
+                "교차 실타래: 이 장면에 "
+                + ", ".join(str(c) for c in crosses)
+                + " 와 맞닿는 복선이나 여운을 은근히 깔아 여러 갈래의 이야기가 교차하는 느낌을 주십시오."
+            )
+    if leaderboard:
+        top_id = str(leaderboard[0][0])
+        lines.append(
+            f"현재 루트가 향하는 결말 경향: '{ending_labels.get(top_id, top_id)}'. "
+            "결말을 직접 언급하지 말고, 톤과 복선으로만 이 방향을 은유적으로 비추십시오."
+        )
+    return lines
+
+
+def _route_junction_notes(loop: LoopState, turn_index: int) -> list[str]:
+    state = loop.state if isinstance(loop.state, dict) else {}
+    options = junction_options(state, turn_index=turn_index)
+    if not options:
+        return []
+    kinds = ", ".join(sorted({str(o.get("label")) for o in options if o.get("label")}))
+    return [
+        "=== 작전 갈림길 (ROUTE JUNCTION) ===",
+        "이 장면은 다음 행선지를 정하는 갈림길이다. 장면을 '어디로 갈지 결정해야 하는 긴장된 순간'으로 "
+        "마무리하라. 플레이어에게 제시될 행선지 선택지는 시스템이 작전 노드로 대체하므로, 너는 갈림길에 "
+        f"선 상황과 각 방향의 분위기만 묘사하라. 후보 방향 유형: {kinds}.",
+    ]
 
 
 def _scenario_structure_notes(scenario: ScenarioConfig) -> list[str]:

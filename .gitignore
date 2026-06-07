@@ -34,3 +34,7 @@ screenshots/
 .ruff_cache/
 .mypy_cache/
 .ipynb_checkpoints/
+
+# VS Code remote tunnel CLI artifacts
+/code
+/vscode_cli.tar.gz

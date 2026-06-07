@@ -486,9 +486,7 @@ class ApiScenarioGatingTest(unittest.TestCase):
         )
         store.save_player_memory(
             _meta_progression_memory(
-                MetaProgression(
-                    player_id="player_gate", scenario_id="neo-seoul", runs_completed=1
-                )
+                MetaProgression(player_id="player_gate", scenario_id="neo-seoul", runs_completed=1)
             )
         )
         scenarios = self._scenarios(client, "player_gate")

@@ -153,9 +153,7 @@ class CombatEngine:
                 if actor.faction == PLAYER:
                     self._player_flee(state, actor, dice)
                 else:
-                    self._log(
-                        state, actor, "info", f"{actor.name}은(는) 전열을 이탈할 수 없다."
-                    )
+                    self._log(state, actor, "info", f"{actor.name}은(는) 전열을 이탈할 수 없다.")
                     spent = False
             else:
                 self._log(state, actor, "info", f"{actor.name}은(는) 상황을 살핀다.")

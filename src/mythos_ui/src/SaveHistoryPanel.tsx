@@ -111,7 +111,9 @@ export function SaveHistoryPanel({
               </div>
             ))
           ) : (
-            <div style={{ color: "var(--ink-dim)" }}>완료된 여정이 없습니다.</div>
+            <div style={{ color: "var(--ink-dim)" }}>
+              아직 종료된 루프 기록이 없습니다. 엔딩, 붕괴, 접속 종료 후 지난 루프 요약이 여기에 남습니다.
+            </div>
           )}
         </div>
       </div>

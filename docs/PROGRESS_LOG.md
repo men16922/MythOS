@@ -6,6 +6,15 @@
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는
 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-07 — Combat Polish: 모션 다양화 + reduced-motion 접근성
+
+- Status: [x] Priority 1 후속 polish 완료(저위험, 자족적).
+- Changed:
+  - `combatAnim.ts`: defense/support 스킬이 동료에게 부여될 때(target≠source) 시전자→동료 이동 펄스 + 동료 위치 실드 링, melee `burst` 태그에 외향 충격파 링 추가.
+  - `App.tsx`: `prefersReducedMotion()` 시 타자기 즉시 플러시, 진입 켄번/글리치 시네마틱 스킵.
+  - `index.css`: 전역 `@media (prefers-reduced-motion: reduce)` — ambient 루프 애니메이션(켄번 팬/글리치/블링크) 무력화 + 트랜지션 축소(전투 보드/시네마는 기존 JS 게이팅 유지).
+- Verified: `make frontend-lint`/`make frontend-build`, `.venv/bin/python tests/playwright/test_e2e_play_checklist.py` 그린. `make test` 영향 없음(223/2 skipped 유지).
+
 ## 2026-06-07 — Scenario Expansion: 데이터 주도 진행도 + glass-library 패리티
 
 - Status: [x] 진행도 grant를 scenario.json 데이터 주도로 전환(시나리오 비종속), glass-library를 progression/presentation 패리티로 보강. 공유 캐시 오염 버그 수정.

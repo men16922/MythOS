@@ -376,11 +376,16 @@ export default function App() {
   // Typewriter Loop
   useEffect(() => {
     if (!isStreaming) return;
+    // Accessibility: under prefers-reduced-motion, skip the per-character reveal
+    // and flush the queued narration immediately on each tick.
+    const reduceMotion = prefersReducedMotion();
     const interval = setInterval(() => {
       if (narrationQueueRef.current.length > 0) {
         // Drain the queue quickly so the typewriter keeps pace with the token
         // stream and doesn't add a trailing delay once generation is done.
-        const step = Math.max(3, Math.ceil(narrationQueueRef.current.length / 24));
+        const step = reduceMotion
+          ? narrationQueueRef.current.length
+          : Math.max(3, Math.ceil(narrationQueueRef.current.length / 24));
         const sliceStr = narrationQueueRef.current.slice(0, step);
         narrationQueueRef.current = narrationQueueRef.current.slice(step);
         narrationTypedRef.current += sliceStr;
@@ -557,6 +562,9 @@ export default function App() {
   const triggerCinematicEffects = (snap: RuntimeSnapshot) => {
     setKenBurnsActive(false);
     setGlitchActive(false);
+
+    // Accessibility: skip the entry glitch/Ken Burns motion under reduced-motion.
+    if (prefersReducedMotion()) return;
 
     if (snap.active_scene && snap.active_scene.turn_index === 0) {
       logToConsole("시네마틱 효과 기동 (turn_index = 0)");

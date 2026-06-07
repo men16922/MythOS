@@ -17,7 +17,7 @@ Project MythOS는 로컬 플레이어블 MVP를 넘어 React SPA + FastAPI API +
 - FastAPI `/api/v1` REST/WS adapter and Vite React TypeScript SPA.
 - Playwright E2E regression gate with updated timeline synchronizations.
 - Combat presentation overhaul: basic action signal cards, self-targeting 2-poster layouts, and standalone utility skill cinematic zoom triggers.
-- `combatAnim.ts` role/tags skill animation registry wired into `combatEffects.ts`; per-skill icon cut-ins (`skills/<skill_id>.png`) in `CombatCinema`.
+- `combatAnim.ts` role/tags skill animation registry wired into `combatEffects.ts`; per-skill icon cut-ins (`skills/<skill_id>.png`) in `CombatCinema`. Motion variety(동료 부여 펄스/실드, melee burst 충격파) + `prefers-reduced-motion` 접근성(전역 CSS + JS 게이팅).
 - Phase 4 `CombatControls` 스킬 아이콘 액션바: data-driven 아이콘 타일 + cost/range 배지 + cooldown 오버레이 + FOCUS 게이팅 + tooltip.
 - Drone enemies(`maintenance-drone`, `sentinel-drone`) promoted with full combat action sheets — 4 combat-art enemies total.
 
@@ -51,7 +51,7 @@ Recent verified baseline recorded in docs:
 
 권위 계획: `docs/NEXT_PLAN.md`.
 
-1. **Combat presentation upgrade**: 기본 지도 섬네일은 유지하고, CombatCinema 전신 action pose 파이프라인을 기준으로 표시 위치/스케일/타이밍 polish.
+1. **Combat presentation upgrade**: 모션 다양화·reduced-motion 접근성까지 완료. 남은 것은 표시 위치/스케일/타이밍/가독성 live QA(사람 점검)뿐.
 2. **Progression skills/archetypes**: Phase 1·2·3 완료(아키타입 게이트, base/learned 필터, Codex 통찰 투자 트리, 깨달음 배너, 시나리오 간 해금). 다음 신규 트랙은 Priority 3.
 3. ~~**Controllable party allies**~~: 완료(파티원 직접 조작, 비파티 동맹 AI 유지).
 4. **Scenario expansion**: glass-library 진행도/프레젠테이션 패리티 완료. 남은 것은 서사(arcs/endings/Story Bible) 깊이 + 전투 아트 확장.

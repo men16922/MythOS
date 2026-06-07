@@ -98,31 +98,49 @@ export function getSkillFx(
     }
   } 
   else if (role === "defense" || tags.includes("evasion") || tags.includes("support")) {
-    // Defensive barrier: Dual layered blue protective shielding rings
+    // Defensive barrier: Dual layered blue protective shielding rings. When the
+    // ward is cast on a different ally (target != source), shield the target;
+    // otherwise it settles on the caster.
     const cyan = "#8fffea";
-    
+    const onAlly = tx !== ax || ty !== ay;
+    const cx = (onAlly ? tx : ax) + 0.5;
+    const cy = (onAlly ? ty : ay) + 0.5;
+
+    // A travelling pulse from caster to ally telegraphs a granted ward.
+    if (onAlly && p < 0.5) {
+      const tp = p * 2;
+      fx.push({
+        kind: "spark",
+        cellX: ax + 0.5 + (tx - ax) * tp,
+        cellY: ay + 0.5 + (ty - ay) * tp,
+        cellR: 0.1,
+        color: cyan,
+        alpha: 0.8 * (1 - tp),
+      });
+    }
+
     // Outer shield ring
     fx.push({
       kind: "ring",
-      cellX: ax + 0.5,
-      cellY: ay + 0.5,
+      cellX: cx,
+      cellY: cy,
       cellR: 0.38 + 0.08 * Math.sin(p * Math.PI * 2),
       color: cyan,
       alpha: 0.7 * (1 - p),
       width: 2,
     });
-    
+
     // Inner pulse ring
     fx.push({
       kind: "ring",
-      cellX: ax + 0.5,
-      cellY: ay + 0.5,
+      cellX: cx,
+      cellY: cy,
       cellR: 0.22 + 0.2 * p,
       color: "#ffffff",
       alpha: 0.55 * (1 - p),
       width: 1.5,
     });
-  } 
+  }
   else if (role === "damage" && tags.includes("ranged")) {
     // Ranged Skill: Red muzzle flash at source + thick tracer beam + target spark splash
     const red = baseColor;
@@ -185,7 +203,19 @@ export function getSkillFx(
         alpha: 0.7 * (1 - sp),
       });
     }
-  } 
+    // "burst" tag gets an extra outward shockwave ring for heavier impact.
+    if (tags.includes("burst")) {
+      fx.push({
+        kind: "ring",
+        cellX: tx + 0.5,
+        cellY: ty + 0.5,
+        cellR: 0.1 + 0.6 * p,
+        color: baseColor,
+        alpha: 0.6 * (1 - p),
+        width: 3 * (1 - p),
+      });
+    }
+  }
   else {
     // Fallback: Standard skill expanding ring
     fx.push({

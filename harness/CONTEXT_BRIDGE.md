@@ -13,7 +13,7 @@
 
 ## Current Handover
 
-1. **진행 중 트랙(Priority 1)**: 전투 연출 개편. Phase 0~4 완료(전신 포즈 컷인, role/tags 스킬 애니메이션 레지스트리, 스킬 아이콘 컷인, combat-art 적 4종, `CombatControls` 스킬 아이콘 액션바). 남은 것은 Phase 2 연출 polish(위치/스케일/타이밍/가독성, live QA 필요), Phase 3 모션 다양화 + reduced-motion, Phase 5 E2E/live QA. 점검 기준은 `docs/play-checklist.md`.
+1. **Priority 1(전투 연출)**: Phase 0~4 + 후속 polish(role/tags 모션 다양화, reduced-motion 접근성) 완료. 남은 것은 표시 위치/스케일/타이밍/가독성 **live QA**(사람 점검)뿐. 점검 기준은 `docs/play-checklist.md`.
 2. **장기 worker 안정성**: Redux 단독 job과 종료 cleanup은 검증됐지만, txt2img(Flux1) + Redux(Flux1Redux) 동시 적재 시 메모리/스왑 멈춤 재발 여부는 장기 플레이에서 관찰해야 한다.
 3. **진행도 해금(Priority 2)**: Phase 1·2·3 완료(아키타입 게이트, base/learned 필터, Codex 통찰 투자 트리 + `GET/POST /players/{id}/skills`, tier 게이팅, 깨달음 배너, `scenario.unlock` 시나리오 간 해금).
 4. **파티 조작(Priority 3)**: 완료. 전투 턴 루프를 controllable-actor stop으로 일반화(`mythos_combat/{models,engine,factory}.py`), 파티원만 `controllable=True`.

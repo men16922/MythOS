@@ -48,7 +48,7 @@
 다음:
 
 - `[x]` 다음 신규 기능 우선순위는 Priority 2 — Progression Skills / Archetypes.
-- `[ ]` 낮은 우선순위 후속 polish: role/tags 별 모션 다양화, reduced-motion 세부 대응.
+- `[x]` 낮은 우선순위 후속 polish: role/tags 별 모션 다양화(defense 동료 부여 펄스, melee burst 충격파), reduced-motion 세부 대응(전역 CSS 미디어쿼리 + 타자기/켄번/글리치 JS 게이팅).
 
 ## Priority 2 — Progression Skills / Archetypes
 

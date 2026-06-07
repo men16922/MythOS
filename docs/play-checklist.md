@@ -63,6 +63,8 @@ make api           # FastAPI + 빌드된 프론트엔드 서빙
 - [ ] hover tooltip(이름·역할·사거리·코스트·태그)이 올바르게 뜬다.
 - [ ] 아이콘 로드 실패 시 role 글리프 fallback이 깨지지 않는다.
 
-## F. reduced-motion (Phase 3 연계)
+## F. reduced-motion (구현 완료, live QA 권장)
 
-- [ ] OS "동작 줄이기" 설정 시 셰이크/투사체/줌인 모션이 과하지 않게 완화된다. (미구현이면 Phase 3 과제로 이관)
+- [x] OS "동작 줄이기" 설정 시 전투 보드/시네마 모션은 `prefersReducedMotion()` JS 게이팅으로 즉시 정착(instant), 진입 켄번/글리치·타자기 스킵.
+- [x] ambient CSS 루프(켄번 팬/글리치/블링크)는 전역 `@media (prefers-reduced-motion: reduce)`로 무력화.
+- [ ] live QA: 실제 OS 설정 토글로 과한 모션 잔존 여부 육안 확인.

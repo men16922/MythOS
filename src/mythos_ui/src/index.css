@@ -2020,3 +2020,22 @@ main {
   color: var(--ink-dim);
   opacity: 0.7;
 }
+
+/* Accessibility: honor the OS "reduce motion" preference. Neutralizes ambient
+   looping animations (Ken Burns pan, glitch flicker, blinking carets) and
+   collapses transitions, while combat board/cinema motion is separately gated
+   in JS via prefersReducedMotion(). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .kenburns-active,
+  .glitch-active {
+    animation: none !important;
+  }
+}

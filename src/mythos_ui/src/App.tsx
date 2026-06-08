@@ -1286,6 +1286,8 @@ export default function App() {
                 codexLists={codexLists}
                 skillTree={skillTree}
                 routeMap={finalizedSnapshot?.state?._route_map}
+                snapshot={finalizedSnapshot}
+                onEquip={handleEquip}
                 onLearnSkill={handleLearnSkill}
                 learningSkillId={learningSkillId}
                 skillError={skillError}

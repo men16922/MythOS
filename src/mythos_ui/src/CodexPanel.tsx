@@ -1,11 +1,14 @@
+import { CharacterPanel } from "./CharacterPanel";
 import { RouteNarrative } from "./RouteNarrative";
 import type { CodexLists } from "./viewModels";
-import type { RouteMap, SkillTreeNode, SkillTreeResponse } from "./types";
+import type { RouteMap, RuntimeSnapshot, SkillTreeNode, SkillTreeResponse } from "./types";
 
 interface CodexPanelProps {
   codexLists: CodexLists;
   skillTree?: SkillTreeResponse | null;
   routeMap?: RouteMap | null;
+  snapshot?: RuntimeSnapshot | null;
+  onEquip?: (itemId: string, equipped: boolean) => void;
   onLearnSkill?: (skillId: string) => void;
   learningSkillId?: string | null;
   skillError?: string | null;
@@ -15,6 +18,8 @@ export function CodexPanel({
   codexLists,
   skillTree,
   routeMap,
+  snapshot,
+  onEquip,
   onLearnSkill,
   learningSkillId,
   skillError,
@@ -90,21 +95,9 @@ export function CodexPanel({
             </div>
           </div>
 
-          <div className="codex-sec">
-            <div className="codex-sec-title">소지 인벤토리 (Inventory)</div>
-            <div className="codex-list">
-              {codexLists.inventory.length > 0 ? (
-                codexLists.inventory.map((item, idx) => (
-                  <div className="codex-item" key={idx}>
-                    <div className="codex-item-head">{String(item)}</div>
-                  </div>
-                ))
-              ) : (
-                <div style={{ color: "var(--ink-dim)" }}>
-                  소지품이 비어 있습니다.
-                </div>
-              )}
-            </div>
+          {/* 캐릭터: 스탯 / 장비 / 인벤토리 (플레이어 뷰 — characters 미전달로 NPC 감지 비활성). */}
+          <div className="codex-sec codex-character-sec">
+            <CharacterPanel snapshot={snapshot ?? null} onEquip={onEquip} />
           </div>
 
           <div className="codex-sec">

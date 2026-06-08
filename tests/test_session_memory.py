@@ -73,6 +73,17 @@ class SessionMemoryTest(unittest.TestCase):
         notes = build_session_synopsis(state)
         self.assertTrue(any("방금 일어난 장면" in n for n in notes))
 
+    def test_synopsis_warns_when_location_unchanged(self) -> None:
+        # Same location across recent beats -> emit the "skip re-describing setting" note.
+        beats = [{"t": t, "title": f"S{t}", "location": "data-layer-01"} for t in range(3)]
+        notes = build_session_synopsis({BEATS_KEY: beats})
+        self.assertTrue(any("장소가 직전 장면과 같다" in n for n in notes))
+
+    def test_synopsis_no_location_warning_when_moving(self) -> None:
+        beats = [{"t": t, "title": f"S{t}", "location": f"zone-{t}"} for t in range(3)]
+        notes = build_session_synopsis({BEATS_KEY: beats})
+        self.assertFalse(any("장소가 직전 장면과 같다" in n for n in notes))
+
 
 if __name__ == "__main__":
     unittest.main()

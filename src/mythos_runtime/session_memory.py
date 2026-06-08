@@ -106,8 +106,20 @@ def build_session_synopsis(state: dict[str, Any]) -> list[str]:
         notes.append("=== 이번 루프 줄거리 (STORY SO FAR) ===")
         notes.append(
             "지침: 아래는 이번 루프에서 실제로 일어난 일이다. 새 장면은 여기서 자연스럽게 "
-            "이어지게 하고, 이미 묘사한 장소·인물·사건을 똑같이 반복 서술하지 말 것."
+            "이어지게 하고, 이미 묘사한 장소·인물·사건을 똑같이 반복 서술하지 말 것. "
+            "특히 첫 문장을 직전 장면과 같은 환경·날씨·냄새·분위기 묘사로 다시 열지 말고, "
+            "매 장면 도입부를 새로운 사건·대사·행동·발견으로 시작하라."
         )
+        # When the location has not changed for several beats, the model tends to
+        # re-describe the same ambient setting each turn; tell it to skip that.
+        recent_locations = [
+            str(b.get("location") or "").strip() for b in beats[-3:] if b.get("location")
+        ]
+        if len(recent_locations) >= 2 and len(set(recent_locations)) == 1:
+            notes.append(
+                "주의: 장소가 직전 장면과 같다. 배경(환경·날씨·냄새·조명) 묘사를 처음부터 "
+                "다시 깔지 말고, 첫 문장부터 새로운 전개(사건·대사·이동·결정)로 바로 진입하라."
+            )
         if anchors:
             spine = " → ".join(
                 f"{b.get('node')}({_short(b.get('lens'))})" for b in anchors

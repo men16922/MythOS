@@ -141,8 +141,13 @@ function RouteMapPanel({ routeMap }: { routeMap: RouteMap }) {
           ⤢ 확대
         </button>
       </div>
-      {/* Minimal by default: just the node graph. */}
+      {/* Minimal by default: graph + a one-line movement cue (choice → move). */}
       {graph}
+      <div className="route-move-cue">
+        <span className="route-cue-dot cur" /> 현재 위치
+        <span className="route-cue-arrow">→</span>
+        선택지를 고르면 <span className="route-cue-dot next" /> 다음 줄로 이동합니다
+      </div>
 
       {expanded && (
         <div className="route-map-modal-backdrop" onClick={() => setExpanded(false)}>

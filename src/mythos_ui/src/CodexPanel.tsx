@@ -1,9 +1,11 @@
+import { RouteNarrative } from "./RouteNarrative";
 import type { CodexLists } from "./viewModels";
-import type { SkillTreeNode, SkillTreeResponse } from "./types";
+import type { RouteMap, SkillTreeNode, SkillTreeResponse } from "./types";
 
 interface CodexPanelProps {
   codexLists: CodexLists;
   skillTree?: SkillTreeResponse | null;
+  routeMap?: RouteMap | null;
   onLearnSkill?: (skillId: string) => void;
   learningSkillId?: string | null;
   skillError?: string | null;
@@ -12,6 +14,7 @@ interface CodexPanelProps {
 export function CodexPanel({
   codexLists,
   skillTree,
+  routeMap,
   onLearnSkill,
   learningSkillId,
   skillError,
@@ -47,6 +50,7 @@ export function CodexPanel({
           기억의 별자리
         </h2>
         <div className="codex-grid">
+          <RouteNarrative routeMap={routeMap} />
           <div className="codex-sec">
             <div className="codex-sec-title">단서 목록 (Clues)</div>
             <div className="codex-list">

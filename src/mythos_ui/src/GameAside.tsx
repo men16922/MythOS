@@ -45,13 +45,6 @@ function rewardSummary(reward?: Record<string, number>): string {
   return parts.join(" · ");
 }
 
-const ENDING_LABELS: Record<string, string> = {
-  ending_safe_refuge: "안정적 귀환",
-  ending_code_rewrite: "시스템 각성",
-  ending_noble_sacrifice: "고결한 희생",
-  ending_erasure: "강제 최적화",
-};
-
 function RouteMapPanel({ routeMap }: { routeMap: RouteMap }) {
   const nodes = routeMap.nodes || {};
   const layers = routeMap.layers || [];
@@ -59,15 +52,8 @@ function RouteMapPanel({ routeMap }: { routeMap: RouteMap }) {
   const currentId = routeMap.current || (layers[0] || [])[0];
   const visited = new Set(routeMap.visited || (currentId ? [currentId] : []));
   const nextCandidates = new Set(edges[currentId] || []);
-  const activePerspectives = routeMap.active_perspectives || {};
-  const leaderboard = routeMap.ending_leaderboard || [];
 
   if (layers.length === 0) return null;
-
-  const currentNode = nodes[currentId];
-  const activeLensId = activePerspectives[currentId];
-  const activeLens = (currentNode?.perspectives || []).find((p) => p.id === activeLensId);
-  const topEndingScore = leaderboard.length ? leaderboard[0][1] : 0;
 
   const renderNode = (id: string) => {
     const node: RouteNode | undefined = nodes[id];
@@ -133,39 +119,9 @@ function RouteMapPanel({ routeMap }: { routeMap: RouteMap }) {
       <div className="sub" style={{ fontSize: "11px", color: "var(--ink-dim)", marginTop: "6px" }}>
         위에서 아래로 진행합니다. 강조된 노드가 현재 위치, 그 다음 줄이 이동 후보입니다.
       </div>
-      {activeLens && (
-        <div className="route-active-lens">
-          <span className="route-active-tag">현재 시점</span> {activeLens.lens}
-          {activeLens.summary && <div className="route-active-summary">{activeLens.summary}</div>}
-        </div>
-      )}
-      {leaderboard.length > 0 && (
-        <div className="route-ending-lead">
-          <div className="route-ending-title">
-            이 루트가 향하는 결말
-            <span
-              className="route-ending-help-icon"
-              title="지금까지 내린 선택이 어느 결말로 기울고 있는지 보여주는 누적 경향입니다. 확정이 아니라, 앞으로의 선택으로 바뀔 수 있는 가중치입니다."
-            >
-              ⓘ
-            </span>
-          </div>
-          <div className="route-ending-help">
-            지금까지의 선택이 기울고 있는 결말 경향(확정 아님).
-          </div>
-          {leaderboard.slice(0, 3).map(([id, score]) => (
-            <div key={id} className="route-ending-row">
-              <span className="route-ending-name">{ENDING_LABELS[id] || id}</span>
-              <span className="route-ending-bar">
-                <span
-                  className="route-ending-fill"
-                  style={{ width: `${topEndingScore ? (score / topEndingScore) * 100 : 0}%` }}
-                />
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
+      <div className="sub" style={{ fontSize: "10px", color: "var(--ink-dim)", marginTop: "6px", opacity: 0.8 }}>
+        현재 시점·향하는 결말은 기억의 별자리에서 확인하세요.
+      </div>
     </div>
   );
 }

@@ -58,11 +58,13 @@ def _calculate_zone_risk(location_id: str, turn_index: int) -> str:
 
 
 def _resolve_inventory(state: dict[str, Any]) -> list[dict[str, Any]]:
-    """Resolve ``state["_inventory"]`` item ids into named, counted entries.
+    """Resolve ``state["_inventory"]`` into named, counted entries for the client.
 
-    Combat loot lands in ``loop.state["_inventory"]`` as bare item ids; the client
-    needs names/kinds to render them, so we map each id against the scenario's
-    ``combat.items`` definitions here (server-side, single source of truth).
+    Combat loot lands in ``loop.state["_inventory"]``; ``CombatService`` stores
+    each entry as the item-definition dict (``{id, name, kind, rarity, ...}``),
+    though legacy/skill paths may store a bare id string. We normalize both,
+    backfilling missing fields from the scenario's ``combat.items`` definitions,
+    and collapse duplicates into ``count``.
     """
     raw = state.get("_inventory") if isinstance(state, dict) else None
     if not isinstance(raw, list) or not raw:
@@ -75,27 +77,29 @@ def _resolve_inventory(state: dict[str, Any]) -> list[dict[str, Any]]:
             items_def = combat.get("items", {}) if isinstance(combat, dict) else {}
         except Exception:  # noqa: BLE001 — scenario lookup is best-effort
             items_def = {}
+
     counts: dict[str, int] = {}
     order: list[str] = []
-    for item_id in raw:
-        key = str(item_id)
-        if key not in counts:
-            order.append(key)
-        counts[key] = counts.get(key, 0) + 1
-    resolved: list[dict[str, Any]] = []
-    for key in order:
-        definition = items_def.get(key, {}) if isinstance(items_def, dict) else {}
-        resolved.append(
-            {
-                "id": key,
-                "name": definition.get("name", key),
-                "kind": definition.get("kind", "item"),
-                "rarity": definition.get("rarity"),
-                "effect": definition.get("effect"),
-                "count": counts[key],
+    fields: dict[str, dict[str, Any]] = {}
+    for entry in raw:
+        if isinstance(entry, dict):
+            item_id = str(entry.get("id") or entry.get("name") or "item")
+            source = entry
+        else:
+            item_id = str(entry)
+            source = {}
+        definition = items_def.get(item_id, {}) if isinstance(items_def, dict) else {}
+        if item_id not in counts:
+            order.append(item_id)
+            fields[item_id] = {
+                "name": source.get("name") or definition.get("name") or item_id,
+                "kind": source.get("kind") or definition.get("kind") or "item",
+                "rarity": source.get("rarity") or definition.get("rarity"),
+                "effect": source.get("effect") or definition.get("effect"),
             }
-        )
-    return resolved
+        counts[item_id] = counts.get(item_id, 0) + 1
+
+    return [{"id": item_id, "count": counts[item_id], **fields[item_id]} for item_id in order]
 
 
 def snapshot_to_dict(snapshot: RuntimeSnapshot) -> dict[str, Any]:

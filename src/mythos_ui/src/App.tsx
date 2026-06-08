@@ -1264,6 +1264,7 @@ export default function App() {
               <CodexPanel
                 codexLists={codexLists}
                 skillTree={skillTree}
+                routeMap={finalizedSnapshot?.state?._route_map}
                 onLearnSkill={handleLearnSkill}
                 learningSkillId={learningSkillId}
                 skillError={skillError}

@@ -1,6 +1,6 @@
 # Project MythOS Status
 
-최종 갱신: 2026-06-08
+최종 갱신: 2026-06-09
 
 ## Current Baseline
 
@@ -44,6 +44,11 @@ Scenario Expansion / 데이터 주도 진행도 (2026-06-07):
 Controllable Party Allies (2026-06-07):
 
 - 전투 턴 루프를 controllable-actor stop으로 일반화. `_party.members` 소속 동료는 플레이어가 직접 조작(턴에서 정지, active actor 기준 행동), flag 해금 비파티 동맹은 AI 유지. 패배 판정 = 조작 가능 유닛 전멸. UI는 현재 차례(플레이어/동료) 표시.
+
+데이터모델 통합 + 플레이 피드백 UX (2026-06-09):
+
+- M40 progression/inventory/equipment를 JSONB-on-row → 전용 테이블(migration 005). `player_progression`(append-scan 제거), `loop_inventory`(PostgresStore 경계 dehydrate/hydrate, CombatService 무변경), 장비 착용 시스템(scenario `kind:equipment`+stats, `equip_item`, 전투 보너스, 착용 UI). 기존 36행 백필. 상세 `docs/plans/2026-06-09-progression-inventory-equipment-datamodel.md`.
+- 플레이 피드백 UX Phase A: 상태 게이지 숫자화+설명토글, 결말 경향 설명, 보드 범례 버튼+팝업, drag 안내 제거, 전리품 인벤토리 표시 버그 수정, 결말/현재시점을 기억의 별자리로 이동, SPA 번들 no-cache. 잔여(Phase B): 전투 중 소모품 사용 버튼, 보드 확대/zoom, 작전 지도 클릭 확대, 행동→이동 명확화, 기억의 별자리 스탯 통합 메뉴.
 
 Live LLM QA & 반복 완화 (2026-06-08):
 

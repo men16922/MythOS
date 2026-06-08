@@ -352,6 +352,45 @@ class SessionCombatTest(unittest.TestCase):
         self.assertEqual(progress.insight_points, 2)
         self.assertEqual(updated.state["meta_progression"]["insight_points"], 2)
 
+    def test_equip_item_toggles_and_applies_stat_bonus(self) -> None:
+        from mythos_core import Scene
+        from mythos_runtime.scenario import load_scenario
+
+        loop = self.store.get_loop(self.loop_id)
+        assert loop is not None
+        loop = replace(
+            loop,
+            state={
+                **loop.state,
+                "scenario_id": "neo-seoul",
+                "_inventory": [{"id": "signal_blade"}],
+            },
+        )
+        self.store.save_loop(loop)
+        self.store.save_scene(
+            Scene(
+                scene_id="sc",
+                loop_id=self.loop_id,
+                turn_index=0,
+                title="t",
+                location="loc",
+                narration="n",
+                choices=[],
+                visual_brief=None,
+                created_at=datetime(2026, 5, 31, tzinfo=UTC),
+            )
+        )
+
+        self.service.equip_item(self.loop_id, "signal_blade", True)
+        equipped = self.store.get_loop(self.loop_id).state["_inventory"][0]
+        self.assertTrue(equipped["equipped"])
+
+        scenario = load_scenario("neo-seoul")
+        player = self.store.get_player("p1")
+        stats = self.service._player_combat_stats(player, self.store.get_loop(self.loop_id), scenario)
+        # signal_blade grants strength +2 over the base of 9.
+        self.assertEqual(stats["strength"], 11)
+
     def test_flee_keeps_encounter_contact_alerted_without_rewards(self) -> None:
         loop = self.store.get_loop(self.loop_id)
         assert loop is not None

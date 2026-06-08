@@ -339,6 +339,9 @@ export interface InventoryItem {
   rarity?: string | null;
   effect?: string | null;
   count: number;
+  slot?: string | null;
+  stats?: Record<string, number> | null;
+  equipped?: boolean;
 }
 
 export interface SaveSlot {

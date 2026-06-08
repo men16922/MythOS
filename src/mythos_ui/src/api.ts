@@ -93,6 +93,17 @@ export async function apiCombatBegin(params: {
   return apiPost<{ combat: CombatState }>("/api/v1/combat/begin", params);
 }
 
+export async function apiEquip(params: {
+  loop_id: string;
+  item_id: string;
+  equipped: boolean;
+}): Promise<RuntimeSnapshot> {
+  return apiPost<RuntimeSnapshot>(
+    `/api/v1/loops/${encodeURIComponent(params.loop_id)}/equip`,
+    params
+  );
+}
+
 export async function apiResolveAsset(storageUri: string): Promise<{ url: string }> {
   return apiPost<{ url: string }>("/api/v1/assets/resolve", { storage_uri: storageUri });
 }

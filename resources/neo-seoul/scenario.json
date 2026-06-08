@@ -996,16 +996,37 @@
       },
       "access_key": {"id": "access_key", "name": "접근 키", "kind": "key", "rarity": "uncommon"},
       "data_fragment": {"id": "data_fragment", "name": "데이터 파편", "kind": "data", "rarity": "rare"},
-      "drone_scrap": {"id": "drone_scrap", "name": "드론 잔해", "kind": "material", "rarity": "common"}
+      "drone_scrap": {"id": "drone_scrap", "name": "드론 잔해", "kind": "material", "rarity": "common"},
+      "signal_blade": {
+        "id": "signal_blade",
+        "name": "신호 블레이드",
+        "kind": "equipment",
+        "slot": "weapon",
+        "stats": {"strength": 2},
+        "rarity": "uncommon"
+      },
+      "mesh_vest": {
+        "id": "mesh_vest",
+        "name": "메시 베스트",
+        "kind": "equipment",
+        "slot": "armor",
+        "stats": {"agility": 1, "perception": 1},
+        "rarity": "uncommon"
+      }
     },
     "loot_tables": {
       "drone_scrap": [{"item": "drone_scrap", "weight": 4}, {"item": "nanopatch", "weight": 1}],
       "enforcer_core": [
         {"item": "access_key", "weight": 2},
         {"item": "stim_shard", "weight": 1},
-        {"item": "nanopatch", "weight": 1}
+        {"item": "nanopatch", "weight": 1},
+        {"item": "signal_blade", "weight": 1}
       ],
-      "data_cache": [{"item": "data_fragment", "weight": 4}, {"item": "stim_shard", "weight": 1}]
+      "data_cache": [
+        {"item": "data_fragment", "weight": 3},
+        {"item": "stim_shard", "weight": 1},
+        {"item": "mesh_vest", "weight": 1}
+      ]
     },
     "encounters": {
       "patrol_ambush": {

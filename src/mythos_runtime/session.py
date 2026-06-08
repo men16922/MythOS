@@ -743,6 +743,77 @@ class RuntimeSessionService:
             epiphanies_unlocked=self._epiphanies_unlocked(snapshot_player, ended_loop),
         )
 
+    def _player_combat_stats(
+        self, player: PlayerProfile, loop: LoopState, scenario: Any
+    ) -> dict[str, int]:
+        """Base player stats + equipped equipment bonuses for combat begin."""
+        stats = player.traits.get("stats", {}) if isinstance(player.traits, dict) else {}
+        base = {k: int(v) for k, v in stats.items() if isinstance(v, int | float)}
+        items = scenario.combat.get("items", {}) if isinstance(scenario.combat, dict) else {}
+        inventory = loop.state.get("_inventory", []) if isinstance(loop.state, dict) else []
+        for entry in inventory:
+            if not isinstance(entry, dict) or not entry.get("equipped"):
+                continue
+            definition = items.get(str(entry.get("id") or ""), {})
+            bonus = definition.get("stats") if isinstance(definition, dict) else None
+            if isinstance(bonus, dict):
+                for stat, value in bonus.items():
+                    if isinstance(value, int | float):
+                        base[stat] = base.get(stat, 0) + int(value)
+        return base
+
+    def _snapshot_from_loop(
+        self, player: PlayerProfile, loop: LoopState, options: RuntimeOptions | None = None
+    ) -> RuntimeSnapshot:
+        """Build a read-only snapshot for the loop's current scene (no advance)."""
+        options = options or RuntimeOptions()
+        scene = self.store.get_latest_scene(loop.loop_id)
+        if scene is None:
+            raise RuntimeError(f"loop_id={loop.loop_id} has no scenes")
+        combat = None
+        if scene.scene_type == "combat" or CombatService.is_active(loop):
+            combat = self._combat_snapshot(loop, options)
+        return RuntimeSnapshot(
+            player=player,
+            loop=loop,
+            scene=scene,
+            assets=self.store.list_assets(loop.loop_id),
+            bgm_path=self.audio.get_current_bgm(loop, scene),
+            combat=combat,
+            clues_collected=self._clues_collected(player.player_id),
+            epiphanies_unlocked=self._epiphanies_unlocked(player, loop),
+        )
+
+    def equip_item(self, loop_id: str, item_id: str, equipped: bool = True) -> RuntimeSnapshot:
+        """Toggle an equipment item's worn state (one item per slot)."""
+        loop = self._require_loop(loop_id)
+        player = self._require_player(loop.player_id)
+        scenario = load_scenario(str(loop.state.get("scenario_id") or "neo-seoul"))
+        items = scenario.combat.get("items", {}) if isinstance(scenario.combat, dict) else {}
+        target_def = items.get(item_id, {}) if isinstance(items, dict) else {}
+        target_slot = target_def.get("slot") if isinstance(target_def, dict) else None
+        inventory = list(loop.state.get("_inventory", [])) if isinstance(loop.state, dict) else []
+        updated: list[Any] = []
+        for entry in inventory:
+            if not isinstance(entry, dict):
+                updated.append(entry)
+                continue
+            entry = dict(entry)
+            eid = str(entry.get("id") or "")
+            if eid == item_id:
+                entry["equipped"] = bool(equipped)
+            elif equipped and target_slot is not None:
+                # only one item per slot may be worn
+                other = items.get(eid, {}) if isinstance(items, dict) else {}
+                if isinstance(other, dict) and other.get("slot") == target_slot:
+                    entry["equipped"] = False
+            updated.append(entry)
+        new_state = {**loop.state, "_inventory": updated}
+        loop = replace(loop, state=new_state)
+        with self.store.transaction():
+            self.store.save_loop(loop)
+        return self._snapshot_from_loop(player, loop)
+
     def start_combat(
         self,
         loop_id: str,
@@ -762,7 +833,6 @@ class RuntimeSessionService:
             loop = replace(loop, state=state)
         player = self._require_player(loop.player_id)
         scenario = load_scenario(options.scenario_id)
-        stats = player.traits.get("stats", {}) if isinstance(player.traits, dict) else {}
         archetype = player.traits.get("archetype") if isinstance(player.traits, dict) else None
 
         with span("mythos.session.combat_start", player_id=player.player_id, loop_id=loop.loop_id):
@@ -771,7 +841,7 @@ class RuntimeSessionService:
                 scenario_combat=scenario.combat,
                 encounter_id=encounter_id,
                 player_name=player.display_name,
-                player_stats={k: int(v) for k, v in stats.items() if isinstance(v, int | float)},
+                player_stats=self._player_combat_stats(player, loop, scenario),
                 archetype=archetype,
             )
         return self._commit_combat_turn(player, result, "combat started", options)
@@ -969,14 +1039,13 @@ class RuntimeSessionService:
         )
         if encounter_id not in encounters:
             raise RuntimeError(f"unknown combat encounter requested: {encounter_id}")
-        stats = player.traits.get("stats", {}) if isinstance(player.traits, dict) else {}
         archetype = player.traits.get("archetype") if isinstance(player.traits, dict) else None
         result = self.combat.begin(
             loop,
             scenario_combat=scenario.combat,
             encounter_id=encounter_id,
             player_name=player.display_name,
-            player_stats={k: int(v) for k, v in stats.items() if isinstance(v, int | float)},
+            player_stats=self._player_combat_stats(player, loop, scenario),
             archetype=archetype,
         )
         return self._commit_combat_turn(player, result, "combat triggered by scene", options)

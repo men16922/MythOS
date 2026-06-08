@@ -5,7 +5,7 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
-## 2026-06-09 — 데이터모델 통합 패스: progression/inventory 전용 테이블 (1~3단계)
+## 2026-06-09 — 데이터모델 통합 패스: progression/inventory/equipment 전용 테이블 (1~4단계 완료)
 
 플레이 피드백("인벤토리/도감/해금이 JSONB에 있는데 전용 테이블로")을 받아 진행도·인벤토리를
 전용 테이블로 이전. 설계: `docs/plans/2026-06-09-progression-inventory-equipment-datamodel.md`.
@@ -22,8 +22,11 @@
 - 또한 UX Phase A(`475a726`): 상태 게이지 숫자화+설명토글, 결말 설명, 보드 범례 버튼+팝업, drag
   문구 제거, 전리품 인벤토리 표시 버그 수정(serializer dict/문자열 정규화). 결말/현재시점을 기억의
   별자리로 이동(`df66815`). SPA 번들 no-cache(`56aadc7`).
-- Verified: make test 268/2 skip, mypy 신규 0(기존 13 pre-existing), Postgres 라운드트립.
-- 잔여: 4단계 장비(scenario kind:equipment + 착용 토글 + 전투 보너스 + 기억의 별자리 UI).
+- 4단계 장비: neo-seoul에 `kind:equipment` 아이템 2종(signal_blade str+2 / mesh_vest agi·per+1)+
+  loot 연결, `equip_item`(슬롯당 1개 착용 토글), 전투 시작 `_player_combat_stats`가 착용 장비 stats
+  합산, `POST /loops/{id}/equip`, CharacterPanel 착용/해제 버튼 + serializer slot/stats/equipped.
+- Verified: make test 268/2 skip, mypy 신규 0(기존 13 pre-existing), frontend lint/build,
+  Postgres 라운드트립, equip+보너스 회귀 테스트(strength 9→11).
 
 ## 2026-06-08 — live LLM 장기 세션 기술 QA (P0)
 

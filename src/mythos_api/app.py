@@ -109,6 +109,12 @@ class CombatActionRequest(BaseModel):
     scenario_id: str = "neo-seoul"
 
 
+class EquipRequest(BaseModel):
+    loop_id: str = Field(min_length=1)
+    item_id: str = Field(min_length=1)
+    equipped: bool = True
+
+
 class ManualSaveRequest(BaseModel):
     loop_id: str = Field(min_length=1)
     label: str | None = None
@@ -511,6 +517,18 @@ def create_app() -> FastAPI:
     ) -> dict[str, Any]:
         try:
             return combat_action_response(service, body.loop_id, body.scenario_id, body.action)
+        except RuntimeError as exc:
+            raise _as_http_error(exc) from exc
+
+    @app.post(f"{API_PREFIX}/loops/{{loop_id}}/equip")
+    def equip_item(
+        loop_id: str,
+        body: EquipRequest,
+        service: RuntimeSessionService = Depends(get_service),
+    ) -> dict[str, Any]:
+        try:
+            snapshot = service.equip_item(loop_id, body.item_id, body.equipped)
+            return snapshot_to_dict(snapshot)
         except RuntimeError as exc:
             raise _as_http_error(exc) from exc
 

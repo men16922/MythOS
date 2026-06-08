@@ -34,6 +34,7 @@ interface StoryPanelProps {
   scenarioId: string;
   narrativeHistory: { sceneId: string; title: string; text: string; action?: string | null }[];
   scenarioCharacters?: ScenarioCharacter[];
+  onEquip?: (itemId: string, equipped: boolean) => void;
 }
 
 const decodeGarbageBytes = (text: string): string => {
@@ -529,6 +530,7 @@ export function StoryPanel({
   scenarioId,
   narrativeHistory,
   scenarioCharacters,
+  onEquip,
 }: StoryPanelProps) {
   const scrollBottomRef = useRef<HTMLDivElement | null>(null);
   const [showHistory, setShowHistory] = useState(false);
@@ -657,7 +659,7 @@ export function StoryPanel({
         </div>
 
         {/* 우측: Character 창 */}
-        <CharacterPanel snapshot={snapshot} characters={scenarioCharacters} />
+        <CharacterPanel snapshot={snapshot} characters={scenarioCharacters} onEquip={onEquip} />
       </div>
 
       {/* 하단: 전체 폭 대화 기록 스크롤 영역 & 제어 패널 */}

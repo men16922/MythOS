@@ -96,7 +96,13 @@ def _resolve_inventory(state: dict[str, Any]) -> list[dict[str, Any]]:
                 "kind": source.get("kind") or definition.get("kind") or "item",
                 "rarity": source.get("rarity") or definition.get("rarity"),
                 "effect": source.get("effect") or definition.get("effect"),
+                # equipment metadata (slot/stats from scenario def; equipped from state)
+                "slot": definition.get("slot"),
+                "stats": definition.get("stats") if isinstance(definition, dict) else None,
+                "equipped": bool(source.get("equipped")),
             }
+        elif isinstance(source, dict) and source.get("equipped"):
+            fields[item_id]["equipped"] = True
         counts[item_id] = counts.get(item_id, 0) + 1
 
     return [{"id": item_id, "count": counts[item_id], **fields[item_id]} for item_id in order]

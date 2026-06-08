@@ -14,6 +14,7 @@ import {
   apiLearnSkill,
   apiBegin,
   apiCombatBegin,
+  apiEquip,
   getWebSocketUrl,
 } from "./api";
 import { isChoiceDisabled } from "./choices";
@@ -760,6 +761,13 @@ export default function App() {
     setCombatLog((prev) => `[${timeStr}] ${prose}\n` + prev);
   };
 
+  const handleEquip = (itemId: string, equipped: boolean) => {
+    if (!loopId) return;
+    apiEquip({ loop_id: loopId, item_id: itemId, equipped })
+      .then((snap) => setFinalizedSnapshot(snap))
+      .catch((err) => console.error("equip failed", err));
+  };
+
   const continueAfterCombat = () => {
     if (isStreaming) return;
     setCombatLog("");
@@ -1257,6 +1265,7 @@ export default function App() {
                 scenarioId={selectedScenarioId}
                 narrativeHistory={narrativeHistory}
                 scenarioCharacters={currentScenario?.characters}
+                onEquip={handleEquip}
               />
             )}
 

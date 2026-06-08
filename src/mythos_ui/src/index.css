@@ -2143,6 +2143,29 @@ main {
   border-radius: 4px;
   color: var(--term-dim);
 }
+.char-inventory .inv-item.inv-equipped .inv-name {
+  color: var(--term);
+  font-weight: 600;
+}
+.char-inventory .inv-equip-btn {
+  margin-left: auto;
+  font-size: 9px;
+  padding: 1px 7px;
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--term-dim);
+  cursor: pointer;
+}
+.char-inventory .inv-equip-btn:hover {
+  border-color: var(--term);
+  color: var(--term);
+}
+.char-inventory .inv-equip-btn.on {
+  border-color: var(--term);
+  color: var(--term);
+  background: rgba(0, 255, 204, 0.08);
+}
 .char-empty {
   font-size: 11px;
   color: var(--ink-dim);

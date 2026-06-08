@@ -111,6 +111,7 @@
 | M37 | Controllable Party Allies | `Combatant.controllable`, `CombatState.active_actor()`/`living_controllables()`, controllable-actor stop 턴 루프, 파티원 직접 조작 + 비파티 동맹 AI 유지, 도주는 PLAYER 한정, active actor 하이라이트/턴 지시기. 설계 `bin/docs/plans/2026-06-06-party-controllable-allies.md` |
 | M38 | Data-driven Progression Grant | 진행도 grant를 `scenario.json` 데이터 주도로 전환(`archetypes[].unlock`·`combat.skills[].epiphany`+`combat.epiphanies`), 시나리오 교차 오염 + `load_scenario` lru_cache 오염 버그 수정, glass-library progression/presentation 패리티 + Story Bible 17 entries |
 | M39 | Procedural Route Map & Session Memory | `route_map.py` 루프 시드 결정적 layered DAG(사전저작 anchor 다중 관점 + 동적 pool), `route_runtime.py` 라이브 진행·관점·엔딩 누계, director 주입·edge=선택지 분기·combat 노드 전투 트리거, 노드 그래프 뷰, anchor 큐레이트 이미지, 노드 보상/관점 effect를 게이지·HP에 통합(rest/market 회복), `session_memory.py` beat 원장+롤링 시놉시스(RAG 아님). 설계 `bin/docs/plans/2026-06-07-route-node-procedural-map.md` |
+| M40 | Progression/Inventory/Equipment 데이터모델 통합 | JSONB-on-row → 전용 테이블(migration 005). `player_progression`(player+scenario PK upsert, meta_progression append-scan 제거, `load_progression`/`persist_progression`), `loop_inventory`(loop PK, PostgresStore save_loop/get_loop 중앙 dehydrate/hydrate). 장비 시스템: scenario `kind:equipment`+slot+stats, `equip_item`(슬롯당 1개) + 전투 시작 스탯 보너스 + `POST /loops/{id}/equip` + CharacterPanel 착용 UI. 기존 36행 백필. 설계 `docs/plans/2026-06-09-progression-inventory-equipment-datamodel.md` |
 
 ## MVP Verification Summary
 

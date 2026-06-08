@@ -14,6 +14,7 @@ const STAT_MAX = 10;
 interface CharacterPanelProps {
   snapshot: RuntimeSnapshot | null;
   characters?: ScenarioCharacter[];
+  onEquip?: (itemId: string, equipped: boolean) => void;
 }
 
 // 현재 장면에 등장한 대화 상대를 키워드로 탐지한다 (Streamlit _scene_characters와 동일 규칙).
@@ -36,7 +37,14 @@ function detectSceneCharacter(
   return null;
 }
 
-export function CharacterPanel({ snapshot, characters }: CharacterPanelProps) {
+function statBonusLabel(stats?: Record<string, number> | null): string {
+  if (!stats) return "";
+  return Object.entries(stats)
+    .map(([k, v]) => `${STAT_NAMES[k] || k} +${v}`)
+    .join(", ");
+}
+
+export function CharacterPanel({ snapshot, characters, onEquip }: CharacterPanelProps) {
   const partner = detectSceneCharacter(snapshot, characters);
 
   // 대화 상대가 장면에 있으면 그 인물의 portrait/정보를 보여준다.
@@ -128,10 +136,28 @@ export function CharacterPanel({ snapshot, characters }: CharacterPanelProps) {
       {inventory.length > 0 ? (
         <ul className="char-inventory">
           {inventory.map((item, idx) => (
-            <li key={`${item.id}-${idx}`} className={`inv-item inv-${item.kind}`}>
+            <li
+              key={`${item.id}-${idx}`}
+              className={`inv-item inv-${item.kind}${item.equipped ? " inv-equipped" : ""}`}
+            >
               <span className="inv-name">{item.name}</span>
               {item.count > 1 && <span className="inv-count">×{item.count}</span>}
               {item.kind === "consumable" && <span className="inv-tag">소모품</span>}
+              {item.kind === "equipment" && (
+                <span className="inv-tag" title={statBonusLabel(item.stats)}>
+                  {item.slot || "장비"}
+                  {statBonusLabel(item.stats) ? ` · ${statBonusLabel(item.stats)}` : ""}
+                </span>
+              )}
+              {item.kind === "equipment" && onEquip && (
+                <button
+                  type="button"
+                  className={`inv-equip-btn${item.equipped ? " on" : ""}`}
+                  onClick={() => onEquip(item.id, !item.equipped)}
+                >
+                  {item.equipped ? "해제" : "착용"}
+                </button>
+              )}
             </li>
           ))}
         </ul>

@@ -2,6 +2,26 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-06-09
+
+### Progression/Inventory를 JSONB-on-row에서 전용 테이블로 분리
+
+Decision: 진행도(해금)·인벤토리를 `player_memories`/`loops.state` JSONB에서 전용 테이블로 이전한다
+(migration 005). `player_progression`은 `(player_id, scenario_id)` PK 단일 mutable row(upsert),
+`loop_inventory`는 `(loop_id, item_id)` PK. 인벤토리/장비 보유는 **loop 단위**(루프형 로그라이크 —
+영속되는 건 Echo와 해금만), 해금은 **player+scenario 단위**.
+
+Reason: 기존 패턴의 실질 병목은 JSONB 자체가 아니라 **append-then-scan-latest**(갱신마다 메모리 row를
+쌓고 "현재 상태"를 얻으려 전체 스캔·정렬)와 내용 가로 쿼리 불가였다. 진행도는 자주 갱신·조회되는
+current state라 단일 row upsert가 정합성·확장성에서 우월하다. 인벤토리는 dict/문자열 혼재로 표시 버그가
+났던 만큼 정규화가 필요했다.
+
+Impact: progression 읽기/쓰기는 `load_progression`/`persist_progression` 헬퍼로 캡슐화(전환기
+player_memories 폴백 유지). 인벤토리는 `PostgresMythOSStore.save_loop/get_loop` 경계에서 투명하게
+dehydrate/hydrate하므로 CombatService/progression/loop engine은 무변경. 인메모리 테스트 스토어는 ABC
+기본구현(in-memory)으로 동작. 향후 run summaries/save slots/narrative metrics도 동일 기준으로 테이블화
+후보. 설계·단계: `docs/plans/2026-06-09-progression-inventory-equipment-datamodel.md`.
+
 ## 2026-06-07
 
 ### Use Action Sheets As The Combat Pose Source Of Truth

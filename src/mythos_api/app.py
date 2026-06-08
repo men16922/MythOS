@@ -21,6 +21,7 @@ from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconn
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.concurrency import iterate_in_threadpool, run_in_threadpool
+from starlette.responses import Response
 
 from mythos_api.serializers import (
     memory_overview_to_dict,
@@ -44,6 +45,21 @@ from mythos_runtime.visual_service import MinIOStorageAdapter, VisualGenerationR
 
 API_PREFIX = "/api/v1"
 STATIC_DIR = Path(__file__).parent / "static"
+
+
+class _NoCacheStaticFiles(StaticFiles):
+    """Serve the SPA bundle with ``Cache-Control: no-cache``.
+
+    The bundle is emitted as fixed filenames (``/app.js``, ``/assets/index.css``)
+    without content hashes, so browsers would otherwise serve a stale build from
+    heuristic cache after a rebuild. ``no-cache`` forces revalidation each load
+    while ETag/Last-Modified still allow cheap 304s.
+    """
+
+    def file_response(self, *args: Any, **kwargs: Any) -> Response:
+        response = super().file_response(*args, **kwargs)
+        response.headers["Cache-Control"] = "no-cache"
+        return response
 # Scenarios discoverable by the onboarding screen (resources/<id>/scenario.json).
 _SCENARIO_IDS = ("neo-seoul", "glass-library")
 
@@ -600,6 +616,6 @@ def create_app() -> FastAPI:
         app.mount("/resources", StaticFiles(directory=resources_dir), name="resources")
 
     if STATIC_DIR.is_dir():
-        app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
+        app.mount("/", _NoCacheStaticFiles(directory=STATIC_DIR, html=True), name="static")
 
     return app

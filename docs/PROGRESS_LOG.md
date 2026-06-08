@@ -5,6 +5,26 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-09 — 데이터모델 통합 패스: progression/inventory 전용 테이블 (1~3단계)
+
+플레이 피드백("인벤토리/도감/해금이 JSONB에 있는데 전용 테이블로")을 받아 진행도·인벤토리를
+전용 테이블로 이전. 설계: `docs/plans/2026-06-09-progression-inventory-equipment-datamodel.md`.
+
+- 1단계 토대(`eacc847`): migration 005(`player_progression` player+scenario PK upsert +
+  `loop_inventory` loop PK) + 기존 meta_progression 36행 SQL 백필 + store ABC 기본구현(in-memory)
+  + Postgres SQL. 테스트 fake 6종 무변경 동작.
+- 2단계 progression 전환(`5ec98e4`): meta_progression을 player_memories **append-scan → 전용
+  테이블 단일 row**로. `load_progression`/`persist_progression` 헬퍼(전환기 메모리 폴백),
+  session 5 read·4 write + ProgressionService 전환, memory_overview scenario 추정 보강.
+- 3단계 inventory 전환: PostgresMythOSStore.save_loop/get_loop 중앙집중 dehydrate/hydrate로
+  `loop.state._inventory`를 loops.state에서 분리→loop_inventory 테이블. CombatService/progression/
+  engine 무변경(투명 경계). 라운드트립 검증(loops.state에서 분리·테이블 counted·get_loop 재주입).
+- 또한 UX Phase A(`475a726`): 상태 게이지 숫자화+설명토글, 결말 설명, 보드 범례 버튼+팝업, drag
+  문구 제거, 전리품 인벤토리 표시 버그 수정(serializer dict/문자열 정규화). 결말/현재시점을 기억의
+  별자리로 이동(`df66815`). SPA 번들 no-cache(`56aadc7`).
+- Verified: make test 268/2 skip, mypy 신규 0(기존 13 pre-existing), Postgres 라운드트립.
+- 잔여: 4단계 장비(scenario kind:equipment + 착용 토글 + 전투 보너스 + 기억의 별자리 UI).
+
 ## 2026-06-08 — live LLM 장기 세션 기술 QA (P0)
 
 - in-process 장기 세션 드라이버 작성(인메모리 스토어 + 실제 Ollama `NarrativeDirector`, Postgres/Docker 불필요)로

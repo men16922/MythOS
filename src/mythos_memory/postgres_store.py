@@ -106,9 +106,45 @@ class PostgresMythOSStore(MythOSStore):
             traits=row["traits"],
         )
 
+    @staticmethod
+    def _inventory_table_form(raw: Any) -> list[dict[str, Any]]:
+        """loop.state._inventory(dict/str 혼재) → counted {item_id,quantity,equipped}."""
+        if not isinstance(raw, list):
+            return []
+        counts: dict[str, int] = {}
+        equipped: dict[str, bool] = {}
+        order: list[str] = []
+        for entry in raw:
+            if isinstance(entry, dict):
+                item_id = str(entry.get("id") or entry.get("item_id") or entry.get("name") or "")
+                eq = bool(entry.get("equipped"))
+            else:
+                item_id = str(entry)
+                eq = False
+            if not item_id:
+                continue
+            if item_id not in counts:
+                order.append(item_id)
+            counts[item_id] = counts.get(item_id, 0) + 1
+            equipped[item_id] = equipped.get(item_id, False) or eq
+        return [
+            {"item_id": i, "quantity": counts[i], "equipped": equipped[i]} for i in order
+        ]
+
+    @staticmethod
+    def _inventory_working_form(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """counted table rows → loop.state working list (id별 quantity 만큼 전개)."""
+        working: list[dict[str, Any]] = []
+        for row in rows:
+            for _ in range(int(row.get("quantity", 1))):
+                working.append({"id": row["item_id"], "equipped": bool(row.get("equipped"))})
+        return working
+
     def save_loop(self, loop: LoopState) -> None:
         state = dict(loop.state)
         state["_active_echoes"] = [to_json_dict(echo) for echo in loop.active_echoes]
+        # 인벤토리는 loop_inventory 테이블이 권위 — loops.state에서 분리해 저장한다.
+        inventory_raw = state.pop("_inventory", None)
         self._execute(
             """
             INSERT INTO loops (
@@ -137,11 +173,21 @@ class PostgresMythOSStore(MythOSStore):
                 Jsonb(state),
             ),
         )
+        # FK 충족을 위해 loops INSERT 이후에 동기화. 키 부재면(인벤토리 미로딩 save)
+        # 테이블을 건드리지 않는다.
+        if inventory_raw is not None:
+            self.set_inventory(loop.loop_id, self._inventory_table_form(inventory_raw))
 
     def get_loop(self, loop_id: str) -> LoopState | None:
         row = self._fetchone("SELECT * FROM loops WHERE loop_id = %s", (loop_id,))
         if row is None:
             return None
+        inv_rows = self.list_inventory(loop_id)
+        if inv_rows:
+            row["state"] = {
+                **(row["state"] or {}),
+                "_inventory": self._inventory_working_form(inv_rows),
+            }
         return self._loop_from_row(row)
 
     def list_loops(self, player_id: str) -> list[LoopState]:

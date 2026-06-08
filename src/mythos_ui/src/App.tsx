@@ -957,6 +957,16 @@ export default function App() {
     drawCombatCanvas(canvas, combat, selectedScenarioId, drag);
   };
 
+  const [boardZoom, setBoardZoom] = useState(1);
+  const handleBoardZoom = (next: number) => {
+    const z = Math.min(2.5, Math.max(1, Math.round(next * 10) / 10));
+    setBoardZoom(z);
+    if (canvasRef.current) {
+      canvasRef.current.dataset.boardZoom = String(z);
+      redrawCombat();
+    }
+  };
+
   const handleCanvasPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const combat = finalizedSnapshot?.combat;
     const canvas = canvasRef.current;
@@ -1266,6 +1276,8 @@ export default function App() {
                 narrativeHistory={narrativeHistory}
                 scenarioCharacters={currentScenario?.characters}
                 onEquip={handleEquip}
+                boardZoom={boardZoom}
+                onBoardZoom={handleBoardZoom}
               />
             )}
 

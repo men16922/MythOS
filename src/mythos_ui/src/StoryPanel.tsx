@@ -35,6 +35,8 @@ interface StoryPanelProps {
   narrativeHistory: { sceneId: string; title: string; text: string; action?: string | null }[];
   scenarioCharacters?: ScenarioCharacter[];
   onEquip?: (itemId: string, equipped: boolean) => void;
+  boardZoom?: number;
+  onBoardZoom?: (next: number) => void;
 }
 
 const decodeGarbageBytes = (text: string): string => {
@@ -531,6 +533,8 @@ export function StoryPanel({
   narrativeHistory,
   scenarioCharacters,
   onEquip,
+  boardZoom = 1,
+  onBoardZoom,
 }: StoryPanelProps) {
   const scrollBottomRef = useRef<HTMLDivElement | null>(null);
   const [showHistory, setShowHistory] = useState(false);
@@ -573,8 +577,33 @@ export function StoryPanel({
           {/* 좌측 열: Tactical Board + Combat Log */}
           <div className="combat-left-col">
             <div className="panel tactical-board-panel">
-              <div className="panel-title">
-                TACTICAL BOARD :: ROUND {String(snapshot.combat.radar?.round || 1).padStart(2, "0")}
+              <div className="panel-title-row">
+                <div className="panel-title">
+                  TACTICAL BOARD :: ROUND {String(snapshot.combat.radar?.round || 1).padStart(2, "0")}
+                </div>
+                {onBoardZoom && (
+                  <div className="board-zoom">
+                    <button
+                      type="button"
+                      className="board-zoom-btn"
+                      title="축소"
+                      disabled={boardZoom <= 1}
+                      onClick={() => onBoardZoom(boardZoom - 0.25)}
+                    >
+                      −
+                    </button>
+                    <span className="board-zoom-val">{Math.round(boardZoom * 100)}%</span>
+                    <button
+                      type="button"
+                      className="board-zoom-btn"
+                      title="확대"
+                      disabled={boardZoom >= 2.5}
+                      onClick={() => onBoardZoom(boardZoom + 0.25)}
+                    >
+                      +
+                    </button>
+                  </div>
+                )}
               </div>
               <LearningGoalBanner
                 key={snapshot.combat.encounter?.id || "encounter"}

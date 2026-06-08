@@ -369,7 +369,11 @@ export function drawCombatCanvas(
   const computed = window.getComputedStyle(container);
   const padLeft = parseFloat(computed.paddingLeft) || 0;
   const padRight = parseFloat(computed.paddingRight) || 0;
-  const cssW = Math.max(100, Math.floor(container.clientWidth - padLeft - padRight));
+  // Board zoom is read from the canvas dataset so every caller (App redraw +
+  // animation engine) honors it without threading a param through.
+  const zoom = Math.max(1, parseFloat(canvas.dataset.boardZoom || "1") || 1);
+  const baseW = Math.max(100, Math.floor(container.clientWidth - padLeft - padRight));
+  const cssW = Math.floor(baseW * zoom);
   const cssH = Math.round((cssW * rows) / cols);
 
   canvas.style.width = cssW + "px";

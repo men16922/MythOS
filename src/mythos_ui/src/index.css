@@ -1723,6 +1723,38 @@ main {
   justify-content: center;
   align-items: center;
   flex-grow: 1;
+  overflow: auto;
+}
+.board-zoom {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.board-zoom-btn {
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--line-soft);
+  border-radius: 5px;
+  background: rgba(8, 16, 20, 0.6);
+  color: var(--term-dim);
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+}
+.board-zoom-btn:hover:not(:disabled) {
+  border-color: var(--term);
+  color: var(--term);
+}
+.board-zoom-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.board-zoom-val {
+  font-size: 10px;
+  font-family: monospace;
+  color: var(--ink-dim);
+  min-width: 34px;
+  text-align: center;
 }
 
 /* Combat learning-goal banner: shown at the top of the board so the player

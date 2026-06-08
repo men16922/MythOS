@@ -209,10 +209,6 @@ export function CombatControls({
               <div className="cc-skill-bar">{available.skills.map(renderSkill)}</div>
             </div>
           )}
-
-          <div className="cc-hint">
-            좌측 전술 보드에서 내 캐릭터를 끌어(drag) 밝게 표시된 칸에 놓으면(drop) 그 위치로 이동합니다.
-          </div>
         </>
       )}
     </div>

@@ -150,6 +150,53 @@ main {
   text-transform: uppercase;
   margin: 0 0 10px;
 }
+.panel-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.panel-title-row .panel-title {
+  margin-bottom: 0;
+}
+.panel-info-toggle {
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--term-dim);
+  background: transparent;
+  border: 1px solid var(--line-soft);
+  border-radius: 5px;
+  padding: 3px 7px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.panel-info-toggle:hover,
+.panel-info-toggle[aria-pressed="true"] {
+  color: var(--term);
+  border-color: var(--term);
+}
+/* Status gauges show numbers only by default; descriptions reveal on toggle. */
+.status-panel .gauge-hint {
+  display: none;
+}
+.status-panel.hints-on .gauge-hint {
+  display: block;
+}
+.status-panel.hints-on {
+  margin-bottom: 0;
+}
+.route-ending-help {
+  font-size: 10px;
+  color: var(--ink-dim);
+  margin: 2px 0 6px;
+  line-height: 1.4;
+}
+.route-ending-help-icon {
+  margin-left: 6px;
+  color: var(--term-dim);
+  cursor: help;
+  font-size: 10px;
+}
 
 /* Story */
 #status {
@@ -1615,6 +1662,33 @@ main {
 .tactical-legend-text {
   color: var(--term-dim);
 }
+/* Legend as a toggle button + popup (instead of an always-on overlay). */
+.tactical-legend-wrap {
+  position: relative;
+  margin-top: 10px;
+}
+.tactical-legend-toggle {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--term);
+  background: rgba(8, 16, 20, 0.6);
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.tactical-legend-toggle:hover {
+  border-color: var(--term);
+}
+.tactical-legend-popup {
+  position: absolute;
+  z-index: 20;
+  top: 32px;
+  left: 0;
+  min-width: 240px;
+  margin-top: 0;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+}
 .tactical-board-canvas-wrapper {
   background: #020706;
   border: 1px solid var(--line-soft);
@@ -2039,10 +2113,35 @@ main {
 }
 .char-inventory {
   margin: 4px 0 0;
-  padding-left: 16px;
+  padding: 0;
+  list-style: none;
   font-size: 12px;
   color: var(--ink-dim);
   line-height: 1.6;
+}
+.char-inventory .inv-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+}
+.char-inventory .inv-name {
+  color: var(--term-dim);
+}
+.char-inventory .inv-item.inv-consumable .inv-name {
+  color: var(--term);
+}
+.char-inventory .inv-count {
+  color: var(--ink-dim);
+  font-family: monospace;
+  font-size: 11px;
+}
+.char-inventory .inv-tag {
+  font-size: 9px;
+  padding: 1px 5px;
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  color: var(--term-dim);
 }
 .char-empty {
   font-size: 11px;

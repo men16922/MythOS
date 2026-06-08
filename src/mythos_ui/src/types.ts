@@ -322,6 +322,7 @@ export interface RuntimeSnapshot {
   decay_percent: number;
   zone_risk: string;
   clues_collected: number;
+  inventory?: InventoryItem[];
   active_scene?: ActiveScene;
   combat?: CombatState | null;
   assets?: AssetInfo[];
@@ -329,6 +330,15 @@ export interface RuntimeSnapshot {
   state?: GameStateRaw;
   player?: PlayerProfile;
   epiphanies_unlocked?: string[];
+}
+
+export interface InventoryItem {
+  id: string;
+  name: string;
+  kind: string;
+  rarity?: string | null;
+  effect?: string | null;
+  count: number;
 }
 
 export interface SaveSlot {

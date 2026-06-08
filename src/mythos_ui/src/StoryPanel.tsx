@@ -377,19 +377,33 @@ function TacticalLegend({ combat }: { combat: CombatState }) {
   if (hazards.includes("acid")) rows.push({ sym: "☣", text: "산성 지대: 턴 종료 시 피해" });
   if (hazards.includes("electro")) rows.push({ sym: "⚡", text: "전자 지대: 집중/방어 교란" });
   if (hasElevation) rows.push({ sym: "▲", text: "고지: 명중·시야 유리, 이동 비용↑" });
+  const [open, setOpen] = useState(false);
+
   if (intents.length === 0 && covers.length === 0 && hazards.length === 0 && !hasElevation) {
     return null;
   }
 
   return (
-    <div className="tactical-legend">
-      <div className="tactical-legend-title">보드 범례</div>
-      {rows.map((r, i) => (
-        <div key={i} className="tactical-legend-row">
-          <span className="tactical-legend-sym">{r.sym}</span>
-          <span className="tactical-legend-text">{r.text}</span>
+    <div className="tactical-legend-wrap">
+      <button
+        type="button"
+        className="tactical-legend-toggle"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        {open ? "범례 닫기 ✕" : "보드 범례 ⓘ"}
+      </button>
+      {open && (
+        <div className="tactical-legend tactical-legend-popup" role="dialog" aria-label="보드 범례">
+          <div className="tactical-legend-title">보드 범례</div>
+          {rows.map((r, i) => (
+            <div key={i} className="tactical-legend-row">
+              <span className="tactical-legend-sym">{r.sym}</span>
+              <span className="tactical-legend-text">{r.text}</span>
+            </div>
+          ))}
         </div>
-      ))}
+      )}
     </div>
   );
 }

@@ -13,6 +13,7 @@ from typing import Any, cast
 from mythos_core import PlayerProfile
 from mythos_core.models import to_json_dict
 from mythos_runtime.options import MemoryOverview, RunSummary, RuntimeSnapshot, SaveSlot
+from mythos_runtime.scenario import load_scenario
 
 
 def player_to_dict(player: PlayerProfile) -> dict[str, Any]:
@@ -56,6 +57,47 @@ def _calculate_zone_risk(location_id: str, turn_index: int) -> str:
         return "경보 (Critical)"
 
 
+def _resolve_inventory(state: dict[str, Any]) -> list[dict[str, Any]]:
+    """Resolve ``state["_inventory"]`` item ids into named, counted entries.
+
+    Combat loot lands in ``loop.state["_inventory"]`` as bare item ids; the client
+    needs names/kinds to render them, so we map each id against the scenario's
+    ``combat.items`` definitions here (server-side, single source of truth).
+    """
+    raw = state.get("_inventory") if isinstance(state, dict) else None
+    if not isinstance(raw, list) or not raw:
+        return []
+    items_def: dict[str, Any] = {}
+    scenario_id = state.get("scenario_id")
+    if scenario_id:
+        try:
+            combat = load_scenario(str(scenario_id)).combat
+            items_def = combat.get("items", {}) if isinstance(combat, dict) else {}
+        except Exception:  # noqa: BLE001 — scenario lookup is best-effort
+            items_def = {}
+    counts: dict[str, int] = {}
+    order: list[str] = []
+    for item_id in raw:
+        key = str(item_id)
+        if key not in counts:
+            order.append(key)
+        counts[key] = counts.get(key, 0) + 1
+    resolved: list[dict[str, Any]] = []
+    for key in order:
+        definition = items_def.get(key, {}) if isinstance(items_def, dict) else {}
+        resolved.append(
+            {
+                "id": key,
+                "name": definition.get("name", key),
+                "kind": definition.get("kind", "item"),
+                "rarity": definition.get("rarity"),
+                "effect": definition.get("effect"),
+                "count": counts[key],
+            }
+        )
+    return resolved
+
+
 def snapshot_to_dict(snapshot: RuntimeSnapshot) -> dict[str, Any]:
     """Serialize a RuntimeSnapshot into the frontend GameState contract."""
     loop = snapshot.loop
@@ -72,6 +114,9 @@ def snapshot_to_dict(snapshot: RuntimeSnapshot) -> dict[str, Any]:
         "decay_percent": decay_pct,
         "zone_risk": _calculate_zone_risk(loop.location_id, scene.turn_index),
         "clues_collected": snapshot.clues_collected,
+        # Resolved combat loot inventory (ids -> named/counted entries) so the
+        # client can render what the player actually picked up.
+        "inventory": _resolve_inventory(state),
         # Metrics (humanity/insight/resilience/dominance) and autonomy live in
         # loop.state["flags"]; the client reads them from here.
         "state": to_json_dict(state),

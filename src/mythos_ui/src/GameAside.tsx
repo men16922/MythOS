@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { buildGaugeConfig } from "./gauges";
 import { SaveHistoryPanel } from "./SaveHistoryPanel";
 import type { RouteMap, RouteNode, RunSummary, RuntimeSnapshot, SaveSlot } from "./types";
@@ -140,7 +141,18 @@ function RouteMapPanel({ routeMap }: { routeMap: RouteMap }) {
       )}
       {leaderboard.length > 0 && (
         <div className="route-ending-lead">
-          <div className="route-ending-title">이 루트가 향하는 결말</div>
+          <div className="route-ending-title">
+            이 루트가 향하는 결말
+            <span
+              className="route-ending-help-icon"
+              title="지금까지 내린 선택이 어느 결말로 기울고 있는지 보여주는 누적 경향입니다. 확정이 아니라, 앞으로의 선택으로 바뀔 수 있는 가중치입니다."
+            >
+              ⓘ
+            </span>
+          </div>
+          <div className="route-ending-help">
+            지금까지의 선택이 기울고 있는 결말 경향(확정 아님).
+          </div>
           {leaderboard.slice(0, 3).map(([id, score]) => (
             <div key={id} className="route-ending-row">
               <span className="route-ending-name">{ENDING_LABELS[id] || id}</span>
@@ -271,10 +283,22 @@ function OperationMapPanel({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
 
 function StatusPanel({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
   const gaugesConfig = snapshot ? buildGaugeConfig(snapshot) : null;
+  const [showHints, setShowHints] = useState(false);
 
   return (
-    <div className="panel">
-      <p className="panel-title">상태</p>
+    <div className={`panel status-panel ${showHints ? "hints-on" : ""}`}>
+      <div className="panel-title-row">
+        <p className="panel-title">상태</p>
+        <button
+          type="button"
+          className="panel-info-toggle"
+          aria-pressed={showHints}
+          title={showHints ? "설명 숨기기" : "각 수치 설명 보기"}
+          onClick={() => setShowHints((v) => !v)}
+        >
+          {showHints ? "설명 숨기기" : "ⓘ 설명"}
+        </button>
+      </div>
       {snapshot && gaugesConfig && (
         <>
           <div className="hud-meta">

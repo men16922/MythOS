@@ -65,7 +65,9 @@ export function CharacterPanel({ snapshot, characters }: CharacterPanelProps) {
   const stats =
     traits.stats && typeof traits.stats === "object" ? traits.stats : {};
   const attributes = Array.isArray(traits.attributes) ? traits.attributes : [];
-  const inventory = Array.isArray(traits.inventory) ? traits.inventory : [];
+  // Combat loot lands in loop.state._inventory and is resolved server-side into
+  // snapshot.inventory; prefer that over the static traits.inventory.
+  const inventory = snapshot?.inventory && snapshot.inventory.length > 0 ? snapshot.inventory : [];
   const autonomy = traits.autonomy_level;
 
   return (
@@ -126,7 +128,11 @@ export function CharacterPanel({ snapshot, characters }: CharacterPanelProps) {
       {inventory.length > 0 ? (
         <ul className="char-inventory">
           {inventory.map((item, idx) => (
-            <li key={`${item}-${idx}`}>{String(item)}</li>
+            <li key={`${item.id}-${idx}`} className={`inv-item inv-${item.kind}`}>
+              <span className="inv-name">{item.name}</span>
+              {item.count > 1 && <span className="inv-count">×{item.count}</span>}
+              {item.kind === "consumable" && <span className="inv-tag">소모품</span>}
+            </li>
           ))}
         </ul>
       ) : (

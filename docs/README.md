@@ -1,6 +1,6 @@
 # Project MythOS Docs
 
-최종 갱신: 2026-06-07
+최종 갱신: 2026-06-08
 
 이 디렉터리는 현재 작업 문맥을 작게 유지하기 위해 current docs와 archive를 분리한다.
 에이전트는 `docs/` 전체를 읽지 말고 아래 순서만 따른다.
@@ -30,10 +30,11 @@
 | `DOCS_POLICY.md` | 문서 운영 규칙 |
 | `IMAGE_POLICY.md` | 이미지 생성 규칙·로컬 파이프라인 |
 | `REFERENCES.md` | 디자인 레퍼런스 게임과 적용 포인트 |
+| `neo_seoul_live_qa.md` | Neo-Seoul 사람 플레이 QA 체크리스트 + 현재 우선 확인 항목 |
 
 ## On-Demand Docs
 
-- `docs/plans/`: 특정 작업의 날짜별 설계 스냅샷. 최신 상태가 아닐 수 있으므로 `NEXT_PLAN.md`를 우선한다.
+- `docs/plans/`: 활성 작업의 날짜별 설계 스냅샷(현재 neo-seoul playability/live-feedback). 완료된 plan은 `bin/docs/plans/`로 이관. 최신 상태가 아닐 수 있으므로 `NEXT_PLAN.md`를 우선한다.
 - `docs/scenarios/`: 시나리오 기획 문서. 콘텐츠 변경 시에만 읽는다.
 - `bin/docs/archive/`: 장문 설계/로그/과거 기획 보존소. 기본 컨텍스트에 넣지 않는다.
 - `bin/docs/feedback/`: 과거 피드백 원문.

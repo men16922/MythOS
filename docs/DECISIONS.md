@@ -18,7 +18,7 @@ Reason: pose별 독립 생성은 Se-rin에서도 얼굴, 카메라, 의상, 액�
 GCP API 실행 경로와 검증 산출물이 없다. 따라서 운영 지침은 특정 외부 모델을 강제하지 않고, 캐릭터별
 검수 시트가 통과한 산출물만 `resources/.../combat/`로 승격하는 방식으로 둔다.
 
-Impact: `docs/plans/2026-06-07-combat-portrait-pipeline.md`가 전투 포즈 제작의 운영 권위가 된다. 모델은
+Impact: `bin/docs/plans/2026-06-07-combat-portrait-pipeline.md`가 전투 포즈 제작의 운영 권위가 된다. 모델은
 캐릭터 단위로 섞지 않는 것이 원칙이지만, VFX/림라이트 같은 **얼굴·체형을 바꾸지 않는 후처리 오버레이**는
 별도 후보로 허용한다. 외부 모델을 도입할 경우에도 먼저 `outputs/combat-sprite-compare/` 아래 검수 시트와
 재현 명령을 남긴 뒤 실사용 경로로 승격한다.

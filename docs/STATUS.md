@@ -1,6 +1,6 @@
 # Project MythOS Status
 
-최종 갱신: 2026-06-07
+최종 갱신: 2026-06-08
 
 ## Current Baseline
 
@@ -21,7 +21,7 @@ Project MythOS는 로컬 플레이어블 MVP를 넘어 React SPA + FastAPI API +
 - Phase 4 `CombatControls` 스킬 아이콘 액션바: data-driven 아이콘 타일 + cost/range 배지 + cooldown 오버레이 + FOCUS 게이팅 + tooltip.
 - Drone enemies(`maintenance-drone`, `sentinel-drone`) promoted with full combat action sheets — 4 combat-art enemies total.
 - Neo-Seoul P0 playability fixes: combat `encounter_reward.insight` is now persisted as meta progression, combat rewards are visible in the result panel, and early ambient forced combat is disabled unless pressure is high.
-- 작전 지도 route-node(Step 1~2b-4): 결정적 절차 생성 layered DAG(`route_map.py`, anchor 사전저작 비트+다중 관점+동적 pool) + 라이브 진행/관점·엔딩 누계(`route_runtime.py`) + director 주입/edge=선택지 분기/combat 노드 전투 트리거(`session.py`/`scenario_context.py`) + 노드 그래프 뷰 + anchor 큐레이트 이미지(`scenes/<beat>.png`). 세션 메모리(`session_memory.py`, `_beats`+롤링 시놉시스+직전 장면 창, RAG 아님)로 연속성/반복 방지. 상세 설계 `docs/plans/2026-06-07-route-node-procedural-map.md`. 남은(2b): 게이지 effect 통합+회복 루프, 동적 노드 title 다양화, `_map` 제거.
+- 작전 지도 route-node(Step 1~2b-4): 결정적 절차 생성 layered DAG(`route_map.py`, anchor 사전저작 비트+다중 관점+동적 pool) + 라이브 진행/관점·엔딩 누계(`route_runtime.py`) + director 주입/edge=선택지 분기/combat 노드 전투 트리거(`session.py`/`scenario_context.py`) + 노드 그래프 뷰 + anchor 큐레이트 이미지(`scenes/<beat>.png`). 세션 메모리(`session_memory.py`, `_beats`+롤링 시놉시스+직전 장면 창, RAG 아님)로 연속성/반복 방지. 상세 설계 `bin/docs/plans/2026-06-07-route-node-procedural-map.md`. 남은(2b): 게이지 effect 통합+회복 루프, 동적 노드 title 다양화, `_map` 제거.
 
 Repo hygiene (2026-06-07):
 
@@ -45,6 +45,12 @@ Controllable Party Allies (2026-06-07):
 
 - 전투 턴 루프를 controllable-actor stop으로 일반화. `_party.members` 소속 동료는 플레이어가 직접 조작(턴에서 정지, active actor 기준 행동), flag 해금 비파티 동맹은 AI 유지. 패배 판정 = 조작 가능 유닛 전멸. UI는 현재 차례(플레이어/동료) 표시.
 
+Live LLM QA & 반복 완화 (2026-06-08):
+
+- P0 live LLM 장기 세션 기술 QA: in-process 드라이버(인메모리 스토어 + 실제 Ollama director, Docker 불필요)로 gemma4 14턴 검증. 기술 파이프라인 양호(파싱 예외 0·선택지 상존·전투 후 `choose(action=...)` 재개·멈춤 없음·패배 시 루프 종료 정상).
+- F1 반복 완화: `build_session_synopsis` 반복 억제 지침 강화(도입부 배경 재묘사 금지 + 최근 비트 location 동일 시 추가 지침). 14턴 재검증서 반복 탐지 0·이야기 전진 확인. 회귀 테스트 2건. 잔여: F2 전투 빈도 튜닝, phase explore 정체 점검.
+- 문서 정리: 완료된 dated plan 6종을 `bin/docs/plans/`로 이관(neo-seoul playability/live-feedback만 활성 유지), 참조 경로 갱신.
+
 Recent verified baseline recorded in docs:
 
 - `make test`: 264 tests, 2 skipped.
@@ -57,7 +63,7 @@ Recent verified baseline recorded in docs:
 
 권위 계획: `docs/NEXT_PLAN.md`.
 
-1. **Neo-Seoul playability upgrade**: 새 최우선 트랙. `neo-seoul`을 기술 데모가 아니라 30-60분 플레이 만족도가 있는 주력 시나리오로 끌어올린다. Phase 1 문서 확정 완료(Golden Path, 실패/우회 Path, QA rubric), Phase 2 데이터 보강 완료(Story Bible 17→24 entries, playability choice axes/route branches/ending echo targets), Phase 3 데이터 기준선 완료(encounter learning goals/reward intent, progression reward tuning). P0 일부 구현 완료: 전투 보상 통찰 반영, 전투 결과 보상 표시, 초반 forced ambient combat 완화. Tactical Board는 범례+타일 인스펙터+전투 시작 학습 목표 배너(`_encounter_meta`→snapshot)까지 완료. 조우 난이도 튜닝 완료(`build_encounter` per-spawn `overrides` + 학습 목표별 적 수치 재조정, 그리디 시뮬 승률 95~98%). 다음 집중은 live LLM 장기 세션 QA, 보드 확대/반응형. 권위 설계는 `docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`.
+1. **Neo-Seoul playability upgrade**: 새 최우선 트랙. `neo-seoul`을 기술 데모가 아니라 30-60분 플레이 만족도가 있는 주력 시나리오로 끌어올린다. Phase 1 문서 확정 완료(Golden Path, 실패/우회 Path, QA rubric), Phase 2 데이터 보강 완료(Story Bible 17→24 entries, playability choice axes/route branches/ending echo targets), Phase 3 데이터 기준선 완료(encounter learning goals/reward intent, progression reward tuning). P0 일부 구현 완료: 전투 보상 통찰 반영, 전투 결과 보상 표시, 초반 forced ambient combat 완화. Tactical Board는 범례+타일 인스펙터+전투 시작 학습 목표 배너(`_encounter_meta`→snapshot)까지 완료. 조우 난이도 튜닝 완료(`build_encounter` per-spawn `overrides` + 학습 목표별 적 수치 재조정, 그리디 시뮬 승률 95~98%). live LLM 장기 세션 기술 QA 완료(파이프라인 양호) + F1 반복 완화 적용·재검증 완료. 다음 집중은 F2 전투 빈도 튜닝, 보드 확대/반응형, 실제 풀스택 사람 플레이 QA(`docs/neo_seoul_live_qa.md`). 권위 설계는 `docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`.
 2. **Combat presentation upgrade**: 완료. 모션 다양화·reduced-motion 접근성·표시 위치/스케일/타이밍/가독성 Live QA까지 완료(사용자 확인 완료). 범용 수동 QA 문서는 폐기했고, Neo-Seoul 실제 플레이 확인 항목은 `docs/neo_seoul_live_qa.md`를 따른다.
 3. **Progression skills/archetypes**: 완료. Phase 1·2·3 완료(아키타입 게이트, base/learned 필터, Codex 통찰 투자 트리, 깨달음 배너, 시나리오 간 해금). 후속은 Neo-Seoul 플레이 만족도 트랙 안에서 밸런스 조정.
 4. ~~**Controllable party allies**~~: 완료(파티원 직접 조작, 비파티 동맹 AI 유지).

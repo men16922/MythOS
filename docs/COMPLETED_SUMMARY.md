@@ -106,11 +106,11 @@
 
 | ID | Milestone | Result |
 | --- | --- | --- |
-| M35 | Combat Presentation Upgrade | 전신 action pose(idle/attack/guard/skill/hit), `combatAnim.ts` role/tags 스킬 애니메이션 레지스트리, `CombatControls` 아이콘 액션바(cost/range/cooldown/FOCUS), 스킬 아이콘 컷인 5종, 전투 종료 결과 이미지, BGM retry-safe + MusicGen SFX, 모션 다양화 + `prefers-reduced-motion` 접근성. combat-art 적 4종. 설계 `docs/plans/2026-06-06-combat-darkest-dungeon-presentation.md` |
-| M36 | Progression Skills / Archetypes | `MetaProgression` 해금/습득 필드, onboarding 아키타입 게이트, archetype base+learned 스킬 필터, Codex Skill 트리 + 통찰 투자(learn/rank-up `GET/POST /players/{id}/skills`, tier gating), 깨달음 배너(인-루프 즉시 연출 포함), 시나리오 간 해금(`scenario.unlock`). 설계 `docs/plans/2026-06-06-progression-skills-archetypes.md` |
-| M37 | Controllable Party Allies | `Combatant.controllable`, `CombatState.active_actor()`/`living_controllables()`, controllable-actor stop 턴 루프, 파티원 직접 조작 + 비파티 동맹 AI 유지, 도주는 PLAYER 한정, active actor 하이라이트/턴 지시기. 설계 `docs/plans/2026-06-06-party-controllable-allies.md` |
+| M35 | Combat Presentation Upgrade | 전신 action pose(idle/attack/guard/skill/hit), `combatAnim.ts` role/tags 스킬 애니메이션 레지스트리, `CombatControls` 아이콘 액션바(cost/range/cooldown/FOCUS), 스킬 아이콘 컷인 5종, 전투 종료 결과 이미지, BGM retry-safe + MusicGen SFX, 모션 다양화 + `prefers-reduced-motion` 접근성. combat-art 적 4종. 설계 `bin/docs/plans/2026-06-06-combat-darkest-dungeon-presentation.md` |
+| M36 | Progression Skills / Archetypes | `MetaProgression` 해금/습득 필드, onboarding 아키타입 게이트, archetype base+learned 스킬 필터, Codex Skill 트리 + 통찰 투자(learn/rank-up `GET/POST /players/{id}/skills`, tier gating), 깨달음 배너(인-루프 즉시 연출 포함), 시나리오 간 해금(`scenario.unlock`). 설계 `bin/docs/plans/2026-06-06-progression-skills-archetypes.md` |
+| M37 | Controllable Party Allies | `Combatant.controllable`, `CombatState.active_actor()`/`living_controllables()`, controllable-actor stop 턴 루프, 파티원 직접 조작 + 비파티 동맹 AI 유지, 도주는 PLAYER 한정, active actor 하이라이트/턴 지시기. 설계 `bin/docs/plans/2026-06-06-party-controllable-allies.md` |
 | M38 | Data-driven Progression Grant | 진행도 grant를 `scenario.json` 데이터 주도로 전환(`archetypes[].unlock`·`combat.skills[].epiphany`+`combat.epiphanies`), 시나리오 교차 오염 + `load_scenario` lru_cache 오염 버그 수정, glass-library progression/presentation 패리티 + Story Bible 17 entries |
-| M39 | Procedural Route Map & Session Memory | `route_map.py` 루프 시드 결정적 layered DAG(사전저작 anchor 다중 관점 + 동적 pool), `route_runtime.py` 라이브 진행·관점·엔딩 누계, director 주입·edge=선택지 분기·combat 노드 전투 트리거, 노드 그래프 뷰, anchor 큐레이트 이미지, 노드 보상/관점 effect를 게이지·HP에 통합(rest/market 회복), `session_memory.py` beat 원장+롤링 시놉시스(RAG 아님). 설계 `docs/plans/2026-06-07-route-node-procedural-map.md` |
+| M39 | Procedural Route Map & Session Memory | `route_map.py` 루프 시드 결정적 layered DAG(사전저작 anchor 다중 관점 + 동적 pool), `route_runtime.py` 라이브 진행·관점·엔딩 누계, director 주입·edge=선택지 분기·combat 노드 전투 트리거, 노드 그래프 뷰, anchor 큐레이트 이미지, 노드 보상/관점 effect를 게이지·HP에 통합(rest/market 회복), `session_memory.py` beat 원장+롤링 시놉시스(RAG 아님). 설계 `bin/docs/plans/2026-06-07-route-node-procedural-map.md` |
 
 ## MVP Verification Summary
 

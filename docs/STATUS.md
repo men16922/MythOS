@@ -47,7 +47,7 @@ Controllable Party Allies (2026-06-07):
 
 Recent verified baseline recorded in docs:
 
-- `make test`: 226 tests, 2 skipped.
+- `make test`: 264 tests, 2 skipped.
 - frontend lint/build clean, `tests/playwright/test_e2e_play_checklist.py` green (refactored 서버 기동 포함).
 - Neo-Seoul fallback long-session check: 12 consecutive choices progressed without the previous early forced ambient combat stall.
 - Redux worker live path: Redis queue -> mflux Redux -> MinIO -> presigned PNG GET 200.
@@ -57,7 +57,7 @@ Recent verified baseline recorded in docs:
 
 권위 계획: `docs/NEXT_PLAN.md`.
 
-1. **Neo-Seoul playability upgrade**: 새 최우선 트랙. `neo-seoul`을 기술 데모가 아니라 30-60분 플레이 만족도가 있는 주력 시나리오로 끌어올린다. Phase 1 문서 확정 완료(Golden Path, 실패/우회 Path, QA rubric), Phase 2 데이터 보강 완료(Story Bible 17→24 entries, playability choice axes/route branches/ending echo targets), Phase 3 데이터 기준선 완료(encounter learning goals/reward intent, progression reward tuning). P0 일부 구현 완료: 전투 보상 통찰 반영, 전투 결과 보상 표시, 초반 forced ambient combat 완화. 다음 집중은 live LLM 장기 세션 QA, 작전 지도 route-node화, Tactical Board legend/inspector. 권위 설계는 `docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`.
+1. **Neo-Seoul playability upgrade**: 새 최우선 트랙. `neo-seoul`을 기술 데모가 아니라 30-60분 플레이 만족도가 있는 주력 시나리오로 끌어올린다. Phase 1 문서 확정 완료(Golden Path, 실패/우회 Path, QA rubric), Phase 2 데이터 보강 완료(Story Bible 17→24 entries, playability choice axes/route branches/ending echo targets), Phase 3 데이터 기준선 완료(encounter learning goals/reward intent, progression reward tuning). P0 일부 구현 완료: 전투 보상 통찰 반영, 전투 결과 보상 표시, 초반 forced ambient combat 완화. Tactical Board는 범례+타일 인스펙터+전투 시작 학습 목표 배너(`_encounter_meta`→snapshot)까지 완료. 조우 난이도 튜닝 완료(`build_encounter` per-spawn `overrides` + 학습 목표별 적 수치 재조정, 그리디 시뮬 승률 95~98%). 다음 집중은 live LLM 장기 세션 QA, 보드 확대/반응형. 권위 설계는 `docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`.
 2. **Combat presentation upgrade**: 완료. 모션 다양화·reduced-motion 접근성·표시 위치/스케일/타이밍/가독성 Live QA까지 완료(사용자 확인 완료). 범용 수동 QA 문서는 폐기했고, Neo-Seoul 실제 플레이 확인 항목은 `docs/neo_seoul_live_qa.md`를 따른다.
 3. **Progression skills/archetypes**: 완료. Phase 1·2·3 완료(아키타입 게이트, base/learned 필터, Codex 통찰 투자 트리, 깨달음 배너, 시나리오 간 해금). 후속은 Neo-Seoul 플레이 만족도 트랙 안에서 밸런스 조정.
 4. ~~**Controllable party allies**~~: 완료(파티원 직접 조작, 비파티 동맹 AI 유지).

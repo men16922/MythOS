@@ -36,6 +36,7 @@ from mythos_runtime.combat_session_helpers import (
     _combat_summary,
     _combat_summary_from_state,
     _combat_visual_brief,
+    _encounter_meta,
     _requested_combat_id,
 )
 from mythos_runtime.constants import MYTHOS_WORLD_ID
@@ -956,6 +957,13 @@ class RuntimeSessionService:
                 "elevations": result.elevations,
                 "covers": result.covers,
                 "hazards": result.hazards,
+                "encounter": _encounter_meta(
+                    load_scenario(options.scenario_id).combat.get("encounters", {}).get(
+                        encounter_id, {}
+                    )
+                    if encounter_id
+                    else {}
+                ),
             },
             clues_collected=self._clues_collected(player.player_id),
             epiphanies_unlocked=self._epiphanies_unlocked(snapshot_player, loop),
@@ -992,9 +1000,9 @@ class RuntimeSessionService:
             return None
         scenario = load_scenario(options.scenario_id)
         available = self.combat.engine.available_actions(state) if state.active else {}
+        encounter = scenario.combat.get("encounters", {}).get(state.encounter_id, {})
         rewards: dict[str, Any] = {}
         if not state.active and state.outcome:
-            encounter = scenario.combat.get("encounters", {}).get(state.encounter_id, {})
             rewards = {"outcome": state.outcome, "encounter_reward": encounter.get("reward", {})}
         return {
             "radar": render_radar(state),
@@ -1007,6 +1015,7 @@ class RuntimeSessionService:
             "elevations": dict(state.elevations),
             "covers": dict(state.covers),
             "hazards": dict(state.hazards),
+            "encounter": _encounter_meta(encounter),
         }
 
     def _resolved_ending_state(

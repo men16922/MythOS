@@ -1626,6 +1626,97 @@ main {
   flex-grow: 1;
 }
 
+/* Combat learning-goal banner: shown at the top of the board so the player
+   knows what the encounter is teaching. Dismissible per encounter. */
+.combat-learning-goal {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 9px 11px;
+  border: 1px solid rgba(0, 255, 204, 0.32);
+  border-left: 3px solid var(--term);
+  border-radius: 6px;
+  background: rgba(0, 255, 204, 0.07);
+}
+.combat-learning-goal-icon {
+  font-size: 14px;
+  line-height: 1.4;
+}
+.combat-learning-goal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+.combat-learning-goal-label {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--term);
+  font-weight: 600;
+}
+.combat-learning-goal-text {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--term-dim);
+}
+.combat-learning-goal-close {
+  background: none;
+  border: none;
+  color: var(--ink-dim);
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  padding: 2px 4px;
+}
+.combat-learning-goal-close:hover {
+  color: var(--term);
+}
+
+/* Tile inspector: details of the board cell under the pointer. */
+.tile-inspector {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  background: rgba(8, 16, 20, 0.5);
+  min-height: 52px;
+}
+.tile-inspector.empty {
+  display: flex;
+  align-items: center;
+}
+.tile-inspector-hint {
+  font-size: 11px;
+  color: var(--ink-dim);
+}
+.tile-inspector-coord {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--term);
+  font-family: var(--mono);
+  margin-bottom: 5px;
+}
+.tile-inspector-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.tile-inspector-row {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 11px;
+  line-height: 1.4;
+}
+.tile-inspector-key {
+  min-width: 56px;
+  color: var(--term-dim);
+}
+.tile-inspector-val {
+  color: var(--ink);
+}
+
 /* Combat Rosters Grid */
 .combat-rosters-grid {
   display: grid;

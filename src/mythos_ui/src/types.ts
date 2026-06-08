@@ -224,6 +224,11 @@ export interface CombatState {
     encounter_reward?: Record<string, number | string>;
     [key: string]: unknown;
   };
+  encounter?: {
+    id?: string;
+    name?: string;
+    learning_goal?: string;
+  };
 }
 
 export interface CombatAction {

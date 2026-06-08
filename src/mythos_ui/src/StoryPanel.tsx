@@ -29,6 +29,8 @@ interface StoryPanelProps {
   onCanvasPointerMove: PointerEventHandler<HTMLCanvasElement>;
   onCanvasPointerUp: PointerEventHandler<HTMLCanvasElement>;
   onCanvasPointerCancel: PointerEventHandler<HTMLCanvasElement>;
+  onCanvasPointerLeave: PointerEventHandler<HTMLCanvasElement>;
+  combatInspectCell: [number, number] | null;
   scenarioId: string;
   narrativeHistory: { sceneId: string; title: string; text: string; action?: string | null }[];
   scenarioCharacters?: ScenarioCharacter[];
@@ -392,6 +394,100 @@ function TacticalLegend({ combat }: { combat: CombatState }) {
   );
 }
 
+function LearningGoalBanner({ combat }: { combat: CombatState }) {
+  const encounter = combat.encounter;
+  const goal = encounter?.learning_goal;
+  const [dismissed, setDismissed] = useState(false);
+  if (!goal || dismissed) return null;
+  return (
+    <div className="combat-learning-goal" role="note">
+      <span className="combat-learning-goal-icon">🎯</span>
+      <div className="combat-learning-goal-body">
+        <span className="combat-learning-goal-label">
+          학습 목표{encounter?.name ? ` · ${encounter.name}` : ""}
+        </span>
+        <span className="combat-learning-goal-text">{goal}</span>
+      </div>
+      <button
+        className="combat-learning-goal-close"
+        onClick={() => setDismissed(true)}
+        aria-label="학습 목표 닫기"
+      >
+        ✕
+      </button>
+    </div>
+  );
+}
+
+function TileInspector({
+  combat,
+  cell,
+}: {
+  combat: CombatState;
+  cell: [number, number] | null;
+}) {
+  if (!cell) {
+    return (
+      <div className="tile-inspector empty">
+        <span className="tile-inspector-hint">보드 위 타일을 가리키면 상세가 표시됩니다.</span>
+      </div>
+    );
+  }
+  const [x, y] = cell;
+  const key = `${x},${y}`;
+  const elevation = Number(combat.elevations?.[key] || 0);
+  const cover = combat.covers?.[key];
+  const hazard = combat.hazards?.[key];
+  const occupant = (combat.radar?.blips || []).find(
+    (b) => b.x === x && b.y === y && b.alive !== false
+  );
+  const reachable = (combat.available?.reachable || []).some(
+    ([rx, ry]) => rx === x && ry === y
+  );
+  const intent = (combat.radar?.enemy_intents || []).find(
+    (i) => i.target_x === x && i.target_y === y
+  );
+
+  const factionLabel = (faction?: string) =>
+    faction === "enemy" ? "적" : faction === "ally" ? "동맹" : "아군";
+  const coverLabel = cover === "full" ? "엄호(강)" : cover === "half" ? "엄호(약)" : null;
+  const hazardLabel =
+    hazard === "acid" ? "산성 지대" : hazard === "electro" ? "전자 지대" : hazard || null;
+
+  const rows: { label: string; value: string }[] = [];
+  if (occupant) {
+    rows.push({
+      label: factionLabel(occupant.faction),
+      value: `${occupant.name || occupant.id} · HP ${occupant.hp}/${occupant.max_hp}`,
+    });
+  }
+  if (coverLabel) rows.push({ label: "지형", value: coverLabel });
+  if (elevation > 0) rows.push({ label: "고지", value: `+${elevation}` });
+  if (hazardLabel) rows.push({ label: "위험", value: hazardLabel });
+  if (intent) {
+    rows.push({
+      label: "적 의도",
+      value: intent.action === "attack" ? "공격 예고" : intent.action === "flee" ? "도주" : "이동",
+    });
+  }
+  if (reachable) rows.push({ label: "이동", value: "현재 유닛 이동 가능" });
+  if (rows.length === 0) rows.push({ label: "지형", value: "빈 타일" });
+
+  return (
+    <div className="tile-inspector">
+      <div className="tile-inspector-coord">타일 ({x}, {y})</div>
+      <div className="tile-inspector-rows">
+        {rows.map((r, i) => (
+          <div key={i} className="tile-inspector-row">
+            <span className="tile-inspector-key">{r.label}</span>
+            <span className="tile-inspector-val">{r.value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function StoryPanel({
   status,
   snapshot,
@@ -414,6 +510,8 @@ export function StoryPanel({
   onCanvasPointerMove,
   onCanvasPointerUp,
   onCanvasPointerCancel,
+  onCanvasPointerLeave,
+  combatInspectCell,
   scenarioId,
   narrativeHistory,
   scenarioCharacters,
@@ -462,6 +560,10 @@ export function StoryPanel({
               <div className="panel-title">
                 TACTICAL BOARD :: ROUND {String(snapshot.combat.radar?.round || 1).padStart(2, "0")}
               </div>
+              <LearningGoalBanner
+                key={snapshot.combat.encounter?.id || "encounter"}
+                combat={snapshot.combat}
+              />
               <div className="tactical-board-canvas-wrapper" style={{ marginTop: "12px" }}>
                 <canvas
                   id="combat"
@@ -470,10 +572,12 @@ export function StoryPanel({
                   onPointerMove={onCanvasPointerMove}
                   onPointerUp={onCanvasPointerUp}
                   onPointerCancel={onCanvasPointerCancel}
+                  onPointerLeave={onCanvasPointerLeave}
                   style={{ display: "block", touchAction: "none" }}
                 ></canvas>
               </div>
               <TacticalLegend combat={snapshot.combat} />
+              <TileInspector combat={snapshot.combat} cell={combatInspectCell} />
             </div>
 
             <CombatLog log={combatLog} />

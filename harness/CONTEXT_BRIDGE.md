@@ -8,12 +8,12 @@
 - **주 플레이 경로**: 현재 권장 플레이 경로는 React SPA다. `make dev-up`이 docker infra, DB migration, background visual worker, FastAPI API를 준비하고 `http://localhost:8000`을 서빙한다. Ollama는 Mac host에서 별도로 `ollama serve`가 필요하다.
 - **구현 완료 축**: Neo-Seoul 01, Story Bible snippet 주입, Run History, Meta Progression, Save/Load UX, Ending Resolver, Developer 인과율 모니터, 자원 제약 선택지, 적 인텐트, 스탯 기반 내면 독백, 전술 전투, 단일 iframe Streamlit 전투 UI, React SPA 패리티, Playwright E2E, narrative shard rollup, narrative metrics dashboard가 구현됐다.
 - **비주얼 파이프라인**: 기본 이미지 백엔드는 mflux/FLUX. 캐릭터 장면은 mflux Redux portrait reference로 라우팅해 얼굴 일관성을 보강한다. Redis visual worker -> MinIO -> presigned PNG 경로가 실검증됐다.
-- **최신 검증 기준**: `make test`는 226 tests, 2 skipped 기준 통과 기록이 있다. `make test-e2e`는 `?fallback=1&image=0` 결정적 React 경로로 부트 오프닝, 세션 인트로, 턴 0 선택지, 턴 1 전환을 검증한다. Neo-Seoul fallback 12선택 장기 진행은 초반 강제 ambient 전투 없이 통과했다.
+- **최신 검증 기준**: `make test`는 264 tests, 2 skipped 기준 통과 기록이 있다. `make test-e2e`는 `?fallback=1&image=0` 결정적 React 경로로 부트 오프닝, 세션 인트로, 턴 0 선택지, 턴 1 전환을 검증한다. Neo-Seoul fallback 12선택 장기 진행은 초반 강제 ambient 전투 없이 통과했다.
 - **문서 진입점**: 새 작업자는 전체 `docs/`를 통째로 읽지 말고 `docs/AGENT_BRIEF.md` -> `docs/STATUS.md` -> `docs/NEXT_PLAN.md` 순서로 시작한다. 필요한 경우에만 `docs/DESIGN.md`, `docs/GAMEPLAY.md`, 시나리오, dated plan, archive를 연다.
 
 ## Current Handover
 
-1. **Priority 1(Neo-Seoul 플레이 만족도)**: 새 최우선 트랙. Phase 1 문서 확정, Phase 2 데이터 보강, Phase 3 데이터 기준선 완료. P0 일부 구현 완료: `encounter_reward.insight`는 meta progression 통찰로 즉시 저장되고, 전투 결과 패널에 보상 변화가 표시되며, 초반 forced ambient combat은 high tension/low stability 전까지 억제된다. 다음은 live LLM 10장면 이후 장기 QA, 작전 지도 route-node 구현, Tactical Board legend/inspector다.
+1. **Priority 1(Neo-Seoul 플레이 만족도)**: 최우선 트랙. Phase 1-3, 작전 지도 route-node화 + 세션 메모리(M39), Tactical Board(범례/타일 인스펙터/학습 목표 배너), 조우 난이도 튜닝(per-spawn `overrides`), P0(insight 보상·결과 패널·forced ambient 완화·BGM/세린 표기 QA)까지 완료. 다음은 live LLM 장기 세션 QA, loot/인벤토리·objective·선택 결과·Codex UX 정리, 보드 확대/반응형이다.
 2. **QA 기준**: 범용 수동 QA 문서는 폐기. Neo-Seoul 실제 플레이 확인 항목은 `docs/neo_seoul_live_qa.md`, 설계 rubric은 `docs/scenarios/01-neo-seoul-connect.md` §5.5, 작업 체크리스트는 `docs/NEXT_PLAN.md`를 따른다.
 3. **완료 축**: 전투 연출 live QA, 진행도 해금, 파티 조작, 데이터 주도 progression grant, React SPA 패리티, Playwright E2E는 완료 상태로 유지한다.
 4. **glass-library**: 현재 hold. progression/presentation 패리티까지 완료됐지만, 추가 서사(arcs/endings/Story Bible) 깊이와 전투 아트/스킬 확장은 Neo-Seoul 만족도 개선 이후로 미룬다.

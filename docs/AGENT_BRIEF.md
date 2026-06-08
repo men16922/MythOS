@@ -16,7 +16,9 @@ Project MythOS는 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG
 - PostgreSQL/MinIO/Redis/OTel/Jaeger 로컬 인프라 구성.
 - Neo-Seoul 01이 주력 시나리오, `glass-library`는 확장 샘플.
 - Story Bible, Codex, Run History, Meta Progression, Save/Load, Ending Resolver 구현.
-- 전술 전투, 동료 참전, 적 인텐트, 전투 VFX Phase 1, CombatCinema 전신 action pose, role/tags 스킬 애니메이션, 스킬 아이콘 액션바(Phase 4), Playwright E2E 구현. combat-art 적 4종.
+- 전술 전투(전신 action pose·role/tags 스킬 애니메이션·아이콘 액션바·파티 직접 조작·combat-art 적 4종), Tactical Board 범례/타일 인스펙터/학습 목표 배너, Playwright E2E 구현.
+- 작전 지도 route-node화(결정적 DAG + 다중 관점 anchor `route_map.py`/`route_runtime.py`) + 세션 메모리(`session_memory.py` beat 원장+롤링 시놉시스, RAG 아님).
+- 진행도 해금(아키타입 게이트·통찰 투자 트리·깨달음 배너·시나리오 간 해금, 데이터 주도 grant).
 - mflux/FLUX image worker, Redux 캐릭터 일관성, MinIO asset path 검증 완료.
 - `session.py`는 narrative_rollup/loop_scoring/combat_session_helpers/constants로 책임 분리됨(공개 API 동일).
 
@@ -24,11 +26,9 @@ Project MythOS는 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG
 
 다음 우선순위는 `docs/NEXT_PLAN.md`가 권위다.
 
-1. Neo-Seoul 플레이 만족도 개선: 새 최우선 트랙. `neo-seoul`을 기술 데모가 아니라 30-60분 동안 만족스럽게 플레이 가능한 주력 시나리오로 만든다. Phase 1 문서 확정, Phase 2 데이터 보강, Phase 3 데이터 기준선까지 완료. 남은 것은 combat/progression 수치·보상 적용과 UX 피드백 정리. 권위 계획은 `docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`.
-2. 전투 연출 개편: 완료(전신 action pose·스킬 애니메이션 레지스트리·아이콘 액션바·모션 다양화·reduced-motion·Live QA).
-3. 진행도 해금: 완료(아키타입 게이트, base/learned 필터, Codex 통찰 투자 트리 + learn/rank-up API, 깨달음 배너, 시나리오 간 해금 게이팅). 후속은 Neo-Seoul 트랙의 밸런스 조정으로 다룬다.
-4. 파티 조작 2단계: 완료(파티원 직접 조작, 비파티 동맹 AI 유지).
-5. `glass-library` 확장: hold. 진행도/프레젠테이션 패리티 + Story Bible 17 entries까지 완료했지만 추가 확장은 Neo-Seoul 완성도 개선 이후로 미룬다.
+1. **Neo-Seoul 플레이 만족도 개선(최우선)**: `neo-seoul`을 30-60분 만족 플레이 주력 시나리오로 만든다. Phase 1-3, route-node화, Tactical Board(범례/인스펙터/학습 목표 배너), 조우 난이도 튜닝까지 완료. 남은 것은 live LLM 장기 세션 QA, loot/인벤토리·objective·선택 결과·Codex UX 정리, 보드 확대/반응형. 권위 계획 `docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`.
+2. 완료 트랙(후속은 Neo-Seoul 트랙에서 다룸): 전투 연출 개편, 진행도 해금, 파티 직접 조작, 데이터 주도 grant, route-node — `docs/COMPLETED_SUMMARY.md` M35-M39.
+3. `glass-library` 확장: hold(패리티 + Story Bible 17 entries 완료, 추가 확장은 Neo-Seoul 완성 이후).
 
 ## Read Order
 

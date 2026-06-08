@@ -5,6 +5,24 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-07 — 조우 난이도 튜닝 (P1)
+
+- 조우별 학습 목표에 맞춰 적 수치 재조정. `build_encounter`에 per-spawn `overrides`(bestiary 위 shallow merge) 추가 — 한 bestiary 원형이 조우별 다른 역할(취약 킬-퍼스트 vs 견고 미끼)을 하도록 fork 없이 데이터 주도 조정.
+  - `sentinel_checkpoint`(target priority): sentinel_drone hp14→11(취약 원거리 위협, "먼저 처치") + maintenance_drone hp12→16·def13→14(견고한 근접 미끼) override.
+  - `enforcer_standoff`(armor_pen/timing): enforcer armor 3→4 — 비-armor_pen 타격이 더 깎여 kai 과부하 일격/방어·회복 타이밍이 중요.
+  - `wraith_glitch`(기동/미스터리): def16→17·speed5→6으로 명중/기동 도구(packet_shot·signal_step) 요구, hp18 유지(추격이 의미를 갖게).
+  - `patrol_ambush`(튜토리얼): 2 약체 드론 유지.
+- 헤드리스 그리디 시뮬(파티 3인, 60회): 승률 patrol97%/sentinel98%/wraith97%/enforcer95%, avg_round 2.5/3.5/2.7/3.8 — 튜토리얼 최단·boss 최장으로 난이도 곡선 정렬. 실제 체감은 Live QA.
+- Verified: `make test` 264/2 skip(override merge 회귀 테스트 + start_combat encounter 어서션 포함).
+
+## 2026-06-07 — Tactical Board 타일 인스펙터 + 학습 목표 배너 (P1)
+
+- 라이브 피드백 "보드 의미 파악" 후속 2차. 두 가지 추가:
+  - **타일 인스펙터**: 보드 위 포인터가 가리키는 셀의 좌표/점유 유닛(HP·진영)/엄호/고지/위험/적 의도/이동 가능 여부를 좌측 열에 표시(`TileInspector`). 기존 `combatCellFromPoint`/드래그 핸들러 재사용 — 비드래그 hover 시에만 `combatInspectCell` 갱신(셀 변경 시에만 setState로 리렌더 churn 방지), pointerleave에서 해제. in-bounds 클램프.
+  - **학습 목표 배너**: 전투 시작 시 `encounter.learning_goal`(+이름)을 보드 상단에 1줄 노출, encounter별 dismiss(`key`로 리셋). 백엔드: `_encounter_meta`(id/name/learning_goal)를 두 combat snapshot 경로(`_commit_combat_scene`/`_combat_snapshot`)에 주입 → API serializer가 dict 그대로 통과.
+- Verified: `make test` 263/2 skip(신규 어서션 포함), `make frontend-lint`/`frontend-build` green.
+- Next(Tactical Board 잔여): 보드 확대/반응형(zoom/pan). 타일 인스펙터는 hover 기반 — 터치 환경 click 핀 고정은 후속 검토.
+
 ## 2026-06-07 — Tactical Board 범례 (P1)
 
 - 라이브 피드백 "보드의 cover/hazard/elevation/intent 의미를 모름" 해소 1차. `StoryPanel`에 `TacticalLegend` 추가 — 보드에 실제 존재하는 요소만 동적 표시(적 의도 ⚔️/🏃/👣, 엄호 강/약, 산성/전자 지대, 고지). `index.css` `.tactical-legend*`. 캔버스는 이미 해당 요소를 렌더 중이라 설명만 보강.

@@ -172,6 +172,10 @@ class SessionCombatTest(unittest.TestCase):
         assert snap.combat is not None
         self.assertFalse(snap.combat["finished"])
         self.assertEqual(len(snap.combat["radar"]["blips"]), 3)
+        # Encounter learning-goal metadata is surfaced for the board banner.
+        encounter_meta = snap.combat["encounter"]
+        self.assertEqual(encounter_meta["id"], "patrol_ambush")
+        self.assertTrue(encounter_meta["learning_goal"])
         stored = self.store.get_loop(self.loop_id)
         assert stored is not None
         self.assertTrue(CombatService.is_active(stored))

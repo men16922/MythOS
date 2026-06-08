@@ -47,6 +47,12 @@ def build_encounter(
         entry = bestiary.get(group.get("bestiary"))
         if entry is None:
             continue
+        # Per-encounter stat overrides let one bestiary archetype play a
+        # different role across encounters (e.g. a fragile "kill-first" sentinel
+        # vs a durable decoy drone) without forking the bestiary. Shallow merge.
+        overrides = group.get("overrides")
+        if isinstance(overrides, dict):
+            entry = {**entry, **overrides}
         for _ in range(int(group.get("count", 1))):
             ex = max(0, width - 1 - (index // height))
             ey = index % height

@@ -84,6 +84,42 @@ def _auto_attack(engine: CombatEngine, state) -> PlayerAction:
 
 
 class CombatEngineTest(unittest.TestCase):
+    def test_encounter_enemy_overrides_merge_onto_bestiary(self) -> None:
+        # A single bestiary archetype can play different roles per encounter via
+        # per-spawn ``overrides`` (e.g. a fragile sentinel vs a durable decoy).
+        combat_pool = {
+            "weapons": WEAPONS,
+            "bestiary": {
+                "drone": {
+                    "id": "drone",
+                    "name": "드론",
+                    "hp": 12,
+                    "defense": 11,
+                    "speed": 4,
+                    "armor": 0,
+                    "stats": {"strength": 4, "agility": 5, "perception": 4},
+                    "weapons": ["claw"],
+                    "ai": "melee",
+                    "blip": "●",
+                }
+            },
+            "encounters": {
+                "checkpoint": {
+                    "id": "checkpoint",
+                    "arena": {"width": 8, "height": 6},
+                    "enemies": [
+                        {"bestiary": "drone", "count": 1, "overrides": {"hp": 6, "defense": 14}},
+                        {"bestiary": "drone", "count": 1},
+                    ],
+                }
+            },
+        }
+        state = build_encounter(combat_pool, "checkpoint", player=_player(), seed="ovr")
+        enemies = sorted(state.living_enemies(), key=lambda e: e.max_hp)
+        self.assertEqual([e.max_hp for e in enemies], [6, 12])
+        self.assertEqual(enemies[0].defense, 14)  # overridden spawn
+        self.assertEqual(enemies[1].defense, 11)  # base bestiary value
+
     def test_initiative_and_start(self) -> None:
         engine = CombatEngine()
         state = engine.start([_player()], [_drone()], seed="s1", arena=(8, 6))

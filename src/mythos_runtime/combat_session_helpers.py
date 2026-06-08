@@ -14,6 +14,20 @@ from mythos_narrative import ScenePayload
 from mythos_runtime.combat_service import CombatService, CombatTurnResult
 
 
+def _encounter_meta(encounter: Any) -> dict[str, Any]:
+    """Surface player-facing encounter metadata (name + learning goal) so the
+    combat board can show a "what this fight teaches" banner. Only non-empty
+    fields are included; unknown/legacy encounters yield ``{}``."""
+    if not isinstance(encounter, dict):
+        return {}
+    meta: dict[str, Any] = {}
+    for key in ("id", "name", "learning_goal"):
+        value = encounter.get(key)
+        if value:
+            meta[key] = value
+    return meta
+
+
 def _combat_summary(result: CombatTurnResult) -> dict[str, Any]:
     state = CombatService.load_state(result.loop)
     if state is None:

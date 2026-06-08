@@ -1485,6 +1485,32 @@ main {
 }
 
 /* Route-node operation map (procedural layered DAG) */
+.route-map-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.route-map-modal {
+  background: var(--panel-1, #050d0c);
+  border: 1px solid var(--term);
+  border-radius: 8px;
+  padding: 18px;
+  max-width: 560px;
+  width: 100%;
+  max-height: 86vh;
+  overflow: auto;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+}
+.route-map-modal-graph {
+  transform: scale(1.15);
+  transform-origin: top center;
+  margin: 16px 0 28px;
+}
 .route-graph {
   display: flex;
   flex-direction: column;

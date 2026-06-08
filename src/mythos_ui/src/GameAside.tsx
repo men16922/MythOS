@@ -46,6 +46,7 @@ function rewardSummary(reward?: Record<string, number>): string {
 }
 
 function RouteMapPanel({ routeMap }: { routeMap: RouteMap }) {
+  const [expanded, setExpanded] = useState(false);
   const nodes = routeMap.nodes || {};
   const layers = routeMap.layers || [];
   const edges = routeMap.edges || {};
@@ -100,19 +101,21 @@ function RouteMapPanel({ routeMap }: { routeMap: RouteMap }) {
     );
   };
 
-  return (
-    <div className="panel minimap-panel" id="operation-map">
-      <p className="panel-title">작전 지도</p>
-      <div className="route-graph">
-        {layers.map((layerIds, idx) => (
-          <div key={idx} className="route-layer">
-            <div className="route-layer-rail">
-              {idx > 0 && <div className="route-connector" />}
-              <div className="route-layer-nodes">{layerIds.map(renderNode)}</div>
-            </div>
+  const graph = (
+    <div className="route-graph">
+      {layers.map((layerIds, idx) => (
+        <div key={idx} className="route-layer">
+          <div className="route-layer-rail">
+            {idx > 0 && <div className="route-connector" />}
+            <div className="route-layer-nodes">{layerIds.map(renderNode)}</div>
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  const legend = (
+    <>
       <div className="sub" style={{ fontSize: "11px", color: "var(--ink-dim)", marginTop: "6px" }}>
         ★ 고정 스토리 · ◆ 장면 · ❖ 단서 · ⚔ 전투 · ◎ 순찰 · ▣ 시장 · ✚ 정비 · ✦ 사건 · ❒ 대면
       </div>
@@ -122,6 +125,48 @@ function RouteMapPanel({ routeMap }: { routeMap: RouteMap }) {
       <div className="sub" style={{ fontSize: "10px", color: "var(--ink-dim)", marginTop: "6px", opacity: 0.8 }}>
         현재 시점·향하는 결말은 기억의 별자리에서 확인하세요.
       </div>
+    </>
+  );
+
+  return (
+    <div className="panel minimap-panel" id="operation-map">
+      <div className="panel-title-row">
+        <p className="panel-title">작전 지도</p>
+        <button
+          type="button"
+          className="panel-info-toggle"
+          title="작전 지도 확대 + 범례"
+          onClick={() => setExpanded(true)}
+        >
+          ⤢ 확대
+        </button>
+      </div>
+      {/* Minimal by default: just the node graph. */}
+      {graph}
+
+      {expanded && (
+        <div className="route-map-modal-backdrop" onClick={() => setExpanded(false)}>
+          <div
+            className="route-map-modal"
+            role="dialog"
+            aria-label="작전 지도"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="panel-title-row">
+              <p className="panel-title">작전 지도 · 상세</p>
+              <button
+                type="button"
+                className="panel-info-toggle"
+                onClick={() => setExpanded(false)}
+              >
+                닫기 ✕
+              </button>
+            </div>
+            <div className="route-map-modal-graph">{graph}</div>
+            {legend}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

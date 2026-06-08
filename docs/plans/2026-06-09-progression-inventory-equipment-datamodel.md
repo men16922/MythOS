@@ -1,7 +1,12 @@
 # Progression · Inventory · Equipment 데이터모델 통합 패스
 
 작성: 2026-06-09
-상태: `[/]` 설계 — 구현 전 사용자 확정 대기(인벤토리/장비 scope).
+상태: `[/]` 진행 중. 확정: 해금=player+scenario, 인벤토리/장비=loop 단위.
+- `[x]` 1단계 토대: migration 005(player_progression+loop_inventory)+백필+store 계층(`eacc847`).
+- `[x]` 2단계 progression 전환: load/persist_progression 헬퍼, session/ProgressionService read·write 전환(`5ec98e4`).
+- `[ ]` 3단계 인벤토리 전환: CombatService에 store 주입 → `act`/`_finish`/`_store_combat`의
+  `loop.state._inventory`를 loop_inventory 테이블로, 직렬화는 store/스냅샷 경유로 재배선(전투 영속화 변경).
+- `[ ]` 4단계 장비: scenario items에 `kind:equipment`+slot+stats, 착용 토글, 전투 시작 보너스 합산, UI(#4).
 
 ## 목표
 

@@ -14,7 +14,7 @@ from mythos_narrative import ScenePayload, WorldDelta
 from mythos_runtime.combat_service import CombatService, CombatTurnResult
 from mythos_runtime.encounter_map import ENCOUNTER_MAP_KEY
 from mythos_runtime.options import RuntimeOptions
-from mythos_runtime.progression import latest_meta_progression
+from mythos_runtime.progression import load_progression
 from mythos_runtime.session import RuntimeSessionService
 
 
@@ -347,11 +347,8 @@ class SessionCombatTest(unittest.TestCase):
 
         updated = self.service._apply_combat_rewards(loop, result)
 
-        progress = latest_meta_progression(
-            self.store.list_player_memories(updated.player_id),
-            updated.player_id,
-            "neo-seoul",
-        )
+        # Progression now persists to the dedicated table (store.get_progression).
+        progress = load_progression(self.store, updated.player_id, "neo-seoul")
         self.assertEqual(progress.insight_points, 2)
         self.assertEqual(updated.state["meta_progression"]["insight_points"], 2)
 

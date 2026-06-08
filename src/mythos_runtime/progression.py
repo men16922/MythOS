@@ -187,6 +187,32 @@ def meta_progression_to_content(progress: MetaProgression) -> dict[str, Any]:
     }
 
 
+def load_progression(
+    store: MythOSStore, player_id: str, scenario_id: str
+) -> MetaProgression:
+    """Read current progression from the dedicated table.
+
+    Falls back to scanning ``player_memories`` (kind=meta_progression) for data
+    written before migration 005 / by an un-migrated store, so reads stay correct
+    during the transition.
+    """
+    content = store.get_progression(player_id, scenario_id)
+    if content is not None:
+        return meta_progression_from_content(
+            content, player_id=player_id, scenario_id=scenario_id
+        )
+    return latest_meta_progression(
+        store.list_player_memories(player_id), player_id, scenario_id
+    )
+
+
+def persist_progression(store: MythOSStore, progress: MetaProgression) -> None:
+    """Upsert progression into the dedicated player_progression table."""
+    store.save_progression(
+        progress.player_id, progress.scenario_id, meta_progression_to_content(progress)
+    )
+
+
 def evaluate_meta_progression(
     previous: MetaProgression,
     run_summary: RunSummary,
@@ -711,8 +737,7 @@ class ProgressionService:
     ) -> dict[str, Any]:
         from mythos_runtime.scenario import load_scenario
 
-        memories = self.store.list_player_memories(player_id)
-        progress = latest_meta_progression(memories, player_id, scenario_id)
+        progress = load_progression(self.store, player_id, scenario_id)
         progress = self._merge_mid_run_epiphanies(player_id, scenario_id, progress)
         scenario = load_scenario(scenario_id)
         return {
@@ -729,12 +754,11 @@ class ProgressionService:
     ) -> dict[str, Any]:
         from mythos_runtime.scenario import load_scenario
 
-        memories = self.store.list_player_memories(player_id)
-        previous = latest_meta_progression(memories, player_id, scenario_id)
+        previous = load_progression(self.store, player_id, scenario_id)
         previous = self._merge_mid_run_epiphanies(player_id, scenario_id, previous)
         scenario = load_scenario(scenario_id)
         updated = learn_or_rank_skill(previous, scenario.combat, skill_id, archetype)
-        self.store.save_player_memory(_meta_progression_memory(updated))
+        persist_progression(self.store, updated)
         return {
             "insight_points": updated.insight_points,
             "skills": build_skill_tree(updated, scenario.combat, archetype),
@@ -746,9 +770,8 @@ class ProgressionService:
         loop: LoopState,
         run_summary: RunSummary,
     ) -> tuple[LoopState, list[str]]:
-        memories = self.store.list_player_memories(player_id)
         scenario_id = run_summary.scenario_id
-        previous = latest_meta_progression(memories, player_id, scenario_id)
+        previous = load_progression(self.store, player_id, scenario_id)
 
         from mythos_runtime.scenario import load_scenario
 
@@ -757,8 +780,7 @@ class ProgressionService:
             previous, run_summary, scenario.combat, scenario.archetypes
         )
 
-        memory = _meta_progression_memory(updated_progress)
-        self.store.save_player_memory(memory)
+        persist_progression(self.store, updated_progress)
 
         state_after = apply_meta_progression_to_state(loop.state, updated_progress, scenario.combat)
         updated_loop = replace(loop, state=state_after)

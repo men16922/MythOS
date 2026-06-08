@@ -84,16 +84,15 @@ from mythos_runtime.options import (
 from mythos_runtime.progression import (
     MetaProgression,
     ProgressionService,
-    _meta_progression_memory,
     _run_summary_from_memory,
     _run_summary_memory_from_archive,
     _world_memory_from_archive,
     apply_meta_progression_to_state,
     determine_autonomy_level,
     evaluate_meta_progression,
-    latest_meta_progression,
-    meta_progression_from_content,
+    load_progression,
     meta_progression_to_content,
+    persist_progression,
     traits_with_meta_progression,
 )
 from mythos_runtime.save_load import SaveLoadService
@@ -185,7 +184,7 @@ class RuntimeSessionService:
         novelty_signal = self.novelty.build_signal(_latest_scenes(self.store, loops))
         initial_scores = _initial_loop_scores(world_memories, player_id=player.player_id)
         scenario = load_scenario(options.scenario_id)
-        meta_progression = latest_meta_progression(memories, player.player_id, options.scenario_id)
+        meta_progression = load_progression(self.store, player.player_id, options.scenario_id)
 
         stats = player.traits.get("stats", {}) if isinstance(player.traits, dict) else {}
         max_hp = 10 + int(stats.get("strength", 5))
@@ -543,25 +542,18 @@ class RuntimeSessionService:
         metrics.sort(key=lambda m: m.created_at, reverse=True)
         narrative_metrics = metrics[0].content if metrics else None
 
-        # 8. meta_progression
-        meta_memory = None
-        for memory in reversed(player_memories):
-            if memory.kind == "meta_progression":
-                meta_memory = memory
-                break
-
+        # 8. meta_progression (dedicated player_progression table, memory fallback)
+        # Progression is now keyed by (player, scenario); resolve the player's
+        # current scenario from save slot → most-recent loop → default.
         scenario_id = "neo-seoul"
         active_slots = self.save_load.list_save_slots(player_id)
         if active_slots:
             scenario_id = active_slots[0].scenario_id
+        elif loops:
+            recent = max(loops, key=lambda lp: lp.started_at)
+            scenario_id = str(recent.state.get("scenario_id") or scenario_id)
 
-        progress = (
-            meta_progression_from_content(
-                meta_memory.content, player_id=player_id, scenario_id=scenario_id
-            )
-            if meta_memory
-            else MetaProgression(player_id=player_id, scenario_id=scenario_id)
-        )
+        progress = load_progression(self.store, player_id, scenario_id)
         meta_progression_dict = meta_progression_to_content(progress)
 
         # 9. unlocked_lore
@@ -597,13 +589,9 @@ class RuntimeSessionService:
         self,
         player: PlayerProfile,
         run_summary_memory: WorldMemory,
-    ) -> tuple[WorldMemory, PlayerMemory, PlayerProfile]:
+    ) -> tuple[WorldMemory, MetaProgression, PlayerProfile]:
         scenario_id = str(run_summary_memory.content.get("scenario_id") or "neo-seoul")
-        previous = latest_meta_progression(
-            self.store.list_player_memories(player.player_id),
-            player.player_id,
-            scenario_id,
-        )
+        previous = load_progression(self.store, player.player_id, scenario_id)
         scenario = load_scenario(scenario_id)
         progress, unlocks = evaluate_meta_progression(
             previous,
@@ -618,10 +606,9 @@ class RuntimeSessionService:
             content=updated_content,
             updated_at=utc_now(),
         )
-        meta_memory = _meta_progression_memory(progress)
         updated_traits = traits_with_meta_progression(player.traits, progress)
         updated_player = replace(player, traits=updated_traits, updated_at=utc_now())
-        return updated_summary, meta_memory, updated_player
+        return updated_summary, progress, updated_player
 
     def archive(self, loop_id: str) -> RuntimeSnapshot:
         loop = self._require_loop(loop_id)
@@ -691,10 +678,10 @@ class RuntimeSessionService:
             narrative_shards,
             summary_text,
         )
-        meta_memory: PlayerMemory | None = None
+        meta_progress: MetaProgression | None = None
         snapshot_player = player
         if not has_run_summary:
-            run_summary_memory, meta_memory, snapshot_player = self._apply_meta_progression(
+            run_summary_memory, meta_progress, snapshot_player = self._apply_meta_progression(
                 player,
                 run_summary_memory,
             )
@@ -710,8 +697,8 @@ class RuntimeSessionService:
                 )
             if not has_run_summary:
                 self.store.save_world_memory(run_summary_memory)
-                if meta_memory is not None:
-                    self.store.save_player_memory(meta_memory)
+                if meta_progress is not None:
+                    persist_progression(self.store, meta_progress)
                     self.store.create_player(snapshot_player)
 
         clue_count = len([s for s in narrative_shards if s.kind == "clue"])
@@ -881,7 +868,7 @@ class RuntimeSessionService:
             )
 
         run_summary_memory: WorldMemory | None = None
-        meta_memory: PlayerMemory | None = None
+        meta_progress: MetaProgression | None = None
         snapshot_player = player
         if result.finished and loop.phase is LoopPhase.ENDED:
             world_memories = self.store.list_world_memories(MYTHOS_WORLD_ID)
@@ -904,7 +891,7 @@ class RuntimeSessionService:
                     self.store.list_narrative_shards(loop.player_id, limit=1000),
                     summary_text,
                 )
-                run_summary_memory, meta_memory, snapshot_player = self._apply_meta_progression(
+                run_summary_memory, meta_progress, snapshot_player = self._apply_meta_progression(
                     player,
                     run_summary_memory,
                 )
@@ -921,8 +908,8 @@ class RuntimeSessionService:
                 _save_echo_memory(self.store, loop.player_id, echo)
             if run_summary_memory is not None:
                 self.store.save_world_memory(run_summary_memory)
-                if meta_memory is not None:
-                    self.store.save_player_memory(meta_memory)
+                if meta_progress is not None:
+                    persist_progression(self.store, meta_progress)
                     self.store.create_player(snapshot_player)
 
         image_result = self._maybe_generate_image(options, loop, scene, player.player_id)
@@ -1079,18 +1066,14 @@ class RuntimeSessionService:
 
         if insight > 0:
             scenario_id = str(loop.state.get("scenario_id") or "neo-seoul")
-            previous = latest_meta_progression(
-                self.store.list_player_memories(loop.player_id),
-                loop.player_id,
-                scenario_id,
-            )
+            previous = load_progression(self.store, loop.player_id, scenario_id)
             progress = replace(previous, insight_points=previous.insight_points + insight)
             scenario = load_scenario(scenario_id)
             loop = replace(
                 loop,
                 state=apply_meta_progression_to_state(loop.state, progress, scenario.combat),
             )
-            self.store.save_player_memory(_meta_progression_memory(progress))
+            persist_progression(self.store, progress)
 
         if stability == loop.stability and tension == loop.tension:
             return loop
@@ -1145,15 +1128,13 @@ class RuntimeSessionService:
 
         if dins > 0:
             scenario_id = str(loop.state.get("scenario_id") or "neo-seoul")
-            previous = latest_meta_progression(
-                self.store.list_player_memories(loop.player_id), loop.player_id, scenario_id
-            )
+            previous = load_progression(self.store, loop.player_id, scenario_id)
             progress = replace(previous, insight_points=previous.insight_points + dins)
             scenario = load_scenario(scenario_id)
             loop = replace(
                 loop, state=apply_meta_progression_to_state(loop.state, progress, scenario.combat)
             )
-            self.store.save_player_memory(_meta_progression_memory(progress))
+            persist_progression(self.store, progress)
 
         if dstab or dtens:
             loop = replace(
@@ -1377,14 +1358,10 @@ class RuntimeSessionService:
 
     def _epiphanies_unlocked(self, player: PlayerProfile, loop: LoopState) -> list[str]:
         try:
-            from mythos_runtime.progression import check_mid_run_epiphanies, latest_meta_progression
+            from mythos_runtime.progression import check_mid_run_epiphanies, load_progression
 
             scenario_id = str(loop.state.get("scenario_id") or "neo-seoul")
-            previous = latest_meta_progression(
-                self.store.list_player_memories(player.player_id),
-                player.player_id,
-                scenario_id,
-            )
+            previous = load_progression(self.store, player.player_id, scenario_id)
             events = self.store.list_events(loop.loop_id)
             shards = self.store.list_narrative_shards(player.player_id, limit=1000)
             return check_mid_run_epiphanies(previous, scenario_id, events, shards, loop.loop_id)

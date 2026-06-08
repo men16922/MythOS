@@ -3,6 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Iterator
 from contextlib import contextmanager
+from typing import Any
 
 from mythos_core import (
     AssetRecord,
@@ -100,6 +101,29 @@ class MythOSStore(ABC):
     @abstractmethod
     def list_assets(self, loop_id: str) -> list[AssetRecord]:
         raise NotImplementedError
+
+    # --- Progression (player+scenario 단위 단일 row; append-scan 대체) ---------
+    # 기본 구현은 in-memory 폴백이라 테스트용 fake store가 그대로 동작한다.
+    # PostgresMythOSStore가 실제 player_progression 테이블로 오버라이드한다.
+    def get_progression(self, player_id: str, scenario_id: str) -> dict[str, Any] | None:
+        store = self.__dict__.setdefault("_progression_mem", {})
+        value = store.get((player_id, scenario_id))
+        return dict(value) if value is not None else None
+
+    def save_progression(
+        self, player_id: str, scenario_id: str, content: dict[str, Any]
+    ) -> None:
+        store = self.__dict__.setdefault("_progression_mem", {})
+        store[(player_id, scenario_id)] = dict(content)
+
+    # --- Inventory (loop 단위; 항목은 {"item_id","quantity","equipped"}) --------
+    def list_inventory(self, loop_id: str) -> list[dict[str, Any]]:
+        store = self.__dict__.setdefault("_inventory_mem", {})
+        return [dict(item) for item in store.get(loop_id, [])]
+
+    def set_inventory(self, loop_id: str, items: list[dict[str, Any]]) -> None:
+        store = self.__dict__.setdefault("_inventory_mem", {})
+        store[loop_id] = [dict(item) for item in items]
 
     @contextmanager
     def transaction(self) -> Iterator[None]:

@@ -293,6 +293,92 @@ class PostgresMythOSStore(MythOSStore):
             for row in rows
         ]
 
+    # --- Progression (player_progression 단일 row upsert) ---------------------
+    _PROGRESSION_INT_COLS = (
+        "runs_completed",
+        "insight_points",
+        "total_clues",
+        "total_combats_won",
+        "total_combats_lost",
+    )
+    _PROGRESSION_JSON_COLS = (
+        "unlocked_skills",
+        "learned_skills",
+        "skill_ranks",
+        "unlocked_archetypes",
+        "unlocked_traits",
+        "unlocked_allies",
+        "unlocked_starting_items",
+        "codex_unlocks",
+        "epiphanies_seen",
+        "endings_seen",
+        "allies_met",
+    )
+
+    def get_progression(self, player_id: str, scenario_id: str) -> dict[str, Any] | None:
+        row = self._fetchone(
+            "SELECT * FROM player_progression WHERE player_id = %s AND scenario_id = %s",
+            (player_id, scenario_id),
+        )
+        if row is None:
+            return None
+        content: dict[str, Any] = {"player_id": player_id, "scenario_id": scenario_id}
+        for col in self._PROGRESSION_INT_COLS:
+            content[col] = int(row.get(col) or 0)
+        for col in self._PROGRESSION_JSON_COLS:
+            content[col] = row.get(col)
+        return content
+
+    def save_progression(
+        self, player_id: str, scenario_id: str, content: dict[str, Any]
+    ) -> None:
+        int_vals = [int(content.get(col) or 0) for col in self._PROGRESSION_INT_COLS]
+        json_vals = [Jsonb(content.get(col) or ([] if col != "skill_ranks" else {}))
+                     for col in self._PROGRESSION_JSON_COLS]
+        cols = (*self._PROGRESSION_INT_COLS, *self._PROGRESSION_JSON_COLS)
+        set_clause = ", ".join(f"{col} = EXCLUDED.{col}" for col in cols)
+        placeholders = ", ".join(["%s"] * (2 + len(cols)))
+        self._execute(
+            f"""
+            INSERT INTO player_progression (player_id, scenario_id, {", ".join(cols)})
+            VALUES ({placeholders})
+            ON CONFLICT (player_id, scenario_id) DO UPDATE SET
+              {set_clause}, updated_at = now()
+            """,
+            (player_id, scenario_id, *int_vals, *json_vals),
+        )
+
+    # --- Inventory (loop_inventory; loop 단위) --------------------------------
+    def list_inventory(self, loop_id: str) -> list[dict[str, Any]]:
+        rows = self._fetchall(
+            "SELECT item_id, quantity, equipped FROM loop_inventory "
+            "WHERE loop_id = %s ORDER BY acquired_at, item_id",
+            (loop_id,),
+        )
+        return [
+            {"item_id": r["item_id"], "quantity": int(r["quantity"]), "equipped": bool(r["equipped"])}
+            for r in rows
+        ]
+
+    def set_inventory(self, loop_id: str, items: list[dict[str, Any]]) -> None:
+        with self.transaction():
+            self._execute("DELETE FROM loop_inventory WHERE loop_id = %s", (loop_id,))
+            for item in items:
+                self._execute(
+                    """
+                    INSERT INTO loop_inventory (loop_id, item_id, quantity, equipped)
+                    VALUES (%s, %s, %s, %s)
+                    ON CONFLICT (loop_id, item_id) DO UPDATE SET
+                      quantity = EXCLUDED.quantity, equipped = EXCLUDED.equipped
+                    """,
+                    (
+                        loop_id,
+                        str(item.get("item_id")),
+                        int(item.get("quantity") or 1),
+                        bool(item.get("equipped") or False),
+                    ),
+                )
+
     def save_world_memory(self, memory: WorldMemory) -> None:
         self._execute(
             """

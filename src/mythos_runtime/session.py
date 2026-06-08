@@ -762,6 +762,30 @@ class RuntimeSessionService:
                         base[stat] = base.get(stat, 0) + int(value)
         return base
 
+    def _combat_consumables(self, loop: LoopState, scenario: Any) -> list[dict[str, Any]]:
+        """Usable consumable items (kind=consumable) from the loop inventory."""
+        items_def = scenario.combat.get("items", {}) if isinstance(scenario.combat, dict) else {}
+        inventory = loop.state.get("_inventory", []) if isinstance(loop.state, dict) else []
+        counts: dict[str, int] = {}
+        order: list[str] = []
+        for entry in inventory:
+            item_id = str(entry.get("id") or "") if isinstance(entry, dict) else str(entry)
+            definition = items_def.get(item_id, {}) if isinstance(items_def, dict) else {}
+            if not item_id or not isinstance(definition, dict) or definition.get("kind") != "consumable":
+                continue
+            if item_id not in counts:
+                order.append(item_id)
+            counts[item_id] = counts.get(item_id, 0) + 1
+        return [
+            {
+                "item_id": item_id,
+                "name": items_def[item_id].get("name", item_id),
+                "effect": items_def[item_id].get("effect"),
+                "count": counts[item_id],
+            }
+            for item_id in order
+        ]
+
     def _snapshot_from_loop(
         self, player: PlayerProfile, loop: LoopState, options: RuntimeOptions | None = None
     ) -> RuntimeSnapshot:
@@ -1021,6 +1045,9 @@ class RuntimeSessionService:
                     if encounter_id
                     else {}
                 ),
+                "consumables": self._combat_consumables(
+                    loop, load_scenario(options.scenario_id)
+                ),
             },
             clues_collected=self._clues_collected(player.player_id),
             epiphanies_unlocked=self._epiphanies_unlocked(snapshot_player, loop),
@@ -1072,6 +1099,7 @@ class RuntimeSessionService:
             "covers": dict(state.covers),
             "hazards": dict(state.hazards),
             "encounter": _encounter_meta(encounter),
+            "consumables": self._combat_consumables(loop, scenario),
         }
 
     def _resolved_ending_state(

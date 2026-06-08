@@ -229,12 +229,21 @@ export interface CombatState {
     name?: string;
     learning_goal?: string;
   };
+  consumables?: CombatConsumable[];
+}
+
+export interface CombatConsumable {
+  item_id: string;
+  name: string;
+  effect?: string | null;
+  count: number;
 }
 
 export interface CombatAction {
-  type: "attack" | "defend" | "wait" | "flee" | "skill";
+  type: "attack" | "defend" | "wait" | "flee" | "skill" | "item";
   target_id?: string;
   skill_id?: string;
+  item_id?: string;
   x?: number;
   y?: number;
 }

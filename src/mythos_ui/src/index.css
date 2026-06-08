@@ -690,6 +690,31 @@ main {
   flex-wrap: wrap;
   gap: 8px;
 }
+.cc-item-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  background: rgba(8, 16, 20, 0.6);
+  color: var(--term-dim);
+  cursor: pointer;
+  font-size: 12px;
+}
+.cc-item-btn:hover:not(:disabled) {
+  border-color: var(--term);
+  color: var(--term);
+}
+.cc-item-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.cc-item-count {
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--ink-dim);
+}
 .cc-skill {
   --role-color: var(--term);
   display: flex;

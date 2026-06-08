@@ -209,6 +209,27 @@ export function CombatControls({
               <div className="cc-skill-bar">{available.skills.map(renderSkill)}</div>
             </div>
           )}
+
+          {combat.consumables && combat.consumables.length > 0 && (
+            <div className="cc-section">
+              <div className="cc-label">소모품</div>
+              <div className="cc-skill-bar">
+                {combat.consumables.map((item) => (
+                  <button
+                    key={item.item_id}
+                    type="button"
+                    className="cc-item-btn"
+                    disabled={!isPlayerTurn}
+                    title={item.effect === "heal" ? "체력 회복" : item.effect === "focus" ? "집중 회복" : item.name}
+                    onClick={() => onAction({ type: "item", item_id: item.item_id })}
+                  >
+                    <span className="cc-item-name">{item.name}</span>
+                    <span className="cc-item-count">×{item.count}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>

@@ -5,6 +5,20 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-09 — Neo-Seoul UX 플레이 피드백 Phase B 완료
+
+Phase A(상태/범례/결말/전리품 표시)에 이어 라이브 피드백 잔여 UX 전부 처리:
+- `#5b` 전투 중 소모품 사용 버튼: combat 스냅샷에 `_combat_consumables`(보유 소모품) 노출,
+  CombatControls "소모품" 섹션 → `item` 액션(엔진 기존 지원). 플레이어 턴 게이팅.
+- `#6` TACTICAL BOARD 확대/줌: `drawCombatCanvas`가 `canvas.dataset.boardZoom`을 읽어 배율
+  렌더(모든 호출자 자동 반영), wrapper overflow scroll, 보드 타이틀 −/%/+ 컨트롤(100~250%).
+  `combatCellFromPoint`이 getBoundingClientRect 기반이라 드래그 정합성 유지.
+- `#2` 작전 지도 최소화 + 확대 모달: 기본은 노드 그래프만, "⤢ 확대"로 모달(확대 그래프+범례+설명).
+- `#1` 행동→이동 캡션: 기본 뷰에 "● 현재 → 선택지 고르면 ◌ 다음 줄 이동" 한 줄.
+- `#4` 기억의 별자리 캐릭터 섹션: CodexPanel에 CharacterPanel(스탯/장비/인벤토리) 플레이어 뷰 통합,
+  stale codexLists.inventory 섹션 제거 → snapshot.inventory 단일 소스(전리품+장비 착용 버튼).
+- Verified: make test 269/2 skip, frontend lint/build green. (UX 체감은 사람 플레이 QA.)
+
 ## 2026-06-09 — 데이터모델 통합 패스: progression/inventory/equipment 전용 테이블 (1~4단계 완료)
 
 플레이 피드백("인벤토리/도감/해금이 JSONB에 있는데 전용 테이블로")을 받아 진행도·인벤토리를

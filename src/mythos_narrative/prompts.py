@@ -29,10 +29,13 @@ named "scene"; do not wrap it in any other envelope.
 
 JSON_CONTRACT = {
     "scene": {
+        # narration is intentionally the FIRST field so the streaming extractor
+        # can surface scene text immediately instead of waiting for the model to
+        # emit title/location first (reduces perceived time-to-first-token).
+        "narration": "한국어로 작성된 소설적이고 감각적인 장면 묘사",
         "title": "한국어로 작성된 장면 제목",
         "location": "location id or readable location",
         "scene_type": "static|dynamic|climax",
-        "narration": "한국어로 작성된 소설적이고 감각적인 장면 묘사",
         "objective": "한국어로 작성된 현재 구체적인 작전 목표",
         "action_result": "Success|Partial Success|Failure|null",
         "requested_next_phase": "explore|interact|rewrite|archive|null",
@@ -114,7 +117,6 @@ def _context_prompt(context: NarrativeContext, instruction: str) -> str:
     payload = {
         "instruction": instruction,
         "world": CANONICAL_WORLD_CONTEXT,
-        "contract": JSON_CONTRACT,
         "player": to_json_dict(context.player),
         "loop": to_json_dict(context.loop),
         "turn_index": context.turn_index,
@@ -129,4 +131,14 @@ def _context_prompt(context: NarrativeContext, instruction: str) -> str:
         "player_action": context.player_action,
         "validator_feedback": context.validator_feedback,
     }
-    return json.dumps(payload, ensure_ascii=False, sort_keys=True)
+    body = json.dumps(payload, ensure_ascii=False, sort_keys=True)
+    # The contract is emitted separately WITHOUT sort_keys so the example keeps
+    # its intentional field order (narration first). sort_keys on the dynamic
+    # payload is kept for prompt determinism; the contract is a constant. We also
+    # tell the model to emit fields in this order so streaming surfaces the scene
+    # narration before the choices array (shorter time-to-first-token).
+    contract = json.dumps(JSON_CONTRACT, ensure_ascii=False, indent=2)
+    return (
+        f"{body}\n\nOutput contract — return JSON with fields in exactly this "
+        f"order (narration first):\n{contract}"
+    )

@@ -30,6 +30,33 @@ class NarrativeParserTest(unittest.TestCase):
         self.assertEqual(payload.world_delta.tension, 4)
         self.assertEqual(payload.choices[0].choice_id, "choice_1")
 
+    def test_parses_route_nodes_world_delta(self) -> None:
+        payload = parse_scene_payload(
+            {
+                "scene": {
+                    "title": "Crossroads",
+                    "location": "loc",
+                    "narration": "Two roads diverge.",
+                    "choices": [
+                        {"choice_id": "c1", "label": "Left", "intent": "explore"}
+                    ],
+                    "visual_brief": "A forked alley.",
+                },
+                "world_delta": {
+                    "route_nodes": [
+                        {"type": "clue", "title": "끊긴 송출탑"},
+                        {"type": "combat"},
+                        "garbage",
+                        {"title": "no type — dropped"},
+                    ]
+                },
+            }
+        )
+        nodes = payload.world_delta.route_nodes
+        self.assertEqual(len(nodes), 2)
+        self.assertEqual(nodes[0], {"type": "clue", "title": "끊긴 송출탑"})
+        self.assertEqual(nodes[1], {"type": "combat"})
+
     def test_extracts_json_from_wrapped_text(self) -> None:
         raw = """
         Here is the scene:

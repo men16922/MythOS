@@ -50,7 +50,8 @@ from mythos_runtime.encounter_map import (
     mark_encounter_resolved,
     tick_encounter_map,
 )
-from mythos_runtime.route_map import ROUTE_MAP_KEY, build_route_map
+from mythos_runtime.route_growth import extend_route
+from mythos_runtime.route_map import ROUTE_MAP_KEY, build_route_map, build_route_seed
 from mythos_runtime.route_runtime import (
     advance_route,
     junction_options,
@@ -209,11 +210,17 @@ class RuntimeSessionService:
             len(loops) + 1,
             {"memories": [memory.content for memory in memories]},
         )
-        # Procedurally generate this loop's operation map (deterministic from the
-        # loop seed). Pre-authored story anchors stay fixed; dynamic nodes between
-        # them vary per loop. Scenarios without a route_map config fall back to the
-        # legacy emergent `_map`.
-        route_map = build_route_map(scenario.route_map, loop_seed)
+        # Generate this loop's operation map. Two modes:
+        #  - dynamic (`route_map.mode == "dynamic"`): seed only the backbone
+        #    (anchors + first horizon layers); `extend_route` grows it as the
+        #    player advances, and the LLM may propose nodes. Not seed-reproducible.
+        #  - static (default/legacy): the full deterministic DAG is pre-built.
+        # Scenarios without a route_map config fall back to the legacy `_map`.
+        route_cfg = scenario.route_map if isinstance(scenario.route_map, dict) else None
+        if isinstance(route_cfg, dict) and route_cfg.get("mode") == "dynamic":
+            route_map = build_route_seed(route_cfg, loop_seed)
+        else:
+            route_map = build_route_map(route_cfg, loop_seed)
         if route_map is not None:
             initial_state[ROUTE_MAP_KEY] = route_map
 
@@ -1363,6 +1370,19 @@ class RuntimeSessionService:
                 if candidate and candidate in scenario.combat.get("encounters", {}):
                     route_combat = candidate
 
+                # Dynamic route growth: now that the pointer advanced, thicken the
+                # upcoming horizon layers with the GM's proposed nodes (type-
+                # validated) topped up from authored pools. No-op for static maps.
+                grown_state = extend_route(
+                    transition.loop.state,
+                    seed=transition.loop.seed,
+                    turn_index=scene.turn_index,
+                    proposals=list(payload.world_delta.route_nodes),
+                )
+                transition = replace(
+                    transition, loop=replace(transition.loop, state=grown_state)
+                )
+
         # Route junctions: at a layer boundary, replace this scene's choices with
         # the branch options (next candidate nodes) so the player explicitly picks
         # the next destination. In-layer turns keep the LLM's own choices.
@@ -1480,7 +1500,7 @@ class RuntimeSessionService:
         if not affordable:
             return None
         affordable.sort(key=lambda item: float(item[1].get("weight", 1)), reverse=True)
-        return affordable[0][0]
+        return str(affordable[0][0])
 
     def _persist_narrative_metric(
         self, player_id: str, loop_id: str, metric_total_before: int

@@ -105,20 +105,49 @@ function RouteMapPanel({ routeMap }: { routeMap: RouteMap }) {
     );
   };
 
-  const renderGraph = (mode: RouteGraphMode) => (
-    <div className={`route-graph route-graph-${mode}`}>
-      {layers.map((layerIds, idx) => (
-        <div key={idx} className="route-layer">
-          <div className="route-layer-rail">
-            {idx > 0 && <div className="route-connector" />}
-            <div className="route-layer-nodes">
-              {layerIds.map((id) => renderNode(id, mode))}
+  // Lookahead horizon: dynamic maps only reveal the next HORIZON layers ahead of
+  // the current one (the road past that is fog). Static maps show everything.
+  const HORIZON = 2;
+  const isDynamic = routeMap.mode === "dynamic";
+  const currentLayerIdx =
+    typeof nodes[currentId]?.layer === "number"
+      ? (nodes[currentId]!.layer as number)
+      : Math.max(0, layers.findIndex((ids) => ids.includes(currentId)));
+
+  const renderGraph = (mode: RouteGraphMode) => {
+    // compact: forward-only window [current .. current+HORIZON].
+    // detail: visited history [0 .. current+HORIZON]. Beyond → fog stub.
+    const maxVisible = currentLayerIdx + HORIZON;
+    const minVisible = mode === "compact" ? currentLayerIdx : 0;
+    const hasFog = isDynamic && layers.length - 1 > maxVisible;
+    return (
+      <div className={`route-graph route-graph-${mode}`}>
+        {layers.map((layerIds, idx) => {
+          if (isDynamic && (idx < minVisible || idx > maxVisible)) return null;
+          return (
+            <div key={idx} className="route-layer">
+              <div className="route-layer-rail">
+                {idx > minVisible && <div className="route-connector" />}
+                <div className="route-layer-nodes">
+                  {layerIds.map((id) => renderNode(id, mode))}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+        {hasFog && (
+          <div className="route-layer route-layer-fog">
+            <div className="route-layer-rail">
+              <div className="route-connector" />
+              <div className="route-fog" title="아직 드러나지 않은 구간 — 선택에 따라 길이 생깁니다">
+                ⋯ 미공개 구간
+              </div>
             </div>
           </div>
-        </div>
-      ))}
-    </div>
-  );
+        )}
+      </div>
+    );
+  };
 
   const legend = (
     <div className="route-legend">
@@ -131,7 +160,9 @@ function RouteMapPanel({ routeMap }: { routeMap: RouteMap }) {
       <div>✚ 정비</div>
       <div>✦ 사건</div>
       <div>❒ 대면</div>
+      <div>⋯ 미공개 구간</div>
       <p>위에서 아래로 진행합니다. 강조된 노드가 현재 위치, 다음 줄이 이동 후보입니다.</p>
+      <p>앞으로 2단계까지만 보이며, 그 너머는 선택에 따라 드러납니다(⋯).</p>
       <p>현재 시점과 향하는 결말은 기억의 별자리에서 확인하세요.</p>
     </div>
   );

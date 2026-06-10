@@ -39,6 +39,16 @@ P1 작전 지도 route-node화 + 세션 메모리(→ COMPLETED_SUMMARY M39), Ta
 
 열린 작업:
 
+### 2026-06-10 작전 지도 동적 라우팅 재설계 — 완료(토대)
+
+- `[x]` 동적 작전 지도: backbone seed(`build_route_seed`) + 진행 중 성장(`route_growth.extend_route`),
+  LLM `route_nodes` 제안(타입 제약), anchor 도달 보장(mandatory/gate), UI 2레이어 horizon+fog,
+  결정론 포기(DECISIONS 2026-06-10). 설계 `~/.claude/plans/vectorized-strolling-manatee.md`.
+- `[ ]` 후속(C 선택 결과 반영): gate flag가 라우팅 분기를 실제로 바이어스하도록(현재 도달성만 보장),
+  선택→flag→방문 노드 변화가 장면 기록/지도에 더 선명히.
+- `[ ]` 후속(B 목표): 현재 노드/objective를 막 목표와 정합, 다음 2개 행선지 의미를 선택지 문구에 노출.
+- `[ ]` 후속: 동적 노드 title 다양화·중복 억제, visual prompt에 현재 노드 주입, 정적 시나리오도 점진 전환 검토.
+
 ### 2026-06-10 사람 플레이 QA 발견 (live_qa §0/§1-6) — 1차 결정론 묶음 먼저
 
 - `[ ]` **A 전투 페이스·난이도(P0)**: 초반 N장면 patrol-only 강제, 조우 쿨다운/연속 방지(4턴 2회·즉사 게임오버 방지),

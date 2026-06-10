@@ -25,6 +25,7 @@ ALLOWED_WORLD_DELTA_KEYS = {
     "spawn_encounters",
     "grant_items",
     "hp",
+    "route_nodes",
 }
 
 # JSON schema handed to Ollama (structured outputs) so the model is grammar-constrained
@@ -69,6 +70,17 @@ SCENE_JSON_SCHEMA: dict[str, Any] = {
                 "spawn_encounters": {"type": "array", "items": {"type": "string"}},
                 "grant_items": {"type": "array", "items": {"type": "string"}},
                 "hp": {"type": ["integer", "null"]},
+                "route_nodes": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "type": {"type": "string"},
+                            "title": {"type": "string"},
+                        },
+                        "required": ["type"],
+                    },
+                },
             },
         },
         "end_condition": {"type": ["string", "null"]},
@@ -87,6 +99,10 @@ class WorldDelta:
     spawn_encounters: list[str] = field(default_factory=list)
     grant_items: list[str] = field(default_factory=list)
     hp: int | None = None
+    # Dynamic route map: the Director may propose upcoming destination nodes as
+    # ``{"type": <node_type>, "title": <free text>}``. Consumed by
+    # ``route_growth.extend_route`` (type-validated there).
+    route_nodes: list[dict[str, Any]] = field(default_factory=list)
 
     def as_state_delta(self) -> dict[str, Any]:
         delta: dict[str, Any] = {
@@ -103,6 +119,8 @@ class WorldDelta:
             delta["grant_items"] = list(self.grant_items)
         if self.hp is not None:
             delta["hp"] = self.hp
+        if self.route_nodes:
+            delta["route_nodes"] = [dict(n) for n in self.route_nodes]
         return delta
 
 

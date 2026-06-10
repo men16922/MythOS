@@ -205,7 +205,7 @@ def build_runtime_narrative_context(
     # perspective to narrate it, and which ending the route currently leans to.
     if turn_index >= 3:
         notes.extend(_route_director_notes(scenario, loop))
-        notes.extend(_route_junction_notes(loop, turn_index))
+        notes.extend(_route_junction_notes(scenario, loop, turn_index))
 
     # P1 — 루프 내러티브 잔향 (Slay the Princess) 처리
     run_summaries = [m for m in world_memories if m.kind == "run_summary"]
@@ -417,18 +417,56 @@ def _route_director_notes(scenario: ScenarioConfig, loop: LoopState) -> list[str
     return lines
 
 
-def _route_junction_notes(loop: LoopState, turn_index: int) -> list[str]:
+def _route_junction_notes(scenario: ScenarioConfig, loop: LoopState, turn_index: int) -> list[str]:
     state = loop.state if isinstance(loop.state, dict) else {}
     options = junction_options(state, turn_index=turn_index)
-    if not options:
-        return []
-    kinds = ", ".join(sorted({str(o.get("label")) for o in options if o.get("label")}))
-    return [
-        "=== 작전 갈림길 (ROUTE JUNCTION) ===",
-        "이 장면은 다음 행선지를 정하는 갈림길이다. 장면을 '어디로 갈지 결정해야 하는 긴장된 순간'으로 "
-        "마무리하라. 플레이어에게 제시될 행선지 선택지는 시스템이 작전 노드로 대체하므로, 너는 갈림길에 "
-        f"선 상황과 각 방향의 분위기만 묘사하라. 후보 방향 유형: {kinds}.",
-    ]
+    notes: list[str] = []
+    if options:
+        kinds = ", ".join(sorted({str(o.get("label")) for o in options if o.get("label")}))
+        notes.extend(
+            [
+                "=== 작전 갈림길 (ROUTE JUNCTION) ===",
+                "이 장면은 다음 행선지를 정하는 갈림길이다. 장면을 '어디로 갈지 결정해야 하는 긴장된 순간'으로 "
+                "마무리하라. 플레이어에게 제시될 행선지 선택지는 시스템이 작전 노드로 대체하므로, 너는 갈림길에 "
+                f"선 상황과 각 방향의 분위기만 묘사하라. 후보 방향 유형: {kinds}.",
+            ]
+        )
+
+    # Dynamic route growth: on a dynamic map, invite the GM to author the next
+    # destinations as type-constrained route_nodes (type from the allowed list,
+    # title/flavour free). The system wires mechanics from the type and always
+    # falls back to authored pools, so a missing/invalid proposal is harmless.
+    route_map = state.get("_route_map") if isinstance(state, dict) else None
+    if isinstance(route_map, dict) and route_map.get("mode") == "dynamic":
+        allowed = _route_node_type_menu(scenario)
+        if allowed:
+            notes.extend(
+                [
+                    "=== 동적 작전 노드 제안 (DYNAMIC ROUTE NODES) ===",
+                    "작전 지도는 플레이어 선택에 따라 자라난다. 이야기 전개에 맞는 다음 행선지 1~2개를 "
+                    "`world_delta.route_nodes` 배열로 제안하라. 각 항목은 "
+                    '{"type": <아래 목록 중 하나>, "title": <한국어 행선지 이름>} 형식이다. '
+                    "유형은 기계적 의미(전투/단서/시장 등)를 가지므로 목록에서만 고르고, 제목과 분위기는 "
+                    f"자유롭게 창작하라. 허용 유형: {allowed}. 제안이 없으면 배열을 비워도 된다.",
+                ]
+            )
+    return notes
+
+
+def _route_node_type_menu(scenario: ScenarioConfig) -> str:
+    route_cfg = scenario.route_map if isinstance(scenario.route_map, dict) else {}
+    node_types = route_cfg.get("node_types") if isinstance(route_cfg, dict) else None
+    if not isinstance(node_types, dict):
+        return ""
+    # Exclude structural anchors the GM should not mint (story spine / boss).
+    skip = {"story", "boss"}
+    parts = []
+    for type_id, spec in node_types.items():
+        if type_id in skip:
+            continue
+        label = spec.get("label", type_id) if isinstance(spec, dict) else type_id
+        parts.append(f"{type_id}({label})")
+    return ", ".join(parts)
 
 
 def _scenario_structure_notes(scenario: ScenarioConfig) -> list[str]:

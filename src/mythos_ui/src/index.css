@@ -1581,6 +1581,16 @@ main {
   flex-wrap: nowrap;
   gap: 10px;
 }
+.route-fog {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--ink-dim);
+  opacity: 0.7;
+  padding: 4px 10px;
+  border: 1px dashed var(--line-soft);
+  border-radius: 6px;
+  background: rgba(8, 16, 20, 0.35);
+}
 .route-node {
   display: flex;
   flex-direction: column;

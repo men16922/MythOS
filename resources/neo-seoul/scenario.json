@@ -211,7 +211,8 @@
     }
   },
   "route_map": {
-    "_doc": "결정적 절차 생성 작전 지도. 임팩트 있는 스토리 비트는 anchors(사전 저작 비트+큐레이트 이미지)로 고정하고, 그 사이 과정은 pool/width 동적 노드(LLM 묘사)로 매 루프 랜덤 배치한다. layers는 golden_path 6막에 매핑된다.",
+    "mode": "dynamic",
+    "_doc": "동적 작전 지도(mode=dynamic). 시작 시 backbone(anchors + 앞 horizon 레이어)만 seed로 깔고, 진행하며 route_growth.extend_route가 LLM 제안/pool로 다음 레이어를 채운다. 노드 수는 선택에 따라 자란다. mandatory anchor(오프닝/보스)는 필수 통과, 그 외 anchor는 gate(분기, ≥1 경로로는 항상 도달). 결정적 절차 생성 작전 지도. 임팩트 있는 스토리 비트는 anchors(사전 저작 비트+큐레이트 이미지)로 고정하고, 그 사이 과정은 pool/width 동적 노드(LLM 묘사)로 매 루프 랜덤 배치한다. layers는 golden_path 6막에 매핑된다.",
     "node_types": {
       "story": {"label": "주요 장면", "glyph": "◆", "risk": 0, "combat": false, "reward": {}, "titles": ["전환의 길목", "예고된 장면", "분기의 순간"]},
       "clue": {"label": "단서", "glyph": "❖", "risk": 1, "combat": false, "reward": {"insight": 1}, "titles": ["버려진 단말", "암호화된 흔적", "낡은 기록 보관함", "유출된 로그", "지워진 명단 조각"]},
@@ -235,6 +236,7 @@
         "anchors": [
           {
             "type": "story",
+            "mandatory": true,
             "beat": "opening_escape",
             "title": "추락과 첫 신뢰",
             "image": "scenes/opening_escape.png",
@@ -281,6 +283,7 @@
         "anchors": [
           {
             "type": "market",
+            "gate": ["met_se_rin"],
             "beat": "night_market",
             "title": "한강 야시장",
             "image": "scenes/night_market.png",
@@ -335,6 +338,7 @@
         "anchors": [
           {
             "type": "event",
+            "gate": ["lin_yue_deal"],
             "beat": "kai_awakening",
             "title": "카이 재가동",
             "image": "scenes/kai_awakening.png",
@@ -383,6 +387,7 @@
         "anchors": [
           {
             "type": "story",
+            "gate": ["kai_awakened"],
             "beat": "spire_gate",
             "title": "스파이어 접근",
             "image": "scenes/spire_gate.png",
@@ -431,6 +436,7 @@
         "anchors": [
           {
             "type": "boss",
+            "mandatory": true,
             "beat": "ix_confrontation",
             "title": "관리자 IX 대면",
             "image": "scenes/ix_confrontation.png",

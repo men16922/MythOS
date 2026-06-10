@@ -2,6 +2,30 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-06-10
+
+### 동적 작전 지도(route map) — seed 결정론 재현성 포기
+
+Decision: 작전 지도를 "루프 시작 시 전체 DAG를 seed 결정론으로 완성"하던 모델에서, **backbone seed +
+진행 중 동적 성장** 모델로 전환한다(`route_map.mode == "dynamic"`). 시작 시에는 anchor 골격과 앞
+`horizon`(기본 2) 레이어만 깔고(`build_route_seed`), 플레이어가 전진하면 `route_growth.extend_route`가
+다음 레이어를 **LLM 제안(`world_delta.route_nodes`, 타입 제약+자유 서술) + authored pool 폴백**으로
+채운다. 그 결과 **같은 seed라도 rerun 시 동일 노드를 보장하지 않는다**(기존 `route_map.py`의 결정론
+철학을 dynamic 모드에서 폐기). legacy 정적 모드(`build_route_map`)는 mode 미지정 시나리오용으로 유지.
+
+Reason: 2026-06-10 사람 플레이 QA에서 "선택해도 스토리가 안 바뀐다 / 어느 루트로 가는지 모르겠다 /
+무의미한 텍스트가 흘러간다"는 피드백이 나왔다. 전체가 미리 정해진 정적 지도는 선택의 결과 체감과
+재플레이 동기를 약화시킨다. 사용자 요구는 "앞 2막만 보이고, 선택에 따라 지도가 자라며, 주요 장면은
+분기로 반드시 도달 가능"한 살아있는 지도다. 이를 위해선 동적 생성이 필수이고, 그 대가로 seed 재현성을
+포기한다(루프형 게임이라 rerun 동일성보다 선택 다양성이 가치가 크다).
+
+Impact: 동적 노드는 `loop.state["_route_map"]`에 영속되어 **같은 세션 내에선 안정**(저장/복원 시 동일).
+anchor 도달 보장은 `extend_route`의 reachability guard(`_reachable_from` 재사용)가 매 성장마다 강제 —
+mandatory anchor(오프닝/보스, sole-layer 구조로 필수 통과)와 gate anchor(분기, ≥1 경로 도달)가 끊기지
+않는다. UI(`GameAside`)는 현재 기준 앞 2레이어만 노출하고 그 너머는 fog(⋯)로 가린다. 정적 시나리오
+(glass-library 등)는 mode 미지정으로 회귀 없음. 관련 구현: `route_map.build_route_seed`,
+`route_growth.extend_route`, `schemas.WorldDelta.route_nodes`, `session.py` seed/extend 배선.
+
 ## 2026-06-09
 
 ### Progression/Inventory를 JSONB-on-row에서 전용 테이블로 분리

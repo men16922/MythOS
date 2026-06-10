@@ -357,6 +357,21 @@ def _parse_world_delta(value: Any, errors: list[str]) -> WorldDelta:
         errors.append("world_delta.hp must be integer or null")
         hp = None
 
+    # route_nodes: dynamic route proposals. Keep only well-formed {type[, title]}
+    # objects; node-type validity is enforced later by route_growth against the
+    # scenario's node_types, so a stray type here is tolerated (not an error).
+    route_nodes: list[dict[str, Any]] = []
+    raw_route_nodes = value.get("route_nodes", [])
+    if isinstance(raw_route_nodes, list):
+        for item in raw_route_nodes:
+            if isinstance(item, dict) and isinstance(item.get("type"), str):
+                node: dict[str, Any] = {"type": item["type"]}
+                if isinstance(item.get("title"), str):
+                    node["title"] = item["title"]
+                route_nodes.append(node)
+    elif raw_route_nodes:
+        errors.append("world_delta.route_nodes must be a list of objects")
+
     return WorldDelta(
         stability=stability,
         tension=tension,
@@ -366,6 +381,7 @@ def _parse_world_delta(value: Any, errors: list[str]) -> WorldDelta:
         spawn_encounters=spawn_encounters,
         grant_items=grant_items,
         hp=hp,
+        route_nodes=route_nodes,
     )
 
 

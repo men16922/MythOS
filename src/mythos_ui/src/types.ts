@@ -302,6 +302,9 @@ export interface RouteNode {
   reward?: Record<string, number>;
   combat?: boolean;
   anchor?: boolean;
+  origin?: "anchor" | "dynamic";
+  mandatory?: boolean;
+  gate?: string[];
   col?: number;
   beat?: string;
   image?: string;
@@ -312,6 +315,8 @@ export interface RouteNode {
 
 export interface RouteMap {
   version?: number;
+  mode?: "dynamic" | string;
+  horizon?: number;
   current?: string;
   visited?: string[];
   nodes?: Record<string, RouteNode>;

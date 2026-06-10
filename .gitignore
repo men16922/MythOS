@@ -24,6 +24,7 @@ outputs/*
 
 # AI Agent Junk
 .claude/
+.agents/
 .gemini/
 .playwright-mcp/
 .antigravitycli/

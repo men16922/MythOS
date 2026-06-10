@@ -5,6 +5,23 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-10 — 작전 지도 동적 라우팅 재설계 (Dynamic Route Map)
+
+플레이 피드백(선택해도 스토리 동일/루트 불명/무의미 텍스트) 대응으로 작전 지도를 정적 DAG →
+**backbone seed + 진행 중 동적 성장** 모델로 전환. 설계: `~/.claude/plans/vectorized-strolling-manatee.md`.
+
+- `route_map.build_route_seed`: 시작 시 anchor 골격 + 앞 horizon(2) 레이어만 seed(이후는 anchor stub).
+  node에 origin/mandatory/gate 추가, `_reachable_from` 도달성 헬퍼 추출(`build_route_map` 정적 경로 유지).
+- 신규 `route_growth.extend_route`: 전진 시 다음 레이어를 LLM 제안(`world_delta.route_nodes`, 타입 제약+
+  자유 서술)+pool 폴백으로 채움. anchor 도달 보장 guard(mandatory 필수통과·gate ≥1 경로) + 연결성 repair.
+- schemas/parser: `route_nodes` world_delta 허용/스키마/검증(미허용 타입 드롭). scenario_context: junction
+  근처에서 노드 제안 지시 + 허용 타입 메뉴. session: mode 분기 seed + layer 전진 시 extend 배선.
+- neo-seoul `route_map.mode=dynamic`, 오프닝/보스 anchor `mandatory`, 중간 anchor `gate`(met_se_rin 등).
+- UI(`GameAside`): 현재 기준 앞 2레이어만 표시, 그 너머 fog(⋯) stub + 범례/types 갱신.
+- 결정: route map seed 결정론 재현성 포기(동적 우선) — `DECISIONS.md` 2026-06-10 기록.
+- Verified: make test 284/2 skip(+route_growth 9·parser 1), mypy 신규 0, frontend lint/build,
+  in-process 통합(실세션 16턴서 레이어 [1,3,3,1,1,1]→[1,3,3,3,3,1] 성장·전 anchor 도달·avoid/combat 유지).
+
 ## 2026-06-10 — 사람 풀스택 플레이 QA 발견 (live_qa §0/§1-6, 25건)
 
 `make dev-up`(redis-commander 8081 충돌로 제외, 핵심 인프라+worker+API) 실측 플레이. `[!]` 25건.

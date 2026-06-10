@@ -754,7 +754,7 @@ class RuntimeSessionService:
         for entry in inventory:
             if not isinstance(entry, dict) or not entry.get("equipped"):
                 continue
-            definition = items.get(str(entry.get("id") or ""), {})
+            definition = items.get(str(entry.get("id") or entry.get("item_id") or ""), {})
             bonus = definition.get("stats") if isinstance(definition, dict) else None
             if isinstance(bonus, dict):
                 for stat, value in bonus.items():
@@ -769,7 +769,11 @@ class RuntimeSessionService:
         counts: dict[str, int] = {}
         order: list[str] = []
         for entry in inventory:
-            item_id = str(entry.get("id") or "") if isinstance(entry, dict) else str(entry)
+            item_id = (
+                str(entry.get("id") or entry.get("item_id") or "")
+                if isinstance(entry, dict)
+                else str(entry)
+            )
             definition = items_def.get(item_id, {}) if isinstance(items_def, dict) else {}
             if not item_id or not isinstance(definition, dict) or definition.get("kind") != "consumable":
                 continue
@@ -823,8 +827,9 @@ class RuntimeSessionService:
                 updated.append(entry)
                 continue
             entry = dict(entry)
-            eid = str(entry.get("id") or "")
+            eid = str(entry.get("id") or entry.get("item_id") or "")
             if eid == item_id:
+                entry["id"] = eid
                 entry["equipped"] = bool(equipped)
             elif equipped and target_slot is not None:
                 # only one item per slot may be worn

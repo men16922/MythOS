@@ -83,12 +83,18 @@ def _resolve_inventory(state: dict[str, Any]) -> list[dict[str, Any]]:
     fields: dict[str, dict[str, Any]] = {}
     for entry in raw:
         if isinstance(entry, dict):
-            item_id = str(entry.get("id") or entry.get("name") or "item")
+            item_id = str(entry.get("id") or entry.get("item_id") or entry.get("name") or "item")
             source = entry
         else:
             item_id = str(entry)
             source = {}
         definition = items_def.get(item_id, {}) if isinstance(items_def, dict) else {}
+        quantity = 1
+        if isinstance(source, dict):
+            try:
+                quantity = max(1, int(source.get("quantity") or source.get("count") or 1))
+            except (TypeError, ValueError):
+                quantity = 1
         if item_id not in counts:
             order.append(item_id)
             fields[item_id] = {
@@ -97,13 +103,13 @@ def _resolve_inventory(state: dict[str, Any]) -> list[dict[str, Any]]:
                 "rarity": source.get("rarity") or definition.get("rarity"),
                 "effect": source.get("effect") or definition.get("effect"),
                 # equipment metadata (slot/stats from scenario def; equipped from state)
-                "slot": definition.get("slot"),
-                "stats": definition.get("stats") if isinstance(definition, dict) else None,
+                "slot": source.get("slot") or definition.get("slot"),
+                "stats": source.get("stats") or (definition.get("stats") if isinstance(definition, dict) else None),
                 "equipped": bool(source.get("equipped")),
             }
         elif isinstance(source, dict) and source.get("equipped"):
             fields[item_id]["equipped"] = True
-        counts[item_id] = counts.get(item_id, 0) + 1
+        counts[item_id] = counts.get(item_id, 0) + quantity
 
     return [{"id": item_id, "count": counts[item_id], **fields[item_id]} for item_id in order]
 

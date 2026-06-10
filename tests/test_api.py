@@ -21,6 +21,7 @@ from fastapi.testclient import TestClient
 from test_session_combat import _InMemoryStore, _seed_loop
 
 from mythos_api.app import _find_asset, _terminal_visual_frame, create_app
+from mythos_api.serializers import _resolve_inventory
 from mythos_api.service import get_service, get_storage_adapter
 from mythos_core import AssetRecord
 from mythos_runtime.session import RuntimeSessionService
@@ -62,6 +63,26 @@ class ApiHealthTest(unittest.TestCase):
         response = client.get("/api/v1/health")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"status": "ok"})
+
+
+class ApiSerializerTest(unittest.TestCase):
+    def test_resolve_inventory_accepts_table_form_equipment(self) -> None:
+        inventory = _resolve_inventory(
+            {
+                "scenario_id": "neo-seoul",
+                "_inventory": [
+                    {"item_id": "signal_blade", "quantity": 1, "equipped": True},
+                    {"item_id": "nanopatch", "quantity": 2, "equipped": False},
+                ],
+            }
+        )
+
+        by_id = {item["id"]: item for item in inventory}
+        self.assertEqual(by_id["signal_blade"]["kind"], "equipment")
+        self.assertEqual(by_id["signal_blade"]["slot"], "weapon")
+        self.assertEqual(by_id["signal_blade"]["stats"], {"strength": 2})
+        self.assertTrue(by_id["signal_blade"]["equipped"])
+        self.assertEqual(by_id["nanopatch"]["count"], 2)
 
 
 class ApiStaticClientTest(unittest.TestCase):

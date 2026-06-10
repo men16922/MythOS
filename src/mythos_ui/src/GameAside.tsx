@@ -45,6 +45,8 @@ function rewardSummary(reward?: Record<string, number>): string {
   return parts.join(" · ");
 }
 
+type RouteGraphMode = "compact" | "detail";
+
 function RouteMapPanel({ routeMap }: { routeMap: RouteMap }) {
   const [expanded, setExpanded] = useState(false);
   const nodes = routeMap.nodes || {};
@@ -56,7 +58,7 @@ function RouteMapPanel({ routeMap }: { routeMap: RouteMap }) {
 
   if (layers.length === 0) return null;
 
-  const renderNode = (id: string) => {
+  const renderNode = (id: string, mode: RouteGraphMode) => {
     const node: RouteNode | undefined = nodes[id];
     if (!node) return null;
     const isCurrent = id === currentId;
@@ -64,6 +66,7 @@ function RouteMapPanel({ routeMap }: { routeMap: RouteMap }) {
     const isVisited = visited.has(id) && !isCurrent;
     const cls = [
       "route-node",
+      `route-node-${mode}`,
       `route-${node.type}`,
       isCurrent ? "route-current" : "",
       isNext ? "route-next" : "",
@@ -86,28 +89,31 @@ function RouteMapPanel({ routeMap }: { routeMap: RouteMap }) {
     ]
       .filter(Boolean)
       .join("\n");
+    const label = mode === "detail" ? node.title || node.label : node.label;
     return (
       <div key={id} className={cls} title={title}>
         <span className="route-glyph">{node.glyph || "?"}</span>
         <span className="route-label">
           {node.anchor && <span className="route-anchor">★</span>}
-          {node.label}
+          {label}
         </span>
-        {perspectives.length > 1 && (
+        {mode === "detail" && perspectives.length > 1 && (
           <span className="route-lenses">⑂ 관점 {perspectives.length}</span>
         )}
-        {reward && <span className="route-reward">{reward}</span>}
+        {mode === "detail" && reward && <span className="route-reward">{reward}</span>}
       </div>
     );
   };
 
-  const graph = (
-    <div className="route-graph">
+  const renderGraph = (mode: RouteGraphMode) => (
+    <div className={`route-graph route-graph-${mode}`}>
       {layers.map((layerIds, idx) => (
         <div key={idx} className="route-layer">
           <div className="route-layer-rail">
             {idx > 0 && <div className="route-connector" />}
-            <div className="route-layer-nodes">{layerIds.map(renderNode)}</div>
+            <div className="route-layer-nodes">
+              {layerIds.map((id) => renderNode(id, mode))}
+            </div>
           </div>
         </div>
       ))}
@@ -115,17 +121,19 @@ function RouteMapPanel({ routeMap }: { routeMap: RouteMap }) {
   );
 
   const legend = (
-    <>
-      <div className="sub" style={{ fontSize: "11px", color: "var(--ink-dim)", marginTop: "6px" }}>
-        ★ 고정 스토리 · ◆ 장면 · ❖ 단서 · ⚔ 전투 · ◎ 순찰 · ▣ 시장 · ✚ 정비 · ✦ 사건 · ❒ 대면
-      </div>
-      <div className="sub" style={{ fontSize: "11px", color: "var(--ink-dim)", marginTop: "6px" }}>
-        위에서 아래로 진행합니다. 강조된 노드가 현재 위치, 그 다음 줄이 이동 후보입니다.
-      </div>
-      <div className="sub" style={{ fontSize: "10px", color: "var(--ink-dim)", marginTop: "6px", opacity: 0.8 }}>
-        현재 시점·향하는 결말은 기억의 별자리에서 확인하세요.
-      </div>
-    </>
+    <div className="route-legend">
+      <div>★ 고정 스토리</div>
+      <div>◆ 장면</div>
+      <div>❖ 단서</div>
+      <div>⚔ 전투</div>
+      <div>◎ 순찰</div>
+      <div>▣ 시장</div>
+      <div>✚ 정비</div>
+      <div>✦ 사건</div>
+      <div>❒ 대면</div>
+      <p>위에서 아래로 진행합니다. 강조된 노드가 현재 위치, 다음 줄이 이동 후보입니다.</p>
+      <p>현재 시점과 향하는 결말은 기억의 별자리에서 확인하세요.</p>
+    </div>
   );
 
   return (
@@ -142,7 +150,7 @@ function RouteMapPanel({ routeMap }: { routeMap: RouteMap }) {
         </button>
       </div>
       {/* Minimal by default: graph + a one-line movement cue (choice → move). */}
-      {graph}
+      {renderGraph("compact")}
       <div className="route-move-cue">
         <span className="route-cue-dot cur" /> 현재 위치
         <span className="route-cue-arrow">→</span>
@@ -167,7 +175,7 @@ function RouteMapPanel({ routeMap }: { routeMap: RouteMap }) {
                 닫기 ✕
               </button>
             </div>
-            <div className="route-map-modal-graph">{graph}</div>
+            <div className="route-map-modal-graph">{renderGraph("detail")}</div>
             {legend}
           </div>
         </div>

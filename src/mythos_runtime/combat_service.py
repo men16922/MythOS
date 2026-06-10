@@ -353,7 +353,7 @@ class CombatService:
     @staticmethod
     def _item_id(entry: Any) -> str:
         if isinstance(entry, dict):
-            return str(entry.get("id", ""))
+            return str(entry.get("id") or entry.get("item_id") or "")
         return str(entry)
 
     @classmethod

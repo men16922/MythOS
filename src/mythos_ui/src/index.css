@@ -683,6 +683,17 @@ main {
   color: var(--ink-dim);
   margin-top: 4px;
 }
+.cc-empty {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 6px 10px;
+  border: 1px dashed var(--line-soft);
+  border-radius: 6px;
+  color: var(--ink-dim);
+  font-size: 11px;
+  opacity: 0.72;
+}
 
 /* Skill icon action bar (Phase 4) */
 .cc-skill-bar {
@@ -1525,17 +1536,17 @@ main {
   background: var(--panel-1, #050d0c);
   border: 1px solid var(--term);
   border-radius: 8px;
-  padding: 18px;
-  max-width: 560px;
+  padding: 20px;
+  max-width: min(920px, calc(100vw - 40px));
   width: 100%;
   max-height: 86vh;
   overflow: auto;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
 }
 .route-map-modal-graph {
-  transform: scale(1.15);
-  transform-origin: top center;
-  margin: 16px 0 28px;
+  margin: 14px 0 16px;
+  overflow-x: auto;
+  padding-bottom: 6px;
 }
 .route-graph {
   display: flex;
@@ -1546,6 +1557,9 @@ main {
   background: var(--panel-1);
   margin-bottom: 6px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+}
+.route-graph-detail {
+  min-width: min-content;
 }
 .route-layer-rail {
   display: flex;
@@ -1563,11 +1577,14 @@ main {
   justify-content: center;
   gap: 6px;
 }
+.route-graph-detail .route-layer-nodes {
+  flex-wrap: nowrap;
+  gap: 10px;
+}
 .route-node {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 60px;
   padding: 5px 7px;
   border: 1px solid var(--line);
   border-radius: 6px;
@@ -1577,12 +1594,30 @@ main {
   line-height: 1.25;
   text-align: center;
 }
+.route-node-compact {
+  min-width: 50px;
+  max-width: 74px;
+}
+.route-node-detail {
+  min-width: 118px;
+  max-width: 160px;
+  padding: 7px 9px;
+}
 .route-glyph {
   font-family: monospace;
   font-size: 15px;
 }
 .route-label {
   white-space: nowrap;
+}
+.route-node-compact .route-label {
+  max-width: 62px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.route-node-detail .route-label {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 .route-anchor {
   color: var(--gold, #ffd479);
@@ -1619,6 +1654,21 @@ main {
   border-color: var(--term);
   box-shadow: 0 0 6px rgba(41, 255, 198, 0.4);
   color: var(--term);
+}
+.route-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+  gap: 6px 10px;
+  color: var(--ink-dim);
+  font-size: 11px;
+  line-height: 1.5;
+  border-top: 1px solid var(--line-soft);
+  padding-top: 12px;
+}
+.route-legend p {
+  grid-column: 1 / -1;
+  margin: 2px 0 0;
+  opacity: 0.85;
 }
 .route-active-lens {
   margin-top: 8px;
@@ -2221,21 +2271,72 @@ main {
   background: rgba(0, 5, 4, 0.4);
 }
 .char-inventory {
-  margin: 4px 0 0;
-  padding: 0;
-  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin: 7px 0 0;
   font-size: 12px;
   color: var(--ink-dim);
-  line-height: 1.6;
+}
+.char-inventory .inv-group {
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  background: rgba(0, 5, 4, 0.32);
+  overflow: hidden;
+}
+.char-inventory .inv-group-title {
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--ink-dim);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  background: rgba(41, 255, 198, 0.035);
+}
+.char-inventory .inv-group-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 .char-inventory .inv-item {
-  display: flex;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
   align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 7px 8px;
+}
+.char-inventory .inv-item + .inv-item {
+  border-top: 1px solid rgba(143, 255, 234, 0.08);
+}
+.char-inventory .inv-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--line-soft);
+  border-radius: 5px;
+  color: var(--term-dim);
+  background: rgba(41, 255, 198, 0.05);
+}
+.char-inventory .inv-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.char-inventory .inv-name-row {
+  display: flex;
+  align-items: baseline;
   gap: 6px;
-  padding: 2px 0;
+  min-width: 0;
 }
 .char-inventory .inv-name {
   color: var(--term-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .char-inventory .inv-item.inv-consumable .inv-name {
   color: var(--term);
@@ -2245,21 +2346,26 @@ main {
   font-family: monospace;
   font-size: 11px;
 }
-.char-inventory .inv-tag {
-  font-size: 9px;
-  padding: 1px 5px;
-  border: 1px solid var(--line-soft);
-  border-radius: 4px;
-  color: var(--term-dim);
+.char-inventory .inv-meta {
+  color: var(--ink-dim);
+  font-size: 10px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 .char-inventory .inv-item.inv-equipped .inv-name {
   color: var(--term);
   font-weight: 600;
 }
+.char-inventory .inv-item.inv-equipped .inv-icon {
+  border-color: var(--term);
+  color: var(--term);
+  box-shadow: 0 0 8px rgba(41, 255, 198, 0.22);
+}
 .char-inventory .inv-equip-btn {
-  margin-left: auto;
-  font-size: 9px;
-  padding: 1px 7px;
+  align-self: center;
+  min-width: 42px;
+  font-size: 10px;
+  padding: 4px 8px;
   border: 1px solid var(--line-soft);
   border-radius: 4px;
   background: transparent;

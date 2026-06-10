@@ -210,9 +210,9 @@ export function CombatControls({
             </div>
           )}
 
-          {combat.consumables && combat.consumables.length > 0 && (
-            <div className="cc-section">
-              <div className="cc-label">소모품</div>
+          <div className="cc-section">
+            <div className="cc-label">소모품</div>
+            {combat.consumables && combat.consumables.length > 0 ? (
               <div className="cc-skill-bar">
                 {combat.consumables.map((item) => (
                   <button
@@ -228,8 +228,10 @@ export function CombatControls({
                   </button>
                 ))}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="cc-empty">사용 가능한 소모품 없음</div>
+            )}
+          </div>
         </>
       )}
     </div>

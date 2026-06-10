@@ -1,9 +1,18 @@
 # Progress Log
 
-최종 갱신: 2026-06-08
+최종 갱신: 2026-06-09
 
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
+
+## 2026-06-09 — Live QA 발견 UX 후속 4건 처리
+
+`docs/neo_seoul_live_qa.md` §0′ 후속 후보를 우선순위대로 처리:
+- 작전 지도: 기본 compact 그래프와 상세 모달 그래프를 분리, 모달 폭/스크롤/범례 grid 재배치로 텍스트·범례 겹침 제거.
+- 인벤토리: 기억의 별자리 CharacterPanel을 무기/방어구/소모품/재료/키/데이터 분류 + lucide 아이콘 기반 RPG형 목록으로 재구성.
+- 장비 버튼: `item_id` table-form 인벤토리도 equipment 정의/slot/stats/equipped로 해석하도록 serializer/runtime/combat item id 경로 보강, 회귀 테스트 추가.
+- 전투 소모품: 보유 0개일 때도 "소모품" 섹션과 빈 상태를 표시.
+- Verified: `python -m unittest tests.test_api.ApiSerializerTest tests.test_session_combat.SessionCombatTest.test_equip_item_toggles_and_applies_stat_bonus`, `make test` 270/2 skip, `make frontend-lint`, `make frontend-build`.
 
 ## 2026-06-09 — Neo-Seoul UX 플레이 피드백 Phase B 완료
 

@@ -959,7 +959,7 @@ export default function App() {
 
   const [boardZoom, setBoardZoom] = useState(1);
   const handleBoardZoom = (next: number) => {
-    const z = Math.min(2.5, Math.max(1, Math.round(next * 10) / 10));
+    const z = Math.min(2.5, Math.max(1, Math.round(next * 4) / 4));
     setBoardZoom(z);
     if (canvasRef.current) {
       canvasRef.current.dataset.boardZoom = String(z);

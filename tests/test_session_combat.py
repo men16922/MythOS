@@ -465,6 +465,42 @@ class SessionCombatTest(unittest.TestCase):
             self.assertTrue(director.summary_calls)
             self.assertNotIn(True, director.summary_calls)
 
+    def _gate_loop(self, **state: Any) -> LoopState:
+        loop = self.store.get_loop(self.loop_id)
+        assert loop is not None
+        return replace(loop, state=state)
+
+    def test_gate_caps_early_combat_difficulty(self) -> None:
+        # First combat (combat_count=0) must stay tutorial-tier: an enforcer
+        # (risk 4) is downgraded to a risk<=1 encounter so it cannot one-shot.
+        loop = self._gate_loop(_combat_count=0)
+        gated = self.service._gate_next_combat(loop, 4, "enforcer_standoff", self.options)
+        self.assertEqual(gated, "patrol_ambush")
+
+    def test_gate_allows_hard_combat_after_enough_wins(self) -> None:
+        loop = self._gate_loop(_combat_count=3)
+        gated = self.service._gate_next_combat(loop, 10, "enforcer_standoff", self.options)
+        self.assertEqual(gated, "enforcer_standoff")
+
+    def test_gate_suppresses_back_to_back_combat(self) -> None:
+        # A combat resolved on turn 4; a new one on turn 6 is within cooldown.
+        loop = self._gate_loop(_combat_count=1, _last_combat_turn=4)
+        self.assertIsNone(
+            self.service._gate_next_combat(loop, 6, "patrol_ambush", self.options)
+        )
+        # Past the cooldown window it is allowed again.
+        self.assertEqual(
+            self.service._gate_next_combat(loop, 8, "patrol_ambush", self.options),
+            "patrol_ambush",
+        )
+
+    def test_gate_high_pressure_overrides_cooldown(self) -> None:
+        loop = replace(self._gate_loop(_combat_count=1, _last_combat_turn=4), tension=85)
+        self.assertEqual(
+            self.service._gate_next_combat(loop, 5, "patrol_ambush", self.options),
+            "patrol_ambush",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -39,7 +39,12 @@ from mythos_runtime.combat_session_helpers import (
     _encounter_meta,
     _requested_combat_id,
 )
-from mythos_runtime.constants import MYTHOS_WORLD_ID
+from mythos_runtime.constants import (
+    COMBAT_COOLDOWN_PRESSURE_TENSION,
+    COMBAT_COOLDOWN_SCENES,
+    COMBAT_RISK_CAP_BY_COUNT,
+    MYTHOS_WORLD_ID,
+)
 from mythos_runtime.encounter_map import (
     mark_encounter_alerted,
     mark_encounter_resolved,
@@ -995,6 +1000,15 @@ class RuntimeSessionService:
                     run_summary_memory,
                 )
 
+        if result.finished and isinstance(loop.state, dict):
+            # Stamp combat pacing markers so the narrative path can enforce a
+            # cooldown (no back-to-back combat) and an early-game difficulty cap.
+            stamped = dict(loop.state)
+            stamped["_last_combat_turn"] = turn_index
+            if result.outcome == "player_victory":
+                stamped["_combat_count"] = int(stamped.get("_combat_count", 0)) + 1
+            loop = replace(loop, state=stamped)
+
         with self.store.transaction():
             self.store.save_loop(loop)
             self.store.save_scene(scene)
@@ -1413,9 +1427,60 @@ class RuntimeSessionService:
         if scenario_id == "neo-seoul" and scene.turn_index < 2:
             requested_combat = None
         next_combat = requested_combat or triggered_combat or route_combat
+        next_combat = self._gate_next_combat(
+            transition.loop, scene.turn_index, next_combat, options
+        )
         if next_combat and not CombatService.is_active(transition.loop):
             return self._begin_requested_combat(player, transition.loop, next_combat, options)
         return snapshot
+
+    def _gate_next_combat(
+        self,
+        loop: LoopState,
+        turn_index: int,
+        candidate: str | None,
+        options: RuntimeOptions,
+    ) -> str | None:
+        """Apply combat pacing to a candidate encounter on the narrative path.
+
+        Two guards address live-play findings (4턴 2회 + 조기 enforcer 즉사):
+        - cooldown: suppress a new combat if the last one was within
+          ``COMBAT_COOLDOWN_SCENES`` scenes, unless tension is high enough that
+          a fight is story-justified.
+        - early difficulty cap: downgrade encounters whose ``risk`` exceeds the
+          tier unlocked by the number of combats already won, so the opening
+          fights stay tutorial-tier and ramp as the player learns.
+        """
+        if not candidate or not isinstance(loop.state, dict):
+            return candidate
+        scenario = load_scenario(options.scenario_id)
+        encounters = scenario.combat.get("encounters", {})
+        if not isinstance(encounters, dict) or candidate not in encounters:
+            return candidate
+
+        last_combat = loop.state.get("_last_combat_turn")
+        if isinstance(last_combat, int):
+            within_cooldown = (turn_index - last_combat) < COMBAT_COOLDOWN_SCENES
+            high_pressure = loop.tension >= COMBAT_COOLDOWN_PRESSURE_TENSION
+            if within_cooldown and not high_pressure:
+                return None
+
+        combats_won = int(loop.state.get("_combat_count", 0))
+        cap_index = min(combats_won, len(COMBAT_RISK_CAP_BY_COUNT) - 1)
+        allowed_risk = COMBAT_RISK_CAP_BY_COUNT[cap_index]
+        candidate_risk = int(encounters[candidate].get("risk", 1))
+        if candidate_risk <= allowed_risk:
+            return candidate
+        # Downgrade to the highest-weight encounter within the allowed risk.
+        affordable = [
+            (eid, enc)
+            for eid, enc in encounters.items()
+            if int(enc.get("risk", 1)) <= allowed_risk
+        ]
+        if not affordable:
+            return None
+        affordable.sort(key=lambda item: float(item[1].get("weight", 1)), reverse=True)
+        return affordable[0][0]
 
     def _persist_narrative_metric(
         self, player_id: str, loop_id: str, metric_total_before: int

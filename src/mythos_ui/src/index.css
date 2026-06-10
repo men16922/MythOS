@@ -1733,8 +1733,10 @@ main {
 }
 .combat-grid {
   display: grid;
-  grid-template-columns: 1.8fr 1fr;
-  gap: 24px;
+  /* Board column widened (was 1.8fr) so the Tactical Board reads large enough
+     by default; right column gets a min so controls stay usable. */
+  grid-template-columns: 2.6fr minmax(300px, 1fr);
+  gap: 20px;
   width: 100%;
   align-items: stretch;
 }
@@ -1748,6 +1750,9 @@ main {
   flex-direction: column;
   gap: 16px;
   height: 100%;
+  /* allow the grid track to honor its fr width instead of being pushed wider
+     by the canvas intrinsic size */
+  min-width: 0;
 }
 .combat-right-col {
   display: flex;

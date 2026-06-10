@@ -334,18 +334,34 @@ function drawHazardOverlay(
   ctx.lineTo(p3[0], p3[1]);
   ctx.closePath();
   
+  let glyph = "";
+  let glyphColor = "";
   if (hazardType === "acid") {
     ctx.fillStyle = "rgba(125,255,155,0.22)";
     ctx.fill();
     ctx.strokeStyle = "rgba(125,255,155,0.65)";
     ctx.lineWidth = 1;
     ctx.stroke();
+    glyph = "☣";
+    glyphColor = "rgba(180,255,200,0.9)";
   } else if (hazardType === "electro") {
     ctx.fillStyle = "rgba(255,215,106,0.18)";
     ctx.fill();
     ctx.strokeStyle = "rgba(255,215,106,0.6)";
     ctx.lineWidth = 1;
     ctx.stroke();
+    glyph = "⚡";
+    glyphColor = "rgba(255,230,150,0.95)";
+  }
+  // Stamp the legend glyph onto the tile so the board reads the same symbols
+  // the legend explains (colored fills alone were not intuitive).
+  if (glyph) {
+    const [cx, cy] = toIso(x + 0.5, y + 0.5, cfg);
+    ctx.fillStyle = glyphColor;
+    ctx.font = `${Math.max(11, Math.round(cfg.stepX * 0.8))}px SF Mono, monospace`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(glyph, cx, cy);
   }
   ctx.restore();
 }

@@ -30,10 +30,10 @@ def parse_scene_payload(raw_payload: str | dict[str, Any]) -> ScenePayload:
     if not isinstance(scene, dict):
         raise NarrativeParseError(["payload.scene must be an object"])
 
-    title = _required_str(scene, "title", errors)
-    location = _required_str(scene, "location", errors)
+    title = _clean_player_text(_required_str(scene, "title", errors))
+    location = _clean_player_text(_required_str(scene, "location", errors))
     narration = _clean_player_text(_required_str(scene, "narration", errors))
-    visual_brief = _required_str(scene, "visual_brief", errors)
+    visual_brief = _clean_player_text(_required_str(scene, "visual_brief", errors))
     choices = _parse_choices(scene.get("choices"), errors)
     objective = _optional_clean_str(scene.get("objective"))
     action_result = _optional_clean_str(scene.get("action_result"))
@@ -95,18 +95,19 @@ def repair_scene_payload(raw_payload: str | dict[str, Any]) -> dict[str, Any]:
         }
     scene = data["scene"]
     if not isinstance(scene.get("title"), str) or not scene.get("title", "").strip():
-        scene["title"] = "Signal at the Threshold"
+        scene["title"] = "C-17 정전 구역"
     if not isinstance(scene.get("location"), str) or not scene.get("location", "").strip():
         scene["location"] = "data-layer-01"
     if not isinstance(scene.get("narration"), str) or not scene.get("narration", "").strip():
         scene["narration"] = (
-            "A pale access gate opens in the dark. The system waits for the Connector's first choice."
+            "C-17 지하보도 비상등이 꺼지고, 빗물 위로 감시 드론의 붉은 수색등이 번진다. "
+            "정세린은 바이크 옆에서 손을 내밀며 말한다. \"등록 안 됐지? 그럼 아직 사람이야. 뛰어.\""
         )
     if not isinstance(scene.get("choices"), list) or not scene["choices"]:
         scene["choices"] = [
             {
                 "choice_id": "choice_1",
-                "label": "Approach the signal",
+                "label": "세린을 따라 배수로로 뛰어든다",
                 "intent": "explore",
             }
         ]
@@ -114,7 +115,8 @@ def repair_scene_payload(raw_payload: str | dict[str, Any]) -> dict[str, Any]:
         scene["choices"] = _repair_choices(scene["choices"])
     if not isinstance(scene.get("visual_brief"), str) or not scene.get("visual_brief", "").strip():
         scene["visual_brief"] = (
-            "A luminous terminal gate in a dark server hall, cyber-mythic atmosphere, cinematic lighting."
+            "Neo-Seoul C-17 underpass in rain, red drone searchlights, Jung Se-rin reaching out, "
+            "wet concrete, half-closed shutter, cinematic cyberpunk chase."
         )
 
     objective = scene.get("objective")
@@ -190,6 +192,9 @@ def _optional_clean_str(value: Any) -> str | None:
 
 
 def _clean_player_text(value: str) -> str:
+    # Some local GGUF tokenizers can leak byte fallback tokens into Korean text,
+    # e.g. "자<0xEC><0xA4>개빛". Strip the artifacts and keep the readable text.
+    value = re.sub(r"<0x[0-9a-fA-F]{2}>", "", value)
     cleaned = re.sub(
         r"\[\s*(?:cinematic\s*)?sfx\s*:\s*[^\]]+\]",
         lambda match: _sfx_to_prose(match.group(0)),
@@ -248,7 +253,7 @@ def _parse_choices(value: Any, errors: list[str]) -> list[Choice]:
             choices.append(
                 Choice(
                     choice_id=str(choice_id).strip(),
-                    label=str(label).strip(),
+                    label=_clean_player_text(str(label).strip()),
                     intent=str(intent).strip(),
                 )
             )
@@ -275,7 +280,7 @@ def _repair_choices(value: list[Any]) -> list[dict[str, str]]:
     return repaired or [
         {
             "choice_id": "choice_1",
-            "label": "Approach the signal",
+            "label": "세린을 따라 배수로로 뛰어든다",
             "intent": "explore",
         }
     ]
@@ -399,3 +404,119 @@ def _nullable_string(value: Any) -> str | None:
     if not cleaned or cleaned.lower() in {"null", "none", "false", "undefined", "nil"}:
         return None
     return cleaned
+
+
+def parse_story_text(story_text: str) -> ScenePayload:
+    """Parses raw storyteller markdown-like markup (SCENE, TITLE, LOCATION, CHOICES) into a ScenePayload."""
+    # 1. Title
+    title_match = re.search(r"\[TITLE\]\s*\n*(.*?)(?=\n*\[|$)", story_text, re.DOTALL | re.IGNORECASE)
+    title = title_match.group(1).strip() if title_match else "C-17 정전 구역"
+
+    # 2. Location
+    location_match = re.search(r"\[LOCATION\]\s*\n*(.*?)(?=\n*\[|$)", story_text, re.DOTALL | re.IGNORECASE)
+    location = location_match.group(1).strip() if location_match else "data-layer-01"
+
+    # 3. Narration
+    narration_match = re.search(r"\[SCENE\]\s*\n*(.*?)(?=\n*\[|$)", story_text, re.DOTALL | re.IGNORECASE)
+    narration = narration_match.group(1).strip() if narration_match else story_text.split("[")[0].strip()
+    narration = _clean_player_text(narration)
+
+    # 4. Choices
+    choices_match = re.search(r"\[CHOICES\]\s*\n*(.*?)(?=\n*\[|$)", story_text, re.DOTALL | re.IGNORECASE)
+    choices_block = choices_match.group(1).strip() if choices_match else ""
+
+    choices = []
+    lines = choices_block.split("\n")
+    choice_idx = 1
+    for line in lines:
+        line = line.strip()
+        if not line:
+            continue
+        line_clean = re.sub(r"^[-*+]\s*", "", line).strip()
+        if not line_clean:
+            continue
+
+        choice_id_match = re.match(r"^(choice_\d+|choice_[a-zA-Z0-9_]+)\s*:\s*(.*)", line_clean, re.IGNORECASE)
+        if choice_id_match:
+            choice_id = choice_id_match.group(1).strip()
+            label = choice_id_match.group(2).strip()
+        else:
+            choice_id = f"choice_{choice_idx}"
+            label = line_clean
+            choice_idx += 1
+
+        # Default intents based on keyword heuristic or exploring default
+        intent = "explore"
+        label_lower = label.lower()
+        if any(w in label_lower for w in ["조사", "탐색", "기록", "look", "search", "explore", "scan"]):
+            intent = "explore"
+        elif any(w in label_lower for w in ["대화", "이야기", "질문", "말", "설득", "talk", "ask", "chat"]):
+            intent = "interact"
+        elif any(w in label_lower for w in ["해킹", "수정", "개입", "조작", "rewrite", "hack", "inject"]):
+            intent = "rewrite"
+        elif any(w in label_lower for w in ["아카이브", "보존", "저장", "archive"]):
+            intent = "archive"
+
+        choices.append(Choice(choice_id=choice_id, label=label, intent=intent))
+
+    if not choices:
+        choices = [Choice(choice_id="choice_1", label="주변을 조사한다.", intent="explore")]
+
+    # Heuristic Rule-based WorldDelta calculation
+    # We assign cost based on choices' intents to keep the game loops alive without LLM.
+    stability = 0
+    tension = 0
+    for c in choices:
+        if c.intent == "explore":
+            stability -= 2
+            tension += 2
+        elif c.intent == "rewrite":
+            stability -= 4
+            tension += 4
+        elif c.intent == "interact":
+            stability -= 1
+            tension += 1
+
+    # Heuristic for starting combat from text
+    start_combat = None
+    story_lower = story_text.lower()
+    if any(w in story_lower for w in ["전투 시작", "전투가 시작", "시작되는 전투", "적 출현", "encounter_"]):
+        # heuristic try to find encounter id
+        encounter_match = re.search(r"encounter_([a-zA-Z0-9_-]+)", story_text)
+        if encounter_match:
+            start_combat = f"encounter_{encounter_match.group(1)}"
+        else:
+            start_combat = "combat_default"
+
+    # Heuristic for flags
+    flags = []
+    if "clue" in story_lower or "단서" in story_lower:
+        flags.append("clue_found")
+    if "combat" in story_lower or "전투" in story_lower:
+        flags.append("combat_imminent")
+
+    world_delta = WorldDelta(
+        stability=stability,
+        tension=tension,
+        flags=flags,
+        clues=[],
+        start_combat=start_combat,
+        spawn_encounters=[],
+        grant_items=[],
+        hp=None,
+        route_nodes=[]
+    )
+
+    # 5. Visual brief
+    # Since 8B was generating visual_brief, we fallback to a clean English prompt derived from title and location.
+    visual_brief = f"A dramatic cyber-mythic scene in {location} representing: {title}. Neon lighting, cinematic composition, digital art style."
+
+    return ScenePayload(
+        title=title,
+        location=location,
+        narration=narration,
+        choices=choices,
+        visual_brief=visual_brief,
+        world_delta=world_delta,
+        scene_type="static"
+    )

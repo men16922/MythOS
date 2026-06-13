@@ -15,16 +15,21 @@ from mythos_image_agent.config import AgentConfig
 from mythos_runtime.observability import get_logger, span, timed
 from mythos_runtime.settings import load_runtime_settings
 
-from .parser import NarrativeParseError, parse_scene_payload, repair_scene_payload
-from .prompts import build_first_scene_messages, build_next_scene_messages, build_repair_messages
+from .parser import NarrativeParseError, parse_scene_payload, parse_story_text, repair_scene_payload
+from .prompts import (
+    build_first_scene_messages,
+    build_first_story_messages,
+    build_next_scene_messages,
+    build_next_story_messages,
+    build_repair_messages,
+)
 from .schemas import (
     MAX_VISUAL_BRIEF_CHARS,
-    SCENE_JSON_SCHEMA,
     NarrativeContext,
     ScenePayload,
     WorldDelta,
 )
-from .streaming import NarrationFieldExtractor, NarrativeStreamEvent
+from .streaming import NarrationFieldExtractor, NarrativeStreamEvent, PlainTextStoryExtractor
 
 
 class JSONProvider(Protocol):
@@ -103,20 +108,71 @@ class OllamaJSONProvider:
             timeout=self.config.ollama_timeout_seconds,
         )
 
-    def _request_kwargs(self, messages: list[dict[str, str]]) -> dict[str, Any]:
-        return {
-            "model": self.config.ollama_model,
+    def generate_story(self, messages: list[dict[str, str]], *, model: str | None = None) -> str:
+        """Use storyteller model (gemma4:26b) for raw text generation without constraints."""
+        client = self._client()
+        target_model = model or self.config.ollama_model_story
+        kwargs = {
+            "model": target_model,
             "messages": messages,
-            "temperature": 0.7,
-            "response_format": {
-                "type": "json_schema",
-                "json_schema": {"name": "scene_payload", "schema": SCENE_JSON_SCHEMA},
+            "temperature": 0.4,
+            "extra_body": {
+                "keep_alive": "30m",
+                "options": {
+                    "num_ctx": 8192,
+                    "repeat_penalty": 1.3,
+                    "repeat_last_n": 256,
+                    "top_p": 0.85,
+                    "top_k": 30,
+                    "num_predict": 2048,
+                }
             },
         }
+        response = client.chat.completions.create(**kwargs)
+        content = response.choices[0].message.content
+        return content.strip() if content else ""
 
-    def generate(self, messages: list[dict[str, str]]) -> str:
+    def generate_json(self, messages: list[dict[str, str]]) -> str:
+        """Use parser model (gemma4:latest/8b) to parse raw text into JSON schema."""
         client = self._client()
-        kwargs = self._request_kwargs(messages)
+        kwargs = {
+            "model": self.config.ollama_model_parser,
+            "messages": messages,
+            "temperature": 0.1,
+            "response_format": {"type": "json_object"},
+            "extra_body": {
+                "keep_alive": "30m",
+                "options": {
+                    "num_ctx": 8192,
+                    "num_predict": 1536,
+                }
+            },
+        }
+        response = client.chat.completions.create(**kwargs)
+        content = response.choices[0].message.content
+        return content.strip() if content else ""
+
+    def generate(self, messages: list[dict[str, str]], *, model: str | None = None) -> str:
+        """Fallback compatibility for single model mode: runs on config.ollama_model."""
+        client = self._client()
+        target_model = model or self.config.ollama_model
+        kwargs = {
+            "model": target_model,
+            "messages": messages,
+            "temperature": 0.3,
+            "response_format": {"type": "json_object"},
+            "extra_body": {
+                "keep_alive": "30m",
+                "options": {
+                    "num_ctx": 8192,
+                    "repeat_penalty": 1.3,
+                    "repeat_last_n": 256,
+                    "top_p": 0.85,
+                    "top_k": 30,
+                    "num_predict": 2048,
+                }
+            },
+        }
         try:
             response = client.chat.completions.create(**kwargs)
         except Exception:
@@ -124,17 +180,30 @@ class OllamaJSONProvider:
                 raise
             kwargs["response_format"] = {"type": "json_object"}
             response = client.chat.completions.create(**kwargs)
-
         content = response.choices[0].message.content
         return content.strip() if content else ""
 
     def stream(self, messages: list[dict[str, str]]) -> Iterator[str]:
-        client = OpenAI(
-            base_url=self.config.ollama_base_url,
-            api_key="ollama",
-            timeout=self.config.ollama_timeout_seconds,
-        )
-        kwargs = {**self._request_kwargs(messages), "stream": True}
+        """Streams standard JSON chunks for single model mode."""
+        client = self._client()
+        kwargs = {
+            "model": self.config.ollama_model,
+            "messages": messages,
+            "temperature": 0.3,
+            "stream": True,
+            "response_format": {"type": "json_object"},
+            "extra_body": {
+                "keep_alive": "30m",
+                "options": {
+                    "num_ctx": 8192,
+                    "repeat_penalty": 1.3,
+                    "repeat_last_n": 256,
+                    "top_p": 0.85,
+                    "top_k": 30,
+                    "num_predict": 2048,
+                }
+            },
+        }
         try:
             stream = client.chat.completions.create(**kwargs)
         except Exception:
@@ -147,6 +216,34 @@ class OllamaJSONProvider:
             if content:
                 yield content
 
+    def stream_story(self, messages: list[dict[str, str]], *, model: str | None = None) -> Iterator[str]:
+        """Streams raw story text using storyteller model (gemma4:26b) without constraints."""
+        client = self._client()
+        target_model = model or self.config.ollama_model_story
+        kwargs = {
+            "model": target_model,
+            "messages": messages,
+            "temperature": 0.4,
+            "stream": True,
+            "extra_body": {
+                "keep_alive": "30m",
+                "options": {
+                    "num_ctx": 8192,
+                    "repeat_penalty": 1.3,
+                    "repeat_last_n": 256,
+                    "top_p": 0.85,
+                    "top_k": 30,
+                    "num_predict": 2048,
+                }
+            },
+        }
+        stream = client.chat.completions.create(**kwargs)
+        for chunk in stream:
+            content = chunk.choices[0].delta.content
+            if content:
+                yield content
+
+
 
 class NarrativeDirector:
     def __init__(
@@ -157,17 +254,39 @@ class NarrativeDirector:
         self.logger = get_logger("mythos.narrative")
         self.metrics = NarrativeMetrics()
 
+    def _use_dual_model(self) -> bool:
+        config = getattr(self.provider, "config", None)
+        if config is None:
+            return False
+        story_model = getattr(config, "ollama_model_story", None)
+        parser_model = getattr(config, "ollama_model_parser", None)
+        return bool(story_model and parser_model and story_model != parser_model)
+
     def generate_first_scene(self, context: NarrativeContext) -> tuple[Scene, ScenePayload]:
-        return self._generate(context, build_first_scene_messages(context))
+        if self._use_dual_model():
+            story_model = self.provider.config.ollama_model_story
+            return self._generate_dual(context, build_first_story_messages(context), model=story_model)
+        return self._generate_legacy(context, build_first_scene_messages(context))
 
     def generate_next_scene(self, context: NarrativeContext) -> tuple[Scene, ScenePayload]:
-        return self._generate(context, build_next_scene_messages(context))
+        if self._use_dual_model():
+            story_model = self.provider.config.ollama_model_story
+            return self._generate_dual(context, build_next_story_messages(context), model=story_model)
+        return self._generate_legacy(context, build_next_scene_messages(context))
 
     def stream_first_scene(self, context: NarrativeContext) -> Iterator[NarrativeStreamEvent]:
-        yield from self._stream_generate(context, build_first_scene_messages(context))
+        if self._use_dual_model():
+            story_model = self.provider.config.ollama_model_story
+            yield from self._stream_generate_dual(context, build_first_story_messages(context), model=story_model)
+        else:
+            yield from self._stream_generate_legacy(context, build_first_scene_messages(context))
 
     def stream_next_scene(self, context: NarrativeContext) -> Iterator[NarrativeStreamEvent]:
-        yield from self._stream_generate(context, build_next_scene_messages(context))
+        if self._use_dual_model():
+            story_model = self.provider.config.ollama_model_story
+            yield from self._stream_generate_dual(context, build_next_story_messages(context), model=story_model)
+        else:
+            yield from self._stream_generate_legacy(context, build_next_scene_messages(context))
 
     def fallback_scene(self, context: NarrativeContext) -> tuple[Scene, ScenePayload]:
         payload = _fallback_payload(context)
@@ -198,6 +317,7 @@ class NarrativeDirector:
             prompt += f"- {actor}: {action} -> {result}\n"
 
         try:
+            parser_model = getattr(self.provider.config, "ollama_model_parser", None)
             response = self.provider.generate(
                 [
                     {
@@ -205,7 +325,8 @@ class NarrativeDirector:
                         "content": "You are a poetic chronicler of the MythOS universe.",
                     },
                     {"role": "user", "content": prompt},
-                ]
+                ],
+                model=parser_model
             )
             parsed = json.loads(response)
             if isinstance(parsed, dict) and "summary" in parsed:
@@ -242,6 +363,7 @@ class NarrativeDirector:
             prompt += f"- [{kind}] symbol={symbol} tone={tone}: {text}\n"
 
         try:
+            parser_model = getattr(self.provider.config, "ollama_model_parser", None)
             response = self.provider.generate(
                 [
                     {
@@ -249,7 +371,8 @@ class NarrativeDirector:
                         "content": "You are a concise memory archivist for Project MythOS.",
                     },
                     {"role": "user", "content": prompt},
-                ]
+                ],
+                model=parser_model
             )
             parsed = json.loads(response)
             if isinstance(parsed, dict) and "summary" in parsed:
@@ -259,19 +382,151 @@ class NarrativeDirector:
             self.logger.debug("narrative shard summary provider failed", exc_info=True)
             return _fallback_shard_summary(shards, existing_summary=existing_summary)
 
-    def _generate(
+    def _generate_dual(
+        self, context: NarrativeContext, story_messages: list[dict[str, str]], *, model: str | None = None
+    ) -> tuple[Scene, ScenePayload]:
+        # Step 1: Storytelling plain text generation (Gemma 26B / 8B according to model parameter)
+        try:
+            with timed(
+                "mythos.narrative.generate_story",
+                self.logger,
+                "storytelling generation finished",
+                player_id=context.player.player_id,
+                loop_id=context.loop.loop_id,
+                provider=type(self.provider).__name__,
+            ):
+                story_text = self.provider.generate_story(story_messages, model=model)
+        except Exception:
+            self.logger.warning("storyteller model failed, using fallback", exc_info=True)
+            scene, payload = self.fallback_scene(context)
+            self._record_outcome(context, OUTCOME_FALLBACK)
+            return scene, payload
+
+        # Step 2: Structural parsing via Regex & Heuristics (Instant)
+        try:
+            payload = parse_story_text(story_text)
+            payload = _apply_novelty_guard(context, payload)
+            outcome = OUTCOME_SUCCESS
+        except Exception:
+            self.logger.warning("storytext parsing failed, using fallback", exc_info=True)
+            scene, payload = self.fallback_scene(context)
+            outcome = OUTCOME_FALLBACK
+
+        self._record_outcome(context, outcome)
+        return _scene_from_payload(context, payload), payload
+
+    def _stream_generate_dual(
+        self, context: NarrativeContext, story_messages: list[dict[str, str]], *, model: str | None = None
+    ) -> Iterator[NarrativeStreamEvent]:
+        stream_method = getattr(self.provider, "stream_story", None) or getattr(self.provider, "stream", None)
+        if not callable(stream_method):
+            scene, payload = self._generate_dual(context, story_messages, model=model)
+            yield NarrativeStreamEvent(kind="text", text=payload.narration)
+            yield NarrativeStreamEvent(kind="final", scene=scene, payload=payload)
+            return
+
+        raw_parts: list[str] = []
+        extractor = PlainTextStoryExtractor()
+        start = perf_counter()
+        try:
+            # Stream storyteller text in real-time (routed model)
+            for chunk in stream_method(story_messages, model=model):
+                raw_parts.append(chunk)
+                text = extractor.feed(chunk)
+                if text:
+                    yield NarrativeStreamEvent(kind="text", text=text)
+            
+            # Emit any remaining text in the safety window buffer
+            remainder = extractor.flush()
+            if remainder:
+                yield NarrativeStreamEvent(kind="text", text=remainder)
+
+            story_text = "".join(raw_parts)
+
+            # Parse structural payload instantly via Regex
+            payload = parse_story_text(story_text)
+            payload = _apply_novelty_guard(context, payload)
+            scene = _scene_from_payload(context, payload)
+            outcome = OUTCOME_SUCCESS
+        except Exception:
+            self.logger.warning("dual-model streaming failed, using fallback", exc_info=True)
+            scene, payload = self.fallback_scene(context)
+            outcome = OUTCOME_FALLBACK
+
+        latency_ms = round((perf_counter() - start) * 1000, 3)
+        self.logger.info(
+            "narrative streaming finished",
+            extra={
+                "player_id": context.player.player_id,
+                "loop_id": context.loop.loop_id,
+                "provider": type(self.provider).__name__,
+                "latency_ms": latency_ms,
+                "status": "fallback" if outcome == OUTCOME_FALLBACK else "succeeded",
+                "outcome": outcome,
+            },
+        )
+        self._record_outcome(context, outcome)
+        yield NarrativeStreamEvent(
+            kind="fallback" if outcome == OUTCOME_FALLBACK else "final",
+            scene=scene,
+            payload=payload,
+            outcome=outcome,
+        )
+
+    def _generate_legacy(
         self, context: NarrativeContext, messages: list[dict[str, str]]
     ) -> tuple[Scene, ScenePayload]:
-        scene, payload, outcome = self._generate_classified(context, messages)
-        self._record_outcome(context, outcome)
-        return scene, payload
+        # Legacy single-model generation (uses provider.generate on config.ollama_model)
+        try:
+            with timed(
+                "mythos.narrative.generate",
+                self.logger,
+                "narrative generation finished",
+                player_id=context.player.player_id,
+                loop_id=context.loop.loop_id,
+                provider=type(self.provider).__name__,
+            ):
+                raw_payload = self.provider.generate(messages)
+            payload = parse_scene_payload(raw_payload)
+            outcome = OUTCOME_SUCCESS
+        except Exception as first_error:
+            raw = raw_payload if "raw_payload" in locals() else ""
+            try:
+                payload = parse_scene_payload(repair_scene_payload(raw))
+                outcome = OUTCOME_LOCAL_REPAIR
+            except Exception:
+                if not self._repair_enabled(context):
+                    scene, payload = self.fallback_scene(context)
+                    self._record_outcome(context, OUTCOME_FALLBACK)
+                    return scene, payload
+                try:
+                    repair_messages = build_repair_messages(
+                        raw,
+                        getattr(first_error, "errors", [str(first_error)]),
+                        context,
+                    )
+                    repaired_raw = self.provider.generate(repair_messages)
+                    try:
+                        payload = parse_scene_payload(repaired_raw)
+                        outcome = OUTCOME_PROVIDER_REPAIR
+                    except NarrativeParseError:
+                        payload = parse_scene_payload(repair_scene_payload(repaired_raw))
+                        outcome = OUTCOME_LOCAL_REPAIR
+                except Exception:
+                    scene, payload = self.fallback_scene(context)
+                    self._record_outcome(context, OUTCOME_FALLBACK)
+                    return scene, payload
 
-    def _stream_generate(
+        payload = _apply_novelty_guard(context, payload)
+        self._record_outcome(context, outcome)
+        return _scene_from_payload(context, payload), payload
+
+    def _stream_generate_legacy(
         self, context: NarrativeContext, messages: list[dict[str, str]]
     ) -> Iterator[NarrativeStreamEvent]:
         stream_method = getattr(self.provider, "stream", None)
         if not callable(stream_method):
-            scene, payload = self._generate(context, messages)
+            scene, payload = self._generate_legacy(context, messages)
             yield NarrativeStreamEvent(kind="text", text=payload.narration)
             yield NarrativeStreamEvent(kind="final", scene=scene, payload=payload)
             return
@@ -287,15 +542,7 @@ class NarrativeDirector:
             raw_payload = "".join(raw_parts)
             scene, payload, outcome = self._scene_from_raw_or_fallback(context, raw_payload)
         except Exception:
-            self.logger.warning(
-                "narrative streaming fallback used",
-                extra={
-                    "player_id": context.player.player_id,
-                    "loop_id": context.loop.loop_id,
-                    "status": "fallback",
-                    "outcome": OUTCOME_FALLBACK,
-                },
-            )
+            self.logger.warning("legacy streaming failed, using fallback", exc_info=True)
             scene, payload = self.fallback_scene(context)
             outcome = OUTCOME_FALLBACK
 
@@ -334,85 +581,6 @@ class NarrativeDirector:
             except Exception:
                 scene, payload = self.fallback_scene(context)
                 return scene, payload, OUTCOME_FALLBACK
-
-    def _generate_classified(
-        self, context: NarrativeContext, messages: list[dict[str, str]]
-    ) -> tuple[Scene, ScenePayload, str]:
-        try:
-            with timed(
-                "mythos.narrative.generate",
-                self.logger,
-                "narrative generation finished",
-                player_id=context.player.player_id,
-                loop_id=context.loop.loop_id,
-                provider=type(self.provider).__name__,
-            ):
-                raw_payload = self.provider.generate(messages)
-            payload = parse_scene_payload(raw_payload)
-        except Exception as first_error:
-            raw = raw_payload if "raw_payload" in locals() else ""
-
-            # 1) Cheap deterministic salvage first — most malformed payloads (missing
-            # optional keys, off-shape choices, markdown fences) are fixable locally
-            # without paying for a second ~12s LLM round-trip.
-            try:
-                payload = parse_scene_payload(repair_scene_payload(raw))
-                payload = _apply_novelty_guard(context, payload)
-                return _scene_from_payload(context, payload), payload, OUTCOME_LOCAL_REPAIR
-            except Exception:
-                pass
-
-            if not self._repair_enabled(context):
-                self.logger.warning(
-                    "narrative fallback used",
-                    extra={
-                        "player_id": context.player.player_id,
-                        "loop_id": context.loop.loop_id,
-                        "status": "fallback",
-                        "outcome": OUTCOME_FALLBACK,
-                    },
-                )
-                scene, payload = self.fallback_scene(context)
-                return scene, payload, OUTCOME_FALLBACK
-
-            # 2) Only now spend a provider repair round-trip.
-            try:
-                repair_messages = build_repair_messages(
-                    raw,
-                    getattr(first_error, "errors", [str(first_error)]),
-                    context,
-                )
-                with timed(
-                    "mythos.narrative.repair",
-                    self.logger,
-                    "narrative repair finished",
-                    player_id=context.player.player_id,
-                    loop_id=context.loop.loop_id,
-                    provider=type(self.provider).__name__,
-                ):
-                    repaired_raw = self.provider.generate(repair_messages)
-                try:
-                    payload = parse_scene_payload(repaired_raw)
-                    outcome = OUTCOME_PROVIDER_REPAIR
-                except NarrativeParseError:
-                    payload = parse_scene_payload(repair_scene_payload(repaired_raw))
-                    outcome = OUTCOME_LOCAL_REPAIR
-                payload = _apply_novelty_guard(context, payload)
-                return _scene_from_payload(context, payload), payload, outcome
-            except Exception:
-                self.logger.warning(
-                    "narrative fallback used",
-                    extra={
-                        "player_id": context.player.player_id,
-                        "loop_id": context.loop.loop_id,
-                        "status": "fallback",
-                    },
-                )
-                scene, payload = self.fallback_scene(context)
-                return scene, payload, OUTCOME_FALLBACK
-
-        payload = _apply_novelty_guard(context, payload)
-        return _scene_from_payload(context, payload), payload, OUTCOME_SUCCESS
 
     def _record_outcome(self, context: NarrativeContext, outcome: str) -> None:
         self.metrics.record(outcome)
@@ -473,26 +641,33 @@ def _scene_from_payload(context: NarrativeContext, payload: ScenePayload) -> Sce
 def _fallback_payload(context: NarrativeContext) -> ScenePayload:
     novelty_hint = ""
     if context.novelty_notes:
-        novelty_hint = " The world avoids a recent pattern and introduces a new pressure point."
+        novelty_hint = " 지난 루프와 같은 길을 피하려는 듯, 골목 끝 신호등이 한 박자 늦게 붉게 바뀐다."
     elif context.world_memories or context.narrative_shards:
-        novelty_hint = " Archived memories tug at the scene without repeating their old shape."
+        novelty_hint = " 보관된 기억의 잔상이 스치지만, 이번에는 같은 장면으로 굳어지지 않는다."
 
     if context.player_action:
         narration = (
-            f"The world absorbs the action: {context.player_action}. "
-            "A low signal answers from behind the access layer, unresolved but stable enough to follow."
+            f"당신은 {context.player_action}.\n\n"
+            "세린이 젖은 재킷 소매를 잡아끌고, 지하보도 천장에 붙은 감시 렌즈가 뒤늦게 고개를 돌린다. "
+            "빗물이 계단을 타고 흘러내리고, 멀리서 순찰 드론의 프로펠러 소리가 좁은 통로 안으로 밀려온다. "
+            "지금 멈추면 관리망이 신호를 다시 붙잡는다. 앞으로 움직여야 한다."
             f"{novelty_hint}"
         )
-        title = "Signal Afterimage"
+        title = "빗속의 다음 골목"
     else:
         narration = (
-            "A pale access gate opens inside a silent server hall. The Connector's name "
-            f"flickers once, then the world waits for intent.{novelty_hint}"
+            "C-17 지하보도 비상등이 한 줄씩 꺼진다. 젖은 콘크리트 바닥 위로 당신의 이름 없는 신호가 "
+            "희미하게 번지고, 출구 쪽에서는 감시 드론의 붉은 수색등이 빗줄기를 가르며 내려온다.\n\n"
+            "정세린은 바이크를 세운 채 뒤돌아본다. 그녀는 설명을 길게 하지 않는다. 당신 손목의 말소 표식을 "
+            "확인하더니, 낮게 말한다. \"등록 안 됐지? 그럼 아직 사람이야. 뛰어.\"\n\n"
+            "셔터가 반쯤 내려오고 있다. 세린의 손을 잡고 배수로 쪽으로 뛰거나, 드론의 수색 패턴을 먼저 읽어 "
+            "막히지 않는 길을 골라야 한다."
+            f"{novelty_hint}"
         )
         title = (
-            "Changed Signal at the Threshold"
+            "C-17의 바뀐 경고 신호"
             if context.novelty_notes
-            else "Signal at the Threshold"
+            else "C-17 정전 구역"
         )
 
     return ScenePayload(
@@ -502,25 +677,26 @@ def _fallback_payload(context: NarrativeContext) -> ScenePayload:
         choices=[
             Choice(
                 choice_id=f"choice_{context.turn_index + 1}_approach",
-                label="Approach the signal",
+                label="세린을 따라 배수로로 뛰어든다",
                 intent="explore",
             ),
             Choice(
                 choice_id=f"choice_{context.turn_index + 1}_listen",
-                label="Listen for an echo",
+                label="드론의 수색등 패턴을 먼저 읽는다",
                 intent="interact",
             ),
         ],
         visual_brief=(
-            "A lone luminous access gate inside a dark server hall, floating Korean UI fragments, "
-            "cyber-mythic mood, cinematic side lighting, precise architectural lines."
+            "Neo-Seoul C-17 underpass in heavy rain, emergency lights failing, red surveillance "
+            "drone beams, Jung Se-rin on a motorbike reaching for the player, wet concrete, "
+            "half-closed security shutter, cinematic cyberpunk chase scene."
         )[:MAX_VISUAL_BRIEF_CHARS],
         world_delta=WorldDelta(stability=0, tension=2, flags=["fallback_scene"]),
         end_condition=None,
-        objective="Access the data core to stabilize the connection."
+        objective="세린과 함께 C-17 정전 구역을 빠져나간다."
         if context.turn_index == 0
         else None,
-        action_result="Success (Fallback)" if context.player_action else None,
+        action_result="행동이 적용되었습니다." if context.player_action else None,
     )
 
 
@@ -535,7 +711,9 @@ def _apply_novelty_guard(context: NarrativeContext, payload: ScenePayload) -> Sc
         return payload
 
     title = f"Changed {payload.title}"
-    narration = f"{payload.narration.rstrip()} A new pressure point alters the pattern before it can repeat."
+    narration = (
+        f"{payload.narration.rstrip()} 같은 패턴이 반복되기 전에, 다른 압력이 장면 안으로 끼어든다."
+    )
     return replace(payload, title=title, narration=narration)
 
 

@@ -174,14 +174,14 @@ class NarrativeDirectorTest(unittest.TestCase):
         scene, _ = NarrativeDirector(provider).generate_first_scene(context)
 
         self.assertEqual(scene.title, "Changed Threshold")
-        self.assertIn("new pressure point", scene.narration)
+        self.assertIn("다른 압력", scene.narration)
 
     def test_uses_fallback_when_provider_fails_twice(self) -> None:
         provider = FakeProvider(["{not json", "{still not json"])
 
         scene, payload = NarrativeDirector(provider).generate_first_scene(self.context)
 
-        self.assertEqual(scene.title, "Signal at the Threshold")
+        self.assertEqual(scene.title, "C-17 정전 구역")
         self.assertEqual(payload.world_delta.flags, ["fallback_scene"])
         self.assertEqual(provider.calls, 2)
 
@@ -275,13 +275,13 @@ def _scene_response(title: str) -> str:
             loop=self.context.loop,
             turn_index=0,
             recent_events=[],
-            novelty_notes=["Avoid reusing recent scene titles: Signal at the Threshold."],
+            novelty_notes=["Avoid reusing recent scene titles: C-17 정전 구역."],
             world_memories=[
                 WorldMemory(
                     memory_id="world_memory_1",
                     world_id="mythos-local",
                     kind="loop_archive",
-                    content={"final_title": "Signal at the Threshold"},
+                    content={"final_title": "C-17 정전 구역"},
                     weight=1.0,
                     created_at=self.context.player.created_at,
                     updated_at=self.context.player.updated_at,
@@ -291,5 +291,5 @@ def _scene_response(title: str) -> str:
 
         scene, _ = NarrativeDirector(FakeProvider([])).fallback_scene(context)
 
-        self.assertEqual(scene.title, "Changed Signal at the Threshold")
-        self.assertIn("avoids a recent pattern", scene.narration)
+        self.assertEqual(scene.title, "C-17의 바뀐 경고 신호")
+        self.assertIn("지난 루프", scene.narration)

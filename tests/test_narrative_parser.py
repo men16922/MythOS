@@ -177,3 +177,28 @@ class NarrativeParserTest(unittest.TestCase):
         self.assertEqual(payload.narration, "치직, 긁히는 정전기가 귓속을 스쳤다. 신호가 열린다.")
         self.assertEqual(payload.objective, "낮은 기계음이 바닥 아래에서 울렸다. 문을 찾는다.")
         self.assertEqual(payload.action_result, "Partial Success. 짧은 글리치음이 허공을 찢었다.")
+
+    def test_strips_byte_fallback_tokens_from_player_text(self) -> None:
+        payload = parse_scene_payload(
+            {
+                "scene": {
+                    "title": "소멸의 코어와 자<0xEC><0xA4>개빛 기억",
+                    "location": "지하<0xEA> 통제 중추",
+                    "narration": "신호가 <0xEC><0x95>깨진 채 이어진다.",
+                    "choices": [
+                        {
+                            "choice_id": "choice_1",
+                            "label": "세린의 <0xEC>손을 잡는다",
+                            "intent": "interact",
+                        }
+                    ],
+                    "visual_brief": "A violet core, no text.",
+                },
+                "world_delta": {"stability": 0, "tension": 1, "flags": []},
+            }
+        )
+
+        self.assertEqual(payload.title, "소멸의 코어와 자개빛 기억")
+        self.assertEqual(payload.location, "지하 통제 중추")
+        self.assertEqual(payload.narration, "신호가 깨진 채 이어진다.")
+        self.assertEqual(payload.choices[0].label, "세린의 손을 잡는다")

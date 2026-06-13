@@ -84,3 +84,61 @@ def _decode_escape(char: str) -> str:
         "t": "\t",
     }
     return escapes.get(char, char)
+
+
+class PlainTextStoryExtractor:
+    """Incrementally extracts only the narrative text between [SCENE] and [TITLE] from raw storyteller stream.
+    
+    Strips the '[SCENE]' header and blocks any text once '[TITLE]' or other headers start,
+    preventing technical markups and choices from leaking to the player's narration UI.
+    """
+
+    def __init__(self) -> None:
+        self._buffer = ""
+        self._active = False
+        self._finished = False
+
+    def feed(self, chunk: str) -> str:
+        if self._finished or not chunk:
+            return ""
+        self._buffer += chunk
+
+        # 1. Wait for [SCENE] tag to start active streaming
+        if not self._active:
+            if "[SCENE]" in self._buffer:
+                parts = self._buffer.split("[SCENE]", 1)
+                self._buffer = parts[1]
+                self._active = True
+            else:
+                # If no [SCENE] is seen but the buffer gets unusually long without bracket,
+                # fallback activate to avoid complete silence on prompt variations.
+                if len(self._buffer) > 30 and "[" not in self._buffer:
+                    self._active = True
+                else:
+                    return ""
+
+        # 2. Check for stop headers indicating end of narration
+        headers = ["[TITLE]", "[LOCATION]", "[CHOICES]", "[SCENE]"]
+        for header in headers:
+            if header in self._buffer:
+                self._finished = True
+                narration_part = self._buffer.split(header, 1)[0]
+                return narration_part.rstrip()
+
+        # 3. Stream characters with a safety margin to prevent split-header leaks (e.g. "[TI" ... "TLE]")
+        safety_margin = 15
+        if len(self._buffer) > safety_margin:
+            to_yield = self._buffer[:-safety_margin]
+            self._buffer = self._buffer[-safety_margin:]
+            return to_yield
+        return ""
+
+    def flush(self) -> str:
+        if self._finished or not self._active:
+            return ""
+        # Check if a header ended up in the final safety margin
+        headers = ["[TITLE]", "[LOCATION]", "[CHOICES]"]
+        for header in headers:
+            if header in self._buffer:
+                return self._buffer.split(header, 1)[0].rstrip()
+        return self._buffer.rstrip()

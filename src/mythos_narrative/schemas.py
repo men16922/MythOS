@@ -13,7 +13,7 @@ from mythos_core import (
     WorldMemory,
 )
 
-MAX_NARRATION_CHARS = 2200
+MAX_NARRATION_CHARS = 3200
 MAX_VISUAL_BRIEF_CHARS = 700
 MAX_CHOICES = 4
 ALLOWED_WORLD_DELTA_KEYS = {
@@ -149,6 +149,10 @@ class NarrativeContext:
     world_memories: list[WorldMemory] = field(default_factory=list)
     narrative_shards: list[NarrativeShard] = field(default_factory=list)
     novelty_notes: list[str] = field(default_factory=list)
+    # Continuity-critical "story so far" synopsis + previous-scene prose + anti-repeat
+    # directives. Kept separate from novelty_notes so the prompt renders it in full
+    # (novelty_notes is truncated to MAX_PROMPT_NOTES; the synopsis must never be).
+    session_synopsis: list[str] = field(default_factory=list)
     player_action: str | None = None
     validator_feedback: list[str] = field(default_factory=list)
     system_prompt: str = ""

@@ -79,6 +79,33 @@ class NarrativeStreamingTest(unittest.TestCase):
         assert events[-1].scene is not None
         self.assertEqual(events[-1].scene.title, "Streamed")
 
+    def test_plain_text_story_extractor_strips_headers(self) -> None:
+        from mythos_narrative.streaming import PlainTextStoryExtractor
+
+        extractor = PlainTextStoryExtractor()
+        chunks = [
+            "[SCENE]\n",
+            "첫 번째 문장. ",
+            "두 번째 문장.\n\n",
+            "[TITLE]\n",
+            "부서진 성좌의 서막\n",
+            "[LOCATION]\n",
+            "data-layer-01\n",
+            "[CHOICES]\n",
+            "- choice_1: 손을 뻗는다."
+        ]
+        emitted = []
+        for chunk in chunks:
+            text = extractor.feed(chunk)
+            if text:
+                emitted.append(text)
+        remainder = extractor.flush()
+        if remainder:
+            emitted.append(remainder)
+
+        # Only the text between [SCENE] and [TITLE] should be yielded, excluding markup headers
+        self.assertEqual("".join(emitted).strip(), "첫 번째 문장. 두 번째 문장.")
+
 
 if __name__ == "__main__":
     unittest.main()

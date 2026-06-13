@@ -31,7 +31,17 @@
 - For runtime flow changes, run at least `make test`; use `make smoke-local` for broader local runtime changes and `make smoke` for persistence/MinIO behavior.
 - For React/API UI changes, run `make frontend-build` or `make test-e2e` when the change touches user flow.
 
-## 5. Documentation And Handoff
+## 5. Agent Operations Discipline
+
+세션 회고(usage insights) 분석에서 반복 확인된 실패 패턴을 막기 위한 운영 규칙이다.
+
+- **Measure before performance fixes**: 성능/지연(latency) 이슈는 추정 기반 config 수정 전에 병목을 먼저 계측한다 — model load, prompt prefill, RAM/swap pressure, I/O 중 어디서 시간이 가는지 수치로 확인한 뒤 그 병목만 고친다. (과거 Ollama 설정/필드 재배열로 오진 후 실제 원인은 swap·prefill이었던 사례 반복.)
+- **Docs-first status**: 프로젝트 상태 질문에는 git working tree나 코드 탐색보다 current docs(`AGENT_BRIEF` → `STATUS` → `NEXT_PLAN`)를 먼저 읽고 답한다.
+- **Confirm structural moves**: 디렉터리 이동/리네임/재분류(`scratch/`, `bin/` 등)와 대규모 리팩터링은 시작 전에 범위와 전략을 사용자에게 확인한다. 임의로 폴더를 옮기지 않는다.
+- **Shell discipline**: 셸 명령은 절대 경로를 쓴다(특히 `.venv/bin/python`). 이전 `cd`가 남긴 cwd에 의존하지 않는다 — cwd 의존으로 silent failure가 발생한 사례가 있다.
+- **Verify before claiming done**: 자율(무감독) 사이클에서는 산출물이 실제로 존재하는지(파일 재확인, 테스트 출력 확인) 검증한 뒤에만 완료를 보고한다. 긴 산출물(문서/계획/코드 덤프)은 채팅 출력 대신 파일로 쓰고 요약만 보고한다.
+
+## 6. Documentation And Handoff
 
 - Start with `docs/AGENT_BRIEF.md`, then `docs/STATUS.md`, then `docs/NEXT_PLAN.md`. Do not bulk-read `docs/` unless the task explicitly requires an audit.
 - Open `docs/DESIGN.md`, `docs/GAMEPLAY.md`, scenario docs, dated plans, and archive files only on demand.

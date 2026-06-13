@@ -1,6 +1,6 @@
 # Project MythOS Docs
 
-최종 갱신: 2026-06-08
+최종 갱신: 2026-06-14
 
 이 디렉터리는 현재 작업 문맥을 작게 유지하기 위해 current docs와 archive를 분리한다.
 에이전트는 `docs/` 전체를 읽지 말고 아래 순서만 따른다.
@@ -23,7 +23,6 @@
 | `PROGRESS_LOG.md` | 최신 짧은 작업 로그 |
 | `DESIGN.md` | 현재 아키텍처 압축 요약 |
 | `GAMEPLAY.md` | 게임플레이/TRPG 설계 |
-| `PROJECT_OVERVIEW.md` | 제품/세계관 입문 요약 |
 | `API.md` | FastAPI REST/WS 계약 |
 | `COMPLETED_SUMMARY.md` | 완료 milestone 압축 기록 |
 | `DECISIONS.md` | 되돌리기 어려운 결정 |

@@ -1,6 +1,6 @@
 # Project MythOS Next Plan
 
-최종 갱신: 2026-06-07
+최종 갱신: 2026-06-14
 
 이 파일은 앞으로 할 일(열린 작업)만 유지하는 rolling plan이다. 완료 트랙은
 `docs/COMPLETED_SUMMARY.md`, 상세 로그는 `bin/docs/archive/progress-2026-06.md`, 개별 설계는
@@ -44,35 +44,38 @@ P1 작전 지도 route-node화 + 세션 메모리(→ COMPLETED_SUMMARY M39), Ta
 - `[x]` 동적 작전 지도: backbone seed(`build_route_seed`) + 진행 중 성장(`route_growth.extend_route`),
   LLM `route_nodes` 제안(타입 제약), anchor 도달 보장(mandatory/gate), UI 2레이어 horizon+fog,
   결정론 포기(DECISIONS 2026-06-10). 설계 `~/.claude/plans/vectorized-strolling-manatee.md`.
-- `[ ]` 후속(C 선택 결과 반영): gate flag가 라우팅 분기를 실제로 바이어스하도록(현재 도달성만 보장),
-  선택→flag→방문 노드 변화가 장면 기록/지도에 더 선명히.
-- `[ ]` 후속(B 목표): 현재 노드/objective를 막 목표와 정합, 다음 2개 행선지 의미를 선택지 문구에 노출.
-- `[ ]` 후속: 동적 노드 title 다양화·중복 억제, visual prompt에 현재 노드 주입, 정적 시나리오도 점진 전환 검토.
+- `[x]` 후속(C 선택 결과 반영): gate flag가 라우팅 분기를 실제로 바이어스하도록(현재 도달성만 보장),
+  선택→flag→방문 노드 변화가 지도 자체에도 더 선명히(잠금 아이콘 & 취사선택). 선택 결과 요약 UI 1차는 완료 (2026-06-12).
+- `[x]` 후속(B 목표) 완료(2026-06-14): objective/현재 지점/위험 스트립·선택 가치축 + 막 목표 정합
+  (`chapter_gates.player_goal`→`_chapter_goal`→StoryPanel "이번 막") + 행선지 의미 노출(route junction 선택지
+  라벨 `{행선지}(으)로 향한다 — {type별 의미}`, `_route_destination_meaning`).
+- `[/]` 후속: 동적 노드 title 다양화·중복 억제 완료(2026-06-12). 남은 것: visual prompt에 현재 노드 주입, 정적 시나리오도 점진 전환 검토.
 
 ### 2026-06-10 사람 플레이 QA 발견 (live_qa §0/§1-6) — 1차 결정론 묶음 먼저
 
-- `[ ]` **A 전투 페이스·난이도(P0)**: 초반 N장면 patrol-only 강제, 조우 쿨다운/연속 방지(4턴 2회·즉사 게임오버 방지),
-  레벨업 강화 체감 가시화, 패배→즉시 루프 종료 대신 소프트 후속(추격/포획). 1차 착수.
-- `[ ]` **E 전투 UI(P1)**: Tactical Board 비율 확대, 줌 +/- 버튼 오작동 수정(#6 회귀 의심), 지형 아이콘 직관화,
-  우측 패널(PARTY/ENEMY/표적/행동/스킬) 하단 재배치 검토. 1차 착수.
-- `[ ]` **F 스트리밍 속도(P1)**: 선택 후 텍스트 스트리밍 체감 가속. 1차 착수.
-- `[ ]` **G 진행도 가시화(P1)**: Run History 빈 표시 버그 확인·수정, Echo/Shard 현황 대시보드 메뉴. 1차 착수.
-- `[ ]` **B 목표·스테이크(P0, 2차)**: 비식별 신호 삭제 위험 근거 명시, 막 목표/생존·탈출 objective 상시 표시, 첫 선택 가치축(시민/데이터/안전) 라벨링. → 아래 P2 objective 묶음과 통합.
-- `[ ]` **C 선택 결과 반영(P0, 2차)**: 분기 선택이 스토리를 실제로 바꾸게, 선택 차이·Perception 체크 의미 가시화. → 아래 P2 선택결과 묶음과 통합.
-- `[ ]` **D 내러티브 반복(P0, 2차)**: session_memory 반복 억제가 실플레이에서 미작동(오존 냄새/세린 반복) → 프롬프트·억제 로직 재점검.
+- `[x]` **A 전투 페이스·난이도(P0)**: 초반 N장면 patrol-only/조우 쿨다운/연속 방지/초반 난이도 캡,
+  패배→소프트 후속(포획/회복, `defeat_soft`), Codex rank pips/강화 완료 배너로 강화 체감 가시화 완료.
+- `[x]` **E 전투 UI(P1)**: Tactical Board 비율 확대/보드 줌(100~250%)/줌 +/- 버튼 전파 보정,
+  지형 아이콘(엄호 `▣/◧`, 고지 `▲n`) 직관화, 우측 조작 패널 desktop 하단 sticky 배치 완료.
+- `[/]` **F 스트리밍 속도(P1, 부분 해결 2026-06-11)**: 근본 원인 RAM 부족 규명(48GB+스왑 포화, 26B+8B파서 안 맞음→evict로 43~127초). **적용**: 이원화 서사 파이프라인 배선(스토리텔러 `OLLAMA_MODEL_STORY`=`gemma4:latest` 8B → 파서 `OLLAMA_MODEL_PARSER`=`qwen2.5:3b-instruct` 1.9GB, 22초→0.8초 공존) + 앱 context 8192 캡(스토리 30~44초→warm 17초). 설계 `docs/plans/2026-06-10-dual-model-narrative-orchestration.md`. 남은 것: 사용자 운영 RAM 확보(VM/Chrome 정리)로 ~13초 근접, 그 이하는 더 작은 스토리 모델 필요(품질 트레이드오프), 실제 멀티턴 라이브 체감 확인. 상세 PROGRESS_LOG 2026-06-14, 06-11 상세는 `bin/docs/archive/progress-2026-06.md`.
+- `[x]` **G 진행도 가시화(P1)**: Run History 빈 표시 fallback(`/runs`+`memory.run_summaries` 병합),
+  Echo/Shard/Insight 현황 대시보드 메뉴 완료.
+- `[x]` **B 목표·스테이크(P0, 2차)**: active scene objective/현재 지점/안정·추적 위험을 지문 위 스트립에 상시 표시하고, 선택지 가치축(시민/증거/안전/통제)·비용·조건·예상 결과 칩을 표시.
+- `[x]` **C 선택 결과 반영(P0, 2차)**: 선택 적용 전후 `stability/tension`, 새 flag, route 이동, `action_result`를 `_last_choice_impact`로 기록하고 현재 장면/히스토리에 결과 요약 표시.
+- `[/]` **D 내러티브 반복(P0, 2차)**: 근본 원인 규명·수정(2026-06-11) — 세션 시놉시스가 `novelty_notes[-8]` truncation에 드롭돼 직전 장면/반복금지 지침이 모델에 안 닿았음. `session_synopsis` 전용 필드로 분리·전량 렌더. 더불어 장면 길이(num_predict 512→1024) + 후속 턴 prefill 캐시(shards/world_memories를 정적→동적 이동, player 타임스탬프 제거) 수정. 남은 것: 실제 멀티턴 라이브 체감 확인.
 
 - `[/]` P0 — live LLM 장기 세션 QA: fallback 12선택 + 실제 gemma4 14턴(in-process 드라이버, 2026-06-08) 통과.
   기술 파이프라인 양호(파싱 예외 0·선택지 상존·전투 후 재개·멈춤 없음). **F1 반복 완화 적용**(시놉시스
   반복 억제 지침 강화 → 14턴 재검증서 반복 0·이야기 전진 확인). 남은 것: **F2 전투 빈도**(빈도/연속 튜닝
   검토 — 변동성 있어 추가 관찰), phase explore 정체 점검. 주관 항목은 사람 플레이(`docs/neo_seoul_live_qa.md`).
-- `[/]` P1 — Tactical Board 잔여: 보드 확대/줌(dataset.boardZoom, 100~250%) 완료. 남은 것: 터치 환경 click 핀 고정(인스펙터는 현재 desktop hover 기반).
-- `[/]` P1 — 전투 보상 가시화: 종료 패널 통찰/안정/추적/전리품 요약 + 인벤토리/장비 표시(전용 테이블 M40) 완료. 남은 것: Run History 연동.
+- `[/]` P1 — Tactical Board 잔여: 보드 확대/줌(dataset.boardZoom, 100~250%) + 줌 버튼 전파 보정 + 지형 배지 완료. 남은 것: 터치 환경 click 핀 고정(인스펙터는 현재 desktop hover 기반).
+- `[x]` P1 — 전투 보상 가시화: 종료 패널 통찰/안정/추적/전리품 요약 + 인벤토리/장비 표시(전용 테이블 M40) + Run History/진행도 대시보드 연동 완료.
 - `[/]` P1 — 회복/소모품/전리품 루프: route rest/market 회복 + 전리품 인벤토리 표시 + 전투 중 소모품 사용 버튼 + 장비 착용(M40) 완료. 남은 것: 소모품/장비 밸런스 튜닝.
 - `[/]` P2 — AI GM 진행 강화: route-node 주입(`_route_director_notes`)+세션 메모리로 반복 억제 완료. 남은 것: 막 gate 기반 필수 비트 강제, visual prompt에 현재 노드/유니크 비트 주입.
 - `[/]` P2 — 기억의 별자리 재구성: 캐릭터(스탯/장비/인벤토리) 섹션 통합 + 루트 흐름(현재 시점/향하는 결말) 이동 완료. 남은 것: 개요/파티/런 히스토리 탭 세분화, 개발 로그 분리.
 - `[ ]` P2 — 아키타입 의미 강화: 해금 조건을 명시 milestone으로 제한, 오프닝/시작 위치/기본 스킬/시작 아이템/NPC 반응 차별화.
-- `[ ]` P2 — objective 피드백 정리: 현재 장면 objective를 Golden Path 현재 막 목표와 정합, 막 전환 gate 충족 시에만 다음 단계 진행.
-- `[ ]` P2 — 선택 결과 요약 강화: 선택 후 `stability/tension`·관계·flag성 사건·Codex/Shard 변화가 장면 기록에서 읽히게.
+- `[/]` P2 — objective 피드백 정리: 현재 장면 objective/stakes 상시 표시 + Golden Path 막 목표 정합 완료(2026-06-14). 남은 것: 막 전환 gate 충족 시에만 다음 단계 진행.
+- `[/]` P2 — 선택 결과 요약 강화: 선택 후 `stability/tension`·flag성 사건·route 이동은 장면 기록에서 읽힘. 남은 것: 관계·Codex/Shard 변화까지 동일 포맷으로 확장.
 - `[ ]` P2 — Codex Skill UX 정리: 해금됨/습득 가능/통찰 부족/선행 필요 상태를 첫 플레이어도 이해하도록 문구·버튼 상태 점검.
 - `[ ]` Phase 4 — objective/choice result/Codex feedback UX 정리(위 P2 묶음의 통합 마감).
 - `[ ]` Phase 5 — Neo-Seoul RC: 수동 QA(`docs/neo_seoul_live_qa.md`) + 자동 회귀, 결과는 `PROGRESS_LOG.md` 짧게/긴 기록은 archive.
@@ -81,11 +84,13 @@ P1 작전 지도 route-node화 + 세션 메모리(→ COMPLETED_SUMMARY M39), Ta
 
 요약은 `docs/COMPLETED_SUMMARY.md`, 설계는 `docs/plans/`를 본다. 후속은 모두 Priority 1 트랙에서 다룬다.
 
-- Combat Presentation Upgrade — `[x]` 완료(M35): 전신 action pose·스킬 애니메이션 레지스트리·아이콘 액션바·결과 이미지·BGM/SFX·모션 다양화·reduced-motion·Live QA.
-- Progression Skills / Archetypes — `[x]` 완료(M36): 아키타입 게이트, base/learned 필터, Codex 통찰 투자 트리 + learn/rank-up API, 깨달음 배너, 시나리오 간 해금.
-- Controllable Party Allies — `[x]` 완료(M37): 파티원 직접 조작, 비파티 동맹 AI 유지, 턴 지시기.
-- Data-driven Progression Grant — `[x]` 완료(M38): `scenario.json` 데이터 주도 unlock/epiphany, glass-library 패리티, 교차 오염/lru_cache 버그 픽스.
+- Large-Scale Content Expansion (Allies & Enemies Visuals) — `[x]` 완료(M41): 신규 캐릭터 3인, 적 4종 전투 스프라이트 35종 생성/배치 완료 및 scenario.json 에셋 매핑 완료 (2026-06-12).
+- Data-Model Integration & Play Feedback UX — `[x]` 완료(M40): progression/inventory/equipment 전용 테이블화 및 플레이 피드백 UX Phase A/B 패치.
 - Procedural Route Map & Session Memory — `[x]` 완료(M39): 결정적 DAG + 다중 관점 anchor, 라이브 진행/엔딩 누계, 세션 메모리.
+- Data-driven Progression Grant — `[x]` 완료(M38): `scenario.json` 데이터 주도 unlock/epiphany, glass-library 패리티, 교차 오염/lru_cache 버그 픽스.
+- Controllable Party Allies — `[x]` 완료(M37): 파티원 직접 조작, 비파티 동맹 AI 유지, 턴 지시기.
+- Progression Skills / Archetypes — `[x]` 완료(M36): 아키타입 게이트, base/learned 필터, Codex 통찰 투자 트리 + learn/rank-up API, 깨달음 배너, 시나리오 간 해금.
+- Combat Presentation Upgrade — `[x]` 완료(M35): 전신 action pose·스킬 애니메이션 레지스트리·아이콘 액션바·결과 이미지·BGM/SFX·모션 다양화·reduced-motion·Live QA.
 
 ## Hold — Scenario Expansion / Glass Library
 
@@ -96,6 +101,7 @@ P1 작전 지도 route-node화 + 세션 메모리(→ COMPLETED_SUMMARY M39), Ta
 
 ## Maintenance
 
+- `[ ]` **미커밋 배치 단계 커밋(2026-06-14)**: 이원화 서사 오케스트레이션·SPA 재구성(`CharacterTabPanel`/`ProgressDashboard`/`SkillTreePanel`/`runHistory.ts`)·API 확장·콘텐츠 확장·docs/테스트 변경 50여 파일이 미커밋(이미지만 `0a8a4af`). 주제별로 리뷰 후 분리 커밋.
 - `[ ]` 장기 플레이에서 Flux1 + Flux1Redux 동시 적재 메모리 모니터.
 - `[ ]` `_map` 제거 정리(route-node 트랙 완료 후 보류; engine 매 장면 기록 + encounter_map 좌표·story_bible 위치·glass-library 폴백 미니맵 의존). 전 시나리오 route_map 전환 후 진행.
 - `[ ]` 필요 시 stale dated plan status header 정리.

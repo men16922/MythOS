@@ -2,7 +2,57 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-06-11
+
+### 스토리텔러 모델 26B → 8B(gemma4:latest) 전환 (이 머신: 48GB)
+
+Decision: 기본 스토리텔러(`OLLAMA_MODEL_STORY`)를 `gemma4:26b`에서 **`gemma4:latest`(8B, 9.6GB)**로
+되돌린다(`.env`/`.env.example`). 파서는 `qwen2.5:3b-instruct` 유지.
+
+Reason: 이 개발 머신은 물리 RAM이 **48GB**다(이전 문서의 "64GB Mac Pro" 가정은 오류 — `hw.memsize`로
+확정). 26B(18GB) + KV + 매 턴 FLUX 이미지(수 GB) + macOS/Chrome/Docker가 48GB를 초과해 스왑이 포화
+(`free_swap≈0`)되고, 26B 가중치가 페이지아웃→페이지인되며 TTFT가 13초에서 **40~127초**로 폭발했다.
+동일 장면 프롬프트 head-to-head 결과 **8B의 한국어 사이버-신화 산문 품질이 26B와 경쟁력 있고**(오히려
+더 상세한 경우도), **warm TTFT는 26초→9~10초**, 9.6GB라 RAM에 상주해 FLUX와도 공존한다. 또한 라이브
+스트리밍 경로는 스토리 모델 출력을 **정규식(`parse_story_text`)으로 파싱**하므로, 26B를 택했던 원래 이유
+(JSON 문법 붕괴 방지)는 스토리 모델에 더는 해당하지 않는다.
+
+Impact: 48GB에서 스왑/thrashing 없이 텍스트가 빨라지고 이미지와 공존 가능. 위 2026-06-10 항목들의
+"TTFT 11.1초/15초 내", "OLLAMA_MAX_LOADED_MODELS=2로 26B+8B 동시 상주" 권고는 **이 머신에선 무효**
+(64GB+ 머신에서만 26B 권장). 되돌리려면 `OLLAMA_MODEL_STORY=gemma4:26b`.
+
+### 후속 턴 prefill 캐시 + 세션 시놉시스 전용화 + 장면/선택지 품질
+
+Decision: STORY 프롬프트의 `STATIC CONTEXT`를 player 신원만으로 축소(타임스탬프 제거)하고 매 턴 누적되는
+`narrative_shards`·`world_memories`를 동적 하단으로 이동. 세션 시놉시스(직전 장면 원문+반복금지)를
+`NarrativeContext.session_synopsis` 전용 필드로 분리해 truncation 없이 전량 주입. 스토리 `num_predict`
+512→2048, 선택지 "2-3개 강제", route 현재-노드 안내를 `turn_index>=1`부터 주입.
+
+Reason: (1) shards/world_memories가 STATIC에 있어 매 턴 prefix 캐시가 깨져 후속 턴이 30초+였다. (2) 세션
+시놉시스가 `novelty_notes[-8]` truncation에 드롭돼 직전 장면/반복금지 지침이 모델에 안 닿아 반복이 발생했다.
+(3) num_predict 512가 [SCENE] 뒤 [CHOICES]를 잘라 선택지 1개로 보였다. (4) route 안내가 turn>=3부터라
+mandatory layer-0 앵커(neo-seoul "추락과 첫 신뢰"=세린 첫 신뢰)가 오프닝 직후 누락됐다.
+
+Impact: 후속 턴 prefix 캐시 유지(정적 프리픽스 byte-동일 검증), 연속성/반복 억제 작동, 장면 2-3문단·선택지
+2-3개, 세린 조우가 턴 1부터 서술. `make test` 285 green.
+
 ## 2026-06-10
+
+### Prefix KV 캐싱 고도화 — memories/novelty_notes 동적 영역 이동
+
+Decision: 26B 스토리텔러 모델용 프롬프트 생성 시, 매 턴 내용이 갱신되거나 밀려나며 무효화(Invalidate)를 일으켰던 `memories`(최근 4개 장면)와 `novelty_notes`(롤링 시놉시스 등 다이렉티브)를 상단 `STATIC CONTEXT`에서 맨 하단의 `DYNAMIC CURRENT TURN STATE`로 재배치한다.
+
+Reason: Ollama의 Prefix Caching은 프롬프트의 접두사(Prefix)가 완벽히 일치해야만 캐시를 재사용(Prefill 스킵)할 수 있다. 이전 구조에서는 매 턴 갱신되는 `memories`가 STATIC 영역 중간에 섞여 있어, 1턴마다 Prefix 캐시가 완전히 무효화되어 매번 1.2만 토큰을 처음부터 다시 prefill(Prompt evaluation)하는 30초 대의 큰 지연이 있었다. 이를 완벽하게 동적 영역(하단)으로 격리함으로써 상단 고정 영역의 Prefix 캐시 히트율을 100%로 유도한다.
+
+Impact: 2턴 이후부터 Warm 상태의 Ollama Prefill 연산이 대부분 스킵되어, 첫 토큰 지연 시간(TTFT)이 26.0초에서 11.1초로 약 60% 단축되었고 실시간 플레이 중 텍스트 스트리밍 응답성이 크게 극대화되었다.
+
+### 이원화(Dual-Model) 오케스트레이션 최적화 — VRAM 스왑 방지 및 Ollama 병렬 적재 권장
+
+Decision: 26B 스토리텔러와 8B 파서 모델을 병용하는 이원화 서사 모드에서 백그라운드 웜업(Warm-up) 스레드를 제거하여 순차 실행으로 복원하고, 파서의 `response_format`을 `json_schema`에서 `json_object`로 변경하여 문법 제약(Grammar Masking) 오버헤드를 제거한다. 64GB 이상 Mac Pro 환경에서 2개 모델 동시 상주를 위해 Ollama 기동 시 환경변수 `OLLAMA_MAX_LOADED_MODELS=2` 및 `OLLAMA_NUM_PARALLEL=2`를 설정할 것을 강력 권장한다.
+
+Reason: Ollama의 기본 동시 모델 적재 제한(`OLLAMA_MAX_LOADED_MODELS=1`) 상태에서는 백그라운드로 파서를 사전 로드하려고 할 때 26B와 8B 모델이 VRAM 내에서 수차례 번갈아 가며 언로드/로드(VRAM Swapping Thrashing)되어 전체 지연 시간이 80초 이상으로 증폭되는 병목이 발견되었다. 또한 `json_schema`는 문법 규칙을 매 토큰마다 실시간 검증하느라 8B 추론 시간을 수십 초로 늘렸다. 웜업 스레드를 걷어내고 `json_object`를 도입하여 오버헤드를 지우는 한편, 환경변수를 통해 두 모델을 VRAM에 동시 상주시키면 모델 스왑 코스트가 0초가 되어 26B 생성 및 8B 파싱 전체 과정이 15초 이내로 기적같이 단축된다.
+
+Impact: `director.py`에서 `_warm_up_parser_async`를 걷어냈고 파서는 `json_object` 모드로 전환하여 API 안전성을 보장한다. 사용자는 `ollama serve` 기동 시 혹은 launchd 설정에 해당 환경변수를 주입해야 100% 최적화 성능을 누릴 수 있다.
 
 ### 동적 작전 지도(route map) — seed 결정론 재현성 포기
 
@@ -44,7 +94,7 @@ Impact: progression 읽기/쓰기는 `load_progression`/`persist_progression` �
 player_memories 폴백 유지). 인벤토리는 `PostgresMythOSStore.save_loop/get_loop` 경계에서 투명하게
 dehydrate/hydrate하므로 CombatService/progression/loop engine은 무변경. 인메모리 테스트 스토어는 ABC
 기본구현(in-memory)으로 동작. 향후 run summaries/save slots/narrative metrics도 동일 기준으로 테이블화
-후보. 설계·단계: `docs/plans/2026-06-09-progression-inventory-equipment-datamodel.md`.
+후보. 설계·단계: `bin/docs/plans/2026-06-09-progression-inventory-equipment-datamodel.md`.
 
 ## 2026-06-07
 
@@ -103,233 +153,6 @@ Reason: to enhance character immersion and make the 5 core stats feel like actua
 
 Impact: `build_runtime_narrative_context` evaluates player stats and appends guidelines detailing how the highest stat should suggest logical/instinctual choices in parentheses (e.g. `(Intelligence: ...)`) and the lowest stat should occasionally prompt hesitation or misjudgments.
 
-## 2026-05-31
+## 2026-05 이전
 
-### Use A Local JSON Bridge For Combat UI Actions
-
-Decision: move active combat presentation into one self-contained iframe and route
-per-turn actions through a localhost-only JSON bridge
-(`src/mythos_runtime/combat_server.py`) instead of Streamlit widgets and per-action
-fragment reruns.
-
-Reason: Streamlit reruns remounted the tactical board iframe on every move/attack,
-causing visible flicker and leaking the hidden action input as a white box. Keeping the
-combat UI mounted and updating it with fetch responses removes the remount path while
-leaving `CombatService`, the deterministic engine, and persistence schemas unchanged.
-
-Impact: combat actions now cross a 127.0.0.1 HTTP boundary inside the local Streamlit
-process. The bridge is demo-local, request-scoped, and covered by handler tests.
-Future combat UI work should extend the iframe payload/API rather than reintroducing
-per-action Streamlit controls.
-
-### Move Scenario-Specific GM Instructions Into `scenario.json`
-
-Decision: store scenario-specific GM instructions in `resources/neo-seoul/scenario.json`
-as `system_prompt`, and pass that prompt through `ScenarioConfig`, `RuntimeSessionService`,
-and `NarrativeDirector` instead of keeping one hardcoded global system prompt in
-`prompts.py`.
-
-Reason: Neo-Seoul is now a full scenario with its own arcs, NPC agendas, ending matrix,
-and prose rules. Keeping those instructions in code made new scenarios expensive and
-encouraged runtime-specific prompt edits in shared narrative modules. Scenario-owned
-prompts keep content, tone, and rule variants close to the scenario data.
-
-Impact: `prompts.py` remains responsible for reusable prompt assembly, while the
-scenario file owns world-specific GM policy. Tests and smoke paths must construct or load
-a scenario config when they expect scenario-specific behavior.
-
-### Adopt Scenario v2 Gear World Causality
-
-Decision: upgrade Neo-Seoul scenario data and GM context around a "Gear World" model:
-main arcs, side arcs, hidden NPC agendas, location/action causality, butterfly-effect
-flags, and a four-axis ending matrix (Humanity, Dominance, Resilience, Insight).
-
-Reason: the playable target moved from a short demo loop to a 40-60 turn single-player
-TRPG session. Static scene prompts are not enough for long-form play; the world needs
-stateful pressures that continue moving around the player and make choices accumulate
-toward distinct endings.
-
-Impact: `scenario.json` is now the center of scenario design. `ScenarioConfig` must stay
-schema-tolerant for future worlds, and developer/debug views should eventually expose
-causality state, pending effects, and NPC agenda movement if deeper QA is needed.
-
-### Use `mflux` As The Default Local Image Backend
-
-Decision: make Apple MLX `mflux` the default image backend with quantization support,
-while keeping the diffusers FLUX path as an explicit fallback.
-
-Reason: diffusers on MPS caused high memory pressure and slow per-step latency when
-coexisting with Ollama. `mflux` with 4-bit or 8-bit quantization keeps the local Apple
-Silicon path viable for playable sessions, especially when paired with a single worker
-lock to prevent duplicate model loads.
-
-Impact: default visual generation expects `IMAGE_BACKEND=mflux`; diffusers remains
-available via configuration. Performance QA should focus on worker singleton behavior,
-quantization level, image size/steps, and gemma/Ollama coexistence.
-
-## 2026-05-30
-
-### Enter Phase 13: Cache FLUX Pipeline + Redis Async Visual Jobs
-
-Decision: reverse the earlier "defer async" stance and enter Phase 13. Two changes:
-(1) cache the FLUX pipeline per process (`mythos_image_agent/pipeline_cache.py`) so the
-~24GB model loads once instead of on every scene; (2) add a Redis-backed async path —
-`VisualJobQueue` (list + worker heartbeat), a `mythos_runtime.visual_worker` process,
-and `AssetRecord.status` (pending/processing/succeeded/failed) sharing one asset row via
-a pre-minted `asset_id`. Player view auto-generates images on scene transition and uses
-async when a live worker is present, falling back to synchronous generation otherwise.
-
-Reason: the prior decision assumed images were opt-in and rarely on. The product moved to
-auto-generating a representative image on every scene transition, which makes the
-per-call model reload (the real bottleneck, not inference) and synchronous UI blocking
-both unacceptable. Pipeline caching removes the reload cost; the async worker removes the
-remaining UI block while keeping the model warm in a long-running process.
-
-Impact: supersedes "Defer Async Visual Jobs" below. No schema migration (status lives in
-`assets.metadata`). New dependency `redis>=5.0.0`. New `make visual-worker`. The async path
-is safe-by-default: it only enqueues when a worker heartbeat exists, else generates
-synchronously, so images always appear even with no worker/Redis. Round-trip covered by
-`tests/test_visual_queue.py` plus a live Redis+Postgres end-to-end check.
-
-### Frame Gameplay As Single-Player TRPG With AI Game Master
-
-Decision: the game's playable form is a 1-player loop-based TRPG where the AI
-Narrative Director acts as Game Master. Goal structure is hybrid (per-session
-survival/stabilization + cross-loop mystery), sessions are long and narrative,
-player UI uses hybrid presentation (diegetic terminal for connect/collapse/unlock
-moments, clean narrative view otherwise), art direction is fin-de-siècle / Y2K
-digital, and representative images are generated at key beats when appropriate.
-
-Reason: the existing systems already map cleanly onto TRPG concepts (Director=GM,
-free action=action declaration, world_delta=GM adjudication, stability/tension=
-survival clock, Echo/Shard/WorldMemory=campaign memory), so game-ification is
-mostly framing/UX/goals over a working runtime rather than new engines. User
-confirmed direction on 2026-05-30.
-
-Impact: authoritative gameplay design lives in `docs/GAMEPLAY.md`; implementation
-phasing (Phase 15-19) is in `docs/NEXT_PLAN.md` and
-`docs/plans/2026-05-30-playable-single-player.md`. Streamlit must split into a
-player view and a developer/GM debug view, both calling the shared
-`RuntimeSessionService`. Schema-heavy changes are avoided in favor of JSON
-state/memory layers.
-
-### Defer Async Visual Jobs Until Latency Justifies It
-
-Decision: keep image generation synchronous for now; do not introduce the Redis
-queue + worker async path yet.
-
-Reason: images are opt-in (`with_image`, default off) and only block the single
-turn that requests them, so the text-play critical path is unaffected. FLUX
-latency is already observable via the `mythos.visual.generate` `latency_ms`
-log/trace, so the Phase 13 entry criteria can be monitored without new
-infrastructure.
-
-Impact: Phase 13 async work starts only when measured FLUX p50 latency blocks
-interactive play AND a continuous `with_image` play flow is actually needed. The
-async design sketch and entry criteria live in
-`docs/plans/2026-05-30-visual-job.md`. Redis stays provisioned but unused by the
-runtime until then.
-
-### Compress Old Archive Memory With Statistical Rollups
-
-Decision: bound `world_memories` / `narrative_shards` growth with a per-player
-retention window plus a statistical `archive_rollup` record, instead of hard
-deleting old memories.
-
-Reason: runtime already consumes only recent memory (last ~8-20 records), so old
-rows add storage and noise without value. A rollup preserves long-term trend
-(avg stability/tension, tone/symbol histograms) while keeping active queries
-small. Records leave the active set via a status flag rather than deletion, so
-nothing is lost.
-
-Impact: default active window N=20; rollups merge by weighted (loop_count)
-average; `_initial_loop_scores` will blend rollup trend with the recent window.
-Full design and implementation steps are in
-`docs/plans/2026-05-30-memory-summary.md`. LLM-based natural-language
-summarization is out of scope for this stage.
-
-### Split Documentation By Role
-
-Decision: future docs updates will be split across `STATUS.md`, `NEXT_PLAN.md`,
-`PROGRESS_LOG.md`, `COMPLETED_SUMMARY.md`, `DECISIONS.md`, and dated plans under
-`docs/plans/`.
-
-Reason: `IMPLEMENTATION.md` had accumulated roadmap, detailed checklists,
-verification logs, decisions, and backlog in one file. The split keeps current
-status short, preserves historical detail, and makes incremental updates easier.
-
-Impact: the old `IMPLEMENTATION.md` was moved to
-`bin/docs/archive/IMPLEMENTATION_M0_M10.md` as the M0-M10 detailed archive. New work
-should update the split docs instead of appending everything to a single tracker.
-Obsolete documents should be summarized into the appropriate current doc before
-being archived or deleted.
-
-## 2026-05-30
-
-### Keep Streamlit As MVP Demo Layer
-
-Decision: use Streamlit for the local playable demo and keep CLI support.
-
-Reason: Streamlit gives a fast local browser demo without introducing a frontend
-build stack. CLI remains useful for smoke and scripted flows.
-
-Impact: Streamlit and CLI share `RuntimeSessionService`; game orchestration
-should not be duplicated in UI code.
-
-## 2026-05-30
-
-### Use RuntimeSessionService As Orchestration Boundary
-
-Decision: move player/loop/choice/archive orchestration into
-`RuntimeSessionService`.
-
-Reason: CLI and Streamlit need the same runtime behavior. A shared service avoids
-forked logic and keeps PostgreSQL as the authoritative state.
-
-Impact: future UI surfaces should call the service layer instead of reimplementing
-loop flow.
-
-## 2026-05-30
-
-### Use psycopg For Store Layer
-
-Decision: implement PostgreSQL persistence with `psycopg`.
-
-Reason: direct SQL matches the raw SQL migration approach and keeps behavior
-explicit for the MVP.
-
-Impact: SQLAlchemy/Alembic can be introduced later if schema churn grows.
-
-## 2026-05-30
-
-### Start Migrations With Raw SQL And Makefile
-
-Decision: use raw SQL files in `migrations/` and Makefile targets for migration
-apply/reset.
-
-Reason: minimal dependency surface and clear local operations for the MVP.
-
-Impact: migrations are idempotent where practical; complex migration history may
-require Alembic later.
-
-## 2026-05-30
-
-### Host Ollama And FLUX On Mac Host
-
-Decision: run Ollama and FLUX on the Mac host, not Docker.
-
-Reason: Apple Silicon Metal/MPS acceleration is host-native and already available
-locally.
-
-Impact: Docker Compose is only for PostgreSQL, MinIO, Redis, OTel, Jaeger, and
-Adminer.
-
-## 2026-05-30
-
-### Use Docker Compose MinIO Init Container
-
-Decision: create MinIO buckets through a compose `minio-init` container.
-
-Reason: keeps the local infra stack self-contained.
-
-Impact: no separate host bootstrap script is required for bucket creation.
+2026-05-30/31 결정은 `bin/docs/archive/decisions-2026-05.md`로 분리 보관.

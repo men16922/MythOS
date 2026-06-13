@@ -1,6 +1,6 @@
 # Progress Log
 
-최신 작업만 유지하는 짧은 로그다. 2026-05 전체 상세 이력은 `docs/archive/progress-2026-05.md`에 보관했다.
+2026-06 상세 이력 보관소다. 2026-05 전체 상세 이력은 `bin/docs/archive/progress-2026-05.md`에 보관했다.
 
 형식:
 
@@ -12,6 +12,285 @@ YYYY-MM-DD
 - Blockers:
 - Next:
 ```
+
+## 2026-06-11 — 문서 컨텍스트 정리(tidy-docs)
+
+- Status: current docs 라인 예산 회복 완료.
+- Changed: `PROGRESS_LOG.md`를 최신 5개 항목만 남기도록 210→67줄로 축소하고, 제거한 2026-06-11/10 상세 항목은 `bin/docs/archive/progress-2026-06.md`에 보존.
+- Changed: `docs/README.md` 최종 갱신일과 archive 헤더 경로를 실제 `bin/docs/archive/...` 경로로 정정.
+- Verified: `wc -l docs/AGENT_BRIEF.md docs/STATUS.md docs/NEXT_PLAN.md docs/PROGRESS_LOG.md`, `rg "^## " docs/PROGRESS_LOG.md`, touched docs 대상 `git diff --check`.
+- Blockers: 없음.
+- Next: 실제 풀스택 사람 플레이 QA로 B/C 체감, D 반복, F 속도, route gate 바이어스 잔여 확인.
+
+## 2026-06-11 — Objective/Choice Result UX 완료
+
+- Status: live QA 2차 우선순위 B/C 묶음 완료. 현재 목표·스테이크와 선택 가치축/결과 요약이 API/SPA에 노출된다.
+- Changed: snapshot `active_scene`에 `stakes_summary`와 `choice_result`를 추가하고, 선택지에는 `axis`/`axis_label`/`stakes`/`result_preview` 파생 메타를 붙였다.
+- Changed: `RuntimeSessionService`가 선택 적용 전 루프를 보존해 커밋 후 `stability/tension`, 새 flag, route 이동, `action_result`를 `_last_choice_impact`로 기록한다.
+- Changed: StoryPanel은 현재 목표/현재 지점/위험/직전 결과 스트립을 지문 위에 표시하고, ChoicePanel은 가치축·비용·조건·예상 결과 칩을 표시한다. 히스토리에는 선택 결과 한 줄을 보강한다.
+- Verified: `python -m unittest tests.test_api`, `make frontend-lint`, `make frontend-build`, `make test`(291, skipped 2). OTel collector 미기동 경고만 기존과 동일.
+- Blockers: 없음.
+- Next: 실제 풀스택 사람 플레이 QA(`docs/neo_seoul_live_qa.md`)에서 목표/선택 결과 체감, D 반복/F 속도 체감, 터치 인스펙터 잔여를 확인.
+
+## 2026-06-11 — 진행도/강화/전투 UI 잔여 3종 완료
+
+- Status: 사용자 지정 우선순위 1(G)→2(A)→3(E) 전부 수행, 각 단계 검증 완료.
+- Changed(G): Run History는 `/runs`와 `/memory.run_summaries`를 병합해 빈 표시 오탐을 줄이고,
+  사이드바 `진행도 현황` 패널에 RUNS/ECHO/SHARD/INSIGHT, 단서/로어/인물/스킬, 최근 런, 소프트 패배 상태를 표시.
+- Changed(A): Codex 스킬 트리에 rank pips와 습득/강화 완료 배너를 추가해 Rank 변화와 통찰 잔액을 즉시 가시화.
+- Changed(E): 전술 보드에 엄호(`▣/◧`)·고지(`▲n`) 지형 배지를 직접 표시하고 범례를 동기화. 우측 전투 조작부는 desktop 하단 sticky 배치.
+- Verified: G 단계 `make frontend-lint`/`make frontend-build`/`python -m unittest tests.test_api tests.test_models`,
+  A 단계 `make frontend-lint`/`make frontend-build`, E 단계 `make frontend-lint`/`make frontend-build`,
+  전체 `make test`(291, skipped 2).
+- Next: B/C objective·선택 결과 반영 묶음, 실제 풀스택 사람 플레이 QA.
+
+## 2026-06-11 — 전투 소프트 패배 + 보드 줌 버튼 보정
+
+- Status: Neo-Seoul live QA A/E 1차 후속. 즉시 게임오버 방지와 전술 보드 줌 버튼 회귀 의심을 처리.
+- Changed: `player_defeat` 시 루프를 즉시 `ENDED`로 닫지 않고 `_soft_defeat_pending`/`combat_defeat_soft`
+  이벤트를 남긴 뒤 HP 일부 회복, 안정도 -10/긴장도 +15, `defeat_soft` combat payload로 계속 진행 가능하게 변경.
+- Changed: 전투 결과 패널/하단 컨트롤이 소프트 패배에서는 `계속` 버튼과 `CAPTURED` 문구를 표시. 보드 줌 버튼은
+  pointer/click 전파 차단 + aria label 보강.
+- Verified: `python -m unittest tests.test_session_combat.SessionCombatTest`, `make test`(291, skipped 2),
+  `make frontend-lint`, `make frontend-build`.
+- Next: A 잔여(레벨업 강화 체감 가시화), E 잔여(지형 아이콘/우측 패널 재배치), G Run History/Echo 대시보드.
+
+## 2026-06-11 — 스토리텔러 26B→8B 전환 + 이미지 경쟁 규명
+
+라이브 후속: 8B로 텍스트 속도/품질 트레이드오프 확정 + 이미지 RAM 경쟁 원인 규명.
+
+- **이미지가 텍스트 지연의 주범**: 프론트(`App.tsx`)가 `image_every_turn:true`로 매 턴 FLUX를 돌려
+  26B와 48GB를 다투며 스왑 유발. `?image=0`으로 끄니 텍스트 체감 급가속(사용자 확인).
+- **모델 head-to-head**(동일 장면): gemma4:26b warm TTFT 26초(스왑 악화 조건)·319자 vs **gemma4:latest 8B
+  warm 9~10초·600자+·선택지 3개**, gpt-oss는 blob 손상으로 로드 실패. 8B 산문 품질 경쟁력 확인.
+- **결정·적용**: `OLLAMA_MODEL_STORY`를 8B(`gemma4:latest`)로 전환(`.env`/`.env.example`). 48GB서 스왑/evict
+  없이 RAM 상주, FLUX와 공존. 26B는 64GB+ 머신에서만 권장. 스트리밍 경로는 스토리 출력을 정규식
+  파서로 처리하므로 26B 채택 이유(JSON 붕괴 방지)는 스토리 모델에 무효. 상세 `docs/DECISIONS.md`.
+- **이미지 vs 큐레이트 중복 수정**: 앵커(추락과 첫 신뢰/야시장/카이/스파이어/IX)는 각자 큐레이트
+  이미지(`route_map.image`=`scenes/*.png`)가 있고 프론트가 이를 표시(`StoryPanel.tsx:543`, generated 에셋
+  무시)하는데, 백엔드가 그 앵커에서도 FLUX를 생성해 표시 안 될 그림 + 느린 턴을 유발했다.
+  `maybe_generate_scene_image`에 `_curated_anchor_image()` 가드 추가 — 현재 노드가 `image` 보유 앵커면
+  FLUX 스킵(프론트 표시 규칙과 동일 조건이라 화면 변화 0, 느린 턴만 제거). 회귀 테스트 6건
+  (`tests/test_visual_orchestration.py`). `make test` 291 green.
+- Verified: 8B 전환 후 실 스트리밍 경로 warm TTFT 9.9초·narration 635~649자·선택지 3개, `make test` 285 green.
+
+## 2026-06-11 — 내러티브 연속성(D)·장면 길이·후속 턴 prefill 캐시 수정
+
+라이브 피드백 3건 동시 대응: (1) 다음 장면 반복/연속성 부재, (2) 장면 스크립트가 너무 짧음,
+(3) 오프닝 이후 턴이 여전히 30초+.
+
+- **D 연속성(반복 억제 미작동) 근본 원인**: `scenario_context`가 세션 시놉시스(STORY SO FAR +
+  직전 장면 원문 + 반복 금지 지침)를 `notes`(=`novelty_notes`)에 **병합**하는데, 프롬프트 빌더가
+  `novelty_notes[-MAX_PROMPT_NOTES(8)]`로 잘라서, 리스트 중간에 있던 시놉시스가 통째로 드롭됨 →
+  모델이 직전 장면을 못 받아 반복(오존/세린). **수정**: `NarrativeContext.session_synopsis`
+  전용 필드 신설, 프롬프트에 **잘림 없이 전부** 렌더. (사용자도 "이전 장면 정보가 넘어가야" 지적 — 동일.)
+- **후속 턴 30초+ 근본 원인**: STORY 프롬프트의 "STATIC CONTEXT (CACHEABLE)" 섹션에 매 턴 누적되는
+  `narrative_shards`·`world_memories`가 들어 있어, turn 1+부터 정적 프리픽스가 매 턴 바뀜 →
+  Ollama prefix KV 캐시가 깨지고 전체 재-prefill(turn0은 비어 있어 빠르고 이후 느렸던 이유).
+  **수정**: 정적 프리픽스를 **player 신원만**(타임스탬프 제거)으로 축소하고 shards/world_memories를
+  동적 하단으로 이동 → 정적 프리픽스 byte-동일 검증 완료(샤드 누적에도 불변) → 후속 턴 캐시 적중.
+- **장면 길이·선택지 1개 버그**: 라이브 스트리밍 경로는 LLM 파서가 아니라 정규식 `parse_story_text`로
+  파싱한다(파서 모델 미사용 — 26B 단독이라 RAM에도 유리). 선택지 1개 원인은 (a) 스토리 프롬프트가
+  "1-3 choices"라 1개 허용 + (b) 이전 `num_predict=512` 캡이 [SCENE](맨앞)을 길게 쓴 뒤 [CHOICES](맨뒤)
+  도달 전 잘림. **수정**: 스토리 `num_predict` 512→2048(상한일 뿐 TTFT 무관, 라이브 14초 동일 확인),
+  프롬프트 "2-3 choices·최소 2개·intent 다양화·`- choice_N:` 형식 준수" 강제, 깊이 지침 "2-3문단·6-10문장"
+  강화, `MAX_NARRATION_CHARS` 2200→3200. 라이브 검증: narration 250→311자 2문단·**선택지 3개** 정상.
+- 적용 반영: `python -m mythos_api` dev 서버 재시작(코드 픽업), 루프 상태는 Postgres라 보존.
+- Verified: `make test` 285 green. 프롬프트 구조 검증(시놉시스 전량 포함·정적 프리픽스 불변·샤드 동적부
+  이동) 통과. 라이브 단발 생성 TTFT 12.3초(warm)·2문단 산문.
+- Next: 실제 멀티턴 라이브에서 후속 턴 TTFT 개선 체감 확인(스왑 노이즈 때문에 RAM 확보와 함께 관찰).
+
+## 2026-06-11 — 스트리밍 속도 재검증: 근본 원인은 시스템 RAM 부족(설정 아님)
+
+라이브 "여전히 느림" 피드백으로 TTFT 실측 재검증(`scratch/ttft_bench.py`). 직전 로그의
+"TTFT 11.1초 / F 완료" 주장은 **재현되지 않음**. 11.1초는 삭제된 단독 합성 벤치값으로,
+라이브 26B+파서 경로를 대표하지 못함.
+
+- **실측(live Ollama, gemma4:26b 스토리 + gemma4:latest 파서)**:
+  - 프롬프트는 작고(618~2504 토큰, num_ctx 8192 여유) 안 잘림. prefix 캐싱 정상 적중(2503/2504).
+    → prefill·캐싱·프롬프트 크기는 병목 아님.
+  - 스토리(26B) TTFT: RAM 상주 시 13~17초(모델 고유 바닥값). decode 정상(~400자/2.7초).
+  - **지속 3턴 측정 시 TTFT 43→49→127초로 폭발**, 끝에 26B가 evict됨.
+- **근본 원인 = 시스템 RAM 포화**. 이 머신은 **물리 RAM 48GB**(문서 가정 64GB 오류) + **스왑
+  25.6GB 중 24.5GB 사용(거의 포화), free_swap≈0**. 26B(18GB)+파서(9.6GB)=28GB 모델 + 백그라운드
+  (Virtualization VM ~수GB, Chrome, Notion 등)로 48GB 초과 → Ollama가 `system_limited=true`로
+  26B를 evict, 다음 턴 18GB 재로드(스왑 페이지인) → TTFT 폭발. 서버 로그 근거:
+  `"model predicted to exceed available memory, evicting" ... system_free=6.5GiB ... system_limited=true`.
+- **결론**: `num_ctx`/`num_parallel`/`OLLAMA_MAX_LOADED_MODELS` 등 스케줄러 설정으로 못 고침
+  (RAM 용량 문제). RAM이 일시 확보되면(타 프로세스 정리) 두 모델 공존·파서 1~5초로 정상화됨을 확인.
+- Reverted: 진단 중 임시 변경한 Ollama 앱 `context_length`(앱 채팅 전용, 우리 API 무관)와 launchctl
+  env는 원복. 코드 변경 없음. `scratch/ttft_bench.py`만 재측정용으로 추가.
+- **적용한 해결(사용자 선택: 26B 품질 유지 + 파서 초소형화 + RAM 확보)**:
+  - 파서 모델 `gemma4:latest`(9.6GB/8B) → **`qwen2.5:3b-instruct`(1.9GB)** 교체(`.env`/`.env.example`,
+    코드 무변경 — config가 env 사용). 실측: 동일 프롬프트로 schema 파싱 **3/3 통과** 유지, 파서 지연
+    **22초 → 0.8초**(7~25배). 26B(18GB)+파서(2.4GB) **공존 유지, evict 사라짐**.
+  - KV 캐시 축소: Ollama 앱 `context_length`를 **8192로 캡**(앱 DB settings, `-c 16384/-np2`=슬롯당
+    8192). director의 `num_ctx=8192` 요청이 실제 상주 인스턴스에 반영되도록 고정(이전엔 앱이 32768로
+    상주시켜 무시됨). 스토리 TTFT **30~44초 → warm 17초**.
+  - **순효과**: 한 턴 체감 = 스토리 TTFT ~17초 + 파서 ~1초. 직전 폭발(43~127초) 대비 안정화.
+- **남은 레버(사용자 운영)**: 스왑 여전히 23.7GB 포화(`free_swap≈0`). Virtualization VM(~수GB)·Chrome 등
+  백그라운드 정리로 물리 48GB 밑으로 내리면 26B 페이지인이 사라져 ~13초 바닥값에 근접. 그 이하는 26B
+  고유 한계라 더 작은 스토리 모델이 필요(사용자가 품질 유지 선택).
+- 재측정 도구 `scratch/ttft_bench.py`.
+
+## 2026-06-10 — 이원화(Dual-Model) 오케스트레이션 성능 및 프롬프트 캐싱 최적화
+
+- Status: 26B 스토리텔러와 8B 파서 이원화 모드 연산 최적화 및 Prefix Caching 고도화 완료.
+- Changed:
+  - `director.py`: 듀얼 모델 스트리밍 시 26B 모델(`ollama_model_story`)이 정상 매핑되도록 `stream_story` 메서드 신설 및 연동. 모든 completions 호출에 `"keep_alive": "30m"` 지정하여 Mac Pro 64GB 환경에서 모델 상주 보장.
+  - `prompts.py`: Ollama Prefix Caching (KV cache) 극대화를 위해 가변 정보(instruction, turn_index, player_action 등)를 프롬프트 하단으로, 고정 정보(player stats, world memories, shards)를 상단으로 격리하는 템플릿 텍스트 직렬화 구조 리팩터링. 8B 파서 프롬프트 역시 고정 JSON_CONTRACT를 맨 위로 배치.
+  - `prompts.py`: 매 턴 내용이 누적되거나 밀려나면서 바뀌는 `memories`와 `novelty_notes`가 상단 `STATIC CONTEXT`에 포함되어 prefix 캐싱을 깨뜨리던 현상 수정. 해당 동적 요소를 하단 `DYNAMIC CURRENT TURN STATE`로 강등 재배치하여 2턴 이후부터는 고정 영역의 100% Prefix 캐싱 매칭을 보장.
+  - `director.py`: 8B 파서 모델의 `response_format`을 `json_schema`에서 `json_object`로 변경하여 문법 샘플링 마스킹(CFG Grammar constraints)에 의한 수십 초 대의 지연 오버헤드 제거. 파서의 `temperature=0.1` 하향 조정.
+  - `director.py`: 듀얼 모델 파이프라인 아키텍처 재정비. 텍스트 품질의 극대화 및 일관된 몰입감 유지를 위해 **모든 장면의 서사 스크립트 창작은 26B(Gemma 26B)가 100% 전담**하도록 통일. 대신, 구조화 파싱(JSON 변환), 루프 상태 요약, Causality 샤드 요약 등 기계식 연산 및 데이터 처리는 **8B(Gemma 8B)**가 100% 전담하게 배선하여 VRAM 모델 스왑 딜레이(thrashing)를 완벽하게 배제하고 품질과 응답성을 동시에 극대화함.
+  - `streaming.py` & `director.py`: 26B의 plain text 마크업 태그(`[SCENE]`, `[TITLE]` 등)가 스트리밍 중에 사용자의 화면에 그대로 노출되는 누수 버그를 차단하기 위해 `PlainTextStoryExtractor` 추가 및 `_stream_generate_dual` 연동 완료. 이제 `[SCENE]` 태그는 자동 탈락되고, `[TITLE]` 태그가 도달하면 스트리밍 전송을 즉시 조기 정지하여 순수 서사만 안전하게 실시간 화면에 표출함.
+- Verified:
+  - `make test` 285개 그린 통과.
+  - `scratch/ollama_perf_cache.py`를 활용한 2개 턴 단독 벤치마크 결과, prefix caching 최적화 적용으로 인해 2턴째 TTFT가 26.0초에서 11.1초로 약 60% 단축됨을 실측 검증.
+  - `make narrative-smoke` 통합 스모크 테스트로 실서사 및 choices 파싱 100% 성공 검증 완료 (첫 턴 22.4초 완료).
+- Next: Streamlit 또는 FastAPI PoC 실플레이 검증.
+
+## 2026-06-10 — 스트리밍 지연 원인 분석 + 프롬프트 슬리밍
+
+라이브 QA "선택 후 텍스트 스트리밍 30초" 피드백 원인 분석 및 1차 대응.
+
+- Status: 프롬프트 슬리밍 구현·검증 완료(미커밋). 추가 최적화(캐싱/keep_alive)는 논의 중.
+- 원인: structured output(json_schema)은 정상 토큰 스트리밍(버퍼링 아님). 30초는 **프롬프트 prefill**
+  병목 — 실제 프롬프트 33,376자(≈1만~2만 토큰), 그 중 `loop._route_map`만 12,253자(동적 지도라 증가).
+  모델은 **gemma4 8B**(31B 아님; 설치 최대 gpt-oss 20.9B). 모델 키우면 더 느려짐.
+- Changed: `prompts._slim_loop_for_prompt` — 프롬프트 직렬화 단계에서만 loop.state의 `_`-prefix 내부
+  blob(`_route_map`/`_beats`/`_recent_narration`/`_map`/`_encounter_map`) 제거. 저장/런타임/노트빌더 무변경.
+  연속성은 요약 노트(STORY SO FAR·직전 장면 원문·작전 노드 가이드) + top-level recent_events/player_action로 유지.
+- Verified: 프롬프트 33,376→18,415자(~45%↓, ≈12k 토큰), 연속성 노트 잔존 확인, make test 284/2 skip,
+  mypy 신규 0. Ollama 실측: 슬리밍 후 first_token ~23s(이전 ~30s+) — 여전히 큼(8B MPS prefill 한계).
+- Blockers: first_token 23s 잔존 → prefix KV 캐싱 + keep_alive + 출력 num_predict 캡 + 메모리 윈도우 축소 필요.
+- Next: 스트리밍 추가 최적화(캐싱/keep_alive/출력 캡), live_qa §0″ 잔여(작전 지도 horizon 미갱신 버그,
+  선택→route 연결 체감 C), Redis Commander 8081 링크 연결불가(포트 충돌로 미기동).
+
+## 2026-06-10 — 작전 지도 동적 라우팅 재설계 (Dynamic Route Map)
+
+플레이 피드백(선택해도 스토리 동일/루트 불명/무의미 텍스트) 대응으로 작전 지도를 정적 DAG →
+**backbone seed + 진행 중 동적 성장** 모델로 전환. 설계: `~/.claude/plans/vectorized-strolling-manatee.md`.
+
+- `route_map.build_route_seed`: 시작 시 anchor 골격 + 앞 horizon(2) 레이어만 seed(이후는 anchor stub).
+  node에 origin/mandatory/gate 추가, `_reachable_from` 도달성 헬퍼 추출(`build_route_map` 정적 경로 유지).
+- 신규 `route_growth.extend_route`: 전진 시 다음 레이어를 LLM 제안(`world_delta.route_nodes`, 타입 제약+
+  자유 서술)+pool 폴백으로 채움. anchor 도달 보장 guard(mandatory 필수통과·gate ≥1 경로) + 연결성 repair.
+- schemas/parser: `route_nodes` world_delta 허용/스키마/검증(미허용 타입 드롭). scenario_context:
+  junction 근처에서 노드 제안 지시 + 허용 타입 메뉴. session: mode 분기 seed + layer 전진 시 extend 배선.
+- neo-seoul `route_map.mode=dynamic`, 오프닝/보스 anchor `mandatory`, 중간 anchor `gate`(met_se_rin 등).
+- UI(`GameAside`): 현재 기준 앞 2레이어만 표시, 그 너머 fog(⋯) stub + 범례/types 갱신.
+- 결정: route map seed 결정론 재현성 포기(동적 우선) — `DECISIONS.md` 2026-06-10 기록.
+- Verified: make test 284/2 skip(+route_growth 9·parser 1), mypy 신규 0, frontend lint/build,
+  in-process 통합(실세션 16턴서 레이어 [1,3,3,1,1,1]→[1,3,3,3,3,1] 성장·전 anchor 도달·avoid/combat 유지).
+
+## 2026-06-09 — Neo-Seoul UX 플레이 피드백 Phase B 완료
+
+Phase A(상태/범례/결말/전리품 표시)에 이어 라이브 피드백 잔여 UX 전부 처리:
+- `#5b` 전투 중 소모품 사용 버튼: combat 스냅샷에 `_combat_consumables`(보유 소모품) 노출,
+  CombatControls "소모품" 섹션 → `item` 액션(엔진 기존 지원). 플레이어 턴 게이팅.
+- `#6` TACTICAL BOARD 확대/줌: `drawCombatCanvas`가 `canvas.dataset.boardZoom`을 읽어 배율
+  렌더(모든 호출자 자동 반영), wrapper overflow scroll, 보드 타이틀 −/%/+ 컨트롤(100~250%).
+  `combatCellFromPoint`이 getBoundingClientRect 기반이라 드래그 정합성 유지.
+- `#2` 작전 지도 최소화 + 확대 모달: 기본은 노드 그래프만, "⤢ 확대"로 모달(확대 그래프+범례+설명).
+- `#1` 행동→이동 캡션: 기본 뷰에 "● 현재 → 선택지 고르면 ◌ 다음 줄 이동" 한 줄.
+- `#4` 기억의 별자리 캐릭터 섹션: CodexPanel에 CharacterPanel(스탯/장비/인벤토리) 플레이어 뷰 통합,
+  stale codexLists.inventory 섹션 제거 → snapshot.inventory 단일 소스(전리품+장비 착용 버튼).
+- Verified: make test 269/2 skip, frontend lint/build green. (UX 체감은 사람 플레이 QA.)
+
+## 2026-06-09 — 데이터모델 통합 패스: progression/inventory/equipment 전용 테이블 (1~4단계 완료)
+
+플레이 피드백("인벤토리/도감/해금이 JSONB에 있는데 전용 테이블로")을 받아 진행도·인벤토리를
+전용 테이블로 이전. 설계: `docs/plans/2026-06-09-progression-inventory-equipment-datamodel.md`.
+
+- 1단계 토대(`eacc847`): migration 005(`player_progression` player+scenario PK upsert +
+  `loop_inventory` loop PK) + 기존 meta_progression 36행 SQL 백필 + store ABC 기본구현(in-memory)
+  + Postgres SQL. 테스트 fake 6종 무변경 동작.
+- 2단계 progression 전환(`5ec98e4`): meta_progression을 player_memories **append-scan → 전용
+  테이블 단일 row**로. `load_progression`/`persist_progression` 헬퍼(전환기 메모리 폴백),
+  session 5 read·4 write + ProgressionService 전환, memory_overview scenario 추정 보강.
+- 3단계 inventory 전환: PostgresMythOSStore.save_loop/get_loop 중앙집중 dehydrate/hydrate로
+  `loop.state._inventory`를 loops.state에서 분리→loop_inventory 테이블. CombatService/progression/
+  engine 무변경(투명 경계). 라운드트립 검증(loops.state에서 분리·테이블 counted·get_loop 재주입).
+  또한 UX Phase A(`475a726`): 상태 게이지 숫자화+설명토글, 결말 설명, 보드 범례 버튼+팝업, drag
+  문구 제거, 전리품 인벤토리 표시 버그 수정(serializer dict/문자열 정규화). 결말/현재시점을 기억의
+  별자리로 이동(`df66815`). SPA 번들 no-cache(`56aadc7`).
+- 4단계 장비: neo-seoul에 `kind:equipment` 아이템 2종(signal_blade str+2 / mesh_vest agi·per+1)+
+  loot 연결, `equip_item`(슬롯당 1개 착용 토글), 전투 시작 `_player_combat_stats`가 착용 장비 stats
+  합산, `POST /loops/{id}/equip`, CharacterPanel 착용/해제 버튼 + serializer slot/stats/equipped.
+- Verified: make test 268/2 skip, mypy 신규 0(기존 13 pre-existing), frontend lint/build,
+  Postgres 라운드트립, equip+보너스 회귀 테스트(strength 9→11).
+
+## 2026-06-08 — live LLM 장기 세션 기술 QA (P0)
+
+- in-process 장기 세션 드라이버 작성(인메모리 스토어 + 실제 Ollama `NarrativeDirector`, Postgres/Docker 불필요)로
+  사람-플레이 체크리스트가 못 잡는 **기술적 실패 모드**(멈춤/반복/선택지 없음/예외)를 자동 검증.
+  gemma4로 neo-seoul 14턴(내러티브 9 생성 + 전투 4회) 실행.
+- **양호**: 9회 LLM 생성 동안 파싱/repair 예외 0건, 내러티브 장면마다 선택지 3개 상존, 전투 종료 후
+  내러티브 재개(`choose(action=...)`) 정상, 무한 멈춤 없음, 패배 시 루프 종료 처리 정상.
+- **발견 F1(반복, 중)**: 위치가 안 바뀌면(같은 계단참) "오존 냄새/전력선 열기/교전 잔열" 도입부 감각
+  묘사를 T4–T8에 걸쳐 반복. 세션 시놉시스에 반복 금지 지침+직전 원문이 주입되는데도 gemma4가 약하게 준수
+  → 프롬프트 강화(위치 불변 시 배경 재묘사 금지·바로 새 전개) 후보. 효과는 모델 의존적, live 재검증 필요.
+- **발견 F2(전투 빈도, 중)**: 9 내러티브 장면에 전투 4회, 시작부 T2→T3 연속. tension 20→46 누적. 추격
+  서사로 프레이밍되나 빈도/연속이 QA §5 "초반 강제 전투 반복" 리스크에 근접. 단 그리디 봇이라 체감은 Live QA.
+- 자동 검증 한계: 주관 항목(선택의 맛/캐릭터 존재감/엔딩 잔향)은 `docs/neo_seoul_live_qa.md` 사람 플레이 필요.
+- **F1 수정 + live 재검증**: `build_session_synopsis` 반복 억제 지침 강화(도입부 배경 재묘사 금지 + 최근
+  비트 location 동일 시 추가 지침). gemma4 14턴 재실행 결과 반복 탐지 0건, 이야기가 정전구역→네온
+  끝자락→데이터 포트→시스템 접속→중앙 콘솔로 전진하고 도입부도 매번 달라짐(이전 런의 T4–T8 정체 해소).
+  단일 런·LLM 비결정성이라 라우트 진행 차이의 기여 격리는 불가하나 회귀 없이 분명한 개선. 회귀 테스트 2건.
+- 잔여: F2 전투 빈도 튜닝(이번 런 14턴 3전투로 양호했으나 변동성 있음), phase가 explore에 머무는지 점검(설계상 주 phase 추정).
+
+## 2026-06-07 — 조우 난이도 튜닝 (P1)
+
+- 조우별 학습 목표에 맞춰 적 수치 재조정. `build_encounter`에 per-spawn `overrides`(bestiary 위 shallow merge) 추가 — 한 bestiary 원형이 조우별 다른 역할(취약 킬-퍼스트 vs 견고 미끼)을 하도록 fork 없이 데이터 주도 조정.
+  - `sentinel_checkpoint`(target priority): sentinel_drone hp14→11(취약 원거리 위협, "먼저 처치") + maintenance_drone hp12→16·def13→14(견고한 근접 미끼) override.
+  - `enforcer_standoff`(armor_pen/timing): enforcer armor 3→4 — 비-armor_pen 타격이 더 깎여 kai 과부하 일격/방어·회복 타이밍이 중요.
+  - `wraith_glitch`(기동/미스터리): def16→17·speed5→6으로 명중/기동 도구(packet_shot·signal_step) 요구, hp18 유지(추격이 의미를 갖게).
+  - `patrol_ambush`(튜토리얼): 2 약체 드론 유지.
+- 헤드리스 그리디 시뮬(파티 3인, 60회): 승률 patrol97%/sentinel98%/wraith97%/enforcer95%, avg_round 2.5/3.5/2.7/3.8 — 튜토리얼 최단·boss 최장으로 난이도 곡선 정렬. 실제 체감은 Live QA.
+- Verified: `make test` 264/2 skip(override merge 회귀 테스트 + start_combat encounter 어서션 포함).
+
+## 2026-06-07 — Tactical Board 타일 인스펙터 + 학습 목표 배너 (P1)
+
+- 라이브 피드백 "보드 의미 파악" 후속 2차. 두 가지 추가:
+  - **타일 인스펙터**: 보드 위 포인터가 가리키는 셀의 좌표/점유 유닛(HP·진영)/엄호/고지/위험/적 의도/이동 가능 여부를 좌측 열에 표시(`TileInspector`). 기존 `combatCellFromPoint`/드래그 핸들러 재사용 — 비드래그 hover 시에만 `combatInspectCell` 갱신(셀 변경 시에만 setState로 리렌더 churn 방지), pointerleave에서 해제. in-bounds 클램프.
+  - **학습 목표 배너**: 전투 시작 시 `encounter.learning_goal`(+이름)을 보드 상단에 1줄 노출, encounter별 dismiss(`key`로 리셋). 백엔드: `_encounter_meta`(id/name/learning_goal)를 두 combat snapshot 경로(`_commit_combat_scene`/`_combat_snapshot`)에 주입 → API serializer가 dict 그대로 통과.
+- Verified: `make test` 263/2 skip(신규 어서션 포함), `make frontend-lint`/`frontend-build` green.
+- Next(Tactical Board 잔여): 보드 확대/반응형(zoom/pan). 타일 인스펙터는 hover 기반 — 터치 환경 click 핀 고정은 후속 검토.
+
+## 2026-06-07 — Tactical Board 범례 (P1)
+
+- 라이브 피드백 "보드의 cover/hazard/elevation/intent 의미를 모름" 해소 1차. `StoryPanel`에 `TacticalLegend` 추가 — 보드에 실제 존재하는 요소만 동적 표시(적 의도 ⚔️/🏃/👣, 엄호 강/약, 산성/전자 지대, 고지). `index.css` `.tactical-legend*`. 캔버스는 이미 해당 요소를 렌더 중이라 설명만 보강.
+- Verified: `make frontend-lint`/`frontend-build`, `make test-e2e` green.
+- Next(Tactical Board 잔여): 타일 hover/click 인스펙터(좌표/지형/효과/점유/위험), 전투 시작 시 학습 목표 배너(`encounter.learning_goal` plumbing 필요), 보드 확대/반응형.
+
+## 2026-06-07 — 절차 생성 작전 지도(route-node) + 세션 메모리 + 자산/버그픽스
+
+P1 "작전 지도 노드 루트화"를 Slay-the-Spire식 **결정적 절차 생성 + 다중 관점 anchor** 하이브리드로
+구현(Step 1~2b-4). 설계: `bin/docs/plans/2026-06-07-route-node-procedural-map.md`. 단계별 상세는 archive.
+
+- **생성/구조**: `route_map.py` — 루프 시드 결정적 layered DAG(golden_path 6막). anchor=사전 저작 임팩트 비트(큐레이트 이미지/이벤트 + 다중 관점), 그 사이는 동적 pool 노드. 전투 회피/감수 경로 불변식. `scenario.json.route_map`(node_types 8 + layers + `combat_encounters`), `state["_route_map"]` 직렬화, 작전 지도 노드 그래프 뷰(`GameAside`).
+- **다중 관점 anchor**: 같은 임팩트 장면을 사람/증거/안전/통제 축의 여러 시점(lens)으로 — `when`(루트 flag)으로 분기, `crosses`(교차 스토리), `effect`(세션 영향), `ending_influence`(엔딩 도출). boss 4관점=4엔딩 커버.
+- **라이브 진행**: `route_runtime.py` — 턴 전진 + 누적 flag로 관점 선택 + 효과 flag 적용 + ending_leaderboard 누계(게이지는 엔진/보상 소유 유지). UI에 활성 시점·예상 결말 표시.
+- **director 통합**: `_route_director_notes`(현재 노드·관점·crosses·향하는 결말을 GM에 주입), `_route_junction_notes`(갈림길 유도). **edge=선택지 바인딩** — 레이어 경계 junction에서 다음 노드 선택지(`junction_options`/`route:` choice/`preferred_next`). **combat 노드 전투 트리거**(`node_encounter_id`→`next_combat`).
+- **세션 메모리(RAG 아님)**: `session_memory.py` — `loops.state` JSONB에 `_beats` 압축 원장 + `_recent_narration` 직전 장면 창, 매 턴 결정적 롤링 시놉시스("지금까지의 이야기")를 컨텍스트 주입 → 장면 연속성/반복 방지. cross-loop/희소 연상이 필요해질 때만 키 기반 SQL→FTS→pgvector 검토(현재 불필요).
+- **자산**: anchor 장면 5종 = 사용자 Imagen 고품질본을 `scenes/<beat>.png`로 채택(+`opening_escape_alt`). 캐릭터 포트레이트 3종 교체(`player-noise`/`kai`/`administrator-ix`) — 기존 참조 경로 그대로(코드 변경 불필요), 전투 시트와 화풍 일관 확인. 이미지 프롬프트/경로: `docs/scenarios/neo-seoul-anchor-image-prompts.md`.
+- **버그픽스**: `generator.py` — IP-Adapter 미사용 txt2img 경로가 `hasattr`만 보고 `set_ip_adapter_scale(0.0)` 호출 → `encoder_hid_proj` 부재로 크래시(참조 이미지 없는 모든 생성 실패). 어댑터 실제 로드 시에만 호출하도록 가드.
+- **노드 보상/effect 통합 + 회복 루프**(2b): 노드 신규 진입 시 1회(`_route_map.applied_rewards` 추적) — 비전투 노드 reward + 활성 anchor 관점 `effect`의 stability/tension/insight를 루프에 적용(`_apply_route_node_reward`, 게이지 클램프·insight는 meta progression, combat 노드는 encounter가 자체 보상하므로 제외). rest/market 노드는 `reward.heal_frac`로 `_party` HP 회복(`_heal_party`, rest=full/market=0.4) → "매 전투 풀피 시작" 해소. "선택→flag/엔딩"에 더해 "선택→게이지/HP"까지 닫힘.
+- Verified: `make test` 263 / 2 skipped, `make frontend-lint`/`frontend-build`. fallback 통합: rest 노드 진입 시 HP 2→full·stability +8 1회 적용 확인. (e2e는 Docker/Postgres 기동 필요 — 미기동 환경에선 DB 500; 코드 무관.)
+- 동적 노드 title 다양화: `node_types[].titles` 풀에서 비-anchor 노드 title을 시드 결정적 선택(`route_map.py`) → junction 선택지가 "정비 거점·정비"처럼 구체화(anchor는 저작 title 유지). e2e green(Postgres 기동 후 재확인).
+- `_map` 제거는 보류: engine이 매 장면 기록 + encounter_map(좌표)·story_bible(위치)·glass-library 폴백 미니맵 의존 → route-node 트랙 사실상 완료, 전 시나리오 route_map 전환 후 별도 정리. **회복 후속: 소모품/전리품 인벤토리 가시화.**
+
+## 2026-06-07 — Neo-Seoul Live Feedback Triage + 즉시 UX 수정
+
+- 라이브 피드백을 P0/P1/P2 분류(`docs/plans/2026-06-07-neo-seoul-live-feedback-action-plan.md`). 오프닝 수락 시 BGM 재시도, Story 탭 복귀 시 combat canvas 재렌더, 작전 지도/상태 HUD 설명 보강, Neo-Seoul 고유명사 표기 규칙(`scenario_context`). BGM/세린 표기는 이후 사용자 확인 완료.
+
+## 2026-06-07 — Neo-Seoul P0: Insight Reward + Forced Ambient Combat 완화
+
+- `encounter_reward.insight`를 meta progression 통찰로 즉시 반영, 전투 결과 패널에 보상(통찰/안정/추적/전리품) 표시. 명시 요청 없는 초반 ambient 강제 전투 off(high tension/low stability에서만). 조우별 보상 기준값 갱신.
+
+## 2026-06-07 — Planning Pivot: Neo-Seoul Playability 우선
+
+- Neo-Seoul을 30-60분 만족 플레이 시나리오로 끌어올리는 5단계 계획(`docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`). Golden Path/QA rubric(`docs/scenarios/01-neo-seoul-connect.md` §5.5), Story Bible 24 entries, playability 메타(choice axes/route branches/ending echo), 조우 learning_goal/reward_intent 추가.
 
 ## 2026-06-06 — 전투 빈 화면 수정(log/지형 직렬화 배선) + DD식 연출 트랙 설계 & Phase 0
 

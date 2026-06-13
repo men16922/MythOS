@@ -1,6 +1,6 @@
 # Agent Brief
 
-최종 갱신: 2026-06-08
+최종 갱신: 2026-06-14
 
 이 파일은 작업 시작용 압축 문맥이다. 상세는 링크된 문서를 필요한 순간에만 연다.
 
@@ -16,17 +16,20 @@ Project MythOS는 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG
 - PostgreSQL/MinIO/Redis/OTel/Jaeger 로컬 인프라 구성.
 - Neo-Seoul 01이 주력 시나리오, `glass-library`는 확장 샘플.
 - Story Bible, Codex, Run History, Meta Progression, Save/Load, Ending Resolver 구현.
-- 전술 전투(전신 action pose·role/tags 스킬 애니메이션·아이콘 액션바·파티 직접 조작·combat-art 적 4종), Tactical Board 범례/타일 인스펙터/학습 목표 배너, Playwright E2E 구현.
+- 전술 전투(전신 action pose·role/tags 스킬 애니메이션·아이콘 액션바·파티 직접 조작·신규 동료 3인 및 적 4종 전투 스프라이트 35종 추가 및 scenario.json 매핑 완료), Tactical Board 범례/타일 인스펙터/학습 목표 배너, Playwright E2E 구현.
 - 작전 지도 route-node화(결정적 DAG + 다중 관점 anchor `route_map.py`/`route_runtime.py`) + 세션 메모리(`session_memory.py` beat 원장+롤링 시놉시스, RAG 아님).
-- 진행도 해금(아키타입 게이트·통찰 투자 트리·깨달음 배너·시나리오 간 해금, 데이터 주도 grant).
+- 진행도 해금(아키타입 게이트·통찰 투자 트리·rank pips/강화 배너·깨달음 배너·Run History+Echo/Shard 대시보드·시나리오 간 해금, 데이터 주도 grant).
+- Objective/stakes 상시 표시와 선택 가치축/예상 결과/실제 결과 요약 UX.
 - mflux/FLUX image worker, Redux 캐릭터 일관성, MinIO asset path 검증 완료.
 - `session.py`는 narrative_rollup/loop_scoring/combat_session_helpers/constants로 책임 분리됨(공개 API 동일).
+- 서사는 이원화(dual-model): 스토리텔러 `OLLAMA_MODEL_STORY`=`gemma4:latest`(8B, 자유 텍스트) → 파서 `OLLAMA_MODEL_PARSER`=`qwen2.5:3b-instruct`(JSON 구조화). 스트리밍 경로는 정규식 파서 병행.
+- ⚠️ 대규모 미커밋 working tree(2026-06-14): 이원화 서사·SPA 재구성·콘텐츠 확장 50여 파일 미커밋(이미지만 `0a8a4af` 커밋). `make test` 297 green. 리뷰 후 단계 커밋 대기 — `NEXT_PLAN.md` Maintenance.
 
 ## Active Work
 
 다음 우선순위는 `docs/NEXT_PLAN.md`가 권위다.
 
-1. **Neo-Seoul 플레이 만족도 개선(최우선)**: `neo-seoul`을 30-60분 만족 플레이 주력 시나리오로 만든다. Phase 1-3, route-node화, Tactical Board(범례/인스펙터/학습 목표 배너), 조우 난이도 튜닝, live LLM 장기 세션 기술 QA + F1 반복 완화까지 완료. 남은 것은 F2 전투 빈도 튜닝, loot/인벤토리·objective·선택 결과·Codex UX 정리, 보드 확대/반응형, 풀스택 사람 플레이 QA(`docs/neo_seoul_live_qa.md`). 권위 계획 `docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`.
+1. **Neo-Seoul 플레이 만족도 개선(최우선)**: `neo-seoul`을 30-60분 만족 플레이 주력 시나리오로 만든다. Phase 1-3, route-node화, Tactical Board(범례/인스펙터/학습 목표/줌/지형 배지), 조우 난이도 튜닝, 소프트 패배, 진행도 대시보드, Codex 강화 피드백, objective/choice-result UX, live LLM 장기 세션 기술 QA + F1 반복 완화 + F 스트리밍 속도 최적화(8B 전환) 완료. 다음은 실제 풀스택 사람 플레이 QA(`docs/neo_seoul_live_qa.md`)로 B/C 체감, D 반복, F 속도, route gate 바이어스 잔여를 확인. 권위 계획 `docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`.
 2. 완료 트랙(후속은 Neo-Seoul 트랙에서 다룸): 전투 연출 개편, 진행도 해금, 파티 직접 조작, 데이터 주도 grant, route-node — `docs/COMPLETED_SUMMARY.md` M35-M39.
 3. `glass-library` 확장: hold(패리티 + Story Bible 17 entries 완료, 추가 확장은 Neo-Seoul 완성 이후).
 

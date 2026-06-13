@@ -1,6 +1,6 @@
 # Project MythOS Status
 
-최종 갱신: 2026-06-09
+최종 갱신: 2026-06-14
 
 ## Current Baseline
 
@@ -10,10 +10,10 @@ Project MythOS는 로컬 플레이어블 MVP를 넘어 React SPA + FastAPI API +
 
 - Neo-Seoul 01 long-form scenario, Story Bible snippet injection, Codex.
 - PostgreSQL persistence, MinIO assets, Redis visual queue/worker, OTel/Jaeger.
-- Ollama narrative generation with repair/fallback and persisted outcome metrics.
+- Ollama narrative generation with repair/fallback and persisted outcome metrics. 서사 경로는 **이원화(dual-model)**: 스토리텔러(`OLLAMA_MODEL_STORY`=`gemma4:latest` 8B, 자유 텍스트)→파서(`OLLAMA_MODEL_PARSER`=`qwen2.5:3b-instruct`, JSON 구조화)로 분리(`director.py`/`prompts.py`). 미커밋 배치(2026-06-14 PROGRESS_LOG 참조).
 - mflux/FLUX image generation, Redux character identity steering, async worker cleanup.
 - Tactical combat engine, encounters, allies, skills/items, enemy intents, combat VFX Phase 1, CombatCinema full-body action pose swap.
-- Run History, Meta Progression MVP, Save/Load UX, Ending Resolver.
+- Run History, Meta Progression MVP, Save/Load UX, Ending Resolver, objective/choice-result feedback strip.
 - FastAPI `/api/v1` REST/WS adapter and Vite React TypeScript SPA.
 - Playwright E2E regression gate with updated timeline synchronizations.
 - Combat presentation overhaul: basic action signal cards, self-targeting 2-poster layouts, and standalone utility skill cinematic zoom triggers.
@@ -47,7 +47,7 @@ Controllable Party Allies (2026-06-07):
 
 데이터모델 통합 + 플레이 피드백 UX (2026-06-09):
 
-- M40 progression/inventory/equipment를 JSONB-on-row → 전용 테이블(migration 005). `player_progression`(append-scan 제거), `loop_inventory`(PostgresStore 경계 dehydrate/hydrate, CombatService 무변경), 장비 착용 시스템(scenario `kind:equipment`+stats, `equip_item`, 전투 보너스, 착용 UI). 기존 36행 백필. 상세 `docs/plans/2026-06-09-progression-inventory-equipment-datamodel.md`.
+- M40 progression/inventory/equipment를 JSONB-on-row → 전용 테이블(migration 005). `player_progression`(append-scan 제거), `loop_inventory`(PostgresStore 경계 dehydrate/hydrate, CombatService 무변경), 장비 착용 시스템(scenario `kind:equipment`+stats, `equip_item`, 전투 보너스, 착용 UI). 기존 36행 백필. 상세 `bin/docs/plans/2026-06-09-progression-inventory-equipment-datamodel.md`.
 - 플레이 피드백 UX Phase A/B 완료: 상태 게이지 숫자화+설명토글, 결말 경향 설명, 보드 범례 버튼+팝업, drag 안내 제거, 전리품 인벤토리 표시 버그 수정, 결말/현재시점을 기억의 별자리로 이동, SPA 번들 no-cache, 전투 중 소모품 사용 버튼, 보드 확대/zoom, 작전 지도 확대, 행동→이동 명확화, 기억의 별자리 스탯/장비/인벤토리 통합.
 - Live QA 발견 UX 후속 4건 처리: 작전 지도 compact/detail 레이아웃 분리+범례 grid, 인벤토리 종류별 분류+아이콘, table-form `item_id` 장비 버튼 표시 보강, 소모품 0개 빈 상태.
 
@@ -59,17 +59,17 @@ Live LLM QA & 반복 완화 (2026-06-08):
 
 Recent verified baseline recorded in docs:
 
-- `make test`: 264 tests, 2 skipped.
+- `make test`: 303 tests green (skipped 2).
 - frontend lint/build clean, `tests/playwright/test_e2e_play_checklist.py` green (refactored 서버 기동 포함).
-- Neo-Seoul fallback long-session check: 12 consecutive choices progressed without the previous early forced ambient combat stall.
+- `make smoke-local` succeeded (fallback narrative & visual smoke green).
 - Redux worker live path: Redis queue -> mflux Redux -> MinIO -> presigned PNG GET 200.
-- Combat assets: party 3인 + 적 4종(`enforcer-unit`/`glitch-wraith`/`maintenance-drone`/`sentinel-drone`) `idle/attack/guard/skill/hit` 35종 `RGBA 512x768`, skill icon 5종.
+- Combat assets: party 6인 (태오, 한, 수아 추가됨) + 적 8종 (Enforcer Unit, Glitch Wraith, Maintenance Drone, Sentinel Drone, Shock Trooper, Tracker Spider, Suppression Mech, Purge Drone) `idle/attack/guard/skill/hit` 70종 `RGBA 512x768` 및 512x768, skill icon 11종.
 
 ## Active Focus
 
 권위 계획: `docs/NEXT_PLAN.md`.
 
-1. **Neo-Seoul playability upgrade**: 새 최우선 트랙. `neo-seoul`을 기술 데모가 아니라 30-60분 플레이 만족도가 있는 주력 시나리오로 끌어올린다. Phase 1 문서 확정 완료(Golden Path, 실패/우회 Path, QA rubric), Phase 2 데이터 보강 완료(Story Bible 17→24 entries, playability choice axes/route branches/ending echo targets), Phase 3 데이터 기준선 완료(encounter learning goals/reward intent, progression reward tuning). P0 일부 구현 완료: 전투 보상 통찰 반영, 전투 결과 보상 표시, 초반 forced ambient combat 완화. Tactical Board는 범례+타일 인스펙터+전투 시작 학습 목표 배너(`_encounter_meta`→snapshot)까지 완료. 조우 난이도 튜닝 완료(`build_encounter` per-spawn `overrides` + 학습 목표별 적 수치 재조정, 그리디 시뮬 승률 95~98%). live LLM 장기 세션 기술 QA 완료(파이프라인 양호) + F1 반복 완화 적용·재검증 완료. 다음 집중은 F2 전투 빈도 튜닝, 보드 확대/반응형, 실제 풀스택 사람 플레이 QA(`docs/neo_seoul_live_qa.md`). 권위 설계는 `docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`.
+1. **Neo-Seoul playability upgrade**: 새 최우선 트랙. `neo-seoul`을 기술 데모가 아니라 30-60분 플레이 만족도가 있는 주력 시나리오로 끌어올린다. Phase 1 문서 확정 완료(Golden Path, 실패/우회 Path, QA rubric), Phase 2 데이터 보강 완료(Story Bible 17→24 entries, playability choice axes/route branches/ending echo targets), Phase 3 데이터 기준선 완료(encounter learning goals/reward intent, progression reward tuning). P0/P1 1차 묶음 완료: 전투 보상 통찰 반영, 전투 결과 보상 표시, 초반 forced ambient combat 완화, 조우 쿨다운/난이도 캡, 전투 패배 소프트 후속(`defeat_soft`), Codex rank pips/강화 완료 배너, Run History+Echo/Shard/Insight 대시보드, objective/stakes 상시 표시, 선택 가치축/결과 요약. Tactical Board는 범례+타일 인스펙터+학습 목표 배너+보드 줌/줌 버튼 보정+지형 배지(엄호/고지)+우측 조작부 하단 배치까지 완료. 조우 난이도 튜닝 완료(`build_encounter` per-spawn `overrides` + 학습 목표별 수치 재조정, 그리디 시뮬 승률 95~98%). live LLM 장기 세션 기술 QA 완료(파이프라인 양호) + F1 반복 완화 적용·재검증 완료. 다음 집중은 실제 풀스택 사람 플레이 QA(`docs/neo_seoul_live_qa.md`)에서 목표/선택 결과 체감, D 반복/F 속도 체감, 남은 route gate 바이어스 확인. 권위 설계는 `docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`.
 2. **Combat presentation upgrade**: 완료. 모션 다양화·reduced-motion 접근성·표시 위치/스케일/타이밍/가독성 Live QA까지 완료(사용자 확인 완료). 범용 수동 QA 문서는 폐기했고, Neo-Seoul 실제 플레이 확인 항목은 `docs/neo_seoul_live_qa.md`를 따른다.
 3. **Progression skills/archetypes**: 완료. Phase 1·2·3 완료(아키타입 게이트, base/learned 필터, Codex 통찰 투자 트리, 깨달음 배너, 시나리오 간 해금). 후속은 Neo-Seoul 플레이 만족도 트랙 안에서 밸런스 조정.
 4. ~~**Controllable party allies**~~: 완료(파티원 직접 조작, 비파티 동맹 AI 유지).
@@ -77,6 +77,11 @@ Recent verified baseline recorded in docs:
 
 ## Open Risks
 
+- **대규모 미커밋 working tree(2026-06-14)**: 이원화 서사 오케스트레이션·SPA 재구성·콘텐츠 확장 + 이번 세션 live QA A/B 수정(visual worker, 결말경향, 막 목표) 등 코드/문서 다수가 미커밋 상태(이미지 에셋만 `0a8a4af`로 커밋). `make test` 303 green이나, 단일 브랜치에 누적돼 있어 리뷰 후 단계적 커밋이 필요하다.
+- **LLM 스트리밍 first-token 지연(해결 2026-06-11, 스토리 8B 전환)**: "TTFT 11.1초/완료" 주장은 재현 안 됨. 실측 근본 원인은 **48GB RAM**(64GB 아님) 스왑 포화 — 26B(18GB)+FLUX 이미지가 안 들어가 26B가 evict/페이지인되며 TTFT 13→**43~127초** 폭발. **결정·적용**: 스토리 모델을 **`gemma4:26b`→`gemma4:latest`(8B, 9.6GB)** 로 전환(head-to-head서 한국어 산문 품질 경쟁력 확인, **warm TTFT 9~10초**, RAM 상주로 FLUX와 공존). 파서는 `qwen2.5:3b-instruct`(스트리밍 경로는 실제론 정규식 파서 사용). 64GB+ 머신에서만 26B 재권장. 상세 `docs/DECISIONS.md`/`PROGRESS_LOG.md` 2026-06-11, 재측정 `scratch/ttft_bench.py`.
+- **이미지 vs 큐레이트 중복(해결 2026-06-11)**: 앵커는 프론트가 큐레이트 이미지(`route_map.image`=`scenes/*.png`)를 표시하는데 백엔드가 그 앵커에서도 FLUX를 돌려 표시 안 될 그림 생성 + 느린 턴을 유발했다. `maybe_generate_scene_image`에 `_curated_anchor_image()` 가드 추가 — 현재 노드가 `image` 보유 앵커면 FLUX 스킵(프론트가 큐레이트 이미지를 표시하므로 화면 변화 없이 느린 턴만 제거). 회귀 테스트 `tests/test_visual_orchestration.py` 6건.
+- **작전 지도 horizon 미갱신(라이브 발견)**: 동적 라우팅 2막 horizon이 진행 중 갱신 안 되는 것으로 보고됨
+  (구 정적 루프 잔존 or 버그) — 재현/수정 필요. 선택→route 노드 연결 체감(C)도 미해결.
 - txt2img `Flux1` + Redux `Flux1Redux` 동시 적재는 장기 플레이에서 메모리/스왑 모니터가 필요하다.
 - `narrative_shards` raw rows are retained even after rollup; future pruning/status migration may be needed if DB size matters.
 - Run summaries, meta progression, save slots, narrative metrics are JSONB memory records; heavy querying may justify dedicated tables later.

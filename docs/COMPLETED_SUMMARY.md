@@ -1,6 +1,6 @@
 # Completed Summary
 
-최종 갱신: 2026-06-07
+최종 갱신: 2026-06-12
 
 이 문서는 완료된 milestone의 압축 요약이다. 세부 작업 로그와 검증 기록은 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`, `bin/docs/archive/progress-2026-05.md`, `bin/docs/archive/progress-2026-06.md`를 참고한다. 최신 짧은 로그만 `PROGRESS_LOG.md`에 남긴다.
 
@@ -111,7 +111,8 @@
 | M37 | Controllable Party Allies | `Combatant.controllable`, `CombatState.active_actor()`/`living_controllables()`, controllable-actor stop 턴 루프, 파티원 직접 조작 + 비파티 동맹 AI 유지, 도주는 PLAYER 한정, active actor 하이라이트/턴 지시기. 설계 `bin/docs/plans/2026-06-06-party-controllable-allies.md` |
 | M38 | Data-driven Progression Grant | 진행도 grant를 `scenario.json` 데이터 주도로 전환(`archetypes[].unlock`·`combat.skills[].epiphany`+`combat.epiphanies`), 시나리오 교차 오염 + `load_scenario` lru_cache 오염 버그 수정, glass-library progression/presentation 패리티 + Story Bible 17 entries |
 | M39 | Procedural Route Map & Session Memory | `route_map.py` 루프 시드 결정적 layered DAG(사전저작 anchor 다중 관점 + 동적 pool), `route_runtime.py` 라이브 진행·관점·엔딩 누계, director 주입·edge=선택지 분기·combat 노드 전투 트리거, 노드 그래프 뷰, anchor 큐레이트 이미지, 노드 보상/관점 effect를 게이지·HP에 통합(rest/market 회복), `session_memory.py` beat 원장+롤링 시놉시스(RAG 아님). 설계 `bin/docs/plans/2026-06-07-route-node-procedural-map.md` |
-| M40 | Progression/Inventory/Equipment 데이터모델 통합 | JSONB-on-row → 전용 테이블(migration 005). `player_progression`(player+scenario PK upsert, meta_progression append-scan 제거, `load_progression`/`persist_progression`), `loop_inventory`(loop PK, PostgresStore save_loop/get_loop 중앙 dehydrate/hydrate). 장비 시스템: scenario `kind:equipment`+slot+stats, `equip_item`(슬롯당 1개) + 전투 시작 스탯 보너스 + `POST /loops/{id}/equip` + CharacterPanel 착용 UI. 기존 36행 백필. 설계 `docs/plans/2026-06-09-progression-inventory-equipment-datamodel.md` |
+| M40 | Progression/Inventory/Equipment 데이터모델 통합 | JSONB-on-row → 전용 테이블(migration 005). `player_progression`(player+scenario PK upsert, meta_progression append-scan 제거, `load_progression`/`persist_progression`), `loop_inventory`(loop PK, PostgresStore save_loop/get_loop 중앙 dehydrate/hydrate). 장비 시스템: scenario `kind:equipment`+slot+stats, `equip_item`(슬롯당 1개) + 전투 시작 스탯 보너스 + `POST /loops/{id}/equip` + CharacterPanel 착용 UI. 기존 36행 백필. 설계 `bin/docs/plans/2026-06-09-progression-inventory-equipment-datamodel.md` |
+| M41 | Neo-Seoul 콘텐츠 대규모 확장 | scenario.json에 신규 동료 3인(태오, 한, 수아), 신규 적 4종(Shock Trooper, Tracker Spider, Suppression Mech, Purge Drone), 스킬 6종 및 장비 6종, 신규 앵커 분기 2종(데이터 소각로, 지하철 통제 중추) 및 4개 교전 추가. bible.json에 인물/분기/엔딩 Echo 변주 스토리 바이블 보강. 신규 에셋(전투용 35종 모션 스프라이트 포함) 일괄 생성 및 scenario.json 매핑 완료, 로딩 검증용 유닛 테스트 추가 및 통과. 설계 `docs/plans/2026-06-11-content-expansion-tasks.md` |
 
 ## MVP Verification Summary
 

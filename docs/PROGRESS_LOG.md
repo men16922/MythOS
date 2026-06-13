@@ -5,6 +5,14 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-14 — 핵심 위협(왜 위험한가) stakes 노출 (live QA §2)
+
+- Status: live QA §2 "왜 위험한지 모르겠다" 처리.
+- Changed: `scenario.json playability.core_stake`(비식별 신호=IX 최적화/소거 대상) 추가 + `ScenarioConfig.playability` 노출(`scenario.py`) + `_scene_stakes_summary`가 초반 phase(connect/explore)에 core_stake를 스트립 최상단 노출, interact 이후 드롭(`serializers.py`). 문구는 brief PREMISE 도출(codex 폴리시 여지).
+- Verified: `make test` 304 OK, `tests.test_api` 31 OK, phase별 노출/드롭 동작 확인.
+- Blockers: 없음. (§3 내부표현은 프롬프트 가드+브라우저 확인상 깨끗 → 현재 저우선.)
+- Next: 실플레이 체감(위험 이유), 잔여 §6(전투-서사 연결).
+
 ## 2026-06-14 — 장면·위치 다양성: route 노드 anti-stickiness (explore 정체 수정)
 
 - Status: live QA §6 phase explore 정체 / location stickiness 수정. Playwright + 멀티턴 in-process 테스트서 발견(turn 1-3 같은 골목)→근본 원인 규명·수정.

@@ -123,6 +123,7 @@
   },
   "playability": {
     "priority": "neo-seoul-rc",
+    "core_stake": "당신은 어떤 명단에도 없는 '비식별 신호'입니다. 관리자 IX는 기준에서 벗어난 당신을 '최적화'(기억 삭제·소거)하려 합니다.",
     "golden_path": [
       {
         "minutes": "0-5",

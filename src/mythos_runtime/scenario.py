@@ -22,6 +22,7 @@ class ScenarioConfig:
     ui_copy: dict[str, Any] = field(default_factory=dict)
     characters: list[dict[str, Any]] = field(default_factory=list)
     session_design: dict[str, Any] = field(default_factory=dict)
+    playability: dict[str, Any] = field(default_factory=dict)
     main_arcs: list[dict[str, Any]] = field(default_factory=list)
     side_arcs: list[dict[str, Any]] = field(default_factory=list)
     npc_agendas: dict[str, dict[str, Any]] = field(default_factory=dict)
@@ -55,6 +56,7 @@ def load_scenario(scenario_id: str) -> ScenarioConfig:
         ui_copy=data.get("ui_copy", {}),
         characters=data.get("characters", []),
         session_design=data.get("session_design", {}),
+        playability=data.get("playability", {}),
         main_arcs=data.get("main_arcs", []),
         side_arcs=data.get("side_arcs", []),
         npc_agendas=data.get("npc_agendas", {}),

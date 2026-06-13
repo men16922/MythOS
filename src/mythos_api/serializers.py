@@ -163,6 +163,18 @@ def _route_node_label(state: dict[str, Any]) -> str | None:
 
 def _scene_stakes_summary(loop: Any, state: dict[str, Any]) -> list[str]:
     stakes: list[str] = []
+    # Early acts: the player is still learning *why* they're in danger ("왜 위험한지
+    # 모르겠다" feedback). Surface the scenario's core existential stake up top until
+    # the threat is established; drop it once past the opening acts.
+    if loop.phase.value in ("connect", "explore"):
+        scenario_id = state.get("scenario_id") if isinstance(state, dict) else None
+        if scenario_id:
+            try:
+                core = load_scenario(str(scenario_id)).playability.get("core_stake")
+            except Exception:  # noqa: BLE001 — scenario lookup is best-effort
+                core = None
+            if core:
+                stakes.append(str(core))
     route_label = _route_node_label(state)
     if route_label:
         stakes.append(f"현재 지점: {route_label}")

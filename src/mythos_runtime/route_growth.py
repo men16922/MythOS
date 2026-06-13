@@ -59,12 +59,14 @@ def extend_route(
     last_layer = len(layers) - 1
     changed = False
 
+    used_titles = {str(n.get("title", "")) for n in nodes.values() if n.get("title")}
+
     for layer_index in range(current_layer + 1, min(current_layer + horizon, last_layer) + 1):
         spec = growth.get(str(layer_index))
         if not isinstance(spec, dict) or spec.get("filled"):
             continue
         counter, grew = _fill_layer(
-            layer_index, layers, nodes, edges, spec, node_types, queue, counter, seed
+            layer_index, layers, nodes, edges, spec, node_types, queue, counter, seed, used_titles
         )
         spec["filled"] = True
         changed = changed or grew
@@ -113,6 +115,7 @@ def _fill_layer(
     queue: list[dict[str, str]],
     counter: int,
     seed: str,
+    used_titles: set[str],
 ) -> tuple[int, bool]:
     """Add dynamic nodes to one layer and wire it to its neighbours."""
     arc = str(spec.get("arc", ""))
@@ -130,7 +133,7 @@ def _fill_layer(
 
     new_ids: list[str] = []
     for col in range(need):
-        node_type, node_title = _next_node(queue, pool, node_types, dice, is_final)
+        node_type, node_title = _next_node(queue, pool, node_types, dice, is_final, used_titles)
         node_id = f"rn{counter}"
         counter += 1
         node_spec = {"type": node_type, "anchor": False, "title": node_title}
@@ -156,6 +159,7 @@ def _next_node(
     node_types: dict[str, Any],
     dice: Dice,
     is_final: bool,
+    used_titles: set[str],
 ) -> tuple[str, str]:
     """Pick the next dynamic node: an LLM proposal first, else the authored pool."""
     while queue:
@@ -164,17 +168,23 @@ def _next_node(
         # On non-final layers keep combat optional so an avoid route can persist;
         # but honour a proposed combat node if the pool itself allows combat.
         if node_type in pool or node_type in node_types:
-            title = proposal["title"] or _pool_title(node_type, node_types, dice)
+            title = proposal["title"] or _pool_title(node_type, node_types, dice, used_titles)
+            used_titles.add(title)
             return node_type, title
     node_type = dice.choice(pool)
-    return node_type, _pool_title(node_type, node_types, dice)
+    title = _pool_title(node_type, node_types, dice, used_titles)
+    used_titles.add(title)
+    return node_type, title
 
 
-def _pool_title(node_type: str, node_types: dict[str, Any], dice: Dice) -> str:
+def _pool_title(node_type: str, node_types: dict[str, Any], dice: Dice, used_titles: set[str]) -> str:
     type_spec = node_types.get(node_type, {})
     titles = type_spec.get("titles") if isinstance(type_spec, dict) else None
     if isinstance(titles, list) and titles:
-        return str(dice.choice([str(t) for t in titles]))
+        candidates = [str(t) for t in titles if str(t) not in used_titles]
+        if not candidates:
+            candidates = [str(t) for t in titles]
+        return str(dice.choice(candidates))
     return str(type_spec.get("label", node_type)) if isinstance(type_spec, dict) else node_type
 
 

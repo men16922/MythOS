@@ -426,7 +426,7 @@ class SessionCombatTest(unittest.TestCase):
         self.assertEqual(updated.stability, 70)
         self.assertEqual(updated.tension, 20)
 
-    def test_defeat_triggers_permadeath(self) -> None:
+    def test_defeat_opens_soft_recovery_instead_of_permadeath(self) -> None:
         loop_id = _seed_loop(self.store, "p2", "잔향 수집가 (Collector)")
         # Override to a fragile combatant so defeat is plausible against the enforcer.
         weak = self.store.get_player("p2")
@@ -451,19 +451,20 @@ class SessionCombatTest(unittest.TestCase):
         assert snap.combat is not None
         self.assertTrue(snap.combat["finished"])
         if snap.combat["outcome"] == "player_defeat":
-            self.assertIs(snap.loop.phase, LoopPhase.ENDED)
-            self.assertIsNotNone(snap.echo)
-            summaries = [
-                memory for memory in self.store.world_memories if memory.kind == "run_summary"
-            ]
-            self.assertEqual(len(summaries), 1)
-            self.assertEqual(summaries[0].content["loop_id"], loop_id)
-            self.assertEqual(summaries[0].content["combats_lost"], 1)
-            # In fallback/fast mode the loop-end summary must not call the LLM,
-            # so combat defeat resolves instantly instead of blocking on Ollama.
+            self.assertIs(snap.loop.phase, LoopPhase.EXPLORE)
+            self.assertIsNone(snap.echo)
+            self.assertTrue(snap.combat["defeat_soft"])
+            self.assertTrue(snap.loop.state["_soft_defeat_pending"])
+            self.assertEqual(snap.loop.state["_run"]["soft_defeats"], 1)
+            self.assertFalse(snap.loop.state["_run"]["dead"])
+            self.assertGreater(snap.loop.state["_party"]["player_hp"], 0)
+            self.assertEqual(snap.loop.stability, 60)
+            self.assertEqual(snap.loop.tension, 35)
+            self.assertEqual(len(self.store.world_memories), 0)
             director = cast(Any, self.service.director)
-            self.assertTrue(director.summary_calls)
-            self.assertNotIn(True, director.summary_calls)
+            self.assertEqual(director.summary_calls, [])
+            events = self.store.list_events(loop_id)
+            self.assertTrue(any(event.action == "combat_defeat_soft" for event in events))
 
     def _gate_loop(self, **state: Any) -> LoopState:
         loop = self.store.get_loop(self.loop_id)
@@ -500,6 +501,46 @@ class SessionCombatTest(unittest.TestCase):
             self.service._gate_next_combat(loop, 5, "patrol_ambush", self.options),
             "patrol_ambush",
         )
+
+
+class CombatScenarioContentTest(unittest.TestCase):
+    def setUp(self) -> None:
+        from mythos_runtime.scenario import load_scenario
+        self.scenario = load_scenario("neo-seoul")
+
+    def test_new_allies_and_bestiary_loaded(self) -> None:
+        combat = self.scenario.combat
+        self.assertIn("tae_o", combat["allies"])
+        self.assertIn("han", combat["allies"])
+        self.assertIn("su_ah", combat["allies"])
+        
+        self.assertIn("shock_trooper", combat["bestiary"])
+        self.assertIn("tracker_spider", combat["bestiary"])
+        self.assertIn("suppression_mech", combat["bestiary"])
+        self.assertIn("purge_drone", combat["bestiary"])
+
+    def test_new_skills_and_weapons_loaded(self) -> None:
+        combat = self.scenario.combat
+        for skill_id in [
+            "emp_pulse", "nanoshield_projector", "glitch_blink",
+            "signal_overdrive", "memory_resonance", "system_intrusion"
+        ]:
+            self.assertIn(skill_id, combat["skills"])
+            
+        for weapon_id in ["glitch_dagger", "emp_blaster", "heavy_carbine"]:
+            self.assertIn(weapon_id, combat["weapons"])
+
+    def test_new_items_and_encounters_loaded(self) -> None:
+        combat = self.scenario.combat
+        for item_id in [
+            "emp_grenade", "heavy_exosuit", "stealth_cloak", "overload_stim"
+        ]:
+            self.assertIn(item_id, combat["items"])
+
+        for encounter_id in [
+            "shock_trooper_patrol", "tracker_ambush", "mech_siege", "purge_incineration"
+        ]:
+            self.assertIn(encounter_id, combat["encounters"])
 
 
 if __name__ == "__main__":

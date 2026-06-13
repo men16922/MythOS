@@ -71,6 +71,23 @@ class LoopEngineTest(unittest.TestCase):
         self.assertEqual(transition.echo.source_loop_id, self.loop.loop_id)
         self.assertEqual(len(transition.loop.active_echoes), 1)
 
+    def test_soft_defeat_pending_blocks_immediate_archive(self) -> None:
+        engine = LoopEngine()
+        loop = replace(
+            self.loop,
+            phase=LoopPhase.EXPLORE,
+            tension=88,
+            state={"_soft_defeat_pending": True, "_last_combat_outcome": "soft_defeat"},
+        )
+        payload = self._payload(tension=5, end_condition="archive")
+
+        transition = engine.apply_scene_payload(loop, self._scene(3), payload)
+
+        self.assertTrue(transition.ok)
+        self.assertEqual(transition.loop.phase, LoopPhase.EXPLORE)
+        self.assertIsNone(transition.echo)
+        self.assertEqual(transition.loop.tension, 93)
+
     def test_archive_phase_transitions_to_ended(self) -> None:
         archive_loop = LoopState(
             loop_id="loop_1",

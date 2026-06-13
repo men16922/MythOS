@@ -1,5 +1,5 @@
 import unittest
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from mythos_core.models import Scene
 from mythos_runtime.session_memory import (
@@ -20,7 +20,7 @@ def _scene(turn: int, title: str, narration: str = "narr") -> Scene:
         narration=narration,
         choices=[],
         visual_brief=None,
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
 
 

@@ -227,6 +227,9 @@ class LoopEngine:
 
 
 def _archive_requested(loop: LoopState, payload: ScenePayload) -> bool:
+    state = loop.state if isinstance(loop.state, dict) else {}
+    if state.get("_soft_defeat_pending"):
+        return False
     end_condition = (payload.end_condition or "").lower()
     if end_condition in {"archive", "ended", "loop_complete"}:
         return True

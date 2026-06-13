@@ -129,3 +129,62 @@ class VisualJobQueue:
             except Exception:
                 pass
             self._client = None
+
+
+class SessionCache:
+    def __init__(self, url: str | None = None) -> None:
+        self.url: str = (
+            url if url is not None else os.getenv("REDIS_URL", "redis://localhost:6379/0")
+        )
+        self._client: Any = None
+
+    def _redis(self) -> Any:
+        if self._client is None:
+            import redis
+
+            self._client = redis.Redis.from_url(
+                self.url,
+                decode_responses=True,
+                socket_timeout=5,
+                socket_connect_timeout=5,
+            )
+        return self._client
+
+    def is_available(self) -> bool:
+        try:
+            return bool(self._redis().ping())
+        except Exception:
+            return False
+
+    def get_snapshot(self, loop_id: str) -> dict[str, Any] | None:
+        """Fetch the cached session snapshot JSON from Redis."""
+        try:
+            raw = self._redis().get(f"mythos:session:{loop_id}")
+            if raw:
+                return json.loads(raw)
+        except Exception:
+            pass
+        return None
+
+    def set_snapshot(self, loop_id: str, snapshot_dict: dict[str, Any], ttl_seconds: int = 1800) -> None:
+        """Cache the session snapshot JSON in Redis with a TTL (default 30m)."""
+        try:
+            self._redis().set(f"mythos:session:{loop_id}", json.dumps(snapshot_dict), ex=ttl_seconds)
+        except Exception:
+            pass
+
+    def delete_snapshot(self, loop_id: str) -> None:
+        """Evict the cached session snapshot from Redis."""
+        try:
+            self._redis().delete(f"mythos:session:{loop_id}")
+        except Exception:
+            pass
+
+    def close(self) -> None:
+        if self._client is not None:
+            try:
+                self._client.close()
+            except Exception:
+                pass
+            self._client = None
+

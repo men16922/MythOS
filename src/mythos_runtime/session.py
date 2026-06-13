@@ -43,6 +43,9 @@ from mythos_runtime.constants import (
     COMBAT_COOLDOWN_PRESSURE_TENSION,
     COMBAT_COOLDOWN_SCENES,
     COMBAT_RISK_CAP_BY_COUNT,
+    COMBAT_SOFT_DEFEAT_HEAL_FRAC,
+    COMBAT_SOFT_DEFEAT_STABILITY_LOSS,
+    COMBAT_SOFT_DEFEAT_TENSION_GAIN,
     MYTHOS_WORLD_ID,
 )
 from mythos_runtime.encounter_map import (
@@ -50,17 +53,6 @@ from mythos_runtime.encounter_map import (
     mark_encounter_resolved,
     tick_encounter_map,
 )
-from mythos_runtime.route_growth import extend_route
-from mythos_runtime.route_map import ROUTE_MAP_KEY, build_route_map, build_route_seed
-from mythos_runtime.route_runtime import (
-    advance_route,
-    junction_options,
-    node_encounter_id,
-    route_status,
-)
-from mythos_runtime.session_memory import record_beat
-
-ROUTE_CHOICE_PREFIX = "route:"
 from mythos_runtime.ending_resolver import EndingResolver
 from mythos_runtime.loop_scoring import (
     _clamp_score,
@@ -101,10 +93,21 @@ from mythos_runtime.progression import (
     persist_progression,
     traits_with_meta_progression,
 )
+from mythos_runtime.route_growth import extend_route
+from mythos_runtime.route_map import ROUTE_MAP_KEY, build_route_map, build_route_seed
+from mythos_runtime.route_runtime import (
+    advance_route,
+    junction_options,
+    node_encounter_id,
+    route_status,
+)
 from mythos_runtime.save_load import SaveLoadService
 from mythos_runtime.scenario import load_scenario
 from mythos_runtime.scenario_context import apply_archetype_traits, build_runtime_narrative_context
+from mythos_runtime.session_memory import record_beat
 from mythos_runtime.visual_orchestration import maybe_generate_scene_image
+
+ROUTE_CHOICE_PREFIX = "route:"
 
 if TYPE_CHECKING:
     from mythos_runtime.visual_service import VisualGenerationResult
@@ -121,6 +124,7 @@ class _PreparedStartLoop:
 class _PreparedChoice:
     player: PlayerProfile
     loop: LoopState
+    impact_base_loop: LoopState
     context: NarrativeContext
     player_event: WorldEvent
 
@@ -146,6 +150,60 @@ class RuntimeSessionService:
         self.save_load = SaveLoadService(store)
         self.progression = ProgressionService(store)
         self.logger = get_logger("mythos.session")
+
+    def _get_cache(self):
+        if not hasattr(self, "_session_cache"):
+            from mythos_runtime.visual_queue import SessionCache
+            self._session_cache = SessionCache()
+        return self._session_cache
+
+    def _is_test_env(self) -> bool:
+        import os
+        import sys
+
+        return (
+            "unittest" in sys.modules
+            or "pytest" in sys.modules
+            or os.getenv("MYTHOS_ENV") == "test"
+        )
+
+    def _get_cached_snapshot(self, loop_id: str) -> RuntimeSnapshot | None:
+        if self._is_test_env():
+            return None
+        cache = self._get_cache()
+        if cache and cache.is_available():
+            try:
+                data = cache.get_snapshot(loop_id)
+                if data:
+                    from mythos_core.models import from_json_dict
+                    return from_json_dict(RuntimeSnapshot, data)
+            except Exception as exc:
+                self.logger.warning("failed to decode cached snapshot", exc_info=exc)
+        return None
+
+    def _set_cached_snapshot(self, loop_id: str, snapshot: RuntimeSnapshot) -> None:
+        if self._is_test_env():
+            return
+        cache = self._get_cache()
+        if cache and cache.is_available():
+            try:
+                from mythos_core.models import to_json_dict
+                data = to_json_dict(snapshot)
+                if "image_result" in data:
+                    data["image_result"] = None
+                cache.set_snapshot(loop_id, data)
+            except Exception as exc:
+                self.logger.warning("failed to write snapshot cache", exc_info=exc)
+
+    def _delete_cached_snapshot(self, loop_id: str) -> None:
+        if self._is_test_env():
+            return
+        cache = self._get_cache()
+        if cache and cache.is_available():
+            try:
+                cache.delete_snapshot(loop_id)
+            except Exception:
+                pass
 
     def create_player(
         self,
@@ -322,15 +380,23 @@ class RuntimeSessionService:
         action: str | None,
         options: RuntimeOptions,
     ) -> _PreparedChoice:
-        loop = self._require_loop(loop_id)
-        if loop.phase is LoopPhase.ENDED:
-            raise RuntimeError(f"loop_id={loop.loop_id} is ended")
-        player = self._require_player(loop.player_id)
-        latest_scene = self.store.get_latest_scene(loop.loop_id)
+        cached = self._get_cached_snapshot(loop_id)
+        if cached:
+            loop = cached.loop
+            player = cached.player
+            latest_scene = cached.scene
+        else:
+            loop = self._require_loop(loop_id)
+            if loop.phase is LoopPhase.ENDED:
+                raise RuntimeError(f"loop_id={loop.loop_id} is ended")
+            player = self._require_player(loop.player_id)
+            latest_scene = self.store.get_latest_scene(loop.loop_id)
+
         if latest_scene is None:
-            raise RuntimeError(f"no scene found for loop_id={loop.loop_id}")
+            raise RuntimeError(f"no scene found for loop_id={loop_id}")
 
         resolved_action = _resolve_action(latest_scene, choice_id, action)
+        impact_base_loop = loop
         loop = _apply_choice_requirements_and_cost(loop, latest_scene, choice_id)
         recent_events = self.store.list_events(loop.loop_id)
         memories = self.store.list_player_memories(player.player_id)
@@ -368,6 +434,7 @@ class RuntimeSessionService:
         return _PreparedChoice(
             player=player,
             loop=loop,
+            impact_base_loop=impact_base_loop,
             context=context,
             player_event=player_event,
         )
@@ -383,6 +450,7 @@ class RuntimeSessionService:
         prepared = self._prepare_choice(loop_id, choice_id, action, options)
         player = prepared.player
         loop = prepared.loop
+        impact_base_loop = prepared.impact_base_loop
         context = prepared.context
         player_event = prepared.player_event
 
@@ -403,6 +471,7 @@ class RuntimeSessionService:
             player_event=player_event,
             metric_total_before=metric_total_before,
             route_target=_route_target_from_choice(choice_id),
+            impact_base_loop=impact_base_loop,
         )
 
     def stream_choose(
@@ -416,6 +485,7 @@ class RuntimeSessionService:
         prepared = self._prepare_choice(loop_id, choice_id, action, options)
         player = prepared.player
         loop = prepared.loop
+        impact_base_loop = prepared.impact_base_loop
         context = prepared.context
         player_event = prepared.player_event
         metric_total_before = _director_metric_total(self.director)
@@ -441,6 +511,7 @@ class RuntimeSessionService:
                 player_event=player_event,
                 metric_total_before=metric_total_before,
                 route_target=_route_target_from_choice(choice_id),
+                impact_base_loop=impact_base_loop,
             )
             yield RuntimeStreamEvent(kind="final", snapshot=snapshot)
 
@@ -451,6 +522,11 @@ class RuntimeSessionService:
         options: RuntimeOptions | None = None,
     ) -> RuntimeSnapshot:
         options = options or RuntimeOptions()
+        if loop_id:
+            cached = self._get_cached_snapshot(loop_id)
+            if cached:
+                return cached
+
         loop = None
         if loop_id:
             loop = self.store.get_loop(loop_id)
@@ -459,6 +535,9 @@ class RuntimeSessionService:
             # skip any that have since ENDED so player-resume picks the latest
             # *active* loop (ended loops live in run history, not the slot list).
             for slot in self.list_save_slots(player_id):
+                cached = self._get_cached_snapshot(slot.loop_id)
+                if cached:
+                    return cached
                 candidate = self.store.get_loop(slot.loop_id)
                 if candidate is not None and candidate.phase is not LoopPhase.ENDED:
                     loop = candidate
@@ -480,7 +559,7 @@ class RuntimeSessionService:
         combat = None
         if scene.scene_type == "combat" or CombatService.is_active(loop):
             combat = self._combat_snapshot(loop, options)
-        return RuntimeSnapshot(
+        snapshot = RuntimeSnapshot(
             player=player,
             loop=loop,
             scene=scene,
@@ -490,6 +569,8 @@ class RuntimeSessionService:
             clues_collected=self._clues_collected(player.player_id),
             epiphanies_unlocked=self._epiphanies_unlocked(player, loop),
         )
+        self._set_cached_snapshot(loop.loop_id, snapshot)
+        return snapshot
 
     def list_active_loops(self, player_id: str) -> list[LoopState]:
         self._require_player(player_id)
@@ -965,7 +1046,7 @@ class RuntimeSessionService:
         if result.finished:
             loop = self._apply_combat_rewards(loop, result)
             if result.outcome == "player_defeat":
-                loop, echo, defeat_event = self._combat_permadeath(loop, scene)
+                loop, defeat_event = self._combat_soft_defeat(loop, scene, encounter_id)
             combat_event = create_world_event(
                 loop.loop_id,
                 turn_index,
@@ -1074,6 +1155,7 @@ class RuntimeSessionService:
                 "consumables": self._combat_consumables(
                     loop, load_scenario(options.scenario_id)
                 ),
+                "defeat_soft": _is_soft_defeat(loop),
             },
             clues_collected=self._clues_collected(player.player_id),
             epiphanies_unlocked=self._epiphanies_unlocked(snapshot_player, loop),
@@ -1126,6 +1208,7 @@ class RuntimeSessionService:
             "hazards": dict(state.hazards),
             "encounter": _encounter_meta(encounter),
             "consumables": self._combat_consumables(loop, scenario),
+            "defeat_soft": _is_soft_defeat(loop),
         }
 
     def _resolved_ending_state(
@@ -1302,6 +1385,59 @@ class RuntimeSessionService:
         )
         return ended, echo, event
 
+    def _combat_soft_defeat(
+        self, loop: LoopState, scene: Scene, encounter_id: Any
+    ) -> tuple[LoopState, WorldEvent]:
+        """Turn combat defeat into a recoverable capture/chase beat.
+
+        The combat engine still reports ``player_defeat`` so the result panel can
+        communicate loss clearly. Runtime state keeps the loop active, restores a
+        small HP floor, and marks the next narrative turn as a forced recovery
+        beat instead of archiving the run immediately.
+        """
+        event = create_world_event(
+            loop.loop_id,
+            scene.turn_index + 1,
+            "combat_defeat_soft",
+            "Connector signal suppressed; recovery route opened.",
+            {
+                "phase": "recovery",
+                "combat_outcome": "player_defeat",
+                "encounter_id": encounter_id,
+                "soft_defeat": True,
+            },
+        )
+        state = dict(loop.state) if isinstance(loop.state, dict) else {}
+        run = dict(state.get("_run", {})) if isinstance(state.get("_run"), dict) else {}
+        run["dead"] = False
+        run["soft_defeats"] = int(run.get("soft_defeats", 0) or 0) + 1
+        state["_run"] = run
+        state["_soft_defeat_pending"] = True
+        state["_last_combat_outcome"] = "soft_defeat"
+        state["_combat_defeat_count"] = int(state.get("_combat_defeat_count", 0) or 0) + 1
+        state.pop("_pending_spawn_encounters", None)
+
+        flags = list(state.get("flags", [])) if isinstance(state.get("flags"), list) else []
+        for flag in ("combat_defeat_soft", "captured_after_combat"):
+            if flag not in flags:
+                flags.append(flag)
+        state["flags"] = flags
+
+        healed_party = _heal_party(state.get("_party"), COMBAT_SOFT_DEFEAT_HEAL_FRAC)
+        if healed_party is not None:
+            state["_party"] = healed_party
+
+        return (
+            replace(
+                loop,
+                phase=LoopPhase.EXPLORE,
+                stability=_clamp_score(loop.stability - COMBAT_SOFT_DEFEAT_STABILITY_LOSS),
+                tension=_clamp_score(loop.tension + COMBAT_SOFT_DEFEAT_TENSION_GAIN),
+                state=state,
+            ),
+            event,
+        )
+
     def _maybe_generate_image(
         self, options: RuntimeOptions, loop: LoopState, scene: Scene, player_id: str
     ) -> VisualGenerationResult | None:
@@ -1326,11 +1462,17 @@ class RuntimeSessionService:
         player_event=None,
         metric_total_before: int | None = None,
         route_target: str | None = None,
+        impact_base_loop: LoopState | None = None,
     ) -> RuntimeSnapshot:
         with span(span_name, player_id=player.player_id, loop_id=loop.loop_id):
             transition = self.engine.apply_scene_payload(loop, scene, payload, player_event)
         if not transition.ok:
             raise RuntimeError(_format_errors(transition.errors))
+        if _is_recovery_scene_after_soft_defeat(loop, scene):
+            transition = replace(
+                transition,
+                loop=replace(transition.loop, state=_clear_soft_defeat_pending(transition.loop.state)),
+            )
         loop_after_map, triggered_combat = self._advance_encounter_map(
             transition.loop, payload, options, scene.turn_index
         )
@@ -1400,6 +1542,17 @@ class RuntimeSessionService:
             )
             transition = replace(transition, loop=replace(transition.loop, state=beat_state))
 
+        if player_event is not None and impact_base_loop is not None:
+            impact = _choice_impact_summary(
+                before=impact_base_loop,
+                after=transition.loop,
+                scene=scene,
+                player_event=player_event,
+            )
+            state_with_impact = dict(transition.loop.state) if isinstance(transition.loop.state, dict) else {}
+            state_with_impact["_last_choice_impact"] = impact
+            transition = replace(transition, loop=replace(transition.loop, state=state_with_impact))
+
         with self.store.transaction():
             self.store.save_loop(transition.loop)
             self.store.save_scene(scene)
@@ -1451,7 +1604,10 @@ class RuntimeSessionService:
             transition.loop, scene.turn_index, next_combat, options
         )
         if next_combat and not CombatService.is_active(transition.loop):
-            return self._begin_requested_combat(player, transition.loop, next_combat, options)
+            combat_snapshot = self._begin_requested_combat(player, transition.loop, next_combat, options)
+            self._set_cached_snapshot(transition.loop.loop_id, combat_snapshot)
+            return combat_snapshot
+        self._set_cached_snapshot(transition.loop.loop_id, snapshot)
         return snapshot
 
     def _gate_next_combat(
@@ -1569,18 +1725,107 @@ def _heal_party(party: Any, frac: float) -> dict[str, Any] | None:
         healed["player_hp"] = min(max_hp, cur + round(max_hp * frac))
     members = healed.get("members")
     if isinstance(members, dict):
-        new_members: dict[str, Any] = {}
-        for mid, member in members.items():
-            if isinstance(member, dict):
-                m = dict(member)
-                mmax = int(m.get("max_hp", m.get("hp", 0)) or 0)
-                if mmax > 0:
-                    m["hp"] = min(mmax, int(m.get("hp", 0) or 0) + round(mmax * frac))
-                new_members[mid] = m
-            else:
-                new_members[mid] = member
-        healed["members"] = new_members
+        healed["members"] = {
+            mid: _healed_party_member(member, frac) for mid, member in members.items()
+        }
+    elif isinstance(members, list):
+        healed["members"] = [_healed_party_member(member, frac) for member in members]
     return healed
+
+
+def _healed_party_member(member: Any, frac: float) -> Any:
+    if not isinstance(member, dict):
+        return member
+    healed = dict(member)
+    max_hp = int(healed.get("max_hp", healed.get("hp", 0)) or 0)
+    if max_hp > 0:
+        healed["hp"] = min(max_hp, int(healed.get("hp", 0) or 0) + round(max_hp * frac))
+    return healed
+
+
+def _state_flags(state: Any) -> set[str]:
+    if not isinstance(state, dict):
+        return set()
+    flags = state.get("flags")
+    if not isinstance(flags, list):
+        return set()
+    return {str(flag) for flag in flags}
+
+
+def _route_node_label(state: Any) -> str | None:
+    if not isinstance(state, dict):
+        return None
+    route = state.get(ROUTE_MAP_KEY)
+    if not isinstance(route, dict):
+        return None
+    current = route.get("current")
+    nodes = route.get("nodes")
+    if not current or not isinstance(nodes, dict):
+        return None
+    node = nodes.get(current)
+    if not isinstance(node, dict):
+        return str(current)
+    return str(node.get("title") or node.get("label") or current)
+
+
+def _choice_impact_summary(
+    *,
+    before: LoopState,
+    after: LoopState,
+    scene: Scene,
+    player_event: WorldEvent,
+) -> dict[str, Any]:
+    stability_delta = after.stability - before.stability
+    tension_delta = after.tension - before.tension
+    new_flags = sorted(_state_flags(after.state) - _state_flags(before.state))
+    route_from = _route_node_label(before.state)
+    route_to = _route_node_label(after.state)
+
+    parts: list[str] = []
+    if scene.action_result:
+        parts.append(scene.action_result)
+    if stability_delta:
+        parts.append(f"안정성 {stability_delta:+d}")
+    if tension_delta:
+        parts.append(f"긴장도 {tension_delta:+d}")
+    if new_flags:
+        parts.append("새 플래그 " + ", ".join(new_flags[:3]))
+    if route_from and route_to and route_from != route_to:
+        parts.append(f"이동: {route_from} -> {route_to}")
+
+    return {
+        "action": player_event.action,
+        "summary": " · ".join(parts) if parts else "선택 결과가 현재 장면에 반영되었습니다.",
+        "stability_delta": stability_delta,
+        "tension_delta": tension_delta,
+        "new_flags": new_flags,
+        "route_from": route_from,
+        "route_to": route_to,
+    }
+
+
+def _is_soft_defeat(loop: LoopState) -> bool:
+    return bool(
+        isinstance(loop.state, dict)
+        and loop.state.get("_soft_defeat_pending")
+        and loop.state.get("_last_combat_outcome") == "soft_defeat"
+    )
+
+
+def _is_recovery_scene_after_soft_defeat(previous_loop: LoopState, scene: Scene) -> bool:
+    return bool(
+        isinstance(previous_loop.state, dict)
+        and previous_loop.state.get("_soft_defeat_pending")
+        and scene.scene_type != "combat"
+    )
+
+
+def _clear_soft_defeat_pending(state: dict[str, Any]) -> dict[str, Any]:
+    next_state = dict(state) if isinstance(state, dict) else {}
+    next_state.pop("_soft_defeat_pending", None)
+    next_state["_soft_defeat_recovered"] = True
+    next_state["_last_combat_outcome"] = "soft_defeat_recovered"
+    return next_state
 
 
 def _route_target_from_choice(choice_id: str | None) -> str | None:
@@ -1603,13 +1848,33 @@ def _route_choice_badges(node: dict[str, Any]) -> str:
     return " · ".join(parts)
 
 
+# Plain-language meaning of each route node type so a junction choice reads as a
+# destination with a purpose ("감시 사각(으)로 향한다 — 조용히 이동, 조우가 적은 경로")
+# instead of a bare node name + terse label the player can't map to gameplay.
+_ROUTE_TYPE_MEANING = {
+    "story": "분기 결정이 기다리는 주요 장면",
+    "boss": "지금까지의 선택과 관계가 모이는 최종 대면",
+    "market": "보급·거래로 장비를 갖추는 곳",
+    "rest": "정비·회복으로 다음 전투에 대비하는 곳",
+    "clue": "단서를 캐내 진실에 다가가는 곳",
+    "event": "예기치 못한 사건이 벌어지는 곳",
+    "patrol": "조용히 이동하는, 조우가 적은 경로",
+    "combat": "교전이 기다리는 경로",
+}
+
+
+def _route_destination_meaning(node: dict[str, Any]) -> str:
+    node_type = str(node.get("type") or "")
+    return _ROUTE_TYPE_MEANING.get(node_type) or str(node.get("label") or "다음 지점")
+
+
 def _build_route_choices(options: list[dict[str, Any]]) -> list[Choice]:
     """Build branch choices from a junction's candidate next nodes."""
     choices: list[Choice] = []
     for node in options:
         node_id = str(node.get("id"))
         title = node.get("title") or node.get("label") or "다음 지점"
-        label = f"{title}(으)로 향한다 · {node.get('label')}"
+        label = f"{title}(으)로 향한다 — {_route_destination_meaning(node)}"
         badges = _route_choice_badges(node)
         if badges:
             label = f"{label} · {badges}"

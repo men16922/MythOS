@@ -32,6 +32,15 @@ LANGUAGE_RULE = (
     "5. 이 규칙은 절대적이며 최우선적으로 준수되어야 합니다."
 )
 
+CINEMATIC_CLARITY_RULE = (
+    "CINEMATIC CLARITY RULE (직관적 시네마틱 대본 규칙):\n"
+    "- 장면은 영화 시나리오처럼 '보이는 장소 → 즉각적 위협 → 인물의 행동/대사 → 다음 선택' 순서로 쓰십시오.\n"
+    "- 첫 문장에는 플레이어가 실제로 어디에 서 있는지와 당장 무엇이 위험한지 보여주십시오.\n"
+    "- Neo-Seoul 장면은 비, 콘크리트, 골목, 드론 수색등, 지하철 셔터, 복지 키오스크, 야시장 네온, 바이크 엔진, 손목을 잡는 행동처럼 물리적이고 촬영 가능한 이미지로 묘사하십시오.\n"
+    "- '데이터 흐름', '잔향 회랑', '오버레이 코어', '불안 영역', '플레이어의 존재 자체' 같은 추상 명사를 길게 나열하지 마십시오. 명시적으로 가상 코어 내부인 장면이 아니라면 이런 표현은 배경 은유 한 문장 이하로 제한하십시오.\n"
+    "- 한 문단은 1~3문장으로 짧게 유지하고, 긴 설명문 대신 카메라가 볼 수 있는 행동을 쓰십시오."
+)
+
 CAUSALITY_ENGINE_RULE = (
     "CAUSALITY_ENGINE_RULE: The world is a complex gear-system. "
     "1. MAIN ARC: Follow the main story progression but don't rush. "
@@ -46,6 +55,8 @@ NEO_SEOUL_NAMING_RULE = (
     "NEO-SEOUL NAMING RULE (고유명사 표기 고정):\n"
     "- 정식 표기는 반드시 '정세린' 또는 축약 '세린'만 사용하십시오.\n"
     "- '세리느', '세린느', 'Serine', 'Seline' 등 다른 표기는 절대 사용하지 마십시오.\n"
+    "- 세린은 플레이어에게 존댓말을 쓰지 않습니다. 대사는 짧은 반말/명령형으로 쓰고, "
+    "'요', '습니다', '세요', '하시겠습니까' 같은 높임말 어미를 세린의 대사에 사용하지 마십시오.\n"
     "- Lin Yue는 한국어 본문에서 '린위에', Kai RX-09는 '카이 RX-09', Administrator IX는 '관리자 IX'로 표기하십시오."
 )
 
@@ -85,7 +96,12 @@ def build_runtime_narrative_context(
     player_action: str | None = None,
     fast_mode: bool = False,
 ) -> NarrativeContext:
-    notes = [f"SCENARIO_BRIEF: {scenario.brief}", *novelty_notes, LANGUAGE_RULE]
+    notes = [
+        f"SCENARIO_BRIEF: {scenario.brief}",
+        *novelty_notes,
+        LANGUAGE_RULE,
+        CINEMATIC_CLARITY_RULE,
+    ]
     if scenario.scenario_id == "neo-seoul":
         notes.append(NEO_SEOUL_NAMING_RULE)
     notes.extend(_scenario_structure_notes(scenario))
@@ -155,12 +171,15 @@ def build_runtime_narrative_context(
                 f"ONBOARDING_ACT1_SHOT1: 당신은 오프닝의 첫 번째 플레이 가능한 장면을 작성하고 있습니다. "
                 f"주제: '빗속에서 세린이 당신을 발견한다' (Shot 01 // Arrival). "
                 f"세린은 C-17 구역의 비 내리는 어두운 네온 골목에서 비등록 '{archetype}' 신호인 플레이어를 발견합니다. "
-                f"빗소리, 차가운 콘크리트, 머리 위를 훑는 감시 드론 등의 감각적 디테일을 서사하십시오. "
-                f"세린이 당신을 발견하고 아직 지워지지 않았는지(살아있는지) 확인하는 순간에 집중하십시오. "
-                f"이 장면의 모든 서사와 선택지는 반드시 한국어(Korean)로 작성되어야 합니다. 반응을 선택할 수 있는 동적인 선택지를 제공하십시오.\n"
+                f"첫 문단 안에 반드시 '정세린' 또는 '세린'이라는 이름을 쓰고, 그녀가 플레이어에게 직접 손을 내미는 장면을 묘사하십시오. "
+                f"반드시 세린의 짧은 대사를 포함하십시오: '등록 안 됐지? 그럼 아직 사람이야. 뛰어.' "
+                f"플레이어는 방금 깨어난 주인공입니다. '실루엣', '하나의 존재', '데이터 잔해'처럼 누군지 모호한 대상만 묘사하지 말고, "
+                f"세린과 플레이어의 거리, 손, 시선, 드론 수색등을 명확히 쓰십시오. "
+                f"이 장면의 모든 서사와 선택지는 반드시 한국어(Korean)로 작성되어야 합니다. 선택지는 전문용어 없는 짧은 행동문으로 제공하십시오.\n"
                 f"선택지 생성 가이드:\n"
-                f" 1) 세린의 오토바이에 타거나 동행을 수락하는 협력적인 선택지 (이 선택은 세린을 파티 동료로 합류시킵니다)\n"
-                f" 2) 세린을 경계하고 거부하여 홀로 숨거나 독자 탈출을 꾀하는 선택지 (이 선택 시 세린은 동료로 합류하지 않습니다)\n"
+                f" 1) '세린의 손을 잡고 뛴다'처럼 동행을 수락하는 선택지 (이 선택은 세린을 파티 동료로 합류시킵니다)\n"
+                f" 2) '세린에게 왜 나를 돕는지 묻는다'처럼 관계를 확인하는 선택지\n"
+                f" 3) '혼자 숨을 곳을 찾는다'처럼 세린을 경계하고 독자 탈출을 꾀하는 선택지 (이 선택 시 세린은 동료로 합류하지 않습니다)\n"
                 f"중요: 이 장면은 오프닝 대화와 선택지 제공 단계이므로, 절대 전투를 시작하지 마십시오. world_delta.start_combat은 반드시 null이어야 합니다."
             )
         elif turn_index == 1:
@@ -197,14 +216,25 @@ def build_runtime_narrative_context(
 
     # Session memory: "story so far" synopsis + the previous scene(s) verbatim,
     # so scenes continue with continuity instead of re-describing the same beats.
-    if isinstance(loop.state, dict):
-        notes.extend(build_session_synopsis(loop.state))
+    # Kept in its own list (not merged into `notes`) so the prompt renders it in
+    # FULL — merging it let the MAX_PROMPT_NOTES truncation silently drop the
+    # anti-repeat directives + previous-scene prose, which is why repetition
+    # suppression looked broken in live play.
+    session_synopsis = (
+        build_session_synopsis(loop.state) if isinstance(loop.state, dict) else []
+    )
 
-    # Route-node steering: after the scripted opening (turns 0-2), tell the GM
-    # which procedural node the player is standing on, from which authored
-    # perspective to narrate it, and which ending the route currently leans to.
-    if turn_index >= 3:
+    # Current-node steering must start right after the cold-open (turn 0), so the
+    # mandatory layer-0 anchor actually gets narrated — e.g. neo-seoul's
+    # "추락과 첫 신뢰" (the 세린 first-trust beat). It was previously gated to
+    # turn>=3, but with turns_per_layer=4 layer 0 spans turns 0-3, so two generic
+    # free-written scenes ran first and players rarely reached the authored anchor
+    # (the 세린 조우 "사라짐" bug). Tell the GM which node they're on from turn 1.
+    if turn_index >= 1:
         notes.extend(_route_director_notes(scenario, loop))
+    # Junction steering (explicit branch choices between layers) stays past the
+    # opening, where forks actually start to matter.
+    if turn_index >= 3:
         notes.extend(_route_junction_notes(scenario, loop, turn_index))
 
     # P1 — 루프 내러티브 잔향 (Slay the Princess) 처리
@@ -322,6 +352,7 @@ def build_runtime_narrative_context(
         world_memories=list(world_memories),
         narrative_shards=list(narrative_shards),
         novelty_notes=notes,
+        session_synopsis=session_synopsis,
         player_action=player_action,
         system_prompt=scenario.system_prompt,
         fast_mode=fast_mode,
@@ -396,6 +427,14 @@ def _route_director_notes(scenario: ScenarioConfig, loop: LoopState) -> list[str
         f"현재 작전 노드: '{node.get('title') or node.get('label')}' · 유형 {node.get('label')} · {kind}.",
         "지침: 이번 장면은 이 노드를 무대로 전개하십시오. 노드 유형의 성격(전투/단서/시장/정비/사건/대면 등)을 장면 분위기와 선택지에 반영하되, 묘사·대사·선택지 텍스트는 자유롭게 창작하십시오.",
     ]
+    node_image = str(node.get("image") or "").strip()
+    if node_image:
+        image_hint = node_image.rsplit("/", 1)[-1].rsplit(".", 1)[0].replace("-", " ").replace("_", " ")
+        lines.append(
+            f"주요 장면 이미지 정합성: 이 노드는 사전 제작 이미지 '{node_image}'를 사용합니다. "
+            f"첫 단락에서 이미지가 보여주는 핵심 피사체/장소/행동을 반드시 묘사하십시오. "
+            f"이미지 힌트: {image_hint}. 장면 제목, narration, visual_brief가 이 이미지와 어긋나면 안 됩니다."
+        )
     if perspective:
         lines.append(
             f"활성 시점(관점): '{perspective.get('lens')}' — {perspective.get('summary')} "

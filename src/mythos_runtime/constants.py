@@ -27,3 +27,9 @@ SHARD_ROLLUP_TRIGGER_CHARS = 12_000
 COMBAT_COOLDOWN_SCENES = 3
 COMBAT_COOLDOWN_PRESSURE_TENSION = 80
 COMBAT_RISK_CAP_BY_COUNT = (1, 2, 3, 4)
+
+# A normal combat defeat should be a playable setback, not an immediate run
+# deletion. Repeated defeat is still tracked in state for future hard-fail tuning.
+COMBAT_SOFT_DEFEAT_HEAL_FRAC = 0.45
+COMBAT_SOFT_DEFEAT_STABILITY_LOSS = 10
+COMBAT_SOFT_DEFEAT_TENSION_GAIN = 15

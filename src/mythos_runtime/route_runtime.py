@@ -140,13 +140,26 @@ def junction_options(
         return []
     seen: set[str] = set()
     options: list[dict[str, Any]] = []
+    flags = set(state.get("flags", []) or [])
     for target in edges.get(current, []):
         if target in seen:
             continue
         seen.add(target)
         node = nodes.get(target)
         if isinstance(node, dict):
+            gate = node.get("gate")
+            if isinstance(gate, list) and gate:
+                if not all(flag in flags for flag in gate):
+                    continue
             options.append(node)
+
+    # Fallback to avoid empty option softlocks if all options are gated out
+    if not options and edges.get(current):
+        for target in edges[current]:
+            node = nodes.get(target)
+            if isinstance(node, dict):
+                options.append(node)
+
     return options if len(options) >= 2 else []
 
 
@@ -191,10 +204,19 @@ def _choose_next(
     scored: list[tuple[int, str]] = []
     for node_id in candidates:
         node = nodes.get(node_id, {})
+        gate = node.get("gate")
+        if isinstance(gate, list) and gate:
+            if not all(flag in flag_set for flag in gate):
+                continue
         score = 0
         for perspective in node.get("perspectives", []) or []:
             score = max(score, len(set(perspective.get("when", []) or []) & flag_set))
         scored.append((score, node_id))
+
+    if not scored:
+        for node_id in candidates:
+            scored.append((0, node_id))
+
     best = max(score for score, _ in scored)
     top = sorted(node_id for score, node_id in scored if score == best)
     return top[0] if len(top) == 1 else dice.choice(top)

@@ -49,6 +49,7 @@ def build_route_map(config: dict[str, Any] | None, seed: str) -> dict[str, Any] 
     nodes: dict[str, dict[str, Any]] = {}
     layers: list[list[str]] = []
     counter = 0
+    used_titles: set[str] = set()
 
     for layer_index, layer in enumerate(layers_cfg):
         if not isinstance(layer, dict):
@@ -61,6 +62,9 @@ def build_route_map(config: dict[str, Any] | None, seed: str) -> dict[str, Any] 
         for col, node_spec in enumerate(specs):
             node_id = f"rn{counter}"
             counter += 1
+            if node_spec.get("title"):
+                used_titles.add(str(node_spec["title"]))
+
             # Dynamic (non-anchor) nodes get an evocative type-based title from the
             # node type's `titles` pool so junction choices read distinctly instead
             # of repeating the act title. Anchors keep their authored title.
@@ -68,7 +72,8 @@ def build_route_map(config: dict[str, Any] | None, seed: str) -> dict[str, Any] 
                 pool = node_types.get(node_spec.get("type"), {})
                 titles = pool.get("titles") if isinstance(pool, dict) else None
                 if isinstance(titles, list) and titles:
-                    node_spec = {**node_spec, "title": dice.choice([str(t) for t in titles])}
+                    chosen_title = _pick_unique_title([str(t) for t in titles], used_titles, dice)
+                    node_spec = {**node_spec, "title": chosen_title}
             nodes[node_id] = _build_node(node_id, node_spec, node_types, layer_index, arc, title, col)
             layer_ids.append(node_id)
         if layer_ids:
@@ -248,7 +253,7 @@ def _reachable_from(
     target: str,
     edges: dict[str, list[str]],
     *,
-    blocked: "set[str] | None" = None,
+    blocked: set[str] | None = None,
 ) -> bool:
     """Return True if ``target`` is reachable from ``start`` over ``edges``.
 
@@ -328,6 +333,7 @@ def build_route_seed(
     layers: list[list[str]] = []
     growth: dict[str, dict[str, Any]] = {}
     counter = 0
+    used_titles: set[str] = set()
 
     for layer_index, layer in enumerate(layers_cfg):
         if not isinstance(layer, dict):
@@ -343,11 +349,15 @@ def build_route_seed(
         for col, node_spec in enumerate(specs):
             node_id = f"rn{counter}"
             counter += 1
+            if node_spec.get("title"):
+                used_titles.add(str(node_spec["title"]))
+
             if not node_spec.get("anchor") and not node_spec.get("title"):
                 pool = node_types.get(node_spec.get("type"), {})
                 titles = pool.get("titles") if isinstance(pool, dict) else None
                 if isinstance(titles, list) and titles:
-                    node_spec = {**node_spec, "title": dice.choice([str(t) for t in titles])}
+                    chosen_title = _pick_unique_title([str(t) for t in titles], used_titles, dice)
+                    node_spec = {**node_spec, "title": chosen_title}
             nodes[node_id] = _build_node(
                 node_id, node_spec, node_types, layer_index, arc, title, col
             )
@@ -385,7 +395,14 @@ def build_route_seed(
         "next_node_index": counter,
     }
 
-
+def _pick_unique_title(titles: list[str], used: set[str], dice: Dice) -> str:
+    """Select a title that has not been used yet in the route map, with fallback to duplicates if exhausted."""
+    candidates = [t for t in titles if t not in used]
+    if not candidates:
+        candidates = titles
+    chosen = dice.choice(candidates)
+    used.add(chosen)
+    return chosen
 __all__ = [
     "ROUTE_MAP_KEY",
     "ROUTE_MAP_VERSION",

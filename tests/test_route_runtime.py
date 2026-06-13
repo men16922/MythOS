@@ -120,11 +120,13 @@ class NodeEncounterTest(unittest.TestCase):
 
     def test_combat_node_maps_to_pool_encounter(self) -> None:
         node = {"id": "n", "type": "patrol", "combat": True}
-        self.assertEqual(node_encounter_id(node, self.mapping, seed="s"), "patrol_ambush")
+        pick = node_encounter_id(node, self.mapping, seed="s")
+        self.assertIn(pick, self.mapping["patrol"])
 
     def test_boss_node_maps_to_boss_encounter(self) -> None:
         node = {"id": "b", "type": "boss", "combat": True}
-        self.assertEqual(node_encounter_id(node, self.mapping, seed="s"), "enforcer_standoff")
+        pick = node_encounter_id(node, self.mapping, seed="s")
+        self.assertIn(pick, self.mapping["boss"])
 
     def test_multi_pool_pick_is_deterministic_and_valid(self) -> None:
         node = {"id": "c1", "type": "combat", "combat": True}
@@ -135,7 +137,6 @@ class NodeEncounterTest(unittest.TestCase):
 
 class RouteDirectorNotesTest(unittest.TestCase):
     def test_notes_reflect_current_node_and_perspective(self) -> None:
-        from dataclasses import replace
 
         from mythos_core import LoopPhase, LoopState
         from mythos_core.clock import utc_now
@@ -146,7 +147,7 @@ class RouteDirectorNotesTest(unittest.TestCase):
         # turn lands on the arc_2 market anchor (has authored perspectives);
         # trusted_se_rin biases edge selection toward that anchor.
         state = advance_route(
-            _state("seed", ["trusted_se_rin"]), turn_index=DEFAULT_TURNS_PER_LAYER, seed="seed"
+            _state("seed", ["trusted_se_rin", "met_se_rin"]), turn_index=DEFAULT_TURNS_PER_LAYER, seed="seed"
         )
         loop = LoopState(
             loop_id="loop_x",

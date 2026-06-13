@@ -360,7 +360,7 @@ class MemoryOverviewTest(unittest.TestCase):
                 content={
                     "loop_id": "loop_0",
                     "player_id": "player_1",
-                    "final_title": "Signal at the Threshold",
+                    "final_title": "C-17 정전 구역",
                     "stability": 60,
                     "tension": 40,
                     "phase": "ended",
@@ -402,7 +402,7 @@ class MemoryOverviewTest(unittest.TestCase):
             scene_id="scene_1",
             loop_id="loop_1",
             turn_index=0,
-            title="Signal at the Threshold",
+            title="C-17 정전 구역",
             location="data-layer-01",
             narration="The gate opens.",
             choices=[],

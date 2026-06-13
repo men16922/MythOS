@@ -426,16 +426,20 @@ function TacticalLegend({ combat }: { combat: CombatState }) {
 function LearningGoalBanner({ combat }: { combat: CombatState }) {
   const encounter = combat.encounter;
   const goal = encounter?.learning_goal;
+  const trigger = encounter?.narrative_trigger;
+  const reward = encounter?.reward_intent;
   const [dismissed, setDismissed] = useState(false);
-  if (!goal || dismissed) return null;
+  if ((!goal && !trigger && !reward) || dismissed) return null;
   return (
     <div className="combat-learning-goal" role="note">
       <span className="combat-learning-goal-icon">🎯</span>
       <div className="combat-learning-goal-body">
         <span className="combat-learning-goal-label">
-          학습 목표{encounter?.name ? ` · ${encounter.name}` : ""}
+          교전 배경{encounter?.name ? ` · ${encounter.name}` : ""}
         </span>
-        <span className="combat-learning-goal-text">{goal}</span>
+        {trigger && <span className="combat-learning-goal-text">⚑ 배경 · {trigger}</span>}
+        {goal && <span className="combat-learning-goal-text">🎯 학습 · {goal}</span>}
+        {reward && <span className="combat-learning-goal-text">🎁 승리 보상 · {reward}</span>}
       </div>
       <button
         className="combat-learning-goal-close"

@@ -5,6 +5,14 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-14 — 전투-서사 연결: 교전 배너에 배경·보상 의미 노출 (live QA §5/§6)
+
+- Status: §6 "전투-서사 연결 희미" + §5 "보상 의미 약함" 처리.
+- Changed: 인코더의 기존 미사용 메타 `narrative_trigger`(왜 이 교전인가)·`reward_intent`(이기면 무엇이 남는가)를 `_encounter_meta`가 노출하도록 추가(`combat_session_helpers.py`), StoryPanel 전투 배너를 "교전 배경 · {name} / ⚑ 배경 / 🎯 학습 / 🎁 승리 보상"으로 확장(`StoryPanel.tsx`, `types.ts`). 문구는 시나리오 기존 데이터(designer-voice, codex 폴리시 여지).
+- Verified: `make test` 304 OK, `tests.test_session_combat` 19 OK, `make frontend-lint`/`frontend-build` clean.
+- Blockers: 없음. 변경 미커밋.
+- Next: 실플레이 체감(전투 진입/보상), 보상 결과 패널과 reward_intent 연동 검토.
+
 ## 2026-06-14 — 핵심 위협(왜 위험한가) stakes 노출 (live QA §2)
 
 - Status: live QA §2 "왜 위험한지 모르겠다" 처리.

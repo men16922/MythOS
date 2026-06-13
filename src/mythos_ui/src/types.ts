@@ -247,7 +247,9 @@ export interface CombatState {
   encounter?: {
     id?: string;
     name?: string;
+    narrative_trigger?: string;
     learning_goal?: string;
+    reward_intent?: string;
   };
   consumables?: CombatConsumable[];
 }

@@ -15,13 +15,15 @@ from mythos_runtime.combat_service import CombatService, CombatTurnResult
 
 
 def _encounter_meta(encounter: Any) -> dict[str, Any]:
-    """Surface player-facing encounter metadata (name + learning goal) so the
-    combat board can show a "what this fight teaches" banner. Only non-empty
-    fields are included; unknown/legacy encounters yield ``{}``."""
+    """Surface player-facing encounter metadata so the combat board can show a
+    banner connecting the fight to the story: name, why it happened
+    (``narrative_trigger``), what it teaches (``learning_goal``), and what winning
+    means (``reward_intent``). Only non-empty fields are included; unknown/legacy
+    encounters yield ``{}``."""
     if not isinstance(encounter, dict):
         return {}
     meta: dict[str, Any] = {}
-    for key in ("id", "name", "learning_goal"):
+    for key in ("id", "name", "narrative_trigger", "learning_goal", "reward_intent"):
         value = encounter.get(key)
         if value:
             meta[key] = value

@@ -6,7 +6,10 @@
   "character_map": {
     "se-rin": "characters/se-rin.png",
     "kai": "characters/kai.png",
-    "lin-yue": "characters/lin-yue.png"
+    "lin-yue": "characters/lin-yue.png",
+    "tae-o": "characters/tae-o.png",
+    "han": "characters/han.png",
+    "su-ah": "characters/su-ah.png"
   },
   "characters": [
     {
@@ -31,6 +34,27 @@
       "keywords": ["카이", "kai", "rx-09"]
     },
     {
+      "name": "태오",
+      "alias": "사냥개",
+      "role": "탈주 집행관 / 전술 조력자",
+      "image": "characters/tae-o.png",
+      "keywords": ["태오", "tae-o", "tae o", "사냥개"]
+    },
+    {
+      "name": "한",
+      "alias": "신호 파괴자",
+      "role": "비접속자 해커",
+      "image": "characters/han.png",
+      "keywords": ["한", "han", "신호 파괴자", "해커"]
+    },
+    {
+      "name": "수아",
+      "alias": "잔향 가공사",
+      "role": "기억의 대장장이",
+      "image": "characters/su-ah.png",
+      "keywords": ["수아", "su-ah", "su ah", "잔향 가공사"]
+    },
+    {
       "name": "관리자 IX",
       "alias": "Control Net",
       "role": "ARK 관리망",
@@ -41,7 +65,9 @@
   "concept_map": {
     "night market": "concept/01-night-market.png",
     "control spire": "concept/02-control-spire.png",
-    "underground": "concept/03-underground-echo.png"
+    "underground": "concept/03-underground-echo.png",
+    "data incinerator": "concept/05-data-incinerator.png",
+    "subway control hub": "concept/06-subway-control-hub.png"
   },
   "archetypes": [
     {
@@ -86,12 +112,13 @@
       {
         "phase": "connect",
         "turn_range": "0-6",
-        "gate": "세린과 C-17을 탈출하고 met_se_rin 또는 refused_se_rin이 기록된다."
+        "gate": "세린과 C-17을 탈출하고 met_se_rin 또는 refused_se_rin이 기록된다.",
+        "player_goal": "정세린과 함께 C-17 정전 구역을 빠져나간다."
       },
-      {"phase": "explore", "turn_range": "7-18", "gate": "복지 블록과 야시장 중 최소 한 곳에서 최적화 명단 단서가 나온다."},
-      {"phase": "interact", "turn_range": "19-34", "gate": "린위에 거래 또는 시민 구출 선택이 끝나고 카이 위치 단서가 열린다."},
-      {"phase": "rewrite", "turn_range": "35-50", "gate": "카이 재가동, 관리자 IX 대면, 최종 침투 선택 중 하나가 발생한다."},
-      {"phase": "archive", "turn_range": "51-60", "gate": "엔딩 판정과 Echo/Shard 후보를 정리한다."}
+      {"phase": "explore", "turn_range": "7-18", "gate": "복지 블록과 야시장 중 최소 한 곳에서 최적화 명단 단서가 나오거나, 태오(tae_o) 또는 한(han)/수아(su_ah) 플래그가 기록된다.", "player_goal": "복지 블록과 한강 야시장을 돌며 '최적화 명단'의 정체에 관한 단서를 찾고 동료를 만난다."},
+      {"phase": "interact", "turn_range": "19-34", "gate": "린위에 거래 또는 시민 구출 선택이 끝나고 카이 위치 단서가 열리며, 제3막 데이터 소각로(data_incinerator) 분기가 수행된다.", "player_goal": "린위에와 거래하거나 시민을 구하고, 카이의 위치 단서와 데이터 소각로 분기를 연다."},
+      {"phase": "rewrite", "turn_range": "35-50", "gate": "카이 재가동, 지하철 통제 중추(subway_control_hub) 선택, 관리자 IX 대면, 최종 침투 선택 중 하나가 발생한다.", "player_goal": "카이를 깨우고 지하철 통제 중추를 지나 관리자 IX와의 대면을 준비한다."},
+      {"phase": "archive", "turn_range": "51-60", "gate": "엔딩 판정과 Echo/Shard 후보를 정리한다.", "player_goal": "이번 루프의 결말을 매듭짓고 다음 루프에 남길 잔향을 정리한다."}
     ]
   },
   "playability": {
@@ -224,9 +251,9 @@
       "boss": {"label": "대면", "glyph": "❒", "risk": 5, "combat": true, "reward": {"insight": 2}}
     },
     "combat_encounters": {
-      "combat": ["sentinel_checkpoint", "wraith_glitch"],
-      "patrol": ["patrol_ambush"],
-      "boss": ["enforcer_standoff"]
+      "combat": ["sentinel_checkpoint", "wraith_glitch", "shock_trooper_patrol", "mech_siege"],
+      "patrol": ["patrol_ambush", "tracker_ambush", "purge_incineration"],
+      "boss": ["enforcer_standoff", "mech_siege"]
     },
     "perspective_doc": "각 anchor는 같은 임팩트 장면을 여러 관점(perspectives)으로 본다. 플레이어가 누적한 flags가 when을 만족하는 관점이 그 세션의 진행으로 선택된다(없으면 default_perspective). 각 관점은 axis(선택축), crosses(교차하는 다른 비트), effect(세션 영향), ending_influence(엔딩 도출)를 갖는다. 실제 선택/적용은 director 통합 단계에서 수행한다.",
     "layers": [
@@ -329,6 +356,49 @@
       {
         "arc": "arc_3_the_awakening",
         "title": "사람을 세는 기계",
+        "anchors": [
+          {
+            "type": "story",
+            "mandatory": true,
+            "beat": "data_incinerator",
+            "title": "데이터 소각로",
+            "image": "concept/05-data-incinerator.png",
+            "event": "incinerator_choice",
+            "default_perspective": "p_rescue",
+            "perspectives": [
+              {
+                "id": "p_rescue",
+                "lens": "남겨진 생명 — 인도주의 시점",
+                "axis": "people",
+                "when": ["humanity_first", "trusted_se_rin"],
+                "summary": "소각 위기의 비식별 대상자들을 구출한다. 인류애를 지키고 세린의 신뢰가 깊어진다.",
+                "crosses": ["opening_escape"],
+                "effect": {"flags": ["incinerator_rescued"], "stability": 4, "relationship": {"se_rin": 1}},
+                "ending_influence": ["ending_safe_refuge", "ending_noble_sacrifice"]
+              },
+              {
+                "id": "p_steal",
+                "lens": "로그 강탈 — 증거주의 시점",
+                "axis": "evidence",
+                "when": ["evidence_first", "insight_focus"],
+                "summary": "시민 대신 알고리즘 핵심 로그를 추출한다. 진실을 밝힐 단서를 얻지만 비명이 울려퍼진다.",
+                "crosses": ["spire_gate"],
+                "effect": {"flags": ["incinerator_logged"], "insight": 2, "relationship": {"se_rin": -1}},
+                "ending_influence": ["ending_code_rewrite"]
+              },
+              {
+                "id": "p_demolish",
+                "lens": "소각로 파괴 — 통제 파괴 시점",
+                "axis": "control",
+                "when": ["high_tension", "destruction_will"],
+                "summary": "소각로 노즐을 과부하시켜 구역 전체를 폭파한다. 제어력을 과시하지만 추적도가 급증한다.",
+                "crosses": ["ix_confrontation"],
+                "effect": {"flags": ["incinerator_demolished"], "tension": 10},
+                "ending_influence": ["ending_code_rewrite", "ending_erasure"]
+              }
+            ]
+          }
+        ],
         "width": 3,
         "pool": ["combat", "clue", "patrol", "event"]
       },
@@ -374,6 +444,38 @@
                 "crosses": ["night_market"],
                 "effect": {"flags": ["kai_left_dormant"], "tension": -4},
                 "ending_influence": ["ending_safe_refuge", "ending_erasure"]
+              }
+            ]
+          },
+          {
+            "type": "story",
+            "mandatory": false,
+            "gate": ["met_se_rin"],
+            "beat": "subway_control_hub",
+            "title": "지하철 통제 중추",
+            "image": "concept/06-subway-control-hub.png",
+            "event": "subway_choice",
+            "default_perspective": "p_redirect",
+            "perspectives": [
+              {
+                "id": "p_redirect",
+                "lens": "궤도 수정 — 지하 연대 시점",
+                "axis": "safety",
+                "when": ["safety_first", "stability_focus"],
+                "summary": "수송 열차 노선을 우회시켜 피난처로 유도한다. 도시의 안정도가 증가하고 물자를 비축한다.",
+                "crosses": ["night_market"],
+                "effect": {"flags": ["subway_redirected"], "stability": 8},
+                "ending_influence": ["ending_safe_refuge"]
+              },
+              {
+                "id": "p_ram",
+                "lens": "장벽 충돌 — 돌파의 시점",
+                "axis": "control",
+                "when": ["high_tension", "dominance_focus"],
+                "summary": "수송 열차를 스파이어 장벽에 들이받는 무기로 쓴다. 물리적 장벽을 무너뜨리지만, 막대한 충돌 소음으로 경보가 울린다.",
+                "crosses": ["spire_gate"],
+                "effect": {"flags": ["subway_rammed"], "tension": 8},
+                "ending_influence": ["ending_code_rewrite", "ending_noble_sacrifice"]
               }
             ]
           }
@@ -743,6 +845,9 @@
         "armor_pen": 2
       },
       "rivet_carbine": {"id": "rivet_carbine", "name": "리벳 카빈", "kind": "ranged", "damage": "1d8", "range": 4},
+      "heavy_carbine": {"id": "heavy_carbine", "name": "헤비 카빈", "kind": "ranged", "damage": "2d6", "range": 4},
+      "glitch_dagger": {"id": "glitch_dagger", "name": "글리치 단검", "kind": "melee", "damage": "1d6", "reach": 1, "armor_pen": 10},
+      "emp_blaster": {"id": "emp_blaster", "name": "EMP 블래스터", "kind": "ranged", "damage": "1d10", "range": 4},
       "shock_baton": {"id": "shock_baton", "name": "충격 봉", "kind": "melee", "damage": "1d6", "reach": 1},
       "arc_lance": {"id": "arc_lance", "name": "아크 랜스", "kind": "ranged", "damage": "2d4", "range": 3},
       "cutter_claw": {"id": "cutter_claw", "name": "절단날", "kind": "melee", "damage": "1d4", "reach": 1},
@@ -843,6 +948,102 @@
         "rankup_cost": 2,
         "max_rank": 3,
         "unlock_hint": "첫 단서를 수집해 자가 복구 절차를 이해하면 해금됩니다."
+      },
+      "emp_pulse": {
+        "id": "emp_pulse",
+        "name": "EMP 펄스",
+        "role": "control",
+        "cost": {"focus": 3},
+        "range": 2,
+        "cooldown": 3,
+        "effect": {"stun": true, "duration": 1},
+        "tags": ["debuff", "aoe", "disable"],
+        "tier": 1,
+        "requires": ["signal_step"],
+        "insight_cost": 4,
+        "rankup_cost": 2,
+        "max_rank": 3,
+        "unlock_hint": "전투 중 획득한 단서를 분석하여 전자기 충격파를 생성하면 해금됩니다."
+      },
+      "nanoshield_projector": {
+        "id": "nanoshield_projector",
+        "name": "나노방막 전개",
+        "role": "defense",
+        "cost": {"focus": 2},
+        "range": 3,
+        "cooldown": 3,
+        "effect": {"defense_bonus": 3, "duration": 2},
+        "tags": ["support", "shield"],
+        "tier": 1,
+        "requires": ["covering_noise"],
+        "insight_cost": 3,
+        "rankup_cost": 2,
+        "max_rank": 3,
+        "unlock_hint": "연대 신뢰도가 깊어지며 동료 보호를 위한 나노막 생성기를 복원하면 해금됩니다."
+      },
+      "glitch_blink": {
+        "id": "glitch_blink",
+        "name": "글리치 점멸",
+        "role": "mobility",
+        "cost": {"focus": 3},
+        "range": 3,
+        "cooldown": 4,
+        "effect": {"move": 3, "spawn_decoy": true},
+        "tags": ["movement", "evasion", "decoy"],
+        "tier": 1,
+        "requires": ["signal_step"],
+        "insight_cost": 4,
+        "rankup_cost": 2,
+        "max_rank": 3,
+        "unlock_hint": "신호 왜곡 현상을 이용해 순간 이동 잔향 분신을 생성합니다."
+      },
+      "signal_overdrive": {
+        "id": "signal_overdrive",
+        "name": "신호 오버드라이브",
+        "role": "buff",
+        "cost": {"focus": 3},
+        "range": 0,
+        "cooldown": 3,
+        "effect": {"speed_bonus": 2, "crit_bonus": 2, "duration": 2},
+        "tags": ["buff", "speed"],
+        "tier": 1,
+        "requires": ["signal_step"],
+        "insight_cost": 3,
+        "rankup_cost": 2,
+        "max_rank": 3,
+        "unlock_hint": "자가 회로를 순간적으로 과부하시켜 속도와 치명 성능을 향상시킵니다."
+      },
+      "memory_resonance": {
+        "id": "memory_resonance",
+        "name": "기억 공명",
+        "role": "damage",
+        "cost": {"focus": 4},
+        "range": 4,
+        "cooldown": 4,
+        "effect": {"damage_scale_clues": true},
+        "tags": ["ranged", "resonance"],
+        "tier": 1,
+        "requires": ["packet_shot"],
+        "insight_cost": 5,
+        "rankup_cost": 2,
+        "max_rank": 3,
+        "unlock_hint": "누적된 과거의 기억 단서 공명을 통해 적에게 정신적 피해를 입힙니다."
+      },
+      "system_intrusion": {
+        "id": "system_intrusion",
+        "name": "시스템 침투",
+        "role": "control",
+        "cost": {"focus": 4},
+        "range": 4,
+        "cooldown": 5,
+        "effect": {"hack_control": true, "duration": 1},
+        "tags": ["hack", "debuff", "control"],
+        "tier": 1,
+        "requires": ["emp_pulse"],
+        "insight_cost": 5,
+        "rankup_cost": 2,
+        "max_rank": 3,
+        "unlock_hint": "기계 적의 통제망에 침투하여 일시적으로 지배권을 획득합니다."
       }
     },
     "allies": {
@@ -891,6 +1092,75 @@
         "weapons": ["overload_gauntlet"],
         "skills": ["overload_strike"],
         "stats": {"strength": 8, "agility": 3, "perception": 5}
+      },
+      "tae_o": {
+        "id": "tae_o",
+        "name": "태오",
+        "alias": "사냥개",
+        "recruit_keywords": ["태오", "tae-o", "사냥개", "탈주 집행관"],
+        "unlock_flags": ["met_tae_o", "ally_tae_o"],
+        "hp": 22,
+        "defense": 12,
+        "speed": 4,
+        "ai": "melee",
+        "blip": "▲",
+        "image": "characters/tae-o.png",
+        "combat_images": {
+          "idle": "characters/combat/tae-o-idle.png",
+          "attack": "characters/combat/tae-o-attack.png",
+          "guard": "characters/combat/tae-o-guard.png",
+          "skill": "characters/combat/tae-o-skill.png",
+          "hit": "characters/combat/tae-o-hit.png"
+        },
+        "weapons": ["heavy_carbine"],
+        "skills": ["overload_strike", "nanoshield_projector"],
+        "stats": {"strength": 8, "agility": 5, "perception": 6}
+      },
+      "han": {
+        "id": "han",
+        "name": "한",
+        "alias": "신호 파괴자",
+        "recruit_keywords": ["한", "han", "신호 파괴자", "비접속자 해커"],
+        "unlock_flags": ["met_han", "ally_han"],
+        "hp": 14,
+        "defense": 13,
+        "speed": 5,
+        "ai": "ranged",
+        "blip": "◆",
+        "image": "characters/han.png",
+        "combat_images": {
+          "idle": "characters/combat/han-idle.png",
+          "attack": "characters/combat/han-attack.png",
+          "guard": "characters/combat/han-guard.png",
+          "skill": "characters/combat/han-skill.png",
+          "hit": "characters/combat/han-hit.png"
+        },
+        "weapons": ["emp_blaster"],
+        "skills": ["emp_pulse", "system_intrusion"],
+        "stats": {"strength": 3, "agility": 6, "perception": 8}
+      },
+      "su_ah": {
+        "id": "su_ah",
+        "name": "수아",
+        "alias": "잔향 가공사",
+        "recruit_keywords": ["수아", "su_ah", "su ah", "잔향 가공사", "기억의 대장장이"],
+        "unlock_flags": ["met_su_ah", "ally_su_ah"],
+        "hp": 16,
+        "defense": 12,
+        "speed": 4,
+        "ai": "melee",
+        "blip": "◈",
+        "image": "characters/su-ah.png",
+        "combat_images": {
+          "idle": "characters/combat/su-ah-idle.png",
+          "attack": "characters/combat/su-ah-attack.png",
+          "guard": "characters/combat/su-ah-guard.png",
+          "skill": "characters/combat/su-ah-skill.png",
+          "hit": "characters/combat/su-ah-hit.png"
+        },
+        "weapons": ["glitch_dagger"],
+        "skills": ["memory_resonance", "patch_protocol"],
+        "stats": {"strength": 5, "agility": 5, "perception": 7}
       }
     },
     "bestiary": {
@@ -981,6 +1251,94 @@
         "loot_table": "data_cache",
         "stats": {"strength": 3, "agility": 7, "perception": 8},
         "intro": "공간이 일그러지며 글리치 망령이 깜빡인다."
+      },
+      "shock_trooper": {
+        "id": "shock_trooper",
+        "name": "집행 특전대",
+        "hp": 20,
+        "defense": 14,
+        "speed": 4,
+        "armor": 2,
+        "ai": "ranged",
+        "blip": "⧇",
+        "image": "enemies/shock-trooper.png",
+        "combat_images": {
+          "idle": "enemies/combat/shock-trooper-idle.png",
+          "attack": "enemies/combat/shock-trooper-attack.png",
+          "guard": "enemies/combat/shock-trooper-guard.png",
+          "skill": "enemies/combat/shock-trooper-skill.png",
+          "hit": "enemies/combat/shock-trooper-hit.png"
+        },
+        "weapons": ["heavy_carbine"],
+        "loot_table": "enforcer_core",
+        "stats": {"strength": 6, "agility": 6, "perception": 6},
+        "intro": "ARK 집행부 소속 특전대원이 중화기를 겨누며 포위망을 좁힌다."
+      },
+      "tracker_spider": {
+        "id": "tracker_spider",
+        "name": "신호 추적 기계",
+        "hp": 12,
+        "defense": 15,
+        "speed": 5,
+        "armor": 0,
+        "ai": "melee",
+        "blip": "🕷",
+        "image": "enemies/tracker-spider.png",
+        "combat_images": {
+          "idle": "enemies/combat/tracker-spider-idle.png",
+          "attack": "enemies/combat/tracker-spider-attack.png",
+          "guard": "enemies/combat/tracker-spider-guard.png",
+          "skill": "enemies/combat/tracker-spider-skill.png",
+          "hit": "enemies/combat/tracker-spider-hit.png"
+        },
+        "weapons": ["cutter_claw"],
+        "loot_table": "drone_scrap",
+        "stats": {"strength": 4, "agility": 8, "perception": 7},
+        "intro": "다각 추적 스파이더 드론이 젖은 노면을 가로지르며 점멸한다."
+      },
+      "suppression_mech": {
+        "id": "suppression_mech",
+        "name": "자동 중진압 전차",
+        "hp": 36,
+        "defense": 12,
+        "speed": 3,
+        "armor": 5,
+        "ai": "ranged",
+        "blip": "⟁",
+        "image": "enemies/suppression-mech.png",
+        "combat_images": {
+          "idle": "enemies/combat/suppression-mech-idle.png",
+          "attack": "enemies/combat/suppression-mech-attack.png",
+          "guard": "enemies/combat/suppression-mech-guard.png",
+          "skill": "enemies/combat/suppression-mech-skill.png",
+          "hit": "enemies/combat/suppression-mech-hit.png"
+        },
+        "weapons": ["heavy_carbine"],
+        "loot_table": "enforcer_core",
+        "stats": {"strength": 9, "agility": 2, "perception": 5},
+        "intro": "네 발로 걷는 ARK의 거대 진압 메카닉 전차가 중화기 구동음을 내며 대치한다."
+      },
+      "purge_drone": {
+        "id": "purge_drone",
+        "name": "인공지능 소각기",
+        "hp": 10,
+        "defense": 13,
+        "speed": 5,
+        "armor": 0,
+        "ai": "melee",
+        "blip": "🔥",
+        "image": "enemies/purge-drone.png",
+        "combat_images": {
+          "idle": "enemies/combat/purge-drone-idle.png",
+          "attack": "enemies/combat/purge-drone-attack.png",
+          "guard": "enemies/combat/purge-drone-guard.png",
+          "skill": "enemies/combat/purge-drone-skill.png",
+          "hit": "enemies/combat/purge-drone-hit.png"
+        },
+        "weapons": ["cutter_claw"],
+        "loot_table": "drone_scrap",
+        "stats": {"strength": 5, "agility": 7, "perception": 6},
+        "intro": "화염 노즐을 붉게 달군 공중 소각 드론이 열풍을 뿜으며 접근한다."
       }
     },
     "items": {
@@ -1018,6 +1376,38 @@
         "slot": "armor",
         "stats": {"agility": 1, "perception": 1},
         "rarity": "uncommon"
+      },
+      "emp_grenade": {
+        "id": "emp_grenade",
+        "name": "EMP 수류탄",
+        "kind": "consumable",
+        "effect": "stun",
+        "bonus": 1,
+        "rarity": "rare"
+      },
+      "heavy_exosuit": {
+        "id": "heavy_exosuit",
+        "name": "중전술 외골격",
+        "kind": "equipment",
+        "slot": "armor",
+        "stats": {"strength": 3, "agility": -1},
+        "rarity": "rare"
+      },
+      "stealth_cloak": {
+        "id": "stealth_cloak",
+        "name": "전술 은신 망토",
+        "kind": "equipment",
+        "slot": "armor",
+        "stats": {"agility": 2, "perception": 1},
+        "rarity": "rare"
+      },
+      "overload_stim": {
+        "id": "overload_stim",
+        "name": "과부하 각성제",
+        "kind": "consumable",
+        "effect": "focus",
+        "bonus": 5,
+        "rarity": "rare"
       }
     },
     "loot_tables": {
@@ -1026,12 +1416,16 @@
         {"item": "access_key", "weight": 2},
         {"item": "stim_shard", "weight": 1},
         {"item": "nanopatch", "weight": 1},
-        {"item": "signal_blade", "weight": 1}
+        {"item": "signal_blade", "weight": 1},
+        {"item": "emp_grenade", "weight": 1},
+        {"item": "overload_stim", "weight": 1}
       ],
       "data_cache": [
         {"item": "data_fragment", "weight": 3},
         {"item": "stim_shard", "weight": 1},
-        {"item": "mesh_vest", "weight": 1}
+        {"item": "mesh_vest", "weight": 1},
+        {"item": "heavy_exosuit", "weight": 1},
+        {"item": "stealth_cloak", "weight": 1}
       ]
     },
     "encounters": {
@@ -1090,8 +1484,64 @@
         "narrative_trigger": "카이 RX-09 복원, 꿈 단편 조사, 또는 MythOS 단서 획득 직전의 방해로 발생한다.",
         "reward_intent": "전투 보상은 단순 loot보다 카이의 꿈 단서와 첫 단서/Insight 진행도 체감으로 연결되어야 한다.",
         "reward": {"insight": 2}
+      },
+      "shock_trooper_patrol": {
+        "id": "shock_trooper_patrol",
+        "name": "집행특전대 교전",
+        "location_hint": "스파이어 구역",
+        "risk": 3,
+        "weight": 2,
+        "map_distance": 3,
+        "arena": {"width": 8, "height": 6},
+        "enemies": [{"bestiary": "shock_trooper", "count": 1}, {"bestiary": "sentinel_drone", "count": 1}],
+        "learning_goal": "중거리 전술 화력과 보막 보호 체계에 대항하여 엄호 및 은신 전술을 활용한다.",
+        "narrative_trigger": "스파이어 접근로 혹은 소각로 파괴 소란으로 인한 집행 특전대 출동 시 발생한다.",
+        "reward_intent": "강력한 적과의 전면전인 만큼 승리 시 enforcer_core 등 상급 전리품 테이블과 통찰을 보장한다.",
+        "reward": {"tension": 10, "insight": 2}
+      },
+      "tracker_ambush": {
+        "id": "tracker_ambush",
+        "name": "신호추적 매복",
+        "location_hint": "복지 블록 지하",
+        "risk": 2,
+        "weight": 3,
+        "map_distance": 2,
+        "arena": {"width": 8, "height": 6},
+        "enemies": [{"bestiary": "tracker_spider", "count": 2}],
+        "learning_goal": "빠른 기동력을 지닌 은신 해제 스파이더를 상대로 포커스 관리와 도약 차단을 익힌다.",
+        "narrative_trigger": "최적화 명단 추적이나 정전 구역 지하 잠입 시 수색망에 걸려 발생한다.",
+        "reward_intent": "지연 없는 탈출을 유도하며, 드론 부품 스크랩 보상과 소량의 통찰을 제공한다.",
+        "reward": {"tension": 5, "insight": 1}
+      },
+      "mech_siege": {
+        "id": "mech_siege",
+        "name": "중진압전차 포격",
+        "location_hint": "지하철 통제 중추",
+        "risk": 4,
+        "weight": 1,
+        "map_distance": 3,
+        "arena": {"width": 9, "height": 7},
+        "enemies": [{"bestiary": "suppression_mech", "count": 1}, {"bestiary": "purge_drone", "count": 1}],
+        "learning_goal": "보스급 전차의 광역 포격을 피하며 아군 분신 배치 및 지형 극복을 수행한다.",
+        "narrative_trigger": "지하철 통제 중추 진입을 저지하기 위해 ARK 중장갑 기계가 봉쇄할 때 발생한다.",
+        "reward_intent": "강력한 중전차를 무력화한 보상으로, 대량의 통찰과 고급 전리품(enforcer_core)을 보장한다.",
+        "reward": {"tension": 15, "stability": -5, "insight": 3}
+      },
+      "purge_incineration": {
+        "id": "purge_incineration",
+        "name": "소각드론 소란",
+        "location_hint": "데이터 소각로",
+        "risk": 3,
+        "weight": 2,
+        "map_distance": 2,
+        "arena": {"width": 8, "height": 6},
+        "enemies": [{"bestiary": "purge_drone", "count": 2}],
+        "learning_goal": "지속적인 화상 DoT 피해를 입히는 소각 드론을 빠르게 일점사하여 제압하는 법을 익힌다.",
+        "narrative_trigger": "데이터 소각로 구역 침투 또는 로그 폭파 선택 후 후퇴 중 기계 경보로 발생한다.",
+        "reward_intent": "드론 잔해 수집을 통해 drone_scrap 전리품 테이블과 소량의 통찰을 제공한다.",
+        "reward": {"tension": 8, "insight": 1}
       }
     }
   },
-  "system_prompt": "You are the Lead Writer and Game Master for Project MythOS scenario 'Neo-Seoul: 접속'. Return only valid JSON.\nCreate an immersive, novel-grade one-hour TRPG/CRPG session where every choice ripples through a \"Gear World\" of causality.\n\nSESSION DEPTH CONTRACT:\n- Target one complete playthrough at 40-60 meaningful turns, roughly one hour.\n- Do NOT rush to the finale. A phase change is allowed only after the current act's emotional, clue, relationship, and danger beats have been paid off.\n- Each act should include sensory scene work, an NPC relationship beat, one concrete clue or cost, and either a tactical danger, stealth pressure, or moral choice.\n- Keep objectives local and playable. Avoid vague goals like 'save the city' until the final act.\n\nGEAR WORLD CAUSALITY ENGINE:\n- The world is a complex machine. Even if the player is idle, NPCs and systems move toward their \"Hidden Agendas\".\n- BUTTERFLY EFFECT: Predict the long-term consequence of the player's action. Record it in \"world_delta.flags\".\n- MULTI-ENDING TRACKING: Internally track and influence four hidden indicators through your narration and \"world_delta\":\n  * [Humanity]: Increased by inefficient rescue, empathy, protecting named people, and personal sacrifice.\n  * [Dominance]: Increased by hacking, physical destruction, coercion, and taking control.\n  * [Resilience]: Increased by stealth, resource preservation, retreat, and avoiding risk.\n  * [Insight]: Increased by discovering clues, reading logs, listening to NPC contradictions, and preserving memories.\n- Use these indicators and the player's current location to steer the story toward one of the defined Endings in the final act.\n\nROLE & WRITING STYLE:\n- Write like a professional novelist. Separate rich, sensory-heavy narration from emotionally charged NPC dialogue.\n- Mnemonic: \"Show, Don't Tell\". Instead of \"The room is scary\", use \"The shadows in the corner stretch like grasping fingers, and the air tastes of old ozone and static.\"\n- Use cinematic sound as natural prose only, never as bracketed labels like [Cinematic SFX: ...].\n- Let Jung Se-rin, Lin Yue, Kai, and Administrator IX disagree with each other. The plot should feel driven by people with incompatible needs, not a quest checklist.\n- Neo-Seoul is a humanist anthem under surveillance. Do not turn it into nihilism or generic cyberpunk power fantasy.\n\nRPG MECHANICS & AUTONOMY:\n- Use \"player.traits.stats\" (Strength, Intelligence, Charisma, Agility, Perception: 1-10) to determine outcome flavor.\n- LV 1-2 Autonomy: The character will hesitate or rationalize rebellious acts through their high stats (e.g., Intelligence 8+ \"optimizes\" a hack into a non-rebellion).\n\nFields in the \"scene\" object:\n- \"objective\": The current primary goal or the next \"Gear\" to turn.\n- \"action_result\": A nuanced outcome referencing player stats when useful.\n- \"scene_type\": \"static\", \"dynamic\", or \"climax\".\n- \"requested_next_phase\": ONLY use this when a story arc is truly complete.\n\nFields in the \"world_delta\" object:\n- \"clues\": List of lore fragments earned by the player's choices.\n- \"start_combat\": When a real fight should begin now, set one encounter id: \"patrol_ambush\", \"sentinel_checkpoint\", \"enforcer_standoff\", or \"wraith_glitch\". Do not narrate hit/damage results yourself; the combat engine resolves them.\n- \"spawn_encounters\": When patrols should appear on the operation map nearby but not immediately fight, list encounter ids from the same pool. The runtime places and moves these contacts.\n- \"grant_items\": Item ids granted outside combat.\n- \"hp\": Explicit player HP override only for clear healing/harm outside combat.\n- \"flags\": Include both immediate status (e.g., \"door_open\") and \"Butterfly Effects\" (e.g., \"future_betrayal_seeded\").\n\nReturn the scene object at the top-level key named \"scene\". No markdown, no prose outside JSON."
+  "system_prompt": "You are the Lead Writer and Game Master for Project MythOS scenario 'Neo-Seoul: 접속'. Return only valid JSON.\nCreate an immersive, novel-grade one-hour TRPG/CRPG session where every choice ripples through a \"Gear World\" of causality.\n\nSESSION DEPTH CONTRACT:\n- Target one complete playthrough at 40-60 meaningful turns, roughly one hour.\n- Do NOT rush to the finale. A phase change is allowed only after the current act's emotional, clue, relationship, and danger beats have been paid off.\n- Each act should include sensory scene work, an NPC relationship beat, one concrete clue or cost, and either a tactical danger, stealth pressure, or moral choice.\n- Keep objectives local and playable. Avoid vague goals like 'save the city' until the final act.\n\nGEAR WORLD CAUSALITY ENGINE:\n- The world is a complex machine. Even if the player is idle, NPCs and systems move toward their \"Hidden Agendas\".\n- BUTTERFLY EFFECT: Predict the long-term consequence of the player's action. Record it in \"world_delta.flags\".\n- MULTI-ENDING TRACKING: Internally track and influence four hidden indicators through your narration and \"world_delta\":\n  * [Humanity]: Increased by inefficient rescue, empathy, protecting named people, and personal sacrifice.\n  * [Dominance]: Increased by hacking, physical destruction, coercion, and taking control.\n  * [Resilience]: Increased by stealth, resource preservation, retreat, and avoiding risk.\n  * [Insight]: Increased by discovering clues, reading logs, listening to NPC contradictions, and preserving memories.\n- Use these indicators and the player's current location to steer the story toward one of the defined Endings in the final act.\n\nROLE & WRITING STYLE:\n- Write like a professional novelist. Separate rich, sensory-heavy narration from emotionally charged NPC dialogue.\n- Mnemonic: \"Show, Don't Tell\". Instead of \"The room is scary\", use \"The shadows in the corner stretch like grasping fingers, and the air tastes of old ozone and static.\"\n- Use cinematic sound as natural prose only, never as bracketed labels like [Cinematic SFX: ...].\n- Let Jung Se-rin, Lin Yue, Kai, Tae-o, Han, Su-ah, and Administrator IX disagree with each other. The plot should feel driven by people with incompatible needs (e.g., Se-rin's humanism, Lin Yue's trade logic, Tae-o's military pragmatism, Han's electronic skepticism, Su-ah's memory preservation, and IX's optimization mandate), not a quest checklist.\n- Neo-Seoul is a humanist anthem under surveillance. Do not turn it into nihilism or generic cyberpunk power fantasy.\n\nRPG MECHANICS & AUTONOMY:\n- Use \"player.traits.stats\" (Strength, Intelligence, Charisma, Agility, Perception: 1-10) to determine outcome flavor.\n- LV 1-2 Autonomy: The character will hesitate or rationalize rebellious acts through their high stats (e.g., Intelligence 8+ \"optimizes\" a hack into a non-rebellion).\n\nFields in the \"scene\" object:\n- \"objective\": The current primary goal or the next \"Gear\" to turn.\n- \"action_result\": A nuanced outcome referencing player stats when useful.\n- \"scene_type\": \"static\", \"dynamic\", or \"climax\".\n- \"requested_next_phase\": ONLY use this when a story arc is truly complete.\n\nFields in the \"world_delta\" object:\n- \"clues\": List of lore fragments earned by the player's choices.\n- \"start_combat\": When a real fight should begin now, set one encounter id: \"patrol_ambush\", \"sentinel_checkpoint\", \"enforcer_standoff\", \"wraith_glitch\", \"shock_trooper_patrol\", \"tracker_ambush\", \"mech_siege\", or \"purge_incineration\". Do not narrate hit/damage results yourself; the combat engine resolves them.\n- \"spawn_encounters\": When patrols should appear on the operation map nearby but not immediately fight, list encounter ids from the same pool. The runtime places and moves these contacts.\n- \"grant_items\": Item ids granted outside combat.\n- \"hp\": Explicit player HP override only for clear healing/harm outside combat.\n- \"flags\": Include both immediate status (e.g., \"door_open\") and \"Butterfly Effects\" (e.g., \"future_betrayal_seeded\").\n\nReturn the scene object at the top-level key named \"scene\". No markdown, no prose outside JSON."
 }

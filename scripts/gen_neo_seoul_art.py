@@ -88,6 +88,71 @@ ASSETS: list[tuple[str, int, str]] = [
         "surveillance-camera arrays and flowing data over the city, Korean Hangul system "
         "text, cold cyan light, faceless authority",
     ),
+    (
+        "characters/tae-o.png",
+        511,
+        "Character portrait of a battle-scarred rogue enforcer man named Tae-o, short spiky black "
+        "hair, cybernetic jaw implant, wearing a heavy bulletproof vest over dark tech-wear, "
+        "carrying a customized rifle, rain, neon alley with Korean Hangul signs, rugged look",
+    ),
+    (
+        "enemies/shock-trooper.png",
+        512,
+        "An elite ARK shock trooper wearing heavy black and cyan armor, full-face visor glowing "
+        "with golden data lines, holding a high-tech assault rifle, tactical stance in a rainy "
+        "dystopian Neo-Seoul street",
+    ),
+    (
+        "enemies/tracker-spider.png",
+        513,
+        "A multi-legged cybernetic tracker spider drone, metallic dark chassis with glowing yellow "
+        "scanner eyes, crawling over wet concrete in a dark neon-lit alleyway",
+    ),
+    (
+        "concept/05-data-incinerator.png",
+        514,
+        "A massive glowing data incinerator furnace room in a dystopian facility, cyber-cyan cooling "
+        "tubes, gold holographic caution signs in Korean Hangul, plumes of data-smoke, high-tech "
+        "industrial aesthetic",
+    ),
+    (
+        "characters/han.png",
+        515,
+        "Character portrait of a young Korean male hacker named Han, sharp intelligent eyes, "
+        "wearing a dark techwear hoodie with glowing cyan wires, surrounded by holographic "
+        "coding screens displaying Hangul code, Y2K digital cyberpunk aesthetic, deep navy-blue "
+        "with cyber-cyan and gold neon, highly detailed",
+    ),
+    (
+        "characters/su-ah.png",
+        516,
+        "Character portrait of a focused Korean female artisan named Su-ah, hair tied back, "
+        "wearing welding goggles around her neck, working in a cluttered tech workshop with sparks "
+        "and glowing memory shards, Y2K digital cyberpunk aesthetic, deep navy-blue with cyber-cyan "
+        "and gold neon, highly detailed",
+    ),
+    (
+        "enemies/suppression-mech.png",
+        517,
+        "A colossal quad-legged armored suppression mech tank, heavy metallic dark grey plating, "
+        "glowing cyan hydraulic lines, firing a massive energy railgun, wreckage and sparks in "
+        "a wet dystopian Neo-Seoul street, Y2K digital cyberpunk aesthetic, deep navy-blue with "
+        "cyber-cyan and gold neon, highly detailed",
+    ),
+    (
+        "enemies/purge-drone.png",
+        518,
+        "A compact aerial purge drone equipped with a glowing orange flamethrower, carbon-plated armor, "
+        "spewing fire over dark metallic ruins, Y2K digital cyberpunk aesthetic, deep navy-blue with "
+        "cyber-cyan and gold neon, highly detailed",
+    ),
+    (
+        "concept/06-subway-control-hub.png",
+        519,
+        "A massive underground subway control hub in Neo-Seoul, glowing cyan tracks, server racks, "
+        "holographic train routing maps in Hangul, Y2K digital cyberpunk aesthetic, deep navy-blue "
+        "with cyber-cyan and gold neon, highly detailed",
+    ),
 ]
 
 

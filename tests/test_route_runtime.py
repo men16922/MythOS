@@ -160,7 +160,7 @@ class RouteDirectorNotesTest(unittest.TestCase):
             started_at=utc_now(),
             state=state,
         )
-        notes = _route_director_notes(scenario, loop)
+        notes = _route_director_notes(scenario, loop, turn_index=DEFAULT_TURNS_PER_LAYER)
         blob = "\n".join(notes)
         self.assertIn("ROUTE NODE STEERING", blob)
         self.assertIn("활성 시점", blob)
@@ -185,7 +185,36 @@ class RouteDirectorNotesTest(unittest.TestCase):
             started_at=utc_now(),
             state={"flags": []},
         )
-        self.assertEqual(_route_director_notes(load_scenario("neo-seoul"), loop), [])
+        self.assertEqual(_route_director_notes(load_scenario("neo-seoul"), loop, turn_index=1), [])
+
+    def test_advance_directive_only_on_repeat_turns(self) -> None:
+        """First scene on a node establishes it (image hint); later scenes on the
+        same node push forward motion (anti-stickiness) — the explore 정체 fix."""
+        from mythos_core import LoopPhase, LoopState
+        from mythos_core.clock import utc_now
+        from mythos_runtime.scenario import load_scenario
+        from mythos_runtime.scenario_context import _route_director_notes
+
+        scenario = load_scenario("neo-seoul")
+        loop = LoopState(
+            loop_id="loop_z",
+            player_id="p1",
+            seed="seed",
+            phase=LoopPhase.EXPLORE,
+            location_id="data-layer-01",
+            stability=50,
+            tension=50,
+            started_at=utc_now(),
+            state=_state("seed", []),  # fresh layer-0 anchor (has curated image)
+        )
+        fresh = "\n".join(_route_director_notes(scenario, loop, turn_index=1))
+        repeat = "\n".join(_route_director_notes(scenario, loop, turn_index=2))
+        # turn 1: establish + image, no advance directive.
+        self.assertIn("이미지 정합성", fresh)
+        self.assertNotIn("반복 금지", fresh)
+        # turn 2 (same node): advance directive, no image hint.
+        self.assertIn("반복 금지", repeat)
+        self.assertNotIn("이미지 정합성", repeat)
 
 
 if __name__ == "__main__":

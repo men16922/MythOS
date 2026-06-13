@@ -13,7 +13,11 @@ from mythos_core import (
     WorldMemory,
 )
 from mythos_narrative import NarrativeContext
-from mythos_runtime.route_runtime import junction_options, route_status
+from mythos_runtime.route_runtime import (
+    DEFAULT_TURNS_PER_LAYER,
+    junction_options,
+    route_status,
+)
 from mythos_runtime.scenario import ScenarioConfig
 from mythos_runtime.session_memory import build_session_synopsis
 from mythos_runtime.story_bible import (
@@ -231,7 +235,7 @@ def build_runtime_narrative_context(
     # free-written scenes ran first and players rarely reached the authored anchor
     # (the 세린 조우 "사라짐" bug). Tell the GM which node they're on from turn 1.
     if turn_index >= 1:
-        notes.extend(_route_director_notes(scenario, loop))
+        notes.extend(_route_director_notes(scenario, loop, turn_index))
     # Junction steering (explicit branch choices between layers) stays past the
     # opening, where forks actually start to matter.
     if turn_index >= 3:
@@ -409,7 +413,7 @@ def _opening_continuity_notes(scenario: ScenarioConfig, turn_index: int) -> list
     return lines
 
 
-def _route_director_notes(scenario: ScenarioConfig, loop: LoopState) -> list[str]:
+def _route_director_notes(scenario: ScenarioConfig, loop: LoopState, turn_index: int) -> list[str]:
     state = loop.state if isinstance(loop.state, dict) else {}
     status = route_status(state)
     if not status:
@@ -421,6 +425,14 @@ def _route_director_notes(scenario: ScenarioConfig, loop: LoopState) -> list[str
     leaderboard = status.get("ending_leaderboard") or []
     ending_labels = {str(e.get("id")): str(e.get("title", e.get("id"))) for e in scenario.endings}
 
+    # A node stays `current` for turns_per_layer turns; without a "move on" signal the
+    # GM re-describes the same place every turn (the explore 정체 / location stickiness
+    # bug). Establish the node — and match its curated image — on the first scene, then
+    # force forward motion on later scenes. Layer 0's first noted scene is turn 1, so
+    # treat that as fresh too.
+    per = max(1, DEFAULT_TURNS_PER_LAYER)
+    fresh_node = int(turn_index) % per == 0 or int(turn_index) == 1
+
     kind = "고정 스토리 비트(임팩트 장면)" if node.get("anchor") else "동적 경유 장면"
     lines = [
         "=== 작전 노드 가이드 (ROUTE NODE STEERING) ===",
@@ -428,12 +440,19 @@ def _route_director_notes(scenario: ScenarioConfig, loop: LoopState) -> list[str
         "지침: 이번 장면은 이 노드를 무대로 전개하십시오. 노드 유형의 성격(전투/단서/시장/정비/사건/대면 등)을 장면 분위기와 선택지에 반영하되, 묘사·대사·선택지 텍스트는 자유롭게 창작하십시오.",
     ]
     node_image = str(node.get("image") or "").strip()
-    if node_image:
+    if node_image and fresh_node:
         image_hint = node_image.rsplit("/", 1)[-1].rsplit(".", 1)[0].replace("-", " ").replace("_", " ")
         lines.append(
             f"주요 장면 이미지 정합성: 이 노드는 사전 제작 이미지 '{node_image}'를 사용합니다. "
             f"첫 단락에서 이미지가 보여주는 핵심 피사체/장소/행동을 반드시 묘사하십시오. "
             f"이미지 힌트: {image_hint}. 장면 제목, narration, visual_brief가 이 이미지와 어긋나면 안 됩니다."
+        )
+    if not fresh_node:
+        lines.append(
+            "진행 지침(반복 금지): 이 작전 노드에 이미 여러 장면 머물렀습니다. 직전 장면의 장소·구도·상황을 "
+            "되풀이하지 말고 한 걸음 전진시키십시오 — 다른 구역(실내외·상/하층)으로 이동하거나, 새로운 인물·"
+            "단서·위협을 등장시키거나, 추격·교섭·잠입처럼 국면을 바꾸십시오. scene.location과 첫 단락 묘사가 "
+            "직전 장면과 분명히 달라야 합니다."
         )
     if perspective:
         lines.append(

@@ -67,11 +67,11 @@ P1 작전 지도 route-node화 + 세션 메모리(→ COMPLETED_SUMMARY M39), Ta
 - `[/]` P0 — live LLM 장기 세션 QA: fallback 12선택 + 실제 gemma4 14턴(in-process 드라이버, 2026-06-08) 통과.
   기술 파이프라인 양호(파싱 예외 0·선택지 상존·전투 후 재개·멈춤 없음). **F1 반복 완화 적용**(시놉시스
   반복 억제 지침 강화 → 14턴 재검증서 반복 0·이야기 전진 확인). 남은 것: **F2 전투 빈도**(빈도/연속 튜닝
-  검토 — 변동성 있어 추가 관찰), phase explore 정체 점검. 주관 항목은 사람 플레이(`docs/neo_seoul_live_qa.md`).
+  검토 — 변동성 있어 추가 관찰). phase explore 정체는 수정(2026-06-14, route 노드 anti-stickiness). 주관 항목은 사람 플레이(`docs/neo_seoul_live_qa.md`).
 - `[/]` P1 — Tactical Board 잔여: 보드 확대/줌(dataset.boardZoom, 100~250%) + 줌 버튼 전파 보정 + 지형 배지 완료. 남은 것: 터치 환경 click 핀 고정(인스펙터는 현재 desktop hover 기반).
 - `[x]` P1 — 전투 보상 가시화: 종료 패널 통찰/안정/추적/전리품 요약 + 인벤토리/장비 표시(전용 테이블 M40) + Run History/진행도 대시보드 연동 완료.
 - `[/]` P1 — 회복/소모품/전리품 루프: route rest/market 회복 + 전리품 인벤토리 표시 + 전투 중 소모품 사용 버튼 + 장비 착용(M40) 완료. 남은 것: 소모품/장비 밸런스 튜닝.
-- `[/]` P2 — AI GM 진행 강화: route-node 주입(`_route_director_notes`)+세션 메모리로 반복 억제 완료. 남은 것: 막 gate 기반 필수 비트 강제, visual prompt에 현재 노드/유니크 비트 주입.
+- `[/]` P2 — AI GM 진행 강화: route-node 주입(`_route_director_notes`)+세션 메모리로 반복 억제, **노드 anti-stickiness(첫 장면=확립/이후=전진 지침)로 explore 정체·위치 고착 수정**(2026-06-14, 멀티턴 검증). 남은 것: 막 gate 기반 필수 비트 강제, visual prompt에 현재 노드/유니크 비트 주입.
 - `[/]` P2 — 기억의 별자리 재구성: 캐릭터(스탯/장비/인벤토리) 섹션 통합 + 루트 흐름(현재 시점/향하는 결말) 이동 완료. 남은 것: 개요/파티/런 히스토리 탭 세분화, 개발 로그 분리.
 - `[ ]` P2 — 아키타입 의미 강화: 해금 조건을 명시 milestone으로 제한, 오프닝/시작 위치/기본 스킬/시작 아이템/NPC 반응 차별화.
 - `[/]` P2 — objective 피드백 정리: 현재 장면 objective/stakes 상시 표시 + Golden Path 막 목표 정합 완료(2026-06-14). 남은 것: 막 전환 gate 충족 시에만 다음 단계 진행.

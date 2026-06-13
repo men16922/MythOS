@@ -5,6 +5,14 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-14 — 장면·위치 다양성: route 노드 anti-stickiness (explore 정체 수정)
+
+- Status: live QA §6 phase explore 정체 / location stickiness 수정. Playwright + 멀티턴 in-process 테스트서 발견(turn 1-3 같은 골목)→근본 원인 규명·수정.
+- Changed: `DEFAULT_TURNS_PER_LAYER=4`라 route 노드가 4턴 고정→director에 동일 노드 주입→같은 장소 반복. `_route_director_notes`에 turn_index 전달, **첫 장면=노드 확립+이미지 정합, 이후 장면=전진 지침(반복 금지: 이동/새 인물·단서·위협/국면 전환)** 분기(`scenario_context.py`). 레이어 0 오프닝 오프셋(turn 1=fresh) 처리.
+- Verified: `make test` 304 OK(신규 1 `test_advance_directive_only_on_repeat_turns`). 멀티턴 in-process 재검증: 위치가 네온 골목→배관 통로→서비스 통로→정비 스테이션으로 분산(이전 3턴 동일 대비 개선), 반복 문장 0·추상어 0·판정 양호.
+- Blockers: 없음. 변경 미커밋.
+- Next: 실플레이로 "10-15분마다 감각 변화" 체감 확인. 잔여 §6(전투-서사 연결)·§2(위험 이유)·§3(내부표현).
+
 ## 2026-06-14 — Neo-Seoul 플레이성: 이미지 경로·결말경향·막 목표 (live QA A/B)
 
 - Status: live QA `[!]` 3건 처리 — visual worker 무한 pending 마감(A), 결말 경향 명료화(B-part1), 막 목표 Golden Path 정합(B-part2-i).

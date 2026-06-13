@@ -33,6 +33,7 @@ from mythos_api.serializers import (
 from mythos_api.service import get_service, get_storage_adapter
 from mythos_core import Actor, AssetRecord
 from mythos_runtime.combat_server import combat_action_response, combat_state_response
+from mythos_runtime.observability import get_logger, timed
 from mythos_runtime.options import RuntimeOptions, RuntimeSnapshot, RuntimeStreamEvent
 from mythos_runtime.progression import (
     DEFAULT_ARCHETYPE,
@@ -268,20 +269,30 @@ async def _run_stream(
     ``{"type": "snapshot"}``. After the snapshot we stream the scene image
     lifecycle as ``{"type": "visual_status"}`` frames (design §2.2).
     """
-    try:
-        generator = _stream_for(service, message)
-        async for event in iterate_in_threadpool(generator):
-            if event.kind == "text":
-                await websocket.send_json({"type": "token", "content": event.text})
-            elif event.snapshot is not None:
-                await websocket.send_json(
-                    {"type": "snapshot", "data": snapshot_to_dict(event.snapshot)}
-                )
-                await _emit_visual_status(websocket, service, storage, event.snapshot)
-    except KeyError as exc:
-        await websocket.send_json({"type": "error", "detail": str(exc).strip("'\"")})
-    except RuntimeError as exc:
-        await websocket.send_json({"type": "error", "detail": str(exc)})
+    logger = get_logger("mythos.api")
+    loop_id = message.get("loop_id", "unknown")
+    event_name = message.get("event", "unknown")
+    with timed(
+        "mythos.api.stream_choose",
+        logger,
+        "token streaming pipeline finished",
+        loop_id=loop_id,
+        event=event_name,
+    ):
+        try:
+            generator = _stream_for(service, message)
+            async for event in iterate_in_threadpool(generator):
+                if event.kind == "text":
+                    await websocket.send_json({"type": "token", "content": event.text})
+                elif event.snapshot is not None:
+                    await websocket.send_json(
+                        {"type": "snapshot", "data": snapshot_to_dict(event.snapshot)}
+                    )
+                    await _emit_visual_status(websocket, service, storage, event.snapshot)
+        except KeyError as exc:
+            await websocket.send_json({"type": "error", "detail": str(exc).strip("'\"")})
+        except RuntimeError as exc:
+            await websocket.send_json({"type": "error", "detail": str(exc)})
 
 
 # --- App factory ------------------------------------------------------------

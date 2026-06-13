@@ -314,6 +314,33 @@ function drawCoverObject(
   ctx.restore();
 }
 
+function drawTerrainBadge(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  text: string,
+  color: string,
+  scale: number
+): void {
+  const padX = Math.max(3, scale * 0.12);
+  const w = Math.max(18, text.length * scale * 0.62 + padX * 2);
+  const h = Math.max(13, scale * 0.62);
+  ctx.save();
+  ctx.fillStyle = "rgba(2, 7, 6, 0.82)";
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.roundRect(cx - w / 2, cy - h / 2, w, h, 4);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = color;
+  ctx.font = `${Math.max(10, Math.round(scale * 0.42))}px SF Mono, monospace`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(text, cx, cy + 0.5);
+  ctx.restore();
+}
+
 function drawHazardOverlay(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -429,6 +456,17 @@ export function drawCombatCanvas(
       
       // Draw 3D block
       draw3DIsoBlock(ctx, x, y, el, cfg, fill, stroke);
+      if (el > 0) {
+        const [cx, cy] = toIso(x + 0.5, y + 0.5, cfg);
+        drawTerrainBadge(
+          ctx,
+          cx,
+          cy - el * cfg.stepY * 1.2 - cfg.stepY * 0.22,
+          `▲${el}`,
+          "rgba(141, 220, 255, 0.95)",
+          cfg.stepX
+        );
+      }
       
       // Draw Hazard overlays
       if (hazard) {
@@ -452,6 +490,14 @@ export function drawCombatCanvas(
         const [cx, cy] = toIso(x + 0.5, y + 0.5, cfg);
         const r = Math.min(cfg.stepX, cfg.stepY * 2) * 0.36;
         drawCoverObject(ctx, cx, cy + hOffset, cover, r);
+        drawTerrainBadge(
+          ctx,
+          cx,
+          cy + hOffset - r * 1.45,
+          cover === "full" ? "▣" : "◧",
+          cover === "full" ? "rgba(41,255,198,0.95)" : "rgba(255,180,50,0.9)",
+          cfg.stepX
+        );
       }
     }
   }

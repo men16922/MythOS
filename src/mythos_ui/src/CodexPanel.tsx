@@ -1,59 +1,30 @@
-import { CharacterPanel } from "./CharacterPanel";
+import { ProgressDashboard } from "./ProgressDashboard";
 import { RouteNarrative } from "./RouteNarrative";
+import { RunHistoryPanel } from "./SaveHistoryPanel";
+import { mergedRuns } from "./runHistory";
 import type { CodexLists } from "./viewModels";
-import type { RouteMap, RuntimeSnapshot, SkillTreeNode, SkillTreeResponse } from "./types";
+import type { MemoryOverview, RouteMap, RunSummary, RuntimeSnapshot } from "./types";
 
 interface CodexPanelProps {
   codexLists: CodexLists;
-  skillTree?: SkillTreeResponse | null;
   routeMap?: RouteMap | null;
   snapshot?: RuntimeSnapshot | null;
-  onEquip?: (itemId: string, equipped: boolean) => void;
-  onLearnSkill?: (skillId: string) => void;
-  learningSkillId?: string | null;
-  skillError?: string | null;
+  runsHistory?: RunSummary[];
+  memoryOverview?: MemoryOverview | null;
 }
 
 export function CodexPanel({
   codexLists,
-  skillTree,
   routeMap,
   snapshot,
-  onEquip,
-  onLearnSkill,
-  learningSkillId,
-  skillError,
+  runsHistory = [],
+  memoryOverview = null,
 }: CodexPanelProps) {
-  // Prefer the authoritative server tree (with insight + learn/rank actions);
-  // fall back to the read-only snapshot-derived list when it isn't loaded yet.
-  const interactive = Boolean(skillTree && onLearnSkill);
-  const insight = skillTree ? skillTree.insight_points : codexLists.insightPoints;
-  const skills: SkillTreeNode[] = skillTree
-    ? skillTree.skills
-    : codexLists.skills.map((s) => ({
-        ...s,
-        max_rank: 1,
-        learn_cost: 0,
-        rankup_cost: 0,
-        requires: [],
-        requires_met: true,
-        is_base: false,
-        action: null,
-        action_cost: 0,
-        can_afford: false,
-      }));
+  const visibleRuns = mergedRuns(runsHistory, memoryOverview?.run_summaries);
   return (
     <div id="codex-tab-content">
       <div className="panel">
-        <h2
-          style={{
-            color: "var(--term)",
-            fontSize: "16px",
-            margin: "0 0 16px",
-          }}
-        >
-          기억의 별자리
-        </h2>
+        <h2 className="tab-panel-title">기억의 별자리</h2>
         <div className="codex-grid">
           <RouteNarrative routeMap={routeMap} />
           <div className="codex-sec">
@@ -94,29 +65,6 @@ export function CodexPanel({
               )}
             </div>
           </div>
-
-          {/* 캐릭터: 스탯 / 장비 / 인벤토리 (플레이어 뷰 — characters 미전달로 NPC 감지 비활성). */}
-          <div className="codex-sec codex-character-sec">
-            <CharacterPanel snapshot={snapshot ?? null} onEquip={onEquip} />
-          </div>
-
-          <div className="codex-sec">
-            <div className="codex-sec-title">등장인물 (Characters)</div>
-            <div className="codex-list">
-              {codexLists.characters.length > 0 ? (
-                codexLists.characters.map((character, idx) => (
-                  <div className="codex-item" key={idx}>
-                    <div className="codex-item-head">{character.symbol}</div>
-                    <div className="codex-item-desc">{character.text}</div>
-                  </div>
-                ))
-              ) : (
-                <div style={{ color: "var(--ink-dim)" }}>
-                  기록된 인물이 없습니다.
-                </div>
-              )}
-            </div>
-          </div>
         </div>
 
         <div className="codex-sec" style={{ marginTop: "16px" }}>
@@ -139,73 +87,13 @@ export function CodexPanel({
           </div>
         </div>
 
-        <div className="codex-sec" style={{ marginTop: "16px" }}>
-          <div className="codex-sec-title">
-            스킬 트리 (Skills) · 통찰 {insight}p
-          </div>
-          <div className="skill-tree-hint" style={{ marginBottom: "10px" }}>
-            통찰은 전투 보상, 루프 보관(+2), 단서 확보(+1), 전투 승리(+1)로 얻습니다.
-          </div>
-          {skillError && <div className="skill-tree-error">{skillError}</div>}
-          <div className="skill-tree-list">
-            {skills.length > 0 ? (
-              skills.map((skill) => {
-                const busy = learningSkillId === skill.id;
-                const canAct =
-                  interactive && skill.action !== null && skill.can_afford && !busy;
-                return (
-                  <div className={`skill-tree-item ${skill.status}`} key={skill.id}>
-                    <div className="skill-tree-head">
-                      <span>{skill.name}</span>
-                      <span>
-                        {skill.status === "learned"
-                          ? `Rank ${skill.rank}${skill.max_rank > 1 ? `/${skill.max_rank}` : ""}`
-                          : skill.status.toUpperCase()}
-                      </span>
-                    </div>
-                    <div className="skill-tree-meta">
-                      {skill.role || "skill"} · tier {skill.tier ?? 0}
-                      {typeof skill.range === "number" ? ` · range ${skill.range}` : ""}
-                      {typeof skill.cooldown === "number" ? ` · cd ${skill.cooldown}` : ""}
-                    </div>
-                    {(skill.tags || []).length > 0 && (
-                      <div className="skill-tree-tags">
-                        {(skill.tags || []).map((tag) => (
-                          <span key={tag}>{tag}</span>
-                        ))}
-                      </div>
-                    )}
-                    {skill.status === "locked" && skill.unlock_hint && (
-                      <div className="skill-tree-hint">{skill.unlock_hint}</div>
-                    )}
-                    {interactive && skill.status === "unlocked" && !skill.requires_met && (
-                      <div className="skill-tree-hint">
-                        선행 스킬 필요: {skill.requires.join(", ")}
-                      </div>
-                    )}
-                    {interactive && skill.action !== null && (
-                      <button
-                        type="button"
-                        className="skill-tree-action"
-                        disabled={!canAct}
-                        onClick={() => onLearnSkill?.(skill.id)}
-                      >
-                        {busy
-                          ? "처리 중…"
-                          : skill.action === "learn"
-                            ? `습득 -${skill.action_cost}p`
-                            : `강화 -${skill.action_cost}p`}
-                      </button>
-                    )}
-                  </div>
-                );
-              })
-            ) : (
-              <div style={{ color: "var(--ink-dim)" }}>
-                표시할 스킬 트리가 없습니다.
-              </div>
-            )}
-          </div>
+        <div className="codex-status-grid">
+          <ProgressDashboard
+            snapshot={snapshot ?? null}
+            memoryOverview={memoryOverview}
+            runs={visibleRuns}
+          />
+          <RunHistoryPanel runsHistory={visibleRuns} />
         </div>
       </div>
     </div>

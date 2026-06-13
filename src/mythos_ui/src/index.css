@@ -271,6 +271,32 @@ main {
   color: var(--term);
   font-size: 14.5px;
 }
+.cmd-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.cmd-chip {
+  border: 1px solid rgba(41, 255, 198, 0.22);
+  border-radius: 4px;
+  padding: 2px 6px;
+  color: var(--term);
+  background: rgba(41, 255, 198, 0.06);
+  font-size: 10.5px;
+  line-height: 1.35;
+}
+.cmd-chip.muted {
+  color: var(--ink-dim);
+  border-color: var(--line-soft);
+  background: rgba(255, 255, 255, 0.03);
+}
+.cmd-preview {
+  color: var(--ink-dim);
+  font-size: 11.5px;
+  line-height: 1.45;
+  margin-top: 7px;
+}
 .cmd-intent {
   color: var(--ink-dim);
   font-size: 11px;
@@ -379,6 +405,7 @@ main {
   border-bottom: 1px solid var(--line-soft);
 }
 .tab-btn {
+  position: relative;
   background: transparent;
   color: var(--ink-dim);
   border: none;
@@ -398,14 +425,38 @@ main {
 .tab-btn:hover {
   color: var(--ink);
 }
+.tab-notice-dot {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--warn);
+  box-shadow: 0 0 8px rgba(255, 214, 106, 0.55);
+}
+.tab-panel-title {
+  color: var(--term);
+  font-size: 16px;
+  margin: 0 0 16px;
+}
 
 .codex-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
+.codex-status-grid,
+.character-tab-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
 @media (max-width: 600px) {
-  .codex-grid {
+  .codex-grid,
+  .codex-status-grid,
+  .character-tab-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -482,6 +533,29 @@ main {
   color: var(--ink-dim);
   font-size: 11px;
 }
+.skill-rank-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 7px;
+  min-height: 16px;
+}
+.skill-rank-row span {
+  width: 18px;
+  height: 5px;
+  border: 1px solid rgba(41, 255, 198, 0.42);
+  border-radius: 999px;
+  background: rgba(41, 255, 198, 0.05);
+}
+.skill-rank-row span.filled {
+  background: var(--term);
+  box-shadow: 0 0 8px rgba(41, 255, 198, 0.42);
+}
+.skill-rank-row small {
+  color: var(--ink-dim);
+  font-size: 10px;
+  margin-left: 4px;
+}
 .skill-tree-hint {
   margin-top: 6px;
   color: var(--warn);
@@ -521,6 +595,15 @@ main {
   color: var(--warn);
   font-size: 11px;
   margin-bottom: 8px;
+}
+.skill-tree-notice {
+  color: var(--term);
+  border: 1px solid rgba(41, 255, 198, 0.42);
+  border-radius: 6px;
+  background: rgba(41, 255, 198, 0.07);
+  font-size: 11px;
+  margin-bottom: 8px;
+  padding: 8px 10px;
 }
 
 /* Scenario lock hint + epiphany banner */
@@ -604,6 +687,12 @@ main {
 }
 .save-slot-load-btn:hover {
   box-shadow: 0 0 8px rgba(41,255,198,0.22);
+}
+.run-history-hint {
+  color: var(--ink-dim);
+  font-size: 11px;
+  line-height: 1.5;
+  margin: -4px 0 10px;
 }
 
 /* Combat controls & logs */
@@ -1650,6 +1739,17 @@ main {
 .route-visited {
   opacity: 0.5;
 }
+.route-node-locked {
+  opacity: 0.35;
+  filter: grayscale(80%);
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-style: dashed !important;
+  border-color: var(--ink-dim) !important;
+  cursor: not-allowed;
+}
+.route-node-locked .route-glyph {
+  color: var(--ink-dim);
+}
 .route-current {
   background: var(--term);
   border-color: var(--term);
@@ -1707,14 +1807,25 @@ main {
 }
 .route-ending-row {
   display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 6px;
+}
+.route-ending-head {
+  display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 3px;
 }
 .route-ending-name {
   font-size: 11px;
   color: var(--term-dim);
   min-width: 72px;
+}
+.route-ending-gloss {
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--ink-dim);
+  padding-left: 2px;
 }
 .route-ending-bar {
   flex: 1;
@@ -1769,6 +1880,21 @@ main {
   flex-direction: column;
   gap: 16px;
   height: 100%;
+  min-height: 620px;
+}
+.combat-right-col #combat-controls {
+  margin-top: auto;
+  position: sticky;
+  bottom: 12px;
+  z-index: 12;
+}
+@media (max-width: 960px) {
+  .combat-right-col {
+    min-height: 0;
+  }
+  .combat-right-col #combat-controls {
+    position: static;
+  }
 }
 .tactical-board-panel {
   padding: 16px;
@@ -2433,6 +2559,14 @@ main {
   border-left: 2px solid var(--line-soft);
   padding-left: 8px;
 }
+.history-scene-result {
+  margin-top: 6px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-dim);
+  border-left: 2px solid rgba(41, 255, 198, 0.22);
+  padding-left: 8px;
+}
 
 /* "전체 기록 보기" 버튼 + 별도 화면(오버레이) */
 .history-open-btn {
@@ -2507,6 +2641,60 @@ main {
 
 .current-scene-block {
   margin-bottom: 16px;
+}
+.objective-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  background: rgba(0, 255, 170, 0.04);
+}
+.objective-main,
+.objective-result {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+.objective-kicker {
+  color: var(--term-dim);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.objective-text {
+  color: var(--term);
+}
+/* Act-level Golden Path goal: secondary context above the immediate 현재 목표. */
+.objective-chapter {
+  padding-bottom: 6px;
+  border-bottom: 1px dashed var(--line-soft);
+}
+.objective-chapter .objective-text {
+  color: var(--ink-dim);
+}
+.objective-result {
+  color: var(--ink-dim);
+}
+.objective-stakes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.objective-chip {
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  padding: 2px 6px;
+  color: var(--ink-dim);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  background: rgba(255, 255, 255, 0.025);
 }
 
 .choice-panel-wrapper {
@@ -3455,4 +3643,115 @@ main {
   0% { filter: brightness(1) contrast(1); }
   30% { filter: brightness(1.8) contrast(1.3); }
   100% { filter: brightness(1.2) contrast(1.1); }
+}
+
+.progress-dashboard-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.progress-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.progress-stat {
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  background: rgba(41, 255, 198, 0.045);
+  padding: 7px 6px;
+  min-width: 0;
+}
+
+.progress-stat span,
+.progress-latest-run span {
+  display: block;
+  color: var(--ink-dim);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+.progress-stat strong {
+  display: block;
+  color: var(--term);
+  font-size: 16px;
+  line-height: 1.2;
+  margin-top: 2px;
+}
+
+.progress-detail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.progress-detail span {
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  color: var(--ink-dim);
+  font-size: 10px;
+  padding: 3px 7px;
+}
+
+.progress-alert,
+.progress-empty {
+  color: var(--ink-dim);
+  border: 1px dashed var(--line-soft);
+  border-radius: 6px;
+  padding: 8px;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.progress-alert {
+  color: var(--warn);
+  border-color: rgba(255, 214, 106, 0.45);
+  background: rgba(255, 214, 106, 0.06);
+}
+
+.progress-latest-run {
+  border-top: 1px solid var(--line-soft);
+  padding-top: 9px;
+}
+
+.progress-latest-run strong {
+  display: block;
+  color: var(--ink);
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+.progress-latest-run small {
+  color: var(--ink-dim);
+  font-size: 10px;
+}
+
+.progress-echo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.progress-echo {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 7px;
+  align-items: start;
+  border-left: 2px solid var(--term);
+  padding-left: 7px;
+}
+
+.progress-echo span {
+  color: var(--term);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.progress-echo small {
+  color: var(--ink-dim);
+  font-size: 10px;
+  line-height: 1.45;
 }

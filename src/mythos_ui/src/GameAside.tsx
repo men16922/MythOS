@@ -1,12 +1,16 @@
 import { useState } from "react";
 import { buildGaugeConfig } from "./gauges";
 import { SaveHistoryPanel } from "./SaveHistoryPanel";
-import type { RouteMap, RouteNode, RunSummary, RuntimeSnapshot, SaveSlot } from "./types";
+import type {
+  RouteMap,
+  RouteNode,
+  RuntimeSnapshot,
+  SaveSlot,
+} from "./types";
 
 interface GameAsideProps {
   saveLabelInput: string;
   saveSlots: SaveSlot[];
-  runsHistory: RunSummary[];
   isBusy: boolean;
   canSave: boolean;
   playerId: string;
@@ -47,7 +51,7 @@ function rewardSummary(reward?: Record<string, number>): string {
 
 type RouteGraphMode = "compact" | "detail";
 
-function RouteMapPanel({ routeMap }: { routeMap: RouteMap }) {
+function RouteMapPanel({ routeMap, playerFlags }: { routeMap: RouteMap; playerFlags: string[] }) {
   const [expanded, setExpanded] = useState(false);
   const nodes = routeMap.nodes || {};
   const layers = routeMap.layers || [];
@@ -64,6 +68,10 @@ function RouteMapPanel({ routeMap }: { routeMap: RouteMap }) {
     const isCurrent = id === currentId;
     const isNext = nextCandidates.has(id);
     const isVisited = visited.has(id) && !isCurrent;
+
+    const gate = node.gate || [];
+    const isLocked = gate.length > 0 && !gate.every((f) => playerFlags.includes(f));
+
     const cls = [
       "route-node",
       `route-node-${mode}`,
@@ -72,13 +80,16 @@ function RouteMapPanel({ routeMap }: { routeMap: RouteMap }) {
       isNext ? "route-next" : "",
       isVisited ? "route-visited" : "",
       node.combat ? "route-combat" : "",
+      isLocked ? "route-node-locked" : "",
     ]
       .filter(Boolean)
       .join(" ");
     const reward = rewardSummary(node.reward);
     const perspectives = node.perspectives || [];
     const lensLines = perspectives.map((p) => `· ${p.lens || p.id}`);
+    const lockText = isLocked ? `🔒 [잠김 - 플래그 필요: ${gate.join(", ")}]` : "";
     const title = [
+      lockText,
       node.title || node.label,
       `유형: ${node.label}`,
       node.risk ? `위험 ${node.risk}` : "",
@@ -92,7 +103,7 @@ function RouteMapPanel({ routeMap }: { routeMap: RouteMap }) {
     const label = mode === "detail" ? node.title || node.label : node.label;
     return (
       <div key={id} className={cls} title={title}>
-        <span className="route-glyph">{node.glyph || "?"}</span>
+        <span className="route-glyph">{isLocked ? "🔒" : (node.glyph || "?")}</span>
         <span className="route-label">
           {node.anchor && <span className="route-anchor">★</span>}
           {label}
@@ -218,8 +229,9 @@ function RouteMapPanel({ routeMap }: { routeMap: RouteMap }) {
 function OperationMapPanel({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
   if (!snapshot || !snapshot.state) return null;
   const routeMap = snapshot.state._route_map;
+  const playerFlags = snapshot.state.flags || [];
   if (routeMap && (routeMap.layers || []).length > 0) {
-    return <RouteMapPanel routeMap={routeMap} />;
+    return <RouteMapPanel routeMap={routeMap} playerFlags={playerFlags} />;
   }
   const mapState = snapshot.state._map;
   if (!mapState || !mapState.current) return null;
@@ -455,7 +467,6 @@ function LogPanel({ consoleLogs }: { consoleLogs: string }) {
 export function GameAside({
   saveLabelInput,
   saveSlots,
-  runsHistory,
   isBusy,
   canSave,
   playerId,
@@ -471,7 +482,6 @@ export function GameAside({
       <SaveHistoryPanel
         saveLabelInput={saveLabelInput}
         saveSlots={saveSlots}
-        runsHistory={runsHistory}
         isBusy={isBusy}
         canSave={canSave}
         playerId={playerId}

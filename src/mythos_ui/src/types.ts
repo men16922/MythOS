@@ -104,6 +104,20 @@ export interface SceneChoice {
   intent?: string;
   cost?: ChoiceCost | null;
   requires?: ChoiceRequires | null;
+  axis?: "people" | "data" | "safety" | "control" | string;
+  axis_label?: string;
+  stakes?: string[];
+  result_preview?: string;
+}
+
+export interface ChoiceResult {
+  action?: string;
+  summary?: string;
+  stability_delta?: number;
+  tension_delta?: number;
+  new_flags?: string[];
+  route_from?: string | null;
+  route_to?: string | null;
 }
 
 export interface ActiveScene {
@@ -117,7 +131,12 @@ export interface ActiveScene {
   visual_brief?: string;
   created_at: string;
   objective?: string;
+  // Stable Golden Path goal for the current act (loop phase). Anchors the player
+  // even when the per-scene `objective` is vague or missing.
+  chapter_goal?: string | null;
   action_result?: string | null;
+  stakes_summary?: string[];
+  choice_result?: ChoiceResult | null;
   scene_type: string;
 }
 
@@ -213,6 +232,7 @@ export interface CombatLogEntry {
 export interface CombatState {
   finished: boolean;
   outcome?: "player_victory" | "player_fled" | "player_defeat" | string;
+  defeat_soft?: boolean;
   radar: CombatRadar;
   available?: CombatAvailableActions;
   elevations?: Record<string, number>;
@@ -341,6 +361,8 @@ export interface RuntimeSnapshot {
   combat?: CombatState | null;
   assets?: AssetInfo[];
   bgm_path?: string;
+  active_echoes?: EchoItem[];
+  echo?: EchoItem | null;
   state?: GameStateRaw;
   player?: PlayerProfile;
   epiphanies_unlocked?: string[];
@@ -367,16 +389,31 @@ export interface SaveSlot {
 export interface RunSummary {
   loop_id: string;
   ending_label?: string;
+  final_title?: string;
+  final_location?: string;
   turns: number;
   ended_at: string;
   unlocks_granted?: string[];
   scenario_id?: string;
+  clues_collected?: string[];
+  combats_won?: number;
+  combats_lost?: number;
+  summary?: string;
 }
 
 export interface NarrativeShard {
-  kind: "clue" | "lore" | "character";
+  kind: "clue" | "lore" | "character" | string;
   symbol: string;
   text: string;
+}
+
+export interface EchoItem {
+  echo_id?: string;
+  source_loop_id?: string;
+  source_event_id?: string;
+  symbol: string;
+  text: string;
+  weight?: number;
 }
 
 export interface UnlockedLore {
@@ -385,7 +422,22 @@ export interface UnlockedLore {
 }
 
 export interface MemoryOverview {
+  world_archives?: unknown[];
   narrative_shards: NarrativeShard[];
+  novelty_notes?: string[];
+  run_summaries?: RunSummary[];
+  latest_adjustment?: Record<string, unknown> | null;
+  rollup?: Record<string, unknown> | null;
+  meta_progression?: {
+    insight_points?: number;
+    runs_completed?: number;
+    total_clues?: number;
+    total_combats_won?: number;
+    total_combats_lost?: number;
+    unlocked_skills?: string[];
+    learned_skills?: string[];
+    [key: string]: unknown;
+  } | null;
   unlocked_lore: UnlockedLore[];
   narrative_metrics?: {
     counts?: Record<string, number>;

@@ -61,19 +61,20 @@ export function CombatControls({
   onContinue,
 }: CombatControlsProps) {
   if (combat.finished && combat.outcome) {
+    const canContinue = combat.outcome !== "player_defeat" || combat.defeat_soft;
     return (
       <div id="combat-controls" className="active">
         <div className={`combat-outcome ${combat.outcome === "player_defeat" ? "lose" : ""}`}>
           교전 종료 — {outcomeLabel(combat.outcome)}
         </div>
         <div className="cc-row" style={{ marginTop: "10px" }}>
-          {combat.outcome === "player_defeat" ? (
-            <button className="cc-btn" onClick={onReturnToMain} id="cc-return-main">
-              메인 화면으로 ▸
-            </button>
-          ) : (
+          {canContinue ? (
             <button className="cc-btn" onClick={onContinue} id="cc-continue">
               계속 ▸
+            </button>
+          ) : (
+            <button className="cc-btn" onClick={onReturnToMain} id="cc-return-main">
+              메인 화면으로 ▸
             </button>
           )}
         </div>
@@ -87,6 +88,12 @@ export function CombatControls({
   const focus = available?.focus ?? null;
   const isPlayerTurn = available?.is_player !== false;
   const activeName = available?.active_actor_name;
+  const targets = available?.targets || [];
+  const defaultTargetId =
+    selectedTargetId ||
+    targets.find((target) => target.in_range)?.id ||
+    targets[0]?.id ||
+    null;
 
   const renderSkill = (skill: CombatSkillInfo) => {
     const onCooldown = skill.cooldown > 0;
@@ -119,7 +126,7 @@ export function CombatControls({
           onAction({
             type: "skill",
             skill_id: skill.id,
-            target_id: selectedTargetId || undefined,
+            target_id: defaultTargetId || undefined,
           })
         }
       >
@@ -167,7 +174,7 @@ export function CombatControls({
                   return (
                     <button
                       key={target.id}
-                      className={`cc-btn tgt ${selectedTargetId === target.id ? "sel" : ""}`}
+                      className={`cc-btn tgt ${defaultTargetId === target.id ? "sel" : ""}`}
                       onClick={() => onSelectTarget(target.id)}
                     >
                       {target.name}
@@ -185,7 +192,9 @@ export function CombatControls({
             <div className="cc-row">
               <button
                 className="cc-btn"
-                onClick={() => onAction({ type: "attack", target_id: selectedTargetId || undefined })}
+                disabled={!defaultTargetId}
+                title={defaultTargetId ? "선택된 표적을 공격합니다." : "공격할 표적이 없습니다."}
+                onClick={() => onAction({ type: "attack", target_id: defaultTargetId || undefined })}
               >
                 ⚔ 공격
               </button>

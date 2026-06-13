@@ -1,11 +1,26 @@
 import type { RouteMap } from "./types";
 
-// Ending id -> player-facing label.
-const ENDING_LABELS: Record<string, string> = {
-  ending_safe_refuge: "안정적 귀환",
-  ending_code_rewrite: "시스템 각성",
-  ending_noble_sacrifice: "고결한 희생",
-  ending_erasure: "강제 최적화",
+// Ending id -> player-facing label + a one-line plain-language gloss of what the
+// outcome actually means. Glosses are condensed from scenario.json
+// `endings[].narration` so a first-time player understands the lean without having
+// to decode the two-word name (the internal `condition` is never shown).
+const ENDINGS: Record<string, { label: string; gloss: string }> = {
+  ending_safe_refuge: {
+    label: "안정적 귀환",
+    gloss: "누군가를 구하고 자신도 지켜내, 세계는 그대로지만 혼자가 아니게 된다.",
+  },
+  ending_code_rewrite: {
+    label: "시스템 각성",
+    gloss: "자신의 의지를 코드로 흘려보내 Neo-Seoul의 규칙을 새로 쓴다.",
+  },
+  ending_noble_sacrifice: {
+    label: "고결한 희생",
+    gloss: "자신은 소멸하지만 모든 안드로이드에게 꿈을 남기고 세린에게 기억된다.",
+  },
+  ending_erasure: {
+    label: "강제 최적화",
+    gloss: "버그로 수정되어 지워지지만, 어딘가에서 작은 글리치가 다시 시작된다.",
+  },
 };
 
 /**
@@ -53,17 +68,23 @@ export function RouteNarrative({ routeMap }: { routeMap?: RouteMap | null }) {
           <div className="route-ending-help">
             지금까지의 선택이 기울고 있는 결말 경향(확정 아님).
           </div>
-          {leaderboard.slice(0, 3).map(([id, score]) => (
-            <div key={id} className="route-ending-row">
-              <span className="route-ending-name">{ENDING_LABELS[id] || id}</span>
-              <span className="route-ending-bar">
-                <span
-                  className="route-ending-fill"
-                  style={{ width: `${topEndingScore ? (score / topEndingScore) * 100 : 0}%` }}
-                />
-              </span>
-            </div>
-          ))}
+          {leaderboard.slice(0, 3).map(([id, score]) => {
+            const meta = ENDINGS[id];
+            return (
+              <div key={id} className="route-ending-row">
+                <div className="route-ending-head">
+                  <span className="route-ending-name">{meta?.label || id}</span>
+                  <span className="route-ending-bar">
+                    <span
+                      className="route-ending-fill"
+                      style={{ width: `${topEndingScore ? (score / topEndingScore) * 100 : 0}%` }}
+                    />
+                  </span>
+                </div>
+                {meta?.gloss && <div className="route-ending-gloss">{meta.gloss}</div>}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

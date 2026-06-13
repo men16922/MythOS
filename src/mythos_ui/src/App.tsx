@@ -19,6 +19,7 @@ import {
 } from "./api";
 import { isChoiceDisabled } from "./choices";
 import { CodexPanel } from "./CodexPanel";
+import { CharacterTabPanel } from "./CharacterTabPanel";
 import { DevConsolePanel } from "./DevConsolePanel";
 import { GameAside } from "./GameAside";
 import { BootIntro } from "./BootIntro";
@@ -26,6 +27,8 @@ import { HeaderBar } from "./HeaderBar";
 import { OnboardingPanel } from "./OnboardingPanel";
 import { StoryPanel } from "./StoryPanel";
 import { TabNav } from "./TabNav";
+import type { ActiveTab } from "./TabNav";
+import { SkillTreePanel } from "./SkillTreePanel";
 import { IntroPanel } from "./IntroPanel";
 import type { IntroData } from "./IntroPanel";
 import type {
@@ -57,6 +60,14 @@ import { useAudio } from "./hooks/useAudio";
 const firstUnlockedArchetype = (archetypes: ScenarioArchetype[]) =>
   archetypes.find((archetype) => archetype.unlocked !== false)?.name || null;
 
+type NarrativeHistoryItem = {
+  sceneId: string;
+  title: string;
+  text: string;
+  action?: string | null;
+  result?: string | null;
+};
+
 export default function App() {
   // --- Connection / Onboarding State ---
   const [displayName, setDisplayName] = useState("테스터");
@@ -84,7 +95,7 @@ export default function App() {
   const [playerId, setPlayerId] = useState<string | null>(null);
   const [loopId, setLoopId] = useState<string | null>(null);
   const [status, setStatus] = useState("대기 중.");
-  const [activeTab, setActiveTab] = useState<"story" | "codex" | "dev">("story");
+  const [activeTab, setActiveTab] = useState<ActiveTab>("story");
   const [consoleLogs, setConsoleLogs] = useState<string>("");
   const [isBusy, setIsBusy] = useState(false);
   const [saveSlots, setSaveSlots] = useState<SaveSlot[]>([]);
@@ -94,6 +105,7 @@ export default function App() {
   const [skillTree, setSkillTree] = useState<SkillTreeResponse | null>(null);
   const [learningSkillId, setLearningSkillId] = useState<string | null>(null);
   const [skillError, setSkillError] = useState<string | null>(null);
+  const [skillNotice, setSkillNotice] = useState<string | null>(null);
   const [dismissedEpiphany, setDismissedEpiphany] = useState<string | null>(() => {
     try {
       return localStorage.getItem("mythos_epiphany_seen");
@@ -113,10 +125,13 @@ export default function App() {
   const narrationTypedRef = useRef("");
   const streamDoneRef = useRef(false);
   const pendingSnapshotRef = useRef<RuntimeSnapshot | null>(null);
+  // Fires if a pending/processing visual job never reports a terminal status
+  // (worker died mid-flight) so the placeholder doesn't spin forever.
+  const visualTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // --- Asset / Audio / Cinematic States ---
   const [sceneImageUrl, setSceneImageUrl] = useState<string | null>(null);
-  const [narrativeHistory, setNarrativeHistory] = useState<{ sceneId: string; title: string; text: string; action?: string | null }[]>([]);
+  const [narrativeHistory, setNarrativeHistory] = useState<NarrativeHistoryItem[]>([]);
   // Action the player just took; attached to the scene as it moves into history.
   const pendingActionRef = useRef<string | null>(null);
   const [imagePlaceholderText, setImagePlaceholderText] = useState(
@@ -258,9 +273,24 @@ export default function App() {
     startTyper();
   }, [startTyper, finalizedSnapshot]);
 
+  const clearVisualTimeout = () => {
+    if (visualTimeoutRef.current) {
+      clearTimeout(visualTimeoutRef.current);
+      visualTimeoutRef.current = null;
+    }
+  };
+
   const onVisualStatus = (msg: WebSocketMessage) => {
+    clearVisualTimeout();
     if (msg.status === "pending" || msg.status === "processing") {
       setImagePlaceholderText(`그림 생성 중… (${msg.status})`);
+      // No terminal status within the budget ⇒ worker is likely down or stalled.
+      visualTimeoutRef.current = setTimeout(() => {
+        setImagePlaceholderText(
+          "이미지 생성이 지연됩니다 — visual worker가 응답하지 않을 수 있습니다. `make visual-worker-logs`로 확인하거나 `make dev-up`으로 워커와 함께 기동하세요."
+        );
+        logToConsole("visual_status timeout: worker 무응답(90s)");
+      }, 90000);
     } else if (msg.status === "succeeded" && msg.url) {
       setSceneImageUrl(msg.url);
     } else {
@@ -286,6 +316,7 @@ export default function App() {
     );
     pendingActionRef.current = chosen?.label ?? null;
     // Keep previous image visible until the new one is generated asynchronously
+    clearVisualTimeout();
     setImagePlaceholderText("그림 생성 준비 중…");
     beginStream("선택 적용 · 스트리밍…");
     if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
@@ -370,7 +401,27 @@ export default function App() {
   const handleReceivedSnapshot = (snap: RuntimeSnapshot) => {
     setLoopId(snap.loop_id);
     setLastSnapshot(snap);
+    const resultSummary = snap.active_scene?.choice_result?.summary;
+    if (resultSummary) {
+      setNarrativeHistory((prev) => {
+        if (prev.length === 0) return prev;
+        const last = prev[prev.length - 1];
+        if (last.result) return prev;
+        return [...prev.slice(0, -1), { ...last, result: resultSummary }];
+      });
+    }
     resolveImage(snap.assets || []);
+    if (withImage && !(snap.assets || []).some((a) => a.status === "pending" || a.status === "processing" || a.status === "succeeded")) {
+      const currentNode = snap.state?._route_map?.current
+        ? snap.state._route_map.nodes?.[snap.state._route_map.current]
+        : null;
+      const hasCuratedImage = Boolean(currentNode?.anchor && currentNode?.image);
+      setImagePlaceholderText(
+        hasCuratedImage
+          ? "이 주요 장면은 사전 제작 이미지를 우선 표시합니다."
+          : "새 장면 이미지가 아직 생성되지 않았습니다. visual worker가 꺼져 있거나 이미 처리 중인 이미지가 있으면 생성 요청을 건너뜁니다."
+      );
+    }
     loadSlotsAndRuns(snap.player?.player_id || playerId || "");
     playBgm(snap.bgm_path || "");
     triggerCinematicEffects(snap);
@@ -415,8 +466,10 @@ export default function App() {
     try {
       const slotsData = await apiGetSlots(pId);
       const runsData = await apiGetRuns(pId);
+      const overview = await apiGetMemory(pId);
       setSaveSlots(slotsData.slots || []);
       setRunsHistory(runsData.runs || []);
+      setMemoryOverview(overview);
     } catch (e) {
       logToConsole("세션/런 데이터 로드 실패: " + (e as Error).message);
     }
@@ -447,6 +500,8 @@ export default function App() {
     if (!playerId || learningSkillId) return;
     setLearningSkillId(skillId);
     setSkillError(null);
+    setSkillNotice(null);
+    const before = skillTree?.skills.find((skill) => skill.id === skillId);
     try {
       const tree = await apiLearnSkill({
         player_id: playerId,
@@ -454,6 +509,15 @@ export default function App() {
         skill_id: skillId,
       });
       setSkillTree(tree);
+      const after = tree.skills.find((skill) => skill.id === skillId);
+      const name = after?.name || before?.name || skillId;
+      if (before && after && after.rank > before.rank) {
+        setSkillNotice(`${name} 강화 완료: Rank ${before.rank} → ${after.rank}. 통찰 잔액 ${tree.insight_points}p`);
+      } else if (after?.status === "learned") {
+        setSkillNotice(`${name} 습득 완료: 다음 전투부터 액션바에서 사용할 수 있습니다. 통찰 잔액 ${tree.insight_points}p`);
+      } else {
+        setSkillNotice(`${name} 갱신 완료. 통찰 잔액 ${tree.insight_points}p`);
+      }
       logToConsole(`스킬 갱신: ${skillId} (통찰 잔액 ${tree.insight_points}p)`);
     } catch (e) {
       setSkillError((e as Error).message);
@@ -507,6 +571,7 @@ export default function App() {
         // Send begin event
          setSceneImageUrl(null);
         setNarrativeHistory([]);
+        clearVisualTimeout();
         setImagePlaceholderText("그림 생성 준비 중…");
         streamDoneRef.current = false;
         pendingSnapshotRef.current = null;
@@ -774,6 +839,7 @@ export default function App() {
     setCombatTarget(null);
     pendingActionRef.current = "전투의 여파를 살피고 다음 행동을 준비한다";
     // Keep previous image visible until the new one is generated asynchronously
+    clearVisualTimeout();
     setImagePlaceholderText("그림 생성 준비 중…");
     beginStream("전투 이후 · 스트리밍…");
 
@@ -1130,9 +1196,23 @@ export default function App() {
   }, [finalizedSnapshot, memoryOverview, scenarios, selectedScenarioId]);
 
   // Sync tab loading
-  const handleTabClick = (tab: "story" | "codex" | "dev") => {
+  const tabNotices = useMemo<Partial<Record<ActiveTab, string>>>(() => {
+    const notices: Partial<Record<ActiveTab, string>> = {};
+    if ((finalizedSnapshot?.active_echoes || []).length > 0 || runsHistory.length > 0) {
+      notices.codex = "Echo, Shard, 지난 루프 기록 확인";
+    }
+    if ((codexLists?.characters || []).length > 0) {
+      notices.character = "새 인물 기록 또는 장비 상태 확인";
+    }
+    if (showInGameNotice || epiphanyNotice || skillNotice) {
+      notices.skills = "새 스킬 해금 또는 통찰 투자 가능";
+    }
+    return notices;
+  }, [codexLists?.characters, epiphanyNotice, finalizedSnapshot?.active_echoes, runsHistory.length, showInGameNotice, skillNotice]);
+
+  const handleTabClick = (tab: ActiveTab) => {
     setActiveTab(tab);
-    if (tab === "codex" || tab === "dev") {
+    if (tab === "codex" || tab === "character" || tab === "skills" || tab === "dev") {
       loadCodex();
     }
   };
@@ -1179,7 +1259,7 @@ export default function App() {
             </button>
           </div>
           <div className="epiphany-body">
-            지난 루프의 경험으로 새로운 스킬이 해금되었습니다. Codex에서 통찰을 투자해 습득하세요.
+            지난 루프의 경험으로 새로운 스킬이 해금되었습니다. SKILL TREE 탭에서 통찰을 투자해 습득하세요.
             <ul>
               {epiphanyNotice.skills.map((skill) => (
                 <li key={skill.name}>
@@ -1239,13 +1319,13 @@ export default function App() {
               <div className="banner-body">
                 새로운 스킬이 해금되었습니다: <strong>{getSkillName(showInGameNotice)}</strong>
                 <br />
-                <span className="banner-hint">런 종료 후 메인 화면의 Codex에서 습득하실 수 있습니다.</span>
+                <span className="banner-hint">상단 SKILL TREE 탭에서 통찰을 투자해 습득할 수 있습니다.</span>
               </div>
             </div>
           )}
           <main id="play">
           <section>
-            <TabNav activeTab={activeTab} onTabClick={handleTabClick} />
+            <TabNav activeTab={activeTab} onTabClick={handleTabClick} notices={tabNotices} />
 
             {activeTab === "story" && (
               <StoryPanel
@@ -1284,13 +1364,29 @@ export default function App() {
             {activeTab === "codex" && codexLists && (
               <CodexPanel
                 codexLists={codexLists}
-                skillTree={skillTree}
                 routeMap={finalizedSnapshot?.state?._route_map}
                 snapshot={finalizedSnapshot}
+                runsHistory={runsHistory}
+                memoryOverview={memoryOverview}
+              />
+            )}
+
+            {activeTab === "character" && codexLists && (
+              <CharacterTabPanel
+                codexLists={codexLists}
+                snapshot={finalizedSnapshot}
                 onEquip={handleEquip}
+              />
+            )}
+
+            {activeTab === "skills" && codexLists && (
+              <SkillTreePanel
+                codexLists={codexLists}
+                skillTree={skillTree}
                 onLearnSkill={handleLearnSkill}
                 learningSkillId={learningSkillId}
                 skillError={skillError}
+                skillNotice={skillNotice}
               />
             )}
 
@@ -1305,7 +1401,6 @@ export default function App() {
           <GameAside
             saveLabelInput={saveLabelInput}
             saveSlots={saveSlots}
-            runsHistory={runsHistory}
             isBusy={isBusy}
             canSave={Boolean(loopId)}
             playerId={playerId || ""}

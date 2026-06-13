@@ -1,6 +1,7 @@
 import type {
   MemoryOverview,
   NarrativeShard,
+  EchoItem,
   RunSummary,
   RuntimeSnapshot,
   ScenarioEnding,
@@ -11,11 +12,6 @@ import type {
 interface LoreItem {
   title: string;
   desc: string;
-}
-
-interface EchoItem {
-  symbol: string;
-  text: string;
 }
 
 export interface SkillTreeItem extends ScenarioSkill {
@@ -134,7 +130,7 @@ export function buildCodexLists(
     allLore,
     inventory: snapshot?.player?.traits?.inventory || [],
     characters,
-    echoes: echoItems(snapshot?.state?.active_echoes),
+    echoes: echoItems(snapshot?.active_echoes),
     insightPoints: numberValue(metaObj.insight_points),
     skills,
   };

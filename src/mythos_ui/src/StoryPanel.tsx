@@ -7,6 +7,14 @@ import { CombatLog } from "./CombatLog";
 import { CombatRoster } from "./CombatRoster";
 import type { CombatAction, CombatBlip, CombatState, RuntimeSnapshot, ScenarioCharacter } from "./types";
 
+type NarrativeHistoryItem = {
+  sceneId: string;
+  title: string;
+  text: string;
+  action?: string | null;
+  result?: string | null;
+};
+
 interface StoryPanelProps {
   status: string;
   snapshot: RuntimeSnapshot | null;
@@ -32,7 +40,7 @@ interface StoryPanelProps {
   onCanvasPointerLeave: PointerEventHandler<HTMLCanvasElement>;
   combatInspectCell: [number, number] | null;
   scenarioId: string;
-  narrativeHistory: { sceneId: string; title: string; text: string; action?: string | null }[];
+  narrativeHistory: NarrativeHistoryItem[];
   scenarioCharacters?: ScenarioCharacter[];
   onEquip?: (itemId: string, equipped: boolean) => void;
   boardZoom?: number;
@@ -249,7 +257,7 @@ const combatOutcomeLabel = (outcome?: string): string => {
   return outcome || "종료";
 };
 
-const combatOutcomeCopy = (outcome?: string): string => {
+const combatOutcomeCopy = (outcome?: string, defeatSoft?: boolean): string => {
   if (outcome === "player_victory") {
     return "위협 신호가 침묵하고, 살아남은 접속자들의 윤곽이 잔광 속에 고정됩니다.";
   }
@@ -257,6 +265,9 @@ const combatOutcomeCopy = (outcome?: string): string => {
     return "교전망을 벗어났습니다. 다음 장면으로 이동하기 전 재정비가 필요합니다.";
   }
   if (outcome === "player_defeat") {
+    if (defeatSoft) {
+      return "신호가 완전히 끊기기 전, 세린의 우회 경로가 마지막 패킷을 붙잡습니다. 패배는 기록되지만 루프는 아직 끝나지 않았습니다.";
+    }
     return "접속이 붕괴했습니다. 이 루프는 기록으로 남고, 다음 접속의 잔향이 됩니다.";
   }
   return "교전이 종료되었습니다.";
@@ -282,6 +293,7 @@ function CombatResultPanel({
   const outcome = combat.outcome;
   const isVictory = outcome === "player_victory";
   const isDefeat = outcome === "player_defeat";
+  const isSoftDefeat = isDefeat && Boolean(combat.defeat_soft);
   const blips = combat.radar?.blips || [];
   const party = blips.filter((b) => b.faction !== "enemy" && b.alive !== false).slice(0, 3);
   const enemies = blips.filter((b) => b.faction === "enemy").slice(0, 3);
@@ -323,12 +335,12 @@ function CombatResultPanel({
             {enemies.map((b) => renderBlip(b, "enemy"))}
           </div>
           <div className="combat-result-stamp">
-            {isVictory ? "VICTORY" : isDefeat ? "LOOP COLLAPSE" : "DISENGAGED"}
+            {isVictory ? "VICTORY" : isSoftDefeat ? "CAPTURED" : isDefeat ? "LOOP COLLAPSE" : "DISENGAGED"}
           </div>
         </div>
       </div>
 
-      <p className="combat-result-copy">{combatOutcomeCopy(outcome)}</p>
+      <p className="combat-result-copy">{combatOutcomeCopy(outcome, isSoftDefeat)}</p>
       {(rewardEntries.length > 0 || items.length > 0) && (
         <div className="combat-reward-summary">
           <div className="combat-reward-title">획득 / 변화</div>
@@ -353,13 +365,13 @@ function CombatResultPanel({
         </div>
       )}
       <div className="cc-row combat-result-actions">
-        {isDefeat ? (
-          <button className="cc-btn" onClick={onReturnToMain} id="cc-return-main">
-            메인 화면으로 ▸
-          </button>
-        ) : (
+        {!isDefeat || isSoftDefeat ? (
           <button className="cc-btn" onClick={onContinue} id="cc-continue">
             계속 ▸
+          </button>
+        ) : (
+          <button className="cc-btn" onClick={onReturnToMain} id="cc-return-main">
+            메인 화면으로 ▸
           </button>
         )}
       </div>
@@ -375,11 +387,11 @@ function TacticalLegend({ combat }: { combat: CombatState }) {
 
   const rows: { sym: string; text: string }[] = [];
   rows.push({ sym: "⚔️/🏃/👣", text: "적 의도: 공격 예고 / 도주 / 이동" });
-  if (covers.includes("full")) rows.push({ sym: "▓", text: "엄호(강): 사선 차단 · 방어 보너스 큼" });
-  if (covers.includes("half")) rows.push({ sym: "▒", text: "엄호(약): 부분 방어 보너스" });
+  if (covers.includes("full")) rows.push({ sym: "▣", text: "엄호(강): 사선 차단 · 방어 보너스 큼" });
+  if (covers.includes("half")) rows.push({ sym: "◧", text: "엄호(약): 부분 방어 보너스" });
   if (hazards.includes("acid")) rows.push({ sym: "☣", text: "산성 지대: 턴 종료 시 피해" });
   if (hazards.includes("electro")) rows.push({ sym: "⚡", text: "전자 지대: 집중/방어 교란" });
-  if (hasElevation) rows.push({ sym: "▲", text: "고지: 명중·시야 유리, 이동 비용↑" });
+  if (hasElevation) rows.push({ sym: "▲n", text: "고지: 숫자만큼 높은 위치 · 명중/시야 유리" });
   const [open, setOpen] = useState(false);
 
   if (intents.length === 0 && covers.length === 0 && hazards.length === 0 && !hasElevation) {
@@ -505,6 +517,46 @@ function TileInspector({
   );
 }
 
+function ObjectiveStrip({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
+  const scene = snapshot?.active_scene;
+  if (!scene) return null;
+  const stakes = scene.stakes_summary || [];
+  const result = scene.choice_result?.summary || scene.action_result;
+  if (!scene.objective && !scene.chapter_goal && stakes.length === 0 && !result) return null;
+
+  return (
+    <div className="objective-strip">
+      {scene.chapter_goal && (
+        <div className="objective-main objective-chapter">
+          <span className="objective-kicker">이번 막</span>
+          <span className="objective-text">{scene.chapter_goal}</span>
+        </div>
+      )}
+      {scene.objective && (
+        <div className="objective-main">
+          <span className="objective-kicker">현재 목표</span>
+          <span className="objective-text">{scene.objective}</span>
+        </div>
+      )}
+      {stakes.length > 0 && (
+        <div className="objective-stakes">
+          {stakes.map((stake) => (
+            <span key={stake} className="objective-chip">
+              {stake}
+            </span>
+          ))}
+        </div>
+      )}
+      {result && (
+        <div className="objective-result">
+          <span className="objective-kicker">직전 결과</span>
+          <span>{result}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function StoryPanel({
   status,
   snapshot,
@@ -582,11 +634,16 @@ export function StoryPanel({
                   TACTICAL BOARD :: ROUND {String(snapshot.combat.radar?.round || 1).padStart(2, "0")}
                 </div>
                 {onBoardZoom && (
-                  <div className="board-zoom">
+                  <div
+                    className="board-zoom"
+                    onPointerDown={(e) => e.stopPropagation()}
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     <button
                       type="button"
                       className="board-zoom-btn"
                       title="축소"
+                      aria-label="전술 보드 축소"
                       disabled={boardZoom <= 1}
                       onClick={() => onBoardZoom(boardZoom - 0.25)}
                     >
@@ -597,6 +654,7 @@ export function StoryPanel({
                       type="button"
                       className="board-zoom-btn"
                       title="확대"
+                      aria-label="전술 보드 확대"
                       disabled={boardZoom >= 2.5}
                       onClick={() => onBoardZoom(boardZoom + 0.25)}
                     >
@@ -717,6 +775,9 @@ export function StoryPanel({
                   {h.action && (
                     <div className="history-scene-action">▸ 내 행동: {h.action}</div>
                   )}
+                  {h.result && (
+                    <div className="history-scene-result">↳ 결과: {h.result}</div>
+                  )}
                 </div>
               ))}
 
@@ -726,6 +787,7 @@ export function StoryPanel({
                 <h2 id="scene-title" style={{ marginTop: "8px" }}>
                   {snapshot?.active_scene?.title || ""}
                 </h2>
+                <ObjectiveStrip snapshot={snapshot} />
                 <div id="narration">
                   {renderFormattedNarration(displayedNarration, snapshot?.active_scene?.turn_index ?? 0)}
                   {isStreaming && <span className="caret">▌</span>}
@@ -802,6 +864,9 @@ export function StoryPanel({
                       {h.action && (
                         <div className="history-scene-action">▸ 내 행동: {h.action}</div>
                       )}
+                      {h.result && (
+                        <div className="history-scene-result">↳ 결과: {h.result}</div>
+                      )}
                     </div>
                   );
                 })}
@@ -822,12 +887,28 @@ function EndedPanel({
   onLeaveSession: () => void;
 }) {
   const endingLabel = snapshot.state?.ending_label || snapshot.state?.ending_id;
+  const reason = (() => {
+    if (snapshot.tension >= 90) {
+      return `관리망 추적도가 ${snapshot.tension}까지 올라가 강제 정정 절차가 발동했습니다.`;
+    }
+    if (snapshot.stability <= 10) {
+      return `루프 안정도가 ${snapshot.stability}까지 떨어져 접속을 유지하지 못했습니다.`;
+    }
+    if (snapshot.state?._soft_defeat_recovered) {
+      return "전투 패배 후 회복 루트가 열렸지만, 이후 선택의 누적 결과로 이번 루프가 기록 보관소로 넘어갔습니다.";
+    }
+    if (endingLabel) {
+      return "이번 루프의 선택과 상태가 엔딩 조건을 만족했습니다.";
+    }
+    return "이번 루프가 종료 조건에 도달했습니다.";
+  })();
 
   return (
     <div>
       <div className="ended-banner">
         <div className="et">여정 종료</div>
         {endingLabel ? <div className="el">엔딩 · {endingLabel}</div> : null}
+        <div className="el">{reason}</div>
       </div>
       <div style={{ marginTop: "12px" }}>
         <button className="cc-btn" onClick={onLeaveSession}>

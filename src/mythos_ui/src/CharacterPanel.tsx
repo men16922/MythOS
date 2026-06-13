@@ -50,7 +50,25 @@ interface CharacterPanelProps {
   onEquip?: (itemId: string, equipped: boolean) => void;
 }
 
-// 현재 장면에 등장한 대화 상대를 키워드로 탐지한다 (Streamlit _scene_characters와 동일 규칙).
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function keywordMatches(haystack: string, rawKeyword: string): boolean {
+  const keyword = rawKeyword.trim().toLowerCase();
+  if (!keyword) return false;
+  // Avoid false positives like the character "한" matching ordinary Korean text
+  // ("한 명", "한 번", etc.). Short Korean names need another alias/keyword.
+  if (keyword.length === 1 && /[가-힣]/.test(keyword)) return false;
+  if (/^[a-z0-9_-]+$/i.test(keyword)) {
+    return new RegExp(`(^|[^a-z0-9_-])${escapeRegExp(keyword)}([^a-z0-9_-]|$)`).test(
+      haystack
+    );
+  }
+  return haystack.includes(keyword);
+}
+
+// 현재 장면에 명확히 등장한 대화 상대를 키워드로 탐지한다.
 function detectSceneCharacter(
   snapshot: RuntimeSnapshot | null,
   characters?: ScenarioCharacter[]
@@ -63,7 +81,7 @@ function detectSceneCharacter(
   }`.toLowerCase();
   for (const character of characters) {
     if (!character.portrait) continue;
-    if (character.keywords.some((kw) => kw && haystack.includes(kw.toLowerCase()))) {
+    if (character.keywords.some((kw) => keywordMatches(haystack, kw))) {
       return character;
     }
   }
@@ -134,10 +152,20 @@ export function CharacterPanel({ snapshot, characters, onEquip }: CharacterPanel
     items: inventory.filter((item) => itemCategory(item) === category),
   })).filter((group) => group.items.length > 0);
   const autonomy = traits.autonomy_level;
+  const scenarioId =
+    typeof snapshot?.state?.scenario_id === "string" ? snapshot.state.scenario_id : "neo-seoul";
 
   return (
     <div className="panel character-panel">
       <div className="panel-title">CHARACTER</div>
+
+      <div className="char-portrait-frame">
+        <img
+          src={`/resources/${scenarioId}/characters/player-noise.png`}
+          alt={player?.display_name || "플레이어"}
+          className="char-portrait"
+        />
+      </div>
 
       <div className="char-id">
         <div className="char-name">{player?.display_name || "—"}</div>

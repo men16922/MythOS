@@ -155,6 +155,9 @@ class ApiNarrativeFlowTest(unittest.TestCase):
         self.assertIn("active_scene", body)
         self.assertIn("narration", body["active_scene"])
         self.assertIsInstance(body["active_scene"]["choices"], list)
+        self.assertIn("stakes_summary", body["active_scene"])
+        self.assertIn("axis_label", body["active_scene"]["choices"][0])
+        self.assertIn("result_preview", body["active_scene"]["choices"][0])
 
     def test_choose_advances_snapshot(self) -> None:
         self.client.post(
@@ -176,6 +179,8 @@ class ApiNarrativeFlowTest(unittest.TestCase):
         body = response.json()
         self.assertEqual(body["loop_id"], loop_id)
         self.assertGreaterEqual(body["active_scene"]["turn_index"], 1)
+        self.assertIn("choice_result", body["active_scene"])
+        self.assertIsInstance(body["active_scene"]["choice_result"]["summary"], str)
 
     def test_begin_loop_missing_player_is_not_found(self) -> None:
         response = self.client.post(

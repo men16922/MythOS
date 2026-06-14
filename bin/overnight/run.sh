@@ -30,6 +30,10 @@ cd "$REPO_ROOT"
 # --- 엔진 선택 (claude | codex | agy) — 동일 LOOP, 호출 에이전트만 다름 ---
 : "${ENGINE:=claude}"
 
+# git 객체 저장소(common dir). worktree 에선 .git 이 파일이고 실제 저장소는 메인의 .git 이다 —
+# codex 샌드박스가 commit(.git/objects/refs) 하려면 이 경로가 writable_roots 에 있어야 한다.
+GIT_COMMON_DIR="$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null || echo "$REPO_ROOT/.git")"
+
 # --- 경로 (REPO_ROOT 기준 상대 — overnight-settings.json allow 패턴과 일치) ---
 case "$ENGINE" in
   codex) PROMPT_FILE="bin/overnight/PROMPT.codex.md" ;;
@@ -200,7 +204,7 @@ while :; do
         --cd "$REPO_ROOT" \
         --sandbox workspace-write \
         -c sandbox_workspace_write.network_access=false \
-        -c "sandbox_workspace_write.writable_roots=[\"$REPO_ROOT/.git\"]" \
+        -c "sandbox_workspace_write.writable_roots=[\"$GIT_COMMON_DIR\"]" \
         -c approval_policy=never \
         --json \
         --output-last-message "$LOG_DIR/last-message.txt" \

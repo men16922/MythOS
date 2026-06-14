@@ -128,6 +128,6 @@ P1 작전 지도 route-node화 + 세션 메모리(→ COMPLETED_SUMMARY M39), Ta
 - `[ ]` `[manual]` 장기 플레이에서 Flux1 + Flux1Redux 동시 적재 메모리 모니터.
 - `[ ]` `[blocked]` `_map` 제거 정리(route-node 트랙 완료 후 보류; engine 매 장면 기록 + encounter_map 좌표·story_bible 위치·glass-library 폴백 미니맵 의존). 선행 조건: 전 시나리오 route_map 전환. 충족 시 `[auto]`(codemod + `make check` green)로 승격.
 - `[ ]` `[auto]` 필요 시 stale dated plan status header 정리. 완료 기준: `docs/plans/*.md` status 헤더가 STATUS/NEXT_PLAN 권위와 일치, `make check-auto` 영향 없음(docs-only).
-- `[ ]` `[auto]` **mypy 선행 부채 정리(파일 단위)**: `make python-typecheck`(=`mypy src tests`)가 현재 ~129 errors/14 files로 red라 `make check`를 overnight 게이트로 못 씀(대신 `make check-auto` 사용 중). 한 회차=한 파일 정리. 완료 기준: 대상 파일의 mypy error 0 + `make check-auto` green. 전부 정리되면 overnight 게이트를 `make check`로 승격(run.sh `GATE_CMD`).
+- `[/]` `[auto]` **mypy 선행 부채 정리(파일 단위)**: `make check`를 overnight 게이트로 쓰려면 `mypy src tests`가 green이어야 함(현재 `make check-auto`로 우회 중). **`src/` 완료(2026-06-14): `mypy src` 0 errors/75 files**(config/visual_queue/prompts/route_map/route_runtime/session/director, 전부 동작 불변 타입 수정). 남은 것: `tests/` ~115 errors(test_route_*.py 동일 패턴 ~30, `tests/playwright/test_e2e_play_checklist.py` ~50, 기타). 한 회차=한 파일. 완료 기준: 대상 파일 mypy 0 + `make check-auto` green. tests까지 정리되면 게이트를 `make check`로 승격(run.sh `GATE_CMD`).
 - `[ ]` `[manual]` 프론트엔드 god-component 분해(App.tsx·CombatCinema): custom hook/모듈 추출. E2E 민감하므로 live QA 동반 점진 진행.
 - `[ ]` `[auto]` `bin/` 보관소 검토·목록화(읽기 전용): 불필요 후보를 목록으로 보고. 완료 기준: 후보 목록을 PROGRESS_LOG/Blocker로 남김, 파일 삭제 없음(삭제 승인은 별도 `[manual]` — CORE_MANDATES §5).

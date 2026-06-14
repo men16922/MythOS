@@ -384,7 +384,7 @@ class RuntimeSessionService:
         if cached:
             loop = cached.loop
             player = cached.player
-            latest_scene = cached.scene
+            latest_scene: Scene | None = cached.scene
         else:
             loop = self._require_loop(loop_id)
             if loop.phase is LoopPhase.ENDED:
@@ -1312,13 +1312,15 @@ class RuntimeSessionService:
         dstab = dtens = dins = 0
         heal_frac = 0.0
         if not node.get("combat"):
-            reward = node.get("reward") if isinstance(node.get("reward"), dict) else {}
+            reward_raw = node.get("reward")
+            reward: dict[str, Any] = reward_raw if isinstance(reward_raw, dict) else {}
             dstab += int(reward.get("stability", 0) or 0)
             dtens += int(reward.get("tension", 0) or 0)
             dins += int(reward.get("insight", 0) or 0)
             heal_frac = float(reward.get("heal_frac", 0.0) or 0.0)
         if perspective:
-            effect = perspective.get("effect") if isinstance(perspective.get("effect"), dict) else {}
+            effect_raw = perspective.get("effect")
+            effect: dict[str, Any] = effect_raw if isinstance(effect_raw, dict) else {}
             dstab += int(effect.get("stability", 0) or 0)
             dtens += int(effect.get("tension", 0) or 0)
             dins += int(effect.get("insight", 0) or 0)
@@ -1836,7 +1838,8 @@ def _route_target_from_choice(choice_id: str | None) -> str | None:
 
 def _route_choice_badges(node: dict[str, Any]) -> str:
     parts: list[str] = []
-    reward = node.get("reward") if isinstance(node.get("reward"), dict) else {}
+    reward_raw = node.get("reward")
+    reward: dict[str, Any] = reward_raw if isinstance(reward_raw, dict) else {}
     if node.get("risk"):
         parts.append(f"위험 {node.get('risk')}")
     if reward.get("insight"):

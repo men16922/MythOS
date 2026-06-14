@@ -172,7 +172,7 @@ def select_perspective(
     on a zero score (or tie not including the default) the `default_perspective`
     is used so an unrouted scene still has a stable viewpoint.
     """
-    perspectives = node.get("perspectives")
+    perspectives: list[dict[str, Any]] = node.get("perspectives") or []
     if not perspectives:
         return None
     flag_set = set(flags)
@@ -236,8 +236,9 @@ def node_encounter_id(
         return None
     if not isinstance(combat_encounters, dict):
         return None
-    pool = combat_encounters.get(node.get("type"))
-    pool = [str(e) for e in pool] if isinstance(pool, list) else []
+    node_type = node.get("type")
+    raw_pool = combat_encounters.get(node_type) if isinstance(node_type, str) else None
+    pool: list[str] = [str(e) for e in raw_pool] if isinstance(raw_pool, list) else []
     if not pool:
         return None
     if len(pool) == 1:

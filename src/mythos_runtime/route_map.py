@@ -185,7 +185,7 @@ def _build_node(
         "label": str(type_spec.get("label", node_type)),
         "glyph": str(type_spec.get("glyph", "?")),
         "risk": int(spec.get("risk", type_spec.get("risk", 0))),
-        "reward": dict(reward),
+        "reward": dict(reward or {}),
         "combat": bool(type_spec.get("combat", False)),
         "anchor": bool(spec.get("anchor", False)),
         "origin": "anchor" if spec.get("anchor") else "dynamic",
@@ -407,7 +407,7 @@ def _pick_unique_title(titles: list[str], used: set[str], dice: Dice) -> str:
     candidates = [t for t in titles if t not in used]
     if not candidates:
         candidates = titles
-    chosen = dice.choice(candidates)
+    chosen = str(dice.choice(candidates))
     used.add(chosen)
     return chosen
 __all__ = [

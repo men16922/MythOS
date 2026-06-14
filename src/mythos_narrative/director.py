@@ -4,7 +4,7 @@ import json
 from collections.abc import Iterator
 from dataclasses import dataclass, field, replace
 from time import perf_counter
-from typing import Any, Protocol
+from typing import Any, Protocol, cast
 
 from openai import OpenAI
 
@@ -112,7 +112,7 @@ class OllamaJSONProvider:
         """Use storyteller model (gemma4:26b) for raw text generation without constraints."""
         client = self._client()
         target_model = model or self.config.ollama_model_story
-        kwargs = {
+        kwargs: dict[str, Any] = {
             "model": target_model,
             "messages": messages,
             "temperature": 0.4,
@@ -135,7 +135,7 @@ class OllamaJSONProvider:
     def generate_json(self, messages: list[dict[str, str]]) -> str:
         """Use parser model (gemma4:latest/8b) to parse raw text into JSON schema."""
         client = self._client()
-        kwargs = {
+        kwargs: dict[str, Any] = {
             "model": self.config.ollama_model_parser,
             "messages": messages,
             "temperature": 0.1,
@@ -156,7 +156,7 @@ class OllamaJSONProvider:
         """Fallback compatibility for single model mode: runs on config.ollama_model."""
         client = self._client()
         target_model = model or self.config.ollama_model
-        kwargs = {
+        kwargs: dict[str, Any] = {
             "model": target_model,
             "messages": messages,
             "temperature": 0.3,
@@ -186,7 +186,7 @@ class OllamaJSONProvider:
     def stream(self, messages: list[dict[str, str]]) -> Iterator[str]:
         """Streams standard JSON chunks for single model mode."""
         client = self._client()
-        kwargs = {
+        kwargs: dict[str, Any] = {
             "model": self.config.ollama_model,
             "messages": messages,
             "temperature": 0.3,
@@ -220,7 +220,7 @@ class OllamaJSONProvider:
         """Streams raw story text using storyteller model (gemma4:26b) without constraints."""
         client = self._client()
         target_model = model or self.config.ollama_model_story
-        kwargs = {
+        kwargs: dict[str, Any] = {
             "model": target_model,
             "messages": messages,
             "temperature": 0.4,
@@ -262,28 +262,34 @@ class NarrativeDirector:
         parser_model = getattr(config, "ollama_model_parser", None)
         return bool(story_model and parser_model and story_model != parser_model)
 
+    def _story_model(self) -> str | None:
+        return getattr(getattr(self.provider, "config", None), "ollama_model_story", None)
+
+    def _parser_model(self) -> str | None:
+        return getattr(getattr(self.provider, "config", None), "ollama_model_parser", None)
+
     def generate_first_scene(self, context: NarrativeContext) -> tuple[Scene, ScenePayload]:
         if self._use_dual_model():
-            story_model = self.provider.config.ollama_model_story
+            story_model = self._story_model()
             return self._generate_dual(context, build_first_story_messages(context), model=story_model)
         return self._generate_legacy(context, build_first_scene_messages(context))
 
     def generate_next_scene(self, context: NarrativeContext) -> tuple[Scene, ScenePayload]:
         if self._use_dual_model():
-            story_model = self.provider.config.ollama_model_story
+            story_model = self._story_model()
             return self._generate_dual(context, build_next_story_messages(context), model=story_model)
         return self._generate_legacy(context, build_next_scene_messages(context))
 
     def stream_first_scene(self, context: NarrativeContext) -> Iterator[NarrativeStreamEvent]:
         if self._use_dual_model():
-            story_model = self.provider.config.ollama_model_story
+            story_model = self._story_model()
             yield from self._stream_generate_dual(context, build_first_story_messages(context), model=story_model)
         else:
             yield from self._stream_generate_legacy(context, build_first_scene_messages(context))
 
     def stream_next_scene(self, context: NarrativeContext) -> Iterator[NarrativeStreamEvent]:
         if self._use_dual_model():
-            story_model = self.provider.config.ollama_model_story
+            story_model = self._story_model()
             yield from self._stream_generate_dual(context, build_next_story_messages(context), model=story_model)
         else:
             yield from self._stream_generate_legacy(context, build_next_scene_messages(context))
@@ -317,8 +323,8 @@ class NarrativeDirector:
             prompt += f"- {actor}: {action} -> {result}\n"
 
         try:
-            parser_model = getattr(self.provider.config, "ollama_model_parser", None)
-            response = self.provider.generate(
+            parser_model = self._parser_model()
+            response: str = cast(Any, self.provider).generate(
                 [
                     {
                         "role": "system",
@@ -363,8 +369,8 @@ class NarrativeDirector:
             prompt += f"- [{kind}] symbol={symbol} tone={tone}: {text}\n"
 
         try:
-            parser_model = getattr(self.provider.config, "ollama_model_parser", None)
-            response = self.provider.generate(
+            parser_model = self._parser_model()
+            response: str = cast(Any, self.provider).generate(
                 [
                     {
                         "role": "system",
@@ -395,7 +401,7 @@ class NarrativeDirector:
                 loop_id=context.loop.loop_id,
                 provider=type(self.provider).__name__,
             ):
-                story_text = self.provider.generate_story(story_messages, model=model)
+                story_text = cast(Any, self.provider).generate_story(story_messages, model=model)
         except Exception:
             self.logger.warning("storyteller model failed, using fallback", exc_info=True)
             scene, payload = self.fallback_scene(context)

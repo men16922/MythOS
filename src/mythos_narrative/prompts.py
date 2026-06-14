@@ -316,7 +316,7 @@ def _story_context_prompt(context: NarrativeContext, instruction: str) -> str:
 def _stable_player_for_prompt(player: Any) -> dict[str, Any]:
     """Player identity with volatile fields (timestamps) stripped, so the cacheable
     prefix stays byte-identical turn to turn."""
-    data = to_json_dict(player)
+    data: dict[str, Any] = to_json_dict(player)
     if isinstance(data, dict):
         for volatile in ("created_at", "updated_at"):
             data.pop(volatile, None)

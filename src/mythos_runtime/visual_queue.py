@@ -161,7 +161,8 @@ class SessionCache:
         try:
             raw = self._redis().get(f"mythos:session:{loop_id}")
             if raw:
-                return json.loads(raw)
+                snapshot: dict[str, Any] = json.loads(raw)
+                return snapshot
         except Exception:
             pass
         return None

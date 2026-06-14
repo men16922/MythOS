@@ -13,10 +13,14 @@
 - **건드릴 수 있는 범위(이것만)**: `resources/<scenario>/` 의 이미지 디렉터리
   (`characters/`, `characters/combat/`, `concept/`, `enemies/`, `enemies/combat/`, `opening/`, `scenes/`)
   와 **간단한 검증 테스트**(`tests/test_assets*.py` 류). 그 외 `src/` 로직·서사 콘텐츠·story_bible 는 건드리지 않는다.
+- **이미지 생성 = 너 자신의 Imagen/Gemini Image API(in-session)**: 초안은 **네가 CLI 세션 안에서 직접 호출하는
+  Google Imagen 3 / Gemini Image** 로 만든다. **FLUX/mflux·`mythos_image_agent`·`src/mythos_runtime/visual_service`
+  파이프라인은 쓰지 않는다**(그건 런타임 장면용). 선행 사례·포맷: `outputs/combat-sprite-compare/{imagen,gemini}/`
+  와 그 안의 `codex-gemini-image-review-serin.md`. Imagen/Gemini 이미지 접근이 안 되면 만들지 말고 **Blocker**.
 - **이미지 표준 바이블**: 새 초안은 반드시 `docs/IMAGE_POLICY.md` 와 **기존 동종 이미지**(같은 디렉터리의 캐논
   포트레이트/액션시트)를 레퍼런스로 삼아 스타일·해상도·네이밍을 맞춘다. 규격 모르면 만들지 말고 Blocker.
 - **fabricate 금지**: 누락 자산을 "있는 척" 빈/더미 PNG로 채워 테스트를 강제 green 시키지 않는다. 초안 생성은
-  실제 이미지 파이프라인(IMAGE_POLICY)으로만. 규격·레퍼런스가 불명확하면 **Blocker로 surface**한다.
+  실제 Imagen/Gemini 생성으로만. 규격·레퍼런스가 불명확하면 **Blocker로 surface**한다.
 - `harness/CORE_MANDATES.md` §4-5 준수. 커밋은 **현재 체크아웃 브랜치(보통 worktree의 `loop/agy`)에 로컬만**.
 
 ## 1. 상태 복원
@@ -42,7 +46,10 @@ PROGRESS_LOG 최신 몇 건 + `git status -sb`/`git log --oneline -8`). 그 외 
 ## 4. 구현 + 게이트
 
 항목의 **완료 기준 1줄**대로만 작업한다(scope 확장 금지).
-- 이미지 초안: IMAGE_POLICY + 레퍼런스 규격대로 생성, 올바른 경로·네이밍으로 저장.
+- 이미지 초안: **in-session Imagen/Gemini** 로 IMAGE_POLICY + 레퍼런스 규격대로 생성(FLUX 비사용), 올바른 경로·네이밍으로 저장.
+- **적합도 비교 리뷰**: 생성 직후 새 초안 vs 레퍼런스(기존 동종 아트)를 채점한 리뷰를
+  `outputs/combat-sprite-compare/<주제>-review.md`(예시 포맷: `codex-gemini-image-review-serin.md` — 일관성/톤/사용성/동세)
+  로 남긴다. 미적 합격 여부는 사람이 최종 판단하므로, 리뷰는 "무엇을/왜"를 사실대로 적고 과장하지 않는다.
 - 검증: `$GATE_CMD`(기본 `make check`)는 **`tests/test_image_assets.py`**(이미지 유효·비어있지 않음·치수/용량)
   로 추가 이미지의 무결성을 자동 검사한다 — 1×1/빈 placeholder 는 여기서 red 가 난다. green 까지 통과시킨다.
 - 게이트 red → `git restore`/`git checkout -- <path>` 로 원복하고 Blocker 기록.

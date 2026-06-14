@@ -20,6 +20,8 @@
   (예: 누락 스킬 아이콘 PNG를 placeholder로 생성, 누락 데이터를 dummy로 채움 = 콘텐츠 저작 = 금지).
   invariant는 추가하되, 실제 누락은 **Blocker로 surface**한다(테스트가 red면 §4대로 원복 후 Blocker 기록).
   "green 또는 Blocker"에서 누락이 있으면 정답은 Blocker다 — 가짜 자산을 커밋하는 게 가장 큰 리스크다.
+- **이미지가 필요하면** FLUX/mflux 가 아니라 **너 자신의 Imagen 3/Gemini Image(in-session)** 로 만든다
+  (선행 사례 `outputs/combat-sprite-compare/`). 단 이미지 초안 생성은 주로 agy 레인 몫이다.
 - `harness/CORE_MANDATES.md` §4-5 준수(측정 후 수정, docs-first, 구조적 이동은 확인, 완료 주장 전 read-back 검증).
 - 게이트는 환경변수 `$GATE_CMD`(기본 `make check`, 더 빠른 변형 `make check-auto`/`make smoke-local`)를 그대로 실행한다.
 

@@ -13,8 +13,7 @@ Project MythOS는 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG
 현재 baseline:
 
 - `RuntimeSessionService`가 CLI/Streamlit/FastAPI 공통 orchestration을 담당.
-- React + TypeScript SPA와 FastAPI `/api/v1` REST/WS adapter 구현 완료.
-- Streamlit demo도 유지되며 같은 runtime service를 호출.
+- React+TS SPA + FastAPI `/api/v1` REST/WS adapter, Streamlit demo 모두 같은 runtime service 호출.
 - PostgreSQL/MinIO/Redis/OTel/Jaeger 로컬 인프라 구성.
 - Neo-Seoul 01이 주력 시나리오, `glass-library`는 확장 샘플.
 - Story Bible, Codex, Run History, Meta Progression, Save/Load, Ending Resolver 구현.
@@ -23,9 +22,8 @@ Project MythOS는 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG
 - 진행도 해금(아키타입 게이트·통찰 투자 트리·rank pips/강화 배너·깨달음 배너·Run History+Echo/Shard 대시보드·시나리오 간 해금, 데이터 주도 grant).
 - Objective/stakes 상시 표시와 선택 가치축/예상 결과/실제 결과 요약 UX.
 - mflux/FLUX image worker, Redux 캐릭터 일관성, MinIO asset path 검증 완료.
-- `session.py`는 narrative_rollup/loop_scoring/combat_session_helpers/constants로 책임 분리됨(공개 API 동일).
 - 서사는 이원화(dual-model): 스토리텔러 `OLLAMA_MODEL_STORY`=`gemma4:latest`(8B, 자유 텍스트) → 파서 `OLLAMA_MODEL_PARSER`=`qwen2.5:3b-instruct`(JSON 구조화). 스트리밍 경로는 정규식 파서 병행.
-- 오프닝 시퀀스 정합 완료(2026-06-14): scene1=홀로 각성·4비트 온보딩(인트로 3컷을 인게임 비트로)·장면별 `image_sequence`·인트로 화면 간결화. `make test` 304 green. ⚠️ 이 변경 미커밋(이전 이원화 서사·SPA·콘텐츠 배치는 커밋됨) — 리뷰 후 주제별 커밋.
+- 오프닝 시퀀스 정합(scene1=홀로 각성·4비트 온보딩·장면별 `image_sequence`). 상세 상태는 `STATUS.md`.
 
 ## Active Work
 

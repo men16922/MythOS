@@ -538,5 +538,84 @@ class LootTableIntegrityTest(unittest.TestCase):
         )
 
 
+class EncounterBoundsIntegrityTest(unittest.TestCase):
+    """Numeric-bounds integrity for the neo-seoul combat encounters.
+
+    The encounter spawner and the operation-map weighted draw read three numeric
+    shapes that have no meaningful non-positive value: every ``enemies[].count``
+    must be at least 1 (a zero/negative count spawns an empty side — an instant,
+    unintended walkover), every encounter ``weight`` must be positive (a
+    non-positive weight makes the encounter either unreachable in the draw or
+    corrupts the weighted selection), and each ``arena.{width,height}`` must be
+    positive (a zero/negative dimension yields a degenerate board with no legal
+    tiles). Bestiary references are covered by ``ContentEncounterIntegrityTest``;
+    this class guards only the numbers. A violation is a mechanical content bug,
+    not a judgment call.
+    """
+
+    def setUp(self) -> None:
+        self.scenario = load_scenario("neo-seoul")
+        self.combat = self.scenario.combat
+        self.assertIsInstance(self.combat, dict, "neo-seoul must define a combat block")
+        self.encounters = self.combat.get("encounters", {})
+        self.encounter_records = _as_records(self.encounters)
+        self.assertTrue(
+            self.encounter_records, "combat.encounters must declare at least one encounter"
+        )
+
+    @staticmethod
+    def _is_positive(value: Any) -> bool:
+        return isinstance(value, (int, float)) and not isinstance(value, bool) and value > 0
+
+    def test_enemy_counts_are_at_least_one(self) -> None:
+        bad: list[str] = []
+        for encounter in self.encounter_records:
+            eid = _record_id(encounter, "?")
+            for index, enemy in enumerate(encounter.get("enemies", []) or []):
+                count = enemy.get("count")
+                if not (
+                    isinstance(count, int)
+                    and not isinstance(count, bool)
+                    and count >= 1
+                ):
+                    bad.append(f"{eid}.enemies[{index}].count={count!r}")
+        self.assertEqual(
+            bad,
+            [],
+            f"encounter enemies with count < 1 (would spawn an empty/invalid side): {bad}",
+        )
+
+    def test_encounter_weights_are_positive(self) -> None:
+        bad = sorted(
+            f"{_record_id(e, '?')}.weight={e.get('weight')!r}"
+            for e in self.encounter_records
+            if not self._is_positive(e.get("weight"))
+        )
+        self.assertEqual(
+            bad,
+            [],
+            f"encounters with non-positive/non-numeric weight (unreachable or "
+            f"corrupts the weighted draw): {bad}",
+        )
+
+    def test_encounter_arena_dimensions_are_positive(self) -> None:
+        bad: list[str] = []
+        for encounter in self.encounter_records:
+            eid = _record_id(encounter, "?")
+            arena = encounter.get("arena")
+            if not isinstance(arena, dict):
+                bad.append(f"{eid}.arena={arena!r}")
+                continue
+            for dim in ("width", "height"):
+                if not self._is_positive(arena.get(dim)):
+                    bad.append(f"{eid}.arena.{dim}={arena.get(dim)!r}")
+        self.assertEqual(
+            bad,
+            [],
+            f"encounters with non-positive/missing arena dimensions (degenerate "
+            f"board): {bad}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

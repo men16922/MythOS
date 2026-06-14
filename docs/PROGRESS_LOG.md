@@ -5,6 +5,13 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-15 — encounter 수치 경계 invariant ([auto:claude], QA seed)
+- Status: overnight QA seed `[auto:claude]` encounter 수치 경계 박제. green.
+- Changed: `tests/test_content_integrity.py`에 `EncounterBoundsIntegrityTest` 3건 추가 — 모든 `combat.encounters[*]`의 ① `enemies[].count`가 정수 ≥1(0/음수=빈 측 스폰→의도치 않은 즉시 walkover), ② `weight`가 양수 수치(비양수=가중 추첨서 도달 불가하거나 추첨 손상), ③ `arena.{width,height}`가 양수(0/음수=합법 타일 없는 퇴화 보드)를 검증. bestiary 참조는 기존 `ContentEncounterIntegrityTest`가 커버하므로 수치만 가드. bool은 int 서브클래스라 명시 제외.
+- Verified: `make check` EXIT=0 — ruff/eslint/mypy(113 files)/frontend build + 341 tests OK(skipped 2, +3). 측정 기준선: 조우 8종 전부 count≥1·weight>0·arena dims>0, 위반 0.
+- Blockers: 없음.
+- Next: 잔여 QA seed — item.kind enum closure·story_bible 메타 무결성·FastAPI on_event 현대화 등(`[auto:claude]`). 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-15 — loot_table↔items 참조 무결성 invariant ([auto:claude], QA seed)
 - Status: overnight QA seed `[auto:claude]` loot_table 참조 무결성 박제. green.
 - Changed: `tests/test_content_integrity.py`에 `LootTableIntegrityTest` 2건 추가 — 모든 `combat.loot_tables[*][].item`이 `combat.items`에 실재(dangling drop=인벤토리에 못 들어오는 보상) + 각 roll의 `weight`가 양수 수치(0=뽑힐 수 없는 엔트리, 음수=가중 추첨 손상). 기존 `_as_records`/`_record_id` 헬퍼로 item id 집합 정규화.

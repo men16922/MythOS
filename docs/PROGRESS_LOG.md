@@ -5,6 +5,13 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-14 — 진행도 경제 invariant ([auto:codex], QA seed)
+- Status: overnight QA seed `[auto:codex]` 진행도 경제 invariant 박제. green.
+- Changed: `tests/test_progression.py`에 `NeoSeoulProgressionEconomyTest` 3건 추가 — 실제 `neo-seoul` 스킬 데이터의 learn/rankup 비용 tier 단조성, tier 0 아키타입 기본 접근성, 보수적 통찰 수입(첫 런/2런) 내 tier별 도달 가능성을 검증.
+- Verified: `tests.test_progression` 17 tests OK. `make check` EXIT=0 — ruff/eslint/mypy/frontend build + 323 tests OK(skipped 2).
+- Blockers: 없음.
+- Next: 잔여 QA seed는 agy 스킬 아이콘 재생성 및 선행 해제 후 스킬/아이콘 무결성 invariant.
+
 ## 2026-06-14 — 조우 승률 밴드 invariant ([auto:claude], QA seed)
 
 - Status: overnight QA seed `[auto:claude]` 조우 밸런스 invariant 박제(대화형, 첫 회차 안전성 위해). green.

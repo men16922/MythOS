@@ -3,6 +3,11 @@ from datetime import UTC, datetime
 
 from mythos_runtime.options import RunSummary
 from mythos_runtime.progression import (
+    DEFAULT_LEARN_COST,
+    DEFAULT_RANKUP_COST,
+    INSIGHT_PER_CLUE,
+    INSIGHT_PER_COMBAT_WON,
+    INSIGHT_PER_RUN,
     MetaProgression,
     _meta_progression_memory,
     apply_meta_progression_to_state,
@@ -12,6 +17,7 @@ from mythos_runtime.progression import (
     learn_or_rank_skill,
     scenario_unlock_met,
 )
+from mythos_runtime.scenario import load_scenario
 
 GHOST = "비접속자 (Ghost)"
 ECHO = "잔향 수집가 (Echo Collector)"
@@ -250,6 +256,83 @@ class SkillTreeAndLearnTest(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             learn_or_rank_skill(prereq, _COMBAT, "overload_strike", ECHO)
+
+
+class NeoSeoulProgressionEconomyTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.combat = load_scenario("neo-seoul").combat
+        self.skills = self.combat["skills"]
+
+    def _skill_int(self, skill: dict[str, object], key: str, default: int) -> int:
+        value = skill.get(key, default)
+        if not isinstance(value, int):
+            self.fail(f"{key} must be int, got {value!r}")
+        return value
+
+    def _tier_costs(self, cost_key: str, default: int) -> dict[int, list[int]]:
+        costs: dict[int, list[int]] = {}
+        for skill in self.skills.values():
+            self.assertIsInstance(skill, dict)
+            tier = self._skill_int(skill, "tier", 0)
+            costs.setdefault(tier, []).append(self._skill_int(skill, cost_key, default))
+        return costs
+
+    def test_skill_costs_are_monotonic_by_tier(self) -> None:
+        for cost_key, default in (
+            ("insight_cost", DEFAULT_LEARN_COST),
+            ("rankup_cost", DEFAULT_RANKUP_COST),
+        ):
+            previous_max = 0
+            for tier, costs in sorted(self._tier_costs(cost_key, default).items()):
+                current_min = min(costs)
+                self.assertGreaterEqual(
+                    current_min,
+                    previous_max,
+                    f"{cost_key} tier {tier} drops below a lower tier: {costs}",
+                )
+                previous_max = max(costs)
+
+    def test_tier_zero_skills_are_starting_archetype_skills(self) -> None:
+        base_by_archetype = self.combat["archetype_base_skills"]
+        self.assertIsInstance(base_by_archetype, dict)
+        starting_skill_ids = {
+            skill_id
+            for skill_ids in base_by_archetype.values()
+            for skill_id in skill_ids
+        }
+        tier_zero_ids = {
+            skill_id
+            for skill_id, skill in self.skills.items()
+            if self._skill_int(skill, "tier", 0) == 0
+        }
+
+        self.assertTrue(tier_zero_ids)
+        self.assertLessEqual(tier_zero_ids, starting_skill_ids)
+
+    def test_each_tier_has_a_reasonable_income_path(self) -> None:
+        conservative_first_run_income = (
+            INSIGHT_PER_RUN + INSIGHT_PER_CLUE + INSIGHT_PER_COMBAT_WON
+        )
+        two_run_income = conservative_first_run_income * 2
+
+        for tier, costs in sorted(self._tier_costs("insight_cost", DEFAULT_LEARN_COST).items()):
+            reachable_cost = min(costs)
+            if tier == 0:
+                self.assertLessEqual(reachable_cost, DEFAULT_LEARN_COST)
+            else:
+                self.assertLessEqual(
+                    reachable_cost,
+                    two_run_income,
+                    f"tier {tier} has no skill learnable within two conservative runs",
+                )
+
+        rankup_costs = self._tier_costs("rankup_cost", DEFAULT_RANKUP_COST)
+        for tier, costs in sorted(rankup_costs.items()):
+            self.assertLessEqual(
+                min(costs),
+                conservative_first_run_income,
+                f"tier {tier} has no rank-up affordable from one conservative run",
+            )
 
 
 class ScenarioUnlockTest(unittest.TestCase):

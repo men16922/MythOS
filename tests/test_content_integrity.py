@@ -485,5 +485,58 @@ class SkillDataIntegrityTest(unittest.TestCase):
         )
 
 
+class LootTableIntegrityTest(unittest.TestCase):
+    """Loot-table reference integrity for the neo-seoul combat pools.
+
+    Every ``combat.loot_tables[*][].item`` must resolve to a real ``combat.items``
+    id, and every roll must carry a positive ``weight``. A dangling item id means
+    a combat reward rolls into nothing (the player wins a drop the inventory can
+    never materialise), and a non-positive weight either makes an entry
+    unreachable (``weight==0``) or corrupts the weighted draw (``weight<0``).
+    Both are mechanical content bugs, not judgment calls.
+    """
+
+    def setUp(self) -> None:
+        self.scenario = load_scenario("neo-seoul")
+        self.combat = self.scenario.combat
+        self.assertIsInstance(self.combat, dict, "neo-seoul must define a combat block")
+        self.loot_tables = self.combat.get("loot_tables", {})
+        self.assertIsInstance(
+            self.loot_tables, dict, "combat.loot_tables must be an object"
+        )
+        self.assertTrue(self.loot_tables, "combat.loot_tables must declare at least one table")
+        self.item_ids = {
+            _record_id(rec, "") for rec in _as_records(self.combat.get("items", {}))
+        } - {""}
+        self.assertTrue(self.item_ids, "combat.items must declare at least one item")
+
+    def test_loot_table_items_exist(self) -> None:
+        dangling = sorted(
+            f"{table_id}->{entry.get('item')}"
+            for table_id, rolls in self.loot_tables.items()
+            for entry in (rolls or [])
+            if isinstance(entry, dict) and str(entry.get("item")) not in self.item_ids
+        )
+        self.assertEqual(
+            dangling,
+            [],
+            f"loot_table entries reference items missing from combat.items: {dangling}",
+        )
+
+    def test_loot_table_weights_are_positive(self) -> None:
+        non_positive = sorted(
+            f"{table_id}->{entry.get('item')}={entry.get('weight')}"
+            for table_id, rolls in self.loot_tables.items()
+            for entry in (rolls or [])
+            if isinstance(entry, dict)
+            and not (isinstance(entry.get("weight"), (int, float)) and entry["weight"] > 0)
+        )
+        self.assertEqual(
+            non_positive,
+            [],
+            f"loot_table entries with non-positive/non-numeric weight: {non_positive}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

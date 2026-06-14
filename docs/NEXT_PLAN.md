@@ -50,7 +50,7 @@
 
 ### 2026-06-15 추가분 (`/overnight-seed` 승인 배치 — live survey)
 
-- `[ ]` `[auto:claude]` loot_table↔items 참조 무결성: 모든 `combat.loot_tables[*][].item`이 `combat.items`에 실재 + `weight>0`. 완료 기준: `test_content_integrity.py`에 `LootTableIntegrityTest` 추가, dangling/비양수 0 green 또는 Blocker.
+- `[x]` `[auto:claude]` loot_table↔items 참조 무결성: 모든 `combat.loot_tables[*][].item`이 `combat.items`에 실재 + `weight>0`. 완료 기준: `test_content_integrity.py`에 `LootTableIntegrityTest` 추가, dangling/비양수 0 green 또는 Blocker. (green, 2026-06-15)
 - `[ ]` `[auto:claude]` encounter 수치 경계: 모든 `combat.encounters[*]`의 `enemies[].count≥1` + `weight>0` + per-encounter `arena.{width,height}>0`(bestiary 참조는 기존 테스트 커버). 완료 기준: `test_content_integrity.py`에 테스트 추가, 위반 0 green 또는 Blocker.
 - `[ ]` `[auto:claude]` item.kind enum closure: 모든 `combat.items[].kind`가 게임 인식 집합 {`consumable`,`equipment`,`key`,`data`,`material`}에 속함(미래 오타 가드). 완료 기준: `test_content_integrity.py`에 테스트 추가, 미지 kind 0 green 또는 Blocker.
 - `[ ]` `[auto:claude]` story_bible 메타 무결성: `story_bible/bible.json` entry `id` 유일 + `priority`/`token_budget` 양수 + `kind` 비어있지 않음. 완료 기준: 신규/기존 테스트에 추가, 중복 id·비양수 0 green 또는 Blocker.

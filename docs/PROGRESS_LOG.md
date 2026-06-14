@@ -5,6 +5,13 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-15 — loot_table↔items 참조 무결성 invariant ([auto:claude], QA seed)
+- Status: overnight QA seed `[auto:claude]` loot_table 참조 무결성 박제. green.
+- Changed: `tests/test_content_integrity.py`에 `LootTableIntegrityTest` 2건 추가 — 모든 `combat.loot_tables[*][].item`이 `combat.items`에 실재(dangling drop=인벤토리에 못 들어오는 보상) + 각 roll의 `weight`가 양수 수치(0=뽑힐 수 없는 엔트리, 음수=가중 추첨 손상). 기존 `_as_records`/`_record_id` 헬퍼로 item id 집합 정규화.
+- Verified: `make check` EXIT=0 — ruff/eslint/mypy(113 files)/frontend build + 338 tests OK(skipped 2, +2). 측정 기준선: loot_tables 3종(drone_scrap/enforcer_core/data_cache), dangling item 0·비양수 weight 0.
+- Blockers: 없음.
+- Next: 잔여 QA seed — encounter 수치 경계·item.kind enum closure·story_bible 메타 무결성 등(`[auto:claude]`). 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-14 — 아키타입 집합 정합 invariant ([auto:claude], QA seed)
 - Status: overnight QA seed `[auto:claude]` 아키타입 집합 정합 박제. green.
 - Changed: `tests/test_progression.py`에 `NeoSeoulArchetypeConsistencyTest` 3건 추가 — 실제 `neo-seoul` 데이터로 ① `archetype_base_skills`·`archetype_loadout`의 아키타입 키 집합 동일(한쪽에만 있는 아키타입 0), ② 각 아키타입 base 스킬이 `combat.skills`에 실재, ③ 각 아키타입 loadout 무기가 `combat.weapons`에 실재를 검증. dict/list 풀 모두 `_pool_ids`로 정규화.

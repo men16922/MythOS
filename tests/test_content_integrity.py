@@ -660,5 +660,90 @@ class ItemKindEnumIntegrityTest(unittest.TestCase):
         )
 
 
+def _bible_paths() -> list[Any]:
+    """All authored story-bible files, discovered under ``resources/*/``."""
+    root = PROJECT_ROOT / "resources"
+    return sorted(root.glob("*/story_bible/bible.json"))
+
+
+def _is_positive_number(value: Any) -> bool:
+    # bool is an int subclass; a True priority is an authoring mistake, not 1.
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and value > 0
+
+
+class StoryBibleMetaIntegrityTest(unittest.TestCase):
+    """Metadata invariants for every authored ``story_bible/bible.json``.
+
+    The selector (``mythos_runtime.story_bible.select_story_bible_entries``)
+    ranks entries by ``priority`` and packs them under a ``token_budget`` cap,
+    keying everything off the entry ``id``. The loader is lenient — it coerces
+    missing/garbage fields to defaults (``priority`` 0, ``token_budget`` 600,
+    ``kind`` "note") — so authoring slips never surface at runtime; they just
+    silently misrank or get clipped. This guards the raw JSON instead:
+
+    - duplicate ``id`` — two entries collide; one shadows the other in any
+      id-keyed lookup and the snippet set is silently short.
+    - non-positive ``priority`` — sorts to the bottom and is effectively never
+      selected (a typo'd 0/negative is a dead entry).
+    - non-positive ``token_budget`` — contributes nothing to the packed budget,
+      so the entry can never be injected.
+    - empty/missing ``kind`` — loses the discriminator used for tagging/notes.
+
+    A violation is a mechanical content bug to fix or surface as a Blocker.
+    """
+
+    def setUp(self) -> None:
+        self.bibles = _bible_paths()
+        self.assertTrue(
+            self.bibles, "expected at least one resources/*/story_bible/bible.json"
+        )
+
+    def _entries(self, path: Any) -> list[dict[str, Any]]:
+        with open(path, encoding="utf-8") as handle:
+            data = json.load(handle)
+        return [e for e in data.get("entries", []) or [] if isinstance(e, dict)]
+
+    def test_entry_ids_are_unique(self) -> None:
+        offenders: list[str] = []
+        for path in self.bibles:
+            ids = [str(e.get("id")) for e in self._entries(path) if e.get("id")]
+            dupes = sorted({i for i in ids if ids.count(i) > 1})
+            offenders.extend(f"{path.parent.parent.name}:{i}" for i in dupes)
+        self.assertEqual(
+            offenders, [], f"duplicate story-bible entry ids (one shadows the other): {offenders}"
+        )
+
+    def test_entries_have_non_empty_kind(self) -> None:
+        offenders: list[str] = []
+        for path in self.bibles:
+            scenario = path.parent.parent.name
+            for entry in self._entries(path):
+                kind = entry.get("kind")
+                if not (isinstance(kind, str) and kind.strip()):
+                    offenders.append(f"{scenario}:{entry.get('id', '?')}.kind={kind!r}")
+        self.assertEqual(
+            offenders, [], f"story-bible entries with empty/missing kind: {offenders}"
+        )
+
+    def test_priority_and_token_budget_are_positive(self) -> None:
+        offenders: list[str] = []
+        for path in self.bibles:
+            scenario = path.parent.parent.name
+            for entry in self._entries(path):
+                eid = entry.get("id", "?")
+                if not _is_positive_number(entry.get("priority")):
+                    offenders.append(f"{scenario}:{eid}.priority={entry.get('priority')!r}")
+                if not _is_positive_number(entry.get("token_budget")):
+                    offenders.append(
+                        f"{scenario}:{eid}.token_budget={entry.get('token_budget')!r}"
+                    )
+        self.assertEqual(
+            offenders,
+            [],
+            "story-bible entries with non-positive priority/token_budget "
+            f"(would never be selected/injected): {offenders}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

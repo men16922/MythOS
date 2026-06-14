@@ -5,6 +5,13 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-15 — story_bible 메타 무결성 invariant ([auto:claude], QA seed)
+- Status: overnight QA seed `[auto:claude]` story_bible 메타 무결성 박제. green.
+- Changed: `tests/test_content_integrity.py`에 `StoryBibleMetaIntegrityTest` 3건 추가 — `resources/*/story_bible/bible.json`(glob 자동 발견, 현재 neo-seoul·glass-library 2종)의 모든 entry에 대해 ① `id` 유일(중복=id-키 조회서 한쪽 섀도잉→스니펫 누락), ② `kind` 비어있지 않음(빈/누락=태깅/노트 디스크리미네이터 손실), ③ `priority`/`token_budget` 양수 수치(비양수=`select_story_bible_entries`서 정렬 최하위/패킹 기여 0 → 사실상 주입 불가)를 검증. 로더(`story_bible.py`)가 누락 필드를 기본값(priority 0/token_budget 600/kind "note")으로 관대 코어스 → 저작 슬립이 런타임서 침묵 → raw JSON 직접 가드. bool은 int 서브클래스라 명시 제외.
+- Verified: `make check` EXIT=0(GATE_GREEN) — ruff/eslint/mypy(113 files)/frontend build + 345 tests OK(skipped 2, +3). 측정 기준선: neo-seoul 29 entries·glass-library 17 entries, 중복 id 0·빈 kind 0·비양수 priority/token_budget 0.
+- Blockers: 없음.
+- Next: 잔여 QA seed — FastAPI on_event 현대화·dotenv type:ignore 중앙화·npc_agenda 주체 무결성(`[auto:claude]`). 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-15 — item.kind enum closure invariant ([auto:claude], QA seed)
 - Status: overnight QA seed `[auto:claude]` item.kind enum closure 박제. green.
 - Changed: `tests/test_content_integrity.py`에 `ItemKindEnumIntegrityTest` 1건 추가 — 모든 `combat.items[].kind`가 게임이 실제 인식하는 집합 {`consumable`,`equipment`,`key`,`data`,`material`}에 속함을 검증. 인식 집합 근거: 프론트 `CharacterPanel.tsx`의 `KIND_LABELS`/카테고리 매핑 + 런타임 `session.py`의 consumable 사용 게이트(`kind != "consumable"`이면 전투 사용 불가). 미지 kind는 generic "item" 버킷으로 흘러 사용/착용 불가 → 오타 가드. 무기 `kind`(melee/ranged)는 `combat.weapons` 별도 네임스페이스라 스코프 제외(주석 명시).

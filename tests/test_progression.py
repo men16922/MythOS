@@ -335,6 +335,60 @@ class NeoSeoulProgressionEconomyTest(unittest.TestCase):
             )
 
 
+class NeoSeoulArchetypeConsistencyTest(unittest.TestCase):
+    """Invariant: archetype_base_skills and archetype_loadout describe the same
+    archetype set, and every referenced skill/weapon actually exists."""
+
+    def setUp(self) -> None:
+        self.combat = load_scenario("neo-seoul").combat
+        self.base_skills = self.combat["archetype_base_skills"]
+        self.loadout = self.combat["archetype_loadout"]
+
+    @staticmethod
+    def _pool_ids(pool: object) -> set[str]:
+        if isinstance(pool, dict):
+            return set(pool.keys())
+        ids: set[str] = set()
+        if isinstance(pool, list):
+            for record in pool:
+                if isinstance(record, dict) and isinstance(record.get("id"), str):
+                    ids.add(record["id"])
+        return ids
+
+    def test_archetype_key_sets_are_identical(self) -> None:
+        self.assertIsInstance(self.base_skills, dict)
+        self.assertIsInstance(self.loadout, dict)
+        base_keys = set(self.base_skills.keys())
+        loadout_keys = set(self.loadout.keys())
+        self.assertEqual(
+            base_keys,
+            loadout_keys,
+            "archetype_base_skills / archetype_loadout 아키타입 집합 불일치: "
+            f"base만={sorted(base_keys - loadout_keys)}, "
+            f"loadout만={sorted(loadout_keys - base_keys)}",
+        )
+
+    def test_archetype_base_skills_exist(self) -> None:
+        skill_ids = self._pool_ids(self.combat.get("skills"))
+        self.assertTrue(skill_ids, "combat.skills 가 비어있음")
+        for archetype, refs in self.base_skills.items():
+            self.assertIsInstance(refs, list, f"{archetype!r} base skills must be a list")
+            dangling = [s for s in refs if s not in skill_ids]
+            self.assertEqual(
+                dangling, [], f"archetype_base_skills[{archetype!r}] dangling 스킬: {dangling}"
+            )
+
+    def test_archetype_loadout_weapons_exist(self) -> None:
+        weapon_ids = self._pool_ids(self.combat.get("weapons"))
+        self.assertTrue(weapon_ids, "combat.weapons 가 비어있음")
+        for archetype, weapons in self.loadout.items():
+            self.assertIsInstance(weapons, list, f"{archetype!r} loadout must be a list")
+            dangling = [w for w in weapons if w not in weapon_ids]
+            self.assertEqual(
+                dangling, [], f"archetype_loadout[{archetype!r}] dangling 무기: {dangling}"
+            )
+
+
 class ScenarioUnlockTest(unittest.TestCase):
     def test_no_unlock_is_always_available(self) -> None:
         self.assertTrue(scenario_unlock_met(None, [], "p"))

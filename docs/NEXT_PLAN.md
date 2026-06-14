@@ -46,7 +46,7 @@
 - `[blocked]` `[auto:claude]` 스킬/아이콘 무결성 invariant: 모든 `combat.skills[].id`에 `resources/neo-seoul/skills/<id>.png` 존재 + 아키타입 base/learnable + `epiphany` unlock이 실재 스킬 참조. 완료 기준: `test_assets.py`에 추가, green 또는 Blocker. **선행 미충족**: 위 `[auto:agy]` 아이콘 6종 채택·머지 후 해제.
 - `[x]` `[auto:claude]` 무기/장비 무결성(`test_content_integrity.py` `WeaponEquipmentIntegrityTest` 4건, green): 무기 참조(loadout/allies/bestiary)→`combat.weapons` 실재 + equipment `slot`∈{weapon,armor} + `stats`키⊆`_DEFAULT_STATS`. dangling/오타 0.
 - `[x]` `[auto:claude]` 스킬 데이터 무결성(`test_content_integrity.py` `SkillDataIntegrityTest` 6건, green): 모든 `combat.skills[]` 필수 필드(`id`/`name`/`cost`/`effect`) + `cooldown`/`range`/`cost.focus` 음수 아님(존재 시) + 스킬 참조(`archetype_base_skills`·`allies[].skills`·`requires`)가 `combat.skills` 실재 + `skill.epiphany`가 `combat.epiphanies` 키 실재. 결손/음수/dangling 0. (PNG 아이콘은 위 `[blocked]` 항목 소관.)
-- `[ ]` `[auto:claude]` 아키타입 집합 정합(`test_progression.py`에 추가): `archetype_base_skills`·`archetype_loadout`의 아키타입 키 집합이 동일(한쪽에만 있는 아키타입 0) + 각 아키타입 base 스킬·loadout 무기가 실재. 완료 기준: 테스트 추가, 불일치/dangling 0 green, 있으면 Blocker.
+- `[x]` `[auto:claude]` 아키타입 집합 정합(`test_progression.py` `NeoSeoulArchetypeConsistencyTest` 3건, green): `archetype_base_skills`·`archetype_loadout`의 아키타입 키 집합이 동일(한쪽에만 있는 아키타입 0) + 각 아키타입 base 스킬·loadout 무기가 실재. 완료 기준: 테스트 추가, 불일치/dangling 0 green, 있으면 Blocker.
 
 ## Priority 1 — Neo-Seoul Playability Upgrade
 

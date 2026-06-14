@@ -5,6 +5,13 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-14 — 아키타입 집합 정합 invariant ([auto:claude], QA seed)
+- Status: overnight QA seed `[auto:claude]` 아키타입 집합 정합 박제. green.
+- Changed: `tests/test_progression.py`에 `NeoSeoulArchetypeConsistencyTest` 3건 추가 — 실제 `neo-seoul` 데이터로 ① `archetype_base_skills`·`archetype_loadout`의 아키타입 키 집합 동일(한쪽에만 있는 아키타입 0), ② 각 아키타입 base 스킬이 `combat.skills`에 실재, ③ 각 아키타입 loadout 무기가 `combat.weapons`에 실재를 검증. dict/list 풀 모두 `_pool_ids`로 정규화.
+- Verified: `make check` EXIT=0 — ruff/eslint/mypy(113 files)/frontend build + 336 tests OK(skipped 2, +3). 측정 기준선: 아키타입 3종 base↔loadout 일치·dangling 스킬 0·dangling 무기 0.
+- Blockers: 없음.
+- Next: 잔여 QA seed — agy 아이콘 재생성 후 스킬/아이콘 PNG 무결성(`[blocked]` 선행). 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-14 — 스킬 데이터 무결성 invariant ([auto:claude], QA seed)
 - Status: overnight QA seed `[auto:claude]` 스킬 데이터 무결성 박제. green.
 - Changed: `tests/test_content_integrity.py`에 `SkillDataIntegrityTest` 6건 추가 — 모든 `combat.skills[]`가 필수 필드(`id`/`name`/`cost`/`effect`) 보유, `cooldown`/`range`/`cost.focus`가 존재 시 음수 아님, `archetype_base_skills`·`allies[].skills`·`skill.requires`의 모든 스킬 참조가 `combat.skills`에 실재, `skill.epiphany` 해금이 실재 `combat.epiphanies` 키 참조를 검증. dict/list 풀 모두 `_as_records`로 정규화(기존 헬퍼 재사용).

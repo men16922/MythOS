@@ -42,3 +42,9 @@ Use concise, scoped imperative commit subjects (Conventional-Commits style is us
 ## Security & Configuration Tips
 
 Do not commit `.env`, Hugging Face tokens, generated model outputs, or `.docker/` data. Copy `.env.example` to `.env` locally. Ollama and FLUX run on the Mac host; Docker is only for local infrastructure.
+
+## Agent Operations & Context
+
+- Operating mandates live in `harness/CORE_MANDATES.md` (§4 testing, §5 agent discipline: measure-before-perf-fix, docs-first status, confirm structural moves, absolute paths, read-back after writes). Follow them.
+- Restore context the documented way (`AGENT_BRIEF.md` → `STATUS.md` → `NEXT_PLAN.md` → `PROGRESS_LOG.md`); the procedure is in `.agents/skills/sync/SKILL.md`. Record finished work via `.agents/skills/checkpoint/SKILL.md`. Do not bulk-read `docs/`.
+- This repo runs an unattended overnight loop for `[auto]` tasks (`docs/LOOP_ENGINEERING.md`). It supports both engines via `bin/overnight/run.sh` (`ENGINE=claude|codex`); the Codex round-prompt is `bin/overnight/PROMPT.codex.md`. Launch with `make overnight-codex-once` (single round) / `make overnight-codex-watch`.

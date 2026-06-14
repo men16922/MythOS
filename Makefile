@@ -4,7 +4,7 @@ COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
-.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check check-auto overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-clean
+.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check check-auto overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-clean overnight-codex overnight-codex-watch overnight-codex-once
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -94,6 +94,17 @@ overnight-status:
 # 종료 후 제어 파일 정리(STOP/DONE 제거). 다음 가동 전 클린업.
 overnight-clean:
 	@rm -f bin/overnight/STOP bin/overnight/DONE && echo "STOP/DONE 제거 — 다음 가동 준비 완료."
+
+# --- Codex 엔진 변형 (ENGINE=codex) — 동일 run.sh/LOOP, 호출 에이전트만 codex exec ---
+# 안전 경계는 전역 ~/.codex/config.toml(danger-full-access)이 아니라 run.sh 가 CLI 로 강제한다
+# (workspace-write + network 차단 + approval never). 프롬프트는 bin/overnight/PROMPT.codex.md.
+# stop/logs/status/clean 은 같은 run.sh 프로세스라 엔진 구분 없이 위 타깃을 그대로 쓴다.
+overnight-codex:
+	@ENGINE=codex $(MAKE) overnight
+overnight-codex-watch:
+	@ENGINE=codex $(MAKE) overnight-watch
+overnight-codex-once:
+	@ENGINE=codex $(MAKE) overnight-once
 
 doctor:
 	$(VENV)/bin/python agent.py --doctor

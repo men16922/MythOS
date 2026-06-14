@@ -36,7 +36,14 @@ NEXT_PLAN에서 `[auto]` **작업 1개**를 구현·게이트 통과시키고 �
 ## 3. 구성 요소
 
 ### 3.1 러너 — `bin/overnight/run.sh`
-무인 루프(bash, macOS bash 3.2 호환). 회차마다 `claude -p "$(cat PROMPT.md)" --permission-mode acceptEdits --settings bin/overnight/overnight-settings.json --output-format json` 실행.
+무인 루프(bash, macOS bash 3.2 호환). 회차마다 헤드리스 에이전트를 1회 호출한다.
+
+**엔진 선택(`ENGINE` 환경변수, 기본 `claude`)** — LOOP 제어 로직(STOP/DONE·classify·무진행·HEAD diff)은
+엔진 독립이고, 호출 줄/프롬프트/권한 경계만 분기한다:
+- `ENGINE=claude`(기본): `claude -p "$(cat PROMPT.md)" --permission-mode acceptEdits --settings bin/overnight/overnight-settings.json --output-format json`.
+- `ENGINE=codex`: `codex exec --cd <repo> --sandbox workspace-write -c sandbox_workspace_write.network_access=false -c approval_policy=never --json --output-last-message logs/last-message.txt "$(cat PROMPT.codex.md)" </dev/null`.
+  프롬프트는 `bin/overnight/PROMPT.codex.md`(Skill 호출 대신 `.agents/skills/*/SKILL.md` 절차를 읽어 수행).
+  **`</dev/null` 필수**: codex exec 는 stdin 이 열려 있으면 추가 입력을 기다리며 멈춘다(무인 회차 freeze).
 
 루프 1회 흐름:
 ```
@@ -58,7 +65,7 @@ STOP/DONE 파일 검사 → MAX_ITER 검사 → claude -p 회차 실행 → clas
 | `KEEP_ITER_LOGS` | 30 | `bin/overnight/logs/iter-*.log` 최근 N개만 보존(`runner.log`는 항상 보존). |
 | `--once` | — | 1회차만 실행(체인 검증용). |
 
-> 런타임 산출물(`logs/`·`STOP`·`DONE`)은 `.gitignore` 처리됨. 추적되는 하네스는 `run.sh`·`PROMPT.md`·`overnight-settings.json` 3종뿐.
+> 런타임 산출물(`logs/`·`STOP`·`DONE`)은 `.gitignore` 처리됨. 추적되는 하네스는 `run.sh`·`PROMPT.md`·`PROMPT.codex.md`·`overnight-settings.json`.
 
 ### 3.2 결과 분류 — `classify_outcome` (run.sh 내 python3, read-only)
 limit을 자유 텍스트 grep이 아니라 구조화 신호로 판정한다(false 오판 방지):
@@ -114,6 +121,14 @@ limit을 자유 텍스트 grep이 아니라 구조화 신호로 판정한다(fal
 `Bash(make *)` 전체 허용은 금지(새 파괴 타깃 자동 허용 방지). **interactive 설정
 (`~/.claude/settings.json`, `.claude/settings.local.json`)은 건드리지 않는다.**
 
+**Codex 엔진의 권한 경계(`ENGINE=codex`)**: Codex는 settings.json이 아니라 **샌드박스**로 경계를 친다.
+전역 `~/.codex/config.toml`은 `danger-full-access`(대화형 편의용)라 무인엔 위험하므로, `run.sh`가 회차마다
+CLI `-c`/`--sandbox`로 **덮어쓴다** — `workspace-write` + `network_access=false` + `approval_policy=never`.
+효과(2026-06-14 `codex exec`로 직접 실측 — 전역 YOLO에도 불구하고 회차 내 `curl`이 exit 6=DNS 차단으로 실패):
+**네트워크 차단**(=`git push`·`curl`/`wget`·Ollama·FLUX·Docker-online 물리 봉쇄) + 워크스페이스 쓰기만 허용 + 비대화(에스컬레이션 없음). **남는 격차**: 워크스페이스 내 로컬 파괴
+(`rm -rf`·`git reset --hard`)는 샌드박스가 막지 못한다 — Claude의 명령단위 deny와 달리 Codex는 이를
+`PROMPT.codex.md` §0의 명시 금지로만 막는다(회차당 커밋이라 폭발 반경은 ≤1회차). 전역 config·대화형 Codex는 불변.
+
 ## 4. 운영 (실사용 — `make` 타깃)
 `bin/overnight/run.sh`를 직접 부르지 말고 Makefile 타깃을 쓴다(가드·절전·nohup·정리 포함).
 
@@ -126,6 +141,13 @@ make overnight-watch     # ★ 가동 + 즉시 로그 follow(한 방에). Ctrl+C
 make overnight           # 가동만(백그라운드, 절전 방지 + nohup) — follow 없이 fire-and-forget
                          #   토큰 캡: MAX_ITER=12 make overnight(-watch)
                          #   변형:  GATE_CMD="make smoke-local" make overnight-watch  (런타임-flow 야간)
+
+# Codex 엔진(동일 LOOP, 호출 에이전트만 codex exec). 첫 가동도 -once 로 한 회차 확인.
+make overnight-codex-once   # codex 1회차만(체인 검증)
+make overnight-codex-watch  # codex 가동 + 로그 follow
+make overnight-codex        # codex 백그라운드 가동
+# stop/logs/status/clean 은 같은 run.sh 프로세스라 엔진 구분 없이 make overnight-{stop,logs,status,clean} 공용.
+# (또는 직접: ENGINE=codex make overnight-watch)
 make overnight-logs      # 이미 도는 루프의 runner.log를 따로 follow
 make overnight-status    # 프로세스/STOP/DONE/최근 로그 빠른 확인
 make overnight-stop      # graceful 중단(현재 회차 마치고 종료)
@@ -157,6 +179,13 @@ make overnight-clean     # 종료 후 STOP/DONE 제어 파일 정리
   연산자 우선순위로 두 줄 출력 → `cd` 실패)를 발견·수정. 재실행 시 헤드리스 에이전트가 미커밋 수정을 잔여물로 인식
   → `make check` green → `[recovered]` 커밋(`94f77fc`)으로 자동 복구. 전체 체인(연동·sync·잔여물 복구·게이트·커밋·종료) 실증.
   다회차 무인 가동(밤샘)은 사용자 판단. 회차별 실측 효과는 `docs/PROGRESS_LOG.md`에 회차 커밋과 함께 기록한다.
+
+- **2026-06-14 — Codex 엔진 추가**: `run.sh`에 `ENGINE`(claude|codex) 분기 추가(LOOP 단일 소스 유지),
+  `bin/overnight/PROMPT.codex.md`(Skill 대신 `.agents/skills/*` 절차 수행), `make overnight-codex*` 타깃.
+  안전 경계는 전역 `~/.codex/config.toml`(danger-full-access)이 아니라 `run.sh`가 CLI로 강제하는 샌드박스
+  (`workspace-write`+network 차단+approval never). **`codex exec`로 직접 실측**(전역 YOLO에도 회차 내 curl이
+  exit 6=DNS 차단), stdin freeze 버그 발견·수정(`</dev/null`), rc=0 성공 경로 확인, `bash -n`·`make -n` 검증.
+  다회차 무인 가동은 사용자 판단(첫 가동은 `make overnight-codex-once`).
 
 `[auto]` 후보의 정직한 triage는 항상 `docs/NEXT_PLAN.md`의 자동화 태그가 권위다.
 

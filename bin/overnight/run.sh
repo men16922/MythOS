@@ -27,9 +27,16 @@ REPO_ROOT="$(cd "$SCRIPT_DIR" && git rev-parse --show-toplevel 2>/dev/null || tr
 [ -n "$REPO_ROOT" ] || REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 cd "$REPO_ROOT"
 
+# --- 엔진 선택 (claude | codex) — 동일 LOOP, 호출 에이전트만 다름 ---
+: "${ENGINE:=claude}"
+
 # --- 경로 (REPO_ROOT 기준 상대 — overnight-settings.json allow 패턴과 일치) ---
-PROMPT_FILE="bin/overnight/PROMPT.md"
-SETTINGS_FILE="bin/overnight/overnight-settings.json"
+if [ "$ENGINE" = "codex" ]; then
+  PROMPT_FILE="bin/overnight/PROMPT.codex.md"
+else
+  PROMPT_FILE="bin/overnight/PROMPT.md"
+fi
+SETTINGS_FILE="bin/overnight/overnight-settings.json"   # claude 전용 권한 경계
 STOP_FILE="bin/overnight/STOP"
 DONE_FILE="bin/overnight/DONE"
 LOG_DIR="bin/overnight/logs"
@@ -65,9 +72,13 @@ elif command -v timeout >/dev/null 2>&1; then
 fi
 
 # --- 사전 점검 ---
-command -v claude >/dev/null 2>&1 || { log "치명: 'claude' CLI 를 PATH 에서 못 찾음 — 종료"; exit 1; }
+if [ "$ENGINE" = "codex" ]; then
+  command -v codex >/dev/null 2>&1 || { log "치명: 'codex' CLI 를 PATH 에서 못 찾음 — 종료"; exit 1; }
+else
+  command -v claude >/dev/null 2>&1 || { log "치명: 'claude' CLI 를 PATH 에서 못 찾음 — 종료"; exit 1; }
+  [ -f "$SETTINGS_FILE" ] || { log "치명: $SETTINGS_FILE 없음 — 종료"; exit 1; }
+fi
 [ -f "$PROMPT_FILE" ]   || { log "치명: $PROMPT_FILE 없음 — 종료"; exit 1; }
-[ -f "$SETTINGS_FILE" ] || { log "치명: $SETTINGS_FILE 없음 — 종료"; exit 1; }
 [ -n "$TIMEOUT_BIN" ] || log "경고: gtimeout/timeout 없음 — 회차 타임아웃 비활성 (brew install coreutils 권장)"
 
 PROMPT_CONTENT="$(cat "$PROMPT_FILE")"
@@ -127,7 +138,7 @@ print("failure" if rc != 0 else "success")
 PY
 }
 
-log "=== overnight 루프 시작 (branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null), gate='$GATE_CMD', MAX_ITER=$MAX_ITER, once=$ONCE) ==="
+log "=== overnight 루프 시작 (engine=$ENGINE, branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null), gate='$GATE_CMD', MAX_ITER=$MAX_ITER, once=$ONCE) ==="
 
 iter=0
 consec_fail=0
@@ -153,10 +164,24 @@ while :; do
   log "회차 $iter 시작 (HEAD=${HEAD_BEFORE:0:9})"
 
   set +e
-  $TIMEOUT_BIN ${TIMEOUT_BIN:+$ITER_TIMEOUT} claude -p "$PROMPT_CONTENT" \
-    --permission-mode acceptEdits \
-    --settings "$SETTINGS_FILE" \
-    --output-format json > "$ITER_LOG" 2>&1
+  if [ "$ENGINE" = "codex" ]; then
+    # 무인 안전 경계: 전역 config(danger-full-access)를 CLI 로 덮어쓴다 —
+    # workspace-write + network 차단(=git push·curl·Ollama·FLUX·Docker-online 봉쇄) + 비대화(never).
+    # </dev/null 필수: codex exec 는 stdin 이 열려 있으면 추가 입력을 기다리며 멈춘다(무인 회차 freeze 방지).
+    $TIMEOUT_BIN ${TIMEOUT_BIN:+$ITER_TIMEOUT} codex exec \
+      --cd "$REPO_ROOT" \
+      --sandbox workspace-write \
+      -c sandbox_workspace_write.network_access=false \
+      -c approval_policy=never \
+      --json \
+      --output-last-message "$LOG_DIR/last-message.txt" \
+      "$PROMPT_CONTENT" > "$ITER_LOG" 2>&1 </dev/null
+  else
+    $TIMEOUT_BIN ${TIMEOUT_BIN:+$ITER_TIMEOUT} claude -p "$PROMPT_CONTENT" \
+      --permission-mode acceptEdits \
+      --settings "$SETTINGS_FILE" \
+      --output-format json > "$ITER_LOG" 2>&1
+  fi
   rc=$?
   set -e
 

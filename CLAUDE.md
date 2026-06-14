@@ -69,7 +69,7 @@ make visual-smoke-flux-tiny    # real FLUX at 128x128, 1 step
 
 Run a single test module: `MYTHOS_LOG_LEVEL=ERROR .venv/bin/python -m unittest discover -s tests -p 'test_loop_engine.py'`.
 
-DB-backed tests (`tests/test_postgres_store.py`) are skipped unless `MYTHOS_RUN_DB_TESTS=1` and the Postgres service is up and migrated. There is no linter or CI configured; `make clean` references `.pytest_cache`/`.ruff_cache` but neither pytest nor ruff is a dependency (tests use stdlib `unittest`).
+DB-backed tests (`tests/test_postgres_store.py`) are skipped unless `MYTHOS_RUN_DB_TESTS=1` and the Postgres service is up and migrated. Linting and type-checking are configured: ruff (`[tool.ruff]` in `pyproject.toml`) and mypy are dev dependencies (`pip install -e .[dev]`), eslint covers the frontend, and `make lint`/`typecheck`/`check`/`check-auto` wire them together. GitHub Actions CI (`.github/workflows/ci.yml`) runs `make lint`/`typecheck`/`test` on push/PR to `main`. Tests themselves use stdlib `unittest` (not pytest), so `make clean`'s `.pytest_cache` reference is vestigial.
 
 ### Local infra (stateful stores + dev tooling; Ollama and FLUX stay on the host)
 

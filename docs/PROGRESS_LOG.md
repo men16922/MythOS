@@ -5,6 +5,14 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-14 — CLAUDE.md stale 린터/CI 서술 정정 ([auto])
+
+- Status: `[auto]` 트랙 — `CLAUDE.md`의 "There is no linter or CI configured ... neither pytest nor ruff is a dependency" 문장이 현행과 불일치 → 정정.
+- Changed: 해당 문장을 실측 기준으로 교체 — ruff(`[tool.ruff]`)+mypy는 dev 의존성(`.[dev]`), eslint=frontend, `make lint/typecheck/check/check-auto` 존재, **CI 존재**(`.github/workflows/ci.yml`가 push/PR to main에서 lint/typecheck/test 실행). 테스트는 stdlib `unittest`(pytest 아님)라 `make clean`의 `.pytest_cache`는 잔재로 명시. docs-only.
+- Verified: `make check` green(ruff "All checks passed!" + mypy + frontend build + 304 tests OK, skipped 2).
+- Blockers: 없음.
+- Next: 남은 `[auto]` 백로그 거의 소진 — Maintenance의 `[manual]`/Priority 1 `[/]` 잔여는 무인 검증 불가.
+
 ## 2026-06-14 — overnight 하네스 `--once` 첫 실검증(REPO_ROOT 버그 발견·자동 복구)
 
 - Status: 헤드리스 무인 회차를 처음 실제 실행. 정적 검증만 됐던 `run.sh`의 런타임 버그를 즉시 포착.

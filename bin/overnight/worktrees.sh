@@ -8,7 +8,8 @@
 #   ../<repo>-loop-codex    (branch loop/codex)
 #   ../<repo>-loop-agy      (branch loop/agy)
 #
-# .claude/.agents(gitignore)만 메인에서 symlink 한다(스킬/프롬프트). bin/overnight/* 는 git 추적이라 이미 존재.
+# skills 는 이제 git 추적이라(.claude/.agents/.codex/.gemini 의 skills/) 모든 worktree 가 checkout 시 자동 보유 —
+# **더 이상 symlink 안 한다**(과거 symlink 추적이 checkout churn 으로 메인 skills 를 삭제한 사고 방지).
 #
 # ⚠️ .venv / node_modules 는 symlink 하지 않는다(실증서 확인된 실패):
 #   - .venv symlink → editable install(.pth)이 **메인 src** 로 resolve → worktree 코드변경에 **false green**.
@@ -36,7 +37,7 @@ MAIN_ROOT="$(git -C "$REPO_ROOT" rev-parse --path-format=absolute --git-common-d
 ENGINES="claude codex agy"
 PARENT="$(dirname "$MAIN_ROOT")"
 BASE="$(basename "$MAIN_ROOT")"
-LINK_DIRS=".claude .agents"
+LINK_DIRS=""   # skills 가 git 추적이라 symlink 불필요(빈 값 → up/down/status 의 링크 루프 no-op)
 
 wt_path() { printf '%s/%s-loop-%s' "$PARENT" "$BASE" "$1"; }
 

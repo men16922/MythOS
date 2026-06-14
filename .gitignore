@@ -22,10 +22,14 @@ outputs/*
 # Local Docker volume data (docker-compose.local.yml)
 .docker/
 
-# AI Agent Junk — 슬래시 없이(디렉터리 + worktree symlink 모두 매칭; 트레일링 슬래시는 symlink 미매칭 → git add -A 가 추적해버림)
-.claude
-.agents
-.gemini
+# AI Agent local config — skills/ 는 추적(에이전트 공유 자산), 나머지(설정/캐시/머신로컬)는 무시.
+# (.codex 는 무시 대상 아님 — .codex/.mcp.json 등 추적. .codex/skills/ 도 자연히 추적됨.)
+.claude/*
+!.claude/skills/
+.agents/*
+!.agents/skills/
+.gemini/*
+!.gemini/skills/
 .playwright-mcp
 .antigravitycli/
 screenshots/

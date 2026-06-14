@@ -5,6 +5,13 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-15 — item.kind enum closure invariant ([auto:claude], QA seed)
+- Status: overnight QA seed `[auto:claude]` item.kind enum closure 박제. green.
+- Changed: `tests/test_content_integrity.py`에 `ItemKindEnumIntegrityTest` 1건 추가 — 모든 `combat.items[].kind`가 게임이 실제 인식하는 집합 {`consumable`,`equipment`,`key`,`data`,`material`}에 속함을 검증. 인식 집합 근거: 프론트 `CharacterPanel.tsx`의 `KIND_LABELS`/카테고리 매핑 + 런타임 `session.py`의 consumable 사용 게이트(`kind != "consumable"`이면 전투 사용 불가). 미지 kind는 generic "item" 버킷으로 흘러 사용/착용 불가 → 오타 가드. 무기 `kind`(melee/ranged)는 `combat.weapons` 별도 네임스페이스라 스코프 제외(주석 명시).
+- Verified: `make check` EXIT=0 — ruff/eslint/mypy(113 files)/frontend build + 342 tests OK(skipped 2, +1). 측정 기준선: items 11종(nanopatch/stim_shard/access_key/data_fragment/drone_scrap/signal_blade/mesh_vest/emp_grenade/heavy_exosuit/stealth_cloak/overload_stim) 전부 인식 kind, 미지 kind 0.
+- Blockers: 없음.
+- Next: 잔여 QA seed — story_bible 메타 무결성·FastAPI on_event 현대화·dotenv type:ignore 중앙화·npc_agenda 주체 무결성(`[auto:claude]`). 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-15 — encounter 수치 경계 invariant ([auto:claude], QA seed)
 - Status: overnight QA seed `[auto:claude]` encounter 수치 경계 박제. green.
 - Changed: `tests/test_content_integrity.py`에 `EncounterBoundsIntegrityTest` 3건 추가 — 모든 `combat.encounters[*]`의 ① `enemies[].count`가 정수 ≥1(0/음수=빈 측 스폰→의도치 않은 즉시 walkover), ② `weight`가 양수 수치(비양수=가중 추첨서 도달 불가하거나 추첨 손상), ③ `arena.{width,height}`가 양수(0/음수=합법 타일 없는 퇴화 보드)를 검증. bestiary 참조는 기존 `ContentEncounterIntegrityTest`가 커버하므로 수치만 가드. bool은 int 서브클래스라 명시 제외.

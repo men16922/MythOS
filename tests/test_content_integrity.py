@@ -617,5 +617,48 @@ class EncounterBoundsIntegrityTest(unittest.TestCase):
         )
 
 
+class ItemKindEnumIntegrityTest(unittest.TestCase):
+    """Enum closure for ``combat.items[].kind`` in the neo-seoul item pool.
+
+    The item ``kind`` is the discriminator that both ends of the stack switch
+    on: the runtime only lets ``kind == "consumable"`` items be used in combat
+    (``session.py``), and the inventory UI buckets/labels by kind
+    (``CharacterPanel.tsx`` ``KIND_LABELS`` + category mapping →
+    consumable/equipment/material/key/data). An item whose ``kind`` falls
+    outside the recognised set silently falls through to a generic "item"
+    bucket and can never be used or equipped — a typo guard, not a judgment
+    call. Weapon ``kind`` (melee/ranged) lives under ``combat.weapons`` and is
+    a different namespace, so it is intentionally out of scope here.
+    """
+
+    # The set the game actually recognises. Keep in sync with
+    # CharacterPanel.tsx KIND_LABELS / category mapping and the consumable
+    # gate in mythos_runtime.session.
+    RECOGNISED_KINDS = frozenset(
+        {"consumable", "equipment", "key", "data", "material"}
+    )
+
+    def setUp(self) -> None:
+        self.scenario = load_scenario("neo-seoul")
+        self.combat = self.scenario.combat
+        self.assertIsInstance(self.combat, dict, "neo-seoul must define a combat block")
+        self.item_records = _as_records(self.combat.get("items", {}))
+        self.assertTrue(self.item_records, "combat.items must declare at least one item")
+
+    def test_item_kinds_are_recognised(self) -> None:
+        unknown = sorted(
+            f"{_record_id(item, '?')}.kind={item.get('kind')!r}"
+            for item in self.item_records
+            if item.get("kind") not in self.RECOGNISED_KINDS
+        )
+        self.assertEqual(
+            unknown,
+            [],
+            "combat.items with kind outside the recognised set "
+            f"{sorted(self.RECOGNISED_KINDS)} (would fall through to a generic "
+            f"bucket, unusable/unequippable): {unknown}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

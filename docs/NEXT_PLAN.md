@@ -6,6 +6,10 @@
 `docs/COMPLETED_SUMMARY.md`, 상세 로그는 `bin/docs/archive/progress-2026-06.md`, 개별 설계는
 `docs/plans/`를 본다.
 
+## 다음 세션 예약 — 엔지니어링 문서 + 모니터링 (플랜 저장됨)
+
+플랜 파일: `~/.claude/plans/file-users-men1692-claude-usage-data-re-giggly-music.md`. WS1 `docs/engineering/` 5개 정의(HARNESS/LOOP/AGENTIC/CONTEXT/PROMPT — LOOP·MULTI_AGENT 이동) → WS2 md 재편(AI_REARCH 아카이브·CLAUDE/AGENTS/GEMINI 진입점 슬림화·README/DOCS_POLICY) → WS3 구조화 로깅 + `make overnight-dashboard`(tmux+집계트리) → WS4(계획만) agy→codex 콘텐츠 이미지 파이프라인. 결정: engineering/ 디렉터리 + tmux 대시보드.
+
 ## Rules
 
 - 작업 시작 전 `docs/AGENT_BRIEF.md` -> `docs/STATUS.md` -> 이 파일 순서로 읽는다.
@@ -99,11 +103,6 @@ P1 작전 지도 route-node화 + 세션 메모리(→ COMPLETED_SUMMARY M39), Ta
 - `[ ]` Phase 4 — objective/choice result/Codex feedback UX 정리(위 P2 묶음의 통합 마감).
 - `[ ]` Phase 5 — Neo-Seoul RC: 수동 QA(`docs/test/neo_seoul_live_qa.md`) + 자동 회귀, 결과는 `PROGRESS_LOG.md` 짧게/긴 기록은 archive.
 
-## 완료 트랙 (참조)
-
-완료 마일스톤 **M35-M42**(전투 연출·진행도·파티 조작·route-node·데이터모델·콘텐츠 확장·overnight 하네스 등)는
-`docs/COMPLETED_SUMMARY.md`, 설계는 `docs/plans/`를 본다. 후속은 모두 Priority 1 트랙에서 다룬다.
-
 ## Hold — Scenario Expansion / Glass Library
 
 상태: `[~]` 진행도/프레젠테이션 패리티 + Story Bible 17 entries 완료(M38). 추가 확장은 Neo-Seoul 만족도 개선 이후로 홀드.
@@ -112,8 +111,6 @@ P1 작전 지도 route-node화 + 세션 메모리(→ COMPLETED_SUMMARY M39), Ta
 - `[ ]` glass-library 전투 아트/스킬 깊이(현재 스킬 5종, 적 4종; 신규 combat action sheet는 후속).
 
 ## Maintenance
-
-> 2026-06-14 완료분(overnight 하네스·`mypy src tests` 0·게이트 `make check` 승격·Codex 스킬 UX·stale-header 정합·bin 검토/프루닝 12파일)은 **COMPLETED_SUMMARY M42** / PROGRESS_LOG 참조.
 
 - `[ ]` `[manual]` 장기 플레이에서 Flux1 + Flux1Redux 동시 적재 메모리 모니터.
 - `[ ]` `[blocked]` `_map` 제거 정리(route-node 트랙 완료 후 보류; engine 매 장면 기록 + encounter_map 좌표·story_bible 위치·glass-library 폴백 미니맵 의존). 선행 조건: 전 시나리오 route_map 전환. 충족 시 `[auto]`(codemod + `make check` green)로 승격.

@@ -40,10 +40,24 @@ AI_REARCH 의 핵심 원리 적용: 만든 사람과 검수하는 사람을 분�
 - **Tier 2(콘텐츠/이미지)**: codex(결정론 리팩터/검증) + agy(이미지 초안) → **무결성 게이트**로만 자동 커밋,
   미적/서사 품질은 사람 검수. 자동 생성물은 main 직행이 아니라 리뷰 브랜치(`loop/{codex,agy}`)에 쌓인다.
 
+## 2.7 운영 모델 선택 — worktree 게이트의 현실(실증 2026-06-14)
+3엔진 병렬 실증서 확인된 **핵심 제약**: worktree 는 `.venv`/`node_modules` 가 없다(gitignore). 이를 메인에서
+symlink 하면 **게이트가 깨진다** — (a) `.venv` symlink → editable install 이 메인 src 로 resolve → 코드변경
+**false green**, (b) `node_modules` symlink → tsc/vite 가 공유 `.tmp` 에 써서 **EPERM**. 따라서:
+- **모델 A — 코드 레인은 메인 체크아웃에서 순차(권장 기본).** claude/codex 의 `[auto*]` 코드 작업은 메인에서
+  레인 태그 순서대로 `--once` 반복(동시작성자 STOP 이 안전망). 게이트가 faithful, 환경 중복 0. 단 "동시"는 아님.
+- **모델 B — 진짜 worktree 병렬(코드 레인 포함).** `make overnight-worktrees-setup` 으로 worktree 마다 자체
+  venv+node_modules 를 1회 provision(네트워크 필요, 사람이 루프 밖에서). 그러면 자체 editable install 이 그
+  worktree src 를 가리켜 faithful. 비용: 디스크/시간.
+- **이미지/문서 레인(agy, codex-docs)** 은 자체 환경 없이도 worktree 에서 가능(실증: agy 가 worktree 에서
+  스킬 아이콘 6종 생성·커밋 성공). 코드 게이트가 필요 없기 때문.
+→ **권장**: agy(이미지)는 worktree, claude/codex(코드)는 모델 A(메인 순차) 또는 B(provision 후 worktree).
+
 ## 3. 운영 (make 타깃)
 ```sh
-# 1) worktree 격리 준비(1회 + 갱신). .claude/.agents 를 메인에서 symlink 한다(gitignore라 worktree 엔 없음).
-make overnight-worktrees          # 생성/갱신
+# 1) worktree 격리 준비. .claude/.agents 만 symlink(.venv/node_modules 는 symlink 안 함 — 게이트 깨짐).
+make overnight-worktrees          # 생성/갱신(+.claude/.agents symlink)
+make overnight-worktrees-setup    # (모델 B) 코드 레인용 per-worktree venv+node_modules — 네트워크 1회
 make overnight-worktrees-status   # 현황 + symlink 점검
 make overnight-worktrees-down     # 제거(브랜치는 보존)
 

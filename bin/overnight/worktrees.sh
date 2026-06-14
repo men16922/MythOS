@@ -8,15 +8,18 @@
 #   ../<repo>-loop-codex    (branch loop/codex)
 #   ../<repo>-loop-agy      (branch loop/agy)
 #
-# gitignore 라 새 worktree 엔 없는 것들을 메인에서 symlink 한다:
-#   .claude/.agents — 스킬/프롬프트, .venv — 파이썬 게이트(ruff/mypy/unittest),
-#   src/mythos_ui/node_modules — 프론트 게이트(eslint/tsc/vite). (bin/overnight/* 는 git 추적이라 이미 존재.)
-# ⚠️ .venv 의 editable install(.pth)은 **메인 src** 를 가리킨다. 따라서 worktree 의 per-회차 게이트는
-#   add-only/test/docs/이미지 레인엔 정확하지만, 기존 src 를 *수정*하는 경우엔 메인 src 로 검사된다(근사).
-#   src 수정의 권위 검증은 `make overnight-merge`(메인 체크아웃에서 통합본을 make check)다.
+# .claude/.agents(gitignore)만 메인에서 symlink 한다(스킬/프롬프트). bin/overnight/* 는 git 추적이라 이미 존재.
+#
+# ⚠️ .venv / node_modules 는 symlink 하지 않는다(실증서 확인된 실패):
+#   - .venv symlink → editable install(.pth)이 **메인 src** 로 resolve → worktree 코드변경에 **false green**.
+#   - node_modules symlink → tsc/vite 가 공유 `node_modules/.tmp` 에 쓰며 **EPERM** 으로 frontend-build 실패.
+#   따라서 **코드 레인(claude/codex)의 per-회차 게이트를 worktree 에서 돌리려면 worktree 마다 자체 환경이 필요**
+#   하다: `make overnight-worktrees-setup`(아래, 네트워크 필요·1회). 이미지/문서 레인은 자체 환경 없이도 가능.
+#   대안: 코드 레인은 메인 체크아웃에서 순차(레인 태그+동시작성자 STOP)로 돌린다(docs/MULTI_AGENT.md 권장 모델).
 #
 # 사용:
-#   bin/overnight/worktrees.sh up       # 생성/갱신(+symlink)
+#   bin/overnight/worktrees.sh up       # 생성/갱신(+.claude/.agents symlink)
+#   bin/overnight/worktrees.sh setup    # 코드 레인용 per-worktree venv+node_modules(네트워크 1회)
 #   bin/overnight/worktrees.sh status   # 현황
 #   bin/overnight/worktrees.sh down     # worktree 제거(브랜치는 보존)
 # ----------------------------------------------------------------------------
@@ -33,7 +36,7 @@ MAIN_ROOT="$(git -C "$REPO_ROOT" rev-parse --path-format=absolute --git-common-d
 ENGINES="claude codex agy"
 PARENT="$(dirname "$MAIN_ROOT")"
 BASE="$(basename "$MAIN_ROOT")"
-LINK_DIRS=".claude .agents .venv src/mythos_ui/node_modules"
+LINK_DIRS=".claude .agents"
 
 wt_path() { printf '%s/%s-loop-%s' "$PARENT" "$BASE" "$1"; }
 
@@ -65,6 +68,24 @@ case "$cmd" in
     git -C "$MAIN_ROOT" worktree list
     echo "팁: 엔진 가동은 해당 worktree 에서. 예: (cd $(wt_path codex) && make overnight-codex-watch)"
     ;;
+  setup)
+    # 코드 레인 게이트를 worktree 에서 faithful 하게 돌리려면 자체 venv + node_modules 가 필요(네트워크 1회).
+    # 사람이 루프 밖에서 실행한다(루프 샌드박스는 네트워크 차단). 자체 venv 의 editable install 은 그 worktree
+    # 의 src 를 가리키므로 false green 이 없다.
+    for eng in $ENGINES; do
+      wt="$(wt_path "$eng")"
+      [ -d "$wt" ] || { echo "$eng: worktree 없음 — 먼저 'up'"; continue; }
+      echo "▶ $eng: per-worktree 환경 provision (python venv + pip -e .[dev])..."
+      ( cd "$wt" && python3 -m venv .venv && .venv/bin/pip install -q -e ".[dev]" ) \
+        && echo "  $eng: venv ok" || echo "  $eng: venv 실패(네트워크/파이썬 확인)"
+      if [ -d "$wt/src/mythos_ui" ]; then
+        echo "▶ $eng: frontend node_modules (npm install)..."
+        ( cd "$wt/src/mythos_ui" && npm install --silent ) \
+          && echo "  $eng: node_modules ok" || echo "  $eng: npm 실패"
+      fi
+    done
+    echo "완료. 이제 각 worktree 에서 make check 가 자체 환경으로 faithful 하게 돈다."
+    ;;
   status)
     git -C "$MAIN_ROOT" worktree list
     for eng in $ENGINES; do
@@ -91,5 +112,5 @@ case "$cmd" in
     git -C "$MAIN_ROOT" worktree prune
     ;;
   *)
-    echo "사용법: worktrees.sh {up|status|down}" >&2; exit 1 ;;
+    echo "사용법: worktrees.sh {up|setup|status|down}" >&2; exit 1 ;;
 esac

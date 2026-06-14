@@ -60,7 +60,7 @@ Live LLM QA & 반복 완화 (2026-06-08):
 Recent verified baseline recorded in docs:
 
 - **`make check` green**: ruff + eslint + `mypy src tests` **0 errors/111 files** + tsc/vite-build + 316 unittests(skipped 2). 이번 세션 mypy 부채 0화 → overnight 게이트를 `make check`로 승격(COMPLETED_SUMMARY M42). CI도 실재(`.github/workflows/ci.yml`). 루트+엔딩 도달성 invariant(`test_route_integrity.py`) + 플래그 참조/조우 무결성 invariant(`test_content_integrity.py`) 박제(2026-06-14, QA seed #1·#2·#3·#4).
-- **overnight 무인 루프 하네스**(`bin/overnight/`, `make overnight*`): `--once` 실검증 완료 — 헤드리스 체인·잔여물 복구 실증, REPO_ROOT 버그 자동 `[recovered]` 복구. 콘텐츠/밸런스 QA `[auto]` seed 7종 대기(가동 시 invariant 박제 또는 Blocker surface).
+- **3엔진 병렬 overnight 하네스**(`bin/overnight/`, `docs/MULTI_AGENT.md`): `ENGINE=claude|codex|agy` — worktree 격리(Model B) + 레인 태그(`[auto:claude|codex|agy]`) + 통합 머지(`overnight-merge`) + 하이브리드 codex 리뷰어(생성자≠리뷰어, `overnight-review`) + 실패 메일(`notify.sh`) + claude→codex failover. 병렬 3엔진 end-to-end 실증(각 worktree 자체 env `make check` green). agy/codex 이미지는 FLUX 아닌 자체 Imagen/Gemini(`outputs/agy/` 스테이징→resources cp). **skills 는 git 추적**(`.claude/.agents/.codex/.gemini` 4곳, 재-ignore 금지 — DECISIONS 2026-06-14). QA seed #1-4 박제 완료.
 - 오프닝 시퀀스 정합(2026-06-14): scene1=홀로 각성(이미지 정합)·4비트 온보딩(인트로 3컷을 인게임 비트로)·장면별 `image_sequence`·인트로 화면 간결화. live Ollama로 turn0/1 정합 확인.
 - frontend lint/build clean, `tests/playwright/test_e2e_play_checklist.py` green (refactored 서버 기동 포함).
 - `make smoke-local` succeeded (fallback narrative & visual smoke green).
@@ -79,7 +79,7 @@ Recent verified baseline recorded in docs:
 
 ## Open Risks
 
-- **로컬 main 미푸시(2026-06-14)**: 이번 세션 작업(오프닝 정합·overnight 하네스·mypy 0·QA seed 등)이 로컬 main에만 있음. private repo push는 안전 분류기 하드블록 → 사용자가 `gh repo create … --push` 직접 실행 필요(men16922 본인 계정).
+- **로컬 main 미푸시(2026-06-14, ahead 27+)**: 이번 세션 작업(3엔진 병렬 하네스·skills git추적·BGM 수정·tidy 등)이 로컬 main에만 있음. private repo push는 안전 분류기 하드블록 → 사용자가 직접 push(men16922 본인 계정).
 - **LLM 스트리밍 first-token 지연(해결 2026-06-11, 스토리 8B 전환)**: "TTFT 11.1초/완료" 주장은 재현 안 됨. 실측 근본 원인은 **48GB RAM**(64GB 아님) 스왑 포화 — 26B(18GB)+FLUX 이미지가 안 들어가 26B가 evict/페이지인되며 TTFT 13→**43~127초** 폭발. **결정·적용**: 스토리 모델을 **`gemma4:26b`→`gemma4:latest`(8B, 9.6GB)** 로 전환(head-to-head서 한국어 산문 품질 경쟁력 확인, **warm TTFT 9~10초**, RAM 상주로 FLUX와 공존). 파서는 `qwen2.5:3b-instruct`(스트리밍 경로는 실제론 정규식 파서 사용). 64GB+ 머신에서만 26B 재권장. 상세 `docs/DECISIONS.md`/`PROGRESS_LOG.md` 2026-06-11, 재측정 `scratch/ttft_bench.py`.
 - **이미지 vs 큐레이트 중복(해결 2026-06-11)**: 앵커는 프론트가 큐레이트 이미지(`route_map.image`=`scenes/*.png`)를 표시하는데 백엔드가 그 앵커에서도 FLUX를 돌려 표시 안 될 그림 생성 + 느린 턴을 유발했다. `maybe_generate_scene_image`에 `_curated_anchor_image()` 가드 추가 — 현재 노드가 `image` 보유 앵커면 FLUX 스킵(프론트가 큐레이트 이미지를 표시하므로 화면 변화 없이 느린 턴만 제거). 회귀 테스트 `tests/test_visual_orchestration.py` 6건.
 - **작전 지도 horizon 미갱신(라이브 발견)**: 동적 라우팅 2막 horizon이 진행 중 갱신 안 되는 것으로 보고됨

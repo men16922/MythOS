@@ -2,6 +2,20 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-06-14 — skills git 추적 전환 + 3엔진 병렬 Model B
+
+Decision: ① 에이전트 skills(sync/checkpoint/tidy-docs/overnight-report)를 **git 추적**으로 전환 —
+`.claude/.agents/.codex/.gemini` 4곳에 복제, `.gitignore`는 `<dir>/*` + `!<dir>/skills/`. 더는 gitignore+symlink
+하지 않는다. ② 3엔진(claude/codex/agy) 병렬은 **worktree 격리(Model B)**: 코드 레인은 worktree 자체
+venv+node_modules(`make overnight-worktrees-setup`), 이미지/문서 레인은 자체 env 불요. 코드 레인을 메인 순차로 돌리는 Model A 도 대안.
+
+Reason: skills 가 gitignore+symlink 였던 탓에 worktree symlink 가 추적 커밋되고 머지 checkout churn 이 메인
+skills 를 삭제(데이터 손실 → 트랜스크립트 복구). 추적하면 모든 worktree 가 checkout 으로 자연 보유 + 영구 복구.
+`.venv`/`node_modules` symlink 는 editable false-green/EPERM 으로 게이트를 깨므로 per-worktree env 가 정답.
+
+Impact: **skills 재-ignore 금지**(메모리 `skills-are-git-tracked`). worktree 는 skills symlink 안 함
+(`worktrees.sh` LINK_DIRS=""). 운영/검증 권위 `docs/MULTI_AGENT.md`, 블루프린트 `docs/research/AI_TEAM_BLUEPRINT.md`.
+
 ## 2026-06-11
 
 ### 스토리텔러 모델 26B → 8B(gemma4:latest) 전환 (이 머신: 48GB)

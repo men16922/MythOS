@@ -5,6 +5,19 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-14 — Model B 3엔진 병렬 실증 + 자체 이미지·리뷰어 + skills 사고·복구·git추적
+
+- Status: 3엔진(claude/codex/agy) 병렬 루프를 worktree 격리로 end-to-end 실증 + 후속 하드닝. skills 손실 사고 복구.
+- Changed:
+  - **자체 이미지**: agy/codex 가 FLUX 대신 in-session Imagen/Gemini 로 생성 → `outputs/agy/<주제>/` 스테이징 후 resources/ cp(`PROMPT.agy.md`).
+  - **하이브리드 codex 리뷰어**(생성자≠리뷰어, AI_REARCH): `review.sh`/`PROMPT.review.md`/`make overnight-review` → `logs/review-latest.md`. `docs/research/AI_TEAM_BLUEPRINT.md` 신설.
+  - **Model B(worktree 병렬)**: 코드 레인 게이트는 worktree 자체 env 필요 → `make overnight-worktrees-setup`(per-worktree venv `.[dev,web]`+node_modules). symlink(.venv/node_modules) 금지(false green/EPERM). codex worktree commit = writable_roots 에 git common dir.
+  - **공유 문서 충돌 완화**: `PROGRESS_LOG.md merge=union`(.gitattributes) + 엔진은 NEXT_PLAN 자기 레인 한 줄만/STATUS는 오케스트레이터.
+  - **skills 사고·복구**: skills 가 gitignore+symlink 라 머지 checkout churn 이 메인 skills 삭제 → 트랜스크립트에서 4종 전량 복구 → **git 추적 전환**(`.claude/.agents/.codex/.gemini` 4곳, `<dir>/*`+`!<dir>/skills/`), worktree symlink 제거.
+- Verified: 병렬 3엔진 각 worktree 자체 env 로 `make check` green 커밋(claude 승률밴드/agy 아이콘/codex). codex 리뷰어가 실제 [high] 버그(symlink 추적) 적발. notify Mail.app 실발송. `agy --print`/`codex exec` 헤드리스 실측. tidy 후 진입점 60/101/120/72.
+- Blockers: agy 아이콘 1차 **미적 반려**(`outputs/agy/skills/VERDICT.md`, 엄격 템플릿 재생성 필요). 승률밴드 codex 리뷰 findings 2건(`review-latest.md`). main `ahead 27` 미푸시(분류기 차단, 사용자 직접).
+- Next: (실제 최우선) Neo-Seoul 사람 플레이 QA. 자동 잔여: 진행도 경제(`[auto:codex]`)·승률밴드 재측정·아이콘 재생성.
+
 ## 2026-06-14 — 3엔진 병렬 Loop Engineering + BGM OFF 수정
 
 - Status: claude·codex·agy 3엔진 병렬 무인 루프 토대 구축 + 실패 메일 + failover + BGM 버그 수정. 6 phase 완료.

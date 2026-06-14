@@ -33,17 +33,12 @@
 
 ## Overnight QA Seed (2026-06-14) — 자동 콘텐츠/밸런스 무결성
 
-> overnight 루프 fodder. "재밌는가"(사람) 말고 **"안 깨지는가"(봇, 결정론)** 를 본다. 각 항목 1회차.
-> 새 invariant 테스트가 green이면 박제, red면 위반을 **기계적 수정** 또는 **정확한 Blocker로 surface**(사람 검수).
-> 모두 offline·`make check` 검증. neo-seoul 기준(가능하면 glass-library도 동일 패턴).
+> "안 깨지는가"(봇, 결정론) 콘텐츠/밸런스 invariant. green=박제, red=Blocker surface. offline·`make check`.
 
-- `[x]` `[auto]` 루트 도달성 invariant(`tests/test_route_integrity.py` 신설): neo-seoul `route_map`의 모든 노드가 보스 레이어까지 경로 보유 + 고아 노드 0 + 모든 앵커가 어떤 flag 조합에서 start로부터 도달 가능. **완료(2026-06-14)**: full+dynamic 빌더 ×24 seed로 4 invariant 박제, `make check` green(위반 0).
-- `[x]` `[auto]` 엔딩 도달성 invariant: `scenario.json endings`의 모든 id가 route perspective `ending_influence` 누적으로 도달 가능(boss뿐 아니라 전 경로). **완료(2026-06-14)**: `test_route_integrity.py`에 2건 추가(엔딩 도달성 + 참조 무결성), full+dynamic ×24 seed, `make check` green(위반 0).
-- `[x]` `[auto]` 플래그 참조 무결성(`tests/test_content_integrity.py` 신설): 소비 flag가 어딘가서 생산되는지 검증, 미생산 flag 0. **완료(2026-06-14)**: 4 invariant 박제 — 소비자=route node `gate`/perspective `when`/`route_branches[].trigger_flags`/story_bible `flags_any`, 생산자=authored `effect.flags` ∪ 엔진 온보딩 ∪ `NARRATIVE_DRIVEN_FLAGS`(Director `world_delta` 12종, 명시 등록). gate 하드 도달성 + bible entry resolve + 미생산 0 ratchet + 레지스트리 무부패. `make check` green(위반 0). 발견: seed의 "choice `requires`"는 스킬 prereq(flag 아님)·chapter_gates는 산문 → 구조적 소비자 아니라 제외.
-- `[ ]` `[auto:agy]` 스킬 아이콘 6종 초안: `emp_pulse`·`glitch_blink`·`memory_resonance`·`nanoshield_projector`·`signal_overdrive`·`system_intrusion` 의 `resources/neo-seoul/skills/<id>.png` 를 IMAGE_POLICY + 기존 스킬 아이콘 스타일을 바이블로 초안 생성(placeholder fabricate 금지, 실제 파이프라인). 완료 기준: 6 PNG 실존·비어있지 않음·기존 아이콘과 규격 일치, `loop/agy` 브랜치 커밋. (이게 끝나면 아래 스킬/아이콘 무결성 invariant 를 `[auto:claude]` 로 박제 가능.)
-- `[blocked]` `[auto:claude]` 스킬/아이콘 무결성 invariant: 모든 `combat.skills[].id`에 `resources/neo-seoul/skills/<id>.png` 존재 + 아키타입 base/learnable + `epiphany` unlock이 실재 스킬 참조. 완료 기준: `test_assets.py`에 추가, green 또는 Blocker. **선행 미충족**: 위 `[auto:agy]` 아이콘 6종이 `loop/agy`에서 main 으로 머지된 뒤 해제(병렬 run 중엔 claude 가 볼 수 없음 → 지금 박제하면 red).
-- `[x]` `[auto]` 조우 무결성: 모든 route combat 노드 type이 비어있지 않은 `combat_encounters` 풀에 매핑 + 풀의 적 id가 bestiary에 풀 액션시트 보유. **완료(2026-06-14)**: `test_content_integrity.py`에 2건 추가 — full+dynamic 빌더 ×24 seed combat node→encounter pool/실재 encounter 검증 + encounter enemy bestiary/action sheet(`idle/attack/guard/skill/hit`) 파일 존재 검증. `make check` green(316 tests).
-- `[ ]` `[auto:claude]` 조우 승률 밴드(시뮬): 고정 시드 그리디 시뮬로 각 조우의 의도 아키타입 승률이 합리 밴드(예: 55~98%) 내(0%=불가, 100%=시시). 시뮬 하네스는 `scratch/` 확인·재사용. 완료 기준: 테스트 추가, 밴드 밖이면 Blocker, green.
+- `[x]` 완료 4종: 루트·엔딩 도달성(`tests/test_route_integrity.py`) + 플래그 참조·조우 무결성(`tests/test_content_integrity.py`). 상세는 PROGRESS archive(`bin/docs/archive/progress-2026-06.md`).
+- `[ ]` `[auto:agy]` 스킬 아이콘 6종 초안: `emp_pulse`·`glitch_blink`·`memory_resonance`·`nanoshield_projector`·`signal_overdrive`·`system_intrusion` 의 `resources/neo-seoul/skills/<id>.png` 를 IMAGE_POLICY + 기존 스킬 아이콘 스타일을 바이블로 초안 생성(placeholder fabricate 금지). 완료 기준: 6 PNG 실존·비어있지 않음·규격 일치. (2026-06-14 1차 생성분은 미적 반려 — `outputs/agy/skills/VERDICT.md`. 엄격 카드 템플릿으로 재생성 필요.)
+- `[blocked]` `[auto:claude]` 스킬/아이콘 무결성 invariant: 모든 `combat.skills[].id`에 `resources/neo-seoul/skills/<id>.png` 존재 + 아키타입 base/learnable + `epiphany` unlock이 실재 스킬 참조. 완료 기준: `test_assets.py`에 추가, green 또는 Blocker. **선행 미충족**: 위 `[auto:agy]` 아이콘 6종 채택·머지 후 해제.
+- `[ ]` `[auto:claude]` 조우 승률 밴드(시뮬): 고정 시드 그리디 시뮬로 각 조우의 의도 아키타입 승률이 합리 밴드(예: 55~98%) 내(0%=불가, 100%=시시). 시뮬 하네스는 `scratch/` 확인·재사용. 완료 기준: 테스트 추가, 밴드 밖이면 Blocker, green. (codex 리뷰 findings: 동료 `controllable=True`로 직접조작 파티 재측정 + 100% 천장 invariant 실효화 — `bin/overnight/logs/review-latest.md`.)
 - `[ ]` `[auto:codex]` 진행도 경제 invariant(`test_progression.py`에 추가): 스킬 learn/rankup 비용이 tier별 단조 + 모든 tier가 합리적 통찰 수입으로 도달 가능(영구 불가 tier 0). 완료 기준: 테스트 추가, green 또는 Blocker.
 
 ## Priority 1 — Neo-Seoul Playability Upgrade

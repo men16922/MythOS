@@ -58,5 +58,6 @@ echo "충돌(수동)  :${conflicted:- 없음}"
 echo "게이트      : $([ "$gate_rc" = 0 ] && echo green || echo "RED(rc=$gate_rc)")"
 echo "agy 이미지  : loop/agy 산출물은 미적 적합도를 사람이 검수해야 함(자동 게이트는 무결성만)."
 echo "다음        : $INTEG 검수 → 이상 없으면 $BASE 로 머지/push. main 은 본 스크립트가 건드리지 않음."
+echo "리뷰        : make overnight-review (codex 가 $BASE...$INTEG diff 를 읽기전용 감사 → logs/review-latest.md)"
 echo "====================================="
 [ "$gate_rc" = 0 ] && [ -z "$conflicted" ]

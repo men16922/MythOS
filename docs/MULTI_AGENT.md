@@ -16,12 +16,22 @@
 | 엔진 | 레인 태그 | 소유 도메인(이 디렉터리만) | 샌드박스 | 게이트 | 브랜치 |
 | --- | --- | --- | --- | --- | --- |
 | **claude** | `[auto]` / `[auto:claude]` | `src/`, `tests/`, `harness/`, `bin/overnight/`, 복잡 리팩터·invariant·오케스트레이션 | `overnight-settings.json`(deny push/net/파괴) | `make check` | `loop/claude` |
-| **codex** | `[auto:codex]` | `docs/`, `docs/scenarios/`, story_bible, 결정론 콘텐츠 **리팩터/검증**, 대화 스크립트 정합 | `codex exec` workspace-write + no-net + `.git` writable | `make check` | `loop/codex` |
+| **codex** | `[auto:codex]` | Builder: `docs/`/scenario/story_bible 결정론 리팩터·검증·대화 스크립트. **+ Reviewer(Auditor)**: 통합 diff 읽기전용 감사 | `codex exec` workspace-write + no-net + `.git` writable | `make check`(빌드) / 읽기전용(리뷰) | `loop/codex` |
 | **agy** | `[auto:agy]` | `resources/<scn>/{characters,characters/combat,concept,enemies,enemies/combat,opening,scenes}` 이미지 초안 + 간단 검증 | 없음(호스트 FLUX/MPS/네트워크 필요) → 프롬프트 가드레일 + 브랜치 격리 | **무결성 게이트**(자산 실존/치수/네이밍; make check 로 코드 무파손) | `loop/agy`(리뷰) |
 
 - **codex = claude failover**: claude 회차가 `limit` 이면 러너가 codex 로 claude 레인을 대신 소비(Phase 6, `run.sh`).
 - **agy 산출물은 리뷰 대상**: 이미지의 미적 "적합도"는 무인이 판단 못 한다 → `loop/agy` 에 쌓고 **사람이 아침에 검수**.
   자동 게이트는 무결성(있다/규격 맞다)만 본다. 누락 자산을 placeholder 로 **fabricate 금지**(PROMPT.agy.md §0).
+
+## 1.5 생성자 ≠ 리뷰어 (Claude → Codex → Claude)
+AI_REARCH 의 핵심 원리 적용: 만든 사람과 검수하는 사람을 분리해 자기확증 편향을 줄인다.
+- claude/agy 가 자기 레인에서 **생성**(빌드/초안) → `overnight-merge` 로 `loop/integration` 통합.
+- **codex 가 통합 diff 를 읽기전용 감사**(`make overnight-review` → `bin/overnight/review.sh` +
+  `PROMPT.review.md`): 버그/엣지/테스트누락/단순화/성능을 채점해 `logs/review-latest.md` 1개만 쓰고
+  **제안 후속작업**(레인 태그 포함)을 적는다. **코드·NEXT_PLAN 미수정**.
+- 오케스트레이터(claude/사람)가 findings 를 `NEXT_PLAN` 에 반영 → 다음 회차에 claude 가 **수정**. 루프 완성.
+- 이미지(agy)도 동일 정신: agy 가 in-session Imagen 으로 초안 + 적합도 리뷰(`outputs/combat-sprite-compare/*-review.md`),
+  최종 미적 합격은 사람이 판단.
 
 ## 2. 왜 콘텐츠/이미지는 claude 코드 루프와 게이트가 다른가
 이미지 생성은 호스트 FLUX/MPS + 네트워크가 필요하고 **비결정론**(같은 프롬프트도 매번 다름)이라 `make check`
@@ -42,9 +52,11 @@ make overnight-worktrees-down     # 제거(브랜치는 보존)
 (cd ../MythOS-loop-codex  && make overnight-codex-watch)        # codex 레인
 (cd ../MythOS-loop-agy    && make overnight-agy-watch)          # agy 레인
 
-# 3) 아침: claude 가 통합 + 검수
+# 3) 아침: claude 가 통합 + codex 가 리뷰 + 사람 검수
 make overnight-merge              # loop/* → loop/integration + make check 재실행(push 안 함)
-# loop/integration 검수(특히 agy 이미지 미적 적합도) → 이상 없으면 main 머지/push.
+make overnight-review             # codex 가 main...loop/integration diff 읽기전용 감사 → logs/review-latest.md
+# review findings 를 NEXT_PLAN 에 반영(다음 회차 claude 가 수정) → loop/integration 검수
+# (특히 agy 이미지 미적 적합도) → 이상 없으면 main 머지/push.
 ```
 - 각 worktree 는 자기 `bin/overnight/logs|STOP|DONE`(gitignore)를 가져 서로 간섭하지 않는다.
 - 커밋은 각자 자기 브랜치(`loop/<eng>`)에 로컬만. **어느 엔진도 push 안 한다**(사람이 통합 후).

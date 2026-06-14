@@ -4,7 +4,7 @@ COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
-.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check check-auto overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-clean overnight-codex overnight-codex-watch overnight-codex-once overnight-agy overnight-agy-watch overnight-agy-once overnight-worktrees overnight-worktrees-status overnight-worktrees-down overnight-merge
+.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check check-auto overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-clean overnight-codex overnight-codex-watch overnight-codex-once overnight-agy overnight-agy-watch overnight-agy-once overnight-worktrees overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -126,6 +126,8 @@ overnight-worktrees-down:   # worktree 제거(브랜치 보존)
 	@bin/overnight/worktrees.sh down
 overnight-merge:            # loop/* → loop/integration 통합 + 게이트 재실행(사람 검수용, push 안 함)
 	@bin/overnight/merge-loops.sh
+overnight-review:           # codex 가 통합 diff 를 읽기전용 리뷰(생성자≠리뷰어) → logs/review-latest.md
+	@bin/overnight/review.sh $(RANGE)
 
 doctor:
 	$(VENV)/bin/python agent.py --doctor

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 try:
-    from dotenv import load_dotenv  # type: ignore[import-not-found, import-untyped]
+    from dotenv import load_dotenv
 except ImportError:  # pragma: no cover - setup-time convenience
     load_dotenv = None  # type: ignore[assignment]
 

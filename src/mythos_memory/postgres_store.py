@@ -28,7 +28,7 @@ from mythos_core.models import Actor, from_json_dict, to_json_dict
 from .store import MythOSStore, StoreError
 
 try:
-    from dotenv import load_dotenv  # type: ignore[import-untyped, import-not-found]
+    from dotenv import load_dotenv
 except ImportError:
     load_dotenv = None  # type: ignore[assignment]
 

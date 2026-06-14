@@ -55,7 +55,7 @@
 - `[x]` `[auto:claude]` item.kind enum closure: 모든 `combat.items[].kind`가 게임 인식 집합 {`consumable`,`equipment`,`key`,`data`,`material`}에 속함(미래 오타 가드). 완료 기준: `test_content_integrity.py`에 테스트 추가, 미지 kind 0 green 또는 Blocker. (`ItemKindEnumIntegrityTest` 1건 green, 2026-06-15)
 - `[x]` `[auto:claude]` story_bible 메타 무결성: `story_bible/bible.json` entry `id` 유일 + `priority`/`token_budget` 양수 + `kind` 비어있지 않음. 완료 기준: 신규/기존 테스트에 추가, 중복 id·비양수 0 green 또는 Blocker. (`StoryBibleMetaIntegrityTest` 3건 green, 2026-06-15)
 - `[x]` `[auto:claude]` FastAPI on_event 현대화(codemod): `src/mythos_api/app.py`의 `@app.on_event("shutdown")`를 `lifespan` async context manager로 이전(동작 불변). deprecation 사용 0, `make check` green. (2026-06-15)
-- `[ ]` `[auto:claude]` dotenv `type:ignore` 중앙화(codemod): dotenv import-not-found `# type: ignore`들을 `pyproject.toml` `[tool.mypy]` 모듈 설정으로 이전. 완료 기준: 해당 inline ignore 제거, `mypy src tests` 0 errors green.
+- `[x]` `[auto:claude]` dotenv `type:ignore` 중앙화(codemod): import-line `# type: ignore[import-untyped, import-not-found]` 5건 제거. 중앙 모듈 설정은 이미 전역 `[tool.mypy] ignore_missing_imports = true`가 담당(인라인은 잉여였음) → 새 override 없이 잉여만 정리. `mypy src tests` 0 errors green. (2026-06-15)
 - `[ ]` `[auto:claude]` npc_agenda 주체 무결성: 모든 `npc_agendas` 키가 `characters[].name`에 실재. 완료 기준: `test_content_integrity.py`에 테스트 추가, green 또는 Blocker(현재 `최적화 명단 대상자` 미스매치 예상 → Blocker면 사람 triage).
 - `[ ]` `[auto:codex]` 문서 압축: NEXT_PLAN 완료 QA seed(`[x]`)·P0~P2 체크리스트 상세를 `COMPLETED_SUMMARY.md`로 압축하고 NEXT_PLAN 라인 예산 복원. 완료 기준: NEXT_PLAN 라인 수 감소 + 깨진 링크 0 + `make check` green.
 

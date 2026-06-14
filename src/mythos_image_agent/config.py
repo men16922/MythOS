@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 try:
-    from dotenv import load_dotenv  # type: ignore[import-untyped, import-not-found]
+    from dotenv import load_dotenv
 except ImportError:  # Allows `python agent.py --help` before setup.
     load_dotenv = None  # type: ignore[assignment]
 

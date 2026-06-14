@@ -5,6 +5,13 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-15 — dotenv import `type:ignore` 중앙화 ([auto:claude], codemod)
+- Status: overnight `[auto:claude]` codemod. inline import ignore 제거, green.
+- Changed: 5개 모듈(`mythos_memory/postgres_store.py`·`mythos_runtime/settings.py`·`mythos_image_agent/{config,generator,img2img}.py`)의 `from dotenv import load_dotenv  # type: ignore[import-untyped, import-not-found]` 인라인 ignore를 전부 제거. dotenv missing-stub 처리의 중앙 설정은 이미 `pyproject.toml [tool.mypy] ignore_missing_imports = true`(전역)가 담당하고 있어 인라인 ignore는 순수 잉여였음 → 그 잉여만 정리(새 override 추가 안 함 — 전역이 곧 모듈 설정). `except ImportError` 분기의 `load_dotenv = None  # type: ignore[assignment]`는 별도 에러 클래스(import-not-found 아님)라 스코프 외로 보존. `grep -rn 'dotenv.*type: *ignore' src tests` 결과 import-line 0건 잔존.
+- Verified: `make check` green — ruff/eslint/mypy(113 files, no issues)/frontend build + 345 tests OK(skipped 2). mypy가 잉여 ignore 제거 후에도 0 errors라 인라인이 전역 설정에 의해 이미 덮여 있었음을 확증.
+- Blockers: 없음.
+- Next: 잔여 QA seed — npc_agenda 주체 무결성(`[auto:claude]`, Blocker 예상 → 사람 triage). 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-15 — FastAPI on_event → lifespan 현대화 ([auto:claude], codemod)
 - Status: overnight `[auto:claude]` codemod. deprecation 사용 0, green.
 - Changed: `src/mythos_api/app.py`의 `@app.on_event("shutdown")` 훅을 모듈 레벨 `_lifespan` async context manager(`@asynccontextmanager`)로 이전하고 `FastAPI(..., lifespan=_lifespan)`에 배선. yield 이후(shutdown)에 기존과 동일하게 `PostgresMythOSStore.close_pool()` 호출 — 동작 불변, startup은 무작업(풀은 첫 store 접근 시 lazy 생성). `on_event`는 Starlette/FastAPI에서 deprecated → lifespan이 권장 경로. `grep -rn on_event src tests` 결과 0건 잔존.

@@ -5,6 +5,13 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-15 — FastAPI on_event → lifespan 현대화 ([auto:claude], codemod)
+- Status: overnight `[auto:claude]` codemod. deprecation 사용 0, green.
+- Changed: `src/mythos_api/app.py`의 `@app.on_event("shutdown")` 훅을 모듈 레벨 `_lifespan` async context manager(`@asynccontextmanager`)로 이전하고 `FastAPI(..., lifespan=_lifespan)`에 배선. yield 이후(shutdown)에 기존과 동일하게 `PostgresMythOSStore.close_pool()` 호출 — 동작 불변, startup은 무작업(풀은 첫 store 접근 시 lazy 생성). `on_event`는 Starlette/FastAPI에서 deprecated → lifespan이 권장 경로. `grep -rn on_event src tests` 결과 0건 잔존.
+- Verified: `make check` EXIT=0 — ruff/eslint/mypy(113 files)/frontend build + 345 tests OK(skipped 2).
+- Blockers: 없음.
+- Next: 잔여 QA seed — dotenv type:ignore 중앙화·npc_agenda 주체 무결성(`[auto:claude]`). 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-15 — story_bible 메타 무결성 invariant ([auto:claude], QA seed)
 - Status: overnight QA seed `[auto:claude]` story_bible 메타 무결성 박제. green.
 - Changed: `tests/test_content_integrity.py`에 `StoryBibleMetaIntegrityTest` 3건 추가 — `resources/*/story_bible/bible.json`(glob 자동 발견, 현재 neo-seoul·glass-library 2종)의 모든 entry에 대해 ① `id` 유일(중복=id-키 조회서 한쪽 섀도잉→스니펫 누락), ② `kind` 비어있지 않음(빈/누락=태깅/노트 디스크리미네이터 손실), ③ `priority`/`token_budget` 양수 수치(비양수=`select_story_bible_entries`서 정렬 최하위/패킹 기여 0 → 사실상 주입 불가)를 검증. 로더(`story_bible.py`)가 누락 필드를 기본값(priority 0/token_budget 600/kind "note")으로 관대 코어스 → 저작 슬립이 런타임서 침묵 → raw JSON 직접 가드. bool은 int 서브클래스라 명시 제외.

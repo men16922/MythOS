@@ -13,7 +13,8 @@ request bodies instead of being inferred from an auth context.
 from __future__ import annotations
 
 import asyncio
-from collections.abc import Iterator
+from collections.abc import AsyncIterator, Iterator
+from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 
@@ -298,14 +299,19 @@ async def _run_stream(
 # --- App factory ------------------------------------------------------------
 
 
+@asynccontextmanager
+async def _lifespan(app: FastAPI) -> AsyncIterator[None]:
+    """Release the shared Postgres pool on shutdown (replaces the deprecated
+    ``@app.on_event("shutdown")`` hook). Startup needs no work; the pool is
+    created lazily on first store access."""
+    yield
+    from mythos_memory.postgres_store import PostgresMythOSStore
+
+    PostgresMythOSStore.close_pool()
+
+
 def create_app() -> FastAPI:
-    app = FastAPI(title="Project MythOS API", version="0.1.0")
-
-    @app.on_event("shutdown")
-    def shutdown_event():
-        from mythos_memory.postgres_store import PostgresMythOSStore
-
-        PostgresMythOSStore.close_pool()
+    app = FastAPI(title="Project MythOS API", version="0.1.0", lifespan=_lifespan)
 
     @app.get("/api/v1/health")
     def health() -> dict[str, str]:

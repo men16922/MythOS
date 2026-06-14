@@ -127,7 +127,7 @@ P1 작전 지도 route-node화 + 세션 메모리(→ COMPLETED_SUMMARY M39), Ta
 - `[ ]` `[manual]` **미커밋 배치 단계 커밋(2026-06-14)**: 이원화 서사 오케스트레이션·SPA 재구성(`CharacterTabPanel`/`ProgressDashboard`/`SkillTreePanel`/`runHistory.ts`)·API 확장·콘텐츠 확장·docs/테스트 변경 50여 파일이 미커밋(이미지만 `0a8a4af`). 주제별로 리뷰 후 분리 커밋. (실제 기능 변경 묶음 — 주제별 사람 판단 필요. overnight 루프 실행 전에 손으로 트리를 비워야 함: dirty tree가 잔여물 복구를 오발.)
 - `[ ]` `[manual]` 장기 플레이에서 Flux1 + Flux1Redux 동시 적재 메모리 모니터.
 - `[ ]` `[blocked]` `_map` 제거 정리(route-node 트랙 완료 후 보류; engine 매 장면 기록 + encounter_map 좌표·story_bible 위치·glass-library 폴백 미니맵 의존). 선행 조건: 전 시나리오 route_map 전환. 충족 시 `[auto]`(codemod + `make check` green)로 승격.
-- `[ ]` `[auto]` 필요 시 stale dated plan status header 정리. 완료 기준: `docs/plans/*.md` status 헤더가 STATUS/NEXT_PLAN 권위와 일치, `make check-auto` 영향 없음(docs-only).
+- `[x]` `[auto]` stale dated plan status header 정리 완료(2026-06-14): playability-upgrade("구현 보류"→대부분 완료), live-feedback-action-plan(즉시 패치→A-G 대부분 반영), dual-model(26B/64GB 가정→8B 전환 명시) 헤더를 STATUS/NEXT_PLAN 권위에 정합. docs-only.
 - `[x]` `[auto]` **mypy 선행 부채 정리 완료(2026-06-14)**: `mypy src tests` 0 errors/109 files(이전 ~129). src(config/visual_queue/prompts/route_map/route_runtime/session/director) + tests(route_* assert 헬퍼·dict[str,Any] 주석, playwright snapshot/list 주석·request 핸들러 def화), 전부 동작 불변. **`make check` green → overnight 게이트를 `make check-auto`에서 `make check`로 승격**(run.sh `GATE_CMD`). `make check-auto`는 더 빠른 변형으로 잔존.
 - `[ ]` `[manual]` 프론트엔드 god-component 분해(App.tsx·CombatCinema): custom hook/모듈 추출. E2E 민감하므로 live QA 동반 점진 진행.
 - `[ ]` `[auto]` `bin/` 보관소 검토·목록화(읽기 전용): 불필요 후보를 목록으로 보고. 완료 기준: 후보 목록을 PROGRESS_LOG/Blocker로 남김, 파일 삭제 없음(삭제 승인은 별도 `[manual]` — CORE_MANDATES §5).

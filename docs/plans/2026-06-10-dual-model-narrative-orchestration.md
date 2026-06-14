@@ -1,6 +1,9 @@
 # Plan: Dual-Model Narrative Orchestration (이원화 서사 오케스트레이션)
 
 최종 갱신: 2026-06-10
+상태(2026-06-14): 구현·배선 완료(스토리 `OLLAMA_MODEL_STORY`=`gemma4:latest` 8B → 파서
+`OLLAMA_MODEL_PARSER`=`qwen2.5:3b-instruct`). ⚠️ 본문은 26B/64GB 가정으로 작성됐으나, 실측 RAM
+48GB 제약으로 스토리 모델을 26B→8B로 전환함(`docs/DECISIONS.md` 2026-06-11). 권위: `docs/STATUS.md`.
 
 ## 1. 개요 및 목적
 

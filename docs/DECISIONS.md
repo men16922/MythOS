@@ -2,6 +2,22 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-06-14 — Engineering 문서 바이블↔해석 구조 + Resume Pointer 연속성
+
+Decision: ① 에이전트 운영 하네스 지식을 `docs/engineering/` 5개 개념으로 정의하되 **바이블↔해석 2층**으로 나눈다 —
+범용 바이블(`{HARNESS,LOOP,AGENTIC,CONTEXT,PROMPT}_ENGINEERING.md`, repo 무관·portable) + `mythos/` 해석(이 repo 매핑).
+옛 `docs/{LOOP_ENGINEERING,MULTI_AGENT}.md`→`mythos/{LOOP,AGENTIC}.md` 이동. ② 사용자 리서치(`HARNESS_RESEARCH`·`AI_REARCH`)는
+**개념만 흡수**(원시는 `bin/docs/archive/`). ③ **Resume Pointer 컨벤션**: 세션 plan-only/미완 시 `AGENT_BRIEF` 최상단
+`▶ NEXT SESSION` 한 줄(in-repo 플랜 경로 + 첫 행동) + 권위 active focus 3진입문서 일치. 플랜은 repo 안에만(`~/.claude/plans/*` 금지).
+④ overnight 구조화 로깅 `logs/status.tsv` + `make overnight-dashboard`(tmux).
+
+Reason: 지식이 79개 md 에 흩어져 HARNESS/LOOP/AGENTIC/CONTEXT/PROMPT 개념이 미정의였고, 진입점 3종이 발산했다.
+바이블↔해석은 개념을 다른 프로젝트로 가져가게(portable) 하면서 repo 매핑을 분리한다. Resume Pointer 는 지난 plan-only
+세션이 `/sync` 로 안 이어진 회귀(서두 노트 + 스크래치 경로 → 권위 focus 아님)를 구조적으로 막는다.
+
+Impact: 운영 권위는 `docs/engineering/mythos/*`(루프=`mythos/LOOP.md`, 멀티에이전트=`mythos/AGENTIC.md`), 개념은 바이블.
+연속성 규칙은 `DOCS_POLICY.md` "Dated Plans" + sync/checkpoint SKILL 에 명문화. 새 룰엔 제거 조건을 단다(Progressive Deletability).
+
 ## 2026-06-14 — skills git 추적 전환 + 3엔진 병렬 Model B
 
 Decision: ① 에이전트 skills(sync/checkpoint/tidy-docs/overnight-report)를 **git 추적**으로 전환 —
@@ -14,7 +30,7 @@ skills 를 삭제(데이터 손실 → 트랜스크립트 복구). 추적하면 
 `.venv`/`node_modules` symlink 는 editable false-green/EPERM 으로 게이트를 깨므로 per-worktree env 가 정답.
 
 Impact: **skills 재-ignore 금지**(메모리 `skills-are-git-tracked`). worktree 는 skills symlink 안 함
-(`worktrees.sh` LINK_DIRS=""). 운영/검증 권위 `docs/MULTI_AGENT.md`, 블루프린트 `docs/research/AI_TEAM_BLUEPRINT.md`.
+(`worktrees.sh` LINK_DIRS=""). 운영/검증 권위 `docs/engineering/mythos/AGENTIC.md`, 블루프린트 `docs/research/AI_TEAM_BLUEPRINT.md`.
 
 ## 2026-06-11
 
@@ -173,7 +189,7 @@ Decision: 타 repo의 overnight LOOP 엔지니어링을 MythOS에 이식한다 �
 
 Reason: 게임이라 백로그 대부분이 무인 검증 불가(플레이 feel)지만 콘텐츠/밸런스 무결성·타입·hygiene 같은 결정론적 슬라이스는 헤드리스로 안전하게 수행 가능하다. 게이트를 `make check`로 올리기 위해 `mypy src tests` 부채를 0화(0/109)했다.
 
-Impact: 러너는 `[auto]` 태그만 소비하고 회차마다 게이트 통과 시 로컬 커밋한다. `--once` 실검증으로 헤드리스 체인·잔여물 복구를 실증(REPO_ROOT 폴백 버그 발견→자동 `[recovered]` 복구). 설계/운영은 `docs/LOOP_ENGINEERING.md`, 완료 요약은 COMPLETED_SUMMARY M42.
+Impact: 러너는 `[auto]` 태그만 소비하고 회차마다 게이트 통과 시 로컬 커밋한다. `--once` 실검증으로 헤드리스 체인·잔여물 복구를 실증(REPO_ROOT 폴백 버그 발견→자동 `[recovered]` 복구). 설계/운영은 `docs/engineering/mythos/LOOP.md`, 완료 요약은 COMPLETED_SUMMARY M42.
 
 ## 2026-05 이전
 

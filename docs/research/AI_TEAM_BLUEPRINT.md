@@ -1,7 +1,7 @@
 # AI Native Engineering Team — 블루프린트 & MythOS 적용 범위
 최종 갱신: 2026-06-14
 
-> 출처: `docs/research/AI_REARCH.md`(ChatGPT 5.5 제안)에 대한 정제·피드백.
+> 출처: `bin/docs/archive/AI_REARCH.md`(ChatGPT 5.5 제안)에 대한 정제·피드백.
 > 이 문서는 **일반 블루프린트**(범용 AI 엔지니어링 팀)와 **MythOS 가 실제 채택한 범위**를 분리한다.
 > 멀티클라우드/K8s/DevOps 레이어는 **MythOS 가 아니라 사용자의 별도 DevOps-Agent 목표**에 속한다.
 
@@ -22,7 +22,7 @@
 | Content(세계관/NPC/스토리) | Local Gemma/Qwen | 런타임 서사(이원화 dual-model) + codex 콘텐츠 레인 | `mythos_narrative/`, `[auto:codex]` |
 
 → 즉 블루프린트의 **멀티모델·멀티에이전트·생성자≠리뷰어·MCP Tool Layer** 골격은 MythOS 가 실제 구현했다
-(`docs/MULTI_AGENT.md` 가 운영 권위).
+(`docs/engineering/mythos/AGENTIC.md` 가 운영 권위).
 
 ## 3. MythOS 범위 밖 (별도 DevOps-Agent 프로젝트)
 아래는 블루프린트엔 있으나 **MythOS(로컬 단일플레이 내러티브 게임)와 무관** — 배포/인프라가 없다.
@@ -40,4 +40,4 @@
 - "모델 교체 자유"는 MCP/도구 계층에서만 참이다. 프롬프트/게이트/레인 규약은 여전히 프로젝트가 소유한다.
 
 ## 5. 관련 문서
-- 운영 권위: `docs/MULTI_AGENT.md` · 루프: `docs/LOOP_ENGINEERING.md` · 원제안: `docs/research/AI_REARCH.md`
+- 운영 권위: `docs/engineering/mythos/AGENTIC.md` · 루프: `docs/engineering/mythos/LOOP.md` · 원제안: `bin/docs/archive/AI_REARCH.md`

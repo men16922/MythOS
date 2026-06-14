@@ -4,6 +4,8 @@
 
 이 파일은 작업 시작용 압축 문맥이다. 상세는 링크된 문서를 필요한 순간에만 연다.
 
+> ▶ NEXT SESSION: 엔지니어링 정비 트랙 WS0-3 완료(`docs/engineering/` 바이블↔해석). 다음은 **Neo-Seoul 사람 플레이 QA**([manual], `docs/test/neo_seoul_live_qa.md`) + 잔여 [auto] QA seed(NEXT_PLAN). WS4 콘텐츠 파이프라인은 plan-only.
+
 ## Snapshot
 
 Project MythOS는 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG/CRPG다. AI GM(Ollama)이 장면을 진행하고, 전술 전투는 별도 deterministic combat engine이 판정한다.
@@ -29,9 +31,10 @@ Project MythOS는 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG
 
 다음 우선순위는 `docs/NEXT_PLAN.md`가 권위다.
 
-1. **Neo-Seoul 플레이 만족도 개선(최우선)**: `neo-seoul`을 30-60분 만족 플레이 주력 시나리오로 만든다. Phase 1-3, route-node화, Tactical Board(범례/인스펙터/학습 목표/줌/지형 배지), 조우 난이도 튜닝, 소프트 패배, 진행도 대시보드, Codex 강화 피드백, objective/choice-result UX, live LLM 장기 세션 기술 QA + F1 반복 완화 + F 스트리밍 속도 최적화(8B 전환) 완료. 다음은 실제 풀스택 사람 플레이 QA(`docs/test/neo_seoul_live_qa.md`)로 B/C 체감, D 반복, F 속도, route gate 바이어스 잔여를 확인. 권위 계획 `docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`.
-2. 완료 트랙(후속은 Neo-Seoul 트랙에서 다룸): 전투 연출 개편, 진행도 해금, 파티 직접 조작, 데이터 주도 grant, route-node — `docs/COMPLETED_SUMMARY.md` M35-M39.
-3. `glass-library` 확장: hold(패리티 + Story Bible 17 entries 완료, 추가 확장은 Neo-Seoul 완성 이후).
+1. **Neo-Seoul 플레이 만족도 개선(현재 최우선)**: `neo-seoul`을 30-60분 만족 플레이 주력 시나리오로 만든다. Phase 1-3, route-node화, Tactical Board, 조우 난이도 튜닝, 진행도 대시보드, objective/choice-result UX, live LLM 기술 QA + 반복 완화 + 8B 전환 완료. 잔여는 실제 풀스택 **사람 플레이 QA**(`docs/test/neo_seoul_live_qa.md`, 사용자 직접) — B/C 체감, D 반복, F 속도, route gate 바이어스. 권위 계획 `docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`.
+2. **엔지니어링 정비 트랙(WS0-3 완료)**: agent 운영 하네스를 `docs/engineering/` 바이블(범용)↔`mythos/` 해석(repo) 으로 정의 + 진입점 슬림화 + 구조화 로깅/tmux 대시보드 + Resume Pointer 연속성. `HARNESS_RESEARCH` 개념 흡수. WS4(콘텐츠 파이프라인)만 plan-only 잔존(`docs/plans/2026-06-14-engineering-plan.md`).
+3. 완료 트랙(후속은 Neo-Seoul 트랙에서 다룸): 전투 연출 개편, 진행도 해금, 파티 직접 조작, 데이터 주도 grant, route-node — `docs/COMPLETED_SUMMARY.md` M35-M39.
+4. `glass-library` 확장: hold(패리티 + Story Bible 17 entries 완료, 추가 확장은 Neo-Seoul 완성 이후).
 
 ## Read Order
 

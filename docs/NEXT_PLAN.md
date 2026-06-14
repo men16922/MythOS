@@ -6,9 +6,11 @@
 `docs/COMPLETED_SUMMARY.md`, 상세 로그는 `bin/docs/archive/progress-2026-06.md`, 개별 설계는
 `docs/plans/`를 본다.
 
-## 다음 세션 예약 — 엔지니어링 문서 + 모니터링 (플랜 저장됨)
+## 엔지니어링 정비 트랙 — WS0-3 완료 (active focus 는 P1 Neo-Seoul 로 복귀)
 
-플랜 파일: `~/.claude/plans/file-users-men1692-claude-usage-data-re-giggly-music.md`. WS1 `docs/engineering/` 5개 정의(HARNESS/LOOP/AGENTIC/CONTEXT/PROMPT — LOOP·MULTI_AGENT 이동) → WS2 md 재편(AI_REARCH 아카이브·CLAUDE/AGENTS/GEMINI 진입점 슬림화·README/DOCS_POLICY) → WS3 구조화 로깅 + `make overnight-dashboard`(tmux+집계트리) → WS4(계획만) agy→codex 콘텐츠 이미지 파이프라인. 결정: engineering/ 디렉터리 + tmux 대시보드.
+`[x]` WS0 연속성(Resume Pointer)·WS1/2 바이블↔해석(`docs/engineering/` + `mythos/`)·진입점 슬림화·WS3 로깅(`status.tsv`)
++tmux 대시보드 완료. 권위 플랜 `docs/plans/2026-06-14-engineering-plan.md`. 결정은 `DECISIONS.md`(engineering/ 디렉터리·바이블↔해석·연구 개념만 흡수).
+- `[ ]` **WS4(plan-only)**: agy 이미지 초안 → codex 적합도 검토 → NEXT_PLAN 콘텐츠 항목 추가 → codex 최종 이미지 생성 파이프라인. 구현은 다음 기회.
 
 ## Rules
 
@@ -20,7 +22,7 @@
 ### 자동화 태그 (overnight 루프용)
 
 상태 박스(`[x]`/`[/]`/`[ ]`/`[~]`)와 **별개 축**으로, 무인 overnight 루프(`bin/overnight/`,
-`docs/LOOP_ENGINEERING.md`)가 소비할 수 있는지를 inline 태그로 표시한다.
+`docs/engineering/mythos/LOOP.md`)가 소비할 수 있는지를 inline 태그로 표시한다.
 
 - `[auto]` — 로컬·결정론·offline(`make check` 또는 `make smoke-local`)으로 검증 가능한 항목에만.
   **반드시 완료 기준 1줄**을 붙인다(scope 폭주 방지).
@@ -28,7 +30,7 @@
 - `[blocked]` — 같은 항목 Blocker 2회 누적(러너가 자동으로 덧붙임). 사람 검수 후 제거. 선행 조건 미충족도 포함.
 - **무태그 = 무인 대상 아님**(안전 기본값). 러너는 `[auto*]`만 소비하고, 무태그를 임의로 승격하지 않는다.
 
-**엔진 레인 (3엔진 병렬 — 충돌 방지, 설계: `docs/MULTI_AGENT.md`):** `[auto]` 에 엔진 접미사를 붙여
+**엔진 레인 (3엔진 병렬 — 충돌 방지, 설계: `docs/engineering/mythos/AGENTIC.md`):** `[auto]` 에 엔진 접미사를 붙여
 어느 엔진이 소비할지 지정한다. 각 엔진은 **자기 레인만** 소비 → 같은 항목을 둘이 집지 않는다.
 - `[auto]` / `[auto:claude]` — claude 레인(src/tests/하네스/복잡 리팩터·invariant). claude 가 둘 다 소비.
 - `[auto:codex]` — codex 레인(결정론 docs/scenario/story_bible 리팩터·검증; make check 게이트).
@@ -47,7 +49,7 @@
 
 ## Priority 1 — Neo-Seoul Playability Upgrade
 
-상태: `[/]` 진행 중(최우선 트랙).
+상태: `[/]` 진행 중(현재 최우선 트랙. 잔여는 주로 `[manual]` 사람 플레이 QA + 일부 `[auto]` QA seed).
 
 목표: `neo-seoul`을 기술 데모가 아니라 일반 유저가 30-60분 동안 만족스럽게 플레이할 수 있는 주력
 시나리오로 끌어올린다. 게임성, 스토리 몰입, 선택 결과, 전투 페이스, 진행도 보상을 한 번의 플레이 경험

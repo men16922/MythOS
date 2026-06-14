@@ -36,6 +36,14 @@ description: 현재 세션의 작업 결과를 Project MythOS 문서 체계(PROG
 5. **NEXT_PLAN.md 갱신** — 완료한 task는 제거/체크하고, 다음 작업 방향이 바뀌었으면 반영.
    NEXT_PLAN은 "열린 작업"만 담는다(완료 이력 아님).
 
+   **★ plan-only / 미완 종료 시 (연속성 필수):** 다음 세션이 이어받아야 할 작업이 있으면
+   `AGENT_BRIEF.md` 최상단의 `▶ NEXT SESSION:` 한 줄을 갱신한다(= **in-repo 플랜 경로** `docs/plans/*`
+   + 첫 구체 행동). 그래야 다음 `/sync` 가 그 포인터를 가장 먼저 echo 해 작업이 끊기지 않는다.
+   - 플랜 파일은 **repo 안**(`docs/plans/YYYY-MM-DD-<topic>.md`)에 둔다. `~/.claude/plans/*`(plan-mode 스크래치,
+     랜덤명, repo 밖)를 권위 포인터로 NEXT_PLAN/AGENT_BRIEF 에 적지 않는다 — 다음 세션이 못 찾는다.
+   - "다음 세션 작업"은 서두 노트가 아니라 **권위 active focus**(AGENT_BRIEF Active Work #1 + STATUS Active Focus
+     + NEXT_PLAN 우선순위)로 올려 세 진입문서를 일치시킨다.
+
 6. **조건부 갱신:**
    - milestone 완료 → `COMPLETED_SUMMARY.md`에 목적·산출물·검증을 짧게 요약.
    - 되돌리기 어려운 선택(provider/infra/데이터 모델/문서 정책/public workflow) →

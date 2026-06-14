@@ -16,7 +16,7 @@
 #   - node_modules symlink → tsc/vite 가 공유 `node_modules/.tmp` 에 쓰며 **EPERM** 으로 frontend-build 실패.
 #   따라서 **코드 레인(claude/codex)의 per-회차 게이트를 worktree 에서 돌리려면 worktree 마다 자체 환경이 필요**
 #   하다: `make overnight-worktrees-setup`(아래, 네트워크 필요·1회). 이미지/문서 레인은 자체 환경 없이도 가능.
-#   대안: 코드 레인은 메인 체크아웃에서 순차(레인 태그+동시작성자 STOP)로 돌린다(docs/MULTI_AGENT.md 권장 모델).
+#   대안: 코드 레인은 메인 체크아웃에서 순차(레인 태그+동시작성자 STOP)로 돌린다(docs/engineering/mythos/AGENTIC.md 권장 모델).
 #
 # 사용:
 #   bin/overnight/worktrees.sh up       # 생성/갱신(+.claude/.agents symlink)

@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-이 문서는 Claude Code 에이전트를 위한 가이드다. 모든 설계의 근간은 `harness/CORE_MANDATES.md`를, 현재 작업의 상세 맥락은 `harness/CONTEXT_BRIDGE.md`를 최우선으로 참조하라.
+이 문서는 Claude Code 에이전트를 위한 가이드다. 모든 설계의 근간은 `harness/CORE_MANDATES.md`를, 현재 작업의 상세 맥락은 `harness/CONTEXT_BRIDGE.md`를 최우선으로 참조하라. 에이전트 운영 하네스(루프/멀티에이전트/컨텍스트/프롬프트)는 `docs/engineering/README.md`(범용 바이블) + `docs/engineering/mythos/`(이 repo 해석)를 본다.
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 

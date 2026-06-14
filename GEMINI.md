@@ -1,76 +1,28 @@
-# MythOS Local Runtime: Project Instructions
+# MythOS Local Runtime — Gemini Agent Instructions
 
-이 문서는 Gemini CLI 에이전트를 위한 기초 명령 및 지침이다. 모든 설계의 근간은 `harness/CORE_MANDATES.md`를, 현재 작업의 상세 맥락은 `harness/CONTEXT_BRIDGE.md`를 최우선으로 참조한다.
+이 문서는 Gemini CLI 에이전트용 **얇은 진입점**이다. 상세는 복붙하지 않고 정본을 링크한다(진입점 발산 방지 —
+`docs/engineering/CONTEXT_ENGINEERING.md` §5). 정본 가이드는 `CLAUDE.md`, 설계 불변은 `harness/CORE_MANDATES.md`,
+현재 작업 맥락은 `harness/CONTEXT_BRIDGE.md`.
 
-## Project Overview
+## What this is
+MythOS 는 로컬 실행 루프형 내러티브 시뮬레이션 엔진(Python 3.11+). AI GM(Ollama)이 장면을 진행하고,
+이미지(FLUX/MPS)·전술 전투·진행도가 붙는다. 비즈니스 로직은 `RuntimeSessionService` 하나로 공유한다(UI/API/CLI 에 복제 금지).
+아키텍처 상세는 `docs/DESIGN.md`, 모듈 맵은 `AGENTS.md`.
 
-MythOS is an agentic, loop-based narrative simulation engine. Players act as "Connectors" navigating a world that reshapes each loop, while "Echoes" of their past choices persist as narrative residue.
+## 공유 진입 경로 (모든 에이전트 공통)
+1. 설계 불변: `harness/CORE_MANDATES.md` · 핸드오프: `harness/CONTEXT_BRIDGE.md`
+2. 상태 복원(Read Path): `docs/AGENT_BRIEF.md` → `docs/STATUS.md` → `docs/NEXT_PLAN.md` → `docs/PROGRESS_LOG.md`. `docs/` 전체 bulk-read 금지.
+3. 아키텍처 상세: `docs/DESIGN.md` · 게임 규칙: `docs/GAMEPLAY.md` (변경 시에만)
+4. 에이전트 운영 하네스: `docs/engineering/README.md`(범용 바이블) + `docs/engineering/mythos/`(이 repo 해석)
+5. 명령어: `Makefile` 타깃 · docs 인덱스: `docs/README.md`
 
-### Core Architecture
+## Key Commands
+- 셋업/검증: `make setup`, `make doctor`, `make check`(ruff+eslint+mypy+tsc/vite-build+unittest), `make test`.
+- 실행: `make connect-demo`(CLI fallback), `make streamlit`(데모 UI), `make smoke-local`.
+- 인프라(로컬): `make infra-up` / `make db-migrate`. Ollama·FLUX 는 Mac 호스트, Docker 는 인프라용.
+- 무인 이미지 레인(agy): `docs/engineering/mythos/AGENTIC.md` + `bin/overnight/PROMPT.agy.md`.
 
-- **Narrative Engine (`src/mythos_narrative`)**: Uses Ollama (Gemma 4) to generate structured JSON scenes and choices.
-- **Loop Engine (`src/mythos_loop`)**: Manages state transitions (`connect` -> `explore` -> `interact` -> `rewrite` -> `archive`) and narrative consistency.
-- **Myth Protocol Validator**: A critical component that validates LLM-generated output against domain rules before state updates.
-- **Visual Service (`src/mythos_image_agent`)**: Local image generation using FLUX.1-schnell via Diffusers and Apple Silicon MPS.
-- **Memory Service (`src/mythos_memory`)**: Manages player history, world state, and "Echo" extraction using PostgreSQL.
-
-### Technology Stack
-
-- **Language**: Python 3.11+
-- **LLM Provider**: Ollama (local)
-- **Image Generation**: FLUX.1-schnell (MPS acceleration)
-- **Database**: PostgreSQL 16 (Relational & JSONB state)
-- **Object Storage**: MinIO (S3-compatible asset store)
-- **Infrastructure**: Docker Compose for databases and observability.
-- **Observability**: OpenTelemetry + Jaeger.
-- **UI**: FastAPI-served React + TypeScript SPA (recommended play path), with Streamlit (Browser Demo) and CLI as compatibility surfaces.
-
-## Building and Running
-
-### Prerequisites
-- Apple Silicon Mac (for MPS support).
-- Ollama installed and running (default model: `gemma4:latest`).
-- Hugging Face account with access to `black-forest-labs/FLUX.1-schnell`.
-
-### Setup
-1.  **Environment**: `cp .env.example .env` and configure `HF_TOKEN`.
-2.  **Installation**: `make setup` (creates `.venv` and installs editable).
-3.  **Infrastructure**: `make infra-up` to start Docker services.
-4.  **Database**: `make db-migrate` to initialize the PostgreSQL schema.
-
-### Key Commands
-- **Streamlit Demo**: `make streamlit` (runs at `http://localhost:8501`).
-- **CLI Demo**: `make connect-demo`.
-- **System Check**: `make doctor` (verifies hardware and dependencies).
-- **Full Smoke Test**: `make smoke` (runs tests and end-to-end flows).
-- **Unit Tests**: `make test`.
-- **DB Tests**: `make test-db`.
-
-## Development Conventions
-
-### Coding Style
-- **Type Safety**: Strictly use Python type hints and `dataclasses` for domain models.
-- **Naming**: `snake_case` for modules/functions, `PascalCase` for classes, `UPPER_SNAKE_CASE` for constants.
-- **Patterns**: Prefer composition and provider interfaces (e.g., `Store`, `Director`, `VisualProvider`) to allow swapping backend implementations.
-- **State Management**: Orchestrate logic in `RuntimeSessionService` (`src/mythos_runtime/session.py`) rather than duplicating in entry points.
-
-### Testing Guidelines
-- **Location**: All tests reside in `tests/` following the `test_*.py` pattern.
-- **Environment**: Unit tests should be independent of Docker.
-- **Integration**: Database tests are gated behind `MYTHOS_RUN_DB_TESTS=1`.
-- **Validation**: Run `make smoke-local` for logic changes and `make smoke` for persistence/infra changes.
-
-### Observability
-- All major runtime operations (`connect`, `choose`, `generate`) are traced using OpenTelemetry.
-- Logs are emitted as structured JSON via `mythos_runtime.observability`.
-
-## Directory Map
-
-- `src/mythos_core`: Pure domain models and seed logic.
-- `src/mythos_memory`: PostgreSQL store implementations.
-- `src/mythos_narrative`: LLM prompts, parsing, and JSON repair logic.
-- `src/mythos_loop`: The core state machine and protocol validator.
-- `src/mythos_runtime`: Orchestration layer, CLI, and Streamlit app.
-- `src/mythos_image_agent`: Standalone FLUX worker.
-- `docs/`: In-depth design docs, status updates, and gameplay rules.
-- `migrations/`: SQL migration files for the database schema.
+## Conventions
+타입 힌트 + dataclass-first 도메인. `snake_case`/`PascalCase`/`UPPER_SNAKE_CASE`. composition·provider 인터페이스 선호.
+순수 unit 테스트는 Docker 비의존, DB 테스트는 `MYTHOS_RUN_DB_TESTS=1`. 상세 규약은 `harness/CORE_MANDATES.md` §1·§4.
+`.env`/HF 토큰/생성물/`.docker/` 는 커밋 금지.

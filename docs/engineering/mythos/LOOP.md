@@ -1,7 +1,7 @@
-# LOOP_ENGINEERING — Project MythOS
+# MythOS 해석 — LOOP_ENGINEERING (자율 overnight 무인 루프)
 최종 갱신: 2026-06-14
 
-> 이 repo에 적용된 자율 LOOP(overnight 무인 실행) 엔지니어링 설명서.
+> 바이블 [`../LOOP_ENGINEERING.md`](../LOOP_ENGINEERING.md) 의 개념을 **이 repo 의 러너·env·make 타깃에 매핑**한 운영 설명서.
 > "자는 동안 Claude Code 헤드리스가 NEXT_PLAN의 `[auto]` 작업을 스스로 구현·검증·기록·커밋한다."
 > 코드 근거: `bin/overnight/{run.sh,PROMPT.md,overnight-settings.json}`, `.claude/skills/`, `docs/NEXT_PLAN.md`.
 
@@ -49,7 +49,7 @@ NEXT_PLAN에서 `[auto]` **작업 1개**를 구현·게이트 통과시키고 �
   default `--print-timeout` 5m 은 한 회차엔 짧아 30m 로. `</dev/null` 로 stdin freeze 방지.
 
 > **3엔진 병렬**: claude/codex/agy 를 각자 worktree+브랜치(`loop/{claude,codex,agy}`)에서 동시에 돌려 commit
-> 충돌을 구조적으로 없앤다. 레인 태그·도메인 분할·통합 머지는 **`docs/MULTI_AGENT.md`** 가 권위
+> 충돌을 구조적으로 없앤다. 레인 태그·도메인 분할·통합 머지는 **[`AGENTIC.md`](AGENTIC.md)** 가 권위
 > (`bin/overnight/{worktrees.sh,merge-loops.sh}`, `make overnight-worktrees`/`overnight-merge`).
 
 루프 1회 흐름:
@@ -201,6 +201,7 @@ make overnight-clean     # 종료 후 STOP/DONE 제어 파일 정리
 `[auto]` 후보의 정직한 triage는 항상 `docs/NEXT_PLAN.md`의 자동화 태그가 권위다.
 
 ## 7. 관련 문서
+- 바이블(개념): [`../LOOP_ENGINEERING.md`](../LOOP_ENGINEERING.md) · 형제 해석: [`AGENTIC.md`](AGENTIC.md)·[`HARNESS.md`](HARNESS.md)·[`PROMPT.md`](PROMPT.md)
 - 설계 불변: `harness/CORE_MANDATES.md` · 핸드오프: `harness/CONTEXT_BRIDGE.md`
 - 문서 운영(Read Path/Context Budget): `docs/DOCS_POLICY.md` · `docs/README.md`
 - 백로그: `docs/NEXT_PLAN.md` · 이력: `docs/PROGRESS_LOG.md`

@@ -4,7 +4,7 @@ COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
-.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check check-auto overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-clean overnight-codex overnight-codex-watch overnight-codex-once overnight-agy overnight-agy-watch overnight-agy-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review
+.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check check-auto overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-clean overnight-codex overnight-codex-watch overnight-codex-once overnight-agy overnight-agy-watch overnight-agy-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -52,7 +52,7 @@ check-auto:
 	$(MAKE) frontend-build
 	$(MAKE) smoke-local
 
-# --- Overnight 무인 루프 (bin/overnight/, 설계: docs/LOOP_ENGINEERING.md) ---
+# --- Overnight 무인 루프 (bin/overnight/, 설계: docs/engineering/mythos/LOOP.md) ---
 # 자는 동안 헤드리스 claude가 NEXT_PLAN의 [auto] 작업을 구현·검증(make check)·기록·로컬 커밋한다.
 # 가동 전: 워킹트리 clean + [auto] 항목 seeding + (권장) brew install coreutils(회차 타임아웃).
 # 환경변수로 조절: GATE_CMD(기본 make check), MAX_ITER, MAX_NO_PROGRESS, ITER_TIMEOUT 등.
@@ -84,12 +84,14 @@ overnight-stop:
 overnight-logs:
 	@touch bin/overnight/logs/runner.log && tail -f bin/overnight/logs/runner.log
 
-# 빠른 상태(프로세스/STOP/DONE/최근 로그). 풍부한 검수는 claude 세션의 /overnight-report.
+# 상태: 3엔진 lane 집계 트리(status.sh) + 프로세스 확인. 풍부한 검수는 claude 세션의 /overnight-report.
 overnight-status:
-	@pgrep -f "bin/overnight/run.sh" >/dev/null 2>&1 && echo "● 실행 중 (pid $$(pgrep -f 'bin/overnight/run.sh' | tr '\n' ' '))" || echo "○ 미실행"
-	@test -f bin/overnight/STOP && echo "STOP: $$(head -1 bin/overnight/STOP)" || true
-	@test -f bin/overnight/DONE && echo "DONE: $$(head -1 bin/overnight/DONE)" || true
-	@echo "--- runner.log 마지막 6줄 ---"; tail -6 bin/overnight/logs/runner.log 2>/dev/null || echo "(로그 없음)"
+	@bash bin/overnight/status.sh
+	@pgrep -f "bin/overnight/run.sh" >/dev/null 2>&1 && echo "── 프로세스: ● 실행 중 (pid $$(pgrep -f 'bin/overnight/run.sh' | tr '\n' ' '))" || echo "── 프로세스: ○ 미실행"
+
+# tmux 멀티페인 대시보드: 상단 집계 트리(2s) + 하단 lane 별 runner.log tail. tmux 없으면 트리 1회 폴백.
+overnight-dashboard:
+	@bash bin/overnight/dashboard.sh
 
 # 종료 후 제어 파일 정리(STOP/DONE 제거). 다음 가동 전 클린업.
 overnight-clean:
@@ -116,7 +118,7 @@ overnight-agy-watch:
 overnight-agy-once:
 	@ENGINE=agy $(MAKE) overnight-once
 
-# --- 3엔진 병렬: worktree 격리 + 통합 머지 (설계: docs/MULTI_AGENT.md) ---
+# --- 3엔진 병렬: worktree 격리 + 통합 머지 (설계: docs/engineering/mythos/AGENTIC.md) ---
 # 각 엔진을 자기 worktree+브랜치(loop/{claude,codex,agy})에서 돌려 commit 충돌 0.
 overnight-worktrees:        # 생성/갱신(+.claude/.agents symlink)
 	@bin/overnight/worktrees.sh up

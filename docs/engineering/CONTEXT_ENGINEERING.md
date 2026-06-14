@@ -1,0 +1,46 @@
+# CONTEXT_ENGINEERING — 컨텍스트 예산·상태 복원·세션 연속성 (바이블)
+
+> **범용 개념 문서(bible).** 이 repo 적용(read-path·/sync·진입점)은 → [`mythos/CONTEXT.md`](mythos/CONTEXT.md).
+
+## 정의
+에이전트가 **최소 토큰으로 올바른 작업 문맥을 복원**하고, 세션이 끊겨도 다음 세션이 끊김 없이 이어받게
+만드는 엔지니어링. 메모리가 아니라 **디스크가 source of truth**.
+
+## 1. Read Path & Context Budget
+세션 시작은 전체 문서를 bulk-read 하지 않고 **진입점만** 읽는다(짧은→상세 순):
+1. 압축 진입점(1분 문맥) → 2. 현재 상태 → 3. 다음 작업(rolling plan) → 4. 최신 증분 로그.
+- 상세(설계/규칙/시나리오/dated plan/archive)는 **on-demand** — 실제로 그걸 바꿀 때만 연다.
+- 진입점 문서에 **라인 예산**을 둔다(예: 진입점 ≤60, 상태/계획 ≤120). 초과분은 정리/archive 로 분리.
+- 핵심: 진입점은 **모든 내용을 품는 매뉴얼이 아니라 지도**다. 상세는 링크로 이동한다.
+
+## 2. Knowledge Pyramid
+| 층 | 성격 |
+| --- | --- |
+| L0 | 세션 시작 시 무조건 읽는 진입점 |
+| L1 | 필요할 때 바로 참조하는 핵심 문서(설계·규칙·계획) |
+| L2 | 작업별 상세(dated plan·design-doc·구조화 작업 목록) |
+| L3 | 생성/참조/대용량 문서(리뷰·리포트·trace·archive) — 기본 컨텍스트에 넣지 않음 |
+
+## 3. 3중 상태 저장
+| 층 | 매체 | 답하는 질문 |
+| --- | --- | --- |
+| 변경 이력 | git history | 무엇을 바꿨나 |
+| 구조화 상태 | 머신리더블 ledger(작업/이벤트 원장) | 루프가 어떻게 돌았나 |
+| 자연어 상태 | 현재 상태·진행·핸드오프 문서 | 왜·다음 무엇 |
+셋은 보완재다. 어느 하나로 전부 대체하지 않는다.
+
+## 4. 세션 연속성 (Resume Pointer) — plan-only/미완 핸드오프
+세션이 plan-only 또는 미완으로 끝나고 다음 세션이 이어받아야 하면:
+1. **진입점 최상단에 단일 "다음 세션" 포인터** = in-repo 계획 경로 + 첫 구체 행동.
+2. 그 작업을 **권위 active focus** 로 승격 → 진입점·상태·계획 문서를 **일치**시킨다(서두 노트로만 두지 않는다).
+3. 상태 복원 절차가 이 포인터를 **가장 먼저** 표면화 → 다음 세션이 끊김 없이 이어받는다. 이어받으면 갱신/비움.
+- **금지**: 툴이 만드는 세션 밖 스크래치 경로(랜덤명·머신 로컬)를 권위 포인터로 적지 않는다 — 다음 세션이 못 찾는다.
+
+## 5. 진입점 발산 방지
+여러 에이전트 진입점(도구별 instruction 파일)은 **공통 본문 1곳 + 나머지는 링크**로 둔다. 같은 내용을
+복붙하면 곧 서로 어긋난다(divergence). 진입점은 얇은 래퍼로 통일하고 상세는 한 곳에서 소유한다.
+
+## 6. 형제 개념 (바이블)
+- 상위 하네스: [`HARNESS_ENGINEERING.md`](HARNESS_ENGINEERING.md) · 루프: [`LOOP_ENGINEERING.md`](LOOP_ENGINEERING.md)
+- 멀티에이전트: [`AGENTIC_ENGINEERING.md`](AGENTIC_ENGINEERING.md) · 프롬프트: [`PROMPT_ENGINEERING.md`](PROMPT_ENGINEERING.md)
+- 이 repo 적용: [`mythos/CONTEXT.md`](mythos/CONTEXT.md)

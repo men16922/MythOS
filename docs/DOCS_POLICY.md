@@ -1,6 +1,6 @@
 # Documentation Policy
 
-최종 갱신: 2026-06-06
+최종 갱신: 2026-06-14
 
 이 문서는 Project MythOS 문서를 계속 업데이트하기 위한 운영 규칙이다. 목표는 현재 상태를 빠르게 파악하면서도, 날짜별 계획과 완료 이력을 잃지 않는 것이다. 토큰 사용을 줄이기 위해 에이전트용 압축 진입점을 별도로 유지한다.
 
@@ -66,6 +66,12 @@
 - `NEXT_PLAN.md`는 최신 rolling plan으로 유지한다.
 - 완료된 dated plan은 파일을 지우지 않고 완료 여부를 체크하거나 `COMPLETED_SUMMARY.md`에 요약한다.
 - 계획이 크게 바뀌면 기존 dated plan을 덮어쓰기보다 새 dated plan을 만든다.
+- **플랜은 repo 안(`docs/plans/`)에만 둔다.** plan-mode 가 만드는 `~/.claude/plans/*`(랜덤명·머신 로컬·repo 밖)
+  스크래치 파일을 권위 포인터로 `NEXT_PLAN.md`/`AGENT_BRIEF.md` 에 적지 않는다 — 다음 세션·다른 에이전트가 못 찾는다.
+  필요하면 그 내용을 `docs/plans/YYYY-MM-DD-<topic>.md` 로 복사한 뒤 그 경로를 가리킨다.
+- **세션 연속성(Resume Pointer):** 세션이 plan-only/미완으로 끝나고 다음 세션이 이어받아야 하면,
+  `AGENT_BRIEF.md` 최상단 `▶ NEXT SESSION:` 한 줄(in-repo 플랜 경로 + 첫 행동)을 갱신하고,
+  그 작업을 권위 active focus(AGENT_BRIEF/STATUS/NEXT_PLAN 일치)로 올린다. `/sync` 가 이 포인터를 최우선 echo 한다.
 
 ## Incremental Progress
 

@@ -5,7 +5,7 @@ description: 무인 overnight 루프의 아침 검수 보고. 러너 상태·회
 
 # /overnight-report — 무인 루프 아침 검수
 
-무인 overnight 루프(`bin/overnight/run.sh`, `docs/LOOP_ENGINEERING.md`)가 밤새 한 일을
+무인 overnight 루프(`bin/overnight/run.sh`, `docs/engineering/mythos/LOOP.md`)가 밤새 한 일을
 **읽고 한 번 재검증**한다. 코드/문서를 고치지 않는다(그건 `/checkpoint` 소관). 추측하지 않는다.
 
 ## 절차

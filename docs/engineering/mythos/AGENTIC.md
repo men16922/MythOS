@@ -1,9 +1,10 @@
-# MULTI_AGENT — 3엔진 병렬 Loop Engineering (Project MythOS)
+# MythOS 해석 — AGENTIC_ENGINEERING (3엔진 병렬 멀티에이전트)
 최종 갱신: 2026-06-14
 
-> claude·codex·agy 세 헤드리스 엔진이 **각자 worktree+브랜치에서 동시에** 무인 루프를 돌고,
+> 바이블 [`../AGENTIC_ENGINEERING.md`](../AGENTIC_ENGINEERING.md) 의 개념을 **이 repo 구현에 매핑**한다.
+> 구현: claude·codex·agy 세 엔진이 **각자 worktree+브랜치에서 동시에** 무인 루프를 돌고,
 > claude 가 오케스트레이션(레인 배정 + 통합 머지)한다. 코드 근거: `bin/overnight/{run.sh,PROMPT*.md,
-> worktrees.sh,merge-loops.sh}`, `docs/LOOP_ENGINEERING.md`, `docs/NEXT_PLAN.md`.
+> worktrees.sh,merge-loops.sh}`, [`LOOP.md`](LOOP.md), `docs/NEXT_PLAN.md`. 원시 리서치 `bin/docs/archive/AI_REARCH.md`.
 
 ## 0. 핵심 원리 — 충돌을 "구조"로 막는다
 동시 작성 충돌은 의지가 아니라 **격리**로 막는다. 세 축이 겹치지 않게 한다:
@@ -88,5 +89,5 @@ make overnight-review             # codex 가 main...loop/integration diff 읽�
 - **도메인 침범 금지**: 각 PROMPT §0/§3 이 소유 도메인 밖 수정을 금지한다. 침범 시 머지 충돌 + STOP 으로 드러난다.
 
 ## 5. 관련 문서
-- 루프 하네스: `docs/LOOP_ENGINEERING.md` · 백로그/레인 태그: `docs/NEXT_PLAN.md`
-- 설계 불변: `harness/CORE_MANDATES.md` · 이미지 표준: `docs/IMAGE_POLICY.md`
+- 바이블(개념): [`../AGENTIC_ENGINEERING.md`](../AGENTIC_ENGINEERING.md) · 형제 해석: [`LOOP.md`](LOOP.md)·[`HARNESS.md`](HARNESS.md)·[`PROMPT.md`](PROMPT.md)
+- 백로그/레인 태그: `docs/NEXT_PLAN.md` · 설계 불변: `harness/CORE_MANDATES.md` · 이미지 표준: `docs/IMAGE_POLICY.md`

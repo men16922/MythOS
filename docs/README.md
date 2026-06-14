@@ -32,6 +32,7 @@
 
 ## On-Demand Docs
 
+- `docs/engineering/`: **에이전트 운영 하네스 5개 개념**(HARNESS/LOOP/AGENTIC/CONTEXT/PROMPT). 무인 루프·멀티에이전트·컨텍스트·프롬프트 작업 시 `docs/engineering/README.md`부터. (`LOOP_ENGINEERING.md`·`AGENTIC_ENGINEERING.md`는 옛 `docs/LOOP_ENGINEERING.md`·`docs/MULTI_AGENT.md`에서 이동.)
 - `docs/test/`: **사람이 직접 수행하는 체크리스트**(에이전트 기본 컨텍스트 아님 — 사용자가 연다).
   - `neo_seoul_live_qa.md`: Neo-Seoul 사람 플레이 QA 체크리스트.
   - `overnight-review-checklist.md`: overnight 루프 종료 후 사람 검수 체크리스트(반복 프로세스).

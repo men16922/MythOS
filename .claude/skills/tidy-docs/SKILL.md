@@ -55,3 +55,4 @@ description: Project MythOS docs를 context budget 규칙대로 정리·통합·
 - 삭제 가능: 같은 내용이 다른 current doc에 요약됨 + 앞으로 직접 업데이트 안 함 + 코드/README 무참조.
 - Current docs에는 "현재 판단에 필요한 압축 상태"만. 상세 이력은 복사하지 않고 archive 링크로.
 - 이 skill은 정리만 한다. 새 작업 내용 기록은 `/checkpoint`, 컨텍스트 복원은 `/sync` 소관.
+- `docs/engineering/`는 on-demand(라인 예산 대상 아님). 정리 시 **바이블↔해석 링크**(`*_ENGINEERING.md`↔`mythos/*.md`)를 깨지 말 것. 문서 운영 개념 권위는 `docs/engineering/CONTEXT_ENGINEERING.md` + `docs/DOCS_POLICY.md`.

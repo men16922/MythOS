@@ -5,6 +5,23 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-14 — Engineering 문서 바이블↔해석 정립 + /sync 연속성 수정 + 로깅/대시보드 + skills 정합
+
+- Status: 엔지니어링 정비 트랙 WS0~WS3 + skills 최적화 완료(WS4 콘텐츠 파이프라인은 plan-only). `HARNESS_RESEARCH` 개념 흡수.
+- Changed:
+  - **WS0 연속성 버그**: 지난 plan-only 세션이 `/sync` 로 안 이어진 근본원인 규명 — 예약 작업을 NEXT_PLAN 서두 노트 +
+    repo 밖 스크래치 경로(`~/.claude/plans/*`)로만 남겨 권위 active focus 가 아니었음. 수정: **Resume Pointer 컨벤션** 신설
+    (`AGENT_BRIEF` 최상단 `▶ NEXT SESSION` + 3진입문서 일치 + in-repo 경로 강제), sync/checkpoint SKILL·DOCS_POLICY 명문화.
+  - **WS1/2 바이블→해석**: `docs/engineering/` 신설 — 범용 바이블 5종(`{HARNESS,LOOP,AGENTIC,CONTEXT,PROMPT}_ENGINEERING.md`,
+    portable) + `mythos/` 해석 5종(이 repo 매핑). `docs/{LOOP_ENGINEERING,MULTI_AGENT}.md`→`mythos/{LOOP,AGENTIC}.md` 이동.
+    원시 리서치(`AI_REARCH`·`HARNESS_RESEARCH`)→`bin/docs/archive/`. 진입점 슬림화(GEMINI 76→28줄, 공유 read-path). 참조 codemod.
+  - **WS3 로깅/대시보드**: `run.sh` 회차 머신리더블 원장(`logs/status.tsv`), `status.sh`(lane 집계 트리),
+    `dashboard.sh`+`make overnight-dashboard`(tmux 멀티페인, watch 없는 macOS 용 shell 루프), `overnight-status` 강화.
+  - **skills 정합**: sync·checkpoint·tidy-docs·overnight-report 갱신(Resume Pointer·바이블↔해석·경로) + 4개 에이전트 dir 미러 동기화.
+- Verified: `make check` EXIT=0(317 tests OK, skipped 2). 깨진 md 링크 0(engineering 트리 + 외부 참조). `status.sh` idle/running 렌더 실측. shell `bash -n` 통과.
+- Blockers: 없음.
+- Next: WS4(agy→codex 콘텐츠 이미지 파이프라인)은 plan-only. 실제 최우선은 Neo-Seoul 사람 QA([manual]) + 잔여 [auto] QA seed.
+
 ## 2026-06-14 — Model B 3엔진 병렬 실증 + 자체 이미지·리뷰어 + skills 사고·복구·git추적
 
 - Status: 3엔진(claude/codex/agy) 병렬 루프를 worktree 격리로 end-to-end 실증 + 후속 하드닝. skills 손실 사고 복구.
@@ -24,7 +41,7 @@
 - Changed:
   - **BGM OFF 버그**: `useAudio.ts` — stale closure(WS onmessage)가 매 턴 음악 재생 → `bgmEnabledRef` 단일 진실원 게이트로 수정.
   - **agy 엔진**: `run.sh` 3엔진 case(`ENGINE=claude|codex|agy`), `PROMPT.agy.md`(이미지 초안 레인, 무샌드박스+가드레일), `make overnight-agy*`. agy --print 헤드리스 실측.
-  - **병렬 격리**: `worktrees.sh`(loop/{claude,codex,agy} worktree + .claude/.agents symlink), 레인 태그(`[auto:claude|codex|agy]`, 각 PROMPT 자기 레인만), `merge-loops.sh`/`make overnight-merge`(통합+게이트, push 안 함), `docs/MULTI_AGENT.md`.
+  - **병렬 격리**: `worktrees.sh`(loop/{claude,codex,agy} worktree + .claude/.agents symlink), 레인 태그(`[auto:claude|codex|agy]`, 각 PROMPT 자기 레인만), `merge-loops.sh`/`make overnight-merge`(통합+게이트, push 안 함), `docs/engineering/mythos/AGENTIC.md`.
   - **이미지 무결성 게이트**: `tests/test_image_assets.py`(유효/비어있지않음/치수/용량 — fabricate 차단, make check 포함, 317 tests).
   - **실패 메일**: `notify.sh`(SMTP→Mail.app), run.sh 가 실패 클래스(연속 실패/all-blocked)에서만 발송.
   - **failover**: claude 한도 시 codex 가 claude 레인 대신 소비(1회 자동 전환).
@@ -47,7 +64,7 @@
   - `bin/overnight/run.sh`: `ENGINE`(claude|codex) 분기 — LOOP 제어 로직 단일 소스 유지, 호출 줄/프롬프트/권한 경계만 분기. claude 경로 불변. codex는 `</dev/null` 필수(stdin freeze 방지).
   - `bin/overnight/PROMPT.codex.md` 신설: claude PROMPT와 동일 절차, 단 Skill 호출 불가 → `.agents/skills/*/SKILL.md` 절차를 읽어 수행.
   - `Makefile`: `overnight-codex`/`-watch`/`-once`(ENGINE=codex 위임). stop/logs/status/clean 공용.
-  - `AGENTS.md`: Codex 자동 로드 대상에 CORE_MANDATES·sync/checkpoint·루프 포인터 추가. `docs/LOOP_ENGINEERING.md` §3.1/§3.6/§4/§6 갱신.
+  - `AGENTS.md`: Codex 자동 로드 대상에 CORE_MANDATES·sync/checkpoint·루프 포인터 추가. `docs/engineering/mythos/LOOP.md` §3.1/§3.6/§4/§6 갱신.
   - 안전 경계: 전역 `~/.codex/config.toml`(danger-full-access/YOLO)을 회차마다 CLI로 덮어씀 — `--sandbox workspace-write` + `network_access=false` + `approval_policy=never`.
 - Verified: **`codex exec`로 직접 실측** — 전역 YOLO에도 회차 내 `curl`이 exit 6(DNS 차단)으로 실패(네트워크 봉쇄 확정). stdin freeze 버그 발견·수정(`</dev/null`), rc=0 성공 경로 확인. `bash -n`·`make -n overnight-codex*` 통과. 최종 상태 `make check` rc=0(skipped 2). 작업 중 **Claude overnight 회차가 이 변경을 "동시 작성자"로 정확히 감지해 대신 커밋하지 않고 graceful STOP** — 동시작성 안전 동작 실증(이번 커밋 후 STOP 제거·재개 가능).
 - Blockers: 워크스페이스 내 로컬 파괴(`rm -rf`/`git reset --hard`)는 샌드박스가 못 막음 → `PROMPT.codex.md §0` 명시 금지로만 차단(회차당 커밋 = 폭발 반경 ≤1회차).

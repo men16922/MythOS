@@ -5,7 +5,7 @@
 # 헤드리스 Claude Code 를 회차 단위로 반복 호출한다. 매 회차는 작은 컨텍스트로
 # 상태를 복원(/sync)하고 → NEXT_PLAN 의 [auto] 작업 1개를 구현·게이트 통과시키고
 # → 기록(/checkpoint)하고 → 로컬 커밋한다. 회차마다 커밋되므로 언제 멈춰도 손실은
-# 최대 1회차다. 설계 설명: docs/LOOP_ENGINEERING.md
+# 최대 1회차다. 설계 설명: docs/engineering/mythos/LOOP.md
 #
 # 사용:
 #   caffeinate -dimsu bin/overnight/run.sh &     # Mac 절전 방지 + 백그라운드
@@ -45,6 +45,7 @@ STOP_FILE="bin/overnight/STOP"
 DONE_FILE="bin/overnight/DONE"
 LOG_DIR="bin/overnight/logs"
 RUNNER_LOG="$LOG_DIR/runner.log"
+STATUS_TSV="$LOG_DIR/status.tsv"   # 머신리더블 회차 원장(status.sh/대시보드 소비): ts engine branch iter outcome head dur
 
 # --- 튜닝 가능한 환경변수 (MythOS 기본값) ---
 : "${MAX_ITER:=20}"             # 총 회차 상한 (폭주 방지 백스톱; 얇은 백로그엔 20이면 충분)
@@ -65,6 +66,16 @@ mkdir -p "$LOG_DIR"
 
 log() {
   printf '%s  %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$1" | tee -a "$RUNNER_LOG"
+}
+
+# 머신리더블 회차 원장(탭 구분, status.sh/대시보드가 소비). human runner.log 와 병행.
+# 컬럼: ts  engine  branch  iter  outcome  head  dur(s)
+emit_status() {
+  local outcome="$1" head="${2:-}" dur="${3:-}" branch
+  branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo '?')"
+  [ -f "$STATUS_TSV" ] || printf 'ts\tengine\tbranch\titer\toutcome\thead\tdur\n' > "$STATUS_TSV"
+  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+    "$(date '+%Y-%m-%dT%H:%M:%S')" "$ENGINE" "$branch" "$iter" "$outcome" "${head:0:9}" "$dur" >> "$STATUS_TSV"
 }
 
 # 실패 클래스 종료에서만 호스트 메일 알림(성공/정상 종료엔 안 부름 — 과다 발송 방지).
@@ -190,7 +201,9 @@ while :; do
 
   HEAD_BEFORE="$(git rev-parse HEAD 2>/dev/null || echo none)"
   ITER_LOG="$LOG_DIR/iter-$iter.log"
+  ITER_START="$(date +%s)"
   log "회차 $iter 시작 (HEAD=${HEAD_BEFORE:0:9})"
+  emit_status "running" "$HEAD_BEFORE" ""
 
   set +e
   case "$ENGINE" in
@@ -230,7 +243,10 @@ while :; do
   set -e
 
   outcome="$(classify_outcome "$rc" "$ITER_LOG" || echo failure)"
+  ITER_DUR=$(( $(date +%s) - ITER_START ))
+  HEAD_NOW="$(git rev-parse HEAD 2>/dev/null || echo none)"
   log "회차 $iter 결과: $outcome (rc=$rc)"
+  emit_status "$outcome" "$HEAD_NOW" "$ITER_DUR"
 
   case "$outcome" in
     limit)
@@ -282,6 +298,7 @@ while :; do
 done
 
 log "=== overnight 루프 종료: $exit_reason (총 $iter 회차) ==="
+emit_status "exit:$exit_reason" "$(git rev-parse HEAD 2>/dev/null || echo none)" ""
 
 # 실패 클래스에서만 메일(연속 실패 / 전부 blocked). drained·무진행·MAX_ITER·수동 STOP·--once 는 정상 → 안 보냄.
 case "$exit_reason" in

@@ -67,7 +67,9 @@ case "$cmd" in
       wt="$(wt_path "$eng")"
       if [ -d "$wt" ]; then
         links=""
-        for d in $LINK_DIRS; do [ -L "$wt/$d" ] && links="$links $d→ok" || links="$links $d→MISSING"; done
+        for d in $LINK_DIRS; do
+          if [ -L "$wt/$d" ]; then links="$links ${d}=ok"; else links="$links ${d}=MISSING"; fi
+        done
         echo "  $eng:$links"
       fi
     done

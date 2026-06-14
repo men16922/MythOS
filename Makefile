@@ -44,10 +44,9 @@ check:
 	$(MAKE) typecheck
 	$(MAKE) test
 
-# Offline gate for the unattended overnight loop (bin/overnight/, docs/LOOP_ENGINEERING.md).
-# Same coverage as `check` MINUS python-typecheck (mypy), which currently carries pre-existing
-# debt (~129 errors) and would red-fail every loop iteration. Promote the loop gate back to
-# `make check` once that debt is cleared. Everything below must stay green.
+# Faster offline gate variant: same coverage as `check` MINUS python-typecheck (mypy).
+# The overnight loop (bin/overnight/) now defaults to full `make check` (mypy debt cleared
+# 2026-06-14); keep this as a quicker option for runtime-flow-heavy iterations.
 check-auto:
 	$(MAKE) lint
 	$(MAKE) frontend-build

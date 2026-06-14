@@ -1,4 +1,5 @@
 import unittest
+from typing import Any
 
 from mythos_runtime.route_growth import extend_route
 from mythos_runtime.route_map import (
@@ -8,6 +9,13 @@ from mythos_runtime.route_map import (
     route_map_paths_summary,
 )
 from mythos_runtime.scenario import load_scenario
+
+
+def _seed(config: dict[str, Any] | None, seed: str, **kwargs: Any) -> dict[str, Any]:
+    """build_route_seed for known-valid configs in tests — asserts the non-None result."""
+    out = build_route_seed(config, seed, **kwargs)
+    assert out is not None
+    return out
 
 
 def _layer_of(route_map: dict, node_id: str) -> int:
@@ -30,12 +38,12 @@ class RouteSeedTest(unittest.TestCase):
         self.config = load_scenario("neo-seoul").route_map
 
     def test_seed_marks_dynamic_mode(self) -> None:
-        rm = build_route_seed(self.config, "seed-1")
+        rm = _seed(self.config, "seed-1")
         self.assertEqual(rm["mode"], "dynamic")
         self.assertEqual(rm["horizon"], 2)
 
     def test_seed_only_fills_initial_horizon(self) -> None:
-        rm = build_route_seed(self.config, "seed-1", horizon=2)
+        rm = _seed(self.config, "seed-1", horizon=2)
         # Layers beyond the horizon start as anchor-only stubs (not filled).
         self.assertTrue(rm["growth"]["0"]["filled"])
         self.assertTrue(rm["growth"]["2"]["filled"])
@@ -45,7 +53,7 @@ class RouteSeedTest(unittest.TestCase):
         self.assertTrue(all(rm["nodes"][n]["anchor"] for n in stub_layer))
 
     def test_seed_carries_mandatory_and_gate(self) -> None:
-        rm = build_route_seed(self.config, "seed-1")
+        rm = _seed(self.config, "seed-1")
         start = rm["nodes"][rm["current"]]
         boss = rm["nodes"][rm["layers"][-1][0]]
         self.assertTrue(start["mandatory"])
@@ -59,7 +67,7 @@ class RouteGrowthTest(unittest.TestCase):
         self.config = load_scenario("neo-seoul").route_map
 
     def _grow_through(self, proposals=None):
-        state = {ROUTE_MAP_KEY: build_route_seed(self.config, "grow-seed"), "flags": []}
+        state: dict[str, Any] = {ROUTE_MAP_KEY: _seed(self.config, "grow-seed"), "flags": []}
         last = len(state[ROUTE_MAP_KEY]["layers"]) - 1
         for layer in range(last + 1):
             state = _advance_pointer(state, layer)
@@ -72,7 +80,7 @@ class RouteGrowthTest(unittest.TestCase):
         return state[ROUTE_MAP_KEY]
 
     def test_growth_fills_layers_as_player_advances(self) -> None:
-        rm = build_route_seed(self.config, "grow-seed")
+        rm = _seed(self.config, "grow-seed")
         before = [len(layer) for layer in rm["layers"]]
         grown = self._grow_through()
         after = [len(layer) for layer in grown["layers"]]

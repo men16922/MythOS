@@ -12,8 +12,7 @@
   사람 플레이 체감 QA(`docs/neo_seoul_live_qa.md` 전부), 콘텐츠/Story-Bible 저작,
   밸런스 튜닝, LLM 프롬프트-feel 튜닝.
 - `harness/CORE_MANDATES.md` §4-5 준수(측정 후 수정, docs-first, 구조적 이동은 확인, 완료 주장 전 검증).
-- 게이트는 환경변수 `$GATE_CMD`(기본 `make check-auto`, 런타임-flow 야간은 `make smoke-local`)를 그대로 실행한다.
-  `make check`는 쓰지 않는다 — 현재 mypy 선행 부채로 red다(부채 정리 후 승격).
+- 게이트는 환경변수 `$GATE_CMD`(기본 `make check`, 더 빠른 변형 `make check-auto`/`make smoke-local`)를 그대로 실행한다.
 
 ## 1. 상태 복원
 
@@ -42,7 +41,7 @@ Skill `sync` 를 호출한다(Read Path: AGENT_BRIEF → STATUS → NEXT_PLAN �
 
 항목의 **완료 기준 1줄**대로만 코드+테스트를 변경한다(scope 확장 금지).
 
-- `$GATE_CMD`(기본 `make check-auto` = ruff + eslint + tsc/vite-build + compileall + unittest + 런타임 smoke)를 **전부 green**까지 돌린다.
+- `$GATE_CMD`(기본 `make check` = ruff + eslint + mypy + tsc/vite-build + unittest)를 **전부 green**까지 돌린다.
 - 게이트 실패 → `git restore` / `git checkout -- <path>`로 원복하고 Blocker를 기록한다.
   같은 항목 2회째 실패면 `[blocked]` 마킹 후 다음 후보로(또는 후보 없으면 DONE).
 

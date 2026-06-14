@@ -28,7 +28,7 @@ NEXT_PLAN에서 `[auto]` **작업 1개**를 구현·게이트 통과시키고 �
 | --- | --- |
 | **회차당 fresh context** | 매 회차 새 프로세스(`claude -p`) → 컨텍스트 비대/요약 문제 없음. Read Path(`/sync` ~130줄)만 다시 읽으면 복원됨. |
 | **회차 = 작업 1개 + 즉시 커밋** | 한도/크래시가 언제 닥쳐도 미커밋 손실은 1회차뿐. 다음 회차가 `/sync`로 이어받음. |
-| **offline 게이트가 커밋 게이트** | `$GATE_CMD`(기본 `make check-auto`) green 못 하면 커밋 안 함 → 깨진 코드가 쌓이지 않음. Docker/Ollama/FLUX/네트워크 불필요. |
+| **offline 게이트가 커밋 게이트** | `$GATE_CMD`(기본 `make check`=ruff+eslint+mypy+tsc/vite-build+unittest) green 못 하면 커밋 안 함 → 깨진 코드가 쌓이지 않음. Docker/Ollama/FLUX/네트워크 불필요. |
 | **상태는 파일에** | `NEXT_PLAN.md`(백로그) · `PROGRESS_LOG.md`(이력) · git history. 메모리가 아니라 디스크가 source of truth. |
 | **최소 권한 무인 실행** | `overnight-settings.json` allow/deny → 자는 동안 `git push`·네트워크·파괴 동작 차단. interactive 설정은 불변. |
 
@@ -47,7 +47,7 @@ STOP/DONE 파일 검사 → MAX_ITER 검사 → claude -p 회차 실행 → clas
 | --- | --- | --- |
 | `bin/overnight/STOP` | — | 존재하면 다음 회차 진입 전 **graceful 종료**(현재 회차는 마침). 운영자 `touch` 또는 red 잔여물 회차가 생성. |
 | `bin/overnight/DONE` | — | `[auto]` 백로그 소진/전부 blocked 시 에이전트가 생성(사유 기록) → 러너 종료. |
-| `GATE_CMD` | `make check-auto` | 커밋 게이트(swappable). `check-auto` = lint+frontend-build+smoke-local. **`make check`는 mypy 선행 부채로 현재 red** → 부채 정리 후 승격. PROMPT.md가 `$GATE_CMD`로 참조. |
+| `GATE_CMD` | `make check` | 커밋 게이트(swappable) = ruff+eslint+mypy+tsc/vite-build+unittest(mypy 부채 정리 완료 2026-06-14). 더 빠른 변형: `make check-auto`(mypy 제외)·`make smoke-local`. PROMPT.md가 `$GATE_CMD`로 참조. |
 | `MAX_ITER` | 20 | 폭주 방지 백스톱(총 회차 상한). |
 | `ITER_TIMEOUT` | 1800s | 회차당 최대 실행 시간(`gtimeout`/`timeout`). |
 | `LIMIT_WAIT` | 1800s | usage/session limit 감지 시 대기 후 재시도. |
@@ -111,7 +111,7 @@ limit을 자유 텍스트 grep이 아니라 구조화 신호로 판정한다(fal
 ## 4. 운영 (실사용)
 ```sh
 # 사전: 워킹 트리를 깨끗이(미커밋 배치 커밋/정리) — dirty tree는 회차의 잔여물 복구를 오발함
-# 사전: GATE_CMD 기본 make check-auto 가 현재 HEAD 에서 green 인지 한 번 확인 (make check 는 mypy 부채로 red)
+# 사전: GATE_CMD 기본 make check 가 현재 HEAD 에서 green 인지 한 번 확인
 
 caffeinate -dimsu bin/overnight/run.sh &        # Mac 절전 방지 + 백그라운드
 bin/overnight/run.sh --once                     # 1회차만 (체인 검증)

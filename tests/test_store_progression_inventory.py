@@ -25,7 +25,9 @@ class StoreProgressionInventoryDefaultsTest(unittest.TestCase):
         self.assertIsNone(self.store.get_progression("p2", "neo-seoul"))
         # returns a copy — mutating the result must not leak back
         got["insight_points"] = 999
-        self.assertEqual(self.store.get_progression("p1", "neo-seoul")["insight_points"], 5)
+        fresh = self.store.get_progression("p1", "neo-seoul")
+        assert fresh is not None
+        self.assertEqual(fresh["insight_points"], 5)
 
     def test_inventory_roundtrip_per_loop(self) -> None:
         self.assertEqual(self.store.list_inventory("loop_a"), [])

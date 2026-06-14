@@ -1,4 +1,5 @@
 import unittest
+from typing import Any
 
 from mythos_runtime.route_map import ROUTE_MAP_KEY, build_route_map
 from mythos_runtime.route_runtime import (
@@ -19,7 +20,7 @@ def _state(seed: str, flags: list[str] | None = None) -> dict:
 
 class RouteRuntimeTest(unittest.TestCase):
     def test_noop_without_route_map(self) -> None:
-        state = {"flags": []}
+        state: dict[str, Any] = {"flags": []}
         self.assertIs(advance_route(state, turn_index=10, seed="s"), state)
 
     def test_current_advances_with_turns(self) -> None:
@@ -60,8 +61,12 @@ class RouteRuntimeTest(unittest.TestCase):
                 {"id": "evidence", "when": ["evidence_first"], "ending_influence": ["e2"]},
             ],
         }
-        self.assertEqual(select_perspective(node, set())["id"], "d")
-        self.assertEqual(select_perspective(node, {"evidence_first"})["id"], "evidence")
+        default_p = select_perspective(node, set())
+        assert default_p is not None
+        self.assertEqual(default_p["id"], "d")
+        evidence_p = select_perspective(node, {"evidence_first"})
+        assert evidence_p is not None
+        self.assertEqual(evidence_p["id"], "evidence")
 
     def test_ending_tally_reflects_route(self) -> None:
         # A trust-leaning route should accumulate ending influence toward the
@@ -79,7 +84,7 @@ class RouteRuntimeTest(unittest.TestCase):
     def test_route_status_summary(self) -> None:
         state = advance_route(_state("seed"), turn_index=6, seed="seed")
         status = route_status(state)
-        self.assertIsNotNone(status)
+        assert status is not None
         self.assertIn("node", status)
         self.assertIn("ending_leaderboard", status)
 
@@ -112,7 +117,9 @@ class JunctionTest(unittest.TestCase):
 
 class NodeEncounterTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.mapping = load_scenario("neo-seoul").route_map.get("combat_encounters")
+        mapping = load_scenario("neo-seoul").route_map.get("combat_encounters")
+        assert mapping is not None
+        self.mapping = mapping
 
     def test_non_combat_node_has_no_encounter(self) -> None:
         node = {"id": "n", "type": "clue", "combat": False}

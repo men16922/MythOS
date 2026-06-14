@@ -5,6 +5,7 @@ import sys
 import time
 import json
 from pathlib import Path
+from typing import Any
 
 # Add src to python path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
@@ -234,13 +235,11 @@ def run_test():
             # Enable browser console logging to stdout for debugging
             page.on("console", lambda msg: print(f"[BROWSER CONSOLE] {msg.text}"))
             page.on("pageerror", lambda exc: print(f"[BROWSER ERROR] {exc}"))
-            page.on(
-                "request",
-                lambda req: (
-                    requested_urls.append(req.url),
-                    print(f"[REQ] {req.method} {req.url}"),
-                ),
-            )
+            def _log_request(req: Any) -> None:
+                requested_urls.append(req.url)
+                print(f"[REQ] {req.method} {req.url}")
+
+            page.on("request", _log_request)
             page.on("response", lambda res: print(f"[RES] {res.status} {res.url}"))
 
             # 1. Inject WebSocket Mocking & Canvas Spy Scripts before navigation
@@ -413,7 +412,7 @@ def run_test():
                 "player": mock_player,
             }
 
-            snapshot_combat = {
+            snapshot_combat: dict[str, Any] = {
                 "loop_id": "loop_test_123",
                 "phase": "interact",
                 "location": "c17_alley",
@@ -915,7 +914,7 @@ def run_test():
             page.add_init_script(f"window.snapshot_combat = {json.dumps(snapshot_combat)};")
 
             # Global action response handler
-            current_action_response = [None]
+            current_action_response: list[Any] = [None]
 
             def handle_combat_action(route):
                 resp = current_action_response[0]

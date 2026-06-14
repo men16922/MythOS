@@ -42,8 +42,8 @@ RUNNER_LOG="$LOG_DIR/runner.log"
 : "${MAX_CONSEC_FAIL:=3}"       # 연속 실패 N회 시 안전 중단
 : "${MAX_NO_PROGRESS:=2}"       # success인데 새 커밋 없음 연속 N회 시 안전 중단 (얇은 백로그의 주 종료 사유)
 : "${KEEP_ITER_LOGS:=30}"       # iter-*.log 최근 N개만 보존 (runner.log 는 항상 보존)
-: "${GATE_CMD:=make check-auto}" # 커밋 게이트(green 검증). check-auto = lint+frontend-build+smoke-local
-                                 # (mypy 제외 — 선행 부채). mypy 부채 정리 후 GATE_CMD="make check"로 승격.
+: "${GATE_CMD:=make check}"     # 커밋 게이트(green) = ruff + eslint + mypy + tsc/vite-build + unittest.
+                                 # 더 빠른 변형: GATE_CMD="make check-auto"(mypy 제외) 또는 "make smoke-local".
 export GATE_CMD                 # PROMPT.md 가 $GATE_CMD 로 참조
 
 ONCE=0

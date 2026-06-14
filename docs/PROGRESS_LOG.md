@@ -5,23 +5,24 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
-## 2026-06-14 — overnight 무인 루프 하네스 + src mypy 부채 정리(게이트 강화)
+## 2026-06-14 — overnight 무인 루프 하네스 + mypy 부채 정리 완료(게이트 make check 승격)
 
 - Status: 타 프로젝트 LOOP_ENGINEERING을 MythOS에 이식 + 첫 `[auto]` 작업으로 src 타입 정리.
 - Changed:
   - 하네스: `bin/overnight/{run.sh,PROMPT.md,overnight-settings.json}`(무인 전용 권한 경계 --settings,
     git push/네트워크/파괴 make/Web/MCP deny), `/overnight-report` 스킬, `docs/LOOP_ENGINEERING.md`
     MythOS 재작성(게임이라 `[auto]` 백로그 얇음 caveat). NEXT_PLAN `[auto]/[manual]/[blocked]` 태깅.
-  - 게이트: `make check`가 mypy 선행 부채(~129 errors)로 red → `make check-auto`(lint+frontend-build+
-    smoke-local, mypy 제외) 신설해 기본 게이트로 사용(Makefile).
-  - **src mypy 0**: `mypy src` 75 files green(이전 ~14 errors). config(`or` 체인), visual_queue/prompts/
-    route_map/route_runtime/session(`isinstance` 재평가→지역변수·Optional 주석), director(provider 확장 API를
-    getattr/cast로 국소화 + kwargs `dict[str,Any]`). 전부 동작 불변.
+  - 게이트: `make check`가 mypy 선행 부채(~129 errors)로 red였어서 임시로 `make check-auto`(lint+frontend-build+
+    smoke-local, mypy 제외) 신설. **부채 정리 후 기본 게이트를 `make check`로 승격**(run.sh `GATE_CMD`); check-auto는 더 빠른 변형으로 잔존.
+  - **mypy 0**: `mypy src tests` 0 errors/109 files(이전 ~129). src(config `or` 체인·visual_queue/prompts/
+    route_map/route_runtime/session `isinstance` 재평가→지역변수·Optional 주석·director provider 확장 API getattr/cast +
+    kwargs `dict[str,Any]`) + tests(route_* `_rm`/`_seed` assert 헬퍼·`dict[str,Any]` 주석, playwright snapshot/list 주석·
+    request 핸들러 def화). 전부 동작 불변.
   - `.agents/skills` 공용 미러를 `.claude/skills` 기준 동기화(4종).
-- Verified: `mypy src` Success(75 files), `make check-auto` EXIT=0(ruff + frontend-build + 304 tests +
-  narrative-fallback + visual-smoke green). 변경 src 동작 불변.
-- Blockers: 없음. 남은 것: tests mypy ~115 errors(test_route_* 동일 패턴, playwright). 정리 후 게이트를 `make check`로 승격.
-- Next: 하네스 `--once` 실검증(사용자 실행), tests mypy 파일 단위 정리.
+- Verified: `mypy src tests` Success(109 files), **`make check` EXIT=0**(ruff All passed + mypy Success + frontend
+  built + 304 tests OK). route+singleton 테스트 62개 직접 재실행 green(동작 불변 확인).
+- Blockers: 없음.
+- Next: 하네스 `--once` 실검증(사용자 실행 — 헤드리스 claude 중첩 회피).
 
 ## 2026-06-14 — 오프닝 시퀀스 정합: 장면별 이미지 + 4비트 온보딩 + 인트로 리뉴얼
 

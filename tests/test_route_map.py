@@ -1,7 +1,15 @@
 import unittest
+from typing import Any
 
 from mythos_runtime.route_map import build_route_map, route_map_paths_summary
 from mythos_runtime.scenario import load_scenario
+
+
+def _rm(config: dict[str, Any] | None, seed: str) -> dict[str, Any]:
+    """build_route_map for known-valid configs in tests — asserts the non-None result."""
+    out = build_route_map(config, seed)
+    assert out is not None
+    return out
 
 
 class RouteMapTest(unittest.TestCase):
@@ -14,12 +22,12 @@ class RouteMapTest(unittest.TestCase):
         self.assertIsNone(build_route_map({"node_types": {"story": {}}}, "seed"))
 
     def test_deterministic_for_same_seed(self) -> None:
-        a = build_route_map(self.config, "loop-seed-1")
-        b = build_route_map(self.config, "loop-seed-1")
+        a = _rm(self.config, "loop-seed-1")
+        b = _rm(self.config, "loop-seed-1")
         self.assertEqual(a, b)
 
     def test_different_seeds_can_diverge(self) -> None:
-        seeds = [build_route_map(self.config, f"seed-{i}") for i in range(8)]
+        seeds = [_rm(self.config, f"seed-{i}") for i in range(8)]
         type_signatures = {
             tuple(rm["nodes"][n]["type"] for layer in rm["layers"] for n in layer)
             for rm in seeds
@@ -27,7 +35,7 @@ class RouteMapTest(unittest.TestCase):
         self.assertGreater(len(type_signatures), 1)
 
     def test_starts_on_story_anchor_ends_on_boss(self) -> None:
-        rm = build_route_map(self.config, "seed")
+        rm = _rm(self.config, "seed")
         start = rm["nodes"][rm["current"]]
         boss = rm["nodes"][rm["layers"][-1][0]]
         self.assertEqual(start["type"], "story")
@@ -35,13 +43,13 @@ class RouteMapTest(unittest.TestCase):
         self.assertEqual(boss["type"], "boss")
 
     def test_anchors_carry_authored_resources(self) -> None:
-        rm = build_route_map(self.config, "seed")
+        rm = _rm(self.config, "seed")
         start = rm["nodes"][rm["current"]]
         self.assertTrue(start.get("image"))
         self.assertTrue(start.get("beat"))
 
     def test_graph_is_connected(self) -> None:
-        rm = build_route_map(self.config, "seed")
+        rm = _rm(self.config, "seed")
         edges = rm["edges"]
         # Every non-final node has an outgoing edge.
         final_ids = set(rm["layers"][-1])
@@ -58,7 +66,7 @@ class RouteMapTest(unittest.TestCase):
 
     def test_both_combat_and_avoid_paths_exist(self) -> None:
         for i in range(20):
-            rm = build_route_map(self.config, f"path-seed-{i}")
+            rm = _rm(self.config, f"path-seed-{i}")
             summary = route_map_paths_summary(rm)
             self.assertTrue(summary["combat"], f"no combat path for seed {i}")
             self.assertTrue(summary["avoid"], f"no avoid path for seed {i}")
@@ -67,7 +75,7 @@ class RouteMapTest(unittest.TestCase):
         return [n for n in rm["nodes"].values() if n.get("perspectives")]
 
     def test_anchors_carry_multiple_perspectives(self) -> None:
-        rm = build_route_map(self.config, "seed")
+        rm = _rm(self.config, "seed")
         anchors = self._anchor_nodes(rm)
         # Opening, market, kai, spire, boss all author multi-perspective beats.
         self.assertGreaterEqual(len(anchors), 4)
@@ -76,7 +84,7 @@ class RouteMapTest(unittest.TestCase):
             self.assertIn(node.get("default_perspective"), {p["id"] for p in node["perspectives"]})
 
     def test_perspectives_have_required_fields(self) -> None:
-        rm = build_route_map(self.config, "seed")
+        rm = _rm(self.config, "seed")
         for node in self._anchor_nodes(rm):
             for p in node["perspectives"]:
                 self.assertTrue(p.get("id"))
@@ -88,7 +96,7 @@ class RouteMapTest(unittest.TestCase):
     def test_perspective_ending_influence_references_real_endings(self) -> None:
         scenario = load_scenario("neo-seoul")
         valid = {e["id"] for e in scenario.endings}
-        rm = build_route_map(self.config, "seed")
+        rm = _rm(self.config, "seed")
         for node in self._anchor_nodes(rm):
             for p in node["perspectives"]:
                 for ending in p["ending_influence"]:
@@ -97,7 +105,7 @@ class RouteMapTest(unittest.TestCase):
     def test_boss_perspectives_cover_all_endings(self) -> None:
         scenario = load_scenario("neo-seoul")
         valid = {e["id"] for e in scenario.endings}
-        rm = build_route_map(self.config, "seed")
+        rm = _rm(self.config, "seed")
         boss = rm["nodes"][rm["layers"][-1][0]]
         covered = {
             ending for p in boss["perspectives"] for ending in p["ending_influence"]

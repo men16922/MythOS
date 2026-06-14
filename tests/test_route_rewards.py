@@ -18,9 +18,11 @@ class HealPartyTest(unittest.TestCase):
             "members": {"se-rin": {"hp": 1, "max_hp": 10}},
         }
         full = _heal_party(party, 1.0)
+        assert full is not None
         self.assertEqual(full["player_hp"], 15)
         self.assertEqual(full["members"]["se-rin"]["hp"], 10)
         partial = _heal_party(party, 0.4)
+        assert partial is not None
         self.assertEqual(partial["player_hp"], min(15, 2 + round(15 * 0.4)))
         # original untouched (pure)
         self.assertEqual(party["player_hp"], 2)

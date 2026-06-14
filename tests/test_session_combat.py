@@ -467,7 +467,7 @@ class SessionCombatTest(unittest.TestCase):
             self.assertTrue(any(event.action == "combat_defeat_soft" for event in events))
 
     def _gate_loop(self, **state: Any) -> LoopState:
-        loop = self.store.get_loop(self.loop_id)
+        loop: LoopState | None = self.store.get_loop(self.loop_id)
         assert loop is not None
         return replace(loop, state=state)
 

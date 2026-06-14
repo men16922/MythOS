@@ -168,10 +168,13 @@ while :; do
     # 무인 안전 경계: 전역 config(danger-full-access)를 CLI 로 덮어쓴다 —
     # workspace-write + network 차단(=git push·curl·Ollama·FLUX·Docker-online 봉쇄) + 비대화(never).
     # </dev/null 필수: codex exec 는 stdin 이 열려 있으면 추가 입력을 기다리며 멈춘다(무인 회차 freeze 방지).
+    # writable_roots 에 .git 포함 필수: workspace-write 는 .git 쓰기를 막아 git commit(.git/index.lock)이
+    # 실패한다 — 회차당 커밋이 LOOP 의 핵심이라 .git 을 명시적으로 쓰기 허용한다(네트워크는 여전히 차단).
     $TIMEOUT_BIN ${TIMEOUT_BIN:+$ITER_TIMEOUT} codex exec \
       --cd "$REPO_ROOT" \
       --sandbox workspace-write \
       -c sandbox_workspace_write.network_access=false \
+      -c "sandbox_workspace_write.writable_roots=[\"$REPO_ROOT/.git\"]" \
       -c approval_policy=never \
       --json \
       --output-last-message "$LOG_DIR/last-message.txt" \

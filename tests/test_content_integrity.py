@@ -37,11 +37,36 @@ import json
 import unittest
 from typing import Any
 
+from mythos_combat.factory import _DEFAULT_STATS
 from mythos_runtime.route_map import build_route_map, build_route_seed
 from mythos_runtime.route_runtime import node_encounter_id
 from mythos_runtime.scenario import PROJECT_ROOT, load_scenario
 
 COMBAT_IMAGE_STATES = ("idle", "attack", "guard", "skill", "hit")
+
+# Canonical Combatant stat keys — the single source of truth is the combat
+# factory's default stat block; equipment ``stats`` bonuses are merged into this
+# set in ``session._combat_stats``, so a bonus keyed on anything outside it is a
+# dead stat (a typo) that buffs nothing.
+COMBATANT_STATS = frozenset(_DEFAULT_STATS)
+
+# Equipment slot vocabulary. ``session.equip_item`` enforces one worn item per
+# ``slot`` and the character UI groups equipment by slot; ``weapon``/``armor`` are
+# the only slots the loadout/UI recognise.
+VALID_EQUIPMENT_SLOTS = frozenset({"weapon", "armor"})
+
+
+def _as_records(pool: Any) -> list[dict[str, Any]]:
+    """Normalise a combat pool (dict-keyed-by-id or list) to a record list."""
+    if isinstance(pool, dict):
+        return [v for v in pool.values() if isinstance(v, dict)]
+    if isinstance(pool, list):
+        return [v for v in pool if isinstance(v, dict)]
+    return []
+
+
+def _record_id(record: dict[str, Any], fallback: str) -> str:
+    return str(record.get("id") or fallback)
 
 # Flags produced deterministically by engine code, not by authored data.
 # ``mythos_loop.engine`` records exactly one of these from the player's first
@@ -280,6 +305,84 @@ class ContentEncounterIntegrityTest(unittest.TestCase):
                     f"bestiary {bestiary_id!r} references missing combat image files: "
                     f"{missing_files}",
                 )
+
+
+class WeaponEquipmentIntegrityTest(unittest.TestCase):
+    """Weapon/equipment reference integrity for the neo-seoul combat pools.
+
+    Every weapon a loadout/ally/enemy reaches for must exist in ``combat.weapons``
+    (else combat builds an unarmed/empty fallback the author never intended), and
+    every ``kind:equipment`` item must declare a recognised ``slot`` and only
+    buff real Combatant stats (else the bonus silently does nothing). A dangling
+    id or typo'd stat is a mechanical content bug, not a judgment call.
+    """
+
+    def setUp(self) -> None:
+        self.scenario = load_scenario("neo-seoul")
+        self.combat = self.scenario.combat
+        self.assertIsInstance(self.combat, dict, "neo-seoul must define a combat block")
+        self.weapons = self.combat.get("weapons", {})
+        self.weapon_ids = {
+            _record_id(rec, "") for rec in _as_records(self.weapons)
+        } - {""}
+        self.assertTrue(self.weapon_ids, "combat.weapons must declare at least one weapon")
+
+    def _assert_weapons_exist(self, owner: str, weapons: Any) -> list[str]:
+        if weapons is None:
+            return []
+        self.assertIsInstance(
+            weapons, list, f"{owner} weapons must be a list, got {type(weapons).__name__}"
+        )
+        dangling = sorted(str(w) for w in weapons if str(w) not in self.weapon_ids)
+        self.assertEqual(
+            dangling,
+            [],
+            f"{owner} references weapons missing from combat.weapons: {dangling}",
+        )
+        return [str(w) for w in weapons]
+
+    def test_archetype_loadout_weapons_exist(self) -> None:
+        loadout = self.combat.get("archetype_loadout", {})
+        self.assertIsInstance(loadout, dict, "archetype_loadout must be an object")
+        for archetype, weapons in loadout.items():
+            self._assert_weapons_exist(f"archetype_loadout[{archetype!r}]", weapons)
+
+    def test_ally_weapons_exist(self) -> None:
+        for ally in _as_records(self.combat.get("allies", {})):
+            self._assert_weapons_exist(
+                f"ally {_record_id(ally, '?')!r}", ally.get("weapons")
+            )
+
+    def test_bestiary_weapons_exist(self) -> None:
+        for beast in _as_records(self.combat.get("bestiary", {})):
+            self._assert_weapons_exist(
+                f"bestiary {_record_id(beast, '?')!r}", beast.get("weapons")
+            )
+
+    def test_equipment_slots_and_stats_are_valid(self) -> None:
+        items = self.combat.get("items", {})
+        equipment = [rec for rec in _as_records(items) if rec.get("kind") == "equipment"]
+        self.assertTrue(equipment, "neo-seoul should declare at least one equipment item")
+        for item in equipment:
+            item_id = _record_id(item, "?")
+            slot = item.get("slot")
+            self.assertIn(
+                slot,
+                VALID_EQUIPMENT_SLOTS,
+                f"equipment {item_id!r} has invalid slot {slot!r} "
+                f"(expected one of {sorted(VALID_EQUIPMENT_SLOTS)})",
+            )
+            stats = item.get("stats", {})
+            self.assertIsInstance(
+                stats, dict, f"equipment {item_id!r} stats must be an object"
+            )
+            unknown = sorted(set(stats) - COMBATANT_STATS)
+            self.assertEqual(
+                unknown,
+                [],
+                f"equipment {item_id!r} buffs unknown stats {unknown} "
+                f"(valid: {sorted(COMBATANT_STATS)})",
+            )
 
 
 if __name__ == "__main__":

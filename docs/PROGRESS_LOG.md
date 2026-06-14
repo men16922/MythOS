@@ -5,6 +5,13 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-14 — 무기/장비 무결성 invariant ([auto:claude], QA seed)
+- Status: overnight QA seed `[auto:claude]` 무기/장비 참조 무결성 박제. green.
+- Changed: `tests/test_content_integrity.py`에 `WeaponEquipmentIntegrityTest` 4건 추가 — `archetype_loadout`·`allies[].weapons`·`bestiary[].weapons`의 모든 무기 참조가 `combat.weapons`에 실재, `kind:equipment` 아이템의 `slot`∈{weapon,armor}, `stats` 키⊆ Combatant 스탯 집합을 검증. 스탯 집합은 `mythos_combat.factory._DEFAULT_STATS`(equip 보너스 머지 대상)를 단일 진실원으로 import해 하드코딩 회피. dict/list 풀 형태 모두 정규화(`_as_records`).
+- Verified: `make check` EXIT=0 — ruff/eslint/mypy(113 files)/frontend build + 327 tests OK(skipped 2, +4). 측정 기준선: dangling 무기 0·invalid slot 0·unknown stat 0.
+- Blockers: 없음.
+- Next: 잔여 QA seed — 스킬 데이터 무결성·아키타입 집합 정합(`[auto:claude]`), agy 아이콘 재생성. 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-14 — 진행도 경제 invariant ([auto:codex], QA seed)
 - Status: overnight QA seed `[auto:codex]` 진행도 경제 invariant 박제. green.
 - Changed: `tests/test_progression.py`에 `NeoSeoulProgressionEconomyTest` 3건 추가 — 실제 `neo-seoul` 스킬 데이터의 learn/rankup 비용 tier 단조성, tier 0 아키타입 기본 접근성, 보수적 통찰 수입(첫 런/2런) 내 tier별 도달 가능성을 검증.

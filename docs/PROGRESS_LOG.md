@@ -5,6 +5,18 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-14 — overnight 하네스 `--once` 첫 실검증(REPO_ROOT 버그 발견·자동 복구)
+
+- Status: 헤드리스 무인 회차를 처음 실제 실행. 정적 검증만 됐던 `run.sh`의 런타임 버그를 즉시 포착.
+- 발견·수정: `REPO_ROOT="$(… git rev-parse --show-toplevel || cd .. && pwd)"`가 연산자 우선순위로 git 성공 시에도
+  `&& pwd`가 실행돼 **두 줄**(toplevel+pwd) 출력 → `cd "$REPO_ROOT"` 실패(EXIT 1). 폴백을 별도 라인으로 분리.
+- 재실행 검증: 미커밋 수정이 있는 dirty 트리에서 헤드리스 에이전트가 **잔여물 복구 경로**를 정확히 수행 —
+  `make check` green 확인 후 `[recovered] fix(harness): REPO_ROOT …`(`94f77fc`) 자동 커밋, classify_outcome=success,
+  HEAD-diff 감지, `--once` 정상 종료. 러너↔`claude -p` 연동·settings 로드·sync·게이트·커밋·로그 전 체인 실증.
+- Verified: `bin/overnight/run.sh --once` EXIT=0, iter-1.log `is_error:false`(77s/16턴). `make check` green 유지.
+- Blockers: 없음. 머신에 `gtimeout` 부재 → 회차 타임아웃 비활성(LOOP_ENGINEERING §5에 기록, `brew install coreutils` 권장).
+- Next: 다회차 무인 가동은 사용자 판단. `[auto]` 백로그 소진 상태라 seeding 후 가동 권장.
+
 ## 2026-06-14 — bin/ 보관소 검토(read-only) — 프루닝 후보 목록
 
 - Status: `[auto]` read-only 검토 완료. 삭제 없음(승인은 `[manual]` — archive README 정책 + CORE_MANDATES §5).

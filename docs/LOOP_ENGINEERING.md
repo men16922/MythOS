@@ -131,8 +131,9 @@ tail -f bin/overnight/logs/runner.log                # 관찰
 
 ## 5. 한계 / 알려진 동작
 - **얇은 `[auto]` 백로그(§0)**: 가장 중요한 한계. 무진행 종료가 잦은 게 정상. 실행 전 seeding 권장.
-- **헤드리스 회차 end-to-end 미검증**: `run.sh`는 정적 검증(`bash -n`)·게이트 실측까지 마쳤으나, 실제
-  `claude -p` 무인 회차(`--once` 포함)는 아직 실행 안 됨(§6). 첫 가동은 `--once`로 한 회차만 확인할 것.
+- **헤드리스 회차 end-to-end 검증됨(2026-06-14)**: `--once` 1회차로 러너↔`claude -p` 연동·settings 로드·
+  잔여물 복구·게이트·`[recovered]` 커밋·종료 분기까지 실증(첫 실행서 REPO_ROOT 폴백 버그 발견·수정 — §6). 첫 가동은 항상 `--once`로 한 회차만 확인할 것.
+- **이 머신엔 `gtimeout`/`timeout` 부재** → 회차 타임아웃 비활성. 장시간 가동 전 `brew install coreutils` 권장(없으면 `ITER_TIMEOUT` 미적용).
 - **Mac 절전/덮개**: `caffeinate` 필수, 전원 연결 권장(배터리+덮개 닫힘은 잠듦). `gtimeout`은 `brew install coreutils`.
 - **회차 단위 손실**: 한도가 회차 중간에 닥치면 진행 중이던 1회차는 미커밋 손실 가능(직전까지는 커밋됨,
   다음 회차가 `/sync`로 복원). 잔여물은 PROMPT 2단계가 처리(green=`[recovered]` 커밋, red=무수정+STOP).
@@ -145,8 +146,10 @@ tail -f bin/overnight/logs/runner.log                # 관찰
 - **2026-06-14 — 첫 `[auto]` 묶음을 인-세션 수행**(헤드리스 무인이 아니라 대화형으로 직접): mypy 부채 src+tests 0
   (게이트 `make check` green화), stale dated-plan 헤더 정합, Codex 스킬 버튼 상태 결정론화+버그픽스, bin/ 보관소 read-only
   검토 + 프루닝. → 이 작업들이 곧 LOOP가 잘하는 `[auto]` 작업 클래스의 실증이며, 그 결과 `[auto]` 백로그는 거의 소진됨.
-- **미실행**: 헤드리스 `run.sh` 무인 회차(`--once~`)는 아직 안 돌렸다(사용자 실행 예정). 회차별 실측 효과가 생기면
-  `docs/PROGRESS_LOG.md`에 회차 커밋과 함께 기록한다.
+- **2026-06-14 — 헤드리스 `--once` 첫 실검증**: 러너 실행 중 REPO_ROOT 폴백 버그(`git rev-parse … || cd .. && pwd`
+  연산자 우선순위로 두 줄 출력 → `cd` 실패)를 발견·수정. 재실행 시 헤드리스 에이전트가 미커밋 수정을 잔여물로 인식
+  → `make check` green → `[recovered]` 커밋(`94f77fc`)으로 자동 복구. 전체 체인(연동·sync·잔여물 복구·게이트·커밋·종료) 실증.
+  다회차 무인 가동(밤샘)은 사용자 판단. 회차별 실측 효과는 `docs/PROGRESS_LOG.md`에 회차 커밋과 함께 기록한다.
 
 `[auto]` 후보의 정직한 triage는 항상 `docs/NEXT_PLAN.md`의 자동화 태그가 권위다.
 

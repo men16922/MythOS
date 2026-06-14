@@ -44,6 +44,13 @@ NEXT_PLAN에서 `[auto]` **작업 1개**를 구현·게이트 통과시키고 �
 - `ENGINE=codex`: `codex exec --cd <repo> --sandbox workspace-write -c sandbox_workspace_write.network_access=false -c approval_policy=never --json --output-last-message logs/last-message.txt "$(cat PROMPT.codex.md)" </dev/null`.
   프롬프트는 `bin/overnight/PROMPT.codex.md`(Skill 호출 대신 `.agents/skills/*/SKILL.md` 절차를 읽어 수행).
   **`</dev/null` 필수**: codex exec 는 stdin 이 열려 있으면 추가 입력을 기다리며 멈춘다(무인 회차 freeze).
+- `ENGINE=agy`: `agy --print "$(cat PROMPT.agy.md)" --dangerously-skip-permissions --print-timeout 30m --add-dir <repo> </dev/null`.
+  이미지 초안 레인. 호스트 FLUX/MPS/네트워크가 필요해 **샌드박스 없음** → 경계는 PROMPT.agy.md 가드레일 + worktree 격리.
+  default `--print-timeout` 5m 은 한 회차엔 짧아 30m 로. `</dev/null` 로 stdin freeze 방지.
+
+> **3엔진 병렬**: claude/codex/agy 를 각자 worktree+브랜치(`loop/{claude,codex,agy}`)에서 동시에 돌려 commit
+> 충돌을 구조적으로 없앤다. 레인 태그·도메인 분할·통합 머지는 **`docs/MULTI_AGENT.md`** 가 권위
+> (`bin/overnight/{worktrees.sh,merge-loops.sh}`, `make overnight-worktrees`/`overnight-merge`).
 
 루프 1회 흐름:
 ```

@@ -41,11 +41,12 @@
 
 ## 3. 작업 선택
 
-`docs/NEXT_PLAN.md`에서 **`[auto]` 태그가 붙은 최상위 미완료 1개**만 고른다.
+`docs/NEXT_PLAN.md`에서 **codex 레인(`[auto:codex]`) 최상위 미완료 1개**만 고른다.
 
-- `[manual]`/`[blocked]`/**무태그**는 건너뛴다. 무태그를 임의로 `[auto]`로 승격하지 않는다(스코프 방어).
-- 같은 항목에서 Blocker가 2회 누적되면 그 항목에 `[blocked]`를 덧붙이고 다음 `[auto]` 후보로 넘어간다.
-- 남은 `[auto]`가 없거나 전부 blocked면 `bin/overnight/DONE`을 생성(사유: `drained` vs `all-blocked`)하고 종료한다.
+- `[auto]`/`[auto:claude]`/`[auto:agy]`(타 엔진 레인)·`[manual]`/`[blocked]`/**무태그**는 건너뛴다(레인 침범 금지).
+  단, 러너가 **claude failover 모드**임을 알리면(환경/지시) 그때만 claude 레인(`[auto]`/`[auto:claude]`)도 소비한다.
+- 같은 항목에서 Blocker가 2회 누적되면 그 항목에 `[blocked]`를 덧붙이고 다음 `[auto:codex]` 후보로 넘어간다.
+- 남은 후보가 없거나 전부 blocked면 `bin/overnight/DONE`을 생성(사유: `drained` vs `all-blocked`)하고 종료한다.
 
 ## 4. 구현 + 게이트
 

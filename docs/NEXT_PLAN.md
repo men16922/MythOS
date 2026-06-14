@@ -41,11 +41,9 @@
 
 > "안 깨지는가"(봇, 결정론) 콘텐츠/밸런스 invariant. green=박제, red=Blocker surface. offline·`make check`.
 
-- `[x]` 완료 4종: 루트·엔딩 도달성(`tests/test_route_integrity.py`) + 플래그 참조·조우 무결성(`tests/test_content_integrity.py`). 상세는 PROGRESS archive(`bin/docs/archive/progress-2026-06.md`).
+- `[x]` 완료 6종: 루트·엔딩 도달성(`test_route_integrity.py`)·플래그 참조·조우 무결성(`test_content_integrity.py`) + 조우 승률 밴드(`test_encounter_balance.py`, 양면 가드 ≥0.50/≤0.95) + 진행도 경제(`test_progression.py`). 상세 PROGRESS archive/COMPLETED_SUMMARY.
 - `[ ]` `[auto:agy]` 스킬 아이콘 6종 초안: `emp_pulse`·`glitch_blink`·`memory_resonance`·`nanoshield_projector`·`signal_overdrive`·`system_intrusion` 의 `resources/neo-seoul/skills/<id>.png` 를 IMAGE_POLICY + 기존 스킬 아이콘 스타일을 바이블로 초안 생성(placeholder fabricate 금지). 완료 기준: 6 PNG 실존·비어있지 않음·규격 일치. (2026-06-14 1차 생성분은 미적 반려 — `outputs/agy/skills/VERDICT.md`. 엄격 카드 템플릿으로 재생성 필요.)
 - `[blocked]` `[auto:claude]` 스킬/아이콘 무결성 invariant: 모든 `combat.skills[].id`에 `resources/neo-seoul/skills/<id>.png` 존재 + 아키타입 base/learnable + `epiphany` unlock이 실재 스킬 참조. 완료 기준: `test_assets.py`에 추가, green 또는 Blocker. **선행 미충족**: 위 `[auto:agy]` 아이콘 6종 채택·머지 후 해제.
-- `[x]` `[auto:claude]` 조우 승률 밴드 — `tests/test_encounter_balance.py`(양면 가드: 파티 winnable ≥0.50 / 솔로 non-trivial ≤0.95 + 결정론). green. 상세 PROGRESS archive.
-- `[x]` `[auto:codex]` 진행도 경제 — `tests/test_progression.py`(learn/rankup tier 단조 + 통찰 수입 내 도달성). green.
 - `[ ]` `[auto:claude]` 무기/장비 무결성(`test_content_integrity.py`에 추가): 모든 무기 참조(`archetype_loadout`·`allies[].weapons`·`bestiary[].weapons`)가 `combat.weapons`에 실재 + `kind:equipment` 아이템이 유효 `slot`(weapon/armor) + `stats` 키가 Combatant 스탯 집합(strength/intelligence/charisma/agility/perception)에 속함. 완료 기준: 테스트 추가, dangling/오타 0 green, 있으면 Blocker.
 - `[ ]` `[auto:claude]` 스킬 데이터 무결성(`test_content_integrity.py`에 추가): 모든 `combat.skills[]`가 필수 필드(`id`/`name`/`cost`/`effect`) 보유 + `cooldown≥0`·`cost.focus≥0`·`range≥0`(존재 시) + 모든 스킬 참조(`archetype_base_skills`·`allies[].skills`·`combat.epiphanies`)가 `combat.skills`에 실재. 완료 기준: 테스트 추가, 결손/음수/dangling 0 green, 있으면 Blocker. (PNG 아이콘은 위 `[blocked]` 항목 소관 — 중복 금지.)
 - `[ ]` `[auto:claude]` 아키타입 집합 정합(`test_progression.py`에 추가): `archetype_base_skills`·`archetype_loadout`의 아키타입 키 집합이 동일(한쪽에만 있는 아키타입 0) + 각 아키타입 base 스킬·loadout 무기가 실재. 완료 기준: 테스트 추가, 불일치/dangling 0 green, 있으면 Blocker.

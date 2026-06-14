@@ -122,10 +122,11 @@ limit을 자유 텍스트 grep이 아니라 구조화 신호로 판정한다(fal
 #       ③ (권장) brew install coreutils → 회차 타임아웃 활성  ④ make check 가 현재 HEAD 에서 green 인지 확인
 
 make overnight-once      # 1회차만(체인 검증) — 첫 가동 전 권장
-make overnight           # 백그라운드 무인 가동(절전 방지 + nohup, 터미널 닫혀도 유지)
-                         #   토큰 캡: MAX_ITER=12 make overnight
-                         #   변형:  GATE_CMD="make smoke-local" make overnight  (런타임-flow 야간)
-make overnight-logs      # runner.log 실시간 관찰
+make overnight-watch     # ★ 가동 + 즉시 로그 follow(한 방에). Ctrl+C로 빠져나와도 루프는 계속 돔
+make overnight           # 가동만(백그라운드, 절전 방지 + nohup) — follow 없이 fire-and-forget
+                         #   토큰 캡: MAX_ITER=12 make overnight(-watch)
+                         #   변형:  GATE_CMD="make smoke-local" make overnight-watch  (런타임-flow 야간)
+make overnight-logs      # 이미 도는 루프의 runner.log를 따로 follow
 make overnight-status    # 프로세스/STOP/DONE/최근 로그 빠른 확인
 make overnight-stop      # graceful 중단(현재 회차 마치고 종료)
 make overnight-clean     # 종료 후 STOP/DONE 제어 파일 정리

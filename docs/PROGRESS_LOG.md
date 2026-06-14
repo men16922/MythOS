@@ -5,6 +5,18 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-14 — 오프닝 시퀀스 정합: 장면별 이미지 + 4비트 온보딩 + 인트로 리뉴얼
+
+- Status: live QA §1.1 — 오프닝 첫인상 정합 묶음 완료. "예고(인트로 3컷 티저)→경험(인게임 비트)" 구조화.
+- Changed:
+  - scene 1 신호 정리: gemma4는 이미지 미해석(텍스트만) → first-scene INSTRUCTION(user 메시지 끝=비절단)에 "오프닝 확립 장면, 다른 인물/적/추격/전투 금지·시스템 few-shot 무시·location_id 무시" 추가(`prompts.py OPENING_FIRST_SCENE_INSTRUCTION`). `starting_location: data-layer-01` 드리프트 차단(turn 0 야외 빗속 거리·쓰러져 각성 강제).
+  - 4비트 온보딩(`scenario_context.py`, 게이팅 turn≤3): scene1=홀로 각성 / scene2~4=인트로 `cinematic_shots[0..2]` title·body를 직접 지시 소스로(도착→첫 접촉→추격+`patrol_ambush`). 세린은 scene2부터 등장.
+  - 장면별 이미지: 오프닝 앵커 `image_sequence`(opening_first→serin-arrival→first-contact→drone-chase), 프론트가 `active_scene.turn_index`로 인덱싱(`scenario.json`/`route_map.py`/`types.ts`/`StoryPanel.tsx`). image_pre/scenePartner는 폴백. `detectSceneCharacter`를 `sceneCharacter.ts`로 분리(lint).
+  - 인트로 시작 화면 리뉴얼: SYS-01~04 용어 타일 제거, copy를 평이한 오리엔테이션(지금/곧/목표 3줄), 작전목표 패널 제거, 버튼 "깨어난다"(`scenario.json session_intro`/`IntroPanel.tsx`).
+- Verified: `make test` 304 OK(skipped 2), frontend lint/build clean. 실제 Ollama: turn0×2 빗속 홀로 각성(세린/지하 0), turn1 "빗속에서 세린이 당신을 발견한다"·세린 도착. `/api/v1/scenarios` 새 인트로 copy 확인. API 재기동.
+- Blockers: 변경 미커밋. 경미: turn1 "회랑" 1회 누수·제목 "Changed " 접두 아티팩트, 인트로 불릿 칩 CSS.
+- Next: 풀 4턴 사람 플레이 체감(`make dev-up`, 새 루프). 큰 후속: 프리게임 montage 재배치(추격 컷 후반).
+
 ## 2026-06-14 — 전투-서사 연결: 교전 배너에 배경·보상 의미 노출 (live QA §5/§6)
 
 - Status: §6 "전투-서사 연결 희미" + §5 "보상 의미 약함" 처리.

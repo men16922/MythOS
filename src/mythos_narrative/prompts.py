@@ -75,12 +75,34 @@ JSON_CONTRACT = {
 }
 
 
+# The opening scene establishes the protagonist's situation FIRST. The shared
+# STORY_SYSTEM_PROMPT carries few-shot examples that name a companion/enemy (e.g.
+# "세린의 손을 잡고 뛴다", "드론 불빛이 세린의 어깨를..."); an 8B storyteller
+# treats those as a license to introduce the companion + drones immediately,
+# which fights a curated lone-protagonist opening image. This instruction sits at
+# the very END of the user message (never truncated) so it overrides those
+# examples for the first scene only — the scenario's DIRECTIVE NOTES supply the
+# concrete staging.
+OPENING_FIRST_SCENE_INSTRUCTION = (
+    "Generate the FIRST scene of this loop — the opening ESTABLISHING beat. "
+    "This scene establishes the protagonist's immediate situation ALONE. "
+    "이 첫 장면에서는, 위 DIRECTIVE NOTES가 '이 첫 장면에' 명시적으로 어떤 인물을 등장시키라고 "
+    "지시하지 않는 한, 다른 인물·동료·구조자·내민 손·적·드론/감시등·추격·전투를 절대 등장시키지 마라. "
+    "오직 주인공 한 사람의 상황(장소, 몸 감각, 즉각적인 처지)에만 집중하라. "
+    "중요: 시스템 프롬프트의 few-shot 예시 중 특정 동료(예: '세린의 손을 잡고 뛴다')나 적/드론을 "
+    "등장시키는 예시는 이 오프닝 확립 장면에는 적용하지 마라 — 그것들은 '다음' 장면용이다. "
+    "장소: DIRECTIVE NOTES가 지정한 오프닝 장소를 그대로 사용하라. CURRENT LOOP STATE의 location_id가 "
+    "지하/데이터 레이어/실내 등을 가리키더라도 무시하고, 임의로 실내·지하·주차장·추상 공간으로 옮기지 마라. "
+    "이 오프닝의 정확한 무대·연출은 반드시 위 DIRECTIVE NOTES를 따르라."
+)
+
+
 def build_first_scene_messages(context: NarrativeContext) -> list[dict[str, str]]:
     return [
         {"role": "system", "content": _system_prompt(context)},
         {
             "role": "user",
-            "content": _context_prompt(context, "Generate the first scene of this loop."),
+            "content": _context_prompt(context, OPENING_FIRST_SCENE_INSTRUCTION),
         },
     ]
 
@@ -232,7 +254,7 @@ def build_first_story_messages(context: NarrativeContext) -> list[dict[str, str]
         {"role": "system", "content": STORY_SYSTEM_PROMPT.strip()},
         {
             "role": "user",
-            "content": _story_context_prompt(context, "Generate the first scene of this loop."),
+            "content": _story_context_prompt(context, OPENING_FIRST_SCENE_INSTRUCTION),
         },
     ]
 

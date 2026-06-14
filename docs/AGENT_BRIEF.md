@@ -23,7 +23,7 @@ Project MythOS는 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG
 - mflux/FLUX image worker, Redux 캐릭터 일관성, MinIO asset path 검증 완료.
 - `session.py`는 narrative_rollup/loop_scoring/combat_session_helpers/constants로 책임 분리됨(공개 API 동일).
 - 서사는 이원화(dual-model): 스토리텔러 `OLLAMA_MODEL_STORY`=`gemma4:latest`(8B, 자유 텍스트) → 파서 `OLLAMA_MODEL_PARSER`=`qwen2.5:3b-instruct`(JSON 구조화). 스트리밍 경로는 정규식 파서 병행.
-- ⚠️ 대규모 미커밋 working tree(2026-06-14): 이원화 서사·SPA 재구성·콘텐츠 확장 50여 파일 미커밋(이미지만 `0a8a4af` 커밋). `make test` 297 green. 리뷰 후 단계 커밋 대기 — `NEXT_PLAN.md` Maintenance.
+- 오프닝 시퀀스 정합 완료(2026-06-14): scene1=홀로 각성·4비트 온보딩(인트로 3컷을 인게임 비트로)·장면별 `image_sequence`·인트로 화면 간결화. `make test` 304 green. ⚠️ 이 변경 미커밋(이전 이원화 서사·SPA·콘텐츠 배치는 커밋됨) — 리뷰 후 주제별 커밋.
 
 ## Active Work
 

@@ -59,7 +59,8 @@ Live LLM QA & 반복 완화 (2026-06-08):
 
 Recent verified baseline recorded in docs:
 
-- `make test`: 303 tests green (skipped 2).
+- `make test`: 304 tests green (skipped 2).
+- 오프닝 시퀀스 정합(2026-06-14): scene1=홀로 각성(이미지 정합)·4비트 온보딩(인트로 3컷을 인게임 비트로)·장면별 `image_sequence`·인트로 화면 간결화. live Ollama로 turn0/1 정합 확인.
 - frontend lint/build clean, `tests/playwright/test_e2e_play_checklist.py` green (refactored 서버 기동 포함).
 - `make smoke-local` succeeded (fallback narrative & visual smoke green).
 - Redux worker live path: Redis queue -> mflux Redux -> MinIO -> presigned PNG GET 200.
@@ -77,7 +78,7 @@ Recent verified baseline recorded in docs:
 
 ## Open Risks
 
-- **대규모 미커밋 working tree(2026-06-14)**: 이원화 서사 오케스트레이션·SPA 재구성·콘텐츠 확장 + 이번 세션 live QA A/B 수정(visual worker, 결말경향, 막 목표) 등 코드/문서 다수가 미커밋 상태(이미지 에셋만 `0a8a4af`로 커밋). `make test` 303 green이나, 단일 브랜치에 누적돼 있어 리뷰 후 단계적 커밋이 필요하다.
+- **오프닝 시퀀스 정합 작업 미커밋(2026-06-14)**: scene1 각성/4비트 온보딩/`image_sequence`/인트로 리뉴얼 변경(`scenario.json`·`scenario_context.py`·`prompts.py`·`route_map.py`·`StoryPanel.tsx`·`IntroPanel.tsx`·`CharacterPanel.tsx`·신규 `sceneCharacter.ts`·`opening_first.png`)이 미커밋. `make test` 304 green. (이전 이원화 서사·SPA·콘텐츠 배치는 이미 커밋됨.) 리뷰 후 주제별 커밋 필요. 워킹트리에 타 에이전트 산출물(`opening/README.md` 삭제·`docs/LOOP_ENGINEERING.md`·`.mcp.json`)도 섞여 있음.
 - **LLM 스트리밍 first-token 지연(해결 2026-06-11, 스토리 8B 전환)**: "TTFT 11.1초/완료" 주장은 재현 안 됨. 실측 근본 원인은 **48GB RAM**(64GB 아님) 스왑 포화 — 26B(18GB)+FLUX 이미지가 안 들어가 26B가 evict/페이지인되며 TTFT 13→**43~127초** 폭발. **결정·적용**: 스토리 모델을 **`gemma4:26b`→`gemma4:latest`(8B, 9.6GB)** 로 전환(head-to-head서 한국어 산문 품질 경쟁력 확인, **warm TTFT 9~10초**, RAM 상주로 FLUX와 공존). 파서는 `qwen2.5:3b-instruct`(스트리밍 경로는 실제론 정규식 파서 사용). 64GB+ 머신에서만 26B 재권장. 상세 `docs/DECISIONS.md`/`PROGRESS_LOG.md` 2026-06-11, 재측정 `scratch/ttft_bench.py`.
 - **이미지 vs 큐레이트 중복(해결 2026-06-11)**: 앵커는 프론트가 큐레이트 이미지(`route_map.image`=`scenes/*.png`)를 표시하는데 백엔드가 그 앵커에서도 FLUX를 돌려 표시 안 될 그림 생성 + 느린 턴을 유발했다. `maybe_generate_scene_image`에 `_curated_anchor_image()` 가드 추가 — 현재 노드가 `image` 보유 앵커면 FLUX 스킵(프론트가 큐레이트 이미지를 표시하므로 화면 변화 없이 느린 턴만 제거). 회귀 테스트 `tests/test_visual_orchestration.py` 6건.
 - **작전 지도 horizon 미갱신(라이브 발견)**: 동적 라우팅 2막 horizon이 진행 중 갱신 안 되는 것으로 보고됨

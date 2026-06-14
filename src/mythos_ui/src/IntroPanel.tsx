@@ -76,17 +76,10 @@ export const IntroPanel: React.FC<IntroPanelProps> = ({
             <div className="intro-rules-container">
               {introData.rules.map((rule, idx) => (
                 <div key={idx} className="intro-rule-tile">
-                  <div className="intro-rule-index">SYS-{(idx + 1).toString().padStart(2, "0")}</div>
+                  <div className="intro-rule-index">·</div>
                   <div className="intro-rule-text">{rule}</div>
                 </div>
               ))}
-            </div>
-          )}
-
-          {introData.objective && (
-            <div className="intro-objective-panel">
-              <div className="terminal-kicker">작전 목표</div>
-              <div className="intro-objective-text">{introData.objective}</div>
             </div>
           )}
 

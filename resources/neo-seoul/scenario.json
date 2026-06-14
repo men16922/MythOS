@@ -268,6 +268,13 @@
             "beat": "opening_escape",
             "title": "추락과 첫 신뢰",
             "image": "scenes/opening_escape.png",
+            "image_pre": "scenes/opening_first.png",
+            "image_sequence": [
+                "scenes/opening_first.png",
+                "opening/opening-01-serin-arrival.png",
+                "opening/opening-02-first-contact.png",
+                "opening/opening-03-drone-chase.png"
+            ],
             "event": "se_rin_rescue",
             "default_perspective": "p_trust",
             "perspectives": [
@@ -806,11 +813,11 @@
     "boot_marker": "BOOTSTRAP: HANDSHAKE RETRY // VISUAL CHANNEL OPENING",
     "session_intro": {
       "kicker": "OPENING SEQUENCE",
-      "title": "C-17 정전. 비식별 신호 감지.",
-      "body": "복지 블록 전체가 2.7초 동안 암전된다. 그 짧은 틈에 관리망이 설명하지 못하는 신호 하나가 젖은 콘크리트 위에서 눈을 뜬다.",
-      "rules": ["ARK 정정 프로토콜 기동", "복지점수 조회 실패", "감시 드론 3기 C-17로 우회", "미확인 라이더 신호 접근 중"],
+      "title": "첫 접속 — C-17 정전",
+      "body": "당신은 '비식별 신호' — 어떤 명단에도 없는 존재다. 관리자 IX는 기준에서 벗어난 당신을 지우려 한다(기억 삭제).",
+      "rules": ["지금 — 정전의 틈, 젖은 거리에서 홀로 깨어난다", "곧 — 한 라이더가 당신을 찾아낸다", "목표 — 살아서 C-17 정전 구역을 빠져나간다"],
       "objective": "정세린의 손을 잡고 C-17 정전 구역을 빠져나가라.",
-      "continue_button": "세린의 손을 잡는다",
+      "continue_button": "깨어난다",
       "cinematic_shots": [
         {
           "image": "opening/opening-01-serin-arrival.png",

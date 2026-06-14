@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { PointerEventHandler, RefObject } from "react";
 import { CharacterPanel } from "./CharacterPanel";
+import { detectSceneCharacter } from "./sceneCharacter";
 import { ChoicePanel } from "./ChoicePanel";
 import { CombatControls } from "./CombatControls";
 import { CombatLog } from "./CombatLog";
@@ -600,9 +601,27 @@ export function StoryPanel({
   // image; fall back to the async-generated scene image if it isn't placed yet.
   const routeMap = snapshot?.state?._route_map;
   const currentNode = routeMap?.current ? routeMap?.nodes?.[routeMap.current] : undefined;
+  // Some anchors stage a pre-reveal still (`image_pre`, protagonist-focus) that
+  // is shown until the beat's partner steps into the scene, then swap to the
+  // main `image`. Key it on the same scene-character detection that drives the
+  // CHARACTER portrait so the image and portrait stay in sync (opening: lone
+  // protagonist still until Se-rin is named, then her rescue still).
+  const scenePartner = detectSceneCharacter(snapshot, scenarioCharacters);
+  // Multi-scene anchors (the opening: awakening → arrival → first-contact → chase)
+  // carry a per-beat image_sequence indexed by the scene's turn; it takes priority.
+  // Otherwise fall back to the pre-reveal still (before the partner is named) → main.
+  const sceneTurn = snapshot?.active_scene?.turn_index ?? 0;
+  const imageSeq = currentNode?.image_sequence;
+  let anchorImageName: string | undefined;
+  if (currentNode?.anchor && Array.isArray(imageSeq) && imageSeq.length > 0) {
+    anchorImageName = imageSeq[Math.min(sceneTurn, imageSeq.length - 1)];
+  } else {
+    anchorImageName =
+      currentNode?.image_pre && !scenePartner ? currentNode.image_pre : currentNode?.image;
+  }
   const anchorImageUrl =
-    currentNode?.anchor && currentNode.image
-      ? `/resources/${scenarioId}/${currentNode.image}`
+    currentNode?.anchor && anchorImageName
+      ? `/resources/${scenarioId}/${anchorImageName}`
       : "";
   const anchorImageOk = anchorImageUrl && !brokenImages.has(anchorImageUrl);
   const displayImageUrl = anchorImageOk ? anchorImageUrl : sceneImageUrl;

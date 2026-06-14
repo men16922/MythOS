@@ -198,9 +198,16 @@ def _build_node(
     if isinstance(gate, list) and gate:
         node["gate"] = [str(flag) for flag in gate]
     # Authored anchor resources (curated image / scripted event / beat id).
-    for field in ("beat", "image", "event", "default_perspective"):
+    # `image_pre` is shown until the beat's partner enters the scene (e.g. the
+    # opening: protagonist-focus still before Se-rin reaches in), then `image`.
+    for field in ("beat", "image", "image_pre", "event", "default_perspective"):
         if spec.get(field):
             node[field] = str(spec[field])
+    # `image_sequence`: one curated still per beat (turn) of a multi-scene anchor,
+    # e.g. the opening (awakening → arrival → first-contact → chase). The frontend
+    # indexes it by the scene's turn_index; it takes priority over image/image_pre.
+    if isinstance(spec.get("image_sequence"), list) and spec["image_sequence"]:
+        node["image_sequence"] = [str(x) for x in spec["image_sequence"]]
     # Multi-perspective story beats: same impactful scene seen from several
     # viewpoints, chosen at runtime by accumulated flags (director step).
     if isinstance(spec.get("perspectives"), list):

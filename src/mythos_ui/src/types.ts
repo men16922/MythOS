@@ -330,6 +330,8 @@ export interface RouteNode {
   col?: number;
   beat?: string;
   image?: string;
+  image_pre?: string;
+  image_sequence?: string[];
   event?: string;
   default_perspective?: string;
   perspectives?: RoutePerspective[];

@@ -9,7 +9,7 @@
   파괴/온라인 `make` 타깃(`infra-*`, `db-*`, `smoke`, `test-db`, `test-e2e*`,
   `narrative-smoke`(비-fallback), `visual-smoke-minio-db`, `visual-worker*`, `dev-*`, `streamlit`, `api`, `connect-demo`).
 - **금지 작업 클래스**(무인 검증 불가 → 절대 착수 금지):
-  사람 플레이 체감 QA(`docs/text/neo_seoul_live_qa.md` 전부), 콘텐츠/Story-Bible 저작,
+  사람 플레이 체감 QA(`docs/test/neo_seoul_live_qa.md` 전부), 콘텐츠/Story-Bible 저작,
   밸런스 튜닝, LLM 프롬프트-feel 튜닝.
 - `harness/CORE_MANDATES.md` §4-5 준수(측정 후 수정, docs-first, 구조적 이동은 확인, 완료 주장 전 검증).
 - 게이트는 환경변수 `$GATE_CMD`(기본 `make check`, 더 빠른 변형 `make check-auto`/`make smoke-local`)를 그대로 실행한다.

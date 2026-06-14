@@ -36,5 +36,5 @@
 
 ## 참고
 - 설계·환경변수·종료 조건: `docs/LOOP_ENGINEERING.md`.
-- 봇이 할 수 없는 것(플레이 feel·캐릭터·엔딩 잔향)은 사람 플레이 QA: `docs/text/neo_seoul_live_qa.md`.
+- 봇이 할 수 없는 것(플레이 feel·캐릭터·엔딩 잔향)은 사람 플레이 QA: `docs/test/neo_seoul_live_qa.md`.
 - 직전 가동(2026-06-14) seed: 콘텐츠/밸런스 무결성 7종(루트/엔딩 도달성·플래그/스킬/조우 무결성·조우 승률 밴드·진행도 경제).

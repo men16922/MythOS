@@ -3,7 +3,7 @@
 작성일: 2026-06-07
 상태(2026-06-14 갱신): Phase 1-3 + P0/P1 구현 대부분 완료(전투 연출 개편·route-node화·Tactical Board·
 조우 난이도 튜닝·진행도 해금·objective/choice-result UX·live LLM 장기 세션 기술 QA). 잔여는 실제
-풀스택 사람 플레이 QA(`docs/text/neo_seoul_live_qa.md`). 진행 권위는 `docs/STATUS.md`/`docs/NEXT_PLAN.md`.
+풀스택 사람 플레이 QA(`docs/test/neo_seoul_live_qa.md`). 진행 권위는 `docs/STATUS.md`/`docs/NEXT_PLAN.md`.
 
 ## 목표
 

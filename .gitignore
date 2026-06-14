@@ -39,3 +39,8 @@ screenshots/
 # VS Code remote tunnel CLI artifacts
 /code
 /vscode_cli.tar.gz
+
+# Overnight loop runtime artifacts (bin/overnight/run.sh) — keep the harness, drop the state
+bin/overnight/logs/
+bin/overnight/STOP
+bin/overnight/DONE

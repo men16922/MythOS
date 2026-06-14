@@ -13,6 +13,17 @@
 - 완료 후 `docs/PROGRESS_LOG.md`에는 최신 요약만, 완료 트랙은 `COMPLETED_SUMMARY.md`로 압축한다.
 - 되돌리기 어려운 선택은 `docs/DECISIONS.md`에 기록한다.
 
+### 자동화 태그 (overnight 루프용)
+
+상태 박스(`[x]`/`[/]`/`[ ]`/`[~]`)와 **별개 축**으로, 무인 overnight 루프(`bin/overnight/`,
+`docs/LOOP_ENGINEERING.md`)가 소비할 수 있는지를 inline 태그로 표시한다.
+
+- `[auto]` — 로컬·결정론·offline(`make check` 또는 `make smoke-local`)으로 검증 가능한 항목에만.
+  **반드시 완료 기준 1줄**을 붙인다(scope 폭주 방지).
+- `[manual]` — 사람 플레이 체감 QA·콘텐츠/Story-Bible 저작·밸런스/프롬프트-feel 튜닝 등 무인 검증 불가.
+- `[blocked]` — 같은 항목 Blocker 2회 누적(러너가 자동으로 덧붙임). 사람 검수 후 제거. 선행 조건 미충족도 포함.
+- **무태그 = 무인 대상 아님**(안전 기본값). 러너는 `[auto]`만 소비하고, 무태그를 임의로 승격하지 않는다.
+
 ## Priority 1 — Neo-Seoul Playability Upgrade
 
 상태: `[/]` 진행 중(최우선 트랙).
@@ -51,6 +62,16 @@ P1 작전 지도 route-node화 + 세션 메모리(→ COMPLETED_SUMMARY M39), Ta
   라벨 `{행선지}(으)로 향한다 — {type별 의미}`, `_route_destination_meaning`).
 - `[/]` 후속: 동적 노드 title 다양화·중복 억제 완료(2026-06-12). 남은 것: visual prompt에 현재 노드 주입, 정적 시나리오도 점진 전환 검토.
 
+### 2026-06-14 오프닝 시퀀스 정합 (live_qa §1.1) — 완료(토대), montage 후속
+
+- `[x]` scene1=홀로 각성(이미지 정합)·4비트 온보딩(인트로 3컷 cinematic_shots를 인게임 비트 지시 소스로)·
+  장면별 `image_sequence`(opening_first→serin-arrival→first-contact→drone-chase)·인트로 시작 화면 간결화
+  (SYS 타일 제거, 오리엔테이션 copy, 버튼 "깨어난다"). gemma4는 이미지 미해석 → first-scene INSTRUCTION/
+  location 강제로 신호 정리. live Ollama turn0/1 정합 확인.
+- `[ ]` 프리게임 montage 재배치: 추격 컷을 후반 비트로 옮겨 montage가 인게임 각성보다 앞서가는 시점 스포일 완화.
+- `[ ]` 풀 4턴 사람 플레이 체감(각성→도착→접촉→추격, 이미지 전환·세린 포트레이트 동기화).
+- `[ ]` 경미: turn1 "회랑" 단어 1회 누수·제목 "Changed " 접두 아티팩트, 인트로 불릿 칩(`·`) CSS 다듬기.
+
 ### 2026-06-10 사람 플레이 QA 발견 (live_qa §0/§1-6) — 1차 결정론 묶음 먼저
 
 - `[x]` **A 전투 페이스·난이도(P0)**: 초반 N장면 patrol-only/조우 쿨다운/연속 방지/초반 난이도 캡,
@@ -76,7 +97,9 @@ P1 작전 지도 route-node화 + 세션 메모리(→ COMPLETED_SUMMARY M39), Ta
 - `[ ]` P2 — 아키타입 의미 강화: 해금 조건을 명시 milestone으로 제한, 오프닝/시작 위치/기본 스킬/시작 아이템/NPC 반응 차별화.
 - `[/]` P2 — objective 피드백 정리: 현재 장면 objective/stakes 상시 표시 + Golden Path 막 목표 정합 완료(2026-06-14). 남은 것: 막 전환 gate 충족 시에만 다음 단계 진행.
 - `[/]` P2 — 선택 결과 요약 강화: 선택 후 `stability/tension`·flag성 사건·route 이동은 장면 기록에서 읽힘. 남은 것: 관계·Codex/Shard 변화까지 동일 포맷으로 확장.
-- `[ ]` P2 — Codex Skill UX 정리: 해금됨/습득 가능/통찰 부족/선행 필요 상태를 첫 플레이어도 이해하도록 문구·버튼 상태 점검.
+- `[/]` P2 — Codex Skill UX 정리: 해금됨/습득 가능/통찰 부족/선행 필요 상태를 첫 플레이어도 이해하도록 문구·버튼 상태 점검. 분리:
+  - `[auto]` 버튼 disabled/상태 로직 + 회귀 테스트. 완료 기준: 상태별 버튼 활성/비활성이 결정론적이고 frontend `make check`(tsc/eslint) + 기존 테스트 green.
+  - `[manual]` 상태 문구 wording(첫 플레이어 이해도 — feel 판단).
 - `[ ]` Phase 4 — objective/choice result/Codex feedback UX 정리(위 P2 묶음의 통합 마감).
 - `[ ]` Phase 5 — Neo-Seoul RC: 수동 QA(`docs/neo_seoul_live_qa.md`) + 자동 회귀, 결과는 `PROGRESS_LOG.md` 짧게/긴 기록은 archive.
 
@@ -101,9 +124,10 @@ P1 작전 지도 route-node화 + 세션 메모리(→ COMPLETED_SUMMARY M39), Ta
 
 ## Maintenance
 
-- `[ ]` **미커밋 배치 단계 커밋(2026-06-14)**: 이원화 서사 오케스트레이션·SPA 재구성(`CharacterTabPanel`/`ProgressDashboard`/`SkillTreePanel`/`runHistory.ts`)·API 확장·콘텐츠 확장·docs/테스트 변경 50여 파일이 미커밋(이미지만 `0a8a4af`). 주제별로 리뷰 후 분리 커밋.
-- `[ ]` 장기 플레이에서 Flux1 + Flux1Redux 동시 적재 메모리 모니터.
-- `[ ]` `_map` 제거 정리(route-node 트랙 완료 후 보류; engine 매 장면 기록 + encounter_map 좌표·story_bible 위치·glass-library 폴백 미니맵 의존). 전 시나리오 route_map 전환 후 진행.
-- `[ ]` 필요 시 stale dated plan status header 정리.
-- `[ ]` 프론트엔드 god-component 분해(App.tsx·CombatCinema): custom hook/모듈 추출. E2E 민감하므로 live QA 동반 점진 진행.
-- `[ ]` `bin/` 보관소 검토 후 불필요 항목 삭제(historical archive/plans/scratch).
+- `[ ]` `[manual]` **미커밋 배치 단계 커밋(2026-06-14)**: 이원화 서사 오케스트레이션·SPA 재구성(`CharacterTabPanel`/`ProgressDashboard`/`SkillTreePanel`/`runHistory.ts`)·API 확장·콘텐츠 확장·docs/테스트 변경 50여 파일이 미커밋(이미지만 `0a8a4af`). 주제별로 리뷰 후 분리 커밋. (실제 기능 변경 묶음 — 주제별 사람 판단 필요. overnight 루프 실행 전에 손으로 트리를 비워야 함: dirty tree가 잔여물 복구를 오발.)
+- `[ ]` `[manual]` 장기 플레이에서 Flux1 + Flux1Redux 동시 적재 메모리 모니터.
+- `[ ]` `[blocked]` `_map` 제거 정리(route-node 트랙 완료 후 보류; engine 매 장면 기록 + encounter_map 좌표·story_bible 위치·glass-library 폴백 미니맵 의존). 선행 조건: 전 시나리오 route_map 전환. 충족 시 `[auto]`(codemod + `make check` green)로 승격.
+- `[ ]` `[auto]` 필요 시 stale dated plan status header 정리. 완료 기준: `docs/plans/*.md` status 헤더가 STATUS/NEXT_PLAN 권위와 일치, `make check-auto` 영향 없음(docs-only).
+- `[ ]` `[auto]` **mypy 선행 부채 정리(파일 단위)**: `make python-typecheck`(=`mypy src tests`)가 현재 ~129 errors/14 files로 red라 `make check`를 overnight 게이트로 못 씀(대신 `make check-auto` 사용 중). 한 회차=한 파일 정리. 완료 기준: 대상 파일의 mypy error 0 + `make check-auto` green. 전부 정리되면 overnight 게이트를 `make check`로 승격(run.sh `GATE_CMD`).
+- `[ ]` `[manual]` 프론트엔드 god-component 분해(App.tsx·CombatCinema): custom hook/모듈 추출. E2E 민감하므로 live QA 동반 점진 진행.
+- `[ ]` `[auto]` `bin/` 보관소 검토·목록화(읽기 전용): 불필요 후보를 목록으로 보고. 완료 기준: 후보 목록을 PROGRESS_LOG/Blocker로 남김, 파일 삭제 없음(삭제 승인은 별도 `[manual]` — CORE_MANDATES §5).

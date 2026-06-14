@@ -4,7 +4,7 @@ COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
-.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check
+.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check check-auto
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -43,6 +43,15 @@ check:
 	$(MAKE) lint
 	$(MAKE) typecheck
 	$(MAKE) test
+
+# Offline gate for the unattended overnight loop (bin/overnight/, docs/LOOP_ENGINEERING.md).
+# Same coverage as `check` MINUS python-typecheck (mypy), which currently carries pre-existing
+# debt (~129 errors) and would red-fail every loop iteration. Promote the loop gate back to
+# `make check` once that debt is cleared. Everything below must stay green.
+check-auto:
+	$(MAKE) lint
+	$(MAKE) frontend-build
+	$(MAKE) smoke-local
 
 doctor:
 	$(VENV)/bin/python agent.py --doctor

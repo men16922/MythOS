@@ -124,6 +124,7 @@ P1 작전 지도 route-node화 + 세션 메모리(→ COMPLETED_SUMMARY M39), Ta
 
 ## Maintenance
 
+- `[ ]` `[auto]` CLAUDE.md stale 린터 서술 정정: `CLAUDE.md`의 "There is no linter or CI configured ... neither pytest nor ruff is a dependency"(현재 line ~72)는 이제 틀림 — ruff/mypy(`pyproject.toml`) + eslint(frontend) 설정됨, `make lint`/`typecheck`/`check`/`check-auto` 존재, ruff/mypy는 dev 의존성(`.[dev]`). 완료 기준: 해당 문장을 현행에 맞게 정정(CI 부재는 사실이면 유지 가능), `make check` green.
 - `[ ]` `[manual]` **미커밋 배치 단계 커밋(2026-06-14)**: 이원화 서사 오케스트레이션·SPA 재구성(`CharacterTabPanel`/`ProgressDashboard`/`SkillTreePanel`/`runHistory.ts`)·API 확장·콘텐츠 확장·docs/테스트 변경 50여 파일이 미커밋(이미지만 `0a8a4af`). 주제별로 리뷰 후 분리 커밋. (실제 기능 변경 묶음 — 주제별 사람 판단 필요. overnight 루프 실행 전에 손으로 트리를 비워야 함: dirty tree가 잔여물 복구를 오발.)
 - `[ ]` `[manual]` 장기 플레이에서 Flux1 + Flux1Redux 동시 적재 메모리 모니터.
 - `[ ]` `[blocked]` `_map` 제거 정리(route-node 트랙 완료 후 보류; engine 매 장면 기록 + encounter_map 좌표·story_bible 위치·glass-library 폴백 미니맵 의존). 선행 조건: 전 시나리오 route_map 전환. 충족 시 `[auto]`(codemod + `make check` green)로 승격.

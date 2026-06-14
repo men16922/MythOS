@@ -4,7 +4,7 @@ COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
-.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check check-auto
+.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check check-auto overnight overnight-once overnight-stop overnight-logs overnight-status overnight-clean
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -51,6 +51,43 @@ check-auto:
 	$(MAKE) lint
 	$(MAKE) frontend-build
 	$(MAKE) smoke-local
+
+# --- Overnight 무인 루프 (bin/overnight/, 설계: docs/LOOP_ENGINEERING.md) ---
+# 자는 동안 헤드리스 claude가 NEXT_PLAN의 [auto] 작업을 구현·검증(make check)·기록·로컬 커밋한다.
+# 가동 전: 워킹트리 clean + [auto] 항목 seeding + (권장) brew install coreutils(회차 타임아웃).
+# 환경변수로 조절: GATE_CMD(기본 make check), MAX_ITER, MAX_NO_PROGRESS, ITER_TIMEOUT 등.
+
+# 백그라운드 가동(절전 방지 + 터미널 닫혀도 유지). 예: MAX_ITER=12 make overnight
+overnight:
+	@if pgrep -f "bin/overnight/run.sh" >/dev/null 2>&1; then echo "이미 실행 중 (중단: make overnight-stop)"; exit 1; fi
+	@command -v gtimeout >/dev/null 2>&1 || command -v timeout >/dev/null 2>&1 || echo "⚠ gtimeout/timeout 없음 — 회차 타임아웃 비활성(brew install coreutils 권장)"
+	@if [ -n "$$(git status --porcelain)" ]; then echo "⚠ 워킹트리 dirty — 1회차가 잔여물 복구로 빠집니다(또는 red면 STOP). 먼저 커밋/정리 권장."; fi
+	@mkdir -p bin/overnight/logs
+	@rm -f bin/overnight/STOP bin/overnight/DONE
+	@nohup caffeinate -dimsu bin/overnight/run.sh > bin/overnight/logs/nohup.out 2>&1 & echo "▶ overnight 시작 (pid $$!, gate=$${GATE_CMD:-make check}, MAX_ITER=$${MAX_ITER:-20}). 관찰: make overnight-logs · 중단: make overnight-stop · 아침: /overnight-report"
+
+# 1회차만(체인 검증). 포그라운드 실행.
+overnight-once:
+	bin/overnight/run.sh --once
+
+# graceful 중단(현재 회차 마치고 다음 회차 진입 전 종료).
+overnight-stop:
+	@touch bin/overnight/STOP && echo "STOP 생성 — 현재 회차 마치고 종료(완료 후 make overnight-clean 권장)."
+
+# runner.log 실시간 관찰.
+overnight-logs:
+	@touch bin/overnight/logs/runner.log && tail -f bin/overnight/logs/runner.log
+
+# 빠른 상태(프로세스/STOP/DONE/최근 로그). 풍부한 검수는 claude 세션의 /overnight-report.
+overnight-status:
+	@pgrep -f "bin/overnight/run.sh" >/dev/null 2>&1 && echo "● 실행 중 (pid $$(pgrep -f 'bin/overnight/run.sh' | tr '\n' ' '))" || echo "○ 미실행"
+	@test -f bin/overnight/STOP && echo "STOP: $$(head -1 bin/overnight/STOP)" || true
+	@test -f bin/overnight/DONE && echo "DONE: $$(head -1 bin/overnight/DONE)" || true
+	@echo "--- runner.log 마지막 6줄 ---"; tail -6 bin/overnight/logs/runner.log 2>/dev/null || echo "(로그 없음)"
+
+# 종료 후 제어 파일 정리(STOP/DONE 제거). 다음 가동 전 클린업.
+overnight-clean:
+	@rm -f bin/overnight/STOP bin/overnight/DONE && echo "STOP/DONE 제거 — 다음 가동 준비 완료."
 
 doctor:
 	$(VENV)/bin/python agent.py --doctor

@@ -114,20 +114,25 @@ limit을 자유 텍스트 grep이 아니라 구조화 신호로 판정한다(fal
 `Bash(make *)` 전체 허용은 금지(새 파괴 타깃 자동 허용 방지). **interactive 설정
 (`~/.claude/settings.json`, `.claude/settings.local.json`)은 건드리지 않는다.**
 
-## 4. 운영 (실사용)
-```sh
-# 사전 1: 워킹 트리를 깨끗이 — dirty tree면 1회차가 잔여물 복구로 빠진다(또는 red면 STOP).
-# 사전 2: GATE_CMD 기본 make check 가 현재 HEAD 에서 green 인지 한 번 확인.
-# 사전 3: [auto] 항목을 한 묶음 seeding(없으면 즉시 MAX_NO_PROGRESS 로 멈춤).
+## 4. 운영 (실사용 — `make` 타깃)
+`bin/overnight/run.sh`를 직접 부르지 말고 Makefile 타깃을 쓴다(가드·절전·nohup·정리 포함).
 
-caffeinate -dimsu bin/overnight/run.sh &              # Mac 절전 방지 + 백그라운드
-bin/overnight/run.sh --once                          # 1회차만 (체인 검증)
-GATE_CMD="make smoke-local" bin/overnight/run.sh &   # 런타임-flow 야간(mypy/tsc 대신 런타임 smoke)
-touch bin/overnight/STOP                              # graceful 중단
-tail -f bin/overnight/logs/runner.log                # 관찰
-# 아침에: claude 세션에서 /overnight-report
+```sh
+# 사전: ① 워킹 트리 clean(dirty면 1회차가 잔여물 복구로 빠짐) ② [auto] 항목 seeding(없으면 즉시 무진행 종료)
+#       ③ (권장) brew install coreutils → 회차 타임아웃 활성  ④ make check 가 현재 HEAD 에서 green 인지 확인
+
+make overnight-once      # 1회차만(체인 검증) — 첫 가동 전 권장
+make overnight           # 백그라운드 무인 가동(절전 방지 + nohup, 터미널 닫혀도 유지)
+                         #   토큰 캡: MAX_ITER=12 make overnight
+                         #   변형:  GATE_CMD="make smoke-local" make overnight  (런타임-flow 야간)
+make overnight-logs      # runner.log 실시간 관찰
+make overnight-status    # 프로세스/STOP/DONE/최근 로그 빠른 확인
+make overnight-stop      # graceful 중단(현재 회차 마치고 종료)
+make overnight-clean     # 종료 후 STOP/DONE 제어 파일 정리
+# 아침에: claude 세션에서 /overnight-report  (종료 사유·회차·커밋·게이트 재실측·잔여 [auto])
 ```
 종료 조건: `DONE`(소진/전부 blocked) · `STOP`(수동/red 잔여물) · `MAX_ITER` · 연속 실패 N회 · 무진행 N회.
+**완료 시 멈춘다**: `[auto]` 소진 → 에이전트가 `DONE` 생성 → 다음 회차 진입 전 러너 종료(추가 토큰 X). DONE 생성 1회차 비용만 발생.
 
 ## 5. 한계 / 알려진 동작
 - **얇은 `[auto]` 백로그(§0)**: 가장 중요한 한계. 무진행 종료가 잦은 게 정상. 실행 전 seeding 권장.

@@ -44,7 +44,7 @@
 - `[x]` 완료 4종: 루트·엔딩 도달성(`tests/test_route_integrity.py`) + 플래그 참조·조우 무결성(`tests/test_content_integrity.py`). 상세는 PROGRESS archive(`bin/docs/archive/progress-2026-06.md`).
 - `[ ]` `[auto:agy]` 스킬 아이콘 6종 초안: `emp_pulse`·`glitch_blink`·`memory_resonance`·`nanoshield_projector`·`signal_overdrive`·`system_intrusion` 의 `resources/neo-seoul/skills/<id>.png` 를 IMAGE_POLICY + 기존 스킬 아이콘 스타일을 바이블로 초안 생성(placeholder fabricate 금지). 완료 기준: 6 PNG 실존·비어있지 않음·규격 일치. (2026-06-14 1차 생성분은 미적 반려 — `outputs/agy/skills/VERDICT.md`. 엄격 카드 템플릿으로 재생성 필요.)
 - `[blocked]` `[auto:claude]` 스킬/아이콘 무결성 invariant: 모든 `combat.skills[].id`에 `resources/neo-seoul/skills/<id>.png` 존재 + 아키타입 base/learnable + `epiphany` unlock이 실재 스킬 참조. 완료 기준: `test_assets.py`에 추가, green 또는 Blocker. **선행 미충족**: 위 `[auto:agy]` 아이콘 6종 채택·머지 후 해제.
-- `[ ]` `[auto:claude]` 조우 승률 밴드(시뮬): 고정 시드 그리디 시뮬로 각 조우의 의도 아키타입 승률이 합리 밴드(예: 55~98%) 내(0%=불가, 100%=시시). 시뮬 하네스는 `scratch/` 확인·재사용. 완료 기준: 테스트 추가, 밴드 밖이면 Blocker, green. (codex 리뷰 findings: 동료 `controllable=True`로 직접조작 파티 재측정 + 100% 천장 invariant 실효화 — `bin/overnight/logs/review-latest.md`.)
+- `[x]` `[auto:claude]` 조우 승률 밴드(시뮬) — `tests/test_encounter_balance.py`(2026-06-14). 고정 시드 그리디 시뮬(기본공격=보수적 하한). **단일 55~98% 밴드는 실측상 불성립**(skill-less 그리디+가변 파티 → 0.00~1.00)이라 **양면 invariant**로 설계: ① 대표 파티(player+se_rin+kai, `controllable=True`) 승률 ≥ 0.50(불가능 가드, 관측 0.96~1.00) ② 솔로 승률 ≤ 0.95(공짜 가드, 관측 0.00~0.79) + 결정론 검증. 리뷰 findings 2건 반영. green(320). 정밀 난이도 곡선은 `[manual]` feel-QA.
 - `[ ]` `[auto:codex]` 진행도 경제 invariant(`test_progression.py`에 추가): 스킬 learn/rankup 비용이 tier별 단조 + 모든 tier가 합리적 통찰 수입으로 도달 가능(영구 불가 tier 0). 완료 기준: 테스트 추가, green 또는 Blocker.
 
 ## Priority 1 — Neo-Seoul Playability Upgrade

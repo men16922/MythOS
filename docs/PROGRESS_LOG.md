@@ -5,6 +5,17 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-14 — 조우 승률 밴드 invariant ([auto:claude], QA seed)
+
+- Status: overnight QA seed `[auto:claude]` 조우 밸런스 invariant 박제(대화형, 첫 회차 안전성 위해). green.
+- Changed: `tests/test_encounter_balance.py` 신설(3 tests). 고정 시드 그리디 시뮬(기본공격=보수적 하한)로
+  **양면 가드** — ① 대표 파티(player+se_rin+kai, `controllable=True`) 승률 ≥0.50(불가능 가드), ② 솔로 ≤0.95(공짜
+  가드) + 결정론 검증. **단일 55~98% 밴드는 실측 불성립**(skill-less 그리디+가변 파티 → 0.00~1.00)이라 양면 설계로 전환.
+  리뷰 findings 2건(동료 `controllable=True`·100% 천장 실효화) 반영.
+- Verified: `make check` EXIT=0(320 tests, +3). mypy/ruff clean. 측정 기준선: party 0.96~1.00, solo 0.00~0.79.
+- Blockers: 없음.
+- Next: 잔여 QA seed — 진행도 경제(`[auto:codex]`)·agy 아이콘 재생성. 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-14 — Engineering 문서 바이블↔해석 정립 + /sync 연속성 수정 + 로깅/대시보드 + skills 정합
 
 - Status: 엔지니어링 정비 트랙 WS0~WS3 + skills 최적화 완료(WS4 콘텐츠 파이프라인은 plan-only). `HARNESS_RESEARCH` 개념 흡수.

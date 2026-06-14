@@ -14,7 +14,7 @@
 ## Current Handover
 
 1. **Priority 1(Neo-Seoul 플레이 만족도)**: 최우선 트랙. Phase 1-3, 작전 지도 route-node화 + 세션 메모리(M39), Tactical Board(범례/타일 인스펙터/학습 목표 배너), 조우 난이도 튜닝(per-spawn `overrides`), P0(insight 보상·결과 패널·forced ambient 완화·BGM/세린 표기 QA)까지 완료. 다음은 live LLM 장기 세션 QA, loot/인벤토리·objective·선택 결과·Codex UX 정리, 보드 확대/반응형이다.
-2. **QA 기준**: 범용 수동 QA 문서는 폐기. Neo-Seoul 실제 플레이 확인 항목은 `docs/neo_seoul_live_qa.md`, 설계 rubric은 `docs/scenarios/01-neo-seoul-connect.md` §5.5, 작업 체크리스트는 `docs/NEXT_PLAN.md`를 따른다.
+2. **QA 기준**: 범용 수동 QA 문서는 폐기. Neo-Seoul 실제 플레이 확인 항목은 `docs/text/neo_seoul_live_qa.md`, 설계 rubric은 `docs/scenarios/01-neo-seoul-connect.md` §5.5, 작업 체크리스트는 `docs/NEXT_PLAN.md`를 따른다.
 3. **완료 축**: 전투 연출 live QA, 진행도 해금, 파티 조작, 데이터 주도 progression grant, React SPA 패리티, Playwright E2E는 완료 상태로 유지한다.
 4. **glass-library**: 현재 hold. progression/presentation 패리티까지 완료됐지만, 추가 서사(arcs/endings/Story Bible) 깊이와 전투 아트/스킬 확장은 Neo-Seoul 만족도 개선 이후로 미룬다.
 5. **장기 worker 안정성**: Redux 단독 job과 종료 cleanup은 검증됐지만, txt2img(Flux1) + Redux(Flux1Redux) 동시 적재 시 메모리/스왑 멈춤 재발 여부는 장기 플레이에서 관찰해야 한다.

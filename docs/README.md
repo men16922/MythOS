@@ -29,10 +29,12 @@
 | `DOCS_POLICY.md` | 문서 운영 규칙 |
 | `IMAGE_POLICY.md` | 이미지 생성 규칙·로컬 파이프라인 |
 | `REFERENCES.md` | 디자인 레퍼런스 게임과 적용 포인트 |
-| `neo_seoul_live_qa.md` | Neo-Seoul 사람 플레이 QA 체크리스트 + 현재 우선 확인 항목 |
 
 ## On-Demand Docs
 
+- `docs/text/`: **사람이 직접 수행하는 체크리스트**(에이전트 기본 컨텍스트 아님 — 사용자가 연다).
+  - `neo_seoul_live_qa.md`: Neo-Seoul 사람 플레이 QA 체크리스트.
+  - `overnight-review-checklist.md`: overnight 루프 종료 후 사람 검수 체크리스트(반복 프로세스).
 - `docs/plans/`: 활성 작업의 날짜별 설계 스냅샷(현재 neo-seoul playability/live-feedback). 완료된 plan은 `bin/docs/plans/`로 이관. 최신 상태가 아닐 수 있으므로 `NEXT_PLAN.md`를 우선한다.
 - `docs/scenarios/`: 시나리오 기획 문서. 콘텐츠 변경 시에만 읽는다.
 - `bin/docs/archive/`: 장문 설계/로그/과거 기획 보존소. 기본 컨텍스트에 넣지 않는다.

@@ -10,7 +10,7 @@
 ## 0. ⚠️ 핵심 전제 — MythOS는 게임이다 (이 LOOP의 적용 한계)
 
 이 LOOP는 원래 결정론적 백엔드 서비스용으로 설계됐다. MythOS는 **narrative 게임**이라
-백로그의 대부분이 **사람 플레이 체감 QA**(`docs/neo_seoul_live_qa.md` 전부)·**콘텐츠/Story-Bible 저작**·
+백로그의 대부분이 **사람 플레이 체감 QA**(`docs/text/neo_seoul_live_qa.md` 전부)·**콘텐츠/Story-Bible 저작**·
 **밸런스 튜닝**·**LLM 프롬프트-feel 튜닝**으로, 무인 에이전트가 검증할 수 없다.
 
 → 따라서 이 LOOP는 **hygiene / regression / refactor / codemod / deterministic-bugfix** 에만 적합하다.
@@ -131,6 +131,7 @@ make overnight-status    # 프로세스/STOP/DONE/최근 로그 빠른 확인
 make overnight-stop      # graceful 중단(현재 회차 마치고 종료)
 make overnight-clean     # 종료 후 STOP/DONE 제어 파일 정리
 # 아침에: claude 세션에서 /overnight-report  (종료 사유·회차·커밋·게이트 재실측·잔여 [auto])
+#         그다음 사람 검수는 docs/text/overnight-review-checklist.md 를 따른다(반복 프로세스).
 ```
 종료 조건: `DONE`(소진/전부 blocked) · `STOP`(수동/red 잔여물) · `MAX_ITER` · 연속 실패 N회 · 무진행 N회.
 **완료 시 멈춘다**: `[auto]` 소진 → 에이전트가 `DONE` 생성 → 다음 회차 진입 전 러너 종료(추가 토큰 X). DONE 생성 1회차 비용만 발생.

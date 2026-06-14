@@ -3,20 +3,26 @@
 매 overnight 가동(`make overnight-watch`) **종료 후 사람이 수행하는 반복 검수 프로세스**.
 자동 검수는 `/overnight-report`가, 사람 판단(무엇이 깨졌나·뭘 고칠까·다음 seed)은 이 체크리스트가 담당한다.
 
+> 이 파일은 **정적 바이블(템플릿)** 이다(`docs/test/bible/`). `/overnight-report`는 마지막 단계에서 아래 B~E를
+> **이번 런 사실로 채운 체크박스 인스턴스**(커밋 해시·새 `[blocked]`·ahead 수·잔여 seed)를
+> `docs/test/<MMDD-HHMM>-overnight-review-checklist.md` 파일로 **생성**한다. 그 파일들은 gitignore —
+> 재생성 가능한 산출물이라 커밋하지 않는다. "이번 런에 내가 확인할 리스트"가 곧 그 생성 파일이다.
+
 > 한 줄 흐름:
-> `make overnight-status`(끝났나?) → `/overnight-report`(자동 요약) → 아래 A~E → `git push` → 다음 seed
+> `make overnight-status`(끝났나?) → `/overnight-report`(자동 요약 + 런별 체크리스트) → 아래 A~E 처리 → `git push` → 다음 seed
 
 ---
 
 ## A. 종료 상태 확인
 - [ ] `make overnight-status` — 프로세스 종료됨? 종료 사유는?(DONE 소진 / STOP 수동·red잔여물 / MAX_ITER / 연속실패 / 무진행)
 - [ ] claude 세션에서 **`/overnight-report`** — 회차 수, 만든 커밋, **게이트 재실측(green?)**, 잔여 `[auto]` 확인.
-- [ ] STOP으로 멈췄다면: red 잔여물(사람 검수 필요)이 핵심 신호. `git status` + `bin/overnight/logs/iter-<N>.log` 마지막 부분 확인.
+- [ ] STOP으로 멈췄다면: red 잔여물(사람 검수 필요)이 핵심 신호. `git status` + `scripts/overnight/logs/iter-<N>.log` 마지막 부분 확인.
 
 ## B. 루프가 만든 것 검토 (커밋)
 - [ ] `git log --oneline <시작HEAD>..HEAD` — 회차별 커밋 훑기. `[recovered]`(잔여물 복구)·`[blocked]` 강조.
-- [ ] 각 커밋 자가 점검: **의도대로인가?** 특히 **docs 주장(테스트가 아닌 산문)은 사실인가** — LLM은 그럴듯하지만 틀린 문장을 쓸 수 있고 `make check`는 그걸 못 잡는다. (이번 세션 CLAUDE.md 사례처럼 실제 파일을 열어 확인.)
-- [ ] 의심되는 커밋은 `git show <hash>`로 diff 직접 확인.
+- [ ] **커밋별로 `git show <hash>` diff를 읽고 두 줄로 적는다**:
+  - ① **무엇이 바뀌었나** — 건드린 파일·추가/수정 테스트·동작 변화를 구체적으로(generic "의도대로인가?" 금지).
+  - ② **무엇을 확인하면 되나** — 변경 종류에 맞는 검증: **테스트 추가**→무엇을 보장하나·허위 green/과검출 아닌가, **리팩터/codemod**→동작·공개 API 불변인가, **버그픽스**→근본 원인·재현·회귀 테스트 동반인가, **docs 산문**→문장이 사실인가(테스트 아닌 주장은 `make check`가 못 잡는다 — 실제 파일을 열어 확인).
 
 ## C. invariant 결과 분류 (이번 seed의 핵심 산출)
 - [ ] **green 박제**: 어떤 무결성 테스트가 통과로 추가됐나 → 콘텐츠 깨짐을 막는 **영구 게이트** 확보. 좋은 결과.

@@ -3,7 +3,7 @@
 
 > 바이블 [`../LOOP_ENGINEERING.md`](../LOOP_ENGINEERING.md) 의 개념을 **이 repo 의 러너·env·make 타깃에 매핑**한 운영 설명서.
 > "자는 동안 Claude Code 헤드리스가 NEXT_PLAN의 `[auto]` 작업을 스스로 구현·검증·기록·커밋한다."
-> 코드 근거: `bin/overnight/{run.sh,PROMPT.md,overnight-settings.json}`, `.claude/skills/`, `docs/NEXT_PLAN.md`.
+> 코드 근거: `scripts/overnight/{run.sh,PROMPT.md,overnight-settings.json}`, `.claude/skills/`, `docs/NEXT_PLAN.md`.
 
 ---
 
@@ -35,14 +35,14 @@ NEXT_PLAN에서 `[auto]` **작업 1개**를 구현·게이트 통과시키고 �
 
 ## 3. 구성 요소
 
-### 3.1 러너 — `bin/overnight/run.sh`
+### 3.1 러너 — `scripts/overnight/run.sh`
 무인 루프(bash, macOS bash 3.2 호환). 회차마다 헤드리스 에이전트를 1회 호출한다.
 
 **엔진 선택(`ENGINE` 환경변수, 기본 `claude`)** — LOOP 제어 로직(STOP/DONE·classify·무진행·HEAD diff)은
 엔진 독립이고, 호출 줄/프롬프트/권한 경계만 분기한다:
-- `ENGINE=claude`(기본): `claude -p "$(cat PROMPT.md)" --permission-mode acceptEdits --settings bin/overnight/overnight-settings.json --output-format json`.
+- `ENGINE=claude`(기본): `claude -p "$(cat PROMPT.md)" --permission-mode acceptEdits --settings scripts/overnight/overnight-settings.json --output-format json`.
 - `ENGINE=codex`: `codex exec --cd <repo> --sandbox workspace-write -c sandbox_workspace_write.network_access=false -c approval_policy=never --json --output-last-message logs/last-message.txt "$(cat PROMPT.codex.md)" </dev/null`.
-  프롬프트는 `bin/overnight/PROMPT.codex.md`(Skill 호출 대신 `.agents/skills/*/SKILL.md` 절차를 읽어 수행).
+  프롬프트는 `scripts/overnight/PROMPT.codex.md`(Skill 호출 대신 `.agents/skills/*/SKILL.md` 절차를 읽어 수행).
   **`</dev/null` 필수**: codex exec 는 stdin 이 열려 있으면 추가 입력을 기다리며 멈춘다(무인 회차 freeze).
 - `ENGINE=agy`: `agy --print "$(cat PROMPT.agy.md)" --dangerously-skip-permissions --print-timeout 30m --add-dir <repo> </dev/null`.
   이미지 초안 레인. 호스트 FLUX/MPS/네트워크가 필요해 **샌드박스 없음** → 경계는 PROMPT.agy.md 가드레일 + worktree 격리.
@@ -50,7 +50,7 @@ NEXT_PLAN에서 `[auto]` **작업 1개**를 구현·게이트 통과시키고 �
 
 > **3엔진 병렬**: claude/codex/agy 를 각자 worktree+브랜치(`loop/{claude,codex,agy}`)에서 동시에 돌려 commit
 > 충돌을 구조적으로 없앤다. 레인 태그·도메인 분할·통합 머지는 **[`AGENTIC.md`](AGENTIC.md)** 가 권위
-> (`bin/overnight/{worktrees.sh,merge-loops.sh}`, `make overnight-worktrees`/`overnight-merge`).
+> (`scripts/overnight/{worktrees.sh,merge-loops.sh}`, `make overnight-worktrees`/`overnight-merge`).
 
 루프 1회 흐름:
 ```
@@ -60,8 +60,8 @@ STOP/DONE 파일 검사 → MAX_ITER 검사 → claude -p 회차 실행 → clas
 제어 파일 / 환경변수(기본값은 `run.sh` 상단 `: "${VAR:=...}"` 블록):
 | 항목 | 기본값 | 역할 |
 | --- | --- | --- |
-| `bin/overnight/STOP` | — | 존재하면 다음 회차 진입 전 **graceful 종료**(현재 회차는 마침). 운영자 `touch` 또는 red 잔여물 회차가 생성. |
-| `bin/overnight/DONE` | — | `[auto]` 백로그 소진/전부 blocked 시 에이전트가 생성(사유 기록) → 러너 종료. |
+| `scripts/overnight/STOP` | — | 존재하면 다음 회차 진입 전 **graceful 종료**(현재 회차는 마침). 운영자 `touch` 또는 red 잔여물 회차가 생성. |
+| `scripts/overnight/DONE` | — | `[auto]` 백로그 소진/전부 blocked 시 에이전트가 생성(사유 기록) → 러너 종료. |
 | `GATE_CMD` | `make check` | 커밋 게이트(swappable) = ruff+eslint+mypy+tsc/vite-build+unittest. 더 빠른 변형: `make check-auto`(mypy 제외)·`make smoke-local`. PROMPT.md가 `$GATE_CMD`로 참조. |
 | `MAX_ITER` | 20 | 폭주 방지 백스톱(총 회차 상한). |
 | `ITER_TIMEOUT` | 1800s | 회차당 최대 실행 시간(`gtimeout`/`timeout`; 없으면 타임아웃 비활성). |
@@ -69,7 +69,7 @@ STOP/DONE 파일 검사 → MAX_ITER 검사 → claude -p 회차 실행 → clas
 | `PAUSE` | 30s | 회차 간 간격. |
 | `MAX_CONSEC_FAIL` | 3 | 연속 실패 N회 시 안전 중단. |
 | `MAX_NO_PROGRESS` | 2 | success인데 **새 커밋 없음** 연속 N회 시 안전 중단(얇은 백로그의 주 종료 사유 — 무진행 루프 차단). |
-| `KEEP_ITER_LOGS` | 30 | `bin/overnight/logs/iter-*.log` 최근 N개만 보존(`runner.log`는 항상 보존). |
+| `KEEP_ITER_LOGS` | 30 | `scripts/overnight/logs/iter-*.log` 최근 N개만 보존(`runner.log`는 항상 보존). |
 | `--once` | — | 1회차만 실행(체인 검증용). |
 
 > 런타임 산출물(`logs/`·`STOP`·`DONE`)은 `.gitignore` 처리됨. 추적되는 하네스는 `run.sh`·`PROMPT.md`·`PROMPT.codex.md`·`overnight-settings.json`.
@@ -84,7 +84,7 @@ limit을 자유 텍스트 grep이 아니라 구조화 신호로 판정한다(fal
 분기: `limit`→consec_fail 리셋·`LIMIT_WAIT` 대기 후 재시도 / `failure`→consec_fail++·한계 시 중단 /
 `success`→consec_fail 리셋 + **HEAD 전후 비교**(새 커밋 있으면 no_progress 리셋·해시 로깅, 없으면 no_progress++·한계 시 중단).
 
-### 3.3 회차 지시문 — `bin/overnight/PROMPT.md`
+### 3.3 회차 지시문 — `scripts/overnight/PROMPT.md`
 헤드리스 에이전트가 매 회차 수행하는 고정 절차:
 1. **상태 복원**: Skill `sync`.
 2. **잔여물 복구**: `git status --porcelain`. dirty = 이전 회차 중단 잔여물 → 복구가 이번 회차 작업.
@@ -119,8 +119,8 @@ limit을 자유 텍스트 grep이 아니라 구조화 신호로 판정한다(fal
 > 스킬은 `.claude/`(gitignore) 하위라 **git 미추적·머신 로컬**. 다른 에이전트(codex/antigravity)용 공용 미러가
 > `.agents/skills/`(역시 gitignore)에 있으며 4종을 `.claude/skills/`와 동기화해 둔다. 새 머신에선 둘 다 다시 둬야 한다.
 
-### 3.6 무인 권한 — `bin/overnight/overnight-settings.json`
-`claude -p … --settings bin/overnight/overnight-settings.json`로만 로드되는 **전용 권한 경계**.
+### 3.6 무인 권한 — `scripts/overnight/overnight-settings.json`
+`claude -p … --settings scripts/overnight/overnight-settings.json`로만 로드되는 **전용 권한 경계**.
 `defaultMode: acceptEdits` + allowlist(Read/Edit/Write/Skill, **열거된** 안전 make 타깃,
 `git add|commit|status|diff|log|restore|checkout --`, `python3` 등). **deny(실제 안전 경계 — deny가 우선):
 `git push`·`git reset --hard`·`curl`/`wget`·`rm -rf`·`sudo`·파괴/온라인 make(`infra-*`/`db-*`/`smoke`/`test-db`/
@@ -137,7 +137,7 @@ CLI `-c`/`--sandbox`로 **덮어쓴다** — `workspace-write` + `network_access
 `PROMPT.codex.md` §0의 명시 금지로만 막는다(회차당 커밋이라 폭발 반경은 ≤1회차). 전역 config·대화형 Codex는 불변.
 
 ## 4. 운영 (실사용 — `make` 타깃)
-`bin/overnight/run.sh`를 직접 부르지 말고 Makefile 타깃을 쓴다(가드·절전·nohup·정리 포함).
+`scripts/overnight/run.sh`를 직접 부르지 말고 Makefile 타깃을 쓴다(가드·절전·nohup·정리 포함).
 
 ```sh
 # 사전: ① 워킹 트리 clean(dirty면 1회차가 잔여물 복구로 빠짐) ② [auto] 항목 seeding(없으면 즉시 무진행 종료)
@@ -160,7 +160,7 @@ make overnight-status    # 프로세스/STOP/DONE/최근 로그 빠른 확인
 make overnight-stop      # graceful 중단(현재 회차 마치고 종료)
 make overnight-clean     # 종료 후 STOP/DONE 제어 파일 정리
 # 아침에: claude 세션에서 /overnight-report  (종료 사유·회차·커밋·게이트 재실측·잔여 [auto])
-#         그다음 사람 검수는 docs/test/overnight-review-checklist.md 를 따른다(반복 프로세스).
+#         그다음 사람 검수는 docs/test/bible/overnight-review-checklist.md 를 따른다(반복 프로세스).
 ```
 종료 조건: `DONE`(소진/전부 blocked) · `STOP`(수동/red 잔여물) · `MAX_ITER` · 연속 실패 N회 · 무진행 N회.
 **완료 시 멈춘다**: `[auto]` 소진 → 에이전트가 `DONE` 생성 → 다음 회차 진입 전 러너 종료(추가 토큰 X). DONE 생성 1회차 비용만 발생.
@@ -177,7 +177,7 @@ make overnight-clean     # 종료 후 STOP/DONE 제어 파일 정리
 - **브랜치 드리프트**: 커밋은 체크아웃된 브랜치에 쌓인다. `/overnight-report`가 브랜치를 명시한다. 전용 브랜치 권장.
 
 ## 6. 이 repo 적용 범위 / 이력
-- **2026-06-14 — 하네스 구축**: 타 repo의 LOOP_ENGINEERING을 MythOS에 이식(`bin/overnight/` 3종 + `/overnight-report`
+- **2026-06-14 — 하네스 구축**: 타 repo의 LOOP_ENGINEERING을 MythOS에 이식(`scripts/overnight/` 3종 + `/overnight-report`
   스킬 + NEXT_PLAN `[auto]/[manual]/[blocked]` 태깅). 게이트는 `make check`(mypy 부채 정리 후 `check-auto`→`check` 승격).
 - **2026-06-14 — 첫 `[auto]` 묶음을 인-세션 수행**(헤드리스 무인이 아니라 대화형으로 직접): mypy 부채 src+tests 0
   (게이트 `make check` green화), stale dated-plan 헤더 정합, Codex 스킬 버튼 상태 결정론화+버그픽스, bin/ 보관소 read-only
@@ -188,7 +188,7 @@ make overnight-clean     # 종료 후 STOP/DONE 제어 파일 정리
   다회차 무인 가동(밤샘)은 사용자 판단. 회차별 실측 효과는 `docs/PROGRESS_LOG.md`에 회차 커밋과 함께 기록한다.
 
 - **2026-06-14 — Codex 엔진 추가**: `run.sh`에 `ENGINE`(claude|codex) 분기 추가(LOOP 단일 소스 유지),
-  `bin/overnight/PROMPT.codex.md`(Skill 대신 `.agents/skills/*` 절차 수행), `make overnight-codex*` 타깃.
+  `scripts/overnight/PROMPT.codex.md`(Skill 대신 `.agents/skills/*` 절차 수행), `make overnight-codex*` 타깃.
   안전 경계는 전역 `~/.codex/config.toml`(danger-full-access)이 아니라 `run.sh`가 CLI로 강제하는 샌드박스
   (`workspace-write`+network 차단+approval never). **`codex exec` 2회차 실증**: (1)네트워크 차단 확인(전역
   YOLO에도 회차 내 curl exit 6=DNS), (2)stdin freeze 버그 수정(`</dev/null`), (3)**`.git` 쓰기 차단 버그

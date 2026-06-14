@@ -3,7 +3,7 @@
 > 바이블 [`../PROMPT_ENGINEERING.md`](../PROMPT_ENGINEERING.md) 의 개념을 **이 repo 구현에 매핑**한다.
 > 권위: 서사 설계 `docs/DESIGN.md` · 설계 불변 `harness/CORE_MANDATES.md`.
 
-## 1. 하네스 회차 프롬프트 — `bin/overnight/PROMPT.*.md`
+## 1. 하네스 회차 프롬프트 — `scripts/overnight/PROMPT.*.md`
 | 파일 | 엔진 | 특징 |
 | --- | --- | --- |
 | `PROMPT.md` | claude | Skill(`/sync`·`/checkpoint`) 호출, 표준 절차 |

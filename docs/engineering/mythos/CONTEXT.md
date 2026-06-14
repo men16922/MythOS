@@ -11,10 +11,10 @@
 - L0: `AGENT_BRIEF`/`STATUS`/`NEXT_PLAN` + 진입점(CLAUDE/AGENTS/GEMINI).
 - L1: `DESIGN`·`GAMEPLAY`·`DOCS_POLICY`·`harness/CORE_MANDATES`.
 - L2: `docs/plans/*`·scenario·story_bible.
-- L3: `bin/docs/archive/*`·`bin/overnight/logs/*`·생성 리포트(기본 컨텍스트 아님).
+- L3: `bin/docs/archive/*`·`scripts/overnight/logs/*`·생성 리포트(기본 컨텍스트 아님).
 
 ## 3중 상태 저장 → 실제
-git 회차 커밋 · 구조화 ledger `bin/overnight/logs/status.tsv`(WS3) · 자연어 `STATUS`/`PROGRESS_LOG`/`AGENT_BRIEF`.
+git 회차 커밋 · 구조화 ledger `scripts/overnight/logs/status.tsv`(WS3) · 자연어 `STATUS`/`PROGRESS_LOG`/`AGENT_BRIEF`.
 
 ## Resume Pointer (연속성)
 - `AGENT_BRIEF.md` 최상단 `▶ NEXT SESSION:` 한 줄 = in-repo 플랜(`docs/plans/*`) + 첫 행동.

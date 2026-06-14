@@ -185,11 +185,19 @@ Impact: `build_runtime_narrative_context` evaluates player stats and appends gui
 
 ### Overnight 무인 루프 하네스 도입 + 커밋 게이트 `make check` (2026-06-14)
 
-Decision: 타 repo의 overnight LOOP 엔지니어링을 MythOS에 이식한다 — `bin/overnight/{run.sh,PROMPT.md,overnight-settings.json}` + `/overnight-report` 스킬 + NEXT_PLAN `[auto]/[manual]/[blocked]` 태깅 + `make overnight*` 운영 타깃. 커밋 게이트는 `make check`(ruff+eslint+mypy+tsc/vite-build+unittest), 무인 권한은 `--settings overnight-settings.json`(git push·네트워크·파괴 make·Web/MCP deny)로 interactive 설정과 격리한다.
+Decision: 타 repo의 overnight LOOP 엔지니어링을 MythOS에 이식한다 — `scripts/overnight/{run.sh,PROMPT.md,overnight-settings.json}` + `/overnight-report` 스킬 + NEXT_PLAN `[auto]/[manual]/[blocked]` 태깅 + `make overnight*` 운영 타깃. 커밋 게이트는 `make check`(ruff+eslint+mypy+tsc/vite-build+unittest), 무인 권한은 `--settings overnight-settings.json`(git push·네트워크·파괴 make·Web/MCP deny)로 interactive 설정과 격리한다.
 
 Reason: 게임이라 백로그 대부분이 무인 검증 불가(플레이 feel)지만 콘텐츠/밸런스 무결성·타입·hygiene 같은 결정론적 슬라이스는 헤드리스로 안전하게 수행 가능하다. 게이트를 `make check`로 올리기 위해 `mypy src tests` 부채를 0화(0/109)했다.
 
 Impact: 러너는 `[auto]` 태그만 소비하고 회차마다 게이트 통과 시 로컬 커밋한다. `--once` 실검증으로 헤드리스 체인·잔여물 복구를 실증(REPO_ROOT 폴백 버그 발견→자동 `[recovered]` 복구). 설계/운영은 `docs/engineering/mythos/LOOP.md`, 완료 요약은 COMPLETED_SUMMARY M42.
+
+### Overnight 하네스 `bin/overnight/` → `scripts/overnight/` 이동 (2026-06-14)
+
+Decision: 무인 overnight 루프 하네스를 `bin/overnight/`에서 `scripts/overnight/`로 옮긴다. Makefile 28개 타깃·러너 내부 경로·`.gitignore`·docs/skills 참조를 일괄 갱신. 월별 동결 아카이브(`bin/docs/archive/progress-2026-06.md`)의 역사적 경로 언급만 원본 보존.
+
+Reason: 이 repo에서 `bin/`은 **parked/aspirational/archived 보관소**(`bin/docs/archive/*`, `DRAFT.md`)로 규정돼 "쓰레기통"으로 읽힌다. 그런데 `bin/overnight/`는 Makefile에 정식 배선된 **활성 자동화 하네스**라 의미 충돌 — 비활성으로 오해해 청소 대상이 될 위험이 있었다. Unix 관례대로 실행 스크립트는 `scripts/`에 둔다.
+
+Impact: `make overnight*`·러너·worktree/merge/review 동작 불변(경로만 변경). 런타임 산출물 gitignore는 `scripts/overnight/{logs,STOP,DONE}`로 이동. `make check` green 유지.
 
 ## 2026-05 이전
 

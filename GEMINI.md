@@ -20,7 +20,7 @@ MythOS 는 로컬 실행 루프형 내러티브 시뮬레이션 엔진(Python 3.
 - 셋업/검증: `make setup`, `make doctor`, `make check`(ruff+eslint+mypy+tsc/vite-build+unittest), `make test`.
 - 실행: `make connect-demo`(CLI fallback), `make streamlit`(데모 UI), `make smoke-local`.
 - 인프라(로컬): `make infra-up` / `make db-migrate`. Ollama·FLUX 는 Mac 호스트, Docker 는 인프라용.
-- 무인 이미지 레인(agy): `docs/engineering/mythos/AGENTIC.md` + `bin/overnight/PROMPT.agy.md`.
+- 무인 이미지 레인(agy): `docs/engineering/mythos/AGENTIC.md` + `scripts/overnight/PROMPT.agy.md`.
 
 ## Conventions
 타입 힌트 + dataclass-first 도메인. `snake_case`/`PascalCase`/`UPPER_SNAKE_CASE`. composition·provider 인터페이스 선호.

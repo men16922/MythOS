@@ -4,7 +4,7 @@
 # ----------------------------------------------------------------------------
 # 메인 + 각 loop/* worktree 의 status.tsv(머신리더블 회차 원장)·STOP/DONE·git HEAD/branch 를
 # 읽어 한눈에 보는 트리로 출력한다. 아무것도 수정하지 않는다.
-# 설계: docs/engineering/mythos/AGENTIC.md · 원장 생성: bin/overnight/run.sh(emit_status).
+# 설계: docs/engineering/mythos/AGENTIC.md · 원장 생성: scripts/overnight/run.sh(emit_status).
 # ----------------------------------------------------------------------------
 set -uo pipefail
 
@@ -28,8 +28,8 @@ print_lane() {
   local branch head tsv stopf donef last outcome ltime head9 iter dur color state detail age
   branch="$(git -C "$root" rev-parse --abbrev-ref HEAD 2>/dev/null || echo '?')"
   head="$(git -C "$root" rev-parse --short HEAD 2>/dev/null || echo '?')"
-  tsv="$root/bin/overnight/logs/status.tsv"
-  stopf="$root/bin/overnight/STOP"; donef="$root/bin/overnight/DONE"
+  tsv="$root/scripts/overnight/logs/status.tsv"
+  stopf="$root/scripts/overnight/STOP"; donef="$root/scripts/overnight/DONE"
 
   iter='-'; dur=''; detail=''
   if [ -f "$tsv" ]; then

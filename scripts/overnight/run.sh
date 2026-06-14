@@ -8,16 +8,16 @@
 # 최대 1회차다. 설계 설명: docs/engineering/mythos/LOOP.md
 #
 # 사용:
-#   caffeinate -dimsu bin/overnight/run.sh &     # Mac 절전 방지 + 백그라운드
-#   bin/overnight/run.sh --once                  # 1회차만 (검증용)
-#   touch bin/overnight/STOP                      # graceful 중단 (현재 회차 마치고 종료)
-#   tail -f bin/overnight/logs/runner.log         # 관찰
+#   caffeinate -dimsu scripts/overnight/run.sh &     # Mac 절전 방지 + 백그라운드
+#   scripts/overnight/run.sh --once                  # 1회차만 (검증용)
+#   touch scripts/overnight/STOP                      # graceful 중단 (현재 회차 마치고 종료)
+#   tail -f scripts/overnight/logs/runner.log         # 관찰
 #   # 아침에: claude 세션에서 /overnight-report
 #
 # 종료 조건: DONE(백로그 소진/전부 blocked) · STOP(수동) · MAX_ITER 도달 ·
 #            연속 실패 MAX_CONSEC_FAIL 회 · 무진행 MAX_NO_PROGRESS 회.
 #
-# 안전: claude 회차는 bin/overnight/overnight-settings.json 권한 경계로만 실행된다
+# 안전: claude 회차는 scripts/overnight/overnight-settings.json 권한 경계로만 실행된다
 #       (git push·네트워크·파괴 make·Web/MCP deny). interactive 설정은 건드리지 않는다.
 # ----------------------------------------------------------------------------
 set -euo pipefail
@@ -36,14 +36,14 @@ GIT_COMMON_DIR="$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/n
 
 # --- 경로 (REPO_ROOT 기준 상대 — overnight-settings.json allow 패턴과 일치) ---
 case "$ENGINE" in
-  codex) PROMPT_FILE="bin/overnight/PROMPT.codex.md" ;;
-  agy)   PROMPT_FILE="bin/overnight/PROMPT.agy.md" ;;
-  *)     PROMPT_FILE="bin/overnight/PROMPT.md" ;;
+  codex) PROMPT_FILE="scripts/overnight/PROMPT.codex.md" ;;
+  agy)   PROMPT_FILE="scripts/overnight/PROMPT.agy.md" ;;
+  *)     PROMPT_FILE="scripts/overnight/PROMPT.md" ;;
 esac
-SETTINGS_FILE="bin/overnight/overnight-settings.json"   # claude 전용 권한 경계
-STOP_FILE="bin/overnight/STOP"
-DONE_FILE="bin/overnight/DONE"
-LOG_DIR="bin/overnight/logs"
+SETTINGS_FILE="scripts/overnight/overnight-settings.json"   # claude 전용 권한 경계
+STOP_FILE="scripts/overnight/STOP"
+DONE_FILE="scripts/overnight/DONE"
+LOG_DIR="scripts/overnight/logs"
 RUNNER_LOG="$LOG_DIR/runner.log"
 STATUS_TSV="$LOG_DIR/status.tsv"   # 머신리더블 회차 원장(status.sh/대시보드 소비): ts engine branch iter outcome head dur
 
@@ -79,7 +79,7 @@ emit_status() {
 }
 
 # 실패 클래스 종료에서만 호스트 메일 알림(성공/정상 종료엔 안 부름 — 과다 발송 방지).
-# 발송 수단/수신자는 bin/overnight/notify.sh(SMTP 또는 macOS Mail). 알림 실패가 러너를 죽이지 않는다.
+# 발송 수단/수신자는 scripts/overnight/notify.sh(SMTP 또는 macOS Mail). 알림 실패가 러너를 죽이지 않는다.
 notify_failure() {
   local reason="$1"
   local branch recent body
@@ -97,7 +97,7 @@ notify_failure() {
 $recent
 
 마지막 회차 로그: ${ITER_LOG:-(없음)} (HEAD 잔여물/Blocker 확인). 아침 검수는 /overnight-report."
-  bash bin/overnight/notify.sh "[MythOS overnight] 점검 필요 — $ENGINE: $reason" "$body" \
+  bash scripts/overnight/notify.sh "[MythOS overnight] 점검 필요 — $ENGINE: $reason" "$body" \
     >> "$RUNNER_LOG" 2>&1 || true
 }
 
@@ -255,7 +255,7 @@ while :; do
       if [ "$ENGINE" = "claude" ] && [ "${FAILOVER_DONE:-0}" = "0" ] && command -v codex >/dev/null 2>&1; then
         log "claude 한도 감지 — codex 로 failover(이후 codex 가 claude 레인 소비)"
         ENGINE="codex"
-        PROMPT_FILE="bin/overnight/PROMPT.codex.md"
+        PROMPT_FILE="scripts/overnight/PROMPT.codex.md"
         PROMPT_CONTENT="$(cat "$PROMPT_FILE")
 
 [러너 알림] FAILOVER 모드: claude 토큰 한도 소진으로 codex 가 대신 수행한다.

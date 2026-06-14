@@ -7,7 +7,7 @@
 - L1 ✅ CLAUDE/AGENTS/GEMINI.md · `make check` · worktree/branch · `docs/plans/`.
 - L2 ✅ `make check` 게이트 · codex 독립 리뷰어 · overnight 회차 커밋 · `/checkpoint`.
 - L3 🟡 3엔진·worktree·생성자≠리뷰어 ✅ / **gardener 자동화·구조화 ledger 미완**.
-- **L3 갭 = 다음 투자처**: ① 구조화 ledger(`bin/overnight/logs/status.tsv`, WS3) ② entropy gardener
+- **L3 갭 = 다음 투자처**: ① 구조화 ledger(`scripts/overnight/logs/status.tsv`, WS3) ② entropy gardener
   (현재 `/tidy-docs` 는 docs 한정·수동 → 코드/arch drift 스캔으로 확장).
 
 ## Feedback Ladder 사례

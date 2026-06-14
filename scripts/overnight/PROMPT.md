@@ -27,7 +27,7 @@ Skill `sync` 를 호출한다(Read Path: AGENT_BRIEF → STATUS → NEXT_PLAN �
 - **dirty** = 이전 회차 중단 잔여물. **이번 회차 작업은 "복구"다**(새 작업 혼입 금지):
   - `$GATE_CMD` green → `[recovered]` 접두 메시지로 즉시 커밋하고 이번 회차 종료.
   - `$GATE_CMD` red → **건드리지 말 것.** Blocker를 `/checkpoint`로 기록하고
-    `bin/overnight/STOP` 파일을 생성(사유 1줄)한 뒤 종료. (사람 검수 필요 — graceful 정지.)
+    `scripts/overnight/STOP` 파일을 생성(사유 1줄)한 뒤 종료. (사람 검수 필요 — graceful 정지.)
 
 ## 3. 작업 선택
 
@@ -35,7 +35,7 @@ Skill `sync` 를 호출한다(Read Path: AGENT_BRIEF → STATUS → NEXT_PLAN �
 
 - `[auto:codex]`/`[auto:agy]`(타 엔진 레인)·`[manual]`/`[blocked]`/**무태그**는 건너뛴다. 무태그를 임의로 승격하지 않는다(스코프 방어).
 - 같은 항목에서 Blocker가 2회 누적되면 그 항목에 `[blocked]`를 덧붙이고 다음 `[auto]` 후보로 넘어간다.
-- 남은 `[auto]`가 없거나 전부 blocked면 `bin/overnight/DONE`을 생성(사유: `drained` vs `all-blocked`)하고 종료한다.
+- 남은 `[auto]`가 없거나 전부 blocked면 `scripts/overnight/DONE`을 생성(사유: `drained` vs `all-blocked`)하고 종료한다.
 
 ## 4. 구현 + 게이트
 

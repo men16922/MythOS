@@ -19,10 +19,10 @@
 #   대안: 코드 레인은 메인 체크아웃에서 순차(레인 태그+동시작성자 STOP)로 돌린다(docs/engineering/mythos/AGENTIC.md 권장 모델).
 #
 # 사용:
-#   bin/overnight/worktrees.sh up       # 생성/갱신(+.claude/.agents symlink)
-#   bin/overnight/worktrees.sh setup    # 코드 레인용 per-worktree venv+node_modules(네트워크 1회)
-#   bin/overnight/worktrees.sh status   # 현황
-#   bin/overnight/worktrees.sh down     # worktree 제거(브랜치는 보존)
+#   scripts/overnight/worktrees.sh up       # 생성/갱신(+.claude/.agents symlink)
+#   scripts/overnight/worktrees.sh setup    # 코드 레인용 per-worktree venv+node_modules(네트워크 1회)
+#   scripts/overnight/worktrees.sh status   # 현황
+#   scripts/overnight/worktrees.sh down     # worktree 제거(브랜치는 보존)
 # ----------------------------------------------------------------------------
 set -euo pipefail
 

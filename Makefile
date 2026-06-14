@@ -45,26 +45,26 @@ check:
 	$(MAKE) test
 
 # Faster offline gate variant: same coverage as `check` MINUS python-typecheck (mypy).
-# The overnight loop (bin/overnight/) now defaults to full `make check` (mypy debt cleared
+# The overnight loop (scripts/overnight/) now defaults to full `make check` (mypy debt cleared
 # 2026-06-14); keep this as a quicker option for runtime-flow-heavy iterations.
 check-auto:
 	$(MAKE) lint
 	$(MAKE) frontend-build
 	$(MAKE) smoke-local
 
-# --- Overnight 무인 루프 (bin/overnight/, 설계: docs/engineering/mythos/LOOP.md) ---
+# --- Overnight 무인 루프 (scripts/overnight/, 설계: docs/engineering/mythos/LOOP.md) ---
 # 자는 동안 헤드리스 claude가 NEXT_PLAN의 [auto] 작업을 구현·검증(make check)·기록·로컬 커밋한다.
 # 가동 전: 워킹트리 clean + [auto] 항목 seeding + (권장) brew install coreutils(회차 타임아웃).
 # 환경변수로 조절: GATE_CMD(기본 make check), MAX_ITER, MAX_NO_PROGRESS, ITER_TIMEOUT 등.
 
 # 백그라운드 가동(절전 방지 + 터미널 닫혀도 유지). 예: MAX_ITER=12 make overnight
 overnight:
-	@if pgrep -f "bin/overnight/run.sh" >/dev/null 2>&1; then echo "이미 실행 중 (중단: make overnight-stop)"; exit 1; fi
+	@if pgrep -f "scripts/overnight/run.sh" >/dev/null 2>&1; then echo "이미 실행 중 (중단: make overnight-stop)"; exit 1; fi
 	@command -v gtimeout >/dev/null 2>&1 || command -v timeout >/dev/null 2>&1 || echo "⚠ gtimeout/timeout 없음 — 회차 타임아웃 비활성(brew install coreutils 권장)"
 	@if [ -n "$$(git status --porcelain)" ]; then echo "⚠ 워킹트리 dirty — 1회차가 잔여물 복구로 빠집니다(또는 red면 STOP). 먼저 커밋/정리 권장."; fi
-	@mkdir -p bin/overnight/logs
-	@rm -f bin/overnight/STOP bin/overnight/DONE
-	@nohup caffeinate -dimsu bin/overnight/run.sh > bin/overnight/logs/nohup.out 2>&1 & echo "▶ overnight 시작 (pid $$!, gate=$${GATE_CMD:-make check}, MAX_ITER=$${MAX_ITER:-20}). 관찰: make overnight-logs · 중단: make overnight-stop · 아침: /overnight-report"
+	@mkdir -p scripts/overnight/logs
+	@rm -f scripts/overnight/STOP scripts/overnight/DONE
+	@nohup caffeinate -dimsu scripts/overnight/run.sh > scripts/overnight/logs/nohup.out 2>&1 & echo "▶ overnight 시작 (pid $$!, gate=$${GATE_CMD:-make check}, MAX_ITER=$${MAX_ITER:-20}). 관찰: make overnight-logs · 중단: make overnight-stop · 아침: /overnight-report"
 
 # 가동 + 즉시 로그 follow(한 방에). Ctrl+C로 빠져나와도 루프는 백그라운드에서 계속 돈다.
 overnight-watch:
@@ -74,32 +74,32 @@ overnight-watch:
 
 # 1회차만(체인 검증). 포그라운드 실행.
 overnight-once:
-	bin/overnight/run.sh --once
+	scripts/overnight/run.sh --once
 
 # graceful 중단(현재 회차 마치고 다음 회차 진입 전 종료).
 overnight-stop:
-	@touch bin/overnight/STOP && echo "STOP 생성 — 현재 회차 마치고 종료(완료 후 make overnight-clean 권장)."
+	@touch scripts/overnight/STOP && echo "STOP 생성 — 현재 회차 마치고 종료(완료 후 make overnight-clean 권장)."
 
 # runner.log 실시간 관찰.
 overnight-logs:
-	@touch bin/overnight/logs/runner.log && tail -f bin/overnight/logs/runner.log
+	@touch scripts/overnight/logs/runner.log && tail -f scripts/overnight/logs/runner.log
 
 # 상태: 3엔진 lane 집계 트리(status.sh) + 프로세스 확인. 풍부한 검수는 claude 세션의 /overnight-report.
 overnight-status:
-	@bash bin/overnight/status.sh
-	@pgrep -f "bin/overnight/run.sh" >/dev/null 2>&1 && echo "── 프로세스: ● 실행 중 (pid $$(pgrep -f 'bin/overnight/run.sh' | tr '\n' ' '))" || echo "── 프로세스: ○ 미실행"
+	@bash scripts/overnight/status.sh
+	@pgrep -f "scripts/overnight/run.sh" >/dev/null 2>&1 && echo "── 프로세스: ● 실행 중 (pid $$(pgrep -f 'scripts/overnight/run.sh' | tr '\n' ' '))" || echo "── 프로세스: ○ 미실행"
 
 # tmux 멀티페인 대시보드: 상단 집계 트리(2s) + 하단 lane 별 runner.log tail. tmux 없으면 트리 1회 폴백.
 overnight-dashboard:
-	@bash bin/overnight/dashboard.sh
+	@bash scripts/overnight/dashboard.sh
 
 # 종료 후 제어 파일 정리(STOP/DONE 제거). 다음 가동 전 클린업.
 overnight-clean:
-	@rm -f bin/overnight/STOP bin/overnight/DONE && echo "STOP/DONE 제거 — 다음 가동 준비 완료."
+	@rm -f scripts/overnight/STOP scripts/overnight/DONE && echo "STOP/DONE 제거 — 다음 가동 준비 완료."
 
 # --- Codex 엔진 변형 (ENGINE=codex) — 동일 run.sh/LOOP, 호출 에이전트만 codex exec ---
 # 안전 경계는 전역 ~/.codex/config.toml(danger-full-access)이 아니라 run.sh 가 CLI 로 강제한다
-# (workspace-write + network 차단 + approval never). 프롬프트는 bin/overnight/PROMPT.codex.md.
+# (workspace-write + network 차단 + approval never). 프롬프트는 scripts/overnight/PROMPT.codex.md.
 # stop/logs/status/clean 은 같은 run.sh 프로세스라 엔진 구분 없이 위 타깃을 그대로 쓴다.
 overnight-codex:
 	@ENGINE=codex $(MAKE) overnight
@@ -121,17 +121,17 @@ overnight-agy-once:
 # --- 3엔진 병렬: worktree 격리 + 통합 머지 (설계: docs/engineering/mythos/AGENTIC.md) ---
 # 각 엔진을 자기 worktree+브랜치(loop/{claude,codex,agy})에서 돌려 commit 충돌 0.
 overnight-worktrees:        # 생성/갱신(+.claude/.agents symlink)
-	@bin/overnight/worktrees.sh up
+	@scripts/overnight/worktrees.sh up
 overnight-worktrees-setup:  # 코드 레인용 per-worktree venv+node_modules(네트워크 1회, 사람 실행)
-	@bin/overnight/worktrees.sh setup
+	@scripts/overnight/worktrees.sh setup
 overnight-worktrees-status:
-	@bin/overnight/worktrees.sh status
+	@scripts/overnight/worktrees.sh status
 overnight-worktrees-down:   # worktree 제거(브랜치 보존)
-	@bin/overnight/worktrees.sh down
+	@scripts/overnight/worktrees.sh down
 overnight-merge:            # loop/* → loop/integration 통합 + 게이트 재실행(사람 검수용, push 안 함)
-	@bin/overnight/merge-loops.sh
+	@scripts/overnight/merge-loops.sh
 overnight-review:           # codex 가 통합 diff 를 읽기전용 리뷰(생성자≠리뷰어) → logs/review-latest.md
-	@bin/overnight/review.sh $(RANGE)
+	@scripts/overnight/review.sh $(RANGE)
 
 doctor:
 	$(VENV)/bin/python agent.py --doctor

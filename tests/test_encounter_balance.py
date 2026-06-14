@@ -8,7 +8,7 @@ content/밸런스 회귀를 잡는다. **정밀 난이도 곡선은 사람 feel-
 - **Winnable**: 대표 파티(player + se_rin + kai, 직접조작=controllable)로 승률 ≥ FLOOR.
 - **Non-trivial**: 솔로(player-only) 승률 ≤ CEILING (혼자 공짜로 쓸리지 않음).
 
-리뷰 findings 반영(`bin/overnight/logs/review-latest.md`): ① 동료는 런타임 `_party.members`
+리뷰 findings 반영(`scripts/overnight/logs/review-latest.md`): ① 동료는 런타임 `_party.members`
 처럼 `controllable=True` 로 빌드(직접조작 파티) ② 100% 천장을 실효화(솔로 CEILING<1.0).
 
 관측 기준선(2026-06-14, N=24, 기본공격 그리디):

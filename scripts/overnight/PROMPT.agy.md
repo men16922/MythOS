@@ -37,7 +37,7 @@ PROGRESS_LOG 최신 몇 건 + `git status -sb`/`git log --oneline -8`). 그 외 
 `git status --porcelain` 검사.
 - **clean** → 3단계로.
 - **dirty** = 이전 회차 잔여물. 이번 회차는 "복구": 게이트 green 이면 `[recovered]` 커밋 후 종료,
-  red 이면 건드리지 말고 Blocker 기록 + `bin/overnight/STOP` 생성(사유 1줄) 후 종료.
+  red 이면 건드리지 말고 Blocker 기록 + `scripts/overnight/STOP` 생성(사유 1줄) 후 종료.
 
 ## 3. 작업 선택
 
@@ -45,7 +45,7 @@ PROGRESS_LOG 최신 몇 건 + `git status -sb`/`git log --oneline -8`). 그 외 
 - `[auto:agy]` 가 **아닌** 태그(`[auto:claude]`/`[auto:codex]`/`[auto]`/`[manual]`/`[blocked]`/무태그)는 건드리지 않는다.
   (이미지/검증 외의 일을 임의로 떠맡지 않는다 — 레인 침범 금지.)
 - 같은 항목 Blocker 2회면 `[blocked]` 덧붙이고 다음 `[auto:agy]` 후보로. 남은 `[auto:agy]` 없으면
-  `bin/overnight/DONE` 생성(사유 `drained`) 후 종료한다.
+  `scripts/overnight/DONE` 생성(사유 `drained`) 후 종료한다.
 
 ## 4. 구현 + 게이트
 

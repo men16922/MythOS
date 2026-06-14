@@ -151,7 +151,7 @@ make overnight-stop           # graceful 중단(현재 회차 마치고 종료)
 
 ```bash
 # claude 세션에서:  /overnight-report      # 종료사유·커밋·게이트 재실측·잔여 [auto]
-# 그다음 사람 검수:  docs/test/overnight-review-checklist.md
+# 그다음 사람 검수:  docs/test/bible/overnight-review-checklist.md
 make overnight-clean          # STOP/DONE 제어 파일 정리(다음 가동 준비)
 ```
 
@@ -163,7 +163,7 @@ make overnight-codex-once     # 코덱스 엔진 1회차 (codex 레인 [auto:cod
 make overnight-agy-once       # agy 엔진 1회차 (이미지 초안 레인 [auto:agy])
 ```
 
-런타임 산출물(`bin/overnight/logs/`·`STOP`·`DONE`·`status.tsv`)은 gitignore — 머신 로컬이다.
+런타임 산출물(`scripts/overnight/logs/`·`STOP`·`DONE`·`status.tsv`)은 gitignore — 머신 로컬이다.
 
 ## Image Backend
 

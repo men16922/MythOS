@@ -24,10 +24,10 @@ if tmux has-session -t "$SESSION" 2>/dev/null; then
 fi
 
 # tail 대상 runner.log 목록: 메인 + loop/* worktree.
-logs=("$MAIN_ROOT/bin/overnight/logs/runner.log")
+logs=("$MAIN_ROOT/scripts/overnight/logs/runner.log")
 while IFS= read -r line; do
   wt="$(printf '%s' "$line" | awk '{print $1}')"
-  case "$wt" in *"-loop-"*) [ -d "$wt" ] && logs+=("$wt/bin/overnight/logs/runner.log") ;; esac
+  case "$wt" in *"-loop-"*) [ -d "$wt" ] && logs+=("$wt/scripts/overnight/logs/runner.log") ;; esac
 done < <(git -C "$MAIN_ROOT" worktree list 2>/dev/null)
 
 # 상단 페인: status.sh 폴링 루프(macOS 엔 watch 가 없어 shell 루프로).

@@ -33,7 +33,7 @@
       "Bash(.venv/bin/python *)",
       "Bash(ls *)",
       "Bash(mkdir *)",
-      "Bash(touch bin/overnight/*)",
+      "Bash(touch scripts/overnight/*)",
       "Bash(cd *)"
     ],
     "deny": [

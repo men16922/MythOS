@@ -3,7 +3,7 @@
 
 > 바이블 [`../AGENTIC_ENGINEERING.md`](../AGENTIC_ENGINEERING.md) 의 개념을 **이 repo 구현에 매핑**한다.
 > 구현: claude·codex·agy 세 엔진이 **각자 worktree+브랜치에서 동시에** 무인 루프를 돌고,
-> claude 가 오케스트레이션(레인 배정 + 통합 머지)한다. 코드 근거: `bin/overnight/{run.sh,PROMPT*.md,
+> claude 가 오케스트레이션(레인 배정 + 통합 머지)한다. 코드 근거: `scripts/overnight/{run.sh,PROMPT*.md,
 > worktrees.sh,merge-loops.sh}`, [`LOOP.md`](LOOP.md), `docs/NEXT_PLAN.md`. 원시 리서치 `bin/docs/archive/AI_REARCH.md`.
 
 ## 0. 핵심 원리 — 충돌을 "구조"로 막는다
@@ -21,7 +21,7 @@
 ## 1. 엔진 · 레인 · 도메인 · 게이트
 | 엔진 | 레인 태그 | 소유 도메인(이 디렉터리만) | 샌드박스 | 게이트 | 브랜치 |
 | --- | --- | --- | --- | --- | --- |
-| **claude** | `[auto]` / `[auto:claude]` | `src/`, `tests/`, `harness/`, `bin/overnight/`, 복잡 리팩터·invariant·오케스트레이션 | `overnight-settings.json`(deny push/net/파괴) | `make check` | `loop/claude` |
+| **claude** | `[auto]` / `[auto:claude]` | `src/`, `tests/`, `harness/`, `scripts/overnight/`, 복잡 리팩터·invariant·오케스트레이션 | `overnight-settings.json`(deny push/net/파괴) | `make check` | `loop/claude` |
 | **codex** | `[auto:codex]` | Builder: `docs/`/scenario/story_bible 결정론 리팩터·검증·대화 스크립트. **+ Reviewer(Auditor)**: 통합 diff 읽기전용 감사 | `codex exec` workspace-write + no-net + `.git` writable | `make check`(빌드) / 읽기전용(리뷰) | `loop/codex` |
 | **agy** | `[auto:agy]` | `resources/<scn>/{characters,characters/combat,concept,enemies,enemies/combat,opening,scenes}` 이미지 초안 + 간단 검증 | 없음(호스트 FLUX/MPS/네트워크 필요) → 프롬프트 가드레일 + 브랜치 격리 | **무결성 게이트**(자산 실존/치수/네이밍; make check 로 코드 무파손) | `loop/agy`(리뷰) |
 
@@ -32,7 +32,7 @@
 ## 1.5 생성자 ≠ 리뷰어 (Claude → Codex → Claude)
 AI_REARCH 의 핵심 원리 적용: 만든 사람과 검수하는 사람을 분리해 자기확증 편향을 줄인다.
 - claude/agy 가 자기 레인에서 **생성**(빌드/초안) → `overnight-merge` 로 `loop/integration` 통합.
-- **codex 가 통합 diff 를 읽기전용 감사**(`make overnight-review` → `bin/overnight/review.sh` +
+- **codex 가 통합 diff 를 읽기전용 감사**(`make overnight-review` → `scripts/overnight/review.sh` +
   `PROMPT.review.md`): 버그/엣지/테스트누락/단순화/성능을 채점해 `logs/review-latest.md` 1개만 쓰고
   **제안 후속작업**(레인 태그 포함)을 적는다. **코드·NEXT_PLAN 미수정**.
 - 오케스트레이터(claude/사람)가 findings 를 `NEXT_PLAN` 에 반영 → 다음 회차에 claude 가 **수정**. 루프 완성.
@@ -78,7 +78,7 @@ make overnight-review             # codex 가 main...loop/integration diff 읽�
 # review findings 를 NEXT_PLAN 에 반영(다음 회차 claude 가 수정) → loop/integration 검수
 # (특히 agy 이미지 미적 적합도) → 이상 없으면 main 머지/push.
 ```
-- 각 worktree 는 자기 `bin/overnight/logs|STOP|DONE`(gitignore)를 가져 서로 간섭하지 않는다.
+- 각 worktree 는 자기 `scripts/overnight/logs|STOP|DONE`(gitignore)를 가져 서로 간섭하지 않는다.
 - 커밋은 각자 자기 브랜치(`loop/<eng>`)에 로컬만. **어느 엔진도 push 안 한다**(사람이 통합 후).
 
 ## 4. 한계 / 주의

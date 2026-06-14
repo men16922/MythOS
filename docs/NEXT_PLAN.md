@@ -21,7 +21,7 @@
 
 ### 자동화 태그 (overnight 루프용)
 
-상태 박스(`[x]`/`[/]`/`[ ]`/`[~]`)와 **별개 축**으로, 무인 overnight 루프(`bin/overnight/`,
+상태 박스(`[x]`/`[/]`/`[ ]`/`[~]`)와 **별개 축**으로, 무인 overnight 루프(`scripts/overnight/`,
 `docs/engineering/mythos/LOOP.md`)가 소비할 수 있는지를 inline 태그로 표시한다.
 
 - `[auto]` — 로컬·결정론·offline(`make check` 또는 `make smoke-local`)으로 검증 가능한 항목에만.

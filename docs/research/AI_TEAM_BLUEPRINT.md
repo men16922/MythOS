@@ -32,7 +32,7 @@
 - **별도 Orchestrator 프로세스(OpenClaw)**: 다수 클라우드/리포를 다룰 때 가치. 단일 게임 repo 엔 claude 겸임으로 충분.
 
 해당 프로젝트를 시작할 때 이 블루프린트(§1 원리 + MCP 재사용)를 그대로 가져가되, Builder/Reviewer/Researcher
-삼분할 + 생성자≠리뷰어 루프는 MythOS 에서 검증된 패턴(`bin/overnight/`)을 재사용하면 된다.
+삼분할 + 생성자≠리뷰어 루프는 MythOS 에서 검증된 패턴(`scripts/overnight/`)을 재사용하면 된다.
 
 ## 4. 솔직한 한계 / 주의
 - 블루프린트는 다소 범용·포부형이다. 로컬 게임에선 Research/Operator/멀티클라우드 비중이 낮다.

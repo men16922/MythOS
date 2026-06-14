@@ -20,7 +20,7 @@ md 재편/툴링/계획)은 한 세션에 안전히 안 들어간다. 다음 세
 - `LOOP_ENGINEERING.md` — 기존 `docs/LOOP_ENGINEERING.md`(206줄) **이동**(자율 루프 운영 권위 유지).
 - `AGENTIC_ENGINEERING.md` — 기존 `docs/MULTI_AGENT.md`(92줄) **이동**(3엔진/역할/레인/worktree/머지/생성자≠리뷰어 권위).
 - `CONTEXT_ENGINEERING.md`(신규, ~40줄) — 컨텍스트 예산·read-path·`/sync`·memory·per-agent 진입점. **권위**: `docs/DOCS_POLICY.md` 링크.
-- `PROMPT_ENGINEERING.md`(신규, ~40줄) — `bin/overnight/PROMPT.*.md`(엔진별 회차 프롬프트)·`src/mythos_narrative/prompts.py`·
+- `PROMPT_ENGINEERING.md`(신규, ~40줄) — `scripts/overnight/PROMPT.*.md`(엔진별 회차 프롬프트)·`src/mythos_narrative/prompts.py`·
   서사 레지스터 규칙(memory `narrative-register-rule`)·repair/fallback. 정의+매핑+링크.
 - 원칙: 신규 3종(HARNESS/CONTEXT/PROMPT)은 **얇게**(정의+현 repo 구현 매핑+권위 링크), 운영 상세는 권위 문서에만.
 
@@ -34,9 +34,9 @@ md 재편/툴링/계획)은 한 세션에 안전히 안 들어간다. 다음 세
 - 무브로 깨질 참조는 `rg`로 일괄 갱신(LOOP_ENGINEERING/MULTI_AGENT 경로 변경 다수).
 
 ## WS3 — Makefile + 로깅 + tmux 대시보드 (에이전트 모니터링)
-- **구조화 로깅**: `run.sh`가 회차마다 머신리더블 status 추가(`bin/overnight/logs/status.tsv`): `ts engine branch iter outcome head dur`.
+- **구조화 로깅**: `run.sh`가 회차마다 머신리더블 status 추가(`scripts/overnight/logs/status.tsv`): `ts engine branch iter outcome head dur`.
   (human `runner.log` 병행 유지.)
-- **집계 트리** `bin/overnight/status.sh`: 각 엔진 worktree의 process(pgrep)+runner.log 마지막 outcome+STOP/DONE+git HEAD/branch를
+- **집계 트리** `scripts/overnight/status.sh`: 각 엔진 worktree의 process(pgrep)+runner.log 마지막 outcome+STOP/DONE+git HEAD/branch를
   읽어 트리 출력:
   ```
   Orchestrator: claude (main)
@@ -45,7 +45,7 @@ md 재편/툴링/계획)은 한 세션에 안전히 안 들어간다. 다음 세
   └─ agy     [stopped]  loop/agy     STOP: ...
   ```
   상태 색상/범례(running/success/failed/stopped/idle).
-- **tmux 대시보드** `bin/overnight/dashboard.sh` + `make overnight-dashboard`: tmux 세션 — 상단 페인 `watch -n2 status.sh`(트리),
+- **tmux 대시보드** `scripts/overnight/dashboard.sh` + `make overnight-dashboard`: tmux 세션 — 상단 페인 `watch -n2 status.sh`(트리),
   하단 페인 분할로 엔진별 `tail -f runner.log`. tmux 없으면 status.sh 폴백 안내.
 - `make`: `overnight-dashboard` 신설, `overnight-status`는 `status.sh` 호출로 강화. `.PHONY` 갱신.
 
@@ -57,8 +57,8 @@ NEXT_PLAN 콘텐츠 레인, codex 콘텐츠 프롬프트. **이번엔 문서화�
 
 ## Critical files
 - 신규: `docs/engineering/{README,HARNESS_ENGINEERING,AGENTIC_ENGINEERING,CONTEXT_ENGINEERING,PROMPT_ENGINEERING}.md`
-  (LOOP/AGENTIC는 기존 LOOP_ENGINEERING/MULTI_AGENT 이동분), `bin/overnight/{status.sh,dashboard.sh}`.
-- 수정: `bin/overnight/run.sh`(status.tsv emit), `Makefile`(dashboard/status), `CLAUDE.md`/`AGENTS.md`/`GEMINI.md`(슬림화),
+  (LOOP/AGENTIC는 기존 LOOP_ENGINEERING/MULTI_AGENT 이동분), `scripts/overnight/{status.sh,dashboard.sh}`.
+- 수정: `scripts/overnight/run.sh`(status.tsv emit), `Makefile`(dashboard/status), `CLAUDE.md`/`AGENTS.md`/`GEMINI.md`(슬림화),
   `docs/README.md`·`docs/DOCS_POLICY.md`(인덱스/read-path), repo-wide ref 갱신.
 - 아카이브: `docs/research/AI_REARCH.md` → `bin/docs/archive/`.
 

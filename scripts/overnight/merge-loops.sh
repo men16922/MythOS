@@ -6,7 +6,7 @@
 # 도메인 분할(claude=src/tests, codex=docs/story_bible, agy=resources/images)로 충돌은 드물다.
 # 충돌 시 해당 머지는 abort 하고 계속 진행, 마지막에 보고한다.
 #
-# 사용: bin/overnight/merge-loops.sh [BASE]   (BASE 기본 main)
+# 사용: scripts/overnight/merge-loops.sh [BASE]   (BASE 기본 main)
 # 결과: loop/integration 브랜치에 머지본 + make check 결과. 사람이 검수 후 main 머지/push.
 # ----------------------------------------------------------------------------
 set -uo pipefail

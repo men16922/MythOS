@@ -1,5 +1,6 @@
 import type { CodexLists } from "./viewModels";
 import type { SkillTreeNode, SkillTreeResponse } from "./types";
+import { deriveSkillAction } from "./skillState";
 
 interface SkillTreePanelProps {
   codexLists: CodexLists;
@@ -48,8 +49,7 @@ export function SkillTreePanel({
           {skills.length > 0 ? (
             skills.map((skill) => {
               const busy = learningSkillId === skill.id;
-              const canAct =
-                interactive && skill.action !== null && skill.can_afford && !busy;
+              const actionView = deriveSkillAction(skill, interactive, busy);
               return (
                 <div className={`skill-tree-item ${skill.status}`} key={skill.id}>
                   <div className="skill-tree-head">
@@ -89,23 +89,24 @@ export function SkillTreePanel({
                   {skill.status === "locked" && skill.unlock_hint && (
                     <div className="skill-tree-hint">{skill.unlock_hint}</div>
                   )}
-                  {interactive && skill.status === "unlocked" && !skill.requires_met && (
+                  {actionView.show && actionView.blocked === "prereq" && (
                     <div className="skill-tree-hint">
                       선행 스킬 필요: {skill.requires.join(", ")}
                     </div>
                   )}
-                  {interactive && skill.action !== null && (
+                  {actionView.show && actionView.blocked === "insight" && (
+                    <div className="skill-tree-hint">
+                      통찰 부족 · 보유 {insight}p / 필요 {skill.action_cost}p
+                    </div>
+                  )}
+                  {actionView.show && (
                     <button
                       type="button"
                       className="skill-tree-action"
-                      disabled={!canAct}
+                      disabled={actionView.disabled}
                       onClick={() => onLearnSkill?.(skill.id)}
                     >
-                      {busy
-                        ? "처리 중..."
-                        : skill.action === "learn"
-                          ? `습득 -${skill.action_cost}p`
-                          : `강화 -${skill.action_cost}p`}
+                      {actionView.label}
                     </button>
                   )}
                 </div>

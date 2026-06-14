@@ -5,6 +5,18 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-14 — Codex Skill UX 버튼 상태 결정론화(+선행 미충족 클릭 버그 픽스)
+
+- Status: `[auto]` 트랙 — Codex 스킬 트리 버튼 상태 로직을 순수 함수로 추출하고 첫 플레이어용 안내 보완.
+- Changed: `skillState.ts` 신규 `deriveSkillAction(skill, interactive, busy)` — show/disabled/label/blocked(`prereq`|`insight`|null)
+  discriminated union으로 추출(prereq>insight 우선순위, 결정론). `SkillTreePanel.tsx`가 이를 렌더:
+  - **버그 픽스**: 기존 `canAct`는 통찰만 충분하면 선행 미충족이어도 버튼 활성→클릭→백엔드 거부. 이제 선행 미충족 시 비활성.
+  - **공백 보완**: 통찰 부족 시 "통찰 부족 · 보유 {n}p / 필요 {c}p" 안내 추가(기존엔 이유 없는 회색 버튼).
+  - 버튼 텍스트(`습득/강화 -Np`·`처리 중...`)는 보존(E2E 셀렉터 영향 없음). 상태 문구 wording polish는 `[manual]`.
+- Verified: `make check` EXIT=0(ruff + mypy 109 + frontend tsc/vite build + 304 tests). 프론트 테스트 러너 부재로 JS 유닛테스트는 보류(순수 함수 추출로 회귀 안전성 확보).
+- Blockers: 없음.
+- Next: 남은 `[auto]`(bin/ 검토 read-only)·사람 필요 작업(Neo-Seoul 플레이 QA, 하네스 --once).
+
 ## 2026-06-14 — overnight 무인 루프 하네스 + mypy 부채 정리 완료(게이트 make check 승격)
 
 - Status: 타 프로젝트 LOOP_ENGINEERING을 MythOS에 이식 + 첫 `[auto]` 작업으로 src 타입 정리.

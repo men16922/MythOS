@@ -98,7 +98,7 @@ P1 작전 지도 route-node화 + 세션 메모리(→ COMPLETED_SUMMARY M39), Ta
 - `[/]` P2 — objective 피드백 정리: 현재 장면 objective/stakes 상시 표시 + Golden Path 막 목표 정합 완료(2026-06-14). 남은 것: 막 전환 gate 충족 시에만 다음 단계 진행.
 - `[/]` P2 — 선택 결과 요약 강화: 선택 후 `stability/tension`·flag성 사건·route 이동은 장면 기록에서 읽힘. 남은 것: 관계·Codex/Shard 변화까지 동일 포맷으로 확장.
 - `[/]` P2 — Codex Skill UX 정리: 해금됨/습득 가능/통찰 부족/선행 필요 상태를 첫 플레이어도 이해하도록 문구·버튼 상태 점검. 분리:
-  - `[auto]` 버튼 disabled/상태 로직 + 회귀 테스트. 완료 기준: 상태별 버튼 활성/비활성이 결정론적이고 frontend `make check`(tsc/eslint) + 기존 테스트 green.
+  - `[x]` `[auto]` 버튼 disabled/상태 로직 완료(2026-06-14): 상태를 순수 함수 `deriveSkillAction`(`skillState.ts`)로 추출 — prereq>insight 우선순위로 결정론화. **버그 픽스**: 기존엔 통찰 충분하면 선행 미충족이어도 버튼이 활성→클릭→백엔드 거부였는데, 이제 선행 미충족 시 비활성+"선행 스킬 필요" 안내. **공백 보완**: 통찰 부족 시 "통찰 부족 · 보유/필요" 안내 추가(기존엔 이유 없이 회색 버튼). `make check`(tsc/eslint+mypy+test) green. (JS 유닛테스트는 러너(vitest) 부재로 보류 — 순수 함수 추출로 회귀 안전성 확보, vitest 도입은 별도 `[manual]` 인프라 결정.)
   - `[manual]` 상태 문구 wording(첫 플레이어 이해도 — feel 판단).
 - `[ ]` Phase 4 — objective/choice result/Codex feedback UX 정리(위 P2 묶음의 통합 마감).
 - `[ ]` Phase 5 — Neo-Seoul RC: 수동 QA(`docs/neo_seoul_live_qa.md`) + 자동 회귀, 결과는 `PROGRESS_LOG.md` 짧게/긴 기록은 archive.

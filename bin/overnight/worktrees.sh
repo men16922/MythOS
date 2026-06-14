@@ -8,8 +8,12 @@
 #   ../<repo>-loop-codex    (branch loop/codex)
 #   ../<repo>-loop-agy      (branch loop/agy)
 #
-# .claude/ 와 .agents/ 는 gitignore 라 새 worktree 엔 없다 → 메인 체크아웃 것을 symlink 해
-# 각 엔진이 스킬/프롬프트를 읽게 한다. bin/overnight/{run.sh,PROMPT*,settings} 는 git 추적이라 이미 존재.
+# gitignore 라 새 worktree 엔 없는 것들을 메인에서 symlink 한다:
+#   .claude/.agents — 스킬/프롬프트, .venv — 파이썬 게이트(ruff/mypy/unittest),
+#   src/mythos_ui/node_modules — 프론트 게이트(eslint/tsc/vite). (bin/overnight/* 는 git 추적이라 이미 존재.)
+# ⚠️ .venv 의 editable install(.pth)은 **메인 src** 를 가리킨다. 따라서 worktree 의 per-회차 게이트는
+#   add-only/test/docs/이미지 레인엔 정확하지만, 기존 src 를 *수정*하는 경우엔 메인 src 로 검사된다(근사).
+#   src 수정의 권위 검증은 `make overnight-merge`(메인 체크아웃에서 통합본을 make check)다.
 #
 # 사용:
 #   bin/overnight/worktrees.sh up       # 생성/갱신(+symlink)
@@ -29,7 +33,7 @@ MAIN_ROOT="$(git -C "$REPO_ROOT" rev-parse --path-format=absolute --git-common-d
 ENGINES="claude codex agy"
 PARENT="$(dirname "$MAIN_ROOT")"
 BASE="$(basename "$MAIN_ROOT")"
-LINK_DIRS=".claude .agents"
+LINK_DIRS=".claude .agents .venv src/mythos_ui/node_modules"
 
 wt_path() { printf '%s/%s-loop-%s' "$PARENT" "$BASE" "$1"; }
 

@@ -7,5 +7,5 @@
 ## 내용
 
 - `docs/archive/` — 장문 설계 원문(`DESIGN_FULL_*`, `GAMEPLAY_FULL_*`, `DRAFT`), 완료 마일스톤 상세(`IMPLEMENTATION_M0_M10`), 과거 progress 로그(`progress-2026-05`, `progress-2026-06`) 등.
-- `docs/plans/` — 완료/구식 dated plan(2026-05-31, 2026-06-03 시기). 활성 plan은 `docs/plans/`에 남아 있다.
-- `docs/feedback/` — 과거 피드백 메모.
+- `docs/plans/` — 완료/구식 dated plan(2026-06-03~06-09 시기). 활성 plan은 `docs/plans/`에 남아 있다.
+  (2026-05-31·06-03 초기 구식 plan + 06-06-combat-visual-effects + 과거 feedback는 2026-06-14 프루닝됨 — git 이력 보존.)

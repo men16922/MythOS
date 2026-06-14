@@ -31,7 +31,7 @@
 > 모두 offline·`make check` 검증. neo-seoul 기준(가능하면 glass-library도 동일 패턴).
 
 - `[x]` `[auto]` 루트 도달성 invariant(`tests/test_route_integrity.py` 신설): neo-seoul `route_map`의 모든 노드가 보스 레이어까지 경로 보유 + 고아 노드 0 + 모든 앵커가 어떤 flag 조합에서 start로부터 도달 가능. **완료(2026-06-14)**: full+dynamic 빌더 ×24 seed로 4 invariant 박제, `make check` green(위반 0).
-- `[ ]` `[auto]` 엔딩 도달성 invariant: `scenario.json endings`의 모든 id가 route perspective `ending_influence` 누적으로 도달 가능(boss뿐 아니라 전 경로). 완료 기준: `test_route_integrity.py`에 추가, green 또는 Blocker.
+- `[x]` `[auto]` 엔딩 도달성 invariant: `scenario.json endings`의 모든 id가 route perspective `ending_influence` 누적으로 도달 가능(boss뿐 아니라 전 경로). **완료(2026-06-14)**: `test_route_integrity.py`에 2건 추가(엔딩 도달성 + 참조 무결성), full+dynamic ×24 seed, `make check` green(위반 0).
 - `[ ]` `[auto]` 플래그 참조 무결성(`tests/test_content_integrity.py` 신설): 소비 flag(`chapter_gates`·route node gate·choice `requires`·perspective `when`)가 어딘가서 생산(choice effect/`world_delta`/event)되는지 검증, 미생산 flag 0. 완료 기준: 테스트 추가, green 또는 Blocker.
 - `[ ]` `[auto]` 스킬/아이콘 무결성: 모든 `combat.skills[].id`에 `resources/neo-seoul/skills/<id>.png` 존재 + 아키타입 base/learnable + `epiphany` unlock이 실재 스킬 참조. 완료 기준: `test_assets.py` 또는 신설에 추가, green 또는 Blocker.
 - `[ ]` `[auto]` 조우 무결성: 모든 route combat 노드 type이 비어있지 않은 `combat_encounters` 풀에 매핑 + 풀의 적 id가 bestiary에 풀 액션시트 보유. 완료 기준: 테스트 추가, green 또는 Blocker.

@@ -5,6 +5,19 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-14 — 엔딩 도달성 invariant 추가 ([auto], QA seed #2)
+
+- Status: overnight `[auto]` 1회차 — Overnight QA Seed #2(엔딩 도달성 invariant) 박제. green.
+- Changed: `tests/test_route_integrity.py`에 2건 추가(`build_route_map` full + `build_route_seed`
+  dynamic ×24 seed) — (1) `scenario.endings`의 모든 엔딩 id가 route perspective `ending_influence`로
+  도달 가능: 그 엔딩을 미는 노드가 start→boss 가시 경로 위에 ≥1개 존재(boss뿐 아니라 전 경로에서 누적 가능),
+  (2) 참조 무결성: 모든 `ending_influence` 문자열이 실재 엔딩 id를 가리킴(오타/dangling push 0).
+  헬퍼 `_influence_nodes`로 노드별 영향 수집. 코드 변경 없음(테스트만). 현재 neo-seoul 4 엔딩 전부 충족.
+- Verified: `make check` EXIT=0 — ruff All passed + eslint + mypy Success(110 files) + frontend build +
+  310 tests OK(skipped 2, 308→310). 위반 0 → 기계적 수정/Blocker 불요.
+- Blockers: 없음.
+- Next: 남은 QA seed `[auto]` 5종(플래그/스킬·아이콘/조우 무결성·승률 밴드·진행도 경제).
+
 ## 2026-06-14 — 루트 도달성 invariant 테스트 신설 ([auto], QA seed #1)
 
 - Status: overnight `[auto]` 1회차 — Overnight QA Seed #1(루트 도달성 invariant) 박제. green.

@@ -9,7 +9,11 @@ builders, assert that the generated layered DAG stays navigable —
 - every node has a path to the boss layer,
 - every authored anchor is reachable from the start (gates only restrict; the
   layered connectivity guarantee means some flag combination always reaches it),
-- both a combat-taking and a combat-avoiding path to the boss exist.
+- both a combat-taking and a combat-avoiding path to the boss exist,
+- every ending declared in ``scenario.endings`` is reachable through the route's
+  ``ending_influence`` tally — some node that pushes toward it sits on a viable
+  start→boss path (not just at the boss), and no perspective pushes toward an
+  ending id that does not exist.
 
 A violation is a real content/generation bug to fix mechanically or surface as a
 Blocker, not a flaky judgment call.
@@ -43,11 +47,23 @@ def _reaches(start: str, target: str, edges: dict[str, list[str]]) -> bool:
     return target in _reachable_set(start, edges)
 
 
+def _influence_nodes(rm: dict[str, Any]) -> dict[str, set[str]]:
+    """Map each ``ending_influence`` id to the node ids whose perspectives push it."""
+    out: dict[str, set[str]] = {}
+    for nid, node in rm["nodes"].items():
+        for perspective in node.get("perspectives", []) or []:
+            for ending in perspective.get("ending_influence", []) or []:
+                out.setdefault(str(ending), set()).add(nid)
+    return out
+
+
 class RouteIntegrityTest(unittest.TestCase):
     def setUp(self) -> None:
         self.scenario = load_scenario("neo-seoul")
         self.config = self.scenario.route_map
         self.assertIsNotNone(self.config, "neo-seoul must define a route_map config")
+        self.ending_ids = {str(e.get("id")) for e in self.scenario.endings if e.get("id")}
+        self.assertTrue(self.ending_ids, "neo-seoul must declare endings")
 
     def _maps(self) -> list[dict[str, Any]]:
         """Both builders across many seeds — the universe these invariants cover."""
@@ -92,6 +108,42 @@ class RouteIntegrityTest(unittest.TestCase):
             summary = route_map_paths_summary(rm)
             self.assertTrue(summary["combat"], f"no combat path (seed {rm.get('seed')})")
             self.assertTrue(summary["avoid"], f"no avoid path (seed {rm.get('seed')})")
+
+    def test_every_ending_reachable_via_route_influence(self) -> None:
+        for rm in self._maps():
+            start = rm["current"]
+            boss = rm["layers"][-1][0]
+            reachable = _reachable_set(start, rm["edges"])
+            influence = _influence_nodes(rm)
+            for ending_id in self.ending_ids:
+                pushers = influence.get(ending_id, set())
+                self.assertTrue(
+                    pushers,
+                    f"ending {ending_id} has no perspective pushing toward it "
+                    f"(seed {rm.get('seed')})",
+                )
+                # Reachable from start AND on a viable path to the boss — so the
+                # tally can actually accumulate before the loop resolves.
+                viable = {
+                    nid
+                    for nid in pushers
+                    if nid in reachable and _reaches(nid, boss, rm["edges"])
+                }
+                self.assertTrue(
+                    viable,
+                    f"ending {ending_id} only pushed by nodes off any start→boss "
+                    f"path {pushers} (seed {rm.get('seed')})",
+                )
+
+    def test_route_influence_references_declared_ending(self) -> None:
+        for rm in self._maps():
+            for ending_id in _influence_nodes(rm):
+                self.assertIn(
+                    ending_id,
+                    self.ending_ids,
+                    f"perspective pushes toward undeclared ending {ending_id!r} "
+                    f"(seed {rm.get('seed')}); declared: {sorted(self.ending_ids)}",
+                )
 
 
 if __name__ == "__main__":

@@ -5,6 +5,24 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-14 — 플래그 참조 무결성 invariant 신설 ([auto], QA seed #3)
+
+- Status: overnight `[auto]` 1회차 — Overnight QA Seed #3(플래그 참조 무결성) 박제. green.
+- Changed: `tests/test_content_integrity.py` 신설(4 invariant). neo-seoul 소비 flag(route node
+  `gate`·perspective `when`·`playability.route_branches[].trigger_flags`·story_bible `flags_any`)가
+  recognized producer로 모두 생산되는지 검증 — (1) gate flag는 authored `effect.flags` 또는 엔진
+  온보딩(`met_se_rin`/`refused_se_rin`)으로 생산 가능(하드 도달성), (2) route_branch
+  `story_bible_entry` 전부 실재 bible id로 resolve, (3) **미생산 flag 0**: 모든 소비 flag가
+  authored effect ∪ 엔진 ∪ `NARRATIVE_DRIVEN_FLAGS`(Director가 `world_delta`로 emit하는 가치축/서사
+  상태 flag 12종, 명시 등록)에 속함(신규 orphan=dead branch면 ratchet fail), (4) 레지스트리 무부패(등록
+  flag는 모두 실소비 + authored effect와 비중복). 코드 변경 없음(테스트만). **발견**: seed가 든 "choice
+  `requires`"는 실제론 스킬 id prereq(flag 아님), chapter_gates는 산문 요약 → 둘 다 구조적 flag 소비자
+  아니라 스캔 제외(테스트 docstring에 명시).
+- Verified: `make check` EXIT=0 — ruff All passed + eslint + mypy Success(111 files) + frontend build +
+  314 tests OK(skipped 2, 310→314). 위반 0 → 기계적 수정/Blocker 불요.
+- Blockers: 없음.
+- Next: 남은 QA seed `[auto]` 4종(스킬·아이콘/조우 무결성·승률 밴드·진행도 경제).
+
 ## 2026-06-14 — 엔딩 도달성 invariant 추가 ([auto], QA seed #2)
 
 - Status: overnight `[auto]` 1회차 — Overnight QA Seed #2(엔딩 도달성 invariant) 박제. green.

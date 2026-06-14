@@ -24,6 +24,20 @@
 - `[blocked]` — 같은 항목 Blocker 2회 누적(러너가 자동으로 덧붙임). 사람 검수 후 제거. 선행 조건 미충족도 포함.
 - **무태그 = 무인 대상 아님**(안전 기본값). 러너는 `[auto]`만 소비하고, 무태그를 임의로 승격하지 않는다.
 
+## Overnight QA Seed (2026-06-14) — 자동 콘텐츠/밸런스 무결성
+
+> overnight 루프 fodder. "재밌는가"(사람) 말고 **"안 깨지는가"(봇, 결정론)** 를 본다. 각 항목 1회차.
+> 새 invariant 테스트가 green이면 박제, red면 위반을 **기계적 수정** 또는 **정확한 Blocker로 surface**(사람 검수).
+> 모두 offline·`make check` 검증. neo-seoul 기준(가능하면 glass-library도 동일 패턴).
+
+- `[ ]` `[auto]` 루트 도달성 invariant(`tests/test_route_integrity.py` 신설): neo-seoul `route_map`의 모든 노드가 보스 레이어까지 경로 보유 + 고아 노드 0 + 모든 앵커가 어떤 flag 조합에서 start로부터 도달 가능. 완료 기준: 테스트 추가, `make check` green(위반 시 기계적 수정 또는 Blocker).
+- `[ ]` `[auto]` 엔딩 도달성 invariant: `scenario.json endings`의 모든 id가 route perspective `ending_influence` 누적으로 도달 가능(boss뿐 아니라 전 경로). 완료 기준: `test_route_integrity.py`에 추가, green 또는 Blocker.
+- `[ ]` `[auto]` 플래그 참조 무결성(`tests/test_content_integrity.py` 신설): 소비 flag(`chapter_gates`·route node gate·choice `requires`·perspective `when`)가 어딘가서 생산(choice effect/`world_delta`/event)되는지 검증, 미생산 flag 0. 완료 기준: 테스트 추가, green 또는 Blocker.
+- `[ ]` `[auto]` 스킬/아이콘 무결성: 모든 `combat.skills[].id`에 `resources/neo-seoul/skills/<id>.png` 존재 + 아키타입 base/learnable + `epiphany` unlock이 실재 스킬 참조. 완료 기준: `test_assets.py` 또는 신설에 추가, green 또는 Blocker.
+- `[ ]` `[auto]` 조우 무결성: 모든 route combat 노드 type이 비어있지 않은 `combat_encounters` 풀에 매핑 + 풀의 적 id가 bestiary에 풀 액션시트 보유. 완료 기준: 테스트 추가, green 또는 Blocker.
+- `[ ]` `[auto]` 조우 승률 밴드(시뮬): 고정 시드 그리디 시뮬로 각 조우의 의도 아키타입 승률이 합리 밴드(예: 55~98%) 내(0%=불가, 100%=시시). 시뮬 하네스는 `scratch/` 확인·재사용. 완료 기준: 테스트 추가, 밴드 밖이면 Blocker, green.
+- `[ ]` `[auto]` 진행도 경제 invariant(`test_progression.py`에 추가): 스킬 learn/rankup 비용이 tier별 단조 + 모든 tier가 합리적 통찰 수입으로 도달 가능(영구 불가 tier 0). 완료 기준: 테스트 추가, green 또는 Blocker.
+
 ## Priority 1 — Neo-Seoul Playability Upgrade
 
 상태: `[/]` 진행 중(최우선 트랙).

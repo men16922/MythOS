@@ -63,6 +63,29 @@ log() {
   printf '%s  %s\n' "$(date '+%Y-%m-%d %H:%M:%S')" "$1" | tee -a "$RUNNER_LOG"
 }
 
+# 실패 클래스 종료에서만 호스트 메일 알림(성공/정상 종료엔 안 부름 — 과다 발송 방지).
+# 발송 수단/수신자는 bin/overnight/notify.sh(SMTP 또는 macOS Mail). 알림 실패가 러너를 죽이지 않는다.
+notify_failure() {
+  local reason="$1"
+  local branch recent body
+  branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo '?')"
+  recent="$(git log --oneline -5 2>/dev/null)"
+  body="MythOS overnight 루프가 점검이 필요한 상태로 종료됐습니다.
+
+엔진     : $ENGINE
+브랜치   : $branch
+종료사유 : $reason
+총 회차  : $iter
+시각     : $(date '+%Y-%m-%d %H:%M:%S')
+
+최근 커밋:
+$recent
+
+마지막 회차 로그: ${ITER_LOG:-(없음)} (HEAD 잔여물/Blocker 확인). 아침 검수는 /overnight-report."
+  bash bin/overnight/notify.sh "[MythOS overnight] 점검 필요 — $ENGINE: $reason" "$body" \
+    >> "$RUNNER_LOG" 2>&1 || true
+}
+
 # --- timeout 바이너리 탐지 (macOS 는 coreutils 의 gtimeout) ---
 TIMEOUT_BIN=""
 if command -v gtimeout >/dev/null 2>&1; then
@@ -208,6 +231,18 @@ while :; do
   case "$outcome" in
     limit)
       consec_fail=0
+      # claude 한도 소진 → codex 로 failover(이후 회차 codex 가 claude 레인을 대신 소비). 1회만.
+      if [ "$ENGINE" = "claude" ] && [ "${FAILOVER_DONE:-0}" = "0" ] && command -v codex >/dev/null 2>&1; then
+        log "claude 한도 감지 — codex 로 failover(이후 codex 가 claude 레인 소비)"
+        ENGINE="codex"
+        PROMPT_FILE="bin/overnight/PROMPT.codex.md"
+        PROMPT_CONTENT="$(cat "$PROMPT_FILE")
+
+[러너 알림] FAILOVER 모드: claude 토큰 한도 소진으로 codex 가 대신 수행한다.
+이번 회차부터 codex 레인(\`[auto:codex]\`)이 없으면 claude 레인(\`[auto]\`/\`[auto:claude]\`)도 소비하라."
+        FAILOVER_DONE=1
+        continue   # 대기 없이 즉시 codex 로 재시도
+      fi
       log "한도 감지 — ${LIMIT_WAIT}s 대기 후 재시도"
       sleep "$LIMIT_WAIT"
       continue
@@ -243,3 +278,8 @@ while :; do
 done
 
 log "=== overnight 루프 종료: $exit_reason (총 $iter 회차) ==="
+
+# 실패 클래스에서만 메일(연속 실패 / 전부 blocked). drained·무진행·MAX_ITER·수동 STOP·--once 는 정상 → 안 보냄.
+case "$exit_reason" in
+  *"연속 실패"*|*"all-blocked"*) notify_failure "$exit_reason" ;;
+esac

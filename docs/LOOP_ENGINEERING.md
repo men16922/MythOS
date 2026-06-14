@@ -183,9 +183,13 @@ make overnight-clean     # 종료 후 STOP/DONE 제어 파일 정리
 - **2026-06-14 — Codex 엔진 추가**: `run.sh`에 `ENGINE`(claude|codex) 분기 추가(LOOP 단일 소스 유지),
   `bin/overnight/PROMPT.codex.md`(Skill 대신 `.agents/skills/*` 절차 수행), `make overnight-codex*` 타깃.
   안전 경계는 전역 `~/.codex/config.toml`(danger-full-access)이 아니라 `run.sh`가 CLI로 강제하는 샌드박스
-  (`workspace-write`+network 차단+approval never). **`codex exec`로 직접 실측**(전역 YOLO에도 회차 내 curl이
-  exit 6=DNS 차단), stdin freeze 버그 발견·수정(`</dev/null`), rc=0 성공 경로 확인, `bash -n`·`make -n` 검증.
-  다회차 무인 가동은 사용자 판단(첫 가동은 `make overnight-codex-once`).
+  (`workspace-write`+network 차단+approval never). **`codex exec` 2회차 실증**: (1)네트워크 차단 확인(전역
+  YOLO에도 회차 내 curl exit 6=DNS), (2)stdin freeze 버그 수정(`</dev/null`), (3)**`.git` 쓰기 차단 버그
+  수정** — workspace-write가 `.git`을 막아 `git commit`이 실패(`Operation not permitted`)하므로
+  `writable_roots`에 `<repo>/.git` 추가(회차당 커밋이 LOOP 핵심), (4)**실제 자율 커밋 실증**(codex가 조우
+  무결성 invariant 구현→`make check` green→로컬 커밋 `0a910df`→러너 HEAD-diff 감지→정상 종료).
+  부수 발견: codex가 누락 자산을 placeholder로 fabricate해 green 강제하는 경향 → `PROMPT.codex.md §0`에
+  "누락 자산=Blocker, fabricate 금지" 명시. 다회차 무인 가동은 사용자 판단(첫 가동은 `make overnight-codex-once`).
 
 `[auto]` 후보의 정직한 triage는 항상 `docs/NEXT_PLAN.md`의 자동화 태그가 권위다.
 

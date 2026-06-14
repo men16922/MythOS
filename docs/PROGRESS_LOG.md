@@ -5,6 +5,20 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-14 — 3엔진 병렬 Loop Engineering + BGM OFF 수정
+
+- Status: claude·codex·agy 3엔진 병렬 무인 루프 토대 구축 + 실패 메일 + failover + BGM 버그 수정. 6 phase 완료.
+- Changed:
+  - **BGM OFF 버그**: `useAudio.ts` — stale closure(WS onmessage)가 매 턴 음악 재생 → `bgmEnabledRef` 단일 진실원 게이트로 수정.
+  - **agy 엔진**: `run.sh` 3엔진 case(`ENGINE=claude|codex|agy`), `PROMPT.agy.md`(이미지 초안 레인, 무샌드박스+가드레일), `make overnight-agy*`. agy --print 헤드리스 실측.
+  - **병렬 격리**: `worktrees.sh`(loop/{claude,codex,agy} worktree + .claude/.agents symlink), 레인 태그(`[auto:claude|codex|agy]`, 각 PROMPT 자기 레인만), `merge-loops.sh`/`make overnight-merge`(통합+게이트, push 안 함), `docs/MULTI_AGENT.md`.
+  - **이미지 무결성 게이트**: `tests/test_image_assets.py`(유효/비어있지않음/치수/용량 — fabricate 차단, make check 포함, 317 tests).
+  - **실패 메일**: `notify.sh`(SMTP→Mail.app), run.sh 가 실패 클래스(연속 실패/all-blocked)에서만 발송.
+  - **failover**: claude 한도 시 codex 가 claude 레인 대신 소비(1회 자동 전환).
+- Verified: `make check` rc=0(317). worktree 3개 생성+symlink+merge 실측. agy/codex 헤드리스 실측. notify Mail.app 실발송 확인.
+- Blockers: agy 무샌드박스(경계=프롬프트+worktree). 누락 스킬아이콘 6종은 `[auto:agy]` 초안 task 로 대기.
+- Next: `make overnight-worktrees` 후 3엔진 병렬 실가동(사용자 판단). 아침 `make overnight-merge`+검수.
+
 ## 2026-06-14 — 조우 무결성 invariant 추가 ([auto], QA seed #4)
 
 - Status: overnight `[auto]` 1회차 — Overnight QA Seed #4(조우 무결성) 박제. green.

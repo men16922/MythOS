@@ -10,7 +10,7 @@ description: 무인 overnight 루프의 아침 검수 보고. 러너 상태·회
 
 > **바이블 ↔ 런별 인스턴스 분리:**
 > - 정적 템플릿(반복 프로세스 A~E)은 `docs/test/bible/overnight-review-checklist.md`(바이블).
-> - 이 스킬은 그 바이블의 B~E를 **이번 런 사실로 채운** 체크리스트를 `docs/test/<MMDD-HHMM>-overnight-review-checklist.md`
+> - 이 스킬은 그 바이블의 B~E를 **이번 런 사실로 채운** 체크리스트를 `docs/test/history/<MMDD-HHMM>-overnight-review-checklist.md`
 >   **파일로 생성**한다(런별 인스턴스). 이 파일들은 gitignore — 재생성 가능한 산출물이라 커밋하지 않는다.
 
 ## 절차
@@ -42,7 +42,7 @@ description: 무인 overnight 루프의 아침 검수 보고. 러너 상태·회
      잔여 `[auto]` M개 · **사람 검수 필요 항목**(red 잔여물·새 `[blocked]`·STOP 사유).
 
 7. **런별 사람 검수 체크리스트 파일 생성:**
-   - 파일명: `docs/test/<MMDD-HHMM>-overnight-review-checklist.md`. 타임스탬프는 **검수 대상 런의 종료 시각**
+   - 파일명: `docs/test/history/<MMDD-HHMM>-overnight-review-checklist.md`. 타임스탬프는 **검수 대상 런의 종료 시각**
      (runner.log 마지막 줄 / `DONE`·`STOP` 파일 시각)을 쓰고, 못 구하면 현재 시각. 형식은 `MMDD-HHMM`
      (예 `0614-2333`) — **콜론 금지**(파일시스템 안전). 같은 분에 재실행 시 덮어쓴다.
    - 내용: `docs/test/bible/overnight-review-checklist.md`의 B~E를 **이번 런 사실로 채운 체크박스**.

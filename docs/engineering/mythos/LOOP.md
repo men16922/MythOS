@@ -17,7 +17,8 @@
 창의·체감 작업에는 쓰지 않는다. `[auto]` 백로그는 본질적으로 얇아 금방 소진된다(2026-06-14 기준,
 초기 `[auto]` 묶음은 이미 거의 소진 — §6). 흔한 종료 사유는 `DONE`(소진)이거나 **`MAX_NO_PROGRESS`** 이며,
 **그게 정상이다**. 효율을 내려면 **실행 전에 `[auto]` 항목을 한 묶음 seeding** 하라(회귀 테스트 백필,
-codemod, lint/type 부채 정리, stale-doc 정리 등). seeding 없이 돌리면 즉시 무진행으로 멈춘다.
+codemod, lint/type 부채 정리, stale-doc 정리 등) — 이 판단·백필을 `/overnight-seed` 스킬이 돕는다(레인별
+분량 추산 + 부족분 고지). seeding 없이 돌리면 즉시 무진행으로 멈춘다.
 
 ## 1. 한 줄 요약
 프롬프트 1개를 헤드리스로 반복 호출하되, 매 회차가 작은 컨텍스트로 상태를 복원하고(`/sync`) →
@@ -114,10 +115,11 @@ limit을 자유 텍스트 grep이 아니라 구조화 신호로 판정한다(fal
 | `/sync` | 회차 시작 | Read Path만 읽고 상태 복원. **읽기만** |
 | `/checkpoint` | 회차 종료 전 | PROGRESS_LOG append + STATUS/NEXT_PLAN 갱신. **기록만** |
 | `/tidy-docs` | 예산 초과 시 | archive 분리·압축. **정리만** |
-| `/overnight-report` | 아침 검수 | 러너 상태·회차·커밋·게이트 재실측·잔여 `[auto]` 백로그 보고. **읽기+검증만** |
+| `/overnight-seed` | **가동 전** | 레인별 `[auto]` 백로그 집계 + 후보 메뉴 survey + wall-clock 추산·부족분 고지, 승인 시 NEXT_PLAN 기록 |
+| `/overnight-report` | 아침 검수 | 러너 상태·회차·커밋·게이트 재실측·잔여 `[auto]` 백로그 보고 + 런별 체크리스트 생성. **읽기+검증만** |
 
-> 스킬은 `.claude/`(gitignore) 하위라 **git 미추적·머신 로컬**. 다른 에이전트(codex/antigravity)용 공용 미러가
-> `.agents/skills/`(역시 gitignore)에 있으며 4종을 `.claude/skills/`와 동기화해 둔다. 새 머신에선 둘 다 다시 둬야 한다.
+> 스킬은 **git 추적**이다(`.claude/.agents/.codex/.gemini` 4곳 미러 동기화 — DECISIONS 2026-06-14, 재-ignore 금지).
+> 새 스킬은 4곳에 동일 `SKILL.md`로 둔다. 한 곳만 고치면 레인별로 동작이 갈린다.
 
 ### 3.6 무인 권한 — `scripts/overnight/overnight-settings.json`
 `claude -p … --settings scripts/overnight/overnight-settings.json`로만 로드되는 **전용 권한 경계**.

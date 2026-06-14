@@ -75,8 +75,9 @@ case "$cmd" in
     for eng in $ENGINES; do
       wt="$(wt_path "$eng")"
       [ -d "$wt" ] || { echo "$eng: worktree 없음 — 먼저 'up'"; continue; }
-      echo "▶ $eng: per-worktree 환경 provision (python venv + pip -e .[dev])..."
-      ( cd "$wt" && python3 -m venv .venv && .venv/bin/pip install -q -e ".[dev]" ) \
+      echo "▶ $eng: per-worktree 환경 provision (python venv + pip -e .[dev,web])..."
+      ( cd "$wt" && python3 -m venv .venv && .venv/bin/python -m pip install -q --upgrade pip \
+          && .venv/bin/pip install -q -e ".[dev,web]" ) \
         && echo "  $eng: venv ok" || echo "  $eng: venv 실패(네트워크/파이썬 확인)"
       if [ -d "$wt/src/mythos_ui" ]; then
         echo "▶ $eng: frontend node_modules (npm install)..."

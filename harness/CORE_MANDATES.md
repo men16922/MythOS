@@ -39,7 +39,8 @@
 - **Docs-first status**: 프로젝트 상태 질문에는 git working tree나 코드 탐색보다 current docs(`AGENT_BRIEF` → `STATUS` → `NEXT_PLAN`)를 먼저 읽고 답한다.
 - **Confirm structural moves**: 디렉터리 이동/리네임/재분류(`scratch/`, `bin/` 등)와 대규모 리팩터링은 시작 전에 범위와 전략을 사용자에게 확인한다. 임의로 폴더를 옮기지 않는다.
 - **Shell discipline**: 셸 명령은 절대 경로를 쓴다(특히 `.venv/bin/python`). 이전 `cd`가 남긴 cwd에 의존하지 않는다 — cwd 의존으로 silent failure가 발생한 사례가 있다.
-- **Verify before claiming done**: 자율(무감독) 사이클에서는 산출물이 실제로 존재하는지(파일 재확인, 테스트 출력 확인) 검증한 뒤에만 완료를 보고한다. 긴 산출물(문서/계획/코드 덤프)은 채팅 출력 대신 파일로 쓰고 요약만 보고한다.
+- **Verify before claiming done**: 자율(무감독) 사이클에서는 산출물이 실제로 존재하는지 검증한 뒤에만 완료를 보고한다 — write/edit 후에는 해당 파일을 다시 읽어 변경이 실제로 반영됐는지 확인하고(read-back), 테스트는 출력을 확인한다. 과거 하네스가 write를 silently 버려도 "완료" 오보고한 사례가 있다. 긴 산출물(문서/계획/코드 덤프)은 채팅 출력 대신 파일로 쓰고 요약만 보고한다.
+- **No auto-`ruff --fix`**: `make check`의 ruff는 `F`(pyflakes)+`I`(isort)를 select하므로(`pyproject.toml`), `ruff --fix`를 자동(예: PostToolUse hook)으로 돌리면 같은 편집에서 아직 미사용인 새 import를 제거해 버린다. `--fix`는 의도적 수동 실행으로만 쓴다.
 
 ## 6. Documentation And Handoff
 

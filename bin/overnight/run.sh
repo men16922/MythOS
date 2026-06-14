@@ -27,15 +27,15 @@ REPO_ROOT="$(cd "$SCRIPT_DIR" && git rev-parse --show-toplevel 2>/dev/null || tr
 [ -n "$REPO_ROOT" ] || REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 cd "$REPO_ROOT"
 
-# --- 엔진 선택 (claude | codex) — 동일 LOOP, 호출 에이전트만 다름 ---
+# --- 엔진 선택 (claude | codex | agy) — 동일 LOOP, 호출 에이전트만 다름 ---
 : "${ENGINE:=claude}"
 
 # --- 경로 (REPO_ROOT 기준 상대 — overnight-settings.json allow 패턴과 일치) ---
-if [ "$ENGINE" = "codex" ]; then
-  PROMPT_FILE="bin/overnight/PROMPT.codex.md"
-else
-  PROMPT_FILE="bin/overnight/PROMPT.md"
-fi
+case "$ENGINE" in
+  codex) PROMPT_FILE="bin/overnight/PROMPT.codex.md" ;;
+  agy)   PROMPT_FILE="bin/overnight/PROMPT.agy.md" ;;
+  *)     PROMPT_FILE="bin/overnight/PROMPT.md" ;;
+esac
 SETTINGS_FILE="bin/overnight/overnight-settings.json"   # claude 전용 권한 경계
 STOP_FILE="bin/overnight/STOP"
 DONE_FILE="bin/overnight/DONE"
@@ -72,12 +72,14 @@ elif command -v timeout >/dev/null 2>&1; then
 fi
 
 # --- 사전 점검 ---
-if [ "$ENGINE" = "codex" ]; then
-  command -v codex >/dev/null 2>&1 || { log "치명: 'codex' CLI 를 PATH 에서 못 찾음 — 종료"; exit 1; }
-else
-  command -v claude >/dev/null 2>&1 || { log "치명: 'claude' CLI 를 PATH 에서 못 찾음 — 종료"; exit 1; }
-  [ -f "$SETTINGS_FILE" ] || { log "치명: $SETTINGS_FILE 없음 — 종료"; exit 1; }
-fi
+case "$ENGINE" in
+  codex) command -v codex >/dev/null 2>&1 || { log "치명: 'codex' CLI 를 PATH 에서 못 찾음 — 종료"; exit 1; } ;;
+  agy)   command -v agy   >/dev/null 2>&1 || { log "치명: 'agy' CLI 를 PATH 에서 못 찾음 — 종료"; exit 1; } ;;
+  claude)
+    command -v claude >/dev/null 2>&1 || { log "치명: 'claude' CLI 를 PATH 에서 못 찾음 — 종료"; exit 1; }
+    [ -f "$SETTINGS_FILE" ] || { log "치명: $SETTINGS_FILE 없음 — 종료"; exit 1; } ;;
+  *) log "치명: 알 수 없는 ENGINE='$ENGINE' (claude|codex|agy) — 종료"; exit 1 ;;
+esac
 [ -f "$PROMPT_FILE" ]   || { log "치명: $PROMPT_FILE 없음 — 종료"; exit 1; }
 [ -n "$TIMEOUT_BIN" ] || log "경고: gtimeout/timeout 없음 — 회차 타임아웃 비활성 (brew install coreutils 권장)"
 
@@ -164,27 +166,39 @@ while :; do
   log "회차 $iter 시작 (HEAD=${HEAD_BEFORE:0:9})"
 
   set +e
-  if [ "$ENGINE" = "codex" ]; then
-    # 무인 안전 경계: 전역 config(danger-full-access)를 CLI 로 덮어쓴다 —
-    # workspace-write + network 차단(=git push·curl·Ollama·FLUX·Docker-online 봉쇄) + 비대화(never).
-    # </dev/null 필수: codex exec 는 stdin 이 열려 있으면 추가 입력을 기다리며 멈춘다(무인 회차 freeze 방지).
-    # writable_roots 에 .git 포함 필수: workspace-write 는 .git 쓰기를 막아 git commit(.git/index.lock)이
-    # 실패한다 — 회차당 커밋이 LOOP 의 핵심이라 .git 을 명시적으로 쓰기 허용한다(네트워크는 여전히 차단).
-    $TIMEOUT_BIN ${TIMEOUT_BIN:+$ITER_TIMEOUT} codex exec \
-      --cd "$REPO_ROOT" \
-      --sandbox workspace-write \
-      -c sandbox_workspace_write.network_access=false \
-      -c "sandbox_workspace_write.writable_roots=[\"$REPO_ROOT/.git\"]" \
-      -c approval_policy=never \
-      --json \
-      --output-last-message "$LOG_DIR/last-message.txt" \
-      "$PROMPT_CONTENT" > "$ITER_LOG" 2>&1 </dev/null
-  else
-    $TIMEOUT_BIN ${TIMEOUT_BIN:+$ITER_TIMEOUT} claude -p "$PROMPT_CONTENT" \
-      --permission-mode acceptEdits \
-      --settings "$SETTINGS_FILE" \
-      --output-format json > "$ITER_LOG" 2>&1
-  fi
+  case "$ENGINE" in
+    codex)
+      # 무인 안전 경계: 전역 config(danger-full-access)를 CLI 로 덮어쓴다 —
+      # workspace-write + network 차단(=git push·curl·Ollama·FLUX·Docker-online 봉쇄) + 비대화(never).
+      # </dev/null 필수: codex exec 는 stdin 이 열려 있으면 추가 입력을 기다리며 멈춘다(무인 회차 freeze 방지).
+      # writable_roots 에 .git 포함 필수: workspace-write 는 .git 쓰기를 막아 git commit(.git/index.lock)이
+      # 실패한다 — 회차당 커밋이 LOOP 의 핵심이라 .git 을 명시적으로 쓰기 허용한다(네트워크는 여전히 차단).
+      $TIMEOUT_BIN ${TIMEOUT_BIN:+$ITER_TIMEOUT} codex exec \
+        --cd "$REPO_ROOT" \
+        --sandbox workspace-write \
+        -c sandbox_workspace_write.network_access=false \
+        -c "sandbox_workspace_write.writable_roots=[\"$REPO_ROOT/.git\"]" \
+        -c approval_policy=never \
+        --json \
+        --output-last-message "$LOG_DIR/last-message.txt" \
+        "$PROMPT_CONTENT" > "$ITER_LOG" 2>&1 </dev/null
+      ;;
+    agy)
+      # agy(Antigravity)는 이미지 생성을 위해 호스트 접근(FLUX/MPS/네트워크)이 필요해 샌드박스 없이 돈다.
+      # 따라서 경계는 PROMPT.agy.md 가드레일 + worktree/브랜치 격리(loop/agy 리뷰 브랜치)에 의존한다.
+      # </dev/null: print 모드 stdin freeze 방지. --print-timeout 기본 5m 은 한 회차엔 짧아 30m 로.
+      $TIMEOUT_BIN ${TIMEOUT_BIN:+$ITER_TIMEOUT} agy --print "$PROMPT_CONTENT" \
+        --dangerously-skip-permissions \
+        --print-timeout 30m \
+        --add-dir "$REPO_ROOT" > "$ITER_LOG" 2>&1 </dev/null
+      ;;
+    *)
+      $TIMEOUT_BIN ${TIMEOUT_BIN:+$ITER_TIMEOUT} claude -p "$PROMPT_CONTENT" \
+        --permission-mode acceptEdits \
+        --settings "$SETTINGS_FILE" \
+        --output-format json > "$ITER_LOG" 2>&1
+      ;;
+  esac
   rc=$?
   set -e
 

@@ -4,7 +4,7 @@ COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
-.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check check-auto overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-clean overnight-codex overnight-codex-watch overnight-codex-once
+.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check check-auto overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-clean overnight-codex overnight-codex-watch overnight-codex-once overnight-agy overnight-agy-watch overnight-agy-once
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -105,6 +105,16 @@ overnight-codex-watch:
 	@ENGINE=codex $(MAKE) overnight-watch
 overnight-codex-once:
 	@ENGINE=codex $(MAKE) overnight-once
+
+# --- agy(Antigravity) 엔진 변형 (ENGINE=agy) — 이미지 초안/간단 검증 레인 ---
+# ⚠️ agy 는 호스트 접근(FLUX/MPS/네트워크)이 필요해 샌드박스 없이 돈다. 경계는 PROMPT.agy.md 가드레일 +
+# worktree/브랜치 격리(loop/agy)에 의존한다. 무인 가동 전 worktree 격리(make overnight-worktrees) 권장.
+overnight-agy:
+	@ENGINE=agy $(MAKE) overnight
+overnight-agy-watch:
+	@ENGINE=agy $(MAKE) overnight-watch
+overnight-agy-once:
+	@ENGINE=agy $(MAKE) overnight-once
 
 doctor:
 	$(VENV)/bin/python agent.py --doctor

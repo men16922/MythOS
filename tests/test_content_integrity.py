@@ -37,7 +37,11 @@ import json
 import unittest
 from typing import Any
 
+from mythos_runtime.route_map import build_route_map, build_route_seed
+from mythos_runtime.route_runtime import node_encounter_id
 from mythos_runtime.scenario import PROJECT_ROOT, load_scenario
+
+COMBAT_IMAGE_STATES = ("idle", "attack", "guard", "skill", "hit")
 
 # Flags produced deterministically by engine code, not by authored data.
 # ``mythos_loop.engine`` records exactly one of these from the player's first
@@ -178,6 +182,104 @@ class ContentFlagIntegrityTest(unittest.TestCase):
             f"flags both authored-produced and registered as Director-driven "
             f"(drop from NARRATIVE_DRIVEN_FLAGS): {sorted(redundant)}",
         )
+
+
+class ContentEncounterIntegrityTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.scenario = load_scenario("neo-seoul")
+        self.route_map = self.scenario.route_map
+        self.assertTrue(self.route_map, "neo-seoul must define a route_map config")
+        self.combat = self.scenario.combat
+        self.encounters = self.combat.get("encounters", {})
+        self.bestiary = self.combat.get("bestiary", {})
+        self.combat_encounters = self.route_map.get("combat_encounters")
+        self.assertIsInstance(
+            self.combat_encounters,
+            dict,
+            "neo-seoul route_map must map combat node types to encounter pools",
+        )
+
+    def _maps(self) -> list[dict[str, Any]]:
+        maps: list[dict[str, Any]] = []
+        for i in range(24):
+            full = build_route_map(self.route_map, f"encounter-integrity-{i}")
+            assert full is not None
+            maps.append(full)
+            seed = build_route_seed(self.route_map, f"encounter-integrity-{i}")
+            assert seed is not None
+            maps.append(seed)
+        return maps
+
+    def test_all_route_combat_nodes_map_to_non_empty_declared_encounter_pools(self) -> None:
+        """Every generated combat node type must resolve to real combat encounters."""
+        assert isinstance(self.combat_encounters, dict)
+        generated_types: set[str] = set()
+        for rm in self._maps():
+            for node in rm["nodes"].values():
+                if not node.get("combat"):
+                    continue
+                node_type = str(node.get("type", ""))
+                generated_types.add(node_type)
+                pool = self.combat_encounters.get(node_type)
+                self.assertIsInstance(
+                    pool,
+                    list,
+                    f"combat node type {node_type!r} has no encounter pool mapping",
+                )
+                assert isinstance(pool, list)
+                self.assertTrue(
+                    pool,
+                    f"combat node type {node_type!r} maps to an empty encounter pool",
+                )
+                pick = node_encounter_id(node, self.combat_encounters, seed=str(rm.get("seed")))
+                self.assertIn(
+                    pick,
+                    self.encounters,
+                    f"combat node {node.get('id')} type {node_type!r} resolved to "
+                    f"missing encounter {pick!r}",
+                )
+                missing = sorted(str(encounter_id) for encounter_id in pool if encounter_id not in self.encounters)
+                self.assertEqual(
+                    missing,
+                    [],
+                    f"combat node type {node_type!r} maps to undeclared encounters: {missing}",
+                )
+
+        self.assertTrue(generated_types, "route map should generate at least one combat node type")
+
+    def test_all_encounter_enemies_reference_bestiary_with_full_action_sheets(self) -> None:
+        """Every encounter enemy must resolve to bestiary art for all combat states."""
+        resource_root = PROJECT_ROOT / "resources" / self.scenario.scenario_id
+        for encounter_id, encounter in self.encounters.items():
+            enemies = encounter.get("enemies", [])
+            self.assertTrue(enemies, f"encounter {encounter_id!r} has no enemies")
+            for index, enemy in enumerate(enemies):
+                bestiary_id = str(enemy.get("bestiary", ""))
+                self.assertIn(
+                    bestiary_id,
+                    self.bestiary,
+                    f"encounter {encounter_id!r} enemy #{index} references missing "
+                    f"bestiary id {bestiary_id!r}",
+                )
+                entry = self.bestiary.get(bestiary_id, {})
+                images = entry.get("combat_images", {})
+                missing_states = [state for state in COMBAT_IMAGE_STATES if not images.get(state)]
+                self.assertEqual(
+                    missing_states,
+                    [],
+                    f"bestiary {bestiary_id!r} is missing combat image states: {missing_states}",
+                )
+                missing_files = [
+                    str(images[state])
+                    for state in COMBAT_IMAGE_STATES
+                    if not (resource_root / str(images[state])).exists()
+                ]
+                self.assertEqual(
+                    missing_files,
+                    [],
+                    f"bestiary {bestiary_id!r} references missing combat image files: "
+                    f"{missing_files}",
+                )
 
 
 if __name__ == "__main__":

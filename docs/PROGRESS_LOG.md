@@ -5,6 +5,14 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-14 — 조우 무결성 invariant 추가 ([auto], QA seed #4)
+
+- Status: overnight `[auto]` 1회차 — Overnight QA Seed #4(조우 무결성) 박제. green.
+- Changed: `tests/test_content_integrity.py`에 `ContentEncounterIntegrityTest` 2건 추가. route map 두 빌더(full+dynamic) ×24 seed의 모든 combat node type이 비어있지 않은 `route_map.combat_encounters` 풀에 매핑되고, 선택된 encounter/pool 항목이 `combat.encounters`에 실재하는지 검증. 모든 encounter enemy가 bestiary id를 resolve하고 `idle/attack/guard/skill/hit` combat action sheet 파일을 실제 리소스 경로에서 찾는지도 검증.
+- Verified: `tests.test_content_integrity` 6 tests OK. `make check` EXIT=0 — ruff All passed + eslint + mypy Success(111 files) + frontend build + 316 tests OK(skipped 2).
+- Blockers: 없음.
+- Next: 남은 QA seed `[auto]` 2종(조우 승률 밴드·진행도 경제).
+
 ## 2026-06-14 — overnight 루프 Codex 엔진 추가
 
 - Status: Claude 전용이던 무인 루프를 Codex(`codex exec`)에서도 동일 LOOP로 돌 수 있게 함. setup 완료·실측 검증·커밋.
@@ -139,4 +147,3 @@
   built + 304 tests OK). route+singleton 테스트 62개 직접 재실행 green(동작 불변 확인).
 - Blockers: 없음.
 - Next: 하네스 `--once` 실검증(사용자 실행 — 헤드리스 claude 중첩 회피).
-

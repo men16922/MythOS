@@ -5,6 +5,18 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-14 — 루트 도달성 invariant 테스트 신설 ([auto], QA seed #1)
+
+- Status: overnight `[auto]` 1회차 — Overnight QA Seed #1(루트 도달성 invariant) 박제. green.
+- Changed: `tests/test_route_integrity.py` 신설. neo-seoul `route_map`을 두 빌더(`build_route_map`
+  full + `build_route_seed` dynamic) × 24 seed로 생성해 4 invariant 검증 —
+  (1) 고아 노드 0(start에서 전 노드 도달), (2) 모든 노드가 boss 레이어까지 경로 보유,
+  (3) 모든 앵커가 start로부터 도달 가능(gate는 제한만 하므로 layered 연결성 = 어떤 flag 조합서 도달),
+  (4) combat-taking·combat-avoiding 경로 공존(`route_map_paths_summary`). 코드 변경 없음(테스트만).
+- Verified: `make check` EXIT=0 — ruff All passed + eslint + mypy Success(110 files) + frontend build + 308 tests OK(skipped 2, 304→308). 위반 0 → 기계적 수정/Blocker 불요.
+- Blockers: 없음.
+- Next: 남은 QA seed `[auto]` 6종(엔딩 도달성·플래그/스킬·아이콘/조우 무결성·승률 밴드·진행도 경제).
+
 ## 2026-06-14 — overnight 운영 도구 + 콘텐츠/밸런스 QA seed + 가동 준비 + 문서 정리
 
 - Status: 하네스 검증 후 실가동 준비 — 운영 make 타깃·QA seed·push 준비(main ff)·tidy-docs.

@@ -59,7 +59,7 @@ Live LLM QA & 반복 완화 (2026-06-08):
 
 Recent verified baseline recorded in docs:
 
-- **`make check` green**: ruff + eslint + `mypy src tests` **0 errors/109 files** + tsc/vite-build + 304 unittests(skipped 2). 이번 세션 mypy 부채 0화 → overnight 게이트를 `make check`로 승격(COMPLETED_SUMMARY M42). CI도 실재(`.github/workflows/ci.yml`).
+- **`make check` green**: ruff + eslint + `mypy src tests` **0 errors/110 files** + tsc/vite-build + 308 unittests(skipped 2). 이번 세션 mypy 부채 0화 → overnight 게이트를 `make check`로 승격(COMPLETED_SUMMARY M42). CI도 실재(`.github/workflows/ci.yml`). 루트 도달성 invariant(`test_route_integrity.py`) 박제(2026-06-14, QA seed #1).
 - **overnight 무인 루프 하네스**(`bin/overnight/`, `make overnight*`): `--once` 실검증 완료 — 헤드리스 체인·잔여물 복구 실증, REPO_ROOT 버그 자동 `[recovered]` 복구. 콘텐츠/밸런스 QA `[auto]` seed 7종 대기(가동 시 invariant 박제 또는 Blocker surface).
 - 오프닝 시퀀스 정합(2026-06-14): scene1=홀로 각성(이미지 정합)·4비트 온보딩(인트로 3컷을 인게임 비트로)·장면별 `image_sequence`·인트로 화면 간결화. live Ollama로 turn0/1 정합 확인.
 - frontend lint/build clean, `tests/playwright/test_e2e_play_checklist.py` green (refactored 서버 기동 포함).

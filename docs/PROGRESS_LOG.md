@@ -5,6 +5,18 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-14 — overnight 운영 도구 + 콘텐츠/밸런스 QA seed + 가동 준비 + 문서 정리
+
+- Status: 하네스 검증 후 실가동 준비 — 운영 make 타깃·QA seed·push 준비(main ff)·tidy-docs.
+- Changed:
+  - 운영 타깃(`Makefile`): `make overnight`(백그라운드: 가드+절전+nohup+stale 정리), `overnight-watch`(가동+로그 follow 한 방에), `overnight-once/-stop/-logs/-status/-clean`. `LOOP_ENGINEERING §4`를 make 타깃 기준으로 재작성.
+  - **Overnight QA Seed 7종 `[auto]`**(NEXT_PLAN): 루트/엔딩 도달성·플래그/스킬·아이콘/조우 무결성·조우 승률 밴드(시뮬)·진행도 경제. "재밌는가"(사람) 대신 **"안 깨지는가"(봇, 결정론)** 콘텐츠/밸런스 QA fodder.
+  - push 준비: 로컬 `main`을 현재 작업으로 fast-forward(101커밋 뒤처져 있던 것). private repo push는 안전 분류기 하드블록 → 사용자가 `gh repo create … --push` 직접 실행(men16922 본인 계정).
+  - tidy-docs: PROGRESS_LOG 167→74(10개 archive 이동), NEXT_PLAN 149→117(완료 `[x]` 압축), COMPLETED_SUMMARY M42, DECISIONS 하네스 항목 추가.
+- Verified: make 타깃 dry-run + `make overnight-status` 동작 확인. `make check` green 유지(직전). 진입점 4종 라인 예산 내(60/100/117/74).
+- Blockers: push는 사용자 직접 실행(분류기 하드블록). `gtimeout` 부재 시 회차 타임아웃 비활성(`brew install coreutils` 권장 — 사용자 설치 완료).
+- Next: 사용자가 `make overnight-watch`로 무인 가동 → 몇 시간 후 `/overnight-report` 검수(7 seed 박제 vs Blocker).
+
 ## 2026-06-14 — CLAUDE.md stale 린터/CI 서술 정정 ([auto])
 
 - Status: `[auto]` 트랙 — `CLAUDE.md`의 "There is no linter or CI configured ... neither pytest nor ruff is a dependency" 문장이 현행과 불일치 → 정정.

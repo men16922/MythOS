@@ -153,6 +153,14 @@ Reason: to enhance character immersion and make the 5 core stats feel like actua
 
 Impact: `build_runtime_narrative_context` evaluates player stats and appends guidelines detailing how the highest stat should suggest logical/instinctual choices in parentheses (e.g. `(Intelligence: ...)`) and the lowest stat should occasionally prompt hesitation or misjudgments.
 
+### Overnight 무인 루프 하네스 도입 + 커밋 게이트 `make check` (2026-06-14)
+
+Decision: 타 repo의 overnight LOOP 엔지니어링을 MythOS에 이식한다 — `bin/overnight/{run.sh,PROMPT.md,overnight-settings.json}` + `/overnight-report` 스킬 + NEXT_PLAN `[auto]/[manual]/[blocked]` 태깅 + `make overnight*` 운영 타깃. 커밋 게이트는 `make check`(ruff+eslint+mypy+tsc/vite-build+unittest), 무인 권한은 `--settings overnight-settings.json`(git push·네트워크·파괴 make·Web/MCP deny)로 interactive 설정과 격리한다.
+
+Reason: 게임이라 백로그 대부분이 무인 검증 불가(플레이 feel)지만 콘텐츠/밸런스 무결성·타입·hygiene 같은 결정론적 슬라이스는 헤드리스로 안전하게 수행 가능하다. 게이트를 `make check`로 올리기 위해 `mypy src tests` 부채를 0화(0/109)했다.
+
+Impact: 러너는 `[auto]` 태그만 소비하고 회차마다 게이트 통과 시 로컬 커밋한다. `--once` 실검증으로 헤드리스 체인·잔여물 복구를 실증(REPO_ROOT 폴백 버그 발견→자동 `[recovered]` 복구). 설계/운영은 `docs/LOOP_ENGINEERING.md`, 완료 요약은 COMPLETED_SUMMARY M42.
+
 ## 2026-05 이전
 
 2026-05-30/31 결정은 `bin/docs/archive/decisions-2026-05.md`로 분리 보관.

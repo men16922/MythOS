@@ -48,6 +48,17 @@
 - `[x]` `[auto:claude]` 스킬 데이터 무결성(`test_content_integrity.py` `SkillDataIntegrityTest` 6건, green): 모든 `combat.skills[]` 필수 필드(`id`/`name`/`cost`/`effect`) + `cooldown`/`range`/`cost.focus` 음수 아님(존재 시) + 스킬 참조(`archetype_base_skills`·`allies[].skills`·`requires`)가 `combat.skills` 실재 + `skill.epiphany`가 `combat.epiphanies` 키 실재. 결손/음수/dangling 0. (PNG 아이콘은 위 `[blocked]` 항목 소관.)
 - `[x]` `[auto:claude]` 아키타입 집합 정합(`test_progression.py` `NeoSeoulArchetypeConsistencyTest` 3건, green): `archetype_base_skills`·`archetype_loadout`의 아키타입 키 집합이 동일(한쪽에만 있는 아키타입 0) + 각 아키타입 base 스킬·loadout 무기가 실재. 완료 기준: 테스트 추가, 불일치/dangling 0 green, 있으면 Blocker.
 
+### 2026-06-15 추가분 (`/overnight-seed` 승인 배치 — live survey)
+
+- `[ ]` `[auto:claude]` loot_table↔items 참조 무결성: 모든 `combat.loot_tables[*][].item`이 `combat.items`에 실재 + `weight>0`. 완료 기준: `test_content_integrity.py`에 `LootTableIntegrityTest` 추가, dangling/비양수 0 green 또는 Blocker.
+- `[ ]` `[auto:claude]` encounter 수치 경계: 모든 `combat.encounters[*]`의 `enemies[].count≥1` + `weight>0` + per-encounter `arena.{width,height}>0`(bestiary 참조는 기존 테스트 커버). 완료 기준: `test_content_integrity.py`에 테스트 추가, 위반 0 green 또는 Blocker.
+- `[ ]` `[auto:claude]` item.kind enum closure: 모든 `combat.items[].kind`가 게임 인식 집합 {`consumable`,`equipment`,`key`,`data`,`material`}에 속함(미래 오타 가드). 완료 기준: `test_content_integrity.py`에 테스트 추가, 미지 kind 0 green 또는 Blocker.
+- `[ ]` `[auto:claude]` story_bible 메타 무결성: `story_bible/bible.json` entry `id` 유일 + `priority`/`token_budget` 양수 + `kind` 비어있지 않음. 완료 기준: 신규/기존 테스트에 추가, 중복 id·비양수 0 green 또는 Blocker.
+- `[ ]` `[auto:claude]` FastAPI on_event 현대화(codemod): `src/mythos_api/app.py`의 `@app.on_event("shutdown")`를 lifespan/`add_event_handler`로 이전(동작 불변). 완료 기준: deprecation 사용 0, `make check` green.
+- `[ ]` `[auto:claude]` dotenv `type:ignore` 중앙화(codemod): dotenv import-not-found `# type: ignore`들을 `pyproject.toml` `[tool.mypy]` 모듈 설정으로 이전. 완료 기준: 해당 inline ignore 제거, `mypy src tests` 0 errors green.
+- `[ ]` `[auto:claude]` npc_agenda 주체 무결성: 모든 `npc_agendas` 키가 `characters[].name`에 실재. 완료 기준: `test_content_integrity.py`에 테스트 추가, green 또는 Blocker(현재 `최적화 명단 대상자` 미스매치 예상 → Blocker면 사람 triage).
+- `[ ]` `[auto:codex]` 문서 압축: NEXT_PLAN 완료 QA seed(`[x]`)·P0~P2 체크리스트 상세를 `COMPLETED_SUMMARY.md`로 압축하고 NEXT_PLAN 라인 예산 복원. 완료 기준: NEXT_PLAN 라인 수 감소 + 깨진 링크 0 + `make check` green.
+
 ## Priority 1 — Neo-Seoul Playability Upgrade
 
 상태: `[/]` 진행 중(현재 최우선 트랙. 잔여는 주로 `[manual]` 사람 플레이 QA + 일부 `[auto]` QA seed).

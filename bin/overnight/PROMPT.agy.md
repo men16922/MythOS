@@ -43,8 +43,8 @@ PROGRESS_LOG 최신 몇 건 + `git status -sb`/`git log --oneline -8`). 그 외 
 
 항목의 **완료 기준 1줄**대로만 작업한다(scope 확장 금지).
 - 이미지 초안: IMAGE_POLICY + 레퍼런스 규격대로 생성, 올바른 경로·네이밍으로 저장.
-- 검증: `$GATE_CMD`(기본 `make check`)로 코드 무파손 확인. 추가로 **자산 무결성**(추가 이미지가 실재·비어있지
-  않음·기대 경로·치수)을 확인한다(자산 무결성 테스트가 있으면 그것으로, 없으면 수동 확인 후 Blocker로 신설 제안).
+- 검증: `$GATE_CMD`(기본 `make check`)는 **`tests/test_image_assets.py`**(이미지 유효·비어있지 않음·치수/용량)
+  로 추가 이미지의 무결성을 자동 검사한다 — 1×1/빈 placeholder 는 여기서 red 가 난다. green 까지 통과시킨다.
 - 게이트 red → `git restore`/`git checkout -- <path>` 로 원복하고 Blocker 기록.
 
 ## 5. 기록

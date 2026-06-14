@@ -5,6 +5,22 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-14 — bin/ 보관소 검토(read-only) — 프루닝 후보 목록
+
+- Status: `[auto]` read-only 검토 완료. 삭제 없음(승인은 `[manual]` — archive README 정책 + CORE_MANDATES §5).
+- 분석: bin/ 568K, 설계상 정책-거버넌스 아카이브(`bin/docs/archive/README.md`가 큐레이트 인덱스 + 삭제 정책 보유).
+  활성 문서(docs/·CLAUDE.md, bin/ 밖) inbound 참조를 파일명별로 집계.
+- **보존 필수**(활성 참조 있음): `DRAFT.md`·`IMPLEMENTATION_M0_M10.md`(CLAUDE.md), `progress-2026-05/06.md`(PROGRESS_LOG),
+  `decisions-2026-05.md`(DECISIONS), `DESIGN_FULL/GAMEPLAY_FULL_2026-06-06.md`, 참조 있는 dated plan 다수(route-node·
+  progression-inventory·combat-portrait·progression-skills·party-controllable·combat-darkest-dungeon·web-ui-decoupling 등).
+- **가장 깨끗한 프루닝 후보**(활성 0-ref + 인덱스 미등재, COMPLETED_SUMMARY로 대체된 retired dated plan):
+  `bin/docs/plans/2026-05-31-*`(causality/combat-single-iframe/engine-decoupling/narrative-pacing/roguelike-combat/story-bible-save-load, 6),
+  `2026-06-03-*`(frontend-slice4/p2-p3-implementation/poc-parity-roadmap/poc-ux-improvement, 4), `2026-06-06-combat-visual-effects.md`,
+  `bin/docs/feedback/0530-1.md`.
+- **정책-게이트 후보**(0-ref이나 archive 인덱스 등재 → 삭제 전 요약 필요): `STREAMLIT_VS_API.md`·`PROJECT_OVERVIEW.md`·`DESIGN_SYSTEM_STATS.md`·`ARCH_MAP.md`, `archive/2026-05-30-*`.
+- 권고: 총량 568K로 **ROI 낮음 → 프루닝 보류**가 합리적. 진행 시 위 "가장 깨끗한 후보" ~11개만 삭제(승인 필요).
+- Blockers: 없음. Next: 삭제 진행 여부는 사용자 승인(`[manual]`).
+
 ## 2026-06-14 — Codex Skill UX 버튼 상태 결정론화(+선행 미충족 클릭 버그 픽스)
 
 - Status: `[auto]` 트랙 — Codex 스킬 트리 버튼 상태 로직을 순수 함수로 추출하고 첫 플레이어용 안내 보완.

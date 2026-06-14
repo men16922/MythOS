@@ -130,4 +130,5 @@ P1 작전 지도 route-node화 + 세션 메모리(→ COMPLETED_SUMMARY M39), Ta
 - `[x]` `[auto]` stale dated plan status header 정리 완료(2026-06-14): playability-upgrade("구현 보류"→대부분 완료), live-feedback-action-plan(즉시 패치→A-G 대부분 반영), dual-model(26B/64GB 가정→8B 전환 명시) 헤더를 STATUS/NEXT_PLAN 권위에 정합. docs-only.
 - `[x]` `[auto]` **mypy 선행 부채 정리 완료(2026-06-14)**: `mypy src tests` 0 errors/109 files(이전 ~129). src(config/visual_queue/prompts/route_map/route_runtime/session/director) + tests(route_* assert 헬퍼·dict[str,Any] 주석, playwright snapshot/list 주석·request 핸들러 def화), 전부 동작 불변. **`make check` green → overnight 게이트를 `make check-auto`에서 `make check`로 승격**(run.sh `GATE_CMD`). `make check-auto`는 더 빠른 변형으로 잔존.
 - `[ ]` `[manual]` 프론트엔드 god-component 분해(App.tsx·CombatCinema): custom hook/모듈 추출. E2E 민감하므로 live QA 동반 점진 진행.
-- `[ ]` `[auto]` `bin/` 보관소 검토·목록화(읽기 전용): 불필요 후보를 목록으로 보고. 완료 기준: 후보 목록을 PROGRESS_LOG/Blocker로 남김, 파일 삭제 없음(삭제 승인은 별도 `[manual]` — CORE_MANDATES §5).
+- `[x]` `[auto]` `bin/` 보관소 검토 완료(2026-06-14): 프루닝 후보 목록을 PROGRESS_LOG에 기록(가장 깨끗한 후보=retired dated plans ~11개, 활성 0-ref+인덱스 미등재). 총량 568K로 ROI 낮아 보류 권고. 삭제는 아래 `[manual]`.
+- `[ ]` `[manual]` `bin/` 프루닝 실행: PROGRESS_LOG(2026-06-14) "가장 깨끗한 후보" ~11개 삭제 승인/실행. archive 인덱스 등재분은 정책상 요약 후.

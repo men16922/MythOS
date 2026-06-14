@@ -5,6 +5,13 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-14 — 스킬 데이터 무결성 invariant ([auto:claude], QA seed)
+- Status: overnight QA seed `[auto:claude]` 스킬 데이터 무결성 박제. green.
+- Changed: `tests/test_content_integrity.py`에 `SkillDataIntegrityTest` 6건 추가 — 모든 `combat.skills[]`가 필수 필드(`id`/`name`/`cost`/`effect`) 보유, `cooldown`/`range`/`cost.focus`가 존재 시 음수 아님, `archetype_base_skills`·`allies[].skills`·`skill.requires`의 모든 스킬 참조가 `combat.skills`에 실재, `skill.epiphany` 해금이 실재 `combat.epiphanies` 키 참조를 검증. dict/list 풀 모두 `_as_records`로 정규화(기존 헬퍼 재사용).
+- Verified: `make check` EXIT=0 — ruff/eslint/mypy(113 files)/frontend build + 333 tests OK(skipped 2, +6). 측정 기준선: 결손 필드 0·음수 0·dangling 스킬 참조 0·dangling epiphany 0(`patch_protocol` cost는 `item` 키라 focus 검사는 존재 시에만).
+- Blockers: 없음.
+- Next: 잔여 QA seed — 아키타입 집합 정합(`[auto:claude]`), agy 아이콘 재생성 후 스킬/아이콘 PNG 무결성. 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-14 — 무기/장비 무결성 invariant ([auto:claude], QA seed)
 - Status: overnight QA seed `[auto:claude]` 무기/장비 참조 무결성 박제. green.
 - Changed: `tests/test_content_integrity.py`에 `WeaponEquipmentIntegrityTest` 4건 추가 — `archetype_loadout`·`allies[].weapons`·`bestiary[].weapons`의 모든 무기 참조가 `combat.weapons`에 실재, `kind:equipment` 아이템의 `slot`∈{weapon,armor}, `stats` 키⊆ Combatant 스탯 집합을 검증. 스탯 집합은 `mythos_combat.factory._DEFAULT_STATS`(equip 보너스 머지 대상)를 단일 진실원으로 import해 하드코딩 회피. dict/list 풀 형태 모두 정규화(`_as_records`).

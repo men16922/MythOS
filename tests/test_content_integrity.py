@@ -385,5 +385,105 @@ class WeaponEquipmentIntegrityTest(unittest.TestCase):
             )
 
 
+class SkillDataIntegrityTest(unittest.TestCase):
+    """Skill data integrity for the neo-seoul combat pools.
+
+    Every ``combat.skills[]`` entry must carry the fields the combat engine and
+    Codex UI read (``id``/``name``/``cost``/``effect``) and never declare a
+    negative ``cooldown``/``cost.focus``/``range`` (a negative would either crash
+    cost accounting or silently grant a free/zero-range action). Every skill *id*
+    the scenario reaches for elsewhere — archetype base loadouts, ally kits, and
+    ``requires`` prerequisites — must resolve to a real skill, and every
+    ``skill.epiphany`` unlock must name a declared ``combat.epiphanies`` key (else
+    the data-driven grant unlocks nothing). A missing field, negative number, or
+    dangling reference is a mechanical content bug, not a judgment call.
+    """
+
+    REQUIRED_FIELDS = ("id", "name", "cost", "effect")
+
+    def setUp(self) -> None:
+        self.scenario = load_scenario("neo-seoul")
+        self.combat = self.scenario.combat
+        self.assertIsInstance(self.combat, dict, "neo-seoul must define a combat block")
+        self.skills = self.combat.get("skills", {})
+        self.skill_records = _as_records(self.skills)
+        self.assertTrue(self.skill_records, "combat.skills must declare at least one skill")
+        self.skill_ids = {_record_id(rec, "") for rec in self.skill_records} - {""}
+        self.epiphany_keys = set(self.combat.get("epiphanies", {}) or {})
+
+    def test_every_skill_has_required_fields(self) -> None:
+        for skill in self.skill_records:
+            sid = _record_id(skill, "?")
+            missing = [f for f in self.REQUIRED_FIELDS if not skill.get(f)]
+            self.assertEqual(
+                missing,
+                [],
+                f"skill {sid!r} is missing required fields: {missing}",
+            )
+
+    def test_no_negative_numeric_fields(self) -> None:
+        for skill in self.skill_records:
+            sid = _record_id(skill, "?")
+            cooldown = skill.get("cooldown")
+            if cooldown is not None:
+                self.assertGreaterEqual(
+                    cooldown, 0, f"skill {sid!r} has negative cooldown {cooldown!r}"
+                )
+            rng = skill.get("range")
+            if rng is not None:
+                self.assertGreaterEqual(
+                    rng, 0, f"skill {sid!r} has negative range {rng!r}"
+                )
+            cost = skill.get("cost", {})
+            if isinstance(cost, dict) and "focus" in cost:
+                focus = cost["focus"]
+                self.assertGreaterEqual(
+                    focus, 0, f"skill {sid!r} has negative cost.focus {focus!r}"
+                )
+
+    def _assert_skill_refs_exist(self, owner: str, refs: Any) -> None:
+        if refs is None:
+            return
+        self.assertIsInstance(
+            refs, list, f"{owner} skills must be a list, got {type(refs).__name__}"
+        )
+        dangling = sorted(str(r) for r in refs if str(r) not in self.skill_ids)
+        self.assertEqual(
+            dangling,
+            [],
+            f"{owner} references skills missing from combat.skills: {dangling}",
+        )
+
+    def test_archetype_base_skills_exist(self) -> None:
+        base = self.combat.get("archetype_base_skills", {})
+        self.assertIsInstance(base, dict, "archetype_base_skills must be an object")
+        for archetype, refs in base.items():
+            self._assert_skill_refs_exist(f"archetype_base_skills[{archetype!r}]", refs)
+
+    def test_ally_skills_exist(self) -> None:
+        for ally in _as_records(self.combat.get("allies", {})):
+            self._assert_skill_refs_exist(
+                f"ally {_record_id(ally, '?')!r}", ally.get("skills")
+            )
+
+    def test_skill_requires_resolve(self) -> None:
+        for skill in self.skill_records:
+            self._assert_skill_refs_exist(
+                f"skill {_record_id(skill, '?')!r} requires", skill.get("requires")
+            )
+
+    def test_skill_epiphany_unlocks_resolve(self) -> None:
+        dangling = sorted(
+            f"{_record_id(s, '?')}->{s['epiphany']}"
+            for s in self.skill_records
+            if s.get("epiphany") and s["epiphany"] not in self.epiphany_keys
+        )
+        self.assertEqual(
+            dangling,
+            [],
+            f"skill.epiphany unlocks naming undeclared combat.epiphanies keys: {dangling}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

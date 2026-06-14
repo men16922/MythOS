@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import type { CombatCinemaContext, CombatCinemaCue } from "../types";
 
 const BGM_PREF_KEY = "mythos_bgm_enabled";
@@ -21,8 +21,15 @@ export function useAudio(
   const bgmAudioRef = useRef<HTMLAudioElement | null>(null);
   const currentBgmSrc = useRef("");
 
+  // bgmEnabled 의 단일 진실원. playBgm 은 stale closure(WS onmessage 핸들러 등)에서 호출돼도
+  // 이 ref 를 읽어 현재 토글 상태를 따른다 — closure 캡처값(과거 bgmEnabled)이 아니라.
+  const bgmEnabledRef = useRef(bgmEnabled);
+  useEffect(() => {
+    bgmEnabledRef.current = bgmEnabled;
+  }, [bgmEnabled]);
+
   const playBgm = useCallback((bgmPath: string, forceEnabled = false) => {
-    if (!audioContextActive.current || !bgmPath || (!forceEnabled && !bgmEnabled)) return;
+    if (!audioContextActive.current || !bgmPath || (!forceEnabled && !bgmEnabledRef.current)) return;
 
     // normalize url helper
     let srcUrl = bgmPath.trim();
@@ -70,7 +77,7 @@ export function useAudio(
       }
       logToConsole("BGM 재생이 차단되었습니다. 다음 상호작용에서 다시 시도합니다.");
     });
-  }, [bgmEnabled, logToConsole]);
+  }, [logToConsole]);
 
   const mainBgmPath = useCallback(() => {
     return `resources/${selectedScenarioId}/audio/bgm_main.wav`;

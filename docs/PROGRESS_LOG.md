@@ -5,6 +5,16 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-15 — npc_agenda 주체 무결성: Blocker (사람 triage 필요, [auto:claude])
+- Status: overnight `[auto:claude]` npc_agenda 무결성 invariant — **Blocker(결정론적 설계 모호 → 사람 triage)**. 코드/테스트 변경·커밋 없음(잘못된 invariant 박제 회피).
+- 측정(수정 전): `npc_agendas` 키는 `scenario_context.py:599-601`에서 director 힌트 문자열(`SCENARIO_NPC_AGENDAS: …`)로만 소비되는 NPC 어젠다 **주체 라벨**이며 `characters[].name`일 필요가 없음. 실데이터 대조 결과 strict invariant("모든 agenda 키 ∈ characters[].name")는 정당한 설계 이유로 RED:
+  - neo-seoul(5): 정세린/린위에/관리자 IX/카이는 캐릭터명 정확 일치, `최적화 명단 대상자`는 **의도된 추상/집합 주체**(이름 없는 '명단 대상자', 캐릭터 아님 — goal="자신이 왜 지워져야 하는지 모른 채…").
+  - glass-library(3): `characters: []`가 **비어있음** → 어젠다 전부(이오/미로/백색 제본사) 미스. 이 시나리오는 캐릭터를 top-level 배열로 모델링하지 않음. NEXT_PLAN 노트 예상(neo-seoul `최적화 명단 대상자`) + glass-library 공백을 추가 발견.
+- 판단: green화에는 (a) 콘텐츠 편집(금지 작업 클래스) 또는 (b) 추상 주체 allowlist 고안(무인 검증 불가한 설계 판단)이 필요 → 둘 다 mandate 위반. 항목 노트가 "Blocker면 사람 triage"로 사전 승인한 케이스. CORE_MANDATES "애매하면 Blocker"에 해당.
+- 사람 triage 질문: ① `최적화 명단 대상자`(+glass-library 어젠다)를 **허용된 비-캐릭터 주체**로 선언할지 vs 캐릭터로 모델링할지. ② glass-library `characters[]` 공백이 의도인지. 결정 시 invariant를 "캐릭터-참조 키는 정확 일치 + 선언된 추상 주체 allowlist 허용"으로 재정의 가능.
+- Blockers: 위 설계 모호성(deterministic — 재시도 무의미하여 1회차에 `[blocked]` 마킹).
+- Next: claude 레인 잔여 `[auto]` 없음(나머지 `[x]`/`[blocked]`) → `scripts/overnight/DONE`(all-blocked). 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-15 — dotenv import `type:ignore` 중앙화 ([auto:claude], codemod)
 - Status: overnight `[auto:claude]` codemod. inline import ignore 제거, green.
 - Changed: 5개 모듈(`mythos_memory/postgres_store.py`·`mythos_runtime/settings.py`·`mythos_image_agent/{config,generator,img2img}.py`)의 `from dotenv import load_dotenv  # type: ignore[import-untyped, import-not-found]` 인라인 ignore를 전부 제거. dotenv missing-stub 처리의 중앙 설정은 이미 `pyproject.toml [tool.mypy] ignore_missing_imports = true`(전역)가 담당하고 있어 인라인 ignore는 순수 잉여였음 → 그 잉여만 정리(새 override 추가 안 함 — 전역이 곧 모듈 설정). `except ImportError` 분기의 `load_dotenv = None  # type: ignore[assignment]`는 별도 에러 클래스(import-not-found 아님)라 스코프 외로 보존. `grep -rn 'dotenv.*type: *ignore' src tests` 결과 import-line 0건 잔존.

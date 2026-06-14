@@ -1,0 +1,4 @@
+# 무인 3엔진 병렬 루프(docs/MULTI_AGENT.md): 여러 엔진이 동시에 append 하는 로그는
+# union 머지 드라이버로 양쪽 추가분을 자동 병합한다(충돌 마커 없이). append-only 파일에만 적용.
+docs/PROGRESS_LOG.md merge=union
+bin/docs/archive/progress-*.md merge=union

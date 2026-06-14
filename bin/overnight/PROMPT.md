@@ -47,7 +47,10 @@ Skill `sync` 를 호출한다(Read Path: AGENT_BRIEF → STATUS → NEXT_PLAN �
 
 ## 5. 기록
 
-Skill `checkpoint` 를 호출한다(PROGRESS_LOG append + STATUS/NEXT_PLAN 갱신, 완료 항목 `[x]` 마킹).
+Skill `checkpoint` 를 호출하되 **병렬 충돌 회피 규칙**을 지킨다(여러 엔진이 동시에 같은 문서를 건드려 머지 충돌나는 것 방지):
+- `PROGRESS_LOG.md`: 최신 항목 **append**만(union 머지로 자동 병합 — 안전).
+- `NEXT_PLAN.md`: **네 레인의 해당 항목 한 줄만** 마킹(`[ ]→[x]`). 다른 줄·섹션·다른 레인은 건드리지 말 것(충돌원).
+- `STATUS.md`/`AGENT_BRIEF.md`: **이 회차에선 수정하지 않는다** — 오케스트레이터(claude)가 머지 후 일괄 갱신.
 
 ## 6. 커밋 (로컬만)
 

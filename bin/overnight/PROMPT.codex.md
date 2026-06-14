@@ -60,8 +60,10 @@
 
 ## 5. 기록
 
-`.agents/skills/checkpoint/SKILL.md` 절차대로 수행한다
-(PROGRESS_LOG 최신 항목 append + STATUS/NEXT_PLAN 갱신, 완료 항목 `[x]` 마킹, 라인 예산 준수).
+`.agents/skills/checkpoint/SKILL.md` 절차대로 수행하되 **병렬 충돌 회피 규칙**을 지킨다:
+- `PROGRESS_LOG.md`: 최신 항목 **append**만(union 머지 — 안전), 라인 예산 준수.
+- `NEXT_PLAN.md`: **네 레인(`[auto:codex]`)의 해당 항목 한 줄만** 마킹. 다른 줄·섹션·다른 레인은 건드리지 말 것(충돌원).
+- `STATUS.md`/`AGENT_BRIEF.md`: **이 회차에선 수정하지 않는다**(오케스트레이터가 머지 후 일괄 갱신).
 
 ## 6. 커밋 (로컬만)
 

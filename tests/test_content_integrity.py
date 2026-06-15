@@ -1302,5 +1302,85 @@ class RouteNodeTypeClosureTest(unittest.TestCase):
         )
 
 
+def _perspective_when_flags(scenario_data: dict[str, Any]) -> set[str]:
+    """Every flag listed in any route perspective ``when`` clause for a scenario.
+
+    Scoped to ``route_map`` layer anchor perspectives — the only place ``when`` is
+    authored and the only place ``route_runtime`` reads it (``select_perspective`` /
+    ``_choose_next``).
+    """
+    when: set[str] = set()
+    route_map = scenario_data.get("route_map") or {}
+    for layer in route_map.get("layers", []) or []:
+        if not isinstance(layer, dict):
+            continue
+        for anchor in layer.get("anchors", []) or []:
+            if not isinstance(anchor, dict):
+                continue
+            for perspective in anchor.get("perspectives", []) or []:
+                if isinstance(perspective, dict):
+                    when.update(str(f) for f in perspective.get("when", []) or [])
+    return when
+
+
+class PerspectiveWhenFlagProducibilityTest(unittest.TestCase):
+    """Every route perspective ``when`` flag must be producible (no dead branch).
+
+    A perspective is chosen by ``route_runtime.select_perspective`` /
+    ``_choose_next`` purely by counting how many of its ``when`` flags are present
+    in the accumulated flag set (a plain set intersection — no negation or
+    expression syntax, see ``route_runtime.py`` ~line 184/213). A ``when`` flag
+    that **no producer can ever set** therefore contributes zero to every score
+    forever: the perspective it guards can only ever be reached as the scoreless
+    ``default_perspective`` fallback — its authored viewpoint is a dead branch,
+    the same silent-no-error failure mode behind the long-dead ``relationship``
+    data.
+
+    Recognised producers mirror the flag-production model in this module's
+    docstring (and ``ContentFlagIntegrityTest``): the scenario's own authored
+    route ``effect.flags``, the engine onboarding flags, and the registered
+    Director ``world_delta`` flags. This is the glob-generalised,
+    perspective-``when``-isolated sibling of ``ContentFlagIntegrityTest`` — that
+    test bundles ``when`` with gate/trigger/flags_any for neo-seoul only, whereas
+    this one isolates ``when`` (so a failure names a dead *perspective branch*
+    distinctly) and globs ``resources/*/scenario.json`` so new scenarios are
+    covered automatically.
+    """
+
+    def _scenarios(self) -> list[tuple[str, dict[str, Any]]]:
+        out: list[tuple[str, dict[str, Any]]] = []
+        for path in _scenario_json_paths():
+            with open(path, encoding="utf-8") as handle:
+                out.append((path.parent.name, json.load(handle)))
+        return out
+
+    def test_perspective_when_flags_are_producible(self) -> None:
+        offenders: list[str] = []
+        for name, data in self._scenarios():
+            when = _perspective_when_flags(data)
+            if not when:
+                continue
+            _gate, _when, effect = _route_flag_sets(data.get("route_map") or {})
+            producible = effect | ENGINE_PRODUCED_FLAGS | NARRATIVE_DRIVEN_FLAGS
+            for flag in sorted(when - producible):
+                offenders.append(f"{name}:{flag!r}")
+        self.assertEqual(
+            offenders,
+            [],
+            "route perspective 'when' flags with no recognised producer "
+            "(authored effect.flags, engine onboarding, or registered Director "
+            "world_delta flag) — the perspective can never out-score the default, "
+            f"so its branch is dead: {offenders}",
+        )
+
+    def test_at_least_one_scenario_has_when_flags(self) -> None:
+        """Guard-the-guard: if no scenario authors a perspective ``when`` flag the
+        producibility check above is vacuously green."""
+        total = sum(len(_perspective_when_flags(data)) for _name, data in self._scenarios())
+        self.assertGreater(
+            total, 0, "expected at least one authored perspective 'when' flag"
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

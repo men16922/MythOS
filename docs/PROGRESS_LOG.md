@@ -5,6 +5,14 @@
 이 파일은 **최신 증분 요약만** 유지한다(최신 5항목). 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-16 — perspective `when` 플래그 생성가능성 invariant (시드 H, `[auto:claude]`, QA seed)
+- Status: overnight `[auto:claude]` 시드 H — 모든 route perspective `when` 플래그가 인식된 producer(authored `effect.flags`/엔진 온보딩/등록 Director world_delta)서 생성 가능한지 박제(dead 분기 가드). green.
+- 측정: `route_runtime.select_perspective`/`_choose_next`는 perspective `when`을 누적 flag_set과의 **순수 교집합 카운트**로만 스코어링(`route_runtime.py:184/213`, 부정·표현식 문법 없음). 생산자 없는 `when` 플래그는 영원히 0점 기여 → 그 perspective는 scoreless `default_perspective` 폴백으로만 도달 = dead 분기(relationship dead-data와 동일 실패모드). 실데이터: neo-seoul perspective `when` 24종 전부 producible(effect.flags 22종 ∪ ENGINE 2 ∪ NARRATIVE_DRIVEN 12), dead 0. glass-library는 perspective `when` 0(정적). 기존 `ContentFlagIntegrityTest`가 neo-seoul `when`을 gate/trigger/flags_any와 **묶어** 검사하지만 neo-seoul 고정 — 이건 `when` 분리 + glob 일반화.
+- Changed: `tests/test_content_integrity.py`에 `PerspectiveWhenFlagProducibilityTest` 2건 + 헬퍼 `_perspective_when_flags`(route 앵커 perspective `when`만 추출). 생산자 모델은 모듈 docstring/`ContentFlagIntegrityTest`와 동일(per-scenario effect.flags ∪ `ENGINE_PRODUCED_FLAGS` ∪ `NARRATIVE_DRIVEN_FLAGS`). 테스트: ① 전 시나리오 `when` ∈ producible(dead 분기 가드) ② guard-the-guard(`when` 플래그 ≥1, vacuous green 방지). glob으로 전 시나리오 자동 커버.
+- Verified: `make check` EXIT=0 — ruff/eslint/mypy(116 files)/frontend build + **381 tests OK**(skipped 2, +2). 고장주입 1/1 CAUGHT: 실재 `when` 보유 시나리오에 `ghost_flag_no_producer` 주입 시 FAIL, 정상 시 green.
+- Blockers: 없음.
+- Next: 시드 I/J/K(prompt-layer Phase 4 prose 추출) 또는 L/M/N(호감도 런타임) 등 잔여 `[auto:claude]`. 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-16 — 전 시나리오 이미지 ref 실존 invariant (시드 G, `[auto:claude]`, QA seed)
 - Status: overnight `[auto:claude]` 시드 G — scenario.json scene/character/anchor 이미지 참조가 실재(dangling 0)하는지 박제. green.
 - 측정: `image_sequence`·anchor `image`/`image_pre`·`characters[].image`·`cinematic_shots[].image`는 프론트가 이미지 URL로 직접 로드(`StoryPanel.tsx:614` `image_sequence`, route 앵커 그림) → scenario.json 오타 경로 = **화면에서 에러 없이 깨지는 그림**(test_assets.py character_map/bestiary와 동일 실패모드). 실데이터: neo-seoul 23 refs/dangling 0, glass-library 0 refs(route_map/characters 부재). **스킬 아이콘 의도적 제외** — `combat.skills`는 dict(10종)인데 아이콘 PNG는 5종만 존재(emp_pulse/nanoshield_projector/glitch_blink/signal_overdrive/memory_resonance 미존재, `[auto:agy]` 초안 대기) → 별도 `[blocked] 스킬/아이콘 무결성 invariant`(NEXT_PLAN)가 관장. 여기서 강제하면 중복·false-RED.

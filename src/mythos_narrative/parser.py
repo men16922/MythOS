@@ -6,6 +6,7 @@ from typing import Any
 
 from mythos_core import Choice
 
+from .fallbacks import DEFAULT_FALLBACK
 from .schemas import (
     ALLOWED_WORLD_DELTA_KEYS,
     MAX_CHOICES,
@@ -93,35 +94,32 @@ def repair_scene_payload(raw_payload: str | dict[str, Any]) -> dict[str, Any]:
             )
             if key in data
         }
+    # Repair-fill defaults come from the single shared fallback source (prose layer);
+    # the parser has no scenario context, so it always uses the code-level default.
+    # Repair only fills *missing* fields on an otherwise-valid payload — the visible
+    # fallback scene goes through director._fallback_payload (scenario-overridable).
+    repair = DEFAULT_FALLBACK["repair"]
     scene = data["scene"]
     if not isinstance(scene.get("title"), str) or not scene.get("title", "").strip():
-        scene["title"] = "C-17 정전 구역"
+        scene["title"] = repair["title"]
     if not isinstance(scene.get("location"), str) or not scene.get("location", "").strip():
-        # Prose default consistent with the title/narration fallbacks above. The
-        # old raw-ID default ("data-layer-01") jarringly read as an underground
-        # data-layer in the UI whenever a short generation omitted [LOCATION] —
-        # contradicting the rainy-alley opening. A prose string reads cleanly.
-        scene["location"] = "C-17 네온 골목 (야외, 비)"
+        # Prose default (not the raw-ID "data-layer-01", which jarringly read as an
+        # underground data-layer when a short generation omitted [LOCATION]).
+        scene["location"] = repair["location"]
     if not isinstance(scene.get("narration"), str) or not scene.get("narration", "").strip():
-        scene["narration"] = (
-            "C-17 지하보도 비상등이 꺼지고, 빗물 위로 감시 드론의 붉은 수색등이 번진다. "
-            "정세린은 바이크 옆에서 손을 내밀며 말한다. \"등록 안 됐지? 그럼 아직 사람이야. 뛰어.\""
-        )
+        scene["narration"] = repair["narration"]
     if not isinstance(scene.get("choices"), list) or not scene["choices"]:
         scene["choices"] = [
             {
                 "choice_id": "choice_1",
-                "label": "세린을 따라 배수로로 뛰어든다",
+                "label": repair["choice_label"],
                 "intent": "explore",
             }
         ]
     else:
         scene["choices"] = _repair_choices(scene["choices"])
     if not isinstance(scene.get("visual_brief"), str) or not scene.get("visual_brief", "").strip():
-        scene["visual_brief"] = (
-            "Neo-Seoul C-17 underpass in rain, red drone searchlights, Jung Se-rin reaching out, "
-            "wet concrete, half-closed shutter, cinematic cyberpunk chase."
-        )
+        scene["visual_brief"] = repair["visual_brief"]
 
     objective = scene.get("objective")
     if objective is not None and not isinstance(objective, str):
@@ -284,7 +282,7 @@ def _repair_choices(value: list[Any]) -> list[dict[str, str]]:
     return repaired or [
         {
             "choice_id": "choice_1",
-            "label": "세린을 따라 배수로로 뛰어든다",
+            "label": DEFAULT_FALLBACK["repair"]["choice_label"],
             "intent": "explore",
         }
     ]
@@ -414,11 +412,13 @@ def parse_story_text(story_text: str) -> ScenePayload:
     """Parses raw storyteller markdown-like markup (SCENE, TITLE, LOCATION, CHOICES) into a ScenePayload."""
     # 1. Title
     title_match = re.search(r"\[TITLE\]\s*\n*(.*?)(?=\n*\[|$)", story_text, re.DOTALL | re.IGNORECASE)
-    title = title_match.group(1).strip() if title_match else "C-17 정전 구역"
+    title = title_match.group(1).strip() if title_match else DEFAULT_FALLBACK["repair"]["title"]
 
-    # 2. Location
+    # 2. Location — prose default (not the raw-ID "data-layer-01") when [LOCATION] omitted.
     location_match = re.search(r"\[LOCATION\]\s*\n*(.*?)(?=\n*\[|$)", story_text, re.DOTALL | re.IGNORECASE)
-    location = location_match.group(1).strip() if location_match else "data-layer-01"
+    location = (
+        location_match.group(1).strip() if location_match else DEFAULT_FALLBACK["repair"]["location"]
+    )
 
     # 3. Narration
     narration_match = re.search(r"\[SCENE\]\s*\n*(.*?)(?=\n*\[|$)", story_text, re.DOTALL | re.IGNORECASE)

@@ -19,6 +19,7 @@ from mythos_runtime.route_runtime import (
     route_status,
 )
 from mythos_runtime.scenario import ScenarioConfig
+from mythos_runtime.scenario_directives import fill_placeholders, load_scenario_directives
 from mythos_runtime.session_memory import build_session_synopsis
 from mythos_runtime.story_bible import (
     load_story_bible,
@@ -165,32 +166,35 @@ def build_runtime_narrative_context(
                 )
 
     opening_directives: list[str] = []
-    # The scripted 5-beat prologue (turns 0-4) must fire by TURN, not phase. The
-    # storyteller can emit a `requested_next_phase` that advances the loop past
-    # EXPLORE mid-opening (e.g. INTERACT by turn 3); the old phase-gated condition
-    # then silently dropped the opening directives at turns 3-4 and the GM reverted
-    # to the data-layer starting location. So for a scenario that declares an
-    # authored opening (cinematic_shots — currently only neo-seoul), run the opening
-    # for turns 0-4 regardless of phase. The added clause is scoped to authored-
-    # opening scenarios so it does not extend the prologue to others; the existing
-    # CONNECT/EXPLORE clauses keep their prior behavior unchanged.
-    _intro_cfg = scenario.ui_copy.get("session_intro") if isinstance(scenario.ui_copy, dict) else None
-    _has_authored_opening = isinstance(_intro_cfg, dict) and bool(_intro_cfg.get("cinematic_shots"))
+    # The scripted prologue (turns 0..max_turn) is now authored in the PROMPT LAYER —
+    # resources/<scenario>/directives/opening.md (loaded via load_scenario_directives).
+    # Only the assembly LOGIC stays here: gating, cinematic-shot resolution, the
+    # placeholder fill, and the routing into the full-render session_synopsis channel.
+    #
+    # The opening must fire by TURN, not phase: the storyteller can advance the loop
+    # past EXPLORE mid-opening, which previously dropped the directives at turns 3-4
+    # and let the GM revert to the data-layer starting location. For a scenario that
+    # authors an opening, run it for turns 0..max regardless of phase; the existing
+    # CONNECT/EXPLORE clauses keep prior behavior for scenarios without one.
+    directives = load_scenario_directives(scenario.scenario_id)
+    _has_authored_opening = bool(directives.opening_beats)
+    _max_turn = directives.opening_max_turn
     if (
         loop.phase is LoopPhase.CONNECT
-        or (loop.phase is LoopPhase.EXPLORE and turn_index <= 4)
-        or (_has_authored_opening and turn_index <= 4)
+        or (loop.phase is LoopPhase.EXPLORE and turn_index <= _max_turn)
+        or (_has_authored_opening and turn_index <= _max_turn)
     ):
         archetype = player.traits.get("archetype", "Unclassified")
-        # The player just watched the opening cinematic (session_intro). Feed the
-        # exact content back so the first playable scenes continue from it instead
-        # of resetting to the data-layer starting location.
-        opening_directives.extend(_opening_continuity_notes(scenario, turn_index))
-        # The three pre-rendered cinematic shots (already shown as a teaser) are the
-        # AUTHORED source for the first Se-rin beats: gameplay scenes 2-4 play through
-        # shots 01/02/03 so the teaser's promise is paid off as lived experience.
-        # Scene 1 (turn 0) is the lone awakening that precedes them. Sourcing each
-        # directive from the authored shot text keeps cinematic and gameplay aligned.
+        # Replay the opening cinematic (session_intro) so the first playable scenes
+        # continue from it. This belongs to the authored opening, so it only runs for
+        # scenarios that declare one (a scenario without opening.md must not receive
+        # the neo-seoul continuity guidance).
+        if _has_authored_opening:
+            opening_directives.extend(_opening_continuity_notes(scenario, turn_index))
+        # The pre-rendered cinematic shots (teaser) are the authored source for the
+        # Se-rin beats; each beat references one by index (shot_ref) so the teaser's
+        # promise is paid off as lived experience. Resolve the shot, fill the authored
+        # beat body's placeholders, and emit it.
         _intro = scenario.ui_copy.get("session_intro") if isinstance(scenario.ui_copy, dict) else None
         _shots = _intro.get("cinematic_shots") if isinstance(_intro, dict) else None
         _shots = _shots if isinstance(_shots, list) else []
@@ -199,103 +203,21 @@ def build_runtime_narrative_context(
             shot = _shots[idx] if 0 <= idx < len(_shots) and isinstance(_shots[idx], dict) else {}
             return str(shot.get("title") or "").strip(), str(shot.get("body") or "").strip()
 
-        if turn_index == 0:
-            opening_directives.append(
-                f"ONBOARDING_SCENE1 (AWAKENING): 당신은 오프닝의 첫 번째 플레이 가능한 장면을 작성하고 있습니다. "
-                f"주제: '추락한 신호, 홀로 깨어나다'. 이 장면은 인트로 시네마틱 3컷보다 '이전'의 순간입니다. "
-                f"방금 C-17 복지 블록이 2.7초간 암전된 직후입니다. 비등록 '{archetype}' 신호인 플레이어(주인공)는 "
-                f"비 내리는 네온 골목의 젖은 콘크리트 바닥에 엎어진 채 막 의식을 되찾습니다. "
-                f"장소(고정): 반드시 '야외, 비 내리는 C-17 네온 거리/골목, 젖은 콘크리트 바닥'입니다. "
-                f"loop의 location_id가 'data-layer'·지하 등 다른 곳을 가리켜도 무시하고, 이 장면을 지하 주차장·지하 회랑·"
-                f"실내·데이터 코어 같은 곳으로 옮기지 마십시오. 또한 주인공은 '서 있는' 상태가 아니라 '쓰러져 있다가 깨어나는' 상태입니다. "
-                f"이 장면은 '추락 직후의 혼란과 각성'입니다. 주인공이 빗물에 젖은 바닥에서 몸을 일으키며, 차가운 빗물·오존 냄새·"
-                f"물웅덩이에 번지는 네온·멀리서 골목을 훑는 드론 수색등 같은 구체적이고 촬영 가능한 감각으로 상황을 더듬는 데 집중하십시오. "
-                f"중요(세린 미등장): 이 장면에는 아직 정세린이 등장하지 않습니다. 정세린의 이름·대사·등장을 절대 쓰지 마십시오. "
-                f"다른 인물의 손길이나 구조자도 등장시키지 마십시오 — 주인공은 지금 홀로입니다. "
-                f"다만 골목 저편에서 다가오는 '기척'이나 발소리 정도로 다음 장면(누군가의 등장)을 가볍게 암시할 수 있습니다. "
-                f"'실루엣', '하나의 존재', '데이터 잔해'처럼 주인공 자신을 모호하게만 묘사하지 말고, 젖은 바닥·손·시선·드론 수색등을 명확히 쓰십시오. "
-                f"이 장면의 모든 서사와 선택지는 반드시 한국어(Korean)로 작성되어야 합니다. 선택지는 전문용어 없는 짧은 행동문으로 제공하십시오.\n"
-                f"선택지 생성 가이드(전투 없이, 각성 직후의 반응):\n"
-                f" 1) '몸을 일으켜 주변을 살핀다'처럼 상황을 파악하는 선택지\n"
-                f" 2) '바닥에 낮게 엎드려 드론 수색등을 피한다'처럼 위험을 회피·은신하는 선택지\n"
-                f" 3) '다가오는 기척 쪽으로 고개를 돌린다'처럼 다음 등장을 향하는 선택지\n"
-                f"중요: 이 장면은 각성·상황 파악 단계이므로, 절대 전투를 시작하지 마십시오. world_delta.start_combat은 반드시 null이어야 합니다."
+        beat = directives.opening_beat(turn_index)
+        if beat is not None:
+            shot_title, shot_body = (
+                _shot_text(beat.shot_ref) if beat.shot_ref is not None else ("", "")
             )
-        elif turn_index == 1:
-            act = player_action or ""
-            s_title, s_body = _shot_text(0)
             opening_directives.append(
-                f"ONBOARDING_SCENE2 (SHOT 01 // ARRIVAL): 인트로 시네마틱의 '첫 컷'을 플레이 가능한 장면으로 펼칩니다. "
-                f"이 컷의 저작 설정을 그대로 따르십시오 — 제목: '{s_title}'. 설정: {s_body} "
-                f"★ 이 장면의 '필수 사건(MANDATORY EVENT)'은 '정세린의 첫 등장'입니다. 플레이어의 직전 행동(player_action: "
-                f"'{act}')이 무엇이든(주변을 살피든·숨든·일어서든) 그 행동은 1~2문장으로만 짧게 받아넘기고, 반드시 그 도중에 "
-                f"정세린이 비를 뚫고 '나타나는' 것으로 장면을 전개·전환하십시오. 비를 뚫고 바이크로 다가온 세린이 골목 '저편에서' "
-                f"당신이 아직 지워지지 않았는지 확인하듯 응시합니다. 첫 문단 안에 반드시 '정세린' 또는 '세린' 이름을 쓰십시오. "
-                f"금지: 세린이 등장하지 않은 채 장면을 끝내지 마십시오. 또한 '깜빡이는 푸른 물체', '정체불명의 신호/장치', "
-                f"'회로 기판 조각' 같은 '새로운 수수께끼 떡밥'을 만들지 마십시오 — 이 장면의 사건은 오직 '세린의 등장'뿐입니다. "
-                f"장소는 직전 장면과 같은 '비 내리는 C-17 네온 골목'을 유지하십시오(지하/실내로 옮기지 말 것). "
-                f"이 장면은 '원거리에서의 첫 등장'입니다 — 세린은 아직 당신에게 다가오지 않았고, 신체 접촉도 없습니다. "
-                f"거리감·경계·바이크 헤드라이트·드론 수색등의 긴장에 집중하십시오(세린이 곁에 와 손을 뻗는 것은 '다음' 장면입니다). "
-                f"이 장면의 모든 서사와 선택지는 반드시 한국어(Korean)로 작성되어야 합니다.\n"
-                f"선택지 생성 가이드(전투 없이, 모두 세린을 대상으로): 세린을 향해 몸을 일으킨다 / 세린을 경계하며 거리를 둔다 / 세린에게서 벗어날 탈출로를 살핀다.\n"
-                f"중요: 이 장면은 대면 단계이므로 절대 전투를 시작하지 마십시오. world_delta.start_combat은 반드시 null이어야 합니다."
-            )
-        elif turn_index == 2:
-            act = player_action or ""
-            opening_directives.append(
-                f"ONBOARDING_SCENE3 (APPROACH // 다가오는 손): 정세린이 골목 저편에서 빗속을 가로질러 "
-                f"쓰러진(또는 막 몸을 일으키는) 당신에게 '다가옵니다'. 세린은 곁에서 한쪽 무릎을 굽혀 웅크리고, "
-                f"당신의 상태를 살피며 조심스레 한 손을 내밉니다. 머리 위 하늘에는 감시 드론의 수색등이 골목을 훑고, "
-                f"멀리서 사이렌·기계음이 다가옵니다. 장소는 같은 '비 내리는 C-17 네온 골목, 젖은 바닥'을 유지하십시오(지하/실내 금지). "
-                f"핵심: 이 장면은 '접촉 직전'입니다 — 세린은 아직 당신의 손목을 낚아채지 않았고, 함께 달리지도 않습니다. "
-                f"내민 손 앞에서의 망설임·경계·신뢰의 저울질, 다가오는 위협의 압박에 집중하십시오(손목을 잡고 뛰는 것은 '다음' 장면). "
-                f"★ 이 장면의 필수 사건은 '세린이 다가와 손을 내미는 것'입니다. 플레이어의 직전 행동(player_action: '{act}')은 1~2문장으로만 받고, "
-                f"반드시 이 사건을 전개하십시오. 발광 물체·정체불명 신호·회로 조각 같은 새 떡밥을 만들지 마십시오. "
-                f"이 장면의 모든 서사와 선택지는 반드시 한국어(Korean)로 작성되어야 합니다.\n"
-                f"선택지 생성 가이드(전투 없이, met_se_rin 플래그는 아직 설정하지 마십시오):\n"
-                f" 1) '세린이 내민 손을 향해 손을 뻗는다'처럼 신뢰로 기우는 선택지\n"
-                f" 2) '세린의 의도를 살피며 망설인다'처럼 경계하는 선택지\n"
-                f" 3) '스스로 일어서려 버틴다'처럼 독자 행동을 시도하는 선택지\n"
-                f"중요: 이 장면은 접촉 직전 단계이므로 절대 전투를 시작하지 마십시오. world_delta.start_combat은 반드시 null이어야 하며, met_se_rin/refused_se_rin 플래그도 아직 설정하지 마십시오(그 결정은 다음 장면)."
-            )
-        elif turn_index == 3:
-            act = player_action or ""
-            s_title, s_body = _shot_text(1)
-            opening_directives.append(
-                f"ONBOARDING_SCENE4 (SHOT 02 // FIRST CONTACT): 인트로 시네마틱의 '둘째 컷'을 펼칩니다. "
-                f"저작 설정 — 제목: '{s_title}'. 설정: {s_body} "
-                f"세린이 플레이어의 손목을 낚아채 일으켜 세우며 대사를 칩니다: '등록 안 됐지? 야, 그럼 너 아직 사람이네. 뛰어.' "
-                f"신체 접촉·촉각적 긴장·퉁명스럽지만 보호하는 세린에 집중하십시오. "
-                f"장소(고정): 반드시 '야외, 비 내리는 C-17 네온 골목'입니다. loop의 location_id가 'data-layer'·지하 등을 가리켜도 무시하고, "
-                f"[LOCATION]을 지하/실내/데이터 코어로 옮기지 마십시오. "
-                f"★ 이 장면의 필수 사건은 '세린이 손목을 낚아채며 함께 뛰자고 하는 것'입니다. 플레이어의 직전 행동(player_action: '{act}')은 1~2문장으로만 받고, "
-                f"반드시 이 사건을 전개하십시오. 발광 물체·정체불명 신호 같은 새 떡밥을 만들지 마십시오. "
-                f"이 장면의 모든 서사와 선택지는 반드시 한국어(Korean)로 작성되어야 합니다.\n"
-                f"선택지 생성 가이드:\n"
-                f" 1) '세린의 손을 잡고 뛴다'처럼 동행을 수락하는 선택지 (이 선택은 세린을 파티 동료로 합류시킵니다)\n"
-                f" 2) '세린에게 왜 나를 돕는지 묻는다'처럼 관계를 확인하는 선택지\n"
-                f" 3) '혼자 숨을 곳을 찾는다'처럼 세린을 경계하고 독자 탈출을 꾀하는 선택지 (이 선택 시 세린은 동료로 합류하지 않습니다)\n"
-                f"플래그 및 전투 가이드:\n"
-                f" - 플레이어가 세린과의 동행에 동의하고 따라가거나 신뢰하는 뉘앙스의 행동을 취했다면, 반환하는 JSON의 `world_delta.flags` 배열에 반드시 'met_se_rin'을 추가하고 'refused_se_rin'은 제외하십시오.\n"
-                f" - 플레이어가 세린을 거부, 경계하거나 혼자 숨어서 지켜보는 등 독자 행동 뉘앙스를 취했다면, `world_delta.flags` 배열에 반드시 'refused_se_rin'을 추가하고 'met_se_rin'은 제외하십시오.\n"
-                f" - 중요: 이 장면 역시 첫 접촉 단계이므로, 절대 전투를 시작하지 마십시오. world_delta.start_combat은 반드시 null이어야 합니다."
-            )
-        elif turn_index == 4:
-            act = player_action or ""
-            s_title, s_body = _shot_text(2)
-            opening_directives.append(
-                f"ONBOARDING_SCENE5 (SHOT 03 // IGNITION & CHASE): 인트로 시네마틱의 '셋째 컷'을 펼칩니다. "
-                f"저작 설정 — 제목: '{s_title}'. 설정: {s_body} "
-                f"엔진이 켜지고 헤드라이트가 붉게 찢어지며, 드론 수색등이 골목을 훑는 순간 추격이 시작됩니다. "
-                f"고속 질주 액션·엔진의 굉음·감시망 돌파·바이크를 모는 세린의 거친 액팅에 집중하십시오. "
-                f"장소(고정): 반드시 '야외, 비 내리는 C-17 네온 거리'(질주 중)입니다. loop의 location_id가 'data-layer'·지하 등을 가리켜도 무시하고, "
-                f"[LOCATION]을 지하/실내로 옮기지 마십시오. "
-                f"★ 이 장면의 필수 사건은 '세린과 함께 드론 추격을 뚫는 질주와 전투 돌입'입니다. 플레이어의 직전 행동(player_action: '{act}')은 1~2문장으로만 받고, "
-                f"반드시 이 사건을 전개하십시오. 발광 물체·정체불명 신호 같은 새 떡밥을 만들지 마십시오. "
-                f"이 장면의 모든 서사와 선택지는 반드시 한국어(Korean)로 작성되어야 합니다. 꽉 잡거나 뒤를 돌아보는 등의 선택지를 제공하십시오.\n"
-                f"플래그 및 전투 가이드:\n"
-                f" - 플레이어가 이전까지 세린과의 동행에 찬성했다면, `world_delta.flags`에 'met_se_rin'을 포함하십시오. 거절했다면 'refused_se_rin'을 포함하십시오.\n"
-                f" - 중요: 관리자 IX의 추격 드론 포위망을 돌파하는 첫 번째 전투 인카운터가 지금 발생해야 합니다. `world_delta.start_combat`에 반드시 'patrol_ambush'를 지정하여 첫 전투를 시작하십시오."
+                fill_placeholders(
+                    beat.body,
+                    {
+                        "archetype": archetype,
+                        "player_action": player_action or "",
+                        "shot_title": shot_title,
+                        "shot_body": shot_body,
+                    },
+                )
             )
 
     bible = load_story_bible(scenario.scenario_id)
@@ -321,8 +243,12 @@ def build_runtime_narrative_context(
     # sits ahead of the loop state, so each turn's image-locked scene directive
     # always lands.
     if opening_directives:
+        opening_header = (
+            directives.opening_header
+            or "=== 오프닝 장면 지시 (최우선 · 현재 장면 이미지와 정합 필수) ==="
+        )
         session_synopsis = [
-            "=== 오프닝 장면 지시 (최우선 · 현재 장면 이미지와 정합 필수) ===",
+            opening_header,
             *opening_directives,
             *session_synopsis,
         ]

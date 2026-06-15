@@ -113,6 +113,82 @@ class LoadScenarioDirectivesTest(unittest.TestCase):
     def test_unknown_scenario_returns_empty(self) -> None:
         self.assertTrue(load_scenario_directives("__nonexistent__").empty)
 
+    def test_neo_seoul_authors_five_opening_beats(self) -> None:
+        directives = load_scenario_directives("neo-seoul")
+        self.assertFalse(directives.empty)
+        self.assertEqual([b.turn for b in directives.opening_beats], [0, 1, 2, 3, 4])
+        by_turn = {b.turn: b for b in directives.opening_beats}
+        self.assertEqual(by_turn[0].beat_id, "ONBOARDING_SCENE1")
+        # Combat + flags only on the chase beat / contact beats.
+        self.assertEqual(by_turn[4].start_combat, "patrol_ambush")
+        self.assertIn("met_se_rin", by_turn[3].flags)
+        # Shot refs: arrival/contact/chase reference cinematic_shots 0/1/2.
+        self.assertIsNone(by_turn[0].shot_ref)
+        self.assertEqual(by_turn[1].shot_ref, 0)
+
+
+class OpeningAssemblerIntegrationTest(unittest.TestCase):
+    """The generic assembler in scenario_context must emit the authored beat into
+    the full-render session_synopsis channel for neo-seoul turns 0-4, drive the
+    combat trigger from the beat, and inject nothing for scenarios without an
+    authored opening (no neo-seoul contamination)."""
+
+    def _context(self, scenario_id: str, turn: int, action: str | None):
+        from datetime import UTC, datetime
+
+        from mythos_core.models import LoopPhase, LoopState, PlayerProfile
+        from mythos_runtime.scenario import load_scenario
+        from mythos_runtime.scenario_context import build_runtime_narrative_context
+
+        now = datetime(2026, 6, 16, tzinfo=UTC)
+        player = PlayerProfile("p1", "T", now, now, {"archetype": "Unclassified"})
+        phase = LoopPhase.CONNECT if turn == 0 else LoopPhase.EXPLORE
+        loop = LoopState("l", "p1", "s", phase, "data-layer-01", 70, 30, now, None, {}, [])
+        return build_runtime_narrative_context(
+            player=player,
+            loop=loop,
+            scenario=load_scenario(scenario_id),
+            turn_index=turn,
+            recent_events=[],
+            memories=[],
+            world_memories=[],
+            narrative_shards=[],
+            novelty_notes=[],
+            player_action=action,
+        )
+
+    def _onboarding_line(self, ctx, turn: int) -> str:
+        line = next(
+            (s for s in ctx.session_synopsis if s.startswith(f"ONBOARDING_SCENE{turn + 1}")), None
+        )
+        assert isinstance(line, str), f"no ONBOARDING_SCENE{turn + 1} in session_synopsis"
+        return line
+
+    def test_neo_seoul_opening_beats_land_in_synopsis(self) -> None:
+        line0 = self._onboarding_line(self._context("neo-seoul", 0, None), 0)
+        self.assertIn("홀로", line0)
+        self.assertIn("Unclassified", line0)  # {archetype} filled
+
+        line1 = self._onboarding_line(self._context("neo-seoul", 1, "주변을 살핀다"), 1)
+        self.assertIn("정세린의 첫 등장", line1)
+        self.assertIn("주변을 살핀다", line1)  # {player_action} filled
+        # {shot_title} resolved from cinematic_shots[0].
+        self.assertIn("빗속에서 세린이 당신을 발견한다", line1)
+
+    def test_neo_seoul_turn4_triggers_patrol_ambush_directive(self) -> None:
+        line4 = self._onboarding_line(self._context("neo-seoul", 4, "꽉 잡는다"), 4)
+        self.assertIn("patrol_ambush", line4)
+
+    def test_turn5_has_no_opening_directive(self) -> None:
+        ctx5 = self._context("neo-seoul", 5, "계속 나아간다")
+        self.assertTrue(all("ONBOARDING_SCENE" not in s for s in ctx5.session_synopsis))
+
+    def test_scenario_without_opening_gets_no_neo_seoul_directive(self) -> None:
+        # glass-library has no directives/opening.md → no neo-seoul ONBOARDING text.
+        ctx = self._context("glass-library", 0, None)
+        self.assertTrue(all("ONBOARDING_SCENE" not in s for s in ctx.session_synopsis))
+        self.assertTrue(all("정세린" not in s for s in ctx.session_synopsis))
+
 
 if __name__ == "__main__":
     unittest.main()

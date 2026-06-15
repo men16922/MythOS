@@ -607,8 +607,8 @@ export function StoryPanel({
   // CHARACTER portrait so the image and portrait stay in sync (opening: lone
   // protagonist still until Se-rin is named, then her rescue still).
   const scenePartner = detectSceneCharacter(snapshot, scenarioCharacters);
-  // Multi-scene anchors (the opening: awakening → arrival → first-contact → chase)
-  // carry a per-beat image_sequence indexed by the scene's turn; it takes priority.
+  // Multi-scene anchors (the opening: awakening → arrival → approach → first-contact
+  // → chase) carry a per-beat image_sequence indexed by the scene's turn; it takes priority.
   // Otherwise fall back to the pre-reveal still (before the partner is named) → main.
   const sceneTurn = snapshot?.active_scene?.turn_index ?? 0;
   const imageSeq = currentNode?.image_sequence;

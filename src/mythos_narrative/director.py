@@ -678,7 +678,11 @@ def _fallback_payload(context: NarrativeContext) -> ScenePayload:
 
     return ScenePayload(
         title=title,
-        location=context.loop.location_id,
+        # The fallback narration/visual is the C-17 rainy-alley 세린 rescue, so the
+        # location must read as that prose — not the raw loop.location_id
+        # ("data-layer-01"), which jarringly surfaced an underground data-layer in
+        # the UI whenever generation failed during the rainy-alley opening.
+        location="C-17 네온 골목 (야외, 비)",
         narration=narration,
         choices=[
             Choice(
@@ -707,6 +711,12 @@ def _fallback_payload(context: NarrativeContext) -> ScenePayload:
 
 
 def _apply_novelty_guard(context: NarrativeContext, payload: ScenePayload) -> ScenePayload:
+    # The scripted opening (turns 0-4) intentionally reuses the authored beat
+    # titles/locations, so this repeat-heuristic mis-fires there — it was mangling
+    # good opening scenes with a "Changed …" title and a canned
+    # "다른 압력이 끼어든다" tail (e.g. the 세린 first-contact/chase beats). Skip it.
+    if context.turn_index <= 4:
+        return payload
     if not context.novelty_notes:
         return payload
     title_key = payload.title.strip().lower()

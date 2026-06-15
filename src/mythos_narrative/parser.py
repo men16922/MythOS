@@ -97,7 +97,11 @@ def repair_scene_payload(raw_payload: str | dict[str, Any]) -> dict[str, Any]:
     if not isinstance(scene.get("title"), str) or not scene.get("title", "").strip():
         scene["title"] = "C-17 정전 구역"
     if not isinstance(scene.get("location"), str) or not scene.get("location", "").strip():
-        scene["location"] = "data-layer-01"
+        # Prose default consistent with the title/narration fallbacks above. The
+        # old raw-ID default ("data-layer-01") jarringly read as an underground
+        # data-layer in the UI whenever a short generation omitted [LOCATION] —
+        # contradicting the rainy-alley opening. A prose string reads cleanly.
+        scene["location"] = "C-17 네온 골목 (야외, 비)"
     if not isinstance(scene.get("narration"), str) or not scene.get("narration", "").strip():
         scene["narration"] = (
             "C-17 지하보도 비상등이 꺼지고, 빗물 위로 감시 드론의 붉은 수색등이 번진다. "

@@ -272,6 +272,7 @@
             "image_sequence": [
                 "scenes/opening_first.png",
                 "opening/opening-01-serin-arrival.png",
+                "scenes/opening_escape.png",
                 "opening/opening-02-first-contact.png",
                 "opening/opening-03-drone-chase.png"
             ],

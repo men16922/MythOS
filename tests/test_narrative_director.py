@@ -140,10 +140,13 @@ class NarrativeDirectorTest(unittest.TestCase):
         self.assertEqual(provider.calls, 1)
 
     def test_provider_payload_gets_novelty_guard(self) -> None:
+        # The novelty guard is for ONGOING scenes (repeat suppression); it is
+        # intentionally skipped during the scripted opening (turns 0-4), so this
+        # exercises a later turn via the next-scene path.
         context = NarrativeContext(
             player=self.context.player,
             loop=self.context.loop,
-            turn_index=0,
+            turn_index=5,
             recent_events=[],
             novelty_notes=["Avoid reusing recent scene titles: Threshold."],
         )
@@ -171,7 +174,7 @@ class NarrativeDirectorTest(unittest.TestCase):
             ]
         )
 
-        scene, _ = NarrativeDirector(provider).generate_first_scene(context)
+        scene, _ = NarrativeDirector(provider).generate_next_scene(context)
 
         self.assertEqual(scene.title, "Changed Threshold")
         self.assertIn("다른 압력", scene.narration)

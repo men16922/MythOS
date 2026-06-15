@@ -63,6 +63,11 @@ class Choice:
     intent: str
     cost: dict[str, int] | None = None
     requires: dict[str, Any] | None = None
+    # Authored side effects applied when this choice is taken. Currently only
+    # ``relationship`` (``{companion: delta}``) is consumed — folded into
+    # ``loop.state["relationships"]`` by the session, surviving the route reconcile
+    # in ``route_runtime.advance_route``. None for Director-generated choices.
+    effect: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)

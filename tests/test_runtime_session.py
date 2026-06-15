@@ -1187,6 +1187,176 @@ class ArchiveRollupTest(unittest.TestCase):
         self.assertEqual(updated_loop.stability, 15)
         self.assertEqual(updated_loop.tension, 60)
 
+    def test_choose_accumulates_choice_relationship(self) -> None:
+        # A scene choice's authored ``effect.relationship`` folds into
+        # ``loop.state["relationships"]`` and accumulates across turns. glass-library
+        # has no route map, so advance_route is a no-op here and the choice
+        # contribution is the only relationship source (route side is covered by
+        # RouteRelationshipTest).
+        now = datetime(2026, 6, 3, tzinfo=UTC)
+        store = _ArchiveStore()
+        store.create_player(
+            PlayerProfile(
+                player_id="player_1",
+                display_name="Connector",
+                created_at=now,
+                updated_at=now,
+            )
+        )
+        store.save_loop(
+            LoopState(
+                loop_id="loop_1",
+                player_id="player_1",
+                seed="seed_1",
+                phase=LoopPhase.EXPLORE,
+                location_id="catalog-hall",
+                stability=70,
+                tension=20,
+                started_at=now,
+                state={"scenario_id": "glass-library"},
+            )
+        )
+        store.save_scene(
+            Scene(
+                scene_id="scene_1",
+                loop_id="loop_1",
+                turn_index=0,
+                title="만남",
+                location="catalog-hall",
+                narration="세린이 다가온다.",
+                choices=[
+                    Choice(
+                        choice_id="choice_trust",
+                        label="손을 잡는다",
+                        intent="people",
+                        effect={"relationship": {"se_rin": 1}},
+                    )
+                ],
+                visual_brief="",
+                created_at=now,
+            )
+        )
+
+        class _RelationshipDirector:
+            def generate_next_scene(self, context: Any) -> Any:
+                from mythos_narrative import ScenePayload
+
+                choices = [
+                    Choice(
+                        choice_id="choice_more",
+                        label="함께 걷는다",
+                        intent="people",
+                        effect={"relationship": {"se_rin": 1, "kai": 1}},
+                    )
+                ]
+                payload = ScenePayload(
+                    title="다음",
+                    location="catalog-hall",
+                    narration="둘은 나란히 걷는다.",
+                    choices=choices,
+                    visual_brief="",
+                )
+                scene = Scene(
+                    scene_id="scene_2",
+                    loop_id="loop_1",
+                    turn_index=1,
+                    title="다음",
+                    location="catalog-hall",
+                    narration="둘은 나란히 걷는다.",
+                    choices=choices,
+                    visual_brief="",
+                    created_at=now,
+                )
+                return scene, payload
+
+        service = RuntimeSessionService(
+            store, director=cast(Any, _RelationshipDirector())
+        )
+
+        service.choose("loop_1", choice_id="choice_trust")
+        after_first = store.get_loop("loop_1")
+        assert after_first is not None
+        self.assertEqual(after_first.state.get("relationships"), {"se_rin": 1})
+
+        service.choose("loop_1", choice_id="choice_more")
+        after_second = store.get_loop("loop_1")
+        assert after_second is not None
+        self.assertEqual(
+            after_second.state.get("relationships"), {"se_rin": 2, "kai": 1}
+        )
+
+    def test_choose_without_relationship_effect_leaves_state_clean(self) -> None:
+        # A choice with no effect must not introduce a relationships key.
+        now = datetime(2026, 6, 3, tzinfo=UTC)
+        store = _ArchiveStore()
+        store.create_player(
+            PlayerProfile(
+                player_id="player_1",
+                display_name="Connector",
+                created_at=now,
+                updated_at=now,
+            )
+        )
+        store.save_loop(
+            LoopState(
+                loop_id="loop_1",
+                player_id="player_1",
+                seed="seed_1",
+                phase=LoopPhase.EXPLORE,
+                location_id="catalog-hall",
+                stability=70,
+                tension=20,
+                started_at=now,
+                state={"scenario_id": "glass-library"},
+            )
+        )
+        store.save_scene(
+            Scene(
+                scene_id="scene_1",
+                loop_id="loop_1",
+                turn_index=0,
+                title="갈림길",
+                location="catalog-hall",
+                narration="조용한 복도.",
+                choices=[
+                    Choice(choice_id="choice_plain", label="살핀다", intent="explore")
+                ],
+                visual_brief="",
+                created_at=now,
+            )
+        )
+
+        class _PlainDirector:
+            def generate_next_scene(self, context: Any) -> Any:
+                from mythos_narrative import ScenePayload
+
+                choices = [Choice(choice_id="dummy", label="계속", intent="explore")]
+                payload = ScenePayload(
+                    title="다음",
+                    location="catalog-hall",
+                    narration="계속 나아간다.",
+                    choices=choices,
+                    visual_brief="",
+                )
+                scene = Scene(
+                    scene_id="scene_2",
+                    loop_id="loop_1",
+                    turn_index=1,
+                    title="다음",
+                    location="catalog-hall",
+                    narration="계속 나아간다.",
+                    choices=choices,
+                    visual_brief="",
+                    created_at=now,
+                )
+                return scene, payload
+
+        service = RuntimeSessionService(store, director=cast(Any, _PlainDirector()))
+        service.choose("loop_1", choice_id="choice_plain")
+        updated = store.get_loop("loop_1")
+        assert updated is not None
+        self.assertNotIn("relationships", updated.state)
+
     def test_stream_choose_validates_cost_and_requires(self) -> None:
         now = datetime(2026, 6, 3, tzinfo=UTC)
         store = _ArchiveStore()

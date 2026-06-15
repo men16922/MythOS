@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING, Any
 
 from mythos_combat import PlayerAction, render_radar, serialize_combat_log
@@ -97,6 +97,7 @@ from mythos_runtime.route_growth import extend_route
 from mythos_runtime.route_map import ROUTE_MAP_KEY, build_route_map, build_route_seed
 from mythos_runtime.route_runtime import (
     advance_route,
+    fold_relationship,
     junction_options,
     node_encounter_id,
     route_status,
@@ -127,6 +128,7 @@ class _PreparedChoice:
     impact_base_loop: LoopState
     context: NarrativeContext
     player_event: WorldEvent
+    choice_relationship: dict[str, int] = field(default_factory=dict)
 
 
 class RuntimeSessionService:
@@ -437,6 +439,7 @@ class RuntimeSessionService:
             impact_base_loop=impact_base_loop,
             context=context,
             player_event=player_event,
+            choice_relationship=_choice_relationship(latest_scene, choice_id),
         )
 
     def choose(
@@ -472,6 +475,7 @@ class RuntimeSessionService:
             metric_total_before=metric_total_before,
             route_target=_route_target_from_choice(choice_id),
             impact_base_loop=impact_base_loop,
+            choice_relationship=prepared.choice_relationship,
         )
 
     def stream_choose(
@@ -512,6 +516,7 @@ class RuntimeSessionService:
                 metric_total_before=metric_total_before,
                 route_target=_route_target_from_choice(choice_id),
                 impact_base_loop=impact_base_loop,
+                choice_relationship=prepared.choice_relationship,
             )
             yield RuntimeStreamEvent(kind="final", snapshot=snapshot)
 
@@ -1465,6 +1470,7 @@ class RuntimeSessionService:
         metric_total_before: int | None = None,
         route_target: str | None = None,
         impact_base_loop: LoopState | None = None,
+        choice_relationship: dict[str, int] | None = None,
     ) -> RuntimeSnapshot:
         with span(span_name, player_id=player.player_id, loop_id=loop.loop_id):
             transition = self.engine.apply_scene_payload(loop, scene, payload, player_event)
@@ -1479,6 +1485,21 @@ class RuntimeSessionService:
             transition.loop, payload, options, scene.turn_index
         )
         transition = replace(transition, loop=loop_after_map)
+
+        # Fold the chosen scene choice's authored relationship delta (companion
+        # affection) into loop state *before* the route advance, so the route
+        # reconcile in ``advance_route`` preserves this non-route contribution.
+        if choice_relationship:
+            base_state = (
+                transition.loop.state if isinstance(transition.loop.state, dict) else {}
+            )
+            folded_state = dict(base_state)
+            folded_state["relationships"] = fold_relationship(
+                base_state.get("relationships"), choice_relationship
+            )
+            transition = replace(
+                transition, loop=replace(transition.loop, state=folded_state)
+            )
 
         # Advance the procedural route map: move the current node forward (honoring
         # the player's junction pick), resolve anchor perspectives from accumulated
@@ -1896,6 +1917,31 @@ def _resolve_action(scene: Scene, choice_id: str | None, action: str | None) -> 
         if choice.choice_id == choice_id:
             return choice.label
     raise RuntimeError(f"choice not found: {choice_id}")
+
+
+def _choice_relationship(scene: Scene, choice_id: str | None) -> dict[str, int]:
+    """Extract a chosen scene choice's ``effect.relationship`` (companion affection).
+
+    Returns the per-companion integer deltas authored on the choice, or ``{}`` for
+    free-text actions, unknown choices, or Director-generated choices that carry no
+    effect. The deltas are folded into ``loop.state["relationships"]`` in
+    ``_commit_scene`` (mirrors the route perspective relationship in ``route_runtime``).
+    """
+    if not choice_id:
+        return {}
+    chosen = next((c for c in scene.choices if c.choice_id == choice_id), None)
+    if chosen is None or not isinstance(chosen.effect, dict):
+        return {}
+    relationship = chosen.effect.get("relationship")
+    if not isinstance(relationship, dict):
+        return {}
+    out: dict[str, int] = {}
+    for name, delta in relationship.items():
+        try:
+            out[str(name)] = out.get(str(name), 0) + int(delta)
+        except (TypeError, ValueError):
+            continue
+    return out
 
 
 def _apply_choice_requirements_and_cost(

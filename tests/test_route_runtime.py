@@ -5,6 +5,7 @@ from mythos_runtime.route_map import ROUTE_MAP_KEY, build_route_map
 from mythos_runtime.route_runtime import (
     DEFAULT_TURNS_PER_LAYER,
     advance_route,
+    fold_relationship,
     junction_options,
     node_encounter_id,
     route_status,
@@ -144,6 +145,35 @@ class RouteRelationshipTest(unittest.TestCase):
             sum(abs(v) for v in late["relationships"].values()),
             sum(abs(v) for v in a["relationships"].values()),
         )
+
+
+class FoldRelationshipTest(unittest.TestCase):
+    """The non-route folding helper used by ``session`` for choice-level affection."""
+
+    def test_accumulates_onto_existing(self) -> None:
+        self.assertEqual(
+            fold_relationship({"se_rin": 1}, {"se_rin": 1, "kai": 2}),
+            {"se_rin": 2, "kai": 2},
+        )
+
+    def test_negative_and_zero_prune(self) -> None:
+        # A delta that cancels an existing balance prunes the key entirely.
+        self.assertEqual(fold_relationship({"se_rin": 1}, {"se_rin": -1}), {})
+        self.assertEqual(fold_relationship({}, {"se_rin": -1}), {"se_rin": -1})
+
+    def test_ignores_non_int_and_handles_missing_current(self) -> None:
+        self.assertEqual(fold_relationship(None, {"se_rin": 2}), {"se_rin": 2})
+        bad_delta: dict[str, Any] = {"kai": "bad"}
+        self.assertEqual(fold_relationship({"se_rin": 1}, bad_delta), {"se_rin": 1})
+
+    def test_survives_route_reconcile(self) -> None:
+        # A folded choice delta must persist through advance_route's reconcile and
+        # sum with the route's own perspective relationship tally.
+        state = _state("seed", ["met_se_rin", "trusted_se_rin"])
+        state["relationships"] = fold_relationship(None, {"se_rin": 2, "kai": 1})
+        out = advance_route(state, turn_index=2, seed="seed")
+        # route adds se_rin:+1 (p_trust); choice contribution preserved.
+        self.assertEqual(out["relationships"], {"se_rin": 3, "kai": 1})
 
 
 class JunctionTest(unittest.TestCase):

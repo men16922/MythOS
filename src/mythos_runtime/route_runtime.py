@@ -166,6 +166,30 @@ def _reconcile_relationships(
     return {name: value for name, value in out.items() if value != 0}
 
 
+def fold_relationship(current: Any, delta: dict[str, int]) -> dict[str, int]:
+    """Fold a non-route relationship delta into the accumulator, pruning zeros.
+
+    Used by ``session`` to apply a scene choice's ``effect.relationship`` (companion
+    affection). Because the result lands on ``state["relationships"]`` *before*
+    ``advance_route`` runs, the route reconcile in ``_reconcile_relationships``
+    preserves it (it only adjusts by the route tally delta), so route and choice
+    contributions sum cleanly without double-counting on replay.
+    """
+    out: dict[str, int] = {}
+    if isinstance(current, dict):
+        for name, value in current.items():
+            try:
+                out[str(name)] = int(value)
+            except (TypeError, ValueError):
+                continue
+    for name, value in delta.items():
+        try:
+            out[str(name)] = out.get(str(name), 0) + int(value)
+        except (TypeError, ValueError):
+            continue
+    return {name: value for name, value in out.items() if value != 0}
+
+
 def junction_options(
     state: dict[str, Any],
     *,
@@ -323,6 +347,7 @@ def route_status(state: dict[str, Any]) -> dict[str, Any] | None:
 __all__ = [
     "DEFAULT_TURNS_PER_LAYER",
     "advance_route",
+    "fold_relationship",
     "junction_options",
     "node_encounter_id",
     "route_status",

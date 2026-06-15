@@ -19,7 +19,12 @@ from mythos_runtime.route_runtime import (
     route_status,
 )
 from mythos_runtime.scenario import ScenarioConfig
-from mythos_runtime.scenario_directives import fill_placeholders, load_scenario_directives
+from mythos_runtime.scenario_directives import (
+    StatVoiceProfile,
+    StatVoices,
+    fill_placeholders,
+    load_scenario_directives,
+)
 from mythos_runtime.session_memory import build_session_synopsis
 from mythos_runtime.story_bible import (
     load_story_bible,
@@ -67,6 +72,50 @@ NEO_SEOUL_NAMING_RULE = (
     "- 세린은 플레이어에게 존댓말을 쓰지 않습니다. 대사는 짧은 반말/명령형으로 쓰고, "
     "'요', '습니다', '세요', '하시겠습니까' 같은 높임말 어미를 세린의 대사에 사용하지 마십시오.\n"
     "- Lin Yue는 한국어 본문에서 '린위에', Kai RX-09는 '카이 RX-09', Administrator IX는 '관리자 IX'로 표기하십시오."
+)
+
+# Generic code default for the stat-voice (Disco-Elysium inner-monologue) directive.
+# The authored canonical text now lives in resources/neo-seoul/directives/stat_voices.md
+# and overrides this when present; scenarios that ship no stat_voices.md fall back to
+# this default, preserving the prior behavior where this prose was shared by every
+# scenario (glass-library included). Doubles as the byte-parity anchor — the parity
+# test asserts the loaded directives reproduce it (StatVoiceDirectiveParityTest).
+DEFAULT_STAT_VOICES = StatVoices(
+    header="=== 스탯 기반 내면 독백 지침 (DISCO ELYSIUM STYLE INNER MONOLOGUE) ===",
+    max_template=(
+        "플레이어의 가장 뛰어난 특성은 {name} (수치: {value})입니다. "
+        "장면 묘사나 내러티브 전개 중에 종종 플레이어의 머릿속 혹은 내면에서 들려오는 독백(Inner Monologue)이나 내적 대화 형태로 "
+        "다음 목소리를 자연스럽게 주입하십시오. 특히 이 목소리는 스탯 고유의 어조와 어투 규칙(예시의 스타일)을 철저히 따라야 하며, 다른 스탯과 어투가 뚜렷이 구별되어야 합니다: \n"
+        " - {name}: {voice}\n"
+        "이 목소리는 괄호 표기법을 사용하여 표현해야 합니다. 예: (근력: ...) 또는 (지능: ...)"
+    ),
+    min_template=(
+        "플레이어의 가장 취약한 특성은 {name} (수치: {value})입니다. "
+        "이 특성에 대응하는 내면의 목소리는 미숙함, 억지, 잘못된 오판을 하거나 소심함, 혹은 결핍으로 인해 무기력한 충고를 던지는 형태로 괄호 표기법을 통해 아주 가끔 등장시켜 주십시오. "
+        "예: ({name_first}: ...)"
+    ),
+    descriptions={
+        "strength": StatVoiceProfile(
+            name="근력 (Strength)",
+            voice='본능적이고 거칠며 물리적 파괴와 신체적 생존을 자극하는 육체의 목소리. 투박한 반말과 거친 어조를 사용하며 물리적 충돌과 정면 돌파를 부추깁니다. 예시: "주먹으로 저 빌어먹을 보안 패널을 들이받아 부숴버려! 쇠붙이는 부서지게 되어 있다."',
+        ),
+        "intelligence": StatVoiceProfile(
+            name="지능 (Intelligence)",
+            voice='냉정하고 분석적이며 논리와 데이터, 시스템 최적화를 추구하는 연산의 목소리. 철저히 논리적이고 건조한 기계식 종결어미(~다, ~하십시오)를 사용하며 분석적 조언을 제공합니다. 예시: "대상 보안 시스템의 오동작 주기는 4.2초입니다. 우회로 진입 시 발각 확률은 12% 미만으로 최적화됩니다."',
+        ),
+        "charisma": StatVoiceProfile(
+            name="매력 (Charisma)",
+            voice='감정적이고 사교적이며 사람들의 심리와 가면 뒤의 진실을 읽는 감응의 목소리. 친근하고 부드럽거나 장난기 섞인 구어체 말투(~잖아, ~지 않아?, ~보렴)를 사용하며 타인의 감정에 공감하고 유도하는 조언을 합니다. 예시: "저 여자의 눈망울이 불안하게 흔들리고 있잖아. 차갑게 밀쳐내기보단 빗속에서 따스한 시선을 건네보는 게 어때? 마음을 열어줄 거야."',
+        ),
+        "agility": StatVoiceProfile(
+            name="민첩 (Agility)",
+            voice='기민하고 신경질적이며 회피와 탈출, 위험 감지를 부추기는 반사의 목소리. 호흡이 짧고 급하며 다급한 명령형(~해, ~뛰어, ~서둘러!)과 느낌표를 다용하여 당장 움직이도록 다그칩니다. 예시: "망설이면 끝이다! 몸이 먼저 반응하는 대로 당장 움직여, 셋 둘 하나, 지금 뛰어!"',
+        ),
+        "perception": StatVoiceProfile(
+            name="관측 (Perception)",
+            voice='예리하고 미세한 흔적과 보이지 않는 신호, 감춰진 디테일을 포착하는 감각의 목소리. 묘사적이고 세밀하며 객관적인 어조(~다, ~을 포착함)를 사용하며 주변의 숨겨진 디테일과 이질감을 짚어냅니다. 예시: "벽면 네온 간판의 미세한 스파크 소리가 규칙적이지 않다. 간판 뒤에 불법 도청 모듈이 숨겨져 있음을 시사한다."',
+        ),
+    },
 )
 
 
@@ -120,57 +169,43 @@ def build_runtime_narrative_context(
     notes.extend(_scenario_structure_notes(scenario))
     notes.append(CAUSALITY_ENGINE_RULE)
 
-    # P4-1 스탯 기반 내면 독백 (Disco Elysium) 지침 추가
+    # P4-1 스탯 기반 내면 독백 (Disco Elysium) 지침 — prose는 이제 프롬프트 레이어
+    # (directives/stat_voices.md)다. min/max 선택 로직만 코드에 남고, 시나리오가 stat_voices.md를
+    # 두지 않으면 generic 기본값(DEFAULT_STAT_VOICES)을 받는다(이전 공유 동작 보존).
+    stat_voices = directives.stat_voices or DEFAULT_STAT_VOICES
     stats = player.traits.get("stats") if isinstance(player.traits, dict) else None
     if isinstance(stats, dict):
-        stat_descriptions = {
-            "strength": {
-                "name": "근력 (Strength)",
-                "voice": '본능적이고 거칠며 물리적 파괴와 신체적 생존을 자극하는 육체의 목소리. 투박한 반말과 거친 어조를 사용하며 물리적 충돌과 정면 돌파를 부추깁니다. 예시: "주먹으로 저 빌어먹을 보안 패널을 들이받아 부숴버려! 쇠붙이는 부서지게 되어 있다."',
-            },
-            "intelligence": {
-                "name": "지능 (Intelligence)",
-                "voice": '냉정하고 분석적이며 논리와 데이터, 시스템 최적화를 추구하는 연산의 목소리. 철저히 논리적이고 건조한 기계식 종결어미(~다, ~하십시오)를 사용하며 분석적 조언을 제공합니다. 예시: "대상 보안 시스템의 오동작 주기는 4.2초입니다. 우회로 진입 시 발각 확률은 12% 미만으로 최적화됩니다."',
-            },
-            "charisma": {
-                "name": "매력 (Charisma)",
-                "voice": '감정적이고 사교적이며 사람들의 심리와 가면 뒤의 진실을 읽는 감응의 목소리. 친근하고 부드럽거나 장난기 섞인 구어체 말투(~잖아, ~지 않아?, ~보렴)를 사용하며 타인의 감정에 공감하고 유도하는 조언을 합니다. 예시: "저 여자의 눈망울이 불안하게 흔들리고 있잖아. 차갑게 밀쳐내기보단 빗속에서 따스한 시선을 건네보는 게 어때? 마음을 열어줄 거야."',
-            },
-            "agility": {
-                "name": "민첩 (Agility)",
-                "voice": '기민하고 신경질적이며 회피와 탈출, 위험 감지를 부추기는 반사의 목소리. 호흡이 짧고 급하며 다급한 명령형(~해, ~뛰어, ~서둘러!)과 느낌표를 다용하여 당장 움직이도록 다그칩니다. 예시: "망설이면 끝이다! 몸이 먼저 반응하는 대로 당장 움직여, 셋 둘 하나, 지금 뛰어!"',
-            },
-            "perception": {
-                "name": "관측 (Perception)",
-                "voice": '예리하고 미세한 흔적과 보이지 않는 신호, 감춰진 디테일을 포착하는 감각의 목소리. 묘사적이고 세밀하며 객관적인 어조(~다, ~을 포착함)를 사용하며 주변의 숨겨진 디테일과 이질감을 짚어냅니다. 예시: "벽면 네온 간판의 미세한 스파크 소리가 규칙적이지 않다. 간판 뒤에 불법 도청 모듈이 숨겨져 있음을 시사한다."',
-            },
-        }
+        descriptions = stat_voices.descriptions
         valid_stats = {
             k: int(v)
             for k, v in stats.items()
-            if k in stat_descriptions and (isinstance(v, int) or str(v).isdigit())
+            if k in descriptions and (isinstance(v, int) or str(v).isdigit())
         }
         if valid_stats:
             sorted_stats = sorted(valid_stats.items(), key=lambda x: x[1])
             min_stat_name, min_stat_val = sorted_stats[0]
             max_stat_name, max_stat_val = sorted_stats[-1]
 
-            max_desc = stat_descriptions[max_stat_name]
-            notes.append("=== 스탯 기반 내면 독백 지침 (DISCO ELYSIUM STYLE INNER MONOLOGUE) ===")
+            max_desc = descriptions[max_stat_name]
+            notes.append(stat_voices.header)
             notes.append(
-                f"플레이어의 가장 뛰어난 특성은 {max_desc['name']} (수치: {max_stat_val})입니다. "
-                f"장면 묘사나 내러티브 전개 중에 종종 플레이어의 머릿속 혹은 내면에서 들려오는 독백(Inner Monologue)이나 내적 대화 형태로 "
-                f"다음 목소리를 자연스럽게 주입하십시오. 특히 이 목소리는 스탯 고유의 어조와 어투 규칙(예시의 스타일)을 철저히 따라야 하며, 다른 스탯과 어투가 뚜렷이 구별되어야 합니다: \n"
-                f" - {max_desc['name']}: {max_desc['voice']}\n"
-                f"이 목소리는 괄호 표기법을 사용하여 표현해야 합니다. 예: (근력: ...) 또는 (지능: ...)"
+                fill_placeholders(
+                    stat_voices.max_template,
+                    {"name": max_desc.name, "value": max_stat_val, "voice": max_desc.voice},
+                )
             )
 
             if min_stat_name != max_stat_name:
-                min_desc = stat_descriptions[min_stat_name]
+                min_desc = descriptions[min_stat_name]
                 notes.append(
-                    f"플레이어의 가장 취약한 특성은 {min_desc['name']} (수치: {min_stat_val})입니다. "
-                    f"이 특성에 대응하는 내면의 목소리는 미숙함, 억지, 잘못된 오판을 하거나 소심함, 혹은 결핍으로 인해 무기력한 충고를 던지는 형태로 괄호 표기법을 통해 아주 가끔 등장시켜 주십시오. "
-                    f"예: ({min_desc['name'].split()[0]}: ...)"
+                    fill_placeholders(
+                        stat_voices.min_template,
+                        {
+                            "name": min_desc.name,
+                            "value": min_stat_val,
+                            "name_first": min_desc.name.split()[0],
+                        },
+                    )
                 )
 
     opening_directives: list[str] = []

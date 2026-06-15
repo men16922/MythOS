@@ -214,6 +214,30 @@ class OpeningBeat:
 
 
 @dataclass(frozen=True)
+class StatVoiceProfile:
+    """One stat's Disco-Elysium-style inner-voice description (``name`` + ``voice`` prose)."""
+
+    name: str
+    voice: str
+
+
+@dataclass(frozen=True)
+class StatVoices:
+    """Stat-based inner-monologue directive prose (directives/stat_voices.md).
+
+    ``header`` is the section banner; ``max_template`` / ``min_template`` are
+    ``fill_placeholders`` templates (``{name}``/``{value}``/``{voice}``/``{name_first}``);
+    ``descriptions`` maps each stat id to its voice profile. The min/max *selection*
+    logic stays in ``scenario_context`` — this object carries only the prose.
+    """
+
+    header: str
+    max_template: str
+    min_template: str
+    descriptions: dict[str, StatVoiceProfile]
+
+
+@dataclass(frozen=True)
 class ScenarioDirectives:
     scenario_id: str
     opening_header: str = ""
@@ -227,6 +251,10 @@ class ScenarioDirectives:
     # verbatim into the GM notes. Empty when the scenario ships no naming.md → no rule
     # (preserves prior behavior, where only neo-seoul received NEO_SEOUL_NAMING_RULE).
     naming_rule: str = ""
+    # Scenario-authored stat-voice prose (directives/stat_voices.md). None when the
+    # scenario ships no stat_voices.md → callers fall back to the generic code default
+    # (DEFAULT_STAT_VOICES), so a scenario without one keeps the prior shared behavior.
+    stat_voices: StatVoices | None = None
 
     @property
     def empty(self) -> bool:
@@ -334,6 +362,41 @@ def _fallback_from_parsed(parsed: ParsedDirectives) -> dict[str, Any] | None:
     return fb
 
 
+def _stat_voices_from_parsed(parsed: ParsedDirectives) -> StatVoices | None:
+    """Map a parsed ``stat_voices.md`` into a ``StatVoices`` (``None`` if empty).
+
+    ``header`` is a file-level meta scalar; each ``## stat (id=...)`` block carries a
+    ``name`` meta line and the voice prose as its body; ``## max_template`` /
+    ``## min_template`` blocks carry the placeholder templates as their bodies.
+    """
+    if not parsed.file_meta and not parsed.blocks:
+        return None
+    header = parsed.file_meta.get("header", "")
+    descriptions: dict[str, StatVoiceProfile] = {}
+    max_template = ""
+    min_template = ""
+    for block in parsed.blocks:
+        if block.block_id == "stat":
+            stat_id = block.params.get("id", "")
+            if stat_id:
+                descriptions[stat_id] = StatVoiceProfile(
+                    name=block.meta.get("name", ""),
+                    voice=block.body,
+                )
+        elif block.block_id == "max_template":
+            max_template = block.body
+        elif block.block_id == "min_template":
+            min_template = block.body
+    if not descriptions and not max_template and not min_template:
+        return None
+    return StatVoices(
+        header=header,
+        max_template=max_template,
+        min_template=min_template,
+        descriptions=descriptions,
+    )
+
+
 def _naming_from_parsed(parsed: ParsedDirectives) -> str:
     """Return the naming/register rule prose (the ``## naming`` block body).
 
@@ -357,6 +420,7 @@ def load_scenario_directives(scenario_id: str) -> ScenarioDirectives:
     opening_beats: list[OpeningBeat] = []
     fallback_scene: dict[str, Any] | None = None
     naming_rule: str = ""
+    stat_voices: StatVoices | None = None
 
     opening_path = base / "opening.md"
     if opening_path.exists():
@@ -374,6 +438,11 @@ def load_scenario_directives(scenario_id: str) -> ScenarioDirectives:
         with open(naming_path, encoding="utf-8") as f:
             naming_rule = _naming_from_parsed(parse_directives_markdown(f.read()))
 
+    stat_voices_path = base / "stat_voices.md"
+    if stat_voices_path.exists():
+        with open(stat_voices_path, encoding="utf-8") as f:
+            stat_voices = _stat_voices_from_parsed(parse_directives_markdown(f.read()))
+
     return ScenarioDirectives(
         scenario_id=scenario_id,
         opening_header=opening_header,
@@ -381,6 +450,7 @@ def load_scenario_directives(scenario_id: str) -> ScenarioDirectives:
         opening_beats=opening_beats,
         fallback_scene=fallback_scene,
         naming_rule=naming_rule,
+        stat_voices=stat_voices,
     )
 
 
@@ -389,6 +459,8 @@ __all__ = [
     "OpeningBeat",
     "ParsedDirectives",
     "ScenarioDirectives",
+    "StatVoiceProfile",
+    "StatVoices",
     "fill_placeholders",
     "load_scenario_directives",
     "parse_directives_markdown",

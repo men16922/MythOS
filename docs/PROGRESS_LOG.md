@@ -5,6 +5,14 @@
 이 파일은 **최신 증분 요약만** 유지한다(최신 5항목). 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-16 — prompt-layer Phase 4b: stat-voice→directives/stat_voices.md (시드 J, `[auto:claude]`)
+- Status: overnight `[auto:claude]` 시드 J — 스탯 기반 내면 독백(Disco Elysium 풍) prose를 코드(`scenario_context`의 inline `stat_descriptions` dict + 두 f-string note 템플릿)에서 프롬프트 레이어(`resources/neo-seoul/directives/stat_voices.md`)로 추출. min/max 선택 로직만 코드 STAY. byte-parity green.
+- 측정: naming(시드 I)과 달리 stat-voice 블록은 **scenario_id 무게이팅** — 플레이어 traits.stats 키만 맞으면 전 시나리오가 받았다(glass-library 3 archetype 모두 strength/intelligence/charisma/agility/perception 보유 → 실제로 수신 중). 따라서 naming의 "코드 default=none" 패턴을 그대로 쓰면 glass-library가 블록을 잃어 회귀. → fallback.md 패턴(`context.fallback_scene or DEFAULT_FALLBACK`)을 채택: prose를 md로 옮기되 **generic 코드 기본값 `DEFAULT_STAT_VOICES`를 유지**, neo-seoul만 byte-identical override를 ship. md 미보유 시나리오(glass-library)는 기본값으로 폴백 → 회귀0. max_template body의 trailing-space-before-newline(`합니다: \n`)이 유일한 비자명 지점 — 파서가 내부 공백만 보존(outer만 strip)하므로 round-trip 무손실 확인.
+- Changed: ① NEW `resources/neo-seoul/directives/stat_voices.md`(`header:` file-meta + `## stat (id=...)` 5블록 name 메타+voice body + `## max_template`/`## min_template` 템플릿). ② `scenario_directives.py`: `StatVoiceProfile`/`StatVoices` 데이터클래스 + `ScenarioDirectives.stat_voices: StatVoices|None` + `_stat_voices_from_parsed`(빈 문서→None) + `load_scenario_directives`가 `stat_voices.md` 로드 + `__all__` export. ③ `scenario_context.py`: `DEFAULT_STAT_VOICES` 앵커 상수 + 블록을 `directives.stat_voices or DEFAULT_STAT_VOICES` → `fill_placeholders` generic 주입으로 재작성(inline dict/f-string 제거, 선택 로직 동일).
+- Verified: `make check` EXIT=0 — ruff/eslint/mypy(116 files)/frontend build + **390 tests OK**(skipped 2, +4). `StatVoiceDirectiveParityTest` 4건: byte-parity(loaded==`DEFAULT_STAT_VOICES`)·런타임 context 주입(neo-seoul max=민첩/min=매력 note)·glass-library None+기본값 폴백으로 banner 잔존(회귀0)·빈 문서→None.
+- Blockers: 없음.
+- Next: 시드 K(encounter→`directives/encounters.md`) Phase 4c prose 추출, L/M/N(호감도 런타임) 등 잔여 `[auto:claude]`. 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-16 — prompt-layer Phase 4a: naming→directives/naming.md (시드 I, `[auto:claude]`)
 - Status: overnight `[auto:claude]` 시드 I — neo-seoul 고유명사/화법(register) 규칙 prose를 코드(`scenario_context.NEO_SEOUL_NAMING_RULE`)에서 프롬프트 레이어(`resources/neo-seoul/directives/naming.md`)로 추출 + `scenario_context`를 generic 루프로 전환(`if scenario_id=="neo-seoul"` 분기 제거). byte-parity green.
 - 측정: 규칙은 단일 멀티라인 note로 `notes`에 append되며, 과거엔 `scenario_id=="neo-seoul"` 하드코딩 분기로만 주입됐다(다른 시나리오는 미수신). 추출 후엔 `directives.naming_rule`(naming.md의 `## naming` 블록 body)를 `if directives.naming_rule:`로 주입 → naming.md를 두는 시나리오만 받음(neo-seoul만 보유 → 동작 보존, glass-library 회귀0). `_HEADER_RE`/body 파서 round-trip이 5라인 한국어 prose를 byte-그대로 복원(4번째 라인은 원본의 2개 implicit-concat 조각이 한 줄로 결합).

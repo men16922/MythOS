@@ -16,6 +16,7 @@ from mythos_runtime.scenario_directives import (
     _fallback_from_parsed,
     _naming_from_parsed,
     _opening_from_parsed,
+    _stat_voices_from_parsed,
     fill_placeholders,
     load_scenario_directives,
     parse_directives_markdown,
@@ -375,6 +376,76 @@ class NamingDirectiveParityTest(unittest.TestCase):
 
     def test_empty_document_maps_to_empty(self) -> None:
         self.assertEqual(_naming_from_parsed(parse_directives_markdown("")), "")
+
+
+class StatVoiceDirectiveParityTest(unittest.TestCase):
+    """Phase 4b: the stat-voice (Disco-Elysium inner-monologue) prose extracted to
+    directives/stat_voices.md must reproduce the code-level DEFAULT_STAT_VOICES anchor
+    byte for byte (the min/max *selection* logic stays in scenario_context). A scenario
+    that ships no stat_voices.md falls back to the generic default, preserving the prior
+    behavior where this prose was shared by every scenario (glass-library included)."""
+
+    def test_neo_seoul_stat_voices_md_byte_parity_with_default(self) -> None:
+        from mythos_runtime.scenario_context import DEFAULT_STAT_VOICES
+
+        loaded = load_scenario_directives("neo-seoul").stat_voices
+        self.assertEqual(loaded, DEFAULT_STAT_VOICES)
+
+    def _context_for(self, scenario_id: str, location: str) -> list[str]:
+        from datetime import UTC, datetime
+
+        from mythos_core.models import LoopPhase, LoopState, PlayerProfile
+        from mythos_runtime.scenario import load_scenario
+        from mythos_runtime.scenario_context import build_runtime_narrative_context
+
+        now = datetime(2026, 6, 16, tzinfo=UTC)
+        # strength 3 / intelligence 6 / charisma 2 / agility 8 / perception 7
+        # → max = agility (8), min = charisma (2).
+        stats = {"strength": 3, "intelligence": 6, "charisma": 2, "agility": 8, "perception": 7}
+        player = PlayerProfile(
+            "p1", "T", now, now, {"archetype": "Unclassified", "stats": stats}
+        )
+        loop = LoopState(
+            "l", "p1", scenario_id, LoopPhase.CONNECT, location, 70, 30, now, None, {}, []
+        )
+        ctx = build_runtime_narrative_context(
+            player=player,
+            loop=loop,
+            scenario=load_scenario(scenario_id),
+            turn_index=5,
+            recent_events=[],
+            memories=[],
+            world_memories=[],
+            narrative_shards=[],
+            novelty_notes=[],
+            player_action=None,
+        )
+        return list(ctx.novelty_notes)
+
+    def test_runtime_context_injects_stat_voices(self) -> None:
+        notes = self._context_for("neo-seoul", "data-layer-01")
+        banner = "=== 스탯 기반 내면 독백 지침 (DISCO ELYSIUM STYLE INNER MONOLOGUE) ==="
+        self.assertIn(banner, notes)
+        # Max-stat note: agility (8), filled with its voice prose.
+        self.assertTrue(
+            any("플레이어의 가장 뛰어난 특성은 민첩 (Agility) (수치: 8)" in n for n in notes)
+        )
+        # Min-stat note: charisma (2), {name_first} → "매력".
+        self.assertTrue(
+            any("플레이어의 가장 취약한 특성은 매력 (Charisma) (수치: 2)" in n for n in notes)
+        )
+        self.assertTrue(any("예: (매력: ...)" in n for n in notes))
+
+    def test_scenario_without_stat_voices_md_falls_back_to_default(self) -> None:
+        # glass-library ships no directives/stat_voices.md → loader returns None …
+        self.assertIsNone(load_scenario_directives("glass-library").stat_voices)
+        # … but the generic code default still fires (prior shared behavior, 회귀0).
+        notes = self._context_for("glass-library", "atrium")
+        banner = "=== 스탯 기반 내면 독백 지침 (DISCO ELYSIUM STYLE INNER MONOLOGUE) ==="
+        self.assertIn(banner, notes)
+
+    def test_empty_document_returns_none(self) -> None:
+        self.assertIsNone(_stat_voices_from_parsed(parse_directives_markdown("")))
 
 
 if __name__ == "__main__":

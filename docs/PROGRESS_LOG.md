@@ -5,6 +5,14 @@
 이 파일은 **최신 증분 요약만** 유지한다(최신 5항목). 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-16 — P0 호감도 런타임: serializer 노출 계약 회귀 테스트 (시드 O, `[auto:claude]`)
+- Status: overnight `[auto:claude]` 시드 O — 시드 L/M/N(route+choice+progression relationship 누적)가 생성한 affection 데이터를 API serializer가 클라이언트로 surface하는지 박제. 측정 결과 **데이터 노출은 이미 완료**(snapshot `state` 전량 `to_json_dict`, memory overview `to_json_dict(overview)`)였으나 **그 계약을 잠그는 테스트가 없었음** — relationship dead-data(시드 L 동기)와 동일한 실패모드(state-field 필터가 조용히 affection을 드롭)에 대한 회귀 가드를 추가. green.
+- 측정: `snapshot_to_dict`는 `loop.state`를 통째로 `to_json_dict`로 내보내므로 라이브 `state["relationships"]`가 이미 payload `state.relationships`에 포함됨(`serializers.py:292`). `memory_overview_to_dict`는 `to_json_dict(overview)`라 `meta_progression["relationships"]`도 round-trip(`serializers.py:27`, 시드 N이 채운 필드). 따라서 백엔드 "표시" 계약은 **이미 충족** — 잔여는 프론트 게이지 UI(player-facing 시각 feel → 무인 검증 불가 `[manual]`). auto-슬라이스는 그 계약을 박제하는 회귀 테스트로 한정(scope 방어).
+- Changed: `tests/test_api.py`에 `ApiRelationshipSerializerTest` 3건 + import 보강(`snapshot_to_dict`/`memory_overview_to_dict`, `Choice`/`LoopPhase`/`LoopState`/`PlayerProfile`/`Scene`, `MemoryOverview`/`RuntimeSnapshot`). ① snapshot 라이브 노출(`{se_rin:3,kai:1}` → `payload["state"]["relationships"]`) ② affection 없는 루프는 키 미생성(게이지 빈 상태 렌더 가능, serializer가 필드 fabricate 안 함) ③ memory overview 크로스루프 노출(`meta_progression.relationships` round-trip). src 무변경(테스트 전용).
+- Verified: `make check` EXIT=0 — ruff/eslint/mypy(116 files)/frontend build + **417 tests OK**(skipped 2, +3).
+- Blockers: 없음.
+- Next: P0 호감도 런타임의 잔여는 프론트 호감도 게이지 UI(`[manual]` — 시각 QA 필요). 잔여 `[auto:claude]` 시드 고갈에 근접(QA seed A-O 완료, 71=agy 레인·72=blocked). 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-16 — P0 호감도 런타임: progression 크로스-루프 이월 (시드 N, `[auto:claude]`)
 - Status: overnight `[auto:claude]` 시드 N — 시드 L/M(루프 내 route+choice relationship 누적)에 이어, 매 루프의 최종 `loop.state["relationships"]`를 archive 시 meta progression에 합산·이월. insight 패턴(per-run tally를 previous 총합에 += → DB 영속 → start_loop서 로드 → `state["meta_progression"]`로 주입)을 per-companion으로 미러. P1 컷씬 언락 게이팅의 cross-loop 토대. green.
 - 측정: 비자명 지점은 **double-count 회피**. 루프 내 live `state["relationships"]`는 이미 그 루프의 route+choice 기여를 합산해 들고 있으므로, 이걸 그대로 run summary로 추출해 `evaluate_meta_progression`에서 previous에 1회만 더한다(insight가 RunSummary.clues/won에서 fresh 계산되는 것과 동형). live 필드를 다음 루프에 seed하지 않고(=insight도 live `state["insight"]`를 두지 않음) cumulative는 `meta_progression.relationships`에만 둠 → 새 루프 archive 시 base 재가산 없음. 0 잔액은 prune해 `route_runtime`의 fold/reconcile 표준형과 일치(음수 델타 net 0 → 동료 제거).

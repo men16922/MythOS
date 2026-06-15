@@ -21,9 +21,14 @@ from fastapi.testclient import TestClient
 from test_session_combat import _InMemoryStore, _seed_loop
 
 from mythos_api.app import _find_asset, _terminal_visual_frame, create_app
-from mythos_api.serializers import _resolve_inventory
+from mythos_api.serializers import (
+    _resolve_inventory,
+    memory_overview_to_dict,
+    snapshot_to_dict,
+)
 from mythos_api.service import get_service, get_storage_adapter
-from mythos_core import AssetRecord
+from mythos_core import AssetRecord, Choice, LoopPhase, LoopState, PlayerProfile, Scene
+from mythos_runtime.options import MemoryOverview, RuntimeSnapshot
 from mythos_runtime.session import RuntimeSessionService
 from mythos_runtime.visual_service import VisualGenerationResult
 
@@ -83,6 +88,76 @@ class ApiSerializerTest(unittest.TestCase):
         self.assertEqual(by_id["signal_blade"]["stats"], {"strength": 2})
         self.assertTrue(by_id["signal_blade"]["equipped"])
         self.assertEqual(by_id["nanopatch"]["count"], 2)
+
+
+class ApiRelationshipSerializerTest(unittest.TestCase):
+    """Lock the relationship-exposure contract produced by seeds L/M/N.
+
+    The runtime accumulates companion affection into live ``loop.state``
+    ("relationships") and carries it across loops via
+    ``meta_progression["relationships"]``. The serializers must surface both so
+    a frontend gauge has data to read; this guards against a future state-field
+    filter silently dropping the affection payload (the dead-data failure mode
+    that motivated seed L in the first place).
+    """
+
+    def _snapshot(self, state: dict[str, Any]) -> RuntimeSnapshot:
+        now = datetime(2026, 6, 16, tzinfo=UTC)
+        return RuntimeSnapshot(
+            player=PlayerProfile(
+                player_id="p1",
+                display_name="당신",
+                created_at=now,
+                updated_at=now,
+                traits={"archetype": "비접속자 (Ghost)"},
+            ),
+            loop=LoopState(
+                loop_id="loop_p1",
+                player_id="p1",
+                seed="seed_p1",
+                phase=LoopPhase.EXPLORE,
+                location_id="loc",
+                stability=70,
+                tension=20,
+                started_at=now,
+                state=state,
+            ),
+            scene=Scene(
+                scene_id="scene_1",
+                loop_id="loop_p1",
+                turn_index=3,
+                title="회랑",
+                location="loc",
+                narration="세린이 곁에 선다.",
+                choices=[Choice("c1", "함께 간다", "interact")],
+                visual_brief="",
+                created_at=now,
+            ),
+            assets=[],
+        )
+
+    def test_snapshot_surfaces_live_relationships(self) -> None:
+        snap = self._snapshot({"relationships": {"se_rin": 3, "kai": 1}})
+        payload = snapshot_to_dict(snap)
+        self.assertEqual(payload["state"]["relationships"], {"se_rin": 3, "kai": 1})
+
+    def test_snapshot_without_relationships_omits_key(self) -> None:
+        # An untouched loop has no affection yet; the serializer must not
+        # fabricate the field, so the gauge can render an empty state.
+        payload = snapshot_to_dict(self._snapshot({}))
+        self.assertNotIn("relationships", payload["state"])
+
+    def test_memory_overview_surfaces_cross_loop_relationships(self) -> None:
+        overview = MemoryOverview(
+            world_archives=[],
+            narrative_shards=[],
+            novelty_notes=[],
+            meta_progression={"insight": 7, "relationships": {"se_rin": 5}},
+        )
+        payload = memory_overview_to_dict(overview)
+        self.assertEqual(
+            payload["meta_progression"]["relationships"], {"se_rin": 5}
+        )
 
 
 class ApiStaticClientTest(unittest.TestCase):

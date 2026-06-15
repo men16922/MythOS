@@ -20,6 +20,7 @@ from mythos_runtime.route_runtime import (
 )
 from mythos_runtime.scenario import ScenarioConfig
 from mythos_runtime.scenario_directives import (
+    Encounters,
     StatVoiceProfile,
     StatVoices,
     fill_placeholders,
@@ -116,6 +117,34 @@ DEFAULT_STAT_VOICES = StatVoices(
             voice='예리하고 미세한 흔적과 보이지 않는 신호, 감춰진 디테일을 포착하는 감각의 목소리. 묘사적이고 세밀하며 객관적인 어조(~다, ~을 포착함)를 사용하며 주변의 숨겨진 디테일과 이질감을 짚어냅니다. 예시: "벽면 네온 간판의 미세한 스파크 소리가 규칙적이지 않다. 간판 뒤에 불법 도청 모듈이 숨겨져 있음을 시사한다."',
         ),
     },
+)
+
+# Generic code default for the travel/emergency encounter directives. The authored
+# canonical text now lives in resources/neo-seoul/directives/encounters.md and overrides
+# this when present; scenarios that ship no encounters.md fall back to this default,
+# preserving the prior behavior where this prose fired unconditionally for every
+# scenario. Doubles as the byte-parity anchor — the parity test asserts the loaded
+# directives reproduce it (EncounterDirectiveParityTest). The travel-keyword detection
+# and the stability/tension thresholds stay in build_runtime_narrative_context.
+DEFAULT_ENCOUNTERS = Encounters(
+    travel_header="=== TRAVEL ENCOUNTER (이동 중 조우 이벤트) ===",
+    travel_template=(
+        "지침: 플레이어가 구역을 이동하거나 여행(Travel)하는 액션('{player_action}')을 선언했습니다. "
+        "현재 시공간 붕괴도({decay_pct}%) 및 은신 안정도({stability}/100), 관리망 추적도({tension}/100)를 고려하여, "
+        "이동 도중에 돌발적으로 마주하는 글리치 이상 현상, 경비 순찰대 조우, 또는 주변 환경 붕괴 등의 중간 조우(Travel Interception) 이벤트를 묘사하고, "
+        "이를 돌파하거나 회피하기 위한 선택지(예: 연산 해킹으로 경보 우회, 은밀히 우회로 찾기 등)를 1개 이상 생성하십시오."
+    ),
+    emergency_header="=== EMERGENCY ENCOUNTERS (리소스 임계점 위기 상황) ===",
+    emergency_low_stability_template=(
+        "경고: 현재 [은신 안정도]가 매우 위험한 수준(현재: {stability}/100)입니다. "
+        "연결 붕괴 직전의 글리치 물리 현상, 시공간 왜곡, 또는 강제 접속 차단 전파가 엄습해 오는 위기 상황(Emergency)을 서사하고, "
+        "플레이어에게 안정성을 회복하기 위한 대가가 큰 응급 선택지를 강제하십시오."
+    ),
+    emergency_high_tension_template=(
+        "경고: 현재 [관리망 추적도]가 극히 높은 수준(현재: {tension}/100)입니다. "
+        "관리망 집행부대(Enforcers)의 직접적인 추적선 포위, 드론 추격, 혹은 Administrator IX의 직접 정정 통고 등 포위망이 좁혀오는 상황을 서사하십시오. "
+        "다음에 오는 선택지는 회피하거나 돌파하기 위해 무거운 대가(stats 판정 또는 stability 소모)를 요구해야 합니다."
+    ),
 )
 
 
@@ -370,7 +399,11 @@ def build_runtime_narrative_context(
                     + ", ".join(f"{tone}:{count}" for tone, count in dominant_tones)
                 )
 
-    # Phase 3 — 세계관 탐험 및 시간 축 (Roadwarden & 80 Days) 규칙 주입
+    # Phase 3 — 세계관 탐험 및 시간 축 (Roadwarden & 80 Days) 규칙 주입.
+    # 키워드 감지/임계 판정(게이팅)은 코드에 STAY; prose는 이제 프롬프트 레이어
+    # (directives/encounters.md)다. 시나리오가 encounters.md를 두지 않으면 generic
+    # 기본값(DEFAULT_ENCOUNTERS)을 받는다(이전 공유 동작 보존).
+    encounters = directives.encounters or DEFAULT_ENCOUNTERS
     decay_pct = min(100, int((turn_index / 60.0) * 100))
 
     # 1. 이동 중 조우 (Travel Encounters)
@@ -389,28 +422,35 @@ def build_runtime_narrative_context(
         ]
         action_lower = player_action.lower()
         if any(kw in action_lower for kw in travel_keywords):
-            notes.append("=== TRAVEL ENCOUNTER (이동 중 조우 이벤트) ===")
+            notes.append(encounters.travel_header)
             notes.append(
-                f"지침: 플레이어가 구역을 이동하거나 여행(Travel)하는 액션('{player_action}')을 선언했습니다. "
-                f"현재 시공간 붕괴도({decay_pct}%) 및 은신 안정도({loop.stability}/100), 관리망 추적도({loop.tension}/100)를 고려하여, "
-                "이동 도중에 돌발적으로 마주하는 글리치 이상 현상, 경비 순찰대 조우, 또는 주변 환경 붕괴 등의 중간 조우(Travel Interception) 이벤트를 묘사하고, "
-                "이를 돌파하거나 회피하기 위한 선택지(예: 연산 해킹으로 경보 우회, 은밀히 우회로 찾기 등)를 1개 이상 생성하십시오."
+                fill_placeholders(
+                    encounters.travel_template,
+                    {
+                        "player_action": player_action,
+                        "decay_pct": decay_pct,
+                        "stability": loop.stability,
+                        "tension": loop.tension,
+                    },
+                )
             )
 
     # 2. 리소스 임계점 도달 시의 위기 인카운터 (Emergency Encounters)
     if loop.stability < 30 or loop.tension > 70:
-        notes.append("=== EMERGENCY ENCOUNTERS (리소스 임계점 위기 상황) ===")
+        notes.append(encounters.emergency_header)
         if loop.stability < 30:
             notes.append(
-                f"경고: 현재 [은신 안정도]가 매우 위험한 수준(현재: {loop.stability}/100)입니다. "
-                "연결 붕괴 직전의 글리치 물리 현상, 시공간 왜곡, 또는 강제 접속 차단 전파가 엄습해 오는 위기 상황(Emergency)을 서사하고, "
-                "플레이어에게 안정성을 회복하기 위한 대가가 큰 응급 선택지를 강제하십시오."
+                fill_placeholders(
+                    encounters.emergency_low_stability_template,
+                    {"stability": loop.stability},
+                )
             )
         if loop.tension > 70:
             notes.append(
-                f"경고: 현재 [관리망 추적도]가 극히 높은 수준(현재: {loop.tension}/100)입니다. "
-                "관리망 집행부대(Enforcers)의 직접적인 추적선 포위, 드론 추격, 혹은 Administrator IX의 직접 정정 통고 등 포위망이 좁혀오는 상황을 서사하십시오. "
-                "다음에 오는 선택지는 회피하거나 돌파하기 위해 무거운 대가(stats 판정 또는 stability 소모)를 요구해야 합니다."
+                fill_placeholders(
+                    encounters.emergency_high_tension_template,
+                    {"tension": loop.tension},
+                )
             )
 
     return NarrativeContext(

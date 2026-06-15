@@ -238,6 +238,28 @@ class StatVoices:
 
 
 @dataclass(frozen=True)
+class Encounters:
+    """Travel / emergency encounter directive prose (directives/encounters.md).
+
+    ``*_template`` are ``fill_placeholders`` templates; the *gating* logic — which
+    action keywords count as travel, and the stability/tension thresholds that fire an
+    emergency — STAYS in ``scenario_context``. This object carries only the prose.
+
+    - ``travel_header`` / ``travel_template`` — fired when the player declares a travel
+      action. Template tokens: ``{player_action}``/``{decay_pct}``/``{stability}``/``{tension}``.
+    - ``emergency_header`` — banner emitted once when any resource crosses its threshold.
+    - ``emergency_low_stability_template`` (token ``{stability}``) — low-stability crisis.
+    - ``emergency_high_tension_template`` (token ``{tension}``) — high-tension pursuit.
+    """
+
+    travel_header: str
+    travel_template: str
+    emergency_header: str
+    emergency_low_stability_template: str
+    emergency_high_tension_template: str
+
+
+@dataclass(frozen=True)
 class ScenarioDirectives:
     scenario_id: str
     opening_header: str = ""
@@ -255,6 +277,11 @@ class ScenarioDirectives:
     # scenario ships no stat_voices.md → callers fall back to the generic code default
     # (DEFAULT_STAT_VOICES), so a scenario without one keeps the prior shared behavior.
     stat_voices: StatVoices | None = None
+    # Scenario-authored travel/emergency encounter prose (directives/encounters.md).
+    # None when the scenario ships no encounters.md → callers fall back to the generic
+    # code default (DEFAULT_ENCOUNTERS); this prose was previously shared by every
+    # scenario, so a scenario without one keeps the prior behavior.
+    encounters: Encounters | None = None
 
     @property
     def empty(self) -> bool:
@@ -397,6 +424,36 @@ def _stat_voices_from_parsed(parsed: ParsedDirectives) -> StatVoices | None:
     )
 
 
+def _encounters_from_parsed(parsed: ParsedDirectives) -> Encounters | None:
+    """Map a parsed ``encounters.md`` into an ``Encounters`` (``None`` if empty).
+
+    ``travel_header`` / ``emergency_header`` are file-level meta scalars; the three
+    prose templates are ``## travel_template`` / ``## emergency_low_stability`` /
+    ``## emergency_high_tension`` block bodies.
+    """
+    if not parsed.file_meta and not parsed.blocks:
+        return None
+    travel_template = ""
+    emergency_low = ""
+    emergency_high = ""
+    for block in parsed.blocks:
+        if block.block_id == "travel_template":
+            travel_template = block.body
+        elif block.block_id == "emergency_low_stability":
+            emergency_low = block.body
+        elif block.block_id == "emergency_high_tension":
+            emergency_high = block.body
+    if not (travel_template or emergency_low or emergency_high):
+        return None
+    return Encounters(
+        travel_header=parsed.file_meta.get("travel_header", ""),
+        travel_template=travel_template,
+        emergency_header=parsed.file_meta.get("emergency_header", ""),
+        emergency_low_stability_template=emergency_low,
+        emergency_high_tension_template=emergency_high,
+    )
+
+
 def _naming_from_parsed(parsed: ParsedDirectives) -> str:
     """Return the naming/register rule prose (the ``## naming`` block body).
 
@@ -421,6 +478,7 @@ def load_scenario_directives(scenario_id: str) -> ScenarioDirectives:
     fallback_scene: dict[str, Any] | None = None
     naming_rule: str = ""
     stat_voices: StatVoices | None = None
+    encounters: Encounters | None = None
 
     opening_path = base / "opening.md"
     if opening_path.exists():
@@ -443,6 +501,11 @@ def load_scenario_directives(scenario_id: str) -> ScenarioDirectives:
         with open(stat_voices_path, encoding="utf-8") as f:
             stat_voices = _stat_voices_from_parsed(parse_directives_markdown(f.read()))
 
+    encounters_path = base / "encounters.md"
+    if encounters_path.exists():
+        with open(encounters_path, encoding="utf-8") as f:
+            encounters = _encounters_from_parsed(parse_directives_markdown(f.read()))
+
     return ScenarioDirectives(
         scenario_id=scenario_id,
         opening_header=opening_header,
@@ -451,11 +514,13 @@ def load_scenario_directives(scenario_id: str) -> ScenarioDirectives:
         fallback_scene=fallback_scene,
         naming_rule=naming_rule,
         stat_voices=stat_voices,
+        encounters=encounters,
     )
 
 
 __all__ = [
     "DirectiveBlock",
+    "Encounters",
     "OpeningBeat",
     "ParsedDirectives",
     "ScenarioDirectives",

@@ -13,6 +13,7 @@ import unittest
 from mythos_narrative.fallbacks import DEFAULT_FALLBACK
 from mythos_runtime.scenario_directives import (
     ScenarioDirectives,
+    _encounters_from_parsed,
     _fallback_from_parsed,
     _naming_from_parsed,
     _opening_from_parsed,
@@ -446,6 +447,71 @@ class StatVoiceDirectiveParityTest(unittest.TestCase):
 
     def test_empty_document_returns_none(self) -> None:
         self.assertIsNone(_stat_voices_from_parsed(parse_directives_markdown("")))
+
+
+class EncounterDirectiveParityTest(unittest.TestCase):
+    """Phase 4c: the travel/emergency encounter prose extracted to
+    directives/encounters.md must reproduce the code-level DEFAULT_ENCOUNTERS anchor byte
+    for byte (the travel-keyword detection and stability/tension thresholds stay in
+    scenario_context). A scenario that ships no encounters.md falls back to the generic
+    default, preserving the prior behavior where this prose fired for every scenario."""
+
+    def test_neo_seoul_encounters_md_byte_parity_with_default(self) -> None:
+        from mythos_runtime.scenario_context import DEFAULT_ENCOUNTERS
+
+        loaded = load_scenario_directives("neo-seoul").encounters
+        self.assertEqual(loaded, DEFAULT_ENCOUNTERS)
+
+    def _context_for(
+        self, scenario_id: str, *, stability: int, tension: int, action: str | None
+    ) -> list[str]:
+        from datetime import UTC, datetime
+
+        from mythos_core.models import LoopPhase, LoopState, PlayerProfile
+        from mythos_runtime.scenario import load_scenario
+        from mythos_runtime.scenario_context import build_runtime_narrative_context
+
+        now = datetime(2026, 6, 16, tzinfo=UTC)
+        player = PlayerProfile("p1", "T", now, now, {"archetype": "Unclassified"})
+        loop = LoopState(
+            "l", "p1", scenario_id, LoopPhase.EXPLORE, "loc", stability, tension, now, None, {}, []
+        )
+        ctx = build_runtime_narrative_context(
+            player=player,
+            loop=loop,
+            scenario=load_scenario(scenario_id),
+            turn_index=12,
+            recent_events=[],
+            memories=[],
+            world_memories=[],
+            narrative_shards=[],
+            novelty_notes=[],
+            player_action=action,
+        )
+        return list(ctx.novelty_notes)
+
+    def test_runtime_context_injects_travel_directive(self) -> None:
+        notes = self._context_for("neo-seoul", stability=70, tension=30, action="지하로 이동한다")
+        self.assertIn("=== TRAVEL ENCOUNTER (이동 중 조우 이벤트) ===", notes)
+        self.assertTrue(
+            any("플레이어가 구역을 이동하거나 여행(Travel)하는 액션('지하로 이동한다')" in n for n in notes)
+        )
+
+    def test_runtime_context_injects_emergency_directives(self) -> None:
+        notes = self._context_for("neo-seoul", stability=20, tension=80, action=None)
+        self.assertIn("=== EMERGENCY ENCOUNTERS (리소스 임계점 위기 상황) ===", notes)
+        self.assertTrue(any("[은신 안정도]가 매우 위험한 수준(현재: 20/100)" in n for n in notes))
+        self.assertTrue(any("[관리망 추적도]가 극히 높은 수준(현재: 80/100)" in n for n in notes))
+
+    def test_scenario_without_encounters_md_falls_back_to_default(self) -> None:
+        # glass-library ships no directives/encounters.md → loader returns None …
+        self.assertIsNone(load_scenario_directives("glass-library").encounters)
+        # … but the generic code default still fires (prior shared behavior, 회귀0).
+        notes = self._context_for("glass-library", stability=20, tension=30, action=None)
+        self.assertIn("=== EMERGENCY ENCOUNTERS (리소스 임계점 위기 상황) ===", notes)
+
+    def test_empty_document_returns_none(self) -> None:
+        self.assertIsNone(_encounters_from_parsed(parse_directives_markdown("")))
 
 
 if __name__ == "__main__":

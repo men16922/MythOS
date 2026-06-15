@@ -223,6 +223,10 @@ class ScenarioDirectives:
     # mapped to the DEFAULT_FALLBACK dict shape (minus the parser "repair" sub-dict).
     # None when the scenario ships no fallback.md → callers use the code default.
     fallback_scene: dict[str, Any] | None = None
+    # Scenario-authored proper-noun / register rule (directives/naming.md), injected
+    # verbatim into the GM notes. Empty when the scenario ships no naming.md → no rule
+    # (preserves prior behavior, where only neo-seoul received NEO_SEOUL_NAMING_RULE).
+    naming_rule: str = ""
 
     @property
     def empty(self) -> bool:
@@ -330,6 +334,16 @@ def _fallback_from_parsed(parsed: ParsedDirectives) -> dict[str, Any] | None:
     return fb
 
 
+def _naming_from_parsed(parsed: ParsedDirectives) -> str:
+    """Return the naming/register rule prose (the ``## naming`` block body).
+
+    Empty string when the document is absent or has no ``naming`` block, so a
+    scenario without authored naming prose receives no rule.
+    """
+    block = next((b for b in parsed.blocks if b.block_id == "naming"), None)
+    return block.body if block is not None else ""
+
+
 @lru_cache(maxsize=16)
 def load_scenario_directives(scenario_id: str) -> ScenarioDirectives:
     """Load ``resources/<scenario>/directives/*.md`` into a ``ScenarioDirectives``.
@@ -342,6 +356,7 @@ def load_scenario_directives(scenario_id: str) -> ScenarioDirectives:
     opening_max_turn: int = 4
     opening_beats: list[OpeningBeat] = []
     fallback_scene: dict[str, Any] | None = None
+    naming_rule: str = ""
 
     opening_path = base / "opening.md"
     if opening_path.exists():
@@ -354,12 +369,18 @@ def load_scenario_directives(scenario_id: str) -> ScenarioDirectives:
         with open(fallback_path, encoding="utf-8") as f:
             fallback_scene = _fallback_from_parsed(parse_directives_markdown(f.read()))
 
+    naming_path = base / "naming.md"
+    if naming_path.exists():
+        with open(naming_path, encoding="utf-8") as f:
+            naming_rule = _naming_from_parsed(parse_directives_markdown(f.read()))
+
     return ScenarioDirectives(
         scenario_id=scenario_id,
         opening_header=opening_header,
         opening_max_turn=opening_max_turn,
         opening_beats=opening_beats,
         fallback_scene=fallback_scene,
+        naming_rule=naming_rule,
     )
 
 

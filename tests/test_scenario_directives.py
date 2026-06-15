@@ -14,6 +14,7 @@ from mythos_narrative.fallbacks import DEFAULT_FALLBACK
 from mythos_runtime.scenario_directives import (
     ScenarioDirectives,
     _fallback_from_parsed,
+    _naming_from_parsed,
     _opening_from_parsed,
     fill_placeholders,
     load_scenario_directives,
@@ -303,6 +304,77 @@ class FallbackDirectiveParityTest(unittest.TestCase):
 
     def test_empty_document_maps_to_none(self) -> None:
         self.assertIsNone(_fallback_from_parsed(parse_directives_markdown("")))
+
+
+class NamingDirectiveParityTest(unittest.TestCase):
+    """Phase 4a: the neo-seoul proper-noun / register rule extracted to
+    directives/naming.md must reproduce the code-level NEO_SEOUL_NAMING_RULE byte for
+    byte, so the GM receives the identical rule whether it is read from the prompt layer
+    (now) or the old hardcoded constant (parity anchor)."""
+
+    def test_neo_seoul_naming_md_byte_parity_with_constant(self) -> None:
+        from mythos_runtime.scenario_context import NEO_SEOUL_NAMING_RULE
+
+        loaded = load_scenario_directives("neo-seoul").naming_rule
+        self.assertEqual(loaded, NEO_SEOUL_NAMING_RULE)
+
+    def test_runtime_context_injects_naming_rule(self) -> None:
+        from datetime import UTC, datetime
+
+        from mythos_core.models import LoopPhase, LoopState, PlayerProfile
+        from mythos_runtime.scenario import load_scenario
+        from mythos_runtime.scenario_context import (
+            NEO_SEOUL_NAMING_RULE,
+            build_runtime_narrative_context,
+        )
+
+        now = datetime(2026, 6, 16, tzinfo=UTC)
+        player = PlayerProfile("p1", "T", now, now, {"archetype": "Unclassified"})
+        loop = LoopState("l", "p1", "s", LoopPhase.CONNECT, "data-layer-01", 70, 30, now, None, {}, [])
+        ctx = build_runtime_narrative_context(
+            player=player,
+            loop=loop,
+            scenario=load_scenario("neo-seoul"),
+            turn_index=5,
+            recent_events=[],
+            memories=[],
+            world_memories=[],
+            narrative_shards=[],
+            novelty_notes=[],
+            player_action=None,
+        )
+        self.assertIn(NEO_SEOUL_NAMING_RULE, ctx.novelty_notes)
+
+    def test_scenario_without_naming_md_is_empty(self) -> None:
+        # glass-library ships no directives/naming.md → empty rule (no injection).
+        self.assertEqual(load_scenario_directives("glass-library").naming_rule, "")
+
+    def test_scenario_without_naming_md_omits_rule_from_context(self) -> None:
+        from datetime import UTC, datetime
+
+        from mythos_core.models import LoopPhase, LoopState, PlayerProfile
+        from mythos_runtime.scenario import load_scenario
+        from mythos_runtime.scenario_context import build_runtime_narrative_context
+
+        now = datetime(2026, 6, 16, tzinfo=UTC)
+        player = PlayerProfile("p1", "T", now, now, {"archetype": "Unclassified"})
+        loop = LoopState("l", "p1", "gl", LoopPhase.CONNECT, "atrium", 70, 30, now, None, {}, [])
+        ctx = build_runtime_narrative_context(
+            player=player,
+            loop=loop,
+            scenario=load_scenario("glass-library"),
+            turn_index=5,
+            recent_events=[],
+            memories=[],
+            world_memories=[],
+            narrative_shards=[],
+            novelty_notes=[],
+            player_action=None,
+        )
+        self.assertTrue(all("NAMING RULE" not in note for note in ctx.novelty_notes))
+
+    def test_empty_document_maps_to_empty(self) -> None:
+        self.assertEqual(_naming_from_parsed(parse_directives_markdown("")), "")
 
 
 if __name__ == "__main__":

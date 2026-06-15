@@ -5,6 +5,14 @@
 이 파일은 **최신 증분 요약만** 유지한다(최신 5항목). 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-16 — prompt-layer Phase 4a: naming→directives/naming.md (시드 I, `[auto:claude]`)
+- Status: overnight `[auto:claude]` 시드 I — neo-seoul 고유명사/화법(register) 규칙 prose를 코드(`scenario_context.NEO_SEOUL_NAMING_RULE`)에서 프롬프트 레이어(`resources/neo-seoul/directives/naming.md`)로 추출 + `scenario_context`를 generic 루프로 전환(`if scenario_id=="neo-seoul"` 분기 제거). byte-parity green.
+- 측정: 규칙은 단일 멀티라인 note로 `notes`에 append되며, 과거엔 `scenario_id=="neo-seoul"` 하드코딩 분기로만 주입됐다(다른 시나리오는 미수신). 추출 후엔 `directives.naming_rule`(naming.md의 `## naming` 블록 body)를 `if directives.naming_rule:`로 주입 → naming.md를 두는 시나리오만 받음(neo-seoul만 보유 → 동작 보존, glass-library 회귀0). `_HEADER_RE`/body 파서 round-trip이 5라인 한국어 prose를 byte-그대로 복원(4번째 라인은 원본의 2개 implicit-concat 조각이 한 줄로 결합).
+- Changed: ① NEW `resources/neo-seoul/directives/naming.md`(파일 헤더 주석 + `## naming` 블록). ② `scenario_directives.py`: `ScenarioDirectives.naming_rule: str=""` 필드 + `_naming_from_parsed`(`## naming` body, 없으면 "") + `load_scenario_directives`가 `naming.md` 로드. ③ `scenario_context.py`: `directives`를 함수 상단서 1회 로드(후반 중복 로드 제거)·neo-seoul 분기→`if directives.naming_rule: notes.append(...)` generic 주입. `NEO_SEOUL_NAMING_RULE` 상수는 byte-parity 앵커로 잔류(주석 명시, 프로덕션 미참조).
+- Verified: `make check` EXIT=0 — ruff/eslint/mypy(116 files)/frontend build + **386 tests OK**(skipped 2, +5). `NamingDirectiveParityTest` 5건: byte-parity(loaded==상수)·런타임 context 주입(turn5 novelty_notes 포함)·glass-library naming_rule "" + context 미주입·빈 문서→"". `FallbackDirectiveParityTest` 패턴 미러.
+- Blockers: 없음.
+- Next: 시드 J(stat-voice→`directives/stat_voices.md`)/K(encounter→`directives/encounters.md`) Phase 4 prose 추출, L/M/N(호감도 런타임) 등 잔여 `[auto:claude]`. 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-16 — perspective `when` 플래그 생성가능성 invariant (시드 H, `[auto:claude]`, QA seed)
 - Status: overnight `[auto:claude]` 시드 H — 모든 route perspective `when` 플래그가 인식된 producer(authored `effect.flags`/엔진 온보딩/등록 Director world_delta)서 생성 가능한지 박제(dead 분기 가드). green.
 - 측정: `route_runtime.select_perspective`/`_choose_next`는 perspective `when`을 누적 flag_set과의 **순수 교집합 카운트**로만 스코어링(`route_runtime.py:184/213`, 부정·표현식 문법 없음). 생산자 없는 `when` 플래그는 영원히 0점 기여 → 그 perspective는 scoreless `default_perspective` 폴백으로만 도달 = dead 분기(relationship dead-data와 동일 실패모드). 실데이터: neo-seoul perspective `when` 24종 전부 producible(effect.flags 22종 ∪ ENGINE 2 ∪ NARRATIVE_DRIVEN 12), dead 0. glass-library는 perspective `when` 0(정적). 기존 `ContentFlagIntegrityTest`가 neo-seoul `when`을 gate/trigger/flags_any와 **묶어** 검사하지만 neo-seoul 고정 — 이건 `when` 분리 + glob 일반화.

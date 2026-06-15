@@ -56,6 +56,10 @@ CAUSALITY_ENGINE_RULE = (
     "Humanity/Dominance/Resilience/Insight."
 )
 
+# Byte-parity anchor for the prompt-layer extraction: the authored canonical text now
+# lives in resources/neo-seoul/directives/naming.md and is injected generically via
+# directives.naming_rule (no scenario_id branch). Retained so the extraction stays
+# provably lossless — tested in FallbackDirectiveParityTest's naming sibling.
 NEO_SEOUL_NAMING_RULE = (
     "NEO-SEOUL NAMING RULE (고유명사 표기 고정):\n"
     "- 정식 표기는 반드시 '정세린' 또는 축약 '세린'만 사용하십시오.\n"
@@ -101,14 +105,18 @@ def build_runtime_narrative_context(
     player_action: str | None = None,
     fast_mode: bool = False,
 ) -> NarrativeContext:
+    directives = load_scenario_directives(scenario.scenario_id)
     notes = [
         f"SCENARIO_BRIEF: {scenario.brief}",
         *novelty_notes,
         LANGUAGE_RULE,
         CINEMATIC_CLARITY_RULE,
     ]
-    if scenario.scenario_id == "neo-seoul":
-        notes.append(NEO_SEOUL_NAMING_RULE)
+    # Proper-noun / register rule is now prompt-layer (directives/naming.md), injected
+    # generically — any scenario that authors one gets it; the rest get none, exactly as
+    # before (only neo-seoul shipped a naming rule).
+    if directives.naming_rule:
+        notes.append(directives.naming_rule)
     notes.extend(_scenario_structure_notes(scenario))
     notes.append(CAUSALITY_ENGINE_RULE)
 
@@ -176,7 +184,6 @@ def build_runtime_narrative_context(
     # and let the GM revert to the data-layer starting location. For a scenario that
     # authors an opening, run it for turns 0..max regardless of phase; the existing
     # CONNECT/EXPLORE clauses keep prior behavior for scenarios without one.
-    directives = load_scenario_directives(scenario.scenario_id)
     _has_authored_opening = bool(directives.opening_beats)
     _max_turn = directives.opening_max_turn
     if (

@@ -56,7 +56,7 @@
 
 - `[x]` `[auto:claude]` **(A) relationship 타깃 무결성 invariant**: 모든 perspective/choice `effect.relationship` 키가 동료 집합(combat allies id 또는 `relationship_subjects` 선언)에 실재. `RelationshipSubjectIntegrityTest` 2건 + 비전투 동료 `lin_yue`를 `relationship_subjects` 선언(npc_agenda allowlist 패턴). dangling 0 green, 고장주입 3/3 RED 확인.
 - `[x]` `[auto:claude]` **(B) `effect` 키 closure invariant**: 모든 route perspective/choice `effect` 키 ∈ 인식 집합{`flags`,`stability`,`tension`,`insight`,`relationship`,`hp`,`grant_items`,…}(실제 소비 키 근거). 완료 기준: 미지 키 0 green 또는 Blocker(relationship처럼 조용히 드롭되는 오타 가드).
-- `[ ]` `[auto:claude]` **(C) prompt-layer Phase 3 — fallback→`directives/fallback.md`**: `fallbacks.py` DEFAULT_FALLBACK를 `resources/neo-seoul/directives/fallback.md`로 추출 + `scenario_context`가 `NarrativeContext.fallback_scene` populate. 완료 기준: byte-parity 테스트 + `make check` green.
+- `[x]` `[auto:claude]` **(C) prompt-layer Phase 3 — fallback→`directives/fallback.md`**: `fallbacks.py` DEFAULT_FALLBACK를 `resources/neo-seoul/directives/fallback.md`로 추출 + `scenario_context`가 `NarrativeContext.fallback_scene` populate. 완료 기준: byte-parity 테스트 + `make check` green. (2026-06-16 박제 — byte-parity green, 368 tests)
 - `[ ]` `[auto:claude]` **(D) directives 노드-주소 지정**: `scenario_directives.py` 로더가 `node=`/`beat=` 헤더 키 파싱(컷씬·앵커 잠금 prereq). 완료 기준: 파서 유닛테스트 green, 기존 동작 불변.
 - `[ ]` `[auto:claude]` **(E) ending condition flag 참조 무결성**: 모든 `endings[].condition`이 참조하는 플래그/메트릭이 생성 가능(authored effect 또는 인식 메트릭). 완료 기준: `test_content_integrity.py` 추가, dead 참조 0 green 또는 Blocker.
 - `[ ]` `[auto:claude]` **(F) route node-type closure**: 모든 layer `pool` 타입·anchor `type`가 `route_map.node_types`에 선언. 완료 기준: 미지 타입 0 green 또는 Blocker.

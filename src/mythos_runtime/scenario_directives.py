@@ -188,6 +188,10 @@ class ScenarioDirectives:
     opening_header: str = ""
     opening_max_turn: int = 4
     opening_beats: list[OpeningBeat] = field(default_factory=list)
+    # Scenario-authored deterministic fallback scene (directives/fallback.md),
+    # mapped to the DEFAULT_FALLBACK dict shape (minus the parser "repair" sub-dict).
+    # None when the scenario ships no fallback.md → callers use the code default.
+    fallback_scene: dict[str, Any] | None = None
 
     @property
     def empty(self) -> bool:
@@ -239,6 +243,52 @@ def _opening_from_parsed(parsed: ParsedDirectives) -> tuple[str, int, list[Openi
     return header, max_turn, beats
 
 
+# Scalar fallback fields carried as file-level meta (no embedded newlines).
+_FALLBACK_META_KEYS = (
+    "title_default",
+    "title_novelty",
+    "title_with_action",
+    "location",
+    "objective_turn0",
+)
+
+
+def _fallback_from_parsed(parsed: ParsedDirectives) -> dict[str, Any] | None:
+    """Map a parsed ``fallback.md`` into the ``DEFAULT_FALLBACK`` dict shape.
+
+    The director consumes scalar prose, two novelty hints, and an ordered choice
+    list (suffix/label/intent). The Markdown body parser strips each block, so the
+    leading space the novelty hints need (they are concatenated right after a
+    narration) is re-added here. Returns ``None`` for an empty document so a
+    scenario without authored fallback prose keeps the code default.
+    """
+    if not parsed.file_meta and not parsed.blocks:
+        return None
+    fb: dict[str, Any] = {}
+    for key in _FALLBACK_META_KEYS:
+        if key in parsed.file_meta:
+            fb[key] = parsed.file_meta[key]
+    choices: list[dict[str, str]] = []
+    for block in parsed.blocks:
+        if block.block_id in ("narration_no_action", "narration_with_action", "visual_brief"):
+            fb[block.block_id] = block.body
+        elif block.block_id == "novelty_hint":
+            variant = block.params.get("variant", "")
+            # Hints are appended directly after a narration → carry one leading space.
+            fb[f"novelty_hint_{variant}"] = " " + block.body
+        elif block.block_id == "choice":
+            choices.append(
+                {
+                    "suffix": block.params.get("suffix", ""),
+                    "label": block.body,
+                    "intent": block.params.get("intent", "explore"),
+                }
+            )
+    if choices:
+        fb["choices"] = choices
+    return fb
+
+
 @lru_cache(maxsize=16)
 def load_scenario_directives(scenario_id: str) -> ScenarioDirectives:
     """Load ``resources/<scenario>/directives/*.md`` into a ``ScenarioDirectives``.
@@ -250,6 +300,7 @@ def load_scenario_directives(scenario_id: str) -> ScenarioDirectives:
     opening_header: str = ""
     opening_max_turn: int = 4
     opening_beats: list[OpeningBeat] = []
+    fallback_scene: dict[str, Any] | None = None
 
     opening_path = base / "opening.md"
     if opening_path.exists():
@@ -257,11 +308,17 @@ def load_scenario_directives(scenario_id: str) -> ScenarioDirectives:
             parsed = parse_directives_markdown(f.read())
         opening_header, opening_max_turn, opening_beats = _opening_from_parsed(parsed)
 
+    fallback_path = base / "fallback.md"
+    if fallback_path.exists():
+        with open(fallback_path, encoding="utf-8") as f:
+            fallback_scene = _fallback_from_parsed(parse_directives_markdown(f.read()))
+
     return ScenarioDirectives(
         scenario_id=scenario_id,
         opening_header=opening_header,
         opening_max_turn=opening_max_turn,
         opening_beats=opening_beats,
+        fallback_scene=fallback_scene,
     )
 
 

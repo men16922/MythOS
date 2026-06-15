@@ -384,6 +384,7 @@ def build_runtime_narrative_context(
         player_action=player_action,
         system_prompt=scenario.system_prompt,
         fast_mode=fast_mode,
+        fallback_scene=directives.fallback_scene,
     )
 
 

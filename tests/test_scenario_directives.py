@@ -10,8 +10,10 @@ from __future__ import annotations
 
 import unittest
 
+from mythos_narrative.fallbacks import DEFAULT_FALLBACK
 from mythos_runtime.scenario_directives import (
     ScenarioDirectives,
+    _fallback_from_parsed,
     _opening_from_parsed,
     fill_placeholders,
     load_scenario_directives,
@@ -188,6 +190,50 @@ class OpeningAssemblerIntegrationTest(unittest.TestCase):
         ctx = self._context("glass-library", 0, None)
         self.assertTrue(all("ONBOARDING_SCENE" not in s for s in ctx.session_synopsis))
         self.assertTrue(all("정세린" not in s for s in ctx.session_synopsis))
+
+
+class FallbackDirectiveParityTest(unittest.TestCase):
+    """Phase 3: the neo-seoul fallback prose extracted to directives/fallback.md must
+    reproduce the code-level DEFAULT_FALLBACK exactly (minus the parser-only "repair"
+    sub-dict), so the extraction is lossless and the director's deterministic fallback
+    scene is byte-identical whether it comes from the prompt layer or the code default."""
+
+    def test_neo_seoul_fallback_md_byte_parity_with_default(self) -> None:
+        loaded = load_scenario_directives("neo-seoul").fallback_scene
+        expected = {k: v for k, v in DEFAULT_FALLBACK.items() if k != "repair"}
+        self.assertEqual(loaded, expected)
+
+    def test_runtime_context_populates_fallback_scene(self) -> None:
+        from datetime import UTC, datetime
+
+        from mythos_core.models import LoopPhase, LoopState, PlayerProfile
+        from mythos_runtime.scenario import load_scenario
+        from mythos_runtime.scenario_context import build_runtime_narrative_context
+
+        now = datetime(2026, 6, 16, tzinfo=UTC)
+        player = PlayerProfile("p1", "T", now, now, {"archetype": "Unclassified"})
+        loop = LoopState("l", "p1", "s", LoopPhase.CONNECT, "data-layer-01", 70, 30, now, None, {}, [])
+        ctx = build_runtime_narrative_context(
+            player=player,
+            loop=loop,
+            scenario=load_scenario("neo-seoul"),
+            turn_index=0,
+            recent_events=[],
+            memories=[],
+            world_memories=[],
+            narrative_shards=[],
+            novelty_notes=[],
+            player_action=None,
+        )
+        expected = {k: v for k, v in DEFAULT_FALLBACK.items() if k != "repair"}
+        self.assertEqual(ctx.fallback_scene, expected)
+
+    def test_scenario_without_fallback_md_is_none(self) -> None:
+        # glass-library ships no directives/fallback.md → None (uses code default).
+        self.assertIsNone(load_scenario_directives("glass-library").fallback_scene)
+
+    def test_empty_document_maps_to_none(self) -> None:
+        self.assertIsNone(_fallback_from_parsed(parse_directives_markdown("")))
 
 
 if __name__ == "__main__":

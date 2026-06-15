@@ -5,6 +5,14 @@
 이 파일은 **최신 증분 요약만** 유지한다(최신 5항목). 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-16 — prompt-layer Phase 3: fallback→directives/fallback.md (시드 C, `[auto:claude]`)
+- Status: overnight `[auto:claude]` 시드 C — director 결정론 fallback 장면 prose를 코드(`fallbacks.DEFAULT_FALLBACK`)에서 프롬프트 레이어(`resources/neo-seoul/directives/fallback.md`)로 추출 + `NarrativeContext.fallback_scene` 런타임 배선. byte-parity green.
+- 측정: 배선 인프라는 이미 존재 — `schemas.NarrativeContext.fallback_scene: dict|None`, `director._fallback_payload`가 `context.fallback_scene or DEFAULT_FALLBACK`로 이미 우선 소비. 단 `scenario_context`가 한 번도 populate하지 않아 항상 코드 default 사용(dead path). 소비 키 = title_default/novelty/with_action·location·narration_no_action/with_action·novelty_hint_notes/memories·objective_turn0·visual_brief·choices[]. 파서 전용 `repair` 서브딕트는 director 컨텍스트 없는 parser가 쓰므로 코드 잔류(스코프 외).
+- Changed: ① NEW `resources/neo-seoul/directives/fallback.md`(스칼라=file-level meta, 멀티라인 prose=`##` 블록, choice=블록당 하나). ② `scenario_directives.py`: `ScenarioDirectives.fallback_scene` 필드 + `_fallback_from_parsed` 매퍼(빈 문서→None) + `load_scenario_directives`가 `fallback.md` 로드. **novelty_hint 누락 leading-space 재주입**(Markdown body strip이 제거 → director가 narration 뒤 직접 concat하므로 1칸 필요)이 유일한 비자명 지점. ③ `scenario_context`가 `fallback_scene=directives.fallback_scene` 주입. glass-library는 fallback.md 부재→None→코드 default(회귀0).
+- Verified: `make check` EXIT=0 — ruff/eslint/mypy(116 files)/frontend build + **368 tests OK**(skipped 2, +4). byte-parity 테스트: `load_scenario_directives("neo-seoul").fallback_scene == {DEFAULT_FALLBACK − repair}`(추출 무손실 증명) + 런타임 context populate + glass-library None + 빈 문서 None.
+- Blockers: 없음.
+- Next: 시드 D(directives 노드-주소 지정 `node=`/`beat=`) 또는 I/J/K(Phase 4 naming/stat/encounter prose 추출) 등 잔여 `[auto:claude]`. 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-16 — effect 키 closure invariant (시드 B, `[auto:claude]`, QA seed)
 - Status: overnight `[auto:claude]` 시드 B — route perspective/choice `effect` 키 enum closure invariant 박제. green.
 - 측정(소비 키 근거): 내러티브 `effect` 블록은 키별 적용 — `flags`→`route_runtime.py:96`(state["flags"] 병합), `stability`/`tension`/`insight`→`session.py:1322-1326`(`_apply_route_node_reward`). 미인식 키는 에러 없이 **조용히 드롭**(relationship dead-data와 동일 실패모드). 실데이터 route perspective effect 키(전 시나리오 glob) = `{flags, stability, tension, insight, relationship}`, choice effect = 없음. 전투 skill/item `effect`(damage/heal/move/…)는 combat engine 별도 네임스페이스라 스코프 제외.

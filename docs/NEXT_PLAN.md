@@ -54,7 +54,7 @@
 
 ### 2026-06-16 시드 — Priority 0 foundation (prompt-layer + 호감도, `docs/plans/2026-06-16-companion-affection-cutscenes.md`)
 
-- `[ ]` `[auto:claude]` **(A) relationship 타깃 무결성 invariant**: 모든 perspective/choice `effect.relationship` 키가 동료 집합(`characters[].name` 또는 combat allies id)에 실재. 완료 기준: `test_content_integrity.py`에 테스트 추가, dangling 0 green 또는 Blocker.
+- `[x]` `[auto:claude]` **(A) relationship 타깃 무결성 invariant**: 모든 perspective/choice `effect.relationship` 키가 동료 집합(combat allies id 또는 `relationship_subjects` 선언)에 실재. `RelationshipSubjectIntegrityTest` 2건 + 비전투 동료 `lin_yue`를 `relationship_subjects` 선언(npc_agenda allowlist 패턴). dangling 0 green, 고장주입 3/3 RED 확인.
 - `[ ]` `[auto:claude]` **(B) `effect` 키 closure invariant**: 모든 route perspective/choice `effect` 키 ∈ 인식 집합{`flags`,`stability`,`tension`,`insight`,`relationship`,`hp`,`grant_items`,…}(실제 소비 키 근거). 완료 기준: 미지 키 0 green 또는 Blocker(relationship처럼 조용히 드롭되는 오타 가드).
 - `[ ]` `[auto:claude]` **(C) prompt-layer Phase 3 — fallback→`directives/fallback.md`**: `fallbacks.py` DEFAULT_FALLBACK를 `resources/neo-seoul/directives/fallback.md`로 추출 + `scenario_context`가 `NarrativeContext.fallback_scene` populate. 완료 기준: byte-parity 테스트 + `make check` green.
 - `[ ]` `[auto:claude]` **(D) directives 노드-주소 지정**: `scenario_directives.py` 로더가 `node=`/`beat=` 헤더 키 파싱(컷씬·앵커 잠금 prereq). 완료 기준: 파서 유닛테스트 green, 기존 동작 불변.

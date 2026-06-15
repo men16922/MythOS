@@ -725,6 +725,9 @@
   "npc_agenda_allowed_subjects": [
     "최적화 명단 대상자"
   ],
+  "relationship_subjects": [
+    "lin_yue"
+  ],
   "npc_agendas": {
     "정세린": {
       "goal": "비접속자 연대 구축 및 플레이어 보호",

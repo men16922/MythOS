@@ -751,6 +751,43 @@ def _scenario_json_paths() -> list[Any]:
     return sorted(root.glob("*/scenario.json"))
 
 
+def _ally_ids(scenario_data: dict[str, Any]) -> set[str]:
+    """Combat ally slug ids declared under ``combat.allies`` (dict-keyed or list)."""
+    allies = (scenario_data.get("combat") or {}).get("allies") or {}
+    ids: set[str] = set()
+    if isinstance(allies, dict):
+        for key, rec in allies.items():
+            ids.add(str(key))
+            if isinstance(rec, dict) and rec.get("id"):
+                ids.add(str(rec["id"]))
+    elif isinstance(allies, list):
+        for rec in allies:
+            if isinstance(rec, dict) and rec.get("id"):
+                ids.add(str(rec["id"]))
+    return ids - {""}
+
+
+def _relationship_keys(obj: Any) -> set[str]:
+    """Every companion id any authored ``effect.relationship`` delta targets.
+
+    Relationship deltas are authored as ``effect: {relationship: {<id>: ±n}}`` on
+    route perspectives (and, prospectively, scene choices). Scan recursively so the
+    guard covers every ``effect.relationship`` block regardless of where in the
+    scenario tree it is authored.
+    """
+    keys: set[str] = set()
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            if k == "relationship" and isinstance(v, dict):
+                keys.update(str(name) for name in v)
+            else:
+                keys |= _relationship_keys(v)
+    elif isinstance(obj, list):
+        for item in obj:
+            keys |= _relationship_keys(item)
+    return keys
+
+
 class NpcAgendaSubjectIntegrityTest(unittest.TestCase):
     """Subject integrity for ``npc_agendas`` keys across every scenario.
 
@@ -832,6 +869,81 @@ class NpcAgendaSubjectIntegrityTest(unittest.TestCase):
             [],
             "npc_agenda_allowed_subjects entries that are stale or shadow a "
             f"character: {offenders}",
+        )
+
+
+class RelationshipSubjectIntegrityTest(unittest.TestCase):
+    """Subject integrity for ``effect.relationship`` deltas across every scenario.
+
+    Companion affection is authored as ``effect: {relationship: {<id>: ±n}}`` on
+    route perspectives. The P0 호감도 런타임 will accumulate these into
+    ``loop.state["relationships"][<id>]``; today they are dead data
+    (``route_runtime`` applies only ``effect.flags``). A delta keyed on an id that
+    names no real companion silently accrues affection for a ghost, so every key
+    must resolve to a recognised companion subject:
+
+    - a **combat ally id** (``combat.allies`` slug / ``id``) — a modelled,
+      fightable companion, **or**
+    - an entry in ``relationship_subjects`` — an explicit allowlist of non-combat
+      companions who carry affection but never enter combat.
+
+    neo-seoul's authored roster (plan 2026-06-16) is six companions: 정세린/카이/
+    태오/한/수아 are combat allies (slugs ``se_rin``/``kai``/``tae_o``/``han``/
+    ``su_ah``); 린위에 (``lin_yue``) is the night-market broker — a relationship
+    subject with no combat sheet, declared in ``relationship_subjects``. The
+    allowlist makes that intent explicit while still catching a typo'd key
+    (``se_rim``) that would silently drop. Two anti-rot guards keep the allowlist
+    honest: every declared subject must actually be targeted by some delta, and
+    must not shadow a combat ally id (declare once).
+    """
+
+    def _scenarios(self) -> list[tuple[str, dict[str, Any]]]:
+        out: list[tuple[str, dict[str, Any]]] = []
+        for path in _scenario_json_paths():
+            with open(path, encoding="utf-8") as handle:
+                out.append((path.parent.name, json.load(handle)))
+        return out
+
+    def test_every_relationship_key_resolves_to_ally_or_declared_subject(self) -> None:
+        offenders: list[str] = []
+        for name, data in self._scenarios():
+            keys = _relationship_keys(data)
+            if not keys:
+                continue
+            recognised = _ally_ids(data) | set(data.get("relationship_subjects") or [])
+            for key in sorted(keys):
+                if key not in recognised:
+                    offenders.append(f"{name}:{key!r}")
+        self.assertEqual(
+            offenders,
+            [],
+            "effect.relationship keys that are neither a combat ally id nor a "
+            "declared relationship_subjects entry (a typo silently accrues "
+            f"affection for a ghost companion): {offenders}",
+        )
+
+    def test_relationship_subjects_are_used_and_not_also_allies(self) -> None:
+        offenders: list[str] = []
+        for name, data in self._scenarios():
+            subjects = data.get("relationship_subjects") or []
+            if not subjects:
+                continue
+            keys = _relationship_keys(data)
+            ally_ids = _ally_ids(data)
+            for subject in subjects:
+                if subject not in keys:
+                    offenders.append(
+                        f"{name}:{subject!r} (stale: no relationship delta targets it)"
+                    )
+                if subject in ally_ids:
+                    offenders.append(
+                        f"{name}:{subject!r} (also a combat ally id — declare once)"
+                    )
+        self.assertEqual(
+            offenders,
+            [],
+            "relationship_subjects entries that are stale or shadow a combat ally "
+            f"id: {offenders}",
         )
 
 

@@ -5,6 +5,14 @@
 이 파일은 **최신 증분 요약만** 유지한다(최신 5항목). 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-16 — relationship 타깃 무결성 invariant (시드 A, `[auto:claude]`, QA seed)
+- Status: overnight `[auto:claude]` 시드 A — `effect.relationship` 키 무결성 invariant 박제. green.
+- 측정: `effect.relationship` 델타는 전부 route_map perspective에만 존재(재귀 스캔). neo-seoul 키 = `{se_rin, kai, lin_yue}`, glass-library = 없음. combat ally id = `{se_rin, kai, tae_o, han, su_ah}` → `se_rin`/`kai`는 ally로 해소되나 `lin_yue`(린위에, 야시장 브로커 — 비전투 동료, 권위 plan 2026-06-16 동료 6인 로스터 line 17)는 ally 부재. characters[]에는 slug 없음(Korean name only)이라 슬러그 해소 불가.
+- Changed: ① `resources/neo-seoul/scenario.json`에 `relationship_subjects: ["lin_yue"]` 선언(npc_agenda_allowed_subjects 패턴 — 비전투 동료의 명시 allowlist, 런타임 L/M/N 호감도 누적이 공유할 단일 출처). ② `tests/test_content_integrity.py`에 `RelationshipSubjectIntegrityTest` 2건 + 헬퍼 `_ally_ids`/`_relationship_keys`(재귀): 모든 relationship 키 ∈ (combat ally id ∪ `relationship_subjects`)(오타=유령 동료에 조용히 호감 적립 가드) + anti-rot(선언 주체는 실사용 + ally 비섀도, 1출처). glob으로 전 시나리오 자동 커버.
+- Verified: `make check` EXIT=0 — ruff/eslint/mypy(116 files)/frontend build + **362 tests OK**(skipped 2, +2). 고장주입 3/3 RED 확인(오타 키 `se_rim`·stale subject·ally 섀도잉).
+- Blockers: 없음.
+- Next: 시드 B(`effect` 키 closure invariant) → C(prompt-layer Phase 3) 등 잔여 `[auto:claude]`. 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-16 — prompt-layer 분리 Phase 0-2 + 동료 호감도/컷씬 계획
 - Status: 코드↔프롬프트 레이어 분리 리팩토링 Phase 0-2 완료. 동료 호감도/컷씬 언락 우선순위 계획 수립.
 - Changed: **Phase 0** NEW `scenario_directives.py`(`directives/*.md` Markdown 로더+순수 파서+KeyError-tolerant placeholder)+`NarrativeContext.fallback_scene`+`docs/PROMPT_LAYER.md`(분석). **Phase 1** NEW `fallbacks.py` — director↔parser fallback prose 8곳 중복을 단일 `DEFAULT_FALLBACK`로, director는 `context.fallback_scene or DEFAULT_FALLBACK`. **Phase 2** 오프닝 ONBOARDING ~100줄 하드코딩 → `resources/neo-seoul/directives/opening.md`, `scenario_context`는 제네릭 어셈블러(게이팅·shot·채널만 코드). 계획 `docs/plans/2026-06-16-companion-affection-cutscenes.md` + NEXT_PLAN Priority 0.

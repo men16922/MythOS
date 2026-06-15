@@ -157,3 +157,10 @@ class NarrativeContext:
     validator_feedback: list[str] = field(default_factory=list)
     system_prompt: str = ""
     fast_mode: bool = False
+    # Optional scenario-authored fallback scene (serialized FallbackScene from
+    # mythos_runtime.scenario_directives). When present, director._fallback_payload
+    # builds the deterministic fallback from this instead of the hardcoded shared
+    # default — keeping scenario-specific prose in the prompt layer. None → the
+    # shared code default (mythos_narrative.fallbacks) is used, so constructors and
+    # tests that omit it are unaffected.
+    fallback_scene: dict[str, Any] | None = None

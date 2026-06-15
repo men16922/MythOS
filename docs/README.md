@@ -28,6 +28,7 @@
 | `DECISIONS.md` | 되돌리기 어려운 결정 |
 | `DOCS_POLICY.md` | 문서 운영 규칙 |
 | `IMAGE_POLICY.md` | 이미지 생성 규칙·로컬 파이프라인 |
+| `PROMPT_LAYER.md` | 서사 프롬프트 아키텍처(코드↔프롬프트 레이어 분리, directives/*.md) |
 | `REFERENCES.md` | 디자인 레퍼런스 게임과 적용 포인트 |
 
 ## On-Demand Docs

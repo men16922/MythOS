@@ -17,11 +17,9 @@
 - `[ ]` `[manual]` **P2 Se-rin 컷씬**: `outputs/experiments/adult/serin/imagegen/*.png` 2종 채택(IMAGE_POLICY) + `directives/companions/se_rin.md` 임계별 컷씬 저작 + 라이브 QA.
 - `[ ]` `[manual]` **P3 동료 확장**: 카이/린위에/태오/한/수아 컷씬 + `side_arcs` 6종 route 사이드-앵커 승격(WS-B 트랙2).
 
-## 엔지니어링 정비 트랙 — WS0-3 완료 (active focus 는 P1 Neo-Seoul 로 복귀)
+## 엔지니어링 정비 트랙 — WS0-3 완료(COMPLETED_SUMMARY M43), WS4만 잔존
 
-`[x]` WS0 연속성(Resume Pointer)·WS1/2 바이블↔해석(`docs/engineering/` + `mythos/`)·진입점 슬림화·WS3 로깅(`status.tsv`)
-+tmux 대시보드 완료. 권위 플랜 `docs/plans/2026-06-14-engineering-plan.md`. 결정은 `DECISIONS.md`(engineering/ 디렉터리·바이블↔해석·연구 개념만 흡수).
-- `[ ]` **WS4(plan-only)**: agy 이미지 초안 → codex 적합도 검토 → NEXT_PLAN 콘텐츠 항목 추가 → codex 최종 이미지 생성 파이프라인. 구현은 다음 기회.
+- `[ ]` **WS4(plan-only)**: agy 이미지 초안 → codex 적합도 검토 → NEXT_PLAN 콘텐츠 항목 추가 → codex 최종 이미지 생성 파이프라인. 권위 `docs/plans/2026-06-14-engineering-plan.md`.
 
 ## Rules
 
@@ -53,6 +51,13 @@
 > "안 깨지는가"(봇, 결정론) 콘텐츠/밸런스 invariant. green=박제, red=Blocker surface. offline·`make check`.
 
 - `[x]` **완료 invariant 배치(2026-06-14~15)** — 상세·검증은 `COMPLETED_SUMMARY.md`(QA Seed 무결성 배치) + PROGRESS archive: 루트·엔딩 도달성 / 플래그·조우 무결성 / 조우 승률 밴드(양면 ≥0.50·≤0.95) / 진행도 경제 / 무기·장비 / 스킬 데이터 / 아키타입 정합 / loot_table↔items / encounter 수치 경계 / item.kind enum / story_bible 메타 / npc_agenda 주체(allowlist 재정의) + codemod(FastAPI lifespan·dotenv ignore 중앙화). 문서 압축(`[auto:codex]`)도 이 정리로 완료.
+
+### 2026-06-16 시드 — Priority 0 foundation (prompt-layer + 호감도, `docs/plans/2026-06-16-companion-affection-cutscenes.md`)
+
+- `[ ]` `[auto:claude]` **(A) relationship 타깃 무결성 invariant**: 모든 perspective/choice `effect.relationship` 키가 동료 집합(`characters[].name` 또는 combat allies id)에 실재. 완료 기준: `test_content_integrity.py`에 테스트 추가, dangling 0 green 또는 Blocker.
+- `[ ]` `[auto:claude]` **(B) `effect` 키 closure invariant**: 모든 route perspective/choice `effect` 키 ∈ 인식 집합{`flags`,`stability`,`tension`,`insight`,`relationship`,`hp`,`grant_items`,…}(실제 소비 키 근거). 완료 기준: 미지 키 0 green 또는 Blocker(relationship처럼 조용히 드롭되는 오타 가드).
+- `[ ]` `[auto:claude]` **(C) prompt-layer Phase 3 — fallback→`directives/fallback.md`**: `fallbacks.py` DEFAULT_FALLBACK를 `resources/neo-seoul/directives/fallback.md`로 추출 + `scenario_context`가 `NarrativeContext.fallback_scene` populate. 완료 기준: byte-parity 테스트 + `make check` green.
+- `[ ]` `[auto:claude]` **(D) directives 노드-주소 지정**: `scenario_directives.py` 로더가 `node=`/`beat=` 헤더 키 파싱(컷씬·앵커 잠금 prereq). 완료 기준: 파서 유닛테스트 green, 기존 동작 불변.
 - `[ ]` `[auto:agy]` 스킬 아이콘 6종 초안: `emp_pulse`·`glitch_blink`·`memory_resonance`·`nanoshield_projector`·`signal_overdrive`·`system_intrusion` 의 `resources/neo-seoul/skills/<id>.png` 를 IMAGE_POLICY + 기존 스킬 아이콘 스타일을 바이블로 초안 생성(placeholder fabricate 금지). 완료 기준: 6 PNG 실존·비어있지 않음·규격 일치. (2026-06-14 1차 생성분은 미적 반려 — `outputs/agy/skills/VERDICT.md`. 엄격 카드 템플릿으로 재생성 필요.)
 - `[blocked]` `[auto:claude]` 스킬/아이콘 무결성 invariant: 모든 `combat.skills[].id`에 `resources/neo-seoul/skills/<id>.png` 존재 + 아키타입 base/learnable + `epiphany` unlock이 실재 스킬 참조. 완료 기준: `test_assets.py`에 추가, green 또는 Blocker. **선행 미충족**: 위 `[auto:agy]` 아이콘 6종 채택·머지 후 해제.
 
@@ -97,22 +102,10 @@ P1 작전 지도 route-node화 + 세션 메모리(→ COMPLETED_SUMMARY M39), Ta
 - `[/]` **F 스트리밍 속도**: 근본 원인 RAM 부족 규명 + 이원화 서사(8B 스토리 → 3b 파서) 배선·context 8192 캡 적용. 남은 것: 사용자 RAM 확보로 ~13초 근접, 실제 멀티턴 라이브 체감. 설계 `docs/plans/2026-06-10-dual-model-narrative-orchestration.md`.
 - `[/]` **D 내러티브 반복**: 시놉시스 truncation 드롭 수정(`session_synopsis` 전용 필드 전량 렌더) + 장면 길이/prefill 캐시 수정. 남은 것: 실제 멀티턴 라이브 체감.
 
-- `[/]` P0 — live LLM 장기 세션 QA: fallback 12선택 + 실제 gemma4 14턴(in-process 드라이버, 2026-06-08) 통과.
-  기술 파이프라인 양호(파싱 예외 0·선택지 상존·전투 후 재개·멈춤 없음). **F1 반복 완화 적용**(시놉시스
-  반복 억제 지침 강화 → 14턴 재검증서 반복 0·이야기 전진 확인). 남은 것: **F2 전투 빈도**(빈도/연속 튜닝
-  검토 — 변동성 있어 추가 관찰). phase explore 정체는 수정(2026-06-14, route 노드 anti-stickiness). 주관 항목은 사람 플레이(`docs/test/neo_seoul_live_qa.md`).
-- `[/]` P1 — Tactical Board 잔여: 보드 확대/줌(dataset.boardZoom, 100~250%) + 줌 버튼 전파 보정 + 지형 배지 완료. 남은 것: 터치 환경 click 핀 고정(인스펙터는 현재 desktop hover 기반).
-- `[/]` P1 — 회복/소모품/전리품 루프: route rest/market 회복 + 전리품 인벤토리 표시 + 전투 중 소모품 사용 버튼 + 장비 착용(M40) 완료. 남은 것: 소모품/장비 밸런스 튜닝.
-- `[/]` P2 — AI GM 진행 강화: route-node 주입(`_route_director_notes`)+세션 메모리로 반복 억제, **노드 anti-stickiness(첫 장면=확립/이후=전진 지침)로 explore 정체·위치 고착 수정**(2026-06-14, 멀티턴 검증). 남은 것: 막 gate 기반 필수 비트 강제, visual prompt에 현재 노드/유니크 비트 주입.
-- `[/]` P2 — 기억의 별자리 재구성: 캐릭터(스탯/장비/인벤토리) 섹션 통합 + 루트 흐름(현재 시점/향하는 결말) 이동 완료. 남은 것: 개요/파티/런 히스토리 탭 세분화, 개발 로그 분리.
-- `[ ]` P2 — 아키타입 의미 강화: 해금 조건을 명시 milestone으로 제한, 오프닝/시작 위치/기본 스킬/시작 아이템/NPC 반응 차별화.
-- `[/]` P2 — objective 피드백 정리: 현재 장면 objective/stakes 상시 표시 + Golden Path 막 목표 정합 완료(2026-06-14). 남은 것: 막 전환 gate 충족 시에만 다음 단계 진행.
-- `[/]` P2 — 선택 결과 요약 강화: 선택 후 `stability/tension`·flag성 사건·route 이동은 장면 기록에서 읽힘. 남은 것: 관계·Codex/Shard 변화까지 동일 포맷으로 확장.
-- `[/]` P2 — Codex Skill UX 정리: 해금됨/습득 가능/통찰 부족/선행 필요 상태를 첫 플레이어도 이해하도록 문구·버튼 상태 점검. 분리:
-  - `[x]` `[auto]` 버튼 disabled/상태 로직 완료(2026-06-14): 상태를 순수 함수 `deriveSkillAction`(`skillState.ts`)로 추출 — prereq>insight 우선순위로 결정론화. **버그 픽스**: 기존엔 통찰 충분하면 선행 미충족이어도 버튼이 활성→클릭→백엔드 거부였는데, 이제 선행 미충족 시 비활성+"선행 스킬 필요" 안내. **공백 보완**: 통찰 부족 시 "통찰 부족 · 보유/필요" 안내 추가(기존엔 이유 없이 회색 버튼). `make check`(tsc/eslint+mypy+test) green. (JS 유닛테스트는 러너(vitest) 부재로 보류 — 순수 함수 추출로 회귀 안전성 확보, vitest 도입은 별도 `[manual]` 인프라 결정.)
-  - `[manual]` 상태 문구 wording(첫 플레이어 이해도 — feel 판단).
-- `[ ]` Phase 4 — objective/choice result/Codex feedback UX 정리(위 P2 묶음의 통합 마감).
-- `[ ]` Phase 5 — Neo-Seoul RC: 수동 QA(`docs/test/neo_seoul_live_qa.md`) + 자동 회귀, 결과는 `PROGRESS_LOG.md` 짧게/긴 기록은 archive.
+- `[/]` P0-P2 다수 완료(상세 COMPLETED_SUMMARY M35-M40·PROGRESS archive; live LLM 14턴 QA 통과·F1 반복완화·anti-stickiness·Tactical Board 줌·회복/소모품/장비·기억의 별자리 재구성·objective/stakes·선택결과 요약). **남은 잔여**: F2 전투 빈도/연속 튜닝(관찰) · Tactical Board 터치 핀 고정 · 소모품/장비 밸런스 · 막 gate 필수 비트 강제 + visual prompt 현재 노드 주입 · 기억의 별자리 탭 세분화 · 선택결과에 관계/Codex/Shard 확장 · objective 막 전환 gate.
+- `[ ]` P2 아키타입 의미 강화: 해금 milestone 제한 + 오프닝/시작위치/스킬/아이템/NPC 반응 차별화.
+- `[manual]` Codex Skill 상태 문구 wording(첫 플레이어 feel). 버튼 상태 로직(`deriveSkillAction`)은 완료.
+- `[ ]` Phase 4 — objective/choice result/Codex feedback UX 통합 마감. `[ ]` Phase 5 — Neo-Seoul RC: 수동 QA(`docs/test/neo_seoul_live_qa.md`) + 자동 회귀.
 
 ## Hold — Scenario Expansion / Glass Library
 

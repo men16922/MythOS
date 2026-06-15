@@ -1,10 +1,10 @@
 # Agent Brief
 
-최종 갱신: 2026-06-15
+최종 갱신: 2026-06-16
 
 이 파일은 작업 시작용 압축 문맥이다. 상세는 링크된 문서를 필요한 순간에만 연다.
 
-> ▶ NEXT SESSION: claude 레인 `[auto]` QA seed 전부 소진(npc_agenda allowlist 재정의로 마무리, COMPLETED_SUMMARY M44). 다음은 **Neo-Seoul 사람 플레이 QA**([manual], `docs/test/neo_seoul_live_qa.md`). 무인 잔여는 `[auto:agy]` 스킬 아이콘 6종 + 그 선행 `[blocked]` 스킬/아이콘 무결성뿐.
+> ▶ NEXT SESSION: **Priority 0 = 동료 호감도 + 컷씬 언락 + prompt-layer 분리** (권위 `docs/plans/2026-06-16-companion-affection-cutscenes.md`, NEXT_PLAN Priority 0). prompt-layer Phase 0-2 완료(`docs/PROMPT_LAYER.md`). **첫 행동 = P0 호감도 런타임**: `effect.relationship` 델타가 `route_runtime.py:96`서 무시되는 dead data — `loop.state.relationships[name]` 누적 배선부터. 그 뒤 Phase 3/노드-주소 지정 → P1 컷씬.
 
 ## Snapshot
 
@@ -22,7 +22,7 @@ Project MythOS는 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG
 - Objective/stakes 상시 표시와 선택 가치축/예상 결과/실제 결과 요약 UX.
 - mflux/FLUX image worker, Redux 캐릭터 일관성, MinIO asset path 검증 완료.
 - 서사는 이원화(dual-model): 스토리텔러 `OLLAMA_MODEL_STORY`=`gemma4:latest`(8B, 자유 텍스트) → 파서 `OLLAMA_MODEL_PARSER`=`qwen2.5:3b-instruct`(JSON 구조화). 스트리밍 경로는 정규식 파서 병행.
-- 오프닝 시퀀스 정합(scene1=홀로 각성·4비트 온보딩·장면별 `image_sequence`). 상세 상태는 `STATUS.md`.
+- 오프닝 시퀀스 정합(5컷: 각성→세린등장→다가오는손→첫접촉→추격+전투). prompt-layer 분리 진행(authored 지시문→`resources/<scenario>/directives/*.md`, `docs/PROMPT_LAYER.md`). 상세 상태는 `STATUS.md`.
 
 ## Active Work
 

@@ -1,6 +1,6 @@
 # Project MythOS Status
 
-최종 갱신: 2026-06-15
+최종 갱신: 2026-06-16
 
 ## Current Baseline
 
@@ -63,6 +63,7 @@ Recent verified baseline recorded in docs:
 - **Engineering 문서 바이블↔해석**(2026-06-14): `docs/engineering/` — 범용 바이블 5종(`{HARNESS,LOOP,AGENTIC,CONTEXT,PROMPT}_ENGINEERING.md`) + `mythos/` 해석 5종(repo 매핑). 옛 `docs/{LOOP_ENGINEERING,MULTI_AGENT}.md`→`mythos/{LOOP,AGENTIC}.md` 이동, 원시 리서치→`bin/docs/archive/`. **/sync 연속성**: Resume Pointer 컨벤션(`AGENT_BRIEF ▶ NEXT SESSION` + in-repo 경로 + 3진입문서 일치). **로깅/대시보드**: `logs/status.tsv` 원장 + `status.sh` 집계 트리 + `make overnight-dashboard`(tmux). 진입점 슬림화·skills 4미러 정합. 상세 `docs/plans/2026-06-14-engineering-plan.md`(WS4 콘텐츠 파이프라인만 plan-only).
 - **3엔진 병렬 overnight 하네스**(`scripts/overnight/`, `docs/engineering/mythos/AGENTIC.md`): `ENGINE=claude|codex|agy` — worktree 격리(Model B) + 레인 태그(`[auto:claude|codex|agy]`) + 통합 머지(`overnight-merge`) + 하이브리드 codex 리뷰어(생성자≠리뷰어, `overnight-review`) + 실패 메일(`notify.sh`) + claude→codex failover. 병렬 3엔진 end-to-end 실증(각 worktree 자체 env `make check` green). agy/codex 이미지는 FLUX 아닌 자체 Imagen/Gemini(`outputs/agy/` 스테이징→resources cp). **skills 는 git 추적**(`.claude/.agents/.codex/.gemini` 4곳, 재-ignore 금지 — DECISIONS 2026-06-14). QA seed #1-4 박제 완료.
 - 오프닝 시퀀스 정합(2026-06-14): scene1=홀로 각성(이미지 정합)·4비트 온보딩(인트로 3컷을 인게임 비트로)·장면별 `image_sequence`·인트로 화면 간결화. live Ollama로 turn0/1 정합 확인.
+- **오프닝 5컷 + 4개 근본수정 + prompt-layer 분리 Phase 0-2**(2026-06-16): 오프닝↔이미지 드리프트 디버깅서 4 근본원인 수정(지시 truncation→session_synopsis·phase-무관 게이팅·novelty guard 오프닝 skip·raw-ID location→prose) + opening_escape 5번째 컷. 코드↔프롬프트 레이어 분리 — authored 지시문을 `resources/<scenario>/directives/*.md`로(`scenario_directives.py` 로더, `fallbacks.py` 단일화, 오프닝→`opening.md` byte-parity). `make check` green(360). 상세 `docs/PROMPT_LAYER.md`·`docs/plans/2026-06-16-companion-affection-cutscenes.md`.
 - frontend lint/build clean, `tests/playwright/test_e2e_play_checklist.py` green (refactored 서버 기동 포함).
 - `make smoke-local` succeeded (fallback narrative & visual smoke green).
 - Redux worker live path: Redis queue -> mflux Redux -> MinIO -> presigned PNG GET 200.
@@ -72,7 +73,8 @@ Recent verified baseline recorded in docs:
 
 권위 계획: `docs/NEXT_PLAN.md`.
 
-1. **Neo-Seoul playability upgrade(현재 최우선)**: `neo-seoul`을 기술 데모가 아니라 30-60분 플레이 만족도가 있는 주력 시나리오로 끌어올린다. Phase 1 문서 확정 완료(Golden Path, 실패/우회 Path, QA rubric), Phase 2 데이터 보강 완료(Story Bible 17→24 entries, playability choice axes/route branches/ending echo targets), Phase 3 데이터 기준선 완료(encounter learning goals/reward intent, progression reward tuning). P0/P1 1차 묶음 완료: 전투 보상 통찰 반영, 전투 결과 보상 표시, 초반 forced ambient combat 완화, 조우 쿨다운/난이도 캡, 전투 패배 소프트 후속(`defeat_soft`), Codex rank pips/강화 완료 배너, Run History+Echo/Shard/Insight 대시보드, objective/stakes 상시 표시, 선택 가치축/결과 요약. Tactical Board는 범례+타일 인스펙터+학습 목표 배너+보드 줌/줌 버튼 보정+지형 배지(엄호/고지)+우측 조작부 하단 배치까지 완료. 조우 난이도 튜닝 완료(`build_encounter` per-spawn `overrides` + 학습 목표별 수치 재조정, 그리디 시뮬 승률 95~98%). live LLM 장기 세션 기술 QA 완료(파이프라인 양호) + F1 반복 완화 적용·재검증 완료. 다음 집중은 실제 풀스택 사람 플레이 QA(`docs/test/neo_seoul_live_qa.md`)에서 목표/선택 결과 체감, D 반복/F 속도 체감, 남은 route gate 바이어스 확인. 권위 설계는 `docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`.
+0. **동료 호감도 + 컷씬 언락 + prompt-layer 분리(현재 최우선, 2026-06-16)**: relationship dead-data 활성화(P0 호감도 런타임 — `effect.relationship`가 `route_runtime.py:96`서 무시됨) → prompt-layer Phase 3-5/노드-주소 지정 → P1 컷씬(authored directive 노드, Se-rin 이미지 2종 `outputs/experiments/adult/serin/imagegen/`). prompt-layer Phase 0-2 완료(`docs/PROMPT_LAYER.md`). 권위 `docs/plans/2026-06-16-companion-affection-cutscenes.md`.
+1. **Neo-Seoul playability upgrade(후속 — 사람 플레이 QA)**: `neo-seoul`을 기술 데모가 아니라 30-60분 플레이 만족도가 있는 주력 시나리오로 끌어올린다. Phase 1 문서 확정 완료(Golden Path, 실패/우회 Path, QA rubric), Phase 2 데이터 보강 완료(Story Bible 17→24 entries, playability choice axes/route branches/ending echo targets), Phase 3 데이터 기준선 완료(encounter learning goals/reward intent, progression reward tuning). P0/P1 1차 묶음 완료: 전투 보상 통찰 반영, 전투 결과 보상 표시, 초반 forced ambient combat 완화, 조우 쿨다운/난이도 캡, 전투 패배 소프트 후속(`defeat_soft`), Codex rank pips/강화 완료 배너, Run History+Echo/Shard/Insight 대시보드, objective/stakes 상시 표시, 선택 가치축/결과 요약. Tactical Board는 범례+타일 인스펙터+학습 목표 배너+보드 줌/줌 버튼 보정+지형 배지(엄호/고지)+우측 조작부 하단 배치까지 완료. 조우 난이도 튜닝 완료(`build_encounter` per-spawn `overrides` + 학습 목표별 수치 재조정, 그리디 시뮬 승률 95~98%). live LLM 장기 세션 기술 QA 완료(파이프라인 양호) + F1 반복 완화 적용·재검증 완료. 다음 집중은 실제 풀스택 사람 플레이 QA(`docs/test/neo_seoul_live_qa.md`)에서 목표/선택 결과 체감, D 반복/F 속도 체감, 남은 route gate 바이어스 확인. 권위 설계는 `docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`.
 2. **Combat presentation upgrade**: 완료. 모션 다양화·reduced-motion 접근성·표시 위치/스케일/타이밍/가독성 Live QA까지 완료(사용자 확인 완료). 범용 수동 QA 문서는 폐기했고, Neo-Seoul 실제 플레이 확인 항목은 `docs/test/neo_seoul_live_qa.md`를 따른다.
 3. **Progression skills/archetypes**: 완료. Phase 1·2·3 완료(아키타입 게이트, base/learned 필터, Codex 통찰 투자 트리, 깨달음 배너, 시나리오 간 해금). 후속은 Neo-Seoul 플레이 만족도 트랙 안에서 밸런스 조정.
 4. ~~**Controllable party allies**~~: 완료(파티원 직접 조작, 비파티 동맹 AI 유지).

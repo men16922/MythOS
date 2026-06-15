@@ -2,6 +2,14 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-06-16 — Prompt Layer 분리 (코드↔프롬프트, scenario별 `directives/*.md`)
+
+Decision: 서사 파이프라인의 **authored 지시문 prose**(오프닝 비트·fallback 장면·naming/stat/encounter·컷씬)를 범용 엔진 코드에서 분리해 **`resources/<scenario>/directives/*.md`(Markdown)** 로 둔다. 로더 `scenario_directives.py`는 `story_bible.py` 패턴(sibling 파일 + `lru_cache`)을 미러. 코드에는 **불변 로직만 STAY**(게이팅·`session_synopsis` 전량 채널·`MAX_PROMPT_NOTES` 트렁케이션·route 어셈블리·shot 해석). 블록은 **노드-주소 지정**(`turn=`/`node=`/`beat=`)으로 오프닝·앵커·컷씬 잠금을 균일 적용.
+
+Reason: 지시문 1줄 튜닝에 로직 코드(`scenario_context.py`)를 헤집어야 했고, neo-seoul prose가 generic 엔진에 하드코딩돼 검색·시나리오 이식·8B 잠금 확장이 모두 막혀 있었다. 긴 한국어 prose는 JSON보다 Markdown이 편집/검색에 유리(사용자 결정). scenario.json은 구조 데이터 전용으로 유지(prose 미혼입).
+
+Impact: `scenario_context.py`가 제네릭 어셈블러가 됨(neo-seoul 리터럴 0 지향). director/parser fallback은 `fallbacks.py` 단일 소스 + `NarrativeContext.fallback_scene` override. 신규 시나리오는 `directives/` 폴더만 추가하면 됨(없으면 graceful empty). 동료 호감도 컷씬은 이 인프라(노드-주소 지정 directive 노드) 위에 얹힌다. 진행: Phase 0-2 완료, 3-5 잔여. 설계 `docs/PROMPT_LAYER.md`.
+
 ## 2026-06-14 — Engineering 문서 바이블↔해석 구조 + Resume Pointer 연속성
 
 Decision: ① 에이전트 운영 하네스 지식을 `docs/engineering/` 5개 개념으로 정의하되 **바이블↔해석 2층**으로 나눈다 —

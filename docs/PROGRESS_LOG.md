@@ -1,9 +1,24 @@
 # Progress Log
 
-최종 갱신: 2026-06-15
+최종 갱신: 2026-06-16
 
 이 파일은 **최신 증분 요약만** 유지한다(최신 5항목). 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
+
+## 2026-06-16 — prompt-layer 분리 Phase 0-2 + 동료 호감도/컷씬 계획
+- Status: 코드↔프롬프트 레이어 분리 리팩토링 Phase 0-2 완료. 동료 호감도/컷씬 언락 우선순위 계획 수립.
+- Changed: **Phase 0** NEW `scenario_directives.py`(`directives/*.md` Markdown 로더+순수 파서+KeyError-tolerant placeholder)+`NarrativeContext.fallback_scene`+`docs/PROMPT_LAYER.md`(분석). **Phase 1** NEW `fallbacks.py` — director↔parser fallback prose 8곳 중복을 단일 `DEFAULT_FALLBACK`로, director는 `context.fallback_scene or DEFAULT_FALLBACK`. **Phase 2** 오프닝 ONBOARDING ~100줄 하드코딩 → `resources/neo-seoul/directives/opening.md`, `scenario_context`는 제네릭 어셈블러(게이팅·shot·채널만 코드). 계획 `docs/plans/2026-06-16-companion-affection-cutscenes.md` + NEXT_PLAN Priority 0.
+- Verified: `make check` green(360 tests/116 files) + 어셈블러 출력 byte-exact 파리티(turn 0-4: 1139/1009/871/1140/870) + 실제 Ollama 3턴 회귀.
+- 발견: `effect.relationship` 델타(scenario.json perspective/choice) 저작됐으나 `route_runtime.py:96`이 flags만 적용 → **무시(dead data)**. 호감도 시스템 = 누적 배선이 핵심.
+- Blockers: 없음. main ahead 미푸시(사람).
+- Next: Priority 0 — P0 호감도 런타임(dead data 활성화) → Phase 3/노드-주소 지정 → P1 컷씬.
+
+## 2026-06-16 — 오프닝 5컷 정합 + 4개 근본수정 (서사 파이프라인 디버깅)
+- Status: 오프닝 장면↔이미지 불일치(지하 data-layer 드리프트) 디버깅서 4개 독립 근본원인 수정 + 오프닝 5컷화.
+- Changed: ① 오프닝 지시를 truncation되는 `novelty_notes` → `session_synopsis` 전량 채널 이동(`MAX_PROMPT_NOTES=8` 컷오프에 잘려 모델 미도달이 근본원인). ② phase-무관 turn(0-4) 발동(`requested_next_phase`가 EXPLORE 넘기면 지시 통째 스킵 버그). ③ `_apply_novelty_guard` 오프닝(turn≤4) skip("Changed…/다른 압력이 끼어든다" 장면 훼손). ④ 파서·fallback raw-ID `"data-layer-01"`→prose. + `opening_escape` 5번째 컷, 비트별 필수사건/forbidden/location lock 강화.
+- Verified: `make check` green + 실제 Ollama 5턴 in-process로 turn 0-2 안정 정합(turn 1 세린 등장 — 직전엔 누락). 8B 후반 변동성은 모델 한계로 별개.
+- Blockers: 없음.
+- Next: prompt-layer 분리(위 항목).
 
 ## 2026-06-15 — npc_agenda 주체 무결성: 사람 triage→allowlist 재정의 후 green (사람 결정, 구현 claude)
 - Status: 전날 overnight서 결정론적 설계 모호로 `[blocked]`였던 npc_agenda invariant를 사람 triage로 해제. triage 결정 = **추상 주체 allowlist로 재정의**. invariant 구현·박제 green.

@@ -721,6 +721,9 @@
       "description": "카이가 반복해서 꾸는 전쟁 이전 아이의 기억을 복원해 MythOS 기원 단서를 얻는다."
     }
   ],
+  "npc_agenda_allowed_subjects": [
+    "최적화 명단 대상자"
+  ],
   "npc_agendas": {
     "정세린": {
       "goal": "비접속자 연대 구축 및 플레이어 보호",

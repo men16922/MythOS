@@ -5,6 +5,14 @@
 이 파일은 **최신 증분 요약만** 유지한다. 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-15 — npc_agenda 주체 무결성: 사람 triage→allowlist 재정의 후 green (사람 결정, 구현 claude)
+- Status: 전날 overnight서 결정론적 설계 모호로 `[blocked]`였던 npc_agenda invariant를 사람 triage로 해제. triage 결정 = **추상 주체 allowlist로 재정의**. invariant 구현·박제 green.
+- 검증(overnight 산출물 직접 재검증): 신규 4 invariant(loot_table/encounter bounds/item.kind/story_bible)에 고장 주입 7/7 RED 확인(허위 green 없음). item.kind enum이 프론트 `KIND_LABELS`(generic "item" fallback 제외) + `session.py` consumable 게이트와 일치 확인. 두 codemod(lifespan `close_pool()` 보존·dotenv import ignore 5건 제거+`=None` fallback 보존) 동작 불변 확인. Blocker 주장 3건(`npc_agendas`는 `scenario_context.py:599-601` director 힌트 문자열 전용 / neo-seoul `최적화 명단 대상자` 1건 미스 / glass-library `characters[]` 키 부재) 전부 실파일 대조 사실 확인.
+- Changed: ① `resources/neo-seoul/scenario.json`·`resources/glass-library/scenario.json`에 `npc_agenda_allowed_subjects` 선언(neo-seoul `["최적화 명단 대상자"]`, glass-library `["이오","미로","백색 제본사"]` — 이 시나리오는 `characters[]` 미모델링). ② `tests/test_content_integrity.py`에 `NpcAgendaSubjectIntegrityTest` 2건: 모든 `npc_agendas` 키 ∈ (`characters[].name` ∪ `npc_agenda_allowed_subjects`)(오타=GM에 허위 이름 주입 가드) + anti-rot(선언 주체는 실사용 + characters 비섀도, 1출처 강제). glob으로 전 시나리오 자동 커버. 고장 주입(오타 키·stale allowlist) 2/2 RED 확인.
+- Verified: `make check` EXIT=0 — mypy 113 files clean / frontend build / **347 tests OK**(skipped 2, +2).
+- Blockers: 없음(해제).
+- Next: claude 레인 잔여 `[auto]` — 스킬/아이콘 무결성(`[auto:agy]` 아이콘 6종 선행 미충족 `[blocked]`)만 남음. 실제 최우선은 Neo-Seoul 사람 QA([manual]). 미푸시 ahead 누적 — 사람 직접 push.
+
 ## 2026-06-15 — npc_agenda 주체 무결성: Blocker (사람 triage 필요, [auto:claude])
 - Status: overnight `[auto:claude]` npc_agenda 무결성 invariant — **Blocker(결정론적 설계 모호 → 사람 triage)**. 코드/테스트 변경·커밋 없음(잘못된 invariant 박제 회피).
 - 측정(수정 전): `npc_agendas` 키는 `scenario_context.py:599-601`에서 director 힌트 문자열(`SCENARIO_NPC_AGENDAS: …`)로만 소비되는 NPC 어젠다 **주체 라벨**이며 `characters[].name`일 필요가 없음. 실데이터 대조 결과 strict invariant("모든 agenda 키 ∈ characters[].name")는 정당한 설계 이유로 RED:

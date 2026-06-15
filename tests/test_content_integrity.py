@@ -745,5 +745,95 @@ class StoryBibleMetaIntegrityTest(unittest.TestCase):
         )
 
 
+def _scenario_json_paths() -> list[Any]:
+    """All authored top-level scenario files, discovered under ``resources/*/``."""
+    root = PROJECT_ROOT / "resources"
+    return sorted(root.glob("*/scenario.json"))
+
+
+class NpcAgendaSubjectIntegrityTest(unittest.TestCase):
+    """Subject integrity for ``npc_agendas`` keys across every scenario.
+
+    ``npc_agendas`` keys are consumed only as a Director hint string
+    (``scenario_context.py`` builds ``"SCENARIO_NPC_AGENDAS: <names>"``), so a key
+    need not be a ``characters[].name``. But it must resolve to *some* declared
+    subject, or it is a typo silently feeding a bogus name to the GM. The
+    recognised resolution (human design decision, 2026-06-15) is:
+
+    - it matches a ``characters[].name`` (a real, modelled character), **or**
+    - it is listed in ``npc_agenda_allowed_subjects`` — an explicit allowlist of
+      intentional non-character / abstract subjects.
+
+    Two scenarios legitimately rely on the allowlist:
+
+    - **neo-seoul** declares ``characters[]`` and matches 4 of 5 agenda keys
+      there; ``최적화 명단 대상자`` is an intentional abstract/collective subject
+      (an unnamed "purge-list target", not a character).
+    - **glass-library** declares no ``characters[]`` array at all — its agenda
+      keys *are* its cast, so each is a self-declared subject.
+
+    The allowlist makes that intent explicit while still catching genuine typos
+    (a key that is neither a character nor a declared subject). Two anti-rot
+    guards keep the allowlist honest: every declared subject must actually be an
+    agenda key, and must not shadow a real ``characters[].name`` (declare once).
+    """
+
+    def _scenarios(self) -> list[tuple[str, dict[str, Any]]]:
+        out: list[tuple[str, dict[str, Any]]] = []
+        for path in _scenario_json_paths():
+            with open(path, encoding="utf-8") as handle:
+                out.append((path.parent.name, json.load(handle)))
+        return out
+
+    @staticmethod
+    def _character_names(data: dict[str, Any]) -> set[str]:
+        return {
+            str(c.get("name"))
+            for c in (data.get("characters") or [])
+            if isinstance(c, dict) and c.get("name")
+        }
+
+    def test_every_agenda_key_resolves_to_character_or_declared_subject(self) -> None:
+        offenders: list[str] = []
+        for name, data in self._scenarios():
+            agendas = data.get("npc_agendas") or {}
+            if not agendas:
+                continue
+            chars = self._character_names(data)
+            allowed = set(data.get("npc_agenda_allowed_subjects") or [])
+            for key in agendas:
+                if key not in chars and key not in allowed:
+                    offenders.append(f"{name}:{key!r}")
+        self.assertEqual(
+            offenders,
+            [],
+            "npc_agendas keys that are neither a characters[].name nor a declared "
+            "npc_agenda_allowed_subjects entry (typo feeds a bogus name to the GM): "
+            f"{offenders}",
+        )
+
+    def test_allowed_subjects_are_used_and_not_also_characters(self) -> None:
+        offenders: list[str] = []
+        for name, data in self._scenarios():
+            allowed = data.get("npc_agenda_allowed_subjects") or []
+            if not allowed:
+                continue
+            agenda_keys = set((data.get("npc_agendas") or {}).keys())
+            chars = self._character_names(data)
+            for subject in allowed:
+                if subject not in agenda_keys:
+                    offenders.append(f"{name}:{subject!r} (stale: not an agenda key)")
+                if subject in chars:
+                    offenders.append(
+                        f"{name}:{subject!r} (also a characters[].name — declare once)"
+                    )
+        self.assertEqual(
+            offenders,
+            [],
+            "npc_agenda_allowed_subjects entries that are stale or shadow a "
+            f"character: {offenders}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

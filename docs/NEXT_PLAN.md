@@ -58,6 +58,16 @@
 - `[ ]` `[auto:claude]` **(B) `effect` 키 closure invariant**: 모든 route perspective/choice `effect` 키 ∈ 인식 집합{`flags`,`stability`,`tension`,`insight`,`relationship`,`hp`,`grant_items`,…}(실제 소비 키 근거). 완료 기준: 미지 키 0 green 또는 Blocker(relationship처럼 조용히 드롭되는 오타 가드).
 - `[ ]` `[auto:claude]` **(C) prompt-layer Phase 3 — fallback→`directives/fallback.md`**: `fallbacks.py` DEFAULT_FALLBACK를 `resources/neo-seoul/directives/fallback.md`로 추출 + `scenario_context`가 `NarrativeContext.fallback_scene` populate. 완료 기준: byte-parity 테스트 + `make check` green.
 - `[ ]` `[auto:claude]` **(D) directives 노드-주소 지정**: `scenario_directives.py` 로더가 `node=`/`beat=` 헤더 키 파싱(컷씬·앵커 잠금 prereq). 완료 기준: 파서 유닛테스트 green, 기존 동작 불변.
+- `[ ]` `[auto:claude]` **(E) ending condition flag 참조 무결성**: 모든 `endings[].condition`이 참조하는 플래그/메트릭이 생성 가능(authored effect 또는 인식 메트릭). 완료 기준: `test_content_integrity.py` 추가, dead 참조 0 green 또는 Blocker.
+- `[ ]` `[auto:claude]` **(F) route node-type closure**: 모든 layer `pool` 타입·anchor `type`가 `route_map.node_types`에 선언. 완료 기준: 미지 타입 0 green 또는 Blocker.
+- `[ ]` `[auto:claude]` **(G) 전 시나리오 이미지 ref 실존**: `image_sequence`·anchor `image`/`image_pre`·`characters[].image`·skill icon 경로 파일 존재. 완료 기준: `test_image_assets.py` 확장, dangling 0 green 또는 Blocker.
+- `[ ]` `[auto:claude]` **(H) perspective `when` 플래그 생성가능성**: route perspective `when` 플래그가 effect.flags/엔진/등록 집합서 생성됨(기존 flag invariant 확장, dead 분기 가드). 완료 기준: dead 0 green 또는 Blocker.
+- `[ ]` `[auto:claude]` **(I) prompt-layer Phase 4a — naming→`directives/naming.md`**: `NEO_SEOUL_NAMING_RULE` 추출, `scenario_context` generic 루프. 완료 기준: byte-parity 테스트 + `make check` green.
+- `[ ]` `[auto:claude]` **(J) Phase 4b — stat-voice→`directives/stat_voices.md`**: stat 독백 prose 추출(min/max 선택 로직 STAY). 완료 기준: parity + `make check` green.
+- `[ ]` `[auto:claude]` **(K) Phase 4c — encounter→`directives/encounters.md`**: travel/emergency prose 추출(임계 로직 STAY). 완료 기준: parity + `make check` green.
+- `[ ]` `[auto:claude]` **(L) 호감도 — `route_runtime` relationship 누적**: perspective `effect.relationship` → `state.relationships[name]` 누적(flags 처리 옆). 완료 기준: 유닛테스트(누적 단조성) + `make check` green. (feature — 아침 검수 필요)
+- `[ ]` `[auto:claude]` **(M) 호감도 — `session` choice relationship 누적**: choice `effect.relationship` 동일 누적. 완료 기준: 유닛테스트 + `make check` green. (L 선행)
+- `[ ]` `[auto:claude]` **(N) 호감도 — `progression` 크로스-루프 이월**: meta progression에 `relationships` 적립/이월(insight 패턴). 완료 기준: 유닛테스트 + `make check` green. (L 선행, feature — 검수 필요)
 - `[ ]` `[auto:agy]` 스킬 아이콘 6종 초안: `emp_pulse`·`glitch_blink`·`memory_resonance`·`nanoshield_projector`·`signal_overdrive`·`system_intrusion` 의 `resources/neo-seoul/skills/<id>.png` 를 IMAGE_POLICY + 기존 스킬 아이콘 스타일을 바이블로 초안 생성(placeholder fabricate 금지). 완료 기준: 6 PNG 실존·비어있지 않음·규격 일치. (2026-06-14 1차 생성분은 미적 반려 — `outputs/agy/skills/VERDICT.md`. 엄격 카드 템플릿으로 재생성 필요.)
 - `[blocked]` `[auto:claude]` 스킬/아이콘 무결성 invariant: 모든 `combat.skills[].id`에 `resources/neo-seoul/skills/<id>.png` 존재 + 아키타입 base/learnable + `epiphany` unlock이 실재 스킬 참조. 완료 기준: `test_assets.py`에 추가, green 또는 Blocker. **선행 미충족**: 위 `[auto:agy]` 아이콘 6종 채택·머지 후 해제.
 

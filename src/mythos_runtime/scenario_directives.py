@@ -49,18 +49,44 @@ _HEADER_RE = re.compile(r"^##\s+(?P<id>[^\s(]+)\s*(?:\((?P<params>.*)\))?\s*$")
 
 @dataclass(frozen=True)
 class DirectiveBlock:
-    """One ``## ...`` block: an id, inline header params, metadata, and a prose body."""
+    """One ``## ...`` block: an id, inline header params, metadata, and a prose body.
+
+    Header params may carry a *node address* (``node=`` and/or ``beat=``) so a
+    directive block can be bound to a route node / authored beat — the prereq for
+    locking cutscenes and route anchors to a specific point in the run (the same
+    lock envelope the opening uses, applied uniformly; see ``docs/PROMPT_LAYER.md`` §3).
+    """
 
     block_id: str
     params: dict[str, str]
     meta: dict[str, str]
     body: str
 
+    @property
+    def node(self) -> str | None:
+        """Route-node address from the ``node=`` header param (``None`` if absent)."""
+        value = self.params.get("node")
+        return value or None
+
+    @property
+    def beat(self) -> str | None:
+        """Authored-beat address from the ``beat=`` header param (``None`` if absent)."""
+        value = self.params.get("beat")
+        return value or None
+
 
 @dataclass(frozen=True)
 class ParsedDirectives:
     file_meta: dict[str, str]
     blocks: list[DirectiveBlock]
+
+    def block_for_node(self, node_id: str) -> DirectiveBlock | None:
+        """First block addressed to ``node=<node_id>`` (``None`` if none match)."""
+        return next((b for b in self.blocks if b.node == node_id), None)
+
+    def block_for_beat(self, beat_id: str) -> DirectiveBlock | None:
+        """First block addressed to ``beat=<beat_id>`` (``None`` if none match)."""
+        return next((b for b in self.blocks if b.beat == beat_id), None)
 
 
 def parse_directives_markdown(text: str) -> ParsedDirectives:
@@ -180,6 +206,11 @@ class OpeningBeat:
     flags: list[str]
     start_combat: str | None
     body: str
+    # Optional node address (``node=``/``beat=`` header params): binds this scripted
+    # beat to a route node / authored beat so its lock envelope can be applied there
+    # too. ``None`` for turn-only opening beats (the current neo-seoul opening).
+    node: str | None = None
+    beat: str | None = None
 
 
 @dataclass(frozen=True)
@@ -199,6 +230,14 @@ class ScenarioDirectives:
 
     def opening_beat(self, turn: int) -> OpeningBeat | None:
         return next((b for b in self.opening_beats if b.turn == turn), None)
+
+    def opening_beat_for_node(self, node_id: str) -> OpeningBeat | None:
+        """Opening beat bound to ``node=<node_id>`` (``None`` if none addressed there)."""
+        return next((b for b in self.opening_beats if b.node == node_id), None)
+
+    def opening_beat_for_beat(self, beat_id: str) -> OpeningBeat | None:
+        """Opening beat bound to ``beat=<beat_id>`` (``None`` if none addressed there)."""
+        return next((b for b in self.opening_beats if b.beat == beat_id), None)
 
 
 def _int_or_none(value: str | None) -> int | None:
@@ -237,6 +276,8 @@ def _opening_from_parsed(parsed: ParsedDirectives) -> tuple[str, int, list[Openi
                 flags=_str_list(block.meta.get("flags")),
                 start_combat=start_combat if start_combat else None,
                 body=block.body,
+                node=block.node,
+                beat=block.beat,
             )
         )
     beats.sort(key=lambda b: b.turn)

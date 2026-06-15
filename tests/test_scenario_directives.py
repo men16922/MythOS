@@ -71,6 +71,75 @@ class ParseDirectivesMarkdownTest(unittest.TestCase):
         self.assertEqual(parsed.file_meta, {})
 
 
+SAMPLE_ADDRESSED = """## CUTSCENE_DOCK (node=route_dock, beat=anchor_dock_meet)
+unlock_affection: 30
+---
+세린이 부두에서 당신을 기다린다. {player_action}
+
+## CUTSCENE_ROOFTOP (node=route_rooftop)
+---
+옥상에서의 재회.
+
+## PLAIN_BLOCK (turn=2)
+---
+주소 없는 블록.
+"""
+
+
+class NodeBeatAddressingTest(unittest.TestCase):
+    """Phase D: directive blocks may carry a node address (``node=``/``beat=``) so a
+    cutscene/anchor can be locked to a route node — the prereq for P1 cutscenes."""
+
+    def test_block_exposes_node_and_beat_params(self) -> None:
+        parsed = parse_directives_markdown(SAMPLE_ADDRESSED)
+        dock = parsed.blocks[0]
+        self.assertEqual(dock.node, "route_dock")
+        self.assertEqual(dock.beat, "anchor_dock_meet")
+        # body / extra meta still parse alongside the address params.
+        self.assertEqual(dock.meta["unlock_affection"], "30")
+        self.assertIn("부두에서", dock.body)
+
+    def test_partial_and_absent_addresses(self) -> None:
+        parsed = parse_directives_markdown(SAMPLE_ADDRESSED)
+        rooftop = parsed.blocks[1]
+        self.assertEqual(rooftop.node, "route_rooftop")
+        self.assertIsNone(rooftop.beat)  # no beat= → None
+        plain = parsed.blocks[2]
+        self.assertIsNone(plain.node)  # turn= only, no node= → None
+        self.assertIsNone(plain.beat)
+
+    def test_block_for_node_and_beat_lookup(self) -> None:
+        parsed = parse_directives_markdown(SAMPLE_ADDRESSED)
+        dock = parsed.block_for_node("route_dock")
+        rooftop = parsed.block_for_node("route_rooftop")
+        by_beat = parsed.block_for_beat("anchor_dock_meet")
+        assert dock is not None and rooftop is not None and by_beat is not None
+        self.assertEqual(dock.block_id, "CUTSCENE_DOCK")
+        self.assertEqual(rooftop.block_id, "CUTSCENE_ROOFTOP")
+        self.assertEqual(by_beat.block_id, "CUTSCENE_DOCK")
+        self.assertIsNone(parsed.block_for_node("missing"))
+        self.assertIsNone(parsed.block_for_beat("missing"))
+
+    def test_neo_seoul_opening_beats_have_no_node_address(self) -> None:
+        # Existing turn-addressed opening beats stay node-unaddressed (no regression).
+        directives = load_scenario_directives("neo-seoul")
+        self.assertTrue(all(b.node is None and b.beat is None for b in directives.opening_beats))
+        self.assertIsNone(directives.opening_beat_for_node("route_dock"))
+        self.assertIsNone(directives.opening_beat_for_beat("anchor_dock_meet"))
+
+
+class OpeningBeatNodeAddressTest(unittest.TestCase):
+    def test_opening_beat_carries_node_address_when_authored(self) -> None:
+        text = (
+            "## ONBOARDING_SCENE1 (turn=0, label=AWAKENING, node=opening_root, beat=anchor_wake)\n"
+            "---\n"
+            "각성.\n"
+        )
+        _, _, beats = _opening_from_parsed(parse_directives_markdown(text))
+        self.assertEqual(beats[0].node, "opening_root")
+        self.assertEqual(beats[0].beat, "anchor_wake")
+
+
 class OpeningFromParsedTest(unittest.TestCase):
     def test_maps_turns_shots_flags_combat(self) -> None:
         parsed = parse_directives_markdown(SAMPLE_OPENING)

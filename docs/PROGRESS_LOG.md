@@ -5,6 +5,14 @@
 이 파일은 **최신 증분 요약만** 유지한다(최신 5항목). 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-16 — directives 노드-주소 지정 (시드 D, `[auto:claude]`)
+- Status: overnight `[auto:claude]` 시드 D — directive 블록을 route 노드/저작 beat에 주소 지정(`node=`/`beat=` 헤더 키) 가능하게 — P1 컷씬·앵커 잠금의 prereq 파서 primitive. green.
+- 측정: `_HEADER_RE`/`_parse_params`가 이미 `(key=val, …)` 헤더 파라미터를 임의로 파싱 → `node=`/`beat=`는 이미 `block.params`에 안착. 실제 결손은 **주소 룩업 API 부재**(현재 opening은 turn-주소, fallback은 block_id 주소만). 현행 두 directives 파일(opening.md 5블록·fallback.md 7블록)에 `node=`/`beat=` 헤더 0건 확인 → 추가는 parity-safe(기존 동작 불변).
+- Changed: `scenario_directives.py` — ① `DirectiveBlock.node`/`.beat` 프로퍼티(빈 문자열→None 정규화) + `ParsedDirectives.block_for_node`/`block_for_beat` 룩업. ② `OpeningBeat`에 `node`/`beat` 필드(기본 None, 끝에 추가 — 기존 positional 구성 불변) + `_opening_from_parsed` 매핑 + `ScenarioDirectives.opening_beat_for_node`/`opening_beat_for_beat`(WS-B 균일 잠금 봉투용). 룩업은 순수 함수, 런타임 소비처 미배선(prereq primitive). `docs/PROMPT_LAYER.md` §3 노드-주소 지정 설계와 정합.
+- Verified: `make check` EXIT=0 — ruff/eslint/mypy(116 files)/frontend build + **373 tests OK**(skipped 2, +5). 신규 `NodeBeatAddressingTest` 4건 + `OpeningBeatNodeAddressTest` 1건: node/beat 프로퍼티 노출·부분/부재 주소→None·룩업·neo-seoul opening 무주소 회귀가드·opening beat 주소 매핑. mypy union-attr는 룩업 반환 None-가드(assert)로 해소.
+- Blockers: 없음.
+- Next: 시드 E(ending condition flag 참조 무결성)/F(route node-type closure)/G(이미지 ref 실존)/H 또는 I/J/K(Phase 4 prose 추출), L/M/N(호감도 런타임) 등 잔여 `[auto:claude]`. 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-16 — prompt-layer Phase 3: fallback→directives/fallback.md (시드 C, `[auto:claude]`)
 - Status: overnight `[auto:claude]` 시드 C — director 결정론 fallback 장면 prose를 코드(`fallbacks.DEFAULT_FALLBACK`)에서 프롬프트 레이어(`resources/neo-seoul/directives/fallback.md`)로 추출 + `NarrativeContext.fallback_scene` 런타임 배선. byte-parity green.
 - 측정: 배선 인프라는 이미 존재 — `schemas.NarrativeContext.fallback_scene: dict|None`, `director._fallback_payload`가 `context.fallback_scene or DEFAULT_FALLBACK`로 이미 우선 소비. 단 `scenario_context`가 한 번도 populate하지 않아 항상 코드 default 사용(dead path). 소비 키 = title_default/novelty/with_action·location·narration_no_action/with_action·novelty_hint_notes/memories·objective_turn0·visual_brief·choices[]. 파서 전용 `repair` 서브딕트는 director 컨텍스트 없는 parser가 쓰므로 코드 잔류(스코프 외).

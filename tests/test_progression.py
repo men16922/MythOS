@@ -1,6 +1,7 @@
 import unittest
 from datetime import UTC, datetime
 
+from mythos_core import LoopPhase, LoopState, Scene
 from mythos_runtime.options import RunSummary
 from mythos_runtime.progression import (
     DEFAULT_LEARN_COST,
@@ -10,11 +11,15 @@ from mythos_runtime.progression import (
     INSIGHT_PER_RUN,
     MetaProgression,
     _meta_progression_memory,
+    _run_summary_from_memory,
+    _run_summary_memory_from_archive,
     apply_meta_progression_to_state,
     build_skill_tree,
     determine_autonomy_level,
     evaluate_meta_progression,
     learn_or_rank_skill,
+    meta_progression_from_content,
+    meta_progression_to_content,
     scenario_unlock_met,
 )
 from mythos_runtime.scenario import load_scenario
@@ -190,6 +195,123 @@ class InsightAccrualTest(unittest.TestCase):
         progress = MetaProgression(player_id="p", scenario_id="neo-seoul", insight_points=4)
         updated, _ = evaluate_meta_progression(progress, self._summary(clues=0, won=0))
         self.assertEqual(updated.insight_points, 6)
+
+
+class RelationshipCarryOverTest(unittest.TestCase):
+    """Companion affection accrues into meta progression and carries across loops,
+    mirroring the insight pattern (per-run tally summed into the previous total)."""
+
+    def _summary(self, relationships: dict[str, int]) -> RunSummary:
+        ts = datetime(2026, 6, 16, tzinfo=UTC).isoformat()
+        return RunSummary(
+            run_id="run_1",
+            player_id="p",
+            loop_id="l",
+            scenario_id="neo-seoul",
+            started_at=ts,
+            ended_at=ts,
+            ending_id=None,
+            ending_label="L",
+            final_title="t",
+            final_location="x",
+            phase="ended",
+            stability=50,
+            tension=30,
+            turns=3,
+            combats_won=0,
+            combats_lost=0,
+            clues_collected=[],
+            allies_met=[],
+            unlocks_granted=[],
+            summary_text="",
+            relationships=relationships,
+        )
+
+    def test_relationship_accrues_from_run(self) -> None:
+        progress = MetaProgression(player_id="p", scenario_id="neo-seoul")
+        updated, grants = evaluate_meta_progression(
+            progress, self._summary({"se_rin": 2, "kai": 1})
+        )
+        self.assertEqual(updated.relationships, {"se_rin": 2, "kai": 1})
+        self.assertIn("relationship:se_rin:+2", grants)
+        self.assertIn("relationship:kai:+1", grants)
+
+    def test_relationship_is_cumulative_across_runs(self) -> None:
+        progress = MetaProgression(
+            player_id="p", scenario_id="neo-seoul", relationships={"se_rin": 3}
+        )
+        updated, _ = evaluate_meta_progression(progress, self._summary({"se_rin": 2, "kai": 1}))
+        self.assertEqual(updated.relationships, {"se_rin": 5, "kai": 1})
+
+    def test_negative_delta_can_net_to_zero_and_prunes(self) -> None:
+        progress = MetaProgression(
+            player_id="p", scenario_id="neo-seoul", relationships={"se_rin": 2}
+        )
+        updated, _ = evaluate_meta_progression(progress, self._summary({"se_rin": -2}))
+        # net 0 → companion pruned (canonical form, matches live-state convention)
+        self.assertEqual(updated.relationships, {})
+
+    def test_empty_run_relationships_leave_previous_untouched(self) -> None:
+        progress = MetaProgression(
+            player_id="p", scenario_id="neo-seoul", relationships={"se_rin": 4}
+        )
+        updated, grants = evaluate_meta_progression(progress, self._summary({}))
+        self.assertEqual(updated.relationships, {"se_rin": 4})
+        self.assertFalse([g for g in grants if g.startswith("relationship:")])
+
+    def test_content_round_trip_preserves_relationships(self) -> None:
+        progress = MetaProgression(
+            player_id="p", scenario_id="neo-seoul", relationships={"se_rin": 5, "kai": -1}
+        )
+        content = meta_progression_to_content(progress)
+        restored = meta_progression_from_content(content, player_id="p", scenario_id="neo-seoul")
+        self.assertEqual(restored.relationships, {"se_rin": 5, "kai": -1})
+
+    def test_malformed_stored_relationships_are_coerced(self) -> None:
+        content = {"relationships": {"se_rin": "3", "bad": "x", "zero": 0}}
+        restored = meta_progression_from_content(content, player_id="p", scenario_id="neo-seoul")
+        # "3" coerced, non-numeric dropped, 0 pruned
+        self.assertEqual(restored.relationships, {"se_rin": 3})
+
+    def test_archive_run_summary_round_trips_loop_relationships(self) -> None:
+        now = datetime(2026, 6, 16, tzinfo=UTC)
+        loop = LoopState(
+            loop_id="loop_x",
+            player_id="p",
+            seed="seed",
+            phase=LoopPhase.ENDED,
+            location_id="loc",
+            stability=40,
+            tension=20,
+            started_at=now,
+            ended_at=now,
+            state={"scenario_id": "neo-seoul", "relationships": {"se_rin": 3, "kai": 1}},
+        )
+        scene = Scene(
+            scene_id="scene_x",
+            loop_id="loop_x",
+            turn_index=4,
+            title="Finale",
+            location="loc",
+            narration="...",
+            choices=[],
+            visual_brief=None,
+            created_at=now,
+        )
+        memory = _run_summary_memory_from_archive(loop, scene, [], [], "wrap-up")
+        summary = _run_summary_from_memory(memory)
+        self.assertEqual(summary.relationships, {"se_rin": 3, "kai": 1})
+        # End-to-end: the run summary feeds evaluate, accruing into meta.
+        progress = MetaProgression(player_id="p", scenario_id="neo-seoul")
+        updated, _ = evaluate_meta_progression(progress, summary)
+        self.assertEqual(updated.relationships, {"se_rin": 3, "kai": 1})
+
+    def test_carry_over_into_next_loop_state(self) -> None:
+        progress = MetaProgression(
+            player_id="p", scenario_id="neo-seoul", relationships={"se_rin": 5}
+        )
+        state = apply_meta_progression_to_state({"scenario_id": "neo-seoul"}, progress, {})
+        self.assertEqual(state["meta_progression"]["relationships"], {"se_rin": 5})
 
 
 class SkillTreeAndLearnTest(unittest.TestCase):

@@ -55,6 +55,10 @@ class MetaProgression:
     total_combats_won: int = 0
     total_combats_lost: int = 0
     allies_met: list[str] = field(default_factory=list)
+    # Cumulative companion affection across loops, mirroring the insight pattern:
+    # each run's final ``loop.state["relationships"]`` is summed in at archive and
+    # carried into the next loop's ``state["meta_progression"]`` for unlock gating.
+    relationships: dict[str, int] = field(default_factory=dict)
 
 
 def determine_autonomy_level(
@@ -161,6 +165,7 @@ def meta_progression_from_content(
         total_combats_won=int(content.get("total_combats_won") or 0),
         total_combats_lost=int(content.get("total_combats_lost") or 0),
         allies_met=_string_list(content.get("allies_met")),
+        relationships=_relationship_tally(content.get("relationships")),
     )
 
 
@@ -184,6 +189,7 @@ def meta_progression_to_content(progress: MetaProgression) -> dict[str, Any]:
         "total_combats_won": progress.total_combats_won,
         "total_combats_lost": progress.total_combats_lost,
         "allies_met": progress.allies_met,
+        "relationships": progress.relationships,
     }
 
 
@@ -239,6 +245,7 @@ def evaluate_meta_progression(
         allies_met = _append_unique(allies_met, ally_id)
 
     insight_gain = _insight_accrual(run_summary)
+    relationships = _merge_relationships(previous.relationships, run_summary.relationships)
 
     progress = MetaProgression(
         player_id=previous.player_id,
@@ -259,11 +266,15 @@ def evaluate_meta_progression(
         total_combats_won=previous.total_combats_won + run_summary.combats_won,
         total_combats_lost=previous.total_combats_lost + run_summary.combats_lost,
         allies_met=allies_met,
+        relationships=relationships,
     )
 
     grants: list[str] = []
     if insight_gain > 0:
         grants.append(f"insight_points:+{insight_gain}")
+    for companion, delta in sorted(run_summary.relationships.items()):
+        if delta:
+            grants.append(f"relationship:{companion}:{'+' if delta > 0 else ''}{delta}")
     progress, grants = _grant_if(
         progress,
         grants,
@@ -644,6 +655,34 @@ def _skill_ranks(value: Any) -> dict[str, int]:
     return ranks
 
 
+def _relationship_tally(value: Any) -> dict[str, int]:
+    """Coerce a stored/loop relationship map into a clean dict[name -> int]."""
+    if not isinstance(value, dict):
+        return {}
+    tally: dict[str, int] = {}
+    for key, raw in value.items():
+        try:
+            points = int(raw)
+        except (TypeError, ValueError):
+            continue
+        if points:
+            tally[str(key)] = points
+    return tally
+
+
+def _merge_relationships(previous: dict[str, int], delta: Any) -> dict[str, int]:
+    """Sum a run's final relationship tally into the carried-over meta tally.
+
+    Mirrors insight accrual (``previous + this run``) but per companion. Zero
+    balances are pruned so the canonical form matches the live-state convention
+    in ``route_runtime`` (``fold_relationship``/``_reconcile_relationships``).
+    """
+    merged: dict[str, int] = dict(previous)
+    for name, points in _relationship_tally(delta).items():
+        merged[name] = merged.get(name, 0) + points
+    return {name: points for name, points in merged.items() if points}
+
+
 def _item_id(item: Any) -> str:
     if isinstance(item, dict):
         return str(item.get("id") or item.get("item") or item)
@@ -674,6 +713,7 @@ def _run_summary_from_memory(memory: WorldMemory) -> RunSummary:
         allies_met=[str(item) for item in content.get("allies_met", [])],
         unlocks_granted=[str(item) for item in content.get("unlocks_granted", [])],
         summary_text=str(content.get("summary_text") or content.get("summary") or ""),
+        relationships=_relationship_tally(content.get("relationships")),
         metadata=metadata if isinstance(metadata, dict) else {},
     )
 
@@ -885,6 +925,7 @@ def _run_summary_memory_from_archive(
         "allies_met": allies,
         "combats_won": combats_won,
         "combats_lost": combats_lost,
+        "relationships": _relationship_tally(loop.state.get("relationships")),
         "summary": summary_text,
         "saved_at": now.isoformat(),
     }

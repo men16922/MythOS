@@ -359,7 +359,9 @@ class PostgresMythOSStore(MythOSStore):
         "epiphanies_seen",
         "endings_seen",
         "allies_met",
+        "relationships",
     )
+    _PROGRESSION_DICT_COLS = ("skill_ranks", "relationships")
 
     def get_progression(self, player_id: str, scenario_id: str) -> dict[str, Any] | None:
         row = self._fetchone(
@@ -379,8 +381,10 @@ class PostgresMythOSStore(MythOSStore):
         self, player_id: str, scenario_id: str, content: dict[str, Any]
     ) -> None:
         int_vals = [int(content.get(col) or 0) for col in self._PROGRESSION_INT_COLS]
-        json_vals = [Jsonb(content.get(col) or ([] if col != "skill_ranks" else {}))
-                     for col in self._PROGRESSION_JSON_COLS]
+        json_vals = [
+            Jsonb(content.get(col) or ({} if col in self._PROGRESSION_DICT_COLS else []))
+            for col in self._PROGRESSION_JSON_COLS
+        ]
         cols = (*self._PROGRESSION_INT_COLS, *self._PROGRESSION_JSON_COLS)
         set_clause = ", ".join(f"{col} = EXCLUDED.{col}" for col in cols)
         placeholders = ", ".join(["%s"] * (2 + len(cols)))

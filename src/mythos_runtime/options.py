@@ -83,6 +83,7 @@ class RunSummary:
     allies_met: list[str]
     unlocks_granted: list[str]
     summary_text: str
+    relationships: dict[str, int] = field(default_factory=dict)
     metadata: dict[str, Any] = field(default_factory=dict)
 
 

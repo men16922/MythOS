@@ -5,6 +5,14 @@
 이 파일은 **최신 증분 요약만** 유지한다(최신 5항목). 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-16 — route node-type closure invariant (시드 F, `[auto:claude]`, QA seed)
+- Status: overnight `[auto:claude]` 시드 F — 모든 layer `pool` 타입·anchor `type`가 `route_map.node_types`에 선언됐는지 박제. green.
+- 측정: 절차적 라우트 빌더는 미지 타입을 **에러 없이 조용히 드롭** — anchor 미지 `type`은 `route_map.py:121`(`if node_type not in node_types: continue`)서 통째 스킵(저작된 beat/title/image/perspectives 소실), pool은 `route_map.py:132`(`[t for t in pool if str(t) in node_types]`)서 선언 타입만 필터(오타 pool 타입은 spawnable 집합 조용히 축소). relationship dead-data와 동일 실패모드. 실데이터: neo-seoul node_types={boss,clue,combat,event,market,patrol,rest,story}, pool 타입={clue,combat,event,market,patrol,rest}, anchor 타입={boss,event,market,story} → 전부 선언 내(드리프트 0). glass-library는 `route_map.node_types` 부재(정적 시나리오)→inert.
+- Changed: `tests/test_content_integrity.py`에 `RouteNodeTypeClosureTest` 2건 + 헬퍼 `_route_node_type_usage`(`(declared, pool_types, anchor_types)` 추출 — bare-string anchor=타입 자체, dict anchor=`type` 필드 default `story`, route_map.py resolve와 동일). 테스트: ① pool/anchor 타입 ∈ node_types(미지 타입=조용한 드롭 가드) ② guard-the-guard(node_types 선언+pool/anchor 참조 시나리오 ≥1, 레지스트리 삭제해도 통과하는 vacuous green 방지). glob으로 전 시나리오 자동 커버.
+- Verified: `make check` EXIT=0 — ruff/eslint/mypy(116 files)/frontend build + **378 tests OK**(skipped 2, +2). 고장주입 2/2 CAUGHT: pool 오타(`markat`)→FAIL, anchor 오타(`bogustype`)→FAIL, scenario.json byte-restore 후 green.
+- Blockers: 없음.
+- Next: 시드 G(이미지 ref 실존)/H(perspective `when` 플래그 생성가능성) 또는 I/J/K(Phase 4 prose 추출), L/M/N(호감도 런타임) 등 잔여 `[auto:claude]`. 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-16 — ending condition 참조 무결성 invariant (시드 E, `[auto:claude]`, QA seed)
 - Status: overnight `[auto:claude]` 시드 E — `endings[].condition`이 참조하는 심볼/플래그가 전부 실재·생성가능한지 박제. green.
 - 측정: ending condition은 `EndingResolver.resolve_ending`이 고정 namespace에서 AST 평가 — 인식 심볼 = `{Humanity,Insight,Resilience,Dominance,Stability,Tension,Autonomy,flags}`(`__builtins__` 제외). 미지 `Name`은 `ASTConditionEvaluator`서 `NameError`→`resolve_ending`이 swallow→ending 영구 미매칭(dead). 전 시나리오 condition Name = 인식 집합 내(드리프트 0). flag 참조(`flags contains X`)는 glass-library `miro_return_card_found` 1건뿐 — ally `unlock_flags`(combat_service 소비) + Director system_prompt 명시 → 생성가능. neo-seoul endings는 flag 무참조. scenario.json `flags` 키는 effect.flags producer 전용, `trigger_flag`/`flags_any`는 consumer(생산자 아님→제외).

@@ -1205,5 +1205,102 @@ class EndingConditionReferenceIntegrityTest(unittest.TestCase):
         )
 
 
+def _route_node_type_usage(
+    scenario_data: dict[str, Any],
+) -> tuple[set[str], set[str], set[str]]:
+    """Return ``(declared, pool_types, anchor_types)`` for a scenario's route map.
+
+    - ``declared``    — keys of ``route_map.node_types`` (the registry).
+    - ``pool_types``  — every type listed in any layer's ``pool``.
+    - ``anchor_types``— every anchor's resolved ``type`` (a bare-string anchor *is*
+      its type; a dict anchor uses its ``type`` field, defaulting to ``"story"``
+      exactly as ``route_map._layer_node_specs`` resolves it).
+
+    Scenarios without a ``route_map.node_types`` dict (e.g. the static
+    ``glass-library``) return three empty sets — they have no dynamic route map to
+    constrain.
+    """
+    route_map = scenario_data.get("route_map") or {}
+    node_types = route_map.get("node_types")
+    if not isinstance(node_types, dict):
+        return set(), set(), set()
+    declared = {str(k) for k in node_types}
+    pool_types: set[str] = set()
+    anchor_types: set[str] = set()
+    for layer in route_map.get("layers", []) or []:
+        if not isinstance(layer, dict):
+            continue
+        for t in layer.get("pool", []) or []:
+            pool_types.add(str(t))
+        for anchor in layer.get("anchors", []) or []:
+            if isinstance(anchor, str):
+                anchor_types.add(anchor)
+            elif isinstance(anchor, dict):
+                anchor_types.add(str(anchor.get("type", "story")))
+    return declared, pool_types, anchor_types
+
+
+class RouteNodeTypeClosureTest(unittest.TestCase):
+    """Enum closure for route ``pool`` and anchor ``type`` against ``node_types``.
+
+    The procedural route builder resolves every layer node through the
+    ``route_map.node_types`` registry, and an *unknown* type is silently dropped,
+    not flagged:
+
+    - an anchor whose ``type`` is not in ``node_types`` is skipped outright
+      (``route_map.py`` ~line 121: ``if node_type not in node_types: continue``),
+      so an authored anchor (with its beat/title/image/perspectives) never appears
+      on the map;
+    - a layer ``pool`` is filtered to declared types only
+      (``route_map.py`` ~line 132: ``[t for t in pool if str(t) in node_types]``),
+      so a misspelled pool type quietly narrows the spawnable set.
+
+    Either way a typo (``markat``, ``patrl``) produces no error — the same
+    silent-drop failure mode behind the dead ``relationship`` data. This invariant
+    closes the set: every authored pool/anchor type must be declared in
+    ``node_types``. The scan globs ``resources/*/scenario.json`` so new scenarios
+    are covered automatically; scenarios without a dynamic route map are inert.
+    """
+
+    def _scenarios(self) -> list[tuple[str, dict[str, Any]]]:
+        out: list[tuple[str, dict[str, Any]]] = []
+        for path in _scenario_json_paths():
+            with open(path, encoding="utf-8") as handle:
+                out.append((path.parent.name, json.load(handle)))
+        return out
+
+    def test_pool_and_anchor_types_are_declared(self) -> None:
+        offenders: list[str] = []
+        for name, data in self._scenarios():
+            declared, pool_types, anchor_types = _route_node_type_usage(data)
+            for t in sorted(pool_types - declared):
+                offenders.append(f"{name}:pool:{t!r}")
+            for t in sorted(anchor_types - declared):
+                offenders.append(f"{name}:anchor:{t!r}")
+        self.assertEqual(
+            offenders,
+            [],
+            "route layer pool / anchor types not declared in route_map.node_types "
+            "(an unknown type is silently dropped — the pool narrows or the anchor "
+            f"vanishes from the map): {offenders}",
+        )
+
+    def test_at_least_one_scenario_exercises_the_invariant(self) -> None:
+        """Guard-the-guard: at least one scenario must declare a route node_types
+        registry and reference it from a pool/anchor, or the closure check above is
+        vacuously green (it would pass even if the registry were deleted)."""
+        exercised = False
+        for _name, data in self._scenarios():
+            declared, pool_types, anchor_types = _route_node_type_usage(data)
+            if declared and (pool_types or anchor_types):
+                exercised = True
+                break
+        self.assertTrue(
+            exercised,
+            "no scenario declares route_map.node_types with referencing pool/anchor "
+            "types — RouteNodeTypeClosureTest is vacuously green",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

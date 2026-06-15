@@ -5,6 +5,14 @@
 이 파일은 **최신 증분 요약만** 유지한다(최신 5항목). 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-16 — 전 시나리오 이미지 ref 실존 invariant (시드 G, `[auto:claude]`, QA seed)
+- Status: overnight `[auto:claude]` 시드 G — scenario.json scene/character/anchor 이미지 참조가 실재(dangling 0)하는지 박제. green.
+- 측정: `image_sequence`·anchor `image`/`image_pre`·`characters[].image`·`cinematic_shots[].image`는 프론트가 이미지 URL로 직접 로드(`StoryPanel.tsx:614` `image_sequence`, route 앵커 그림) → scenario.json 오타 경로 = **화면에서 에러 없이 깨지는 그림**(test_assets.py character_map/bestiary와 동일 실패모드). 실데이터: neo-seoul 23 refs/dangling 0, glass-library 0 refs(route_map/characters 부재). **스킬 아이콘 의도적 제외** — `combat.skills`는 dict(10종)인데 아이콘 PNG는 5종만 존재(emp_pulse/nanoshield_projector/glitch_blink/signal_overdrive/memory_resonance 미존재, `[auto:agy]` 초안 대기) → 별도 `[blocked] 스킬/아이콘 무결성 invariant`(NEXT_PLAN)가 관장. 여기서 강제하면 중복·false-RED.
+- Changed: `tests/test_assets.py`에 `ScenarioImageReferenceIntegrityTest` 1건(`test_scene_character_anchor_images_exist`) + 헬퍼 `_scenario_jsons`(glob)·`_image_refs`(characters/route anchors/cinematic_shots 추출, 스킬 아이콘 제외). guard-the-guard(추출 refs ≥1 — vacuous green 방지). glob으로 전 시나리오 자동 커버.
+- Verified: `make check` EXIT=0 — ruff/eslint/mypy(116 files)/frontend build + **379 tests OK**(skipped 2, +1). 고장주입 1/1 CAUGHT: `_image_refs`에 dangling 경로(`scenes/THIS_DOES_NOT_EXIST.png`) 주입 시 FAIL, 정상 시 green.
+- Blockers: 없음. (스킬 아이콘 5종 미존재는 신규 blocker 아님 — 기존 `[blocked]` 항목이 이미 추적, agy 초안 채택 대기.)
+- Next: 시드 H(perspective `when` 플래그 생성가능성) 또는 I/J/K(Phase 4 prose 추출), L/M/N(호감도 런타임) 등 잔여 `[auto:claude]`. 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-16 — route node-type closure invariant (시드 F, `[auto:claude]`, QA seed)
 - Status: overnight `[auto:claude]` 시드 F — 모든 layer `pool` 타입·anchor `type`가 `route_map.node_types`에 선언됐는지 박제. green.
 - 측정: 절차적 라우트 빌더는 미지 타입을 **에러 없이 조용히 드롭** — anchor 미지 `type`은 `route_map.py:121`(`if node_type not in node_types: continue`)서 통째 스킵(저작된 beat/title/image/perspectives 소실), pool은 `route_map.py:132`(`[t for t in pool if str(t) in node_types]`)서 선언 타입만 필터(오타 pool 타입은 spawnable 집합 조용히 축소). relationship dead-data와 동일 실패모드. 실데이터: neo-seoul node_types={boss,clue,combat,event,market,patrol,rest,story}, pool 타입={clue,combat,event,market,patrol,rest}, anchor 타입={boss,event,market,story} → 전부 선언 내(드리프트 0). glass-library는 `route_map.node_types` 부재(정적 시나리오)→inert.

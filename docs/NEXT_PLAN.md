@@ -1,10 +1,21 @@
 # Project MythOS Next Plan
 
-최종 갱신: 2026-06-14
+최종 갱신: 2026-06-16
 
 이 파일은 앞으로 할 일(열린 작업)만 유지하는 rolling plan이다. 완료 트랙은
 `docs/COMPLETED_SUMMARY.md`, 상세 로그는 `bin/docs/archive/progress-2026-06.md`, 개별 설계는
 `docs/plans/`를 본다.
+
+## Priority 0 — 동료 호감도 + 컷씬 언락 + 프롬프트 레이어 분리 (현재 최우선)
+
+권위 설계: `docs/plans/2026-06-16-companion-affection-cutscenes.md`. 진행 베이스라인: prompt-layer Phase 0-2 완료(커밋 `751a37b`/`cfe6a2d`/`ed37c39`/`7fd91e5`, `docs/PROMPT_LAYER.md`).
+핵심 발견: relationship 델타(`scenario.json` perspective/choice `effect.relationship`)는 **저작됐으나 런타임 무시(dead data)** — `route_runtime.py:96`이 flags만 적용.
+
+- `[/]` **프롬프트 레이어 분리(Foundation)**: Phase 0-2 완료(loader/fallback 단일화/오프닝 비트→`directives/opening.md`). 잔여 — `[ ]` Phase 3 fallback→`directives/fallback.md`+context 배선 · `[ ]` Phase 4 naming/stat/encounter prose→md(generic 기본값 코드 유지·glass-library 회귀0) · `[ ]` Phase 5 system_prompt 예시 추출 · `[ ]` **노드-주소 지정**(`node=`/`beat=` 키 → 앵커·컷씬 잠금, P1 prereq).
+- `[ ]` **P0 호감도 런타임**(`[auto]` 검증): `effect.relationship`를 `loop.state.relationships[name]` 누적(route_runtime+session) + meta progression 이월 + serializer/프론트 게이지. 무결성 테스트(relationship 키∈동료, 누적 단조성). 완료 기준: 누적/지속/표시 + `make check` green.
+- `[ ]` **P1 컷씬 언락**: `directives/companions/<name>.md`(컷씬 블록: unlock_affection/flags/image+대본) 로더 + 임계 판정(결정론) + 갤러리(기억의 별자리, 미언락 잠김) 우선 → 인게임 등장 후속.
+- `[ ]` `[manual]` **P2 Se-rin 컷씬**: `outputs/experiments/adult/serin/imagegen/*.png` 2종 채택(IMAGE_POLICY) + `directives/companions/se_rin.md` 임계별 컷씬 저작 + 라이브 QA.
+- `[ ]` `[manual]` **P3 동료 확장**: 카이/린위에/태오/한/수아 컷씬 + `side_arcs` 6종 route 사이드-앵커 승격(WS-B 트랙2).
 
 ## 엔지니어링 정비 트랙 — WS0-3 완료 (active focus 는 P1 Neo-Seoul 로 복귀)
 

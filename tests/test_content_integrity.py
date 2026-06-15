@@ -33,11 +33,13 @@ A violation is a real content bug to fix mechanically or surface as a Blocker,
 not a flaky judgment call.
 """
 
+import ast
 import json
 import unittest
 from typing import Any
 
 from mythos_combat.factory import _DEFAULT_STATS
+from mythos_runtime.ending_resolver import EndingResolver
 from mythos_runtime.route_map import build_route_map, build_route_seed
 from mythos_runtime.route_runtime import node_encounter_id
 from mythos_runtime.scenario import PROJECT_ROOT, load_scenario
@@ -1052,6 +1054,154 @@ class RelationshipSubjectIntegrityTest(unittest.TestCase):
             [],
             "relationship_subjects entries that are stale or shadow a combat ally "
             f"id: {offenders}",
+        )
+
+
+# Names the ending resolver binds in its evaluation namespace
+# (``ending_resolver.EndingResolver.resolve_ending`` builds ``eval_namespace``).
+# A ``Name`` an ending condition references that is *not* one of these raises
+# ``NameError`` inside ``ASTConditionEvaluator``, which ``resolve_ending`` catches
+# and logs — so the ending silently never fires. Keep in sync with that method's
+# ``eval_namespace`` keys (``__builtins__`` excluded — it is sandbox plumbing, not
+# a referenceable symbol).
+RECOGNISED_ENDING_SYMBOLS = frozenset(
+    {
+        # derived metrics (EndingResolver.calculate_scores + clue_count)
+        "Humanity",
+        "Insight",
+        "Resilience",
+        "Dominance",
+        # live loop metrics
+        "Stability",
+        "Tension",
+        # autonomy level (progression.determine_autonomy_level)
+        "Autonomy",
+        # the flag set, consumed via ``flags contains <flag>``
+        "flags",
+    }
+)
+
+
+def _ending_symbols_and_flags(condition: str) -> tuple[set[str], set[str]]:
+    """Return (referenced Name symbols, referenced flag literals) for a condition.
+
+    Preprocess with the *runtime's own* ``_preprocess_condition`` so the test parses
+    exactly what the resolver evaluates (``&&``→``and``, ``flags contains X``→
+    ``"X" in flags``). After that rewrite every ``ast.Name`` is a namespace symbol
+    and every string ``ast.Constant`` is a flag literal (the only source of string
+    constants is the ``flags contains`` rewrite); numeric constants are ignored.
+    """
+    processed = EndingResolver._preprocess_condition(condition)
+    tree = ast.parse(processed, mode="eval")
+    symbols = {n.id for n in ast.walk(tree) if isinstance(n, ast.Name)}
+    flags = {
+        n.value
+        for n in ast.walk(tree)
+        if isinstance(n, ast.Constant) and isinstance(n.value, str)
+    }
+    return symbols, flags
+
+
+def _producible_flags(scenario_data: dict[str, Any]) -> set[str]:
+    """Flags the scenario can actually make true at runtime.
+
+    Two authored producer surfaces, plus the engine onboarding flags:
+
+    - route perspective ``effect.flags`` (key ``flags``) — ``route_runtime`` merges
+      these into ``state["flags"]`` when a perspective resolves.
+    - ally ``unlock_flags`` — ``combat_service`` sets these when an ally is recruited.
+
+    ``trigger_flag`` / ``flags_any`` are *consumers* (side-arc / story-bible
+    reactions), not producers, so they are intentionally excluded — an ending flag
+    that only appears there has no producer and is dead.
+    """
+    produced: set[str] = set(ENGINE_PRODUCED_FLAGS)
+
+    def _walk(obj: Any) -> None:
+        if isinstance(obj, dict):
+            for key, value in obj.items():
+                if key in ("flags", "unlock_flags") and isinstance(value, list):
+                    produced.update(str(v) for v in value)
+                _walk(value)
+        elif isinstance(obj, list):
+            for item in obj:
+                _walk(item)
+
+    _walk(scenario_data)
+    return produced
+
+
+class EndingConditionReferenceIntegrityTest(unittest.TestCase):
+    """Reference integrity for ``endings[].condition`` across every scenario.
+
+    An ending condition is a boolean expression the ``EndingResolver`` evaluates in
+    a fixed namespace. Two ways an ending can be silently un-winnable:
+
+    - a condition references an **unknown symbol** (a typo'd metric like
+      ``Humanty``, or a metric the resolver never binds) — evaluation raises
+      ``NameError``, which ``resolve_ending`` swallows, so the ending can never
+      fire.
+    - a condition gates on a **flag no producer can set** (``flags contains
+      <flag>`` for a flag nothing authors) — the clause is permanently false, so
+      the ending is unreachable.
+
+    Both are mechanical content bugs (a dead ending the player can never earn), not
+    judgment calls. The scan globs ``resources/*/scenario.json`` so new scenarios
+    are covered automatically.
+    """
+
+    def _scenarios(self) -> list[tuple[str, dict[str, Any]]]:
+        out: list[tuple[str, dict[str, Any]]] = []
+        for path in _scenario_json_paths():
+            with open(path, encoding="utf-8") as handle:
+                out.append((path.parent.name, json.load(handle)))
+        return out
+
+    def _conditions(self, data: dict[str, Any]) -> list[tuple[str, str]]:
+        out: list[tuple[str, str]] = []
+        for ending in data.get("endings", []) or []:
+            if not isinstance(ending, dict):
+                continue
+            condition = ending.get("condition")
+            if condition:
+                out.append((str(ending.get("id", "?")), str(condition)))
+        return out
+
+    def test_at_least_one_ending_condition_exists(self) -> None:
+        """Guard the guard: if no scenario has any ending condition, the reference
+        tests below are vacuously green and the invariant is asleep."""
+        total = sum(len(self._conditions(data)) for _name, data in self._scenarios())
+        self.assertGreater(total, 0, "expected at least one authored ending condition")
+
+    def test_ending_condition_symbols_are_recognised(self) -> None:
+        offenders: list[str] = []
+        for name, data in self._scenarios():
+            for ending_id, condition in self._conditions(data):
+                symbols, _flags = _ending_symbols_and_flags(condition)
+                for symbol in sorted(symbols - RECOGNISED_ENDING_SYMBOLS):
+                    offenders.append(f"{name}:{ending_id}:{symbol!r}")
+        self.assertEqual(
+            offenders,
+            [],
+            "ending conditions referencing symbols outside the resolver namespace "
+            f"{sorted(RECOGNISED_ENDING_SYMBOLS)} (a NameError is swallowed — the "
+            f"ending can never fire): {offenders}",
+        )
+
+    def test_ending_condition_flags_are_producible(self) -> None:
+        offenders: list[str] = []
+        for name, data in self._scenarios():
+            producible = _producible_flags(data)
+            for ending_id, condition in self._conditions(data):
+                _symbols, flags = _ending_symbols_and_flags(condition)
+                for flag in sorted(flags - producible):
+                    offenders.append(f"{name}:{ending_id}:{flag!r}")
+        self.assertEqual(
+            offenders,
+            [],
+            "ending conditions gating on flags no producer can set (authored "
+            "effect.flags or ally unlock_flags) — the clause is permanently false, "
+            f"so the ending is unreachable: {offenders}",
         )
 
 

@@ -5,6 +5,14 @@
 이 파일은 **최신 증분 요약만** 유지한다(최신 5항목). 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-16 — ending condition 참조 무결성 invariant (시드 E, `[auto:claude]`, QA seed)
+- Status: overnight `[auto:claude]` 시드 E — `endings[].condition`이 참조하는 심볼/플래그가 전부 실재·생성가능한지 박제. green.
+- 측정: ending condition은 `EndingResolver.resolve_ending`이 고정 namespace에서 AST 평가 — 인식 심볼 = `{Humanity,Insight,Resilience,Dominance,Stability,Tension,Autonomy,flags}`(`__builtins__` 제외). 미지 `Name`은 `ASTConditionEvaluator`서 `NameError`→`resolve_ending`이 swallow→ending 영구 미매칭(dead). 전 시나리오 condition Name = 인식 집합 내(드리프트 0). flag 참조(`flags contains X`)는 glass-library `miro_return_card_found` 1건뿐 — ally `unlock_flags`(combat_service 소비) + Director system_prompt 명시 → 생성가능. neo-seoul endings는 flag 무참조. scenario.json `flags` 키는 effect.flags producer 전용, `trigger_flag`/`flags_any`는 consumer(생산자 아님→제외).
+- Changed: `tests/test_content_integrity.py`에 `EndingConditionReferenceIntegrityTest` 3건 + 헬퍼. ① `_ending_symbols_and_flags`는 **런타임의 `EndingResolver._preprocess_condition` 재사용**(테스트가 평가와 동일 파싱 — `&&`→`and`, `flags contains X`→`"X" in flags`) 후 AST walk으로 Name(심볼)·str Constant(flag) 추출. ② `RECOGNISED_ENDING_SYMBOLS`(resolver namespace 동기화 주석). ③ `_producible_flags`(재귀 `effect.flags`+`unlock_flags`+`ENGINE_PRODUCED_FLAGS`). 테스트: 심볼∈namespace(NameError dead 가드) + flag∈producible(영구 false clause 가드) + guard-the-guard(condition 0건이면 vacuous green 방지). glob으로 전 시나리오 자동 커버.
+- Verified: `make check` EXIT=0 — ruff/eslint/mypy(116 files)/frontend build + **376 tests OK**(skipped 2, +3). 고장주입 2/2 CAUGHT: typo 메트릭 `Humanty`→심볼 RED, dead flag `nonexistent_flag`→flag RED. 실 flag `miro_return_card_found` producible 확인.
+- Blockers: 없음.
+- Next: 시드 F(route node-type closure)/G(이미지 ref 실존)/H 또는 I/J/K(Phase 4 prose 추출), L/M/N(호감도 런타임) 등 잔여 `[auto:claude]`. 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-16 — directives 노드-주소 지정 (시드 D, `[auto:claude]`)
 - Status: overnight `[auto:claude]` 시드 D — directive 블록을 route 노드/저작 beat에 주소 지정(`node=`/`beat=` 헤더 키) 가능하게 — P1 컷씬·앵커 잠금의 prereq 파서 primitive. green.
 - 측정: `_HEADER_RE`/`_parse_params`가 이미 `(key=val, …)` 헤더 파라미터를 임의로 파싱 → `node=`/`beat=`는 이미 `block.params`에 안착. 실제 결손은 **주소 룩업 API 부재**(현재 opening은 turn-주소, fallback은 block_id 주소만). 현행 두 directives 파일(opening.md 5블록·fallback.md 7블록)에 `node=`/`beat=` 헤더 0건 확인 → 추가는 parity-safe(기존 동작 불변).

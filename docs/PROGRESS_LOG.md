@@ -5,6 +5,14 @@
 이 파일은 **최신 증분 요약만** 유지한다(최신 5항목). 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-16 — effect 키 closure invariant (시드 B, `[auto:claude]`, QA seed)
+- Status: overnight `[auto:claude]` 시드 B — route perspective/choice `effect` 키 enum closure invariant 박제. green.
+- 측정(소비 키 근거): 내러티브 `effect` 블록은 키별 적용 — `flags`→`route_runtime.py:96`(state["flags"] 병합), `stability`/`tension`/`insight`→`session.py:1322-1326`(`_apply_route_node_reward`). 미인식 키는 에러 없이 **조용히 드롭**(relationship dead-data와 동일 실패모드). 실데이터 route perspective effect 키(전 시나리오 glob) = `{flags, stability, tension, insight, relationship}`, choice effect = 없음. 전투 skill/item `effect`(damage/heal/move/…)는 combat engine 별도 네임스페이스라 스코프 제외.
+- Changed: `tests/test_content_integrity.py`에 `RouteEffectKeyClosureTest` 2건 + 헬퍼 `_route_effect_keys`(route_map 앵커 perspective + scene choice만 스캔, 전투 effect 제외). `CONSUMED_ROUTE_EFFECT_KEYS={flags,stability,tension,insight}`(실소비) + `PENDING_ROUTE_EFFECT_KEYS={relationship}`(저작됨·미소비, P0 L/M 배선 대기). 테스트: ① 모든 authored 키 ∈ recognised(오타=델타 미착지 가드) ② anti-rot — pending 키는 여전히 authored(L/M 배선 시 CONSUMED로 승격 신호). glob으로 전 시나리오 자동 커버.
+- Verified: `make check` EXIT=0 — ruff/eslint/mypy(116 files)/frontend build + **364 tests OK**(skipped 2, +2). 고장주입 확인: perspective 오타 키(`realtionship`) 주입 시 RED, choice effect 오타(`insihgt`)도 헬퍼가 포착, 복원 후 green.
+- Blockers: 없음.
+- Next: 시드 C(prompt-layer Phase 3 — fallback→directives/fallback.md) 등 잔여 `[auto:claude]`. 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-16 — relationship 타깃 무결성 invariant (시드 A, `[auto:claude]`, QA seed)
 - Status: overnight `[auto:claude]` 시드 A — `effect.relationship` 키 무결성 invariant 박제. green.
 - 측정: `effect.relationship` 델타는 전부 route_map perspective에만 존재(재귀 스캔). neo-seoul 키 = `{se_rin, kai, lin_yue}`, glass-library = 없음. combat ally id = `{se_rin, kai, tae_o, han, su_ah}` → `se_rin`/`kai`는 ally로 해소되나 `lin_yue`(린위에, 야시장 브로커 — 비전투 동료, 권위 plan 2026-06-16 동료 6인 로스터 line 17)는 ally 부재. characters[]에는 slug 없음(Korean name only)이라 슬러그 해소 불가.

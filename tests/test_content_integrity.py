@@ -872,6 +872,114 @@ class NpcAgendaSubjectIntegrityTest(unittest.TestCase):
         )
 
 
+def _route_effect_keys(scenario_data: dict[str, Any]) -> set[str]:
+    """Every key authored on a route perspective or scene-choice ``effect`` block.
+
+    Scoped to the *narrative* effect namespace — ``route_map`` layer anchor
+    perspectives and scene ``choices`` — and deliberately excluding combat skill /
+    item ``effect`` blocks, which the combat engine consumes under a wholly
+    separate vocabulary (``damage``/``heal``/``move``/…). Scanning that namespace
+    would conflate two unrelated key sets and defeat the typo guard.
+    """
+    keys: set[str] = set()
+    route_map = scenario_data.get("route_map") or {}
+    for layer in route_map.get("layers", []) or []:
+        for anchor in layer.get("anchors", []) or []:
+            for perspective in anchor.get("perspectives", []) or []:
+                eff = perspective.get("effect")
+                if isinstance(eff, dict):
+                    keys.update(str(k) for k in eff)
+
+    def _walk(obj: Any) -> None:
+        if isinstance(obj, dict):
+            choices = obj.get("choices")
+            if isinstance(choices, list):
+                for choice in choices:
+                    if isinstance(choice, dict) and isinstance(choice.get("effect"), dict):
+                        keys.update(str(k) for k in choice["effect"])
+            for value in obj.values():
+                _walk(value)
+        elif isinstance(obj, list):
+            for item in obj:
+                _walk(item)
+
+    _walk(scenario_data)
+    return keys
+
+
+# Narrative ``effect`` keys the runtime actually applies when a route perspective
+# resolves (and, prospectively, when a scene choice carries an ``effect``):
+#   - ``flags``                            -> route_runtime resolve loop merges
+#                                             them into state["flags"]
+#                                             (``route_runtime.py`` line ~96)
+#   - ``stability`` / ``tension`` / ``insight`` -> session._apply_route_node_reward
+#                                             (``session.py`` lines ~1322-1326)
+# Combat skill / item ``effect`` blocks (damage/heal/move/…) are a different
+# namespace owned by the combat engine and are out of scope (see _route_effect_keys).
+CONSUMED_ROUTE_EFFECT_KEYS = frozenset({"flags", "stability", "tension", "insight"})
+
+# ``relationship`` is authored on neo-seoul perspectives but not yet consumed — it
+# is dead data pending the P0 호감도 런타임 (NEXT_PLAN seed L/M will accumulate it
+# into ``loop.state["relationships"]``). It is recognised (an intentional key, not
+# a typo) but tracked separately so that the day it becomes consumed it moves into
+# CONSUMED above, and the anti-rot guard below notices if it is removed first.
+PENDING_ROUTE_EFFECT_KEYS = frozenset({"relationship"})
+
+RECOGNISED_ROUTE_EFFECT_KEYS = CONSUMED_ROUTE_EFFECT_KEYS | PENDING_ROUTE_EFFECT_KEYS
+
+
+class RouteEffectKeyClosureTest(unittest.TestCase):
+    """Enum closure for route perspective / scene-choice ``effect`` keys.
+
+    A narrative ``effect`` block is applied key-by-key: the runtime reads exactly
+    the keys in CONSUMED_ROUTE_EFFECT_KEYS and ignores everything else. So a
+    misspelled key (``stabilty``, ``realtionship``) does not error — it is silently
+    dropped, exactly the failure mode that left ``relationship`` dead for so long.
+    This invariant closes the set: every authored route-effect key must be either
+    consumed today or a registered pending key. An unrecognised key is a real
+    content bug (a typo whose delta never lands) to fix or surface as a Blocker.
+
+    The scan globs ``resources/*/scenario.json`` so new scenarios are covered
+    automatically.
+    """
+
+    def _scenarios(self) -> list[tuple[str, dict[str, Any]]]:
+        out: list[tuple[str, dict[str, Any]]] = []
+        for path in _scenario_json_paths():
+            with open(path, encoding="utf-8") as handle:
+                out.append((path.parent.name, json.load(handle)))
+        return out
+
+    def test_route_effect_keys_are_recognised(self) -> None:
+        offenders: list[str] = []
+        for name, data in self._scenarios():
+            unknown = sorted(_route_effect_keys(data) - RECOGNISED_ROUTE_EFFECT_KEYS)
+            offenders.extend(f"{name}:{key!r}" for key in unknown)
+        self.assertEqual(
+            offenders,
+            [],
+            "route perspective/choice effect keys outside the recognised set "
+            f"{sorted(RECOGNISED_ROUTE_EFFECT_KEYS)} (a misspelled key is silently "
+            f"dropped — its delta never lands): {offenders}",
+        )
+
+    def test_pending_effect_keys_are_still_authored(self) -> None:
+        """Anti-rot: a pending (recognised-but-not-yet-consumed) key must still be
+        authored somewhere. If nothing authors it anymore, it was wired into a
+        consumer (move it to CONSUMED) or removed (drop it) — either way the
+        PENDING registry is stale."""
+        authored: set[str] = set()
+        for _name, data in self._scenarios():
+            authored |= _route_effect_keys(data)
+        stale = sorted(PENDING_ROUTE_EFFECT_KEYS - authored)
+        self.assertEqual(
+            stale,
+            [],
+            "PENDING_ROUTE_EFFECT_KEYS entries that nothing authors anymore "
+            f"(stale — promote to CONSUMED or remove): {stale}",
+        )
+
+
 class RelationshipSubjectIntegrityTest(unittest.TestCase):
     """Subject integrity for ``effect.relationship`` deltas across every scenario.
 

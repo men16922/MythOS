@@ -5,6 +5,14 @@
 이 파일은 **최신 증분 요약만** 유지한다(최신 5항목). 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-16 — P0 호감도 런타임: route_runtime relationship 누적 (시드 L, `[auto:claude]`)
+- Status: overnight `[auto:claude]` 시드 L — `effect.relationship` dead-data 활성화. neo-seoul perspective `effect: {relationship: {se_rin:±1, kai:1, lin_yue:1}}` 다수가 저작됐으나 `advance_route`가 `effect.flags`/`ending_influence`만 적용하고 relationship을 무시 → 상태 미누적. 이제 `state["relationships"][name]`로 누적. green.
+- 측정: 비자명 지점은 **idempotency** — `advance_route`는 매턴 `visited` 전체 경로를 재replay하며 `flag_set`/`ending_tally`를 from-scratch 재계산한다. flags는 set(재-add 멱등), tally는 dict 재계산이라 안전하지만, relationship을 persisted state에서 `+=` 하면 **매 replay마다 같은 델타가 재가산(더블카운트)**. → tally와 동형으로 route 기여(`relationship_tally`)를 매턴 fresh 재계산해 route_map에 저장하고, `state["relationships"]`에는 **직전 route_tally를 빼고 새 route_tally를 더하는 reconcile**로 반영. 이로써 replay 멱등 + 비-route 기여(향후 시드 M의 choice 델타)는 보존. 음수 델타(p_caution se_rin:-1)도 지원, 0 잔액은 prune.
+- Changed: ① `route_runtime.py`: resolve 루프가 `effect.relationship`(dict, int 캐스트·비정상 값 skip)를 `rel_tally`로 집계 → `new_route_map["relationship_tally"]` 저장 + `_reconcile_relationships(current, prev_route_tally, new_route_tally)` 헬퍼로 `new_state["relationships"]` 산출(prev 차감·new 가산·0 prune). 모듈 docstring에 relationship ownership + idempotency 노트 추가. ② `tests/test_content_integrity.py`: `relationship` 키를 `PENDING_ROUTE_EFFECT_KEYS`→`CONSUMED_ROUTE_EFFECT_KEYS`로 이동(이제 실소비), PENDING 빈 frozenset(anti-rot guard green 유지).
+- Verified: `make check` EXIT=0 — ruff/eslint/mypy(116 files)/frontend build + **400 tests OK**(skipped 2, +5). `RouteRelationshipTest` 5건: 델타 적용(trusted_se_rin→se_rin:+1)·음수 델타(refused_se_rin→se_rin:-1)·replay 더블카운트 없음·비-route 기여(kai:5) 보존(advance+replay)·결정성+경로 길이 단조.
+- Blockers: 없음.
+- Next: 시드 M(choice `effect.relationship`를 `session` choose 경로에서 동일 누적, L 선행 충족)·N(progression 크로스-루프 이월). API serializer/프론트 게이지 + P1 컷씬은 후속. 실제 최우선은 Neo-Seoul 사람 QA([manual]).
+
 ## 2026-06-16 — prompt-layer Phase 4c: encounter→directives/encounters.md (시드 K, `[auto:claude]`)
 - Status: overnight `[auto:claude]` 시드 K — 이동(Travel)/리소스 임계점 위기(Emergency) 조우 지침 prose를 코드(`scenario_context`의 4개 inline f-string note)에서 프롬프트 레이어(`resources/neo-seoul/directives/encounters.md`)로 추출. travel 키워드 감지 + stability/tension 임계 게이팅 로직만 코드 STAY. byte-parity green.
 - 측정: stat-voice(시드 J)와 동형 — encounter 블록도 **scenario_id 무게이팅**으로 전 시나리오가 무조건 받던 prose다(glass-library 포함). 따라서 naming의 "코드 default=none" 패턴이 아니라 stat_voices/fallback 패턴(`directives.encounters or DEFAULT_ENCOUNTERS`)을 채택: prose를 md로 옮기되 **generic 코드 기본값 `DEFAULT_ENCOUNTERS`를 유지**, neo-seoul만 byte-identical override를 ship → md 미보유 시나리오(glass-library)는 기본값 폴백, 회귀0. f-string 4개를 `{player_action}`/`{decay_pct}`/`{stability}`/`{tension}` 플레이스홀더 템플릿으로 전환, `fill_placeholders`로 주입.

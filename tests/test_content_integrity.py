@@ -914,18 +914,22 @@ def _route_effect_keys(scenario_data: dict[str, Any]) -> set[str]:
 #   - ``flags``                            -> route_runtime resolve loop merges
 #                                             them into state["flags"]
 #                                             (``route_runtime.py`` line ~96)
+#   - ``relationship``                     -> route_runtime resolve loop tallies
+#                                             companion affection into
+#                                             state["relationships"] (P0 호감도
+#                                             런타임, NEXT_PLAN seed L)
 #   - ``stability`` / ``tension`` / ``insight`` -> session._apply_route_node_reward
 #                                             (``session.py`` lines ~1322-1326)
 # Combat skill / item ``effect`` blocks (damage/heal/move/…) are a different
 # namespace owned by the combat engine and are out of scope (see _route_effect_keys).
-CONSUMED_ROUTE_EFFECT_KEYS = frozenset({"flags", "stability", "tension", "insight"})
+CONSUMED_ROUTE_EFFECT_KEYS = frozenset(
+    {"flags", "relationship", "stability", "tension", "insight"}
+)
 
-# ``relationship`` is authored on neo-seoul perspectives but not yet consumed — it
-# is dead data pending the P0 호감도 런타임 (NEXT_PLAN seed L/M will accumulate it
-# into ``loop.state["relationships"]``). It is recognised (an intentional key, not
-# a typo) but tracked separately so that the day it becomes consumed it moves into
-# CONSUMED above, and the anti-rot guard below notices if it is removed first.
-PENDING_ROUTE_EFFECT_KEYS = frozenset({"relationship"})
+# No route-effect keys are currently authored-but-unconsumed. New keys land here
+# first (recognised, not a typo) until a consumer is wired, then move to CONSUMED;
+# the anti-rot guard below notices if a pending key stops being authored.
+PENDING_ROUTE_EFFECT_KEYS: frozenset[str] = frozenset()
 
 RECOGNISED_ROUTE_EFFECT_KEYS = CONSUMED_ROUTE_EFFECT_KEYS | PENDING_ROUTE_EFFECT_KEYS
 

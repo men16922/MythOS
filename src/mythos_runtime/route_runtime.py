@@ -8,11 +8,19 @@ are merged into loop state, and its `ending_influence` is tallied into a live
 leaderboard — so the player's route (the flags their choices set) deterministically
 shapes which ending the loop is heading toward.
 
-Step 2a scope: this layer owns *narrative flags* and the *ending tally* only. It
-deliberately does NOT mutate stability/tension/insight gauges — those stay owned
-by the loop engine and reward systems so effects are not double-applied. Binding
-edges to the actual choice list and triggering combat on combat nodes is a later
-step.
+Step 2a scope: this layer owns *narrative flags*, the *ending tally*, and the
+*relationship tally* (companion affection) only. It deliberately does NOT mutate
+stability/tension/insight gauges — those stay owned by the loop engine and reward
+systems so effects are not double-applied. Binding edges to the actual choice list
+and triggering combat on combat nodes is a later step.
+
+Idempotency note: ``advance_route`` replays the *entire* visited path on every
+turn, so anything additive (relationship deltas) must be recomputed fresh from the
+path rather than ``+=``-ed onto persisted state — otherwise each replay would
+re-add the same deltas. The route's relationship contribution is therefore tallied
+fresh every call (like the ending tally) and reconciled onto ``state["relationships"]``
+by subtracting the previous route tally and adding the new one, which leaves any
+non-route contribution (e.g. scene-choice deltas applied in ``session``) intact.
 """
 
 from __future__ import annotations
@@ -82,6 +90,7 @@ def advance_route(
     # resolved against the flags accumulated so far, then its effect flags apply.
     active: dict[str, str] = {}
     tally: dict[str, int] = {}
+    rel_tally: dict[str, int] = {}
     flag_set = set(flags)
     for node_id in visited:
         node = nodes.get(node_id, {})
@@ -93,8 +102,16 @@ def advance_route(
             continue
         active[node_id] = str(chosen.get("id", ""))
         effect = chosen.get("effect", {})
-        for flag in effect.get("flags", []) if isinstance(effect, dict) else []:
-            flag_set.add(str(flag))
+        if isinstance(effect, dict):
+            for flag in effect.get("flags", []) or []:
+                flag_set.add(str(flag))
+            relationship = effect.get("relationship")
+            if isinstance(relationship, dict):
+                for name, delta in relationship.items():
+                    try:
+                        rel_tally[str(name)] = rel_tally.get(str(name), 0) + int(delta)
+                    except (TypeError, ValueError):
+                        continue
         for ending in chosen.get("ending_influence", []) or []:
             tally[str(ending)] = tally.get(str(ending), 0) + 1
 
@@ -106,12 +123,47 @@ def advance_route(
         "active_perspectives": active,
         "ending_tally": tally,
         "ending_leaderboard": [list(item) for item in leaderboard],
+        "relationship_tally": rel_tally,
         "preferred_next": None,  # consumed
     }
     new_state = dict(state)
     new_state[ROUTE_MAP_KEY] = new_route_map
     new_state["flags"] = sorted(flag_set)
+    new_state["relationships"] = _reconcile_relationships(
+        state.get("relationships"), route_map.get("relationship_tally"), rel_tally
+    )
     return new_state
+
+
+def _reconcile_relationships(
+    current: Any,
+    previous_route_tally: Any,
+    new_route_tally: dict[str, int],
+) -> dict[str, int]:
+    """Fold a freshly recomputed route relationship tally into the accumulator.
+
+    ``advance_route`` replays the whole path each turn, so the route's contribution
+    is recomputed from scratch. To stay replay-safe we subtract the route tally we
+    stored last turn (``previous_route_tally``) and add the new one, leaving any
+    non-route deltas (scene choices) on ``current`` untouched. Zero balances are
+    pruned so the exposed dict stays tidy; a missing companion reads as 0.
+    """
+    out: dict[str, int] = {}
+    if isinstance(current, dict):
+        for name, value in current.items():
+            try:
+                out[str(name)] = int(value)
+            except (TypeError, ValueError):
+                continue
+    if isinstance(previous_route_tally, dict):
+        for name, value in previous_route_tally.items():
+            try:
+                out[str(name)] = out.get(str(name), 0) - int(value)
+            except (TypeError, ValueError):
+                continue
+    for name, value in new_route_tally.items():
+        out[name] = out.get(name, 0) + value
+    return {name: value for name, value in out.items() if value != 0}
 
 
 def junction_options(

@@ -89,6 +89,63 @@ class RouteRuntimeTest(unittest.TestCase):
         self.assertIn("ending_leaderboard", status)
 
 
+class RouteRelationshipTest(unittest.TestCase):
+    """P0 호감도 런타임: perspective ``effect.relationship`` accrues into
+    ``state["relationships"]`` (was dead data — only ``effect.flags`` was applied)."""
+
+    def test_relationship_delta_applied(self) -> None:
+        # trusted_se_rin selects the opening p_trust perspective (relationship
+        # se_rin:+1). Only the layer-0 anchor is visited at turn 2.
+        state = _state("seed", ["met_se_rin", "trusted_se_rin"])
+        out = advance_route(state, turn_index=2, seed="seed")
+        self.assertEqual(out["relationships"], {"se_rin": 1})
+        # The route's contribution is also recorded on the map for reconciliation.
+        self.assertEqual(out[ROUTE_MAP_KEY]["relationship_tally"], {"se_rin": 1})
+
+    def test_negative_relationship_delta(self) -> None:
+        # p_caution (safety_first/refused_se_rin) leans relationship se_rin:-1.
+        state = _state("seed", ["safety_first", "refused_se_rin"])
+        out = advance_route(state, turn_index=2, seed="seed")
+        self.assertEqual(out["relationships"], {"se_rin": -1})
+
+    def test_replay_does_not_double_count(self) -> None:
+        # advance_route replays the whole visited path every turn; re-advancing at
+        # the same turn must not re-add the route's relationship deltas.
+        first = advance_route(
+            _state("seed", ["met_se_rin", "trusted_se_rin"]), turn_index=2, seed="seed"
+        )
+        second = advance_route(first, turn_index=2, seed="seed")
+        self.assertEqual(second["relationships"], first["relationships"])
+        self.assertEqual(first["relationships"], {"se_rin": 1})
+
+    def test_non_route_contribution_preserved(self) -> None:
+        # A pre-existing relationship (e.g. a scene-choice delta applied elsewhere)
+        # survives route advance and survives replay reconciliation.
+        state = _state("seed", ["met_se_rin", "trusted_se_rin"])
+        state["relationships"] = {"kai": 5}
+        out = advance_route(state, turn_index=2, seed="seed")
+        self.assertEqual(out["relationships"], {"kai": 5, "se_rin": 1})
+        replay = advance_route(out, turn_index=2, seed="seed")
+        self.assertEqual(replay["relationships"], {"kai": 5, "se_rin": 1})
+
+    def test_deterministic_and_monotonic_along_route(self) -> None:
+        # Same seed/flags/turn → identical relationships, and a longer route
+        # accumulates at least as much affection magnitude as a short one.
+        flags = ["met_se_rin", "trusted_se_rin"]
+        a = advance_route(_state("seed", flags), turn_index=2, seed="seed")
+        b = advance_route(_state("seed", flags), turn_index=2, seed="seed")
+        self.assertEqual(a["relationships"], b["relationships"])
+        late = advance_route(
+            _state("seed", flags),
+            turn_index=DEFAULT_TURNS_PER_LAYER * 6 + 2,
+            seed="seed",
+        )
+        self.assertGreaterEqual(
+            sum(abs(v) for v in late["relationships"].values()),
+            sum(abs(v) for v in a["relationships"].values()),
+        )
+
+
 class JunctionTest(unittest.TestCase):
     def test_junction_only_at_layer_boundary(self) -> None:
         state = _state("seed")

@@ -1,17 +1,16 @@
 # Agent Brief
 
-최종 갱신: 2026-06-14
+최종 갱신: 2026-06-15
 
 이 파일은 작업 시작용 압축 문맥이다. 상세는 링크된 문서를 필요한 순간에만 연다.
 
-> ▶ NEXT SESSION: 엔지니어링 정비 트랙 WS0-3 완료(`docs/engineering/` 바이블↔해석). 다음은 **Neo-Seoul 사람 플레이 QA**([manual], `docs/test/neo_seoul_live_qa.md`) + 잔여 [auto] QA seed(NEXT_PLAN). WS4 콘텐츠 파이프라인은 plan-only.
+> ▶ NEXT SESSION: claude 레인 `[auto]` QA seed 전부 소진(npc_agenda allowlist 재정의로 마무리, COMPLETED_SUMMARY M44). 다음은 **Neo-Seoul 사람 플레이 QA**([manual], `docs/test/neo_seoul_live_qa.md`). 무인 잔여는 `[auto:agy]` 스킬 아이콘 6종 + 그 선행 `[blocked]` 스킬/아이콘 무결성뿐.
 
 ## Snapshot
 
 Project MythOS는 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG/CRPG다. AI GM(Ollama)이 장면을 진행하고, 전술 전투는 별도 deterministic combat engine이 판정한다.
 
 현재 baseline:
-
 - `RuntimeSessionService`가 CLI/Streamlit/FastAPI 공통 orchestration을 담당.
 - React+TS SPA + FastAPI `/api/v1` REST/WS adapter, Streamlit demo 모두 같은 runtime service 호출.
 - PostgreSQL/MinIO/Redis/OTel/Jaeger 로컬 인프라 구성.

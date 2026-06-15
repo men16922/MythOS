@@ -1,6 +1,6 @@
 # Project MythOS Status
 
-최종 갱신: 2026-06-14
+최종 갱신: 2026-06-15
 
 ## Current Baseline
 
@@ -80,7 +80,7 @@ Recent verified baseline recorded in docs:
 
 ## Open Risks
 
-- **로컬 main 미푸시(2026-06-14, ahead 27+)**: 이번 세션 작업(3엔진 병렬 하네스·skills git추적·BGM 수정·tidy 등)이 로컬 main에만 있음. private repo push는 안전 분류기 하드블록 → 사용자가 직접 push(men16922 본인 계정).
+- **push 워크플로(상시)**: private repo push는 안전 분류기 하드블록이라 에이전트가 못 함 → 사용자가 직접 push(men16922 본인 계정). 2026-06-15 기준 origin/main 동기화됨(ahead 0).
 - **LLM 스트리밍 first-token 지연(해결 2026-06-11, 스토리 8B 전환)**: "TTFT 11.1초/완료" 주장은 재현 안 됨. 실측 근본 원인은 **48GB RAM**(64GB 아님) 스왑 포화 — 26B(18GB)+FLUX 이미지가 안 들어가 26B가 evict/페이지인되며 TTFT 13→**43~127초** 폭발. **결정·적용**: 스토리 모델을 **`gemma4:26b`→`gemma4:latest`(8B, 9.6GB)** 로 전환(head-to-head서 한국어 산문 품질 경쟁력 확인, **warm TTFT 9~10초**, RAM 상주로 FLUX와 공존). 파서는 `qwen2.5:3b-instruct`(스트리밍 경로는 실제론 정규식 파서 사용). 64GB+ 머신에서만 26B 재권장. 상세 `docs/DECISIONS.md`/`PROGRESS_LOG.md` 2026-06-11, 재측정 `scratch/ttft_bench.py`.
 - **이미지 vs 큐레이트 중복(해결 2026-06-11)**: 앵커는 프론트가 큐레이트 이미지(`route_map.image`=`scenes/*.png`)를 표시하는데 백엔드가 그 앵커에서도 FLUX를 돌려 표시 안 될 그림 생성 + 느린 턴을 유발했다. `maybe_generate_scene_image`에 `_curated_anchor_image()` 가드 추가 — 현재 노드가 `image` 보유 앵커면 FLUX 스킵(프론트가 큐레이트 이미지를 표시하므로 화면 변화 없이 느린 턴만 제거). 회귀 테스트 `tests/test_visual_orchestration.py` 6건.
 - **작전 지도 horizon 미갱신(라이브 발견)**: 동적 라우팅 2막 horizon이 진행 중 갱신 안 되는 것으로 보고됨

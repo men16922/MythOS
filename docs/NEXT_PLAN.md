@@ -37,27 +37,13 @@
 - `[auto:agy]` — agy 레인(이미지 초안 + 간단 검증; resources/ 이미지 디렉터리만, 무결성 게이트).
 - claude 한도 소진 시 codex 가 claude 레인을 대신 소비(러너 자동 failover, `run.sh`).
 
-## Overnight QA Seed (2026-06-14) — 자동 콘텐츠/밸런스 무결성
+## Overnight QA Seed — 자동 콘텐츠/밸런스 무결성
 
 > "안 깨지는가"(봇, 결정론) 콘텐츠/밸런스 invariant. green=박제, red=Blocker surface. offline·`make check`.
 
-- `[x]` 완료 6종: 루트·엔딩 도달성(`test_route_integrity.py`)·플래그 참조·조우 무결성(`test_content_integrity.py`) + 조우 승률 밴드(`test_encounter_balance.py`, 양면 가드 ≥0.50/≤0.95) + 진행도 경제(`test_progression.py`). 상세 PROGRESS archive/COMPLETED_SUMMARY.
+- `[x]` **완료 invariant 배치(2026-06-14~15)** — 상세·검증은 `COMPLETED_SUMMARY.md`(QA Seed 무결성 배치) + PROGRESS archive: 루트·엔딩 도달성 / 플래그·조우 무결성 / 조우 승률 밴드(양면 ≥0.50·≤0.95) / 진행도 경제 / 무기·장비 / 스킬 데이터 / 아키타입 정합 / loot_table↔items / encounter 수치 경계 / item.kind enum / story_bible 메타 / npc_agenda 주체(allowlist 재정의) + codemod(FastAPI lifespan·dotenv ignore 중앙화). 문서 압축(`[auto:codex]`)도 이 정리로 완료.
 - `[ ]` `[auto:agy]` 스킬 아이콘 6종 초안: `emp_pulse`·`glitch_blink`·`memory_resonance`·`nanoshield_projector`·`signal_overdrive`·`system_intrusion` 의 `resources/neo-seoul/skills/<id>.png` 를 IMAGE_POLICY + 기존 스킬 아이콘 스타일을 바이블로 초안 생성(placeholder fabricate 금지). 완료 기준: 6 PNG 실존·비어있지 않음·규격 일치. (2026-06-14 1차 생성분은 미적 반려 — `outputs/agy/skills/VERDICT.md`. 엄격 카드 템플릿으로 재생성 필요.)
 - `[blocked]` `[auto:claude]` 스킬/아이콘 무결성 invariant: 모든 `combat.skills[].id`에 `resources/neo-seoul/skills/<id>.png` 존재 + 아키타입 base/learnable + `epiphany` unlock이 실재 스킬 참조. 완료 기준: `test_assets.py`에 추가, green 또는 Blocker. **선행 미충족**: 위 `[auto:agy]` 아이콘 6종 채택·머지 후 해제.
-- `[x]` `[auto:claude]` 무기/장비 무결성(`test_content_integrity.py` `WeaponEquipmentIntegrityTest` 4건, green): 무기 참조(loadout/allies/bestiary)→`combat.weapons` 실재 + equipment `slot`∈{weapon,armor} + `stats`키⊆`_DEFAULT_STATS`. dangling/오타 0.
-- `[x]` `[auto:claude]` 스킬 데이터 무결성(`test_content_integrity.py` `SkillDataIntegrityTest` 6건, green): 모든 `combat.skills[]` 필수 필드(`id`/`name`/`cost`/`effect`) + `cooldown`/`range`/`cost.focus` 음수 아님(존재 시) + 스킬 참조(`archetype_base_skills`·`allies[].skills`·`requires`)가 `combat.skills` 실재 + `skill.epiphany`가 `combat.epiphanies` 키 실재. 결손/음수/dangling 0. (PNG 아이콘은 위 `[blocked]` 항목 소관.)
-- `[x]` `[auto:claude]` 아키타입 집합 정합(`test_progression.py` `NeoSeoulArchetypeConsistencyTest` 3건, green): `archetype_base_skills`·`archetype_loadout`의 아키타입 키 집합이 동일(한쪽에만 있는 아키타입 0) + 각 아키타입 base 스킬·loadout 무기가 실재. 완료 기준: 테스트 추가, 불일치/dangling 0 green, 있으면 Blocker.
-
-### 2026-06-15 추가분 (`/overnight-seed` 승인 배치 — live survey)
-
-- `[x]` `[auto:claude]` loot_table↔items 참조 무결성: 모든 `combat.loot_tables[*][].item`이 `combat.items`에 실재 + `weight>0`. 완료 기준: `test_content_integrity.py`에 `LootTableIntegrityTest` 추가, dangling/비양수 0 green 또는 Blocker. (green, 2026-06-15)
-- `[x]` `[auto:claude]` encounter 수치 경계: 모든 `combat.encounters[*]`의 `enemies[].count≥1` + `weight>0` + per-encounter `arena.{width,height}>0`(bestiary 참조는 기존 테스트 커버). 완료 기준: `test_content_integrity.py`에 테스트 추가, 위반 0 green 또는 Blocker. (`EncounterBoundsIntegrityTest` 3건 green, 2026-06-15)
-- `[x]` `[auto:claude]` item.kind enum closure: 모든 `combat.items[].kind`가 게임 인식 집합 {`consumable`,`equipment`,`key`,`data`,`material`}에 속함(미래 오타 가드). 완료 기준: `test_content_integrity.py`에 테스트 추가, 미지 kind 0 green 또는 Blocker. (`ItemKindEnumIntegrityTest` 1건 green, 2026-06-15)
-- `[x]` `[auto:claude]` story_bible 메타 무결성: `story_bible/bible.json` entry `id` 유일 + `priority`/`token_budget` 양수 + `kind` 비어있지 않음. 완료 기준: 신규/기존 테스트에 추가, 중복 id·비양수 0 green 또는 Blocker. (`StoryBibleMetaIntegrityTest` 3건 green, 2026-06-15)
-- `[x]` `[auto:claude]` FastAPI on_event 현대화(codemod): `src/mythos_api/app.py`의 `@app.on_event("shutdown")`를 `lifespan` async context manager로 이전(동작 불변). deprecation 사용 0, `make check` green. (2026-06-15)
-- `[x]` `[auto:claude]` dotenv `type:ignore` 중앙화(codemod): import-line `# type: ignore[import-untyped, import-not-found]` 5건 제거. 중앙 모듈 설정은 이미 전역 `[tool.mypy] ignore_missing_imports = true`가 담당(인라인은 잉여였음) → 새 override 없이 잉여만 정리. `mypy src tests` 0 errors green. (2026-06-15)
-- `[x]` `[auto:claude]` npc_agenda 주체 무결성: 사람 triage(2026-06-15)에서 **추상 주체 allowlist로 재정의** 결정 → 구현 완료. `NpcAgendaSubjectIntegrityTest` 2건 green: 모든 `npc_agendas` 키는 `characters[].name`이거나 scenario.json `npc_agenda_allowed_subjects`(선언된 비-캐릭터/추상 주체)에 실재해야 함 + anti-rot(선언 주체는 실사용 + characters 비섀도). neo-seoul `최적화 명단 대상자` / glass-library 3종(characters[] 미모델링)을 allowlist로 선언. Blocker(설계 모호)는 사람 결정으로 해제.
-- `[ ]` `[auto:codex]` 문서 압축: NEXT_PLAN 완료 QA seed(`[x]`)·P0~P2 체크리스트 상세를 `COMPLETED_SUMMARY.md`로 압축하고 NEXT_PLAN 라인 예산 복원. 완료 기준: NEXT_PLAN 라인 수 감소 + 깨진 링크 0 + `make check` green.
 
 ## Priority 1 — Neo-Seoul Playability Upgrade
 

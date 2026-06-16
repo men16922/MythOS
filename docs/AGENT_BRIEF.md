@@ -4,7 +4,7 @@
 
 이 파일은 작업 시작용 압축 문맥이다. 상세는 링크된 문서를 필요한 순간에만 연다.
 
-> ▶ NEXT SESSION: **Priority 0 = 동료 호감도 + 컷씬 언락 + prompt-layer 분리** (권위 `docs/plans/2026-06-16-companion-affection-cutscenes.md`, NEXT_PLAN Priority 0). prompt-layer Phase 0-2 완료(`docs/PROMPT_LAYER.md`). **첫 행동 = P0 호감도 런타임**: `effect.relationship` 델타가 `route_runtime.py:96`서 무시되는 dead data — `loop.state.relationships[name]` 누적 배선부터. 그 뒤 Phase 3/노드-주소 지정 → P1 컷씬.
+> ▶ NEXT SESSION: **Priority 0 거의 완료** (권위 `docs/plans/2026-06-16-companion-affection-cutscenes.md`, NEXT_PLAN Priority 0). P0 호감도 런타임(overnight 시드 L/M/N/O) + Foundation Phase 0-4·노드-주소 지정(시드 C/D/I/J/K) + **P1 컷씬 언락 backend**(브랜치 `feat/companion-cutscene-unlock`, 커밋 `d8a8888`, `make check` green) 완료. **첫 행동 = 브랜치 머지**(사람 직접 — 에이전트 main push 차단; `make db-migrate`로 migration 006/007 적용 권장) → 그다음 `[manual]` 프론트 호감도 게이지 + 컷씬 갤러리 뷰(serializer payload 준비됨) / P2 Se-rin 전용 아트.
 
 ## Snapshot
 

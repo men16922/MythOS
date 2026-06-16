@@ -23,8 +23,32 @@ def player_to_dict(player: PlayerProfile) -> dict[str, Any]:
 
 
 def memory_overview_to_dict(overview: MemoryOverview) -> dict[str, Any]:
-    """Serialize a MemoryOverview for Codex and memory progression."""
-    return cast(dict[str, Any], to_json_dict(overview))
+    """Serialize a MemoryOverview for Codex and memory progression.
+
+    Enriches the raw round-trip with a resolved ``cutscene_gallery``: the player's
+    cross-loop ``unlocked_cutscenes`` (ids in meta progression) joined with the
+    scenario's authored cutscene directives, so the UI gets unlocked entries (image
+    + script body) and locked stubs (title + threshold) without re-loading content.
+    """
+    payload = cast(dict[str, Any], to_json_dict(overview))
+    payload["cutscene_gallery"] = _cutscene_gallery_for_overview(overview.meta_progression)
+    return payload
+
+
+def _cutscene_gallery_for_overview(meta_progression: dict[str, Any] | None) -> list[dict[str, Any]]:
+    from mythos_runtime.cutscenes import cutscene_gallery
+    from mythos_runtime.scenario_directives import load_scenario_directives
+
+    if not isinstance(meta_progression, dict):
+        return []
+    scenario_id = meta_progression.get("scenario_id")
+    if not scenario_id:
+        return []
+    cutscenes = load_scenario_directives(str(scenario_id)).cutscenes
+    if not cutscenes:
+        return []
+    unlocked = meta_progression.get("unlocked_cutscenes") or []
+    return cutscene_gallery(cutscenes, [str(c) for c in unlocked])
 
 
 def save_slot_to_dict(slot: SaveSlot) -> dict[str, Any]:

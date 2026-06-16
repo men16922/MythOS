@@ -360,6 +360,7 @@ class PostgresMythOSStore(MythOSStore):
         "endings_seen",
         "allies_met",
         "relationships",
+        "unlocked_cutscenes",
     )
     _PROGRESSION_DICT_COLS = ("skill_ranks", "relationships")
 

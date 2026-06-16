@@ -314,6 +314,84 @@ class RelationshipCarryOverTest(unittest.TestCase):
         self.assertEqual(state["meta_progression"]["relationships"], {"se_rin": 5})
 
 
+class CutsceneUnlockCarryOverTest(unittest.TestCase):
+    """Companion cutscene unlocks accrue into meta progression and carry across loops
+    (the cross-loop gallery), mirroring allies_met/epiphanies_seen union semantics."""
+
+    def _summary(self, unlocked: list[str]) -> RunSummary:
+        ts = datetime(2026, 6, 16, tzinfo=UTC).isoformat()
+        return RunSummary(
+            run_id="run_1", player_id="p", loop_id="l", scenario_id="neo-seoul",
+            started_at=ts, ended_at=ts, ending_id=None, ending_label="L",
+            final_title="t", final_location="x", phase="ended", stability=50,
+            tension=30, turns=3, combats_won=0, combats_lost=0, clues_collected=[],
+            allies_met=[], unlocks_granted=[], summary_text="", unlocked_cutscenes=unlocked,
+        )
+
+    def test_unlock_accrues_and_grants_only_new(self) -> None:
+        progress = MetaProgression(player_id="p", scenario_id="neo-seoul")
+        updated, grants = evaluate_meta_progression(progress, self._summary(["SERIN_FIRST_LIGHT"]))
+        self.assertEqual(updated.unlocked_cutscenes, ["SERIN_FIRST_LIGHT"])
+        self.assertIn("cutscene:SERIN_FIRST_LIGHT", grants)
+
+    def test_already_unlocked_is_not_regranted(self) -> None:
+        progress = MetaProgression(
+            player_id="p", scenario_id="neo-seoul", unlocked_cutscenes=["SERIN_FIRST_LIGHT"]
+        )
+        updated, grants = evaluate_meta_progression(
+            progress, self._summary(["SERIN_FIRST_LIGHT", "SERIN_PROMISE"])
+        )
+        self.assertEqual(updated.unlocked_cutscenes, ["SERIN_FIRST_LIGHT", "SERIN_PROMISE"])
+        # only the newly-unlocked one is granted (no duplicate banner for prior unlocks)
+        self.assertNotIn("cutscene:SERIN_FIRST_LIGHT", grants)
+        self.assertIn("cutscene:SERIN_PROMISE", grants)
+
+    def test_content_round_trip(self) -> None:
+        progress = MetaProgression(
+            player_id="p", scenario_id="neo-seoul", unlocked_cutscenes=["SERIN_PROMISE"]
+        )
+        content = meta_progression_to_content(progress)
+        restored = meta_progression_from_content(content, player_id="p", scenario_id="neo-seoul")
+        self.assertEqual(restored.unlocked_cutscenes, ["SERIN_PROMISE"])
+
+    def test_archive_computes_unlocks_from_real_scenario(self) -> None:
+        # Live se_rin.md: SERIN_FIRST_LIGHT(affection2), SERIN_PROMISE(affection4+trusted_se_rin).
+        now = datetime(2026, 6, 16, tzinfo=UTC)
+        loop = LoopState(
+            loop_id="loop_x", player_id="p", seed="seed", phase=LoopPhase.ENDED,
+            location_id="loc", stability=40, tension=20, started_at=now, ended_at=now,
+            state={
+                "scenario_id": "neo-seoul",
+                "relationships": {"se_rin": 4},
+                "flags": ["met_se_rin", "trusted_se_rin"],
+            },
+        )
+        scene = Scene(
+            scene_id="scene_x", loop_id="loop_x", turn_index=4, title="Finale",
+            location="loc", narration="...", choices=[], visual_brief=None, created_at=now,
+        )
+        memory = _run_summary_memory_from_archive(loop, scene, [], [], "wrap-up")
+        summary = _run_summary_from_memory(memory)
+        self.assertEqual(summary.unlocked_cutscenes, ["SERIN_FIRST_LIGHT", "SERIN_PROMISE"])
+        progress = MetaProgression(player_id="p", scenario_id="neo-seoul")
+        updated, _ = evaluate_meta_progression(progress, summary)
+        self.assertEqual(updated.unlocked_cutscenes, ["SERIN_FIRST_LIGHT", "SERIN_PROMISE"])
+
+    def test_archive_below_threshold_unlocks_nothing(self) -> None:
+        now = datetime(2026, 6, 16, tzinfo=UTC)
+        loop = LoopState(
+            loop_id="loop_y", player_id="p", seed="seed", phase=LoopPhase.ENDED,
+            location_id="loc", stability=40, tension=20, started_at=now, ended_at=now,
+            state={"scenario_id": "neo-seoul", "relationships": {"se_rin": 1}, "flags": []},
+        )
+        scene = Scene(
+            scene_id="s", loop_id="loop_y", turn_index=2, title="t", location="loc",
+            narration="...", choices=[], visual_brief=None, created_at=now,
+        )
+        memory = _run_summary_memory_from_archive(loop, scene, [], [], "wrap-up")
+        self.assertEqual(_run_summary_from_memory(memory).unlocked_cutscenes, [])
+
+
 class SkillTreeAndLearnTest(unittest.TestCase):
     def test_build_skill_tree_marks_base_unlocked_and_locked(self) -> None:
         progress = MetaProgression(

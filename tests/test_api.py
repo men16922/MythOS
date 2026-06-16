@@ -159,6 +159,38 @@ class ApiRelationshipSerializerTest(unittest.TestCase):
             payload["meta_progression"]["relationships"], {"se_rin": 5}
         )
 
+    def test_memory_overview_resolves_cutscene_gallery(self) -> None:
+        # Cross-loop unlocked ids (meta progression) → resolved gallery (image+body
+        # for unlocked, locked stub for the rest) using real neo-seoul directives.
+        overview = MemoryOverview(
+            world_archives=[],
+            narrative_shards=[],
+            novelty_notes=[],
+            meta_progression={
+                "scenario_id": "neo-seoul",
+                "unlocked_cutscenes": ["SERIN_FIRST_LIGHT"],
+            },
+        )
+        gallery = memory_overview_to_dict(overview)["cutscene_gallery"]
+        by_id = {g["id"]: g for g in gallery}
+        self.assertIn("SERIN_FIRST_LIGHT", by_id)
+        self.assertIn("SERIN_PROMISE", by_id)
+        # unlocked → full content
+        self.assertTrue(by_id["SERIN_FIRST_LIGHT"]["unlocked"])
+        self.assertTrue(by_id["SERIN_FIRST_LIGHT"]["image"])
+        self.assertTrue(by_id["SERIN_FIRST_LIGHT"]["body"])
+        # locked → stub only (threshold visible, content withheld)
+        self.assertFalse(by_id["SERIN_PROMISE"]["unlocked"])
+        self.assertIsNone(by_id["SERIN_PROMISE"]["image"])
+        self.assertEqual(by_id["SERIN_PROMISE"]["affection_required"], 4)
+
+    def test_memory_overview_without_scenario_has_empty_gallery(self) -> None:
+        overview = MemoryOverview(
+            world_archives=[], narrative_shards=[], novelty_notes=[],
+            meta_progression={"insight": 7},
+        )
+        self.assertEqual(memory_overview_to_dict(overview)["cutscene_gallery"], [])
+
 
 class ApiStaticClientTest(unittest.TestCase):
     def test_root_serves_poc_client(self) -> None:

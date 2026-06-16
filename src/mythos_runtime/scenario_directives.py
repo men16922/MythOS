@@ -260,6 +260,25 @@ class Encounters:
 
 
 @dataclass(frozen=True)
+class CutsceneDirective:
+    """One companion cutscene unlocked by affection + flags (directives/companions/<name>.md).
+
+    A cutscene is an authored beat (curated ``image`` + script ``body``) gated by a
+    deterministic threshold: ``state["relationships"][companion] >= affection`` and
+    ``flags`` ⊆ the run's accumulated flags. Unlock evaluation lives in
+    ``mythos_runtime.cutscenes`` (pure); persistence/gallery exposure is meta progression.
+    """
+
+    cutscene_id: str
+    companion: str
+    affection: int
+    flags: list[str]
+    image: str
+    title: str
+    body: str
+
+
+@dataclass(frozen=True)
 class ScenarioDirectives:
     scenario_id: str
     opening_header: str = ""
@@ -282,10 +301,17 @@ class ScenarioDirectives:
     # code default (DEFAULT_ENCOUNTERS); this prose was previously shared by every
     # scenario, so a scenario without one keeps the prior behavior.
     encounters: Encounters | None = None
+    # Companion cutscenes (directives/companions/<name>.md), flat across all companions
+    # (each carries its own ``companion`` id). Empty when no companions/ folder is
+    # shipped. Unlock evaluation is in ``mythos_runtime.cutscenes``.
+    cutscenes: list[CutsceneDirective] = field(default_factory=list)
 
     @property
     def empty(self) -> bool:
         return not self.opening_beats
+
+    def cutscene(self, cutscene_id: str) -> CutsceneDirective | None:
+        return next((c for c in self.cutscenes if c.cutscene_id == cutscene_id), None)
 
     def opening_beat(self, turn: int) -> OpeningBeat | None:
         return next((b for b in self.opening_beats if b.turn == turn), None)
@@ -454,6 +480,35 @@ def _encounters_from_parsed(parsed: ParsedDirectives) -> Encounters | None:
     )
 
 
+def _cutscenes_from_parsed(parsed: ParsedDirectives, default_companion: str) -> list[CutsceneDirective]:
+    """Map a parsed ``companions/<name>.md`` into ``CutsceneDirective``s.
+
+    The companion id comes from the ``companion:`` file-meta (falling back to the
+    file stem, ``default_companion``). Each ``## <CUT_ID> (affection=N, flags=a,b,
+    image=...)`` block is one cutscene; its ``title:`` meta and prose body carry the
+    viewer content. Blocks without a positive ``affection`` are skipped (a cutscene
+    must have a reachable threshold).
+    """
+    companion = parsed.file_meta.get("companion", "").strip() or default_companion
+    out: list[CutsceneDirective] = []
+    for block in parsed.blocks:
+        affection = _int_or_none(block.params.get("affection"))
+        if affection is None or affection <= 0:
+            continue
+        out.append(
+            CutsceneDirective(
+                cutscene_id=block.block_id,
+                companion=companion,
+                affection=affection,
+                flags=_str_list(block.params.get("flags")),
+                image=block.params.get("image", "").strip(),
+                title=block.meta.get("title", block.block_id),
+                body=block.body,
+            )
+        )
+    return out
+
+
 def _naming_from_parsed(parsed: ParsedDirectives) -> str:
     """Return the naming/register rule prose (the ``## naming`` block body).
 
@@ -506,6 +561,14 @@ def load_scenario_directives(scenario_id: str) -> ScenarioDirectives:
         with open(encounters_path, encoding="utf-8") as f:
             encounters = _encounters_from_parsed(parse_directives_markdown(f.read()))
 
+    cutscenes: list[CutsceneDirective] = []
+    companions_dir = base / "companions"
+    if companions_dir.is_dir():
+        for path in sorted(companions_dir.glob("*.md")):
+            with open(path, encoding="utf-8") as f:
+                parsed = parse_directives_markdown(f.read())
+            cutscenes.extend(_cutscenes_from_parsed(parsed, default_companion=path.stem))
+
     return ScenarioDirectives(
         scenario_id=scenario_id,
         opening_header=opening_header,
@@ -515,10 +578,12 @@ def load_scenario_directives(scenario_id: str) -> ScenarioDirectives:
         naming_rule=naming_rule,
         stat_voices=stat_voices,
         encounters=encounters,
+        cutscenes=cutscenes,
     )
 
 
 __all__ = [
+    "CutsceneDirective",
     "DirectiveBlock",
     "Encounters",
     "OpeningBeat",

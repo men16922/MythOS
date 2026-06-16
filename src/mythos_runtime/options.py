@@ -84,6 +84,7 @@ class RunSummary:
     unlocks_granted: list[str]
     summary_text: str
     relationships: dict[str, int] = field(default_factory=dict)
+    unlocked_cutscenes: list[str] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
 
 

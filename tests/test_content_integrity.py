@@ -1061,6 +1061,71 @@ class RelationshipSubjectIntegrityTest(unittest.TestCase):
         )
 
 
+class CutsceneIntegrityTest(unittest.TestCase):
+    """Reference integrity for authored companion cutscenes across every scenario.
+
+    A cutscene (``directives/companions/<name>.md``) unlocks deterministically on
+    affection + flags (``mythos_runtime.cutscenes``). Three mechanical ways one can
+    be silently dead/broken — none a judgment call:
+
+    - ``companion`` is neither a combat ally id nor a ``relationship_subjects`` entry
+      → no affection ever accrues for it, so the cutscene never unlocks.
+    - a required ``flag`` has no producer (``effect.flags``/ally ``unlock_flags``)
+      → the flag gate is permanently false, so the cutscene is unreachable.
+    - the curated ``image`` path does not exist under the scenario resources → a
+      broken gallery card on unlock.
+    """
+
+    def _cutscenes_by_scenario(self) -> list[tuple[str, dict[str, Any], Any]]:
+        from mythos_runtime.scenario_directives import load_scenario_directives
+
+        out: list[tuple[str, dict[str, Any], Any]] = []
+        for path in _scenario_json_paths():
+            scenario_id = path.parent.name
+            with open(path, encoding="utf-8") as handle:
+                data = json.load(handle)
+            for cutscene in load_scenario_directives(scenario_id).cutscenes:
+                out.append((scenario_id, data, cutscene))
+        return out
+
+    def test_cutscene_companions_resolve(self) -> None:
+        offenders: list[str] = []
+        for scenario_id, data, cs in self._cutscenes_by_scenario():
+            companions = _ally_ids(data) | set(data.get("relationship_subjects") or [])
+            if cs.companion not in companions:
+                offenders.append(f"{scenario_id}:{cs.cutscene_id}->{cs.companion!r}")
+        self.assertEqual(
+            offenders, [], f"cutscene companions with no affection source: {offenders}"
+        )
+
+    def test_cutscene_flags_are_producible(self) -> None:
+        offenders: list[str] = []
+        for scenario_id, data, cs in self._cutscenes_by_scenario():
+            producible = _producible_flags(data)
+            dead = [f for f in cs.flags if f not in producible]
+            if dead:
+                offenders.append(f"{scenario_id}:{cs.cutscene_id}->{dead}")
+        self.assertEqual(
+            offenders, [], f"cutscene gate flags no producer can set: {offenders}"
+        )
+
+    def test_cutscene_images_exist(self) -> None:
+        offenders: list[str] = []
+        for scenario_id, _data, cs in self._cutscenes_by_scenario():
+            base = PROJECT_ROOT / "resources" / scenario_id
+            if not cs.image or not (base / cs.image).exists():
+                offenders.append(f"{scenario_id}:{cs.cutscene_id}->{cs.image!r}")
+        self.assertEqual(offenders, [], f"cutscene image paths not found: {offenders}")
+
+    def test_cutscene_affection_is_positive(self) -> None:
+        offenders = [
+            f"{sid}:{cs.cutscene_id}"
+            for sid, _data, cs in self._cutscenes_by_scenario()
+            if cs.affection <= 0
+        ]
+        self.assertEqual(offenders, [], f"cutscenes with non-positive threshold: {offenders}")
+
+
 # Names the ending resolver binds in its evaluation namespace
 # (``ending_resolver.EndingResolver.resolve_ending`` builds ``eval_namespace``).
 # A ``Name`` an ending condition references that is *not* one of these raises

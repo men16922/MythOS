@@ -59,6 +59,10 @@ class MetaProgression:
     # each run's final ``loop.state["relationships"]`` is summed in at archive and
     # carried into the next loop's ``state["meta_progression"]`` for unlock gating.
     relationships: dict[str, int] = field(default_factory=dict)
+    # Companion cutscene ids unlocked across all loops (the cross-loop gallery).
+    # Computed at archive from the run's final affection + flags and unioned in
+    # (mirrors ``allies_met``/``epiphanies_seen``); never un-unlocks.
+    unlocked_cutscenes: list[str] = field(default_factory=list)
 
 
 def determine_autonomy_level(
@@ -166,6 +170,7 @@ def meta_progression_from_content(
         total_combats_lost=int(content.get("total_combats_lost") or 0),
         allies_met=_string_list(content.get("allies_met")),
         relationships=_relationship_tally(content.get("relationships")),
+        unlocked_cutscenes=_string_list(content.get("unlocked_cutscenes")),
     )
 
 
@@ -190,6 +195,7 @@ def meta_progression_to_content(progress: MetaProgression) -> dict[str, Any]:
         "total_combats_lost": progress.total_combats_lost,
         "allies_met": progress.allies_met,
         "relationships": progress.relationships,
+        "unlocked_cutscenes": progress.unlocked_cutscenes,
     }
 
 
@@ -246,6 +252,12 @@ def evaluate_meta_progression(
 
     insight_gain = _insight_accrual(run_summary)
     relationships = _merge_relationships(previous.relationships, run_summary.relationships)
+    unlocked_cutscenes = previous.unlocked_cutscenes
+    newly_unlocked_cutscenes: list[str] = []
+    for cutscene_id in run_summary.unlocked_cutscenes:
+        if cutscene_id not in unlocked_cutscenes:
+            newly_unlocked_cutscenes.append(cutscene_id)
+        unlocked_cutscenes = _append_unique(unlocked_cutscenes, cutscene_id)
 
     progress = MetaProgression(
         player_id=previous.player_id,
@@ -267,6 +279,7 @@ def evaluate_meta_progression(
         total_combats_lost=previous.total_combats_lost + run_summary.combats_lost,
         allies_met=allies_met,
         relationships=relationships,
+        unlocked_cutscenes=unlocked_cutscenes,
     )
 
     grants: list[str] = []
@@ -275,6 +288,8 @@ def evaluate_meta_progression(
     for companion, delta in sorted(run_summary.relationships.items()):
         if delta:
             grants.append(f"relationship:{companion}:{'+' if delta > 0 else ''}{delta}")
+    for cutscene_id in newly_unlocked_cutscenes:
+        grants.append(f"cutscene:{cutscene_id}")
     progress, grants = _grant_if(
         progress,
         grants,
@@ -683,6 +698,24 @@ def _merge_relationships(previous: dict[str, int], delta: Any) -> dict[str, int]
     return {name: points for name, points in merged.items() if points}
 
 
+def _unlocked_cutscenes_for_loop(loop: LoopState) -> list[str]:
+    """Cutscene ids this run unlocked, from its final affection + flags (deterministic).
+
+    Evaluated at archive against the scenario's authored cutscenes so the result can be
+    unioned into meta progression (the cross-loop gallery). Pure given the loop state.
+    """
+    from mythos_runtime.cutscenes import evaluate_unlocked_cutscenes
+    from mythos_runtime.scenario_directives import load_scenario_directives
+
+    scenario_id = str(loop.state.get("scenario_id") or "neo-seoul")
+    cutscenes = load_scenario_directives(scenario_id).cutscenes
+    if not cutscenes:
+        return []
+    return evaluate_unlocked_cutscenes(
+        cutscenes, loop.state.get("relationships"), loop.state.get("flags")
+    )
+
+
 def _item_id(item: Any) -> str:
     if isinstance(item, dict):
         return str(item.get("id") or item.get("item") or item)
@@ -714,6 +747,7 @@ def _run_summary_from_memory(memory: WorldMemory) -> RunSummary:
         unlocks_granted=[str(item) for item in content.get("unlocks_granted", [])],
         summary_text=str(content.get("summary_text") or content.get("summary") or ""),
         relationships=_relationship_tally(content.get("relationships")),
+        unlocked_cutscenes=_string_list(content.get("unlocked_cutscenes")),
         metadata=metadata if isinstance(metadata, dict) else {},
     )
 
@@ -926,6 +960,7 @@ def _run_summary_memory_from_archive(
         "combats_won": combats_won,
         "combats_lost": combats_lost,
         "relationships": _relationship_tally(loop.state.get("relationships")),
+        "unlocked_cutscenes": _unlocked_cutscenes_for_loop(loop),
         "summary": summary_text,
         "saved_at": now.isoformat(),
     }

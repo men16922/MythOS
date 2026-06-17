@@ -4,6 +4,29 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Skills (로컬 vs 플러그인 병존)
+
+`/skills`에 같은 이름이 두 벌 보이는 건 **의도된 구조이지 중복이 아니다.** 같은 이름이라도 내용이 다르다.
+
+- **prefix 없는 쪽** (`checkpoint`, `sync`, `tidy-docs`, `overnight-report`, `overnight-seed`) — 이 repo의 **`.claude/skills/`** 로컬 복사본. 한국어·repo-aware로 커스터마이즈돼 MythOS 문서체계(`STATUS.md`/`NEXT_PLAN.md`/`PROGRESS_LOG.md` …)를 안다. **MythOS 작업에는 이쪽을 써라.**
+- **`overnight-harness:` 붙은 쪽** — overnight-harness 플러그인의 범용(영어, repo 비특정) 원본. 다른 repo에 하네스를 설치할 때 쓰는 SSOT이고, MythOS 컨텍스트는 모른다. (`harness-init`처럼 플러그인에만 있는 스킬도 있다.)
+
+왜 둘 다 두나: MythOS는 플러그인의 소비자가 아니라 **origin tier**다. 플러그인을 그냥 쓰면 커스텀이 범용으로 다운그레이드되므로 로컬 복사본을 제거(de-vendor)하지 않는다. 로컬 `.claude/skills/`가 멀티엔진 SSOT라서, 스킬을 고칠 땐 **`.claude/skills/`만 고치고** `bash harness/sync-skills.sh`로 `.codex`/`.gemini`/`.agents` 미러에 투영한다(`make check`가 `--check`로 드리프트를 잡는다). 미러는 git-tracked이며 symlink 금지 — 과거 symlink-tracked skills가 checkout churn으로 삭제된 사고 때문. 자세한 근거는 `harness/sync-skills.sh` 헤더 주석 참조.
+
+## Quarkify (선택적 탐색 가속 — 대형 패키지 심볼 검색)
+
+`.quarkify/src/`는 `make quarkify`로 생성하는 **코드 심볼·호출그래프 인덱스**다. Quarkify(외부 도구,
+`tools/quarkify/`)가 `src/**/*.py`를 폴더 토폴로지(`quark/`·`_mirror/`·`_axon/`)로 분해한 것 —
+`ls`/`find`로 *어느 파일·어느 함수·어디서 호출*을 grep 루프 없이 결정론적으로 짚는다.
+
+- **언제 써라:** 대형 패키지(`mythos_runtime` 등)에서 **흔한 심볼·넓은 탐색**일 때 grep보다 먼저:
+  `find .quarkify/src/quark -type d -iname '*<symbol>*'` / `ls .quarkify/src/_mirror/by_role/<role>`.
+  (실측: 히트 많은 검색일수록 토큰 80~92% 절감 — `docs/plans/2026-06-18-quarkify-poc.md`.)
+- **언제 쓰지 마라:** 드문 리터럴·단일 후보 검색은 grep이 더 싸다(실측 −5% 역효과 구간).
+- **staleness:** 트리는 **커밋 안 되는 로컬 빌드물**(gitignore). 없거나 코드가 바뀌었으면 `make quarkify`(~4s)
+  먼저 (최초 1회 `make quarkify-setup`으로 도구 clone). **권위는 항상 원본 소스** — quark 리프는 빈 폴더이고
+  심볼 위치만 인코딩하므로, 위치를 짚은 뒤 본문은 원본 파일을 읽는다.
+
 ## What this is
 
 The local MVP runtime for Project MythOS (`세계:접속`) — an AI-run, loop-based narrative simulation. The runnable slice is a CLI-playable vertical: create a player, start a loop, make a choice, resume, archive a loop into an "Echo", and have that Echo carried into the next loop as a player memory. Loop state persists to PostgreSQL, representative images go to MinIO (or the filesystem), and runs emit structured JSON logs (stderr) + OpenTelemetry traces to Jaeger. Everything runs locally; an Ollama LLM drives narrative generation and a Diffusers FLUX pipeline renders images on Apple Silicon MPS.

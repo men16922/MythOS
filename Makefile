@@ -4,7 +4,7 @@ COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
-.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check check-auto overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-clean overnight-codex overnight-codex-watch overnight-codex-once overnight-agy overnight-agy-watch overnight-agy-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review
+.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check check-skills sync-skills check-auto overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-clean overnight-codex overnight-codex-watch overnight-codex-once overnight-agy overnight-agy-watch overnight-agy-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -40,9 +40,17 @@ frontend-build:
 	cd $(FRONTEND_DIR) && npm run build
 
 check:
+	$(MAKE) check-skills
 	$(MAKE) lint
 	$(MAKE) typecheck
 	$(MAKE) test
+
+# Multi-engine skills SSOT: .claude/skills is canonical; .agents/.codex/.gemini are mirrors kept
+# in sync (no symlinks) by harness/sync-skills.sh. This step fails the gate if they drift.
+check-skills:
+	@bash harness/sync-skills.sh --check
+sync-skills:
+	@bash harness/sync-skills.sh
 
 # Faster offline gate variant: same coverage as `check` MINUS python-typecheck (mypy).
 # The overnight loop (scripts/overnight/) now defaults to full `make check` (mypy debt cleared

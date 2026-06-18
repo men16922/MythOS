@@ -5,6 +5,13 @@
 이 파일은 **최신 증분 요약만** 유지한다(최신 5항목). 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
 
+## 2026-06-19 (b) — 하네스 진단-우선 + 서사 아키텍처 문서 + BGM/로그 수정 (라이브 QA 후속)
+- Status: 오전 분(서사 QA 4건·컷씬 backend·quarkify·invariant P/Q)을 main에 FF 머지·push(`98d5f5c..44fd4e7`). 이후 ① 하네스 `/diagnose` 진단-우선(usage report 도출, 플러그인 v0.3.0 동반), ② 라이브 QA 후속(서사 아키텍처 문서·BGM·api 로그). 서사 QA **#1 오프닝·#3 IX는 라이브 PASS**, #2 종료·#5 전투는 체감 대기.
+- Changed: ① `harness/CORE_MANDATES.md` "Diagnose before any fix" + NEW `.claude/skills/diagnose`(4미러) + overnight `PROMPT.md` gate-phase 분류(main 머지). 플러그인 repo(`men16922/claude-overnight-harness`) `skills/diagnose`·PROMPT·CHANGELOG **v0.3.0** push. ② NEW `docs/NARRATIVE_ARCHITECTURE.md`(서사 end-to-end 맵). ③ BGM: `useAudio.ts` 토글 트랙 보존(스냅샷 경로 재계산 금지) + `App.tsx` IntroPanel `bgmEnabled` gate(버튼 OFF인데 소리 나던 디싱크). ④ api 로그: `__main__.py` `configure_logging()` 호출 + uvicorn INFO 고정(MYTHOS_LOG_LEVEL=DEBUG 토큰 프레임 스팸 분리), `session._commit_scene`이 턴마다 narration+상태(stability/tension/flags)+choices INFO 출력. ⑤ `opening.md` turn0~1 수동 선택지 only(라이브: 일으키기 전 능동 선택지 금지).
+- Verified: `make check` green **454**(반복). api 재기동 실측 — 구조화 JSON 로그(최종 narration+latency 16s) 출력 확인, 토큰 프레임 0. BGM/로그는 사람 확인 완료 보고.
+- Blockers: 없음.
+- Next: 브랜치 `feat/narrative-doc-bgm-logging` 머지(사람) + 서사 QA #2 종료·#5 전투 라이브 체감 + #4 지도 선택지·#6 스킬트리 RPG(별도 트랙).
+
 ## 2026-06-19 — Neo-Seoul 라이브 QA 서사 개선 4건 + (오전) 컷씬 브랜치 main 머지·migration 검증
 - Status: ① (오전) `feat/companion-cutscene-unlock`(컷씬 backend + Quarkify 툴링 + route/chapter invariant 시드 P/Q) main fast-forward 머지·push(`8d2fc77..98d5f5c`) + migration 006/007 실 DB 적용·persist→load round-trip PASS 실측(인프라 기동). tidy-docs(완료 plan 4종 bin/ 이관·참조 repoint·완료문서 제거) + `docs/guides/quarkify-port.md`(타 repo 포팅 지침) 동봉. ② 사용자 라이브 QA 피드백(`neo_seoul_live_qa.md`)에 서사 우선 4건 개선(브랜치 `feat/neo-seoul-narrative-qa-fixes`, 미커밋).
 - Changed(QA 4건): **#1** `opening.md` turn0~2 grounded-lock(신호 불안정으로 스스로 못 일어남·세린에게 걸어가기/자가 기립 금지)+turn2 모호구("막 몸을 일으키는") 제거+turn3 세린 첫 기립 명시 → "쓰러진 채 세린이 일으켜줌" 페이오프 복원. **#3** `opening.md` turn0 비식별·소거 자각 1줄+turn3 세린 대사("IX는 기준 밖 신호는 지워")로 IX 위협 이유 서사 주입. **#2** `session.py` `_ending_narration_text`(authored `endings[].narration` / threshold 서사 코즈, 추적도 숫자 제거)→`loop.state["ending_narration"]` 자동 노출→`StoryPanel.tsx` EndedPanel이 숫자 대신 서사 렌더+`types.ts`. **#5** `_commit_combat_turn` 전투 마커(`_last_combat_result`/`_last_combat_encounter`)+`scenario_context._combat_callback_note`를 풀렌더 synopsis 채널 주입(전투 직후 1턴, 여파·heat·동료 반응 첫 1~2문장 참조).

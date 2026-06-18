@@ -84,11 +84,12 @@ P1 작전 지도 route-node화 + 세션 메모리(→ COMPLETED_SUMMARY M39), Ta
 
 열린 작업:
 
-### 라이브 QA 서사 개선 (2026-06-19, 권위 `docs/test/neo_seoul_live_qa.md`; 브랜치 `feat/neo-seoul-narrative-qa-fixes` 미커밋, `make check` green 454)
+### 라이브 QA 서사 개선 (2026-06-19, 권위 `docs/test/neo_seoul_live_qa.md`)
 
-- `[/]` `[manual]` **#1 오프닝 "쓰러진 채 세린이 일으킴" + #3 IX 위협 이유**: `opening.md` 편집 완료(grounded-lock·모호구 제거·turn3 기립·IX 자각/대사). 잔여=라이브 체감(LLM fidelity).
-- `[/]` `[manual]` **#2 종료 서사화 + #5 전투 직후 콜백**: `_ending_narration_text`(숫자→서사)+EndedPanel / `_combat_callback_note`(풀렌더). 단위 테스트 박제(+9). 잔여=라이브 체감 + 커밋·머지.
-- `[ ]` **#4 지도 in-layer 선택지 행선지**(별도 트랙, 프론트+serializer; `_build_route_choices` 분석 완료) · **#6 스킬트리 RPG 노드그래프**(별도 트랙, 프론트; `tier`/`requires` 데이터 준비됨).
+서사 QA 4건 **main 머지 완료**(`..44fd4e7`). 후속(서사 아키텍처 문서·BGM 토글·api 로그 가시화·opening 수동선택지)는 브랜치 **`feat/narrative-doc-bgm-logging`**(push, 미머지, green 454).
+- `[x]` `[manual]` **#1 오프닝 일으킴 + #3 IX 위협 이유**: `opening.md` 편집 → **라이브 PASS**.
+- `[/]` `[manual]` **#2 종료 서사화 + #5 전투 직후 콜백**: 코드 main 머지 + 단위 테스트 박제. 잔여=라이브 체감.
+- `[ ]` **#4 지도 in-layer 선택지 행선지** · **#6 스킬트리 RPG 노드그래프**(별도 트랙, 프론트; 분석 완료).
 
 ### 작전 지도 동적 라우팅 — 완료(토대, 상세는 COMPLETED_SUMMARY/archive)
 

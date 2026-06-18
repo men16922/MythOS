@@ -1,83 +1,83 @@
 # Documentation Policy
 
-최종 갱신: 2026-06-14
+Last updated: 2026-06-14
 
-이 문서는 Project MythOS 문서를 계속 업데이트하기 위한 운영 규칙이다. 목표는 현재 상태를 빠르게 파악하면서도, 날짜별 계획과 완료 이력을 잃지 않는 것이다. 토큰 사용을 줄이기 위해 에이전트용 압축 진입점을 별도로 유지한다.
+This doc is the operating rule for keeping Project MythOS docs current. The goal is to read current state fast while not losing dated plans and completion history. A separate compressed entry point is kept for agents to reduce token use.
+
+## Language
+
+Agent-facing operational docs (`CLAUDE.md`, `harness/*`, `docs/engineering/**`, the `/sync` entry docs, skill bodies, overnight `PROMPT*.md`) are authored in English; user-facing and narrative content (scenarios, `story_bible`, directives, `docs/test` live-QA) stays Korean.
 
 ## Core Principle
 
-문서는 세 종류로 나눈다.
+Docs fall into three kinds.
 
-1. **Current docs**: 지금 봐야 하는 문서.
-2. **Dated records**: 특정 날짜의 계획, 진행, 검증 기록.
-3. **Archive/retired docs**: 더 이상 직접 업데이트하지 않는 과거 문서.
+1. **Current docs**: what you must read now.
+2. **Dated records**: plan/progress/verification records for a specific date.
+3. **Archive/retired docs**: past docs no longer updated directly.
 
 ## Context Budget
 
-문서가 많아도 에이전트 시작 컨텍스트는 작아야 한다. 기본 읽기 예산은 아래 순서를 따른다.
+Even with many docs, an agent's starting context must stay small. The default read budget follows this order:
 
 1. `AGENT_BRIEF.md`
 2. `STATUS.md`
 3. `NEXT_PLAN.md`
-4. 필요한 경우 `PROGRESS_LOG.md` 최상단 최신 항목
+4. the newest top entry of `PROGRESS_LOG.md` when needed
 
-규칙:
+Rules:
 
-- `docs/` 전체를 자동으로 bulk-read하지 않는다.
-- `plans/`, `bin/docs/archive/`, `feedback/`는 on-demand 문서로 취급한다.
-- `DESIGN.md`, `GAMEPLAY.md`, scenario docs는 관련 코드/콘텐츠를 실제로 바꿀 때만 연다.
-- `AGENT_BRIEF.md`는 60줄 이하, `STATUS.md`와 `NEXT_PLAN.md`는 각각 120줄 이하를 목표로 한다.
-- `DESIGN.md`는 압축 아키텍처 요약으로 유지한다. 장문 설계 원문은 `bin/docs/archive/`에 보존한다.
-- `PROGRESS_LOG.md`가 120줄을 넘으면 최신 3-5개 항목만 남기고 나머지는 `bin/docs/archive/progress-YYYY-MM.md`로 분리한다.
-- 완료된 task checklist가 current docs에 오래 남아 있으면 `COMPLETED_SUMMARY.md`로 압축하고 current docs에서는 링크만 유지한다.
+- Do not auto bulk-read all of `docs/`.
+- Treat `plans/`, `bin/docs/archive/`, and `feedback/` as on-demand docs.
+- Open `DESIGN.md`, `GAMEPLAY.md`, and scenario docs only when actually changing the related code/content.
+- `AGENT_BRIEF.md` ≤ 60 lines; `STATUS.md` and `NEXT_PLAN.md` ≤ 120 lines each. These budgets are ENFORCED by a `make check` gate (`harness/check-doc-budget.sh`), not merely a target.
+- Keep `DESIGN.md` a compressed architecture summary. Preserve long-form design source in `bin/docs/archive/`.
+- When `PROGRESS_LOG.md` exceeds 120 lines, keep only the newest 3-5 entries and split the rest into `bin/docs/archive/progress-YYYY-MM.md`.
+- When a completed task checklist lingers in current docs, compress it into `COMPLETED_SUMMARY.md` and keep only a link in the current docs.
 
 ## Current Docs
 
-항상 최신 상태로 유지한다.
+Always kept up to date.
 
-- `STATUS.md`: 현재 구현 상태, 검증 baseline, active focus, open risks.
-- `AGENT_BRIEF.md`: 에이전트가 먼저 읽는 압축 문맥, 현재 초점, 읽기 순서.
-- `NEXT_PLAN.md`: 완료 항목이 아니라 지금부터 진행할 열린 작업.
-- `README.md`: 실행/사용 안내와 주요 docs index.
-- `docs/README.md`: docs 전체 navigation.
+- `STATUS.md`: current implementation state, verification baseline, active focus, open risks.
+- `AGENT_BRIEF.md`: the compressed context an agent reads first — current focus, read order.
+- `NEXT_PLAN.md`: open work from now on, not completed items.
+- `README.md`: run/usage guidance and the main docs index.
+- `docs/README.md`: full docs navigation.
 
-규칙:
+Rules:
 
-- 작업 묶음이 끝나면 `AGENT_BRIEF.md`와 `STATUS.md`를 갱신한다.
-- 다음 작업 방향이 바뀌면 `NEXT_PLAN.md`를 갱신한다.
-- README에는 상세 계획을 길게 넣지 않고 링크만 둔다.
+- Update `AGENT_BRIEF.md` and `STATUS.md` when a work bundle finishes.
+- Update `NEXT_PLAN.md` when the next direction changes.
+- Keep README link-only, not long detailed plans.
 
 ## Dated Plans
 
-작업할 때마다 새 계획이 생길 수 있으므로 날짜별 계획 스냅샷을 남긴다.
+Each task may produce a new plan, so keep dated plan snapshots.
 
-위치:
+Location:
 
 - `docs/plans/YYYY-MM-DD-<topic>.md`
 
-예:
+Examples:
 
 - `docs/plans/2026-05-30-post-mvp.md`
 - `docs/plans/2026-06-01-streamlit-polish.md`
 
-규칙:
+Rules:
 
-- 큰 작업을 시작하기 전, 그 시점의 계획을 dated plan으로 남긴다.
-- `NEXT_PLAN.md`는 최신 rolling plan으로 유지한다.
-- 완료된 dated plan은 파일을 지우지 않고 완료 여부를 체크하거나 `COMPLETED_SUMMARY.md`에 요약한다.
-- 계획이 크게 바뀌면 기존 dated plan을 덮어쓰기보다 새 dated plan을 만든다.
-- **플랜은 repo 안(`docs/plans/`)에만 둔다.** plan-mode 가 만드는 `~/.claude/plans/*`(랜덤명·머신 로컬·repo 밖)
-  스크래치 파일을 권위 포인터로 `NEXT_PLAN.md`/`AGENT_BRIEF.md` 에 적지 않는다 — 다음 세션·다른 에이전트가 못 찾는다.
-  필요하면 그 내용을 `docs/plans/YYYY-MM-DD-<topic>.md` 로 복사한 뒤 그 경로를 가리킨다.
-- **세션 연속성(Resume Pointer):** 세션이 plan-only/미완으로 끝나고 다음 세션이 이어받아야 하면,
-  `AGENT_BRIEF.md` 최상단 `▶ NEXT SESSION:` 한 줄(in-repo 플랜 경로 + 첫 행동)을 갱신하고,
-  그 작업을 권위 active focus(AGENT_BRIEF/STATUS/NEXT_PLAN 일치)로 올린다. `/sync` 가 이 포인터를 최우선 echo 한다.
+- Before a large task, record the plan at that point as a dated plan.
+- Keep `NEXT_PLAN.md` as the latest rolling plan.
+- Do not delete a completed dated plan; check off its completion or summarize it in `COMPLETED_SUMMARY.md`.
+- When a plan changes substantially, make a new dated plan rather than overwriting the old one.
+- **Keep plans inside the repo (`docs/plans/`) only.** Do not record the scratch files that plan-mode creates under `~/.claude/plans/*` (random names, machine-local, outside the repo) as authoritative pointers in `NEXT_PLAN.md`/`AGENT_BRIEF.md` — the next session / another agent cannot find them. If needed, copy that content into `docs/plans/YYYY-MM-DD-<topic>.md` and point at that path.
+- **Session continuity (Resume Pointer):** when a session ends plan-only/incomplete and the next session must continue, update the single `▶ NEXT SESSION:` line at the top of `AGENT_BRIEF.md` (in-repo plan path + first action), and promote that work to the authoritative active focus (AGENT_BRIEF/STATUS/NEXT_PLAN aligned). `/sync` echoes this pointer first.
 
 ## Incremental Progress
 
-증분 작업은 `PROGRESS_LOG.md`에 최신 항목을 위로 append한다. current log는 짧게 유지하고, 긴 상세 이력은 월별 archive로 옮긴다.
+Append the newest entry on top of `PROGRESS_LOG.md`. Keep the current log short and move long detailed history to a monthly archive.
 
-항목 형식:
+Entry format:
 
 ```text
 YYYY-MM-DD
@@ -88,42 +88,42 @@ YYYY-MM-DD
 - Next:
 ```
 
-규칙:
+Rules:
 
-- 모든 작은 편집을 기록하지 않는다.
-- 사용자에게 의미 있는 작업 단위가 끝났을 때 기록한다.
-- 검증 명령이나 브라우저 확인이 있으면 `Verified`에 남긴다.
-- `PROGRESS_LOG.md`가 길어지면 월별 archive로 분리하고 current log에는 archive 링크와 최신 항목만 남긴다.
-- 상세 변경 이력은 current docs에 복사하지 않는다. current docs에는 "현재 판단에 필요한 압축 상태"만 남긴다.
+- Do not log every tiny edit.
+- Log when a user-meaningful unit of work finishes.
+- Record verification commands or browser checks under `Verified`.
+- When `PROGRESS_LOG.md` grows, split it into a monthly archive and keep only the archive link and newest entries in the current log.
+- Do not copy detailed change history into current docs. Current docs hold only the "compressed state needed to judge now."
 
-월별 archive 예:
+Monthly archive examples:
 
 - `bin/docs/archive/progress-2026-05.md`
 - `bin/docs/archive/progress-2026-06.md`
 
 ## Completed Summary
 
-완료된 milestone은 `COMPLETED_SUMMARY.md`에 짧게 요약한다.
+Summarize completed milestones briefly in `COMPLETED_SUMMARY.md`.
 
-규칙:
+Rules:
 
-- 세부 체크리스트는 완료 후 계속 유지할 필요가 없으면 summary로 압축한다.
-- 완료된 milestone의 목적, 산출물, 검증만 남긴다.
-- 새 작업자가 5분 안에 완료 범위를 이해할 수 있게 유지한다.
+- Compress detailed checklists into a summary once there's no need to keep them after completion.
+- Keep only the purpose, deliverables, and verification of the completed milestone.
+- Keep it so a new worker can understand the completed scope within 5 minutes.
 
 ## Decisions
 
-되돌리기 어려운 선택은 `DECISIONS.md`에 기록한다.
+Record hard-to-reverse choices in `DECISIONS.md`.
 
-기록 대상:
+What to record:
 
-- provider 선택
-- infra 변경
-- 데이터 모델 변경
-- 문서 운영 정책
-- public workflow 변경
+- provider choices
+- infra changes
+- data-model changes
+- doc operating policy
+- public workflow changes
 
-기록 형식:
+Record format:
 
 - Decision
 - Reason
@@ -131,42 +131,42 @@ YYYY-MM-DD
 
 ## Retiring Or Deleting Docs
 
-더 이상 필요 없는 문서는 바로 삭제하지 않는다.
+Do not delete a no-longer-needed doc outright.
 
-절차:
+Procedure:
 
-1. 문서의 핵심 내용을 `COMPLETED_SUMMARY.md`, `DECISIONS.md`, `DESIGN.md`, 또는 `STATUS.md` 중 맞는 곳에 요약한다.
-2. `docs/README.md`에서 해당 문서의 상태를 `Retired` 또는 `Archive`로 표시한다.
-3. 링크가 남아 있는지 `rg "문서명"`으로 확인한다.
-4. 보존 가치가 있으면 `bin/docs/archive/`로 이동한다.
-5. 중복이고 요약이 끝났으며 참조가 없으면 삭제한다.
+1. Summarize the doc's core content into the right place among `COMPLETED_SUMMARY.md`, `DECISIONS.md`, `DESIGN.md`, or `STATUS.md`.
+2. Mark the doc's status as `Retired` or `Archive` in `docs/README.md`.
+3. Check for leftover links with `rg "<doc name>"`.
+4. Move it to `bin/docs/archive/` if it has preservation value.
+5. Delete it if it is a duplicate, the summary is done, and nothing references it.
 
-삭제 기준:
+Deletion criteria:
 
-- 같은 내용이 다른 current doc에 요약되어 있다.
-- 앞으로 직접 업데이트하지 않는다.
-- 코드나 README에서 참조하지 않는다.
-- 원문 보존 가치보다 유지 비용이 크다.
+- The same content is summarized in another current doc.
+- It will not be updated directly going forward.
+- It is not referenced by code or README.
+- Maintenance cost exceeds the value of preserving the source.
 
-보존 기준:
+Preservation criteria:
 
-- 설계 근거가 남아 있다.
-- 의사결정 맥락이 중요하다.
-- 과거 milestone 상세 기록으로 유용하다.
+- It retains design rationale.
+- Its decision context is important.
+- It is useful as detailed record of a past milestone.
 
 ## Recommended Update Sequence
 
-작업 시작:
+Starting work:
 
-1. `AGENT_BRIEF.md` 확인.
-2. `STATUS.md` 확인.
-3. `NEXT_PLAN.md` 확인.
-4. 필요하면 `docs/plans/YYYY-MM-DD-<topic>.md` 작성.
+1. Check `AGENT_BRIEF.md`.
+2. Check `STATUS.md`.
+3. Check `NEXT_PLAN.md`.
+4. Write `docs/plans/YYYY-MM-DD-<topic>.md` if needed.
 
-작업 완료:
+Finishing work:
 
-1. `PROGRESS_LOG.md`에 짧은 증분 로그 추가.
-2. `AGENT_BRIEF.md`와 `STATUS.md` 갱신.
-3. milestone 완료 시 `COMPLETED_SUMMARY.md` 갱신.
-4. 결정이 생겼으면 `DECISIONS.md` 갱신.
-5. 오래된 계획/문서가 중복되면 요약 후 bin/docs/archive/delete 여부 판단.
+1. Add a short incremental log to `PROGRESS_LOG.md`.
+2. Update `AGENT_BRIEF.md` and `STATUS.md`.
+3. Update `COMPLETED_SUMMARY.md` on milestone completion.
+4. Update `DECISIONS.md` if a decision was made.
+5. When old plans/docs become duplicates, summarize and judge whether to archive in bin/docs/ or delete.

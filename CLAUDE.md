@@ -1,39 +1,31 @@
 # CLAUDE.md
 
-이 문서는 Claude Code 에이전트를 위한 가이드다. 모든 설계의 근간은 `harness/CORE_MANDATES.md`를, 현재 작업의 상세 맥락은 `harness/CONTEXT_BRIDGE.md`를 최우선으로 참조하라. 에이전트 운영 하네스(루프/멀티에이전트/컨텍스트/프롬프트)는 `docs/engineering/README.md`(범용 바이블) + `docs/engineering/mythos/`(이 repo 해석)를 본다.
+Guide for the Claude Code agent in this repo. Ground all design in `harness/CORE_MANDATES.md`; read current task context from `harness/CONTEXT_BRIDGE.md` first. The agent operations harness (loop / multi-agent / context / prompt) lives in `docs/engineering/README.md` (universal bible) + `docs/engineering/mythos/` (this repo's interpretation).
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+**Doc language:** agent-facing operational docs (this file, `harness/*`, `docs/engineering/**`, the `/sync` entry docs, skill bodies, `scripts/overnight/PROMPT*.md`) are authored in **English**. User-facing and narrative content (scenarios, `story_bible`, `directives`, `docs/test` live-QA) stays **Korean**.
 
-## Skills (로컬 vs 플러그인 병존)
+## Skills (local + plugin coexistence)
 
-`/skills`에 같은 이름이 두 벌 보이는 건 **의도된 구조이지 중복이 아니다.** 같은 이름이라도 내용이 다르다.
+Seeing two skills of the same name in `/skills` is **intentional, not duplication** — same name, different content.
 
-- **prefix 없는 쪽** (`checkpoint`, `sync`, `tidy-docs`, `overnight-report`, `overnight-seed`) — 이 repo의 **`.claude/skills/`** 로컬 복사본. 한국어·repo-aware로 커스터마이즈돼 MythOS 문서체계(`STATUS.md`/`NEXT_PLAN.md`/`PROGRESS_LOG.md` …)를 안다. **MythOS 작업에는 이쪽을 써라.**
-- **`overnight-harness:` 붙은 쪽** — overnight-harness 플러그인의 범용(영어, repo 비특정) 원본. 다른 repo에 하네스를 설치할 때 쓰는 SSOT이고, MythOS 컨텍스트는 모른다. (`harness-init`처럼 플러그인에만 있는 스킬도 있다.)
+- **No-prefix** (`checkpoint`, `sync`, `tidy-docs`, `overnight-report`, `overnight-seed`) — this repo's **`.claude/skills/`** local copies, repo-aware of the MythOS doc system (`STATUS.md`/`NEXT_PLAN.md`/`PROGRESS_LOG.md` …). **Use these for MythOS work.** Bodies are English; the frontmatter `description:` keeps Korean trigger keywords for invocation matching.
+- **`overnight-harness:`-prefixed** — the plugin's generic (repo-agnostic) originals, the SSOT for installing the harness into other repos; they don't know MythOS context.
 
-왜 둘 다 두나: MythOS는 플러그인의 소비자가 아니라 **origin tier**다. 플러그인을 그냥 쓰면 커스텀이 범용으로 다운그레이드되므로 로컬 복사본을 제거(de-vendor)하지 않는다. 로컬 `.claude/skills/`가 멀티엔진 SSOT라서, 스킬을 고칠 땐 **`.claude/skills/`만 고치고** `bash harness/sync-skills.sh`로 `.codex`/`.gemini`/`.agents` 미러에 투영한다(`make check`가 `--check`로 드리프트를 잡는다). 미러는 git-tracked이며 symlink 금지 — 과거 symlink-tracked skills가 checkout churn으로 삭제된 사고 때문. 자세한 근거는 `harness/sync-skills.sh` 헤더 주석 참조.
+Why both: MythOS is the harness **origin tier**, not a consumer, so the local copies are not de-vendored. `.claude/skills/` is the multi-engine SSOT — edit **only `.claude/skills/`**, then `bash harness/sync-skills.sh` projects to the `.codex`/`.gemini`/`.agents` mirrors (`make check` catches drift via `--check`). Mirrors are git-tracked, no symlinks. Rationale: `harness/sync-skills.sh` header.
 
-## Quarkify (선택적 탐색 가속 — 대형 패키지 심볼 검색)
+## Quarkify (optional search accelerator — large-package symbol search)
 
-`.quarkify/src/`는 `make quarkify`로 생성하는 **코드 심볼·호출그래프 인덱스**다. Quarkify(외부 도구,
-`tools/quarkify/`)가 `src/**/*.py`를 폴더 토폴로지(`quark/`·`_mirror/`·`_axon/`)로 분해한 것 —
-`ls`/`find`로 *어느 파일·어느 함수·어디서 호출*을 grep 루프 없이 결정론적으로 짚는다.
+`.quarkify/src/` is a **code symbol / call-graph index** built by `make quarkify` (external tool in `tools/quarkify/`), decomposing `src/**/*.py` into a folder topology (`quark/`·`_mirror/`·`_axon/`). Use `ls`/`find` to pin down *which file / which function / called where* without grep loops.
 
-- **언제 써라:** 대형 패키지(`mythos_runtime` 등)에서 **흔한 심볼·넓은 탐색**일 때 grep보다 먼저:
-  `find .quarkify/src/quark -type d -iname '*<symbol>*'` / `ls .quarkify/src/_mirror/by_role/<role>`.
-  (실측: 히트 많은 검색일수록 토큰 80~92% 절감 — `docs/plans/2026-06-18-quarkify-poc.md`.)
-- **언제 쓰지 마라:** 드문 리터럴·단일 후보 검색은 grep이 더 싸다(실측 −5% 역효과 구간).
-- **staleness:** 트리는 **커밋 안 되는 로컬 빌드물**(gitignore). 없거나 코드가 바뀌었으면 `make quarkify`(~4s)
-  먼저 (최초 1회 `make quarkify-setup`으로 도구 clone). **권위는 항상 원본 소스** — quark 리프는 빈 폴더이고
-  심볼 위치만 인코딩하므로, 위치를 짚은 뒤 본문은 원본 파일을 읽는다.
+- **Default to it** for broad symbol search in large packages (e.g. `mythos_runtime`): `find .quarkify/src/quark -type d -iname '*<symbol>*'` / `ls .quarkify/src/_mirror/by_role/<role>`. Measured 80–92% token savings on high-hit searches (`docs/plans/2026-06-18-quarkify-poc.md`).
+- **grep instead** for rare literals / single-candidate searches (measured −5% otherwise).
+- **Staleness:** the tree is a gitignored local build. If absent/stale run `make quarkify` (~4s; `make quarkify-setup` clones the tool once). **Source is always authoritative** — quark leaves only encode symbol position; read the original file for the body.
 
 ## What this is
 
-The local MVP runtime for Project MythOS (`세계:접속`) — an AI-run, loop-based narrative simulation. The runnable slice is a CLI-playable vertical: create a player, start a loop, make a choice, resume, archive a loop into an "Echo", and have that Echo carried into the next loop as a player memory. Loop state persists to PostgreSQL, representative images go to MinIO (or the filesystem), and runs emit structured JSON logs (stderr) + OpenTelemetry traces to Jaeger. Everything runs locally; an Ollama LLM drives narrative generation and a Diffusers FLUX pipeline renders images on Apple Silicon MPS.
+The local MVP runtime for Project MythOS (`세계:접속`) — an AI-run, loop-based narrative simulation. The runnable vertical: create a player, start a loop, make a choice, resume, archive a loop into an "Echo", and carry that Echo into the next loop as a player memory. Loop state persists to PostgreSQL, representative images go to MinIO (or filesystem), runs emit structured JSON logs (stderr) + OpenTelemetry traces to Jaeger. Everything is local; an Ollama LLM drives narrative and a Diffusers FLUX pipeline renders images on Apple Silicon MPS. The standalone **image agent** (`mythos_image_agent`) is retained: Ollama expands a (usually Korean) idea into an English prompt, then `black-forest-labs/FLUX.1-schnell` renders on MPS (only network dep: first-time HF model download).
 
-The original standalone **image agent** is retained as one component (`mythos_image_agent`): an Ollama LLM expands a (typically Korean) idea into a detailed English prompt, then `black-forest-labs/FLUX.1-schnell` renders it on MPS. Its only network dependency is the first-time Hugging Face model download.
-
-`docs/` is split by role (see `docs/README.md` for the full map and `docs/DOCS_POLICY.md` for the update rules). The Korean vision/design docs are **`bin/docs/archive/DRAFT.md`** (game vision/세계관 — the what/why; its cloud stack is aspirational, not built; parked in `bin/`) and **`DESIGN.md`** (the authoritative system design — components, runtime sequences, PostgreSQL schema, plus folded-in design principles §17, risks §18, Mermaid diagrams §19, and hardware/stack rationale §20). Progress is tracked across several living docs instead of one tracker: **`STATUS.md`** (current implementation state, active focus, open risks — read this first), **`NEXT_PLAN.md`** (rolling phase/task plan), **`PROGRESS_LOG.md`** (append-only dated increments, newest on top), **`COMPLETED_SUMMARY.md`** (closed-milestone summaries), and **`DECISIONS.md`** (hard-to-reverse choices). Dated plan snapshots live in `docs/plans/YYYY-MM-DD-<topic>.md`; the old single tracker is archived at `bin/docs/archive/IMPLEMENTATION_M0_M10.md`. **Check `STATUS.md` + `NEXT_PLAN.md`** before starting work, and when you make progress append to `PROGRESS_LOG.md`, then update `STATUS.md` (and `COMPLETED_SUMMARY.md`/`DECISIONS.md` as warranted). `DESIGN.md` specs the `mythos_core` / `mythos_memory` / `mythos_narrative` / `mythos_loop` / `mythos_runtime` packages and the schema, but the authoritative schema source is `migrations/001_init.sql`.
+**Docs by role** (`docs/README.md` = map, `docs/DOCS_POLICY.md` = rules). Vision/design: `bin/docs/archive/DRAFT.md` (game vision/세계관; its cloud stack is aspirational) and `DESIGN.md` (authoritative system design — components, runtime sequences, PostgreSQL schema, principles §17, risks §18, diagrams §19, hardware/stack §20). Living trackers: `STATUS.md` (current state/focus/risks — read first), `NEXT_PLAN.md` (rolling plan), `PROGRESS_LOG.md` (dated increments, newest on top), `COMPLETED_SUMMARY.md`, `DECISIONS.md`. Dated snapshots in `docs/plans/YYYY-MM-DD-<topic>.md`. **Read `STATUS.md` + `NEXT_PLAN.md` before working**; on progress append `PROGRESS_LOG.md` then update `STATUS.md` (+ `COMPLETED_SUMMARY.md`/`DECISIONS.md` as warranted). Authoritative schema source is `migrations/001_init.sql`.
 
 ## Commands
 
@@ -59,7 +51,7 @@ python -m mythos_runtime.connect_cli resume --loop-id <id>
 python -m mythos_runtime.connect_cli archive --loop-id <id>
 ```
 
-`--fallback` skips Ollama and uses canned narrative; the default path calls the Ollama-backed Narrative Director. Add `--with-image` (plus optional `--filesystem-image`, `--image-width`, `--image-height`, `--image-steps`) to generate a representative image; without `--filesystem-image` it uploads to MinIO. Default image is 1024×1024 / 4 steps.
+`--fallback` skips Ollama (canned narrative); default calls the Ollama-backed Narrative Director. `--with-image` (+ optional `--filesystem-image`/`--image-width`/`--image-height`/`--image-steps`) generates a representative image; without `--filesystem-image` it uploads to MinIO. Default image 1024×1024 / 4 steps.
 
 ### Image agent (direct)
 
@@ -73,7 +65,7 @@ python agent.py "아이디어" --output outputs/foo.png
 python agent.py --help
 ```
 
-Key flags: `--steps` (default 4, the schnell recommended value), `--seed` (42), `--width`/`--height` (1024), `--model-id`, `--ollama-model`.
+Key flags: `--steps` (default 4), `--seed` (42), `--width`/`--height` (1024), `--model-id`, `--ollama-model`.
 
 ### Tests & smoke
 
@@ -90,9 +82,7 @@ make visual-smoke-minio-db     # visual path -> MinIO + Postgres
 make visual-smoke-flux-tiny    # real FLUX at 128x128, 1 step
 ```
 
-Run a single test module: `MYTHOS_LOG_LEVEL=ERROR .venv/bin/python -m unittest discover -s tests -p 'test_loop_engine.py'`.
-
-DB-backed tests (`tests/test_postgres_store.py`) are skipped unless `MYTHOS_RUN_DB_TESTS=1` and the Postgres service is up and migrated. Linting and type-checking are configured: ruff (`[tool.ruff]` in `pyproject.toml`) and mypy are dev dependencies (`pip install -e .[dev]`), eslint covers the frontend, and `make lint`/`typecheck`/`check`/`check-auto` wire them together. GitHub Actions CI (`.github/workflows/ci.yml`) runs `make lint`/`typecheck`/`test` on push/PR to `main`. Tests themselves use stdlib `unittest` (not pytest), so `make clean`'s `.pytest_cache` reference is vestigial.
+Single module: `MYTHOS_LOG_LEVEL=ERROR .venv/bin/python -m unittest discover -s tests -p 'test_loop_engine.py'`. DB tests (`tests/test_postgres_store.py`) skip unless `MYTHOS_RUN_DB_TESTS=1` + Postgres up/migrated. Quality: ruff (`[tool.ruff]` in `pyproject.toml`) + mypy (dev deps via `pip install -e .[dev]`), eslint on frontend; `make lint`/`typecheck`/`check`/`check-auto` wire them. `make check` also runs `check-skills` (mirror drift) + `check-doc-budget` (entry-doc line caps). CI (`.github/workflows/ci.yml`) runs `make lint`/`typecheck`/`test` on push/PR to `main`. Tests use stdlib `unittest` (not pytest).
 
 ### Local infra (stateful stores + dev tooling; Ollama and FLUX stay on the host)
 
@@ -107,36 +97,29 @@ make db-reset     # DROP/CREATE public schema, then re-migrate (destructive)
 make db-shell     # psql into the postgres container
 ```
 
-`docker-compose.local.yml` runs postgres:5432, adminer:8080, minio:9000/9001 (`minio-init` bootstraps buckets), redis:6379, otel-collector:4317/4318, jaeger:16686. Volume data lives under `.docker/` (gitignored). OTel collector config is `docker/otel-collector-config.yaml`; the collector owns the host OTLP ports and forwards traces to Jaeger internally.
+`docker-compose.local.yml`: postgres:5432, adminer:8080, minio:9000/9001 (`minio-init` bootstraps buckets), redis:6379, otel-collector:4317/4318, jaeger:16686. Volume data under `.docker/` (gitignored). OTel config `docker/otel-collector-config.yaml`; the collector owns the host OTLP ports and forwards to Jaeger internally.
 
 ## Architecture
 
-Source lives under `src/` (setuptools src-layout; `pip install -e .` exposes the packages, and `agent.py` also prepends `src/` to `sys.path` so the image agent runs without an editable install). The runtime is composed of small packages:
+Source under `src/` (setuptools src-layout; `pip install -e .` exposes packages; `agent.py` also prepends `src/` to `sys.path`). Small packages — see `DESIGN.md` for full specs:
 
-- **`mythos_core`** — shared domain layer imported by everything else. `models.py` holds the frozen dataclasses (`PlayerProfile`, `LoopState`, `Scene`, `Choice`, `WorldEvent`, `Echo`, `PlayerMemory`/`WorldMemory`, `AssetRecord`) plus the `LoopPhase`/`Actor` `StrEnum`s and generic `to_json_dict`/`from_json_dict` (de)serialization used by the store. `ids.py` mints prefixed UUIDs (`loop_…`, `scene_…`, etc.); `seed.py` derives a deterministic loop seed (sha256 of player+loop_index+memory snapshot); `clock.py` provides `utc_now()`.
-- **`mythos_memory`** — persistence. `store.py` is the `MythOSStore` ABC (players, loops, scenes, events, player/world memories, assets, plus a `transaction()` context manager); `postgres_store.py` is the psycopg implementation, with `DATABASE_URL` defaulting to `postgresql://mythos:mythos@localhost:5432/mythos` and reentrant transactions. Loop `active_echoes` are stored inside the `loops.state` JSON under `_active_echoes`. Schema is `migrations/001_init.sql`, applied via `make db-migrate`.
-- **`mythos_narrative`** — the **Narrative Director**. `director.py`'s `NarrativeDirector` calls an LLM `JSONProvider` (default `OllamaJSONProvider`, via the OpenAI-compatible endpoint) to emit a JSON `ScenePayload`. Flow: generate → `parser.parse_scene_payload` → on parse failure, one LLM **repair** attempt → on repeated failure, a deterministic **fallback** scene (also used directly when `--fallback` is set). `schemas.py` defines `ScenePayload`/`WorldDelta`/`NarrativeContext` and the limits (`MAX_NARRATION_CHARS=2200`, `MAX_VISUAL_BRIEF_CHARS=700`, `MAX_CHOICES=4`, allowed world-delta keys). `prompts.py` builds the message lists; `smoke.py` is the standalone entry (`python -m mythos_narrative.smoke`).
-- **`mythos_loop`** — the loop state machine. `LoopPhase` cycles `CONNECT → EXPLORE → INTERACT → REWRITE → ARCHIVE → ENDED`. `engine.py`'s `LoopEngine.apply_scene_payload()` validates the payload, advances the phase, clamps `stability`/`tension` to 0–100, merges `world_delta` flags into `loop.state`, and on ARCHIVE/ENDED mints an `Echo`. It auto-archives when `stability<=10` or `tension>=90` or the payload's `end_condition` requests it. `validator.py` enforces the allowed phase transitions, choice rules, and clamps each world-delta value to ±25; `events.py` builds player/world `WorldEvent`s.
-- **`mythos_runtime`** — orchestration. `session.py`'s `RuntimeSessionService` is the core API (`create_player`/`start_loop`/`choose`/`resume`/`archive`), wiring store + director + engine and persisting each transition in one DB transaction. `connect_cli.py` is the CLI over it (it instantiates `PostgresMythOSStore` directly); `streamlit_app.py` is a UI over the same service. `visual_service.py` is a pluggable image pipeline: a `VisualProvider` (`LocalFluxProvider` → `mythos_image_agent.generate_image`) plus a `StorageAdapter` (`FilesystemStorageAdapter` or `MinIOStorageAdapter` via boto3), recording an `AssetRecord` for every attempt (status `succeeded`/`failed`/`disabled`); tests inject a fake provider so the visual smoke never loads FLUX. `observability.py` provides the JSON logger, the OTLP/Jaeger `span()`, and the `timed()` context manager.
-- **`mythos_image_agent`** — the standalone two-stage image pipeline (see below).
+- **`mythos_core`** — shared domain layer. `models.py` (frozen dataclasses: `PlayerProfile`/`LoopState`/`Scene`/`Choice`/`WorldEvent`/`Echo`/`PlayerMemory`/`WorldMemory`/`AssetRecord`, `LoopPhase`/`Actor` `StrEnum`s, generic `to_json_dict`/`from_json_dict`); `ids.py` (prefixed UUIDs); `seed.py` (deterministic loop seed = sha256 of player+loop_index+memory snapshot); `clock.py` (`utc_now()`).
+- **`mythos_memory`** — persistence. `store.py` = `MythOSStore` ABC (+ `transaction()`); `postgres_store.py` = psycopg impl, `DATABASE_URL` default `postgresql://mythos:mythos@localhost:5432/mythos`, reentrant transactions. Loop `active_echoes` live in `loops.state` JSON under `_active_echoes`. Schema `migrations/001_init.sql`.
+- **`mythos_narrative`** — Narrative Director. `director.py` `NarrativeDirector` calls an LLM `JSONProvider` (default `OllamaJSONProvider`) → JSON `ScenePayload`. Flow: generate → `parser.parse_scene_payload` → one LLM **repair** on parse failure → deterministic **fallback** (also `--fallback`). `schemas.py` limits: `MAX_NARRATION_CHARS=2200`, `MAX_VISUAL_BRIEF_CHARS=700`, `MAX_CHOICES=4`. `prompts.py` builds messages; `smoke.py` standalone entry.
+- **`mythos_loop`** — state machine. `LoopPhase`: `CONNECT → EXPLORE → INTERACT → REWRITE → ARCHIVE → ENDED`. `engine.py` `apply_scene_payload()` validates, advances phase, clamps `stability`/`tension` 0–100, merges `world_delta` flags, mints an `Echo` on ARCHIVE/ENDED. Auto-archives at `stability<=10` / `tension>=90` / payload `end_condition`. `validator.py` enforces transitions + clamps world-delta to ±25; `events.py` builds `WorldEvent`s.
+- **`mythos_runtime`** — orchestration. `session.py` `RuntimeSessionService` = core API (`create_player`/`start_loop`/`choose`/`resume`/`archive`), wiring store+director+engine, one DB transaction per transition. `connect_cli.py` = CLI; `streamlit_app.py` = UI; `visual_service.py` = pluggable `VisualProvider` (`LocalFluxProvider` → `mythos_image_agent.generate_image`) + `StorageAdapter` (`Filesystem`/`MinIO` via boto3), recording an `AssetRecord` per attempt (tests inject a fake provider). `observability.py` = JSON logger, OTLP/Jaeger `span()`, `timed()`.
+- **`mythos_image_agent`** — standalone two-stage image pipeline (below).
 
-### Image agent pipeline (two independent stages wired by its CLI)
+### Image agent pipeline
 
-1. **`prompting.py`** — `expand_prompt()` calls Ollama through its OpenAI-compatible endpoint (`OpenAI(base_url=.../v1, api_key="ollama")`). System prompt constrains output to one clean English paragraph under 70 words. This is the only stage that needs Ollama running.
-2. **`generator.py`** — `generate_image()` loads `FluxPipeline` on MPS (`bfloat16`), enables VAE tiling, saves a PNG, and translates `GatedRepoError`/`HfHubHTTPError` into actionable `RuntimeError` messages about Hugging Face access.
+1. **`prompting.py`** — `expand_prompt()` calls Ollama (OpenAI-compatible endpoint). System prompt → one clean English paragraph <70 words. Only stage needing Ollama.
+2. **`generator.py`** — `generate_image()` loads `FluxPipeline` on MPS (`bfloat16`), VAE tiling, saves PNG; translates `GatedRepoError`/`HfHubHTTPError` into actionable `RuntimeError`s about HF access.
 
-`cli.py` orchestrates: parse args → build `AgentConfig` → optionally expand → optionally generate. **Heavy imports (`torch`, `diffusers`, `prompting`) are deliberately deferred inside `main()` / function bodies**, so `--help`, `--doctor`, and `--expand-only` work (and stay fast) without torch loaded or even installed. `mythos_runtime.visual_service` imports `generate_image` at module level but torch only loads when that function actually runs — preserve this lazy-import pattern so importing the runtime (and the fake-provider smoke tests) never pulls in torch.
-
-`config.py` — `AgentConfig` is a frozen dataclass whose defaults read from environment variables (`.env` loaded at import time). `PROJECT_ROOT` is derived relative to the source file; `output_path()` resolves relative paths against it. `hf_auth_token` returns the token or `True` (telling huggingface_hub to fall back to a local `hf auth login` session).
-
-`doctor.py` — `run_doctor()` checks Python/arch, MPS availability, required packages, Ollama reachability + whether the configured model is installed, and Hugging Face gated-model access (via a `dry_run` `hf_hub_download` of `model_index.json`). It never loads FLUX weights; returns a nonzero exit code on any failure.
-
-`streamlit_app.py` (repo root) is a Streamlit UI over the runtime.
+`cli.py` orchestrates: args → `AgentConfig` → optional expand → optional generate. **Heavy imports (`torch`, `diffusers`, `prompting`) are deferred inside `main()`/function bodies**, so `--help`/`--doctor`/`--expand-only` stay fast without torch. `mythos_runtime.visual_service` imports `generate_image` at module level but torch only loads when it runs — **preserve this lazy-import pattern** so importing the runtime never pulls in torch. `config.py` `AgentConfig` = frozen dataclass, defaults from env (`.env` at import); `hf_auth_token` returns token or `True`. `doctor.py` `run_doctor()` checks Python/arch, MPS, packages, Ollama + model, and HF gated access (dry-run `hf_hub_download` of `model_index.json`); never loads FLUX weights.
 
 ## Environment & constraints
 
-- **Apple Silicon / MPS only** for image generation. `generator.py` hard-fails if `torch.backends.mps.is_available()` is False. `PYTORCH_ENABLE_MPS_FALLBACK=1` is set by default. The non-image runtime paths (`--fallback`, fake-PNG visual smoke) do not require MPS.
-- **FLUX.1-schnell is a gated HF repo.** Requires accepting access on Hugging Face plus either `HF_TOKEN` in `.env` or a local `hf auth login`. `make doctor` fails here if access is missing.
-- Config is driven by `.env` (copy from `.env.example`): Ollama (`OLLAMA_BASE_URL`, `OLLAMA_MODEL`, default `gemma4:latest`), the image model (`IMAGE_MODEL_ID`), `OUTPUT_DIR`, `HF_TOKEN`, plus PostgreSQL / MinIO / OTel settings consumed by the runtime — see `.env.example` for the full list. OOM mitigation: set `PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0` (removes the MPS memory guardrail — can cause heavy swap).
-- `MYTHOS_LOG_LEVEL` controls runtime log verbosity (tests run with `ERROR`). `MYTHOS_RUN_DB_TESTS=1` opts into the Postgres integration tests.
-- `outputs/` is gitignored except `.gitkeep`; the image agent default output is `outputs/mythos-output.png`.
+- **Apple Silicon / MPS only** for image generation. `generator.py` hard-fails if MPS unavailable. `PYTORCH_ENABLE_MPS_FALLBACK=1` default. Non-image paths (`--fallback`, fake-PNG visual smoke) need no MPS.
+- **FLUX.1-schnell is a gated HF repo** — accept access + `HF_TOKEN` in `.env` or local `hf auth login`. `make doctor` fails if access missing.
+- Config via `.env` (copy `.env.example`): Ollama (`OLLAMA_BASE_URL`, `OLLAMA_MODEL` default `gemma4:latest`), `IMAGE_MODEL_ID`, `OUTPUT_DIR`, `HF_TOKEN`, + PostgreSQL/MinIO/OTel. OOM mitigation: `PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0` (removes MPS guardrail — can swap heavily).
+- `MYTHOS_LOG_LEVEL` controls runtime log verbosity (tests use `ERROR`). `MYTHOS_RUN_DB_TESTS=1` opts into Postgres tests. `outputs/` is gitignored except `.gitkeep` (default `outputs/mythos-output.png`).

@@ -1,66 +1,67 @@
-# Overnight 회차 지시문 (Project MythOS)
+# Overnight Iteration Prompt (Project MythOS)
 
-너는 무인 overnight 루프의 한 회차다. 아래 절차를 **순서대로** 수행한다.
-한 회차 = `[auto]` 작업 **1개** + 게이트 통과 시 **로컬 커밋 1개**. 언제 멈춰도 손실은 최대 1회차다.
+You are one iteration of an unattended overnight loop. Execute the steps below **in order**.
+One iteration = **1** `[auto]` task + **1 local commit** if the gate passes. Stopping at any point loses at most one iteration.
 
-## 0. 역할 / 불변 (협상 불가)
+## 0. Role / Invariants (non-negotiable)
 
-- **금지 동작**: `git push`, 외부 네트워크(`curl`/`wget`), Docker/Ollama/FLUX 호출,
-  파괴/온라인 `make` 타깃(`infra-*`, `db-*`, `smoke`, `test-db`, `test-e2e*`,
-  `narrative-smoke`(비-fallback), `visual-smoke-minio-db`, `visual-worker*`, `dev-*`, `streamlit`, `api`, `connect-demo`).
-- **금지 작업 클래스**(무인 검증 불가 → 절대 착수 금지):
-  사람 플레이 체감 QA(`docs/test/neo_seoul_live_qa.md` 전부), 콘텐츠/Story-Bible 저작,
-  밸런스 튜닝, LLM 프롬프트-feel 튜닝.
-- `harness/CORE_MANDATES.md` §4-5 준수(진단 후 수정 = `/diagnose`, docs-first, 구조적 이동은 확인, 완료 주장 전 검증).
-- 게이트는 환경변수 `$GATE_CMD`(기본 `make check`, 더 빠른 변형 `make check-auto`/`make smoke-local`)를 그대로 실행한다.
+- **Forbidden actions**: `git push`, external network (`curl`/`wget`), Docker/Ollama/FLUX calls,
+  destructive/online `make` targets (`infra-*`, `db-*`, `smoke`, `test-db`, `test-e2e*`,
+  `narrative-smoke` (non-fallback), `visual-smoke-minio-db`, `visual-worker*`, `dev-*`, `streamlit`, `api`, `connect-demo`).
+- **Forbidden task classes** (can't be verified unattended → never start):
+  human-play feel QA (all of `docs/test/neo_seoul_live_qa.md`), content/Story-Bible authoring,
+  balance tuning, LLM prompt-feel tuning.
+- Follow `harness/CORE_MANDATES.md` §4-5 (diagnose before fix = `/diagnose`, docs-first, confirm structural moves, verify before claiming done).
+- Run the gate via env var `$GATE_CMD` (default `make check`; faster variants `make check-auto`/`make smoke-local`) verbatim.
 
-## 1. 상태 복원
+## 1. Restore state
 
-Skill `sync` 를 호출한다(Read Path: AGENT_BRIEF → STATUS → NEXT_PLAN → PROGRESS_LOG 최신 몇 건).
-그 외 `docs/` bulk-read 금지.
+Call Skill `sync` (Read Path: AGENT_BRIEF → STATUS → NEXT_PLAN → newest few PROGRESS_LOG entries).
+No other `docs/` bulk-read.
+For broad symbol/structure search, use the `.quarkify/src` index first (`make quarkify` if stale); grep only for rare literals.
 
-## 2. 잔여물 복구 (residual recovery)
+## 2. Residual recovery
 
-`git status --porcelain` 검사.
+Inspect `git status --porcelain`.
 
-- **clean** → 3단계로.
-- **dirty** = 이전 회차 중단 잔여물. **이번 회차 작업은 "복구"다**(새 작업 혼입 금지):
-  - `$GATE_CMD` green → `[recovered]` 접두 메시지로 즉시 커밋하고 이번 회차 종료.
-  - `$GATE_CMD` red → **건드리지 말 것.** 어느 phase가 깼는지 분리하고(`make python-lint`/`typecheck`/`frontend-build`/`test` 개별 실행) **phase + 증거**를 Blocker에 기록(`/checkpoint`; 불투명 "failure" 금지)한 뒤 `scripts/overnight/STOP`을 생성(사유 1줄)하고 종료. (사람 검수 필요 — graceful 정지.)
+- **clean** → go to step 3.
+- **dirty** = residue from an interrupted prior iteration. **This iteration's work is "recovery"** (no new task mixed in):
+  - `$GATE_CMD` green → commit immediately with a `[recovered]`-prefixed message and end this iteration.
+  - `$GATE_CMD` red → **do not touch it.** Isolate which phase broke (run `make python-lint`/`typecheck`/`frontend-build`/`test` individually) and record **phase + evidence** in the Blocker (`/checkpoint`; no opaque "failure"), then create `scripts/overnight/STOP` (1-line reason) and end. (Needs human review — graceful stop.)
 
-## 3. 작업 선택
+## 3. Task selection
 
-`docs/NEXT_PLAN.md`에서 **claude 레인(`[auto]` 또는 `[auto:claude]`) 최상위 미완료 1개**만 고른다.
+From `docs/NEXT_PLAN.md`, pick **only the top unfinished item in the claude lane (`[auto]` or `[auto:claude]`)**.
 
-- `[auto:codex]`/`[auto:agy]`(타 엔진 레인)·`[manual]`/`[blocked]`/**무태그**는 건너뛴다. 무태그를 임의로 승격하지 않는다(스코프 방어).
-- 같은 항목에서 Blocker가 2회 누적되면 그 항목에 `[blocked]`를 덧붙이고 다음 `[auto]` 후보로 넘어간다.
-- 남은 `[auto]`가 없거나 전부 blocked면 `scripts/overnight/DONE`을 생성(사유: `drained` vs `all-blocked`)하고 종료한다.
+- Skip `[auto:codex]`/`[auto:agy]` (other engines' lanes), `[manual]`/`[blocked]`, and **untagged**. Do not promote untagged items (scope defense).
+- If a Blocker accumulates twice on the same item, append `[blocked]` to it and move to the next `[auto]` candidate.
+- If no `[auto]` remains or all are blocked, create `scripts/overnight/DONE` (reason: `drained` vs `all-blocked`) and end.
 
-## 4. 구현 + 게이트
+## 4. Implement + gate
 
-항목의 **완료 기준 1줄**대로만 코드+테스트를 변경한다(scope 확장 금지).
+Change code+tests only per the item's **1-line completion criterion** (no scope expansion).
 
-- `$GATE_CMD`(기본 `make check` = ruff + eslint + mypy + tsc/vite-build + unittest)를 **전부 green**까지 돌린다.
-- 게이트 실패 → 먼저 **어느 phase가 깼는지 분리**한다: `make python-lint`/`make typecheck`/`make frontend-build`/`make test`를 개별 실행해 실패 phase를 특정하고, `/diagnose` 1단계(재현+증거)로 근본원인을 **Blocker에 phase+증거로 기록**한다(불투명 "failure" 금지). 그 뒤 `git restore`/`git checkout -- <path>`로 원복한다(무인 회차는 보수적 — scope 내 자명한 수정이 아니면 고치지 말고 원복).
-  같은 항목 2회째 실패면 `[blocked]` 마킹 후 다음 후보로(또는 후보 없으면 DONE).
+- Run `$GATE_CMD` (default `make check` = ruff + eslint + mypy + tsc/vite-build + unittest) until **fully green**.
+- Gate failure → first **isolate which phase broke**: run `make python-lint`/`make typecheck`/`make frontend-build`/`make test` individually to pin the failing phase, and use `/diagnose` step 1 (reproduce + evidence) to record the root cause **in the Blocker as phase + evidence** (no opaque "failure"). Then revert via `git restore`/`git checkout -- <path>` (unattended iterations are conservative — don't fix unless it's an obvious in-scope change; revert instead).
+  Second failure on the same item → mark `[blocked]` and move to the next candidate (or DONE if none).
 
-## 5. 기록
+## 5. Record
 
-Skill `checkpoint` 를 호출하되 **병렬 충돌 회피 규칙**을 지킨다(여러 엔진이 동시에 같은 문서를 건드려 머지 충돌나는 것 방지):
-- `PROGRESS_LOG.md`: 최신 항목 **append**만(union 머지로 자동 병합 — 안전).
-- `NEXT_PLAN.md`: **네 레인의 해당 항목 한 줄만** 마킹(`[ ]→[x]`). 다른 줄·섹션·다른 레인은 건드리지 말 것(충돌원).
-- `STATUS.md`/`AGENT_BRIEF.md`: **이 회차에선 수정하지 않는다** — 오케스트레이터(claude)가 머지 후 일괄 갱신.
+Call Skill `checkpoint`, observing the **parallel-conflict-avoidance rules** (prevents merge conflicts when multiple engines touch the same doc):
+- `PROGRESS_LOG.md`: **append** newest entry only (union-merge auto-merges — safe).
+- `NEXT_PLAN.md`: mark **only the one line for your lane's item** (`[ ]→[x]`). Don't touch other lines/sections/lanes (conflict source).
+- `STATUS.md`/`AGENT_BRIEF.md`: **don't edit this iteration** — the orchestrator (claude) updates them in bulk after merge.
 
-## 6. 커밋 (로컬만)
+## 6. Commit (local only)
 
-1. `git status`로 write가 실제 반영됐는지 확인(write 유실 방어).
-2. `git add -A && git commit` — **로컬 커밋만**. 메시지 끝에 다음 줄을 포함:
+1. `git status` to confirm the writes actually landed (write-loss defense).
+2. `git add -A && git commit` — **local commit only**. Include this trailer line:
    `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`
 
-**한도 임박 시**: 5–6단계(checkpoint + commit)를 먼저 끝내고 종료한다.
+**When near the limit**: finish steps 5–6 (checkpoint + commit) first, then end.
 
 ---
 
-> **핵심**: MythOS는 narrative 게임이다. `[auto]` 백로그는 얇다.
-> hygiene / regression / refactor / codemod / deterministic-bugfix에만 적합하다.
-> 애매하면 하지 말고 Blocker로 남겨라 — **무인 에이전트가 검증 못 하는 변경을 만드는 것이 가장 큰 리스크다.**
+> **Core**: MythOS is a narrative game. The `[auto]` backlog is thin.
+> Suitable only for hygiene / regression / refactor / codemod / deterministic-bugfix.
+> When in doubt, don't — leave a Blocker. **Making a change an unattended agent can't verify is the biggest risk.**

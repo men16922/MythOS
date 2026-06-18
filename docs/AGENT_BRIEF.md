@@ -1,52 +1,52 @@
 # Agent Brief
 
-최종 갱신: 2026-06-19
+Last updated: 2026-06-19
 
-이 파일은 작업 시작용 압축 문맥이다. 상세는 링크된 문서를 필요한 순간에만 연다.
+This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **라이브 QA 진행 중 — 잔여 체감 + 미머지 브랜치 머지**. (권위 `docs/test/neo_seoul_live_qa.md`.) 서사 QA 4건·하네스 `/diagnose`·컷씬/quarkify는 **main 머지 완료**(`..44fd4e7`); **#1 오프닝·#3 IX 라이브 PASS, BGM 토글·api 로그 가시화 수정 완료**. **첫 행동 = 브랜치 `feat/narrative-doc-bgm-logging`(push됨, `make check` green 454) 머지**(사람 — 서사 아키텍처 문서·BGM·api 로그·opening 수동선택지) → 그다음 라이브로 **#2 종료·#5 전투 직후 콜백** 체감 확인. 미개선 #4 지도 in-layer 선택지·#6 스킬트리 RPG 노드그래프는 별도 트랙. P0 컷씬/호감도 backend는 main 머지(migration 006/007 검증), 잔여 `[manual]` 프론트(호감도 게이지·컷씬 갤러리 뷰).
+> ▶ NEXT SESSION: **Live QA in progress — remaining feel checks + merge unmerged branch**. (Authority `docs/test/neo_seoul_live_qa.md`.) Narrative QA 4 items, harness `/diagnose`, cutscene/quarkify are **merged to main** (`..44fd4e7`); **#1 opening & #3 IX live PASS, BGM toggle & api log visibility fixed**. **First action = merge branch `feat/narrative-doc-bgm-logging`** (pushed, `make check` green 454) (human — narrative architecture doc, BGM, api logs, opening manual choices) → then live-verify **#2 ending & #5 post-combat callback** feel. Unimproved #4 map in-layer choices & #6 skill-tree RPG node graph are a separate track. P0 cutscene/affection backend is merged to main (migration 006/007 verified); remaining `[manual]` frontend (affection gauge, cutscene gallery view).
 
 ## Snapshot
 
-Project MythOS는 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG/CRPG다. AI GM(Ollama)이 장면을 진행하고, 전술 전투는 별도 deterministic combat engine이 판정한다.
+Project MythOS is a single-player SF loop-based TRPG/CRPG on a Python 3.11+ local runtime. An AI GM (Ollama) drives scenes; tactical combat is adjudicated by a separate deterministic combat engine.
 
-현재 baseline:
-- `RuntimeSessionService`가 CLI/Streamlit/FastAPI 공통 orchestration을 담당.
-- React+TS SPA + FastAPI `/api/v1` REST/WS adapter, Streamlit demo 모두 같은 runtime service 호출.
-- PostgreSQL/MinIO/Redis/OTel/Jaeger 로컬 인프라 구성.
-- Neo-Seoul 01이 주력 시나리오, `glass-library`는 확장 샘플.
-- Story Bible, Codex, Run History, Meta Progression, Save/Load, Ending Resolver 구현.
-- 전술 전투(전신 action pose·role/tags 스킬 애니메이션·아이콘 액션바·파티 직접 조작·신규 동료 3인 및 적 4종 전투 스프라이트 35종 추가 및 scenario.json 매핑 완료), Tactical Board 범례/타일 인스펙터/학습 목표 배너, Playwright E2E 구현.
-- 작전 지도 route-node화(결정적 DAG + 다중 관점 anchor `route_map.py`/`route_runtime.py`) + 세션 메모리(`session_memory.py` beat 원장+롤링 시놉시스, RAG 아님).
-- 진행도 해금(아키타입 게이트·통찰 투자 트리·rank pips/강화 배너·깨달음 배너·Run History+Echo/Shard 대시보드·시나리오 간 해금, 데이터 주도 grant).
-- Objective/stakes 상시 표시와 선택 가치축/예상 결과/실제 결과 요약 UX.
-- mflux/FLUX image worker, Redux 캐릭터 일관성, MinIO asset path 검증 완료.
-- 서사는 이원화(dual-model): 스토리텔러 `OLLAMA_MODEL_STORY`=`gemma4:latest`(8B, 자유 텍스트) → 파서 `OLLAMA_MODEL_PARSER`=`qwen2.5:3b-instruct`(JSON 구조화). 스트리밍 경로는 정규식 파서 병행.
-- 오프닝 시퀀스 정합(5컷: 각성→세린등장→다가오는손→첫접촉→추격+전투). prompt-layer 분리 진행(authored 지시문→`resources/<scenario>/directives/*.md`, `docs/PROMPT_LAYER.md`). 상세 상태는 `STATUS.md`.
+Current baseline:
+- `RuntimeSessionService` handles shared orchestration for CLI/Streamlit/FastAPI.
+- React+TS SPA + FastAPI `/api/v1` REST/WS adapter, and Streamlit demo all call the same runtime service.
+- PostgreSQL/MinIO/Redis/OTel/Jaeger local infra.
+- Neo-Seoul 01 is the primary scenario, `glass-library` is an extension sample.
+- Story Bible, Codex, Run History, Meta Progression, Save/Load, Ending Resolver implemented.
+- Tactical combat (full-body action pose, role/tags skill animations, icon action bar, direct party control, 3 new allies and 4 enemy types with 35 new combat sprites mapped into scenario.json), Tactical Board legend/tile inspector/learning-goal banner, Playwright E2E implemented.
+- Operation map route-node-ified (deterministic DAG + multi-perspective anchors `route_map.py`/`route_runtime.py`) + session memory (`session_memory.py` beat ledger + rolling synopsis, not RAG).
+- Progression unlock (archetype gates, insight investment tree, rank pips/upgrade banner, epiphany banner, Run History + Echo/Shard dashboard, cross-scenario unlock, data-driven grant).
+- Persistent objective/stakes display and choice value-axis/expected-result/actual-result summary UX.
+- mflux/FLUX image worker, Redux character consistency, MinIO asset path verified.
+- Narrative is dual-model: storyteller `OLLAMA_MODEL_STORY`=`gemma4:latest` (8B, free text) → parser `OLLAMA_MODEL_PARSER`=`qwen2.5:3b-instruct` (JSON structuring). Streaming path runs a regex parser in parallel.
+- Opening sequence consistency (5 cuts: awakening→se_rin appears→approaching hand→first contact→pursuit+combat). Prompt-layer separation in progress (authored directives→`resources/<scenario>/directives/*.md`, `docs/PROMPT_LAYER.md`). Detailed state in `STATUS.md`.
 
 ## Active Work
 
-다음 우선순위는 `docs/NEXT_PLAN.md`가 권위다.
+`docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **Neo-Seoul 플레이 만족도 개선(현재 최우선)**: `neo-seoul`을 30-60분 만족 플레이 주력 시나리오로 만든다. Phase 1-3, route-node화, Tactical Board, 조우 난이도 튜닝, 진행도 대시보드, objective/choice-result UX, live LLM 기술 QA + 반복 완화 + 8B 전환 완료. 잔여는 실제 풀스택 **사람 플레이 QA**(`docs/test/neo_seoul_live_qa.md`, 사용자 직접) — B/C 체감, D 반복, F 속도, route gate 바이어스. 권위 계획 `bin/docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`.
-2. **엔지니어링 정비 트랙(WS0-3 완료)**: agent 운영 하네스를 `docs/engineering/` 바이블(범용)↔`mythos/` 해석(repo) 으로 정의 + 진입점 슬림화 + 구조화 로깅/tmux 대시보드 + Resume Pointer 연속성. `HARNESS_RESEARCH` 개념 흡수. WS4(콘텐츠 파이프라인)만 plan-only 잔존(`docs/plans/2026-06-14-engineering-plan.md`).
-3. 완료 트랙(후속은 Neo-Seoul 트랙에서 다룸): 전투 연출 개편, 진행도 해금, 파티 직접 조작, 데이터 주도 grant, route-node — `docs/COMPLETED_SUMMARY.md` M35-M39.
-4. `glass-library` 확장: hold(패리티 + Story Bible 17 entries 완료, 추가 확장은 Neo-Seoul 완성 이후).
+1. **Neo-Seoul play satisfaction (current top priority)**: make `neo-seoul` the primary 30-60 min satisfying-play scenario. Phase 1-3, route-node-ification, Tactical Board, encounter difficulty tuning, progression dashboard, objective/choice-result UX, live LLM technical QA + repetition mitigation + 8B switch all done. Remaining is full-stack **human play QA** (`docs/test/neo_seoul_live_qa.md`, user-driven) — B/C feel, D repetition, F speed, route gate bias. Authority plan `bin/docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`.
+2. **Engineering maintenance track (WS0-3 done)**: define the agent ops harness as `docs/engineering/` bible (generic) ↔ `mythos/` interpretation (repo) + slim entry points + structured logging/tmux dashboard + Resume Pointer continuity. `HARNESS_RESEARCH` concepts absorbed. Only WS4 (content pipeline) remains plan-only (`docs/plans/2026-06-14-engineering-plan.md`).
+3. Completed tracks (follow-ups handled in the Neo-Seoul track): combat presentation overhaul, progression unlock, direct party control, data-driven grant, route-node — `docs/COMPLETED_SUMMARY.md` M35-M39.
+4. `glass-library` extension: hold (parity + Story Bible 17 entries done; further extension after Neo-Seoul completion).
 
 ## Read Order
 
-1. 현재 상태: `docs/STATUS.md`
-2. 다음 작업: `docs/NEXT_PLAN.md`
-3. 최신 로그: `docs/PROGRESS_LOG.md`
-4. 구조 변경 전: `docs/DESIGN.md`
-5. 게임 규칙 변경 전: `docs/GAMEPLAY.md`
-6. 시나리오 변경 전: `docs/scenarios/*` 또는 `resources/<scenario>/story_bible/*`
+1. Current state: `docs/STATUS.md`
+2. Next work: `docs/NEXT_PLAN.md`
+3. Latest log: `docs/PROGRESS_LOG.md`
+4. Before structural changes: `docs/DESIGN.md`
+5. Before game-rule changes: `docs/GAMEPLAY.md`
+6. Before scenario changes: `docs/scenarios/*` or `resources/<scenario>/story_bible/*`
 
 ## Commands
 
-- 기본 검증: `make test`
-- Python 품질: `make lint`, `make typecheck`
-- React 품질: `make frontend-lint`, `make frontend-build`
+- Basic verify: `make test`
+- Python quality: `make lint`, `make typecheck`
+- React quality: `make frontend-lint`, `make frontend-build`
 - Browser E2E: `make test-e2e`
 - Runtime smoke: `make smoke-local`
 - Persistence/MinIO: `make smoke`, `make test-db`
@@ -54,7 +54,7 @@ Project MythOS는 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG
 
 ## Guardrails
 
-- Runtime orchestration은 UI/API에 복제하지 말고 `RuntimeSessionService`에 둔다.
-- 순수 unit test는 Docker 없이 유지한다. DB tests는 `MYTHOS_RUN_DB_TESTS=1` 경유.
-- Generated outputs, `.env`, tokens, `.docker/` data는 source artifact로 취급하지 않는다.
-- Current docs는 짧게 유지하고, 상세 기록은 `bin/docs/archive/` 또는 dated plan으로 이동한다.
+- Keep runtime orchestration in `RuntimeSessionService`; do not duplicate it into UI/API.
+- Keep pure unit tests Docker-free. DB tests go through `MYTHOS_RUN_DB_TESTS=1`.
+- Do not treat generated outputs, `.env`, tokens, `.docker/` data as source artifacts.
+- Keep current docs short; move detailed records to `bin/docs/archive/` or dated plans.

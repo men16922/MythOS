@@ -1,47 +1,43 @@
-# LOOP_ENGINEERING — 자율 무인 루프 운영 (바이블)
+# LOOP_ENGINEERING — autonomous unattended loop operation (bible)
 
-> **범용 개념 문서(bible).** 이 repo 적용(러너·env·make 타깃)은 → [`mythos/LOOP.md`](mythos/LOOP.md).
+> **General concept doc (bible).** This repo's application (runner · env · make targets) is → [`mythos/LOOP.md`](mythos/LOOP.md).
 
-## 정의
-프롬프트 1개를 헤드리스로 반복 호출해, 매 회차가 **작은 컨텍스트로 상태를 복원 → 작업 1개를 구현·게이트
-통과 → 기록 → 로컬 커밋**하는 자율 실행 루프. 한 회차 = 하나의 원자적 작업 단위. 회차마다 커밋되므로
-**언제 멈춰도 손실은 최대 1회차**.
+## Definition
+An autonomous run loop that repeatedly invokes one prompt headless, where each iteration **restores state from a small context → implements one task and passes the gate → records → commits locally**. One iteration = one atomic unit of work. Because each iteration commits, **whenever it stops, loss is at most one iteration**.
 
-## 1. 핵심 원리
-| 원리 | 이유 |
+## 1. Core Principles
+| Principle | Why |
 | --- | --- |
-| **회차당 fresh context** | 매 회차 새 프로세스 → 컨텍스트 비대/요약 문제 없음. Read Path 만 다시 읽어 복원. |
-| **회차 = 작업 1개 + 즉시 커밋** | 한도/크래시가 언제 닥쳐도 미커밋 손실은 1회차뿐. 다음 회차가 이어받음. |
-| **offline 게이트 = 커밋 게이트** | 결정론 게이트(lint+type+build+test) green 못 하면 커밋 안 함 → 깨진 코드가 쌓이지 않음. 네트워크 불필요. |
-| **상태는 파일에** | 백로그·이력·git history. 메모리가 아니라 디스크가 source of truth. |
-| **최소 권한 무인 실행** | allow/deny 경계로 push·네트워크·파괴 동작 차단(`HARNESS_ENGINEERING §4`). |
+| **Fresh context per iteration** | New process each iteration → no context bloat/summarization. Re-read only the Read Path to restore. |
+| **Iteration = one task + immediate commit** | Whenever a limit/crash hits, uncommitted loss is just one iteration. The next iteration takes over. |
+| **Offline gate = commit gate** | If the deterministic gate (lint+type+build+test) isn't green, no commit → broken code doesn't accumulate. No network needed. |
+| **State on files** | Backlog · history · git history. Disk, not memory, is the source of truth. |
+| **Least-privilege unattended run** | allow/deny boundaries block push · network · destructive actions (`HARNESS_ENGINEERING §4`). |
 
-## 2. 루프 1회 흐름 (loop-once)
+## 2. One Iteration Flow (loop-once)
 ```
-상태 복원 → 잔여물 복구(이전 회차 중단분) → 백로그에서 작업 1개 선택
-  → 구현 + 게이트 통과까지 → 기록 → 로컬 커밋 → (pause) → 반복
+restore state → recover leftovers (prior iteration's interrupted work) → pick one task from backlog
+  → implement + pass gate → record → local commit → (pause) → repeat
 ```
-- **잔여물 복구**: 시작 시 dirty tree = 이전 회차 중단 잔여물. 게이트 green 이면 복구 커밋, red 면 무수정 + 중단 신호.
-- **결과 분류**: 회차 결과를 success/limit/failure 로 구조화 판정(자유 텍스트 grep 금지 — false 오판 방지).
-  limit→대기 후 재시도, failure→연속 실패 카운트, success→커밋 생겼는지(HEAD diff) 확인해 무진행 카운트.
+- **Leftover recovery**: a dirty tree at start = the prior iteration's interrupted leftover. If the gate is green, commit the recovery; if red, leave untouched + signal stop.
+- **Outcome classification**: judge the iteration result as success/limit/failure structurally (no free-text grep — avoid false misjudgment).
+  limit→wait then retry, failure→consecutive-failure count, success→check whether a commit appeared (HEAD diff) for the no-progress count.
 
-## 3. 백로그 태깅 — 무인 대상 표시
-상태 박스와 **별개 축**으로 자동화 태그를 단다:
-- `auto` = 로컬·결정론·offline 검증 가능. **완료 기준 1줄 필수**(scope 폭주 방지).
-- `manual` = 사람 체감/콘텐츠/밸런스/feel 판단 → 무인 검증 불가.
-- `blocked` = 실패 누적 또는 선행 조건 미충족.
-- 무태그 = 무인 대상 아님(안전 기본값). 러너는 `auto*` 만 소비, 임의 승격 금지.
-> **얇은 백로그가 정상**: 창의·체감 작업이 많은 repo 일수록 `auto` 백로그는 금방 소진된다. 무진행 종료가
-> 잦은 게 정상이며, 효율을 내려면 실행 전 `auto` 항목을 **seeding**(회귀 백필·codemod·lint/type 부채·stale-doc 정리)한다.
+## 3. Backlog Tagging — marking unattended targets
+Tag automation on an **axis separate** from the status box:
+- `auto` = locally · deterministically · offline verifiable. **One-line completion criterion required** (prevents scope blowup).
+- `manual` = human feel/content/balance/feel judgment → not unattended-verifiable.
+- `blocked` = accumulated failures or unmet precondition.
+- untagged = not an unattended target (safe default). The runner consumes only `auto*`; no arbitrary promotion.
+> **A thin backlog is normal**: the more a repo is creative/feel-heavy, the faster the `auto` backlog drains. Frequent no-progress exits are normal; for efficiency, **seed** `auto` items before running (regression backfill · codemod · lint/type debt · stale-doc cleanup).
 
-## 4. 종료 조건 (백스톱)
-백로그 소진(DONE) · 수동/red 잔여물(STOP) · 최대 회차 · 연속 실패 N · 무진행 N. **완료 시 멈춘다**(추가 토큰 0).
+## 4. Stop Conditions (backstops)
+Backlog drained (DONE) · manual/red leftover (STOP) · max iterations · N consecutive failures · N no-progress. **Stop when done** (0 extra tokens).
 
-## 5. 적용 한계
-이 루프는 **hygiene/regression/refactor/codemod/deterministic-bugfix** 에 적합하다. 창의·체감·콘텐츠 저작에는
-쓰지 않는다 — 무인 게이트가 검증 못 한다(그건 `manual`, 사람 QA).
+## 5. Applicability Limits
+This loop fits **hygiene/regression/refactor/codemod/deterministic-bugfix**. Do not use it for creative/feel/content authoring — the unattended gate can't verify those (that's `manual`, human QA).
 
-## 6. 형제 개념 (바이블)
-- 상위 하네스: [`HARNESS_ENGINEERING.md`](HARNESS_ENGINEERING.md) · 병렬 다중엔진: [`AGENTIC_ENGINEERING.md`](AGENTIC_ENGINEERING.md)
-- 컨텍스트 복원: [`CONTEXT_ENGINEERING.md`](CONTEXT_ENGINEERING.md) · 회차 프롬프트: [`PROMPT_ENGINEERING.md`](PROMPT_ENGINEERING.md)
-- 이 repo 적용: [`mythos/LOOP.md`](mythos/LOOP.md)
+## 6. Sibling Concepts (bible)
+- Higher harness: [`HARNESS_ENGINEERING.md`](HARNESS_ENGINEERING.md) · parallel multi-engine: [`AGENTIC_ENGINEERING.md`](AGENTIC_ENGINEERING.md)
+- Context restore: [`CONTEXT_ENGINEERING.md`](CONTEXT_ENGINEERING.md) · iteration prompt: [`PROMPT_ENGINEERING.md`](PROMPT_ENGINEERING.md)
+- This repo's application: [`mythos/LOOP.md`](mythos/LOOP.md)

@@ -1,63 +1,65 @@
 ---
 name: checkpoint
-description: 현재 세션의 작업 결과를 Project MythOS 문서 체계(PROGRESS_LOG/STATUS/AGENT_BRIEF/NEXT_PLAN/COMPLETED_SUMMARY/DECISIONS)의 맞는 위치에 맥락대로 기록한다. "체크포인트", "checkpoint", "진행 상황 저장", "docs에 반영", 작업 묶음 완료 시 사용.
+description: Record the current session's work into the right places in the Project MythOS doc system (PROGRESS_LOG/STATUS/AGENT_BRIEF/NEXT_PLAN/COMPLETED_SUMMARY/DECISIONS) with context. Use on "체크포인트", "checkpoint", "진행 상황 저장", "docs에 반영", or when a work bundle completes.
 ---
 
-# /checkpoint — 작업 결과를 문서에 반영
+# /checkpoint — Reflect work into the docs
 
-`docs/DOCS_POLICY.md`의 "작업 완료" 절차와 update sequence를 자동화한다.
-의미 있는 **작업 단위가 끝났을 때만** 기록한다(모든 작은 편집을 남기지 않는다).
+Automates the "work complete" procedure and update sequence in `docs/DOCS_POLICY.md`.
+Record **only when a meaningful unit of work is done** (don't log every small edit).
 
-## 절차
+> Note: PROGRESS_LOG/STATUS/NEXT_PLAN entries are now authored in **English** — the operational doc layer is English; user-facing/narrative content stays Korean.
 
-1. **이번 세션 변경을 수집한다:**
-   - `git status -sb`, `git diff --stat`, (있으면) 이번 세션 커밋 `git log --oneline`.
-   - 무엇을 바꿨고(Changed), 무엇을 검증했고(Verified), 막힌 것(Blockers), 다음(Next)을 정리.
-   - 검증 명령은 실제로 돌린 것만 적는다. 안 돌렸으면 "미검증"이라고 명시.
+## Procedure
 
-2. **PROGRESS_LOG.md에 최신 항목을 맨 위에 append** (`## YYYY-MM-DD — 한 줄 제목`):
+1. **Collect this session's changes:**
+   - `git status -sb`, `git diff --stat`, and (if any) this session's commits `git log --oneline`.
+   - Summarize what you Changed, what you Verified, Blockers, and Next.
+   - List only verification commands you actually ran. If not run, mark it "unverified".
+
+2. **Append the newest entry to the top of PROGRESS_LOG.md** (`## YYYY-MM-DD — one-line title`):
    ```text
-   ## YYYY-MM-DD — <제목>
+   ## YYYY-MM-DD — <title>
    - Status:
    - Changed:
    - Verified:
    - Blockers:
    - Next:
    ```
-   - 날짜는 오늘 날짜(상대 날짜 금지). 기존 동일 날짜 항목이 있으면 통합 여부 판단.
-   - 5-15줄로 압축. 상세 diff를 복사하지 말 것.
+   - Use today's date (no relative dates). If an entry with the same date exists, decide whether to merge.
+   - Compress to 5-15 lines. Don't copy detailed diffs.
 
-3. **STATUS.md 갱신** — baseline/active focus/검증 상태/open risks가 바뀌었으면 반영.
-   해소된 risk는 제거하고, 새로 생긴 risk는 추가. "최종 갱신" 날짜 갱신.
+3. **Update STATUS.md** — reflect changes to baseline/active focus/verification state/open risks.
+   Remove resolved risks, add new ones. Update the "last updated" date.
 
-4. **AGENT_BRIEF.md 갱신** — snapshot이나 active work 우선순위가 바뀐 경우에만.
-   60줄 목표 유지. "최종 갱신" 날짜 갱신.
+4. **Update AGENT_BRIEF.md** — only if the snapshot or active-work priority changed.
+   Keep the 60-line target. Update the "last updated" date.
 
-5. **NEXT_PLAN.md 갱신** — 완료한 task는 제거/체크하고, 다음 작업 방향이 바뀌었으면 반영.
-   NEXT_PLAN은 "열린 작업"만 담는다(완료 이력 아님).
+5. **Update NEXT_PLAN.md** — remove/check completed tasks, reflect any shift in next direction.
+   NEXT_PLAN holds only "open work" (not completion history).
 
-   **★ plan-only / 미완 종료 시 (연속성 필수):** 다음 세션이 이어받아야 할 작업이 있으면
-   `AGENT_BRIEF.md` 최상단의 `▶ NEXT SESSION:` 한 줄을 갱신한다(= **in-repo 플랜 경로** `docs/plans/*`
-   + 첫 구체 행동). 그래야 다음 `/sync` 가 그 포인터를 가장 먼저 echo 해 작업이 끊기지 않는다.
-   - 플랜 파일은 **repo 안**(`docs/plans/YYYY-MM-DD-<topic>.md`)에 둔다. `~/.claude/plans/*`(plan-mode 스크래치,
-     랜덤명, repo 밖)를 권위 포인터로 NEXT_PLAN/AGENT_BRIEF 에 적지 않는다 — 다음 세션이 못 찾는다.
-   - "다음 세션 작업"은 서두 노트가 아니라 **권위 active focus**(AGENT_BRIEF Active Work #1 + STATUS Active Focus
-     + NEXT_PLAN 우선순위)로 올려 세 진입문서를 일치시킨다.
+   **★ On plan-only / unfinished exit (continuity required):** if there is work the next session must pick up,
+   update the single `▶ NEXT SESSION:` line at the top of `AGENT_BRIEF.md` (= **in-repo plan path** `docs/plans/*`
+   + the first concrete action). That way the next `/sync` echoes that pointer first so the work isn't dropped.
+   - Keep the plan file **inside the repo** (`docs/plans/YYYY-MM-DD-<topic>.md`). Do not record `~/.claude/plans/*`
+     (plan-mode scratch, random names, outside the repo) as the authoritative pointer in NEXT_PLAN/AGENT_BRIEF — the next session can't find it.
+   - "Next session work" is not a preamble note but the **authoritative active focus** (AGENT_BRIEF Active Work #1 + STATUS Active Focus
+     + NEXT_PLAN priority) — align all three entry docs.
 
-6. **조건부 갱신:**
-   - milestone 완료 → `COMPLETED_SUMMARY.md`에 목적·산출물·검증을 짧게 요약.
-   - 되돌리기 어려운 선택(provider/infra/데이터 모델/문서 정책/public workflow) →
-     `DECISIONS.md`에 Decision/Reason/Impact 기록.
-   - 큰 작업 시작점이었다면 `docs/plans/YYYY-MM-DD-<topic>.md` 스냅샷 고려.
+6. **Conditional updates:**
+   - milestone done → summarize purpose/deliverable/verification briefly in `COMPLETED_SUMMARY.md`.
+   - hard-to-reverse choice (provider/infra/data model/doc policy/public workflow) →
+     record Decision/Reason/Impact in `DECISIONS.md`.
+   - if this was the start of a large task, consider a `docs/plans/YYYY-MM-DD-<topic>.md` snapshot.
 
-7. **요약 출력** — 어떤 파일을 어떻게 갱신했는지 1줄씩, 그리고 커밋 제안 여부.
-   커밋/푸시는 사용자가 명시적으로 요청할 때만 한다.
+7. **Output a summary** — one line per file on how it was updated, plus whether to suggest a commit.
+   Commit/push only when the user explicitly asks.
 
-## 규칙
+## Rules
 
-- Current docs는 짧게 유지한다 — 상세 변경 이력을 STATUS/AGENT_BRIEF에 복사하지 않는다.
-  상세는 PROGRESS_LOG, 그리고 길어지면 archive로.
-- 라인 예산: AGENT_BRIEF ≤60, STATUS/NEXT_PLAN ≤120, PROGRESS_LOG ≤120.
-  PROGRESS_LOG가 예산을 넘으면 이 skill로 기록만 하고, 정리는 `/tidy-docs`에 위임(사용자에게 제안).
-- 한국어로 작성하되 식별자/명령/경로는 원문 그대로.
-- 무엇을 기록할지 애매하면 사용자에게 "이번 작업 단위 범위"를 한 번 확인한다.
+- Keep current docs short — don't copy detailed change history into STATUS/AGENT_BRIEF.
+  Detail goes in PROGRESS_LOG, and to archive when it grows.
+- Line budgets: AGENT_BRIEF ≤60, STATUS/NEXT_PLAN ≤120, PROGRESS_LOG ≤120.
+  If PROGRESS_LOG exceeds budget, only record with this skill and delegate cleanup to `/tidy-docs` (suggest to the user).
+- Write in English, but keep identifiers/commands/paths verbatim.
+- If unsure what to record, confirm the "scope of this work unit" with the user once.

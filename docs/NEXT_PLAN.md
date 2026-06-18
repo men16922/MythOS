@@ -1,125 +1,119 @@
 # Project MythOS Next Plan
 
-최종 갱신: 2026-06-19
+Last updated: 2026-06-19
 
-이 파일은 앞으로 할 일(열린 작업)만 유지하는 rolling plan이다. 완료 트랙은
-`docs/COMPLETED_SUMMARY.md`, 상세 로그는 `bin/docs/archive/progress-2026-06.md`, 개별 설계는
-`docs/plans/`를 본다.
+This file keeps only upcoming (open) work as a rolling plan. Completed tracks live in
+`docs/COMPLETED_SUMMARY.md`, detailed logs in `bin/docs/archive/progress-2026-06.md`, individual designs in
+`docs/plans/`.
 
-## Priority 0 — 동료 호감도 + 컷씬 언락 + 프롬프트 레이어 분리 (현재 최우선)
+## Priority 0 — Companion affection + cutscene unlock + prompt-layer separation (current top priority)
 
-권위 설계: `docs/plans/2026-06-16-companion-affection-cutscenes.md`. 진행 베이스라인: prompt-layer Phase 0-2 완료(커밋 `751a37b`/`cfe6a2d`/`ed37c39`/`7fd91e5`, `docs/PROMPT_LAYER.md`).
-핵심 발견: relationship 델타(`scenario.json` perspective/choice `effect.relationship`)는 **저작됐으나 런타임 무시(dead data)** — `route_runtime.py:96`이 flags만 적용.
+Authority design: `docs/plans/2026-06-16-companion-affection-cutscenes.md`. Baseline: prompt-layer Phase 0-2 done (commits `751a37b`/`cfe6a2d`/`ed37c39`/`7fd91e5`, `docs/PROMPT_LAYER.md`).
+Key finding: relationship deltas (`scenario.json` perspective/choice `effect.relationship`) were **authored but ignored at runtime (dead data)** — `route_runtime.py:96` applied only flags.
 
-- `[/]` **프롬프트 레이어 분리(Foundation)**: Phase 0-4 + 노드-주소 지정 완료(overnight 시드 C/D/I/J/K — fallback/naming/stat/encounter→md generic 기본값·`node=`/`beat=` 룩업). 잔여 — `[ ]` Phase 5 system_prompt few-shot 예시 추출(캐시 prefix 민감, 최저 우선).
-- `[x]` **P0 호감도 런타임**(`[auto]`, overnight 시드 L/M/N/O): `effect.relationship`를 `state.relationships[name]` 누적(route reconcile+choice fold, replay 멱등) + meta progression 크로스루프 이월(migration 006) + serializer 노출 계약. 무결성/누적 테스트 green. **잔여: `[ ]` `[manual]` 프론트 호감도 게이지 UI**(serializer 노출 완료, 시각 feel QA만).
-- `[/]` **P1 컷씬 언락**: backend **main 머지 완료**(2026-06-19, migration 006/007 실 DB 적용·round-trip 검증) — `directives/companions/<name>.md` 로더(`CutsceneDirective`) + 결정론 언락(`cutscenes.py`) + 크로스루프 union(migration 007) + `memory_overview.cutscene_gallery` + 무결성(`CutsceneIntegrityTest`). **잔여: `[ ]` `[manual]` 프론트 갤러리 뷰**(payload 준비됨) · `[ ]` 인게임 컷씬 노드 등장(P1-a, directive 주입).
-- `[/]` `[manual]` **P2 Se-rin 컷씬**: P1 로더 검증용 `se_rin.md` 2컷(임계 2/4) 저작 완료(placeholder 포트레이트). **잔여: `[ ]` `outputs/experiments/adult/serin/imagegen/*.png` 2종 전용 아트 채택(IMAGE_POLICY) + image 교체 + 라이브 QA.**
-- `[ ]` `[manual]` **P3 동료 확장**: 카이/린위에/태오/한/수아 컷씬 + `side_arcs` 6종 route 사이드-앵커 승격(WS-B 트랙2).
+- `[/]` **Prompt-layer separation (Foundation)**: Phase 0-4 + node-addressing done (overnight seeds C/D/I/J/K — fallback/naming/stat/encounter→md generic defaults, `node=`/`beat=` lookup). Remaining — `[ ]` Phase 5 system_prompt few-shot example extraction (cache-prefix sensitive, lowest priority).
+- `[x]` **P0 affection runtime** (`[auto]`, seeds L/M/N/O): accumulate `effect.relationship` into `state.relationships[name]` (route reconcile + choice fold, idempotent replay) + meta progression cross-loop carry-over (migration 006) + serializer exposure contract; integrity/accumulation tests green. **Remaining: `[ ]` `[manual]` frontend affection gauge UI** (serializer exposure done, visual feel QA only).
+- `[/]` **P1 cutscene unlock**: backend **merged to main** (2026-06-19, migration 006/007 applied to real DB, round-trip verified) — `directives/companions/<name>.md` loader (`CutsceneDirective`) + deterministic unlock (`cutscenes.py`) + cross-loop union (migration 007) + `memory_overview.cutscene_gallery` + integrity (`CutsceneIntegrityTest`). **Remaining: `[ ]` `[manual]` frontend gallery view** (payload ready) · `[ ]` in-game cutscene node appearance (P1-a, directive injection).
+- `[/]` `[manual]` **P2 Se-rin cutscene**: `se_rin.md` 2 cuts (thresholds 2/4) authored for P1-loader validation (placeholder portrait). **Remaining: `[ ]` adopt 2 dedicated arts from `outputs/experiments/adult/serin/imagegen/*.png` (IMAGE_POLICY) + image swap + live QA.**
+- `[ ]` `[manual]` **P3 companion expansion**: kai/lin_yue/tae_o/han/su_a cutscenes + promote 6 `side_arcs` to route side-anchors (WS-B track 2).
 
-## 엔지니어링 정비 트랙 — WS0-3 완료(COMPLETED_SUMMARY M43), WS4만 잔존
+## Engineering maintenance track — WS0-3 done (COMPLETED_SUMMARY M43), only WS4 remains
 
-- `[ ]` **WS4(plan-only)**: agy 이미지 초안 → codex 적합도 검토 → NEXT_PLAN 콘텐츠 항목 추가 → codex 최종 이미지 생성 파이프라인. 권위 `docs/plans/2026-06-14-engineering-plan.md`.
-- `[ ]` **WS5 하네스 하드닝(백로그, 2026-06-19 usage report 도출)**: ① integrity ledger(`HARNESS_HEALTH` + run.sh commit 객체 존재검증 + `status.tsv`에 `gate_exit`/`commit_verified` 컬럼 + phantom-success 플래그 — L3 갭) ② 종료 시 자동 morning digest(현재 `/overnight-report` 수동) ③ Model B 3-lane 동시실행 1회 실증(MythOS-only, ops) ④ 러너 iter-output 캡. 효과 낮음/이미 완화(dirty-tree gate·failover·long→file)라 후순위. 고효과분(진단-우선 `/diagnose`+gate-phase)은 2026-06-19 반영 완료.
+- `[ ]` **WS4 (plan-only)**: agy image draft → codex fitness review → add content item to NEXT_PLAN → codex final image generation pipeline. Authority `docs/plans/2026-06-14-engineering-plan.md`.
+- `[ ]` **WS5 harness hardening (backlog, derived from 2026-06-19 usage report)**: ① integrity ledger (`HARNESS_HEALTH` + run.sh commit-object existence check + `gate_exit`/`commit_verified` columns in `status.tsv` + phantom-success flag — L3 gap) ② auto morning digest at shutdown (currently `/overnight-report` is manual) ③ Model B 3-lane concurrent run, 1 demonstration (MythOS-only, ops) ④ runner iter-output cap. Low-impact / already-mitigated (dirty-tree gate, failover, long→file), so deprioritized. High-impact parts (diagnose-first `/diagnose` + gate-phase) applied 2026-06-19.
 
 ## Rules
 
-- 작업 시작 전 `docs/AGENT_BRIEF.md` -> `docs/STATUS.md` -> 이 파일 순서로 읽는다.
-- 큰 작업은 `docs/plans/YYYY-MM-DD-<topic>.md`에 설계 스냅샷을 남긴다.
-- 완료 후 `docs/PROGRESS_LOG.md`에는 최신 요약만, 완료 트랙은 `COMPLETED_SUMMARY.md`로 압축한다.
-- 되돌리기 어려운 선택은 `docs/DECISIONS.md`에 기록한다.
+- Before starting work, read `docs/AGENT_BRIEF.md` -> `docs/STATUS.md` -> this file in order.
+- Leave a design snapshot for large work in `docs/plans/YYYY-MM-DD-<topic>.md`.
+- After completion, keep only the latest summary in `docs/PROGRESS_LOG.md`; compress completed tracks into `COMPLETED_SUMMARY.md`.
+- Record hard-to-reverse choices in `docs/DECISIONS.md`.
 
-### 자동화 태그 (overnight 루프용)
+### Automation tags (for the overnight loop)
 
-상태 박스(`[x]`/`[/]`/`[ ]`/`[~]`)와 **별개 축**으로, 무인 overnight 루프(`scripts/overnight/`,
-`docs/engineering/mythos/LOOP.md`)가 소비할 수 있는지를 inline 태그로 표시한다.
+On an **axis separate** from status boxes (`[x]`/`[/]`/`[ ]`/`[~]`), inline tags mark whether the unattended overnight loop (`scripts/overnight/`,
+`docs/engineering/mythos/LOOP.md`) can consume an item.
 
-- `[auto]` — 로컬·결정론·offline(`make check` 또는 `make smoke-local`)으로 검증 가능한 항목에만.
-  **반드시 완료 기준 1줄**을 붙인다(scope 폭주 방지).
-- `[manual]` — 사람 플레이 체감 QA·콘텐츠/Story-Bible 저작·밸런스/프롬프트-feel 튜닝 등 무인 검증 불가.
-- `[blocked]` — 같은 항목 Blocker 2회 누적(러너가 자동으로 덧붙임). 사람 검수 후 제거. 선행 조건 미충족도 포함.
-- **무태그 = 무인 대상 아님**(안전 기본값). 러너는 `[auto*]`만 소비하고, 무태그를 임의로 승격하지 않는다.
+- `[auto]` — only for items verifiable locally/deterministically/offline (`make check` or `make smoke-local`).
+  **Must carry a 1-line completion criterion** (prevents scope creep).
+- `[manual]` — human play-feel QA, content/Story-Bible authoring, balance/prompt-feel tuning, etc.; not unattended-verifiable.
+- `[blocked]` — Blocker accumulated twice on the same item (runner appends automatically). Remove after human review. Also covers unmet prerequisites.
+- **No tag = not an unattended target** (safe default). The runner consumes only `[auto*]` and never promotes untagged items.
 
-**엔진 레인 (3엔진 병렬 — 충돌 방지, 설계: `docs/engineering/mythos/AGENTIC.md`):** `[auto]` 에 엔진 접미사를 붙여
-어느 엔진이 소비할지 지정한다. 각 엔진은 **자기 레인만** 소비 → 같은 항목을 둘이 집지 않는다.
-- `[auto]` / `[auto:claude]` — claude 레인(src/tests/하네스/복잡 리팩터·invariant). claude 가 둘 다 소비.
-- `[auto:codex]` — codex 레인(결정론 docs/scenario/story_bible 리팩터·검증; make check 게이트).
-- `[auto:agy]` — agy 레인(이미지 초안 + 간단 검증; resources/ 이미지 디렉터리만, 무결성 게이트).
-- claude 한도 소진 시 codex 가 claude 레인을 대신 소비(러너 자동 failover, `run.sh`).
+**Engine lanes (3 engines in parallel — conflict avoidance, design: `docs/engineering/mythos/AGENTIC.md`):** append an engine suffix to `[auto]` to
+specify which engine consumes it. Each engine consumes **only its own lane** → two never pick the same item.
+- `[auto]` / `[auto:claude]` — claude lane (src/tests/harness/complex refactor·invariant). claude consumes both.
+- `[auto:codex]` — codex lane (deterministic docs/scenario/story_bible refactor·verify; make check gate).
+- `[auto:agy]` — agy lane (image draft + simple verify; resources/ image dirs only, integrity gate).
+- When claude's quota is exhausted, codex consumes the claude lane instead (runner auto-failover, `run.sh`).
 
-## Overnight QA Seed — 자동 콘텐츠/밸런스 무결성
+## Overnight QA Seed — automated content/balance integrity
 
-> "안 깨지는가"(봇, 결정론) 콘텐츠/밸런스 invariant. green=박제, red=Blocker surface. offline·`make check`.
+> "Does it not break" (bot, deterministic) content/balance invariants. green=locked, red=Blocker surface. offline·`make check`.
 
-- `[x]` **완료 invariant 배치(2026-06-14~15)** — 상세·검증은 `COMPLETED_SUMMARY.md`(QA Seed 무결성 배치) + PROGRESS archive: 루트·엔딩 도달성 / 플래그·조우 무결성 / 조우 승률 밴드(양면 ≥0.50·≤0.95) / 진행도 경제 / 무기·장비 / 스킬 데이터 / 아키타입 정합 / loot_table↔items / encounter 수치 경계 / item.kind enum / story_bible 메타 / npc_agenda 주체(allowlist 재정의) + codemod(FastAPI lifespan·dotenv ignore 중앙화). 문서 압축(`[auto:codex]`)도 이 정리로 완료.
-
-- `[x]` **2026-06-16 시드 A-O 배치(Priority 0 foundation + 호감도)** — 상세·검증은 `COMPLETED_SUMMARY.md` M46 + PROGRESS archive: 콘텐츠 무결성 invariant 6종(relationship 타깃·effect closure·ending 참조·route node-type·이미지 ref·perspective when) + prompt-layer Phase 3/4a-c·노드-주소 지정(fallback/naming/stat/encounter→md, generic 기본값) + 호감도 런타임 L/M/N/O(route reconcile+choice fold 누적·meta 크로스루프 이월 migration 006·serializer 노출). 아침 검수 PASS(고장주입 3/3·라이브 QA 4/4)·origin/main push 완료.
-- `[x]` **2026-06-18 시드 P/Q(`[auto:claude]` player-facing 데이터 클로저)** — `tests/test_route_meaning_and_goals.py` 2종: ① route 노드 `type` 클로저(`session._ROUTE_TYPE_MEANING`에 모든 node_types/anchor type 존재 → junction 라벨 generic fallthrough 방지, 고장주입 RED 실증) ② `session_design.chapter_gates` player_goal 완전성(전 gate 비어있지 않은 player_goal + LoopPhase phase + turn_range 형식 — `_chapter_goal` 막-스트립 공백 방지, content_integrity 미스캔 영역). `make check` green(445, +2).
-- `[ ]` `[auto:agy]` 스킬 아이콘 6종 초안: `emp_pulse`·`glitch_blink`·`memory_resonance`·`nanoshield_projector`·`signal_overdrive`·`system_intrusion` 의 `resources/neo-seoul/skills/<id>.png` 를 IMAGE_POLICY + 기존 스킬 아이콘 스타일을 바이블로 초안 생성(placeholder fabricate 금지). 완료 기준: 6 PNG 실존·비어있지 않음·규격 일치. (2026-06-14 1차 생성분은 미적 반려 — `outputs/agy/skills/VERDICT.md`. 엄격 카드 템플릿으로 재생성 필요.)
-- `[blocked]` `[auto:claude]` 스킬/아이콘 무결성 invariant: 모든 `combat.skills[].id`에 `resources/neo-seoul/skills/<id>.png` 존재 + 아키타입 base/learnable + `epiphany` unlock이 실재 스킬 참조. 완료 기준: `test_assets.py`에 추가, green 또는 Blocker. **선행 미충족**: 위 `[auto:agy]` 아이콘 6종 채택·머지 후 해제.
+- `[x]` **Completed invariant batch (2026-06-14~15)** — detail/verification in `COMPLETED_SUMMARY.md` (QA Seed integrity batch) + PROGRESS archive: route/ending reachability / flag·encounter integrity / encounter win-rate band (two-sided ≥0.50·≤0.95) / progression economy / weapons·equipment / skill data / archetype consistency / loot_table↔items / encounter numeric bounds / item.kind enum / story_bible meta / npc_agenda subject (allowlist redefine) + codemod (FastAPI lifespan·dotenv-ignore centralization). Doc compression (`[auto:codex]`) also done in this cleanup.
+- `[x]` **2026-06-16 seeds A-O batch (Priority 0 foundation + affection)** — detail/verification in `COMPLETED_SUMMARY.md` M46 + PROGRESS archive: 6 content-integrity invariants (relationship target·effect closure·ending ref·route node-type·image ref·perspective when) + prompt-layer Phase 3/4a-c·node-addressing (fallback/naming/stat/encounter→md, generic defaults) + affection runtime L/M/N/O (route reconcile+choice fold accumulation·meta cross-loop carry migration 006·serializer exposure). Morning review PASS (fault-injection 3/3·live QA 4/4)·origin/main push done.
+- `[x]` **2026-06-18 seeds P/Q (`[auto:claude]` player-facing data closure)** — `tests/test_route_meaning_and_goals.py` 2 items: ① route node `type` closure (all node_types/anchor types present in `session._ROUTE_TYPE_MEANING` → prevents junction-label generic fallthrough, fault-injection RED proven) ② `session_design.chapter_gates` player_goal completeness (every gate has non-empty player_goal + LoopPhase phase + turn_range format — prevents `_chapter_goal` act-strip blanks, content_integrity unscanned area). `make check` green (445, +2).
+- `[ ]` `[auto:agy]` 6 skill icon drafts: draft `resources/neo-seoul/skills/<id>.png` for `emp_pulse`·`glitch_blink`·`memory_resonance`·`nanoshield_projector`·`signal_overdrive`·`system_intrusion` using IMAGE_POLICY + existing skill-icon style as bible (no placeholder fabrication). Completion: 6 PNGs exist·non-empty·spec-matching. (2026-06-14 first batch aesthetically rejected — `outputs/agy/skills/VERDICT.md`. Regenerate with a strict card template.)
+- `[blocked]` `[auto:claude]` skill/icon integrity invariant: every `combat.skills[].id` has `resources/neo-seoul/skills/<id>.png` + archetype base/learnable + `epiphany` unlock references a real skill. Completion: added to `test_assets.py`, green or Blocker. **Unmet prereq**: unblocked after the `[auto:agy]` 6 icons above are adopted/merged.
 
 ## Priority 1 — Neo-Seoul Playability Upgrade
 
-상태: `[/]` 진행 중(현재 최우선 트랙. 잔여는 주로 `[manual]` 사람 플레이 QA + 일부 `[auto]` QA seed).
+Status: `[/]` in progress (current top track. Remaining is mostly `[manual]` human play QA + some `[auto]` QA seed).
 
-목표: `neo-seoul`을 기술 데모가 아니라 일반 유저가 30-60분 동안 만족스럽게 플레이할 수 있는 주력
-시나리오로 끌어올린다. 게임성, 스토리 몰입, 선택 결과, 전투 페이스, 진행도 보상을 한 번의 플레이 경험
-기준으로 재정렬한다.
+Goal: raise `neo-seoul` from a tech demo to a primary scenario a general user can play satisfyingly for 30-60 min. Realign gameplay, story immersion, choice consequences, combat pace, and progression rewards around a single play experience. Authority design: `bin/docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`; live feedback action plan: `bin/docs/plans/2026-06-07-neo-seoul-live-feedback-action-plan.md`.
 
-권위 설계: `bin/docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`
-라이브 피드백 액션 플랜: `bin/docs/plans/2026-06-07-neo-seoul-live-feedback-action-plan.md`
+Key criteria:
 
-핵심 기준:
+- Within the first 5 minutes, the goal/risk/reason-to-follow-se_rin must be clear.
+- Every scene's choices must reveal which of `people / evidence / safety / control` is being chosen.
+- Combat must feel like a consequence of pursuit, operation failure, ally protection, and reward — without breaking narrative.
+- Codex/Run History/progression must give info and rewards that make the next loop better.
+- The ending must make clear what was saved, what was lost, and what carries into the next loop.
 
-- 첫 5분 안에 목표/위험/세린을 따라갈 이유가 명확해야 한다.
-- 매 장면 선택지는 `사람 / 증거 / 안전 / 통제` 중 무엇을 택하는지 드러내야 한다.
-- 전투는 서사를 끊지 않고 추적, 작전 실패, 동료 보호, 보상의 결과로 느껴져야 한다.
-- Codex/Run History/진행도는 다음 루프를 더 잘하게 만드는 정보와 보상을 줘야 한다.
-- 엔딩은 무엇을 구했고, 무엇을 잃었고, 다음 루프에 무엇이 남는지 선명해야 한다.
+Completed (summary): Phase 1 (Golden Path 45 min + fail/bypass Path + QA rubric → `docs/scenarios/01-neo-seoul-connect.md`),
+Phase 2 (Story Bible/choice density + `scenario.json` playability meta), Phase 3 data baseline (encounter learning_goal/reward_intent).
+P0 (`encounter_reward.insight` meta applied, combat-result panel reward display, early forced ambient combat eased, BGM/se_rin labeling Live QA, encounter reward baseline update).
+P1 operation map route-node-ification + session memory (→ COMPLETED_SUMMARY M39), Tactical Board legend/tile inspector/learning-goal banner, encounter difficulty tuning (per-spawn `overrides` + per-learning-goal numerics).
 
-완료(요약): Phase 1(Golden Path 45분 + 실패/우회 Path + QA rubric → `docs/scenarios/01-neo-seoul-connect.md`),
-Phase 2(Story Bible/choice density + `scenario.json` playability 메타), Phase 3 데이터 기준선(조우 learning_goal/reward_intent).
-P0(`encounter_reward.insight` meta 반영, 전투 결과 패널 보상 표시, 초반 forced ambient combat 완화, BGM/세린 표기 Live QA, 조우 보상 기준값 갱신).
-P1 작전 지도 route-node화 + 세션 메모리(→ COMPLETED_SUMMARY M39), Tactical Board 범례/타일 인스펙터/학습 목표 배너, 조우 난이도 튜닝(per-spawn `overrides` + 학습 목표별 수치).
+Open work:
 
-열린 작업:
+### Live QA narrative improvements (2026-06-19, authority `docs/test/neo_seoul_live_qa.md`)
 
-### 라이브 QA 서사 개선 (2026-06-19, 권위 `docs/test/neo_seoul_live_qa.md`)
+Narrative QA 4 items **merged to main** (`..44fd4e7`). Follow-ups (narrative architecture doc·BGM toggle·api log visibility·opening manual choices) on branch **`feat/narrative-doc-bgm-logging`** (pushed, unmerged, green 454).
+- `[x]` `[manual]` **#1 opening grounding + #3 IX threat rationale**: `opening.md` edit → **live PASS**.
+- `[/]` `[manual]` **#2 ending narrativization + #5 post-combat callback**: code merged to main + unit tests locked in. Remaining = live feel.
+- `[ ]` **#4 map in-layer choice destinations** · **#6 skill-tree RPG node graph** (separate track, frontend; analysis done).
 
-서사 QA 4건 **main 머지 완료**(`..44fd4e7`). 후속(서사 아키텍처 문서·BGM 토글·api 로그 가시화·opening 수동선택지)는 브랜치 **`feat/narrative-doc-bgm-logging`**(push, 미머지, green 454).
-- `[x]` `[manual]` **#1 오프닝 일으킴 + #3 IX 위협 이유**: `opening.md` 편집 → **라이브 PASS**.
-- `[/]` `[manual]` **#2 종료 서사화 + #5 전투 직후 콜백**: 코드 main 머지 + 단위 테스트 박제. 잔여=라이브 체감.
-- `[ ]` **#4 지도 in-layer 선택지 행선지** · **#6 스킬트리 RPG 노드그래프**(별도 트랙, 프론트; 분석 완료).
+### Operation map dynamic routing — done (foundation, detail in COMPLETED_SUMMARY/archive)
 
-### 작전 지도 동적 라우팅 — 완료(토대, 상세는 COMPLETED_SUMMARY/archive)
+- `[/]` Follow-up: dynamic node title variety/dedup done. Remaining: inject current node into visual prompt, consider gradual conversion of static scenarios too.
 
-- `[/]` 후속: 동적 노드 title 다양화·중복 억제 완료. 남은 것: visual prompt에 현재 노드 주입, 정적 시나리오도 점진 전환 검토.
+### Opening sequence consistency (live_qa §1.1) — done (foundation), montage follow-up
 
-### 오프닝 시퀀스 정합 (live_qa §1.1) — 완료(토대), montage 후속
+- `[ ]` Pre-game montage repositioning: move the pursuit cut to a later beat to ease the time-spoiler where the montage runs ahead of in-game awakening.
+- `[ ]` Full 4-turn human play feel (awakening→arrival→contact→pursuit, image transition·se_rin portrait sync).
+- `[ ]` Minor: turn1 "corridor" word leaks once·title "Changed " prefix artifact, intro bullet chips (`·`) CSS polish.
 
-- `[ ]` 프리게임 montage 재배치: 추격 컷을 후반 비트로 옮겨 montage가 인게임 각성보다 앞서가는 시점 스포일 완화.
-- `[ ]` 풀 4턴 사람 플레이 체감(각성→도착→접촉→추격, 이미지 전환·세린 포트레이트 동기화).
-- `[ ]` 경미: turn1 "회랑" 단어 1회 누수·제목 "Changed " 접두 아티팩트, 인트로 불릿 칩(`·`) CSS 다듬기.
+### Human play QA findings (live_qa §0/§1-6) — A/B/C/E/G done, F·D remaining
 
-### 사람 플레이 QA 발견 (live_qa §0/§1-6) — A/B/C/E/G 완료, F·D 잔여
+- `[/]` **F streaming speed**: root cause RAM shortage identified + dual-model narrative (8B story → 3b parser) wired·context 8192 cap applied. Remaining: with user RAM freed, approach ~13s, actual multi-turn live feel. Design `bin/docs/plans/2026-06-10-dual-model-narrative-orchestration.md`.
+- `[/]` **D narrative repetition**: synopsis truncation-drop fix (`session_synopsis` dedicated field fully rendered) + scene length/prefill cache fix. Remaining: actual multi-turn live feel.
 
-- `[/]` **F 스트리밍 속도**: 근본 원인 RAM 부족 규명 + 이원화 서사(8B 스토리 → 3b 파서) 배선·context 8192 캡 적용. 남은 것: 사용자 RAM 확보로 ~13초 근접, 실제 멀티턴 라이브 체감. 설계 `bin/docs/plans/2026-06-10-dual-model-narrative-orchestration.md`.
-- `[/]` **D 내러티브 반복**: 시놉시스 truncation 드롭 수정(`session_synopsis` 전용 필드 전량 렌더) + 장면 길이/prefill 캐시 수정. 남은 것: 실제 멀티턴 라이브 체감.
-
-- `[/]` P0-P2 다수 완료(상세 COMPLETED_SUMMARY M35-M40·PROGRESS archive; live LLM 14턴 QA 통과·F1 반복완화·anti-stickiness·Tactical Board 줌·회복/소모품/장비·기억의 별자리 재구성·objective/stakes·선택결과 요약). **남은 잔여**: F2 전투 빈도/연속 튜닝(관찰) · Tactical Board 터치 핀 고정 · 소모품/장비 밸런스 · 막 gate 필수 비트 강제 + visual prompt 현재 노드 주입 · 기억의 별자리 탭 세분화 · 선택결과에 관계/Codex/Shard 확장 · objective 막 전환 gate.
-- `[ ]` P2 아키타입 의미 강화: 해금 milestone 제한 + 오프닝/시작위치/스킬/아이템/NPC 반응 차별화.
-- `[manual]` Codex Skill 상태 문구 wording(첫 플레이어 feel). 버튼 상태 로직(`deriveSkillAction`)은 완료.
-- `[ ]` Phase 4 — objective/choice result/Codex feedback UX 통합 마감. `[ ]` Phase 5 — Neo-Seoul RC: 수동 QA(`docs/test/neo_seoul_live_qa.md`) + 자동 회귀.
+- `[/]` P0-P2 mostly done (detail COMPLETED_SUMMARY M35-M40·PROGRESS archive; live LLM 14-turn QA pass·F1 repetition-mitigation·anti-stickiness·Tactical Board zoom·recovery/consumable/equipment·memory-constellation reorg·objective/stakes·choice-result summary). **Remaining**: F2 combat-frequency/streak tuning (observe) · Tactical Board touch pin lock · consumable/equipment balance · act-gate required-beat enforcement + inject current node into visual prompt · memory constellation tab subdivision · expand choice-result with relationship/Codex/Shard · objective act-transition gate.
+- `[ ]` P2 archetype meaning strengthening: unlock-milestone limits + differentiate opening/start-location/skills/items/NPC reactions.
+- `[manual]` Codex Skill status wording (first-player feel). Button state logic (`deriveSkillAction`) is done.
+- `[ ]` Phase 4 — objective/choice result/Codex feedback UX integration finish. `[ ]` Phase 5 — Neo-Seoul RC: manual QA (`docs/test/neo_seoul_live_qa.md`) + auto regression.
 
 ## Hold — Scenario Expansion / Glass Library
 
-상태: `[~]` 진행도/프레젠테이션 패리티 + Story Bible 17 entries 완료(M38). 추가 확장은 Neo-Seoul 만족도 개선 이후로 홀드.
+Status: `[~]` progression/presentation parity + Story Bible 17 entries done (M38). Further extension held until after Neo-Seoul satisfaction improvements.
 
-- `[ ]` `glass-library` main_arcs/endings 분기·보상 메타 확장(현재 main_arcs 4 / endings 4).
-- `[ ]` glass-library 전투 아트/스킬 깊이(현재 스킬 5종, 적 4종; 신규 combat action sheet는 후속).
+- `[ ]` `glass-library` main_arcs/endings branch·reward meta expansion (currently main_arcs 4 / endings 4).
+- `[ ]` glass-library combat art/skill depth (currently 5 skills, 4 enemies; new combat action sheets are follow-ups).
 
 ## Maintenance
 
-- `[ ]` `[manual]` 장기 플레이에서 Flux1 + Flux1Redux 동시 적재 메모리 모니터.
-- `[ ]` `[blocked]` `_map` 제거 정리(route-node 트랙 완료 후 보류; engine 매 장면 기록 + encounter_map 좌표·story_bible 위치·glass-library 폴백 미니맵 의존). 선행 조건: 전 시나리오 route_map 전환. 충족 시 `[auto]`(codemod + `make check` green)로 승격.
-- `[ ]` `[manual]` 프론트엔드 god-component 분해(App.tsx·CombatCinema): custom hook/모듈 추출. E2E 민감하므로 live QA 동반 점진 진행.
+- `[ ]` `[manual]` long-play Flux1 + Flux1Redux simultaneous-load memory monitor.
+- `[ ]` `[blocked]` `_map` removal cleanup (held until route-node track done; engine records every scene + encounter_map coords·story_bible location·glass-library fallback minimap depend on it). Prereq: all scenarios converted to route_map. When met, promote to `[auto]` (codemod + `make check` green).
+- `[ ]` `[manual]` frontend god-component decomposition (App.tsx·CombatCinema): extract custom hooks/modules. E2E-sensitive, so proceed gradually with live QA.

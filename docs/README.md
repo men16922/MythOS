@@ -1,56 +1,56 @@
 # Project MythOS Docs
 
-최종 갱신: 2026-06-14
+Last updated: 2026-06-14
 
-이 디렉터리는 현재 작업 문맥을 작게 유지하기 위해 current docs와 archive를 분리한다.
-에이전트는 `docs/` 전체를 읽지 말고 아래 순서만 따른다.
+This directory separates current docs from archive to keep the working context small.
+Agents do not read all of `docs/`; follow only the order below.
 
 ## Read Path
 
-1. `AGENT_BRIEF.md` — 1분 압축 문맥.
-2. `STATUS.md` — 현재 baseline, active focus, risks.
-3. `NEXT_PLAN.md` — 열린 작업만 있는 rolling plan.
-4. `PROGRESS_LOG.md` — 최신 증분 요약. 긴 로그는 archive.
-5. 필요할 때만 `DESIGN.md`, `GAMEPLAY.md`, scenario/story bible, dated plans.
+1. `AGENT_BRIEF.md` — 1-minute compressed context.
+2. `STATUS.md` — current baseline, active focus, risks.
+3. `NEXT_PLAN.md` — rolling plan with open work only.
+4. `PROGRESS_LOG.md` — latest incremental summary; long logs go to archive.
+5. Only when needed: `DESIGN.md`, `GAMEPLAY.md`, scenario/story bible, dated plans.
 
 ## Current Docs
 
 | File | Role |
 | --- | --- |
-| `AGENT_BRIEF.md` | 에이전트 진입점 |
-| `STATUS.md` | 현재 상태와 검증 baseline |
-| `NEXT_PLAN.md` | 다음 구현 우선순위 |
-| `PROGRESS_LOG.md` | 최신 짧은 작업 로그 |
-| `DESIGN.md` | 현재 아키텍처 압축 요약 |
-| `GAMEPLAY.md` | 게임플레이/TRPG 설계 |
-| `API.md` | FastAPI REST/WS 계약 |
-| `COMPLETED_SUMMARY.md` | 완료 milestone 압축 기록 |
-| `DECISIONS.md` | 되돌리기 어려운 결정 |
-| `DOCS_POLICY.md` | 문서 운영 규칙 |
-| `IMAGE_POLICY.md` | 이미지 생성 규칙·로컬 파이프라인 |
-| `PROMPT_LAYER.md` | 서사 프롬프트 아키텍처(코드↔프롬프트 레이어 분리, directives/*.md) |
-| `NARRATIVE_ARCHITECTURE.md` | 서사/스토리북/바이블 end-to-end 구성(데이터→조립→LLM→파싱→루트/메모리→영속) |
-| `REFERENCES.md` | 디자인 레퍼런스 게임과 적용 포인트 |
+| `AGENT_BRIEF.md` | Agent entry point |
+| `STATUS.md` | Current state and verification baseline |
+| `NEXT_PLAN.md` | Next implementation priorities |
+| `PROGRESS_LOG.md` | Latest short work log |
+| `DESIGN.md` | Compressed summary of current architecture |
+| `GAMEPLAY.md` | Gameplay/TRPG design |
+| `API.md` | FastAPI REST/WS contract |
+| `COMPLETED_SUMMARY.md` | Compressed record of completed milestones |
+| `DECISIONS.md` | Hard-to-reverse decisions |
+| `DOCS_POLICY.md` | Doc operating rules |
+| `IMAGE_POLICY.md` | Image-generation rules · local pipeline |
+| `PROMPT_LAYER.md` | Narrative prompt architecture (code↔prompt layer split, directives/*.md) |
+| `NARRATIVE_ARCHITECTURE.md` | End-to-end narrative/storybook/bible composition (data→assembly→LLM→parse→route/memory→persistence) |
+| `REFERENCES.md` | Design-reference games and application points |
 
 ## On-Demand Docs
 
-- `docs/engineering/`: **에이전트 운영 하네스 5개 개념**(HARNESS/LOOP/AGENTIC/CONTEXT/PROMPT). 무인 루프·멀티에이전트·컨텍스트·프롬프트 작업 시 `docs/engineering/README.md`부터. (`LOOP_ENGINEERING.md`·`AGENTIC_ENGINEERING.md`는 옛 `docs/LOOP_ENGINEERING.md`·`docs/MULTI_AGENT.md`에서 이동.)
-- `docs/test/`: **사람이 직접 수행하는 체크리스트**(에이전트 기본 컨텍스트 아님 — 사용자가 연다).
-  - `neo_seoul_live_qa.md`: Neo-Seoul 사람 플레이 QA 체크리스트.
-  - `bible/overnight-review-checklist.md`: overnight 루프 종료 후 사람 검수 체크리스트 **바이블(정적 템플릿)**.
-  - `history/<MMDD-HHMM>-overnight-review-checklist.md`: `/overnight-report`가 런마다 생성하는 **런별 인스턴스**(바이블 B~E를 그 런 사실로 채움). gitignore — 재생성 가능한 산출물.
-- `docs/plans/`: 활성 작업의 날짜별 설계 스냅샷(현재 engineering-plan / companion-affection-cutscenes / quarkify-poc). 완료/은퇴된 plan은 `bin/docs/plans/`로 이관. 최신 상태가 아닐 수 있으므로 `NEXT_PLAN.md`를 우선한다.
-- `docs/scenarios/`: 시나리오 기획 문서. 콘텐츠 변경 시에만 읽는다.
-- `bin/docs/archive/`: 장문 설계/로그/과거 기획 보존소. 기본 컨텍스트에 넣지 않는다.
-- `bin/docs/feedback/`: 과거 피드백 원문.
+- `docs/engineering/`: **the 5 agent-operations harness concepts** (HARNESS/LOOP/AGENTIC/CONTEXT/PROMPT). Start from `docs/engineering/README.md` for unattended-loop · multi-agent · context · prompt work. (`LOOP_ENGINEERING.md` · `AGENTIC_ENGINEERING.md` moved from the old `docs/LOOP_ENGINEERING.md` · `docs/MULTI_AGENT.md`.)
+- `docs/test/`: **checklists humans run by hand** (not default agent context — the user opens them).
+  - `neo_seoul_live_qa.md`: Neo-Seoul human play-QA checklist.
+  - `bible/overnight-review-checklist.md`: the human review-checklist **bible (static template)** after an overnight loop ends.
+  - `history/<MMDD-HHMM>-overnight-review-checklist.md`: the **per-run instance** `/overnight-report` generates each run (fills bible B~E with that run's facts). gitignore — a regenerable artifact.
+- `docs/plans/`: dated design snapshots of active work (currently engineering-plan / companion-affection-cutscenes / quarkify-poc). Completed/retired plans move to `bin/docs/plans/`. May be stale, so prefer `NEXT_PLAN.md`.
+- `docs/scenarios/`: scenario design docs. Read only when changing content.
+- `bin/docs/archive/`: store for long-form design/logs/past planning. Not in default context.
+- `bin/docs/feedback/`: past feedback source.
 
 ## Update Rules
 
-- Current docs에는 현재 필요한 결정/상태만 남긴다.
-- 완료 체크리스트는 `COMPLETED_SUMMARY.md`로 압축한다.
-- `PROGRESS_LOG.md`는 최신 3-5개 항목만 유지하고 월별 archive로 이동한다.
-- `DESIGN.md`는 상세 설계서가 아니라 현재 구조 요약이다. 긴 원문은 archive에 둔다.
-- `plans/` 파일은 historical snapshot이므로 상태가 낡을 수 있다. 구현 전 `STATUS.md`와 `NEXT_PLAN.md`로 확인한다.
+- Keep only decisions/state currently needed in current docs.
+- Compress completed checklists into `COMPLETED_SUMMARY.md`.
+- Keep only the newest 3-5 entries in `PROGRESS_LOG.md` and move the rest to a monthly archive.
+- `DESIGN.md` is a summary of current structure, not a detailed design spec. Long-form source stays in archive.
+- `plans/` files are historical snapshots and may be stale. Confirm with `STATUS.md` and `NEXT_PLAN.md` before implementing.
 
 ## Status Tags
 

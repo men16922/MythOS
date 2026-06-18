@@ -1,32 +1,30 @@
-# PROMPT_ENGINEERING — 에이전트·LLM 프롬프트 설계 (바이블)
+# PROMPT_ENGINEERING — agent/LLM prompt design (bible)
 
-> **범용 개념 문서(bible).** 이 repo 적용(회차 프롬프트·서사 프롬프트)은 → [`mythos/PROMPT.md`](mythos/PROMPT.md).
+> **General concept doc (bible).** This repo's application (iteration prompt · narrative prompt) is → [`mythos/PROMPT.md`](mythos/PROMPT.md).
 
-## 정의
-에이전트/LLM 의 행동을 **프롬프트로 제약·유도**하는 엔지니어링. 보통 두 층이 있다 —
-① **하네스 프롬프트**(에이전트가 매 회차 수행하는 고정 절차) ② **런타임/도메인 프롬프트**(제품 기능이 LLM 에 거는 요청).
+## Definition
+Engineering that **constrains and steers** agent/LLM behavior **via prompts**. There are usually two layers —
+① **harness prompt** (the fixed procedure an agent runs each iteration) ② **runtime/domain prompt** (the request a product feature makes to the LLM).
 
-## 1. 하네스 회차 프롬프트
-무인 루프가 매 회차 수행하는 고정 절차를 프롬프트로 박는다:
-- 표준 절차: 상태 복원 → 잔여물 복구 → 작업 1개 선택 → 구현+게이트 → 기록 → 커밋.
-- 엔진별 분기: 같은 절차라도 엔진 능력에 맞게(스킬 호출 가능/불가, 샌드박스 유무) 프롬프트를 나눈다.
-- **경계는 프롬프트로만 두지 말고 가능한 건 결정론 게이트로 승격**(Feedback Ladder, `HARNESS_ENGINEERING §2`).
-  프롬프트 금지는 최후의 수단(샌드박스가 못 막는 것만). fabricate(가짜 산출물로 게이트 통과) 명시 금지.
+## 1. Harness Iteration Prompt
+Bake the fixed per-iteration procedure of the unattended loop into a prompt:
+- Standard procedure: restore state → recover leftovers → pick one task → implement + gate → record → commit.
+- Per-engine branching: split the prompt per engine capability (skill-call possible/not, sandbox or not) even for the same procedure.
+- **Don't leave boundaries to the prompt alone — promote what you can to a deterministic gate** (Feedback Ladder, `HARNESS_ENGINEERING §2`).
+  Prompt prohibitions are a last resort (only what the sandbox can't block). Explicitly forbid fabricate (passing the gate with fake artifacts).
 
-## 2. 런타임/도메인 프롬프트 — 신뢰성 패턴
-| 패턴 | 내용 |
+## 2. Runtime/Domain Prompt — reliability patterns
+| Pattern | Content |
 | --- | --- |
-| **구조화 출력** | 자유 텍스트가 아니라 스키마(JSON 등)로 받게 하고 한계(길이·항목 수·허용 키)를 박는다. |
-| **모델 분업** | 생성(자유 텍스트, 큰 모델)과 구조화(파싱, 작은 모델)를 분리하면 안정적. |
-| **repair → fallback** | 파싱 실패 시 1회 repair 재시도 → 반복 실패 시 **결정론 fallback**(사용자 가시/안전 동작). |
-| **context selection** | 전체 지식베이스를 주입하지 말고 관련 스니펫 + 롤업 요약만(컨텍스트 비대·비용·드리프트 방지). |
+| **Structured output** | Receive a schema (JSON etc.), not free text, and bake in limits (length · item count · allowed keys). |
+| **Model division** | Splitting generation (free text, large model) from structuring (parsing, small model) is more stable. |
+| **repair → fallback** | On parse failure, one repair retry → on repeated failure, a **deterministic fallback** (user-visible/safe action). |
+| **context selection** | Don't inject the full knowledge base; only relevant snippets + a rolled-up summary (prevents context bloat · cost · drift). |
 
-## 3. 톤/레지스터 규칙은 feel 영역
-산문 톤·레지스터·반복 억제 같은 건 **사람 판단(feel)** 영역이라 무인 게이트로 박제 못 한다. 규칙은
-문서로 남기되(예: 장면별 레지스터, 반복 금지), 최종 판정은 사람 QA. 반복은 종종 진짜 문제이므로
-프롬프트 지침 + 직전 맥락 창으로 억제한다.
+## 3. Tone/register rules are a feel domain
+Prose tone, register, and repetition suppression are a **human-judgment (feel)** domain and can't be frozen into an unattended gate. Keep the rules as docs (e.g. per-scene register, no repetition) but make the final call human QA. Repetition is often a real problem, so suppress it via prompt guidance + a window of immediately-preceding context.
 
-## 4. 형제 개념 (바이블)
-- 상위 하네스: [`HARNESS_ENGINEERING.md`](HARNESS_ENGINEERING.md) · 루프: [`LOOP_ENGINEERING.md`](LOOP_ENGINEERING.md)
-- 멀티에이전트: [`AGENTIC_ENGINEERING.md`](AGENTIC_ENGINEERING.md) · 컨텍스트: [`CONTEXT_ENGINEERING.md`](CONTEXT_ENGINEERING.md)
-- 이 repo 적용: [`mythos/PROMPT.md`](mythos/PROMPT.md)
+## 4. Sibling Concepts (bible)
+- Higher harness: [`HARNESS_ENGINEERING.md`](HARNESS_ENGINEERING.md) · loop: [`LOOP_ENGINEERING.md`](LOOP_ENGINEERING.md)
+- Multi-agent: [`AGENTIC_ENGINEERING.md`](AGENTIC_ENGINEERING.md) · context: [`CONTEXT_ENGINEERING.md`](CONTEXT_ENGINEERING.md)
+- This repo's application: [`mythos/PROMPT.md`](mythos/PROMPT.md)

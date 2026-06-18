@@ -1,93 +1,90 @@
-# MythOS 해석 — AGENTIC_ENGINEERING (3엔진 병렬 멀티에이전트)
-최종 갱신: 2026-06-14
+# MythOS interpretation — AGENTIC_ENGINEERING (3-engine parallel multi-agent)
+Last updated: 2026-06-14
 
-> 바이블 [`../AGENTIC_ENGINEERING.md`](../AGENTIC_ENGINEERING.md) 의 개념을 **이 repo 구현에 매핑**한다.
-> 구현: claude·codex·agy 세 엔진이 **각자 worktree+브랜치에서 동시에** 무인 루프를 돌고,
-> claude 가 오케스트레이션(레인 배정 + 통합 머지)한다. 코드 근거: `scripts/overnight/{run.sh,PROMPT*.md,
-> worktrees.sh,merge-loops.sh}`, [`LOOP.md`](LOOP.md), `docs/NEXT_PLAN.md`. 원시 리서치 `bin/docs/archive/AI_REARCH.md`.
+> Maps the bible [`../AGENTIC_ENGINEERING.md`](../AGENTIC_ENGINEERING.md) concepts **onto this repo's implementation**.
+> Implementation: three engines claude·codex·agy run the unattended loop **concurrently, each in its own worktree+branch**,
+> with claude doing orchestration (lane assignment + integration merge). Code basis: `scripts/overnight/{run.sh,PROMPT*.md,
+> worktrees.sh,merge-loops.sh}`, [`LOOP.md`](LOOP.md), `docs/NEXT_PLAN.md`. Raw research `bin/docs/archive/AI_REARCH.md`.
 
-## 0. 핵심 원리 — 충돌을 "구조"로 막는다
-동시 작성 충돌은 의지가 아니라 **격리**로 막는다. 세 축이 겹치지 않게 한다:
-1. **worktree 격리** — 엔진마다 다른 작업 트리 + 브랜치(`loop/{claude,codex,agy}`) → 같은 파일을 동시에 못 만진다.
-2. **레인 분리** — `NEXT_PLAN` 작업에 엔진 접미사 태그 → 같은 항목을 둘이 집지 않는다.
-3. **도메인 분할** — 엔진별 디렉터리 소유권 → 머지 충돌이 사실상 없다.
-4. **공유 문서 규약** — 체크포인트 문서는 도메인 분할의 예외(셋 다 건드림)라 별도 규약으로 충돌을 막는다:
-   - `PROGRESS_LOG.md` = append-only + **`.gitattributes merge=union`** → 양쪽 추가분 자동 병합(충돌 마커 0).
-   - `NEXT_PLAN.md` = 엔진은 **자기 레인 한 줄만** 토글 → 서로 다른 줄이라 3-way 머지가 자동 해결.
-   - `STATUS.md`/`AGENT_BRIEF.md` = **엔진은 회차 중 수정 안 함**, 오케스트레이터(claude)가 머지 후 일괄 갱신.
-   (실증 2026-06-14: 이 규약 전엔 3엔진이 PROGRESS_LOG/NEXT_PLAN/STATUS 동시 append 로 머지 충돌 발생.)
-그 위에 기존 **동시 작성자 감지 STOP**(run.sh)이 최후 안전망으로 남는다.
+## 0. Core principle — block conflicts by "structure"
+Concurrent-write conflicts are blocked by **isolation**, not willpower. Keep three axes non-overlapping:
+1. **worktree isolation** — a different work tree + branch per engine (`loop/{claude,codex,agy}`) → they cannot touch the same file at once.
+2. **lane separation** — engine-suffix tags on `NEXT_PLAN` tasks → two engines don't pick the same item.
+3. **domain split** — per-engine directory ownership → merge conflicts are effectively nil.
+4. **shared-doc convention** — checkpoint docs are the exception to the domain split (all three touch them), so a separate convention blocks conflicts:
+   - `PROGRESS_LOG.md` = append-only + **`.gitattributes merge=union`** → both sides' additions auto-merge (0 conflict markers).
+   - `NEXT_PLAN.md` = each engine toggles **only its own lane's one line** → different lines, so 3-way merge auto-resolves.
+   - `STATUS.md`/`AGENT_BRIEF.md` = **engines do not edit mid-iteration**; the orchestrator (claude) updates them in bulk after merge.
+   (Demonstrated 2026-06-14: before this convention, 3 engines appending to PROGRESS_LOG/NEXT_PLAN/STATUS simultaneously caused merge conflicts.)
+On top of that, the existing **concurrent-writer-detection STOP** (run.sh) remains as a last-resort safety net.
 
-## 1. 엔진 · 레인 · 도메인 · 게이트
-| 엔진 | 레인 태그 | 소유 도메인(이 디렉터리만) | 샌드박스 | 게이트 | 브랜치 |
+## 1. Engine · lane · domain · gate
+| Engine | Lane tag | Owned domain (these dirs only) | Sandbox | Gate | Branch |
 | --- | --- | --- | --- | --- | --- |
-| **claude** | `[auto]` / `[auto:claude]` | `src/`, `tests/`, `harness/`, `scripts/overnight/`, 복잡 리팩터·invariant·오케스트레이션 | `overnight-settings.json`(deny push/net/파괴) | `make check` | `loop/claude` |
-| **codex** | `[auto:codex]` | Builder: `docs/`/scenario/story_bible 결정론 리팩터·검증·대화 스크립트. **+ Reviewer(Auditor)**: 통합 diff 읽기전용 감사 | `codex exec` workspace-write + no-net + `.git` writable | `make check`(빌드) / 읽기전용(리뷰) | `loop/codex` |
-| **agy** | `[auto:agy]` | `resources/<scn>/{characters,characters/combat,concept,enemies,enemies/combat,opening,scenes}` 이미지 초안 + 간단 검증 | 없음(호스트 FLUX/MPS/네트워크 필요) → 프롬프트 가드레일 + 브랜치 격리 | **무결성 게이트**(자산 실존/치수/네이밍; make check 로 코드 무파손) | `loop/agy`(리뷰) |
+| **claude** | `[auto]` / `[auto:claude]` | `src/`, `tests/`, `harness/`, `scripts/overnight/`, complex refactor · invariant · orchestration | `overnight-settings.json` (deny push/net/destructive) | `make check` | `loop/claude` |
+| **codex** | `[auto:codex]` | Builder: `docs/`/scenario/story_bible deterministic refactor · verification · dialogue scripts. **+ Reviewer (Auditor)**: read-only audit of the integration diff | `codex exec` workspace-write + no-net + `.git` writable | `make check` (build) / read-only (review) | `loop/codex` |
+| **agy** | `[auto:agy]` | `resources/<scn>/{characters,characters/combat,concept,enemies,enemies/combat,opening,scenes}` image drafts + simple verification | none (needs host FLUX/MPS/network) → prompt guardrails + branch isolation | **integrity gate** (asset exists/dimensions/naming; make check for no code breakage) | `loop/agy` (review) |
 
-- **codex = claude failover**: claude 회차가 `limit` 이면 러너가 codex 로 claude 레인을 대신 소비(Phase 6, `run.sh`).
-- **agy 산출물은 리뷰 대상**: 이미지의 미적 "적합도"는 무인이 판단 못 한다 → `loop/agy` 에 쌓고 **사람이 아침에 검수**.
-  자동 게이트는 무결성(있다/규격 맞다)만 본다. 누락 자산을 placeholder 로 **fabricate 금지**(PROMPT.agy.md §0).
+- **codex = claude failover**: if a claude iteration is `limit`, the runner has codex consume the claude lane instead (Phase 6, `run.sh`).
+- **agy output is review material**: an image's aesthetic "fit" can't be judged unattended → stack it on `loop/agy` and **a human reviews in the morning**.
+  The auto gate sees only integrity (exists/matches spec). **No fabricating** a missing asset as a placeholder (PROMPT.agy.md §0).
 
-## 1.5 생성자 ≠ 리뷰어 (Claude → Codex → Claude)
-AI_REARCH 의 핵심 원리 적용: 만든 사람과 검수하는 사람을 분리해 자기확증 편향을 줄인다.
-- claude/agy 가 자기 레인에서 **생성**(빌드/초안) → `overnight-merge` 로 `loop/integration` 통합.
-- **codex 가 통합 diff 를 읽기전용 감사**(`make overnight-review` → `scripts/overnight/review.sh` +
-  `PROMPT.review.md`): 버그/엣지/테스트누락/단순화/성능을 채점해 `logs/review-latest.md` 1개만 쓰고
-  **제안 후속작업**(레인 태그 포함)을 적는다. **코드·NEXT_PLAN 미수정**.
-- 오케스트레이터(claude/사람)가 findings 를 `NEXT_PLAN` 에 반영 → 다음 회차에 claude 가 **수정**. 루프 완성.
-- 이미지(agy)도 동일 정신: agy 가 in-session Imagen 으로 초안 + 적합도 리뷰(`outputs/combat-sprite-compare/*-review.md`),
-  최종 미적 합격은 사람이 판단.
+## 1.5 Creator ≠ Reviewer (Claude → Codex → Claude)
+Applying AI_REARCH's core principle: separate the maker from the auditor to reduce self-confirmation bias.
+- claude/agy **create** in their lanes (build/draft) → integrate into `loop/integration` via `overnight-merge`.
+- **codex read-only-audits the integration diff** (`make overnight-review` → `scripts/overnight/review.sh` +
+  `PROMPT.review.md`): scores bugs/edges/missing-tests/simplification/performance, writes only one `logs/review-latest.md`, and notes
+  **proposed follow-up work** (with lane tags). **Does not modify code or NEXT_PLAN.**
+- The orchestrator (claude/human) reflects findings into `NEXT_PLAN` → next iteration claude **fixes** them. Loop complete.
+- Images (agy) follow the same spirit: agy drafts via in-session Imagen + a fit review (`outputs/combat-sprite-compare/*-review.md`),
+  and final aesthetic acceptance is a human call.
 
-## 2. 왜 콘텐츠/이미지는 claude 코드 루프와 게이트가 다른가
-이미지 생성은 호스트 FLUX/MPS + 네트워크가 필요하고 **비결정론**(같은 프롬프트도 매번 다름)이라 `make check`
-로 박제할 수 없다. story_bible/대화 저작도 "느낌" 판단이라 무인 검증 불가다. 그래서:
-- **Tier 1(결정론 코드)**: claude(+failover codex) → `make check` green → 자동 커밋. 안전.
-- **Tier 2(콘텐츠/이미지)**: codex(결정론 리팩터/검증) + agy(이미지 초안) → **무결성 게이트**로만 자동 커밋,
-  미적/서사 품질은 사람 검수. 자동 생성물은 main 직행이 아니라 리뷰 브랜치(`loop/{codex,agy}`)에 쌓인다.
+## 2. Why content/images have a different gate from claude's code loop
+Image generation needs host FLUX/MPS + network and is **non-deterministic** (same prompt differs each time), so it can't be frozen by `make check`.
+story_bible/dialogue authoring is "feel" judgment too, so not unattended-verifiable. Hence:
+- **Tier 1 (deterministic code)**: claude (+failover codex) → `make check` green → auto commit. Safe.
+- **Tier 2 (content/image)**: codex (deterministic refactor/verification) + agy (image draft) → auto-commit only via an **integrity gate**,
+  aesthetic/narrative quality goes to human review. Auto-generated output doesn't go straight to main but stacks on a review branch (`loop/{codex,agy}`).
 
-## 2.7 운영 모델 선택 — worktree 게이트의 현실(실증 2026-06-14)
-3엔진 병렬 실증서 확인된 **핵심 제약**: worktree 는 `.venv`/`node_modules` 가 없다(gitignore). 이를 메인에서
-symlink 하면 **게이트가 깨진다** — (a) `.venv` symlink → editable install 이 메인 src 로 resolve → 코드변경
-**false green**, (b) `node_modules` symlink → tsc/vite 가 공유 `.tmp` 에 써서 **EPERM**. 따라서:
-- **모델 A — 코드 레인은 메인 체크아웃에서 순차(권장 기본).** claude/codex 의 `[auto*]` 코드 작업은 메인에서
-  레인 태그 순서대로 `--once` 반복(동시작성자 STOP 이 안전망). 게이트가 faithful, 환경 중복 0. 단 "동시"는 아님.
-- **모델 B — 진짜 worktree 병렬(코드 레인 포함).** `make overnight-worktrees-setup` 으로 worktree 마다 자체
-  venv+node_modules 를 1회 provision(네트워크 필요, 사람이 루프 밖에서). 그러면 자체 editable install 이 그
-  worktree src 를 가리켜 faithful. 비용: 디스크/시간.
-- **이미지/문서 레인(agy, codex-docs)** 은 자체 환경 없이도 worktree 에서 가능(실증: agy 가 worktree 에서
-  스킬 아이콘 6종 생성·커밋 성공). 코드 게이트가 필요 없기 때문.
-→ **권장**: agy(이미지)는 worktree, claude/codex(코드)는 모델 A(메인 순차) 또는 B(provision 후 worktree).
+## 2.7 Operating-model choice — the reality of the worktree gate (demonstrated 2026-06-14)
+A **key constraint** confirmed in the 3-engine parallel demonstration: a worktree has no `.venv`/`node_modules` (gitignore). symlinking them from main
+**breaks the gate** — (a) `.venv` symlink → editable install resolves to main src → code changes are **false green**, (b) `node_modules` symlink → tsc/vite write to a shared `.tmp` → **EPERM**. Hence:
+- **Model A — code lanes sequential in the main checkout (recommended default).** claude/codex `[auto*]` code work runs in main,
+  repeating `--once` in lane-tag order (concurrent-writer STOP as safety net). The gate is faithful, 0 env duplication. But not "concurrent."
+- **Model B — true worktree parallelism (incl. code lanes).** Provision each worktree's own venv+node_modules once via `make overnight-worktrees-setup`
+  (needs network, by a human outside the loop). Then its own editable install points at that worktree's src, faithful. Cost: disk/time.
+- **Image/doc lanes (agy, codex-docs)** work in a worktree without their own env (demonstrated: agy generated+committed 6 skill icons in a worktree). Because no code gate is needed.
+→ **Recommended**: agy (images) on worktree, claude/codex (code) on Model A (main sequential) or B (worktree after provision).
 
-## 3. 운영 (make 타깃)
+## 3. Operation (make targets)
 ```sh
-# 1) worktree 격리 준비. .claude/.agents 만 symlink(.venv/node_modules 는 symlink 안 함 — 게이트 깨짐).
-make overnight-worktrees          # 생성/갱신(+.claude/.agents symlink)
-make overnight-worktrees-setup    # (모델 B) 코드 레인용 per-worktree venv+node_modules — 네트워크 1회
-make overnight-worktrees-status   # 현황 + symlink 점검
-make overnight-worktrees-down     # 제거(브랜치는 보존)
+# 1) Prepare worktree isolation. symlink only .claude/.agents (don't symlink .venv/node_modules — breaks the gate).
+make overnight-worktrees          # create/refresh (+.claude/.agents symlink)
+make overnight-worktrees-setup    # (Model B) per-worktree venv+node_modules for code lanes — network once
+make overnight-worktrees-status   # status + symlink check
+make overnight-worktrees-down     # remove (branches preserved)
 
-# 2) 각 엔진을 자기 worktree 에서 가동(별도 터미널/백그라운드 → 진짜 병렬)
-(cd ../MythOS-loop-claude && make overnight-watch)              # claude 레인
-(cd ../MythOS-loop-codex  && make overnight-codex-watch)        # codex 레인
-(cd ../MythOS-loop-agy    && make overnight-agy-watch)          # agy 레인
+# 2) Start each engine in its own worktree (separate terminal/background → true parallelism)
+(cd ../MythOS-loop-claude && make overnight-watch)              # claude lane
+(cd ../MythOS-loop-codex  && make overnight-codex-watch)        # codex lane
+(cd ../MythOS-loop-agy    && make overnight-agy-watch)          # agy lane
 
-# 3) 아침: claude 가 통합 + codex 가 리뷰 + 사람 검수
-make overnight-merge              # loop/* → loop/integration + make check 재실행(push 안 함)
-make overnight-review             # codex 가 main...loop/integration diff 읽기전용 감사 → logs/review-latest.md
-# review findings 를 NEXT_PLAN 에 반영(다음 회차 claude 가 수정) → loop/integration 검수
-# (특히 agy 이미지 미적 적합도) → 이상 없으면 main 머지/push.
+# 3) Morning: claude integrates + codex reviews + human reviews
+make overnight-merge              # loop/* → loop/integration + rerun make check (no push)
+make overnight-review             # codex read-only-audits the main...loop/integration diff → logs/review-latest.md
+# Reflect review findings into NEXT_PLAN (next iteration claude fixes) → review loop/integration
+# (especially agy image aesthetic fit) → if clean, merge/push to main.
 ```
-- 각 worktree 는 자기 `scripts/overnight/logs|STOP|DONE`(gitignore)를 가져 서로 간섭하지 않는다.
-- 커밋은 각자 자기 브랜치(`loop/<eng>`)에 로컬만. **어느 엔진도 push 안 한다**(사람이 통합 후).
+- Each worktree has its own `scripts/overnight/logs|STOP|DONE` (gitignore) so they don't interfere.
+- Commits stay local on each engine's own branch (`loop/<eng>`). **No engine pushes** (human does after integration).
 
-## 4. 한계 / 주의
-- **agy 무샌드박스**: agy 는 호스트에서 무제한 실행된다. 경계는 `PROMPT.agy.md` 가드레일 + worktree/브랜치 격리뿐.
-  파괴적 동작이 걱정되면 agy 레인은 사람이 더 자주 검수하거나 `agy --sandbox`(터미널 제한) 실험 후 채택.
-- **레인 배정은 사람/claude 책임**: `[auto:codex]`/`[auto:agy]` 태그가 없으면 그 엔진은 즉시 `drained` 종료한다.
-  배정 = `NEXT_PLAN` 태깅. claude 오케스트레이터가 작업을 도메인에 맞는 레인으로 태깅한다.
-- **도메인 침범 금지**: 각 PROMPT §0/§3 이 소유 도메인 밖 수정을 금지한다. 침범 시 머지 충돌 + STOP 으로 드러난다.
+## 4. Limits / cautions
+- **agy no-sandbox**: agy runs unrestricted on the host. The boundary is only the `PROMPT.agy.md` guardrails + worktree/branch isolation.
+  If destructive actions worry you, review the agy lane more often or trial+adopt `agy --sandbox` (terminal restriction).
+- **Lane assignment is the human/claude's responsibility**: without an `[auto:codex]`/`[auto:agy]` tag, that engine exits immediately as `drained`.
+  Assignment = `NEXT_PLAN` tagging. The claude orchestrator tags work onto its domain-appropriate lane.
+- **No domain trespass**: each PROMPT §0/§3 forbids edits outside the owned domain. A trespass surfaces as a merge conflict + STOP.
 
-## 5. 관련 문서
-- 바이블(개념): [`../AGENTIC_ENGINEERING.md`](../AGENTIC_ENGINEERING.md) · 형제 해석: [`LOOP.md`](LOOP.md)·[`HARNESS.md`](HARNESS.md)·[`PROMPT.md`](PROMPT.md)
-- 백로그/레인 태그: `docs/NEXT_PLAN.md` · 설계 불변: `harness/CORE_MANDATES.md` · 이미지 표준: `docs/IMAGE_POLICY.md`
+## 5. Related docs
+- Bible (concept): [`../AGENTIC_ENGINEERING.md`](../AGENTIC_ENGINEERING.md) · sibling interpretations: [`LOOP.md`](LOOP.md) · [`HARNESS.md`](HARNESS.md) · [`PROMPT.md`](PROMPT.md)
+- Backlog/lane tags: `docs/NEXT_PLAN.md` · design invariants: `harness/CORE_MANDATES.md` · image standard: `docs/IMAGE_POLICY.md`

@@ -41,6 +41,7 @@ frontend-build:
 
 check:
 	$(MAKE) check-skills
+	$(MAKE) check-doc-budget
 	$(MAKE) lint
 	$(MAKE) typecheck
 	$(MAKE) test
@@ -51,6 +52,11 @@ check-skills:
 	@bash harness/sync-skills.sh --check
 sync-skills:
 	@bash harness/sync-skills.sh
+
+# Entry-doc context-budget caps (AGENT_BRIEF <=60, STATUS/NEXT_PLAN/PROGRESS_LOG <=120).
+# These docs load every session/overnight iteration; this fails the gate if they grow over budget.
+check-doc-budget:
+	@bash harness/check-doc-budget.sh
 
 # Quarkify code-topology index (companyjupiter/quarkify, external tool). Decomposes
 # src/**/*.py into .quarkify/src/ (gitignored local build artifact). Optional nav

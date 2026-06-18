@@ -2,6 +2,14 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-06-19 — Operational doc layer language = English (token efficiency)
+
+Decision: Agent-facing **operational/harness docs are authored in English**; user-facing and narrative content stays **Korean**. English set: `CLAUDE.md`, `harness/*`, `docs/engineering/**` (bibles + `mythos/` interpretations), the `/sync` entry docs (`AGENT_BRIEF`/`STATUS`/`NEXT_PLAN`/`PROGRESS_LOG`), `.claude/skills/*/SKILL.md` **bodies**, `scripts/overnight/PROMPT*.md`, `DOCS_POLICY.md`/`README.md`. Korean stays: scenarios, `story_bible`, `resources/<scenario>/directives/*.md` (injected into the Korean-narrating LLM), `docs/test/*` live-QA, archive/vision docs, and agent↔user chat replies. Skill frontmatter `description:` **keeps Korean trigger keywords** (invocation matching). Also added `harness/check-doc-budget.sh` to `make check` to hard-gate the entry-doc line caps, and promoted Quarkify to the default for broad symbol search in `CORE_MANDATES §5`/`CLAUDE.md`.
+
+Reason: These docs load into every session and every overnight iteration (fixed cost ≈22.7k tokens). Korean costs ~1.5–2× tokens per character vs English and a human almost never reads them. Measured result (tiktoken o200k): the converted set 56,898 → 47,435 tokens (**-16.6%**, fixed-cost set -16.4%); the % is moderated because these docs are ~half code identifiers/paths (token-neutral). The saving compounds across every load.
+
+Impact: Reverses the earlier "skills are Korean·repo-aware" stance — bodies become English + repo-aware, Korean triggers retained ([[skills-are-git-tracked]]). `/checkpoint` now authors PROGRESS_LOG/STATUS/NEXT_PLAN in English. Plugin repo (`men16922/claude-overnight-harness`) PROMPT/skill mirrors are a separate user-pushed follow-up (MythOS = origin tier). `make check` now fails if an entry doc exceeds its cap.
+
 ## 2026-06-16 — Prompt Layer 분리 (코드↔프롬프트, scenario별 `directives/*.md`)
 
 Decision: 서사 파이프라인의 **authored 지시문 prose**(오프닝 비트·fallback 장면·naming/stat/encounter·컷씬)를 범용 엔진 코드에서 분리해 **`resources/<scenario>/directives/*.md`(Markdown)** 로 둔다. 로더 `scenario_directives.py`는 `story_bible.py` 패턴(sibling 파일 + `lru_cache`)을 미러. 코드에는 **불변 로직만 STAY**(게이팅·`session_synopsis` 전량 채널·`MAX_PROMPT_NOTES` 트렁케이션·route 어셈블리·shot 해석). 블록은 **노드-주소 지정**(`turn=`/`node=`/`beat=`)으로 오프닝·앵커·컷씬 잠금을 균일 적용.

@@ -1,12 +1,12 @@
 # Project MythOS: Core Engineering Mandates
 
-이 문서는 모든 AI 에이전트(Gemini, Claude, Cursor 등)가 공유하는 최상위 설계 및 엔지니어링 표준이다. 에이전트별 문서보다 이 파일과 `docs/AGENT_BRIEF.md`를 우선한다.
+The top-level design and engineering standard shared by all AI agents (Gemini, Claude, Cursor, etc.). This file and `docs/AGENT_BRIEF.md` take precedence over per-agent docs.
 
 ## 1. Runtime Principles
 
 - **Language**: Python 3.11+ with explicit type hints and small dataclass-first domain boundaries.
-- **Local-first inference**: Ollama, mflux/FLUX, audio generation 등 모델 추론은 Apple Silicon host 로컬 실행을 기본값으로 둔다.
-- **Shared orchestration**: CLI, Streamlit, FastAPI/React 경로의 비즈니스 로직은 `RuntimeSessionService`에 둔다. entrypoint나 UI 계층에 loop orchestration을 복제하지 않는다.
+- **Local-first inference**: model inference (Ollama, mflux/FLUX, audio generation) defaults to running locally on the Apple Silicon host.
+- **Shared orchestration**: business logic for the CLI, Streamlit, and FastAPI/React paths lives in `RuntimeSessionService`. Do not duplicate loop orchestration in entrypoints or the UI layer.
 - **Frontend split**: React + TypeScript SPA is the recommended active play path. Streamlit remains a playable/demo path and compatibility surface.
 
 ## 2. Data, Media, And Infra
@@ -33,15 +33,15 @@
 
 ## 5. Agent Operations Discipline
 
-세션 회고(usage insights) 분석에서 반복 확인된 실패 패턴을 막기 위한 운영 규칙이다.
+Operating rules against failure patterns repeatedly observed in usage-insights review.
 
-- **Diagnose before any fix**: 성능뿐 아니라 **모든 버그·동작 이슈**는 추정 기반 수정 전에 근본원인을 증거로 확정한다 — **재현→경쟁 가설 2~3→가설을 구별하는 측정→확정 원인만 수정→동일 측정 재실행으로 해소 증명**. 증거(로그/타이밍/메모리·swap/상태)를 캡처하기 전에는 "fixed" 보고 금지(첫 그럴듯한 이론 아니라 데이터에 커밋). 성능은 특히 model load·prompt prefill·RAM/swap·I/O 중 어디서 시간이 가는지 수치로 짚는다. (과거 Ollama 설정/필드 재배열로 오진 후 실제 원인은 swap·prefill, 그리고 게임 렌더 버그를 표면 수정으로 헛돈 사례 반복 — usage insights 최다 마찰.) 프로토콜 강제는 `/diagnose` 스킬.
-- **Docs-first status**: 프로젝트 상태 질문에는 git working tree나 코드 탐색보다 current docs(`AGENT_BRIEF` → `STATUS` → `NEXT_PLAN`)를 먼저 읽고 답한다.
-- **Confirm structural moves**: 디렉터리 이동/리네임/재분류(`scratch/`, `bin/` 등)와 대규모 리팩터링은 시작 전에 범위와 전략을 사용자에게 확인한다. 임의로 폴더를 옮기지 않는다.
-- **Shell discipline**: 셸 명령은 절대 경로를 쓴다(특히 `.venv/bin/python`). 이전 `cd`가 남긴 cwd에 의존하지 않는다 — cwd 의존으로 silent failure가 발생한 사례가 있다.
-- **Verify before claiming done**: 자율(무감독) 사이클에서는 산출물이 실제로 존재하는지 검증한 뒤에만 완료를 보고한다 — write/edit 후에는 해당 파일을 다시 읽어 변경이 실제로 반영됐는지 확인하고(read-back), 테스트는 출력을 확인한다. 과거 하네스가 write를 silently 버려도 "완료" 오보고한 사례가 있다. 긴 산출물(문서/계획/코드 덤프)은 채팅 출력 대신 파일로 쓰고 요약만 보고한다.
-- **No auto-`ruff --fix`**: `make check`의 ruff는 `F`(pyflakes)+`I`(isort)를 select하므로(`pyproject.toml`), `ruff --fix`를 자동(예: PostToolUse hook)으로 돌리면 같은 편집에서 아직 미사용인 새 import를 제거해 버린다. `--fix`는 의도적 수동 실행으로만 쓴다.
-- **Navigation tooling discipline**: 코드 탐색은 측정된 조건부 정책을 따른다 — 대형 패키지·고빈도 심볼은 `.quarkify/src` 인덱스(필요시 `make quarkify` 재생성, 멱등 ~4s) 우선, 드문 리터럴은 grep. 인덱스는 위치용일 뿐 **최종 확인은 원본 파일**을 읽는다. 선택적 로컬 가속기이므로 게이트화하지 않는다(`make check` 미포함). 상세: `CLAUDE.md` "## Quarkify".
+- **Diagnose before any fix**: not just performance — **every bug and behavior issue** must have its root cause confirmed with evidence before any speculative fix: **reproduce → 2-3 competing hypotheses → a measurement that distinguishes them → fix only the confirmed cause → rerun the same measurement to prove it resolved**. No "fixed" report before capturing evidence (logs/timing/memory·swap/state); commit to data, not the first plausible theory. For performance, quantify where the time goes among model load · prompt prefill · RAM/swap · I/O. (Repeated friction: a past misdiagnosis blamed Ollama config/field reordering when the real cause was swap·prefill, plus a game-render bug wasted on surface fixes — the top usage-insights friction.) Protocol enforced by the `/diagnose` skill.
+- **Docs-first status**: answer project-status questions from the current docs (`AGENT_BRIEF` → `STATUS` → `NEXT_PLAN`) first, not the git working tree or code search.
+- **Confirm structural moves**: confirm scope and strategy with the user before directory moves/renames/reclassification (`scratch/`, `bin/`, etc.) and large refactors. Do not move folders arbitrarily.
+- **Shell discipline**: use absolute paths in shell commands (especially `.venv/bin/python`). Do not rely on cwd left by a prior `cd` — cwd dependence has caused silent failures.
+- **Verify before claiming done**: in autonomous (unsupervised) cycles, report completion only after verifying the artifact actually exists — after write/edit, re-read the file to confirm the change landed (read-back), and check test output. The harness has silently dropped a write while falsely reporting "done." Write long artifacts (docs/plans/code dumps) to a file rather than chat output and report only a summary.
+- **No auto-`ruff --fix`**: `make check`'s ruff selects `F` (pyflakes) + `I` (isort) (`pyproject.toml`), so running `ruff --fix` automatically (e.g. a PostToolUse hook) strips a new import that is still unused in the same edit. Use `--fix` only as a deliberate manual run.
+- **Navigation tooling discipline**: broad symbol/structure searches DEFAULT to the `.quarkify/src` index first (run `make quarkify` to rebuild if stale, idempotent ~4s); reserve grep for rare literals (<~15 hits). The index is for locating only — confirm the body and truth in the original source file. It is an optional local accelerator and is NOT gated in `make check`. Details: `CLAUDE.md` "## Quarkify".
 
 ## 6. Documentation And Handoff
 

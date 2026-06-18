@@ -1098,6 +1098,13 @@ class RuntimeSessionService:
             # cooldown (no back-to-back combat) and an early-game difficulty cap.
             stamped = dict(loop.state)
             stamped["_last_combat_turn"] = turn_index
+            # Markers for the post-combat narrative callback (#5: bridge the
+            # tactical board back into the story). Kept separate from
+            # ``_last_combat_outcome`` (soft-defeat state machine) to avoid clobber.
+            stamped["_last_combat_result"] = result.outcome
+            enc_id = result.radar.get("encounter_id") if isinstance(result.radar, dict) else None
+            if enc_id:
+                stamped["_last_combat_encounter"] = str(enc_id)
             if result.outcome == "player_victory":
                 stamped["_combat_count"] = int(stamped.get("_combat_count", 0)) + 1
             loop = replace(loop, state=stamped)
@@ -1255,7 +1262,36 @@ class RuntimeSessionService:
             loop_state["ending_id"] = ending_id
         if ending_label:
             loop_state["ending_label"] = ending_label
+        narration = self._ending_narration_text(scenario_id, ending_id, loop)
+        if narration:
+            loop_state["ending_narration"] = narration
         return loop_state
+
+    def _ending_narration_text(
+        self, scenario_id: str, ending_id: str | None, loop: LoopState
+    ) -> str:
+        """Player-facing 1-2 sentence cause for the ENDED screen.
+
+        Prefers the scenario's authored ``endings[].narration`` for the resolved
+        ending; otherwise narrates the *why* of a threshold archive (tracking
+        maxed / signal lost) so the end screen reads as a story beat instead of a
+        bare mechanical number ("추적도 98").
+        """
+        if ending_id:
+            try:
+                scenario = load_scenario(scenario_id)
+                for ending in scenario.endings:
+                    if isinstance(ending, dict) and ending.get("id") == ending_id:
+                        narration = ending.get("narration")
+                        if isinstance(narration, str) and narration.strip():
+                            return narration.strip()
+            except Exception:
+                pass
+        if loop.tension >= 90:
+            return "관리망의 추적이 임계에 다다라, 집행부대가 끝내 당신의 신호를 특정해 정정 집행을 내렸다."
+        if loop.stability <= 10:
+            return "신호가 더는 형상을 유지하지 못하고, 접속이 풀리며 이번 루프가 닫혔다."
+        return ""
 
     def _apply_combat_rewards(self, loop: LoopState, result: CombatTurnResult) -> LoopState:
         encounter_id = result.radar.get("encounter_id") if isinstance(result.radar, dict) else None

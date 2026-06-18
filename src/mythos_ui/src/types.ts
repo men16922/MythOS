@@ -279,6 +279,7 @@ export interface GameStateRaw {
   flags: string[];
   ending_id?: string;
   ending_label?: string;
+  ending_narration?: string;
   _map?: {
     current?: string;
     tiles?: Record<string, {

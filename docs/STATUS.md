@@ -1,6 +1,6 @@
 # Project MythOS Status
 
-최종 갱신: 2026-06-16
+최종 갱신: 2026-06-19
 
 ## Current Baseline
 
@@ -73,7 +73,7 @@ Recent verified baseline recorded in docs:
 
 권위 계획: `docs/NEXT_PLAN.md`.
 
-0. **동료 호감도 + 컷씬 언락 + prompt-layer 분리(거의 완료, 2026-06-16)**: P0 호감도 런타임(시드 L/M/N/O — relationship dead-data 활성화: route reconcile+choice fold 누적·meta 크로스루프 이월 migration 006·serializer 노출) + Foundation Phase 0-4·노드-주소 지정(시드 C/D/I/J/K) + **P1 컷씬 언락 backend**(브랜치 `feat/companion-cutscene-unlock` 커밋 `d8a8888` — `cutscenes.py` 결정론 언락 + `MetaProgression.unlocked_cutscenes` migration 007 + `memory_overview.cutscene_gallery` + `CutsceneIntegrityTest`, `make check` green 443) 완료. **잔여**: 브랜치 머지(사람 직접) + `[manual]` 프론트 호감도 게이지·컷씬 갤러리 뷰(payload 준비됨) + P2 Se-rin 전용 아트 + P1-a 인게임 컷씬 노드 + Phase 5. 권위 `docs/plans/2026-06-16-companion-affection-cutscenes.md`.
+0. **동료 호감도 + 컷씬 언락 + prompt-layer 분리(거의 완료, 2026-06-16)**: P0 호감도 런타임(시드 L/M/N/O — relationship dead-data 활성화: route reconcile+choice fold 누적·meta 크로스루프 이월 migration 006·serializer 노출) + Foundation Phase 0-4·노드-주소 지정(시드 C/D/I/J/K) + **P1 컷씬 언락 backend**(브랜치 `feat/companion-cutscene-unlock` 커밋 `d8a8888` — `cutscenes.py` 결정론 언락 + `MetaProgression.unlocked_cutscenes` migration 007 + `memory_overview.cutscene_gallery` + `CutsceneIntegrityTest`, `make check` green) 완료. **2026-06-19 backend main 머지 완료**(fast-forward `8d2fc77..98d5f5c`, migration 006/007 실 DB 적용·round-trip 검증). **잔여**: `[manual]` 프론트 호감도 게이지·컷씬 갤러리 뷰(payload 준비됨) + P2 Se-rin 전용 아트 + P1-a 인게임 컷씬 노드 + Phase 5. 권위 `docs/plans/2026-06-16-companion-affection-cutscenes.md`.
 1. **Neo-Seoul playability upgrade(후속 — 사람 플레이 QA)**: `neo-seoul`을 기술 데모가 아니라 30-60분 플레이 만족도가 있는 주력 시나리오로 끌어올린다. Phase 1 문서 확정 완료(Golden Path, 실패/우회 Path, QA rubric), Phase 2 데이터 보강 완료(Story Bible 17→24 entries, playability choice axes/route branches/ending echo targets), Phase 3 데이터 기준선 완료(encounter learning goals/reward intent, progression reward tuning). P0/P1 1차 묶음 완료: 전투 보상 통찰 반영, 전투 결과 보상 표시, 초반 forced ambient combat 완화, 조우 쿨다운/난이도 캡, 전투 패배 소프트 후속(`defeat_soft`), Codex rank pips/강화 완료 배너, Run History+Echo/Shard/Insight 대시보드, objective/stakes 상시 표시, 선택 가치축/결과 요약. Tactical Board는 범례+타일 인스펙터+학습 목표 배너+보드 줌/줌 버튼 보정+지형 배지(엄호/고지)+우측 조작부 하단 배치까지 완료. 조우 난이도 튜닝 완료(`build_encounter` per-spawn `overrides` + 학습 목표별 수치 재조정, 그리디 시뮬 승률 95~98%). live LLM 장기 세션 기술 QA 완료(파이프라인 양호) + F1 반복 완화 적용·재검증 완료. 다음 집중은 실제 풀스택 사람 플레이 QA(`docs/test/neo_seoul_live_qa.md`)에서 목표/선택 결과 체감, D 반복/F 속도 체감, 남은 route gate 바이어스 확인. 권위 설계는 `bin/docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`.
 2. **Combat presentation upgrade**: 완료. 모션 다양화·reduced-motion 접근성·표시 위치/스케일/타이밍/가독성 Live QA까지 완료(사용자 확인 완료). 범용 수동 QA 문서는 폐기했고, Neo-Seoul 실제 플레이 확인 항목은 `docs/test/neo_seoul_live_qa.md`를 따른다.
 3. **Progression skills/archetypes**: 완료. Phase 1·2·3 완료(아키타입 게이트, base/learned 필터, Codex 통찰 투자 트리, 깨달음 배너, 시나리오 간 해금). 후속은 Neo-Seoul 플레이 만족도 트랙 안에서 밸런스 조정.
@@ -82,7 +82,7 @@ Recent verified baseline recorded in docs:
 
 ## Open Risks
 
-- **push 워크플로(상시)**: private repo push는 안전 분류기 하드블록이라 에이전트가 못 함 → 사용자가 직접 push(men16922 본인 계정). 2026-06-15 기준 origin/main 동기화됨(ahead 0).
+- **push 워크플로(상시)**: private repo push는 안전 분류기 하드블록이라 에이전트가 못 함 → 사용자가 직접 push(men16922 본인 계정). 2026-06-19 기준 origin/main 동기화됨(컷씬 backend + Quarkify 툴링 + route/chapter invariant 머지 완료, ahead 0). 단 라이브 QA 서사 개선은 미머지 브랜치 `feat/neo-seoul-narrative-qa-fixes`.
 - **LLM 스트리밍 first-token 지연(해결 2026-06-11, 스토리 8B 전환)**: "TTFT 11.1초/완료" 주장은 재현 안 됨. 실측 근본 원인은 **48GB RAM**(64GB 아님) 스왑 포화 — 26B(18GB)+FLUX 이미지가 안 들어가 26B가 evict/페이지인되며 TTFT 13→**43~127초** 폭발. **결정·적용**: 스토리 모델을 **`gemma4:26b`→`gemma4:latest`(8B, 9.6GB)** 로 전환(head-to-head서 한국어 산문 품질 경쟁력 확인, **warm TTFT 9~10초**, RAM 상주로 FLUX와 공존). 파서는 `qwen2.5:3b-instruct`(스트리밍 경로는 실제론 정규식 파서 사용). 64GB+ 머신에서만 26B 재권장. 상세 `docs/DECISIONS.md`/`PROGRESS_LOG.md` 2026-06-11, 재측정 `scratch/ttft_bench.py`.
 - **이미지 vs 큐레이트 중복(해결 2026-06-11)**: 앵커는 프론트가 큐레이트 이미지(`route_map.image`=`scenes/*.png`)를 표시하는데 백엔드가 그 앵커에서도 FLUX를 돌려 표시 안 될 그림 생성 + 느린 턴을 유발했다. `maybe_generate_scene_image`에 `_curated_anchor_image()` 가드 추가 — 현재 노드가 `image` 보유 앵커면 FLUX 스킵(프론트가 큐레이트 이미지를 표시하므로 화면 변화 없이 느린 턴만 제거). 회귀 테스트 `tests/test_visual_orchestration.py` 6건.
 - **작전 지도 horizon 미갱신(라이브 발견)**: 동적 라우팅 2막 horizon이 진행 중 갱신 안 되는 것으로 보고됨

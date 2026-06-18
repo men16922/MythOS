@@ -1,9 +1,16 @@
 # Progress Log
 
-최종 갱신: 2026-06-16
+최종 갱신: 2026-06-19
 
 이 파일은 **최신 증분 요약만** 유지한다(최신 5항목). 긴 2026-06 상세 로그(route-node 세션 단계별 상세 포함)는
 `bin/docs/archive/progress-2026-06.md`, 2026-05 로그는 `bin/docs/archive/progress-2026-05.md`를 본다.
+
+## 2026-06-19 — Neo-Seoul 라이브 QA 서사 개선 4건 + (오전) 컷씬 브랜치 main 머지·migration 검증
+- Status: ① (오전) `feat/companion-cutscene-unlock`(컷씬 backend + Quarkify 툴링 + route/chapter invariant 시드 P/Q) main fast-forward 머지·push(`8d2fc77..98d5f5c`) + migration 006/007 실 DB 적용·persist→load round-trip PASS 실측(인프라 기동). tidy-docs(완료 plan 4종 bin/ 이관·참조 repoint·완료문서 제거) + `docs/guides/quarkify-port.md`(타 repo 포팅 지침) 동봉. ② 사용자 라이브 QA 피드백(`neo_seoul_live_qa.md`)에 서사 우선 4건 개선(브랜치 `feat/neo-seoul-narrative-qa-fixes`, 미커밋).
+- Changed(QA 4건): **#1** `opening.md` turn0~2 grounded-lock(신호 불안정으로 스스로 못 일어남·세린에게 걸어가기/자가 기립 금지)+turn2 모호구("막 몸을 일으키는") 제거+turn3 세린 첫 기립 명시 → "쓰러진 채 세린이 일으켜줌" 페이오프 복원. **#3** `opening.md` turn0 비식별·소거 자각 1줄+turn3 세린 대사("IX는 기준 밖 신호는 지워")로 IX 위협 이유 서사 주입. **#2** `session.py` `_ending_narration_text`(authored `endings[].narration` / threshold 서사 코즈, 추적도 숫자 제거)→`loop.state["ending_narration"]` 자동 노출→`StoryPanel.tsx` EndedPanel이 숫자 대신 서사 렌더+`types.ts`. **#5** `_commit_combat_turn` 전투 마커(`_last_combat_result`/`_last_combat_encounter`)+`scenario_context._combat_callback_note`를 풀렌더 synopsis 채널 주입(전투 직후 1턴, 여파·heat·동료 반응 첫 1~2문장 참조).
+- Verified: `make check` EXIT=0 — 454 tests OK(skipped 2, +9: `test_ending_narration` 5+`test_combat_callback` 4). #2/#5 플러밍 단위 테스트 박제, opening.md 로더 파싱 green. #1/#3은 LLM fidelity라 라이브 QA 잔여.
+- Blockers: 없음. 라이브 QA 위해 서버 재시작 필요(백엔드/지시문/번들 변경).
+- Next: 사용자 라이브 QA로 #1/#3 체감 확인 → 반영분 커밋·머지. 미개선 #4 지도 in-layer 선택지 행선지·#6 스킬트리 RPG 노드그래프는 별도 트랙(QA 문서 열린 `[!]`, 데이터/배선 분석 완료).
 
 ## 2026-06-16 — overnight 검수(시드 A-O) + P1 동료 컷씬 언락 시스템 (갤러리 backend)
 - Status: ① overnight 0616-0646 런(시드 A-O 15커밋) 아침 검수 — `make check` 재실측 green(417), 시드 관련 195 tests green, feature 3종(L/M/N) diff 정독 + 고장주입 3/3 RED(L 더블카운트·N 누적·A 무결성) + 라이브 QA 4/4(실 neo-seoul 데이터로 route 누적·replay 멱등·choice 공존·크로스루프 이월). 검수 PASS → **origin/main push 완료**(23커밋 `6faf1e4..8d2fc77`). ② P1 컷씬 언락 backend 신규 구현(브랜치 `feat/companion-cutscene-unlock`, 커밋 `d8a8888`).

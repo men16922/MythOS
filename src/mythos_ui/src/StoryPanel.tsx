@@ -911,14 +911,19 @@ function EndedPanel({
 }) {
   const endingLabel = snapshot.state?.ending_label || snapshot.state?.ending_id;
   const reason = (() => {
-    if (snapshot.tension >= 90) {
-      return `관리망 추적도가 ${snapshot.tension}까지 올라가 강제 정정 절차가 발동했습니다.`;
-    }
-    if (snapshot.stability <= 10) {
-      return `루프 안정도가 ${snapshot.stability}까지 떨어져 접속을 유지하지 못했습니다.`;
-    }
+    // Prefer the backend's narrative cause (authored ending narration, or a
+    // story-framed reason for a threshold archive) so the end screen reads as a
+    // beat, not a bare mechanical number.
+    const narration = snapshot.state?.ending_narration;
+    if (narration) return narration;
     if (snapshot.state?._soft_defeat_recovered) {
       return "전투 패배 후 회복 루트가 열렸지만, 이후 선택의 누적 결과로 이번 루프가 기록 보관소로 넘어갔습니다.";
+    }
+    if (snapshot.tension >= 90) {
+      return "관리망의 추적이 임계에 다다라, 집행부대가 끝내 당신의 신호를 따라잡았습니다.";
+    }
+    if (snapshot.stability <= 10) {
+      return "신호가 더는 형상을 유지하지 못하고 접속이 풀렸습니다.";
     }
     if (endingLabel) {
       return "이번 루프의 선택과 상태가 엔딩 조건을 만족했습니다.";

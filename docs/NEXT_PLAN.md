@@ -1,6 +1,6 @@
 # Project MythOS Next Plan
 
-최종 갱신: 2026-06-16
+최종 갱신: 2026-06-19
 
 이 파일은 앞으로 할 일(열린 작업)만 유지하는 rolling plan이다. 완료 트랙은
 `docs/COMPLETED_SUMMARY.md`, 상세 로그는 `bin/docs/archive/progress-2026-06.md`, 개별 설계는
@@ -13,13 +13,14 @@
 
 - `[/]` **프롬프트 레이어 분리(Foundation)**: Phase 0-4 + 노드-주소 지정 완료(overnight 시드 C/D/I/J/K — fallback/naming/stat/encounter→md generic 기본값·`node=`/`beat=` 룩업). 잔여 — `[ ]` Phase 5 system_prompt few-shot 예시 추출(캐시 prefix 민감, 최저 우선).
 - `[x]` **P0 호감도 런타임**(`[auto]`, overnight 시드 L/M/N/O): `effect.relationship`를 `state.relationships[name]` 누적(route reconcile+choice fold, replay 멱등) + meta progression 크로스루프 이월(migration 006) + serializer 노출 계약. 무결성/누적 테스트 green. **잔여: `[ ]` `[manual]` 프론트 호감도 게이지 UI**(serializer 노출 완료, 시각 feel QA만).
-- `[/]` **P1 컷씬 언락**: backend 완료(브랜치 `feat/companion-cutscene-unlock`, 커밋 `d8a8888`) — `directives/companions/<name>.md` 로더(`CutsceneDirective`) + 결정론 언락(`cutscenes.py`) + 크로스루프 union(migration 007) + `memory_overview.cutscene_gallery` + 무결성(`CutsceneIntegrityTest`). `make check` green(443). **잔여: `[ ]` `[manual]` 프론트 갤러리 뷰**(payload 준비됨) · `[ ]` 인게임 컷씬 노드 등장(P1-a, directive 주입).
+- `[/]` **P1 컷씬 언락**: backend **main 머지 완료**(2026-06-19, migration 006/007 실 DB 적용·round-trip 검증) — `directives/companions/<name>.md` 로더(`CutsceneDirective`) + 결정론 언락(`cutscenes.py`) + 크로스루프 union(migration 007) + `memory_overview.cutscene_gallery` + 무결성(`CutsceneIntegrityTest`). **잔여: `[ ]` `[manual]` 프론트 갤러리 뷰**(payload 준비됨) · `[ ]` 인게임 컷씬 노드 등장(P1-a, directive 주입).
 - `[/]` `[manual]` **P2 Se-rin 컷씬**: P1 로더 검증용 `se_rin.md` 2컷(임계 2/4) 저작 완료(placeholder 포트레이트). **잔여: `[ ]` `outputs/experiments/adult/serin/imagegen/*.png` 2종 전용 아트 채택(IMAGE_POLICY) + image 교체 + 라이브 QA.**
 - `[ ]` `[manual]` **P3 동료 확장**: 카이/린위에/태오/한/수아 컷씬 + `side_arcs` 6종 route 사이드-앵커 승격(WS-B 트랙2).
 
 ## 엔지니어링 정비 트랙 — WS0-3 완료(COMPLETED_SUMMARY M43), WS4만 잔존
 
 - `[ ]` **WS4(plan-only)**: agy 이미지 초안 → codex 적합도 검토 → NEXT_PLAN 콘텐츠 항목 추가 → codex 최종 이미지 생성 파이프라인. 권위 `docs/plans/2026-06-14-engineering-plan.md`.
+- `[ ]` **WS5 하네스 하드닝(백로그, 2026-06-19 usage report 도출)**: ① integrity ledger(`HARNESS_HEALTH` + run.sh commit 객체 존재검증 + `status.tsv`에 `gate_exit`/`commit_verified` 컬럼 + phantom-success 플래그 — L3 갭) ② 종료 시 자동 morning digest(현재 `/overnight-report` 수동) ③ Model B 3-lane 동시실행 1회 실증(MythOS-only, ops) ④ 러너 iter-output 캡. 효과 낮음/이미 완화(dirty-tree gate·failover·long→file)라 후순위. 고효과분(진단-우선 `/diagnose`+gate-phase)은 2026-06-19 반영 완료.
 
 ## Rules
 
@@ -82,6 +83,12 @@ P0(`encounter_reward.insight` meta 반영, 전투 결과 패널 보상 표시, �
 P1 작전 지도 route-node화 + 세션 메모리(→ COMPLETED_SUMMARY M39), Tactical Board 범례/타일 인스펙터/학습 목표 배너, 조우 난이도 튜닝(per-spawn `overrides` + 학습 목표별 수치).
 
 열린 작업:
+
+### 라이브 QA 서사 개선 (2026-06-19, 권위 `docs/test/neo_seoul_live_qa.md`; 브랜치 `feat/neo-seoul-narrative-qa-fixes` 미커밋, `make check` green 454)
+
+- `[/]` `[manual]` **#1 오프닝 "쓰러진 채 세린이 일으킴" + #3 IX 위협 이유**: `opening.md` 편집 완료(grounded-lock·모호구 제거·turn3 기립·IX 자각/대사). 잔여=라이브 체감(LLM fidelity).
+- `[/]` `[manual]` **#2 종료 서사화 + #5 전투 직후 콜백**: `_ending_narration_text`(숫자→서사)+EndedPanel / `_combat_callback_note`(풀렌더). 단위 테스트 박제(+9). 잔여=라이브 체감 + 커밋·머지.
+- `[ ]` **#4 지도 in-layer 선택지 행선지**(별도 트랙, 프론트+serializer; `_build_route_choices` 분석 완료) · **#6 스킬트리 RPG 노드그래프**(별도 트랙, 프론트; `tier`/`requires` 데이터 준비됨).
 
 ### 작전 지도 동적 라우팅 — 완료(토대, 상세는 COMPLETED_SUMMARY/archive)
 

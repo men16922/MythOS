@@ -1,10 +1,10 @@
 # Agent Brief
 
-최종 갱신: 2026-06-16
+최종 갱신: 2026-06-19
 
 이 파일은 작업 시작용 압축 문맥이다. 상세는 링크된 문서를 필요한 순간에만 연다.
 
-> ▶ NEXT SESSION: **Priority 0 거의 완료** (권위 `docs/plans/2026-06-16-companion-affection-cutscenes.md`, NEXT_PLAN Priority 0). P0 호감도 런타임(overnight 시드 L/M/N/O) + Foundation Phase 0-4·노드-주소 지정(시드 C/D/I/J/K) + **P1 컷씬 언락 backend**(브랜치 `feat/companion-cutscene-unlock`, 커밋 `d8a8888`, `make check` green) 완료. **첫 행동 = 브랜치 머지**(사람 직접 — 에이전트 main push 차단; `make db-migrate`로 migration 006/007 적용 권장) → 그다음 `[manual]` 프론트 호감도 게이지 + 컷씬 갤러리 뷰(serializer payload 준비됨) / P2 Se-rin 전용 아트.
+> ▶ NEXT SESSION: **Neo-Seoul 라이브 QA 서사 개선 4건 — 라이브 체감 확인 대기** (권위 `docs/test/neo_seoul_live_qa.md`의 `[~] → 2026-06-19 개선` 항목). 브랜치 `feat/neo-seoul-narrative-qa-fixes`(미커밋, `make check` green 454): #1 오프닝 "쓰러진 채 세린이 일으킴" 비트·#2 종료 "왜 끝나는가" 서사화·#3 IX 위협 이유 주입·#5 전투 직후 서사 콜백. **첫 행동 = 서버 재시작 후 사람 라이브 플레이로 #1/#3 LLM fidelity 체감 확인**(#2/#5는 단위 테스트 박제) → 반영분 커밋·main 머지(사람 직접). 미개선 #4 지도 in-layer 선택지·#6 스킬트리 RPG 노드그래프는 별도 트랙. P0 컷씬/호감도 backend는 main 머지 완료(migration 006/007 적용·검증 완료), 잔여는 `[manual]` 프론트(호감도 게이지·컷씬 갤러리 뷰).
 
 ## Snapshot
 

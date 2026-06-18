@@ -45,7 +45,7 @@
    grep 노이즈가 실제로 큰 곳에서 가치가 커진다.
 4. **doc-centric 레이어와 중복 아님, 층위가 다름.** 기존 `/sync`·`CORE_MANDATES §6`는 *무엇을/왜*(도메인·상태),
    quark는 *어디에*(심볼·호출). 보완재.
-5. **staleness.** 산출물은 코드 변경 시 재생성 필요(모든 인덱스 공통). 현재 어디에도 wired 안 됨.
+5. **staleness.** 산출물은 코드 변경 시 재생성 필요(모든 인덱스 공통). → `harness/check-quarkify.sh` + `make quarkify-check`로 배선(**비차단** self-heal; `make check` 미포함). 정책: `CORE_MANDATES §5`.
 
 ## 2차 실측 — `mythos_runtime` (10,072 LOC, 17파일, session.py 2,088라인)
 

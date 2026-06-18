@@ -30,5 +30,12 @@ git 회차 커밋 · 구조화 ledger `scripts/overnight/logs/status.tsv`(WS3) �
 ## memory
 에이전트 영속 메모리(`~/.claude/.../memory/`)는 코드가 이미 기록하는 것 말고 **비자명한 사용자/피드백/프로젝트 맥락**만.
 
+## 코드 탐색 인덱스 (Quarkify)
+바이블 §2(구조 인덱스는 조건부)의 이 repo 구현. `.quarkify/src`(Quarkify가 `src/**/*.py`를 폴더 토폴로지로 분해, gitignore 생성물).
+- 운용: `make quarkify-setup`(최초 1회 도구 clone) · `make quarkify`(재생성, 멱등 ~4s) · `make quarkify-check`(비차단 신선도).
+- 정책: 대형 패키지·고빈도 심볼은 인덱스 우선(실측 토큰 80~92%↓), 드문 리터럴은 grep(−5% 역효과). **권위는 원본** — 리프는 빈 폴더(위치만).
+- 신선도: `make check` 미포함(선택적 가속기). `harness/check-quarkify.sh`가 self-heal/`--check` 제공.
+- 권위 정책·근거: `CLAUDE.md` "## Quarkify" · `harness/CORE_MANDATES.md §5` · `docs/plans/2026-06-18-quarkify-poc.md`.
+
 ## 형제 해석
 하네스 [`HARNESS.md`](HARNESS.md) · 루프 [`LOOP.md`](LOOP.md) · 멀티에이전트 [`AGENTIC.md`](AGENTIC.md) · 프롬프트 [`PROMPT.md`](PROMPT.md)

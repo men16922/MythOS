@@ -113,10 +113,14 @@ export function useAudio(
   }, [logToConsole]);
 
   const handleToggleBgm = useCallback(() => {
-    const targetBgm = preferredBgmPath();
-    if (bgmEnabled && !audioContextActive.current) {
+    // First interaction: audio not yet unlocked by a user gesture → this click
+    // unlocks it and starts the contextually-correct (snapshot) track.
+    if (!audioContextActive.current) {
+      setBgmEnabled(true);
+      try {
+        localStorage.setItem(BGM_PREF_KEY, "on");
+      } catch { /* ignore */ }
       initAudio();
-      playBgm(targetBgm, true);
       logToConsole("BGM START");
       return;
     }
@@ -131,12 +135,16 @@ export function useAudio(
       return;
     }
 
+    // Turn back ON by RESUMING the track that was last playing (currentBgmSrc),
+    // not by re-deriving preferredBgmPath() — re-deriving would jump to whatever
+    // the live snapshot points at now, which is the "toggle switched the song +
+    // needed a second press" bug. Fall back to the preferred path only if nothing
+    // has played yet.
     setBgmEnabled(true);
     try {
       localStorage.setItem(BGM_PREF_KEY, "on");
     } catch { /* ignore */ }
-    initAudio();
-    playBgm(targetBgm, true);
+    playBgm(currentBgmSrc.current || preferredBgmPath(), true);
     logToConsole("BGM ON");
   }, [bgmEnabled, preferredBgmPath, initAudio, playBgm, pauseBgm, logToConsole]);
 

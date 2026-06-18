@@ -1629,12 +1629,26 @@ class RuntimeSessionService:
 
         image_result = self._maybe_generate_image(options, transition.loop, scene, player.player_id)
         bgm_path = self.audio.get_current_bgm(transition.loop, scene)
+        # Per-scene INFO log: the finished script (narration), the resulting state, and
+        # the choices on offer — a full readable scene summary each turn (instead of the
+        # per-token streaming DEBUG frames). Structured fields stay queryable.
+        final_loop = transition.loop
+        scene_state = final_loop.state if isinstance(final_loop.state, dict) else {}
         extra = {
             "player_id": player.player_id,
-            "loop_id": transition.loop.loop_id,
+            "loop_id": final_loop.loop_id,
             "scene_id": scene.scene_id,
             "status": "succeeded",
             "bgm": bgm_path,
+            "title": scene.title,
+            "location": scene.location,
+            "phase": final_loop.phase.value,
+            "stability": final_loop.stability,
+            "tension": final_loop.tension,
+            "flags": list(scene_state.get("flags", []) or []),
+            "objective": scene.objective,
+            "narration": scene.narration,
+            "choices": [{"label": c.label, "intent": c.intent} for c in scene.choices],
         }
         if player_event is not None:
             extra["event_id"] = player_event.event_id

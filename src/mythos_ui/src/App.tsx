@@ -1297,13 +1297,18 @@ export default function App() {
           scenarioId={selectedScenarioId}
           onAccept={() => {
             setShowIntro(false);
-            initAudio();
-            if (finalizedSnapshot?.bgm_path) {
-              playBgm(finalizedSnapshot.bgm_path, true);
-            } else if (lastSnapshot?.bgm_path) {
-              playBgm(lastSnapshot.bgm_path, true);
-            } else {
-              playBgm(mainBgmPath(), true);
+            initAudio(); // unlock the audio context on this gesture (no-op play if BGM off)
+            // Respect the BGM preference: only auto-start music if it's enabled.
+            // Force-playing here regardless of bgmEnabled is what showed the toggle
+            // as OFF while sound kept playing (and took two presses to actually stop).
+            if (bgmEnabled) {
+              if (finalizedSnapshot?.bgm_path) {
+                playBgm(finalizedSnapshot.bgm_path, true);
+              } else if (lastSnapshot?.bgm_path) {
+                playBgm(lastSnapshot.bgm_path, true);
+              } else {
+                playBgm(mainBgmPath(), true);
+              }
             }
           }}
         />

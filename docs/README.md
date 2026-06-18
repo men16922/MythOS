@@ -29,6 +29,7 @@
 | `DOCS_POLICY.md` | 문서 운영 규칙 |
 | `IMAGE_POLICY.md` | 이미지 생성 규칙·로컬 파이프라인 |
 | `PROMPT_LAYER.md` | 서사 프롬프트 아키텍처(코드↔프롬프트 레이어 분리, directives/*.md) |
+| `NARRATIVE_ARCHITECTURE.md` | 서사/스토리북/바이블 end-to-end 구성(데이터→조립→LLM→파싱→루트/메모리→영속) |
 | `REFERENCES.md` | 디자인 레퍼런스 게임과 적용 포인트 |
 
 ## On-Demand Docs

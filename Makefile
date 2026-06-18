@@ -237,6 +237,7 @@ streamlit-stop:
 api:
 	@pkill -f "mythos_api" 2>/dev/null && echo "stopped previous api" || true
 	@echo "API: http://$${MYTHOS_API_HOST:-127.0.0.1}:$${MYTHOS_API_PORT:-8000}  (PoC client at /, endpoints under /api/v1)"
+	@echo "      구조화 JSON 로그가 콘솔에 출력됨(턴마다 최종 narration+latency, INFO). uvicorn은 INFO 고정(토큰 프레임 스팸 없음)."
 	$(VENV)/bin/python -m mythos_api
 
 api-stop:

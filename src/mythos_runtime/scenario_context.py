@@ -169,6 +169,52 @@ def apply_archetype_traits(
     return enriched
 
 
+_COMBAT_RESULT_VERB = {
+    "player_victory": "교전을 뚫고 적을 물리쳤다",
+    "player_fled": "교전을 가까스로 따돌리고 빠져나왔다",
+    "player_defeat": "교전에서 밀려 쫓기는 처지가 됐다",
+}
+
+
+def _combat_callback_note(
+    scenario: ScenarioConfig, loop: LoopState, turn_index: int
+) -> str:
+    """Post-combat narrative bridge (#5).
+
+    Returns a full-render directive only on the scene immediately following a
+    fight (``_last_combat_turn == turn_index - 1``), telling the GM to open with
+    the combat's aftermath so the tactical board doesn't read as a disconnected
+    minigame. Empty string otherwise.
+    """
+    state = loop.state if isinstance(loop.state, dict) else {}
+    last = state.get("_last_combat_turn")
+    if not isinstance(last, int) or last != turn_index - 1:
+        return ""
+    outcome = str(state.get("_last_combat_result") or "")
+    enc_id = str(state.get("_last_combat_encounter") or "")
+    enc_name = enc_id
+    reward_intent = ""
+    encounters = (
+        scenario.combat.get("encounters", {}) if isinstance(scenario.combat, dict) else {}
+    )
+    enc = encounters.get(enc_id) if isinstance(encounters, dict) else None
+    if isinstance(enc, dict):
+        enc_name = str(enc.get("name") or enc_id)
+        reward_intent = str(enc.get("reward_intent") or "")
+    verb = _COMBAT_RESULT_VERB.get(outcome, "방금 교전을 치렀다")
+    note = (
+        "=== 직전 전투 콜백 (전투→서사 연결 · 이번 장면 첫 1~2문장에 반드시 반영) ===\n"
+        "바로 앞 장면은 전투였다"
+        + (f"('{enc_name}')" if enc_name else "")
+        + f". 플레이어는 {verb}. 이번 장면은 그 '직후'로 시작하라 — 숨이 가쁘거나, 부상·장비 손상, "
+        "관리망 heat 상승, 동료(예: 세린)의 반응 같은 전투의 여파를 첫 1~2문장에서 한 번 이상 구체적으로 "
+        "참조해, 전투가 따로 노는 미니게임이 아니라 이야기의 결과로 이어지게 하라."
+    )
+    if reward_intent:
+        note += f" 이 전투의 의미(서사로 녹일 것, 수치 노출 금지): {reward_intent}"
+    return note
+
+
 def build_runtime_narrative_context(
     *,
     player: PlayerProfile,
@@ -323,6 +369,14 @@ def build_runtime_narrative_context(
             *opening_directives,
             *session_synopsis,
         ]
+
+    # Post-combat callback (#5): on the scene right after a fight, route a
+    # full-render note so the GM opens with the combat's aftermath instead of
+    # cutting to an unrelated beat (the "전투가 따로 논다" seam). Synopsis channel
+    # (not novelty_notes) so it isn't truncated away.
+    combat_callback = _combat_callback_note(scenario, loop, turn_index)
+    if combat_callback:
+        session_synopsis = [combat_callback, *session_synopsis]
 
     # The opening (turns 0-4) is a fully scripted 5-beat prologue driven by the
     # ONBOARDING_SCENE1-5 directives above (각성→세린 등장→다가오는 손→첫 접촉→추격+전투),

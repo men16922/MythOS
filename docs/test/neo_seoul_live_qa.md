@@ -1,6 +1,6 @@
 # Neo-Seoul Live QA Checklist
 
-최종 갱신: 2026-06-14
+최종 갱신: 2026-06-18
 
 이 문서는 `neo-seoul`을 사람이 직접 플레이하면서 판단할 수 있는 항목만 다룬다. 자동 테스트, JSON 검증,
 빌드/린트, API 동작 확인은 포함하지 않는다. 완료된 체크 항목은 제거하고, 남은 문제와 다음 플레이에서 볼
@@ -11,6 +11,27 @@
 - `[ ]` 미확인 또는 다음 플레이에서 확인 필요
 - `[~]` 일부 개선됨, 장기 플레이 체감 재확인 필요
 - `[!]` 문제 있음, 수정 또는 설계 판단 필요
+
+## 2026-06-18 자동 검증 완료 — 라이브 QA는 "feel"에만 집중
+
+이날은 코드/DB가 아니라 *체감*만 남기려고, 아래 feel-backing 배선을 **자동 검증(회귀 0, green)** 했다.
+라이브 QA에서 "배선이 동작하나"는 다시 볼 필요 없고 **"느낌이 사는가"만** 보면 된다.
+
+- **DB 영속(migration 006/007 적용 + round-trip PASS)**: 호감도(`relationships`)·컷씬 언락
+  (`unlocked_cutscenes`) 컬럼이 실 Postgres에 적용되고 persist→load 왕복 보존 확인. → 관계/컷씬이
+  루프·세션 간 보존됨(§4 관계 잔향·동료 호감도의 데이터 토대).
+- **substrate 9종 green**: 막 목표 스트립(`_chapter_goal`), junction 행선지 의미
+  (`_route_destination_meaning`), 전투 배너 ⚑/🎁(`_encounter_meta`), soft defeat, 오프닝
+  `image_sequence`/`image_pre`, `core_stake` 노출 — 전부 자동 테스트로 미회귀 확인.
+- **신규 회귀 가드 2종**(`tests/test_route_meaning_and_goals.py`): route 노드 `type`→의미 클로저 +
+  chapter_gate `player_goal` 완전성. 앞으로 콘텐츠 추가 시 막 목표/행선지 라벨이 조용히 비거나
+  generic으로 새면 빨개진다.
+- **서버 가동 중**: `make dev-up`(API+SPA+비주얼 워커) + Ollama 실서사 경로. http://127.0.0.1:8000/ 에서
+  바로 플레이 가능.
+
+→ **라이브 QA 초점**(순수 사람 판단, 자동검증 불가): §3 선택 결과 체감 · §4 세린/린위에/카이/IX 존재감 ·
+§5 전투의 서사적 동기 · §6 페이스/감각 변화 · §7 진행도 보상 체감 · §8 엔딩 잔향. 발견은 각 항목에
+`[!]`/메모로 적어 피드백 주면 다음 세션에서 처리한다.
 
 ## 0. 2026-06-14 세션 수정 — 다음 플레이(`make dev-up`)에서 확인할 것
 

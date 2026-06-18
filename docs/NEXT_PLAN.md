@@ -53,6 +53,7 @@
 - `[x]` **완료 invariant 배치(2026-06-14~15)** — 상세·검증은 `COMPLETED_SUMMARY.md`(QA Seed 무결성 배치) + PROGRESS archive: 루트·엔딩 도달성 / 플래그·조우 무결성 / 조우 승률 밴드(양면 ≥0.50·≤0.95) / 진행도 경제 / 무기·장비 / 스킬 데이터 / 아키타입 정합 / loot_table↔items / encounter 수치 경계 / item.kind enum / story_bible 메타 / npc_agenda 주체(allowlist 재정의) + codemod(FastAPI lifespan·dotenv ignore 중앙화). 문서 압축(`[auto:codex]`)도 이 정리로 완료.
 
 - `[x]` **2026-06-16 시드 A-O 배치(Priority 0 foundation + 호감도)** — 상세·검증은 `COMPLETED_SUMMARY.md` M46 + PROGRESS archive: 콘텐츠 무결성 invariant 6종(relationship 타깃·effect closure·ending 참조·route node-type·이미지 ref·perspective when) + prompt-layer Phase 3/4a-c·노드-주소 지정(fallback/naming/stat/encounter→md, generic 기본값) + 호감도 런타임 L/M/N/O(route reconcile+choice fold 누적·meta 크로스루프 이월 migration 006·serializer 노출). 아침 검수 PASS(고장주입 3/3·라이브 QA 4/4)·origin/main push 완료.
+- `[x]` **2026-06-18 시드 P/Q(`[auto:claude]` player-facing 데이터 클로저)** — `tests/test_route_meaning_and_goals.py` 2종: ① route 노드 `type` 클로저(`session._ROUTE_TYPE_MEANING`에 모든 node_types/anchor type 존재 → junction 라벨 generic fallthrough 방지, 고장주입 RED 실증) ② `session_design.chapter_gates` player_goal 완전성(전 gate 비어있지 않은 player_goal + LoopPhase phase + turn_range 형식 — `_chapter_goal` 막-스트립 공백 방지, content_integrity 미스캔 영역). `make check` green(445, +2).
 - `[ ]` `[auto:agy]` 스킬 아이콘 6종 초안: `emp_pulse`·`glitch_blink`·`memory_resonance`·`nanoshield_projector`·`signal_overdrive`·`system_intrusion` 의 `resources/neo-seoul/skills/<id>.png` 를 IMAGE_POLICY + 기존 스킬 아이콘 스타일을 바이블로 초안 생성(placeholder fabricate 금지). 완료 기준: 6 PNG 실존·비어있지 않음·규격 일치. (2026-06-14 1차 생성분은 미적 반려 — `outputs/agy/skills/VERDICT.md`. 엄격 카드 템플릿으로 재생성 필요.)
 - `[blocked]` `[auto:claude]` 스킬/아이콘 무결성 invariant: 모든 `combat.skills[].id`에 `resources/neo-seoul/skills/<id>.png` 존재 + 아키타입 base/learnable + `epiphany` unlock이 실재 스킬 참조. 완료 기준: `test_assets.py`에 추가, green 또는 Blocker. **선행 미충족**: 위 `[auto:agy]` 아이콘 6종 채택·머지 후 해제.
 
@@ -64,8 +65,8 @@
 시나리오로 끌어올린다. 게임성, 스토리 몰입, 선택 결과, 전투 페이스, 진행도 보상을 한 번의 플레이 경험
 기준으로 재정렬한다.
 
-권위 설계: `docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`
-라이브 피드백 액션 플랜: `docs/plans/2026-06-07-neo-seoul-live-feedback-action-plan.md`
+권위 설계: `bin/docs/plans/2026-06-07-neo-seoul-playability-upgrade.md`
+라이브 피드백 액션 플랜: `bin/docs/plans/2026-06-07-neo-seoul-live-feedback-action-plan.md`
 
 핵심 기준:
 
@@ -94,7 +95,7 @@ P1 작전 지도 route-node화 + 세션 메모리(→ COMPLETED_SUMMARY M39), Ta
 
 ### 사람 플레이 QA 발견 (live_qa §0/§1-6) — A/B/C/E/G 완료, F·D 잔여
 
-- `[/]` **F 스트리밍 속도**: 근본 원인 RAM 부족 규명 + 이원화 서사(8B 스토리 → 3b 파서) 배선·context 8192 캡 적용. 남은 것: 사용자 RAM 확보로 ~13초 근접, 실제 멀티턴 라이브 체감. 설계 `docs/plans/2026-06-10-dual-model-narrative-orchestration.md`.
+- `[/]` **F 스트리밍 속도**: 근본 원인 RAM 부족 규명 + 이원화 서사(8B 스토리 → 3b 파서) 배선·context 8192 캡 적용. 남은 것: 사용자 RAM 확보로 ~13초 근접, 실제 멀티턴 라이브 체감. 설계 `bin/docs/plans/2026-06-10-dual-model-narrative-orchestration.md`.
 - `[/]` **D 내러티브 반복**: 시놉시스 truncation 드롭 수정(`session_synopsis` 전용 필드 전량 렌더) + 장면 길이/prefill 캐시 수정. 남은 것: 실제 멀티턴 라이브 체감.
 
 - `[/]` P0-P2 다수 완료(상세 COMPLETED_SUMMARY M35-M40·PROGRESS archive; live LLM 14턴 QA 통과·F1 반복완화·anti-stickiness·Tactical Board 줌·회복/소모품/장비·기억의 별자리 재구성·objective/stakes·선택결과 요약). **남은 잔여**: F2 전투 빈도/연속 튜닝(관찰) · Tactical Board 터치 핀 고정 · 소모품/장비 밸런스 · 막 gate 필수 비트 강제 + visual prompt 현재 노드 주입 · 기억의 별자리 탭 세분화 · 선택결과에 관계/Codex/Shard 확장 · objective 막 전환 gate.

@@ -35,7 +35,7 @@
 
 세션 회고(usage insights) 분석에서 반복 확인된 실패 패턴을 막기 위한 운영 규칙이다.
 
-- **Measure before performance fixes**: 성능/지연(latency) 이슈는 추정 기반 config 수정 전에 병목을 먼저 계측한다 — model load, prompt prefill, RAM/swap pressure, I/O 중 어디서 시간이 가는지 수치로 확인한 뒤 그 병목만 고친다. (과거 Ollama 설정/필드 재배열로 오진 후 실제 원인은 swap·prefill이었던 사례 반복.)
+- **Diagnose before any fix**: 성능뿐 아니라 **모든 버그·동작 이슈**는 추정 기반 수정 전에 근본원인을 증거로 확정한다 — **재현→경쟁 가설 2~3→가설을 구별하는 측정→확정 원인만 수정→동일 측정 재실행으로 해소 증명**. 증거(로그/타이밍/메모리·swap/상태)를 캡처하기 전에는 "fixed" 보고 금지(첫 그럴듯한 이론 아니라 데이터에 커밋). 성능은 특히 model load·prompt prefill·RAM/swap·I/O 중 어디서 시간이 가는지 수치로 짚는다. (과거 Ollama 설정/필드 재배열로 오진 후 실제 원인은 swap·prefill, 그리고 게임 렌더 버그를 표면 수정으로 헛돈 사례 반복 — usage insights 최다 마찰.) 프로토콜 강제는 `/diagnose` 스킬.
 - **Docs-first status**: 프로젝트 상태 질문에는 git working tree나 코드 탐색보다 current docs(`AGENT_BRIEF` → `STATUS` → `NEXT_PLAN`)를 먼저 읽고 답한다.
 - **Confirm structural moves**: 디렉터리 이동/리네임/재분류(`scratch/`, `bin/` 등)와 대규모 리팩터링은 시작 전에 범위와 전략을 사용자에게 확인한다. 임의로 폴더를 옮기지 않는다.
 - **Shell discipline**: 셸 명령은 절대 경로를 쓴다(특히 `.venv/bin/python`). 이전 `cd`가 남긴 cwd에 의존하지 않는다 — cwd 의존으로 silent failure가 발생한 사례가 있다.

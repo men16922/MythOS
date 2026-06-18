@@ -11,7 +11,7 @@
 - **금지 작업 클래스**(무인 검증 불가 → 절대 착수 금지):
   사람 플레이 체감 QA(`docs/test/neo_seoul_live_qa.md` 전부), 콘텐츠/Story-Bible 저작,
   밸런스 튜닝, LLM 프롬프트-feel 튜닝.
-- `harness/CORE_MANDATES.md` §4-5 준수(측정 후 수정, docs-first, 구조적 이동은 확인, 완료 주장 전 검증).
+- `harness/CORE_MANDATES.md` §4-5 준수(진단 후 수정 = `/diagnose`, docs-first, 구조적 이동은 확인, 완료 주장 전 검증).
 - 게이트는 환경변수 `$GATE_CMD`(기본 `make check`, 더 빠른 변형 `make check-auto`/`make smoke-local`)를 그대로 실행한다.
 
 ## 1. 상태 복원
@@ -26,8 +26,7 @@ Skill `sync` 를 호출한다(Read Path: AGENT_BRIEF → STATUS → NEXT_PLAN �
 - **clean** → 3단계로.
 - **dirty** = 이전 회차 중단 잔여물. **이번 회차 작업은 "복구"다**(새 작업 혼입 금지):
   - `$GATE_CMD` green → `[recovered]` 접두 메시지로 즉시 커밋하고 이번 회차 종료.
-  - `$GATE_CMD` red → **건드리지 말 것.** Blocker를 `/checkpoint`로 기록하고
-    `scripts/overnight/STOP` 파일을 생성(사유 1줄)한 뒤 종료. (사람 검수 필요 — graceful 정지.)
+  - `$GATE_CMD` red → **건드리지 말 것.** 어느 phase가 깼는지 분리하고(`make python-lint`/`typecheck`/`frontend-build`/`test` 개별 실행) **phase + 증거**를 Blocker에 기록(`/checkpoint`; 불투명 "failure" 금지)한 뒤 `scripts/overnight/STOP`을 생성(사유 1줄)하고 종료. (사람 검수 필요 — graceful 정지.)
 
 ## 3. 작업 선택
 
@@ -42,7 +41,7 @@ Skill `sync` 를 호출한다(Read Path: AGENT_BRIEF → STATUS → NEXT_PLAN �
 항목의 **완료 기준 1줄**대로만 코드+테스트를 변경한다(scope 확장 금지).
 
 - `$GATE_CMD`(기본 `make check` = ruff + eslint + mypy + tsc/vite-build + unittest)를 **전부 green**까지 돌린다.
-- 게이트 실패 → `git restore` / `git checkout -- <path>`로 원복하고 Blocker를 기록한다.
+- 게이트 실패 → 먼저 **어느 phase가 깼는지 분리**한다: `make python-lint`/`make typecheck`/`make frontend-build`/`make test`를 개별 실행해 실패 phase를 특정하고, `/diagnose` 1단계(재현+증거)로 근본원인을 **Blocker에 phase+증거로 기록**한다(불투명 "failure" 금지). 그 뒤 `git restore`/`git checkout -- <path>`로 원복한다(무인 회차는 보수적 — scope 내 자명한 수정이 아니면 고치지 말고 원복).
   같은 항목 2회째 실패면 `[blocked]` 마킹 후 다음 후보로(또는 후보 없으면 DONE).
 
 ## 5. 기록

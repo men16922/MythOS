@@ -28,6 +28,10 @@ match); codex's confirmed role is *generation* + *text prompt-refinement*. Stage
 Realizes "codex 적합성 리뷰 → 재생성 → 최종 생성": codex (or agy) generates, claude vision-judges, codex refines the
 prompt, and codex/agy can also be the final generator (FLUX is only the offline deterministic fallback).
 
+**`GEN_ENGINE=codex` trusts the generator and skips the claude vision-judge** — codex output promotes directly (no
+review step), per request. The deterministic integrity gate (`test_image_assets`) still runs at the end. agy stays
+judged (agy output goes through the vision-judge loop).
+
 ## Loop
 
 ```

@@ -114,31 +114,45 @@ ${refine:+STRICT REFINEMENT FROM REVIEW: $refine}
 Then write a one-paragraph $dir/notes.md describing what you produced. Do not touch resources/."
   gen_engine "$GEN_ENGINE" "$gen_instr" || log "WARN: $GEN_ENGINE generate returned non-zero"
 
-  # STAGE 2: claude vision-judge — compare drafts to the frame bible, emit parseable verdict lines.
-  log "stage judge: claude --print vision-scoring drafts vs frame bible"
-  verdict="$dir/verdict.txt"
-  claude -p "Look at each PNG in $dir/ (use Read to view them) and compare its CARD FRAME (border, footer band, side strip, role band, name banner, layout, typography) to the peer reference cards $PEER_PATHS. The bar is FRAME UNIFORMITY with the peers across all cards — not individual prettiness. For each <id>.png output EXACTLY one line:
+  if [ "$GEN_ENGINE" = "codex" ]; then
+    # codex-generated output is TRUSTED: skip the claude vision-judge gate and promote directly.
+    # (Per request — no review step on codex output. Integrity gate at the end still applies.)
+    still=""
+    for t in $unresolved; do
+      if [ -f "$dir/$t.png" ]; then
+        cp "$dir/$t.png" "$SKILLS_DIR/$t.png" && log "  $t → promoted directly (codex-generated, vision-judge skipped)"
+      else
+        still="$still $t"; log "  $t → no codex output (generation failed) — retry"
+      fi
+    done
+    unresolved="$(echo $still | xargs echo)"
+  else
+    # STAGE 2: claude vision-judge — compare drafts to the frame bible, emit parseable verdict lines.
+    log "stage judge: claude --print vision-scoring drafts vs frame bible"
+    verdict="$dir/verdict.txt"
+    claude -p "Look at each PNG in $dir/ (use Read to view them) and compare its CARD FRAME (border, footer band, side strip, role band, name banner, layout, typography) to the peer reference cards $PEER_PATHS. The bar is FRAME UNIFORMITY with the peers across all cards — not individual prettiness. For each <id>.png output EXACTLY one line:
 PASS <id>
 or
 FAIL <id> <one-sentence concrete frame critique>
 Output ONLY those lines, nothing else." \
-    --permission-mode acceptEdits --settings "$SCRIPT_DIR/overnight-settings.json" --output-format json > "$dir/judge.json" 2>>"$LOG" || log "WARN: claude judge returned non-zero"
-  # Extract result text (claude --output-format json → .result) then the PASS/FAIL lines.
-  "$PY" -c "import json,sys; print(json.load(open('$dir/judge.json')).get('result',''))" 2>/dev/null > "$verdict" || cp "$dir/judge.json" "$verdict"
+      --permission-mode acceptEdits --settings "$SCRIPT_DIR/overnight-settings.json" --output-format json > "$dir/judge.json" 2>>"$LOG" || log "WARN: claude judge returned non-zero"
+    # Extract result text (claude --output-format json → .result) then the PASS/FAIL lines.
+    "$PY" -c "import json,sys; print(json.load(open('$dir/judge.json')).get('result',''))" 2>/dev/null > "$verdict" || cp "$dir/judge.json" "$verdict"
 
-  # STAGE 3b: promote passes, recompute unresolved, accumulate critique.
-  still=""; critique_note=""
-  for t in $unresolved; do
-    if grep -qiE "^PASS[[:space:]]+$t([[:space:]]|$)" "$verdict" 2>/dev/null && [ -f "$dir/$t.png" ]; then
-      cp "$dir/$t.png" "$SKILLS_DIR/$t.png" && log "  PASS $t → promoted to $SKILLS_DIR/$t.png"
-    else
-      still="$still $t"
-      crit="$(grep -iE "^FAIL[[:space:]]+$t" "$verdict" 2>/dev/null | head -1)"
-      critique_note="$critique_note
+    # STAGE 3b: promote passes, recompute unresolved, accumulate critique.
+    still=""; critique_note=""
+    for t in $unresolved; do
+      if grep -qiE "^PASS[[:space:]]+$t([[:space:]]|$)" "$verdict" 2>/dev/null && [ -f "$dir/$t.png" ]; then
+        cp "$dir/$t.png" "$SKILLS_DIR/$t.png" && log "  PASS $t → promoted to $SKILLS_DIR/$t.png"
+      else
+        still="$still $t"
+        crit="$(grep -iE "^FAIL[[:space:]]+$t" "$verdict" 2>/dev/null | head -1)"
+        critique_note="$critique_note
 ${crit:-FAIL $t (no card produced / unparsed verdict)}"
-    fi
-  done
-  unresolved="$(echo $still | xargs echo)"
+      fi
+    done
+    unresolved="$(echo $still | xargs echo)"
+  fi
 done
 
 # STAGE 4: FLUX-local deterministic fallback for anything still unresolved.

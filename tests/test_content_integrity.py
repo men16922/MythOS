@@ -399,6 +399,25 @@ class SkillDataIntegrityTest(unittest.TestCase):
     ``skill.epiphany`` unlock must name a declared ``combat.epiphanies`` key (else
     the data-driven grant unlocks nothing). A missing field, negative number, or
     dangling reference is a mechanical content bug, not a judgment call.
+
+    The 2026-06-20 skill/ally data-closure batch extends the same reference-closure
+    discipline to three more silent failure modes (seed ②③, the icon-independent
+    slice of the blocked skill/icon-integrity item):
+
+    - ``cost.item`` paid in an item id missing from ``combat.items`` — the skill
+      debits a resource the inventory can never hold, so it can never be afforded
+      (e.g. ``patch_protocol`` → ``nanopatch``).
+    - a ``requires`` prerequisite **cycle** — a skill (transitively) gating on
+      itself can never be unlocked, freezing that whole chain out of the tree.
+    - a ``requires`` prerequisite of a **higher tier** than the skill that needs it
+      — the Codex tree gates a skill behind something strictly harder to unlock, an
+      inverted gate that makes the tier ordering meaningless. (Equal tiers are
+      allowed: the authored tree chains tier-1 skills off tier-1 prerequisites.)
+
+    (Seed ① ``allies[].skills`` ⊆ skills and ④ ``skill.epiphany`` resolution are
+    already locked by ``test_ally_skills_exist`` / ``test_skill_epiphany_unlocks_resolve``
+    above, and ② reference-resolution by ``test_skill_requires_resolve``; this batch
+    closes the remaining acyclicity / tier-order / item-cost gaps.)
     """
 
     REQUIRED_FIELDS = ("id", "name", "cost", "effect")
@@ -412,6 +431,19 @@ class SkillDataIntegrityTest(unittest.TestCase):
         self.assertTrue(self.skill_records, "combat.skills must declare at least one skill")
         self.skill_ids = {_record_id(rec, "") for rec in self.skill_records} - {""}
         self.epiphany_keys = set(self.combat.get("epiphanies", {}) or {})
+        self.item_ids = {
+            _record_id(rec, "") for rec in _as_records(self.combat.get("items", {}))
+        } - {""}
+        # tier defaults to 0 (the Codex base tier) when missing/non-int, matching
+        # how the unlock tree treats an untagged skill.
+        self.tier_by_id = {
+            _record_id(rec, ""): (
+                rec["tier"]
+                if isinstance(rec.get("tier"), int) and not isinstance(rec.get("tier"), bool)
+                else 0
+            )
+            for rec in self.skill_records
+        }
 
     def test_every_skill_has_required_fields(self) -> None:
         for skill in self.skill_records:
@@ -484,6 +516,87 @@ class SkillDataIntegrityTest(unittest.TestCase):
             dangling,
             [],
             f"skill.epiphany unlocks naming undeclared combat.epiphanies keys: {dangling}",
+        )
+
+    def test_skill_cost_items_resolve(self) -> None:
+        """A skill paid in an item (``cost.item``) must name a real ``combat.items``
+        id, else the cost debits a resource the inventory can never hold and the
+        skill can never be afforded (the ``patch_protocol`` → ``nanopatch`` link)."""
+        dangling = sorted(
+            f"{_record_id(s, '?')}->{s['cost']['item']}"
+            for s in self.skill_records
+            if isinstance(s.get("cost"), dict)
+            and s["cost"].get("item")
+            and str(s["cost"]["item"]) not in self.item_ids
+        )
+        self.assertEqual(
+            dangling,
+            [],
+            f"skill cost.item naming items missing from combat.items "
+            f"(the cost can never be paid): {dangling}",
+        )
+
+    def test_skill_requires_are_acyclic(self) -> None:
+        """The ``requires`` prerequisite graph must be a DAG. A skill that
+        (transitively) requires itself can never satisfy its own gate, so it and
+        everything downstream is permanently unlockable — a dead branch of the
+        tree. Only edges to real skills are walked (dangling refs are caught by
+        ``test_skill_requires_resolve``)."""
+        graph = {
+            _record_id(s, ""): [
+                str(r) for r in (s.get("requires") or []) if str(r) in self.skill_ids
+            ]
+            for s in self.skill_records
+        }
+        # 0=unvisited, 1=on current DFS stack, 2=done.
+        state: dict[str, int] = {}
+        cycle: list[str] = []
+
+        def _visit(node: str, path: list[str]) -> bool:
+            state[node] = 1
+            for dep in graph.get(node, []):
+                if state.get(dep, 0) == 1:
+                    cycle.extend(path[path.index(dep):] + [dep])
+                    return True
+                if state.get(dep, 0) == 0 and _visit(dep, path + [dep]):
+                    return True
+            state[node] = 2
+            return False
+
+        for sid in graph:
+            if state.get(sid, 0) == 0 and _visit(sid, [sid]):
+                break
+        self.assertEqual(
+            cycle,
+            [],
+            f"skill.requires forms a prerequisite cycle (unlockable forever): "
+            f"{' -> '.join(cycle)}",
+        )
+
+    def test_skill_requires_are_tier_monotonic(self) -> None:
+        """A ``requires`` prerequisite must not sit at a *higher* tier than the
+        skill that needs it. A higher-tier prerequisite is an inverted gate — the
+        easier skill is locked behind a harder one — which makes the tier ordering
+        meaningless. Equal tiers are allowed (the authored tree chains tier-1
+        skills off tier-1 prerequisites)."""
+        offenders: list[str] = []
+        for skill in self.skill_records:
+            sid = _record_id(skill, "?")
+            skill_tier = self.tier_by_id.get(sid, 0)
+            for ref in skill.get("requires") or []:
+                ref = str(ref)
+                if ref not in self.skill_ids:
+                    continue  # dangling ref — covered elsewhere
+                ref_tier = self.tier_by_id.get(ref, 0)
+                if ref_tier > skill_tier:
+                    offenders.append(
+                        f"{sid}(tier {skill_tier}) requires {ref}(tier {ref_tier})"
+                    )
+        self.assertEqual(
+            offenders,
+            [],
+            f"skill.requires prerequisites of a higher tier than the gated skill "
+            f"(inverted unlock gate): {offenders}",
         )
 
 

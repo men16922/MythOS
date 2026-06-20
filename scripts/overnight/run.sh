@@ -69,6 +69,21 @@ export GATE_CMD                 # PROMPT.md 가 $GATE_CMD 로 참조
 : "${GOAL_MAX_TURNS:=12}"         # /goal 자체 턴 바운드(soft). 하드 실링은 ITER_TIMEOUT.
 GOAL_DIRECTIVE="/goal Either (a) the selected [auto]/[auto:claude] backlog item is implemented, '$GATE_CMD' has been run and exited 0 (fully green), and the change is committed (git HEAD advanced, Co-Authored-By trailer); OR (b) the item is recorded [blocked] with a phase+evidence Blocker and the working tree restored clean (git restore); OR (c) no consumable [auto]/[auto:claude] item remains (DONE). Stop after $GOAL_MAX_TURNS turns regardless."
 
+# --- Critic 패스 (plugin 0.5.0 포팅, opt-in) ---
+# 재게이트(GREEN)를 통과한 새 커밋에 대해, 두 번째 읽기 전용 에이전트가 그 커밋 diff 만 검토한다.
+# 오프라인 게이트가 못 잡는 것 — 회귀, 스코프크립, 통과용으로 약화/삭제된 테스트, 실패를 가리는
+# 데드코드 — 을 노린다. FAIL 이면 phantom 과 동일하게 revert. 다른 역할(+선택적 다른 모델)이
+# 동일 모델 자기검토 편향을 상쇄한다. 엔진별 읽기 전용 모드: claude=--permission-mode plan ·
+# codex=exec --sandbox read-only · agy=--print(권한 스킵 없음).
+#   OVERNIGHT_CRITIC: 0=off(기본) · 1=항상 · auto=diff 가 위험 휴리스틱을 건드릴 때만(저위험 위생 커밋은 건너뜀).
+: "${OVERNIGHT_CRITIC:=0}"             # 0(기본) | 1(항상) | auto(위험 게이트)
+: "${OVERNIGHT_CRITIC_MODEL:=}"        # 선택: actor 와 다른 모델로 critic 실행
+: "${OVERNIGHT_CRITIC_MAX_FILES:=8}"   # auto: 변경 파일 수 초과 시 위험(스코프크립)
+: "${OVERNIGHT_CRITIC_MAX_LINES:=400}" # auto: 변경 라인(add+del) 초과 시 위험
+: "${OVERNIGHT_CRITIC_MAX_DIRS:=4}"    # auto: 변경된 top-level 디렉토리 수 초과 시 위험(확산)
+# CRITIC_PROMPT.md: repo 로컬(없으면 build_critic_prompt 의 내장 기본 사용).
+CRITIC_PROMPT_FILE="scripts/overnight/CRITIC_PROMPT.md"
+
 ONCE=0
 [ "${1:-}" = "--once" ] && ONCE=1
 
@@ -79,14 +94,19 @@ log() {
 }
 
 # 머신리더블 회차 원장(탭 구분, status.sh/대시보드가 소비). human runner.log 와 병행.
-# 컬럼: ts  engine  branch  iter  outcome  head  dur(s)  gate_exit  commit_verified
-#   gate_exit/commit_verified 는 WS-α 외부 재게이트 결과(빈칸=미측정 회차). status.sh 는 f5/6/7 만 읽어 하위호환.
+# 컬럼: ts engine branch iter outcome head dur(s) gate_exit commit_verified critic_exit tokens cost fail_class
+#   gate_exit/commit_verified = WS-α 외부 재게이트 결과(빈칸=미측정 회차).
+#   critic_exit = critic 패스 결과(0=PASS/1=FAIL, critic off/미지원 시 빈칸).
+#   tokens/cost = iter 로그에서 파싱한 엔진 사용량(미노출 시 빈칸).
+#   fail_class  = 실패 서브태그(infra/logic), failure 회차에만.
+#   status.sh 는 f4-f7 만 읽으므로 f8 이후 추가 컬럼은 하위호환(append-only).
 emit_status() {
-  local outcome="$1" head="${2:-}" dur="${3:-}" gate="${4:-}" verified="${5:-}" branch
+  local outcome="$1" head="${2:-}" dur="${3:-}" gate="${4:-}" verified="${5:-}" \
+        critic="${6:-}" tokens="${7:-}" cost="${8:-}" fclass="${9:-}" branch
   branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo '?')"
-  [ -f "$STATUS_TSV" ] || printf 'ts\tengine\tbranch\titer\toutcome\thead\tdur\tgate_exit\tcommit_verified\n' > "$STATUS_TSV"
-  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
-    "$(date '+%Y-%m-%dT%H:%M:%S')" "$ENGINE" "$branch" "$iter" "$outcome" "${head:0:9}" "$dur" "$gate" "$verified" >> "$STATUS_TSV"
+  [ -f "$STATUS_TSV" ] || printf 'ts\tengine\tbranch\titer\toutcome\thead\tdur\tgate_exit\tcommit_verified\tcritic_exit\ttokens\tcost\tfail_class\n' > "$STATUS_TSV"
+  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+    "$(date '+%Y-%m-%dT%H:%M:%S')" "$ENGINE" "$branch" "$iter" "$outcome" "${head:0:9}" "$dur" "$gate" "$verified" "$critic" "$tokens" "$cost" "$fclass" >> "$STATUS_TSV"
 }
 
 # 실패 클래스 종료에서만 호스트 메일 알림(성공/정상 종료엔 안 부름 — 과다 발송 방지).
@@ -133,6 +153,13 @@ esac
 [ -n "$TIMEOUT_BIN" ] || log "경고: gtimeout/timeout 없음 — 회차 타임아웃 비활성 (brew install coreutils 권장)"
 
 PROMPT_CONTENT="$(cat "$PROMPT_FILE")"
+
+# critic 프롬프트는 지연 로드(critic 활성 회차에만) — 템플릿이 없어도 비-critic 회차는 안 깨진다.
+# 빈 문자열 = "템플릿 없음" → build_critic_prompt 가 내장 기본으로 폴백.
+CRITIC_PROMPT_CONTENT=""
+if [ "$OVERNIGHT_CRITIC" != "0" ] && [ -f "$CRITIC_PROMPT_FILE" ]; then
+  CRITIC_PROMPT_CONTENT="$(cat "$CRITIC_PROMPT_FILE")"
+fi
 
 # iter-*.log 를 최근 KEEP_ITER_LOGS 개만 남기고 정리
 prune_logs() {
@@ -186,6 +213,208 @@ if any(m in low for m in markers):
     print("limit"); sys.exit(0)
 
 print("failure" if rc != 0 else "success")
+PY
+}
+
+# critic 프롬프트 조립: 템플릿(repo CRITIC_PROMPT.md, 없으면 내장 기본) + 검토 대상 diff(컨텍스트 보호 캡).
+build_critic_prompt() {
+  local range="$1" diff body
+  diff="$(git diff "$range" 2>/dev/null | head -c 60000)"
+  if [ -n "$CRITIC_PROMPT_CONTENT" ]; then
+    body="$CRITIC_PROMPT_CONTENT"
+  else
+    body="You are an independent reviewer for an unattended coding loop. The change below already
+passed the offline gate ('$GATE_CMD'). Review ONLY for problems the gate cannot catch: regressions,
+scope-creep beyond the task, tests deleted/weakened to pass, or dead code masking a failure. Do not
+re-report style/lint. Be conservative — PASS unless there is clear evidence of harm.
+End your reply with EXACTLY one line: 'CRITIC_VERDICT: PASS — <reason>' or 'CRITIC_VERDICT: FAIL — <reason>'."
+  fi
+  printf '%s\n\n## Diff under review (range %s)\n\n```diff\n%s\n```\n' "$body" "$range" "$diff"
+}
+
+# OVERNIGHT_CRITIC=auto 용 위험 분류. LLM 없이 git 메타데이터 + 내용 스캔으로 커밋 diff 를 판정한다.
+# critic 패스가 필요하면 비어있지 않은 사유 문자열을, 건너뛰어도 되는 저위험 위생 커밋이면 "" 를 출력.
+# 휴리스틱(하나라도 걸리면 RUN): test 파괴 · suppress 마커 추가 · 민감/시크릿/생성 파일 · 바이너리 ·
+#   삭제 과다 · 스코프(파일/라인/디렉토리) 초과.
+critic_risk_reason() {
+  local range="$1" reason td sup
+  reason="$(git diff --numstat "$range" 2>/dev/null | awk -F'\t' \
+      -v maxf="$OVERNIGHT_CRITIC_MAX_FILES" -v maxl="$OVERNIGHT_CRITIC_MAX_LINES" -v maxd="$OVERNIGHT_CRITIC_MAX_DIRS" '
+    {
+      add=($1=="-"?0:$1); del=($2=="-"?0:$2); path=$3
+      files++; tadd+=add; tdel+=del
+      if ($1=="-" && $2=="-") binbad=1                      # 바이너리 파일(numstat 가 -/- 로 표기)
+      d=path; sub(/\/.*/,"",d); if(d==path) d="."; if(!(d in seen)){seen[d]=1; dirs++}
+      lp=tolower(path)
+      istest = (lp ~ /(^|\/)(test|tests|spec|specs|__tests__)(\/|$)/ || lp ~ /(test|spec)[._-]/ || lp ~ /[._-](test|spec)\./)
+      if (istest && del>add && del>0) reason = reason (reason?"; ":"") "test-shrunk:" path
+      if (path ~ /(^|\/)(package(-lock)?\.json|yarn\.lock|pnpm-lock\.yaml|requirements\.txt|poetry\.lock|pyproject\.toml|go\.(mod|sum)|Cargo\.(toml|lock)|Gemfile(\.lock)?|Makefile|Dockerfile|docker-compose|\.github\/|\.gitlab-ci|\.circleci\/|Jenkinsfile|setup\.(py|cfg))/)
+        reason = reason (reason?"; ":"") "sensitive:" path
+      if (lp ~ /(^|\/)\.env($|\.)|\.pem$|\.key$|id_rsa|(^|\/)secrets?\.|credentials/)
+        reason = reason (reason?"; ":"") "secret-file:" path
+      if (path ~ /(^|\/)(migrations?|dist|build|vendor|node_modules)\/|\.min\.(js|css)$|\.generated\.|\.pb\.go$|_pb2\.py$/)
+        reason = reason (reason?"; ":"") "generated:" path
+    }
+    END {
+      if (files+0 > maxf+0) reason = reason (reason?"; ":"") "scope-files:" files
+      if (tadd+tdel > maxl+0) reason = reason (reason?"; ":"") "scope-lines:" (tadd+tdel)
+      if (dirs+0 > maxd+0) reason = reason (reason?"; ":"") "dir-spread:" dirs
+      if (binbad) reason = reason (reason?"; ":"") "binary"
+      if (tdel > 50 && tdel > 3*tadd) reason = reason (reason?"; ":"") "deletion-heavy:-" tdel "/+" tadd
+      printf "%s", reason
+    }')"
+  # 완전 삭제된 test 파일(name-status D 가 권위 — numstat 만으로는 놓칠 수 있음)
+  td="$(git diff --name-status "$range" 2>/dev/null | awk -F'\t' '$1 ~ /^D/ && tolower($2) ~ /(test|spec)/ { printf "test-deleted:%s;", $2 }')"
+  [ -n "$td" ] && reason="${reason:+$reason; }${td%;}"
+  # diff 에 추가된 skip/ignore/disable 디렉티브 — green 게이트가 절대 못 잡는다.
+  sup="$(git diff "$range" 2>/dev/null | head -c 400000 | grep -E '^\+' | grep -vE '^\+\+\+' \
+      | grep -iEo 'eslint-disable|ts-(ignore|nocheck)|noqa|type:[[:space:]]*ignore|pytest\.mark\.skip|unittest\.skip|skipif|xfail|pragma:[[:space:]]*no[[:space:]]*cover|istanbul ignore|pylint:[[:space:]]*disable|nosec|@Ignore|@Disabled|@SuppressWarnings|\.only\(|\.skip\(|fdescribe|fit\(|xdescribe|xit\(' \
+      | head -1 || true)"
+  [ -n "$sup" ] && reason="${reason:+$reason; }suppress-marker:$sup"
+  printf '%s' "$reason"
+}
+
+# critic 를 읽기 전용으로 실행하고 판정 출력: PASS | FAIL | SKIP.
+# fail-open: 파싱 불가/빈 판정은 PASS 취급(게이트는 이미 통과 — 파싱 글리치로 멀쩡한 작업을 버리지 않는다).
+# SKIP = 읽기 전용 모드 없는 엔진.
+critic_verdict() {
+  local range="$1" cprompt clog verdict mflag=""
+  # 모델 id 는 공백이 없어 unquoted word-split 안전(bash 3.2 + set -u 의 빈 배열 확장 회피).
+  [ -n "$OVERNIGHT_CRITIC_MODEL" ] && mflag="--model $OVERNIGHT_CRITIC_MODEL"
+  cprompt="$(build_critic_prompt "$range")"
+  clog="$LOG_DIR/critic-$iter.log"
+  set +e
+  case "$ENGINE" in
+    claude)
+      # plan 권한 모드 = 읽기 전용(편집/변경 명령 불가).
+      $TIMEOUT_BIN ${TIMEOUT_BIN:+$ITER_TIMEOUT} claude -p "$cprompt" \
+        --permission-mode plan --settings "$SETTINGS_FILE" $mflag --output-format json > "$clog" 2>&1
+      ;;
+    codex)
+      # --sandbox read-only = 파일시스템 읽기 전용. </dev/null: exec stdin freeze 방지.
+      $TIMEOUT_BIN ${TIMEOUT_BIN:+$ITER_TIMEOUT} codex exec --cd "$REPO_ROOT" \
+        --sandbox read-only -c approval_policy=never --json $mflag "$cprompt" > "$clog" 2>&1 </dev/null
+      ;;
+    agy)
+      # print 모드 + --dangerously-skip-permissions 없음: 읽기는 되고 쓰기는 적용 안 됨.
+      $TIMEOUT_BIN ${TIMEOUT_BIN:+$ITER_TIMEOUT} agy --print "$cprompt" \
+        --print-timeout 30m --add-dir "$REPO_ROOT" </dev/null > "$clog" 2>&1
+      ;;
+    *)
+      set -e; echo SKIP; return 0
+      ;;
+  esac
+  set -e
+  # 판정 줄은 평문 — JSON result 필드든 stdout 이든 grep 으로 잡힌다.
+  verdict="$(grep -oiE 'CRITIC_VERDICT:[[:space:]]*(PASS|FAIL)' "$clog" 2>/dev/null \
+    | grep -oiE '(PASS|FAIL)' | tail -1 | tr '[:lower:]' '[:upper:]')"
+  if [ -z "$verdict" ]; then
+    log "  critic: 판정 파싱 실패 — fail-open(PASS); 로그: $clog"
+    echo PASS; return 0
+  fi
+  echo "$verdict"
+}
+
+# 텔레메트리: 엔진 JSON 출력에서 토큰/비용을 best-effort 파싱. "tokens\tcost"(탭 구분, 미노출 시 빈칸) 출력.
+# 루프를 절대 죽이지 않는다. 엔진별 스키마가 달라(claude/codex/agy) 하드코딩 대신 모든 JSON 객체를
+# 재귀 스캔(전체 또는 줄단위 JSONL)해 토큰/비용 키를 찾아 최댓값 채택(누적/스트림 총계 대응).
+parse_usage() {
+  python3 - "$1" <<'PY'
+import sys, json, re
+try:
+    with open(sys.argv[1], "r", errors="replace") as f:
+        text = f.read()
+except OSError:
+    print("\t"); sys.exit(0)
+
+objs = []
+try:
+    objs.append(json.loads(text))
+except Exception:
+    for line in text.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            objs.append(json.loads(line))
+        except Exception:
+            pass
+
+# claude/codex/agy(및 OpenAI/Anthropic 스타일 usage 블록) 공통 키 패턴.
+# 두 층: 명시적 "*_tokens" 키 + tokens/usage dict 아래의 bare input/output/total 키(엉뚱한 input 오집계 방지).
+TOTAL = re.compile(r'total_tokens?$', re.I)
+INTOK = re.compile(r'(input|prompt)_tokens$|cache_(read|creation)\w*_tokens$', re.I)
+OUTTOK = re.compile(r'(output|completion)_tokens$', re.I)
+COST = re.compile(r'cost', re.I)
+USAGE_CTX = re.compile(r'tokens?$|usage', re.I)
+BARE_IN = re.compile(r'(input|prompt|read|write|cache\w*)$', re.I)
+BARE_OUT = re.compile(r'(output|completion)$', re.I)
+BARE_TOTAL = re.compile(r'total$', re.I)
+
+# 한 dict 의 "직속" 숫자 자식만으로 그 usage 블록의 토큰 총계를 계산한다.
+#   - 직속만 보므로 cache_creation 의 ephemeral_* 하위분해(중첩 dict)는 더해지지 않는다(이중계상 방지).
+#   - total_tokens 가 있으면 그것을, 없으면 입력성(+cache)+출력성 직속 키의 합을 쓴다.
+# ctx=True 면(부모 키가 tokens/usage) bare input/output/total 도 인정(opencode {"tokens":{"input":..}}).
+def block_total(d, ctx):
+    tin = tout = ttot = 0
+    for k, v in d.items():
+        if isinstance(v, bool) or not isinstance(v, (int, float)):
+            continue
+        if TOTAL.search(k) or (ctx and BARE_TOTAL.match(k)):     ttot = max(ttot, v)
+        elif INTOK.search(k) or (ctx and BARE_IN.match(k)):      tin += v
+        elif OUTTOK.search(k) or (ctx and BARE_OUT.match(k)):    tout += v
+    return ttot if ttot > 0 else (tin + tout)
+
+# 트리를 순회하며 (a) 모든 usage 블록의 자체 총계 중 MAX 토큰, (b) 모든 cost 중 MAX 를 잡는다.
+# 합산이 아니라 블록 간 MAX 이므로 iterations[]/modelUsage 같은 "같은 호출의 중복 뷰"가 부풀리지 않는다
+# (스트림 JSONL 의 누적/부분 행도 최종(최대)만 채택). ephemeral 하위블록은 항상 총계 미만이라 자연 탈락.
+def walk(o, ctxkey, acc):
+    if isinstance(o, dict):
+        bt = block_total(o, bool(USAGE_CTX.search(ctxkey)))
+        if bt > acc['tok']:
+            acc['tok'] = bt
+        for k, v in o.items():
+            if isinstance(v, (int, float)) and not isinstance(v, bool):
+                if COST.search(k):
+                    acc['cost'] = max(acc['cost'], float(v))
+            else:
+                walk(v, k, acc)
+    elif isinstance(o, list):
+        for v in o:
+            walk(v, ctxkey, acc)
+
+acc = {'tok': 0, 'cost': 0.0}
+for o in objs:
+    walk(o, "", acc)
+
+t = "" if acc['tok'] <= 0 else str(int(acc['tok']))
+k = "" if acc['cost'] <= 0 else ("%.4f" % acc['cost'])
+print("%s\t%s" % (t, k))
+PY
+}
+
+# 실패 서브분류(outcome==failure 일 때만 의미 있음). infra|logic|"" 출력.
+#   infra = 환경/툴링(disk/oom/network/바이너리 누락/timeout-kill) · logic = assertion/test/compile.
+# 로그 패턴 기반·부작용 없음(게이트 재실행 안 함) → 실패 경로는 보수적으로 유지.
+classify_failclass() {
+  python3 - "$1" <<'PY'
+import sys
+try:
+    with open(sys.argv[1], "r", errors="replace") as f:
+        low = f.read().lower()
+except OSError:
+    low = ""
+infra = ["enospc", "no space left", "out of memory", "oom-kill", "killed",
+         "command not found", "permission denied", "network", "etimedout",
+         "connection refused", "could not resolve host", "timed out"]
+if any(m in low for m in infra):
+    print("infra"); sys.exit(0)
+logic = ["assertionerror", "assert", "traceback", "test failed", "failed test",
+         "compilation error", "type error", "typeerror", "syntaxerror",
+         "expected", " failing"]
+if any(m in low for m in logic):
+    print("logic"); sys.exit(0)
+print("")
 PY
 }
 
@@ -264,8 +493,14 @@ $PROMPT_CONTENT"
   outcome="$(classify_outcome "$rc" "$ITER_LOG" || echo failure)"
   ITER_DUR=$(( $(date +%s) - ITER_START ))
   HEAD_NOW="$(git rev-parse HEAD 2>/dev/null || echo none)"
-  log "회차 $iter 결과: $outcome (rc=$rc)"
-  emit_status "$outcome" "$HEAD_NOW" "$ITER_DUR"
+  # 텔레메트리(best-effort, 루프를 죽이지 않음) + 실패 서브클래스(failure 회차만).
+  ITER_USAGE="$(parse_usage "$ITER_LOG" 2>/dev/null || printf '\t')"
+  ITER_TOKENS="$(printf '%s' "$ITER_USAGE" | cut -f1)"
+  ITER_COST="$(printf '%s' "$ITER_USAGE" | cut -f2)"
+  FAIL_CLASS=""
+  [ "$outcome" = "failure" ] && FAIL_CLASS="$(classify_failclass "$ITER_LOG" 2>/dev/null || echo '')"
+  log "회차 $iter 결과: $outcome (rc=$rc)${FAIL_CLASS:+ [$FAIL_CLASS]}${ITER_TOKENS:+ tok=$ITER_TOKENS}${ITER_COST:+ \$$ITER_COST}"
+  emit_status "$outcome" "$HEAD_NOW" "$ITER_DUR" "" "" "" "$ITER_TOKENS" "$ITER_COST" "$FAIL_CLASS"
 
   case "$outcome" in
     limit)
@@ -298,6 +533,7 @@ $PROMPT_CONTENT"
       HEAD_AFTER="$(git rev-parse HEAD 2>/dev/null || echo none)"
       if [ "$HEAD_AFTER" != "$HEAD_BEFORE" ]; then
         no_progress=0
+        commit_live=1   # 아래에서 커밋이 revert(phantom/critic-reject)되면 0 으로 해제
         log "새 커밋: $(git log --oneline "$HEAD_BEFORE..$HEAD_AFTER" 2>/dev/null | tr '\n' ' ')"
         # WS-α: in-invocation 게이트는 신뢰 약함(is_error:false ≠ 게이트 green). 새 커밋을 외부에서 재검증한다.
         if [ "$OVERNIGHT_VERIFY_GATE" = "1" ]; then
@@ -307,6 +543,7 @@ $PROMPT_CONTENT"
           gate_exit=$?
           set -e
           if [ "$gate_exit" -ne 0 ]; then
+            commit_live=0
             log "⚠ PHANTOM-SUCCESS: 커밋 ${HEAD_AFTER:0:9} 외부 게이트 RED(exit=$gate_exit) — revert + 알림 (로그: $LOG_DIR/gate-$iter.log)"
             emit_status "phantom" "$HEAD_AFTER" "$ITER_DUR" "$gate_exit" "0"
             if git revert --no-edit HEAD >> "$RUNNER_LOG" 2>&1; then
@@ -324,6 +561,47 @@ $PROMPT_CONTENT"
           else
             log "외부 게이트 GREEN — 커밋 검증됨"
             emit_status "verified" "$HEAD_AFTER" "$ITER_DUR" "0" "1"
+          fi
+        fi
+        # WS-β: opt-in critic 패스. 재게이트를 통과한(commit_live=1) 커밋에만 실행.
+        # 오프라인 게이트가 못 잡는 회귀/스코프크립을 잡고, FAIL 이면 phantom 과 동일하게 revert.
+        # 모드: 1=항상 · auto=diff 가 위험 휴리스틱을 건드릴 때만 · 0=안 함.
+        if [ "$OVERNIGHT_CRITIC" != "0" ] && [ "${commit_live:-0}" = "1" ]; then
+          critic_run=1
+          if [ "$OVERNIGHT_CRITIC" = "auto" ]; then
+            risk="$(critic_risk_reason "$HEAD_BEFORE..$HEAD_AFTER")"
+            if [ -z "$risk" ]; then
+              critic_run=0
+              log "critic: auto-skip — 저위험 diff (test/scope/sensitive 신호 없음)"
+            else
+              log "critic: auto-run — 위험: $risk"
+            fi
+          fi
+          if [ "$critic_run" = "1" ]; then
+            log "critic: ${HEAD_BEFORE:0:9}..${HEAD_AFTER:0:9} 읽기 전용 리뷰 (engine=$ENGINE${OVERNIGHT_CRITIC_MODEL:+, model=$OVERNIGHT_CRITIC_MODEL})"
+            critic="$(critic_verdict "$HEAD_BEFORE..$HEAD_AFTER")"
+            if [ "$critic" = "FAIL" ]; then
+              commit_live=0
+              log "⚠ CRITIC-REJECT: 커밋 ${HEAD_AFTER:0:9} 플래그됨(회귀/스코프) — revert + 알림 (로그: $LOG_DIR/critic-$iter.log)"
+              emit_status "critic-reject" "$HEAD_AFTER" "$ITER_DUR" "" "" "1"
+              if git revert --no-edit HEAD >> "$RUNNER_LOG" 2>&1; then
+                log "critic-reject 커밋 revert 완료 — 브랜치 복구"
+              else
+                git revert --abort >/dev/null 2>&1 || true
+                git reset --hard "$HEAD_BEFORE" >> "$RUNNER_LOG" 2>&1 || true
+                log "revert 충돌 → HEAD_BEFORE 로 reset"
+              fi
+              notify_failure "critic-reject @ ${HEAD_AFTER:0:9}"
+              consec_fail=$((consec_fail + 1))
+              if [ "$consec_fail" -ge "$MAX_CONSEC_FAIL" ]; then
+                exit_reason="critic-reject 누적 $MAX_CONSEC_FAIL회"; log "critic 한계 — 안전 중단"; break
+              fi
+            elif [ "$critic" = "SKIP" ]; then
+              log "critic: 건너뜀 (엔진 '$ENGINE' 읽기 전용 모드 없음)"
+            else
+              log "critic: PASS — 커밋 유지"
+              emit_status "critic-pass" "$HEAD_AFTER" "$ITER_DUR" "" "" "0"
+            fi
           fi
         fi
       else

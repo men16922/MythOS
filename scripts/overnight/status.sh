@@ -31,13 +31,27 @@ print_lane() {
   tsv="$root/scripts/overnight/logs/status.tsv"
   stopf="$root/scripts/overnight/STOP"; donef="$root/scripts/overnight/DONE"
 
-  iter='-'; dur=''; detail=''
+  iter='-'; dur=''; detail=''; tel=''
   if [ -f "$tsv" ]; then
     last="$(tail -1 "$tsv" 2>/dev/null)"
     outcome="$(printf '%s' "$last" | cut -f5)"
     iter="$(printf '%s' "$last" | cut -f4)"
     head9="$(printf '%s' "$last" | cut -f6)"
     dur="$(printf '%s' "$last" | cut -f7)"
+    # 텔레메트리(f10 critic_exit · f11 tokens · f12 cost · f13 fail_class)는 같은 iter 의
+    # 최종 상태 행과 다른 행에 실리므로, 이 iter 의 비어있지 않은 값을 병합한다.
+    tel="$(awk -F'\t' -v it="$iter" '
+      NR>1 && $4==it {
+        if($11!="") tok=$11; if($12!="") cost=$12; if($13!="") fc=$13; if($10!="") cr=$10
+      }
+      END{
+        s=""
+        if(tok!="") s=s tok "tok "
+        if(cost!="") s=s "$" cost " "
+        if(fc!="")  s=s "[" fc "] "
+        if(cr=="1") s=s "critic✗ "; else if(cr=="0") s=s "critic✓ "
+        printf "%s", s
+      }' "$tsv" 2>/dev/null)"
     ltime="$(mtime "$tsv")"; age=$(( NOW - ltime ))
   else
     outcome=''; age=999999
@@ -51,17 +65,18 @@ print_lane() {
     state='idle'; color="$C_IDLE"; detail='(원장 없음 — 가동 이력 없음)'
   elif printf '%s' "$outcome" | grep -q '^exit:'; then
     state='finished'; color="$C_IDLE"; detail="${outcome#exit:}"
-  elif [ "$outcome" = 'failure' ]; then
+  elif [ "$outcome" = 'failure' ] || [ "$outcome" = 'phantom' ] || [ "$outcome" = 'critic-reject' ]; then
     state='failed'; color="$C_FAIL"
+    case "$outcome" in phantom|critic-reject) detail="reverted: $outcome" ;; esac
   elif [ "$age" -lt "$RECENT" ]; then
     state='running'; color="$C_RUN"
   else
     state='idle'; color="$C_IDLE"; detail="마지막: $outcome (${age}s 전)"
   fi
 
-  printf '%s %s%-8s%s [%s%-8s%s] %-13s iter%-3s %-9s %s%s%s\n' \
+  printf '%s %s%-8s%s [%s%-8s%s] %-13s iter%-3s %-9s %s%s%s%s\n' \
     "$tee" "$C0" "$label" "$C0" "$color" "$state" "$C0" "$branch" "$iter" "${head9:-$head}" \
-    "$C_IDLE" "${dur:+${dur}s }$detail" "$C0"
+    "$C_IDLE" "${dur:+${dur}s }${tel}" "$detail" "$C0"
 }
 
 echo "Overnight lanes  (오케스트레이터 main: $(git -C "$MAIN_ROOT" rev-parse --abbrev-ref HEAD 2>/dev/null))"

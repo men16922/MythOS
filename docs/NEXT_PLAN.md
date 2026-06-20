@@ -20,7 +20,7 @@ Key finding: relationship deltas (`scenario.json` perspective/choice `effect.rel
 ## Engineering maintenance track — WS0-3 done (COMPLETED_SUMMARY M43), only WS4 remains
 
 - `[ ]` **WS4 (plan-only)**: agy image draft → codex fitness review → add content item to NEXT_PLAN → codex final image generation pipeline. Authority `docs/plans/2026-06-14-engineering-plan.md`.
-- `[ ]` **WS5 harness hardening (backlog, derived from 2026-06-19 usage report)**: ① integrity ledger (`HARNESS_HEALTH` + run.sh commit-object existence check + `gate_exit`/`commit_verified` columns in `status.tsv` + phantom-success flag — L3 gap) ② auto morning digest at shutdown (currently `/overnight-report` is manual) ③ Model B 3-lane concurrent run, 1 demonstration (MythOS-only, ops) ④ runner iter-output cap. Low-impact / already-mitigated (dirty-tree gate, failover, long→file), so deprioritized. High-impact parts (diagnose-first `/diagnose` + gate-phase) applied 2026-06-19.
+- `[/]` **WS5 harness hardening (backlog, derived from 2026-06-19 usage report)**: ① **DONE** — `/goal` integration (`run.sh` + plugin `templates/`): `OVERNIGHT_VERIFY_GATE` external re-gate at each commit → phantom-success revert + `gate_exit`/`commit_verified` columns in `status.tsv`; opt-in `OVERNIGHT_GOAL` /goal convergence. Measured phantom detection 0→100% (fault-injection). Design+실측 `docs/plans/2026-06-19-goal-in-overnight-loop.md`. Remaining ② auto morning digest at shutdown (`/overnight-report` is manual) ③ Model B 3-lane concurrent run demonstration ④ runner iter-output cap. Low-impact / already-mitigated, deprioritized. (diagnose-first `/diagnose` + gate-phase applied 2026-06-19.)
 
 ## Rules
 

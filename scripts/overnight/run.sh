@@ -59,6 +59,16 @@ STATUS_TSV="$LOG_DIR/status.tsv"   # 머신리더블 회차 원장(status.sh/대
                                  # 더 빠른 변형: GATE_CMD="make check-auto"(mypy 제외) 또는 "make smoke-local".
 export GATE_CMD                 # PROMPT.md 가 $GATE_CMD 로 참조
 
+# --- /goal 통합 (2026-06-19, docs/plans/2026-06-19-goal-in-overnight-loop.md) ---
+# WS-α: 커밋 회차마다 외부에서 $GATE_CMD 를 재실행해 phantom-success(커밋됐으나 게이트 RED)를 검출.
+#   엔진 무관(claude/codex/agy 공통) → 신뢰가 대칭. 권위 검증은 invocation 내부가 아니라 여기(bash).
+: "${OVERNIGHT_VERIFY_GATE:=1}"  # 1=활성(권장). 0=비활성(in-invocation 게이트만 신뢰 — 구버전 동작).
+# WS-β: claude 레인 프롬프트 앞에 /goal 디렉티브를 주입해 "green+커밋까지 수렴"을 강제 + Haiku 2차평가.
+#   claude 전용(codex/agy 엔 /goal 없음). soft 바운드라 ITER_TIMEOUT(하드 실링)는 그대로 유지.
+: "${OVERNIGHT_GOAL:=0}"          # 1=활성(opt-in). 0=기존 산문 흐름(기본).
+: "${GOAL_MAX_TURNS:=12}"         # /goal 자체 턴 바운드(soft). 하드 실링은 ITER_TIMEOUT.
+GOAL_DIRECTIVE="/goal Either (a) the selected [auto]/[auto:claude] backlog item is implemented, '$GATE_CMD' has been run and exited 0 (fully green), and the change is committed (git HEAD advanced, Co-Authored-By trailer); OR (b) the item is recorded [blocked] with a phase+evidence Blocker and the working tree restored clean (git restore); OR (c) no consumable [auto]/[auto:claude] item remains (DONE). Stop after $GOAL_MAX_TURNS turns regardless."
+
 ONCE=0
 [ "${1:-}" = "--once" ] && ONCE=1
 
@@ -69,13 +79,14 @@ log() {
 }
 
 # 머신리더블 회차 원장(탭 구분, status.sh/대시보드가 소비). human runner.log 와 병행.
-# 컬럼: ts  engine  branch  iter  outcome  head  dur(s)
+# 컬럼: ts  engine  branch  iter  outcome  head  dur(s)  gate_exit  commit_verified
+#   gate_exit/commit_verified 는 WS-α 외부 재게이트 결과(빈칸=미측정 회차). status.sh 는 f5/6/7 만 읽어 하위호환.
 emit_status() {
-  local outcome="$1" head="${2:-}" dur="${3:-}" branch
+  local outcome="$1" head="${2:-}" dur="${3:-}" gate="${4:-}" verified="${5:-}" branch
   branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo '?')"
-  [ -f "$STATUS_TSV" ] || printf 'ts\tengine\tbranch\titer\toutcome\thead\tdur\n' > "$STATUS_TSV"
-  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
-    "$(date '+%Y-%m-%dT%H:%M:%S')" "$ENGINE" "$branch" "$iter" "$outcome" "${head:0:9}" "$dur" >> "$STATUS_TSV"
+  [ -f "$STATUS_TSV" ] || printf 'ts\tengine\tbranch\titer\toutcome\thead\tdur\tgate_exit\tcommit_verified\n' > "$STATUS_TSV"
+  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+    "$(date '+%Y-%m-%dT%H:%M:%S')" "$ENGINE" "$branch" "$iter" "$outcome" "${head:0:9}" "$dur" "$gate" "$verified" >> "$STATUS_TSV"
 }
 
 # 실패 클래스 종료에서만 호스트 메일 알림(성공/정상 종료엔 안 부름 — 과다 발송 방지).
@@ -233,7 +244,15 @@ while :; do
         --add-dir "$REPO_ROOT" > "$ITER_LOG" 2>&1 </dev/null
       ;;
     *)
-      $TIMEOUT_BIN ${TIMEOUT_BIN:+$ITER_TIMEOUT} claude -p "$PROMPT_CONTENT" \
+      # WS-β: OVERNIGHT_GOAL=1 이면 /goal 디렉티브를 프롬프트 앞에 주입(claude 레인 전용).
+      CLAUDE_PROMPT="$PROMPT_CONTENT"
+      if [ "$OVERNIGHT_GOAL" = "1" ]; then
+        CLAUDE_PROMPT="$GOAL_DIRECTIVE
+
+$PROMPT_CONTENT"
+        log "  (/goal 주입: green+커밋까지 수렴, 최대 ${GOAL_MAX_TURNS}턴)"
+      fi
+      $TIMEOUT_BIN ${TIMEOUT_BIN:+$ITER_TIMEOUT} claude -p "$CLAUDE_PROMPT" \
         --permission-mode acceptEdits \
         --settings "$SETTINGS_FILE" \
         --output-format json > "$ITER_LOG" 2>&1
@@ -280,6 +299,33 @@ while :; do
       if [ "$HEAD_AFTER" != "$HEAD_BEFORE" ]; then
         no_progress=0
         log "새 커밋: $(git log --oneline "$HEAD_BEFORE..$HEAD_AFTER" 2>/dev/null | tr '\n' ' ')"
+        # WS-α: in-invocation 게이트는 신뢰 약함(is_error:false ≠ 게이트 green). 새 커밋을 외부에서 재검증한다.
+        if [ "$OVERNIGHT_VERIFY_GATE" = "1" ]; then
+          log "외부 게이트 재실행: $GATE_CMD @ ${HEAD_AFTER:0:9}"
+          set +e
+          $TIMEOUT_BIN ${TIMEOUT_BIN:+$ITER_TIMEOUT} bash -c "$GATE_CMD" > "$LOG_DIR/gate-$iter.log" 2>&1
+          gate_exit=$?
+          set -e
+          if [ "$gate_exit" -ne 0 ]; then
+            log "⚠ PHANTOM-SUCCESS: 커밋 ${HEAD_AFTER:0:9} 외부 게이트 RED(exit=$gate_exit) — revert + 알림 (로그: $LOG_DIR/gate-$iter.log)"
+            emit_status "phantom" "$HEAD_AFTER" "$ITER_DUR" "$gate_exit" "0"
+            if git revert --no-edit HEAD >> "$RUNNER_LOG" 2>&1; then
+              log "phantom 커밋 revert 완료 — 브랜치 green 복구"
+            else
+              git revert --abort >/dev/null 2>&1 || true
+              git reset --hard "$HEAD_BEFORE" >> "$RUNNER_LOG" 2>&1 || true
+              log "revert 충돌 → HEAD_BEFORE 로 reset"
+            fi
+            notify_failure "phantom-success @ ${HEAD_AFTER:0:9} (gate exit=$gate_exit)"
+            consec_fail=$((consec_fail + 1))
+            if [ "$consec_fail" -ge "$MAX_CONSEC_FAIL" ]; then
+              exit_reason="phantom-success 누적 $MAX_CONSEC_FAIL회"; log "phantom 한계 — 안전 중단"; break
+            fi
+          else
+            log "외부 게이트 GREEN — 커밋 검증됨"
+            emit_status "verified" "$HEAD_AFTER" "$ITER_DUR" "0" "1"
+          fi
+        fi
       else
         no_progress=$((no_progress + 1))
         log "무진행 $no_progress/$MAX_NO_PROGRESS (새 커밋 없음)"

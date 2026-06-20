@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-06-19 — 코드 탐색 = LSP-first, Quarkify 완전 폐기
+
+결정: 심볼/구조 탐색(정의·참조·타입·호출그래프·파일 아웃라인)의 기본 도구를 **Claude Code LSP**로 전환한다(pyright=Python, vtsls=TS/TSX, `src/` 전부 커버). 같은 날 잠시 "default broad-search"로 승격했던 **Quarkify는 완전 폐기**: `tools/quarkify*`·`harness/check-quarkify.sh`·`quarkify*` Makefile 타깃·`.gitignore` 항목·`docs/plans/2026-06-18-quarkify-poc.md` 제거, 정책 문서(`CLAUDE.md`/`CORE_MANDATES §5`/`engineering/mythos/CONTEXT.md`)를 LSP-first로 정정. grep는 희귀 리터럴/비심볼 텍스트 및 **LSP 도구가 없는 엔진(Codex/agy/Gemini 오버나이트 레인)** 용으로 유지.
+
+이유: LSP는 Quarkify가 grep 대비 이겼던 축(흔한 심볼 위치/참조 탐색)을 의미해석으로 다시 이기면서, Quarkify의 측정된 두 약점 — 라인번호 없음, 이름 부분매칭(같은 이름 심볼 구분 불가) — 을 정확한 `file:line:char` + import/타입 관통 해석으로 제거한다. 항상 live라 빌드/staleness(`make quarkify` 재생성)도 불필요. src는 Python 79 + TS/TSX 39 = 100% LSP 대상이라 Quarkify의 유일한 잔존 니치(쿼리 없는 토폴로지 브라우징)는 미미. 설치: `ENABLE_LSP_TOOL=1` + `boostvolt/claude-code-lsps` 마켓플레이스의 `pyright`/`vtsls` 플러그인. 실측: 5개 LSP 연산(workspaceSymbol/documentSymbol/hover/findReferences/goToDefinition) Python·TS 양쪽 그린, cross-file 정의 점프 검증.
+
 ## 2026-06-19 — Operational doc layer language = English (token efficiency)
 
 Decision: Agent-facing **operational/harness docs are authored in English**; user-facing and narrative content stays **Korean**. English set: `CLAUDE.md`, `harness/*`, `docs/engineering/**` (bibles + `mythos/` interpretations), the `/sync` entry docs (`AGENT_BRIEF`/`STATUS`/`NEXT_PLAN`/`PROGRESS_LOG`), `.claude/skills/*/SKILL.md` **bodies**, `scripts/overnight/PROMPT*.md`, `DOCS_POLICY.md`/`README.md`. Korean stays: scenarios, `story_bible`, `resources/<scenario>/directives/*.md` (injected into the Korean-narrating LLM), `docs/test/*` live-QA, archive/vision docs, and agent↔user chat replies. Skill frontmatter `description:` **keeps Korean trigger keywords** (invocation matching). Also added `harness/check-doc-budget.sh` to `make check` to hard-gate the entry-doc line caps, and promoted Quarkify to the default for broad symbol search in `CORE_MANDATES §5`/`CLAUDE.md`.

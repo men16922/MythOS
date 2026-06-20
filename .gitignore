@@ -41,7 +41,6 @@ screenshots/
 .ipynb_checkpoints/
 
 # Quarkify PoC — generated code-topology artifacts (regenerable; do not commit)
-.quarkify/
 
 # VS Code remote tunnel CLI artifacts
 /code

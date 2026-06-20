@@ -13,13 +13,10 @@ Seeing two skills of the same name in `/skills` is **intentional, not duplicatio
 
 Why both: MythOS is the harness **origin tier**, not a consumer, so the local copies are not de-vendored. `.claude/skills/` is the multi-engine SSOT — edit **only `.claude/skills/`**, then `bash harness/sync-skills.sh` projects to the `.codex`/`.gemini`/`.agents` mirrors (`make check` catches drift via `--check`). Mirrors are git-tracked, no symlinks. Rationale: `harness/sync-skills.sh` header.
 
-## Quarkify (optional search accelerator — large-package symbol search)
+## Code navigation (LSP-first)
 
-`.quarkify/src/` is a **code symbol / call-graph index** built by `make quarkify` (external tool in `tools/quarkify/`), decomposing `src/**/*.py` into a folder topology (`quark/`·`_mirror/`·`_axon/`). Use `ls`/`find` to pin down *which file / which function / called where* without grep loops.
-
-- **Default to it** for broad symbol search in large packages (e.g. `mythos_runtime`): `find .quarkify/src/quark -type d -iname '*<symbol>*'` / `ls .quarkify/src/_mirror/by_role/<role>`. Measured 80–92% token savings on high-hit searches (`docs/plans/2026-06-18-quarkify-poc.md`).
-- **grep instead** for rare literals / single-candidate searches (measured −5% otherwise).
-- **Staleness:** the tree is a gitignored local build. If absent/stale run `make quarkify` (~4s; `make quarkify-setup` clones the tool once). **Source is always authoritative** — quark leaves only encode symbol position; read the original file for the body.
+- **LSP is the default** for symbol work — definition, references, type/hover, call hierarchy, document/workspace symbols. The whole codebase is covered (Python via pyright, TS/TSX via vtsls). It is semantic (resolves through imports/types), returns exact `file:line:char`, and is always live — beating grep on the same axis with no staleness. Use it for *which file / which function / called where*. Needs `ENABLE_LSP_TOOL=1` + the `pyright`/`vtsls` plugins (`boostvolt/claude-code-lsps`).
+- **grep** for rare literals / non-symbol text (strings, config, comments) and for engines without an LSP tool (e.g. the Codex/agy/Gemini overnight lanes).
 
 ## What this is
 

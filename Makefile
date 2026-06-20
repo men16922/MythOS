@@ -4,7 +4,7 @@ COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
-.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check check-skills sync-skills quarkify-setup quarkify quarkify-check check-auto overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-clean overnight-codex overnight-codex-watch overnight-codex-once overnight-agy overnight-agy-watch overnight-agy-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review
+.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check check-skills sync-skills check-auto overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-clean overnight-codex overnight-codex-watch overnight-codex-once overnight-agy overnight-agy-watch overnight-agy-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -57,16 +57,6 @@ sync-skills:
 # These docs load every session/overnight iteration; this fails the gate if they grow over budget.
 check-doc-budget:
 	@bash harness/check-doc-budget.sh
-
-# Quarkify code-topology index (companyjupiter/quarkify, external tool). Decomposes
-# src/**/*.py into .quarkify/src/ (gitignored local build artifact). Optional nav
-# accelerator for large-package symbol search — see CLAUDE.md "## Quarkify". Not in `check`.
-quarkify-setup:   ## one-time: clone the pinned Quarkify tool (zero deps, no npm)
-	@bash tools/quarkify/setup.sh
-quarkify:         ## regenerate whole-src code topology → .quarkify/src (fast)
-	@bash tools/quarkify/generate.sh
-quarkify-check:   ## .quarkify/src 신선도 검사(비차단; stale면 make quarkify 안내). make check 미포함
-	@bash harness/check-quarkify.sh --check
 
 # Faster offline gate variant: same coverage as `check` MINUS python-typecheck (mypy).
 # The overnight loop (scripts/overnight/) now defaults to full `make check` (mypy debt cleared

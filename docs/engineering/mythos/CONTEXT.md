@@ -30,12 +30,9 @@ The shared body lives in CLAUDE.md alone; the rest are links.
 ## memory
 Agent persistent memory (`~/.claude/.../memory/`) holds only **non-obvious user/feedback/project context**, not what code already records.
 
-## Code-search index (Quarkify)
-This repo's implementation of bible §2 (the structure index is conditional). `.quarkify/src` (Quarkify decomposes `src/**/*.py` by folder topology, a gitignore artifact).
-- Operation: `make quarkify-setup` (one-time tool clone) · `make quarkify` (rebuild, idempotent ~4s) · `make quarkify-check` (non-blocking freshness).
-- Policy: large packages · high-frequency symbols use the index first (measured 80~92% token reduction), rare literals use grep (−5% counter-effect). **Authority is the source** — leaves are empty folders (location only).
-- Freshness: not in `make check` (optional accelerator). `harness/check-quarkify.sh` provides self-heal/`--check`.
-- Authoritative policy/rationale: `CLAUDE.md` "## Quarkify" · `harness/CORE_MANDATES.md §5` · `docs/plans/2026-06-18-quarkify-poc.md`.
+## Code navigation (LSP)
+This repo's implementation of bible §2 (the structure index is conditional). Symbol/structure search defaults to **LSP** in Claude Code — pyright (Python) + vtsls (TS/TSX) cover the whole `src/`. Semantic, returns exact `file:line:char`, always live; **authority is the source**. Engines without an LSP tool (Codex/agy/Gemini lanes) use grep. Reserve grep for rare literals / non-symbol text.
+- Authoritative policy/rationale: `CLAUDE.md` "## Code navigation (LSP-first)" · `harness/CORE_MANDATES.md §5`.
 
 ## Sibling interpretations
 harness [`HARNESS.md`](HARNESS.md) · loop [`LOOP.md`](LOOP.md) · multi-agent [`AGENTIC.md`](AGENTIC.md) · prompt [`PROMPT.md`](PROMPT.md)

@@ -18,7 +18,7 @@ One iteration = **1** `[auto]` task + **1 local commit** if the gate passes. Sto
 
 Call Skill `sync` (Read Path: AGENT_BRIEF → STATUS → NEXT_PLAN → newest few PROGRESS_LOG entries).
 No other `docs/` bulk-read.
-For broad symbol/structure search, use the `.quarkify/src` index first (`make quarkify` if stale); grep only for rare literals.
+For symbol/structure search, use the LSP tool if available (def/refs/hover/symbols); otherwise use grep.
 
 ## 2. Residual recovery
 

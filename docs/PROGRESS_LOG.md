@@ -5,6 +5,13 @@ Last updated: 2026-06-20
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-06-21 — P0 affection gauge frontend code-wiring ([auto:claude])
+- Status: Wired the companion-affection gauge into the frontend per the breadcrumb in `docs/plans/2026-06-16-companion-affection-cutscenes.md` §P0-게이지. Backend already exposes `snapshot.state.relationships`; this closes the FE read/render slice. `make check` green (462).
+- Changed: ① `types.ts` `GameStateRaw` — typed `relationships?: Record<string, number>` (was falling through the `[key:string]:unknown` index sig; no new `any`). ② `gauges.ts` — new `buildAffectionGauges()` normalizer (int→0–100% over a -5..+10 display window, clamped by the bar; `affectionColor()` warm=양수/cool=음수/neutral=0; humanizes snake_case companion ids). ③ `GameAside.tsx` — exported the existing `GaugeBar` for reuse (no new gauge component, per plan). ④ `CharacterTabPanel.tsx` — new "동료 관계도 (Bonds)" `codex-sec` reading `snapshot?.state?.relationships`, reusing `GaugeBar` + `.gauge-hint`, with an empty-state. Mount target (b) the Codex roster (cross-run "기억의 별자리" intent).
+- Verified: `make check` green — ruff + eslint + mypy (121 files) + tsc/vite-build + 462 unittests (skipped 2). Count unchanged (FE has no unit-test runner; gate guarantees compile/type/lint only).
+- Blockers: none. Gate cannot see visuals — `[manual]` visual feel QA (correct companion/value·color·scale·empty state) remains a human follow-up per the plan's honesty note.
+- Next: P1 cutscene gallery view code-wiring (`[auto:claude]`, next overnight item, breadcrumb §P1-갤러리).
+
 ## 2026-06-20 (d) — skill/icon integrity invariant implemented + in-app render verify (11/11) + 4 JPEG-as-png fixed
 - Status: Closed the now-unblocked `[auto:claude]` skill/icon integrity invariant and Playwright-verified the render path. commits `40f34ab` (invariant) + `e713303` (format fix).
 - Changed: ① `tests/test_assets.py` `test_skill_icons_exist` — removed the intentional skill-icon exclusion; enforces every `combat.skills[].id` → `skills/<id>.png` across **all** scenarios (neo-seoul 11/11, glass-library 5/5) + **PNG magic-byte** (format=extension), guard-the-guard on 0 scanned. ② Re-encoded 4 icons that were JPEG bytes under a `.png` extension (neo-seoul `signal_step`/`overload_strike`, glass-library `index_cut`/`glass_shield`) to genuine PNG (RGBA, pixels preserved). The strengthened invariant caught all 4.

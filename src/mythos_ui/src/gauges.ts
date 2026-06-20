@@ -52,3 +52,50 @@ export function buildGaugeConfig(snapshot: RuntimeSnapshot): GaugeConfig {
     cluePercent: Math.min(100, Math.round((clueCount / 16.0) * 100)),
   };
 }
+
+export interface AffectionGauge {
+  name: string;
+  label: string;
+  value: number;
+  percent: number;
+  color: string;
+}
+
+// Affection values are unbounded ints; cutscene unlock thresholds sit at small
+// positive numbers (se_rin 2/4). Map a sensible display window to 0-100% so the
+// shared GaugeBar fill reads naturally; out-of-window values are clamped by the bar.
+const AFFECTION_FLOOR = -5;
+const AFFECTION_CEIL = 10;
+
+function humanizeName(name: string): string {
+  return name
+    .split("_")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+// 양수=따뜻한색(호감 상승), 음수=차가운색(거리감), 0=중립. 정확한 색감은 manual feel QA 대상.
+export function affectionColor(value: number): string {
+  if (value > 0) return "var(--warn)";
+  if (value < 0) return "var(--term)";
+  return "var(--ink-dim)";
+}
+
+export function buildAffectionGauges(
+  relationships?: Record<string, number>,
+): AffectionGauge[] {
+  if (!relationships) return [];
+  return Object.entries(relationships)
+    .filter(([, value]) => typeof value === "number")
+    .sort((a, b) => b[1] - a[1])
+    .map(([name, value]) => ({
+      name,
+      label: humanizeName(name),
+      value,
+      percent: Math.round(
+        ((value - AFFECTION_FLOOR) / (AFFECTION_CEIL - AFFECTION_FLOOR)) * 100,
+      ),
+      color: affectionColor(value),
+    }));
+}

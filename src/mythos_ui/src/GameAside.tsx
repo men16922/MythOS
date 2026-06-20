@@ -405,7 +405,7 @@ function StatusPanel({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
   );
 }
 
-function GaugeBar({
+export function GaugeBar({
   label,
   value,
   percent,

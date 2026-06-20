@@ -30,6 +30,7 @@ SCENARIO="${SCENARIO:-neo-seoul}"
 TARGETS="${TARGETS:-emp_pulse glitch_blink memory_resonance nanoshield_projector signal_overdrive system_intrusion}"
 MAX_TRIES="${MAX_TRIES:-3}"
 AUTO_ADOPT="${AUTO_ADOPT:-0}"
+FLUX_FALLBACK="${FLUX_FALLBACK:-1}"   # 0 to skip FLUX (weak at text-heavy cards → prefer more agy tries)
 SKILLS_DIR="resources/$SCENARIO/skills"
 STAGING="outputs/agy/skills"
 BIBLE_PEERS="patch_protocol packet_shot covering_noise"   # the existing frame-consistent set = the bar
@@ -78,7 +79,7 @@ for ((attempt=1; attempt<=MAX_TRIES; attempt++)); do
     log "stage refine: codex authoring a stricter instruction from the vision critique"
     codex exec --cd "$REPO_ROOT" --sandbox workspace-write \
       -c sandbox_workspace_write.network_access=false -c approval_policy=never --json \
-      --output-last-message "$dir/refined.txt" \
+      --output-last-message "$REPO_ROOT/$dir/refined.txt" \
       "You are refining an image-generation instruction. The frame bible is the card style of $BIBLE_PEERS in $SKILLS_DIR (read their look from any nearby review notes; you cannot see images, reason structurally). A vision reviewer rejected the previous batch with this critique:
 $critique_note
 Write a single tightened English instruction (<=120 words) that forces frame/typography/footer UNIFORMITY with the peer cards for the skills [$unresolved]. Output ONLY the instruction text." </dev/null >> "$LOG" 2>&1 || true
@@ -120,7 +121,7 @@ ${crit:-FAIL $t (no card produced / unparsed verdict)}"
 done
 
 # STAGE 4: FLUX-local deterministic fallback for anything still unresolved.
-if [ -n "$unresolved" ] && [ -x "$PY" ]; then
+if [ -n "$unresolved" ] && [ "$FLUX_FALLBACK" = "1" ] && [ -x "$PY" ]; then
   log "--- FLUX-local fallback for still-unresolved: [$unresolved] ---"
   fdir="$STAGING/flux-fallback"; mkdir -p "$fdir"
   for t in $unresolved; do

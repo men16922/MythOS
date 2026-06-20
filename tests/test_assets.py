@@ -59,10 +59,10 @@ class ScenarioImageReferenceIntegrityTest(unittest.TestCase):
     scenario.json 의 오타 경로 = **화면에서 조용히 깨지는 그림**(에러 없음). glob 으로
     전 시나리오를 자동 커버한다.
 
-    **스킬 아이콘은 의도적으로 제외**한다 — `combat.skills` 10종 중 5종 아이콘이 아직
-    `[auto:agy]` 초안 대기(emp_pulse/nanoshield_projector/glitch_blink/signal_overdrive/
-    memory_resonance)라 별도 `[blocked] 스킬/아이콘 무결성 invariant`(NEXT_PLAN)가 관장한다.
-    여기서 강제하면 그 blocked 항목과 중복되며 false-RED 가 된다.
+    **스킬 아이콘**(`combat.skills[].id` → `skills/<id>.png`)도 강제한다 — 2026-06-20
+    기준 neo-seoul 11/11·glass-library 5/5 전 아이콘이 실재해 더는 제외 사유가 없다.
+    아이콘은 액션바(`CombatControls`)에서 ID로 직접 로드하므로 누락 = 전투바 타일이
+    조용히 빈칸으로 렌더된다(에러 없음). 별도 `test_skill_icons_exist`가 관장한다.
     """
 
     def _scenario_jsons(self) -> list[tuple[str, dict, Path]]:
@@ -110,3 +110,26 @@ class ScenarioImageReferenceIntegrityTest(unittest.TestCase):
         self.assertEqual(dangling, [], f"dangling 이미지 참조 발견: {dangling}")
         # guard-the-guard: 추출 로직이 전부 빈손이면 vacuous green — 최소 1개는 스캔돼야 한다.
         self.assertGreater(total_refs, 0, "스캔된 이미지 참조 0 — scenario 키 규약 변경 의심")
+
+    def test_skill_icons_exist(self) -> None:
+        """전 시나리오 `combat.skills[].id` 마다 `skills/<id>.png` 액션바 아이콘이 실재.
+
+        아이콘 경로는 scenario.json 의 명시 필드가 아니라 ID 규약(`skills/<id>.png`)으로
+        파생되므로 `_image_refs`(JSON 필드 스캔)가 잡지 못한다 → 별도 강제한다.
+        """
+        total_skills = 0
+        missing: list[str] = []
+        for scn, data, base in self._scenario_jsons():
+            skills = data.get("combat", {}).get("skills", {}) or {}
+            skill_ids = list(skills) if isinstance(skills, dict) else [
+                s.get("id") for s in skills if isinstance(s, dict)
+            ]
+            for sid in skill_ids:
+                if not sid:
+                    continue
+                total_skills += 1
+                if not (base / "skills" / f"{sid}.png").exists():
+                    missing.append(f"{scn} [{sid}] skills/{sid}.png")
+        self.assertEqual(missing, [], f"스킬 액션바 아이콘 누락: {missing}")
+        # guard-the-guard: 스킬을 0개 스캔하면 vacuous green.
+        self.assertGreater(total_skills, 0, "스캔된 스킬 0 — combat.skills 키 규약 변경 의심")

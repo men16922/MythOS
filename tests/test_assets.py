@@ -116,9 +116,15 @@ class ScenarioImageReferenceIntegrityTest(unittest.TestCase):
 
         아이콘 경로는 scenario.json 의 명시 필드가 아니라 ID 규약(`skills/<id>.png`)으로
         파생되므로 `_image_refs`(JSON 필드 스캔)가 잡지 못한다 → 별도 강제한다.
+
+        존재뿐 아니라 **실제 PNG 인코딩**(매직바이트)까지 박제한다 — 확장자만 `.png`이고
+        내용은 JPEG 인 파일이 과거 섞여 있었다(`signal_step`/`overload_strike`). 브라우저는
+        sniffing 으로 렌더하지만 확장자를 신뢰하는 툴링이 깨지므로 포맷=확장자를 강제한다.
         """
+        png_magic = b"\x89PNG\r\n\x1a\n"
         total_skills = 0
         missing: list[str] = []
+        not_png: list[str] = []
         for scn, data, base in self._scenario_jsons():
             skills = data.get("combat", {}).get("skills", {}) or {}
             skill_ids = list(skills) if isinstance(skills, dict) else [
@@ -128,8 +134,12 @@ class ScenarioImageReferenceIntegrityTest(unittest.TestCase):
                 if not sid:
                     continue
                 total_skills += 1
-                if not (base / "skills" / f"{sid}.png").exists():
+                path = base / "skills" / f"{sid}.png"
+                if not path.exists():
                     missing.append(f"{scn} [{sid}] skills/{sid}.png")
+                elif path.read_bytes()[:8] != png_magic:
+                    not_png.append(f"{scn} [{sid}] skills/{sid}.png")
         self.assertEqual(missing, [], f"스킬 액션바 아이콘 누락: {missing}")
+        self.assertEqual(not_png, [], f"확장자만 .png 인 비-PNG 아이콘: {not_png}")
         # guard-the-guard: 스킬을 0개 스캔하면 vacuous green.
         self.assertGreater(total_skills, 0, "스캔된 스킬 0 — combat.skills 키 규약 변경 의심")

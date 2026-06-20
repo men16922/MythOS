@@ -2,6 +2,10 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-06-20 — WS4 이미지 재생성 루프의 엔진-역할 매핑 (codex도 이미지 생성 가능)
+
+결정: 이미지 재생성-온-리젝트 루프(`scripts/overnight/image-regen.sh` + `make image-regen`)에서 엔진 역할을 능력에 맞춰 매핑한다. **생성** = `GEN_ENGINE` (agy | codex) — **codex도 자체 in-session Imagen 3/Gemini Image로 이미지를 생성한다**(`PROMPT.codex.md:23`, STATUS "agy/codex images use their own Imagen/Gemini"). **비전 판정** = claude/agy(기존 PNG의 프레임 일치도 채점 — codex는 비전 입력 없음). **프롬프트 정제** = codex(텍스트). **결정론적 오프라인 폴백** = FLUX 로컬(카드+텍스트엔 약함, `FLUX_FALLBACK=0`로 옵트아웃). 이유: "codex는 이미지를 못 만든다"는 일반 OpenAI Codex CLI 가정이 **이 환경에선 틀림** — codex는 image_gen 툴 보유. 다만 codex의 image_gen은 `~/.codex/generated_images/<uuid>/`에 고정 저장(출력경로 지정 불가)이라, **오케스트레이터가 타임스탬프 마커로 per-target 수거**한다(codex의 find/copy 의존 제거). `GEN_ENGINE=codex`는 생성물을 신뢰해 **비전 판정 skip + 직통 승격**. 영향: 멀티엔진 이미지 파이프라인의 표준 — 향후 "codex는 이미지 못 만든다"고 재가정하지 말 것. 설계 `docs/plans/2026-06-20-ws4-image-regen-loop.md`.
+
 ## 2026-06-19 — 코드 탐색 = LSP-first, Quarkify 완전 폐기
 
 결정: 심볼/구조 탐색(정의·참조·타입·호출그래프·파일 아웃라인)의 기본 도구를 **Claude Code LSP**로 전환한다(pyright=Python, vtsls=TS/TSX, `src/` 전부 커버). 같은 날 잠시 "default broad-search"로 승격했던 **Quarkify는 완전 폐기**: `tools/quarkify*`·`harness/check-quarkify.sh`·`quarkify*` Makefile 타깃·`.gitignore` 항목·`docs/plans/2026-06-18-quarkify-poc.md` 제거, 정책 문서(`CLAUDE.md`/`CORE_MANDATES §5`/`engineering/mythos/CONTEXT.md`)를 LSP-first로 정정. grep는 희귀 리터럴/비심볼 텍스트 및 **LSP 도구가 없는 엔진(Codex/agy/Gemini 오버나이트 레인)** 용으로 유지.

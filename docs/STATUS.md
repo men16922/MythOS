@@ -1,6 +1,6 @@
 # Project MythOS Status
 
-Last updated: 2026-06-19
+Last updated: 2026-06-20
 
 ## Current Baseline
 
@@ -59,6 +59,7 @@ Live LLM QA & repetition mitigation (2026-06-08):
 
 Recent verified baseline recorded in docs:
 
+- **WS4 image regen-on-reject loop + 11/11 skill icons** (2026-06-20): `scripts/overnight/image-regen.sh` + `make image-regen` (opt-in) — `GEN_ENGINE` (agy|codex) generate → claude vision-judge vs the peer-card frame bible → codex prompt-refine → FLUX fallback → integrity gate. **codex CAN generate images** (own in-session Imagen/Gemini, `PROMPT.codex.md:23`); `GEN_ENGINE=codex` skips the judge + the orchestrator collects from `~/.codex/generated_images/`. All 6 previously-missing Neo-Seoul skill icons generated + adopted (5 agy via judge-loop, nanoshield via codex) → fixes the combat-bar render gap for han/tae_o/su_ah. Heal/support skills now target a friendly-in-range (`engine.py` `friendlies_of`/`_friendly_target`, `available_actions.friendly_targets[]`). `make check` 461 green. Design `docs/plans/2026-06-20-ws4-image-regen-loop.md`. **Skill/icon integrity invariant now unblocked (icons present) but not yet implemented** — `test_assets.py` still excludes skill icons (~line 62).
 - **LSP-first code navigation** (2026-06-19): Claude Code LSP enabled (`ENABLE_LSP_TOOL=1` + `pyright`/`vtsls` plugins from `boostvolt/claude-code-lsps`) — semantic def/refs/hover/call-graph over the whole `src/` (Python+TS). **Quarkify fully retired**: removed `tools/quarkify*`, `harness/check-quarkify.sh`, the `quarkify*` Makefile targets, `.gitignore` entry, and the `quarkify-poc` plan; policy in `CLAUDE.md`/`CORE_MANDATES §5`/`engineering/mythos/CONTEXT.md` switched to LSP-first (grep for rare literals / non-LSP engines). DECISIONS 2026-06-19.
 - **Token/context optimization** (2026-06-19): agent-only operational docs (CLAUDE.md, `harness/*`, `docs/engineering/**`, `/sync` entry docs, skill bodies, overnight `PROMPT*.md`) converted Korean→English; narrative/user-facing content stays Korean ([[op-docs-english]], DECISIONS 2026-06-19). Measured -16.6% tokens on the converted set (fixed-cost set 22.7k→19.0k). NEW `harness/check-doc-budget.sh` in `make check` hard-gates entry-doc line caps. (Quarkify, briefly promoted as default broad-search, was **fully retired 2026-06-19** in favor of LSP-first navigation — see the LSP baseline above.)
 - **`make check` green**: ruff + eslint + `mypy src tests` **0 errors/111 files** + tsc/vite-build + 320 unittests (skipped 2). Encounter balance invariant added (`test_encounter_balance.py`, two-sided guard: party winnable ≥0.50 / solo non-trivial ≤0.95, QA seed #5). This session zeroed mypy debt → overnight gate promoted to `make check` (COMPLETED_SUMMARY M42). CI is real (`.github/workflows/ci.yml`). Route+ending reachability invariant (`test_route_integrity.py`) + flag-reference/encounter integrity invariant (`test_content_integrity.py`) locked in (2026-06-14, QA seed #1·#2·#3·#4).

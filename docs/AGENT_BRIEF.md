@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-06-19
+Last updated: 2026-06-20
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Live QA in progress — remaining feel checks + merge unmerged branch**. (Authority `docs/test/neo_seoul_live_qa.md`.) Narrative QA 4 items, harness `/diagnose`, cutscene/quarkify are **merged to main** (`..44fd4e7`); **#1 opening & #3 IX live PASS, BGM toggle & api log visibility fixed**. **First action = merge branch `feat/narrative-doc-bgm-logging`** (pushed, `make check` green 454) (human — narrative architecture doc, BGM, api logs, opening manual choices) → then live-verify **#2 ending & #5 post-combat callback** feel. Unimproved #4 map in-layer choices & #6 skill-tree RPG node graph are a separate track. P0 cutscene/affection backend is merged to main (migration 006/007 verified); remaining `[manual]` frontend (affection gauge, cutscene gallery view).
+> ▶ NEXT SESSION: **Verify this session's combat-icon + heal-targeting work in-app, then implement the unblocked skill/icon integrity invariant.** (1) `git push origin main` (ahead 5). (2) `make api` → play a Neo-Seoul combat: confirm all **11/11 skill icons render** in the action bar (han/tae_o/su_ah were the gap, now filled) and **heal/support skills can target an ally** (`patch_protocol`/`nanoshield_projector`/`covering_noise`). (3) `[auto:claude]` skill/icon integrity invariant — now UNBLOCKED (11/11 icons): remove the `test_assets.py` skill-icon exclusion (~line 62) + add the assertion. WS4 image-regen loop (`make image-regen`, `GEN_ENGINE` agy|codex) is live-validated — `docs/plans/2026-06-20-ws4-image-regen-loop.md`. Still open: P0 `[manual]` frontend (affection gauge, cutscene gallery), narrative live-QA #2/#5 feel (`docs/test/neo_seoul_live_qa.md`).
 
 ## Snapshot
 

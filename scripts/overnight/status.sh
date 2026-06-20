@@ -94,6 +94,9 @@ if [ "$n" -eq 0 ]; then
   print_lane "$MAIN_ROOT" "main" "└─"
   echo "  (loop/* worktree 없음 — 메인 단독. 병렬은 make overnight-worktrees 후.)"
 else
+  # 오케스트레이터 메인 레인을 항상 먼저 출력 — plain `make overnight`는 (loop/* 워크트리가 있어도)
+  # 메인 트리에서 돈다. 예전엔 워크트리가 있으면 메인이 숨어 "running 안 뜨는" 혼란이 있었다.
+  print_lane "$MAIN_ROOT" "main" "├─"
   i=0
   for wt in "${lanes[@]}"; do
     i=$((i+1))

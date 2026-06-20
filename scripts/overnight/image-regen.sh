@@ -77,6 +77,26 @@ gen_engine() {
   esac
 }
 
+# codex's image tool writes to ~/.codex/generated_images/<uuid>/ig_*.png with NO output-path control,
+# so making codex find+copy is fragile (find churn, stdin errors). Instead: generate ONE image per
+# target and have THIS script collect the newest generated PNG → $2 (resized to spec). 1:1 mapping is
+# guaranteed by a per-call timestamp marker (only files newer than the marker are this call's output).
+# (agy needs none of this — it saves straight to the requested path.)
+CODEX_IMG_ROOT="${CODEX_IMG_ROOT:-$HOME/.codex/generated_images}"
+gen_codex_one() {
+  local t="$1" outpath="$2" marker newest
+  marker="$(mktemp)"
+  codex exec --cd "$REPO_ROOT" --sandbox workspace-write -c approval_policy=never --json \
+    "Generate ONE ${W}x${H} vertical skill-card image for the skill '$t': $(brief "$t"). Match EXACTLY the frame of the peer cards $PEER_PATHS (same neon border, footer band, side strip, role band, name banner, typography) — only the central illustration and the skill name/role text differ. Use your own in-session Imagen 3/Gemini Image. Do NOT save/find/copy/move the file and do NOT run filesystem searches — just generate it once; the orchestrator collects it.${refine:+ STRICT REFINEMENT FROM REVIEW: $refine}" \
+    >> "$LOG" 2>&1 </dev/null || true
+  # newest PNG created after the marker (codex writes under $CODEX_IMG_ROOT/<uuid>/).
+  newest="$(find "$CODEX_IMG_ROOT" -type f -name '*.png' -newer "$marker" 2>/dev/null -exec ls -t {} + 2>/dev/null | head -1)"
+  rm -f "$marker"
+  [ -n "$newest" ] && [ -f "$newest" ] || return 1
+  cp "$newest" "$outpath" 2>/dev/null && sips -z "$H" "$W" "$outpath" >/dev/null 2>&1
+  [ -s "$outpath" ]
+}
+
 log "=== WS4 image-regen start (scenario=$SCENARIO, targets=[$TARGETS], GEN_ENGINE=$GEN_ENGINE, MAX_TRIES=$MAX_TRIES, AUTO_ADOPT=$AUTO_ADOPT) ==="
 
 unresolved="$TARGETS"
@@ -107,26 +127,27 @@ Write a single tightened English instruction (<=120 words) that forces frame/typ
     [ -f "$dir/refined.txt" ] && refine="$(cat "$dir/refined.txt")"
   fi
 
-  # STAGE 1: GEN_ENGINE drafts each unresolved icon into the attempt dir, matching the peer frame.
-  log "stage generate: $GEN_ENGINE drafting [$unresolved] → $dir/"
-  gen_instr="Generate skill-card icons matching EXACTLY the existing frame of the peer cards $PEER_PATHS (same neon border, footer band, side strip, role band, name banner, vertical ${W}x${H} TCG layout). ONLY the central illustration + the skill name/role text change per card. Use your own in-session Imagen 3/Gemini Image (NOT FLUX). Save each as $dir/<id>.png (${W}x${H} PNG). Cards to make:$briefs
-${refine:+STRICT REFINEMENT FROM REVIEW: $refine}
-Then write a one-paragraph $dir/notes.md describing what you produced. Do not touch resources/."
-  gen_engine "$GEN_ENGINE" "$gen_instr" || log "WARN: $GEN_ENGINE generate returned non-zero"
-
+  # STAGE 1+2: generate (engine-specific) then promote.
   if [ "$GEN_ENGINE" = "codex" ]; then
-    # codex-generated output is TRUSTED: skip the claude vision-judge gate and promote directly.
-    # (Per request — no review step on codex output. Integrity gate at the end still applies.)
+    # codex: generate ONE image per target; THIS script collects it from ~/.codex/generated_images
+    # (no codex find/copy). codex output is TRUSTED → vision-judge skipped, promote directly.
+    log "stage generate: codex (per-target) → script collects → $dir/  [vision-judge skipped]"
     still=""
     for t in $unresolved; do
-      if [ -f "$dir/$t.png" ]; then
-        cp "$dir/$t.png" "$SKILLS_DIR/$t.png" && log "  $t → promoted directly (codex-generated, vision-judge skipped)"
+      if gen_codex_one "$t" "$dir/$t.png"; then
+        cp "$dir/$t.png" "$SKILLS_DIR/$t.png" && log "  $t → codex generated + collected + promoted directly"
       else
-        still="$still $t"; log "  $t → no codex output (generation failed) — retry"
+        still="$still $t"; log "  $t → codex generation/collection failed — retry"
       fi
     done
     unresolved="$(echo $still | xargs echo)"
   else
+    # agy: bulk-generate — agy saves straight to $dir/<id>.png (reliable, no collection needed).
+    log "stage generate: agy drafting [$unresolved] → $dir/"
+    gen_instr="Generate skill-card icons matching EXACTLY the existing frame of the peer cards $PEER_PATHS (same neon border, footer band, side strip, role band, name banner, vertical ${W}x${H} TCG layout). ONLY the central illustration + the skill name/role text change per card. Use your own in-session Imagen 3/Gemini Image (NOT FLUX). Save each as $dir/<id>.png (${W}x${H} PNG). Cards to make:$briefs
+${refine:+STRICT REFINEMENT FROM REVIEW: $refine}
+Then write a one-paragraph $dir/notes.md describing what you produced. Do not touch resources/."
+    gen_engine agy "$gen_instr" || log "WARN: agy generate returned non-zero"
     # STAGE 2: claude vision-judge — compare drafts to the frame bible, emit parseable verdict lines.
     log "stage judge: claude --print vision-scoring drafts vs frame bible"
     verdict="$dir/verdict.txt"

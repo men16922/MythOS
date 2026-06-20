@@ -32,6 +32,11 @@ prompt, and codex/agy can also be the final generator (FLUX is only the offline 
 review step), per request. The deterministic integrity gate (`test_image_assets`) still runs at the end. agy stays
 judged (agy output goes through the vision-judge loop).
 
+**Generated-output collection differs per engine** (each uses its reliable path): **agy** saves straight to
+`$dir/<id>.png` (no collection needed). **codex**'s image tool writes to `~/.codex/generated_images/<uuid>/ig_*.png`
+with no output-path control, so the orchestrator generates **one image per target** and collects the newest PNG
+created after a per-call timestamp marker (`gen_codex_one`) — removing codex's fragile find/copy churn.
+
 ## Loop
 
 ```

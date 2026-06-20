@@ -54,6 +54,22 @@
 - 뷰어: "기억의 별자리"/Codex에 **동료 컷씬 갤러리**(언락된 컷씬 이미지+대본 열람, 미언락은 잠김 표시).
 - 완료 기준: 임계 도달 시 언락 플래그·갤러리 표시 + `make check` green.
 
+#### P1-갤러리 뷰 구현 breadcrumb (2026-06-21, LSP 검증 · overnight `[auto:claude]` 시드)
+
+백엔드 완료(갤러리 payload 노출), 프론트 미구현. overnight `[auto:claude]` code-wiring 슬라이스 + `[manual]` 시각 feel 분리.
+
+데이터 흐름: `cutscene_gallery()`(`src/mythos_runtime/cutscenes.py:63`) → `memory_overview_to_dict` 가 `payload["cutscene_gallery"]` 주입(`src/mythos_api/serializers.py:34`) → `GET /api/v1` `get_memory_overview`(`app.py:566`) → 프론트 `memoryOverview`(`App.tsx:103`) → `CodexPanel`("기억의 별자리" 탭).
+엔트리 shape(`cutscenes.py:78-88`): `{id, companion, title, affection_required, flags_required[], unlocked, image|null, body|null}` — 잠김=image/body null(요건만 노출), 해제=큐레이트 image + 대본 body. 순서=저작 순(결정론).
+
+구현 슬라이스(`[auto:claude]`, 빌드 게이트):
+- 타입: `MemoryOverview`(`src/mythos_ui/src/types.ts:429`, LSP 확인)에 `CutsceneGalleryEntry`(위 shape) + `cutscene_gallery?: CutsceneGalleryEntry[]` 추가(현재 미타입).
+- 컴포넌트: 신규 `CutsceneGallery.tsx` — 카드 그리드. 잠김=요건 힌트("호감도 N + flags") 잠금 카드, 해제=image 썸네일 + title(클릭 시 body 대본 열람).
+- 마운트: `CodexPanel.tsx`(기억의 별자리 탭, ~L27-96, `ProgressDashboard`/`RunHistoryPanel` 옆). 플랜의 "Codex 갤러리" 의도와 일치.
+- CSS: 기존 카드/패널 클래스 재사용(신규 디자인 토큰 금지).
+
+완료 기준: `make check` green(eslint+tsc+vite-build), 갤러리가 `memoryOverview.cutscene_gallery`를 읽어 잠김/해제 분기 렌더, 신규 `any` 0.
+게이트 한계: FE 유닛테스트 러너 부재 → 컴파일/타입/린트만 보증, **시각·열람 동작 미검증** → `[manual]` 시각 feel QA(잠금/해제 표시·이미지·대본 모달)는 사람 패스 필수.
+
 ### P2 — Se-rin 컷씬 콘텐츠 (에셋 매핑, `[manual]` 저작)
 
 - `resources/neo-seoul/scenes/`(또는 `cutscenes/`)로 2 이미지 채택·정규화(`outputs/experiments/.../*.png` → resources, IMAGE_POLICY 준수).

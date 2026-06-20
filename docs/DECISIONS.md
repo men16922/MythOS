@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-06-21 — overnight 0.5.0 critic 포팅: origin tier가 플러그인을 앞서고, 토큰 텔레메트리는 블록-max
+
+결정: 플러그인 0.5.0의 critic/telemetry/RCA를 MythOS origin-tier 러너(`scripts/overnight/run.sh`)에 **이식**하되 — ① critic은 **읽기 전용**(claude `--permission-mode plan` / codex `--sandbox read-only` / agy `--print` skip-perms 없음): "검증자가 코드를 만지면 검증이 아니게 된다"(역할분리 · 재게이트 안 거친 변경 방지 · revert가 patch보다 안전). 부수효과로 권한우회 플래그가 없어 안전분류기에 안 걸려 격리 실행도 가능. ② `parse_usage` 토큰 집계는 트리 전체 합산이 아니라 **usage 블록별 자체합의 블록 간 max** — 현재 claude CLI가 `usage.iterations[]`/`modelUsage`/`cache_creation.ephemeral_*`에 같은 수치를 중복으로 실어 합산이 ~2.6배 부풀린다(실측 88292→33272; 비용은 max라 이미 정확).
+
+이유/영향: 이 토큰 버그는 플러그인 0.5.0에서 verbatim 복사돼 **양쪽에 동일** — origin이 먼저 고쳐 검증한 뒤 플러그인으로 역투영하는 정상 흐름(MythOS=origin tier, 소비자 아님). 플러그인 fix는 핸드오프 지침으로 준비됨(아직 미적용). critic auto 모드는 LLM 없는 위험 휴리스틱(test 삭제 · suppress 마커 · 민감파일 · 스코프 초과)이 걸릴 때만 유료 패스 — 저위험 프론트 와이어링은 auto-skip(실측: 게이지/갤러리 두 커밋 다 skip, 리뷰 경로는 격리 e2e에서만 검증). PROGRESS 2026-06-21(c).
+
 ## 2026-06-20 — WS4 이미지 재생성 루프의 엔진-역할 매핑 (codex도 이미지 생성 가능)
 
 결정: 이미지 재생성-온-리젝트 루프(`scripts/overnight/image-regen.sh` + `make image-regen`)에서 엔진 역할을 능력에 맞춰 매핑한다. **생성** = `GEN_ENGINE` (agy | codex) — **codex도 자체 in-session Imagen 3/Gemini Image로 이미지를 생성한다**(`PROMPT.codex.md:23`, STATUS "agy/codex images use their own Imagen/Gemini"). **비전 판정** = claude/agy(기존 PNG의 프레임 일치도 채점 — codex는 비전 입력 없음). **프롬프트 정제** = codex(텍스트). **결정론적 오프라인 폴백** = FLUX 로컬(카드+텍스트엔 약함, `FLUX_FALLBACK=0`로 옵트아웃). 이유: "codex는 이미지를 못 만든다"는 일반 OpenAI Codex CLI 가정이 **이 환경에선 틀림** — codex는 image_gen 툴 보유. 다만 codex의 image_gen은 `~/.codex/generated_images/<uuid>/`에 고정 저장(출력경로 지정 불가)이라, **오케스트레이터가 타임스탬프 마커로 per-target 수거**한다(codex의 find/copy 의존 제거). `GEN_ENGINE=codex`는 생성물을 신뢰해 **비전 판정 skip + 직통 승격**. 영향: 멀티엔진 이미지 파이프라인의 표준 — 향후 "codex는 이미지 못 만든다"고 재가정하지 말 것. 설계 `docs/plans/2026-06-20-ws4-image-regen-loop.md`.

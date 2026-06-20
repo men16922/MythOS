@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-06-20
+Last updated: 2026-06-21
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **`git push origin main` (ahead 3), then resume the `[manual]` frontend/narrative QA track — no agent-closable code items remain.** Done 2026-06-20(d): skill/icon integrity invariant implemented (`test_assets.py test_skill_icons_exist`, all scenarios, +PNG-format lock) + Playwright in-app verify **11/11 icons render** (`naturalWidth>0`) + re-encoded 4 JPEG-as-png icons to real PNG; heal/support ally-targeting is contract-verified (`test_combat_engine.py`). `make check` green (462). Remaining open = all `[manual]`: P0 frontend affection gauge / cutscene gallery (serializer/payload ready), narrative live-QA #2/#5 feel (`docs/test/neo_seoul_live_qa.md`). WS4 image-regen loop (`make image-regen`, `GEN_ENGINE` agy|codex) live-validated — `docs/plans/2026-06-20-ws4-image-regen-loop.md`. (Note: PNG skill icons render as CombatCinema cut-ins, not the emoji-symbol action bar.)
+> ▶ NEXT SESSION: **`git push origin main` (ahead 8), then `[manual]` visual QA of the 2 new companion UIs (`docs/test/neo_seoul_live_qa.md §J`) + A/F sign-off — no agent-closable code items remain.** Done 2026-06-21: ported plugin 0.5.0 overnight **critic/telemetry/RCA** into the origin runner (`OVERNIGHT_CRITIC=0|1|auto`, `status.tsv` 13-col, `CRITIC_PROMPT.md`) + fixed `parse_usage` token over-count (88292→33272; plugin handoff ready) + `status.sh` always shows main lane; a live overnight run (`=auto`) built + re-gated-GREEN the **P0 affection gauge** (`d3d6786`, Character tab) + **P1 cutscene gallery** (`17a42a2`, Codex tab) — compile-only (FE has no test runner; critic auto-skipped) so visual QA pending. `make check` green (462). `loop/*` worktrees 16-18 stale → refresh before parallel.
 
 ## Snapshot
 

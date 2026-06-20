@@ -1,6 +1,6 @@
 # Project MythOS Next Plan
 
-Last updated: 2026-06-20
+Last updated: 2026-06-21
 
 This file keeps only upcoming (open) work as a rolling plan. Completed tracks live in
 `docs/COMPLETED_SUMMARY.md`, detailed logs in `bin/docs/archive/progress-2026-06.md`, individual designs in

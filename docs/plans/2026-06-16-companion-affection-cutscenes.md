@@ -29,6 +29,22 @@
 - 무결성 테스트(`[auto]`): 모든 `effect.relationship` 키 ∈ `characters[].name`/동료 id 집합(dangling 0). 누적 단조성 유닛테스트.
 - 완료 기준: relationship 누적/지속/표시 동작 + `make check` green.
 
+#### P0-게이지 구현 breadcrumb (2026-06-21, LSP 검증 · overnight `[auto:claude]` 시드)
+
+정찰 완료 — 백엔드는 이미 노출, 프론트는 빈 캔버스(grep `relationship`/`affection`/`호감` 0건). overnight 루프가 코드 슬라이스를 구현하고 critic이 그 커밋을 리뷰하도록 시드.
+
+데이터 흐름: `loop.state["relationships"]`(dict[str,int]) → `snapshot_to_dict` `"state": to_json_dict(state)`(`src/mythos_api/serializers.py:316`) → 프론트 `snapshot.state.relationships`. 누적 배선: `route_runtime.advance_route`(perspective 델타) + `session.py` choose(choice `effect.relationship`). 값 범위 비고정(음수=거부 경로 포함).
+
+구현 슬라이스(`[auto:claude]`, 빌드 게이트):
+- 타입: `GameStateRaw`(`src/mythos_ui/src/types.ts:278`, LSP 확인)에 `relationships?: Record<string, number>` 추가(현재 `[key:string]:unknown`으로 떨어짐).
+- 정규화 헬퍼: `gauges.ts`에 int→0–100 percent + 색(양수=따뜻한색/음수·저호감=차가운색) + hint("관계도. 높을수록 특별한 장면·엔딩이 열림"). 기존 `clockColor`(`gauges.ts:17`) 패턴 참고.
+- 렌더: 기존 `GaugeBar()`(`src/mythos_ui/src/GameAside.tsx:408`, LSP 확인) **재사용**(신규 게이지 컴포넌트 금지).
+- 마운트: (a) `CharacterPanel.tsx`(인게임 NPC, ~L81-100, 맥락형) 그리고/또는 (b) `CharacterTabPanel.tsx`(Codex 로스터, 크로스-런 지속 = 플랜의 "기억의 별자리" 의도에 부합). 우선 (b).
+- CSS: 기존 `.gauge*`(`index.css:308-340`) 재사용.
+
+완료 기준: `make check` green(eslint+tsc+vite-build), 게이지가 `state.relationships`를 읽어 동료별 표시, 신규 `any` 0.
+게이트 한계(정직성): **FE 유닛테스트 러너 부재**(vitest/jest 없음) → 게이트는 컴파일/타입/린트만 보증, **시각적 정확성은 미검증**. critic은 코드 회귀/스코프크립은 잡아도 "게이지가 맞게 보이는지"는 못 잡음 → `[manual]` 시각 feel QA(올바른 동료/값·색·스케일·빈 상태)는 사람 플레이 후속 필수.
+
 ### P1 — 컷씬 언락 시스템 (prompt-layer 노드-주소 지정 활용)
 
 목표: 호감도 임계 + 플래그 충족 시 **authored 컷씬(이미지+대본)** 언락·열람.

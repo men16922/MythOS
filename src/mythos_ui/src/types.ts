@@ -430,6 +430,17 @@ export interface UnlockedLore {
   summary: string;
 }
 
+export interface CutsceneGalleryEntry {
+  id: string;
+  companion: string;
+  title: string;
+  affection_required: number;
+  flags_required: string[];
+  unlocked: boolean;
+  image: string | null;
+  body: string | null;
+}
+
 export interface MemoryOverview {
   world_archives?: unknown[];
   narrative_shards: NarrativeShard[];
@@ -448,6 +459,7 @@ export interface MemoryOverview {
     [key: string]: unknown;
   } | null;
   unlocked_lore: UnlockedLore[];
+  cutscene_gallery?: CutsceneGalleryEntry[];
   narrative_metrics?: {
     counts?: Record<string, number>;
     total?: number;

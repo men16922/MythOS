@@ -1373,6 +1373,7 @@ export default function App() {
                 snapshot={finalizedSnapshot}
                 runsHistory={runsHistory}
                 memoryOverview={memoryOverview}
+                scenarioId={selectedScenarioId}
               />
             )}
 

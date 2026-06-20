@@ -1,3 +1,4 @@
+import { CutsceneGallery } from "./CutsceneGallery";
 import { ProgressDashboard } from "./ProgressDashboard";
 import { RouteNarrative } from "./RouteNarrative";
 import { RunHistoryPanel } from "./SaveHistoryPanel";
@@ -11,6 +12,7 @@ interface CodexPanelProps {
   snapshot?: RuntimeSnapshot | null;
   runsHistory?: RunSummary[];
   memoryOverview?: MemoryOverview | null;
+  scenarioId: string;
 }
 
 export function CodexPanel({
@@ -19,6 +21,7 @@ export function CodexPanel({
   snapshot,
   runsHistory = [],
   memoryOverview = null,
+  scenarioId,
 }: CodexPanelProps) {
   const visibleRuns = mergedRuns(runsHistory, memoryOverview?.run_summaries);
   return (
@@ -95,6 +98,11 @@ export function CodexPanel({
           />
           <RunHistoryPanel runsHistory={visibleRuns} />
         </div>
+
+        <CutsceneGallery
+          entries={memoryOverview?.cutscene_gallery}
+          scenarioId={scenarioId}
+        />
       </div>
     </div>
   );

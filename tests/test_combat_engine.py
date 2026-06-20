@@ -233,6 +233,21 @@ def _skilled_player(x: int = 0, y: int = 0, **stat_overrides: int):
     )
 
 
+def _ally(entry_id: str = "ally", x: int = 1, y: int = 0, hp: int | None = None, **over):
+    entry = {
+        "id": entry_id,
+        "name": "동료",
+        "hp": 20,
+        "defense": 11,
+        "speed": 4,
+        "stats": {"strength": 6, "agility": 5, "perception": 5},
+        "weapons": ["vibro_blade"],
+        "ai": "melee",
+    }
+    entry.update(over)
+    return build_ally_combatant(entry=entry, weapons_pool=WEAPONS, x=x, y=y, hp=hp)
+
+
 class CombatSkillTest(unittest.TestCase):
     def test_player_grants_focus_and_skills(self) -> None:
         engine = CombatEngine()
@@ -339,6 +354,99 @@ class CombatSkillTest(unittest.TestCase):
         )
         self.assertGreater(state.player().hp, 4)  # type: ignore[union-attr]
         self.assertTrue(any(e.detail.get("consumed") == "nanopatch" for e in state.log if e.detail))
+
+    def test_patch_protocol_heals_an_ally_in_range(self) -> None:
+        # Range-3 heal directed at a wounded ally must land on the ally, not the caster.
+        engine = CombatEngine()
+        ally = _ally(x=2, y=0, hp=4)  # within range 3 of the caster at (0, 0)
+        state = engine.start(
+            [_skilled_player(x=0, y=0), ally],
+            [_drone(x=9, y=5, hp=80, defense=1, speed=0)],
+            seed="ally-heal",
+            arena=(10, 6),
+        )
+        player = state.player()
+        assert player is not None
+        player.hp = 5
+        ally.x, ally.y, ally.hp = 2, 0, 4  # pin: AI ally may have stepped off in the opening
+        engine._player_skill(
+            state,
+            player,
+            PlayerAction(type="skill", skill_id="patch_protocol", target_id=ally.id),
+            SKILLS["patch_protocol"],
+            item_available=True,
+        )
+        healed_ally = state.by_id(ally.id)
+        assert healed_ally is not None
+        self.assertGreater(healed_ally.hp, 4)  # ally healed
+        self.assertEqual(state.player().hp, 5)  # type: ignore[union-attr]  # caster untouched
+
+    def test_nanoshield_projector_shields_an_ally_in_range(self) -> None:
+        engine = CombatEngine()
+        ally = _ally(x=2, y=0)  # within range 3
+        state = engine.start(
+            [_skilled_player(x=0, y=0), ally],
+            [_drone(x=9, y=5, hp=80, defense=1, speed=0)],
+            seed="ally-shield",
+            arena=(10, 6),
+        )
+        player = state.player()
+        assert player is not None
+        ally.x, ally.y = 2, 0  # pin: AI ally may have stepped off in the opening
+        engine._player_skill(
+            state,
+            player,
+            PlayerAction(type="skill", skill_id="nanoshield_projector", target_id=ally.id),
+            SKILLS["nanoshield_projector"],
+            item_available=True,
+        )
+        shielded_ally = state.by_id(ally.id)
+        assert shielded_ally is not None
+        self.assertGreater(shielded_ally.defense_buff, 0)  # ally shielded
+        self.assertEqual(state.player().defense_buff, 0)  # type: ignore[union-attr]
+
+    def test_support_falls_back_to_self_when_target_out_of_range(self) -> None:
+        # Ally beyond range 3 -> heal falls back to the caster (safe default).
+        engine = CombatEngine()
+        ally = _ally(x=8, y=5, hp=4)  # far out of range
+        state = engine.start(
+            [_skilled_player(x=0, y=0), ally],
+            [_drone(x=9, y=0, hp=80, defense=1, speed=0)],
+            seed="ally-far",
+            arena=(10, 6),
+        )
+        player = state.player()
+        assert player is not None
+        player.hp = 5
+        ally.x, ally.y, ally.hp = 8, 5, 4  # pin far out of range
+        engine._player_skill(
+            state,
+            player,
+            PlayerAction(type="skill", skill_id="patch_protocol", target_id=ally.id),
+            SKILLS["patch_protocol"],
+            item_available=True,
+        )
+        self.assertGreater(state.player().hp, 5)  # type: ignore[union-attr]  # caster self-healed
+        self.assertEqual(state.by_id(ally.id).hp, 4)  # type: ignore[union-attr]  # ally untouched
+
+    def test_available_actions_exposes_friendly_targets(self) -> None:
+        engine = CombatEngine()
+        ally = _ally(x=2, y=0)
+        state = engine.start(
+            [_skilled_player(x=0, y=0), ally],
+            [_drone(x=9, y=5, hp=80, defense=1, speed=0)],
+            seed="friendly-targets",
+            arena=(10, 6),
+        )
+        # Drive the initiative pointer to the player so they are the active actor.
+        player = state.player()
+        assert player is not None
+        state.turn_ptr = state.order.index(player.id)
+        actions = engine.available_actions(state)
+        friendly_ids = {f["id"] for f in actions["friendly_targets"]}
+        self.assertIn(ally.id, friendly_ids)
+        self.assertIn(player.id, friendly_ids)
+        self.assertTrue(any(f["is_self"] for f in actions["friendly_targets"]))
 
     def test_item_nanopatch_heals_and_focus_item_restores(self) -> None:
         engine = CombatEngine()

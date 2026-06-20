@@ -152,6 +152,12 @@ class CombatState:
             return [c for c in self.combatants if c.alive and c.faction in (PLAYER, ALLY)]
         return self.living(ENEMY)
 
+    def friendlies_of(self, combatant: Combatant) -> list[Combatant]:
+        """Living units on ``combatant``'s side (includes the combatant itself)."""
+        if combatant.faction == ENEMY:
+            return self.living(ENEMY)
+        return [c for c in self.combatants if c.alive and c.faction in (PLAYER, ALLY)]
+
 
 def combat_state_to_dict(state: CombatState) -> dict[str, Any]:
     return cast(dict[str, Any], to_json_dict(state))

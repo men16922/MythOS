@@ -186,6 +186,18 @@ class CombatEngine:
                     "max_hp": enemy.max_hp,
                 }
             )
+        # Friendlies (self + allies) so the UI can direct heal/shield support skills.
+        friendly_targets: list[dict[str, Any]] = [
+            {
+                "id": ally.id,
+                "name": ally.name,
+                "distance": distance(actor.x, actor.y, ally.x, ally.y),
+                "hp": ally.hp,
+                "max_hp": ally.max_hp,
+                "is_self": ally.id == actor.id,
+            }
+            for ally in state.friendlies_of(actor)
+        ]
         self.update_enemy_intents(state)
         return {
             "can_act": True,
@@ -195,6 +207,7 @@ class CombatEngine:
             "move_range": actor.speed,
             "reachable": self._reachable_tiles(state, actor),
             "targets": targets,
+            "friendly_targets": friendly_targets,
             "weapons": [w.id for w in actor.weapons],
             "focus": actor.focus,
             "max_focus": actor.max_focus,
@@ -521,18 +534,24 @@ class CombatEngine:
             self._skill_move(state, player, action.move_to, int(effect.get("move", player.speed)))
         if target is not None:
             self._skill_attack(state, player, target, name, effect, dice)
+        # Heal/shield support effects can target a friendly in range (default self).
+        support = (
+            self._friendly_target(state, player, action.target_id, skill_range)
+            if ("defense_bonus" in effect or "heal" in effect)
+            else player
+        )
         if "defense_bonus" in effect:
-            player.defense_buff = int(effect.get("defense_bonus", 0))
-            player.defense_buff_turns = max(1, int(effect.get("duration", 1)))
+            support.defense_buff = int(effect.get("defense_bonus", 0))
+            support.defense_buff_turns = max(1, int(effect.get("duration", 1)))
             self._log(
                 state,
                 player,
                 "defend",
-                f"{player.name} 주위로 엄호 노이즈가 퍼진다. (방어 +{player.defense_buff})",
+                f"{support.name} 주위로 엄호 노이즈가 퍼진다. (방어 +{support.defense_buff})",
             )
         if "heal" in effect:
-            healed = self._apply_heal(player, str(effect.get("heal", "0")), dice)
-            self._log(state, player, "info", f"{player.name}이(가) {healed} 회복했다.")
+            healed = self._apply_heal(support, str(effect.get("heal", "0")), dice)
+            self._log(state, player, "info", f"{support.name}이(가) {healed} 회복했다.")
 
         player.focus = max(0, player.focus - focus_cost)
         player.cooldowns[skill_id] = int(skill_def.get("cooldown", 0))
@@ -703,6 +722,25 @@ class CombatEngine:
         cap = combatant.max_focus if combatant.max_focus else before + amount
         combatant.focus = min(cap, combatant.focus + max(0, amount))
         return combatant.focus - before
+
+    def _friendly_target(
+        self, state: CombatState, player: Combatant, target_id: str | None, reach: int
+    ) -> Combatant:
+        """Resolve a support (heal/shield) target to a living friendly in range.
+
+        Falls back to the caster when ``target_id`` is missing, hostile, dead,
+        or out of range — preserving the prior self-only behavior as a safe default.
+        """
+        target = state.by_id(target_id)
+        if (
+            target is not None
+            and target is not player
+            and target.alive
+            and target in state.friendlies_of(player)
+            and distance(player.x, player.y, target.x, target.y) <= reach
+        ):
+            return target
+        return player
 
     def _nearest_enemy_in_range(
         self, state: CombatState, player: Combatant, reach: int

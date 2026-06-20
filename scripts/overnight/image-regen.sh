@@ -30,7 +30,8 @@ SCENARIO="${SCENARIO:-neo-seoul}"
 TARGETS="${TARGETS:-emp_pulse glitch_blink memory_resonance nanoshield_projector signal_overdrive system_intrusion}"
 MAX_TRIES="${MAX_TRIES:-3}"
 AUTO_ADOPT="${AUTO_ADOPT:-0}"
-FLUX_FALLBACK="${FLUX_FALLBACK:-1}"   # 0 to skip FLUX (weak at text-heavy cards → prefer more agy tries)
+GEN_ENGINE="${GEN_ENGINE:-agy}"       # agy|codex — both generate via their own in-session Imagen 3/Gemini Image
+FLUX_FALLBACK="${FLUX_FALLBACK:-1}"   # 0 to skip FLUX (weak at text-heavy cards → prefer more agy/codex tries)
 SKILLS_DIR="resources/$SCENARIO/skills"
 STAGING="outputs/agy/skills"
 BIBLE_PEERS="patch_protocol packet_shot covering_noise"   # the existing frame-consistent set = the bar
@@ -59,7 +60,23 @@ brief() { case "$1" in
   *)                    echo "a Neo-Seoul cyberpunk skill action" ;;
 esac; }
 
-log "=== WS4 image-regen start (scenario=$SCENARIO, targets=[$TARGETS], MAX_TRIES=$MAX_TRIES, AUTO_ADOPT=$AUTO_ADOPT) ==="
+# Generate via $1 (agy|codex) using the shared frame-bible instruction $2. Both engines draft with their
+# own in-session Imagen 3 / Gemini Image (per PROMPT.{agy,codex}.md), NOT FLUX, and save PNGs themselves.
+gen_engine() {
+  local eng="$1" instr="$2"
+  case "$eng" in
+    agy)
+      agy --print "$instr" --dangerously-skip-permissions --print-timeout 30m --add-dir "$REPO_ROOT" \
+        >> "$LOG" 2>&1 </dev/null ;;
+    codex)
+      # network allowed (default) so codex's image API is reachable; workspace-write for the PNG writes.
+      codex exec --cd "$REPO_ROOT" --sandbox workspace-write -c approval_policy=never --json "$instr" \
+        >> "$LOG" 2>&1 </dev/null ;;
+    *) log "FATAL: unknown engine '$eng'"; return 1 ;;
+  esac
+}
+
+log "=== WS4 image-regen start (scenario=$SCENARIO, targets=[$TARGETS], GEN_ENGINE=$GEN_ENGINE, MAX_TRIES=$MAX_TRIES, AUTO_ADOPT=$AUTO_ADOPT) ==="
 
 unresolved="$TARGETS"
 critique_note=""   # accumulates vision critique → fed into the next agy/codex instruction
@@ -86,12 +103,12 @@ Write a single tightened English instruction (<=120 words) that forces frame/typ
     [ -f "$dir/refined.txt" ] && refine="$(cat "$dir/refined.txt")"
   fi
 
-  # STAGE 1: agy generates each unresolved icon into the attempt dir, matching the peer frame.
-  log "stage generate: agy --print drafting [$unresolved] → $dir/"
-  agy --print "Generate skill-card icons matching EXACTLY the existing frame of the peer cards $PEER_PATHS (same neon border, footer band, side strip, role band, name banner, vertical ${W}x${H} TCG layout). ONLY the central illustration + the skill name/role text change per card. Use Imagen/Gemini (NOT FLUX). Save each as $dir/<id>.png (${W}x${H} PNG). Cards to make:$briefs
+  # STAGE 1: GEN_ENGINE drafts each unresolved icon into the attempt dir, matching the peer frame.
+  log "stage generate: $GEN_ENGINE drafting [$unresolved] → $dir/"
+  gen_instr="Generate skill-card icons matching EXACTLY the existing frame of the peer cards $PEER_PATHS (same neon border, footer band, side strip, role band, name banner, vertical ${W}x${H} TCG layout). ONLY the central illustration + the skill name/role text change per card. Use your own in-session Imagen 3/Gemini Image (NOT FLUX). Save each as $dir/<id>.png (${W}x${H} PNG). Cards to make:$briefs
 ${refine:+STRICT REFINEMENT FROM REVIEW: $refine}
-Then write a one-paragraph $dir/notes.md describing what you produced. Do not touch resources/." \
-    --dangerously-skip-permissions --print-timeout 30m --add-dir "$REPO_ROOT" >> "$LOG" 2>&1 </dev/null || log "WARN: agy generate returned non-zero"
+Then write a one-paragraph $dir/notes.md describing what you produced. Do not touch resources/."
+  gen_engine "$GEN_ENGINE" "$gen_instr" || log "WARN: $GEN_ENGINE generate returned non-zero"
 
   # STAGE 2: claude vision-judge — compare drafts to the frame bible, emit parseable verdict lines.
   log "stage judge: claude --print vision-scoring drafts vs frame bible"

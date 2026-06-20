@@ -9,23 +9,24 @@ judged unattended** — the 2026-06-14 and 2026-06-20 batches both came out *fra
 template) and were rejected by a human. There is no automated reject→refine→regenerate loop, so every miss costs a
 full manual round-trip. WS4 closes that loop.
 
-## Hard constraint that shapes the design
+## Engine capabilities (corrected 2026-06-20)
 
-`codex` **cannot** judge or generate images: it is a text/code agent with **no vision** and runs **network-blocked**
-in the overnight sandbox. So the user's first sketch ("codex reviews fitness → codex regenerates as fallback") is
-remapped onto capability-appropriate engines:
+**Both `agy` and `codex` can generate images** in this setup, each via its **own in-session Imagen 3 / Gemini Image**
+(per `PROMPT.agy.md` and `PROMPT.codex.md:23` — independent of the sandbox network). So `GEN_ENGINE` is selectable
+(agy default, codex available). The **vision judge** stays on claude/agy (a model that scores an *existing* PNG's frame
+match); codex's confirmed role is *generation* + *text prompt-refinement*. Stage map:
 
 | Stage | Engine (capability) | Why |
 | --- | --- | --- |
-| 1. Generate (primary) | **agy** (Imagen/Gemini, multimodal) | the proven card generator; in-session image API |
-| 2. Vision judge (frame/aesthetic fit) | **claude `--print`** (vision) — `agy` alt | only a vision model can score frame match; codex can't *see* |
-| 3. Prompt refinement (critique → better prompt) | **codex `--print`** (text) | codex's real strength — author a stricter generation prompt from the verdict |
-| 4. Generate (deterministic fallback) | **FLUX local** (`python agent.py`, MPS) | repo-owned, controllable, offline; replaces the impossible "codex generates" |
+| 1. Generate (primary) | **`GEN_ENGINE` = agy \| codex** (own in-session Imagen 3/Gemini) | both can draft cards; pick per task |
+| 2. Vision judge (frame/aesthetic fit) | **claude `--print`** (vision) — `agy` alt | scores an existing PNG's frame match vs the peers |
+| 3. Prompt refinement (critique → better prompt) | **codex `--print`** (text) | author a stricter generation prompt from the verdict |
+| 4. Generate (deterministic offline fallback) | **FLUX local** (`python agent.py`, MPS) | repo-owned, offline; weak at text-heavy cards (`FLUX_FALLBACK=0` to skip) |
 | 5. Integrity verify | `make check` / `test_image_assets` | dimensions/naming/file non-empty |
 | 6. Final adopt | **human** (or auto if judge=PASS ∧ integrity=green) | aesthetic sign-off stays human by default |
 
-Net: **codex = prompt-author + (structural) verifier; vision+generation = agy/claude/FLUX.** This is the only feasible
-realization of "codex 적합성 리뷰 → agy 재생성 → 안 되면 최종 생성".
+Realizes "codex 적합성 리뷰 → 재생성 → 최종 생성": codex (or agy) generates, claude vision-judges, codex refines the
+prompt, and codex/agy can also be the final generator (FLUX is only the offline deterministic fallback).
 
 ## Loop
 

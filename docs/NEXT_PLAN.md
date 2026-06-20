@@ -19,7 +19,7 @@ Key finding: relationship deltas (`scenario.json` perspective/choice `effect.rel
 
 ## Engineering maintenance track — WS0-3 done (COMPLETED_SUMMARY M43), only WS4 remains
 
-- `[ ]` **WS4 (plan-only)**: agy image draft → codex fitness review → add content item to NEXT_PLAN → codex final image generation pipeline. Authority `docs/plans/2026-06-14-engineering-plan.md`.
+- `[/]` **WS4 image regen-on-reject loop**: `scripts/overnight/image-regen.sh` + `make image-regen` (opt-in, human-launched) — agy generate → **claude vision-judge** vs frame bible → **codex prompt-refine** → **FLUX-local fallback** → integrity gate. (Corrected from the original "codex reviews/generates" sketch: codex has no vision & is network-blocked, so vision=claude/agy, generation=agy/FLUX, codex=prompt-author only.) Design `docs/plans/2026-06-20-ws4-image-regen-loop.md`. Remaining: `[ ]` first live run on the 6 skill icons → human adopt → unblocks the icon-integrity invariant.
 - `[/]` **WS5 harness hardening (backlog, derived from 2026-06-19 usage report)**: ① **DONE** — `/goal` integration (`run.sh` + plugin `templates/`): `OVERNIGHT_VERIFY_GATE` external re-gate at each commit → phantom-success revert + `gate_exit`/`commit_verified` columns in `status.tsv`; opt-in `OVERNIGHT_GOAL` /goal convergence. Measured phantom detection 0→100% (fault-injection). Design+실측 `docs/plans/2026-06-19-goal-in-overnight-loop.md`. Remaining ② auto morning digest at shutdown (`/overnight-report` is manual) ③ Model B 3-lane concurrent run demonstration ④ runner iter-output cap. Low-impact / already-mitigated, deprioritized. (diagnose-first `/diagnose` + gate-phase applied 2026-06-19.)
 
 ## Rules

@@ -85,6 +85,9 @@ critique_note=""   # accumulates vision critique → fed into the next agy/codex
 for ((attempt=1; attempt<=MAX_TRIES; attempt++)); do
   [ -n "$unresolved" ] || break
   dir="$STAGING/attempt-$attempt"; mkdir -p "$dir"
+  # Clear any stale drafts for the unresolved targets so a FAILED generation can't promote a
+  # leftover image from a previous run (the attempt-N dirs are reused across invocations).
+  for t in $unresolved; do rm -f "$dir/$t.png"; done
   log "--- attempt $attempt/$MAX_TRIES · unresolved: [$unresolved] ---"
 
   # Build per-skill brief block for the prompt.

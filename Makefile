@@ -86,8 +86,10 @@ overnight-watch:
 	@sleep 1
 	@$(MAKE) overnight-logs
 
-# 1회차만(체인 검증). 포그라운드 실행.
+# 1회차만(체인 검증). 포그라운드 실행. (`overnight`와 동일하게 stale STOP/DONE 자동 제거 —
+# 안 그러면 이전 회차가 남긴 DONE이 회차를 막고 드레인 QA만 돌고 종료된다.)
 overnight-once:
+	@rm -f scripts/overnight/STOP scripts/overnight/DONE
 	scripts/overnight/run.sh --once
 
 # graceful 중단(현재 회차 마치고 다음 회차 진입 전 종료).

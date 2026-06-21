@@ -45,8 +45,6 @@ import type {
   CombatLogEntry,
   SkillTreeResponse,
   CombatCinemaContext,
-  CombatSkillInfo,
-  ScenarioSkill,
 } from "./types";
 import { drawCombatCanvas, combatCellFromPoint } from "./combatCanvas";
 import type { CombatDragOverlay } from "./combatCanvas";
@@ -56,6 +54,7 @@ import { LS_KEY, parseResumeSession } from "./sessionStorage";
 import type { ResumeSessionData } from "./sessionStorage";
 import { buildCodexLists, buildDevConsoleData, buildEpiphanyNotice } from "./viewModels";
 import { useAudio } from "./hooks/useAudio";
+import { useInGameEpiphany } from "./hooks/useInGameEpiphany";
 
 const firstUnlockedArchetype = (archetypes: ScenarioArchetype[]) =>
   archetypes.find((archetype) => archetype.unlocked !== false)?.name || null;
@@ -1146,44 +1145,10 @@ export default function App() {
   }, []);
 
   // --- In-Game Epiphany State ---
-  const [showInGameNotice, setShowInGameNotice] = useState<string | null>(null);
-  const inGameEpiphaniesRef = useRef<{ loopId: string | null; seen: Set<string> }>({
-    loopId: null,
-    seen: new Set(),
-  });
-  const epiphaniesUnlocked = finalizedSnapshot?.epiphanies_unlocked;
-
-  // Sync epiphany mid-run
-  useEffect(() => {
-    const activeLoopId = finalizedSnapshot?.loop_id || null;
-    if (inGameEpiphaniesRef.current.loopId !== activeLoopId) {
-      inGameEpiphaniesRef.current = { loopId: activeLoopId, seen: new Set() };
-    }
-    const epiphanies = epiphaniesUnlocked || [];
-    const newEpiphanies = epiphanies.filter(id => !inGameEpiphaniesRef.current.seen.has(id));
-    if (newEpiphanies.length === 0) return;
-
-    newEpiphanies.forEach(id => inGameEpiphaniesRef.current.seen.add(id));
-    const noticeId = newEpiphanies[0];
-    const showTimer = window.setTimeout(() => {
-      setShowInGameNotice(noticeId);
-    }, 0);
-    const hideTimer = window.setTimeout(() => {
-      setShowInGameNotice(null);
-    }, 5000);
-    return () => {
-      window.clearTimeout(showTimer);
-      window.clearTimeout(hideTimer);
-    };
-  }, [finalizedSnapshot?.loop_id, epiphaniesUnlocked]);
-
-  const getSkillName = (skillId: string) => {
-    const skillPool = finalizedSnapshot?.combat?.available?.skills || [];
-    const skill = skillPool.find((s: CombatSkillInfo) => s.id === skillId);
-    if (skill?.name) return skill.name;
-    const scenarioSkill = currentScenario?.skills?.find((s: ScenarioSkill) => s.id === skillId);
-    return scenarioSkill?.name || skillId;
-  };
+  const { showInGameNotice, setShowInGameNotice, getSkillName } = useInGameEpiphany(
+    finalizedSnapshot,
+    currentScenario
+  );
 
   // --- Dev Console calculation ---
   const devConsoleData = useMemo(() => {

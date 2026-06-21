@@ -5,6 +5,13 @@ Last updated: 2026-06-21
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-06-21 (l) — overnight [auto:claude]: extract useInGameEpiphany hook from App.tsx
+- Status: Behavior-preserving frontend god-component decomposition, one slice. The in-run epiphany concern moved out of App.tsx into a hook, matching the existing `hooks/useAudio`·`useCombatCinema` pattern.
+- Changed: NEW `src/mythos_ui/src/hooks/useInGameEpiphany.ts` (`showInGameNotice` state + mid-run epiphany sync effect + `getSkillName` resolver); takes `finalizedSnapshot`/`currentScenario`, returns `{showInGameNotice, setShowInGameNotice, getSkillName}`. `App.tsx`: replaced the inline block (~38 lines) with the hook call + import; dropped now-unused `CombatSkillInfo`/`ScenarioSkill` type imports. No logic change.
+- Verified: `make check` green — ruff + eslint + mypy (124 files) + tsc/vite-build + **508 tests OK** (skipped 2). Pure extraction; no test-count change (FE has no unit-test runner; gate guarantees compile/type/lint only).
+- Blockers: none. Post-commit AGY live-QA (auto-screened, §3.4.1) is the runner's job; not run in this iteration.
+- Next: continue App.tsx/CombatCinema decomposition one slice per iteration (combat board pointer handlers or WS reconnect are next candidates).
+
 ## 2026-06-21 (k) — auto live-QA = 4th verification tier + autonomous findings (mythos/ only)
 - Status: Encoded automatic live-QA as a first-class game-specific tier in the MythOS interpretation (generic bibles untouched) AND added autonomous discovery so AGY's objective findings self-populate an untagged triage list. Fixed a stale removed-target ref.
 - Changed: `mythos/VERIFICATION.md` → 4-layer model (mechanical→semantic→**auto live-QA**→creative) §4 + §6 evidence fix (`make live-qa-agy-probe` removed → `qa-status.tsv`/`outputs/live-qa/`/run-script-direct). `mythos/LOOP.md` §3.4.1 + `NEXT_PLAN` tag block: repo-specific live-QA-guard note; **retagged** frontend god-component decomposition `[manual]`→`[auto:claude]` (guarded, one slice/iter). DECISIONS top entry. **Autonomous discovery**: AGY emits `QA_FINDING:` lines → `artifacts.py parse_findings` → `browser-qa.sh` appends to untagged `qa-findings.md` → `/overnight-report` triages; promotion to `[auto]` stays human (never auto-promoted — hallucination gate intact).
@@ -110,10 +117,3 @@ This file keeps **only the latest incremental summaries** (latest 5 items). The 
 - Verified: `make check` green — check-skills + check-doc-budget + ruff + eslint + mypy (121 files) + frontend build + **457 tests OK** (skipped 2, +3). Fault-injection RED proven for all three new closures (ghost `cost.item`, a↔b `requires` cycle, tier-2 prereq under a tier-0 skill) via throwaway `SkillDataIntegrityTest` subclasses.
 - Blockers: none.
 - Next: remaining `[auto:claude]` = heal/support ally-targeting (`engine.py:533`). `[auto:agy]` 6 skill-icon drafts still gate the `[blocked]` skill/icon-integrity item.
-
-## 2026-06-19 (d) — Overnight 루프 `/goal` 통합: 외부 재게이트(phantom 검출) + opt-in 수렴 (repo + plugin)
-- Status: Claude Code 내장 `/goal`(v2.1.139+)을 자작 overnight 러너 **내부**에 활용. 먼저 `-p` 호환성 실측(Probe B: 러너 플래그 `--permission-mode acceptEdits --settings … --output-format json` 와 호환, `permission_denials:[]`, runner-classifiable JSON) 후 설계(`docs/plans/2026-06-19-goal-in-overnight-loop.md`)대로 두 워크스트림 구현. MythOS `scripts/overnight/run.sh` + 플러그인 `claude-overnight-harness/templates/scripts/overnight/run.sh` 동시 반영.
-- Changed: ① **WS-α (`OVERNIGHT_VERIFY_GATE=1` 기본)**: 새 커밋마다 bash가 `$GATE_CMD`를 **외부 재실행** → RED면 phantom-success로 `git revert`(폴백 `reset --hard`)+`notify`+`consec_fail++`. `status.tsv`에 `gate_exit`/`commit_verified` 2열 추가(`status.sh`는 f5/6/7만 읽어 하위호환). 엔진 무관. ② **WS-β (`OVERNIGHT_GOAL=1` opt-in, `GOAL_MAX_TURNS=12`)**: claude 레인 프롬프트 앞에 `/goal` 디렉티브 주입(green+커밋까지 수렴; soft 바운드라 ITER_TIMEOUT 하드 실링 유지). codex/agy 불변. ③ 플러그인 CHANGELOG `Unreleased` 기록.
-- Verified: 실제 run.sh를 격리 git 저장소 + 가짜 claude(에이전트 대역)로 구동(토큰 0). **phantom 검출 0→100%**: `VERIFY=1`(신규)은 RED 커밋 검출·revert→브랜치 GREEN 복구(`phantom` 행 `gate_exit=1`/`commit_verified=0`); `VERIFY=0`(레거시)은 미검출→RED 커밋 잔존. WS-β 주입 확인(claude 수신 프롬프트 첫 줄=`/goal`). `make check-doc-budget` OK(NEXT_PLAN 119/120), `bash -n` 양쪽 OK.
-- Blockers: 플러그인 clone(`men16922/claude-overnight-harness`)이 **v0.2.0 + `diagnose` 스킬 부재** — 본 PROGRESS 2026-06-19(b)의 "diagnose v0.3.0 플러그인 푸시" 기록과 **불일치**(이 origin/main 미반영). 버전 번호 충돌 회피 위해 CHANGELOG는 `Unreleased`로만 기록 — **버전 bump/commit/push는 사용자 재조정**(agent push 차단).
-- Next: 플러그인 버전 reconcile 후 commit/push(사용자). 선택: WS5 ② 아침 digest 자동화 / ④ iter-output 캡.

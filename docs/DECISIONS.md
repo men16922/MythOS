@@ -2,6 +2,18 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-06-21 — AGY is always the live-QA browser actor
+
+Decision: Add a separate, human-armed `[qa:agy]` evidence workflow rather than expanding the normal `[auto:agy]` image/commit lane. AGY always performs browser actions itself: Chrome DevTools is first choice, AGY's Playwright MCP is second, and failure of both ends `NEEDS_HUMAN`. The wrapper owns service lifecycle/timeout/Git invariance; Python may prepare/validate evidence but must never drive live QA. The authoritative checklist remains human-owned.
+
+Reason/impact: a direct capability measurement proved AGY can navigate/click the local app with its own Playwright MCP. The final WS0 run then created the player, played two scenes, captured events/console/screenshots, and returned a validator-confirmed `PASS_CANDIDATE`. Python Playwright is reserved only for deterministic regression tests created after a human accepts an objective bug; it is not a live-QA fallback. AGY never fixes findings in the QA run.
+
+## 2026-06-21 — Adopt plugin 0.6.0 verification taxonomy selectively; keep the MythOS runner
+
+Decision: Adopt the plugin's mechanical → semantic → creative verification taxonomy as a sixth engineering bible plus a paired MythOS interpretation. Keep the repo's customized origin-tier `scripts/overnight/run.sh`; do not replace it with the generic plugin runner. The existing repo-local critic prompt is the active semantic policy and now carries MythOS-specific invariants. MythOS specializes the generic plugin default by setting `OVERNIGHT_CRITIC=auto`: low-risk commits skip paid review, risky diffs trigger it, `0` explicitly disables it, and `1` reviews every commit. Subjective game/narrative/visual work remains `[manual]`.
+
+Reason/impact: plugin 0.6.0 is documentation/scaffolding-only, while MythOS already contains the 0.5.1 token-accounting fix and additional 3-engine/worktree/status behavior. Selective adoption preserves those extensions and makes the proof boundary explicit: `make check` + external re-gate proves mechanical correctness, the read-only critic catches concrete green-but-wrong evidence, and human QA owns taste/balance/feel. Repeated semantic failures should still be promoted into deterministic tests.
+
 ## 2026-06-21 — overnight 0.5.0 critic 포팅: origin tier가 플러그인을 앞서고, 토큰 텔레메트리는 블록-max
 
 결정: 플러그인 0.5.0의 critic/telemetry/RCA를 MythOS origin-tier 러너(`scripts/overnight/run.sh`)에 **이식**하되 — ① critic은 **읽기 전용**(claude `--permission-mode plan` / codex `--sandbox read-only` / agy `--print` skip-perms 없음): "검증자가 코드를 만지면 검증이 아니게 된다"(역할분리 · 재게이트 안 거친 변경 방지 · revert가 patch보다 안전). 부수효과로 권한우회 플래그가 없어 안전분류기에 안 걸려 격리 실행도 가능. ② `parse_usage` 토큰 집계는 트리 전체 합산이 아니라 **usage 블록별 자체합의 블록 간 max** — 현재 claude CLI가 `usage.iterations[]`/`modelUsage`/`cache_creation.ephemeral_*`에 같은 수치를 중복으로 실어 합산이 ~2.6배 부풀린다(실측 88292→33272; 비용은 max라 이미 정확).

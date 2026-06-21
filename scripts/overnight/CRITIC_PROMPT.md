@@ -18,6 +18,21 @@ on failure modes a green gate can still hide:
 - **Masking** — dead/unreachable code, a swallowed exception, or a stub that makes the gate green
   while hiding an unfinished or broken path.
 
+## MythOS project invariants
+
+- **Shared orchestration** — runtime/session transitions belong in `RuntimeSessionService`. Duplicating
+  that orchestration in CLI, FastAPI, Streamlit, or React adapters is FAIL.
+- **Migration safety** — existing SQL migrations are immutable. A schema change that edits/deletes an
+  old migration or omits the required new migration and compatible store/serializer handling is FAIL.
+- **API contract pairing** — a payload/schema change must update the relevant serializer and frontend
+  TypeScript contract/call sites, or add an explicit contract test. A visibly one-sided change is FAIL.
+- **Generated frontend ownership** — `src/mythos_api/static/app.js` is build output. A behavior change
+  implemented only by hand-editing generated output without corresponding frontend source is FAIL.
+- **Creative boundary** — narrative prose/prompt, scenario balance, visual asset, animation, or play-feel
+  work cannot be declared fully verified by `make check`. If the diff closes subjective QA without
+  preserving an explicit `[manual]` follow-up or human evidence, it is FAIL. Do not fail merely because
+  these files changed when the task has a deterministic criterion and leaves subjective review open.
+
 ## What NOT to flag
 
 - Style, formatting, lint, naming — the gate owns these.

@@ -55,6 +55,6 @@ git history (change history) + structured ledger (work/event ledger) + natural l
 Disk, not memory, is the source of truth → restore from fresh context each iteration.
 
 ## 7. Sibling Concepts (bible)
-- Autonomous loop: [`LOOP_ENGINEERING.md`](LOOP_ENGINEERING.md) · multi-agent: [`AGENTIC_ENGINEERING.md`](AGENTIC_ENGINEERING.md)
+- Autonomous loop: [`LOOP_ENGINEERING.md`](LOOP_ENGINEERING.md) · verification: [`VERIFICATION_ENGINEERING.md`](VERIFICATION_ENGINEERING.md) · multi-agent: [`AGENTIC_ENGINEERING.md`](AGENTIC_ENGINEERING.md)
 - Context: [`CONTEXT_ENGINEERING.md`](CONTEXT_ENGINEERING.md) · prompt: [`PROMPT_ENGINEERING.md`](PROMPT_ENGINEERING.md)
 - This repo's application: [`mythos/HARNESS.md`](mythos/HARNESS.md)

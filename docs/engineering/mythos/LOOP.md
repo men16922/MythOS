@@ -43,6 +43,8 @@ The unattended loop (bash, macOS bash 3.2 compatible). Invokes the headless agen
 
 > **3-engine parallelism**: run claude/codex/agy concurrently each in its own worktree+branch (`loop/{claude,codex,agy}`) to structurally eliminate commit conflicts. Lane tags · domain split · integration merge are owned by **[`AGENTIC.md`](AGENTIC.md)** (`scripts/overnight/{worktrees.sh,merge-loops.sh}`, `make overnight-worktrees`/`overnight-merge`).
 
+> **Verification composition**: the agent's in-process gate is followed by the runner's external re-gate (`OVERNIGHT_VERIFY_GATE=1`), then the configurable read-only semantic critic (`OVERNIGHT_CRITIC=auto|1|0`). Human-feel work never enters the auto queue. See [`VERIFICATION.md`](VERIFICATION.md).
+
 One iteration flow:
 ```
 check STOP/DONE files → check MAX_ITER → run claude -p iteration → classify_outcome → branch → (pause) → repeat
@@ -54,6 +56,8 @@ Control files / env vars (defaults in the `: "${VAR:=...}"` block at the top of 
 | `scripts/overnight/STOP` | — | If present, **graceful exit** before entering the next iteration (the current one finishes). Created by an operator `touch` or a red-leftover iteration. |
 | `scripts/overnight/DONE` | — | Created by the agent when the `[auto]` backlog is drained / all blocked (reason recorded) → runner exits. |
 | `GATE_CMD` | `make check` | Commit gate (swappable) = ruff+eslint+mypy+tsc/vite-build+unittest. Faster variants: `make check-auto` (excl. mypy) · `make smoke-local`. PROMPT.md references it as `$GATE_CMD`. |
+| `OVERNIGHT_VERIFY_GATE` | `1` | Rerun the gate outside the actor after each new commit; RED means phantom-success and revert. |
+| `OVERNIGHT_CRITIC` | `auto` | Read-only semantic review for risk-triggering diffs. `1` reviews every verified commit; `0` disables it. |
 | `MAX_ITER` | 20 | Runaway-prevention backstop (total iteration cap). |
 | `ITER_TIMEOUT` | 1800s | Max run time per iteration (`gtimeout`/`timeout`; disabled if absent). |
 | `LIMIT_WAIT` | 1800s | Wait then retry on usage/session-limit detection. |
@@ -192,7 +196,7 @@ Stop conditions: `DONE` (drained/all blocked) · `STOP` (manual/red leftover) ·
 The honest triage of `[auto]` candidates is always authoritatively the automation tags in `docs/NEXT_PLAN.md`.
 
 ## 7. Related docs
-- Bible (concept): [`../LOOP_ENGINEERING.md`](../LOOP_ENGINEERING.md) · sibling interpretations: [`AGENTIC.md`](AGENTIC.md) · [`HARNESS.md`](HARNESS.md) · [`PROMPT.md`](PROMPT.md)
+- Bible (concept): [`../LOOP_ENGINEERING.md`](../LOOP_ENGINEERING.md) · sibling interpretations: [`VERIFICATION.md`](VERIFICATION.md) · [`AGENTIC.md`](AGENTIC.md) · [`HARNESS.md`](HARNESS.md) · [`PROMPT.md`](PROMPT.md)
 - Design invariants: `harness/CORE_MANDATES.md` · handoff: `harness/CONTEXT_BRIDGE.md`
 - Doc operation (Read Path/Context Budget): `docs/DOCS_POLICY.md` · `docs/README.md`
 - Backlog: `docs/NEXT_PLAN.md` · history: `docs/PROGRESS_LOG.md`

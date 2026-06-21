@@ -3,18 +3,19 @@
 > Maps the bible [`../HARNESS_ENGINEERING.md`](../HARNESS_ENGINEERING.md) concepts **onto this repo's implementation**.
 > Design-invariant authority: `harness/CORE_MANDATES.md`. Raw research: `bin/docs/archive/HARNESS_RESEARCH.md` · `bin/docs/archive/AI_REARCH.md`.
 
-## Maturity self-diagnosis: **L2→L3**
+## Maturity self-diagnosis: **L3**
 - L1 ✅ CLAUDE/AGENTS/GEMINI.md · `make check` · worktree/branch · `docs/plans/`.
 - L2 ✅ `make check` gate · codex independent reviewer · overnight per-iteration commits · `/checkpoint`.
-- L3 🟡 3-engine · worktree · creator≠reviewer ✅ / **gardener automation · structured ledger incomplete**.
-- **L3 gap = next investment**: ① structured ledger (`scripts/overnight/logs/status.tsv`, WS3) ② entropy gardener
-  (currently `/tidy-docs` is docs-only · manual → extend to code/arch drift scan).
+- L3 ✅ 3-engine · worktree · creator≠reviewer · `status.tsv` structured ledger · risk-gated critic.
+- **Remaining L3 gap**: entropy gardener automation (currently `/tidy-docs` is docs-only and manual; extend only after measured code/architecture drift justifies it).
 
 ## Feedback Ladder examples
 Once = codex `logs/review-latest.md` finding · twice = `CORE_MANDATES §5` · memory `narrative-register-rule` ·
 3×+ = QA seed→invariant test (`tests/test_route_integrity.py` · `test_content_integrity.py`) · hard gate = `overnight-settings.json` deny · `make check` block.
 
-## Verification Layers → single `make check` mapping
+## Verification layers
+
+The authoritative three-layer mapping is [`VERIFICATION.md`](VERIFICATION.md). The lower-level harness ladder maps as follows:
 | Bible layer | MythOS |
 | --- | --- |
 | L1 file change | (no dedicated hook) ruff `F` + conflict caught by `make check` |
@@ -33,4 +34,4 @@ Once = codex `logs/review-latest.md` finding · twice = `CORE_MANDATES §5` · m
 `NEXT_PLAN` `[blocked]` item preconditions · "remove `_map` once all scenarios switch to route_map" etc. Attach a removal condition to every new rule.
 
 ## Sibling interpretations
-loop [`LOOP.md`](LOOP.md) · multi-agent [`AGENTIC.md`](AGENTIC.md) · context [`CONTEXT.md`](CONTEXT.md) · prompt [`PROMPT.md`](PROMPT.md)
+loop [`LOOP.md`](LOOP.md) · verification [`VERIFICATION.md`](VERIFICATION.md) · multi-agent [`AGENTIC.md`](AGENTIC.md) · context [`CONTEXT.md`](CONTEXT.md) · prompt [`PROMPT.md`](PROMPT.md)

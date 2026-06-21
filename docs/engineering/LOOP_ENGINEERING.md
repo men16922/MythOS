@@ -10,7 +10,7 @@ An autonomous run loop that repeatedly invokes one prompt headless, where each i
 | --- | --- |
 | **Fresh context per iteration** | New process each iteration → no context bloat/summarization. Re-read only the Read Path to restore. |
 | **Iteration = one task + immediate commit** | Whenever a limit/crash hits, uncommitted loss is just one iteration. The next iteration takes over. |
-| **Offline gate = commit gate** | If the deterministic gate (lint+type+build+test) isn't green, no commit → broken code doesn't accumulate. No network needed. |
+| **Offline gate = commit gate** | If the deterministic gate (lint+type+build+test) isn't green, no commit → broken code doesn't accumulate. This is the mechanical layer; semantic critic and creative `[manual]` review sit above it. |
 | **State on files** | Backlog · history · git history. Disk, not memory, is the source of truth. |
 | **Least-privilege unattended run** | allow/deny boundaries block push · network · destructive actions (`HARNESS_ENGINEERING §4`). |
 
@@ -38,6 +38,6 @@ Backlog drained (DONE) · manual/red leftover (STOP) · max iterations · N cons
 This loop fits **hygiene/regression/refactor/codemod/deterministic-bugfix**. Do not use it for creative/feel/content authoring — the unattended gate can't verify those (that's `manual`, human QA).
 
 ## 6. Sibling Concepts (bible)
-- Higher harness: [`HARNESS_ENGINEERING.md`](HARNESS_ENGINEERING.md) · parallel multi-engine: [`AGENTIC_ENGINEERING.md`](AGENTIC_ENGINEERING.md)
+- Higher harness: [`HARNESS_ENGINEERING.md`](HARNESS_ENGINEERING.md) · commit verification: [`VERIFICATION_ENGINEERING.md`](VERIFICATION_ENGINEERING.md) · parallel multi-engine: [`AGENTIC_ENGINEERING.md`](AGENTIC_ENGINEERING.md)
 - Context restore: [`CONTEXT_ENGINEERING.md`](CONTEXT_ENGINEERING.md) · iteration prompt: [`PROMPT_ENGINEERING.md`](PROMPT_ENGINEERING.md)
 - This repo's application: [`mythos/LOOP.md`](mythos/LOOP.md)

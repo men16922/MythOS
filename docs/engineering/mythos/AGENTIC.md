@@ -28,6 +28,7 @@ On top of that, the existing **concurrent-writer-detection STOP** (run.sh) remai
 - **codex = claude failover**: if a claude iteration is `limit`, the runner has codex consume the claude lane instead (Phase 6, `run.sh`).
 - **agy output is review material**: an image's aesthetic "fit" can't be judged unattended → stack it on `loop/agy` and **a human reviews in the morning**.
   The auto gate sees only integrity (exists/matches spec). **No fabricating** a missing asset as a placeholder (PROMPT.agy.md §0).
+- **`[qa:agy]` is a separate evidence lane, not an overnight commit lane**: AGY directly plays through Chrome DevTools first / its Playwright MCP second and writes ignored evidence under `outputs/live-qa/`. The wrapper only manages services/safety; Python only validates artifacts. AGY never edits source or closes the human-owned checklist. Design: `docs/plans/2026-06-21-agy-assisted-live-qa.md`.
 
 ## 1.5 Creator ≠ Reviewer (Claude → Codex → Claude)
 Applying AI_REARCH's core principle: separate the maker from the auditor to reduce self-confirmation bias.

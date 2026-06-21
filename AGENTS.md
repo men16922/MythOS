@@ -31,6 +31,10 @@ Use the Makefile targets from the repository root:
 
 Use 4-space indentation, type hints, and small functions with explicit boundaries. Follow the existing dataclass-first style in domain code. Module and function names use `snake_case`; classes use `PascalCase`; constants use `UPPER_SNAKE_CASE`. Keep runtime orchestration in `RuntimeSessionService` rather than duplicating logic in CLI or Streamlit.
 
+## Code Navigation
+
+Use Serena's LSP tools first for symbol-oriented navigation such as definitions, references, types, call hierarchies, and workspace symbols. The repository's `.serena/project.yml` configures Pyright for Python and Vtsls for TypeScript. Use `rg` for literals, configuration, comments, and as the fallback when semantic tooling is unavailable; avoid broad file reads when a targeted symbol or text query is sufficient.
+
 ## Testing Guidelines
 
 Tests use Python `unittest` and are named `tests/test_*.py`. Keep pure unit tests independent of Docker. Gate DB tests behind `MYTHOS_RUN_DB_TESTS=1`, as `make test-db` does. For changes touching runtime flows, run at least `make smoke-local`; run `make smoke` when persistence or MinIO behavior changes.
@@ -47,5 +51,5 @@ Do not commit `.env`, Hugging Face tokens, generated model outputs, or `.docker/
 
 - Operating mandates live in `harness/CORE_MANDATES.md` (§4 testing, §5 agent discipline: measure-before-perf-fix, docs-first status, confirm structural moves, absolute paths, read-back after writes). Follow them.
 - Agent-operation engineering (harness / loop / multi-agent / context / prompt) is defined in `docs/engineering/README.md` — generic bibles (`*_ENGINEERING.md`) plus this repo's interpretation in `docs/engineering/mythos/`.
-- Restore context the documented way (`AGENT_BRIEF.md` → `STATUS.md` → `NEXT_PLAN.md` → `PROGRESS_LOG.md`); the procedure is in `.agents/skills/sync/SKILL.md`. Record finished work via `.agents/skills/checkpoint/SKILL.md`. Do not bulk-read `docs/`.
-- This repo runs an unattended overnight loop for `[auto]` tasks (`docs/engineering/mythos/LOOP.md`). It supports both engines via `scripts/overnight/run.sh` (`ENGINE=claude|codex`); the Codex round-prompt is `scripts/overnight/PROMPT.codex.md`. Launch with `make overnight-codex-once` (single round) / `make overnight-codex-watch`.
+- Restore context the documented way (`AGENT_BRIEF.md` → `STATUS.md` → `NEXT_PLAN.md` → `PROGRESS_LOG.md`); the procedure is in `.agents/skills/sync/SKILL.md`. Record finished work via `.agents/skills/checkpoint/SKILL.md`. Entry points for specific agent engines are `CLAUDE.md` and `GEMINI.md`. Do not bulk-read `docs/`.
+- This repo runs an unattended overnight loop for `[auto]` tasks (`docs/engineering/mythos/LOOP.md`). It supports multiple engines via `scripts/overnight/run.sh` (`ENGINE=claude|codex|agy`). Launch with `make overnight-<engine>-once` (single round) / `make overnight-<engine>-watch`.

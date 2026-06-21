@@ -1,13 +1,9 @@
-# MythOS Local Runtime — Gemini Agent Instructions
+# MythOS Local Runtime — Gemini / Antigravity (AGY) Agent Instructions
 
-이 문서는 Gemini CLI 에이전트용 **얇은 진입점**이다. 상세는 복붙하지 않고 정본을 링크한다(진입점 발산 방지 —
-`docs/engineering/CONTEXT_ENGINEERING.md` §5). 정본 가이드는 `CLAUDE.md`, 설계 불변은 `harness/CORE_MANDATES.md`,
-현재 작업 맥락은 `harness/CONTEXT_BRIDGE.md`.
+이 문서는 Gemini 및 Antigravity (AGY) CLI 에이전트용 **얇은 진입점**이다. 상세는 복붙하지 않고 정본을 링크한다(진입점 발산 방지 — `docs/engineering/CONTEXT_ENGINEERING.md` §5). 정본 가이드는 `CLAUDE.md`, 설계 불변은 `harness/CORE_MANDATES.md`, 현재 작업 맥락은 `harness/CONTEXT_BRIDGE.md`.
 
 ## What this is
-MythOS 는 로컬 실행 루프형 내러티브 시뮬레이션 엔진(Python 3.11+). AI GM(Ollama)이 장면을 진행하고,
-이미지(FLUX/MPS)·전술 전투·진행도가 붙는다. 비즈니스 로직은 `RuntimeSessionService` 하나로 공유한다(UI/API/CLI 에 복제 금지).
-아키텍처 상세는 `docs/DESIGN.md`, 모듈 맵은 `AGENTS.md`.
+MythOS 는 로컬 실행 루프형 내러티브 시뮬레이션 엔진(Python 3.11+). AI GM(Ollama)이 장면을 진행하고, 이미지(FLUX/MPS)·전술 전투·진행도가 붙는다. 비즈니스 로직은 `RuntimeSessionService` 하나로 공유한다(UI/API/CLI 에 복제 금지). 아키텍처 상세는 `docs/DESIGN.md`, 모듈 맵은 `AGENTS.md`.
 
 ## 공유 진입 경로 (모든 에이전트 공통)
 1. 설계 불변: `harness/CORE_MANDATES.md` · 핸드오프: `harness/CONTEXT_BRIDGE.md`
@@ -20,9 +16,13 @@ MythOS 는 로컬 실행 루프형 내러티브 시뮬레이션 엔진(Python 3.
 - 셋업/검증: `make setup`, `make doctor`, `make check`(ruff+eslint+mypy+tsc/vite-build+unittest), `make test`.
 - 실행: `make connect-demo`(CLI fallback), `make streamlit`(데모 UI), `make smoke-local`.
 - 인프라(로컬): `make infra-up` / `make db-migrate`. Ollama·FLUX 는 Mac 호스트, Docker 는 인프라용.
-- 무인 이미지 레인(agy): `docs/engineering/mythos/AGENTIC.md` + `scripts/overnight/PROMPT.agy.md`.
+- 무인 이미지 레인(agy): `make overnight-agy-once` (단일 회차 실행) / `make overnight-agy` (루프 상주 실행) / `make overnight-agy-watch`.
+- 라이브 QA (AGY): `scripts/live-qa/run-agy.sh` (브라우저 라이브 E2E 테스트 및 증거 수집).
 
-## Conventions
-타입 힌트 + dataclass-first 도메인. `snake_case`/`PascalCase`/`UPPER_SNAKE_CASE`. composition·provider 인터페이스 선호.
-순수 unit 테스트는 Docker 비의존, DB 테스트는 `MYTHOS_RUN_DB_TESTS=1`. 상세 규약은 `harness/CORE_MANDATES.md` §1·§4.
-`.env`/HF 토큰/생성물/`.docker/` 는 커밋 금지.
+## Conventions & AGY Sandbox Boundary
+- **샌드박스 예외**: AGY 엔진은 이미지 생성(FLUX/MPS) 및 브라우저 E2E 테스트(Playwright) 등 로컬 호스트 자원과 외부 네트워크 접근이 필요하므로 **샌드박스 없이 구동**됩니다.
+- **안전 경계**: 샌드박스가 없는 대신 `scripts/overnight/PROMPT.agy.md` 가드레일 가이드라인 및 `loop/agy` 브랜치/worktree 격리 독립 환경에 전적으로 의존합니다.
+- **코드 탐색**: Serena MCP를 사용할 수 있으면 루트의 `.serena/project.yml`에 설정된 Pyright(Python) 및 Vtsls(TypeScript) LSP로 정의·참조·타입 등 심볼 탐색을 먼저 수행합니다. 문자열·설정·주석은 `rg`를 사용하고, LSP를 사용할 수 없을 때만 텍스트 탐색으로 폴백합니다.
+- 타입 힌트 + dataclass-first 도메인. `snake_case`/`PascalCase`/`UPPER_SNAKE_CASE`. composition·provider 인터페이스 선호.
+- 순수 unit 테스트는 Docker 비의존, DB 테스트는 `MYTHOS_RUN_DB_TESTS=1`. 상세 규약은 `harness/CORE_MANDATES.md` §1·§4.
+- `.env`/HF 토큰/생성물/`.docker/` 는 커밋 금지.

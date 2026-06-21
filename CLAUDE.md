@@ -15,8 +15,8 @@ Why both: MythOS is the harness **origin tier**, not a consumer, so the local co
 
 ## Code navigation (LSP-first)
 
-- **LSP is the default** for symbol work — definition, references, type/hover, call hierarchy, document/workspace symbols. The whole codebase is covered (Python via pyright, TS/TSX via vtsls). It is semantic (resolves through imports/types), returns exact `file:line:char`, and is always live — beating grep on the same axis with no staleness. Use it for *which file / which function / called where*. Needs `ENABLE_LSP_TOOL=1` + the `pyright`/`vtsls` plugins (`boostvolt/claude-code-lsps`).
-- **grep** for rare literals / non-symbol text (strings, config, comments) and for engines without an LSP tool (e.g. the Codex/agy/Gemini overnight lanes).
+- **LSP is the default** for symbol work — definition, references, type/hover, call hierarchy, document/workspace symbols. The whole codebase is covered (Python via pyright, TS/TSX via vtsls). It is semantic (resolves through imports/types), returns exact `file:line:char`, and is always live — beating grep on the same axis with no staleness. Use it for *which file / which function / called where*. Needs `ENABLE_LSP_TOOL=1` + the `pyright`/`vtsls` plugins (`boostvolt/claude-code-lsps`), or Serena MCP (configured with LSP backend via `.serena/project.yml`).
+- **grep** for rare literals / non-symbol text (strings, config, comments) and for engines without an LSP tool (e.g. the Codex/agy overnight lanes).
 
 ## What this is
 

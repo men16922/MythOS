@@ -5,6 +5,30 @@ Last updated: 2026-06-21
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-06-21 (v) — consolidate Gemini/AGY instructions and register Serena MCP
+- Status: Completed.
+- Changed:
+  - Updated `GEMINI.md` to incorporate Antigravity (AGY) specific instructions, run commands, and sandbox configurations.
+  - Deleted redundant `AGY.md` file from the repository root.
+  - Adjusted agent guidelines in `AGENTS.md` to point only to `CLAUDE.md` and `GEMINI.md` as agent entry points.
+  - Staged Serena MCP server launch configuration inside the client's global `/Users/men1692/.gemini/config/mcp_config.json` using the corrected `serena start-mcp-server` command structure with `--project-from-cwd` detection, `DEBUG` logging, and LSP communication tracing enabled.
+- Verified:
+  - Confirmed deletion of `AGY.md` and updates to `GEMINI.md` / `AGENTS.md` / `mcp_config.json`.
+  - Ran `make check-skills` to ensure the overnight harness skills remain synchronized without drift.
+- Blockers: None.
+- Next: Proceed with other priorities listed in NEXT_PLAN.md.
+
+## 2026-06-21 (u) — configure Serena MCP to use LSP for Python and TypeScript
+- Status: Completed. Serena MCP is now configured to utilize SolidLSP/LSP instead of falling back to grep.
+- Changed:
+  - Created `.serena/project.yml` at the repository root to declare standard language backend and configurations for Python (pyright) and TypeScript (vtsls / typescript), using the primary language `python` to satisfy SolidLSP's Language enum bounds.
+  - Modified `CLAUDE.md` and `harness/CORE_MANDATES.md` to update code navigation guidelines: Serena MCP/Gemini agent now uses LSP-first navigation, and Gemini was removed from the grep-only lanes list.
+- Verified:
+  - Checked `.serena/project.yml` file creation.
+  - Ran `make check-doc-budget` and `make check` to verify lint, types, build, and all 512 tests passed successfully.
+- Blockers: None.
+- Next: Proceed with other priorities listed in NEXT_PLAN.md.
+
 ## 2026-06-21 (t) — overnight [auto:claude]: extract useSceneVisuals hook from App.tsx
 - Status: Behavior-preserving frontend god-component decomposition, slice 6. The scene-image / visual-status concern moved out of App.tsx into a hook, matching the `useGameSocket`·`useCombatCinemaQueue`·`useTypewriter` pattern.
 - Changed: NEW `src/mythos_ui/src/hooks/useSceneVisuals.ts` — owns `sceneImageUrl`/`imagePlaceholderText` state + `visualTimeoutRef` (worker watchdog) + `clearVisualTimeout` (memoized via `useCallback` for stable identity) + `onVisualStatus` (drains a `visual_status` WS frame: pending/processing → placeholder + 90s timeout, succeeded → URL, else fail) + `resolveImage` (resolves a succeeded asset's `storage_uri` → presigned URL). Takes `logToConsole`, returns the state + setters + the three functions. `App.tsx`: removed the inline state/ref block + the three function defs (~50 lines); dropped the now-unused `apiResolveAsset` import and `AssetInfo` type import (both moved into the hook); added `clearVisualTimeout`+`setImagePlaceholderText` to `sendChoose`'s useCallback dep array (now hook-sourced). App.tsx 1102→1069 lines. No logic change.

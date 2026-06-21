@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-06-21 — Configure Serena MCP to use LSP for Python and TypeScript
+
+Decision: Created project-level `.serena/project.yml` configuration at the repository root to enable and configure LSP backends. Configured Python to use `pyright` (pointing to the project's local `.venv/bin/python` virtual environment and adding `./src` to `extraPaths`) and TypeScript to use `vtsls` / `typescript` (with relative imports configuration). Updated repository policies in `CLAUDE.md` and `harness/CORE_MANDATES.md` to classify Serena MCP/Gemini agent under LSP-first code navigation instead of grep-only.
+
+Reason/impact: Allows the Gemini/Antigravity agent executing via Serena MCP to perform semantic code navigation (symbol lookup, definition, reference tracking, and auto-imports) across the hybrid Python and React TypeScript workspace. This aligns Gemini with the same LSP-first discipline used by Claude Code, eliminating slow and imprecise grep search fallbacks for code navigation.
+
 ## 2026-06-21 — Automatic live-QA = a 4th verification tier in the MythOS interpretation (default-on)
 
 Decision: Promote AGY browser live-QA from a human-armed standalone probe to an **automatic verification tier inside the existing overnight loop**, formalized **only in the MythOS interpretation layer** (`docs/engineering/mythos/{VERIFICATION,LOOP}.md`) — the generic plugin bibles stay untouched. After gate + critic, a path-based candidate filter (`scripts/overnight/browser-qa-filter.sh`) decides if a commit is browser-observable; if so AGY browser-tests it and `browser-qa.sh` records a dedup ledger. Default-on (`OVERNIGHT_BROWSER_QA=auto`, `=0` kill-switch). It is an **evidence + stop-on-fail guard, not a deterministic gate and not a backlog tag**: PASS/SKIP continue, FAIL/NEEDS `STOP`+notify, never reverts. The standalone `make live-qa-agy-probe` target was removed; run `scripts/live-qa/run-agy.sh` directly for diagnosis. This extends/supersedes the human-armed `[qa:agy]` framing below.

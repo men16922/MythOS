@@ -24,6 +24,7 @@
 : "${QA_LOG_DIR:=scripts/overnight/logs}"
 : "${QA_LEDGER_TSV:=$QA_LOG_DIR/qa-status.tsv}"
 : "${QA_REVIEWED_DIR:=$QA_LOG_DIR/qa-reviewed}"
+: "${QA_FINDINGS_MD:=$QA_LOG_DIR/qa-findings.md}"
 : "${BROWSER_QA_FILTER:=scripts/overnight/browser-qa-filter.sh}"
 : "${LIVE_QA_HOOK_CMD:=scripts/live-qa/run-agy.sh}"
 : "${LIVE_QA_CHECKLIST:=docs/test/neo_seoul_live_qa.md}"
@@ -61,6 +62,23 @@ qa_record() {  # trigger head outcome case run_id reason key
   printf '%s\n' "$outcome" > "$QA_REVIEWED_DIR/$key"
 }
 
+# Autonomous discovery: append AGY's objective findings to an UNTAGGED triage list.
+# This is discovery autonomy only — findings never become `[auto]` here; a human (or a
+# cheap critic) promotes them in NEXT_PLAN. Keeps the hallucination/scope-creep gate intact.
+qa_record_findings() {  # trigger head outcome runid hook_output
+  local trigger="$1" head="$2" outcome="$3" runid="$4" out="$5" n
+  printf '%s\n' "$out" | grep -qE '^QA_FINDING:' || return 0
+  mkdir -p "$QA_LOG_DIR"
+  [ -f "$QA_FINDINGS_MD" ] || printf '# AGY live-QA findings — UNTAGGED triage\n\nObjective defects AGY found during overnight live-QA. Promote real ones to `[auto:claude]`/`[manual]` in NEXT_PLAN by hand; the loop never auto-promotes these.\n' > "$QA_FINDINGS_MD"
+  {
+    printf '\n## %s · %s · %s · %s · run=%s\n' \
+      "$(date '+%Y-%m-%dT%H:%M:%S')" "$trigger" "${head:0:9}" "$outcome" "${runid:--}"
+    printf '%s\n' "$out" | grep -E '^QA_FINDING:' | sed -E 's/^QA_FINDING:[[:space:]]*/- [ ] /'
+  } >> "$QA_FINDINGS_MD"
+  n="$(printf '%s\n' "$out" | grep -cE '^QA_FINDING:')"
+  qa_log "browser-qa: recorded $n finding(s) → $QA_FINDINGS_MD (untagged; triage by hand)"
+}
+
 # Safety net only — run-agy.sh always prints an authoritative LIVE_QA_OUTCOME line.
 qa_outcome_from_rc() {
   case "$1" in 4) echo FAIL_EVIDENCE ;; *) echo NEEDS_HUMAN ;; esac
@@ -85,6 +103,7 @@ EOF
   runid="$(printf '%s\n' "$out" | grep -oE 'run=[^ ]+' | tail -1 | cut -d= -f2)"
   QA_LAST_OUTCOME="$outcome"; QA_LAST_RUNID="$runid"
   qa_record "$trigger" "$head" "$outcome" "$case_" "$runid" "$reason" "$key"
+  qa_record_findings "$trigger" "$head" "$outcome" "$runid" "$out"
   case "$outcome" in
     PASS_CANDIDATE|SKIP) qa_log "browser-qa: $outcome — keep commit, continue"; return 0 ;;
     *)                   qa_log "browser-qa: $outcome — STOP (no revert)"; return 3 ;;

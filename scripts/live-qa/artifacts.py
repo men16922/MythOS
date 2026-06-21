@@ -40,6 +40,11 @@ TOOL_RE = re.compile(
 )
 # Stage-2 semantic decision (plan §5): AGY's first line when given a candidate.
 DECISION_RE = re.compile(r"QA_DECISION:\s*(RUN|SKIP)", re.IGNORECASE)
+# Autonomous discovery: AGY reports OBJECTIVE defects as machine-parseable lines.
+# `QA_FINDING: <severity> | <area> | <detail>` (severity = blocker|major|minor).
+FINDING_RE = re.compile(
+    r"QA_FINDING:\s*(blocker|major|minor)\s*\|\s*([^|]+?)\s*\|\s*(.+)", re.IGNORECASE
+)
 
 # outcome -> process exit code. PASS/SKIP keep the loop going; FAIL/NEEDS stop it.
 OUTCOME_EXIT = {
@@ -140,6 +145,16 @@ def read_events(path: Path) -> tuple[list[dict[str, Any]], list[str]]:
     return events, errors
 
 
+def parse_findings(raw: str) -> list[dict[str, str]]:
+    """Extract AGY's objective findings (pure). Subjective feel is never a finding."""
+    findings: list[dict[str, str]] = []
+    for m in FINDING_RE.finditer(raw):
+        findings.append(
+            {"severity": m.group(1).lower(), "area": m.group(2).strip(), "detail": m.group(3).strip()}
+        )
+    return findings
+
+
 def decide_outcome(
     raw: str,
     *,
@@ -215,6 +230,7 @@ def finalize(output_dir: Path, raw_review: Path, agy_exit: int, server_stopped: 
         server_stopped=server_stopped,
         event_errors=event_errors,
     )
+    findings = parse_findings(raw)
 
     verdict_payload = {
         "schema_version": 2,
@@ -230,6 +246,7 @@ def finalize(output_dir: Path, raw_review: Path, agy_exit: int, server_stopped: 
         "event_count": len(events),
         "screenshot_count": len(screenshots),
         "validation_errors": errors,
+        "findings": findings,
     }
     write_json(output_dir / "verdict.json", verdict_payload)
     report = (
@@ -260,6 +277,10 @@ def finalize(output_dir: Path, raw_review: Path, agy_exit: int, server_stopped: 
 
     # Final machine-readable line — browser-qa.sh treats this as authoritative.
     print(f"LIVE_QA_OUTCOME: {outcome}")
+    # Re-emit findings in canonical form so the runner can record them from stdout
+    # (the raw AGY transcript is in a file, not on this process's stdout).
+    for f in findings:
+        print(f"QA_FINDING: {f['severity']} | {f['area']} | {f['detail']}")
     return OUTCOME_EXIT.get(outcome, 5)
 
 

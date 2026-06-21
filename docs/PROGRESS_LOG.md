@@ -5,12 +5,12 @@ Last updated: 2026-06-21
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
-## 2026-06-21 (k) — formalize auto live-QA as a 4th verification tier (mythos/ only)
-- Status: Encoded the automatic live-QA as a first-class, game-specific tier in the MythOS interpretation layer; generic plugin bibles untouched. Fixed a stale removed-target reference.
-- Changed: `mythos/VERIFICATION.md` now a 4-layer model (mechanical → semantic → **automatic live-QA** → creative) with a dedicated §4 + fixed §6 evidence (removed `make live-qa-agy-probe` stale ref → `qa-status.tsv`/`outputs/live-qa/`/run-script-direct). `mythos/LOOP.md` §3.4.1 documents the auto live-QA subphase + tagging payoff. `NEXT_PLAN` tag block gained the repo-specific live-QA-guard note; **retagged** frontend god-component decomposition `[manual]`→`[auto:claude]` (guarded, one slice/iter, behavior-preserving). DECISIONS top entry records the tier + origin-tier rationale.
-- Verified: `make check` green (doc budgets ok, 502 tests). The guard is evidence+stop-on-fail, NOT a deterministic gate — PASS=candidate, subjective feel stays `[manual]`, human sign-off authoritative.
+## 2026-06-21 (k) — auto live-QA = 4th verification tier + autonomous findings (mythos/ only)
+- Status: Encoded automatic live-QA as a first-class game-specific tier in the MythOS interpretation (generic bibles untouched) AND added autonomous discovery so AGY's objective findings self-populate an untagged triage list. Fixed a stale removed-target ref.
+- Changed: `mythos/VERIFICATION.md` → 4-layer model (mechanical→semantic→**auto live-QA**→creative) §4 + §6 evidence fix (`make live-qa-agy-probe` removed → `qa-status.tsv`/`outputs/live-qa/`/run-script-direct). `mythos/LOOP.md` §3.4.1 + `NEXT_PLAN` tag block: repo-specific live-QA-guard note; **retagged** frontend god-component decomposition `[manual]`→`[auto:claude]` (guarded, one slice/iter). DECISIONS top entry. **Autonomous discovery**: AGY emits `QA_FINDING:` lines → `artifacts.py parse_findings` → `browser-qa.sh` appends to untagged `qa-findings.md` → `/overnight-report` triages; promotion to `[auto]` stays human (never auto-promoted — hallucination gate intact).
+- Verified: `make check` green (doc budgets ok, **508 tests**; +6 findings). Guard is evidence+stop-on-fail, NOT a deterministic gate — PASS=candidate, subjective feel stays `[manual]`.
 - Blockers: none. Unpushed (main ahead; user pushes).
-- Next: optionally seed more objective UI refactor/wiring as `[auto:claude]` now that the guard exists; Neo-Seoul `[manual]` feel QA unchanged.
+- Next: triage real `qa-findings.md` entries into `[auto:claude]`/`[manual]` after an overnight run; Neo-Seoul `[manual]` feel QA unchanged.
 
 ## 2026-06-21 (j) — auto-AGY-QA WS-F real run passed → default 0→auto
 - Status: Ran the one real integrated AGY browser-QA from the ordinary overnight command and flipped the default on. WS-A..F now all DONE (plan §18 satisfied).

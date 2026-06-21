@@ -106,6 +106,29 @@ class DecideOutcomeTest(unittest.TestCase):
         self.assertEqual(artifacts.OUTCOME_EXIT["NEEDS_HUMAN"], 5)
 
 
+class ParseFindingsTest(unittest.TestCase):
+    def test_parses_multiple_with_severity_and_area(self):
+        raw = (
+            "QA_DECISION: RUN\n"
+            "QA_FINDING: blocker | onboarding | start button throws TypeError in console\n"
+            "QA_FINDING: minor | codex | avatar image 404 on locked entry\n"
+            + RUN_END
+        )
+        fs = artifacts.parse_findings(raw)
+        self.assertEqual(len(fs), 2)
+        self.assertEqual(fs[0], {"severity": "blocker", "area": "onboarding",
+                                 "detail": "start button throws TypeError in console"})
+        self.assertEqual(fs[1]["severity"], "minor")
+        self.assertEqual(fs[1]["area"], "codex")
+
+    def test_none_when_absent(self):
+        self.assertEqual(artifacts.parse_findings(RUN_END), [])
+
+    def test_case_insensitive_severity(self):
+        fs = artifacts.parse_findings("QA_FINDING: MAJOR | combat | hp bar not updating\n")
+        self.assertEqual(fs[0]["severity"], "major")
+
+
 class FinalizeTest(unittest.TestCase):
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
@@ -155,6 +178,15 @@ class FinalizeTest(unittest.TestCase):
         rc, out, _ = self._finalize(raw)
         self.assertEqual(rc, 4)
         self.assertIn("LIVE_QA_OUTCOME: FAIL_EVIDENCE", out)
+
+    def test_finalize_records_and_reemits_findings(self):
+        self._evidence()
+        raw = ("QA_DECISION: RUN\nQA_FINDING: minor | codex | locked avatar 404\n" + RUN_END)
+        rc, out, verdict = self._finalize(raw)
+        self.assertEqual(rc, 0)
+        self.assertIn("QA_FINDING: minor | codex | locked avatar 404", out)  # re-emitted to stdout
+        self.assertEqual(len(verdict["findings"]), 1)
+        self.assertEqual(verdict["findings"][0]["area"], "codex")
 
     def test_finalize_incomplete_needs_human(self):
         self._evidence(n_shots=0)  # no screenshots

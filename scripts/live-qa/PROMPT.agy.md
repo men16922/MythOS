@@ -63,6 +63,17 @@ QA_DECISION: RUN|SKIP — short reason grounded in the diff/checklist context
 Use Chrome DevTools screenshot/file options when available. If the Chrome tool cannot save a PNG, use
 Playwright MCP only for the screenshot while keeping Chrome DevTools as the interaction tool.
 
+## Findings (objective only)
+
+Before the ending lines, emit one line per **objective, evidence-based** defect you observed — a console
+or failed-network error, a missing/broken control, a failed render, or a wrong displayed payload. Omit
+entirely if none. **Never** report subjective feel here (pacing, tone, balance, art taste) — that is the
+human verdict's job, not a finding. These lines feed an untagged triage list, not an auto-fix queue.
+
+```text
+QA_FINDING: blocker|major|minor | <area, e.g. onboarding/combat/codex> | <one-line description tied to evidence>
+```
+
 ## Required ending (RUN only)
 
 End with exactly these two lines and nothing after them:

@@ -33,6 +33,7 @@ FAKE_HOOK = """#!/usr/bin/env bash
 echo "call" >> "$CALLS"
 echo "live-qa: AGY actor run=fake-$(wc -l < "$CALLS" | tr -d ' ')"
 echo "LIVE_QA_OUTCOME: ${FAKE_OUTCOME:-PASS_CANDIDATE}"
+[ -n "${FAKE_FINDINGS:-}" ] && printf '%s\\n' "$FAKE_FINDINGS"
 case "${FAKE_OUTCOME:-PASS_CANDIDATE}" in
   FAIL_EVIDENCE) exit 4 ;;
   NEEDS_HUMAN) exit 5 ;;
@@ -87,7 +88,8 @@ class BrowserQARunnerTest(unittest.TestCase):
         after = _git(self.repo, "rev-parse", "HEAD")
         return f"{before}..{after}"
 
-    def _run(self, *args: str, outcome: str = "PASS_CANDIDATE") -> tuple[str, int]:
+    def _run(self, *args: str, outcome: str = "PASS_CANDIDATE",
+             findings: str = "") -> tuple[str, int]:
         env = {
             "PATH": _PATH,
             "QA_LOG_DIR": str(self.logdir),
@@ -96,6 +98,7 @@ class BrowserQARunnerTest(unittest.TestCase):
             "LIVE_QA_CHECKLIST": "docs/test/neo_seoul_live_qa.md",
             "CALLS": str(self.calls),
             "FAKE_OUTCOME": outcome,
+            "FAKE_FINDINGS": findings,
         }
         proc = subprocess.run(
             ["bash", str(BROWSER_QA), *args],
@@ -154,6 +157,31 @@ class BrowserQARunnerTest(unittest.TestCase):
         self.assertEqual(code2, 0, out2)
         self.assertIn("QA_RESULT: dedup", out2)
         self.assertEqual(self._call_count(), 1, "hook should run once across two identical calls")
+
+    # --- autonomous discovery: AGY findings land in untagged qa-findings.md ---
+    def test_findings_recorded_untagged(self) -> None:
+        rng = self._commit("src/mythos_ui/App.tsx")
+        out, code = self._run(
+            "maybe_browser_qa", "post-commit", rng, self._head(),
+            outcome="PASS_CANDIDATE",
+            findings="QA_FINDING: minor | codex | locked avatar 404\n"
+                     "QA_FINDING: major | combat | hp bar not updating",
+        )
+        self.assertEqual(code, 0, out)
+        findings_md = self.logdir / "qa-findings.md"
+        self.assertTrue(findings_md.exists(), "qa-findings.md not created")
+        body = findings_md.read_text()
+        self.assertIn("- [ ] minor | codex | locked avatar 404", body)
+        self.assertIn("- [ ] major | combat | hp bar not updating", body)
+        # untagged: the finding entries themselves must NOT carry an [auto] tag
+        finding_lines = [ln for ln in body.splitlines() if ln.startswith("- [ ]")]
+        self.assertTrue(finding_lines)
+        self.assertFalse(any("[auto" in ln for ln in finding_lines))
+
+    def test_no_findings_no_file(self) -> None:
+        rng = self._commit("src/mythos_ui/App.tsx")
+        self._run("maybe_browser_qa", "post-commit", rng, self._head())
+        self.assertFalse((self.logdir / "qa-findings.md").exists())
 
     # --- drain sweep: runs once, dedups on the same HEAD ----------------------
     def test_drain_runs_once_then_dedups(self) -> None:

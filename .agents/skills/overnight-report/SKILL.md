@@ -44,6 +44,10 @@ description: Morning review of an unattended overnight loop. Read and verify run
    - **A PASS_CANDIDATE is an evidence candidate, NOT a human sign-off.** Surface `FAIL_EVIDENCE`/`NEEDS_HUMAN` as
      items requiring human review (these also STOP the loop). Always distinguish three tiers: mechanically-verified
      commit · AGY browser-evidence candidate · human sign-off still pending.
+   - **Autonomous findings triage**: if `scripts/overnight/logs/qa-findings.md` exists, list its new unchecked
+     `- [ ]` items (objective defects AGY discovered). These are **untagged on purpose** — recommend which to
+     promote to `[auto:claude]` (objective, deterministically fixable) vs `[manual]` (needs feel judgment).
+     The loop never auto-promotes them; promotion is a human decision.
 
 6. **Output summary (5-10 lines, English):**
    - exit reason · N commits made (hash·branch) · gate green/red (which stage) ·

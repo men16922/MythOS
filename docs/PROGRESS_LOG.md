@@ -5,6 +5,10 @@ Last updated: 2026-06-21
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-06-21 (n) — fix both triaged AGY findings at source (discovery→fix loop closed)
+- Changed: `OnboardingPanel.tsx` player-name `<input>` gained `name="display-name"` (a11y + selector stability); `app.py` added an explicit `GET /favicon.ico` → 204 route before the catch-all static mount (+`test_api.py` assertion). Both were AGY-discovered objective findings, triaged to `[auto:claude]`, now fixed → marked `[x]` in NEXT_PLAN. Closes discovery→triage→fix→re-verify; favicon stops re-appearing in `qa-findings.md`.
+- Verified: `make check` green — 509 tests (+1 favicon), mypy 124, doc budgets ok.
+
 ## 2026-06-21 (m) — overnight [auto:claude]: extract useCombatBoard hook from App.tsx
 - Status: Behavior-preserving frontend god-component decomposition, slice 2. The combat board pointer/drag interaction moved out of App.tsx into a hook, matching the `useAudio`·`useCombatCinema`·`useInGameEpiphany` pattern.
 - Changed: NEW `src/mythos_ui/src/hooks/useCombatBoard.ts` — owns `dragRef`/`combatInspectCell`/`boardZoom` + internal `redrawCombat` + the 5 canvas pointer handlers (`down/move/up/cancel/leave`) + `handleBoardZoom`; takes `{finalizedSnapshot, canvasRef, animatorRef, isBusy, selectedScenarioId, onCombatAction}` (shared refs passed in; move dispatched back via `onCombatAction`), returns the handlers + `combatInspectCell`/`boardZoom`. `App.tsx`: replaced the inline block (~117 lines) with the hook call + import; dropped now-unused `drawCombatCanvas`/`combatCellFromPoint`/`CombatDragOverlay` imports (all moved into the hook). No logic change.

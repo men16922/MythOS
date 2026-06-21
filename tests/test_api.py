@@ -235,6 +235,12 @@ class ApiNarrativeFlowTest(unittest.TestCase):
         self.store = _InMemoryStore()
         self.client = _client(self.store)
 
+    def test_favicon_returns_204_not_404(self) -> None:
+        # AGY live-QA finding: the catch-all static mount 404'd /favicon.ico on
+        # every page load; the explicit route now silences it cleanly.
+        response = self.client.get("/favicon.ico")
+        self.assertEqual(response.status_code, 204)
+
     def test_connect_creates_player(self) -> None:
         response = self.client.post(
             "/api/v1/auth/connect",

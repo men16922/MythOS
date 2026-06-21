@@ -61,6 +61,7 @@ export function OnboardingPanel({
         <input
           type="text"
           id="display-name"
+          name="display-name"
           placeholder="플레이어 이름"
           value={displayName}
           onChange={(e) => onDisplayNameChange(e.target.value)}

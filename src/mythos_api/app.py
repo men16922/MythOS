@@ -650,6 +650,13 @@ def create_app() -> FastAPI:
     if resources_dir.is_dir():
         app.mount("/resources", StaticFiles(directory=resources_dir), name="resources")
 
+    # Silence the browser's automatic /favicon.ico request — there is no favicon
+    # asset, so the catch-all static mount below would 404 it on every page load.
+    # Registered before the mount so it takes precedence over the catch-all.
+    @app.get("/favicon.ico", include_in_schema=False)
+    async def _favicon() -> Response:
+        return Response(status_code=204)
+
     if STATIC_DIR.is_dir():
         app.mount("/", _NoCacheStaticFiles(directory=STATIC_DIR, html=True), name="static")
 

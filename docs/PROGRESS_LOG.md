@@ -5,6 +5,13 @@ Last updated: 2026-06-21
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-06-21 (k) — formalize auto live-QA as a 4th verification tier (mythos/ only)
+- Status: Encoded the automatic live-QA as a first-class, game-specific tier in the MythOS interpretation layer; generic plugin bibles untouched. Fixed a stale removed-target reference.
+- Changed: `mythos/VERIFICATION.md` now a 4-layer model (mechanical → semantic → **automatic live-QA** → creative) with a dedicated §4 + fixed §6 evidence (removed `make live-qa-agy-probe` stale ref → `qa-status.tsv`/`outputs/live-qa/`/run-script-direct). `mythos/LOOP.md` §3.4.1 documents the auto live-QA subphase + tagging payoff. `NEXT_PLAN` tag block gained the repo-specific live-QA-guard note; **retagged** frontend god-component decomposition `[manual]`→`[auto:claude]` (guarded, one slice/iter, behavior-preserving). DECISIONS top entry records the tier + origin-tier rationale.
+- Verified: `make check` green (doc budgets ok, 502 tests). The guard is evidence+stop-on-fail, NOT a deterministic gate — PASS=candidate, subjective feel stays `[manual]`, human sign-off authoritative.
+- Blockers: none. Unpushed (main ahead; user pushes).
+- Next: optionally seed more objective UI refactor/wiring as `[auto:claude]` now that the guard exists; Neo-Seoul `[manual]` feel QA unchanged.
+
 ## 2026-06-21 (j) — auto-AGY-QA WS-F real run passed → default 0→auto
 - Status: Ran the one real integrated AGY browser-QA from the ordinary overnight command and flipped the default on. WS-A..F now all DONE (plan §18 satisfied).
 - Changed: `run.sh` `OVERNIGHT_BROWSER_QA` default `0→auto` (kill-switch `=0` retained). STATUS/NEXT_PLAN/AGENT_BRIEF marked WS-F done.

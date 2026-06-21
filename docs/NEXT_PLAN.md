@@ -38,6 +38,7 @@ On an **axis separate** from status boxes (`[x]`/`[/]`/`[ ]`/`[~]`), inline tags
 - `[manual]` — human play-feel QA, content/Story-Bible authoring, balance/prompt-feel tuning, etc.; not unattended-verifiable.
 - `[blocked]` — Blocker accumulated twice on the same item (runner appends automatically). Remove after human review. Also covers unmet prerequisites.
 - **No tag = not an unattended target** (safe default). The runner consumes only `[auto*]` and never promotes untagged items.
+- **MythOS live-QA guard (repo-specific, not a tag)** — a commit touching browser-observable UI is auto-screened by AGY (`OVERNIGHT_BROWSER_QA=auto`, stop-on-FAIL); so *objective* UI refactor/codemod/wiring can be `[auto]` (criterion adds "post-commit AGY live-QA not FAIL/NEEDS"), while *subjective* feel stays `[manual]`. Detail `docs/engineering/mythos/LOOP.md` §3.4.1 · `VERIFICATION.md` §4.
 
 **Engine lanes (3 engines in parallel — conflict avoidance, design: `docs/engineering/mythos/AGENTIC.md`):** append an engine suffix to `[auto]` to
 specify which engine consumes it. Each engine consumes **only its own lane** → two never pick the same item.
@@ -111,4 +112,4 @@ Status: `[~]` progression/presentation parity + Story Bible 17 entries done (M38
 
 - `[ ]` `[manual]` long-play Flux1 + Flux1Redux simultaneous-load memory monitor.
 - `[ ]` `[blocked]` `_map` removal cleanup (held until route-node track done; engine records every scene + encounter_map coords·story_bible location·glass-library fallback minimap depend on it). Prereq: all scenarios converted to route_map. When met, promote to `[auto]` (codemod + `make check` green).
-- `[ ]` `[manual]` frontend god-component decomposition (App.tsx·CombatCinema): extract custom hooks/modules. E2E-sensitive, so proceed gradually with live QA.
+- `[ ]` `[auto:claude]` frontend god-component decomposition (App.tsx·CombatCinema): extract custom hooks/modules **one slice per iteration**, behavior-preserving. Done = `make check` green + post-commit AGY live-QA not FAIL/NEEDS (auto-screened, §3.4.1). Was `[manual]` (E2E-sensitive); now guarded by auto live-QA.

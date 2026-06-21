@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-06-21 — Automatic live-QA = a 4th verification tier in the MythOS interpretation (default-on)
+
+Decision: Promote AGY browser live-QA from a human-armed standalone probe to an **automatic verification tier inside the existing overnight loop**, formalized **only in the MythOS interpretation layer** (`docs/engineering/mythos/{VERIFICATION,LOOP}.md`) — the generic plugin bibles stay untouched. After gate + critic, a path-based candidate filter (`scripts/overnight/browser-qa-filter.sh`) decides if a commit is browser-observable; if so AGY browser-tests it and `browser-qa.sh` records a dedup ledger. Default-on (`OVERNIGHT_BROWSER_QA=auto`, `=0` kill-switch). It is an **evidence + stop-on-fail guard, not a deterministic gate and not a backlog tag**: PASS/SKIP continue, FAIL/NEEDS `STOP`+notify, never reverts. The standalone `make live-qa-agy-probe` target was removed; run `scripts/live-qa/run-agy.sh` directly for diagnosis. This extends/supersedes the human-armed `[qa:agy]` framing below.
+
+Reason/impact: MythOS is a **game**, so live-QA is essential and a large slice of browser correctness is *objective* (boot/scene/choices/payload render, console/network) needing no human feel — exactly what an unattended loop can guard. Because MythOS is the harness **origin tier** (not a generic consumer), this game-specific tier belongs in `mythos/`, not the universal bible. Tagging payoff: objective UI/runtime **refactor/codemod/wiring** may now be `[auto]`/`[auto:claude]` (criterion adds "post-commit AGY live-QA not FAIL/NEEDS"); subjective feel stays `[manual]`. First retag: frontend god-component decomposition (NEXT_PLAN). Human sign-off before push stays authoritative (PASS = candidate, not approval). Verified: 502 tests + one real integrated run (`20260621-113313-drain`, Chrome DevTools, PASS_CANDIDATE).
+
 ## 2026-06-21 — AGY is always the live-QA browser actor
 
 Decision: Add a separate, human-armed `[qa:agy]` evidence workflow rather than expanding the normal `[auto:agy]` image/commit lane. AGY always performs browser actions itself: Chrome DevTools is first choice, AGY's Playwright MCP is second, and failure of both ends `NEEDS_HUMAN`. The wrapper owns service lifecycle/timeout/Git invariance; Python may prepare/validate evidence but must never drive live QA. The authoritative checklist remains human-owned.

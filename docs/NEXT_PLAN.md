@@ -77,6 +77,7 @@ Open work:
 
 Narrative QA #1 and #3 done.
 - `[/]` `[manual]` **#2 ending narrativization + #5 post-combat callback**: code merged, unit tests locked. Remaining = live feel.
+- `[x]` **Automatic AGY QA in existing overnight (WS-A..F DONE)**: candidate filter + AGY 2-stage decision + dedup ledger + post-commit/DONE-drain hooks in `run.sh`, now **default-on** (`OVERNIGHT_BROWSER_QA=auto`; `=0` kill-switch); `status.sh`/overnight-report surface QA; standalone `live-qa-agy-probe` removed. Verified: 502 tests + one real integrated run (`20260621-113313-drain`, Chrome DevTools, PASS_CANDIDATE). Guide `docs/plans/2026-06-21-overnight-auto-agy-qa.md` §20-21.
 - `[ ]` **#4 map in-layer choice destinations** · **#6 skill-tree RPG node graph** (separate track, frontend; analysis done).
 
 ### Operation map dynamic routing — done (foundation, detail in COMPLETED_SUMMARY/archive)

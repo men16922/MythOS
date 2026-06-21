@@ -37,9 +37,18 @@ description: Morning review of an unattended overnight loop. Read and verify run
    - In `docs/NEXT_PLAN.md`, tally the count and list of remaining `[auto]`/`[blocked]` items, and any items newly
      auto-marked `[blocked]` this night.
 
+5b. **Automatic browser-QA evidence (if any):**
+   - If `scripts/overnight/logs/qa-status.tsv` exists, summarize each QA run: trigger (post-commit/drain), outcome
+     (PASS_CANDIDATE/SKIP/filter-skip/FAIL_EVIDENCE/NEEDS_HUMAN), case, and run_id. Evidence lives in
+     `outputs/live-qa/<run_id>/` (`report.md` · `verdict.json` · `screenshots/` · `events.jsonl`).
+   - **A PASS_CANDIDATE is an evidence candidate, NOT a human sign-off.** Surface `FAIL_EVIDENCE`/`NEEDS_HUMAN` as
+     items requiring human review (these also STOP the loop). Always distinguish three tiers: mechanically-verified
+     commit · AGY browser-evidence candidate · human sign-off still pending.
+
 6. **Output summary (5-10 lines, English):**
    - exit reason · N commits made (hash·branch) · gate green/red (which stage) ·
-     M remaining `[auto]` · **items needing human review** (red leftovers · new `[blocked]` · STOP reason).
+     M remaining `[auto]` · browser-QA outcomes + evidence dir (if any) ·
+     **items needing human review** (red leftovers · new `[blocked]` · STOP reason · QA FAIL/NEEDS-HUMAN).
 
 7. **Generate the per-run human-review checklist file:**
    - Filename: `docs/test/history/<MMDD-HHMM>-overnight-review-checklist.md`. Use the **exit time of the run under review** as the timestamp

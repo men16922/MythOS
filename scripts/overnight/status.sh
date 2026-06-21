@@ -77,6 +77,28 @@ print_lane() {
   printf '%s %s%-8s%s [%s%-8s%s] %-13s iter%-3s %-9s %s%s%s%s\n' \
     "$tee" "$C0" "$label" "$C0" "$color" "$state" "$C0" "$branch" "$iter" "${head9:-$head}" \
     "$C_IDLE" "${dur:+${dur}s }${tel}" "$detail" "$C0"
+
+  # 자동 브라우저 QA 자식 라인(있으면) — qa-status.tsv 최신 행. 생성: browser-qa.sh(qa_record).
+  # cols: ts trigger head key outcome case run_id reason
+  local qtsv qlast qtrig qout qcase qrun qcolor
+  qtsv="$root/scripts/overnight/logs/qa-status.tsv"
+  if [ -f "$qtsv" ]; then
+    qlast="$(tail -1 "$qtsv" 2>/dev/null)"
+    qtrig="$(printf '%s' "$qlast" | cut -f2)"
+    if [ -n "$qlast" ] && [ "$qtrig" != "trigger" ]; then
+      qout="$(printf '%s' "$qlast" | cut -f5)"
+      qcase="$(printf '%s' "$qlast" | cut -f6)"
+      qrun="$(printf '%s' "$qlast" | cut -f7)"
+      case "$qout" in
+        PASS_CANDIDATE) qcolor="$C_OK";   qout="pass" ;;
+        FAIL_EVIDENCE)  qcolor="$C_FAIL"; qout="fail" ;;
+        NEEDS_HUMAN)    qcolor="$C_FAIL"; qout="needs-human" ;;
+        *)              qcolor="$C_IDLE" ;;
+      esac
+      printf '   └─ %sqa:agy%s [%s%s%s] %s %s%s\n' \
+        "$C_IDLE" "$C0" "$qcolor" "$qout" "$C0" "${qtrig}/${qcase}" "$C_IDLE" "${qrun:+ $qrun}$C0"
+    fi
+  fi
 }
 
 echo "Overnight lanes  (오케스트레이터 main: $(git -C "$MAIN_ROOT" rev-parse --abbrev-ref HEAD 2>/dev/null))"

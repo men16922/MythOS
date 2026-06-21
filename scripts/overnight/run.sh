@@ -75,14 +75,24 @@ GOAL_DIRECTIVE="/goal Either (a) the selected [auto]/[auto:claude] backlog item 
 # 데드코드 — 을 노린다. FAIL 이면 phantom 과 동일하게 revert. 다른 역할(+선택적 다른 모델)이
 # 동일 모델 자기검토 편향을 상쇄한다. 엔진별 읽기 전용 모드: claude=--permission-mode plan ·
 # codex=exec --sandbox read-only · agy=--print(권한 스킵 없음).
-#   OVERNIGHT_CRITIC: 0=off(기본) · 1=항상 · auto=diff 가 위험 휴리스틱을 건드릴 때만(저위험 위생 커밋은 건너뜀).
-: "${OVERNIGHT_CRITIC:=0}"             # 0(기본) | 1(항상) | auto(위험 게이트)
+#   OVERNIGHT_CRITIC: auto=기본(위험 diff만) · 1=항상 · 0=끄기.
+: "${OVERNIGHT_CRITIC:=auto}"          # auto(기본, 위험 게이트) | 1(항상) | 0(끄기)
 : "${OVERNIGHT_CRITIC_MODEL:=}"        # 선택: actor 와 다른 모델로 critic 실행
 : "${OVERNIGHT_CRITIC_MAX_FILES:=8}"   # auto: 변경 파일 수 초과 시 위험(스코프크립)
 : "${OVERNIGHT_CRITIC_MAX_LINES:=400}" # auto: 변경 라인(add+del) 초과 시 위험
 : "${OVERNIGHT_CRITIC_MAX_DIRS:=4}"    # auto: 변경된 top-level 디렉토리 수 초과 시 위험(확산)
 # CRITIC_PROMPT.md: repo 로컬(없으면 build_critic_prompt 의 내장 기본 사용).
 CRITIC_PROMPT_FILE="scripts/overnight/CRITIC_PROMPT.md"
+
+# --- 자동 브라우저 QA 패스 (WS-C/D, opt-in; 설계 docs/plans/2026-06-21-overnight-auto-agy-qa.md) ---
+# 게이트+critic 통과한 새 커밋이 UI/런타임/시나리오를 건드리면(후보 필터) AGY 가 브라우저 QA(증거수집)를
+# 한다. PASS/SKIP=유지+계속, FAIL/NEEDS=정지(revert 안 함)+알림. 사람 사인오프는 여전히 권위.
+#   OVERNIGHT_BROWSER_QA: auto=후보필터+AGY 2단계 결정(기본) · 0=끄기(인시던트 킬스위치).
+#   2026-06-21 실 통합 1회 통과(run 20260621-113313-drain, Chrome DevTools, PASS_CANDIDATE) 후 기본 0→auto.
+: "${OVERNIGHT_BROWSER_QA:=auto}"
+# 함수만 정의(maybe_browser_qa / maybe_drain_browser_qa) + QA_* 기본값 — 끈 상태에선 무영향.
+# shellcheck source=scripts/overnight/browser-qa.sh
+. "$SCRIPT_DIR/browser-qa.sh"
 
 ONCE=0
 [ "${1:-}" = "--once" ] && ONCE=1
@@ -430,7 +440,20 @@ while :; do
     exit_reason="STOP ($(cat "$STOP_FILE" 2>/dev/null | head -1))"; log "STOP 감지 — graceful 종료"; break
   fi
   if [ -f "$DONE_FILE" ]; then
-    exit_reason="DONE ($(cat "$DONE_FILE" 2>/dev/null | head -1))"; log "DONE 감지 — 종료"; break
+    done_reason="DONE ($(cat "$DONE_FILE" 2>/dev/null | head -1))"
+    # WS-D: 코드 백로그 소진 시점에 체크리스트 기반 드레인 QA 1회(HEAD+체크리스트해시 dedup).
+    # DONE 파일은 절대 건드리지 않는다. PASS/SKIP=원래 DONE 사유로 종료, FAIL/NEEDS=QA 사유+알림.
+    if [ "$OVERNIGHT_BROWSER_QA" != "0" ]; then
+      log "DONE 감지 — 종료 전 드레인 브라우저 QA 1회 (A/F bounded)"
+      qa_rc=0
+      maybe_drain_browser_qa "$(git rev-parse HEAD 2>/dev/null || echo none)" || qa_rc=$?
+      if [ "$qa_rc" = "3" ]; then
+        notify_failure "drain browser-qa ${QA_LAST_OUTCOME:-?}"
+        exit_reason="$done_reason + browser-qa ${QA_LAST_OUTCOME:-?}"
+        log "DONE 드레인 QA 정지 — ${QA_LAST_OUTCOME:-?} (DONE 유지, 증거: outputs/live-qa, 검수 필요)"; break
+      fi
+    fi
+    exit_reason="$done_reason"; log "DONE — 종료"; break
   fi
   if [ "$iter" -ge "$MAX_ITER" ]; then
     exit_reason="MAX_ITER ($MAX_ITER)"; log "MAX_ITER 도달 — 종료"; break
@@ -602,6 +625,19 @@ $PROMPT_CONTENT"
               log "critic: PASS — 커밋 유지"
               emit_status "critic-pass" "$HEAD_AFTER" "$ITER_DUR" "" "" "0"
             fi
+          fi
+        fi
+        # WS-C: 자동 브라우저 QA — 게이트+critic 통과(commit_live=1) 커밋에만. 후보 필터가 UI/런타임/
+        # 시나리오 변경으로 판정하면 AGY 가 브라우저 QA. revert 절대 안 함(주관적 QA로 커밋 폐기 금지).
+        # 무진행/연속실패 카운터엔 영향 없음 — 성공 회차의 서브페이즈일 뿐.
+        if [ "$OVERNIGHT_BROWSER_QA" != "0" ] && [ "${commit_live:-0}" = "1" ]; then
+          qa_rc=0
+          maybe_browser_qa "post-commit" "$HEAD_BEFORE..$HEAD_AFTER" "$HEAD_AFTER" || qa_rc=$?
+          if [ "$qa_rc" = "3" ]; then
+            printf 'browser-qa %s @ %s\n' "${QA_LAST_OUTCOME:-?}" "${HEAD_AFTER:0:9}" > "$STOP_FILE"
+            notify_failure "browser-qa ${QA_LAST_OUTCOME:-?} @ ${HEAD_AFTER:0:9}"
+            exit_reason="browser-qa ${QA_LAST_OUTCOME:-?} @ ${HEAD_AFTER:0:9}"
+            log "browser-qa 정지 — ${QA_LAST_OUTCOME:-?} (커밋 유지, 증거: outputs/live-qa, 검수 필요)"; break
           fi
         fi
       else

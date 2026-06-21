@@ -5,6 +5,42 @@ Last updated: 2026-06-21
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-06-21 (j) — auto-AGY-QA WS-F real run passed → default 0→auto
+- Status: Ran the one real integrated AGY browser-QA from the ordinary overnight command and flipped the default on. WS-A..F now all DONE (plan §18 satisfied).
+- Changed: `run.sh` `OVERNIGHT_BROWSER_QA` default `0→auto` (kill-switch `=0` retained). STATUS/NEXT_PLAN/AGENT_BRIEF marked WS-F done.
+- Verified: `OVERNIGHT_BROWSER_QA=auto make overnight-once` → runner auto-decided drain QA at DONE → AGY drove the browser via **Chrome DevTools** (1st-choice tool), played 2 Neo-Seoul checkpoints, returned `PASS_CANDIDATE`; `verdict.json` clean (qa_decision RUN, 2 events/2 PNGs, agy_exit 0, server_stopped, validation_errors []). Evidence `outputs/live-qa/20260621-113313-drain/`. `status.sh` shows `└─ qa:agy [pass] drain/A/F`. dedup marker written → same HEAD/checklist won't rerun.
+- Blockers: none. Unpushed (main ahead; user pushes).
+- Next: Neo-Seoul `[manual]` play-feel QA (A~I); overnight now auto-runs browser QA on UI/runtime/scenario commits.
+
+## 2026-06-21 (i) — automatic AGY browser-QA in overnight (WS-A..E implemented)
+- Status: Implemented WS-A..E of the auto-AGY-QA plan; the overnight runner is now QA-aware behind `OVERNIGHT_BROWSER_QA` (default 0). WS-F (one real integrated AGY run) remains manual. No new operator command.
+- Changed: ① WS-A `scripts/overnight/browser-qa-filter.sh` — read-only Stage-1 candidate filter (CANDIDATE if any changed path is UI/api/runtime/scenario/playwright or unrecognized; SKIP only when all paths are docs/tests/harness/config; candidate-biased). ② WS-B `scripts/live-qa/artifacts.py` pure `decide_outcome`+`QA_DECISION` parse+`LIVE_QA_OUTCOME` line; generalized `run-agy.sh`/`PROMPT.agy.md` (trigger/range/reason/case/mode). ③ WS-C/D `scripts/overnight/browser-qa.sh` (`maybe_browser_qa`/`maybe_drain_browser_qa` + sha256 dedup ledger `logs/qa-status.tsv`+`qa-reviewed/`); `run.sh` post-commit hook (after gate+critic, commit_live=1) + DONE-drain hook — PASS/SKIP keep+continue, FAIL/NEEDS STOP+notify, **never reverts**, never touches no-progress/consec-fail counters. ④ WS-E `status.sh` `qa:agy [outcome]` child line; `overnight-report` SKILL (+3 mirrors) QA evidence + 3-tier sign-off; `Makefile` removed standalone `live-qa-agy-probe`. Verification guide = plan §20-21.
+- Verified: `make check` green — ruff+eslint+mypy(122)+tsc/vite-build + **502 tests** (480→+22; skipped 2). New: `test_browser_qa_filter.py`(18), `test_live_qa_artifacts.py`(15, incl. skip/run/pass/fail/needs classify), `test_browser_qa_runner.py`(7 fake-runner E2E: filter-skip-no-invoke, pass-continue, fail/needs-stop exit3, dedup, drain-once, checklist-rehash-reeligible). `bash -n` all scripts; real-commit filter spot-checks; `status.sh` QA child render; skill-mirror drift OK. Two bugs found+fixed mid-build (macOS `/usr/bin/log` shadowed the function → check `type -t`; SKIP path wrongly inherited "missing events" error). Dirty worktree preserved.
+- Blockers: WS-F needs `agy` CLI + browser MCP (and Ollama/infra for `mode=real`) — manual. Default stays 0 until one real run passes, then flip to `auto`.
+- Next: WS-F real run (`OVERNIGHT_BROWSER_QA=auto make overnight-once`) per plan §21.B; then default 0→auto in a small commit.
+
+## 2026-06-21 (h) — automatic AGY QA integration plan for Claude
+- Status: Completed a plan-only standalone handoff; no automatic overnight integration was implemented in this slice.
+- Changed: Added `docs/plans/2026-06-21-overnight-auto-agy-qa.md`: existing `make overnight*` remains the only operator flow; post-gate/critic and DONE-time triggers decide whether AGY browser QA is needed; Chrome DevTools→Playwright MCP direct actor, dedup ledger, STOP/notify semantics, status/report integration, command cleanup, fault matrix, and WS-A~F are specified.
+- Verified: Plan read-back complete and `git diff --check -- docs/plans/2026-06-21-overnight-auto-agy-qa.md` passed. Prior implemented baseline remains `make check` green (462 tests, skipped 2) and AGY-direct WS0 `PASS_CANDIDATE`.
+- Blockers: None in planning. Implementation must preserve the current dirty worktree and begin with fake/pure WS-A; do not invoke real AGY until the decision matrix is green.
+- Next: Claude executes WS-A from the new handoff plan; no extra user-facing QA/overnight Make target.
+
+## 2026-06-21 (g) — AGY-direct live-QA WS0
+- Status: Implemented and live-validated the evidence-only QA probe with AGY as the sole browser actor; human sign-off remains authoritative.
+- Changed: Added `scripts/live-qa/{artifacts.py,run-agy.sh,PROMPT.agy.md}` + `make live-qa-agy-probe`. Wrapper owns API lifecycle/timeout/Git invariance; AGY uses Chrome DevTools first or Playwright MCP second and writes events/console/screenshots; Python has no browser dependency and only validates artifacts/verdict.
+- Corrected: Rejected the initial Python-Playwright→offline-review prototype after measuring that AGY can drive the app directly with its own Playwright MCP. Python Playwright was removed from the live-QA path rather than retained as fallback.
+- Verified: direct run `ws0-agy-direct-20260621` = AGY exit 0, Playwright MCP, 2 events + 2 full-page screenshots, validated `PASS_CANDIDATE`, no validation errors, server stopped, pre/post Git state identical. Chrome DevTools is preferred by policy but was not loaded in this specific CLI run.
+- Blockers: None. If both AGY browser tool families fail, the QA run returns `NEEDS_HUMAN`; it never substitutes Python browser automation.
+- Next: WS1 validator fault-injection tests, then targeted real-stack A/F evidence.
+
+## 2026-06-21 (f) — adopt plugin 0.6.0 verification layer selectively
+- Status: Added the plugin's docs-only mechanical → semantic → creative verification model without replacing MythOS's customized origin-tier runner.
+- Changed: Added `VERIFICATION_ENGINEERING.md` + `mythos/VERIFICATION.md`, wired the 6-concept engineering index and loop/harness cross-links, specialized `CRITIC_PROMPT.md` with MythOS invariants, set the repo critic default to risk-gated `auto`, and aligned STATUS/AGENT_BRIEF/DECISIONS with plugin 0.5.1/0.6.0 reality.
+- Verified: Read-back complete; new link targets exist; `bash -n` overnight scripts, `git diff --check`, and `make check` passed (ruff, eslint, mypy 121 files, TypeScript/Vite build, 462 tests; skipped 2).
+- Blockers: None.
+- Next: Continue Neo-Seoul human play-feel QA (A~I); use `OVERNIGHT_CRITIC=auto` for normal unattended runs and keep subjective acceptance `[manual]`.
+
 ## 2026-06-21 (e) — doc context optimization via tidy-docs
 - Status: Completed document optimization per the tidy-docs skill, keeping entry documents within budget constraints.
 - Changed: ① `docs/NEXT_PLAN.md`: Removed completed QA seeds and simplified the Live QA narrative improvements list, bringing the line count from 120 down to 113. ② `docs/AGENT_BRIEF.md`: Trimmed completed details from the NEXT SESSION pointer. ③ `docs/README.md`: Updated last updated date to 2026-06-21.
@@ -74,4 +110,3 @@ This file keeps **only the latest incremental summaries** (latest 5 items). The 
 - Verified: 실제 run.sh를 격리 git 저장소 + 가짜 claude(에이전트 대역)로 구동(토큰 0). **phantom 검출 0→100%**: `VERIFY=1`(신규)은 RED 커밋 검출·revert→브랜치 GREEN 복구(`phantom` 행 `gate_exit=1`/`commit_verified=0`); `VERIFY=0`(레거시)은 미검출→RED 커밋 잔존. WS-β 주입 확인(claude 수신 프롬프트 첫 줄=`/goal`). `make check-doc-budget` OK(NEXT_PLAN 119/120), `bash -n` 양쪽 OK.
 - Blockers: 플러그인 clone(`men16922/claude-overnight-harness`)이 **v0.2.0 + `diagnose` 스킬 부재** — 본 PROGRESS 2026-06-19(b)의 "diagnose v0.3.0 플러그인 푸시" 기록과 **불일치**(이 origin/main 미반영). 버전 번호 충돌 회피 위해 CHANGELOG는 `Unreleased`로만 기록 — **버전 bump/commit/push는 사용자 재조정**(agent push 차단).
 - Next: 플러그인 버전 reconcile 후 commit/push(사용자). 선택: WS5 ② 아침 digest 자동화 / ④ iter-output 캡.
-

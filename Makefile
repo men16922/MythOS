@@ -152,6 +152,11 @@ overnight-review:           # codex 가 통합 diff 를 읽기전용 리뷰(생�
 image-regen:
 	@scripts/overnight/image-regen.sh
 
+# Live-QA AGY hook is now invoked automatically by the overnight runner
+# (OVERNIGHT_BROWSER_QA=auto, scripts/overnight/browser-qa.sh). For diagnosis run
+# the script directly: `scripts/live-qa/run-agy.sh`. No standalone make target —
+# the existing `make overnight*` commands stay the only operator flow.
+
 doctor:
 	$(VENV)/bin/python agent.py --doctor
 

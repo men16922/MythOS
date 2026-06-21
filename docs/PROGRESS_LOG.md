@@ -5,6 +5,13 @@ Last updated: 2026-06-21
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-06-21 (o) — auto-QA loop production-validated + harness tidy/fix
+- Status: The auto live-QA loop is validated end-to-end in production (3 real `overnight-once` runs: drain + post-commit triggers, autonomous findings, App.tsx decomposition); then doc tidy + an overnight-once gotcha fix.
+- Changed: ① tidy-docs (`0954a4d`) — PROGRESS_LOG 119→38 (11 entries → `bin/docs/archive/progress-2026-06.md`, now 168), NEXT_PLAN trim. ② `make overnight-once` now auto-clears stale STOP/DONE like `make overnight` (`ac339d4`) — a leftover DONE was short-circuiting iterations into drain-QA-only.
+- Verified: `make check` green (509 tests); `make -n overnight-once` shows the clean step; all committed + pushed (main == origin).
+- Blockers: none.
+- Next: `make overnight` for recurring App.tsx decomposition (~$3/slice — bound with `MAX_ITER`) and/or Neo-Seoul `[manual]` play-feel QA; `/overnight-report` to triage new `qa-findings.md`.
+
 ## 2026-06-21 (n) — fix both triaged AGY findings at source (discovery→fix loop closed)
 - Changed: `OnboardingPanel.tsx` player-name `<input>` gained `name="display-name"` (a11y + selector stability); `app.py` added an explicit `GET /favicon.ico` → 204 route before the catch-all static mount (+`test_api.py` assertion). Both were AGY-discovered objective findings, triaged to `[auto:claude]`, now fixed → marked `[x]` in NEXT_PLAN. Closes discovery→triage→fix→re-verify; favicon stops re-appearing in `qa-findings.md`.
 - Verified: `make check` green — 509 tests (+1 favicon), mypy 124, doc budgets ok.

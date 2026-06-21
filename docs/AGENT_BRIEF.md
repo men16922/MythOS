@@ -4,7 +4,7 @@ Last updated: 2026-06-21
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Auto-AGY-QA fully landed (WS-A..F): overnight is QA-aware by default (`OVERNIGHT_BROWSER_QA=auto`; kill-switch `=0`). 502 tests green + one real run passed (Chrome DevTools, PASS_CANDIDATE, evidence `outputs/live-qa/20260621-113313-drain/`). Unpushed — `git push` when ready. Next track: Neo-Seoul `[manual]` play-feel QA (A~I).**
+> ▶ NEXT SESSION: **Auto-AGY-QA loop DONE + production-validated (WS-A..F + autonomous findings; default `OVERNIGHT_BROWSER_QA=auto`, 509 tests). Harness work complete — pivot to product: `make overnight` for recurring App.tsx decomposition (~$3/slice, set `MAX_ITER`) and/or Neo-Seoul `[manual]` play-feel QA (`docs/test/neo_seoul_live_qa.md`); `/overnight-report` triages new `qa-findings.md`.**
 
 ## Snapshot
 

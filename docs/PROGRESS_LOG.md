@@ -1,9 +1,23 @@
 # Progress Log
 
-Last updated: 2026-06-20
+Last updated: 2026-06-21
 
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
+
+## 2026-06-21 (e) — doc context optimization via tidy-docs
+- Status: Completed document optimization per the tidy-docs skill, keeping entry documents within budget constraints.
+- Changed: ① `docs/NEXT_PLAN.md`: Removed completed QA seeds and simplified the Live QA narrative improvements list, bringing the line count from 120 down to 113. ② `docs/AGENT_BRIEF.md`: Trimmed completed details from the NEXT SESSION pointer. ③ `docs/README.md`: Updated last updated date to 2026-06-21.
+- Verified: Ran `make check` (all 462 python tests, doc budgets, linting, and TS builds passed successfully).
+- Blockers: None.
+- Next: Proceed with human play-feel QA (A~I) of the Neo-Seoul playability track.
+
+## 2026-06-21 (d) — add character thumbnails next to name in bonds tab
+- Status: Completed the manual live QA of Section J, and added companion face thumbnail images next to names in the Character Tab's Bonds (relationships) UI.
+- Changed: ① `GameAside.tsx`: Added optional `avatarUrl?: string` to `GaugeBar` and rendered the image before the label text with custom flex style. ② `CharacterTabPanel.tsx`: Added `getAvatarUrl` mapping utility to fetch companion portrait images dynamically and passed the URL to `GaugeBar`. ③ `types.ts`: Added `scenario_id?: string` to `GameStateRaw` interface.
+- Verified: Ran `make check` (all 462 python tests passed, TS build, eslint, ruff, mypy green). Manually started the FastAPI backend, seeded DB player progression & active loop state, flushed Redis cache, and checked the live React frontend via Playwright snapshots & screenshots. Both empty/populated gauges and locked/unlocked cutscenes were verified rendering correctly with avatar thumbnails next to companion names.
+- Blockers: None.
+- Next: Proceed with human play-feel QA (A~I) of the Neo-Seoul playability track.
 
 ## 2026-06-21 (c) — overnight critic port (plugin 0.5.0) + parse_usage fix + status.sh main lane
 - Status: Ported plugin 0.5.0 overnight features into the MythOS origin-tier runner, found+fixed a token-telemetry bug, seeded 2 frontend items, and live-ran the loop (which produced the 2026-06-21/(b) UI commits below). main ahead 8. commits `1cdfabf`/`4ccf6ac`/`2cc5241`/`b889631`/`db9b93b`.

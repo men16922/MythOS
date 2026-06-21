@@ -10,12 +10,23 @@ interface CharacterTabPanelProps {
   onEquip?: (itemId: string, equipped: boolean) => void;
 }
 
+function getAvatarUrl(name: string, scenarioId?: string): string | undefined {
+  if (!scenarioId) return undefined;
+  let filename = name.replace(/_/g, "-");
+  if (filename === "su-a") {
+    filename = "su-ah";
+  }
+  return `/resources/${scenarioId}/characters/${filename}.png`;
+}
+
 export function CharacterTabPanel({
   codexLists,
   snapshot,
   onEquip,
 }: CharacterTabPanelProps) {
   const affectionGauges = buildAffectionGauges(snapshot?.state?.relationships);
+  const scenarioId = snapshot?.state?.scenario_id || "neo-seoul";
+
   return (
     <div id="character-tab-content">
       <div className="panel">
@@ -35,6 +46,7 @@ export function CharacterTabPanel({
                     value={gauge.value}
                     percent={gauge.percent}
                     color={gauge.color}
+                    avatarUrl={getAvatarUrl(gauge.name, scenarioId)}
                   />
                 ))}
                 <div className="gauge-hint">

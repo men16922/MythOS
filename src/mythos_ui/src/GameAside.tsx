@@ -411,17 +411,34 @@ export function GaugeBar({
   percent,
   color,
   hint,
+  avatarUrl,
 }: {
   label: string;
   value: number | string;
   percent: number;
   color: string;
   hint?: string;
+  avatarUrl?: string;
 }) {
   return (
     <div className="gauge">
       <div className="gauge-head">
-        <span className="k">{label}</span>
+        <span className="k" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          {avatarUrl && (
+            <img
+              src={avatarUrl}
+              alt={label}
+              style={{
+                width: "18px",
+                height: "18px",
+                borderRadius: "50%",
+                objectFit: "cover",
+                border: "1px solid var(--line-soft)",
+              }}
+            />
+          )}
+          {label}
+        </span>
         <span className="v">{value}</span>
       </div>
       <div className="gauge-bar">

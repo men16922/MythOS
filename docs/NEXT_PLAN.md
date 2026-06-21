@@ -11,10 +11,9 @@ This file keeps only upcoming (open) work as a rolling plan. Completed tracks li
 Authority design: `docs/plans/2026-06-16-companion-affection-cutscenes.md`. Baseline: prompt-layer Phase 0-2 done (commits `751a37b`/`cfe6a2d`/`ed37c39`/`7fd91e5`, `docs/PROMPT_LAYER.md`).
 Key finding: relationship deltas (`scenario.json` perspective/choice `effect.relationship`) were **authored but ignored at runtime (dead data)** — `route_runtime.py:96` applied only flags.
 
-- `[/]` **Prompt-layer separation (Foundation)**: Phase 0-4 + node-addressing done (overnight seeds C/D/I/J/K — fallback/naming/stat/encounter→md generic defaults, `node=`/`beat=` lookup). Remaining — `[ ]` Phase 5 system_prompt few-shot example extraction (cache-prefix sensitive, lowest priority).
-- `[x]` **P0 affection runtime** (`[auto]`, seeds L/M/N/O): accumulate `effect.relationship` into `state.relationships[name]` (route reconcile + choice fold, idempotent replay) + meta progression cross-loop carry-over (migration 006) + serializer exposure contract; integrity/accumulation tests green. **Remaining (frontend gauge, breadcrumb in `docs/plans/2026-06-16-companion-affection-cutscenes.md` §P0-게이지): `[x]` `[auto:claude]` code-wiring** (types.ts `relationships` type + `gauges.ts` `buildAffectionGauges` + reuse exported `GaugeBar` + mount CharacterTabPanel "동료 관계도"; `make check` green 462, 2026-06-21) · `[ ]` `[manual]` visual feel QA (gate can't see visuals — FE has no unit-test runner).
-- `[/]` **P1 cutscene unlock**: backend **merged to main** (2026-06-19, migration 006/007 applied to real DB, round-trip verified) — `directives/companions/<name>.md` loader (`CutsceneDirective`) + deterministic unlock (`cutscenes.py`) + cross-loop union (migration 007) + `memory_overview.cutscene_gallery` + integrity (`CutsceneIntegrityTest`). **Remaining: `[x]` `[auto:claude]` gallery view code-wiring** (types.ts `CutsceneGalleryEntry`+`MemoryOverview.cutscene_gallery` + new `CutsceneGallery.tsx` locked/unlocked cards mounted in CodexPanel.tsx; `make check` green 462, 2026-06-21) · `[ ]` `[manual]` visual feel · `[ ]` in-game cutscene node appearance (P1-a, directive injection).
-- `[/]` `[manual]` **P2 Se-rin cutscene**: `se_rin.md` 2 cuts (thresholds 2/4) authored for P1-loader validation (placeholder portrait). **Remaining: `[ ]` adopt 2 dedicated arts from `outputs/experiments/adult/serin/imagegen/*.png` (IMAGE_POLICY) + image swap + live QA.**
+- `[/]` **Prompt-layer separation (Foundation)**: Phase 0-4 + node-addressing done. Remaining — `[ ]` Phase 5 system_prompt few-shot example extraction (cache-prefix sensitive, lowest priority).
+- `[/]` **P1 cutscene unlock**: backend and frontend wiring/QA done. Remaining: `[ ]` in-game cutscene node appearance (P1-a, directive injection).
+- `[/]` `[manual]` **P2 Se-rin cutscene**: `se_rin.md` 2 cuts authored. Remaining: `[ ]` adopt 2 dedicated arts from `outputs/experiments/adult/serin/imagegen/*.png` (IMAGE_POLICY) + image swap + live QA.
 - `[ ]` `[manual]` **P3 companion expansion**: kai/lin_yue/tae_o/han/su_a cutscenes + promote 6 `side_arcs` to route side-anchors (WS-B track 2).
 
 ## Engineering maintenance track — WS0-3 done (COMPLETED_SUMMARY M43), only WS4 remains
@@ -51,12 +50,7 @@ specify which engine consumes it. Each engine consumes **only its own lane** →
 
 > "Does it not break" (bot, deterministic) content/balance invariants. green=locked, red=Blocker surface. offline·`make check`.
 
-- `[x]` **Completed invariant batches (2026-06-14~16)** — detail in `COMPLETED_SUMMARY.md` (QA Seed integrity batch + M46) + PROGRESS archive: route/ending reachability, flag·encounter integrity, win-rate band (≥0.50·≤0.95), progression economy, weapons·equipment, skill data, archetype consistency, loot_table↔items, encounter numeric bounds, item.kind enum, story_bible meta, npc_agenda subject, FastAPI/dotenv codemod, doc compression; + seeds A-O (6 content-integrity invariants relationship/effect/ending/node-type/image/perspective + prompt-layer Phase 3/4a-c node-addressing + affection runtime L/M/N/O migration 006). Morning review PASS, origin/main pushed.
-- `[x]` **2026-06-18 seeds P/Q (`[auto:claude]` player-facing data closure)** — `tests/test_route_meaning_and_goals.py` 2 items: ① route node `type` closure (all node_types/anchor types present in `session._ROUTE_TYPE_MEANING` → prevents junction-label generic fallthrough, fault-injection RED proven) ② `session_design.chapter_gates` player_goal completeness (every gate has non-empty player_goal + LoopPhase phase + turn_range format — prevents `_chapter_goal` act-strip blanks, content_integrity unscanned area). `make check` green (445, +2).
-- `[x]` `[auto:claude]` **skill/ally data-closure invariant batch** (2026-06-20 seed): one test file adding ① `allies[].skills` ⊆ `combat.skills` (dangling 0) ② skill `requires[]` reference real skills + acyclic + tier-monotonic ③ skill `cost.item` ⊆ `items` (e.g. `patch_protocol`→`nanopatch`) ④ skill `epiphany` references a real epiphany trigger (icon-independent slice of the blocked icon-integrity item). Completion: 4 closure assertions in `tests/test_content_integrity.py`, fault-injection RED proven, `make check` green.
-- `[x]` `[auto:agy]` 6 skill icon drafts: draft `resources/neo-seoul/skills/<id>.png` for `emp_pulse`·`glitch_blink`·`memory_resonance`·`nanoshield_projector`·`signal_overdrive`·`system_intrusion` using IMAGE_POLICY + existing skill-icon style as bible (no placeholder fabrication). Completion: 6 PNGs exist·non-empty·spec-matching. (**2026-06-20 live finding**: this is the cause of han/tae_o/su_ah skills not rendering in the combat bar — only these 6 lack an icon. 2026-06-14 first batch aesthetically rejected — `outputs/agy/skills/VERDICT.md`; regenerate with a strict card template.)
-- `[x]` `[auto:claude]` **heal/support ally-targeting** (2026-06-20 live finding): `engine.py` `heal`/`defense_bonus` always applied to the caster, ignoring `action.target_id` → `patch_protocol`/`nanoshield_projector`/`covering_noise` couldn't reach an ally. Resolved via `CombatState.friendlies_of` + `_friendly_target` (friendly-in-range, default self) + `available_actions.friendly_targets[]` exposure. ally-heal/shield/fallback unit tests in `tests/test_combat_engine.py`, `make check` green (461).
-- `[x]` `[auto:claude]` skill/icon integrity invariant (**done 2026-06-20**, commit `40f34ab`): `test_assets.py` `test_skill_icons_exist` enforces every `combat.skills[].id` → `skills/<id>.png` across all scenarios (neo-seoul 11/11, glass-library 5/5); skill-icon exclusion removed. Fault-injection RED proven, `make check` green (462, +1). (epiphany→skill + requires/cost closures already covered by `SkillDataIntegrityTest`.)
+- No current open seeds. Completed seeds are compressed into `docs/COMPLETED_SUMMARY.md`.
 
 ## Priority 1 — Neo-Seoul Playability Upgrade
 
@@ -81,9 +75,8 @@ Open work:
 
 ### Live QA narrative improvements (2026-06-19, authority `docs/test/neo_seoul_live_qa.md`)
 
-Narrative QA 4 items **merged to main** (`..44fd4e7`). Follow-ups (narrative architecture doc·BGM toggle·api log visibility·opening manual choices) on branch **`feat/narrative-doc-bgm-logging`** (pushed, unmerged, green 454).
-- `[x]` `[manual]` **#1 opening grounding + #3 IX threat rationale**: `opening.md` edit → **live PASS**.
-- `[/]` `[manual]` **#2 ending narrativization + #5 post-combat callback**: code merged to main + unit tests locked in. Remaining = live feel.
+Narrative QA #1 and #3 done.
+- `[/]` `[manual]` **#2 ending narrativization + #5 post-combat callback**: code merged, unit tests locked. Remaining = live feel.
 - `[ ]` **#4 map in-layer choice destinations** · **#6 skill-tree RPG node graph** (separate track, frontend; analysis done).
 
 ### Operation map dynamic routing — done (foundation, detail in COMPLETED_SUMMARY/archive)

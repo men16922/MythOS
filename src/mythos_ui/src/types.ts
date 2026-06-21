@@ -277,6 +277,7 @@ export interface AssetInfo {
 
 export interface GameStateRaw {
   flags: string[];
+  scenario_id?: string;
   // Companion affection tally (snake_case companion id -> signed int; negative =
   // distrust/rejection path). Accumulated server-side onto loop.state.relationships
   // by route_runtime + session choose; values are intentionally unbounded.

@@ -24,7 +24,7 @@
 > ### ★★ 최우선 — 코드/유닛 green, **라이브 체감 사인오프만** 남음 (플레이 1회로 닫힘)
 > - **A. 종료 "왜 끝나는가" 서사화** (`[~]`, L20) — 종료 화면에 숫자 대신 납득되는 코즈가 뜨는가.
 > - **F. 전투↔서사 직후 콜백** (`[~]`, L46) — 전투 *직후* 장면이 여파/heat/동료반응을 이어받는가.
-> - **J. 호감도 게이지 / 컷신 갤러리** (`[ ]`, J절, **신규 2026-06-21 · compile-only**) — overnight가 방금 빌드(`d3d6786`/`17a42a2`). Character 탭 "동료 관계도" 게이지 + Codex 탭 컷신 갤러리. FE 유닛테스트·critic 미적용 → **시각이 유일 게이트**(최우선).
+> - **J. 호감도 게이지 / 컷신 갤러리** (`[x]`, J절, **신규 2026-06-21 · 에이전트 검증 완료**) — overnight 빌드분(`d3d6786`/`17a42a2`) 시각 검증 완료. 캐릭터 탭 "동료 관계도" 게이지 렌더 및 코덱스 탭 동료 컷신 잠금/해제 분기 시각 작동 확인 완료.
 >
 > ### ★ 느낌 판정 (사람만 닫을 수 있음 — 미확인 다수)
 > C 선택의 맛 · D 캐릭터 존재감(린위에/카이/IX) · E 전투 만족감 · G 진행도/재플레이 · H 엔딩 잔향 · I 최종 판정(30-60분·기억나는 장면 3개).
@@ -95,5 +95,9 @@
 > auto-skip(저위험 판정) → **compile/type/lint만 통과**, 실제 렌더는 미검증 → 시각 확인이 유일한 게이트.
 > 서버: `make api-stop && make api` → http://127.0.0.1:8000/
 
-- `[ ]` ★★ **호감도 게이지** — Character 탭 "동료 관계도": 동료별 올바른 매핑·값·색(양수 따뜻/음수·저호감 차가움)·스케일·**빈 상태**(관계 0)가 자연스러운가.
-- `[ ]` ★★ **컷신 갤러리** — Codex(기억의 별자리) 탭: 잠금/해제 카드 분기, 해제 시 큐레이트 이미지+대본, 잠금 시 요건 힌트("호감도 N + flags")가 보이는가.
+- `[x]` ★★ **호감도 게이지** — Character 탭 "동료 관계도": 동료별 올바른 매핑·값·색(양수 따뜻/음수·저호감 차가움)·스케일·**빈 상태**(관계 0)가 자연스러운가.
+  - *에이전트 검증 완료 (2026-06-21)*: API/DB 세팅 및 Playwright를 활용해 빈 상태 및 양수/음수 매핑(Se Rin: 3, Kai: 2, Lin Yue: -1) 확인 완료. 레이아웃과 텍스트 매핑이 정상적으로 출력됨.
+  - 관련 스크린샷: [character_tab_empty.png](file:///Users/men1692/.gemini/antigravity-cli/brain/5f72cbcd-d85d-4dee-9c04-cadd972ca0ce/character_tab_empty.png), [character_tab_with_bonds.png](file:///Users/men1692/.gemini/antigravity-cli/brain/5f72cbcd-d85d-4dee-9c04-cadd972ca0ce/character_tab_with_bonds.png)
+- `[x]` ★★ **컷신 갤러리** — Codex(기억의 별자리) 탭: 잠금/해제 카드 분기, 해제 시 큐레이트 이미지+대본, 잠금 시 요건 힌트("호감도 N + flags")가 보이는가.
+  - *에이전트 검증 완료 (2026-06-21)*: 잠금 상태에서 요건 힌트가 표시되는 카드 분기 검증 완료. 데이터 해제 후 `깜빡이는 신뢰`가 해제되어 큐레이트 이미지와 "대본 보기" summary를 클릭해 본문 텍스트가 정상 노출됨을 확인 완료.
+  - 관련 스크린샷: [codex_tab_locked_cutscenes.png](file:///Users/men1692/.gemini/antigravity-cli/brain/5f72cbcd-d85d-4dee-9c04-cadd972ca0ce/codex_tab_locked_cutscenes.png), [codex_tab_with_unlocked_cutscene.png](file:///Users/men1692/.gemini/antigravity-cli/brain/5f72cbcd-d85d-4dee-9c04-cadd972ca0ce/codex_tab_with_unlocked_cutscene.png)

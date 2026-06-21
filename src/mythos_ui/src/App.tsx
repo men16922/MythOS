@@ -54,6 +54,7 @@ import { buildCodexLists, buildDevConsoleData, buildEpiphanyNotice } from "./vie
 import { useAudio } from "./hooks/useAudio";
 import { useInGameEpiphany } from "./hooks/useInGameEpiphany";
 import { useCombatBoard } from "./hooks/useCombatBoard";
+import { useTypewriter } from "./hooks/useTypewriter";
 
 const firstUnlockedArchetype = (archetypes: ScenarioArchetype[]) =>
   archetypes.find((archetype) => archetype.unlocked !== false)?.name || null;
@@ -113,16 +114,24 @@ export default function App() {
   });
 
   // --- Typewriter / Narration State ---
-  const [displayedNarration, setDisplayedNarration] = useState("");
-  const [isStreaming, setIsStreaming] = useState(false);
   const [lastSnapshot, setLastSnapshot] = useState<RuntimeSnapshot | null>(null);
   const [finalizedSnapshot, setFinalizedSnapshot] = useState<RuntimeSnapshot | null>(null);
 
-  // Typewriter Refs
-  const narrationQueueRef = useRef("");
-  const narrationTypedRef = useRef("");
-  const streamDoneRef = useRef(false);
-  const pendingSnapshotRef = useRef<RuntimeSnapshot | null>(null);
+  // Typewriter narration reveal (state + streaming refs) lives in a hook; it
+  // drains the WS token queue into `displayedNarration` and finalizes the
+  // pending snapshot when the stream ends.
+  const {
+    displayedNarration,
+    setDisplayedNarration,
+    isStreaming,
+    setIsStreaming,
+    startTyper,
+    resetStreamBuffers,
+    narrationQueueRef,
+    streamDoneRef,
+    pendingSnapshotRef,
+  } = useTypewriter(setFinalizedSnapshot);
+
   // Fires if a pending/processing visual job never reports a terminal status
   // (worker died mid-flight) so the placeholder doesn't spin forever.
   const visualTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -210,39 +219,6 @@ export default function App() {
   }, [resumeSessionData?.playerId]);
 
   // --- WebSocket Streaming logic ---
-  const startTyper = useCallback(() => {
-    setIsStreaming(true);
-  }, []);
-
-  // Typewriter Loop
-  useEffect(() => {
-    if (!isStreaming) return;
-    // Accessibility: under prefers-reduced-motion, skip the per-character reveal
-    // and flush the queued narration immediately on each tick.
-    const reduceMotion = prefersReducedMotion();
-    const interval = setInterval(() => {
-      if (narrationQueueRef.current.length > 0) {
-        // Drain the queue quickly so the typewriter keeps pace with the token
-        // stream and doesn't add a trailing delay once generation is done.
-        const step = reduceMotion
-          ? narrationQueueRef.current.length
-          : Math.max(3, Math.ceil(narrationQueueRef.current.length / 24));
-        const sliceStr = narrationQueueRef.current.slice(0, step);
-        narrationQueueRef.current = narrationQueueRef.current.slice(step);
-        narrationTypedRef.current += sliceStr;
-        setDisplayedNarration(narrationTypedRef.current);
-      } else if (streamDoneRef.current) {
-        clearInterval(interval);
-        setIsStreaming(false);
-        setDisplayedNarration(narrationTypedRef.current);
-        if (pendingSnapshotRef.current) {
-          setFinalizedSnapshot(pendingSnapshotRef.current);
-        }
-      }
-    }, 12);
-    return () => clearInterval(interval);
-  }, [isStreaming]);
-
   const beginStream = useCallback((statusLabel: string) => {
     const prevScene = finalizedSnapshot?.active_scene;
     if (prevScene) {
@@ -262,14 +238,10 @@ export default function App() {
     }
     pendingActionRef.current = null;
 
-    streamDoneRef.current = false;
-    pendingSnapshotRef.current = null;
-    narrationQueueRef.current = "";
-    narrationTypedRef.current = "";
-    setDisplayedNarration("");
+    resetStreamBuffers();
     setStatus(statusLabel);
     startTyper();
-  }, [startTyper, finalizedSnapshot]);
+  }, [resetStreamBuffers, startTyper, finalizedSnapshot]);
 
   const clearVisualTimeout = () => {
     if (visualTimeoutRef.current) {
@@ -571,11 +543,7 @@ export default function App() {
         setNarrativeHistory([]);
         clearVisualTimeout();
         setImagePlaceholderText("그림 생성 준비 중…");
-        streamDoneRef.current = false;
-        pendingSnapshotRef.current = null;
-        narrationQueueRef.current = "";
-        narrationTypedRef.current = "";
-        setDisplayedNarration("");
+        resetStreamBuffers();
         setStatus("루프 생성 · 토큰 스트리밍…");
         setIsStreaming(true);
 

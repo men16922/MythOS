@@ -4,7 +4,6 @@ import {
   apiConnect,
   apiActive,
   apiCombatAction,
-  apiResolveAsset,
   apiGetMemory,
   apiGetSlots,
   apiSaveSlot,
@@ -38,7 +37,6 @@ import type {
   SaveSlot,
   RunSummary,
   WebSocketMessage,
-  AssetInfo,
   CombatAction,
   SkillTreeResponse,
 } from "./types";
@@ -53,6 +51,7 @@ import { useCombatBoard } from "./hooks/useCombatBoard";
 import { useCombatCinemaQueue } from "./hooks/useCombatCinemaQueue";
 import { useTypewriter } from "./hooks/useTypewriter";
 import { useGameSocket } from "./hooks/useGameSocket";
+import { useSceneVisuals } from "./hooks/useSceneVisuals";
 
 const firstUnlockedArchetype = (archetypes: ScenarioArchetype[]) =>
   archetypes.find((archetype) => archetype.unlocked !== false)?.name || null;
@@ -130,18 +129,10 @@ export default function App() {
     pendingSnapshotRef,
   } = useTypewriter(setFinalizedSnapshot);
 
-  // Fires if a pending/processing visual job never reports a terminal status
-  // (worker died mid-flight) so the placeholder doesn't spin forever.
-  const visualTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   // --- Asset / Audio / Cinematic States ---
-  const [sceneImageUrl, setSceneImageUrl] = useState<string | null>(null);
   const [narrativeHistory, setNarrativeHistory] = useState<NarrativeHistoryItem[]>([]);
   // Action the player just took; attached to the scene as it moves into history.
   const pendingActionRef = useRef<string | null>(null);
-  const [imagePlaceholderText, setImagePlaceholderText] = useState(
-    "이미지 토글을 켜고 접속하면 장면 이미지가 생성됩니다."
-  );
   const [kenBurnsActive, setKenBurnsActive] = useState(false);
   const [glitchActive, setGlitchActive] = useState(false);
 
@@ -162,6 +153,19 @@ export default function App() {
   const logToConsole = (line: string) => {
     setConsoleLogs((prev) => prev + line + "\n");
   };
+
+  // Scene-image / visual-status concern (displayed URL + placeholder text + the
+  // worker watchdog timeout) lives in a hook; it owns the `visual_status` frame
+  // handler and the succeeded-asset URL resolver.
+  const {
+    sceneImageUrl,
+    setSceneImageUrl,
+    imagePlaceholderText,
+    setImagePlaceholderText,
+    clearVisualTimeout,
+    onVisualStatus,
+    resolveImage,
+  } = useSceneVisuals(logToConsole);
 
   // --- Audio Hook ---
   const {
@@ -271,32 +275,6 @@ export default function App() {
     startTyper();
   }, [resetStreamBuffers, startTyper, finalizedSnapshot]);
 
-  const clearVisualTimeout = () => {
-    if (visualTimeoutRef.current) {
-      clearTimeout(visualTimeoutRef.current);
-      visualTimeoutRef.current = null;
-    }
-  };
-
-  const onVisualStatus = (msg: WebSocketMessage) => {
-    clearVisualTimeout();
-    if (msg.status === "pending" || msg.status === "processing") {
-      setImagePlaceholderText(`그림 생성 중… (${msg.status})`);
-      // No terminal status within the budget ⇒ worker is likely down or stalled.
-      visualTimeoutRef.current = setTimeout(() => {
-        setImagePlaceholderText(
-          "이미지 생성이 지연됩니다 — visual worker가 응답하지 않을 수 있습니다. `make visual-worker-logs`로 확인하거나 `make dev-up`으로 워커와 함께 기동하세요."
-        );
-        logToConsole("visual_status timeout: worker 무응답(90s)");
-      }, 90000);
-    } else if (msg.status === "succeeded" && msg.url) {
-      setSceneImageUrl(msg.url);
-    } else {
-      setImagePlaceholderText("그림 생성 실패: " + msg.status);
-      logToConsole("visual_status: " + msg.status);
-    }
-  };
-
   const imageOpts = useCallback(() => {
     return {
       with_image: withImage,
@@ -329,7 +307,7 @@ export default function App() {
         })
       );
     }
-  }, [beginStream, fallbackMode, finalizedSnapshot, imageOpts, isStreaming, loopId, selectedScenarioId, websocketRef]);
+  }, [beginStream, clearVisualTimeout, fallbackMode, finalizedSnapshot, imageOpts, isStreaming, loopId, selectedScenarioId, setImagePlaceholderText, websocketRef]);
 
   const handleReceivedSnapshot = (snap: RuntimeSnapshot) => {
     setLoopId(snap.loop_id);
@@ -358,17 +336,6 @@ export default function App() {
     loadSlotsAndRuns(snap.player?.player_id || playerId || "");
     playBgm(snap.bgm_path || "");
     triggerCinematicEffects(snap);
-  };
-
-  const resolveImage = async (assets: AssetInfo[]) => {
-    const ok = assets.find((a) => a.status === "succeeded" && a.storage_uri);
-    if (!ok) return;
-    try {
-      const { url } = await apiResolveAsset(ok.storage_uri);
-      setSceneImageUrl(url);
-    } catch (err) {
-      logToConsole("이미지 resolve 실패: " + (err as Error).message);
-    }
   };
 
   const triggerCinematicEffects = (snap: RuntimeSnapshot) => {

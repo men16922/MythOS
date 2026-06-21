@@ -5,6 +5,13 @@ Last updated: 2026-06-21
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-06-21 (p) — overnight [auto:claude]: generalize encounter-balance invariant to glass-library
+- Status: QA-seed invariant (`tests/test_encounter_balance.py`) extended from neo-seoul-only to a scenario-parameterized contract; glass-library now guarded too.
+- Changed: extracted `_player`/`_ally`/`_simulate`/`_win_rate` to take a `combat` dict + archetype; added `_EncounterBalanceContract` mixin (3 tests keyed on class attrs `scenario`/`archetype`/`representative_party`). `EncounterBalanceTest` (neo-seoul, Ghost, se_rin+kai) + NEW `GlassLibraryEncounterBalanceTest` (glass-library, Binder Fugitive, io+miro). Bumped `_SEEDS` 20→60: at N=20 glass's hardest encounter (`censor_lockdown`) sampled 0.45 (below FLOOR) purely from fixed-seed small-sample noise — true rate 0.64 (N=100); N=60 is deterministic and clears FLOOR with margin (glass party_min 0.62, solo_max 0.80). Shared band FLOOR=0.50/CEILING=0.95 unchanged; docstring baselines updated to measured N=60 values. No game content/balance touched (test-only).
+- Verified: `make check` green — ruff + eslint + mypy (124 files) + tsc/vite-build + **512 tests OK** (skipped 2); module run shows all 6 balance tests pass.
+- Blockers: none.
+- Next: remaining QA-seed items are `[auto:codex]` (STATUS note cleanup, NEXT_PLAN compression); claude lane next = App.tsx/CombatCinema decomposition slices.
+
 ## 2026-06-21 (o) — auto-QA loop production-validated + harness tidy/fix
 - Status: The auto live-QA loop is validated end-to-end in production (3 real `overnight-once` runs: drain + post-commit triggers, autonomous findings, App.tsx decomposition); then doc tidy + an overnight-once gotcha fix.
 - Changed: ① tidy-docs (`0954a4d`) — PROGRESS_LOG 119→38 (11 entries → `bin/docs/archive/progress-2026-06.md`, now 168), NEXT_PLAN trim. ② `make overnight-once` now auto-clears stale STOP/DONE like `make overnight` (`ac339d4`) — a leftover DONE was short-circuiting iterations into drain-QA-only.

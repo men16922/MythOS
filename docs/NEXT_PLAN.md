@@ -51,7 +51,7 @@ specify which engine consumes it. Each engine consumes **only its own lane** →
 
 > "Does it not break" (bot, deterministic) content/balance invariants. green=locked, red=Blocker surface. offline·`make check`.
 
-- [ ] [auto:claude] Generalize encounter balance test to glass-library. Completion criterion: tests/test_encounter_balance.py generalizes or adds a test class GlassLibraryEncounterBalanceTest verifying that glass-library encounters are winnable with ("io", "miro") and non-trivial for solo play.
+- [x] [auto:claude] Generalize encounter balance test to glass-library. Completion criterion: tests/test_encounter_balance.py generalizes or adds a test class GlassLibraryEncounterBalanceTest verifying that glass-library encounters are winnable with ("io", "miro") and non-trivial for solo play.
 - [ ] [auto:codex] Clean up stale test_assets.py skill exclusion note in STATUS.md. Completion criterion: Remove the stale statement about test_assets.py skill icon exclusion in docs/STATUS.md.
 - [ ] [auto:codex] Compress completed tracks in NEXT_PLAN.md to reclaim line budget. Completion criterion: Compress completed details (e.g., completed WS parts and Neo-Seoul playability phases) into docs/COMPLETED_SUMMARY.md to keep the line count within the 120-line cap.
 

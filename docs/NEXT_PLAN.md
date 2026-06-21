@@ -113,3 +113,7 @@ Status: `[~]` progression/presentation parity + Story Bible 17 entries done (M38
 - `[ ]` `[manual]` long-play Flux1 + Flux1Redux simultaneous-load memory monitor.
 - `[ ]` `[blocked]` `_map` removal cleanup (held until route-node track done; engine records every scene + encounter_map coords·story_bible location·glass-library fallback minimap depend on it). Prereq: all scenarios converted to route_map. When met, promote to `[auto]` (codemod + `make check` green).
 - `[ ]` `[auto:claude]` frontend god-component decomposition (App.tsx·CombatCinema): extract custom hooks/modules **one slice per iteration**, behavior-preserving. Done = `make check` green + post-commit AGY live-QA not FAIL/NEEDS (auto-screened, §3.4.1). Was `[manual]` (E2E-sensitive); now guarded by auto live-QA. _Progress (recurring): slice 1 = `hooks/useInGameEpiphany.ts` extracted from App.tsx (2026-06-21 (l)); next candidates = combat board pointer handlers, WS reconnect refs._
+
+### AGY live-QA findings — triaged from `logs/qa-findings.md` (2026-06-21)
+- `[ ]` `[auto:claude]` player-name input lacks `id`/`name` (onboarding). Done = add stable `id`+`name` to the name `<input>` (improves a11y + Playwright/AGY selector stability); `make check` green.
+- `[ ]` `[auto:claude]` `/favicon.ico` 404 noise on every page load. Done = serve a favicon (static asset or 204 route) so the console is clean; `make check` green. (Cosmetic — silences false console findings in later AGY runs.)

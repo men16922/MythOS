@@ -114,6 +114,5 @@ Status: `[~]` progression/presentation parity + Story Bible 17 entries done (M38
 - `[ ]` `[blocked]` `_map` removal cleanup (held until route-node track done; engine records every scene + encounter_map coords·story_bible location·glass-library fallback minimap depend on it). Prereq: all scenarios converted to route_map. When met, promote to `[auto]` (codemod + `make check` green).
 - `[ ]` `[auto:claude]` frontend god-component decomposition (App.tsx·CombatCinema): extract custom hooks/modules **one slice per iteration**, behavior-preserving. Done = `make check` green + post-commit AGY live-QA not FAIL/NEEDS (auto-screened, §3.4.1). Was `[manual]` (E2E-sensitive); now guarded by auto live-QA. _Progress (recurring): slice 1 = `hooks/useInGameEpiphany.ts` (2026-06-21 (l)); slice 2 = `hooks/useCombatBoard.ts` (combat board pointer/drag + tile inspector + zoom, 2026-06-21 (m)) extracted from App.tsx; next candidates = WS reconnect refs/openSocket, typewriter stream loop._
 
-### AGY live-QA findings — triaged from `logs/qa-findings.md` (2026-06-21)
-- `[x]` `[auto:claude]` player-name input lacks `id`/`name` (onboarding) — added `name="display-name"` to the `<input>` (`OnboardingPanel.tsx`; a11y + selector stability).
-- `[x]` `[auto:claude]` `/favicon.ico` 404 noise — added an explicit `GET /favicon.ico` → 204 route before the catch-all static mount (`app.py`, `test_api.py`); console clean, no more recurring AGY finding.
+### AGY live-QA findings — triaged from `logs/qa-findings.md`
+- None open. (2026-06-21: 2 fixed — name-input `name` + favicon 204; see PROGRESS (n).) New findings land here from `/overnight-report` triage.

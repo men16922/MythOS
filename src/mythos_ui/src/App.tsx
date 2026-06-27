@@ -1,9 +1,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import {
   apiGetScenarios,
-  apiCombatAction,
   apiSaveSlot,
-  apiEquip,
 } from "./api";
 import { isChoiceDisabled } from "./choices";
 import { CodexPanel } from "./CodexPanel";
@@ -27,7 +25,6 @@ import type {
   SaveSlot,
   RunSummary,
   WebSocketMessage,
-  CombatAction,
   SkillTreeResponse,
 } from "./types";
 import { CombatAnimator, prefersReducedMotion } from "./combatEffects";
@@ -44,6 +41,7 @@ import { useGameSocket } from "./hooks/useGameSocket";
 import { useSceneVisuals } from "./hooks/useSceneVisuals";
 import { useSessionLifecycle } from "./hooks/useSessionLifecycle";
 import { useDataLoaders } from "./hooks/useDataLoaders";
+import { useCombatRest } from "./hooks/useCombatRest";
 
 const firstUnlockedArchetype = (archetypes: ScenarioArchetype[]) =>
   archetypes.find((archetype) => archetype.unlocked !== false)?.id || null;
@@ -467,86 +465,32 @@ export default function App() {
   };
 
   // --- Combat REST Operations ---
-  const handleCombatAction = async (action: CombatAction) => {
-    if (isBusy || !loopId) return;
-    setIsBusy(true);
-    setStatus("행동 처리 중…");
-
-    // Hand the dispatched action to the board animator (for the attack/cast
-    // connector); impact SFX now fire on the animation's impact frame.
-    dispatchedActionRef.current = action;
-
-    try {
-      const response = await apiCombatAction({
-        loop_id: loopId,
-        scenario_id: selectedScenarioId,
-        action,
-      });
-
-      if (response.prose) {
-        setDisplayedNarration(response.prose);
-        appendCombatLog(response.prose);
-      }
-
-      const baseSnapshot = finalizedSnapshot || lastSnapshot;
-      if (!baseSnapshot) {
-        setStatus("행동 실패: 갱신할 스냅샷이 없습니다.");
-        logToConsole("Combat 오류: 갱신할 스냅샷이 없습니다.");
-        return;
-      }
-
-      // Update snapshot combat
-      const updatedSnapshot = {
-        ...baseSnapshot,
-        combat: response.combat,
-      };
-      setFinalizedSnapshot(updatedSnapshot);
-      setLastSnapshot(updatedSnapshot);
-      // Victory/defeat SFX fire at the end of the board animation (see CombatAnimator).
-      setStatus("행동 적용.");
-    } catch (e) {
-      setStatus("행동 실패: " + (e as Error).message);
-      logToConsole("Combat 오류: " + (e as Error).message);
-    } finally {
-      setIsBusy(false);
-    }
-  };
-
-  const appendCombatLog = (prose: string) => {
-    const timeStr = new Date().toLocaleTimeString("ko-KR", { hour12: false });
-    setCombatLog((prev) => `[${timeStr}] ${prose}\n` + prev);
-  };
-
-  const handleEquip = (itemId: string, equipped: boolean) => {
-    if (!loopId) return;
-    apiEquip({ loop_id: loopId, item_id: itemId, equipped })
-      .then((snap) => setFinalizedSnapshot(snap))
-      .catch((err) => console.error("equip failed", err));
-  };
-
-  const continueAfterCombat = () => {
-    if (isStreaming) return;
-    setCombatLog("");
-    setCombatTarget(null);
-    pendingActionRef.current = "전투의 여파를 살피고 다음 행동을 준비한다";
-    // Keep previous image visible until the new one is generated asynchronously
-    clearVisualTimeout();
-    setImagePlaceholderText("그림 생성 준비 중…");
-    beginStream("전투 이후 · 스트리밍…");
-
-    if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
-      websocketRef.current.send(
-        JSON.stringify({
-          event: "choose",
-          loop_id: loopId,
-          scenario_id: selectedScenarioId,
-          action: "전투의 여파를 살피고 다음 행동을 준비한다",
-          fallback: fallbackMode,
-          ...imageOpts(),
-        })
-      );
-    }
-  };
+  // Combat action POST / equip toggle / post-combat resume-stream live in a
+  // hook; behavior-preserving extraction (handlers stay plain functions).
+  const { handleCombatAction, handleEquip, continueAfterCombat } = useCombatRest({
+    loopId,
+    selectedScenarioId,
+    fallbackMode,
+    isBusy,
+    isStreaming,
+    finalizedSnapshot,
+    lastSnapshot,
+    setIsBusy,
+    setStatus,
+    setDisplayedNarration,
+    setFinalizedSnapshot,
+    setLastSnapshot,
+    setCombatLog,
+    setCombatTarget,
+    setImagePlaceholderText,
+    dispatchedActionRef,
+    pendingActionRef,
+    websocketRef,
+    beginStream,
+    imageOpts,
+    clearVisualTimeout,
+    logToConsole,
+  });
 
   // --- Keyboard hotkeys choice select ---
   useEffect(() => {

@@ -1,0 +1,157 @@
+import type { Dispatch, RefObject, SetStateAction } from "react";
+import { apiCombatAction, apiEquip } from "../api";
+import type { CombatAction, RuntimeSnapshot } from "../types";
+
+type ImageOpts = {
+  with_image: boolean;
+  visual_async: boolean;
+  image_every_turn: boolean;
+};
+
+type UseCombatRestArgs = {
+  // Run identity / mode read by the REST + WS handlers.
+  loopId: string | null;
+  selectedScenarioId: string;
+  fallbackMode: boolean;
+  isBusy: boolean;
+  isStreaming: boolean;
+  // Snapshots the combat handlers read + patch.
+  finalizedSnapshot: RuntimeSnapshot | null;
+  lastSnapshot: RuntimeSnapshot | null;
+  // Setters.
+  setIsBusy: Dispatch<SetStateAction<boolean>>;
+  setStatus: Dispatch<SetStateAction<string>>;
+  setDisplayedNarration: Dispatch<SetStateAction<string>>;
+  setFinalizedSnapshot: Dispatch<SetStateAction<RuntimeSnapshot | null>>;
+  setLastSnapshot: Dispatch<SetStateAction<RuntimeSnapshot | null>>;
+  setCombatLog: Dispatch<SetStateAction<string>>;
+  setCombatTarget: Dispatch<SetStateAction<string | null>>;
+  setImagePlaceholderText: Dispatch<SetStateAction<string>>;
+  // Refs shared with the cinema-queue / WS / scene-history concerns.
+  dispatchedActionRef: RefObject<CombatAction | null>;
+  pendingActionRef: RefObject<string | null>;
+  websocketRef: RefObject<WebSocket | null>;
+  // Helpers from sibling hooks.
+  beginStream: (statusLabel: string) => void;
+  imageOpts: () => ImageOpts;
+  clearVisualTimeout: () => void;
+  logToConsole: (line: string) => void;
+};
+
+/**
+ * Owns the combat REST operations and the post-combat resume: `handleCombatAction`
+ * (POST a combat action, patch the snapshot), `appendCombatLog`, `handleEquip`
+ * (POST an equip toggle), and `continueAfterCombat` (resume the narrative stream
+ * after a combat resolves). Each function is a plain (non-memoized) function —
+ * identical to its prior in-`App` form — so behavior is preserved; all
+ * cross-cutting state, setters, refs and helpers are supplied via props.
+ */
+export function useCombatRest(args: UseCombatRestArgs) {
+  const {
+    loopId,
+    selectedScenarioId,
+    fallbackMode,
+    isBusy,
+    isStreaming,
+    finalizedSnapshot,
+    lastSnapshot,
+    setIsBusy,
+    setStatus,
+    setDisplayedNarration,
+    setFinalizedSnapshot,
+    setLastSnapshot,
+    setCombatLog,
+    setCombatTarget,
+    setImagePlaceholderText,
+    dispatchedActionRef,
+    pendingActionRef,
+    websocketRef,
+    beginStream,
+    imageOpts,
+    clearVisualTimeout,
+    logToConsole,
+  } = args;
+
+  const handleCombatAction = async (action: CombatAction) => {
+    if (isBusy || !loopId) return;
+    setIsBusy(true);
+    setStatus("행동 처리 중…");
+
+    // Hand the dispatched action to the board animator (for the attack/cast
+    // connector); impact SFX now fire on the animation's impact frame.
+    dispatchedActionRef.current = action;
+
+    try {
+      const response = await apiCombatAction({
+        loop_id: loopId,
+        scenario_id: selectedScenarioId,
+        action,
+      });
+
+      if (response.prose) {
+        setDisplayedNarration(response.prose);
+        appendCombatLog(response.prose);
+      }
+
+      const baseSnapshot = finalizedSnapshot || lastSnapshot;
+      if (!baseSnapshot) {
+        setStatus("행동 실패: 갱신할 스냅샷이 없습니다.");
+        logToConsole("Combat 오류: 갱신할 스냅샷이 없습니다.");
+        return;
+      }
+
+      // Update snapshot combat
+      const updatedSnapshot = {
+        ...baseSnapshot,
+        combat: response.combat,
+      };
+      setFinalizedSnapshot(updatedSnapshot);
+      setLastSnapshot(updatedSnapshot);
+      // Victory/defeat SFX fire at the end of the board animation (see CombatAnimator).
+      setStatus("행동 적용.");
+    } catch (e) {
+      setStatus("행동 실패: " + (e as Error).message);
+      logToConsole("Combat 오류: " + (e as Error).message);
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
+  const appendCombatLog = (prose: string) => {
+    const timeStr = new Date().toLocaleTimeString("ko-KR", { hour12: false });
+    setCombatLog((prev) => `[${timeStr}] ${prose}\n` + prev);
+  };
+
+  const handleEquip = (itemId: string, equipped: boolean) => {
+    if (!loopId) return;
+    apiEquip({ loop_id: loopId, item_id: itemId, equipped })
+      .then((snap) => setFinalizedSnapshot(snap))
+      .catch((err) => console.error("equip failed", err));
+  };
+
+  const continueAfterCombat = () => {
+    if (isStreaming) return;
+    setCombatLog("");
+    setCombatTarget(null);
+    pendingActionRef.current = "전투의 여파를 살피고 다음 행동을 준비한다";
+    // Keep previous image visible until the new one is generated asynchronously
+    clearVisualTimeout();
+    setImagePlaceholderText("그림 생성 준비 중…");
+    beginStream("전투 이후 · 스트리밍…");
+
+    if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
+      websocketRef.current.send(
+        JSON.stringify({
+          event: "choose",
+          loop_id: loopId,
+          scenario_id: selectedScenarioId,
+          action: "전투의 여파를 살피고 다음 행동을 준비한다",
+          fallback: fallbackMode,
+          ...imageOpts(),
+        })
+      );
+    }
+  };
+
+  return { handleCombatAction, appendCombatLog, handleEquip, continueAfterCombat };
+}

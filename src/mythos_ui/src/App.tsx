@@ -2,12 +2,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import {
   apiGetScenarios,
   apiCombatAction,
-  apiGetMemory,
-  apiGetSlots,
   apiSaveSlot,
-  apiGetRuns,
-  apiGetSkillTree,
-  apiLearnSkill,
   apiEquip,
 } from "./api";
 import { isChoiceDisabled } from "./choices";
@@ -48,6 +43,7 @@ import { useTypewriter } from "./hooks/useTypewriter";
 import { useGameSocket } from "./hooks/useGameSocket";
 import { useSceneVisuals } from "./hooks/useSceneVisuals";
 import { useSessionLifecycle } from "./hooks/useSessionLifecycle";
+import { useDataLoaders } from "./hooks/useDataLoaders";
 
 const firstUnlockedArchetype = (archetypes: ScenarioArchetype[]) =>
   archetypes.find((archetype) => archetype.unlocked !== false)?.id || null;
@@ -357,70 +353,23 @@ export default function App() {
   };
 
   // --- API load functions ---
-  const loadSlotsAndRuns = async (pId: string) => {
-    if (!pId) return;
-    try {
-      const slotsData = await apiGetSlots(pId);
-      const runsData = await apiGetRuns(pId);
-      const overview = await apiGetMemory(pId);
-      setSaveSlots(slotsData.slots || []);
-      setRunsHistory(runsData.runs || []);
-      setMemoryOverview(overview);
-    } catch (e) {
-      logToConsole("세션/런 데이터 로드 실패: " + (e as Error).message);
-    }
-  };
-
-  const loadCodex = async () => {
-    if (!playerId) return;
-    try {
-      const overview = await apiGetMemory(playerId);
-      setMemoryOverview(overview);
-    } catch (e) {
-      logToConsole("Codex 데이터 로드 실패: " + (e as Error).message);
-    }
-    await loadSkillTree();
-  };
-
-  const loadSkillTree = async () => {
-    if (!playerId) return;
-    try {
-      const tree = await apiGetSkillTree(playerId, selectedScenarioId);
-      setSkillTree(tree);
-    } catch (e) {
-      logToConsole("스킬 트리 로드 실패: " + (e as Error).message);
-    }
-  };
-
-  const handleLearnSkill = async (skillId: string) => {
-    if (!playerId || learningSkillId) return;
-    setLearningSkillId(skillId);
-    setSkillError(null);
-    setSkillNotice(null);
-    const before = skillTree?.skills.find((skill) => skill.id === skillId);
-    try {
-      const tree = await apiLearnSkill({
-        player_id: playerId,
-        scenario_id: selectedScenarioId,
-        skill_id: skillId,
-      });
-      setSkillTree(tree);
-      const after = tree.skills.find((skill) => skill.id === skillId);
-      const name = after?.name || before?.name || skillId;
-      if (before && after && after.rank > before.rank) {
-        setSkillNotice(`${name} 강화 완료: Rank ${before.rank} → ${after.rank}. 통찰 잔액 ${tree.insight_points}p`);
-      } else if (after?.status === "learned") {
-        setSkillNotice(`${name} 습득 완료: 다음 전투부터 액션바에서 사용할 수 있습니다. 통찰 잔액 ${tree.insight_points}p`);
-      } else {
-        setSkillNotice(`${name} 갱신 완료. 통찰 잔액 ${tree.insight_points}p`);
-      }
-      logToConsole(`스킬 갱신: ${skillId} (통찰 잔액 ${tree.insight_points}p)`);
-    } catch (e) {
-      setSkillError((e as Error).message);
-    } finally {
-      setLearningSkillId(null);
-    }
-  };
+  // Read-side loaders (save/run/memory + skill tree) and the learn-skill
+  // mutation live in a hook; behavior-preserving extraction.
+  const { loadSlotsAndRuns, loadCodex, handleLearnSkill } =
+    useDataLoaders({
+      playerId,
+      selectedScenarioId,
+      skillTree,
+      learningSkillId,
+      setSaveSlots,
+      setRunsHistory,
+      setMemoryOverview,
+      setSkillTree,
+      setLearningSkillId,
+      setSkillError,
+      setSkillNotice,
+      logToConsole,
+    });
 
   // --- Session lifecycle handlers ---
   // Onboarding-start / combat-sandbox / resume entry points (+ the shared

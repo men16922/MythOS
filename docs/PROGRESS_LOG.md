@@ -5,6 +5,13 @@ Last updated: 2026-06-27
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-06-28 — App.tsx decomposition slice 8: extract useDataLoaders hook (make check green)
+- Status: Completed. Behavior-preserving extraction; `App.tsx` 927→876 lines.
+- Changed: NEW `hooks/useDataLoaders.ts` (126 lines) owns the read-side API loaders moved verbatim out of `App.tsx` — `loadSlotsAndRuns` (save slots + run history + memory overview), `loadCodex` (memory overview + skill tree), `loadSkillTree`, and the `handleLearnSkill` insight-investment mutation. All cross-cutting state + setters passed as props (matches the useSessionLifecycle/useGameSocket props-object pattern). Handlers stay plain (non-memoized) functions, identical to prior in-`App` form. `loadSkillTree` is internal to the hook (only `loadCodex` calls it) so it's not re-exported to `App`. Removed 5 now-unused api imports from `App.tsx` (apiGetMemory/apiGetSlots/apiGetRuns/apiGetSkillTree/apiLearnSkill).
+- Verified: `make check` green — ruff/eslint, mypy 126 files, tsc/vite build, **529 tests OK** (skipped 2). Bundle rebuilt (`static/app.js`).
+- Blockers: none.
+- Next: App.tsx decomposition — next candidate = combat-REST cluster (handleCombatAction/continueAfterCombat/appendCombatLog/handleEquip).
+
 ## 2026-06-28 — App.tsx decomposition slice 7: extract useSessionLifecycle hook (make check green)
 - Status: Completed. Behavior-preserving extraction; `App.tsx` 1069→927 lines.
 - Changed: NEW `hooks/useSessionLifecycle.ts` (288 lines) owns the session lifecycle entry points moved verbatim out of `App.tsx` — `handleStartGame` (fresh run), `handleSimulateCombat` (fallback combat sandbox), `handleResumeGame` (resume existing loop), plus the shared `saveSessionMetadata` resume-token writer. All cross-cutting state setters + hook helpers are passed as props (matches the useGameSocket/useSceneVisuals props-object pattern). Handlers stay plain (non-memoized) functions, identical to prior in-`App` form. Exported `NarrativeHistoryItem` type from `App.tsx` for the hook. Removed 5 now-unused api imports from `App.tsx` (apiConnect/apiActive/apiBegin/apiCombatBegin/apiGetLoopScenes).

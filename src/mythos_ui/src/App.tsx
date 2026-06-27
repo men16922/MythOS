@@ -54,7 +54,7 @@ import { useGameSocket } from "./hooks/useGameSocket";
 import { useSceneVisuals } from "./hooks/useSceneVisuals";
 
 const firstUnlockedArchetype = (archetypes: ScenarioArchetype[]) =>
-  archetypes.find((archetype) => archetype.unlocked !== false)?.name || null;
+  archetypes.find((archetype) => archetype.unlocked !== false)?.id || null;
 
 type NarrativeHistoryItem = {
   sceneId: string;

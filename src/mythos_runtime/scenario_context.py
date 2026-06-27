@@ -148,21 +148,52 @@ DEFAULT_ENCOUNTERS = Encounters(
 )
 
 
+def resolve_archetype_id(scenario: ScenarioConfig, value: str | None) -> str | None:
+    """Map an archetype identifier or (legacy/localized) display name to its stable id.
+
+    Returns the value unchanged if it already matches an archetype ``id``; otherwise
+    the id of the archetype whose ``name`` equals ``value`` (back-compat for saves /
+    clients that still carry a display name); otherwise the value unchanged.
+    """
+    if not value:
+        return None
+    for archetype in scenario.archetypes:
+        if archetype.get("id") == value:
+            return value
+    for archetype in scenario.archetypes:
+        if archetype.get("name") == value:
+            archetype_id = archetype.get("id")
+            return str(archetype_id) if archetype_id else value
+    return value
+
+
 def apply_archetype_traits(
     traits: dict[str, Any],
     scenario: ScenarioConfig,
 ) -> dict[str, Any]:
-    """Return traits enriched from the scenario archetype table."""
-    archetype_name = traits.get("archetype")
-    if not archetype_name:
+    """Return traits enriched from the scenario archetype table.
+
+    Accepts either a stable archetype ``id`` or a (legacy/localized) display name in
+    ``traits['archetype']``. Stores the language-independent id in ``archetype_id``
+    (drives combat/progression joins) while canonicalizing ``archetype`` to the
+    display name (used by the ``{archetype}`` narrative placeholder and UI).
+    """
+    archetype_key = traits.get("archetype")
+    if not archetype_key:
         return dict(traits)
 
     enriched = dict(traits)
     for archetype in scenario.archetypes:
-        if archetype.get("name") != archetype_name:
+        if archetype.get("id") != archetype_key and archetype.get("name") != archetype_key:
             continue
         enriched["stats"] = archetype.get("stats", {})
         enriched["attributes"] = archetype.get("attributes", [])
+        archetype_id = archetype.get("id")
+        if archetype_id:
+            enriched["archetype_id"] = str(archetype_id)
+        archetype_name = archetype.get("name")
+        if archetype_name:
+            enriched["archetype"] = str(archetype_name)
         enriched.setdefault("autonomy_level", 1)
         enriched.setdefault("unlocked_traits", [])
         break

@@ -13,6 +13,7 @@
   },
   "characters": [
     {
+      "id": "se_rin",
       "name": "정세린",
       "alias": "물거미",
       "role": "첫 인도자 / 데이터 밀수꾼",
@@ -20,6 +21,7 @@
       "keywords": ["정세린", "세린", "물거미", "se-rin", "serin"]
     },
     {
+      "id": "lin_yue",
       "name": "린위에",
       "alias": "환전상",
       "role": "야시장 브로커",
@@ -27,6 +29,7 @@
       "keywords": ["린위에", "lin yue", "lin-yue"]
     },
     {
+      "id": "kai",
       "name": "카이",
       "alias": "RX-09",
       "role": "꿈꾸는 폐기 안드로이드",
@@ -34,6 +37,7 @@
       "keywords": ["카이", "kai", "rx-09"]
     },
     {
+      "id": "tae_o",
       "name": "태오",
       "alias": "사냥개",
       "role": "탈주 집행관 / 전술 조력자",
@@ -41,6 +45,7 @@
       "keywords": ["태오", "tae-o", "tae o", "사냥개"]
     },
     {
+      "id": "han",
       "name": "한",
       "alias": "신호 파괴자",
       "role": "비접속자 해커",
@@ -48,6 +53,7 @@
       "keywords": ["한", "han", "신호 파괴자", "해커"]
     },
     {
+      "id": "su_ah",
       "name": "수아",
       "alias": "잔향 가공사",
       "role": "기억의 대장장이",
@@ -55,6 +61,7 @@
       "keywords": ["수아", "su-ah", "su ah", "잔향 가공사"]
     },
     {
+      "id": "administrator_ix",
       "name": "관리자 IX",
       "alias": "Control Net",
       "role": "ARK 관리망",
@@ -71,6 +78,7 @@
   },
   "archetypes": [
     {
+      "id": "ghost",
       "name": "비접속자 (Ghost)",
       "stats": {"strength": 3, "intelligence": 6, "charisma": 2, "agility": 8, "perception": 7},
       "attributes": ["[유령 신호]", "[무음의 발걸음]"],
@@ -78,6 +86,7 @@
       "base_skills": ["signal_step", "packet_shot"]
     },
     {
+      "id": "data_smuggler",
       "name": "데이터 밀수꾼 (Data Smuggler)",
       "stats": {"strength": 5, "intelligence": 8, "charisma": 5, "agility": 4, "perception": 6},
       "attributes": ["[ARK 링크]", "[데이터 세탁]"],
@@ -87,6 +96,7 @@
       "unlock_hint": "튜토리얼 루프를 한 번 보관하면 해금됩니다."
     },
     {
+      "id": "echo_collector",
       "name": "잔향 수집가 (Echo Collector)",
       "stats": {"strength": 2, "intelligence": 5, "charisma": 9, "agility": 3, "perception": 8},
       "attributes": ["[기억의 직공]", "[과거의 공명]"],
@@ -870,14 +880,14 @@
       "unarmed": {"id": "unarmed", "name": "맨손", "kind": "melee", "damage": "1d4", "reach": 1}
     },
     "archetype_loadout": {
-      "비접속자 (Ghost)": ["vibro_blade"],
-      "데이터 밀수꾼 (Data Smuggler)": ["rivet_carbine"],
-      "잔향 수집가 (Echo Collector)": ["shock_baton"]
+      "ghost": ["vibro_blade"],
+      "data_smuggler": ["rivet_carbine"],
+      "echo_collector": ["shock_baton"]
     },
     "archetype_base_skills": {
-      "비접속자 (Ghost)": ["signal_step", "packet_shot"],
-      "데이터 밀수꾼 (Data Smuggler)": ["packet_shot", "covering_noise"],
-      "잔향 수집가 (Echo Collector)": ["patch_protocol", "covering_noise"]
+      "ghost": ["signal_step", "packet_shot"],
+      "data_smuggler": ["packet_shot", "covering_noise"],
+      "echo_collector": ["patch_protocol", "covering_noise"]
     },
     "epiphanies": {
       "first_loop_archived": {"runs_completed": 1},

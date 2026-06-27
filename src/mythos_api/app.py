@@ -345,6 +345,7 @@ def create_app() -> FastAPI:
                     "unlock_hint": "" if scenario_unlocked else s.unlock_hint,
                     "archetypes": [
                         {
+                            "id": a.get("id"),
                             "name": a.get("name"),
                             "attributes": a.get("attributes", []),
                             "starting_item": a.get("starting_item"),
@@ -353,7 +354,7 @@ def create_app() -> FastAPI:
                             "unlock": a.get("unlock"),
                             "unlock_hint": a.get("unlock_hint", ""),
                             "unlocked": not bool(a.get("unlock"))
-                            or str(a.get("name")) in unlocked_archetypes,
+                            or str(a.get("id")) in unlocked_archetypes,
                         }
                         for a in s.archetypes
                     ],

@@ -64,7 +64,7 @@ class CombatServiceTest(unittest.TestCase):
             encounter_id="patrol_ambush",
             player_name="당신",
             player_stats={"strength": 9, "agility": 8, "perception": 6},
-            archetype="비접속자 (Ghost)",
+            archetype="ghost",
         )
 
     def test_begin_activates_combat(self) -> None:

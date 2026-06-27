@@ -90,12 +90,12 @@ export function OnboardingPanel({
           return (
             <button
               type="button"
-              key={archetype.name}
-              className={`arch-card ${selectedArchetype === archetype.name ? "sel" : ""} ${
+              key={archetype.id}
+              className={`arch-card ${selectedArchetype === archetype.id ? "sel" : ""} ${
                 unlocked ? "" : "locked"
               }`}
               disabled={!unlocked}
-              onClick={() => onArchetypeChange(archetype.name)}
+              onClick={() => onArchetypeChange(archetype.id)}
             >
               <div className="arch-name">{archetype.name}</div>
               <div className="arch-attrs">

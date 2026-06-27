@@ -1,4 +1,5 @@
 export interface ScenarioArchetype {
+  id: string;
   name: string;
   attributes: string[];
   starting_item?: string;

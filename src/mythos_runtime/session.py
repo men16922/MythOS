@@ -104,7 +104,11 @@ from mythos_runtime.route_runtime import (
 )
 from mythos_runtime.save_load import SaveLoadService
 from mythos_runtime.scenario import load_scenario
-from mythos_runtime.scenario_context import apply_archetype_traits, build_runtime_narrative_context
+from mythos_runtime.scenario_context import (
+    apply_archetype_traits,
+    build_runtime_narrative_context,
+    resolve_archetype_id,
+)
 from mythos_runtime.session_memory import record_beat
 from mythos_runtime.visual_orchestration import maybe_generate_scene_image
 
@@ -673,14 +677,30 @@ class RuntimeSessionService:
         self._require_player(player_id)
         return self.progression.list_run_summaries(player_id, limit)
 
+    def _resolved_archetype(self, player: PlayerProfile, scenario_id: str) -> str | None:
+        """Stable archetype id for combat/progression joins.
+
+        Prefers the persisted ``archetype_id``; falls back to resolving a legacy/
+        display-name ``archetype`` (old saves) to its id via the scenario table.
+        """
+        if not isinstance(player.traits, dict):
+            return None
+        raw = player.traits.get("archetype_id") or player.traits.get("archetype")
+        if not raw:
+            return None
+        try:
+            return resolve_archetype_id(load_scenario(scenario_id), raw)
+        except Exception:
+            return str(raw)
+
     def skill_tree(self, player_id: str, scenario_id: str) -> dict[str, Any]:
         player = self._require_player(player_id)
-        archetype = player.traits.get("archetype") if isinstance(player.traits, dict) else None
+        archetype = self._resolved_archetype(player, scenario_id)
         return self.progression.skill_tree(player_id, scenario_id, archetype)
 
     def learn_skill(self, player_id: str, scenario_id: str, skill_id: str) -> dict[str, Any]:
         player = self._require_player(player_id)
-        archetype = player.traits.get("archetype") if isinstance(player.traits, dict) else None
+        archetype = self._resolved_archetype(player, scenario_id)
         return self.progression.learn_skill(player_id, scenario_id, skill_id, archetype)
 
     def _apply_meta_progression(
@@ -960,7 +980,7 @@ class RuntimeSessionService:
             loop = replace(loop, state=state)
         player = self._require_player(loop.player_id)
         scenario = load_scenario(options.scenario_id)
-        archetype = player.traits.get("archetype") if isinstance(player.traits, dict) else None
+        archetype = self._resolved_archetype(player, options.scenario_id)
 
         with span("mythos.session.combat_start", player_id=player.player_id, loop_id=loop.loop_id):
             result = self.combat.begin(
@@ -1186,7 +1206,7 @@ class RuntimeSessionService:
         )
         if encounter_id not in encounters:
             raise RuntimeError(f"unknown combat encounter requested: {encounter_id}")
-        archetype = player.traits.get("archetype") if isinstance(player.traits, dict) else None
+        archetype = self._resolved_archetype(player, options.scenario_id)
         result = self.combat.begin(
             loop,
             scenario_combat=scenario.combat,

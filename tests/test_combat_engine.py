@@ -659,7 +659,7 @@ class ScenarioPoolEncounterTest(unittest.TestCase):
     def test_neo_seoul_encounter_runs_from_pool(self) -> None:
         combat_pool = load_scenario("neo-seoul").combat
         self.assertIn("patrol_ambush", combat_pool["encounters"])
-        weapon_ids = loadout_for_archetype(combat_pool, "비접속자 (Ghost)")
+        weapon_ids = loadout_for_archetype(combat_pool, "ghost")
         self.assertEqual(weapon_ids, ["vibro_blade"])
 
         player = build_player_combatant(

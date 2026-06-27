@@ -1,12 +1,10 @@
-import sys
-import os
 import json
+import sys
 
 # Ensure we can import serena if installed globally or via uv
 try:
     from serena.agent import SerenaAgent
     from serena.config.serena_config import SerenaConfig
-    from serena.project import Project
     from serena.tools.symbol_tools import FindSymbolTool
 except ImportError:
     print("Serena package not in path. Try running with uv.")

@@ -164,13 +164,13 @@ class _EncounterBalanceContract:
 
 class EncounterBalanceTest(_EncounterBalanceContract, unittest.TestCase):
     scenario = "neo-seoul"
-    archetype = "비접속자 (Ghost)"
+    archetype = "ghost"
     representative_party = ("se_rin", "kai")  # 초반 핵심 동료 2인(직접조작)
 
 
 class GlassLibraryEncounterBalanceTest(_EncounterBalanceContract, unittest.TestCase):
     scenario = "glass-library"
-    archetype = "제본 도주자 (Binder Fugitive)"
+    archetype = "binder_fugitive"
     representative_party = ("io", "miro")  # 초반 핵심 동료 2인(직접조작)
 
 

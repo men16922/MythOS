@@ -24,8 +24,8 @@ from mythos_runtime.progression import (
 )
 from mythos_runtime.scenario import load_scenario
 
-GHOST = "비접속자 (Ghost)"
-ECHO = "잔향 수집가 (Echo Collector)"
+GHOST = "ghost"
+ECHO = "echo_collector"
 
 # Minimal scenario combat block mirroring neo-seoul skill shape.
 _COMBAT = {
@@ -116,8 +116,8 @@ class ProgressionTest(unittest.TestCase):
         self.assertIn("loop_veteran", updated.unlocked_traits)
         self.assertIn("io", updated.unlocked_allies)
         # Archetypes are data-driven from archetypes[].unlock.
-        self.assertIn("데이터 밀수꾼 (Data Smuggler)", updated.unlocked_archetypes)
-        self.assertIn("잔향 수집가 (Echo Collector)", updated.unlocked_archetypes)
+        self.assertIn("data_smuggler", updated.unlocked_archetypes)
+        self.assertIn("echo_collector", updated.unlocked_archetypes)
         # Epiphanies UNLOCK skills (learnable) — they are not auto-learned anymore.
         self.assertIn("covering_noise", updated.unlocked_skills)
         self.assertIn("overload_strike", updated.unlocked_skills)
@@ -131,9 +131,9 @@ class ProgressionTest(unittest.TestCase):
         updated, _ = evaluate_meta_progression(
             progress, self._run_summary("glass-library", clues=3, won=1)
         )
-        self.assertIn("반납되지 않은 독자 (Unreturned Reader)", updated.unlocked_archetypes)
-        self.assertIn("제본 도주자 (Binder Fugitive)", updated.unlocked_archetypes)
-        self.assertNotIn("데이터 밀수꾼 (Data Smuggler)", updated.unlocked_archetypes)
+        self.assertIn("unreturned_reader", updated.unlocked_archetypes)
+        self.assertIn("binder_fugitive", updated.unlocked_archetypes)
+        self.assertNotIn("data_smuggler", updated.unlocked_archetypes)
         self.assertIn("restore_margin", updated.unlocked_skills)
         self.assertNotIn("covering_noise", updated.unlocked_skills)
 
@@ -155,7 +155,7 @@ class ProgressionTest(unittest.TestCase):
         self.assertEqual(
             state["meta_progression"]["unlocked_starting_items"], ["memory_slip", "missing_item"]
         )
-        self.assertEqual(state["meta_progression"]["unlocked_archetypes"], ["비접속자 (Ghost)"])
+        self.assertEqual(state["meta_progression"]["unlocked_archetypes"], ["ghost"])
 
 
 class InsightAccrualTest(unittest.TestCase):

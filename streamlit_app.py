@@ -1259,12 +1259,19 @@ def _player_panel(options: RuntimeOptions) -> None:
         player_id = st.text_input("Player ID", key="player_id_input")
         display_name = st.text_input("Display name", key="display_name_input")
         scenario = load_scenario(options.scenario_id)
-        archetype_names = [
-            a.get("name") if isinstance(a, dict) else str(a) for a in scenario.archetypes
+        archetype_options = [
+            (a.get("id") or a.get("name")) if isinstance(a, dict) else str(a)
+            for a in scenario.archetypes
         ]
+        archetype_labels = {
+            (a.get("id") or a.get("name")): a.get("name")
+            for a in scenario.archetypes
+            if isinstance(a, dict)
+        }
         archetype = st.selectbox(
             "Archetype",
-            archetype_names,
+            archetype_options,
+            format_func=lambda v: str(archetype_labels.get(v) or v),
             key="player_archetype_input",
         )
 
@@ -1753,10 +1760,16 @@ def _player_connect_screen(options: RuntimeOptions) -> None:
     selected = None
     selected_slots: list[SaveSlot] = []
     scenario = load_scenario(options.scenario_id)
-    archetype_names = [
-        a.get("name") if isinstance(a, dict) else str(a) for a in scenario.archetypes
+    archetype_options = [
+        (a.get("id") or a.get("name")) if isinstance(a, dict) else str(a)
+        for a in scenario.archetypes
     ]
-    default_archetype = str(archetype_names[0]) if archetype_names else "Unclassified"
+    archetype_labels = {
+        (a.get("id") or a.get("name")): a.get("name")
+        for a in scenario.archetypes
+        if isinstance(a, dict)
+    }
+    default_archetype = str(archetype_options[0]) if archetype_options else "ghost"
     if players:
         selected = st.selectbox(
             _menu_copy(copy, "player_slot", "접속자 슬롯"),
@@ -1858,7 +1871,8 @@ def _player_connect_screen(options: RuntimeOptions) -> None:
         )
         archetype = st.selectbox(
             _menu_copy(copy, "archetype_label", "소질"),
-            archetype_names,
+            archetype_options,
+            format_func=lambda v: str(archetype_labels.get(v) or v),
             key="player_new_archetype",
         )
         if st.button(_menu_copy(copy, "new_signal_button", "접속자 생성"), width="stretch"):

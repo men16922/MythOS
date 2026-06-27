@@ -24,6 +24,7 @@
   },
   "archetypes": [
     {
+      "id": "catalog_interpreter",
       "name": "목록 해석자 (Catalog Interpreter)",
       "stats": {"strength": 2, "intelligence": 9, "charisma": 4, "agility": 4, "perception": 8},
       "attributes": ["[색인 해독]", "[금서 감응]"],
@@ -31,6 +32,7 @@
       "base_skills": ["silent_shelve", "index_cut"]
     },
     {
+      "id": "unreturned_reader",
       "name": "반납되지 않은 독자 (Unreturned Reader)",
       "stats": {"strength": 4, "intelligence": 5, "charisma": 8, "agility": 4, "perception": 7},
       "attributes": ["[잔향 공명]", "[잊힌 이름]"],
@@ -40,6 +42,7 @@
       "unlock_hint": "유리성 루프를 한 번 완료하면 해금됩니다."
     },
     {
+      "id": "binder_fugitive",
       "name": "제본 도주자 (Binder Fugitive)",
       "stats": {"strength": 6, "intelligence": 5, "charisma": 3, "agility": 8, "perception": 6},
       "attributes": ["[봉인 파쇄]", "[무음 질주]"],
@@ -170,14 +173,14 @@
       "unarmed": {"id": "unarmed", "name": "맨손", "kind": "melee", "damage": "1d4", "reach": 1}
     },
     "archetype_loadout": {
-      "목록 해석자 (Catalog Interpreter)": ["catalog_beam"],
-      "반납되지 않은 독자 (Unreturned Reader)": ["index_dagger"],
-      "제본 도주자 (Binder Fugitive)": ["binder_knife"]
+      "catalog_interpreter": ["catalog_beam"],
+      "unreturned_reader": ["index_dagger"],
+      "binder_fugitive": ["binder_knife"]
     },
     "archetype_base_skills": {
-      "목록 해석자 (Catalog Interpreter)": ["silent_shelve", "index_cut"],
-      "반납되지 않은 독자 (Unreturned Reader)": ["silent_shelve", "restore_margin"],
-      "제본 도주자 (Binder Fugitive)": ["index_cut", "silent_shelve"]
+      "catalog_interpreter": ["silent_shelve", "index_cut"],
+      "unreturned_reader": ["silent_shelve", "restore_margin"],
+      "binder_fugitive": ["index_cut", "silent_shelve"]
     },
     "epiphanies": {
       "first_restoration": {"total_clues": 1},

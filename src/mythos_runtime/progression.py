@@ -16,7 +16,19 @@ from mythos_core.ids import new_memory_id
 from mythos_memory import MythOSStore
 from mythos_runtime.options import RunSummary
 
-DEFAULT_ARCHETYPE = "비접속자 (Ghost)"
+DEFAULT_ARCHETYPE = "ghost"
+
+# Back-compat: legacy display-name archetype keys (pre stable-id migration) → stable id.
+# Lets existing player_progression rows that stored Korean display names keep resolving
+# without a data migration. New data is keyed by id; this only normalizes old reads.
+_ARCHETYPE_ALIASES = {
+    "비접속자 (Ghost)": "ghost",
+    "데이터 밀수꾼 (Data Smuggler)": "data_smuggler",
+    "잔향 수집가 (Echo Collector)": "echo_collector",
+    "목록 해석자 (Catalog Interpreter)": "catalog_interpreter",
+    "반납되지 않은 독자 (Unreturned Reader)": "unreturned_reader",
+    "제본 도주자 (Binder Fugitive)": "binder_fugitive",
+}
 
 # Insight economy (Phase 2 — narrative gate + point investment).
 INSIGHT_PER_RUN = 2
@@ -306,14 +318,14 @@ def evaluate_meta_progression(
     )
     # Data-driven archetype unlocks (archetypes[].unlock condition).
     for archetype in archetypes:
-        name = archetype.get("name")
+        archetype_id = archetype.get("id") or archetype.get("name")
         unlock = archetype.get("unlock")
-        if name and isinstance(unlock, dict):
+        if archetype_id and isinstance(unlock, dict):
             progress, grants = _grant_if(
                 progress,
                 grants,
                 bucket="unlocked_archetypes",
-                value=str(name),
+                value=str(archetype_id),
                 condition=_condition_met(unlock, progress),
             )
 
@@ -651,10 +663,16 @@ def _string_list(value: Any) -> list[str]:
 
 
 def _defaulted_archetypes(value: Any) -> list[str]:
-    values = _string_list(value)
-    if DEFAULT_ARCHETYPE not in values:
-        values.insert(0, DEFAULT_ARCHETYPE)
-    return values
+    # Normalize any legacy display-name entries (pre stable-id migration) to ids,
+    # de-dup while preserving order, then ensure the always-unlocked base id.
+    normalized: list[str] = []
+    for item in _string_list(value):
+        mapped = _ARCHETYPE_ALIASES.get(item, item)
+        if mapped not in normalized:
+            normalized.append(mapped)
+    if DEFAULT_ARCHETYPE not in normalized:
+        normalized.insert(0, DEFAULT_ARCHETYPE)
+    return normalized
 
 
 def _skill_ranks(value: Any) -> dict[str, int]:

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { apiGetScenarios } from "./api";
 import { firstUnlockedArchetype } from "./archetypes";
 import { CodexPanel } from "./CodexPanel";
@@ -26,6 +26,7 @@ import { CombatAnimator } from "./combatEffects";
 import { CombatCinema } from "./CombatCinema";
 import { LS_KEY, parseResumeSession } from "./sessionStorage";
 import type { ResumeSessionData } from "./sessionStorage";
+import { buildCodexLists, buildDevConsoleData, buildEpiphanyNotice } from "./viewModels";
 import { useAudio } from "./hooks/useAudio";
 import { useInGameEpiphany } from "./hooks/useInGameEpiphany";
 import { useCombatBoard } from "./hooks/useCombatBoard";
@@ -39,7 +40,6 @@ import { useSessionControls } from "./hooks/useSessionControls";
 import { useSnapshotReceiver } from "./hooks/useSnapshotReceiver";
 import { useNarrativeStream } from "./hooks/useNarrativeStream";
 import { useKeyboardChoice } from "./hooks/useKeyboardChoice";
-import { useViewModels } from "./hooks/useViewModels";
 
 export type NarrativeHistoryItem = {
   sceneId: string;
@@ -414,39 +414,62 @@ export default function App() {
     onCombatAction: handleCombatAction,
   });
 
+  // --- Codex list rendering data mapping ---
+  const codexLists = useMemo(() => {
+    return buildCodexLists(memoryOverview, finalizedSnapshot, currentScenario);
+  }, [memoryOverview, finalizedSnapshot, currentScenario]);
+
+  const epiphanyNotice = useMemo(() => {
+    const notice = buildEpiphanyNotice(runsHistory, scenarios);
+    return notice && notice.loopId !== dismissedEpiphany ? notice : null;
+  }, [runsHistory, scenarios, dismissedEpiphany]);
+
+  const dismissEpiphany = useCallback((loopId: string) => {
+    setDismissedEpiphany(loopId);
+    try {
+      localStorage.setItem("mythos_epiphany_seen", loopId);
+    } catch {
+      /* ignore storage failures */
+    }
+  }, []);
+
   // --- In-Game Epiphany State ---
   const { showInGameNotice, setShowInGameNotice, getSkillName } = useInGameEpiphany(
     finalizedSnapshot,
     currentScenario
   );
 
-  // --- Codex / dev / tab view-model derivations ---
-  // codexLists/devConsoleData builder projections, the epiphany banner notice +
-  // its localStorage dismissal, the per-tab "new content" notices, and the
-  // tab-switch (lazy codex reload) live in a hook; behavior-preserving
-  // extraction. Sits after useInGameEpiphany so `showInGameNotice` (a tabNotices
-  // input) is defined first.
-  const {
-    codexLists,
-    epiphanyNotice,
-    dismissEpiphany,
-    devConsoleData,
-    tabNotices,
-    handleTabClick,
-  } = useViewModels({
-    memoryOverview,
-    finalizedSnapshot,
-    currentScenario,
-    scenarios,
-    selectedScenarioId,
-    runsHistory,
-    dismissedEpiphany,
-    setDismissedEpiphany,
-    showInGameNotice,
-    skillNotice,
-    setActiveTab,
-    loadCodex,
-  });
+  // --- Dev Console calculation ---
+  const devConsoleData = useMemo(() => {
+    return buildDevConsoleData(
+      finalizedSnapshot,
+      memoryOverview,
+      scenarios,
+      selectedScenarioId
+    );
+  }, [finalizedSnapshot, memoryOverview, scenarios, selectedScenarioId]);
+
+  // Sync tab loading
+  const tabNotices = useMemo<Partial<Record<ActiveTab, string>>>(() => {
+    const notices: Partial<Record<ActiveTab, string>> = {};
+    if ((finalizedSnapshot?.active_echoes || []).length > 0 || runsHistory.length > 0) {
+      notices.codex = "Echo, Shard, 지난 루프 기록 확인";
+    }
+    if ((codexLists?.characters || []).length > 0) {
+      notices.character = "새 인물 기록 또는 장비 상태 확인";
+    }
+    if (showInGameNotice || epiphanyNotice || skillNotice) {
+      notices.skills = "새 스킬 해금 또는 통찰 투자 가능";
+    }
+    return notices;
+  }, [codexLists?.characters, epiphanyNotice, finalizedSnapshot?.active_echoes, runsHistory.length, showInGameNotice, skillNotice]);
+
+  const handleTabClick = (tab: ActiveTab) => {
+    setActiveTab(tab);
+    if (tab === "codex" || tab === "character" || tab === "skills" || tab === "dev") {
+      loadCodex();
+    }
+  };
 
   return (
     <>

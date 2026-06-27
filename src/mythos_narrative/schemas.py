@@ -164,3 +164,8 @@ class NarrativeContext:
     # shared code default (mythos_narrative.fallbacks) is used, so constructors and
     # tests that omit it are unaffected.
     fallback_scene: dict[str, Any] | None = None
+    # Target output language for narrative generation ("ko" | "en"). S0 threads this
+    # end-to-end (RuntimeOptions → session → here → prompt builders); the EN system
+    # prompts / authored content land in S1, so today both languages render Korean
+    # (behavior-preserving). See docs/plans/2026-06-27-en-ko-localization.md.
+    language: str = "ko"

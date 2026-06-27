@@ -28,6 +28,10 @@ class RuntimeOptions:
     image_height: int = 1024
     image_steps: int = 4
     scenario_id: str = "neo-seoul"
+    # Target narrative output language ("ko" | "en"). Threaded to the Narrative
+    # Director via NarrativeContext.language. Default "ko" until S1 lands EN content;
+    # the public/global default flips to "en" then (localization plan §3 S0/S1).
+    language: str = "ko"
     # When True, enqueue image generation to Redis (non-blocking) if a live worker
     # is present; otherwise fall back to synchronous generation.
     visual_async: bool = False

@@ -259,6 +259,7 @@ def build_runtime_narrative_context(
     novelty_notes: Sequence[str],
     player_action: str | None = None,
     fast_mode: bool = False,
+    language: str = "ko",
 ) -> NarrativeContext:
     directives = load_scenario_directives(scenario.scenario_id)
     notes = [
@@ -552,6 +553,7 @@ def build_runtime_narrative_context(
         system_prompt=scenario.system_prompt,
         fast_mode=fast_mode,
         fallback_scene=directives.fallback_scene,
+        language=language,
     )
 
 

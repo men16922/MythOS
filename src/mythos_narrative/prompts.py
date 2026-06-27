@@ -249,9 +249,23 @@ Avoid repeating specific particles or words (like "-의-", "-임-", "-록-", or 
 """
 
 
+def _story_system_prompt(context: NarrativeContext) -> str:
+    """Language-selection seam for the dual-model storyteller (S0 plumbing).
+
+    S1 returns an English storyteller system prompt when ``context.language == "en"``;
+    until then both languages use the Korean prompt so behavior is preserved. Kept as
+    a helper (rather than the previous hardcoded ``STORY_SYSTEM_PROMPT.strip()`` inline)
+    so the dual-model path is context-aware — see localization plan §7.1.
+    """
+    if context.language == "en":
+        # TODO(S1): return STORY_SYSTEM_PROMPT_EN.strip()
+        return STORY_SYSTEM_PROMPT.strip()
+    return STORY_SYSTEM_PROMPT.strip()
+
+
 def build_first_story_messages(context: NarrativeContext) -> list[dict[str, str]]:
     return [
-        {"role": "system", "content": STORY_SYSTEM_PROMPT.strip()},
+        {"role": "system", "content": _story_system_prompt(context)},
         {
             "role": "user",
             "content": _story_context_prompt(context, OPENING_FIRST_SCENE_INSTRUCTION),
@@ -261,7 +275,7 @@ def build_first_story_messages(context: NarrativeContext) -> list[dict[str, str]
 
 def build_next_story_messages(context: NarrativeContext) -> list[dict[str, str]]:
     return [
-        {"role": "system", "content": STORY_SYSTEM_PROMPT.strip()},
+        {"role": "system", "content": _story_system_prompt(context)},
         {
             "role": "user",
             "content": _story_context_prompt(context, "Generate the next scene after the player action."),

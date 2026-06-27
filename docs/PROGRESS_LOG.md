@@ -1,9 +1,16 @@
 # Progress Log
 
-Last updated: 2026-06-26
+Last updated: 2026-06-27
 
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
+
+## 2026-06-27 — EN/KO S0: language plumbing (code, make check green)
+- Status: Completed. Target output language threads end-to-end to the Narrative Director; behavior-preserving (default `ko`, EN content in S1).
+- Changed: `schemas.py` `NarrativeContext.language` field; `options.py` `RuntimeOptions.language`; `scenario_context.build_runtime_narrative_context(language=...)` → context; `session.py` passes `options.language` at the 2 build sites; `prompts.py` `_story_system_prompt(context)` seam replaces the hardcoded `STORY_SYSTEM_PROMPT` inject (fixes §7.1 dual-model non-context-aware finding). NEW `tests/test_language_plumbing.py` (6).
+- Verified: `make check` green — mypy/lint/tsc-vite + **526 tests OK** (skipped 2). Default `ko` preserves current Korean output (EN prompts/content land in S1).
+- Blockers: none. Deferred to S1: API/UI language selector + loop/player state persistence + default flip to `en`.
+- Next: **S1 영어 생성** — EN system prompt + `JSON_CONTRACT_EN` + `DEFAULT_FALLBACK_BY_LANG["en"]`, flip default to `en`.
 
 ## 2026-06-27 — EN/KO prerequisite: stable archetype-id migration (code, make check green)
 - Status: Completed. Combat/progression joins moved off Korean display names to stable ids — unblocks EN/KO bulk i18n.

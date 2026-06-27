@@ -60,8 +60,7 @@ gemma4:latest는 한국어 산문으로 선택됨. 영어 산문 품질 head-to-
 
 ## 3. 슬라이스 (MVP-first → 백필)
 
-- `[ ]` **S0 언어 배관(A 토대)**: `NarrativeContext.language` + 세션/엔진/API/state 영속 + 앱 lang 상태(default `en`).
-  완료기준: `language="en"` 요청이 director까지 도달(단위테스트), `make check` green.
+- `[x]` **S0 언어 배관(A 토대)** — **완료(2026-06-27, make check green/526 tests)**: `NarrativeContext.language` 추가 + `RuntimeOptions.language` → 세션 2개 호출부 → `build_runtime_narrative_context` → context 전파 + `prompts._story_system_prompt(context)` seam(하드코딩 STORY_SYSTEM_PROMPT 제거, §7.1 보정). 행동 보존 위해 **default `ko`**(S1에서 EN 콘텐츠와 함께 `en`으로 플립). 테스트 `tests/test_language_plumbing.py`(6). **잔여(S1로 이월)**: API/UI 언어 선택 + 루프/플레이어 state 영속.
 - `[ ]` **S1 영어 생성(A)**: EN system prompt + `JSON_CONTRACT_EN` + `DEFAULT_FALLBACK_BY_LANG["en"]`.
   완료기준: 영어 모드 fallback/스모크가 영어 산출(narrative-smoke-fallback 영어), `make check` green.
 - `[ ]` **S2 golden-path 저작물 EN(B)**: `opening.en.md`·`fallback.en.md` + 로더 lang 분기 + (구조 분기 결정 후)

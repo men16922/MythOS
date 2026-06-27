@@ -320,6 +320,7 @@ class RuntimeSessionService:
             narrative_shards=narrative_shards,
             novelty_notes=novelty_signal.notes,
             fast_mode=options.fast_mode,
+            language=options.language,
         )
         return _PreparedStartLoop(player=player, loop=loop, context=context)
 
@@ -436,6 +437,7 @@ class RuntimeSessionService:
             novelty_notes=novelty_signal.notes,
             player_action=resolved_action,
             fast_mode=options.fast_mode,
+            language=options.language,
         )
         return _PreparedChoice(
             player=player,

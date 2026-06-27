@@ -1,9 +1,16 @@
 # Progress Log
 
-Last updated: 2026-06-27
+Last updated: 2026-06-28
 
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
+
+## 2026-06-28 — App.tsx decomposition slice 12: extract useNarrativeStream hook (make check green)
+- Status: Completed. Behavior-preserving extraction; `App.tsx` 766→716 lines.
+- Changed: NEW `hooks/useNarrativeStream.ts` (169 lines) owns the gameplay narrative-stream cluster moved verbatim out of `App.tsx` — `handleSocketMessage` (inbound WS frame type switch: token-append / snapshot-finalize+`handleReceivedSnapshot` / `visual_status` / error), the `useGameSocket` lifecycle (now called **inside** the hook, re-exposing `websocketRef`/`openSocket`/`closeSocket`), and the outbound send (`beginStream` prior-scene history-fold + typewriter-arm, `imageOpts`, `sendChoose` choose-event emit). To satisfy in-scope ordering, `useDataLoaders`+`useSnapshotReceiver` (both pure factories, 0 effects — reorder-safe) moved **above** the new hook so `handleReceivedSnapshot` is defined before it; the standalone onboarding `loadScenarios` effect kept in place. `handleSocketMessage` stays a plain fn; `beginStream`/`imageOpts`/`sendChoose` keep their original `useCallback` memoization (stable ref/setter props added to dep arrays → eslint exhaustive-deps clean). Removed now-unused `useGameSocket` + `WebSocketMessage` imports from `App.tsx`.
+- Verified: `make check` green — ruff/eslint (0 warnings), mypy 126 files, tsc/vite build, **529 tests OK** (skipped 2). Bundle rebuilt (`static/app.js`).
+- Blockers: none.
+- Next: App.tsx decomposition — remaining candidates = the keyboard-hotkey choice `useEffect`, or the codex/dev/tab view-model `useMemo` cluster (`codexLists`/`devConsoleData`/`tabNotices` + `handleTabClick`).
 
 ## 2026-06-28 — App.tsx decomposition slice 11: extract useSnapshotReceiver hook (make check green)
 - Status: Completed. Behavior-preserving extraction; `App.tsx` 797→766 lines.
@@ -98,17 +105,6 @@ This file keeps **only the latest incremental summaries** (latest 5 items). The 
 - Verified:
   - Confirmed deletion of `AGY.md` and updates to `GEMINI.md` / `AGENTS.md` / `mcp_config.json`.
   - Ran `make check-skills` to ensure the overnight harness skills remain synchronized without drift.
-- Blockers: None.
-- Next: Proceed with other priorities listed in NEXT_PLAN.md.
-
-## 2026-06-21 (u) — configure Serena MCP to use LSP for Python and TypeScript
-- Status: Completed. Serena MCP is now configured to utilize SolidLSP/LSP instead of falling back to grep.
-- Changed:
-  - Created `.serena/project.yml` at the repository root to declare standard language backend and configurations for Python (pyright) and TypeScript (vtsls / typescript), using the primary language `python` to satisfy SolidLSP's Language enum bounds.
-  - Modified `CLAUDE.md` and `harness/CORE_MANDATES.md` to update code navigation guidelines: Serena MCP/Gemini agent now uses LSP-first navigation, and Gemini was removed from the grep-only lanes list.
-- Verified:
-  - Checked `.serena/project.yml` file creation.
-  - Ran `make check-doc-budget` and `make check` to verify lint, types, build, and all 512 tests passed successfully.
 - Blockers: None.
 - Next: Proceed with other priorities listed in NEXT_PLAN.md.
 

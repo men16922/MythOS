@@ -21,7 +21,6 @@ import type {
   MemoryOverview,
   SaveSlot,
   RunSummary,
-  WebSocketMessage,
   SkillTreeResponse,
 } from "./types";
 import { CombatAnimator } from "./combatEffects";
@@ -34,13 +33,13 @@ import { useInGameEpiphany } from "./hooks/useInGameEpiphany";
 import { useCombatBoard } from "./hooks/useCombatBoard";
 import { useCombatCinemaQueue } from "./hooks/useCombatCinemaQueue";
 import { useTypewriter } from "./hooks/useTypewriter";
-import { useGameSocket } from "./hooks/useGameSocket";
 import { useSceneVisuals } from "./hooks/useSceneVisuals";
 import { useSessionLifecycle } from "./hooks/useSessionLifecycle";
 import { useDataLoaders } from "./hooks/useDataLoaders";
 import { useCombatRest } from "./hooks/useCombatRest";
 import { useSessionControls } from "./hooks/useSessionControls";
 import { useSnapshotReceiver } from "./hooks/useSnapshotReceiver";
+import { useNarrativeStream } from "./hooks/useNarrativeStream";
 
 export type NarrativeHistoryItem = {
   sceneId: string;
@@ -191,32 +190,6 @@ export default function App() {
     playSfx,
   });
 
-  // WebSocket connect + auto-reconnect lifecycle lives in a hook; it parses each
-  // inbound frame and hands it to `handleSocketMessage` (the type switch stays
-  // here), and exposes `openSocket`/`closeSocket` plus the live `websocketRef`.
-  const handleSocketMessage = (msg: WebSocketMessage) => {
-    if (msg.type === "token" && msg.content) {
-      narrationQueueRef.current += msg.content;
-    } else if (msg.type === "snapshot" && msg.data) {
-      streamDoneRef.current = true;
-      pendingSnapshotRef.current = msg.data;
-      setStatus("장면 확정.");
-      handleReceivedSnapshot(msg.data);
-    } else if (msg.type === "visual_status") {
-      onVisualStatus(msg);
-    } else if (msg.type === "error") {
-      streamDoneRef.current = true;
-      setIsStreaming(false);
-      setStatus("오류: " + (msg.detail || "알 수 없음"));
-      logToConsole("WS error: " + (msg.detail || ""));
-    }
-  };
-
-  const { websocketRef, openSocket, closeSocket } = useGameSocket({
-    onMessage: handleSocketMessage,
-    logToConsole,
-  });
-
   // --- Onboarding & Setup effect ---
   useEffect(() => {
     const loadScenarios = async () => {
@@ -235,65 +208,6 @@ export default function App() {
     };
     loadScenarios();
   }, [resumeSessionData?.playerId]);
-
-  // --- WebSocket Streaming logic ---
-  const beginStream = useCallback((statusLabel: string) => {
-    const prevScene = finalizedSnapshot?.active_scene;
-    if (prevScene) {
-      const takenAction = pendingActionRef.current;
-      setNarrativeHistory((prev) => {
-        if (prev.some((h) => h.sceneId === prevScene.scene_id)) return prev;
-        return [
-          ...prev,
-          {
-            sceneId: prevScene.scene_id,
-            title: prevScene.title,
-            text: prevScene.narration,
-            action: takenAction,
-          },
-        ];
-      });
-    }
-    pendingActionRef.current = null;
-
-    resetStreamBuffers();
-    setStatus(statusLabel);
-    startTyper();
-  }, [resetStreamBuffers, startTyper, finalizedSnapshot]);
-
-  const imageOpts = useCallback(() => {
-    return {
-      with_image: withImage,
-      visual_async: withImage,
-      image_every_turn: withImage,
-    };
-  }, [withImage]);
-
-  const sendChoose = useCallback((choiceId: string) => {
-    if (isStreaming) return;
-    // Remember the chosen label so it can be recorded against the scene it was
-    // taken in once that scene scrolls into history.
-    const chosen = finalizedSnapshot?.active_scene?.choices?.find(
-      (c) => c.choice_id === choiceId
-    );
-    pendingActionRef.current = chosen?.label ?? null;
-    // Keep previous image visible until the new one is generated asynchronously
-    clearVisualTimeout();
-    setImagePlaceholderText("그림 생성 준비 중…");
-    beginStream("선택 적용 · 스트리밍…");
-    if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
-      websocketRef.current.send(
-        JSON.stringify({
-          event: "choose",
-          loop_id: loopId,
-          choice_id: choiceId,
-          scenario_id: selectedScenarioId,
-          fallback: fallbackMode,
-          ...imageOpts(),
-        })
-      );
-    }
-  }, [beginStream, clearVisualTimeout, fallbackMode, finalizedSnapshot, imageOpts, isStreaming, loopId, selectedScenarioId, setImagePlaceholderText, websocketRef]);
 
   // --- API load functions ---
   // Read-side loaders (save/run/memory + skill tree) and the learn-skill
@@ -317,7 +231,8 @@ export default function App() {
   // --- Snapshot apply (WS-confirmed scene) ---
   // Applying a confirmed snapshot (history fold, image resolve/placeholder,
   // save/run reload, BGM swap) + the turn-0 cinematic entry motion live in a
-  // hook; the WS type switch (`handleSocketMessage`) still calls it.
+  // hook; the WS type switch (`handleSocketMessage`, inside useNarrativeStream)
+  // still calls it.
   const { handleReceivedSnapshot } = useSnapshotReceiver({
     withImage,
     playerId,
@@ -331,6 +246,40 @@ export default function App() {
     loadSlotsAndRuns,
     playBgm,
     playSfx,
+    logToConsole,
+  });
+
+  // --- Narrative stream (WS socket + token receive + choice send) ---
+  // The gameplay WebSocket lifecycle, the inbound-frame type switch
+  // (`handleSocketMessage`), and the outbound streaming send (`beginStream` /
+  // `imageOpts` / `sendChoose`) live in a hook; behavior-preserving extraction.
+  const {
+    websocketRef,
+    openSocket,
+    closeSocket,
+    beginStream,
+    imageOpts,
+    sendChoose,
+  } = useNarrativeStream({
+    finalizedSnapshot,
+    withImage,
+    isStreaming,
+    loopId,
+    selectedScenarioId,
+    fallbackMode,
+    pendingActionRef,
+    narrationQueueRef,
+    streamDoneRef,
+    pendingSnapshotRef,
+    setStatus,
+    setNarrativeHistory,
+    setIsStreaming,
+    setImagePlaceholderText,
+    resetStreamBuffers,
+    startTyper,
+    clearVisualTimeout,
+    onVisualStatus,
+    handleReceivedSnapshot,
     logToConsole,
   });
 

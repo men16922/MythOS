@@ -5,6 +5,13 @@ Last updated: 2026-06-28
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-06-28 — BLOCKER: App.tsx decomposition next-candidate (useViewModels) was human-reverted; track paused pending direction
+- Status: Blocked (no code change this iteration). Conservative overnight hold per CORE_MANDATES (`when in doubt, don't`).
+- Evidence: the named next-candidate slice — the codex/dev/tab view-model `useMemo` cluster — was implemented as `hooks/useViewModels.ts` (slice 14, commit `d7b3b35`, **`make check` green / 529 tests**), then **reverted 8 seconds later** by `men1692` (commit `4d88b80`). The 8s gap is far too short for AGY browser live-QA (minutes) → reads as a deliberate human rejection, not a gate failure. The revert also restored `NEXT_PLAN.md`/`PROGRESS_LOG.md`, so the "next candidate" note again points at the just-rejected cluster.
+- Why not re-attempt: re-creating `useViewModels` verbatim would directly undo a deliberate human revert (highest-risk action for an unattended agent). Plausible revert reason (unconfirmed): the extraction required a **12-field props object** (`memoryOverview/finalizedSnapshot/currentScenario/scenarios/selectedScenarioId/runsHistory/dismissedEpiphany/setDismissedEpiphany/showInGameNotice/skillNotice/setActiveTab/loadCodex`) — coupling moved, not reduced → net-negative extraction. Picking a *different* slice was also declined: the revert reason is unknown, so a new slice risks re-churning a file the human just intervened on (could be a wholesale pause of the App.tsx track).
+- Needs human: confirm whether the App.tsx decomposition track is paused, OR name a different next slice with a clean (few-prop) boundary. This is the **only** actionable claude-lane `[auto]` item, so the claude lane is effectively idle until then.
+- Verified: tree clean, HEAD=`4d88b80` (the revert), `useViewModels.ts` absent, App.tsx=696 lines, `viewModels.ts` builders intact. No code touched.
+
 ## 2026-06-28 — App.tsx decomposition slice 13: extract useKeyboardChoice hook (make check green)
 - Status: Completed. Behavior-preserving extraction; `App.tsx` 716→696 lines.
 - Changed: NEW `hooks/useKeyboardChoice.ts` (39 lines) owns the number-key (1-9) choice-hotkey `useEffect` moved verbatim out of `App.tsx` — on a digit keypress it picks the matching `active_scene.choices[n-1]`, gates it through `isChoiceDisabled(choice, stability, tension)`, and emits via `sendChoose`; typing into an `<input>` is ignored; the window listener is (re)bound on `[finalizedSnapshot, sendChoose]`. App.tsx calls it as `useKeyboardChoice(finalizedSnapshot, sendChoose)`. The `isChoiceDisabled` import moved into the hook (now unused in `App.tsx` → removed); `useEffect` still imported (onboarding `loadScenarios` effect remains).
@@ -101,17 +108,4 @@ This file keeps **only the latest incremental summaries** (latest 5 items). The 
 - Verified: `bash harness/check-doc-budget.sh` green (all entry docs within budget; NEXT_PLAN 120/120).
 - Blockers: none. XPRIZE "Build with Gemini" excluded — it requires a real revenue business + impact category in 90d (no game/entertainment fit), mismatched with the 이직/평판 goal.
 - Next: local completion gate = Neo-Seoul `[manual]` live-QA sign-off (A 종료 서사 + F 전투 직후 콜백, `docs/test/neo_seoul_live_qa.md`); cloud work begins only after.
-
-## 2026-06-21 (v) — consolidate Gemini/AGY instructions and register Serena MCP
-- Status: Completed.
-- Changed:
-  - Updated `GEMINI.md` to incorporate Antigravity (AGY) specific instructions, run commands, and sandbox configurations.
-  - Deleted redundant `AGY.md` file from the repository root.
-  - Adjusted agent guidelines in `AGENTS.md` to point only to `CLAUDE.md` and `GEMINI.md` as agent entry points.
-  - Staged Serena MCP server launch configuration inside the client's global `/Users/men1692/.gemini/config/mcp_config.json` using the corrected `serena start-mcp-server` command structure with `--project-from-cwd` detection, `DEBUG` logging, and LSP communication tracing enabled.
-- Verified:
-  - Confirmed deletion of `AGY.md` and updates to `GEMINI.md` / `AGENTS.md` / `mcp_config.json`.
-  - Ran `make check-skills` to ensure the overnight harness skills remain synchronized without drift.
-- Blockers: None.
-- Next: Proceed with other priorities listed in NEXT_PLAN.md.
 

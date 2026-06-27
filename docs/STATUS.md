@@ -1,6 +1,6 @@
 # Project MythOS Status
 
-Last updated: 2026-06-21
+Last updated: 2026-06-27
 
 ## Current Baseline
 
@@ -79,6 +79,8 @@ Recent verified baseline recorded in docs:
 
 Authority plan: `docs/NEXT_PLAN.md`.
 
+**▶ Post-local direction (2026-06-27, decision-locked)**: global-first **EN/KO** (English default, full bilingual, SIDECAR localization — `docs/plans/2026-06-27-en-ko-localization.md`) → **GCP closed beta + r/playtesters** for core-loop validation, **not** local video (`docs/cloud/CLOSED_BETA_FEEDBACK_STRATEGY.md`); product LLM = **Gemini/Vertex** (local LLM = dev only, "fully local" framing dropped). Gated on neo-seoul live-QA A·F sign-off. Prereq **join-key ID migration: done (2026-06-27, make check green)** → next = EN/KO S0 language plumbing.
+
 0. **Companion affection + cutscene unlock + prompt-layer separation (nearly done, 2026-06-16)**: P0 affection runtime (seeds L/M/N/O — relationship dead-data activation: route reconcile + choice fold accumulation, meta cross-loop carry-over migration 006, serializer exposure) + Foundation Phase 0-4 / node-addressing (seeds C/D/I/J/K) + **P1 cutscene unlock backend** (branch `feat/companion-cutscene-unlock` commit `d8a8888` — `cutscenes.py` deterministic unlock + `MetaProgression.unlocked_cutscenes` migration 007 + `memory_overview.cutscene_gallery` + `CutsceneIntegrityTest`, `make check` green) done. **2026-06-19 backend merged to main** (fast-forward `8d2fc77..98d5f5c`, migration 006/007 applied to real DB, round-trip verified). **Remaining**: `[manual]` frontend affection gauge / cutscene gallery view (payload ready) + P2 Se-rin dedicated art + P1-a in-game cutscene node + Phase 5. Authority `docs/plans/2026-06-16-companion-affection-cutscenes.md`.
 1. **Automatic AGY browser QA integration (WS-A..F DONE, default-on, production-validated)**: the overnight runner is QA-aware by default (`OVERNIGHT_BROWSER_QA=auto`; `=0` kill-switch) — candidate filter (`browser-qa-filter.sh`) → AGY 2-stage decision (`browser-qa.sh`/`run-agy.sh`) → dedup ledger; post-commit hook after gate+critic + DONE-drain sweep; PASS/SKIP continue, FAIL/NEEDS STOP+notify (no revert). **Autonomous findings**: AGY's objective defects self-record to untagged `qa-findings.md` for human triage (never auto-`[auto]`). Validated across 3 real runs (drain + post-commit triggers, Chrome DevTools, 2 findings discovered → triaged → fixed, App.tsx decomposition slices 1-2). 4 verification tiers in `docs/engineering/mythos/VERIFICATION.md` §4. `make overnight*` is the only operator flow; human sign-off authoritative. Plan `docs/plans/2026-06-21-overnight-auto-agy-qa.md` §20-21.
 2. **Combat presentation upgrade**: done. Motion variety, reduced-motion accessibility, display position/scale/timing/legibility through Live QA done (user-confirmed). Generic manual QA doc retired; Neo-Seoul actual-play check items follow `docs/test/neo_seoul_live_qa.md`.
@@ -88,6 +90,7 @@ Authority plan: `docs/NEXT_PLAN.md`.
 
 ## Open Risks
 
+- ~~**EN/KO join-key ID migration**~~: **resolved 2026-06-27** — stable archetype/character ids added, combat dicts rekeyed to ids, resolver + alias map for legacy-name back-compat (no DB migration), `make check` green. Bulk i18n extraction is now unblocked. Detail `docs/plans/2026-06-27-en-ko-localization.md` §7.
 - **push workflow (ongoing)**: private-repo push is a hard-block by the safety classifier so the agent cannot do it → user pushes directly (men16922's own account). As of 2026-06-19 origin/main is synced (cutscene backend + Quarkify tooling + route/chapter invariant merged, ahead 0). But live-QA narrative improvements are on unmerged branch `feat/neo-seoul-narrative-qa-fixes`.
 - **LLM streaming first-token latency (resolved 2026-06-11, story 8B switch)**: the "TTFT 11.1s/done" claim was not reproducible. The measured root cause is **48GB RAM** (not 64GB) swap saturation — 26B (18GB)+FLUX image don't fit, so 26B gets evicted/paged-in and TTFT blows up 13→**43~127s**. **Decision/applied**: switched story model **`gemma4:26b`→`gemma4:latest` (8B, 9.6GB)** (head-to-head confirmed competitive Korean-prose quality, **warm TTFT 9~10s**, RAM-resident, coexists with FLUX). Parser is `qwen2.5:3b-instruct` (streaming path actually uses regex parser). Re-recommend 26B only on 64GB+ machines. Details `docs/DECISIONS.md`/`PROGRESS_LOG.md` 2026-06-11, re-measurement `scratch/ttft_bench.py`.
 - **image vs curated duplication (resolved 2026-06-11)**: at anchors the frontend shows the curated image (`route_map.image`=`scenes/*.png`), but the backend was also running FLUX at those anchors, producing a never-displayed image + slow turns. Added a `_curated_anchor_image()` guard in `maybe_generate_scene_image` — if the current node is an anchor with an `image`, skip FLUX (frontend shows the curated image, so no visible change, just the slow turn removed). Regression tests `tests/test_visual_orchestration.py` 6 items.

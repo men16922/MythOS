@@ -2,6 +2,24 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-06-27 — Validation = GCP closed beta + r/playtesters (not local video); product identity = Vertex/Gemini AI game
+
+Decision: A local demo **video cannot validate** MythOS's fun/core loop, so after the English version + local QA we ship a **minimal GCP closed beta** (Gemini provider checked locally first, then Cloud Run/GCS/Imagen, invite-gated, cost-capped) and recruit **5–10 real testers from r/playtesters**. **r/aigamedev becomes a follow-up channel** for sharing closed-beta results + AI-game architecture (discussion, not recruitment). The **"fully local LLM game" framing is dropped** — local LLM/Ollama is a dev environment, not product identity; the product is an AI-run narrative RPG on Vertex/Gemini. Final sequence: English version·local QA → Gemini-provider local check → GCP closed beta → r/playtesters → core-loop iteration → r/aigamedev share → public beta. Authority: `docs/cloud/CLOSED_BETA_FEEDBACK_STRATEGY.md` (replaces the removed `LOCAL_VERSION_FEEDBACK_STRATEGY.md`).
+
+Reason/impact: hands-on tester sessions measure 30–60min completion / memorable scenes / drop-off / replay intent — none observable from a video. Closed-beta scope stays **golden-path English only** (full backfill deferred to pre-public-beta) to cap Gemini/Imagen cost. Refines the 2026-06-26 "cloud deferred low-pri" decision: cloud is now the **validation path**, not just a post-local career afterthought. Reuses the existing Vertex seams (`CAREER_STRATEGY.md` §5 wedge).
+
+## 2026-06-27 — Global-first EN/KO localization: English default, full bilingual, SIDECAR structure; product LLM = Gemini
+
+Decision: The product goes **global / English-first** with a **full EN/KO bilingual** toggle (English default; Korean kept for dev/QA + domestic). Scenario/story-bible localization uses a **SIDECAR structure** — `scenario.json`/`bible.json` keep pure structure + stable logical keys, all player-facing prose moves to `resources/<scenario>/i18n/{en,ko}/<section>.json`, loader splices the active language (`lang` via ContextVar default `en`; lru_cache key `(scenario_id, lang)`); directives/cutscenes use `*.{lang}.md`. Narrative model split: **local dev/QA** = gemma4:latest (default) + qwen3:8b (`think:false`) for EN; **shipped product** = the **Gemini provider (Vertex controlled generation, 3b parser removed)**. Authority: `docs/plans/2026-06-27-en-ko-localization.md`.
+
+Reason/impact: verified by a 10-agent design-lock workflow — the surface map was re-verified and the original estimate was ~3–5× low (Korean ~40KB+ across **2** scenarios incl. glass-library; UI 32 files / 476 lines incl. hooks; combat-package Korean). SIDECAR beat inline-suffix / full-file-copy on parity-testability + merge-isolation + zero structure-duplication. **Prerequisite risk: join-key ID migration** — Korean display names (e.g. `'비접속자 (Ghost)'`) are used as combat join keys with `characters[].id=None`, so stable IDs + join rewiring must precede bulk extraction. golden-path-first slicing keeps a playable English path reachable before full backfill.
+
+## 2026-06-26 — Cloud direction = Vertex AI, deferred post-local-completion; career goal = Google Cloud 이직
+
+Decision: When the local MVP is complete, deploy to GCP using **Vertex AI** (not the AI Studio API key) for both narrative (Gemini, controlled generation) and image (Imagen) — the all-on-GCP framing is chosen deliberately because the career target is **Google Cloud 이직(이상)/GDE 평판** (`docs/cloud/CAREER_STRATEGY.md`). The transition itself stays **deferred / low priority**, gated on Neo-Seoul local-playability completion (registered in NEXT_PLAN under "Deferred"). **XPRIZE "Build with Gemini" is excluded** — it judges a real revenue business across impact categories (no game/entertainment fit), mismatched with the 이직/평판 goal.
+
+Reason/impact: Vertex unlocks the "Built on Google Cloud" credibility surface (GCP credits, GDE on-ramp, DevRel visibility) that an API key would not, and it cleanly slots the existing `JSONProvider`/`VisualProvider`/`StorageAdapter`/`MythOSStore` seams (adapters-only swap, core unchanged — `GCP_PLAN.md`). Controlled generation specifically retires the local dual-model JSON parser (3b) — a measurable before/after that doubles as portfolio/blog content. Direction only; no implementation this session.
+
 ## 2026-06-21 — Configure Serena MCP to use LSP for Python and TypeScript
 
 Decision: Created project-level `.serena/project.yml` configuration at the repository root to enable and configure LSP backends. Configured Python to use `pyright` (pointing to the project's local `.venv/bin/python` virtual environment and adding `./src` to `extraPaths`) and TypeScript to use `vtsls` / `typescript` (with relative imports configuration). Updated repository policies in `CLAUDE.md` and `harness/CORE_MANDATES.md` to classify Serena MCP/Gemini agent under LSP-first code navigation instead of grep-only.

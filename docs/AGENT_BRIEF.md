@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-06-21
+Last updated: 2026-06-26
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Auto-AGY-QA loop DONE + production-validated (WS-A..F + autonomous findings; default `OVERNIGHT_BROWSER_QA=auto`, 509 tests). Harness work complete — pivot to product: `make overnight` for recurring App.tsx decomposition (~$3/slice, set `MAX_ITER`) and/or Neo-Seoul `[manual]` play-feel QA (`docs/test/neo_seoul_live_qa.md`); `/overnight-report` triages new `qa-findings.md`.**
+> ▶ NEXT SESSION: **Local gate = Neo-Seoul `[manual]` live-QA A·F sign-off (`docs/test/neo_seoul_live_qa.md`, play 1회로 닫힘). Then global-first: EN/KO English-default localization (`docs/plans/2026-06-27-en-ko-localization.md` — SIDECAR, golden-path-first; join-key ID migration DONE 2026-06-27 → START at S0 lang plumbing). Launch = GCP closed beta + r/playtesters, NOT local video (`docs/cloud/CLOSED_BETA_FEEDBACK_STRATEGY.md`); product LLM = Gemini/Vertex (local LLM = dev only). Parallel auto track: `make overnight` App.tsx decomposition (next = onboarding handlers).**
 
 ## Snapshot
 

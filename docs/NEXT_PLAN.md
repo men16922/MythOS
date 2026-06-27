@@ -103,18 +103,18 @@ Narrative QA #1 and #3 done.
 - `[manual]` Codex Skill status wording (first-player feel). Button state logic (`deriveSkillAction`) is done.
 - `[ ]` Phase 4 — objective/choice result/Codex feedback UX integration finish. `[ ]` Phase 5 — Neo-Seoul RC: manual QA (`docs/test/neo_seoul_live_qa.md`) + auto regression.
 
+## Post-local — 글로벌(영어) → GCP 클로즈베타 (neo-seoul live-QA A·F 사인오프 후)
+- `[ ]` **① EN/KO 언어지원(영어 default)** = LLM 영어 생성 + 저작물(directives/story_bible/fallbacks/scenario sidecar) EN + UI i18n; 상세 `docs/plans/2026-06-27-en-ko-localization.md`. → **② GCP 클로즈베타**: **Gemini provider**(Vertex controlled gen, 3b파서 제거) 로컬 검증 → 최소기능 배포 → **r/playtesters 5~10명 모집** → 핵심루프 개선 → **r/aigamedev 결과·아키텍처 공유** → 공개베타. 전략 `docs/cloud/CLOSED_BETA_FEEDBACK_STRATEGY.md`(+`GCP_PLAN`/`CAREER_STRATEGY`). 제품 정체성=Vertex/Gemini AI 게임(로컬 LLM=dev only; `fully local` 프레이밍 폐기).
+
 ## Hold — Scenario Expansion / Glass Library
 
 Status: `[~]` progression/presentation parity + Story Bible 17 entries done (M38). Further extension held until after Neo-Seoul satisfaction improvements.
 
-- `[ ]` `glass-library` main_arcs/endings branch·reward meta expansion (currently main_arcs 4 / endings 4).
-- `[ ]` glass-library combat art/skill depth (currently 5 skills, 4 enemies; new combat action sheets are follow-ups).
+- `[ ]` `glass-library` main_arcs/endings·reward meta expansion (now main_arcs 4 / endings 4) + combat art/skill depth (now 5 skills, 4 enemies; new action sheets are follow-ups).
 
 ## Maintenance
 
 - `[ ]` `[manual]` long-play Flux1 + Flux1Redux simultaneous-load memory monitor.
 - `[ ]` `[blocked]` `_map` removal cleanup (held until route-node track done; engine records every scene + encounter_map coords·story_bible location·glass-library fallback minimap depend on it). Prereq: all scenarios converted to route_map. When met, promote to `[auto]` (codemod + `make check` green).
 - `[ ]` `[auto:claude]` frontend god-component decomposition (App.tsx·CombatCinema): extract custom hooks/modules **one slice per iteration**, behavior-preserving. Done = `make check` green + post-commit AGY live-QA not FAIL/NEEDS (auto-screened, §3.4.1). Was `[manual]` (E2E-sensitive); now guarded by auto live-QA. _Progress (recurring): slice 1 = `hooks/useInGameEpiphany.ts` (2026-06-21 (l)); slice 2 = `hooks/useCombatBoard.ts` (combat board pointer/drag + tile inspector + zoom, 2026-06-21 (m)); slice 3 = `hooks/useTypewriter.ts` (narration typewriter state/refs/loop, 2026-06-21 (q)); slice 4 = `hooks/useGameSocket.ts` (WebSocket connect + auto-reconnect refs/openSocket/closeSocket, 2026-06-21 (r)); slice 5 = `hooks/useCombatCinemaQueue.ts` (cinema-queue state + prev/dispatched/pending refs + canvas-draw useEffect + onCinemaImpact/onCinemaFinish, App.tsx 1261→1102, 2026-06-21 (s)); slice 6 = `hooks/useSceneVisuals.ts` (sceneImageUrl/imagePlaceholderText state + visualTimeoutRef watchdog + clearVisualTimeout/onVisualStatus/resolveImage, App.tsx 1102→1069, 2026-06-21 (t)) extracted from App.tsx; next candidates = onboarding/session-lifecycle handlers (handleStartGame/handleResumeGame/handleSimulateCombat)._
-
-### AGY live-QA findings — triaged from `logs/qa-findings.md`
-- None open. (2026-06-21: 2 fixed — name-input `name` + favicon 204; see PROGRESS (n).) New findings land here from `/overnight-report` triage.
+- AGY live-QA findings (from `/overnight-report` triage of `logs/qa-findings.md`): None open (2026-06-21: 2 fixed — name-input `name` + favicon 204).

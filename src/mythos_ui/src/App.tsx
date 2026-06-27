@@ -1,18 +1,13 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import {
   apiGetScenarios,
-  apiConnect,
-  apiActive,
   apiCombatAction,
   apiGetMemory,
   apiGetSlots,
   apiSaveSlot,
   apiGetRuns,
-  apiGetLoopScenes,
   apiGetSkillTree,
   apiLearnSkill,
-  apiBegin,
-  apiCombatBegin,
   apiEquip,
 } from "./api";
 import { isChoiceDisabled } from "./choices";
@@ -52,11 +47,12 @@ import { useCombatCinemaQueue } from "./hooks/useCombatCinemaQueue";
 import { useTypewriter } from "./hooks/useTypewriter";
 import { useGameSocket } from "./hooks/useGameSocket";
 import { useSceneVisuals } from "./hooks/useSceneVisuals";
+import { useSessionLifecycle } from "./hooks/useSessionLifecycle";
 
 const firstUnlockedArchetype = (archetypes: ScenarioArchetype[]) =>
   archetypes.find((archetype) => archetype.unlocked !== false)?.id || null;
 
-type NarrativeHistoryItem = {
+export type NarrativeHistoryItem = {
   sceneId: string;
   title: string;
   text: string;
@@ -427,16 +423,42 @@ export default function App() {
   };
 
   // --- Session lifecycle handlers ---
-  const saveSessionMetadata = (pId: string, sId: string) => {
-    try {
-      localStorage.setItem(
-        LS_KEY,
-        JSON.stringify({ playerId: pId, scenarioId: sId })
-      );
-    } catch {
-      logToConsole("로컬 세션 메타데이터 저장 실패.");
-    }
-  };
+  // Onboarding-start / combat-sandbox / resume entry points (+ the shared
+  // resume-token writer) live in a hook; behavior-preserving extraction.
+  const { handleStartGame, handleSimulateCombat, handleResumeGame } =
+    useSessionLifecycle({
+      displayName,
+      selectedArchetype,
+      selectedScenarioId,
+      fallbackMode,
+      imageOpts,
+      setSelectedScenarioId,
+      setPlayerId,
+      setLoopId,
+      setConnected,
+      setShowIntro,
+      setActiveTab,
+      setIsBusy,
+      setObStatus,
+      setStatus,
+      setResumeSessionData,
+      setLastSnapshot,
+      setFinalizedSnapshot,
+      setNarrativeHistory,
+      setDisplayedNarration,
+      setIsStreaming,
+      resetStreamBuffers,
+      setSceneImageUrl,
+      setImagePlaceholderText,
+      clearVisualTimeout,
+      initAudio,
+      playBgm,
+      mainBgmPath,
+      openSocket,
+      prevCombatRef,
+      handleReceivedSnapshot,
+      logToConsole,
+    });
 
   const handleScenarioChange = (scenarioId: string) => {
     setSelectedScenarioId(scenarioId);
@@ -444,170 +466,6 @@ export default function App() {
     setSelectedArchetype(firstUnlockedArchetype(archs));
     if (!connected && bgmEnabled && bgmReady) {
       playBgm(`resources/${scenarioId}/audio/bgm_main.wav`);
-    }
-  };
-
-  const handleStartGame = async () => {
-    setIsBusy(true);
-    setObStatus("접속 중…");
-    try {
-      const player = await apiConnect({
-        display_name: displayName,
-        archetype: selectedArchetype,
-        scenario_id: selectedScenarioId,
-      });
-
-      setPlayerId(player.player_id);
-      saveSessionMetadata(player.player_id, selectedScenarioId);
-      setConnected(true);
-      setShowIntro(true);
-      initAudio();
-      playBgm(mainBgmPath());
-      logToConsole(`접속: ${player.player_id} (${selectedArchetype || "-"})`);
-
-      const ws = await openSocket();
-      // Wait slightly for websocket
-      setTimeout(() => {
-        // Send begin event
-         setSceneImageUrl(null);
-        setNarrativeHistory([]);
-        clearVisualTimeout();
-        setImagePlaceholderText("그림 생성 준비 중…");
-        resetStreamBuffers();
-        setStatus("루프 생성 · 토큰 스트리밍…");
-        setIsStreaming(true);
-
-        ws.send(
-          JSON.stringify({
-            event: "begin",
-            player_id: player.player_id,
-            scenario_id: selectedScenarioId,
-            fallback: fallbackMode,
-            ...imageOpts(),
-          })
-        );
-      }, 300);
-      setObStatus("");
-    } catch (err) {
-      setObStatus("실패: " + (err as Error).message);
-      logToConsole("Auth 실패: " + (err as Error).message);
-    } finally {
-      setIsBusy(false);
-    }
-  };
-
-  // Combat simulator: spin up a player + loop in fallback mode and drop straight
-  // into a chosen encounter, skipping the narrative path. Mirrors the Streamlit
-  // `_render_combat_simulator_inline` sandbox — used to exercise combat / VFX.
-  const handleSimulateCombat = async (encounterId: string, allyIds: string[]) => {
-    setIsBusy(true);
-    setObStatus("전투 시뮬레이션 준비 중…");
-    try {
-      const player = await apiConnect({
-        display_name: displayName || "시뮬레이터",
-        archetype: selectedArchetype,
-        scenario_id: selectedScenarioId,
-      });
-      setPlayerId(player.player_id);
-      saveSessionMetadata(player.player_id, selectedScenarioId);
-
-      const snap = await apiBegin({
-        player_id: player.player_id,
-        scenario_id: selectedScenarioId,
-        fallback: true,
-      });
-      const { combat } = await apiCombatBegin({
-        loop_id: snap.loop_id,
-        scenario_id: selectedScenarioId,
-        encounter_id: encounterId,
-        party_members: allyIds.map((id) => ({ id })),
-      });
-
-      const combatBgmPath = snap.bgm_path?.includes("bgm_combat")
-        ? snap.bgm_path
-        : `resources/${selectedScenarioId}/audio/bgm_combat_normal.wav`;
-      const combatSnap = { ...snap, combat, bgm_path: combatBgmPath };
-      initAudio();
-      playBgm(combatBgmPath);
-      // Reset the animator baseline so the opening board draws statically
-      // (no spurious transition animation from a stale previous state).
-      prevCombatRef.current = null;
-      setLoopId(snap.loop_id);
-      setConnected(true);
-      setShowIntro(false);
-      setActiveTab("story");
-      setFinalizedSnapshot(combatSnap);
-      setLastSnapshot(combatSnap);
-      setObStatus("");
-      setStatus(`전투 시뮬레이션 진입 · ${encounterId}`);
-      logToConsole(`전투 시뮬: ${encounterId} (allies=${allyIds.join(",") || "none"})`);
-    } catch (err) {
-      setObStatus("시뮬레이션 실패: " + (err as Error).message);
-      logToConsole("전투 시뮬 실패: " + (err as Error).message);
-    } finally {
-      setIsBusy(false);
-    }
-  };
-
-  const handleResumeGame = async (saved: {
-    playerId: string;
-    scenarioId: string;
-    loopId?: string;
-  }) => {
-    setIsBusy(true);
-    setObStatus("이어하는 중…");
-    setSceneImageUrl(null);
-    setNarrativeHistory([]);
-    try {
-      setPlayerId(saved.playerId);
-      setSelectedScenarioId(saved.scenarioId || selectedScenarioId);
-
-      const snap = await apiActive({
-        player_id: saved.playerId,
-        loop_id: saved.loopId,
-        scenario_id: saved.scenarioId || selectedScenarioId,
-      });
-
-      setConnected(true);
-      initAudio();
-      await openSocket();
-
-      handleReceivedSnapshot(snap);
-      setDisplayedNarration(snap.active_scene?.narration || "");
-      setFinalizedSnapshot(snap);
-      setStatus("이어하기 완료.");
-      setObStatus("");
-
-      if (snap.loop_id) {
-        try {
-          const { scenes } = await apiGetLoopScenes(snap.loop_id);
-          const historyScenes = scenes
-            .filter((s) => s.sceneId !== snap.active_scene?.scene_id)
-            .map((s) => ({
-              sceneId: s.sceneId,
-              title: s.title,
-              text: s.text,
-              action: s.action ?? null,
-            }));
-          setNarrativeHistory(historyScenes);
-        } catch (e) {
-          logToConsole("이전 대화 이력 로드 실패: " + (e as Error).message);
-        }
-      }
-    } catch (err) {
-      const message = (err as Error).message;
-      // The last loop already ended (archived to run history): there is nothing
-      // to resume, so clear the stale session and fall back to fresh onboarding.
-      if (message.includes("no active loop") || message.includes("archived in run history")) {
-        localStorage.removeItem(LS_KEY);
-        setResumeSessionData(null);
-        setConnected(false);
-        setObStatus("이전 세션이 종료되어 기록 보관소로 이동했습니다. 새 게임을 시작하세요.");
-      } else {
-        setObStatus("이어하기 실패: " + message);
-      }
-    } finally {
-      setIsBusy(false);
     }
   };
 

@@ -5,6 +5,13 @@ Last updated: 2026-06-27
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-06-28 — App.tsx decomposition slice 7: extract useSessionLifecycle hook (make check green)
+- Status: Completed. Behavior-preserving extraction; `App.tsx` 1069→927 lines.
+- Changed: NEW `hooks/useSessionLifecycle.ts` (288 lines) owns the session lifecycle entry points moved verbatim out of `App.tsx` — `handleStartGame` (fresh run), `handleSimulateCombat` (fallback combat sandbox), `handleResumeGame` (resume existing loop), plus the shared `saveSessionMetadata` resume-token writer. All cross-cutting state setters + hook helpers are passed as props (matches the useGameSocket/useSceneVisuals props-object pattern). Handlers stay plain (non-memoized) functions, identical to prior in-`App` form. Exported `NarrativeHistoryItem` type from `App.tsx` for the hook. Removed 5 now-unused api imports from `App.tsx` (apiConnect/apiActive/apiBegin/apiCombatBegin/apiGetLoopScenes).
+- Verified: `make check` green — ruff/eslint, mypy 126 files, tsc/vite build, **529 tests OK** (skipped 2). Bundle rebuilt (`static/app.js`).
+- Blockers: none.
+- Next: App.tsx decomposition — next candidates = remaining handlers (handleCombatAction/continueAfterCombat combat-REST cluster, or loadSlotsAndRuns/loadCodex/loadSkillTree/handleLearnSkill data-load cluster).
+
 ## 2026-06-28 — QA seed: archetype/character stable-id content-integrity invariants (make check green)
 - Status: Completed. Locks the 2026-06-27 join-key id migration against silent regressions.
 - Changed: NEW `ArchetypeAndCharacterIdIntegrityTest` in `tests/test_content_integrity.py` (3 tests, globs `resources/*/scenario.json`): (C1) `archetypes[].id` unique & non-empty + `combat.archetype_loadout`/`archetype_base_skills` key sets each **exactly equal** the archetype id set (catches missing key = archetype with no loadout/base-skills, orphan key = pre-migration Korean-name dead data) — both scenarios; (C4) `characters[].id` unique & non-empty (neo-seoul; glass-library declares none → inert). Each has a guard-the-guard (`scanned`/`checked` > 0) so it can't go vacuously green.

@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import {
-  apiGetScenarios,
-  apiSaveSlot,
-} from "./api";
+import { apiGetScenarios } from "./api";
+import { firstUnlockedArchetype } from "./archetypes";
 import { isChoiceDisabled } from "./choices";
 import { CodexPanel } from "./CodexPanel";
 import { CharacterTabPanel } from "./CharacterTabPanel";
@@ -19,7 +17,6 @@ import { IntroPanel } from "./IntroPanel";
 import type { IntroData } from "./IntroPanel";
 import type {
   ScenarioInfo,
-  ScenarioArchetype,
   RuntimeSnapshot,
   MemoryOverview,
   SaveSlot,
@@ -42,9 +39,7 @@ import { useSceneVisuals } from "./hooks/useSceneVisuals";
 import { useSessionLifecycle } from "./hooks/useSessionLifecycle";
 import { useDataLoaders } from "./hooks/useDataLoaders";
 import { useCombatRest } from "./hooks/useCombatRest";
-
-const firstUnlockedArchetype = (archetypes: ScenarioArchetype[]) =>
-  archetypes.find((archetype) => archetype.unlocked !== false)?.id || null;
+import { useSessionControls } from "./hooks/useSessionControls";
 
 export type NarrativeHistoryItem = {
   sceneId: string;
@@ -407,62 +402,44 @@ export default function App() {
       logToConsole,
     });
 
-  const handleScenarioChange = (scenarioId: string) => {
-    setSelectedScenarioId(scenarioId);
-    const archs = scenarios.find((s) => s.id === scenarioId)?.archetypes || [];
-    setSelectedArchetype(firstUnlockedArchetype(archs));
-    if (!connected && bgmEnabled && bgmReady) {
-      playBgm(`resources/${scenarioId}/audio/bgm_main.wav`);
-    }
-  };
-
-  const handleLeaveSession = () => {
-    closeSocket();
-    pauseBgm();
-    resetAudioRefs();
-    setLoopId(null);
-    setConnected(false);
-    setLastSnapshot(null);
-    setFinalizedSnapshot(null);
-    setDisplayedNarration("");
-    setSceneImageUrl(null);
-    setNarrativeHistory([]);
-    setCombatLog("");
-    setCombatTarget(null);
-    setActiveTab("story");
-
-    // Refresh scenarios
-    const storedResume = parseResumeSession(localStorage.getItem(LS_KEY));
-    apiGetScenarios(storedResume?.playerId)
-      .then((data) => {
-        setScenarios(data.scenarios || []);
-        setResumeSessionData(storedResume);
-      })
-      .catch((err: unknown) => {
-        logToConsole("시나리오 목록 갱신 실패: " + (err as Error).message);
-      });
-    if (bgmEnabled) {
-      playBgm(mainBgmPath());
-    }
-  };
-
-  const handleSaveSlotSubmit = async () => {
-    if (!loopId || isBusy) return;
-    setIsBusy(true);
-    setStatus("세션 저장 중…");
-    try {
-      await apiSaveSlot({ loop_id: loopId, label: saveLabelInput.trim() || null });
-      setSaveLabelInput("");
-      setStatus("세션 저장 성공.");
-      if (playerId) {
-        await loadSlotsAndRuns(playerId);
-      }
-    } catch (e) {
-      setStatus("세션 저장 실패: " + (e as Error).message);
-    } finally {
-      setIsBusy(false);
-    }
-  };
+  // --- Session / UI control handlers ---
+  // Scenario change / leave-session teardown / save-slot submit live in a hook;
+  // behavior-preserving extraction (handlers stay plain functions).
+  const { handleScenarioChange, handleLeaveSession, handleSaveSlotSubmit } =
+    useSessionControls({
+      scenarios,
+      connected,
+      bgmEnabled,
+      bgmReady,
+      loopId,
+      playerId,
+      isBusy,
+      saveLabelInput,
+      setSelectedScenarioId,
+      setSelectedArchetype,
+      setScenarios,
+      setResumeSessionData,
+      setLoopId,
+      setConnected,
+      setLastSnapshot,
+      setFinalizedSnapshot,
+      setDisplayedNarration,
+      setSceneImageUrl,
+      setNarrativeHistory,
+      setCombatLog,
+      setCombatTarget,
+      setActiveTab,
+      setSaveLabelInput,
+      setIsBusy,
+      setStatus,
+      closeSocket,
+      pauseBgm,
+      resetAudioRefs,
+      playBgm,
+      mainBgmPath,
+      loadSlotsAndRuns,
+      logToConsole,
+    });
 
   // --- Combat REST Operations ---
   // Combat action POST / equip toggle / post-combat resume-stream live in a

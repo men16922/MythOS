@@ -5,6 +5,13 @@ Last updated: 2026-06-27
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-06-28 — App.tsx decomposition slice 10: extract useSessionControls hook (make check green)
+- Status: Completed. Behavior-preserving extraction; `App.tsx` 820→797 lines.
+- Changed: NEW `hooks/useSessionControls.ts` (156 lines) owns the session/UI control handlers moved verbatim out of `App.tsx` — `handleScenarioChange` (re-default archetype + onboarding BGM preview), `handleLeaveSession` (run teardown + scenario-list refresh), `handleSaveSlotSubmit` (save-slot POST). NEW shared `archetypes.ts` (`firstUnlockedArchetype`, used by both the onboarding effect and the hook — extracted to avoid an App↔hook circular import). Cross-cutting state/setters + audio/socket/loader helpers passed as props (matches the useSessionLifecycle/useDataLoaders/useCombatRest props-object pattern); handlers stay plain (non-memoized). Removed now-unused `apiSaveSlot` + `ScenarioArchetype` imports from `App.tsx`.
+- Verified: `make check` green — ruff/eslint, mypy 126 files, tsc/vite build, **529 tests OK** (skipped 2). Bundle rebuilt (`static/app.js`).
+- Blockers: none.
+- Next: App.tsx decomposition — next candidate = the snapshot-receive cluster (handleReceivedSnapshot/triggerCinematicEffects), tied to the WS type-switch.
+
 ## 2026-06-28 — App.tsx decomposition slice 9: extract useCombatRest hook (make check green)
 - Status: Completed. Behavior-preserving extraction; `App.tsx` 876→820 lines.
 - Changed: NEW `hooks/useCombatRest.ts` (165 lines) owns the combat REST cluster moved verbatim out of `App.tsx` — `handleCombatAction` (POST `/combat/action`, patch finalized+last snapshot, dispatched-action ref for the board animator), `appendCombatLog` (internal log writer used by `handleCombatAction`), `handleEquip` (POST equip toggle → snapshot), and `continueAfterCombat` (post-combat narrative resume-stream over WS). All cross-cutting state/setters/refs/helpers (`beginStream`/`imageOpts`/`clearVisualTimeout` from sibling hooks, `dispatchedActionRef`/`pendingActionRef`/`websocketRef`) passed as props (matches the useSessionLifecycle/useDataLoaders props-object pattern). Handlers stay plain (non-memoized) functions, identical to prior in-`App` form. `appendCombatLog` is internal to the hook (only `handleCombatAction` calls it) so it's not re-exported. Removed 2 now-unused api imports (apiCombatAction/apiEquip) + the `CombatAction` type import from `App.tsx`; ref props typed `React.RefObject<T|null>` per the sibling-hook convention (not deprecated `MutableRefObject`).

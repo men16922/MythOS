@@ -5,6 +5,13 @@ Last updated: 2026-06-28
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-06-28 — App.tsx decomposition slice 13: extract useKeyboardChoice hook (make check green)
+- Status: Completed. Behavior-preserving extraction; `App.tsx` 716→696 lines.
+- Changed: NEW `hooks/useKeyboardChoice.ts` (39 lines) owns the number-key (1-9) choice-hotkey `useEffect` moved verbatim out of `App.tsx` — on a digit keypress it picks the matching `active_scene.choices[n-1]`, gates it through `isChoiceDisabled(choice, stability, tension)`, and emits via `sendChoose`; typing into an `<input>` is ignored; the window listener is (re)bound on `[finalizedSnapshot, sendChoose]`. App.tsx calls it as `useKeyboardChoice(finalizedSnapshot, sendChoose)`. The `isChoiceDisabled` import moved into the hook (now unused in `App.tsx` → removed); `useEffect` still imported (onboarding `loadScenarios` effect remains).
+- Verified: `make check` green — ruff/eslint (0 warnings), mypy 126 files, tsc/vite build, **529 tests OK** (skipped 2). Bundle rebuilt (`static/app.js`).
+- Blockers: none.
+- Next: App.tsx decomposition — next candidate = the codex/dev/tab view-model `useMemo` cluster (`codexLists`/`epiphanyNotice`/`devConsoleData`/`tabNotices` + `handleTabClick`/`dismissEpiphany`).
+
 ## 2026-06-28 — App.tsx decomposition slice 12: extract useNarrativeStream hook (make check green)
 - Status: Completed. Behavior-preserving extraction; `App.tsx` 766→716 lines.
 - Changed: NEW `hooks/useNarrativeStream.ts` (169 lines) owns the gameplay narrative-stream cluster moved verbatim out of `App.tsx` — `handleSocketMessage` (inbound WS frame type switch: token-append / snapshot-finalize+`handleReceivedSnapshot` / `visual_status` / error), the `useGameSocket` lifecycle (now called **inside** the hook, re-exposing `websocketRef`/`openSocket`/`closeSocket`), and the outbound send (`beginStream` prior-scene history-fold + typewriter-arm, `imageOpts`, `sendChoose` choose-event emit). To satisfy in-scope ordering, `useDataLoaders`+`useSnapshotReceiver` (both pure factories, 0 effects — reorder-safe) moved **above** the new hook so `handleReceivedSnapshot` is defined before it; the standalone onboarding `loadScenarios` effect kept in place. `handleSocketMessage` stays a plain fn; `beginStream`/`imageOpts`/`sendChoose` keep their original `useCallback` memoization (stable ref/setter props added to dep arrays → eslint exhaustive-deps clean). Removed now-unused `useGameSocket` + `WebSocketMessage` imports from `App.tsx`.
@@ -108,9 +115,3 @@ This file keeps **only the latest incremental summaries** (latest 5 items). The 
 - Blockers: None.
 - Next: Proceed with other priorities listed in NEXT_PLAN.md.
 
-## 2026-06-21 (t) — overnight [auto:claude]: extract useSceneVisuals hook from App.tsx
-- Status: Behavior-preserving frontend god-component decomposition, slice 6. The scene-image / visual-status concern moved out of App.tsx into a hook, matching the `useGameSocket`·`useCombatCinemaQueue`·`useTypewriter` pattern.
-- Changed: NEW `src/mythos_ui/src/hooks/useSceneVisuals.ts` — owns `sceneImageUrl`/`imagePlaceholderText` state + `visualTimeoutRef` (worker watchdog) + `clearVisualTimeout` (memoized via `useCallback` for stable identity) + `onVisualStatus` (drains a `visual_status` WS frame: pending/processing → placeholder + 90s timeout, succeeded → URL, else fail) + `resolveImage` (resolves a succeeded asset's `storage_uri` → presigned URL). Takes `logToConsole`, returns the state + setters + the three functions. `App.tsx`: removed the inline state/ref block + the three function defs (~50 lines); dropped the now-unused `apiResolveAsset` import and `AssetInfo` type import (both moved into the hook); added `clearVisualTimeout`+`setImagePlaceholderText` to `sendChoose`'s useCallback dep array (now hook-sourced). App.tsx 1102→1069 lines. No logic change.
-- Verified: `make check` green — ruff + eslint (0 warnings) + mypy (124 files) + tsc/vite-build + **512 tests OK** (skipped 2); doc-budget + skills mirror checks pass. Pure extraction; no test-count change (FE has no unit-test runner; gate guarantees compile/type/lint only).
-- Blockers: none. Post-commit AGY live-QA (auto-screened, §3.4.1) is the runner's job; not run in this iteration.
-- Next: continue App.tsx/CombatCinema decomposition one slice per iteration (onboarding/session-lifecycle handlers `handleStartGame`/`handleResumeGame`/`handleSimulateCombat` are the next candidate).

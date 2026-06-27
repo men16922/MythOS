@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { apiGetScenarios } from "./api";
 import { firstUnlockedArchetype } from "./archetypes";
-import { isChoiceDisabled } from "./choices";
 import { CodexPanel } from "./CodexPanel";
 import { CharacterTabPanel } from "./CharacterTabPanel";
 import { DevConsolePanel } from "./DevConsolePanel";
@@ -40,6 +39,7 @@ import { useCombatRest } from "./hooks/useCombatRest";
 import { useSessionControls } from "./hooks/useSessionControls";
 import { useSnapshotReceiver } from "./hooks/useSnapshotReceiver";
 import { useNarrativeStream } from "./hooks/useNarrativeStream";
+import { useKeyboardChoice } from "./hooks/useKeyboardChoice";
 
 export type NarrativeHistoryItem = {
   sceneId: string;
@@ -389,29 +389,9 @@ export default function App() {
   });
 
   // --- Keyboard hotkeys choice select ---
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement) return;
-      const keyNum = parseInt(e.key, 10);
-      if (keyNum >= 1 && keyNum <= 9 && finalizedSnapshot) {
-        const choices = finalizedSnapshot.active_scene?.choices || [];
-        const choice = choices[keyNum - 1];
-        if (choice) {
-          if (
-            !isChoiceDisabled(
-              choice,
-              finalizedSnapshot.stability,
-              finalizedSnapshot.tension
-            )
-          ) {
-            sendChoose(choice.choice_id);
-          }
-        }
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [finalizedSnapshot, sendChoose]);
+  // Number-key (1-9) choice selection for the active scene lives in a hook;
+  // behavior-preserving extraction.
+  useKeyboardChoice(finalizedSnapshot, sendChoose);
 
   // Combat board pointer interaction (drag-to-move + tile inspector + zoom)
   // lives in a hook; it draws onto the shared canvasRef and dispatches moves

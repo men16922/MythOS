@@ -1564,5 +1564,124 @@ class PerspectiveWhenFlagProducibilityTest(unittest.TestCase):
         )
 
 
+class ArchetypeAndCharacterIdIntegrityTest(unittest.TestCase):
+    """Stable-id integrity for archetypes and characters (post 2026-06-27 join-key
+    migration).
+
+    The EN/KO localization prerequisite moved every combat/progression join off
+    Korean *display names* onto stable slug *ids* (``archetypes[].id`` /
+    ``characters[].id``). Those ids are now the join keys, so a slip is a silent
+    mechanical break, not an error:
+
+    - a missing/empty or **duplicate** ``archetypes[].id`` makes the
+      archetype→loadout / archetype→base-skill join ambiguous (one record shadows
+      the other in any id-keyed lookup).
+    - ``combat.archetype_loadout`` / ``combat.archetype_base_skills`` are keyed by
+      archetype id; if either key set does not **exactly equal** the archetype id
+      set, an archetype is silently left with no loadout / no base skills (a
+      *missing* key) or a loadout / base-skill block is keyed on a non-existent
+      archetype (an *orphan* key — dead data, e.g. a leftover Korean display-name
+      key from before the migration).
+    - a missing/empty or duplicate ``characters[].id`` breaks the same id-keyed
+      joins for companion / relationship references.
+
+    Both scenarios declare ``archetypes[]``; only neo-seoul declares
+    ``characters[]`` (glass-library has none, so the character check is inert
+    there). The scan globs ``resources/*/scenario.json`` so new scenarios are
+    covered automatically.
+    """
+
+    ARCHETYPE_KEYED_BLOCKS = ("archetype_loadout", "archetype_base_skills")
+
+    def _scenarios(self) -> list[tuple[str, dict[str, Any]]]:
+        out: list[tuple[str, dict[str, Any]]] = []
+        for path in _scenario_json_paths():
+            with open(path, encoding="utf-8") as handle:
+                out.append((path.parent.name, json.load(handle)))
+        return out
+
+    @staticmethod
+    def _records(data: dict[str, Any], key: str) -> list[dict[str, Any]]:
+        return [r for r in data.get(key, []) or [] if isinstance(r, dict)]
+
+    def _assert_ids_unique_and_non_empty(self, key: str, label: str) -> None:
+        offenders: list[str] = []
+        scanned = 0
+        for name, data in self._scenarios():
+            records = self._records(data, key)
+            if not records:
+                continue
+            scanned += 1
+            ids = [str(r.get("id") or "") for r in records]
+            for index, rid in enumerate(ids):
+                if not rid:
+                    offenders.append(f"{name}:{key}[{index}].id is empty/missing")
+            for dup in sorted({i for i in ids if i and ids.count(i) > 1}):
+                offenders.append(f"{name}:duplicate {label} id {dup!r}")
+        self.assertEqual(
+            offenders,
+            [],
+            f"{label} ids that are empty or duplicated — the id is the stable join "
+            f"key, so a clash silently shadows one record in any id-keyed lookup: "
+            f"{offenders}",
+        )
+        self.assertGreater(
+            scanned, 0, f"no scenario declares {key}[] — {label} id check vacuously green"
+        )
+
+    def test_archetype_ids_unique_and_non_empty(self) -> None:
+        self._assert_ids_unique_and_non_empty("archetypes", "archetype")
+
+    def test_character_ids_unique_and_non_empty(self) -> None:
+        self._assert_ids_unique_and_non_empty("characters", "character")
+
+    def test_combat_archetype_dict_keys_equal_archetype_id_set(self) -> None:
+        offenders: list[str] = []
+        checked = 0
+        for name, data in self._scenarios():
+            archetypes = self._records(data, "archetypes")
+            if not archetypes:
+                continue
+            id_set = {str(a.get("id")) for a in archetypes if a.get("id")}
+            combat = data.get("combat")
+            if not isinstance(combat, dict):
+                offenders.append(f"{name}: declares archetypes[] but has no combat block")
+                continue
+            for block in self.ARCHETYPE_KEYED_BLOCKS:
+                table = combat.get(block)
+                if not isinstance(table, dict):
+                    offenders.append(
+                        f"{name}:combat.{block} is not an object "
+                        f"({type(table).__name__}) — cannot key by archetype id"
+                    )
+                    continue
+                keys = {str(k) for k in table}
+                missing = sorted(id_set - keys)
+                orphan = sorted(keys - id_set)
+                if missing:
+                    offenders.append(
+                        f"{name}:combat.{block} missing keys for archetypes {missing}"
+                    )
+                if orphan:
+                    offenders.append(
+                        f"{name}:combat.{block} orphan keys {orphan} "
+                        f"(no such archetypes[].id)"
+                    )
+                checked += 1
+        self.assertEqual(
+            offenders,
+            [],
+            "combat.archetype_loadout / archetype_base_skills key sets that do not "
+            "exactly equal the archetypes[].id set — a missing key leaves an "
+            "archetype with no loadout/base skills, an orphan key is dead data "
+            f"(e.g. a pre-migration Korean-name key): {offenders}",
+        )
+        self.assertGreater(
+            checked,
+            0,
+            "no scenario exercised the archetype-keyed-block check — vacuously green",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

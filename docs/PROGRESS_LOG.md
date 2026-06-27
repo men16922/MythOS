@@ -5,6 +5,14 @@ Last updated: 2026-06-27
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-06-28 — QA seed: archetype/character stable-id content-integrity invariants (make check green)
+- Status: Completed. Locks the 2026-06-27 join-key id migration against silent regressions.
+- Changed: NEW `ArchetypeAndCharacterIdIntegrityTest` in `tests/test_content_integrity.py` (3 tests, globs `resources/*/scenario.json`): (C1) `archetypes[].id` unique & non-empty + `combat.archetype_loadout`/`archetype_base_skills` key sets each **exactly equal** the archetype id set (catches missing key = archetype with no loadout/base-skills, orphan key = pre-migration Korean-name dead data) — both scenarios; (C4) `characters[].id` unique & non-empty (neo-seoul; glass-library declares none → inert). Each has a guard-the-guard (`scanned`/`checked` > 0) so it can't go vacuously green.
+- C2 was **already covered**: `test_skill_icons_exist` (in `ScenarioImageReferenceIntegrityTest`) already enforces `combat.skills[].id` → `skills/<id>.png` (+PNG magic) for all scenarios; the `test_assets.py` skill-icon exclusion is already gone. No change needed for C2.
+- Verified: `make check` green — ruff/eslint, mypy 126 files, tsc/vite build, **529 tests OK** (526→529, skipped 2).
+- Blockers: none.
+- Next: EN/KO S1 영어 생성 — EN system prompt + `JSON_CONTRACT_EN` + `DEFAULT_FALLBACK_BY_LANG["en"]`, flip default to `en`.
+
 ## 2026-06-27 — EN/KO S0: language plumbing (code, make check green)
 - Status: Completed. Target output language threads end-to-end to the Narrative Director; behavior-preserving (default `ko`, EN content in S1).
 - Changed: `schemas.py` `NarrativeContext.language` field; `options.py` `RuntimeOptions.language`; `scenario_context.build_runtime_narrative_context(language=...)` → context; `session.py` passes `options.language` at the 2 build sites; `prompts.py` `_story_system_prompt(context)` seam replaces the hardcoded `STORY_SYSTEM_PROMPT` inject (fixes §7.1 dual-model non-context-aware finding). NEW `tests/test_language_plumbing.py` (6).

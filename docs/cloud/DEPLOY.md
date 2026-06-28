@@ -78,9 +78,11 @@ gcloud run deploy mythos-api \
 
 ### 5a. 배포 전 — 로컬 실전 검증 (gcloud 전에 권장)
 
-> **빠른 길(컨테이너 없이, 호스트에서):** `make api-cloud` — 서사=Vertex Gemini · 이미지=Vertex Imagen으로
-> API를 띄움(저장은 로컬 minio). ADC + `.env`의 Google Cloud 설정만 있으면 됨. ⚠️ Vertex 호출은 GCP 과금.
-> 평소 `make api`는 완전 로컬(Ollama, 무료). 아래는 **배포 컨테이너 자체**를 검증하는 더 충실한 방법:
+> **빠른 길(컨테이너 없이, 호스트에서):** `make api-cloud` (서사=Vertex Gemini) **+ `make visual-worker-cloud-bg`**
+> (이미지=Vertex Imagen). ⚠️ **둘 다 필요**: SPA가 `visual_async`를 보내 이미지는 **별도 워커**에서 생성되므로,
+> `api-cloud`만 띄우면 워커가 로컬 FLUX(MPS)로 처리해 **수십 초 느림**. 워커도 cloud여야 Imagen(~7s). 저장은 로컬 minio.
+> ADC + `.env`의 Google Cloud 설정 필요. ⚠️ Vertex 호출은 GCP 과금. 평소 `make api`는 완전 로컬(Ollama, 무료).
+> (Cloud Run 배포는 워커 없이 **동기 생성**이므로 이 분리가 없음 — `GCP_PLAN.md` §2.) 아래는 **컨테이너 자체** 검증:
 
 
 실배포되는 lean 컨테이너를 클라우드 provider(Gemini/Imagen via ADC) + 로컬 Postgres로 띄워 검증. **검증됨 2026-06-28**:

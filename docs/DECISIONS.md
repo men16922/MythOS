@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-06-28 — Gemini controlled generation runs with thinking DISABLED (`thinking_budget=0`)
+
+Decision: The Vertex Gemini narrative provider (`VertexGeminiJSONProvider`) sets `thinking_config={"thinking_budget": 0}` by default (env `GEMINI_THINKING_BUDGET`, default 0). Thinking is **off** for controlled structured generation.
+
+Reason/impact: gemini-2.5-flash is a *thinking* model whose reasoning tokens are drawn from the SAME `max_output_tokens` budget as the response. Live-measured on a real Vertex call: with thinking on, ~2/5 generations hit `finish=MAX_TOKENS` (`thoughts_tok≈1965`/2048) and the schema JSON truncated to ~130 chars → first-parse failure → a repair round-trip (`outcome=provider_repair`, ~18s). With `thinking_budget=0`: **5/5 first-try parse, ~5s, cheaper** — and reasoning adds nothing to schema-constrained output. This preserves the wedge's core value (controlled generation = no parser/repair). **Do not re-enable thinking without also raising `max_output_tokens` well above the thinking budget**, or the truncation regresses. Detail: PROGRESS_LOG 2026-06-28.
+
 ## 2026-06-27 — Validation = GCP closed beta + r/playtesters (not local video); product identity = Vertex/Gemini AI game
 
 Decision: A local demo **video cannot validate** MythOS's fun/core loop, so after the English version + local QA we ship a **minimal GCP closed beta** (Gemini provider checked locally first, then Cloud Run/GCS/Imagen, invite-gated, cost-capped) and recruit **5–10 real testers from r/playtesters**. **r/aigamedev becomes a follow-up channel** for sharing closed-beta results + AI-game architecture (discussion, not recruitment). The **"fully local LLM game" framing is dropped** — local LLM/Ollama is a dev environment, not product identity; the product is an AI-run narrative RPG on Vertex/Gemini. Final sequence: English version·local QA → Gemini-provider local check → GCP closed beta → r/playtesters → core-loop iteration → r/aigamedev share → public beta. Authority: `docs/cloud/CLOSED_BETA_FEEDBACK_STRATEGY.md` (replaces the removed `LOCAL_VERSION_FEEDBACK_STRATEGY.md`).

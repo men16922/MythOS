@@ -45,6 +45,22 @@ web = [
     "uvicorn[standard]>=0.29.0",
     "httpx>=0.27.0",
 ]
+# Cloud product LLM (GCP closed beta): Gemini / Vertex AI narrative provider.
+# Optional so the local dev install (Ollama path) needs no Google SDK or creds.
+# Selected at runtime via MYTHOS_NARRATIVE_PROVIDER=gemini|vertex. google-genai
+# also powers the Vertex Imagen image path (MYTHOS_VISUAL_PROVIDER=vertex).
+gemini = [
+    "google-genai>=1.0.0",
+]
+# Cloud asset storage: Google Cloud Storage adapter (MYTHOS_STORAGE_BACKEND=gcs).
+gcs = [
+    "google-cloud-storage>=2.18.0",
+]
+# Convenience aggregate for the full GCP closed-beta deploy (Gemini + Imagen + GCS).
+gcp = [
+    "google-genai>=1.0.0",
+    "google-cloud-storage>=2.18.0",
+]
 
 [project.scripts]
 mythos-image-agent = "mythos_image_agent.cli:main"

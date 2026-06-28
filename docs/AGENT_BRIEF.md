@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-06-26
+Last updated: 2026-06-28
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Local gate = Neo-Seoul `[manual]` live-QA A·F sign-off (`docs/test/neo_seoul_live_qa.md`, play 1회로 닫힘). Then global-first: EN/KO English-default localization (`docs/plans/2026-06-27-en-ko-localization.md` — SIDECAR, golden-path-first; join-key ID migration + S0 lang plumbing + S1 영어 생성 DONE 2026-06-28 → START at S2 golden-path 저작물 EN: `opening.en.md`/`fallback.en.md` + loader `*.{lang}.md` 분기 + golden-path scenario/bible 산문 EN sidecar, THEN flip default to en + S3 UI i18n). Launch = GCP closed beta + r/playtesters, NOT local video (`docs/cloud/CLOSED_BETA_FEEDBACK_STRATEGY.md`); product LLM = Gemini/Vertex (local LLM = dev only). App.tsx decomposition track is `[blocked]` (human must name a slice or close it).**
+> ▶ NEXT SESSION: **EN/KO localization DONE (`c02c41b`) + all 3 GCP_PLAN §8 cloud adapters DONE + gate-verified (2026-06-28, uncommitted): Gemini/Vertex narrative `JSONProvider` (`gemini_provider.py`, `MYTHOS_NARRATIVE_PROVIDER`, controlled gen + `stream`) + Vertex Imagen `VisualProvider` + GCS `StorageAdapter` (`visual_service.py`, `MYTHOS_VISUAL_PROVIDER`/`MYTHOS_STORAGE_BACKEND`). Tests `test_gemini_provider.py`(19)+`test_vertex_visual.py`(13); `[gemini]`/`[gcs]`/`[gcp]` extras; `.env.example` SDK-native names (human wired a real Vertex project into `.env`). `make check` green 584. NEXT is HUMAN-GATED — live-test Gemini+Imagen against the real Vertex project (`CLOSED_BETA_FEEDBACK_STRATEGY.md` §2) → minimal deploy → r/playtesters. Remaining §8: Cloud Run containerize+WS, DB decision (human/infra). Parallel human gate: neo-seoul KO live-QA A·F sign-off → EN default flip (one-liner). App.tsx decomp `[blocked]`. NOTE: branch has uncommitted cloud work — user pushes (agent cannot push private repo).**
 
 ## Snapshot
 

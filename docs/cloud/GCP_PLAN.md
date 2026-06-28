@@ -96,10 +96,11 @@ DB **Neon**(Vercel과 1급 통합) + 이미지 **GCS / Cloudflare R2**.
 
 ## 8. 다음 단계 (착수 시)
 
-- `[ ]` `GeminiJSONProvider` 인터페이스 스케치 (`mythos_narrative`)
-- `[ ]` GCS `StorageAdapter` 구현 (`visual_service.py`, boto3 S3-호환 또는 `google-cloud-storage`)
-- `[ ]` `VertexImageProvider` (`VisualProvider`) 구현
-- `[ ]` Cloud Run 컨테이너화 + WS 검증
-- `[ ]` DB 결정 (Neon vs Cloud SQL vs Firestore) 후 연결 검증
+- `[x]` `GeminiJSONProvider` (`mythos_narrative.gemini_provider.VertexGeminiJSONProvider`, controlled generation, `MYTHOS_NARRATIVE_PROVIDER` factory, `stream`) — 2026-06-28, gate-verified.
+- `[x]` GCS `StorageAdapter` (`visual_service.GCSStorageAdapter`, `google-cloud-storage`, `gs://` + v4 signed URL, `MYTHOS_STORAGE_BACKEND=gcs`) — 2026-06-28.
+- `[x]` `VertexImageProvider` (`visual_service.VertexImageProvider`, Imagen via google-genai, `MYTHOS_VISUAL_PROVIDER=vertex`) — 2026-06-28.
+- `[ ]` Cloud Run 컨테이너화 + WS 검증 (human/infra-gated)
+- `[ ]` DB 결정 (Neon vs Cloud SQL vs Firestore) 후 연결 검증 (human/infra-gated)
+- `[ ]` `[manual]` 실제 Vertex 프로젝트 live-test (Gemini 서사 + Imagen) — `.env`에 프로젝트 기입됨, GCP 서비스계정/ADC 필요.
 
 > 주의: 현 cloud 스택 기술은 `bin/docs/archive/DRAFT.md` 기준 **aspirational**. 본 문서는 그 구체화 초안.

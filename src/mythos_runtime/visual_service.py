@@ -3,9 +3,10 @@ from __future__ import annotations
 import os
 import shutil
 from dataclasses import asdict, dataclass, field, replace
+from datetime import timedelta
 from pathlib import Path
 from time import perf_counter
-from typing import Protocol
+from typing import Any, Protocol
 
 from mythos_core import AssetRecord, Scene
 from mythos_core.clock import utc_now
@@ -149,8 +150,114 @@ class MfluxProvider:
         )
 
 
+def _env(*names: str, default: str | None = None) -> str | None:
+    """First non-empty value among env-var aliases (later names are fallbacks)."""
+    for name in names:
+        value = os.getenv(name)
+        if value is not None and value.strip() != "":
+            return value
+    return default
+
+
+# Imagen has no free width/height — it takes a discrete aspect ratio. Map the
+# request's pixel dims to the nearest supported ratio.
+_IMAGEN_ASPECT_RATIOS = {"1:1": 1.0, "3:4": 0.75, "4:3": 4 / 3, "9:16": 0.5625, "16:9": 16 / 9}
+
+
+def _nearest_aspect_ratio(width: int, height: int) -> str:
+    ratio = (width / height) if height else 1.0
+    return min(_IMAGEN_ASPECT_RATIOS, key=lambda k: abs(_IMAGEN_ASPECT_RATIOS[k] - ratio))
+
+
+def _first_image_bytes(response: object) -> bytes:
+    """Extract PNG bytes from a google-genai GenerateImagesResponse (tolerant of shape)."""
+    images = getattr(response, "generated_images", None) or []
+    if not images:
+        raise RuntimeError("Vertex Imagen returned no images")
+    image = getattr(images[0], "image", images[0])
+    data = getattr(image, "image_bytes", None)
+    if not isinstance(data, (bytes, bytearray)):
+        raise RuntimeError("Vertex Imagen image had no image_bytes")
+    return bytes(data)
+
+
+class VertexImageProvider:
+    """``VisualProvider`` backed by Vertex AI **Imagen** (cloud product image path).
+
+    Mirrors the narrative ``VertexGeminiJSONProvider``: the `google-genai` SDK is an
+    optional dep imported lazily inside ``_client()`` and the client is injectable for
+    tests. Replaces the local FLUX/MPS pipeline with an API call — the cloud cost driver
+    (`GCP_PLAN.md` §1), so anchor curation still skips most generations upstream. Reuses
+    the same env names as the narrative provider (``GOOGLE_CLOUD_PROJECT``/``PROJECT_ID``,
+    ``GOOGLE_GENAI_USE_VERTEXAI``); the model is ``IMAGEN_MODEL`` (default imagen-3).
+    """
+
+    def __init__(
+        self,
+        *,
+        model: str | None = None,
+        project: str | None = None,
+        location: str | None = None,
+        use_vertex: bool | None = None,
+        api_key: str | None = None,
+        number_of_images: int = 1,
+        client: object = None,
+    ) -> None:
+        self.model = model or _env("IMAGEN_MODEL", "IMAGE_MODEL_ID_VERTEX") or "imagen-3.0-generate-002"
+        self.project = project or _env("GOOGLE_CLOUD_PROJECT", "PROJECT_ID")
+        self.location = location or _env("GOOGLE_CLOUD_LOCATION") or "us-central1"
+        if use_vertex is None:
+            use_vertex = (
+                _env("GOOGLE_GENAI_USE_VERTEXAI", "GEMINI_USE_VERTEX", default="true") or "true"
+            ).strip().lower() in {"1", "true", "yes", "on"}
+        self.use_vertex = use_vertex
+        self.api_key = api_key or _env("GOOGLE_API_KEY", "GEMINI_API_KEY")
+        self.number_of_images = number_of_images
+        self._injected_client = client
+
+    def _client(self) -> Any:
+        if self._injected_client is not None:
+            return self._injected_client
+        try:
+            from google import genai  # type: ignore[import-not-found]
+        except ImportError as exc:  # pragma: no cover - exercised only without the SDK
+            raise RuntimeError(
+                "google-genai is not installed. Install the cloud image provider with "
+                "`pip install -e .[gemini]` to use MYTHOS_VISUAL_PROVIDER=vertex."
+            ) from exc
+        if self.use_vertex:
+            self._injected_client = genai.Client(  # type: ignore[attr-defined]
+                vertexai=True, project=self.project, location=self.location
+            )
+        else:
+            self._injected_client = genai.Client(api_key=self.api_key)  # type: ignore[attr-defined]
+        return self._injected_client
+
+    def generate(self, request: VisualGenerationRequest, output_path: Path) -> Path:
+        client = self._client()
+        config = {
+            "number_of_images": self.number_of_images,
+            "aspect_ratio": _nearest_aspect_ratio(request.width, request.height),
+        }
+        response = client.models.generate_images(
+            model=request.metadata.get("vertex_image_model") or self.model,
+            prompt=request.prompt,
+            config=config,
+        )
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_bytes(_first_image_bytes(response))
+        return output_path
+
+
 def default_visual_provider(config: AgentConfig | None = None) -> VisualProvider:
-    """Pick the image backend from config/env (`IMAGE_BACKEND`)."""
+    """Pick the image backend from env (`MYTHOS_VISUAL_PROVIDER`) / config (`IMAGE_BACKEND`).
+
+    ``MYTHOS_VISUAL_PROVIDER=vertex|imagen`` → cloud Imagen; otherwise the local
+    backend (`mflux` default, else diffusers FLUX) per `IMAGE_BACKEND`.
+    """
+    backend = (os.getenv("MYTHOS_VISUAL_PROVIDER") or "").strip().lower()
+    if backend in {"vertex", "imagen"}:
+        return VertexImageProvider()
     cfg = config or AgentConfig()
     if cfg.image_backend.lower() == "mflux":
         return MfluxProvider(cfg)
@@ -217,6 +324,82 @@ class MinIOStorageAdapter:
             ExpiresIn=expires_in,
         )
         return str(url)
+
+
+class GCSStorageAdapter:
+    """``StorageAdapter`` backed by Google Cloud Storage (cloud asset path).
+
+    The GCP analogue of ``MinIOStorageAdapter``: same logical key layout, returns a
+    ``gs://bucket/key`` URI, and signs a v4 read URL (the read API never exposes the
+    bucket directly — design §5.2). `google-cloud-storage` is an optional dep imported
+    lazily; the client is injectable for tests. Bucket/project env names mirror the GCP
+    convention (``GCS_BUCKET_ASSETS`` falling back to the existing ``S3_BUCKET_ASSETS``).
+    """
+
+    def __init__(
+        self,
+        *,
+        bucket: str | None = None,
+        project: str | None = None,
+        client: object = None,
+    ) -> None:
+        self.bucket = bucket or _env("GCS_BUCKET_ASSETS", "S3_BUCKET_ASSETS") or "mythos-assets"
+        self.project = project or _env("GOOGLE_CLOUD_PROJECT", "PROJECT_ID")
+        self._injected_client = client
+
+    def _client(self) -> Any:
+        if self._injected_client is not None:
+            return self._injected_client
+        try:
+            from google.cloud import storage  # type: ignore[import-not-found]
+        except ImportError as exc:  # pragma: no cover - exercised only without the SDK
+            raise RuntimeError(
+                "google-cloud-storage is required for GCS access. Install with "
+                "`pip install -e .[gcs]`."
+            ) from exc
+        self._injected_client = storage.Client(project=self.project)
+        return self._injected_client
+
+    def store(self, source_path: Path, request: VisualGenerationRequest) -> str:
+        key = f"images/{request.player_id}/{request.loop_id}/{request.scene_id}.png"
+        blob = self._client().bucket(self.bucket).blob(key)
+        blob.upload_from_filename(str(source_path), content_type="image/png")
+        return f"gs://{self.bucket}/{key}"
+
+    def presigned_url(self, storage_uri: str, expires_in: int = 600) -> str:
+        """Sign a time-limited v4 HTTPS GET URL for a ``gs://bucket/key`` address.
+
+        Non-``gs://`` URIs (filesystem paths) are returned unchanged, matching
+        ``MinIOStorageAdapter.presigned_url``.
+        """
+        if not storage_uri.startswith("gs://"):
+            return storage_uri
+        without_scheme = storage_uri[len("gs://") :]
+        bucket, _, key = without_scheme.partition("/")
+        if not key:
+            raise ValueError(f"malformed gs uri: {storage_uri}")
+        blob = self._client().bucket(bucket).blob(key)
+        return str(
+            blob.generate_signed_url(
+                version="v4",
+                expiration=timedelta(seconds=expires_in),
+                method="GET",
+            )
+        )
+
+
+def default_storage_adapter() -> StorageAdapter:
+    """Pick the storage backend from env (`MYTHOS_STORAGE_BACKEND`).
+
+    ``gcs`` → GCS; ``filesystem`` → local dir; anything else (default ``minio``)
+    keeps the existing MinIO/S3 adapter so current local behavior is unchanged.
+    """
+    backend = (os.getenv("MYTHOS_STORAGE_BACKEND") or "minio").strip().lower()
+    if backend == "gcs":
+        return GCSStorageAdapter()
+    if backend == "filesystem":
+        return FilesystemStorageAdapter()
+    return MinIOStorageAdapter()
 
 
 class VisualService:

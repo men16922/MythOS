@@ -1,0 +1,205 @@
+"""Tests for the GCP cloud visual adapters (closed-beta wedge):
+
+  * ``VertexImageProvider`` — Imagen via google-genai (fake client), aspect-ratio
+    mapping, PNG bytes written to the output path, model override, missing-SDK error;
+  * ``GCSStorageAdapter`` — upload returns a ``gs://`` URI, v4 signed read URL,
+    non-``gs://`` passthrough, missing-SDK error;
+  * the ``default_visual_provider`` / ``default_storage_adapter`` env factories.
+
+No Google SDK is required — clients are injected.
+"""
+
+from __future__ import annotations
+
+import os
+import tempfile
+import types
+import unittest
+from pathlib import Path
+from typing import Any
+from unittest import mock
+
+from mythos_runtime import (
+    GCSStorageAdapter,
+    MinIOStorageAdapter,
+    VertexImageProvider,
+    VisualGenerationRequest,
+    default_storage_adapter,
+    default_visual_provider,
+)
+from mythos_runtime.visual_service import _nearest_aspect_ratio
+
+_PNG = b"\x89PNG\r\n\x1a\n_fake_png_bytes"
+
+
+def _request(width: int = 1024, height: int = 1024) -> VisualGenerationRequest:
+    return VisualGenerationRequest(
+        player_id="player_1",
+        loop_id="loop_1",
+        scene_id="scene_1",
+        prompt="a rain-soaked neon alley",
+        width=width,
+        height=height,
+    )
+
+
+class _FakeImagenModels:
+    def __init__(self, image_bytes: bytes | None) -> None:
+        self._image_bytes = image_bytes
+        self.calls: list[dict[str, Any]] = []
+
+    def generate_images(self, *, model: str, prompt: str, config: Any):
+        self.calls.append({"model": model, "prompt": prompt, "config": config})
+        if self._image_bytes is None:
+            return types.SimpleNamespace(generated_images=[])
+        image = types.SimpleNamespace(image_bytes=self._image_bytes)
+        return types.SimpleNamespace(generated_images=[types.SimpleNamespace(image=image)])
+
+
+class _FakeGenaiClient:
+    def __init__(self, image_bytes: bytes | None = _PNG) -> None:
+        self.models = _FakeImagenModels(image_bytes)
+
+
+class AspectRatioTest(unittest.TestCase):
+    def test_maps_to_nearest_supported_ratio(self) -> None:
+        self.assertEqual(_nearest_aspect_ratio(1024, 1024), "1:1")
+        self.assertEqual(_nearest_aspect_ratio(1920, 1080), "16:9")
+        self.assertEqual(_nearest_aspect_ratio(1080, 1920), "9:16")
+        self.assertEqual(_nearest_aspect_ratio(1024, 768), "4:3")
+        self.assertEqual(_nearest_aspect_ratio(0, 0), "1:1")  # guard div-by-zero
+
+
+class VertexImageProviderTest(unittest.TestCase):
+    def test_generate_writes_png_and_passes_aspect_ratio(self) -> None:
+        client = _FakeGenaiClient(_PNG)
+        provider = VertexImageProvider(model="imagen-3.0-generate-002", client=client)
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "nested" / "scene_1.png"
+            result = provider.generate(_request(1920, 1080), out)
+            self.assertEqual(result, out)
+            self.assertEqual(out.read_bytes(), _PNG)
+        call = client.models.calls[0]
+        self.assertEqual(call["model"], "imagen-3.0-generate-002")
+        self.assertEqual(call["config"]["aspect_ratio"], "16:9")
+        self.assertEqual(call["config"]["number_of_images"], 1)
+
+    def test_per_request_model_override(self) -> None:
+        client = _FakeGenaiClient(_PNG)
+        provider = VertexImageProvider(model="imagen-3.0-generate-002", client=client)
+        req = VisualGenerationRequest(
+            player_id="p",
+            loop_id="l",
+            scene_id="s",
+            prompt="x",
+            metadata={"vertex_image_model": "imagen-3.0-fast-generate-001"},
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            provider.generate(req, Path(tmp) / "s.png")
+        self.assertEqual(client.models.calls[0]["model"], "imagen-3.0-fast-generate-001")
+
+    def test_no_images_raises(self) -> None:
+        provider = VertexImageProvider(client=_FakeGenaiClient(image_bytes=None))
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(RuntimeError):
+                provider.generate(_request(), Path(tmp) / "s.png")
+
+    def test_missing_sdk_raises_actionable_error(self) -> None:
+        provider = VertexImageProvider()  # no injected client
+        with mock.patch.dict("sys.modules", {"google.genai": None, "google": None}):
+            with self.assertRaises(RuntimeError) as ctx:
+                provider._client()
+        self.assertIn(".[gemini]", str(ctx.exception))
+
+    def test_env_names_match_user_convention(self) -> None:
+        env = {
+            "IMAGEN_MODEL": "imagen-custom",
+            "PROJECT_ID": "proj-abc",
+            "GOOGLE_CLOUD_LOCATION": "asia-northeast3",
+        }
+        with mock.patch.dict(os.environ, env, clear=False):
+            os.environ.pop("GOOGLE_CLOUD_PROJECT", None)
+            provider = VertexImageProvider()
+        self.assertEqual(provider.model, "imagen-custom")
+        self.assertEqual(provider.project, "proj-abc")
+        self.assertEqual(provider.location, "asia-northeast3")
+
+
+class _FakeBlob:
+    def __init__(self) -> None:
+        self.uploaded: tuple[str, str] | None = None
+
+    def upload_from_filename(self, filename: str, content_type: str = "") -> None:
+        self.uploaded = (filename, content_type)
+
+    def generate_signed_url(self, *, version: str, expiration: Any, method: str) -> str:
+        return f"https://signed.example/{version}/{method}?exp={int(expiration.total_seconds())}"
+
+
+class _FakeBucket:
+    def __init__(self) -> None:
+        self.blobs: dict[str, _FakeBlob] = {}
+
+    def blob(self, key: str) -> _FakeBlob:
+        return self.blobs.setdefault(key, _FakeBlob())
+
+
+class _FakeGCSClient:
+    def __init__(self) -> None:
+        self.buckets: dict[str, _FakeBucket] = {}
+
+    def bucket(self, name: str) -> _FakeBucket:
+        return self.buckets.setdefault(name, _FakeBucket())
+
+
+class GCSStorageAdapterTest(unittest.TestCase):
+    def test_store_uploads_and_returns_gs_uri(self) -> None:
+        client = _FakeGCSClient()
+        adapter = GCSStorageAdapter(bucket="mythos-assets", client=client)
+        with tempfile.TemporaryDirectory() as tmp:
+            src = Path(tmp) / "img.png"
+            src.write_bytes(_PNG)
+            uri = adapter.store(src, _request())
+        self.assertEqual(uri, "gs://mythos-assets/images/player_1/loop_1/scene_1.png")
+        blob = client.buckets["mythos-assets"].blobs["images/player_1/loop_1/scene_1.png"]
+        self.assertEqual(blob.uploaded, (str(src), "image/png"))
+
+    def test_presigned_url_signs_gs_uri(self) -> None:
+        adapter = GCSStorageAdapter(bucket="b", client=_FakeGCSClient())
+        url = adapter.presigned_url("gs://b/images/p/l/s.png", expires_in=900)
+        self.assertTrue(url.startswith("https://signed.example/"))
+        self.assertIn("exp=900", url)
+
+    def test_presigned_url_passthrough_non_gs(self) -> None:
+        adapter = GCSStorageAdapter(client=_FakeGCSClient())
+        self.assertEqual(adapter.presigned_url("/local/path.png"), "/local/path.png")
+
+    def test_malformed_gs_uri_raises(self) -> None:
+        adapter = GCSStorageAdapter(client=_FakeGCSClient())
+        with self.assertRaises(ValueError):
+            adapter.presigned_url("gs://bucket-only")
+
+    def test_missing_sdk_raises_actionable_error(self) -> None:
+        adapter = GCSStorageAdapter()
+        with mock.patch.dict("sys.modules", {"google.cloud.storage": None, "google.cloud": None}):
+            with self.assertRaises(RuntimeError) as ctx:
+                adapter._client()
+        self.assertIn(".[gcs]", str(ctx.exception))
+
+
+class FactoryTest(unittest.TestCase):
+    def test_visual_provider_vertex_selection(self) -> None:
+        for name in ("vertex", "imagen", "VERTEX"):
+            with mock.patch.dict(os.environ, {"MYTHOS_VISUAL_PROVIDER": name}):
+                self.assertIsInstance(default_visual_provider(), VertexImageProvider, name)
+
+    def test_storage_backend_selection(self) -> None:
+        with mock.patch.dict(os.environ, {"MYTHOS_STORAGE_BACKEND": "gcs"}):
+            self.assertIsInstance(default_storage_adapter(), GCSStorageAdapter)
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("MYTHOS_STORAGE_BACKEND", None)
+            self.assertIsInstance(default_storage_adapter(), MinIOStorageAdapter)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -250,7 +250,13 @@ class NarrativeDirector:
     def __init__(
         self, provider: JSONProvider | None = None, repair_enabled: bool | None = None
     ) -> None:
-        self.provider = provider or OllamaJSONProvider(AgentConfig())
+        if provider is None:
+            # Select Ollama (default) or the Gemini/Vertex cloud provider per
+            # MYTHOS_NARRATIVE_PROVIDER. Lazy import avoids a director↔provider cycle.
+            from .gemini_provider import build_narrative_provider
+
+            provider = build_narrative_provider()
+        self.provider = provider
         self.repair_enabled = repair_enabled
         self.logger = get_logger("mythos.narrative")
         self.metrics = NarrativeMetrics()

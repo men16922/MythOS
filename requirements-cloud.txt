@@ -1,0 +1,29 @@
+# Lean runtime deps for the GCP Cloud Run container (narrative=Gemini, image=Imagen
+# are API calls, so the heavy local ML stack — torch/diffusers/mflux/transformers/
+# accelerate/safetensors/sentencepiece/huggingface-hub — and streamlit are OMITTED).
+# The Dockerfile installs these, then `pip install --no-deps -e .` for the package.
+# Verified: mythos_api.create_app() imports cleanly with all of the above blocked.
+#
+# Keep version floors in sync with pyproject.toml [project].dependencies.
+
+# Web adapter (pyproject [web]).
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+httpx>=0.27.0
+
+# Core runtime (subset of pyproject core that the API import graph actually needs).
+openai>=1.40.0            # director.py imports `from openai import OpenAI` at module load
+psycopg[binary]>=3.2.0    # PostgresMythOSStore (request-scoped)
+psycopg-pool>=3.2.0
+redis>=5.0.0              # visual job queue / locks
+boto3>=1.34.0             # MinIO/S3 StorageAdapter (lazy, but keep for the minio backend)
+pillow>=10.4.0            # postprocess (PIL) is imported by visual_service at module load
+protobuf>=4.25.0
+python-dotenv>=1.0.1
+opentelemetry-api>=1.26.0
+opentelemetry-sdk>=1.26.0
+opentelemetry-exporter-otlp-proto-http>=1.26.0
+
+# Cloud providers (pyproject [gcp]): Gemini narrative + Imagen image + GCS storage.
+google-genai>=1.0.0
+google-cloud-storage>=2.18.0

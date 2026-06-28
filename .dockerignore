@@ -1,0 +1,34 @@
+# Keep the Cloud Run build context small + the image lean.
+.git
+.github
+.venv
+venv
+.docker
+node_modules
+src/mythos_ui/node_modules
+outputs
+scratch
+scratchpad
+**/__pycache__
+*.pyc
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.serena
+tests
+docs
+bin
+migrations
+*.md
+!README.md
+.env
+.env.*
+!.env.example
+docker-compose*.yml
+Makefile
+# The SPA is prebuilt into src/mythos_api/static; the TS source isn't needed at runtime.
+src/mythos_ui/src
+src/mythos_ui/public
+src/mythos_ui/*.json
+src/mythos_ui/*.ts
+src/mythos_ui/*.html

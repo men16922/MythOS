@@ -4,7 +4,7 @@ COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
-.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback narrative-smoke-fallback-en visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check check-skills sync-skills check-auto overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-clean overnight-codex overnight-codex-watch overnight-codex-once overnight-agy overnight-agy-watch overnight-agy-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review image-regen
+.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback narrative-smoke-fallback-en visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop cloud-image cloud-run-local dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check check-skills sync-skills check-auto overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-clean overnight-codex overnight-codex-watch overnight-codex-once overnight-agy overnight-agy-watch overnight-agy-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review image-regen
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -253,6 +253,18 @@ api:
 
 api-stop:
 	@pkill -f "mythos_api" && echo "api stopped" || echo "no api running"
+
+# --- GCP Cloud Run container (lean: narrative=Gemini, image=Imagen are API calls) ---
+CLOUD_IMAGE ?= mythos-api:local
+cloud-image:
+	docker build -t $(CLOUD_IMAGE) .
+	@echo "built $(CLOUD_IMAGE)  ($$(docker image inspect $(CLOUD_IMAGE) --format '{{.Size}}' | awk '{printf \"%.0f MB\", $$1/1048576}'))"
+
+# Run the container locally as Cloud Run would (PORT injected, host 0.0.0.0). Pass
+# cloud env via a file: make cloud-run-local ENVFILE=.env  (DB/creds optional to boot).
+ENVFILE ?= .env
+cloud-run-local:
+	docker run --rm -p 8080:8080 -e PORT=8080 $$( [ -f $(ENVFILE) ] && echo --env-file $(ENVFILE) ) $(CLOUD_IMAGE)
 
 # One-command dev stack: docker infra + db migrate + visual worker(bg) + API(foreground).
 # Ollama is host-side (not docker); start it separately with `ollama serve`.

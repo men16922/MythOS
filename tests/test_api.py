@@ -669,5 +669,23 @@ class ApiScenarioGatingTest(unittest.TestCase):
         self.assertTrue(scenarios["glass-library"]["unlocked"])
 
 
+class StorageBackendSelectionTest(unittest.TestCase):
+    """The API asset-URL signer is env-driven so the GCP container honors
+    MYTHOS_STORAGE_BACKEND (cloud deploy = gcs); default stays MinIO."""
+
+    def test_gcs_backend_selected(self) -> None:
+        import os
+        from unittest import mock
+
+        from mythos_api.service import get_storage_adapter
+        from mythos_runtime.visual_service import GCSStorageAdapter, MinIOStorageAdapter
+
+        with mock.patch.dict(os.environ, {"MYTHOS_STORAGE_BACKEND": "gcs"}):
+            self.assertIsInstance(get_storage_adapter(), GCSStorageAdapter)
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("MYTHOS_STORAGE_BACKEND", None)
+            self.assertIsInstance(get_storage_adapter(), MinIOStorageAdapter)
+
+
 if __name__ == "__main__":
     unittest.main()

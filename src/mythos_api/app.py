@@ -32,7 +32,7 @@ from mythos_api.serializers import (
     save_slot_to_dict,
     snapshot_to_dict,
 )
-from mythos_api.service import get_service, get_storage_adapter
+from mythos_api.service import SigningStorageAdapter, get_service, get_storage_adapter
 from mythos_core import Actor, AssetRecord
 from mythos_runtime.combat_server import combat_action_response, combat_state_response
 from mythos_runtime.observability import get_logger, timed
@@ -44,7 +44,7 @@ from mythos_runtime.progression import (
 )
 from mythos_runtime.scenario import load_scenario, load_scenario_i18n
 from mythos_runtime.session import RuntimeSessionService
-from mythos_runtime.visual_service import MinIOStorageAdapter, VisualGenerationResult
+from mythos_runtime.visual_service import VisualGenerationResult
 
 API_PREFIX = "/api/v1"
 STATIC_DIR = Path(__file__).parent / "static"
@@ -186,7 +186,7 @@ def _find_asset(service: RuntimeSessionService, loop_id: str, asset_id: str) -> 
 
 
 def _visual_frame(
-    storage: MinIOStorageAdapter,
+    storage: SigningStorageAdapter,
     *,
     status: str,
     asset_id: str | None,
@@ -200,7 +200,7 @@ def _visual_frame(
 
 
 def _terminal_visual_frame(
-    storage: MinIOStorageAdapter, result: VisualGenerationResult
+    storage: SigningStorageAdapter, result: VisualGenerationResult
 ) -> dict[str, Any] | None:
     """Frame for an already-resolved image; None if still in flight (pending)."""
     asset_id = result.asset.asset_id if result.asset else None
@@ -214,7 +214,7 @@ def _terminal_visual_frame(
 async def _emit_visual_status(
     websocket: WebSocket,
     service: RuntimeSessionService,
-    storage: MinIOStorageAdapter,
+    storage: SigningStorageAdapter,
     snapshot: RuntimeSnapshot,
 ) -> None:
     """After the snapshot, stream the scene image lifecycle to the client.
@@ -260,7 +260,7 @@ async def _emit_visual_status(
 async def _run_stream(
     websocket: WebSocket,
     service: RuntimeSessionService,
-    storage: MinIOStorageAdapter,
+    storage: SigningStorageAdapter,
     message: dict[str, Any],
 ) -> None:
     """Drive one runtime token stream and relay it to the client socket.
@@ -625,7 +625,7 @@ def create_app() -> FastAPI:
     @app.post(f"{API_PREFIX}/assets/resolve")
     def resolve_asset(
         body: AssetResolveRequest,
-        storage: MinIOStorageAdapter = Depends(get_storage_adapter),
+        storage: SigningStorageAdapter = Depends(get_storage_adapter),
     ) -> dict[str, Any]:
         # Virtualize the logical s3:// storage_uri into a short-lived presigned
         # HTTPS URL; non-s3 URIs pass through unchanged (design §5.2).
@@ -707,7 +707,7 @@ def create_app() -> FastAPI:
     async def loops_stream(
         websocket: WebSocket,
         service: RuntimeSessionService = Depends(get_service),
-        storage: MinIOStorageAdapter = Depends(get_storage_adapter),
+        storage: SigningStorageAdapter = Depends(get_storage_adapter),
     ) -> None:
         await websocket.accept()
         try:

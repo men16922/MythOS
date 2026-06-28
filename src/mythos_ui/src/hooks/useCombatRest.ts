@@ -1,5 +1,6 @@
 import type { Dispatch, RefObject, SetStateAction } from "react";
-import { apiCombatAction, apiEquip } from "../api";
+import { apiCombatAction, apiEquip, getLang } from "../api";
+import { DICTS } from "../i18n/lang";
 import type { CombatAction, RuntimeSnapshot } from "../types";
 
 type ImageOpts = {
@@ -75,7 +76,7 @@ export function useCombatRest(args: UseCombatRestArgs) {
   const handleCombatAction = async (action: CombatAction) => {
     if (isBusy || !loopId) return;
     setIsBusy(true);
-    setStatus("행동 처리 중…");
+    setStatus(DICTS[getLang()]["sess.actionProcessing"]);
 
     // Hand the dispatched action to the board animator (for the attack/cast
     // connector); impact SFX now fire on the animation's impact frame.
@@ -95,7 +96,7 @@ export function useCombatRest(args: UseCombatRestArgs) {
 
       const baseSnapshot = finalizedSnapshot || lastSnapshot;
       if (!baseSnapshot) {
-        setStatus("행동 실패: 갱신할 스냅샷이 없습니다.");
+        setStatus(DICTS[getLang()]["sess.actionNoSnapshot"]);
         logToConsole("Combat 오류: 갱신할 스냅샷이 없습니다.");
         return;
       }
@@ -108,9 +109,9 @@ export function useCombatRest(args: UseCombatRestArgs) {
       setFinalizedSnapshot(updatedSnapshot);
       setLastSnapshot(updatedSnapshot);
       // Victory/defeat SFX fire at the end of the board animation (see CombatAnimator).
-      setStatus("행동 적용.");
+      setStatus(DICTS[getLang()]["sess.actionApplied"]);
     } catch (e) {
-      setStatus("행동 실패: " + (e as Error).message);
+      setStatus(DICTS[getLang()]["sess.actionFail"] + (e as Error).message);
       logToConsole("Combat 오류: " + (e as Error).message);
     } finally {
       setIsBusy(false);
@@ -133,11 +134,11 @@ export function useCombatRest(args: UseCombatRestArgs) {
     if (isStreaming) return;
     setCombatLog("");
     setCombatTarget(null);
-    pendingActionRef.current = "전투의 여파를 살피고 다음 행동을 준비한다";
+    pendingActionRef.current = DICTS[getLang()]["sess.postCombatAction"];
     // Keep previous image visible until the new one is generated asynchronously
     clearVisualTimeout();
-    setImagePlaceholderText("그림 생성 준비 중…");
-    beginStream("전투 이후 · 스트리밍…");
+    setImagePlaceholderText(DICTS[getLang()]["img.preparing"]);
+    beginStream(DICTS[getLang()]["sess.streamPostCombat"]);
 
     if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
       websocketRef.current.send(

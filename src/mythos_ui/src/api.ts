@@ -38,11 +38,13 @@ function inviteHeaders(): Record<string, string> {
 // Active UI language (mirrors i18n/lang.ts's storage). Forwarded on combat/snapshot
 // calls so the backend localizes DATA (skill/enemy/encounter names, route labels,
 // zone_risk) via the serving-boundary glossary. Backend default "ko" → no-op.
-export function getLang(): string {
+export function getLang(): "ko" | "en" {
   try {
     const url = new URLSearchParams(window.location.search).get("lang");
     if (url === "en" || url === "ko") return url;
-    return window.localStorage.getItem("mythos_lang") || "ko";
+    const stored = window.localStorage.getItem("mythos_lang");
+    if (stored === "en" || stored === "ko") return stored;
+    return "ko";
   } catch {
     return "ko";
   }

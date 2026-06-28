@@ -15,12 +15,18 @@ The glossary lives in ``resources/<scenario>/i18n/<lang>.json`` under a top-leve
 
 from __future__ import annotations
 
+import re
 from functools import lru_cache
 from typing import Any, TypeVar, cast
 
 from mythos_runtime.scenario import load_scenario_i18n
 
 T = TypeVar("T")
+
+_HANGUL = re.compile(r"[가-힣]")
+# Glossary keys shorter than this are not applied as substrings (only exact match),
+# so a short, common token can't corrupt a longer surrounding string.
+_GLOSS_SUBSTR_MIN_LEN = 3
 
 
 @lru_cache(maxsize=16)
@@ -33,6 +39,20 @@ def load_glossary(scenario_id: str, language: str) -> dict[str, str]:
     if not isinstance(glossary, dict):
         return {}
     return {str(k): str(v) for k, v in glossary.items() if k and v}
+
+
+@lru_cache(maxsize=16)
+def _glossary_substrings(scenario_id: str, language: str) -> tuple[tuple[str, str], ...]:
+    """Glossary entries usable as **substring** replacements (longest key first), for
+    composed strings that embed a glossary term inside variable text (e.g. the route
+    title in ``"현재 지점: 추락과 첫 신뢰"`` or the value axis in ``"가치축: 시민/관계"``).
+    Applied only to strings that still contain Hangul after exact-match + phrases, so
+    already-English strings are never touched. Keys below ``_GLOSS_SUBSTR_MIN_LEN`` are
+    excluded so a short common token can't mis-replace inside a longer string."""
+    gloss = load_glossary(scenario_id, language)
+    items = [(k, v) for k, v in gloss.items() if len(k) >= _GLOSS_SUBSTR_MIN_LEN]
+    items.sort(key=lambda kv: len(kv[0]), reverse=True)
+    return tuple(items)
 
 
 @lru_cache(maxsize=16)
@@ -52,7 +72,12 @@ def load_phrases(scenario_id: str, language: str) -> tuple[tuple[str, str], ...]
     return tuple((str(k), str(v)) for k, v in phrases.items() if k)
 
 
-def _localize(obj: Any, glossary: dict[str, str], phrases: tuple[tuple[str, str], ...]) -> Any:
+def _localize(
+    obj: Any,
+    glossary: dict[str, str],
+    phrases: tuple[tuple[str, str], ...],
+    gloss_sub: tuple[tuple[str, str], ...],
+) -> Any:
     if not glossary and not phrases:
         return obj
     if isinstance(obj, str):
@@ -63,25 +88,39 @@ def _localize(obj: Any, glossary: dict[str, str], phrases: tuple[tuple[str, str]
         for ko, en in phrases:
             if ko in text:
                 text = text.replace(ko, en)
+        # Still-Korean leftovers are composed strings embedding a glossary term
+        # (e.g. a route title / value axis inside "현재 지점: …" / "가치축: …"). EN-mode
+        # narration is already English, so a Hangul remainder here is one of those —
+        # localize the embedded glossary terms by substring (longest first).
+        if gloss_sub and _HANGUL.search(text):
+            for ko, en in gloss_sub:
+                if ko in text:
+                    text = text.replace(ko, en)
         return text
     if isinstance(obj, list):
-        return [_localize(v, glossary, phrases) for v in obj]
+        return [_localize(v, glossary, phrases, gloss_sub) for v in obj]
     if isinstance(obj, dict):
-        return {k: _localize(v, glossary, phrases) for k, v in obj.items()}
+        return {k: _localize(v, glossary, phrases, gloss_sub) for k, v in obj.items()}
     return obj
 
 
 def localize_payload(
-    obj: T, glossary: dict[str, str], phrases: tuple[tuple[str, str], ...] = ()
+    obj: T,
+    glossary: dict[str, str],
+    phrases: tuple[tuple[str, str], ...] = (),
+    gloss_sub: tuple[tuple[str, str], ...] = (),
 ) -> T:
     """Recursively localize a JSON-able payload: exact-match glossary first, then the
-    curated substring ``phrases`` for code-composed strings. New structure; input not
-    mutated. Empty glossary+phrases → input as-is."""
-    return cast(T, _localize(obj, glossary, phrases))
+    curated substring ``phrases``, then glossary terms as substrings for any still-Korean
+    composed string. New structure; input not mutated. Empty glossary+phrases → input as-is."""
+    return cast(T, _localize(obj, glossary, phrases, gloss_sub))
 
 
 def localize_for(payload: T, scenario_id: str, language: str) -> T:
     """Convenience: load the scenario+language glossary + phrases and localize ``payload``."""
     return localize_payload(
-        payload, load_glossary(scenario_id, language), load_phrases(scenario_id, language)
+        payload,
+        load_glossary(scenario_id, language),
+        load_phrases(scenario_id, language),
+        _glossary_substrings(scenario_id, language),
     )

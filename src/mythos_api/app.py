@@ -528,6 +528,11 @@ def create_app() -> FastAPI:
                     ],
                 }
             )
+        # Localize the assembled onboarding DATA (archetype/scenario unlock_hints,
+        # character name/role/keywords, skill/encounter/ally names) at the serving
+        # boundary, the same way snapshot/combat/memory payloads are. The prose fields
+        # were already overlaid above; re-localizing them is a no-op (no Korean left).
+        items = [localize_for(item, str(item["id"]), lang) for item in items]
         return {"scenarios": items}
 
     @app.post(f"{API_PREFIX}/auth/connect")

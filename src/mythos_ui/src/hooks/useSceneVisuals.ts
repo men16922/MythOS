@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from "react";
-import { apiResolveAsset } from "../api";
+import { apiResolveAsset, getLang } from "../api";
+import { DICTS } from "../i18n/lang";
 import type { AssetInfo, WebSocketMessage } from "../types";
 
 /**
@@ -14,7 +15,7 @@ import type { AssetInfo, WebSocketMessage } from "../types";
 export function useSceneVisuals(logToConsole: (line: string) => void) {
   const [sceneImageUrl, setSceneImageUrl] = useState<string | null>(null);
   const [imagePlaceholderText, setImagePlaceholderText] = useState(
-    "이미지 토글을 켜고 접속하면 장면 이미지가 생성됩니다."
+    DICTS[getLang()]["img.toggleHint"]
   );
 
   // Fires if a pending/processing visual job never reports a terminal status
@@ -33,18 +34,16 @@ export function useSceneVisuals(logToConsole: (line: string) => void) {
   const onVisualStatus = (msg: WebSocketMessage) => {
     clearVisualTimeout();
     if (msg.status === "pending" || msg.status === "processing") {
-      setImagePlaceholderText(`그림 생성 중… (${msg.status})`);
+      setImagePlaceholderText(`${DICTS[getLang()]["img.generating"]} (${msg.status})`);
       // No terminal status within the budget ⇒ worker is likely down or stalled.
       visualTimeoutRef.current = setTimeout(() => {
-        setImagePlaceholderText(
-          "이미지 생성이 지연됩니다 — visual worker가 응답하지 않을 수 있습니다. `make visual-worker-logs`로 확인하거나 `make dev-up`으로 워커와 함께 기동하세요."
-        );
+        setImagePlaceholderText(DICTS[getLang()]["img.workerStalled"]);
         logToConsole("visual_status timeout: worker 무응답(90s)");
       }, 90000);
     } else if (msg.status === "succeeded" && msg.url) {
       setSceneImageUrl(msg.url);
     } else {
-      setImagePlaceholderText("그림 생성 실패: " + msg.status);
+      setImagePlaceholderText(DICTS[getLang()]["img.failed"] + msg.status);
       logToConsole("visual_status: " + msg.status);
     }
   };

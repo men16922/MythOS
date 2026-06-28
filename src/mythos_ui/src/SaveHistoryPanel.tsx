@@ -13,8 +13,9 @@ interface SaveHistoryPanelProps {
   onLoad: (params: { playerId: string; scenarioId: string; loopId: string }) => void;
 }
 
-function localDate(value: string): string {
-  return new Date(value).toLocaleString("ko-KR", { hour12: false });
+function localDate(value: string, lang: string): string {
+  const locale = lang === "en" ? "en-US" : "ko-KR";
+  return new Date(value).toLocaleString(locale, { hour12: false });
 }
 
 export function SaveHistoryPanel({
@@ -28,7 +29,7 @@ export function SaveHistoryPanel({
   onSave,
   onLoad,
 }: SaveHistoryPanelProps) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   return (
     <div className="panel" id="save-load-panel">
       <p className="panel-title">{t("save.title")}</p>
@@ -64,7 +65,7 @@ export function SaveHistoryPanel({
               <div className="save-slot-info">
                 <div className="save-slot-label">{slot.label || t("save.autosave")}</div>
                 <div className="save-slot-meta">
-                  {t("save.loop")}: {slot.loop_id.slice(0, 10)}… · {localDate(slot.saved_at)}
+                  {t("save.loop")}: {slot.loop_id.slice(0, 10)}… · {localDate(slot.saved_at, lang)}
                 </div>
               </div>
               <button
@@ -84,7 +85,7 @@ export function SaveHistoryPanel({
 }
 
 export function RunHistoryPanel({ runsHistory }: { runsHistory: RunSummary[] }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   return (
     <div className="panel" id="history-panel">
       <p className="panel-title">{t("save.archiveTitle")}</p>
@@ -112,7 +113,7 @@ export function RunHistoryPanel({ runsHistory }: { runsHistory: RunSummary[] }) 
                 <div className="save-slot-label">{run.ending_label || t("save.endedLoop")}</div>
                 <div className="save-slot-meta">
                   {t("save.loop")}: {run.loop_id.slice(0, 10)}… · {t("save.turns")}: {run.turns} ·{" "}
-                  {localDate(run.ended_at)}
+                  {localDate(run.ended_at, lang)}
                 </div>
               </div>
             </div>

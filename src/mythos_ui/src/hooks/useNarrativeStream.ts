@@ -3,6 +3,7 @@ import type { Dispatch, RefObject, SetStateAction } from "react";
 import type { NarrativeHistoryItem } from "../App";
 import type { RuntimeSnapshot, WebSocketMessage } from "../types";
 import { getLang } from "../api";
+import { DICTS } from "../i18n/lang";
 import { useGameSocket } from "./useGameSocket";
 
 type ImageOpts = {
@@ -86,14 +87,14 @@ export function useNarrativeStream(args: UseNarrativeStreamArgs) {
     } else if (msg.type === "snapshot" && msg.data) {
       streamDoneRef.current = true;
       pendingSnapshotRef.current = msg.data;
-      setStatus("장면 확정.");
+      setStatus(DICTS[getLang()]["sess.sceneConfirmed"]);
       handleReceivedSnapshot(msg.data);
     } else if (msg.type === "visual_status") {
       onVisualStatus(msg);
     } else if (msg.type === "error") {
       streamDoneRef.current = true;
       setIsStreaming(false);
-      setStatus("오류: " + (msg.detail || "알 수 없음"));
+      setStatus(DICTS[getLang()]["sess.error"] + (msg.detail || DICTS[getLang()]["sess.unknown"]));
       logToConsole("WS error: " + (msg.detail || ""));
     }
   };
@@ -146,8 +147,8 @@ export function useNarrativeStream(args: UseNarrativeStreamArgs) {
     pendingActionRef.current = chosen?.label ?? null;
     // Keep previous image visible until the new one is generated asynchronously
     clearVisualTimeout();
-    setImagePlaceholderText("그림 생성 준비 중…");
-    beginStream("선택 적용 · 스트리밍…");
+    setImagePlaceholderText(DICTS[getLang()]["img.preparing"]);
+    beginStream(DICTS[getLang()]["sess.streamChoice"]);
     if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
       websocketRef.current.send(
         JSON.stringify({

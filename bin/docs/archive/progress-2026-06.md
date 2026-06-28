@@ -13,6 +13,13 @@ YYYY-MM-DD
 - Next:
 ```
 
+## 2026-06-28 — GCP closed-beta: deploy runbook + cost estimate (DEPLOY.md) + Cloud Trace exporter
+- Status: Completed. NEW `docs/cloud/DEPLOY.md` deploy runbook (gcloud sequence + IAM + GCS + Cloud Run flags + verification + cost) and the Cloud Trace observability exporter (§3 관측성). Answers the "GCP 비용 예상" ask with grounded numbers.
+- Cost (2026-06 web-checked, approximate): Gemini 2.5 Flash $0.30/1M in · $2.50/1M out; Imagen 3 $0.04/img (Fast $0.02); Cloud Run scale-to-zero ≈ idle $0; Cloud Trace 2.5M span/mo free. → **per loop ~$0.3–0.7 (image-dominated)**; closed-beta round (10 testers × 2 loops) **~$6–15 variable**; **fixed ~$0/mo with Neon** (Cloud SQL +$25–50). Levers: Cloud Run min=0/max-cap, Imagen Fast + Flash-Lite, anchor curation (already), billing budget alert, invite gating.
+- Changed: NEW `docs/cloud/DEPLOY.md`. `observability.py` `configure_tracing()` → `MYTHOS_TRACE_BACKEND` (otlp default | gcp Cloud Trace via `CloudTraceSpanExporter` | none disable) + `_trace_backend()`. `pyproject [gcp]` + `requirements-cloud.txt` add `opentelemetry-exporter-gcp-trace`; `.env.example` var. `tests/test_observability.py` +2. GCP_PLAN §8 (write-path, trace `[x]`) + DEPLOY.md cross-ref.
+- Verified: `make check` green — **590 tests OK**, mypy clean.
+- Next: human/infra `gcloud run deploy` (DEPLOY.md). §3 코드 미구현(자율 가능): 초대키 게이팅 + 테스터당 루프/이미지 캡 + 피드백 설문 링크.
+
 ## 2026-06-28 — GCP closed-beta ③: image write-path GCS wiring (single env var drives all storage)
 - Status: Completed (code, gate-verified). Finishes the storage story started with the read/sign path: now one env var `MYTHOS_STORAGE_BACKEND=gcs` routes BOTH the API URL-signer AND the image write path (sync + Redis worker) to GCS. Local default unchanged (unset → minio).
 - Changed: NEW `visual_service.storage_adapter_for(kind)` (gcs|minio|filesystem → adapter; preserves the prior "minio vs filesystem" mapping, adds gcs); `default_storage_adapter()` now delegates to it. `visual_orchestration.py` (sync path) + `visual_worker.py` (async job) replaced their `MinIO-vs-Filesystem` ternary with `storage_adapter_for(...)`. `RuntimeOptions.image_storage` default now `field(default_factory=os.getenv("MYTHOS_STORAGE_BACKEND") or "minio")` — the API builds RuntimeOptions without setting it, so the deployed container's env flows through enqueue→worker. Exported `storage_adapter_for`. `tests/test_vertex_visual.py` +2 (kind mapping + env default).

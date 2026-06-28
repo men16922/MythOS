@@ -273,6 +273,35 @@ class ApiScenariosTest(unittest.TestCase):
             [e["id"] for e in en_neo["endings"]], [e["id"] for e in ko_neo["endings"]]
         )
 
+    def test_scenarios_lang_en_localizes_data(self) -> None:
+        # The onboarding DATA (archetype unlock_hint, character name/role/keywords,
+        # skill names) is glossary-localized at the serving boundary in EN.
+        import re
+
+        hangul = re.compile(r"[가-힣]")
+        client = _client(_InMemoryStore())
+        en = client.get("/api/v1/scenarios?lang=en").json()["scenarios"]
+        ko = client.get("/api/v1/scenarios").json()["scenarios"]
+        en_neo = next(s for s in en if s["id"] == "neo-seoul")
+        ko_neo = next(s for s in ko if s["id"] == "neo-seoul")
+        # Locked archetypes' unlock hints are English (no player => only ghost unlocked).
+        locked_hints = [a["unlock_hint"] for a in en_neo["archetypes"] if a["unlock_hint"]]
+        self.assertTrue(locked_hints)
+        for hint in locked_hints:
+            self.assertNotRegex(hint, hangul)
+        # Scene-character portrait data (name/role/keywords) is English.
+        self.assertTrue(en_neo["characters"])
+        for c in en_neo["characters"]:
+            self.assertNotRegex(str(c["name"]), hangul)
+            self.assertNotRegex(str(c["role"]), hangul)
+            self.assertNotRegex(" ".join(map(str, c.get("keywords", []))), hangul)
+        se_rin = next((c for c in en_neo["characters"] if "Se-rin" in str(c["name"])), None)
+        self.assertIsNotNone(se_rin)
+        # KO unchanged — character names stay Korean by default.
+        self.assertRegex(
+            " ".join(str(c["name"]) for c in ko_neo["characters"]), hangul
+        )
+
 
 class ApiNarrativeFlowTest(unittest.TestCase):
     def setUp(self) -> None:

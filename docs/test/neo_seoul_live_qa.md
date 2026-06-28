@@ -11,30 +11,45 @@
 > defeat·오프닝 이미지 시퀀스·core_stake 노출·관계/컷씬 DB 영속(migration 006/007). 배선은 green이니
 > **느낌만** 보면 된다.
 >
-> **▶ 2026-06-19 개선 — 잔여 체감 확인 2건**: 종료 "왜 끝나는가" 서사화 · 전투 직후 콜백(아래
-> `(2026-06-19 개선)`). 오프닝 일으킴 비트·IX 위협 이유는 **라이브 PASS(완료)**. 서버 재시작:
-> `make api-stop && make api` → http://127.0.0.1:8000/
->
-> **▶ 2026-06-28 신규 — EN 모드 로컬라이제이션 검수**: §K(맨 아래). EN으로 1회 완주하며 놓친 한글·번역
-> 품질만 본다. KO A·F 사인오프(EN default flip 게이트)와 **별개 트랙**이지만 둘 다 사람만 닫을 수 있다.
+> **▶ 바로 아래 "✅ 내가 확인할 것" 체크리스트가 사용자가 닫을 항목의 전부.** 상세 근거는 그 아래 A~K 절.
+> A·F(KO 체감) 사인오프가 EN default flip 게이트다.
 
 ---
 
-> ## ★ 사용자 필수 체크 (강조)
+# ✅ 내가 확인할 것 (이 목록만 보면 됨)
+
+> **서버:** `make api-stop && make api` → http://127.0.0.1:8000/ · **EN 검수**는 URL에 `?lang=en` 붙이거나
+> 헤더 우측 언어토글을 EN. 직접 플레이하며 **체감으로 OK/NG만** 판단, NG면 그 줄에 메모. 상세 근거는
+> 아래 동명 절(A·C·…·K). **여기 없는 건 안 봐도 됨**(자동검증/수정완료/개발트랙 → 맨 아래 "닫힘" 참고).
+
+## 🔴 1순위 — 코드 green, 라이브 체감 사인오프만 (KO로 1회 완주, ~30분이면 1·2순위 같이 닫힘)
+- [ ] **A. 종료 "왜 끝나는가"** — 종료 화면에 추적도 *숫자* 말고 납득되는 *서사 코즈*가 뜨는가
+- [ ] **F. 전투 직후 콜백** — 전투 끝난 *바로 다음 장면*이 여파·관리망 heat·동료 반응을 이어받아 시작하는가
+
+## 🟡 2순위 — 느낌 판정 (같은 KO 완주 중 같이 체크)
+- [ ] **C. 선택의 맛** — 선택 후 변화가 수치 아닌 *이야기*로 와닿나 / 실패·우회도 손해만 아니라 다른 정보·톤을 주나
+- [ ] **D. 캐릭터 존재감** — 린위에(거래의 득&부채 동시) · 카이("기계도 기억하나" 테마) · 관리자 IX(선택을 정정하는 압력)
+- [ ] **E. 전투 만족** — 추적·구출·보호의 *결과*로 느껴지나 / 중반 이후 타겟·방어타이밍·이동·스킬 중 하나를 요구하나
+- [ ] **G. 진행/재플레이** — 게이지(안정/긴장/Decay/Risk/Clue)가 뭘 바꾸는지 와닿나 / 통찰·해금이 다음 판을 바꿀 것 같나
+- [ ] **H. 엔딩 잔향** — 구한 것/잃은 것 선명 / 세린·린위에·카이 중 누구와의 관계가 남나 / "다시 다른 선택" 동기
+- [ ] **I. 최종 판정** — 30~60분 안 끊기나 / 기억나는 장면 3개+ / 설명 없이 남에게 줘도 기본 재미 전달되나
+
+## 🌐 3순위 — EN 검수 (남은 것만; `?lang=en`로 **새 루프** 시작해야 EN 서사가 나옴)
+- [ ] **K6. 전투 EN** — 전투 진입해서 PARTY/적 이름·액션·스킬·인카운터 팝업·로그가 영어인가 (← 이번 패스 **미검증**)
+- [ ] **K9. 종료화면 EN** — 엔딩까지 가서 "왜 끝나는가" 서사가 영어로 납득되나 (← **미검증**)
+- [ ] **번역 품질** — 전 구간 직역체/어색한 문장 없이 자연스러운가 (한글 잔존 0은 이미 확인됨, 이건 "자연스러움")
+- [ ] **`月光호`→"the Moonlight"** (린위에의 배) — 의도한 선박명인지 한 번만 봐주기
+
+---
+
+> ### ✅ 이미 닫힘 — 안 봐도 됨
+> - **J 호감도 게이지·컷신 갤러리** (에이전트 시각검증 완료, 2026-06-21)
+> - **EN 잔존 한글 9건 전부 수정+재검증** (2026-06-28): K1 잠금힌트·K2 날짜·K3 축명·K4 chapter_goal/premise/루트제목·
+>   K8 캐릭터 초상·K9 컷신 제목 → 전 화면 잔존 한글 = `한국어`(의도된 토글) 1건뿐. (`make check` 604 green, 미커밋)
+> - 오프닝 이미지/시퀀스·목표 스트립·전투 배너 ⚑/🎁·soft defeat·관계/컷씬 DB 영속 등 (배선 green)
 >
-> **이 문서 전체가 "사람만 판정 가능"이지만, 우선순위는 셋으로 갈린다.**
->
-> ### ★★ 최우선 — 코드/유닛 green, **라이브 체감 사인오프만** 남음 (플레이 1회로 닫힘)
-> - **A. 종료 "왜 끝나는가" 서사화** (`[~]`, L20) — 종료 화면에 숫자 대신 납득되는 코즈가 뜨는가.
-> - **F. 전투↔서사 직후 콜백** (`[~]`, L46) — 전투 *직후* 장면이 여파/heat/동료반응을 이어받는가.
-> - **J. 호감도 게이지 / 컷신 갤러리** (`[x]`, J절, **신규 2026-06-21 · 에이전트 검증 완료**) — overnight 빌드분(`d3d6786`/`17a42a2`) 시각 검증 완료. 캐릭터 탭 "동료 관계도" 게이지 렌더 및 코덱스 탭 동료 컷신 잠금/해제 분기 시각 작동 확인 완료.
->
-> ### ★ 느낌 판정 (사람만 닫을 수 있음 — 미확인 다수)
-> C 선택의 맛 · D 캐릭터 존재감(린위에/카이/IX) · E 전투 만족감 · G 진행도/재플레이 · H 엔딩 잔향 · I 최종 판정(30-60분·기억나는 장면 3개).
->
-> ### ⚠ 사용자 체크 아님 — **개발 트랙**(플레이로 못 닫음, 별도 프론트 작업 필요)
-> - **F. 작전 지도 선택지 행선지** (`[!]`, L43) — in-layer LLM 선택지 ↔ route 노드 미연결. 프론트+serializer.
-> - **G. 스킬트리 RPG 노드그래프** (`[!]`, L53) — `SkillTreePanel` flat list → tier/requires 노드그래프 재설계.
+> ### ⚙️ 내 체크 아님 — 개발 트랙 (플레이로 못 닫음, 별도 프론트 작업)
+> - **작전 지도 in-layer 선택지 ↔ route 노드 연결** (F절, 프론트+serializer) · **스킬트리 RPG 노드그래프 재설계** (G절)
 
 ## A. 오프닝 / 초반 장면 (turn 0~4)
 
@@ -119,54 +134,111 @@
 > 참고(이미 처리됨, 통과 시 체크): 서사·선택지 생성 EN / 스킬트리·전투·캐릭터·상태·맵 데이터 글로서리 /
 > 오프닝 컷 이미지 / 헤더 브랜드·아키타입. **아래는 "라이브에서 정말 그런가"를 사람이 확인하는 것.**
 
+> ### ▶ 2026-06-28 에이전트 EN 브라우저 QA 결과 (Playwright, 로컬 `make api`/Ollama, `?lang=en`)
+> 신규 플레이어로 온보딩→오프닝 시네마틱→서사 2턴→탭(스킬트리/캐릭터/코덱스)을 EN으로 구동하며 각 화면
+> innerText를 한글 스캔 + 스크린샷. **대부분 영어(서사·선택지·목표·상태·작전지도·스킬트리·코덱스 라우트/엔딩·
+> 아키타입 'Ghost')는 통과.** 발견된 **잔존 한글 9건**(아래 `[!]`). 스크린샷·원시리포트:
+> `scratchpad/shots/` (`03_opening_cinematic.png` 오프닝 PASS, `05_scene_turn1.png` 스토리 패널,
+> `08_memory_codex.png` 코덱스, `report.json` 화면별 한글라인). 루트 원인은 §K 말미 "원인" 참고.
+> **전투(K6)·종료화면(K9 마지막)은 이번 패스에서 미진입 → 미검증.** A·F(KO 체감) 및 번역 "품질"
+> 판정은 여전히 사람 몫.
+>
+> ### ✅ 2026-06-28 후속 — 잔존 9건 + 상태문자열 클래스 전부 수정 (`make check` 604 green, 미커밋)
+> 위 `[!]` 9건을 모두 처리하고, 재검증 결과 **모든 화면에서 잔존 한글 = `한국어`(의도된 언어토글) 1건뿐**.
+> 추가로 상태/플레이스홀더/액션 문자열 클래스(전투·루프·resume·이미지생성 등)까지 i18n 키로 일괄 영어화.
+> 코드: ① `localize.py` 글로서리-substring 폴백(`_glossary_substrings`, Hangul-가드, longest-first) →
+> 임베디드 축명/루트제목 처리(#7·#8); ② `i18n/en.json` 글로서리 +8(chapter_goal 5·core_stake·컷신 2);
+> ③ `app.py` `/scenarios`에 `localize_for` 일괄 적용(캐릭터·unlock_hint·스킬/인카운터/동료 이름, #3·#4);
+> ④ `SaveHistoryPanel` 날짜 로케일 lang화(#6); ⑤ `strings.(ko|en).ts` 세션-상태/이미지 키 17개 신설 +
+> `useNarrativeStream`/`useCombatRest`/`useSceneVisuals`/`useSessionLifecycle` `DICTS[getLang()]` 배선,
+> `getLang(): "ko"|"en"`로 타입 강화. 테스트 +5(`test_localize` substring·신규엔트리, `test_api` `/scenarios` EN data).
+> 재검증 스크린샷 동일 경로(`05_scene_turn1.png`=WATER SPIDER/Jung Se-rin/날짜 en-US, `08_memory_codex.png`=
+> Flickering Trust/Echo of a Promise). 아래 `[!]` 항목은 `[x]`로 갱신. **남은 미검증=K6 전투·K9 종료화면(사람).**
+
 ### K1. 온보딩 / 인트로 / 오프닝
-- `[ ]` 시나리오 선택·아키타입 카드 이름/설명/시작아이템이 영어인가 (Ghost / Data Smuggler / Echo Collector).
-- `[ ]` 부트 스플래시·온보딩 카피·세션 인트로(타이틀/본문/목표)가 영어인가.
-- `[ ]` **오프닝 시네마틱 3컷**: 이미지가 깨지지 않고 뜨는가(전엔 EN에서 broken) + 컷 제목/본문 영어.
-- `[ ]` 첫 서사(각성 장면)와 선택지가 자연스러운 영어인가(직역체·깨진 문장 없는가).
+- `[x]` 시나리오 선택·아키타입 카드 이름이 영어인가 (Ghost / Data Smuggler / Echo Collector) — 카드 이름 PASS.
+- `[x]` ~~아키타입 잠금 힌트가 한글~~ **수정됨**: `/scenarios`에 `localize_for` 적용 → "Unlocked once you
+  archive the tutorial loop." / "Unlocked when you collect three clues in total." (`unlock_hint`는 이미
+  글로서리에 있었고 엔드포인트가 미적용이던 게 원인).
+- `[x]` **오프닝 시네마틱**: 이미지 안 깨지고 정상 렌더 + 제목/본문 영어 PASS — "First Connection — C-17
+  Blackout" / "SHOT 01 // ARRIVAL · Se-rin finds you in the rain" / NOW·SOON·GOAL·AWAKEN 영어,
+  Se-rin 이미지 정상. (`03_opening_cinematic.png`) ← `c6075e7` 수정 확인됨.
+- `[x]` 첫 서사(각성 장면)·선택지 자연스러운 영어 PASS(직역체/깨진 문장 없음).
 
 ### K2. 헤더 / 상시 UI
-- `[ ]` 브랜드 "World : Connect", 언어 토글이 "한국어"(EN에선 전환 대상 표시 — 의도됨), BGM/Disconnect 영어.
-- `[ ]` 상단 플레이어 줄: 이름 · neo-seoul · **아키타입(Ghost)** 가 영어인가.
-- `[ ]` 탭 이름(Story / Memory Constellation / Character / Skill Tree) 영어.
+- `[x]` 브랜드 "WORLD : CONNECT", 토글 "한국어"(의도됨), BGM ON / Disconnect 영어 PASS.
+- `[x]` 상단 플레이어 줄: 이름 · neo-seoul · **Ghost** 영어 PASS.
+- `[x]` 탭 이름(Story / Memory Constellation (Codex) / CHARACTER / SKILL TREE / Developer Console) 영어 PASS.
+- `[x]` ~~세션 칩/세이브 목록 날짜가 한글 로케일~~ **수정됨**: `SaveHistoryPanel.localDate(value, lang)` →
+  EN은 `en-US` (`6/28/2026, 20:39:34`). (`05_scene_turn1.png`)
 
 ### K3. 서사 / 선택지 (매 턴)
-- `[ ]` 각 턴 서사가 **영어로 생성**되고 품질이 한국어판과 비슷한가(빈약하거나 영어가 어색하지 않은가).
-- `[ ]` 선택지 라벨이 영어 + 짧은 행동문인가.
-- `[ ]` 선택 칩: 가치축(People/Relations·Safety/Stealth·Evidence/Truth·Control/Breakthrough) + intent(Interact/Explore…) 영어.
-- `[ ]` "Predicted change: …" 예측문이 영어인가(전엔 "…쪽 결과가 커집니다" 한글).
+- `[x]` 각 턴 서사 **영어 생성** + 품질 양호 PASS(빈약/어색 없음).
+- `[x]` 선택지 라벨 영어 + 짧은 행동문 PASS.
+- `[x]` 선택 칩 가치축(People/Relations…) + intent(Interact) 영어 PASS(렌더).
+  - `[x]` ~~choice `stakes` 합성 문자열 축명 한글~~ **수정됨**: 글로서리-substring 폴백으로 임베디드 축명도
+    영어화 → `Value axis: Safety/Stealth` (API 재검증).
+- `[x]` "Predicted change: …" 예측문 영어 PASS.
 
 ### K4. Story 패널 (목표 / stakes / 결과)
-- `[ ]` THIS ACT / CURRENT OBJECTIVE 본문이 영어인가(막 설명·목표).
-- `[ ]` 상태 칩: premise(당신은…), "Loop stability: stable/critical", "Control-grid trace: low/high" 영어.
-- `[ ]` LAST RESULT: "Success · Tension -5 · New flags …" 처럼 영어인가(전엔 "긴장도/새 플래그").
-- `[!]` **알려진 잔여**: "Current point: <루트 제목>" — 접두는 영어인데 루트 제목이 한글로 남을 수 있음(확인용, 버그 보고는 화면+문자열).
+- `[x]` ~~THIS ACT 본문 한글(chapter_goal)~~ **수정됨**: 글로서리에 5개 phase player_goal 추가 → "Roam the
+  welfare blocks and the Han River night market…". (CURRENT OBJECTIVE 본문은 원래 LLM 생성 EN.) (API 재검증)
+- `[x]` ~~premise 칩 한글(core_stake)~~ **수정됨**: 글로서리에 core_stake 추가 → "You are an 'unregistered
+  signal' on no roster. Administrator IX means to 'optimize' you…".
+- `[x]` LAST RESULT 영어 PASS: "null · Stability −2 · Tension +10 · New flags se_rin_arrived"
+  (※ 첫 줄 `null`은 action_result 미설정 — 비-로컬 사소 버그, 별건).
+- `[x]` ~~"Current point: <루트 제목>" 루트제목 KO~~ **수정됨**: 글로서리-substring 폴백 →
+  "Current point: The Fall and First Trust" (코덱스 ROUTE FLOW와 일치, API 재검증).
 
 ### K5. 작전 지도 / 상태 게이지
-- `[ ]` 작전 지도 노드 칩(Main Scene / Patrol / Clue / Combat / Event / Market / Maintenance) 영어.
-- `[ ]` STATUS: ZONE RISK(Low/Medium/High/Critical), Location, 게이지 라벨 영어.
+- `[x]` 작전 지도 노드 칩(Main Scene / Market / Event / Maintenance / Combat / Patrol) + "Undisclosed
+  section" / "Current position → Pick a choice…" 영어 PASS.
+- `[x]` STATUS: ZONE RISK(Low), Location(C-17 Neon Alley, Wet Concrete), STABILITY/TENSION/TEMPORAL
+  DECAY/CLUE MATRIX 라벨 영어 PASS.
 
-### K6. 전투 (전투 진입해서)
+### K6. 전투 (전투 진입해서) — **이번 패스 미진입 → 미검증**
 - `[ ]` PARTY/ENEMY 이름(Se-rin / Maintenance Drone …), TARGETS, ACTIONS(Attack/Defend/Wait/Flee) 영어.
 - `[ ]` SKILLS 이름(Signal Step / Packet Shot …) + 스킬 칩(tags) 영어.
 - `[ ]` 인카운터 배경 팝업: 이름(Patrol Ambush) + Background/Lesson/Victory reward 본문 영어.
 - `[ ]` 전투 로그·적 등장 인트로 문장이 영어인가.
 
 ### K7. 스킬 트리 탭
-- `[ ]` 스킬 이름 11종 + **설명/해금 문구**("Unlocked when…")가 전부 영어인가(라이브 검증: 한글 0).
-- `[ ]` Rank/tier/range/cd, LOCKED, Upgrade, Next enhance 라벨 영어.
+- `[x]` 스킬 이름/설명/해금 문구 **한글 0** PASS — `players/{id}/skills?lang=en` 페이로드 한글 스캔 0건.
+- `[~]` Rank/tier/range/cd/LOCKED/Upgrade 라벨 — 탭 렌더 시 글로벌 크롬 외 한글 없음(스킬 미보유 상태라
+  카드 깊은 라벨까진 미세 확인). 
 
 ### K8. 캐릭터 탭
-- `[ ]` 이름/역할/태그(Jung Se-rin · First Guide / Water Spider …), Aptitude · Ghost · Autonomy LV1 영어.
-- `[ ]` ATTRIBUTES 칩([Ghost Signal] / [Silent Footsteps] …), STATS, INVENTORY(무기/아이템 이름) 영어.
+- `[x]` **CHARACTER 탭** 자체는 글로벌 크롬 외 한글 0 PASS(스캔).
+- `[x]` ~~Story 패널 캐릭터 초상 카드 한글~~ **수정됨**: 초상은 `/scenarios` characters에서 오므로 거기에
+  `localize_for` 적용 → `WATER SPIDER / Jung Se-rin / First Guide / Data Smuggler` (`05_scene_turn1.png`
+  재검증; 이름/태그/역할은 이미 글로서리에 있었음).
 
 ### K9. 메모리 별자리 / 코덱스 / 엔딩
-- `[ ]` ROUTE FLOW: 노드 제목/본문, "Current point …" 영어(루트 제목 잔여는 K4 참고).
-- `[ ]` 엔딩 경향(Noble Sacrifice / Safe Refuge …) 제목+설명 영어.
-- `[ ]` 코덱스/컷신 카드·요건 힌트 영어.
-- `[ ]` 종료 화면 "왜 끝나는가" 서사가 영어로 납득되는가.
+- `[x]` ROUTE FLOW 노드 제목/본문 영어 PASS("The Offered Hand — Se-rin's View" + 본문 EN), 엔딩 경향
+  영어 PASS(Noble Sacrifice / Safe Refuge + 설명), WORLD ARCHIVE/ECHOES/PROGRESS/ARCHIVE 빈상태 문구 EN.
+- `[x]` ~~컷신 갤러리 제목 한글~~ **수정됨**: 글로서리에 컷신 제목 2개 추가 → `Flickering Trust` /
+  `Echo of a Promise` (`/memory`는 이미 `localize_for` 적용 중, 제목이 글로서리에 없던 게 원인.
+  `08_memory_codex.png` 재검증).
+- `[ ]` 종료 화면 "왜 끝나는가" 서사가 영어로 납득되는가 — **미진입(엔딩까지 안 감) → 미검증.**
+
+### 원인 → 수정 (전부 처리 완료 2026-06-28, `make check` 604 green, 미커밋)
+- **chapter_goal(K4)·core_stake(K4)·컷신 제목(K9)**: `load_scenario()`로 베이스 KO를 직접 읽고 글로서리에
+  해당 저작 문장이 없던 게 원인 → `i18n/en.json` 글로서리에 5 chapter_goal + core_stake + 컷신 2 추가(exact-match).
+- **archetype unlock_hint(K1)·캐릭터 초상 이름/태그/역할(K8)**: 문자열은 이미 글로서리에 있었으나 `/scenarios`
+  엔드포인트가 `localize_for`를 안 거치던 게 원인 → `app.py /scenarios`에 boundary `localize_for` 일괄 적용
+  (스킬/인카운터/동료 이름도 덤으로 영어화).
+- **Story stakes 축명(K3)·Current point 루트제목(K4)**: 합성 문자열(`가치축:`/`현재 지점:` + 글로서리 키)에
+  exact-match가 안 걸리던 게 원인 → `localize.py`에 **글로서리-substring 폴백**(`_glossary_substrings`,
+  Hangul-가드+longest-first, no-exact-match 문자열에만) 추가. 동적 루트제목도 커버.
+- **날짜 로케일(K2)**: `SaveHistoryPanel.localDate(value, lang)` → EN은 `en-US`.
+- **(추가 발견) 상태/플레이스홀더/액션 문자열 클래스**: `장면 확정.`·`행동 처리 중…`·`루프 생성 · 스트리밍…`·
+  `그림 생성 준비 중…`·`이어하기 완료.` 등 프론트 하드코딩 한글 → `strings.(ko|en).ts` 세션/이미지 키 17개 신설
+  + `useNarrativeStream`/`useCombatRest`/`useSceneVisuals`/`useSessionLifecycle`에서 `DICTS[getLang()]` 배선,
+  `getLang(): "ko"|"en"` 타입 강화. (DEV LOG `logToConsole`는 개발자용이라 그대로 — 의도됨.)
+- 재검증: EN 전 화면 잔존 한글 = `한국어`(의도된 토글) 1건뿐. 테스트 +5(`test_localize`·`test_api`).
 
 ### K10. 알려진 잔여(검수 아님 — 참고만)
 - glass-library(on-hold 2번째 시나리오)는 글로서리 없음 → EN에서 전투/데이터 한글. (필요 시 동일 방식 추가)
-- "Current point: <route title>" 임베디드 루트 제목, session `_outcome` 일부 합성 결과의 깊은 케이스.
+- ~~"Current point: <route title>" 임베디드 루트 제목~~ → **2026-06-28 글로서리-substring 폴백으로 해결.**
+  session `_outcome` 일부 합성 결과의 깊은 케이스는 미확인(전투/엔딩 경유 시 재확인 필요).
 - 서브에이전트 번역 `月光호`→"the Moonlight"(린위에의 배) — 의도한 선박명인지 한 번 봐주기.

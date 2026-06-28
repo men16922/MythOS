@@ -7,6 +7,7 @@ import {
   apiGetLoopScenes,
   getLang,
 } from "../api";
+import { DICTS } from "../i18n/lang";
 import { LS_KEY } from "../sessionStorage";
 import type { ResumeSessionData } from "../sessionStorage";
 import type { ActiveTab } from "../TabNav";
@@ -141,9 +142,9 @@ export function useSessionLifecycle(args: UseSessionLifecycleArgs) {
          setSceneImageUrl(null);
         setNarrativeHistory([]);
         clearVisualTimeout();
-        setImagePlaceholderText("그림 생성 준비 중…");
+        setImagePlaceholderText(DICTS[getLang()]["img.preparing"]);
         resetStreamBuffers();
-        setStatus("루프 생성 · 토큰 스트리밍…");
+        setStatus(DICTS[getLang()]["sess.loopCreating"]);
         setIsStreaming(true);
 
         ws.send(
@@ -209,7 +210,7 @@ export function useSessionLifecycle(args: UseSessionLifecycleArgs) {
       setFinalizedSnapshot(combatSnap);
       setLastSnapshot(combatSnap);
       setObStatus("");
-      setStatus(`전투 시뮬레이션 진입 · ${encounterId}`);
+      setStatus(`${DICTS[getLang()]["sess.combatSimEnter"]}${encounterId}`);
       logToConsole(`전투 시뮬: ${encounterId} (allies=${allyIds.join(",") || "none"})`);
     } catch (err) {
       setObStatus("시뮬레이션 실패: " + (err as Error).message);
@@ -245,7 +246,7 @@ export function useSessionLifecycle(args: UseSessionLifecycleArgs) {
       handleReceivedSnapshot(snap);
       setDisplayedNarration(snap.active_scene?.narration || "");
       setFinalizedSnapshot(snap);
-      setStatus("이어하기 완료.");
+      setStatus(DICTS[getLang()]["sess.resumeDone"]);
       setObStatus("");
 
       if (snap.loop_id) {

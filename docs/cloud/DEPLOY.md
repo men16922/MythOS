@@ -76,6 +76,34 @@ gcloud run deploy mythos-api \
 
 ## 5. 배포 검증
 
+### 5a. 배포 전 — 로컬 컨테이너 실전 검증 (gcloud 전에 권장)
+
+실배포되는 lean 컨테이너를 클라우드 provider(Gemini/Imagen via ADC) + 로컬 Postgres로 띄워 검증. **검증됨 2026-06-28**:
+컨테이너 부팅 OK, 실서사 1턴(VertexGemini, ~6.2s, outcome=success), DB 영속, in-container Imagen 1024² PNG OK.
+
+```bash
+gcloud auth application-default login          # ADC (1회)
+make infra-up && make db-migrate               # 로컬 Postgres
+make cloud-image                               # lean 이미지 빌드
+PROJECT=$(grep ^PROJECT_ID= .env | cut -d= -f2)
+docker run --rm -p 8096:8080 -e PORT=8080 \
+  -e MYTHOS_NARRATIVE_PROVIDER=gemini -e MYTHOS_VISUAL_PROVIDER=vertex -e MYTHOS_STORAGE_BACKEND=filesystem \
+  -e GOOGLE_GENAI_USE_VERTEXAI=TRUE -e GOOGLE_CLOUD_PROJECT=$PROJECT -e GOOGLE_CLOUD_LOCATION=us-central1 \
+  -e MODEL=gemini-2.5-flash -e IMAGEN_MODEL=imagen-3.0-generate-002 -e GEMINI_THINKING_BUDGET=0 \
+  -e MYTHOS_TRACE_BACKEND=none \                # ★ 미설정 시 OTLP가 localhost:4318로 재시도 스팸
+  -e DATABASE_URL=postgresql://mythos:mythos@host.docker.internal:5432/mythos \
+  -e GOOGLE_APPLICATION_CREDENTIALS=/root/.config/gcloud/application_default_credentials.json \
+  -v "$HOME/.config/gcloud:/root/.config/gcloud:ro" \
+  mythos-api:local
+# 그다음 connect→WS begin 으로 실루프 1턴 확인(서사 토큰+snapshot). 오프닝 0~4턴 이미지는 큐레이션 앵커라
+# Imagen 미호출이 정상(이후 동적 장면에서 호출). Imagen 단독 확인: docker exec ... VertexImageProvider.
+```
+
+> ⚠️ **배포 시 `MYTHOS_TRACE_BACKEND=gcp` 필수**(또는 `none`). 미설정 → 컨테이너가 OTLP를 localhost:4318로
+> 내보내려다 "Connection refused" 재시도 로그를 반복 출력(기능엔 무해하나 로그 오염·CPU 낭비). §4 명령에 포함됨.
+
+### 5b. 배포 후
+
 ```bash
 URL=$(gcloud run services describe mythos-api --region $REGION --format 'value(status.url)')
 curl -s $URL/api/v1/health           # {"status":"ok"}

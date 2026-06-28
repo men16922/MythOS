@@ -5,6 +5,13 @@ Last updated: 2026-06-28
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-06-28 — Pre-deploy LOCAL container validation (cloud providers + DB, real loop)
+- Status: Completed — PASS. Ran the actual lean deploy container locally with the cloud config (Gemini/Imagen via mounted ADC) + local Postgres (`host.docker.internal`) + filesystem storage, and played a real loop. Validates the deploy artifact end-to-end before `gcloud run deploy`.
+- Verified: container boots with cloud env + ADC; `connect` 200 (DB persist) + WS `begin` streamed **real VertexGemini narration** (5 token frames, high-quality Korean, outcome=success ~6.2s, loop minted + phase→explore + 3 choices); `docker exec` in-container Imagen generated a 1024² 1.86MB PNG (ADC + project from env). Health/scenarios/WS all 200.
+- Finding (fixed-by-config): with `MYTHOS_TRACE_BACKEND` unset the container defaults to OTLP and retries against absent `localhost:4318` ("Connection refused" spam). Confirmed `MYTHOS_TRACE_BACKEND=none` → 0 errors; **deploy must set `=gcp` (or none)** — already in DEPLOY.md §4. Turn 0-4 images are curated anchors (no Imagen call by design).
+- Changed: DEPLOY.md §5a (reproducible local-container pre-deploy recipe) + the trace-backend warning. No code change.
+- Next: human `gcloud run deploy` (DEPLOY.md). The deploy command already sets MYTHOS_TRACE_BACKEND=gcp.
+
 ## 2026-06-28 — GCP closed-beta §3: per-player loop cap (variable-cost ceiling)
 - Status: Completed (gate-verified). `MYTHOS_MAX_LOOPS_PER_PLAYER` (int, default 0=unlimited) caps NEW loops started per player — the per-tester variable-cost ceiling (each loop ≈ 30 Gemini turns + ~5–15 Imagen images). Unset/0 → no cap (local/test/un-capped deploy unchanged); resume never blocked.
 - Changed: NEW `mythos_api/limits.py` (`max_loops_per_player`/`loop_cap_exceeded` via `store.list_loops`). Wired into both begin paths: REST `loops/begin` → HTTP 429; WS `begin` (`_stream_for`) → `RuntimeError` relayed as a `{"type":"error"}` frame by `_run_stream`. `.env.example` + DEPLOY.md (§7 cap, §9 done). `tests/test_api.py` +2 (unlimited unset; cap=1 → 1st 200, 2nd 429).

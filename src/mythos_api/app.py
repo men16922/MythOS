@@ -162,6 +162,7 @@ def _stream_for(
     options = RuntimeOptions(
         scenario_id=message.get("scenario_id", "neo-seoul"),
         fallback=bool(message.get("fallback", False)),
+        language=str(message.get("lang", "ko")),
         with_image=bool(message.get("with_image", False)),
         visual_async=bool(message.get("visual_async", False)),
         image_every_turn=bool(message.get("image_every_turn", False)),
@@ -550,7 +551,9 @@ def create_app() -> FastAPI:
     ) -> dict[str, Any]:
         if loop_cap_exceeded(service, body.player_id):
             raise HTTPException(status_code=429, detail=LOOP_CAP_MESSAGE)
-        options = RuntimeOptions(scenario_id=body.scenario_id, fallback=body.fallback)
+        options = RuntimeOptions(
+            scenario_id=body.scenario_id, fallback=body.fallback, language=body.lang
+        )
         try:
             snapshot = service.start_loop(body.player_id, options)
         except RuntimeError as exc:
@@ -565,7 +568,7 @@ def create_app() -> FastAPI:
         lang: str = "ko",
         service: RuntimeSessionService = Depends(get_service),
     ) -> dict[str, Any]:
-        options = RuntimeOptions(scenario_id=scenario_id)
+        options = RuntimeOptions(scenario_id=scenario_id, language=lang)
         try:
             if loop_id:
                 snapshot = service.resume(loop_id=loop_id, options=options)
@@ -608,7 +611,9 @@ def create_app() -> FastAPI:
         body: ChooseRequest,
         service: RuntimeSessionService = Depends(get_service),
     ) -> dict[str, Any]:
-        options = RuntimeOptions(scenario_id=body.scenario_id, fallback=body.fallback)
+        options = RuntimeOptions(
+            scenario_id=body.scenario_id, fallback=body.fallback, language=body.lang
+        )
         try:
             snapshot = service.choose(
                 body.loop_id,
@@ -625,7 +630,7 @@ def create_app() -> FastAPI:
         body: CombatBeginRequest,
         service: RuntimeSessionService = Depends(get_service),
     ) -> dict[str, Any]:
-        options = RuntimeOptions(scenario_id=body.scenario_id, fallback=True)
+        options = RuntimeOptions(scenario_id=body.scenario_id, fallback=True, language=body.lang)
         try:
             service.start_combat(
                 body.loop_id,

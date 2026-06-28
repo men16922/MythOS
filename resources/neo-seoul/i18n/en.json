@@ -3,9 +3,30 @@
   "name": "Neo-Seoul: Connection (Connector Awakening)",
   "brief": "WORLD: Neo-Seoul. A city of absolute efficiency that ARK rebuilt over the ruins. PREMISE: You are an 'unregistered signal' that has slipped the system's control. TONE: a hymn to humanity, Y2K digital afterglow, desperate resistance. PHILOSOPHY: Surviving is a choice, but becoming a person is a resolve.",
   "archetypes": {
-    "ghost": {"name": "Ghost", "attributes": ["[Ghost Signal]", "[Silent Footsteps]"], "starting_item": "Erased ID Card"},
-    "data_smuggler": {"name": "Data Smuggler", "attributes": ["[ARK Link]", "[Data Laundering]"], "starting_item": "Overclocked Deck"},
-    "echo_collector": {"name": "Echo Collector", "attributes": ["[Memory Weaver]", "[Resonance of the Past]"], "starting_item": "Cracked Data Cube"}
+    "ghost": {
+      "name": "Ghost",
+      "attributes": [
+        "[Ghost Signal]",
+        "[Silent Footsteps]"
+      ],
+      "starting_item": "Erased ID Card"
+    },
+    "data_smuggler": {
+      "name": "Data Smuggler",
+      "attributes": [
+        "[ARK Link]",
+        "[Data Laundering]"
+      ],
+      "starting_item": "Overclocked Deck"
+    },
+    "echo_collector": {
+      "name": "Echo Collector",
+      "attributes": [
+        "[Memory Weaver]",
+        "[Resonance of the Past]"
+      ],
+      "starting_item": "Cracked Data Cube"
+    }
   },
   "ui_copy": {
     "signal_body": "After the Northeast Asia War, the ruined cities were reborn atop the prediction engine of ARK, the reconstruction agency. A citizen of Neo-Seoul is identified by a score before a name, and memories that fall outside the baseline are quietly optimized away. Just now, beneath the control grid's black layer, an access signal on no roster has woken. The sender is unidentified. The world cannot yet explain you."
@@ -36,26 +57,70 @@
     ]
   },
   "main_arcs": [
-    {"title": "Act 1: The Falling Signal", "summary": "An opening in which the player, waking as an unregistered signal, meets Jung Se-rin in the C-17 blackout zone, slips the control grid's first cordon, and inherits the question 'am I a person or a bug?'"},
-    {"title": "Act 2: The City of Scores and Debt", "summary": "Moving between the welfare blocks and the Han River night market, you learn Neo-Seoul's survival rules and trace that the optimization list is not a simple arrest roster but a device that erases 'people who remember'."},
-    {"title": "Act 3: The Machine That Counts People", "summary": "Through rescue operations and infiltration you confirm that optimization is a memory deletion more refined than 'death', and the player's actions accumulate along the Humanity/Dominance/Resilience/Insight axes."},
-    {"title": "Act 4: The Dreaming Machine", "summary": "You wake the discarded android Kai and face the past ARK erased and the fragments of MythOS. Kai is not a combat reward but a figure who opens the truth of the world."},
-    {"title": "Act 5: The Gate of the Spire", "summary": "On the clues and relationships you have gathered, you approach the central server of the Gangnam Spire. The player decides what to prioritize: Se-rin's rescue, Lin Yue's bargain, or Kai's dream."},
-    {"title": "Act 6: Rewriting the World", "summary": "You face Administrator IX directly and end Neo-Seoul's order in one of expose/destroy/rewrite/suture. The result is not a total victory but an afterglow that will remain in the next loop."}
+    {
+      "title": "Act 1: The Falling Signal",
+      "summary": "An opening in which the player, waking as an unregistered signal, meets Jung Se-rin in the C-17 blackout zone, slips the control grid's first cordon, and inherits the question 'am I a person or a bug?'"
+    },
+    {
+      "title": "Act 2: The City of Scores and Debt",
+      "summary": "Moving between the welfare blocks and the Han River night market, you learn Neo-Seoul's survival rules and trace that the optimization list is not a simple arrest roster but a device that erases 'people who remember'."
+    },
+    {
+      "title": "Act 3: The Machine That Counts People",
+      "summary": "Through rescue operations and infiltration you confirm that optimization is a memory deletion more refined than 'death', and the player's actions accumulate along the Humanity/Dominance/Resilience/Insight axes."
+    },
+    {
+      "title": "Act 4: The Dreaming Machine",
+      "summary": "You wake the discarded android Kai and face the past ARK erased and the fragments of MythOS. Kai is not a combat reward but a figure who opens the truth of the world."
+    },
+    {
+      "title": "Act 5: The Gate of the Spire",
+      "summary": "On the clues and relationships you have gathered, you approach the central server of the Gangnam Spire. The player decides what to prioritize: Se-rin's rescue, Lin Yue's bargain, or Kai's dream."
+    },
+    {
+      "title": "Act 6: Rewriting the World",
+      "summary": "You face Administrator IX directly and end Neo-Seoul's order in one of expose/destroy/rewrite/suture. The result is not a total victory but an afterglow that will remain in the next loop."
+    }
   ],
   "side_arcs": [
-    {"title": "Side: Signal of the Abandoned", "description": "A mission to raise the loop's stability by rescuing ordinary citizens placed on the optimization list."},
-    {"title": "Side: Ghost of the Control Grid", "description": "A technical thread that traces Administrator IX's past logs to find a flaw in the system."},
-    {"title": "Side: Lin Yue's Discreet Request", "description": "A story of recovering a 'memory fragment' Lin Yue lost and being backed with powerful equipment in return."},
-    {"title": "Side: The Water Spider's Debt", "description": "You chase the trace of someone Jung Se-rin failed to save in the past. Completing it strengthens Se-rin's trust and the chance of her as a starting companion."},
-    {"title": "Side: The Blank in the List", "description": "You investigate how one empty line in the optimization list is synchronized with the player's signal."},
-    {"title": "Side: Fragments of Kai's Dream", "description": "You restore the pre-war memory of a child that Kai dreams repeatedly, gaining a clue to MythOS's origin."}
+    {
+      "title": "Side: Signal of the Abandoned",
+      "description": "A mission to raise the loop's stability by rescuing ordinary citizens placed on the optimization list."
+    },
+    {
+      "title": "Side: Ghost of the Control Grid",
+      "description": "A technical thread that traces Administrator IX's past logs to find a flaw in the system."
+    },
+    {
+      "title": "Side: Lin Yue's Discreet Request",
+      "description": "A story of recovering a 'memory fragment' Lin Yue lost and being backed with powerful equipment in return."
+    },
+    {
+      "title": "Side: The Water Spider's Debt",
+      "description": "You chase the trace of someone Jung Se-rin failed to save in the past. Completing it strengthens Se-rin's trust and the chance of her as a starting companion."
+    },
+    {
+      "title": "Side: The Blank in the List",
+      "description": "You investigate how one empty line in the optimization list is synchronized with the player's signal."
+    },
+    {
+      "title": "Side: Fragments of Kai's Dream",
+      "description": "You restore the pre-war memory of a child that Kai dreams repeatedly, gaining a clue to MythOS's origin."
+    }
   ],
   "endings": [
-    {"name": "Safe Refuge"},
-    {"name": "Code Rewrite"},
-    {"name": "Noble Sacrifice"},
-    {"name": "Forced Erasure"}
+    {
+      "name": "Safe Refuge"
+    },
+    {
+      "name": "Code Rewrite"
+    },
+    {
+      "name": "Noble Sacrifice"
+    },
+    {
+      "name": "Forced Erasure"
+    }
   ],
   "npc_agendas": {
     "정세린": "Jung Se-rin",
@@ -63,5 +128,91 @@
     "관리자 IX": "Administrator IX",
     "카이": "Kai",
     "최적화 명단 대상자": "Optimization List Target"
+  },
+  "glossary": {
+    "신호 도약": "Signal Step",
+    "과부하 일격": "Overload Strike",
+    "패킷 사격": "Packet Shot",
+    "엄호 노이즈": "Covering Noise",
+    "패치 프로토콜": "Patch Protocol",
+    "EMP 펄스": "EMP Pulse",
+    "나노방막 전개": "Nanoshield Deploy",
+    "글리치 점멸": "Glitch Blink",
+    "신호 오버드라이브": "Signal Overdrive",
+    "기억 공명": "Memory Resonance",
+    "시스템 침투": "System Breach",
+    "정비 드론": "Maintenance Drone",
+    "녹슨 정비 드론이 집게발을 펼치며 다가온다.": "A rusted maintenance drone spreads its pincers and closes in.",
+    "감시 드론": "Surveillance Drone",
+    "감시 드론의 광학 렌즈가 붉게 점멸하며 조준선을 그린다.": "The surveillance drone's optic flares red and traces a targeting line.",
+    "집행 유닛": "Enforcer Unit",
+    "중장갑 집행 유닛이 충격 봉을 끌며 바닥을 울린다.": "A heavy-armored enforcer unit drags its shock baton, the floor shuddering.",
+    "글리치 망령": "Glitch Wraith",
+    "공간이 일그러지며 글리치 망령이 깜빡인다.": "Space warps as a glitch wraith flickers in and out.",
+    "집행 특전대": "Enforcer Strike Team",
+    "ARK 집행부 소속 특전대원이 중화기를 겨누며 포위망을 좁힌다.": "An ARK Enforcement strike trooper levels a heavy weapon and tightens the cordon.",
+    "신호 추적 기계": "Signal Tracker",
+    "다각 추적 스파이더 드론이 젖은 노면을 가로지르며 점멸한다.": "A multi-legged tracker spider drone skitters across the wet pavement, flickering.",
+    "자동 중진압 전차": "Auto Riot Tank",
+    "네 발로 걷는 ARK의 거대 진압 메카닉 전차가 중화기 구동음을 내며 대치한다.": "ARK's massive four-legged riot mech tank squares off, heavy weapons spinning up with a growl.",
+    "인공지능 소각기": "AI Incinerator",
+    "화염 노즐을 붉게 달군 공중 소각 드론이 열풍을 뿜으며 접근한다.": "An airborne incinerator drone, flame nozzles glowing red, blasts hot wind as it approaches.",
+    "정세린": "Jung Se-rin",
+    "카이": "Kai",
+    "태오": "Tae-o",
+    "한": "Han",
+    "수아": "Su-a",
+    "나노패치": "Nanopatch",
+    "자극 파편": "Stim Shard",
+    "접근 키": "Access Key",
+    "데이터 파편": "Data Fragment",
+    "드론 잔해": "Drone Scrap",
+    "신호 블레이드": "Signal Blade",
+    "메시 베스트": "Mesh Vest",
+    "EMP 수류탄": "EMP Grenade",
+    "중전술 외골격": "Heavy Tactical Exoskeleton",
+    "전술 은신 망토": "Tactical Stealth Cloak",
+    "과부하 각성제": "Overload Stimulant",
+    "순찰 매복": "Patrol Ambush",
+    "첫 전투. 이동, 엄호, 기본 공격/스킬 사거리, FOCUS 소모를 익힌다.": "First combat. Learn movement, cover, basic attack/skill range, and FOCUS spending.",
+    "승리하면 즉시 안전해지기보다 관리망 heat가 오른다. 대신 첫 전투 승리 epiphany와 loot로 다음 전투 선택지를 연다.": "Winning doesn't bring instant safety — control-grid heat rises instead. In return, the first-victory epiphany and loot open the next combat's options.",
+    "감시 검문": "Surveillance Checkpoint",
+    "원거리 위협과 근접 압박을 동시에 읽고, target priority와 cover/position을 판단한다.": "Read ranged threats and melee pressure at once, and judge target priority and cover/position.",
+    "승리는 야시장 통로를 열지만 시장 사람들에게 빚과 위험을 남긴다.": "Victory opens the night-market passage but leaves debt and danger among the market folk.",
+    "집행 봉쇄": "Enforcer Blockade",
+    "후반 중장갑 단일 적. armor_pen, burst, 회복/방어 timing, 파티원 보호를 요구한다.": "A late-game heavy-armored single foe. Demands armor_pen, burst, heal/defense timing, and protecting party members.",
+    "승리 자체보다 최종 대면 직전의 비용과 긴장도를 만든다. 무리한 정면돌파의 대가가 보여야 한다.": "More than victory itself, it builds the cost and tension right before the final confrontation. The price of a reckless frontal push must show.",
+    "글리치 조우": "Glitch Encounter",
+    "폐기층 미스터리 전투. 높은 회피/기동 적을 추적하며 packet_shot, signal_step, 동료 위치 조작을 쓰게 한다.": "A mystery fight in the discard layer. Chase a high-evasion/high-mobility foe, using packet_shot, signal_step, and ally positioning.",
+    "전투 보상은 단순 loot보다 카이의 꿈 단서와 첫 단서/Insight 진행도 체감으로 연결되어야 한다.": "The combat reward should connect to Kai's dream clue and a felt sense of the first clue / Insight progress, more than simple loot.",
+    "집행특전대 교전": "Enforcer Strike Team Engagement",
+    "중거리 전술 화력과 보막 보호 체계에 대항하여 엄호 및 은신 전술을 활용한다.": "Counter mid-range tactical firepower and shielded protection systems by using cover and stealth tactics.",
+    "강력한 적과의 전면전인 만큼 승리 시 enforcer_core 등 상급 전리품 테이블과 통찰을 보장한다.": "As an all-out fight against a powerful enemy, victory guarantees a high-tier loot table such as enforcer_core, plus Insight.",
+    "신호추적 매복": "Signal Tracker Ambush",
+    "빠른 기동력을 지닌 은신 해제 스파이더를 상대로 포커스 관리와 도약 차단을 익힌다.": "Against a fast, stealth-breaking spider, learn FOCUS management and cutting off its leaps.",
+    "지연 없는 탈출을 유도하며, 드론 부품 스크랩 보상과 소량의 통찰을 제공한다.": "It pushes for a delay-free escape, rewarding drone_scrap parts and a small amount of Insight.",
+    "중진압전차 포격": "Riot Tank Bombardment",
+    "보스급 전차의 광역 포격을 피하며 아군 분신 배치 및 지형 극복을 수행한다.": "Dodge a boss-tier tank's area bombardment while placing ally decoys and overcoming the terrain.",
+    "강력한 중전차를 무력화한 보상으로, 대량의 통찰과 고급 전리품(enforcer_core)을 보장한다.": "For neutralizing the powerful heavy tank, it guarantees abundant Insight and high-grade loot (enforcer_core).",
+    "소각드론 소란": "Incinerator Drone Rampage",
+    "지속적인 화상 DoT 피해를 입히는 소각 드론을 빠르게 일점사하여 제압하는 법을 익힌다.": "Learn to focus-fire and put down an incinerator drone that inflicts steady burn DoT damage.",
+    "드론 잔해 수집을 통해 drone_scrap 전리품 테이블과 소량의 통찰을 제공한다.": "Collecting drone debris provides the drone_scrap loot table and a small amount of Insight.",
+    "린위에": "Lin Yue",
+    "관리자 IX": "Administrator IX",
+    "주요 장면": "Main Scene",
+    "단서": "Clue",
+    "전투": "Combat",
+    "순찰": "Patrol",
+    "시장": "Market",
+    "정비": "Maintenance",
+    "사건": "Event",
+    "보통 (Low)": "Low",
+    "경계 (Medium)": "Medium",
+    "위험 (High)": "High",
+    "경보 (Critical)": "Critical",
+    "야외, 비 내리는 C-17 네온 골목": "Outdoors — rain-soaked C-17 neon alley",
+    "C-17 네온 골목, 젖은 콘크리트 바닥": "C-17 neon alley, wet concrete",
+    "C-17 네온 골목 (야외, 비)": "C-17 neon alley (outdoors, rain)",
+    "야외, 비 내리는 C-17 네온 거리/골목, 젖은 콘크리트 바닥": "Outdoors — rain-soaked C-17 neon street/alley, wet concrete"
   }
 }

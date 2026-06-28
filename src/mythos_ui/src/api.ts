@@ -35,6 +35,19 @@ function inviteHeaders(): Record<string, string> {
   return key ? { "X-Invite-Key": key } : {};
 }
 
+// Active UI language (mirrors i18n/lang.ts's storage). Forwarded on combat/snapshot
+// calls so the backend localizes DATA (skill/enemy/encounter names, route labels,
+// zone_risk) via the serving-boundary glossary. Backend default "ko" → no-op.
+export function getLang(): string {
+  try {
+    const url = new URLSearchParams(window.location.search).get("lang");
+    if (url === "en" || url === "ko") return url;
+    return window.localStorage.getItem("mythos_lang") || "ko";
+  } catch {
+    return "ko";
+  }
+}
+
 async function apiPost<T>(path: string, body: unknown): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     method: "POST",
@@ -79,7 +92,7 @@ export async function apiBegin(params: {
   scenario_id: string;
   fallback: boolean;
 }): Promise<RuntimeSnapshot> {
-  return apiPost<RuntimeSnapshot>("/api/v1/loops/begin", params);
+  return apiPost<RuntimeSnapshot>("/api/v1/loops/begin", { ...params, lang: getLang() });
 }
 
 export async function apiActive(params: {
@@ -88,7 +101,7 @@ export async function apiActive(params: {
   scenario_id: string;
 }): Promise<RuntimeSnapshot> {
   const { player_id, loop_id, scenario_id } = params;
-  let url = `/api/v1/loops/active?player_id=${encodeURIComponent(player_id)}&scenario_id=${encodeURIComponent(scenario_id)}`;
+  let url = `/api/v1/loops/active?player_id=${encodeURIComponent(player_id)}&scenario_id=${encodeURIComponent(scenario_id)}&lang=${encodeURIComponent(getLang())}`;
   if (loop_id) {
     url += `&loop_id=${encodeURIComponent(loop_id)}`;
   }
@@ -102,7 +115,7 @@ export async function apiChoose(params: {
   action?: string;
   fallback: boolean;
 }): Promise<RuntimeSnapshot> {
-  return apiPost<RuntimeSnapshot>("/api/v1/loops/choose", params);
+  return apiPost<RuntimeSnapshot>("/api/v1/loops/choose", { ...params, lang: getLang() });
 }
 
 export async function apiCombatAction(params: {
@@ -110,7 +123,10 @@ export async function apiCombatAction(params: {
   scenario_id: string;
   action: CombatAction;
 }): Promise<{ prose?: string; combat: CombatState }> {
-  return apiPost<{ prose?: string; combat: CombatState }>("/api/v1/combat/action", params);
+  return apiPost<{ prose?: string; combat: CombatState }>("/api/v1/combat/action", {
+    ...params,
+    lang: getLang(),
+  });
 }
 
 export async function apiCombatBegin(params: {
@@ -119,7 +135,7 @@ export async function apiCombatBegin(params: {
   encounter_id: string;
   party_members?: { id: string }[];
 }): Promise<{ combat: CombatState }> {
-  return apiPost<{ combat: CombatState }>("/api/v1/combat/begin", params);
+  return apiPost<{ combat: CombatState }>("/api/v1/combat/begin", { ...params, lang: getLang() });
 }
 
 export async function apiEquip(params: {

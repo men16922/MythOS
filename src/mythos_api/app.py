@@ -27,6 +27,7 @@ from starlette.responses import Response
 
 from mythos_api.invite import InviteGateMiddleware
 from mythos_api.limits import LOOP_CAP_MESSAGE, loop_cap_exceeded
+from mythos_api.localize import localize_for
 from mythos_api.serializers import (
     memory_overview_to_dict,
     player_to_dict,
@@ -91,6 +92,7 @@ class BeginLoopRequest(BaseModel):
     player_id: str = Field(min_length=1)
     scenario_id: str = "neo-seoul"
     fallback: bool = False
+    lang: str = "ko"
 
 
 class ChooseRequest(BaseModel):
@@ -99,6 +101,7 @@ class ChooseRequest(BaseModel):
     action: str | None = None
     scenario_id: str = "neo-seoul"
     fallback: bool = False
+    lang: str = "ko"
 
 
 class CombatBeginRequest(BaseModel):
@@ -106,12 +109,14 @@ class CombatBeginRequest(BaseModel):
     encounter_id: str = Field(min_length=1)
     scenario_id: str = "neo-seoul"
     party_members: list[dict[str, Any]] | None = None
+    lang: str = "ko"
 
 
 class CombatActionRequest(BaseModel):
     loop_id: str = Field(min_length=1)
     action: dict[str, Any]
     scenario_id: str = "neo-seoul"
+    lang: str = "ko"
 
 
 class EquipRequest(BaseModel):
@@ -291,9 +296,12 @@ async def _run_stream(
                 if event.kind == "text":
                     await websocket.send_json({"type": "token", "content": event.text})
                 elif event.snapshot is not None:
-                    await websocket.send_json(
-                        {"type": "snapshot", "data": snapshot_to_dict(event.snapshot)}
+                    snap = localize_for(
+                        snapshot_to_dict(event.snapshot),
+                        message.get("scenario_id", "neo-seoul"),
+                        message.get("lang", "ko"),
                     )
+                    await websocket.send_json({"type": "snapshot", "data": snap})
                     await _emit_visual_status(websocket, service, storage, event.snapshot)
         except KeyError as exc:
             await websocket.send_json({"type": "error", "detail": str(exc).strip("'\"")})
@@ -547,13 +555,14 @@ def create_app() -> FastAPI:
             snapshot = service.start_loop(body.player_id, options)
         except RuntimeError as exc:
             raise _as_http_error(exc) from exc
-        return snapshot_to_dict(snapshot)
+        return localize_for(snapshot_to_dict(snapshot), body.scenario_id, body.lang)
 
     @app.get(f"{API_PREFIX}/loops/active")
     def active_loop(
         player_id: str,
         loop_id: str | None = None,
         scenario_id: str = "neo-seoul",
+        lang: str = "ko",
         service: RuntimeSessionService = Depends(get_service),
     ) -> dict[str, Any]:
         options = RuntimeOptions(scenario_id=scenario_id)
@@ -564,7 +573,7 @@ def create_app() -> FastAPI:
                 snapshot = service.resume(player_id=player_id, options=options)
         except RuntimeError as exc:
             raise _as_http_error(exc) from exc
-        return snapshot_to_dict(snapshot)
+        return localize_for(snapshot_to_dict(snapshot), scenario_id, lang)
 
     @app.get(f"{API_PREFIX}/loops/{{loop_id}}/scenes")
     def list_loop_scenes(
@@ -609,7 +618,7 @@ def create_app() -> FastAPI:
             )
         except RuntimeError as exc:
             raise _as_http_error(exc) from exc
-        return snapshot_to_dict(snapshot)
+        return localize_for(snapshot_to_dict(snapshot), body.scenario_id, body.lang)
 
     @app.post(f"{API_PREFIX}/combat/begin")
     def combat_begin(
@@ -624,7 +633,8 @@ def create_app() -> FastAPI:
                 options,
                 party_members=body.party_members or None,
             )
-            return combat_state_response(service, body.loop_id, body.scenario_id)
+            resp = combat_state_response(service, body.loop_id, body.scenario_id)
+            return localize_for(resp, body.scenario_id, body.lang)
         except RuntimeError as exc:
             raise _as_http_error(exc) from exc
 
@@ -634,7 +644,8 @@ def create_app() -> FastAPI:
         service: RuntimeSessionService = Depends(get_service),
     ) -> dict[str, Any]:
         try:
-            return combat_action_response(service, body.loop_id, body.scenario_id, body.action)
+            resp = combat_action_response(service, body.loop_id, body.scenario_id, body.action)
+            return localize_for(resp, body.scenario_id, body.lang)
         except RuntimeError as exc:
             raise _as_http_error(exc) from exc
 

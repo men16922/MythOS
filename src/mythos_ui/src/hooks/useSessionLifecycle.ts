@@ -5,6 +5,7 @@ import {
   apiBegin,
   apiCombatBegin,
   apiGetLoopScenes,
+  getLang,
 } from "../api";
 import { LS_KEY } from "../sessionStorage";
 import type { ResumeSessionData } from "../sessionStorage";
@@ -151,6 +152,7 @@ export function useSessionLifecycle(args: UseSessionLifecycleArgs) {
             player_id: player.player_id,
             scenario_id: selectedScenarioId,
             fallback: fallbackMode,
+            lang: getLang(),
             ...imageOpts(),
           })
         );

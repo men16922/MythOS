@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import type { Dispatch, RefObject, SetStateAction } from "react";
 import type { NarrativeHistoryItem } from "../App";
 import type { RuntimeSnapshot, WebSocketMessage } from "../types";
+import { getLang } from "../api";
 import { useGameSocket } from "./useGameSocket";
 
 type ImageOpts = {
@@ -155,6 +156,7 @@ export function useNarrativeStream(args: UseNarrativeStreamArgs) {
           choice_id: choiceId,
           scenario_id: selectedScenarioId,
           fallback: fallbackMode,
+          lang: getLang(),
           ...imageOpts(),
         })
       );

@@ -1,6 +1,6 @@
 # Project MythOS Next Plan
 
-Last updated: 2026-06-21
+Last updated: 2026-06-28
 
 This file keeps only upcoming (open) work as a rolling plan. Completed tracks live in
 `docs/COMPLETED_SUMMARY.md`, detailed logs in `bin/docs/archive/progress-2026-06.md`, individual designs in
@@ -53,7 +53,6 @@ specify which engine consumes it. Each engine consumes **only its own lane** →
 
 - [x] [auto:claude] Content-integrity invariants for the 2026-06-27 archetype-id migration. Completion criterion: extend tests/test_content_integrity.py — (C1) every archetypes[].id unique & non-empty AND combat.archetype_loadout/archetype_base_skills key sets each equal the archetype id set (neo-seoul + glass-library); (C4) neo-seoul characters[].id unique & non-empty; (C2) every neo-seoul combat skill id has a skills/<id>.png icon (drop the test_assets.py skill-icon exclusion, neo-seoul only); make check green.
 - [ ] [auto:codex] Clean up stale test_assets.py skill exclusion note in STATUS.md. Completion criterion: Remove the stale statement about test_assets.py skill icon exclusion in docs/STATUS.md.
-- [ ] [auto:codex] Compress completed tracks in NEXT_PLAN.md to reclaim line budget. Completion criterion: Compress completed details (e.g., completed WS parts and Neo-Seoul playability phases) into docs/COMPLETED_SUMMARY.md to keep the line count within the 120-line cap.
 
 ## Priority 1 — Neo-Seoul Playability Upgrade
 
@@ -69,10 +68,7 @@ Key criteria:
 - Codex/Run History/progression must give info and rewards that make the next loop better.
 - The ending must make clear what was saved, what was lost, and what carries into the next loop.
 
-Completed (summary): Phase 1 (Golden Path 45 min + fail/bypass Path + QA rubric → `docs/scenarios/01-neo-seoul-connect.md`),
-Phase 2 (Story Bible/choice density + `scenario.json` playability meta), Phase 3 data baseline (encounter learning_goal/reward_intent).
-P0 (`encounter_reward.insight` meta applied, combat-result panel reward display, early forced ambient combat eased, BGM/se_rin labeling Live QA, encounter reward baseline update).
-P1 operation map route-node-ification + session memory (→ COMPLETED_SUMMARY M39), Tactical Board legend/tile inspector/learning-goal banner, encounter difficulty tuning (per-spawn `overrides` + per-learning-goal numerics).
+Completed (→ COMPLETED_SUMMARY M35–M40, M39): Phase 1–3 (Golden Path 45min·Story-Bible/choice-density·data baseline), P0 (insight meta·reward panel·ambient-combat ease·BGM/se_rin labeling), P1 (route-node map + session memory·Tactical Board legend/inspector·encounter difficulty tuning).
 
 Open work:
 
@@ -80,12 +76,8 @@ Open work:
 
 Narrative QA #1 and #3 done.
 - `[/]` `[manual]` **#2 ending narrativization + #5 post-combat callback**: code merged, unit tests locked. Remaining = live feel.
-- `[x]` **Automatic AGY QA in existing overnight (WS-A..F DONE)**: candidate filter + AGY 2-stage decision + dedup ledger + post-commit/DONE-drain hooks in `run.sh`, now **default-on** (`OVERNIGHT_BROWSER_QA=auto`; `=0` kill-switch); `status.sh`/overnight-report surface QA; standalone `live-qa-agy-probe` removed. Verified: 502 tests + one real integrated run (`20260621-113313-drain`, Chrome DevTools, PASS_CANDIDATE). Guide `docs/plans/2026-06-21-overnight-auto-agy-qa.md` §20-21.
 - `[ ]` **#4 map in-layer choice destinations** · **#6 skill-tree RPG node graph** (separate track, frontend; analysis done).
-
-### Operation map dynamic routing — done (foundation, detail in COMPLETED_SUMMARY/archive)
-
-- `[/]` Follow-up: dynamic node title variety/dedup done. Remaining: inject current node into visual prompt, consider gradual conversion of static scenarios too.
+- `[x]` Automatic AGY browser QA in overnight (WS-A..F) — done & default-on → COMPLETED_SUMMARY (guide `docs/plans/2026-06-21-overnight-auto-agy-qa.md` §20-21).
 
 ### Opening sequence consistency (live_qa §1.1) — done (foundation), montage follow-up
 
@@ -98,7 +90,7 @@ Narrative QA #1 and #3 done.
 - `[/]` **F streaming speed**: root cause RAM shortage identified + dual-model narrative (8B story → 3b parser) wired·context 8192 cap applied. Remaining: with user RAM freed, approach ~13s, actual multi-turn live feel. Design `bin/docs/plans/2026-06-10-dual-model-narrative-orchestration.md`.
 - `[/]` **D narrative repetition**: synopsis truncation-drop fix (`session_synopsis` dedicated field fully rendered) + scene length/prefill cache fix. Remaining: actual multi-turn live feel.
 
-- `[/]` P0-P2 mostly done (detail COMPLETED_SUMMARY M35-M40·PROGRESS archive; live LLM 14-turn QA pass·F1 repetition-mitigation·anti-stickiness·Tactical Board zoom·recovery/consumable/equipment·memory-constellation reorg·objective/stakes·choice-result summary). **Remaining**: F2 combat-frequency/streak tuning (observe) · Tactical Board touch pin lock · consumable/equipment balance · act-gate required-beat enforcement + inject current node into visual prompt · memory constellation tab subdivision · expand choice-result with relationship/Codex/Shard · objective act-transition gate.
+- `[/]` P0-P2 mostly done (detail COMPLETED_SUMMARY M35-M40·PROGRESS archive; live LLM 14-turn QA pass·F1 repetition-mitigation·anti-stickiness·Tactical Board zoom·recovery/consumable/equipment·memory-constellation reorg·objective/stakes·choice-result summary). **Remaining**: F2 combat-frequency/streak tuning (observe) · Tactical Board touch pin lock · consumable/equipment balance · act-gate required-beat enforcement + inject current node into visual prompt · memory constellation tab subdivision · expand choice-result with relationship/Codex/Shard · objective act-transition gate · (op-map foundation done) static-scenario→route conversion (consider).
 - `[ ]` P2 archetype meaning strengthening: unlock-milestone limits + differentiate opening/start-location/skills/items/NPC reactions.
 - `[manual]` Codex Skill status wording (first-player feel). Button state logic (`deriveSkillAction`) is done.
 - `[ ]` Phase 4 — objective/choice result/Codex feedback UX integration finish. `[ ]` Phase 5 — Neo-Seoul RC: manual QA (`docs/test/neo_seoul_live_qa.md`) + auto regression.

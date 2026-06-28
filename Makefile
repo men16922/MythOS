@@ -4,7 +4,7 @@ COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
-.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback narrative-smoke-fallback-en visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop cloud-image cloud-run-local dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check check-skills sync-skills check-auto overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-clean overnight-codex overnight-codex-watch overnight-codex-once overnight-agy overnight-agy-watch overnight-agy-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review image-regen
+.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback narrative-smoke-fallback-en visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop api-cloud cloud-image cloud-run-local dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check check-skills sync-skills check-auto overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-clean overnight-codex overnight-codex-watch overnight-codex-once overnight-agy overnight-agy-watch overnight-agy-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review image-regen
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -253,6 +253,17 @@ api:
 
 api-stop:
 	@pkill -f "mythos_api" && echo "api stopped" || echo "no api running"
+
+# Like `api` but with the CLOUD providers: narrative=Vertex Gemini, image=Vertex Imagen.
+# Needs ADC (`gcloud auth application-default login`) + the Google Cloud settings in .env.
+# Storage stays local (minio); set MYTHOS_STORAGE_BACKEND=gcs + a bucket for full cloud.
+# WARNING: this calls Vertex AI and is BILLED to your GCP project (~$0.003/narrative turn,
+# ~$0.04/image). Plain `make api` stays fully local (Ollama, free).
+api-cloud:
+	@pkill -f "mythos_api" 2>/dev/null && echo "stopped previous api" || true
+	@echo "API (CLOUD): http://$${MYTHOS_API_HOST:-127.0.0.1}:$${MYTHOS_API_PORT:-8000}"
+	@echo "      서사=Vertex Gemini · 이미지=Vertex Imagen · ⚠️ Vertex 호출은 GCP 프로젝트에 과금됨."
+	MYTHOS_NARRATIVE_PROVIDER=gemini MYTHOS_VISUAL_PROVIDER=vertex $(VENV)/bin/python -m mythos_api
 
 # --- GCP Cloud Run container (lean: narrative=Gemini, image=Imagen are API calls) ---
 CLOUD_IMAGE ?= mythos-api:local

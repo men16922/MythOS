@@ -32,8 +32,14 @@ async function apiGet<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export async function apiGetScenarios(playerId?: string | null): Promise<{ scenarios: ScenarioInfo[] }> {
-  const query = playerId ? `?player_id=${encodeURIComponent(playerId)}` : "";
+export async function apiGetScenarios(
+  playerId?: string | null,
+  lang?: string,
+): Promise<{ scenarios: ScenarioInfo[] }> {
+  const params = new URLSearchParams();
+  if (playerId) params.set("player_id", playerId);
+  if (lang) params.set("lang", lang);
+  const query = params.toString() ? `?${params.toString()}` : "";
   return apiGet<{ scenarios: ScenarioInfo[] }>(`/api/v1/scenarios${query}`);
 }
 

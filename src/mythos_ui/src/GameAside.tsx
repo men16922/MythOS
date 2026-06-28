@@ -1,12 +1,16 @@
 import { useState } from "react";
 import { buildGaugeConfig } from "./gauges";
 import { SaveHistoryPanel } from "./SaveHistoryPanel";
+import { useLang } from "./i18n/lang";
+import type { StringKey } from "./i18n/strings.ko";
 import type {
   RouteMap,
   RouteNode,
   RuntimeSnapshot,
   SaveSlot,
 } from "./types";
+
+type TFn = (key: StringKey) => string;
 
 interface GameAsideProps {
   saveLabelInput: string;
@@ -29,29 +33,30 @@ const TILE_GLYPH: Record<string, string> = {
   player: "◆",
 };
 
-const TILE_LABEL: Record<string, string> = {
-  node: "경유지",
-  checkpoint: "검문/관문",
-  clue: "단서 지점",
-  player: "현재 위치",
+const TILE_LABEL_KEYS: Record<string, StringKey> = {
+  node: "amap.tile.node",
+  checkpoint: "amap.tile.checkpoint",
+  clue: "amap.tile.clue",
+  player: "amap.tile.player",
 };
 
 function contactDistance(contact: { x?: number; y?: number }, cx: number, cy: number): number {
   return Math.max(Math.abs(Number(contact.x || 0) - cx), Math.abs(Number(contact.y || 0) - cy));
 }
 
-function rewardSummary(reward?: Record<string, number>): string {
+function rewardSummary(reward: Record<string, number> | undefined, t: TFn): string {
   if (!reward) return "";
   const parts: string[] = [];
-  if (reward.insight) parts.push(`통찰 +${reward.insight}`);
-  if (reward.stability) parts.push(`안정 +${reward.stability}`);
-  if (reward.tension) parts.push(`추적 +${reward.tension}`);
+  if (reward.insight) parts.push(`${t("aside.reward.insight")} +${reward.insight}`);
+  if (reward.stability) parts.push(`${t("aside.reward.stability")} +${reward.stability}`);
+  if (reward.tension) parts.push(`${t("aside.reward.tension")} +${reward.tension}`);
   return parts.join(" · ");
 }
 
 type RouteGraphMode = "compact" | "detail";
 
 function RouteMapPanel({ routeMap, playerFlags }: { routeMap: RouteMap; playerFlags: string[] }) {
+  const { t } = useLang();
   const [expanded, setExpanded] = useState(false);
   const nodes = routeMap.nodes || {};
   const layers = routeMap.layers || [];
@@ -84,18 +89,20 @@ function RouteMapPanel({ routeMap, playerFlags }: { routeMap: RouteMap; playerFl
     ]
       .filter(Boolean)
       .join(" ");
-    const reward = rewardSummary(node.reward);
+    const reward = rewardSummary(node.reward, t);
     const perspectives = node.perspectives || [];
     const lensLines = perspectives.map((p) => `· ${p.lens || p.id}`);
-    const lockText = isLocked ? `🔒 [잠김 - 플래그 필요: ${gate.join(", ")}]` : "";
+    const lockText = isLocked ? `🔒 [${t("aside.route.lockedFlags")}: ${gate.join(", ")}]` : "";
     const title = [
       lockText,
       node.title || node.label,
-      `유형: ${node.label}`,
-      node.risk ? `위험 ${node.risk}` : "",
+      `${t("aside.route.type")}: ${node.label}`,
+      node.risk ? `${t("aside.route.risk")} ${node.risk}` : "",
       reward,
-      node.anchor ? "고정 스토리 장면" : "동적 장면",
-      perspectives.length > 1 ? `관점 ${perspectives.length} (루트에 따라 갈라짐):` : "",
+      node.anchor ? t("aside.route.fixedScene") : t("aside.route.dynamicScene"),
+      perspectives.length > 1
+        ? `${t("aside.route.perspectives")} ${perspectives.length} (${t("aside.route.splitByRoute")}):`
+        : "",
       ...lensLines,
     ]
       .filter(Boolean)
@@ -109,7 +116,7 @@ function RouteMapPanel({ routeMap, playerFlags }: { routeMap: RouteMap; playerFl
           {label}
         </span>
         {mode === "detail" && perspectives.length > 1 && (
-          <span className="route-lenses">⑂ 관점 {perspectives.length}</span>
+          <span className="route-lenses">⑂ {t("aside.route.perspectives")} {perspectives.length}</span>
         )}
         {mode === "detail" && reward && <span className="route-reward">{reward}</span>}
       </div>
@@ -150,8 +157,8 @@ function RouteMapPanel({ routeMap, playerFlags }: { routeMap: RouteMap; playerFl
           <div className="route-layer route-layer-fog">
             <div className="route-layer-rail">
               <div className="route-connector" />
-              <div className="route-fog" title="아직 드러나지 않은 구간 — 선택에 따라 길이 생깁니다">
-                ⋯ 미공개 구간
+              <div className="route-fog" title={t("aside.route.fogTitle")}>
+                {t("aside.route.fog")}
               </div>
             </div>
           </div>
@@ -162,41 +169,41 @@ function RouteMapPanel({ routeMap, playerFlags }: { routeMap: RouteMap; playerFl
 
   const legend = (
     <div className="route-legend">
-      <div>★ 고정 스토리</div>
-      <div>◆ 장면</div>
-      <div>❖ 단서</div>
-      <div>⚔ 전투</div>
-      <div>◎ 순찰</div>
-      <div>▣ 시장</div>
-      <div>✚ 정비</div>
-      <div>✦ 사건</div>
-      <div>❒ 대면</div>
-      <div>⋯ 미공개 구간</div>
-      <p>위에서 아래로 진행합니다. 강조된 노드가 현재 위치, 다음 줄이 이동 후보입니다.</p>
-      <p>앞으로 2단계까지만 보이며, 그 너머는 선택에 따라 드러납니다(⋯).</p>
-      <p>현재 시점과 향하는 결말은 기억의 별자리에서 확인하세요.</p>
+      <div>★ {t("aside.route.legend.fixed")}</div>
+      <div>◆ {t("aside.route.legend.scene")}</div>
+      <div>❖ {t("aside.route.legend.clue")}</div>
+      <div>⚔ {t("aside.route.legend.combat")}</div>
+      <div>◎ {t("aside.route.legend.patrol")}</div>
+      <div>▣ {t("aside.route.legend.market")}</div>
+      <div>✚ {t("aside.route.legend.maintenance")}</div>
+      <div>✦ {t("aside.route.legend.event")}</div>
+      <div>❒ {t("aside.route.legend.confront")}</div>
+      <div>{t("aside.route.fog")}</div>
+      <p>{t("aside.route.legend.help1")}</p>
+      <p>{t("aside.route.legend.help2")}</p>
+      <p>{t("aside.route.legend.help3")}</p>
     </div>
   );
 
   return (
     <div className="panel minimap-panel" id="operation-map">
       <div className="panel-title-row">
-        <p className="panel-title">작전 지도</p>
+        <p className="panel-title">{t("aside.route.title")}</p>
         <button
           type="button"
           className="panel-info-toggle"
-          title="작전 지도 확대 + 범례"
+          title={t("aside.route.expandTitle")}
           onClick={() => setExpanded(true)}
         >
-          ⤢ 확대
+          {t("aside.route.expand")}
         </button>
       </div>
       {/* Minimal by default: graph + a one-line movement cue (choice → move). */}
       {renderGraph("compact")}
       <div className="route-move-cue">
-        <span className="route-cue-dot cur" /> 현재 위치
+        <span className="route-cue-dot cur" /> {t("aside.route.curPosition")}
         <span className="route-cue-arrow">→</span>
-        선택지를 고르면 <span className="route-cue-dot next" /> 다음 줄로 이동합니다
+        {t("aside.route.cuePick")} <span className="route-cue-dot next" /> {t("aside.route.cueMove")}
       </div>
 
       {expanded && (
@@ -204,17 +211,17 @@ function RouteMapPanel({ routeMap, playerFlags }: { routeMap: RouteMap; playerFl
           <div
             className="route-map-modal"
             role="dialog"
-            aria-label="작전 지도"
+            aria-label={t("aside.route.title")}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="panel-title-row">
-              <p className="panel-title">작전 지도 · 상세</p>
+              <p className="panel-title">{t("aside.route.detailTitle")}</p>
               <button
                 type="button"
                 className="panel-info-toggle"
                 onClick={() => setExpanded(false)}
               >
-                닫기 ✕
+                {t("aside.route.close")}
               </button>
             </div>
             <div className="route-map-modal-graph">{renderGraph("detail")}</div>
@@ -227,6 +234,7 @@ function RouteMapPanel({ routeMap, playerFlags }: { routeMap: RouteMap; playerFl
 }
 
 function OperationMapPanel({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
+  const { t } = useLang();
   if (!snapshot || !snapshot.state) return null;
   const routeMap = snapshot.state._route_map;
   const playerFlags = snapshot.state.flags || [];
@@ -315,52 +323,53 @@ function OperationMapPanel({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
 
   return (
     <div className="panel minimap-panel" id="operation-map">
-      <p className="panel-title">작전 지도</p>
+      <p className="panel-title">{t("aside.route.title")}</p>
       <div className="minimap">{rows}</div>
       <div className="sub" style={{ fontSize: "11px", color: "var(--ink-dim)" }}>
-        현재 위치: {cur.name || "미확인 지점"} ({cx}, {cy})
+        {t("aside.route.curPosition")}: {cur.name || t("amap.unknownSpot")} ({cx}, {cy})
       </div>
       <div className="sub" style={{ fontSize: "11px", color: "var(--ink-dim)", marginTop: "6px" }}>
-        ◆ 나 · ◍ 경유지 · ◈ 검문 · ❖ 단서 · 적색 표식은 접근 중인 접촉
+        {t("amap.legend")}
       </div>
       {nearestContacts.length > 0 && (
         <div className="sub" style={{ fontSize: "11px", color: "var(--ink-dim)", marginTop: "6px" }}>
-          접근 접촉:{" "}
+          {t("amap.approaching")}:{" "}
           {nearestContacts.map((contact) => (
-            `${contact.glyph || "!"} ${contact.name || "미확인"} ${contact.distance}칸`
+            `${contact.glyph || "!"} ${contact.name || t("amap.unknown")} ${contact.distance}${t("amap.tiles")}`
           )).join(" · ")}
         </div>
       )}
       <div className="sub" style={{ fontSize: "11px", color: "var(--ink-dim)", marginTop: "6px" }}>
-        탐사 {Object.keys(tiles).length}곳 · 접촉 {liveContacts.length} · 지점 유형 {TILE_LABEL[cur.kind || "node"] || cur.kind || "경유지"}
+        {t("amap.explored")} {Object.keys(tiles).length}{t("amap.places")} · {t("amap.contacts")} {liveContacts.length} · {t("amap.spotType")} {TILE_LABEL_KEYS[cur.kind || "node"] ? t(TILE_LABEL_KEYS[cur.kind || "node"]) : (cur.kind || t("amap.tile.node"))}
       </div>
     </div>
   );
 }
 
 function StatusPanel({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
+  const { t } = useLang();
   const gaugesConfig = snapshot ? buildGaugeConfig(snapshot) : null;
   const [showHints, setShowHints] = useState(false);
 
   return (
     <div className={`panel status-panel ${showHints ? "hints-on" : ""}`}>
       <div className="panel-title-row">
-        <p className="panel-title">상태</p>
+        <p className="panel-title">{t("aside.status.title")}</p>
         <button
           type="button"
           className="panel-info-toggle"
           aria-pressed={showHints}
-          title={showHints ? "설명 숨기기" : "각 수치 설명 보기"}
+          title={showHints ? t("aside.status.hideHints") : t("aside.status.showHintsTitle")}
           onClick={() => setShowHints((v) => !v)}
         >
-          {showHints ? "설명 숨기기" : "ⓘ 설명"}
+          {showHints ? t("aside.status.hideHints") : t("aside.status.showHints")}
         </button>
       </div>
       {snapshot && gaugesConfig && (
         <>
           <div className="hud-meta">
-            루프 <b>{snapshot.loop_id || "—"}</b> · 국면{" "}
-            <b>{snapshot.phase || "—"}</b> · 위치{" "}
+            {t("aside.status.loop")} <b>{snapshot.loop_id || "—"}</b> · {t("aside.status.phase")}{" "}
+            <b>{snapshot.phase || "—"}</b> · {t("aside.status.location")}{" "}
             <b>{snapshot.location || "—"}</b>
           </div>
 
@@ -369,35 +378,35 @@ function StatusPanel({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
             value={gaugesConfig.stability}
             percent={gaugesConfig.stability}
             color={gaugesConfig.stabColor}
-            hint="은신처와 루프 안정도. 낮을수록 붕괴/강제 종료 위험이 커집니다."
+            hint={t("aside.gauge.stability")}
           />
           <GaugeBar
             label="TENSION"
             value={gaugesConfig.tension}
             percent={gaugesConfig.tension}
             color={gaugesConfig.tensColor}
-            hint="관리망 추적도. 높을수록 순찰, 봉쇄, 강제 전투가 붙습니다."
+            hint={t("aside.gauge.tension")}
           />
           <GaugeBar
             label="TEMPORAL DECAY"
             value={gaugesConfig.decay_percent}
             percent={gaugesConfig.decay_percent}
             color={gaugesConfig.decayColor}
-            hint="이번 루프가 얼마나 진행됐는지 나타내는 시간 압력입니다."
+            hint={t("aside.gauge.decay")}
           />
           <GaugeBar
             label="ZONE RISK"
             value={gaugesConfig.riskVal}
             percent={gaugesConfig.riskPercent}
             color={gaugesConfig.riskColor}
-            hint="현재 구역 위험도. 이동과 조우 판정의 체감 난이도입니다."
+            hint={t("aside.gauge.risk")}
           />
           <GaugeBar
             label="CLUE MATRIX"
             value={`${gaugesConfig.clueCount} / 16`}
             percent={gaugesConfig.cluePercent}
             color="var(--term)"
-            hint="확보한 핵심 단서 수. Codex, 엔딩, 다음 루프 선택지를 여는 장기 진행도입니다."
+            hint={t("aside.gauge.clue")}
           />
         </>
       )}
@@ -456,16 +465,17 @@ export function GaugeBar({
 }
 
 function LogPanel({ consoleLogs }: { consoleLogs: string }) {
+  const { t } = useLang();
   return (
     <details className="panel" id="log-panel">
       <summary
         className="panel-title"
         style={{ cursor: "pointer", listStyle: "none" }}
       >
-        개발 로그 ▾
+        {t("aside.log.title")}
       </summary>
       <div className="sub" style={{ fontSize: "11px", color: "var(--ink-dim)", marginBottom: "8px" }}>
-        플레이 판단용이 아니라 API, BGM, WebSocket 상태 확인용입니다.
+        {t("aside.log.desc")}
       </div>
       <div
         id="log"

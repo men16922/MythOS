@@ -15,7 +15,7 @@ from mythos_image_agent.config import AgentConfig
 from mythos_runtime.observability import get_logger, span, timed
 from mythos_runtime.settings import load_runtime_settings
 
-from .fallbacks import DEFAULT_FALLBACK
+from .fallbacks import default_fallback
 from .parser import NarrativeParseError, parse_scene_payload, parse_story_text, repair_scene_payload
 from .prompts import (
     build_first_scene_messages,
@@ -645,11 +645,21 @@ def _scene_from_payload(context: NarrativeContext, payload: ScenePayload) -> Sce
     )
 
 
+# Language-keyed connective strings the director wraps around the fallback dict prose.
+# Authored fallback dicts (directives/fallback.md) carry no connectives, so these stay
+# in code; ko keeps the exact pre-S1 wording (behavior-preserving), en is its mirror.
+_FALLBACK_CONNECTIVES: dict[str, dict[str, str]] = {
+    "ko": {"action_prefix": "당신은 ", "action_suffix": ".", "action_applied": "행동이 적용되었습니다."},
+    "en": {"action_prefix": "You ", "action_suffix": ".", "action_applied": "Your action has been applied."},
+}
+
+
 def _fallback_payload(context: NarrativeContext) -> ScenePayload:
     # Scenario-authored override (directives/fallback.md) → falls back to the shared
-    # neo-seoul default. The branch *logic* (player_action / novelty present?) stays
-    # here; all prose comes from the dict (prompt layer).
-    fb = context.fallback_scene or DEFAULT_FALLBACK
+    # neo-seoul default for the active language. The branch *logic* (player_action /
+    # novelty present?) stays here; all prose comes from the dict (prompt layer).
+    fb = context.fallback_scene or default_fallback(context.language)
+    conn = _FALLBACK_CONNECTIVES.get(context.language, _FALLBACK_CONNECTIVES["ko"])
 
     novelty_hint = ""
     if context.novelty_notes:
@@ -659,7 +669,7 @@ def _fallback_payload(context: NarrativeContext) -> ScenePayload:
 
     if context.player_action:
         narration = (
-            f"당신은 {context.player_action}.\n\n"
+            f"{conn['action_prefix']}{context.player_action}{conn['action_suffix']}\n\n"
             f"{fb.get('narration_with_action', '')}"
             f"{novelty_hint}"
         )
@@ -691,7 +701,7 @@ def _fallback_payload(context: NarrativeContext) -> ScenePayload:
         world_delta=WorldDelta(stability=0, tension=2, flags=["fallback_scene"]),
         end_condition=None,
         objective=str(fb.get("objective_turn0", "")) if context.turn_index == 0 else None,
-        action_result="행동이 적용되었습니다." if context.player_action else None,
+        action_result=conn["action_applied"] if context.player_action else None,
     )
 
 

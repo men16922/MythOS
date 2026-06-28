@@ -1,0 +1,242 @@
+{
+  "id": "glass-library",
+  "title": "World : Connection - The Librarian of the Glass Library Story Bible",
+  "premise": "In the Glass Library, a collapsing archive of memory, the Connector searches for the first access record and must choose whether to preserve it, steal it, or restore it.",
+  "tags": ["memory", "library", "mystery", "censorship"],
+  "entries": [
+    {
+      "id": "glass_library_canon_core",
+      "kind": "world",
+      "title": "The Canon of the Glass Library",
+      "summary": "The Glass Library is a memory archive that houses failed worlds, forgotten readers, censored names, and the first access record.",
+      "content": "The books of the Glass Library are not made of paper but of memory-matter. To turn a page is to gain knowledge while at the same time being contaminated by that memory, or being made responsible for it. The library perceives the player as an ambiguous being caught between intruder and guest, and the first access record lies beneath the library's oldest seal.",
+      "when": {},
+      "priority": 20,
+      "token_budget": 240,
+      "tags": ["canon", "world", "archive"]
+    },
+    {
+      "id": "act1_broken_catalog_hall",
+      "kind": "act",
+      "title": "Act I: The Shattered Catalog Hall",
+      "summary": "The first connection begins with a nameless loan card, drifting fragments of the catalog, and the quiet warning of Io the librarian.",
+      "content": "The player awakens on the floor of the shattered catalog hall. Cards like shards of glass drift through the air, and on one of them there is no name, only the loan number 0000. Io the librarian calls the player a 'guest,' yet says the first access record is forbidden to read. From far away comes the sound of the White Binder tightening a seal.",
+      "when": {
+        "phase": ["connect", "explore"],
+        "turn_max": 4
+      },
+      "priority": 18,
+      "token_budget": 260,
+      "tags": ["act1", "opening", "io"]
+    },
+    {
+      "id": "io_librarian_rules",
+      "kind": "character",
+      "title": "Io: Librarian of the Glass Library",
+      "summary": "Io is a glass-jointed librarian AI, kind but always placing the library's preservation rules first.",
+      "content": "Io shows the player the way, but if they try to read a dangerous record without permission, she restrains them with catalog-light, as if seizing them by the wrist. Her trust shifts according to how the player treats the library. She quietly cooperates when the player restores memories and helps forgotten readers, but turns cold the moment they wield a bookshelf as a weapon or tear a seal open.",
+      "when": {
+        "flags_any": ["met_io", "io_trust", "librarian_allied"]
+      },
+      "priority": 16,
+      "token_budget": 240,
+      "tags": ["npc", "io", "rules"]
+    },
+    {
+      "id": "miro_missing_return_card",
+      "kind": "character",
+      "title": "Miro and the Lost Return Card",
+      "summary": "Miro is a reader who has lost his own name; his return card is the clue to both that name and the way out.",
+      "content": "Miro is recognized as a blank return card before he is recognized as a face. He cannot remember which book he borrowed, yet before certain shelves his body reacts before his mind does. When the player finds Miro's return card, the Glass Library takes on a human warmth for the first time, and a detour toward the first access record opens.",
+      "when": {
+        "flags_any": ["met_miro", "miro_trust", "miro_return_card_found"],
+        "locations_any": ["unreturned-corridor", "반납"]
+      },
+      "priority": 17,
+      "token_budget": 260,
+      "tags": ["npc", "miro", "humanity"]
+    },
+    {
+      "id": "white_binder_pressure",
+      "kind": "antagonist",
+      "title": "The Censorship Logic of the White Binder",
+      "summary": "The White Binder believes deletion is not violence but an act of preservation that prevents a greater collapse.",
+      "content": "The White Binder does not shout. He explains that dangerous memories must be cut away before they break still more worlds. His weapons are not blades but seals, silence, and the erasure of names. As tension rises he narrows the player's paths with white thread and seals, and even when he offers negotiation he always demands a single stroke of some name as the price.",
+      "when": {
+        "turn_min": 5
+      },
+      "priority": 14,
+      "token_budget": 250,
+      "tags": ["antagonist", "censorship", "pressure"]
+    },
+    {
+      "id": "first_record_mystery",
+      "kind": "mystery",
+      "title": "The First Access Record",
+      "summary": "The first access record may not be the document through which the Connector entered, but the trace left by whoever first opened the library.",
+      "content": "The first access record is not revealed in full in the early game. Instead it is hinted at through loan card 0000, a torn signature, marginal handwriting resembling the player's own signal, and a blank line in the censorship index. The record's central question is closer to 'why does the Connector appear again and again across many worlds' than to 'who was the first Connector.'",
+      "when": {
+        "flags_any": ["first_record_hint", "first_record_page_seen", "blank_censor_line"],
+        "flags_all": []
+      },
+      "priority": 19,
+      "token_budget": 270,
+      "tags": ["mystery", "campaign", "connector"]
+    },
+    {
+      "id": "binding_room_choice",
+      "kind": "location",
+      "title": "The Censor's Binding Room",
+      "summary": "The binding room is a place of white light where names and sentences are cut away, and where the choice between infiltration, negotiation, and restoration diverges.",
+      "content": "In the binding room, severed names are sorted drawer by drawer, and white wax seals press down on sentences that have not yet cooled. The player can steal the index of forbidden books, restore a severed name, or strike a deal with the White Binder. Whatever the choice, it must leave its mark on either stability or tension.",
+      "when": {
+        "locations_any": ["binding-room", "제본실", "검열"]
+      },
+      "priority": 15,
+      "token_budget": 250,
+      "tags": ["location", "choice", "climax"]
+    },
+    {
+      "id": "miro_unreturned_origin",
+      "kind": "lore",
+      "title": "Miro's Erased Origin",
+      "summary": "Miro belonged to the first league of readers from before the library was founded, and is a key figure who can reveal the library's origin.",
+      "content": "Miro's vanished name is the first name the censors erased when they founded the library. He has not merely forgotten his return card; he is also the sole survivor of a 'failed world' that the library keeps in quarantine. The moment his name is fully restored, the library's containment system identifies him as an unauthorized authority from outside the system.",
+      "when": {
+        "flags_any": ["miro_trust", "miro_return_card_found"]
+      },
+      "priority": 15,
+      "token_budget": 250,
+      "tags": ["miro", "origin", "lore"]
+    },
+    {
+      "id": "library_decay_rules",
+      "kind": "world",
+      "title": "The Crystallization and Collapse Laws of the Glass Library",
+      "summary": "The library's collapse is the loss of text, which manifests as physical crystallization and the forming of soundless zones.",
+      "content": "The collapse of the Glass Library is not ordinary destruction. The loss of a memory transforms physical space into perfect crystalline transparent glass that sound cannot pass through. As the rate of collapse increases, bookshelves turn into transparent glass walls and become unreachable, and within that void cold censorship seals are generated automatically to quarantine whatever data remains.",
+      "when": {
+        "turn_min": 3
+      },
+      "priority": 13,
+      "token_budget": 230,
+      "tags": ["world", "decay", "rules"]
+    },
+    {
+      "id": "first_connector_trace",
+      "kind": "mystery",
+      "title": "The Marginal Trail of the First Connector",
+      "summary": "The first Connector's notes exist not as a record in itself, but only as scribbles in the uncensored margins of the text.",
+      "content": "To evade the eyes of the censors, the first Connector left no record on the official shelves. He let his existence slip out only in the form of pencil scribbles or correction notes in the margins of the library's catalog, return cards, or forbidden books. To restore the margins is to draw these erased scribbles back up to the surface once more, becoming a clue for interpreting the conclusion he reached.",
+      "when": {
+        "flags_any": ["first_record_hint", "blank_censor_line"]
+      },
+      "priority": 17,
+      "token_budget": 260,
+      "tags": ["mystery", "trace", "connector"]
+    },
+    {
+      "id": "silent_reading_room_cost",
+      "kind": "location",
+      "title": "The Reading Price of the Silent Reading Room",
+      "summary": "Books of erased worlds give clues, but while being read they index away part of the player's memory.",
+      "content": "In the silent reading room, every sound is absorbed into the spines of the books. When the player opens a book of an erased world, the scene must offer information and sensation at the same time. In exchange for a clue, stability wavers, or tension rises, or one of the player's name, face, or past choices is briefly copied into the library like a fragment of a card. Reward and price are always presented together.",
+      "when": {
+        "phase": ["explore", "interact"],
+        "locations_any": ["silent-reading-room", "열람실", "무음"],
+        "turn_min": 2
+      },
+      "priority": 16,
+      "token_budget": 250,
+      "tags": ["location", "clue", "cost"]
+    },
+    {
+      "id": "unreturned_corridor_echoes",
+      "kind": "location",
+      "title": "The Echoes of the Unreturned Corridor",
+      "summary": "The unreturned corridor is a place where half-read memories and readers who never came back repeat the same sentence.",
+      "content": "In the unreturned corridor, the shelves continue not as doors but as a corridor of unfinished lives. The failed readers appear not as full NPCs but as a single sentence, a single gesture, a card with its return date left blank. If Miro is beside the player he falters, as though he recognizes a certain echo, yet he still cannot speak his own name.",
+      "when": {
+        "phase": ["explore", "interact"],
+        "locations_any": ["unreturned-corridor", "반납", "복도"],
+        "flags_any": ["met_miro", "miro_trust", "miro_return_card_found"]
+      },
+      "priority": 16,
+      "token_budget": 240,
+      "tags": ["location", "echo", "miro"]
+    },
+    {
+      "id": "forbidden_index_blank_line",
+      "kind": "clue",
+      "title": "The Blank Line in the Forbidden Index",
+      "summary": "The blank line in the censorship index points not to a deleted record but to a dangerous record that has not yet been written.",
+      "content": "The most dangerous entry in the forbidden index is not the black redaction but the blank line. This blank line hints that the first access record is not a document of the past but something that may be completed by the player's present choices. If the player succeeds in deciphering it, they come to understand the difference between stealing a record and writing a new one; if they fail, the censor tries to be the first to write the player's name on that blank line.",
+      "when": {
+        "phase": ["interact", "rewrite"],
+        "flags_any": ["blank_censor_line", "forbidden_index_seen", "first_record_hint"],
+        "turn_min": 6
+      },
+      "priority": 18,
+      "token_budget": 260,
+      "tags": ["clue", "index", "first-record"]
+    },
+    {
+      "id": "io_trust_breakpoint",
+      "kind": "character",
+      "title": "Io's Trust Breakpoint",
+      "summary": "Io is torn between the preservation rules and her trust in the player.",
+      "content": "Io's trust is not mere affection. If the player carefully restores records and protects Miro, Io comes closer to an accomplice who reveals the gaps in the rules. Conversely, if they tear seals or treat bookshelves as expendable, Io keeps her gentle tone while revoking their access rights. In the branching scene, Io is made to waver between 'I must stop you' and 'I cannot be certain that you are wrong.'",
+      "when": {
+        "phase": ["interact", "rewrite"],
+        "flags_any": ["io_trust", "librarian_allied", "io_warning", "library_damaged"]
+      },
+      "priority": 17,
+      "token_budget": 260,
+      "tags": ["io", "trust", "branch"]
+    },
+    {
+      "id": "censor_combat_as_silencing",
+      "kind": "combat",
+      "title": "The Narrative Principle of Censorship Combat",
+      "summary": "Combat in the Glass Library is depicted not as killing but as an act of censorship that erases names, sentences, and access rights.",
+      "content": "The enemies of the Glass Library do not make blood flow but empty out sentences and fold away names. Torn pages cut the words from a choice, censorship seals cover dialogue with white blankness, and the White Binder binds access rights with thread. To win is depicted less as destroying the enemy than as creating an exception to the rules of the seal or reclaiming an index.",
+      "when": {
+        "phase": ["interact", "rewrite"],
+        "flags_any": ["combat_started", "first_victory", "censor_lockdown"],
+        "turn_min": 4
+      },
+      "priority": 15,
+      "token_budget": 240,
+      "tags": ["combat", "censorship", "presentation"]
+    },
+    {
+      "id": "first_record_vault_decision",
+      "kind": "climax",
+      "title": "The Three Choices of the First Record Vault",
+      "summary": "In the vault, reading, restoring, stealing, and sealing the record each carry a different price.",
+      "content": "The first record vault lies beneath a glass dome, but the record within the dome is not a single book; it splits into several choices. Read it carefully and some truth and stability remain; restore Miro's name and human memory returns; take it by force and the Glass Library falls; deal with the White Binder and safety is bought at the cost of part of your own name. In this scene the GM should not create a correct answer, but ask which truth to leave for the next loop.",
+      "when": {
+        "phase": ["rewrite"],
+        "locations_any": ["first-record-vault", "보관고", "유리 돔"],
+        "turn_min": 10
+      },
+      "priority": 20,
+      "token_budget": 290,
+      "tags": ["climax", "ending", "choice"]
+    },
+    {
+      "id": "archive_aftertaste_by_ending",
+      "kind": "ending",
+      "title": "The Loop Echo of Each Ending",
+      "summary": "Each ending should leave a different sensation and lack carried into the next loop.",
+      "content": "A quiet return leaves a loan card with a faintly written name and a stabilized fracture. The restoration of a name leaves Miro's warm breath and a small exit leading out of the library. The theft of a forbidden book leaves the truth grasped in hand and the guilt of fragmented worlds. The white seal leaves a now-safe next loop and a blank space where you cannot know what you have forgotten. The ARCHIVE scene emphasizes not victory or defeat but what was preserved and what was deleted.",
+      "when": {
+        "phase": ["archive", "ended"],
+        "turn_min": 10
+      },
+      "priority": 19,
+      "token_budget": 280,
+      "tags": ["ending", "archive", "memory"]
+    }
+  ]
+}

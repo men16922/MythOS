@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { ResumeSessionData } from "./sessionStorage";
 import type { ScenarioInfo } from "./types";
+import { useLang } from "./i18n/lang";
 
 interface OnboardingPanelProps {
   displayName: string;
@@ -33,6 +34,7 @@ export function OnboardingPanel({
   onResumeGame,
   onSimulateCombat,
 }: OnboardingPanelProps) {
+  const { t } = useLang();
   const scenario = scenarios.find((s) => s.id === selectedScenarioId);
   const archetypes = scenario?.archetypes || [];
   const encounters = scenario?.encounters || [];
@@ -56,13 +58,13 @@ export function OnboardingPanel({
 
   return (
     <section className="panel" id="onboarding">
-      <h2>접속 단말 · 캐릭터 설정</h2>
+      <h2>{t("ob.title")}</h2>
       <div className="ob-row">
         <input
           type="text"
           id="display-name"
           name="display-name"
-          placeholder="플레이어 이름"
+          placeholder={t("ob.namePlaceholder")}
           value={displayName}
           onChange={(e) => onDisplayNameChange(e.target.value)}
         />
@@ -74,7 +76,7 @@ export function OnboardingPanel({
           {scenarios.map((s) => (
             <option key={s.id} value={s.id} disabled={s.unlocked === false}>
               {s.name}
-              {s.unlocked === false ? " · 🔒 잠김" : ""}
+              {s.unlocked === false ? ` · 🔒 ${t("ob.locked")}` : ""}
             </option>
           ))}
         </select>
@@ -83,7 +85,7 @@ export function OnboardingPanel({
         <p className="ob-scenario-lock">🔒 {scenario.unlock_hint}</p>
       )}
 
-      <p className="panel-title">아키타입</p>
+      <p className="panel-title">{t("ob.archetypes")}</p>
       <div className="arch-grid" id="archetypes">
         {archetypes.map((archetype) => {
           const unlocked = archetype.unlocked !== false;
@@ -102,15 +104,15 @@ export function OnboardingPanel({
                 {(archetype.attributes || []).join(" ")}
               </div>
               {archetype.starting_item && (
-                <div className="arch-item">소지품 · {archetype.starting_item}</div>
+                <div className="arch-item">{t("ob.item")} · {archetype.starting_item}</div>
               )}
               {(archetype.base_skills || []).length > 0 && (
                 <div className="arch-item">
-                  기본 스킬 · {(archetype.base_skills || []).join(" / ")}
+                  {t("ob.baseSkills")} · {(archetype.base_skills || []).join(" / ")}
                 </div>
               )}
               {!unlocked && (
-                <div className="arch-lock">LOCKED · {archetype.unlock_hint || "진행도 필요"}</div>
+                <div className="arch-lock">LOCKED · {archetype.unlock_hint || t("ob.needProgress")}</div>
               )}
             </button>
           );
@@ -123,7 +125,7 @@ export function OnboardingPanel({
           onClick={onStartGame}
           id="start"
         >
-          접속 · 루프 시작
+          {t("ob.start")}
         </button>
         {resumeSessionData && (
           <button
@@ -131,7 +133,7 @@ export function OnboardingPanel({
             onClick={() => onResumeGame(resumeSessionData)}
             id="resume"
           >
-            이어하기 · {resumeSessionData.playerId.slice(0, 14)}…
+            {t("ob.resume")} · {resumeSessionData.playerId.slice(0, 14)}…
           </button>
         )}
         <span className="sub" id="ob-status">
@@ -141,9 +143,9 @@ export function OnboardingPanel({
 
       {encounters.length > 0 && (
         <details className="combat-sim" id="combat-simulator">
-          <summary>⚔️ 전투 시뮬레이터 (개발용)</summary>
+          <summary>{t("ob.simSummary")}</summary>
           <p className="sub">
-            서사를 거치지 않고 선택한 조우로 바로 진입합니다. 전투/이펙트 점검용.
+            {t("ob.simDesc")}
           </p>
           <div className="ob-row">
             <select
@@ -160,7 +162,7 @@ export function OnboardingPanel({
           </div>
           {allies.length > 0 && (
             <div className="sim-allies">
-              <span className="sub">동료 참전:</span>
+              <span className="sub">{t("ob.simAllies")}</span>
               {allies.map((ally) => (
                 <label key={ally.id} className="sim-ally">
                   <input
@@ -178,7 +180,7 @@ export function OnboardingPanel({
             disabled={isBusy || !effectiveEncounter}
             onClick={() => onSimulateCombat(effectiveEncounter, effectiveAllies)}
           >
-            ⚔️ 전투 시뮬레이션 진입
+            {t("ob.simStart")}
           </button>
         </details>
       )}

@@ -21,6 +21,12 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Skip Ollama and render the deterministic fallback scene.",
     )
+    parser.add_argument(
+        "--language",
+        choices=("ko", "en"),
+        default="ko",
+        help="Target narrative output language (default: ko).",
+    )
     return parser
 
 
@@ -46,6 +52,7 @@ def main(argv: list[str] | None = None) -> int:
         ),
         turn_index=0,
         recent_events=[],
+        language=args.language,
     )
 
     director = NarrativeDirector()

@@ -1,0 +1,67 @@
+{
+  "_note": "Additive English localization overlay for neo-seoul scenario.json prose (localization plan §2.2/§7.2). Logical-key paths mirror scenario.json; the loader (load_scenario_i18n) returns this verbatim and consumers prefer these values over the Korean source when language=='en'. Structure (ids/keys/order) must stay parity with scenario.json; cinematic_shots order is referenced by index from opening.en.md (shot=0..2).",
+  "name": "Neo-Seoul: Connection (Connector Awakening)",
+  "brief": "WORLD: Neo-Seoul. A city of absolute efficiency that ARK rebuilt over the ruins. PREMISE: You are an 'unregistered signal' that has slipped the system's control. TONE: a hymn to humanity, Y2K digital afterglow, desperate resistance. PHILOSOPHY: Surviving is a choice, but becoming a person is a resolve.",
+  "archetypes": {
+    "ghost": {"name": "Ghost", "attributes": ["[Ghost Signal]", "[Silent Footsteps]"], "starting_item": "Erased ID Card"},
+    "data_smuggler": {"name": "Data Smuggler", "attributes": ["[ARK Link]", "[Data Laundering]"], "starting_item": "Overclocked Deck"},
+    "echo_collector": {"name": "Echo Collector", "attributes": ["[Memory Weaver]", "[Resonance of the Past]"], "starting_item": "Cracked Data Cube"}
+  },
+  "ui_copy": {
+    "signal_body": "After the Northeast Asia War, the ruined cities were reborn atop the prediction engine of ARK, the reconstruction agency. A citizen of Neo-Seoul is identified by a score before a name, and memories that fall outside the baseline are quietly optimized away. Just now, beneath the control grid's black layer, an access signal on no roster has woken. The sender is unidentified. The world cannot yet explain you."
+  },
+  "session_intro": {
+    "title": "First Connection — C-17 Blackout",
+    "body": "You are an 'unregistered signal' — a being on no roster. Administrator IX means to erase you, who fall outside the baseline (memory deletion).",
+    "objective": "Take Se-rin's hand and escape the C-17 blackout zone.",
+    "continue_button": "Awaken",
+    "rules": [
+      "NOW — in the blackout's gap, you wake alone on a wet street",
+      "SOON — a rider finds you",
+      "GOAL — escape the C-17 blackout zone alive"
+    ],
+    "cinematic_shots": [
+      {
+        "title": "Se-rin finds you in the rain",
+        "body": "A surveillance drone's red light sweeps the alley. Without cutting her bike's engine, Se-rin checks whether you've been erased yet before she explains anything."
+      },
+      {
+        "title": "Jung Se-rin, the Water Spider",
+        "body": "She snatches your wrist. \"Not registered, right? Hey, then you're still a person. Run.\" That one line pulls you from error back toward human."
+      },
+      {
+        "title": "The engine ignites, and the city turns enemy",
+        "body": "The headlight tears red. The instant the drone's searchlight sweeps the alley, there is only one choice: follow, or be erased."
+      }
+    ]
+  },
+  "main_arcs": [
+    {"title": "Act 1: The Falling Signal", "summary": "An opening in which the player, waking as an unregistered signal, meets Jung Se-rin in the C-17 blackout zone, slips the control grid's first cordon, and inherits the question 'am I a person or a bug?'"},
+    {"title": "Act 2: The City of Scores and Debt", "summary": "Moving between the welfare blocks and the Han River night market, you learn Neo-Seoul's survival rules and trace that the optimization list is not a simple arrest roster but a device that erases 'people who remember'."},
+    {"title": "Act 3: The Machine That Counts People", "summary": "Through rescue operations and infiltration you confirm that optimization is a memory deletion more refined than 'death', and the player's actions accumulate along the Humanity/Dominance/Resilience/Insight axes."},
+    {"title": "Act 4: The Dreaming Machine", "summary": "You wake the discarded android Kai and face the past ARK erased and the fragments of MythOS. Kai is not a combat reward but a figure who opens the truth of the world."},
+    {"title": "Act 5: The Gate of the Spire", "summary": "On the clues and relationships you have gathered, you approach the central server of the Gangnam Spire. The player decides what to prioritize: Se-rin's rescue, Lin Yue's bargain, or Kai's dream."},
+    {"title": "Act 6: Rewriting the World", "summary": "You face Administrator IX directly and end Neo-Seoul's order in one of expose/destroy/rewrite/suture. The result is not a total victory but an afterglow that will remain in the next loop."}
+  ],
+  "side_arcs": [
+    {"title": "Side: Signal of the Abandoned", "description": "A mission to raise the loop's stability by rescuing ordinary citizens placed on the optimization list."},
+    {"title": "Side: Ghost of the Control Grid", "description": "A technical thread that traces Administrator IX's past logs to find a flaw in the system."},
+    {"title": "Side: Lin Yue's Discreet Request", "description": "A story of recovering a 'memory fragment' Lin Yue lost and being backed with powerful equipment in return."},
+    {"title": "Side: The Water Spider's Debt", "description": "You chase the trace of someone Jung Se-rin failed to save in the past. Completing it strengthens Se-rin's trust and the chance of her as a starting companion."},
+    {"title": "Side: The Blank in the List", "description": "You investigate how one empty line in the optimization list is synchronized with the player's signal."},
+    {"title": "Side: Fragments of Kai's Dream", "description": "You restore the pre-war memory of a child that Kai dreams repeatedly, gaining a clue to MythOS's origin."}
+  ],
+  "endings": [
+    {"name": "Safe Refuge"},
+    {"name": "Code Rewrite"},
+    {"name": "Noble Sacrifice"},
+    {"name": "Forced Erasure"}
+  ],
+  "npc_agendas": {
+    "정세린": "Jung Se-rin",
+    "린위에": "Lin Yue",
+    "관리자 IX": "Administrator IX",
+    "카이": "Kai",
+    "최적화 명단 대상자": "Optimization List Target"
+  }
+}

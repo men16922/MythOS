@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLang } from "./i18n/lang";
 
 interface BootIntroProps {
   uiCopy?: Record<string, unknown>;
@@ -11,8 +12,7 @@ interface BootIntroProps {
 const DEFAULTS = {
   intro_logo: "PROJECT MYTHOS",
   signal_title: "NEO-SEOUL // UNREGISTERED SIGNAL",
-  signal_body:
-    "관리망의 검은 층 아래에서 어떤 명단에도 없는 접속 신호가 깨어났다. 발신자는 미확인. 세계는 아직 당신을 설명하지 못한다.",
+  // signal_body default is localized at the use site via t("boot.signalBodyDefault").
   signal_lines: ["NEO-SEOUL NODE OPEN  HANDSHAKE FAILED", "WAKE TRACE FOUND  HUMAN NOISE DETECTED"],
   boot_lines: ["[00.000] MYTHOS RUNTIME // LOCAL NODE", "[00.117] SIGNAL TYPE: UNCLASSIFIED"],
   intro_lines: [
@@ -34,13 +34,14 @@ function asStr(v: unknown, fallback: string): string {
 }
 
 export function BootIntro({ uiCopy, scenarioId, onEnter }: BootIntroProps) {
+  const { t } = useLang();
   const c = uiCopy ?? {};
   const logo = asStr(c.intro_logo, DEFAULTS.intro_logo);
   const introLines = asList(c.intro_lines, DEFAULTS.intro_lines);
   const dimLines = new Set(asList(c.intro_dim_lines, []));
   const bootLines = asList(c.boot_lines, DEFAULTS.boot_lines);
   const signalTitle = asStr(c.signal_title, DEFAULTS.signal_title);
-  const signalBody = asStr(c.signal_body, DEFAULTS.signal_body);
+  const signalBody = asStr(c.signal_body, t("boot.signalBodyDefault"));
   const signalLines = asList(c.signal_lines, DEFAULTS.signal_lines);
   const bootMarker = asStr(c.boot_marker, DEFAULTS.boot_marker);
   const keyArt = asStr(c.key_art, DEFAULTS.key_art);
@@ -103,9 +104,9 @@ export function BootIntro({ uiCopy, scenarioId, onEnter }: BootIntroProps) {
           onEnter();
         }}
       >
-        접속 기동 · ENTER ▸
+        {t("boot.enter")}
       </button>
-      <div className="boot-skip-hint">화면을 클릭하면 건너뜁니다</div>
+      <div className="boot-skip-hint">{t("boot.skipHint")}</div>
     </div>
   );
 }

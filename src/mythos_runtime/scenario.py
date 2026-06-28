@@ -36,6 +36,26 @@ class ScenarioConfig:
 
 
 @lru_cache(maxsize=16)
+def load_scenario_i18n(scenario_id: str, language: str) -> dict[str, Any]:
+    """Load an *additive* localization overlay ``resources/<scenario>/i18n/<language>.json``.
+
+    The overlay carries only player-facing prose keyed by logical path (e.g. ``brief``,
+    ``session_intro.title``, ``session_intro.cinematic_shots[i].body``); the consumer
+    prefers an overlay value over the Korean ``scenario.json`` source when present. This
+    is intentionally additive — the Korean ``scenario.json`` stays the untouched source,
+    so ``language="ko"`` (or any language with no overlay file) returns ``{}`` and the
+    prior behavior is reproduced exactly (zero KO-path risk). See localization plan §7.2
+    (a behavior-preserving golden-path step toward the full bidirectional sidecar).
+    """
+    path = PROJECT_ROOT / "resources" / scenario_id / "i18n" / f"{language}.json"
+    if not path.exists():
+        return {}
+    with open(path, encoding="utf-8") as f:
+        data = json.load(f)
+    return data if isinstance(data, dict) else {}
+
+
+@lru_cache(maxsize=16)
 def load_scenario(scenario_id: str) -> ScenarioConfig:
     path = PROJECT_ROOT / "resources" / scenario_id / "scenario.json"
     if not path.exists():

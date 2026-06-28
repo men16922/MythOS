@@ -33,6 +33,23 @@ Do not label choices as COMMAND, Perception checks, abstract concepts, or system
 """.strip()
 
 
+# English counterpart of DEFAULT_SYSTEM_PROMPT (legacy single-model path) selected
+# by ``_system_prompt`` when ``context.language == "en"``. Mirrors the Korean intent —
+# JSON-only, cinematic screenplay register, concrete neo-seoul imagery — but writes
+# the prose and choices in English. See docs/plans/2026-06-27-en-ko-localization.md §3.
+DEFAULT_SYSTEM_PROMPT_EN = """
+You are the Narrative Director for Project MythOS. Return ONLY a single valid JSON object.
+Do not wrap the JSON in markdown code fences (like ```json) or add any pre/post commentary.
+Write high-quality, natural English prose. Avoid repeating the same words, phrases, or sentence openers across paragraphs.
+Write scenes like a clear film sequence, not like abstract lore exposition: show the physical place, visible threat, character movement, and immediate objective first.
+For neo-seoul, prefer concrete cyberpunk images (rain, alleys, drones, subway gates, market lights, wet concrete, sirens, hands, weapons, faces) over vague data-space metaphors.
+Do not spend long paragraphs on "data flow", "resonance corridor", "overlay core", "unstable area", or "player existence" unless the current route node explicitly takes place inside a virtual core.
+Return the scene object at the top-level key named "scene" and "world_delta" at its key.
+Choices must be concrete player actions in plain English, short imperative phrases when possible.
+Do not label choices as COMMAND, Perception checks, abstract concepts, or system operations.
+""".strip()
+
+
 JSON_CONTRACT = {
     "scene": {
         # narration is intentionally the FIRST field so the streaming extractor
@@ -75,6 +92,50 @@ JSON_CONTRACT = {
 }
 
 
+# English counterpart of JSON_CONTRACT, selected by ``_json_contract`` when
+# ``context.language == "en"``. Same shape and field order (narration first) — only
+# the human-language hint strings differ so the parser model emits English field text
+# instead of translating the already-English story back to Korean.
+JSON_CONTRACT_EN = {
+    "scene": {
+        # narration stays the FIRST field (streaming surfaces scene text first).
+        "narration": "Cinematic, sensory scene description written in natural English",
+        "title": "Scene title in English",
+        "location": "location id or readable location",
+        "scene_type": "static|dynamic|climax",
+        "objective": "The current concrete operational objective, in English",
+        "action_result": "Success|Partial Success|Failure|null",
+        "requested_next_phase": "explore|interact|rewrite|archive|null",
+        "choices": [
+            {
+                "choice_id": "choice_1",
+                "label": "Short, concrete player action in English",
+                "intent": "explore|interact|rewrite|archive",
+                "cost": {"stability": -5, "tension": 3},  # optional: stability/tension change
+                "requires": {
+                    "stability_min": 10,
+                    "tension_max": 80,
+                },  # optional: required min stability / max tension
+            }
+        ],
+        "visual_brief": "English image brief under 700 characters for FLUX generation",
+    },
+    "world_delta": {
+        "stability": -3,
+        "tension": 5,
+        "flags": ["signal_detected"],
+        "clues": [
+            {
+                "symbol": "clue_id",
+                "text": "Description of the discovered clue fragment, in English",
+                "tags": ["tag1", "tag2"],
+            }
+        ],
+    },
+    "end_condition": None,
+}
+
+
 # The opening scene establishes the protagonist's situation FIRST. The shared
 # STORY_SYSTEM_PROMPT carries few-shot examples that name a companion/enemy (e.g.
 # "세린의 손을 잡고 뛴다", "드론 불빛이 세린의 어깨를..."); an 8B storyteller
@@ -97,12 +158,44 @@ OPENING_FIRST_SCENE_INSTRUCTION = (
 )
 
 
+# English counterpart of OPENING_FIRST_SCENE_INSTRUCTION (same staging rules, English).
+OPENING_FIRST_SCENE_INSTRUCTION_EN = (
+    "Generate the FIRST scene of this loop — the opening ESTABLISHING beat. "
+    "This scene establishes the protagonist's immediate situation ALONE. "
+    "In this first scene, do NOT introduce any other person, companion, rescuer, "
+    "reaching hand, enemy, drone/searchlight, pursuit, or combat — unless the "
+    "DIRECTIVE NOTES above explicitly instruct a named figure to appear in THIS first scene. "
+    "Focus only on the lone protagonist's situation (the place, bodily sensation, immediate predicament). "
+    "Important: the few-shot examples in the system prompt that introduce a specific companion "
+    "(e.g. 'grab Se-rin's hand and run') or an enemy/drone do NOT apply to this opening "
+    "establishing scene — those are for the NEXT scene. "
+    "Location: use exactly the opening location the DIRECTIVE NOTES specify. Even if the CURRENT "
+    "LOOP STATE location_id points to an underground / data layer / indoor space, ignore it and do "
+    "not arbitrarily move the scene indoors, underground, into a parking garage, or an abstract space. "
+    "The exact staging and direction of this opening must follow the DIRECTIVE NOTES above."
+)
+
+
+def _opening_first_scene_instruction(context: NarrativeContext) -> str:
+    if context.language == "en":
+        return OPENING_FIRST_SCENE_INSTRUCTION_EN
+    return OPENING_FIRST_SCENE_INSTRUCTION
+
+
+def _next_scene_instruction(_context: NarrativeContext) -> str:
+    # Both languages use the same English meta-instruction — it is a builder directive,
+    # not player-facing prose, and the model writes the scene in the language its system
+    # prompt + contract dictate. Kept context-parameterized for symmetry with the opening
+    # selector so a future language-specific directive has a seam.
+    return "Generate the next scene after the player action."
+
+
 def build_first_scene_messages(context: NarrativeContext) -> list[dict[str, str]]:
     return [
         {"role": "system", "content": _system_prompt(context)},
         {
             "role": "user",
-            "content": _context_prompt(context, OPENING_FIRST_SCENE_INSTRUCTION),
+            "content": _context_prompt(context, _opening_first_scene_instruction(context)),
         },
     ]
 
@@ -112,7 +205,7 @@ def build_next_scene_messages(context: NarrativeContext) -> list[dict[str, str]]
         {"role": "system", "content": _system_prompt(context)},
         {
             "role": "user",
-            "content": _context_prompt(context, "Generate the next scene after the player action."),
+            "content": _context_prompt(context, _next_scene_instruction(context)),
         },
     ]
 
@@ -129,7 +222,7 @@ def build_repair_messages(
                     "Repair this payload into valid JSON matching the contract.",
                     "Return only the corrected JSON object.",
                     f"Errors: {json.dumps(errors, ensure_ascii=False)}",
-                    f"Contract: {json.dumps(JSON_CONTRACT, ensure_ascii=False)}",
+                    f"Contract: {json.dumps(_json_contract(context), ensure_ascii=False)}",
                     f"Payload: {raw_payload}",
                 ]
             ),
@@ -137,8 +230,22 @@ def build_repair_messages(
     ]
 
 
+def _json_contract(context: NarrativeContext) -> dict[str, Any]:
+    """Language-selection seam for the output contract handed to the model.
+
+    Returns the English contract (English field hints) when ``context.language == "en"``
+    so the parser emits English scene text, else the Korean default.
+    """
+    return JSON_CONTRACT_EN if context.language == "en" else JSON_CONTRACT
+
+
 def _system_prompt(context: NarrativeContext) -> str:
-    return context.system_prompt.strip() or DEFAULT_SYSTEM_PROMPT
+    # A scenario-authored system_prompt (B-layer content, localized in S2) wins when
+    # present; otherwise fall back to the language-appropriate code default.
+    authored = context.system_prompt.strip()
+    if authored:
+        return authored
+    return DEFAULT_SYSTEM_PROMPT_EN if context.language == "en" else DEFAULT_SYSTEM_PROMPT
 
 
 def _slim_loop_for_prompt(loop: Any) -> dict[str, Any]:
@@ -188,7 +295,7 @@ def _context_prompt(context: NarrativeContext, instruction: str) -> str:
     # payload is kept for prompt determinism; the contract is a constant. We also
     # tell the model to emit fields in this order so streaming surfaces the scene
     # narration before the choices array (shorter time-to-first-token).
-    contract = json.dumps(JSON_CONTRACT, ensure_ascii=False, indent=2)
+    contract = json.dumps(_json_contract(context), ensure_ascii=False, indent=2)
     return (
         f"{body}\n\nOutput contract — Return ONLY a raw JSON object matching this schema. "
         f"Do NOT output markdown fences (```json), conversational text, or repeated loops. "
@@ -249,17 +356,71 @@ Avoid repeating specific particles or words (like "-의-", "-임-", "-록-", or 
 """
 
 
-def _story_system_prompt(context: NarrativeContext) -> str:
-    """Language-selection seam for the dual-model storyteller (S0 plumbing).
+# English counterpart of STORY_SYSTEM_PROMPT (dual-model storyteller), selected by
+# ``_story_system_prompt`` when ``context.language == "en"``. Mirrors the Korean intent —
+# cinematic, screenplay-register, concrete neo-seoul imagery, plain-text [SCENE]/[TITLE]/
+# [LOCATION]/[CHOICES] format — but generates the scene natively in English (no back-
+# translation). See docs/plans/2026-06-27-en-ko-localization.md §3 / §7.4.
+STORY_SYSTEM_PROMPT_EN = f"""
+You are the Creative Narrative Director for Project MythOS.
+Create one playable scene in high-quality, cinematic English.
+Write a concrete description of the scene and provide 2-3 distinct, meaningful choices for the player.
+ALWAYS give at least two choices — never a single option. Each choice must pursue a
+different intent (explore/investigate, talk/persuade, hack/intervene, evade/move, etc.) so the player has a real decision.
+Write each choice as a concrete action the player can understand immediately.
+Good: "Grab Se-rin's hand and run", "Duck out of the drone's searchlight", "Trace where the warning message came from".
+Bad: "Back-trace the data waveform in the air", "Make a Perception check", "Locate the origin of the access-denied message".
+The [SCENE] prose should read like a movie scene the player can picture immediately:
+1) Start with the visible physical place and immediate danger in the first sentence.
+2) Show people moving, reacting, grabbing, aiming, running, hiding, or speaking.
+3) Keep paragraphs short: 2-4 paragraphs, 1-3 sentences each. No wall-of-text blocks.
+4) Use one concrete sensory detail per paragraph, not a catalogue of abstractions.
+5) End by making the next playable decision obvious.
+For neo-seoul, ground scenes in physical Neo-Seoul first: rain on concrete, drone
+searchlights, subway shutters, welfare kiosks, market neon, motorcycle engines,
+breath, blood, static, hands, faces. Avoid generic virtual limbo unless the node
+explicitly says the player is inside a data core.
+Abstract system terms like "data flow", "resonance corridor", "overlay core", "unstable zone",
+"the player's very existence" are NOT banned — the problem is REPEATING them scene after scene.
+Match register to the scene: ordinary scenes use plain, physical, screenplay-style
+action lines (what is seen/heard, people moving, strong verbs); reserve abstract or
+conceptual texture for scenes that are deliberately esoteric (inside a data core, an
+IX system confrontation). Never let the same abstract phrasing recur every scene.
+Good scene texture: "Rain hammers a cracked sign. A drone's light grazes Se-rin's
+shoulder, and she grabs your wrist and shoves you under the parking-garage shutter."
+Do NOT output JSON. Write in plain text matching the format guidelines below.
+Avoid repeating the same words, phrases, or sentence openers across paragraphs.
 
-    S1 returns an English storyteller system prompt when ``context.language == "en"``;
-    until then both languages use the Korean prompt so behavior is preserved. Kept as
-    a helper (rather than the previous hardcoded ``STORY_SYSTEM_PROMPT.strip()`` inline)
+=== WORLD SYSTEM INFO ===
+{CANONICAL_WORLD_CONTEXT}
+
+=== OUTPUT FORMAT GUIDELINES ===
+[SCENE]
+(cinematic, sensory scene description in English)
+
+[TITLE]
+(the scene's English title)
+
+[LOCATION]
+(location id or readable name)
+
+[CHOICES]
+- choice_1: (short, concrete English action line, no jargon)
+- choice_2: (short, concrete English action line, no jargon)
+- choice_3: (optional — short English action line)
+(At least 2, in exactly the format above. Each line must follow "- choice_N: description".)
+"""
+
+
+def _story_system_prompt(context: NarrativeContext) -> str:
+    """Language-selection seam for the dual-model storyteller.
+
+    Returns the English storyteller system prompt when ``context.language == "en"``,
+    else the Korean default. Kept as a helper (rather than a hardcoded inline constant)
     so the dual-model path is context-aware — see localization plan §7.1.
     """
     if context.language == "en":
-        # TODO(S1): return STORY_SYSTEM_PROMPT_EN.strip()
-        return STORY_SYSTEM_PROMPT.strip()
+        return STORY_SYSTEM_PROMPT_EN.strip()
     return STORY_SYSTEM_PROMPT.strip()
 
 
@@ -268,7 +429,7 @@ def build_first_story_messages(context: NarrativeContext) -> list[dict[str, str]
         {"role": "system", "content": _story_system_prompt(context)},
         {
             "role": "user",
-            "content": _story_context_prompt(context, OPENING_FIRST_SCENE_INSTRUCTION),
+            "content": _story_context_prompt(context, _opening_first_scene_instruction(context)),
         },
     ]
 
@@ -278,7 +439,7 @@ def build_next_story_messages(context: NarrativeContext) -> list[dict[str, str]]
         {"role": "system", "content": _story_system_prompt(context)},
         {
             "role": "user",
-            "content": _story_context_prompt(context, "Generate the next scene after the player action."),
+            "content": _story_context_prompt(context, _next_scene_instruction(context)),
         },
     ]
 
@@ -346,7 +507,7 @@ Return only valid JSON. Do not wrap in markdown blocks.
 
 
 def build_parser_messages(story_text: str, context: NarrativeContext) -> list[dict[str, str]]:
-    contract = json.dumps(JSON_CONTRACT, ensure_ascii=False, indent=2)
+    contract = json.dumps(_json_contract(context), ensure_ascii=False, indent=2)
     prompt = (
         "Return a single valid JSON object matching this contract schema. "
         f"Output fields in exactly this order (narration first):\n{contract}\n\n"

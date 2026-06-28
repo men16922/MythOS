@@ -3,6 +3,7 @@ import { ProgressDashboard } from "./ProgressDashboard";
 import { RouteNarrative } from "./RouteNarrative";
 import { RunHistoryPanel } from "./SaveHistoryPanel";
 import { mergedRuns } from "./runHistory";
+import { useLang } from "./i18n/lang";
 import type { CodexLists } from "./viewModels";
 import type { MemoryOverview, RouteMap, RunSummary, RuntimeSnapshot } from "./types";
 
@@ -23,36 +24,37 @@ export function CodexPanel({
   memoryOverview = null,
   scenarioId,
 }: CodexPanelProps) {
+  const { t } = useLang();
   const visibleRuns = mergedRuns(runsHistory, memoryOverview?.run_summaries);
   return (
     <div id="codex-tab-content">
       <div className="panel">
-        <h2 className="tab-panel-title">기억의 별자리</h2>
+        <h2 className="tab-panel-title">{t("codex.title")}</h2>
         <div className="codex-grid">
           <RouteNarrative routeMap={routeMap} />
           <div className="codex-sec">
-            <div className="codex-sec-title">단서 목록 (Clues)</div>
+            <div className="codex-sec-title">{t("codex.clues")}</div>
             <div className="codex-list">
               {codexLists.clues.length > 0 ? (
                 codexLists.clues.map((clue, idx) => (
                   <div className="codex-item" key={idx}>
                     <div className="codex-item-head">
                       <span>{clue.symbol}</span>
-                      <span>단서</span>
+                      <span>{t("codex.clue")}</span>
                     </div>
                     <div className="codex-item-desc">{clue.text}</div>
                   </div>
                 ))
               ) : (
                 <div style={{ color: "var(--ink-dim)" }}>
-                  획득한 단서가 없습니다.
+                  {t("codex.noClues")}
                 </div>
               )}
             </div>
           </div>
 
           <div className="codex-sec">
-            <div className="codex-sec-title">세계 아카이브 (Lore)</div>
+            <div className="codex-sec-title">{t("codex.lore")}</div>
             <div className="codex-list">
               {codexLists.allLore.length > 0 ? (
                 codexLists.allLore.map((lore, idx) => (
@@ -63,7 +65,7 @@ export function CodexPanel({
                 ))
               ) : (
                 <div style={{ color: "var(--ink-dim)" }}>
-                  조회 가능한 아카이브가 없습니다.
+                  {t("codex.noLore")}
                 </div>
               )}
             </div>
@@ -72,7 +74,7 @@ export function CodexPanel({
 
         <div className="codex-sec" style={{ marginTop: "16px" }}>
           <div className="codex-sec-title">
-            이전 루프 회상 잔향 (Active Echoes)
+            {t("codex.echoes")}
           </div>
           <div className="codex-list">
             {codexLists.echoes.length > 0 ? (
@@ -84,7 +86,7 @@ export function CodexPanel({
               ))
             ) : (
               <div style={{ color: "var(--ink-dim)" }}>
-                감지된 회상 잔향이 없습니다.
+                {t("codex.noEchoes")}
               </div>
             )}
           </div>

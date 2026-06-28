@@ -4,7 +4,7 @@ Last updated: 2026-06-26
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Local gate = Neo-Seoul `[manual]` live-QA A·F sign-off (`docs/test/neo_seoul_live_qa.md`, play 1회로 닫힘). Then global-first: EN/KO English-default localization (`docs/plans/2026-06-27-en-ko-localization.md` — SIDECAR, golden-path-first; join-key ID migration + S0 lang plumbing DONE 2026-06-27 → START at S1 영어 생성: EN system prompt + JSON_CONTRACT_EN + DEFAULT_FALLBACK_BY_LANG["en"], flip default to en). Launch = GCP closed beta + r/playtesters, NOT local video (`docs/cloud/CLOSED_BETA_FEEDBACK_STRATEGY.md`); product LLM = Gemini/Vertex (local LLM = dev only). Parallel auto track: `make overnight` App.tsx decomposition (next = onboarding handlers).**
+> ▶ NEXT SESSION: **Local gate = Neo-Seoul `[manual]` live-QA A·F sign-off (`docs/test/neo_seoul_live_qa.md`, play 1회로 닫힘). Then global-first: EN/KO English-default localization (`docs/plans/2026-06-27-en-ko-localization.md` — SIDECAR, golden-path-first; join-key ID migration + S0 lang plumbing + S1 영어 생성 DONE 2026-06-28 → START at S2 golden-path 저작물 EN: `opening.en.md`/`fallback.en.md` + loader `*.{lang}.md` 분기 + golden-path scenario/bible 산문 EN sidecar, THEN flip default to en + S3 UI i18n). Launch = GCP closed beta + r/playtesters, NOT local video (`docs/cloud/CLOSED_BETA_FEEDBACK_STRATEGY.md`); product LLM = Gemini/Vertex (local LLM = dev only). App.tsx decomposition track is `[blocked]` (human must name a slice or close it).**
 
 ## Snapshot
 

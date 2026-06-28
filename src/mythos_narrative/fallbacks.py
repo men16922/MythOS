@@ -68,4 +68,77 @@ DEFAULT_FALLBACK: dict[str, Any] = {
 }
 
 
-__all__ = ["DEFAULT_FALLBACK"]
+# English counterpart of DEFAULT_FALLBACK (same neo-seoul C-17 opening beat, English
+# prose). Selected by ``default_fallback("en")`` so the deterministic fallback scene
+# renders in English when the active language is English. The ``visual_brief`` strings
+# are language-independent image briefs (already English) and are reused verbatim.
+DEFAULT_FALLBACK_EN: dict[str, Any] = {
+    "title_default": "C-17 Blackout Zone",
+    "title_novelty": "C-17's Changed Warning Signal",
+    "title_with_action": "The Next Alley in the Rain",
+    "location": "C-17 Neon Alley (outdoors, rain)",
+    "narration_no_action": (
+        "The emergency lights of the C-17 underpass go out one row at a time. Across the wet "
+        "concrete your nameless signal bleeds faintly, and from the exit a surveillance drone's "
+        "red searchlight cuts down through the rain.\n\n"
+        "Jung Se-rin keeps her bike upright and looks back. She does not explain much. She checks "
+        "the deletion mark on your wrist, then says low, \"Not registered, right? Then you're still "
+        "a person. Run.\"\n\n"
+        "The shutter is halfway down. You have to grab Se-rin's hand and bolt for the drainage "
+        "channel, or read the drone's search pattern first and pick a path that won't be cut off."
+    ),
+    "narration_with_action": (
+        "Se-rin hauls you by your wet jacket sleeve, and the surveillance lens on the underpass "
+        "ceiling turns its head a beat too late. Rainwater streams down the stairs, and from far "
+        "off a patrol drone's propellers push their sound into the narrow corridor. Stop now and "
+        "the control grid catches your signal again. You have to keep moving forward."
+    ),
+    "novelty_hint_notes": (
+        " As if avoiding the same path as the last loop, the signal light at the alley's end "
+        "turns red a beat late."
+    ),
+    "novelty_hint_memories": (
+        " An afterimage of a stored memory grazes past, but this time it does not harden into the "
+        "same scene."
+    ),
+    "objective_turn0": "Escape the C-17 blackout zone together with Se-rin.",
+    "visual_brief": (
+        "Neo-Seoul C-17 underpass in heavy rain, emergency lights failing, red surveillance "
+        "drone beams, Jung Se-rin on a motorbike reaching for the player, wet concrete, "
+        "half-closed security shutter, cinematic cyberpunk chase scene."
+    ),
+    "choices": [
+        {"suffix": "approach", "label": "Follow Se-rin into the drainage channel", "intent": "explore"},
+        {"suffix": "listen", "label": "Read the drone's searchlight pattern first", "intent": "interact"},
+    ],
+    "repair": {
+        "title": "C-17 Blackout Zone",
+        "location": "C-17 Neon Alley (outdoors, rain)",
+        "narration": (
+            "The C-17 underpass emergency lights die, and a surveillance drone's red searchlight "
+            "bleeds across the rainwater. Jung Se-rin holds out a hand beside her bike and says, "
+            "\"Not registered, right? Then you're still a person. Run.\""
+        ),
+        "visual_brief": (
+            "Neo-Seoul C-17 underpass in rain, red drone searchlights, Jung Se-rin reaching out, "
+            "wet concrete, half-closed shutter, cinematic cyberpunk chase."
+        ),
+        "choice_label": "Follow Se-rin into the drainage channel",
+    },
+}
+
+
+# Per-language registry. ``DEFAULT_FALLBACK`` stays exported as the Korean default for
+# back-compat (parser.py repair path imports it directly, language-agnostic).
+DEFAULT_FALLBACK_BY_LANG: dict[str, dict[str, Any]] = {
+    "ko": DEFAULT_FALLBACK,
+    "en": DEFAULT_FALLBACK_EN,
+}
+
+
+def default_fallback(language: str = "ko") -> dict[str, Any]:
+    """Return the deterministic fallback scene dict for ``language`` (Korean default)."""
+    return DEFAULT_FALLBACK_BY_LANG.get(language, DEFAULT_FALLBACK)
+
+
+__all__ = ["DEFAULT_FALLBACK", "DEFAULT_FALLBACK_EN", "DEFAULT_FALLBACK_BY_LANG", "default_fallback"]

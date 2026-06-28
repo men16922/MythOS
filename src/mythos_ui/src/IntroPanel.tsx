@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLang } from "./i18n/lang";
 
 export interface CinematicShot {
   image: string;
@@ -28,6 +29,7 @@ export const IntroPanel: React.FC<IntroPanelProps> = ({
   scenarioId,
   onAccept,
 }) => {
+  const { t } = useLang();
   const [activeShotIdx, setActiveShotIdx] = useState(0);
   const [glitch, setGlitch] = useState(false);
   const shots = introData.cinematic_shots || [];
@@ -69,7 +71,7 @@ export const IntroPanel: React.FC<IntroPanelProps> = ({
         {/* Left column: Narrative details */}
         <div className="intro-left-panel">
           <div className="terminal-kicker">{introData.kicker || "FIRST CONTACT"}</div>
-          <h1 className="intro-title">{introData.title || "첫 접속"}</h1>
+          <h1 className="intro-title">{introData.title || t("intro.titleDefault")}</h1>
           <p className="intro-body-text">{introData.body}</p>
 
           {introData.rules && introData.rules.length > 0 && (
@@ -84,7 +86,7 @@ export const IntroPanel: React.FC<IntroPanelProps> = ({
           )}
 
           <button className="intro-accept-btn" onClick={onAccept}>
-            {introData.continue_button || "접속을 받아들인다"} ▸
+            {introData.continue_button || t("intro.acceptDefault")} ▸
           </button>
         </div>
 

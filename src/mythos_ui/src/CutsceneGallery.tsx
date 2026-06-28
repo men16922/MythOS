@@ -1,14 +1,18 @@
+import { useLang } from "./i18n/lang";
+import type { StringKey } from "./i18n/strings.ko";
 import type { CutsceneGalleryEntry } from "./types";
+
+type TFn = (key: StringKey) => string;
 
 interface CutsceneGalleryProps {
   entries?: CutsceneGalleryEntry[];
   scenarioId: string;
 }
 
-function lockHint(entry: CutsceneGalleryEntry): string {
-  const parts = [`호감도 ${entry.affection_required}`];
+function lockHint(entry: CutsceneGalleryEntry, t: TFn): string {
+  const parts = [`${t("cut.affection")} ${entry.affection_required}`];
   if (entry.flags_required.length > 0) {
-    parts.push(`플래그 ${entry.flags_required.join(", ")}`);
+    parts.push(`${t("cut.flag")} ${entry.flags_required.join(", ")}`);
   }
   return parts.join(" · ");
 }
@@ -17,9 +21,10 @@ export function CutsceneGallery({
   entries = [],
   scenarioId,
 }: CutsceneGalleryProps) {
+  const { t } = useLang();
   return (
     <div className="codex-sec" style={{ marginTop: "16px" }}>
-      <div className="codex-sec-title">동료 컷씬 (Cutscene Gallery)</div>
+      <div className="codex-sec-title">{t("cut.title")}</div>
       {entries.length > 0 ? (
         <div className="skill-tree-list">
           {entries.map((entry) => (
@@ -50,7 +55,7 @@ export function CutsceneGallery({
                       <summary
                         style={{ cursor: "pointer", color: "var(--term)" }}
                       >
-                        대본 보기
+                        {t("cut.viewScript")}
                       </summary>
                       <div
                         className="codex-item-desc"
@@ -62,14 +67,14 @@ export function CutsceneGallery({
                   )}
                 </>
               ) : (
-                <div className="codex-item-desc">🔒 잠김 · {lockHint(entry)}</div>
+                <div className="codex-item-desc">🔒 {t("cut.locked")} · {lockHint(entry, t)}</div>
               )}
             </div>
           ))}
         </div>
       ) : (
         <div style={{ color: "var(--ink-dim)" }}>
-          아직 등록된 컷씬이 없습니다. 동료와의 관계가 깊어지면 특별한 장면이 열립니다.
+          {t("cut.empty")}
         </div>
       )}
     </div>

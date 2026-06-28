@@ -1,5 +1,6 @@
 import type { Dispatch, SetStateAction } from "react";
 import { apiGetScenarios, apiSaveSlot } from "../api";
+import { useLang } from "../i18n/lang";
 import { firstUnlockedArchetype } from "../archetypes";
 import { LS_KEY, parseResumeSession } from "../sessionStorage";
 import type { ResumeSessionData } from "../sessionStorage";
@@ -60,6 +61,7 @@ type UseSessionControlsArgs = {
  * supplied via props.
  */
 export function useSessionControls(args: UseSessionControlsArgs) {
+  const { lang, t } = useLang();
   const {
     scenarios,
     connected,
@@ -121,7 +123,7 @@ export function useSessionControls(args: UseSessionControlsArgs) {
 
     // Refresh scenarios
     const storedResume = parseResumeSession(localStorage.getItem(LS_KEY));
-    apiGetScenarios(storedResume?.playerId)
+    apiGetScenarios(storedResume?.playerId, lang)
       .then((data) => {
         setScenarios(data.scenarios || []);
         setResumeSessionData(storedResume);
@@ -137,16 +139,16 @@ export function useSessionControls(args: UseSessionControlsArgs) {
   const handleSaveSlotSubmit = async () => {
     if (!loopId || isBusy) return;
     setIsBusy(true);
-    setStatus("세션 저장 중…");
+    setStatus(t("sess.saving"));
     try {
       await apiSaveSlot({ loop_id: loopId, label: saveLabelInput.trim() || null });
       setSaveLabelInput("");
-      setStatus("세션 저장 성공.");
+      setStatus(t("sess.saveOk"));
       if (playerId) {
         await loadSlotsAndRuns(playerId);
       }
     } catch (e) {
-      setStatus("세션 저장 실패: " + (e as Error).message);
+      setStatus(t("sess.saveFail") + (e as Error).message);
     } finally {
       setIsBusy(false);
     }

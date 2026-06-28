@@ -1,3 +1,5 @@
+import { useLang } from "./i18n/lang";
+
 export type ActiveTab = "story" | "codex" | "character" | "skills" | "dev";
 
 interface TabNavProps {
@@ -33,13 +35,14 @@ function TabButton({
 }
 
 export function TabNav({ activeTab, onTabClick, notices }: TabNavProps) {
+  const { t } = useLang();
   return (
     <div className="tabs">
-      <TabButton tab="story" label="서사 접속" activeTab={activeTab} notices={notices} onTabClick={onTabClick} />
-      <TabButton tab="codex" label="기억의 별자리 (Codex)" activeTab={activeTab} notices={notices} onTabClick={onTabClick} />
+      <TabButton tab="story" label={t("tab.story")} activeTab={activeTab} notices={notices} onTabClick={onTabClick} />
+      <TabButton tab="codex" label={t("tab.codex")} activeTab={activeTab} notices={notices} onTabClick={onTabClick} />
       <TabButton tab="character" label="CHARACTER" activeTab={activeTab} notices={notices} onTabClick={onTabClick} />
       <TabButton tab="skills" label="SKILL TREE" activeTab={activeTab} notices={notices} onTabClick={onTabClick} />
-      <TabButton tab="dev" label="개발자 콘솔 (Dev)" activeTab={activeTab} notices={notices} onTabClick={onTabClick} />
+      <TabButton tab="dev" label={t("tab.dev")} activeTab={activeTab} notices={notices} onTabClick={onTabClick} />
     </div>
   );
 }

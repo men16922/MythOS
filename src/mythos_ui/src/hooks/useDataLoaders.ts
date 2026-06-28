@@ -6,6 +6,7 @@ import {
   apiGetSkillTree,
   apiLearnSkill,
 } from "../api";
+import { useLang } from "../i18n/lang";
 import type {
   MemoryOverview,
   SaveSlot,
@@ -42,6 +43,7 @@ type UseDataLoadersArgs = {
  * is preserved; all cross-cutting state and setters are supplied via props.
  */
 export function useDataLoaders(args: UseDataLoadersArgs) {
+  const { t } = useLang();
   const {
     playerId,
     selectedScenarioId,
@@ -108,11 +110,11 @@ export function useDataLoaders(args: UseDataLoadersArgs) {
       const after = tree.skills.find((skill) => skill.id === skillId);
       const name = after?.name || before?.name || skillId;
       if (before && after && after.rank > before.rank) {
-        setSkillNotice(`${name} 강화 완료: Rank ${before.rank} → ${after.rank}. 통찰 잔액 ${tree.insight_points}p`);
+        setSkillNotice(`${name} ${t("sk.upgradeDone")}: Rank ${before.rank} → ${after.rank}. ${t("sk.insightBal")} ${tree.insight_points}p`);
       } else if (after?.status === "learned") {
-        setSkillNotice(`${name} 습득 완료: 다음 전투부터 액션바에서 사용할 수 있습니다. 통찰 잔액 ${tree.insight_points}p`);
+        setSkillNotice(`${name} ${t("sk.learnDone")}. ${t("sk.insightBal")} ${tree.insight_points}p`);
       } else {
-        setSkillNotice(`${name} 갱신 완료. 통찰 잔액 ${tree.insight_points}p`);
+        setSkillNotice(`${name} ${t("sk.updateDone")}. ${t("sk.insightBal")} ${tree.insight_points}p`);
       }
       logToConsole(`스킬 갱신: ${skillId} (통찰 잔액 ${tree.insight_points}p)`);
     } catch (e) {

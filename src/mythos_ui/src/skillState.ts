@@ -1,4 +1,7 @@
+import type { StringKey } from "./i18n/strings.ko";
 import type { SkillTreeNode } from "./types";
+
+type TFn = (key: StringKey) => string;
 
 /**
  * Deterministic view-state for a Codex skill-tree action button.
@@ -27,14 +30,15 @@ export function deriveSkillAction(
   skill: SkillTreeNode,
   interactive: boolean,
   busy: boolean,
+  t: TFn,
 ): SkillActionView {
   if (!interactive || skill.action === null) {
     return { show: false };
   }
-  const verb = skill.action === "learn" ? "습득" : "강화";
+  const verb = skill.action === "learn" ? t("skill.learn") : t("skill.upgrade");
   const label = `${verb} -${skill.action_cost}p`;
   if (busy) {
-    return { show: true, disabled: true, label: "처리 중...", blocked: null };
+    return { show: true, disabled: true, label: t("skill.processing"), blocked: null };
   }
   if (!skill.requires_met) {
     return { show: true, disabled: true, label, blocked: "prereq" };

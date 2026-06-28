@@ -1,5 +1,7 @@
 import { useState, type CSSProperties } from "react";
 
+import { useLang } from "./i18n/lang";
+import type { StringKey } from "./i18n/strings.ko";
 import type { RuntimeSnapshot } from "./types";
 import type { DevConsoleData } from "./viewModels";
 
@@ -28,20 +30,21 @@ const devStackStyle: CSSProperties = {
   width: "100%",
 };
 
-// 로컬 인프라 콘솔 링크 (Streamlit Developer 사이드바 패리티).
-const INFRA_LINKS: { label: string; port: number; desc: string }[] = [
-  { label: "Adminer", port: 8080, desc: "PostgreSQL DB 뷰어" },
-  { label: "MinIO", port: 9001, desc: "오브젝트 스토리지 콘솔 (이미지 자산)" },
-  { label: "Redis", port: 8081, desc: "Redis Commander (visual job 큐)" },
-  { label: "Jaeger", port: 16686, desc: "분산 트레이스 (OTel)" },
+// Local infrastructure console links (Streamlit Developer sidebar parity).
+const INFRA_LINKS: { label: string; port: number; descKey: StringKey }[] = [
+  { label: "Adminer", port: 8080, descKey: "dev.infra.adminer" },
+  { label: "MinIO", port: 9001, descKey: "dev.infra.minio" },
+  { label: "Redis", port: 8081, descKey: "dev.infra.redis" },
+  { label: "Jaeger", port: 16686, descKey: "dev.infra.jaeger" },
 ];
 
 function InfraLinks() {
+  const { t } = useLang();
   const host = window.location.hostname || "localhost";
   return (
     <div className="panel" style={{ ...devPanelStyle, marginTop: 0 }}>
       <div className="cc-label" style={{ marginBottom: "12px", borderBottom: "1px solid var(--line-soft)", paddingBottom: "6px" }}>
-        로컬 인프라 콘솔 (Local Infrastructure)
+        {t("dev.infra.title")}
       </div>
       <div
         className="infra-links"
@@ -58,18 +61,19 @@ function InfraLinks() {
           >
             <span className="infra-link-name">{l.label} ▸</span>
             <span className="infra-link-url">{`${host}:${l.port}`}</span>
-            <span className="infra-link-desc">{l.desc}</span>
+            <span className="infra-link-desc">{t(l.descKey)}</span>
           </a>
         ))}
       </div>
       <div className="infra-hint" style={{ marginTop: "12px", fontSize: "11px", color: "var(--ink-dim)" }}>
-        링크가 열리지 않으면 `make infra-up`으로 도커 인프라를 먼저 기동하세요.
+        {t("dev.infra.hint")}
       </div>
     </div>
   );
 }
 
 export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
+  const { t } = useLang();
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}>
       <div
@@ -96,7 +100,7 @@ export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
           {/* Card 2: 인과율 메트릭 */}
           <div className="panel" style={{ ...devPanelStyle, marginTop: 0 }}>
             <div className="cc-label" style={{ marginBottom: "12px", borderBottom: "1px solid var(--line-soft)", paddingBottom: "6px" }}>
-              인과율 메트릭 (Causality Metrics)
+              {t("dev.causalityMetrics")}
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
               {Object.entries(data.scores).map(([key, value], idx) => {
@@ -144,7 +148,7 @@ export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
           {/* Card 4: 분기 및 엔딩 도달 가능성 */}
           <div className="panel" style={{ ...devPanelStyle, marginTop: 0 }}>
             <div className="cc-label" style={{ marginBottom: "12px", borderBottom: "1px solid var(--line-soft)", paddingBottom: "6px" }}>
-              분기 및 엔딩 도달 가능성 (Causality & Endings)
+              {t("dev.causalityEndings")}
             </div>
             
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
@@ -185,7 +189,7 @@ export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
                     ))
                   ) : (
                     <span style={{ color: "var(--ink-dim)", fontSize: "11px" }}>
-                      활성 플래그가 없습니다.
+                      {t("dev.noFlags")}
                     </span>
                   )}
                 </div>
@@ -245,7 +249,7 @@ export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
                     })
                   ) : (
                     <div style={{ color: "var(--ink-dim)", fontSize: "11px" }}>
-                      조회 가능한 엔딩 리스트가 없습니다.
+                      {t("dev.noEndings")}
                     </div>
                   )}
                 </div>
@@ -262,12 +266,13 @@ export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
 }
 
 function NarrativeMetricsPanel({ data }: { data: DevConsoleData }) {
+  const { t } = useLang();
   const metrics = data.narrativeMetrics;
 
   return (
     <div className="panel" style={{ ...devPanelStyle, marginTop: 0 }}>
       <div className="cc-label" style={{ marginBottom: "12px", borderBottom: "1px solid var(--line-soft)", paddingBottom: "6px" }}>
-        AI GM 상태 (AI GM Outcome Ratio)
+        {t("dev.aiGmTitle")}
       </div>
       {metrics ? (
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
@@ -344,7 +349,7 @@ function NarrativeMetricsPanel({ data }: { data: DevConsoleData }) {
         </div>
       ) : (
         <div style={{ color: "var(--ink-dim)", fontSize: "12px" }}>
-          아직 기록된 AI GM outcome 지표가 없습니다.
+          {t("dev.noMetrics")}
         </div>
       )}
     </div>
@@ -354,16 +359,17 @@ function NarrativeMetricsPanel({ data }: { data: DevConsoleData }) {
 type SnapshotTab = "overview" | "player" | "combat" | "raw";
 
 function SnapshotPanel({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
+  const { t } = useLang();
   const [activeTab, setActiveTab] = useState<SnapshotTab>("overview");
 
   if (!snapshot) {
     return (
       <div className="panel" style={{ ...devPanelStyle, gridColumn: "1 / -1", marginTop: 0 }}>
         <div className="cc-label" style={{ marginBottom: "8px", borderBottom: "1px solid var(--line-soft)", paddingBottom: "6px" }}>
-          원시 게임상태 스냅샷 (Raw GameState)
+          {t("dev.rawGameState")}
         </div>
         <div style={{ color: "var(--ink-dim)", fontSize: "12px", padding: "16px", textAlign: "center" }}>
-          활성화된 게임 세션이 없습니다.
+          {t("dev.noSession")}
         </div>
       </div>
     );
@@ -397,7 +403,7 @@ function SnapshotPanel({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
         }}
       >
         <div className="cc-label" style={{ margin: 0 }}>
-          원시 게임상태 스냅샷 (Raw GameState)
+          {t("dev.rawGameState")}
         </div>
         
         {/* Tabs */}
@@ -484,9 +490,10 @@ function SnapshotOverviewTab({ snapshot }: { snapshot: RuntimeSnapshot }) {
 }
 
 function SnapshotPlayerTab({ snapshot }: { snapshot: RuntimeSnapshot }) {
+  const { t } = useLang();
   const player = snapshot.player;
   if (!player) {
-    return <div style={{ color: "var(--ink-dim)", fontSize: "12px" }}>플레이어 정보가 존재하지 않습니다.</div>;
+    return <div style={{ color: "var(--ink-dim)", fontSize: "12px" }}>{t("dev.noPlayer")}</div>;
   }
 
   const traitsObj = player.traits || {};
@@ -530,7 +537,7 @@ function SnapshotPlayerTab({ snapshot }: { snapshot: RuntimeSnapshot }) {
                 </span>
               ))
             ) : (
-              <span style={{ color: "var(--ink-dim)" }}>속성/특성이 없습니다.</span>
+              <span style={{ color: "var(--ink-dim)" }}>{t("dev.noAttrs")}</span>
             )}
           </div>
         </div>
@@ -544,7 +551,7 @@ function SnapshotPlayerTab({ snapshot }: { snapshot: RuntimeSnapshot }) {
                 </span>
               ))
             ) : (
-              <span style={{ color: "var(--ink-dim)" }}>인벤토리가 비어 있습니다.</span>
+              <span style={{ color: "var(--ink-dim)" }}>{t("dev.emptyInventory")}</span>
             )}
           </div>
         </div>
@@ -554,9 +561,10 @@ function SnapshotPlayerTab({ snapshot }: { snapshot: RuntimeSnapshot }) {
 }
 
 function SnapshotCombatTab({ snapshot }: { snapshot: RuntimeSnapshot }) {
+  const { t } = useLang();
   const combat = snapshot.combat;
   if (!combat) {
-    return <div style={{ color: "var(--ink-dim)", fontSize: "12px" }}>현재 전투 상태가 아닙니다.</div>;
+    return <div style={{ color: "var(--ink-dim)", fontSize: "12px" }}>{t("dev.notInCombat")}</div>;
   }
 
   const radar = combat.radar;
@@ -614,7 +622,7 @@ function SnapshotCombatTab({ snapshot }: { snapshot: RuntimeSnapshot }) {
                 );
               })
             ) : (
-              <div style={{ color: "var(--ink-dim)" }}>등록된 유닛이 없습니다.</div>
+              <div style={{ color: "var(--ink-dim)" }}>{t("dev.noUnits")}</div>
             )}
           </div>
         </div>

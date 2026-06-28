@@ -229,6 +229,43 @@ class ApiScenariosTest(unittest.TestCase):
         self.assertTrue(neo["archetypes"][0]["name"])
         self.assertIn("endings", neo)
 
+    def test_scenarios_lang_en_localizes_prose(self) -> None:
+        import re
+
+        hangul = re.compile(r"[가-힣]")
+        client = _client(_InMemoryStore())
+        ko = client.get("/api/v1/scenarios").json()["scenarios"]
+        en = client.get("/api/v1/scenarios?lang=en").json()["scenarios"]
+        ko_neo = next(s for s in ko if s["id"] == "neo-seoul")
+        en_neo = next(s for s in en if s["id"] == "neo-seoul")
+        # EN: brief + session_intro prose + ending titles localized via the overlay.
+        self.assertIn("WORLD: Neo-Seoul", en_neo["brief"])
+        self.assertNotRegex(en_neo["brief"], hangul)
+        en_intro = en_neo["ui_copy"]["session_intro"]
+        self.assertNotRegex(str(en_intro["title"]), hangul)
+        self.assertNotRegex(str(en_intro["cinematic_shots"][0]["body"]), hangul)
+        en_titles = " ".join(str(e["title"]) for e in en_neo["endings"])
+        self.assertIn("Safe Refuge", en_titles)
+        self.assertNotRegex(en_titles, hangul)
+        # EN: scenario name + archetype name/attributes/starting_item localized.
+        self.assertNotRegex(en_neo["name"], hangul)
+        en_ghost = next(a for a in en_neo["archetypes"] if a["id"] == "ghost")
+        self.assertEqual(en_ghost["name"], "Ghost")
+        self.assertNotRegex(" ".join(en_ghost["attributes"]), hangul)
+        self.assertNotRegex(str(en_ghost["starting_item"]), hangul)
+        # Archetype ids stay identical across languages (combat join keys unchanged).
+        self.assertEqual(
+            [a["id"] for a in en_neo["archetypes"]],
+            [a["id"] for a in ko_neo["archetypes"]],
+        )
+        # KO (default) unchanged — same structure, Korean prose preserved.
+        self.assertRegex(ko_neo["brief"], hangul)
+        self.assertRegex(str(ko_neo["ui_copy"]["session_intro"]["title"]), hangul)
+        # Ending ids stay identical across languages (structure parity).
+        self.assertEqual(
+            [e["id"] for e in en_neo["endings"]], [e["id"] for e in ko_neo["endings"]]
+        )
+
 
 class ApiNarrativeFlowTest(unittest.TestCase):
     def setUp(self) -> None:

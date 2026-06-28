@@ -15,6 +15,7 @@ from __future__ import annotations
 import asyncio
 from collections.abc import AsyncIterator, Iterator
 from contextlib import asynccontextmanager
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -41,7 +42,7 @@ from mythos_runtime.progression import (
     latest_meta_progression,
     scenario_unlock_met,
 )
-from mythos_runtime.scenario import load_scenario
+from mythos_runtime.scenario import load_scenario, load_scenario_i18n
 from mythos_runtime.session import RuntimeSessionService
 from mythos_runtime.visual_service import MinIOStorageAdapter, VisualGenerationResult
 
@@ -310,6 +311,60 @@ async def _lifespan(app: FastAPI) -> AsyncIterator[None]:
     PostgresMythOSStore.close_pool()
 
 
+@dataclass(frozen=True)
+class _ScenarioProseL10n:
+    """Localized player-facing scenario prose for the ``/scenarios`` payload."""
+
+    name: str
+    brief: str
+    ui_copy: dict[str, Any]
+    endings_overlay: list[dict[str, Any]] | None
+    archetypes_overlay: dict[str, Any]
+
+
+def _localized_scenario_prose(s: Any, lang: str) -> _ScenarioProseL10n:
+    """Apply the additive i18n overlay to the player-facing scenario prose the
+    ``/scenarios`` endpoint serves (name, brief, ui_copy.session_intro, ending titles,
+    archetype name/attributes/starting_item).
+
+    Behavior-preserving: when no overlay exists for ``lang`` (e.g. ``ko``), the
+    scenario's own (Korean) prose is returned unchanged. The caller maps the endings
+    overlay onto each ending's ``title`` by index and the archetype overlay by id.
+    """
+    i18n = load_scenario_i18n(s.scenario_id, lang)
+    if not i18n:
+        return _ScenarioProseL10n(s.name, s.brief, s.ui_copy, None, {})
+    name = str(i18n.get("name") or s.name)
+    brief = str(i18n.get("brief") or s.brief)
+    ui_copy = dict(s.ui_copy) if isinstance(s.ui_copy, dict) else {}
+    # Top-level ui_copy prose overlay (e.g. signal_body boot splash); session_intro is
+    # merged separately below so its nested fields are field-merged, not replaced whole.
+    ui_overlay = i18n.get("ui_copy")
+    if isinstance(ui_overlay, dict):
+        for key, value in ui_overlay.items():
+            ui_copy[key] = value
+    intro_overlay = i18n.get("session_intro")
+    base_intro = ui_copy.get("session_intro")
+    if isinstance(intro_overlay, dict) and isinstance(base_intro, dict):
+        merged_intro = dict(base_intro)
+        for key in ("title", "body", "objective", "continue_button"):
+            if intro_overlay.get(key):
+                merged_intro[key] = intro_overlay[key]
+        for list_key in ("cinematic_shots", "rules"):
+            if isinstance(intro_overlay.get(list_key), list):
+                merged_intro[list_key] = intro_overlay[list_key]
+        ui_copy["session_intro"] = merged_intro
+    endings_overlay = i18n.get("endings")
+    archetypes_overlay = i18n.get("archetypes")
+    return _ScenarioProseL10n(
+        name=name,
+        brief=brief,
+        ui_copy=ui_copy,
+        endings_overlay=endings_overlay if isinstance(endings_overlay, list) else None,
+        archetypes_overlay=archetypes_overlay if isinstance(archetypes_overlay, dict) else {},
+    )
+
+
 def create_app() -> FastAPI:
     app = FastAPI(title="Project MythOS API", version="0.1.0", lifespan=_lifespan)
 
@@ -320,9 +375,11 @@ def create_app() -> FastAPI:
     @app.get(f"{API_PREFIX}/scenarios")
     def scenarios(
         player_id: str | None = None,
+        lang: str = "ko",
         service: RuntimeSessionService = Depends(get_service),
     ) -> dict[str, Any]:
-        # Onboarding data: scenario list + selectable archetypes.
+        # Onboarding data: scenario list + selectable archetypes. ``lang`` selects the
+        # additive i18n overlay for player-facing prose (default ko = unchanged).
         items: list[dict[str, Any]] = []
         memories = service.store.list_player_memories(player_id) if player_id else []
         for sid in _SCENARIO_IDS:
@@ -330,6 +387,9 @@ def create_app() -> FastAPI:
                 s = load_scenario(sid)
             except Exception:
                 continue
+            prose = _localized_scenario_prose(s, lang)
+            endings_overlay = prose.endings_overlay
+            arche_l10n = prose.archetypes_overlay
             unlocked_archetypes = {DEFAULT_ARCHETYPE}
             if player_id:
                 progress = latest_meta_progression(memories, player_id, sid)
@@ -338,17 +398,22 @@ def create_app() -> FastAPI:
             items.append(
                 {
                     "id": sid,
-                    "name": s.name,
-                    "brief": s.brief,
-                    "ui_copy": s.ui_copy,
+                    "name": prose.name,
+                    "brief": prose.brief,
+                    "ui_copy": prose.ui_copy,
                     "unlocked": scenario_unlocked,
                     "unlock_hint": "" if scenario_unlocked else s.unlock_hint,
                     "archetypes": [
                         {
                             "id": a.get("id"),
-                            "name": a.get("name"),
-                            "attributes": a.get("attributes", []),
-                            "starting_item": a.get("starting_item"),
+                            "name": (arche_l10n.get(str(a.get("id"))) or {}).get("name")
+                            or a.get("name"),
+                            "attributes": (arche_l10n.get(str(a.get("id"))) or {}).get("attributes")
+                            or a.get("attributes", []),
+                            "starting_item": (arche_l10n.get(str(a.get("id"))) or {}).get(
+                                "starting_item"
+                            )
+                            or a.get("starting_item"),
                             "stats": a.get("stats", {}),
                             "base_skills": a.get("base_skills", []),
                             "unlock": a.get("unlock"),
@@ -379,10 +444,17 @@ def create_app() -> FastAPI:
                     "endings": [
                         {
                             "id": e.get("id"),
-                            "title": e.get("title"),
+                            "title": (
+                                endings_overlay[i].get("name")
+                                if endings_overlay
+                                and i < len(endings_overlay)
+                                and isinstance(endings_overlay[i], dict)
+                                and endings_overlay[i].get("name")
+                                else e.get("title")
+                            ),
                             "condition": e.get("condition"),
                         }
-                        for e in s.endings
+                        for i, e in enumerate(s.endings)
                     ]
                     if s.endings
                     else [],

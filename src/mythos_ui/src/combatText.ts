@@ -1,15 +1,18 @@
+import type { StringKey } from "./i18n/strings.ko";
 import type { CombatIntent } from "./types";
 
-export function enemyIntentLabel(intent: CombatIntent | undefined): string {
+type TFn = (key: StringKey) => string;
+
+export function enemyIntentLabel(intent: CombatIntent | undefined, t: TFn): string {
   if (!intent) return "";
   if (intent.action === "attack") {
-    return ` (⚔️ ${intent.target_name || "공격"})`;
+    return ` (⚔️ ${intent.target_name || t("ci.intent.attack")})`;
   }
   if (intent.action === "move") {
-    return " (👣 이동)";
+    return ` (👣 ${t("ci.intent.move")})`;
   }
   if (intent.action === "flee") {
-    return " (🏃 도주)";
+    return ` (🏃 ${t("ci.intent.flee")})`;
   }
   return "";
 }

@@ -1,6 +1,7 @@
 import React from "react";
 import type { CombatBlip } from "./types";
 import { useCombatCinema } from "./hooks/useCombatCinema";
+import { useLang } from "./i18n/lang";
 
 interface CombatCinemaProps {
   scenarioId: string;
@@ -29,6 +30,7 @@ export const CombatCinema: React.FC<CombatCinemaProps> = ({
   onImpact,
   onCue,
 }) => {
+  const { lang } = useLang();
   const {
     phase,
     imgError,
@@ -121,7 +123,7 @@ export const CombatCinema: React.FC<CombatCinemaProps> = ({
                 <img
                   className="skill-illustration"
                   src={skillImgSrc}
-                  alt={skillMeta.nameKo}
+                  alt={lang === "en" ? skillMeta.nameEn : skillMeta.nameKo}
                   onError={() => setImgError(true)}
                   draggable={false}
                 />
@@ -146,7 +148,7 @@ export const CombatCinema: React.FC<CombatCinemaProps> = ({
               <div className="tech-corner bottom-right" style={{ borderColor: skillMeta.color }}></div>
             </div>
             <span className="skill-title-tag" style={{ color: skillMeta.color, borderColor: `${skillMeta.color}60`, borderStyle: 'solid', borderWidth: '1px' }}>
-              {skillMeta.icon} {skillMeta.nameKo} / {skillMeta.nameEn}
+              {skillMeta.icon} {lang === "en" ? skillMeta.nameEn : skillMeta.nameKo}
             </span>
           </div>
         )}

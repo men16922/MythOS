@@ -6,7 +6,11 @@ import { ChoicePanel } from "./ChoicePanel";
 import { CombatControls } from "./CombatControls";
 import { CombatLog } from "./CombatLog";
 import { CombatRoster } from "./CombatRoster";
+import { useLang } from "./i18n/lang";
+import type { StringKey } from "./i18n/strings.ko";
 import type { CombatAction, CombatBlip, CombatState, RuntimeSnapshot, ScenarioCharacter } from "./types";
+
+type TFn = (key: StringKey) => string;
 
 type NarrativeHistoryItem = {
   sceneId: string;
@@ -76,17 +80,34 @@ const renderBoldText = (text: string): React.ReactNode[] => {
   });
 };
 
-const renderFormattedNarration = (rawText: string, turnIndex: number) => {
+// Stat-monologue markers appear in the SERVER narration as `(<stat>: ...)`, where
+// <stat> is Korean (ko narration) or English (en narration). Both map to one canonical
+// id for color/icon lookup so the inner-monologue styling works in either language.
+const STAT_CANON: Record<string, "strength" | "intelligence" | "charisma" | "agility" | "perception"> = {
+  "근력": "strength", "Strength": "strength",
+  "지능": "intelligence", "Intellect": "intelligence",
+  "매력": "charisma", "Charisma": "charisma",
+  "민첩": "agility", "Agility": "agility",
+  "관측": "perception", "Observation": "perception",
+};
+const STAT_NAMES = Object.keys(STAT_CANON).join("|");
+const STAT_STYLE: Record<string, { color: string; icon: string; emoji: string }> = {
+  strength: { color: "#FF5555", icon: "/assets/icons/stat_strength.png", emoji: "💪" },
+  intelligence: { color: "#8BE9FD", icon: "/assets/icons/stat_intelligence.png", emoji: "🧠" },
+  charisma: { color: "#FFB86C", icon: "/assets/icons/stat_charisma.png", emoji: "🗣️" },
+  agility: { color: "#50FA7B", icon: "/assets/icons/stat_agility.png", emoji: "🏃‍♂️" },
+  perception: { color: "#F1FA8C", icon: "/assets/icons/stat_perception.png", emoji: "👁️" },
+};
+
+const renderFormattedNarration = (rawText: string, turnIndex: number, t: TFn) => {
   if (!rawText) return null;
   const text = decodeGarbageBytes(rawText);
 
-  // 복합 정규식: (스탯: 수치) + 임의의 조사 + "대사"
-  // 예: (민첩: 8)의 목소리가 귓가를 때린다. "멍하니 서 있지 마!"
-  const complexRegex = /\((근력|지능|매력|민첩|관측):\s*(\d+)\)([^"]*?)("[^"]+")/g;
-  
-  // 단순 정규식: (스탯: 대사)
-  // 예: (민첩: 지금 여기서 망설이면 끝이다...)
-  const simpleRegex = /\((근력|지능|매력|민첩|관측):\s*([^)]+)\)/g;
+  // Complex: (stat: value) + arbitrary particle + "line"
+  const complexRegex = new RegExp(`\\((${STAT_NAMES}):\\s*(\\d+)\\)([^"]*?)("[^"]+")`, "g");
+
+  // Simple: (stat: line)
+  const simpleRegex = new RegExp(`\\((${STAT_NAMES}):\\s*([^)]+)\\)`, "g");
 
   const parts: React.ReactNode[] = [];
   const matches: {
@@ -140,36 +161,11 @@ const renderFormattedNarration = (rawText: string, turnIndex: number) => {
       parts.push(...renderBoldText(text.substring(lastIndex, m.index)));
     }
 
-    let color = "#888888";
-    let iconUrl = "";
-    
-    switch (m.statName) {
-      case "근력":
-        color = "#FF5555";
-        iconUrl = "/assets/icons/stat_strength.png";
-        break;
-      case "지능":
-        color = "#8BE9FD";
-        iconUrl = "/assets/icons/stat_intelligence.png";
-        break;
-      case "매력":
-        color = "#FFB86C";
-        iconUrl = "/assets/icons/stat_charisma.png";
-        break;
-      case "민첩":
-        color = "#50FA7B";
-        iconUrl = "/assets/icons/stat_agility.png";
-        break;
-      case "관측":
-        color = "#F1FA8C";
-        iconUrl = "/assets/icons/stat_perception.png";
-        break;
-    }
-
-    const fallbackEmoji = m.statName === "근력" ? "💪" :
-                          m.statName === "지능" ? "🧠" :
-                          m.statName === "매력" ? "🗣️" :
-                          m.statName === "민첩" ? "🏃‍♂️" : "👁️";
+    const canon = STAT_CANON[m.statName];
+    const style = canon ? STAT_STYLE[canon] : undefined;
+    const color = style?.color ?? "#888888";
+    const iconUrl = style?.icon ?? "";
+    const fallbackEmoji = style?.emoji ?? "👁️";
 
     parts.push(
       <span
@@ -194,7 +190,7 @@ const renderFormattedNarration = (rawText: string, turnIndex: number) => {
             }}
           >
             <span>💡</span>
-            <span><strong>스탯 속삭임:</strong> 플레이어의 높은 특성(현재: {m.statName})이 머릿속 내면의 독백으로 조언을 건넵니다.</span>
+            <span><strong>{t("story.statWhisper")}</strong> {t("story.statWhisperPre")}{m.statName}{t("story.statWhisperPost")}</span>
           </span>
         )}
         <span
@@ -251,27 +247,20 @@ const renderFormattedNarration = (rawText: string, turnIndex: number) => {
   return <>{parts}</>;
 };
 
-const combatOutcomeLabel = (outcome?: string): string => {
-  if (outcome === "player_victory") return "승리";
-  if (outcome === "player_fled") return "도주 성공";
-  if (outcome === "player_defeat") return "패배";
-  return outcome || "종료";
+const combatOutcomeLabel = (outcome: string | undefined, t: TFn): string => {
+  if (outcome === "player_victory") return t("story.combat.win");
+  if (outcome === "player_fled") return t("story.combat.fled");
+  if (outcome === "player_defeat") return t("story.combat.defeat");
+  return outcome || t("story.combat.over");
 };
 
-const combatOutcomeCopy = (outcome?: string, defeatSoft?: boolean): string => {
-  if (outcome === "player_victory") {
-    return "위협 신호가 침묵하고, 살아남은 접속자들의 윤곽이 잔광 속에 고정됩니다.";
-  }
-  if (outcome === "player_fled") {
-    return "교전망을 벗어났습니다. 다음 장면으로 이동하기 전 재정비가 필요합니다.";
-  }
+const combatOutcomeCopy = (outcome: string | undefined, defeatSoft: boolean | undefined, t: TFn): string => {
+  if (outcome === "player_victory") return t("story.combat.copy.victory");
+  if (outcome === "player_fled") return t("story.combat.copy.fled");
   if (outcome === "player_defeat") {
-    if (defeatSoft) {
-      return "신호가 완전히 끊기기 전, 세린의 우회 경로가 마지막 패킷을 붙잡습니다. 패배는 기록되지만 루프는 아직 끝나지 않았습니다.";
-    }
-    return "접속이 붕괴했습니다. 이 루프는 기록으로 남고, 다음 접속의 잔향이 됩니다.";
+    return defeatSoft ? t("story.combat.copy.defeatSoft") : t("story.combat.copy.defeat");
   }
-  return "교전이 종료되었습니다.";
+  return t("story.combat.copy.default");
 };
 
 const combatImageSrc = (scenarioId: string, blip: CombatBlip): string => {
@@ -291,6 +280,7 @@ function CombatResultPanel({
   onReturnToMain: () => void;
   onContinue: () => void;
 }) {
+  const { t } = useLang();
   const outcome = combat.outcome;
   const isVictory = outcome === "player_victory";
   const isDefeat = outcome === "player_defeat";
@@ -319,11 +309,11 @@ function CombatResultPanel({
   return (
     <div className={`combat-result-panel ${isVictory ? "victory" : ""} ${isDefeat ? "defeat" : ""}`}>
       <div className={`combat-outcome ${isDefeat ? "lose" : ""}`}>
-        교전 종료 — {combatOutcomeLabel(outcome)}
+        {t("story.combat.end")} — {combatOutcomeLabel(outcome, t)}
       </div>
 
       <div className="combat-result-visual">
-        <div className="combat-result-composite" aria-label="전투 결과 이미지">
+        <div className="combat-result-composite" aria-label={t("story.combat.resultImg")}>
           <div className="combat-result-grid" />
           <div className="combat-result-party">
             {party.length > 0 ? (
@@ -341,15 +331,15 @@ function CombatResultPanel({
         </div>
       </div>
 
-      <p className="combat-result-copy">{combatOutcomeCopy(outcome, isSoftDefeat)}</p>
+      <p className="combat-result-copy">{combatOutcomeCopy(outcome, isSoftDefeat, t)}</p>
       {(rewardEntries.length > 0 || items.length > 0) && (
         <div className="combat-reward-summary">
-          <div className="combat-reward-title">획득 / 변화</div>
+          <div className="combat-reward-title">{t("story.combat.gains")}</div>
           {rewardEntries.length > 0 && (
             <div className="combat-reward-row">
               {rewardEntries.map(([key, value]) => (
                 <span key={key} className="combat-reward-chip">
-                  {key === "insight" ? "통찰" : key === "tension" ? "추적도" : key === "stability" ? "안정도" : key} {Number(value) > 0 ? "+" : ""}{String(value)}
+                  {key === "insight" ? t("story.combat.insight") : key === "tension" ? t("story.combat.pursuit") : key === "stability" ? t("story.combat.stability") : key} {Number(value) > 0 ? "+" : ""}{String(value)}
                 </span>
               ))}
             </div>
@@ -358,7 +348,7 @@ function CombatResultPanel({
             <div className="combat-reward-row">
               {items.map((item, idx) => (
                 <span key={`${item}-${idx}`} className="combat-reward-chip item">
-                  전리품 {item}
+                  {t("story.combat.loot")} {item}
                 </span>
               ))}
             </div>
@@ -368,11 +358,11 @@ function CombatResultPanel({
       <div className="cc-row combat-result-actions">
         {!isDefeat || isSoftDefeat ? (
           <button className="cc-btn" onClick={onContinue} id="cc-continue">
-            계속 ▸
+            {t("story.combat.continue")}
           </button>
         ) : (
           <button className="cc-btn" onClick={onReturnToMain} id="cc-return-main">
-            메인 화면으로 ▸
+            {t("story.combat.toMain")}
           </button>
         )}
       </div>
@@ -381,18 +371,19 @@ function CombatResultPanel({
 }
 
 function TacticalLegend({ combat }: { combat: CombatState }) {
+  const { t } = useLang();
   const covers = Object.values(combat.covers || {});
   const hazards = Object.values(combat.hazards || {});
   const hasElevation = Object.values(combat.elevations || {}).some((v) => Number(v) > 0);
   const intents = combat.radar?.enemy_intents || [];
 
   const rows: { sym: string; text: string }[] = [];
-  rows.push({ sym: "⚔️/🏃/👣", text: "적 의도: 공격 예고 / 도주 / 이동" });
-  if (covers.includes("full")) rows.push({ sym: "▣", text: "엄호(강): 사선 차단 · 방어 보너스 큼" });
-  if (covers.includes("half")) rows.push({ sym: "◧", text: "엄호(약): 부분 방어 보너스" });
-  if (hazards.includes("acid")) rows.push({ sym: "☣", text: "산성 지대: 턴 종료 시 피해" });
-  if (hazards.includes("electro")) rows.push({ sym: "⚡", text: "전자 지대: 집중/방어 교란" });
-  if (hasElevation) rows.push({ sym: "▲n", text: "고지: 숫자만큼 높은 위치 · 명중/시야 유리" });
+  rows.push({ sym: "⚔️/🏃/👣", text: t("story.legend.intents") });
+  if (covers.includes("full")) rows.push({ sym: "▣", text: t("story.legend.coverFull") });
+  if (covers.includes("half")) rows.push({ sym: "◧", text: t("story.legend.coverHalf") });
+  if (hazards.includes("acid")) rows.push({ sym: "☣", text: t("story.legend.acid") });
+  if (hazards.includes("electro")) rows.push({ sym: "⚡", text: t("story.legend.electro") });
+  if (hasElevation) rows.push({ sym: "▲n", text: t("story.legend.elevation") });
   const [open, setOpen] = useState(false);
 
   if (intents.length === 0 && covers.length === 0 && hazards.length === 0 && !hasElevation) {
@@ -407,11 +398,11 @@ function TacticalLegend({ combat }: { combat: CombatState }) {
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
       >
-        {open ? "범례 닫기 ✕" : "보드 범례 ⓘ"}
+        {open ? t("story.legend.close") : t("story.legend.open")}
       </button>
       {open && (
-        <div className="tactical-legend tactical-legend-popup" role="dialog" aria-label="보드 범례">
-          <div className="tactical-legend-title">보드 범례</div>
+        <div className="tactical-legend tactical-legend-popup" role="dialog" aria-label={t("story.legend.title")}>
+          <div className="tactical-legend-title">{t("story.legend.title")}</div>
           {rows.map((r, i) => (
             <div key={i} className="tactical-legend-row">
               <span className="tactical-legend-sym">{r.sym}</span>
@@ -425,6 +416,7 @@ function TacticalLegend({ combat }: { combat: CombatState }) {
 }
 
 function LearningGoalBanner({ combat }: { combat: CombatState }) {
+  const { t } = useLang();
   const encounter = combat.encounter;
   const goal = encounter?.learning_goal;
   const trigger = encounter?.narrative_trigger;
@@ -436,16 +428,16 @@ function LearningGoalBanner({ combat }: { combat: CombatState }) {
       <span className="combat-learning-goal-icon">🎯</span>
       <div className="combat-learning-goal-body">
         <span className="combat-learning-goal-label">
-          교전 배경{encounter?.name ? ` · ${encounter.name}` : ""}
+          {t("story.learn.bg")}{encounter?.name ? ` · ${encounter.name}` : ""}
         </span>
-        {trigger && <span className="combat-learning-goal-text">⚑ 배경 · {trigger}</span>}
-        {goal && <span className="combat-learning-goal-text">🎯 학습 · {goal}</span>}
-        {reward && <span className="combat-learning-goal-text">🎁 승리 보상 · {reward}</span>}
+        {trigger && <span className="combat-learning-goal-text">⚑ {t("story.learn.trigger")} · {trigger}</span>}
+        {goal && <span className="combat-learning-goal-text">🎯 {t("story.learn.goal")} · {goal}</span>}
+        {reward && <span className="combat-learning-goal-text">🎁 {t("story.learn.reward")} · {reward}</span>}
       </div>
       <button
         className="combat-learning-goal-close"
         onClick={() => setDismissed(true)}
-        aria-label="학습 목표 닫기"
+        aria-label={t("story.learn.close")}
       >
         ✕
       </button>
@@ -460,10 +452,11 @@ function TileInspector({
   combat: CombatState;
   cell: [number, number] | null;
 }) {
+  const { t } = useLang();
   if (!cell) {
     return (
       <div className="tile-inspector empty">
-        <span className="tile-inspector-hint">보드 위 타일을 가리키면 상세가 표시됩니다.</span>
+        <span className="tile-inspector-hint">{t("story.tile.hint")}</span>
       </div>
     );
   }
@@ -483,10 +476,10 @@ function TileInspector({
   );
 
   const factionLabel = (faction?: string) =>
-    faction === "enemy" ? "적" : faction === "ally" ? "동맹" : "아군";
-  const coverLabel = cover === "full" ? "엄호(강)" : cover === "half" ? "엄호(약)" : null;
+    faction === "enemy" ? t("story.tile.enemy") : faction === "ally" ? t("story.tile.ally") : t("story.tile.friendly");
+  const coverLabel = cover === "full" ? t("story.tile.coverFull") : cover === "half" ? t("story.tile.coverHalf") : null;
   const hazardLabel =
-    hazard === "acid" ? "산성 지대" : hazard === "electro" ? "전자 지대" : hazard || null;
+    hazard === "acid" ? t("story.tile.acid") : hazard === "electro" ? t("story.tile.electro") : hazard || null;
 
   const rows: { label: string; value: string }[] = [];
   if (occupant) {
@@ -495,21 +488,21 @@ function TileInspector({
       value: `${occupant.name || occupant.id} · HP ${occupant.hp}/${occupant.max_hp}`,
     });
   }
-  if (coverLabel) rows.push({ label: "지형", value: coverLabel });
-  if (elevation > 0) rows.push({ label: "고지", value: `+${elevation}` });
-  if (hazardLabel) rows.push({ label: "위험", value: hazardLabel });
+  if (coverLabel) rows.push({ label: t("story.tile.terrain"), value: coverLabel });
+  if (elevation > 0) rows.push({ label: t("story.tile.high"), value: `+${elevation}` });
+  if (hazardLabel) rows.push({ label: t("story.tile.risk"), value: hazardLabel });
   if (intent) {
     rows.push({
-      label: "적 의도",
-      value: intent.action === "attack" ? "공격 예고" : intent.action === "flee" ? "도주" : "이동",
+      label: t("story.tile.intent"),
+      value: intent.action === "attack" ? t("story.tile.attack") : intent.action === "flee" ? t("story.tile.flee") : t("story.tile.move"),
     });
   }
-  if (reachable) rows.push({ label: "이동", value: "현재 유닛 이동 가능" });
-  if (rows.length === 0) rows.push({ label: "지형", value: "빈 타일" });
+  if (reachable) rows.push({ label: t("story.tile.move"), value: t("story.tile.moveable") });
+  if (rows.length === 0) rows.push({ label: t("story.tile.terrain"), value: t("story.tile.empty") });
 
   return (
     <div className="tile-inspector">
-      <div className="tile-inspector-coord">타일 ({x}, {y})</div>
+      <div className="tile-inspector-coord">{t("story.tile.coord")} ({x}, {y})</div>
       <div className="tile-inspector-rows">
         {rows.map((r, i) => (
           <div key={i} className="tile-inspector-row">
@@ -523,6 +516,7 @@ function TileInspector({
 }
 
 function ObjectiveStrip({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
+  const { t } = useLang();
   const scene = snapshot?.active_scene;
   if (!scene) return null;
   const stakes = scene.stakes_summary || [];
@@ -533,13 +527,13 @@ function ObjectiveStrip({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
     <div className="objective-strip">
       {scene.chapter_goal && (
         <div className="objective-main objective-chapter">
-          <span className="objective-kicker">이번 막</span>
+          <span className="objective-kicker">{t("story.obj.chapter")}</span>
           <span className="objective-text">{scene.chapter_goal}</span>
         </div>
       )}
       {scene.objective && (
         <div className="objective-main">
-          <span className="objective-kicker">현재 목표</span>
+          <span className="objective-kicker">{t("story.obj.current")}</span>
           <span className="objective-text">{scene.objective}</span>
         </div>
       )}
@@ -554,7 +548,7 @@ function ObjectiveStrip({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
       )}
       {result && (
         <div className="objective-result">
-          <span className="objective-kicker">직전 결과</span>
+          <span className="objective-kicker">{t("story.obj.lastResult")}</span>
           <span>{result}</span>
         </div>
       )}
@@ -593,6 +587,7 @@ export function StoryPanel({
   boardZoom = 1,
   onBoardZoom,
 }: StoryPanelProps) {
+  const { t } = useLang();
   const scrollBottomRef = useRef<HTMLDivElement | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set());
@@ -665,8 +660,8 @@ export function StoryPanel({
                     <button
                       type="button"
                       className="board-zoom-btn"
-                      title="축소"
-                      aria-label="전술 보드 축소"
+                      title={t("story.board.zoomOut")}
+                      aria-label={t("story.board.zoomOutAria")}
                       disabled={boardZoom <= 1}
                       onClick={() => onBoardZoom(boardZoom - 0.25)}
                     >
@@ -676,8 +671,8 @@ export function StoryPanel({
                     <button
                       type="button"
                       className="board-zoom-btn"
-                      title="확대"
-                      aria-label="전술 보드 확대"
+                      title={t("story.board.zoomIn")}
+                      aria-label={t("story.board.zoomInAria")}
                       disabled={boardZoom >= 2.5}
                       onClick={() => onBoardZoom(boardZoom + 0.25)}
                     >
@@ -747,7 +742,7 @@ export function StoryPanel({
         {/* 좌측: 장면 이미지 */}
         <div className="panel scene-image-panel">
           <div className="panel-title">
-            {anchorImageOk && currentNode?.title ? `장면 · ${currentNode.title}` : "장면 이미지"}
+            {anchorImageOk && currentNode?.title ? `${t("story.scene")} · ${currentNode.title}` : t("story.sceneImage")}
           </div>
           <div className="story-visuals" style={{ marginTop: "12px" }}>
             <div className={`image-frame ${glitchActive ? "glitch-active" : ""}`}>
@@ -782,7 +777,7 @@ export function StoryPanel({
                   className="history-open-btn"
                   onClick={() => setShowHistory(true)}
                 >
-                  📜 서사 기록 전체 보기 ({narrativeHistory.length})
+                  {t("story.history.viewAll")} ({narrativeHistory.length})
                 </button>
               )}
 
@@ -796,10 +791,10 @@ export function StoryPanel({
                     {h.text}
                   </div>
                   {h.action && (
-                    <div className="history-scene-action">▸ 내 행동: {h.action}</div>
+                    <div className="history-scene-action">{t("story.history.myAction")} {h.action}</div>
                   )}
                   {h.result && (
-                    <div className="history-scene-result">↳ 결과: {h.result}</div>
+                    <div className="history-scene-result">{t("story.history.result")} {h.result}</div>
                   )}
                 </div>
               ))}
@@ -812,7 +807,7 @@ export function StoryPanel({
                 </h2>
                 <ObjectiveStrip snapshot={snapshot} />
                 <div id="narration">
-                  {renderFormattedNarration(displayedNarration, snapshot?.active_scene?.turn_index ?? 0)}
+                  {renderFormattedNarration(displayedNarration, snapshot?.active_scene?.turn_index ?? 0, t)}
                   {isStreaming && <span className="caret">▌</span>}
                 </div>
               </div>
@@ -860,8 +855,8 @@ export function StoryPanel({
         const recentHistory = narrativeHistory.slice(-20);
         const offset = Math.max(0, narrativeHistory.length - 20);
         const headerText = narrativeHistory.length > 20
-          ? `서사 기록 · 최근 20개 장면 (총 ${narrativeHistory.length}장면 중)`
-          : `서사 기록 · ${narrativeHistory.length}장면`;
+          ? `${t("story.history.title")} · ${t("story.history.recent20")} (${narrativeHistory.length} ${t("story.history.scenesTotal")})`
+          : `${t("story.history.title")} · ${narrativeHistory.length} ${t("story.history.scenes")}`;
 
         return (
           <div className="history-overlay" onClick={() => setShowHistory(false)}>
@@ -869,12 +864,12 @@ export function StoryPanel({
               <div className="history-modal-head">
                 <span>{headerText}</span>
                 <button className="history-close-btn" onClick={() => setShowHistory(false)}>
-                  닫기 ✕
+                  {t("story.history.close")}
                 </button>
               </div>
               <div className="history-modal-body">
                 {narrativeHistory.length === 0 && (
-                  <div className="char-empty">아직 기록된 장면이 없습니다.</div>
+                  <div className="char-empty">{t("story.history.empty")}</div>
                 )}
                 {recentHistory.map((h, index) => {
                   const idx = offset + index;
@@ -885,10 +880,10 @@ export function StoryPanel({
                       </h3>
                       <div className="history-scene-text">{h.text}</div>
                       {h.action && (
-                        <div className="history-scene-action">▸ 내 행동: {h.action}</div>
+                        <div className="history-scene-action">{t("story.history.myAction")} {h.action}</div>
                       )}
                       {h.result && (
-                        <div className="history-scene-result">↳ 결과: {h.result}</div>
+                        <div className="history-scene-result">{t("story.history.result")} {h.result}</div>
                       )}
                     </div>
                   );
@@ -909,38 +904,32 @@ function EndedPanel({
   snapshot: RuntimeSnapshot;
   onLeaveSession: () => void;
 }) {
+  const { t } = useLang();
   const endingLabel = snapshot.state?.ending_label || snapshot.state?.ending_id;
   const reason = (() => {
     // Prefer the backend's narrative cause (authored ending narration, or a
     // story-framed reason for a threshold archive) so the end screen reads as a
-    // beat, not a bare mechanical number.
+    // beat, not a bare mechanical number. The authored narration is server data
+    // (already in the active language); the fallbacks below are UI chrome.
     const narration = snapshot.state?.ending_narration;
     if (narration) return narration;
-    if (snapshot.state?._soft_defeat_recovered) {
-      return "전투 패배 후 회복 루트가 열렸지만, 이후 선택의 누적 결과로 이번 루프가 기록 보관소로 넘어갔습니다.";
-    }
-    if (snapshot.tension >= 90) {
-      return "관리망의 추적이 임계에 다다라, 집행부대가 끝내 당신의 신호를 따라잡았습니다.";
-    }
-    if (snapshot.stability <= 10) {
-      return "신호가 더는 형상을 유지하지 못하고 접속이 풀렸습니다.";
-    }
-    if (endingLabel) {
-      return "이번 루프의 선택과 상태가 엔딩 조건을 만족했습니다.";
-    }
-    return "이번 루프가 종료 조건에 도달했습니다.";
+    if (snapshot.state?._soft_defeat_recovered) return t("story.end.reason.soft");
+    if (snapshot.tension >= 90) return t("story.end.reason.tension");
+    if (snapshot.stability <= 10) return t("story.end.reason.stability");
+    if (endingLabel) return t("story.end.reason.ending");
+    return t("story.end.reason.default");
   })();
 
   return (
     <div>
       <div className="ended-banner">
-        <div className="et">여정 종료</div>
-        {endingLabel ? <div className="el">엔딩 · {endingLabel}</div> : null}
+        <div className="et">{t("story.end.title")}</div>
+        {endingLabel ? <div className="el">{t("story.end.ending")} · {endingLabel}</div> : null}
         <div className="el">{reason}</div>
       </div>
       <div style={{ marginTop: "12px" }}>
         <button className="cc-btn" onClick={onLeaveSession}>
-          새 접속 ▸
+          {t("story.end.newConnect")}
         </button>
       </div>
     </div>

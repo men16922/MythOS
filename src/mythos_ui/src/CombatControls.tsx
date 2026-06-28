@@ -1,5 +1,9 @@
 import { enemyIntentLabel } from "./combatText";
+import { useLang } from "./i18n/lang";
+import type { StringKey } from "./i18n/strings.ko";
 import type { CombatAction, CombatSkillInfo, CombatState } from "./types";
+
+type TFn = (key: StringKey) => string;
 
 interface CombatControlsProps {
   combat: CombatState;
@@ -11,24 +15,27 @@ interface CombatControlsProps {
   onContinue: () => void;
 }
 
-function outcomeLabel(outcome: string): string {
-  if (outcome === "player_victory") return "승리";
-  if (outcome === "player_fled") return "도주 성공";
-  if (outcome === "player_defeat") return "패배";
+function outcomeLabel(outcome: string, t: TFn): string {
+  if (outcome === "player_victory") return t("story.combat.win");
+  if (outcome === "player_fled") return t("story.combat.fled");
+  if (outcome === "player_defeat") return t("story.combat.defeat");
   return outcome;
 }
 
 // Human-readable item labels for skill costs (e.g. patch_protocol -> nanopatch).
-const ITEM_LABELS: Record<string, string> = {
-  nanopatch: "나노패치",
+const ITEM_LABEL_KEYS: Record<string, StringKey> = {
+  nanopatch: "cc.item.nanopatch",
 };
 
 /** Render a skill's cost dict as compact badges, e.g. {focus:2} -> "◆2". */
-function formatCost(cost?: Record<string, number | string>): string {
+function formatCost(cost: Record<string, number | string> | undefined, t: TFn): string {
   if (!cost) return "";
   const parts: string[] = [];
   if (cost.focus != null) parts.push(`◆${cost.focus}`);
-  if (cost.item != null) parts.push(`▣${ITEM_LABELS[String(cost.item)] ?? cost.item}`);
+  if (cost.item != null) {
+    const key = ITEM_LABEL_KEYS[String(cost.item)];
+    parts.push(`▣${key ? t(key) : cost.item}`);
+  }
   for (const [key, value] of Object.entries(cost)) {
     if (key === "focus" || key === "item") continue;
     parts.push(`${key} ${value}`);
@@ -36,12 +43,12 @@ function formatCost(cost?: Record<string, number | string>): string {
   return parts.join(" ");
 }
 
-const ROLE_LABELS: Record<string, string> = {
-  damage: "공격",
-  mobility: "기동",
-  defense: "방어",
-  healing: "회복",
-  support: "지원",
+const ROLE_LABEL_KEYS: Record<string, StringKey> = {
+  damage: "cc.role.damage",
+  mobility: "cc.role.mobility",
+  defense: "cc.role.defense",
+  healing: "cc.role.healing",
+  support: "cc.role.support",
 };
 
 const SKILL_SYMBOLS: Record<string, string> = {
@@ -60,21 +67,22 @@ export function CombatControls({
   onReturnToMain,
   onContinue,
 }: CombatControlsProps) {
+  const { t } = useLang();
   if (combat.finished && combat.outcome) {
     const canContinue = combat.outcome !== "player_defeat" || combat.defeat_soft;
     return (
       <div id="combat-controls" className="active">
         <div className={`combat-outcome ${combat.outcome === "player_defeat" ? "lose" : ""}`}>
-          교전 종료 — {outcomeLabel(combat.outcome)}
+          {t("story.combat.end")} — {outcomeLabel(combat.outcome, t)}
         </div>
         <div className="cc-row" style={{ marginTop: "10px" }}>
           {canContinue ? (
             <button className="cc-btn" onClick={onContinue} id="cc-continue">
-              계속 ▸
+              {t("story.combat.continue")}
             </button>
           ) : (
             <button className="cc-btn" onClick={onReturnToMain} id="cc-return-main">
-              메인 화면으로 ▸
+              {t("story.combat.toMain")}
             </button>
           )}
         </div>
@@ -101,16 +109,17 @@ export function CombatControls({
     const focusCost = typeof skill.cost?.focus === "number" ? skill.cost.focus : 0;
     const lowFocus = focus != null && focusCost > focus;
     const disabled = onCooldown || lowFocus;
-    const costStr = formatCost(skill.cost);
-    const roleLabel = skill.role ? ROLE_LABELS[skill.role] ?? skill.role : "";
+    const costStr = formatCost(skill.cost, t);
+    const roleKey = skill.role ? ROLE_LABEL_KEYS[skill.role] : undefined;
+    const roleLabel = roleKey ? t(roleKey) : skill.role ?? "";
     const iconSymbol = SKILL_SYMBOLS[skill.id] || roleLabel.slice(0, 1) || "✦";
 
     const tooltipParts = [name];
     if (roleLabel) tooltipParts.push(roleLabel);
-    if (skill.range != null) tooltipParts.push(`사거리 ${skill.range}`);
-    if (costStr) tooltipParts.push(`코스트 ${costStr}`);
-    if (onCooldown) tooltipParts.push(`재사용 ${skill.cooldown}T`);
-    else if (lowFocus) tooltipParts.push("FOCUS 부족");
+    if (skill.range != null) tooltipParts.push(`${t("cc.range")} ${skill.range}`);
+    if (costStr) tooltipParts.push(`${t("cc.cost")} ${costStr}`);
+    if (onCooldown) tooltipParts.push(`${t("cc.cooldown")} ${skill.cooldown}T`);
+    else if (lowFocus) tooltipParts.push(t("cc.lowFocus"));
     const tags = (skill.tags || []).join(" · ");
     const tooltip = tooltipParts.join(" · ") + (tags ? `\n${tags}` : "");
 
@@ -147,10 +156,10 @@ export function CombatControls({
     <div id="combat-controls" className="active">
       <div className="combat-bar">
         <span className="turn">
-          교전 · R{combat.radar?.round || 1}
+          {t("cc.round")}{combat.radar?.round || 1}
           {available?.can_act && activeName && (
             <span className={`active-actor ${isPlayerTurn ? "" : "ally"}`}>
-              {" "}· {isPlayerTurn ? activeName : `${activeName} (동료)`} 차례
+              {" "}· {isPlayerTurn ? activeName : `${activeName} (${t("cc.ally")})`}{t("cc.turnOf")}
             </span>
           )}
         </span>
@@ -160,12 +169,12 @@ export function CombatControls({
       </div>
 
       {!available?.can_act ? (
-        <div className="cc-hint">상대 턴 진행 중…</div>
+        <div className="cc-hint">{t("cc.oppTurn")}</div>
       ) : (
         <>
           {available.targets && available.targets.length > 0 && (
             <div className="cc-section">
-              <div className="cc-label">표적</div>
+              <div className="cc-label">{t("cc.targets")}</div>
               <div className="cc-row">
                 {available.targets.map((target) => {
                   const intent = (combat.radar?.enemy_intents || []).find(
@@ -178,8 +187,8 @@ export function CombatControls({
                       onClick={() => onSelectTarget(target.id)}
                     >
                       {target.name}
-                      {enemyIntentLabel(intent)} · HP {target.hp}/{target.max_hp}
-                      {!target.in_range && " · 사거리밖"}
+                      {enemyIntentLabel(intent, t)} · HP {target.hp}/{target.max_hp}
+                      {!target.in_range && ` · ${t("cc.outOfRange")}`}
                     </button>
                   );
                 })}
@@ -188,25 +197,25 @@ export function CombatControls({
           )}
 
           <div className="cc-section">
-            <div className="cc-label">행동</div>
+            <div className="cc-label">{t("cc.actions")}</div>
             <div className="cc-row">
               <button
                 className="cc-btn"
                 disabled={!defaultTargetId}
-                title={defaultTargetId ? "선택된 표적을 공격합니다." : "공격할 표적이 없습니다."}
+                title={defaultTargetId ? t("cc.attackOk") : t("cc.attackNone")}
                 onClick={() => onAction({ type: "attack", target_id: defaultTargetId || undefined })}
               >
-                ⚔ 공격
+                {t("cc.attack")}
               </button>
               <button className="cc-btn" onClick={() => onAction({ type: "defend" })}>
-                🛡 방어
+                {t("cc.defend")}
               </button>
               <button className="cc-btn" onClick={() => onAction({ type: "wait" })}>
-                ⌛ 대기
+                {t("cc.wait")}
               </button>
               {isPlayerTurn && (
                 <button className="cc-btn danger" onClick={() => onAction({ type: "flee" })}>
-                  ✦ 도주
+                  {t("cc.flee")}
                 </button>
               )}
             </div>
@@ -214,13 +223,13 @@ export function CombatControls({
 
           {available.skills && available.skills.length > 0 && (
             <div className="cc-section">
-              <div className="cc-label">스킬</div>
+              <div className="cc-label">{t("cc.skills")}</div>
               <div className="cc-skill-bar">{available.skills.map(renderSkill)}</div>
             </div>
           )}
 
           <div className="cc-section">
-            <div className="cc-label">소모품</div>
+            <div className="cc-label">{t("cc.consumables")}</div>
             {combat.consumables && combat.consumables.length > 0 ? (
               <div className="cc-skill-bar">
                 {combat.consumables.map((item) => (
@@ -229,7 +238,7 @@ export function CombatControls({
                     type="button"
                     className="cc-item-btn"
                     disabled={!isPlayerTurn}
-                    title={item.effect === "heal" ? "체력 회복" : item.effect === "focus" ? "집중 회복" : item.name}
+                    title={item.effect === "heal" ? t("cc.healHp") : item.effect === "focus" ? t("cc.healFocus") : item.name}
                     onClick={() => onAction({ type: "item", item_id: item.item_id })}
                   >
                     <span className="cc-item-name">{item.name}</span>
@@ -238,7 +247,7 @@ export function CombatControls({
                 ))}
               </div>
             ) : (
-              <div className="cc-empty">사용 가능한 소모품 없음</div>
+              <div className="cc-empty">{t("cc.noConsumables")}</div>
             )}
           </div>
         </>

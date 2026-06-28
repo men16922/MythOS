@@ -1,3 +1,4 @@
+import { useLang } from "./i18n/lang";
 import type { RunSummary, SaveSlot } from "./types";
 
 interface SaveHistoryPanelProps {
@@ -27,13 +28,14 @@ export function SaveHistoryPanel({
   onSave,
   onLoad,
 }: SaveHistoryPanelProps) {
+  const { t } = useLang();
   return (
     <div className="panel" id="save-load-panel">
-      <p className="panel-title">세션 저장 / 로드</p>
+      <p className="panel-title">{t("save.title")}</p>
       <div style={{ display: "flex", gap: "8px", marginBottom: "10px" }}>
         <input
           type="text"
-          placeholder="설명 (선택)"
+          placeholder={t("save.descPlaceholder")}
           value={saveLabelInput}
           onChange={(e) => onSaveLabelChange(e.target.value)}
           style={{ flex: 1, fontSize: "12px", padding: "6px" }}
@@ -60,9 +62,9 @@ export function SaveHistoryPanel({
           saveSlots.map((slot) => (
             <div className="save-slot-item" key={slot.loop_id}>
               <div className="save-slot-info">
-                <div className="save-slot-label">{slot.label || "오토세이브"}</div>
+                <div className="save-slot-label">{slot.label || t("save.autosave")}</div>
                 <div className="save-slot-meta">
-                  루프: {slot.loop_id.slice(0, 10)}… · {localDate(slot.saved_at)}
+                  {t("save.loop")}: {slot.loop_id.slice(0, 10)}… · {localDate(slot.saved_at)}
                 </div>
               </div>
               <button
@@ -74,7 +76,7 @@ export function SaveHistoryPanel({
             </div>
           ))
         ) : (
-          <div style={{ color: "var(--ink-dim)" }}>저장된 세션이 없습니다.</div>
+          <div style={{ color: "var(--ink-dim)" }}>{t("save.none")}</div>
         )}
       </div>
     </div>
@@ -82,11 +84,12 @@ export function SaveHistoryPanel({
 }
 
 export function RunHistoryPanel({ runsHistory }: { runsHistory: RunSummary[] }) {
+  const { t } = useLang();
   return (
     <div className="panel" id="history-panel">
-      <p className="panel-title">기록 보관소 (지난 루프)</p>
+      <p className="panel-title">{t("save.archiveTitle")}</p>
       <div className="run-history-hint">
-        여정 종료, 붕괴, 강제 정정으로 끝난 루프가 여기에 남습니다.
+        {t("save.archiveDesc")}
       </div>
       <div
         style={{
@@ -106,9 +109,9 @@ export function RunHistoryPanel({ runsHistory }: { runsHistory: RunSummary[] }) 
               key={run.loop_id}
             >
               <div className="save-slot-info">
-                <div className="save-slot-label">{run.ending_label || "종결된 루프"}</div>
+                <div className="save-slot-label">{run.ending_label || t("save.endedLoop")}</div>
                 <div className="save-slot-meta">
-                  루프: {run.loop_id.slice(0, 10)}… · 턴: {run.turns} ·{" "}
+                  {t("save.loop")}: {run.loop_id.slice(0, 10)}… · {t("save.turns")}: {run.turns} ·{" "}
                   {localDate(run.ended_at)}
                 </div>
               </div>
@@ -116,7 +119,7 @@ export function RunHistoryPanel({ runsHistory }: { runsHistory: RunSummary[] }) 
           ))
         ) : (
           <div style={{ color: "var(--ink-dim)" }}>
-            아직 종료된 루프 기록이 없습니다. 엔딩, 붕괴, 강제 정정 후 지난 루프 요약이 여기에 남습니다.
+            {t("save.archiveEmpty")}
           </div>
         )}
       </div>

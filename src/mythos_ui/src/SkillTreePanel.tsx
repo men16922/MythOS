@@ -1,6 +1,7 @@
 import type { CodexLists } from "./viewModels";
 import type { SkillTreeNode, SkillTreeResponse } from "./types";
 import { deriveSkillAction } from "./skillState";
+import { useLang } from "./i18n/lang";
 
 interface SkillTreePanelProps {
   codexLists: CodexLists;
@@ -19,6 +20,7 @@ export function SkillTreePanel({
   skillError,
   skillNotice,
 }: SkillTreePanelProps) {
+  const { t } = useLang();
   const interactive = Boolean(skillTree && onLearnSkill);
   const insight = skillTree ? skillTree.insight_points : codexLists.insightPoints;
   const skills: SkillTreeNode[] = skillTree
@@ -39,9 +41,9 @@ export function SkillTreePanel({
   return (
     <div id="skill-tab-content">
       <div className="panel">
-        <h2 className="tab-panel-title">SKILL TREE · 통찰 {insight}p</h2>
+        <h2 className="tab-panel-title">SKILL TREE · {t("skill.insight")} {insight}p</h2>
         <div className="skill-tree-hint" style={{ marginBottom: "10px" }}>
-          통찰은 전투 보상, 루프 보관(+2), 단서 확보(+1), 전투 승리(+1)로 얻습니다.
+          {t("skill.insightHint")}
         </div>
         {skillNotice && <div className="skill-tree-notice">{skillNotice}</div>}
         {skillError && <div className="skill-tree-error">{skillError}</div>}
@@ -49,7 +51,7 @@ export function SkillTreePanel({
           {skills.length > 0 ? (
             skills.map((skill) => {
               const busy = learningSkillId === skill.id;
-              const actionView = deriveSkillAction(skill, interactive, busy);
+              const actionView = deriveSkillAction(skill, interactive, busy, t);
               return (
                 <div className={`skill-tree-item ${skill.status}`} key={skill.id}>
                   <div className="skill-tree-head">
@@ -65,7 +67,7 @@ export function SkillTreePanel({
                     {typeof skill.range === "number" ? ` · range ${skill.range}` : ""}
                     {typeof skill.cooldown === "number" ? ` · cd ${skill.cooldown}` : ""}
                   </div>
-                  <div className="skill-rank-row" aria-label={`${skill.name} 강화 단계`}>
+                  <div className="skill-rank-row" aria-label={`${skill.name} ${t("skill.enhanceStageAria")}`}>
                     {Array.from({ length: skill.max_rank }).map((_, idx) => (
                       <span
                         key={idx}
@@ -74,10 +76,10 @@ export function SkillTreePanel({
                       />
                     ))}
                     {skill.action === "rankup" && (
-                      <small>다음 강화: Rank {skill.rank + 1}</small>
+                      <small>{t("skill.nextEnhance")} {skill.rank + 1}</small>
                     )}
-                    {skill.action === "learn" && <small>습득 시 전투 액션바에 추가</small>}
-                    {skill.is_base && <small>아키타입 기본 스킬</small>}
+                    {skill.action === "learn" && <small>{t("skill.learnAdds")}</small>}
+                    {skill.is_base && <small>{t("skill.baseSkill")}</small>}
                   </div>
                   {(skill.tags || []).length > 0 && (
                     <div className="skill-tree-tags">
@@ -91,12 +93,12 @@ export function SkillTreePanel({
                   )}
                   {actionView.show && actionView.blocked === "prereq" && (
                     <div className="skill-tree-hint">
-                      선행 스킬 필요: {skill.requires.join(", ")}
+                      {t("skill.requires")}: {skill.requires.join(", ")}
                     </div>
                   )}
                   {actionView.show && actionView.blocked === "insight" && (
                     <div className="skill-tree-hint">
-                      통찰 부족 · 보유 {insight}p / 필요 {skill.action_cost}p
+                      {t("skill.lowInsight")} · {t("skill.have")} {insight}p / {t("skill.need")} {skill.action_cost}p
                     </div>
                   )}
                   {actionView.show && (
@@ -114,7 +116,7 @@ export function SkillTreePanel({
             })
           ) : (
             <div style={{ color: "var(--ink-dim)" }}>
-              표시할 스킬 트리가 없습니다.
+              {t("skill.noTree")}
             </div>
           )}
         </div>

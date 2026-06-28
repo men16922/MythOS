@@ -1,4 +1,7 @@
+import { useLang } from "./i18n/lang";
+
 export function CombatLog({ log }: { log: string }) {
+  const { t } = useLang();
   if (!log) return null;
   return (
     <div
@@ -9,7 +12,7 @@ export function CombatLog({ log }: { log: string }) {
         paddingTop: "12px",
       }}
     >
-      <div className="cc-label">전술 전투 로그</div>
+      <div className="cc-label">{t("combatLog.title")}</div>
       <div
         id="combat-log"
         style={{

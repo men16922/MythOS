@@ -1,0 +1,48 @@
+{
+  "_note": "Additive English localization overlay for glass-library scenario.json prose (localization plan §2.2/§7.2). Logical-key paths mirror scenario.json; the loader (load_scenario_i18n) returns this verbatim and consumers prefer these values over the Korean source when language=='en'. Structure (ids/keys/order) must stay parity with scenario.json; lists are merged by index.",
+  "name": "World: Connection — The Librarian of the Glass Library",
+  "brief": "WORLD: Glass Library, a collapsing archive of failed worlds and lost memories.\nPREMISE: The connector must find the first connector record before the censors bind it shut.\nTONE: quiet wonder, archival horror, melancholy mystery, crystalline Y2K fantasy.\nPHILOSOPHY: To remember is to change what survived.",
+  "archetypes": {
+    "catalog_interpreter": {"name": "Catalog Interpreter", "attributes": ["[Index Decryption]", "[Forbidden-Book Resonance]"], "starting_item": "Cracked Catalog Lens"},
+    "unreturned_reader": {"name": "Unreturned Reader", "attributes": ["[Echo Resonance]", "[Forgotten Name]"], "starting_item": "Blank Return Card"},
+    "binder_fugitive": {"name": "Binder Fugitive", "attributes": ["[Seal Shatter]", "[Silent Sprint]"], "starting_item": "Rusted Binder Knife"}
+  },
+  "ui_copy": {
+    "signal_title": "Glass Library Connection Signal",
+    "signal_body": "A collapsing library of records is calling you. Find the first connector's record before the censor binds it shut.",
+    "boot_marker": "the Glass Library"
+  },
+  "session_intro": {
+    "title": "The Librarian of the Glass Library",
+    "body": "The records of failed worlds sleep within the glass stacks. Before the censor binds the first connector's record shut, you must find it and read it.",
+    "rules": [
+      "To read is to intervene — every time you open a record, the world shifts a little.",
+      "When the censorship seal rises, the stacks close.",
+      "Gather clues to raise your access."
+    ],
+    "objective": "Find the first connector's record and restore it before the seal closes.",
+    "continue_button": "Begin Reading ▸"
+  },
+  "main_arcs": [
+    {"title": "Act 1: The Broken Catalog Room", "summary": "The player connects to the Glass Library, meets Io, and confirms the existence of the first connector record."},
+    {"title": "Act 2: The Unreturned Reader", "summary": "Traveling with Miro, the forgotten reader, you search for the memory of an erased world and the first clue."},
+    {"title": "Act 3: The White Light of the Binding Room", "summary": "Over the names the censor cut away and the forbidden-book index, you choose between infiltration, negotiation, or restoration."},
+    {"title": "Act 4: The Archive of the First Record", "summary": "Before the first connector record, you decide whether to read its truth, seal it shut, or carry away only a fragment."}
+  ],
+  "side_arcs": [
+    {"title": "Side: The Lost Return Card", "description": "Find Miro's return card and restore the forgotten reader's name."},
+    {"title": "Side: Decoding the Forbidden Index", "description": "Decode the fact that the blank line in the censorship index points to a record not yet written."},
+    {"title": "Side: The Drawer of Severed Names", "description": "Recover the fragments of deleted names from the drawer in the binding room."}
+  ],
+  "endings": [
+    {"name": "Quiet Return"},
+    {"name": "The Name Restored"},
+    {"name": "Forbidden-Book Theft"},
+    {"name": "White Seal"}
+  ],
+  "npc_agendas": {
+    "이오": "Io",
+    "미로": "Miro",
+    "백색 제본사": "the White Binder"
+  }
+}

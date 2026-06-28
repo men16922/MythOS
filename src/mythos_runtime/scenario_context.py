@@ -18,7 +18,7 @@ from mythos_runtime.route_runtime import (
     junction_options,
     route_status,
 )
-from mythos_runtime.scenario import ScenarioConfig
+from mythos_runtime.scenario import ScenarioConfig, load_scenario_i18n
 from mythos_runtime.scenario_directives import (
     Encounters,
     StatVoiceProfile,
@@ -43,6 +43,20 @@ LANGUAGE_RULE = (
     "5. 이 규칙은 절대적이며 최우선적으로 준수되어야 합니다."
 )
 
+LANGUAGE_RULE_EN = (
+    "CRITICAL LANGUAGE & CHOICE RULE:\n"
+    "1. All player-facing text (scene.title, scene.narration, scene.objective, scene.action_result, "
+    "and each choices[].label) MUST be generated in natural, literary English only. Never output Korean.\n"
+    "2. The single exception is scene.visual_brief, which is for the image model (FLUX) and MUST be a "
+    "detailed English description.\n"
+    "3. choices[].intent MUST be exactly one of 'explore', 'interact', 'rewrite', 'archive' — no "
+    "explanation, no other words or symbols. (e.g. output just 'explore')\n"
+    "4. If a choice keys off a stat (Strength, Intellect, Charisma, Agility, Observation), mark it with a "
+    "very short parenthetical at the end of the label, e.g. '(Agility)', '(Intellect)', '(Observation)'. "
+    "Never write a long explanation or recommendation like '(recommended: use an Agility-based action)'.\n"
+    "5. This rule is absolute and takes top priority."
+)
+
 CINEMATIC_CLARITY_RULE = (
     "CINEMATIC CLARITY RULE (직관적 시네마틱 대본 규칙):\n"
     "- 장면은 영화 시나리오처럼 '보이는 장소 → 즉각적 위협 → 인물의 행동/대사 → 다음 선택' 순서로 쓰십시오.\n"
@@ -51,6 +65,26 @@ CINEMATIC_CLARITY_RULE = (
     "- '데이터 흐름', '잔향 회랑', '오버레이 코어', '불안 영역', '플레이어의 존재 자체' 같은 추상 명사를 길게 나열하지 마십시오. 명시적으로 가상 코어 내부인 장면이 아니라면 이런 표현은 배경 은유 한 문장 이하로 제한하십시오.\n"
     "- 한 문단은 1~3문장으로 짧게 유지하고, 긴 설명문 대신 카메라가 볼 수 있는 행동을 쓰십시오."
 )
+
+CINEMATIC_CLARITY_RULE_EN = (
+    "CINEMATIC CLARITY RULE:\n"
+    "- Write each scene like a film script: visible place → immediate threat → character action/dialogue → next choice.\n"
+    "- In the first sentence, show where the player actually stands and what is dangerous right now.\n"
+    "- Ground Neo-Seoul scenes in physical, filmable images: rain, concrete, alleys, drone searchlights, "
+    "subway shutters, welfare kiosks, night-market neon, motorbike engines, a hand grabbing a wrist.\n"
+    "- Do not pile up abstract nouns like 'data flow', 'resonance corridor', 'overlay core', 'unstable zone', "
+    "'the player's very existence'. Unless the scene is explicitly inside a virtual core, keep such phrasing "
+    "to at most one sentence of background metaphor.\n"
+    "- Keep each paragraph to 1-3 short sentences; write what the camera can see, not long exposition."
+)
+
+
+def _language_rule(language: str) -> str:
+    return LANGUAGE_RULE_EN if language == "en" else LANGUAGE_RULE
+
+
+def _cinematic_clarity_rule(language: str) -> str:
+    return CINEMATIC_CLARITY_RULE_EN if language == "en" else CINEMATIC_CLARITY_RULE
 
 CAUSALITY_ENGINE_RULE = (
     "CAUSALITY_ENGINE_RULE: The world is a complex gear-system. "
@@ -146,6 +180,83 @@ DEFAULT_ENCOUNTERS = Encounters(
         "다음에 오는 선택지는 회피하거나 돌파하기 위해 무거운 대가(stats 판정 또는 stability 소모)를 요구해야 합니다."
     ),
 )
+
+# English counterparts of the generic code defaults, selected when ``language == "en"``
+# (mirror the directives/*.en.md prose). Used by directive-less scenarios (e.g.
+# glass-library) so their EN prompt has no Korean default prose; neo-seoul ships
+# directive .md files that override these for both languages.
+DEFAULT_STAT_VOICES_EN = StatVoices(
+    header="=== STAT-BASED INNER MONOLOGUE (DISCO ELYSIUM STYLE) ===",
+    max_template=(
+        "The player's strongest trait is {name} (value: {value}). During scene description or "
+        "narrative development, often weave in the following voice naturally as an Inner Monologue "
+        "or inner dialogue heard inside the player's head. This voice must strictly follow the "
+        "stat's own tone and speech rules (the style of the example) and must be clearly distinct "
+        "in voice from the other stats: \n"
+        " - {name}: {voice}\n"
+        "Express this voice using parenthetical notation. e.g. (Strength: ...) or (Intellect: ...)"
+    ),
+    min_template=(
+        "The player's weakest trait is {name} (value: {value}). Let the inner voice corresponding "
+        "to this trait appear only very occasionally, through parenthetical notation, as immature, "
+        "forced, misjudged, timid, or as listless advice born of deficiency. e.g. ({name_first}: ...)"
+    ),
+    descriptions={
+        "strength": StatVoiceProfile(
+            name="Strength",
+            voice='An instinctive, rough, physical voice that craves destruction and bodily survival. It speaks in blunt, coarse imperatives and goads toward physical confrontation and forcing a way through. Example: "Drive your fist through that damned security panel and break it! Metal is made to be broken."',
+        ),
+        "intelligence": StatVoiceProfile(
+            name="Intellect",
+            voice='A cold, analytical voice of computation that pursues logic, data, and system optimization. It is rigorously logical and dry. It gives analytical advice. Example: "The target security system\'s malfunction cycle is 4.2 seconds. Entering through the bypass optimizes the detection probability to under 12%."',
+        ),
+        "charisma": StatVoiceProfile(
+            name="Charisma",
+            voice='An emotional, sociable voice of empathy that reads people\'s psychology and the truth behind their masks. It speaks warmly, gently, or with a playful, colloquial lilt, empathizing with and steering others\' feelings. Example: "Her eyes are wavering, anxious. Instead of coldly shoving her away, why not offer a warm look in the rain? It\'ll open her up."',
+        ),
+        "agility": StatVoiceProfile(
+            name="Agility",
+            voice='A quick, jittery voice of reflex that urges evasion, escape, and threat detection. Its breath is short and hurried; it leans on urgent imperatives and exclamation marks to push you to move right now. Example: "Hesitate and it\'s over! Move the instant your body reacts — three, two, one, run now!"',
+        ),
+        "perception": StatVoiceProfile(
+            name="Observation",
+            voice='A sharp voice of the senses that catches faint traces, unseen signals, and hidden details. It is descriptive, fine-grained, and objective, pointing out the surroundings\' concealed details and what feels off. Example: "The faint spark from the neon sign on the wall isn\'t regular. It suggests an illegal eavesdropping module hidden behind the sign."',
+        ),
+    },
+)
+
+DEFAULT_ENCOUNTERS_EN = Encounters(
+    travel_header="=== TRAVEL ENCOUNTER (mid-travel encounter event) ===",
+    travel_template=(
+        "Directive: the player has declared an action to move between zones or travel ('{player_action}'). "
+        "Taking into account the current spacetime collapse ({decay_pct}%), stealth stability "
+        "({stability}/100), and control-grid pursuit ({tension}/100), describe a mid-travel "
+        "interception event encountered en route — a glitch anomaly, a guard-patrol encounter, or "
+        "surrounding environmental collapse — and generate at least one choice for breaking through "
+        "or evading it (e.g. bypassing the alarm with a computation hack, quietly finding a detour)."
+    ),
+    emergency_header="=== EMERGENCY ENCOUNTERS (resource-threshold crisis) ===",
+    emergency_low_stability_template=(
+        "Warning: the [stealth stability] is now at a very dangerous level (currently: {stability}/100). "
+        "Narrate an Emergency in which a glitch physics phenomenon on the verge of connection collapse, "
+        "a spacetime distortion, or a forced-disconnect broadcast bears down, and force on the player "
+        "an emergency choice with a heavy cost to recover stability."
+    ),
+    emergency_high_tension_template=(
+        "Warning: the [control-grid pursuit] is now extremely high (currently: {tension}/100). Narrate "
+        "the cordon tightening — the control grid's Enforcers directly closing their pursuit line, a "
+        "drone chase, or a direct correction notice from Administrator IX. The choice that follows must "
+        "demand a heavy cost (a stats check or stability expenditure) to evade or break through."
+    ),
+)
+
+
+def _default_stat_voices(language: str) -> StatVoices:
+    return DEFAULT_STAT_VOICES_EN if language == "en" else DEFAULT_STAT_VOICES
+
+
+def _default_encounters(language: str) -> Encounters:
+    return DEFAULT_ENCOUNTERS_EN if language == "en" else DEFAULT_ENCOUNTERS
 
 
 def resolve_archetype_id(scenario: ScenarioConfig, value: str | None) -> str | None:
@@ -261,25 +372,28 @@ def build_runtime_narrative_context(
     fast_mode: bool = False,
     language: str = "ko",
 ) -> NarrativeContext:
-    directives = load_scenario_directives(scenario.scenario_id)
+    directives = load_scenario_directives(scenario.scenario_id, language)
+    # Additive EN prose overlay (i18n/<lang>.json); {} for ko / no overlay → KO source used.
+    scenario_i18n = load_scenario_i18n(scenario.scenario_id, language)
+    brief = str(scenario_i18n.get("brief") or scenario.brief)
     notes = [
-        f"SCENARIO_BRIEF: {scenario.brief}",
+        f"SCENARIO_BRIEF: {brief}",
         *novelty_notes,
-        LANGUAGE_RULE,
-        CINEMATIC_CLARITY_RULE,
+        _language_rule(language),
+        _cinematic_clarity_rule(language),
     ]
     # Proper-noun / register rule is now prompt-layer (directives/naming.md), injected
     # generically — any scenario that authors one gets it; the rest get none, exactly as
     # before (only neo-seoul shipped a naming rule).
     if directives.naming_rule:
         notes.append(directives.naming_rule)
-    notes.extend(_scenario_structure_notes(scenario))
+    notes.extend(_scenario_structure_notes(scenario, scenario_i18n))
     notes.append(CAUSALITY_ENGINE_RULE)
 
     # P4-1 스탯 기반 내면 독백 (Disco Elysium) 지침 — prose는 이제 프롬프트 레이어
     # (directives/stat_voices.md)다. min/max 선택 로직만 코드에 남고, 시나리오가 stat_voices.md를
     # 두지 않으면 generic 기본값(DEFAULT_STAT_VOICES)을 받는다(이전 공유 동작 보존).
-    stat_voices = directives.stat_voices or DEFAULT_STAT_VOICES
+    stat_voices = directives.stat_voices or _default_stat_voices(language)
     stats = player.traits.get("stats") if isinstance(player.traits, dict) else None
     if isinstance(stats, dict):
         descriptions = stat_voices.descriptions
@@ -339,13 +453,24 @@ def build_runtime_narrative_context(
         # scenarios that declare one (a scenario without opening.md must not receive
         # the neo-seoul continuity guidance).
         if _has_authored_opening:
-            opening_directives.extend(_opening_continuity_notes(scenario, turn_index))
+            opening_directives.extend(
+                _opening_continuity_notes(scenario, turn_index, language, scenario_i18n)
+            )
         # The pre-rendered cinematic shots (teaser) are the authored source for the
         # Se-rin beats; each beat references one by index (shot_ref) so the teaser's
         # promise is paid off as lived experience. Resolve the shot, fill the authored
         # beat body's placeholders, and emit it.
+        # Prefer the localized cinematic shots (i18n overlay) so the opening beat's
+        # {shot_title}/{shot_body} fills are in the active language; fall back to the
+        # scenario's own (Korean) shots.
         _intro = scenario.ui_copy.get("session_intro") if isinstance(scenario.ui_copy, dict) else None
-        _shots = _intro.get("cinematic_shots") if isinstance(_intro, dict) else None
+        _overlay_intro = scenario_i18n.get("session_intro")
+        _overlay_shots = (
+            _overlay_intro.get("cinematic_shots") if isinstance(_overlay_intro, dict) else None
+        )
+        _shots = _overlay_shots if isinstance(_overlay_shots, list) else (
+            _intro.get("cinematic_shots") if isinstance(_intro, dict) else None
+        )
         _shots = _shots if isinstance(_shots, list) else []
 
         def _shot_text(idx: int) -> tuple[str, str]:
@@ -369,7 +494,7 @@ def build_runtime_narrative_context(
                 )
             )
 
-    bible = load_story_bible(scenario.scenario_id)
+    bible = load_story_bible(scenario.scenario_id, language)
     entries = select_story_bible_entries(bible, loop, turn_index=turn_index)
     notes.extend(story_bible_notes(entries))
 
@@ -419,8 +544,8 @@ def build_runtime_narrative_context(
     # already prevented because turns 0-4 are explicitly authored. Node/junction
     # steering resumes once the prologue ends, at turn 5 (the first act-1 scene).
     if turn_index >= 5:
-        notes.extend(_route_director_notes(scenario, loop, turn_index))
-        notes.extend(_route_junction_notes(scenario, loop, turn_index))
+        notes.extend(_route_director_notes(scenario, loop, turn_index, language))
+        notes.extend(_route_junction_notes(scenario, loop, turn_index, language))
 
     # P1 — 루프 내러티브 잔향 (Slay the Princess) 처리
     run_summaries = [m for m in world_memories if m.kind == "run_summary"]
@@ -489,7 +614,7 @@ def build_runtime_narrative_context(
     # 키워드 감지/임계 판정(게이팅)은 코드에 STAY; prose는 이제 프롬프트 레이어
     # (directives/encounters.md)다. 시나리오가 encounters.md를 두지 않으면 generic
     # 기본값(DEFAULT_ENCOUNTERS)을 받는다(이전 공유 동작 보존).
-    encounters = directives.encounters or DEFAULT_ENCOUNTERS
+    encounters = directives.encounters or _default_encounters(language)
     decay_pct = min(100, int((turn_index / 60.0) * 100))
 
     # 1. 이동 중 조우 (Travel Encounters)
@@ -557,18 +682,38 @@ def build_runtime_narrative_context(
     )
 
 
-def _opening_continuity_notes(scenario: ScenarioConfig, turn_index: int) -> list[str]:
+def _opening_continuity_notes(
+    scenario: ScenarioConfig,
+    turn_index: int,
+    language: str = "ko",
+    scenario_i18n: dict[str, Any] | None = None,
+) -> list[str]:
     """Replay the opening cinematic (session_intro) the player just watched so the
-    first playable scenes continue directly from it."""
+    first playable scenes continue directly from it.
+
+    The session_intro *prose* (title/body/objective/cinematic_shots) is taken from the
+    additive ``i18n/<lang>.json`` overlay when present (English golden path), else from
+    the Korean ``scenario.json`` source. The surrounding framing is emitted in English
+    when ``language == "en"`` so the whole continuity note reads in one language.
+    """
     ui_copy = scenario.ui_copy if isinstance(scenario.ui_copy, dict) else {}
     intro = ui_copy.get("session_intro")
     if not isinstance(intro, dict):
         return []
+    # Prefer the localized session_intro prose (additive overlay) over the KO source.
+    overlay_intro = (scenario_i18n or {}).get("session_intro")
+    if not isinstance(overlay_intro, dict):
+        overlay_intro = {}
 
-    title = str(intro.get("title") or "").strip()
-    body = str(intro.get("body") or "").strip()
-    objective = str(intro.get("objective") or "").strip()
-    shots = intro.get("cinematic_shots")
+    def _prose(key: str) -> str:
+        return str(overlay_intro.get(key) or intro.get(key) or "").strip()
+
+    title = _prose("title")
+    body = _prose("body")
+    objective = _prose("objective")
+    shots = overlay_intro.get("cinematic_shots")
+    if not isinstance(shots, list):
+        shots = intro.get("cinematic_shots")
     shot_lines: list[str] = []
     if isinstance(shots, list):
         for i, shot in enumerate(shots, 1):
@@ -582,6 +727,14 @@ def _opening_continuity_notes(scenario: ScenarioConfig, turn_index: int) -> list
     if not (title or body or objective or shot_lines):
         return []
 
+    if language == "en":
+        return _opening_continuity_lines_en(turn_index, title, body, objective, shot_lines)
+    return _opening_continuity_lines_ko(turn_index, title, body, objective, shot_lines)
+
+
+def _opening_continuity_lines_ko(
+    turn_index: int, title: str, body: str, objective: str, shot_lines: list[str]
+) -> list[str]:
     lead = (
         "지침: 플레이어는 방금 아래 오프닝 시네마틱을 끝까지 시청했습니다. 지금 작성할 장면은 "
         "이 시네마틱이 끝난 '바로 그 순간'을 직접 이어받아야 합니다. 새 장소로 리셋하거나 "
@@ -632,7 +785,62 @@ def _opening_continuity_notes(scenario: ScenarioConfig, turn_index: int) -> list
     return lines
 
 
-def _route_director_notes(scenario: ScenarioConfig, loop: LoopState, turn_index: int) -> list[str]:
+def _opening_continuity_lines_en(
+    turn_index: int, title: str, body: str, objective: str, shot_lines: list[str]
+) -> list[str]:
+    """English mirror of _opening_continuity_lines_ko (same staging rules, English)."""
+    lead = (
+        "Directive: the player has just watched the opening cinematic below in full. The scene "
+        "you write now must continue directly from 'the very moment' that cinematic ended. Do not "
+        "reset to a new location or invent a situation unrelated to the opening."
+    )
+    if turn_index == 0:
+        lead = (
+            "Directive: the player has just watched the opening cinematic. The first scene you write "
+            "now is the moment right after that blackout, when the unregistered signal wakes 'alone' "
+            "on the wet concrete. Do not reset to a new location or invent a situation unrelated to "
+            "the opening."
+        )
+    lines = [
+        "=== OPENING CINEMATIC CONTINUITY — top-priority directive ===",
+        lead,
+    ]
+    if title:
+        lines.append(f" - Opening title: {title}")
+    if body:
+        lines.append(f" - Opening situation: {body}")
+    # The opening objective names Se-rin — at turn 0 (lone awakening) that primes the
+    # model to introduce her early, so withhold it until turn 1 when she actually enters.
+    if objective and turn_index >= 1:
+        lines.append(f" - Operation objective: {objective}")
+    if shot_lines and turn_index >= 1:
+        lines.append(" - Cinematic cuts (already seen by the player):")
+        lines.extend(shot_lines)
+    if turn_index == 0:
+        lines.append(
+            "Important (turn 0 = lone awakening): this is the moment right after the opening blackout, "
+            "when the protagonist — an 'unregistered signal' — wakes 'alone' on the wet ground of a "
+            "rainy C-17 neon alley. Jung Se-rin has not appeared yet — in this scene, never introduce "
+            "Se-rin (or any other rescuer); focus on the protagonist waking alone and reading the "
+            "situation. Keep the stage (rain, wet concrete, neon in the puddles, a surveillance drone "
+            "searchlight sweeping the alley far off) identical to the opening. Se-rin's arrival is the "
+            "very 'next' scene."
+        )
+    else:
+        lines.append(
+            "Important (place/character consistency): keep this opening's stage and characters (the "
+            "rainy C-17 blackout-zone neon alley, Jung Se-rin, the pursuing surveillance drones, "
+            "Se-rin's bike) exactly. Even if the loop's location_id or the story bible's location data "
+            "points elsewhere (a data layer, a substation, etc.), follow the cinematic's place, "
+            "characters, and urgency as top priority until the opening escape sequence (turns 1-2) "
+            "wraps up. Se-rin stays at the player's side and moves with them throughout this stretch."
+        )
+    return lines
+
+
+def _route_director_notes(
+    scenario: ScenarioConfig, loop: LoopState, turn_index: int, language: str = "ko"
+) -> list[str]:
     state = loop.state if isinstance(loop.state, dict) else {}
     status = route_status(state)
     if not status:
@@ -640,74 +848,138 @@ def _route_director_notes(scenario: ScenarioConfig, loop: LoopState, turn_index:
     node = status.get("node") or {}
     if not node:
         return []
+    en = language == "en"
     perspective = status.get("perspective") or {}
     leaderboard = status.get("ending_leaderboard") or []
     ending_labels = {str(e.get("id")): str(e.get("title", e.get("id"))) for e in scenario.endings}
 
     # A node stays `current` for turns_per_layer turns; without a "move on" signal the
-    # GM re-describes the same place every turn (the explore 정체 / location stickiness
-    # bug). Establish the node — and match its curated image — on the first scene, then
-    # force forward motion on later scenes. Layer 0's first noted scene is turn 1, so
-    # treat that as fresh too.
+    # GM re-describes the same place every turn (the explore stagnation / location
+    # stickiness bug). Establish the node — and match its curated image — on the first
+    # scene, then force forward motion on later scenes. Layer 0's first noted scene is
+    # turn 1, so treat that as fresh too.
     per = max(1, DEFAULT_TURNS_PER_LAYER)
     fresh_node = int(turn_index) % per == 0 or int(turn_index) == 1
+    title = node.get("title") or node.get("label")
 
-    kind = "고정 스토리 비트(임팩트 장면)" if node.get("anchor") else "동적 경유 장면"
-    lines = [
-        "=== 작전 노드 가이드 (ROUTE NODE STEERING) ===",
-        f"현재 작전 노드: '{node.get('title') or node.get('label')}' · 유형 {node.get('label')} · {kind}.",
-        "지침: 이번 장면은 이 노드를 무대로 전개하십시오. 노드 유형의 성격(전투/단서/시장/정비/사건/대면 등)을 장면 분위기와 선택지에 반영하되, 묘사·대사·선택지 텍스트는 자유롭게 창작하십시오.",
-    ]
+    if en:
+        kind = "fixed story beat (impact scene)" if node.get("anchor") else "dynamic transit scene"
+        lines = [
+            "=== ROUTE NODE STEERING ===",
+            f"Current route node: '{title}' · type {node.get('label')} · {kind}.",
+            "Directive: stage this scene at this node. Reflect the node type's nature (combat/clue/"
+            "market/maintenance/event/confrontation, etc.) in the scene's mood and choices, but write "
+            "the description, dialogue, and choice text freely.",
+        ]
+    else:
+        kind = "고정 스토리 비트(임팩트 장면)" if node.get("anchor") else "동적 경유 장면"
+        lines = [
+            "=== 작전 노드 가이드 (ROUTE NODE STEERING) ===",
+            f"현재 작전 노드: '{title}' · 유형 {node.get('label')} · {kind}.",
+            "지침: 이번 장면은 이 노드를 무대로 전개하십시오. 노드 유형의 성격(전투/단서/시장/정비/사건/대면 등)을 장면 분위기와 선택지에 반영하되, 묘사·대사·선택지 텍스트는 자유롭게 창작하십시오.",
+        ]
     node_image = str(node.get("image") or "").strip()
     if node_image and fresh_node:
         image_hint = node_image.rsplit("/", 1)[-1].rsplit(".", 1)[0].replace("-", " ").replace("_", " ")
-        lines.append(
-            f"주요 장면 이미지 정합성: 이 노드는 사전 제작 이미지 '{node_image}'를 사용합니다. "
-            f"첫 단락에서 이미지가 보여주는 핵심 피사체/장소/행동을 반드시 묘사하십시오. "
-            f"이미지 힌트: {image_hint}. 장면 제목, narration, visual_brief가 이 이미지와 어긋나면 안 됩니다."
-        )
+        if en:
+            lines.append(
+                f"Key scene-image consistency: this node uses the pre-made image '{node_image}'. "
+                f"In the first paragraph you MUST describe the core subject/place/action the image "
+                f"shows. Image hint: {image_hint}. The scene title, narration, and visual_brief must "
+                f"not contradict this image."
+            )
+        else:
+            lines.append(
+                f"주요 장면 이미지 정합성: 이 노드는 사전 제작 이미지 '{node_image}'를 사용합니다. "
+                f"첫 단락에서 이미지가 보여주는 핵심 피사체/장소/행동을 반드시 묘사하십시오. "
+                f"이미지 힌트: {image_hint}. 장면 제목, narration, visual_brief가 이 이미지와 어긋나면 안 됩니다."
+            )
     if not fresh_node:
-        lines.append(
-            "진행 지침(반복 금지): 이 작전 노드에 이미 여러 장면 머물렀습니다. 직전 장면의 장소·구도·상황을 "
-            "되풀이하지 말고 한 걸음 전진시키십시오 — 다른 구역(실내외·상/하층)으로 이동하거나, 새로운 인물·"
-            "단서·위협을 등장시키거나, 추격·교섭·잠입처럼 국면을 바꾸십시오. scene.location과 첫 단락 묘사가 "
-            "직전 장면과 분명히 달라야 합니다."
-        )
+        if en:
+            lines.append(
+                "Progression directive (no repetition): you have already spent several scenes at this "
+                "route node. Do not repeat the previous scene's place, composition, or situation — move "
+                "one step forward: shift to a different area (indoor/outdoor, upper/lower level), "
+                "introduce a new person/clue/threat, or change the phase (chase, negotiation, "
+                "infiltration). scene.location and the first paragraph must be clearly different from "
+                "the previous scene."
+            )
+        else:
+            lines.append(
+                "진행 지침(반복 금지): 이 작전 노드에 이미 여러 장면 머물렀습니다. 직전 장면의 장소·구도·상황을 "
+                "되풀이하지 말고 한 걸음 전진시키십시오 — 다른 구역(실내외·상/하층)으로 이동하거나, 새로운 인물·"
+                "단서·위협을 등장시키거나, 추격·교섭·잠입처럼 국면을 바꾸십시오. scene.location과 첫 단락 묘사가 "
+                "직전 장면과 분명히 달라야 합니다."
+            )
     if perspective:
-        lines.append(
-            f"활성 시점(관점): '{perspective.get('lens')}' — {perspective.get('summary')} "
-            "이 관점의 정서와 시선으로 장면을 서술하십시오."
-        )
+        if en:
+            lines.append(
+                f"Active lens (perspective): '{perspective.get('lens')}' — {perspective.get('summary')} "
+                "Narrate the scene through this perspective's emotion and gaze."
+            )
+        else:
+            lines.append(
+                f"활성 시점(관점): '{perspective.get('lens')}' — {perspective.get('summary')} "
+                "이 관점의 정서와 시선으로 장면을 서술하십시오."
+            )
         crosses = perspective.get("crosses") or []
         if crosses:
-            lines.append(
-                "교차 실타래: 이 장면에 "
-                + ", ".join(str(c) for c in crosses)
-                + " 와 맞닿는 복선이나 여운을 은근히 깔아 여러 갈래의 이야기가 교차하는 느낌을 주십시오."
-            )
+            joined = ", ".join(str(c) for c in crosses)
+            if en:
+                lines.append(
+                    f"Crossing threads: subtly lay foreshadowing or resonance that touches {joined} "
+                    "so the scene feels like several story strands intersecting."
+                )
+            else:
+                lines.append(
+                    "교차 실타래: 이 장면에 "
+                    + joined
+                    + " 와 맞닿는 복선이나 여운을 은근히 깔아 여러 갈래의 이야기가 교차하는 느낌을 주십시오."
+                )
     if leaderboard:
         top_id = str(leaderboard[0][0])
-        lines.append(
-            f"현재 루트가 향하는 결말 경향: '{ending_labels.get(top_id, top_id)}'. "
-            "결말을 직접 언급하지 말고, 톤과 복선으로만 이 방향을 은유적으로 비추십시오."
-        )
+        label = ending_labels.get(top_id, top_id)
+        if en:
+            lines.append(
+                f"The ending this route currently leans toward: '{label}'. Do not mention the ending "
+                "directly; reflect this direction only metaphorically, through tone and foreshadowing."
+            )
+        else:
+            lines.append(
+                f"현재 루트가 향하는 결말 경향: '{label}'. "
+                "결말을 직접 언급하지 말고, 톤과 복선으로만 이 방향을 은유적으로 비추십시오."
+            )
     return lines
 
 
-def _route_junction_notes(scenario: ScenarioConfig, loop: LoopState, turn_index: int) -> list[str]:
+def _route_junction_notes(
+    scenario: ScenarioConfig, loop: LoopState, turn_index: int, language: str = "ko"
+) -> list[str]:
     state = loop.state if isinstance(loop.state, dict) else {}
     options = junction_options(state, turn_index=turn_index)
+    en = language == "en"
     notes: list[str] = []
     if options:
         kinds = ", ".join(sorted({str(o.get("label")) for o in options if o.get("label")}))
-        notes.extend(
-            [
-                "=== 작전 갈림길 (ROUTE JUNCTION) ===",
-                "이 장면은 다음 행선지를 정하는 갈림길이다. 장면을 '어디로 갈지 결정해야 하는 긴장된 순간'으로 "
-                "마무리하라. 플레이어에게 제시될 행선지 선택지는 시스템이 작전 노드로 대체하므로, 너는 갈림길에 "
-                f"선 상황과 각 방향의 분위기만 묘사하라. 후보 방향 유형: {kinds}.",
-            ]
-        )
+        if en:
+            notes.extend(
+                [
+                    "=== ROUTE JUNCTION ===",
+                    "This scene is a junction that decides the next destination. End the scene on a "
+                    "'tense moment of deciding where to go'. The system replaces the destination choices "
+                    "presented to the player with route nodes, so you only describe the situation of "
+                    f"standing at the junction and the mood of each direction. Candidate types: {kinds}.",
+                ]
+            )
+        else:
+            notes.extend(
+                [
+                    "=== 작전 갈림길 (ROUTE JUNCTION) ===",
+                    "이 장면은 다음 행선지를 정하는 갈림길이다. 장면을 '어디로 갈지 결정해야 하는 긴장된 순간'으로 "
+                    "마무리하라. 플레이어에게 제시될 행선지 선택지는 시스템이 작전 노드로 대체하므로, 너는 갈림길에 "
+                    f"선 상황과 각 방향의 분위기만 묘사하라. 후보 방향 유형: {kinds}.",
+                ]
+            )
 
     # Dynamic route growth: on a dynamic map, invite the GM to author the next
     # destinations as type-constrained route_nodes (type from the allowed list,
@@ -717,16 +989,29 @@ def _route_junction_notes(scenario: ScenarioConfig, loop: LoopState, turn_index:
     if isinstance(route_map, dict) and route_map.get("mode") == "dynamic":
         allowed = _route_node_type_menu(scenario)
         if allowed:
-            notes.extend(
-                [
-                    "=== 동적 작전 노드 제안 (DYNAMIC ROUTE NODES) ===",
-                    "작전 지도는 플레이어 선택에 따라 자라난다. 이야기 전개에 맞는 다음 행선지 1~2개를 "
-                    "`world_delta.route_nodes` 배열로 제안하라. 각 항목은 "
-                    '{"type": <아래 목록 중 하나>, "title": <한국어 행선지 이름>} 형식이다. '
-                    "유형은 기계적 의미(전투/단서/시장 등)를 가지므로 목록에서만 고르고, 제목과 분위기는 "
-                    f"자유롭게 창작하라. 허용 유형: {allowed}. 제안이 없으면 배열을 비워도 된다.",
-                ]
-            )
+            if en:
+                notes.extend(
+                    [
+                        "=== DYNAMIC ROUTE NODES ===",
+                        "The route map grows with the player's choices. Propose 1-2 next destinations "
+                        "that fit the story as a `world_delta.route_nodes` array. Each item has the form "
+                        '{"type": <one from the list below>, "title": <English destination name>}. '
+                        "The type carries mechanical meaning (combat/clue/market, etc.), so pick only "
+                        f"from the list; invent the title and mood freely. Allowed types: {allowed}. If "
+                        "there is no proposal, the array may be left empty.",
+                    ]
+                )
+            else:
+                notes.extend(
+                    [
+                        "=== 동적 작전 노드 제안 (DYNAMIC ROUTE NODES) ===",
+                        "작전 지도는 플레이어 선택에 따라 자라난다. 이야기 전개에 맞는 다음 행선지 1~2개를 "
+                        "`world_delta.route_nodes` 배열로 제안하라. 각 항목은 "
+                        '{"type": <아래 목록 중 하나>, "title": <한국어 행선지 이름>} 형식이다. '
+                        "유형은 기계적 의미(전투/단서/시장 등)를 가지므로 목록에서만 고르고, 제목과 분위기는 "
+                        f"자유롭게 창작하라. 허용 유형: {allowed}. 제안이 없으면 배열을 비워도 된다.",
+                    ]
+                )
     return notes
 
 
@@ -746,18 +1031,50 @@ def _route_node_type_menu(scenario: ScenarioConfig) -> str:
     return ", ".join(parts)
 
 
-def _scenario_structure_notes(scenario: ScenarioConfig) -> list[str]:
+def _scenario_structure_notes(
+    scenario: ScenarioConfig, scenario_i18n: dict[str, Any] | None = None
+) -> list[str]:
+    # scenario_i18n is the already-language-resolved prose overlay ({} for KO / none).
+    i18n = scenario_i18n or {}
     notes: list[str] = []
     if scenario.main_arcs:
-        notes.append(f"SCENARIO_MAIN_ARCS: {_compact_named_items(scenario.main_arcs)}")
+        items = _localized_named_items(scenario.main_arcs, i18n.get("main_arcs"))
+        notes.append(f"SCENARIO_MAIN_ARCS: {_compact_named_items(items)}")
     if scenario.side_arcs:
-        notes.append(f"SCENARIO_SIDE_ARCS: {_compact_named_items(scenario.side_arcs)}")
+        items = _localized_named_items(scenario.side_arcs, i18n.get("side_arcs"))
+        notes.append(f"SCENARIO_SIDE_ARCS: {_compact_named_items(items)}")
     if scenario.npc_agendas:
-        names = ", ".join(str(name) for name in scenario.npc_agendas.keys())
+        npc_overlay = i18n.get("npc_agendas")
+        if not isinstance(npc_overlay, dict):
+            npc_overlay = {}
+        names = ", ".join(
+            str(npc_overlay.get(name, name)) for name in scenario.npc_agendas.keys()
+        )
         notes.append(f"SCENARIO_NPC_AGENDAS: {names}")
     if scenario.endings:
-        notes.append(f"SCENARIO_ENDINGS: {_compact_named_items(scenario.endings)}")
+        items = _localized_named_items(scenario.endings, i18n.get("endings"))
+        notes.append(f"SCENARIO_ENDINGS: {_compact_named_items(items)}")
     return notes
+
+
+def _localized_named_items(
+    items: Sequence[dict[str, Any]], overlay: Any
+) -> list[dict[str, Any]]:
+    """Overlay localized prose onto named items by index (additive; missing → KO source).
+
+    Each overlay entry's keys (title/summary/description) shadow the source item's, so a
+    localized ``title``/``summary`` is preferred while non-prose keys (id) are preserved.
+    A short or absent overlay falls back to the source per item — never drops an item.
+    """
+    if not isinstance(overlay, list) or not overlay:
+        return list(items)
+    merged: list[dict[str, Any]] = []
+    for i, item in enumerate(items):
+        if i < len(overlay) and isinstance(overlay[i], dict):
+            merged.append({**item, **overlay[i]})
+        else:
+            merged.append(item)
+    return merged
 
 
 def _compact_named_items(items: Sequence[dict[str, Any]], limit: int = 4) -> str:

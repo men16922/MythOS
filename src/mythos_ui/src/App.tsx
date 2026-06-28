@@ -40,6 +40,7 @@ import { useSessionControls } from "./hooks/useSessionControls";
 import { useSnapshotReceiver } from "./hooks/useSnapshotReceiver";
 import { useNarrativeStream } from "./hooks/useNarrativeStream";
 import { useKeyboardChoice } from "./hooks/useKeyboardChoice";
+import { useLang } from "./i18n/lang";
 
 export type NarrativeHistoryItem = {
   sceneId: string;
@@ -50,8 +51,9 @@ export type NarrativeHistoryItem = {
 };
 
 export default function App() {
+  const { t, lang } = useLang();
   // --- Connection / Onboarding State ---
-  const [displayName, setDisplayName] = useState("테스터");
+  const [displayName, setDisplayName] = useState(() => t("app.defaultName"));
   const [scenarios, setScenarios] = useState<ScenarioInfo[]>([]);
   const [selectedScenarioId, setSelectedScenarioId] = useState("neo-seoul");
   const [selectedArchetype, setSelectedArchetype] = useState<string | null>(null);
@@ -75,7 +77,7 @@ export default function App() {
   // --- Main Run State ---
   const [playerId, setPlayerId] = useState<string | null>(null);
   const [loopId, setLoopId] = useState<string | null>(null);
-  const [status, setStatus] = useState("대기 중.");
+  const [status, setStatus] = useState(() => t("app.statusWaiting"));
   const [activeTab, setActiveTab] = useState<ActiveTab>("story");
   const [consoleLogs, setConsoleLogs] = useState<string>("");
   const [isBusy, setIsBusy] = useState(false);
@@ -194,7 +196,7 @@ export default function App() {
   useEffect(() => {
     const loadScenarios = async () => {
       try {
-        const data = await apiGetScenarios(resumeSessionData?.playerId);
+        const data = await apiGetScenarios(resumeSessionData?.playerId, lang);
         setScenarios(data.scenarios || []);
         if (data.scenarios.length > 0) {
           const firstPlayable =
@@ -203,11 +205,11 @@ export default function App() {
           setSelectedArchetype(firstUnlockedArchetype(firstPlayable.archetypes || []));
         }
       } catch (e) {
-        logToConsole("시나리오 목록 로드 실패: " + (e as Error).message);
+        logToConsole(t("app.scenarioLoadFail") + (e as Error).message);
       }
     };
     loadScenarios();
-  }, [resumeSessionData?.playerId]);
+  }, [resumeSessionData?.playerId, lang, t]);
 
   // --- API load functions ---
   // Read-side loaders (save/run/memory + skill tree) and the learn-skill
@@ -453,16 +455,16 @@ export default function App() {
   const tabNotices = useMemo<Partial<Record<ActiveTab, string>>>(() => {
     const notices: Partial<Record<ActiveTab, string>> = {};
     if ((finalizedSnapshot?.active_echoes || []).length > 0 || runsHistory.length > 0) {
-      notices.codex = "Echo, Shard, 지난 루프 기록 확인";
+      notices.codex = t("app.notice.codex");
     }
     if ((codexLists?.characters || []).length > 0) {
-      notices.character = "새 인물 기록 또는 장비 상태 확인";
+      notices.character = t("app.notice.character");
     }
     if (showInGameNotice || epiphanyNotice || skillNotice) {
-      notices.skills = "새 스킬 해금 또는 통찰 투자 가능";
+      notices.skills = t("app.notice.skills");
     }
     return notices;
-  }, [codexLists?.characters, epiphanyNotice, finalizedSnapshot?.active_echoes, runsHistory.length, showInGameNotice, skillNotice]);
+  }, [codexLists?.characters, epiphanyNotice, finalizedSnapshot?.active_echoes, runsHistory.length, showInGameNotice, skillNotice, t]);
 
   const handleTabClick = (tab: ActiveTab) => {
     setActiveTab(tab);
@@ -503,17 +505,17 @@ export default function App() {
       {!connected && !showBoot && epiphanyNotice && (
         <div className="epiphany-banner" id="epiphany-banner">
           <div className="epiphany-head">
-            <span>✦ 새로운 깨달음</span>
+            <span>{t("app.epiphany.title")}</span>
             <button
               type="button"
               onClick={() => dismissEpiphany(epiphanyNotice.loopId)}
-              aria-label="깨달음 알림 닫기"
+              aria-label={t("app.epiphany.close")}
             >
               ✕
             </button>
           </div>
           <div className="epiphany-body">
-            지난 루프의 경험으로 새로운 스킬이 해금되었습니다. SKILL TREE 탭에서 통찰을 투자해 습득하세요.
+            {t("app.epiphany.body")}
             <ul>
               {epiphanyNotice.skills.map((skill) => (
                 <li key={skill.name}>
@@ -574,11 +576,11 @@ export default function App() {
               id="ingame-epiphany-banner"
               onClick={() => setShowInGameNotice(null)}
             >
-              <div className="banner-title">✦ 실시간 깨달음 획득! ✦</div>
+              <div className="banner-title">{t("app.epiphanyLive.title")}</div>
               <div className="banner-body">
-                새로운 스킬이 해금되었습니다: <strong>{getSkillName(showInGameNotice)}</strong>
+                {t("app.epiphanyLive.body")}<strong>{getSkillName(showInGameNotice)}</strong>
                 <br />
-                <span className="banner-hint">상단 SKILL TREE 탭에서 통찰을 투자해 습득할 수 있습니다.</span>
+                <span className="banner-hint">{t("app.epiphanyLive.hint")}</span>
               </div>
             </div>
           )}

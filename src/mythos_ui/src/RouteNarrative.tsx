@@ -1,26 +1,15 @@
+import { useLang } from "./i18n/lang";
+import type { StringKey } from "./i18n/strings.ko";
 import type { RouteMap } from "./types";
 
 // Ending id -> player-facing label + a one-line plain-language gloss of what the
-// outcome actually means. Glosses are condensed from scenario.json
-// `endings[].narration` so a first-time player understands the lean without having
-// to decode the two-word name (the internal `condition` is never shown).
-const ENDINGS: Record<string, { label: string; gloss: string }> = {
-  ending_safe_refuge: {
-    label: "안정적 귀환",
-    gloss: "누군가를 구하고 자신도 지켜내, 세계는 그대로지만 혼자가 아니게 된다.",
-  },
-  ending_code_rewrite: {
-    label: "시스템 각성",
-    gloss: "자신의 의지를 코드로 흘려보내 Neo-Seoul의 규칙을 새로 쓴다.",
-  },
-  ending_noble_sacrifice: {
-    label: "고결한 희생",
-    gloss: "자신은 소멸하지만 모든 안드로이드에게 꿈을 남기고 세린에게 기억된다.",
-  },
-  ending_erasure: {
-    label: "강제 최적화",
-    gloss: "버그로 수정되어 지워지지만, 어딘가에서 작은 글리치가 다시 시작된다.",
-  },
+// outcome actually means (condensed from scenario.json `endings[].narration`). The
+// strings are localized; this map only holds the i18n key pair per ending id.
+const ENDING_KEYS: Record<string, { label: StringKey; gloss: StringKey }> = {
+  ending_safe_refuge: { label: "route.end.safeRefuge.label", gloss: "route.end.safeRefuge.gloss" },
+  ending_code_rewrite: { label: "route.end.codeRewrite.label", gloss: "route.end.codeRewrite.gloss" },
+  ending_noble_sacrifice: { label: "route.end.nobleSacrifice.label", gloss: "route.end.nobleSacrifice.gloss" },
+  ending_erasure: { label: "route.end.erasure.label", gloss: "route.end.erasure.gloss" },
 };
 
 /**
@@ -29,6 +18,7 @@ const ENDINGS: Record<string, { label: string; gloss: string }> = {
  * Lives in the 기억의 별자리(Codex) tab so the operation map stays a clean graph.
  */
 export function RouteNarrative({ routeMap }: { routeMap?: RouteMap | null }) {
+  const { t } = useLang();
   const layers = routeMap?.layers || [];
   if (!routeMap || layers.length === 0) return null;
 
@@ -45,11 +35,11 @@ export function RouteNarrative({ routeMap }: { routeMap?: RouteMap | null }) {
 
   return (
     <div className="codex-sec route-narrative">
-      <div className="codex-sec-title">루트 흐름 (Route)</div>
+      <div className="codex-sec-title">{t("route.flow")}</div>
 
       {activeLens && (
         <div className="route-active-lens">
-          <span className="route-active-tag">현재 시점</span> {activeLens.lens}
+          <span className="route-active-tag">{t("route.currentTag")}</span> {activeLens.lens}
           {activeLens.summary && <div className="route-active-summary">{activeLens.summary}</div>}
         </div>
       )}
@@ -57,23 +47,23 @@ export function RouteNarrative({ routeMap }: { routeMap?: RouteMap | null }) {
       {leaderboard.length > 0 && (
         <div className="route-ending-lead">
           <div className="route-ending-title">
-            이 루트가 향하는 결말
+            {t("route.headingEnding")}
             <span
               className="route-ending-help-icon"
-              title="지금까지 내린 선택이 어느 결말로 기울고 있는지 보여주는 누적 경향입니다. 확정이 아니라, 앞으로의 선택으로 바뀔 수 있는 가중치입니다."
+              title={t("route.endingHelpTitle")}
             >
               ⓘ
             </span>
           </div>
           <div className="route-ending-help">
-            지금까지의 선택이 기울고 있는 결말 경향(확정 아님).
+            {t("route.endingHelpNote")}
           </div>
           {leaderboard.slice(0, 3).map(([id, score]) => {
-            const meta = ENDINGS[id];
+            const meta = ENDING_KEYS[id];
             return (
               <div key={id} className="route-ending-row">
                 <div className="route-ending-head">
-                  <span className="route-ending-name">{meta?.label || id}</span>
+                  <span className="route-ending-name">{meta ? t(meta.label) : id}</span>
                   <span className="route-ending-bar">
                     <span
                       className="route-ending-fill"
@@ -81,7 +71,7 @@ export function RouteNarrative({ routeMap }: { routeMap?: RouteMap | null }) {
                     />
                   </span>
                 </div>
-                {meta?.gloss && <div className="route-ending-gloss">{meta.gloss}</div>}
+                {meta?.gloss && <div className="route-ending-gloss">{t(meta.gloss)}</div>}
               </div>
             );
           })}

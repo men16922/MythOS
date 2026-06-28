@@ -1,3 +1,4 @@
+import { useLang } from "./i18n/lang";
 import type { CombatState } from "./types";
 
 function factionColor(faction: string): string {
@@ -12,6 +13,7 @@ interface CombatRosterProps {
 }
 
 export function CombatRoster({ combat, scenarioId }: CombatRosterProps) {
+  const { t } = useLang();
   const blips = combat.radar?.blips || [];
   const party = blips.filter((b) => b.faction === "player" || b.faction === "ally");
   const enemies = blips.filter((b) => b.faction === "enemy");
@@ -55,7 +57,7 @@ export function CombatRoster({ combat, scenarioId }: CombatRosterProps) {
         <div className="roster-info">
           <div className="roster-header-row">
             <span className="roster-name">{b.name || b.id}</span>
-            {b.defending && <span className="roster-status-badge">방어</span>}
+            {b.defending && <span className="roster-status-badge">{t("roster.defending")}</span>}
           </div>
 
           {alive ? (
@@ -76,7 +78,7 @@ export function CombatRoster({ combat, scenarioId }: CombatRosterProps) {
               </div>
             </>
           ) : (
-            <div className="roster-dead-text">전투 불능 (KO)</div>
+            <div className="roster-dead-text">{t("roster.down")}</div>
           )}
         </div>
       </div>

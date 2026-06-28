@@ -8,41 +8,45 @@ import {
   Swords,
   Wrench,
 } from "lucide-react";
+import { useLang } from "./i18n/lang";
+import type { StringKey } from "./i18n/strings.ko";
 import type { RuntimeSnapshot, ScenarioCharacter } from "./types";
 import { detectSceneCharacter } from "./sceneCharacter";
 
-// 스탯 키 → 한글 표기 (Streamlit Codex 캐릭터 뷰와 일치)
-const STAT_NAMES: Record<string, string> = {
-  strength: "근력",
-  intelligence: "연산",
-  charisma: "공명",
-  agility: "반사",
-  perception: "관측",
+type TFn = (key: StringKey) => string;
+
+// Stat key → localized display name (neo-seoul flavored).
+const STAT_NAME_KEYS: Record<string, StringKey> = {
+  strength: "char.stat.strength",
+  intelligence: "char.stat.intelligence",
+  charisma: "char.stat.charisma",
+  agility: "char.stat.agility",
+  perception: "char.stat.perception",
 };
 
 const STAT_MAX = 10;
 const ITEM_CATEGORY_ORDER = ["weapon", "armor", "consumable", "material", "key", "data", "item"];
-const ITEM_CATEGORY_LABELS: Record<string, string> = {
-  weapon: "무기",
-  armor: "방어구",
-  consumable: "소모품",
-  material: "재료",
-  key: "키",
-  data: "데이터",
-  item: "기타",
+const ITEM_CATEGORY_KEYS: Record<string, StringKey> = {
+  weapon: "char.cat.weapon",
+  armor: "char.cat.armor",
+  consumable: "char.cat.consumable",
+  material: "char.cat.material",
+  key: "char.cat.key",
+  data: "char.cat.data",
+  item: "char.cat.item",
 };
-const SLOT_LABELS: Record<string, string> = {
-  weapon: "무기",
-  armor: "방어구",
-  accessory: "장신구",
+const SLOT_KEYS: Record<string, StringKey> = {
+  weapon: "char.cat.weapon",
+  armor: "char.cat.armor",
+  accessory: "char.cat.accessory",
 };
-const KIND_LABELS: Record<string, string> = {
-  consumable: "소모품",
-  equipment: "장비",
-  material: "재료",
-  key: "키",
-  data: "데이터",
-  item: "기타",
+const KIND_KEYS: Record<string, StringKey> = {
+  consumable: "char.cat.consumable",
+  equipment: "char.cat.equipment",
+  material: "char.cat.material",
+  key: "char.cat.key",
+  data: "char.cat.data",
+  item: "char.cat.item",
 };
 
 interface CharacterPanelProps {
@@ -51,10 +55,10 @@ interface CharacterPanelProps {
   onEquip?: (itemId: string, equipped: boolean) => void;
 }
 
-function statBonusLabel(stats?: Record<string, number> | null): string {
+function statBonusLabel(stats: Record<string, number> | null | undefined, t: TFn): string {
   if (!stats) return "";
   return Object.entries(stats)
-    .map(([k, v]) => `${STAT_NAMES[k] || k} +${v}`)
+    .map(([k, v]) => `${STAT_NAME_KEYS[k] ? t(STAT_NAME_KEYS[k]) : k} +${v}`)
     .join(", ");
 }
 
@@ -63,7 +67,7 @@ function itemCategory(item: { kind?: string; slot?: string | null }): string {
     if (item.slot === "weapon" || item.slot === "armor") return item.slot;
     return "item";
   }
-  return item.kind && ITEM_CATEGORY_LABELS[item.kind] ? item.kind : "item";
+  return item.kind && ITEM_CATEGORY_KEYS[item.kind] ? item.kind : "item";
 }
 
 function ItemIcon({ category }: { category: string }) {
@@ -79,6 +83,7 @@ function ItemIcon({ category }: { category: string }) {
 }
 
 export function CharacterPanel({ snapshot, characters, onEquip }: CharacterPanelProps) {
+  const { t } = useLang();
   const partner = detectSceneCharacter(snapshot, characters);
 
   // 대화 상대가 장면에 있으면 그 인물의 portrait/정보를 보여준다.
@@ -125,7 +130,7 @@ export function CharacterPanel({ snapshot, characters, onEquip }: CharacterPanel
       <div className="char-portrait-frame">
         <img
           src={`/resources/${scenarioId}/characters/player-noise.png`}
-          alt={player?.display_name || "플레이어"}
+          alt={player?.display_name || t("char.player")}
           className="char-portrait"
         />
       </div>
@@ -133,12 +138,12 @@ export function CharacterPanel({ snapshot, characters, onEquip }: CharacterPanel
       <div className="char-id">
         <div className="char-name">{player?.display_name || "—"}</div>
         <div className="char-arch">
-          소질 · {archetype}
-          {typeof autonomy === "number" ? ` · 자율성 LV${autonomy}` : ""}
+          {t("char.aptitude")} · {archetype}
+          {typeof autonomy === "number" ? ` · ${t("char.autonomy")}${autonomy}` : ""}
         </div>
       </div>
 
-      <div className="char-section-title">스탯</div>
+      <div className="char-section-title">{t("char.stats")}</div>
       {Object.keys(stats).length > 0 ? (
         <div className="char-stats">
           {Object.entries(stats).map(([key, value]) => {
@@ -146,7 +151,7 @@ export function CharacterPanel({ snapshot, characters, onEquip }: CharacterPanel
             return (
               <div key={key} className="char-stat">
                 <div className="char-stat-head">
-                  <span className="k">{STAT_NAMES[key] || key}</span>
+                  <span className="k">{STAT_NAME_KEYS[key] ? t(STAT_NAME_KEYS[key]) : key}</span>
                   <span className="v">
                     {v} / {STAT_MAX}
                   </span>
@@ -164,12 +169,12 @@ export function CharacterPanel({ snapshot, characters, onEquip }: CharacterPanel
           })}
         </div>
       ) : (
-        <div className="char-empty">저장된 스탯이 없습니다.</div>
+        <div className="char-empty">{t("char.noStats")}</div>
       )}
 
       {attributes.length > 0 && (
         <>
-          <div className="char-section-title">속성</div>
+          <div className="char-section-title">{t("char.attributes")}</div>
           <div className="char-chips">
             {attributes.map((attr, idx) => (
               <span key={`${attr}-${idx}`} className="char-chip">
@@ -180,17 +185,17 @@ export function CharacterPanel({ snapshot, characters, onEquip }: CharacterPanel
         </>
       )}
 
-      <div className="char-section-title">인벤토리 · {inventory.length}</div>
+      <div className="char-section-title">{t("char.inventory")} · {inventory.length}</div>
       {inventory.length > 0 ? (
         <div className="char-inventory">
           {inventoryGroups.map((group) => (
             <div key={group.category} className="inv-group">
-              <div className="inv-group-title">{ITEM_CATEGORY_LABELS[group.category]}</div>
+              <div className="inv-group-title">{ITEM_CATEGORY_KEYS[group.category] ? t(ITEM_CATEGORY_KEYS[group.category]) : group.category}</div>
               <ul className="inv-group-list">
                 {group.items.map((item, idx) => {
                   const category = itemCategory(item);
-                  const bonus = statBonusLabel(item.stats);
-                  const slotLabel = item.slot ? SLOT_LABELS[item.slot] || item.slot : "장비";
+                  const bonus = statBonusLabel(item.stats, t);
+                  const slotLabel = item.slot ? (SLOT_KEYS[item.slot] ? t(SLOT_KEYS[item.slot]) : item.slot) : t("char.cat.equipment");
                   return (
                     <li
                       key={`${item.id}-${idx}`}
@@ -198,7 +203,7 @@ export function CharacterPanel({ snapshot, characters, onEquip }: CharacterPanel
                         item.equipped ? " inv-equipped" : ""
                       }`}
                     >
-                      <span className="inv-icon" title={ITEM_CATEGORY_LABELS[category]}>
+                      <span className="inv-icon" title={ITEM_CATEGORY_KEYS[category] ? t(ITEM_CATEGORY_KEYS[category]) : category}>
                         <ItemIcon category={category} />
                       </span>
                       <span className="inv-main">
@@ -209,7 +214,7 @@ export function CharacterPanel({ snapshot, characters, onEquip }: CharacterPanel
                         <span className="inv-meta">
                           {item.kind === "equipment"
                             ? `${slotLabel}${bonus ? ` · ${bonus}` : ""}`
-                            : item.effect || KIND_LABELS[item.kind] || "보유품"}
+                            : item.effect || (item.kind && KIND_KEYS[item.kind] ? t(KIND_KEYS[item.kind]) : t("char.owned"))}
                         </span>
                       </span>
                       {item.kind === "equipment" && onEquip && (
@@ -218,7 +223,7 @@ export function CharacterPanel({ snapshot, characters, onEquip }: CharacterPanel
                           className={`inv-equip-btn${item.equipped ? " on" : ""}`}
                           onClick={() => onEquip(item.id, !item.equipped)}
                         >
-                          {item.equipped ? "해제" : "착용"}
+                          {item.equipped ? t("char.unequip") : t("char.equip")}
                         </button>
                       )}
                     </li>
@@ -229,7 +234,7 @@ export function CharacterPanel({ snapshot, characters, onEquip }: CharacterPanel
           ))}
         </div>
       ) : (
-        <div className="char-empty">보유한 물품이 없습니다.</div>
+        <div className="char-empty">{t("char.noItems")}</div>
       )}
     </div>
   );

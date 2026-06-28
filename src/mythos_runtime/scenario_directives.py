@@ -519,12 +519,42 @@ def _naming_from_parsed(parsed: ParsedDirectives) -> str:
     return block.body if block is not None else ""
 
 
-@lru_cache(maxsize=16)
-def load_scenario_directives(scenario_id: str) -> ScenarioDirectives:
+# Languages a ``<name>.<lang>.md`` directive file may be sharded into. Used both to
+# resolve a localized variant and to recognize/strip the suffix on companion files so a
+# language-suffixed file is never double-counted by the ``*.md`` glob.
+_KNOWN_LANGS = ("en", "ko")
+
+
+def _directive_path(base: Any, stem: str, language: str) -> Any | None:
+    """Resolve ``<stem>.<language>.md`` if present, else the unsuffixed ``<stem>.md``.
+
+    The unsuffixed file is the Korean original (no renames needed), so ``language="ko"``
+    reproduces the prior behavior exactly and ``language="en"`` gracefully falls back to
+    Korean for any directive that has no ``.en.md`` yet (per localization plan §7.2).
+    Returns ``None`` when neither exists.
+    """
+    localized = base / f"{stem}.{language}.md"
+    if localized.exists():
+        return localized
+    plain = base / f"{stem}.md"
+    return plain if plain.exists() else None
+
+
+def _companion_base_stem(stem: str) -> str:
+    """Strip a trailing ``.<lang>`` from a companion file stem (``se_rin.en`` → ``se_rin``)."""
+    head, _sep, tail = stem.rpartition(".")
+    return head if head and tail in _KNOWN_LANGS else stem
+
+
+@lru_cache(maxsize=32)
+def load_scenario_directives(scenario_id: str, language: str = "ko") -> ScenarioDirectives:
     """Load ``resources/<scenario>/directives/*.md`` into a ``ScenarioDirectives``.
 
-    Returns an empty object when the folder/files are absent (the call sites then
-    fall back to their prior hardcoded behavior). Mirrors ``load_story_bible``.
+    Each directive prefers its ``<name>.<language>.md`` variant and falls back to the
+    unsuffixed (Korean) ``<name>.md`` (see ``_directive_path``); ``language`` defaults to
+    ``"ko"`` so existing callers are unchanged. Returns an empty object when the folder/
+    files are absent (the call sites then fall back to their prior hardcoded behavior).
+    Mirrors ``load_story_bible``. Cache key includes ``language``.
     """
     base = PROJECT_ROOT / "resources" / scenario_id / "directives"
     opening_header: str = ""
@@ -535,39 +565,49 @@ def load_scenario_directives(scenario_id: str) -> ScenarioDirectives:
     stat_voices: StatVoices | None = None
     encounters: Encounters | None = None
 
-    opening_path = base / "opening.md"
-    if opening_path.exists():
+    opening_path = _directive_path(base, "opening", language)
+    if opening_path is not None:
         with open(opening_path, encoding="utf-8") as f:
             parsed = parse_directives_markdown(f.read())
         opening_header, opening_max_turn, opening_beats = _opening_from_parsed(parsed)
 
-    fallback_path = base / "fallback.md"
-    if fallback_path.exists():
+    fallback_path = _directive_path(base, "fallback", language)
+    if fallback_path is not None:
         with open(fallback_path, encoding="utf-8") as f:
             fallback_scene = _fallback_from_parsed(parse_directives_markdown(f.read()))
 
-    naming_path = base / "naming.md"
-    if naming_path.exists():
+    naming_path = _directive_path(base, "naming", language)
+    if naming_path is not None:
         with open(naming_path, encoding="utf-8") as f:
             naming_rule = _naming_from_parsed(parse_directives_markdown(f.read()))
 
-    stat_voices_path = base / "stat_voices.md"
-    if stat_voices_path.exists():
+    stat_voices_path = _directive_path(base, "stat_voices", language)
+    if stat_voices_path is not None:
         with open(stat_voices_path, encoding="utf-8") as f:
             stat_voices = _stat_voices_from_parsed(parse_directives_markdown(f.read()))
 
-    encounters_path = base / "encounters.md"
-    if encounters_path.exists():
+    encounters_path = _directive_path(base, "encounters", language)
+    if encounters_path is not None:
         with open(encounters_path, encoding="utf-8") as f:
             encounters = _encounters_from_parsed(parse_directives_markdown(f.read()))
 
     cutscenes: list[CutsceneDirective] = []
     companions_dir = base / "companions"
     if companions_dir.is_dir():
+        # Dedupe by base companion stem so a `<name>.<lang>.md` variant doesn't get
+        # parsed alongside its `<name>.md` original; resolve each via _directive_path.
+        seen: set[str] = set()
         for path in sorted(companions_dir.glob("*.md")):
-            with open(path, encoding="utf-8") as f:
+            base_stem = _companion_base_stem(path.stem)
+            if base_stem in seen:
+                continue
+            seen.add(base_stem)
+            resolved = _directive_path(companions_dir, base_stem, language)
+            if resolved is None:
+                continue
+            with open(resolved, encoding="utf-8") as f:
                 parsed = parse_directives_markdown(f.read())
-            cutscenes.extend(_cutscenes_from_parsed(parsed, default_companion=path.stem))
+            cutscenes.extend(_cutscenes_from_parsed(parsed, default_companion=base_stem))
 
     return ScenarioDirectives(
         scenario_id=scenario_id,

@@ -1,5 +1,7 @@
 import { choiceCostLabel, choiceRequirementLabel, isChoiceDisabled, cleanChoiceLabel } from "./choices";
 import type { SceneChoice } from "./types";
+import { useLang } from "./i18n/lang";
+import type { StringKey } from "./i18n/strings.ko";
 
 interface ChoicePanelProps {
   choices: SceneChoice[];
@@ -8,22 +10,24 @@ interface ChoicePanelProps {
   onChoose: (choiceId: string) => void;
 }
 
-const getIntentLabel = (intent?: string): string | null => {
+const intentKey = (intent?: string): StringKey | null => {
   if (!intent) return null;
   const cleanIntent = intent.trim().toLowerCase();
-  if (cleanIntent.includes("explore")) return "🧭 탐색";
-  if (cleanIntent.includes("interact")) return "💬 상호작용";
-  if (cleanIntent.includes("rewrite")) return "⚡ 시스템 개입";
-  if (cleanIntent.includes("archive")) return "🗄️ 기록 보관";
+  if (cleanIntent.includes("explore")) return "choice.intent.explore";
+  if (cleanIntent.includes("interact")) return "choice.intent.interact";
+  if (cleanIntent.includes("rewrite")) return "choice.intent.rewrite";
+  if (cleanIntent.includes("archive")) return "choice.intent.archive";
   return null;
 };
 
 export function ChoicePanel({ choices, stability, tension, onChoose }: ChoicePanelProps) {
+  const { t } = useLang();
   return (
     <div id="choices">
       {choices.map((choice, index) => {
         const disabled = isChoiceDisabled(choice, stability, tension);
-        const intentLabel = getIntentLabel(choice.intent);
+        const iKey = intentKey(choice.intent);
+        const intentLabel = iKey ? t(iKey) : null;
         return (
           <button
             key={choice.choice_id}
@@ -32,11 +36,11 @@ export function ChoicePanel({ choices, stability, tension, onChoose }: ChoicePan
             onClick={() => onChoose(choice.choice_id)}
             style={disabled ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
           >
-            <div className="cmd-hotkey">선택 {index + 1}</div>
+            <div className="cmd-hotkey">{t("choice.pick")} {index + 1}</div>
             <div className="cmd-label">
               {cleanChoiceLabel(choice.label)}
-              {choiceCostLabel(choice)}
-              {choiceRequirementLabel(choice)}
+              {choiceCostLabel(choice, t)}
+              {choiceRequirementLabel(choice, t)}
             </div>
             <div className="cmd-meta-row">
               {choice.axis_label && <span className="cmd-chip">{choice.axis_label}</span>}
@@ -48,7 +52,7 @@ export function ChoicePanel({ choices, stability, tension, onChoose }: ChoicePan
               ))}
             </div>
             {choice.result_preview && (
-              <div className="cmd-preview">예상 변화: {choice.result_preview}</div>
+              <div className="cmd-preview">{t("choice.preview")}: {choice.result_preview}</div>
             )}
           </button>
         );

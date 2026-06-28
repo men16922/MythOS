@@ -65,6 +65,14 @@ header .spacer {
   font-size: 11px;
   letter-spacing: 1.5px;
 }
+.lang-toggle {
+  min-width: 56px;
+  padding: 7px 11px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--ink-dim);
+  border-color: var(--line-soft);
+}
 .bgm-toggle.is-on {
   color: var(--bg);
   background: linear-gradient(135deg, rgba(143, 255, 234, 0.95), rgba(41, 255, 198, 0.72));

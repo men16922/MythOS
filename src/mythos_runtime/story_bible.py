@@ -34,9 +34,14 @@ class StoryBible:
         return not self.entries
 
 
-@lru_cache(maxsize=16)
-def load_story_bible(scenario_id: str) -> StoryBible:
-    path = PROJECT_ROOT / "resources" / scenario_id / "story_bible" / "bible.json"
+@lru_cache(maxsize=32)
+def load_story_bible(scenario_id: str, language: str = "ko") -> StoryBible:
+    # Prefer the localized bible (``bible.<lang>.json``) and fall back to the unsuffixed
+    # ``bible.json`` (Korean source), so ``language="ko"`` / a scenario with no localized
+    # bible reproduces the prior behavior exactly. Cache key includes ``language``.
+    base = PROJECT_ROOT / "resources" / scenario_id / "story_bible"
+    localized = base / f"bible.{language}.json"
+    path = localized if localized.exists() else base / "bible.json"
     if not path.exists():
         return StoryBible(scenario_id=scenario_id, title=scenario_id, premise="", entries=[])
 

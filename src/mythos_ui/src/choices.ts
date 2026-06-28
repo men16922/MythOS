@@ -1,4 +1,7 @@
+import type { StringKey } from "./i18n/strings.ko";
 import type { SceneChoice } from "./types";
+
+type TFn = (key: StringKey) => string;
 
 export function isChoiceDisabled(
   choice: SceneChoice,
@@ -13,37 +16,44 @@ export function isChoiceDisabled(
   return stabilityInvalid || tensionInvalid;
 }
 
-export function choiceRequirementLabel(choice: SceneChoice): string {
+export function choiceRequirementLabel(choice: SceneChoice, t: TFn): string {
   if (!choice.requires) return "";
   const labels: string[] = [];
   if (choice.requires.stability_min !== undefined) {
-    labels.push(`필요 안정성: ${choice.requires.stability_min}`);
+    labels.push(`${t("choice.reqStability")}: ${choice.requires.stability_min}`);
   }
   if (choice.requires.tension_max !== undefined) {
-    labels.push(`제한 긴장도: ${choice.requires.tension_max}`);
+    labels.push(`${t("choice.reqTension")}: ${choice.requires.tension_max}`);
   }
   return labels.length > 0 ? ` [${labels.join("] [")}]` : "";
 }
 
-export function choiceCostLabel(choice: SceneChoice): string {
+export function choiceCostLabel(choice: SceneChoice, t: TFn): string {
   if (!choice.cost) return "";
   const stability = choice.cost.stability || 0;
   const tension = choice.cost.tension || 0;
   const changes: string[] = [];
   if (stability !== 0) {
-    changes.push(`안정성 ${stability > 0 ? "+" : ""}${stability}`);
+    changes.push(`${t("choice.costStability")} ${stability > 0 ? "+" : ""}${stability}`);
   }
   if (tension !== 0) {
-    changes.push(`긴장도 ${tension > 0 ? "+" : ""}${tension}`);
+    changes.push(`${t("choice.costTension")} ${tension > 0 ? "+" : ""}${tension}`);
   }
   return changes.length > 0 ? ` (${changes.join(", ")})` : "";
 }
 
+// Strips the stat-tag tail's inner text from a server-authored choice label, keeping
+// just `(<stat>)`. Matches both Korean and English stat names (the LLM emits in the
+// active language) so the cleanup works for either.
+const _CHOICE_STAT_TAGS = [
+  "근력", "지능", "매력", "민첩", "관측", "통찰",
+  "Strength", "Intellect", "Charisma", "Agility", "Observation", "Insight",
+];
+
 export function cleanChoiceLabel(label: string): string {
   if (!label) return "";
-  const stats = ["근력", "지능", "매력", "민첩", "관측", "통찰"];
   let cleaned = label;
-  for (const stat of stats) {
+  for (const stat of _CHOICE_STAT_TAGS) {
     const regex = new RegExp(`\\((${stat})[^)]*\\)`, "g");
     cleaned = cleaned.replace(regex, `($1)`);
   }

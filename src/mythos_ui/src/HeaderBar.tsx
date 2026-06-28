@@ -1,3 +1,5 @@
+import { useLang } from "./i18n/lang";
+
 interface HeaderBarProps {
   connected: boolean;
   displayName: string;
@@ -23,6 +25,7 @@ export function HeaderBar({
   onToggleBgm,
   onLeaveSession,
 }: HeaderBarProps) {
+  const { lang, setLang, t } = useLang();
   return (
     <header>
       <div className="brand">
@@ -32,10 +35,19 @@ export function HeaderBar({
       <div className="spacer"></div>
       <button
         type="button"
+        className="lang-toggle"
+        onClick={() => setLang(lang === "ko" ? "en" : "ko")}
+        title={t("lang.switch")}
+        aria-label={t("lang.switch")}
+      >
+        {lang === "ko" ? "EN" : "한국어"}
+      </button>
+      <button
+        type="button"
         className={`bgm-toggle ${bgmEnabled ? "is-on" : "is-off"}`}
         aria-pressed={bgmEnabled}
         onClick={onToggleBgm}
-        title={bgmEnabled && bgmReady ? "BGM 끄기" : "BGM 켜기"}
+        title={bgmEnabled && bgmReady ? t("hdr.bgmOff") : t("hdr.bgmOn")}
       >
         BGM {bgmEnabled ? (bgmReady ? "ON" : "START") : "OFF"}
       </button>
@@ -46,7 +58,7 @@ export function HeaderBar({
             {archetype || selectedArchetype || ""}
           </span>
           <button onClick={onLeaveSession} id="leave">
-            접속 종료
+            {t("hdr.leave")}
           </button>
         </div>
       )}

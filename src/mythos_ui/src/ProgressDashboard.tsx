@@ -1,3 +1,4 @@
+import { useLang } from "./i18n/lang";
 import type { EchoItem, MemoryOverview, RunSummary, RuntimeSnapshot } from "./types";
 
 function stringCount(value: unknown): number {
@@ -18,6 +19,7 @@ export function ProgressDashboard({
   memoryOverview: MemoryOverview | null;
   runs: RunSummary[];
 }) {
+  const { t } = useLang();
   const shards = memoryOverview?.narrative_shards || [];
   const clueCount = shards.filter((s) => s.kind === "clue").length || snapshot?.clues_collected || 0;
   const loreCount = shards.filter((s) => s.kind === "lore").length + (memoryOverview?.unlocked_lore?.length || 0);
@@ -32,7 +34,7 @@ export function ProgressDashboard({
 
   return (
     <div className="panel progress-dashboard-panel">
-      <p className="panel-title">진행도 현황</p>
+      <p className="panel-title">{t("prog.title")}</p>
       <div className="progress-grid">
         <div className="progress-stat">
           <span>RUNS</span>
@@ -52,29 +54,29 @@ export function ProgressDashboard({
         </div>
       </div>
       <div className="progress-detail">
-        <span>단서 {clueCount}</span>
-        <span>로어 {loreCount}</span>
-        <span>인물 {characterCount}</span>
-        <span>스킬 {learnedSkills}/{unlockedSkills}</span>
+        <span>{t("prog.clues")} {clueCount}</span>
+        <span>{t("prog.lore")} {loreCount}</span>
+        <span>{t("prog.chars")} {characterCount}</span>
+        <span>{t("prog.skills")} {learnedSkills}/{unlockedSkills}</span>
       </div>
       {softDefeat && (
         <div className="progress-alert">
-          포획 후 회복 루트 진행 중: 다음 선택에서 탈출, 재정비, 추적 회피가 이어집니다.
+          {t("prog.recovery")}
         </div>
       )}
       {latestRun ? (
         <div className="progress-latest-run">
-          <span>최근 기록</span>
-          <strong>{latestRun.ending_label || latestRun.final_title || "종결된 루프"}</strong>
+          <span>{t("prog.recent")}</span>
+          <strong>{latestRun.ending_label || latestRun.final_title || t("save.endedLoop")}</strong>
           <small>
-            턴 {latestRun.turns}
-            {latestRun.combats_won != null ? ` · 승 ${latestRun.combats_won}` : ""}
-            {latestRun.combats_lost != null ? ` · 패 ${latestRun.combats_lost}` : ""}
+            {t("prog.turn")} {latestRun.turns}
+            {latestRun.combats_won != null ? ` · ${t("prog.win")} ${latestRun.combats_won}` : ""}
+            {latestRun.combats_lost != null ? ` · ${t("prog.loss")} ${latestRun.combats_lost}` : ""}
           </small>
         </div>
       ) : (
         <div className="progress-empty">
-          아직 보관된 런은 없습니다. 현재 루프의 Echo/Shard 현황은 위 카운터에 누적됩니다.
+          {t("prog.empty")}
         </div>
       )}
       {echoes.length > 0 && (

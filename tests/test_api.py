@@ -243,8 +243,14 @@ class ApiScenariosTest(unittest.TestCase):
         self.assertIn("WORLD: Neo-Seoul", en_neo["brief"])
         self.assertNotRegex(en_neo["brief"], hangul)
         en_intro = en_neo["ui_copy"]["session_intro"]
+        ko_intro = ko_neo["ui_copy"]["session_intro"]
         self.assertNotRegex(str(en_intro["title"]), hangul)
         self.assertNotRegex(str(en_intro["cinematic_shots"][0]["body"]), hangul)
+        # The language-neutral cinematic-shot `image` path must survive the overlay
+        # merge (EN overlay has no image → must keep the KO/base path, not blank it).
+        for i, shot in enumerate(en_intro["cinematic_shots"]):
+            self.assertEqual(shot.get("image"), ko_intro["cinematic_shots"][i].get("image"))
+            self.assertTrue(shot.get("image"))
         en_titles = " ".join(str(e["title"]) for e in en_neo["endings"])
         self.assertIn("Safe Refuge", en_titles)
         self.assertNotRegex(en_titles, hangul)

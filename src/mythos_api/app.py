@@ -354,9 +354,27 @@ def _localized_scenario_prose(s: Any, lang: str) -> _ScenarioProseL10n:
         for key in ("title", "body", "objective", "continue_button"):
             if intro_overlay.get(key):
                 merged_intro[key] = intro_overlay[key]
-        for list_key in ("cinematic_shots", "rules"):
-            if isinstance(intro_overlay.get(list_key), list):
-                merged_intro[list_key] = intro_overlay[list_key]
+        # rules is a plain string list → replace wholesale.
+        if isinstance(intro_overlay.get("rules"), list):
+            merged_intro["rules"] = intro_overlay["rules"]
+        # cinematic_shots are dicts carrying a language-neutral `image` path, so merge
+        # per index (overlay only truthy text fields) — a whole-list replace would drop
+        # the base image (the EN overlay has no image → broken opening cut).
+        overlay_shots = intro_overlay.get("cinematic_shots")
+        base_shots = base_intro.get("cinematic_shots")
+        if isinstance(overlay_shots, list) and isinstance(base_shots, list):
+            merged_shots: list[Any] = []
+            for i, base_shot in enumerate(base_shots):
+                shot = dict(base_shot) if isinstance(base_shot, dict) else base_shot
+                ov = overlay_shots[i] if i < len(overlay_shots) else None
+                if isinstance(shot, dict) and isinstance(ov, dict):
+                    for k, v in ov.items():
+                        if v:  # skip null/empty so a missing image never clobbers base
+                            shot[k] = v
+                merged_shots.append(shot)
+            merged_intro["cinematic_shots"] = merged_shots
+        elif isinstance(overlay_shots, list):
+            merged_intro["cinematic_shots"] = overlay_shots
         ui_copy["session_intro"] = merged_intro
     endings_overlay = i18n.get("endings")
     archetypes_overlay = i18n.get("archetypes")

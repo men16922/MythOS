@@ -29,7 +29,7 @@ export function HeaderBar({
   return (
     <header>
       <div className="brand">
-        <h1>세계 : 접속</h1>
+        <h1>{t("hdr.brand")}</h1>
         <span className="sub">MythOS React SPA · WS Streamer + Canvas Radar</span>
       </div>
       <div className="spacer"></div>

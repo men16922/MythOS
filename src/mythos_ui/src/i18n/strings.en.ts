@@ -18,6 +18,7 @@ export const en: Record<StringKey, string> = {
   "ob.simAllies": "Allies join:",
   "ob.simStart": "⚔️ Enter Combat Simulation",
   // Header bar
+  "hdr.brand": "World : Connect",
   "hdr.bgmOff": "Turn BGM off",
   "hdr.bgmOn": "Turn BGM on",
   "hdr.leave": "Disconnect",

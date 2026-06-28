@@ -18,6 +18,7 @@ export const ko = {
   "ob.simAllies": "동료 참전:",
   "ob.simStart": "⚔️ 전투 시뮬레이션 진입",
   // Header bar
+  "hdr.brand": "세계 : 접속",
   "hdr.bgmOff": "BGM 끄기",
   "hdr.bgmOn": "BGM 켜기",
   "hdr.leave": "접속 종료",

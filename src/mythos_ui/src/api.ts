@@ -12,10 +12,33 @@ import type {
 
 const API_BASE = ""; // Relative to host (served on same port)
 
+// Closed-beta invite key: taken from the page URL (?invite=KEY) on first load, then
+// persisted to localStorage and forwarded on every API call + the WebSocket. When the
+// backend has no MYTHOS_INVITE_KEYS set the gate is open, so this is a harmless no-op.
+const INVITE_STORAGE_KEY = "mythos_invite";
+
+export function getInviteKey(): string | null {
+  try {
+    const fromUrl = new URLSearchParams(window.location.search).get("invite");
+    if (fromUrl) {
+      localStorage.setItem(INVITE_STORAGE_KEY, fromUrl);
+      return fromUrl;
+    }
+    return localStorage.getItem(INVITE_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function inviteHeaders(): Record<string, string> {
+  const key = getInviteKey();
+  return key ? { "X-Invite-Key": key } : {};
+}
+
 async function apiPost<T>(path: string, body: unknown): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...inviteHeaders() },
     body: JSON.stringify(body),
   });
   if (!res.ok) {
@@ -25,7 +48,7 @@ async function apiPost<T>(path: string, body: unknown): Promise<T> {
 }
 
 async function apiGet<T>(path: string): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`);
+  const res = await fetch(`${API_BASE}${path}`, { headers: inviteHeaders() });
   if (!res.ok) {
     throw new Error(`${path} → ${res.status}: ${await res.text()}`);
   }
@@ -151,7 +174,7 @@ export async function apiLearnSkill(params: {
     `${API_BASE}/api/v1/players/${encodeURIComponent(params.player_id)}/skills/learn`,
     {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", ...inviteHeaders() },
       body: JSON.stringify({
         scenario_id: params.scenario_id,
         skill_id: params.skill_id,
@@ -186,5 +209,7 @@ export async function apiGetLoopScenes(loopId: string): Promise<{ scenes: LoopSc
 
 export function getWebSocketUrl(): string {
   const proto = window.location.protocol === "https:" ? "wss" : "ws";
-  return `${proto}://${window.location.host}/api/v1/loops/stream`;
+  const key = getInviteKey();
+  const query = key ? `?invite=${encodeURIComponent(key)}` : "";
+  return `${proto}://${window.location.host}/api/v1/loops/stream${query}`;
 }

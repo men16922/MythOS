@@ -25,6 +25,7 @@ from pydantic import BaseModel, Field
 from starlette.concurrency import iterate_in_threadpool, run_in_threadpool
 from starlette.responses import Response
 
+from mythos_api.invite import InviteGateMiddleware
 from mythos_api.serializers import (
     memory_overview_to_dict,
     player_to_dict,
@@ -367,6 +368,10 @@ def _localized_scenario_prose(s: Any, lang: str) -> _ScenarioProseL10n:
 
 def create_app() -> FastAPI:
     app = FastAPI(title="Project MythOS API", version="0.1.0", lifespan=_lifespan)
+
+    # Closed-beta invite gate (no-op unless MYTHOS_INVITE_KEYS is set). Outermost so it
+    # guards /api/v1/* (REST + WS) before any handler; /health and static stay open.
+    app.add_middleware(InviteGateMiddleware)
 
     @app.get("/api/v1/health")
     def health() -> dict[str, str]:

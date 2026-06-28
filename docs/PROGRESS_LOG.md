@@ -5,6 +5,12 @@ Last updated: 2026-06-28
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-06-28 — GCP closed-beta §3: invite-key gating (cost/access safety, full-stack)
+- Status: Completed (backend + frontend, gate-verified + live-verified). The DEPLOY.md §9 "배포 전 필수" item. `MYTHOS_INVITE_KEYS` (comma-separated) gates the cost-bearing API; unset → fully open (local/test/un-gated deploy unchanged).
+- Changed: NEW `mythos_api/invite.py` — `InviteGateMiddleware` (pure ASGI, http+websocket): when keys set, requires a valid key on `/api/v1/*` except `/health` via `X-Invite-Key` header or `?invite=` query (WS uses `?invite=`); REST→401, WS→close(1008). Wired outermost in `create_app`. Frontend `api.ts` — `getInviteKey()` reads `?invite=` from URL → localStorage → forwards as `X-Invite-Key` on every `apiGet/apiPost/apiLearnSkill` + `?invite=` on the WS URL. `.env.example` + DEPLOY.md (§4 env, §7 cap, §9 done).
+- Verified: `make check` green — **593 tests OK**, mypy clean, eslint/tsc/vite. `tests/test_api.py` +3 (REST 401/200 header+query, WS reject/accept, health+unset open). Live uvicorn: health 200 + static 200 open; scenarios no/bad-key 401, header/query-key 200; WS no-key REJECTED, valid-key CONNECTED.
+- Next: §3 remaining (자율) = per-tester loop/image caps + feedback survey link. Then human/infra `gcloud run deploy` (DEPLOY.md) — set `MYTHOS_INVITE_KEYS`.
+
 ## 2026-06-28 — GCP closed-beta: deploy runbook + cost estimate (DEPLOY.md) + Cloud Trace exporter
 - Status: Completed. NEW `docs/cloud/DEPLOY.md` deploy runbook (gcloud sequence + IAM + GCS + Cloud Run flags + verification + cost) and the Cloud Trace observability exporter (§3 관측성). Answers the "GCP 비용 예상" ask with grounded numbers.
 - Cost (2026-06 web-checked, approximate): Gemini 2.5 Flash $0.30/1M in · $2.50/1M out; Imagen 3 $0.04/img (Fast $0.02); Cloud Run scale-to-zero ≈ idle $0; Cloud Trace 2.5M span/mo free. → **per loop ~$0.3–0.7 (image-dominated)**; closed-beta round (10 testers × 2 loops) **~$6–15 variable**; **fixed ~$0/mo with Neon** (Cloud SQL +$25–50). Levers: Cloud Run min=0/max-cap, Imagen Fast + Flash-Lite, anchor curation (already), billing budget alert, invite gating.

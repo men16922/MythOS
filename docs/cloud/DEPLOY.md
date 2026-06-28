@@ -65,7 +65,8 @@ gcloud run deploy mythos-api \
   --min-instances 0 --max-instances 3 \         # 비용캡: idle=0, 동시 폭주 상한
   --concurrency 20 --cpu 1 --memory 1Gi \
   --set-env-vars "MYTHOS_NARRATIVE_PROVIDER=gemini,MYTHOS_VISUAL_PROVIDER=vertex,MYTHOS_STORAGE_BACKEND=gcs,GOOGLE_GENAI_USE_VERTEXAI=TRUE,GOOGLE_CLOUD_LOCATION=$REGION,MODEL=gemini-2.5-flash,IMAGEN_MODEL=imagen-3.0-generate-002,GEMINI_THINKING_BUDGET=0,GCS_BUCKET_ASSETS=$BUCKET,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,MYTHOS_TRACE_BACKEND=gcp" \
-  --set-env-vars "DATABASE_URL=<neon-or-cloudsql-url>"
+  --set-env-vars "DATABASE_URL=<neon-or-cloudsql-url>" \
+  --set-env-vars "MYTHOS_INVITE_KEYS=<key1,key2,...>"    # 초대키 게이팅(설정 시 /api/v1/* 보호)
 ```
 
 - `$PORT` 는 Cloud Run 이 주입 → `Dockerfile` CMD 가 `MYTHOS_API_PORT` 로 매핑(코드 무수정).
@@ -117,7 +118,7 @@ Cloud Run scale-to-zero ≈ idle $0 · Cloud Trace 월 2.5M span 무료.
 - [ ] **이미지**: 앵커 큐레이션 유지(이미 `_curated_anchor_image` 가드) · `IMAGEN_MODEL=imagen-3.0-fast-generate-001` 고려 · 턴당 동적생성 최소화.
 - [ ] **모델 다운시프트**: 단순 장면은 `MODEL=gemini-2.5-flash-lite`($0.10/$0.40).
 - [ ] **Vertex 쿼터**: 콘솔에서 일일 요청 상한 설정(폭주 방지).
-- [ ] **접근 게이팅**: 초대키/링크 한정(아래 §9 — 코드 미구현).
+- [ ] **접근 게이팅**: `MYTHOS_INVITE_KEYS=key1,key2` 설정 → 테스터에게 `https://앱?invite=key1` 링크 배포(코드 완료, §9).
 - [ ] **테스터당 루프 캡**: (코드 미구현 — §9).
 
 ## 8. 운영 / 정리
@@ -132,12 +133,13 @@ gcloud storage rm -r gs://$BUCKET                               # 버킷 정리
 ## 9. 미구현 — 배포 전/직후 필요한 §3 코드 (아직 없음)
 
 CLOSED_BETA §3 최소기능 중 **코드가 아직 없는** 것(전부 자율 구현 가능, 다음 후보):
-- **초대키/링크 게이팅** — 신규 가입·비용 폭주 방지. (미들웨어 + 키 검증)
 - **테스터당 루프/이미지 캡** — 비용 상한.
 - **피드백 캡처** — 종료 화면 설문 링크(§5 질문) + Discord 안내. (run-history/metrics 영속은 이미 있음)
 
-> ✅ **Cloud Trace exporter는 구현 완료**(2026-06-28): `MYTHOS_TRACE_BACKEND=gcp`→Cloud Trace, `none`→비활성,
-> 기본 `otlp`. `[gcp]` extra(`opentelemetry-exporter-gcp-trace`) + SA `roles/cloudtrace.agent` 필요.
+> ✅ **초대키 게이팅 구현 완료**(2026-06-28): `MYTHOS_INVITE_KEYS`(콤마구분) 설정 시 `/api/v1/*`(─`/health`)에
+> 키 요구 — REST `X-Invite-Key` 헤더/`?invite=`, WS `?invite=`. 미설정 시 완전 개방(로컬/테스트 불변). SPA가
+> URL `?invite=`를 읽어 localStorage 보관 후 자동 전송. 실서버(uvicorn) 검증: no-key 401/WS reject, key 200/connect.
+> ✅ **Cloud Trace exporter 구현 완료**: `MYTHOS_TRACE_BACKEND=gcp|none|otlp`(`[gcp]` extra + SA `roles/cloudtrace.agent`).
 
-> 비고: 위 3개가 빠져도 *기능상* 한 루프 플레이는 가능하나, **비용/접근 안전장치 없이는 공개 배포 금지**.
-> 최소한 초대키 게이팅 + 결제 예산 알림(§7)은 배포 전 필수.
+> 비고: 위 2개가 빠져도 *기능상* 한 루프 플레이는 가능하나, **비용/접근 안전장치 없이는 공개 배포 금지**.
+> 초대키 게이팅(코드 완료)은 `MYTHOS_INVITE_KEYS` 설정 + 결제 예산 알림(§7)이 배포 전 필수.

@@ -8,6 +8,7 @@ encounter, mirroring tests/test_combat_server.py.
 
 from __future__ import annotations
 
+import os
 import sys
 import unittest
 from collections.abc import Iterator
@@ -667,6 +668,54 @@ class ApiScenarioGatingTest(unittest.TestCase):
         )
         scenarios = self._scenarios(client, "player_gate")
         self.assertTrue(scenarios["glass-library"]["unlocked"])
+
+
+class InviteGateTest(unittest.TestCase):
+    """MYTHOS_INVITE_KEYS gates /api/v1/* (except /health); unset → fully open."""
+
+    def test_open_when_unset(self) -> None:
+        from unittest import mock
+
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("MYTHOS_INVITE_KEYS", None)
+            client = _client(_InMemoryStore())
+            self.assertEqual(client.get("/api/v1/scenarios").status_code, 200)
+
+    def test_gated_rest_requires_valid_key(self) -> None:
+        from unittest import mock
+
+        with mock.patch.dict(os.environ, {"MYTHOS_INVITE_KEYS": "alpha, beta"}):
+            client = _client(_InMemoryStore())
+            # health stays open
+            self.assertEqual(client.get("/api/v1/health").status_code, 200)
+            # no key → 401
+            self.assertEqual(client.get("/api/v1/scenarios").status_code, 401)
+            # valid key via header → 200
+            self.assertEqual(
+                client.get("/api/v1/scenarios", headers={"X-Invite-Key": "beta"}).status_code,
+                200,
+            )
+            # valid key via query param → 200
+            self.assertEqual(client.get("/api/v1/scenarios?invite=alpha").status_code, 200)
+            # wrong key → 401
+            self.assertEqual(
+                client.get("/api/v1/scenarios", headers={"X-Invite-Key": "nope"}).status_code,
+                401,
+            )
+
+    def test_gated_websocket_requires_key(self) -> None:
+        from unittest import mock
+
+        from starlette.websockets import WebSocketDisconnect
+
+        with mock.patch.dict(os.environ, {"MYTHOS_INVITE_KEYS": "alpha"}):
+            client = _client(_InMemoryStore())
+            with self.assertRaises(WebSocketDisconnect):
+                with client.websocket_connect("/api/v1/loops/stream"):
+                    pass
+            # valid key connects (then close immediately)
+            with client.websocket_connect("/api/v1/loops/stream?invite=alpha") as ws:
+                ws.close()
 
 
 class StorageBackendSelectionTest(unittest.TestCase):

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import sys
 from collections.abc import Iterator
 from contextlib import contextmanager
@@ -85,13 +86,24 @@ def get_logger(name: str) -> logging.Logger:
     return logging.getLogger(name)
 
 
+def _trace_backend() -> str:
+    """Trace export backend: ``otlp`` (default, local collector), ``gcp`` (Cloud Trace),
+    or ``none`` (disabled). Cloud Run with no collector should use gcp or none so the
+    OTLP exporter doesn't retry against an absent endpoint."""
+    return (os.getenv("MYTHOS_TRACE_BACKEND") or "otlp").strip().lower()
+
+
 def configure_tracing() -> bool:
     global _TRACING_CONFIGURED
     if _TRACING_CONFIGURED:
         return True
+
+    backend = _trace_backend()
+    if backend in {"none", "off", "disabled"}:
+        return False
+
     try:
         from opentelemetry import trace
-        from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
         from opentelemetry.sdk.resources import Resource
         from opentelemetry.sdk.trace import TracerProvider
         from opentelemetry.sdk.trace.export import BatchSpanProcessor
@@ -99,6 +111,20 @@ def configure_tracing() -> bool:
         return False
 
     settings = load_runtime_settings()
+
+    if backend in {"gcp", "cloud-trace", "cloudtrace"}:
+        # Cloud Trace via ADC (Cloud Run SA needs roles/cloudtrace.agent). Optional dep
+        # `opentelemetry-exporter-gcp-trace` (pyproject [gcp]); fall back to no tracing.
+        try:
+            from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
+        except ImportError:
+            return False
+        exporter: Any = CloudTraceSpanExporter()
+    else:
+        from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
+
+        exporter = OTLPSpanExporter(endpoint=f"{settings.otel_endpoint}/v1/traces")
+
     provider = TracerProvider(
         resource=Resource.create(
             {
@@ -107,9 +133,7 @@ def configure_tracing() -> bool:
             }
         )
     )
-    provider.add_span_processor(
-        BatchSpanProcessor(OTLPSpanExporter(endpoint=f"{settings.otel_endpoint}/v1/traces"))
-    )
+    provider.add_span_processor(BatchSpanProcessor(exporter))
     trace.set_tracer_provider(provider)
     _TRACING_CONFIGURED = True
     return True

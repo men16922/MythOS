@@ -56,10 +56,12 @@ gemini = [
 gcs = [
     "google-cloud-storage>=2.18.0",
 ]
-# Convenience aggregate for the full GCP closed-beta deploy (Gemini + Imagen + GCS).
+# Convenience aggregate for the full GCP closed-beta deploy (Gemini + Imagen + GCS +
+# Cloud Trace). MYTHOS_TRACE_BACKEND=gcp uses the Cloud Trace exporter.
 gcp = [
     "google-genai>=1.0.0",
     "google-cloud-storage>=2.18.0",
+    "opentelemetry-exporter-gcp-trace>=1.7.0",
 ]
 
 [project.scripts]

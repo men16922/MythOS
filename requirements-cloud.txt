@@ -24,6 +24,8 @@ opentelemetry-api>=1.26.0
 opentelemetry-sdk>=1.26.0
 opentelemetry-exporter-otlp-proto-http>=1.26.0
 
-# Cloud providers (pyproject [gcp]): Gemini narrative + Imagen image + GCS storage.
+# Cloud providers (pyproject [gcp]): Gemini narrative + Imagen image + GCS storage +
+# Cloud Trace (MYTHOS_TRACE_BACKEND=gcp).
 google-genai>=1.0.0
 google-cloud-storage>=2.18.0
+opentelemetry-exporter-gcp-trace>=1.7.0

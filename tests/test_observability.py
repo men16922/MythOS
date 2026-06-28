@@ -2,8 +2,16 @@ import json
 import logging
 import os
 import unittest
+from unittest import mock
 
-from mythos_runtime.observability import JsonFormatter, configure_logging, span, timed
+from mythos_runtime.observability import (
+    JsonFormatter,
+    _trace_backend,
+    configure_logging,
+    configure_tracing,
+    span,
+    timed,
+)
 
 
 class ObservabilityTest(unittest.TestCase):
@@ -100,3 +108,22 @@ class ObservabilityTest(unittest.TestCase):
         self.assertEqual(getattr(records[0], "loop_id"), "loop_1")
         self.assertEqual(getattr(records[0], "status"), "succeeded")
         self.assertGreaterEqual(getattr(records[0], "latency_ms"), 0)
+
+
+class TraceBackendTest(unittest.TestCase):
+    def test_backend_selection_from_env(self) -> None:
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("MYTHOS_TRACE_BACKEND", None)
+            self.assertEqual(_trace_backend(), "otlp")  # default
+        with mock.patch.dict(os.environ, {"MYTHOS_TRACE_BACKEND": "GCP"}):
+            self.assertEqual(_trace_backend(), "gcp")
+
+    def test_none_backend_disables_tracing(self) -> None:
+        # `none` short-circuits before any exporter import → tracing off, span() still safe.
+        import mythos_runtime.observability as obs
+
+        with mock.patch.object(obs, "_TRACING_CONFIGURED", False):
+            with mock.patch.dict(os.environ, {"MYTHOS_TRACE_BACKEND": "none"}):
+                self.assertFalse(configure_tracing())
+        with span("test.span.disabled"):
+            pass  # must not raise even with tracing disabled

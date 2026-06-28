@@ -5,6 +5,12 @@ Last updated: 2026-06-28
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-06-28 — GCP closed-beta §3: per-player loop cap (variable-cost ceiling)
+- Status: Completed (gate-verified). `MYTHOS_MAX_LOOPS_PER_PLAYER` (int, default 0=unlimited) caps NEW loops started per player — the per-tester variable-cost ceiling (each loop ≈ 30 Gemini turns + ~5–15 Imagen images). Unset/0 → no cap (local/test/un-capped deploy unchanged); resume never blocked.
+- Changed: NEW `mythos_api/limits.py` (`max_loops_per_player`/`loop_cap_exceeded` via `store.list_loops`). Wired into both begin paths: REST `loops/begin` → HTTP 429; WS `begin` (`_stream_for`) → `RuntimeError` relayed as a `{"type":"error"}` frame by `_run_stream`. `.env.example` + DEPLOY.md (§7 cap, §9 done). `tests/test_api.py` +2 (unlimited unset; cap=1 → 1st 200, 2nd 429).
+- Verified: `make check` green — **595 tests OK**, mypy clean.
+- Next (§3 last autonomous item is borderline): feedback survey link — mechanism is codable, but the actual Google Form URL + questions + UX are human artifacts (CLOSED_BETA §5). Everything else remaining is human/infra (gcloud deploy, DB, GCS bucket, billing alert).
+
 ## 2026-06-28 — GCP closed-beta §3: invite-key gating (cost/access safety, full-stack)
 - Status: Completed (backend + frontend, gate-verified + live-verified). The DEPLOY.md §9 "배포 전 필수" item. `MYTHOS_INVITE_KEYS` (comma-separated) gates the cost-bearing API; unset → fully open (local/test/un-gated deploy unchanged).
 - Changed: NEW `mythos_api/invite.py` — `InviteGateMiddleware` (pure ASGI, http+websocket): when keys set, requires a valid key on `/api/v1/*` except `/health` via `X-Invite-Key` header or `?invite=` query (WS uses `?invite=`); REST→401, WS→close(1008). Wired outermost in `create_app`. Frontend `api.ts` — `getInviteKey()` reads `?invite=` from URL → localStorage → forwards as `X-Invite-Key` on every `apiGet/apiPost/apiLearnSkill` + `?invite=` on the WS URL. `.env.example` + DEPLOY.md (§4 env, §7 cap, §9 done).

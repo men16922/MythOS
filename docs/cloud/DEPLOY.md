@@ -119,7 +119,7 @@ Cloud Run scale-to-zero ≈ idle $0 · Cloud Trace 월 2.5M span 무료.
 - [ ] **모델 다운시프트**: 단순 장면은 `MODEL=gemini-2.5-flash-lite`($0.10/$0.40).
 - [ ] **Vertex 쿼터**: 콘솔에서 일일 요청 상한 설정(폭주 방지).
 - [ ] **접근 게이팅**: `MYTHOS_INVITE_KEYS=key1,key2` 설정 → 테스터에게 `https://앱?invite=key1` 링크 배포(코드 완료, §9).
-- [ ] **테스터당 루프 캡**: (코드 미구현 — §9).
+- [ ] **테스터당 루프 캡**: `MYTHOS_MAX_LOOPS_PER_PLAYER=N` (코드 완료, §9). 변동비 테스터별 상한.
 
 ## 8. 운영 / 정리
 
@@ -132,13 +132,15 @@ gcloud storage rm -r gs://$BUCKET                               # 버킷 정리
 
 ## 9. 미구현 — 배포 전/직후 필요한 §3 코드 (아직 없음)
 
-CLOSED_BETA §3 최소기능 중 **코드가 아직 없는** 것(전부 자율 구현 가능, 다음 후보):
-- **테스터당 루프/이미지 캡** — 비용 상한.
+CLOSED_BETA §3 최소기능 중 **코드가 아직 없는** 것:
 - **피드백 캡처** — 종료 화면 설문 링크(§5 질문) + Discord 안내. (run-history/metrics 영속은 이미 있음)
+  > 메커니즘은 자율 구현 가능하나, 실제 **설문 URL(Google Form)·질문·UX는 사람이 제작/결정**해야 의미가 있음.
 
 > ✅ **초대키 게이팅 구현 완료**(2026-06-28): `MYTHOS_INVITE_KEYS`(콤마구분) 설정 시 `/api/v1/*`(─`/health`)에
 > 키 요구 — REST `X-Invite-Key` 헤더/`?invite=`, WS `?invite=`. 미설정 시 완전 개방(로컬/테스트 불변). SPA가
 > URL `?invite=`를 읽어 localStorage 보관 후 자동 전송. 실서버(uvicorn) 검증: no-key 401/WS reject, key 200/connect.
+> ✅ **테스터당 루프 캡 구현 완료**(2026-06-28): `MYTHOS_MAX_LOOPS_PER_PLAYER`(int, default 0=무제한) — 초과 시 새 루프
+> begin이 REST 429 / WS error frame. resume은 영향 없음. 변동비(루프당 ~$0.3–0.7)의 테스터별 상한.
 > ✅ **Cloud Trace exporter 구현 완료**: `MYTHOS_TRACE_BACKEND=gcp|none|otlp`(`[gcp]` extra + SA `roles/cloudtrace.agent`).
 
 > 비고: 위 2개가 빠져도 *기능상* 한 루프 플레이는 가능하나, **비용/접근 안전장치 없이는 공개 배포 금지**.

@@ -718,6 +718,35 @@ class InviteGateTest(unittest.TestCase):
                 ws.close()
 
 
+class LoopCapTest(unittest.TestCase):
+    """MYTHOS_MAX_LOOPS_PER_PLAYER caps new loops per player; unset/0 → unlimited."""
+
+    def _connect_and_begin(self, client: TestClient) -> int:
+        client.post("/api/v1/auth/connect", json={"display_name": "T", "player_id": "p_cap"})
+        return int(
+            client.post(
+                "/api/v1/loops/begin", json={"player_id": "p_cap", "fallback": True}
+            ).status_code
+        )
+
+    def test_unlimited_when_unset(self) -> None:
+        from unittest import mock
+
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("MYTHOS_MAX_LOOPS_PER_PLAYER", None)
+            client = _client(_InMemoryStore())
+            self.assertEqual(self._connect_and_begin(client), 200)
+            self.assertEqual(self._connect_and_begin(client), 200)  # 2nd begin fine
+
+    def test_cap_blocks_extra_loops_with_429(self) -> None:
+        from unittest import mock
+
+        with mock.patch.dict(os.environ, {"MYTHOS_MAX_LOOPS_PER_PLAYER": "1"}):
+            client = _client(_InMemoryStore())
+            self.assertEqual(self._connect_and_begin(client), 200)   # 1st OK
+            self.assertEqual(self._connect_and_begin(client), 429)   # 2nd capped
+
+
 class StorageBackendSelectionTest(unittest.TestCase):
     """The API asset-URL signer is env-driven so the GCP container honors
     MYTHOS_STORAGE_BACKEND (cloud deploy = gcs); default stays MinIO."""

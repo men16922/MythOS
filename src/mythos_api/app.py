@@ -26,6 +26,7 @@ from starlette.concurrency import iterate_in_threadpool, run_in_threadpool
 from starlette.responses import Response
 
 from mythos_api.invite import InviteGateMiddleware
+from mythos_api.limits import LOOP_CAP_MESSAGE, loop_cap_exceeded
 from mythos_api.serializers import (
     memory_overview_to_dict,
     player_to_dict,
@@ -167,6 +168,8 @@ def _stream_for(
     )
     event = message.get("event")
     if event == "begin":
+        if loop_cap_exceeded(service, message["player_id"]):
+            raise RuntimeError(LOOP_CAP_MESSAGE)  # relayed as a {"type":"error"} frame
         return service.stream_start_loop(message["player_id"], options)
     if event == "choose":
         return service.stream_choose(
@@ -519,6 +522,8 @@ def create_app() -> FastAPI:
         body: BeginLoopRequest,
         service: RuntimeSessionService = Depends(get_service),
     ) -> dict[str, Any]:
+        if loop_cap_exceeded(service, body.player_id):
+            raise HTTPException(status_code=429, detail=LOOP_CAP_MESSAGE)
         options = RuntimeOptions(scenario_id=body.scenario_id, fallback=body.fallback)
         try:
             snapshot = service.start_loop(body.player_id, options)

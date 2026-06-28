@@ -154,11 +154,11 @@ export async function apiResolveAsset(storageUri: string): Promise<{ url: string
 }
 
 export async function apiGetMemory(playerId: string): Promise<MemoryOverview> {
-  return apiGet<MemoryOverview>(`/api/v1/memory?player_id=${encodeURIComponent(playerId)}`);
+  return apiGet<MemoryOverview>(`/api/v1/memory?player_id=${encodeURIComponent(playerId)}&lang=${getLang()}`);
 }
 
 export async function apiGetSlots(playerId: string): Promise<{ slots: SaveSlot[] }> {
-  return apiGet<{ slots: SaveSlot[] }>(`/api/v1/save-slots?player_id=${encodeURIComponent(playerId)}`);
+  return apiGet<{ slots: SaveSlot[] }>(`/api/v1/save-slots?player_id=${encodeURIComponent(playerId)}&lang=${getLang()}`);
 }
 
 export async function apiSaveSlot(params: {
@@ -169,7 +169,7 @@ export async function apiSaveSlot(params: {
 }
 
 export async function apiGetRuns(playerId: string): Promise<{ runs: RunSummary[] }> {
-  return apiGet<{ runs: RunSummary[] }>(`/api/v1/runs?player_id=${encodeURIComponent(playerId)}`);
+  return apiGet<{ runs: RunSummary[] }>(`/api/v1/runs?player_id=${encodeURIComponent(playerId)}&lang=${getLang()}`);
 }
 
 export async function apiGetSkillTree(
@@ -177,7 +177,7 @@ export async function apiGetSkillTree(
   scenarioId: string
 ): Promise<SkillTreeResponse> {
   return apiGet<SkillTreeResponse>(
-    `/api/v1/players/${encodeURIComponent(playerId)}/skills?scenario_id=${encodeURIComponent(scenarioId)}`
+    `/api/v1/players/${encodeURIComponent(playerId)}/skills?scenario_id=${encodeURIComponent(scenarioId)}&lang=${getLang()}`
   );
 }
 

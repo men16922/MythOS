@@ -682,22 +682,28 @@ def create_app() -> FastAPI:
     @app.get(f"{API_PREFIX}/memory")
     def get_memory_overview(
         player_id: str,
+        lang: str = "ko",
+        scenario_id: str = "neo-seoul",
         service: RuntimeSessionService = Depends(get_service),
     ) -> dict[str, Any]:
         try:
             overview = service.memory_overview(player_id)
-            return memory_overview_to_dict(overview)
+            return localize_for(memory_overview_to_dict(overview), scenario_id, lang)
         except RuntimeError as exc:
             raise _as_http_error(exc) from exc
 
     @app.get(f"{API_PREFIX}/save-slots")
     def list_save_slots(
         player_id: str,
+        lang: str = "ko",
+        scenario_id: str = "neo-seoul",
         service: RuntimeSessionService = Depends(get_service),
     ) -> dict[str, Any]:
         try:
             slots = service.list_save_slots(player_id)
-            return {"slots": [save_slot_to_dict(slot) for slot in slots]}
+            return localize_for(
+                {"slots": [save_slot_to_dict(slot) for slot in slots]}, scenario_id, lang
+            )
         except RuntimeError as exc:
             raise _as_http_error(exc) from exc
 
@@ -715,11 +721,15 @@ def create_app() -> FastAPI:
     @app.get(f"{API_PREFIX}/runs")
     def list_runs(
         player_id: str,
+        lang: str = "ko",
+        scenario_id: str = "neo-seoul",
         service: RuntimeSessionService = Depends(get_service),
     ) -> dict[str, Any]:
         try:
             runs = service.list_run_summaries(player_id)
-            return {"runs": [run_summary_to_dict(run) for run in runs]}
+            return localize_for(
+                {"runs": [run_summary_to_dict(run) for run in runs]}, scenario_id, lang
+            )
         except RuntimeError as exc:
             raise _as_http_error(exc) from exc
 
@@ -727,10 +737,11 @@ def create_app() -> FastAPI:
     def get_skill_tree(
         player_id: str,
         scenario_id: str = "neo-seoul",
+        lang: str = "ko",
         service: RuntimeSessionService = Depends(get_service),
     ) -> dict[str, Any]:
         try:
-            return service.skill_tree(player_id, scenario_id)
+            return localize_for(service.skill_tree(player_id, scenario_id), scenario_id, lang)
         except RuntimeError as exc:
             raise _as_http_error(exc) from exc
 

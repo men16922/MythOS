@@ -7,10 +7,9 @@ from mythos_runtime.options import RuntimeOptions
 from mythos_runtime.route_map import ROUTE_MAP_KEY
 from mythos_runtime.visual_queue import VisualJobQueue
 from mythos_runtime.visual_service import (
-    FilesystemStorageAdapter,
-    MinIOStorageAdapter,
     VisualGenerationResult,
     VisualService,
+    storage_adapter_for,
 )
 
 
@@ -53,9 +52,7 @@ def maybe_generate_scene_image(
         if not options.image_sync_fallback or options.fast_mode:
             return None
 
-    storage = (
-        MinIOStorageAdapter() if options.image_storage == "minio" else FilesystemStorageAdapter()
-    )
+    storage = storage_adapter_for(options.image_storage)
     service = VisualService(storage=storage, store=store)
     return service.generate_for_scene(
         scene,

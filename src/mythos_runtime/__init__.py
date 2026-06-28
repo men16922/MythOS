@@ -9,6 +9,7 @@ from .visual_service import (
     VisualService,
     default_storage_adapter,
     default_visual_provider,
+    storage_adapter_for,
 )
 
 __all__ = [
@@ -22,4 +23,5 @@ __all__ = [
     "VisualService",
     "default_storage_adapter",
     "default_visual_provider",
+    "storage_adapter_for",
 ]

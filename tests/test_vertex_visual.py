@@ -20,12 +20,14 @@ from typing import Any
 from unittest import mock
 
 from mythos_runtime import (
+    FilesystemStorageAdapter,
     GCSStorageAdapter,
     MinIOStorageAdapter,
     VertexImageProvider,
     VisualGenerationRequest,
     default_storage_adapter,
     default_visual_provider,
+    storage_adapter_for,
 )
 from mythos_runtime.visual_service import _nearest_aspect_ratio
 
@@ -199,6 +201,22 @@ class FactoryTest(unittest.TestCase):
         with mock.patch.dict(os.environ, {}, clear=False):
             os.environ.pop("MYTHOS_STORAGE_BACKEND", None)
             self.assertIsInstance(default_storage_adapter(), MinIOStorageAdapter)
+
+    def test_storage_adapter_for_maps_kind(self) -> None:
+        # Write-path selector: preserves "minio"/"filesystem", adds "gcs".
+        self.assertIsInstance(storage_adapter_for("gcs"), GCSStorageAdapter)
+        self.assertIsInstance(storage_adapter_for("filesystem"), FilesystemStorageAdapter)
+        self.assertIsInstance(storage_adapter_for("minio"), MinIOStorageAdapter)
+        self.assertIsInstance(storage_adapter_for(""), MinIOStorageAdapter)
+
+    def test_runtime_options_image_storage_env_default(self) -> None:
+        from mythos_runtime.options import RuntimeOptions
+
+        with mock.patch.dict(os.environ, {"MYTHOS_STORAGE_BACKEND": "gcs"}):
+            self.assertEqual(RuntimeOptions().image_storage, "gcs")
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("MYTHOS_STORAGE_BACKEND", None)
+            self.assertEqual(RuntimeOptions().image_storage, "minio")
 
 
 if __name__ == "__main__":

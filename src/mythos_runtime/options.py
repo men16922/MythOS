@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
@@ -23,7 +24,12 @@ class RuntimeOptions:
     fast_mode: bool = True
     fallback: bool = False
     with_image: bool = False
-    image_storage: str = "minio"
+    # Default honors MYTHOS_STORAGE_BACKEND (gcs|minio|filesystem) so one env var drives
+    # all storage in the deployed container; unset → "minio" (local behavior unchanged).
+    # Explicit callers (e.g. connect_cli --filesystem-image) still override.
+    image_storage: str = field(
+        default_factory=lambda: os.getenv("MYTHOS_STORAGE_BACKEND") or "minio"
+    )
     image_width: int = 1024
     image_height: int = 1024
     image_steps: int = 4

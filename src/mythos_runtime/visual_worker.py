@@ -18,19 +18,16 @@ from mythos_memory.postgres_store import PostgresMythOSStore
 from mythos_runtime.observability import get_logger
 from mythos_runtime.visual_queue import VisualJobQueue
 from mythos_runtime.visual_service import (
-    FilesystemStorageAdapter,
-    MinIOStorageAdapter,
     VisualGenerationRequest,
     VisualGenerationResult,
     VisualService,
+    storage_adapter_for,
 )
 
 
 def process_job(job: dict, store: PostgresMythOSStore) -> VisualGenerationResult:
     request = VisualGenerationRequest(**job["request"])
-    storage = (
-        MinIOStorageAdapter() if job.get("storage_kind") == "minio" else FilesystemStorageAdapter()
-    )
+    storage = storage_adapter_for(job.get("storage_kind", ""))
     service = VisualService(storage=storage, store=store)
     # generate() sees request.asset_id, flags the row `processing`, then writes
     # the final succeeded/failed status to the same asset row.

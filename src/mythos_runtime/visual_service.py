@@ -388,18 +388,23 @@ class GCSStorageAdapter:
         )
 
 
-def default_storage_adapter() -> StorageAdapter:
-    """Pick the storage backend from env (`MYTHOS_STORAGE_BACKEND`).
+def storage_adapter_for(kind: str) -> StorageAdapter:
+    """Map a storage-kind string to an adapter (the write-path selector).
 
-    ``gcs`` → GCS; ``filesystem`` → local dir; anything else (default ``minio``)
-    keeps the existing MinIO/S3 adapter so current local behavior is unchanged.
+    ``gcs`` → GCS; ``filesystem`` → local dir; anything else (incl. ``minio``/empty)
+    → MinIO/S3. Preserves the prior ``"minio" vs filesystem`` behavior and adds gcs.
     """
-    backend = (os.getenv("MYTHOS_STORAGE_BACKEND") or "minio").strip().lower()
-    if backend == "gcs":
+    k = (kind or "").strip().lower()
+    if k == "gcs":
         return GCSStorageAdapter()
-    if backend == "filesystem":
+    if k == "filesystem":
         return FilesystemStorageAdapter()
     return MinIOStorageAdapter()
+
+
+def default_storage_adapter() -> StorageAdapter:
+    """Pick the storage backend from env (`MYTHOS_STORAGE_BACKEND`, default ``minio``)."""
+    return storage_adapter_for(os.getenv("MYTHOS_STORAGE_BACKEND") or "minio")
 
 
 class VisualService:

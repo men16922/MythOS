@@ -5,6 +5,12 @@ Last updated: 2026-06-28
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-06-28 — GCP closed-beta ③: image write-path GCS wiring (single env var drives all storage)
+- Status: Completed (code, gate-verified). Finishes the storage story started with the read/sign path: now one env var `MYTHOS_STORAGE_BACKEND=gcs` routes BOTH the API URL-signer AND the image write path (sync + Redis worker) to GCS. Local default unchanged (unset → minio).
+- Changed: NEW `visual_service.storage_adapter_for(kind)` (gcs|minio|filesystem → adapter; preserves the prior "minio vs filesystem" mapping, adds gcs); `default_storage_adapter()` now delegates to it. `visual_orchestration.py` (sync path) + `visual_worker.py` (async job) replaced their `MinIO-vs-Filesystem` ternary with `storage_adapter_for(...)`. `RuntimeOptions.image_storage` default now `field(default_factory=os.getenv("MYTHOS_STORAGE_BACKEND") or "minio")` — the API builds RuntimeOptions without setting it, so the deployed container's env flows through enqueue→worker. Exported `storage_adapter_for`. `tests/test_vertex_visual.py` +2 (kind mapping + env default).
+- Verified: `make check` green — **588 tests OK**, mypy clean. Existing visual_orchestration/worker tests still green (behavior preserved for minio/filesystem).
+- Next (human/infra): `gcloud run deploy` + DB decision (Neon/Cloud SQL) + GCS bucket. All autonomous closed-beta provider/adapter/container code is now done.
+
 ## 2026-06-28 — GCP closed-beta ③: Cloud Run containerization (lean) + WS verified + env-driven storage
 - Status: Completed (artifact + local verification). The FastAPI backend now containerizes into a lean Cloud Run image; the actual `gcloud run deploy` stays human/infra-gated. Next §3 deploy-prep step after the live-validated providers.
 - Key insight (GCP_PLAN §1): narrative=Gemini and image=Imagen are API calls, so the container OMITS the heavy local ML stack (torch/diffusers/mflux/transformers/accelerate/safetensors/sentencepiece/huggingface-hub) + streamlit. Verified `mythos_api.create_app()` imports cleanly with all of them blocked (the lazy-import discipline holds).

@@ -100,7 +100,7 @@ DB **Neon**(Vercel과 1급 통합) + 이미지 **GCS / Cloudflare R2**.
 - `[x]` GCS `StorageAdapter` (`visual_service.GCSStorageAdapter`, `google-cloud-storage`, `gs://` + v4 signed URL, `MYTHOS_STORAGE_BACKEND=gcs`) — 2026-06-28.
 - `[x]` `VertexImageProvider` (`visual_service.VertexImageProvider`, Imagen via google-genai, `MYTHOS_VISUAL_PROVIDER=vertex`) — 2026-06-28.
 - `[x]` Cloud Run 컨테이너화 + WS 검증 — 2026-06-28. `Dockerfile`(python:3.11-slim, **lean** = torch/diffusers/mflux/streamlit 제외, `requirements-cloud.txt` + `pip install --no-deps -e .`) + `.dockerignore` + `make cloud-image`/`cloud-run-local`. 로컬 검증: 287MB 이미지, DB 없이 부팅, `/`(SPA) 200 · `/api/v1/health` 200 · WS `/api/v1/loops/stream` 101 핸드셰이크 OK. API 저장 서명경로 `get_storage_adapter()`가 `MYTHOS_STORAGE_BACKEND`로 env 구동(gcs|minio). 실제 `gcloud run deploy`는 human/infra.
-- `[ ]` **이미지 쓰기경로 GCS 배선** (follow-up): `visual_orchestration.py`/`visual_worker.py`의 storage 선택은 아직 `image_storage`/`storage_kind` ("minio"|filesystem) 기준 → "gcs" 분기 + RuntimeOptions 배선 필요(읽기/서명경로는 완료).
+- `[x]` **이미지 쓰기경로 GCS 배선** — 2026-06-28. NEW `storage_adapter_for(kind)` (gcs|minio|filesystem) 팩토리를 `visual_orchestration.py`/`visual_worker.py` 양쪽에 적용; `default_storage_adapter()`가 이를 위임. `RuntimeOptions.image_storage` 기본값이 `MYTHOS_STORAGE_BACKEND`(default minio)에서 옴 → **단일 env 변수가 읽기/서명 + 쓰기(sync+worker) 저장소를 일괄 구동**. 로컬 동작 불변(unset→minio).
 - `[ ]` DB 결정 (Neon vs Cloud SQL vs Firestore) 후 연결 검증 (human/infra-gated)
 - `[x]` `[manual]` 실제 Vertex 프로젝트 live-test (Gemini 서사 + Imagen) — 2026-06-28 ADC로 검증: Gemini 3/3 success ~5s, Imagen 1024² ~6.9s.
 

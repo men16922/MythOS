@@ -174,6 +174,11 @@ CLOSED_BETA §3 최소기능 중 **코드가 아직 없는** 것:
 > ✅ **초대키 게이팅 구현 완료**(2026-06-28): `MYTHOS_INVITE_KEYS`(콤마구분) 설정 시 `/api/v1/*`(─`/health`)에
 > 키 요구 — REST `X-Invite-Key` 헤더/`?invite=`, WS `?invite=`. 미설정 시 완전 개방(로컬/테스트 불변). SPA가
 > URL `?invite=`를 읽어 localStorage 보관 후 자동 전송. 실서버(uvicorn) 검증: no-key 401/WS reject, key 200/connect.
+>
+> ✅ **초대키 게이트 화면 추가**(2026-06-29): 키 없이 접속하면 부팅 시 `GET /api/v1/auth/verify-invite` 프로브
+> → 401이면 **"Closed Beta Access" 키 입력 화면**(`InviteGate.tsx`) 표시(깨진 앱 대신). 유효키 입력→localStorage 저장
+> →이후 자동 통과(브라우저당 1회). `?invite=KEY` URL로 들어오면 입력 없이 즉시 통과. 게이팅 OFF면 프로브 200→바로 진입.
+> **테스터 배포**: 각자에게 `https://<앱>/?invite=<고유키>` 링크 1개 배포 → 클릭 한 번으로 입장(+세이브가 그 키로 기기 이동, Option B).
 > ✅ **테스터당 루프 캡 구현 완료**(2026-06-28): `MYTHOS_MAX_LOOPS_PER_PLAYER`(int, default 0=무제한) — 초과 시 새 루프
 > begin이 REST 429 / WS error frame. resume은 영향 없음. 변동비(루프당 ~$0.3–0.7)의 테스터별 상한.
 > ✅ **Cloud Trace exporter 구현 완료**: `MYTHOS_TRACE_BACKEND=gcp|none|otlp`(`[gcp]` extra + SA `roles/cloudtrace.agent`).

@@ -15,11 +15,8 @@ from typing import Any
 
 from mythos_core.dice import Dice
 
+from .log_i18n import clog, leads
 from .models import CombatLogEntry, CombatState
-
-_HIT_LEAD = ["", "그 순간, ", "곧바로 ", "틈을 놓치지 않고 "]
-_MISS_LEAD = ["", "하지만 ", "아쉽게도 ", "간발의 차로 "]
-_ROUND_LEAD = ["", "공기가 팽팽해진다. ", "신호가 요동친다. ", "정적이 깨지고 "]
 
 
 def render_radar(state: CombatState) -> dict[str, Any]:
@@ -87,12 +84,16 @@ def serialize_combat_log(entries: list[CombatLogEntry]) -> list[dict[str, Any]]:
 
 
 def narrate_since(state: CombatState, since_index: int) -> str:
-    """Render log entries from ``since_index`` onward into Korean prose."""
+    """Render log entries from ``since_index`` onward into prose (state language)."""
     entries = state.log[since_index:]
-    return narrate_entries(entries, seed=f"{state.seed}:narrate:{since_index}")
+    return narrate_entries(
+        entries, seed=f"{state.seed}:narrate:{since_index}", language=state.language
+    )
 
 
-def narrate_entries(entries: list[CombatLogEntry], *, seed: str = "") -> str:
+def narrate_entries(
+    entries: list[CombatLogEntry], *, seed: str = "", language: str = "ko"
+) -> str:
     dice = Dice(seed or "narrate")
     lines: list[str] = []
     move_buffer: list[str] = []
@@ -100,7 +101,7 @@ def narrate_entries(entries: list[CombatLogEntry], *, seed: str = "") -> str:
     def flush_moves() -> None:
         if move_buffer:
             names = ", ".join(dict.fromkeys(move_buffer))  # dedupe, keep order
-            lines.append(f"{names}이(가) 자리를 옮긴다.")
+            lines.append(clog(language, "narrate_move", names=names))
             move_buffer.clear()
 
     for entry in entries:
@@ -109,11 +110,11 @@ def narrate_entries(entries: list[CombatLogEntry], *, seed: str = "") -> str:
             continue
         flush_moves()
         if entry.action == "start":
-            lines.append(f"{_pick(dice, _ROUND_LEAD)}전투가 시작된다.")
+            lines.append(f"{_pick(dice, leads(language, 'round'))}{clog(language, 'narrate_start')}")
         elif entry.action == "hit":
-            lines.append(f"{_pick(dice, _HIT_LEAD)}{entry.text}")
+            lines.append(f"{_pick(dice, leads(language, 'hit'))}{entry.text}")
         elif entry.action == "miss":
-            lines.append(f"{_pick(dice, _MISS_LEAD)}{entry.text}")
+            lines.append(f"{_pick(dice, leads(language, 'miss'))}{entry.text}")
         elif entry.action in {"defeat", "defend", "flee", "end", "info", "item"}:
             lines.append(entry.text)
         else:
@@ -123,11 +124,12 @@ def narrate_entries(entries: list[CombatLogEntry], *, seed: str = "") -> str:
 
 
 def narrate_outcome(state: CombatState) -> str:
-    return {
-        "player_victory": "교전이 끝났다. 당신은 살아남았다.",
-        "player_defeat": "시야가 흐려진다. 신호가 끊긴다…",
-        "player_fled": "당신은 어둠 속으로 몸을 던져 전장을 빠져나간다.",
-    }.get(state.outcome or "", "전투가 종료되었다.")
+    key = {
+        "player_victory": "outcome_victory",
+        "player_defeat": "outcome_defeat",
+        "player_fled": "outcome_fled",
+    }.get(state.outcome or "", "outcome_over")
+    return clog(state.language, key)
 
 
 def _pick(dice: Dice, options: list[str]) -> str:

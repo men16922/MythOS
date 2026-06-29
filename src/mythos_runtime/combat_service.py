@@ -79,6 +79,7 @@ class CombatService:
         player_stats: dict[str, int],
         archetype: str | None,
         seed: str | None = None,
+        language: str = "ko",
     ) -> CombatTurnResult:
         weapon_ids = loadout_for_archetype(scenario_combat, archetype)
         skill_ids = self._player_skill_ids(loop, scenario_combat, archetype)
@@ -103,6 +104,7 @@ class CombatService:
             allies=allies,
             seed=combat_seed,
             engine=self.engine,
+            language=language,
         )
         loop = self._store_combat(loop, state)
         prose = narrate_since(state, 0)

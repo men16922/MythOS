@@ -5,6 +5,7 @@ from typing import Any
 
 from mythos_core.dice import Dice
 
+from .log_i18n import clog
 from .models import (
     ALLY,
     ENEMY,
@@ -77,6 +78,7 @@ class CombatEngine:
         seed: str,
         arena: tuple[int, int] = (8, 6),
         encounter_id: str | None = None,
+        language: str = "ko",
     ) -> CombatState:
         state = CombatState(
             active=True,
@@ -86,6 +88,7 @@ class CombatEngine:
             combatants=[*party, *enemies],
             seed=seed,
             encounter_id=encounter_id,
+            language=language,
         )
         self._build_deterministic_terrain(state)
         roll = self._dice(state)
@@ -98,7 +101,7 @@ class CombatEngine:
                 actor="system",
                 actor_name="SYSTEM",
                 action="start",
-                text="전투 개시.",
+                text=clog(language, "start"),
                 detail={"order": list(state.order)},
             )
         )
@@ -144,7 +147,7 @@ class CombatEngine:
                     state,
                     actor,
                     "defend",
-                    f"{actor.name}이(가) 방어 태세를 취하며 집중을 가다듬는다.",
+                    clog(state.language, "defend", name=actor.name),
                     detail,
                 )
             elif action.type == "flee":
@@ -153,10 +156,10 @@ class CombatEngine:
                 if actor.faction == PLAYER:
                     self._player_flee(state, actor, dice)
                 else:
-                    self._log(state, actor, "info", f"{actor.name}은(는) 전열을 이탈할 수 없다.")
+                    self._log(state, actor, "info", clog(state.language, "cannot_leave", name=actor.name))
                     spent = False
             else:
-                self._log(state, actor, "info", f"{actor.name}은(는) 상황을 살핀다.")
+                self._log(state, actor, "info", clog(state.language, "observe", name=actor.name))
 
         self._check_outcome(state)
         if not state.active or state.outcome == "player_fled":
@@ -350,18 +353,18 @@ class CombatEngine:
     ) -> None:
         target = state.by_id(action.target_id)
         if target is None or not target.alive:
-            self._log(state, player, "info", f"{player.name}의 표적이 사라졌다.")
+            self._log(state, player, "info", clog(state.language, "target_gone", name=player.name))
             return
         weapon = self._select_weapon(player, action.weapon_id)
         if weapon is None:
-            self._log(state, player, "info", f"{player.name}에게 무기가 없다.")
+            self._log(state, player, "info", clog(state.language, "no_weapon", name=player.name))
             return
         if not self._weapon_in_range(player, target, weapon):
             self._log(
                 state,
                 player,
                 "info",
-                f"{target.name}은(는) {weapon.name}의 사거리 밖에 있다.",
+                clog(state.language, "out_of_range", target=target.name, weapon=weapon.name),
                 {"distance": distance(player.x, player.y, target.x, target.y)},
             )
             return
@@ -409,7 +412,13 @@ class CombatEngine:
                 state,
                 attacker,
                 "miss",
-                f"{attacker.name}의 {weapon.name} 공격이 {defender.name}을(를) 빗나갔다.",
+                clog(
+                    state.language,
+                    "attack_miss",
+                    attacker=attacker.name,
+                    weapon=weapon.name,
+                    defender=defender.name,
+                ),
                 {
                     "roll": roll,
                     "total": total,
@@ -444,16 +453,30 @@ class CombatEngine:
                 state,
                 attacker,
                 "defeat",
-                f"{attacker.name}이(가) {defender.name}을(를) 쓰러뜨렸다! ({damage} 피해)",
+                clog(
+                    state.language,
+                    "attack_kill",
+                    attacker=attacker.name,
+                    defender=defender.name,
+                    damage=damage,
+                ),
                 detail,
             )
         else:
-            tag = "치명타! " if crit else ""
+            tag = clog(state.language, "crit_tag") if crit else ""
             self._log(
                 state,
                 attacker,
                 "hit",
-                f"{tag}{attacker.name}의 {weapon.name}이(가) {defender.name}에게 {damage} 피해.",
+                clog(
+                    state.language,
+                    "attack_hit",
+                    tag=tag,
+                    attacker=attacker.name,
+                    weapon=weapon.name,
+                    defender=defender.name,
+                    damage=damage,
+                ),
                 detail,
             )
 
@@ -470,7 +493,7 @@ class CombatEngine:
                 state,
                 player,
                 "flee",
-                f"{player.name}이(가) 전장을 이탈했다.",
+                clog(state.language, "flee_success", name=player.name),
                 {"dc": dc, "total": total},
             )
         else:
@@ -478,7 +501,7 @@ class CombatEngine:
                 state,
                 player,
                 "info",
-                f"{player.name}이(가) 이탈에 실패했다. 적이 길을 막는다.",
+                clog(state.language, "flee_fail", name=player.name),
                 {"dc": dc, "total": total},
             )
 
@@ -492,23 +515,26 @@ class CombatEngine:
         item_available: bool,
     ) -> bool:
         if not isinstance(skill_def, dict):
-            self._log(state, player, "info", f"{player.name}: 알 수 없는 스킬이다.")
+            self._log(state, player, "info", clog(state.language, "unknown_skill", name=player.name))
             return False
         skill_id = str(skill_def.get("id", action.skill_id or ""))
         name = str(skill_def.get("name", skill_id))
 
         remaining = int(player.cooldowns.get(skill_id, 0))
         if remaining > 0:
-            self._log(state, player, "info", f"{name}은(는) 재충전 중이다. (R-{remaining})")
+            self._log(
+                state, player, "info",
+                clog(state.language, "skill_recharge", name=name, remaining=remaining),
+            )
             return False
         cost = skill_def.get("cost", {}) if isinstance(skill_def.get("cost"), dict) else {}
         focus_cost = int(cost.get("focus", 0))
         if focus_cost > player.focus:
-            self._log(state, player, "info", f"{name}을(를) 발동할 집중이 부족하다.")
+            self._log(state, player, "info", clog(state.language, "skill_no_focus", name=name))
             return False
         item_cost = cost.get("item")
         if item_cost and not item_available:
-            self._log(state, player, "info", f"{name}에 필요한 자원이 없다.")
+            self._log(state, player, "info", clog(state.language, "skill_no_resource", name=name))
             return False
 
         effect = skill_def.get("effect", {}) if isinstance(skill_def.get("effect"), dict) else {}
@@ -521,13 +547,16 @@ class CombatEngine:
             if target is None or not target.alive:
                 target = self._nearest_enemy_in_range(state, player, skill_range)
             if target is None:
-                self._log(state, player, "info", f"{name}: 사거리 안에 표적이 없다.")
+                self._log(state, player, "info", clog(state.language, "skill_no_target", name=name))
                 return False
 
         detail: dict[str, Any] = {"skill": skill_id}
         if item_cost:
             detail["consumed"] = str(item_cost)
-        self._log(state, player, "skill", f"{player.name}이(가) {name}을(를) 발동한다.", detail)
+        self._log(
+            state, player, "skill",
+            clog(state.language, "skill_activate", actor=player.name, skill=name), detail,
+        )
 
         dice = self._dice(state)
         if "move" in effect:
@@ -547,11 +576,14 @@ class CombatEngine:
                 state,
                 player,
                 "defend",
-                f"{support.name} 주위로 엄호 노이즈가 퍼진다. (방어 +{support.defense_buff})",
+                clog(state.language, "cover_noise", name=support.name, buff=support.defense_buff),
             )
         if "heal" in effect:
             healed = self._apply_heal(support, str(effect.get("heal", "0")), dice)
-            self._log(state, player, "info", f"{support.name}이(가) {healed} 회복했다.")
+            self._log(
+                state, player, "info",
+                clog(state.language, "recover_hp", name=support.name, healed=healed),
+            )
 
         player.focus = max(0, player.focus - focus_cost)
         player.cooldowns[skill_id] = int(skill_def.get("cooldown", 0))
@@ -566,10 +598,10 @@ class CombatEngine:
         item_available: bool,
     ) -> bool:
         if not isinstance(item_def, dict):
-            self._log(state, player, "info", f"{player.name}: 사용할 수 없는 아이템이다.")
+            self._log(state, player, "info", clog(state.language, "item_unusable", name=player.name))
             return False
         if not item_available:
-            self._log(state, player, "info", f"{player.name}: 해당 아이템을 갖고 있지 않다.")
+            self._log(state, player, "info", clog(state.language, "item_missing", name=player.name))
             return False
         item_id = str(item_def.get("id", action.item_id or ""))
         name = str(item_def.get("name", item_id))
@@ -582,7 +614,7 @@ class CombatEngine:
                 state,
                 player,
                 "item",
-                f"{player.name}이(가) {name}을(를) 써 {healed} 회복했다.",
+                clog(state.language, "item_heal", actor=player.name, item=name, healed=healed),
                 detail,
             )
             return True
@@ -590,10 +622,11 @@ class CombatEngine:
             bonus = int(item_def.get("bonus", 1))
             detail["focus_gained"] = self._restore_focus(player, bonus)
             self._log(
-                state, player, "item", f"{player.name}이(가) {name}으로 집중을 회복했다.", detail
+                state, player, "item",
+                clog(state.language, "item_focus", actor=player.name, item=name), detail,
             )
             return True
-        self._log(state, player, "info", f"{name}은(는) 전투 중 사용할 수 없다.")
+        self._log(state, player, "info", clog(state.language, "item_combat_only", name=name))
         return False
 
     def _skill_move(
@@ -611,7 +644,7 @@ class CombatEngine:
                     state,
                     player,
                     "move",
-                    f"{player.name}이(가) 신호 도약으로 ({dx}, {dy})로 이동한다.",
+                    clog(state.language, "signal_step_move", name=player.name, dx=dx, dy=dy),
                     {"to": [dx, dy]},
                 )
             return
@@ -643,7 +676,7 @@ class CombatEngine:
                 state,
                 player,
                 "move",
-                f"{player.name}이(가) 신호 도약으로 ({player.x}, {player.y})로 파고든다.",
+                clog(state.language, "signal_step_dive", name=player.name, x=player.x, y=player.y),
                 {"to": [player.x, player.y]},
             )
 
@@ -666,7 +699,10 @@ class CombatEngine:
                 state,
                 player,
                 "miss",
-                f"{player.name}의 {skill_name}이(가) {target.name}을(를) 빗나갔다.",
+                clog(
+                    state.language, "skill_miss",
+                    actor=player.name, skill=skill_name, target=target.name,
+                ),
                 {"roll": roll, "total": total, "dc": dc, "target": target.id},
             )
             return
@@ -698,16 +734,22 @@ class CombatEngine:
                 state,
                 player,
                 "defeat",
-                f"{player.name}의 {skill_name}이(가) {target.name}을(를) 쓰러뜨렸다! ({damage} 피해)",
+                clog(
+                    state.language, "skill_kill",
+                    actor=player.name, skill=skill_name, target=target.name, damage=damage,
+                ),
                 detail,
             )
         else:
-            tag = "치명타! " if crit else ""
+            tag = clog(state.language, "crit_tag") if crit else ""
             self._log(
                 state,
                 player,
                 "hit",
-                f"{tag}{player.name}의 {skill_name}이(가) {target.name}에게 {damage} 피해.",
+                clog(
+                    state.language, "skill_hit",
+                    tag=tag, actor=player.name, skill=skill_name, target=target.name, damage=damage,
+                ),
                 detail,
             )
 
@@ -764,7 +806,7 @@ class CombatEngine:
                 state,
                 combatant,
                 "info",
-                f"⚠️ {combatant.name}이(가) 산성 액체 지대에서 {damage} 피해를 입고 장갑이 부식됩니다! (방어력 -1)",
+                clog(state.language, "hazard_acid", name=combatant.name, damage=damage),
                 {"damage": damage, "hp": combatant.hp},
             )
         elif hazard_type == "electro":
@@ -775,7 +817,7 @@ class CombatEngine:
                 state,
                 combatant,
                 "info",
-                f"⚠️ {combatant.name}이(가) 누전 지대에서 {damage} 전기 피해를 입고 기절(과부하)하여 집중력을 잃습니다!",
+                clog(state.language, "hazard_shock", name=combatant.name, damage=damage),
                 {"damage": damage, "hp": combatant.hp},
             )
         if combatant.hp <= 0:
@@ -784,7 +826,7 @@ class CombatEngine:
                 state,
                 combatant,
                 "defeat",
-                f"💀 {combatant.name}이(가) 지형 위험 요소로 인해 쓰러졌습니다.",
+                clog(state.language, "hazard_death", name=combatant.name),
                 {"target": combatant.id},
             )
 
@@ -869,7 +911,10 @@ class CombatEngine:
         effect = skill_def.get("effect", {}) if isinstance(skill_def.get("effect"), dict) else {}
 
         detail = {"skill": skill_id}
-        self._log(state, actor, "skill", f"{actor.name}이(가) {name}을(를) 발동한다.", detail)
+        self._log(
+            state, actor, "skill",
+            clog(state.language, "skill_activate", actor=actor.name, skill=name), detail,
+        )
 
         dice = self._dice(state)
         if target is not None and ("damage" in effect or "damage_bonus" in effect):
@@ -882,7 +927,7 @@ class CombatEngine:
                 state,
                 actor,
                 "defend",
-                f"{buff_target.name} 주위로 엄호 노이즈가 퍼진다. (방어 +{buff_target.defense_buff})",
+                clog(state.language, "cover_noise", name=buff_target.name, buff=buff_target.defense_buff),
             )
         if "heal" in effect:
             heal_target = target if target is not None else actor
@@ -891,7 +936,7 @@ class CombatEngine:
                 state,
                 actor,
                 "info",
-                f"{actor.name}이(가) {heal_target.name}의 HP를 {healed} 회복시켰다.",
+                clog(state.language, "heal_other", actor=actor.name, target=heal_target.name, healed=healed),
             )
         if "move" in effect:
             move_budget = int(effect.get("move", actor.speed))
@@ -920,7 +965,7 @@ class CombatEngine:
 
         if enemy.ai == "coward" and enemy.hp <= max(1, int(enemy.max_hp * 0.3)):
             self._move_to_band(state, enemy, target, desired=max(reach + 3, 6))
-            self._log(state, enemy, "flee", f"{enemy.name}이(가) 겁에 질려 물러난다.")
+            self._log(state, enemy, "flee", clog(state.language, "enemy_flee", name=enemy.name))
             return
 
         self._move_to_band(state, enemy, target, desired=max(1, reach))
@@ -1129,7 +1174,7 @@ class CombatEngine:
                 state,
                 player,
                 "move",
-                f"{player.name}이(가) ({player.x}, {player.y})로 이동한다.",
+                clog(state.language, "move", name=player.name, x=player.x, y=player.y),
                 {"from": list(old), "to": [player.x, player.y]},
             )
 
@@ -1169,7 +1214,7 @@ class CombatEngine:
                 state,
                 mover,
                 "move",
-                f"{mover.name}이(가) ({mover.x}, {mover.y})로 움직인다.",
+                clog(state.language, "move_shift", name=mover.name, x=mover.x, y=mover.y),
                 {"to": [mover.x, mover.y]},
             )
 
@@ -1235,12 +1280,12 @@ class CombatEngine:
         for combatant in state.combatants:
             combatant.defending = False
         if not (state.log and state.log[-1].action == "end"):
-            text = {
-                "player_victory": "적을 모두 제압했다.",
-                "player_defeat": "당신은 쓰러졌다.",
-                "player_fled": "당신은 전장을 벗어났다.",
-            }.get(state.outcome or "", "전투 종료.")
-            self._log(state, None, "end", text, {"outcome": state.outcome})
+            key = {
+                "player_victory": "end_victory",
+                "player_defeat": "end_defeat",
+                "player_fled": "end_fled",
+            }.get(state.outcome or "", "end_over")
+            self._log(state, None, "end", clog(state.language, key), {"outcome": state.outcome})
         return state
 
 

@@ -30,6 +30,7 @@ def build_encounter(
     allies: list[Combatant] | None = None,
     seed: str,
     engine: CombatEngine | None = None,
+    language: str = "ko",
 ) -> CombatState:
     engine = engine or CombatEngine()
     encounter = combat_pool.get("encounters", {}).get(encounter_id)
@@ -82,7 +83,10 @@ def build_encounter(
             continue
         ally.x, ally.y = ax, ay
         occupied.add((ax, ay))
-    return engine.start(party, enemies, seed=seed, arena=(width, height), encounter_id=encounter_id)
+    return engine.start(
+        party, enemies, seed=seed, arena=(width, height),
+        encounter_id=encounter_id, language=language,
+    )
 
 
 __all__ = ["build_encounter", "loadout_for_archetype"]

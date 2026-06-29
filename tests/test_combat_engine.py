@@ -127,6 +127,28 @@ class CombatEngineTest(unittest.TestCase):
         self.assertEqual(len(state.order), 2)
         self.assertTrue(any(e.action == "start" for e in state.log))
 
+    def test_combat_log_language(self) -> None:
+        # K6 EN gap fix: the combat log is generated *prose* and must render in the
+        # active language at the source (names interpolated in are glossary-localized
+        # at the API boundary, so EN here is grammatically English).
+        from mythos_combat.log_i18n import clog, leads
+
+        self.assertEqual(clog("en", "start"), "Combat begins.")
+        self.assertEqual(clog("ko", "start"), "전투 개시.")
+        hit = clog("en", "attack_hit", tag="", attacker="A", weapon="W", defender="B", damage=3)
+        self.assertEqual(hit, "A's W hits B for 3.")
+        self.assertNotRegex(hit, r"이\(가\)|을\(를\)|은\(는\)")  # no Korean particles
+        self.assertEqual(clog("en", "__unknown__"), "__unknown__")  # unknown key safe
+        # Same lead-pool length per language keeps narrator RNG consumption stable.
+        self.assertEqual(len(leads("en", "hit")), len(leads("ko", "hit")))
+        # The engine threads language into the persisted state + start entry.
+        engine = CombatEngine()
+        en = engine.start([_player()], [_drone()], seed="i18n", language="en")
+        self.assertEqual(en.language, "en")
+        self.assertTrue(any(e.text == "Combat begins." for e in en.log))
+        ko = engine.start([_player()], [_drone()], seed="i18n", language="ko")
+        self.assertTrue(any(e.text == "전투 개시." for e in ko.log))
+
     def test_deterministic_replay(self) -> None:
         def run() -> dict:
             engine = CombatEngine()

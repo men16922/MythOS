@@ -1001,6 +1001,7 @@ class RuntimeSessionService:
                 player_name=player.display_name,
                 player_stats=self._player_combat_stats(player, loop, scenario),
                 archetype=archetype,
+                language=options.language,
             )
         return self._commit_combat_turn(player, result, "combat started", options)
 
@@ -1225,6 +1226,7 @@ class RuntimeSessionService:
             player_name=player.display_name,
             player_stats=self._player_combat_stats(player, loop, scenario),
             archetype=archetype,
+            language=options.language,
         )
         return self._commit_combat_turn(player, result, "combat triggered by scene", options)
 

@@ -124,6 +124,8 @@ class CombatState:
     elevations: dict[str, int] = field(default_factory=dict)
     covers: dict[str, str] = field(default_factory=dict)
     hazards: dict[str, str] = field(default_factory=dict)
+    # Active player language for combat-log prose ("ko" default → behavior-preserving).
+    language: str = "ko"
 
     def by_id(self, combatant_id: str | None) -> Combatant | None:
         return next((c for c in self.combatants if c.id == combatant_id), None)

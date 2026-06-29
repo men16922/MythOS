@@ -1,9 +1,17 @@
 # Progress Log
 
-Last updated: 2026-06-28
+Last updated: 2026-06-29
 
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
+
+## 2026-06-29 — CBT UX: stable invite identity + game-style save/load + invite gate
+- Status: Completed (`make check` 608 green, Chrome live-verified, committed `daa5438` route-label fix + `fce5874` CBT bundle; unpushed — private repo, user pushes).
+- Changed (frontend): **Save/Load modal** (`SaveLoadModal.tsx`) replacing the inline panel — slot cards show scene/character(display_name+archetype)/scenario/date/turn-phase/STA-TEN/combat + **thumbnail**; **client-side paging** 6/page over latest 60; SAVE/LOAD buttons (in-game) + LOAD on Connection Terminal open it. **Option B identity** (`api.ts` `stablePlayerId` cyrb53 from invite key → saves follow the key cross-device, no OAuth). **Invite gate** (`InviteGate.tsx`): boot probe `/auth/verify-invite` → 401 shows key-entry screen, key persists to localStorage (one-time per browser), errors fail-open.
+- Changed (backend): capture `display_name`+per-loop `archetype` into `loop.state` at start (`session.py`); expose them + `curated_image` on `SaveSlot` (`options.py`/`save_load.py`); `save-slots` endpoint resolves `thumb_url` (curated static `/resources` first, else signed asset) + clamped `limit` (default 60); NEW `GET /auth/verify-invite` probe.
+- Verified: `make check` EXIT=0 **608 tests**, mypy/eslint/tsc/vite clean. Chrome: EN route labels English; LOAD picker + modal render/load; thumbnails load; paging 2 pages (6+3); invite gate blocks keyless / rejects wrong key / accepts valid + remembers on reload. Screenshots in `outputs/`.
+- Blockers: agent cannot push (private-repo classifier) → user pushes `feat/en-ko-s0-language-plumbing`.
+- Next: K6 combat + K9 ending EN verification (last EN gaps); then deploy (human/infra) — set `MYTHOS_INVITE_KEYS` + per-tester `?invite=` URLs; DEPLOY.md invite-gate note.
 
 ## 2026-06-28 — EN live-QA (Playwright) + close all residual EN localization gaps
 - Status: Completed (`make check` 604 green, browser+API re-verified, uncommitted). Drove the live SPA in EN (`?lang=en`, local `make api`/Ollama — EN narration + the data glossary are provider-independent, no Vertex cost) through onboarding→opening→2 turns→tabs via headless Playwright, scanning each screen's innerText for Hangul + screenshots (`scratchpad/shots/`). Found **9 residual-Korean surfaces** the prior S4 sweep missed; fixed all 9 + the broader hardcoded status-string class.

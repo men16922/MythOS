@@ -850,6 +850,29 @@ class LoopCapTest(unittest.TestCase):
             self.assertEqual(self._connect_and_begin(client), 200)   # 1st OK
             self.assertEqual(self._connect_and_begin(client), 429)   # 2nd capped
 
+    def test_admin_key_exempt_from_cap(self) -> None:
+        from unittest import mock
+
+        from mythos_api.limits import loop_cap_exceeded, stable_player_id
+
+        # cyrb53 parity with the SPA's stablePlayerId (cross-checked vs node).
+        self.assertEqual(stable_player_id("admin-43dc07f266c2"), "player_1d34fcf029cd64")
+
+        class _Svc:
+            class store:
+                @staticmethod
+                def list_loops(_pid: str) -> list[int]:
+                    return [0] * 999  # far over any cap
+
+        with mock.patch.dict(
+            os.environ,
+            {"MYTHOS_ADMIN_KEYS": "admin-43dc07f266c2", "MYTHOS_MAX_LOOPS_PER_PLAYER": "1"},
+        ):
+            # The admin key's derived player_id is exempt; a normal player is capped.
+            svc = cast(RuntimeSessionService, _Svc())
+            self.assertFalse(loop_cap_exceeded(svc, stable_player_id("admin-43dc07f266c2")))
+            self.assertTrue(loop_cap_exceeded(svc, "player_normaltester"))
+
 
 class StorageBackendSelectionTest(unittest.TestCase):
     """The API asset-URL signer is env-driven so the GCP container honors

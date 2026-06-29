@@ -274,6 +274,52 @@ class ContentEncounterIntegrityTest(unittest.TestCase):
 
         self.assertTrue(generated_types, "route map should generate at least one combat node type")
 
+    def test_boss_node_resolves_to_ix_confrontation_with_ix_present(self) -> None:
+        """The Neo-Seoul climax must be a real IX boss fight, not a generic drone
+        spawn (CBT gap fix, plan 2026-06-30). Three mechanical guarantees:
+
+        - ``administrator_ix`` is a boss-tier bestiary combatant (HP >= 30),
+        - the ``ix_confrontation`` encounter exists and actually fields IX, and
+        - every generated ``boss`` route node deterministically resolves to
+          ``ix_confrontation`` (so reaching the final node always confronts IX).
+        """
+        assert isinstance(self.combat_encounters, dict)
+        ix = self.bestiary.get("administrator_ix")
+        self.assertIsInstance(ix, dict, "bestiary must declare administrator_ix")
+        assert isinstance(ix, dict)
+        self.assertGreaterEqual(
+            int(ix.get("hp", 0)),
+            30,
+            "administrator_ix must be boss-tier HP (>=30)",
+        )
+
+        encounter = self.encounters.get("ix_confrontation")
+        self.assertIsInstance(encounter, dict, "encounters must declare ix_confrontation")
+        assert isinstance(encounter, dict)
+        enemy_ids = {str(e.get("bestiary")) for e in encounter.get("enemies", []) or []}
+        self.assertIn(
+            "administrator_ix",
+            enemy_ids,
+            "ix_confrontation must field administrator_ix (boss present in the fight)",
+        )
+
+        boss_seen = False
+        for rm in self._maps():
+            for node in rm["nodes"].values():
+                if node.get("type") != "boss":
+                    continue
+                boss_seen = True
+                pick = node_encounter_id(
+                    node, self.combat_encounters, seed=str(rm.get("seed"))
+                )
+                self.assertEqual(
+                    pick,
+                    "ix_confrontation",
+                    f"boss node {node.get('id')} resolved to {pick!r}, "
+                    f"expected ix_confrontation",
+                )
+        self.assertTrue(boss_seen, "route map should generate a boss node")
+
     def test_all_encounter_enemies_reference_bestiary_with_full_action_sheets(self) -> None:
         """Every encounter enemy must resolve to bestiary art for all combat states."""
         resource_root = PROJECT_ROOT / "resources" / self.scenario.scenario_id

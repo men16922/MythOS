@@ -264,7 +264,7 @@
     "combat_encounters": {
       "combat": ["sentinel_checkpoint", "wraith_glitch", "shock_trooper_patrol", "mech_siege"],
       "patrol": ["patrol_ambush", "tracker_ambush", "purge_incineration"],
-      "boss": ["enforcer_standoff", "mech_siege"]
+      "boss": ["ix_confrontation"]
     },
     "perspective_doc": "각 anchor는 같은 임팩트 장면을 여러 관점(perspectives)으로 본다. 플레이어가 누적한 flags가 when을 만족하는 관점이 그 세션의 진행으로 선택된다(없으면 default_perspective). 각 관점은 axis(선택축), crosses(교차하는 다른 비트), effect(세션 영향), ending_influence(엔딩 도출)를 갖는다. 실제 선택/적용은 director 통합 단계에서 수행한다.",
     "layers": [
@@ -877,6 +877,7 @@
       "arc_lance": {"id": "arc_lance", "name": "아크 랜스", "kind": "ranged", "damage": "2d4", "range": 3},
       "cutter_claw": {"id": "cutter_claw", "name": "절단날", "kind": "melee", "damage": "1d4", "reach": 1},
       "drone_laser": {"id": "drone_laser", "name": "드론 레이저", "kind": "ranged", "damage": "1d6", "range": 5},
+      "ix_optimizer_beam": {"id": "ix_optimizer_beam", "name": "최적화 빔", "kind": "ranged", "damage": "1d10", "range": 5, "armor_pen": 1},
       "unarmed": {"id": "unarmed", "name": "맨손", "kind": "melee", "damage": "1d4", "reach": 1}
     },
     "archetype_loadout": {
@@ -1364,6 +1365,28 @@
         "loot_table": "drone_scrap",
         "stats": {"strength": 5, "agility": 7, "perception": 6},
         "intro": "화염 노즐을 붉게 달군 공중 소각 드론이 열풍을 뿜으며 접근한다."
+      },
+      "administrator_ix": {
+        "id": "administrator_ix",
+        "name": "관리자 IX",
+        "hp": 38,
+        "defense": 13,
+        "speed": 3,
+        "armor": 2,
+        "ai": "ranged",
+        "blip": "❒",
+        "image": "enemies/administrator-ix.png",
+        "combat_images": {
+          "idle": "enemies/combat/administrator-ix-idle.png",
+          "attack": "enemies/combat/administrator-ix-attack.png",
+          "guard": "enemies/combat/administrator-ix-guard.png",
+          "skill": "enemies/combat/administrator-ix-skill.png",
+          "hit": "enemies/combat/administrator-ix-hit.png"
+        },
+        "weapons": ["ix_optimizer_beam"],
+        "loot_table": "enforcer_core",
+        "stats": {"strength": 6, "agility": 5, "perception": 8},
+        "intro": "ARK의 최적화 의지가 응결한 관리자 IX의 홀로그램 거상이 차갑게 강림하며, 도시의 모든 신호가 그 한 점으로 빨려든다."
       }
     },
     "items": {
@@ -1565,6 +1588,24 @@
         "narrative_trigger": "데이터 소각로 구역 침투 또는 로그 폭파 선택 후 후퇴 중 기계 경보로 발생한다.",
         "reward_intent": "드론 잔해 수집을 통해 drone_scrap 전리품 테이블과 소량의 통찰을 제공한다.",
         "reward": {"tension": 8, "insight": 1}
+      },
+      "ix_confrontation": {
+        "id": "ix_confrontation",
+        "name": "관리자 IX 대면",
+        "location_hint": "ARK 코어 — 최적화 제단",
+        "risk": 5,
+        "weight": 1,
+        "map_distance": 4,
+        "arena": {"width": 10, "height": 7},
+        "enemies": [
+          {"bestiary": "administrator_ix", "count": 1},
+          {"bestiary": "sentinel_drone", "count": 1},
+          {"bestiary": "purge_drone", "count": 1}
+        ],
+        "learning_goal": "최종 보스전. 고체력 단일 표적(IX)을 호위 드론과 위험 지형 속에서 분담 공략하며, 회복/엄호/일점사 타이밍과 파티 생존을 종합한다.",
+        "narrative_trigger": "작전 지도의 최종 boss 노드(세계를 다시 쓰다) 진입 시 발생한다. 관리자 IX가 코어에서 직접 대면을 선언할 때 시작된다.",
+        "reward_intent": "도시의 운명을 가르는 절정. 승리는 최대 통찰과 상급 전리품을 보장하되, 막대한 긴장도와 안정도 비용을 남겨 엔딩 분기로 이어진다.",
+        "reward": {"tension": 18, "stability": -6, "insight": 3}
       }
     }
   },

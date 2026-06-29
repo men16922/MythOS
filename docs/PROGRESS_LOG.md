@@ -5,6 +5,13 @@ Last updated: 2026-06-29
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-06-30 — IX boss DESIGN (claude lane): real climax fight, data-driven
+- Status: Completed (`make check` 611 green, committed; unpushed). Overnight `[auto:claude]` IX boss design lane (plan `docs/plans/2026-06-30-ix-boss-fight.md`). The Neo-Seoul climax was narrative-only (boss route node spawned generic enforcer/mech); now it's a real Administrator IX fight.
+- Changed (`resources/neo-seoul/scenario.json`, data-driven, no engine edits): bestiary `administrator_ix` (boss-tier hp 38 / def 13 / armor 2, ranged) + unique weapon `ix_optimizer_beam` (1d10, range 5, armor_pen 1); encounter `ix_confrontation` (IX + sentinel_drone + purge_drone adds, 10×7 arena → procedural hazard-rich terrain); route `combat_encounters.boss` → `["ix_confrontation"]` (single → deterministic resolve). Placeholder sprites at the 6 IX contract paths (cp suppression-mech; codex art lane overwrites).
+- Scope decisions: (a) enemy AI consumes only `primary_weapon()` — bestiary `skills` are NOT used mechanically, so IX distinction is via stats/unique weapon/adds/large arena, **not** player-tree skills (adding enemy skills to `combat.skills` would pollute the Codex tree + add inert icon burden). (b) Did **not** add `ix_confrontation` to the Director `start_combat` list — boss fires only at the route boss node, never mid-story. (c) `enforcer_standoff`/`mech_siege` stay declared + balance-tested (mech_siege still in `combat` pool; both Director-reachable).
+- Verified: balance tuned empirically via the deterministic greedy sim — `ix_confrontation` party(se_rin+kai)=0.68 / solo=0.00 (FLOOR 0.50 / CEIL 0.95), by far the hardest encounter (all others ~0.98). NEW `test_boss_node_resolves_to_ix_confrontation_with_ix_present` (boss node → ix_confrontation, IX boss-tier + present). `make check` EXIT=0 611.
+- Next: codex art lane generates real IX portrait/5 poses/skill icons to overwrite placeholders.
+
 ## 2026-06-30 — Post-combat EN fix (redeploy) + CBT recruitment assets + IX boss plan
 - Status: deployed (rev `mythos-api-00003-fzb`), `make check` 610 green, committed `649aeea..de95632` (unpushed).
 - Changed: **post-combat continue stayed Korean even in EN** — `useCombatRest.continueAfterCombat` sent a hardcoded Korean action + no `lang` on the WS choose, so the LLM regenerated KO + data unlocalized. Now uses localized `sess.postCombatAction` + `lang=getLang()` (`86d3970`). All generation paths now thread lang. Redeployed.

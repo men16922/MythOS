@@ -184,6 +184,23 @@ export default function App() {
     logToConsole
   );
 
+  // Auto-start BGM on the first user interaction (browsers block audio autoplay
+  // until a gesture). BGM is enabled by default, so this turns it ON at the very
+  // first click/keypress regardless of entry path; users can still toggle it off.
+  useEffect(() => {
+    if (!bgmEnabled || bgmReady) return;
+    const start = () => {
+      initAudio();
+      playBgm(mainBgmPath(), true);
+    };
+    window.addEventListener("pointerdown", start, { once: true });
+    window.addEventListener("keydown", start, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", start);
+      window.removeEventListener("keydown", start);
+    };
+  }, [bgmEnabled, bgmReady, initAudio, playBgm, mainBgmPath]);
+
   // Combat board cinema-queue driver: diffs combat snapshots into per-blow
   // CombatCinema overlays + board tweens; owns the prev/dispatched/pending refs
   // and the board-draw effect, and exposes the overlay impact/finish callbacks.

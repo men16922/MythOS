@@ -94,9 +94,9 @@ export function getLang(): "ko" | "en" {
     if (url === "en" || url === "ko") return url;
     const stored = window.localStorage.getItem("mythos_lang");
     if (stored === "en" || stored === "ko") return stored;
-    return "ko";
+    return "en"; // global-first default (KO via ?lang=ko or the language toggle)
   } catch {
-    return "ko";
+    return "en";
   }
 }
 

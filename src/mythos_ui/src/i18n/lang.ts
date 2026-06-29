@@ -10,13 +10,10 @@ const STORAGE_KEY = "mythos_lang";
 
 /**
  * Resolve the initial UI language: explicit `?lang=` URL param > localStorage choice >
- * default `ko`.
- *
- * English is opt-in only (via `?lang=en` or a stored choice) until the product default
- * flips. We deliberately do NOT auto-detect from `navigator.language` yet: that would
- * flip every English-locale browser — including the E2E/live-QA runners and current
- * Korean-QA sessions — to a still-incomplete English UI. Enable the navigator branch
- * together with the default flip (plan §3, after S3 golden-path screens land).
+ * default `en` (global-first, flipped 2026-06-29 after EN end-to-end + K6 combat-log
+ * localization). Korean is reachable via `?lang=ko` or the in-app language toggle, and
+ * any prior stored choice is preserved. We still do NOT auto-detect `navigator.language`
+ * (it would flip Korean-locale players who haven't chosen, and the E2E/KO-QA runners).
  */
 export function resolveInitialLang(): Lang {
   try {
@@ -24,9 +21,9 @@ export function resolveInitialLang(): Lang {
     if (url === "en" || url === "ko") return url;
     const stored = window.localStorage.getItem(STORAGE_KEY);
     if (stored === "en" || stored === "ko") return stored;
-    return "ko";
+    return "en";
   } catch {
-    return "ko";
+    return "en";
   }
 }
 

@@ -14,7 +14,9 @@ import uvicorn
 from playwright.sync_api import sync_playwright
 from mythos_api.app import create_app
 
-APP_URL = "http://127.0.0.1:8080/?fallback=0&image=0"
+# Pin KO: this checklist asserts the Korean UI/baseline, independent of the product
+# default language (flipped to EN 2026-06-29). EN is covered by the §K live-QA pass.
+APP_URL = "http://127.0.0.1:8080/?fallback=0&image=0&lang=ko"
 OUTPUT_DIR = Path(__file__).parent / "outputs"
 
 

@@ -134,7 +134,12 @@ export function useCombatRest(args: UseCombatRestArgs) {
     if (isStreaming) return;
     setCombatLog("");
     setCombatTarget(null);
-    pendingActionRef.current = DICTS[getLang()]["sess.postCombatAction"];
+    // The post-combat action text is fed to the Director as the player's move, so it
+    // must be in the active language (a hardcoded Korean action made the LLM continue
+    // in Korean even in EN mode). Also thread `lang` so the backend localizes the
+    // generated scene/data (the WS default is "ko").
+    const postAction = DICTS[getLang()]["sess.postCombatAction"];
+    pendingActionRef.current = postAction;
     // Keep previous image visible until the new one is generated asynchronously
     clearVisualTimeout();
     setImagePlaceholderText(DICTS[getLang()]["img.preparing"]);
@@ -146,8 +151,9 @@ export function useCombatRest(args: UseCombatRestArgs) {
           event: "choose",
           loop_id: loopId,
           scenario_id: selectedScenarioId,
-          action: "전투의 여파를 살피고 다음 행동을 준비한다",
+          action: postAction,
           fallback: fallbackMode,
+          lang: getLang(),
           ...imageOpts(),
         })
       );

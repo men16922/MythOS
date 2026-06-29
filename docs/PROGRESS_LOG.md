@@ -5,6 +5,12 @@ Last updated: 2026-06-29
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-06-29 — EN default flip (global-first) + BGM auto-on
+- Status: Completed (`make check` 609 green, Chrome live-verified, committed `05aae47`, unpushed). EN is now end-to-end (UI+narration+combat log via K6), so the product default language flips to English.
+- Changed: `resolveInitialLang()` (`i18n/lang.ts`), `getLang()` (`api.ts`), and `index.html` `<html lang>` now default to `en`; `?lang=` + stored choice still take precedence (KO users + toggle unaffected). Playwright E2E pinned to `?lang=ko` (asserts the KO baseline). BGM: enabled-by-default + NEW one-time first-gesture (pointerdown/keydown) autostart in `App.tsx` → BGM turns ON at first interaction on any entry path (autoplay-policy-compliant; still toggleable off).
+- Verified: fresh visitor (cleared storage, no `?lang=`) → EN boot/UI, language toggle reads `한국어`, `<html lang=en>`; trusted first click → BGM button `START`→`ON`. `make check` EXIT=0 609.
+- Next: K9 full ending screen live verify (AGY live-QA candidate) → deploy (human/infra).
+
 ## 2026-06-29 — K6 EN: localize combat log prose (engine-level i18n)
 - Status: Completed (`make check` 609 green, API+browser live-verified, committed `d37776b`, unpushed). K6 verification found combat UI fully EN *except* the combat event log — generated as Korean templates in `engine.py`/`narrator.py` (names English via glossary, but grammar/timestamps KO).
 - Changed: NEW `mythos_combat/log_i18n.py` (KO/EN templates `clog` + narrator lead pools, same length/lang → seed-stable). Added `language` to (persisted) `CombatState`; threaded `build_encounter` → `CombatService.begin` → both `session.py` begin sites (`options.language`) + `/combat/begin`. Replaced ~40 engine f-strings + narrator leads/flush/start/outcome. Combat RNG unaffected (log text consumes no dice); KO default → behavior-preserving. EN names still localized by the boundary glossary.

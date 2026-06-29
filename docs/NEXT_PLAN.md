@@ -72,6 +72,10 @@ Completed (→ COMPLETED_SUMMARY M35–M40, M39): Phase 1–3 (Golden Path 45min
 
 Open work:
 
+### IX Boss Fight (CBT gap — climax is narrative-only, spawns generic drones). Authority `docs/plans/2026-06-30-ix-boss-fight.md`
+- `[ ]` `[auto:claude]` **IX boss DESIGN** — scenario.json: bestiary `administrator_ix` (boss-tier hp/skills/intents) + `ix_confrontation` encounter (IX + adds + hazards) + wire route `boss` node → it + IX skill defs + content/balance tests; commit **placeholder sprites** (cp suppression-mech) so make check green. Criterion: `make check` green + boss node resolves to `ix_confrontation` (IX present) + balance invariant.
+- `[ ]` `[auto:codex]` **IX combat IMAGES** — generate IX portrait `enemies/administrator-ix.png` + 5 poses `enemies/combat/administrator-ix-{idle,attack,guard,skill,hit}.png` (RGBA 512×768) + IX `skills/<id>.png` icons to the contract paths (overwrite placeholders). Criterion: all IX sprites/icons present + non-placeholder + `test_assets.py` green.
+
 ### Live QA narrative improvements (2026-06-19, authority `docs/test/neo_seoul_live_qa.md`)
 
 Narrative QA #1 and #3 done.

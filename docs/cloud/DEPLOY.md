@@ -197,3 +197,44 @@ CLOSED_BETA §3 최소기능 중 **코드가 아직 없는** 것:
 
 > 비고: 위 2개가 빠져도 *기능상* 한 루프 플레이는 가능하나, **비용/접근 안전장치 없이는 공개 배포 금지**.
 > 초대키 게이팅(코드 완료)은 `MYTHOS_INVITE_KEYS` 설정 + 결제 예산 알림(§7)이 배포 전 필수.
+
+---
+
+## 10. 배포 전 최종 체크리스트 (한 장)
+
+> 변수: `PROJECT_ID=project-ec7809f7-0fb5-45d4-b6d` · `REGION=us-central1` · `SA=mythos-run@$PROJECT_ID.iam.gserviceaccount.com` · `BUCKET=mythos-assets-$PROJECT_ID`. 자율 코드는 전부 완료 — 아래는 **사람/인프라 작업**.
+
+**A. 코드 (완료 — 확인만)**
+- [x] EN end-to-end(서사+전투로그 K6+종료 K9) · EN 기본 언어 · BGM 자동 ON
+- [x] 초대키 게이트(`MYTHOS_INVITE_KEYS`)+게이트 화면 · 루프 캡(`MYTHOS_MAX_LOOPS_PER_PLAYER`) · Cloud Trace · GCS/Imagen/Gemini 어댑터 · lean 컨테이너
+- [ ] `make check` green 최종 확인 + **브랜치 push**(`feat/en-ko-s0-language-plumbing` → 머지)
+
+**B. GCP 1회 셋업 (§1–3)**
+- [ ] `gcloud config set project` + API 활성화(run/aiplatform/storage/cloudbuild/artifactregistry)
+- [ ] 런타임 SA 생성 + `roles/aiplatform.user` + `roles/cloudtrace.agent`
+- [ ] GCS 버킷 생성 + SA `roles/storage.objectAdmin`(공개 X)
+- [ ] DB: **Neon**(권장, idle≈$0) 생성 → `DATABASE_URL` 확보 → `migrations/001~007` 1회 적용
+
+**C. 배포 (§4)** — `gcloud run deploy mythos-api --source .` 에 env:
+- [ ] `--min-instances 0 --max-instances 3 --concurrency 20 --cpu 1 --memory 1Gi`
+- [ ] provider/모델 env(§4 그대로) + `DATABASE_URL` + `MYTHOS_TRACE_BACKEND=gcp`
+- [ ] **`MYTHOS_INVITE_KEYS=<테스터별 고유키 콤마구분>`**
+- [ ] **`MYTHOS_MAX_LOOPS_PER_PLAYER=10`** (1인 ~5–7.5h / ~$3–7)
+
+**D. 비용 안전장치 (§7)**
+- [ ] **결제 예산 알림**: `gcloud billing budgets create`(월 상한 + 50/90/100%) — *알림이지 자동중지 아님*
+- [ ] **Vertex 일일 요청 쿼터**(콘솔) — 하루 폭주 차단(사실상 일일 AI비 상한)
+- [ ] (선택) Imagen `imagen-3.0-fast-generate-001` / 단순장면 `gemini-2.5-flash-lite` 로 변동비 절반
+
+**E. 사람 산출물**
+- [ ] 피드백 **Google Form** URL+질문 제작(CLOSED_BETA §5) → 종료화면/안내에 노출
+- [ ] 테스터별 **`https://<앱>/?invite=<고유키>`** 링크 배포(키 1개=신원=세이브 기기이동)
+
+**F. 배포 후 검증 (§5b)**
+- [ ] `/api/v1/health` 200 · `/`(SPA) 200 · `/api/v1/scenarios` 200
+- [ ] 게이트: 무키 401/게이트화면, 유효키 진입 · EN 기본(새 방문자) · BGM 첫클릭 ON
+- [ ] WS 핸드셰이크 → **한 루프 끝까지 1회 실플레이**(서사+이미지+**K9 자연 엔딩 화면 EN**) 수동 확인
+- [ ] 루프 캡: 같은 키로 11번째 begin → 429/error (카운트는 DB 영속 → 기기 바꿔도 누적)
+
+**G. 운영 주의**
+- [ ] **DB 유지**(비우면 루프 카운트·세이브 리셋) · 모니터링(Cloud Trace/로그)

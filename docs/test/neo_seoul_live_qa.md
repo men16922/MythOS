@@ -36,7 +36,7 @@
 
 ## 🌐 3순위 — EN 검수 (남은 것만; `?lang=en`로 **새 루프** 시작해야 EN 서사가 나옴)
 - [x] **K6. 전투 EN** — PARTY/적/액션/스킬/인카운터 팝업/보드/상태/결과배너 모두 EN 확인(2026-06-29). **전투 로그 프로즈**도 영어화 완료: 엔진/narrator가 활성 언어로 로그 생성(`mythos_combat/log_i18n.py`, `CombatState.language`), 이름은 경계 glossary로 번역 → "Maintenance Drone's Cleaver Blade hits K6Tester for 6." (API 라이브 검증, KO 보존). 커밋 `d37776b`.
-- [~] **K9. 종료화면 EN** — 코드상 클린(ending_resolver 데이터기반·en.json 오버레이·전투결과 배너 i18n·combat-outcome 프로즈 영어화). **풀 엔딩 화면 라이브 미검증**(터미널 도달 플레이 필요, Gemini 과금).
+- [x] **K9. 종료화면 EN (데이터/렌더 경로 무과금 검증, 2026-06-29)** — fallback EN 루프를 `archive()`로 종료 → 실제 서빙 경로(`snapshot_to_dict`+`localize_for`)로 만든 ended 스냅샷을 전수 스캔 = **잔존 한글 0**. `EndedPanel`은 서버 데이터(`ending_label`/`ending_id`/`ending_narration`)+i18n 라벨/사유만 사용, 하드코딩 한글 0. **남은 것**: *자연 엔딩 1루프*의 authored `ending_narration` 실렌더 스크린샷 — 배포 직전 사람 실플레이(Gemini)로 확인 권장(KO A·F 체감검수와 묶음).
 - [ ] **번역 품질** — 전 구간 직역체/어색한 문장 없이 자연스러운가 (한글 잔존 0은 이미 확인됨, 이건 "자연스러움")
 - [ ] **`月光호`→"the Moonlight"** (린위에의 배) — 의도한 선박명인지 한 번만 봐주기
 

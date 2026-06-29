@@ -8,6 +8,7 @@ from mythos_core.ids import new_memory_id
 from mythos_memory import MythOSStore
 from mythos_runtime.combat_service import CombatService
 from mythos_runtime.options import SaveSlot
+from mythos_runtime.visual_orchestration import _curated_anchor_image
 
 
 class SaveLoadService:
@@ -68,10 +69,15 @@ def _save_slot_memory(
         "turn_index": scene.turn_index,
         "in_combat": CombatService.is_active(loop) or scene.scene_type == "combat",
         "asset_id": _latest_asset_id(assets, scene.scene_id),
+        "display_name": str(loop.state.get("display_name") or ""),
+        "archetype": str(loop.state.get("archetype") or ""),
         "metadata": {
             "location_id": loop.location_id,
             "location": scene.location,
             "autosave": label is None,
+            # Curated anchor image the player actually saw (if any) → free thumbnail
+            # on the save/load screen; relative to resources/<scenario>/.
+            "curated_image": _curated_anchor_image(loop) or "",
         },
     }
     return PlayerMemory(
@@ -125,6 +131,8 @@ def _save_slot_from_content(content: dict[str, Any], fallback_saved_at: str) -> 
         turn_index=int(content.get("turn_index") or 0),
         in_combat=bool(content.get("in_combat")),
         asset_id=str(content["asset_id"]) if content.get("asset_id") is not None else None,
+        display_name=str(content.get("display_name") or ""),
+        archetype=str(content.get("archetype") or ""),
         metadata=metadata if isinstance(metadata, dict) else {},
     )
 

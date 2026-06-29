@@ -195,6 +195,39 @@ def _find_asset(service: RuntimeSessionService, loop_id: str, asset_id: str) -> 
     return None
 
 
+def _attach_slot_thumbnails(
+    service: RuntimeSessionService, slots: list[dict[str, Any]]
+) -> None:
+    """Resolve a representative ``thumb_url`` for each save slot, in place. Prefers the
+    curated anchor image the player saw (static ``/resources/...`` — free, no signing);
+    otherwise signs the slot's generated scene asset. Slots with neither get no thumb
+    (the UI shows a placeholder). The signer is built lazily and only when needed."""
+    storage: SigningStorageAdapter | None = None
+    storage_failed = False
+    for slot in slots:
+        metadata = slot.get("metadata") if isinstance(slot.get("metadata"), dict) else {}
+        curated = (metadata or {}).get("curated_image")
+        if curated:
+            slot["thumb_url"] = f"/resources/{slot.get('scenario_id', 'neo-seoul')}/{curated}"
+            continue
+        asset_id, loop_id = slot.get("asset_id"), slot.get("loop_id")
+        if not asset_id or not loop_id:
+            continue
+        asset = _find_asset(service, str(loop_id), str(asset_id))
+        if asset is None or asset.status != "succeeded" or not asset.storage_uri:
+            continue
+        if storage is None and not storage_failed:
+            try:
+                storage = get_storage_adapter()
+            except Exception:
+                storage_failed = True
+        if storage is not None:
+            try:
+                slot["thumb_url"] = storage.presigned_url(asset.storage_uri)
+            except Exception:
+                pass
+
+
 def _visual_frame(
     storage: SigningStorageAdapter,
     *,
@@ -535,6 +568,14 @@ def create_app() -> FastAPI:
         items = [localize_for(item, str(item["id"]), lang) for item in items]
         return {"scenarios": items}
 
+    @app.get(f"{API_PREFIX}/auth/verify-invite")
+    def verify_invite() -> dict[str, bool]:
+        """Invite-key probe for the SPA gate screen. This route is under the gated
+        ``/api/v1/*`` prefix, so the ``InviteGateMiddleware`` rejects a missing/invalid
+        key with 401 before reaching here; a 200 means the key is valid (or gating is
+        disabled, so the app is open). Cheap — no DB or service work."""
+        return {"ok": True}
+
     @app.post(f"{API_PREFIX}/auth/connect")
     def connect(
         body: ConnectRequest,
@@ -702,13 +743,16 @@ def create_app() -> FastAPI:
         player_id: str,
         lang: str = "ko",
         scenario_id: str = "neo-seoul",
+        limit: int = 60,
         service: RuntimeSessionService = Depends(get_service),
     ) -> dict[str, Any]:
         try:
-            slots = service.list_save_slots(player_id)
-            return localize_for(
+            slots = service.list_save_slots(player_id, limit=max(1, min(limit, 200)))
+            payload = localize_for(
                 {"slots": [save_slot_to_dict(slot) for slot in slots]}, scenario_id, lang
             )
+            _attach_slot_thumbnails(service, payload["slots"])
+            return payload
         except RuntimeError as exc:
             raise _as_http_error(exc) from exc
 

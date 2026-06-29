@@ -395,6 +395,16 @@ export interface SaveSlot {
   loop_id: string;
   label?: string;
   saved_at: string;
+  scenario_id?: string;
+  scene_title?: string;
+  phase?: string;
+  turn_index?: number;
+  stability?: number;
+  tension?: number;
+  in_combat?: boolean;
+  display_name?: string;
+  archetype?: string;
+  thumb_url?: string;
 }
 
 export interface RunSummary {

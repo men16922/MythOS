@@ -269,6 +269,15 @@ class RuntimeSessionService:
         party.setdefault("player_max_hp", max_hp)
         initial_state["_party"] = party
 
+        # Capture the character identity for this loop so save slots can show it on
+        # the save/load screen. Stored per-loop because one stable player_id (closed
+        # beta, [[en-ko]] Option B) may run several archetypes across loops; the
+        # player row's traits only hold the latest.
+        initial_state["display_name"] = player.display_name
+        archetype = player.traits.get("archetype") if isinstance(player.traits, dict) else None
+        if archetype:
+            initial_state["archetype"] = str(archetype)
+
         loop_seed = create_loop_seed(
             player.player_id,
             len(loops) + 1,

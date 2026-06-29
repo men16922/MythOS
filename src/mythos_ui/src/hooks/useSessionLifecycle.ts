@@ -6,6 +6,7 @@ import {
   apiCombatBegin,
   apiGetLoopScenes,
   getLang,
+  stablePlayerId,
 } from "../api";
 import { DICTS } from "../i18n/lang";
 import { LS_KEY } from "../sessionStorage";
@@ -123,6 +124,9 @@ export function useSessionLifecycle(args: UseSessionLifecycleArgs) {
     try {
       const player = await apiConnect({
         display_name: displayName,
+        // Stable closed-beta identity from the invite key (Option B); null in local
+        // dev → backend mints a UUID as before.
+        player_id: stablePlayerId(),
         archetype: selectedArchetype,
         scenario_id: selectedScenarioId,
       });

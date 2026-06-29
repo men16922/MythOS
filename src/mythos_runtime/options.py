@@ -113,6 +113,8 @@ class SaveSlot:
     turn_index: int
     in_combat: bool = False
     asset_id: str | None = None
+    display_name: str = ""
+    archetype: str = ""
     metadata: dict[str, Any] = field(default_factory=dict)
 
 

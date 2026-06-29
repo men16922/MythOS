@@ -7,23 +7,17 @@ import type {
   RouteMap,
   RouteNode,
   RuntimeSnapshot,
-  SaveSlot,
 } from "./types";
 
 type TFn = (key: StringKey) => string;
 
 interface GameAsideProps {
-  saveLabelInput: string;
-  saveSlots: SaveSlot[];
   isBusy: boolean;
   canSave: boolean;
-  playerId: string;
-  scenarioId: string;
   finalizedSnapshot: RuntimeSnapshot | null;
   consoleLogs: string;
-  onSaveLabelChange: (value: string) => void;
-  onSave: () => void;
-  onLoad: (params: { playerId: string; scenarioId: string; loopId?: string }) => void;
+  onOpenSave: () => void;
+  onOpenLoad: () => void;
 }
 
 const TILE_GLYPH: Record<string, string> = {
@@ -492,30 +486,20 @@ function LogPanel({ consoleLogs }: { consoleLogs: string }) {
 }
 
 export function GameAside({
-  saveLabelInput,
-  saveSlots,
   isBusy,
   canSave,
-  playerId,
-  scenarioId,
   finalizedSnapshot,
   consoleLogs,
-  onSaveLabelChange,
-  onSave,
-  onLoad,
+  onOpenSave,
+  onOpenLoad,
 }: GameAsideProps) {
   return (
     <aside>
       <SaveHistoryPanel
-        saveLabelInput={saveLabelInput}
-        saveSlots={saveSlots}
         isBusy={isBusy}
         canSave={canSave}
-        playerId={playerId}
-        scenarioId={scenarioId}
-        onSaveLabelChange={onSaveLabelChange}
-        onSave={onSave}
-        onLoad={onLoad}
+        onOpenSave={onOpenSave}
+        onOpenLoad={onOpenLoad}
       />
       <OperationMapPanel snapshot={finalizedSnapshot} />
       <StatusPanel snapshot={finalizedSnapshot} />

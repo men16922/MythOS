@@ -1,5 +1,11 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { apiGetScenarios } from "./api";
+import {
+  apiGetScenarios,
+  apiGetSlots,
+  setInviteKey,
+  stablePlayerId,
+  verifyInvite,
+} from "./api";
 import { firstUnlockedArchetype } from "./archetypes";
 import { CodexPanel } from "./CodexPanel";
 import { CharacterTabPanel } from "./CharacterTabPanel";
@@ -8,6 +14,8 @@ import { GameAside } from "./GameAside";
 import { BootIntro } from "./BootIntro";
 import { HeaderBar } from "./HeaderBar";
 import { OnboardingPanel } from "./OnboardingPanel";
+import { SaveLoadModal } from "./SaveLoadModal";
+import { InviteGate } from "./InviteGate";
 import { StoryPanel } from "./StoryPanel";
 import { TabNav } from "./TabNav";
 import type { ActiveTab } from "./TabNav";
@@ -82,6 +90,10 @@ export default function App() {
   const [consoleLogs, setConsoleLogs] = useState<string>("");
   const [isBusy, setIsBusy] = useState(false);
   const [saveSlots, setSaveSlots] = useState<SaveSlot[]>([]);
+  const [saveLoadModal, setSaveLoadModal] = useState<"save" | "load" | null>(null);
+  // Closed-beta invite gate: "checking" until the probe resolves, "blocked" if the
+  // key is missing/invalid (show the gate screen), "ok" if valid or gating is off.
+  const [inviteGate, setInviteGate] = useState<"checking" | "blocked" | "ok">("checking");
   const [runsHistory, setRunsHistory] = useState<RunSummary[]>([]);
   const [memoryOverview, setMemoryOverview] = useState<MemoryOverview | null>(null);
   const [saveLabelInput, setSaveLabelInput] = useState("");
@@ -192,8 +204,34 @@ export default function App() {
     playSfx,
   });
 
+  // --- Invite gate probe (closed beta) ---
+  // Checks the stored/URL key against the gated API once on mount. 401 → show the gate
+  // screen; 200 (valid key, or gating disabled) → proceed. Network/server errors fail
+  // open so a backend hiccup can't lock everyone out.
+  useEffect(() => {
+    let cancelled = false;
+    verifyInvite()
+      .then((ok) => {
+        if (!cancelled) setInviteGate(ok ? "ok" : "blocked");
+      })
+      .catch(() => {
+        if (!cancelled) setInviteGate("ok");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleInviteSubmit = useCallback(async (key: string): Promise<boolean> => {
+    setInviteKey(key);
+    const ok = await verifyInvite();
+    if (ok) setInviteGate("ok");
+    return ok;
+  }, []);
+
   // --- Onboarding & Setup effect ---
   useEffect(() => {
+    if (inviteGate !== "ok") return;
     const loadScenarios = async () => {
       try {
         const data = await apiGetScenarios(resumeSessionData?.playerId, lang);
@@ -209,7 +247,33 @@ export default function App() {
       }
     };
     loadScenarios();
-  }, [resumeSessionData?.playerId, lang, t]);
+  }, [resumeSessionData?.playerId, lang, t, inviteGate]);
+
+  // Connection-Terminal identity for the LOAD picker (Option B): prefer the stable
+  // invite-derived id (saves follow the invite key across devices), else the
+  // localStorage resume id. Null in local dev with no invite key + no prior session.
+  const startScreenPlayerId = useMemo(
+    () => stablePlayerId() ?? resumeSessionData?.playerId ?? null,
+    [resumeSessionData?.playerId]
+  );
+
+  // Pre-connect, fetch this identity's save slots so the start screen can offer a
+  // LOAD picker (not just the latest-loop Resume). Skipped once in-game (the active
+  // dashboard refreshes slots via loadSlotsAndRuns).
+  useEffect(() => {
+    if (inviteGate !== "ok" || connected || !startScreenPlayerId) return;
+    let cancelled = false;
+    apiGetSlots(startScreenPlayerId)
+      .then((data) => {
+        if (!cancelled) setSaveSlots(data.slots || []);
+      })
+      .catch(() => {
+        /* no saves / gated: leave the picker empty */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [startScreenPlayerId, connected, inviteGate]);
 
   // --- API load functions ---
   // Read-side loaders (save/run/memory + skill tree) and the learn-skill
@@ -473,6 +537,12 @@ export default function App() {
     }
   };
 
+  // Hold the app behind the invite gate until the key probe resolves. "checking" shows
+  // nothing (brief); "blocked" shows the key-entry screen instead of the game.
+  if (inviteGate !== "ok") {
+    return inviteGate === "blocked" ? <InviteGate onSubmit={handleInviteSubmit} /> : null;
+  }
+
   return (
     <>
       <HeaderBar
@@ -537,11 +607,13 @@ export default function App() {
           isBusy={isBusy}
           obStatus={obStatus}
           resumeSessionData={resumeSessionData}
+          hasSaves={Boolean(startScreenPlayerId) && saveSlots.length > 0}
           onDisplayNameChange={setDisplayName}
           onScenarioChange={handleScenarioChange}
           onArchetypeChange={setSelectedArchetype}
           onStartGame={handleStartGame}
           onResumeGame={handleResumeGame}
+          onOpenLoad={() => setSaveLoadModal("load")}
           onSimulateCombat={handleSimulateCombat}
         />
       )}
@@ -661,17 +733,12 @@ export default function App() {
           </section>
 
           <GameAside
-            saveLabelInput={saveLabelInput}
-            saveSlots={saveSlots}
             isBusy={isBusy}
             canSave={Boolean(loopId)}
-            playerId={playerId || ""}
-            scenarioId={selectedScenarioId}
             finalizedSnapshot={finalizedSnapshot}
             consoleLogs={consoleLogs}
-            onSaveLabelChange={setSaveLabelInput}
-            onSave={handleSaveSlotSubmit}
-            onLoad={handleResumeGame}
+            onOpenSave={() => setSaveLoadModal("save")}
+            onOpenLoad={() => setSaveLoadModal("load")}
           />
         </main>
         </>
@@ -691,6 +758,26 @@ export default function App() {
           onImpact={onCinemaImpact}
           onCue={(cue) => playCombatCinemaCue(cinemaContext, cue)}
           onFinish={onCinemaFinish}
+        />
+      )}
+
+      {saveLoadModal && (
+        <SaveLoadModal
+          mode={saveLoadModal}
+          slots={saveSlots}
+          scenarios={scenarios}
+          playerId={playerId || startScreenPlayerId}
+          currentLoopId={loopId}
+          isBusy={isBusy}
+          canSave={Boolean(loopId)}
+          saveLabelInput={saveLabelInput}
+          onSaveLabelChange={setSaveLabelInput}
+          onSave={handleSaveSlotSubmit}
+          onLoadSlot={(data) => {
+            setSaveLoadModal(null);
+            handleResumeGame(data);
+          }}
+          onClose={() => setSaveLoadModal(null)}
         />
       )}
     </>

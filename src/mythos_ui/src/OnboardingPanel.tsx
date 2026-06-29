@@ -11,11 +11,13 @@ interface OnboardingPanelProps {
   isBusy: boolean;
   obStatus: string;
   resumeSessionData: ResumeSessionData | null;
+  hasSaves: boolean;
   onDisplayNameChange: (value: string) => void;
   onScenarioChange: (value: string) => void;
   onArchetypeChange: (value: string) => void;
   onStartGame: () => void;
   onResumeGame: (data: ResumeSessionData) => void;
+  onOpenLoad: () => void;
   onSimulateCombat: (encounterId: string, allyIds: string[]) => void;
 }
 
@@ -27,11 +29,13 @@ export function OnboardingPanel({
   isBusy,
   obStatus,
   resumeSessionData,
+  hasSaves,
   onDisplayNameChange,
   onScenarioChange,
   onArchetypeChange,
   onStartGame,
   onResumeGame,
+  onOpenLoad,
   onSimulateCombat,
 }: OnboardingPanelProps) {
   const { t } = useLang();
@@ -134,6 +138,11 @@ export function OnboardingPanel({
             id="resume"
           >
             {t("ob.resume")} · {resumeSessionData.playerId.slice(0, 14)}…
+          </button>
+        )}
+        {hasSaves && (
+          <button disabled={isBusy} onClick={onOpenLoad} id="ob-load-btn">
+            {t("sl.loadBtn")}
           </button>
         )}
         <span className="sub" id="ob-status">

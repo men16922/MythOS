@@ -30,9 +30,59 @@ export function getInviteKey(): string | null {
   }
 }
 
+// Persist a manually-entered invite key so the gate is a one-time step per browser.
+export function setInviteKey(key: string): void {
+  try {
+    localStorage.setItem(INVITE_STORAGE_KEY, key.trim());
+  } catch {
+    /* storage unavailable — the key still rides this session via inviteHeaders */
+  }
+}
+
+// Probe the gated /auth/verify-invite: true if the current stored key is valid OR
+// gating is disabled (open app); false on 401 (missing/invalid key). Other errors
+// (network/server) rethrow so the caller can distinguish "blocked" from "down".
+export async function verifyInvite(): Promise<boolean> {
+  const res = await fetch(`${API_BASE}/api/v1/auth/verify-invite`, {
+    headers: inviteHeaders(),
+  });
+  if (res.status === 401) return false;
+  if (!res.ok) throw new Error(`verify-invite → ${res.status}`);
+  return true;
+}
+
 function inviteHeaders(): Record<string, string> {
   const key = getInviteKey();
   return key ? { "X-Invite-Key": key } : {};
+}
+
+// Compact, deterministic 53-bit string hash (cyrb53). Used only to derive a stable
+// player id from the invite key — no cryptographic guarantee needed.
+function cyrb53(str: string, seed = 0): string {
+  let h1 = 0xdeadbeef ^ seed;
+  let h2 = 0x41c6ce57 ^ seed;
+  for (let i = 0; i < str.length; i++) {
+    const ch = str.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+  h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+  h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  const n = 4294967296 * (2097151 & h2) + (h1 >>> 0);
+  return n.toString(16).padStart(14, "0");
+}
+
+// Closed-beta identity (Option B): when each tester opens their own invite URL
+// (?invite=KEY), derive a stable, deterministic player id from that key so their
+// saves follow the key across browsers/devices — no account/OAuth needed. The
+// backend `auth/connect` upserts by player_id, so reusing the id is safe. With no
+// invite key (local dev / un-gated deploy) this returns null and the caller falls
+// back to the legacy server-minted UUID + localStorage behavior.
+export function stablePlayerId(): string | null {
+  const key = getInviteKey();
+  return key ? `player_${cyrb53(key)}` : null;
 }
 
 // Active UI language (mirrors i18n/lang.ts's storage). Forwarded on combat/snapshot
@@ -83,6 +133,7 @@ export async function apiGetScenarios(
 
 export async function apiConnect(params: {
   display_name: string;
+  player_id?: string | null;
   archetype?: string | null;
   scenario_id: string;
 }): Promise<PlayerProfile> {
@@ -159,8 +210,13 @@ export async function apiGetMemory(playerId: string): Promise<MemoryOverview> {
   return apiGet<MemoryOverview>(`/api/v1/memory?player_id=${encodeURIComponent(playerId)}&lang=${getLang()}`);
 }
 
-export async function apiGetSlots(playerId: string): Promise<{ slots: SaveSlot[] }> {
-  return apiGet<{ slots: SaveSlot[] }>(`/api/v1/save-slots?player_id=${encodeURIComponent(playerId)}&lang=${getLang()}`);
+export async function apiGetSlots(
+  playerId: string,
+  limit = 60,
+): Promise<{ slots: SaveSlot[] }> {
+  return apiGet<{ slots: SaveSlot[] }>(
+    `/api/v1/save-slots?player_id=${encodeURIComponent(playerId)}&lang=${getLang()}&limit=${limit}`
+  );
 }
 
 export async function apiSaveSlot(params: {

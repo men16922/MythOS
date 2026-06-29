@@ -324,6 +324,59 @@ class ApiNarrativeFlowTest(unittest.TestCase):
         self.assertEqual(body["player_id"], "player_api")
         self.assertEqual(body["display_name"], "테스터")
 
+    def test_connect_is_idempotent_for_stable_player_id(self) -> None:
+        # Closed-beta identity (Option B): a tester re-opening their invite URL
+        # reconnects with the SAME derived player_id. Connect must upsert (not error)
+        # and their existing save slots must remain reachable under that id.
+        first = self.client.post(
+            "/api/v1/auth/connect",
+            json={"display_name": "테스터", "player_id": "player_stable"},
+        )
+        self.assertEqual(first.status_code, 200)
+        begin = self.client.post(
+            "/api/v1/loops/begin",
+            json={"player_id": "player_stable", "fallback": True},
+        )
+        loop_id = begin.json()["loop_id"]
+        self.client.post(
+            "/api/v1/save-slots",
+            json={"loop_id": loop_id, "label": "checkpoint"},
+        )
+        # Reconnect with the same id (e.g. from a different browser): no error, same id.
+        again = self.client.post(
+            "/api/v1/auth/connect",
+            json={"display_name": "테스터", "player_id": "player_stable"},
+        )
+        self.assertEqual(again.status_code, 200)
+        self.assertEqual(again.json()["player_id"], "player_stable")
+        # The earlier save is still listed under the stable id.
+        slots = self.client.get("/api/v1/save-slots?player_id=player_stable")
+        self.assertEqual(slots.status_code, 200)
+        loop_ids = [s["loop_id"] for s in slots.json()["slots"]]
+        self.assertIn(loop_id, loop_ids)
+
+    def test_save_slot_carries_character_and_thumbnail(self) -> None:
+        # The save/load screen shows character + a representative thumbnail. The slot
+        # captures display_name + archetype from the loop, and resolves a thumb_url
+        # from the curated anchor image the player saw (free static /resources/ URL).
+        self.client.post(
+            "/api/v1/auth/connect",
+            json={"display_name": "Runner", "player_id": "player_card", "archetype": "ghost"},
+        )
+        begin = self.client.post(
+            "/api/v1/loops/begin",
+            json={"player_id": "player_card", "fallback": True},
+        )
+        loop_id = begin.json()["loop_id"]
+        self.client.post("/api/v1/save-slots", json={"loop_id": loop_id, "label": "ch1"})
+        slots = self.client.get("/api/v1/save-slots?player_id=player_card").json()["slots"]
+        slot = next(s for s in slots if s["loop_id"] == loop_id)
+        self.assertEqual(slot["display_name"], "Runner")
+        self.assertTrue(slot["archetype"])  # archetype name captured from the loop
+        # The neo-seoul opening is a curated anchor, so the slot gets a static thumb.
+        if (slot.get("metadata") or {}).get("curated_image"):
+            self.assertTrue(slot["thumb_url"].startswith("/resources/"))
+
     def test_begin_loop_returns_snapshot(self) -> None:
         self.client.post(
             "/api/v1/auth/connect",
@@ -737,6 +790,22 @@ class InviteGateTest(unittest.TestCase):
                 client.get("/api/v1/scenarios", headers={"X-Invite-Key": "nope"}).status_code,
                 401,
             )
+
+    def test_verify_invite_probe(self) -> None:
+        # The SPA gate screen probes /auth/verify-invite: 200 when open or key valid,
+        # 401 when gated and the key is missing/invalid.
+        from unittest import mock
+
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("MYTHOS_INVITE_KEYS", None)
+            client = _client(_InMemoryStore())
+            self.assertEqual(client.get("/api/v1/auth/verify-invite").status_code, 200)
+        with mock.patch.dict(os.environ, {"MYTHOS_INVITE_KEYS": "alpha"}):
+            client = _client(_InMemoryStore())
+            self.assertEqual(client.get("/api/v1/auth/verify-invite").status_code, 401)
+            ok = client.get("/api/v1/auth/verify-invite?invite=alpha")
+            self.assertEqual(ok.status_code, 200)
+            self.assertTrue(ok.json()["ok"])
 
     def test_gated_websocket_requires_key(self) -> None:
         from unittest import mock

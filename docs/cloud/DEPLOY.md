@@ -66,7 +66,8 @@ gcloud run deploy mythos-api \
   --concurrency 20 --cpu 1 --memory 1Gi \
   --set-env-vars "MYTHOS_NARRATIVE_PROVIDER=gemini,MYTHOS_VISUAL_PROVIDER=vertex,MYTHOS_STORAGE_BACKEND=gcs,GOOGLE_GENAI_USE_VERTEXAI=TRUE,GOOGLE_CLOUD_LOCATION=$REGION,MODEL=gemini-2.5-flash,IMAGEN_MODEL=imagen-3.0-generate-002,GEMINI_THINKING_BUDGET=0,GCS_BUCKET_ASSETS=$BUCKET,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,MYTHOS_TRACE_BACKEND=gcp" \
   --set-env-vars "DATABASE_URL=<neon-or-cloudsql-url>" \
-  --set-env-vars "MYTHOS_INVITE_KEYS=<key1,key2,...>"    # 초대키 게이팅(설정 시 /api/v1/* 보호)
+  --set-env-vars "MYTHOS_INVITE_KEYS=<key1,key2,...>" \   # 초대키 게이팅(설정 시 /api/v1/* 보호)
+  --set-env-vars "MYTHOS_MAX_LOOPS_PER_PLAYER=10"        # 테스터당 루프 캡(베타 채택값; ~5–7.5h/인, ~$3–7/인)
 ```
 
 - `$PORT` 는 Cloud Run 이 주입 → `Dockerfile` CMD 가 `MYTHOS_API_PORT` 로 매핑(코드 무수정).
@@ -140,8 +141,9 @@ Cloud Run scale-to-zero ≈ idle $0 · Cloud Trace 월 2.5M span 무료.
 | 캡 | 플레이/인 | AI비/인 | 비고 |
 |---|---|---|---|
 | 2 | ~1–2h | ~$0.6–1.4 | Echo→다음 루프(메타루프) 최소 체험 |
-| **3 (권장)** | ~1.5–3h | ~$0.9–2.1 | 핵심 루프 + 캐리오버 충분히 체감 |
+| 3 | ~1.5–3h | ~$0.9–2.1 | 핵심 루프 + 캐리오버 충분히 체감 |
 | 5 | ~2.5–5h | ~$1.5–3.5 | 깊은 검수용 |
+| **10 (베타 채택)** | ~5–7.5h | ~$3–7 | 여유롭게 반복·심화 플레이 (10명 ⇒ 전체 ~$30–70, Fast 시 절반) |
 
 > 캡 = *새 루프 시작* 횟수(이어하기 무제한·무카운트) = 플레이스루 개수. 한 루프를 비정상적으로 길게 끌면(턴 多) 비용이 루프 추정치를 넘음(턴/이미지 비례). 위 표는 정상 플레이 기준. **단일 전역 값**(테스터별 차등 아님). env이므로 운영 중 `gcloud run services update --update-env-vars MYTHOS_MAX_LOOPS_PER_PLAYER=N`로 무중단 변경(새 revision) 가능 — **자동/예산연동 동적조정은 아님**.
 

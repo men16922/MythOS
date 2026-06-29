@@ -5,6 +5,15 @@ Last updated: 2026-06-29
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-06-29 — 🚀 GCP closed beta DEPLOYED LIVE (Cloud Run + Neon + Vertex)
+- Status: LIVE + end-to-end verified. URL `https://mythos-api-1004528040791.us-central1.run.app` (revision mythos-api-00002-9wf, us-central1). Agent ran the deploy via gcloud (user ran the IAM/SA/bucket prereq block + Neon signup — safety rules forbid agent IAM/account/billing changes).
+- Infra: dedicated SA `mythos-run` (aiplatform.user + cloudtrace.agent), GCS bucket `mythos-assets-…` (objectAdmin), **Neon Postgres 18** (`migrations/001-007` applied via psycopg libpq). Deploy = lean Dockerfile (prebuilt static), `--allow-unauthenticated` + invite-gate, min-instances 0 / max 3, env via `--env-vars-file`.
+- Verified LIVE: health/SPA 200 · gate (no-key 401 / key 200) · **real Vertex Gemini EN narration** + Neon persist · EN default + English tab title · admin key uncapped (12/12 200) vs tester capped (11th=429).
+- Changed (code, this batch): EN combat-log i18n (K6, `mythos_combat/log_i18n.py` + `CombatState.language`); EN default flip (`getLang`/`resolveInitialLang`/`index.html`); BGM first-gesture auto-on; **admin keys** cap-exempt (`MYTHOS_ADMIN_KEYS`, cyrb53 port verified vs node); browser tab title EN. `make check` 610 green.
+- Keys: 8 tester + 1 admin (`admin-43dc07f266c2`, uncapped) in `INVITE_KEY.md` (gitignored). Cost guards live: invite gate + loop cap 10 + scale-to-zero.
+- Blockers: agent can't push (private) / can't run IAM·billing·destructive DB TRUNCATE (classifier-blocked) → user does those. Test-data cleanup (Neon TRUNCATE) left to user (optional, harmless).
+- Next (human, non-blocking): billing budget alert + Vertex daily quota · feedback Google Form · distribute `?invite=` links → r/playtesters · `git push`.
+
 ## 2026-06-29 — EN default flip (global-first) + BGM auto-on
 - Status: Completed (`make check` 609 green, Chrome live-verified, committed `05aae47`, unpushed). EN is now end-to-end (UI+narration+combat log via K6), so the product default language flips to English.
 - Changed: `resolveInitialLang()` (`i18n/lang.ts`), `getLang()` (`api.ts`), and `index.html` `<html lang>` now default to `en`; `?lang=` + stored choice still take precedence (KO users + toggle unaffected). Playwright E2E pinned to `?lang=ko` (asserts the KO baseline). BGM: enabled-by-default + NEW one-time first-gesture (pointerdown/keydown) autostart in `App.tsx` → BGM turns ON at first interaction on any entry path (autoplay-policy-compliant; still toggleable off).

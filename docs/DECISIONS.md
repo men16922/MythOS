@@ -282,3 +282,9 @@ Impact: `make overnight*`·러너·worktree/merge/review 동작 불변(경로만
 ## 2026-05 이전
 
 2026-05-30/31 결정은 `bin/docs/archive/decisions-2026-05.md`로 분리 보관.
+
+## 2026-06-29 — GCP closed-beta deploy (Cloud Run + Neon + admin-key cap model)
+- **Decision**: Deployed the closed beta to **Cloud Run us-central1** (lean Dockerfile, prebuilt static, `--allow-unauthenticated` gated by invite middleware, min-instances 0 / max 3) backed by **Neon Postgres 18** (serverless, idle≈$0) — not Cloud SQL (always-on cost) — with **Vertex Gemini/Imagen + GCS**. URL `https://mythos-api-1004528040791.us-central1.run.app`.
+- **Reason**: us-central1 has Imagen/Gemini availability and matches existing project Run services; Neon's scale-to-zero fits a sporadic 5–10-tester beta. Cost is bounded by invite gate × loop cap 10 × scale-to-zero (no daily-spend auto-shutdown wired; Vertex daily quota + billing alert are the human-set backstops).
+- **Admin keys**: `MYTHOS_ADMIN_KEYS` exempts owner keys from the loop cap by the key's derived `player_id` — `limits.py` ports the SPA `stablePlayerId` cyrb53 (verified byte-for-byte vs node) so backend/frontend agree without threading the request key into the WS path.
+- **Impact**: Agent performs the deploy/migrations/bucket-create; IAM/SA/billing/destructive-DB stay human (safety classifier). Invite keys + admin key live in `INVITE_KEY.md` (gitignored). Runbook `docs/cloud/DEPLOY.md` §10.

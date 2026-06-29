@@ -151,6 +151,13 @@
 - 이미지 생성 기본 백엔드는 Apple MLX `mflux`이고, diffusers FLUX 경로는 폴백으로 유지한다.
 - 전투 판정은 `mythos_combat` 엔진이 권위이며, LLM은 인카운터 배치/서사 연결을 지시하고 결과 판정 자체는 하지 않는다.
 
+## M50 — GCP closed beta DEPLOYED LIVE + CBT onboarding UX + EN end-to-end (2026-06-29..30)
+
+- **Deploy**: Cloud Run us-central1 (lean Dockerfile, invite-gated `--allow-unauthenticated`, min0/max3) + **Neon Postgres 18** (migrations 001-007) + Vertex Gemini/Imagen + GCS. URL `mythos-api-1004528040791.us-central1.run.app` (rev `00003-fzb`). LIVE-verified: gate(401/200), real EN Gemini narration + Neon persist, EN tab title, admin uncapped vs tester cap 10. DECISIONS 2026-06-29.
+- **CBT onboarding UX**: Option B stable identity (`stablePlayerId` cyrb53 from invite key — saves follow key cross-device, no OAuth; backend ported in `limits.py`, node-verified); game-style Save/Load modal (`SaveLoadModal.tsx` — scene·character·date·thumbnail·paging 6/page/latest 60); invite-gate screen (`InviteGate.tsx` + `GET /auth/verify-invite`); **admin keys** cap-exempt (`MYTHOS_ADMIN_KEYS`).
+- **EN end-to-end**: route-choice labels + **combat-log prose (K6, `mythos_combat/log_i18n.py` + `CombatState.language`)** + post-combat continue + EN default flip (`getLang`/`resolveInitialLang`/`index.html`) + BGM first-gesture auto-on. Free narration is persisted per-scene (not re-translatable at serving) → fresh EN loops clean; pre-fix loops keep KO. K9 ending cost-free-verified (archive + `localize_for` scan = 0 residual KO).
+- **Cost guards**: invite gate + loop cap 10 + scale-to-zero (idle ~$0); per-tester ≈ $3–7 @ cap 10. Runbook `docs/cloud/DEPLOY.md` §10; keys `INVITE_KEY.md`; recruitment `CBT_TEASER.md`/`CBT_RECRUIT_POST.md`. `make check` 610 green (commits `daa5438..86d3970`).
+
 ## Archive Reference
 
 M0-M10의 상세 체크리스트, work log, verification log는 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`에 보존한다.

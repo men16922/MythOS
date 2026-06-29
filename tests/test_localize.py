@@ -49,6 +49,36 @@ class LocalizeTest(unittest.TestCase):
         self.assertEqual(out["stakes_summary"][0], "Current point: The Fall and First Trust")
         self.assertEqual(out["choice_stakes"][0], "Value axis: People/Relations")
 
+    def test_route_choice_labels_fully_english(self) -> None:
+        # Route junction choices are composed in session.py as
+        # "{title}(으)로 향한다 — {meaning} · {badges}"; the title is a glossary term but
+        # the wrapper/meaning/badges are Korean. The phrases layer must localize all of it
+        # so an EN-mode choice has no residual Hangul.
+        payload = {
+            "choices": [
+                {"label": "흔들리는 선택(으)로 향한다 — 예기치 못한 사건이 벌어지는 곳 · 위험 1"},
+                {"label": "한강 야시장(으)로 향한다 — 보급·거래로 장비를 갖추는 곳 · 위험 1 · 안정 +4"},
+                {"label": "유출된 로그(으)로 향한다 — 단서를 캐내 진실에 다가가는 곳 · 위험 1 · 통찰 +1"},
+            ]
+        }
+        out = localize_for(payload, "neo-seoul", "en")
+        labels = [c["label"] for c in out["choices"]]
+        self.assertEqual(
+            labels[0], "Wavering Choice — a place where unexpected events unfold · Risk 1"
+        )
+        self.assertEqual(
+            labels[1],
+            "Han River Night Market — a place to gear up through supplies and trade · "
+            "Risk 1 · Stability +4",
+        )
+        self.assertEqual(
+            labels[2],
+            "Leaked Log — a place to dig up clues and close in on the truth · "
+            "Risk 1 · Insight +1",
+        )
+        for label in labels:
+            self.assertNotRegex(label, r"[가-힣]")
+
     def test_substring_fallback_skips_english_strings(self) -> None:
         # A fully-English string (no Hangul) is never touched by the substring pass.
         en = "You take Se-rin's hand for the first time."

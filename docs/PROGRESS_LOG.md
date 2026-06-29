@@ -5,6 +5,14 @@ Last updated: 2026-06-29
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-06-30 — Post-combat EN fix (redeploy) + CBT recruitment assets + IX boss plan
+- Status: deployed (rev `mythos-api-00003-fzb`), `make check` 610 green, committed `649aeea..de95632` (unpushed).
+- Changed: **post-combat continue stayed Korean even in EN** — `useCombatRest.continueAfterCombat` sent a hardcoded Korean action + no `lang` on the WS choose, so the LLM regenerated KO + data unlocalized. Now uses localized `sess.postCombatAction` + `lang=getLang()` (`86d3970`). All generation paths now thread lang. Redeployed.
+- Added: `CBT_TEASER.md` (2-min teaser shot script, admin link, no-keys-on-screen) + `CBT_RECRUIT_POST.md` (r/Playtesters **Unpaid Playtest** text post, embed video + Google Form). IX boss-fight plan `docs/plans/2026-06-30-ix-boss-fight.md` + NEXT_PLAN 2-lane (`[auto:claude]` design + `[auto:codex]` art, shared sprite-path contract).
+- Verified: deployed post-combat-shape choose (EN action + lang=en) → English narration + **0 residual Korean** in served snapshot. Cost: Cloud Run scale-to-zero idle ~$0; stopped leftover local cloud-pointed api/visual-worker.
+- Findings (not yet fixed): **IX boss is narrative-only** (no boss enemy/encounter — route boss node spawns generic enforcer/mech) → boss plan added. **Korean on resume/load = persisted pre-fix prose** (free narration isn't re-translatable at serving; only DATA is) → fresh EN loops are clean; old loops keep KO (wipe Neon to reset).
+- Next: human — push `main` (FF-merged, ahead of origin) · billing alert + Vertex daily quota · feedback Form · run overnight to consume the IX boss task.
+
 ## 2026-06-29 — 🚀 GCP closed beta DEPLOYED LIVE (Cloud Run + Neon + Vertex)
 - Status: LIVE + end-to-end verified. URL `https://mythos-api-1004528040791.us-central1.run.app` (revision mythos-api-00002-9wf, us-central1). Agent ran the deploy via gcloud (user ran the IAM/SA/bucket prereq block + Neon signup — safety rules forbid agent IAM/account/billing changes).
 - Infra: dedicated SA `mythos-run` (aiplatform.user + cloudtrace.agent), GCS bucket `mythos-assets-…` (objectAdmin), **Neon Postgres 18** (`migrations/001-007` applied via psycopg libpq). Deploy = lean Dockerfile (prebuilt static), `--allow-unauthenticated` + invite-gate, min-instances 0 / max 3, env via `--env-vars-file`.

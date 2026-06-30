@@ -19,14 +19,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import Depends, FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.concurrency import iterate_in_threadpool, run_in_threadpool
 from starlette.responses import Response
 
 from mythos_api.invite import InviteGateMiddleware
-from mythos_api.limits import LOOP_CAP_MESSAGE, loop_cap_exceeded
+from mythos_api.limits import LOOP_CAP_MESSAGE, admin_invite_keys, loop_cap_exceeded
 from mythos_api.localize import localize_for
 from mythos_api.serializers import (
     memory_overview_to_dict,
@@ -569,12 +569,19 @@ def create_app() -> FastAPI:
         return {"scenarios": items}
 
     @app.get(f"{API_PREFIX}/auth/verify-invite")
-    def verify_invite() -> dict[str, bool]:
+    def verify_invite(request: Request) -> dict[str, bool]:
         """Invite-key probe for the SPA gate screen. This route is under the gated
         ``/api/v1/*`` prefix, so the ``InviteGateMiddleware`` rejects a missing/invalid
         key with 401 before reaching here; a 200 means the key is valid (or gating is
-        disabled, so the app is open). Cheap — no DB or service work."""
-        return {"ok": True}
+        disabled, so the app is open). Cheap — no DB or service work.
+
+        ``is_admin`` drives operator-only UI (the Dev Console): true ONLY when the
+        presented key is an admin key (``MYTHOS_ADMIN_KEYS``). Everyone else — beta
+        testers and ungated/keyless local visitors — gets false, so the Dev Console is
+        hidden unless you hold an admin key."""
+        key = (request.headers.get("x-invite-key") or request.query_params.get("invite") or "").strip()
+        is_admin = key != "" and key in admin_invite_keys()
+        return {"ok": True, "is_admin": is_admin}
 
     @app.post(f"{API_PREFIX}/auth/connect")
     def connect(

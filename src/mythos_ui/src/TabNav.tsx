@@ -6,6 +6,8 @@ interface TabNavProps {
   activeTab: ActiveTab;
   onTabClick: (tab: ActiveTab) => void;
   notices?: Partial<Record<ActiveTab, string>>;
+  // Dev Console tab is operator-only — rendered only for admin keys / local-open dev.
+  showDev?: boolean;
 }
 
 function TabButton({
@@ -34,7 +36,7 @@ function TabButton({
   );
 }
 
-export function TabNav({ activeTab, onTabClick, notices }: TabNavProps) {
+export function TabNav({ activeTab, onTabClick, notices, showDev = false }: TabNavProps) {
   const { t } = useLang();
   return (
     <div className="tabs">
@@ -42,7 +44,9 @@ export function TabNav({ activeTab, onTabClick, notices }: TabNavProps) {
       <TabButton tab="codex" label={t("tab.codex")} activeTab={activeTab} notices={notices} onTabClick={onTabClick} />
       <TabButton tab="character" label="CHARACTER" activeTab={activeTab} notices={notices} onTabClick={onTabClick} />
       <TabButton tab="skills" label="SKILL TREE" activeTab={activeTab} notices={notices} onTabClick={onTabClick} />
-      <TabButton tab="dev" label={t("tab.dev")} activeTab={activeTab} notices={notices} onTabClick={onTabClick} />
+      {showDev && (
+        <TabButton tab="dev" label={t("tab.dev")} activeTab={activeTab} notices={notices} onTabClick={onTabClick} />
+      )}
     </div>
   );
 }

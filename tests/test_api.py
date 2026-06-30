@@ -807,6 +807,26 @@ class InviteGateTest(unittest.TestCase):
             self.assertEqual(ok.status_code, 200)
             self.assertTrue(ok.json()["ok"])
 
+    def test_verify_invite_is_admin_gates_dev_console(self) -> None:
+        # is_admin drives the operator-only Dev Console: ONLY an admin key → true.
+        # Plain tester key, and an ungated/keyless visitor, both → false (hidden).
+        from unittest import mock
+
+        with mock.patch.dict(os.environ, {"MYTHOS_INVITE_KEYS": "tester, owner", "MYTHOS_ADMIN_KEYS": "owner"}):
+            client = _client(_InMemoryStore())
+            admin = client.get("/api/v1/auth/verify-invite", headers={"X-Invite-Key": "owner"})
+            self.assertEqual(admin.status_code, 200)
+            self.assertTrue(admin.json()["is_admin"])
+            tester = client.get("/api/v1/auth/verify-invite", headers={"X-Invite-Key": "tester"})
+            self.assertEqual(tester.status_code, 200)
+            self.assertFalse(tester.json()["is_admin"])
+        # Ungated/keyless (no admin keys) → not admin: Dev Console hidden by default.
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("MYTHOS_INVITE_KEYS", None)
+            os.environ.pop("MYTHOS_ADMIN_KEYS", None)
+            client = _client(_InMemoryStore())
+            self.assertFalse(client.get("/api/v1/auth/verify-invite").json()["is_admin"])
+
     def test_gated_websocket_requires_key(self) -> None:
         from unittest import mock
 

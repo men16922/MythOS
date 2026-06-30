@@ -58,6 +58,13 @@ def admin_player_ids() -> frozenset[str]:
     return _admin_player_ids_cached(os.getenv("MYTHOS_ADMIN_KEYS", ""))
 
 
+def admin_invite_keys() -> set[str]:
+    """The raw admin invite keys themselves (``MYTHOS_ADMIN_KEYS``), for gating
+    operator-only UI (e.g. the Dev Console). Distinct from ``admin_player_ids`` which
+    hashes them into player ids for the loop-cap check."""
+    return {k.strip() for k in os.getenv("MYTHOS_ADMIN_KEYS", "").split(",") if k.strip()}
+
+
 def max_loops_per_player() -> int:
     try:
         return max(0, int(os.getenv("MYTHOS_MAX_LOOPS_PER_PLAYER", "0")))

@@ -39,16 +39,23 @@ export function setInviteKey(key: string): void {
   }
 }
 
-// Probe the gated /auth/verify-invite: true if the current stored key is valid OR
-// gating is disabled (open app); false on 401 (missing/invalid key). Other errors
-// (network/server) rethrow so the caller can distinguish "blocked" from "down".
-export async function verifyInvite(): Promise<boolean> {
+export interface InviteStatus {
+  // ok: key valid OR gating disabled (open app). false on 401 (missing/invalid key).
+  ok: boolean;
+  // isAdmin: gating off (local/open dev) OR an admin key — gates operator-only UI (Dev Console).
+  isAdmin: boolean;
+}
+
+// Probe the gated /auth/verify-invite. Other errors (network/server) rethrow so the
+// caller can distinguish "blocked" from "down".
+export async function verifyInvite(): Promise<InviteStatus> {
   const res = await fetch(`${API_BASE}/api/v1/auth/verify-invite`, {
     headers: inviteHeaders(),
   });
-  if (res.status === 401) return false;
+  if (res.status === 401) return { ok: false, isAdmin: false };
   if (!res.ok) throw new Error(`verify-invite → ${res.status}`);
-  return true;
+  const data = (await res.json().catch(() => ({}))) as { is_admin?: boolean };
+  return { ok: true, isAdmin: !!data.is_admin };
 }
 
 function inviteHeaders(): Record<string, string> {

@@ -87,6 +87,9 @@ export default function App() {
   const [loopId, setLoopId] = useState<string | null>(null);
   const [status, setStatus] = useState(() => t("app.statusWaiting"));
   const [activeTab, setActiveTab] = useState<ActiveTab>("story");
+  // Operator-only UI (Dev Console) visibility — true when gating is off (local/open dev)
+  // or the invite key is an admin key. Beta testers never see it. Set by the invite probe.
+  const [isAdmin, setIsAdmin] = useState(false);
   const [consoleLogs, setConsoleLogs] = useState<string>("");
   const [isBusy, setIsBusy] = useState(false);
   const [saveSlots, setSaveSlots] = useState<SaveSlot[]>([]);
@@ -228,8 +231,11 @@ export default function App() {
   useEffect(() => {
     let cancelled = false;
     verifyInvite()
-      .then((ok) => {
-        if (!cancelled) setInviteGate(ok ? "ok" : "blocked");
+      .then((status) => {
+        if (!cancelled) {
+          setInviteGate(status.ok ? "ok" : "blocked");
+          setIsAdmin(status.isAdmin);
+        }
       })
       .catch(() => {
         if (!cancelled) setInviteGate("ok");
@@ -241,9 +247,10 @@ export default function App() {
 
   const handleInviteSubmit = useCallback(async (key: string): Promise<boolean> => {
     setInviteKey(key);
-    const ok = await verifyInvite();
-    if (ok) setInviteGate("ok");
-    return ok;
+    const status = await verifyInvite();
+    setIsAdmin(status.isAdmin);
+    if (status.ok) setInviteGate("ok");
+    return status.ok;
   }, []);
 
   // --- Onboarding & Setup effect ---
@@ -675,7 +682,7 @@ export default function App() {
           )}
           <main id="play">
           <section>
-            <TabNav activeTab={activeTab} onTabClick={handleTabClick} notices={tabNotices} />
+            <TabNav activeTab={activeTab} onTabClick={handleTabClick} notices={tabNotices} showDev={isAdmin} />
 
             {activeTab === "story" && (
               <StoryPanel
@@ -741,7 +748,7 @@ export default function App() {
               />
             )}
 
-            {activeTab === "dev" && devConsoleData && (
+            {activeTab === "dev" && isAdmin && devConsoleData && (
               <DevConsolePanel
                 data={devConsoleData}
                 snapshot={finalizedSnapshot}

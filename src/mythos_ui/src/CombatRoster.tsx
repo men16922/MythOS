@@ -26,7 +26,11 @@ export function CombatRoster({ combat, scenarioId }: CombatRosterProps) {
     const focusVal = b.focus ?? 0;
     const maxFocusVal = b.max_focus ?? 0;
 
-    let portraitUrl = b.portrait ? `/resources/${scenarioId}/${b.portrait}` : null;
+    // Prefer the transparent combat idle SPRITE over the bestiary `portrait`: enemy
+    // portraits are full scene illustrations (lit cityscapes), so they render as a busy
+    // black box in the roster avatar. The idle pose is a clean alpha-cut token.
+    const rosterImg = b.combat_images?.idle || b.portrait;
+    let portraitUrl = rosterImg ? `/resources/${scenarioId}/${rosterImg}` : null;
     if (b.faction === "player" && !portraitUrl) {
       portraitUrl = `/resources/${scenarioId}/characters/player-noise.png`;
     }

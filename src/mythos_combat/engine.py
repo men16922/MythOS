@@ -20,6 +20,38 @@ from .models import (
 _NEIGHBORS = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
 
 
+def _avg_dice(spec: str) -> float:
+    """Expected value of an ``NdM(+/-K)`` dice spec (for ranking, not rolling).
+
+    Plain integers and malformed specs degrade to their numeric/zero value so callers
+    can rank skills without raising.
+    """
+    spec = spec.strip().replace(" ", "")
+    if not spec:
+        return 0.0
+    mod = 0.0
+    for sign in ("+", "-"):
+        idx = spec.find(sign, 1)
+        if idx != -1:
+            try:
+                mod = float(spec[idx:])
+            except ValueError:
+                mod = 0.0
+            spec = spec[:idx]
+            break
+    if "d" in spec:
+        n_str, _, m_str = spec.partition("d")
+        try:
+            n, m = int(n_str or 1), int(m_str)
+        except ValueError:
+            return mod
+        return n * (m + 1) / 2.0 + mod
+    try:
+        return float(spec) + mod
+    except ValueError:
+        return mod
+
+
 @dataclass
 class PlayerAction:
     type: str = "wait"  # attack|defend|flee|wait|skill|item
@@ -41,11 +73,17 @@ class CombatEngine:
                 # Copy: load_scenario is lru_cached, so the returned combat dict is
                 # shared. Callers (and tests) mutate engine.skills_pool, which must
                 # not leak back into the cached scenario.
-                self.skills_pool = dict(load_scenario("neo-seoul").combat.get("skills", {}))
+                combat = load_scenario("neo-seoul").combat
+                self.skills_pool = dict(combat.get("skills", {}))
+                # Boss/enemy-only skill defs live in a SEPARATE pool so they never
+                # pollute the player skill tree / Codex / icon-integrity checks.
+                self.enemy_skills_pool = dict(combat.get("enemy_skills", {}))
             except Exception:
                 self.skills_pool = {}
+                self.enemy_skills_pool = {}
         else:
             self.skills_pool = skills_pool
+            self.enemy_skills_pool = {}
 
     def _build_deterministic_terrain(self, state: CombatState) -> None:
         import hashlib
@@ -963,6 +1001,11 @@ class CombatEngine:
         weapon = enemy.primary_weapon()
         reach = weapon.effective_range if weapon else 1
 
+        # Boss AI: phase telegraph + skill usage. Returns True if a skill was cast this
+        # turn; otherwise the boss falls through to a normal weapon attack below.
+        if enemy.skills and self._boss_skill_turn(state, enemy, target):
+            return
+
         if enemy.ai == "coward" and enemy.hp <= max(1, int(enemy.max_hp * 0.3)):
             self._move_to_band(state, enemy, target, desired=max(reach + 3, 6))
             self._log(state, enemy, "flee", clog(state.language, "enemy_flee", name=enemy.name))
@@ -971,6 +1014,47 @@ class CombatEngine:
         self._move_to_band(state, enemy, target, desired=max(1, reach))
         if weapon and self._weapon_in_range(enemy, target, weapon):
             self._attack(state, enemy, target, weapon, dice)
+
+    def _enemy_skill_def(self, skill_id: str) -> dict[str, Any]:
+        """Resolve a skill def for an enemy: boss/enemy pool first, then the shared pool."""
+        sdef = self.enemy_skills_pool.get(skill_id) or self.skills_pool.get(skill_id)
+        return sdef if isinstance(sdef, dict) else {}
+
+    def _boss_skill_turn(self, state: CombatState, enemy: Combatant, target: Combatant) -> bool:
+        """One boss decision: cross the enrage threshold (once), then cast the strongest
+        affordable, off-cooldown, phase-permitted skill that can reach ``target``.
+
+        Returns True iff a skill was actually cast (the skill pose / "skill" log fires).
+        """
+        # Phase 2: announce the enrage once HP crosses 50%, unlocking ``phase: enraged`` skills.
+        if not enemy.enraged and enemy.hp <= enemy.max_hp // 2:
+            enemy.enraged = True
+            self._log(state, enemy, "info", clog(state.language, "boss_enrage", name=enemy.name))
+
+        candidates: list[tuple[str, dict[str, Any]]] = []
+        for skill_id in enemy.skills:
+            sdef = self._enemy_skill_def(skill_id)
+            if not sdef or skill_id in enemy.cooldowns:
+                continue
+            if str(sdef.get("phase", "")) == "enraged" and not enemy.enraged:
+                continue
+            cost = sdef.get("cost", {}) if isinstance(sdef.get("cost"), dict) else {}
+            if enemy.focus < int(cost.get("focus", 0)):
+                continue
+            candidates.append((skill_id, sdef))
+        if not candidates:
+            return False
+
+        def _avg_damage(item: tuple[str, dict[str, Any]]) -> float:
+            effect = item[1].get("effect", {}) if isinstance(item[1].get("effect"), dict) else {}
+            return _avg_dice(str(effect.get("damage", "0")))
+
+        skill_id, sdef = max(candidates, key=_avg_damage)
+        skill_range = int(sdef.get("range", 1))
+        self._move_to_band(state, enemy, target, desired=max(1, skill_range))
+        if distance(enemy.x, enemy.y, target.x, target.y) <= skill_range:
+            return self._execute_npc_skill(state, enemy, skill_id, sdef, target)
+        return False
 
     def _ally_turn(self, state: CombatState, ally: Combatant) -> None:
         dice = self._dice(state)

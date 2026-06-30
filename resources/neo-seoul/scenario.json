@@ -1189,6 +1189,10 @@
         "stats": {"strength": 5, "agility": 5, "perception": 7}
       }
     },
+    "enemy_skills": {
+      "ix_purge_field": {"id": "ix_purge_field", "name": "정화 야장", "role": "control", "cost": {"focus": 2}, "range": 5, "cooldown": 2, "effect": {"damage": "1d8", "to_hit_bonus": 2}},
+      "ix_optimize_overload": {"id": "ix_optimize_overload", "name": "최적화 과부하", "role": "burst", "cost": {"focus": 3}, "range": 6, "cooldown": 3, "phase": "enraged", "effect": {"damage": "2d6", "armor_pen": 2, "to_hit_bonus": 3}}
+    },
     "bestiary": {
       "maintenance_drone": {
         "id": "maintenance_drone",
@@ -1373,8 +1377,11 @@
         "defense": 13,
         "speed": 3,
         "armor": 2,
-        "ai": "ranged",
+        "ai": "boss",
         "blip": "❒",
+        "max_focus": 3,
+        "focus": 2,
+        "skills": ["ix_purge_field", "ix_optimize_overload"],
         "image": "enemies/administrator-ix.png",
         "combat_images": {
           "idle": "enemies/combat/administrator-ix-idle.png",

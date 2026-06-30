@@ -4,7 +4,7 @@ COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
-.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback narrative-smoke-fallback-en visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-cloud visual-worker-cloud-bg visual-worker-stop visual-worker-logs redis-shell connect-demo smoke smoke-local streamlit streamlit-stop api api-stop api-cloud cloud-image cloud-run-local dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check check-skills sync-skills check-auto overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-clean overnight-codex overnight-codex-watch overnight-codex-once overnight-agy overnight-agy-watch overnight-agy-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review image-regen
+.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback narrative-smoke-fallback-en visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-cloud visual-worker-cloud-bg visual-worker-stop visual-worker-logs redis-shell connect-demo sim-boss smoke smoke-local streamlit streamlit-stop api api-stop api-cloud cloud-image cloud-run-local dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build check check-skills sync-skills check-auto overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-clean overnight-codex overnight-codex-watch overnight-codex-once overnight-agy overnight-agy-watch overnight-agy-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review image-regen
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -236,6 +236,13 @@ redis-shell:
 connect-demo:
 	$(VENV)/bin/python -m mythos_runtime.connect_cli new-player "Demo Connector" --player-id player_demo
 	$(VENV)/bin/python -m mythos_runtime.connect_cli connect --player-id player_demo --fallback
+
+# Headless combat sim — watch the IX boss fight (skills + phase) straight through the engine.
+# `make sim-boss`            → 1 verbose IX boss playthrough
+# `make sim-boss ARGS="--trials 60"`  → win-rate over 60 seeds
+# `make sim-boss ARGS="--encounter mech_siege --party se_rin"`
+sim-boss:
+	$(VENV)/bin/python scripts/sim_boss.py $(ARGS)
 
 smoke-local:
 	$(VENV)/bin/python -m compileall agent.py src tests

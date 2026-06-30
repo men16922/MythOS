@@ -116,6 +116,10 @@ def build_enemy_combatant(
     stats = {**_DEFAULT_STATS, **entry.get("stats", {})}
     max_hp = int(entry.get("hp", derive_max_hp(stats)))
     base_id = str(entry.get("id", "enemy"))
+    skills = [str(skill_id) for skill_id in entry.get("skills", [])]
+    # Skill-using enemies (bosses) need a focus pool; plain enemies stay at 0 (no skills).
+    max_focus = int(entry.get("max_focus", derive_max_focus(stats))) if skills else 0
+    focus = int(entry.get("focus", max_focus)) if skills else 0
     return Combatant(
         id=f"{base_id}{instance_suffix}",
         name=str(entry.get("name", base_id)),
@@ -134,6 +138,9 @@ def build_enemy_combatant(
         loot_table=entry.get("loot_table"),
         portrait=str(entry.get("image", "")),
         combat_images={str(k): str(v) for k, v in entry.get("combat_images", {}).items()},
+        focus=focus,
+        max_focus=max_focus,
+        skills=skills,
     )
 
 

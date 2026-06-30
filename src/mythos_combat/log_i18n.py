@@ -62,6 +62,10 @@ _LINES: dict[str, dict[str, str]] = {
     "skill_no_resource": {"ko": "{name}에 필요한 자원이 없다.", "en": "No resources to use {name}."},
     "skill_no_target": {"ko": "{name}: 사거리 안에 표적이 없다.", "en": "{name}: no target in range."},
     "skill_activate": {"ko": "{actor}이(가) {skill}을(를) 발동한다.", "en": "{actor} activates {skill}."},
+    "boss_enrage": {
+        "ko": "{name}의 코어가 과부하로 점화된다 — 최적화 의지가 한계를 넘어선다.",
+        "en": "{name}'s core ignites into overload — its optimization will breaks past all limits.",
+    },
     "cover_noise": {
         "ko": "{name} 주위로 엄호 노이즈가 퍼진다. (방어 +{buff})",
         "en": "Covering noise spreads around {name}. (DEF +{buff})",

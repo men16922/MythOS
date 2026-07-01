@@ -1,9 +1,25 @@
 # Progress Log
 
-Last updated: 2026-06-29
+Last updated: 2026-07-01
 
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
+
+## 2026-07-02 — Pre-CBT hardening: boss climax + 4 combat/route bugs + EN Korean leaks + refactor
+- Status: Completed (`make check` 620 green; committed `ebc7905`/`2e1cb2f`/`6c70ff3`/`decaa28`, unpushed).
+- Fixed (combat/route): (1) **IX boss climax never fired** — the "Confront IX" route node's combat ran through the ambient pacing gate (`_gate_next_combat`), whose risk-cap (max 4) always downgraded the risk-5 boss and whose cooldown suppressed it; and even after bypassing the gate, ambient combat (encounter-map contact / LLM `start_combat`) coinciding on the boss-entry turn stole precedence, so the parked node never re-fired. Route combat now takes precedence AND bypasses the gate. (2) encounter-map contact left "engaged" when the gate downgraded / a boss overrode it → phantom re-trigger loop; resolve the original contact. (3) `_combat_snapshot` used the neo-seoul-default `options.scenario_id` not `loop.state` → wrong combat data on non-neo-seoul resume. (4) `_roll_loot` `KeyError` on a loot entry missing `item`.
+- Fixed (EN Korean leaks, QA finding): code-generated Korean reaching EN players — ending titles/narrations, combat title/objective/fallback, save-slot prefix, codex/lore, validator/parser/choice-impact fallbacks, factory defaults, opening/arc titles (neo-seoul `en.json` glossary +36 / phrases +2, all via `localize_for`); `GET /loops/{id}/scenes` had no localization (added `lang`+`localize_for`, scenario from loop); 2 frontend literals (onboarding status, image placeholder) → `DICTS[getLang()]`. Free LLM prose unchanged (fresh EN loops clean; legacy KO prose not glossary-translatable).
+- Refactor: extracted the next-combat decision into `_resolve_next_combat` (+ unit test). Regression tests: boss climax fires under gate + wins coinciding ambient, loot skips malformed, precedence.
+- Verified: `make check` EXIT=0, 620 tests. Two subagents (adversarial bug-hunt + EN Korean-leak audit) drove the findings.
+- Follow-ups (deferred): bug#4 curated-image directive unreachable at first act-1 layer (`scenario_context` fresh_node); EN skill/progression error toasts raw KO; glass-library has no EN overlay glossary (on hold); dev-log ~32 KO literals (dev-only).
+- Next: human — push `main` (unpushed) + redeploy so testers get the boss fix + EN cleanup.
+
+## 2026-07-01 — CBT recruitment assets finalized + edited teaser video + itch.io setup guide
+- Status: Completed.
+- Changed: Moved CBT files from root to `docs/cbt/` (localized English/Korean posts, teasers). Updated final YouTube link (`https://youtu.be/rpWdpMAqfnw`) and Google Form link (`https://docs.google.com/forms/d/e/1FAIpQLSfAbQWTge08B9fHnEJQL0QYMWeoQ6AD-tS6HFSYMJppEkjuww/viewform?usp=dialog`) across all files. Reframed `CBT_RECRUIT_SOLORP.md` to be conversational and targeted at solo RPG/GME players (emphasizing AI Oracle + automated bookkeeping + grid combat). Created `docs/cbt/ITCH.md` detailing Itch.io project page setup.
+- Verified: Edited raw 6-min teaser video into a 2.5-min trailer `docs/cbt/Mythos_Teaser_Edited.mp4` using `h264_videotoolbox` hardware encoding. Extracted high-quality UI/Combat preview screenshots. Checked links and format integrity.
+- Blockers: None.
+- Next: Human/non-blocking: push to origin, post the thread in `#showcase-your-game` on AI Game Dev Org Discord (giving feedback to 2 other games first), and monitor initial playtest submissions.
 
 ## 2026-06-30 — IX boss DESIGN (claude lane): real climax fight, data-driven
 - Status: Completed (`make check` 611 green, committed; unpushed). Overnight `[auto:claude]` IX boss design lane (plan `docs/plans/2026-06-30-ix-boss-fight.md`). The Neo-Seoul climax was narrative-only (boss route node spawned generic enforcer/mech); now it's a real Administrator IX fight.

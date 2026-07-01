@@ -1705,10 +1705,19 @@ class RuntimeSessionService:
         )
         if scenario_id == "neo-seoul" and scene.turn_index < 2:
             requested_combat = None
-        next_combat = requested_combat or triggered_combat or route_combat
-        next_combat = self._gate_next_combat(
-            transition.loop, scene.turn_index, next_combat, options
-        )
+        # Ambient combat (LLM-requested via start_combat, or an encounter-map
+        # contact) is subject to pacing: cooldown + early risk cap. Authored
+        # route-node combat (patrol/boss) is a deliberate destination the player
+        # walked into, so it bypasses the gate — otherwise the risk-5 IX boss
+        # node would always exceed the risk cap (max 4) and be downgraded, or be
+        # suppressed by cooldown, and the climax fight would never fire.
+        ambient_combat = requested_combat or triggered_combat
+        if ambient_combat:
+            next_combat = self._gate_next_combat(
+                transition.loop, scene.turn_index, ambient_combat, options
+            )
+        else:
+            next_combat = route_combat
         if next_combat and not CombatService.is_active(transition.loop):
             combat_snapshot = self._begin_requested_combat(player, transition.loop, next_combat, options)
             self._set_cached_snapshot(transition.loop.loop_id, combat_snapshot)

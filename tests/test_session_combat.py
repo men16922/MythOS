@@ -244,6 +244,75 @@ class SessionCombatTest(unittest.TestCase):
         assert snap.combat is not None
         self.assertEqual(snap.combat["radar"]["encounter_id"], "patrol_ambush")
 
+    def test_route_boss_node_fires_climax_even_under_pacing_gate(self) -> None:
+        # Entering the authored boss route node must launch ``ix_confrontation``
+        # even when the ambient pacing gate would otherwise suppress it: risk 5
+        # exceeds the max risk cap (4), and here the player also just fought
+        # (cooldown active) with low tension. Ambient combat would be dropped;
+        # a deliberate route-node climax must not be. Regression for the
+        # "Confront IX gets stuck, never enters the boss fight" bug.
+        from mythos_runtime.route_map import ROUTE_MAP_KEY, build_route_map
+        from mythos_runtime.route_runtime import DEFAULT_TURNS_PER_LAYER
+        from mythos_runtime.scenario import load_scenario
+
+        player = self.store.get_player("p1")
+        loop = self.store.get_loop(self.loop_id)
+        assert player is not None
+        assert loop is not None
+        scenario = load_scenario(self.options.scenario_id)
+        route_map = build_route_map(scenario.route_map, loop.seed)
+        assert route_map is not None
+        layers = route_map["layers"]
+        boss_node_id = layers[-1][0]
+        self.assertEqual(route_map["nodes"][boss_node_id].get("type"), "boss")
+        final_turn = DEFAULT_TURNS_PER_LAYER * len(layers) + 2
+        # Cooldown active + low tension + zero prior wins → the gate would drop
+        # or downgrade an ambient encounter of this risk.
+        loop = replace(
+            loop,
+            tension=20,
+            state={
+                ROUTE_MAP_KEY: route_map,
+                "flags": [],
+                "scenario_id": self.options.scenario_id,
+                "_combat_count": 0,
+                "_last_combat_turn": final_turn - 1,
+            },
+        )
+        scene = Scene(
+            scene_id="scene_confront_ix",
+            loop_id=loop.loop_id,
+            turn_index=final_turn,
+            title="Confront IX",
+            location="ARK Core",
+            narration="The core opens. Administrator IX turns to face the signal.",
+            choices=[Choice("c1", "Stand", "resolve")],
+            visual_brief="A vast optimization altar.",
+            created_at=datetime(2026, 5, 31, tzinfo=UTC),
+        )
+        payload = ScenePayload(
+            title=scene.title,
+            location=scene.location,
+            narration=scene.narration,
+            choices=scene.choices,
+            visual_brief=scene.visual_brief or "",
+            world_delta=WorldDelta(),  # no LLM-requested/ambient combat
+        )
+
+        snap = self.service._commit_scene(
+            player=player,
+            loop=loop,
+            scene=scene,
+            payload=payload,
+            options=self.options,
+            span_name="test",
+            log_message="test",
+        )
+
+        self.assertEqual(snap.scene.scene_type, "combat")
+        assert snap.combat is not None
+        self.assertEqual(snap.combat["radar"]["encounter_id"], "ix_confrontation")
+
     def test_scene_world_delta_null_string_does_not_trigger_combat(self) -> None:
         player = self.store.get_player("p1")
         loop = self.store.get_loop(self.loop_id)

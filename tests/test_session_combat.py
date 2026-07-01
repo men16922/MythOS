@@ -317,6 +317,36 @@ class SessionCombatTest(unittest.TestCase):
         assert snap.combat is not None
         self.assertEqual(snap.combat["radar"]["encounter_id"], "ix_confrontation")
 
+    def test_resolve_next_combat_route_takes_precedence_over_ambient(self) -> None:
+        # Unit-level guard on the extracted decision: authored route combat wins
+        # over ambient (LLM start_combat / encounter-map contact); with no route
+        # combat, the ambient candidate flows through the pacing gate.
+        loop = self.store.get_loop(self.loop_id)
+        assert loop is not None
+        scene = Scene(
+            scene_id="s", loop_id=loop.loop_id, turn_index=9, title="t",
+            location="l", narration="n", choices=[], visual_brief="",
+            created_at=datetime(2026, 5, 31, tzinfo=UTC),
+        )
+        payload = ScenePayload(
+            title="t", location="l", narration="n", choices=[],
+            visual_brief="", world_delta=WorldDelta(start_combat="patrol_ambush"),
+        )
+        self.assertEqual(
+            self.service._resolve_next_combat(
+                loop, scene, payload, route_combat="ix_confrontation",
+                triggered_combat="patrol_ambush", options=self.options,
+            ),
+            "ix_confrontation",
+        )
+        self.assertEqual(
+            self.service._resolve_next_combat(
+                loop, scene, payload, route_combat=None,
+                triggered_combat=None, options=self.options,
+            ),
+            "patrol_ambush",
+        )
+
     def test_scene_world_delta_null_string_does_not_trigger_combat(self) -> None:
         player = self.store.get_player("p1")
         loop = self.store.get_loop(self.loop_id)

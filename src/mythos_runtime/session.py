@@ -1705,30 +1705,14 @@ class RuntimeSessionService:
             clues_collected=self._clues_collected(player.player_id),
             epiphanies_unlocked=self._epiphanies_unlocked(player, transition.loop),
         )
-        requested_combat = _requested_combat_id(payload)
-        scenario_id = (
-            transition.loop.state.get("scenario_id")
-            if isinstance(transition.loop.state, dict)
-            else None
+        next_combat = self._resolve_next_combat(
+            transition.loop,
+            scene,
+            payload,
+            route_combat=route_combat,
+            triggered_combat=triggered_combat,
+            options=options,
         )
-        if scenario_id == "neo-seoul" and scene.turn_index < 2:
-            requested_combat = None
-        # Authored route-node combat (patrol/boss climax) is the deliberate
-        # destination the player walked into: it takes precedence over ambient
-        # combat AND bypasses the pacing gate. Ambient combat (LLM start_combat
-        # or an encounter-map contact) is subject to pacing (cooldown + early
-        # risk cap). Precedence matters: route_combat is only recomputed on node
-        # entry, so if a coinciding ambient contact (high tension) or an LLM
-        # start_combat on the boss-entry turn won the chain, the parked climax
-        # node would never fire again — the risk-5 boss would also always exceed
-        # the risk cap (max 4) and be downgraded/suppressed by the gate.
-        if route_combat:
-            next_combat: str | None = route_combat
-        else:
-            ambient_combat = requested_combat or triggered_combat
-            next_combat = self._gate_next_combat(
-                transition.loop, scene.turn_index, ambient_combat, options
-            )
         if next_combat and not CombatService.is_active(transition.loop):
             if triggered_combat and triggered_combat != next_combat:
                 # An encounter-map contact triggered, but the fight we actually
@@ -1749,6 +1733,37 @@ class RuntimeSessionService:
             return combat_snapshot
         self._set_cached_snapshot(transition.loop.loop_id, snapshot)
         return snapshot
+
+    def _resolve_next_combat(
+        self,
+        loop: LoopState,
+        scene: Scene,
+        payload: ScenePayload,
+        *,
+        route_combat: str | None,
+        triggered_combat: str | None,
+        options: RuntimeOptions,
+    ) -> str | None:
+        """Decide which encounter (if any) should begin now on the narrative path.
+
+        Precedence: authored route-node combat (patrol/boss climax) > ambient
+        combat (LLM ``start_combat`` / encounter-map contact). ``route_combat``
+        is the deliberate destination the player walked into, so it wins AND
+        bypasses the pacing gate; ambient combat is subject to pacing (cooldown +
+        early risk cap). Precedence matters because ``route_combat`` is only
+        recomputed on node entry — if a coinciding ambient contact (high tension)
+        or an LLM ``start_combat`` on the boss-entry turn won the chain, the
+        parked climax node would never fire again (and the risk-5 boss would also
+        always exceed the risk cap and be downgraded/suppressed by the gate).
+        """
+        if route_combat:
+            return route_combat
+        requested_combat = _requested_combat_id(payload)
+        scenario_id = loop.state.get("scenario_id") if isinstance(loop.state, dict) else None
+        if scenario_id == "neo-seoul" and scene.turn_index < 2:
+            requested_combat = None
+        ambient_combat = requested_combat or triggered_combat
+        return self._gate_next_combat(loop, scene.turn_index, ambient_combat, options)
 
     def _gate_next_combat(
         self,

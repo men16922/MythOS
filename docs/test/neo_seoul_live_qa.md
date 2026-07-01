@@ -30,7 +30,12 @@
 > skill-error/save-slots/memory/scenes 전 페이로드 EN 스캔 = **잔존 한글 0**. `/combat/begin ix_confrontation`
 > 실호출 → blips = 플레이어+세린(아군)+**Administrator IX(보스)+Surveillance Drone+AI Incinerator(adds)** 확인.
 > 이 과정에서 **IX 전투 한글 4건(무기명 최적화 빔 + 인카운터 배너 3필드) 추가 발견·수정**(`57a89e3`).
-> **아래 남은 건 사람/실플레이만** (체감·이미지·브라우저·실엔딩·실루트).
+> **🌐 AGY 브라우저 QA 완료 (2026-07-02, `scripts/live-qa/run-agy.sh` probe/fallback, Chrome DevTools):**
+> `PASS_CANDIDATE`(0 findings, git-invariant). 온보딩→오프닝→서사 2턴 실렌더 캡처 → 메인 화면 전체
+> (헤더/탭/SCENE·THE FALL AND FIRST TRUST/CHARACTER WATER SPIDER·Jung Se-rin/OPERATION MAP 노드칩/
+> STATUS 게이지/Save·Load/선택지 value-axis·intent·Predicted change) **EN 렌더 확인, 잔존 한글=`한국어` 토글뿐.**
+> 스크린샷 `outputs/live-qa/20260702-033059-probe/screenshots/`. (probe 3체크포인트라 전투/보스/엔딩 미도달.)
+> **아래 남은 건 사람/실플레이만** (체감·실엔딩·보스 route 실발동·팬텀루프).
 
 ### 보스/전투
 - [x] **IX 보스 combat 빌드/EN** — `/combat/begin ix_confrontation` 라이브: IX+2 adds 정상 생성, 전투 로그·인카운터 배너 EN(스캔 0). (route 노드→전투 트리거는 회귀테스트 green.)
@@ -44,7 +49,7 @@
 - [x] **코덱스/로어 패널** — 라이브 스캔 0(로어 3항목 포함).
 - [x] **스킬트리 에러 토스트** — 라이브 스캔 0(통찰부족/미해금 400 detail 영어).
 - [ ] **종료화면 EN (자연엔딩 실렌더)** — 엔딩 제목/서사 글로서리 resolve 확인됨(localize_for), 실플레이 자연엔딩 스크린샷만 사람.
-- [ ] **온보딩/이미지 상태문** — 프론트(브라우저) 렌더 — tsc/build green, 브라우저 실렌더는 미확인(사람/브라우저).
+- [~] **온보딩/이미지 상태문** — AGY 브라우저 QA로 온보딩→메인화면 EN 실렌더 확인(잔존 한글 0). 단, 순간적 상태문("Connecting…/Resuming…")·이미지 플레이스홀더(fallback `image=0`)는 직접 캡처 안 됨 → 실루프 스팟만 남음.
 
 ## 🔴 1순위 — 코드 green, 라이브 체감 사인오프만 (KO로 1회 완주, ~30분이면 1·2순위 같이 닫힘)
 - [ ] **A. 종료 "왜 끝나는가"** — 종료 화면에 추적도 *숫자* 말고 납득되는 *서사 코즈*가 뜨는가

@@ -634,6 +634,8 @@ def create_app() -> FastAPI:
     @app.get(f"{API_PREFIX}/loops/{{loop_id}}/scenes")
     def list_loop_scenes(
         loop_id: str,
+        scenario_id: str = "neo-seoul",
+        lang: str = "ko",
         service: RuntimeSessionService = Depends(get_service),
     ) -> dict[str, Any]:
         try:
@@ -643,7 +645,7 @@ def create_app() -> FastAPI:
             # next scene (shared turn_index = scene.turn_index + 1).
             events = service.store.list_events(loop_id)
             action_by_turn = {e.turn_index: e.action for e in events if e.actor == Actor.PLAYER}
-            return {
+            resp = {
                 "scenes": [
                     {
                         "sceneId": s.scene_id,
@@ -656,6 +658,18 @@ def create_app() -> FastAPI:
                     for s in scenes
                 ]
             }
+            # Localize code-generated titles/actions (combat "교전 R…", etc.) at the
+            # serving boundary like every other endpoint. Prefer the loop's own
+            # scenario over the query default. Free-form LLM narration stays as
+            # generated (already EN for EN loops; legacy KO prose isn't glossary-
+            # translatable after the fact).
+            loop = service.store.get_loop(loop_id)
+            resolved_scenario = (
+                str(loop.state.get("scenario_id"))
+                if loop is not None and isinstance(loop.state, dict) and loop.state.get("scenario_id")
+                else scenario_id
+            )
+            return localize_for(resp, resolved_scenario, lang)
         except Exception as exc:
             raise HTTPException(status_code=500, detail=str(exc))
 

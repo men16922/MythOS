@@ -120,7 +120,7 @@ export function useSessionLifecycle(args: UseSessionLifecycleArgs) {
 
   const handleStartGame = async () => {
     setIsBusy(true);
-    setObStatus("접속 중…");
+    setObStatus(DICTS[getLang()]["sess.connecting"]);
     try {
       const player = await apiConnect({
         display_name: displayName,
@@ -164,7 +164,7 @@ export function useSessionLifecycle(args: UseSessionLifecycleArgs) {
       }, 300);
       setObStatus("");
     } catch (err) {
-      setObStatus("실패: " + (err as Error).message);
+      setObStatus(DICTS[getLang()]["sess.authFail"] + (err as Error).message);
       logToConsole("Auth 실패: " + (err as Error).message);
     } finally {
       setIsBusy(false);
@@ -217,7 +217,7 @@ export function useSessionLifecycle(args: UseSessionLifecycleArgs) {
       setStatus(`${DICTS[getLang()]["sess.combatSimEnter"]}${encounterId}`);
       logToConsole(`전투 시뮬: ${encounterId} (allies=${allyIds.join(",") || "none"})`);
     } catch (err) {
-      setObStatus("시뮬레이션 실패: " + (err as Error).message);
+      setObStatus(DICTS[getLang()]["sess.simFail"] + (err as Error).message);
       logToConsole("전투 시뮬 실패: " + (err as Error).message);
     } finally {
       setIsBusy(false);
@@ -230,7 +230,7 @@ export function useSessionLifecycle(args: UseSessionLifecycleArgs) {
     loopId?: string;
   }) => {
     setIsBusy(true);
-    setObStatus("이어하는 중…");
+    setObStatus(DICTS[getLang()]["sess.resuming"]);
     setSceneImageUrl(null);
     setNarrativeHistory([]);
     try {
@@ -277,9 +277,9 @@ export function useSessionLifecycle(args: UseSessionLifecycleArgs) {
         localStorage.removeItem(LS_KEY);
         setResumeSessionData(null);
         setConnected(false);
-        setObStatus("이전 세션이 종료되어 기록 보관소로 이동했습니다. 새 게임을 시작하세요.");
+        setObStatus(DICTS[getLang()]["sess.staleSession"]);
       } else {
-        setObStatus("이어하기 실패: " + message);
+        setObStatus(DICTS[getLang()]["sess.resumeFail"] + message);
       }
     } finally {
       setIsBusy(false);

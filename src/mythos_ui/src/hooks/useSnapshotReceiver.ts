@@ -1,6 +1,8 @@
 import type { Dispatch, SetStateAction } from "react";
 import type { NarrativeHistoryItem } from "../App";
 import { prefersReducedMotion } from "../combatEffects";
+import { getLang } from "../api";
+import { DICTS } from "../i18n/lang";
 import type { AssetInfo, RuntimeSnapshot } from "../types";
 
 type UseSnapshotReceiverArgs = {
@@ -70,8 +72,8 @@ export function useSnapshotReceiver(args: UseSnapshotReceiverArgs) {
       const hasCuratedImage = Boolean(currentNode?.anchor && currentNode?.image);
       setImagePlaceholderText(
         hasCuratedImage
-          ? "이 주요 장면은 사전 제작 이미지를 우선 표시합니다."
-          : "새 장면 이미지가 아직 생성되지 않았습니다. visual worker가 꺼져 있거나 이미 처리 중인 이미지가 있으면 생성 요청을 건너뜁니다."
+          ? DICTS[getLang()]["img.curatedPreferred"]
+          : DICTS[getLang()]["img.notGenerated"]
       );
     }
     loadSlotsAndRuns(snap.player?.player_id || playerId || "");

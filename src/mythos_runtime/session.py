@@ -1234,7 +1234,15 @@ class RuntimeSessionService:
         state = CombatService.load_state(loop)
         if state is None:
             return None
-        scenario = load_scenario(options.scenario_id)
+        # Prefer the loop's own scenario over ``options.scenario_id`` (which
+        # defaults to neo-seoul): ``resume`` is reachable with default options
+        # (e.g. connect_cli), so a mid-combat glass-library loop would otherwise
+        # build its combat snapshot from the wrong scenario's encounter/reward
+        # data. Mirrors the ``equip_item`` resolution.
+        scenario_id = (
+            loop.state.get("scenario_id") if isinstance(loop.state, dict) else None
+        )
+        scenario = load_scenario(scenario_id or options.scenario_id)
         available = self.combat.engine.available_actions(state) if state.active else {}
         encounter = scenario.combat.get("encounters", {}).get(state.encounter_id, {})
         rewards: dict[str, Any] = {}
@@ -1705,20 +1713,37 @@ class RuntimeSessionService:
         )
         if scenario_id == "neo-seoul" and scene.turn_index < 2:
             requested_combat = None
-        # Ambient combat (LLM-requested via start_combat, or an encounter-map
-        # contact) is subject to pacing: cooldown + early risk cap. Authored
-        # route-node combat (patrol/boss) is a deliberate destination the player
-        # walked into, so it bypasses the gate — otherwise the risk-5 IX boss
-        # node would always exceed the risk cap (max 4) and be downgraded, or be
-        # suppressed by cooldown, and the climax fight would never fire.
-        ambient_combat = requested_combat or triggered_combat
-        if ambient_combat:
+        # Authored route-node combat (patrol/boss climax) is the deliberate
+        # destination the player walked into: it takes precedence over ambient
+        # combat AND bypasses the pacing gate. Ambient combat (LLM start_combat
+        # or an encounter-map contact) is subject to pacing (cooldown + early
+        # risk cap). Precedence matters: route_combat is only recomputed on node
+        # entry, so if a coinciding ambient contact (high tension) or an LLM
+        # start_combat on the boss-entry turn won the chain, the parked climax
+        # node would never fire again — the risk-5 boss would also always exceed
+        # the risk cap (max 4) and be downgraded/suppressed by the gate.
+        if route_combat:
+            next_combat: str | None = route_combat
+        else:
+            ambient_combat = requested_combat or triggered_combat
             next_combat = self._gate_next_combat(
                 transition.loop, scene.turn_index, ambient_combat, options
             )
-        else:
-            next_combat = route_combat
         if next_combat and not CombatService.is_active(transition.loop):
+            if triggered_combat and triggered_combat != next_combat:
+                # An encounter-map contact triggered, but the fight we actually
+                # begin is a different encounter (the gate downgraded it, or a
+                # boss node took precedence). Resolve the original contact now,
+                # else it stays "engaged" on the player's tile and re-triggers
+                # every turn — re-downgraded each time — a phantom-pursuit loop
+                # (post-combat resolution keys off the encounter that ran).
+                transition = replace(
+                    transition,
+                    loop=replace(
+                        transition.loop,
+                        state=mark_encounter_resolved(transition.loop.state, triggered_combat),
+                    ),
+                )
             combat_snapshot = self._begin_requested_combat(player, transition.loop, next_combat, options)
             self._set_cached_snapshot(transition.loop.loop_id, combat_snapshot)
             return combat_snapshot

@@ -385,8 +385,12 @@ class CombatService:
         table = scenario_combat.get("loot_tables", {}).get(table_id)
         if not table:
             return None
-        items = [entry["item"] for entry in table]
-        weights = [float(entry.get("weight", 1)) for entry in table]
+        # An authored loot-table entry missing "item" must not crash the whole
+        # combat-turn commit (lost progress) — skip it, mirroring the tolerant
+        # ``.get`` on the sibling "weight" key.
+        rows = [entry for entry in table if isinstance(entry, dict) and "item" in entry]
+        items = [entry["item"] for entry in rows]
+        weights = [float(entry.get("weight", 1)) for entry in rows]
         if not items:
             return None
         return str(dice.weighted_choice(items, weights))

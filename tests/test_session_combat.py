@@ -290,13 +290,17 @@ class SessionCombatTest(unittest.TestCase):
             visual_brief="A vast optimization altar.",
             created_at=datetime(2026, 5, 31, tzinfo=UTC),
         )
+        # A coinciding LLM-requested ambient fight on the boss-entry turn must
+        # NOT steal precedence: the authored boss node wins (regression for the
+        # precedence-drop where route_combat is only recomputed on node entry,
+        # so a parked climax node would otherwise never fire again).
         payload = ScenePayload(
             title=scene.title,
             location=scene.location,
             narration=scene.narration,
             choices=scene.choices,
             visual_brief=scene.visual_brief or "",
-            world_delta=WorldDelta(),  # no LLM-requested/ambient combat
+            world_delta=WorldDelta(start_combat="patrol_ambush"),
         )
 
         snap = self.service._commit_scene(

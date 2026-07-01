@@ -115,6 +115,21 @@ class CombatServiceTest(unittest.TestCase):
             self.assertGreaterEqual(len(result.loop.state.get("_inventory", [])), 1)
             self.assertGreaterEqual(len(result.rewards["items"]), 1)
 
+    def test_roll_loot_skips_malformed_entries_without_crashing(self) -> None:
+        # A loot-table entry missing "item" must be skipped, not crash the whole
+        # combat-turn commit (regression: entry["item"] KeyError).
+        from mythos_core.dice import Dice
+
+        service = CombatService()
+        combat = {
+            "loot_tables": {
+                "mixed": [{"weight": 2}, {"item": "medkit", "weight": 1}],
+                "all_bad": [{"weight": 1}, {"foo": "bar"}],
+            }
+        }
+        self.assertEqual(service._roll_loot(combat, "mixed", Dice("s")), "medkit")
+        self.assertIsNone(service._roll_loot(combat, "all_bad", Dice("s")))
+
     def test_deterministic_outcome(self) -> None:
         a = self._play_end(CombatService())
         b = self._play_end(CombatService())

@@ -505,7 +505,11 @@
     "선행 스킬을 먼저 습득해야 합니다.": "You must learn the prerequisite skill first.",
     "이미 최대 랭크입니다.": "Already at maximum rank.",
     "통찰 포인트가 부족합니다.": "Not enough insight points.",
-    "아직 해금되지 않은 스킬입니다.": "This skill is not unlocked yet."
+    "아직 해금되지 않은 스킬입니다.": "This skill is not unlocked yet.",
+    "최적화 빔": "Optimization Beam",
+    "작전 지도의 최종 boss 노드(세계를 다시 쓰다) 진입 시 발생한다. 관리자 IX가 코어에서 직접 대면을 선언할 때 시작된다.": "Triggered on entering the operation map's final boss node (Rewriting the World). It begins when Administrator IX declares a direct confrontation from the core.",
+    "최종 보스전. 고체력 단일 표적(IX)을 호위 드론과 위험 지형 속에서 분담 공략하며, 회복/엄호/일점사 타이밍과 파티 생존을 종합한다.": "The final boss fight. Split focus on a high-HP single target (IX) amid escort drones and hazardous terrain, combining heal/cover/focus-fire timing with party survival.",
+    "도시의 운명을 가르는 절정. 승리는 최대 통찰과 상급 전리품을 보장하되, 막대한 긴장도와 안정도 비용을 남겨 엔딩 분기로 이어진다.": "The climax that decides the city's fate. Victory guarantees maximum insight and top-tier loot, but leaves a massive tension and stability cost that leads into the ending branches."
   },
   "phrases": {
     "현재 지점: ": "Current point: ",

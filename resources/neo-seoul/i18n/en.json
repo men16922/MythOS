@@ -501,7 +501,11 @@
     "첫 접속 — C-17 정전": "First Connection — C-17 Blackout",
     "빗속에서 세린이 당신을 발견한다": "Se-rin Finds You in the Rain",
     "정세린, 물거미": "Jung Se-rin, the Water Spider",
-    "엔진이 켜지고, 도시는 적이 된다": "The Engine Ignites, and the City Turns Hostile"
+    "엔진이 켜지고, 도시는 적이 된다": "The Engine Ignites, and the City Turns Hostile",
+    "선행 스킬을 먼저 습득해야 합니다.": "You must learn the prerequisite skill first.",
+    "이미 최대 랭크입니다.": "Already at maximum rank.",
+    "통찰 포인트가 부족합니다.": "Not enough insight points.",
+    "아직 해금되지 않은 스킬입니다.": "This skill is not unlocked yet."
   },
   "phrases": {
     "현재 지점: ": "Current point: ",
@@ -527,6 +531,7 @@
     "다음 지점": "next point",
     " 이하": " or below",
     "교전 R": "Engagement R",
-    "전투 중 ": "In combat "
+    "전투 중 ": "In combat ",
+    "알 수 없는 스킬입니다: ": "Unknown skill: "
   }
 }

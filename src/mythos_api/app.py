@@ -138,6 +138,7 @@ class AssetResolveRequest(BaseModel):
 class LearnSkillRequest(BaseModel):
     skill_id: str = Field(min_length=1)
     scenario_id: str = "neo-seoul"
+    lang: str = "ko"
 
 
 # --- Error mapping ----------------------------------------------------------
@@ -824,7 +825,12 @@ def create_app() -> FastAPI:
         try:
             return service.learn_skill(player_id, body.scenario_id, body.skill_id)
         except ValueError as exc:
-            raise HTTPException(status_code=400, detail=str(exc)) from exc
+            # Localize the user-facing error so EN players don't get a raw Korean
+            # toast (glossary/phrase-backed at the serving boundary).
+            raise HTTPException(
+                status_code=400,
+                detail=localize_for(str(exc), body.scenario_id, body.lang),
+            ) from exc
         except RuntimeError as exc:
             raise _as_http_error(exc) from exc
 

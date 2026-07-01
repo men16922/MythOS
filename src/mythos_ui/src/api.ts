@@ -259,6 +259,7 @@ export async function apiLearnSkill(params: {
       body: JSON.stringify({
         scenario_id: params.scenario_id,
         skill_id: params.skill_id,
+        lang: getLang(),
       }),
     }
   );

@@ -1635,6 +1635,25 @@ class RuntimeSessionService:
                     transition, loop=replace(transition.loop, state=grown_state)
                 )
 
+        # Climax reachability pacing guard. ``DEFAULT_TURNS_PER_LAYER`` spaces the
+        # authored boss node ~20 turns out, so under real-LLM tension a mid-run
+        # ``tension>=90`` spike would auto-archive the loop long before the IX
+        # climax — the golden path then never reaches the boss and the run has no
+        # payoff (live 2026-07-03: item A fixed preemption *at* the boss node, but
+        # a prior-turn spike strands the player before it). While the boss node is
+        # still ahead, defer a *tension*-only threshold archive so the route can
+        # carry the player to the climax; ``stability<=10`` erasure and an explicit
+        # LLM ``end_condition`` stay real early ends, and once the boss node is
+        # reached ``_defer_threshold_archive_for_climax`` + the fight own the end.
+        if (
+            isinstance(transition.loop.state, dict)
+            and transition.loop.state.get(ROUTE_MAP_KEY)
+            and not _route_boss_reached(transition.loop.state)
+        ):
+            transition = self._defer_tension_archive_before_climax(
+                transition, prior_phase=loop.phase, payload=payload
+            )
+
         # Route junctions: at a layer boundary, replace this scene's choices with
         # the branch options (next candidate nodes) so the player explicitly picks
         # the next destination. In-layer turns keep the LLM's own choices.
@@ -1770,6 +1789,45 @@ class RuntimeSessionService:
             return transition
         end_condition = (payload.end_condition or "").lower()
         if end_condition in {"archive", "ended", "loop_complete"}:
+            return transition
+        revived = replace(
+            loop,
+            phase=prior_phase,
+            ended_at=None,
+            active_echoes=[e for e in loop.active_echoes if e is not transition.echo],
+        )
+        return replace(transition, loop=revived, echo=None)
+
+    def _defer_tension_archive_before_climax(
+        self,
+        transition: LoopTransition,
+        *,
+        prior_phase: LoopPhase,
+        payload: ScenePayload,
+    ) -> LoopTransition:
+        """Keep the loop live when a pre-climax ``tension>=90`` archive would end
+        the run before the golden path reaches the authored boss node.
+
+        The route advances one layer every ``DEFAULT_TURNS_PER_LAYER`` turns, so
+        the boss sits ~20 turns out; under real-LLM tension a mid-run spike would
+        auto-archive the loop long before the climax and the IX fight never fires.
+        This defers only the *tension* threshold and only while the boss node is
+        still ahead (the caller gates on ``_route_boss_reached``): ``stability<=10``
+        erasure and an explicit LLM ``end_condition`` remain real early ends, and
+        the loop still resolves at the boss via ``_defer_threshold_archive_for_climax``
+        + the fight once it is reached. Mirrors that helper's revert (restore the
+        pre-transition phase, clear ``ended_at``, drop the minted Echo).
+        """
+        loop = transition.loop
+        if loop.phase not in {LoopPhase.ARCHIVE, LoopPhase.ENDED}:
+            return transition
+        if prior_phase in {LoopPhase.ARCHIVE, LoopPhase.ENDED}:
+            return transition
+        end_condition = (payload.end_condition or "").lower()
+        if end_condition in {"archive", "ended", "loop_complete"}:
+            return transition
+        # Rescue only a tension-driven collapse; stability<=10 is a legit erasure.
+        if loop.tension < 90 or loop.stability <= 10:
             return transition
         revived = replace(
             loop,
@@ -1966,6 +2024,28 @@ def _route_node_label(state: Any) -> str | None:
     if not isinstance(node, dict):
         return str(current)
     return str(node.get("title") or node.get("label") or current)
+
+
+def _route_boss_reached(state: Any) -> bool:
+    """True when the route pointer sits on the authored boss node.
+
+    Used by the climax pacing guard to distinguish "boss still ahead" (defer a
+    tension collapse) from "at the climax" (the boss deferral + fight own the
+    end). False for legacy ``_map`` scenarios with no route map.
+    """
+    if not isinstance(state, dict):
+        return False
+    route = state.get(ROUTE_MAP_KEY)
+    if not isinstance(route, dict):
+        return False
+    current = route.get("current")
+    nodes = route.get("nodes")
+    if not current or not isinstance(nodes, dict):
+        return False
+    node = nodes.get(current)
+    if not isinstance(node, dict):
+        return False
+    return str(node.get("type")) == "boss"
 
 
 def _choice_impact_summary(

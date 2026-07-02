@@ -5,6 +5,13 @@ Last updated: 2026-07-03
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-03 — Scene image: side_arc 카이의 꿈 단편
+- Status: Completed (`make check` green; committed locally, unpushed).
+- Changed (visual): Generated scene image draft for `side_arc 카이의 꿈 단편` (Side: Kai's Dream Fragment) using in-session Gemini Image Generator (16:9 aspect ratio, prompt tailored to Neo-Seoul art direction). Converted the output to PNG format and copied to `resources/neo-seoul/scenes/kai_dream_fragment.png`. Left the original draft and its review in `outputs/agy/kai_dream_fragment/`.
+- Verified: Ran `tests/test_image_assets.py` and `tests/test_assets.py` successfully. Verified that `make check` passes.
+- Blockers: None (push is human-only).
+- Next: human — review the generated scene image draft in `outputs/agy/kai_dream_fragment/` in the morning, and merge/push.
+
 ## 2026-07-03 — Scene image: side_arc 명단의 빈칸
 - Status: Completed (`make check` green; committed locally, unpushed).
 - Changed (visual): Generated scene image draft for `side_arc 명단의 빈칸` (Side: The Blank in the List) using in-session Gemini Image Generator (16:9 aspect ratio, prompt tailored to Neo-Seoul art direction). Converted the output to PNG format and copied to `resources/neo-seoul/scenes/blank_in_list.png`. Left the original draft and its review in `outputs/agy/blank_in_list/`.

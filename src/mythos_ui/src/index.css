@@ -1897,10 +1897,13 @@ main {
   min-height: 620px;
 }
 .combat-right-col #combat-controls {
-  margin-top: auto;
-  position: sticky;
-  bottom: 12px;
-  z-index: 12;
+  /* Flow directly below the roster. This was previously sticky (bottom: 12px)
+     to keep the command console on-screen, but when roster + console exceed the
+     viewport the bottom-pinned console slid up and overlapped the roster (its
+     z-index put the roster behind it). Scrolling down un-stuck it — the reported
+     "overlap at the top" bug. Normal flow can't overlap; the console is reachable
+     by scrolling either way. */
+  margin-top: 0;
 }
 @media (max-width: 960px) {
   .combat-right-col {

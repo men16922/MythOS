@@ -77,7 +77,7 @@ Open work:
 - `[ ]` `[manual]` **Pre-CBT follow-ups**: glass-library has no EN overlay glossary (on hold); dev-log ~32 KO literals (dev-only). Human live play → `docs/test/neo_seoul_live_qa.md`. (bug#4 layer-1 curated-image directive **fixed 2026-07-02**, `3b7d26b` + regression test.)
 
 ### CBT external feedback (2026-07-02)
-- `[/]` **#1 UI accent hierarchy**: green stays primary + sparse accents (amber=warning/TEN/enrage, cyan=headers/objective, signature=IX). CSS-only; in progress: 2-3 live mockups → human pick → apply. (Same feedback praised the stage/guardrail design — reuse in CBT posts.)
+- `[x]` **#1 UI accent hierarchy** (`6afa6d9`, live-verified): green stays primary + `--head` amber `#ffb454` for section/panel headers (landmarks) + `--threat` magenta `#ff5fd0` for the ENEMY roster signature. Gauge progressive danger colors (warn/danger) left intact. White-header variant = set `--head #f2fff9`. (Same feedback praised the stage/guardrail design — reuse in CBT posts.)
 
 ### Live QA narrative improvements (2026-06-19, authority `docs/test/neo_seoul_live_qa.md`)
 

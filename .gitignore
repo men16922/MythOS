@@ -55,3 +55,7 @@ docs/test/history/*-overnight-review-checklist.md
 
 # Closed-beta invite keys (access gate — never commit)
 INVITE_KEY.md
+
+# CBT teaser videos — distributed via YouTube, too large for git (docs/posts/PNGs stay tracked)
+docs/cbt/*.mp4
+docs/cbt/*.mov

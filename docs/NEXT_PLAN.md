@@ -47,11 +47,32 @@ specify which engine consumes it. Each engine consumes **only its own lane** →
 - `[auto:agy]` — agy lane (image draft + simple verify; resources/ image dirs only, integrity gate).
 - When claude's quota is exhausted, codex consumes the claude lane instead (runner auto-failover, `run.sh`).
 
-## Overnight QA Seed — automated content/balance integrity
+## Overnight QA Seed — CBT completeness batch (2026-07-03, Tier 1+2, human-approved)
 
-> "Does it not break" (bot, deterministic) content/balance invariants. green=locked, red=Blocker surface. offline·`make check`.
+> Structure/bug/image only (deterministic, `make check`/image-integrity). Narrative QUALITY·emotional immersion·30-60min FEEL stay `[manual]` (morning play-QA). Dep-order within claude lane. Prior seed (archetype-id + stale-note) done → PROGRESS_LOG 2026-07-02.
 
-(2026-06-27 archetype-id content-integrity invariants + stale STATUS.md note cleanup: both done → PROGRESS_LOG 2026-07-02.)
+- [ ] [auto:claude] Fix IX boss combat not firing at the boss node (live 2026-07-03: tension-100 auto-archive preempts the fight; only patrol_ambush ran, IX never started). Completion criterion: entering the boss route node begins ix_confrontation combat before/over the same-turn auto-archive; regression test; make check green.
+- [ ] [auto:claude] Climax reachability pacing guard. Completion criterion: cap per-turn tension climb / raise the archive trigger so under a fixed choice-seed the golden path reaches the boss node without a prior tension>=90 auto-archive; test_route_integrity invariant; make check green.
+- [ ] [auto:claude] Consecutive-scene anti-repeat invariant. Completion criterion: regression test asserts consecutive main scenes differ in route node/location under fixed seed; make check green.
+- [ ] [auto:claude] Side-anchor mechanism: wire scenario side_arcs into the route as seed-selected optional side-anchor nodes. Completion criterion: a side_arc node is reachable in the route DAG; new test; make check green.
+- [ ] [auto:claude] Per-loop variation. Completion criterion: seed-based selection so >=5 distinct loop seeds yield >=3 distinct visited-node/character sets; test; make check green.
+- [ ] [auto:claude] Content-integrity for side-anchor data. Completion criterion: extend test_content_integrity/test_route_integrity so every side-anchor beat/image/encounter/npc ref resolves; make check green.
+- [ ] [auto:claude] Golden-path length guard. Completion criterion: test asserts >=12 narrative beats reachable before an ending on the golden path (30-60min proxy); make check green.
+- [ ] [auto:codex] story_bible entries for the 6 side_arcs. Completion criterion: 6 new bible entries (valid flags/related_npcs/unlocks); make check green.
+- [ ] [auto:codex] story_bible entries for character meet scenes (kai/lin_yue/tae_o/han/su_ah). Completion criterion: 5 new bible entries; make check green.
+- [ ] [auto:codex] scenario.json: structure the 6 side_arcs as side-anchor data (id/beat/gate/perspectives/image). Completion criterion: data present + integrity passes; make check green.
+- [ ] [auto:codex] Per-character meet-node data (kai/lin_yue/tae_o/han/su_ah). Completion criterion: data + integrity; make check green.
+- [ ] [auto:codex] Directive *.md files for the new side-anchor scenes. Completion criterion: directives/*.md present + loader resolves; make check green.
+- [ ] [auto:codex] Dynamic-node title/type variety pool for per-loop differentiation. Completion criterion: pool entries + integrity; make check green.
+- [ ] [auto:codex] Doc compression (NEXT_PLAN/COMPLETED_SUMMARY line budgets). Completion criterion: make check-doc-budget green.
+- [ ] [auto:agy] Scene image: side_arc 버려진 자들의 신호. Completion criterion: scenes/<beat>.png + image integrity gate.
+- [ ] [auto:agy] Scene image: side_arc 관리망의 유령. Completion criterion: image integrity gate.
+- [ ] [auto:agy] Scene image: side_arc 린위에의 은밀한 의뢰. Completion criterion: image integrity gate.
+- [ ] [auto:agy] Scene image: side_arc 물거미의 빚. Completion criterion: image integrity gate.
+- [ ] [auto:agy] Scene image: side_arc 명단의 빈칸. Completion criterion: image integrity gate.
+- [ ] [auto:agy] Scene image: side_arc 카이의 꿈 단편. Completion criterion: image integrity gate.
+- [ ] [auto:agy] Dedicated scene art: data_incinerator + subway_control_hub (replace concept/ reuse). Completion criterion: 2 scenes/*.png + integrity gate.
+- [ ] [auto:agy] Character meet-scene images: kai + lin_yue. Completion criterion: 2 images + integrity gate.
 
 ## Priority 1 — Neo-Seoul Playability Upgrade
 
@@ -71,36 +92,15 @@ Completed (→ COMPLETED_SUMMARY M35–M40, M39): Phase 1–3 (Golden Path 45min
 
 Open work:
 
-### IX Boss Fight — track fully complete (design+art+engine+climax-fires). Authority `docs/plans/2026-06-30-ix-boss-fight.md`
-- `[x]` IX boss DESIGN / IMAGES / ENGINE (2-phase enrage, `combat.enemy_skills`, party-win 0.58, `make sim-boss`) — all DONE 2026-06-30 → PROGRESS_LOG + COMPLETED_SUMMARY.
-- `[x]` **IX boss climax now FIRES in play** (2026-07-02): the "Confront IX" node's combat was suppressed by the ambient pacing gate (risk-5 > cap-4 downgrade + cooldown) and later lost precedence to coinciding ambient combat so the parked node never re-fired — fixed (route combat precedence + gate bypass). Bundled: 3 more combat/route bugs (contact re-trigger loop, resume `scenario_id`, loot `KeyError`), EN mid-play Korean leaks (endings/combat/codex/save/validator/parser/skill-error + 2 frontend), `_resolve_next_combat` refactor. **Live-verified** (fallback HTTP scan 0 Korean + AGY browser QA PASS; found+fixed 4 IX-combat leaks). 620 green, unpushed. Detail PROGRESS_LOG 2026-07-02.
-- `[ ]` `[manual]` **Pre-CBT follow-ups**: glass-library has no EN overlay glossary (on hold); dev-log ~32 KO literals (dev-only). Human live play → `docs/test/neo_seoul_live_qa.md`. (bug#4 layer-1 curated-image directive **fixed 2026-07-02**, `3b7d26b` + regression test.)
+### IX Boss Fight — design+art+engine DONE (2026-06-30 → COMPLETED_SUMMARY). Authority `docs/plans/2026-06-30-ix-boss-fight.md`
+- `[x]` Climax gate/precedence fix (2026-07-02). **⚠️ LIVE re-finding 2026-07-03: at the boss node the fight still doesn't start — tension-100 auto-archive preempts it (only patrol_ambush ran). Targeted by Overnight Seed A/B above.**
+- `[x]` CBT feedback: #1 UI accent hierarchy (`6afa6d9`) + combat-console overlap fix (`52f7aa1`) + KO-toggle label — DONE 2026-07-02..03.
+- `[ ]` `[manual]` Pre-CBT follow-ups: glass-library EN glossary (hold); dev-log ~32 KO literals (dev-only). Human live play → `docs/test/neo_seoul_live_qa.md`. (bug#4 fixed `3b7d26b`.)
 
-### CBT external feedback (2026-07-02)
-- `[x]` **#1 UI accent hierarchy** (`6afa6d9`, live-verified): green stays primary + `--head` amber `#ffb454` for section/panel headers (landmarks) + `--threat` magenta `#ff5fd0` for the ENEMY roster signature. Gauge progressive danger colors (warn/danger) left intact. White-header variant = set `--head #f2fff9`. (Same feedback praised the stage/guardrail design — reuse in CBT posts.)
-
-### Live QA narrative improvements (2026-06-19, authority `docs/test/neo_seoul_live_qa.md`)
-
-Narrative QA #1 and #3 done.
-- `[/]` `[manual]` **#2 ending narrativization + #5 post-combat callback**: code merged, unit tests locked. Remaining = live feel.
-- `[ ]` **#4 map in-layer choice destinations** · **#6 skill-tree RPG node graph** (separate track, frontend; analysis done).
-- `[x]` Automatic AGY browser QA in overnight (WS-A..F) — done & default-on → COMPLETED_SUMMARY (guide `docs/plans/2026-06-21-overnight-auto-agy-qa.md` §20-21).
-
-### Opening sequence consistency (live_qa §1.1) — done (foundation), montage follow-up
-
-- `[ ]` Pre-game montage repositioning: move the pursuit cut to a later beat to ease the time-spoiler where the montage runs ahead of in-game awakening.
-- `[ ]` Full 4-turn human play feel (awakening→arrival→contact→pursuit, image transition·se_rin portrait sync).
-- `[ ]` Minor: turn1 "corridor" word leaks once·title "Changed " prefix artifact, intro bullet chips (`·`) CSS polish.
-
-### Human play QA findings (live_qa §0/§1-6) — A/B/C/E/G done, F·D remaining
-
-- `[/]` **F streaming speed**: root cause RAM shortage identified + dual-model narrative (8B story → 3b parser) wired·context 8192 cap applied. Remaining: with user RAM freed, approach ~13s, actual multi-turn live feel. Design `bin/docs/plans/2026-06-10-dual-model-narrative-orchestration.md`.
-- `[/]` **D narrative repetition**: synopsis truncation-drop fix (`session_synopsis` dedicated field fully rendered) + scene length/prefill cache fix. Remaining: actual multi-turn live feel.
-
-- `[/]` P0-P2 mostly done (detail COMPLETED_SUMMARY M35-M40·PROGRESS archive; live LLM 14-turn QA pass·F1 repetition-mitigation·anti-stickiness·Tactical Board zoom·recovery/consumable/equipment·memory-constellation reorg·objective/stakes·choice-result summary). **Remaining**: F2 combat-frequency/streak tuning (observe) · Tactical Board touch pin lock · consumable/equipment balance · act-gate required-beat enforcement + inject current node into visual prompt · memory constellation tab subdivision · expand choice-result with relationship/Codex/Shard · objective act-transition gate · (op-map foundation done) static-scenario→route conversion (consider).
-- `[ ]` P2 archetype meaning strengthening: unlock-milestone limits + differentiate opening/start-location/skills/items/NPC reactions.
-- `[manual]` Codex Skill status wording (first-player feel). Button state logic (`deriveSkillAction`) is done.
-- `[ ]` Phase 4 — objective/choice result/Codex feedback UX integration finish. `[ ]` Phase 5 — Neo-Seoul RC: manual QA (`docs/test/neo_seoul_live_qa.md`) + auto regression.
+### Live QA / play-feel (authority `docs/test/neo_seoul_live_qa.md`) — mostly `[manual]` live feel
+- `[/]` `[manual]` #2 ending narrativization + #5 post-combat callback (code merged; remaining = live feel).
+- `[/]` `[manual]` D narrative repetition + F streaming speed (mitigations wired; remaining = multi-turn feel). **Overnight Seed B targets D structurally.**
+- `[ ]` #4 map in-layer choice destinations · #6 skill-tree RPG node graph (frontend) · opening montage repositioning + turn1 polish · P2 archetype meaning · Phase 4/5 RC. Detail → COMPLETED_SUMMARY M35-M40 + archive.
 
 ## Post-local — GCP 클로즈베타 (DEPLOYED LIVE)
 - `[x]` **🚀 DEPLOYED LIVE (2026-06-29, rev `mythos-api-00003-fzb`)** — `https://mythos-api-1004528040791.us-central1.run.app` (Cloud Run us-central1 + Neon PG18 + Vertex/GCS), EN default + admin key(uncapped) + tester cap 10, keys `INVITE_KEY.md`. CBT 온보딩 UX(Option B 신원·게임식 Save/Load·초대 게이트)·EN end-to-end localization·Vertex 어댑터 3종·cost gating 전부 **DONE** → 상세 `COMPLETED_SUMMARY` M50 + `PROGRESS_LOG`(2026-06-29..30)·archive. **NEXT = human/비차단**: `git push origin main` · 결제 예산 알림 + Vertex 일일 쿼터(콘솔) · 피드백 Google Form → 종료화면 · `?invite=` 링크 배포 → r/playtesters(모집물 `CBT_TEASER.md`/`CBT_RECRUIT_POST.md`) · 오버나이트로 IX 보스(위) 소비 · (선택) Neon TRUNCATE 테스트데이터 리셋. 잔여 EN: K9 자연엔딩 스샷(사람 플레이), glass-library glossary, session `_outcome`. 런북 `docs/cloud/DEPLOY.md` §10. 전략 `docs/cloud/CLOSED_BETA_FEEDBACK_STRATEGY.md`.

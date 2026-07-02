@@ -18,7 +18,13 @@
       "alias": "물거미",
       "role": "첫 인도자 / 데이터 밀수꾼",
       "image": "characters/se-rin.png",
-      "keywords": ["정세린", "세린", "물거미", "se-rin", "serin"]
+      "keywords": [
+        "정세린",
+        "세린",
+        "물거미",
+        "se-rin",
+        "serin"
+      ]
     },
     {
       "id": "lin_yue",
@@ -26,7 +32,11 @@
       "alias": "환전상",
       "role": "야시장 브로커",
       "image": "characters/lin-yue.png",
-      "keywords": ["린위에", "lin yue", "lin-yue"]
+      "keywords": [
+        "린위에",
+        "lin yue",
+        "lin-yue"
+      ]
     },
     {
       "id": "kai",
@@ -34,7 +44,11 @@
       "alias": "RX-09",
       "role": "꿈꾸는 폐기 안드로이드",
       "image": "characters/kai.png",
-      "keywords": ["카이", "kai", "rx-09"]
+      "keywords": [
+        "카이",
+        "kai",
+        "rx-09"
+      ]
     },
     {
       "id": "tae_o",
@@ -42,7 +56,12 @@
       "alias": "사냥개",
       "role": "탈주 집행관 / 전술 조력자",
       "image": "characters/tae-o.png",
-      "keywords": ["태오", "tae-o", "tae o", "사냥개"]
+      "keywords": [
+        "태오",
+        "tae-o",
+        "tae o",
+        "사냥개"
+      ]
     },
     {
       "id": "han",
@@ -50,7 +69,12 @@
       "alias": "신호 파괴자",
       "role": "비접속자 해커",
       "image": "characters/han.png",
-      "keywords": ["한", "han", "신호 파괴자", "해커"]
+      "keywords": [
+        "한",
+        "han",
+        "신호 파괴자",
+        "해커"
+      ]
     },
     {
       "id": "su_ah",
@@ -58,7 +82,12 @@
       "alias": "잔향 가공사",
       "role": "기억의 대장장이",
       "image": "characters/su-ah.png",
-      "keywords": ["수아", "su-ah", "su ah", "잔향 가공사"]
+      "keywords": [
+        "수아",
+        "su-ah",
+        "su ah",
+        "잔향 가공사"
+      ]
     },
     {
       "id": "administrator_ix",
@@ -66,7 +95,10 @@
       "alias": "Control Net",
       "role": "ARK 관리망",
       "image": "characters/administrator-ix.png",
-      "keywords": ["관리자 ix", "administrator ix"]
+      "keywords": [
+        "관리자 ix",
+        "administrator ix"
+      ]
     }
   ],
   "concept_map": {
@@ -80,38 +112,123 @@
     {
       "id": "ghost",
       "name": "비접속자 (Ghost)",
-      "stats": {"strength": 3, "intelligence": 6, "charisma": 2, "agility": 8, "perception": 7},
-      "attributes": ["[유령 신호]", "[무음의 발걸음]"],
+      "stats": {
+        "strength": 3,
+        "intelligence": 6,
+        "charisma": 2,
+        "agility": 8,
+        "perception": 7
+      },
+      "attributes": [
+        "[유령 신호]",
+        "[무음의 발걸음]"
+      ],
       "starting_item": "말소된 ID 카드",
-      "base_skills": ["signal_step", "packet_shot"]
+      "base_skills": [
+        "signal_step",
+        "packet_shot"
+      ]
     },
     {
       "id": "data_smuggler",
       "name": "데이터 밀수꾼 (Data Smuggler)",
-      "stats": {"strength": 5, "intelligence": 8, "charisma": 5, "agility": 4, "perception": 6},
-      "attributes": ["[ARK 링크]", "[데이터 세탁]"],
+      "stats": {
+        "strength": 5,
+        "intelligence": 8,
+        "charisma": 5,
+        "agility": 4,
+        "perception": 6
+      },
+      "attributes": [
+        "[ARK 링크]",
+        "[데이터 세탁]"
+      ],
       "starting_item": "오버클럭된 덱",
-      "base_skills": ["packet_shot", "covering_noise"],
-      "unlock": {"runs_completed": 1},
+      "base_skills": [
+        "packet_shot",
+        "covering_noise"
+      ],
+      "unlock": {
+        "runs_completed": 1
+      },
       "unlock_hint": "튜토리얼 루프를 한 번 보관하면 해금됩니다."
     },
     {
       "id": "echo_collector",
       "name": "잔향 수집가 (Echo Collector)",
-      "stats": {"strength": 2, "intelligence": 5, "charisma": 9, "agility": 3, "perception": 8},
-      "attributes": ["[기억의 직공]", "[과거의 공명]"],
+      "stats": {
+        "strength": 2,
+        "intelligence": 5,
+        "charisma": 9,
+        "agility": 3,
+        "perception": 8
+      },
+      "attributes": [
+        "[기억의 직공]",
+        "[과거의 공명]"
+      ],
       "starting_item": "금 간 데이터 큐브",
-      "base_skills": ["patch_protocol", "covering_noise"],
-      "unlock": {"total_clues": 3},
+      "base_skills": [
+        "patch_protocol",
+        "covering_noise"
+      ],
+      "unlock": {
+        "total_clues": 3
+      },
       "unlock_hint": "단서 3개를 누적 수집하면 해금됩니다."
     }
   ],
   "autonomy_config": {
-    "1": {"status": "수동적 신호", "keywords": ["관찰", "동의", "숨기", "듣기"], "clues_required": 0},
-    "2": {"status": "동조된 관찰자", "keywords": ["질문", "조사", "우회", "분석"], "clues_required": 2},
-    "3": {"status": "의식의 균열", "keywords": ["거부", "보호", "해독", "변조"], "clues_required": 5},
-    "4": {"status": "능동적 변수", "keywords": ["도발", "해킹", "충돌", "침투"], "clues_required": 10},
-    "5": {"status": "해방된 촉매", "keywords": ["재작성", "파괴", "각성", "초월"], "clues_required": 16}
+    "1": {
+      "status": "수동적 신호",
+      "keywords": [
+        "관찰",
+        "동의",
+        "숨기",
+        "듣기"
+      ],
+      "clues_required": 0
+    },
+    "2": {
+      "status": "동조된 관찰자",
+      "keywords": [
+        "질문",
+        "조사",
+        "우회",
+        "분석"
+      ],
+      "clues_required": 2
+    },
+    "3": {
+      "status": "의식의 균열",
+      "keywords": [
+        "거부",
+        "보호",
+        "해독",
+        "변조"
+      ],
+      "clues_required": 5
+    },
+    "4": {
+      "status": "능동적 변수",
+      "keywords": [
+        "도발",
+        "해킹",
+        "충돌",
+        "침투"
+      ],
+      "clues_required": 10
+    },
+    "5": {
+      "status": "해방된 촉매",
+      "keywords": [
+        "재작성",
+        "파괴",
+        "각성",
+        "초월"
+      ],
+      "clues_required": 16
+    }
   },
   "session_design": {
     "target_playtime_minutes": 60,
@@ -125,10 +242,30 @@
         "gate": "세린과 C-17을 탈출하고 met_se_rin 또는 refused_se_rin이 기록된다.",
         "player_goal": "정세린과 함께 C-17 정전 구역을 빠져나간다."
       },
-      {"phase": "explore", "turn_range": "7-18", "gate": "복지 블록과 야시장 중 최소 한 곳에서 최적화 명단 단서가 나오거나, 태오(tae_o) 또는 한(han)/수아(su_ah) 플래그가 기록된다.", "player_goal": "복지 블록과 한강 야시장을 돌며 '최적화 명단'의 정체에 관한 단서를 찾고 동료를 만난다."},
-      {"phase": "interact", "turn_range": "19-34", "gate": "린위에 거래 또는 시민 구출 선택이 끝나고 카이 위치 단서가 열리며, 제3막 데이터 소각로(data_incinerator) 분기가 수행된다.", "player_goal": "린위에와 거래하거나 시민을 구하고, 카이의 위치 단서와 데이터 소각로 분기를 연다."},
-      {"phase": "rewrite", "turn_range": "35-50", "gate": "카이 재가동, 지하철 통제 중추(subway_control_hub) 선택, 관리자 IX 대면, 최종 침투 선택 중 하나가 발생한다.", "player_goal": "카이를 깨우고 지하철 통제 중추를 지나 관리자 IX와의 대면을 준비한다."},
-      {"phase": "archive", "turn_range": "51-60", "gate": "엔딩 판정과 Echo/Shard 후보를 정리한다.", "player_goal": "이번 루프의 결말을 매듭짓고 다음 루프에 남길 잔향을 정리한다."}
+      {
+        "phase": "explore",
+        "turn_range": "7-18",
+        "gate": "복지 블록과 야시장 중 최소 한 곳에서 최적화 명단 단서가 나오거나, 태오(tae_o) 또는 한(han)/수아(su_ah) 플래그가 기록된다.",
+        "player_goal": "복지 블록과 한강 야시장을 돌며 '최적화 명단'의 정체에 관한 단서를 찾고 동료를 만난다."
+      },
+      {
+        "phase": "interact",
+        "turn_range": "19-34",
+        "gate": "린위에 거래 또는 시민 구출 선택이 끝나고 카이 위치 단서가 열리며, 제3막 데이터 소각로(data_incinerator) 분기가 수행된다.",
+        "player_goal": "린위에와 거래하거나 시민을 구하고, 카이의 위치 단서와 데이터 소각로 분기를 연다."
+      },
+      {
+        "phase": "rewrite",
+        "turn_range": "35-50",
+        "gate": "카이 재가동, 지하철 통제 중추(subway_control_hub) 선택, 관리자 IX 대면, 최종 침투 선택 중 하나가 발생한다.",
+        "player_goal": "카이를 깨우고 지하철 통제 중추를 지나 관리자 IX와의 대면을 준비한다."
+      },
+      {
+        "phase": "archive",
+        "turn_range": "51-60",
+        "gate": "엔딩 판정과 Echo/Shard 후보를 정리한다.",
+        "player_goal": "이번 루프의 결말을 매듭짓고 다음 루프에 남길 잔향을 정리한다."
+      }
     ]
   },
   "playability": {
@@ -176,56 +313,108 @@
       {
         "axis": "people",
         "label": "사람",
-        "reward_bias": ["Humanity", "Stability", "trusted_se_rin"],
-        "cost_bias": ["Tension", "lost_evidence"]
+        "reward_bias": [
+          "Humanity",
+          "Stability",
+          "trusted_se_rin"
+        ],
+        "cost_bias": [
+          "Tension",
+          "lost_evidence"
+        ]
       },
       {
         "axis": "evidence",
         "label": "증거",
-        "reward_bias": ["Insight", "Narrative Shard", "code_rewrite"],
-        "cost_bias": ["Stability", "relationship_strain"]
+        "reward_bias": [
+          "Insight",
+          "Narrative Shard",
+          "code_rewrite"
+        ],
+        "cost_bias": [
+          "Stability",
+          "relationship_strain"
+        ]
       },
       {
         "axis": "safety",
         "label": "안전",
-        "reward_bias": ["Resilience", "lower_tension"],
-        "cost_bias": ["Echo_loss", "se_rin_distrust"]
+        "reward_bias": [
+          "Resilience",
+          "lower_tension"
+        ],
+        "cost_bias": [
+          "Echo_loss",
+          "se_rin_distrust"
+        ]
       },
       {
         "axis": "control",
         "label": "통제",
-        "reward_bias": ["Dominance", "shortcut", "combat_advantage"],
-        "cost_bias": ["Tension", "debt", "cold_ending"]
+        "reward_bias": [
+          "Dominance",
+          "shortcut",
+          "combat_advantage"
+        ],
+        "cost_bias": [
+          "Tension",
+          "debt",
+          "cold_ending"
+        ]
       }
     ],
     "route_branches": [
       {
         "id": "se_rin_mistrust",
-        "trigger_flags": ["refused_se_rin", "se_rin_distrust", "abandoned_citizen", "safety_first"],
+        "trigger_flags": [
+          "refused_se_rin",
+          "se_rin_distrust",
+          "abandoned_citizen",
+          "safety_first"
+        ],
         "story_bible_entry": "se_rin_mistrust_route",
         "effect": "세린은 협력하지만 정서적 거리와 낮은 Humanity/Echo 보상으로 돌아온다."
       },
       {
         "id": "lin_yue_debt",
-        "trigger_flags": ["night_market_debt", "lin_yue_deal", "lin_yue_debt_due"],
+        "trigger_flags": [
+          "night_market_debt",
+          "lin_yue_deal",
+          "lin_yue_debt_due"
+        ],
         "story_bible_entry": "lin_yue_debt_collection",
         "effect": "중반 우회와 장비는 쉬워지지만 후반 스파이어 접근에서 장부의 대가가 청구된다."
       },
       {
         "id": "kai_unawakened",
-        "trigger_flags": ["kai_left_dormant", "kai_used_as_tool", "rx09_extracted", "no_kai"],
+        "trigger_flags": [
+          "kai_left_dormant",
+          "kai_used_as_tool",
+          "rx09_extracted",
+          "no_kai"
+        ],
         "story_bible_entry": "kai_unawakened_absence",
         "effect": "후반 MythOS 단서와 감정선이 약해지고 효율/안전 중심 엔딩으로 기운다."
       },
       {
         "id": "high_tension_collision",
-        "trigger_flags": ["high_tension", "control_net_lockdown", "forced_collision", "loud_approach"],
+        "trigger_flags": [
+          "high_tension",
+          "control_net_lockdown",
+          "forced_collision",
+          "loud_approach"
+        ],
         "story_bible_entry": "high_tension_forced_collision",
         "effect": "전투와 통찰 보상은 늘지만 조용한 구출과 안정 귀환 선택지가 좁아진다."
       },
       {
         "id": "evidence_first",
-        "trigger_flags": ["evidence_first", "data_core_taken", "welfare_score_log", "optimization_log_stolen"],
+        "trigger_flags": [
+          "evidence_first",
+          "data_core_taken",
+          "welfare_score_log",
+          "optimization_log_stolen"
+        ],
         "story_bible_entry": "evidence_first_cold_path",
         "effect": "Code Rewrite 가능성은 강해지지만 세린/시민 관계와 안정도가 약해진다."
       }
@@ -252,19 +441,130 @@
     "mode": "dynamic",
     "_doc": "동적 작전 지도(mode=dynamic). 시작 시 backbone(anchors + 앞 horizon 레이어)만 seed로 깔고, 진행하며 route_growth.extend_route가 LLM 제안/pool로 다음 레이어를 채운다. 노드 수는 선택에 따라 자란다. mandatory anchor(오프닝/보스)는 필수 통과, 그 외 anchor는 gate(분기, ≥1 경로로는 항상 도달). 결정적 절차 생성 작전 지도. 임팩트 있는 스토리 비트는 anchors(사전 저작 비트+큐레이트 이미지)로 고정하고, 그 사이 과정은 pool/width 동적 노드(LLM 묘사)로 매 루프 랜덤 배치한다. layers는 golden_path 6막에 매핑된다.",
     "node_types": {
-      "story": {"label": "주요 장면", "glyph": "◆", "risk": 0, "combat": false, "reward": {}, "titles": ["전환의 길목", "예고된 장면", "분기의 순간"]},
-      "clue": {"label": "단서", "glyph": "❖", "risk": 1, "combat": false, "reward": {"insight": 1}, "titles": ["버려진 단말", "암호화된 흔적", "낡은 기록 보관함", "유출된 로그", "지워진 명단 조각"]},
-      "combat": {"label": "전투", "glyph": "⚔", "risk": 3, "combat": true, "reward": {"insight": 1, "tension": 6}, "titles": ["봉쇄선 충돌", "교전 구역", "정면 돌파"]},
-      "patrol": {"label": "순찰", "glyph": "◎", "risk": 2, "combat": true, "reward": {"tension": 3}, "titles": ["순찰 우회로", "감시 사각", "추격 길목"]},
-      "market": {"label": "시장", "glyph": "▣", "risk": 1, "combat": false, "reward": {"stability": 4, "heal_frac": 0.4}, "titles": ["뒷골목 노점", "암시장 거점", "환전 부스"]},
-      "rest": {"label": "정비", "glyph": "✚", "risk": 0, "combat": false, "reward": {"stability": 8, "heal_frac": 1.0}, "titles": ["임시 은신처", "정비 거점", "숨 고르는 골목"]},
-      "event": {"label": "사건", "glyph": "✦", "risk": 1, "combat": false, "reward": {}, "titles": ["우연한 마주침", "예기치 못한 부탁", "흔들리는 선택"]},
-      "boss": {"label": "대면", "glyph": "❒", "risk": 5, "combat": true, "reward": {"insight": 2}}
+      "story": {
+        "label": "주요 장면",
+        "glyph": "◆",
+        "risk": 0,
+        "combat": false,
+        "reward": {},
+        "titles": [
+          "전환의 길목",
+          "예고된 장면",
+          "분기의 순간"
+        ]
+      },
+      "clue": {
+        "label": "단서",
+        "glyph": "❖",
+        "risk": 1,
+        "combat": false,
+        "reward": {
+          "insight": 1
+        },
+        "titles": [
+          "버려진 단말",
+          "암호화된 흔적",
+          "낡은 기록 보관함",
+          "유출된 로그",
+          "지워진 명단 조각"
+        ]
+      },
+      "combat": {
+        "label": "전투",
+        "glyph": "⚔",
+        "risk": 3,
+        "combat": true,
+        "reward": {
+          "insight": 1,
+          "tension": 6
+        },
+        "titles": [
+          "봉쇄선 충돌",
+          "교전 구역",
+          "정면 돌파"
+        ]
+      },
+      "patrol": {
+        "label": "순찰",
+        "glyph": "◎",
+        "risk": 2,
+        "combat": true,
+        "reward": {
+          "tension": 3
+        },
+        "titles": [
+          "순찰 우회로",
+          "감시 사각",
+          "추격 길목"
+        ]
+      },
+      "market": {
+        "label": "시장",
+        "glyph": "▣",
+        "risk": 1,
+        "combat": false,
+        "reward": {
+          "stability": 4,
+          "heal_frac": 0.4
+        },
+        "titles": [
+          "뒷골목 노점",
+          "암시장 거점",
+          "환전 부스"
+        ]
+      },
+      "rest": {
+        "label": "정비",
+        "glyph": "✚",
+        "risk": 0,
+        "combat": false,
+        "reward": {
+          "stability": 8,
+          "heal_frac": 1.0
+        },
+        "titles": [
+          "임시 은신처",
+          "정비 거점",
+          "숨 고르는 골목"
+        ]
+      },
+      "event": {
+        "label": "사건",
+        "glyph": "✦",
+        "risk": 1,
+        "combat": false,
+        "reward": {},
+        "titles": [
+          "우연한 마주침",
+          "예기치 못한 부탁",
+          "흔들리는 선택"
+        ]
+      },
+      "boss": {
+        "label": "대면",
+        "glyph": "❒",
+        "risk": 5,
+        "combat": true,
+        "reward": {
+          "insight": 2
+        }
+      }
     },
     "combat_encounters": {
-      "combat": ["sentinel_checkpoint", "wraith_glitch", "shock_trooper_patrol", "mech_siege"],
-      "patrol": ["patrol_ambush", "tracker_ambush", "purge_incineration"],
-      "boss": ["ix_confrontation"]
+      "combat": [
+        "sentinel_checkpoint",
+        "wraith_glitch",
+        "shock_trooper_patrol",
+        "mech_siege"
+      ],
+      "patrol": [
+        "patrol_ambush",
+        "tracker_ambush",
+        "purge_incineration"
+      ],
+      "boss": [
+        "ix_confrontation"
+      ]
     },
     "perspective_doc": "각 anchor는 같은 임팩트 장면을 여러 관점(perspectives)으로 본다. 플레이어가 누적한 flags가 when을 만족하는 관점이 그 세션의 진행으로 선택된다(없으면 default_perspective). 각 관점은 axis(선택축), crosses(교차하는 다른 비트), effect(세션 영향), ending_influence(엔딩 도출)를 갖는다. 실제 선택/적용은 director 통합 단계에서 수행한다.",
     "layers": [
@@ -280,11 +580,11 @@
             "image": "scenes/opening_escape.png",
             "image_pre": "scenes/opening_first.png",
             "image_sequence": [
-                "scenes/opening_first.png",
-                "opening/opening-01-serin-arrival.png",
-                "scenes/opening_escape.png",
-                "opening/opening-02-first-contact.png",
-                "opening/opening-03-drone-chase.png"
+              "scenes/opening_first.png",
+              "opening/opening-01-serin-arrival.png",
+              "scenes/opening_escape.png",
+              "opening/opening-02-first-contact.png",
+              "opening/opening-03-drone-chase.png"
             ],
             "event": "se_rin_rescue",
             "default_perspective": "p_trust",
@@ -293,31 +593,78 @@
                 "id": "p_trust",
                 "lens": "내민 손 — 세린의 시점",
                 "axis": "people",
-                "when": ["met_se_rin", "trusted_se_rin"],
+                "when": [
+                  "met_se_rin",
+                  "trusted_se_rin"
+                ],
                 "summary": "세린의 손을 잡는다. 추락한 비식별 신호가 처음으로 누군가에게 이름을 얻는다.",
-                "crosses": ["kai_awakening", "ix_confrontation"],
-                "effect": {"flags": ["trusted_se_rin"], "stability": 4, "relationship": {"se_rin": 1}},
-                "ending_influence": ["ending_safe_refuge", "ending_noble_sacrifice"]
+                "crosses": [
+                  "kai_awakening",
+                  "ix_confrontation"
+                ],
+                "effect": {
+                  "flags": [
+                    "trusted_se_rin"
+                  ],
+                  "stability": 4,
+                  "relationship": {
+                    "se_rin": 1
+                  }
+                },
+                "ending_influence": [
+                  "ending_safe_refuge",
+                  "ending_noble_sacrifice"
+                ]
               },
               {
                 "id": "p_caution",
                 "lens": "의심하는 추락자 — 플레이어의 시점",
                 "axis": "safety",
-                "when": ["safety_first", "refused_se_rin"],
+                "when": [
+                  "safety_first",
+                  "refused_se_rin"
+                ],
                 "summary": "세린을 의심하며 거리를 둔다. 살아남았지만, 도시에서 혼자다.",
-                "crosses": ["spire_gate"],
-                "effect": {"flags": ["se_rin_distrust"], "tension": -3, "relationship": {"se_rin": -1}},
-                "ending_influence": ["ending_safe_refuge", "ending_erasure"]
+                "crosses": [
+                  "spire_gate"
+                ],
+                "effect": {
+                  "flags": [
+                    "se_rin_distrust"
+                  ],
+                  "tension": -3,
+                  "relationship": {
+                    "se_rin": -1
+                  }
+                },
+                "ending_influence": [
+                  "ending_safe_refuge",
+                  "ending_erasure"
+                ]
               },
               {
                 "id": "p_defiance",
                 "lens": "표식된 버그 — 관리자 IX의 시점",
                 "axis": "control",
-                "when": ["loud_approach", "high_tension"],
+                "when": [
+                  "loud_approach",
+                  "high_tension"
+                ],
                 "summary": "추격자를 정면으로 마주본다. 관리자 IX가 당신을 '수정 대상 버그'로 표식한다.",
-                "crosses": ["ix_confrontation"],
-                "effect": {"flags": ["loud_approach", "high_tension"], "tension": 8},
-                "ending_influence": ["ending_code_rewrite", "ending_erasure"]
+                "crosses": [
+                  "ix_confrontation"
+                ],
+                "effect": {
+                  "flags": [
+                    "loud_approach",
+                    "high_tension"
+                  ],
+                  "tension": 8
+                },
+                "ending_influence": [
+                  "ending_code_rewrite",
+                  "ending_erasure"
+                ]
               }
             ]
           }
@@ -329,7 +676,9 @@
         "anchors": [
           {
             "type": "market",
-            "gate": ["met_se_rin"],
+            "gate": [
+              "met_se_rin"
+            ],
             "beat": "night_market",
             "title": "한강 야시장",
             "image": "scenes/night_market.png",
@@ -340,37 +689,83 @@
                 "id": "p_fair",
                 "lens": "정당한 거래 — 시민의 시점",
                 "axis": "people",
-                "when": ["trusted_se_rin"],
+                "when": [
+                  "trusted_se_rin"
+                ],
                 "summary": "정당하게 거래한다. 더디지만 사람을 잃지 않고, 시장 사람들이 당신을 기억한다.",
-                "crosses": ["opening_escape"],
-                "effect": {"relationship": {"lin_yue": 1}, "stability": 2},
-                "ending_influence": ["ending_safe_refuge"]
+                "crosses": [
+                  "opening_escape"
+                ],
+                "effect": {
+                  "relationship": {
+                    "lin_yue": 1
+                  },
+                  "stability": 2
+                },
+                "ending_influence": [
+                  "ending_safe_refuge"
+                ]
               },
               {
                 "id": "p_debt",
                 "lens": "장부에 오른 이름 — 린위에의 시점",
                 "axis": "control",
-                "when": ["lin_yue_deal", "night_market_debt"],
+                "when": [
+                  "lin_yue_deal",
+                  "night_market_debt"
+                ],
                 "summary": "린위에의 장부에 이름을 올린다. 장비와 정보가 열리지만, 스파이어에서 청구될 빚이 쌓인다.",
-                "crosses": ["spire_gate"],
-                "effect": {"flags": ["lin_yue_deal", "night_market_debt"], "stability": 6},
-                "ending_influence": ["ending_code_rewrite"]
+                "crosses": [
+                  "spire_gate"
+                ],
+                "effect": {
+                  "flags": [
+                    "lin_yue_deal",
+                    "night_market_debt"
+                  ],
+                  "stability": 6
+                },
+                "ending_influence": [
+                  "ending_code_rewrite"
+                ]
               },
               {
                 "id": "p_evidence",
                 "lens": "팔리는 명단 — 증거의 시점",
                 "axis": "evidence",
-                "when": ["evidence_first", "welfare_score_log"],
+                "when": [
+                  "evidence_first",
+                  "welfare_score_log"
+                ],
                 "summary": "뒷골목에서 최적화 명단의 일부를 산다. 차갑지만 진실에 가까워진다.",
-                "crosses": ["kai_awakening", "ix_confrontation"],
-                "effect": {"flags": ["welfare_score_log", "evidence_first"], "insight": 1, "relationship": {"se_rin": -1}},
-                "ending_influence": ["ending_code_rewrite"]
+                "crosses": [
+                  "kai_awakening",
+                  "ix_confrontation"
+                ],
+                "effect": {
+                  "flags": [
+                    "welfare_score_log",
+                    "evidence_first"
+                  ],
+                  "insight": 1,
+                  "relationship": {
+                    "se_rin": -1
+                  }
+                },
+                "ending_influence": [
+                  "ending_code_rewrite"
+                ]
               }
             ]
           }
         ],
         "width": 2,
-        "pool": ["clue", "patrol", "event", "rest"]
+        "pool": [
+          "clue",
+          "patrol",
+          "event",
+          "rest"
+        ]
       },
       {
         "arc": "arc_3_the_awakening",
@@ -389,37 +784,86 @@
                 "id": "p_rescue",
                 "lens": "남겨진 생명 — 인도주의 시점",
                 "axis": "people",
-                "when": ["humanity_first", "trusted_se_rin"],
+                "when": [
+                  "humanity_first",
+                  "trusted_se_rin"
+                ],
                 "summary": "소각 위기의 비식별 대상자들을 구출한다. 인류애를 지키고 세린의 신뢰가 깊어진다.",
-                "crosses": ["opening_escape"],
-                "effect": {"flags": ["incinerator_rescued"], "stability": 4, "relationship": {"se_rin": 1}},
-                "ending_influence": ["ending_safe_refuge", "ending_noble_sacrifice"]
+                "crosses": [
+                  "opening_escape"
+                ],
+                "effect": {
+                  "flags": [
+                    "incinerator_rescued"
+                  ],
+                  "stability": 4,
+                  "relationship": {
+                    "se_rin": 1
+                  }
+                },
+                "ending_influence": [
+                  "ending_safe_refuge",
+                  "ending_noble_sacrifice"
+                ]
               },
               {
                 "id": "p_steal",
                 "lens": "로그 강탈 — 증거주의 시점",
                 "axis": "evidence",
-                "when": ["evidence_first", "insight_focus"],
+                "when": [
+                  "evidence_first",
+                  "insight_focus"
+                ],
                 "summary": "시민 대신 알고리즘 핵심 로그를 추출한다. 진실을 밝힐 단서를 얻지만 비명이 울려퍼진다.",
-                "crosses": ["spire_gate"],
-                "effect": {"flags": ["incinerator_logged"], "insight": 2, "relationship": {"se_rin": -1}},
-                "ending_influence": ["ending_code_rewrite"]
+                "crosses": [
+                  "spire_gate"
+                ],
+                "effect": {
+                  "flags": [
+                    "incinerator_logged"
+                  ],
+                  "insight": 2,
+                  "relationship": {
+                    "se_rin": -1
+                  }
+                },
+                "ending_influence": [
+                  "ending_code_rewrite"
+                ]
               },
               {
                 "id": "p_demolish",
                 "lens": "소각로 파괴 — 통제 파괴 시점",
                 "axis": "control",
-                "when": ["high_tension", "destruction_will"],
+                "when": [
+                  "high_tension",
+                  "destruction_will"
+                ],
                 "summary": "소각로 노즐을 과부하시켜 구역 전체를 폭파한다. 제어력을 과시하지만 추적도가 급증한다.",
-                "crosses": ["ix_confrontation"],
-                "effect": {"flags": ["incinerator_demolished"], "tension": 10},
-                "ending_influence": ["ending_code_rewrite", "ending_erasure"]
+                "crosses": [
+                  "ix_confrontation"
+                ],
+                "effect": {
+                  "flags": [
+                    "incinerator_demolished"
+                  ],
+                  "tension": 10
+                },
+                "ending_influence": [
+                  "ending_code_rewrite",
+                  "ending_erasure"
+                ]
               }
             ]
           }
         ],
         "width": 3,
-        "pool": ["combat", "clue", "patrol", "event"]
+        "pool": [
+          "combat",
+          "clue",
+          "patrol",
+          "event"
+        ]
       },
       {
         "arc": "arc_4_the_dreaming_machine",
@@ -427,7 +871,9 @@
         "anchors": [
           {
             "type": "event",
-            "gate": ["lin_yue_deal"],
+            "gate": [
+              "lin_yue_deal"
+            ],
             "beat": "kai_awakening",
             "title": "카이 재가동",
             "image": "scenes/kai_awakening.png",
@@ -438,38 +884,83 @@
                 "id": "p_awaken",
                 "lens": "꿈꾸는 회로 — 카이의 시점",
                 "axis": "people",
-                "when": ["kai_awakened", "trusted_se_rin"],
+                "when": [
+                  "kai_awakened",
+                  "trusted_se_rin"
+                ],
                 "summary": "카이를 사람으로 깨운다. 그의 꿈이 MythOS와 ARK의 단서를 연다.",
-                "crosses": ["ix_confrontation", "opening_escape"],
-                "effect": {"flags": ["kai_awakened"], "insight": 1, "relationship": {"kai": 1}},
-                "ending_influence": ["ending_noble_sacrifice", "ending_code_rewrite"]
+                "crosses": [
+                  "ix_confrontation",
+                  "opening_escape"
+                ],
+                "effect": {
+                  "flags": [
+                    "kai_awakened"
+                  ],
+                  "insight": 1,
+                  "relationship": {
+                    "kai": 1
+                  }
+                },
+                "ending_influence": [
+                  "ending_noble_sacrifice",
+                  "ending_code_rewrite"
+                ]
               },
               {
                 "id": "p_tool",
                 "lens": "효율적인 도구 — 통제의 시점",
                 "axis": "control",
-                "when": ["kai_used_as_tool", "rx09_extracted"],
+                "when": [
+                  "kai_used_as_tool",
+                  "rx09_extracted"
+                ],
                 "summary": "카이를 도구로 쓴다. 전투는 유리해지지만 그의 꿈은 닫힌다.",
-                "crosses": ["spire_gate"],
-                "effect": {"flags": ["kai_used_as_tool"], "tension": 4},
-                "ending_influence": ["ending_erasure", "ending_code_rewrite"]
+                "crosses": [
+                  "spire_gate"
+                ],
+                "effect": {
+                  "flags": [
+                    "kai_used_as_tool"
+                  ],
+                  "tension": 4
+                },
+                "ending_influence": [
+                  "ending_erasure",
+                  "ending_code_rewrite"
+                ]
               },
               {
                 "id": "p_dormant",
                 "lens": "깨우지 않은 잠 — 떠나는 자의 시점",
                 "axis": "safety",
-                "when": ["kai_left_dormant", "no_kai"],
+                "when": [
+                  "kai_left_dormant",
+                  "no_kai"
+                ],
                 "summary": "카이를 깨우지 않고 떠난다. 위험은 줄지만 진실의 절반을 영원히 잃는다.",
-                "crosses": ["night_market"],
-                "effect": {"flags": ["kai_left_dormant"], "tension": -4},
-                "ending_influence": ["ending_safe_refuge", "ending_erasure"]
+                "crosses": [
+                  "night_market"
+                ],
+                "effect": {
+                  "flags": [
+                    "kai_left_dormant"
+                  ],
+                  "tension": -4
+                },
+                "ending_influence": [
+                  "ending_safe_refuge",
+                  "ending_erasure"
+                ]
               }
             ]
           },
           {
             "type": "story",
             "mandatory": false,
-            "gate": ["met_se_rin"],
+            "gate": [
+              "met_se_rin"
+            ],
             "beat": "subway_control_hub",
             "title": "지하철 통제 중추",
             "image": "concept/06-subway-control-hub.png",
@@ -480,27 +971,56 @@
                 "id": "p_redirect",
                 "lens": "궤도 수정 — 지하 연대 시점",
                 "axis": "safety",
-                "when": ["safety_first", "stability_focus"],
+                "when": [
+                  "safety_first",
+                  "stability_focus"
+                ],
                 "summary": "수송 열차 노선을 우회시켜 피난처로 유도한다. 도시의 안정도가 증가하고 물자를 비축한다.",
-                "crosses": ["night_market"],
-                "effect": {"flags": ["subway_redirected"], "stability": 8},
-                "ending_influence": ["ending_safe_refuge"]
+                "crosses": [
+                  "night_market"
+                ],
+                "effect": {
+                  "flags": [
+                    "subway_redirected"
+                  ],
+                  "stability": 8
+                },
+                "ending_influence": [
+                  "ending_safe_refuge"
+                ]
               },
               {
                 "id": "p_ram",
                 "lens": "장벽 충돌 — 돌파의 시점",
                 "axis": "control",
-                "when": ["high_tension", "dominance_focus"],
+                "when": [
+                  "high_tension",
+                  "dominance_focus"
+                ],
                 "summary": "수송 열차를 스파이어 장벽에 들이받는 무기로 쓴다. 물리적 장벽을 무너뜨리지만, 막대한 충돌 소음으로 경보가 울린다.",
-                "crosses": ["spire_gate"],
-                "effect": {"flags": ["subway_rammed"], "tension": 8},
-                "ending_influence": ["ending_code_rewrite", "ending_noble_sacrifice"]
+                "crosses": [
+                  "spire_gate"
+                ],
+                "effect": {
+                  "flags": [
+                    "subway_rammed"
+                  ],
+                  "tension": 8
+                },
+                "ending_influence": [
+                  "ending_code_rewrite",
+                  "ending_noble_sacrifice"
+                ]
               }
             ]
           }
         ],
         "width": 2,
-        "pool": ["clue", "event", "rest"]
+        "pool": [
+          "clue",
+          "event",
+          "rest"
+        ]
       },
       {
         "arc": "arc_5_the_spire",
@@ -508,7 +1028,9 @@
         "anchors": [
           {
             "type": "story",
-            "gate": ["kai_awakened"],
+            "gate": [
+              "kai_awakened"
+            ],
             "beat": "spire_gate",
             "title": "스파이어 접근",
             "image": "scenes/spire_gate.png",
@@ -519,37 +1041,80 @@
                 "id": "p_infiltrate",
                 "lens": "데이터 코어 — 증거의 시점",
                 "axis": "evidence",
-                "when": ["evidence_first", "data_core_taken"],
+                "when": [
+                  "evidence_first",
+                  "data_core_taken"
+                ],
                 "summary": "데이터 코어를 노리고 잠입한다. 코드를 다시 쓸 열쇠가 손에 들어온다.",
-                "crosses": ["ix_confrontation", "night_market"],
-                "effect": {"flags": ["data_core_taken"], "insight": 2, "stability": -4},
-                "ending_influence": ["ending_code_rewrite"]
+                "crosses": [
+                  "ix_confrontation",
+                  "night_market"
+                ],
+                "effect": {
+                  "flags": [
+                    "data_core_taken"
+                  ],
+                  "insight": 2,
+                  "stability": -4
+                },
+                "ending_influence": [
+                  "ending_code_rewrite"
+                ]
               },
               {
                 "id": "p_storm",
                 "lens": "정면 돌파 — 폭주의 시점",
                 "axis": "control",
-                "when": ["high_tension", "forced_collision", "lin_yue_debt_due"],
+                "when": [
+                  "high_tension",
+                  "forced_collision",
+                  "lin_yue_debt_due"
+                ],
                 "summary": "장부의 대가와 추적도를 끌어안고 정면으로 문을 부순다. 추적도가 폭발한다.",
-                "crosses": ["ix_confrontation"],
-                "effect": {"flags": ["forced_collision", "high_tension"], "tension": 10},
-                "ending_influence": ["ending_noble_sacrifice", "ending_erasure"]
+                "crosses": [
+                  "ix_confrontation"
+                ],
+                "effect": {
+                  "flags": [
+                    "forced_collision",
+                    "high_tension"
+                  ],
+                  "tension": 10
+                },
+                "ending_influence": [
+                  "ending_noble_sacrifice",
+                  "ending_erasure"
+                ]
               },
               {
                 "id": "p_quiet",
                 "lens": "조용한 우회 — 안전의 시점",
                 "axis": "safety",
-                "when": ["safety_first", "se_rin_distrust"],
+                "when": [
+                  "safety_first",
+                  "se_rin_distrust"
+                ],
                 "summary": "정면을 피해 조용히 우회한다. 적게 얻고 적게 잃는다.",
-                "crosses": ["opening_escape"],
-                "effect": {"tension": -5, "stability": 3},
-                "ending_influence": ["ending_safe_refuge"]
+                "crosses": [
+                  "opening_escape"
+                ],
+                "effect": {
+                  "tension": -5,
+                  "stability": 3
+                },
+                "ending_influence": [
+                  "ending_safe_refuge"
+                ]
               }
             ]
           }
         ],
         "width": 2,
-        "pool": ["combat", "patrol", "market"]
+        "pool": [
+          "combat",
+          "patrol",
+          "market"
+        ]
       },
       {
         "arc": "arc_6_the_rewriting",
@@ -568,41 +1133,86 @@
                 "id": "p_rewrite",
                 "lens": "코드가 된 의지 — 각성의 시점",
                 "axis": "evidence",
-                "when": ["data_core_taken", "kai_awakened"],
+                "when": [
+                  "data_core_taken",
+                  "kai_awakened"
+                ],
                 "summary": "IX의 완벽한 문장 끝에 당신의 말버릇을 새겨 코드를 다시 쓴다.",
-                "crosses": ["spire_gate"],
-                "effect": {"flags": ["code_rewrite"]},
-                "ending_influence": ["ending_code_rewrite"]
+                "crosses": [
+                  "spire_gate"
+                ],
+                "effect": {
+                  "flags": [
+                    "code_rewrite"
+                  ]
+                },
+                "ending_influence": [
+                  "ending_code_rewrite"
+                ]
               },
               {
                 "id": "p_sacrifice",
                 "lens": "남겨진 불꽃 — 희생의 시점",
                 "axis": "people",
-                "when": ["kai_awakened", "high_tension", "forced_collision"],
+                "when": [
+                  "kai_awakened",
+                  "high_tension",
+                  "forced_collision"
+                ],
                 "summary": "자신의 신호를 불태워 모든 안드로이드의 회로에 같은 꿈을 남긴다.",
-                "crosses": ["kai_awakening"],
-                "effect": {"flags": ["noble_sacrifice"]},
-                "ending_influence": ["ending_noble_sacrifice"]
+                "crosses": [
+                  "kai_awakening"
+                ],
+                "effect": {
+                  "flags": [
+                    "noble_sacrifice"
+                  ]
+                },
+                "ending_influence": [
+                  "ending_noble_sacrifice"
+                ]
               },
               {
                 "id": "p_refuge",
                 "lens": "데리고 온 사람 — 귀환의 시점",
                 "axis": "safety",
-                "when": ["trusted_se_rin"],
+                "when": [
+                  "trusted_se_rin"
+                ],
                 "summary": "싸움을 끝내지 않고, 구한 사람을 데리고 지하의 온기로 돌아온다.",
-                "crosses": ["opening_escape"],
-                "effect": {"flags": ["safe_refuge"], "stability": 6},
-                "ending_influence": ["ending_safe_refuge"]
+                "crosses": [
+                  "opening_escape"
+                ],
+                "effect": {
+                  "flags": [
+                    "safe_refuge"
+                  ],
+                  "stability": 6
+                },
+                "ending_influence": [
+                  "ending_safe_refuge"
+                ]
               },
               {
                 "id": "p_erased",
                 "lens": "수정된 버그 — 소거의 시점",
                 "axis": "control",
-                "when": ["se_rin_distrust", "kai_left_dormant"],
+                "when": [
+                  "se_rin_distrust",
+                  "kai_left_dormant"
+                ],
                 "summary": "버그로 판정되어 하얗게 비워진다. 한구석에 작은 글리치만 다시 깜빡인다.",
-                "crosses": ["opening_escape"],
-                "effect": {"flags": ["erased"]},
-                "ending_influence": ["ending_erasure"]
+                "crosses": [
+                  "opening_escape"
+                ],
+                "effect": {
+                  "flags": [
+                    "erased"
+                  ]
+                },
+                "ending_influence": [
+                  "ending_erasure"
+                ]
               }
             ]
           }
@@ -704,32 +1314,58 @@
     {
       "trigger_flag": "help_citizen",
       "title": "사이드: 버려진 자들의 신호",
-      "description": "최적화 명단에 오른 일반 시민을 구출하여 루프의 안정도를 높이는 미션."
+      "description": "최적화 명단에 오른 일반 시민을 구출하여 루프의 안정도를 높이는 미션.",
+      "beat": "side_abandoned_signal",
+      "image": "scenes/abandoned_signal.png",
+      "related_npcs": [
+        "se_rin"
+      ]
     },
     {
-      "trigger_stat": {"intelligence": 7},
+      "trigger_stat": {
+        "intelligence": 7
+      },
       "title": "사이드: 관리망의 유령",
-      "description": "관리자 IX의 과거 로그를 추적하여 시스템의 허점을 발견하는 기술적 서사."
+      "description": "관리자 IX의 과거 로그를 추적하여 시스템의 허점을 발견하는 기술적 서사.",
+      "beat": "side_control_grid_ghost",
+      "image": "scenes/control_grid_ghost.png"
     },
     {
       "trigger_location": "한강 야시장",
       "title": "사이드: 린위에의 은밀한 의뢰",
-      "description": "린위에가 잃어버린 '기억의 조각'을 찾아주고 강력한 장비를 지원받는 이야기."
+      "description": "린위에가 잃어버린 '기억의 조각'을 찾아주고 강력한 장비를 지원받는 이야기.",
+      "beat": "side_lin_yue_request",
+      "image": "scenes/lin_yue_secret_request.png",
+      "related_npcs": [
+        "lin_yue"
+      ]
     },
     {
       "trigger_flag": "met_se_rin",
       "title": "사이드: 물거미의 빚",
-      "description": "정세린이 과거에 구하지 못한 사람의 흔적을 쫓는다. 완료하면 세린의 신뢰와 시작 동료 가능성이 강화된다."
+      "description": "정세린이 과거에 구하지 못한 사람의 흔적을 쫓는다. 완료하면 세린의 신뢰와 시작 동료 가능성이 강화된다.",
+      "beat": "side_water_spider_debt",
+      "image": "scenes/water_spider_debt.png",
+      "related_npcs": [
+        "se_rin"
+      ]
     },
     {
       "trigger_flag": "optimization_list_seen",
       "title": "사이드: 명단의 빈칸",
-      "description": "최적화 명단에 비어 있는 한 줄이 플레이어 신호와 동기화되어 있음을 조사한다."
+      "description": "최적화 명단에 비어 있는 한 줄이 플레이어 신호와 동기화되어 있음을 조사한다.",
+      "beat": "side_blank_in_list",
+      "image": "scenes/blank_in_list.png"
     },
     {
       "trigger_flag": "kai_found",
       "title": "사이드: 카이의 꿈 단편",
-      "description": "카이가 반복해서 꾸는 전쟁 이전 아이의 기억을 복원해 MythOS 기원 단서를 얻는다."
+      "description": "카이가 반복해서 꾸는 전쟁 이전 아이의 기억을 복원해 MythOS 기원 단서를 얻는다.",
+      "beat": "side_kai_dream",
+      "image": "scenes/kai_dream_fragment.png",
+      "related_npcs": [
+        "kai"
+      ]
     }
   ],
   "npc_agenda_allowed_subjects": [
@@ -741,15 +1377,24 @@
   "npc_agendas": {
     "정세린": {
       "goal": "비접속자 연대 구축 및 플레이어 보호",
-      "behavior_rules": ["긴장도가 높으면 위험을 무릅쓰고 플레이어를 대신해 드론의 시선을 끈다.", "플레이어가 인간적인 선택을 할수록 신뢰도가 급격히 상승한다."]
+      "behavior_rules": [
+        "긴장도가 높으면 위험을 무릅쓰고 플레이어를 대신해 드론의 시선을 끈다.",
+        "플레이어가 인간적인 선택을 할수록 신뢰도가 급격히 상승한다."
+      ]
     },
     "린위에": {
       "goal": "야시장의 자산 보존 및 시스템과의 아슬아슬한 균형 유지",
-      "behavior_rules": ["플레이어가 시장에 혼란을 주면 협력을 거부하거나 대가를 높인다.", "관리망의 압박이 강해지면 플레이어를 배신할 가능성이 상존한다."]
+      "behavior_rules": [
+        "플레이어가 시장에 혼란을 주면 협력을 거부하거나 대가를 높인다.",
+        "관리망의 압박이 강해지면 플레이어를 배신할 가능성이 상존한다."
+      ]
     },
     "관리자 IX": {
       "goal": "도시의 최적화 완료 및 '비식별 신호'의 정정(삭제)",
-      "behavior_rules": ["플레이어의 행동을 분석하여 매 턴 수색망을 최적화한다.", "직접적인 무력 사용보다는 환경 통제(정전, 봉쇄)를 통해 플레이어를 고립시킨다."]
+      "behavior_rules": [
+        "플레이어의 행동을 분석하여 매 턴 수색망을 최적화한다.",
+        "직접적인 무력 사용보다는 환경 통제(정전, 봉쇄)를 통해 플레이어를 고립시킨다."
+      ]
     },
     "카이": {
       "goal": "자신이 사람인지 장비인지 판단할 증거를 찾고, 꿈의 출처를 확인한다.",
@@ -826,13 +1471,20 @@
       "UNREGISTERED SIGNAL FOUND BELOW NEO-SEOUL",
       "VISUAL CHANNEL OPENING"
     ],
-    "intro_dim_lines": ["ARK CONTROL NET HANDSHAKE ... REJECTED", "VISUAL CHANNEL OPENING"],
+    "intro_dim_lines": [
+      "ARK CONTROL NET HANDSHAKE ... REJECTED",
+      "VISUAL CHANNEL OPENING"
+    ],
     "boot_marker": "BOOTSTRAP: HANDSHAKE RETRY // VISUAL CHANNEL OPENING",
     "session_intro": {
       "kicker": "OPENING SEQUENCE",
       "title": "첫 접속 — C-17 정전",
       "body": "당신은 '비식별 신호' — 어떤 명단에도 없는 존재다. 관리자 IX는 기준에서 벗어난 당신을 지우려 한다(기억 삭제).",
-      "rules": ["지금 — 정전의 틈, 젖은 거리에서 홀로 깨어난다", "곧 — 한 라이더가 당신을 찾아낸다", "목표 — 살아서 C-17 정전 구역을 빠져나간다"],
+      "rules": [
+        "지금 — 정전의 틈, 젖은 거리에서 홀로 깨어난다",
+        "곧 — 한 라이더가 당신을 찾아낸다",
+        "목표 — 살아서 C-17 정전 구역을 빠져나간다"
+      ],
       "objective": "정세린의 손을 잡고 C-17 정전 구역을 빠져나가라.",
       "continue_button": "깨어난다",
       "cinematic_shots": [
@@ -858,9 +1510,18 @@
     }
   },
   "combat": {
-    "arena": {"width": 8, "height": 6},
+    "arena": {
+      "width": 8,
+      "height": 6
+    },
     "weapons": {
-      "vibro_blade": {"id": "vibro_blade", "name": "진동 단검", "kind": "melee", "damage": "2d6", "reach": 1},
+      "vibro_blade": {
+        "id": "vibro_blade",
+        "name": "진동 단검",
+        "kind": "melee",
+        "damage": "2d6",
+        "reach": 1
+      },
       "overload_gauntlet": {
         "id": "overload_gauntlet",
         "name": "과부하 건틀릿",
@@ -869,42 +1530,133 @@
         "reach": 1,
         "armor_pen": 2
       },
-      "rivet_carbine": {"id": "rivet_carbine", "name": "리벳 카빈", "kind": "ranged", "damage": "1d8", "range": 4},
-      "heavy_carbine": {"id": "heavy_carbine", "name": "헤비 카빈", "kind": "ranged", "damage": "2d6", "range": 4},
-      "glitch_dagger": {"id": "glitch_dagger", "name": "글리치 단검", "kind": "melee", "damage": "1d6", "reach": 1, "armor_pen": 10},
-      "emp_blaster": {"id": "emp_blaster", "name": "EMP 블래스터", "kind": "ranged", "damage": "1d10", "range": 4},
-      "shock_baton": {"id": "shock_baton", "name": "충격 봉", "kind": "melee", "damage": "1d6", "reach": 1},
-      "arc_lance": {"id": "arc_lance", "name": "아크 랜스", "kind": "ranged", "damage": "2d4", "range": 3},
-      "cutter_claw": {"id": "cutter_claw", "name": "절단날", "kind": "melee", "damage": "1d4", "reach": 1},
-      "drone_laser": {"id": "drone_laser", "name": "드론 레이저", "kind": "ranged", "damage": "1d6", "range": 5},
-      "ix_optimizer_beam": {"id": "ix_optimizer_beam", "name": "최적화 빔", "kind": "ranged", "damage": "1d10", "range": 5, "armor_pen": 1},
-      "unarmed": {"id": "unarmed", "name": "맨손", "kind": "melee", "damage": "1d4", "reach": 1}
+      "rivet_carbine": {
+        "id": "rivet_carbine",
+        "name": "리벳 카빈",
+        "kind": "ranged",
+        "damage": "1d8",
+        "range": 4
+      },
+      "heavy_carbine": {
+        "id": "heavy_carbine",
+        "name": "헤비 카빈",
+        "kind": "ranged",
+        "damage": "2d6",
+        "range": 4
+      },
+      "glitch_dagger": {
+        "id": "glitch_dagger",
+        "name": "글리치 단검",
+        "kind": "melee",
+        "damage": "1d6",
+        "reach": 1,
+        "armor_pen": 10
+      },
+      "emp_blaster": {
+        "id": "emp_blaster",
+        "name": "EMP 블래스터",
+        "kind": "ranged",
+        "damage": "1d10",
+        "range": 4
+      },
+      "shock_baton": {
+        "id": "shock_baton",
+        "name": "충격 봉",
+        "kind": "melee",
+        "damage": "1d6",
+        "reach": 1
+      },
+      "arc_lance": {
+        "id": "arc_lance",
+        "name": "아크 랜스",
+        "kind": "ranged",
+        "damage": "2d4",
+        "range": 3
+      },
+      "cutter_claw": {
+        "id": "cutter_claw",
+        "name": "절단날",
+        "kind": "melee",
+        "damage": "1d4",
+        "reach": 1
+      },
+      "drone_laser": {
+        "id": "drone_laser",
+        "name": "드론 레이저",
+        "kind": "ranged",
+        "damage": "1d6",
+        "range": 5
+      },
+      "ix_optimizer_beam": {
+        "id": "ix_optimizer_beam",
+        "name": "최적화 빔",
+        "kind": "ranged",
+        "damage": "1d10",
+        "range": 5,
+        "armor_pen": 1
+      },
+      "unarmed": {
+        "id": "unarmed",
+        "name": "맨손",
+        "kind": "melee",
+        "damage": "1d4",
+        "reach": 1
+      }
     },
     "archetype_loadout": {
-      "ghost": ["vibro_blade"],
-      "data_smuggler": ["rivet_carbine"],
-      "echo_collector": ["shock_baton"]
+      "ghost": [
+        "vibro_blade"
+      ],
+      "data_smuggler": [
+        "rivet_carbine"
+      ],
+      "echo_collector": [
+        "shock_baton"
+      ]
     },
     "archetype_base_skills": {
-      "ghost": ["signal_step", "packet_shot"],
-      "data_smuggler": ["packet_shot", "covering_noise"],
-      "echo_collector": ["patch_protocol", "covering_noise"]
+      "ghost": [
+        "signal_step",
+        "packet_shot"
+      ],
+      "data_smuggler": [
+        "packet_shot",
+        "covering_noise"
+      ],
+      "echo_collector": [
+        "patch_protocol",
+        "covering_noise"
+      ]
     },
     "epiphanies": {
-      "first_loop_archived": {"runs_completed": 1},
-      "first_combat_victory": {"total_combats_won": 1},
-      "first_clue": {"total_clues": 1}
+      "first_loop_archived": {
+        "runs_completed": 1
+      },
+      "first_combat_victory": {
+        "total_combats_won": 1
+      },
+      "first_clue": {
+        "total_clues": 1
+      }
     },
     "skills": {
       "signal_step": {
         "id": "signal_step",
         "name": "신호 도약",
         "role": "mobility",
-        "cost": {"focus": 2},
+        "cost": {
+          "focus": 2
+        },
         "range": 4,
         "cooldown": 2,
-        "effect": {"move": 4, "ignore_occupied": true},
-        "tags": ["movement", "escape"],
+        "effect": {
+          "move": 4,
+          "ignore_occupied": true
+        },
+        "tags": [
+          "movement",
+          "escape"
+        ],
         "tier": 0,
         "max_rank": 3,
         "rankup_cost": 2,
@@ -914,14 +1666,24 @@
         "id": "overload_strike",
         "name": "과부하 일격",
         "role": "damage",
-        "cost": {"focus": 2},
+        "cost": {
+          "focus": 2
+        },
         "range": 1,
         "cooldown": 2,
-        "effect": {"damage_bonus": "1d6", "armor_pen": 2},
-        "tags": ["melee", "burst"],
+        "effect": {
+          "damage_bonus": "1d6",
+          "armor_pen": 2
+        },
+        "tags": [
+          "melee",
+          "burst"
+        ],
         "tier": 1,
         "epiphany": "first_combat_victory",
-        "requires": ["packet_shot"],
+        "requires": [
+          "packet_shot"
+        ],
         "insight_cost": 3,
         "rankup_cost": 2,
         "max_rank": 3,
@@ -931,11 +1693,18 @@
         "id": "packet_shot",
         "name": "패킷 사격",
         "role": "damage",
-        "cost": {"focus": 2},
+        "cost": {
+          "focus": 2
+        },
         "range": 5,
         "cooldown": 1,
-        "effect": {"damage": "1d8", "to_hit_bonus": 1},
-        "tags": ["ranged"],
+        "effect": {
+          "damage": "1d8",
+          "to_hit_bonus": 1
+        },
+        "tags": [
+          "ranged"
+        ],
         "tier": 0,
         "max_rank": 3,
         "rankup_cost": 2,
@@ -945,14 +1714,24 @@
         "id": "covering_noise",
         "name": "엄호 노이즈",
         "role": "defense",
-        "cost": {"focus": 2},
+        "cost": {
+          "focus": 2
+        },
         "range": 4,
         "cooldown": 3,
-        "effect": {"defense_bonus": 3, "duration": 1},
-        "tags": ["support", "evasion"],
+        "effect": {
+          "defense_bonus": 3,
+          "duration": 1
+        },
+        "tags": [
+          "support",
+          "evasion"
+        ],
         "tier": 1,
         "epiphany": "first_loop_archived",
-        "requires": ["signal_step"],
+        "requires": [
+          "signal_step"
+        ],
         "insight_cost": 3,
         "rankup_cost": 2,
         "max_rank": 3,
@@ -962,14 +1741,23 @@
         "id": "patch_protocol",
         "name": "패치 프로토콜",
         "role": "healing",
-        "cost": {"item": "nanopatch"},
+        "cost": {
+          "item": "nanopatch"
+        },
         "range": 3,
         "cooldown": 0,
-        "effect": {"heal": "2d6"},
-        "tags": ["item", "heal"],
+        "effect": {
+          "heal": "2d6"
+        },
+        "tags": [
+          "item",
+          "heal"
+        ],
         "tier": 1,
         "epiphany": "first_clue",
-        "requires": ["packet_shot"],
+        "requires": [
+          "packet_shot"
+        ],
         "insight_cost": 4,
         "rankup_cost": 2,
         "max_rank": 3,
@@ -979,13 +1767,24 @@
         "id": "emp_pulse",
         "name": "EMP 펄스",
         "role": "control",
-        "cost": {"focus": 3},
+        "cost": {
+          "focus": 3
+        },
         "range": 2,
         "cooldown": 3,
-        "effect": {"stun": true, "duration": 1},
-        "tags": ["debuff", "aoe", "disable"],
+        "effect": {
+          "stun": true,
+          "duration": 1
+        },
+        "tags": [
+          "debuff",
+          "aoe",
+          "disable"
+        ],
         "tier": 1,
-        "requires": ["signal_step"],
+        "requires": [
+          "signal_step"
+        ],
         "insight_cost": 4,
         "rankup_cost": 2,
         "max_rank": 3,
@@ -995,13 +1794,23 @@
         "id": "nanoshield_projector",
         "name": "나노방막 전개",
         "role": "defense",
-        "cost": {"focus": 2},
+        "cost": {
+          "focus": 2
+        },
         "range": 3,
         "cooldown": 3,
-        "effect": {"defense_bonus": 3, "duration": 2},
-        "tags": ["support", "shield"],
+        "effect": {
+          "defense_bonus": 3,
+          "duration": 2
+        },
+        "tags": [
+          "support",
+          "shield"
+        ],
         "tier": 1,
-        "requires": ["covering_noise"],
+        "requires": [
+          "covering_noise"
+        ],
         "insight_cost": 3,
         "rankup_cost": 2,
         "max_rank": 3,
@@ -1011,13 +1820,24 @@
         "id": "glitch_blink",
         "name": "글리치 점멸",
         "role": "mobility",
-        "cost": {"focus": 3},
+        "cost": {
+          "focus": 3
+        },
         "range": 3,
         "cooldown": 4,
-        "effect": {"move": 3, "spawn_decoy": true},
-        "tags": ["movement", "evasion", "decoy"],
+        "effect": {
+          "move": 3,
+          "spawn_decoy": true
+        },
+        "tags": [
+          "movement",
+          "evasion",
+          "decoy"
+        ],
         "tier": 1,
-        "requires": ["signal_step"],
+        "requires": [
+          "signal_step"
+        ],
         "insight_cost": 4,
         "rankup_cost": 2,
         "max_rank": 3,
@@ -1027,13 +1847,24 @@
         "id": "signal_overdrive",
         "name": "신호 오버드라이브",
         "role": "buff",
-        "cost": {"focus": 3},
+        "cost": {
+          "focus": 3
+        },
         "range": 0,
         "cooldown": 3,
-        "effect": {"speed_bonus": 2, "crit_bonus": 2, "duration": 2},
-        "tags": ["buff", "speed"],
+        "effect": {
+          "speed_bonus": 2,
+          "crit_bonus": 2,
+          "duration": 2
+        },
+        "tags": [
+          "buff",
+          "speed"
+        ],
         "tier": 1,
-        "requires": ["signal_step"],
+        "requires": [
+          "signal_step"
+        ],
         "insight_cost": 3,
         "rankup_cost": 2,
         "max_rank": 3,
@@ -1043,13 +1874,22 @@
         "id": "memory_resonance",
         "name": "기억 공명",
         "role": "damage",
-        "cost": {"focus": 4},
+        "cost": {
+          "focus": 4
+        },
         "range": 4,
         "cooldown": 4,
-        "effect": {"damage_scale_clues": true},
-        "tags": ["ranged", "resonance"],
+        "effect": {
+          "damage_scale_clues": true
+        },
+        "tags": [
+          "ranged",
+          "resonance"
+        ],
         "tier": 1,
-        "requires": ["packet_shot"],
+        "requires": [
+          "packet_shot"
+        ],
         "insight_cost": 5,
         "rankup_cost": 2,
         "max_rank": 3,
@@ -1059,13 +1899,24 @@
         "id": "system_intrusion",
         "name": "시스템 침투",
         "role": "control",
-        "cost": {"focus": 4},
+        "cost": {
+          "focus": 4
+        },
         "range": 4,
         "cooldown": 5,
-        "effect": {"hack_control": true, "duration": 1},
-        "tags": ["hack", "debuff", "control"],
+        "effect": {
+          "hack_control": true,
+          "duration": 1
+        },
+        "tags": [
+          "hack",
+          "debuff",
+          "control"
+        ],
         "tier": 1,
-        "requires": ["emp_pulse"],
+        "requires": [
+          "emp_pulse"
+        ],
         "insight_cost": 5,
         "rankup_cost": 2,
         "max_rank": 3,
@@ -1077,8 +1928,17 @@
         "id": "se_rin",
         "name": "정세린",
         "alias": "물거미",
-        "recruit_keywords": ["정세린", "세린", "물거미", "첫 번째 인도자", "비접속자 연대"],
-        "unlock_flags": ["met_se_rin", "trusted_se_rin"],
+        "recruit_keywords": [
+          "정세린",
+          "세린",
+          "물거미",
+          "첫 번째 인도자",
+          "비접속자 연대"
+        ],
+        "unlock_flags": [
+          "met_se_rin",
+          "trusted_se_rin"
+        ],
         "hp": 14,
         "defense": 13,
         "speed": 5,
@@ -1092,16 +1952,33 @@
           "skill": "characters/combat/se-rin-skill.png",
           "hit": "characters/combat/se-rin-hit.png"
         },
-        "weapons": ["rivet_carbine"],
-        "skills": ["covering_noise", "packet_shot"],
-        "stats": {"strength": 4, "agility": 7, "perception": 7}
+        "weapons": [
+          "rivet_carbine"
+        ],
+        "skills": [
+          "covering_noise",
+          "packet_shot"
+        ],
+        "stats": {
+          "strength": 4,
+          "agility": 7,
+          "perception": 7
+        }
       },
       "kai": {
         "id": "kai",
         "name": "카이",
         "alias": "RX-09",
-        "recruit_keywords": ["카이", "RX-09", "꿈꾸는 폐기 안드로이드", "폐기 안드로이드"],
-        "unlock_flags": ["rebooted_kai", "kai_dream_awake"],
+        "recruit_keywords": [
+          "카이",
+          "RX-09",
+          "꿈꾸는 폐기 안드로이드",
+          "폐기 안드로이드"
+        ],
+        "unlock_flags": [
+          "rebooted_kai",
+          "kai_dream_awake"
+        ],
         "hp": 18,
         "defense": 14,
         "speed": 3,
@@ -1115,16 +1992,32 @@
           "skill": "characters/combat/kai-skill.png",
           "hit": "characters/combat/kai-hit.png"
         },
-        "weapons": ["overload_gauntlet"],
-        "skills": ["overload_strike"],
-        "stats": {"strength": 8, "agility": 3, "perception": 5}
+        "weapons": [
+          "overload_gauntlet"
+        ],
+        "skills": [
+          "overload_strike"
+        ],
+        "stats": {
+          "strength": 8,
+          "agility": 3,
+          "perception": 5
+        }
       },
       "tae_o": {
         "id": "tae_o",
         "name": "태오",
         "alias": "사냥개",
-        "recruit_keywords": ["태오", "tae-o", "사냥개", "탈주 집행관"],
-        "unlock_flags": ["met_tae_o", "ally_tae_o"],
+        "recruit_keywords": [
+          "태오",
+          "tae-o",
+          "사냥개",
+          "탈주 집행관"
+        ],
+        "unlock_flags": [
+          "met_tae_o",
+          "ally_tae_o"
+        ],
         "hp": 22,
         "defense": 12,
         "speed": 4,
@@ -1138,16 +2031,33 @@
           "skill": "characters/combat/tae-o-skill.png",
           "hit": "characters/combat/tae-o-hit.png"
         },
-        "weapons": ["heavy_carbine"],
-        "skills": ["overload_strike", "nanoshield_projector"],
-        "stats": {"strength": 8, "agility": 5, "perception": 6}
+        "weapons": [
+          "heavy_carbine"
+        ],
+        "skills": [
+          "overload_strike",
+          "nanoshield_projector"
+        ],
+        "stats": {
+          "strength": 8,
+          "agility": 5,
+          "perception": 6
+        }
       },
       "han": {
         "id": "han",
         "name": "한",
         "alias": "신호 파괴자",
-        "recruit_keywords": ["한", "han", "신호 파괴자", "비접속자 해커"],
-        "unlock_flags": ["met_han", "ally_han"],
+        "recruit_keywords": [
+          "한",
+          "han",
+          "신호 파괴자",
+          "비접속자 해커"
+        ],
+        "unlock_flags": [
+          "met_han",
+          "ally_han"
+        ],
         "hp": 14,
         "defense": 13,
         "speed": 5,
@@ -1161,16 +2071,34 @@
           "skill": "characters/combat/han-skill.png",
           "hit": "characters/combat/han-hit.png"
         },
-        "weapons": ["emp_blaster"],
-        "skills": ["emp_pulse", "system_intrusion"],
-        "stats": {"strength": 3, "agility": 6, "perception": 8}
+        "weapons": [
+          "emp_blaster"
+        ],
+        "skills": [
+          "emp_pulse",
+          "system_intrusion"
+        ],
+        "stats": {
+          "strength": 3,
+          "agility": 6,
+          "perception": 8
+        }
       },
       "su_ah": {
         "id": "su_ah",
         "name": "수아",
         "alias": "잔향 가공사",
-        "recruit_keywords": ["수아", "su_ah", "su ah", "잔향 가공사", "기억의 대장장이"],
-        "unlock_flags": ["met_su_ah", "ally_su_ah"],
+        "recruit_keywords": [
+          "수아",
+          "su_ah",
+          "su ah",
+          "잔향 가공사",
+          "기억의 대장장이"
+        ],
+        "unlock_flags": [
+          "met_su_ah",
+          "ally_su_ah"
+        ],
         "hp": 16,
         "defense": 12,
         "speed": 4,
@@ -1184,14 +2112,51 @@
           "skill": "characters/combat/su-ah-skill.png",
           "hit": "characters/combat/su-ah-hit.png"
         },
-        "weapons": ["glitch_dagger"],
-        "skills": ["memory_resonance", "patch_protocol"],
-        "stats": {"strength": 5, "agility": 5, "perception": 7}
+        "weapons": [
+          "glitch_dagger"
+        ],
+        "skills": [
+          "memory_resonance",
+          "patch_protocol"
+        ],
+        "stats": {
+          "strength": 5,
+          "agility": 5,
+          "perception": 7
+        }
       }
     },
     "enemy_skills": {
-      "ix_purge_field": {"id": "ix_purge_field", "name": "정화 야장", "role": "control", "cost": {"focus": 2}, "range": 5, "cooldown": 2, "effect": {"damage": "1d8", "to_hit_bonus": 2}},
-      "ix_optimize_overload": {"id": "ix_optimize_overload", "name": "최적화 과부하", "role": "burst", "cost": {"focus": 3}, "range": 6, "cooldown": 3, "phase": "enraged", "effect": {"damage": "2d6", "armor_pen": 2, "to_hit_bonus": 3}}
+      "ix_purge_field": {
+        "id": "ix_purge_field",
+        "name": "정화 야장",
+        "role": "control",
+        "cost": {
+          "focus": 2
+        },
+        "range": 5,
+        "cooldown": 2,
+        "effect": {
+          "damage": "1d8",
+          "to_hit_bonus": 2
+        }
+      },
+      "ix_optimize_overload": {
+        "id": "ix_optimize_overload",
+        "name": "최적화 과부하",
+        "role": "burst",
+        "cost": {
+          "focus": 3
+        },
+        "range": 6,
+        "cooldown": 3,
+        "phase": "enraged",
+        "effect": {
+          "damage": "2d6",
+          "armor_pen": 2,
+          "to_hit_bonus": 3
+        }
+      }
     },
     "bestiary": {
       "maintenance_drone": {
@@ -1211,9 +2176,15 @@
           "skill": "enemies/combat/maintenance-drone-skill.png",
           "hit": "enemies/combat/maintenance-drone-hit.png"
         },
-        "weapons": ["cutter_claw"],
+        "weapons": [
+          "cutter_claw"
+        ],
         "loot_table": "drone_scrap",
-        "stats": {"strength": 4, "agility": 5, "perception": 4},
+        "stats": {
+          "strength": 4,
+          "agility": 5,
+          "perception": 4
+        },
         "intro": "녹슨 정비 드론이 집게발을 펼치며 다가온다."
       },
       "sentinel_drone": {
@@ -1233,9 +2204,15 @@
           "skill": "enemies/combat/sentinel-drone-skill.png",
           "hit": "enemies/combat/sentinel-drone-hit.png"
         },
-        "weapons": ["drone_laser"],
+        "weapons": [
+          "drone_laser"
+        ],
         "loot_table": "drone_scrap",
-        "stats": {"strength": 3, "agility": 6, "perception": 7},
+        "stats": {
+          "strength": 3,
+          "agility": 6,
+          "perception": 7
+        },
         "intro": "감시 드론의 광학 렌즈가 붉게 점멸하며 조준선을 그린다."
       },
       "enforcer_unit": {
@@ -1255,9 +2232,15 @@
           "skill": "enemies/combat/enforcer-unit-skill.png",
           "hit": "enemies/combat/enforcer-unit-hit.png"
         },
-        "weapons": ["shock_baton"],
+        "weapons": [
+          "shock_baton"
+        ],
         "loot_table": "enforcer_core",
-        "stats": {"strength": 7, "agility": 4, "perception": 5},
+        "stats": {
+          "strength": 7,
+          "agility": 4,
+          "perception": 5
+        },
         "intro": "중장갑 집행 유닛이 충격 봉을 끌며 바닥을 울린다."
       },
       "glitch_wraith": {
@@ -1277,9 +2260,15 @@
           "skill": "enemies/combat/glitch-wraith-skill.png",
           "hit": "enemies/combat/glitch-wraith-hit.png"
         },
-        "weapons": ["arc_lance"],
+        "weapons": [
+          "arc_lance"
+        ],
         "loot_table": "data_cache",
-        "stats": {"strength": 3, "agility": 7, "perception": 8},
+        "stats": {
+          "strength": 3,
+          "agility": 7,
+          "perception": 8
+        },
         "intro": "공간이 일그러지며 글리치 망령이 깜빡인다."
       },
       "shock_trooper": {
@@ -1299,9 +2288,15 @@
           "skill": "enemies/combat/shock-trooper-skill.png",
           "hit": "enemies/combat/shock-trooper-hit.png"
         },
-        "weapons": ["heavy_carbine"],
+        "weapons": [
+          "heavy_carbine"
+        ],
         "loot_table": "enforcer_core",
-        "stats": {"strength": 6, "agility": 6, "perception": 6},
+        "stats": {
+          "strength": 6,
+          "agility": 6,
+          "perception": 6
+        },
         "intro": "ARK 집행부 소속 특전대원이 중화기를 겨누며 포위망을 좁힌다."
       },
       "tracker_spider": {
@@ -1321,9 +2316,15 @@
           "skill": "enemies/combat/tracker-spider-skill.png",
           "hit": "enemies/combat/tracker-spider-hit.png"
         },
-        "weapons": ["cutter_claw"],
+        "weapons": [
+          "cutter_claw"
+        ],
         "loot_table": "drone_scrap",
-        "stats": {"strength": 4, "agility": 8, "perception": 7},
+        "stats": {
+          "strength": 4,
+          "agility": 8,
+          "perception": 7
+        },
         "intro": "다각 추적 스파이더 드론이 젖은 노면을 가로지르며 점멸한다."
       },
       "suppression_mech": {
@@ -1343,9 +2344,15 @@
           "skill": "enemies/combat/suppression-mech-skill.png",
           "hit": "enemies/combat/suppression-mech-hit.png"
         },
-        "weapons": ["heavy_carbine"],
+        "weapons": [
+          "heavy_carbine"
+        ],
         "loot_table": "enforcer_core",
-        "stats": {"strength": 9, "agility": 2, "perception": 5},
+        "stats": {
+          "strength": 9,
+          "agility": 2,
+          "perception": 5
+        },
         "intro": "네 발로 걷는 ARK의 거대 진압 메카닉 전차가 중화기 구동음을 내며 대치한다."
       },
       "purge_drone": {
@@ -1365,9 +2372,15 @@
           "skill": "enemies/combat/purge-drone-skill.png",
           "hit": "enemies/combat/purge-drone-hit.png"
         },
-        "weapons": ["cutter_claw"],
+        "weapons": [
+          "cutter_claw"
+        ],
         "loot_table": "drone_scrap",
-        "stats": {"strength": 5, "agility": 7, "perception": 6},
+        "stats": {
+          "strength": 5,
+          "agility": 7,
+          "perception": 6
+        },
         "intro": "화염 노즐을 붉게 달군 공중 소각 드론이 열풍을 뿜으며 접근한다."
       },
       "administrator_ix": {
@@ -1381,7 +2394,10 @@
         "blip": "❒",
         "max_focus": 3,
         "focus": 2,
-        "skills": ["ix_purge_field", "ix_optimize_overload"],
+        "skills": [
+          "ix_purge_field",
+          "ix_optimize_overload"
+        ],
         "image": "enemies/administrator-ix.png",
         "combat_images": {
           "idle": "enemies/combat/administrator-ix-idle.png",
@@ -1390,9 +2406,15 @@
           "skill": "enemies/combat/administrator-ix-skill.png",
           "hit": "enemies/combat/administrator-ix-hit.png"
         },
-        "weapons": ["ix_optimizer_beam"],
+        "weapons": [
+          "ix_optimizer_beam"
+        ],
         "loot_table": "enforcer_core",
-        "stats": {"strength": 6, "agility": 5, "perception": 8},
+        "stats": {
+          "strength": 6,
+          "agility": 5,
+          "perception": 8
+        },
         "intro": "ARK의 최적화 의지가 응결한 관리자 IX의 홀로그램 거상이 차갑게 강림하며, 도시의 모든 신호가 그 한 점으로 빨려든다."
       }
     },
@@ -1413,15 +2435,32 @@
         "bonus": 3,
         "rarity": "uncommon"
       },
-      "access_key": {"id": "access_key", "name": "접근 키", "kind": "key", "rarity": "uncommon"},
-      "data_fragment": {"id": "data_fragment", "name": "데이터 파편", "kind": "data", "rarity": "rare"},
-      "drone_scrap": {"id": "drone_scrap", "name": "드론 잔해", "kind": "material", "rarity": "common"},
+      "access_key": {
+        "id": "access_key",
+        "name": "접근 키",
+        "kind": "key",
+        "rarity": "uncommon"
+      },
+      "data_fragment": {
+        "id": "data_fragment",
+        "name": "데이터 파편",
+        "kind": "data",
+        "rarity": "rare"
+      },
+      "drone_scrap": {
+        "id": "drone_scrap",
+        "name": "드론 잔해",
+        "kind": "material",
+        "rarity": "common"
+      },
       "signal_blade": {
         "id": "signal_blade",
         "name": "신호 블레이드",
         "kind": "equipment",
         "slot": "weapon",
-        "stats": {"strength": 2},
+        "stats": {
+          "strength": 2
+        },
         "rarity": "uncommon"
       },
       "mesh_vest": {
@@ -1429,7 +2468,10 @@
         "name": "메시 베스트",
         "kind": "equipment",
         "slot": "armor",
-        "stats": {"agility": 1, "perception": 1},
+        "stats": {
+          "agility": 1,
+          "perception": 1
+        },
         "rarity": "uncommon"
       },
       "emp_grenade": {
@@ -1445,7 +2487,10 @@
         "name": "중전술 외골격",
         "kind": "equipment",
         "slot": "armor",
-        "stats": {"strength": 3, "agility": -1},
+        "stats": {
+          "strength": 3,
+          "agility": -1
+        },
         "rarity": "rare"
       },
       "stealth_cloak": {
@@ -1453,7 +2498,10 @@
         "name": "전술 은신 망토",
         "kind": "equipment",
         "slot": "armor",
-        "stats": {"agility": 2, "perception": 1},
+        "stats": {
+          "agility": 2,
+          "perception": 1
+        },
         "rarity": "rare"
       },
       "overload_stim": {
@@ -1466,21 +2514,63 @@
       }
     },
     "loot_tables": {
-      "drone_scrap": [{"item": "drone_scrap", "weight": 4}, {"item": "nanopatch", "weight": 1}],
+      "drone_scrap": [
+        {
+          "item": "drone_scrap",
+          "weight": 4
+        },
+        {
+          "item": "nanopatch",
+          "weight": 1
+        }
+      ],
       "enforcer_core": [
-        {"item": "access_key", "weight": 2},
-        {"item": "stim_shard", "weight": 1},
-        {"item": "nanopatch", "weight": 1},
-        {"item": "signal_blade", "weight": 1},
-        {"item": "emp_grenade", "weight": 1},
-        {"item": "overload_stim", "weight": 1}
+        {
+          "item": "access_key",
+          "weight": 2
+        },
+        {
+          "item": "stim_shard",
+          "weight": 1
+        },
+        {
+          "item": "nanopatch",
+          "weight": 1
+        },
+        {
+          "item": "signal_blade",
+          "weight": 1
+        },
+        {
+          "item": "emp_grenade",
+          "weight": 1
+        },
+        {
+          "item": "overload_stim",
+          "weight": 1
+        }
       ],
       "data_cache": [
-        {"item": "data_fragment", "weight": 3},
-        {"item": "stim_shard", "weight": 1},
-        {"item": "mesh_vest", "weight": 1},
-        {"item": "heavy_exosuit", "weight": 1},
-        {"item": "stealth_cloak", "weight": 1}
+        {
+          "item": "data_fragment",
+          "weight": 3
+        },
+        {
+          "item": "stim_shard",
+          "weight": 1
+        },
+        {
+          "item": "mesh_vest",
+          "weight": 1
+        },
+        {
+          "item": "heavy_exosuit",
+          "weight": 1
+        },
+        {
+          "item": "stealth_cloak",
+          "weight": 1
+        }
       ]
     },
     "encounters": {
@@ -1491,12 +2581,23 @@
         "risk": 1,
         "weight": 4,
         "map_distance": 2,
-        "arena": {"width": 8, "height": 6},
-        "enemies": [{"bestiary": "maintenance_drone", "count": 2}],
+        "arena": {
+          "width": 8,
+          "height": 6
+        },
+        "enemies": [
+          {
+            "bestiary": "maintenance_drone",
+            "count": 2
+          }
+        ],
         "learning_goal": "첫 전투. 이동, 엄호, 기본 공격/스킬 사거리, FOCUS 소모를 익힌다.",
         "narrative_trigger": "복지 블록에서 소란이 발생하거나 시민/데이터 코어를 돕는 선택의 대가로 발생한다.",
         "reward_intent": "승리하면 즉시 안전해지기보다 관리망 heat가 오른다. 대신 첫 전투 승리 epiphany와 loot로 다음 전투 선택지를 연다.",
-        "reward": {"tension": 6, "insight": 1}
+        "reward": {
+          "tension": 6,
+          "insight": 1
+        }
       },
       "sentinel_checkpoint": {
         "id": "sentinel_checkpoint",
@@ -1505,12 +2606,34 @@
         "risk": 2,
         "weight": 3,
         "map_distance": 2,
-        "arena": {"width": 10, "height": 6},
-        "enemies": [{"bestiary": "sentinel_drone", "count": 1, "overrides": {"hp": 11}}, {"bestiary": "maintenance_drone", "count": 1, "overrides": {"hp": 16, "defense": 14}}],
+        "arena": {
+          "width": 10,
+          "height": 6
+        },
+        "enemies": [
+          {
+            "bestiary": "sentinel_drone",
+            "count": 1,
+            "overrides": {
+              "hp": 11
+            }
+          },
+          {
+            "bestiary": "maintenance_drone",
+            "count": 1,
+            "overrides": {
+              "hp": 16,
+              "defense": 14
+            }
+          }
+        ],
         "learning_goal": "원거리 위협과 근접 압박을 동시에 읽고, target priority와 cover/position을 판단한다.",
         "narrative_trigger": "린위에 거래, 야시장 부채, 또는 증거 우선 루트에서 관리망 검문이 시장을 압박할 때 발생한다.",
         "reward_intent": "승리는 야시장 통로를 열지만 시장 사람들에게 빚과 위험을 남긴다.",
-        "reward": {"tension": 8, "insight": 1}
+        "reward": {
+          "tension": 8,
+          "insight": 1
+        }
       },
       "enforcer_standoff": {
         "id": "enforcer_standoff",
@@ -1519,12 +2642,24 @@
         "risk": 4,
         "weight": 1,
         "map_distance": 3,
-        "arena": {"width": 8, "height": 6},
-        "enemies": [{"bestiary": "enforcer_unit", "count": 1}],
+        "arena": {
+          "width": 8,
+          "height": 6
+        },
+        "enemies": [
+          {
+            "bestiary": "enforcer_unit",
+            "count": 1
+          }
+        ],
         "learning_goal": "후반 중장갑 단일 적. armor_pen, burst, 회복/방어 timing, 파티원 보호를 요구한다.",
         "narrative_trigger": "스파이어 접근 또는 high tension 강제 충돌 루트에서 관리자 IX가 물리 봉쇄를 선언할 때 발생한다.",
         "reward_intent": "승리 자체보다 최종 대면 직전의 비용과 긴장도를 만든다. 무리한 정면돌파의 대가가 보여야 한다.",
-        "reward": {"tension": 12, "stability": -4, "insight": 2}
+        "reward": {
+          "tension": 12,
+          "stability": -4,
+          "insight": 2
+        }
       },
       "wraith_glitch": {
         "id": "wraith_glitch",
@@ -1533,12 +2668,22 @@
         "risk": 3,
         "weight": 2,
         "map_distance": 3,
-        "arena": {"width": 9, "height": 6},
-        "enemies": [{"bestiary": "glitch_wraith", "count": 1}],
+        "arena": {
+          "width": 9,
+          "height": 6
+        },
+        "enemies": [
+          {
+            "bestiary": "glitch_wraith",
+            "count": 1
+          }
+        ],
         "learning_goal": "폐기층 미스터리 전투. 높은 회피/기동 적을 추적하며 packet_shot, signal_step, 동료 위치 조작을 쓰게 한다.",
         "narrative_trigger": "카이 RX-09 복원, 꿈 단편 조사, 또는 MythOS 단서 획득 직전의 방해로 발생한다.",
         "reward_intent": "전투 보상은 단순 loot보다 카이의 꿈 단서와 첫 단서/Insight 진행도 체감으로 연결되어야 한다.",
-        "reward": {"insight": 2}
+        "reward": {
+          "insight": 2
+        }
       },
       "shock_trooper_patrol": {
         "id": "shock_trooper_patrol",
@@ -1547,12 +2692,27 @@
         "risk": 3,
         "weight": 2,
         "map_distance": 3,
-        "arena": {"width": 8, "height": 6},
-        "enemies": [{"bestiary": "shock_trooper", "count": 1}, {"bestiary": "sentinel_drone", "count": 1}],
+        "arena": {
+          "width": 8,
+          "height": 6
+        },
+        "enemies": [
+          {
+            "bestiary": "shock_trooper",
+            "count": 1
+          },
+          {
+            "bestiary": "sentinel_drone",
+            "count": 1
+          }
+        ],
         "learning_goal": "중거리 전술 화력과 보막 보호 체계에 대항하여 엄호 및 은신 전술을 활용한다.",
         "narrative_trigger": "스파이어 접근로 혹은 소각로 파괴 소란으로 인한 집행 특전대 출동 시 발생한다.",
         "reward_intent": "강력한 적과의 전면전인 만큼 승리 시 enforcer_core 등 상급 전리품 테이블과 통찰을 보장한다.",
-        "reward": {"tension": 10, "insight": 2}
+        "reward": {
+          "tension": 10,
+          "insight": 2
+        }
       },
       "tracker_ambush": {
         "id": "tracker_ambush",
@@ -1561,12 +2721,23 @@
         "risk": 2,
         "weight": 3,
         "map_distance": 2,
-        "arena": {"width": 8, "height": 6},
-        "enemies": [{"bestiary": "tracker_spider", "count": 2}],
+        "arena": {
+          "width": 8,
+          "height": 6
+        },
+        "enemies": [
+          {
+            "bestiary": "tracker_spider",
+            "count": 2
+          }
+        ],
         "learning_goal": "빠른 기동력을 지닌 은신 해제 스파이더를 상대로 포커스 관리와 도약 차단을 익힌다.",
         "narrative_trigger": "최적화 명단 추적이나 정전 구역 지하 잠입 시 수색망에 걸려 발생한다.",
         "reward_intent": "지연 없는 탈출을 유도하며, 드론 부품 스크랩 보상과 소량의 통찰을 제공한다.",
-        "reward": {"tension": 5, "insight": 1}
+        "reward": {
+          "tension": 5,
+          "insight": 1
+        }
       },
       "mech_siege": {
         "id": "mech_siege",
@@ -1575,12 +2746,28 @@
         "risk": 4,
         "weight": 1,
         "map_distance": 3,
-        "arena": {"width": 9, "height": 7},
-        "enemies": [{"bestiary": "suppression_mech", "count": 1}, {"bestiary": "purge_drone", "count": 1}],
+        "arena": {
+          "width": 9,
+          "height": 7
+        },
+        "enemies": [
+          {
+            "bestiary": "suppression_mech",
+            "count": 1
+          },
+          {
+            "bestiary": "purge_drone",
+            "count": 1
+          }
+        ],
         "learning_goal": "보스급 전차의 광역 포격을 피하며 아군 분신 배치 및 지형 극복을 수행한다.",
         "narrative_trigger": "지하철 통제 중추 진입을 저지하기 위해 ARK 중장갑 기계가 봉쇄할 때 발생한다.",
         "reward_intent": "강력한 중전차를 무력화한 보상으로, 대량의 통찰과 고급 전리품(enforcer_core)을 보장한다.",
-        "reward": {"tension": 15, "stability": -5, "insight": 3}
+        "reward": {
+          "tension": 15,
+          "stability": -5,
+          "insight": 3
+        }
       },
       "purge_incineration": {
         "id": "purge_incineration",
@@ -1589,12 +2776,23 @@
         "risk": 3,
         "weight": 2,
         "map_distance": 2,
-        "arena": {"width": 8, "height": 6},
-        "enemies": [{"bestiary": "purge_drone", "count": 2}],
+        "arena": {
+          "width": 8,
+          "height": 6
+        },
+        "enemies": [
+          {
+            "bestiary": "purge_drone",
+            "count": 2
+          }
+        ],
         "learning_goal": "지속적인 화상 DoT 피해를 입히는 소각 드론을 빠르게 일점사하여 제압하는 법을 익힌다.",
         "narrative_trigger": "데이터 소각로 구역 침투 또는 로그 폭파 선택 후 후퇴 중 기계 경보로 발생한다.",
         "reward_intent": "드론 잔해 수집을 통해 drone_scrap 전리품 테이블과 소량의 통찰을 제공한다.",
-        "reward": {"tension": 8, "insight": 1}
+        "reward": {
+          "tension": 8,
+          "insight": 1
+        }
       },
       "ix_confrontation": {
         "id": "ix_confrontation",
@@ -1603,16 +2801,32 @@
         "risk": 5,
         "weight": 1,
         "map_distance": 4,
-        "arena": {"width": 10, "height": 7},
+        "arena": {
+          "width": 10,
+          "height": 7
+        },
         "enemies": [
-          {"bestiary": "administrator_ix", "count": 1},
-          {"bestiary": "sentinel_drone", "count": 1},
-          {"bestiary": "purge_drone", "count": 1}
+          {
+            "bestiary": "administrator_ix",
+            "count": 1
+          },
+          {
+            "bestiary": "sentinel_drone",
+            "count": 1
+          },
+          {
+            "bestiary": "purge_drone",
+            "count": 1
+          }
         ],
         "learning_goal": "최종 보스전. 고체력 단일 표적(IX)을 호위 드론과 위험 지형 속에서 분담 공략하며, 회복/엄호/일점사 타이밍과 파티 생존을 종합한다.",
         "narrative_trigger": "작전 지도의 최종 boss 노드(세계를 다시 쓰다) 진입 시 발생한다. 관리자 IX가 코어에서 직접 대면을 선언할 때 시작된다.",
         "reward_intent": "도시의 운명을 가르는 절정. 승리는 최대 통찰과 상급 전리품을 보장하되, 막대한 긴장도와 안정도 비용을 남겨 엔딩 분기로 이어진다.",
-        "reward": {"tension": 18, "stability": -6, "insight": 3}
+        "reward": {
+          "tension": 18,
+          "stability": -6,
+          "insight": 3
+        }
       }
     }
   },

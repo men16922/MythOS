@@ -5,6 +5,13 @@ Last updated: 2026-07-03
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-03 — Scene image: Character meet-scene images: kai + lin_yue
+- Status: Completed (`make check` green; committed locally, unpushed).
+- Changed (visual): Generated two scene image drafts for meeting Kai and meeting Lin Yue (`kai_meet` and `lin_yue_meet`) using the in-session Gemini Image Generator (16:9 aspect ratio). Converted the outputs to PNG format and copied them to `resources/neo-seoul/scenes/kai_meet.png` and `resources/neo-seoul/scenes/lin_yue_meet.png`. Created the fitness review files under `outputs/agy/kai_meet/review.md` and `outputs/agy/lin_yue_meet/review.md`.
+- Verified: Ran `make check` (including `tests/test_image_assets.py` and `tests/test_assets.py`) successfully.
+- Blockers: None (push is human-only).
+- Next: human — review the generated scene image drafts and reviews in the morning, and merge/push.
+
 ## 2026-07-03 — Scene image: Dedicated scene art data_incinerator + subway_control_hub
 - Status: Completed (`make check` green; committed locally, unpushed).
 - Changed (visual): Generated two dedicated scene image drafts for `data_incinerator` and `subway_control_hub` using the in-session Gemini Image Generator (16:9 aspect ratio, prompt tailored to Neo-Seoul art direction). Converted the outputs to PNG format and copied to `resources/neo-seoul/scenes/data_incinerator.png` and `resources/neo-seoul/scenes/subway_control_hub.png`. Left the original drafts and their reviews in their respective folders under `outputs/agy/`.

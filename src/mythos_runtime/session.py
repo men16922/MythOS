@@ -24,7 +24,7 @@ from mythos_core import (
 )
 from mythos_core.clock import utc_now
 from mythos_core.models import to_json_dict
-from mythos_loop import LoopEngine, create_player_event, create_world_event
+from mythos_loop import LoopEngine, LoopTransition, create_player_event, create_world_event
 from mythos_memory import MythOSStore
 from mythos_narrative import NarrativeContext, NarrativeDirector, NarrativeStreamEvent, ScenePayload
 from mythos_narrative.codex import CodexService
@@ -1611,6 +1611,16 @@ class RuntimeSessionService:
                 )
                 if candidate and candidate in scenario.combat.get("encounters", {}):
                     route_combat = candidate
+                    # Entering the authored boss node this turn means the climax
+                    # fight begins now — keep the loop live even if a coincident
+                    # tension/stability threshold would auto-archive this same
+                    # turn, so the loop resolves through the fight's outcome
+                    # (victory -> ending, defeat -> soft-defeat) rather than being
+                    # preempted into ARCHIVE mid-fight.
+                    if entered.get("type") == "boss":
+                        transition = self._defer_threshold_archive_for_climax(
+                            transition, prior_phase=loop.phase, payload=payload
+                        )
 
                 # Dynamic route growth: now that the pointer advanced, thicken the
                 # upcoming horizon layers with the GM's proposed nodes (type-
@@ -1733,6 +1743,41 @@ class RuntimeSessionService:
             return combat_snapshot
         self._set_cached_snapshot(transition.loop.loop_id, snapshot)
         return snapshot
+
+    def _defer_threshold_archive_for_climax(
+        self,
+        transition: LoopTransition,
+        *,
+        prior_phase: LoopPhase,
+        payload: ScenePayload,
+    ) -> LoopTransition:
+        """Keep the loop live when the boss climax fires on a threshold-archive turn.
+
+        ``apply_scene_payload`` auto-archives when ``tension>=90`` /
+        ``stability<=10`` (``_archive_requested``) *before* the route advance
+        discovers that this same turn enters the authored boss node. Letting that
+        numeric threshold win would leave the loop in ARCHIVE while the climax
+        combat begins, so the fight's outcome (victory -> ending, defeat ->
+        soft-defeat/erasure) can no longer resolve the run. Defer the threshold
+        archive: revert to the pre-transition phase and drop the minted Echo so
+        the boss fight resolves the loop's end. An explicit LLM ``end_condition``
+        still ends the loop (author intent wins) — only the threshold is deferred.
+        """
+        loop = transition.loop
+        if loop.phase not in {LoopPhase.ARCHIVE, LoopPhase.ENDED}:
+            return transition
+        if prior_phase in {LoopPhase.ARCHIVE, LoopPhase.ENDED}:
+            return transition
+        end_condition = (payload.end_condition or "").lower()
+        if end_condition in {"archive", "ended", "loop_complete"}:
+            return transition
+        revived = replace(
+            loop,
+            phase=prior_phase,
+            ended_at=None,
+            active_echoes=[e for e in loop.active_echoes if e is not transition.echo],
+        )
+        return replace(transition, loop=revived, echo=None)
 
     def _resolve_next_combat(
         self,

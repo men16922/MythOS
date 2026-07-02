@@ -317,6 +317,107 @@ class SessionCombatTest(unittest.TestCase):
         assert snap.combat is not None
         self.assertEqual(snap.combat["radar"]["encounter_id"], "ix_confrontation")
 
+    def test_route_boss_node_not_preempted_by_threshold_auto_archive(self) -> None:
+        # Live 2026-07-03: entering the boss node on a turn whose tension crosses
+        # the >=90 auto-archive threshold left the loop ARCHIVED while the climax
+        # fight began — the boss outcome could then never resolve the ending. The
+        # boss climax must keep the loop live so the fight resolves the run.
+        from mythos_runtime.route_map import ROUTE_MAP_KEY, build_route_map
+        from mythos_runtime.route_runtime import DEFAULT_TURNS_PER_LAYER
+        from mythos_runtime.scenario import load_scenario
+
+        player = self.store.get_player("p1")
+        loop = self.store.get_loop(self.loop_id)
+        assert player is not None
+        assert loop is not None
+        scenario = load_scenario(self.options.scenario_id)
+        route_map = build_route_map(scenario.route_map, loop.seed)
+        assert route_map is not None
+        layers = route_map["layers"]
+        boss_node_id = layers[-1][0]
+        self.assertEqual(route_map["nodes"][boss_node_id].get("type"), "boss")
+        final_turn = DEFAULT_TURNS_PER_LAYER * len(layers) + 2
+        # Tension already near the ceiling: the boss-entry turn's world_delta pushes
+        # it over the >=90 threshold, so the engine would auto-archive this turn.
+        loop = replace(
+            loop,
+            tension=88,
+            state={
+                ROUTE_MAP_KEY: route_map,
+                "flags": [],
+                "scenario_id": self.options.scenario_id,
+                "_combat_count": 0,
+                "_last_combat_turn": final_turn - 1,
+            },
+        )
+        scene = Scene(
+            scene_id="scene_confront_ix_hot",
+            loop_id=loop.loop_id,
+            turn_index=final_turn,
+            title="Confront IX",
+            location="ARK Core",
+            narration="The core opens. Administrator IX turns to face the signal.",
+            choices=[Choice("c1", "Stand", "resolve")],
+            visual_brief="A vast optimization altar.",
+            created_at=datetime(2026, 5, 31, tzinfo=UTC),
+        )
+        payload = ScenePayload(
+            title=scene.title,
+            location=scene.location,
+            narration=scene.narration,
+            choices=scene.choices,
+            visual_brief=scene.visual_brief or "",
+            world_delta=WorldDelta(tension=5),
+        )
+
+        snap = self.service._commit_scene(
+            player=player,
+            loop=loop,
+            scene=scene,
+            payload=payload,
+            options=self.options,
+            span_name="test",
+            log_message="test",
+        )
+
+        # The climax fight begins...
+        self.assertEqual(snap.scene.scene_type, "combat")
+        assert snap.combat is not None
+        self.assertEqual(snap.combat["radar"]["encounter_id"], "ix_confrontation")
+        # ...and the loop is NOT prematurely archived by the coincident threshold:
+        # it stays live (the fight's outcome will end the loop) and no Echo minted.
+        self.assertNotIn(snap.loop.phase, {LoopPhase.ARCHIVE, LoopPhase.ENDED})
+        self.assertIsNone(snap.echo)
+        self.assertEqual(snap.loop.active_echoes, [])
+
+    def test_defer_threshold_archive_respects_explicit_end_condition(self) -> None:
+        # Author intent wins: an explicit LLM ``end_condition`` still ends the loop
+        # even on the boss node — only the numeric threshold is deferred.
+        loop = self.store.get_loop(self.loop_id)
+        assert loop is not None
+        transition = self.service.engine.apply_scene_payload(
+            replace(loop, phase=LoopPhase.EXPLORE, tension=95),
+            Scene(
+                scene_id="s", loop_id=loop.loop_id, turn_index=9, title="t",
+                location="l", narration="n", choices=[], visual_brief="",
+                created_at=datetime(2026, 5, 31, tzinfo=UTC),
+            ),
+            ScenePayload(
+                title="t", location="l", narration="n", choices=[],
+                visual_brief="", world_delta=WorldDelta(), end_condition="ended",
+            ),
+        )
+        self.assertEqual(transition.loop.phase, LoopPhase.ARCHIVE)
+        deferred = self.service._defer_threshold_archive_for_climax(
+            transition,
+            prior_phase=LoopPhase.EXPLORE,
+            payload=ScenePayload(
+                title="t", location="l", narration="n", choices=[],
+                visual_brief="", world_delta=WorldDelta(), end_condition="ended",
+            ),
+        )
+        self.assertEqual(deferred.loop.phase, LoopPhase.ARCHIVE)
+
     def test_resolve_next_combat_route_takes_precedence_over_ambient(self) -> None:
         # Unit-level guard on the extracted decision: authored route combat wins
         # over ambient (LLM start_combat / encounter-map contact); with no route

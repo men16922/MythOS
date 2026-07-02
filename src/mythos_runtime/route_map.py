@@ -402,6 +402,134 @@ def build_route_seed(
         "next_node_index": counter,
     }
 
+SIDE_ANCHOR_ORIGIN = "side"
+
+
+def _build_side_node(
+    node_id: str,
+    arc_data: dict[str, Any],
+    node_types: dict[str, Any],
+    layer_index: int,
+    arc: str,
+    layer_title: str,
+    col: int,
+) -> dict[str, Any]:
+    """Build one optional side-anchor node from an authored ``side_arc`` entry.
+
+    The node is a normal (non-mandatory, non-``anchor``) branch node so the route
+    growth/reachability guards leave it alone, but it carries ``side_arc``/
+    ``optional`` markers and, if the arc declares a ``trigger_flag``, a runtime
+    ``gate`` so it only surfaces as a junction option once that flag is earned.
+    Authored resource fields (``beat``/``image``/``perspectives`` …) are carried
+    through if a later data pass adds them (forward-compatible with the codex lane).
+    """
+    node_type = str(arc_data.get("type") or "event")
+    if node_types and node_type not in node_types:
+        node_type = "event" if "event" in node_types else next(iter(node_types))
+    spec: dict[str, Any] = {
+        "type": node_type,
+        "anchor": False,
+        "mandatory": False,
+        "title": str(arc_data.get("title") or layer_title or node_type),
+    }
+    for field in ("beat", "image", "image_pre", "event", "default_perspective"):
+        if arc_data.get(field):
+            spec[field] = arc_data[field]
+    if isinstance(arc_data.get("perspectives"), list):
+        spec["perspectives"] = arc_data["perspectives"]
+    if isinstance(arc_data.get("image_sequence"), list):
+        spec["image_sequence"] = arc_data["image_sequence"]
+    gate = arc_data.get("gate")
+    if not gate and arc_data.get("trigger_flag"):
+        gate = [str(arc_data["trigger_flag"])]
+    if isinstance(gate, list) and gate:
+        spec["gate"] = [str(flag) for flag in gate]
+    node = _build_node(node_id, spec, node_types or {}, layer_index, arc, layer_title, col)
+    node["origin"] = SIDE_ANCHOR_ORIGIN
+    node["side_arc"] = True
+    node["optional"] = True
+    if arc_data.get("description"):
+        node["description"] = str(arc_data["description"])
+    return node
+
+
+def attach_side_anchors(
+    route_map: dict[str, Any] | None,
+    side_arcs: list[dict[str, Any]] | None,
+    seed: str,
+    *,
+    max_side_anchors: int = 2,
+) -> dict[str, Any] | None:
+    """Weave a scenario's ``side_arcs`` into a built route map as optional branches.
+
+    A deterministic, seed-selected subset of the authored side arcs is inserted
+    into *intermediate* layers only (never the opening layer 0 or the boss layer):
+    each becomes an extra node in its layer with an incoming edge from the previous
+    layer and an outgoing edge into the next layer. Because every added edge stays
+    within adjacent layers the graph remains strictly layered — the side node is
+    reachable in the DAG yet **optional** (a sibling branch the player may skip; a
+    ``trigger_flag`` gates it as a junction option). The boss's start-distance is
+    unchanged, so the full-layer-traversal pacing guard still holds.
+
+    No-op (returns ``route_map`` unchanged) when there is no map, no side arcs, or
+    no intermediate layer to host one — so scenarios without side arcs are
+    behavior-preserving. Mutates and returns the passed map for caller convenience.
+    """
+    if not isinstance(route_map, dict):
+        return route_map
+    arcs = [a for a in (side_arcs or []) if isinstance(a, dict)]
+    layers = route_map.get("layers")
+    nodes = route_map.get("nodes")
+    edges = route_map.get("edges")
+    if (
+        not arcs
+        or not isinstance(layers, list)
+        or not isinstance(nodes, dict)
+        or not isinstance(edges, dict)
+    ):
+        return route_map
+    node_types = route_map.get("node_types")
+    if not isinstance(node_types, dict):
+        node_types = {}
+    # Intermediate layers only: never the opening (0) or the boss (last).
+    host_layers = list(range(1, len(layers) - 1))
+    if not host_layers:
+        return route_map
+
+    dice = Dice(f"{seed}:side")
+    counter = int(route_map.get("next_node_index", len(nodes)))
+    chosen = dice.shuffle(list(arcs))[: max(1, int(max_side_anchors))]
+
+    for arc_data in chosen:
+        layer_index = dice.choice(host_layers)
+        layer = layers[layer_index]
+        prev_layer = layers[layer_index - 1]
+        next_layer = layers[layer_index + 1]
+        if not layer or not prev_layer or not next_layer:
+            continue
+        sibling = nodes.get(layer[0], {}) if layer else {}
+        arc_label = str(sibling.get("arc", ""))
+        layer_title = str(sibling.get("title", ""))
+        node_id = f"sn{counter}"
+        counter += 1
+        node = _build_side_node(
+            node_id, arc_data, node_types, layer_index, arc_label, layer_title, len(layer)
+        )
+        nodes[node_id] = node
+        layer.append(node_id)
+        edges[node_id] = []
+        # Incoming from the previous layer, outgoing into the next layer, so the
+        # side node stays one strict layer step (never a boss shortcut).
+        src = dice.choice(prev_layer)
+        if node_id not in edges.setdefault(src, []):
+            edges[src].append(node_id)
+        tgt = dice.choice(next_layer)
+        edges[node_id].append(tgt)
+
+    route_map["next_node_index"] = counter
+    return route_map
+
+
 def _pick_unique_title(titles: list[str], used: set[str], dice: Dice) -> str:
     """Select a title that has not been used yet in the route map, with fallback to duplicates if exhausted."""
     candidates = [t for t in titles if t not in used]
@@ -413,6 +541,8 @@ def _pick_unique_title(titles: list[str], used: set[str], dice: Dice) -> str:
 __all__ = [
     "ROUTE_MAP_KEY",
     "ROUTE_MAP_VERSION",
+    "SIDE_ANCHOR_ORIGIN",
+    "attach_side_anchors",
     "build_route_map",
     "build_route_seed",
     "route_map_paths_summary",

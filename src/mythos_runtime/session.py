@@ -94,7 +94,12 @@ from mythos_runtime.progression import (
     traits_with_meta_progression,
 )
 from mythos_runtime.route_growth import extend_route
-from mythos_runtime.route_map import ROUTE_MAP_KEY, build_route_map, build_route_seed
+from mythos_runtime.route_map import (
+    ROUTE_MAP_KEY,
+    attach_side_anchors,
+    build_route_map,
+    build_route_seed,
+)
 from mythos_runtime.route_runtime import (
     advance_route,
     fold_relationship,
@@ -295,6 +300,9 @@ class RuntimeSessionService:
         else:
             route_map = build_route_map(route_cfg, loop_seed)
         if route_map is not None:
+            # Weave authored side_arcs into the DAG as seed-selected optional
+            # side-anchor branches (reachable yet skippable; boss distance kept).
+            route_map = attach_side_anchors(route_map, scenario.side_arcs, loop_seed)
             initial_state[ROUTE_MAP_KEY] = route_map
 
         loop = LoopState(

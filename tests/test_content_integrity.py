@@ -40,7 +40,12 @@ from typing import Any
 
 from mythos_combat.factory import _DEFAULT_STATS
 from mythos_runtime.ending_resolver import EndingResolver
-from mythos_runtime.route_map import build_route_map, build_route_seed
+from mythos_runtime.route_map import (
+    SIDE_ANCHOR_ORIGIN,
+    attach_side_anchors,
+    build_route_map,
+    build_route_seed,
+)
 from mythos_runtime.route_runtime import node_encounter_id
 from mythos_runtime.scenario import PROJECT_ROOT, load_scenario
 
@@ -1726,6 +1731,296 @@ class ArchetypeAndCharacterIdIntegrityTest(unittest.TestCase):
             checked,
             0,
             "no scenario exercised the archetype-keyed-block check — vacuously green",
+        )
+
+
+def _side_arcs(scenario_data: dict[str, Any]) -> list[dict[str, Any]]:
+    """The authored ``side_arcs`` records for a scenario (dict entries only)."""
+    return [a for a in (scenario_data.get("side_arcs") or []) if isinstance(a, dict)]
+
+
+def _character_names(scenario_data: dict[str, Any]) -> set[str]:
+    return {
+        str(c.get("name"))
+        for c in (scenario_data.get("characters") or [])
+        if isinstance(c, dict) and c.get("name")
+    }
+
+
+def _recognised_npc_subjects(scenario_data: dict[str, Any]) -> set[str]:
+    """Every id/name a side arc may legitimately point an NPC reference at.
+
+    A side arc that names a companion/NPC (``related_npcs`` / ``npc`` /
+    ``companion``) must resolve to *some* declared subject — a modelled
+    ``characters[].name``, a combat ally id/slug, a ``relationship_subjects``
+    entry (non-combat companion), or an ``npc_agendas`` key (a Director-tracked
+    agenda subject). Anything else is a typo that silently references no one.
+    """
+    return (
+        _character_names(scenario_data)
+        | _ally_ids(scenario_data)
+        | set(scenario_data.get("relationship_subjects") or [])
+        | {str(k) for k in (scenario_data.get("npc_agendas") or {})}
+    )
+
+
+def _route_anchor_beats(scenario_data: dict[str, Any]) -> set[str]:
+    """Every ``beat`` addressed by an authored route-map layer anchor."""
+    beats: set[str] = set()
+    route_map = scenario_data.get("route_map") or {}
+    for layer in route_map.get("layers", []) or []:
+        if not isinstance(layer, dict):
+            continue
+        for anchor in layer.get("anchors", []) or []:
+            if isinstance(anchor, dict) and anchor.get("beat"):
+                beats.add(str(anchor["beat"]))
+    return beats
+
+
+def _collect_ref_values(obj: Any, keys: frozenset[str]) -> set[str]:
+    """Recursively collect every string value stored under any of ``keys``.
+
+    Handles both scalar (``npc: "kai"``) and list (``related_npcs: [...]``)
+    shapes so a reference authored at any depth of a side-arc record is caught.
+    """
+    found: set[str] = set()
+    if isinstance(obj, dict):
+        for key, value in obj.items():
+            if key in keys:
+                if isinstance(value, list):
+                    found.update(str(v) for v in value)
+                elif isinstance(value, (str, int)):
+                    found.add(str(value))
+            else:
+                found |= _collect_ref_values(value, keys)
+    elif isinstance(obj, list):
+        for item in obj:
+            found |= _collect_ref_values(item, keys)
+    return found
+
+
+# The three recognised trigger surfaces a side arc may declare exactly one of.
+# ``attach_side_anchors`` turns a ``trigger_flag`` into the woven node's runtime
+# ``gate``; ``trigger_stat`` / ``trigger_location`` are Director-side conditions.
+SIDE_ARC_TRIGGER_KEYS = frozenset({"trigger_flag", "trigger_stat", "trigger_location"})
+
+# Structured NPC/companion reference keys a side arc may carry (forward-compatible
+# with the codex side-arc data pass; ``related_npcs`` is the story-bible convention).
+SIDE_ARC_NPC_REF_KEYS = frozenset({"related_npcs", "npc", "npcs", "companion", "companions"})
+
+# Curated image reference keys carried through onto a woven side node
+# (``route_map._build_side_node``).
+SIDE_ARC_IMAGE_KEYS = frozenset({"image", "image_pre"})
+
+
+class SideAnchorIntegrityTest(unittest.TestCase):
+    """Reference integrity for scenario ``side_arcs`` woven as optional side-anchors.
+
+    ``attach_side_anchors`` (2026-07-03) inserts a seed-selected subset of a
+    scenario's authored ``side_arcs`` into the route DAG as optional branch nodes,
+    carrying each arc's authored ``beat``/``image``/``perspectives``/… fields
+    through onto the woven node (``route_map._build_side_node``). The same
+    silent-drop failure mode behind the long-dead ``relationship`` data applies to
+    a side arc: a dangling ``beat``/``image``/``encounter``/NPC reference does not
+    error — it produces a broken curated image, an unresolvable encounter, or an
+    NPC hint for no one, once the codex data pass fleshes these arcs out.
+
+    This closes the set: every reference a side arc declares must resolve, checked
+    both on the raw authored records *and* on the nodes actually woven into the
+    route by ``attach_side_anchors``. Most checks are forward-compatible (the
+    current arcs declare only ``trigger*``/``title``/``description``), so they are
+    vacuously green today but guard the codex data pass that adds the resource
+    fields; the well-formedness / trigger / beat-address checks have teeth now.
+
+    The gate producibility of a side arc's ``trigger_flag`` is intentionally *not*
+    asserted here: the trigger flags (``help_citizen`` / ``optimization_list_seen``
+    / ``kai_found`` …) are authored today with no producer yet — wiring their
+    producers is the codex content pass's job, and a producibility gate now would
+    fail on in-progress data rather than a real break.
+    """
+
+    def _scenarios(self) -> list[tuple[str, dict[str, Any]]]:
+        out: list[tuple[str, dict[str, Any]]] = []
+        for path in _scenario_json_paths():
+            with open(path, encoding="utf-8") as handle:
+                out.append((path.parent.name, json.load(handle)))
+        return out
+
+    def _scenarios_with_side_arcs(self) -> list[tuple[str, dict[str, Any], list[dict[str, Any]]]]:
+        out: list[tuple[str, dict[str, Any], list[dict[str, Any]]]] = []
+        for name, data in self._scenarios():
+            arcs = _side_arcs(data)
+            if arcs:
+                out.append((name, data, arcs))
+        return out
+
+    def _woven_side_nodes(self) -> list[tuple[str, str, dict[str, Any], dict[str, Any]]]:
+        """Every node ``attach_side_anchors`` weaves into the neo-seoul route.
+
+        Runs both builders over many seeds exactly as ``session._start_loop`` does
+        (``attach_side_anchors(route_map, scenario.side_arcs, loop_seed)``), and
+        returns ``(seed, node_id, node, route_map)`` for each ``origin == "side"``
+        node — the real product the runtime hands the player, not just raw JSON.
+        """
+        scenario = load_scenario("neo-seoul")
+        cfg = scenario.route_map
+        out: list[tuple[str, str, dict[str, Any], dict[str, Any]]] = []
+        for i in range(16):
+            seed = f"side-anchor-integrity-{i}"
+            for builder in (build_route_map, build_route_seed):
+                rm = builder(cfg, seed)
+                if rm is None:
+                    continue
+                rm = attach_side_anchors(rm, scenario.side_arcs, seed)
+                assert rm is not None
+                for node_id, node in rm["nodes"].items():
+                    if node.get("origin") == SIDE_ANCHOR_ORIGIN:
+                        out.append((seed, node_id, node, rm))
+        return out
+
+    def test_at_least_one_scenario_declares_side_arcs(self) -> None:
+        """Guard-the-guard: if nothing authors side_arcs, every check below is
+        vacuously green and the invariant is asleep."""
+        self.assertTrue(
+            self._scenarios_with_side_arcs(),
+            "no scenario declares side_arcs — SideAnchorIntegrityTest is vacuously green",
+        )
+
+    def test_side_arcs_are_well_formed(self) -> None:
+        """Each side arc needs a non-empty ``title`` + ``description`` (the junction
+        label + Director brief) and exactly one trigger surface. Zero triggers means
+        the arc can never surface; two means an ambiguous/contradictory gate."""
+        offenders: list[str] = []
+        for name, _data, arcs in self._scenarios_with_side_arcs():
+            titles: list[str] = []
+            for index, arc in enumerate(arcs):
+                label = f"{name}:side_arcs[{index}]"
+                title = arc.get("title")
+                if not (isinstance(title, str) and title.strip()):
+                    offenders.append(f"{label}.title={title!r} (empty/missing)")
+                else:
+                    titles.append(title)
+                description = arc.get("description")
+                if not (isinstance(description, str) and description.strip()):
+                    offenders.append(f"{label}.description missing")
+                triggers = sorted(k for k in SIDE_ARC_TRIGGER_KEYS if arc.get(k) is not None)
+                if len(triggers) != 1:
+                    offenders.append(
+                        f"{label} declares {len(triggers)} triggers {triggers} "
+                        f"(need exactly one of {sorted(SIDE_ARC_TRIGGER_KEYS)})"
+                    )
+            dupes = sorted({t for t in titles if titles.count(t) > 1})
+            offenders.extend(f"{name}:duplicate side_arc title {t!r}" for t in dupes)
+        self.assertEqual(
+            offenders,
+            [],
+            f"malformed side_arcs (label/brief/trigger): {offenders}",
+        )
+
+    def test_side_arc_beats_are_unique_addresses(self) -> None:
+        """A ``beat`` is a directive/curated-image address. A side arc reusing
+        another arc's or an authored anchor's beat silently double-binds that
+        directive/image, so every side-arc beat must be a unique address."""
+        offenders: list[str] = []
+        for name, data, arcs in self._scenarios_with_side_arcs():
+            anchor_beats = _route_anchor_beats(data)
+            seen: set[str] = set()
+            for index, arc in enumerate(arcs):
+                beat = arc.get("beat")
+                if not beat:
+                    continue
+                beat = str(beat)
+                if beat in anchor_beats:
+                    offenders.append(
+                        f"{name}:side_arcs[{index}].beat={beat!r} collides with an "
+                        f"authored route anchor beat"
+                    )
+                if beat in seen:
+                    offenders.append(
+                        f"{name}:side_arcs[{index}].beat={beat!r} duplicates another side arc"
+                    )
+                seen.add(beat)
+        self.assertEqual(
+            offenders, [], f"side_arc beats that are not unique addresses: {offenders}"
+        )
+
+    def test_side_arc_image_refs_resolve(self) -> None:
+        """Every curated ``image``/``image_pre`` a side arc declares (and every one
+        carried onto a woven side node) must exist under the scenario resources —
+        else the junction/gallery shows a broken card."""
+        offenders: list[str] = []
+        for name, _data, arcs in self._scenarios_with_side_arcs():
+            base = PROJECT_ROOT / "resources" / name
+            for index, arc in enumerate(arcs):
+                for key in SIDE_ARC_IMAGE_KEYS:
+                    ref = arc.get(key)
+                    if ref and not (base / str(ref)).exists():
+                        offenders.append(f"{name}:side_arcs[{index}].{key}={ref!r}")
+        base = PROJECT_ROOT / "resources" / "neo-seoul"
+        for seed, node_id, node, _rm in self._woven_side_nodes():
+            for key in SIDE_ARC_IMAGE_KEYS:
+                ref = node.get(key)
+                if ref and not (base / str(ref)).exists():
+                    offenders.append(f"neo-seoul:woven {node_id}(seed {seed}).{key}={ref!r}")
+        self.assertEqual(
+            offenders, [], f"side_arc image paths that do not resolve: {offenders}"
+        )
+
+    def test_side_arc_encounter_refs_resolve(self) -> None:
+        """A side arc that stages a fight must resolve to a real encounter — whether
+        it names one directly (``encounter``) or is woven as a combat-typed node
+        whose type maps through ``route_map.combat_encounters`` to a declared
+        ``combat.encounters`` entry (else the fight spawns nothing)."""
+        offenders: list[str] = []
+        for name, data, arcs in self._scenarios_with_side_arcs():
+            encounters = ((data.get("combat") or {}).get("encounters")) or {}
+            encounter_ids = set(encounters) if isinstance(encounters, dict) else set()
+            for index, arc in enumerate(arcs):
+                ref = arc.get("encounter")
+                if ref and str(ref) not in encounter_ids:
+                    offenders.append(f"{name}:side_arcs[{index}].encounter={ref!r}")
+        scenario = load_scenario("neo-seoul")
+        encounters = scenario.combat.get("encounters", {})
+        combat_encounters = scenario.route_map.get("combat_encounters") or {}
+        for seed, node_id, node, rm in self._woven_side_nodes():
+            if not node.get("combat"):
+                continue
+            pick = node_encounter_id(node, combat_encounters, seed=str(rm.get("seed")))
+            if pick not in encounters:
+                offenders.append(
+                    f"neo-seoul:woven combat side node {node_id}(seed {seed}) "
+                    f"type {node.get('type')!r} resolved to missing encounter {pick!r}"
+                )
+        self.assertEqual(
+            offenders, [], f"side_arc encounter refs that do not resolve: {offenders}"
+        )
+
+    def test_side_arc_npc_refs_resolve(self) -> None:
+        """Every companion/NPC a side arc references must resolve to a declared
+        subject (character name, combat ally id, relationship subject, or agenda
+        key) — a typo'd handle silently hints the GM at no one."""
+        offenders: list[str] = []
+        for name, data, arcs in self._scenarios_with_side_arcs():
+            recognised = _recognised_npc_subjects(data)
+            for index, arc in enumerate(arcs):
+                for ref in sorted(_collect_ref_values(arc, SIDE_ARC_NPC_REF_KEYS)):
+                    if ref not in recognised:
+                        offenders.append(f"{name}:side_arcs[{index}] npc {ref!r}")
+        self.assertEqual(
+            offenders,
+            [],
+            "side_arc NPC references that resolve to no declared character/ally/"
+            f"subject: {offenders}",
+        )
+
+    def test_side_anchors_are_actually_woven(self) -> None:
+        """Guard-the-guard for the woven-node checks: ``attach_side_anchors`` must
+        actually insert at least one side node into the neo-seoul route, or the
+        route-woven half of this suite is asleep."""
+        self.assertTrue(
+            self._woven_side_nodes(),
+            "attach_side_anchors wove no side nodes into the neo-seoul route — the "
+            "woven-node integrity checks are vacuously green",
         )
 
 

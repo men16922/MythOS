@@ -20,6 +20,7 @@ Blocker, not a flaky judgment call.
 """
 
 import unittest
+from collections import deque
 from typing import Any
 
 from mythos_runtime.route_map import (
@@ -27,6 +28,7 @@ from mythos_runtime.route_map import (
     build_route_seed,
     route_map_paths_summary,
 )
+from mythos_runtime.route_runtime import DEFAULT_TURNS_PER_LAYER
 from mythos_runtime.scenario import load_scenario
 
 
@@ -45,6 +47,21 @@ def _reachable_set(start: str, edges: dict[str, list[str]]) -> set[str]:
 
 def _reaches(start: str, target: str, edges: dict[str, list[str]]) -> bool:
     return target in _reachable_set(start, edges)
+
+
+def _shortest_path_len(start: str, target: str, edges: dict[str, list[str]]) -> int | None:
+    """Fewest edges from ``start`` to ``target`` over ``edges`` (BFS), or None."""
+    queue: deque[tuple[str, int]] = deque([(start, 0)])
+    seen = {start}
+    while queue:
+        node, dist = queue.popleft()
+        if node == target:
+            return dist
+        for nxt in edges.get(node, []):
+            if nxt not in seen:
+                seen.add(nxt)
+                queue.append((nxt, dist + 1))
+    return None
 
 
 def _influence_nodes(rm: dict[str, Any]) -> dict[str, set[str]]:
@@ -134,6 +151,42 @@ class RouteIntegrityTest(unittest.TestCase):
                     f"ending {ending_id} only pushed by nodes off any start→boss "
                     f"path {pushers} (seed {rm.get('seed')})",
                 )
+
+    def test_boss_requires_full_layer_traversal(self) -> None:
+        # Climax reachability pacing guard (2026-07-03): the boss node sits on the
+        # final layer and the DAG is strictly layered, so *every* start->boss path
+        # crosses one node per layer — the boss is always ``num_layers - 1`` edges
+        # (~``(num_layers - 1) * DEFAULT_TURNS_PER_LAYER`` turns) out and can never
+        # be reached early. That distance is exactly why a mid-run ``tension>=90``
+        # auto-archive would strand the golden path before the climax, which the
+        # session-level tension-archive deferral (``_defer_tension_archive_before_climax``,
+        # gated on ``_route_boss_reached``) guards against. This invariant pins the
+        # structural precondition that guard relies on.
+        for rm in self._maps():
+            start = rm["current"]
+            layers = rm["layers"]
+            boss = layers[-1][0]
+            self.assertEqual(
+                rm["nodes"][boss].get("type"),
+                "boss",
+                f"final-layer node {boss} must be the boss (seed {rm.get('seed')})",
+            )
+            dist = _shortest_path_len(start, boss, rm["edges"])
+            self.assertEqual(
+                dist,
+                len(layers) - 1,
+                f"boss reachable in {dist} edges but the map has {len(layers)} "
+                f"layers — the golden path must traverse every layer "
+                f"(seed {rm.get('seed')})",
+            )
+            # The pacing guard only matters if the boss is genuinely many turns
+            # out; assert the derived turn-distance is > a single layer step.
+            turns_to_boss = (len(layers) - 1) * DEFAULT_TURNS_PER_LAYER
+            self.assertGreater(
+                turns_to_boss,
+                DEFAULT_TURNS_PER_LAYER,
+                f"boss only {turns_to_boss} turns out (seed {rm.get('seed')})",
+            )
 
     def test_route_influence_references_declared_ending(self) -> None:
         for rm in self._maps():

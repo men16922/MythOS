@@ -1,7 +1,7 @@
 import unittest
 from typing import Any
 
-from mythos_runtime.route_map import ROUTE_MAP_KEY, build_route_map
+from mythos_runtime.route_map import ROUTE_MAP_KEY, build_route_map, build_route_seed
 from mythos_runtime.route_runtime import (
     DEFAULT_TURNS_PER_LAYER,
     advance_route,
@@ -88,6 +88,110 @@ class RouteRuntimeTest(unittest.TestCase):
         assert status is not None
         self.assertIn("node", status)
         self.assertIn("ending_leaderboard", status)
+
+
+class RouteAntiRepeatTest(unittest.TestCase):
+    """Consecutive-scene anti-repeat invariant (overnight QA seed, 2026-07-03).
+
+    D narrative repetition's structural root: if the route stalls or backtracks,
+    the GM is asked to narrate the same place twice in a row. The scene's prose
+    location is LLM-set (non-deterministic), but the *route node* is the
+    deterministic anchor that fixes which authored location/beat a main scene is
+    staged at. So the bot-checkable guard is: walking the route turn-by-turn
+    through the live runtime (``advance_route``), each time the current node
+    changes — a new *main scene* — it must move to a genuinely different node in a
+    later layer (a distinct authored location/beat), and no node is ever revisited
+    as a fresh main scene. In-layer repeat turns (same node, ``turns_per_layer``
+    apart) are handled separately by the director's forward-motion directive and
+    ``session_memory`` anti-repeat guidance; this invariant owns the node track.
+    """
+
+    def _main_scene_sequence(
+        self, route_map: dict[str, Any], seed: str, flags: list[str] | None = None
+    ) -> list[str]:
+        """Walk the route across a full loop's turns; return the ordered node ids
+        the player is staged at as *main scenes* (consecutive duplicates collapsed
+        — an unchanged node across a layer's turns is the same scene continuing)."""
+        state: dict[str, Any] = {ROUTE_MAP_KEY: route_map, "flags": list(flags or [])}
+        num_layers = len(route_map["layers"])
+        last_turn = DEFAULT_TURNS_PER_LAYER * num_layers + 2
+        sequence: list[str] = []
+        for turn in range(last_turn + 1):
+            state = advance_route(state, turn_index=turn, seed=seed)
+            current = state[ROUTE_MAP_KEY]["current"]
+            if not sequence or sequence[-1] != current:
+                sequence.append(current)
+        return sequence
+
+    def _location_key(self, node: dict[str, Any]) -> tuple[int, str]:
+        """Deterministic location descriptor for a node: its layer band plus the
+        authored beat/title that fixes where the scene is staged."""
+        descriptor = node.get("beat") or node.get("title") or node.get("arc") or node["type"]
+        return int(node.get("layer", 0)), str(descriptor)
+
+    def test_consecutive_main_scenes_differ_in_node_and_location(self) -> None:
+        for i in range(24):
+            for builder in (build_route_map, build_route_seed):
+                config = load_scenario("neo-seoul").route_map
+                route_map = builder(config, f"anti-repeat-{i}")
+                assert route_map is not None
+                nodes = route_map["nodes"]
+                seq = self._main_scene_sequence(route_map, f"anti-repeat-{i}")
+                self.assertGreaterEqual(
+                    len(seq), 3, f"route should stage several main scenes (seed {i})"
+                )
+                # No node is ever staged twice as a fresh main scene (no backtrack /
+                # revisit) — the whole main-scene sequence is node-distinct.
+                self.assertEqual(
+                    len(seq), len(set(seq)),
+                    f"a route node repeats as a main scene ({builder.__name__} seed {i}): {seq}",
+                )
+                for prev_id, next_id in zip(seq, seq[1:]):
+                    prev, nxt = nodes[prev_id], nodes[next_id]
+                    self.assertNotEqual(
+                        prev_id, next_id,
+                        f"consecutive main scenes share a node ({builder.__name__} seed {i})",
+                    )
+                    # Strictly deeper layer => a different act/location band, so the
+                    # scene can never re-describe the immediately-prior place.
+                    self.assertGreater(
+                        int(nxt.get("layer", 0)), int(prev.get("layer", 0)),
+                        f"main scene did not advance to a later layer "
+                        f"({builder.__name__} seed {i}): {prev_id}->{next_id}",
+                    )
+                    self.assertNotEqual(
+                        self._location_key(prev), self._location_key(nxt),
+                        f"consecutive main scenes share a location "
+                        f"({builder.__name__} seed {i}): {prev_id}->{next_id}",
+                    )
+
+    def test_anti_repeat_holds_when_junctions_are_steered(self) -> None:
+        # Even when the player explicitly picks branches at each junction, the
+        # main-scene sequence must stay node/location non-repeating.
+        seed = "steered"
+        config = load_scenario("neo-seoul").route_map
+        route_map = build_route_map(config, seed)
+        assert route_map is not None
+        nodes = route_map["nodes"]
+        state: dict[str, Any] = {ROUTE_MAP_KEY: route_map, "flags": []}
+        num_layers = len(route_map["layers"])
+        sequence: list[str] = [route_map["current"]]
+        for turn in range(DEFAULT_TURNS_PER_LAYER * num_layers + 2):
+            options = junction_options(state, turn_index=turn)
+            pick = options[-1]["id"] if options else None
+            state = advance_route(state, turn_index=turn, seed=seed, preferred_next=pick)
+            current = state[ROUTE_MAP_KEY]["current"]
+            if sequence[-1] != current:
+                sequence.append(current)
+        self.assertEqual(
+            len(sequence), len(set(sequence)),
+            f"a steered route repeats a main-scene node: {sequence}",
+        )
+        for prev_id, next_id in zip(sequence, sequence[1:]):
+            self.assertGreater(
+                int(nodes[next_id].get("layer", 0)), int(nodes[prev_id].get("layer", 0)),
+                f"steered main scene did not advance a layer: {prev_id}->{next_id}",
+            )
 
 
 class RouteRelationshipTest(unittest.TestCase):

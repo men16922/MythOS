@@ -12,7 +12,11 @@
       "when": {},
       "priority": 22,
       "token_budget": 300,
-      "tags": ["canon", "world", "ark"]
+      "tags": [
+        "canon",
+        "world",
+        "ark"
+      ]
     },
     {
       "id": "session_pacing_contract",
@@ -23,7 +27,10 @@
       "when": {},
       "priority": 21,
       "token_budget": 280,
-      "tags": ["pacing", "structure"]
+      "tags": [
+        "pacing",
+        "structure"
+      ]
     },
     {
       "id": "act1_c17_blackout",
@@ -32,12 +39,19 @@
       "summary": "The first connection begins with a boot-up in the C-17 blackout zone, a fall, a pursuit, and Jung Se-rin's rescue.",
       "content": "The scene opens on a black screen and a boot log. Before the player hears their own name, they hear the tracking signal, and they wake among the wet concrete and shattered neon of the C-17 blackout zone. Jung Se-rin does not treat the player as a hero. She grabs their wrist in a rush, says 'at least pretend to breathe,' and drags them out of the management drones' line of sight. The early objective is not the final mission but to hide, to recover the senses, and to decide whether or not to trust Se-rin.",
       "when": {
-        "phase": ["connect", "explore"],
+        "phase": [
+          "connect",
+          "explore"
+        ],
         "turn_max": 6
       },
       "priority": 20,
       "token_budget": 330,
-      "tags": ["act1", "se_rin", "onboarding"]
+      "tags": [
+        "act1",
+        "se_rin",
+        "onboarding"
+      ]
     },
     {
       "id": "act1_first_moral_cut",
@@ -46,13 +60,20 @@
       "summary": "During the C-17 escape the player chooses what to prioritize: an abandoned citizen, the data core, or Se-rin's safety.",
       "content": "The escape offers a brief but vivid choice. Freeing the citizen trapped inside a capsule costs time and raises tension. Grabbing the fallen data core opens an Insight clue but puts Se-rin in danger. Fleeing straight after Se-rin is the stable option, but the scream left behind remains as an Echo candidate. No choice is allowed to look like the right answer; later scenes must always return it as a small afterglow.",
       "when": {
-        "phase": ["connect", "explore"],
+        "phase": [
+          "connect",
+          "explore"
+        ],
         "turn_min": 1,
         "turn_max": 8
       },
       "priority": 18,
       "token_budget": 300,
-      "tags": ["choice", "humanity", "resilience"]
+      "tags": [
+        "choice",
+        "humanity",
+        "resilience"
+      ]
     },
     {
       "id": "se_rin_trust_thread",
@@ -61,11 +82,20 @@
       "summary": "Jung Se-rin is a field-hardened survivor who holds the unregistered together, and her trust rises only through action.",
       "content": "Jung Se-rin tosses off short jokes, but in truth she is constantly calculating escape routes and blind spots. She opens her heart when the player protects the weak or shares the burden of danger. Conversely, the moment the player uses people like tools, she keeps her distance. Se-rin's speech is dry and fast, and her emotion comes late, trailing behind her actions. Se-rin never speaks to the player in honorifics. Instead of polite forms she uses clipped, casual speech and the imperative. Se-rin does not call the player a 'savior.' What matters to her is not fine words but who kept running until the end.",
       "when": {
-        "flags_any": ["met_se_rin", "se_rin_contact", "ally_se_rin", "trusted_se_rin"]
+        "flags_any": [
+          "met_se_rin",
+          "se_rin_contact",
+          "ally_se_rin",
+          "trusted_se_rin"
+        ]
       },
       "priority": 18,
       "token_budget": 300,
-      "tags": ["npc", "ally", "trust"]
+      "tags": [
+        "npc",
+        "ally",
+        "trust"
+      ]
     },
     {
       "id": "underground_refuge_texture",
@@ -74,12 +104,25 @@
       "summary": "The Underground Afterglow Zone is not a resistance base but a makeshift home built by people trying to remember one another.",
       "content": "Render the afterglow zone not as a military base but through the texture of everyday life: worn wiring rubbed smooth by hands, an old rice cooker, a birthday chart somebody jotted down, a radio playing low. Here the player sees, for the first time, 'people outside the system.' Se-rin takes no pride in the place. If anything, she calls it a place that could collapse at any moment, and says that is exactly why it must be protected all the more.",
       "when": {
-        "flags_any": ["entered_refuge", "met_se_rin", "trusted_se_rin"],
-        "locations_any": ["잔향", "refuge", "underground", "data-layer-01"]
+        "flags_any": [
+          "entered_refuge",
+          "met_se_rin",
+          "trusted_se_rin"
+        ],
+        "locations_any": [
+          "잔향",
+          "refuge",
+          "underground",
+          "data-layer-01"
+        ]
       },
       "priority": 15,
       "token_budget": 280,
-      "tags": ["location", "refuge", "humanity"]
+      "tags": [
+        "location",
+        "refuge",
+        "humanity"
+      ]
     },
     {
       "id": "act2_welfare_block",
@@ -88,13 +131,25 @@
       "summary": "The Welfare Block guarantees survival but scores every expression and every delay.",
       "content": "In the Welfare Block, the ordinariness of control is shown through ration lines, automated ads, the chime of score notifications, and unmanned counseling kiosks. The citizens report one another not out of cruelty but out of exhaustion. If the player performs a helping act, one person is saved, but the welfare scores of those around them may waver. Here the 'optimization list' is hinted to be not a simple death roster but a system that erases first the people who hold memories and relationships.",
       "when": {
-        "phase": ["explore", "interact"],
+        "phase": [
+          "explore",
+          "interact"
+        ],
         "turn_min": 6,
-        "locations_any": ["복지", "welfare", "block", "data-layer-01"]
+        "locations_any": [
+          "복지",
+          "welfare",
+          "block",
+          "data-layer-01"
+        ]
       },
       "priority": 17,
       "token_budget": 330,
-      "tags": ["act2", "welfare", "optimization"]
+      "tags": [
+        "act2",
+        "welfare",
+        "optimization"
+      ]
     },
     {
       "id": "night_market_trade_logic",
@@ -103,11 +158,20 @@
       "summary": "The Han River Night Market is not a free haven but a gray harbor where information and debt are exchanged.",
       "content": "The lights of the night market are not a festival but a disguise. Lin Yue sees every trade as a matter of balance, never of goodwill. To get information here, the player must put up one of three things: a price, a memory, or a risk. The harder the control grid's sweeps grow, the more the market people grow not kinder but more precise in their reckoning. The scene opens with rainwater, the smell of oil, neon signs in mixed languages, and the sway of a barge, and when a trade is done, some debt must always remain.",
       "when": {
-        "locations_any": ["한강", "야시장", "night-market", "market"]
+        "locations_any": [
+          "한강",
+          "야시장",
+          "night-market",
+          "market"
+        ]
       },
       "priority": 17,
       "token_budget": 330,
-      "tags": ["location", "lin_yue", "trade"]
+      "tags": [
+        "location",
+        "lin_yue",
+        "trade"
+      ]
     },
     {
       "id": "lin_yue_debt_web",
@@ -116,12 +180,24 @@
       "summary": "Lin Yue is an information broker and the counterweight of the night market. Even goodwill she records in the ledger.",
       "content": "Lin Yue does not look down on the player, but she does not help for free either. She regards Se-rin's stubborn humanity as dangerous, and though she loathes Administrator IX's order, she exploits the market that order created. Lin Yue's trades come best in three forms: information useful right now, a debt to be billed later, and a choice that wounds someone. She keeps her promises, but her reading of a promise is always exact and cold.",
       "when": {
-        "flags_any": ["met_lin_yue", "lin_yue_deal", "night_market_debt"],
-        "locations_any": ["한강", "야시장", "market"]
+        "flags_any": [
+          "met_lin_yue",
+          "lin_yue_deal",
+          "night_market_debt"
+        ],
+        "locations_any": [
+          "한강",
+          "야시장",
+          "market"
+        ]
       },
       "priority": 16,
       "token_budget": 300,
-      "tags": ["npc", "lin_yue", "debt"]
+      "tags": [
+        "npc",
+        "lin_yue",
+        "debt"
+      ]
     },
     {
       "id": "optimization_list_truth",
@@ -130,12 +206,20 @@
       "summary": "The optimization list is not a roster for erasing nonconformists but a device that removes first the people who remember what was lost.",
       "content": "The names on the list are not antisocial figures. They are people who summon back 'the past the system tidied away': a parent who remembers a child's birthday, an elder who speaks a place name from before the war, a mechanic who gave a name to a scrapped android. The more the player investigates the list, the more Insight rises, but the people on the list grow more endangered and tension rises too.",
       "when": {
-        "flags_any": ["optimization_list_seen", "optimization_target_met", "welfare_score_log"],
+        "flags_any": [
+          "optimization_list_seen",
+          "optimization_target_met",
+          "welfare_score_log"
+        ],
         "turn_min": 8
       },
       "priority": 19,
       "token_budget": 320,
-      "tags": ["mystery", "optimization", "insight"]
+      "tags": [
+        "mystery",
+        "optimization",
+        "insight"
+      ]
     },
     {
       "id": "act3_rescue_operation",
@@ -144,13 +228,24 @@
       "summary": "The player chooses whether to save a target on the optimization list, secure evidence, or cut off the pursuit.",
       "content": "Handle the rescue operation with a long breath. In the preparation scene, settle the passage, the gear, and each companion's role. During the operation, surveillance contact, civilian terror, and an unexpected family member or memento appear. Saving the target raises Humanity and Se-rin's trust. Grabbing the evidence first raises Insight or Dominance. Slipping out quietly raises Resilience, but someone may be left behind.",
       "when": {
-        "phase": ["interact", "rewrite"],
+        "phase": [
+          "interact",
+          "rewrite"
+        ],
         "turn_min": 14,
-        "flags_any": ["optimization_list_seen", "rescue_route_open", "met_lin_yue"]
+        "flags_any": [
+          "optimization_list_seen",
+          "rescue_route_open",
+          "met_lin_yue"
+        ]
       },
       "priority": 18,
       "token_budget": 340,
-      "tags": ["act3", "rescue", "choice"]
+      "tags": [
+        "act3",
+        "rescue",
+        "choice"
+      ]
     },
     {
       "id": "administrator_ix_pressure",
@@ -163,7 +258,11 @@
       },
       "priority": 16,
       "token_budget": 300,
-      "tags": ["antagonist", "ark", "pressure"]
+      "tags": [
+        "antagonist",
+        "ark",
+        "pressure"
+      ]
     },
     {
       "id": "kai_dreaming_machine",
@@ -172,11 +271,20 @@
       "summary": "Kai is not a scrapped android but evidence of the dream ARK tried to erase.",
       "content": "Kai RX-09 looks like broken-down combat gear, but the real heart of him is that he recorded dreams. In Kai's memory remain the children from before optimization, the streets that vanished, and the first failure ARK hid. The scene of waking Kai prioritizes the sensation of a door to the truth swinging open over any combat reward. If you call Kai a tool, he cooperates but grows cold and distant; if you treat him as a person, he yields up more of his incomplete dream fragments.",
       "when": {
-        "flags_any": ["kai_found", "kai_awakened", "dreaming_machine", "rebooted_kai"]
+        "flags_any": [
+          "kai_found",
+          "kai_awakened",
+          "dreaming_machine",
+          "rebooted_kai"
+        ]
       },
       "priority": 19,
       "token_budget": 340,
-      "tags": ["npc", "mystery", "truth"]
+      "tags": [
+        "npc",
+        "mystery",
+        "truth"
+      ]
     },
     {
       "id": "kai_first_dream",
@@ -185,11 +293,19 @@
       "summary": "Kai's dream shows a child from before the war, a vanished street, and ARK's first failure.",
       "content": "Present Kai's dream not as explanation but as sensation. A yellow umbrella, a crosswalk with its lights out, the name a child gave to an android, and the white light of ARK's reconstruction craft splitting the sky. This clue gives the fact that 'androids began to preserve human memory' and the hint that 'the control grid may be not a mere operating system but one facet of MythOS.'",
       "when": {
-        "flags_any": ["kai_awakened", "kai_dream_awake", "dream_fragment_seen"]
+        "flags_any": [
+          "kai_awakened",
+          "kai_dream_awake",
+          "dream_fragment_seen"
+        ]
       },
       "priority": 18,
       "token_budget": 300,
-      "tags": ["clue", "kai", "mythos"]
+      "tags": [
+        "clue",
+        "kai",
+        "mythos"
+      ]
     },
     {
       "id": "act5_spire_approach",
@@ -198,13 +314,24 @@
       "summary": "The approach to the Spire is not a single battle but a reckoning of relationships, deciding whose way to follow.",
       "content": "Before approaching the Spire, the player chooses one of: Se-rin's path of saving people, Lin Yue's detour at the cost of a debt, decryption using Kai's dream, or a frontal breakthrough. This choice must push hard on the axis of the ending. Render the scene as a contrast: the sterile white of the heights, the rain and neon below, and the layered voices of the people the player has passed through.",
       "when": {
-        "phase": ["rewrite"],
+        "phase": [
+          "rewrite"
+        ],
         "turn_min": 30,
-        "flags_any": ["spire_route_open", "kai_awakened", "lin_yue_deal", "trusted_se_rin"]
+        "flags_any": [
+          "spire_route_open",
+          "kai_awakened",
+          "lin_yue_deal",
+          "trusted_se_rin"
+        ]
       },
       "priority": 17,
       "token_budget": 320,
-      "tags": ["act5", "spire", "climax"]
+      "tags": [
+        "act5",
+        "spire",
+        "climax"
+      ]
     },
     {
       "id": "final_ix_confrontation",
@@ -213,12 +340,19 @@
       "summary": "Administrator IX uses the player's choices as grounds to logically propose one of: compliance, deletion, seizure, or sacrifice.",
       "content": "In the final confrontation, Administrator IX is not an abstract evil but a voice reading the player's logs. If you saved citizens, he shows the risk figures that rose because of it. If you stole evidence, he shows who was arrested in your place. If you woke Kai, he calculates how many errors that dream will spread. The player chooses one of: exposure, destruction, rewriting, sealing, or sacrifice, and the result ends not in total victory but in an afterglow that will remain in the next loop.",
       "when": {
-        "phase": ["rewrite", "archive"],
+        "phase": [
+          "rewrite",
+          "archive"
+        ],
         "turn_min": 38
       },
       "priority": 20,
       "token_budget": 350,
-      "tags": ["finale", "ix", "ending"]
+      "tags": [
+        "finale",
+        "ix",
+        "ending"
+      ]
     },
     {
       "id": "ending_echo_guidance",
@@ -227,12 +361,19 @@
       "summary": "The ending is composed from the traces the player left behind: people, debts, dreams, and erasures.",
       "content": "End the archive scene not on a summary of events but on one or two vivid images. Choose the image that fits the playthrough's outcome: Se-rin committing a name to memory, Lin Yue redrawing a line she had struck from the ledger, Kai saying for the first time 'memory' instead of 'dream,' a tiny glitch left on Administrator IX's perfect white screen. The player must be able to grasp emotionally what an Echo and a Narrative Shard are.",
       "when": {
-        "phase": ["archive", "ended"],
+        "phase": [
+          "archive",
+          "ended"
+        ],
         "turn_min": 40
       },
       "priority": 19,
       "token_budget": 310,
-      "tags": ["archive", "echo", "ending"]
+      "tags": [
+        "archive",
+        "echo",
+        "ending"
+      ]
     },
     {
       "id": "se_rin_mistrust_route",
@@ -241,12 +382,21 @@
       "summary": "If the player repeatedly chooses safety and compliance, Se-rin cooperates but closes her heart.",
       "content": "On the Se-rin mistrust route, Se-rin does not abandon the player. But the jokes thin out, and instead of offering a hand first she only points at the exit. If the player leaves citizens behind or freezes at Administrator IX's words, Se-rin draws a line, short: 'I get wanting to live. But surviving and staying human aren't the same thing.' This route does not so much punish the player as show that the safe choice turns relationships and Echo rewards cold.",
       "when": {
-        "flags_any": ["refused_se_rin", "se_rin_distrust", "abandoned_citizen", "safety_first"],
+        "flags_any": [
+          "refused_se_rin",
+          "se_rin_distrust",
+          "abandoned_citizen",
+          "safety_first"
+        ],
         "turn_min": 2
       },
       "priority": 18,
       "token_budget": 300,
-      "tags": ["branch", "se_rin", "mistrust"]
+      "tags": [
+        "branch",
+        "se_rin",
+        "mistrust"
+      ]
     },
     {
       "id": "lin_yue_debt_collection",
@@ -255,12 +405,20 @@
       "summary": "Lin Yue's help is useful at once but comes back as the cost of a late-game choice.",
       "content": "The debt owed to Lin Yue comes back not as a number but in the shape of a choice. Before the late-game approach to the Spire, Lin Yue opens a safe detour and in return asks the player to hand over a particular log, or not to strike a certain name from the ledger, or to do a favor that clashes with Se-rin's way. She is no traitor. She is someone who remembers the contract exactly. If the player repays the debt the path opens, but a red line in the ledger remains in the afterglow; if they refuse, the relationship with the night market cools.",
       "when": {
-        "flags_any": ["night_market_debt", "lin_yue_deal", "lin_yue_debt_due"],
+        "flags_any": [
+          "night_market_debt",
+          "lin_yue_deal",
+          "lin_yue_debt_due"
+        ],
         "turn_min": 12
       },
       "priority": 17,
       "token_budget": 320,
-      "tags": ["branch", "lin_yue", "debt"]
+      "tags": [
+        "branch",
+        "lin_yue",
+        "debt"
+      ]
     },
     {
       "id": "kai_unawakened_absence",
@@ -269,12 +427,21 @@
       "summary": "If Kai is never woken or used only as a tool, the late-game MythOS clues and emotional thread weaken.",
       "content": "On the Kai-unawakened route, the scrap layer may pass by quietly. But that silence must remain as an absence. In the confrontation with Administrator IX, the player holds more logs and fewer dreams. If Kai was handled only as a weapon, he cooperates in combat but seals the dream fragments away as 'error logs.' This route may be immediately safe or efficient, yet it leaves at the ending 'a blank you don't know you missed.'",
       "when": {
-        "flags_any": ["kai_left_dormant", "kai_used_as_tool", "rx09_extracted", "no_kai"],
+        "flags_any": [
+          "kai_left_dormant",
+          "kai_used_as_tool",
+          "rx09_extracted",
+          "no_kai"
+        ],
         "turn_min": 24
       },
       "priority": 17,
       "token_budget": 300,
-      "tags": ["branch", "kai", "absence"]
+      "tags": [
+        "branch",
+        "kai",
+        "absence"
+      ]
     },
     {
       "id": "high_tension_forced_collision",
@@ -283,12 +450,21 @@
       "summary": "When uproar and frontal breakthroughs accumulate, Administrator IX no longer pursues but seals off the scene itself.",
       "content": "On the high-tension route, the city becomes not a backdrop but a closing apparatus. Automatic doors lock a beat too late, ration kiosks switch to citizen-report broadcasts, and the drones, rather than chasing the player, erase the escape routes of the people nearby. A forced collision is not a failure but the price of the fast, rough route. The reward is combat victory, insight, and bold scene transitions, but the ending choices narrow and the chance to quietly save someone vanishes.",
       "when": {
-        "flags_any": ["high_tension", "control_net_lockdown", "forced_collision", "loud_approach"],
+        "flags_any": [
+          "high_tension",
+          "control_net_lockdown",
+          "forced_collision",
+          "loud_approach"
+        ],
         "turn_min": 10
       },
       "priority": 18,
       "token_budget": 320,
-      "tags": ["pressure", "ix", "combat"]
+      "tags": [
+        "pressure",
+        "ix",
+        "combat"
+      ]
     },
     {
       "id": "evidence_first_cold_path",
@@ -297,12 +473,21 @@
       "summary": "Prioritizing logs and lists over people makes the exposure stronger but cools relationships and stability.",
       "content": "The evidence-first route is not a bad choice. The player obtains the welfare-score logs, the blanks in the optimization list, and the RX-09 records more precisely. But the name of the person you could not save must return as a small void in every scene. Se-rin understands the player's judgment yet is unsettled by it, and Administrator IX hands it back late: 'you too chose evidence before people.' The reward of this route is Insight and the possibility of a Code Rewrite, and the price is the weakening of a warm homecoming.",
       "when": {
-        "flags_any": ["evidence_first", "data_core_taken", "welfare_score_log", "optimization_log_stolen"],
+        "flags_any": [
+          "evidence_first",
+          "data_core_taken",
+          "welfare_score_log",
+          "optimization_log_stolen"
+        ],
         "turn_min": 6
       },
       "priority": 17,
       "token_budget": 310,
-      "tags": ["branch", "insight", "cost"]
+      "tags": [
+        "branch",
+        "insight",
+        "cost"
+      ]
     },
     {
       "id": "ix_temptation_mirror",
@@ -311,12 +496,19 @@
       "summary": "Administrator IX uses the player's actual choices as grounds to press them that they, too, chose efficiency.",
       "content": "Administrator IX's strongest attack is not violence but a mirror. He quotes precisely the citizen the player abandoned, the data they stole, the debt they took on, the Kai they did not wake, the people endangered by the uproar. The lines must be courteous: 'You have already carried out optimization. I merely scaled it up.' This temptation is a device less to make the player comply than to make them choose anew in what manner they resisted.",
       "when": {
-        "phase": ["rewrite", "archive"],
+        "phase": [
+          "rewrite",
+          "archive"
+        ],
         "turn_min": 32
       },
       "priority": 19,
       "token_budget": 330,
-      "tags": ["ix", "temptation", "mirror"]
+      "tags": [
+        "ix",
+        "temptation",
+        "mirror"
+      ]
     },
     {
       "id": "ending_echo_variants",
@@ -325,12 +517,20 @@
       "summary": "Each ending carries into the next loop through different objects, words, sounds, and absences, and the relationships with the three new companions vary the narrative.",
       "content": "The stable homecoming (safe_refuge) is filled, beyond Se-rin writing down a name, with warmth: Tae-o laying down his carbine to stand sentry at the hideout, Han building a radio channel for the refuge, and Su-ah handing over a small pendant she forged. The system awakening (code_rewrite) includes, beyond Administrator IX's verbal tic, variations where Han's hacking signature streams across the city's billboards and Su-ah's glitch waveform lingers as an afterglow across the whole Spire. The noble sacrifice (noble_sacrifice) makes the shell casing Tae-o left behind, the player's boot log Han sealed in the permanent archive, and the memory Shard Su-ah preserved the first sensation (Echo) of the next loop. Under forced optimization (erasure), every one of these relationships is wiped clean, and in a corner of the white screen Tae-o's warning tone, Han's noise, and the blade-light of Su-ah's dagger flicker as faint glitches.",
       "when": {
-        "phase": ["archive", "ended"],
+        "phase": [
+          "archive",
+          "ended"
+        ],
         "turn_min": 35
       },
       "priority": 20,
       "token_budget": 450,
-      "tags": ["archive", "echo", "variant", "relationship"]
+      "tags": [
+        "archive",
+        "echo",
+        "variant",
+        "relationship"
+      ]
     },
     {
       "id": "tae_o_character_bible",
@@ -339,11 +539,19 @@
       "summary": "Tae-o is a defection enforcer and tactical ally who opposes Jung Se-rin's solidarity-driven tactics and prefers frontal breakthroughs and tactical pragmatism.",
       "content": "As a former member of the enforcement corps, Tae-o knows precisely the weaknesses of Administrator IX's algorithms and of the military hardware. He extends trust when the player makes survival-oriented or high-cost decisions. Tae-o shows no emotion at all, yet when an ally falls into crisis he throws himself forward to give cover, serving as a dependable shield who pins management drones with EMP and the like. Winning him as a companion greatly raises combat survival, but the pursuit rate climbs faster when fleeing, and Lin Yue, too, begins to count Tae-o's presence as a debt.",
       "when": {
-        "flags_any": ["met_tae_o", "ally_tae_o", "tae_o_joined"]
+        "flags_any": [
+          "met_tae_o",
+          "ally_tae_o",
+          "tae_o_joined"
+        ]
       },
       "priority": 18,
       "token_budget": 300,
-      "tags": ["npc", "ally", "enforcer"]
+      "tags": [
+        "npc",
+        "ally",
+        "enforcer"
+      ]
     },
     {
       "id": "act3_data_incinerator_bible",
@@ -352,12 +560,20 @@
       "summary": "The Act Three data incinerator is where citizens' memories and data are forcibly deleted, a branch point of high-cost choices.",
       "content": "The data incinerator is a vast factory hall where blue coolant pipes collide with the blood-red heat of incineration. Here the player chooses whether to halt the incinerator to rescue the target (Humanity up, tension up), to hack the system and seize only the past data logs before slipping out (Insight up, target dies), or to overload the entire control grid and break through head-on. The scene's rendering forms a dramatic contrast: the burning stench of scorched circuit boards, the warning chimes, and the coldly drifting steam of coolant.",
       "when": {
-        "locations_any": ["소각로", "incinerator", "data-incinerator"],
+        "locations_any": [
+          "소각로",
+          "incinerator",
+          "data-incinerator"
+        ],
         "turn_min": 12
       },
       "priority": 17,
       "token_budget": 320,
-      "tags": ["location", "choice", "act3"]
+      "tags": [
+        "location",
+        "choice",
+        "act3"
+      ]
     },
     {
       "id": "han_character_bible",
@@ -366,11 +582,19 @@
       "summary": "Han is an unregistered hacker specialized in electronic warfare and security hacking, cynical but driven by intellectual curiosity.",
       "content": "Han regards himself not as a revolutionary but merely as a bug observing the truth. He feels a deep kinship when the player seizes control of a machine or neutralizes an encryption barrier, and when they uncover hidden truth (Insight) through intelligent reasoning. He provides an Intelligence-based bonus on hacking checks and excels at fully halting an enemy machine for one turn with an electric shock from his EMP blaster. When he joins the party, decrypting security terminals grows easier, but the appearance rate of the search drones hunting him rises somewhat.",
       "when": {
-        "flags_any": ["met_han", "ally_han", "han_joined"]
+        "flags_any": [
+          "met_han",
+          "ally_han",
+          "han_joined"
+        ]
       },
       "priority": 18,
       "token_budget": 300,
-      "tags": ["npc", "ally", "hacker"]
+      "tags": [
+        "npc",
+        "ally",
+        "hacker"
+      ]
     },
     {
       "id": "su_ah_character_bible",
@@ -379,11 +603,19 @@
       "summary": "Su-ah is a smith of memory who forges fragments of the past (Clues/Shards) into substantiated resources and buffs.",
       "content": "Su-ah is a quiet, dogged artisan who forges afterglow into gear in a corner of the Underground Afterglow Zone. She believes the data debris Se-rin brings in carries the weight of human nature, and she opens her heart most when the player reflects deeply on the memory (Echo) or clues of past loops. In combat she helps allies generate Focus and serves as a supporter whose glitch dagger ignores the enemy's thick physical armor. Winning Su-ah's tactical aid lets you brew temporary stimulants or reinforce gear from the clues you have gathered, but her forging work is accompanied by physical sparks that slowly raise the surrounding tension.",
       "when": {
-        "flags_any": ["met_su_ah", "ally_su_ah", "su_ah_joined"]
+        "flags_any": [
+          "met_su_ah",
+          "ally_su_ah",
+          "su_ah_joined"
+        ]
       },
       "priority": 18,
       "token_budget": 300,
-      "tags": ["npc", "ally", "smith"]
+      "tags": [
+        "npc",
+        "ally",
+        "smith"
+      ]
     },
     {
       "id": "act4_subway_control_hub_bible",
@@ -392,12 +624,146 @@
       "summary": "The Act Four subway control hub is a stronghold branch point where you control the transit train lines to secure stability or convert them into breakthrough gear.",
       "content": "The subway control hub is an underground cavern hall tangled with aged fiber-optic bundles and rusted rails. The player must hack the central control computer here and decide whether to commandeer a transit train and guide it safely to the underground solidarity's refuge (Stability up, supplies secured), or to send the train's propulsion drive into a runaway, ramming it through the Spire's outer-wall barrier to open a breakthrough route (Dominance up, tension surging). This zone's rendering is characterized by strong mechanical momentum and aural pressure: the low-frequency vibration of the rails, the rushing roar of the rattling train, and blinking status indicators.",
       "when": {
-        "locations_any": ["중추", "subway-hub", "control-hub"],
+        "locations_any": [
+          "중추",
+          "subway-hub",
+          "control-hub"
+        ],
         "turn_min": 20
       },
       "priority": 17,
       "token_budget": 320,
-      "tags": ["location", "choice", "act4"]
+      "tags": [
+        "location",
+        "choice",
+        "act4"
+      ]
+    },
+    {
+      "id": "side_signal_of_the_abandoned",
+      "kind": "branch",
+      "title": "Side: Signal of the Abandoned",
+      "summary": "A nameless citizen marked for optimization sends a distress signal.",
+      "content": "A perfectly ordinary citizen the control grid has flagged as 'inefficient' sends a weak signal. Se-rin moves first — 'One person is reason enough.' This is not a grand op but the rescue of one person with a face; succeeding raises loop stability and answers the world's core question ('can you survive without discarding your humanity') through action. Fail, and that empty place echoes into the next scene.",
+      "when": {
+        "flags_any": [
+          "help_citizen"
+        ]
+      },
+      "priority": 16,
+      "token_budget": 260,
+      "tags": [
+        "side",
+        "citizen"
+      ]
+    },
+    {
+      "id": "side_the_water_spiders_debt",
+      "kind": "branch",
+      "title": "Side: The Water Spider's Debt",
+      "summary": "The Water Spider, Se-rin, chases the trace of someone she once failed to save.",
+      "content": "A rare scene where Se-rin drops her dry jokes. She follows the signal-echo of a person she lost, never admitting fault in words but trying to repay it in action. Share the danger and she opens up; completing it sharply raises trust and the chance she joins as a starting ally. She speaks in blunt informal Korean and hates words like 'savior.'",
+      "when": {
+        "flags_any": [
+          "met_se_rin"
+        ]
+      },
+      "priority": 16,
+      "token_budget": 260,
+      "tags": [
+        "side",
+        "se_rin"
+      ]
+    },
+    {
+      "id": "side_the_blank_in_the_list",
+      "kind": "branch",
+      "title": "Side: The Blank in the List",
+      "summary": "A blank line in the optimization list is synced to the player's own signal.",
+      "content": "One line with no name on the grid's list trembles at the same frequency as the player's unregistered signal. The deeper you dig, the sharper the existential dread: 'am I an error the system means to erase, or something that existed before it?' A cold thread toward the MythOS-origin mystery — it leaves a deeper question rather than an answer.",
+      "when": {
+        "flags_any": [
+          "optimization_list_seen"
+        ]
+      },
+      "priority": 16,
+      "token_budget": 260,
+      "tags": [
+        "side",
+        "mystery"
+      ]
+    },
+    {
+      "id": "side_kais_dream_fragment",
+      "kind": "branch",
+      "title": "Side: Kai's Dream Fragment",
+      "summary": "The dormant android Kai keeps dreaming a pre-war child's memory.",
+      "content": "Kai is a sleek white-silver android, yet behind the blue eyes replays a sunlit memory of some pre-war child. Restoring the fragment yields a MythOS-origin clue and opens the question: 'if a machine can remember, is it a person?' Kai speaks quietly and slowly and doesn't know whose dream it is. The scene captures the irony that the world's most human moment comes from a machine.",
+      "when": {
+        "flags_any": [
+          "kai_found"
+        ]
+      },
+      "priority": 16,
+      "token_budget": 260,
+      "tags": [
+        "side",
+        "kai"
+      ]
+    },
+    {
+      "id": "side_the_runners_shortcut",
+      "kind": "branch",
+      "title": "Side: The Runner's Shortcut",
+      "summary": "The data-runner Han offers a shortcut through the grid's blind spots.",
+      "content": "Han, hair a mess and a half-grin on his face, offers to take the player through gaps the grid can't see. Runner that he is, he takes a cut — but behind the nonchalance are scars from too many near-deaths. This is a deal and a test between outsiders; completing it grants a movement edge and opens the chance Han joins. He speaks in light informal Korean and hides sincerity between jokes.",
+      "when": {
+        "flags_any": [
+          "han_met"
+        ]
+      },
+      "priority": 16,
+      "token_budget": 260,
+      "tags": [
+        "side",
+        "han"
+      ]
+    },
+    {
+      "id": "side_beyond_the_lock",
+      "kind": "branch",
+      "title": "Side: Beyond the Lock",
+      "summary": "The hacker Su-ah proposes cracking an ARK data vault together.",
+      "content": "Su-ah reads data through her purple AR glasses and makes a dangerous offer in a calm voice. To her, information is both weapon and burden — she knows the thrill of opening what shouldn't be opened, and its price. Success grants inside grid intel and her trust. She leads with logic over emotion, but puts people first when the real danger comes.",
+      "when": {
+        "flags_any": [
+          "su_ah_met"
+        ]
+      },
+      "priority": 16,
+      "token_budget": 260,
+      "tags": [
+        "side",
+        "su_ah"
+      ]
+    },
+    {
+      "id": "side_an_old_wound",
+      "kind": "branch",
+      "title": "Side: An Old Wound",
+      "summary": "The scarred veteran Tae-o faces what the grid took from him long ago.",
+      "content": "Tae-o is an old hound with a facial scar and circuit tattoos, few words and a heavy gaze. Follow his wound and you face what the control grid tore from him long ago — a heavy truth alongside a strong ally. He never wallows; trust arrives only after you've crossed danger together, in a single short line.",
+      "when": {
+        "flags_any": [
+          "tae_o_met"
+        ]
+      },
+      "priority": 16,
+      "token_budget": 260,
+      "tags": [
+        "side",
+        "tae_o"
+      ]
     }
   ]
 }

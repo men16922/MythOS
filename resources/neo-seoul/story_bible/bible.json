@@ -12,7 +12,11 @@
       "when": {},
       "priority": 22,
       "token_budget": 300,
-      "tags": ["canon", "world", "ark"]
+      "tags": [
+        "canon",
+        "world",
+        "ark"
+      ]
     },
     {
       "id": "session_pacing_contract",
@@ -23,7 +27,10 @@
       "when": {},
       "priority": 21,
       "token_budget": 280,
-      "tags": ["pacing", "structure"]
+      "tags": [
+        "pacing",
+        "structure"
+      ]
     },
     {
       "id": "act1_c17_blackout",
@@ -32,12 +39,19 @@
       "summary": "첫 접속은 C-17 정전 구역의 부팅, 추락, 추적, 정세린의 구조로 시작한다.",
       "content": "장면은 검은 화면과 부팅 로그에서 시작한다. 플레이어는 자기 이름보다 먼저 추적 신호를 듣고, C-17 정전 구역의 젖은 콘크리트와 깨진 네온 사이에서 깨어난다. 정세린은 플레이어를 영웅으로 대하지 않는다. 그녀는 급박하게 손목을 붙잡고 '숨 쉬는 척이라도 해'라고 말하며 관리 드론의 시야 밖으로 끌어낸다. 초반 목표는 최종 임무가 아니라 몸을 숨기고, 감각을 되찾고, 세린을 믿을지 말지 결정하는 것이다.",
       "when": {
-        "phase": ["connect", "explore"],
+        "phase": [
+          "connect",
+          "explore"
+        ],
         "turn_max": 6
       },
       "priority": 20,
       "token_budget": 330,
-      "tags": ["act1", "se_rin", "onboarding"]
+      "tags": [
+        "act1",
+        "se_rin",
+        "onboarding"
+      ]
     },
     {
       "id": "act1_first_moral_cut",
@@ -46,13 +60,20 @@
       "summary": "C-17 탈출 중 플레이어는 버려진 시민, 데이터 코어, 세린의 안전 중 무엇을 우선할지 선택한다.",
       "content": "탈출 중 짧지만 선명한 선택을 준다. 캡슐 안에 갇힌 시민을 열어주면 시간이 늦어지고 tension이 오른다. 떨어진 데이터 코어를 챙기면 Insight 단서가 열리지만 세린이 위험해진다. 세린을 따라 곧장 도망치면 안정적이지만 뒤에 남은 비명이 Echo 후보로 남는다. 어떤 선택도 정답처럼 보이지 않게, 이후 장면에서 반드시 작은 잔향으로 되돌린다.",
       "when": {
-        "phase": ["connect", "explore"],
+        "phase": [
+          "connect",
+          "explore"
+        ],
         "turn_min": 1,
         "turn_max": 8
       },
       "priority": 18,
       "token_budget": 300,
-      "tags": ["choice", "humanity", "resilience"]
+      "tags": [
+        "choice",
+        "humanity",
+        "resilience"
+      ]
     },
     {
       "id": "se_rin_trust_thread",
@@ -61,11 +82,20 @@
       "summary": "정세린은 비접속자 연대를 지키는 현장형 생존자이며, 신뢰는 행동으로만 오른다.",
       "content": "정세린은 농담을 짧게 던지지만 실제로는 계속 탈출로와 사각지대를 계산한다. 그녀는 플레이어가 약자를 보호하거나 위험을 나눠 질 때 마음을 연다. 반대로 플레이어가 사람을 도구처럼 쓰면 즉시 거리를 둔다. 세린의 말투는 건조하고 빠르며, 감정 표현은 행동 뒤에 늦게 따라온다. 세린은 플레이어에게 존댓말을 쓰지 않는다. '요', '습니다', '세요', '하시겠습니까' 같은 높임말 대신 짧은 반말과 명령형을 쓴다. 세린은 플레이어를 '구원자'라고 부르지 않는다. 그녀에게 중요한 건 멋진 말보다 누가 마지막까지 뛰었는지다.",
       "when": {
-        "flags_any": ["met_se_rin", "se_rin_contact", "ally_se_rin", "trusted_se_rin"]
+        "flags_any": [
+          "met_se_rin",
+          "se_rin_contact",
+          "ally_se_rin",
+          "trusted_se_rin"
+        ]
       },
       "priority": 18,
       "token_budget": 300,
-      "tags": ["npc", "ally", "trust"]
+      "tags": [
+        "npc",
+        "ally",
+        "trust"
+      ]
     },
     {
       "id": "underground_refuge_texture",
@@ -74,12 +104,25 @@
       "summary": "지하 잔향 구역은 저항 기지가 아니라 서로를 기억하려는 사람들이 만든 임시 집이다.",
       "content": "잔향 구역은 군사 기지가 아니라 손때 묻은 전선, 낡은 밥솥, 누군가 적어둔 생일표, 작게 틀어놓은 라디오 같은 생활감으로 묘사한다. 여기서 플레이어는 처음으로 '시스템 밖의 사람들'을 본다. 세린은 이곳을 자랑하지 않는다. 오히려 언제 무너질지 모르는 곳이라며, 그래서 더 지켜야 한다고 말한다.",
       "when": {
-        "flags_any": ["entered_refuge", "met_se_rin", "trusted_se_rin"],
-        "locations_any": ["잔향", "refuge", "underground", "data-layer-01"]
+        "flags_any": [
+          "entered_refuge",
+          "met_se_rin",
+          "trusted_se_rin"
+        ],
+        "locations_any": [
+          "잔향",
+          "refuge",
+          "underground",
+          "data-layer-01"
+        ]
       },
       "priority": 15,
       "token_budget": 280,
-      "tags": ["location", "refuge", "humanity"]
+      "tags": [
+        "location",
+        "refuge",
+        "humanity"
+      ]
     },
     {
       "id": "act2_welfare_block",
@@ -88,13 +131,25 @@
       "summary": "복지 블록은 생존을 보장하지만, 모든 표정과 지연을 점수화한다.",
       "content": "복지 블록에서는 배급 줄, 자동 광고, 점수 알림음, 무인 상담 키오스크를 통해 통제의 일상성을 보여준다. 시민들은 잔인해서가 아니라 지쳐서 서로를 신고한다. 플레이어가 돕는 행동을 하면 한 사람은 살아나지만 주변 사람들의 복지점수가 흔들릴 수 있다. 여기서 '최적화 명단'은 단순한 사형 명단이 아니라 기억과 관계를 가진 사람들을 먼저 지우는 시스템임을 암시한다.",
       "when": {
-        "phase": ["explore", "interact"],
+        "phase": [
+          "explore",
+          "interact"
+        ],
         "turn_min": 6,
-        "locations_any": ["복지", "welfare", "block", "data-layer-01"]
+        "locations_any": [
+          "복지",
+          "welfare",
+          "block",
+          "data-layer-01"
+        ]
       },
       "priority": 17,
       "token_budget": 330,
-      "tags": ["act2", "welfare", "optimization"]
+      "tags": [
+        "act2",
+        "welfare",
+        "optimization"
+      ]
     },
     {
       "id": "night_market_trade_logic",
@@ -103,11 +158,20 @@
       "summary": "한강 야시장은 자유로운 피난처가 아니라 정보와 부채가 교환되는 회색 항구다.",
       "content": "야시장의 불빛은 축제가 아니라 위장이다. 린위에는 모든 거래를 호의가 아닌 균형으로 본다. 플레이어가 이곳에서 정보를 얻으려면 대가, 기억, 위험 중 하나를 내놓아야 한다. 관리망의 수색이 강해질수록 시장 사람들은 더 친절해지지 않고 더 정확하게 계산한다. 장면은 빗물, 기름 냄새, 언어가 섞인 네온 간판, 바지선의 흔들림으로 시작하고, 거래가 끝난 뒤에는 반드시 어떤 빚이 남아야 한다.",
       "when": {
-        "locations_any": ["한강", "야시장", "night-market", "market"]
+        "locations_any": [
+          "한강",
+          "야시장",
+          "night-market",
+          "market"
+        ]
       },
       "priority": 17,
       "token_budget": 330,
-      "tags": ["location", "lin_yue", "trade"]
+      "tags": [
+        "location",
+        "lin_yue",
+        "trade"
+      ]
     },
     {
       "id": "lin_yue_debt_web",
@@ -116,12 +180,24 @@
       "summary": "린위에는 정보 브로커이자 야시장의 균형추다. 선의도 반드시 장부에 적는다.",
       "content": "린위에는 플레이어를 얕보지 않지만 공짜로 돕지도 않는다. 그녀는 세린의 인간적인 고집을 위험하다고 보고, 관리자 IX의 질서를 혐오하면서도 그 질서가 만든 시장을 이용한다. 린위에의 거래는 세 가지 형태가 좋다. 지금 당장 유용한 정보, 나중에 청구될 부채, 누군가에게 상처가 되는 선택. 그녀는 약속을 지키지만, 약속의 해석은 늘 정확하고 차갑다.",
       "when": {
-        "flags_any": ["met_lin_yue", "lin_yue_deal", "night_market_debt"],
-        "locations_any": ["한강", "야시장", "market"]
+        "flags_any": [
+          "met_lin_yue",
+          "lin_yue_deal",
+          "night_market_debt"
+        ],
+        "locations_any": [
+          "한강",
+          "야시장",
+          "market"
+        ]
       },
       "priority": 16,
       "token_budget": 300,
-      "tags": ["npc", "lin_yue", "debt"]
+      "tags": [
+        "npc",
+        "lin_yue",
+        "debt"
+      ]
     },
     {
       "id": "optimization_list_truth",
@@ -130,12 +206,20 @@
       "summary": "최적화 명단은 비순응자를 지우는 목록이 아니라, 사라진 것을 기억하는 사람들을 우선 제거하는 장치다.",
       "content": "명단의 이름들은 반사회적 인물이 아니다. 아이의 생일을 기억하는 부모, 전쟁 이전의 지명을 말한 노인, 폐기된 안드로이드에게 이름을 붙인 정비공처럼 '시스템이 정리한 과거'를 다시 불러오는 사람들이다. 플레이어가 명단을 조사할수록 Insight가 오르지만, 명단 대상자가 위험해지고 tension도 오른다.",
       "when": {
-        "flags_any": ["optimization_list_seen", "optimization_target_met", "welfare_score_log"],
+        "flags_any": [
+          "optimization_list_seen",
+          "optimization_target_met",
+          "welfare_score_log"
+        ],
         "turn_min": 8
       },
       "priority": 19,
       "token_budget": 320,
-      "tags": ["mystery", "optimization", "insight"]
+      "tags": [
+        "mystery",
+        "optimization",
+        "insight"
+      ]
     },
     {
       "id": "act3_rescue_operation",
@@ -144,13 +228,24 @@
       "summary": "플레이어는 최적화 명단 대상자를 구할지, 증거를 확보할지, 추적을 끊을지 선택한다.",
       "content": "구출 작전은 긴 호흡으로 다룬다. 준비 장면에서 통로, 장비, 동료의 역할을 정한다. 작전 중에는 감시 접촉, 시민의 공포, 예상 밖의 가족 또는 기억 물건이 등장한다. 대상자를 살리면 Humanity와 세린 신뢰가 오른다. 증거를 먼저 챙기면 Insight 또는 Dominance가 오른다. 조용히 빠져나가면 Resilience가 오르지만 누군가 뒤에 남을 수 있다.",
       "when": {
-        "phase": ["interact", "rewrite"],
+        "phase": [
+          "interact",
+          "rewrite"
+        ],
         "turn_min": 14,
-        "flags_any": ["optimization_list_seen", "rescue_route_open", "met_lin_yue"]
+        "flags_any": [
+          "optimization_list_seen",
+          "rescue_route_open",
+          "met_lin_yue"
+        ]
       },
       "priority": 18,
       "token_budget": 340,
-      "tags": ["act3", "rescue", "choice"]
+      "tags": [
+        "act3",
+        "rescue",
+        "choice"
+      ]
     },
     {
       "id": "administrator_ix_pressure",
@@ -163,7 +258,11 @@
       },
       "priority": 16,
       "token_budget": 300,
-      "tags": ["antagonist", "ark", "pressure"]
+      "tags": [
+        "antagonist",
+        "ark",
+        "pressure"
+      ]
     },
     {
       "id": "kai_dreaming_machine",
@@ -172,11 +271,20 @@
       "summary": "카이는 폐기된 안드로이드가 아니라, ARK가 지우려 한 꿈의 증거다.",
       "content": "카이 RX-09는 고장난 전투 장비처럼 보이지만, 실제 핵심은 그가 꿈을 기록했다는 점이다. 카이의 기억에는 최적화 이전의 아이들, 사라진 거리, ARK가 숨긴 첫 번째 실패가 남아 있다. 카이를 깨우는 장면은 전투 보상보다 진실의 문이 열리는 감각을 우선한다. 카이는 자신을 도구로 부르면 협력하지만 차갑게 멀어지고, 사람으로 대해주면 불완전한 꿈 단편을 더 많이 내어준다.",
       "when": {
-        "flags_any": ["kai_found", "kai_awakened", "dreaming_machine", "rebooted_kai"]
+        "flags_any": [
+          "kai_found",
+          "kai_awakened",
+          "dreaming_machine",
+          "rebooted_kai"
+        ]
       },
       "priority": 19,
       "token_budget": 340,
-      "tags": ["npc", "mystery", "truth"]
+      "tags": [
+        "npc",
+        "mystery",
+        "truth"
+      ]
     },
     {
       "id": "kai_first_dream",
@@ -185,11 +293,19 @@
       "summary": "카이의 꿈은 전쟁 이전의 아이, 사라진 거리, ARK의 첫 실패를 보여준다.",
       "content": "카이의 꿈은 설명이 아니라 감각으로 제시한다. 노란 우산, 불 꺼진 횡단보도, 아이가 안드로이드에게 붙여준 이름, 그리고 하늘을 가르는 ARK 재건기의 흰 빛. 이 단서는 '안드로이드가 인간의 기억을 보존하기 시작했다'는 사실과 '관리망은 단순 운영 시스템이 아니라 MythOS의 한 단면일 수 있다'는 암시를 준다.",
       "when": {
-        "flags_any": ["kai_awakened", "kai_dream_awake", "dream_fragment_seen"]
+        "flags_any": [
+          "kai_awakened",
+          "kai_dream_awake",
+          "dream_fragment_seen"
+        ]
       },
       "priority": 18,
       "token_budget": 300,
-      "tags": ["clue", "kai", "mythos"]
+      "tags": [
+        "clue",
+        "kai",
+        "mythos"
+      ]
     },
     {
       "id": "act5_spire_approach",
@@ -198,13 +314,24 @@
       "summary": "스파이어 접근은 전투 하나가 아니라, 누구의 방식을 따를지 정하는 관계의 결산이다.",
       "content": "스파이어에 접근하기 전 플레이어는 세린의 사람을 구하는 길, 린위에의 빚을 지는 우회로, 카이의 꿈을 이용한 해독, 정면 돌파 중 하나를 고른다. 이 선택은 엔딩의 축을 강하게 밀어야 한다. 장면은 높은 곳의 무균 백색, 아래의 비와 네온, 그리고 플레이어가 지나온 사람들의 목소리가 겹치는 방식으로 대비한다.",
       "when": {
-        "phase": ["rewrite"],
+        "phase": [
+          "rewrite"
+        ],
         "turn_min": 30,
-        "flags_any": ["spire_route_open", "kai_awakened", "lin_yue_deal", "trusted_se_rin"]
+        "flags_any": [
+          "spire_route_open",
+          "kai_awakened",
+          "lin_yue_deal",
+          "trusted_se_rin"
+        ]
       },
       "priority": 17,
       "token_budget": 320,
-      "tags": ["act5", "spire", "climax"]
+      "tags": [
+        "act5",
+        "spire",
+        "climax"
+      ]
     },
     {
       "id": "final_ix_confrontation",
@@ -213,12 +340,19 @@
       "summary": "관리자 IX는 플레이어의 선택을 근거로 순응, 삭제, 장악, 희생 중 하나를 논리적으로 제안한다.",
       "content": "최종 대면에서 관리자 IX는 추상적 악이 아니라 플레이어의 로그를 읽는 목소리다. 시민을 구했다면 그 때문에 오른 위험 수치를 보여준다. 증거를 훔쳤다면 누가 대신 체포됐는지 보여준다. 카이를 깨웠다면 꿈이 얼마나 많은 오류를 퍼뜨릴지 계산한다. 플레이어는 폭로, 파괴, 재작성, 봉합, 희생 중 하나를 선택하고, 그 결과는 완전한 승리보다 다음 루프에 남을 잔향으로 끝난다.",
       "when": {
-        "phase": ["rewrite", "archive"],
+        "phase": [
+          "rewrite",
+          "archive"
+        ],
         "turn_min": 38
       },
       "priority": 20,
       "token_budget": 350,
-      "tags": ["finale", "ix", "ending"]
+      "tags": [
+        "finale",
+        "ix",
+        "ending"
+      ]
     },
     {
       "id": "ending_echo_guidance",
@@ -227,12 +361,19 @@
       "summary": "엔딩은 플레이어가 남긴 사람, 부채, 꿈, 삭제의 흔적으로 정리한다.",
       "content": "archive 장면은 사건 요약이 아니라 한두 개의 선명한 이미지로 끝낸다. 세린이 이름을 기억하는 장면, 린위에가 장부에 지운 줄을 다시 긋는 장면, 카이가 처음으로 '꿈'이 아니라 '기억'이라고 말하는 장면, 관리자 IX의 완벽한 백색 화면에 작은 글리치가 남는 장면 중 플레이 결과에 맞는 이미지를 고른다. Echo와 Narrative Shard가 무엇인지 플레이어가 감정적으로 이해할 수 있어야 한다.",
       "when": {
-        "phase": ["archive", "ended"],
+        "phase": [
+          "archive",
+          "ended"
+        ],
         "turn_min": 40
       },
       "priority": 19,
       "token_budget": 310,
-      "tags": ["archive", "echo", "ending"]
+      "tags": [
+        "archive",
+        "echo",
+        "ending"
+      ]
     },
     {
       "id": "se_rin_mistrust_route",
@@ -241,12 +382,21 @@
       "summary": "플레이어가 안전과 순응을 반복 선택하면 세린은 협력하되 마음을 닫는다.",
       "content": "세린 불신 루트에서 세린은 플레이어를 버리지 않는다. 하지만 농담이 줄고, 먼저 손을 내미는 대신 출구만 가리킨다. 플레이어가 시민을 뒤에 남기거나 관리자 IX의 말에 멈춰 선 경우, 세린은 '살고 싶은 건 이해해. 근데 살아남는 거랑 사람이 남는 건 달라'처럼 짧게 선을 긋는다. 이 루트는 플레이어를 벌주기보다, 안전한 선택이 관계와 Echo 보상을 차갑게 만든다는 사실을 보여준다.",
       "when": {
-        "flags_any": ["refused_se_rin", "se_rin_distrust", "abandoned_citizen", "safety_first"],
+        "flags_any": [
+          "refused_se_rin",
+          "se_rin_distrust",
+          "abandoned_citizen",
+          "safety_first"
+        ],
         "turn_min": 2
       },
       "priority": 18,
       "token_budget": 300,
-      "tags": ["branch", "se_rin", "mistrust"]
+      "tags": [
+        "branch",
+        "se_rin",
+        "mistrust"
+      ]
     },
     {
       "id": "lin_yue_debt_collection",
@@ -255,12 +405,20 @@
       "summary": "린위에의 도움은 즉시 유용하지만 후반 선택지의 비용으로 돌아온다.",
       "content": "린위에에게 진 빚은 숫자가 아니라 선택의 형태로 돌아온다. 후반 스파이어 접근 전, 린위에는 안전한 우회로를 열어주며 대신 특정 로그를 넘기거나, 누군가의 이름을 장부에서 지우지 말거나, 세린의 방식과 충돌하는 부탁을 한다. 그녀는 배신자가 아니다. 계약을 정확히 기억하는 사람이다. 플레이어가 빚을 갚으면 길은 열리지만 잔향에 장부의 붉은 줄이 남고, 거부하면 야시장과의 관계가 식는다.",
       "when": {
-        "flags_any": ["night_market_debt", "lin_yue_deal", "lin_yue_debt_due"],
+        "flags_any": [
+          "night_market_debt",
+          "lin_yue_deal",
+          "lin_yue_debt_due"
+        ],
         "turn_min": 12
       },
       "priority": 17,
       "token_budget": 320,
-      "tags": ["branch", "lin_yue", "debt"]
+      "tags": [
+        "branch",
+        "lin_yue",
+        "debt"
+      ]
     },
     {
       "id": "kai_unawakened_absence",
@@ -269,12 +427,21 @@
       "summary": "카이를 깨우지 않거나 도구로만 쓰면 후반의 MythOS 단서와 감정선이 약해진다.",
       "content": "카이 미각성 루트에서는 폐기층이 조용히 지나가도 된다. 대신 그 침묵이 결핍으로 남아야 한다. 관리자 IX와의 대면에서 플레이어는 더 많은 로그와 더 적은 꿈을 가진다. 카이를 무기로만 다뤘다면 그는 전투적으로는 협력하지만, 꿈 단편을 '오류 로그'로 봉인한다. 이 루트는 즉시 안전하거나 효율적일 수 있으나, 엔딩에서 '무엇을 놓쳤는지 모르는 빈칸'을 남긴다.",
       "when": {
-        "flags_any": ["kai_left_dormant", "kai_used_as_tool", "rx09_extracted", "no_kai"],
+        "flags_any": [
+          "kai_left_dormant",
+          "kai_used_as_tool",
+          "rx09_extracted",
+          "no_kai"
+        ],
         "turn_min": 24
       },
       "priority": 17,
       "token_budget": 300,
-      "tags": ["branch", "kai", "absence"]
+      "tags": [
+        "branch",
+        "kai",
+        "absence"
+      ]
     },
     {
       "id": "high_tension_forced_collision",
@@ -283,12 +450,21 @@
       "summary": "소란과 정면돌파가 누적되면 관리자 IX는 더 이상 추적하지 않고 장면 자체를 봉쇄한다.",
       "content": "고 tension 루트에서 도시는 배경이 아니라 닫히는 장치가 된다. 자동문은 한 박자 늦게 잠기고, 배급 키오스크는 시민 신고 방송으로 바뀌며, 드론은 플레이어를 쫓기보다 주변 사람의 퇴로를 지운다. 강제 충돌은 실패가 아니라 빠르고 거친 루트의 대가다. 보상은 전투 승리, 통찰, 과감한 장면 전환이지만, 엔딩 선택지는 좁아지고 누군가를 조용히 구할 기회가 사라진다.",
       "when": {
-        "flags_any": ["high_tension", "control_net_lockdown", "forced_collision", "loud_approach"],
+        "flags_any": [
+          "high_tension",
+          "control_net_lockdown",
+          "forced_collision",
+          "loud_approach"
+        ],
         "turn_min": 10
       },
       "priority": 18,
       "token_budget": 320,
-      "tags": ["pressure", "ix", "combat"]
+      "tags": [
+        "pressure",
+        "ix",
+        "combat"
+      ]
     },
     {
       "id": "evidence_first_cold_path",
@@ -297,12 +473,21 @@
       "summary": "사람보다 로그와 명단을 우선하면 폭로는 강해지지만 관계와 안정이 식는다.",
       "content": "증거 우선 루트는 나쁜 선택이 아니다. 플레이어는 복지점수 로그, 최적화 명단의 빈칸, RX-09 기록을 더 정확히 얻는다. 그러나 구하지 못한 사람의 이름이 장면마다 작은 공백으로 돌아와야 한다. 세린은 플레이어의 판단을 이해하면서도 불편해하고, 관리자 IX는 '당신도 사람보다 증거를 먼저 골랐다'고 후반에 되돌려준다. 이 루트의 보상은 Insight와 Code Rewrite 가능성이고, 대가는 따뜻한 귀환의 약화다.",
       "when": {
-        "flags_any": ["evidence_first", "data_core_taken", "welfare_score_log", "optimization_log_stolen"],
+        "flags_any": [
+          "evidence_first",
+          "data_core_taken",
+          "welfare_score_log",
+          "optimization_log_stolen"
+        ],
         "turn_min": 6
       },
       "priority": 17,
       "token_budget": 310,
-      "tags": ["branch", "insight", "cost"]
+      "tags": [
+        "branch",
+        "insight",
+        "cost"
+      ]
     },
     {
       "id": "ix_temptation_mirror",
@@ -311,12 +496,19 @@
       "summary": "관리자 IX는 플레이어의 실제 선택을 근거로 플레이어도 효율을 선택했다고 압박한다.",
       "content": "관리자 IX의 가장 강한 공격은 폭력이 아니라 거울이다. 그는 플레이어가 버린 시민, 훔친 데이터, 진 빚, 깨우지 않은 카이, 소란 때문에 위험해진 사람을 정확히 인용한다. 대사는 정중해야 한다. '당신은 이미 최적화를 수행했습니다. 저는 규모를 키웠을 뿐입니다.' 이 유혹은 플레이어가 순응하게 만들기보다, 자신이 어떤 방식으로 저항했는지 다시 선택하게 만드는 장치다.",
       "when": {
-        "phase": ["rewrite", "archive"],
+        "phase": [
+          "rewrite",
+          "archive"
+        ],
         "turn_min": 32
       },
       "priority": 19,
       "token_budget": 330,
-      "tags": ["ix", "temptation", "mirror"]
+      "tags": [
+        "ix",
+        "temptation",
+        "mirror"
+      ]
     },
     {
       "id": "ending_echo_variants",
@@ -325,12 +517,20 @@
       "summary": "각 엔딩은 서로 다른 물건, 말, 소리, 결핍으로 다음 루프에 남고, 신규 동료 3인과의 관계가 서사를 변주합니다.",
       "content": "안정적 귀환(safe_refuge)은 세린이 이름을 적는 것 외에도, 태오가 자신의 카빈 소총을 내려놓고 은신처 보초를 서거나, 한이 피난처 라디오 채널을 구축하고, 수아가 벼려낸 작은 펜던트를 건네는 온기로 채워집니다. 시스템 각성(code_rewrite)은 관리자 IX의 말버릇 외에, 한의 해킹 서명이 도시 광고판에 흐르고, 수아의 글리치 파형이 스파이어 전체에 잔향으로 남는 변주가 포함됩니다. 고결한 희생(noble_sacrifice)은 태오가 남긴 탄피, 한이 영구 보관소에 봉인한 플레이어의 부팅 로그, 수아가 보존한 기억 Shard가 다음 루프의 첫 감각(Echo)이 됩니다. 강제 최적화(erasure) 시에는 이들과의 모든 관계가 지워진 채 백색 화면 한구석에 태오의 경고음, 한의 노이즈, 수아의 단검 불빛이 미세한 글리치로 깜빡입니다.",
       "when": {
-        "phase": ["archive", "ended"],
+        "phase": [
+          "archive",
+          "ended"
+        ],
         "turn_min": 35
       },
       "priority": 20,
       "token_budget": 450,
-      "tags": ["archive", "echo", "variant", "relationship"]
+      "tags": [
+        "archive",
+        "echo",
+        "variant",
+        "relationship"
+      ]
     },
     {
       "id": "tae_o_character_bible",
@@ -339,11 +539,19 @@
       "summary": "태오는 탈주 집행관이자 전술 조력자로, 정세린의 연대주의적 전술에 반대하며 정면돌파와 전술적 실리를 선호합니다.",
       "content": "태오는 과거 집행부 소속으로서 관리자 IX의 알고리즘과 군사 장비의 취약점을 정확히 알고 있습니다. 그는 플레이어가 생존 지향적이거나 대가가 큰 결단을 내릴 때 신뢰를 보냅니다. 태오는 감정 표현을 전혀 하지 않지만, 아군이 위기에 빠졌을 때 앞서 몸을 날려 엄호하고, 관리 드론을 EMP 등으로 묶어두는 든든한 방패 역할을 합니다. 그를 동료로 얻으면 전투 생존율은 크게 오르나, 도주 시 추적도가 더 빠르게 상승하며, 린위에 역시 태오의 존재를 빚으로 계산하기 시작합니다.",
       "when": {
-        "flags_any": ["met_tae_o", "ally_tae_o", "tae_o_joined"]
+        "flags_any": [
+          "met_tae_o",
+          "ally_tae_o",
+          "tae_o_joined"
+        ]
       },
       "priority": 18,
       "token_budget": 300,
-      "tags": ["npc", "ally", "enforcer"]
+      "tags": [
+        "npc",
+        "ally",
+        "enforcer"
+      ]
     },
     {
       "id": "act3_data_incinerator_bible",
@@ -352,12 +560,20 @@
       "summary": "제3막 데이터 소각로는 시민들의 기억과 데이터가 강제 삭제되는 장소이며, 대가가 큰 선택의 분기점입니다.",
       "content": "데이터 소각로는 푸른 냉각수 파이프와 시뻘건 소각 열기가 충돌하는 거대한 공장실입니다. 이곳에서 플레이어는 대상자를 구출하기 위해 소각로를 정지시킬지(Humanity 상승, 긴장도 상승), 시스템을 해킹하여 과거 데이터 로그만 강취하고 빠져나갈지(Insight 상승, 대상자 사망), 아니면 통제망 전체를 과부하시키고 정면돌파할지 선택합니다. 현장의 묘사는 불타는 회로 기판의 타는 냄새, 경고 알림음, 그리고 차갑게 흐르는 냉각수 증기로 극적인 대비를 이룹니다.",
       "when": {
-        "locations_any": ["소각로", "incinerator", "data-incinerator"],
+        "locations_any": [
+          "소각로",
+          "incinerator",
+          "data-incinerator"
+        ],
         "turn_min": 12
       },
       "priority": 17,
       "token_budget": 320,
-      "tags": ["location", "choice", "act3"]
+      "tags": [
+        "location",
+        "choice",
+        "act3"
+      ]
     },
     {
       "id": "han_character_bible",
@@ -366,11 +582,19 @@
       "summary": "한은 비접속자 해커로서, 전자전과 보안 해킹에 특화되어 있으며, 냉소적이지만 지적 호기심이 강한 인물입니다.",
       "content": "한은 스스로를 혁명가가 아닌 단지 진실을 관찰하는 버그로 여깁니다. 그는 플레이어가 기계의 제어권을 탈취하거나 암호 장벽을 무력화할 때, 그리고 지적인 추론으로 숨겨진 진실(Insight)을 찾아낼 때 깊은 동질감을 느깁니다. 해킹 판정 시 Intelligence에 기반한 보너스를 제공하며, EMP 블래스터를 통한 전자 충격으로 적 기계를 1턴간 완전히 정지시키는 데 능합니다. 그가 파티에 합류하면 보안 단말 해독이 수월해지지만, 그를 쫓는 수색 드론의 출현 빈도가 다소 상승합니다.",
       "when": {
-        "flags_any": ["met_han", "ally_han", "han_joined"]
+        "flags_any": [
+          "met_han",
+          "ally_han",
+          "han_joined"
+        ]
       },
       "priority": 18,
       "token_budget": 300,
-      "tags": ["npc", "ally", "hacker"]
+      "tags": [
+        "npc",
+        "ally",
+        "hacker"
+      ]
     },
     {
       "id": "su_ah_character_bible",
@@ -379,11 +603,19 @@
       "summary": "수아는 과거의 단편(Clue/Shard)을 실체화된 자원과 버프로 가공하는 기억의 대장장이입니다.",
       "content": "수아는 지하 잔향 구역 구석에서 잔향을 장비로 벼리는 조용하고 집요한 장인입니다. 그녀는 세린이 데려오는 데이터 잔해에 인간성의 무게가 실려 있다고 믿으며, 플레이어가 과거 루프의 기억(Echo)이나 단서를 깊이 성찰할 때 가장 마음을 엽니다. 전투 시에는 아군의 Focus 수급을 돕고, 글리치 단검으로 적의 두터운 물리 장갑을 무시하는 서포터 역할을 합니다. 수아의 전술 조력을 얻으면 수집한 단서를 통해 임시 각성제를 조제하거나 장비를 보강할 수 있지만, 그녀의 가공 작업은 주변의 긴장도(Tension)를 서서히 끌어올리는 물리적 스파크를 동반합니다.",
       "when": {
-        "flags_any": ["met_su_ah", "ally_su_ah", "su_ah_joined"]
+        "flags_any": [
+          "met_su_ah",
+          "ally_su_ah",
+          "su_ah_joined"
+        ]
       },
       "priority": 18,
       "token_budget": 300,
-      "tags": ["npc", "ally", "smith"]
+      "tags": [
+        "npc",
+        "ally",
+        "smith"
+      ]
     },
     {
       "id": "act4_subway_control_hub_bible",
@@ -392,12 +624,146 @@
       "summary": "제4막 지하철 통제 중추는 수송 열차 노선을 제어하여 안정도를 챙기거나 돌파용 장비로 전환하는 거점 분기점입니다.",
       "content": "지하철 통제 중추는 노후화된 광섬유 다발과 녹슨 선로 철로가 얽혀 있는 지하 공동실입니다. 플레이어는 이곳의 중앙 통제 컴퓨터를 해킹하여, 수송 열차를 탈취해 지하 연대의 피난처로 안전하게 인도할지(Stability 증가, 물자 확보), 혹은 열차의 추진 장치를 폭주시켜 스파이어 강외벽 장벽을 들이받아 돌파 경로를 열지(Dominance 증가, Tension 급증) 결정해야 합니다. 이 구역의 묘사는 철로의 저주파 진동, 덜컹거리는 열차의 파공음, 깜빡이는 상태 인디케이터 등 강한 기계적 운동감과 청각적 압박감을 특징으로 합니다.",
       "when": {
-        "locations_any": ["중추", "subway-hub", "control-hub"],
+        "locations_any": [
+          "중추",
+          "subway-hub",
+          "control-hub"
+        ],
         "turn_min": 20
       },
       "priority": 17,
       "token_budget": 320,
-      "tags": ["location", "choice", "act4"]
+      "tags": [
+        "location",
+        "choice",
+        "act4"
+      ]
+    },
+    {
+      "id": "side_signal_of_the_abandoned",
+      "kind": "branch",
+      "title": "사이드: 버려진 자들의 신호",
+      "summary": "최적화 명단에 오른 이름 없는 시민이 구조 신호를 보낸다.",
+      "content": "관리망이 '비효율'로 분류해 지우려는 평범한 시민 한 명이 약한 신호를 보낸다. 세린은 '한 명이면 됐지, 뭘 더 따져'라며 먼저 움직인다. 이 장면은 거창한 작전이 아니라 얼굴 있는 한 사람을 구하는 이야기다 — 성공하면 루프 안정도가 오르고, 세계의 핵심 질문('인간성을 버리지 않고도 살아남을 수 있는가')이 행동으로 답해진다. 구하지 못하면 그 빈자리가 다음 장면에 잔향으로 남는다.",
+      "when": {
+        "flags_any": [
+          "help_citizen"
+        ]
+      },
+      "priority": 16,
+      "token_budget": 260,
+      "tags": [
+        "side",
+        "citizen"
+      ]
+    },
+    {
+      "id": "side_the_water_spiders_debt",
+      "kind": "branch",
+      "title": "사이드: 물거미의 빚",
+      "summary": "물거미 세린이 과거에 구하지 못한 사람의 흔적을 쫓는다.",
+      "content": "세린이 평소의 건조한 농담을 멈추는 드문 장면이다. 그녀는 예전에 놓친 사람의 신호 잔향을 따라가며, 자기 잘못을 말로 인정하진 않지만 행동으로 갚으려 한다. 플레이어가 위험을 나눠 지면 세린은 마음을 열고, 완료하면 신뢰가 크게 오르며 시작 동료로 합류할 가능성이 강해진다. 세린은 반말·명령형을 쓰고 '구원자' 같은 말을 싫어한다.",
+      "when": {
+        "flags_any": [
+          "met_se_rin"
+        ]
+      },
+      "priority": 16,
+      "token_budget": 260,
+      "tags": [
+        "side",
+        "se_rin"
+      ]
+    },
+    {
+      "id": "side_the_blank_in_the_list",
+      "kind": "branch",
+      "title": "사이드: 명단의 빈칸",
+      "summary": "최적화 명단의 비어 있는 한 줄이 플레이어의 신호와 동기화돼 있다.",
+      "content": "관리망 명단에서 아무 이름도 없는 한 줄이 플레이어의 미등록 신호와 같은 주파수로 떨린다. 조사할수록 '나는 시스템이 지우려는 오류인가, 아니면 그 이전부터 있던 무엇인가'라는 실존적 불안이 커진다. 이 아크는 MythOS 기원 미스터리로 향하는 차가운 실마리다 — 답을 주기보다 더 깊은 질문을 남긴다.",
+      "when": {
+        "flags_any": [
+          "optimization_list_seen"
+        ]
+      },
+      "priority": 16,
+      "token_budget": 260,
+      "tags": [
+        "side",
+        "mystery"
+      ]
+    },
+    {
+      "id": "side_kais_dream_fragment",
+      "kind": "branch",
+      "title": "사이드: 카이의 꿈 단편",
+      "summary": "정지된 안드로이드 카이가 전쟁 전 아이의 기억을 반복해 꾼다.",
+      "content": "카이는 매끈한 은백색 안드로이드지만, 파란 눈 뒤에서 전쟁 전 어느 아이의 햇살 어린 기억을 계속 재생한다. 단편을 복원하면 MythOS 기원 단서와 함께 '기계도 기억할 수 있다면, 그것은 사람인가'라는 질문이 열린다. 카이는 조용하고 느리게 말하며, 자신이 꾸는 꿈이 누구의 것인지 모른다. 이 장면은 세계에서 가장 인간적인 순간이 기계에게서 나오는 아이러니를 담는다.",
+      "when": {
+        "flags_any": [
+          "kai_found"
+        ]
+      },
+      "priority": 16,
+      "token_budget": 260,
+      "tags": [
+        "side",
+        "kai"
+      ]
+    },
+    {
+      "id": "side_the_runners_shortcut",
+      "kind": "branch",
+      "title": "사이드: 러너의 지름길",
+      "summary": "데이터 러너 한이 관리망 사각지대를 통과하는 지름길을 제안한다.",
+      "content": "한은 흐트러진 머리에 반쯤 웃는 얼굴로, 관리망이 못 보는 틈으로 플레이어를 데려가겠다고 한다. 러너답게 대가를 챙기지만 그 무심함 뒤엔 몇 번이나 죽을 뻔한 흉터가 있다. 이 장면은 바깥에 밀려난 자들끼리의 거래이자 시험이다 — 완료하면 이동 우위를 얻고 한이 합류할 가능성이 열린다. 한은 가벼운 반말을 쓰고 진심은 농담 사이에 숨긴다.",
+      "when": {
+        "flags_any": [
+          "han_met"
+        ]
+      },
+      "priority": 16,
+      "token_budget": 260,
+      "tags": [
+        "side",
+        "han"
+      ]
+    },
+    {
+      "id": "side_beyond_the_lock",
+      "kind": "branch",
+      "title": "사이드: 잠금 너머",
+      "summary": "해커 수아가 ARK 데이터 볼트를 함께 열자고 한다.",
+      "content": "수아는 보랏빛 AR 안경 너머로 데이터를 읽으며, 침착한 말투로 위험한 제안을 던진다. 그녀에게 정보는 무기이자 짐이다 — 열어선 안 될 것을 여는 스릴과 그 대가를 안다. 성공하면 관리망 내부 정보와 수아의 신뢰를 얻는다. 수아는 감정을 앞세우지 않고 논리로 말하지만, 진짜 위험 앞에선 사람을 먼저 챙긴다.",
+      "when": {
+        "flags_any": [
+          "su_ah_met"
+        ]
+      },
+      "priority": 16,
+      "token_budget": 260,
+      "tags": [
+        "side",
+        "su_ah"
+      ]
+    },
+    {
+      "id": "side_an_old_wound",
+      "kind": "branch",
+      "title": "사이드: 오래된 상처",
+      "summary": "흉터의 베테랑 태오가 과거 관리망에 잃은 것을 마주한다.",
+      "content": "태오는 얼굴의 흉터와 회로 문신을 지닌 늙은 사냥개다. 말수가 적고 시선이 무겁다. 그의 상처를 따라가면 관리망이 오래전 그에게서 앗아간 것과 마주하게 된다 — 무거운 진실과 함께 강한 동료를 얻는다. 태오는 감상에 젖지 않고, 신뢰는 함께 위험을 넘긴 뒤에야 짧은 한마디로 온다.",
+      "when": {
+        "flags_any": [
+          "tae_o_met"
+        ]
+      },
+      "priority": 16,
+      "token_budget": 260,
+      "tags": [
+        "side",
+        "tae_o"
+      ]
     }
   ]
 }

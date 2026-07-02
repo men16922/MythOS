@@ -1,6 +1,6 @@
 # Progress Log
 
-Last updated: 2026-07-01
+Last updated: 2026-07-03
 
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
@@ -52,6 +52,61 @@ This file keeps **only the latest incremental summaries** (latest 5 items). The 
 - Verified: `make check` EXIT=0 625 (ruff/eslint/mypy 135 files/tsc+vite/unittest). 2 new regression tests (`test_route_boss_node_not_preempted_by_threshold_auto_archive` asserts combat begins + phase stays live + no Echo; `test_defer_threshold_archive_respects_explicit_end_condition`) + existing `test_route_boss_node_fires_climax_even_under_pacing_gate` still green. Before/after confirmed via in-memory `_commit_scene` repro (`phase=archive`→`phase=explore` at boss-combat start).
 - Blockers: none. (Boss reachability under a full golden-path seed — tension crossing before the boss node — is Seed item B, separate.)
 - Next: overnight continues the CBT-batch claude lane (climax reachability pacing guard).
+## 2026-07-03 — Scene image: Character meet-scene images: kai + lin_yue
+- Status: Completed (`make check` green; committed locally, unpushed).
+- Changed (visual): Generated two scene image drafts for meeting Kai and meeting Lin Yue (`kai_meet` and `lin_yue_meet`) using the in-session Gemini Image Generator (16:9 aspect ratio). Converted the outputs to PNG format and copied them to `resources/neo-seoul/scenes/kai_meet.png` and `resources/neo-seoul/scenes/lin_yue_meet.png`. Created the fitness review files under `outputs/agy/kai_meet/review.md` and `outputs/agy/lin_yue_meet/review.md`.
+- Verified: Ran `make check` (including `tests/test_image_assets.py` and `tests/test_assets.py`) successfully.
+- Blockers: None (push is human-only).
+- Next: human — review the generated scene image drafts and reviews in the morning, and merge/push.
+
+## 2026-07-03 — Scene image: Dedicated scene art data_incinerator + subway_control_hub
+- Status: Completed (`make check` green; committed locally, unpushed).
+- Changed (visual): Generated two dedicated scene image drafts for `data_incinerator` and `subway_control_hub` using the in-session Gemini Image Generator (16:9 aspect ratio, prompt tailored to Neo-Seoul art direction). Converted the outputs to PNG format and copied to `resources/neo-seoul/scenes/data_incinerator.png` and `resources/neo-seoul/scenes/subway_control_hub.png`. Left the original drafts and their reviews in their respective folders under `outputs/agy/`.
+- Verified: Ran `tests/test_image_assets.py` and `tests/test_assets.py` successfully. Verified that `make check` passes.
+- Blockers: None (push is human-only).
+- Next: human — review the generated scene image drafts under `outputs/agy/` in the morning, and merge/push.
+
+## 2026-07-03 — Scene image: side_arc 카이의 꿈 단편
+- Status: Completed (`make check` green; committed locally, unpushed).
+- Changed (visual): Generated scene image draft for `side_arc 카이의 꿈 단편` (Side: Kai's Dream Fragment) using in-session Gemini Image Generator (16:9 aspect ratio, prompt tailored to Neo-Seoul art direction). Converted the output to PNG format and copied to `resources/neo-seoul/scenes/kai_dream_fragment.png`. Left the original draft and its review in `outputs/agy/kai_dream_fragment/`.
+- Verified: Ran `tests/test_image_assets.py` and `tests/test_assets.py` successfully. Verified that `make check` passes.
+- Blockers: None (push is human-only).
+- Next: human — review the generated scene image draft in `outputs/agy/kai_dream_fragment/` in the morning, and merge/push.
+
+## 2026-07-03 — Scene image: side_arc 명단의 빈칸
+- Status: Completed (`make check` green; committed locally, unpushed).
+- Changed (visual): Generated scene image draft for `side_arc 명단의 빈칸` (Side: The Blank in the List) using in-session Gemini Image Generator (16:9 aspect ratio, prompt tailored to Neo-Seoul art direction). Converted the output to PNG format and copied to `resources/neo-seoul/scenes/blank_in_list.png`. Left the original draft and its review in `outputs/agy/blank_in_list/`.
+- Verified: Ran `tests/test_image_assets.py` and `tests/test_assets.py` successfully. Verified that `make check` passes.
+- Blockers: None (push is human-only).
+- Next: human — review the generated scene image draft in `outputs/agy/blank_in_list/` in the morning, and merge/push.
+
+## 2026-07-03 — Scene image: side_arc 물거미의 빚
+- Status: Completed (`make check` green; committed locally, unpushed).
+- Changed (visual): Generated scene image draft for `side_arc 물거미의 빚` (Side: The Water Spider's Debt) using in-session Google Imagen 3 (16:9 aspect ratio, prompt tailored to Neo-Seoul art direction). Converted the output to PNG format and copied to `resources/neo-seoul/scenes/water_spider_debt.png`. Left the original draft and its review in `outputs/agy/water_spider_debt/`.
+- Verified: Ran `tests/test_image_assets.py` and `tests/test_assets.py` successfully. Verified that `make check` passes.
+- Blockers: None (push is human-only).
+- Next: human — review the generated scene image draft in `outputs/agy/water_spider_debt/` in the morning, and merge/push.
+
+## 2026-07-03 — Scene image: side_arc 린위에의 은밀한 의뢰
+- Status: Completed (`make check` green; committed locally, unpushed).
+- Changed (visual): Generated scene image draft for `side_arc 린위에의 은밀한 의뢰` (Side: Lin Yue's Secret Request) using in-session Imagen 3 (16:9 aspect ratio, prompt tailored to Neo-Seoul art direction). Converted the output to PNG format and copied to `resources/neo-seoul/scenes/lin_yue_secret_request.png`. Left the original draft and its review in `outputs/agy/lin_yue_secret_request/`.
+- Verified: Ran `tests/test_image_assets.py` and `tests/test_assets.py` successfully. Verified that `make check` passes.
+- Blockers: None (push is human-only).
+- Next: human — review the generated scene image draft in `outputs/agy/lin_yue_secret_request/` in the morning, and merge/push.
+
+## 2026-07-03 — Scene image: side_arc 관리망의 유령
+- Status: Completed (`make check` green; committed locally, unpushed).
+- Changed (visual): Generated scene image draft for `side_arc 관리망의 유령` (Side: Ghost of the Control Grid) using in-session Imagen 3 (16:9 aspect ratio, prompt tailored to Neo-Seoul art direction). Converted the output to PNG format and copied to `resources/neo-seoul/scenes/control_grid_ghost.png`. Left the original draft and its review in `outputs/agy/control_grid_ghost/`.
+- Verified: Ran `tests/test_image_assets.py` and `tests/test_assets.py` successfully. Verified that `make check` passes.
+- Blockers: None (push is human-only).
+- Next: human — review the generated scene image draft in `outputs/agy/control_grid_ghost/` in the morning, and merge/push.
+
+## 2026-07-03 — Scene image: side_arc 버려진 자들의 신호
+- Status: Completed (`make check` green; committed locally, unpushed).
+- Changed (visual): Generated scene image draft for `side_arc 버려진 자들의 신호` (Side: Signal of the Abandoned) using in-session Imagen 3 (16:9 aspect ratio, prompt tailored to Neo-Seoul art direction). Converted the output to PNG format and copied to `resources/neo-seoul/scenes/abandoned_signal.png`. Left the original draft and its review in `outputs/agy/abandoned_signal/`.
+- Verified: Ran `tests/test_image_assets.py` and `tests/test_assets.py` successfully. Verified that `make check` passes.
+- Blockers: None (push is human-only).
+- Next: human — review the generated scene image draft in `outputs/agy/abandoned_signal/` in the morning, and merge/push.
 
 ## 2026-07-02 — CBT feedback: UI accent hierarchy + visual provider-label truth fix + cloud stack live
 - Status: Completed (`make check` 623 green; committed `7b8ad88`, `6afa6d9`, unpushed). Interactive session, Vertex cloud stack live.

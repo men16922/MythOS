@@ -13,6 +13,20 @@ YYYY-MM-DD
 - Next:
 ```
 
+## 2026-06-29 — K6 EN: localize combat log prose (engine-level i18n)
+- Status: Completed (`make check` 609 green, API+browser live-verified, committed `d37776b`, unpushed). K6 verification found combat UI fully EN *except* the combat event log — generated as Korean templates in `engine.py`/`narrator.py` (names English via glossary, but grammar/timestamps KO).
+- Changed: NEW `mythos_combat/log_i18n.py` (KO/EN templates `clog` + narrator lead pools, same length/lang → seed-stable). Added `language` to (persisted) `CombatState`; threaded `build_encounter` → `CombatService.begin` → both `session.py` begin sites (`options.language`) + `/combat/begin`. Replaced ~40 engine f-strings + narrator leads/flush/start/outcome. Combat RNG unaffected (log text consumes no dice); KO default → behavior-preserving. EN names still localized by the boundary glossary.
+- Verified: EN combat API → "Maintenance Drone's Cleaver Blade hits K6Tester for 6.", "Covering noise spreads around Jung Se-rin. (DEF +3)"; KO unchanged ("전투 개시."). `make check` 609 (combat suite 87 green + new `test_combat_log_language`). live-QA §K K6 `[x]`.
+- Next: K9 full ending screen is code-clean (data-driven resolver + en.json + i18n banner + combat-outcome prose) but full live-ending unverified (needs terminal playthrough). Then deploy (human/infra).
+
+## 2026-06-29 — CBT UX: stable invite identity + game-style save/load + invite gate
+- Status: Completed (`make check` 608 green, Chrome live-verified, committed `daa5438` route-label fix + `fce5874` CBT bundle; unpushed — private repo, user pushes).
+- Changed (frontend): **Save/Load modal** (`SaveLoadModal.tsx`) replacing the inline panel — slot cards show scene/character(display_name+archetype)/scenario/date/turn-phase/STA-TEN/combat + **thumbnail**; **client-side paging** 6/page over latest 60; SAVE/LOAD buttons (in-game) + LOAD on Connection Terminal open it. **Option B identity** (`api.ts` `stablePlayerId` cyrb53 from invite key → saves follow the key cross-device, no OAuth). **Invite gate** (`InviteGate.tsx`): boot probe `/auth/verify-invite` → 401 shows key-entry screen, key persists to localStorage (one-time per browser), errors fail-open.
+- Changed (backend): capture `display_name`+per-loop `archetype` into `loop.state` at start (`session.py`); expose them + `curated_image` on `SaveSlot` (`options.py`/`save_load.py`); `save-slots` endpoint resolves `thumb_url` (curated static `/resources` first, else signed asset) + clamped `limit` (default 60); NEW `GET /auth/verify-invite` probe.
+- Verified: `make check` EXIT=0 **608 tests**, mypy/eslint/tsc/vite clean. Chrome: EN route labels English; LOAD picker + modal render/load; thumbnails load; paging 2 pages (6+3); invite gate blocks keyless / rejects wrong key / accepts valid + remembers on reload. Screenshots in `outputs/`.
+- Blockers: agent cannot push (private-repo classifier) → user pushes `feat/en-ko-s0-language-plumbing`.
+- Next: K6 combat + K9 ending EN verification (last EN gaps); then deploy (human/infra) — set `MYTHOS_INVITE_KEYS` + per-tester `?invite=` URLs; DEPLOY.md invite-gate note.
+
 ## 2026-06-28 — GCP closed-beta: deploy runbook + cost estimate (DEPLOY.md) + Cloud Trace exporter
 - Status: Completed. NEW `docs/cloud/DEPLOY.md` deploy runbook (gcloud sequence + IAM + GCS + Cloud Run flags + verification + cost) and the Cloud Trace observability exporter (§3 관측성). Answers the "GCP 비용 예상" ask with grounded numbers.
 - Cost (2026-06 web-checked, approximate): Gemini 2.5 Flash $0.30/1M in · $2.50/1M out; Imagen 3 $0.04/img (Fast $0.02); Cloud Run scale-to-zero ≈ idle $0; Cloud Trace 2.5M span/mo free. → **per loop ~$0.3–0.7 (image-dominated)**; closed-beta round (10 testers × 2 loops) **~$6–15 variable**; **fixed ~$0/mo with Neon** (Cloud SQL +$25–50). Levers: Cloud Run min=0/max-cap, Imagen Fast + Flash-Lite, anchor curation (already), billing budget alert, invite gating.

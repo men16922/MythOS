@@ -10,6 +10,12 @@
   --ink-dim: #6fa99b;
   --warn: #ffd76a;
   --danger: #ff6b7d;
+  /* Accent hierarchy (CBT feedback 2026-07-02): green stays the world's identity;
+     these two accents carry the two jobs a monochrome terminal can't — structural
+     section headers ("where do I look") and adversary/threat ("what's dangerous").
+     To try the white-header variant instead, set --head to #f2fff9. */
+  --head: #ffb454;    /* amber — section/panel headers (landmarks) */
+  --threat: #ff5fd0;  /* magenta — enemy/adversary signature (control grid) */
   --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
 }
 
@@ -154,7 +160,7 @@ main {
 .panel-title {
   font-size: 11px;
   letter-spacing: 2px;
-  color: var(--term-dim);
+  color: var(--head);
   text-transform: uppercase;
   margin: 0 0 10px;
 }
@@ -444,7 +450,7 @@ main {
   box-shadow: 0 0 8px rgba(255, 214, 106, 0.55);
 }
 .tab-panel-title {
-  color: var(--term);
+  color: var(--head);
   font-size: 16px;
   margin: 0 0 16px;
 }
@@ -476,7 +482,7 @@ main {
 }
 .codex-sec-title {
   font-size: 11px;
-  color: var(--term-dim);
+  color: var(--head);
   letter-spacing: 1.5px;
   text-transform: uppercase;
   margin: 0 0 8px;
@@ -737,7 +743,7 @@ main {
 .cc-label {
   font-size: 10px;
   letter-spacing: 2px;
-  color: var(--term-dim);
+  color: var(--head);
   text-transform: uppercase;
   margin-bottom: 6px;
 }
@@ -2110,9 +2116,17 @@ main {
   font-size: 13px;
   letter-spacing: 1px;
   margin-bottom: 10px;
-  color: var(--term-dim);
+  color: var(--head);
   border-bottom: 1px solid var(--line-soft);
   padding-bottom: 4px;
+}
+/* Enemy section carries the adversary signature, not the structural amber. */
+.roster-section--enemy .roster-section-title {
+  color: var(--threat);
+  border-bottom-color: rgba(255, 95, 208, 0.28);
+}
+.roster-section--enemy .roster-card:not(.active-turn):not(.active-actor-turn) {
+  border-color: rgba(255, 95, 208, 0.35);
 }
 .roster-list {
   display: flex;
@@ -2670,7 +2684,7 @@ main {
   line-height: 1.45;
 }
 .objective-kicker {
-  color: var(--term-dim);
+  color: var(--head);
   font-family: var(--mono);
   font-size: 10.5px;
   letter-spacing: 1px;

@@ -97,7 +97,7 @@ export function CombatRoster({ combat, scenarioId }: CombatRosterProps) {
           {party.map(renderCard)}
         </div>
       </div>
-      <div className="roster-section">
+      <div className="roster-section roster-section--enemy">
         <div className="roster-section-title">ENEMY</div>
         <div className="roster-list">
           {enemies.map(renderCard)}

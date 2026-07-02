@@ -51,28 +51,13 @@ specify which engine consumes it. Each engine consumes **only its own lane** →
 
 > Structure/bug/image only (deterministic, `make check`/image-integrity). Narrative QUALITY·emotional immersion·30-60min FEEL stay `[manual]` (morning play-QA). Dep-order within claude lane. Prior seed (archetype-id + stale-note) done → PROGRESS_LOG 2026-07-02.
 
-- [x] [auto:claude] Fix IX boss combat not firing at the boss node (live 2026-07-03: tension-100 auto-archive preempts the fight; only patrol_ambush ran, IX never started). Completion criterion: entering the boss route node begins ix_confrontation combat before/over the same-turn auto-archive; regression test; make check green. **DONE 2026-07-03 (`_defer_threshold_archive_for_climax`, 2 tests, 625 green) — PROGRESS_LOG 2026-07-03.**
-- [x] [auto:claude] Climax reachability pacing guard. Completion criterion: cap per-turn tension climb / raise the archive trigger so under a fixed choice-seed the golden path reaches the boss node without a prior tension>=90 auto-archive; test_route_integrity invariant; make check green. **DONE 2026-07-03 (`_defer_tension_archive_before_climax` defers pre-boss tension-only archive until `_route_boss_reached`; `test_boss_requires_full_layer_traversal` invariant + 3 session tests, 629 green) — PROGRESS_LOG 2026-07-03.**
-- [x] [auto:claude] Consecutive-scene anti-repeat invariant. Completion criterion: regression test asserts consecutive main scenes differ in route node/location under fixed seed; make check green. **DONE 2026-07-03 (`RouteAntiRepeatTest`, 2 tests, 631 green) — PROGRESS_LOG 2026-07-03.**
-- [x] [auto:claude] Side-anchor mechanism: wire scenario side_arcs into the route as seed-selected optional side-anchor nodes. Completion criterion: a side_arc node is reachable in the route DAG; new test; make check green. **DONE 2026-07-03 (`attach_side_anchors` in route_map.py + session wiring; `RouteSideAnchorTest` 6 tests, 637 green) — PROGRESS_LOG 2026-07-03.**
-- [x] [auto:claude] Per-loop variation. Completion criterion: seed-based selection so >=5 distinct loop seeds yield >=3 distinct visited-node/character sets; test; make check green. **DONE 2026-07-03 (`RoutePerLoopVariationTest`, 3 tests over 6 seeds × both builders: ≥3 distinct visited-node + side-arc/character sets, single-seed reproducible; 640 green) — PROGRESS_LOG 2026-07-03.**
-- [x] [auto:claude] Content-integrity for side-anchor data. Completion criterion: extend test_content_integrity/test_route_integrity so every side-anchor beat/image/encounter/npc ref resolves; make check green. **DONE 2026-07-03 (`SideAnchorIntegrityTest`, 7 tests over raw side_arcs + woven route nodes 16 seeds × both builders, 647 green) — PROGRESS_LOG 2026-07-03.**
-- [x] [auto:claude] Golden-path length guard. Completion criterion: test asserts >=12 narrative beats reachable before an ending on the golden path (30-60min proxy); make check green. **DONE 2026-07-03 (`RouteGoldenPathLengthTest`, 2 tests over 6 seeds × both builders: 20 pre-ending beats vs ≥12 floor, boss-reached + determinism guards, 649 green) — PROGRESS_LOG 2026-07-03.**
-- [ ] [auto:codex] story_bible entries for the 6 side_arcs. Completion criterion: 6 new bible entries (valid flags/related_npcs/unlocks); make check green.
-- [ ] [auto:codex] story_bible entries for character meet scenes (kai/lin_yue/tae_o/han/su_ah). Completion criterion: 5 new bible entries; make check green.
-- [ ] [auto:codex] scenario.json: structure the 6 side_arcs as side-anchor data (id/beat/gate/perspectives/image). Completion criterion: data present + integrity passes; make check green.
-- [ ] [auto:codex] Per-character meet-node data (kai/lin_yue/tae_o/han/su_ah). Completion criterion: data + integrity; make check green.
-- [ ] [auto:codex] Directive *.md files for the new side-anchor scenes. Completion criterion: directives/*.md present + loader resolves; make check green.
-- [ ] [auto:codex] Dynamic-node title/type variety pool for per-loop differentiation. Completion criterion: pool entries + integrity; make check green.
-- [ ] [auto:codex] Doc compression (NEXT_PLAN/COMPLETED_SUMMARY line budgets). Completion criterion: make check-doc-budget green.
-- [x] [auto:agy] Scene image: side_arc 버려진 자들의 신호. Completion criterion: scenes/abandoned_signal.png + image integrity gate.
-- [x] [auto:agy] Scene image: side_arc 관리망의 유령. Completion criterion: scenes/control_grid_ghost.png + image integrity gate.
-- [x] [auto:agy] Scene image: side_arc 린위에의 은밀한 의뢰. Completion criterion: image integrity gate.
-- [x] [auto:agy] Scene image: side_arc 물거미의 빚. Completion criterion: image integrity gate.
-- [x] [auto:agy] Scene image: side_arc 명단의 빈칸. Completion criterion: image integrity gate.
-- [x] [auto:agy] Scene image: side_arc 카이의 꿈 단편. Completion criterion: image integrity gate.
-- [x] [auto:agy] Dedicated scene art: data_incinerator + subway_control_hub (replace concept/ reuse). Completion criterion: 2 scenes/*.png + integrity gate.
-- [x] [auto:agy] Character meet-scene images: kai + lin_yue. Completion criterion: 2 images + integrity gate.
+**CBT completeness batch DONE (2026-07-03 → PROGRESS_LOG, `make check` 649 green, on `loop/integration`):**
+- [x] claude 7/7: IX boss-fire fix (`_defer_*_archive`) · pacing guard · anti-repeat · side-anchor mechanism (`attach_side_anchors`) · per-loop variation · side-anchor integrity · golden-path length. All test-backed.
+- [x] agy 8/8 scene images (integrity green). Character scenes later **regenerated for portrait consistency via codex Imagen** (se-rin/kai/lin-yue) — interactive.
+- [x] codex content (authored **interactively** — unattended-forbidden `[manual]`, codex correctly refused): 9 side_arcs wired (beat/image/related_npcs incl. 3 NEW companion arcs han/su_ah/tae_o + meet art) + 7 side-arc branch Story Bible entries (KO+EN) + doc compression.
+- [ ] `[manual]` **side_arc `trigger_flag` producers** (P3): arcs are data/art/bible-ready, but no choice/perspective SETS `han_met`/`su_ah_met`/`tae_o_met`/`kai_found`/… so companions don't yet surface in live play. Wire the flag setters (choices/route effects) so side-anchors actually appear.
+- [ ] `[auto:codex]` (optional, deferred) directive `*.md` for new side scenes · dynamic-node title/type variety pool.
+
 
 ## Priority 1 — Neo-Seoul Playability Upgrade
 

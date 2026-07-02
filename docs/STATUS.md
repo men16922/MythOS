@@ -1,6 +1,6 @@
 # Project MythOS Status
 
-Last updated: 2026-07-02
+Last updated: 2026-07-03
 
 ## Current Baseline
 
@@ -59,6 +59,7 @@ Live LLM QA & repetition mitigation (2026-06-08):
 
 Recent verified baseline recorded in docs:
 
+- **CBT consolidation on `loop/integration`** (2026-07-03, `make check` 649 green, NOT merged/pushed): overnight 3-lane (boss-fire fix + side-anchor mechanism + per-loop variation + 8 images) merged; agy character scenes regenerated for portrait consistency via codex Imagen (se-rin/kai/lin-yue); 3 NEW companion side_arcs (han/su_ah/tae_o) + meet art + 7 side-arc Story Bible entries (KO+EN). All 6 companions can surface narratively. Remaining: side_arc `trigger_flag` producers unwired (P3); human merge→main + play-QA.
 - **CBT feedback: UI accent hierarchy + visual provider-label fix** (2026-07-02, `make check` 623 green, `6afa6d9`/`7b8ad88`, unpushed): first external playtest note — all-green palette lacked hierarchy; added `--head` amber section headers + `--threat` magenta ENEMY signature (gauge progressive danger colors kept). Live-verified in Chrome. Separately, asset records were logging local-FLUX labels on Vertex Imagen generations → now reconciled from the active provider (+2 tests).
 - **bug#4 layer-1 curated-image directive** (2026-07-02, `make check` 621 green, `3b7d26b`, unpushed): the opening prologue's steering gate (turn ≥5) swallowed layer 1's only fresh turn (4), so the night_market anchor's image-consistency directive never fired; steering-resume turn now counts as fresh (`ROUTE_STEERING_START_TURN`) + regression test. CBT assets move committed (`ac7f9d1`, videos gitignored — YouTube distributes).
 - **Pre-CBT hardening + live verification** (2026-07-02, `make check` 620 green, `ebc7905`..`5d837ee`, **unpushed**): fixed the **IX boss climax never firing** (route combat was ambient-gated + lost precedence; now precedes + bypasses the gate) + 3 combat/route bugs (contact re-trigger loop, resume `scenario_id`, loot `KeyError`) + `_resolve_next_combat` refactor. Closed the **mid-play EN Korean-leak class** (endings/combat/codex/save/validator/parser/skill-error glossary + `/loops/{id}/scenes` localize + 2 frontend surfaces). Locally live-verified: fallback-API HTTP scan = 0 Korean (found+fixed 4 IX-combat leaks) + **AGY browser QA `PASS`** (Chrome DevTools, main-screen EN render). Detail PROGRESS_LOG 2026-07-02; remaining = human live play (`docs/test/neo_seoul_live_qa.md`, slimmed to 47 lines).

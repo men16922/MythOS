@@ -33,6 +33,14 @@ from mythos_runtime.story_bible import (
     story_bible_notes,
 )
 
+# First turn on which route node/junction steering reaches the prompt. Turns 0-4
+# are the fully scripted 5-beat opening prologue (opening.md), during which
+# steering is suppressed; _route_director_notes must treat this turn as a "fresh
+# node" too, because layer 1's natural fresh turn (turn 4 = layer boundary) falls
+# inside the suppressed window — otherwise a layer-1 anchor's curated-image
+# directive can never be emitted (pre-CBT bug#4).
+ROUTE_STEERING_START_TURN = 5
+
 LANGUAGE_RULE = (
     "CRITICAL LANGUAGE & CHOICE RULE (필수 한국어 및 선택지 생성 규칙):\n"
     "1. 모든 플레이어 대상 텍스트(scene.title, scene.narration, scene.objective, scene.action_result, choices의 각 label)는 "
@@ -543,7 +551,7 @@ def build_runtime_narrative_context(
     # earlier "세린 조우 사라짐" bug (generic free scenes overriding the anchor) is
     # already prevented because turns 0-4 are explicitly authored. Node/junction
     # steering resumes once the prologue ends, at turn 5 (the first act-1 scene).
-    if turn_index >= 5:
+    if turn_index >= ROUTE_STEERING_START_TURN:
         notes.extend(_route_director_notes(scenario, loop, turn_index, language))
         notes.extend(_route_junction_notes(scenario, loop, turn_index, language))
 
@@ -857,9 +865,17 @@ def _route_director_notes(
     # GM re-describes the same place every turn (the explore stagnation / location
     # stickiness bug). Establish the node — and match its curated image — on the first
     # scene, then force forward motion on later scenes. Layer 0's first noted scene is
-    # turn 1, so treat that as fresh too.
+    # turn 1, so treat that as fresh too. The steering-resume turn (5) is also fresh:
+    # layer 1's boundary turn (4) is swallowed by the opening prologue, so turn 5 is
+    # the first scene actually staged at the layer-1 node — without this, a layer-1
+    # anchor's curated image is never established and the "move forward" directive
+    # fires against a scene the GM never set (bug#4).
     per = max(1, DEFAULT_TURNS_PER_LAYER)
-    fresh_node = int(turn_index) % per == 0 or int(turn_index) == 1
+    fresh_node = (
+        int(turn_index) % per == 0
+        or int(turn_index) == 1
+        or int(turn_index) == ROUTE_STEERING_START_TURN
+    )
     title = node.get("title") or node.get("label")
 
     if en:

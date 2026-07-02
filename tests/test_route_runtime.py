@@ -310,6 +310,54 @@ class RouteDirectorNotesTest(unittest.TestCase):
         self.assertIn("반복 금지", repeat)
         self.assertNotIn("이미지 정합성", repeat)
 
+    def test_layer1_anchor_image_hint_fires_on_steering_resume_turn(self) -> None:
+        """bug#4: layer 1's boundary turn (4) falls inside the scripted opening
+        (steering suppressed until turn 5), so turn 5 — the first scene actually
+        staged at the layer-1 node — must count as fresh. Otherwise a layer-1
+        anchor's curated-image directive is unreachable and the anti-repeat
+        directive fires against a scene the GM never established."""
+        from mythos_core import LoopPhase, LoopState
+        from mythos_core.clock import utc_now
+        from mythos_runtime.scenario_context import (
+            ROUTE_STEERING_START_TURN,
+            _route_director_notes,
+        )
+
+        scenario = load_scenario("neo-seoul")
+        # met_se_rin routes the layer walk onto the gated night_market anchor
+        # (layer 1, curated image scenes/night_market.png).
+        state = advance_route(
+            _state("seed", ["met_se_rin"]),
+            turn_index=ROUTE_STEERING_START_TURN,
+            seed="seed",
+        )
+        node = state[ROUTE_MAP_KEY]["nodes"][state[ROUTE_MAP_KEY]["current"]]
+        self.assertEqual(node.get("layer"), 1)
+        self.assertTrue(str(node.get("image") or "").strip(), "layer-1 anchor must carry an image")
+        loop = LoopState(
+            loop_id="loop_b4",
+            player_id="p1",
+            seed="seed",
+            phase=LoopPhase.EXPLORE,
+            location_id="data-layer-01",
+            stability=50,
+            tension=50,
+            started_at=utc_now(),
+            state=state,
+        )
+        resume = "\n".join(
+            _route_director_notes(scenario, loop, turn_index=ROUTE_STEERING_START_TURN)
+        )
+        later = "\n".join(
+            _route_director_notes(scenario, loop, turn_index=ROUTE_STEERING_START_TURN + 1)
+        )
+        # turn 5 (first steered scene at the layer-1 node): establish + image hint.
+        self.assertIn("이미지 정합성", resume)
+        self.assertNotIn("반복 금지", resume)
+        # turn 6 (same node): forward motion, no image hint.
+        self.assertIn("반복 금지", later)
+        self.assertNotIn("이미지 정합성", later)
+
 
 if __name__ == "__main__":
     unittest.main()

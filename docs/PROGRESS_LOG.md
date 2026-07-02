@@ -1,9 +1,16 @@
 # Progress Log
 
-Last updated: 2026-07-01
+Last updated: 2026-07-03
 
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
+
+## 2026-07-03 — Scene image: side_arc 버려진 자들의 신호
+- Status: Completed (`make check` green; committed locally, unpushed).
+- Changed (visual): Generated scene image draft for `side_arc 버려진 자들의 신호` (Side: Signal of the Abandoned) using in-session Imagen 3 (16:9 aspect ratio, prompt tailored to Neo-Seoul art direction). Converted the output to PNG format and copied to `resources/neo-seoul/scenes/abandoned_signal.png`. Left the original draft and its review in `outputs/agy/abandoned_signal/`.
+- Verified: Ran `tests/test_image_assets.py` and `tests/test_assets.py` successfully. Verified that `make check` passes.
+- Blockers: None (push is human-only).
+- Next: human — review the generated scene image draft in `outputs/agy/abandoned_signal/` in the morning, and merge/push.
 
 ## 2026-07-02 — CBT feedback: UI accent hierarchy + visual provider-label truth fix + cloud stack live
 - Status: Completed (`make check` 623 green; committed `7b8ad88`, `6afa6d9`, unpushed). Interactive session, Vertex cloud stack live.

@@ -5,6 +5,13 @@ Last updated: 2026-07-03
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-03 — Scene image: side_arc 린위에의 은밀한 의뢰
+- Status: Completed (`make check` green; committed locally, unpushed).
+- Changed (visual): Generated scene image draft for `side_arc 린위에의 은밀한 의뢰` (Side: Lin Yue's Secret Request) using in-session Imagen 3 (16:9 aspect ratio, prompt tailored to Neo-Seoul art direction). Converted the output to PNG format and copied to `resources/neo-seoul/scenes/lin_yue_secret_request.png`. Left the original draft and its review in `outputs/agy/lin_yue_secret_request/`.
+- Verified: Ran `tests/test_image_assets.py` and `tests/test_assets.py` successfully. Verified that `make check` passes.
+- Blockers: None (push is human-only).
+- Next: human — review the generated scene image draft in `outputs/agy/lin_yue_secret_request/` in the morning, and merge/push.
+
 ## 2026-07-03 — Scene image: side_arc 관리망의 유령
 - Status: Completed (`make check` green; committed locally, unpushed).
 - Changed (visual): Generated scene image draft for `side_arc 관리망의 유령` (Side: Ghost of the Control Grid) using in-session Imagen 3 (16:9 aspect ratio, prompt tailored to Neo-Seoul art direction). Converted the output to PNG format and copied to `resources/neo-seoul/scenes/control_grid_ghost.png`. Left the original draft and its review in `outputs/agy/control_grid_ghost/`.

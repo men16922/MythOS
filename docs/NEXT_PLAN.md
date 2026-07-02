@@ -66,7 +66,7 @@ specify which engine consumes it. Each engine consumes **only its own lane** →
 - [ ] [auto:codex] Dynamic-node title/type variety pool for per-loop differentiation. Completion criterion: pool entries + integrity; make check green.
 - [ ] [auto:codex] Doc compression (NEXT_PLAN/COMPLETED_SUMMARY line budgets). Completion criterion: make check-doc-budget green.
 - [x] [auto:agy] Scene image: side_arc 버려진 자들의 신호. Completion criterion: scenes/abandoned_signal.png + image integrity gate.
-- [ ] [auto:agy] Scene image: side_arc 관리망의 유령. Completion criterion: image integrity gate.
+- [x] [auto:agy] Scene image: side_arc 관리망의 유령. Completion criterion: scenes/control_grid_ghost.png + image integrity gate.
 - [ ] [auto:agy] Scene image: side_arc 린위에의 은밀한 의뢰. Completion criterion: image integrity gate.
 - [ ] [auto:agy] Scene image: side_arc 물거미의 빚. Completion criterion: image integrity gate.
 - [ ] [auto:agy] Scene image: side_arc 명단의 빈칸. Completion criterion: image integrity gate.

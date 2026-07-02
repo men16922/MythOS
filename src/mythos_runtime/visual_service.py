@@ -204,6 +204,10 @@ class VertexImageProvider:
         client: object = None,
     ) -> None:
         self.model = model or _env("IMAGEN_MODEL", "IMAGE_MODEL_ID_VERTEX") or "imagen-3.0-generate-002"
+        # Truth labels for asset records/logs: the enqueuer stamps the request with
+        # local-FLUX defaults, which must not survive onto a billed cloud generation.
+        self.provider_label = "vertex_imagen"
+        self.model_label = self.model
         self.project = project or _env("GOOGLE_CLOUD_PROJECT", "PROJECT_ID")
         self.location = location or _env("GOOGLE_CLOUD_LOCATION") or "us-central1"
         if use_vertex is None:
@@ -470,6 +474,23 @@ class VisualService:
                 error=None,
             )
 
+        # The enqueuer stamps provider/model_id with local-FLUX defaults; the engine
+        # actually generating is env-selected here. Reconcile the labels before any
+        # record/log so a billed cloud generation is never recorded as local
+        # (bit us during live provider verification: Imagen ran, logs said FLUX).
+        reference_image = request.metadata.get("reference_image")
+        will_bypass = bool(
+            request.metadata.get("bypass_generation")
+            and reference_image
+            and Path(reference_image).exists()
+        )
+        if not will_bypass:
+            request = replace(
+                request,
+                provider=getattr(self.provider, "provider_label", None) or request.provider,
+                model_id=getattr(self.provider, "model_label", None) or request.model_id,
+            )
+
         # Async jobs carry a pre-minted asset_id; flag it processing before the
         # (slow) provider call so the UI can show a "generating" state.
         if request.asset_id is not None:
@@ -492,12 +513,7 @@ class VisualService:
                 model_id=request.model_id,
             ):
                 provider_start = perf_counter()
-                reference_image = request.metadata.get("reference_image")
-                if (
-                    request.metadata.get("bypass_generation")
-                    and reference_image
-                    and Path(reference_image).exists()
-                ):
+                if will_bypass and reference_image:
                     shutil.copy2(reference_image, output_path)
                     generated_path = output_path
                 else:

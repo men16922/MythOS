@@ -145,6 +145,35 @@ class VisualServiceTest(unittest.TestCase):
             self.assertGreaterEqual(result.asset.metadata["latency_ms"], 0.0)
             self.assertGreaterEqual(result.asset.metadata["provider_ms"], 0.0)
 
+    def test_asset_labels_reflect_active_provider(self) -> None:
+        """The enqueuer stamps requests with local-FLUX default labels; when the
+        active provider declares its own labels (e.g. Vertex Imagen), the recorded
+        asset must carry those — a billed cloud generation must never be logged as
+        `flux_local_mps` (live-verification finding, 2026-07-02)."""
+
+        class LabeledProvider(FakeProvider):
+            provider_label = "vertex_imagen"
+            model_label = "imagen-3.0-generate-002"
+
+        store = FakeStore()
+        result = VisualService(provider=LabeledProvider(), store=store).generate_for_scene(
+            self.scene,
+            player_id="player_visual_test",
+        )
+        self.assertTrue(result.ok)
+        self.assertEqual(result.asset.provider, "vertex_imagen")
+        self.assertEqual(result.asset.model_id, "imagen-3.0-generate-002")
+
+    def test_asset_labels_keep_request_defaults_without_provider_labels(self) -> None:
+        store = FakeStore()
+        result = VisualService(provider=FakeProvider(), store=store).generate_for_scene(
+            self.scene,
+            player_id="player_visual_test",
+        )
+        self.assertTrue(result.ok)
+        self.assertEqual(result.asset.provider, "flux_local_mps")
+        self.assertEqual(result.asset.model_id, "black-forest-labs/FLUX.1-schnell")
+
     def test_disabled_mode_records_disabled_asset(self) -> None:
         store = FakeStore()
         result = VisualService(provider=FakeProvider(), store=store).generate_for_scene(

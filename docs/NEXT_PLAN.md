@@ -69,7 +69,7 @@ specify which engine consumes it. Each engine consumes **only its own lane** →
 - [x] [auto:agy] Scene image: side_arc 관리망의 유령. Completion criterion: scenes/control_grid_ghost.png + image integrity gate.
 - [x] [auto:agy] Scene image: side_arc 린위에의 은밀한 의뢰. Completion criterion: image integrity gate.
 - [x] [auto:agy] Scene image: side_arc 물거미의 빚. Completion criterion: image integrity gate.
-- [ ] [auto:agy] Scene image: side_arc 명단의 빈칸. Completion criterion: image integrity gate.
+- [x] [auto:agy] Scene image: side_arc 명단의 빈칸. Completion criterion: image integrity gate.
 - [ ] [auto:agy] Scene image: side_arc 카이의 꿈 단편. Completion criterion: image integrity gate.
 - [ ] [auto:agy] Dedicated scene art: data_incinerator + subway_control_hub (replace concept/ reuse). Completion criterion: 2 scenes/*.png + integrity gate.
 - [ ] [auto:agy] Character meet-scene images: kai + lin_yue. Completion criterion: 2 images + integrity gate.

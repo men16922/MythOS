@@ -40,7 +40,7 @@ export function HeaderBar({
         title={t("lang.switch")}
         aria-label={t("lang.switch")}
       >
-        {lang === "ko" ? "EN" : "한국어"}
+        {lang === "ko" ? "EN" : "KO"}
       </button>
       <button
         type="button"

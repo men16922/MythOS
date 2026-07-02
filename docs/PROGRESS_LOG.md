@@ -5,6 +5,13 @@ Last updated: 2026-07-03
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-03 — Scene image: Dedicated scene art data_incinerator + subway_control_hub
+- Status: Completed (`make check` green; committed locally, unpushed).
+- Changed (visual): Generated two dedicated scene image drafts for `data_incinerator` and `subway_control_hub` using the in-session Gemini Image Generator (16:9 aspect ratio, prompt tailored to Neo-Seoul art direction). Converted the outputs to PNG format and copied to `resources/neo-seoul/scenes/data_incinerator.png` and `resources/neo-seoul/scenes/subway_control_hub.png`. Left the original drafts and their reviews in their respective folders under `outputs/agy/`.
+- Verified: Ran `tests/test_image_assets.py` and `tests/test_assets.py` successfully. Verified that `make check` passes.
+- Blockers: None (push is human-only).
+- Next: human — review the generated scene image drafts under `outputs/agy/` in the morning, and merge/push.
+
 ## 2026-07-03 — Scene image: side_arc 카이의 꿈 단편
 - Status: Completed (`make check` green; committed locally, unpushed).
 - Changed (visual): Generated scene image draft for `side_arc 카이의 꿈 단편` (Side: Kai's Dream Fragment) using in-session Gemini Image Generator (16:9 aspect ratio, prompt tailored to Neo-Seoul art direction). Converted the output to PNG format and copied to `resources/neo-seoul/scenes/kai_dream_fragment.png`. Left the original draft and its review in `outputs/agy/kai_dream_fragment/`.

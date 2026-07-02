@@ -52,7 +52,7 @@ specify which engine consumes it. Each engine consumes **only its own lane** →
 > "Does it not break" (bot, deterministic) content/balance invariants. green=locked, red=Blocker surface. offline·`make check`.
 
 - [x] [auto:claude] Content-integrity invariants for the 2026-06-27 archetype-id migration. Completion criterion: extend tests/test_content_integrity.py — (C1) every archetypes[].id unique & non-empty AND combat.archetype_loadout/archetype_base_skills key sets each equal the archetype id set (neo-seoul + glass-library); (C4) neo-seoul characters[].id unique & non-empty; (C2) every neo-seoul combat skill id has a skills/<id>.png icon (drop the test_assets.py skill-icon exclusion, neo-seoul only); make check green.
-- [ ] [auto:codex] Clean up stale test_assets.py skill exclusion note in STATUS.md. Completion criterion: Remove the stale statement about test_assets.py skill icon exclusion in docs/STATUS.md.
+- [x] [auto:codex] Clean up stale test_assets.py skill exclusion note in STATUS.md. Completion criterion: Remove the stale statement about test_assets.py skill icon exclusion in docs/STATUS.md. (Done 2026-07-02, consumed interactively by claude — `test_skill_icons_exist` covers all scenarios.)
 
 ## Priority 1 — Neo-Seoul Playability Upgrade
 

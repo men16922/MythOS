@@ -6,7 +6,7 @@ This file keeps **only the latest incremental summaries** (latest 5 items). The 
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
 ## 2026-07-03 — CBT consolidation: side-arc runtime + prompt lifecycle closed
-- Status: Completed on `loop/integration` (`make check` EXIT=0, **657 tests** green; not merged to main, not pushed). Interactive follow-up to the overnight batch.
+- Status: Completed and fast-forward merged locally to `main` as `cf7f57f` (`make check` EXIT=0, **657 tests** green; not pushed/redeployed). Interactive follow-up to the overnight batch.
 - Integration: `make overnight-merge` merged loop/claude (boss-fire fix + side-anchor mechanism + per-loop variation + invariants) + loop/agy (8 draft scene images) into `loop/integration`; PROGRESS_LOG compressed to clear the doc-budget gate. Verified: independent regate 649/623, boss regression tests assert combat-begins + loop-live, agy NEEDS_HUMAN = false alarm (events.jsonl parse glitch, game rendered fine).
 - Image consistency: agy's character scenes diverged from the canonical portraits -> regenerated 5 via **codex in-session Imagen referencing each portrait** (water_spider_debt=se-rin, kai_meet + kai_dream_fragment=kai's sleek white-silver android, lin_yue_meet + lin_yue_secret_request=lin-yue). All visually verified.
 - Companion expansion: 6 side_arcs wired to beat/image/related_npcs + **3 NEW companion side_arcs** (han/su_ah/tae_o meet) with character-consistent codex meet-scene art -> all 6 companions can surface narratively. Plus **7 side-arc branch Story Bible entries (KO+EN)** giving the GM emotional/voice context per side flag.
@@ -14,7 +14,7 @@ This file keeps **only the latest incremental summaries** (latest 5 items). The 
 - Prompt lifecycle: diagnosed explicit route choices seeing the previous node during generation (turn 8 source-only; turn 9 side-but-no-image-lock). Context-only target preview now makes the chosen side title/image/flags visible on its first scene without pre-committing rewards/state. Added typed beat-addressed `side_arcs.md` + `.en.md` lock envelopes for all 9 arcs in the full-render synopsis channel.
 - Dynamic variety: measured 200 full + 200 grown routes; growth's with-replacement type sampling caused duplicate titles in 21/200 maps and lower type diversity (5.04 vs full 5.58). Growth now mirrors full-builder non-replacement layer sampling: duplicates 21→0, unique titles 8.89→9.0, type diversity 5.04→5.61; 64-seed invariant locks title/type uniqueness.
 - Verified: 500-seed side measurement + 200-seed variety before/after + focused directive/route tests + service integration (`route:<side>` choice → first-scene lock → persisted state → combat ally) + `make check` EXIT=0 (657 tests, skipped 2) + `make smoke-local` + `make test-e2e` green.
-- Next: (human) merge `loop/integration`->main + push/redeploy + live play-QA `docs/test/neo_seoul_live_qa.md` 🔴.
+- Next: (human) push/redeploy + live play-QA `docs/test/neo_seoul_live_qa.md` 🔴.
 
 ## 2026-07-03 — Overnight CBT completeness batch (3-lane: claude code + agy images)
 - Status: claude lane DONE (7 items, `make check` 649 green) · agy lane DONE (8 scene images, integrity green) · codex lane rate-limited/blocked (content-authoring items → `[manual]`, done interactively). Verified this session (diff review + regate 649/623 + boss regression tests assert combat-begins + loop-live).

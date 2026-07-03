@@ -51,7 +51,7 @@ specify which engine consumes it. Each engine consumes **only its own lane** →
 
 > Structure/bug/image only (deterministic, `make check`/image-integrity). Narrative QUALITY·emotional immersion·30-60min FEEL stay `[manual]` (morning play-QA). Dep-order within claude lane. Prior seed (archetype-id + stale-note) done → PROGRESS_LOG 2026-07-02.
 
-**CBT completeness batch DONE (2026-07-03 → PROGRESS_LOG, `make check` 649 green, on `loop/integration`):**
+**CBT completeness batch DONE (2026-07-03 → PROGRESS_LOG, merged locally to `main` at `cf7f57f`, `make check` 657 green):**
 - [x] claude 7/7: IX boss-fire fix (`_defer_*_archive`) · pacing guard · anti-repeat · side-anchor mechanism (`attach_side_anchors`) · per-loop variation · side-anchor integrity · golden-path length. All test-backed.
 - [x] agy 8/8 scene images (integrity green). Character scenes later **regenerated for portrait consistency via codex Imagen** (se-rin/kai/lin-yue) — interactive.
 - [x] codex content (authored **interactively** — unattended-forbidden `[manual]`, codex correctly refused): 9 side_arcs wired (beat/image/related_npcs incl. 3 NEW companion arcs han/su_ah/tae_o + meet art) + 7 side-arc branch Story Bible entries (KO+EN) + doc compression.

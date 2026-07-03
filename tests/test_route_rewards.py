@@ -1,13 +1,52 @@
 import sys
 import unittest
+from dataclasses import replace
 from pathlib import Path
+from typing import Any, cast
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from test_session_combat import _InMemoryStore  # noqa: E402
 
+from mythos_core import Choice, LoopPhase, Scene  # noqa: E402
+from mythos_narrative import ScenePayload, WorldDelta  # noqa: E402
 from mythos_runtime.options import RuntimeOptions  # noqa: E402
+from mythos_runtime.route_map import (  # noqa: E402
+    ROUTE_MAP_KEY,
+    attach_side_anchors,
+    build_route_seed,
+)
+from mythos_runtime.scenario import load_scenario  # noqa: E402
 from mythos_runtime.session import RuntimeSessionService, _heal_party  # noqa: E402
+
+
+class _CaptureDirector:
+    def __init__(self) -> None:
+        self.contexts: list[Any] = []
+
+    def generate_next_scene(self, context):
+        self.contexts.append(context)
+        choices = [Choice(choice_id="continue", label="계속", intent="explore")]
+        scene = Scene(
+            scene_id=f"captured_{len(self.contexts)}",
+            loop_id=context.loop.loop_id,
+            turn_index=context.turn_index,
+            title="다음 장면",
+            location="route-target",
+            narration="선택한 경로로 이동한다.",
+            choices=choices,
+            visual_brief="The selected route destination.",
+            created_at=context.loop.started_at,
+        )
+        payload = ScenePayload(
+            title=scene.title,
+            location=scene.location,
+            narration=scene.narration,
+            choices=choices,
+            visual_brief=scene.visual_brief or "",
+            world_delta=WorldDelta(),
+        )
+        return scene, payload
 
 
 class HealPartyTest(unittest.TestCase):
@@ -58,8 +97,6 @@ class RouteNodeRewardIntegrationTest(unittest.TestCase):
         return snap
 
     def test_rest_node_heals_and_raises_stability_once(self) -> None:
-        from dataclasses import replace
-
         snap = self.svc.start_loop("p1", self.opts)
         loop_id = snap.loop.loop_id
         # wound the player
@@ -78,6 +115,119 @@ class RouteNodeRewardIntegrationTest(unittest.TestCase):
         # applied list has no duplicates (applied once even while lingering)
         applied = route["applied_rewards"]
         self.assertEqual(len(applied), len(set(applied)))
+
+    def test_companion_side_choice_persists_and_unlocks_combat_ally(self) -> None:
+        """Product-path proof for side-entry effects.
+
+        The player chooses a real ``route:<node>`` choice through
+        ``RuntimeSessionService.choose``. The resulting loop must persist Han's
+        canonical meeting flag and affection, and a subsequent combat must consume
+        that flag by building Han as an ally.
+        """
+        scenario = load_scenario("neo-seoul")
+        route_map = None
+        side_id = None
+        for index in range(100):
+            seed = f"session-side-han-{index}"
+            candidate = attach_side_anchors(
+                build_route_seed(scenario.route_map, seed),
+                scenario.side_arcs,
+                seed,
+            )
+            assert candidate is not None
+            side_id = next(
+                (
+                    node_id
+                    for node_id, node in candidate["nodes"].items()
+                    if node.get("beat") == "side_han_meet"
+                ),
+                None,
+            )
+            if side_id is not None:
+                route_map = candidate
+                break
+        self.assertIsNotNone(route_map, "seed scan did not exercise side_han_meet")
+        self.assertIsNotNone(side_id)
+        assert route_map is not None and side_id is not None
+
+        source = next(
+            node_id for node_id, targets in route_map["edges"].items() if side_id in targets
+        )
+        source_layer = int(route_map["nodes"][source]["layer"])
+        boundary_turn = (source_layer + 1) * 4 - 1
+
+        started = self.svc.start_loop("p1", self.opts)
+        loop = self.store.get_loop(started.loop.loop_id)
+        assert loop is not None
+        state = dict(loop.state)
+        state.pop("_encounter_map", None)
+        state[ROUTE_MAP_KEY] = {
+            **route_map,
+            "current": source,
+            "visited": [source],
+        }
+        self.store.save_loop(
+            replace(
+                loop,
+                seed=str(route_map["seed"]),
+                phase=LoopPhase.EXPLORE,
+                state=state,
+            )
+        )
+        self.store.save_scene(
+            Scene(
+                scene_id="scene_side_han_junction",
+                loop_id=loop.loop_id,
+                turn_index=boundary_turn,
+                title="러너의 신호",
+                location="control-grid-blind-spot",
+                narration="관리망 사각에서 한의 신호가 잡힌다.",
+                choices=[
+                    Choice(
+                        choice_id=f"route:{side_id}",
+                        label="러너의 지름길로 향한다",
+                        intent="explore",
+                    )
+                ],
+                visual_brief="A hidden route through the control grid.",
+                created_at=started.scene.created_at,
+            )
+        )
+
+        # Use a fresh service so no optional Redis session cache can mask the
+        # loop/scene state prepared above.
+        director = _CaptureDirector()
+        service = RuntimeSessionService(self.store, director=cast(Any, director))
+        live_opts = replace(self.opts, fallback=False, fast_mode=True)
+        chosen = service.choose(
+            loop.loop_id,
+            choice_id=f"route:{side_id}",
+            options=live_opts,
+        )
+        self.assertEqual(chosen.loop.state[ROUTE_MAP_KEY]["current"], side_id)
+        self.assertIn("met_han", chosen.loop.state["flags"])
+        self.assertEqual(chosen.loop.state["relationships"]["han"], 1)
+        self.assertEqual(len(director.contexts), 1)
+        rendered_context = "\n".join(
+            [
+                *director.contexts[0].novelty_notes,
+                *director.contexts[0].session_synopsis,
+            ]
+        )
+        self.assertIn(route_map["nodes"][side_id]["title"], rendered_context)
+        self.assertIn("scenes/han_meet.png", rendered_context)
+        self.assertIn("SIDE ARC SCENE LOCK", rendered_context)
+        self.assertIn("ROUTE_BEAT: side_han_meet", rendered_context)
+        self.assertIn("한이 사각지대 지름길을 제안", rendered_context)
+
+        combat = service.start_combat(loop.loop_id, "patrol_ambush", live_opts)
+        assert combat.combat is not None
+        ally_ids = {
+            blip["id"]
+            for blip in combat.combat["radar"]["blips"]
+            if blip.get("faction") == "ally"
+        }
+        self.assertIn("han", ally_ids)
 
 
 if __name__ == "__main__":

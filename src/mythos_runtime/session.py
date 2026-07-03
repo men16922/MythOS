@@ -442,9 +442,26 @@ class RuntimeSessionService:
             turn_index=turn_index,
             use_llm=not (options.fallback or options.fast_mode),
         )
+        # A route choice selects the node that stages *this* generated scene, but
+        # the durable route advance happens later in ``_commit_scene``. Preview the
+        # same deterministic advance only for narrative context so node title,
+        # curated-image lock, Story Bible flags, and route directives describe the
+        # destination instead of the previous junction. Keep ``loop`` itself
+        # unchanged here: commit still owns persistence, rewards, combat, and the
+        # single durable transition.
+        context_loop = loop
+        route_target = _route_target_from_choice(choice_id)
+        if route_target and isinstance(loop.state, dict) and loop.state.get(ROUTE_MAP_KEY):
+            preview_state = advance_route(
+                loop.state,
+                turn_index=turn_index,
+                seed=loop.seed,
+                preferred_next=route_target,
+            )
+            context_loop = replace(loop, state=preview_state)
         context = build_runtime_narrative_context(
             player=player,
-            loop=loop,
+            loop=context_loop,
             scenario=scenario,
             turn_index=turn_index,
             recent_events=recent_events,
@@ -1414,6 +1431,13 @@ class RuntimeSessionService:
             dstab += int(effect.get("stability", 0) or 0)
             dtens += int(effect.get("tension", 0) or 0)
             dins += int(effect.get("insight", 0) or 0)
+        node_effect_raw = node.get("effect")
+        node_effect: dict[str, Any] = (
+            node_effect_raw if isinstance(node_effect_raw, dict) else {}
+        )
+        dstab += int(node_effect.get("stability", 0) or 0)
+        dtens += int(node_effect.get("tension", 0) or 0)
+        dins += int(node_effect.get("insight", 0) or 0)
 
         new_state = dict(state)
         new_route = {**route, "applied_rewards": [*applied, node_id]}

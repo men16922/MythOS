@@ -23,7 +23,12 @@ from __future__ import annotations
 from typing import Any
 
 from mythos_core.dice import Dice
-from mythos_runtime.route_map import ROUTE_MAP_KEY, _build_node, _reachable_from
+from mythos_runtime.route_map import (
+    ROUTE_MAP_KEY,
+    _build_node,
+    _reachable_from,
+    _sample_pool,
+)
 
 
 def extend_route(
@@ -131,9 +136,22 @@ def _fill_layer(
     if need <= 0 or not pool:
         return counter, False
 
+    # Mirror the full builder's per-layer sampling: shuffle the pool before
+    # cycling, so a layer does not repeat one node type while enough distinct
+    # types are available. The previous per-node ``dice.choice(pool)`` sampled
+    # with replacement, exhausting small title pools and producing duplicate
+    # destinations only on the dynamic-growth path.
+    fallback_types = _sample_pool(pool, need, node_types, is_final, dice)
     new_ids: list[str] = []
     for col in range(need):
-        node_type, node_title = _next_node(queue, pool, node_types, dice, is_final, used_titles)
+        node_type, node_title = _next_node(
+            queue,
+            [fallback_types[col]],
+            node_types,
+            dice,
+            is_final,
+            used_titles,
+        )
         node_id = f"rn{counter}"
         counter += 1
         node_spec = {"type": node_type, "anchor": False, "title": node_title}

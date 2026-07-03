@@ -279,6 +279,22 @@ class CutsceneDirective:
 
 
 @dataclass(frozen=True)
+class RouteBeatDirective:
+    """One authored lock envelope for a route beat (``directives/side_arcs.md``).
+
+    Route mechanics decide *whether/when* the beat is entered. This object carries
+    only authored scene constraints and prose, addressed by stable ``beat=`` id.
+    """
+
+    directive_id: str
+    beat: str
+    location_lock: str
+    mandatory_event: str
+    forbidden: str
+    body: str
+
+
+@dataclass(frozen=True)
 class ScenarioDirectives:
     scenario_id: str
     opening_header: str = ""
@@ -305,6 +321,10 @@ class ScenarioDirectives:
     # (each carries its own ``companion`` id). Empty when no companions/ folder is
     # shipped. Unlock evaluation is in ``mythos_runtime.cutscenes``.
     cutscenes: list[CutsceneDirective] = field(default_factory=list)
+    # Route-beat lock envelopes (currently side anchors), addressed by stable
+    # scenario ``beat`` ids and injected only on the beat's first scene.
+    route_header: str = ""
+    route_beats: list[RouteBeatDirective] = field(default_factory=list)
 
     @property
     def empty(self) -> bool:
@@ -312,6 +332,9 @@ class ScenarioDirectives:
 
     def cutscene(self, cutscene_id: str) -> CutsceneDirective | None:
         return next((c for c in self.cutscenes if c.cutscene_id == cutscene_id), None)
+
+    def route_beat(self, beat_id: str) -> RouteBeatDirective | None:
+        return next((beat for beat in self.route_beats if beat.beat == beat_id), None)
 
     def opening_beat(self, turn: int) -> OpeningBeat | None:
         return next((b for b in self.opening_beats if b.turn == turn), None)
@@ -509,6 +532,30 @@ def _cutscenes_from_parsed(parsed: ParsedDirectives, default_companion: str) -> 
     return out
 
 
+def _route_beats_from_parsed(parsed: ParsedDirectives) -> tuple[str, list[RouteBeatDirective]]:
+    """Map beat-addressed blocks into route lock envelopes.
+
+    Blocks without ``beat=`` are ignored: unlike opening directives, route locks
+    have no turn fallback and must bind to a stable scenario address.
+    """
+    out: list[RouteBeatDirective] = []
+    for block in parsed.blocks:
+        beat = (block.beat or "").strip()
+        if not beat:
+            continue
+        out.append(
+            RouteBeatDirective(
+                directive_id=block.block_id,
+                beat=beat,
+                location_lock=block.meta.get("location_lock", ""),
+                mandatory_event=block.meta.get("mandatory_event", ""),
+                forbidden=block.meta.get("forbidden", ""),
+                body=block.body,
+            )
+        )
+    return parsed.file_meta.get("header", ""), out
+
+
 def _naming_from_parsed(parsed: ParsedDirectives) -> str:
     """Return the naming/register rule prose (the ``## naming`` block body).
 
@@ -564,6 +611,8 @@ def load_scenario_directives(scenario_id: str, language: str = "ko") -> Scenario
     naming_rule: str = ""
     stat_voices: StatVoices | None = None
     encounters: Encounters | None = None
+    route_header: str = ""
+    route_beats: list[RouteBeatDirective] = []
 
     opening_path = _directive_path(base, "opening", language)
     if opening_path is not None:
@@ -590,6 +639,13 @@ def load_scenario_directives(scenario_id: str, language: str = "ko") -> Scenario
     if encounters_path is not None:
         with open(encounters_path, encoding="utf-8") as f:
             encounters = _encounters_from_parsed(parse_directives_markdown(f.read()))
+
+    side_arcs_path = _directive_path(base, "side_arcs", language)
+    if side_arcs_path is not None:
+        with open(side_arcs_path, encoding="utf-8") as f:
+            route_header, route_beats = _route_beats_from_parsed(
+                parse_directives_markdown(f.read())
+            )
 
     cutscenes: list[CutsceneDirective] = []
     companions_dir = base / "companions"
@@ -619,6 +675,8 @@ def load_scenario_directives(scenario_id: str, language: str = "ko") -> Scenario
         stat_voices=stat_voices,
         encounters=encounters,
         cutscenes=cutscenes,
+        route_header=route_header,
+        route_beats=route_beats,
     )
 
 
@@ -628,6 +686,7 @@ __all__ = [
     "Encounters",
     "OpeningBeat",
     "ParsedDirectives",
+    "RouteBeatDirective",
     "ScenarioDirectives",
     "StatVoiceProfile",
     "StatVoices",

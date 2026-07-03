@@ -19,11 +19,13 @@ from collections import deque
 from typing import Any
 
 from mythos_runtime.route_map import (
+    ROUTE_MAP_KEY,
     SIDE_ANCHOR_ORIGIN,
     attach_side_anchors,
     build_route_map,
     build_route_seed,
 )
+from mythos_runtime.route_runtime import DEFAULT_TURNS_PER_LAYER, advance_route, junction_options
 from mythos_runtime.scenario import load_scenario
 
 
@@ -133,6 +135,96 @@ class RouteSideAnchorTest(unittest.TestCase):
                 layer = int(rm["nodes"][nid].get("layer", -1))
                 self.assertGreater(layer, 0, f"side node {nid} in opening layer")
                 self.assertLess(layer, last, f"side node {nid} in boss layer")
+
+    def test_min_layer_and_independent_edges(self) -> None:
+        for rm in self._maps():
+            for nid in _side_ids(rm):
+                node = rm["nodes"][nid]
+                self.assertGreaterEqual(
+                    int(node.get("layer", 0)),
+                    int(node.get("min_layer", 1)),
+                    f"side node {nid} landed before its trigger can be produced",
+                )
+                for source, targets in rm["edges"].items():
+                    if nid in targets:
+                        self.assertFalse(
+                            rm["nodes"][source].get("side_arc"),
+                            f"side node {nid} depends on side node {source}",
+                        )
+                for target in rm["edges"][nid]:
+                    self.assertFalse(
+                        rm["nodes"][target].get("side_arc"),
+                        f"side node {nid} routes through side node {target}",
+                    )
+
+    def test_unearned_gated_side_nodes_never_leak_through_fallback(self) -> None:
+        for rm in self._maps():
+            for nid in _side_ids(rm):
+                node = rm["nodes"][nid]
+                gate = node.get("gate")
+                if not gate:
+                    continue
+                sources = [source for source, targets in rm["edges"].items() if nid in targets]
+                self.assertEqual(len(sources), 1)
+                source = sources[0]
+                source_layer = int(rm["nodes"][source]["layer"])
+                state = {
+                    "flags": [],
+                    ROUTE_MAP_KEY: {**rm, "current": source, "visited": [source]},
+                }
+                options = junction_options(
+                    state,
+                    turn_index=(source_layer + 1) * DEFAULT_TURNS_PER_LAYER - 1,
+                )
+                self.assertNotIn(
+                    nid,
+                    {option["id"] for option in options},
+                    f"gated side node {nid} leaked into junction options",
+                )
+                advanced = advance_route(
+                    state,
+                    turn_index=(source_layer + 1) * DEFAULT_TURNS_PER_LAYER,
+                    seed=str(rm["seed"]),
+                )
+                self.assertNotEqual(
+                    advanced[ROUTE_MAP_KEY]["current"],
+                    nid,
+                    f"gated side node {nid} auto-selected without {gate}",
+                )
+
+    def test_companion_entry_effects_set_canonical_flags_and_affection(self) -> None:
+        expected = {
+            "side_han_meet": ("met_han", "han"),
+            "side_su_ah_meet": ("met_su_ah", "su_ah"),
+            "side_tae_o_meet": ("met_tae_o", "tae_o"),
+        }
+        observed: set[str] = set()
+        for rm in self._maps():
+            for nid in _side_ids(rm):
+                node = rm["nodes"][nid]
+                beat = str(node.get("beat") or "")
+                if beat not in expected:
+                    continue
+                sources = [source for source, targets in rm["edges"].items() if nid in targets]
+                self.assertEqual(len(sources), 1)
+                source = sources[0]
+                source_layer = int(rm["nodes"][source]["layer"])
+                state = {
+                    "flags": [],
+                    ROUTE_MAP_KEY: {**rm, "current": source, "visited": [source]},
+                }
+                out = advance_route(
+                    state,
+                    turn_index=(source_layer + 1) * DEFAULT_TURNS_PER_LAYER,
+                    seed=str(rm["seed"]),
+                    preferred_next=nid,
+                )
+                flag, companion = expected[beat]
+                self.assertEqual(out[ROUTE_MAP_KEY]["current"], nid)
+                self.assertIn(flag, out["flags"])
+                self.assertEqual(out["relationships"].get(companion), 1)
+                observed.add(beat)
+        self.assertEqual(observed, set(expected), "not every companion entry arc was exercised")
 
     def test_deterministic(self) -> None:
         a = attach_side_anchors(build_route_map(self.config, "det"), self.side_arcs, "det")

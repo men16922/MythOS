@@ -106,6 +106,18 @@
     {
       "title": "Side: Fragments of Kai's Dream",
       "description": "You restore the pre-war memory of a child that Kai dreams repeatedly, gaining a clue to MythOS's origin."
+    },
+    {
+      "title": "Side: The Runner's Shortcut",
+      "description": "Data-runner Han offers a shortcut through the control grid's blind spots, opening a movement advantage and a chance for him to join."
+    },
+    {
+      "title": "Side: Beyond the Lock",
+      "description": "Hacker Su-ah proposes opening an ARK data vault together for inside intelligence and her trust."
+    },
+    {
+      "title": "Side: An Old Wound",
+      "description": "Scarred veteran Tae-o confronts what the control grid took from him, revealing a heavy truth and a potential ally."
     }
   ],
   "endings": [

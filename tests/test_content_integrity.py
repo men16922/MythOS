@@ -1832,11 +1832,11 @@ class SideAnchorIntegrityTest(unittest.TestCase):
     vacuously green today but guard the codex data pass that adds the resource
     fields; the well-formedness / trigger / beat-address checks have teeth now.
 
-    The gate producibility of a side arc's ``trigger_flag`` is intentionally *not*
-    asserted here: the trigger flags (``help_citizen`` / ``optimization_list_seen``
-    / ``kai_found`` …) are authored today with no producer yet — wiring their
-    producers is the codex content pass's job, and a producibility gate now would
-    fail on in-progress data rather than a real break.
+    A conditional side arc's ``trigger_flag`` must be produced by an earlier route
+    layer (or by the deterministic onboarding engine) before the arc's
+    ``min_layer``. Ungated encounter arcs instead declare an entry ``effect.flags``
+    producer, so meeting a companion records the canonical flag consumed by Story
+    Bible and combat ally gates.
     """
 
     def _scenarios(self) -> list[tuple[str, dict[str, Any]]]:
@@ -1888,8 +1888,9 @@ class SideAnchorIntegrityTest(unittest.TestCase):
 
     def test_side_arcs_are_well_formed(self) -> None:
         """Each side arc needs a non-empty ``title`` + ``description`` (the junction
-        label + Director brief) and exactly one trigger surface. Zero triggers means
-        the arc can never surface; two means an ambiguous/contradictory gate."""
+        label + Director brief). Conditional arcs declare exactly one trigger;
+        ungated encounter arcs declare an entry ``effect.flags`` instead. Two
+        trigger surfaces remain ambiguous."""
         offenders: list[str] = []
         for name, _data, arcs in self._scenarios_with_side_arcs():
             titles: list[str] = []
@@ -1904,10 +1905,14 @@ class SideAnchorIntegrityTest(unittest.TestCase):
                 if not (isinstance(description, str) and description.strip()):
                     offenders.append(f"{label}.description missing")
                 triggers = sorted(k for k in SIDE_ARC_TRIGGER_KEYS if arc.get(k) is not None)
-                if len(triggers) != 1:
+                effect = arc.get("effect") if isinstance(arc.get("effect"), dict) else {}
+                entry_flags = effect.get("flags") if isinstance(effect, dict) else None
+                has_entry_flags = isinstance(entry_flags, list) and bool(entry_flags)
+                if len(triggers) > 1 or (len(triggers) == 0 and not has_entry_flags):
                     offenders.append(
                         f"{label} declares {len(triggers)} triggers {triggers} "
-                        f"(need exactly one of {sorted(SIDE_ARC_TRIGGER_KEYS)})"
+                        f"and entry_flags={entry_flags!r} (need one trigger or "
+                        "non-empty effect.flags)"
                     )
             dupes = sorted({t for t in titles if titles.count(t) > 1})
             offenders.extend(f"{name}:duplicate side_arc title {t!r}" for t in dupes)
@@ -2011,6 +2016,67 @@ class SideAnchorIntegrityTest(unittest.TestCase):
             [],
             "side_arc NPC references that resolve to no declared character/ally/"
             f"subject: {offenders}",
+        )
+
+    def test_trigger_flags_are_produced_before_min_layer(self) -> None:
+        """A hard side-arc gate must have an earlier deterministic producer.
+
+        Merely finding a matching string somewhere in the scenario is insufficient:
+        if the producer resolves at the same or a later layer, the optional node has
+        already been passed and remains dead for that loop.
+        """
+        offenders: list[str] = []
+        for name, data, arcs in self._scenarios_with_side_arcs():
+            route_map = data.get("route_map") or {}
+            if not route_map.get("layers"):
+                continue
+            producer_layers: dict[str, int] = {
+                flag: -1 for flag in ENGINE_PRODUCED_FLAGS
+            }
+            for layer_index, layer in enumerate(route_map.get("layers", []) or []):
+                for anchor in layer.get("anchors", []) or []:
+                    for perspective in anchor.get("perspectives", []) or []:
+                        effect = perspective.get("effect") or {}
+                        for flag in effect.get("flags", []) or []:
+                            producer_layers[str(flag)] = min(
+                                layer_index,
+                                producer_layers.get(str(flag), layer_index),
+                            )
+            for index, arc in enumerate(arcs):
+                trigger = arc.get("trigger_flag")
+                if not trigger:
+                    continue
+                min_layer = max(1, int(arc.get("min_layer", 1) or 1))
+                producer_layer = producer_layers.get(str(trigger))
+                if producer_layer is None or producer_layer >= min_layer:
+                    offenders.append(
+                        f"{name}:side_arcs[{index}] trigger {trigger!r} producer_layer="
+                        f"{producer_layer!r}, min_layer={min_layer}"
+                    )
+        self.assertEqual(
+            offenders,
+            [],
+            "side_arc trigger flags missing an earlier deterministic producer: "
+            f"{offenders}",
+        )
+
+    def test_entry_effects_are_carried_to_woven_nodes(self) -> None:
+        expected = {
+            str(arc["beat"]): arc["effect"]
+            for _name, _data, arcs in self._scenarios_with_side_arcs()
+            for arc in arcs
+            if arc.get("beat") and isinstance(arc.get("effect"), dict)
+        }
+        observed: set[str] = set()
+        for _seed, _node_id, node, _rm in self._woven_side_nodes():
+            beat = str(node.get("beat") or "")
+            if beat in expected:
+                self.assertEqual(node.get("effect"), expected[beat])
+                observed.add(beat)
+        self.assertEqual(
+            observed,
+            set(expected),
+            "not every authored side_arc entry effect was exercised by the woven-node scan",
         )
 
     def test_side_anchors_are_actually_woven(self) -> None:

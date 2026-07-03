@@ -21,6 +21,7 @@ from mythos_runtime.route_runtime import (
 from mythos_runtime.scenario import ScenarioConfig, load_scenario_i18n
 from mythos_runtime.scenario_directives import (
     Encounters,
+    ScenarioDirectives,
     StatVoiceProfile,
     StatVoices,
     fill_placeholders,
@@ -554,6 +555,16 @@ def build_runtime_narrative_context(
     if turn_index >= ROUTE_STEERING_START_TURN:
         notes.extend(_route_director_notes(scenario, loop, turn_index, language))
         notes.extend(_route_junction_notes(scenario, loop, turn_index, language))
+        route_beat_lock = _route_beat_directive_notes(
+            directives,
+            loop,
+            turn_index,
+            player_action,
+        )
+        if route_beat_lock:
+            # Authored anchor locks are correctness-critical and must not be
+            # displaced by the novelty-note truncation window.
+            session_synopsis = [*route_beat_lock, *session_synopsis]
 
     # P1 — 루프 내러티브 잔향 (Slay the Princess) 처리
     run_summaries = [m for m in world_memories if m.kind == "run_summary"]
@@ -870,12 +881,7 @@ def _route_director_notes(
     # the first scene actually staged at the layer-1 node — without this, a layer-1
     # anchor's curated image is never established and the "move forward" directive
     # fires against a scene the GM never set (bug#4).
-    per = max(1, DEFAULT_TURNS_PER_LAYER)
-    fresh_node = (
-        int(turn_index) % per == 0
-        or int(turn_index) == 1
-        or int(turn_index) == ROUTE_STEERING_START_TURN
-    )
+    fresh_node = _is_fresh_route_node_turn(turn_index)
     title = node.get("title") or node.get("label")
 
     if en:
@@ -965,6 +971,53 @@ def _route_director_notes(
                 f"현재 루트가 향하는 결말 경향: '{label}'. "
                 "결말을 직접 언급하지 말고, 톤과 복선으로만 이 방향을 은유적으로 비추십시오."
             )
+    return lines
+
+
+def _is_fresh_route_node_turn(turn_index: int) -> bool:
+    per = max(1, DEFAULT_TURNS_PER_LAYER)
+    return (
+        int(turn_index) % per == 0
+        or int(turn_index) == 1
+        or int(turn_index) == ROUTE_STEERING_START_TURN
+    )
+
+
+def _route_beat_directive_notes(
+    directives: ScenarioDirectives,
+    loop: LoopState,
+    turn_index: int,
+    player_action: str | None,
+) -> list[str]:
+    """Render a beat-addressed route lock on the node's first scene only."""
+    if not _is_fresh_route_node_turn(turn_index):
+        return []
+    state = loop.state if isinstance(loop.state, dict) else {}
+    status = route_status(state)
+    node = status.get("node") if status else None
+    if not isinstance(node, dict):
+        return []
+    beat_id = str(node.get("beat") or "")
+    directive = directives.route_beat(beat_id) if beat_id else None
+    if directive is None:
+        return []
+    lines = [directives.route_header or "=== ROUTE BEAT SCENE LOCK ==="]
+    lines.extend(
+        [
+            f"ROUTE_BEAT: {directive.beat}",
+            f"LOCATION_LOCK: {directive.location_lock}",
+            f"MANDATORY_EVENT: {directive.mandatory_event}",
+            f"FORBIDDEN: {directive.forbidden}",
+            fill_placeholders(
+                directive.body,
+                {
+                    "player_action": player_action or "",
+                    "node_title": node.get("title") or "",
+                    "node_image": node.get("image") or "",
+                },
+            ),
+        ]
+    )
     return lines
 
 

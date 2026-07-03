@@ -719,7 +719,7 @@
       "content": "Han, hair a mess and a half-grin on his face, offers to take the player through gaps the grid can't see. Runner that he is, he takes a cut — but behind the nonchalance are scars from too many near-deaths. This is a deal and a test between outsiders; completing it grants a movement edge and opens the chance Han joins. He speaks in light informal Korean and hides sincerity between jokes.",
       "when": {
         "flags_any": [
-          "han_met"
+          "met_han"
         ]
       },
       "priority": 16,
@@ -737,7 +737,7 @@
       "content": "Su-ah reads data through her purple AR glasses and makes a dangerous offer in a calm voice. To her, information is both weapon and burden — she knows the thrill of opening what shouldn't be opened, and its price. Success grants inside grid intel and her trust. She leads with logic over emotion, but puts people first when the real danger comes.",
       "when": {
         "flags_any": [
-          "su_ah_met"
+          "met_su_ah"
         ]
       },
       "priority": 16,
@@ -755,7 +755,7 @@
       "content": "Tae-o is an old hound with a facial scar and circuit tattoos, few words and a heavy gaze. Follow his wound and you face what the control grid tore from him long ago — a heavy truth alongside a strong ally. He never wallows; trust arrives only after you've crossed danger together, in a single short line.",
       "when": {
         "flags_any": [
-          "tae_o_met"
+          "met_tae_o"
         ]
       },
       "priority": 16,

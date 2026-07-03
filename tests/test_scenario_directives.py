@@ -200,6 +200,31 @@ class LoadScenarioDirectivesTest(unittest.TestCase):
         self.assertIsNone(by_turn[0].shot_ref)
         self.assertEqual(by_turn[1].shot_ref, 0)
 
+    def test_side_arc_route_directives_cover_all_beats_in_ko_and_en(self) -> None:
+        from mythos_runtime.scenario import load_scenario
+
+        scenario = load_scenario("neo-seoul")
+        expected_beats = {
+            str(arc["beat"])
+            for arc in scenario.side_arcs
+            if isinstance(arc, dict) and arc.get("beat")
+        }
+        ko = load_scenario_directives("neo-seoul", "ko")
+        en = load_scenario_directives("neo-seoul", "en")
+        self.assertEqual({beat.beat for beat in ko.route_beats}, expected_beats)
+        self.assertEqual({beat.beat for beat in en.route_beats}, expected_beats)
+        self.assertEqual(
+            [(beat.directive_id, beat.beat) for beat in ko.route_beats],
+            [(beat.directive_id, beat.beat) for beat in en.route_beats],
+        )
+        self.assertTrue(ko.route_header)
+        self.assertTrue(en.route_header)
+        for directive in [*ko.route_beats, *en.route_beats]:
+            self.assertTrue(directive.location_lock)
+            self.assertTrue(directive.mandatory_event)
+            self.assertTrue(directive.forbidden)
+            self.assertTrue(directive.body)
+
 
 class OpeningAssemblerIntegrationTest(unittest.TestCase):
     """The generic assembler in scenario_context must emit the authored beat into

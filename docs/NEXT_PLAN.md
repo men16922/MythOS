@@ -1,6 +1,6 @@
 # Project MythOS Next Plan
 
-Last updated: 2026-07-02
+Last updated: 2026-07-03
 
 This file keeps only upcoming (open) work as a rolling plan. Completed tracks live in
 `docs/COMPLETED_SUMMARY.md`, detailed logs in `bin/docs/archive/progress-2026-06.md`, individual designs in
@@ -14,7 +14,7 @@ Key finding: relationship deltas (`scenario.json` perspective/choice `effect.rel
 - `[/]` **Prompt-layer separation (Foundation)**: Phase 0-4 + node-addressing done. Remaining — `[ ]` Phase 5 system_prompt few-shot example extraction (cache-prefix sensitive, lowest priority).
 - `[/]` **P1 cutscene unlock**: backend and frontend wiring/QA done. Remaining: `[ ]` in-game cutscene node appearance (P1-a, directive injection).
 - `[/]` `[manual]` **P2 Se-rin cutscene**: `se_rin.md` 2 cuts authored. Remaining: `[ ]` adopt 2 dedicated arts from `outputs/experiments/adult/serin/imagegen/*.png` (IMAGE_POLICY) + image swap + live QA.
-- `[ ]` `[manual]` **P3 companion expansion**: kai/lin_yue/tae_o/han/su_a cutscenes + promote 6 `side_arcs` to route side-anchors (WS-B track 2).
+- `[/]` `[manual]` **P3 companion expansion**: 9 `side_arcs` are route side-anchors with deterministic producer/entry-effect wiring. Remaining: kai/lin_yue/tae_o/han/su_a cutscenes.
 
 ## Engineering maintenance track — WS0-3 done (COMPLETED_SUMMARY M43), only WS4 remains
 
@@ -55,8 +55,7 @@ specify which engine consumes it. Each engine consumes **only its own lane** →
 - [x] claude 7/7: IX boss-fire fix (`_defer_*_archive`) · pacing guard · anti-repeat · side-anchor mechanism (`attach_side_anchors`) · per-loop variation · side-anchor integrity · golden-path length. All test-backed.
 - [x] agy 8/8 scene images (integrity green). Character scenes later **regenerated for portrait consistency via codex Imagen** (se-rin/kai/lin-yue) — interactive.
 - [x] codex content (authored **interactively** — unattended-forbidden `[manual]`, codex correctly refused): 9 side_arcs wired (beat/image/related_npcs incl. 3 NEW companion arcs han/su_ah/tae_o + meet art) + 7 side-arc branch Story Bible entries (KO+EN) + doc compression.
-- [ ] `[manual]` **side_arc `trigger_flag` producers** (P3): arcs are data/art/bible-ready, but no choice/perspective SETS `han_met`/`su_ah_met`/`tae_o_met`/`kai_found`/… so companions don't yet surface in live play. Wire the flag setters (choices/route effects) so side-anchors actually appear.
-- [ ] `[auto:codex]` (optional, deferred) directive `*.md` for new side scenes · dynamic-node title/type variety pool.
+- [x] side-arc runtime + prompt lifecycle: deterministic producer/entry effects, no fallback leaks/side chains, context-only route-target preview, typed KO/EN locks for all 9 side scenes, and non-replacement dynamic-growth type sampling (200-seed duplicate titles 21→0). Service integration proves side choice→first-scene directive→state→combat ally (`make check` 657 green).
 
 
 ## Priority 1 — Neo-Seoul Playability Upgrade

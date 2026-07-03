@@ -52,6 +52,7 @@ scenario.json → load_scenario() [lru_cached, src/mythos_runtime/scenario.py] �
 | 게이팅(turn≤4/phase/turn≥5 route), 채널 라우팅, `MAX_PROMPT_NOTES` 트렁케이션 | scenario_context | **STAY** (불변 로직) |
 | JSON 계약, 언어=한국어 규칙, `_story_context_prompt` 템플릿 | prompts.py | **STAY** |
 | `_route_director_notes`/`_route_junction_notes`/`_scenario_structure_notes` | scenario_context | **STAY** (데이터주도 어셈블리) |
+| side-anchor beat 잠금 prose(location/event/forbidden) | scenario_context | **MOVE 완료** → `directives/side_arcs.md` + `.en.md` |
 | stat-voice min/max 선택 로직, encounter 임계값(`stability<30`/`tension>70`) | scenario_context | **STAY** (로직만; prose는 MOVE) |
 | ONBOARDING 오프닝 비트 5종 prose | scenario_context | **MOVE** → `directives/opening.md` |
 | `NEO_SEOUL_NAMING_RULE`(고유명사/말투) | scenario_context | **MOVE** → `directives/naming.md` |
@@ -96,9 +97,11 @@ start_combat:
 
 **함의**: 8B 드리프트/짧은생성/fallback은 **dynamic 노드**에서 재발한다. 잠금 모델 = 주요 장면
 (오프닝 + 메인 anchor + 사이드 anchor)을 directive로 **명시 매핑/잠금**(location_lock/mandatory_event/
-forbidden), dynamic은 **의도적 창발**에 맡긴다. `directives.md`를 **노드-주소 지정**(`turn=` / `node=` / `beat=`)
-으로 만들면 동일 잠금 봉투를 오프닝과 anchor에 균일 적용 — `_route_director_notes`가 이미 현재 노드
-beat/image를 주입하므로, 노드가 directive를 가지면 잠금 봉투도 함께 주입(오프닝과 동일 경로).
+forbidden), dynamic은 **의도적 창발**에 맡긴다. Side anchor는 `directives/side_arcs*.md`의 `beat=` 주소로
+KO/EN 9개 잠금 봉투가 구현됐다. 명시적 `route:<node>` 선택은 durable commit 전에 context-only preview를
+사용해 선택한 노드의 title/image/flags/directive가 첫 생성 장면에 도달하며, 잠금은 잘리지 않는
+`session_synopsis` 채널로 주입된다.
 
-3-트랙 라우팅 결합(후속 WS-B): 메인 anchor(결정론 척추·분기-게이트) + 사이드 anchor(병렬·동료,
-`side_arcs`→route 노드 승격) + dynamic fill(절차). 상세는 `docs/plans/`.
+3-트랙 라우팅 결합: 메인 anchor(결정론 척추·분기-게이트) + 사이드 anchor(병렬·동료, route 노드 승격
++ producer/entry effect + beat directive 완료) + dynamic fill(절차; full/growth 공통 비복원 layer type sampling과
+제목 중복 invariant 완료). 상세는 `docs/plans/`.

@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-07-03 — Side-arc lifecycle separates prerequisite gates from encounter entry effects
+
+Decision: Conditional side arcs keep `trigger_flag` as a hard prerequisite and declare `min_layer` later than their deterministic route-effect producer. Companion meeting arcs are ungated encounters whose node-level `effect.flags` records the canonical `met_<companion>` flag and whose `effect.relationship` records first-contact affinity. Side anchors may connect only through main-route nodes; gate fallback may bypass a blocked main route but never an optional side gate. An explicit `route:<node>` choice previews the deterministic target in `NarrativeContext` only; durable state/rewards/combat remain commit-owned. Beat-addressed KO/EN `side_arcs*.md` lock envelopes are injected on the target's first scene through the non-truncated synopsis channel.
+
+Reason/impact: A 500-seed diagnosis found six trigger flags with no producer, gated side nodes leaking through fallback, and 32 side→side incoming edges. A second context capture found the chosen scene saw only the source node while the next turn saw the side node after its fresh image-lock window. The lifecycle makes both state and prompt transitions causal and testable before live play.
+
 ## 2026-06-28 — Gemini controlled generation runs with thinking DISABLED (`thinking_budget=0`)
 
 Decision: The Vertex Gemini narrative provider (`VertexGeminiJSONProvider`) sets `thinking_config={"thinking_budget": 0}` by default (env `GEMINI_THINKING_BUDGET`, default 0). Thinking is **off** for controlled structured generation.

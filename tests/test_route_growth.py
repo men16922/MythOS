@@ -77,7 +77,9 @@ class RouteGrowthTest(unittest.TestCase):
                 turn_index=layer * 4,
                 proposals=proposals if layer == 1 else None,
             )
-        return state[ROUTE_MAP_KEY]
+        route_map = state[ROUTE_MAP_KEY]
+        assert isinstance(route_map, dict)
+        return route_map
 
     def test_growth_fills_layers_as_player_advances(self) -> None:
         rm = _seed(self.config, "grow-seed")
@@ -102,6 +104,38 @@ class RouteGrowthTest(unittest.TestCase):
         summary = route_map_paths_summary(grown)
         self.assertTrue(summary["avoid"])
         self.assertTrue(summary["combat"])
+
+    def test_growth_keeps_dynamic_titles_and_layer_types_distinct(self) -> None:
+        """Distribution guard for the dynamic-only duplicate regression.
+
+        Every neo-seoul layer has at least as many allowed pool types as its
+        requested width, and the global title pools cover the maximum number of
+        layers in which each type can appear. Across many seeds, growth should
+        therefore need neither a repeated type within a layer nor a repeated
+        player-facing dynamic title within a route.
+        """
+        for index in range(64):
+            grown = self._grow_seed(f"variety-growth-{index}")
+            dynamic = [
+                node for node in grown["nodes"].values() if node.get("origin") == "dynamic"
+            ]
+            titles = [str(node.get("title")) for node in dynamic]
+            self.assertEqual(
+                len(titles),
+                len(set(titles)),
+                f"duplicate dynamic title for seed variety-growth-{index}: {titles}",
+            )
+            for layer in grown["layers"]:
+                types = [
+                    str(grown["nodes"][node_id]["type"])
+                    for node_id in layer
+                    if grown["nodes"][node_id].get("origin") == "dynamic"
+                ]
+                self.assertEqual(
+                    len(types),
+                    len(set(types)),
+                    f"duplicate dynamic type within a layer for seed variety-growth-{index}",
+                )
 
     def test_llm_proposals_are_consumed(self) -> None:
         proposals = [
@@ -129,6 +163,21 @@ class RouteGrowthTest(unittest.TestCase):
         state = {ROUTE_MAP_KEY: static_rm}
         out = extend_route(state, seed="static-seed", turn_index=4)
         self.assertIs(out, state)
+
+    def _grow_seed(self, seed: str) -> dict[str, Any]:
+        state: dict[str, Any] = {ROUTE_MAP_KEY: _seed(self.config, seed), "flags": []}
+        last = len(state[ROUTE_MAP_KEY]["layers"]) - 1
+        for layer in range(last + 1):
+            state = _advance_pointer(state, layer)
+            state = extend_route(
+                state,
+                seed=seed,
+                turn_index=layer * 4,
+                proposals=None,
+            )
+        route_map = state[ROUTE_MAP_KEY]
+        assert isinstance(route_map, dict)
+        return route_map
 
 
 if __name__ == "__main__":

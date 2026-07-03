@@ -203,6 +203,8 @@ def _build_node(
     for field in ("beat", "image", "image_pre", "event", "default_perspective"):
         if spec.get(field):
             node[field] = str(spec[field])
+    if isinstance(spec.get("effect"), dict):
+        node["effect"] = dict(spec["effect"])
     # `image_sequence`: one curated still per beat (turn) of a multi-scene anchor,
     # e.g. the opening (awakening → arrival → first-contact → chase). The frontend
     # indexes it by the scene's turn_index; it takes priority over image/image_pre.
@@ -435,6 +437,8 @@ def _build_side_node(
     for field in ("beat", "image", "image_pre", "event", "default_perspective"):
         if arc_data.get(field):
             spec[field] = arc_data[field]
+    if isinstance(arc_data.get("effect"), dict):
+        spec["effect"] = dict(arc_data["effect"])
     if isinstance(arc_data.get("perspectives"), list):
         spec["perspectives"] = arc_data["perspectives"]
     if isinstance(arc_data.get("image_sequence"), list):
@@ -450,6 +454,8 @@ def _build_side_node(
     node["optional"] = True
     if arc_data.get("description"):
         node["description"] = str(arc_data["description"])
+    if arc_data.get("min_layer") is not None:
+        node["min_layer"] = int(arc_data["min_layer"])
     return node
 
 
@@ -501,10 +507,17 @@ def attach_side_anchors(
     chosen = dice.shuffle(list(arcs))[: max(1, int(max_side_anchors))]
 
     for arc_data in chosen:
-        layer_index = dice.choice(host_layers)
+        min_layer = max(1, int(arc_data.get("min_layer", 1) or 1))
+        eligible_host_layers = [layer for layer in host_layers if layer >= min_layer]
+        if not eligible_host_layers:
+            continue
+        layer_index = dice.choice(eligible_host_layers)
         layer = layers[layer_index]
-        prev_layer = layers[layer_index - 1]
-        next_layer = layers[layer_index + 1]
+        # Side anchors are independent optional branches. Never route one side
+        # anchor through another: a gated first arc would otherwise make the
+        # second arc unreachable even when the second arc's own gate is earned.
+        prev_layer = [nid for nid in layers[layer_index - 1] if not nodes[nid].get("side_arc")]
+        next_layer = [nid for nid in layers[layer_index + 1] if not nodes[nid].get("side_arc")]
         if not layer or not prev_layer or not next_layer:
             continue
         sibling = nodes.get(layer[0], {}) if layer else {}

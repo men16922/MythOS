@@ -86,14 +86,26 @@ def advance_route(
             visited.append(current)
         cur_layer = int(nodes.get(current, {}).get("layer", cur_layer + 1))
 
-    # Resolve perspectives over the visited path in causal order: each node is
-    # resolved against the flags accumulated so far, then its effect flags apply.
+    # Resolve node-entry effects and perspectives over the visited path in causal
+    # order. A side anchor may set canonical encounter flags (for example
+    # ``met_han``) on entry; later nodes and combat ally gates can consume them.
     active: dict[str, str] = {}
     tally: dict[str, int] = {}
     rel_tally: dict[str, int] = {}
     flag_set = set(flags)
     for node_id in visited:
         node = nodes.get(node_id, {})
+        node_effect = node.get("effect", {})
+        if isinstance(node_effect, dict):
+            for flag in node_effect.get("flags", []) or []:
+                flag_set.add(str(flag))
+            relationship = node_effect.get("relationship")
+            if isinstance(relationship, dict):
+                for name, delta in relationship.items():
+                    try:
+                        rel_tally[str(name)] = rel_tally.get(str(name), 0) + int(delta)
+                    except (TypeError, ValueError):
+                        continue
         perspectives = node.get("perspectives")
         if not perspectives:
             continue
@@ -229,11 +241,12 @@ def junction_options(
                     continue
             options.append(node)
 
-    # Fallback to avoid empty option softlocks if all options are gated out
+    # Fallback to avoid empty option softlocks if all *main-route* options are
+    # gated out. Optional side anchors must never bypass their own gate here.
     if not options and edges.get(current):
         for target in edges[current]:
             node = nodes.get(target)
-            if isinstance(node, dict):
+            if isinstance(node, dict) and not node.get("side_arc"):
                 options.append(node)
 
     return options if len(options) >= 2 else []
@@ -289,6 +302,14 @@ def _choose_next(
             score = max(score, len(set(perspective.get("when", []) or []) & flag_set))
         scored.append((score, node_id))
 
+    if not scored:
+        for node_id in candidates:
+            if not nodes.get(node_id, {}).get("side_arc"):
+                scored.append((0, node_id))
+
+    # A malformed graph containing only gated side branches should still make
+    # deterministic progress rather than crash. ``attach_side_anchors`` always
+    # preserves a main-route edge, so this is defensive compatibility only.
     if not scored:
         for node_id in candidates:
             scored.append((0, node_id))

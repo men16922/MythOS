@@ -30,6 +30,13 @@ from mythos_narrative import NarrativeContext, NarrativeDirector, NarrativeStrea
 from mythos_narrative.codex import CodexService
 from mythos_narrative.variation import NoveltyController
 from mythos_runtime.audio_service import AudioService
+from mythos_runtime.boons import (
+    BOON_OFFER_KEY,
+    RUN_BOONS_KEY,
+    boon_card,
+    boon_stat_bonus,
+    offer_boons,
+)
 from mythos_runtime.combat_service import CombatService, CombatTurnResult
 from mythos_runtime.combat_session_helpers import (
     _combat_defeat_fallback_ending,
@@ -47,11 +54,20 @@ from mythos_runtime.constants import (
     COMBAT_SOFT_DEFEAT_STABILITY_LOSS,
     COMBAT_SOFT_DEFEAT_TENSION_GAIN,
     MYTHOS_WORLD_ID,
+    SOFT_DEFEAT_COMBAT_COOLDOWN_SCENES,
 )
 from mythos_runtime.cutscenes import (
     ACTIVE_CUTSCENE_KEY,
     SEEN_CUTSCENES_KEY,
     next_unseen_cutscene,
+)
+from mythos_runtime.echoes import (
+    ECHO_OFFER_KEY,
+    INSCRIBE_CAP,
+    INSCRIBED_ECHOES_KEY,
+    echo_card,
+    echo_offer_ids,
+    echo_stat_bonus,
 )
 from mythos_runtime.encounter_map import (
     mark_encounter_alerted,
@@ -283,6 +299,18 @@ class RuntimeSessionService:
         party = dict(initial_state.get("_party", {}))
         party.setdefault("player_hp", max_hp)
         party.setdefault("player_max_hp", max_hp)
+        # First loop = a guided tutorial: Se-rin is the Connector's established first
+        # guide (present in the opening), so she is the guaranteed starting party.
+        # Kai and the rest join *with narrative context* via their meet side-arcs
+        # (Kai stays an always-eligible tutorial companion) rather than being placed
+        # in the party out of nowhere — the party still varies run to run.
+        if int(getattr(meta_progression, "runs_completed", 0)) == 0 and not party.get("members"):
+            party["members"] = [{"id": "se_rin"}]
+            flags = list(initial_state.get("flags", []) or [])
+            for flag in ("met_se_rin", "tutorial_loop"):
+                if flag not in flags:
+                    flags.append(flag)
+            initial_state["flags"] = flags
         initial_state["_party"] = party
 
         # Capture the character identity for this loop so save slots can show it on
@@ -313,8 +341,30 @@ class RuntimeSessionService:
         if route_map is not None:
             # Weave authored side_arcs into the DAG as seed-selected optional
             # side-anchor branches (reachable yet skippable; boss distance kept).
-            route_map = attach_side_anchors(route_map, scenario.side_arcs, loop_seed)
+            # Companion meet-arcs are gated on achievement-unlocked recruits.
+            route_map = attach_side_anchors(
+                route_map,
+                scenario.side_arcs,
+                loop_seed,
+                unlocked_companions=set(getattr(meta_progression, "unlocked_allies", []) or []),
+            )
             initial_state[ROUTE_MAP_KEY] = route_map
+
+        # Loop-aware world: record which iteration this is (1-based) so the session
+        # synopsis can tell the GM the anomaly is repeating (Outer Wilds / Deathloop
+        # framing) instead of treating every loop as the first.
+        initial_state["_loop_index"] = len(loops) + 1
+
+        # Opening in-run build pick: offer a starting boon so the player shapes this
+        # run from turn 0 (the pick applies this loop only; permanent growth is meta).
+        initial_state[BOON_OFFER_KEY] = offer_boons(seed=loop_seed, turn_index=0, taken=[])
+
+        # Echo inscription: memories carried from prior loops may be inscribed for a
+        # run modifier, so "carry an Echo forward" is felt mechanically (empty on a
+        # first loop — nothing carried yet).
+        echo_ids = echo_offer_ids(_echoes_from_memories(memories))
+        if echo_ids:
+            initial_state[ECHO_OFFER_KEY] = echo_ids
 
         loop = LoopState(
             loop_id=new_loop_id(),
@@ -415,17 +465,18 @@ class RuntimeSessionService:
         action: str | None,
         options: RuntimeOptions,
     ) -> _PreparedChoice:
-        cached = self._get_cached_snapshot(loop_id)
-        if cached:
-            loop = cached.loop
-            player = cached.player
-            latest_scene: Scene | None = cached.scene
-        else:
-            loop = self._require_loop(loop_id)
-            if loop.phase is LoopPhase.ENDED:
-                raise RuntimeError(f"loop_id={loop.loop_id} is ended")
-            player = self._require_player(loop.player_id)
-            latest_scene = self.store.get_latest_scene(loop.loop_id)
+        # WRITE path: always load the authoritative loop/scene from the store. The
+        # snapshot cache is a read accelerator (resume); trusting it here let a
+        # stale pre-combat snapshot be committed over fresh combat results — live
+        # 2026-07-04 (loop_dbbd07cb…): 4 victories' loot + encounters_cleared were
+        # silently reverted because combat commits didn't refresh the cache and the
+        # next narrative choose() resurrected the cached pre-fight state (also a
+        # zombie-active-combat vector).
+        loop = self._require_loop(loop_id)
+        if loop.phase is LoopPhase.ENDED:
+            raise RuntimeError(f"loop_id={loop.loop_id} is ended")
+        player = self._require_player(loop.player_id)
+        latest_scene = self.store.get_latest_scene(loop.loop_id)
 
         if latest_scene is None:
             raise RuntimeError(f"no scene found for loop_id={loop_id}")
@@ -468,7 +519,9 @@ class RuntimeSessionService:
         if context_state.get(ROUTE_MAP_KEY):
             route_preview_state = advance_route(
                 context_state,
-                turn_index=turn_index,
+                # Route clock counts narrative commits only (mirrors _commit_scene);
+                # raw turn_index includes combat rounds and would over-advance.
+                turn_index=_story_turn_for_commit(context_state, turn_index),
                 seed=loop.seed,
                 preferred_next=route_target,
             )
@@ -509,6 +562,285 @@ class RuntimeSessionService:
             cutscene_id=cutscene.cutscene_id if cutscene is not None else None,
         )
 
+    def _boons_view(self, loop: LoopState, options: RuntimeOptions) -> dict[str, Any]:
+        """Client-facing build state: pending boon offer + active picks, plus the
+        Echo-inscription offer / inscribed echoes carried from prior loops."""
+        state = loop.state if isinstance(loop.state, dict) else {}
+        lang = options.language
+        offer = state.get(BOON_OFFER_KEY)
+        active = state.get(RUN_BOONS_KEY)
+        echo_meta = {
+            str(getattr(e, "echo_id", "")): (getattr(e, "symbol", ""), getattr(e, "text", ""))
+            for e in loop.active_echoes
+        }
+
+        def _echo_cards(ids: Any) -> list[dict[str, Any]]:
+            cards = []
+            for eid in ids if isinstance(ids, list) else []:
+                symbol, text = echo_meta.get(str(eid), ("", ""))
+                cards.append(echo_card(str(eid), symbol=symbol, text=text, language=lang))
+            return cards
+
+        echo_offer = state.get(ECHO_OFFER_KEY)
+        # Combined run stat bonus (boons + inscribed echoes) so the Character screen
+        # can show base + bonus — otherwise a pick only shows up implicitly in combat.
+        stat_bonus = boon_stat_bonus(state.get(RUN_BOONS_KEY))
+        for stat, value in echo_stat_bonus(state.get(INSCRIBED_ECHOES_KEY)).items():
+            stat_bonus[stat] = stat_bonus.get(stat, 0) + value
+        return {
+            "offer": [boon_card(bid, lang) for bid in offer] if isinstance(offer, list) and offer else None,
+            "active": [boon_card(bid, lang) for bid in active] if isinstance(active, list) else [],
+            "echoOffer": _echo_cards(echo_offer) if echo_offer else None,
+            "echoInscribed": _echo_cards(state.get(INSCRIBED_ECHOES_KEY)),
+            "statBonus": stat_bonus,
+        }
+
+    def inscribe_echo(
+        self, loop_id: str, echo_id: str, options: RuntimeOptions | None = None
+    ) -> RuntimeSnapshot:
+        """Inscribe one carried Echo as a this-run modifier (capped, from the offer)."""
+        options = options or RuntimeOptions()
+        loop = self._require_loop(loop_id)
+        if loop.phase is LoopPhase.ENDED:
+            raise RuntimeError(f"loop_id={loop.loop_id} is ended")
+        player = self._require_player(loop.player_id)
+        state = dict(loop.state) if isinstance(loop.state, dict) else {}
+        offer = state.get(ECHO_OFFER_KEY)
+        if not isinstance(offer, list) or echo_id not in offer:
+            raise RuntimeError(f"echo {echo_id!r} is not in the current inscription offer")
+        inscribed = [*(state.get(INSCRIBED_ECHOES_KEY) or []), echo_id]
+        state[INSCRIBED_ECHOES_KEY] = inscribed
+        # Cap reached (or offer exhausted) → close the offer; else keep remaining.
+        remaining = [eid for eid in offer if eid != echo_id]
+        if len(inscribed) >= INSCRIBE_CAP or not remaining:
+            state.pop(ECHO_OFFER_KEY, None)
+        else:
+            state[ECHO_OFFER_KEY] = remaining
+        loop = replace(loop, state=state)
+        self.store.save_loop(loop)
+        scene = self.store.get_latest_scene(loop.loop_id)
+        if scene is None:
+            raise RuntimeError(f"loop_id={loop.loop_id} has no scenes")
+        snapshot = RuntimeSnapshot(
+            player=player,
+            loop=loop,
+            scene=scene,
+            assets=self.store.list_assets(loop.loop_id),
+            bgm_path=self.audio.get_current_bgm(loop, scene),
+            combat=self._combat_snapshot(loop, options) if CombatService.is_active(loop) else None,
+            clues_collected=self._clues_collected(player.player_id),
+            epiphanies_unlocked=self._epiphanies_unlocked(player, loop),
+            boons=self._boons_view(loop, options),
+        )
+        self._set_cached_snapshot(loop.loop_id, snapshot)
+        return snapshot
+
+    def _offer_boons_if_absent(self, loop: LoopState, turn_index: int) -> LoopState:
+        """Stage a fresh boon offer, unless one is already pending (no clobber)."""
+        if not isinstance(loop.state, dict):
+            return loop
+        if loop.state.get(BOON_OFFER_KEY):
+            return loop
+        taken = loop.state.get(RUN_BOONS_KEY) or []
+        offer = offer_boons(seed=loop.seed, turn_index=turn_index, taken=taken)
+        if not offer:
+            return loop
+        return replace(loop, state={**loop.state, BOON_OFFER_KEY: offer})
+
+    def choose_boon(
+        self, loop_id: str, boon_id: str, options: RuntimeOptions | None = None
+    ) -> RuntimeSnapshot:
+        """Apply the player's pick from the pending boon offer (this run only)."""
+        options = options or RuntimeOptions()
+        loop = self._require_loop(loop_id)
+        if loop.phase is LoopPhase.ENDED:
+            raise RuntimeError(f"loop_id={loop.loop_id} is ended")
+        player = self._require_player(loop.player_id)
+        state = dict(loop.state) if isinstance(loop.state, dict) else {}
+        offer = state.get(BOON_OFFER_KEY)
+        if not isinstance(offer, list) or boon_id not in offer:
+            raise RuntimeError(f"boon {boon_id!r} is not in the current offer")
+        state[RUN_BOONS_KEY] = [*(state.get(RUN_BOONS_KEY) or []), boon_id]
+        state.pop(BOON_OFFER_KEY, None)
+        loop = replace(loop, state=state)
+        self.store.save_loop(loop)
+        scene = self.store.get_latest_scene(loop.loop_id)
+        if scene is None:
+            raise RuntimeError(f"loop_id={loop.loop_id} has no scenes")
+        snapshot = RuntimeSnapshot(
+            player=player,
+            loop=loop,
+            scene=scene,
+            assets=self.store.list_assets(loop.loop_id),
+            bgm_path=self.audio.get_current_bgm(loop, scene),
+            combat=self._combat_snapshot(loop, options) if CombatService.is_active(loop) else None,
+            clues_collected=self._clues_collected(player.player_id),
+            epiphanies_unlocked=self._epiphanies_unlocked(player, loop),
+            boons=self._boons_view(loop, options),
+        )
+        self._set_cached_snapshot(loop.loop_id, snapshot)
+        return snapshot
+
+    @staticmethod
+    def _current_route_node(loop: LoopState) -> dict[str, Any]:
+        state = loop.state if isinstance(loop.state, dict) else {}
+        route = state.get(ROUTE_MAP_KEY)
+        if not isinstance(route, dict):
+            return {}
+        node = (route.get("nodes") or {}).get(route.get("current"))
+        return node if isinstance(node, dict) else {}
+
+    def _market_view(self, loop: LoopState, options: RuntimeOptions) -> dict[str, Any] | None:
+        """Scrap→item exchange offers while standing on a market route node.
+
+        Data-driven from ``combat.market_exchange`` ([{give, count, get}]); scenarios
+        without the config (or without a route map, e.g. glass-library) get None —
+        fully backward compatible. Affordability is computed against the loop
+        inventory so the client can disable unaffordable offers.
+        """
+        if self._current_route_node(loop).get("type") != "market":
+            return None
+        try:
+            scenario = load_scenario(options.scenario_id)
+        except Exception:
+            return None
+        config = scenario.combat.get("market_exchange")
+        if not isinstance(config, list) or not config:
+            return None
+        items_def = scenario.combat.get("items", {})
+        inventory = loop.state.get("_inventory", []) if isinstance(loop.state, dict) else []
+        held: dict[str, int] = {}
+        for entry in inventory:
+            item_id = str(entry.get("id") or entry.get("item_id") or "") if isinstance(entry, dict) else str(entry)
+            if item_id:
+                held[item_id] = held.get(item_id, 0) + 1
+        offers = []
+        for offer in config:
+            if not isinstance(offer, dict):
+                continue
+            give, get_id = str(offer.get("give", "")), str(offer.get("get", ""))
+            count = max(1, int(offer.get("count", 1) or 1))
+            give_def, get_def = items_def.get(give, {}), items_def.get(get_id, {})
+            offers.append(
+                {
+                    "give": give,
+                    "give_name": give_def.get("name", give),
+                    "count": count,
+                    "get": get_id,
+                    "get_name": get_def.get("name", get_id),
+                    "get_kind": get_def.get("kind", ""),
+                    "affordable": held.get(give, 0) >= count,
+                }
+            )
+        if not offers:
+            return None
+        view: dict[str, Any] = {"offers": offers, "held": held}
+        # Canon vendor (e.g. Lin-yue's broker network) so the barter has a face —
+        # surfaced in the UI header and echoed to the GM as a scene note.
+        vendor = scenario.combat.get("market_vendor")
+        if isinstance(vendor, dict) and vendor.get("name"):
+            view["vendor"] = {"id": vendor.get("id", ""), "name": vendor["name"]}
+        return view
+
+    def exchange_material(
+        self, loop_id: str, give: str, get: str, options: RuntimeOptions | None = None
+    ) -> RuntimeSnapshot:
+        """Trade materials for an item at a market route node (data-driven rates)."""
+        options = options or RuntimeOptions()
+        loop = self._require_loop(loop_id)
+        if loop.phase is LoopPhase.ENDED:
+            raise RuntimeError(f"loop_id={loop.loop_id} is ended")
+        if CombatService.is_active(loop):
+            raise RuntimeError("cannot trade during active combat")
+        if self._current_route_node(loop).get("type") != "market":
+            raise RuntimeError("no market at the current route node")
+        player = self._require_player(loop.player_id)
+        scenario = load_scenario(options.scenario_id)
+        config = scenario.combat.get("market_exchange")
+        offer = next(
+            (
+                o
+                for o in (config if isinstance(config, list) else [])
+                if isinstance(o, dict) and str(o.get("give")) == give and str(o.get("get")) == get
+            ),
+            None,
+        )
+        if offer is None:
+            raise RuntimeError(f"no such exchange offer: {give} -> {get}")
+        count = max(1, int(offer.get("count", 1) or 1))
+        state = dict(loop.state) if isinstance(loop.state, dict) else {}
+        inventory = list(state.get("_inventory", []))
+
+        def _entry_id(entry: Any) -> str:
+            return (
+                str(entry.get("id") or entry.get("item_id") or "")
+                if isinstance(entry, dict)
+                else str(entry)
+            )
+
+        matching = [i for i, e in enumerate(inventory) if _entry_id(e) == give]
+        if len(matching) < count:
+            raise RuntimeError(f"not enough {give}: need {count}, have {len(matching)}")
+        for index in sorted(matching[:count], reverse=True):
+            inventory.pop(index)
+        items_def = scenario.combat.get("items", {})
+        inventory.append(items_def.get(get, {"id": get, "name": get}))
+        state["_inventory"] = inventory
+        loop = replace(loop, state=state)
+        self.store.save_loop(loop)
+        scene = self.store.get_latest_scene(loop.loop_id)
+        if scene is None:
+            raise RuntimeError(f"loop_id={loop.loop_id} has no scenes")
+        snapshot = RuntimeSnapshot(
+            player=player,
+            loop=loop,
+            scene=scene,
+            assets=self.store.list_assets(loop.loop_id),
+            bgm_path=self.audio.get_current_bgm(loop, scene),
+            clues_collected=self._clues_collected(player.player_id),
+            epiphanies_unlocked=self._epiphanies_unlocked(player, loop),
+            boons=self._boons_view(loop, options),
+            market=self._market_view(loop, options),
+        )
+        self._set_cached_snapshot(loop.loop_id, snapshot)
+        return snapshot
+
+    def _redirect_to_active_combat(
+        self, loop_id: str, options: RuntimeOptions
+    ) -> RuntimeSnapshot | None:
+        """Return the live combat snapshot when a narrative choice arrives mid-combat.
+
+        A narrative ``choose``/``stream_choose`` must never generate a story scene
+        on top of an unresolved combat: doing so orphans ``_combat.active=true`` in
+        the loop state, which then permanently blocks every future combat launch —
+        including the IX climax (the ``not is_active`` guard in ``_commit_scene``).
+        Combat turns are driven by ``combat_action``; a narrative call here is a
+        client desync, so re-sync it to the live fight instead of corrupting state.
+        Returns ``None`` (proceed with narrative) when no combat is active.
+        """
+        loop = self.store.get_loop(loop_id)
+        if loop is None or loop.phase is LoopPhase.ENDED:
+            return None
+        if not CombatService.is_active(loop):
+            return None
+        player = self._require_player(loop.player_id)
+        scene = self.store.get_latest_scene(loop.loop_id)
+        if scene is None:
+            return None
+        snapshot = RuntimeSnapshot(
+            player=player,
+            loop=loop,
+            scene=scene,
+            assets=self.store.list_assets(loop.loop_id),
+            bgm_path=self.audio.get_current_bgm(loop, scene),
+            combat=self._combat_snapshot(loop, options),
+            clues_collected=self._clues_collected(player.player_id),
+            epiphanies_unlocked=self._epiphanies_unlocked(player, loop),
+            boons=self._boons_view(loop, options),
+        )
+        self._set_cached_snapshot(loop.loop_id, snapshot)
+        return snapshot
+
     def choose(
         self,
         loop_id: str,
@@ -517,6 +849,9 @@ class RuntimeSessionService:
         options: RuntimeOptions | None = None,
     ) -> RuntimeSnapshot:
         options = options or RuntimeOptions()
+        redirect = self._redirect_to_active_combat(loop_id, options)
+        if redirect is not None:
+            return redirect
         prepared = self._prepare_choice(loop_id, choice_id, action, options)
         player = prepared.player
         loop = prepared.loop
@@ -554,6 +889,10 @@ class RuntimeSessionService:
         options: RuntimeOptions | None = None,
     ) -> Iterator[RuntimeStreamEvent]:
         options = options or RuntimeOptions()
+        redirect = self._redirect_to_active_combat(loop_id, options)
+        if redirect is not None:
+            yield RuntimeStreamEvent(kind="final", snapshot=redirect)
+            return
         prepared = self._prepare_choice(loop_id, choice_id, action, options)
         player = prepared.player
         loop = prepared.loop
@@ -642,6 +981,8 @@ class RuntimeSessionService:
             combat=combat,
             clues_collected=self._clues_collected(player.player_id),
             epiphanies_unlocked=self._epiphanies_unlocked(player, loop),
+            boons=self._boons_view(loop, options),
+            market=self._market_view(loop, options),
         )
         self._set_cached_snapshot(loop.loop_id, snapshot)
         return snapshot
@@ -658,6 +999,46 @@ class RuntimeSessionService:
 
     def save_slot(self, loop_id: str, label: str | None = None) -> SaveSlot:
         return self.save_load.save_slot(loop_id, label=label)
+
+    def load_save_slot(
+        self, player_id: str, slot_id: str, options: RuntimeOptions | None = None
+    ) -> RuntimeSnapshot:
+        """Load a save slot: restore its snapshot (manual saves) then resume.
+
+        Legacy/autosave bookmark slots carry no snapshot — they just resume the
+        live loop they point at. After a restore the read cache is refreshed so
+        ``resume`` serves the restored moment, never a stale pre-load snapshot.
+        """
+        options = options or RuntimeOptions()
+        restored = self.save_load.restore_slot(player_id, slot_id)
+        if restored is None:
+            slot = next(
+                (s for s in self.list_save_slots(player_id, limit=60) if s.slot_id == slot_id),
+                None,
+            )
+            if slot is None:
+                raise RuntimeError(f"save slot not found: {slot_id}")
+            return self.resume(loop_id=slot.loop_id, options=options)
+        player = self._require_player(player_id)
+        scene = self.store.get_latest_scene(restored.loop_id)
+        if scene is None:
+            raise RuntimeError(f"loop_id={restored.loop_id} has no scenes")
+        snapshot = RuntimeSnapshot(
+            player=player,
+            loop=restored,
+            scene=scene,
+            assets=self.store.list_assets(restored.loop_id),
+            bgm_path=self.audio.get_current_bgm(restored, scene),
+            combat=self._combat_snapshot(restored, options)
+            if CombatService.is_active(restored)
+            else None,
+            clues_collected=self._clues_collected(player.player_id),
+            epiphanies_unlocked=self._epiphanies_unlocked(player, restored),
+            boons=self._boons_view(restored, options),
+            market=self._market_view(restored, options),
+        )
+        self._set_cached_snapshot(restored.loop_id, snapshot)
+        return snapshot
 
     def memory_overview(self, player_id: str, limit: int = 8) -> MemoryOverview:
         self._require_player(player_id)
@@ -943,6 +1324,15 @@ class RuntimeSessionService:
                 for stat, value in bonus.items():
                     if isinstance(value, int | float):
                         base[stat] = base.get(stat, 0) + int(value)
+        # In-run build boons (this loop only) fold into the same stat channel, so a
+        # small party can still scale into the IX climax through build choices.
+        run_boons = loop.state.get(RUN_BOONS_KEY) if isinstance(loop.state, dict) else None
+        for stat, value in boon_stat_bonus(run_boons).items():
+            base[stat] = base.get(stat, 0) + int(value)
+        # Inscribed echoes (memory carried from prior loops) add their run modifier.
+        inscribed = loop.state.get(INSCRIBED_ECHOES_KEY) if isinstance(loop.state, dict) else None
+        for stat, value in echo_stat_bonus(inscribed).items():
+            base[stat] = base.get(stat, 0) + int(value)
         return base
 
     def _combat_consumables(self, loop: LoopState, scenario: Any) -> list[dict[str, Any]]:
@@ -1134,9 +1524,20 @@ class RuntimeSessionService:
         echo: Echo | None = None
         defeat_event: WorldEvent | None = None
         combat_event: WorldEvent | None = None
+        boss_climax = False
         if result.finished:
             loop = self._apply_combat_rewards(loop, result)
-            if result.outcome == "player_defeat":
+            boss_climax = self._is_boss_climax_encounter(encounter_id, options)
+            if boss_climax:
+                # The IX climax has a definite outcome — win or lose ENDS the run.
+                # Victory resolves the perspective-driven ending; defeat resolves
+                # the erasure/capture ending. Never a recoverable soft defeat here:
+                # an unwinnable boss soft-defeated every turn would re-throw the
+                # fight forever (live 2026-07-03 "선택지→전투 무한루프").
+                loop = self._resolved_boss_climax_loop(
+                    loop, victory=(result.outcome == "player_victory")
+                )
+            elif result.outcome == "player_defeat":
                 loop, defeat_event = self._combat_soft_defeat(loop, scene, encounter_id)
             combat_event = create_world_event(
                 loop.loop_id,
@@ -1149,6 +1550,18 @@ class RuntimeSessionService:
                     "rewards": result.rewards,
                 },
             )
+            if boss_climax:
+                echo = Echo(
+                    echo_id=f"echo_{combat_event.event_id.removeprefix('event_')}",
+                    source_loop_id=loop.loop_id,
+                    source_event_id=combat_event.event_id,
+                    symbol=_symbol_from_scene(scene),
+                    text=(
+                        f"{scene.title}: "
+                        + ("관리자 IX 대면" if result.outcome == "player_victory" else "소거")
+                    ),
+                )
+                loop = replace(loop, active_echoes=[*loop.active_echoes, echo])
 
         run_summary_memory: WorldMemory | None = None
         meta_progress: MetaProgression | None = None
@@ -1193,6 +1606,16 @@ class RuntimeSessionService:
                 stamped["_last_combat_encounter"] = str(enc_id)
             if result.outcome == "player_victory":
                 stamped["_combat_count"] = int(stamped.get("_combat_count", 0)) + 1
+                # Reward a win with an in-run build pick (Hades-style). Skipped at
+                # the boss climax (the run is ending) and if an offer is pending.
+                if not boss_climax and not stamped.get(BOON_OFFER_KEY):
+                    boon_offer = offer_boons(
+                        seed=loop.seed,
+                        turn_index=turn_index,
+                        taken=stamped.get(RUN_BOONS_KEY) or [],
+                    )
+                    if boon_offer:
+                        stamped[BOON_OFFER_KEY] = boon_offer
             loop = replace(loop, state=stamped)
 
         with self.store.transaction():
@@ -1224,7 +1647,7 @@ class RuntimeSessionService:
                 "combat_outcome": result.outcome,
             },
         )
-        return RuntimeSnapshot(
+        combat_snapshot = RuntimeSnapshot(
             player=snapshot_player,
             loop=loop,
             scene=scene,
@@ -1257,7 +1680,12 @@ class RuntimeSessionService:
             },
             clues_collected=self._clues_collected(player.player_id),
             epiphanies_unlocked=self._epiphanies_unlocked(snapshot_player, loop),
+            boons=self._boons_view(loop, options),
         )
+        # Keep the read cache in sync with combat results: a stale pre-fight
+        # snapshot must never be served (or, worse, committed) after this turn.
+        self._set_cached_snapshot(loop.loop_id, combat_snapshot)
+        return combat_snapshot
 
     def _begin_requested_combat(
         self,
@@ -1317,6 +1745,71 @@ class RuntimeSessionService:
             "consumables": self._combat_consumables(loop, scenario),
             "defeat_soft": _is_soft_defeat(loop),
         }
+
+    def _is_boss_climax_encounter(
+        self, encounter_id: Any, options: RuntimeOptions
+    ) -> bool:
+        """True when a finished combat's encounter is the authored climax boss.
+
+        Keys off the scenario route map's ``combat_encounters['boss']`` pool
+        (``ix_confrontation`` for neo-seoul) rather than the route pointer, so it
+        is unaffected by ambient combat that coincides on the boss node.
+        """
+        if not encounter_id:
+            return False
+        try:
+            scenario = load_scenario(options.scenario_id)
+        except Exception:
+            return False
+        route_map = scenario.route_map if isinstance(scenario.route_map, dict) else {}
+        boss_pool = (route_map.get("combat_encounters") or {}).get("boss") or []
+        return str(encounter_id) in {str(e) for e in boss_pool}
+
+    def _resolved_boss_climax_loop(self, loop: LoopState, *, victory: bool) -> LoopState:
+        """End the loop at the climax with a resolved ending (win or lose).
+
+        Victory resolves the perspective-driven ending (rewrite/sacrifice/refuge);
+        defeat resolves the erasure/capture fallback. Either way the loop reaches
+        ``ENDED`` so the climax owns the run's end instead of re-throwing combat.
+        """
+        narrative_shards = self.store.list_narrative_shards(loop.player_id, limit=1000)
+        clue_count = len([s for s in narrative_shards if s.kind == "clue"])
+        loop_state = self._resolved_ending_state(
+            loop,
+            clue_count=clue_count,
+            context="boss_victory" if victory else "boss_defeat",
+            combat_defeat_fallback=not victory,
+        )
+        if victory and not loop_state.get("ending_id"):
+            # Guarantee the climax always shows an ending: a victory with no
+            # perspective-matched ending falls back to the first authored (survival)
+            # ending. Defeat already fell back to erasure via ``combat_defeat_fallback``.
+            scenario_id = str(loop_state.get("scenario_id") or "neo-seoul")
+            try:
+                endings = load_scenario(scenario_id).endings or []
+            except Exception:
+                endings = []
+            fallback = next(
+                (e for e in endings if e.get("id") != "ending_erasure"),
+                endings[0] if endings else None,
+            )
+            if fallback:
+                loop_state = dict(loop_state)
+                loop_state["ending_id"] = fallback.get("id")
+                loop_state["ending_label"] = (
+                    fallback.get("label") or fallback.get("title") or "Ended Loop"
+                )
+                narration = self._ending_narration_text(
+                    scenario_id, loop_state.get("ending_id"), loop
+                )
+                if narration:
+                    loop_state["ending_narration"] = narration
+        return replace(
+            loop,
+            phase=LoopPhase.ENDED,
+            ended_at=utc_now(),
+            state=loop_state,
+        )
 
     def _resolved_ending_state(
         self,
@@ -1558,6 +2051,7 @@ class RuntimeSessionService:
         run["soft_defeats"] = int(run.get("soft_defeats", 0) or 0) + 1
         state["_run"] = run
         state["_soft_defeat_pending"] = True
+        state["_soft_defeat_turn"] = scene.turn_index + 1
         state["_last_combat_outcome"] = "soft_defeat"
         state["_combat_defeat_count"] = int(state.get("_combat_defeat_count", 0) or 0) + 1
         state.pop("_pending_spawn_encounters", None)
@@ -1640,17 +2134,52 @@ class RuntimeSessionService:
                 transition, loop=replace(transition.loop, state=folded_state)
             )
 
+        # Route clock: count only *narrative* commits. Combat rounds also consume
+        # scene ``turn_index`` (one scene per round), so pacing the route on the raw
+        # index let a few long fights inflate the clock and skip whole story layers —
+        # live 2026-07-04 (loop_dbbd07cb…): ~6 narrative scenes reached the IX boss
+        # with 0 clues because each fight fast-forwarded target_layer. ``_story_turn``
+        # increments once per narrative commit; legacy loops without the counter fall
+        # back to ``scene.turn_index`` once and count normally from there.
+        story_turn = _story_turn_for_commit(transition.loop.state, scene.turn_index)
+        if isinstance(transition.loop.state, dict):
+            transition = replace(
+                transition,
+                loop=replace(
+                    transition.loop,
+                    state={**transition.loop.state, "_story_turn": story_turn},
+                ),
+            )
+
+        # Boss buildup: a climax fight parked on node entry fires on the FIRST
+        # choice made at the confrontation — the arrival commit stays a narrative
+        # beat with choices (IX declares itself; the player answers), so the fight
+        # lands as a consequence instead of an ambush-by-UI (live feedback
+        # 2026-07-04: "마지막 노드 진입하자마자 급작스럽게 보스전").
+        route_combat: str | None = None
+        if isinstance(transition.loop.state, dict):
+            pending_boss = transition.loop.state.get("_pending_boss_combat")
+            if pending_boss:
+                cleared_state = dict(transition.loop.state)
+                cleared_state.pop("_pending_boss_combat", None)
+                transition = replace(
+                    transition, loop=replace(transition.loop, state=cleared_state)
+                )
+                route_combat = str(pending_boss)
+                transition = self._defer_threshold_archive_for_climax(
+                    transition, prior_phase=loop.phase, payload=payload
+                )
+
         # Advance the procedural route map: move the current node forward (honoring
         # the player's junction pick), resolve anchor perspectives from accumulated
         # flags, and tally ending influence. If the move enters a combat-type node,
         # trigger that node's encounter so combat/patrol/boss nodes mean combat.
-        route_combat: str | None = None
         if isinstance(transition.loop.state, dict) and transition.loop.state.get(ROUTE_MAP_KEY):
             prev_route = transition.loop.state[ROUTE_MAP_KEY]
             prev_current = prev_route.get("current")
             routed_state = advance_route(
                 transition.loop.state,
-                turn_index=scene.turn_index,
+                turn_index=story_turn,
                 seed=transition.loop.seed,
                 preferred_next=route_target,
             )
@@ -1672,17 +2201,23 @@ class RuntimeSessionService:
                     seed=transition.loop.seed,
                 )
                 if candidate and candidate in scenario.combat.get("encounters", {}):
-                    route_combat = candidate
-                    # Entering the authored boss node this turn means the climax
-                    # fight begins now — keep the loop live even if a coincident
-                    # tension/stability threshold would auto-archive this same
-                    # turn, so the loop resolves through the fight's outcome
-                    # (victory -> ending, defeat -> soft-defeat) rather than being
-                    # preempted into ARCHIVE mid-fight.
                     if entered.get("type") == "boss":
+                        # Buildup beat: park the climax so THIS commit stays a
+                        # narrative confrontation scene (with choices); the fight
+                        # fires on the player's next choice. Keep the loop live if
+                        # a coincident tension/stability threshold would archive
+                        # this same turn — the parked fight owns the loop's end.
+                        staged_state = dict(transition.loop.state)
+                        staged_state["_pending_boss_combat"] = candidate
+                        transition = replace(
+                            transition,
+                            loop=replace(transition.loop, state=staged_state),
+                        )
                         transition = self._defer_threshold_archive_for_climax(
                             transition, prior_phase=loop.phase, payload=payload
                         )
+                    else:
+                        route_combat = candidate
 
                 # Dynamic route growth: now that the pointer advanced, thicken the
                 # upcoming horizon layers with the GM's proposed nodes (type-
@@ -1690,7 +2225,7 @@ class RuntimeSessionService:
                 grown_state = extend_route(
                     transition.loop.state,
                     seed=transition.loop.seed,
-                    turn_index=scene.turn_index,
+                    turn_index=story_turn,
                     proposals=list(payload.world_delta.route_nodes),
                 )
                 transition = replace(
@@ -1737,7 +2272,7 @@ class RuntimeSessionService:
         # the branch options (next candidate nodes) so the player explicitly picks
         # the next destination. In-layer turns keep the LLM's own choices.
         if isinstance(transition.loop.state, dict) and transition.loop.state.get(ROUTE_MAP_KEY):
-            junction_opts = junction_options(transition.loop.state, turn_index=scene.turn_index)
+            junction_opts = junction_options(transition.loop.state, turn_index=story_turn)
             if junction_opts:
                 scene = replace(scene, choices=_build_route_choices(junction_opts))
 
@@ -1812,6 +2347,8 @@ class RuntimeSessionService:
             bgm_path=bgm_path,
             clues_collected=self._clues_collected(player.player_id),
             epiphanies_unlocked=self._epiphanies_unlocked(player, transition.loop),
+            boons=self._boons_view(transition.loop, options),
+            market=self._market_view(transition.loop, options),
         )
         next_combat = self._resolve_next_combat(
             transition.loop,
@@ -1821,6 +2358,27 @@ class RuntimeSessionService:
             triggered_combat=triggered_combat,
             options=options,
         )
+        # A deliberate route-node combat (patrol/boss climax) supersedes a stale
+        # active-combat left in the loop state. Otherwise a zombie ``_combat``
+        # (e.g. an abandoned ambient fight never resolved to a finish) keeps
+        # ``is_active`` permanently True, so the ``not is_active`` guard below would
+        # silently skip launching the authored IX climax when the pointer reaches
+        # the boss node — the fight then never starts and nothing owns the loop end,
+        # so tension climbs unguarded to the auto-archive threshold (live 2026-07-03,
+        # loop_99ac4fe6...: a turn-5 ``patrol_ambush`` stayed active=true and blocked
+        # the boss for the rest of the run). Clear the mismatched active combat so the
+        # route climax owns the turn. ``route_combat`` only fires on node entry, so a
+        # genuinely in-progress fight (which blocks route advance) is never cleared.
+        if route_combat and CombatService.is_active(transition.loop):
+            active_state = CombatService.load_state(transition.loop)
+            if active_state is None or active_state.encounter_id != route_combat:
+                transition = replace(
+                    transition,
+                    loop=replace(
+                        transition.loop,
+                        state=_without_combat_state(transition.loop.state),
+                    ),
+                )
         if next_combat and not CombatService.is_active(transition.loop):
             if triggered_combat and triggered_combat != next_combat:
                 # An encounter-map contact triggered, but the fight we actually
@@ -1940,8 +2498,19 @@ class RuntimeSessionService:
         """
         if route_combat:
             return route_combat
+        # Recovery beat after a soft defeat: suppress ambient combat for a few
+        # scenes regardless of tension, so a losing player gets a genuine breather
+        # instead of being re-thrown into a fight every turn. Deliberate route-node
+        # combat (returned above) is unaffected.
+        state = loop.state if isinstance(loop.state, dict) else {}
+        sd_turn = state.get("_soft_defeat_turn")
+        if (
+            isinstance(sd_turn, int)
+            and (scene.turn_index - sd_turn) < SOFT_DEFEAT_COMBAT_COOLDOWN_SCENES
+        ):
+            return None
         requested_combat = _requested_combat_id(payload)
-        scenario_id = loop.state.get("scenario_id") if isinstance(loop.state, dict) else None
+        scenario_id = state.get("scenario_id")
         if scenario_id == "neo-seoul" and scene.turn_index < 2:
             requested_combat = None
         ambient_combat = requested_combat or triggered_combat
@@ -2103,6 +2672,36 @@ def _route_node_label(state: Any) -> str | None:
     if not isinstance(node, dict):
         return str(current)
     return str(node.get("title") or node.get("label") or current)
+
+
+def _story_turn_for_commit(state: Any, scene_turn: int) -> int:
+    """The route-clock turn for this narrative commit.
+
+    Counts only story scenes: combat rounds also consume scene ``turn_index`` (one
+    scene per round), so pacing the route on the raw index lets long fights skip
+    story layers. Legacy loops without the counter fall back to the scene index
+    once and count narratively from there.
+    """
+    if isinstance(state, dict):
+        prev = state.get("_story_turn")
+        if isinstance(prev, int):
+            return prev + 1
+    return int(scene_turn)
+
+
+def _without_combat_state(state: Any) -> Any:
+    """Return a copy of ``state`` with the active-combat key dropped.
+
+    Used to supersede a stale/zombie ``_combat`` when a deliberate route-node
+    combat must take the turn. Non-dict states pass through unchanged.
+    """
+    if not isinstance(state, dict):
+        return state
+    if "_combat" not in state:
+        return state
+    cleared = dict(state)
+    cleared.pop("_combat", None)
+    return cleared
 
 
 def _route_boss_reached(state: Any) -> bool:

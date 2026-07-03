@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-07-03
+Last updated: 2026-07-04
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **CBT consolidation + P1-a are live (2026-07-03, `40b40ce`, Cloud Run rev `mythos-api-00006-q8k`, `make check` 665 + smoke-local + Playwright E2E green):** eligible companion cutscenes appear once per loop on the next safe transit scene with localized full-render script lock, curated image/title, `scene_type=cutscene`, and save/resume-safe active/seen state; opening, anchor, side-reveal, and combat turns defer without consuming. **NEXT = human live play-QA** (`docs/test/neo_seoul_live_qa.md` 🔴: IX boss fires · P1-a Se-rin cutscene · side-scene variation · 30–60min feel). Closed beta is live on Neon + Vertex + GCS with invite gate, tester cap, and scale-to-zero. Other human follow-ups: Discord/r/playtesters distribution, monitor sign-ups, K9 natural-ending screenshot. App.tsx slice-14 remains `[blocked]`; Korean-on-resume is persisted legacy prose only. Runbook `docs/cloud/DEPLOY.md` §10.**
+> ▶ NEXT SESSION: **2026-07-04 live-QA marathon landed (`make check` 697, committed locally — PUSH PENDING):** route clock (story turns only) · cache-clobber fix · boss buildup beat · boons/echo-inscription/tutorial-party/achievement-recruit/IX clear_reward · market scrap exchange (Lin-yue vendor) · **Lin-yue combat ally (5 codex sprites)** · snapshot save slots w/ restore · BGM auto-on · turns/layer 4→5. **NEXT = human**: `git push origin main` + redeploy, then fresh-loop live play-QA (`docs/test/neo_seoul_live_qa.md`: boss buildup→fight→ending, Lin-yue recruit+join, market barter, save restore, boon/echo picks) + balance feel (boon strength, IX scaling, 30-60min).
 
 ## Snapshot
 

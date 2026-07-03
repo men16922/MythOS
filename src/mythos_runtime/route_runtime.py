@@ -32,7 +32,11 @@ from mythos_runtime.route_map import ROUTE_MAP_KEY
 
 # How many player turns are spent before the route advances one layer. Tunable;
 # kept small so the boss/ending is reachable within a typical session.
-DEFAULT_TURNS_PER_LAYER = 4
+# Story turns the route lingers on each layer. Raised 4→5 (2026-07-04 live
+# feedback: a 6-layer loop read short) → 6 layers × 5 = ~30 narrative turns per
+# loop before combat rounds/buildup, targeting the 30-60min session. Note the
+# clock counts *narrative* commits only (session `_story_turn`), not combat rounds.
+DEFAULT_TURNS_PER_LAYER = 5
 
 
 def advance_route(

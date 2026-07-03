@@ -945,6 +945,27 @@ def _route_director_notes(
                 "단서·위협을 등장시키거나, 추격·교섭·잠입처럼 국면을 바꾸십시오. scene.location과 첫 단락 묘사가 "
                 "직전 장면과 분명히 달라야 합니다."
             )
+    # Canon market vendor: give the barter a face. When the scene is staged at a
+    # market-type node, the GM should place the vendor (e.g. Lin-yue's broker
+    # network) in the scene so the exchange UI has narrative grounding.
+    if str(node.get("type")) == "market":
+        vendor = scenario.combat.get("market_vendor") if isinstance(scenario.combat, dict) else None
+        if isinstance(vendor, dict) and vendor.get("name"):
+            if en:
+                lines.append(
+                    f"Market vendor (canon): this market is run by {vendor['name']}'s network. "
+                    f"{vendor.get('blurb', '')} Put the vendor ON SCREEN and mention her by "
+                    f"NAME ('{vendor['name']}') at least once in the narration — the player "
+                    "can barter salvage here."
+                )
+            else:
+                lines.append(
+                    f"시장 주인(캐논): 이 시장은 {vendor['name']}의 네트워크가 운영합니다. "
+                    f"{vendor.get('blurb', '')} 그 인물을 장면에 직접 등장시키고, 서술에 "
+                    f"반드시 이름('{vendor['name']}')을 한 번 이상 언급하십시오 — "
+                    "플레이어는 이곳에서 잔해를 물물 교환할 수 있습니다."
+                )
+
     if perspective:
         if en:
             lines.append(
@@ -1070,7 +1091,12 @@ def _route_junction_notes(
     scenario: ScenarioConfig, loop: LoopState, turn_index: int, language: str = "ko"
 ) -> list[str]:
     state = loop.state if isinstance(loop.state, dict) else {}
-    options = junction_options(state, turn_index=turn_index)
+    # Route clock counts narrative commits only (state["_story_turn"], stamped by
+    # _commit_scene); combat rounds inflate the raw turn_index and would offer
+    # junction picks for layers the story hasn't reached.
+    story_prev = state.get("_story_turn")
+    route_turn = (int(story_prev) + 1) if isinstance(story_prev, int) else turn_index
+    options = junction_options(state, turn_index=route_turn)
     en = language == "en"
     notes: list[str] = []
     if options:

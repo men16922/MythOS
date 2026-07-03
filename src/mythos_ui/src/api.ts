@@ -178,6 +178,39 @@ export async function apiChoose(params: {
   return apiPost<RuntimeSnapshot>("/api/v1/loops/choose", { ...params, lang: getLang() });
 }
 
+export async function apiChooseBoon(params: {
+  loop_id: string;
+  scenario_id: string;
+  boon_id: string;
+}): Promise<RuntimeSnapshot> {
+  return apiPost<RuntimeSnapshot>("/api/v1/boons/choose", { ...params, lang: getLang() });
+}
+
+export async function apiInscribeEcho(params: {
+  loop_id: string;
+  scenario_id: string;
+  echo_id: string;
+}): Promise<RuntimeSnapshot> {
+  return apiPost<RuntimeSnapshot>("/api/v1/echoes/inscribe", { ...params, lang: getLang() });
+}
+
+export async function apiLoadSlot(params: {
+  player_id: string;
+  slot_id: string;
+  scenario_id: string;
+}): Promise<RuntimeSnapshot> {
+  return apiPost<RuntimeSnapshot>("/api/v1/save-slots/load", { ...params, lang: getLang() });
+}
+
+export async function apiMarketExchange(params: {
+  loop_id: string;
+  scenario_id: string;
+  give: string;
+  get: string;
+}): Promise<RuntimeSnapshot> {
+  return apiPost<RuntimeSnapshot>("/api/v1/market/exchange", { ...params, lang: getLang() });
+}
+
 export async function apiCombatAction(params: {
   loop_id: string;
   scenario_id: string;

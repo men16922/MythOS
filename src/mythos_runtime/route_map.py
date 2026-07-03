@@ -459,12 +459,16 @@ def _build_side_node(
     return node
 
 
+_TUTORIAL_COMPANIONS = frozenset({"se_rin", "kai"})
+
+
 def attach_side_anchors(
     route_map: dict[str, Any] | None,
     side_arcs: list[dict[str, Any]] | None,
     seed: str,
     *,
     max_side_anchors: int = 2,
+    unlocked_companions: set[str] | None = None,
 ) -> dict[str, Any] | None:
     """Weave a scenario's ``side_arcs`` into a built route map as optional branches.
 
@@ -484,6 +488,16 @@ def attach_side_anchors(
     if not isinstance(route_map, dict):
         return route_map
     arcs = [a for a in (side_arcs or []) if isinstance(a, dict)]
+    # Achievement-gated recruitment: a companion's meet side-arc appears only once
+    # that companion is unlocked (Se-rin + Kai are the always-available tutorial
+    # party). ``unlocked_companions=None`` disables the gate (backward compatible).
+    if unlocked_companions is not None:
+        allowed = _TUTORIAL_COMPANIONS | set(unlocked_companions)
+        arcs = [
+            a
+            for a in arcs
+            if not [n for n in (a.get("related_npcs") or []) if n not in allowed]
+        ]
     layers = route_map.get("layers")
     nodes = route_map.get("nodes")
     edges = route_map.get("edges")

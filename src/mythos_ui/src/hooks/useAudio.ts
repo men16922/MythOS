@@ -224,6 +224,18 @@ export function useAudio(
     currentBgmSrc.current = "";
   }, []);
 
+  // Force BGM ON (opening entry): a new game should always start with music,
+  // even if a previous session persisted "off" — the toggle still works after.
+  const enableBgm = useCallback(() => {
+    setBgmEnabled(true);
+    try {
+      localStorage.setItem(BGM_PREF_KEY, "on");
+    } catch { /* ignore */ }
+    initAudio();
+    playBgm(currentBgmSrc.current || preferredBgmPath(), true);
+    logToConsole("BGM ON (opening)");
+  }, [initAudio, playBgm, preferredBgmPath, logToConsole]);
+
   return {
     bgmEnabled,
     bgmReady,
@@ -231,6 +243,7 @@ export function useAudio(
     playBgm,
     pauseBgm,
     handleToggleBgm,
+    enableBgm,
     playSfx,
     playCombatCinemaCue,
     resetAudioRefs,

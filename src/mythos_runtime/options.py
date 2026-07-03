@@ -60,6 +60,10 @@ class RuntimeSnapshot:
     combat: dict[str, Any] | None = None
     clues_collected: int = 0
     epiphanies_unlocked: list[str] = field(default_factory=list)
+    # In-run build boons: {"offer": [card,...] | None, "active": [card,...]}.
+    boons: dict[str, Any] | None = None
+    # Market exchange (only while on a market route node): {"offers": [...], "held": {...}}.
+    market: dict[str, Any] | None = None
 
 
 @dataclass(frozen=True)

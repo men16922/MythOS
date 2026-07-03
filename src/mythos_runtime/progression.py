@@ -381,6 +381,38 @@ def evaluate_meta_progression(
             value=ally_id,
             condition=True,
         )
+    # Clear-exclusive reward: beating the scenario's climax (any of the declared
+    # victory endings — defeat/erasure does not count) permanently grants a trait
+    # and a starting item. Data-driven via ``combat.clear_reward`` so scenarios
+    # opt in without code changes.
+    clear_cfg = scenario_combat.get("clear_reward")
+    if isinstance(clear_cfg, dict):
+        clear_endings = {str(e) for e in clear_cfg.get("endings", []) if e}
+        cleared = bool(clear_endings & set(progress.endings_seen))
+        if clear_cfg.get("trait"):
+            progress, grants = _grant_if(
+                progress, grants, bucket="unlocked_traits",
+                value=str(clear_cfg["trait"]), condition=cleared,
+            )
+        if clear_cfg.get("starting_item"):
+            progress, grants = _grant_if(
+                progress, grants, bucket="unlocked_starting_items",
+                value=str(clear_cfg["starting_item"]), condition=cleared,
+            )
+
+    # Achievement-gated recruitment: reaching a milestone unlocks a companion so
+    # their meet side-arc can appear in *future* loops (Se-rin + Kai are the always-
+    # available tutorial party; the rest are earned). Breaks the chicken-and-egg of
+    # "can't meet until unlocked" by keying on cumulative play, not on having met.
+    for ally_id, unlocked in (
+        ("han", progress.total_combats_won >= 3),
+        ("su_ah", progress.runs_completed >= 2),
+        ("lin_yue", progress.total_clues >= 5),
+        ("tae_o", progress.total_combats_won >= 6),
+    ):
+        progress, grants = _grant_if(
+            progress, grants, bucket="unlocked_allies", value=ally_id, condition=unlocked
+        )
     return progress, grants
 
 

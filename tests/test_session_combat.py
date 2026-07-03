@@ -313,9 +313,27 @@ class SessionCombatTest(unittest.TestCase):
             log_message="test",
         )
 
-        self.assertEqual(snap.scene.scene_type, "combat")
-        assert snap.combat is not None
-        self.assertEqual(snap.combat["radar"]["encounter_id"], "ix_confrontation")
+        # Arrival is a narrative buildup beat (confrontation scene with choices);
+        # the climax is parked, never an ambush-by-UI on node entry.
+        self.assertNotEqual(snap.scene.scene_type, "combat")
+        self.assertEqual(snap.loop.state.get("_pending_boss_combat"), "ix_confrontation")
+
+        # The player's next choice fires the parked climax — and it still wins
+        # precedence over a coinciding ambient request.
+        scene2 = replace(scene, scene_id="scene_confront_ix_2", turn_index=scene.turn_index + 1)
+        snap2 = self.service._commit_scene(
+            player=player,
+            loop=snap.loop,
+            scene=scene2,
+            payload=payload,
+            options=self.options,
+            span_name="test",
+            log_message="test",
+        )
+        self.assertEqual(snap2.scene.scene_type, "combat")
+        assert snap2.combat is not None
+        self.assertEqual(snap2.combat["radar"]["encounter_id"], "ix_confrontation")
+        self.assertNotIn("_pending_boss_combat", snap2.loop.state)
 
     def test_route_boss_node_not_preempted_by_threshold_auto_archive(self) -> None:
         # Live 2026-07-03: entering the boss node on a turn whose tension crosses
@@ -380,15 +398,285 @@ class SessionCombatTest(unittest.TestCase):
             log_message="test",
         )
 
-        # The climax fight begins...
-        self.assertEqual(snap.scene.scene_type, "combat")
-        assert snap.combat is not None
-        self.assertEqual(snap.combat["radar"]["encounter_id"], "ix_confrontation")
+        # Arrival stays a live narrative buildup beat (climax parked)...
+        self.assertNotEqual(snap.scene.scene_type, "combat")
+        self.assertEqual(snap.loop.state.get("_pending_boss_combat"), "ix_confrontation")
         # ...and the loop is NOT prematurely archived by the coincident threshold:
-        # it stays live (the fight's outcome will end the loop) and no Echo minted.
+        # it stays live (the parked fight's outcome will end the loop), no Echo minted.
         self.assertNotIn(snap.loop.phase, {LoopPhase.ARCHIVE, LoopPhase.ENDED})
         self.assertIsNone(snap.echo)
         self.assertEqual(snap.loop.active_echoes, [])
+
+        # The next choice fires the parked climax, still keeping the loop live.
+        scene2 = replace(scene, scene_id="scene_confront_ix_hot_2", turn_index=scene.turn_index + 1)
+        snap2 = self.service._commit_scene(
+            player=player,
+            loop=snap.loop,
+            scene=scene2,
+            payload=payload,
+            options=self.options,
+            span_name="test",
+            log_message="test",
+        )
+        self.assertEqual(snap2.scene.scene_type, "combat")
+        assert snap2.combat is not None
+        self.assertEqual(snap2.combat["radar"]["encounter_id"], "ix_confrontation")
+        self.assertNotIn(snap2.loop.phase, {LoopPhase.ARCHIVE, LoopPhase.ENDED})
+
+    def test_route_boss_climax_supersedes_stale_active_combat(self) -> None:
+        # Live 2026-07-03 ROOT CAUSE (loop_99ac4fe6...): a turn-5 ``patrol_ambush``
+        # was left ``_combat.active=true`` (never resolved to a finish), so
+        # ``CombatService.is_active`` stayed True for the rest of the run and the
+        # ``not is_active`` launch guard in ``_commit_scene`` silently skipped the
+        # authored IX climax when the pointer reached the boss node — the fight never
+        # fired and tension climbed unguarded to the auto-archive threshold. A
+        # deliberate route-node climax must supersede a stale, mismatched active combat.
+        from mythos_runtime.route_map import ROUTE_MAP_KEY, build_route_map
+        from mythos_runtime.route_runtime import DEFAULT_TURNS_PER_LAYER
+        from mythos_runtime.scenario import load_scenario
+
+        player = self.store.get_player("p1")
+        loop = self.store.get_loop(self.loop_id)
+        assert player is not None
+        assert loop is not None
+        scenario = load_scenario(self.options.scenario_id)
+        route_map = build_route_map(scenario.route_map, loop.seed)
+        assert route_map is not None
+        layers = route_map["layers"]
+        boss_node_id = layers[-1][0]
+        self.assertEqual(route_map["nodes"][boss_node_id].get("type"), "boss")
+        final_turn = DEFAULT_TURNS_PER_LAYER * len(layers) + 2
+
+        # Seed a real, unresolved ambient combat and transplant its live ``_combat``
+        # (a zombie from an abandoned fight) onto the boss-entry loop state.
+        self.service.start_combat(self.loop_id, "patrol_ambush", self.options)
+        seeded = self.store.get_loop(self.loop_id)
+        assert seeded is not None and isinstance(seeded.state, dict)
+        stale_combat = seeded.state["_combat"]
+        self.assertTrue(stale_combat.get("active"))
+        self.assertNotEqual(stale_combat.get("encounter_id"), "ix_confrontation")
+
+        loop = replace(
+            loop,
+            tension=20,
+            state={
+                ROUTE_MAP_KEY: route_map,
+                "flags": [],
+                "scenario_id": self.options.scenario_id,
+                "_combat": stale_combat,
+            },
+        )
+        self.assertTrue(CombatService.is_active(loop))
+        scene = Scene(
+            scene_id="scene_confront_ix_zombie",
+            loop_id=loop.loop_id,
+            turn_index=final_turn,
+            title="Confront IX",
+            location="ARK Core",
+            narration="The core opens. Administrator IX turns to face the signal.",
+            choices=[Choice("c1", "Stand", "resolve")],
+            visual_brief="A vast optimization altar.",
+            created_at=datetime(2026, 5, 31, tzinfo=UTC),
+        )
+        payload = ScenePayload(
+            title=scene.title,
+            location=scene.location,
+            narration=scene.narration,
+            choices=scene.choices,
+            visual_brief=scene.visual_brief or "",
+            world_delta=WorldDelta(),
+        )
+
+        snap = self.service._commit_scene(
+            player=player,
+            loop=loop,
+            scene=scene,
+            payload=payload,
+            options=self.options,
+            span_name="test",
+            log_message="test",
+        )
+
+        # Arrival parks the climax (buildup beat) even with a zombie combat around.
+        self.assertNotEqual(snap.scene.scene_type, "combat")
+        self.assertEqual(snap.loop.state.get("_pending_boss_combat"), "ix_confrontation")
+
+        # On the next choice, the stale patrol combat is superseded and the IX
+        # climax actually begins.
+        scene2 = replace(scene, scene_id="scene_confront_ix_zombie_2", turn_index=scene.turn_index + 1)
+        snap2 = self.service._commit_scene(
+            player=player,
+            loop=snap.loop,
+            scene=scene2,
+            payload=payload,
+            options=self.options,
+            span_name="test",
+            log_message="test",
+        )
+        self.assertEqual(snap2.scene.scene_type, "combat")
+        assert snap2.combat is not None
+        self.assertEqual(snap2.combat["radar"]["encounter_id"], "ix_confrontation")
+
+    def test_narrative_choice_during_active_combat_does_not_orphan(self) -> None:
+        # Live 2026-07-03 upstream defect: a narrative ``choose`` accepted while a
+        # combat is unresolved generated a story scene on top of it, orphaning
+        # ``_combat.active=true`` (the zombie that later blocked the boss). A
+        # narrative choice mid-combat must re-sync to the live fight, never advance
+        # the story — combat turns go through ``combat_action``.
+        started = self.service.start_combat(self.loop_id, "patrol_ambush", self.options)
+        self.assertTrue(CombatService.is_active(started.loop))
+        scenes_before = len(self.store.scenes.get(self.loop_id, []))
+
+        snap = self.service.choose(self.loop_id, choice_id="c1", options=self.options)
+
+        # Redirected to the live combat, not a freshly generated narrative scene.
+        assert snap.combat is not None
+        self.assertEqual(snap.scene.scene_type, "combat")
+        # The combat stays active (not orphaned) and no story scene was appended.
+        self.assertTrue(CombatService.is_active(snap.loop))
+        self.assertEqual(len(self.store.scenes.get(self.loop_id, [])), scenes_before)
+
+    def test_boss_climax_victory_ends_loop_with_ending(self) -> None:
+        # A finished IX climax must resolve the run: victory ENDS the loop with a
+        # perspective-driven ending instead of returning to a narrative turn (which
+        # would leave the parked boss to re-throw combat every turn).
+        loop = self.store.get_loop(self.loop_id)
+        assert loop is not None
+        loop = replace(loop, state={**loop.state, "scenario_id": "neo-seoul"})
+        player = self.store.get_player("p1")
+        assert player is not None
+        result = CombatTurnResult(
+            loop=loop,
+            prose="",
+            radar={"encounter_id": "ix_confrontation", "round": 4},
+            available={},
+            finished=True,
+            outcome="player_victory",
+            rewards={"encounter_reward": {"insight": 3}},
+        )
+        snap = self.service._commit_combat_turn(player, result, "test", self.options)
+        self.assertEqual(snap.loop.phase, LoopPhase.ENDED)
+        self.assertTrue(snap.loop.state.get("ending_id"))
+
+    def test_boss_climax_defeat_ends_loop_not_recoverable(self) -> None:
+        # Live 2026-07-03: an unwinnable IX fight soft-defeated every turn re-threw
+        # the boss forever. Defeat at the climax must END the loop (erasure), never
+        # a recoverable soft defeat.
+        loop = self.store.get_loop(self.loop_id)
+        assert loop is not None
+        loop = replace(loop, state={**loop.state, "scenario_id": "neo-seoul"})
+        player = self.store.get_player("p1")
+        assert player is not None
+        result = CombatTurnResult(
+            loop=loop,
+            prose="",
+            radar={"encounter_id": "ix_confrontation", "round": 4},
+            available={},
+            finished=True,
+            outcome="player_defeat",
+            rewards={},
+        )
+        snap = self.service._commit_combat_turn(player, result, "test", self.options)
+        self.assertEqual(snap.loop.phase, LoopPhase.ENDED)
+        self.assertTrue(snap.loop.state.get("ending_id"))
+        self.assertFalse(snap.loop.state.get("_soft_defeat_pending"))
+
+    def test_ambient_combat_suppressed_during_soft_defeat_recovery(self) -> None:
+        # After a soft defeat, an ambient LLM start_combat must be suppressed for a
+        # few scenes regardless of tension, so a losing player gets a recovery beat
+        # instead of being re-thrown into a fight (the death-spiral). Route-node
+        # combat is unaffected (handled before this guard).
+        loop = self.store.get_loop(self.loop_id)
+        assert loop is not None
+        payload = ScenePayload(
+            title="t", location="l", narration="n", choices=[],
+            visual_brief="", world_delta=WorldDelta(start_combat="patrol_ambush"),
+        )
+
+        def _scene(turn: int) -> Scene:
+            return Scene(
+                scene_id=f"s{turn}", loop_id=loop.loop_id, turn_index=turn, title="t",
+                location="l", narration="n", choices=[], visual_brief="",
+                created_at=datetime(2026, 5, 31, tzinfo=UTC),
+            )
+
+        # Within the recovery window (turn 11, soft defeat at 10) → suppressed even
+        # at ceiling tension, which would otherwise bypass the pacing cooldown.
+        recovering = replace(
+            loop, tension=95,
+            state={**loop.state, "scenario_id": "neo-seoul", "_soft_defeat_turn": 10},
+        )
+        self.assertIsNone(
+            self.service._resolve_next_combat(
+                recovering, _scene(11), payload,
+                route_combat=None, triggered_combat=None, options=self.options,
+            )
+        )
+        # Without the soft-defeat marker the same ambient request is not suppressed.
+        normal = replace(
+            loop, tension=95,
+            state={**loop.state, "scenario_id": "neo-seoul"},
+        )
+        self.assertEqual(
+            self.service._resolve_next_combat(
+                normal, _scene(11), payload,
+                route_combat=None, triggered_combat=None, options=self.options,
+            ),
+            "patrol_ambush",
+        )
+
+    def test_combat_rounds_do_not_inflate_the_route_clock(self) -> None:
+        # Live 2026-07-04 (loop_dbbd07cb…): combat rounds each consume a scene
+        # turn_index, so pacing the route on the raw index let a few long fights
+        # fast-forward target_layer — ~6 narrative scenes reached the IX boss with
+        # 0 clues. The route clock must count only narrative commits (_story_turn).
+        from mythos_runtime.route_map import ROUTE_MAP_KEY, build_route_map
+        from mythos_runtime.scenario import load_scenario
+
+        player = self.store.get_player("p1")
+        loop = self.store.get_loop(self.loop_id)
+        assert player is not None
+        assert loop is not None
+        scenario = load_scenario(self.options.scenario_id)
+        route_map = build_route_map(scenario.route_map, loop.seed)
+        assert route_map is not None
+        start = route_map["current"]
+        # Story turn 2 so far; scene.turn_index inflated to 25 by combat rounds.
+        loop = replace(
+            loop,
+            state={
+                ROUTE_MAP_KEY: route_map,
+                "flags": [],
+                "scenario_id": self.options.scenario_id,
+                "_story_turn": 2,
+            },
+        )
+        scene = Scene(
+            scene_id="scene_after_long_fight",
+            loop_id=loop.loop_id,
+            turn_index=25,  # raw index inflated by many combat-round scenes
+            title="Aftermath",
+            location="Alley",
+            narration="The drones fall silent.",
+            choices=[Choice("c1", "Move", "go")],
+            visual_brief="rain",
+            created_at=datetime(2026, 5, 31, tzinfo=UTC),
+        )
+        payload = ScenePayload(
+            title=scene.title, location=scene.location, narration=scene.narration,
+            choices=scene.choices, visual_brief="", world_delta=WorldDelta(),
+        )
+        snap = self.service._commit_scene(
+            player=player, loop=loop, scene=scene, payload=payload,
+            options=self.options, span_name="test", log_message="test",
+        )
+        rm = snap.loop.state[ROUTE_MAP_KEY]
+        # Story turn 3 → target layer 0: the pointer must NOT race to the boss.
+        self.assertEqual(snap.loop.state["_story_turn"], 3)
+        node = rm["nodes"][rm["current"]]
+        self.assertEqual(int(node.get("layer", 99)), 0)
+        self.assertNotEqual(node.get("type"), "boss")
+        self.assertEqual(rm["current"], start)
 
     def test_defer_threshold_archive_respects_explicit_end_condition(self) -> None:
         # Author intent wins: an explicit LLM ``end_condition`` still ends the loop

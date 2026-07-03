@@ -111,15 +111,22 @@ def _has_inflight_asset(store: MythOSStore, loop_id: str) -> bool:
 
 
 def is_key_beat(loop: LoopState, scene: Scene) -> bool:
-    """Whether this scene warrants a costly representative image."""
+    """Whether this scene warrants a costly representative image.
+
+    Frequency guardrails (billed Imagen ~$0.04/image): combat generates one
+    establishing shot on round 1 only (later rounds reuse it — the tactical
+    board is the combat view anyway), and the high-pressure clause paces to
+    every other turn instead of every turn.
+    """
     if scene.turn_index == 0:
         return True
     if scene.scene_type == "combat":
-        return True
+        # One establishing shot per encounter (round 1); rounds 2+ reuse it.
+        return scene.title.endswith("R1")
     if loop.phase in {LoopPhase.REWRITE, LoopPhase.ARCHIVE, LoopPhase.ENDED}:
         return True
     if loop.tension >= 70 or loop.stability <= 30:
-        return True
+        return scene.turn_index % 2 == 0
     return scene.turn_index % 3 == 0
 
 

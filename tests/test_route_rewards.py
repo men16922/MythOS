@@ -237,7 +237,9 @@ class RouteNodeRewardIntegrationTest(unittest.TestCase):
             node_id for node_id, targets in route_map["edges"].items() if side_id in targets
         )
         source_layer = int(route_map["nodes"][source]["layer"])
-        boundary_turn = (source_layer + 1) * 4 - 1
+        from mythos_runtime.route_runtime import DEFAULT_TURNS_PER_LAYER
+
+        boundary_turn = (source_layer + 1) * DEFAULT_TURNS_PER_LAYER - 1
 
         started = self.svc.start_loop("p1", self.opts)
         loop = self.store.get_loop(started.loop.loop_id)
@@ -249,6 +251,11 @@ class RouteNodeRewardIntegrationTest(unittest.TestCase):
             "current": source,
             "visited": [source],
         }
+        # Teleporting the pointer mid-route must also move the narrative route
+        # clock (start_loop stamped _story_turn=0): in real play they advance
+        # together — the clock counts story commits, not combat rounds. It equals
+        # the latest narrative scene's turn, so the next commit crosses the boundary.
+        state["_story_turn"] = boundary_turn
         self.store.save_loop(
             replace(
                 loop,

@@ -15,7 +15,12 @@ interface SaveLoadModalProps {
   saveLabelInput: string;
   onSaveLabelChange: (value: string) => void;
   onSave: () => void;
-  onLoadSlot: (data: { playerId: string; scenarioId: string; loopId: string }) => void;
+  onLoadSlot: (data: {
+    playerId: string;
+    scenarioId: string;
+    loopId: string;
+    slotId?: string;
+  }) => void;
   onClose: () => void;
 }
 
@@ -95,7 +100,7 @@ export function SaveLoadModal({
             const clickable = loadMode && !!playerId && !isBusy;
             return (
               <div
-                key={slot.loop_id}
+                key={slot.slot_id || slot.loop_id}
                 className={`sl-card ${isCurrent ? "current" : ""} ${clickable ? "clickable" : ""}`}
                 onClick={
                   clickable
@@ -104,6 +109,7 @@ export function SaveLoadModal({
                           playerId: playerId as string,
                           scenarioId: slot.scenario_id || "neo-seoul",
                           loopId: slot.loop_id,
+                          slotId: slot.slot_id,
                         })
                     : undefined
                 }
@@ -159,6 +165,7 @@ export function SaveLoadModal({
                               playerId,
                               scenarioId: slot.scenario_id || "neo-seoul",
                               loopId: slot.loop_id,
+                              slotId: slot.slot_id,
                             });
                           }
                         }}

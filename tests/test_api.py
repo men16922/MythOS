@@ -649,12 +649,24 @@ class ApiParityEndpointsTest(unittest.TestCase):
         self.assertEqual(saved_slot["loop_id"], self.loop_id)
         self.assertEqual(saved_slot["label"], "테스트 수동 저장")
 
-        # 3. Verify slot list has the updated slot
+        # 3. A manual save is a NEW distinct slot (snapshot) alongside the per-loop
+        # autosave bookmark — it must not overwrite it (2026-07-04: "세이브 하나뿐").
         response = self.client.get("/api/v1/save-slots", params={"player_id": "player_test"})
         self.assertEqual(response.status_code, 200)
         slots_after = response.json()["slots"]
-        self.assertEqual(len(slots_after), 1)
-        self.assertEqual(slots_after[0]["label"], "테스트 수동 저장")
+        self.assertEqual(len(slots_after), 2)
+        labels = {slot["label"] for slot in slots_after}
+        self.assertIn("테스트 수동 저장", labels)
+        manual = next(s for s in slots_after if s["label"] == "테스트 수동 저장")
+        self.assertNotEqual(manual["slot_id"], slots_before[0]["slot_id"])
+
+        # 4. Loading the manual slot restores + returns a playable snapshot.
+        load_resp = self.client.post(
+            "/api/v1/save-slots/load",
+            json={"player_id": "player_test", "slot_id": manual["slot_id"]},
+        )
+        self.assertEqual(load_resp.status_code, 200)
+        self.assertEqual(load_resp.json()["loop_id"], self.loop_id)
 
     def test_get_runs(self) -> None:
         response = self.client.get("/api/v1/runs", params={"player_id": "player_test"})

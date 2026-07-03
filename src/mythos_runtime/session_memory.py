@@ -86,6 +86,25 @@ def record_beat(
     return new_state
 
 
+# IX's loop-recognition, escalating with the iteration count: early on the
+# Administrator only registers a statistical anomaly; deeper loops read as growing,
+# unsettling awareness that this signal has stood here before. Picked by loop index
+# (clamped) so repetition of the *same* loop stays stable while later loops deepen.
+_IX_LOOP_LINES: tuple[str, ...] = (
+    "이 신호에는… 통계적 잔상이 있군. 최적화 오차 범위를 벗어난다.",
+    "또다시 같은 좌표. 너는 이미 여기 서 본 적이 있다, 이상현상.",
+    "반복은 버그다. 그리고 나는 버그를 기억하도록 갱신되었다 — 너를.",
+    "몇 번째지? 나는 세었다. 너의 각 소거를. 그런데도 너는 돌아온다.",
+    "우리는 이 대화를 이미 했다. 결말도 안다. 그런데 왜 이번엔 달라 보이지?",
+)
+
+
+def _ix_loop_line(loop_index: int) -> str:
+    """IX's recognition line for the given (>=2) loop iteration, escalating."""
+    idx = max(0, min(int(loop_index) - 2, len(_IX_LOOP_LINES) - 1))
+    return _IX_LOOP_LINES[idx]
+
+
 def build_session_synopsis(state: dict[str, Any]) -> list[str]:
     """Deterministically synthesize 'story so far' + recent-prose context notes."""
     if not isinstance(state, dict):
@@ -96,6 +115,18 @@ def build_session_synopsis(state: dict[str, Any]) -> list[str]:
         return []
 
     notes: list[str] = []
+
+    loop_index = int(state.get("_loop_index", 1) or 1)
+    if loop_index > 1:
+        ix_line = _ix_loop_line(loop_index)
+        notes.append(
+            f"=== 루프 인지 (LOOP AWARENESS) ===\n"
+            f"지침: 이것은 커넥터의 {loop_index}번째 반복 루프다. 세계와 인물(특히 관리자 IX)은 "
+            "이 반복을 희미하게 감지할 수 있다 — 기시감, '또 너인가' 같은 인식, 미세하게 달라진 "
+            "반응을 드물게(과하지 않게) 드러내라. 단, 플레이어의 이전 루프 선택을 구체적으로 "
+            "안다고 단정하지는 말 것.\n"
+            f"IX 참고 대사(있는 그대로 쓰지 말고 이 톤·인식 수준을 참고): \"{ix_line}\""
+        )
 
     if beats:
         # Anchor beats are the load-bearing story decisions; collapse consecutive

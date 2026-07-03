@@ -422,7 +422,12 @@ function LearningGoalBanner({ combat }: { combat: CombatState }) {
   const trigger = encounter?.narrative_trigger;
   const reward = encounter?.reward_intent;
   const [dismissed, setDismissed] = useState(false);
+  // Collapsed by default: one lesson line, full detail on demand (live feedback
+  // 2026-07-04 — the three-paragraph banner crowded the board).
+  const [expanded, setExpanded] = useState(false);
   if ((!goal && !trigger && !reward) || dismissed) return null;
+  const summary = goal || trigger || reward || "";
+  const firstSentence = summary.split(/(?<=[.!?。])\s/)[0] || summary;
   return (
     <div className="combat-learning-goal" role="note">
       <span className="combat-learning-goal-icon">🎯</span>
@@ -430,9 +435,21 @@ function LearningGoalBanner({ combat }: { combat: CombatState }) {
         <span className="combat-learning-goal-label">
           {t("story.learn.bg")}{encounter?.name ? ` · ${encounter.name}` : ""}
         </span>
-        {trigger && <span className="combat-learning-goal-text">⚑ {t("story.learn.trigger")} · {trigger}</span>}
-        {goal && <span className="combat-learning-goal-text">🎯 {t("story.learn.goal")} · {goal}</span>}
-        {reward && <span className="combat-learning-goal-text">🎁 {t("story.learn.reward")} · {reward}</span>}
+        {!expanded && (
+          <span className="combat-learning-goal-text">
+            🎯 {firstSentence}{" "}
+            <button className="lg-more" onClick={() => setExpanded(true)}>
+              {t("story.learn.more")}
+            </button>
+          </span>
+        )}
+        {expanded && (
+          <>
+            {trigger && <span className="combat-learning-goal-text">⚑ {t("story.learn.trigger")} · {trigger}</span>}
+            {goal && <span className="combat-learning-goal-text">🎯 {t("story.learn.goal")} · {goal}</span>}
+            {reward && <span className="combat-learning-goal-text">🎁 {t("story.learn.reward")} · {reward}</span>}
+          </>
+        )}
       </div>
       <button
         className="combat-learning-goal-close"
@@ -589,6 +606,7 @@ export function StoryPanel({
 }: StoryPanelProps) {
   const { t } = useLang();
   const scrollBottomRef = useRef<HTMLDivElement | null>(null);
+  const scrollTopRef = useRef<HTMLDivElement | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set());
 
@@ -632,10 +650,22 @@ export function StoryPanel({
   const inlineHistory = narrativeHistory.slice(-INLINE_HISTORY_LIMIT);
   const hasNarrativeHistory = narrativeHistory.length > 0;
 
-  // Auto scroll to bottom when new streaming text arrives or history updates
+  // Auto scroll to bottom when new streaming text arrives or history updates —
+  // but not while a finished-combat result is showing (we surface that at the top).
+  const combatJustFinished = Boolean(snapshot?.combat?.finished);
+  const combatOutcome = snapshot?.combat?.finished ? snapshot.combat.outcome ?? null : null;
   useEffect(() => {
+    if (combatJustFinished) return;
     scrollBottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [displayedNarration, narrativeHistory]);
+  }, [displayedNarration, narrativeHistory, combatJustFinished]);
+
+  // When a combat resolves (victory/defeat/flee), bring the result panel into
+  // view at the top instead of leaving the player scrolled to the bottom.
+  useEffect(() => {
+    if (combatOutcome) {
+      scrollTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [combatOutcome]);
 
   const canChoose =
     !isStreaming &&
@@ -734,6 +764,7 @@ export function StoryPanel({
   // 상단 행: 좌측 장면 이미지 + 우측 Character 창 / 하단: 전체 폭 대화 스크립트
   return (
     <div id="story-tab-content" className="narrative-layout">
+      <div ref={scrollTopRef} style={{ height: "1px" }} />
       {finishedCombat && !isStreaming && (
         <CombatResultPanel
           combat={finishedCombat}
@@ -925,12 +956,26 @@ function EndedPanel({
     return t("story.end.reason.default");
   })();
 
+  // Carry-forward hook: sell what this run leaves for the next loop. Roguelite
+  // meta accrues per player+scenario (insight -> skills, echoes, affection), so a
+  // loss is still progress — this is the "one more loop" pull for CBT players.
+  const runBoons = (snapshot.boons?.active ?? []).map((b) => b.name);
+  const combatsWon = Number(snapshot.state?._combat_count ?? 0);
+
   return (
     <div>
       <div className="ended-banner">
         <div className="et">{t("story.end.title")}</div>
         {endingLabel ? <div className="el">{t("story.end.ending")} · {endingLabel}</div> : null}
         <div className="el">{reason}</div>
+      </div>
+      <div className="carry-forward">
+        <div className="cf-head">{t("story.end.carry.title")}</div>
+        <ul className="cf-list">
+          {combatsWon > 0 && <li>{t("story.end.carry.wins")}: {combatsWon}</li>}
+          {runBoons.length > 0 && <li>{t("story.end.carry.build")}: {runBoons.join(" · ")}</li>}
+          <li>{t("story.end.carry.meta")}</li>
+        </ul>
       </div>
       <div style={{ marginTop: "12px" }}>
         <button className="cc-btn" onClick={onLeaveSession}>

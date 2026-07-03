@@ -727,10 +727,15 @@ def _apply_novelty_guard(context: NarrativeContext, payload: ScenePayload) -> Sc
     if title_key not in note_text:
         return payload
 
-    title = f"Changed {payload.title}"
-    narration = (
-        f"{payload.narration.rstrip()} 같은 패턴이 반복되기 전에, 다른 압력이 장면 안으로 끼어든다."
-    )
+    # Language-aware tail: this canned pressure line leaked Korean into EN
+    # narration (live 2026-07-04) because it ignored context.language.
+    if getattr(context, "language", "ko") == "en":
+        title = f"Changed {payload.title}"
+        tail = "Before the same pattern can repeat, a different pressure cuts into the scene."
+    else:
+        title = f"달라진 {payload.title}"
+        tail = "같은 패턴이 반복되기 전에, 다른 압력이 장면 안으로 끼어든다."
+    narration = f"{payload.narration.rstrip()} {tail}"
     return replace(payload, title=title, narration=narration)
 
 

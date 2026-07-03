@@ -659,7 +659,8 @@ main {
   padding-left: 18px;
 }
 .epiphany-body strong {
-  color: var(--term);
+  /* Skill names pop as amber landmarks (accent hierarchy), not more green. */
+  color: var(--head);
 }
 
 /* Save Slots */
@@ -4060,3 +4061,155 @@ main {
   min-width: 56px;
   text-align: center;
 }
+
+/* --- In-run build boons (BoonOffer overlay) --- */
+.boon-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 8, 6, 0.82);
+  backdrop-filter: blur(3px);
+  padding: 24px;
+}
+.boon-modal {
+  width: min(760px, 96vw);
+  border: 1px solid var(--head);
+  background: #05100c;
+  box-shadow: 0 0 32px rgba(255, 180, 84, 0.18);
+  padding: 22px 22px 26px;
+}
+.boon-modal-head {
+  color: var(--head);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.boon-modal-sub {
+  color: var(--term-dim);
+  margin: 6px 0 18px;
+  font-size: 0.9em;
+}
+.boon-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+.boon-card {
+  text-align: left;
+  border: 1px solid rgba(41, 255, 198, 0.4);
+  background: rgba(41, 255, 198, 0.05);
+  color: inherit;
+  padding: 14px;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, transform 0.08s;
+}
+.boon-card:hover:not(:disabled) {
+  border-color: var(--head);
+  background: rgba(255, 180, 84, 0.08);
+  transform: translateY(-2px);
+}
+.boon-card:disabled { opacity: 0.5; cursor: default; }
+.boon-card-name { font-weight: 700; margin-bottom: 6px; }
+.boon-card-stats { color: var(--head); font-size: 0.9em; margin-bottom: 8px; }
+.boon-card-desc { color: var(--term-dim); font-size: 0.85em; line-height: 1.4; }
+
+/* --- Ending carry-forward hook --- */
+.carry-forward {
+  margin-top: 14px;
+  border-left: 2px solid var(--head);
+  padding: 8px 0 8px 14px;
+}
+.cf-head {
+  color: var(--head);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.85em;
+  margin-bottom: 6px;
+}
+.cf-list { list-style: none; margin: 0; padding: 0; }
+.cf-list li { color: var(--term-dim); font-size: 0.9em; line-height: 1.6; }
+
+/* Character-screen run stat bonus (from boons / inscribed echoes) */
+.char-stat-head .stat-bonus { color: var(--head); font-weight: 700; }
+
+/* Run stat bonus segment (boons / inscribed echoes): amber overlay after the base fill */
+.char-stat-bar { position: relative; }
+.char-stat-fill--bonus {
+  position: absolute;
+  top: 0;
+  background: var(--head);
+  border-radius: 0 3px 3px 0;
+}
+
+/* --- Market exchange dock (visible on market route nodes) --- */
+.market-dock {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 30;
+  width: 260px;
+  border: 1px solid rgba(41, 255, 198, 0.45);
+  background: rgba(3, 18, 13, 0.96);
+  padding: 12px 14px;
+  box-shadow: 0 0 18px rgba(41, 255, 198, 0.12);
+}
+.market-head {
+  color: var(--head);
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-size: 0.8em;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.market-held { color: var(--term-dim); text-transform: none; letter-spacing: 0; }
+.market-offers { display: flex; flex-direction: column; gap: 6px; }
+.market-offer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border: 1px solid rgba(41, 255, 198, 0.35);
+  background: rgba(41, 255, 198, 0.05);
+  color: inherit;
+  font-size: 0.85em;
+  cursor: pointer;
+}
+.market-offer:hover:not(:disabled) { border-color: var(--head); }
+.market-offer:disabled { opacity: 0.4; cursor: default; }
+.mo-cost { color: var(--term-dim); }
+.mo-arrow { color: var(--head); }
+.mo-get { font-weight: 700; }
+
+/* Learning-goal banner "more" toggle */
+.lg-more {
+  background: none;
+  border: none;
+  color: var(--head);
+  cursor: pointer;
+  font: inherit;
+  text-decoration: underline;
+  padding: 0;
+}
+
+/* Companion focus on the CHARACTER tab */
+.bond-row { cursor: pointer; border-radius: 4px; padding: 2px 4px; }
+.bond-row:hover { background: rgba(41, 255, 198, 0.06); }
+.bond-row--selected { background: rgba(255, 180, 84, 0.08); outline: 1px solid rgba(255, 180, 84, 0.4); }
+.companion-card { display: flex; flex-direction: column; gap: 10px; }
+.companion-back {
+  align-self: flex-start;
+  background: none;
+  border: 1px solid var(--line-soft);
+  color: var(--term-dim);
+  padding: 4px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.companion-back:hover { border-color: var(--head); color: var(--head); }
+.companion-bond-line { color: var(--head); font-size: 0.9em; }

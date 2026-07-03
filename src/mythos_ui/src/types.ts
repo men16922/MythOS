@@ -384,6 +384,48 @@ export interface RuntimeSnapshot {
   state?: GameStateRaw;
   player?: PlayerProfile;
   epiphanies_unlocked?: string[];
+  boons?: BoonsView | null;
+  market?: MarketView | null;
+}
+
+export interface MarketOffer {
+  give: string;
+  give_name: string;
+  count: number;
+  get: string;
+  get_name: string;
+  get_kind: string;
+  affordable: boolean;
+}
+
+export interface MarketView {
+  offers: MarketOffer[];
+  held: Record<string, number>;
+  vendor?: { id: string; name: string };
+}
+
+export interface BoonCard {
+  id: string;
+  name: string;
+  desc: string;
+  stats: Record<string, number>;
+}
+
+export interface EchoInscription {
+  id: string;
+  symbol: string;
+  text: string;
+  effect?: string;
+  desc?: string;
+  stats: Record<string, number>;
+}
+
+export interface BoonsView {
+  offer: BoonCard[] | null;
+  active: BoonCard[];
+  echoOffer?: EchoInscription[] | null;
+  echoInscribed?: EchoInscription[];
+  statBonus?: Record<string, number>;
 }
 
 export interface InventoryItem {
@@ -400,6 +442,7 @@ export interface InventoryItem {
 
 export interface SaveSlot {
   loop_id: string;
+  slot_id?: string;
   label?: string;
   saved_at: string;
   scenario_id?: string;

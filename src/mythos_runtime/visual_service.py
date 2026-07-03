@@ -668,6 +668,19 @@ class VisualService:
                     reference_image = str(PROJECT_ROOT / "resources" / scenario_id / image)
                     detected_tag = Path(image).stem  # stable, language-neutral tag
                     is_character = True
+                    # Text-side identity anchor: cloud Imagen is text-to-image only
+                    # (no Redux/reference support), so a canonical appearance line is
+                    # the only consistency lever there. Inject ONLY when the character
+                    # actually appears in the image PROMPT itself — detection scans the
+                    # narration too, and appending an appearance for someone the brief
+                    # doesn't depict forces a phantom figure into the composition
+                    # (live 2026-07-04: a giant floating Se-rin over a manhole scene).
+                    appearance = str(entry.get("appearance") or "").strip()
+                    in_prompt = any(
+                        str(kw).lower() in lower_prompt for kw in keywords if str(kw).strip()
+                    )
+                    if appearance and in_prompt:
+                        prompt = f"{prompt}. Character appearance (keep consistent): {appearance}"
                     break
 
         # 1b. Fallback to legacy character_map (id appears in the English brief).

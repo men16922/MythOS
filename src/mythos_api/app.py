@@ -119,6 +119,35 @@ class CombatActionRequest(BaseModel):
     lang: str = "ko"
 
 
+class ChooseBoonRequest(BaseModel):
+    loop_id: str = Field(min_length=1)
+    boon_id: str = Field(min_length=1)
+    scenario_id: str = "neo-seoul"
+    lang: str = "ko"
+
+
+class InscribeEchoRequest(BaseModel):
+    loop_id: str = Field(min_length=1)
+    echo_id: str = Field(min_length=1)
+    scenario_id: str = "neo-seoul"
+    lang: str = "ko"
+
+
+class MarketExchangeRequest(BaseModel):
+    loop_id: str = Field(min_length=1)
+    give: str = Field(min_length=1)
+    get: str = Field(min_length=1)
+    scenario_id: str = "neo-seoul"
+    lang: str = "ko"
+
+
+class LoadSlotRequest(BaseModel):
+    player_id: str = Field(min_length=1)
+    slot_id: str = Field(min_length=1)
+    scenario_id: str = "neo-seoul"
+    lang: str = "ko"
+
+
 class EquipRequest(BaseModel):
     loop_id: str = Field(min_length=1)
     item_id: str = Field(min_length=1)
@@ -722,6 +751,42 @@ def create_app() -> FastAPI:
         except RuntimeError as exc:
             raise _as_http_error(exc) from exc
 
+    @app.post(f"{API_PREFIX}/boons/choose")
+    def choose_boon(
+        body: ChooseBoonRequest,
+        service: RuntimeSessionService = Depends(get_service),
+    ) -> dict[str, Any]:
+        options = RuntimeOptions(scenario_id=body.scenario_id, language=body.lang)
+        try:
+            snapshot = service.choose_boon(body.loop_id, body.boon_id, options)
+        except RuntimeError as exc:
+            raise _as_http_error(exc) from exc
+        return localize_for(snapshot_to_dict(snapshot), body.scenario_id, body.lang)
+
+    @app.post(f"{API_PREFIX}/echoes/inscribe")
+    def inscribe_echo(
+        body: InscribeEchoRequest,
+        service: RuntimeSessionService = Depends(get_service),
+    ) -> dict[str, Any]:
+        options = RuntimeOptions(scenario_id=body.scenario_id, language=body.lang)
+        try:
+            snapshot = service.inscribe_echo(body.loop_id, body.echo_id, options)
+        except RuntimeError as exc:
+            raise _as_http_error(exc) from exc
+        return localize_for(snapshot_to_dict(snapshot), body.scenario_id, body.lang)
+
+    @app.post(f"{API_PREFIX}/market/exchange")
+    def market_exchange(
+        body: MarketExchangeRequest,
+        service: RuntimeSessionService = Depends(get_service),
+    ) -> dict[str, Any]:
+        options = RuntimeOptions(scenario_id=body.scenario_id, language=body.lang)
+        try:
+            snapshot = service.exchange_material(body.loop_id, body.give, body.get, options)
+        except RuntimeError as exc:
+            raise _as_http_error(exc) from exc
+        return localize_for(snapshot_to_dict(snapshot), body.scenario_id, body.lang)
+
     @app.post(f"{API_PREFIX}/loops/{{loop_id}}/equip")
     def equip_item(
         loop_id: str,
@@ -788,6 +853,18 @@ def create_app() -> FastAPI:
             return save_slot_to_dict(slot)
         except RuntimeError as exc:
             raise _as_http_error(exc) from exc
+
+    @app.post(f"{API_PREFIX}/save-slots/load")
+    def load_save_slot(
+        body: LoadSlotRequest,
+        service: RuntimeSessionService = Depends(get_service),
+    ) -> dict[str, Any]:
+        options = RuntimeOptions(scenario_id=body.scenario_id, language=body.lang)
+        try:
+            snapshot = service.load_save_slot(body.player_id, body.slot_id, options)
+        except RuntimeError as exc:
+            raise _as_http_error(exc) from exc
+        return localize_for(snapshot_to_dict(snapshot), body.scenario_id, body.lang)
 
     @app.get(f"{API_PREFIX}/runs")
     def list_runs(

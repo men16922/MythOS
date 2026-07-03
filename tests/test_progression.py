@@ -1,4 +1,5 @@
 import unittest
+from dataclasses import replace
 from datetime import UTC, datetime
 
 from mythos_core import LoopPhase, LoopState, Scene
@@ -124,6 +125,33 @@ class ProgressionTest(unittest.TestCase):
         self.assertIn("patch_protocol", updated.unlocked_skills)
         self.assertEqual(updated.learned_skills, [])
         self.assertEqual(updated.insight_points, 6)  # 2 run + 3 clues + 1 win
+
+    def test_ix_clear_grants_exclusive_reward(self) -> None:
+        # Beating the climax (a victory ending) permanently grants the clear trait
+        # + starting item; a defeat/erasure completion does NOT (2026-07-04).
+        base = MetaProgression(player_id="player_1", scenario_id="neo-seoul")
+        summary = self._run_summary("neo-seoul", clues=0, won=1)
+        cleared, _ = evaluate_meta_progression(
+            base, replace(summary, ending_id="ending_code_rewrite")
+        )
+        self.assertIn("ix_vanquisher", cleared.unlocked_traits)
+        self.assertIn("signal_blade", cleared.unlocked_starting_items)
+        erased, _ = evaluate_meta_progression(
+            base, replace(summary, ending_id="ending_erasure")
+        )
+        self.assertNotIn("ix_vanquisher", erased.unlocked_traits)
+        self.assertNotIn("signal_blade", erased.unlocked_starting_items)
+
+    def test_achievement_unlocks_companion_recruit(self) -> None:
+        # 3 cumulative combat wins unlocks Han for recruitment in future loops
+        # (his meet side-arc is then eligible to appear via attach_side_anchors).
+        base = MetaProgression(player_id="player_1", scenario_id="neo-seoul", total_combats_won=2)
+        unlocked, _ = evaluate_meta_progression(base, self._run_summary("neo-seoul", clues=0, won=1))
+        self.assertIn("han", unlocked.unlocked_allies)
+        # Below the threshold, Han stays locked.
+        low = MetaProgression(player_id="player_1", scenario_id="neo-seoul", total_combats_won=0)
+        still_locked, _ = evaluate_meta_progression(low, self._run_summary("neo-seoul", clues=0, won=1))
+        self.assertNotIn("han", still_locked.unlocked_allies)
 
     def test_evaluate_meta_progression_is_scenario_scoped(self) -> None:
         # A glass-library run must not grant neo-seoul archetypes/skills.

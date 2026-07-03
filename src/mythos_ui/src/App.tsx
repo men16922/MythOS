@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import {
   apiGetScenarios,
   apiGetSlots,
+  apiLoadSlot,
   setInviteKey,
   stablePlayerId,
   verifyInvite,
@@ -16,6 +17,8 @@ import { HeaderBar } from "./HeaderBar";
 import { OnboardingPanel } from "./OnboardingPanel";
 import { SaveLoadModal } from "./SaveLoadModal";
 import { InviteGate } from "./InviteGate";
+import { BoonOffer } from "./BoonOffer";
+import { MarketExchange } from "./MarketExchange";
 import { StoryPanel } from "./StoryPanel";
 import { TabNav } from "./TabNav";
 import type { ActiveTab } from "./TabNav";
@@ -177,6 +180,7 @@ export default function App() {
     playBgm,
     pauseBgm,
     handleToggleBgm,
+    enableBgm,
     playSfx,
     playCombatCinemaCue,
     resetAudioRefs,
@@ -588,10 +592,9 @@ export default function App() {
           scenarioId={selectedScenarioId}
           onEnter={() => {
             setShowBoot(false);
-            if (bgmEnabled) {
-              initAudio();
-              playBgm(mainBgmPath(), true);
-            }
+            // Entering the opening always turns BGM ON (design: a new connection
+            // starts with music), even if a past session persisted it off.
+            enableBgm();
           }}
         />
       )}
@@ -797,13 +800,48 @@ export default function App() {
           saveLabelInput={saveLabelInput}
           onSaveLabelChange={setSaveLabelInput}
           onSave={handleSaveSlotSubmit}
-          onLoadSlot={(data) => {
+          onLoadSlot={async (data) => {
             setSaveLoadModal(null);
+            // Manual slots carry a state snapshot: restore it server-side FIRST,
+            // then the normal resume serves the restored moment (cache refreshed
+            // by the load endpoint). Bookmark slots restore nothing (no-op).
+            if (data.slotId) {
+              try {
+                await apiLoadSlot({
+                  player_id: data.playerId,
+                  slot_id: data.slotId,
+                  scenario_id: data.scenarioId,
+                });
+              } catch {
+                /* fall through — resume still loads the live loop */
+              }
+            }
             handleResumeGame(data);
           }}
           onClose={() => setSaveLoadModal(null)}
         />
       )}
+
+      <BoonOffer
+        snapshot={finalizedSnapshot ?? lastSnapshot}
+        scenarioId={selectedScenarioId}
+        onChosen={(next) => {
+          // The boon/echo REST result is the current confirmed state (same scene,
+          // updated offer). Update finalizedSnapshot too — handleReceivedSnapshot
+          // only sets lastSnapshot, so without this the overlay never closes.
+          setFinalizedSnapshot(next);
+          handleReceivedSnapshot(next);
+        }}
+      />
+
+      <MarketExchange
+        snapshot={finalizedSnapshot ?? lastSnapshot}
+        scenarioId={selectedScenarioId}
+        onExchanged={(next) => {
+          setFinalizedSnapshot(next);
+          handleReceivedSnapshot(next);
+        }}
+      />
     </>
   );
 }

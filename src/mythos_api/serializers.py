@@ -336,4 +336,6 @@ def snapshot_to_dict(snapshot: RuntimeSnapshot) -> dict[str, Any]:
         "bgm_path": snapshot.bgm_path,
         "combat": snapshot.combat,
         "epiphanies_unlocked": snapshot.epiphanies_unlocked,
+        "boons": snapshot.boons,
+        "market": snapshot.market,
     }

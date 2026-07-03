@@ -176,7 +176,9 @@ class NarrativeDirectorTest(unittest.TestCase):
 
         scene, _ = NarrativeDirector(provider).generate_next_scene(context)
 
-        self.assertEqual(scene.title, "Changed Threshold")
+        # KO context → localized retitle + tail (the EN path gets "Changed …" +
+        # an English tail; regression for the 2026-07-04 Korean-leak-in-EN fix).
+        self.assertEqual(scene.title, "달라진 Threshold")
         self.assertIn("다른 압력", scene.narration)
 
     def test_uses_fallback_when_provider_fails_twice(self) -> None:

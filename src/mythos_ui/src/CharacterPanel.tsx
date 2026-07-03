@@ -24,7 +24,10 @@ const STAT_NAME_KEYS: Record<string, StringKey> = {
   perception: "char.stat.perception",
 };
 
-const STAT_MAX = 10;
+// Display scale for stat bars. Raised 10→20 so in-run growth (boons/echo
+// inscriptions stacking over a long run) stays visible on the scale instead of
+// clamping at a full bar. Display-only — the backend has no stat cap.
+const STAT_MAX = 20;
 const ITEM_CATEGORY_ORDER = ["weapon", "armor", "consumable", "material", "key", "data", "item"];
 const ITEM_CATEGORY_KEYS: Record<string, StringKey> = {
   weapon: "char.cat.weapon",
@@ -111,6 +114,8 @@ export function CharacterPanel({ snapshot, characters, onEquip }: CharacterPanel
   const archetype = (traits.archetype as string) || "Unclassified";
   const stats =
     traits.stats && typeof traits.stats === "object" ? traits.stats : {};
+  // This-run boon/echo stat bonuses (combat-effective) so the screen shows base + bonus.
+  const statBonus: Record<string, number> = snapshot?.boons?.statBonus ?? {};
   const attributes = Array.isArray(traits.attributes) ? traits.attributes : [];
   // Combat loot lands in loop.state._inventory and is resolved server-side into
   // snapshot.inventory; prefer that over the static traits.inventory.
@@ -147,22 +152,33 @@ export function CharacterPanel({ snapshot, characters, onEquip }: CharacterPanel
       {Object.keys(stats).length > 0 ? (
         <div className="char-stats">
           {Object.entries(stats).map(([key, value]) => {
-            const v = Number(value) || 0;
+            const base = Number(value) || 0;
+            const bonus = Number(statBonus[key]) || 0;
             return (
               <div key={key} className="char-stat">
                 <div className="char-stat-head">
                   <span className="k">{STAT_NAME_KEYS[key] ? t(STAT_NAME_KEYS[key]) : key}</span>
                   <span className="v">
-                    {v} / {STAT_MAX}
+                    {base}
+                    {bonus > 0 ? <span className="stat-bonus"> +{bonus}</span> : null} / {STAT_MAX}
                   </span>
                 </div>
                 <div className="char-stat-bar">
                   <div
                     className="char-stat-fill"
                     style={{
-                      width: `${Math.max(0, Math.min(100, (v / STAT_MAX) * 100))}%`,
+                      width: `${Math.max(0, Math.min(100, (base / STAT_MAX) * 100))}%`,
                     }}
                   />
+                  {bonus > 0 && (
+                    <div
+                      className="char-stat-fill char-stat-fill--bonus"
+                      style={{
+                        left: `${Math.max(0, Math.min(100, (base / STAT_MAX) * 100))}%`,
+                        width: `${Math.max(0, Math.min(100 - (base / STAT_MAX) * 100, (bonus / STAT_MAX) * 100))}%`,
+                      }}
+                    />
+                  )}
                 </div>
               </div>
             );

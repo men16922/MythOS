@@ -121,10 +121,17 @@ function RouteMapPanel({ routeMap, playerFlags }: { routeMap: RouteMap; playerFl
   // the current one (the road past that is fog). Static maps show everything.
   const HORIZON = 2;
   const isDynamic = routeMap.mode === "dynamic";
+  // The window must use the node's position IN THE RENDERED ARRAY, not the
+  // node.layer field: dynamic growth (extend_route) can leave the field and the
+  // array index disagreeing for grown/side nodes, which shifted the compact
+  // window off the expanded view (live 2026-07-04: mini map ≠ expand map).
+  const arrayIdx = layers.findIndex((ids) => ids.includes(currentId));
   const currentLayerIdx =
-    typeof nodes[currentId]?.layer === "number"
-      ? (nodes[currentId]!.layer as number)
-      : Math.max(0, layers.findIndex((ids) => ids.includes(currentId)));
+    arrayIdx >= 0
+      ? arrayIdx
+      : typeof nodes[currentId]?.layer === "number"
+        ? (nodes[currentId]!.layer as number)
+        : 0;
 
   const renderGraph = (mode: RouteGraphMode) => {
     // compact: forward-only window [current .. current+HORIZON].

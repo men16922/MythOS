@@ -1,6 +1,6 @@
 # Project MythOS Next Plan
 
-Last updated: 2026-07-03
+Last updated: 2026-07-04
 
 This file keeps only upcoming (open) work as a rolling plan. Completed tracks live in
 `docs/COMPLETED_SUMMARY.md`, detailed logs in `bin/docs/archive/progress-2026-06.md`, individual designs in
@@ -14,6 +14,8 @@ Key finding: relationship deltas (`scenario.json` perspective/choice `effect.rel
 - `[/]` **Prompt-layer separation (Foundation)**: Phase 0-4 + node-addressing done. Remaining — `[ ]` Phase 5 system_prompt few-shot example extraction (cache-prefix sensitive, lowest priority).
 - `[/]` `[manual]` **P2 Se-rin cutscene**: `se_rin.md` 2 cuts authored. Remaining: `[ ]` adopt 2 dedicated arts from `outputs/experiments/adult/serin/imagegen/*.png` (IMAGE_POLICY) + image swap + live QA.
 - `[/]` `[manual]` **P3 companion expansion**: 9 `side_arcs` are route side-anchors with deterministic producer/entry-effect wiring. Remaining: kai/lin_yue/tae_o/han/su_a cutscenes.
+- `[ ]` `[manual]` **Archetype-variant openings (long-term, 2026-07-04)**: the 5-beat opening prologue is shared across archetypes (only stat-voices/GM flavor differ). Author per-archetype opening variations (e.g. Data Smuggler wakes mid-deal, Echo Collector hears the echoes first) — directive-layer work (`resources/neo-seoul/directives/opening.md` variants + KO/EN), gated on CBT priorities.
+- `[x]` **Lin-yue combat recruitment**: DONE 2026-07-04 — ally kit (`allies.lin_yue`, ranged support/EMP) + side-arc `met_lin_yue` effect + 5 codex-generated combat sprites (RGBA-keyed). Remaining `[manual]`: live-QA her join + battle feel.
 
 ## Engineering maintenance track — WS0-3 done (COMPLETED_SUMMARY M43), only WS4 remains
 
@@ -76,7 +78,7 @@ Completed (→ COMPLETED_SUMMARY M35–M40, M39): Phase 1–3 (Golden Path 45min
 Open work:
 
 ### IX Boss Fight — design+art+engine DONE (2026-06-30 → COMPLETED_SUMMARY). Authority `docs/plans/2026-06-30-ix-boss-fight.md`
-- `[x]` Climax gate/precedence fix (2026-07-02). **⚠️ LIVE re-finding 2026-07-03: at the boss node the fight still doesn't start — tension-100 auto-archive preempts it (only patrol_ambush ran). Targeted by Overnight Seed A/B above.**
+- `[x]` Climax gate/precedence fix (2026-07-02). **✅ ROOT CAUSE FOUND + FIXED 2026-07-03 (`make check` 667):** the boss-not-firing was NOT tension-archive (that was the symptom) — a turn-5 `patrol_ambush` left `_combat.active=true` (zombie) kept `is_active` True, so the `not is_active` launch guard silently skipped the IX climax at the boss node; tension then auto-archived unguarded. Fixed: `choose`/`stream_choose` re-sync to a live fight instead of orphaning it (`_redirect_to_active_combat`) + route-node climax supersedes a stale `_combat` (`_without_combat_state`) + 2 regression tests. Live cloud API restarted. Remaining: human fresh-loop live-QA to confirm the fight fires end-to-end (the earlier dead loop is `ended`).
 - `[x]` CBT feedback: #1 UI accent hierarchy (`6afa6d9`) + combat-console overlap fix (`52f7aa1`) + KO-toggle label — DONE 2026-07-02..03.
 - `[ ]` `[manual]` Pre-CBT follow-ups: glass-library EN glossary (hold); dev-log ~32 KO literals (dev-only). Human live play → `docs/test/neo_seoul_live_qa.md`. (bug#4 fixed `3b7d26b`.)
 

@@ -95,6 +95,38 @@ class BossSkillTest(unittest.TestCase):
         self.assertTrue(cast)
         self.assertEqual(cast[0].detail.get("skill"), "ix_purge_field")
 
+    def test_boss_escorts_scale_to_party_size(self) -> None:
+        # Fairness (live 2026-07-03): a fixed IX + 2-escort roster is ~8% winnable
+        # with only Se-rin. Escort waves now drop out for a small party via
+        # ``min_party`` so the climax stays tense-but-fair regardless of recruits.
+        from mythos_combat import build_encounter
+
+        combat = _combat()
+
+        def _enemy_count(n_allies: int) -> int:
+            player = build_player_combatant(
+                combatant_id="player", name="P", stats={"strength": 5, "agility": 5},
+                weapon_ids=[], weapons_pool=combat["weapons"], x=0, y=0,
+            )
+            allies = []
+            for i in range(n_allies):
+                a = build_player_combatant(
+                    combatant_id=f"ally{i}", name=f"A{i}", stats={"strength": 5, "agility": 5},
+                    weapon_ids=[], weapons_pool=combat["weapons"], x=0, y=0,
+                )
+                a.faction = ALLY
+                allies.append(a)
+            state = build_encounter(
+                combat, "ix_confrontation", player=player, allies=allies, seed="scale-test",
+            )
+            return len(state.living_enemies())
+
+        # solo (party 1) → IX only; +1 ally → +sentinel; full (party 4) → +purge.
+        self.assertEqual(_enemy_count(0), 1)
+        self.assertEqual(_enemy_count(1), 2)
+        self.assertEqual(_enemy_count(2), 2)
+        self.assertEqual(_enemy_count(3), 3)
+
 
 if __name__ == "__main__":
     unittest.main()

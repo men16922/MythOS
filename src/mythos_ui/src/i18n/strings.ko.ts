@@ -418,6 +418,18 @@ export const ko = {
   "dev.emptyInventory": "인벤토리가 비어 있습니다.",
   "dev.notInCombat": "현재 전투 상태가 아닙니다.",
   "dev.noUnits": "등록된 유닛이 없습니다.",
+  "boon.title": "증폭 파편",
+  "boon.subtitle": "이번 루프 동안 유지되는 강화를 하나 선택하세요.",
+  "story.end.carry.title": "다음 루프로 이어짐",
+  "story.end.carry.wins": "이번 루프 전투 승리",
+  "story.end.carry.build": "이번 루프 빌드",
+  "story.end.carry.meta": "축적된 통찰·기억·유대가 다음 접속을 더 강하게 만듭니다.",
+  "echo.title": "기억 각인",
+  "echo.subtitle": "이전 루프에서 가져온 기억(Echo) 하나를 각인해 이번 런에 힘을 더하세요.",
+  "echo.card": "기억",
+  "market.title": "물물 교환",
+  "story.learn.more": "자세히",
+  "ctab.backToPlayer": "내 캐릭터로",
 } as const;
 
 export type StringKey = keyof typeof ko;

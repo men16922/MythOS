@@ -18,6 +18,7 @@
       "alias": "물거미",
       "role": "첫 인도자 / 데이터 밀수꾼",
       "image": "characters/se-rin.png",
+      "appearance": "young Korean woman in her mid-20s, long straight black hair with blunt bangs, sharp dark eyes, deep red lips, black leather jacket, rain-flecked, neon-lit",
       "keywords": [
         "정세린",
         "세린",
@@ -44,6 +45,7 @@
       "alias": "RX-09",
       "role": "꿈꾸는 폐기 안드로이드",
       "image": "characters/kai.png",
+      "appearance": "sleek white-and-silver humanoid android, smooth pale faceplate with soft glowing eyes, slender graceful frame, exposed joint seams",
       "keywords": [
         "카이",
         "kai",
@@ -1339,12 +1341,20 @@
     {
       "trigger_location": "한강 야시장",
       "title": "사이드: 린위에의 은밀한 의뢰",
-      "description": "린위에가 잃어버린 '기억의 조각'을 찾아주고 강력한 장비를 지원받는 이야기.",
+      "description": "린위에가 잃어버린 '기억의 조각'을 찾아주고 강력한 장비를 지원받는 이야기. 완료하면 린위에가 전투에 합류할 수 있게 된다.",
       "beat": "side_lin_yue_request",
       "image": "scenes/lin_yue_secret_request.png",
       "related_npcs": [
         "lin_yue"
-      ]
+      ],
+      "effect": {
+        "flags": [
+          "met_lin_yue"
+        ],
+        "relationship": {
+          "lin_yue": 1
+        }
+      }
     },
     {
       "trigger_flag": "met_se_rin",
@@ -1430,9 +1440,7 @@
   "npc_agenda_allowed_subjects": [
     "최적화 명단 대상자"
   ],
-  "relationship_subjects": [
-    "lin_yue"
-  ],
+  "relationship_subjects": [],
   "npc_agendas": {
     "정세린": {
       "goal": "비접속자 연대 구축 및 플레이어 보호",
@@ -2183,6 +2191,47 @@
           "agility": 5,
           "perception": 7
         }
+      },
+      "lin_yue": {
+        "id": "lin_yue",
+        "name": "린위에",
+        "alias": "환전상",
+        "recruit_keywords": [
+          "린위에",
+          "lin yue",
+          "lin-yue",
+          "환전상",
+          "브로커"
+        ],
+        "unlock_flags": [
+          "met_lin_yue",
+          "ally_lin_yue"
+        ],
+        "hp": 13,
+        "defense": 11,
+        "speed": 4,
+        "ai": "ranged",
+        "blip": "❖",
+        "image": "characters/lin-yue.png",
+        "combat_images": {
+          "idle": "characters/combat/lin-yue-idle.png",
+          "attack": "characters/combat/lin-yue-attack.png",
+          "guard": "characters/combat/lin-yue-guard.png",
+          "skill": "characters/combat/lin-yue-skill.png",
+          "hit": "characters/combat/lin-yue-hit.png"
+        },
+        "weapons": [
+          "emp_blaster"
+        ],
+        "skills": [
+          "covering_noise",
+          "patch_protocol"
+        ],
+        "stats": {
+          "strength": 3,
+          "agility": 5,
+          "perception": 8
+        }
       }
     },
     "enemy_skills": {
@@ -2572,6 +2621,37 @@
         "rarity": "rare"
       }
     },
+    "clear_reward": {
+      "endings": [
+        "ending_safe_refuge",
+        "ending_code_rewrite",
+        "ending_noble_sacrifice"
+      ],
+      "trait": "ix_vanquisher",
+      "starting_item": "signal_blade"
+    },
+    "market_vendor": {
+      "id": "lin_yue",
+      "name": "린위에",
+      "blurb": "정보상 린위에의 네트워크가 시장의 물물 교환을 운영한다. 그녀는 잔해의 무게를 눈으로 재고, 값을 부르기 전에 당신이 무엇을 숨기는지 먼저 본다."
+    },
+    "market_exchange": [
+      {
+        "give": "drone_scrap",
+        "count": 2,
+        "get": "nanopatch"
+      },
+      {
+        "give": "drone_scrap",
+        "count": 3,
+        "get": "stim_shard"
+      },
+      {
+        "give": "drone_scrap",
+        "count": 6,
+        "get": "mesh_vest"
+      }
+    ],
     "loot_tables": {
       "drone_scrap": [
         {
@@ -2871,11 +2951,13 @@
           },
           {
             "bestiary": "sentinel_drone",
-            "count": 1
+            "count": 1,
+            "min_party": 2
           },
           {
             "bestiary": "purge_drone",
-            "count": 1
+            "count": 1,
+            "min_party": 4
           }
         ],
         "learning_goal": "최종 보스전. 고체력 단일 표적(IX)을 호위 드론과 위험 지형 속에서 분담 공략하며, 회복/엄호/일점사 타이밍과 파티 생존을 종합한다.",

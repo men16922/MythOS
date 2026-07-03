@@ -86,6 +86,30 @@ class RouteSideAnchorTest(unittest.TestCase):
             maps.append(dyn)
         return maps
 
+    def test_companion_arcs_are_gated_by_unlocked_recruits(self) -> None:
+        # Achievement-gated recruitment: with nothing unlocked, no locked companion
+        # meet-arc appears; unlocking a companion lets its arc surface on some seed.
+        gated_beats = {"side_han_meet", "side_su_ah_meet", "side_tae_o_meet", "side_lin_yue_request"}
+        for i in range(40):
+            seed = f"gate-{i}"
+            rm = build_route_map(self.config, seed)
+            assert rm is not None
+            rm = attach_side_anchors(rm, self.side_arcs, seed, unlocked_companions=set())
+            assert rm is not None
+            beats = {rm["nodes"][nid].get("beat") for nid in _side_ids(rm)}
+            self.assertFalse(beats & gated_beats, f"seed {seed} leaked a gated companion arc: {beats}")
+
+        seen_han = False
+        for i in range(40):
+            seed = f"gate-han-{i}"
+            rm = build_route_map(self.config, seed)
+            assert rm is not None
+            rm = attach_side_anchors(rm, self.side_arcs, seed, unlocked_companions={"han"})
+            assert rm is not None
+            if any(rm["nodes"][nid].get("beat") == "side_han_meet" for nid in _side_ids(rm)):
+                seen_han = True
+        self.assertTrue(seen_han, "unlocking han must let its meet-arc appear on some seed")
+
     def test_at_least_one_side_node_attached(self) -> None:
         for rm in self._maps():
             self.assertTrue(

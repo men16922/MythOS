@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from typing import Any
 
 from mythos_core import AssetRecord, LoopPhase, LoopState, PlayerMemory, Scene
 from mythos_core.clock import utc_now
-from mythos_core.ids import new_memory_id
+from mythos_core.ids import new_memory_id, new_scene_id
+from mythos_core.models import from_json_dict, to_json_dict
 from mythos_memory import MythOSStore
 from mythos_runtime.combat_service import CombatService
 from mythos_runtime.options import SaveSlot
@@ -25,6 +27,12 @@ class SaveLoadService:
         return slots[:limit]
 
     def save_slot(self, loop_id: str, label: str | None = None) -> SaveSlot:
+        """Manual save: a NEW distinct slot carrying a full state snapshot.
+
+        Autosave keeps upserting the per-loop bookmark (``slot_<loop_id>``); manual
+        saves each get a unique slot id + a ``snapshot`` (loop state + scene) so
+        loading one actually restores that moment, not just the live loop.
+        """
         loop = self.store.get_loop(loop_id)
         if not loop:
             raise RuntimeError(f"loop_id={loop_id} not found")
@@ -34,9 +42,45 @@ class SaveLoadService:
         if not scene:
             raise RuntimeError(f"no scenes found for loop_id={loop_id}")
         assets = self.store.list_assets(loop_id)
-        memory = _save_slot_memory(loop, scene, assets, label=label)
+        memory = _save_slot_memory(loop, scene, assets, label=label, manual=True)
         self.store.save_player_memory(memory)
         return _save_slot_from_memory(memory)
+
+    def restore_slot(self, player_id: str, slot_id: str) -> LoopState | None:
+        """Restore a manual slot's snapshot into its loop (a real load/rewind).
+
+        Returns the restored loop, or ``None`` for legacy bookmark slots (no
+        snapshot payload) — the caller then just resumes the live loop. The saved
+        scene is re-appended as the new latest scene (with a fresh id and the next
+        turn index) instead of deleting later scenes, so events/assets keep their
+        referential integrity while play resumes from the saved moment.
+        """
+        target: PlayerMemory | None = None
+        for memory in self.store.list_player_memories(player_id):
+            if memory.kind != "save_slot":
+                continue
+            if str(memory.content.get("slot_id")) != slot_id:
+                continue
+            if target is None or memory.created_at > target.created_at:
+                target = memory
+        if target is None:
+            raise RuntimeError(f"save slot not found: {slot_id}")
+        snapshot = target.content.get("snapshot")
+        if not isinstance(snapshot, dict):
+            return None
+        loop = from_json_dict(LoopState, snapshot["loop"])
+        saved_scene = from_json_dict(Scene, snapshot["scene"])
+        latest = self.store.get_latest_scene(loop.loop_id)
+        next_turn = (latest.turn_index + 1) if latest else saved_scene.turn_index
+        restored_scene = replace(
+            saved_scene,
+            scene_id=new_scene_id(),
+            turn_index=next_turn,
+            created_at=utc_now(),
+        )
+        self.store.save_loop(loop)
+        self.store.save_scene(restored_scene)
+        return loop
 
     def autosave(
         self, loop: LoopState, scene: Scene, assets: list[AssetRecord]
@@ -53,10 +97,17 @@ def _save_slot_memory(
     scene: Scene,
     assets: list[AssetRecord],
     label: str | None,
+    manual: bool = False,
 ) -> PlayerMemory:
     now = utc_now()
+    memory_id = new_memory_id()
+    slot_id = (
+        f"slot_{loop.loop_id}_{memory_id.removeprefix('memory_')[:8]}"
+        if manual
+        else f"slot_{loop.loop_id}"
+    )
     slot = {
-        "slot_id": f"slot_{loop.loop_id}",
+        "slot_id": slot_id,
         "player_id": loop.player_id,
         "loop_id": loop.loop_id,
         "scenario_id": str(loop.state.get("scenario_id") or "neo-seoul"),
@@ -74,14 +125,18 @@ def _save_slot_memory(
         "metadata": {
             "location_id": loop.location_id,
             "location": scene.location,
-            "autosave": label is None,
+            "autosave": not manual,
+            "manual": manual,
             # Curated anchor image the player actually saw (if any) → free thumbnail
             # on the save/load screen; relative to resources/<scenario>/.
             "curated_image": _curated_anchor_image(loop) or "",
         },
     }
+    if manual:
+        # Full state snapshot so loading this slot restores THIS moment.
+        slot["snapshot"] = {"loop": to_json_dict(loop), "scene": to_json_dict(scene)}
     return PlayerMemory(
-        memory_id=new_memory_id(),
+        memory_id=memory_id,
         player_id=loop.player_id,
         kind="save_slot",
         content=slot,
@@ -138,16 +193,18 @@ def _save_slot_from_content(content: dict[str, Any], fallback_saved_at: str) -> 
 
 
 def _latest_save_slot_memories(memories: list[PlayerMemory]) -> dict[str, PlayerMemory]:
+    # Keyed by slot_id: autosaves share the per-loop bookmark id (upsert), while
+    # each manual save is its own distinct slot — so several manual saves coexist.
     latest: dict[str, PlayerMemory] = {}
     for memory in memories:
         if memory.kind != "save_slot":
             continue
-        loop_id = memory.content.get("loop_id")
-        if not isinstance(loop_id, str) or not loop_id:
+        slot_id = memory.content.get("slot_id") or memory.content.get("loop_id")
+        if not isinstance(slot_id, str) or not slot_id:
             continue
-        current = latest.get(loop_id)
+        current = latest.get(slot_id)
         if current is None or memory.created_at > current.created_at:
-            latest[loop_id] = memory
+            latest[slot_id] = memory
     return latest
 
 

@@ -237,7 +237,9 @@ export function CombatControls({
                     key={item.item_id}
                     type="button"
                     className="cc-item-btn"
-                    disabled={!isPlayerTurn}
+                    // Party-shared consumables: the engine applies items to the ACTIVE
+                    // actor (take_player_turn → _player_item(actor)), and the inventory
+                    // is loop-level, so a controlled ally's turn can spend them too.
                     title={item.effect === "heal" ? t("cc.healHp") : item.effect === "focus" ? t("cc.healFocus") : item.name}
                     onClick={() => onAction({ type: "item", item_id: item.item_id })}
                   >

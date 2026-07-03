@@ -42,9 +42,20 @@ def build_encounter(
     arena = encounter.get("arena") or combat_pool.get("arena") or _DEFAULT_ARENA
     width, height = int(arena["width"]), int(arena["height"])
 
+    # Party-size scaling: a fixed roster designed for a full party is unfair for
+    # a small one (measured: IX + 2 escorts is ~8% winnable with only Se-rin).
+    # An enemy group may declare ``min_party`` — the minimum party size (player +
+    # allies) for that group to appear — so escort waves drop out for a small
+    # party and the climax stays tense-but-fair. No ``min_party`` = always spawn
+    # (backward compatible), so only encounters that opt in are affected.
+    party_size = 1 + len(allies or [])
+
     enemies: list[Combatant] = []
     index = 0
     for group in encounter.get("enemies", []):
+        min_party = group.get("min_party")
+        if isinstance(min_party, int) and party_size < min_party:
+            continue
         entry = bestiary.get(group.get("bestiary"))
         if entry is None:
             continue

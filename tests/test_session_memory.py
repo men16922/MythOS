@@ -51,6 +51,27 @@ class SessionMemoryTest(unittest.TestCase):
     def test_synopsis_empty_without_memory(self) -> None:
         self.assertEqual(build_session_synopsis({}), [])
 
+    def test_synopsis_flags_loop_awareness_on_repeat_loops(self) -> None:
+        beats = [{"t": 0, "title": "S0", "node": "n", "anchor": True, "lens": "l", "gist": "g"}]
+        # First loop → no loop-awareness note.
+        first = build_session_synopsis({BEATS_KEY: beats, "_loop_index": 1})
+        self.assertFalse(any("LOOP AWARENESS" in n for n in first))
+        # Repeat loop → the GM is told the anomaly is recurring, with an IX line.
+        repeat = build_session_synopsis({BEATS_KEY: beats, "_loop_index": 3})
+        aware = [n for n in repeat if "LOOP AWARENESS" in n]
+        self.assertTrue(aware)
+        self.assertIn("3번째", aware[0])
+        self.assertIn("IX 참고 대사", aware[0])
+
+    def test_ix_loop_line_escalates_and_is_stable(self) -> None:
+        from mythos_runtime.session_memory import _IX_LOOP_LINES, _ix_loop_line
+
+        # Loop 2 uses the first (mild) line; later loops escalate; clamps at the last.
+        self.assertEqual(_ix_loop_line(2), _IX_LOOP_LINES[0])
+        self.assertEqual(_ix_loop_line(3), _IX_LOOP_LINES[1])
+        self.assertEqual(_ix_loop_line(999), _IX_LOOP_LINES[-1])
+        self.assertEqual(_ix_loop_line(5), _ix_loop_line(5))  # stable
+
     def test_synopsis_collapses_consecutive_same_node(self) -> None:
         # Two anchor nodes, each lingering several turns -> spine has 2 entries.
         beats = []

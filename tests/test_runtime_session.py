@@ -72,8 +72,11 @@ class KeyBeatTest(unittest.TestCase):
     def test_phase_shift_is_key_beat(self):
         self.assertTrue(is_key_beat(_loop(phase=LoopPhase.ARCHIVE), _scene(1)))
 
-    def test_climax_tension_is_key_beat(self):
-        self.assertTrue(is_key_beat(_loop(tension=85), _scene(1)))
+    def test_climax_tension_is_key_beat_every_other_turn(self):
+        # High pressure paces to every other turn (billed Imagen guardrail),
+        # not every turn.
+        self.assertTrue(is_key_beat(_loop(tension=85), _scene(2)))
+        self.assertFalse(is_key_beat(_loop(tension=85), _scene(1)))
 
     def test_low_stability_is_key_beat(self):
         self.assertTrue(is_key_beat(_loop(stability=20), _scene(2)))

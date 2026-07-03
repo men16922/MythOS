@@ -33,3 +33,11 @@ COMBAT_RISK_CAP_BY_COUNT = (1, 2, 3, 4)
 COMBAT_SOFT_DEFEAT_HEAL_FRAC = 0.45
 COMBAT_SOFT_DEFEAT_STABILITY_LOSS = 10
 COMBAT_SOFT_DEFEAT_TENSION_GAIN = 15
+# After a soft defeat, guarantee a genuine narrative recovery beat: suppress
+# ambient (LLM `start_combat` / encounter-map) combat for this many scenes,
+# regardless of tension. Prevents the death-spiral where a losing player is
+# re-thrown into a fight every turn (soft defeat adds tension -> the cooldown's
+# high-pressure bypass would otherwise re-trigger combat immediately, and 0 wins
+# keeps the risk cap at the lowest tier so the same downgraded encounter recurs).
+# Deliberate route-node combat (patrol/boss) is unaffected.
+SOFT_DEFEAT_COMBAT_COOLDOWN_SCENES = 3

@@ -1,4 +1,5 @@
 import unittest
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 
 from mythos_core import AssetRecord, LoopPhase, LoopState, Scene
@@ -44,6 +45,15 @@ def _scene() -> Scene:
 
 
 class CuratedAnchorImageTests(unittest.TestCase):
+    def test_active_cutscene_image_precedes_route_anchor(self) -> None:
+        loop = _loop(
+            {"current": "n1", "nodes": {"n1": {"anchor": True, "image": "scenes/x.png"}}}
+        )
+        state = dict(loop.state)
+        state["_active_cutscene"] = {"image": "characters/se-rin.png"}
+        loop = replace(loop, state=state)
+        self.assertEqual(_curated_anchor_image(loop), "characters/se-rin.png")
+
     def test_returns_image_for_anchor_with_curated_image(self) -> None:
         rm = {"current": "n1", "nodes": {"n1": {"anchor": True, "image": "scenes/x.png"}}}
         self.assertEqual(_curated_anchor_image(_loop(rm)), "scenes/x.png")

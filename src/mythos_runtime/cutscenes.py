@@ -22,7 +22,17 @@ from typing import Any
 
 from mythos_runtime.scenario_directives import CutsceneDirective
 
-__all__ = ["evaluate_unlocked_cutscenes", "cutscene_gallery", "is_cutscene_unlocked"]
+ACTIVE_CUTSCENE_KEY = "_active_cutscene"
+SEEN_CUTSCENES_KEY = "_seen_cutscenes"
+
+__all__ = [
+    "ACTIVE_CUTSCENE_KEY",
+    "SEEN_CUTSCENES_KEY",
+    "cutscene_gallery",
+    "evaluate_unlocked_cutscenes",
+    "is_cutscene_unlocked",
+    "next_unseen_cutscene",
+]
 
 
 def _affection(relationships: Mapping[str, Any] | None, companion: str) -> int:
@@ -58,6 +68,31 @@ def evaluate_unlocked_cutscenes(
         if is_cutscene_unlocked(cs, relationships, flag_set)
     ]
     return sorted(unlocked)
+
+
+def next_unseen_cutscene(
+    cutscenes: Iterable[CutsceneDirective],
+    relationships: Mapping[str, Any] | None,
+    flags: Iterable[str] | None,
+    seen_ids: Iterable[str] | None,
+) -> CutsceneDirective | None:
+    """Return the first authored cutscene that is eligible but not yet shown.
+
+    In-game appearance is once per loop.  Authored order is deliberately preserved
+    so simultaneous unlocks resolve deterministically without sorting away the
+    scenario author's priority.
+    """
+    flag_set = {str(flag) for flag in (flags or [])}
+    seen = {str(cutscene_id) for cutscene_id in (seen_ids or [])}
+    return next(
+        (
+            cutscene
+            for cutscene in cutscenes
+            if cutscene.cutscene_id not in seen
+            and is_cutscene_unlocked(cutscene, relationships, flag_set)
+        ),
+        None,
+    )
 
 
 def cutscene_gallery(

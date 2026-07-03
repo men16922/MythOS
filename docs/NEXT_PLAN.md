@@ -8,11 +8,10 @@ This file keeps only upcoming (open) work as a rolling plan. Completed tracks li
 
 ## Priority 0 — Companion affection + cutscene unlock + prompt-layer separation (current top priority)
 
-Authority design: `docs/plans/2026-06-16-companion-affection-cutscenes.md`. Baseline: prompt-layer Phase 0-2 done (commits `751a37b`/`cfe6a2d`/`ed37c39`/`7fd91e5`, `docs/PROMPT_LAYER.md`).
+Authority design: `docs/plans/2026-06-16-companion-affection-cutscenes.md`. Baseline: prompt-layer Phase 0-4 + node addressing and P1 unlock/gallery/in-game cutscene appearance done (`docs/PROMPT_LAYER.md`).
 Key finding: relationship deltas (`scenario.json` perspective/choice `effect.relationship`) were **authored but ignored at runtime (dead data)** — `route_runtime.py:96` applied only flags.
 
 - `[/]` **Prompt-layer separation (Foundation)**: Phase 0-4 + node-addressing done. Remaining — `[ ]` Phase 5 system_prompt few-shot example extraction (cache-prefix sensitive, lowest priority).
-- `[/]` **P1 cutscene unlock**: backend and frontend wiring/QA done. Remaining: `[ ]` in-game cutscene node appearance (P1-a, directive injection).
 - `[/]` `[manual]` **P2 Se-rin cutscene**: `se_rin.md` 2 cuts authored. Remaining: `[ ]` adopt 2 dedicated arts from `outputs/experiments/adult/serin/imagegen/*.png` (IMAGE_POLICY) + image swap + live QA.
 - `[/]` `[manual]` **P3 companion expansion**: 9 `side_arcs` are route side-anchors with deterministic producer/entry-effect wiring. Remaining: kai/lin_yue/tae_o/han/su_a cutscenes.
 

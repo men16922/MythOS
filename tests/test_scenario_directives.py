@@ -539,5 +539,55 @@ class EncounterDirectiveParityTest(unittest.TestCase):
         self.assertIsNone(_encounters_from_parsed(parse_directives_markdown("")))
 
 
+class CompanionCutsceneAssemblerTest(unittest.TestCase):
+    def _context(self, state: dict, language: str = "en"):
+        from datetime import UTC, datetime
+
+        from mythos_core.models import LoopPhase, LoopState, PlayerProfile
+        from mythos_runtime.scenario import load_scenario
+        from mythos_runtime.scenario_context import build_runtime_narrative_context
+
+        now = datetime(2026, 7, 3, tzinfo=UTC)
+        player = PlayerProfile("p1", "T", now, now, {"archetype": "Unclassified"})
+        loop = LoopState(
+            "l", "p1", "s", LoopPhase.EXPLORE, "loc", 70, 30, now, None, state, []
+        )
+        return build_runtime_narrative_context(
+            player=player,
+            loop=loop,
+            scenario=load_scenario("neo-seoul"),
+            turn_index=8,
+            recent_events=[],
+            memories=[],
+            world_memories=[],
+            narrative_shards=[],
+            novelty_notes=[],
+            player_action="Stay with her",
+            language=language,
+        )
+
+    def test_active_cutscene_lands_in_full_render_synopsis(self) -> None:
+        ctx = self._context(
+            {
+                "_active_cutscene": {
+                    "id": "SERIN_FIRST_LIGHT",
+                    "companion": "se_rin",
+                    "title": "Flickering Trust",
+                    "image": "characters/se-rin.png",
+                }
+            }
+        )
+        rendered = "\n".join(ctx.session_synopsis)
+        self.assertIn("COMPANION CUTSCENE SCENE LOCK", rendered)
+        self.assertIn("CUTSCENE_ID: SERIN_FIRST_LIGHT", rendered)
+        self.assertIn("CURATED_IMAGE: characters/se-rin.png", rendered)
+        self.assertIn("synthetic coffee", rendered)
+        self.assertNotIn("낡은 네온", rendered)
+
+    def test_no_active_cutscene_means_no_lock(self) -> None:
+        rendered = "\n".join(self._context({}).session_synopsis)
+        self.assertNotIn("COMPANION CUTSCENE SCENE LOCK", rendered)
+
+
 if __name__ == "__main__":
     unittest.main()

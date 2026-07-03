@@ -3,6 +3,7 @@ from __future__ import annotations
 from mythos_core import LoopPhase, LoopState, Scene
 from mythos_core.clock import utc_now
 from mythos_memory import MythOSStore
+from mythos_runtime.cutscenes import ACTIVE_CUTSCENE_KEY
 from mythos_runtime.options import RuntimeOptions
 from mythos_runtime.route_map import ROUTE_MAP_KEY
 from mythos_runtime.visual_queue import VisualJobQueue
@@ -62,11 +63,16 @@ def maybe_generate_scene_image(
 
 
 def _curated_anchor_image(loop: LoopState) -> str | None:
-    """Return the current route node's curated image when it's an anchor that has
-    one. Matches the frontend's display rule (StoryPanel: `currentNode.anchor &&
-    currentNode.image`) so the backend skips FLUX exactly when the curated image
-    is what the player actually sees."""
+    """Return the curated image the player sees for this scene.
+
+    A staged companion cutscene takes precedence over the route anchor. This
+    matches StoryPanel so the backend skips FLUX exactly when a pre-authored image
+    is already on screen.
+    """
     state = loop.state if isinstance(loop.state, dict) else {}
+    active_cutscene = state.get(ACTIVE_CUTSCENE_KEY)
+    if isinstance(active_cutscene, dict) and active_cutscene.get("image"):
+        return str(active_cutscene["image"])
     route_map = state.get(ROUTE_MAP_KEY)
     if not isinstance(route_map, dict):
         return None

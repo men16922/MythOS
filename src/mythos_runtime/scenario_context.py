@@ -13,6 +13,7 @@ from mythos_core import (
     WorldMemory,
 )
 from mythos_narrative import NarrativeContext
+from mythos_runtime.cutscenes import ACTIVE_CUTSCENE_KEY
 from mythos_runtime.route_runtime import (
     DEFAULT_TURNS_PER_LAYER,
     junction_options,
@@ -566,6 +567,17 @@ def build_runtime_narrative_context(
             # displaced by the novelty-note truncation window.
             session_synopsis = [*route_beat_lock, *session_synopsis]
 
+    cutscene_lock = _cutscene_directive_notes(
+        directives,
+        loop,
+        player_action,
+        language,
+    )
+    if cutscene_lock:
+        # This is the selected scene for the current turn, so it outranks route
+        # steering and lives in the full-render synopsis channel.
+        session_synopsis = [*cutscene_lock, *session_synopsis]
+
     # P1 — 루프 내러티브 잔향 (Slay the Princess) 처리
     run_summaries = [m for m in world_memories if m.kind == "run_summary"]
     # 최신 run_summary 3개만 추출
@@ -1019,6 +1031,39 @@ def _route_beat_directive_notes(
         ]
     )
     return lines
+
+
+def _cutscene_directive_notes(
+    directives: ScenarioDirectives,
+    loop: LoopState,
+    player_action: str | None,
+    language: str,
+) -> list[str]:
+    """Render the authored lock for one staged companion cutscene."""
+    state = loop.state if isinstance(loop.state, dict) else {}
+    active = state.get(ACTIVE_CUTSCENE_KEY)
+    cutscene_id = active.get("id") if isinstance(active, dict) else None
+    cutscene = directives.cutscene(str(cutscene_id)) if cutscene_id else None
+    if cutscene is None:
+        return []
+    en = language == "en"
+    instruction = (
+        "This turn is the companion cutscene below. Preserve its concrete events and emotional "
+        "meaning; do not replace it with route exposition, combat, or a different location. "
+        "Use the authored prose as the scene backbone, then offer choices that continue naturally."
+        if en
+        else "이번 턴은 아래 동료 컷신이다. 구체적 사건과 감정적 의미를 보존하고, 작전 설명·전투·다른 장소로 "
+        "대체하지 마라. 저작된 대본을 장면의 뼈대로 사용한 뒤 자연스럽게 이어지는 선택지를 제시하라."
+    )
+    return [
+        "=== COMPANION CUTSCENE SCENE LOCK ===",
+        f"CUTSCENE_ID: {cutscene.cutscene_id}",
+        f"CUTSCENE_TITLE: {cutscene.title}",
+        f"COMPANION: {cutscene.companion}",
+        f"CURATED_IMAGE: {cutscene.image}",
+        instruction,
+        fill_placeholders(cutscene.body, {"player_action": player_action or ""}),
+    ]
 
 
 def _route_junction_notes(

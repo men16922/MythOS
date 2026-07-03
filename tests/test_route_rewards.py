@@ -17,7 +17,11 @@ from mythos_runtime.route_map import (  # noqa: E402
     build_route_seed,
 )
 from mythos_runtime.scenario import load_scenario  # noqa: E402
-from mythos_runtime.session import RuntimeSessionService, _heal_party  # noqa: E402
+from mythos_runtime.session import (  # noqa: E402
+    RuntimeSessionService,
+    _heal_party,
+    _route_node_allows_cutscene,
+)
 
 
 class _CaptureDirector:
@@ -68,6 +72,85 @@ class HealPartyTest(unittest.TestCase):
 
     def test_none_party(self) -> None:
         self.assertIsNone(_heal_party(None, 1.0))
+
+
+class CompanionCutsceneRuntimeIntegrationTest(unittest.TestCase):
+    def test_anchor_and_combat_nodes_defer_cutscene(self) -> None:
+        for node in (
+            {"anchor": True},
+            {"side_arc": True},
+            {"combat": True},
+            {"type": "boss"},
+        ):
+            state = {
+                ROUTE_MAP_KEY: {
+                    "current": "n1",
+                    "nodes": {"n1": node},
+                    "layers": [["n1"]],
+                }
+            }
+            self.assertFalse(_route_node_allows_cutscene(state))
+
+    def setUp(self) -> None:
+        self.store = _InMemoryStore()
+        bootstrap = RuntimeSessionService(self.store)
+        bootstrap.create_player("Tester", player_id="cutscene-player", traits={"archetype": "ghost"})
+        started = bootstrap.start_loop(
+            "cutscene-player",
+            RuntimeOptions(fallback=True, scenario_id="neo-seoul", language="en"),
+        )
+        loop = self.store.get_loop(started.loop.loop_id)
+        assert loop is not None
+        state = dict(loop.state)
+        state.pop(ROUTE_MAP_KEY, None)
+        state.pop("_encounter_map", None)
+        state["relationships"] = {"se_rin": 2}
+        self.store.save_loop(replace(loop, phase=LoopPhase.EXPLORE, state=state))
+        self.store.save_scene(
+            Scene(
+                scene_id="cutscene_threshold_ready",
+                loop_id=loop.loop_id,
+                turn_index=5,
+                title="Transit",
+                location="quiet-alley",
+                narration="The pursuit fades behind them.",
+                choices=[Choice(choice_id="continue", label="Continue", intent="explore")],
+                visual_brief="A quiet neon alley.",
+                created_at=started.scene.created_at,
+            )
+        )
+        self.loop_id = loop.loop_id
+
+    def test_threshold_stages_cutscene_once_then_clears_active_node(self) -> None:
+        director = _CaptureDirector()
+        service = RuntimeSessionService(self.store, director=cast(Any, director))
+        options = RuntimeOptions(
+            fallback=False,
+            fast_mode=True,
+            scenario_id="neo-seoul",
+            language="en",
+        )
+
+        cutscene = service.choose(self.loop_id, choice_id="continue", options=options)
+        self.assertEqual(cutscene.scene.scene_type, "cutscene")
+        self.assertEqual(cutscene.scene.title, "Flickering Trust")
+        self.assertEqual(cutscene.loop.state["_seen_cutscenes"], ["SERIN_FIRST_LIGHT"])
+        self.assertEqual(
+            cutscene.loop.state["_active_cutscene"]["image"],
+            "characters/se-rin.png",
+        )
+        rendered = "\n".join(director.contexts[0].session_synopsis)
+        self.assertIn("COMPANION CUTSCENE SCENE LOCK", rendered)
+        self.assertIn("synthetic coffee", rendered)
+
+        following = service.choose(self.loop_id, choice_id="continue", options=options)
+        self.assertEqual(following.scene.scene_type, "static")
+        self.assertNotIn("_active_cutscene", following.loop.state)
+        self.assertEqual(following.loop.state["_seen_cutscenes"], ["SERIN_FIRST_LIGHT"])
+        self.assertNotIn(
+            "COMPANION CUTSCENE SCENE LOCK",
+            "\n".join(director.contexts[1].session_synopsis),
+        )
 
 
 class RouteNodeRewardIntegrationTest(unittest.TestCase):

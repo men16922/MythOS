@@ -283,6 +283,13 @@ export interface GameStateRaw {
   // distrust/rejection path). Accumulated server-side onto loop.state.relationships
   // by route_runtime + session choose; values are intentionally unbounded.
   relationships?: Record<string, number>;
+  _active_cutscene?: {
+    id: string;
+    companion: string;
+    title: string;
+    image: string;
+  };
+  _seen_cutscenes?: string[];
   ending_id?: string;
   ending_label?: string;
   ending_narration?: string;

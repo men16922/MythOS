@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-07-03 — In-game companion cutscenes are transient once-per-loop scene nodes
+
+Decision: When affection/flags make a companion cutscene eligible, runtime selects the first unseen directive in authored order and stages it on the next safe transit turn. Opening, main/side anchors, and combat entry turns defer it without consuming it. The prompt receives the localized authored body through the full-render synopsis; commit records `scene_type=cutscene`, a compact `_active_cutscene` descriptor for the curated image/title, and `_seen_cutscenes` for once-per-loop replay safety. The descriptor clears on the following normal scene; permanent gallery unlock remains the existing archive/meta-progression concern.
+
+Reason/impact: Injecting on the exact threshold-crossing turn would either miss choice effects (applied at commit) or overwrite a route reveal/combat. A transient interstitial keeps route state/rewards authoritative, survives save/resume for the displayed scene, retries safely because seen-state is commit-owned, and lets the SPA/save thumbnail reuse the curated asset without generating an unused image. Simultaneous unlocks are deterministic by authored order; subjective timing and prose feel remain live-QA.
+
 ## 2026-07-03 — Side-arc lifecycle separates prerequisite gates from encounter entry effects
 
 Decision: Conditional side arcs keep `trigger_flag` as a hard prerequisite and declare `min_layer` later than their deterministic route-effect producer. Companion meeting arcs are ungated encounters whose node-level `effect.flags` records the canonical `met_<companion>` flag and whose `effect.relationship` records first-contact affinity. Side anchors may connect only through main-route nodes; gate fallback may bypass a blocked main route but never an optional side gate. An explicit `route:<node>` choice previews the deterministic target in `NarrativeContext` only; durable state/rewards/combat remain commit-owned. Beat-addressed KO/EN `side_arcs*.md` lock envelopes are injected on the target's first scene through the non-truncated synopsis channel.

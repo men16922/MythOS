@@ -69,7 +69,9 @@ export function useSnapshotReceiver(args: UseSnapshotReceiverArgs) {
       const currentNode = snap.state?._route_map?.current
         ? snap.state._route_map.nodes?.[snap.state._route_map.current]
         : null;
-      const hasCuratedImage = Boolean(currentNode?.anchor && currentNode?.image);
+      const hasCuratedImage = Boolean(
+        snap.state?._active_cutscene?.image || (currentNode?.anchor && currentNode?.image)
+      );
       setImagePlaceholderText(
         hasCuratedImage
           ? DICTS[getLang()]["img.curatedPreferred"]

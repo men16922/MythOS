@@ -592,8 +592,9 @@ export function StoryPanel({
   const [showHistory, setShowHistory] = useState(false);
   const [brokenImages, setBrokenImages] = useState<Set<string>>(new Set());
 
-  // On an anchor (pre-authored impact beat), prefer its curated high-quality
-  // image; fall back to the async-generated scene image if it isn't placed yet.
+  // A staged companion cutscene outranks the current route anchor; both use a
+  // pre-authored image and fall back to the generated scene image if unavailable.
+  const activeCutscene = snapshot?.state?._active_cutscene;
   const routeMap = snapshot?.state?._route_map;
   const currentNode = routeMap?.current ? routeMap?.nodes?.[routeMap.current] : undefined;
   // Some anchors stage a pre-reveal still (`image_pre`, protagonist-focus) that
@@ -608,18 +609,22 @@ export function StoryPanel({
   const sceneTurn = snapshot?.active_scene?.turn_index ?? 0;
   const imageSeq = currentNode?.image_sequence;
   let anchorImageName: string | undefined;
-  if (currentNode?.anchor && Array.isArray(imageSeq) && imageSeq.length > 0) {
+  if (activeCutscene?.image) {
+    anchorImageName = activeCutscene.image;
+  } else if (currentNode?.anchor && Array.isArray(imageSeq) && imageSeq.length > 0) {
     anchorImageName = imageSeq[Math.min(sceneTurn, imageSeq.length - 1)];
   } else {
     anchorImageName =
       currentNode?.image_pre && !scenePartner ? currentNode.image_pre : currentNode?.image;
   }
+  const hasCuratedScene = Boolean(activeCutscene?.image || currentNode?.anchor);
   const anchorImageUrl =
-    currentNode?.anchor && anchorImageName
+    hasCuratedScene && anchorImageName
       ? `/resources/${scenarioId}/${anchorImageName}`
       : "";
   const anchorImageOk = anchorImageUrl && !brokenImages.has(anchorImageUrl);
   const displayImageUrl = anchorImageOk ? anchorImageUrl : sceneImageUrl;
+  const curatedSceneTitle = activeCutscene?.title || currentNode?.title;
 
   // Keep only the most recent past scene inline for narrative flow; the full
   // log lives in a separate overlay so the main view stays uncluttered.
@@ -742,7 +747,7 @@ export function StoryPanel({
         {/* 좌측: 장면 이미지 */}
         <div className="panel scene-image-panel">
           <div className="panel-title">
-            {anchorImageOk && currentNode?.title ? `${t("story.scene")} · ${currentNode.title}` : t("story.sceneImage")}
+            {anchorImageOk && curatedSceneTitle ? `${t("story.scene")} · ${curatedSceneTitle}` : t("story.sceneImage")}
           </div>
           <div className="story-visuals" style={{ marginTop: "12px" }}>
             <div className={`image-frame ${glitchActive ? "glitch-active" : ""}`}>

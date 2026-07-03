@@ -48,6 +48,11 @@ from mythos_runtime.constants import (
     COMBAT_SOFT_DEFEAT_TENSION_GAIN,
     MYTHOS_WORLD_ID,
 )
+from mythos_runtime.cutscenes import (
+    ACTIVE_CUTSCENE_KEY,
+    SEEN_CUTSCENES_KEY,
+    next_unseen_cutscene,
+)
 from mythos_runtime.encounter_map import (
     mark_encounter_alerted,
     mark_encounter_resolved,
@@ -110,9 +115,14 @@ from mythos_runtime.route_runtime import (
 from mythos_runtime.save_load import SaveLoadService
 from mythos_runtime.scenario import load_scenario
 from mythos_runtime.scenario_context import (
+    ROUTE_STEERING_START_TURN,
     apply_archetype_traits,
     build_runtime_narrative_context,
     resolve_archetype_id,
+)
+from mythos_runtime.scenario_directives import (
+    CutsceneDirective,
+    load_scenario_directives,
 )
 from mythos_runtime.session_memory import record_beat
 from mythos_runtime.visual_orchestration import maybe_generate_scene_image
@@ -138,6 +148,7 @@ class _PreparedChoice:
     context: NarrativeContext
     player_event: WorldEvent
     choice_relationship: dict[str, int] = field(default_factory=dict)
+    cutscene_id: str | None = None
 
 
 class RuntimeSessionService:
@@ -449,16 +460,31 @@ class RuntimeSessionService:
         # destination instead of the previous junction. Keep ``loop`` itself
         # unchanged here: commit still owns persistence, rewards, combat, and the
         # single durable transition.
-        context_loop = loop
+        context_state = dict(loop.state) if isinstance(loop.state, dict) else {}
+        context_state.pop(ACTIVE_CUTSCENE_KEY, None)
+        context_loop = replace(loop, state=context_state)
         route_target = _route_target_from_choice(choice_id)
-        if route_target and isinstance(loop.state, dict) and loop.state.get(ROUTE_MAP_KEY):
-            preview_state = advance_route(
-                loop.state,
+        route_preview_state = context_state
+        if context_state.get(ROUTE_MAP_KEY):
+            route_preview_state = advance_route(
+                context_state,
                 turn_index=turn_index,
                 seed=loop.seed,
                 preferred_next=route_target,
             )
-            context_loop = replace(loop, state=preview_state)
+            if route_target:
+                context_loop = replace(loop, state=route_preview_state)
+        cutscene = _next_runtime_cutscene(
+            replace(context_loop, state=route_preview_state),
+            scenario_id=options.scenario_id,
+            language=options.language,
+            turn_index=turn_index,
+        )
+        if cutscene is not None:
+            context_loop = replace(
+                context_loop,
+                state=_state_with_active_cutscene(context_loop.state, cutscene),
+            )
         context = build_runtime_narrative_context(
             player=player,
             loop=context_loop,
@@ -480,6 +506,7 @@ class RuntimeSessionService:
             context=context,
             player_event=player_event,
             choice_relationship=_choice_relationship(latest_scene, choice_id),
+            cutscene_id=cutscene.cutscene_id if cutscene is not None else None,
         )
 
     def choose(
@@ -516,6 +543,7 @@ class RuntimeSessionService:
             route_target=_route_target_from_choice(choice_id),
             impact_base_loop=impact_base_loop,
             choice_relationship=prepared.choice_relationship,
+            cutscene_id=prepared.cutscene_id,
         )
 
     def stream_choose(
@@ -557,6 +585,7 @@ class RuntimeSessionService:
                 route_target=_route_target_from_choice(choice_id),
                 impact_base_loop=impact_base_loop,
                 choice_relationship=prepared.choice_relationship,
+                cutscene_id=prepared.cutscene_id,
             )
             yield RuntimeStreamEvent(kind="final", snapshot=snapshot)
 
@@ -1580,6 +1609,7 @@ class RuntimeSessionService:
         route_target: str | None = None,
         impact_base_loop: LoopState | None = None,
         choice_relationship: dict[str, int] | None = None,
+        cutscene_id: str | None = None,
     ) -> RuntimeSnapshot:
         with span(span_name, player_id=player.player_id, loop_id=loop.loop_id):
             transition = self.engine.apply_scene_payload(loop, scene, payload, player_event)
@@ -1685,6 +1715,23 @@ class RuntimeSessionService:
             transition = self._defer_tension_archive_before_climax(
                 transition, prior_phase=loop.phase, payload=payload
             )
+
+        # P1-a companion cutscene appearance: a threshold-qualified directive is
+        # staged as this narrative turn's authored interstitial. Persist only a
+        # compact active-node descriptor for the client/curated image, and mark it
+        # seen once the scene commits so retries or later turns cannot replay it.
+        # A normal scene clears the previous turn's transient descriptor.
+        scene, cutscene_state = _apply_cutscene_appearance(
+            transition.loop.state,
+            scene,
+            cutscene_id=cutscene_id,
+            scenario_id=options.scenario_id,
+            language=options.language,
+        )
+        transition = replace(
+            transition,
+            loop=replace(transition.loop, state=cutscene_state),
+        )
 
         # Route junctions: at a layer boundary, replace this scene's choices with
         # the branch options (next candidate nodes) so the player explicitly picks
@@ -2138,6 +2185,86 @@ def _clear_soft_defeat_pending(state: dict[str, Any]) -> dict[str, Any]:
     next_state["_soft_defeat_recovered"] = True
     next_state["_last_combat_outcome"] = "soft_defeat_recovered"
     return next_state
+
+
+def _state_with_active_cutscene(
+    state: dict[str, Any], cutscene: CutsceneDirective
+) -> dict[str, Any]:
+    next_state = dict(state) if isinstance(state, dict) else {}
+    next_state[ACTIVE_CUTSCENE_KEY] = {
+        "id": cutscene.cutscene_id,
+        "companion": cutscene.companion,
+        "title": cutscene.title,
+        "image": cutscene.image,
+    }
+    return next_state
+
+
+def _route_node_allows_cutscene(state: dict[str, Any]) -> bool:
+    """Keep authored cutscenes off combat/anchor entry scenes.
+
+    The cutscene remains eligible and will appear on the next ordinary transit
+    scene. This prevents an interstitial from replacing a side-arc reveal, a
+    curated main anchor, or the scene that starts combat.
+    """
+    status = route_status(state)
+    node = status.get("node") if status else None
+    if not isinstance(node, dict):
+        return True
+    return not bool(
+        node.get("anchor")
+        or node.get("side_arc")
+        or node.get("combat")
+        or node.get("type") in {"combat", "boss", "patrol"}
+    )
+
+
+def _next_runtime_cutscene(
+    loop: LoopState,
+    *,
+    scenario_id: str,
+    language: str,
+    turn_index: int,
+) -> CutsceneDirective | None:
+    state = loop.state if isinstance(loop.state, dict) else {}
+    if (
+        turn_index < ROUTE_STEERING_START_TURN
+        or loop.phase not in {LoopPhase.EXPLORE, LoopPhase.INTERACT}
+        or CombatService.is_active(loop)
+        or not _route_node_allows_cutscene(state)
+    ):
+        return None
+    directives = load_scenario_directives(scenario_id, language)
+    return next_unseen_cutscene(
+        directives.cutscenes,
+        state.get("relationships"),
+        state.get("flags"),
+        state.get(SEEN_CUTSCENES_KEY),
+    )
+
+
+def _apply_cutscene_appearance(
+    state: dict[str, Any],
+    scene: Scene,
+    *,
+    cutscene_id: str | None,
+    scenario_id: str,
+    language: str,
+) -> tuple[Scene, dict[str, Any]]:
+    next_state = dict(state) if isinstance(state, dict) else {}
+    next_state.pop(ACTIVE_CUTSCENE_KEY, None)
+    if not cutscene_id:
+        return scene, next_state
+    cutscene = load_scenario_directives(scenario_id, language).cutscene(cutscene_id)
+    if cutscene is None:
+        return scene, next_state
+    seen_raw = next_state.get(SEEN_CUTSCENES_KEY)
+    seen = [str(value) for value in seen_raw] if isinstance(seen_raw, list) else []
+    if cutscene.cutscene_id not in seen:
+        seen.append(cutscene.cutscene_id)
+    next_state[SEEN_CUTSCENES_KEY] = seen
+    next_state = _state_with_active_cutscene(next_state, cutscene)
+    return replace(scene, title=cutscene.title, scene_type="cutscene"), next_state
 
 
 def _route_target_from_choice(choice_id: str | None) -> str | None:

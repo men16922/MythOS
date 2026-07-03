@@ -6,6 +6,7 @@ from mythos_runtime.cutscenes import (
     cutscene_gallery,
     evaluate_unlocked_cutscenes,
     is_cutscene_unlocked,
+    next_unseen_cutscene,
 )
 from mythos_runtime.scenario_directives import (
     CutsceneDirective,
@@ -46,6 +47,15 @@ class CutsceneLoaderTest(unittest.TestCase):
         self.assertEqual(promise.flags, ["trusted_se_rin"])
         self.assertTrue(promise.image)
         self.assertTrue(promise.body)
+
+    def test_english_cutscenes_keep_structural_parity(self) -> None:
+        ko = load_scenario_directives("neo-seoul", "ko")
+        en = load_scenario_directives("neo-seoul", "en")
+        self.assertEqual(
+            [cutscene.cutscene_id for cutscene in en.cutscenes],
+            [cutscene.cutscene_id for cutscene in ko.cutscenes],
+        )
+        self.assertIn("promise", en.cutscene("SERIN_PROMISE").body.lower())  # type: ignore[union-attr]
 
     def test_scenario_without_companions_has_no_cutscenes(self) -> None:
         directives = load_scenario_directives("glass-library")
@@ -108,6 +118,32 @@ class UnlockEvaluationTest(unittest.TestCase):
 
     def test_is_cutscene_unlocked_empty_flags_always_satisfied(self) -> None:
         self.assertTrue(is_cutscene_unlocked(_cs("X", "se_rin", 1), {"se_rin": 1}, set()))
+
+    def test_next_unseen_preserves_authored_order(self) -> None:
+        first = next_unseen_cutscene(
+            self.cutscenes,
+            {"se_rin": 5, "kai": 3},
+            ["trusted_se_rin"],
+            [],
+        )
+        self.assertEqual(first.cutscene_id if first else None, "A_LOW")
+        second = next_unseen_cutscene(
+            self.cutscenes,
+            {"se_rin": 5, "kai": 3},
+            ["trusted_se_rin"],
+            ["A_LOW"],
+        )
+        self.assertEqual(second.cutscene_id if second else None, "A_HIGH")
+
+    def test_next_unseen_returns_none_when_every_eligible_cutscene_was_seen(self) -> None:
+        self.assertIsNone(
+            next_unseen_cutscene(
+                self.cutscenes,
+                {"se_rin": 2},
+                [],
+                ["A_LOW"],
+            )
+        )
 
 
 class CutsceneGalleryTest(unittest.TestCase):

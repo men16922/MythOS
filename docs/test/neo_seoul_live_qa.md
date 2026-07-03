@@ -13,7 +13,7 @@
 ---
 
 ## 🔴 최우선 — 2026-07-03 CBT 배치 + P1-a, 실플레이로만 닫힘
-> `main` 병합·push·Cloud Run 재배포 완료. 자동검증은 `make check` **665 tests green** + 이미지/보스/사이드/컷신 회귀테스트 통과. 아래는 자동검증으로 못 닿는 **실제 발동·체감**.
+> `main` `40b40ce` push + Cloud Run rev `mythos-api-00006-q8k`(100% traffic) 배포 완료. 자동검증은 `make check` **665 tests green** + 이미지/보스/사이드/컷신 회귀테스트 통과. 아래는 자동검증으로 못 닿는 **실제 발동·체감**.
 - [ ] **IX 보스전 실발동 (2026-07-03 재수정)** — 실플레이로 보스 노드까지 가서 **실제 IX 전투가 시작되는가**. 과거 라이브(07-03): tension 100 자동종료가 전투를 선점 → IX 안 뜨고 강제 최적화 엔딩. 엔진 수정(`_defer_threshold_archive_for_climax`+`_defer_tension_archive_before_climax`)됨. **핵심: 보스전이 실제로 열리고, 그 승패가 엔딩을 결정하는가**(tension으로 먼저 안 끝나는가).
 - [ ] **보스전 체감** — 회복/엄호/일점사 요구 · HP≤50% enrage 텔레그래프 · 파티 승산 / 솔로 난이도.
 - [ ] **새 캐릭터/사이드 장면 등장** — 카이·린위에 등 side-anchor가 루프 중 실제로 나오는가(신규 씬 이미지 10종: kai_meet/lin_yue_meet/6 side_arc/data_incinerator/subway). 만남 장면이 서사에 자연스럽게 붙나.

@@ -41,6 +41,7 @@ class ProbeProvider(VertexGeminiJSONProvider):
                 "prompt": getattr(um, "prompt_token_count", None),
                 "output": getattr(um, "candidates_token_count", None),
                 "thoughts": getattr(um, "thoughts_token_count", None),
+                "cached": getattr(um, "cached_content_token_count", None),
                 "total": getattr(um, "total_token_count", None),
             }
         )
@@ -69,7 +70,10 @@ def main() -> None:
     print(f"\nMODEL {model} (location={cfg.location}, lang={lang})")
     tin = tout = 0
     for i, u in enumerate(USAGE):
-        print(f"  call {i}: prompt={u['prompt']} output={u['output']} thoughts={u['thoughts']}")
+        print(
+            f"  call {i}: prompt={u['prompt']} output={u['output']}"
+            f" thoughts={u['thoughts']} cached={u['cached']}"
+        )
         tin += u["prompt"] or 0
         tout += (u["output"] or 0) + (u["thoughts"] or 0)
     n = len(USAGE)

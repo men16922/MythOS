@@ -73,7 +73,10 @@ CINEMATIC_CLARITY_RULE = (
     "- 첫 문장에는 플레이어가 실제로 어디에 서 있는지와 당장 무엇이 위험한지 보여주십시오.\n"
     "- Neo-Seoul 장면은 비, 콘크리트, 골목, 드론 수색등, 지하철 셔터, 복지 키오스크, 야시장 네온, 바이크 엔진, 손목을 잡는 행동처럼 물리적이고 촬영 가능한 이미지로 묘사하십시오.\n"
     "- '데이터 흐름', '잔향 회랑', '오버레이 코어', '불안 영역', '플레이어의 존재 자체' 같은 추상 명사를 길게 나열하지 마십시오. 명시적으로 가상 코어 내부인 장면이 아니라면 이런 표현은 배경 은유 한 문장 이하로 제한하십시오.\n"
-    "- 한 문단은 1~3문장으로 짧게 유지하고, 긴 설명문 대신 카메라가 볼 수 있는 행동을 쓰십시오."
+    "- 한 문단은 1~3문장으로 짧게 유지하고, 긴 설명문 대신 카메라가 볼 수 있는 행동을 쓰십시오.\n"
+    "- 문단이 짧다는 것이 장면이 짧다는 뜻은 아닙니다. 장면 전체 서사(narration)는 공백 포함 "
+    "400~700자, 3~5개 문단을 목표로 하십시오. 감각 묘사·인물 반응·긴장 전개를 충분히 담고, "
+    "200~300자짜리 요약 장면을 쓰지 마십시오."
 )
 
 CINEMATIC_CLARITY_RULE_EN = (
@@ -85,7 +88,10 @@ CINEMATIC_CLARITY_RULE_EN = (
     "- Do not pile up abstract nouns like 'data flow', 'resonance corridor', 'overlay core', 'unstable zone', "
     "'the player's very existence'. Unless the scene is explicitly inside a virtual core, keep such phrasing "
     "to at most one sentence of background metaphor.\n"
-    "- Keep each paragraph to 1-3 short sentences; write what the camera can see, not long exposition."
+    "- Keep each paragraph to 1-3 short sentences; write what the camera can see, not long exposition.\n"
+    "- Short paragraphs do NOT mean a short scene. Target 3-5 paragraphs and roughly 250-450 words of "
+    "narration per scene: rich sensory detail, character reactions, and rising tension. Do not write "
+    "2-3 sentence summary scenes."
 )
 
 
@@ -484,6 +490,17 @@ def build_runtime_narrative_context(
 
             max_desc = descriptions[max_stat_name]
             notes.append(stat_voices.header)
+            # Full voice reference (all stats, scenario-stable): gives the GM the
+            # whole inner-voice cast so secondary stats can color scenes too, and
+            # its stability extends the cacheable prompt prefix. The max/min
+            # emphasis notes below remain the primary directive.
+            notes.append(
+                "STAT VOICE REFERENCE: "
+                + " | ".join(
+                    f"{profile.name}: {profile.voice}"
+                    for profile in descriptions.values()
+                )
+            )
             notes.append(
                 fill_placeholders(
                     stat_voices.max_template,
@@ -1261,25 +1278,51 @@ def _scenario_structure_notes(
     scenario: ScenarioConfig, scenario_i18n: dict[str, Any] | None = None
 ) -> list[str]:
     # scenario_i18n is the already-language-resolved prose overlay ({} for KO / none).
+    # All items render (no limit=4 cap) and NPC agendas render in FULL (goal +
+    # behavior rules, not just names): this is authored scenario canon the GM
+    # should see, and — being stable turn-to-turn — it also grows the shared
+    # cacheable prompt prefix (Vertex implicit caching, 3.5 needs ≥4096 tok).
     i18n = scenario_i18n or {}
     notes: list[str] = []
     if scenario.main_arcs:
         items = _localized_named_items(scenario.main_arcs, i18n.get("main_arcs"))
-        notes.append(f"SCENARIO_MAIN_ARCS: {_compact_named_items(items)}")
+        notes.append(f"SCENARIO_MAIN_ARCS: {_compact_named_items(items, limit=len(items))}")
     if scenario.side_arcs:
         items = _localized_named_items(scenario.side_arcs, i18n.get("side_arcs"))
-        notes.append(f"SCENARIO_SIDE_ARCS: {_compact_named_items(items)}")
+        notes.append(f"SCENARIO_SIDE_ARCS: {_compact_named_items(items, limit=len(items))}")
     if scenario.npc_agendas:
         npc_overlay = i18n.get("npc_agendas")
         if not isinstance(npc_overlay, dict):
             npc_overlay = {}
-        names = ", ".join(
-            str(npc_overlay.get(name, name)) for name in scenario.npc_agendas.keys()
-        )
-        notes.append(f"SCENARIO_NPC_AGENDAS: {names}")
+        agendas: list[str] = []
+        for name, agenda in scenario.npc_agendas.items():
+            overlay_entry = npc_overlay.get(name)
+            # Overlay values: dict = fully localized agenda; str = localized name
+            # only (prose stays untranslated → render name-only to avoid leaking
+            # source-language text); absent overlay (KO) = full source agenda.
+            if isinstance(overlay_entry, dict):
+                display = str(overlay_entry.get("name", name))
+                source: Any = overlay_entry
+            elif isinstance(overlay_entry, str):
+                agendas.append(overlay_entry)
+                continue
+            else:
+                display = name
+                source = agenda
+            if isinstance(source, dict):
+                goal = str(source.get("goal", "")).strip()
+                rules = source.get("behavior_rules")
+                rule_text = (
+                    " / ".join(str(r) for r in rules) if isinstance(rules, list) else ""
+                )
+                detail = " — ".join(part for part in (goal, rule_text) if part)
+                agendas.append(f"{display}: {detail}" if detail else display)
+            else:
+                agendas.append(display)
+        notes.append(f"SCENARIO_NPC_AGENDAS: {' | '.join(agendas)}")
     if scenario.endings:
         items = _localized_named_items(scenario.endings, i18n.get("endings"))
-        notes.append(f"SCENARIO_ENDINGS: {_compact_named_items(items)}")
+        notes.append(f"SCENARIO_ENDINGS: {_compact_named_items(items, limit=len(items))}")
     return notes
 
 

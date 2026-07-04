@@ -286,9 +286,20 @@ def _context_prompt(context: NarrativeContext, instruction: str) -> str:
     # "loop" block near the front, so the prefix diverged within a few hundred
     # tokens and no request ever hit the cache. Insertion order is deterministic
     # (dict order), so prompt determinism is preserved without sort_keys.
+    # The contract is emitted WITHOUT sort_keys so the example keeps its
+    # intentional field order (narration first — shorter time-to-first-token
+    # when streaming). It lives in the STABLE HEAD (not after the dynamic body):
+    # it is constant per language, so leading with it extends the cacheable
+    # prefix; on the Gemini path response_schema enforces the structure anyway.
+    contract = json.dumps(_json_contract(context), ensure_ascii=False, indent=2)
     payload = {
         "world": CANONICAL_WORLD_CONTEXT,
         "instruction": instruction,
+        "output_contract": (
+            "Return ONLY a raw JSON object matching this schema. Do NOT output "
+            "markdown fences (```json), conversational text, or repeated loops. "
+            f"Return fields in exactly this order (narration first): {contract}"
+        ),
         "player": to_json_dict(context.player),
         # novelty_notes is assembled stable-first (authored rules → bible →
         # grant/persona → per-turn anti-repeat → route steering), so rendering it
@@ -307,17 +318,7 @@ def _context_prompt(context: NarrativeContext, instruction: str) -> str:
         "validator_feedback": context.validator_feedback,
     }
     body = json.dumps(payload, ensure_ascii=False)
-    # The contract is emitted separately WITHOUT sort_keys so the example keeps
-    # its intentional field order (narration first). sort_keys on the dynamic
-    # payload is kept for prompt determinism; the contract is a constant. We also
-    # tell the model to emit fields in this order so streaming surfaces the scene
-    # narration before the choices array (shorter time-to-first-token).
-    contract = json.dumps(_json_contract(context), ensure_ascii=False, indent=2)
-    return (
-        f"{body}\n\nOutput contract — Return ONLY a raw JSON object matching this schema. "
-        f"Do NOT output markdown fences (```json), conversational text, or repeated loops. "
-        f"Return fields in exactly this order (narration first):\n{contract}"
-    )
+    return f"{body}\n\nFollow the output_contract above exactly (raw JSON only)."
 
 
 # ── Dual-Model Orchestration Templates ─────────────────────────────────────

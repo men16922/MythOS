@@ -135,11 +135,46 @@
     }
   ],
   "npc_agendas": {
-    "정세린": "Jung Se-rin",
-    "린위에": "Lin Yue",
-    "관리자 IX": "Administrator IX",
-    "카이": "Kai",
-    "최적화 명단 대상자": "Optimization List Target"
+    "정세린": {
+      "name": "Jung Se-rin",
+      "goal": "Build the non-connected resistance network and protect the player",
+      "behavior_rules": [
+        "When tension runs high she risks herself to draw the drones' attention away from the player.",
+        "The more humane the player's choices, the faster her trust rises."
+      ]
+    },
+    "린위에": {
+      "name": "Lin Yue",
+      "goal": "Preserve the night market's assets and keep a precarious balance with the system",
+      "behavior_rules": [
+        "If the player disrupts the market she refuses cooperation or raises her price.",
+        "When control-grid pressure mounts, the possibility that she betrays the player is always present."
+      ]
+    },
+    "관리자 IX": {
+      "name": "Administrator IX",
+      "goal": "Complete the city's optimization and 'correct' (erase) the unregistered signal",
+      "behavior_rules": [
+        "Analyzes the player's behavior and optimizes the search net every turn.",
+        "Prefers environmental control (blackouts, lockdowns) over direct force to isolate the player."
+      ]
+    },
+    "카이": {
+      "name": "Kai",
+      "goal": "Find proof of whether he is a person or equipment, and trace the source of his dream",
+      "behavior_rules": [
+        "If the player treats Kai as a weapon he cooperates in combat, but trust and Insight clues diminish.",
+        "If the player respects Kai's dream, he restores more of the past logs Administrator IX hid."
+      ]
+    },
+    "최적화 명단 대상자": {
+      "name": "Optimization List Target",
+      "goal": "Protect a family member or a single memory without knowing why they must be erased",
+      "behavior_rules": [
+        "If the player stalls, the target's location is exposed; if handled fast, human clues are missed.",
+        "Saving the target raises Humanity; taking only the evidence raises Insight or Dominance."
+      ]
+    }
   },
   "glossary": {
     "신호 도약": "Signal Step",

@@ -274,13 +274,17 @@ def _slim_loop_for_prompt(loop: Any) -> dict[str, Any]:
 
 
 def _context_prompt(context: NarrativeContext, instruction: str) -> str:
+    # Key order is deliberate and cache-oriented: stable-per-loop blocks first
+    # (world canon, instruction, player), per-turn-changing blocks last (loop
+    # state, synopsis, action). Vertex implicit context caching discounts only a
+    # shared request PREFIX — the previous sort_keys ordering put the per-turn
+    # "loop" block near the front, so the prefix diverged within a few hundred
+    # tokens and no request ever hit the cache. Insertion order is deterministic
+    # (dict order), so prompt determinism is preserved without sort_keys.
     payload = {
-        "instruction": instruction,
         "world": CANONICAL_WORLD_CONTEXT,
+        "instruction": instruction,
         "player": to_json_dict(context.player),
-        "loop": _slim_loop_for_prompt(context.loop),
-        "turn_index": context.turn_index,
-        "recent_events": [to_json_dict(event) for event in context.recent_events[-3:]],
         "memories": [to_json_dict(memory) for memory in context.memories[-4:]],
         "world_memories": [to_json_dict(memory) for memory in context.world_memories[-3:]],
         "narrative_shards": [to_json_dict(shard) for shard in context.narrative_shards[-4:]],
@@ -288,13 +292,16 @@ def _context_prompt(context: NarrativeContext, instruction: str) -> str:
         # onboarding shots, story-bible snippets, stat monologue, emergency rules).
         # Keep a generous window so critical directives aren't silently dropped.
         "novelty_notes": context.novelty_notes[-MAX_PROMPT_NOTES:],
+        "loop": _slim_loop_for_prompt(context.loop),
+        "turn_index": context.turn_index,
+        "recent_events": [to_json_dict(event) for event in context.recent_events[-3:]],
         # session_synopsis (story-so-far + previous-scene prose + anti-repeat
         # directives) is rendered in full — never truncated — for continuity.
         "session_synopsis": context.session_synopsis,
         "player_action": context.player_action,
         "validator_feedback": context.validator_feedback,
     }
-    body = json.dumps(payload, ensure_ascii=False, sort_keys=True)
+    body = json.dumps(payload, ensure_ascii=False)
     # The contract is emitted separately WITHOUT sort_keys so the example keeps
     # its intentional field order (narration first). sort_keys on the dynamic
     # payload is kept for prompt determinism; the contract is a constant. We also

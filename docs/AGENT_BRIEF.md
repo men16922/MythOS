@@ -4,7 +4,7 @@ Last updated: 2026-07-04
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Implement Vertex context caching for the narrative prompt** (decided 2026-07-04, eval `docs/plans/2026-07-04-gemini-2.5-vs-3.5-eval.md`) — cache the ~5k fixed prefix (system prompt + directives) so a 3.5-flash rollout doesn't pay 10k input tokens/turn; measure hit-rate + cost cut, then decide 2.5→3.5. Baseline is clean: cloud image fix DEPLOYED + verified (rev `00015-nl5`), Redis fully removed, `MODEL=gemini-3.5-flash` one-knob swap works (auto-global). Kiro lane committed but runtime smoke pending (`make overnight-kiro-once`, needs `[auto]` seed). Human: `git push` (ahead 9) + cloud live sign-off `docs/test/neo_seoul_live_qa.md` 🔴.
+> ▶ NEXT SESSION: **2.5→3.5 model call via live play** (`MODEL=gemini-3.5-flash make api`, ~$1.2/loop 서사만) — context caching was measured **blocked** same-day (implicit: no hits on 3.5/global even byte-identical ×3; explicit: min 4096 tok vs our ~1.1–1.8k stable prefix; prompt reordered stable-first anyway, committed — eval `docs/plans/2026-07-04-gemini-2.5-vs-3.5-eval.md`). If 3.5 wins on prose, options: per-turn model split (3.5 key beats only) or directive-set cache redesign. Baseline: image fix DEPLOYED+verified (rev `00015-nl5`), Redis removed, 3.5 one-knob swap live. Kiro runtime smoke pending. Human: `git push` (ahead ~13) + cloud live sign-off `docs/test/neo_seoul_live_qa.md` 🔴.
 
 ## Snapshot
 

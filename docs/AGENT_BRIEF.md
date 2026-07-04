@@ -4,7 +4,7 @@ Last updated: 2026-07-04
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **2026-07-04 rounds 2+3 landed (`make check` 707 — round 3 UNCOMMITTED + `183bd5f` unpushed):** round 2 = route clock · cache clobber · boss buildup · market/Lin-yue ally · save slots. Round 3 = **pre-boss STABILITY archive also deferred** (live run died at rn10, stab=3 — boss now owns the end; DECISIONS 07-04) + **companion growth 3-channel** (bond tiers / achievement `allies[].upgrades` ×6 / party boons ×3, mechanics only — UI surface `[manual]`). **NEXT = human**: `git push origin main` (2 commits) + redeploy, then fresh-loop live play-QA (`docs/test/neo_seoul_live_qa.md` 🔴: boss buildup→fight→ending 최우선) + balance feel.
+> ▶ NEXT SESSION: **2026-07-04 rounds 2-5 landed (`make check` 713, 5 commits — PUSH PENDING):** route clock · cache clobber · boss buildup · Lin-yue ally · save slots (r2) · pre-boss STABILITY archive deferred, boss now owns the end — **fired+resolved live** (r3) · companion growth 3-channel + CHARACTER-tab companion sheet card + glass-library CBT hold (r3-4) · "(Agility check)" scrub + perception→accuracy/crit made real (r5). **NEXT = human**: `git push origin main` + redeploy, then fresh-loop live play-QA (`docs/test/neo_seoul_live_qa.md` 🔴: boss buildup→**victory** ending 미검증, 동료 카드/성장 체감, 시장/세이브 복원) + balance feel. **Codex lane seed**: achievements dashboard (`[auto:codex]` in NEXT_PLAN P0 — spec'd, data ready, frontend-only).
 
 ## Snapshot
 

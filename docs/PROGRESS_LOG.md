@@ -6,13 +6,14 @@ This file keeps **only the latest incremental summaries** (latest 5 items). The 
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
 ## 2026-07-04 — Route-scene lifecycle contract + duplicate-choice hardening
-- Status: Completed locally; not committed/pushed/deployed.
+- Status: Route lifecycle committed locally as `40bcc6b`; achievements dashboard completed locally. Neither bundle is pushed/deployed.
 - Changed: added load-time/`make validate-content` causal validation for unique beats, defaults, gate producer order, and perspective self-cycles; deleting a producer scene now fails fast. Night Market deterministically produces `lin_yue_deal`; four circular perspective selectors were rewired to prior flags.
 - Changed: hard gates can no longer be bypassed by route/junction fallback; full/dynamic builders preserve ungated forward options and stale maps repair to an eligible node. `Perspective N` UI copy is now `Story paths N` / `서사 분기 N`.
 - Changed: choice requests carry `scene_id`; duplicate REST/WS frames return the current snapshot idempotently, and the React sender has an immediate in-flight lock. Cross-loop relationships now hydrate into live state and archive only the run delta.
+- Changed: Memory Constellation now shows cumulative runs/wins/clues, 4 companion recruitment milestones, 6 data-mirrored companion upgrades, and unlocked trait chips with KO/EN copy and responsive progress bars. The E2E gate verifies the dashboard structure and language switch.
 - Verified: before→after seeded measurement (both builders, 100 seeds each): `lin_yue_deal` 0→100, Kai gate 0→100, locked-node visits →0; duplicate choice 200→404 became 200→200 with the same turn/scene.
-- Verified: `make check` (**724 tests**, skipped 2), `make smoke-local`, and `make test-e2e` green. E2E driver now resolves the blocking boon/echo offer before clicking story choices.
-- Next: human review/commit/push/redeploy; fresh-loop live QA for Night Market→Restarting Kai and rapid/repeated choice input. Design: `docs/plans/2026-07-04-route-scene-lifecycle-hardening.md`.
+- Verified: `make check` (**724 tests**, skipped 2), `make smoke-local`, and `make test-e2e` green. Direct Playwright QA rendered the achievement dashboard in KO/EN and captured `outputs/e2e_achievements.png`; E2E resolves blocking boon/echo offers before tab/choice interaction.
+- Next: commit the dashboard checkpoint, then human push/redeploy; fresh-loop live QA for Night Market→Restarting Kai, rapid/repeated choice input, and cumulative achievement progress. Design: `docs/plans/2026-07-04-route-scene-lifecycle-hardening.md`.
 
 ## 2026-07-04 — Live-QA round 3: pre-boss stability archive root cause + companion growth system
 - Status: Completed (`make check` EXIT=0, **713 tests** at close; local cloud API live; **🚀 REDEPLOYED to Cloud Run rev `mythos-api-00007-6h8` 100% traffic** — health/SPA 200, invite gate verified, prod `/scenarios` shows glass-library locked; env carried over, no new migration. `git push` still pending, human-only).

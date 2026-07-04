@@ -8,7 +8,7 @@ This file keeps only upcoming (open) work as a rolling plan. Completed tracks li
 
 ## Priority 0 — Companion affection + cutscene unlock + prompt-layer separation (current top priority)
 
-Authority design: `docs/plans/2026-06-16-companion-affection-cutscenes.md`. Baseline: prompt-layer Phase 0-4 + node addressing and P1 unlock/gallery/in-game cutscene appearance done (`docs/PROMPT_LAYER.md`). Route-scene causal validation and cross-loop relationship hydration are complete locally (`docs/plans/2026-07-04-route-scene-lifecycle-hardening.md`); live deploy/QA remains.
+Authority design: `docs/plans/2026-06-16-companion-affection-cutscenes.md`. Baseline: prompt-layer Phase 0-4 + node addressing and P1 unlock/gallery/in-game cutscene appearance done (`docs/PROMPT_LAYER.md`). Route-scene causal validation, cross-loop relationship hydration, and the cumulative achievements dashboard are complete locally (`docs/plans/2026-07-04-route-scene-lifecycle-hardening.md`); live deploy/QA remains.
 
 - `[/]` **Prompt-layer separation (Foundation)**: Phase 0-4 + node-addressing done. Remaining — `[ ]` Phase 5 system_prompt few-shot example extraction (cache-prefix sensitive, lowest priority).
 - `[/]` `[manual]` **P2 Se-rin cutscene**: `se_rin.md` 2 cuts authored. Remaining: `[ ]` adopt 2 dedicated arts from `outputs/experiments/adult/serin/imagegen/*.png` (IMAGE_POLICY) + image swap + live QA.
@@ -16,7 +16,6 @@ Authority design: `docs/plans/2026-06-16-companion-affection-cutscenes.md`. Base
 - `[ ]` `[manual]` **Archetype-variant openings (long-term, 2026-07-04)**: the 5-beat opening prologue is shared across archetypes (only stat-voices/GM flavor differ). Author per-archetype opening variations (e.g. Data Smuggler wakes mid-deal, Echo Collector hears the echoes first) — directive-layer work (`resources/neo-seoul/directives/opening.md` variants + KO/EN), gated on CBT priorities.
 - `[x]` **Lin-yue combat recruitment**: DONE 2026-07-04 — ally kit (`allies.lin_yue`, ranged support/EMP) + side-arc `met_lin_yue` effect + 5 codex-generated combat sprites (RGBA-keyed). Remaining `[manual]`: live-QA her join + battle feel.
 - `[x]` **Companion growth (3 channels)**: DONE 2026-07-04 — bond tiers (affection→HP/stats), achievement `allies[].upgrades` (all 6 neo-seoul allies), party-targeted boons ×3 (`companion_growth.py`). CHARACTER-tab companion sheet card (snapshot `companions`, StatBars growth overlay) DONE same day. Remaining: `[ ]` `[manual]` live visual QA + growth balance feel.
-- `[ ]` `[auto:codex]` **Achievements dashboard (frontend, user-assigned to codex lane)**: add an "ACHIEVEMENTS/업적" section to `ProgressDashboard.tsx` (Memory Constellation tab) — ① cumulative totals from `memoryOverview.meta_progression` (`total_combats_won`/`total_clues`/`runs_completed`); ② companion milestone progress rows with thresholds mirroring `progression.py` recruitment gates (han 승3 · su_ah 완주2 · lin_yue 단서5 · tae_o 승6) + `allies[].upgrades` `requires`; ③ `unlocked_traits` chips (loop_veteran/ix_vanquisher). i18n KO/EN in `strings.ko/en.ts`; **no backend change** (data already served in memory overview). Done = `make check` green + post-commit AGY live-QA not FAIL/NEEDS (§3.4.1 UI guard).
 
 ## Engineering maintenance track — WS0-3 done (COMPLETED_SUMMARY M43), only WS4 remains
 

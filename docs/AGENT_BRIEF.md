@@ -4,7 +4,7 @@ Last updated: 2026-07-04
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Route-scene lifecycle hardening complete locally** (`make check` 724 + smoke-local + E2E): causal add/delete validator, hard-gate enforcement, Night Market→Kai wiring, scene-idempotent choices, and cross-loop relationship hydration. Plan/evidence: `docs/plans/2026-07-04-route-scene-lifecycle-hardening.md`. **NEXT = human**: review/commit, `git push origin main`, redeploy, then fresh-loop live QA (`docs/test/neo_seoul_live_qa.md`: Night Market→Restarting Kai, rapid choice input, boss victory ending, companion growth/market/save). Previous Cloud Run rev remains `mythos-api-00007-6h8`. **Codex lane seed after QA**: achievements dashboard (`[auto:codex]` in NEXT_PLAN P0).
+> ▶ NEXT SESSION: **Route-scene lifecycle + achievements dashboard complete locally** (`make check` 724 + smoke-local + E2E; lifecycle commit `40bcc6b`): causal add/delete validator, hard-gate enforcement, Night Market→Kai wiring, scene-idempotent choices, relationship hydration, and KO/EN cumulative achievement/milestone UI. **NEXT = human**: `git push origin main`, redeploy, then fresh-loop live QA (`docs/test/neo_seoul_live_qa.md`: Night Market→Restarting Kai, rapid choice input, boss victory ending, achievement/companion growth, market/save). Previous Cloud Run rev remains `mythos-api-00007-6h8`.
 
 ## Snapshot
 

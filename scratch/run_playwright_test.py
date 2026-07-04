@@ -137,6 +137,26 @@ def run_test():
             print("Waiting for narrative typewriter stream to finish...")
             wait_for_interactive_scene(page)
             resolve_build_offers(page)
+            print("Checking achievements dashboard in both languages...")
+            page.locator(".tab-btn").nth(1).click()
+            page.wait_for_selector(".achievements-section", timeout=10000)
+            if page.locator(".achievement-totals > div").count() != 3:
+                raise RuntimeError("Expected three cumulative achievement totals")
+            if page.locator(".achievement-group").nth(0).locator(".achievement-row").count() != 4:
+                raise RuntimeError("Expected four companion recruitment milestones")
+            if page.locator(".achievement-group").nth(1).locator(".achievement-row").count() != 6:
+                raise RuntimeError("Expected six companion upgrade milestones")
+            heading_before = page.locator("#achievements-heading").text_content()
+            page.click(".lang-toggle")
+            heading_after = page.locator("#achievements-heading").text_content()
+            if {heading_before, heading_after} != {"Achievements", "업적"}:
+                raise RuntimeError(
+                    f"Achievement heading did not localize: {heading_before!r} -> {heading_after!r}"
+                )
+            achievements_path = str(OUTPUT_DIR / "e2e_achievements.png")
+            page.locator(".achievements-section").screenshot(path=achievements_path)
+            print(f"Achievements dashboard verified: {achievements_path}")
+            page.locator(".tab-btn").nth(0).click()
             if page.locator("#choices button").count() == 0:
                 raise RuntimeError(
                     "Expected narrative choices after begin. " + page_diagnostics(page)

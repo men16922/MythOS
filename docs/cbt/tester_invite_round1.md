@@ -7,6 +7,7 @@
 | 1 | daryudragonsoul@gmail.com | `mythos-a171521a` | https://mythos-api-1004528040791.us-central1.run.app/?invite=mythos-a171521a |
 | 2 | JamesSwift1988@gmail.com | `mythos-6a682cef` | https://mythos-api-1004528040791.us-central1.run.app/?invite=mythos-6a682cef |
 | 3 | hrodruck@gmail.com | `mythos-9ae1dd60` | https://mythos-api-1004528040791.us-central1.run.app/?invite=mythos-9ae1dd60 |
+| 4 | (owner tester) | `mythos-d1b0da3e` | https://mythos-api-1004528040791.us-central1.run.app/?invite=mythos-d1b0da3e |
 
 ## Email Template
 

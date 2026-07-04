@@ -8,6 +8,7 @@
 | 2 | JamesSwift1988@gmail.com | `mythos-6a682cef` | https://mythos-api-1004528040791.us-central1.run.app/?invite=mythos-6a682cef |
 | 3 | hrodruck@gmail.com | `mythos-9ae1dd60` | https://mythos-api-1004528040791.us-central1.run.app/?invite=mythos-9ae1dd60 |
 | 4 | (owner tester) | `mythos-d1b0da3e` | https://mythos-api-1004528040791.us-central1.run.app/?invite=mythos-d1b0da3e |
+| 5 | antlee34@naver.com | `mythos-333a9944` | https://mythos-api-1004528040791.us-central1.run.app/?invite=mythos-333a9944&lang=ko |
 
 ## Email Template
 
@@ -48,3 +49,4 @@ Thanks for testing —
 | daryudragonsoul | RPG/sim/world-builder — interested in prompting to influence narrative |
 | JamesSwift1988 | RPG/sim — wants to understand AI + rigid mechanics blend |
 | hrodruck | LoL player — curious about AI-driven narrative as a concept |
+| antlee34 | 한국어 테스터 — 링크에 `&lang=ko` 포함(한국어로 바로 시작), 안내 메일도 한국어 |

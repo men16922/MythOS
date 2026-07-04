@@ -4,7 +4,7 @@ Last updated: 2026-07-05
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Human live sign-off on 3.5 cloud (rev `00018-pj9`) is the gate — all code follow-ups are DONE**: fresh-loop play per `docs/test/neo_seoul_live_qa.md` 🔴 judging 3.5 prose + restored-rules tone + scene length. 2026-07-05 closed the three follow-ups: prompt diet (11.5k→8.6k/turn live, 3.5 ≈ $1.0/loop at next redeploy; echo crowd-out bug fixed), key-beat split (`GEMINI_MODEL_KEYBEAT`, hybrid ≈ $0.5/loop, live-verified), kiro lane smoke (profile `tools` fix upstreamed; real `[auto]` item consumed). Eval + measured appendix `docs/plans/2026-07-04-gemini-2.5-vs-3.5-eval.md`. Human: `git push` (ahead 5); next Cloud Run redeploy picks up the diet. Rollback = `MODEL=gemini-2.5-flash` env. `[auto]` backlog thin → `/overnight-seed` before arming a long run.
+> ▶ NEXT SESSION: **Human live sign-off on 3.5 cloud is the gate — rev `00019-jf6` now serves the dieted prompt (~$1.0/loop)**: fresh-loop play per `docs/test/neo_seoul_live_qa.md` 🔴 judging 3.5 prose + restored-rules tone + scene length, **+ EN loop re-testing CBT feedback #1's "disjointed story" (`docs/cbt/CBT_FEEDBACK.md`)**. 2026-07-05 closed all three follow-ups: prompt diet (11.5k→8.6k/turn live; echo crowd-out bug fixed; AGY QA PASS), key-beat split (`GEMINI_MODEL_KEYBEAT`, hybrid ≈ $0.5/loop, live-verified), kiro lane smoke (profile `tools` fix upstreamed). Next code track: CBT onboarding P1 (combat telegraph / first-combat tutorial / progressive disclosure — NEXT_PLAN). Human: `git push`; authenticated 1-turn prod check; Audrey reply. Rollback = `MODEL=gemini-2.5-flash` env.
 
 ## Snapshot
 

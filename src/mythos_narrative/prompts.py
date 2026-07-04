@@ -10,7 +10,12 @@ from .schemas import NarrativeContext
 # Upper bound on authored GM directive notes included in a prompt. Notes are
 # bounded, short instructions; an over-tight cap was dropping the opening
 # continuity / onboarding directives off the end of the list.
-MAX_PROMPT_NOTES = 8
+# Upper bound on rendered GM notes. Sized ABOVE the real assembled count
+# (~21-27/turn for neo-seoul: authored rules + bible + persona + anti-repeat +
+# route steering) so nothing is silently dropped — at 8, the last-8 window cut
+# the language/cinematic/naming/causality rules out of every normal turn
+# (found 2026-07-04). Purely a runaway backstop now.
+MAX_PROMPT_NOTES = 48
 
 CANONICAL_WORLD_CONTEXT = """
 Project MythOS / 세계:접속 is a loop-based narrative simulation.
@@ -285,16 +290,16 @@ def _context_prompt(context: NarrativeContext, instruction: str) -> str:
         "world": CANONICAL_WORLD_CONTEXT,
         "instruction": instruction,
         "player": to_json_dict(context.player),
-        "memories": [to_json_dict(memory) for memory in context.memories[-4:]],
-        "world_memories": [to_json_dict(memory) for memory in context.world_memories[-3:]],
-        "narrative_shards": [to_json_dict(shard) for shard in context.narrative_shards[-4:]],
-        # novelty_notes carries the authored GM directives (opening continuity,
-        # onboarding shots, story-bible snippets, stat monologue, emergency rules).
-        # Keep a generous window so critical directives aren't silently dropped.
-        "novelty_notes": context.novelty_notes[-MAX_PROMPT_NOTES:],
+        # novelty_notes is assembled stable-first (authored rules → bible →
+        # grant/persona → per-turn anti-repeat → route steering), so rendering it
+        # before the sliding-window blocks extends the shared cacheable prefix.
+        "novelty_notes": context.novelty_notes[:MAX_PROMPT_NOTES],
         "loop": _slim_loop_for_prompt(context.loop),
         "turn_index": context.turn_index,
         "recent_events": [to_json_dict(event) for event in context.recent_events[-3:]],
+        "memories": [to_json_dict(memory) for memory in context.memories[-4:]],
+        "world_memories": [to_json_dict(memory) for memory in context.world_memories[-3:]],
+        "narrative_shards": [to_json_dict(shard) for shard in context.narrative_shards[-4:]],
         # session_synopsis (story-so-far + previous-scene prose + anti-repeat
         # directives) is rendered in full — never truncated — for continuity.
         "session_synopsis": context.session_synopsis,

@@ -446,9 +446,14 @@ def build_runtime_narrative_context(
     # Additive EN prose overlay (i18n/<lang>.json); {} for ko / no overlay → KO source used.
     scenario_i18n = load_scenario_i18n(scenario.scenario_id, language)
     brief = str(scenario_i18n.get("brief") or scenario.brief)
+    # Note order is stable-first, dynamic-last (cache-oriented): authored rules /
+    # scenario structure / stat voices / bible / grant / persona are identical
+    # turn-to-turn, so keeping them at the head preserves a shared request prefix
+    # for Vertex implicit caching. The per-turn anti-repeat `novelty_notes` and
+    # route-steering notes are appended at the tail (below) — putting them here
+    # used to break the cacheable prefix within a few hundred tokens.
     notes = [
         f"SCENARIO_BRIEF: {brief}",
-        *novelty_notes,
         _language_rule(language),
         _cinematic_clarity_rule(language),
     ]
@@ -583,6 +588,11 @@ def build_runtime_narrative_context(
     attr_note = _attributes_note(player, language)
     if attr_note:
         notes.append(attr_note)
+
+    # Dynamic tail: per-turn anti-repeat directives (recent titles/locations/choice
+    # patterns) change every turn, so they live after every stable note to keep the
+    # cacheable prefix intact. Route-steering notes (also dynamic) follow below.
+    notes.extend(novelty_notes)
 
     # Session memory: "story so far" synopsis + the previous scene(s) verbatim,
     # so scenes continue with continuity instead of re-describing the same beats.

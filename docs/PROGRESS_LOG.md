@@ -5,6 +5,13 @@ Last updated: 2026-07-04
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-04 — equip-lang API regression test (overnight [auto], kiro)
+- Status: Committed (local). `make check` **763** green.
+- Changed: `tests/test_api.py` +88 lines — new `ApiEquipLangTest` class (3 tests): asserts `/api/v1/loops/{id}/equip` with `lang="en"` returns English axis_labels/stakes (no Hangul), default `lang="ko"` preserves Korean, and equip toggle works regardless of language. Locks the 2026-07-04 `EquipRequest.lang` fix.
+- Verified: `make check` (ruff + eslint + mypy 147 files + tsc/vite build + 763 unittest) green.
+- Blockers: none.
+- Next: kiro lane runtime smoke verified; remaining `[auto]` items.
+
 ## 2026-07-04 (night) — 3.5-flash ADOPTED (cloud rev 00018) + cache-prefix v2 + scene-length fix
 - Status: Committed `7581d73..b99a20c` (unpushed); Cloud Run flipped through revs `00016-8v4` (v2 code) → `00017-s55` (length fix) → **`00018-pj9` (`MODEL=gemini-3.5-flash`)**; local API also on 3.5 (pid via `outputs/api-35.log`). All verdicts measured live.
 - **Caching diagnosis corrected then closed**: implicit caching WORKS but needs write-propagation time (2s-apart probes were the false negative; 20s apart hits on both models) and a shared prefix ≥2048 (2.5)/≥4096 (3.5) — `systemInstruction` counts. **Cache-prefix v2 (`1014e52`)**: stable-first note assembly + sliding windows after `loop` + `MAX_PROMPT_NOTES` 8→48. **Redesign (`cab06ca`)** grew stable canon (all arcs/side-arcs/endings, full NPC agendas w/ EN overlay dict + authored translations, full stat-voice reference, contract into stable head) → prefix ≥4096 PROVEN (a 4047-token hit). **Final measured verdict: hit rate 1/12 ≈ 8%** at our 11-12k prompts (known 9-17k degradation zone) → caching saves ~2% now, ≤22% even at 100% hits — dropped as a cost lever; unlock = prompt diet <8k (future track).

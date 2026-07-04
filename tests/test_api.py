@@ -971,6 +971,94 @@ class LoopCapTest(unittest.TestCase):
             self.assertTrue(loop_cap_exceeded(svc, "player_normaltester"))
 
 
+class ApiEquipLangTest(unittest.TestCase):
+    """Regression lock: /loops/{id}/equip returns localized snapshot per body.lang.
+
+    The 2026-07-04 equip KO-leak fix (EquipRequest.lang) has no API-level
+    regression test; this guards against re-introducing the bug where an EN
+    session's equip toggle silently swapped the snapshot back to Korean.
+    """
+
+    def setUp(self) -> None:
+        import re
+
+        self.hangul = re.compile(r"[가-힣]")
+        self.store = _InMemoryStore()
+        self.client = _client(self.store)
+        # Create a player and begin a fallback loop (seeds scenario_id + scene).
+        self.client.post(
+            "/api/v1/auth/connect",
+            json={"display_name": "Tester", "player_id": "player_equip_lang"},
+        )
+        begin = self.client.post(
+            "/api/v1/loops/begin",
+            json={"player_id": "player_equip_lang", "fallback": True},
+        ).json()
+        self.loop_id = begin["loop_id"]
+        # Inject an equipment item into the loop's inventory so equip can toggle it.
+        loop = self.store.get_loop(self.loop_id)
+        assert loop is not None
+        from dataclasses import replace
+
+        new_state = {
+            **(loop.state if isinstance(loop.state, dict) else {}),
+            "_inventory": [{"item_id": "signal_blade", "quantity": 1, "equipped": False}],
+        }
+        self.store.save_loop(replace(loop, state=new_state))
+
+    def test_equip_with_lang_en_returns_english_axis_labels(self) -> None:
+        response = self.client.post(
+            f"/api/v1/loops/{self.loop_id}/equip",
+            json={"loop_id": self.loop_id, "item_id": "signal_blade", "lang": "en"},
+        )
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        # The equip response is a full snapshot; choices carry axis_label.
+        choices = body["active_scene"]["choices"]
+        self.assertTrue(choices, "fallback scene must have at least one choice")
+        for choice in choices:
+            # EN axis labels must not contain Hangul.
+            self.assertNotRegex(
+                choice["axis_label"],
+                self.hangul,
+                f"axis_label should be English but got: {choice['axis_label']}",
+            )
+        # stakes_summary (if present) should also be localized.
+        stakes = body["active_scene"].get("stakes_summary") or []
+        for s in stakes:
+            self.assertNotRegex(str(s), self.hangul)
+
+    def test_equip_with_default_lang_ko_returns_korean_axis_labels(self) -> None:
+        response = self.client.post(
+            f"/api/v1/loops/{self.loop_id}/equip",
+            json={"loop_id": self.loop_id, "item_id": "signal_blade"},
+        )
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        choices = body["active_scene"]["choices"]
+        self.assertTrue(choices)
+        # Default (KO) axis labels must be Korean.
+        for choice in choices:
+            self.assertRegex(
+                choice["axis_label"],
+                self.hangul,
+                f"axis_label should be Korean but got: {choice['axis_label']}",
+            )
+
+    def test_equip_en_inventory_item_is_equipped(self) -> None:
+        # The item is actually toggled ON regardless of language.
+        response = self.client.post(
+            f"/api/v1/loops/{self.loop_id}/equip",
+            json={"loop_id": self.loop_id, "item_id": "signal_blade", "lang": "en"},
+        )
+        self.assertEqual(response.status_code, 200)
+        inventory = response.json()["inventory"]
+        blade = next((i for i in inventory if i["id"] == "signal_blade"), None)
+        self.assertIsNotNone(blade)
+        assert blade is not None
+        self.assertTrue(blade["equipped"])
+
+
 class StorageBackendSelectionTest(unittest.TestCase):
     """The API asset-URL signer is env-driven so the GCP container honors
     MYTHOS_STORAGE_BACKEND (cloud deploy = gcs); default stays MinIO."""

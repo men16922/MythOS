@@ -111,10 +111,13 @@ class GeminiConfig:
     project: str | None = field(
         default_factory=lambda: _env("GOOGLE_CLOUD_PROJECT", "PROJECT_ID")
     )
-    location: str = field(
-        default_factory=lambda: _env("GOOGLE_CLOUD_LOCATION", default="us-central1")
-        or "us-central1"
-    )
+    # Narrative-specific region. "" = auto, resolved in __post_init__: explicit
+    # constructor arg > GEMINI_LOCATION > "global" for gemini-3.x models >
+    # GOOGLE_CLOUD_LOCATION > us-central1. Gemini 3.x is served only from the
+    # global endpoint (regional returns 404), while GOOGLE_CLOUD_LOCATION stays
+    # regional because Imagen shares it — so swapping MODEL=gemini-3.5-flash
+    # needs no other env change.
+    location: str = ""
     api_key: str | None = field(
         default_factory=lambda: _env("GEMINI_API_KEY", "GOOGLE_API_KEY")
     )
@@ -133,6 +136,16 @@ class GeminiConfig:
     thinking_budget: int = field(
         default_factory=lambda: int(_env("GEMINI_THINKING_BUDGET", default="0") or "0")
     )
+
+    def __post_init__(self) -> None:
+        if not self.location:
+            resolved = (
+                _env("GEMINI_LOCATION")
+                or ("global" if self.model.startswith("gemini-3") else None)
+                or _env("GOOGLE_CLOUD_LOCATION")
+                or "us-central1"
+            )
+            object.__setattr__(self, "location", resolved)
 
 
 def _split_messages(messages: list[dict[str, str]]) -> tuple[str | None, str]:

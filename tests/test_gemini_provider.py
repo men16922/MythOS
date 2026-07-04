@@ -166,6 +166,25 @@ class GeminiConfigEnvAliasTest(unittest.TestCase):
         self.assertIsNone(cfg.project)
         self.assertEqual(cfg.thinking_budget, 0)  # thinking disabled by default
 
+    def test_gemini3_auto_resolves_to_global_location(self) -> None:
+        # Gemini 3.x lives only on the global endpoint; GOOGLE_CLOUD_LOCATION stays
+        # regional for Imagen, so MODEL=gemini-3.5-flash must not inherit it.
+        env = {"MODEL": "gemini-3.5-flash", "GOOGLE_CLOUD_LOCATION": "us-central1"}
+        with mock.patch.dict(os.environ, env, clear=True):
+            cfg = GeminiConfig()
+        self.assertEqual(cfg.location, "global")
+
+    def test_gemini3_explicit_gemini_location_wins(self) -> None:
+        env = {"MODEL": "gemini-3.5-flash", "GEMINI_LOCATION": "us-central1"}
+        with mock.patch.dict(os.environ, env, clear=True):
+            cfg = GeminiConfig()
+        self.assertEqual(cfg.location, "us-central1")
+
+    def test_explicit_constructor_location_wins_over_auto(self) -> None:
+        with mock.patch.dict(os.environ, {}, clear=True):
+            cfg = GeminiConfig(model="gemini-3.5-flash", location="europe-west1")
+        self.assertEqual(cfg.location, "europe-west1")
+
 
 class BuildNarrativeProviderTest(unittest.TestCase):
     def test_default_selects_ollama(self) -> None:

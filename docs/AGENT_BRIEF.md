@@ -4,7 +4,7 @@ Last updated: 2026-07-04
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **2.5→3.5 model call via live play** (`MODEL=gemini-3.5-flash make api`, ~$1.2/loop 서사만) — context caching was measured **blocked** same-day (implicit: no hits on 3.5/global even byte-identical ×3; explicit: min 4096 tok vs our ~1.1–1.8k stable prefix; prompt reordered stable-first anyway, committed — eval `docs/plans/2026-07-04-gemini-2.5-vs-3.5-eval.md`). If 3.5 wins on prose, options: per-turn model split (3.5 key beats only) or directive-set cache redesign. Baseline: image fix DEPLOYED+verified (rev `00015-nl5`), Redis removed, 3.5 one-knob swap live. Kiro runtime smoke pending. Human: `git push` (ahead ~13) + cloud live sign-off `docs/test/neo_seoul_live_qa.md` 🔴.
+> ▶ NEXT SESSION: **Implicit-caching v2 prompt restructure** (diagnosis corrected: caching WORKS with real turn spacing; earlier 0 was write-propagation. Thresholds 2048 tok (2.5) / 4096 (3.5), system counts; current stable prefix ~1.5–1.8k → 0 hits) — v2 = stable-first note assembly + sliding windows after `loop` + fix `MAX_PROMPT_NOTES=8` (rule notes silently dropped — separate review item) → 2.5 passes 2048 (input −25–30%). Plan+실측 `docs/plans/2026-07-04-gemini-2.5-vs-3.5-eval.md`. Then 2.5→3.5 live-play call. Baseline: image fix DEPLOYED (rev `00015-nl5`), Redis removed, 3.5 one-knob swap live. Kiro smoke pending. Human: `git push` + cloud sign-off 🔴.
 
 ## Snapshot
 

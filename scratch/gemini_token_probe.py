@@ -4,12 +4,16 @@ Wraps VertexGeminiJSONProvider to record usageMetadata per call while driving
 the real session flow (in-memory store), so prompt sizes include the real
 system prompt + directives + synopsis growth.
 
-Run: .venv/bin/python scratch/gemini_token_probe.py [model] [turns] [lang]
+Run: .venv/bin/python scratch/gemini_token_probe.py [model] [turns] [lang] [sleep_s]
+
+`sleep_s` (default 0) waits between turns — implicit cache writes take seconds
+to propagate, so realistic turn spacing (20s+) is needed to observe hits.
 """
 
 from __future__ import annotations
 
 import sys
+import time
 
 sys.path.insert(0, "tests")
 from test_session_combat import _InMemoryStore  # type: ignore  # noqa: E402
@@ -53,6 +57,7 @@ def main() -> None:
     model = sys.argv[1] if len(sys.argv) > 1 else "gemini-3.5-flash"
     turns = int(sys.argv[2]) if len(sys.argv) > 2 else 3
     lang = sys.argv[3] if len(sys.argv) > 3 else "ko"
+    sleep_s = float(sys.argv[4]) if len(sys.argv) > 4 else 0.0
 
     cfg = GeminiConfig(model=model)
     svc = RuntimeSessionService(
@@ -65,6 +70,8 @@ def main() -> None:
         sc = snap.scene
         if not sc.choices:
             break
+        if sleep_s:
+            time.sleep(sleep_s)
         snap = svc.choose(sc.loop_id, choice_id=sc.choices[0].choice_id, options=opts)
 
     print(f"\nMODEL {model} (location={cfg.location}, lang={lang})")

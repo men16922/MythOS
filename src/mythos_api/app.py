@@ -965,6 +965,30 @@ def create_app() -> FastAPI:
         for tkey in tester_keys:
             pid = stable_player_id(tkey)
             player = service.store.get_player(pid)
+
+            # Player hasn't used this key yet
+            if not player:
+                testers.append({
+                    "invite_key": tkey,
+                    "player_id": pid,
+                    "registered": False,
+                    "display_name": None,
+                    "archetype": None,
+                    "created_at": None,
+                    "last_activity": None,
+                    "total_loops": 0,
+                    "active_loops": 0,
+                    "ended_loops": 0,
+                    "max_turn": 0,
+                    "active_loop": None,
+                    "combats_won": 0,
+                    "combats_lost": 0,
+                    "endings_reached": [],
+                    "allies_met": [],
+                    "total_runs_completed": 0,
+                })
+                continue
+
             loops = service.store.list_loops(pid)
 
             # Categorize loops
@@ -972,7 +996,10 @@ def create_app() -> FastAPI:
             ended_loops = [lp for lp in loops if lp.phase.value in ("archive", "ended")]
 
             # Run summaries for completed loops
-            run_summaries = service.list_run_summaries(pid, limit=50)
+            try:
+                run_summaries = service.list_run_summaries(pid, limit=50)
+            except Exception:
+                run_summaries = []
 
             # Last activity: most recent loop's started_at or ended_at
             last_activity = None

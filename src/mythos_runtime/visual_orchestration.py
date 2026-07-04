@@ -50,7 +50,11 @@ def maybe_generate_scene_image(
         )
         if queued is not None:
             return queued
-        if not options.image_sync_fallback or options.fast_mode:
+        # image_sync_fallback is an explicit caller opt-in (the API's WS path on
+        # Cloud Run, where no Redis worker exists). fast_mode must not veto it:
+        # RuntimeOptions defaults fast_mode=True and the API never overrides it,
+        # so a fast_mode veto here would make the opt-in dead code.
+        if not options.image_sync_fallback:
             return None
 
     storage = storage_adapter_for(options.image_storage)

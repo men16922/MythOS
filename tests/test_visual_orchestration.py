@@ -1,9 +1,11 @@
 import unittest
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
+from unittest import mock
 
 from mythos_core import AssetRecord, LoopPhase, LoopState, Scene
 from mythos_core.clock import utc_now
+from mythos_runtime import visual_orchestration
 from mythos_runtime.options import RuntimeOptions
 from mythos_runtime.route_map import ROUTE_MAP_KEY
 from mythos_runtime.visual_orchestration import (
@@ -90,6 +92,60 @@ class MaybeGenerateSkipsCuratedAnchorTests(unittest.TestCase):
             loop=_loop(None),
             scene=_scene(),
             player_id="player_test",
+        )
+        self.assertIsNone(result)
+
+
+class SyncFallbackTests(unittest.TestCase):
+    """image_sync_fallback must survive the default fast_mode=True.
+
+    Cloud Run has no Redis worker, so the async enqueue always fails; the API
+    opts into the sync fallback via image_sync_fallback=True but never touches
+    fast_mode (default True). A fast_mode veto here silently disabled every
+    dynamic scene image on Cloud Run (2026-07-04)."""
+
+    def _run(self, options: RuntimeOptions) -> object:
+        calls: list[str] = []
+
+        class _DeadQueue:
+            def worker_alive(self) -> bool:
+                return False
+
+        class _RecordingService:
+            def __init__(self, **_: object) -> None:
+                pass
+
+            def generate_for_scene(self, *_: object, **__: object) -> str:
+                calls.append("sync")
+                return "generated"
+
+        with (
+            mock.patch.object(visual_orchestration, "VisualJobQueue", _DeadQueue),
+            mock.patch.object(visual_orchestration, "storage_adapter_for", lambda kind: object()),
+            mock.patch.object(visual_orchestration, "VisualService", _RecordingService),
+        ):
+            return maybe_generate_scene_image(
+                store=None,  # type: ignore[arg-type]
+                options=options,
+                loop=_loop(None),
+                scene=_scene(),
+                player_id="player_test",
+            )
+
+    def test_sync_fallback_runs_despite_default_fast_mode(self) -> None:
+        result = self._run(
+            RuntimeOptions(
+                with_image=True,
+                visual_async=True,
+                image_every_turn=True,
+                image_sync_fallback=True,
+            )
+        )
+        self.assertEqual(result, "generated")
+
+    def test_no_fallback_opt_in_still_skips(self) -> None:
+        result = self._run(
+            RuntimeOptions(with_image=True, visual_async=True, image_every_turn=True)
         )
         self.assertIsNone(result)
 

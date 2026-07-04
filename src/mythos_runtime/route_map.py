@@ -74,7 +74,9 @@ def build_route_map(config: dict[str, Any] | None, seed: str) -> dict[str, Any] 
                 if isinstance(titles, list) and titles:
                     chosen_title = _pick_unique_title([str(t) for t in titles], used_titles, dice)
                     node_spec = {**node_spec, "title": chosen_title}
-            nodes[node_id] = _build_node(node_id, node_spec, node_types, layer_index, arc, title, col)
+            nodes[node_id] = _build_node(
+                node_id, node_spec, node_types, layer_index, arc, title, col
+            )
             layer_ids.append(node_id)
         if layer_ids:
             layers.append(layer_ids)
@@ -143,7 +145,9 @@ def _layer_node_specs(
     if not specs:
         # Degenerate layer config: fall back to a single story node so the graph
         # stays connected rather than dropping a layer silently.
-        specs.append({"type": "story" if "story" in node_types else next(iter(node_types)), "anchor": False})
+        specs.append(
+            {"type": "story" if "story" in node_types else next(iter(node_types)), "anchor": False}
+        )
     return specs
 
 
@@ -244,11 +248,17 @@ def _pick_targets(
 ) -> list[str]:
     src_combat = bool(nodes.get(src, {}).get("combat"))
     ordered = dice.shuffle(nxt_layer)
-    if not src_combat:
-        # Prefer threading non-combat -> non-combat to preserve an avoid route.
-        non_combat = [n for n in ordered if not nodes.get(n, {}).get("combat")]
-        if non_combat:
-            ordered = non_combat + [n for n in ordered if n not in non_combat]
+    # A source must retain an ungated forward option whenever one exists.  The
+    # runtime treats gates as hard locks; choosing a gated node as the sole edge
+    # previously forced its progress fallback to walk through a visually locked
+    # scene.  The shuffled order still supplies deterministic variety within each
+    # priority bucket.
+    ordered.sort(
+        key=lambda node_id: (
+            bool(nodes.get(node_id, {}).get("gate")),
+            bool(nodes.get(node_id, {}).get("combat")) if not src_combat else False,
+        )
+    )
     fan = 1 if len(nxt_layer) <= 1 else dice.weighted_choice([1, 2], [0.6, 0.4])
     return ordered[: max(1, fan)]
 
@@ -304,9 +314,7 @@ def route_map_paths_summary(route_map: dict[str, Any]) -> dict[str, bool]:
 
     # Avoid path: boss reachable without traversing any non-boss combat node.
     combat_blocked = {
-        nid
-        for nid, node in nodes.items()
-        if nid != boss and bool(node.get("combat"))
+        nid for nid, node in nodes.items() if nid != boss and bool(node.get("combat"))
     }
     return {
         "avoid": _reachable_from(start, boss, edges, blocked=combat_blocked),
@@ -404,6 +412,7 @@ def build_route_seed(
         "next_node_index": counter,
     }
 
+
 SIDE_ANCHOR_ORIGIN = "side"
 
 
@@ -494,9 +503,7 @@ def attach_side_anchors(
     if unlocked_companions is not None:
         allowed = _TUTORIAL_COMPANIONS | set(unlocked_companions)
         arcs = [
-            a
-            for a in arcs
-            if not [n for n in (a.get("related_npcs") or []) if n not in allowed]
+            a for a in arcs if not [n for n in (a.get("related_npcs") or []) if n not in allowed]
         ]
     layers = route_map.get("layers")
     nodes = route_map.get("nodes")
@@ -565,6 +572,8 @@ def _pick_unique_title(titles: list[str], used: set[str], dice: Dice) -> str:
     chosen = str(dice.choice(candidates))
     used.add(chosen)
     return chosen
+
+
 __all__ = [
     "ROUTE_MAP_KEY",
     "ROUTE_MAP_VERSION",

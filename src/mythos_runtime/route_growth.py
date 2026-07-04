@@ -195,7 +195,9 @@ def _next_node(
     return node_type, title
 
 
-def _pool_title(node_type: str, node_types: dict[str, Any], dice: Dice, used_titles: set[str]) -> str:
+def _pool_title(
+    node_type: str, node_types: dict[str, Any], dice: Dice, used_titles: set[str]
+) -> str:
     type_spec = node_types.get(node_type, {})
     titles = type_spec.get("titles") if isinstance(type_spec, dict) else None
     if isinstance(titles, list) and titles:
@@ -236,12 +238,16 @@ def _connect_outgoing(
     for nid in new_ids:
         if edges.get(nid):
             continue
-        # Prefer threading non-combat -> non-combat to preserve an avoid route.
+        # Preserve an ungated forward path first, then the combat-avoidance
+        # preference. A gate is a hard runtime lock, not a cosmetic hint.
         ordered = dice.shuffle(next_layer)
-        if not nodes.get(nid, {}).get("combat"):
-            non_combat = [n for n in ordered if not nodes.get(n, {}).get("combat")]
-            if non_combat:
-                ordered = non_combat + [n for n in ordered if n not in non_combat]
+        source_combat = bool(nodes.get(nid, {}).get("combat"))
+        ordered.sort(
+            key=lambda node_id: (
+                bool(nodes.get(node_id, {}).get("gate")),
+                bool(nodes.get(node_id, {}).get("combat")) if not source_combat else False,
+            )
+        )
         fan = 1 if len(next_layer) <= 1 else dice.weighted_choice([1, 2], [0.6, 0.4])
         edges[nid] = ordered[: max(1, fan)]
 
@@ -269,7 +275,8 @@ def _guard_anchor_reachability(
             continue
         for nid in layers[layer_index]:
             if not edges.get(nid):
-                edges[nid] = [nxt[0]]
+                ungated = [target for target in nxt if not nodes.get(target, {}).get("gate")]
+                edges[nid] = [ungated[0] if ungated else nxt[0]]
 
     # Anchor reachability: ensure each anchor is reachable from current.
     for nid, node in nodes.items():

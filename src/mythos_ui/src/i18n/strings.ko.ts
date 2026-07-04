@@ -101,7 +101,7 @@ export const ko = {
   "aside.route.risk": "위험",
   "aside.route.fixedScene": "고정 스토리 장면",
   "aside.route.dynamicScene": "동적 장면",
-  "aside.route.perspectives": "관점",
+  "aside.route.perspectives": "서사 분기",
   "aside.route.splitByRoute": "루트에 따라 갈라짐",
   "aside.route.fog": "⋯ 미공개 구간",
   "aside.route.fogTitle": "아직 드러나지 않은 구간 — 선택에 따라 길이 생깁니다",

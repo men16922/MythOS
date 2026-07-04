@@ -649,8 +649,8 @@
                 "lens": "표식된 버그 — 관리자 IX의 시점",
                 "axis": "control",
                 "when": [
-                  "loud_approach",
-                  "high_tension"
+                  "dominance_focus",
+                  "control_net_lockdown"
                 ],
                 "summary": "추격자를 정면으로 마주본다. 관리자 IX가 당신을 '수정 대상 버그'로 표식한다.",
                 "crosses": [
@@ -685,6 +685,11 @@
             "title": "한강 야시장",
             "image": "scenes/night_market.png",
             "event": "lin_yue_deal",
+            "effect": {
+              "flags": [
+                "lin_yue_deal"
+              ]
+            },
             "default_perspective": "p_fair",
             "perspectives": [
               {
@@ -713,8 +718,8 @@
                 "lens": "장부에 오른 이름 — 린위에의 시점",
                 "axis": "control",
                 "when": [
-                  "lin_yue_deal",
-                  "night_market_debt"
+                  "dominance_focus",
+                  "control_net_lockdown"
                 ],
                 "summary": "린위에의 장부에 이름을 올린다. 장비와 정보가 열리지만, 스파이어에서 청구될 빚이 쌓인다.",
                 "crosses": [
@@ -736,8 +741,8 @@
                 "lens": "팔리는 명단 — 증거의 시점",
                 "axis": "evidence",
                 "when": [
-                  "evidence_first",
-                  "welfare_score_log"
+                  "insight_focus",
+                  "optimization_log_stolen"
                 ],
                 "summary": "뒷골목에서 최적화 명단의 일부를 산다. 차갑지만 진실에 가까워진다.",
                 "crosses": [
@@ -1049,8 +1054,8 @@
                 "lens": "데이터 코어 — 증거의 시점",
                 "axis": "evidence",
                 "when": [
-                  "evidence_first",
-                  "data_core_taken"
+                  "insight_focus",
+                  "optimization_list_seen"
                 ],
                 "summary": "데이터 코어를 노리고 잠입한다. 코드를 다시 쓸 열쇠가 손에 들어온다.",
                 "crosses": [

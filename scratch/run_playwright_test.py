@@ -55,6 +55,35 @@ def page_diagnostics(page) -> str:
     )
 
 
+def resolve_build_offers(page) -> None:
+    """Accept blocking boon/echo offers before interacting with story choices."""
+    for _ in range(3):
+        overlay = page.locator(".boon-overlay")
+        if overlay.count() == 0 or not overlay.is_visible():
+            return
+        heading = page.locator(".boon-modal-head").inner_text()
+        button = page.locator(".boon-card:first-child")
+        page.wait_for_function(
+            "() => !document.querySelector('.boon-card:first-child')?.disabled",
+            timeout=10000,
+        )
+        button.click()
+        page.wait_for_function(
+            """
+            (previous) => {
+              const overlay = document.querySelector('.boon-overlay');
+              const heading = document.querySelector('.boon-modal-head')?.textContent || '';
+              const button = document.querySelector('.boon-card:first-child');
+              return !overlay || (heading !== previous && button && !button.disabled);
+            }
+            """,
+            arg=heading,
+            timeout=10000,
+        )
+    if page.locator(".boon-overlay").count():
+        raise RuntimeError("Build offer overlay did not settle. " + page_diagnostics(page))
+
+
 def run_test():
     server_process = multiprocessing.Process(target=run_server)
     server_process.start()
@@ -107,6 +136,7 @@ def run_test():
 
             print("Waiting for narrative typewriter stream to finish...")
             wait_for_interactive_scene(page)
+            resolve_build_offers(page)
             if page.locator("#choices button").count() == 0:
                 raise RuntimeError(
                     "Expected narrative choices after begin. " + page_diagnostics(page)

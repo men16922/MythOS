@@ -156,9 +156,7 @@ class ApiRelationshipSerializerTest(unittest.TestCase):
             meta_progression={"insight": 7, "relationships": {"se_rin": 5}},
         )
         payload = memory_overview_to_dict(overview)
-        self.assertEqual(
-            payload["meta_progression"]["relationships"], {"se_rin": 5}
-        )
+        self.assertEqual(payload["meta_progression"]["relationships"], {"se_rin": 5})
 
     def test_memory_overview_resolves_cutscene_gallery(self) -> None:
         # Cross-loop unlocked ids (meta progression) → resolved gallery (image+body
@@ -187,7 +185,9 @@ class ApiRelationshipSerializerTest(unittest.TestCase):
 
     def test_memory_overview_without_scenario_has_empty_gallery(self) -> None:
         overview = MemoryOverview(
-            world_archives=[], narrative_shards=[], novelty_notes=[],
+            world_archives=[],
+            narrative_shards=[],
+            novelty_notes=[],
             meta_progression={"insight": 7},
         )
         self.assertEqual(memory_overview_to_dict(overview)["cutscene_gallery"], [])
@@ -269,9 +269,7 @@ class ApiScenariosTest(unittest.TestCase):
         self.assertRegex(ko_neo["brief"], hangul)
         self.assertRegex(str(ko_neo["ui_copy"]["session_intro"]["title"]), hangul)
         # Ending ids stay identical across languages (structure parity).
-        self.assertEqual(
-            [e["id"] for e in en_neo["endings"]], [e["id"] for e in ko_neo["endings"]]
-        )
+        self.assertEqual([e["id"] for e in en_neo["endings"]], [e["id"] for e in ko_neo["endings"]])
 
     def test_scenarios_lang_en_localizes_data(self) -> None:
         # The onboarding DATA (archetype unlock_hint, character name/role/keywords,
@@ -298,9 +296,7 @@ class ApiScenariosTest(unittest.TestCase):
         se_rin = next((c for c in en_neo["characters"] if "Se-rin" in str(c["name"])), None)
         self.assertIsNotNone(se_rin)
         # KO unchanged — character names stay Korean by default.
-        self.assertRegex(
-            " ".join(str(c["name"]) for c in ko_neo["characters"]), hangul
-        )
+        self.assertRegex(" ".join(str(c["name"]) for c in ko_neo["characters"]), hangul)
 
 
 class ApiNarrativeFlowTest(unittest.TestCase):
@@ -421,6 +417,34 @@ class ApiNarrativeFlowTest(unittest.TestCase):
         self.assertIn("choice_result", body["active_scene"])
         self.assertIsInstance(body["active_scene"]["choice_result"]["summary"], str)
 
+    def test_duplicate_choice_from_old_scene_is_idempotent(self) -> None:
+        self.client.post(
+            "/api/v1/auth/connect",
+            json={"display_name": "Retry", "player_id": "player_retry"},
+        )
+        begin = self.client.post(
+            "/api/v1/loops/begin",
+            json={"player_id": "player_retry", "fallback": True},
+        ).json()
+        payload = {
+            "loop_id": begin["loop_id"],
+            "scene_id": begin["active_scene"]["scene_id"],
+            "choice_id": begin["active_scene"]["choices"][0]["choice_id"],
+            "fallback": True,
+        }
+        first = self.client.post("/api/v1/loops/choose", json=payload)
+        retry = self.client.post("/api/v1/loops/choose", json=payload)
+        self.assertEqual(first.status_code, 200)
+        self.assertEqual(retry.status_code, 200)
+        self.assertEqual(
+            retry.json()["active_scene"]["scene_id"],
+            first.json()["active_scene"]["scene_id"],
+        )
+        self.assertEqual(
+            retry.json()["active_scene"]["turn_index"],
+            first.json()["active_scene"]["turn_index"],
+        )
+
     def test_begin_loop_missing_player_is_not_found(self) -> None:
         response = self.client.post(
             "/api/v1/loops/begin",
@@ -468,6 +492,28 @@ class ApiStreamTest(unittest.TestCase):
             advanced = _drain_to_snapshot(ws)
             self.assertEqual(advanced["data"]["loop_id"], loop_id)
             self.assertGreaterEqual(advanced["data"]["active_scene"]["turn_index"], 1)
+
+    def test_duplicate_stream_choice_returns_current_snapshot(self) -> None:
+        with self.client.websocket_connect("/api/v1/loops/stream") as ws:
+            ws.send_json({"event": "begin", "player_id": "player_ws", "fallback": True})
+            begin = _drain_to_snapshot(ws)
+            scene = begin["data"]["active_scene"]
+            message = {
+                "event": "choose",
+                "loop_id": begin["data"]["loop_id"],
+                "scene_id": scene["scene_id"],
+                "choice_id": scene["choices"][0]["choice_id"],
+                "fallback": True,
+            }
+            ws.send_json(message)
+            advanced = _drain_to_snapshot(ws)
+            ws.send_json(message)
+            retry = _drain_to_snapshot(ws)
+            self.assertEqual(retry["type"], "snapshot")
+            self.assertEqual(
+                retry["data"]["active_scene"]["scene_id"],
+                advanced["data"]["active_scene"]["scene_id"],
+            )
 
     def test_unknown_event_returns_error(self) -> None:
         with self.client.websocket_connect("/api/v1/loops/stream") as ws:
@@ -829,7 +875,9 @@ class InviteGateTest(unittest.TestCase):
         # Plain tester key, and an ungated/keyless visitor, both → false (hidden).
         from unittest import mock
 
-        with mock.patch.dict(os.environ, {"MYTHOS_INVITE_KEYS": "tester, owner", "MYTHOS_ADMIN_KEYS": "owner"}):
+        with mock.patch.dict(
+            os.environ, {"MYTHOS_INVITE_KEYS": "tester, owner", "MYTHOS_ADMIN_KEYS": "owner"}
+        ):
             client = _client(_InMemoryStore())
             admin = client.get("/api/v1/auth/verify-invite", headers={"X-Invite-Key": "owner"})
             self.assertEqual(admin.status_code, 200)
@@ -884,8 +932,8 @@ class LoopCapTest(unittest.TestCase):
 
         with mock.patch.dict(os.environ, {"MYTHOS_MAX_LOOPS_PER_PLAYER": "1"}):
             client = _client(_InMemoryStore())
-            self.assertEqual(self._connect_and_begin(client), 200)   # 1st OK
-            self.assertEqual(self._connect_and_begin(client), 429)   # 2nd capped
+            self.assertEqual(self._connect_and_begin(client), 200)  # 1st OK
+            self.assertEqual(self._connect_and_begin(client), 429)  # 2nd capped
 
     def test_admin_key_exempt_from_cap(self) -> None:
         from unittest import mock

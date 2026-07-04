@@ -136,9 +136,7 @@ class ProgressionTest(unittest.TestCase):
         )
         self.assertIn("ix_vanquisher", cleared.unlocked_traits)
         self.assertIn("signal_blade", cleared.unlocked_starting_items)
-        erased, _ = evaluate_meta_progression(
-            base, replace(summary, ending_id="ending_erasure")
-        )
+        erased, _ = evaluate_meta_progression(base, replace(summary, ending_id="ending_erasure"))
         self.assertNotIn("ix_vanquisher", erased.unlocked_traits)
         self.assertNotIn("signal_blade", erased.unlocked_starting_items)
 
@@ -146,11 +144,15 @@ class ProgressionTest(unittest.TestCase):
         # 3 cumulative combat wins unlocks Han for recruitment in future loops
         # (his meet side-arc is then eligible to appear via attach_side_anchors).
         base = MetaProgression(player_id="player_1", scenario_id="neo-seoul", total_combats_won=2)
-        unlocked, _ = evaluate_meta_progression(base, self._run_summary("neo-seoul", clues=0, won=1))
+        unlocked, _ = evaluate_meta_progression(
+            base, self._run_summary("neo-seoul", clues=0, won=1)
+        )
         self.assertIn("han", unlocked.unlocked_allies)
         # Below the threshold, Han stays locked.
         low = MetaProgression(player_id="player_1", scenario_id="neo-seoul", total_combats_won=0)
-        still_locked, _ = evaluate_meta_progression(low, self._run_summary("neo-seoul", clues=0, won=1))
+        still_locked, _ = evaluate_meta_progression(
+            low, self._run_summary("neo-seoul", clues=0, won=1)
+        )
         self.assertNotIn("han", still_locked.unlocked_allies)
 
     def test_evaluate_meta_progression_is_scenario_scoped(self) -> None:
@@ -340,6 +342,46 @@ class RelationshipCarryOverTest(unittest.TestCase):
         )
         state = apply_meta_progression_to_state({"scenario_id": "neo-seoul"}, progress, {})
         self.assertEqual(state["meta_progression"]["relationships"], {"se_rin": 5})
+        self.assertEqual(state["relationships"], {"se_rin": 5})
+        self.assertEqual(state["_relationship_baseline"], {"se_rin": 5})
+
+    def test_cumulative_loop_archives_only_this_run_delta(self) -> None:
+        now = datetime(2026, 6, 16, tzinfo=UTC)
+        loop = LoopState(
+            loop_id="loop_cumulative",
+            player_id="p",
+            seed="seed",
+            phase=LoopPhase.ENDED,
+            location_id="loc",
+            stability=40,
+            tension=20,
+            started_at=now,
+            ended_at=now,
+            state={
+                "scenario_id": "neo-seoul",
+                "relationships": {"se_rin": 5, "kai": 1},
+                "_relationship_baseline": {"se_rin": 3},
+            },
+        )
+        scene = Scene(
+            scene_id="scene_cumulative",
+            loop_id=loop.loop_id,
+            turn_index=4,
+            title="Finale",
+            location="loc",
+            narration="...",
+            choices=[],
+            visual_brief=None,
+            created_at=now,
+        )
+        memory = _run_summary_memory_from_archive(loop, scene, [], [], "wrap-up")
+        summary = _run_summary_from_memory(memory)
+        self.assertEqual(summary.relationships, {"se_rin": 2, "kai": 1})
+        previous = MetaProgression(
+            player_id="p", scenario_id="neo-seoul", relationships={"se_rin": 3}
+        )
+        updated, _ = evaluate_meta_progression(previous, summary)
+        self.assertEqual(updated.relationships, {"se_rin": 5, "kai": 1})
 
 
 class CutsceneUnlockCarryOverTest(unittest.TestCase):
@@ -349,11 +391,27 @@ class CutsceneUnlockCarryOverTest(unittest.TestCase):
     def _summary(self, unlocked: list[str]) -> RunSummary:
         ts = datetime(2026, 6, 16, tzinfo=UTC).isoformat()
         return RunSummary(
-            run_id="run_1", player_id="p", loop_id="l", scenario_id="neo-seoul",
-            started_at=ts, ended_at=ts, ending_id=None, ending_label="L",
-            final_title="t", final_location="x", phase="ended", stability=50,
-            tension=30, turns=3, combats_won=0, combats_lost=0, clues_collected=[],
-            allies_met=[], unlocks_granted=[], summary_text="", unlocked_cutscenes=unlocked,
+            run_id="run_1",
+            player_id="p",
+            loop_id="l",
+            scenario_id="neo-seoul",
+            started_at=ts,
+            ended_at=ts,
+            ending_id=None,
+            ending_label="L",
+            final_title="t",
+            final_location="x",
+            phase="ended",
+            stability=50,
+            tension=30,
+            turns=3,
+            combats_won=0,
+            combats_lost=0,
+            clues_collected=[],
+            allies_met=[],
+            unlocks_granted=[],
+            summary_text="",
+            unlocked_cutscenes=unlocked,
         )
 
     def test_unlock_accrues_and_grants_only_new(self) -> None:
@@ -386,8 +444,15 @@ class CutsceneUnlockCarryOverTest(unittest.TestCase):
         # Live se_rin.md: SERIN_FIRST_LIGHT(affection2), SERIN_PROMISE(affection4+trusted_se_rin).
         now = datetime(2026, 6, 16, tzinfo=UTC)
         loop = LoopState(
-            loop_id="loop_x", player_id="p", seed="seed", phase=LoopPhase.ENDED,
-            location_id="loc", stability=40, tension=20, started_at=now, ended_at=now,
+            loop_id="loop_x",
+            player_id="p",
+            seed="seed",
+            phase=LoopPhase.ENDED,
+            location_id="loc",
+            stability=40,
+            tension=20,
+            started_at=now,
+            ended_at=now,
             state={
                 "scenario_id": "neo-seoul",
                 "relationships": {"se_rin": 4},
@@ -395,8 +460,15 @@ class CutsceneUnlockCarryOverTest(unittest.TestCase):
             },
         )
         scene = Scene(
-            scene_id="scene_x", loop_id="loop_x", turn_index=4, title="Finale",
-            location="loc", narration="...", choices=[], visual_brief=None, created_at=now,
+            scene_id="scene_x",
+            loop_id="loop_x",
+            turn_index=4,
+            title="Finale",
+            location="loc",
+            narration="...",
+            choices=[],
+            visual_brief=None,
+            created_at=now,
         )
         memory = _run_summary_memory_from_archive(loop, scene, [], [], "wrap-up")
         summary = _run_summary_from_memory(memory)
@@ -408,13 +480,27 @@ class CutsceneUnlockCarryOverTest(unittest.TestCase):
     def test_archive_below_threshold_unlocks_nothing(self) -> None:
         now = datetime(2026, 6, 16, tzinfo=UTC)
         loop = LoopState(
-            loop_id="loop_y", player_id="p", seed="seed", phase=LoopPhase.ENDED,
-            location_id="loc", stability=40, tension=20, started_at=now, ended_at=now,
+            loop_id="loop_y",
+            player_id="p",
+            seed="seed",
+            phase=LoopPhase.ENDED,
+            location_id="loc",
+            stability=40,
+            tension=20,
+            started_at=now,
+            ended_at=now,
             state={"scenario_id": "neo-seoul", "relationships": {"se_rin": 1}, "flags": []},
         )
         scene = Scene(
-            scene_id="s", loop_id="loop_y", turn_index=2, title="t", location="loc",
-            narration="...", choices=[], visual_brief=None, created_at=now,
+            scene_id="s",
+            loop_id="loop_y",
+            turn_index=2,
+            title="t",
+            location="loc",
+            narration="...",
+            choices=[],
+            visual_brief=None,
+            created_at=now,
         )
         memory = _run_summary_memory_from_archive(loop, scene, [], [], "wrap-up")
         self.assertEqual(_run_summary_from_memory(memory).unlocked_cutscenes, [])
@@ -524,9 +610,7 @@ class NeoSeoulProgressionEconomyTest(unittest.TestCase):
         base_by_archetype = self.combat["archetype_base_skills"]
         self.assertIsInstance(base_by_archetype, dict)
         starting_skill_ids = {
-            skill_id
-            for skill_ids in base_by_archetype.values()
-            for skill_id in skill_ids
+            skill_id for skill_ids in base_by_archetype.values() for skill_id in skill_ids
         }
         tier_zero_ids = {
             skill_id
@@ -538,9 +622,7 @@ class NeoSeoulProgressionEconomyTest(unittest.TestCase):
         self.assertLessEqual(tier_zero_ids, starting_skill_ids)
 
     def test_each_tier_has_a_reasonable_income_path(self) -> None:
-        conservative_first_run_income = (
-            INSIGHT_PER_RUN + INSIGHT_PER_CLUE + INSIGHT_PER_COMBAT_WON
-        )
+        conservative_first_run_income = INSIGHT_PER_RUN + INSIGHT_PER_CLUE + INSIGHT_PER_COMBAT_WON
         two_run_income = conservative_first_run_income * 2
 
         for tier, costs in sorted(self._tier_costs("insight_cost", DEFAULT_LEARN_COST).items()):

@@ -170,6 +170,7 @@ export async function apiActive(params: {
 
 export async function apiChoose(params: {
   loop_id: string;
+  scene_id?: string;
   scenario_id: string;
   choice_id?: string;
   action?: string;

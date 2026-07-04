@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import type { Dispatch, RefObject, SetStateAction } from "react";
 import type { NarrativeHistoryItem } from "../App";
 import type { RuntimeSnapshot, WebSocketMessage } from "../types";
@@ -76,6 +76,9 @@ export function useNarrativeStream(args: UseNarrativeStreamArgs) {
     handleReceivedSnapshot,
     logToConsole,
   } = args;
+  // React state does not update synchronously, so two clicks in one event turn
+  // can both observe isStreaming=false. This ref closes that gap immediately.
+  const choiceInFlightRef = useRef(false);
 
   // WebSocket connect + auto-reconnect lifecycle lives in `useGameSocket`; it
   // parses each inbound frame and hands it to `handleSocketMessage` (the type
@@ -85,6 +88,7 @@ export function useNarrativeStream(args: UseNarrativeStreamArgs) {
     if (msg.type === "token" && msg.content) {
       narrationQueueRef.current += msg.content;
     } else if (msg.type === "snapshot" && msg.data) {
+      choiceInFlightRef.current = false;
       streamDoneRef.current = true;
       pendingSnapshotRef.current = msg.data;
       setStatus(DICTS[getLang()]["sess.sceneConfirmed"]);
@@ -92,6 +96,7 @@ export function useNarrativeStream(args: UseNarrativeStreamArgs) {
     } else if (msg.type === "visual_status") {
       onVisualStatus(msg);
     } else if (msg.type === "error") {
+      choiceInFlightRef.current = false;
       streamDoneRef.current = true;
       setIsStreaming(false);
       setStatus(DICTS[getLang()]["sess.error"] + (msg.detail || DICTS[getLang()]["sess.unknown"]));
@@ -138,7 +143,9 @@ export function useNarrativeStream(args: UseNarrativeStreamArgs) {
   }, [withImage]);
 
   const sendChoose = useCallback((choiceId: string) => {
-    if (isStreaming) return;
+    if (isStreaming || choiceInFlightRef.current) return;
+    if (!websocketRef.current || websocketRef.current.readyState !== WebSocket.OPEN) return;
+    choiceInFlightRef.current = true;
     // Remember the chosen label so it can be recorded against the scene it was
     // taken in once that scene scrolls into history.
     const chosen = finalizedSnapshot?.active_scene?.choices?.find(
@@ -149,19 +156,18 @@ export function useNarrativeStream(args: UseNarrativeStreamArgs) {
     clearVisualTimeout();
     setImagePlaceholderText(DICTS[getLang()]["img.preparing"]);
     beginStream(DICTS[getLang()]["sess.streamChoice"]);
-    if (websocketRef.current && websocketRef.current.readyState === WebSocket.OPEN) {
-      websocketRef.current.send(
-        JSON.stringify({
-          event: "choose",
-          loop_id: loopId,
-          choice_id: choiceId,
-          scenario_id: selectedScenarioId,
-          fallback: fallbackMode,
-          lang: getLang(),
-          ...imageOpts(),
-        })
-      );
-    }
+    websocketRef.current.send(
+      JSON.stringify({
+        event: "choose",
+        loop_id: loopId,
+        scene_id: finalizedSnapshot?.active_scene?.scene_id,
+        choice_id: choiceId,
+        scenario_id: selectedScenarioId,
+        fallback: fallbackMode,
+        lang: getLang(),
+        ...imageOpts(),
+      })
+    );
   }, [beginStream, clearVisualTimeout, fallbackMode, finalizedSnapshot, imageOpts, isStreaming, loopId, pendingActionRef, selectedScenarioId, setImagePlaceholderText, websocketRef]);
 
   return { websocketRef, openSocket, closeSocket, beginStream, imageOpts, sendChoose };

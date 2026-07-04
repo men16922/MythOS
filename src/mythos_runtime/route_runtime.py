@@ -60,7 +60,7 @@ def advance_route(
         return state
 
     nodes = route_map.get("nodes", {})
-    edges = route_map.get("edges", {})
+    edges = {node_id: list(targets) for node_id, targets in route_map.get("edges", {}).items()}
     layers = route_map.get("layers", [])
     num_layers = len(layers)
     per = max(1, int(turns_per_layer))
@@ -76,16 +76,39 @@ def advance_route(
     # whose authored perspectives match accumulated flags.
     cur_layer = int(nodes.get(current, {}).get("layer", 0))
     while cur_layer < target_layer:
+        source = current
         candidates = edges.get(current, [])
         if not candidates:
             break
-        if preference and preference in candidates:
+        if (
+            preference
+            and preference in candidates
+            and _gate_satisfied(nodes.get(preference, {}), flags)
+        ):
             current = preference
             preference = None
         else:
-            current = _choose_next(
+            next_node_id = _choose_next(
                 candidates, nodes, flags, Dice(f"{seed}:route-advance:{cur_layer}")
             )
+            if next_node_id is None:
+                # Compatibility recovery for an already-persisted graph whose
+                # outgoing edges all point at locked nodes. Repair the edge to an
+                # eligible core node in the next layer; never bypass the lock.
+                next_layer = layers[cur_layer + 1] if cur_layer + 1 < len(layers) else []
+                recovery = [
+                    node_id for node_id in next_layer if not nodes.get(node_id, {}).get("side_arc")
+                ]
+                next_node_id = _choose_next(
+                    recovery,
+                    nodes,
+                    flags,
+                    Dice(f"{seed}:route-recover:{cur_layer}"),
+                )
+                if next_node_id is None:
+                    break
+                edges.setdefault(source, []).append(next_node_id)
+            current = next_node_id
         if current not in visited:
             visited.append(current)
         cur_layer = int(nodes.get(current, {}).get("layer", cur_layer + 1))
@@ -134,6 +157,7 @@ def advance_route(
     leaderboard = sorted(tally.items(), key=lambda kv: (-kv[1], kv[0]))
     new_route_map = {
         **route_map,
+        "edges": edges,
         "current": current,
         "visited": visited,
         "active_perspectives": active,
@@ -245,20 +269,10 @@ def junction_options(
                     continue
             options.append(node)
 
-    # Fallback to avoid empty option softlocks if all *main-route* options are
-    # gated out. Optional side anchors must never bypass their own gate here.
-    if not options and edges.get(current):
-        for target in edges[current]:
-            node = nodes.get(target)
-            if isinstance(node, dict) and not node.get("side_arc"):
-                options.append(node)
-
     return options if len(options) >= 2 else []
 
 
-def select_perspective(
-    node: dict[str, Any], flags: set[str] | list[str]
-) -> dict[str, Any] | None:
+def select_perspective(node: dict[str, Any], flags: set[str] | list[str]) -> dict[str, Any] | None:
     """Pick the perspective best matching accumulated flags.
 
     Score = number of a perspective's `when` flags present. Highest score wins;
@@ -292,35 +306,32 @@ def _choose_next(
     nodes: dict[str, Any],
     flags: list[str],
     dice: Dice,
-) -> str:
+) -> str | None:
     flag_set = set(flags)
     scored: list[tuple[int, str]] = []
     for node_id in candidates:
         node = nodes.get(node_id, {})
-        gate = node.get("gate")
-        if isinstance(gate, list) and gate:
-            if not all(flag in flag_set for flag in gate):
-                continue
+        if not _gate_satisfied(node, flag_set):
+            continue
         score = 0
         for perspective in node.get("perspectives", []) or []:
             score = max(score, len(set(perspective.get("when", []) or []) & flag_set))
         scored.append((score, node_id))
 
     if not scored:
-        for node_id in candidates:
-            if not nodes.get(node_id, {}).get("side_arc"):
-                scored.append((0, node_id))
-
-    # A malformed graph containing only gated side branches should still make
-    # deterministic progress rather than crash. ``attach_side_anchors`` always
-    # preserves a main-route edge, so this is defensive compatibility only.
-    if not scored:
-        for node_id in candidates:
-            scored.append((0, node_id))
+        return None
 
     best = max(score for score, _ in scored)
     top = sorted(node_id for score, node_id in scored if score == best)
     return top[0] if len(top) == 1 else dice.choice(top)
+
+
+def _gate_satisfied(node: dict[str, Any], flags: set[str] | list[str]) -> bool:
+    gate = node.get("gate")
+    if not isinstance(gate, list) or not gate:
+        return True
+    flag_set = set(flags)
+    return all(str(flag) in flag_set for flag in gate)
 
 
 def node_encounter_id(

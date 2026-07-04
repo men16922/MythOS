@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-07-04 — Route scenes are a causally validated program; choice retries are scene-idempotent
+
+Decision: Route anchors require unique stable `beat` ids, valid default perspectives, selectors available before resolution, and hard-gate producers in an earlier causal layer. `load_scenario` and `make validate-content` enforce the contract. Builders preserve an ungated forward option; runtime may repair a stale edge to an eligible core node but never bypass a lock. Choice requests carry `scene_id`; replaying an old-scene request returns the authoritative current snapshot instead of applying or erroring again. Cross-loop affection hydrates into live `relationships`, with a baseline marker so archive stores only the current run's delta.
+
+Reason/impact: Live evidence showed `lin_yue_deal`/Kai at 0/100 across both builders, a locked Kai node could still be entered by fallback, and a duplicated UI choice produced first=200 then retry=404 `choice not found`. Global reference checks were green because they ignored producer order. After the contract: both builders produce/depend on the deal 100/100, locked visits are 0, duplicate retries are 200 with the same scene/turn, and deleting a producer scene fails before runtime. New scenes remain data-driven, but add/remove operations now have an executable causal schema rather than silent graph drift.
+
 ## 2026-07-04 — Pre-boss, BOTH numeric thresholds defer (stability collapse is no longer an early erasure end)
 
 Decision: While the route's boss node is still ahead, `_defer_threshold_archive_before_climax` defers **any** bare threshold auto-archive — `tension>=90` AND `stability<=10` (previously tension-only; stability was deliberately allowed through as a "real erasure end"). An explicit LLM `end_condition` remains a real early end. Once the boss node is reached, the climax fight owns the run's end (victory → perspective ending, defeat → erasure).

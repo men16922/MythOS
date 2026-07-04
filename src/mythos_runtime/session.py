@@ -192,6 +192,7 @@ class RuntimeSessionService:
     def _get_cache(self):
         if not hasattr(self, "_session_cache"):
             from mythos_runtime.visual_queue import SessionCache
+
             self._session_cache = SessionCache()
         return self._session_cache
 
@@ -214,6 +215,7 @@ class RuntimeSessionService:
                 data = cache.get_snapshot(loop_id)
                 if data:
                     from mythos_core.models import from_json_dict
+
                     return from_json_dict(RuntimeSnapshot, data)
             except Exception as exc:
                 self.logger.warning("failed to decode cached snapshot", exc_info=exc)
@@ -226,6 +228,7 @@ class RuntimeSessionService:
         if cache and cache.is_available():
             try:
                 from mythos_core.models import to_json_dict
+
                 data = to_json_dict(snapshot)
                 if "image_result" in data:
                     data["image_result"] = None
@@ -588,7 +591,9 @@ class RuntimeSessionService:
         for stat, value in echo_stat_bonus(state.get(INSCRIBED_ECHOES_KEY)).items():
             stat_bonus[stat] = stat_bonus.get(stat, 0) + value
         return {
-            "offer": [boon_card(bid, lang) for bid in offer] if isinstance(offer, list) and offer else None,
+            "offer": [boon_card(bid, lang) for bid in offer]
+            if isinstance(offer, list) and offer
+            else None,
             "active": [boon_card(bid, lang) for bid in active] if isinstance(active, list) else [],
             "echoOffer": _echo_cards(echo_offer) if echo_offer else None,
             "echoInscribed": _echo_cards(state.get(INSCRIBED_ECHOES_KEY)),
@@ -711,7 +716,11 @@ class RuntimeSessionService:
         inventory = loop.state.get("_inventory", []) if isinstance(loop.state, dict) else []
         held: dict[str, int] = {}
         for entry in inventory:
-            item_id = str(entry.get("id") or entry.get("item_id") or "") if isinstance(entry, dict) else str(entry)
+            item_id = (
+                str(entry.get("id") or entry.get("item_id") or "")
+                if isinstance(entry, dict)
+                else str(entry)
+            )
             if item_id:
                 held[item_id] = held.get(item_id, 0) + 1
         offers = []
@@ -847,8 +856,12 @@ class RuntimeSessionService:
         choice_id: str | None = None,
         action: str | None = None,
         options: RuntimeOptions | None = None,
+        scene_id: str | None = None,
     ) -> RuntimeSnapshot:
         options = options or RuntimeOptions()
+        stale = self._snapshot_for_stale_choice(loop_id, scene_id, options)
+        if stale is not None:
+            return stale
         redirect = self._redirect_to_active_combat(loop_id, options)
         if redirect is not None:
             return redirect
@@ -887,8 +900,13 @@ class RuntimeSessionService:
         choice_id: str | None = None,
         action: str | None = None,
         options: RuntimeOptions | None = None,
+        scene_id: str | None = None,
     ) -> Iterator[RuntimeStreamEvent]:
         options = options or RuntimeOptions()
+        stale = self._snapshot_for_stale_choice(loop_id, scene_id, options)
+        if stale is not None:
+            yield RuntimeStreamEvent(kind="final", snapshot=stale)
+            return
         redirect = self._redirect_to_active_combat(loop_id, options)
         if redirect is not None:
             yield RuntimeStreamEvent(kind="final", snapshot=redirect)
@@ -927,6 +945,28 @@ class RuntimeSessionService:
                 cutscene_id=prepared.cutscene_id,
             )
             yield RuntimeStreamEvent(kind="final", snapshot=snapshot)
+
+    def _snapshot_for_stale_choice(
+        self,
+        loop_id: str,
+        scene_id: str | None,
+        options: RuntimeOptions,
+    ) -> RuntimeSnapshot | None:
+        """Make a retried choice from an old scene idempotent.
+
+        Browsers and networks may duplicate a click/frame. The first request
+        advances the loop; a retry must return the authoritative current scene
+        instead of resolving the old choice against the new scene and raising
+        ``choice not found``. Legacy clients without ``scene_id`` keep the old
+        strict behavior.
+        """
+
+        if not scene_id:
+            return None
+        latest = self.store.get_latest_scene(loop_id)
+        if latest is None or latest.scene_id == scene_id:
+            return None
+        return self.resume(loop_id=loop_id, options=options)
 
     def resume(
         self,
@@ -1348,7 +1388,11 @@ class RuntimeSessionService:
                 else str(entry)
             )
             definition = items_def.get(item_id, {}) if isinstance(items_def, dict) else {}
-            if not item_id or not isinstance(definition, dict) or definition.get("kind") != "consumable":
+            if (
+                not item_id
+                or not isinstance(definition, dict)
+                or definition.get("kind") != "consumable"
+            ):
                 continue
             if item_id not in counts:
                 order.append(item_id)
@@ -1667,15 +1711,13 @@ class RuntimeSessionService:
                 "covers": result.covers,
                 "hazards": result.hazards,
                 "encounter": _encounter_meta(
-                    load_scenario(options.scenario_id).combat.get("encounters", {}).get(
-                        encounter_id, {}
-                    )
+                    load_scenario(options.scenario_id)
+                    .combat.get("encounters", {})
+                    .get(encounter_id, {})
                     if encounter_id
                     else {}
                 ),
-                "consumables": self._combat_consumables(
-                    loop, load_scenario(options.scenario_id)
-                ),
+                "consumables": self._combat_consumables(loop, load_scenario(options.scenario_id)),
                 "defeat_soft": _is_soft_defeat(loop),
             },
             clues_collected=self._clues_collected(player.player_id),
@@ -1721,9 +1763,7 @@ class RuntimeSessionService:
         # (e.g. connect_cli), so a mid-combat glass-library loop would otherwise
         # build its combat snapshot from the wrong scenario's encounter/reward
         # data. Mirrors the ``equip_item`` resolution.
-        scenario_id = (
-            loop.state.get("scenario_id") if isinstance(loop.state, dict) else None
-        )
+        scenario_id = loop.state.get("scenario_id") if isinstance(loop.state, dict) else None
         scenario = load_scenario(scenario_id or options.scenario_id)
         available = self.combat.engine.available_actions(state) if state.active else {}
         encounter = scenario.combat.get("encounters", {}).get(state.encounter_id, {})
@@ -1746,9 +1786,7 @@ class RuntimeSessionService:
             "defeat_soft": _is_soft_defeat(loop),
         }
 
-    def _is_boss_climax_encounter(
-        self, encounter_id: Any, options: RuntimeOptions
-    ) -> bool:
+    def _is_boss_climax_encounter(self, encounter_id: Any, options: RuntimeOptions) -> bool:
         """True when a finished combat's encounter is the authored climax boss.
 
         Keys off the scenario route map's ``combat_encounters['boss']`` pool
@@ -1954,9 +1992,7 @@ class RuntimeSessionService:
             dtens += int(effect.get("tension", 0) or 0)
             dins += int(effect.get("insight", 0) or 0)
         node_effect_raw = node.get("effect")
-        node_effect: dict[str, Any] = (
-            node_effect_raw if isinstance(node_effect_raw, dict) else {}
-        )
+        node_effect: dict[str, Any] = node_effect_raw if isinstance(node_effect_raw, dict) else {}
         dstab += int(node_effect.get("stability", 0) or 0)
         dtens += int(node_effect.get("tension", 0) or 0)
         dins += int(node_effect.get("insight", 0) or 0)
@@ -2112,7 +2148,9 @@ class RuntimeSessionService:
         if _is_recovery_scene_after_soft_defeat(loop, scene):
             transition = replace(
                 transition,
-                loop=replace(transition.loop, state=_clear_soft_defeat_pending(transition.loop.state)),
+                loop=replace(
+                    transition.loop, state=_clear_soft_defeat_pending(transition.loop.state)
+                ),
             )
         loop_after_map, triggered_combat = self._advance_encounter_map(
             transition.loop, payload, options, scene.turn_index
@@ -2123,16 +2161,12 @@ class RuntimeSessionService:
         # affection) into loop state *before* the route advance, so the route
         # reconcile in ``advance_route`` preserves this non-route contribution.
         if choice_relationship:
-            base_state = (
-                transition.loop.state if isinstance(transition.loop.state, dict) else {}
-            )
+            base_state = transition.loop.state if isinstance(transition.loop.state, dict) else {}
             folded_state = dict(base_state)
             folded_state["relationships"] = fold_relationship(
                 base_state.get("relationships"), choice_relationship
             )
-            transition = replace(
-                transition, loop=replace(transition.loop, state=folded_state)
-            )
+            transition = replace(transition, loop=replace(transition.loop, state=folded_state))
 
         # Route clock: count only *narrative* commits. Combat rounds also consume
         # scene ``turn_index`` (one scene per round), so pacing the route on the raw
@@ -2162,9 +2196,7 @@ class RuntimeSessionService:
             if pending_boss:
                 cleared_state = dict(transition.loop.state)
                 cleared_state.pop("_pending_boss_combat", None)
-                transition = replace(
-                    transition, loop=replace(transition.loop, state=cleared_state)
-                )
+                transition = replace(transition, loop=replace(transition.loop, state=cleared_state))
                 route_combat = str(pending_boss)
                 transition = self._defer_threshold_archive_for_climax(
                     transition, prior_phase=loop.phase, payload=payload
@@ -2228,9 +2260,7 @@ class RuntimeSessionService:
                     turn_index=story_turn,
                     proposals=list(payload.world_delta.route_nodes),
                 )
-                transition = replace(
-                    transition, loop=replace(transition.loop, state=grown_state)
-                )
+                transition = replace(transition, loop=replace(transition.loop, state=grown_state))
 
         # Climax reachability pacing guard. ``DEFAULT_TURNS_PER_LAYER`` spaces the
         # authored boss node ~20 turns out, so under real-LLM drift a mid-run
@@ -2294,7 +2324,9 @@ class RuntimeSessionService:
                 scene=scene,
                 player_event=player_event,
             )
-            state_with_impact = dict(transition.loop.state) if isinstance(transition.loop.state, dict) else {}
+            state_with_impact = (
+                dict(transition.loop.state) if isinstance(transition.loop.state, dict) else {}
+            )
             state_with_impact["_last_choice_impact"] = impact
             transition = replace(transition, loop=replace(transition.loop, state=state_with_impact))
 
@@ -2396,7 +2428,9 @@ class RuntimeSessionService:
                         state=mark_encounter_resolved(transition.loop.state, triggered_combat),
                     ),
                 )
-            combat_snapshot = self._begin_requested_combat(player, transition.loop, next_combat, options)
+            combat_snapshot = self._begin_requested_combat(
+                player, transition.loop, next_combat, options
+            )
             self._set_cached_snapshot(transition.loop.loop_id, combat_snapshot)
             return combat_snapshot
         self._set_cached_snapshot(transition.loop.loop_id, snapshot)
@@ -2562,9 +2596,7 @@ class RuntimeSessionService:
             return candidate
         # Downgrade to the highest-weight encounter within the allowed risk.
         affordable = [
-            (eid, enc)
-            for eid, enc in encounters.items()
-            if int(enc.get("risk", 1)) <= allowed_risk
+            (eid, enc) for eid, enc in encounters.items() if int(enc.get("risk", 1)) <= allowed_risk
         ]
         if not affordable:
             return None

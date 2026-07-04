@@ -101,7 +101,7 @@ export const en: Record<StringKey, string> = {
   "aside.route.risk": "Risk",
   "aside.route.fixedScene": "Fixed story scene",
   "aside.route.dynamicScene": "Dynamic scene",
-  "aside.route.perspectives": "Perspectives",
+  "aside.route.perspectives": "Story paths",
   "aside.route.splitByRoute": "splits by route",
   "aside.route.fog": "⋯ Undisclosed section",
   "aside.route.fogTitle": "A section not yet revealed — a path forms based on your choices",

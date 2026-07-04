@@ -21,6 +21,7 @@ here.
 import unittest
 from typing import Any
 
+from mythos_runtime.route_growth import extend_route
 from mythos_runtime.route_map import (
     attach_side_anchors,
     build_route_map,
@@ -61,12 +62,21 @@ class RouteGoldenPathLengthTest(unittest.TestCase):
             "boss",
             f"final-layer node {boss} must be the boss (seed {seed})",
         )
-        state: dict[str, Any] = {ROUTE_MAP_KEY: route_map, "flags": []}
+        # Runtime onboarding deterministically supplies met_se_rin before the
+        # first gated route layer. Starting with no engine flags previously
+        # passed only because the progress fallback illegally crossed locks.
+        state: dict[str, Any] = {ROUTE_MAP_KEY: route_map, "flags": ["met_se_rin"]}
         # A generous ceiling: the boss is (num_layers-1)*per turns out, so this is
         # always reached well inside the budget on a strictly-layered DAG.
         max_turns = len(route_map["layers"]) * DEFAULT_TURNS_PER_LAYER + 5
         beats = 0
         for turn_index in range(max_turns):
+            state = extend_route(
+                state,
+                seed=seed,
+                turn_index=turn_index,
+                proposals=None,
+            )
             state = advance_route(state, turn_index=turn_index, seed=seed)
             if state[ROUTE_MAP_KEY]["current"] == boss:
                 return beats

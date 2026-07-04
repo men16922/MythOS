@@ -1,6 +1,6 @@
 # Completed Summary
 
-최종 갱신: 2026-06-21
+최종 갱신: 2026-07-04
 
 이 문서는 완료된 milestone의 압축 요약이다. 세부 작업 로그와 검증 기록은 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`, `bin/docs/archive/progress-2026-05.md`, `bin/docs/archive/progress-2026-06.md`를 참고한다. 최신 짧은 로그만 `PROGRESS_LOG.md`에 남긴다.
 
@@ -121,6 +121,7 @@
 | M47 | Invariant Batches & Overnight Critic (2026-06-20~21) | Route type/goal closures, skill/ally data-closure invariants, heal/support friendly-targeting, 11/11 skill icons generated + verified, overnight critic v0.5.0 port, companion UI bonds/gallery frontend wiring, and face thumbnail images. |
 | M48 | Serena MCP LSP Integration | Created `.serena/project.yml`, enabled Pyright/Vtsls, and registered the corrected stdio start-mcp-server command with debug/trace options in client `mcp_config.json`, transitioning agent to LSP-first. |
 | M49 | Overnight AGY Browser QA (WS-A..F, default-on) | overnight runner is QA-aware by default (`OVERNIGHT_BROWSER_QA=auto`; `=0` kill-switch): candidate filter (`browser-qa-filter.sh`) → AGY 2-stage decision (`browser-qa.sh`/`run-agy.sh`) → dedup ledger; post-commit hook after gate+critic + DONE-drain sweep; PASS/SKIP continue, FAIL/NEEDS stop+notify (no revert); objective defects self-record to untagged `qa-findings.md` for human triage. `status.sh`/overnight-report surface QA; standalone `live-qa-agy-probe` removed. Validated across real runs (Chrome DevTools, PASS_CANDIDATE; 2 findings triaged→fixed). Design `docs/plans/2026-06-21-overnight-auto-agy-qa.md` §20-21 |
+| M51 | Route Scene Lifecycle Contract | Added causal add/delete validation (`make validate-content` + load-time fail-fast), hard-gate-safe full/dynamic graph wiring and stale-map recovery, deterministic Night Market→Kai producer chain, scene-idempotent REST/WS choices with an immediate React input lock, and correct cross-loop relationship hydration/delta archive semantics. Before→after: deal/Kai 0→100 per 100 seeds on both builders, locked visits 0, duplicate 200→404 becomes 200→200 same scene. `make check` 724 + smoke-local + E2E green. Design `docs/plans/2026-07-04-route-scene-lifecycle-hardening.md`. |
 
 
 ## MVP Verification Summary

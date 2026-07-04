@@ -215,9 +215,7 @@ def meta_progression_to_content(progress: MetaProgression) -> dict[str, Any]:
     }
 
 
-def load_progression(
-    store: MythOSStore, player_id: str, scenario_id: str
-) -> MetaProgression:
+def load_progression(store: MythOSStore, player_id: str, scenario_id: str) -> MetaProgression:
     """Read current progression from the dedicated table.
 
     Falls back to scanning ``player_memories`` (kind=meta_progression) for data
@@ -226,12 +224,8 @@ def load_progression(
     """
     content = store.get_progression(player_id, scenario_id)
     if content is not None:
-        return meta_progression_from_content(
-            content, player_id=player_id, scenario_id=scenario_id
-        )
-    return latest_meta_progression(
-        store.list_player_memories(player_id), player_id, scenario_id
-    )
+        return meta_progression_from_content(content, player_id=player_id, scenario_id=scenario_id)
+    return latest_meta_progression(store.list_player_memories(player_id), player_id, scenario_id)
 
 
 def persist_progression(store: MythOSStore, progress: MetaProgression) -> None:
@@ -395,13 +389,19 @@ def evaluate_meta_progression(
         cleared = bool(clear_endings & set(progress.endings_seen))
         if clear_cfg.get("trait"):
             progress, grants = _grant_if(
-                progress, grants, bucket="unlocked_traits",
-                value=str(clear_cfg["trait"]), condition=cleared,
+                progress,
+                grants,
+                bucket="unlocked_traits",
+                value=str(clear_cfg["trait"]),
+                condition=cleared,
             )
         if clear_cfg.get("starting_item"):
             progress, grants = _grant_if(
-                progress, grants, bucket="unlocked_starting_items",
-                value=str(clear_cfg["starting_item"]), condition=cleared,
+                progress,
+                grants,
+                bucket="unlocked_starting_items",
+                value=str(clear_cfg["starting_item"]),
+                condition=cleared,
             )
 
     # Achievement-gated recruitment: reaching a milestone unlocks a companion so
@@ -428,6 +428,15 @@ def apply_meta_progression_to_state(
     updated = dict(state)
     progress_content = meta_progression_to_content(progress)
     updated["meta_progression"] = progress_content
+    # New loops consume cumulative affection directly for bond tiers/cutscenes.
+    # Preserve the starting total so archive can emit only this run's delta;
+    # otherwise carrying 3 points into a run and ending at 5 would add all 5 to
+    # meta progression again. Existing/legacy live states with a relationship
+    # map are left untouched and keep their old per-run interpretation.
+    if "relationships" not in updated:
+        carried = dict(progress.relationships)
+        updated["relationships"] = carried
+        updated["_relationship_baseline"] = carried
 
     item_defs = scenario_combat.get("items", {}) if isinstance(scenario_combat, dict) else {}
     inventory = list(updated.get("_inventory", []))
@@ -739,6 +748,27 @@ def _relationship_tally(value: Any) -> dict[str, int]:
     return tally
 
 
+def _relationship_delta_for_loop(state: Any) -> dict[str, int]:
+    """Return this run's relationship change from a cumulative loop state.
+
+    Loops created before the baseline marker existed stored per-run values, so a
+    missing marker deliberately preserves the historical interpretation.
+    """
+
+    if not isinstance(state, dict):
+        return {}
+    current = _relationship_tally(state.get("relationships"))
+    if "_relationship_baseline" not in state:
+        return current
+    baseline = _relationship_tally(state.get("_relationship_baseline"))
+    keys = set(current) | set(baseline)
+    return {
+        name: delta
+        for name in sorted(keys)
+        if (delta := current.get(name, 0) - baseline.get(name, 0))
+    }
+
+
 def _merge_relationships(previous: dict[str, int], delta: Any) -> dict[str, int]:
     """Sum a run's final relationship tally into the carried-over meta tally.
 
@@ -1013,7 +1043,7 @@ def _run_summary_memory_from_archive(
         "allies_met": allies,
         "combats_won": combats_won,
         "combats_lost": combats_lost,
-        "relationships": _relationship_tally(loop.state.get("relationships")),
+        "relationships": _relationship_delta_for_loop(loop.state),
         "unlocked_cutscenes": _unlocked_cutscenes_for_loop(loop),
         "summary": summary_text,
         "saved_at": now.isoformat(),

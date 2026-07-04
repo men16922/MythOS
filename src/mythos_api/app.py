@@ -66,6 +66,8 @@ class _NoCacheStaticFiles(StaticFiles):
         response = super().file_response(*args, **kwargs)
         response.headers["Cache-Control"] = "no-cache"
         return response
+
+
 # Scenarios discoverable by the onboarding screen (resources/<id>/scenario.json).
 _SCENARIO_IDS = ("neo-seoul", "glass-library")
 
@@ -97,6 +99,7 @@ class BeginLoopRequest(BaseModel):
 
 class ChooseRequest(BaseModel):
     loop_id: str = Field(min_length=1)
+    scene_id: str | None = None
     choice_id: str | None = None
     action: str | None = None
     scenario_id: str = "neo-seoul"
@@ -212,6 +215,7 @@ def _stream_for(
             message["loop_id"],
             choice_id=message.get("choice_id"),
             action=message.get("action"),
+            scene_id=message.get("scene_id"),
             options=options,
         )
     raise KeyError(f"unknown event: {event!r}")
@@ -225,9 +229,7 @@ def _find_asset(service: RuntimeSessionService, loop_id: str, asset_id: str) -> 
     return None
 
 
-def _attach_slot_thumbnails(
-    service: RuntimeSessionService, slots: list[dict[str, Any]]
-) -> None:
+def _attach_slot_thumbnails(service: RuntimeSessionService, slots: list[dict[str, Any]]) -> None:
     """Resolve a representative ``thumb_url`` for each save slot, in place. Prefers the
     curated anchor image the player saw (static ``/resources/...`` — free, no signing);
     otherwise signs the slot's generated scene asset. Slots with neither get no thumb
@@ -609,7 +611,9 @@ def create_app() -> FastAPI:
         presented key is an admin key (``MYTHOS_ADMIN_KEYS``). Everyone else — beta
         testers and ungated/keyless local visitors — gets false, so the Dev Console is
         hidden unless you hold an admin key."""
-        key = (request.headers.get("x-invite-key") or request.query_params.get("invite") or "").strip()
+        key = (
+            request.headers.get("x-invite-key") or request.query_params.get("invite") or ""
+        ).strip()
         is_admin = key != "" and key in admin_invite_keys()
         return {"ok": True, "is_admin": is_admin}
 
@@ -696,7 +700,9 @@ def create_app() -> FastAPI:
             loop = service.store.get_loop(loop_id)
             resolved_scenario = (
                 str(loop.state.get("scenario_id"))
-                if loop is not None and isinstance(loop.state, dict) and loop.state.get("scenario_id")
+                if loop is not None
+                and isinstance(loop.state, dict)
+                and loop.state.get("scenario_id")
                 else scenario_id
             )
             return localize_for(resp, resolved_scenario, lang)
@@ -716,6 +722,7 @@ def create_app() -> FastAPI:
                 body.loop_id,
                 choice_id=body.choice_id,
                 action=body.action,
+                scene_id=body.scene_id,
                 options=options,
             )
         except RuntimeError as exc:

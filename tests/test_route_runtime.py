@@ -16,7 +16,8 @@ from mythos_runtime.scenario import load_scenario
 
 def _state(seed: str, flags: list[str] | None = None) -> dict:
     config = load_scenario("neo-seoul").route_map
-    return {ROUTE_MAP_KEY: build_route_map(config, seed), "flags": flags or []}
+    initial_flags = ["met_se_rin"] if flags is None else flags
+    return {ROUTE_MAP_KEY: build_route_map(config, seed), "flags": initial_flags}
 
 
 class RouteRuntimeTest(unittest.TestCase):
@@ -54,6 +55,38 @@ class RouteRuntimeTest(unittest.TestCase):
         out = advance_route(state, turn_index=2, seed="seed")
         self.assertIn("trusted_se_rin", out["flags"])
 
+    def test_night_market_entry_unlocks_kai_causally(self) -> None:
+        state = _state("kai-causal", ["met_se_rin"])
+        opened = advance_route(state, turn_index=0, seed="kai-causal")
+        at_market = advance_route(
+            opened,
+            turn_index=DEFAULT_TURNS_PER_LAYER,
+            seed="kai-causal",
+        )
+        self.assertIn("lin_yue_deal", at_market["flags"])
+
+    def test_locked_edge_recovers_to_ungated_node_without_bypass(self) -> None:
+        route_map = {
+            "current": "start",
+            "visited": ["start"],
+            "layers": [["start"], ["locked", "open"]],
+            "nodes": {
+                "start": {"id": "start", "layer": 0},
+                "locked": {"id": "locked", "layer": 1, "gate": ["missing"]},
+                "open": {"id": "open", "layer": 1},
+            },
+            "edges": {"start": ["locked"], "locked": [], "open": []},
+        }
+        out = advance_route(
+            {ROUTE_MAP_KEY: route_map, "flags": []},
+            turn_index=DEFAULT_TURNS_PER_LAYER,
+            seed="recover",
+        )
+        repaired = out[ROUTE_MAP_KEY]
+        self.assertEqual(repaired["current"], "open")
+        self.assertNotIn("locked", repaired["visited"])
+        self.assertIn("open", repaired["edges"]["start"])
+
     def test_flag_routes_perspective_selection(self) -> None:
         node = {
             "default_perspective": "d",
@@ -74,9 +107,7 @@ class RouteRuntimeTest(unittest.TestCase):
         # endings the trust perspectives lean to (safe_refuge appears).
         flags = ["trusted_se_rin"]
         state = _state("seed", flags)
-        late = advance_route(
-            state, turn_index=DEFAULT_TURNS_PER_LAYER * 6 + 2, seed="seed"
-        )
+        late = advance_route(state, turn_index=DEFAULT_TURNS_PER_LAYER * 6 + 2, seed="seed")
         tally = late[ROUTE_MAP_KEY]["ending_tally"]
         self.assertTrue(tally, "ending tally should be populated along the route")
         leaderboard = late[ROUTE_MAP_KEY]["ending_leaderboard"]
@@ -143,24 +174,28 @@ class RouteAntiRepeatTest(unittest.TestCase):
                 # No node is ever staged twice as a fresh main scene (no backtrack /
                 # revisit) — the whole main-scene sequence is node-distinct.
                 self.assertEqual(
-                    len(seq), len(set(seq)),
+                    len(seq),
+                    len(set(seq)),
                     f"a route node repeats as a main scene ({builder.__name__} seed {i}): {seq}",
                 )
                 for prev_id, next_id in zip(seq, seq[1:]):
                     prev, nxt = nodes[prev_id], nodes[next_id]
                     self.assertNotEqual(
-                        prev_id, next_id,
+                        prev_id,
+                        next_id,
                         f"consecutive main scenes share a node ({builder.__name__} seed {i})",
                     )
                     # Strictly deeper layer => a different act/location band, so the
                     # scene can never re-describe the immediately-prior place.
                     self.assertGreater(
-                        int(nxt.get("layer", 0)), int(prev.get("layer", 0)),
+                        int(nxt.get("layer", 0)),
+                        int(prev.get("layer", 0)),
                         f"main scene did not advance to a later layer "
                         f"({builder.__name__} seed {i}): {prev_id}->{next_id}",
                     )
                     self.assertNotEqual(
-                        self._location_key(prev), self._location_key(nxt),
+                        self._location_key(prev),
+                        self._location_key(nxt),
                         f"consecutive main scenes share a location "
                         f"({builder.__name__} seed {i}): {prev_id}->{next_id}",
                     )
@@ -184,12 +219,14 @@ class RouteAntiRepeatTest(unittest.TestCase):
             if sequence[-1] != current:
                 sequence.append(current)
         self.assertEqual(
-            len(sequence), len(set(sequence)),
+            len(sequence),
+            len(set(sequence)),
             f"a steered route repeats a main-scene node: {sequence}",
         )
         for prev_id, next_id in zip(sequence, sequence[1:]):
             self.assertGreater(
-                int(nodes[next_id].get("layer", 0)), int(nodes[prev_id].get("layer", 0)),
+                int(nodes[next_id].get("layer", 0)),
+                int(nodes[prev_id].get("layer", 0)),
                 f"steered main scene did not advance a layer: {prev_id}->{next_id}",
             )
 
@@ -345,7 +382,9 @@ class RouteDirectorNotesTest(unittest.TestCase):
         # turn lands on the arc_2 market anchor (has authored perspectives);
         # trusted_se_rin biases edge selection toward that anchor.
         state = advance_route(
-            _state("seed", ["trusted_se_rin", "met_se_rin"]), turn_index=DEFAULT_TURNS_PER_LAYER, seed="seed"
+            _state("seed", ["trusted_se_rin", "met_se_rin"]),
+            turn_index=DEFAULT_TURNS_PER_LAYER,
+            seed="seed",
         )
         loop = LoopState(
             loop_id="loop_x",

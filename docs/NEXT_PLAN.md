@@ -8,8 +8,7 @@ This file keeps only upcoming (open) work as a rolling plan. Completed tracks li
 
 ## Priority 0 — Companion affection + cutscene unlock + prompt-layer separation (current top priority)
 
-Authority design: `docs/plans/2026-06-16-companion-affection-cutscenes.md`. Baseline: prompt-layer Phase 0-4 + node addressing and P1 unlock/gallery/in-game cutscene appearance done (`docs/PROMPT_LAYER.md`).
-Key finding: relationship deltas (`scenario.json` perspective/choice `effect.relationship`) were **authored but ignored at runtime (dead data)** — `route_runtime.py:96` applied only flags.
+Authority design: `docs/plans/2026-06-16-companion-affection-cutscenes.md`. Baseline: prompt-layer Phase 0-4 + node addressing and P1 unlock/gallery/in-game cutscene appearance done (`docs/PROMPT_LAYER.md`). Route-scene causal validation and cross-loop relationship hydration are complete locally (`docs/plans/2026-07-04-route-scene-lifecycle-hardening.md`); live deploy/QA remains.
 
 - `[/]` **Prompt-layer separation (Foundation)**: Phase 0-4 + node-addressing done. Remaining — `[ ]` Phase 5 system_prompt few-shot example extraction (cache-prefix sensitive, lowest priority).
 - `[/]` `[manual]` **P2 Se-rin cutscene**: `se_rin.md` 2 cuts authored. Remaining: `[ ]` adopt 2 dedicated arts from `outputs/experiments/adult/serin/imagegen/*.png` (IMAGE_POLICY) + image swap + live QA.
@@ -85,6 +84,7 @@ Open work:
 - `[ ]` `[manual]` Pre-CBT follow-ups: glass-library EN glossary (hold); dev-log ~32 KO literals (dev-only). Human live play → `docs/test/neo_seoul_live_qa.md`. (bug#4 fixed `3b7d26b`.)
 
 ### Live QA / play-feel (authority `docs/test/neo_seoul_live_qa.md`) — mostly `[manual]` live feel
+- `[ ]` `[manual]` Route lifecycle live sign-off after deploy: Night Market deterministically unlocks `Restarting Kai`; rapid/repeated choice input never shows `choice not found`; no visually locked node is entered.
 - `[/]` `[manual]` #2 ending narrativization + #5 post-combat callback (code merged; remaining = live feel).
 - `[/]` `[manual]` D narrative repetition + F streaming speed (mitigations wired; remaining = multi-turn feel). **Overnight Seed B targets D structurally.**
 - `[ ]` #4 map in-layer choice destinations · #6 skill-tree RPG node graph (frontend) · opening montage repositioning + turn1 polish · P2 archetype meaning · Phase 4/5 RC. Detail → COMPLETED_SUMMARY M35-M40 + archive.

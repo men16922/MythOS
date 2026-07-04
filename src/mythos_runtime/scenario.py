@@ -6,6 +6,8 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
+from mythos_runtime.route_content import assert_route_content_valid
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -63,6 +65,8 @@ def load_scenario(scenario_id: str) -> ScenarioConfig:
 
     with open(path, encoding="utf-8") as f:
         data = json.load(f)
+
+    assert_route_content_valid(data.get("route_map", {}), scenario_id=scenario_id)
 
     return ScenarioConfig(
         scenario_id=data.get("scenario_id", scenario_id),

@@ -312,3 +312,19 @@ Impact: `make overnight*`·러너·worktree/merge/review 동작 불변(경로만
 - **Reason**: us-central1 has Imagen/Gemini availability and matches existing project Run services; Neon's scale-to-zero fits a sporadic 5–10-tester beta. Cost is bounded by invite gate × loop cap 10 × scale-to-zero (no daily-spend auto-shutdown wired; Vertex daily quota + billing alert are the human-set backstops).
 - **Admin keys**: `MYTHOS_ADMIN_KEYS` exempts owner keys from the loop cap by the key's derived `player_id` — `limits.py` ports the SPA `stablePlayerId` cyrb53 (verified byte-for-byte vs node) so backend/frontend agree without threading the request key into the WS path.
 - **Impact**: Agent performs the deploy/migrations/bucket-create; IAM/SA/billing/destructive-DB stay human (safety classifier). Invite keys + admin key live in `INVITE_KEY.md` (gitignored). Runbook `docs/cloud/DEPLOY.md` §10.
+
+### Redis 전면 제거 — 이미지 생성 단일 동기 경로 (2026-07-04)
+
+Decision: Redis를 스택에서 완전히 제거한다 — visual 잡 큐/워커(`visual_queue.py`/`visual_worker.py`), resume 스냅샷 캐시(`SessionCache`), compose의 redis/redis-commander, `REDIS_URL`, `visual_async`/`image_sync_fallback` 옵션 전부. 이미지 생성은 로컬(mflux)·클라우드(Vertex Imagen) 모두 **요청 내 동기 생성** 단일 경로(`fb89394`).
+
+Reason: Cloud Run에는 워커가 애초에 없어 큐 경로가 죽은 코드였고, 그 잔재(`fast_mode` 거부)가 클라우드 이미지 미생성 근본 원인이었다(`b66d211`). SessionCache는 Postgres 권위 원칙과 충돌해 과거 stale-snapshot 버그를 냈다. 두 소비자 외 용도 없음 → 운영 표면과 로컬 인프라(컨테이너 2개)를 줄인다.
+
+Impact: 이미지 턴이 생성 시간만큼 블로킹(로컬 512² ~8-15s, Imagen ~7s). 비동기가 다시 필요하면 Cloud Tasks/2nd Cloud Run이 후보. 게이트 그린(738 tests), 문서 5종 갱신.
+
+### Gemini 3.5-flash 스왑 옵션 + 컨텍스트 캐싱 선행 (2026-07-04)
+
+Decision: 서사 모델을 `MODEL` env 하나로 2.5↔3.5 전환 가능하게 한다 — gemini-3.x는 `global` 엔드포인트 자동 라우팅(`GeminiConfig.__post_init__`; 리전 404 실측), Imagen은 `GOOGLE_CLOUD_LOCATION` 유지, 서사 리전 오버라이드는 `GEMINI_LOCATION`(`68ce2f5`). **3.5 실채택 전에 Vertex 컨텍스트 캐싱(고정 프리픽스 ~5k)을 먼저 구현**한다.
+
+Reason: 실측 A/B(`docs/plans/2026-07-04-gemini-2.5-vs-3.5-eval.md`) — 3.5는 감각 묘사 밀도가 확실히 오르지만 파싱/지연은 동급이고 비용이 4.7×($1.0–1.3/루프). 턴 입력 ~10k 중 고정분이 절반이라 캐싱이 입력비를 크게 깎는다.
+
+Impact: CBT 기본값은 2.5 유지. 캐싱 구현+실측 후 3.5 전환 여부 결정. 벤치/토큰 프로브는 `scratch/gemini_model_bench.py`·`gemini_token_probe.py`로 재실행 가능.

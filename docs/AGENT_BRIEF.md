@@ -4,7 +4,7 @@ Last updated: 2026-07-04
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Finish the live-QA follow-up batch, then commit+redeploy** — uncommitted on `7d6cb52` (741 green): boss-victory perspective-ending fix, Su-ah name-reservation guard, equip KO-leak fix, compact story-view card, equipment slot panel. DONE since: boss meta-scaling (`meta_scaling` on ix_confrontation, no-op at runs=0) + wet_dawn_street replacement art swapped (agy, figure-free dawn street). Companion equipment also DONE (equipped_by wearer + ally stat fold + wearer picker; 743 green). OPEN: equip-lang API regression test (low). NEXT = commit the round + redeploy + human live sign-off. Then commit/redeploy + human `git push` (ahead 12). QA: `docs/test/neo_seoul_live_qa.md` 🔴.
+> ▶ NEXT SESSION: **Implement Vertex context caching for the narrative prompt** (decided 2026-07-04, eval `docs/plans/2026-07-04-gemini-2.5-vs-3.5-eval.md`) — cache the ~5k fixed prefix (system prompt + directives) so a 3.5-flash rollout doesn't pay 10k input tokens/turn; measure hit-rate + cost cut, then decide 2.5→3.5. Baseline is clean: cloud image fix DEPLOYED + verified (rev `00015-nl5`), Redis fully removed, `MODEL=gemini-3.5-flash` one-knob swap works (auto-global). Kiro lane committed but runtime smoke pending (`make overnight-kiro-once`, needs `[auto]` seed). Human: `git push` (ahead 9) + cloud live sign-off `docs/test/neo_seoul_live_qa.md` 🔴.
 
 ## Snapshot
 
@@ -20,7 +20,7 @@ Current baseline:
 - Operation map route-node-ified (deterministic DAG + multi-perspective anchors `route_map.py`/`route_runtime.py`) + session memory (`session_memory.py` beat ledger + rolling synopsis, not RAG).
 - Progression unlock (archetype gates, insight investment tree, rank pips/upgrade banner, epiphany banner, Run History + Echo/Shard dashboard, cross-scenario unlock, data-driven grant).
 - Persistent objective/stakes display and choice value-axis/expected-result/actual-result summary UX.
-- mflux/FLUX image worker, Redux character consistency, MinIO asset path verified.
+- mflux/FLUX (local) / Vertex Imagen (cloud) images generate sync in-request; Redux character consistency; MinIO/GCS asset paths verified.
 - Narrative is dual-model: storyteller `OLLAMA_MODEL_STORY`=`gemma4:latest` (8B, free text) → parser `OLLAMA_MODEL_PARSER`=`qwen2.5:3b-instruct` (JSON structuring). Streaming path runs a regex parser in parallel.
 - Opening sequence consistency (5 cuts: awakening→se_rin appears→approaching hand→first contact→pursuit+combat). Prompt-layer separation in progress (authored directives→`resources/<scenario>/directives/*.md`, `docs/PROMPT_LAYER.md`). Detailed state in `STATUS.md`.
 
@@ -28,7 +28,7 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **Human live sign-off**: the CBT bundle is committed + deployed (`00008-7sx`); run the fresh-loop checklist on the cloud — cutscenes, route-link/skill-graph feel, Night Market→Kai, boss victory ending, progression, market, save restore (`docs/test/neo_seoul_live_qa.md`). Human `git push` (ahead 11).
+1. **Vertex context caching** (new top code track) → then the 2.5→3.5 model call. **Human live sign-off** in parallel: Cloud Run rev `00015-nl5` (image fix live) — fresh-loop checklist on the cloud (`docs/test/neo_seoul_live_qa.md`). Human `git push` (ahead 9).
 2. **Engineering maintenance track (WS0-3 done)**: 6-layer agent ops bible↔MythOS interpretation (including mechanical→semantic→creative verification), slim entry points, structured logging/dashboard, and Resume Pointer continuity. Only WS4 content pipeline remains plan-only (`docs/plans/2026-06-14-engineering-plan.md`).
 3. `glass-library` extension: hold (parity + Story Bible 17 entries done; further extension after Neo-Seoul completion). Completed tracks (combat/progression/party/grant/route-node) → `docs/COMPLETED_SUMMARY.md` M35-M40.
 

@@ -98,6 +98,26 @@ BOON_POOL: dict[str, dict[str, Any]] = {
         "desc_en": "+1 to all combat stats — an all-round edge.",
         "stats": {"strength": 1, "agility": 1, "perception": 1},
     },
+    # --- bond (target=party: buffs ALLIES, not the player; lowest balance risk
+    # since it does nothing when fighting alone) ---
+    "squad_sync": {
+        "name": "분대 동기화", "name_en": "Squad Sync", "tag": "bond", "target": "party",
+        "desc": "동료 전원 근력·지각 +1 — 합을 맞춘 화력.",
+        "desc_en": "All allies +1 Strength & Perception — coordinated fire.",
+        "stats": {"strength": 1, "perception": 1},
+    },
+    "guardian_protocol": {
+        "name": "수호 프로토콜", "name_en": "Guardian Protocol", "tag": "bond", "target": "party",
+        "desc": "동료 전원 최대 HP +4 — 쓰러지지 않는 대열.",
+        "desc_en": "All allies +4 max HP — a line that holds.",
+        "stats": {"hp": 4},
+    },
+    "link_overdrive": {
+        "name": "링크 오버드라이브", "name_en": "Link Overdrive", "tag": "bond", "target": "party",
+        "desc": "동료 전원 민첩·연산 +1 — 더 빠르게, 더 자주 스킬을.",
+        "desc_en": "All allies +1 Agility & Intelligence — faster, more skills.",
+        "stats": {"agility": 1, "intelligence": 1},
+    },
 }
 
 # tag -> the stat its synergy pours into (2+ boons of a tag → +SYNERGY_BONUS there).
@@ -132,14 +152,18 @@ def offer_boons(
 
 
 def boon_stat_bonus(run_boons: Any) -> dict[str, int]:
-    """Sum the run's boon stat deltas, plus per-tag synergy for stacked tags."""
+    """Sum the run's PLAYER boon stat deltas, plus per-tag synergy for stacked tags.
+
+    ``target="party"`` boons buff allies instead (``party_boon_bonus``) and are
+    excluded here — from the deltas and from synergy tag counts alike.
+    """
     bonus: dict[str, int] = {}
     if not isinstance(run_boons, list):
         return bonus
     tag_counts: dict[str, int] = {}
     for boon_id in run_boons:
         entry = BOON_POOL.get(str(boon_id))
-        if not entry:
+        if not entry or entry.get("target") == "party":
             continue
         tag_counts[str(entry.get("tag", ""))] = tag_counts.get(str(entry.get("tag", "")), 0) + 1
         for stat, delta in entry.get("stats", {}).items():
@@ -152,6 +176,31 @@ def boon_stat_bonus(run_boons: Any) -> dict[str, int]:
         if stat and count >= SYNERGY_THRESHOLD:
             bonus[stat] = bonus.get(stat, 0) + SYNERGY_BONUS * (count - SYNERGY_THRESHOLD + 1)
     return bonus
+
+
+def party_boon_bonus(run_boons: Any) -> tuple[dict[str, int], int]:
+    """Sum ``target="party"`` boon deltas for allies: ``(stat_bonus, bonus_hp)``.
+
+    The special ``"hp"`` stat key is returned as flat bonus HP (ally kits declare
+    an explicit ``hp``, so a strength delta would not raise it). No synergy —
+    the ``bond`` tag deliberately has no ``_TAG_STAT`` entry.
+    """
+    stats: dict[str, int] = {}
+    bonus_hp = 0
+    if not isinstance(run_boons, list):
+        return stats, bonus_hp
+    for boon_id in run_boons:
+        entry = BOON_POOL.get(str(boon_id))
+        if not entry or entry.get("target") != "party":
+            continue
+        for stat, delta in entry.get("stats", {}).items():
+            if not isinstance(delta, int | float):
+                continue
+            if stat == "hp":
+                bonus_hp += int(delta)
+            else:
+                stats[stat] = stats.get(stat, 0) + int(delta)
+    return stats, bonus_hp
 
 
 def boon_card(boon_id: str, language: str = "ko") -> dict[str, Any]:
@@ -176,4 +225,5 @@ __all__ = [
     "boon_card",
     "boon_stat_bonus",
     "offer_boons",
+    "party_boon_bonus",
 ]

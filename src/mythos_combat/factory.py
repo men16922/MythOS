@@ -152,13 +152,28 @@ def build_ally_combatant(
     y: int,
     hp: int | None = None,
     controllable: bool = False,
+    bonus_stats: dict[str, int] | None = None,
+    bonus_hp: int = 0,
+    extra_skills: list[str] | None = None,
 ) -> Combatant:
+    """``bonus_stats``/``bonus_hp``/``extra_skills`` are the companion-growth
+    channel (bond tiers, achievement kit upgrades, party-targeted boons). Stat
+    bonuses fold in BEFORE derivation so defense/speed/focus scale with them;
+    ``bonus_hp`` is explicit because authored kits declare a flat ``hp``.
+    """
     stats = {
         **_DEFAULT_STATS,
         **{k: int(v) for k, v in entry.get("stats", {}).items() if isinstance(v, int | float)},
     }
-    max_hp = int(entry.get("hp", derive_max_hp(stats)))
+    for key, delta in (bonus_stats or {}).items():
+        if isinstance(delta, int | float):
+            stats[key] = stats.get(key, 0) + int(delta)
+    max_hp = int(entry.get("hp", derive_max_hp(stats))) + max(0, int(bonus_hp))
     max_focus = derive_max_focus(stats)
+    skills = [str(skill_id) for skill_id in entry.get("skills", [])]
+    for skill_id in extra_skills or []:
+        if str(skill_id) not in skills:
+            skills.append(str(skill_id))
     return Combatant(
         id=str(entry.get("id", "ally")),
         name=str(entry.get("name", entry.get("id", "동료"))),
@@ -178,7 +193,7 @@ def build_ally_combatant(
         combat_images={str(k): str(v) for k, v in entry.get("combat_images", {}).items()},
         focus=max_focus,
         max_focus=max_focus,
-        skills=[str(skill_id) for skill_id in entry.get("skills", [])],
+        skills=skills,
         controllable=controllable,
     )
 

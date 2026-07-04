@@ -159,7 +159,7 @@ class RouteIntegrityTest(unittest.TestCase):
         # (~``(num_layers - 1) * DEFAULT_TURNS_PER_LAYER`` turns) out and can never
         # be reached early. That distance is exactly why a mid-run ``tension>=90``
         # auto-archive would strand the golden path before the climax, which the
-        # session-level tension-archive deferral (``_defer_tension_archive_before_climax``,
+        # session-level tension-archive deferral (``_defer_threshold_archive_before_climax``,
         # gated on ``_route_boss_reached``) guards against. This invariant pins the
         # structural precondition that guard relies on.
         for rm in self._maps():

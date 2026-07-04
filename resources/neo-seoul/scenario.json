@@ -2030,7 +2030,19 @@
           "strength": 4,
           "agility": 7,
           "perception": 7
-        }
+        },
+        "upgrades": [
+          {
+            "id": "se_rin_practiced_maneuvers",
+            "name": "합 맞춘 기동",
+            "name_en": "Practiced Maneuvers",
+            "desc": "누적 전투 승리 4 — 글리치 블링크 습득, 민첩 +1.",
+            "desc_en": "4 total combat wins — learns Glitch Blink, +1 Agility.",
+            "requires": { "total_combats_won": 4 },
+            "skills": ["glitch_blink"],
+            "stats": { "agility": 1 }
+          }
+        ]
       },
       "kai": {
         "id": "kai",
@@ -2069,7 +2081,19 @@
           "strength": 8,
           "agility": 3,
           "perception": 5
-        }
+        },
+        "upgrades": [
+          {
+            "id": "kai_guardian_frame",
+            "name": "수호 프레임",
+            "name_en": "Guardian Frame",
+            "desc": "누적 전투 승리 5 — 나노실드 프로젝터 습득, 최대 HP +2.",
+            "desc_en": "5 total combat wins — learns Nanoshield Projector, +2 max HP.",
+            "requires": { "total_combats_won": 5 },
+            "skills": ["nanoshield_projector"],
+            "hp": 2
+          }
+        ]
       },
       "tae_o": {
         "id": "tae_o",
@@ -2109,7 +2133,19 @@
           "strength": 8,
           "agility": 5,
           "perception": 6
-        }
+        },
+        "upgrades": [
+          {
+            "id": "tae_o_battle_scarred",
+            "name": "전장 각인",
+            "name_en": "Battle-Scarred",
+            "desc": "누적 전투 승리 8 — 근력 +1, 최대 HP +2.",
+            "desc_en": "8 total combat wins — +1 Strength, +2 max HP.",
+            "requires": { "total_combats_won": 8 },
+            "stats": { "strength": 1 },
+            "hp": 2
+          }
+        ]
       },
       "han": {
         "id": "han",
@@ -2149,7 +2185,19 @@
           "strength": 3,
           "agility": 6,
           "perception": 8
-        }
+        },
+        "upgrades": [
+          {
+            "id": "han_overdrive_intrusion",
+            "name": "과부하 침투",
+            "name_en": "Overdrive Intrusion",
+            "desc": "누적 전투 승리 6 — 시그널 오버드라이브 습득, 지각 +1.",
+            "desc_en": "6 total combat wins — learns Signal Overdrive, +1 Perception.",
+            "requires": { "total_combats_won": 6 },
+            "skills": ["signal_overdrive"],
+            "stats": { "perception": 1 }
+          }
+        ]
       },
       "su_ah": {
         "id": "su_ah",
@@ -2190,7 +2238,19 @@
           "strength": 5,
           "agility": 5,
           "perception": 7
-        }
+        },
+        "upgrades": [
+          {
+            "id": "su_ah_resonance_reach",
+            "name": "공명 확장",
+            "name_en": "Resonance Reach",
+            "desc": "누적 완주 3 — 커버링 노이즈 습득, 연산 +1.",
+            "desc_en": "3 completed runs — learns Covering Noise, +1 Intelligence.",
+            "requires": { "runs_completed": 3 },
+            "skills": ["covering_noise"],
+            "stats": { "intelligence": 1 }
+          }
+        ]
       },
       "lin_yue": {
         "id": "lin_yue",
@@ -2231,7 +2291,19 @@
           "strength": 3,
           "agility": 5,
           "perception": 8
-        }
+        },
+        "upgrades": [
+          {
+            "id": "lin_yue_undernet_broker",
+            "name": "지하망 정보상",
+            "name_en": "Undernet Broker",
+            "desc": "누적 단서 8 — EMP 펄스 습득, 지각 +1.",
+            "desc_en": "8 total clues — learns EMP Pulse, +1 Perception.",
+            "requires": { "total_clues": 8 },
+            "skills": ["emp_pulse"],
+            "stats": { "perception": 1 }
+          }
+        ]
       }
     },
     "enemy_skills": {

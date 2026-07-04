@@ -4,7 +4,7 @@ Last updated: 2026-07-04
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **2026-07-04 live-QA marathon landed (`make check` 697, committed locally — PUSH PENDING):** route clock (story turns only) · cache-clobber fix · boss buildup beat · boons/echo-inscription/tutorial-party/achievement-recruit/IX clear_reward · market scrap exchange (Lin-yue vendor) · **Lin-yue combat ally (5 codex sprites)** · snapshot save slots w/ restore · BGM auto-on · turns/layer 4→5. **NEXT = human**: `git push origin main` + redeploy, then fresh-loop live play-QA (`docs/test/neo_seoul_live_qa.md`: boss buildup→fight→ending, Lin-yue recruit+join, market barter, save restore, boon/echo picks) + balance feel (boon strength, IX scaling, 30-60min).
+> ▶ NEXT SESSION: **2026-07-04 rounds 2+3 landed (`make check` 707 — round 3 UNCOMMITTED + `183bd5f` unpushed):** round 2 = route clock · cache clobber · boss buildup · market/Lin-yue ally · save slots. Round 3 = **pre-boss STABILITY archive also deferred** (live run died at rn10, stab=3 — boss now owns the end; DECISIONS 07-04) + **companion growth 3-channel** (bond tiers / achievement `allies[].upgrades` ×6 / party boons ×3, mechanics only — UI surface `[manual]`). **NEXT = human**: `git push origin main` (2 commits) + redeploy, then fresh-loop live play-QA (`docs/test/neo_seoul_live_qa.md` 🔴: boss buildup→fight→ending 최우선) + balance feel.
 
 ## Snapshot
 

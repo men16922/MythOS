@@ -784,11 +784,14 @@ class SessionCombatTest(unittest.TestCase):
         self.assertIsNone(snap.echo)
         self.assertEqual(snap.loop.active_echoes, [])
 
-    def test_pre_boss_stability_collapse_still_archives(self) -> None:
-        # The pacing guard rescues only a tension collapse; a pre-boss
-        # stability<=10 erasure stays a real early end (the player is being
-        # deleted) — the loop is allowed to archive.
-        player, loop = self._route_loop_at_start_node(tension=30, stability=12)
+    def test_pre_boss_stability_collapse_deferred_until_boss_reached(self) -> None:
+        # Live 2026-07-04 (loop_26adffc3): the LLM grinds ~-5 stability per scene,
+        # so a pre-boss stability<=10 collapse is the COMMON case, not a rare
+        # deliberate erasure — the run died at rn10, one node short of the boss,
+        # with stability=3/tension=100. The pacing guard now defers the stability
+        # threshold too while the boss node is ahead; the boss fight (victory ->
+        # perspective ending, defeat -> erasure) owns the run's end.
+        player, loop = self._route_loop_at_start_node(tension=100, stability=8)
         scene = self._early_scene()
         payload = ScenePayload(
             title=scene.title,
@@ -796,7 +799,7 @@ class SessionCombatTest(unittest.TestCase):
             narration=scene.narration,
             choices=scene.choices,
             visual_brief=scene.visual_brief or "",
-            world_delta=WorldDelta(stability=-5),  # 12 - 5 = 7 <= 10 → archive
+            world_delta=WorldDelta(stability=-5),  # 8 - 5 = 3 <= 10 → would archive
         )
 
         snap = self.service._commit_scene(
@@ -809,9 +812,14 @@ class SessionCombatTest(unittest.TestCase):
             log_message="test",
         )
 
-        self.assertIn(snap.loop.phase, {LoopPhase.ARCHIVE, LoopPhase.ENDED})
+        # Stability collapsed through the threshold, but the loop stays live (no
+        # premature archive, no Echo) so the route can carry the player to IX.
+        self.assertLessEqual(snap.loop.stability, 10)
+        self.assertNotIn(snap.loop.phase, {LoopPhase.ARCHIVE, LoopPhase.ENDED})
+        self.assertIsNone(snap.echo)
+        self.assertEqual(snap.loop.active_echoes, [])
 
-    def test_defer_tension_archive_before_climax_respects_explicit_end_condition(self) -> None:
+    def test_defer_threshold_archive_before_climax_respects_explicit_end_condition(self) -> None:
         # Author intent wins pre-boss too: an explicit LLM ``end_condition`` still
         # ends the loop even while tension is over the threshold and the boss node
         # is ahead — only the bare numeric threshold is deferred.
@@ -830,7 +838,7 @@ class SessionCombatTest(unittest.TestCase):
             ),
         )
         self.assertEqual(transition.loop.phase, LoopPhase.ARCHIVE)
-        deferred = self.service._defer_tension_archive_before_climax(
+        deferred = self.service._defer_threshold_archive_before_climax(
             transition,
             prior_phase=LoopPhase.EXPLORE,
             payload=ScenePayload(

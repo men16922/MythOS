@@ -2233,21 +2233,23 @@ class RuntimeSessionService:
                 )
 
         # Climax reachability pacing guard. ``DEFAULT_TURNS_PER_LAYER`` spaces the
-        # authored boss node ~20 turns out, so under real-LLM tension a mid-run
-        # ``tension>=90`` spike would auto-archive the loop long before the IX
-        # climax — the golden path then never reaches the boss and the run has no
-        # payoff (live 2026-07-03: item A fixed preemption *at* the boss node, but
-        # a prior-turn spike strands the player before it). While the boss node is
-        # still ahead, defer a *tension*-only threshold archive so the route can
-        # carry the player to the climax; ``stability<=10`` erasure and an explicit
-        # LLM ``end_condition`` stay real early ends, and once the boss node is
+        # authored boss node ~20 turns out, so under real-LLM drift a mid-run
+        # numeric threshold (``tension>=90`` / ``stability<=10``) would
+        # auto-archive the loop long before the IX climax — the golden path then
+        # never reaches the boss and the run has no payoff (live 2026-07-03 fixed
+        # preemption *at* the boss node; live 2026-07-04 showed the stability side:
+        # the LLM grinds ~-5 stability per scene, so a pre-boss collapse is the
+        # common case, not a rare erasure — loop_26adffc3 died at rn10, one node
+        # short). While the boss node is still ahead, defer any bare threshold
+        # archive so the route can carry the player to the climax; an explicit LLM
+        # ``end_condition`` stays a real early end, and once the boss node is
         # reached ``_defer_threshold_archive_for_climax`` + the fight own the end.
         if (
             isinstance(transition.loop.state, dict)
             and transition.loop.state.get(ROUTE_MAP_KEY)
             and not _route_boss_reached(transition.loop.state)
         ):
-            transition = self._defer_tension_archive_before_climax(
+            transition = self._defer_threshold_archive_before_climax(
                 transition, prior_phase=loop.phase, payload=payload
             )
 
@@ -2435,25 +2437,29 @@ class RuntimeSessionService:
         )
         return replace(transition, loop=revived, echo=None)
 
-    def _defer_tension_archive_before_climax(
+    def _defer_threshold_archive_before_climax(
         self,
         transition: LoopTransition,
         *,
         prior_phase: LoopPhase,
         payload: ScenePayload,
     ) -> LoopTransition:
-        """Keep the loop live when a pre-climax ``tension>=90`` archive would end
-        the run before the golden path reaches the authored boss node.
+        """Keep the loop live when a pre-climax numeric threshold archive would
+        end the run before the golden path reaches the authored boss node.
 
         The route advances one layer every ``DEFAULT_TURNS_PER_LAYER`` turns, so
-        the boss sits ~20 turns out; under real-LLM tension a mid-run spike would
-        auto-archive the loop long before the climax and the IX fight never fires.
-        This defers only the *tension* threshold and only while the boss node is
-        still ahead (the caller gates on ``_route_boss_reached``): ``stability<=10``
-        erasure and an explicit LLM ``end_condition`` remain real early ends, and
-        the loop still resolves at the boss via ``_defer_threshold_archive_for_climax``
-        + the fight once it is reached. Mirrors that helper's revert (restore the
-        pre-transition phase, clear ``ended_at``, drop the minted Echo).
+        the boss sits ~20 turns out; under real-LLM drift both thresholds are hit
+        long before the climax — tension spikes, and stability is ground down
+        ~-5 per scene (live 2026-07-04: every run collapses to ``stability<=10``
+        around layer 4, so treating that as a "rare deliberate erasure" ending
+        stranded players one node short of the boss). This defers *any* bare
+        threshold archive while the boss node is still ahead (the caller gates on
+        ``_route_boss_reached``); an explicit LLM ``end_condition`` remains a real
+        early end, and the loop still resolves at the boss via
+        ``_defer_threshold_archive_for_climax`` + the fight (victory -> perspective
+        ending, defeat -> erasure) once it is reached. Mirrors that helper's
+        revert (restore the pre-transition phase, clear ``ended_at``, drop the
+        minted Echo).
         """
         loop = transition.loop
         if loop.phase not in {LoopPhase.ARCHIVE, LoopPhase.ENDED}:
@@ -2463,8 +2469,9 @@ class RuntimeSessionService:
         end_condition = (payload.end_condition or "").lower()
         if end_condition in {"archive", "ended", "loop_complete"}:
             return transition
-        # Rescue only a tension-driven collapse; stability<=10 is a legit erasure.
-        if loop.tension < 90 or loop.stability <= 10:
+        # Rescue only a threshold-driven archive (the only remaining archive
+        # cause once an explicit end_condition is excluded above).
+        if loop.tension < 90 and loop.stability > 10:
             return transition
         revived = replace(
             loop,

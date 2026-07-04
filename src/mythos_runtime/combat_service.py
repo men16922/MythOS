@@ -32,6 +32,8 @@ from mythos_combat import (
 from mythos_combat.models import Combatant, CombatState
 from mythos_core import LoopState
 from mythos_core.dice import Dice
+from mythos_runtime.boons import RUN_BOONS_KEY
+from mythos_runtime.companion_growth import growth_bonus
 
 
 @dataclass
@@ -243,10 +245,17 @@ class CombatService:
         if not isinstance(allies_pool, dict):
             return []
         weapons_pool = scenario_combat.get("weapons", {})
-        party = loop.state.get("_party") if isinstance(loop.state, dict) else None
+        state = loop.state if isinstance(loop.state, dict) else {}
+        party = state.get("_party")
         party = party if isinstance(party, dict) else {}
         members = self._party_members(party)
-        flags = set(loop.state.get("flags", [])) if isinstance(loop.state, dict) else set()
+        flags = set(state.get("flags", []))
+        # Companion growth inputs: cross-loop affection + meta milestones, plus
+        # this run's party-targeted boons (see ``companion_growth``).
+        relationships = state.get("relationships")
+        relationships = relationships if isinstance(relationships, dict) else {}
+        meta_progression = state.get("meta_progression")
+        run_boons = state.get(RUN_BOONS_KEY)
         built = []
         for ally_id, entry in allies_pool.items():
             if not isinstance(entry, dict):
@@ -263,6 +272,12 @@ class CombatService:
             # Party members (in _party.members) are player-controllable; allies
             # unlocked only via story flags stay AI-driven.
             is_party_member = bool(member)
+            growth = growth_bonus(
+                entry=entry,
+                affection=relationships.get(actual_id),
+                meta_progression=meta_progression,
+                run_boons=run_boons,
+            )
             built.append(
                 build_ally_combatant(
                     entry=entry,
@@ -271,6 +286,9 @@ class CombatService:
                     y=0,
                     hp=int(hp) if isinstance(hp, int | float) else None,
                     controllable=is_party_member,
+                    bonus_stats=growth.stats,
+                    bonus_hp=growth.hp,
+                    extra_skills=growth.skills,
                 )
             )
         return built

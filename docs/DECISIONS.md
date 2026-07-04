@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-07-04 — Pre-boss, BOTH numeric thresholds defer (stability collapse is no longer an early erasure end)
+
+Decision: While the route's boss node is still ahead, `_defer_threshold_archive_before_climax` defers **any** bare threshold auto-archive — `tension>=90` AND `stability<=10` (previously tension-only; stability was deliberately allowed through as a "real erasure end"). An explicit LLM `end_condition` remains a real early end. Once the boss node is reached, the climax fight owns the run's end (victory → perspective ending, defeat → erasure).
+
+Reason/impact: Live 2026-07-04 (`loop_26adffc3`, local Gemini stack) died at rn10 — one node short of the IX boss — at stability=3/tension=100 with a full boon build and 3 combat wins: maximum anticlimax. Event data shows the LLM grinds ~−5 stability on nearly every scene, so pre-boss `stability<=10` is the **common case**, not the rare "player is being deleted" moment the 2026-07-03 design assumed. Erasure stays reachable via boss defeat. Trade-off accepted: pre-boss numeric death is now impossible on route-map scenarios, so a collapsed run limps to the climax instead of ending in a corridor (narrative pressure still conveyed via gauges/flags). Regression test flipped: `test_pre_boss_stability_collapse_deferred_until_boss_reached`.
+
 ## 2026-07-03 — In-game companion cutscenes are transient once-per-loop scene nodes
 
 Decision: When affection/flags make a companion cutscene eligible, runtime selects the first unseen directive in authored order and stages it on the next safe transit turn. Opening, main/side anchors, and combat entry turns defer it without consuming it. The prompt receives the localized authored body through the full-render synopsis; commit records `scene_type=cutscene`, a compact `_active_cutscene` descriptor for the curated image/title, and `_seen_cutscenes` for once-per-loop replay safety. The descriptor clears on the following normal scene; permanent gallery unlock remains the existing archive/meta-progression concern.

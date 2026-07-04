@@ -5,5 +5,18 @@
   "resources": [
     "file://.claude/harness-config.json"
   ],
-  "allowedTools": ["read", "glob", "grep", "code", "knowledge"]
+  "allowedTools": [
+    "read",
+    "glob",
+    "grep",
+    "knowledge",
+    "thinking"
+  ],
+  "tools": [
+    "read",
+    "glob",
+    "grep",
+    "knowledge",
+    "thinking"
+  ]
 }

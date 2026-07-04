@@ -13,5 +13,6 @@
       }
     ]
   },
-  "allowedTools": ["read", "write", "glob", "grep", "shell", "code", "knowledge", "todo_list"]
+  "tools": ["read", "write", "glob", "grep", "shell", "knowledge", "thinking", "todo"],
+  "allowedTools": ["read", "write", "glob", "grep", "shell", "knowledge", "thinking", "todo"]
 }

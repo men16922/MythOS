@@ -272,11 +272,13 @@ const combatImageSrc = (scenarioId: string, blip: CombatBlip): string => {
 function CombatResultPanel({
   combat,
   scenarioId,
+  loopEnded,
   onReturnToMain,
   onContinue,
 }: {
   combat: CombatState;
   scenarioId: string;
+  loopEnded: boolean;
   onReturnToMain: () => void;
   onContinue: () => void;
 }) {
@@ -355,17 +357,23 @@ function CombatResultPanel({
           )}
         </div>
       )}
-      <div className="cc-row combat-result-actions">
-        {!isDefeat || isSoftDefeat ? (
-          <button className="cc-btn" onClick={onContinue} id="cc-continue">
-            {t("story.combat.continue")}
-          </button>
-        ) : (
-          <button className="cc-btn" onClick={onReturnToMain} id="cc-return-main">
-            {t("story.combat.toMain")}
-          </button>
-        )}
-      </div>
+      {/* A run-ending combat renders the EndedPanel (ending art/narration/
+          carry-forward) right below this panel — it owns the exit, so offering
+          Continue (choose() rejects ended loops) or To Main here would either
+          error or skip the ending screen entirely. */}
+      {!loopEnded && (
+        <div className="cc-row combat-result-actions">
+          {!isDefeat || isSoftDefeat ? (
+            <button className="cc-btn" onClick={onContinue} id="cc-continue">
+              {t("story.combat.continue")}
+            </button>
+          ) : (
+            <button className="cc-btn" onClick={onReturnToMain} id="cc-return-main">
+              {t("story.combat.toMain")}
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -769,6 +777,7 @@ export function StoryPanel({
         <CombatResultPanel
           combat={finishedCombat}
           scenarioId={scenarioId}
+          loopEnded={snapshot?.phase === "ended"}
           onReturnToMain={onReturnToMain}
           onContinue={onContinueAfterCombat}
         />
@@ -859,6 +868,7 @@ export function StoryPanel({
                   choices={snapshot?.active_scene?.choices || []}
                   stability={snapshot?.stability ?? 100}
                   tension={snapshot?.tension ?? 0}
+                  routeMap={routeMap}
                   onChoose={onChoose}
                 />
               </div>
@@ -942,6 +952,8 @@ function EndedPanel({
 }) {
   const { t } = useLang();
   const endingLabel = snapshot.state?.ending_label || snapshot.state?.ending_id;
+  const endingImage = snapshot.state?.ending_image;
+  const scenarioId = snapshot.state?.scenario_id || "neo-seoul";
   const reason = (() => {
     // Prefer the backend's narrative cause (authored ending narration, or a
     // story-framed reason for a threshold archive) so the end screen reads as a
@@ -964,6 +976,14 @@ function EndedPanel({
 
   return (
     <div>
+      {endingImage && (
+        <div className="ending-art">
+          <img
+            src={`/resources/${scenarioId}/${endingImage}`}
+            alt={endingLabel || t("story.end.title")}
+          />
+        </div>
+      )}
       <div className="ended-banner">
         <div className="et">{t("story.end.title")}</div>
         {endingLabel ? <div className="el">{t("story.end.ending")} · {endingLabel}</div> : null}
@@ -978,7 +998,7 @@ function EndedPanel({
         </ul>
       </div>
       <div style={{ marginTop: "12px" }}>
-        <button className="cc-btn" onClick={onLeaveSession}>
+        <button className="cc-btn" id="ended-new-connect" onClick={onLeaveSession}>
           {t("story.end.newConnect")}
         </button>
       </div>

@@ -110,14 +110,21 @@ class LoopEngine:
 
         discovered_shards = []
         for clue in repaired_payload.world_delta.clues:
+            text = str(clue.get("text") or "").strip()
+            # Empty model-produced clue objects used to become the permanent
+            # placeholder ``clue / A piece of the puzzle.`` and flood Codex.
+            # A clue without evidence text is not player information: discard it.
+            if not text or text == "A piece of the puzzle.":
+                continue
+            symbol = str(clue.get("symbol") or scene.title).strip()
             discovered_shards.append(
                 NarrativeShard(
                     shard_id=new_shard_id(),
                     loop_id=loop.loop_id,
                     player_id=loop.player_id,
-                    symbol=clue.get("symbol", "clue"),
+                    symbol=symbol,
                     emotional_tone="discovered",
-                    text=clue.get("text", "A piece of the puzzle."),
+                    text=text,
                     weight=1.0,
                     created_at=utc_now(),
                     kind="clue",

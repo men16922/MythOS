@@ -84,9 +84,11 @@ export function affectionColor(value: number): string {
 
 export function buildAffectionGauges(
   relationships?: Record<string, number>,
+  visibleCompanions: string[] = [],
 ): AffectionGauge[] {
-  if (!relationships) return [];
-  return Object.entries(relationships)
+  const values = { ...(relationships || {}) };
+  visibleCompanions.forEach((companion) => { values[companion] ??= 0; });
+  return Object.entries(values)
     .filter(([, value]) => typeof value === "number")
     .sort((a, b) => b[1] - a[1])
     .map(([name, value]) => ({

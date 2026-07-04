@@ -14,6 +14,7 @@ from mythos_core import (
 from mythos_core.clock import utc_now
 from mythos_core.ids import new_memory_id
 from mythos_memory import MythOSStore
+from mythos_runtime.combat_service import skill_rank_bonuses
 from mythos_runtime.options import RunSummary
 
 DEFAULT_ARCHETYPE = "ghost"
@@ -506,6 +507,8 @@ def build_skill_tree(
         max_rank = max(1, _skill_int(skill, "max_rank", DEFAULT_MAX_RANK))
         learn_cost = _skill_int(skill, "insight_cost", DEFAULT_LEARN_COST)
         rankup_cost = _skill_int(skill, "rankup_cost", DEFAULT_RANKUP_COST)
+        current_rank_bonuses = skill_rank_bonuses(rank)
+        next_rank_bonuses = skill_rank_bonuses(min(rank + 1, max_rank))
         requires = _string_list(skill.get("requires"))
         requires_met = all(req in learned_set for req in requires)
 
@@ -535,6 +538,8 @@ def build_skill_tree(
                 "max_rank": max_rank,
                 "learn_cost": learn_cost,
                 "rankup_cost": rankup_cost,
+                "rank_bonuses": current_rank_bonuses,
+                "next_rank_bonuses": next_rank_bonuses,
                 "requires": requires,
                 "requires_met": requires_met,
                 "is_base": is_base,

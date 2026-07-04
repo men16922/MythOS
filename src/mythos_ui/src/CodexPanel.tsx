@@ -34,6 +34,7 @@ export function CodexPanel({
           <RouteNarrative routeMap={routeMap} />
           <div className="codex-sec">
             <div className="codex-sec-title">{t("codex.clues")}</div>
+            <div className="codex-section-hint">{t("codex.cluesHint")}</div>
             <div className="codex-list">
               {codexLists.clues.length > 0 ? (
                 codexLists.clues.map((clue, idx) => (

@@ -15,6 +15,7 @@ from typing import Any
 from urllib.parse import parse_qs, urlparse
 
 from mythos_combat import PlayerAction
+from mythos_core.models import LoopPhase
 from mythos_memory import PostgresMythOSStore
 from mythos_runtime.options import RuntimeOptions
 from mythos_runtime.session import RuntimeSessionService
@@ -82,7 +83,7 @@ def _snapshot_response(
     if combat is None:
         raise RuntimeError(f"loop_id={loop_id} has no combat payload")
     state = loop.state if isinstance(loop.state, dict) else {}
-    return {
+    response: dict[str, Any] = {
         "ok": True,
         "loop_id": loop_id,
         "scenario_id": scenario_id,
@@ -92,6 +93,17 @@ def _snapshot_response(
         "party": state.get("_party", {}),
         "loop_phase": loop.phase.value,
     }
+    if loop.phase is LoopPhase.ENDED:
+        # A run-ending combat (boss climax, permadeath) resolves the ending
+        # mid-combat, and `resume` refuses ended loops — this response is the
+        # client's only chance to receive the resolved ending for the ENDED
+        # screen (art + narration + carry-forward).
+        response["ending"] = {
+            key: state[key]
+            for key in ("ending_id", "ending_label", "ending_image", "ending_narration")
+            if state.get(key)
+        }
+    return response
 
 
 def _combat_options(scenario_id: str) -> RuntimeOptions:

@@ -192,6 +192,18 @@ class ApiRelationshipSerializerTest(unittest.TestCase):
         )
         self.assertEqual(memory_overview_to_dict(overview)["cutscene_gallery"], [])
 
+    def test_memory_overview_uses_localized_companion_directives(self) -> None:
+        overview = MemoryOverview(
+            world_archives=[],
+            narrative_shards=[],
+            novelty_notes=[],
+            meta_progression={"scenario_id": "neo-seoul", "unlocked_cutscenes": []},
+        )
+        gallery = memory_overview_to_dict(overview, language="en")["cutscene_gallery"]
+        by_id = {entry["id"]: entry for entry in gallery}
+        self.assertEqual(by_id["HAN_DEAD_CHANNEL"]["title"], "A Voice on the Dead Channel")
+        self.assertEqual(by_id["KAI_COUNTING_STARS"]["title"], "The Machine That Counts Stars")
+
 
 class ApiStaticClientTest(unittest.TestCase):
     def test_root_serves_poc_client(self) -> None:

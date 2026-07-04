@@ -6,13 +6,12 @@ This file keeps only upcoming (open) work as a rolling plan. Completed tracks li
 `docs/COMPLETED_SUMMARY.md`, detailed logs in `bin/docs/archive/progress-2026-06.md`, individual designs in
 `docs/plans/`.
 
-## Priority 0 — Companion affection + cutscene unlock + prompt-layer separation (current top priority)
+## Priority 0 — Deploy the green local bundle + human live sign-off
 
-Authority design: `docs/plans/2026-06-16-companion-affection-cutscenes.md`. Baseline: prompt-layer Phase 0-4 + node addressing and P1 unlock/gallery/in-game cutscene appearance done (`docs/PROMPT_LAYER.md`). Route-scene causal validation, cross-loop relationship hydration, and the cumulative achievements dashboard are complete locally (`docs/plans/2026-07-04-route-scene-lifecycle-hardening.md`); live deploy/QA remains.
+Authority QA: `docs/test/neo_seoul_live_qa.md`. Local bundle also includes four dedicated ending arts, real Rank combat scaling, meaningful/deduplicated Clues, and Restarting Kai party recruitment/Bonds marking. Focused tests + `make test` 729 are green; Cloud Run still lacks this bundle.
 
 - `[/]` **Prompt-layer separation (Foundation)**: Phase 0-4 + node-addressing done. Remaining — `[ ]` Phase 5 system_prompt few-shot example extraction (cache-prefix sensitive, lowest priority).
-- `[/]` `[manual]` **P2 Se-rin cutscene**: `se_rin.md` 2 cuts authored. Remaining: `[ ]` adopt 2 dedicated arts from `outputs/experiments/adult/serin/imagegen/*.png` (IMAGE_POLICY) + image swap + live QA.
-- `[/]` `[manual]` **P3 companion expansion**: 9 `side_arcs` are route side-anchors with deterministic producer/entry-effect wiring. Remaining: kai/lin_yue/tae_o/han/su_a cutscenes.
+- `[ ]` `[manual]` **Claude handoff + deploy**: browser-QA all four ending images, Rank effect copy/behavior, cleaned Clues, and Restarting Kai→`IN PARTY`; then commit/push/redeploy and verify the seven companion cuts plus route/skill feel in KO/EN. Mechanical gate: `make check` 729 green.
 - `[ ]` `[manual]` **Archetype-variant openings (long-term, 2026-07-04)**: the 5-beat opening prologue is shared across archetypes (only stat-voices/GM flavor differ). Author per-archetype opening variations (e.g. Data Smuggler wakes mid-deal, Echo Collector hears the echoes first) — directive-layer work (`resources/neo-seoul/directives/opening.md` variants + KO/EN), gated on CBT priorities.
 - `[x]` **Lin-yue combat recruitment**: DONE 2026-07-04 — ally kit (`allies.lin_yue`, ranged support/EMP) + side-arc `met_lin_yue` effect + 5 codex-generated combat sprites (RGBA-keyed). Remaining `[manual]`: live-QA her join + battle feel.
 - `[x]` **Companion growth (3 channels)**: DONE 2026-07-04 — bond tiers (affection→HP/stats), achievement `allies[].upgrades` (all 6 neo-seoul allies), party-targeted boons ×3 (`companion_growth.py`). CHARACTER-tab companion sheet card (snapshot `companions`, StatBars growth overlay) DONE same day. Remaining: `[ ]` `[manual]` live visual QA + growth balance feel.
@@ -86,7 +85,7 @@ Open work:
 - `[ ]` `[manual]` Route lifecycle live sign-off after deploy: Night Market deterministically unlocks `Restarting Kai`; rapid/repeated choice input never shows `choice not found`; no visually locked node is entered.
 - `[/]` `[manual]` #2 ending narrativization + #5 post-combat callback (code merged; remaining = live feel).
 - `[/]` `[manual]` D narrative repetition + F streaming speed (mitigations wired; remaining = multi-turn feel). **Overnight Seed B targets D structurally.**
-- `[ ]` #4 map in-layer choice destinations · #6 skill-tree RPG node graph (frontend) · opening montage repositioning + turn1 polish · P2 archetype meaning · Phase 4/5 RC. Detail → COMPLETED_SUMMARY M35-M40 + archive.
+- `[ ]` Opening montage repositioning + turn1 polish · P2 archetype meaning · Phase 4/5 RC. Detail → COMPLETED_SUMMARY M35-M40 + archive.
 
 ## Post-local — GCP 클로즈베타 (DEPLOYED LIVE)
 - `[x]` **🚀 DEPLOYED LIVE (2026-06-29, rev `mythos-api-00003-fzb`)** — `https://mythos-api-1004528040791.us-central1.run.app` (Cloud Run us-central1 + Neon PG18 + Vertex/GCS), EN default + admin key(uncapped) + tester cap 10, keys `INVITE_KEY.md`. CBT 온보딩 UX(Option B 신원·게임식 Save/Load·초대 게이트)·EN end-to-end localization·Vertex 어댑터 3종·cost gating 전부 **DONE** → 상세 `COMPLETED_SUMMARY` M50 + `PROGRESS_LOG`(2026-06-29..30)·archive. **NEXT = human/비차단**: `git push origin main` · 결제 예산 알림 + Vertex 일일 쿼터(콘솔) · 피드백 Google Form → 종료화면 · `?invite=` 링크 배포 → r/playtesters(모집물 `CBT_TEASER.md`/`CBT_RECRUIT_POST.md`) · 오버나이트로 IX 보스(위) 소비 · (선택) Neon TRUNCATE 테스트데이터 리셋. 잔여 EN: K9 자연엔딩 스샷(사람 플레이), glass-library glossary, session `_outcome`. 런북 `docs/cloud/DEPLOY.md` §10. 전략 `docs/cloud/CLOSED_BETA_FEEDBACK_STRATEGY.md`.

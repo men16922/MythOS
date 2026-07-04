@@ -580,7 +580,7 @@ class CompanionCutsceneAssemblerTest(unittest.TestCase):
         rendered = "\n".join(ctx.session_synopsis)
         self.assertIn("COMPANION CUTSCENE SCENE LOCK", rendered)
         self.assertIn("CUTSCENE_ID: SERIN_FIRST_LIGHT", rendered)
-        self.assertIn("CURATED_IMAGE: characters/se-rin.png", rendered)
+        self.assertIn("CURATED_IMAGE: cutscenes/se-rin-first-light.png", rendered)
         self.assertIn("synthetic coffee", rendered)
         self.assertNotIn("낡은 네온", rendered)
 

@@ -4,7 +4,7 @@ Last updated: 2026-07-04
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Route-scene lifecycle + achievements dashboard complete locally** (`make check` 724 + smoke-local + E2E; lifecycle commit `40bcc6b`): causal add/delete validator, hard-gate enforcement, Night Market→Kai wiring, scene-idempotent choices, relationship hydration, and KO/EN cumulative achievement/milestone UI. **NEXT = human**: `git push origin main`, redeploy, then fresh-loop live QA (`docs/test/neo_seoul_live_qa.md`: Night Market→Restarting Kai, rapid choice input, boss victory ending, achievement/companion growth, market/save). Previous Cloud Run rev remains `mythos-api-00007-6h8`.
+> ▶ NEXT SESSION: **Claude handoff — browser-QA the latest green local bundle**: four ending arts (especially boss defeat), real Rank combat scaling, Clues placeholder cleanup, and Restarting Kai→party/Bonds badge. `make check` is green at 729 tests. Then commit/push/redeploy and continue `docs/test/neo_seoul_live_qa.md`. Cloud Run remains `mythos-api-00007-6h8`.
 
 ## Snapshot
 
@@ -28,7 +28,7 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **Automatic AGY QA inside existing overnight (WS-A..F DONE)**: `make overnight*` stays the sole operator flow; after gate+critic a candidate filter + AGY 2-stage decision drive browser QA, plus a DONE-time A/F drain sweep. Now **default-on** (`OVERNIGHT_BROWSER_QA=auto`; `=0` kill-switch). 502 tests + 1 real run (Chrome DevTools, PASS) verified. `docs/plans/2026-06-21-overnight-auto-agy-qa.md` §20-21.
+1. **Deploy + human sign-off**: commit/push the green local CBT bundle, redeploy Cloud Run, then run the fresh-loop checklist for cutscene timing/art, route-link and skill-graph feel, Night Market→Kai, boss ending, progression, market, and save restore (`docs/test/neo_seoul_live_qa.md`).
 2. **Engineering maintenance track (WS0-3 done)**: 6-layer agent ops bible↔MythOS interpretation (including mechanical→semantic→creative verification), slim entry points, structured logging/dashboard, and Resume Pointer continuity. Only WS4 content pipeline remains plan-only (`docs/plans/2026-06-14-engineering-plan.md`).
 3. `glass-library` extension: hold (parity + Story Bible 17 entries done; further extension after Neo-Seoul completion). Completed tracks (combat/progression/party/grant/route-node) → `docs/COMPLETED_SUMMARY.md` M35-M40.
 

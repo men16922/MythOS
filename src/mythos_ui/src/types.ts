@@ -35,6 +35,8 @@ export interface SkillTreeNode extends ScenarioSkill {
   max_rank: number;
   learn_cost: number;
   rankup_cost: number;
+  rank_bonuses: { power: number; focus_reduction: number; cooldown_reduction: number };
+  next_rank_bonuses: { power: number; focus_reduction: number; cooldown_reduction: number };
   requires: string[];
   requires_met: boolean;
   is_base: boolean;
@@ -293,6 +295,7 @@ export interface GameStateRaw {
   ending_id?: string;
   ending_label?: string;
   ending_narration?: string;
+  ending_image?: string;
   _map?: {
     current?: string;
     tiles?: Record<string, {

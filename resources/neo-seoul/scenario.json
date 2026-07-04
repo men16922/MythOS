@@ -907,6 +907,7 @@
                     "kai_awakened",
                     "kai_found"
                   ],
+                  "party_add": ["kai"],
                   "insight": 1,
                   "relationship": {
                     "kai": 1
@@ -934,6 +935,7 @@
                     "kai_used_as_tool",
                     "kai_found"
                   ],
+                  "party_add": ["kai"],
                   "tension": 4
                 },
                 "ending_influence": [
@@ -1487,24 +1489,28 @@
     {
       "id": "ending_safe_refuge",
       "title": "안정적 귀환 (Safe Refuge)",
+      "image": "endings/safe-refuge.png",
       "condition": "Humanity > 15 && Stability > 70",
       "narration": "당신은 누군가를 구했고, 자신도 지켜냈습니다. 지하의 온기가 당신의 신호를 감쌉니다. 비록 세계는 바뀌지 않았으나, 당신은 이제 혼자가 아닙니다."
     },
     {
       "id": "ending_code_rewrite",
       "title": "시스템 각성 (Code Rewrite)",
+      "image": "endings/code-rewrite.png",
       "condition": "Insight > 10 && Autonomy == 5",
       "narration": "관리자 IX의 목소리가 노이즈 속에 파묻힙니다. 당신의 의지가 코드가 되어 흐릅니다. Neo-Seoul의 하늘에 당신이 만든 새로운 달이 뜹니다."
     },
     {
       "id": "ending_noble_sacrifice",
       "title": "고결한 희생 (Noble Sacrifice)",
+      "image": "endings/noble-sacrifice.png",
       "condition": "Humanity > 20 && Tension > 90",
       "narration": "당신의 신호는 소멸하지만, 그 불꽃은 모든 안드로이드의 회로에 영원한 꿈을 남겼습니다. 세린은 당신의 이름을 기억하며 다시 일어섭니다."
     },
     {
       "id": "ending_erasure",
       "title": "강제 최적화 (Forced Erasure)",
+      "image": "endings/forced-erasure.png",
       "condition": "Resilience < 5 && Tension > 90",
       "narration": "모든 것이 하얗게 비워집니다. 당신이라는 버그는 수정되었고, 도시는 다시 완벽한 통계 속으로 침잠합니다. 하지만 어딘가에서, 작은 글리치가 다시 시작됩니다."
     }
@@ -2061,7 +2067,9 @@
         ],
         "unlock_flags": [
           "rebooted_kai",
-          "kai_dream_awake"
+          "kai_dream_awake",
+          "kai_awakened",
+          "kai_used_as_tool"
         ],
         "hp": 18,
         "defense": 14,

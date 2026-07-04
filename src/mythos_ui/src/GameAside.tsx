@@ -67,6 +67,7 @@ function RouteMapPanel({ routeMap, playerFlags }: { routeMap: RouteMap; playerFl
     const isCurrent = id === currentId;
     const isNext = nextCandidates.has(id);
     const isVisited = visited.has(id) && !isCurrent;
+    const choiceLinkIndex = isNext ? (edges[currentId] || []).indexOf(id) : -1;
 
     const gate = node.gate || [];
     const isLocked = gate.length > 0 && !gate.every((f) => playerFlags.includes(f));
@@ -77,6 +78,7 @@ function RouteMapPanel({ routeMap, playerFlags }: { routeMap: RouteMap; playerFl
       `route-${node.type}`,
       isCurrent ? "route-current" : "",
       isNext ? "route-next" : "",
+      choiceLinkIndex >= 0 ? `route-choice-link route-choice-link-${choiceLinkIndex % 4}` : "",
       isVisited ? "route-visited" : "",
       node.combat ? "route-combat" : "",
       isLocked ? "route-node-locked" : "",
@@ -104,6 +106,7 @@ function RouteMapPanel({ routeMap, playerFlags }: { routeMap: RouteMap; playerFl
     const label = mode === "detail" ? node.title || node.label : node.label;
     return (
       <div key={id} className={cls} title={title}>
+        {choiceLinkIndex >= 0 && <span className="route-link-marker">{choiceLinkIndex + 1}</span>}
         <span className="route-glyph">{isLocked ? "🔒" : (node.glyph || "?")}</span>
         <span className="route-label">
           {node.anchor && <span className="route-anchor">★</span>}

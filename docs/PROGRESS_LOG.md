@@ -5,6 +5,18 @@ Last updated: 2026-07-04
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-04 — Companion/cutscene UI completion + ending-art follow-up
+- Status: Completed locally; not committed, pushed, or deployed. `make api-cloud` remains live at `http://127.0.0.1:8000` for QA.
+- Changed: authored KO/EN affection-1 cutscenes for Kai, Lin-yue, Tae-o, Han, and Su-ah; all six companions now expose seven gallery entries. Promoted two portrait-consistent Se-rin artworks as dedicated cutscene assets.
+- Changed: route choices and operation-map destinations now share numbered/color-coded links; the skill tree is a dependency graph with depth columns, prerequisites, status totals, icons, and KO/EN copy.
+- Changed: memory serialization now loads localized companion directives, fixing Korean gallery titles in a fresh EN loop.
+- Changed: generated and adopted dedicated 1254² art for all four Neo-Seoul endings; ending state now carries `ending_image`, including boss-defeat `endings/forced-erasure.png`, and EndedPanel renders it.
+- Changed: skill ranks now modify combat potency/focus/cooldown; empty placeholder clues are rejected and legacy duplicates hidden with a purpose hint; Kai's awaken/tool route adds him to `_party`, and Companion Bonds labels current party members even at affection 0.
+- Verified: `make check` green (**729 tests**, skipped 2), including content/image integrity, mypy 148 files, ESLint, and production frontend build; focused rank/clue/Kai/ending-asset regressions green.
+- Verified: Chrome DevTools EN play reached live combat with English narration/choices/UI; skill graph and all seven English gallery titles rendered, all 22 observed API requests were 200, and the console was clean. Screenshots: `outputs/chrome_skill_tree_en.png`, `outputs/chrome_companion_gallery_en.png`.
+- Blockers: none for the local implementation. Cloud Run remains rev `mythos-api-00007-6h8` and does not include this bundle.
+- Next: Claude performs browser visual QA for four ending arts, Rank details, Clues cleanup, and Kai `IN PARTY`, then commits/pushes/redeploys.
+
 ## 2026-07-04 — Route-scene lifecycle contract + duplicate-choice hardening
 - Status: Route lifecycle committed locally as `40bcc6b`; achievements dashboard completed locally. Neither bundle is pushed/deployed.
 - Changed: added load-time/`make validate-content` causal validation for unique beats, defaults, gate producer order, and perspective self-cycles; deleting a producer scene now fails fast. Night Market deterministically produces `lin_yue_deal`; four circular perspective selectors were rewired to prior flags.

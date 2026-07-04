@@ -92,7 +92,15 @@ export function buildCodexLists(
 
   const shards = memoryOverview.narrative_shards || [];
   const unlockedLore = memoryOverview.unlocked_lore || [];
-  const clues = shards.filter((s) => s.kind === "clue");
+  const clueKeys = new Set<string>();
+  const clues = shards.filter((s) => {
+    if (s.kind !== "clue") return false;
+    if (s.symbol.trim().toLowerCase() === "clue" && s.text.trim() === "A piece of the puzzle.") return false;
+    const key = `${s.symbol.trim()}\u0000${s.text.trim()}`;
+    if (clueKeys.has(key)) return false;
+    clueKeys.add(key);
+    return true;
+  });
   const lore = shards.filter((s) => s.kind === "lore");
   const characters = shards.filter((s) => s.kind === "character");
   const allLore = [

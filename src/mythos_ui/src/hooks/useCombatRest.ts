@@ -101,10 +101,18 @@ export function useCombatRest(args: UseCombatRestArgs) {
         return;
       }
 
-      // Update snapshot combat
+      // Update snapshot combat. A run-ending combat (boss climax, permadeath)
+      // resolves the ending mid-combat and `resume` refuses ended loops, so the
+      // action response is the only source for the ENDED screen — fold its
+      // phase + ending fields in, or the stale pre-combat phase keeps the
+      // EndedPanel (ending art/narration) from ever rendering.
       const updatedSnapshot = {
         ...baseSnapshot,
         combat: response.combat,
+        ...(response.loop_phase ? { phase: response.loop_phase } : {}),
+        ...(response.ending
+          ? { state: { flags: [], ...(baseSnapshot.state || {}), ...response.ending } }
+          : {}),
       };
       setFinalizedSnapshot(updatedSnapshot);
       setLastSnapshot(updatedSnapshot);

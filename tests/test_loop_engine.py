@@ -71,6 +71,15 @@ class LoopEngineTest(unittest.TestCase):
         self.assertEqual(transition.echo.source_loop_id, self.loop.loop_id)
         self.assertEqual(len(transition.loop.active_echoes), 1)
 
+    def test_empty_clue_objects_do_not_create_placeholder_shards(self) -> None:
+        payload = replace(
+            self._payload(),
+            world_delta=WorldDelta(clues=[{}, {"symbol": "clue"}]),
+        )
+        transition = LoopEngine().apply_scene_payload(self.loop, self._scene(0), payload)
+        self.assertEqual(transition.discovered_shards, [])
+
+
     def test_soft_defeat_pending_blocks_immediate_archive(self) -> None:
         engine = LoopEngine()
         loop = replace(

@@ -156,6 +156,17 @@ def run_test():
             achievements_path = str(OUTPUT_DIR / "e2e_achievements.png")
             page.locator(".achievements-section").screenshot(path=achievements_path)
             print(f"Achievements dashboard verified: {achievements_path}")
+            page.locator(".tab-btn").nth(3).click()
+            page.wait_for_selector(".skill-tree-graph", timeout=10000)
+            if page.locator(".skill-tree-summary > span").count() != 3:
+                raise RuntimeError("Expected learned/available/locked skill summary")
+            if page.locator(".skill-tree-column").count() < 2:
+                raise RuntimeError("Expected dependency-based skill graph columns")
+            if page.locator(".skill-tree-item").count() == 0:
+                raise RuntimeError("Expected skill nodes in the graph")
+            skill_tree_path = str(OUTPUT_DIR / "e2e_skill_tree.png")
+            page.locator("#skill-tab-content").screenshot(path=skill_tree_path)
+            print(f"Skill tree graph verified: {skill_tree_path}")
             page.locator(".tab-btn").nth(0).click()
             if page.locator("#choices button").count() == 0:
                 raise RuntimeError(

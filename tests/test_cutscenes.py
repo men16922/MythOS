@@ -37,6 +37,23 @@ class CutsceneLoaderTest(unittest.TestCase):
         self.assertIn("SERIN_FIRST_LIGHT", ids)
         self.assertIn("SERIN_PROMISE", ids)
 
+    def test_neo_seoul_loads_every_companion_cutscene(self) -> None:
+        directives = load_scenario_directives("neo-seoul")
+        by_companion = {cutscene.companion for cutscene in directives.cutscenes}
+        self.assertEqual(by_companion, {"se_rin", "kai", "lin_yue", "tae_o", "han", "su_ah"})
+        self.assertEqual(len(directives.cutscenes), 7)
+
+        expected = {
+            "KAI_COUNTING_STARS",
+            "LIN_YUE_LEDGER_MARGIN",
+            "TAE_O_UNLATCHED_HOLSTER",
+            "HAN_DEAD_CHANNEL",
+            "SU_AH_WARM_MEMORY",
+        }
+        self.assertTrue(
+            expected.issubset({cutscene.cutscene_id for cutscene in directives.cutscenes})
+        )
+
     def test_cutscene_fields_parsed(self) -> None:
         directives = load_scenario_directives("neo-seoul")
         promise = directives.cutscene("SERIN_PROMISE")
@@ -75,42 +92,28 @@ class UnlockEvaluationTest(unittest.TestCase):
 
     def test_affection_threshold_gates_unlock(self) -> None:
         self.assertEqual(evaluate_unlocked_cutscenes(self.cutscenes, {"se_rin": 1}, []), [])
-        self.assertEqual(
-            evaluate_unlocked_cutscenes(self.cutscenes, {"se_rin": 2}, []), ["A_LOW"]
-        )
+        self.assertEqual(evaluate_unlocked_cutscenes(self.cutscenes, {"se_rin": 2}, []), ["A_LOW"])
 
     def test_flags_required(self) -> None:
         # affection met but missing flag → high cutscene stays locked
+        self.assertEqual(evaluate_unlocked_cutscenes(self.cutscenes, {"se_rin": 5}, []), ["A_LOW"])
         self.assertEqual(
-            evaluate_unlocked_cutscenes(self.cutscenes, {"se_rin": 5}, []), ["A_LOW"]
-        )
-        self.assertEqual(
-            sorted(
-                evaluate_unlocked_cutscenes(
-                    self.cutscenes, {"se_rin": 5}, ["trusted_se_rin"]
-                )
-            ),
+            sorted(evaluate_unlocked_cutscenes(self.cutscenes, {"se_rin": 5}, ["trusted_se_rin"])),
             ["A_HIGH", "A_LOW"],
         )
 
     def test_per_companion_independent(self) -> None:
-        self.assertEqual(
-            evaluate_unlocked_cutscenes(self.cutscenes, {"kai": 3}, []), ["B_KAI"]
-        )
+        self.assertEqual(evaluate_unlocked_cutscenes(self.cutscenes, {"kai": 3}, []), ["B_KAI"])
 
     def test_missing_companion_reads_zero(self) -> None:
         self.assertEqual(evaluate_unlocked_cutscenes(self.cutscenes, {}, []), [])
 
     def test_malformed_relationship_value_is_safe(self) -> None:
-        self.assertEqual(
-            evaluate_unlocked_cutscenes(self.cutscenes, {"se_rin": "oops"}, []), []
-        )
+        self.assertEqual(evaluate_unlocked_cutscenes(self.cutscenes, {"se_rin": "oops"}, []), [])
 
     def test_negative_affection_stays_locked(self) -> None:
         # a refused route can drive affection negative — no unlock
-        self.assertEqual(
-            evaluate_unlocked_cutscenes(self.cutscenes, {"se_rin": -3}, []), []
-        )
+        self.assertEqual(evaluate_unlocked_cutscenes(self.cutscenes, {"se_rin": -3}, []), [])
 
     def test_result_is_sorted(self) -> None:
         cs = [_cs("Z", "se_rin", 1), _cs("A", "se_rin", 1)]

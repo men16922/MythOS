@@ -743,6 +743,7 @@ export default function App() {
             {activeTab === "skills" && codexLists && (
               <SkillTreePanel
                 codexLists={codexLists}
+                scenarioId={selectedScenarioId}
                 skillTree={skillTree}
                 onLearnSkill={handleLearnSkill}
                 learningSkillId={learningSkillId}

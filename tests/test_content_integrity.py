@@ -1087,7 +1087,7 @@ def _route_effect_keys(scenario_data: dict[str, Any]) -> set[str]:
 # Combat skill / item ``effect`` blocks (damage/heal/move/…) are a different
 # namespace owned by the combat engine and are out of scope (see _route_effect_keys).
 CONSUMED_ROUTE_EFFECT_KEYS = frozenset(
-    {"flags", "relationship", "stability", "tension", "insight"}
+    {"flags", "relationship", "stability", "tension", "insight", "party_add"}
 )
 
 # No route-effect keys are currently authored-but-unconsumed. New keys land here

@@ -23,7 +23,7 @@ def player_to_dict(player: PlayerProfile) -> dict[str, Any]:
     return cast(dict[str, Any], to_json_dict(player))
 
 
-def memory_overview_to_dict(overview: MemoryOverview) -> dict[str, Any]:
+def memory_overview_to_dict(overview: MemoryOverview, language: str = "ko") -> dict[str, Any]:
     """Serialize a MemoryOverview for Codex and memory progression.
 
     Enriches the raw round-trip with a resolved ``cutscene_gallery``: the player's
@@ -32,11 +32,16 @@ def memory_overview_to_dict(overview: MemoryOverview) -> dict[str, Any]:
     + script body) and locked stubs (title + threshold) without re-loading content.
     """
     payload = cast(dict[str, Any], to_json_dict(overview))
-    payload["cutscene_gallery"] = _cutscene_gallery_for_overview(overview.meta_progression)
+    payload["cutscene_gallery"] = _cutscene_gallery_for_overview(
+        overview.meta_progression, language
+    )
     return payload
 
 
-def _cutscene_gallery_for_overview(meta_progression: dict[str, Any] | None) -> list[dict[str, Any]]:
+def _cutscene_gallery_for_overview(
+    meta_progression: dict[str, Any] | None,
+    language: str = "ko",
+) -> list[dict[str, Any]]:
     from mythos_runtime.cutscenes import cutscene_gallery
     from mythos_runtime.scenario_directives import load_scenario_directives
 
@@ -45,7 +50,7 @@ def _cutscene_gallery_for_overview(meta_progression: dict[str, Any] | None) -> l
     scenario_id = meta_progression.get("scenario_id")
     if not scenario_id:
         return []
-    cutscenes = load_scenario_directives(str(scenario_id)).cutscenes
+    cutscenes = load_scenario_directives(str(scenario_id), language).cutscenes
     if not cutscenes:
         return []
     unlocked = meta_progression.get("unlocked_cutscenes") or []

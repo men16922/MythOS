@@ -237,6 +237,7 @@ def run_test():
             # Enable browser console logging to stdout for debugging
             page.on("console", lambda msg: print(f"[BROWSER CONSOLE] {msg.text}"))
             page.on("pageerror", lambda exc: print(f"[BROWSER ERROR] {exc}"))
+
             def _log_request(req: Any) -> None:
                 requested_urls.append(req.url)
                 print(f"[REQ] {req.method} {req.url}")
@@ -257,6 +258,7 @@ def run_test():
                         "brief": "가상 현실 루프와 현실의 기시감이 충돌하는 도시",
                         "archetypes": [
                             {
+                                "id": "netrunner",
                                 "name": "Netrunner",
                                 "attributes": ["해킹", "기시감 인지"],
                                 "starting_item": "더미 데이터 카드",
@@ -316,9 +318,12 @@ def run_test():
             }
 
             # Setup REST API routing/mocking
-            page.route("**/api/v1/scenarios", lambda route: route.fulfill(json=mock_scenarios))
+            page.route("**/api/v1/scenarios*", lambda route: route.fulfill(json=mock_scenarios))
             page.route("**/api/v1/auth/connect", lambda route: route.fulfill(json=mock_player))
             page.route("**/api/v1/runs?player_id=*", lambda route: route.fulfill(json=mock_runs))
+            # loadSlotsAndRuns awaits memory in the same try as runs — a 404 here
+            # aborts it before setRunsHistory, leaving the run archive empty.
+            page.route("**/api/v1/memory?player_id=*", lambda route: route.fulfill(json={}))
             page.route(
                 "**/api/v1/save-slots?player_id=*", lambda route: route.fulfill(json={"slots": []})
             )
@@ -342,14 +347,14 @@ def run_test():
                     "narration": "비가 쏟아지는 C-17 골목길. 정보 브로커 세린이 어둠 속에서 나타나 말을 걸어온다. '정말 너야?'",
                     "choices": [
                         {
-                            "choice_id": "choice_0_talk",
+                            "choice_id": "route:route_market",
                             "label": "세린에게 다가간다",
                             "intent": "explore",
                             "cost": None,
                             "requires": None,
                         },
                         {
-                            "choice_id": "choice_0_ignore",
+                            "choice_id": "route:route_subway",
                             "label": "신호를 무시하고 지나친다",
                             "intent": "explore",
                             "cost": None,
@@ -362,7 +367,48 @@ def run_test():
                 "combat": None,
                 "assets": [],
                 "bgm_path": "resources/neo-seoul/audio/bgm_calm.wav",
-                "state": {"flags": ["met_serin"], "_party": {"player_hp": 15, "player_max_hp": 15}},
+                "state": {
+                    "flags": ["met_serin"],
+                    "_party": {"player_hp": 15, "player_max_hp": 15},
+                    "_route_map": {
+                        "current": "route_start",
+                        "visited": ["route_start"],
+                        "layers": [["route_start"], ["route_market", "route_subway"]],
+                        "edges": {
+                            "route_start": ["route_market", "route_subway"],
+                            "route_market": [],
+                            "route_subway": [],
+                        },
+                        "nodes": {
+                            "route_start": {
+                                "id": "route_start",
+                                "type": "story",
+                                "layer": 0,
+                                "label": "현재",
+                                "title": "비 내리는 골목",
+                                "glyph": "●",
+                            },
+                            "route_market": {
+                                "id": "route_market",
+                                "type": "market",
+                                "layer": 1,
+                                "label": "시장",
+                                "title": "야시장",
+                                "glyph": "◇",
+                                "risk": 2,
+                            },
+                            "route_subway": {
+                                "id": "route_subway",
+                                "type": "story",
+                                "layer": 1,
+                                "label": "지하철",
+                                "title": "폐쇄 승강장",
+                                "glyph": "◆",
+                                "risk": 3,
+                            },
+                        },
+                    },
+                },
                 "player": mock_player,
             }
 
@@ -905,6 +951,17 @@ def run_test():
                         ],
                     },
                 },
+                # Server contract since 2026-07-04: a hard defeat ends the run and
+                # the action response carries the resolved ending (resume rejects
+                # ended loops, so this is the SPA's only source for the ENDED
+                # screen — art + narration).
+                "loop_phase": "ended",
+                "ending": {
+                    "ending_id": "ending_erasure",
+                    "ending_label": "강제 최적화 (Forced Erasure)",
+                    "ending_image": "endings/forced-erasure.png",
+                    "ending_narration": "모든 것이 하얗게 비워집니다.",
+                },
             }
 
             page.route("**/api/v1/loops/begin", lambda route: route.fulfill(json=snapshot_turn0))
@@ -995,13 +1052,31 @@ def run_test():
             page.wait_for_selector("#choices button", timeout=12000)
             page.screenshot(path=str(OUTPUT_DIR / "03_dashboard_turn0.png"))
             print("Verified: Story streaming finished and choices are visible.")
+            assert page.locator(".cmd-route-target").count() == 2, (
+                "Route choices must expose both operation-map destinations."
+            )
+            assert page.locator(".route-node > .route-link-marker").count() == 2, (
+                "Operation-map candidates must carry matching numbered markers."
+            )
+            first_choice_class = page.locator("#choices button").nth(0).get_attribute("class") or ""
+            assert "route-choice-link-0" in first_choice_class, (
+                "First route choice must share its link class with the first destination."
+            )
+            first_destination_class = (
+                page.locator(".route-next").nth(0).get_attribute("class") or ""
+            )
+            assert "route-choice-link-0" in first_destination_class, (
+                "First route destination must share its link class with the first choice."
+            )
             assert any("bgm_main.wav" in url or "bgm_calm.wav" in url for url in requested_urls), (
                 "Exploration BGM must be requested after audio unlock."
             )
             print("Verified: Exploration BGM resource was requested.")
 
-            # Hotkey Focus Test
-            save_input = page.locator('#save-load-panel input[placeholder="설명 (선택)"]')
+            # Hotkey Focus Test — the save description input moved into the
+            # Save/Load modal (CBT save UX), so open the Save modal first.
+            page.click("#save-load-panel .sl-launch button:first-child")
+            save_input = page.locator('.sl-modal input[placeholder="설명 (선택)"]')
             save_input.click()
             save_input.fill("")
             page.keyboard.press("1")
@@ -1012,8 +1087,9 @@ def run_test():
             )
             print("Verified: Hotkey is blocked when input field is active.")
 
-            # Clear and blur
+            # Clear, close the modal, and blur
             save_input.fill("")
+            page.click(".sl-close")
             page.evaluate("document.activeElement.blur()")
             page.click("body")
             page.wait_for_timeout(800)
@@ -1404,16 +1480,34 @@ def run_test():
             page.screenshot(path=str(OUTPUT_DIR / "07_combat_defeat.png"))
             print("Verified: Combat defeat banner successfully displayed.")
 
-            # Verify Run History in sidebar
-            print("Verifying Run History in sidebar before returning to main...")
+            # Verify Run History — the archive panel moved from the sidebar into
+            # the Memory Constellation (Codex) tab.
+            print("Verifying Run History in the Codex tab before returning to main...")
+            page.click('button:has-text("기억의 별자리")')
             page.wait_for_selector("#history-panel .save-slot-item", timeout=3000)
             text = page.locator("#history-panel .save-slot-item").first.inner_text()
             assert "유리성의 사서" in text, f"Run history should show finished ending, got '{text}'"
-            print("Verified: Sidebar shows Run History.")
+            print("Verified: Codex tab shows Run History.")
+            page.click('button:has-text("서사 접속")')
+            page.wait_for_timeout(400)
 
-            # Click '메인 화면으로 ▸' (Return to Main) button
-            return_btn = page.locator("#cc-return-main")
-            assert return_btn.count() > 0, "Return to main button must be visible after defeat!"
+            # A run-ending defeat now renders the ENDED screen (ending art +
+            # narration) instead of a bare 'To Main' escape — the result panel's
+            # own exit button must be gone, and the EndedPanel owns the exit.
+            page.wait_for_selector(".ending-art img", timeout=5000)
+            ending_img_ok = page.evaluate(
+                "() => { const i = document.querySelector('.ending-art img');"
+                " return !!i && i.complete && i.naturalWidth > 0; }"
+            )
+            assert ending_img_ok, "Ending art must load unbroken on the defeat ENDED screen!"
+            assert page.locator("#cc-return-main").count() == 0, (
+                "Result-panel To Main must be hidden when the run ended (EndedPanel owns exit)!"
+            )
+            print("Verified: defeat ENDED screen shows unbroken ending art (forced-erasure).")
+
+            # Exit through the EndedPanel's new-connect button
+            return_btn = page.locator("#ended-new-connect")
+            assert return_btn.count() > 0, "EndedPanel new-connect button must be visible!"
             return_btn.click()
 
             # Wait for onboarding panel to reload

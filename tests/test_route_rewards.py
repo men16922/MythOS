@@ -137,7 +137,7 @@ class CompanionCutsceneRuntimeIntegrationTest(unittest.TestCase):
         self.assertEqual(cutscene.loop.state["_seen_cutscenes"], ["SERIN_FIRST_LIGHT"])
         self.assertEqual(
             cutscene.loop.state["_active_cutscene"]["image"],
-            "characters/se-rin.png",
+            "cutscenes/se-rin-first-light.png",
         )
         rendered = "\n".join(director.contexts[0].session_synopsis)
         self.assertIn("COMPANION CUTSCENE SCENE LOCK", rendered)

@@ -6,9 +6,16 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from dataclasses import replace
+
 from test_session_combat import _InMemoryStore, _seed_loop
 
-from mythos_runtime.combat_server import combat_action_response, combat_state_response
+from mythos_core.models import LoopPhase
+from mythos_runtime.combat_server import (
+    _snapshot_response,
+    combat_action_response,
+    combat_state_response,
+)
 from mythos_runtime.options import RuntimeOptions
 from mythos_runtime.session import RuntimeSessionService
 
@@ -47,6 +54,42 @@ class CombatServerTest(unittest.TestCase):
         if not response["combat"]["finished"]:
             after_focus = int(response["combat"]["available"]["focus"])
             self.assertLessEqual(after_focus, before_focus)
+
+    def test_response_carries_ending_when_combat_ended_the_run(self) -> None:
+        # A run-ending combat (boss climax, permadeath) resolves the ending
+        # mid-combat and `resume` refuses ended loops, so the action response is
+        # the SPA's only source for the ENDED screen — without the ending block
+        # the client keeps its stale pre-combat phase and the ending art is
+        # never shown (live 2026-07-04: IX defeat exited straight to main).
+        loop = self.store.get_loop(self.loop_id)
+        assert loop is not None
+        self.store.save_loop(
+            replace(
+                loop,
+                phase=LoopPhase.ENDED,
+                state={
+                    **loop.state,
+                    "ending_id": "ending_erasure",
+                    "ending_label": "강제 최적화 (Forced Erasure)",
+                    "ending_image": "endings/forced-erasure.png",
+                    "ending_narration": "모든 것이 하얗게 비워집니다.",
+                },
+            )
+        )
+
+        response = _snapshot_response(
+            self.service, self.loop_id, "neo-seoul", {"finished": True}, ""
+        )
+
+        self.assertEqual(response["loop_phase"], "ended")
+        self.assertEqual(response["ending"]["ending_id"], "ending_erasure")
+        self.assertEqual(response["ending"]["ending_image"], "endings/forced-erasure.png")
+        self.assertTrue(response["ending"]["ending_narration"])
+
+    def test_response_has_no_ending_while_loop_is_live(self) -> None:
+        response = combat_state_response(self.service, self.loop_id, "neo-seoul")
+        self.assertNotEqual(response["loop_phase"], "ended")
+        self.assertNotIn("ending", response)
 
     def test_action_response_maps_move_coordinates(self) -> None:
         state = combat_state_response(self.service, self.loop_id, "neo-seoul")

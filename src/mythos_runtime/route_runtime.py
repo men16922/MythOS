@@ -119,6 +119,7 @@ def advance_route(
     active: dict[str, str] = {}
     tally: dict[str, int] = {}
     rel_tally: dict[str, int] = {}
+    party_add: set[str] = set()
     flag_set = set(flags)
     for node_id in visited:
         node = nodes.get(node_id, {})
@@ -133,6 +134,7 @@ def advance_route(
                         rel_tally[str(name)] = rel_tally.get(str(name), 0) + int(delta)
                     except (TypeError, ValueError):
                         continue
+            party_add.update(str(member) for member in node_effect.get("party_add", []) or [])
         perspectives = node.get("perspectives")
         if not perspectives:
             continue
@@ -151,6 +153,7 @@ def advance_route(
                         rel_tally[str(name)] = rel_tally.get(str(name), 0) + int(delta)
                     except (TypeError, ValueError):
                         continue
+            party_add.update(str(member) for member in effect.get("party_add", []) or [])
         for ending in chosen.get("ending_influence", []) or []:
             tally[str(ending)] = tally.get(str(ending), 0) + 1
 
@@ -172,6 +175,15 @@ def advance_route(
     new_state["relationships"] = _reconcile_relationships(
         state.get("relationships"), route_map.get("relationship_tally"), rel_tally
     )
+    if party_add:
+        party = dict(state.get("_party", {})) if isinstance(state.get("_party"), dict) else {}
+        candidate_members = party.get("members")
+        raw_members: list[Any] = candidate_members if isinstance(candidate_members, list) else []
+        members = [dict(member) for member in raw_members if isinstance(member, dict)]
+        known = {str(member.get("id")) for member in members if member.get("id")}
+        members.extend({"id": member_id} for member_id in sorted(party_add - known))
+        party["members"] = members
+        new_state["_party"] = party
     return new_state
 
 

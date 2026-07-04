@@ -7,7 +7,7 @@ from mythos_combat import CombatEngine, PlayerAction
 from mythos_combat.models import distance
 from mythos_core import LoopPhase, LoopState
 from mythos_core.clock import utc_now
-from mythos_runtime.combat_service import CombatService
+from mythos_runtime.combat_service import CombatService, ranked_skill_definition
 from mythos_runtime.scenario import load_scenario
 
 POOL = load_scenario("neo-seoul").combat
@@ -57,6 +57,17 @@ def _play_to_end(service: CombatService, result):
 
 
 class CombatServiceTest(unittest.TestCase):
+    def test_skill_rank_changes_combat_definition(self) -> None:
+        base = POOL["skills"]["overload_strike"]
+        rank_one = ranked_skill_definition(base, 1)
+        rank_three = ranked_skill_definition(base, 3)
+        assert rank_one is not None and rank_three is not None
+        self.assertEqual(rank_one["effect"]["damage_bonus"], "1d6")
+        self.assertEqual(rank_three["effect"]["damage_bonus"], "1d6+2")
+        self.assertEqual(rank_three["effect"]["armor_pen"], 4)
+        self.assertEqual(rank_three["cost"]["focus"], 1)
+        self.assertEqual(rank_three["cooldown"], 1)
+
     def _begin(self, service: CombatService, loop: LoopState):
         return service.begin(
             loop,

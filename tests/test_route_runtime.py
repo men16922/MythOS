@@ -55,6 +55,29 @@ class RouteRuntimeTest(unittest.TestCase):
         out = advance_route(state, turn_index=2, seed="seed")
         self.assertIn("trusted_se_rin", out["flags"])
 
+    def test_perspective_party_add_recruits_companion_once(self) -> None:
+        route_map = {
+            "current": "kai",
+            "visited": ["kai"],
+            "layers": [["kai"]],
+            "nodes": {
+                "kai": {
+                    "id": "kai",
+                    "layer": 0,
+                    "default_perspective": "awaken",
+                    "perspectives": [
+                        {"id": "awaken", "effect": {"party_add": ["kai"]}}
+                    ],
+                }
+            },
+            "edges": {"kai": []},
+        }
+        state = {ROUTE_MAP_KEY: route_map, "flags": [], "_party": {"members": []}}
+        first = advance_route(state, turn_index=0, seed="kai")
+        replay = advance_route(first, turn_index=0, seed="kai")
+        self.assertEqual(replay["_party"]["members"], [{"id": "kai"}])
+
+
     def test_night_market_entry_unlocks_kai_causally(self) -> None:
         state = _state("kai-causal", ["met_se_rin"])
         opened = advance_route(state, turn_index=0, seed="kai-causal")

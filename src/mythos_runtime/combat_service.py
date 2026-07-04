@@ -13,6 +13,7 @@ narration/radar payloads the runtime + UI consume. Pure given the loop seed.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field, replace
 from typing import Any
 
@@ -34,6 +35,71 @@ from mythos_core import LoopState
 from mythos_core.dice import Dice
 from mythos_runtime.boons import RUN_BOONS_KEY
 from mythos_runtime.companion_growth import growth_bonus
+
+_DICE_SPEC = re.compile(r"^(\d*)d(\d+)(?:([+-])(\d+))?$", re.IGNORECASE)
+_RANKED_EFFECT_KEYS = {
+    "damage",
+    "damage_bonus",
+    "heal",
+    "shield",
+    "defense_bonus",
+    "move",
+    "armor_pen",
+    "to_hit_bonus",
+    "speed_bonus",
+    "crit_bonus",
+}
+
+
+def skill_rank_bonuses(rank: int) -> dict[str, int]:
+    """System-wide skill scaling: potency each rank, efficiency at ranks 2/3."""
+    rank = max(1, int(rank))
+    return {
+        "power": rank - 1,
+        "focus_reduction": 1 if rank >= 2 else 0,
+        "cooldown_reduction": 1 if rank >= 3 else 0,
+    }
+
+
+def _ranked_value(value: Any, bonus: int) -> Any:
+    if bonus <= 0:
+        return value
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, int | float):
+        return value + bonus
+    if isinstance(value, str):
+        match = _DICE_SPEC.fullmatch(value.replace(" ", ""))
+        if match:
+            count = match.group(1) or "1"
+            sides = match.group(2)
+            modifier = int(match.group(4) or 0) * (-1 if match.group(3) == "-" else 1)
+            total = modifier + bonus
+            suffix = f"{total:+d}" if total else ""
+            return f"{count}d{sides}{suffix}"
+    return value
+
+
+def ranked_skill_definition(skill_def: Any, rank: int) -> dict[str, Any] | None:
+    """Return the exact combat definition for a learned skill at ``rank``."""
+    if not isinstance(skill_def, dict):
+        return None
+    bonuses = skill_rank_bonuses(rank)
+    ranked = dict(skill_def)
+    effect = dict(skill_def.get("effect", {})) if isinstance(skill_def.get("effect"), dict) else {}
+    for key in _RANKED_EFFECT_KEYS & effect.keys():
+        effect[key] = _ranked_value(effect[key], bonuses["power"])
+    ranked["effect"] = effect
+    cost = dict(skill_def.get("cost", {})) if isinstance(skill_def.get("cost"), dict) else {}
+    if isinstance(cost.get("focus"), int | float):
+        cost["focus"] = max(1, int(cost["focus"]) - bonuses["focus_reduction"])
+    ranked["cost"] = cost
+    ranked["cooldown"] = max(
+        0, int(skill_def.get("cooldown", 0)) - bonuses["cooldown_reduction"]
+    )
+    ranked["rank"] = max(1, int(rank))
+    ranked["rank_bonuses"] = bonuses
+    return ranked
 
 
 @dataclass
@@ -129,6 +195,10 @@ class CombatService:
         item_available = False
         if action.type == "skill" and action.skill_id:
             skill_def = scenario_combat.get("skills", {}).get(action.skill_id)
+            skill_def = ranked_skill_definition(
+                skill_def,
+                self._player_skill_rank(loop, action.skill_id),
+            )
             cost = skill_def.get("cost", {}) if isinstance(skill_def, dict) else {}
             item_cost = cost.get("item") if isinstance(cost, dict) else None
             item_available = self._has_item(inventory, str(item_cost)) if item_cost else True
@@ -292,6 +362,16 @@ class CombatService:
                 )
             )
         return built
+
+    @staticmethod
+    def _player_skill_rank(loop: LoopState, skill_id: str) -> int:
+        state = loop.state if isinstance(loop.state, dict) else {}
+        meta = state.get("meta_progression")
+        ranks = meta.get("skill_ranks") if isinstance(meta, dict) else {}
+        try:
+            return max(1, int(ranks.get(skill_id, 1))) if isinstance(ranks, dict) else 1
+        except (TypeError, ValueError):
+            return 1
 
     @staticmethod
     def _player_skill_ids(

@@ -212,12 +212,25 @@ export async function apiMarketExchange(params: {
   return apiPost<RuntimeSnapshot>("/api/v1/market/exchange", { ...params, lang: getLang() });
 }
 
+export interface CombatActionResponse {
+  prose?: string;
+  combat: CombatState;
+  loop_phase?: string;
+  /** Present only when this combat ended the run (boss climax, permadeath). */
+  ending?: {
+    ending_id?: string;
+    ending_label?: string;
+    ending_image?: string;
+    ending_narration?: string;
+  };
+}
+
 export async function apiCombatAction(params: {
   loop_id: string;
   scenario_id: string;
   action: CombatAction;
-}): Promise<{ prose?: string; combat: CombatState }> {
-  return apiPost<{ prose?: string; combat: CombatState }>("/api/v1/combat/action", {
+}): Promise<CombatActionResponse> {
+  return apiPost<CombatActionResponse>("/api/v1/combat/action", {
     ...params,
     lang: getLang(),
   });

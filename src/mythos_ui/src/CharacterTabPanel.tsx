@@ -27,7 +27,13 @@ export function CharacterTabPanel({
   onEquip,
 }: CharacterTabPanelProps) {
   const { t, lang } = useLang();
-  const affectionGauges = buildAffectionGauges(snapshot?.state?.relationships);
+  const partyCompanions = (snapshot?.companions || [])
+    .filter((companion) => companion.in_party)
+    .map((companion) => companion.id);
+  const affectionGauges = buildAffectionGauges(
+    snapshot?.state?.relationships,
+    partyCompanions,
+  );
   const scenarioId = snapshot?.state?.scenario_id || "neo-seoul";
   // Companion focus: clicking a bond row swaps the left CHARACTER card to that
   // companion's portrait; clicking again (or the back button) returns to the player.
@@ -115,7 +121,11 @@ export function CharacterTabPanel({
             <div className="codex-sec-title">{t("ctab.bonds")}</div>
             {affectionGauges.length > 0 ? (
               <div>
-                {affectionGauges.map((gauge) => (
+                {affectionGauges.map((gauge) => {
+                  const companion = snapshot?.companions?.find(
+                    (item) => item.id === gauge.name,
+                  );
+                  return (
                   <div
                     key={gauge.name}
                     className={`bond-row ${selected === gauge.name ? "bond-row--selected" : ""}`}
@@ -131,14 +141,15 @@ export function CharacterTabPanel({
                     }}
                   >
                     <GaugeBar
-                      label={gauge.label}
+                      label={`${gauge.label}${companion?.in_party ? ` · ${t("ctab.inParty")}` : ""}`}
                       value={gauge.value}
                       percent={gauge.percent}
                       color={gauge.color}
                       avatarUrl={getAvatarUrl(gauge.name, scenarioId)}
                     />
                   </div>
-                ))}
+                  );
+                })}
                 <div className="gauge-hint">
                   {t("ctab.bondHint")}
                 </div>

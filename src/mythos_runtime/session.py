@@ -1837,6 +1837,8 @@ class RuntimeSessionService:
                 loop_state["ending_label"] = (
                     fallback.get("label") or fallback.get("title") or "Ended Loop"
                 )
+                if isinstance(fallback.get("image"), str):
+                    loop_state["ending_image"] = fallback["image"]
                 narration = self._ending_narration_text(
                     scenario_id, loop_state.get("ending_id"), loop
                 )
@@ -1888,6 +1890,20 @@ class RuntimeSessionService:
             loop_state["ending_id"] = ending_id
         if ending_label:
             loop_state["ending_label"] = ending_label
+        if ending_id:
+            try:
+                ending = next(
+                    (
+                        item
+                        for item in load_scenario(scenario_id).endings
+                        if isinstance(item, dict) and item.get("id") == ending_id
+                    ),
+                    None,
+                )
+                if ending and isinstance(ending.get("image"), str):
+                    loop_state["ending_image"] = ending["image"]
+            except Exception:
+                pass
         narration = self._ending_narration_text(scenario_id, ending_id, loop)
         if narration:
             loop_state["ending_narration"] = narration

@@ -97,6 +97,9 @@ class ScenarioImageReferenceIntegrityTest(unittest.TestCase):
                 add("cinematic_shots[].image", shot.get("image"))
             elif isinstance(shot, str):
                 add("cinematic_shots[]", shot)
+        for ending in data.get("endings", []) or []:
+            if isinstance(ending, dict):
+                add("endings[].image", ending.get("image"))
         return refs
 
     def test_scene_character_anchor_images_exist(self) -> None:

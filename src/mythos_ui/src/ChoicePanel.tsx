@@ -1,5 +1,5 @@
 import { choiceCostLabel, choiceRequirementLabel, isChoiceDisabled, cleanChoiceLabel } from "./choices";
-import type { SceneChoice } from "./types";
+import type { RouteMap, RouteNode, SceneChoice } from "./types";
 import { useLang } from "./i18n/lang";
 import type { StringKey } from "./i18n/strings.ko";
 
@@ -7,7 +7,18 @@ interface ChoicePanelProps {
   choices: SceneChoice[];
   stability: number;
   tension: number;
+  routeMap?: RouteMap | null;
   onChoose: (choiceId: string) => void;
+}
+
+function routeDestination(choice: SceneChoice, routeMap?: RouteMap | null): { node: RouteNode; index: number } | null {
+  if (!choice.choice_id.startsWith("route:") || !routeMap) return null;
+  const nodeId = choice.choice_id.slice("route:".length);
+  const node = routeMap.nodes?.[nodeId];
+  if (!node) return null;
+  const outgoing = routeMap.current ? routeMap.edges?.[routeMap.current] || [] : [];
+  const index = outgoing.indexOf(nodeId);
+  return { node, index: index >= 0 ? index : 0 };
 }
 
 const intentKey = (intent?: string): StringKey | null => {
@@ -20,7 +31,7 @@ const intentKey = (intent?: string): StringKey | null => {
   return null;
 };
 
-export function ChoicePanel({ choices, stability, tension, onChoose }: ChoicePanelProps) {
+export function ChoicePanel({ choices, stability, tension, routeMap, onChoose }: ChoicePanelProps) {
   const { t } = useLang();
   return (
     <div id="choices">
@@ -28,10 +39,12 @@ export function ChoicePanel({ choices, stability, tension, onChoose }: ChoicePan
         const disabled = isChoiceDisabled(choice, stability, tension);
         const iKey = intentKey(choice.intent);
         const intentLabel = iKey ? t(iKey) : null;
+        const destination = routeDestination(choice, routeMap);
+        const routeClass = destination ? ` route-choice-link route-choice-link-${destination.index % 4}` : "";
         return (
           <button
             key={choice.choice_id}
-            className="command-card"
+            className={`command-card${routeClass}`}
             disabled={disabled}
             onClick={() => onChoose(choice.choice_id)}
             style={disabled ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
@@ -53,6 +66,15 @@ export function ChoicePanel({ choices, stability, tension, onChoose }: ChoicePan
             </div>
             {choice.result_preview && (
               <div className="cmd-preview">{t("choice.preview")}: {choice.result_preview}</div>
+            )}
+            {destination && (
+              <div className="cmd-route-target">
+                <span className="route-link-marker">{destination.index + 1}</span>
+                <span>{t("choice.destination")}: {destination.node.title || destination.node.label}</span>
+                {destination.node.risk != null && (
+                  <small>{t("aside.route.risk")} {destination.node.risk}</small>
+                )}
+              </div>
             )}
           </button>
         );

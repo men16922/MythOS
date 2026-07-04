@@ -557,6 +557,7 @@ class SessionCombatTest(unittest.TestCase):
         snap = self.service._commit_combat_turn(player, result, "test", self.options)
         self.assertEqual(snap.loop.phase, LoopPhase.ENDED)
         self.assertTrue(snap.loop.state.get("ending_id"))
+        self.assertTrue(snap.loop.state.get("ending_image"))
 
     def test_boss_climax_defeat_ends_loop_not_recoverable(self) -> None:
         # Live 2026-07-03: an unwinnable IX fight soft-defeated every turn re-threw
@@ -579,6 +580,7 @@ class SessionCombatTest(unittest.TestCase):
         snap = self.service._commit_combat_turn(player, result, "test", self.options)
         self.assertEqual(snap.loop.phase, LoopPhase.ENDED)
         self.assertTrue(snap.loop.state.get("ending_id"))
+        self.assertEqual(snap.loop.state.get("ending_image"), "endings/forced-erasure.png")
         self.assertFalse(snap.loop.state.get("_soft_defeat_pending"))
 
     def test_ambient_combat_suppressed_during_soft_defeat_recovery(self) -> None:

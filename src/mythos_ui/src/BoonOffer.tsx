@@ -36,7 +36,10 @@ export function BoonOffer({
   // Boon pick takes priority; the Echo-inscription offer surfaces once boons are done.
   const mode: "boon" | "echo" | null =
     boonOffer && boonOffer.length > 0 ? "boon" : echoOffer && echoOffer.length > 0 ? "echo" : null;
-  if (!mode || !snapshot) return null;
+  // A pending offer can outlive the run (e.g. an un-picked loop-start boon when a
+  // boss combat ends the loop) — the backend rejects choices on ended loops, so
+  // never block the ENDED screen with a dead offer.
+  if (!mode || !snapshot || snapshot.phase === "ended") return null;
 
   const run = async (call: () => Promise<RuntimeSnapshot>) => {
     if (busy) return;

@@ -311,6 +311,39 @@ main {
   line-height: 1.45;
   margin-top: 7px;
 }
+.route-choice-link-0 { --route-link-color: #29ffc6; }
+.route-choice-link-1 { --route-link-color: #ffd46a; }
+.route-choice-link-2 { --route-link-color: #ff6b9f; }
+.route-choice-link-3 { --route-link-color: #7ea7ff; }
+.command-card.route-choice-link {
+  border-left: 3px solid var(--route-link-color);
+}
+.cmd-route-target {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--route-link-color);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  margin-top: 9px;
+}
+.cmd-route-target small {
+  color: var(--ink-dim);
+  margin-left: auto;
+}
+.route-link-marker {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 17px;
+  height: 17px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  color: var(--route-link-color, currentColor);
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+}
 .cmd-intent {
   color: var(--ink-dim);
   font-size: 11px;
@@ -489,6 +522,12 @@ main {
   border-bottom: 1px solid var(--line-soft);
   padding-bottom: 4px;
 }
+.codex-section-hint {
+  color: var(--ink-dim);
+  font-size: 10px;
+  line-height: 1.45;
+  margin: -2px 0 8px;
+}
 .codex-list {
   font-size: 12.5px;
   display: flex;
@@ -514,16 +553,77 @@ main {
 .codex-item-desc {
   color: var(--ink-dim);
 }
-.skill-tree-list {
+.skill-tree-summary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.skill-tree-summary span {
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  color: var(--ink-dim);
+  font-size: 10px;
+  padding: 6px 8px;
+}
+.skill-tree-summary strong {
+  display: block;
+  color: var(--ink);
+  font-size: 16px;
+}
+.skill-tree-summary .learned strong { color: var(--term); }
+.skill-tree-summary .unlocked strong { color: var(--head); }
+.skill-tree-graph {
+  display: grid;
+  grid-auto-columns: minmax(230px, 1fr);
+  grid-auto-flow: column;
+  gap: 26px;
+  overflow-x: auto;
+  padding: 8px 4px 14px;
+}
+.skill-tree-column {
+  min-width: 0;
+  position: relative;
+}
+.skill-tree-column + .skill-tree-column::before {
+  content: "";
+  position: absolute;
+  top: 31px;
+  left: -26px;
+  width: 26px;
+  border-top: 1px solid rgba(41, 255, 198, 0.34);
+}
+.skill-tree-column-title {
+  display: flex;
+  justify-content: space-between;
+  color: var(--head);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin-bottom: 9px;
+  text-transform: uppercase;
+}
+.skill-tree-column-title small { color: var(--ink-dim); }
+.skill-tree-column-nodes {
+  display: flex;
+  flex-direction: column;
   gap: 10px;
 }
 .skill-tree-item {
+  position: relative;
   border: 1px solid var(--line-soft);
   border-radius: 5px;
   padding: 10px;
   background: rgba(0, 10, 8, 0.5);
+}
+.skill-tree-column + .skill-tree-column .skill-tree-item::before {
+  content: "";
+  position: absolute;
+  top: 25px;
+  left: -14px;
+  width: 13px;
+  border-top: 1px solid rgba(41, 255, 198, 0.3);
 }
 .skill-tree-item.learned {
   border-color: rgba(41, 255, 198, 0.46);
@@ -541,6 +641,37 @@ main {
   color: var(--term);
   font-size: 12px;
   margin-bottom: 4px;
+}
+.skill-tree-node-main {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+}
+.skill-tree-icon {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--line-soft);
+  border-radius: 7px;
+  background: rgba(41, 255, 198, 0.06);
+  object-fit: cover;
+}
+.skill-tree-item.locked .skill-tree-icon {
+  filter: grayscale(1);
+  opacity: 0.55;
+}
+.skill-tree-dependencies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  color: var(--ink-dim);
+  font-size: 9px;
+  margin-top: 7px;
+}
+.skill-tree-dependencies span:not(:first-child) {
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  padding: 1px 5px;
 }
 .skill-tree-meta,
 .skill-tree-hint {
@@ -569,6 +700,12 @@ main {
   color: var(--ink-dim);
   font-size: 10px;
   margin-left: 4px;
+}
+.skill-rank-effect {
+  margin-top: 5px;
+  color: var(--head);
+  font-size: 10px;
+  line-height: 1.4;
 }
 .skill-tree-hint {
   margin-top: 6px;
@@ -618,6 +755,11 @@ main {
   font-size: 11px;
   margin-bottom: 8px;
   padding: 8px 10px;
+}
+@media (max-width: 720px) {
+  .skill-tree-graph {
+    grid-auto-columns: minmax(205px, 84vw);
+  }
 }
 
 /* Scenario lock hint + epiphany banner */
@@ -1251,6 +1393,20 @@ main {
 }
 
 /* Ended screen & banners */
+.ending-art {
+  border: 1px solid var(--head);
+  border-radius: 8px;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #020706;
+  box-shadow: 0 0 28px rgba(255, 180, 84, 0.12);
+}
+.ending-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
 .ended-banner {
   margin-top: 18px;
   padding: 16px 18px;
@@ -1696,6 +1852,7 @@ main {
   background: rgba(8, 16, 20, 0.35);
 }
 .route-node {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1707,6 +1864,16 @@ main {
   font-size: 11px;
   line-height: 1.25;
   text-align: center;
+}
+.route-node.route-choice-link {
+  border-color: var(--route-link-color);
+  box-shadow: 0 0 7px color-mix(in srgb, var(--route-link-color) 35%, transparent);
+}
+.route-node > .route-link-marker {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  background: var(--panel-2);
 }
 .route-node-compact {
   min-width: 50px;

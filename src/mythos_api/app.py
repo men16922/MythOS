@@ -828,7 +828,7 @@ def create_app() -> FastAPI:
     ) -> dict[str, Any]:
         try:
             overview = service.memory_overview(player_id)
-            return localize_for(memory_overview_to_dict(overview), scenario_id, lang)
+            return localize_for(memory_overview_to_dict(overview, language=lang), scenario_id, lang)
         except RuntimeError as exc:
             raise _as_http_error(exc) from exc
 

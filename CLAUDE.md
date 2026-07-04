@@ -94,7 +94,7 @@ make db-reset     # DROP/CREATE public schema, then re-migrate (destructive)
 make db-shell     # psql into the postgres container
 ```
 
-`docker-compose.local.yml`: postgres:5432, adminer:8080, minio:9000/9001 (`minio-init` bootstraps buckets), redis:6379, otel-collector:4317/4318, jaeger:16686. Volume data under `.docker/` (gitignored). OTel config `docker/otel-collector-config.yaml`; the collector owns the host OTLP ports and forwards to Jaeger internally.
+`docker-compose.local.yml`: postgres:5432, adminer:8080, minio:9000/9001 (`minio-init` bootstraps buckets), otel-collector:4317/4318, jaeger:16686. (Redis was removed 2026-07-04 — image generation is synchronous in-request everywhere.) Volume data under `.docker/` (gitignored). OTel config `docker/otel-collector-config.yaml`; the collector owns the host OTLP ports and forwards to Jaeger internally.
 
 ## Architecture
 

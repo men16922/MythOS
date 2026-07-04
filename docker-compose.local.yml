@@ -83,31 +83,6 @@ services:
       "
     restart: "no"
 
-  redis:
-    image: redis:7
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - ./.docker/redis:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
-  # Web UI for Redis (the Adminer-equivalent for keys/lists). http://localhost:8081
-  redis-commander:
-    image: rediscommander/redis-commander:latest
-    restart: unless-stopped
-    environment:
-      REDIS_HOSTS: local:redis:6379
-    ports:
-      - "8081:8081"
-    depends_on:
-      redis:
-        condition: service_healthy
-
   otel-collector:
     image: otel/opentelemetry-collector-contrib
     restart: unless-stopped

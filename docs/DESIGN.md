@@ -18,7 +18,7 @@ Project MythOS는 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG
 - API: `src/mythos_api` FastAPI `/api/v1` REST + WebSocket.
 - React UI: `src/mythos_ui` Vite + React + TypeScript, FastAPI 루트에서 서빙.
 - Streamlit demo: `streamlit_app.py`, 같은 runtime service를 호출.
-- Visual generation: `src/mythos_runtime/visual_*`, Redis queue, mflux/FLUX worker, MinIO asset storage.
+- Visual generation: `src/mythos_runtime/visual_*` — 요청 내 동기 생성 (로컬 mflux/FLUX 또는 Vertex Imagen), MinIO/GCS asset storage. (Redis queue/worker 2026-07-04 제거.)
 
 ## Runtime Boundaries
 
@@ -30,10 +30,10 @@ Authoritative state는 PostgreSQL에 저장한다. UI state는 view/cache 수준
 
 ## Local Stack
 
-- Docker: PostgreSQL, MinIO, Redis, OpenTelemetry Collector, Jaeger, Adminer.
-- Host process: Ollama, API/Streamlit, visual worker, mflux/FLUX.
+- Docker: PostgreSQL, MinIO, OpenTelemetry Collector, Jaeger, Adminer.
+- Host process: Ollama, API/Streamlit, mflux/FLUX(요청 내 동기 생성).
 - 권장 실행: `make dev-up` / 정리: `make dev-down`.
-- 개별 실행: `make infra-up`, `make db-migrate`, `make api`, `make visual-worker-bg`, `make streamlit`.
+- 개별 실행: `make infra-up`, `make db-migrate`, `make api`, `make streamlit`.
 
 ## Data Model Summary
 

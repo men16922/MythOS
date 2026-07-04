@@ -72,18 +72,17 @@ gcloud run deploy mythos-api \
 
 - `$PORT` 는 Cloud Run 이 주입 → `Dockerfile` CMD 가 `MYTHOS_API_PORT` 로 매핑(코드 무수정).
 - ADC: Cloud Run 은 SA 자격으로 자동 인증 → 키파일/`GEMINI_API_KEY` 불필요.
-- **이미지 비동기 워커**: 클로즈베타는 Redis/워커 없이 가는 게 단순(비용↓). 그러면 이미지가 **요청 내 동기 생성**
-  (`image_sync_fallback`)으로 떨어짐 — 턴당 ~7s 추가. 원하면 별도 워커(2nd Cloud Run/Cloud Tasks)는 follow-up.
+- **이미지 생성**: **요청 내 동기 생성** 단일 경로 (Redis 큐/워커는 2026-07-04 전면 제거) — 이미지 턴당 ~7s 추가.
+  비동기가 필요해지면 Cloud Tasks/2nd Cloud Run이 follow-up 후보.
 
 ## 5. 배포 검증
 
 ### 5a. 배포 전 — 로컬 실전 검증 (gcloud 전에 권장)
 
-> **빠른 길(컨테이너 없이, 호스트에서):** `make api-cloud` (서사=Vertex Gemini) **+ `make visual-worker-cloud-bg`**
-> (이미지=Vertex Imagen). ⚠️ **둘 다 필요**: SPA가 `visual_async`를 보내 이미지는 **별도 워커**에서 생성되므로,
-> `api-cloud`만 띄우면 워커가 로컬 FLUX(MPS)로 처리해 **수십 초 느림**. 워커도 cloud여야 Imagen(~7s). 저장은 로컬 minio.
+> **빠른 길(컨테이너 없이, 호스트에서):** `make api-cloud` (서사=Vertex Gemini, 이미지=Vertex Imagen ~7s
+> **요청 내 동기 생성** — Redis 워커는 2026-07-04 전면 제거, 로컬/클라우드 모두 동기 단일 경로). 저장은 로컬 minio.
 > ADC + `.env`의 Google Cloud 설정 필요. ⚠️ Vertex 호출은 GCP 과금. 평소 `make api`는 완전 로컬(Ollama, 무료).
-> (Cloud Run 배포는 워커 없이 **동기 생성**이므로 이 분리가 없음 — `GCP_PLAN.md` §2.) 아래는 **컨테이너 자체** 검증:
+> 아래는 **컨테이너 자체** 검증:
 
 
 실배포되는 lean 컨테이너를 클라우드 provider(Gemini/Imagen via ADC) + 로컬 Postgres로 띄워 검증. **검증됨 2026-06-28**:

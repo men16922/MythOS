@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 from mythos_core import LoopPhase, LoopState, Scene
-from mythos_core.clock import utc_now
 from mythos_memory import MythOSStore
 from mythos_runtime.cutscenes import ACTIVE_CUTSCENE_KEY
 from mythos_runtime.options import RuntimeOptions
 from mythos_runtime.route_map import ROUTE_MAP_KEY
-from mythos_runtime.visual_queue import VisualJobQueue
 from mythos_runtime.visual_service import (
     VisualGenerationResult,
     VisualService,
@@ -39,23 +37,6 @@ def maybe_generate_scene_image(
         "steps": options.image_steps,
         "scenario_id": options.scenario_id,
     }
-
-    if options.visual_async:
-        queued = _try_enqueue_image_job(
-            store=store,
-            options=options,
-            scene=scene,
-            player_id=player_id,
-            overrides=overrides,
-        )
-        if queued is not None:
-            return queued
-        # image_sync_fallback is an explicit caller opt-in (the API's WS path on
-        # Cloud Run, where no Redis worker exists). fast_mode must not veto it:
-        # RuntimeOptions defaults fast_mode=True and the API never overrides it,
-        # so a fast_mode veto here would make the opt-in dead code.
-        if not options.image_sync_fallback:
-            return None
 
     storage = storage_adapter_for(options.image_storage)
     service = VisualService(storage=storage, store=store)
@@ -90,30 +71,6 @@ def _curated_anchor_image(loop: LoopState) -> str | None:
     return None
 
 
-# A pending/processing asset older than this is treated as stale (the worker died
-# mid-flight, so the job is lost). Without this, one orphaned `pending` row would
-# block every future enqueue for the rest of the loop — no more scene images at all.
-# Generous enough to never collide with a legitimately slow FLUX generation.
-_INFLIGHT_TTL_SECONDS = 300
-
-
-def _has_inflight_asset(store: MythOSStore, loop_id: str) -> bool:
-    """True if a recent pending/processing asset is genuinely still in flight.
-
-    Stale rows (older than `_INFLIGHT_TTL_SECONDS`) are ignored so a worker that
-    died mid-job doesn't permanently wedge image generation for the loop."""
-    now = utc_now()
-    for asset in store.list_assets(loop_id):
-        if asset.status not in {"pending", "processing"}:
-            continue
-        created = asset.created_at
-        if created is None:
-            return True  # unknown age — stay conservative and treat as in flight
-        if (now - created).total_seconds() < _INFLIGHT_TTL_SECONDS:
-            return True
-    return False
-
-
 def is_key_beat(loop: LoopState, scene: Scene) -> bool:
     """Whether this scene warrants a costly representative image.
 
@@ -132,27 +89,3 @@ def is_key_beat(loop: LoopState, scene: Scene) -> bool:
     if loop.tension >= 70 or loop.stability <= 30:
         return scene.turn_index % 2 == 0
     return scene.turn_index % 3 == 0
-
-
-def _try_enqueue_image_job(
-    *,
-    store: MythOSStore,
-    options: RuntimeOptions,
-    scene: Scene,
-    player_id: str,
-    overrides: dict,
-) -> VisualGenerationResult | None:
-    queue = VisualJobQueue()
-    if not queue.worker_alive():
-        return None
-    if _has_inflight_asset(store, scene.loop_id):
-        return None
-
-    service = VisualService(store=store)
-    return service.enqueue_for_scene(
-        scene,
-        player_id=player_id,
-        queue=queue,
-        storage_kind=options.image_storage,
-        request_overrides=overrides,
-    )

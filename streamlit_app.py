@@ -24,7 +24,6 @@ from mythos_runtime.options import (
 )
 from mythos_runtime.scenario import load_scenario
 from mythos_runtime.session import RuntimeSessionService
-from mythos_runtime.visual_queue import VisualJobQueue
 
 st.set_page_config(page_title="Project MythOS", layout="wide", initial_sidebar_state="collapsed")
 
@@ -1179,11 +1178,8 @@ def _player_sidebar_options() -> RuntimeOptions:
         help="장면이 전환될 때 현재 상황을 보여주는 이미지를 자동 생성합니다. "
         "끄면 텍스트만 진행합니다. (FLUX 모델은 세션당 한 번만 로드)",
     )
-    st.sidebar.caption("플레이어 프리셋: 512x512 / 4 step (mflux, 백그라운드 ~8초)")
-    st.sidebar.caption(
-        "이미지는 핵심 장면에서 백그라운드로 생성됩니다(별도 터미널 불필요 — 워커 자동 기동). "
-        "MinIO에 저장되며, 생성 중에는 '생성 중…' 표시 후 자동으로 채워집니다."
-    )
+    st.sidebar.caption("플레이어 프리셋: 512x512 / 4 step (mflux, 턴 내 동기 생성 ~8초)")
+    st.sidebar.caption("이미지는 핵심 장면에서 턴 처리 중에 생성되어 MinIO에 저장됩니다.")
     return RuntimeOptions(
         fast_mode=True,
         fallback=not gm,
@@ -1193,7 +1189,6 @@ def _player_sidebar_options() -> RuntimeOptions:
         image_height=512,
         # schnell's recommended step count; 1 step also breaks img2img (0 effective steps).
         image_steps=4,
-        visual_async=True,
     )
 
 
@@ -1669,40 +1664,7 @@ def _act_label(phase: LoopPhase) -> str:
     return _ACT_LABELS.get(phase, str(phase.value))
 
 
-def _ensure_visual_worker(options: RuntimeOptions) -> None:
-    """Auto-start the async visual worker so the user needn't run a second terminal.
-
-    Spawns one detached worker per app process only when async images are on, Redis is
-    reachable, and no worker heartbeat is already present (a manually started worker
-    takes precedence). Logs go to outputs/visual-worker.log.
-    """
-    if not (options.with_image and options.visual_async):
-        return
-    if st.session_state.get("_worker_spawn_attempted"):
-        return
-    queue = VisualJobQueue()
-    if not queue.is_available() or queue.worker_alive():
-        return
-    st.session_state["_worker_spawn_attempted"] = True
-    import subprocess
-    import sys
-
-    log_path = Path("outputs") / "visual-worker.log"
-    try:
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        log = open(log_path, "a")  # noqa: SIM115 — kept open for the detached child
-        subprocess.Popen(
-            [sys.executable, "-u", "-m", "mythos_runtime.visual_worker"],
-            stdout=log,
-            stderr=log,
-            start_new_session=True,
-        )
-    except Exception:
-        pass
-
-
 def _player_view(options: RuntimeOptions) -> None:
-    _ensure_visual_worker(options)
     _inject_player_css()
     copy = _scenario_ui_copy(options.scenario_id)
     st.title(_copy_str(copy, "title"))

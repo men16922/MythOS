@@ -1,16 +1,14 @@
 import unittest
 from dataclasses import replace
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from unittest import mock
 
-from mythos_core import AssetRecord, LoopPhase, LoopState, Scene
-from mythos_core.clock import utc_now
+from mythos_core import LoopPhase, LoopState, Scene
 from mythos_runtime import visual_orchestration
 from mythos_runtime.options import RuntimeOptions
 from mythos_runtime.route_map import ROUTE_MAP_KEY
 from mythos_runtime.visual_orchestration import (
     _curated_anchor_image,
-    _has_inflight_asset,
     maybe_generate_scene_image,
 )
 
@@ -96,31 +94,21 @@ class MaybeGenerateSkipsCuratedAnchorTests(unittest.TestCase):
         self.assertIsNone(result)
 
 
-class SyncFallbackTests(unittest.TestCase):
-    """image_sync_fallback must survive the default fast_mode=True.
-
-    Cloud Run has no Redis worker, so the async enqueue always fails; the API
-    opts into the sync fallback via image_sync_fallback=True but never touches
-    fast_mode (default True). A fast_mode veto here silently disabled every
-    dynamic scene image on Cloud Run (2026-07-04)."""
+class SyncGenerationTests(unittest.TestCase):
+    """Image generation is synchronous in-request (the Redis queue/worker was
+    removed 2026-07-04): with_image on a non-curated scene must generate, and
+    the default fast_mode=True must not veto it. The fast_mode veto silently
+    disabled every dynamic scene image on Cloud Run."""
 
     def _run(self, options: RuntimeOptions) -> object:
-        calls: list[str] = []
-
-        class _DeadQueue:
-            def worker_alive(self) -> bool:
-                return False
-
         class _RecordingService:
             def __init__(self, **_: object) -> None:
                 pass
 
             def generate_for_scene(self, *_: object, **__: object) -> str:
-                calls.append("sync")
                 return "generated"
 
         with (
-            mock.patch.object(visual_orchestration, "VisualJobQueue", _DeadQueue),
             mock.patch.object(visual_orchestration, "storage_adapter_for", lambda kind: object()),
             mock.patch.object(visual_orchestration, "VisualService", _RecordingService),
         ):
@@ -132,73 +120,13 @@ class SyncFallbackTests(unittest.TestCase):
                 player_id="player_test",
             )
 
-    def test_sync_fallback_runs_despite_default_fast_mode(self) -> None:
-        result = self._run(
-            RuntimeOptions(
-                with_image=True,
-                visual_async=True,
-                image_every_turn=True,
-                image_sync_fallback=True,
-            )
-        )
+    def test_generates_despite_default_fast_mode(self) -> None:
+        result = self._run(RuntimeOptions(with_image=True, image_every_turn=True))
         self.assertEqual(result, "generated")
 
-    def test_no_fallback_opt_in_still_skips(self) -> None:
-        result = self._run(
-            RuntimeOptions(with_image=True, visual_async=True, image_every_turn=True)
-        )
-        self.assertIsNone(result)
-
-
-def _asset(status: str, age_seconds: float) -> AssetRecord:
-    return AssetRecord(
-        asset_id="asset_x",
-        scene_id="scene_test",
-        loop_id="loop_test",
-        provider="p",
-        model_id="m",
-        prompt="",
-        seed=0,
-        width=8,
-        height=8,
-        steps=1,
-        storage_uri="",
-        metadata={},
-        created_at=utc_now() - timedelta(seconds=age_seconds),
-        status=status,
-    )
-
-
-class _FakeAssetStore:
-    def __init__(self, assets: list[AssetRecord]) -> None:
-        self._assets = assets
-
-    def list_assets(self, loop_id: str) -> list[AssetRecord]:
-        return self._assets
-
-
-class HasInflightAssetTests(unittest.TestCase):
-    def _check(self, assets: list[AssetRecord]) -> bool:
-        return _has_inflight_asset(_FakeAssetStore(assets), "loop_test")  # type: ignore[arg-type]
-
-    def test_fresh_pending_is_inflight(self) -> None:
-        self.assertTrue(self._check([_asset("pending", 2)]))
-
-    def test_fresh_processing_is_inflight(self) -> None:
-        self.assertTrue(self._check([_asset("processing", 5)]))
-
-    def test_stale_pending_is_ignored(self) -> None:
-        # Worker died mid-flight: an orphaned pending must not wedge the loop.
-        self.assertFalse(self._check([_asset("pending", 400)]))
-
-    def test_succeeded_is_not_inflight(self) -> None:
-        self.assertFalse(self._check([_asset("succeeded", 2)]))
-
-    def test_no_assets_is_not_inflight(self) -> None:
-        self.assertFalse(self._check([]))
-
-    def test_fresh_pending_wins_over_stale(self) -> None:
-        self.assertTrue(self._check([_asset("pending", 400), _asset("processing", 3)]))
+    def test_key_beat_turn_zero_generates_without_every_turn(self) -> None:
+        result = self._run(RuntimeOptions(with_image=True))
+        self.assertEqual(result, "generated")  # _scene() is turn 0 = key beat
 
 
 if __name__ == "__main__":

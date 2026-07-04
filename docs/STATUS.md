@@ -9,7 +9,7 @@ Project MythOS is past local-playable MVP into a state where a React SPA + FastA
 Major implemented axes:
 
 - Neo-Seoul 01 long-form scenario, Story Bible snippet injection, Codex.
-- PostgreSQL persistence, MinIO assets, Redis visual queue/worker, OTel/Jaeger.
+- PostgreSQL persistence, MinIO assets, OTel/Jaeger. (Redis queue/worker + session cache removed 2026-07-04 — visual generation is synchronous in-request on all paths.)
 - Ollama narrative generation with repair/fallback and persisted outcome metrics. The narrative path is **dual-model**: storyteller (`OLLAMA_MODEL_STORY`=`gemma4:latest` 8B, free text) → parser (`OLLAMA_MODEL_PARSER`=`qwen2.5:3b-instruct`, JSON structuring) split (`director.py`/`prompts.py`). Uncommitted batch (see 2026-06-14 PROGRESS_LOG).
 - mflux/FLUX image generation, Redux character identity steering, async worker cleanup.
 - Tactical combat engine, encounters, allies, skills/items, enemy intents, combat VFX Phase 1, CombatCinema full-body action pose swap.

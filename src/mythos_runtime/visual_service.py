@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import shutil
-from dataclasses import asdict, dataclass, field, replace
+from dataclasses import dataclass, field, replace
 from datetime import timedelta
 from pathlib import Path
 from time import perf_counter
@@ -18,7 +18,6 @@ from mythos_image_agent.postprocess import apply_diegetic_overlay, apply_y2k_crt
 from mythos_memory import MythOSStore
 from mythos_runtime.observability import get_logger, set_span_attribute, timed
 from mythos_runtime.scenario import load_scenario
-from mythos_runtime.visual_queue import VisualJobQueue
 
 
 @dataclass(frozen=True)
@@ -204,8 +203,8 @@ class VertexImageProvider:
         client: object = None,
     ) -> None:
         self.model = model or _env("IMAGEN_MODEL", "IMAGE_MODEL_ID_VERTEX") or "imagen-3.0-generate-002"
-        # Truth labels for asset records/logs: the enqueuer stamps the request with
-        # local-FLUX defaults, which must not survive onto a billed cloud generation.
+        # Truth labels for asset records/logs: requests are stamped with local-FLUX
+        # defaults, which must not survive onto a billed cloud generation.
         self.provider_label = "vertex_imagen"
         self.model_label = self.model
         self.project = project or _env("GOOGLE_CLOUD_PROJECT", "PROJECT_ID")
@@ -434,37 +433,6 @@ class VisualService:
         request = self._request_from_scene(scene, player_id, request_overrides or {})
         return self.generate(request)
 
-    def enqueue_for_scene(
-        self,
-        scene: Scene,
-        player_id: str,
-        queue: VisualJobQueue,
-        storage_kind: str,
-        request_overrides: dict | None = None,
-    ) -> VisualGenerationResult:
-        """Record a `pending` asset and enqueue an async job; returns immediately."""
-        request = self._request_from_scene(scene, player_id, request_overrides or {})
-        request = replace(request, asset_id=new_asset_id())
-        pending = self._record(request=request, status="pending", storage_uri="", error=None)
-        queue.enqueue(
-            {
-                "asset_id": request.asset_id,
-                "storage_kind": storage_kind,
-                "request": asdict(request),
-            }
-        )
-        self.logger.info(
-            "visual job enqueued",
-            extra={
-                "player_id": player_id,
-                "loop_id": request.loop_id,
-                "scene_id": request.scene_id,
-                "asset_id": request.asset_id,
-                "queue_depth": queue.depth(),
-            },
-        )
-        return pending
-
     def generate(self, request: VisualGenerationRequest) -> VisualGenerationResult:
         if not request.enabled:
             return self._record(
@@ -474,8 +442,8 @@ class VisualService:
                 error=None,
             )
 
-        # The enqueuer stamps provider/model_id with local-FLUX defaults; the engine
-        # actually generating is env-selected here. Reconcile the labels before any
+        # Requests are stamped with local-FLUX defaults; the engine actually
+        # generating is env-selected here. Reconcile the labels before any
         # record/log so a billed cloud generation is never recorded as local
         # (bit us during live provider verification: Imagen ran, logs said FLUX).
         reference_image = request.metadata.get("reference_image")
@@ -491,8 +459,9 @@ class VisualService:
                 model_id=getattr(self.provider, "model_label", None) or request.model_id,
             )
 
-        # Async jobs carry a pre-minted asset_id; flag it processing before the
-        # (slow) provider call so the UI can show a "generating" state.
+        # A pre-minted asset_id means the caller already recorded the attempt;
+        # flag it processing before the (slow) provider call so the UI can show
+        # a "generating" state.
         if request.asset_id is not None:
             self._record(request=request, status="processing", storage_uri="", error=None)
 

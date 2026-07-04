@@ -38,13 +38,8 @@ class RuntimeOptions:
     # Director via NarrativeContext.language. Default "ko" until S1 lands EN content;
     # the public/global default flips to "en" then (localization plan §3 S0/S1).
     language: str = "ko"
-    # When True, enqueue image generation to Redis (non-blocking) if a live worker
-    # is present; otherwise fall back to synchronous generation.
-    visual_async: bool = False
     # When False (default), only generate images on key beats; True forces every turn.
     image_every_turn: bool = False
-    # When False, async image mode never falls back to blocking local generation.
-    image_sync_fallback: bool = False
 
 
 @dataclass(frozen=True)

@@ -190,63 +190,6 @@ class RuntimeSessionService:
         self.progression = ProgressionService(store)
         self.logger = get_logger("mythos.session")
 
-    def _get_cache(self):
-        if not hasattr(self, "_session_cache"):
-            from mythos_runtime.visual_queue import SessionCache
-
-            self._session_cache = SessionCache()
-        return self._session_cache
-
-    def _is_test_env(self) -> bool:
-        import os
-        import sys
-
-        return (
-            "unittest" in sys.modules
-            or "pytest" in sys.modules
-            or os.getenv("MYTHOS_ENV") == "test"
-        )
-
-    def _get_cached_snapshot(self, loop_id: str) -> RuntimeSnapshot | None:
-        if self._is_test_env():
-            return None
-        cache = self._get_cache()
-        if cache and cache.is_available():
-            try:
-                data = cache.get_snapshot(loop_id)
-                if data:
-                    from mythos_core.models import from_json_dict
-
-                    return from_json_dict(RuntimeSnapshot, data)
-            except Exception as exc:
-                self.logger.warning("failed to decode cached snapshot", exc_info=exc)
-        return None
-
-    def _set_cached_snapshot(self, loop_id: str, snapshot: RuntimeSnapshot) -> None:
-        if self._is_test_env():
-            return
-        cache = self._get_cache()
-        if cache and cache.is_available():
-            try:
-                from mythos_core.models import to_json_dict
-
-                data = to_json_dict(snapshot)
-                if "image_result" in data:
-                    data["image_result"] = None
-                cache.set_snapshot(loop_id, data)
-            except Exception as exc:
-                self.logger.warning("failed to write snapshot cache", exc_info=exc)
-
-    def _delete_cached_snapshot(self, loop_id: str) -> None:
-        if self._is_test_env():
-            return
-        cache = self._get_cache()
-        if cache and cache.is_available():
-            try:
-                cache.delete_snapshot(loop_id)
-            except Exception:
-                pass
-
     def create_player(
         self,
         display_name: str,
@@ -638,7 +581,6 @@ class RuntimeSessionService:
             epiphanies_unlocked=self._epiphanies_unlocked(player, loop),
             boons=self._boons_view(loop, options),
         )
-        self._set_cached_snapshot(loop.loop_id, snapshot)
         return snapshot
 
     def _offer_boons_if_absent(self, loop: LoopState, turn_index: int) -> LoopState:
@@ -684,7 +626,6 @@ class RuntimeSessionService:
             epiphanies_unlocked=self._epiphanies_unlocked(player, loop),
             boons=self._boons_view(loop, options),
         )
-        self._set_cached_snapshot(loop.loop_id, snapshot)
         return snapshot
 
     @staticmethod
@@ -812,7 +753,6 @@ class RuntimeSessionService:
             boons=self._boons_view(loop, options),
             market=self._market_view(loop, options),
         )
-        self._set_cached_snapshot(loop.loop_id, snapshot)
         return snapshot
 
     def _redirect_to_active_combat(
@@ -848,7 +788,6 @@ class RuntimeSessionService:
             epiphanies_unlocked=self._epiphanies_unlocked(player, loop),
             boons=self._boons_view(loop, options),
         )
-        self._set_cached_snapshot(loop.loop_id, snapshot)
         return snapshot
 
     def choose(
@@ -976,11 +915,6 @@ class RuntimeSessionService:
         options: RuntimeOptions | None = None,
     ) -> RuntimeSnapshot:
         options = options or RuntimeOptions()
-        if loop_id:
-            cached = self._get_cached_snapshot(loop_id)
-            if cached:
-                return cached
-
         loop = None
         if loop_id:
             loop = self.store.get_loop(loop_id)
@@ -989,9 +923,6 @@ class RuntimeSessionService:
             # skip any that have since ENDED so player-resume picks the latest
             # *active* loop (ended loops live in run history, not the slot list).
             for slot in self.list_save_slots(player_id):
-                cached = self._get_cached_snapshot(slot.loop_id)
-                if cached:
-                    return cached
                 candidate = self.store.get_loop(slot.loop_id)
                 if candidate is not None and candidate.phase is not LoopPhase.ENDED:
                     loop = candidate
@@ -1025,7 +956,6 @@ class RuntimeSessionService:
             boons=self._boons_view(loop, options),
             market=self._market_view(loop, options),
         )
-        self._set_cached_snapshot(loop.loop_id, snapshot)
         return snapshot
 
     def list_active_loops(self, player_id: str) -> list[LoopState]:
@@ -1078,7 +1008,6 @@ class RuntimeSessionService:
             boons=self._boons_view(restored, options),
             market=self._market_view(restored, options),
         )
-        self._set_cached_snapshot(restored.loop_id, snapshot)
         return snapshot
 
     def memory_overview(self, player_id: str, limit: int = 8) -> MemoryOverview:
@@ -1753,9 +1682,6 @@ class RuntimeSessionService:
             epiphanies_unlocked=self._epiphanies_unlocked(snapshot_player, loop),
             boons=self._boons_view(loop, options),
         )
-        # Keep the read cache in sync with combat results: a stale pre-fight
-        # snapshot must never be served (or, worse, committed) after this turn.
-        self._set_cached_snapshot(loop.loop_id, combat_snapshot)
         return combat_snapshot
 
     def _begin_requested_combat(
@@ -2557,9 +2483,7 @@ class RuntimeSessionService:
             combat_snapshot = self._begin_requested_combat(
                 player, transition.loop, next_combat, options
             )
-            self._set_cached_snapshot(transition.loop.loop_id, combat_snapshot)
             return combat_snapshot
-        self._set_cached_snapshot(transition.loop.loop_id, snapshot)
         return snapshot
 
     def _defer_threshold_archive_for_climax(

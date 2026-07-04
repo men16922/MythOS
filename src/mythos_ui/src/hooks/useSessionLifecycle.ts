@@ -17,7 +17,6 @@ import type { NarrativeHistoryItem } from "../App";
 
 type ImageOpts = {
   with_image: boolean;
-  visual_async: boolean;
   image_every_turn: boolean;
 };
 

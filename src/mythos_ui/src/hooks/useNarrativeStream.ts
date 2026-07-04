@@ -8,7 +8,6 @@ import { useGameSocket } from "./useGameSocket";
 
 type ImageOpts = {
   with_image: boolean;
-  visual_async: boolean;
   image_every_turn: boolean;
 };
 
@@ -137,7 +136,6 @@ export function useNarrativeStream(args: UseNarrativeStreamArgs) {
   const imageOpts = useCallback((): ImageOpts => {
     return {
       with_image: withImage,
-      visual_async: withImage,
       image_every_turn: withImage,
     };
   }, [withImage]);

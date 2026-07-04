@@ -34,7 +34,6 @@ const devStackStyle: CSSProperties = {
 const INFRA_LINKS: { label: string; port: number; descKey: StringKey }[] = [
   { label: "Adminer", port: 8080, descKey: "dev.infra.adminer" },
   { label: "MinIO", port: 9001, descKey: "dev.infra.minio" },
-  { label: "Redis", port: 8081, descKey: "dev.infra.redis" },
   { label: "Jaeger", port: 16686, descKey: "dev.infra.jaeger" },
 ];
 

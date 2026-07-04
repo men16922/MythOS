@@ -56,8 +56,6 @@
       "Bash(make narrative-smoke)",
       "Bash(make visual-smoke-minio-db)",
       "Bash(make visual-smoke-flux-tiny)",
-      "Bash(make visual-worker)",
-      "Bash(make visual-worker-bg)",
       "Bash(make dev-up)",
       "Bash(make dev-down)",
       "Bash(make streamlit)",

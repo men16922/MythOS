@@ -4,7 +4,7 @@ COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
-.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback narrative-smoke-fallback-en visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny visual-worker visual-worker-bg visual-worker-cloud visual-worker-cloud-bg visual-worker-stop visual-worker-logs redis-shell connect-demo sim-boss smoke smoke-local streamlit streamlit-stop api api-stop api-cloud cloud-image cloud-run-local dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build validate-content check check-skills sync-skills check-auto overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-clean overnight-codex overnight-codex-watch overnight-codex-once overnight-agy overnight-agy-watch overnight-agy-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review image-regen
+.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback narrative-smoke-fallback-en visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny connect-demo sim-boss smoke smoke-local streamlit streamlit-stop api api-stop api-cloud cloud-image cloud-run-local dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build validate-content check check-skills sync-skills check-auto overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-clean overnight-codex overnight-codex-watch overnight-codex-once overnight-agy overnight-agy-watch overnight-agy-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review image-regen
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -208,35 +208,6 @@ visual-smoke-disabled:
 visual-smoke-flux-tiny:
 	$(VENV)/bin/python -m mythos_runtime.visual_smoke --real-flux
 
-visual-worker:
-	$(VENV)/bin/python -m mythos_runtime.visual_worker
-
-visual-worker-bg:
-	@mkdir -p outputs
-	@nohup $(VENV)/bin/python -u -m mythos_runtime.visual_worker > outputs/visual-worker.log 2>&1 & echo "visual worker started (pid $$!), logs: outputs/visual-worker.log"
-
-# Cloud image worker: generates via Vertex Imagen (matches `make api-cloud`). The SPA
-# sends visual_async, so async images run HERE, not in the API — both must be cloud or
-# images fall back to local FLUX (slow). Storage stays local minio. ⚠️ Imagen is BILLED.
-visual-worker-cloud:
-	@pkill -f mythos_runtime.visual_worker 2>/dev/null && echo "stopped previous worker" || true
-	@echo "visual worker (CLOUD): Vertex Imagen · ⚠️ 장당 ~\$$0.04 GCP 과금"
-	MYTHOS_VISUAL_PROVIDER=vertex $(VENV)/bin/python -m mythos_runtime.visual_worker
-
-visual-worker-cloud-bg:
-	@mkdir -p outputs
-	@pkill -f mythos_runtime.visual_worker 2>/dev/null && echo "stopped previous worker" || true
-	@MYTHOS_VISUAL_PROVIDER=vertex nohup $(VENV)/bin/python -u -m mythos_runtime.visual_worker > outputs/visual-worker.log 2>&1 & echo "cloud visual worker started (pid $$!) — Vertex Imagen, logs: outputs/visual-worker.log"
-
-visual-worker-stop:
-	@pkill -f mythos_runtime.visual_worker && echo "visual worker stopped" || echo "no visual worker running"
-
-visual-worker-logs:
-	@touch outputs/visual-worker.log && tail -f outputs/visual-worker.log
-
-redis-shell:
-	docker compose -f docker-compose.local.yml exec redis redis-cli
-
 connect-demo:
 	$(VENV)/bin/python -m mythos_runtime.connect_cli new-player "Demo Connector" --player-id player_demo
 	$(VENV)/bin/python -m mythos_runtime.connect_cli connect --player-id player_demo --fallback
@@ -261,14 +232,14 @@ smoke:
 
 streamlit:
 	@pkill -f "streamlit run streamlit_app.py" 2>/dev/null && echo "stopped previous streamlit" || true
-	@echo "logs: set MYTHOS_DEBUG=1 or MYTHOS_LOG_LEVEL=DEBUG; speed: MYTHOS_FAST_MODE=1; image logs -> make visual-worker-logs"
+	@echo "logs: set MYTHOS_DEBUG=1 or MYTHOS_LOG_LEVEL=DEBUG; speed: MYTHOS_FAST_MODE=1"
 	$(VENV)/bin/streamlit run streamlit_app.py --server.port=8501
 
 streamlit-stop:
 	@pkill -f "streamlit run streamlit_app.py" && echo "streamlit stopped" || echo "no streamlit running"
 
 # FastAPI backend adapter (P3 Web UI). Serves REST + WebSocket at /api/v1 and
-# the PoC client at /. Image generation needs infra-up + visual-worker.
+# the PoC client at /. Image generation is synchronous in-request (infra-up for MinIO).
 api:
 	@pkill -f "mythos_api" 2>/dev/null && echo "stopped previous api" || true
 	@echo "API: http://$${MYTHOS_API_HOST:-127.0.0.1}:$${MYTHOS_API_PORT:-8000}  (PoC client at /, endpoints under /api/v1)"
@@ -301,9 +272,9 @@ ENVFILE ?= .env
 cloud-run-local:
 	docker run --rm -p 8080:8080 -e PORT=8080 $$( [ -f $(ENVFILE) ] && echo --env-file $(ENVFILE) ) $(CLOUD_IMAGE)
 
-# One-command dev stack: docker infra + db migrate + visual worker(bg) + API(foreground).
+# One-command dev stack: docker infra + db migrate + API(foreground).
 # Ollama is host-side (not docker); start it separately with `ollama serve`.
-# Ctrl+C stops the API; infra/worker keep running. Tear everything down: make dev-down.
+# Ctrl+C stops the API; infra keeps running. Tear everything down: make dev-down.
 dev-up:
 	$(COMPOSE) -f $(COMPOSE_FILE) up -d
 	@echo "Waiting for Postgres to be ready..."
@@ -312,7 +283,6 @@ dev-up:
 		sleep 1; \
 	done
 	@$(MAKE) db-migrate || echo "db-migrate skipped/failed (이미 적용됐을 수 있음)"
-	@$(MAKE) visual-worker-bg
 	@(curl -s -m 2 http://localhost:11434/api/tags >/dev/null 2>&1 && echo "Ollama: 실행 중") || echo "⚠ Ollama 미실행 — 별도 터미널에서 'ollama serve' (또는 온보딩에서 fallback 사용)"
 	@echo "------------------------------------------------------------"
 	@echo "▶ API 기동. Ctrl+C로 API만 종료(인프라/워커 유지). 전체 정리: make dev-down"
@@ -321,7 +291,6 @@ dev-up:
 
 dev-down:
 	-@$(MAKE) api-stop
-	-@$(MAKE) visual-worker-stop
 	$(COMPOSE) -f $(COMPOSE_FILE) down
 
 infra-up:

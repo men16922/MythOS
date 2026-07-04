@@ -13,7 +13,7 @@ Project MythOS is a single-player SF loop-based TRPG/CRPG on a Python 3.11+ loca
 Current baseline:
 - `RuntimeSessionService` handles shared orchestration for CLI/Streamlit/FastAPI.
 - React+TS SPA + FastAPI `/api/v1` REST/WS adapter, and Streamlit demo all call the same runtime service.
-- PostgreSQL/MinIO/Redis/OTel/Jaeger local infra.
+- PostgreSQL/MinIO/OTel/Jaeger local infra (Redis removed 2026-07-04; images generate synchronously in-request).
 - Neo-Seoul 01 is the primary scenario, `glass-library` is an extension sample.
 - Story Bible, Codex, Run History, Meta Progression, Save/Load, Ending Resolver implemented.
 - Tactical combat (full-body action pose, role/tags skill animations, icon action bar, direct party control, 3 new allies and 4 enemy types with 35 new combat sprites mapped into scenario.json), Tactical Board legend/tile inspector/learning-goal banner, Playwright E2E implemented.

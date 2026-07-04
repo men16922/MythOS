@@ -7,7 +7,7 @@ One iteration = **1** `[auto]` task + **1 local commit** if the gate passes. Sto
 
 - **Forbidden actions**: `git push`, external network (`curl`/`wget`), Docker/Ollama/FLUX calls,
   destructive/online `make` targets (`infra-*`, `db-*`, `smoke`, `test-db`, `test-e2e*`,
-  `narrative-smoke` (non-fallback), `visual-smoke-minio-db`, `visual-worker*`, `dev-*`, `streamlit`, `api`, `connect-demo`).
+  `narrative-smoke` (non-fallback), `visual-smoke-minio-db`, `dev-*`, `streamlit`, `api`, `connect-demo`).
 - **Forbidden task classes** (can't be verified unattended → never start):
   human-play feel QA (all of `docs/test/neo_seoul_live_qa.md`), content/Story-Bible authoring,
   balance tuning, LLM prompt-feel tuning.

@@ -12,7 +12,6 @@ request bodies instead of being inferred from an auth context.
 
 from __future__ import annotations
 
-import asyncio
 from collections.abc import AsyncIterator, Iterator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
@@ -22,7 +21,7 @@ from typing import Any
 from fastapi import Depends, FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
-from starlette.concurrency import iterate_in_threadpool, run_in_threadpool
+from starlette.concurrency import iterate_in_threadpool
 from starlette.responses import Response
 
 from mythos_api.invite import InviteGateMiddleware
@@ -76,13 +75,9 @@ class _NoCacheStaticFiles(StaticFiles):
 # Scenarios discoverable by the onboarding screen (resources/<id>/scenario.json).
 _SCENARIO_IDS = ("neo-seoul", "glass-library")
 
-# Terminal vs. in-flight image asset statuses, and bounded polling for the
-# async (Redis worker) path so a never-finishing job can't hang the socket.
-# The window must comfortably cover a real FLUX generation: a live run on MPS
-# at 1024px exceeded 30s, so the succeeded frame was missed; 90s gives margin.
+# Terminal image asset statuses (generation is synchronous; the result frame
+# is emitted once, after the snapshot).
 _TERMINAL_VISUAL = {"succeeded", "failed", "disabled"}
-_VISUAL_POLL_INTERVAL_S = 1.0
-_VISUAL_POLL_TRIES = 90
 
 
 # --- Request models ---------------------------------------------------------
@@ -205,9 +200,7 @@ def _stream_for(
         fallback=bool(message.get("fallback", False)),
         language=str(message.get("lang", "ko")),
         with_image=bool(message.get("with_image", False)),
-        visual_async=bool(message.get("visual_async", False)),
         image_every_turn=bool(message.get("image_every_turn", False)),
-        image_sync_fallback=True,  # Cloud Run has no Redis worker; fall back to sync Imagen
         # Streamlit player-preset parity: 512x512 / 4 steps keeps mflux generation
         # fast (~8-15s) instead of the 1024x1024 default (~70-100s measured).
         image_width=int(message.get("image_width", 512)),
@@ -297,48 +290,17 @@ def _terminal_visual_frame(
 
 async def _emit_visual_status(
     websocket: WebSocket,
-    service: RuntimeSessionService,
     storage: SigningStorageAdapter,
     snapshot: RuntimeSnapshot,
 ) -> None:
-    """After the snapshot, stream the scene image lifecycle to the client.
-
-    Synchronous generation arrives already-resolved (one terminal frame). The
-    async Redis-worker path arrives ``pending``; we announce it and poll the
-    store until the worker marks the asset terminal, relaying processing →
-    succeeded/failed with a presigned URL on success.
-    """
+    """After the snapshot, relay the (synchronously generated) scene image as
+    one terminal ``visual_status`` frame with a presigned URL on success."""
     result = snapshot.image_result
     if result is None:
         return
     terminal = _terminal_visual_frame(storage, result)
     if terminal is not None:
         await websocket.send_json(terminal)
-        return
-
-    asset_id = result.asset.asset_id if result.asset else None
-    if asset_id is None:
-        return
-    loop_id = snapshot.loop.loop_id
-    await websocket.send_json({"type": "visual_status", "status": "pending", "asset_id": asset_id})
-    for _ in range(_VISUAL_POLL_TRIES):
-        await asyncio.sleep(_VISUAL_POLL_INTERVAL_S)
-        asset = await run_in_threadpool(_find_asset, service, loop_id, asset_id)
-        if asset is None:
-            continue
-        if asset.status in _TERMINAL_VISUAL:
-            await websocket.send_json(
-                _visual_frame(
-                    storage,
-                    status=asset.status,
-                    asset_id=asset_id,
-                    storage_uri=asset.storage_uri,
-                )
-            )
-            return
-        await websocket.send_json(
-            {"type": "visual_status", "status": "processing", "asset_id": asset_id}
-        )
 
 
 async def _run_stream(
@@ -349,13 +311,11 @@ async def _run_stream(
 ) -> None:
     """Drive one runtime token stream and relay it to the client socket.
 
-    The runtime stream is a blocking sync generator (it calls Ollama), so we
-    iterate it in a threadpool to avoid stalling the event loop, relaying each
-    token as ``{"type": "token"}`` and the terminal frame as
-    ``{"type": "snapshot"}``. After the snapshot we fire off image generation
-    as a background task — the snapshot (with choices) reaches the client
-    immediately, and the image arrives asynchronously via a ``visual_status``
-    frame once Imagen finishes (~7s).
+    The runtime stream is a blocking sync generator (it calls the LLM and, on
+    image turns, the image provider), so we iterate it in a threadpool to avoid
+    stalling the event loop, relaying each token as ``{"type": "token"}`` and
+    the terminal frame as ``{"type": "snapshot"}``. After the snapshot we send
+    the scene image's terminal ``visual_status`` frame (design §2.2).
     """
     logger = get_logger("mythos.api")
     loop_id = message.get("loop_id", "unknown")
@@ -381,12 +341,8 @@ async def _run_stream(
                         message.get("lang", "ko"),
                     )
                     await websocket.send_json({"type": "snapshot", "data": snap})
-            # Fire image generation in background — client already has the
-            # snapshot with choices so play is not blocked.
             if last_snapshot is not None:
-                asyncio.ensure_future(
-                    _emit_visual_status(websocket, service, storage, last_snapshot)
-                )
+                await _emit_visual_status(websocket, storage, last_snapshot)
         except KeyError as exc:
             await websocket.send_json({"type": "error", "detail": str(exc).strip("'\"")})
         except RuntimeError as exc:

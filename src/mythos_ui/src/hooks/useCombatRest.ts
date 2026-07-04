@@ -5,7 +5,6 @@ import type { CombatAction, RuntimeSnapshot } from "../types";
 
 type ImageOpts = {
   with_image: boolean;
-  visual_async: boolean;
   image_every_turn: boolean;
 };
 

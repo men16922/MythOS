@@ -112,8 +112,6 @@ def _combat_options(scenario_id: str) -> RuntimeOptions:
         fallback=True,
         with_image=False,
         scenario_id=scenario_id,
-        visual_async=False,
-        image_sync_fallback=False,
     )
 
 

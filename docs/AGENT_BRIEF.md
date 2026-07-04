@@ -4,7 +4,7 @@ Last updated: 2026-07-04
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Implicit-caching v2 prompt restructure** (diagnosis corrected: caching WORKS with real turn spacing; earlier 0 was write-propagation. Thresholds 2048 tok (2.5) / 4096 (3.5), system counts; current stable prefix ~1.5–1.8k → 0 hits) — v2 = stable-first note assembly + sliding windows after `loop` + fix `MAX_PROMPT_NOTES=8` (rule notes silently dropped — separate review item) → 2.5 passes 2048 (input −25–30%). Plan+실측 `docs/plans/2026-07-04-gemini-2.5-vs-3.5-eval.md`. Then 2.5→3.5 live-play call. Baseline: image fix DEPLOYED (rev `00015-nl5`), Redis removed, 3.5 one-knob swap live. Kiro smoke pending. Human: `git push` + cloud sign-off 🔴.
+> ▶ NEXT SESSION: **Live-play QA of the restored rule notes** — cache-prefix v2 is DONE (`1014e52`: stable-first notes, windows after loop, `MAX_PROMPT_NOTES` 8→48; stable prefix 2.55–2.85k tok, first real-path cache hit on 2.5). The un-dropped language/cinematic/naming/causality rules now REACH the model every turn — narrative register/repetition feel may change; play a loop and judge (`make api` or cloud after redeploy). Then: 2.5→3.5 call (`MODEL=gemini-3.5-flash make api`); 3.5 caching needs the directive-pack redesign (~1.2k tok short of 4096). Eval `docs/plans/2026-07-04-gemini-2.5-vs-3.5-eval.md`. Redeploy pending (rev `00015-nl5` lacks v2 + Redis-removal cosmetics). Kiro smoke pending. Human: `git push` (ahead 15) + cloud sign-off 🔴.
 
 ## Snapshot
 

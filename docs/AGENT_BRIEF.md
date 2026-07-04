@@ -4,7 +4,7 @@ Last updated: 2026-07-05
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Human live sign-off on 3.5 cloud is the gate — rev `00019-jf6` now serves the dieted prompt (~$1.0/loop)**: fresh-loop play per `docs/test/neo_seoul_live_qa.md` 🔴 judging 3.5 prose + restored-rules tone + scene length, **+ EN loop re-testing CBT feedback #1's "disjointed story" (`docs/cbt/CBT_FEEDBACK.md`)**. 2026-07-05 closed all three follow-ups: prompt diet (11.5k→8.6k/turn live; echo crowd-out bug fixed; AGY QA PASS), key-beat split (`GEMINI_MODEL_KEYBEAT`, hybrid ≈ $0.5/loop, live-verified), kiro lane smoke (profile `tools` fix upstreamed). Next code track: CBT onboarding P1 (combat telegraph / first-combat tutorial / progressive disclosure — NEXT_PLAN). Human: `git push`; authenticated 1-turn prod check; Audrey reply. Rollback = `MODEL=gemini-2.5-flash` env.
+> ▶ NEXT SESSION: **Human live sign-off is the gate — rev `00019-jf6` serves the dieted 3.5 prompt (~$1.0/loop), and the checklist is now play-order + feel-only** (`docs/test/neo_seoul_live_qa.md`: 3.5 prose verdict + Audrey EN retest; the objective slice — save/load restore, map pairing + horizon refresh (old risk), double-click idempotency, loot/equip/support-target — was closed by 3 AGY runs `obj*-063151`, 2026-07-05). Also queued for humans: **2 triage decisions** (ally-writeback promotion; ungated boot-screen combat simulator burning the tester loop cap — NEXT_PLAN 2026-07-05), `git push` (ahead 5+), Audrey reply. Next code track when directed: CBT onboarding P1 (combat telegraph / first-combat tutorial / progressive disclosure — from `docs/cbt/CBT_FEEDBACK.md`). Rollback = `MODEL=gemini-2.5-flash` env.
 
 ## Snapshot
 

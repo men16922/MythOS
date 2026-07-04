@@ -66,13 +66,46 @@ def main() -> None:
     svc.create_player("토큰프로브", player_id="p_tok", traits={"archetype": "ghost"})
     opts = RuntimeOptions(fallback=False, scenario_id="neo-seoul", with_image=False, language=lang)
     snap = svc.start_loop("p_tok", options=opts)
-    for _ in range(turns):
+    done = 0
+    while done < turns:
+        # Auto-resolve combats (deterministic engine, no LLM cost) so the probe
+        # can reach mid/late-game story turns where the cache prefix is warm.
+        if snap.combat is not None and not snap.combat.get("finished"):
+            from mythos_combat.engine import PlayerAction
+
+            radar = snap.combat.get("radar") or {}
+            enemies = [
+                b
+                for b in (radar.get("blips") or [])
+                if b.get("faction") == "enemy" and b.get("hp", 0) > 0
+            ]
+            target = enemies[0]["id"] if enemies else None
+            snap = svc.combat_action(
+                snap.loop.loop_id, PlayerAction(type="attack", target_id=target), opts
+            )
+            continue
         sc = snap.scene
         if not sc.choices:
+            if sc.scene_type == "combat":
+                # Fight resolved: resume the story with a free action (the SPA's
+                # post-combat path) so the probe reaches later story turns.
+                if sleep_s:
+                    time.sleep(sleep_s)
+                snap = svc.choose(
+                    sc.loop_id, action="전투 후 주변을 살피고 이동한다", options=opts
+                )
+                done += 1
+                continue
+            print(
+                f"  [stop] no choices at turn={sc.turn_index} phase={snap.loop.phase}"
+                f" type={sc.scene_type} title={sc.title!r}",
+                flush=True,
+            )
             break
         if sleep_s:
             time.sleep(sleep_s)
         snap = svc.choose(sc.loop_id, choice_id=sc.choices[0].choice_id, options=opts)
+        done += 1
 
     print(f"\nMODEL {model} (location={cfg.location}, lang={lang})")
     tin = tout = 0

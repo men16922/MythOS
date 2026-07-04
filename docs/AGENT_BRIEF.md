@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-07-04
+Last updated: 2026-07-05
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **3.5-flash is LIVE on cloud (rev `00018-pj9`) — human live sign-off is the gate now**: fresh-loop play per `docs/test/neo_seoul_live_qa.md` 🔴 judging 3.5 prose + restored-rules tone + scene length (user already confirmed mid-game length recovered). Verdict recorded: 3.5 quality worth it at CBT scale ($1.24 vs $0.26/loop; caching measured 8% hits → not a lever; AGY QA PASS `gemini35-eval-210231`) — eval `docs/plans/2026-07-04-gemini-2.5-vs-3.5-eval.md`. Code follow-ups (deprioritized until after sign-off): prompt diet <8k (unlocks caching + direct cost cut), key-beat model split ($0.5/loop alternative), kiro smoke. Human: `git push` (ahead 20). Rollback = `MODEL=gemini-2.5-flash` env.
+> ▶ NEXT SESSION: **Human live sign-off on 3.5 cloud (rev `00018-pj9`) is the gate — all code follow-ups are DONE**: fresh-loop play per `docs/test/neo_seoul_live_qa.md` 🔴 judging 3.5 prose + restored-rules tone + scene length. 2026-07-05 closed the three follow-ups: prompt diet (11.5k→8.6k/turn live, 3.5 ≈ $1.0/loop at next redeploy; echo crowd-out bug fixed), key-beat split (`GEMINI_MODEL_KEYBEAT`, hybrid ≈ $0.5/loop, live-verified), kiro lane smoke (profile `tools` fix upstreamed; real `[auto]` item consumed). Eval + measured appendix `docs/plans/2026-07-04-gemini-2.5-vs-3.5-eval.md`. Human: `git push` (ahead 5); next Cloud Run redeploy picks up the diet. Rollback = `MODEL=gemini-2.5-flash` env. `[auto]` backlog thin → `/overnight-seed` before arming a long run.
 
 ## Snapshot
 
@@ -28,7 +28,7 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **Human live sign-off on 3.5**: Cloud Run rev `00018-pj9` (narrative = gemini-3.5-flash, adopted 2026-07-04) — fresh-loop checklist (`docs/test/neo_seoul_live_qa.md`) + 3.5 prose/tone/length feel. Human `git push` (ahead 20).
+1. **Human live sign-off on 3.5**: Cloud Run rev `00018-pj9` (narrative = gemini-3.5-flash, adopted 2026-07-04) — fresh-loop checklist (`docs/test/neo_seoul_live_qa.md`) + 3.5 prose/tone/length feel. Human `git push` (ahead 5). Cost levers ready env-only: diet ($1.0/loop at next redeploy) / `GEMINI_MODEL_KEYBEAT` hybrid ($0.5) / full-2.5 ($0.2).
 2. **Engineering maintenance track (WS0-3 done)**: 6-layer agent ops bible↔MythOS interpretation (including mechanical→semantic→creative verification), slim entry points, structured logging/dashboard, and Resume Pointer continuity. Only WS4 content pipeline remains plan-only (`docs/plans/2026-06-14-engineering-plan.md`).
 3. `glass-library` extension: hold (parity + Story Bible 17 entries done; further extension after Neo-Seoul completion). Completed tracks (combat/progression/party/grant/route-node) → `docs/COMPLETED_SUMMARY.md` M35-M40.
 

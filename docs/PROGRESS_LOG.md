@@ -1,16 +1,18 @@
 # Progress Log
 
-Last updated: 2026-07-04
+Last updated: 2026-07-05
 
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
-## 2026-07-04 — equip-lang API regression test (overnight [auto], kiro)
-- Status: Committed (local). `make check` **763** green.
-- Changed: `tests/test_api.py` +88 lines — new `ApiEquipLangTest` class (3 tests): asserts `/api/v1/loops/{id}/equip` with `lang="en"` returns English axis_labels/stakes (no Hangul), default `lang="ko"` preserves Korean, and equip toggle works regardless of language. Locks the 2026-07-04 `EquipRequest.lang` fix.
-- Verified: `make check` (ruff + eslint + mypy 147 files + tsc/vite build + 763 unittest) green.
+## 2026-07-05 (early) — Prompt diet + key-beat model split + kiro lane runtime smoke (all three 3.5 follow-ups DONE)
+- Status: Committed `dc3426c..36ad55d` (5 commits, unpushed); tree clean; `make check` **763** green.
+- **Prompt diet (11.5k → live 8.6k/turn, −25%)**: token-decomposition harness (`scratch/prompt_breakdown.py`, Vertex `count_tokens`) showed ~2.7k tokens/turn were MACHINE records — `memories[-4:]` full of per-turn autosave `save_slot`s (which also **crowded echo carryover out of the window entirely** — bug fixed), `narrative_metrics` telemetry in world_memories, UUIDs/seed/timestamps in loop/events. Fixed via narrative-kind whitelist BEFORE the recency window + field slimming (`prompts.py`); run_summary/causality_summary stay excluded as raw JSON (note channel already digests them). Live 3.5 probe avg **8,593** prompt tokens — exits the 9-17k cache degradation zone; observed a 4,029-tok prefix hit + an 8,051-tok full cross-request hit. 3.5 ≈ $1.24 → **~$1.0/loop**. Remaining cuts are prompt-feel-sensitive (420자×2 prev-scene window; stat-voice reference holds the ≥4096 prefix) — deliberately stopped. 9 tests (`test_prompt_diet.py`).
+- **Key-beat model split (opt-in, ~$0.5/loop)**: `NarrativeContext.key_beat` (opening prologue / anchor beat locks / cutscenes / boss buildup / REWRITE·ARCHIVE) generates on `GEMINI_MODEL_KEYBEAT`, normal turns on `MODEL`; unset = single model, prior behavior. Live probe: turns 0-4 → 3.5-flash, 5-8 → 2.5-flash; **2.5 serves fine on the global endpoint** (mixed-model client resolves global, no 404). 13 tests (`test_keybeat_model.py`). Env-only ops menu: full-3.5 $1.0 / hybrid $0.5 / full-2.5 $0.2 per loop. Measured appendix → `docs/plans/2026-07-04-gemini-2.5-vs-3.5-eval.md`.
+- **Kiro lane runtime smoke — VERIFIED end-to-end (3 iterations)**: run 1 exposed a root-cause profile bug — the kiro agent JSONs set only `allowedTools`, but kiro-cli exposes tools via a **`tools` array** (plus 2 invalid names), so the session was tool-less and "succeeded" in 20s doing nothing. Fixed `.kiro/agents/*.json` + **upstreamed to the plugin SSOT** (`claude-overnight-harness` `3cec9a8`). Run 2 correctly executed dirty-tree residue recovery (`91ffcd3`, external gate GREEN). Run 3 consumed the seeded `[auto]` item: kiro authored `ApiEquipLangTest` (3 tests locking the `EquipRequest.lang` KO-leak fix, `36ad55d`), external re-gate GREEN, critic auto-skip, ledger `verified`; independently re-run 3/3 pass.
+- Verified: `make check` 763 green (plus runner external re-gates ×2); live Vertex probes (3.5 ×11 calls, split ×9 calls); new test classes run standalone.
 - Blockers: none.
-- Next: kiro lane runtime smoke verified; remaining `[auto]` items.
+- Next: human live sign-off on 3.5 cloud (unchanged gate; hybrid split ready if cost bites — 2 env vars); human `git push` (ahead 5). `[auto]` backlog thin → `/overnight-seed` before arming a long run.
 
 ## 2026-07-04 (night) — 3.5-flash ADOPTED (cloud rev 00018) + cache-prefix v2 + scene-length fix
 - Status: Committed `7581d73..b99a20c` (unpushed); Cloud Run flipped through revs `00016-8v4` (v2 code) → `00017-s55` (length fix) → **`00018-pj9` (`MODEL=gemini-3.5-flash`)**; local API also on 3.5 (pid via `outputs/api-35.log`). All verdicts measured live.

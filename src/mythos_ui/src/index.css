@@ -4542,3 +4542,81 @@ main {
   border-radius: 4px;
   display: block;
 }
+
+/* Always-visible equipment slots (paper-doll): weapon / armor. */
+.equip-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 4px 0 10px;
+}
+.equip-slot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1px dashed var(--line-soft);
+  border-radius: 6px;
+  background: rgba(41, 255, 198, 0.03);
+}
+.equip-slot.filled {
+  border-style: solid;
+  background: rgba(41, 255, 198, 0.07);
+}
+.equip-slot-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--line-soft);
+  border-radius: 5px;
+  color: var(--term-dim);
+  overflow: hidden;
+  flex: none;
+}
+.equip-slot-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+.equip-slot-label {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--term-dim);
+}
+.equip-slot-value {
+  font-size: 12px;
+  color: var(--term-fg);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.equip-slot:not(.filled) .equip-slot-value {
+  color: var(--term-dim);
+}
+
+/* Equip wearer picker (player + party members). */
+.inv-equip-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex: none;
+}
+.inv-wearer-select {
+  font-size: 10px;
+  background: rgba(41, 255, 198, 0.05);
+  color: var(--term-fg);
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  padding: 2px 3px;
+  max-width: 82px;
+}
+.inv-worn-by {
+  font-size: 10px;
+  color: var(--head, #ffb454);
+  white-space: nowrap;
+}

@@ -1359,6 +1359,10 @@ class RuntimeSessionService:
         for entry in inventory:
             if not isinstance(entry, dict) or not entry.get("equipped"):
                 continue
+            # Gear worn by a companion (equipped_by=<ally id>) buffs THEM, not
+            # the player (absent/"player" = player, legacy entries included).
+            if entry.get("equipped_by") not in (None, "player"):
+                continue
             definition = items.get(str(entry.get("id") or entry.get("item_id") or ""), {})
             bonus = definition.get("stats") if isinstance(definition, dict) else None
             if isinstance(bonus, dict):
@@ -1430,14 +1434,32 @@ class RuntimeSessionService:
             epiphanies_unlocked=self._epiphanies_unlocked(player, loop),
         )
 
-    def equip_item(self, loop_id: str, item_id: str, equipped: bool = True) -> RuntimeSnapshot:
-        """Toggle an equipment item's worn state (one item per slot)."""
+    def equip_item(
+        self,
+        loop_id: str,
+        item_id: str,
+        equipped: bool = True,
+        wearer: str | None = None,
+    ) -> RuntimeSnapshot:
+        """Toggle an equipment item's worn state (one item per slot PER WEARER).
+
+        ``wearer`` is "player" (default/legacy) or a party member id — companions
+        wear gear too, and their combat build folds it in (`_build_allies`)."""
         loop = self._require_loop(loop_id)
         player = self._require_player(loop.player_id)
         scenario = load_scenario(str(loop.state.get("scenario_id") or "neo-seoul"))
         items = scenario.combat.get("items", {}) if isinstance(scenario.combat, dict) else {}
         target_def = items.get(item_id, {}) if isinstance(items, dict) else {}
         target_slot = target_def.get("slot") if isinstance(target_def, dict) else None
+        wearer_id = str(wearer or "player")
+        if wearer_id != "player":
+            party = loop.state.get("_party") if isinstance(loop.state, dict) else {}
+            members = party.get("members", []) if isinstance(party, dict) else []
+            member_ids = {
+                str(m.get("id")) if isinstance(m, dict) else str(m) for m in members
+            }
+            if wearer_id not in member_ids:
+                raise RuntimeError(f"wearer {wearer_id!r} is not in the current party")
         inventory = list(loop.state.get("_inventory", [])) if isinstance(loop.state, dict) else []
         updated: list[Any] = []
         for entry in inventory:
@@ -1449,11 +1471,17 @@ class RuntimeSessionService:
             if eid == item_id:
                 entry["id"] = eid
                 entry["equipped"] = bool(equipped)
+                if equipped:
+                    entry["equipped_by"] = wearer_id
+                else:
+                    entry.pop("equipped_by", None)
             elif equipped and target_slot is not None:
-                # only one item per slot may be worn
+                # only one item per slot may be worn — per wearer.
                 other = items.get(eid, {}) if isinstance(items, dict) else {}
-                if isinstance(other, dict) and other.get("slot") == target_slot:
+                same_wearer = str(entry.get("equipped_by") or "player") == wearer_id
+                if isinstance(other, dict) and other.get("slot") == target_slot and same_wearer:
                     entry["equipped"] = False
+                    entry.pop("equipped_by", None)
             updated.append(entry)
         new_state = {**loop.state, "_inventory": updated}
         loop = replace(loop, state=new_state)
@@ -1804,6 +1832,16 @@ class RuntimeSessionService:
         boss_pool = (route_map.get("combat_encounters") or {}).get("boss") or []
         return str(encounter_id) in {str(e) for e in boss_pool}
 
+    # Boss-anchor perspective effects stamp one of these flags; on a climax
+    # VICTORY they take priority over the numeric resolver ("victory resolves
+    # the perspective-driven ending"). Order = authored specificity.
+    _PERSPECTIVE_ENDING_FLAGS = (
+        ("code_rewrite", "ending_code_rewrite"),
+        ("noble_sacrifice", "ending_noble_sacrifice"),
+        ("erased", "ending_erasure"),
+        ("safe_refuge", "ending_safe_refuge"),
+    )
+
     def _resolved_boss_climax_loop(self, loop: LoopState, *, victory: bool) -> LoopState:
         """End the loop at the climax with a resolved ending (win or lose).
 
@@ -1813,13 +1851,35 @@ class RuntimeSessionService:
         """
         narrative_shards = self.store.list_narrative_shards(loop.player_id, limit=1000)
         clue_count = len([s for s in narrative_shards if s.kind == "clue"])
-        loop_state = self._resolved_ending_state(
-            loop,
-            clue_count=clue_count,
-            context="boss_victory" if victory else "boss_defeat",
-            combat_defeat_fallback=not victory,
-        )
-        if victory and not loop_state.get("ending_id"):
+        # Victory honors the boss perspective first (live 2026-07-04: a WON climax
+        # resolved to Forced Erasure because the numeric erasure condition —
+        # Resilience<5 && Tension>90 — is nearly always true at the boss, and the
+        # perspective flags were never consulted).
+        perspective_ending: str | None = None
+        if victory and isinstance(loop.state, dict):
+            flags = set(loop.state.get("flags") or [])
+            perspective_ending = next(
+                (eid for flag, eid in self._PERSPECTIVE_ENDING_FLAGS if flag in flags), None
+            )
+        if perspective_ending:
+            loop_state = self._apply_ending_fields(dict(loop.state), perspective_ending, loop)
+        else:
+            loop_state = self._resolved_ending_state(
+                loop,
+                clue_count=clue_count,
+                context="boss_victory" if victory else "boss_defeat",
+                combat_defeat_fallback=not victory,
+            )
+        if (
+            victory
+            and perspective_ending is None
+            and (
+                not loop_state.get("ending_id")
+                # A WON climax must never read as the defeat ending unless the
+                # authored 'erased' perspective chose it above.
+                or loop_state.get("ending_id") == "ending_erasure"
+            )
+        ):
             # Guarantee the climax always shows an ending: a victory with no
             # perspective-matched ending falls back to the first authored (survival)
             # ending. Defeat already fell back to erasure via ``combat_defeat_fallback``.
@@ -1851,6 +1911,34 @@ class RuntimeSessionService:
             ended_at=utc_now(),
             state=loop_state,
         )
+
+    def _apply_ending_fields(
+        self, loop_state: dict[str, Any], ending_id: str, loop: LoopState
+    ) -> dict[str, Any]:
+        """Stamp id/label/image/narration for a KNOWN ending id (perspective path)."""
+        scenario_id = str(loop_state.get("scenario_id") or "neo-seoul")
+        loop_state["ending_id"] = ending_id
+        try:
+            ending = next(
+                (
+                    item
+                    for item in load_scenario(scenario_id).endings
+                    if isinstance(item, dict) and item.get("id") == ending_id
+                ),
+                None,
+            )
+        except Exception:
+            ending = None
+        if ending:
+            loop_state["ending_label"] = (
+                ending.get("label") or ending.get("title") or ending_id
+            )
+            if isinstance(ending.get("image"), str):
+                loop_state["ending_image"] = ending["image"]
+        narration = self._ending_narration_text(scenario_id, ending_id, loop)
+        if narration:
+            loop_state["ending_narration"] = narration
+        return loop_state
 
     def _resolved_ending_state(
         self,

@@ -165,6 +165,10 @@ class CombatService:
         player.portrait = "characters/player-noise.png"
         allies = self._build_allies(loop, scenario_combat)
         combat_seed = seed or f"{loop.seed}:combat:{encounter_id}"
+        # Meta scaling input: the boss keeps pace with cross-loop player growth
+        # (encounters opt in via ``meta_scaling``; first loop = no-op).
+        meta = loop.state.get("meta_progression") if isinstance(loop.state, dict) else None
+        runs_completed = int(meta.get("runs_completed", 0)) if isinstance(meta, dict) else 0
         state = build_encounter(
             scenario_combat,
             encounter_id,
@@ -173,6 +177,7 @@ class CombatService:
             seed=combat_seed,
             engine=self.engine,
             language=language,
+            runs_completed=runs_completed,
         )
         loop = self._store_combat(loop, state)
         prose = narrate_since(state, 0)
@@ -350,6 +355,14 @@ class CombatService:
                 meta_progression=meta_progression,
                 run_boons=run_boons,
             )
+            # Companion-worn gear (inventory entries equipped_by=<ally id>)
+            # folds into the same bonus channel as growth, so equipment scales
+            # defense/speed/focus like it does for the player.
+            bonus_stats = dict(growth.stats)
+            for stat, value in self._worn_equipment_stats(
+                state, scenario_combat, actual_id
+            ).items():
+                bonus_stats[stat] = bonus_stats.get(stat, 0) + value
             combatant = build_ally_combatant(
                 entry=entry,
                 weapons_pool=weapons_pool,
@@ -357,7 +370,7 @@ class CombatService:
                 y=0,
                 hp=None if downed else (int(hp) if isinstance(hp, int | float) else None),
                 controllable=is_party_member,
-                bonus_stats=growth.stats,
+                bonus_stats=bonus_stats,
                 bonus_hp=growth.hp,
                 extra_skills=growth.skills,
             )
@@ -365,6 +378,27 @@ class CombatService:
                 combatant.hp = max(1, combatant.max_hp // 4)
             built.append(combatant)
         return built
+
+    @staticmethod
+    def _worn_equipment_stats(
+        state: dict[str, Any], scenario_combat: dict[str, Any], wearer_id: str
+    ) -> dict[str, int]:
+        """Stat bonuses from inventory equipment worn by ``wearer_id``."""
+        items = scenario_combat.get("items", {}) if isinstance(scenario_combat, dict) else {}
+        inventory = state.get("_inventory", []) if isinstance(state, dict) else []
+        total: dict[str, int] = {}
+        for entry in inventory:
+            if not isinstance(entry, dict) or not entry.get("equipped"):
+                continue
+            if str(entry.get("equipped_by") or "player") != wearer_id:
+                continue
+            definition = items.get(str(entry.get("id") or entry.get("item_id") or ""), {})
+            bonus = definition.get("stats") if isinstance(definition, dict) else None
+            if isinstance(bonus, dict):
+                for stat, value in bonus.items():
+                    if isinstance(value, int | float):
+                        total[stat] = total.get(stat, 0) + int(value)
+        return total
 
     @staticmethod
     def _player_skill_rank(loop: LoopState, skill_id: str) -> int:

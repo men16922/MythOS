@@ -598,6 +598,60 @@ class SessionCombatTest(unittest.TestCase):
         self.assertTrue(snap.loop.state.get("ending_id"))
         self.assertTrue(snap.loop.state.get("ending_image"))
 
+    def test_boss_victory_honors_perspective_flag_ending(self) -> None:
+        # "Victory resolves the perspective-driven ending": the boss anchor's
+        # perspective effect stamps flags (safe_refuge/code_rewrite/…) that must
+        # outrank the numeric resolver.
+        loop = self.store.get_loop(self.loop_id)
+        assert loop is not None
+        loop = replace(
+            loop,
+            tension=100,
+            state={**loop.state, "scenario_id": "neo-seoul", "flags": ["safe_refuge"]},
+        )
+        player = self.store.get_player("p1")
+        assert player is not None
+        result = CombatTurnResult(
+            loop=loop,
+            prose="",
+            radar={"encounter_id": "ix_confrontation", "round": 4},
+            available={},
+            finished=True,
+            outcome="player_victory",
+            rewards={},
+        )
+        snap = self.service._commit_combat_turn(player, result, "test", self.options)
+        self.assertEqual(snap.loop.state.get("ending_id"), "ending_safe_refuge")
+        self.assertEqual(snap.loop.state.get("ending_image"), "endings/safe-refuge.png")
+
+    def test_boss_victory_never_resolves_to_erasure_without_erased_flag(self) -> None:
+        # Live 2026-07-04: a WON climax read as Forced Erasure — at the boss,
+        # tension>=90 with no resilience flags satisfies the numeric erasure
+        # condition. A victory without the authored 'erased' perspective must
+        # fall back to a survival ending instead.
+        loop = self.store.get_loop(self.loop_id)
+        assert loop is not None
+        loop = replace(
+            loop,
+            tension=100,
+            state={**loop.state, "scenario_id": "neo-seoul", "flags": []},
+        )
+        player = self.store.get_player("p1")
+        assert player is not None
+        result = CombatTurnResult(
+            loop=loop,
+            prose="",
+            radar={"encounter_id": "ix_confrontation", "round": 4},
+            available={},
+            finished=True,
+            outcome="player_victory",
+            rewards={},
+        )
+        snap = self.service._commit_combat_turn(player, result, "test", self.options)
+        self.assertEqual(snap.loop.phase, LoopPhase.ENDED)
+        self.assertNotEqual(snap.loop.state.get("ending_id"), "ending_erasure")
+        self.assertTrue(snap.loop.state.get("ending_id"))
+
     def test_boss_climax_defeat_ends_loop_not_recoverable(self) -> None:
         # Live 2026-07-03: an unwinnable IX fight soft-defeated every turn re-threw
         # the boss forever. Defeat at the climax must END the loop (erasure), never
@@ -1065,6 +1119,54 @@ class SessionCombatTest(unittest.TestCase):
         stats = self.service._player_combat_stats(player, self.store.get_loop(self.loop_id), scenario)
         # signal_blade grants strength +2 over the base of 9.
         self.assertEqual(stats["strength"], 11)
+
+    def test_equip_item_to_companion_folds_into_ally_not_player(self) -> None:
+        # Companions wear gear too: equipped_by=<ally id> buffs the ALLY's
+        # combat build (via _build_allies) and stays out of the player's stats.
+        from mythos_core import Scene
+        from mythos_runtime.scenario import load_scenario
+
+        loop = self.store.get_loop(self.loop_id)
+        assert loop is not None
+        loop = replace(
+            loop,
+            state={
+                **loop.state,
+                "scenario_id": "neo-seoul",
+                "_party": {"members": [{"id": "se_rin"}]},
+                "_inventory": [{"id": "signal_blade"}],
+            },
+        )
+        self.store.save_loop(loop)
+        self.store.save_scene(
+            Scene(
+                scene_id="sc-w", loop_id=self.loop_id, turn_index=0, title="t",
+                location="loc", narration="n", choices=[], visual_brief=None,
+                created_at=datetime(2026, 5, 31, tzinfo=UTC),
+            )
+        )
+
+        # Unknown wearer is rejected; a party member is accepted.
+        with self.assertRaises(RuntimeError):
+            self.service.equip_item(self.loop_id, "signal_blade", True, wearer="tae_o")
+        self.service.equip_item(self.loop_id, "signal_blade", True, wearer="se_rin")
+        entry = self.store.get_loop(self.loop_id).state["_inventory"][0]
+        self.assertTrue(entry["equipped"])
+        self.assertEqual(entry["equipped_by"], "se_rin")
+
+        scenario = load_scenario("neo-seoul")
+        player = self.store.get_player("p1")
+        assert player is not None
+        fresh = self.store.get_loop(self.loop_id)
+        assert fresh is not None
+        stats = self.service._player_combat_stats(player, fresh, scenario)
+        self.assertEqual(stats["strength"], 9)  # player does NOT get the +2
+
+        combat = CombatService()
+        allies = combat._build_allies(fresh, scenario.combat)
+        se_rin = next(a for a in allies if a.id == "se_rin")
+        base_str = int(scenario.combat["allies"]["se_rin"].get("stats", {}).get("strength", 5))
+        self.assertEqual(se_rin.stats.get("strength"), base_str + 2)
 
     def test_flee_keeps_encounter_contact_alerted_without_rewards(self) -> None:
         loop = self.store.get_loop(self.loop_id)

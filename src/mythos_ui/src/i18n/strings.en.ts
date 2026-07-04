@@ -349,6 +349,8 @@ export const en: Record<StringKey, string> = {
   "char.owned": "Item",
   "char.unequip": "Unequip",
   "char.equip": "Equip",
+  "char.equipmentSlots": "Equipment",
+  "char.slotEmpty": "Empty slot — from loot or barter",
   "char.noItems": "No items held. Gear and consumables come from combat loot, market barter, and in-scene actions (e.g. salvaging wreckage).",
   // Character tab (Bonds / Characters)
   "ctab.bonds": "Companion Bonds",

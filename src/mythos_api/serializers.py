@@ -270,9 +270,12 @@ def _resolve_inventory(state: dict[str, Any]) -> list[dict[str, Any]]:
                 "slot": source.get("slot") or definition.get("slot"),
                 "stats": source.get("stats") or (definition.get("stats") if isinstance(definition, dict) else None),
                 "equipped": bool(source.get("equipped")),
+                # who wears it — "player" (default) or a party member id
+                "equipped_by": source.get("equipped_by") if source.get("equipped") else None,
             }
         elif isinstance(source, dict) and source.get("equipped"):
             fields[item_id]["equipped"] = True
+            fields[item_id]["equipped_by"] = source.get("equipped_by")
         counts[item_id] = counts.get(item_id, 0) + quantity
 
     return [{"id": item_id, "count": counts[item_id], **fields[item_id]} for item_id in order]

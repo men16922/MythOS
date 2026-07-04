@@ -95,6 +95,34 @@ class BossSkillTest(unittest.TestCase):
         self.assertTrue(cast)
         self.assertEqual(cast[0].detail.get("skill"), "ix_purge_field")
 
+    def test_boss_meta_scaling_grows_with_completed_runs(self) -> None:
+        # The player gets stronger every completed run (bonds/ranks/equipment),
+        # so ``meta_scaling`` grows IX to keep pace: +hp_per_run HP per run and
+        # +stats once every stat_every_runs runs, capped at cap_runs.
+        # runs_completed=0 (first loop, all legacy callers) is a strict no-op.
+        from mythos_combat import build_encounter
+
+        combat = _combat()
+
+        def _ix(runs: int):
+            player = build_player_combatant(
+                combatant_id="player", name="P", stats={"strength": 5, "agility": 5},
+                weapon_ids=[], weapons_pool=combat["weapons"], x=0, y=0,
+            )
+            state = build_encounter(
+                combat, "ix_confrontation", player=player, allies=[],
+                seed="meta-scale", runs_completed=runs,
+            )
+            return next(e for e in state.living_enemies() if "administrator_ix" in e.id)
+
+        base = _ix(0)
+        grown = _ix(4)
+        capped = _ix(99)
+        self.assertEqual(grown.max_hp, base.max_hp + 3 * 4)
+        self.assertEqual(grown.stats.get("strength", 0), base.stats.get("strength", 0) + 2)
+        # cap_runs=6 bounds the growth no matter how many loops accrued.
+        self.assertEqual(capped.max_hp, base.max_hp + 3 * 6)
+
     def test_boss_escorts_scale_to_party_size(self) -> None:
         # Fairness (live 2026-07-03): a fixed IX + 2-escort roster is ~8% winnable
         # with only Se-rin. Escort waves now drop out for a small party via

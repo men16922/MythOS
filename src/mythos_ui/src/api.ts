@@ -249,10 +249,11 @@ export async function apiEquip(params: {
   loop_id: string;
   item_id: string;
   equipped: boolean;
+  wearer?: string;
 }): Promise<RuntimeSnapshot> {
   return apiPost<RuntimeSnapshot>(
     `/api/v1/loops/${encodeURIComponent(params.loop_id)}/equip`,
-    params
+    { ...params, lang: getLang() }
   );
 }
 

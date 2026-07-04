@@ -1090,7 +1090,7 @@
             "type": "story",
             "beat": "wet_dawn_street",
             "title": "젖은 새벽 거리",
-            "image": "scenes/opening_escape_alt.png"
+            "image": "scenes/wet_dawn_street.png"
           }
         ],
         "width": 2,
@@ -3137,6 +3137,15 @@
         "risk": 5,
         "weight": 1,
         "map_distance": 4,
+        "meta_scaling": {
+          "hp_per_run": 3,
+          "stat_every_runs": 2,
+          "stats": {
+            "strength": 1,
+            "perception": 1
+          },
+          "cap_runs": 6
+        },
         "arena": {
           "width": 10,
           "height": 7

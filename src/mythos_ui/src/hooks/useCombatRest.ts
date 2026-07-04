@@ -131,9 +131,9 @@ export function useCombatRest(args: UseCombatRestArgs) {
     setCombatLog((prev) => `[${timeStr}] ${prose}\n` + prev);
   };
 
-  const handleEquip = (itemId: string, equipped: boolean) => {
+  const handleEquip = (itemId: string, equipped: boolean, wearer?: string) => {
     if (!loopId) return;
-    apiEquip({ loop_id: loopId, item_id: itemId, equipped })
+    apiEquip({ loop_id: loopId, item_id: itemId, equipped, wearer })
       .then((snap) => setFinalizedSnapshot(snap))
       .catch((err) => console.error("equip failed", err));
   };

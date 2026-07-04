@@ -470,6 +470,8 @@ export interface InventoryItem {
   slot?: string | null;
   stats?: Record<string, number> | null;
   equipped?: boolean;
+  /** Who wears it — "player" (default) or a party member id. */
+  equipped_by?: string | null;
 }
 
 export interface SaveSlot {

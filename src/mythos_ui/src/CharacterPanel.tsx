@@ -57,7 +57,10 @@ const KIND_KEYS: Record<string, StringKey> = {
 interface CharacterPanelProps {
   snapshot: RuntimeSnapshot | null;
   characters?: ScenarioCharacter[];
-  onEquip?: (itemId: string, equipped: boolean) => void;
+  onEquip?: (itemId: string, equipped: boolean, wearer?: string) => void;
+  /** Main story view renders the short card (portrait→stats→attributes); the
+   * CHARACTER tab renders the full sheet with equipment slots + inventory. */
+  compact?: boolean;
 }
 
 // Shared stat-bar block (player card + CHARACTER-tab companion card): base
@@ -105,6 +108,63 @@ export function StatBars({
         );
       })}
     </div>
+  );
+}
+
+/** Equip/unequip with a wearer picker — companions in the party wear gear too. */
+function EquipControls({
+  item,
+  wearers,
+  onEquip,
+  t,
+}: {
+  item: { id: string; equipped?: boolean; equipped_by?: string | null };
+  wearers: { id: string; name: string }[];
+  onEquip: (itemId: string, equipped: boolean, wearer?: string) => void;
+  t: TFn;
+}) {
+  const [wearer, setWearer] = useState("player");
+  if (item.equipped) {
+    const holderId = item.equipped_by || "player";
+    const holder = wearers.find((w) => w.id === holderId);
+    return (
+      <span className="inv-equip-controls">
+        {holderId !== "player" && (
+          <span className="inv-worn-by">{holder?.name || holderId}</span>
+        )}
+        <button
+          type="button"
+          className="inv-equip-btn on"
+          onClick={() => onEquip(item.id, false, holderId)}
+        >
+          {t("char.unequip")}
+        </button>
+      </span>
+    );
+  }
+  return (
+    <span className="inv-equip-controls">
+      {wearers.length > 1 && (
+        <select
+          className="inv-wearer-select"
+          value={wearer}
+          onChange={(event) => setWearer(event.target.value)}
+        >
+          {wearers.map((w) => (
+            <option key={w.id} value={w.id}>
+              {w.name}
+            </option>
+          ))}
+        </select>
+      )}
+      <button
+        type="button"
+        className="inv-equip-btn"
+        onClick={() => onEquip(item.id, true, wearer)}
+      >
+        {t("char.equip")}
+      </button>
+    </span>
   );
 }
 
@@ -159,7 +219,7 @@ function ItemArt({
   );
 }
 
-export function CharacterPanel({ snapshot, characters, onEquip }: CharacterPanelProps) {
+export function CharacterPanel({ snapshot, characters, onEquip, compact }: CharacterPanelProps) {
   const { t } = useLang();
   const partner = detectSceneCharacter(snapshot, characters);
 
@@ -201,6 +261,14 @@ export function CharacterPanel({ snapshot, characters, onEquip }: CharacterPanel
   const autonomy = traits.autonomy_level;
   const scenarioId =
     typeof snapshot?.state?.scenario_id === "string" ? snapshot.state.scenario_id : "neo-seoul";
+  // Equip wearer options: the player + current party members (companion sheets
+  // carry in_party), so gear can be assigned to companions RPG-style.
+  const wearers = [
+    { id: "player", name: player?.display_name || t("char.player") },
+    ...(snapshot?.companions ?? [])
+      .filter((companion) => companion.in_party)
+      .map((companion) => ({ id: companion.id, name: companion.name })),
+  ];
 
   return (
     <div className="panel character-panel">
@@ -242,6 +310,53 @@ export function CharacterPanel({ snapshot, characters, onEquip }: CharacterPanel
         </>
       )}
 
+      {compact ? null : (
+        <>
+      {/* Always-visible equipment slots (one item per slot, RPG paper-doll style)
+          so the equip system is discoverable even with an empty inventory. */}
+      <div className="char-section-title">{t("char.equipmentSlots")}</div>
+      <div className="equip-slots">
+        {(["weapon", "armor"] as const).map((slot) => {
+          const worn = inventory.find(
+            (item) =>
+              item.kind === "equipment" &&
+              item.slot === slot &&
+              item.equipped &&
+              (!item.equipped_by || item.equipped_by === "player")
+          );
+          return (
+            <div key={slot} className={`equip-slot${worn ? " filled" : ""}`}>
+              <span className="equip-slot-icon">
+                {worn ? (
+                  <ItemArt itemId={worn.id} scenarioId={scenarioId} category={slot} />
+                ) : (
+                  <ItemIcon category={slot} />
+                )}
+              </span>
+              <span className="equip-slot-main">
+                <span className="equip-slot-label">
+                  {SLOT_KEYS[slot] ? t(SLOT_KEYS[slot]) : slot}
+                </span>
+                <span className="equip-slot-value">
+                  {worn
+                    ? `${worn.name}${statBonusLabel(worn.stats, t) ? ` · ${statBonusLabel(worn.stats, t)}` : ""}`
+                    : t("char.slotEmpty")}
+                </span>
+              </span>
+              {worn && onEquip && (
+                <button
+                  type="button"
+                  className="inv-equip-btn on"
+                  onClick={() => onEquip(worn.id, false)}
+                >
+                  {t("char.unequip")}
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
       <div className="char-section-title">{t("char.inventory")} · {inventory.length}</div>
       {inventory.length > 0 ? (
         <div className="char-inventory">
@@ -275,13 +390,7 @@ export function CharacterPanel({ snapshot, characters, onEquip }: CharacterPanel
                         </span>
                       </span>
                       {item.kind === "equipment" && onEquip && (
-                        <button
-                          type="button"
-                          className={`inv-equip-btn${item.equipped ? " on" : ""}`}
-                          onClick={() => onEquip(item.id, !item.equipped)}
-                        >
-                          {item.equipped ? t("char.unequip") : t("char.equip")}
-                        </button>
+                        <EquipControls item={item} wearers={wearers} onEquip={onEquip} t={t} />
                       )}
                     </li>
                   );
@@ -292,6 +401,8 @@ export function CharacterPanel({ snapshot, characters, onEquip }: CharacterPanel
         </div>
       ) : (
         <div className="char-empty">{t("char.noItems")}</div>
+      )}
+        </>
       )}
     </div>
   );

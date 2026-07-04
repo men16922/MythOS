@@ -4,7 +4,7 @@ Last updated: 2026-07-04
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Commit+redeploy the party-survivability batch, then human live sign-off** — uncommitted local batch (downed-ally rejoin, rest recovery, ally-target heal UI, `restart_core` revive, `grant_items` channel, lin-yue sprite keying; `make check` 738) sits on top of deployed rev `mythos-api-00008-7sx` (`89e1935`). Play `docs/test/neo_seoul_live_qa.md` 🔴 top-down (Night Market→Restarting Kai, boss buildup→**victory** ending, party survival loop, companion cuts, KO/EN feel). Human: `git push origin main` (ahead 11).
+> ▶ NEXT SESSION: **Finish the live-QA follow-up batch, then commit+redeploy** — uncommitted on `7d6cb52` (741 green): boss-victory perspective-ending fix, Su-ah name-reservation guard, equip KO-leak fix, compact story-view card, equipment slot panel. DONE since: boss meta-scaling (`meta_scaling` on ix_confrontation, no-op at runs=0) + wet_dawn_street replacement art swapped (agy, figure-free dawn street). Companion equipment also DONE (equipped_by wearer + ally stat fold + wearer picker; 743 green). OPEN: equip-lang API regression test (low). NEXT = commit the round + redeploy + human live sign-off. Then commit/redeploy + human `git push` (ahead 12). QA: `docs/test/neo_seoul_live_qa.md` 🔴.
 
 ## Snapshot
 

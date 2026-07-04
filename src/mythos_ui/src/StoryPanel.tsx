@@ -809,7 +809,7 @@ export function StoryPanel({
         </div>
 
         {/* 우측: Character 창 */}
-        <CharacterPanel snapshot={snapshot} characters={scenarioCharacters} onEquip={onEquip} />
+        <CharacterPanel snapshot={snapshot} characters={scenarioCharacters} onEquip={onEquip} compact />
       </div>
 
       {/* 하단: 전체 폭 대화 기록 스크롤 영역 & 제어 패널 */}

@@ -349,6 +349,8 @@ export const ko = {
   "char.owned": "보유품",
   "char.unequip": "해제",
   "char.equip": "착용",
+  "char.equipmentSlots": "장비",
+  "char.slotEmpty": "빈 슬롯 — 전리품·시장에서 획득",
   "char.noItems": "보유한 물품이 없습니다. 장비·소모품은 전투 전리품과 시장 물물교환, 장면 속 행동(잔해 수습 등)으로 획득합니다.",
   // Character tab (Bonds / Characters)
   "ctab.bonds": "동료 관계도 (Bonds)",

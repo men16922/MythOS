@@ -155,6 +155,9 @@ class EquipRequest(BaseModel):
     loop_id: str = Field(min_length=1)
     item_id: str = Field(min_length=1)
     equipped: bool = True
+    # "player" (default) or a party member id — companions wear gear too.
+    wearer: str | None = None
+    lang: str = "ko"
 
 
 class ManualSaveRequest(BaseModel):
@@ -801,8 +804,18 @@ def create_app() -> FastAPI:
         service: RuntimeSessionService = Depends(get_service),
     ) -> dict[str, Any]:
         try:
-            snapshot = service.equip_item(loop_id, body.item_id, body.equipped)
-            return snapshot_to_dict(snapshot)
+            snapshot = service.equip_item(
+                loop_id, body.item_id, body.equipped, wearer=body.wearer
+            )
+            # This was the one snapshot endpoint returning raw KO server strings
+            # (axis_label/result_preview/stakes) — an equip toggle then swapped an
+            # EN session's whole snapshot to Korean (live 2026-07-04).
+            scenario_id = str(
+                snapshot.loop.state.get("scenario_id") or "neo-seoul"
+                if isinstance(snapshot.loop.state, dict)
+                else "neo-seoul"
+            )
+            return localize_for(snapshot_to_dict(snapshot), scenario_id, body.lang)
         except RuntimeError as exc:
             raise _as_http_error(exc) from exc
 

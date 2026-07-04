@@ -207,6 +207,7 @@ def _stream_for(
         with_image=bool(message.get("with_image", False)),
         visual_async=bool(message.get("visual_async", False)),
         image_every_turn=bool(message.get("image_every_turn", False)),
+        image_sync_fallback=True,  # Cloud Run has no Redis worker; fall back to sync Imagen
         # Streamlit player-preset parity: 512x512 / 4 steps keeps mflux generation
         # fast (~8-15s) instead of the 1024x1024 default (~70-100s measured).
         image_width=int(message.get("image_width", 512)),

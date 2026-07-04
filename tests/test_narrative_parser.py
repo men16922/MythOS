@@ -178,6 +178,52 @@ class NarrativeParserTest(unittest.TestCase):
         self.assertEqual(payload.objective, "낮은 기계음이 바닥 아래에서 울렸다. 문을 찾는다.")
         self.assertEqual(payload.action_result, "Partial Success. 짧은 글리치음이 허공을 찢었다.")
 
+    def test_strips_tabletop_mechanics_annotations(self) -> None:
+        # Live 2026-07-04 leak: the GM prompt forbids "Make a Perception check"
+        # phrasing, yet a choice label surfaced "... (Agility check)". The
+        # cleaner strips EN/KO parenthetical mechanics tags deterministically.
+        payload = parse_scene_payload(
+            {
+                "scene": {
+                    "title": "Veil",
+                    "location": "tunnel",
+                    "narration": "You brace against the wind (Perception check) and move.",
+                    "choices": [
+                        {
+                            "choice_id": "choice_1",
+                            "label": "Dash through the distortion (Agility check)",
+                            "intent": "escape",
+                        },
+                        {
+                            "choice_id": "choice_2",
+                            "label": "격류를 정면돌파한다 (민첩 판정)",
+                            "intent": "confront",
+                        },
+                        {
+                            "choice_id": "choice_3",
+                            "label": "Hold the line (DC 15)",
+                            "intent": "defend",
+                        },
+                        {
+                            "choice_id": "choice_4",
+                            "label": "Save Se-rin (her hand slips)",
+                            "intent": "protect",
+                        },
+                    ],
+                    "visual_brief": "A shimmering veil.",
+                },
+                "world_delta": {"stability": 0, "tension": 1, "flags": []},
+            }
+        )
+
+        self.assertEqual(payload.narration, "You brace against the wind and move.")
+        labels = [choice.label for choice in payload.choices]
+        self.assertEqual(labels[0], "Dash through the distortion")
+        self.assertEqual(labels[1], "격류를 정면돌파한다")
+        self.assertEqual(labels[2], "Hold the line")
+        # Ordinary parentheses (no mechanics keyword) survive untouched.
+        self.assertEqual(labels[3], "Save Se-rin (her hand slips)")
+
     def test_strips_byte_fallback_tokens_from_player_text(self) -> None:
         payload = parse_scene_payload(
             {

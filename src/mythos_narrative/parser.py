@@ -193,10 +193,27 @@ def _optional_clean_str(value: Any) -> str | None:
     return str(value)
 
 
+# Instruction-fidelity backstop: the GM prompt forbids tabletop-mechanics
+# phrasing (prompts.py lists "Make a Perception check" as a bad example), but
+# live play still leaked parenthetical tags into choice labels — e.g.
+# "... dash through the distortion (Agility check)". Strip the annotation
+# deterministically (EN/KO stat + check/roll/save/판정/체크/굴림, optional DC
+# number) so a non-compliant generation can't surface it to the player.
+_MECHANICS_ANNOTATION = re.compile(
+    r"\s*[\(（\[]\s*"
+    r"(?:[A-Za-z가-힣]+\s+)?"  # optional stat name ("Agility ", "민첩 ")
+    r"(?:check|roll|saving\s+throw|save|dc\s*\d+|판정|체크|굴림)"
+    r"(?:\s*[:：]?\s*(?:dc\s*)?\d+)?"  # optional difficulty number
+    r"\s*[\)）\]]",
+    flags=re.IGNORECASE,
+)
+
+
 def _clean_player_text(value: str) -> str:
     # Some local GGUF tokenizers can leak byte fallback tokens into Korean text,
     # e.g. "자<0xEC><0xA4>개빛". Strip the artifacts and keep the readable text.
     value = re.sub(r"<0x[0-9a-fA-F]{2}>", "", value)
+    value = _MECHANICS_ANNOTATION.sub("", value)
     cleaned = re.sub(
         r"\[\s*(?:cinematic\s*)?sfx\s*:\s*[^\]]+\]",
         lambda match: _sfx_to_prose(match.group(0)),

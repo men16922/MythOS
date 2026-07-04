@@ -84,6 +84,26 @@ def _auto_attack(engine: CombatEngine, state) -> PlayerAction:
 
 
 class CombatEngineTest(unittest.TestCase):
+    def test_perception_grants_accuracy_and_crit_range(self) -> None:
+        # Perception was display/narrative-only (to-hit = STR/AGI, crit = nat 20)
+        # while boon/echo descriptions promised "accuracy and crit" — the mods
+        # honor that contract. Baseline (5) stays +0/+0 so default units and old
+        # balance are untouched; invested perception scales both.
+        from mythos_combat.engine import CombatEngine
+        from mythos_combat.models import Combatant
+
+        def unit(perception: int) -> Combatant:
+            return Combatant(
+                id="u", name="u", faction="player", hp=10, max_hp=10, x=0, y=0,
+                stats={"strength": 5, "agility": 5, "perception": perception},
+            )
+
+        self.assertEqual(CombatEngine._perception_mods(unit(5)), (0, 0))
+        self.assertEqual(CombatEngine._perception_mods(unit(8)), (1, 0))
+        self.assertEqual(CombatEngine._perception_mods(unit(10)), (1, 1))  # crits 19-20
+        self.assertEqual(CombatEngine._perception_mods(unit(14)), (3, 1))
+        self.assertEqual(CombatEngine._perception_mods(unit(3)), (0, 0))  # never negative
+
     def test_encounter_enemy_overrides_merge_onto_bestiary(self) -> None:
         # A single bestiary archetype can play different roles per encounter via
         # per-spawn ``overrides`` (e.g. a fragile sentinel vs a durable decoy).

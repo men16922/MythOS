@@ -408,6 +408,19 @@ class CombatEngine:
             return
         self._attack(state, player, target, weapon, dice)
 
+    @staticmethod
+    def _perception_mods(combatant: Combatant) -> tuple[int, int]:
+        """Perception's combat contribution: ``(to-hit bonus, crit-range widening)``.
+
+        Baseline-neutral: the default stat line (perception 5) gets +0/+0, so
+        only invested perception (kits, boons, echoes, bond tiers) shifts the
+        math — honoring the promised "perception -> accuracy/crit" contract
+        that was previously display/narrative-only (crit was nat-20 only and
+        to-hit used strength/agility alone).
+        """
+        perception = combatant.stat("perception")
+        return max(0, (perception - 5) // 3), max(0, (perception - 5) // 5)
+
     def _attack(
         self,
         state: CombatState,
@@ -418,6 +431,7 @@ class CombatEngine:
     ) -> None:
         melee = not weapon.is_ranged
         stat = attacker.stat("strength") if melee else attacker.stat("agility")
+        accuracy_bonus, crit_widen = self._perception_mods(attacker)
 
         # 1. 고저차 연산
         att_key = f"{attacker.x},{attacker.y}"
@@ -441,8 +455,8 @@ class CombatEngine:
                 cover_defense_bonus = 6
 
         roll = dice.d20()
-        total = roll + stat + weapon.to_hit_bonus + el_bonus
-        crit = roll == 20
+        total = roll + stat + weapon.to_hit_bonus + el_bonus + accuracy_bonus
+        crit = roll >= 20 - crit_widen
         dc = defender.effective_defense + cover_defense_bonus
 
         if not crit and total < dc:
@@ -728,9 +742,10 @@ class CombatEngine:
         dice: Dice,
     ) -> None:
         stat = max(player.stat("strength"), player.stat("agility"))
+        accuracy_bonus, crit_widen = self._perception_mods(player)
         roll = dice.d20()
-        total = roll + stat + int(effect.get("to_hit_bonus", 0))
-        crit = roll == 20
+        total = roll + stat + int(effect.get("to_hit_bonus", 0)) + accuracy_bonus
+        crit = roll >= 20 - crit_widen
         dc = target.effective_defense
         if not crit and total < dc:
             self._log(

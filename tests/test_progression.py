@@ -641,6 +641,24 @@ class ScenarioUnlockTest(unittest.TestCase):
         )
         self.assertTrue(scenario_unlock_met(unlock, [two], "p"))
 
+    def test_disabled_hard_blocks_regardless_of_progress(self) -> None:
+        # CBT hold: ``disabled`` wins over met conditions AND over the live-play
+        # bypass (checked before it), so the scenario is never selectable.
+        unlock = {"disabled": True, "tutorial_completed": True}
+        done = _meta_progression_memory(
+            MetaProgression(player_id="p", scenario_id="neo-seoul", runs_completed=3)
+        )
+        self.assertFalse(scenario_unlock_met(unlock, [done], "p"))
+
+    def test_glass_library_is_disabled_for_cbt(self) -> None:
+        # Content lock: the shipped glass-library data carries the hold; remove
+        # ``disabled`` from its unlock block when the scenario reopens.
+        from mythos_runtime.scenario import load_scenario
+
+        unlock = load_scenario("glass-library").unlock
+        self.assertTrue((unlock or {}).get("disabled"))
+        self.assertFalse(scenario_unlock_met(unlock, [], "p"))
+
 
 if __name__ == "__main__":
     unittest.main()

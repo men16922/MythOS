@@ -13,6 +13,7 @@ from typing import Any, cast
 
 from mythos_core import PlayerProfile
 from mythos_core.models import to_json_dict
+from mythos_runtime.companion_growth import companion_sheet
 from mythos_runtime.options import MemoryOverview, RunSummary, RuntimeSnapshot, SaveSlot
 from mythos_runtime.scenario import load_scenario
 
@@ -272,6 +273,74 @@ def _resolve_inventory(state: dict[str, Any]) -> list[dict[str, Any]]:
     return [{"id": item_id, "count": counts[item_id], **fields[item_id]} for item_id in order]
 
 
+def _companion_roster(state: dict[str, Any]) -> list[dict[str, Any]]:
+    """Met companions with growth-folded sheets for the CHARACTER tab.
+
+    Membership = any signal the loop already knows this companion: a ``_party``
+    member, an unlock flag set, or an affection entry. Each sheet keeps base
+    stats and growth bonuses separate (``companion_sheet``) and resolves skill
+    ids to display names from the scenario skill pool.
+    """
+    if not isinstance(state, dict):
+        return []
+    scenario_id = state.get("scenario_id")
+    if not scenario_id:
+        return []
+    try:
+        combat = load_scenario(str(scenario_id)).combat
+    except Exception:  # noqa: BLE001 — scenario lookup is best-effort
+        return []
+    allies_pool = combat.get("allies", {}) if isinstance(combat, dict) else {}
+    if not isinstance(allies_pool, dict):
+        return []
+    skills_pool = combat.get("skills", {}) if isinstance(combat, dict) else {}
+    flags = {str(f) for f in state.get("flags", []) or []}
+    relationships = state.get("relationships")
+    relationships = relationships if isinstance(relationships, dict) else {}
+    party = state.get("_party")
+    party = party if isinstance(party, dict) else {}
+    members: dict[str, dict[str, Any]] = {}
+    for member in party.get("members", []) if isinstance(party.get("members"), list) else []:
+        if isinstance(member, str):
+            members[member] = {"id": member}
+        elif isinstance(member, dict) and member.get("id"):
+            members[str(member["id"])] = member
+    roster: list[dict[str, Any]] = []
+    for ally_id, entry in allies_pool.items():
+        if not isinstance(entry, dict):
+            continue
+        actual_id = str(entry.get("id", ally_id))
+        unlock_flags = {str(flag) for flag in entry.get("unlock_flags", [])}
+        met = (
+            actual_id in members
+            or bool(unlock_flags & flags)
+            or actual_id in relationships
+        )
+        if not met:
+            continue
+        member = members.get(actual_id, {})
+        carried_hp = member.get("hp")
+        sheet = companion_sheet(
+            entry,
+            affection=relationships.get(actual_id),
+            meta_progression=state.get("meta_progression"),
+            run_boons=state.get("_run_boons"),
+            carried_hp=int(carried_hp) if isinstance(carried_hp, int | float) else None,
+        )
+        sheet["in_party"] = actual_id in members
+        sheet["skills"] = [
+            {
+                "id": skill_id,
+                "name": (skills_pool.get(skill_id) or {}).get("name") or skill_id
+                if isinstance(skills_pool, dict)
+                else skill_id,
+            }
+            for skill_id in sheet["skills"]
+        ]
+        roster.append(sheet)
+    return roster
+
+
 def _chapter_goal(loop: Any, state: dict[str, Any]) -> str | None:
     """The current act's player-facing goal from the scenario's `chapter_gates`,
     keyed by loop phase. Gives the objective strip a stable Golden Path goal even
@@ -338,4 +407,6 @@ def snapshot_to_dict(snapshot: RuntimeSnapshot) -> dict[str, Any]:
         "epiphanies_unlocked": snapshot.epiphanies_unlocked,
         "boons": snapshot.boons,
         "market": snapshot.market,
+        # Met companions with growth-folded stat sheets (CHARACTER tab).
+        "companions": _companion_roster(state),
     }

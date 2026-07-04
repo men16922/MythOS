@@ -430,4 +430,8 @@ export const en: Record<StringKey, string> = {
   "market.title": "Barter",
   "story.learn.more": "More",
   "ctab.backToPlayer": "Back to player",
+  "ctab.bondTier": "Bond Tier",
+  "ctab.inParty": "In Party",
+  "ctab.skills": "Skills",
+  "ctab.growth": "Growth Unlocks",
 };

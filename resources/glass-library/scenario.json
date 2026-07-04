@@ -2,8 +2,8 @@
   "scenario_id": "glass-library",
   "name": "세계 : 접속 - 유리성의 사서",
   "version": "0.1.0",
-  "unlock": {"tutorial_completed": true},
-  "unlock_hint": "Neo-Seoul 튜토리얼 루프를 한 번 완료하면 열립니다.",
+  "unlock": {"disabled": true, "tutorial_completed": true},
+  "unlock_hint": "준비 중 — CBT에서는 Neo-Seoul만 플레이할 수 있습니다. (Coming soon)",
   "brief": "WORLD: Glass Library, a collapsing archive of failed worlds and lost memories.\nPREMISE: The connector must find the first connector record before the censors bind it shut.\nTONE: quiet wonder, archival horror, melancholy mystery, crystalline Y2K fantasy.\nPHILOSOPHY: To remember is to change what survived.",
   "ui_copy": {
     "signal_title": "유리성 접속 신호",

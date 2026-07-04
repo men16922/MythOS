@@ -386,6 +386,24 @@ export interface RuntimeSnapshot {
   epiphanies_unlocked?: string[];
   boons?: BoonsView | null;
   market?: MarketView | null;
+  companions?: CompanionSheet[];
+}
+
+// Met companion with growth-folded combat sheet (CHARACTER tab focus card).
+export interface CompanionSheet {
+  id: string;
+  name: string;
+  alias?: string | null;
+  image?: string | null;
+  hp: number;
+  max_hp: number;
+  stats: Record<string, number>;
+  stat_bonus: Record<string, number>;
+  skills: { id: string; name: string }[];
+  bond_tier: number;
+  affection: number;
+  in_party?: boolean;
+  upgrades: { id: string; name: string; name_en: string }[];
 }
 
 export interface MarketOffer {

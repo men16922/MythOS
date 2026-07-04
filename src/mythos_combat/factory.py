@@ -18,6 +18,9 @@ _DEFAULT_STATS = {
     "agility": 5,
     "perception": 5,
 }
+# Public alias for display layers (e.g. the CHARACTER-tab companion sheet) that
+# need the same base-stat merge the combatant builders apply.
+DEFAULT_COMBAT_STATS = _DEFAULT_STATS
 
 
 def derive_max_hp(stats: dict[str, int]) -> int:
@@ -199,6 +202,7 @@ def build_ally_combatant(
 
 
 __all__ = [
+    "DEFAULT_COMBAT_STATS",
     "build_player_combatant",
     "build_enemy_combatant",
     "build_ally_combatant",

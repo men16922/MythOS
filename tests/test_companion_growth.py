@@ -145,6 +145,38 @@ class CompanionGrowthServiceTest(unittest.TestCase):
         self.assertEqual(ally.max_hp, 14 + 4)
 
 
+class CompanionRosterTest(unittest.TestCase):
+    """CHARACTER-tab roster (snapshot ``companions``): met-only, growth-folded."""
+
+    def test_roster_includes_met_companion_with_growth_sheet(self) -> None:
+        from mythos_api.serializers import _companion_roster
+
+        state = {
+            "scenario_id": "neo-seoul",
+            "flags": ["met_se_rin"],
+            "relationships": {"se_rin": 4},
+            "_run_boons": ["guardian_protocol"],
+            "meta_progression": {"total_combats_won": 4},
+            "_party": {"members": [{"id": "se_rin", "hp": 9}]},
+        }
+        roster = _companion_roster(state)
+        se_rin = next(c for c in roster if c["id"] == "se_rin")
+        self.assertEqual(se_rin["bond_tier"], 2)
+        # 14 kit + bond 2 tiers * 2 + guardian_protocol party boon 4
+        self.assertEqual(se_rin["max_hp"], 14 + 4 + 4)
+        self.assertEqual(se_rin["hp"], 9)  # carried in-loop HP, not reset
+        self.assertTrue(se_rin["in_party"])
+        self.assertIn("glitch_blink", [s["id"] for s in se_rin["skills"]])
+        self.assertEqual(se_rin["upgrades"][0]["id"], "se_rin_practiced_maneuvers")
+        self.assertEqual(se_rin["stat_bonus"]["strength"], 2)  # bond only; boon hp is flat
+
+    def test_roster_excludes_unmet_companions(self) -> None:
+        from mythos_api.serializers import _companion_roster
+
+        roster = _companion_roster({"scenario_id": "neo-seoul", "flags": []})
+        self.assertEqual(roster, [])
+
+
 class UpgradeIntegrityTest(unittest.TestCase):
     def test_upgrade_skills_exist_in_scenario_pool(self) -> None:
         # Content invariant: every authored ally upgrade must reference real

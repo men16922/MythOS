@@ -430,6 +430,10 @@ export const ko = {
   "market.title": "물물 교환",
   "story.learn.more": "자세히",
   "ctab.backToPlayer": "내 캐릭터로",
+  "ctab.bondTier": "유대 티어",
+  "ctab.inParty": "파티 합류 중",
+  "ctab.skills": "스킬",
+  "ctab.growth": "성장 해금",
 } as const;
 
 export type StringKey = keyof typeof ko;

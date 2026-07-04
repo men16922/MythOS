@@ -129,12 +129,16 @@ def scenario_unlock_met(
     """Whether a scenario's unlock condition is satisfied for this player.
 
     Supported keys:
+      - ``disabled``: hard-block — the scenario is never selectable regardless of
+        progress or the live-play bypass (e.g. glass-library held back for CBT).
       - ``tutorial_completed``: at least one completed run in the tutorial scenario.
       - ``runs_completed``: that many completed runs in the tutorial scenario.
     No ``unlock`` (None/empty) means always available (e.g. the tutorial).
     """
     if not unlock:
         return True
+    if unlock.get("disabled"):
+        return False
 
     # Bypass unlock checks when playing/debugging live (non-test environments)
     import sys

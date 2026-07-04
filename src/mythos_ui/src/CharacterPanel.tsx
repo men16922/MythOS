@@ -58,6 +58,54 @@ interface CharacterPanelProps {
   onEquip?: (itemId: string, equipped: boolean) => void;
 }
 
+// Shared stat-bar block (player card + CHARACTER-tab companion card): base
+// fill plus the amber bonus overlay segment for run/growth bonuses.
+export function StatBars({
+  stats,
+  bonus,
+}: {
+  stats: Record<string, unknown>;
+  bonus?: Record<string, number> | null;
+}) {
+  const { t } = useLang();
+  return (
+    <div className="char-stats">
+      {Object.entries(stats).map(([key, value]) => {
+        const base = Number(value) || 0;
+        const extra = Number(bonus?.[key]) || 0;
+        return (
+          <div key={key} className="char-stat">
+            <div className="char-stat-head">
+              <span className="k">{STAT_NAME_KEYS[key] ? t(STAT_NAME_KEYS[key]) : key}</span>
+              <span className="v">
+                {base}
+                {extra > 0 ? <span className="stat-bonus"> +{extra}</span> : null} / {STAT_MAX}
+              </span>
+            </div>
+            <div className="char-stat-bar">
+              <div
+                className="char-stat-fill"
+                style={{
+                  width: `${Math.max(0, Math.min(100, (base / STAT_MAX) * 100))}%`,
+                }}
+              />
+              {extra > 0 && (
+                <div
+                  className="char-stat-fill char-stat-fill--bonus"
+                  style={{
+                    left: `${Math.max(0, Math.min(100, (base / STAT_MAX) * 100))}%`,
+                    width: `${Math.max(0, Math.min(100 - (base / STAT_MAX) * 100, (extra / STAT_MAX) * 100))}%`,
+                  }}
+                />
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function statBonusLabel(stats: Record<string, number> | null | undefined, t: TFn): string {
   if (!stats) return "";
   return Object.entries(stats)
@@ -150,40 +198,7 @@ export function CharacterPanel({ snapshot, characters, onEquip }: CharacterPanel
 
       <div className="char-section-title">{t("char.stats")}</div>
       {Object.keys(stats).length > 0 ? (
-        <div className="char-stats">
-          {Object.entries(stats).map(([key, value]) => {
-            const base = Number(value) || 0;
-            const bonus = Number(statBonus[key]) || 0;
-            return (
-              <div key={key} className="char-stat">
-                <div className="char-stat-head">
-                  <span className="k">{STAT_NAME_KEYS[key] ? t(STAT_NAME_KEYS[key]) : key}</span>
-                  <span className="v">
-                    {base}
-                    {bonus > 0 ? <span className="stat-bonus"> +{bonus}</span> : null} / {STAT_MAX}
-                  </span>
-                </div>
-                <div className="char-stat-bar">
-                  <div
-                    className="char-stat-fill"
-                    style={{
-                      width: `${Math.max(0, Math.min(100, (base / STAT_MAX) * 100))}%`,
-                    }}
-                  />
-                  {bonus > 0 && (
-                    <div
-                      className="char-stat-fill char-stat-fill--bonus"
-                      style={{
-                        left: `${Math.max(0, Math.min(100, (base / STAT_MAX) * 100))}%`,
-                        width: `${Math.max(0, Math.min(100 - (base / STAT_MAX) * 100, (bonus / STAT_MAX) * 100))}%`,
-                      }}
-                    />
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <StatBars stats={stats} bonus={statBonus} />
       ) : (
         <div className="char-empty">{t("char.noStats")}</div>
       )}

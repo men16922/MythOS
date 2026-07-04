@@ -752,7 +752,11 @@ class ApiScenarioGatingTest(unittest.TestCase):
         self.assertFalse(scenarios["glass-library"]["unlocked"])
         self.assertTrue(scenarios["glass-library"]["unlock_hint"])
 
-    def test_completing_tutorial_unlocks_others(self) -> None:
+    def test_disabled_scenario_stays_locked_even_after_tutorial(self) -> None:
+        # CBT hold: glass-library carries ``unlock.disabled`` so it stays locked
+        # (selectbox-disabled) even for a player who completed the tutorial.
+        # When the scenario reopens, drop ``disabled`` from its unlock block and
+        # flip this back to asserting the tutorial-completion unlock.
         from mythos_runtime.progression import MetaProgression, _meta_progression_memory
 
         store = _InMemoryStore()
@@ -767,7 +771,8 @@ class ApiScenarioGatingTest(unittest.TestCase):
             )
         )
         scenarios = self._scenarios(client, "player_gate")
-        self.assertTrue(scenarios["glass-library"]["unlocked"])
+        self.assertFalse(scenarios["glass-library"]["unlocked"])
+        self.assertTrue(scenarios["glass-library"]["unlock_hint"])
 
 
 class InviteGateTest(unittest.TestCase):

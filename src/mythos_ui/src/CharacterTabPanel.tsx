@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { CharacterPanel } from "./CharacterPanel";
+import { CharacterPanel, StatBars } from "./CharacterPanel";
 import { GaugeBar } from "./GameAside";
 import { buildAffectionGauges } from "./gauges";
 import { useLang } from "./i18n/lang";
 import type { CodexLists } from "./viewModels";
-import type { RuntimeSnapshot } from "./types";
+import type { CompanionSheet, RuntimeSnapshot } from "./types";
 
 interface CharacterTabPanelProps {
   codexLists: CodexLists;
@@ -26,13 +26,17 @@ export function CharacterTabPanel({
   snapshot,
   onEquip,
 }: CharacterTabPanelProps) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const affectionGauges = buildAffectionGauges(snapshot?.state?.relationships);
   const scenarioId = snapshot?.state?.scenario_id || "neo-seoul";
   // Companion focus: clicking a bond row swaps the left CHARACTER card to that
   // companion's portrait; clicking again (or the back button) returns to the player.
   const [selected, setSelected] = useState<string | null>(null);
   const selectedGauge = affectionGauges.find((g) => g.name === selected) || null;
+  // Growth-folded sheet from the snapshot (base stats + amber bonuses + skills);
+  // falls back to the bare portrait card when the roster lacks the companion.
+  const sheet: CompanionSheet | null =
+    (selected && snapshot?.companions?.find((c) => c.id === selected)) || null;
 
   return (
     <div id="character-tab-content">
@@ -41,7 +45,7 @@ export function CharacterTabPanel({
         <div className="character-tab-grid">
           <div className="codex-sec codex-character-sec">
             {selectedGauge ? (
-              <div className="companion-card">
+              <div className="panel character-panel companion-card">
                 <button
                   type="button"
                   className="companion-back"
@@ -49,16 +53,59 @@ export function CharacterTabPanel({
                 >
                   ← {t("ctab.backToPlayer")}
                 </button>
-                <div className="char-portrait">
+                <div className="char-portrait-frame">
                   <img
-                    src={getAvatarUrl(selectedGauge.name, scenarioId)}
-                    alt={selectedGauge.label}
+                    className="char-portrait"
+                    src={
+                      sheet?.image
+                        ? `/resources/${scenarioId}/${sheet.image}`
+                        : getAvatarUrl(selectedGauge.name, scenarioId)
+                    }
+                    alt={sheet?.name || selectedGauge.label}
                   />
                 </div>
-                <div className="char-name">{selectedGauge.label}</div>
-                <div className="companion-bond-line">
-                  {t("ctab.bonds")} · {selectedGauge.value}
+                <div className="char-id">
+                  {sheet?.alias && <div className="char-alias">{sheet.alias}</div>}
+                  <div className="char-name">{sheet?.name || selectedGauge.label}</div>
+                  <div className="char-arch">
+                    {t("ctab.bondTier")} {sheet?.bond_tier ?? 0} · {t("ctab.bonds")} ·{" "}
+                    {sheet?.affection ?? selectedGauge.value}
+                    {sheet?.in_party ? ` · ${t("ctab.inParty")}` : ""}
+                  </div>
                 </div>
+                {sheet && (
+                  <>
+                    <div className="companion-bond-line">
+                      HP {sheet.hp} / {sheet.max_hp}
+                    </div>
+                    <div className="char-section-title">{t("char.stats")}</div>
+                    <StatBars stats={sheet.stats} bonus={sheet.stat_bonus} />
+                    {sheet.skills.length > 0 && (
+                      <>
+                        <div className="char-section-title">{t("ctab.skills")}</div>
+                        <div className="char-chips">
+                          {sheet.skills.map((skill) => (
+                            <span key={skill.id} className="char-chip">
+                              {skill.name}
+                            </span>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                    {sheet.upgrades.length > 0 && (
+                      <>
+                        <div className="char-section-title">{t("ctab.growth")}</div>
+                        <div className="char-chips">
+                          {sheet.upgrades.map((upgrade) => (
+                            <span key={upgrade.id} className="char-chip">
+                              {lang === "en" ? upgrade.name_en : upgrade.name}
+                            </span>
+                          ))}
+                        </div>
+                      </>
+                    )}
+                  </>
+                )}
               </div>
             ) : (
               <CharacterPanel snapshot={snapshot ?? null} onEquip={onEquip} />

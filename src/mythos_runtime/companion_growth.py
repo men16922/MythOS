@@ -123,6 +123,68 @@ def growth_bonus(
     )
 
 
+def companion_sheet(
+    entry: dict[str, Any],
+    *,
+    affection: Any = None,
+    meta_progression: Any = None,
+    run_boons: Any = None,
+    carried_hp: Any = None,
+) -> dict[str, Any]:
+    """One ally's CHARACTER-tab display sheet: base kit split from growth.
+
+    Mirrors ``build_ally_combatant``'s numbers but keeps ``stats`` (base) and
+    ``stat_bonus`` (growth) separate so the client can render the same
+    base-bar + amber-bonus overlay it uses for the player.
+    """
+    from mythos_combat.factory import DEFAULT_COMBAT_STATS, derive_max_hp
+
+    growth = growth_bonus(
+        entry=entry,
+        affection=affection,
+        meta_progression=meta_progression,
+        run_boons=run_boons,
+    )
+    base_stats = {
+        **DEFAULT_COMBAT_STATS,
+        **{k: int(v) for k, v in entry.get("stats", {}).items() if isinstance(v, int | float)},
+    }
+    folded = dict(base_stats)
+    for stat, delta in growth.stats.items():
+        folded[stat] = folded.get(stat, 0) + delta
+    max_hp = int(entry.get("hp", derive_max_hp(folded))) + max(0, growth.hp)
+    hp = carried_hp if isinstance(carried_hp, int) else max_hp
+    skills = [str(s) for s in entry.get("skills", [])]
+    skills += [s for s in growth.skills if s not in skills]
+    upgrades = [
+        {
+            "id": str(u.get("id", "")),
+            "name": u.get("name") or u.get("id"),
+            "name_en": u.get("name_en") or u.get("name") or u.get("id"),
+        }
+        for u in entry.get("upgrades", [])
+        if isinstance(u, dict) and str(u.get("id", "")) in growth.upgrade_ids
+    ]
+    try:
+        affection_points = int(affection)
+    except (TypeError, ValueError):
+        affection_points = 0
+    return {
+        "id": str(entry.get("id", "")),
+        "name": entry.get("name") or entry.get("id"),
+        "alias": entry.get("alias"),
+        "image": entry.get("image"),
+        "hp": max(0, min(max_hp, hp)),
+        "max_hp": max_hp,
+        "stats": base_stats,
+        "stat_bonus": growth.stats,
+        "skills": skills,
+        "bond_tier": growth.bond_tier,
+        "affection": affection_points,
+        "upgrades": upgrades,
+    }
+
+
 __all__ = [
     "BOND_HP_PER_TIER",
     "BOND_STATS_PER_TIER",
@@ -130,5 +192,6 @@ __all__ = [
     "BOND_TIER_SIZE",
     "GrowthBonus",
     "bond_tier",
+    "companion_sheet",
     "growth_bonus",
 ]

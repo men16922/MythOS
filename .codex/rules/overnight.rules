@@ -1,0 +1,52 @@
+# Codex project rules for the unattended overnight harness.
+# Copy to .codex/rules/overnight.rules. Rules are an additional guardrail; the
+# runner still re-runs the gate externally and reverts phantom-success commits.
+
+prefix_rule(
+    pattern = ["git", "push"],
+    decision = "forbidden",
+    justification = "The overnight loop must never push. Review locally first, then push manually.",
+    match = ["git push", "git push origin main"],
+)
+
+prefix_rule(
+    pattern = ["git", "reset", "--hard"],
+    decision = "forbidden",
+    justification = "Hard resets can discard human work. Use targeted restore or leave STOP for review.",
+    match = ["git reset --hard", "git reset --hard HEAD~1"],
+)
+
+prefix_rule(
+    pattern = ["rm", "-rf"],
+    decision = "forbidden",
+    justification = "Recursive forced deletion is outside unattended scope.",
+    match = ["rm -rf build", "rm -rf /tmp/example"],
+)
+
+prefix_rule(
+    pattern = ["sudo"],
+    decision = "forbidden",
+    justification = "Privilege escalation is outside unattended scope.",
+    match = ["sudo make install"],
+)
+
+prefix_rule(
+    pattern = ["curl"],
+    decision = "forbidden",
+    justification = "Network access is outside the default unattended loop.",
+    match = ["curl https://example.com"],
+)
+
+prefix_rule(
+    pattern = ["wget"],
+    decision = "forbidden",
+    justification = "Network access is outside the default unattended loop.",
+    match = ["wget https://example.com/file"],
+)
+
+prefix_rule(
+    pattern = ["make", ["deploy", "publish", "release"]],
+    decision = "forbidden",
+    justification = "Release and deployment targets require human review.",
+    match = ["make deploy", "make publish", "make release"],
+)

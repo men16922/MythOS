@@ -5,6 +5,13 @@ Last updated: 2026-07-04
 This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-04 — Kiro CLI overnight harness integration
+- Status: Completed locally (uncommitted). `bash -n run.sh` OK + `harness-init --check` all ✓.
+- Changed: scaffolded `.kiro/agents/overnight-harness.json` (main loop) + `overnight-harness-critic.json` (read-only critic) via `harness-init.sh` from the local plugin (`/Users/men1692/Desktop/local/claude-overnight-harness`). Added `ENGINE=kiro` support to `scripts/overnight/run.sh` (pre-check + invocation + critic) and `overnight-kiro*` Makefile targets. Updated `.claude/harness-config.json` for MythOS (project_name, archive_dir, engine=kiro, harness_root pin). 6 steering files in `.kiro/steering/harness-*.md`.
+- Verified: `bash -n scripts/overnight/run.sh` syntax OK; `harness-init.sh --check` passes all items (plugin resolved, config present, Kiro profile present). Not runtime-tested yet (`make overnight-kiro-once` not run — no `[auto]` items).
+- Blockers: none.
+- Next: runtime smoke once `[auto]` items are seeded; commit with the next bundle.
+
 ## 2026-07-04 — Live-QA round: boss-victory ending fix + Su-ah name guard + equip KO leak + compact card
 - Status: Completed locally (uncommitted on top of `7d6cb52`; **741** tests + lint/mypy/build green; local API restarted). All four from human live play.
 - **Boss VICTORY resolved to Forced Erasure (fixed)**: at the climax the numeric erasure condition (Resilience<5 && Tension>90) is nearly always true, and the boss anchor's perspective flags were never consulted. Victory now honors `_PERSPECTIVE_ENDING_FLAGS` (code_rewrite/noble_sacrifice/erased/safe_refuge → their endings, new `_apply_ending_fields`) first, and a numeric-path victory can no longer land on `ending_erasure` (survival fallback) unless the authored 'erased' flag chose it. 2 regression tests.

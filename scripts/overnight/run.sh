@@ -27,7 +27,7 @@ REPO_ROOT="$(cd "$SCRIPT_DIR" && git rev-parse --show-toplevel 2>/dev/null || tr
 [ -n "$REPO_ROOT" ] || REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 cd "$REPO_ROOT"
 
-# --- 엔진 선택 (claude | codex | agy) — 동일 LOOP, 호출 에이전트만 다름 ---
+# --- 엔진 선택 (claude | codex | agy | kiro) — 동일 LOOP, 호출 에이전트만 다름 ---
 : "${ENGINE:=claude}"
 
 # git 객체 저장소(common dir). worktree 에선 .git 이 파일이고 실제 저장소는 메인의 .git 이다 —
@@ -38,6 +38,7 @@ GIT_COMMON_DIR="$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/n
 case "$ENGINE" in
   codex) PROMPT_FILE="scripts/overnight/PROMPT.codex.md" ;;
   agy)   PROMPT_FILE="scripts/overnight/PROMPT.agy.md" ;;
+  kiro)  PROMPT_FILE="scripts/overnight/PROMPT.md" ;;
   *)     PROMPT_FILE="scripts/overnight/PROMPT.md" ;;
 esac
 SETTINGS_FILE="scripts/overnight/overnight-settings.json"   # claude 전용 권한 경계
@@ -154,10 +155,11 @@ fi
 case "$ENGINE" in
   codex) command -v codex >/dev/null 2>&1 || { log "치명: 'codex' CLI 를 PATH 에서 못 찾음 — 종료"; exit 1; } ;;
   agy)   command -v agy   >/dev/null 2>&1 || { log "치명: 'agy' CLI 를 PATH 에서 못 찾음 — 종료"; exit 1; } ;;
+  kiro)  command -v kiro-cli >/dev/null 2>&1 || { log "치명: 'kiro-cli' 를 PATH 에서 못 찾음 — 종료"; exit 1; } ;;
   claude)
     command -v claude >/dev/null 2>&1 || { log "치명: 'claude' CLI 를 PATH 에서 못 찾음 — 종료"; exit 1; }
     [ -f "$SETTINGS_FILE" ] || { log "치명: $SETTINGS_FILE 없음 — 종료"; exit 1; } ;;
-  *) log "치명: 알 수 없는 ENGINE='$ENGINE' (claude|codex|agy) — 종료"; exit 1 ;;
+  *) log "치명: 알 수 없는 ENGINE='$ENGINE' (claude|codex|agy|kiro) — 종료"; exit 1 ;;
 esac
 [ -f "$PROMPT_FILE" ]   || { log "치명: $PROMPT_FILE 없음 — 종료"; exit 1; }
 [ -n "$TIMEOUT_BIN" ] || log "경고: gtimeout/timeout 없음 — 회차 타임아웃 비활성 (brew install coreutils 권장)"
@@ -309,6 +311,13 @@ critic_verdict() {
       # print 모드 + --dangerously-skip-permissions 없음: 읽기는 되고 쓰기는 적용 안 됨.
       $TIMEOUT_BIN ${TIMEOUT_BIN:+$ITER_TIMEOUT} agy --print "$cprompt" \
         --print-timeout 30m --add-dir "$REPO_ROOT" </dev/null > "$clog" 2>&1
+      ;;
+    kiro)
+      # critic 전용 프로필(allowedTools=read-only) + --trust-all-tools 로 무인 실행.
+      $TIMEOUT_BIN ${TIMEOUT_BIN:+$ITER_TIMEOUT} kiro-cli chat \
+        --no-interactive --trust-all-tools --effort high \
+        --agent overnight-harness-critic \
+        "$cprompt" > "$clog" 2>&1
       ;;
     *)
       set -e; echo SKIP; return 0
@@ -494,6 +503,18 @@ while :; do
         --dangerously-skip-permissions \
         --print-timeout 30m \
         --add-dir "$REPO_ROOT" > "$ITER_LOG" 2>&1 </dev/null
+      ;;
+    kiro)
+      # kiro-cli chat --no-interactive --trust-all-tools = 헤드리스 무인 실행.
+      # --agent 로 .kiro/agents/ 에서 overnight-harness 프로필 로드.
+      : "${KIRO_AGENT:=overnight-harness}"
+      : "${KIRO_EFFORT:=high}"
+      KIRO_FLAGS="--no-interactive --trust-all-tools --effort $KIRO_EFFORT"
+      [ -n "${KIRO_MODEL:-}" ] && KIRO_FLAGS="$KIRO_FLAGS --model $KIRO_MODEL"
+      [ -n "$KIRO_AGENT" ] && KIRO_FLAGS="$KIRO_FLAGS --agent $KIRO_AGENT"
+      $TIMEOUT_BIN ${TIMEOUT_BIN:+$ITER_TIMEOUT} kiro-cli chat \
+        $KIRO_FLAGS \
+        "$PROMPT_CONTENT" > "$ITER_LOG" 2>&1
       ;;
     *)
       # WS-β: OVERNIGHT_GOAL=1 이면 /goal 디렉티브를 프롬프트 앞에 주입(claude 레인 전용).

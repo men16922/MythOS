@@ -1,0 +1,40 @@
+{
+  "enableTerminalSandbox": true,
+  "toolPermission": "proceed-in-sandbox",
+  "permissions": {
+    "allow": [
+      "command(make check)",
+      "command(make test)",
+      "command(make lint)",
+      "command(make typecheck)",
+      "command(make build)",
+      "command(make smoke-local)",
+      "command(git add .*)",
+      "command(git commit .*)",
+      "command(git status.*)",
+      "command(git diff.*)",
+      "command(git log.*)",
+      "command(git show.*)",
+      "command(git rev-parse.*)",
+      "command(git restore .*)",
+      "command(git checkout -- .*)"
+    ],
+    "deny": [
+      "command(git push.*)",
+      "command(git reset --hard.*)",
+      "command(rm -rf.*)",
+      "command(sudo .*)",
+      "command(curl .*)",
+      "command(wget .*)",
+      "command(make deploy.*)",
+      "command(make publish.*)",
+      "command(make release.*)",
+      "command(make db-.*)",
+      "command(make infra-.*)",
+      "read_url(*)",
+      "execute_url(*)",
+      "mcp(*)"
+    ],
+    "ask": ["command(*)"]
+  }
+}

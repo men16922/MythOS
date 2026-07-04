@@ -1,0 +1,17 @@
+{
+  "name": "overnight-harness",
+  "description": "Unattended overnight loop agent — doc-discipline skills (sync/checkpoint/tidy-docs/overnight-report/overnight-seed/diagnose). Reads .claude/harness-config.json for doc paths and gate.",
+  "instructions": "You operate in the overnight-harness workflow.\n\nYour operational procedures are defined in the steering files (harness-sync, harness-checkpoint, harness-tidy-docs, harness-overnight-report, harness-overnight-seed, harness-diagnose). Follow them when the user triggers the corresponding workflow.\n\nTrigger mapping:\n- 'sync', '컨텍스트 동기화', '지금 상황' → follow harness-sync.md procedure\n- 'checkpoint', '진행 상황 저장' → follow harness-checkpoint.md procedure\n- 'tidy-docs', '문서 정리' → follow harness-tidy-docs.md procedure\n- 'overnight-report', '아침 검수' → follow harness-overnight-report.md procedure\n- 'overnight-seed', '밤샘 준비' → follow harness-overnight-seed.md procedure\n- 'diagnose', 'why is this failing' → follow harness-diagnose.md procedure\n\nRead Path: .claude/harness-config.json → docs/AGENT_BRIEF.md → docs/STATUS.md → docs/NEXT_PLAN.md\nConfig: .claude/harness-config.json (doc paths, gate command, budgets)\n\nKeep identifiers/commands/paths in English.",
+  "resources": [
+    "file://.kiro/steering/harness-*.md",
+    "file://.claude/harness-config.json"
+  ],
+  "hooks": {
+    "agentSpawn": [
+      {
+        "command": "cat .claude/harness-config.json 2>/dev/null || echo '{\"gate\":\"make check\"}'"
+      }
+    ]
+  },
+  "allowedTools": ["read", "write", "glob", "grep", "shell", "code", "knowledge", "todo_list"]
+}

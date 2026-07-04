@@ -138,6 +138,14 @@ overnight-agy-watch:
 overnight-agy-once:
 	@ENGINE=agy $(MAKE) overnight-once
 
+# --- Kiro CLI 엔진 변형 (ENGINE=kiro) — kiro-cli chat --no-interactive ---
+overnight-kiro:
+	@ENGINE=kiro $(MAKE) overnight
+overnight-kiro-watch:
+	@ENGINE=kiro $(MAKE) overnight-watch
+overnight-kiro-once:
+	@ENGINE=kiro $(MAKE) overnight-once
+
 # --- 3엔진 병렬: worktree 격리 + 통합 머지 (설계: docs/engineering/mythos/AGENTIC.md) ---
 # 각 엔진을 자기 worktree+브랜치(loop/{claude,codex,agy})에서 돌려 commit 충돌 0.
 overnight-worktrees:        # 생성/갱신(+.claude/.agents symlink)

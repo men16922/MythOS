@@ -4,7 +4,7 @@ Last updated: 2026-07-04
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Claude handoff — browser-QA the latest green local bundle**: four ending arts (especially boss defeat), real Rank combat scaling, Clues placeholder cleanup, and Restarting Kai→party/Bonds badge. `make check` is green at 729 tests. Then commit/push/redeploy and continue `docs/test/neo_seoul_live_qa.md`. Cloud Run remains `mythos-api-00007-6h8`.
+> ▶ NEXT SESSION: **Commit+redeploy the party-survivability batch, then human live sign-off** — uncommitted local batch (downed-ally rejoin, rest recovery, ally-target heal UI, `restart_core` revive, `grant_items` channel, lin-yue sprite keying; `make check` 738) sits on top of deployed rev `mythos-api-00008-7sx` (`89e1935`). Play `docs/test/neo_seoul_live_qa.md` 🔴 top-down (Night Market→Restarting Kai, boss buildup→**victory** ending, party survival loop, companion cuts, KO/EN feel). Human: `git push origin main` (ahead 11).
 
 ## Snapshot
 
@@ -28,7 +28,7 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **Deploy + human sign-off**: commit/push the green local CBT bundle, redeploy Cloud Run, then run the fresh-loop checklist for cutscene timing/art, route-link and skill-graph feel, Night Market→Kai, boss ending, progression, market, and save restore (`docs/test/neo_seoul_live_qa.md`).
+1. **Human live sign-off**: the CBT bundle is committed + deployed (`00008-7sx`); run the fresh-loop checklist on the cloud — cutscenes, route-link/skill-graph feel, Night Market→Kai, boss victory ending, progression, market, save restore (`docs/test/neo_seoul_live_qa.md`). Human `git push` (ahead 11).
 2. **Engineering maintenance track (WS0-3 done)**: 6-layer agent ops bible↔MythOS interpretation (including mechanical→semantic→creative verification), slim entry points, structured logging/dashboard, and Resume Pointer continuity. Only WS4 content pipeline remains plan-only (`docs/plans/2026-06-14-engineering-plan.md`).
 3. `glass-library` extension: hold (parity + Story Bible 17 entries done; further extension after Neo-Seoul completion). Completed tracks (combat/progression/party/grant/route-node) → `docs/COMPLETED_SUMMARY.md` M35-M40.
 

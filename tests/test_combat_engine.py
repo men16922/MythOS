@@ -517,6 +517,53 @@ class CombatSkillTest(unittest.TestCase):
         )
         self.assertGreater(state.player().focus, 0)  # type: ignore[union-attr]
 
+    def test_item_restart_core_revives_downed_ally(self) -> None:
+        engine = CombatEngine()
+        state = engine.start(
+            [_skilled_player(x=0, y=0), _ally("se_rin", x=1, y=0)],
+            [_drone(x=9, y=5, hp=80, defense=1, speed=0)],
+            seed="revive",
+            arena=(10, 6),
+        )
+        downed = state.by_id("se_rin")
+        assert downed is not None
+        downed.alive = False
+        downed.hp = 0
+
+        state = engine.take_player_turn(
+            state,
+            PlayerAction(type="item", item_id="restart_core"),
+            item_def=ITEMS["restart_core"],
+            item_available=True,
+        )
+
+        revived = state.by_id("se_rin")
+        assert revived is not None
+        self.assertTrue(revived.alive)
+        self.assertGreaterEqual(revived.hp, 1)
+        self.assertTrue(any(e.detail.get("revived") == "se_rin" for e in state.log if e.detail))
+
+    def test_item_restart_core_not_consumed_without_downed_ally(self) -> None:
+        engine = CombatEngine()
+        state = engine.start(
+            [_skilled_player(x=0, y=0), _ally("se_rin", x=1, y=0)],
+            [_drone(x=9, y=5, hp=80, defense=1, speed=0)],
+            seed="revive-noop",
+            arena=(10, 6),
+        )
+
+        state = engine.take_player_turn(
+            state,
+            PlayerAction(type="item", item_id="restart_core"),
+            item_def=ITEMS["restart_core"],
+            item_available=True,
+        )
+
+        # Nobody was down: the core must not be consumed (no item log entry).
+        self.assertFalse(
+            any(e.detail.get("consumed") == "restart_core" for e in state.log if e.detail)
+        )
+
     def test_defend_restores_focus_as_recharge_turn(self) -> None:
         engine = CombatEngine()
         state = engine.start(

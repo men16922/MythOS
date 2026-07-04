@@ -21,6 +21,19 @@ function routeDestination(choice: SceneChoice, routeMap?: RouteMap | null): { no
   return { node, index: index >= 0 ? index : 0 };
 }
 
+// StS-style risk/reward hint per destination node type, so a junction pick is a
+// plan (elite-vs-campfire tradeoff) instead of a label guess.
+const NODE_TYPE_HINT_KEYS: Record<string, StringKey> = {
+  market: "choice.node.market",
+  rest: "choice.node.rest",
+  patrol: "choice.node.patrol",
+  combat: "choice.node.combat",
+  clue: "choice.node.clue",
+  event: "choice.node.event",
+  story: "choice.node.story",
+  boss: "choice.node.boss",
+};
+
 const intentKey = (intent?: string): StringKey | null => {
   if (!intent) return null;
   const cleanIntent = intent.trim().toLowerCase();
@@ -73,6 +86,11 @@ export function ChoicePanel({ choices, stability, tension, routeMap, onChoose }:
                 <span>{t("choice.destination")}: {destination.node.title || destination.node.label}</span>
                 {destination.node.risk != null && (
                   <small>{t("aside.route.risk")} {destination.node.risk}</small>
+                )}
+                {NODE_TYPE_HINT_KEYS[destination.node.type] && (
+                  <small className="route-node-hint">
+                    {t(NODE_TYPE_HINT_KEYS[destination.node.type])}
+                  </small>
                 )}
               </div>
             )}

@@ -200,6 +200,21 @@ class CombatServiceTest(unittest.TestCase):
         )
         self.assertEqual(len(result.radar["blips"]), 5)  # player + 2 allies + 2 drones
 
+    def test_downed_member_rejoins_next_combat_at_quarter_hp(self) -> None:
+        # A member downed in a previous fight is not lost for the loop: the next
+        # encounter builds them at max(1, max_hp // 4) instead of skipping them.
+        service = CombatService()
+        loop = _loop(state={"_party": {"members": [{"id": "se_rin", "hp": 0}]}})
+        result = self._begin(service, loop)
+        state = CombatService.load_state(result.loop)
+        assert state is not None
+        ally = state.by_id("se_rin")
+        self.assertIsNotNone(ally)
+        assert ally is not None
+        self.assertTrue(ally.alive)
+        self.assertEqual(ally.hp, max(1, ally.max_hp // 4))
+        self.assertLess(ally.hp, ally.max_hp)
+
     def test_unlock_flag_spawns_ally_and_persists_hp(self) -> None:
         service = CombatService()
         loop = _loop(state={"flags": ["trusted_se_rin"]})

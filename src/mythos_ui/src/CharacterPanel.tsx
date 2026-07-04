@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import {
   BadgeQuestionMark,
   Database,
@@ -133,6 +135,30 @@ function ItemIcon({ category }: { category: string }) {
   return <BadgeQuestionMark {...props} />;
 }
 
+/** Curated per-item icon art (items/<id>.png) with the glyph as fallback, so the
+ * inventory reads like a classic RPG grid once the art set lands. */
+function ItemArt({
+  itemId,
+  scenarioId,
+  category,
+}: {
+  itemId: string;
+  scenarioId: string;
+  category: string;
+}) {
+  const [broken, setBroken] = useState(false);
+  if (broken || !itemId) return <ItemIcon category={category} />;
+  return (
+    <img
+      className="inv-item-art"
+      src={`/resources/${scenarioId}/items/${itemId}.png`}
+      alt=""
+      draggable={false}
+      onError={() => setBroken(true)}
+    />
+  );
+}
+
 export function CharacterPanel({ snapshot, characters, onEquip }: CharacterPanelProps) {
   const { t } = useLang();
   const partner = detectSceneCharacter(snapshot, characters);
@@ -235,7 +261,7 @@ export function CharacterPanel({ snapshot, characters, onEquip }: CharacterPanel
                       }`}
                     >
                       <span className="inv-icon" title={ITEM_CATEGORY_KEYS[category] ? t(ITEM_CATEGORY_KEYS[category]) : category}>
-                        <ItemIcon category={category} />
+                        <ItemArt itemId={item.id} scenarioId={scenarioId} category={category} />
                       </span>
                       <span className="inv-main">
                         <span className="inv-name-row">

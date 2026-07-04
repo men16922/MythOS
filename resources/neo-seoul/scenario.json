@@ -452,7 +452,9 @@
         "titles": [
           "전환의 길목",
           "예고된 장면",
-          "분기의 순간"
+          "분기의 순간",
+          "갈라지는 길",
+          "숨은 전환점"
         ]
       },
       "clue": {
@@ -468,7 +470,10 @@
           "암호화된 흔적",
           "낡은 기록 보관함",
           "유출된 로그",
-          "지워진 명단 조각"
+          "지워진 명단 조각",
+          "찢긴 전단 벽",
+          "도청된 주파수",
+          "폐기된 검열 단말"
         ]
       },
       "combat": {
@@ -483,7 +488,11 @@
         "titles": [
           "봉쇄선 충돌",
           "교전 구역",
-          "정면 돌파"
+          "정면 돌파",
+          "매복 골목",
+          "차단막 붕괴 지점",
+          "적재장 총격전",
+          "붉은 경보 구역"
         ]
       },
       "patrol": {
@@ -497,7 +506,11 @@
         "titles": [
           "순찰 우회로",
           "감시 사각",
-          "추격 길목"
+          "추격 길목",
+          "탐조등 회랑",
+          "검문 초소",
+          "드론 순회 구간",
+          "통제선 그림자"
         ]
       },
       "market": {
@@ -512,7 +525,11 @@
         "titles": [
           "뒷골목 노점",
           "암시장 거점",
-          "환전 부스"
+          "환전 부스",
+          "밀수품 창고",
+          "고물상 컨테이너",
+          "간이 교역소",
+          "장물 거래소"
         ]
       },
       "rest": {
@@ -527,7 +544,11 @@
         "titles": [
           "임시 은신처",
           "정비 거점",
-          "숨 고르는 골목"
+          "숨 고르는 골목",
+          "버려진 찜질방",
+          "지하 대피소",
+          "꺼진 간판 아래",
+          "온기 남은 보일러실"
         ]
       },
       "event": {
@@ -539,7 +560,11 @@
         "titles": [
           "우연한 마주침",
           "예기치 못한 부탁",
-          "흔들리는 선택"
+          "흔들리는 선택",
+          "낯선 신호",
+          "골목의 목격자",
+          "떨어진 소지품",
+          "엇갈린 전언"
         ]
       },
       "boss": {
@@ -871,7 +896,27 @@
           "combat",
           "clue",
           "patrol",
-          "event"
+          "event",
+          "market"
+        ]
+      },
+      {
+        "arc": "arc_3_the_awakening",
+        "title": "소각로의 여파",
+        "anchors": [
+          {
+            "type": "story",
+            "beat": "ash_street",
+            "title": "잿내 남은 거리",
+            "image": "concept/04-reconstruction.png"
+          }
+        ],
+        "width": 2,
+        "pool": [
+          "patrol",
+          "clue",
+          "event",
+          "market"
         ]
       },
       {
@@ -1033,7 +1078,27 @@
         "pool": [
           "clue",
           "event",
-          "rest"
+          "rest",
+          "market"
+        ]
+      },
+      {
+        "arc": "arc_4_the_dreaming_machine",
+        "title": "꿈의 잔향",
+        "anchors": [
+          {
+            "type": "story",
+            "beat": "wet_dawn_street",
+            "title": "젖은 새벽 거리",
+            "image": "scenes/opening_escape_alt.png"
+          }
+        ],
+        "width": 2,
+        "pool": [
+          "clue",
+          "event",
+          "rest",
+          "market"
         ]
       },
       {
@@ -1128,6 +1193,36 @@
           "combat",
           "patrol",
           "market"
+        ]
+      },
+      {
+        "arc": "arc_5_the_spire",
+        "title": "접근전",
+        "anchors": [
+          {
+            "type": "story",
+            "beat": "wall_recon",
+            "title": "장벽 아래 정찰",
+            "image": "scenes/subway_control_hub.png"
+          }
+        ],
+        "width": 2,
+        "pool": [
+          "combat",
+          "patrol",
+          "clue"
+        ]
+      },
+      {
+        "arc": "arc_6_the_rewriting",
+        "title": "폭풍 전야",
+        "anchors": [
+          {
+            "type": "rest",
+            "mandatory": true,
+            "beat": "storm_before",
+            "title": "폭풍 전야 — 마지막 정비"
+          }
         ]
       },
       {
@@ -1383,7 +1478,7 @@
     },
     {
       "trigger_flag": "kai_found",
-      "min_layer": 4,
+      "min_layer": 5,
       "title": "사이드: 카이의 꿈 단편",
       "description": "카이가 반복해서 꾸는 전쟁 이전 아이의 기억을 복원해 MythOS 기원 단서를 얻는다.",
       "beat": "side_kai_dream",
@@ -2628,6 +2723,14 @@
         "bonus": 3,
         "rarity": "uncommon"
       },
+      "restart_core": {
+        "id": "restart_core",
+        "name": "재기동 코어",
+        "kind": "consumable",
+        "effect": "revive",
+        "bonus": 5,
+        "rarity": "rare"
+      },
       "access_key": {
         "id": "access_key",
         "name": "접근 키",
@@ -2733,6 +2836,11 @@
       },
       {
         "give": "drone_scrap",
+        "count": 5,
+        "get": "restart_core"
+      },
+      {
+        "give": "drone_scrap",
         "count": 6,
         "get": "mesh_vest"
       }
@@ -2741,10 +2849,14 @@
       "drone_scrap": [
         {
           "item": "drone_scrap",
-          "weight": 4
+          "weight": 8
         },
         {
           "item": "nanopatch",
+          "weight": 2
+        },
+        {
+          "item": "mesh_vest",
           "weight": 1
         }
       ],

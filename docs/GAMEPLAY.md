@@ -71,6 +71,14 @@ Current combat direction:
 - Icon action bar.
 - Controllable party allies.
 
+Party survivability rules (2026-07-04):
+
+- A downed ally (hp<=0) sits out only the current fight; the next encounter rebuilds them at max(1, max_hp//4) (`combat_service._build_allies`).
+- Every narrative scene commit heals the player + living members `REST_RECOVERY_HP` (2) toward max — the rest beat between fights. Downed members are not rest-healed.
+- Heal/shield support skills (role healing/defense) can be directed at any friendly in range: engine `friendly_targets` + the SUPPORT TARGET row in `CombatControls` (default = most wounded).
+- `restart_core` (재기동 코어, rare consumable; market 5 scrap) revives the first downed ally mid-combat at max(bonus, max_hp//3); not consumed when nobody is down.
+- LLM scenes may grant carriable items via `world_delta.grant_items` (e.g. salvaging drone wreckage → drone_scrap): ids whitelisted to kinds consumable/material and capped 2/scene at commit (`session._filter_grant_items`), then materialized to full item defs for the inventory UI.
+
 Current focus:
 
 - Tune Neo-Seoul encounters so each fight has a gameplay purpose: movement, focus use, ally protection, recovery, or escape pressure.

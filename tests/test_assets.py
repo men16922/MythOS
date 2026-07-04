@@ -146,3 +146,30 @@ class ScenarioImageReferenceIntegrityTest(unittest.TestCase):
         self.assertEqual(not_png, [], f"확장자만 .png 인 비-PNG 아이콘: {not_png}")
         # guard-the-guard: 스킬을 0개 스캔하면 vacuous green.
         self.assertGreater(total_skills, 0, "스캔된 스킬 0 — combat.skills 키 규약 변경 의심")
+
+    def test_item_icons_exist_when_item_art_dir_present(self) -> None:
+        """`items/` 아이콘 디렉토리를 가진 시나리오는 `combat.items[].id` 전량에
+        `items/<id>.png`가 실재해야 한다 (인벤토리 RPG 그리드 아트, ID 규약 파생 경로).
+
+        디렉토리 자체가 없는 시나리오(glass-library 등, 글리프 폴백 렌더)는 스킵 —
+        아트 세트를 들이는 순간부터 전량 커버리지를 강제한다."""
+        png_magic = b"\x89PNG\r\n\x1a\n"
+        total_items = 0
+        problems: list[str] = []
+        for scn, data, base in self._scenario_jsons():
+            items_dir = base / "items"
+            if not items_dir.is_dir():
+                continue
+            items = data.get("combat", {}).get("items", {}) or {}
+            for item_id in items:
+                if not item_id:
+                    continue
+                total_items += 1
+                path = items_dir / f"{item_id}.png"
+                if not path.exists():
+                    problems.append(f"{scn} [{item_id}] items/{item_id}.png 누락")
+                elif path.read_bytes()[:8] != png_magic:
+                    problems.append(f"{scn} [{item_id}] items/{item_id}.png 비-PNG")
+        self.assertEqual(problems, [], f"아이템 아이콘 무결성 위반: {problems}")
+        # guard-the-guard: neo-seoul items/ 가 존재하는 한 0개 스캔이면 규약 변경 의심.
+        self.assertGreater(total_items, 0, "스캔된 아이템 0 — items/ 디렉토리·키 규약 확인")

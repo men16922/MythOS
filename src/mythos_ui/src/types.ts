@@ -187,6 +187,16 @@ export interface CombatTargetInfo {
   in_range: boolean;
 }
 
+/** Self + living allies — direction targets for heal/shield support skills. */
+export interface CombatFriendlyTarget {
+  id: string;
+  name: string;
+  distance: number;
+  hp: number;
+  max_hp: number;
+  is_self: boolean;
+}
+
 export interface CombatSkillInfo {
   id: string;
   cooldown: number;
@@ -204,6 +214,7 @@ export interface CombatAvailableActions {
   focus?: number;
   max_focus?: number;
   targets?: CombatTargetInfo[];
+  friendly_targets?: CombatFriendlyTarget[];
   skills?: CombatSkillInfo[];
   reachable?: [number, number][];
   // Whose turn it is — the player or a controllable party member.

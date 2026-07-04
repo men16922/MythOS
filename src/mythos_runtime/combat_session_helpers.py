@@ -12,6 +12,39 @@ from typing import Any
 
 from mythos_narrative import ScenePayload
 from mythos_runtime.combat_service import CombatService, CombatTurnResult
+from mythos_runtime.constants import REST_RECOVERY_HP
+
+
+def _apply_rest_recovery(state: Any) -> Any:
+    """Heal the player and living party members a small amount on a narrative
+    scene commit (the rest beat between fights). Downed members (hp<=0) stay
+    down — reviving is the next encounter's quarter-HP rejoin or a revive
+    consumable's job, so a knockout still costs something. No-op without a
+    ``_party`` or when nobody is below max."""
+    if not isinstance(state, dict):
+        return state
+    party = state.get("_party")
+    if not isinstance(party, dict):
+        return state
+    healed = dict(party)
+    changed = False
+    php, pmax = healed.get("player_hp"), healed.get("player_max_hp")
+    if isinstance(php, int | float) and isinstance(pmax, int | float) and 0 < php < pmax:
+        healed["player_hp"] = min(int(pmax), int(php) + REST_RECOVERY_HP)
+        changed = True
+    members = []
+    for member in healed.get("members", []) or []:
+        if isinstance(member, dict):
+            hp, mx = member.get("hp"), member.get("max_hp")
+            if isinstance(hp, int | float) and isinstance(mx, int | float) and 0 < hp < mx:
+                member = {**member, "hp": min(int(mx), int(hp) + REST_RECOVERY_HP)}
+                changed = True
+        members.append(member)
+    if members or healed.get("members"):
+        healed["members"] = members
+    if not changed:
+        return state
+    return {**state, "_party": healed}
 
 
 def _encounter_meta(encounter: Any) -> dict[str, Any]:

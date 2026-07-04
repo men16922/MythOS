@@ -26,9 +26,11 @@ from mythos_runtime.narrative_rollup import (
 from mythos_runtime.options import RuntimeOptions
 from mythos_runtime.session import (
     RuntimeSessionService,
+    _filter_grant_items,
     _has_archive_world_memory,
     _has_narrative_shard,
     _initial_loop_scores,
+    _materialize_inventory_items,
     _save_narrative_metric_memory,
 )
 from mythos_runtime.visual_orchestration import is_key_beat
@@ -186,6 +188,50 @@ class _FakeMemoryStore(MythOSStore):
             yield
 
         return _txn()
+
+
+class GrantItemsTest(unittest.TestCase):
+    """LLM item-grant channel (world_delta.grant_items): whitelist + materialize."""
+
+    def setUp(self) -> None:
+        from mythos_runtime.scenario import load_scenario
+
+        self.scenario = load_scenario("neo-seoul")
+
+    def _payload(self, grant_items):
+        from mythos_narrative.schemas import ScenePayload, WorldDelta
+
+        return ScenePayload(
+            title="t",
+            location="l",
+            narration="n",
+            choices=[],
+            visual_brief="",
+            world_delta=WorldDelta(grant_items=grant_items),
+        )
+
+    def test_filter_drops_unknown_and_ungrantable_ids_and_caps(self) -> None:
+        payload = self._payload(
+            ["drone_scrap", "made_up_relic", "signal_blade", "nanopatch", "stim_shard"]
+        )
+        filtered = _filter_grant_items(payload, self.scenario)
+        # unknown id dropped, equipment (signal_blade) dropped, capped at 2
+        self.assertEqual(filtered.world_delta.grant_items, ["drone_scrap", "nanopatch"])
+
+    def test_filter_passes_valid_payload_through(self) -> None:
+        payload = self._payload(["drone_scrap"])
+        self.assertIs(_filter_grant_items(payload, self.scenario), payload)
+
+    def test_materialize_upgrades_id_strings_to_item_defs(self) -> None:
+        state = {"_inventory": ["drone_scrap", {"id": "nanopatch", "name": "나노패치"}, "unknown"]}
+        upgraded = _materialize_inventory_items(state, self.scenario)
+        first = upgraded["_inventory"][0]
+        self.assertIsInstance(first, dict)
+        self.assertEqual(first["id"], "drone_scrap")
+        self.assertEqual(first["kind"], "material")
+        # dict entries and unknown strings pass through untouched
+        self.assertEqual(upgraded["_inventory"][1]["id"], "nanopatch")
+        self.assertEqual(upgraded["_inventory"][2], "unknown")
 
 
 class RuntimeSessionTest(unittest.TestCase):

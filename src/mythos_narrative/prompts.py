@@ -87,6 +87,8 @@ JSON_CONTRACT = {
                 "tags": ["tag1", "tag2"],
             }
         ],
+        # optional: 선택한 행동으로 실물 아이템을 획득한 장면에서만, 지침에 제시된 id 1-2개
+        "grant_items": ["drone_scrap"],
     },
     "end_condition": None,
 }
@@ -131,6 +133,9 @@ JSON_CONTRACT_EN = {
                 "tags": ["tag1", "tag2"],
             }
         ],
+        # optional: only when the chosen action actually acquires a physical item,
+        # 1-2 ids from the list given in the directives
+        "grant_items": ["drone_scrap"],
     },
     "end_condition": None,
 }

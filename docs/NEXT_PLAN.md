@@ -6,12 +6,12 @@ This file keeps only upcoming (open) work as a rolling plan. Completed tracks li
 `docs/COMPLETED_SUMMARY.md`, detailed logs in `bin/docs/archive/progress-2026-06.md`, individual designs in
 `docs/plans/`.
 
-## Priority 0 — Deploy the green local bundle + human live sign-off
+## Priority 0 — Human live sign-off on the deployed bundle
 
-Authority QA: `docs/test/neo_seoul_live_qa.md`. Local bundle also includes four dedicated ending arts, real Rank combat scaling, meaningful/deduplicated Clues, and Restarting Kai party recruitment/Bonds marking. Focused tests + `make test` 729 are green; Cloud Run still lacks this bundle.
+Authority QA: `docs/test/neo_seoul_live_qa.md` (slimmed to human-only items). The full 07-04 bundle — ending arts, Rank scaling, Clues cleanup, Kai recruitment, companion cuts, **defeat-ending-screen fix** — is committed (`89e1935`) and **deployed as Cloud Run rev `mythos-api-00008-7sx`** (`make check` 731 green; AGY render QA + defeat→erasure browser QA done, PROGRESS_LOG 2026-07-04).
 
 - `[/]` **Prompt-layer separation (Foundation)**: Phase 0-4 + node-addressing done. Remaining — `[ ]` Phase 5 system_prompt few-shot example extraction (cache-prefix sensitive, lowest priority).
-- `[ ]` `[manual]` **Claude handoff + deploy**: browser-QA all four ending images, Rank effect copy/behavior, cleaned Clues, and Restarting Kai→`IN PARTY`; then commit/push/redeploy and verify the seven companion cuts plus route/skill feel in KO/EN. Mechanical gate: `make check` 729 green.
+- `[ ]` `[manual]` **Live sign-off + push**: human fresh-loop play on the cloud per the 🔴 checklist (Night Market→Restarting Kai, boss buildup→victory ending, companion cuts, KO/EN feel), then human `git push origin main` (ahead 11).
 - `[ ]` `[manual]` **Archetype-variant openings (long-term, 2026-07-04)**: the 5-beat opening prologue is shared across archetypes (only stat-voices/GM flavor differ). Author per-archetype opening variations (e.g. Data Smuggler wakes mid-deal, Echo Collector hears the echoes first) — directive-layer work (`resources/neo-seoul/directives/opening.md` variants + KO/EN), gated on CBT priorities.
 - `[x]` **Lin-yue combat recruitment**: DONE 2026-07-04 — ally kit (`allies.lin_yue`, ranged support/EMP) + side-arc `met_lin_yue` effect + 5 codex-generated combat sprites (RGBA-keyed). Remaining `[manual]`: live-QA her join + battle feel.
 - `[x]` **Companion growth (3 channels)**: DONE 2026-07-04 — bond tiers (affection→HP/stats), achievement `allies[].upgrades` (all 6 neo-seoul allies), party-targeted boons ×3 (`companion_growth.py`). CHARACTER-tab companion sheet card (snapshot `companions`, StatBars growth overlay) DONE same day. Remaining: `[ ]` `[manual]` live visual QA + growth balance feel.

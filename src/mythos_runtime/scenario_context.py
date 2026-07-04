@@ -328,6 +328,61 @@ _COMBAT_RESULT_VERB = {
 }
 
 
+def _attributes_note(player: PlayerProfile, language: str) -> str:
+    """Persona directive from the archetype's attribute tags (flavor channel).
+
+    The tags carry no numbers; they exist so the GM narrates this player's
+    approach distinctly (a Ghost slips sensor nets; a Data Smuggler talks in
+    ledger terms). Empty when the player has none."""
+    traits = player.traits if isinstance(player.traits, dict) else {}
+    attributes = traits.get("attributes")
+    if not isinstance(attributes, list) or not attributes:
+        return ""
+    joined = ", ".join(str(a) for a in attributes if a)
+    if not joined:
+        return ""
+    if language == "en":
+        return (
+            f"Player attributes (persona, no mechanical effect): {joined}. Let these traits "
+            "color how the player's actions, senses, and approaches are narrated — e.g. how "
+            "they move, what they notice first, how NPCs read them. Never show them as stats."
+        )
+    return (
+        f"플레이어 특성(페르소나 연출 지침 · 수치 효과 없음): {joined}. 이 특성이 행동 묘사·"
+        "감각·접근 방식에 자연스럽게 배어나게 하십시오 — 움직이는 방식, 먼저 알아차리는 것, "
+        "NPC가 플레이어를 읽는 인상 등. 수치처럼 언급하지 마십시오."
+    )
+
+
+def _grant_items_note(scenario: ScenarioConfig, language: str) -> str:
+    """One-line GM affordance: grantable item ids for ``world_delta.grant_items``.
+
+    Only carriable kinds (consumable/material) are offered — the commit-side
+    whitelist (`session._filter_grant_items`) enforces the same rule, this note
+    just makes the channel discoverable so pickup-flavored choices have teeth."""
+    items = scenario.combat.get("items", {}) if isinstance(scenario.combat, dict) else {}
+    grantable = [
+        f"{item_id}({definition.get('name', item_id)})"
+        for item_id, definition in items.items()
+        if isinstance(definition, dict) and definition.get("kind") in ("consumable", "material")
+    ]
+    if not grantable:
+        return ""
+    joined = ", ".join(grantable)
+    if language == "en":
+        return (
+            "Item pickups (optional): when the player's CHOSEN action plausibly puts a physical "
+            "item in their hands (e.g. salvaging downed-drone wreckage → drone_scrap), add 1-2 ids "
+            f"from this list to world_delta.grant_items and narrate the pickup: {joined}. "
+            "Never invent other ids; don't hand out items every scene — only when earned."
+        )
+    return (
+        "아이템 획득(선택적): 플레이어가 고른 행동이 실제로 물건을 손에 넣는 장면이라면(예: 격파된 드론 "
+        f"잔해 수습 → drone_scrap) world_delta.grant_items 배열에 아래 목록의 id를 1-2개 넣고 획득을 서술하십시오: {joined}. "
+        "목록 밖 id는 금지, 매 장면 남발 금지 — 행동으로 얻어낸 경우에만."
+    )
+
+
 def _combat_callback_note(
     scenario: ScenarioConfig, loop: LoopState, turn_index: int
 ) -> str:
@@ -507,6 +562,22 @@ def build_runtime_narrative_context(
     bible = load_story_bible(scenario.scenario_id, language)
     entries = select_story_bible_entries(bible, loop, turn_index=turn_index)
     notes.extend(story_bible_notes(entries))
+
+    # Item-grant affordance: tell the GM it may hand out real carriables via
+    # world_delta.grant_items when the CHOSEN action plausibly yields one (e.g.
+    # salvaging downed-drone wreckage → drone_scrap) — otherwise "잔해를 수습한다"
+    # choices stay flavor-only. The id whitelist is enforced again at commit
+    # (_filter_grant_items), so this note is guidance, not the guard.
+    grant_note = _grant_items_note(scenario, language)
+    if grant_note:
+        notes.append(grant_note)
+
+    # Archetype attribute tags ([Ghost Signal] …) have no mechanical effect —
+    # surface them as a persona directive so they color how the GM narrates the
+    # player's approach, senses, and check flavor instead of being dead UI chips.
+    attr_note = _attributes_note(player, language)
+    if attr_note:
+        notes.append(attr_note)
 
     # Session memory: "story so far" synopsis + the previous scene(s) verbatim,
     # so scenes continue with continuity instead of re-describing the same beats.

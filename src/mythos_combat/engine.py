@@ -678,6 +678,37 @@ class CombatEngine:
                 clog(state.language, "item_focus", actor=player.name, item=name), detail,
             )
             return True
+        if effect == "revive":
+            # Reboot the most valuable casualty: the first downed ALLY (the
+            # player being down ends the fight before an item could fire). Not
+            # consumed when nobody is down.
+            downed = next(
+                (c for c in state.combatants if c.faction == ALLY and not c.alive), None
+            )
+            if downed is None:
+                self._log(
+                    state, player, "info",
+                    clog(state.language, "item_revive_no_target", item=name),
+                )
+                return False
+            downed.alive = True
+            downed.hp = max(int(item_def.get("bonus", 1)), downed.max_hp // 3)
+            detail["revived"] = downed.id
+            self._log(
+                state,
+                player,
+                "item",
+                clog(
+                    state.language,
+                    "item_revive",
+                    actor=player.name,
+                    item=name,
+                    target=downed.name,
+                    hp=downed.hp,
+                ),
+                detail,
+            )
+            return True
         self._log(state, player, "info", clog(state.language, "item_combat_only", name=name))
         return False
 

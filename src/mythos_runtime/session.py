@@ -39,6 +39,7 @@ from mythos_runtime.boons import (
 )
 from mythos_runtime.combat_service import CombatService, CombatTurnResult
 from mythos_runtime.combat_session_helpers import (
+    _apply_rest_recovery,
     _combat_defeat_fallback_ending,
     _combat_summary,
     _combat_summary_from_state,
@@ -2157,10 +2158,23 @@ class RuntimeSessionService:
         choice_relationship: dict[str, int] | None = None,
         cutscene_id: str | None = None,
     ) -> RuntimeSnapshot:
+        scenario = load_scenario(options.scenario_id)
+        # LLM item grants: whitelist-clamp BEFORE apply (unknown/non-grantable ids
+        # dropped), then upgrade the appended id strings to full item defs so the
+        # inventory/equip/consumable UI can render them.
+        payload = _filter_grant_items(payload, scenario)
         with span(span_name, player_id=player.player_id, loop_id=loop.loop_id):
             transition = self.engine.apply_scene_payload(loop, scene, payload, player_event)
         if not transition.ok:
             raise RuntimeError(_format_errors(transition.errors))
+        if payload.world_delta.grant_items:
+            transition = replace(
+                transition,
+                loop=replace(
+                    transition.loop,
+                    state=_materialize_inventory_items(transition.loop.state, scenario),
+                ),
+            )
         if _is_recovery_scene_after_soft_defeat(loop, scene):
             transition = replace(
                 transition,
@@ -2200,6 +2214,14 @@ class RuntimeSessionService:
                     state={**transition.loop.state, "_story_turn": story_turn},
                 ),
             )
+
+        # Rest beat: each narrative commit heals the player and living party
+        # members a little toward max HP (REST_RECOVERY_HP), so carried combat
+        # damage fades over quiet turns instead of compounding all loop.
+        transition = replace(
+            transition,
+            loop=replace(transition.loop, state=_apply_rest_recovery(transition.loop.state)),
+        )
 
         # Boss buildup: a climax fight parked on node entry fires on the FIRST
         # choice made at the confrontation — the arrival commit stays a narrative
@@ -2727,6 +2749,56 @@ def _route_node_label(state: Any) -> str | None:
     if not isinstance(node, dict):
         return str(current)
     return str(node.get("title") or node.get("label") or current)
+
+
+# Item kinds the GM may hand out through ``world_delta.grant_items`` — carriables
+# a scene action can plausibly yield (salvage, a vendor's spare patch). Keys,
+# quest data, and equipment stay author/loot-table controlled.
+GRANTABLE_ITEM_KINDS = {"consumable", "material"}
+MAX_GRANT_ITEMS_PER_SCENE = 2
+
+
+def _filter_grant_items(payload: ScenePayload, scenario: Any) -> ScenePayload:
+    """Clamp LLM item grants to the scenario whitelist (id must exist, kind must
+    be grantable) and to ``MAX_GRANT_ITEMS_PER_SCENE`` — a hallucinated id must
+    never become a junk inventory row (cf. the placeholder-clue cleanup)."""
+    raw = list(payload.world_delta.grant_items or [])
+    if not raw:
+        return payload
+    items_def = scenario.combat.get("items", {}) if isinstance(scenario.combat, dict) else {}
+    valid = [
+        item_id
+        for item_id in raw
+        if isinstance(items_def.get(item_id), dict)
+        and items_def[item_id].get("kind") in GRANTABLE_ITEM_KINDS
+    ][:MAX_GRANT_ITEMS_PER_SCENE]
+    if valid == raw:
+        return payload
+    return replace(payload, world_delta=replace(payload.world_delta, grant_items=valid))
+
+
+def _materialize_inventory_items(state: Any, scenario: Any) -> Any:
+    """Upgrade bare item-id strings in ``_inventory`` to their full scenario item
+    defs (name/kind/effect) so the inventory UI, equip flow, and consumable button
+    can render them. The loop engine appends ``grant_items`` as plain ids because
+    it is scenario-agnostic; this runs right after apply at the session boundary."""
+    if not isinstance(state, dict):
+        return state
+    inventory = state.get("_inventory")
+    if not isinstance(inventory, list):
+        return state
+    items_def = scenario.combat.get("items", {}) if isinstance(scenario.combat, dict) else {}
+    changed = False
+    upgraded = []
+    for entry in inventory:
+        if isinstance(entry, str) and isinstance(items_def.get(entry), dict):
+            upgraded.append(dict(items_def[entry]))
+            changed = True
+        else:
+            upgraded.append(entry)
+    if not changed:
+        return state
+    return {**state, "_inventory": upgraded}
 
 
 def _story_turn_for_commit(state: Any, scene_turn: int) -> int:

@@ -41,3 +41,10 @@ COMBAT_SOFT_DEFEAT_TENSION_GAIN = 15
 # keeps the risk cap at the lowest tier so the same downgraded encounter recurs).
 # Deliberate route-node combat (patrol/boss) is unaffected.
 SOFT_DEFEAT_COMBAT_COOLDOWN_SCENES = 3
+
+# Rest recovery: every *narrative* scene commit (combat rounds excluded) heals
+# the player and living party members this many HP toward their max — quiet
+# turns between fights read as the party catching its breath. Downed members
+# (hp<=0) are NOT healed here; they rejoin the next encounter at quarter HP
+# (combat_service._build_allies) or via a revive consumable in combat.
+REST_RECOVERY_HP = 2

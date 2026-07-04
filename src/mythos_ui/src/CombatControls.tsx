@@ -1,7 +1,12 @@
+import { useState } from "react";
+
 import { enemyIntentLabel } from "./combatText";
 import { useLang } from "./i18n/lang";
 import type { StringKey } from "./i18n/strings.ko";
 import type { CombatAction, CombatSkillInfo, CombatState } from "./types";
+
+/** Roles whose skills the engine directs at a friendly (heal / defense_bonus). */
+const SUPPORT_ROLES = new Set(["healing", "defense"]);
 
 type TFn = (key: StringKey) => string;
 
@@ -68,6 +73,9 @@ export function CombatControls({
   onContinue,
 }: CombatControlsProps) {
   const { t } = useLang();
+  // Direction target for heal/shield support skills (self + allies). Kept local:
+  // it resets naturally when the controls remount between fights.
+  const [supportTargetId, setSupportTargetId] = useState<string | null>(null);
   if (combat.finished && combat.outcome) {
     const canContinue = combat.outcome !== "player_defeat" || combat.defeat_soft;
     return (
@@ -102,6 +110,18 @@ export function CombatControls({
     targets.find((target) => target.in_range)?.id ||
     targets[0]?.id ||
     null;
+  const friendlies = available?.friendly_targets || [];
+  const hasSupportSkill = (available?.skills || []).some(
+    (skill) => skill.role && SUPPORT_ROLES.has(skill.role)
+  );
+  // Default the support direction to the most wounded friendly (ties → self last),
+  // so "heal" does the intuitive thing without an extra click.
+  const defaultSupportId =
+    (supportTargetId && friendlies.some((f) => f.id === supportTargetId) && supportTargetId) ||
+    [...friendlies].sort(
+      (a, b) => a.hp / Math.max(1, a.max_hp) - b.hp / Math.max(1, b.max_hp)
+    )[0]?.id ||
+    null;
 
   const renderSkill = (skill: CombatSkillInfo) => {
     const onCooldown = skill.cooldown > 0;
@@ -135,7 +155,12 @@ export function CombatControls({
           onAction({
             type: "skill",
             skill_id: skill.id,
-            target_id: defaultTargetId || undefined,
+            // Support skills (heal/shield) are directed at the chosen friendly;
+            // the engine falls back to self when the pick is out of range.
+            target_id:
+              (skill.role && SUPPORT_ROLES.has(skill.role)
+                ? defaultSupportId
+                : defaultTargetId) || undefined,
           })
         }
       >
@@ -192,6 +217,24 @@ export function CombatControls({
                     </button>
                   );
                 })}
+              </div>
+            </div>
+          )}
+
+          {hasSupportSkill && friendlies.length > 1 && (
+            <div className="cc-section">
+              <div className="cc-label">{t("cc.supportTargets")}</div>
+              <div className="cc-row">
+                {friendlies.map((friendly) => (
+                  <button
+                    key={friendly.id}
+                    className={`cc-btn tgt friendly ${defaultSupportId === friendly.id ? "sel" : ""}`}
+                    onClick={() => setSupportTargetId(friendly.id)}
+                  >
+                    {friendly.is_self ? t("cc.supportSelf") : friendly.name} · HP {friendly.hp}/
+                    {friendly.max_hp}
+                  </button>
+                ))}
               </div>
             </div>
           )}

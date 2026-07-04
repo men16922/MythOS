@@ -337,8 +337,10 @@ class CombatService:
             if not unlocked:
                 continue
             hp = member.get("hp") if isinstance(member, dict) else None
-            if isinstance(hp, int | float) and int(hp) <= 0:
-                continue
+            # A member downed in a previous fight is not lost for the loop — they
+            # limp back into the next encounter at a quarter of their max HP
+            # (min 1) instead of sitting the rest of the run out.
+            downed = isinstance(hp, int | float) and int(hp) <= 0
             # Party members (in _party.members) are player-controllable; allies
             # unlocked only via story flags stay AI-driven.
             is_party_member = bool(member)
@@ -348,19 +350,20 @@ class CombatService:
                 meta_progression=meta_progression,
                 run_boons=run_boons,
             )
-            built.append(
-                build_ally_combatant(
-                    entry=entry,
-                    weapons_pool=weapons_pool,
-                    x=0,
-                    y=0,
-                    hp=int(hp) if isinstance(hp, int | float) else None,
-                    controllable=is_party_member,
-                    bonus_stats=growth.stats,
-                    bonus_hp=growth.hp,
-                    extra_skills=growth.skills,
-                )
+            combatant = build_ally_combatant(
+                entry=entry,
+                weapons_pool=weapons_pool,
+                x=0,
+                y=0,
+                hp=None if downed else (int(hp) if isinstance(hp, int | float) else None),
+                controllable=is_party_member,
+                bonus_stats=growth.stats,
+                bonus_hp=growth.hp,
+                extra_skills=growth.skills,
             )
+            if downed:
+                combatant.hp = max(1, combatant.max_hp // 4)
+            built.append(combatant)
         return built
 
     @staticmethod

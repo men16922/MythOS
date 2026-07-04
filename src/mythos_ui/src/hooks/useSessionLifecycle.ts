@@ -9,7 +9,7 @@ import {
   stablePlayerId,
 } from "../api";
 import { DICTS } from "../i18n/lang";
-import { LS_KEY } from "../sessionStorage";
+import { LS_KEY, parseResumeSession } from "../sessionStorage";
 import type { ResumeSessionData } from "../sessionStorage";
 import type { ActiveTab } from "../TabNav";
 import type { CombatState, RuntimeSnapshot } from "../types";
@@ -124,9 +124,12 @@ export function useSessionLifecycle(args: UseSessionLifecycleArgs) {
     try {
       const player = await apiConnect({
         display_name: displayName,
-        // Stable closed-beta identity from the invite key (Option B); null in local
-        // dev → backend mints a UUID as before.
-        player_id: stablePlayerId(),
+        // Stable closed-beta identity from the invite key (Option B). In local
+        // dev (no key) reuse the last session's player id so meta progression
+        // (완주/승수/단서 → 동료 해금) accumulates across loops — minting a fresh
+        // UUID on every Connect silently reset achievements.
+        player_id:
+          stablePlayerId() ?? parseResumeSession(localStorage.getItem(LS_KEY))?.playerId ?? null,
         archetype: selectedArchetype,
         scenario_id: selectedScenarioId,
       });

@@ -517,6 +517,45 @@ class SessionCombatTest(unittest.TestCase):
         assert snap2.combat is not None
         self.assertEqual(snap2.combat["radar"]["encounter_id"], "ix_confrontation")
 
+    def test_narrative_commit_applies_rest_recovery(self) -> None:
+        # Quiet narrative turns heal carried combat damage a little (rest beat):
+        # player and living members gain REST_RECOVERY_HP toward max, downed
+        # members (hp<=0) stay down (their comeback is the quarter-HP rejoin or
+        # a revive consumable, not free rest).
+        loop = self.store.get_loop(self.loop_id)
+        assert loop is not None
+        party = {
+            "player_hp": 5,
+            "player_max_hp": 13,
+            "members": [
+                {"id": "se_rin", "hp": 6, "max_hp": 14},
+                {"id": "kai", "hp": 0, "max_hp": 15},
+            ],
+        }
+        self.store.save_loop(replace(loop, state={**loop.state, "_party": party}))
+        scene = Scene(
+            scene_id="scene_rest",
+            loop_id=self.loop_id,
+            turn_index=0,
+            title="Quiet Alley",
+            location="loc",
+            narration="A breath between patrols.",
+            choices=[Choice("c1", "Move on", "explore")],
+            visual_brief="",
+            created_at=datetime(2026, 5, 31, tzinfo=UTC),
+        )
+        self.store.save_scene(scene)
+
+        # Real director wiring (fallback path needs `fallback_scene`; no LLM call).
+        service = RuntimeSessionService(self.store)
+        snap = service.choose(self.loop_id, choice_id="c1", options=self.options)
+
+        healed = snap.loop.state["_party"]
+        self.assertEqual(healed["player_hp"], 7)
+        members = {m["id"]: m for m in healed["members"]}
+        self.assertEqual(members["se_rin"]["hp"], 8)
+        self.assertEqual(members["kai"]["hp"], 0)
+
     def test_narrative_choice_during_active_combat_does_not_orphan(self) -> None:
         # Live 2026-07-03 upstream defect: a narrative ``choose`` accepted while a
         # combat is unresolved generated a story scene on top of it, orphaning

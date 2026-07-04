@@ -91,6 +91,14 @@ _LINES: dict[str, dict[str, str]] = {
         "ko": "{name}은(는) 전투 중 사용할 수 없다.",
         "en": "{name} can't be used during combat.",
     },
+    "item_revive": {
+        "ko": "{actor}이(가) {item}을(를) 기동해 {target}을(를) 재가동시켰다! (HP {hp})",
+        "en": "{actor} triggers {item} — {target} reboots back into the fight! (HP {hp})",
+    },
+    "item_revive_no_target": {
+        "ko": "{item}: 재가동할 쓰러진 동료가 없다.",
+        "en": "{item}: no downed ally to reboot.",
+    },
     "signal_step_move": {
         "ko": "{name}이(가) 신호 도약으로 ({dx}, {dy})로 이동한다.",
         "en": "{name} signal-steps to ({dx}, {dy}).",

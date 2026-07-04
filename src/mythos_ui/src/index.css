@@ -4533,3 +4533,12 @@ main {
 }
 .companion-back:hover { border-color: var(--head); color: var(--head); }
 .companion-bond-line { color: var(--head); font-size: 0.9em; }
+
+/* Curated per-item icon art inside the inventory glyph frame (RPG grid look). */
+.char-inventory .inv-item-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+  display: block;
+}

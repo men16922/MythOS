@@ -107,3 +107,11 @@ Status: `[~]` progression/presentation parity + Story Bible 17 entries done (M38
 - `[ ]` `[blocked]` `_map` removal cleanup (held until route-node track done; engine records every scene + encounter_map coords·story_bible location·glass-library fallback minimap depend on it). Prereq: all scenarios converted to route_map. When met, promote to `[auto]` (codemod + `make check` green).
 - `[ ]` `[blocked]` `[auto:claude]` frontend god-component decomposition (App.tsx·CombatCinema): extract custom hooks/modules **one slice per iteration**, behavior-preserving. Done = `make check` green + post-commit AGY live-QA not FAIL/NEEDS (auto-screened, §3.4.1). _Progress: slices 1–13 done (App.tsx 1261→696; hooks useInGameEpiphany/useCombatBoard/useTypewriter/useGameSocket/useCombatCinemaQueue/useSceneVisuals/useSessionLifecycle/useDataLoaders/useCombatRest/useSessionControls/useSnapshotReceiver/useNarrativeStream/useKeyboardChoice + shared `archetypes.ts`). Per-slice detail: `bin/docs/archive/progress-2026-06.md` + git. **slice 14 (`useViewModels`, view-model `useMemo` cluster) was committed green (`d7b3b35`) then HUMAN-REVERTED 8s later (`4d88b80`) — DO NOT re-attempt verbatim (deliberate revert; needed a 12-field props object = net-negative). `[blocked]` 2026-06-28 (2nd encounter, twice-blocked rule): remove the tag after a human names a different clean-boundary slice or closes the track._
 - AGY live-QA findings (from `/overnight-report` triage of `logs/qa-findings.md`): None open (2026-06-21: 2 fixed — name-input `name` + favicon 204).
+- **2026-07-05 objective-QA 파생 트리아지 (human decision needed, evidence `outputs/live-qa/objC-063151`)**:
+  - `[ ]` **ally-writeback promotion**: `CombatService._finish_party_state`가 전투 커밋 때 **모든 ally 진영
+    전투원을 `_party.members`에 영구 기록** — 플래그로만 참전한 AI 아군(예: met_lin_yue 린위에)이 한 판 함께
+    싸우면 이후 영구 플레이어-조작 파티가 됨. 설계 문서("flag-unlocked non-party allies stay AI")와 상충.
+    의도("싸우면 영입")인지 버그인지 사람 판정 → 의도면 DESIGN.md에 명문화, 버그면 `is_party_member`만 writeback.
+  - `[ ]` **combat simulator가 CBT에 노출 + 루프 캡 소모**: 부트 화면의 시뮬레이터 `<details>`가 게이트 없음
+    (`OnboardingPanel.tsx` `combat-sim`) — 테스터가 열면 시뮬 1회 = 실루프 1개 생성이라 `MYTHOS_MAX_LOOPS_PER_PLAYER=10`
+    캡을 소모하고, Audrey 지적("정보 과다")의 부트 화면 밀도에도 기여. 후보: admin-key 게이팅 또는 dev 빌드 한정.

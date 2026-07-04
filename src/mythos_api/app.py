@@ -352,8 +352,10 @@ async def _run_stream(
     The runtime stream is a blocking sync generator (it calls Ollama), so we
     iterate it in a threadpool to avoid stalling the event loop, relaying each
     token as ``{"type": "token"}`` and the terminal frame as
-    ``{"type": "snapshot"}``. After the snapshot we stream the scene image
-    lifecycle as ``{"type": "visual_status"}`` frames (design §2.2).
+    ``{"type": "snapshot"}``. After the snapshot we fire off image generation
+    as a background task — the snapshot (with choices) reaches the client
+    immediately, and the image arrives asynchronously via a ``visual_status``
+    frame once Imagen finishes (~7s).
     """
     logger = get_logger("mythos.api")
     loop_id = message.get("loop_id", "unknown")
@@ -367,17 +369,24 @@ async def _run_stream(
     ):
         try:
             generator = _stream_for(service, message)
+            last_snapshot: RuntimeSnapshot | None = None
             async for event in iterate_in_threadpool(generator):
                 if event.kind == "text":
                     await websocket.send_json({"type": "token", "content": event.text})
                 elif event.snapshot is not None:
+                    last_snapshot = event.snapshot
                     snap = localize_for(
                         snapshot_to_dict(event.snapshot),
                         message.get("scenario_id", "neo-seoul"),
                         message.get("lang", "ko"),
                     )
                     await websocket.send_json({"type": "snapshot", "data": snap})
-                    await _emit_visual_status(websocket, service, storage, event.snapshot)
+            # Fire image generation in background — client already has the
+            # snapshot with choices so play is not blocked.
+            if last_snapshot is not None:
+                asyncio.ensure_future(
+                    _emit_visual_status(websocket, service, storage, last_snapshot)
+                )
         except KeyError as exc:
             await websocket.send_json({"type": "error", "detail": str(exc).strip("'\"")})
         except RuntimeError as exc:

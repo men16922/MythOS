@@ -103,6 +103,13 @@ class GeminiConfig:
         default_factory=lambda: _env("GEMINI_MODEL", "MODEL", default="gemini-2.5-flash")
         or "gemini-2.5-flash"
     )
+    # Optional key-beat model split: when set (e.g. gemini-3.5-flash with
+    # MODEL=gemini-2.5-flash), the director generates key-beat turns (opening/
+    # anchor/cutscene/boss/ending — NarrativeContext.key_beat) on this model and
+    # everything else on `model`. Unset (default) = single model, current behavior.
+    keybeat_model: str | None = field(
+        default_factory=lambda: _env("GEMINI_MODEL_KEYBEAT", "MODEL_KEYBEAT")
+    )
     use_vertex: bool = field(
         default_factory=lambda: _env_bool(
             "GEMINI_USE_VERTEX", "GOOGLE_GENAI_USE_VERTEXAI", default=True
@@ -139,9 +146,15 @@ class GeminiConfig:
 
     def __post_init__(self) -> None:
         if not self.location:
+            # A single client serves both models, so if EITHER the base or the
+            # key-beat model is gemini-3.x the endpoint must be global (3.x 404s
+            # regionally; 2.5 is served on global too).
+            any_gemini3 = self.model.startswith("gemini-3") or (
+                self.keybeat_model or ""
+            ).startswith("gemini-3")
             resolved = (
                 _env("GEMINI_LOCATION")
-                or ("global" if self.model.startswith("gemini-3") else None)
+                or ("global" if any_gemini3 else None)
                 or _env("GOOGLE_CLOUD_LOCATION")
                 or "us-central1"
             )

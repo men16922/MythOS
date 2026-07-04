@@ -275,31 +275,51 @@ class NarrativeDirector:
     def _parser_model(self) -> str | None:
         return getattr(getattr(self.provider, "config", None), "ollama_model_parser", None)
 
+    def _keybeat_model(self, context: NarrativeContext) -> str | None:
+        """Per-turn model override for the key-beat split (legacy/Gemini path).
+
+        Returns the provider config's ``keybeat_model`` on key-beat turns
+        (opening/anchor/cutscene/boss/ending — set by the context builder), else
+        None → the provider's base model. Configs without the attr (Ollama
+        ``AgentConfig``) always return None, so the local path is untouched.
+        """
+        if not context.key_beat:
+            return None
+        return getattr(getattr(self.provider, "config", None), "keybeat_model", None)
+
     def generate_first_scene(self, context: NarrativeContext) -> tuple[Scene, ScenePayload]:
         if self._use_dual_model():
             story_model = self._story_model()
             return self._generate_dual(context, build_first_story_messages(context), model=story_model)
-        return self._generate_legacy(context, build_first_scene_messages(context))
+        return self._generate_legacy(
+            context, build_first_scene_messages(context), model=self._keybeat_model(context)
+        )
 
     def generate_next_scene(self, context: NarrativeContext) -> tuple[Scene, ScenePayload]:
         if self._use_dual_model():
             story_model = self._story_model()
             return self._generate_dual(context, build_next_story_messages(context), model=story_model)
-        return self._generate_legacy(context, build_next_scene_messages(context))
+        return self._generate_legacy(
+            context, build_next_scene_messages(context), model=self._keybeat_model(context)
+        )
 
     def stream_first_scene(self, context: NarrativeContext) -> Iterator[NarrativeStreamEvent]:
         if self._use_dual_model():
             story_model = self._story_model()
             yield from self._stream_generate_dual(context, build_first_story_messages(context), model=story_model)
         else:
-            yield from self._stream_generate_legacy(context, build_first_scene_messages(context))
+            yield from self._stream_generate_legacy(
+                context, build_first_scene_messages(context), model=self._keybeat_model(context)
+            )
 
     def stream_next_scene(self, context: NarrativeContext) -> Iterator[NarrativeStreamEvent]:
         if self._use_dual_model():
             story_model = self._story_model()
             yield from self._stream_generate_dual(context, build_next_story_messages(context), model=story_model)
         else:
-            yield from self._stream_generate_legacy(context, build_next_scene_messages(context))
+            yield from self._stream_generate_legacy(
+                context, build_next_scene_messages(context), model=self._keybeat_model(context)
+            )
 
     def fallback_scene(self, context: NarrativeContext) -> tuple[Scene, ScenePayload]:
         payload = _fallback_payload(context)
@@ -487,9 +507,16 @@ class NarrativeDirector:
         )
 
     def _generate_legacy(
-        self, context: NarrativeContext, messages: list[dict[str, str]]
+        self,
+        context: NarrativeContext,
+        messages: list[dict[str, str]],
+        *,
+        model: str | None = None,
     ) -> tuple[Scene, ScenePayload]:
-        # Legacy single-model generation (uses provider.generate on config.ollama_model)
+        # Legacy single-model generation (uses provider.generate on config.ollama_model).
+        # `model` (key-beat split) overrides the provider's base model for this turn;
+        # it is only ever non-None for providers whose config declares keybeat_model,
+        # so the bare-protocol generate(messages) call stays valid everywhere else.
         try:
             with timed(
                 "mythos.narrative.generate",
@@ -498,8 +525,12 @@ class NarrativeDirector:
                 player_id=context.player.player_id,
                 loop_id=context.loop.loop_id,
                 provider=type(self.provider).__name__,
+                model_override=model or "",
             ):
-                raw_payload = self.provider.generate(messages)
+                if model:
+                    raw_payload = cast(Any, self.provider).generate(messages, model=model)
+                else:
+                    raw_payload = self.provider.generate(messages)
             payload = parse_scene_payload(raw_payload)
             outcome = OUTCOME_SUCCESS
         except Exception as first_error:
@@ -518,7 +549,12 @@ class NarrativeDirector:
                         getattr(first_error, "errors", [str(first_error)]),
                         context,
                     )
-                    repaired_raw = self.provider.generate(repair_messages)
+                    if model:
+                        repaired_raw = cast(Any, self.provider).generate(
+                            repair_messages, model=model
+                        )
+                    else:
+                        repaired_raw = self.provider.generate(repair_messages)
                     try:
                         payload = parse_scene_payload(repaired_raw)
                         outcome = OUTCOME_PROVIDER_REPAIR
@@ -535,11 +571,15 @@ class NarrativeDirector:
         return _scene_from_payload(context, payload), payload
 
     def _stream_generate_legacy(
-        self, context: NarrativeContext, messages: list[dict[str, str]]
+        self,
+        context: NarrativeContext,
+        messages: list[dict[str, str]],
+        *,
+        model: str | None = None,
     ) -> Iterator[NarrativeStreamEvent]:
         stream_method = getattr(self.provider, "stream", None)
         if not callable(stream_method):
-            scene, payload = self._generate_legacy(context, messages)
+            scene, payload = self._generate_legacy(context, messages, model=model)
             yield NarrativeStreamEvent(kind="text", text=payload.narration)
             yield NarrativeStreamEvent(kind="final", scene=scene, payload=payload)
             return
@@ -548,7 +588,10 @@ class NarrativeDirector:
         extractor = NarrationFieldExtractor()
         start = perf_counter()
         try:
-            for chunk in stream_method(messages):
+            # `model` is only ever non-None for providers whose config declares
+            # keybeat_model (Gemini), and that provider's stream accepts it.
+            chunks = stream_method(messages, model=model) if model else stream_method(messages)
+            for chunk in chunks:
                 raw_parts.append(chunk)
                 for text in extractor.feed(chunk):
                     yield NarrativeStreamEvent(kind="text", text=text)

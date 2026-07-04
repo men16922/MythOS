@@ -42,6 +42,7 @@ class ProbeProvider(VertexGeminiJSONProvider):
         um = getattr(response, "usage_metadata", None)
         USAGE.append(
             {
+                "model": model or self.config.model,
                 "prompt": getattr(um, "prompt_token_count", None),
                 "output": getattr(um, "candidates_token_count", None),
                 "thoughts": getattr(um, "thoughts_token_count", None),
@@ -111,7 +112,7 @@ def main() -> None:
     tin = tout = 0
     for i, u in enumerate(USAGE):
         print(
-            f"  call {i}: prompt={u['prompt']} output={u['output']}"
+            f"  call {i}: model={u.get('model')} prompt={u['prompt']} output={u['output']}"
             f" thoughts={u['thoughts']} cached={u['cached']}"
         )
         tin += u["prompt"] or 0

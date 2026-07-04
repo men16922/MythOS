@@ -656,6 +656,7 @@ def build_runtime_narrative_context(
     # earlier "세린 조우 사라짐" bug (generic free scenes overriding the anchor) is
     # already prevented because turns 0-4 are explicitly authored. Node/junction
     # steering resumes once the prologue ends, at turn 5 (the first act-1 scene).
+    route_beat_lock: list[str] = []
     if turn_index >= ROUTE_STEERING_START_TURN:
         notes.extend(_route_director_notes(scenario, loop, turn_index, language))
         notes.extend(_route_junction_notes(scenario, loop, turn_index, language))
@@ -798,6 +799,18 @@ def build_runtime_narrative_context(
                 )
             )
 
+    # Key-beat turns: authored/high-impact beats where prose quality has the most
+    # leverage. Drives the optional key-beat model split (NarrativeContext.key_beat) —
+    # opening prologue beats, anchor-node beat locks, companion cutscenes, the boss
+    # confrontation buildup, and the ending phases.
+    key_beat = bool(
+        opening_directives
+        or route_beat_lock
+        or cutscene_lock
+        or (isinstance(loop.state, dict) and loop.state.get("_pending_boss_combat"))
+        or loop.phase in (LoopPhase.REWRITE, LoopPhase.ARCHIVE)
+    )
+
     return NarrativeContext(
         player=player,
         loop=loop,
@@ -813,6 +826,7 @@ def build_runtime_narrative_context(
         fast_mode=fast_mode,
         fallback_scene=directives.fallback_scene,
         language=language,
+        key_beat=key_beat,
     )
 
 

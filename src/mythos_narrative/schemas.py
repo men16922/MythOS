@@ -169,3 +169,10 @@ class NarrativeContext:
     # prompts / authored content land in S1, so today both languages render Korean
     # (behavior-preserving). See docs/plans/2026-06-27-en-ko-localization.md.
     language: str = "ko"
+    # True on story turns that carry authored/high-impact beats (opening prologue,
+    # anchor-node locks, companion cutscenes, boss confrontation, ending phases).
+    # When the provider config sets a `keybeat_model` (GEMINI_MODEL_KEYBEAT), the
+    # director generates THESE turns on that model and normal turns on the base
+    # model — the ~$0.5/loop cost alternative to running 3.5-flash everywhere
+    # (docs/plans/2026-07-04-gemini-2.5-vs-3.5-eval.md). Default False = single model.
+    key_beat: bool = False

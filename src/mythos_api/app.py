@@ -938,6 +938,16 @@ def create_app() -> FastAPI:
 
     # --- Admin endpoints (admin-key gated) ------------------------------------
 
+    _ADMIN_DASHBOARD_HTML = (Path(__file__).parent / "admin_dashboard.html").read_text()
+
+    @app.get("/admin/dashboard", include_in_schema=False)
+    def admin_dashboard_page(request: Request) -> Response:
+        """Serve the standalone admin tester dashboard page. The page itself
+        checks the invite key via the API call; we serve it unconditionally
+        (the API endpoint returns 403 for non-admins)."""
+        from starlette.responses import HTMLResponse
+        return HTMLResponse(_ADMIN_DASHBOARD_HTML)
+
     @app.get(f"{API_PREFIX}/admin/tester-status")
     def admin_tester_status(
         request: Request,

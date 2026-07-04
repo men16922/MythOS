@@ -3,7 +3,6 @@ import { useState, type CSSProperties } from "react";
 import { useLang } from "./i18n/lang";
 import type { StringKey } from "./i18n/strings.ko";
 import type { RuntimeSnapshot } from "./types";
-import { TesterDashboard } from "./TesterDashboard";
 import type { DevConsoleData } from "./viewModels";
 
 interface DevConsolePanelProps {
@@ -42,6 +41,7 @@ const INFRA_LINKS: { label: string; port: number; descKey: StringKey }[] = [
 function InfraLinks() {
   const { t } = useLang();
   const host = window.location.hostname || "localhost";
+  const dashboardUrl = `/admin/dashboard?invite=${new URLSearchParams(window.location.search).get("invite") || localStorage.getItem("mythos_invite_key") || ""}`;
   return (
     <div className="panel" style={{ ...devPanelStyle, marginTop: 0 }}>
       <div className="cc-label" style={{ marginBottom: "12px", borderBottom: "1px solid var(--line-soft)", paddingBottom: "6px" }}>
@@ -51,6 +51,18 @@ function InfraLinks() {
         className="infra-links"
         style={devStackStyle}
       >
+        {/* Tester Dashboard — standalone admin page */}
+        <a
+          className="infra-link"
+          style={{ width: "100%" }}
+          href={dashboardUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span className="infra-link-name">Tester Dashboard ▸</span>
+          <span className="infra-link-url">/admin/dashboard</span>
+          <span className="infra-link-desc">Per-key player status & activity</span>
+        </a>
         {INFRA_LINKS.map((l) => (
           <a
             key={l.label}
@@ -77,9 +89,6 @@ export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
   const { t } = useLang();
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}>
-      {/* Tester Dashboard (admin-only, full width) */}
-      <TesterDashboard />
-
       <div
         id="dev-tab-content"
         style={{

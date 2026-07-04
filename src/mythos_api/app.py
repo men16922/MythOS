@@ -26,7 +26,12 @@ from starlette.concurrency import iterate_in_threadpool, run_in_threadpool
 from starlette.responses import Response
 
 from mythos_api.invite import InviteGateMiddleware
-from mythos_api.limits import LOOP_CAP_MESSAGE, admin_invite_keys, loop_cap_exceeded
+from mythos_api.limits import (
+    LOOP_CAP_MESSAGE,
+    admin_invite_keys,
+    loop_cap_exceeded,
+    stable_player_id,
+)
 from mythos_api.localize import localize_for
 from mythos_api.serializers import (
     memory_overview_to_dict,
@@ -930,6 +935,108 @@ def create_app() -> FastAPI:
             ) from exc
         except RuntimeError as exc:
             raise _as_http_error(exc) from exc
+
+    # --- Admin endpoints (admin-key gated) ------------------------------------
+
+    @app.get(f"{API_PREFIX}/admin/tester-status")
+    def admin_tester_status(
+        request: Request,
+        service: RuntimeSessionService = Depends(get_service),
+    ) -> dict[str, Any]:
+        """Per-invite-key player dashboard data. Admin-only (returns 403 for
+        non-admin keys). Returns detailed status for every configured tester key."""
+        key = (
+            request.headers.get("x-invite-key")
+            or request.query_params.get("invite")
+            or ""
+        ).strip()
+        if key not in admin_invite_keys():
+            raise HTTPException(status_code=403, detail="admin only")
+
+        import os
+
+        raw_keys = os.getenv("MYTHOS_INVITE_KEYS", "")
+        admin_keys_set = admin_invite_keys()
+        all_keys = [k.strip() for k in raw_keys.split(",") if k.strip()]
+        # Exclude admin keys from the tester list
+        tester_keys = [k for k in all_keys if k not in admin_keys_set]
+
+        testers: list[dict[str, Any]] = []
+        for tkey in tester_keys:
+            pid = stable_player_id(tkey)
+            player = service.store.get_player(pid)
+            loops = service.store.list_loops(pid)
+
+            # Categorize loops
+            active_loops = [lp for lp in loops if lp.phase.value not in ("archive", "ended")]
+            ended_loops = [lp for lp in loops if lp.phase.value in ("archive", "ended")]
+
+            # Run summaries for completed loops
+            run_summaries = service.list_run_summaries(pid, limit=50)
+
+            # Last activity: most recent loop's started_at or ended_at
+            last_activity = None
+            if loops:
+                dates = [lp.started_at for lp in loops]
+                dates += [lp.ended_at for lp in loops if lp.ended_at]
+                last_activity = max(dates).isoformat() if dates else None
+
+            # Most progressed loop
+            max_turn = 0
+            for lp in loops:
+                turn = lp.state.get("turn_index", 0) if lp.state else 0
+                if turn > max_turn:
+                    max_turn = turn
+
+            # Aggregate combat stats from run summaries
+            total_combats_won = sum(r.combats_won for r in run_summaries)
+            total_combats_lost = sum(r.combats_lost for r in run_summaries)
+            endings_reached = [
+                {"ending_id": r.ending_id, "ending_label": r.ending_label, "turns": r.turns}
+                for r in run_summaries
+                if r.ending_id
+            ]
+
+            # Allies met across all runs
+            all_allies = set()
+            for r in run_summaries:
+                all_allies.update(r.allies_met)
+
+            # Active loop detail
+            active_detail = None
+            if active_loops:
+                al = active_loops[0]
+                active_detail = {
+                    "loop_id": al.loop_id,
+                    "phase": al.phase.value,
+                    "stability": al.stability,
+                    "tension": al.tension,
+                    "location": al.location_id,
+                    "turn_index": al.state.get("turn_index", 0) if al.state else 0,
+                    "started_at": al.started_at.isoformat(),
+                }
+
+            testers.append({
+                "invite_key": tkey,
+                "player_id": pid,
+                "registered": player is not None,
+                "display_name": player.display_name if player else None,
+                "archetype": (player.traits or {}).get("archetype") if player else None,
+                "created_at": player.created_at.isoformat() if player and player.created_at else None,
+                "last_activity": last_activity,
+                "total_loops": len(loops),
+                "active_loops": len(active_loops),
+                "ended_loops": len(ended_loops),
+                "max_turn": max_turn,
+                "active_loop": active_detail,
+                "combats_won": total_combats_won,
+                "combats_lost": total_combats_lost,
+                "endings_reached": endings_reached,
+                "allies_met": sorted(all_allies),
+                "total_runs_completed": len(run_summaries),
+            })
+
+        return {"testers": testers, "total_keys": len(tester_keys)}
 
     @app.websocket(f"{API_PREFIX}/loops/stream")
     async def loops_stream(

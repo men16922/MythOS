@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Sequence
 from typing import Any
 
 from mythos_core.models import to_json_dict
@@ -258,6 +259,91 @@ def _system_prompt(context: NarrativeContext) -> str:
     return DEFAULT_SYSTEM_PROMPT_EN if context.language == "en" else DEFAULT_SYSTEM_PROMPT
 
 
+# ── Prompt-facing memory/event slimming (prompt copy only; stores untouched) ──
+#
+# The store's PlayerMemory/WorldMemory streams mix narrative records (echoes,
+# causality summaries, run outcomes) with machine bookkeeping minted every turn
+# (autosave `save_slot`s, `narrative_metrics` telemetry, `meta_progression`
+# snapshots). Serializing the raw recency tail did two bad things at once:
+# per-turn autosaves crowded the [-4:] window so echoes from earlier loops never
+# reached the model at all, and ~2.5k tokens/turn were spent on UUIDs,
+# timestamps, and pipeline telemetry the GM cannot use. Only the kinds below
+# reach the prompt, and only their prose/state-bearing fields.
+#
+# Deliberately NOT whitelisted despite being narrative: `run_summary` and
+# `causality_summary` — scenario_context already digests those into authored
+# note blocks (NARRATIVE ECHOES / CAUSALITY SUMMARY) with usage guidance, so the
+# raw JSON here would be a duplicate.
+_PLAYER_MEMORY_PROMPT_FIELDS: dict[str, tuple[str, ...]] = {
+    "echo": ("symbol", "text"),
+}
+_WORLD_MEMORY_PROMPT_FIELDS: dict[str, tuple[str, ...]] = {
+    "archive_rollup": (
+        "loop_count",
+        "avg_stability",
+        "avg_tension",
+        "tone_histogram",
+        "symbol_histogram",
+    ),
+    "loop_archive": ("final_title", "final_location", "stability", "tension"),
+}
+
+
+def _slim_memories_for_prompt(
+    memories: Sequence[Any], fields_by_kind: dict[str, tuple[str, ...]], limit: int
+) -> list[dict[str, Any]]:
+    """Whitelist narrative memory kinds and keep only their GM-usable fields.
+
+    Filtering happens BEFORE the recency window so machine records (which mint
+    every turn) cannot crowd narrative ones out of it.
+    """
+    slimmed: list[dict[str, Any]] = []
+    for memory in memories:
+        fields = fields_by_kind.get(getattr(memory, "kind", ""))
+        if fields is None:
+            continue
+        content = memory.content if isinstance(memory.content, dict) else {}
+        entry: dict[str, Any] = {"kind": memory.kind}
+        for field in fields:
+            value = content.get(field)
+            if value not in (None, "", [], {}):
+                entry[field] = value
+        if len(entry) > 1:
+            slimmed.append(entry)
+    return slimmed[-limit:]
+
+
+def _slim_event_for_prompt(event: Any) -> dict[str, Any]:
+    """WorldEvent → the fields the GM can act on (no ids/timestamps)."""
+    data: dict[str, Any] = {
+        "turn_index": event.turn_index,
+        "action": event.action,
+        "result": event.result,
+    }
+    delta = event.state_delta if isinstance(event.state_delta, dict) else {}
+    slim_delta = {k: v for k, v in delta.items() if v not in (None, "", [], {})}
+    if slim_delta:
+        data["state_delta"] = slim_delta
+    return data
+
+
+def _slim_shard_for_prompt(shard: Any) -> dict[str, Any]:
+    """NarrativeShard → symbol/tone/text (no ids/weights/timestamps)."""
+    return {
+        "kind": shard.kind,
+        "symbol": shard.symbol,
+        "emotional_tone": shard.emotional_tone,
+        "text": shard.text,
+    }
+
+
+# Loop fields the GM never uses: identifiers, the deterministic seed hash, and
+# wall-clock timestamps. Dropping them is free tokens; phase/location/stability/
+# tension/state stay.
+_LOOP_PROMPT_DROP_FIELDS = ("loop_id", "player_id", "seed", "started_at", "ended_at")
+_META_PROGRESSION_DROP_FIELDS = ("player_id", "scenario_id")
+
+
 def _slim_loop_for_prompt(loop: Any) -> dict[str, Any]:
     """Serialize the loop for the prompt, dropping internal `_`-prefixed state.
 
@@ -270,11 +356,28 @@ def _slim_loop_for_prompt(loop: Any) -> dict[str, Any]:
     (flags, meta_progression, stability/tension/phase, player_action,
     recent_events) is preserved. Only the prompt copy is trimmed; the stored loop
     is untouched.
+
+    Also dropped (2026-07-04 prompt diet): loop identifiers / seed / timestamps,
+    empty ``active_echoes``, and meta_progression's ids + empty/zero defaults —
+    absence reads the same as the default to the GM, and the scaffolding cost
+    ~250 tokens/turn.
     """
     serialized: dict[str, Any] = dict(to_json_dict(loop))
+    for field in _LOOP_PROMPT_DROP_FIELDS:
+        serialized.pop(field, None)
+    if not serialized.get("active_echoes"):
+        serialized.pop("active_echoes", None)
     state = serialized.get("state")
     if isinstance(state, dict):
-        serialized["state"] = {k: v for k, v in state.items() if not k.startswith("_")}
+        slim_state = {k: v for k, v in state.items() if not k.startswith("_")}
+        meta = slim_state.get("meta_progression")
+        if isinstance(meta, dict):
+            slim_state["meta_progression"] = {
+                k: v
+                for k, v in meta.items()
+                if k not in _META_PROGRESSION_DROP_FIELDS and v not in (None, "", [], {}, 0)
+            }
+        serialized["state"] = slim_state
     return serialized
 
 
@@ -300,17 +403,25 @@ def _context_prompt(context: NarrativeContext, instruction: str) -> str:
             "markdown fences (```json), conversational text, or repeated loops. "
             f"Return fields in exactly this order (narration first): {contract}"
         ),
-        "player": to_json_dict(context.player),
+        # Volatile timestamps stripped: the player block sits in the stable head,
+        # and a mid-loop profile update would otherwise break the cache prefix.
+        "player": _stable_player_for_prompt(context.player),
         # novelty_notes is assembled stable-first (authored rules → bible →
         # grant/persona → per-turn anti-repeat → route steering), so rendering it
         # before the sliding-window blocks extends the shared cacheable prefix.
         "novelty_notes": context.novelty_notes[:MAX_PROMPT_NOTES],
         "loop": _slim_loop_for_prompt(context.loop),
         "turn_index": context.turn_index,
-        "recent_events": [to_json_dict(event) for event in context.recent_events[-3:]],
-        "memories": [to_json_dict(memory) for memory in context.memories[-4:]],
-        "world_memories": [to_json_dict(memory) for memory in context.world_memories[-3:]],
-        "narrative_shards": [to_json_dict(shard) for shard in context.narrative_shards[-4:]],
+        "recent_events": [_slim_event_for_prompt(event) for event in context.recent_events[-3:]],
+        "memories": _slim_memories_for_prompt(
+            context.memories, _PLAYER_MEMORY_PROMPT_FIELDS, 4
+        ),
+        "world_memories": _slim_memories_for_prompt(
+            context.world_memories, _WORLD_MEMORY_PROMPT_FIELDS, 3
+        ),
+        "narrative_shards": [
+            _slim_shard_for_prompt(shard) for shard in context.narrative_shards[-4:]
+        ],
         # session_synopsis (story-so-far + previous-scene prose + anti-repeat
         # directives) is rendered in full — never truncated — for continuity.
         "session_synopsis": context.session_synopsis,
@@ -473,16 +584,28 @@ def _story_context_prompt(context: NarrativeContext, instruction: str) -> str:
     player_data = json.dumps(player_static, ensure_ascii=False, sort_keys=True)
 
     # 2. DYNAMIC — everything that changes turn to turn, kept below the cached prefix.
-    world_memories = json.dumps([to_json_dict(m) for m in context.world_memories[-3:]], ensure_ascii=False, sort_keys=True)
-    narrative_shards = json.dumps([to_json_dict(s) for s in context.narrative_shards[-4:]], ensure_ascii=False, sort_keys=True)
-    memories = json.dumps([to_json_dict(m) for m in context.memories[-4:]], ensure_ascii=False, sort_keys=True)
+    world_memories = json.dumps(
+        _slim_memories_for_prompt(context.world_memories, _WORLD_MEMORY_PROMPT_FIELDS, 3),
+        ensure_ascii=False, sort_keys=True,
+    )
+    narrative_shards = json.dumps(
+        [_slim_shard_for_prompt(s) for s in context.narrative_shards[-4:]],
+        ensure_ascii=False, sort_keys=True,
+    )
+    memories = json.dumps(
+        _slim_memories_for_prompt(context.memories, _PLAYER_MEMORY_PROMPT_FIELDS, 4),
+        ensure_ascii=False, sort_keys=True,
+    )
     novelty_notes = "\n".join(context.novelty_notes[-MAX_PROMPT_NOTES:])
     # Continuity synopsis is rendered IN FULL (never truncated): it carries the
     # "story so far", the previous scene's prose, and the anti-repeat directives.
     synopsis = "\n".join(context.session_synopsis).strip()
     slimmed_loop = _slim_loop_for_prompt(context.loop)
     loop_data = json.dumps(slimmed_loop, ensure_ascii=False, sort_keys=True)
-    recent_events = json.dumps([to_json_dict(e) for e in context.recent_events[-3:]], ensure_ascii=False, sort_keys=True)
+    recent_events = json.dumps(
+        [_slim_event_for_prompt(e) for e in context.recent_events[-3:]],
+        ensure_ascii=False, sort_keys=True,
+    )
 
     synopsis_block = f"{synopsis}\n\n" if synopsis else ""
 

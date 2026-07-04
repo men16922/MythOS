@@ -4,7 +4,7 @@ Last updated: 2026-07-04
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Live-play QA of the restored rule notes** — cache-prefix v2 is DONE (`1014e52`: stable-first notes, windows after loop, `MAX_PROMPT_NOTES` 8→48; stable prefix 2.55–2.85k tok, first real-path cache hit on 2.5). The un-dropped language/cinematic/naming/causality rules now REACH the model every turn — narrative register/repetition feel may change; play a loop and judge (`make api` or cloud after redeploy). Then: 2.5→3.5 call (`MODEL=gemini-3.5-flash make api`); 3.5 caching needs the directive-pack redesign (~1.2k tok short of 4096). Eval `docs/plans/2026-07-04-gemini-2.5-vs-3.5-eval.md`. Redeploy pending (rev `00015-nl5` lacks v2 + Redis-removal cosmetics). Kiro smoke pending. Human: `git push` (ahead 15) + cloud sign-off 🔴.
+> ▶ NEXT SESSION: **3.5-flash is LIVE on cloud (rev `00018-pj9`) — human live sign-off is the gate now**: fresh-loop play per `docs/test/neo_seoul_live_qa.md` 🔴 judging 3.5 prose + restored-rules tone + scene length (user already confirmed mid-game length recovered). Verdict recorded: 3.5 quality worth it at CBT scale ($1.24 vs $0.26/loop; caching measured 8% hits → not a lever; AGY QA PASS `gemini35-eval-210231`) — eval `docs/plans/2026-07-04-gemini-2.5-vs-3.5-eval.md`. Code follow-ups (deprioritized until after sign-off): prompt diet <8k (unlocks caching + direct cost cut), key-beat model split ($0.5/loop alternative), kiro smoke. Human: `git push` (ahead 20). Rollback = `MODEL=gemini-2.5-flash` env.
 
 ## Snapshot
 
@@ -28,7 +28,7 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **Vertex context caching** (new top code track) → then the 2.5→3.5 model call. **Human live sign-off** in parallel: Cloud Run rev `00015-nl5` (image fix live) — fresh-loop checklist on the cloud (`docs/test/neo_seoul_live_qa.md`). Human `git push` (ahead 9).
+1. **Human live sign-off on 3.5**: Cloud Run rev `00018-pj9` (narrative = gemini-3.5-flash, adopted 2026-07-04) — fresh-loop checklist (`docs/test/neo_seoul_live_qa.md`) + 3.5 prose/tone/length feel. Human `git push` (ahead 20).
 2. **Engineering maintenance track (WS0-3 done)**: 6-layer agent ops bible↔MythOS interpretation (including mechanical→semantic→creative verification), slim entry points, structured logging/dashboard, and Resume Pointer continuity. Only WS4 content pipeline remains plan-only (`docs/plans/2026-06-14-engineering-plan.md`).
 3. `glass-library` extension: hold (parity + Story Bible 17 entries done; further extension after Neo-Seoul completion). Completed tracks (combat/progression/party/grant/route-node) → `docs/COMPLETED_SUMMARY.md` M35-M40.
 

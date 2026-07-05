@@ -28,7 +28,7 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **Human live sign-off on 3.5**: Cloud Run rev `00019-jf6` (gemini-3.5-flash + prompt diet LIVE, ~$1.0/loop) — play-order feel-only checklist (`docs/test/neo_seoul_live_qa.md`) + Audrey EN retest. Human `git push` (ahead 7+). Cost levers env-only: `GEMINI_MODEL_KEYBEAT` hybrid ($0.5) / full-2.5 ($0.2). Then: 2 triage decisions (NEXT_PLAN 2026-07-05) + CBT onboarding P1 when directed.
+1. **CBT P1 implementation** (`docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md`): onboarding/Loop1-tutorial, replay variety (non-Serin/solo openings, meet-arc slot, modifiers), density/continuity, combat legibility/board, signature+boss skills, narrative arc/cinematic (incl. dialogue markup + ElevenLabs voice). Parallel human lane: sign-off run on rev `00025-856`, voice-id pinning, `git push`, Audrey reply. Cost levers env-only: `GEMINI_MODEL_KEYBEAT` hybrid ($0.5) / full-2.5 ($0.2).
 2. **Engineering maintenance track (WS0-3 done)**: 6-layer agent ops bible↔MythOS interpretation (including mechanical→semantic→creative verification), slim entry points, structured logging/dashboard, and Resume Pointer continuity. Only WS4 content pipeline remains plan-only (`docs/plans/2026-06-14-engineering-plan.md`).
 3. `glass-library` extension: hold (parity + Story Bible 17 entries done; further extension after Neo-Seoul completion). Completed tracks (combat/progression/party/grant/route-node) → `docs/COMPLETED_SUMMARY.md` M35-M40.
 

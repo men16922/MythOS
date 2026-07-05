@@ -145,6 +145,7 @@ export const en: Record<StringKey, string> = {
   "amap.spotType": "Spot type",
   // Game aside — status panel
   "aside.status.title": "Status",
+  "aside.modifier.label": "⟲ This loop's twist",
   "aside.status.hideHints": "Hide descriptions",
   "aside.status.showHintsTitle": "Show each metric's description",
   "aside.status.showHints": "ⓘ Info",

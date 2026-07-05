@@ -77,6 +77,11 @@ from mythos_runtime.encounter_map import (
     tick_encounter_map,
 )
 from mythos_runtime.ending_resolver import EndingResolver
+from mythos_runtime.loop_modifiers import (
+    LOOP_MODIFIER_KEY,
+    modifier_effect,
+    select_loop_modifier,
+)
 from mythos_runtime.loop_scoring import (
     _clamp_score,
     _initial_loop_scores,
@@ -337,6 +342,14 @@ class RuntimeSessionService:
             met_companions=allies_met,
         )
         initial_state["_opening_variant"] = opening_variant
+        # B3 loop modifier: one authored per-run twist from loop 2, announced to
+        # the client as a banner and consumed by the pacing gate / market /
+        # route-reward paths through the same state record.
+        loop_modifier = select_loop_modifier(
+            scenario.loop_modifiers, seed=loop_seed, loop_index=len(loops) + 1
+        )
+        if loop_modifier is not None:
+            initial_state[LOOP_MODIFIER_KEY] = loop_modifier
         # Generate this loop's operation map. Two modes:
         #  - dynamic (`route_map.mode == "dynamic"`): seed only the backbone
         #    (anchors + first horizon layers); `extend_route` grows it as the
@@ -369,6 +382,12 @@ class RuntimeSessionService:
                     else None
                 ),
             )
+            # B3 signal-jam style modifiers shrink the dynamic map's lookahead
+            # (no-op for static maps, which never call extend_route).
+            horizon_delta = modifier_effect(initial_state, "route_horizon_delta")
+            if horizon_delta and isinstance(route_map, dict):
+                base_horizon = int(route_map.get("horizon", 2) or 2)
+                route_map["horizon"] = max(1, base_horizon + horizon_delta)
             initial_state[ROUTE_MAP_KEY] = route_map
 
         # Loop-aware world: record which iteration this is (1-based) so the session
@@ -739,12 +758,14 @@ class RuntimeSessionService:
             )
             if item_id:
                 held[item_id] = held.get(item_id, 0) + 1
+        # B3 market-boom style modifiers cheapen barter ("교환비↓"), floor 1.
+        cost_delta = modifier_effect(loop.state, "market_cost_delta")
         offers = []
         for offer in config:
             if not isinstance(offer, dict):
                 continue
             give, get_id = str(offer.get("give", "")), str(offer.get("get", ""))
-            count = max(1, int(offer.get("count", 1) or 1))
+            count = max(1, int(offer.get("count", 1) or 1) + cost_delta)
             give_def, get_def = items_def.get(give, {}), items_def.get(get_id, {})
             offers.append(
                 {
@@ -792,7 +813,10 @@ class RuntimeSessionService:
         )
         if offer is None:
             raise RuntimeError(f"no such exchange offer: {give} -> {get}")
-        count = max(1, int(offer.get("count", 1) or 1))
+        # Mirror the _market_view B3 cost delta so the charged count matches the offer shown.
+        count = max(
+            1, int(offer.get("count", 1) or 1) + modifier_effect(loop.state, "market_cost_delta")
+        )
         state = dict(loop.state) if isinstance(loop.state, dict) else {}
         inventory = list(state.get("_inventory", []))
 
@@ -2064,6 +2088,9 @@ class RuntimeSessionService:
         stability = _clamp_score(loop.stability + int(reward.get("stability", 0)))
         tension = _clamp_score(loop.tension + int(reward.get("tension", 0)))
         insight = max(0, int(reward.get("insight", 0) or 0))
+        # B3 patrol-surge style modifiers sweeten victory insight ("전투 빈도↑ 보상↑").
+        if insight > 0:
+            insight = max(0, insight + modifier_effect(loop.state, "combat_insight_bonus"))
 
         if insight > 0:
             scenario_id = str(loop.state.get("scenario_id") or "neo-seoul")
@@ -2113,6 +2140,9 @@ class RuntimeSessionService:
             dtens += int(reward.get("tension", 0) or 0)
             dins += int(reward.get("insight", 0) or 0)
             heal_frac = float(reward.get("heal_frac", 0.0) or 0.0)
+            # B3 signal-jam style modifiers sweeten clue payouts ("단서 보상↑").
+            if node.get("type") == "clue":
+                dins += modifier_effect(state, "clue_insight_bonus")
         if perspective:
             effect_raw = perspective.get("effect")
             effect: dict[str, Any] = effect_raw if isinstance(effect_raw, dict) else {}
@@ -2749,7 +2779,12 @@ class RuntimeSessionService:
 
         last_combat = loop.state.get("_last_combat_turn")
         if isinstance(last_combat, int):
-            within_cooldown = (turn_index - last_combat) < COMBAT_COOLDOWN_SCENES
+            # B3 patrol-surge style modifiers shorten the ambient-combat cooldown
+            # (never below 0); deliberate route combat already bypasses this gate.
+            cooldown_scenes = max(
+                0, COMBAT_COOLDOWN_SCENES + modifier_effect(loop.state, "combat_cooldown_delta")
+            )
+            within_cooldown = (turn_index - last_combat) < cooldown_scenes
             high_pressure = loop.tension >= COMBAT_COOLDOWN_PRESSURE_TENSION
             if within_cooldown and not high_pressure:
                 return None

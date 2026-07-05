@@ -317,6 +317,14 @@ export interface GameStateRaw {
     image: string;
   };
   _seen_cutscenes?: string[];
+  // This loop's authored per-run twist (B3): announced as a banner; effects
+  // apply server-side (combat pacing / market rates / route rewards).
+  _loop_modifier?: {
+    id: string;
+    name?: string | null;
+    desc?: string | null;
+    effect?: Record<string, number>;
+  };
   // Combat-entry transition beat: written when a fight begins, cleared on the
   // next narrative commit. Rendered once as a pre-board interstitial overlay.
   _combat_interstitial?: {

@@ -145,6 +145,7 @@ export const ko = {
   "amap.spotType": "지점 유형",
   // Game aside — status panel
   "aside.status.title": "상태",
+  "aside.modifier.label": "⟲ 이번 루프의 변주",
   "aside.status.hideHints": "설명 숨기기",
   "aside.status.showHintsTitle": "각 수치 설명 보기",
   "aside.status.showHints": "ⓘ 설명",

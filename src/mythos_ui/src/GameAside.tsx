@@ -381,6 +381,16 @@ function StatusPanel({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
             <b>{snapshot.location || "—"}</b>
           </div>
 
+          {snapshot.state?._loop_modifier?.name && (
+            <div className="loop-modifier-banner" id="loop-modifier-banner">
+              <span className="lm-label">{t("aside.modifier.label")}</span>
+              <b className="lm-name">{snapshot.state._loop_modifier.name}</b>
+              {snapshot.state._loop_modifier.desc && (
+                <span className="lm-desc">{snapshot.state._loop_modifier.desc}</span>
+              )}
+            </div>
+          )}
+
           <GaugeBar
             label="STABILITY"
             value={gaugesConfig.stability}

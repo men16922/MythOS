@@ -439,6 +439,26 @@
       ]
     }
   },
+  "loop_modifiers": [
+    {
+      "id": "patrol_surge",
+      "name": "순찰 강화",
+      "desc": "관리망 순찰이 촘촘해진다 — 교전이 잦아지고, 승리 보상이 커진다.",
+      "effect": { "combat_cooldown_delta": -2, "combat_insight_bonus": 1 }
+    },
+    {
+      "id": "market_boom",
+      "name": "시장 활황",
+      "desc": "야시장이 붐빈다 — 물물교환 비용이 내려간다.",
+      "effect": { "market_cost_delta": -1 }
+    },
+    {
+      "id": "signal_jam",
+      "name": "신호 교란",
+      "desc": "광역 재밍이 짙다 — 작전지도 시야가 좁아지는 대신 단서 보상이 커진다.",
+      "effect": { "route_horizon_delta": -1, "clue_insight_bonus": 1 }
+    }
+  ],
   "route_map": {
     "mode": "dynamic",
     "_doc": "동적 작전 지도(mode=dynamic). 시작 시 backbone(anchors + 앞 horizon 레이어)만 seed로 깔고, 진행하며 route_growth.extend_route가 LLM 제안/pool로 다음 레이어를 채운다. 노드 수는 선택에 따라 자란다. mandatory anchor(오프닝/보스)는 필수 통과, 그 외 anchor는 gate(분기, ≥1 경로로는 항상 도달). 결정적 절차 생성 작전 지도. 임팩트 있는 스토리 비트는 anchors(사전 저작 비트+큐레이트 이미지)로 고정하고, 그 사이 과정은 pool/width 동적 노드(LLM 묘사)로 매 루프 랜덤 배치한다. layers는 golden_path 6막에 매핑된다.",

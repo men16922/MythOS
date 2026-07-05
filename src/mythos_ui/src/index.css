@@ -3208,6 +3208,34 @@ main {
   }
 }
 
+/* B3 loop modifier banner ("이번 루프의 변주") in the status panel. */
+.loop-modifier-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 8px 0;
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 200, 90, 0.4);
+  border-radius: 6px;
+  background: rgba(255, 200, 90, 0.07);
+}
+.loop-modifier-banner .lm-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: #ffd98d;
+  text-transform: uppercase;
+}
+.loop-modifier-banner .lm-name {
+  font-size: 13px;
+  color: var(--ink);
+}
+.loop-modifier-banner .lm-desc {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--ink-dim);
+}
+
 /* A3 progressive disclosure: one-time pulse when the operation map first appears. */
 .aside-reveal-nudge {
   animation: aside-reveal-pulse 1.6s ease-out 2;

@@ -799,6 +799,31 @@ class CombatNarratorTest(unittest.TestCase):
         self.assertGreater(player_blip["hp_ratio"], 0.0)
         self.assertLessEqual(player_blip["hp_ratio"], 1.0)
 
+    def test_cover_saved_miss_narrates_cover(self) -> None:
+        # D4 엄폐 가독성: 엄폐 보너스가 명중을 빗나가게 만든 미스는 일반 미스가
+        # 아니라 '엄폐물에 막혔다'로 서술되고 detail.cover_saved가 선다.
+        engine = CombatEngine()
+        seen_cover_miss = False
+        for i in range(80):
+            state = engine.start(
+                [_player(x=0, y=0, weapon="rivet_gun")],
+                [_drone(x=3, y=0, hp=60, defense=14)],
+                seed=f"cover-{i}",
+                arena=(8, 6),
+            )
+            enemy = state.living_enemies()[0]
+            state.covers[f"{enemy.x},{enemy.y}"] = "full"
+            state = engine.take_player_turn(
+                state, PlayerAction(type="attack", target_id=enemy.id)
+            )
+            for entry in state.log:
+                if entry.action == "miss" and entry.detail.get("cover_saved"):
+                    self.assertIn("엄폐", entry.text)
+                    seen_cover_miss = True
+            if seen_cover_miss:
+                break
+        self.assertTrue(seen_cover_miss, "no cover-saved miss across 80 seeds")
+
     def test_render_radar_serializes_buff_state(self) -> None:
         # D2 상태 칩 (CBT 피드백 #2 "엄호 노이즈가 뭘 했는지 모름"): 일시 방어
         # 버프/격노/상태 리스트가 blip에 실려야 로스터·보드 칩이 그릴 수 있다.

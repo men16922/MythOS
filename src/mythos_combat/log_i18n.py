@@ -34,6 +34,12 @@ _LINES: dict[str, dict[str, str]] = {
         "ko": "{attacker}의 {weapon} 공격이 {defender}을(를) 빗나갔다.",
         "en": "{attacker}'s {weapon} attack misses {defender}.",
     },
+    # D4 cover legibility: when cover turned the hit into a miss, SAY so —
+    # the +3/+6 bonus was invisible ("엄폐가 뭘 하는지 모름").
+    "attack_miss_cover": {
+        "ko": "{attacker}의 {weapon} 사격이 {defender}의 엄폐물에 막혔다. (엄폐 +{cover})",
+        "en": "{attacker}'s {weapon} shot is stopped by {defender}'s cover. (cover +{cover})",
+    },
     "attack_kill": {
         "ko": "{attacker}이(가) {defender}을(를) 쓰러뜨렸다! ({damage} 피해)",
         "en": "{attacker} takes down {defender}! ({damage} dmg)",

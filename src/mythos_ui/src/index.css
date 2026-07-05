@@ -2062,6 +2062,35 @@ main {
 .combat-layout {
   width: 100%;
 }
+/* D3 board legibility: full-width board on top, roster/console/log bottom row. */
+.combat-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+.combat-stack .tactical-board-panel {
+  width: 100%;
+}
+.combat-bottom-row {
+  display: grid;
+  grid-template-columns: minmax(340px, 1.15fr) minmax(320px, 1fr) minmax(260px, 0.9fr);
+  gap: 16px;
+  align-items: start;
+}
+.combat-bottom-row #combat-controls {
+  margin-top: 0;
+}
+@media (max-width: 1100px) {
+  .combat-bottom-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 760px) {
+  .combat-bottom-row {
+    grid-template-columns: 1fr;
+  }
+}
 .combat-grid {
   display: grid;
   /* Board column widened (was 1.8fr) so the Tactical Board reads large enough

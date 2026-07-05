@@ -690,9 +690,9 @@ export function StoryPanel({
   if (snapshot?.combat && !snapshot.combat.finished) {
     return (
       <div id="story-tab-content" className="combat-layout">
-        <div className="combat-grid">
-          {/* 좌측 열: Tactical Board + Combat Log */}
-          <div className="combat-left-col">
+        {/* D3 board legibility: TACTICAL BOARD full-width on top; roster /
+            command console / log as a bottom row. */}
+        <div className="combat-stack">
             <div className="panel tactical-board-panel">
               <div className="panel-title-row">
                 <div className="panel-title">
@@ -753,11 +753,8 @@ export function StoryPanel({
               <TileInspector combat={snapshot.combat} cell={combatInspectCell} />
             </div>
 
-            <CombatLog log={combatLog} />
-          </div>
-
-          {/* 우측 열: Party/Enemy Roster + Command Console */}
-          <div className="combat-right-col">
+          {/* 하단 행: Party/Enemy Roster · Command Console · Combat Log */}
+          <div className="combat-bottom-row">
             <div className="panel roster-panel">
               <CombatRoster combat={snapshot.combat} scenarioId={scenarioId} />
             </div>
@@ -772,6 +769,8 @@ export function StoryPanel({
               onContinue={onContinueAfterCombat}
               tutorialHighlight={tutorialHighlight}
             />
+
+            <CombatLog log={combatLog} />
           </div>
         </div>
       </div>

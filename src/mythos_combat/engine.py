@@ -464,17 +464,33 @@ class CombatEngine:
         dc = defender.effective_defense + cover_defense_bonus
 
         if not crit and total < dc:
-            self._log(
-                state,
-                attacker,
-                "miss",
-                clog(
+            # D4 cover legibility: when the shot would have hit WITHOUT the cover
+            # bonus, narrate the cover doing its job instead of a generic miss.
+            cover_saved = (
+                cover_defense_bonus > 0 and total >= dc - cover_defense_bonus
+            )
+            if cover_saved:
+                miss_text = clog(
+                    state.language,
+                    "attack_miss_cover",
+                    attacker=attacker.name,
+                    weapon=weapon.name,
+                    defender=defender.name,
+                    cover=cover_defense_bonus,
+                )
+            else:
+                miss_text = clog(
                     state.language,
                     "attack_miss",
                     attacker=attacker.name,
                     weapon=weapon.name,
                     defender=defender.name,
-                ),
+                )
+            self._log(
+                state,
+                attacker,
+                "miss",
+                miss_text,
                 {
                     "roll": roll,
                     "total": total,
@@ -482,6 +498,7 @@ class CombatEngine:
                     "target": defender.id,
                     "high_ground": att_el > def_el,
                     "cover_applied": cover_defense_bonus > 0,
+                    "cover_saved": cover_saved,
                 },
             )
             return

@@ -490,11 +490,13 @@ export function drawCombatCanvas(
         const [cx, cy] = toIso(x + 0.5, y + 0.5, cfg);
         const r = Math.min(cfg.stepX, cfg.stepY * 2) * 0.36;
         drawCoverObject(ctx, cx, cy + hOffset, cover, r);
+        // D4 cover legibility: shield-prefixed badge so a functional cover tile
+        // reads instantly apart from decorative props (full=+6, half=+3).
         drawTerrainBadge(
           ctx,
           cx,
           cy + hOffset - r * 1.45,
-          cover === "full" ? "▣" : "◧",
+          cover === "full" ? "🛡▣" : "🛡◧",
           cover === "full" ? "rgba(41,255,198,0.95)" : "rgba(255,180,50,0.9)",
           cfg.stepX
         );

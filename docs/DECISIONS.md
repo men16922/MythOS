@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-07-05 — GCS read URLs sign via IAM signBlob on Cloud Run (no SA key files); signing failure never kills the WS stream
+
+Decision: `GCSStorageAdapter.presigned_url` falls back to the IAM signBlob API when credentials carry no private key (Cloud Run/GCE metadata), using dedicated `cloud-platform`-scoped credentials — NOT the storage client's storage-scoped token (403 `ACCESS_TOKEN_SCOPE_INSUFFICIENT`). Prerequisite: `roles/iam.serviceAccountTokenCreator` on the runtime SA over itself (granted for `mythos-run`, user-executed). Service-account key files stay banned. In the API, `_visual_frame` degrades a signing failure to a `failed` visual frame — the WS stream carrying the narrative snapshot must never die for an image-delivery error.
+
+Reason/impact: Live 07-05 — every cloud image turn raised `AttributeError: you need a private key` inside `_emit_visual_status`, killing the socket each turn (stuck "그림 생성 준비 중…", intermittently missing choices) and 500ing `/assets/resolve`; earlier verification had only checked server-side asset `succeeded`, not client delivery. Verified 500→200 on the same failing asset; 0 signing failures on rev `00021+`. Any future storage backend must keep the "delivery failure ≠ stream failure" guard.
+
 ## 2026-07-04 — Route scenes are a causally validated program; choice retries are scene-idempotent
 
 Decision: Route anchors require unique stable `beat` ids, valid default perspectives, selectors available before resolution, and hard-gate producers in an earlier causal layer. `load_scenario` and `make validate-content` enforce the contract. Builders preserve an ungated forward option; runtime may repair a stale edge to an eligible core node but never bypass a lock. Choice requests carry `scene_id`; replaying an old-scene request returns the authoritative current snapshot instead of applying or erroring again. Cross-loop affection hydrates into live `relationships`, with a baseline marker so archive stores only the current run's delta.

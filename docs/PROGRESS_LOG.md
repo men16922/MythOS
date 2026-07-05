@@ -5,6 +5,14 @@ Last updated: 2026-07-05
 This file keeps **only recent incremental summaries within the 120-line budget**. The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-05 (PM) — Simulator admin-gating (rev `00022-wqt`) + 2 checklist slices closed live + /insights constraints
+- Status: Committed `e771cd8..0e80d39`; `make check` **766** green; **Cloud Run rev `00022-wqt` live** and gate verified (tester key → `gated:true, is_admin:false`; admin key → `is_admin:true`).
+- **Simulator gating (triage decision A)**: `verify-invite` now returns `gated`; SPA renders the boot combat simulator only for `isAdmin || !gated` — CBT testers no longer see it (loop-cap burn + boot density fixed at the entry), keyless local dev + AGY QA paths keep it. Regression test added (`f471ce8`). Context: tester `d1b0da3e` had 5 of 10 cap slots eaten by simulator loops (admin dashboard measured); existing simulator loops remain on the cap — DB cleanup only on request.
+- **Checklist slices closed by live probes**: salvage-grant (free-text "드론 잔해 수습" → `drone_scrap` granted + inventory persisted, whitelist/≤2 clamp clean, `loop_92a418b1…`) · companion growth (Serin **16/16 HP** = base 14 + bond tier1, Kai/Lin-yue +2 too, AGI+1 = win-4 upgrade — from the USER's real session data). Recruitment map documented in chat: han(wins3)/su_ah(runs2)/lin_yue(clues5)/tae_o(wins6) unlock → meet side-arc (max 2 arcs/map, seed-picked).
+- **/insights applied**: CLAUDE.md gains `Agent execution constraints` (gate from repo root, no `cd &&`; classifier-blocked classes → hand off via `!`; file-by-file deletion). 500-output-token issue was stale (`~/.zshrc` cap already commented out). Repo pinned to Fable 5 via `.claude/settings.local.json`.
+- Blockers: none. Untracked working-tree changes not mine (ITCH.md deletion, COMPLETED_SUMMARY/tester_invite/research edits) — left for their owner.
+- Next: human sign-off play on `00022-wqt` (image display confirm on next mid-loop turn); human `git push` (ahead 14); ally-writeback triage remains the last open human decision.
+
 ## 2026-07-05 — Cloud image root-cause fix #2: GCS presign on Cloud Run (rev `00021-mxt`) + WS guard
 - Status: `make check` 765 green; **Cloud Run rev `00021-mxt` live** (2 redeploys — `00020` exposed a second layer). `/diagnose` from user live play.
 - **Root cause (live tracebacks, user session)**: every turn `_emit_visual_status` → `GCSStorageAdapter.presigned_url` → `AttributeError: you need a private key` (Cloud Run metadata creds) **killed the WS stream** + `/assets/resolve` 500 → image stuck "그림 생성 준비 중…" and choices intermittently unrendered (finalize stalled on prior turn). Layer 2 (rev `00020`): IAM signBlob with the storage client's token → 403 `ACCESS_TOKEN_SCOPE_INSUFFICIENT`.

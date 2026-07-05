@@ -25,12 +25,14 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. Cloud Run rev `00019-jf6` serves
     slot · B2 six 1-cut opening variants (KO/EN incl. solo; companion pick promotes its arc into the B1 slot) ·
     B3 loop modifiers (patrol_surge/market_boom/signal_jam + SPA banner). Remaining `[ ]` `[auto:agy]`
     curated art 1 cut per opening variant (Imagen, opening style spec; integrity gate).
-  - `[ ]` **P1-C density/continuity**: ally-join foreshadow rule (C3, Tae-o pop-in) · no-op turn guard (C1) ·
-    deterministic SFX cues (C4) · combat board full-width layout (D3) · cover legibility (D4).
-  - `[ ]` **P1-D character identity**: stun status foundation (F — also fixes inert EMP grenade) ·
-    companion signature skills ×6 w/ codex→agy icon pipeline (E1) · IX boss-exclusive skills + phase (E2).
-  - `[ ]` `[manual]` decisions: in-layer pacing knob (C2) · overload-strike range balance (D5) ·
-    EN fresh-loop retest of story coherence on 3.5+diet (pre-req for more prompt work).
+  - `[x]` **P1-C density/continuity (DONE 2026-07-05, `311e22f..a684011`, check 822)**: C3 join-signal ·
+    C1 no-op guard · G3 presentation cues (absorbed C4) · D3 board layout · D4 cover legibility.
+  - `[x]` **P1-D/E character identity + narrative arc (DONE 2026-07-05, `30bda9c..c08d5c6`, check 857)**:
+    F stun · E1 signatures ×6 · E2 IX 전용기+텔레그래프 · G1 막 스캐폴드+setup 원장 · G2 반전 뱅크 ·
+    G4 루프 후킹. Remaining `[ ]` `[auto:agy]` icons (signatures ×6 + boss ×2, item-icon style spec) ·
+    SFX wavs (sfx_alarm/sting/drone/pickup — playSfx fails gracefully until then).
+  - `[ ]` `[manual]` decisions: G2 twist tone review (3 drafts in scenario.json `twist_bank`) ·
+    in-layer pacing knob (C2) · overload-strike range balance (D5) · EN fresh-loop coherence retest.
 - `[x]` **Save-slot overwrite + delete (user request, DONE 2026-07-05)**: 수동 슬롯 덮어쓰기(같은 slot_id 재기록,
   autosave 북마크는 거부) + 슬롯 삭제(수동/autosave 모두, 2-클릭 확인 UI) — 스토어 `delete_player_memories`부터
   SAVE 모달 버튼까지 수직 구현, 유닛테스트 6종. 남음 `[manual]`: 라이브 체감 (덮어쓰기/삭제 후 목록 갱신).
@@ -98,13 +100,9 @@ Status: `[~]` progression/presentation parity + Story Bible 17 entries done (M38
 
 ## Maintenance
 
-- `[ ]` `[auto:claude]` **postgres_store stale-connection retry**: 라이브 500 (2026-07-05, `/auth/connect`) — Neon이
-  유휴 연결을 `AdminShutdown`("terminating connection due to administrator command")으로 끊은 뒤 앱이 풀의 죽은
-  연결을 재사용. `_execute`류에 연결-종료 계열(psycopg `OperationalError`/`AdminShutdown`) 1회 재연결-재시도.
-  Done = 재시도 unit test + `make check` green.
-- `[ ]` `[auto:claude]` **image-placeholder i18n init race**: KO 세션에서 이미지 패널 기본 안내문이 영어로 노출
-  (라이브 2026-07-05). `useSceneVisuals`의 `imagePlaceholderText` `useState` 초기값이 마운트 시점(언어 적용 전)에
-  1회 고정되어 언어 전환을 못 따라감. Done = lang-반응형 초기화 + `make check` green + AGY live-QA not FAIL/NEEDS.
+- `[x]` **postgres stale-conn retry + image-placeholder i18n race (both DONE 2026-07-05, `08f764f`,
+  check 862)**: `_run_query` 1회 재연결-재시도(트랜잭션 밖 한정, 스텁 유닛테스트 5종) · 기본 힌트를
+  렌더마다 현재 언어에서 파생. 남음 `[ ]` `[auto:agy]` i18n fix 라이브 스크린 (KO 세션 기본 안내문).
 - `[ ]` `[manual]` long-play Flux1 + Flux1Redux simultaneous-load memory monitor.
 - `[ ]` `[blocked]` `_map` removal cleanup (held until route-node track done; engine records every scene + encounter_map coords·story_bible location·glass-library fallback minimap depend on it). Prereq: all scenarios converted to route_map. When met, promote to `[auto]` (codemod + `make check` green).
 - `[ ]` `[blocked]` `[auto:claude]` frontend god-component decomposition (App.tsx·CombatCinema): extract custom hooks/modules **one slice per iteration**, behavior-preserving. Done = `make check` green + post-commit AGY live-QA not FAIL/NEEDS (auto-screened, §3.4.1). _Progress: slices 1–13 done (App.tsx 1261→696; hooks useInGameEpiphany/useCombatBoard/useTypewriter/useGameSocket/useCombatCinemaQueue/useSceneVisuals/useSessionLifecycle/useDataLoaders/useCombatRest/useSessionControls/useSnapshotReceiver/useNarrativeStream/useKeyboardChoice + shared `archetypes.ts`). Per-slice detail: `bin/docs/archive/progress-2026-06.md` + git. **slice 14 (`useViewModels`, view-model `useMemo` cluster) was committed green (`d7b3b35`) then HUMAN-REVERTED 8s later (`4d88b80`) — DO NOT re-attempt verbatim (deliberate revert; needed a 12-field props object = net-negative). `[blocked]` 2026-06-28 (2nd encounter, twice-blocked rule): remove the tag after a human names a different clean-boundary slice or closes the track._

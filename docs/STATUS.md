@@ -20,8 +20,8 @@ Major implemented axes:
 
 Latest verified baseline:
 
-- `make check` **802 green** + `make validate-content` clean.
-- **CBT P1-A + P1-B DONE 2026-07-05** (`9226005..4a100cd`, not yet deployed): combat telegraph + entry interstitial, first-combat tutorial, progressive disclosure, skill badges/effect lines, status chips; guaranteed meet-arc slot, 6 Loop2+ opening variants (KO/EN, 1-cut re-entry incl. solo), loop modifiers (patrol_surge/market_boom/signal_jam + banner).
+- `make check` **862 green** + `make validate-content` clean.
+- **CBT P1 CODE TRACK COMPLETE 2026-07-05** (`9226005..08f764f`, 19 slices, not yet deployed): A onboarding (telegraph/tutorial/disclosure) · B replay variety (meet-arc slot/6 opening variants/loop modifiers) · C density (join signal/no-op guard/G3 cues/board/cover) · D+E identity (stun/signatures ×6/IX 전용기+텔레그래프) · E narrative arc (G1 막+setup 원장/G2 반전 뱅크/G4 루프 후킹) + maintenance pair (postgres retry, placeholder i18n).
 - Cloud Run rev **`00025-856`**: presign hotfix + simulator gating + save overwrite/delete + dashboard admin rows + companion-equip UI overhaul + item-gain toast + dev-console link fix, live; `mythos-d1b0da3e` admin/cap-exempt (user-directed). Voice audition kit delivered (48 samples: KO natives / EN premades).
 - Three AGY objective runs passed save/load restore, route pairing+horizon refresh, choice idempotency, support targeting, loot persistence, and equip/unequip. Remaining gate is human play feel.
 - Completed detail is compressed in `docs/COMPLETED_SUMMARY.md` M35-M56; latest increments and exact measurements remain in `docs/PROGRESS_LOG.md` and dated plans.
@@ -32,8 +32,8 @@ Authority plan: `docs/NEXT_PLAN.md`.
 
 Direction remains global-first EN/KO closed beta: Gemini/Vertex is the product path; Ollama/FLUX remains the local development path. Deployment/onboarding/localization history is in `docs/COMPLETED_SUMMARY.md` M50 and M56.
 
-1. **CBT P1 implementation (P1-A + P1-B DONE 2026-07-05)**: `docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md` — next is **P1-C density/continuity** (C3 ally-join foreshadow → C1 no-op guard → G3 cinematic cues → D3 board layout → D4 cover legibility), then P1-D/E. AGY live-QA screen of the new UI on a fresh account pending; curated variant-opening art = agy follow-up.
-2. **Human lane in parallel**: sign-off full run on rev `00025-856` + Audrey EN retest (`docs/test/neo_seoul_live_qa.md`); voice-id pinning (`outputs/voice-auditions/{ko,en}/` → `voices.json`); `git push` (ahead 41); triage calls (ally-writeback · overload-strike range · pacing knob); deploy bundle now carries P1-A+B.
+1. **CBT P1 code track COMPLETE — remaining is agy/human lanes**: `[auto:agy]` variant-opening art ×6, signature/boss icons ×8, SFX wavs (alarm/sting/drone/pickup), live-QA screen (tutorial/interstitial/disclosure/banner/i18n fix) on a fresh account. `[manual]` G2 twist tone review (3 drafts, scenario.json `twist_bank`).
+2. **Human lane in parallel**: sign-off full run on rev `00025-856` + Audrey EN retest (`docs/test/neo_seoul_live_qa.md`); voice-id pinning (`outputs/voice-auditions/{ko,en}/` → `voices.json`); `git push` (ahead 58); triage calls (ally-writeback · overload-strike range · pacing knob); deploy bundle now carries the FULL P1 code track.
 3. **Post-sign-off model experiment**: 2.5-normal/3.5-key-beat hybrid A/B; record keep/rollback verdict.
 4. **Maintenance/hold**: WS4 content pipeline plan-only; Glass Library waits for Neo-Seoul satisfaction; teaser #2 deferred (uncut-single-turn or post-P1 montage).
 

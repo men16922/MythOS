@@ -352,6 +352,9 @@ export const en: Record<StringKey, string> = {
   // Combat roster
   "roster.defending": "Defending",
   "roster.down": "Down (KO)",
+  "roster.turnsSuffix": "T",
+  "roster.enraged": "Enraged",
+  "roster.stunned": "Stunned",
   // Character panel (play-screen right column) — neo-seoul flavored stat names
   "char.stat.strength": "Strength",
   "char.stat.intelligence": "Computation",

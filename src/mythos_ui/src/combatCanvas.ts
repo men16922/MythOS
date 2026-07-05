@@ -702,6 +702,43 @@ export function drawCombatCanvas(
       ctx.restore();
     }
 
+    // D2 status legibility: temporary DEF-buff pill above the unit (mirrors the
+    // roster chip so "엄호 노이즈가 뭘 했는지" reads on the board too).
+    const aliveHere = b.alive !== false;
+    if (aliveHere && (b.defense_buff ?? 0) > 0) {
+      const chipLabel = `DEF+${b.defense_buff}`;
+      const chipY = drewSprite ? cy - r * 2.7 : cardCy - r - 20;
+      ctx.save();
+      ctx.font = "bold 9px SF Mono, monospace";
+      const chipW = ctx.measureText(chipLabel).width + 8;
+      ctx.fillStyle = "rgba(80, 190, 255, 0.85)";
+      ctx.fillRect(cx - chipW / 2, chipY - 7, chipW, 13);
+      ctx.fillStyle = "#021018";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(chipLabel, cx, chipY);
+      ctx.restore();
+    }
+    // Boss enrage: dashed red ring so the phase shift is visible at a glance.
+    if (aliveHere && b.enraged) {
+      ctx.save();
+      ctx.strokeStyle = "rgba(255, 82, 61, 0.9)";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 3]);
+      ctx.beginPath();
+      ctx.ellipse(
+        cx,
+        drewSprite ? cy - r * 1.05 : cardCy,
+        r + 11,
+        drewSprite ? r * 1.65 : r + 5.5,
+        0,
+        0,
+        Math.PI * 2
+      );
+      ctx.stroke();
+      ctx.restore();
+    }
+
     if (alive && b.faction === "enemy") {
       const intent = intents.find((item) => item.enemy_id === b.id);
       if (intent) {

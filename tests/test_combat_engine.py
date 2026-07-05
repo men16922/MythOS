@@ -799,6 +799,25 @@ class CombatNarratorTest(unittest.TestCase):
         self.assertGreater(player_blip["hp_ratio"], 0.0)
         self.assertLessEqual(player_blip["hp_ratio"], 1.0)
 
+    def test_render_radar_serializes_buff_state(self) -> None:
+        # D2 상태 칩 (CBT 피드백 #2 "엄호 노이즈가 뭘 했는지 모름"): 일시 방어
+        # 버프/격노/상태 리스트가 blip에 실려야 로스터·보드 칩이 그릴 수 있다.
+        engine = CombatEngine()
+        state = engine.start([_player(x=0, y=0)], [_drone(x=3, y=2)], seed="buff", arena=(8, 6))
+        player = state.player()
+        assert player is not None
+        player.defense_buff = 3
+        player.defense_buff_turns = 1
+        player.status.append("stunned")
+        enemy = state.living_enemies()[0]
+        enemy.enraged = True
+        blips = {b["id"]: b for b in render_radar(state)["blips"]}
+        self.assertEqual(blips[player.id]["defense_buff"], 3)
+        self.assertEqual(blips[player.id]["defense_buff_turns"], 1)
+        self.assertEqual(blips[player.id]["status"], ["stunned"])
+        self.assertTrue(blips[enemy.id]["enraged"])
+        self.assertFalse(blips[player.id]["enraged"])
+
     def test_narrate_since_is_nonempty_and_deterministic(self) -> None:
         engine = CombatEngine()
         state = engine.start([_player()], [_drone(x=2)], seed="narr", arena=(8, 6))

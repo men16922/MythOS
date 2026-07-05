@@ -2447,6 +2447,22 @@ main {
   border-radius: 3px;
   font-family: var(--mono);
 }
+/* D2 status chips: temporary buff (DEF+N · nT), boss enrage, debuffs (stun …). */
+.roster-status-badge.buff {
+  background: rgba(80, 190, 255, 0.14);
+  border-color: rgba(80, 190, 255, 0.6);
+  color: #7fd7ff;
+}
+.roster-status-badge.enraged {
+  background: rgba(255, 82, 61, 0.14);
+  border-color: rgba(255, 122, 107, 0.6);
+  color: #ff8f80;
+}
+.roster-status-badge.debuff {
+  background: rgba(190, 120, 255, 0.14);
+  border-color: rgba(190, 120, 255, 0.6);
+  color: #d9a8ff;
+}
 
 /* HP Bar inside Card */
 .roster-hp-bar-container {

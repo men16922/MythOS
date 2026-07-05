@@ -354,6 +354,9 @@ export const ko = {
   // Combat roster
   "roster.defending": "방어",
   "roster.down": "전투 불능 (KO)",
+  "roster.turnsSuffix": "턴",
+  "roster.enraged": "격노",
+  "roster.stunned": "기절",
   // Character panel (play-screen right column)
   "char.stat.strength": "근력",
   "char.stat.intelligence": "연산",

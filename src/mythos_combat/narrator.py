@@ -52,6 +52,13 @@ def render_radar(state: CombatState) -> dict[str, Any]:
                 "max_hp": c.max_hp,
                 "alive": c.alive,
                 "defending": c.defending,
+                # Active buff/debuff state for the D2 status chips (roster cards +
+                # board): temporary DEF bonus w/ remaining rounds, boss enrage,
+                # and the generic status list (e.g. future "stunned").
+                "status": list(c.status),
+                "defense_buff": c.defense_buff,
+                "defense_buff_turns": c.defense_buff_turns,
+                "enraged": c.enraged,
                 "portrait": c.portrait,
                 "combat_images": dict(c.combat_images),
                 "hp_ratio": round(c.hp / c.max_hp, 3) if c.max_hp else 0.0,

@@ -159,6 +159,12 @@ export interface CombatBlip {
   hp_ratio?: number;
   alive?: boolean;
   defending?: boolean;
+  // Active buff/debuff state (D2 status chips): temporary DEF bonus with
+  // remaining rounds, boss enrage, generic status ids (e.g. "stunned").
+  status?: string[];
+  defense_buff?: number;
+  defense_buff_turns?: number;
+  enraged?: boolean;
   portrait?: string;
   combat_images?: Record<string, string>;
   focus?: number;

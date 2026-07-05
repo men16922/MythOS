@@ -62,6 +62,19 @@ export function CombatRoster({ combat, scenarioId }: CombatRosterProps) {
           <div className="roster-header-row">
             <span className="roster-name">{b.name || b.id}</span>
             {b.defending && <span className="roster-status-badge">{t("roster.defending")}</span>}
+            {(b.defense_buff ?? 0) > 0 && (
+              <span className="roster-status-badge buff">
+                DEF+{b.defense_buff}
+                {(b.defense_buff_turns ?? 0) > 0 &&
+                  ` · ${b.defense_buff_turns}${t("roster.turnsSuffix")}`}
+              </span>
+            )}
+            {b.enraged && <span className="roster-status-badge enraged">{t("roster.enraged")}</span>}
+            {(b.status || []).map((st) => (
+              <span key={st} className="roster-status-badge debuff">
+                {st === "stunned" ? t("roster.stunned") : st}
+              </span>
+            ))}
           </div>
 
           {alive ? (

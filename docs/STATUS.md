@@ -11,7 +11,7 @@ Major implemented axes:
 - **Shared runtime/UI**: `RuntimeSessionService` is the single orchestration boundary for FastAPI REST/WS, React/Vite, Streamlit, and CLI.
 - **Persistence/infra**: PostgreSQL is authoritative; MinIO/GCS store assets; OTel/Jaeger/Cloud Trace cover observability. Redis was removed 2026-07-04, so images generate synchronously in-request.
 - **Narrative**: local development uses Ollama 8B storyteller + 3B parser with repair/fallback; the cloud product uses Vertex Gemini controlled generation. Prompt directives, Story Bible snippets, deterministic session synopsis, shard rollup, and outcome metrics are integrated.
-- **Cloud model operations**: rev `00022-wqt` runs full `gemini-3.5-flash` + prompt diet (~$1.0/loop) + 07-05 GCS presign hotfix (IAM signBlob; images/WS were structurally broken on cloud before it) + boot-simulator admin gating. Optional `GEMINI_MODEL_KEYBEAT` routing is implemented and live-probed but **not enabled**.
+- **Cloud model operations**: rev `00024-qpr` runs full `gemini-3.5-flash` + prompt diet (~$1.0/loop) + 07-05 GCS presign hotfix (IAM signBlob) + boot-simulator admin gating + save overwrite/delete. Optional `GEMINI_MODEL_KEYBEAT` routing is implemented and live-probed but **not enabled**.
 - **Visuals**: local mflux/FLUX + Redux and cloud Imagen share the provider/storage boundary; curated scene/cutscene/ending art and synchronous generation are active.
 - **Gameplay**: deterministic tactical combat, direct party control, companion growth/equipment, enemy intents, skills/items, combat cinema, rewards, boons, market/recovery, and IX boss flow are implemented.
 - **Scenario/progression**: Neo-Seoul is the primary long-form scenario; route-node DAG + multi-perspective anchors + session memory, Story Bible, Codex, Run History, achievements, meta progression, save/load, and ending resolver are implemented. Glass Library is parity-ready but held.
@@ -20,8 +20,8 @@ Major implemented axes:
 
 Latest verified baseline:
 
-- `make check` **766 green** (presign IAM-fallback, WS visual-frame guard, verify-invite `gated` regressions).
-- Cloud Run rev **`00022-wqt`**: presign hotfix (500→200 re-measured, 0 signing failures) + simulator gating live-verified per key class. Salvage-grant and companion-growth checklist slices closed by live probes against real data.
+- `make check` **769 green** (presign, WS guard, verify-invite `gated`, save overwrite/delete regressions).
+- Cloud Run rev **`00024-qpr`**: presign hotfix + simulator gating + save overwrite/delete + dashboard admin rows, all live-verified; `mythos-d1b0da3e` elevated to admin (cap-exempt, user-directed). Dev-console infra-link fix committed, rides the next deploy.
 - Three AGY objective runs passed save/load restore, route pairing+horizon refresh, choice idempotency, support targeting, loot persistence, and equip/unequip. Remaining gate is human play feel.
 - Completed detail is compressed in `docs/COMPLETED_SUMMARY.md` M35-M56; latest increments and exact measurements remain in `docs/PROGRESS_LOG.md` and dated plans.
 

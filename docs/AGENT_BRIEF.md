@@ -4,7 +4,7 @@ Last updated: 2026-07-05
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Human live sign-off is the gate — rev `00022-wqt` = dieted 3.5 prompt (~$1.0/loop) + 07-05 GCS presign hotfix (images/WS were structurally broken → IAM signBlob + WS guard, 500→200 verified) + boot-simulator admin gating (tester cap protected)**. Checklist is play-order + feel-only (`docs/test/neo_seoul_live_qa.md`: 3.5 prose verdict + Audrey EN retest; objective slices closed by AGY `obj*-063151`/`cloudimg-161428` + WS probes incl. salvage-grant and companion-growth). Queued for humans: **1 triage decision** (ally-writeback promotion — NEXT_PLAN 2026-07-05), `git push` (ahead 14), Audrey reply. Next code track when directed: CBT onboarding P1 (`docs/cbt/CBT_FEEDBACK.md`); small `[auto]` seeds: postgres stale-conn retry · placeholder i18n race. Rollback = `MODEL=gemini-2.5-flash` env.
+> ▶ NEXT SESSION: **Human sign-off full run on rev `00024-qpr`** (= dieted 3.5 + presign hotfix + simulator gating + save overwrite/delete; `d1b0da3e` is now admin/cap-exempt) **→ `git push` (ahead 18) + version tag → film teaser #2** (`docs/cbt/CBT_TEASER.md` metadata+shot list ready; if the video targets RECRUITING, build CBT onboarding P1 first — `docs/cbt/CBT_FEEDBACK.md`). Checklist `docs/test/neo_seoul_live_qa.md` is play-order + feel-only (objective slices closed by AGY `obj*`/`cloudimg` runs + WS probes). Queued for humans: **1 triage decision** (ally-writeback promotion), Audrey reply. Small `[auto]` seeds: postgres stale-conn retry · placeholder i18n race · deploy bundle carrying the dev-console infra-link fix. Rollback = `MODEL=gemini-2.5-flash` env.
 
 ## Snapshot
 

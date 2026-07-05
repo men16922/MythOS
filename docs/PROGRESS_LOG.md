@@ -5,6 +5,15 @@ Last updated: 2026-07-05
 This file keeps **only recent incremental summaries within the 120-line budget**. The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-05 (PM2) — Save overwrite/delete + dashboard admin rows (rev `00023`) · d1b0da3e admin elevation (rev `00024-qpr`) · teaser #2 metadata
+- Status: Committed `c5ac458..5c87d62`; `make check` **769** green (before the last two cosmetic/docs commits; DevConsole change eslint+build green). **Cloud Run rev `00024-qpr` live.**
+- **Save-slot overwrite + delete (user request, DONE)**: store `delete_player_memories` (Postgres DELETE + in-memory fake) → `SaveLoadService.save_slot(slot_id=…)` overwrite (manual-only, autosave rejected, superseded rows pruned) + `delete_save_slot` → API `slot_id` param + `POST /save-slots/delete` → SAVE modal overwrite/delete buttons with 2-click confirm. 6 unit tests. Live-verified on rev `00023-f92`: QA autosave delete 24→23 slots (`deleted:2`), unknown slot 404.
+- **Tester dashboard shows admin keys**: rows flagged `is_admin`, listed after testers, ADMIN badge; summary metrics now tester-only. Live: 8 tester rows + 1 admin row.
+- **`mythos-d1b0da3e` elevated to admin (user-directed, env-only rev `00024-qpr`)**: loop cap lifted for the user's test account; side effect accepted — DEV tab/simulator visible, excluded from tester metrics; revert = remove key from `MYTHOS_ADMIN_KEYS`.
+- **Dev-console infra links localhost-only** (`0c524fa`): Adminer/MinIO/Jaeger + docker hint are dead on cloud hosts — now rendered only on localhost (Tester Dashboard link kept). **Not yet deployed** — rides the next bundle.
+- **Teaser #2 upload metadata rewritten** (`docs/cbt/CBT_TEASER.md`): live-scene-art hook, NEW-in-this-build list, 2-min timestamps + shot list, recording notes (clean tester key, push+tag before filming). Timing advice given: sign-off run first; if the video targets recruitment, do CBT onboarding P1 before filming.
+- Next: human sign-off full run on `00024` → `git push` (ahead 18) + version tag → film teaser #2 (P1 first if recruiting); deploy bundle carries the dev-console fix.
+
 ## 2026-07-05 (PM) — Simulator admin-gating (rev `00022-wqt`) + 2 checklist slices closed live + /insights constraints
 - Status: Committed `e771cd8..0e80d39`; `make check` **766** green; **Cloud Run rev `00022-wqt` live** and gate verified (tester key → `gated:true, is_admin:false`; admin key → `is_admin:true`).
 - **Simulator gating (triage decision A)**: `verify-invite` now returns `gated`; SPA renders the boot combat simulator only for `isAdmin || !gated` — CBT testers no longer see it (loop-cap burn + boot density fixed at the entry), keyless local dev + AGY QA paths keep it. Regression test added (`f471ce8`). Context: tester `d1b0da3e` had 5 of 10 cap slots eaten by simulator loops (admin dashboard measured); existing simulator loops remain on the cap — DB cleanup only on request.

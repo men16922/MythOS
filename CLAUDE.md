@@ -120,3 +120,9 @@ Source under `src/` (setuptools src-layout; `pip install -e .` exposes packages;
 - **FLUX.1-schnell is a gated HF repo** — accept access + `HF_TOKEN` in `.env` or local `hf auth login`. `make doctor` fails if access missing.
 - Config via `.env` (copy `.env.example`): Ollama (`OLLAMA_BASE_URL`, `OLLAMA_MODEL` default `gemma4:latest`), `IMAGE_MODEL_ID`, `OUTPUT_DIR`, `HF_TOKEN`, + PostgreSQL/MinIO/OTel. OOM mitigation: `PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0` (removes MPS guardrail — can swap heavily).
 - `MYTHOS_LOG_LEVEL` controls runtime log verbosity (tests use `ERROR`). `MYTHOS_RUN_DB_TESTS=1` opts into Postgres tests. `outputs/` is gitignored except `.gitkeep` (default `outputs/mythos-output.png`).
+
+## Agent execution constraints (from /insights 2026-07-05 — recurring friction)
+
+- **Gate commands**: run `make check`/`make test`/… from the repo root exactly as listed in Commands. Never chain with `cd && <cmd>` (sandbox blocks compound forms); use absolute paths or Makefile targets.
+- **Permission-classifier hard blocks — do not retry; hand the user the exact command to run via the `!` prefix instead**: `git push` (private repo), IAM/role grants (`gcloud iam …`), printing or materializing credentials (admin keys, tokens, `INVITE_KEY.md`; subshell injection without echoing is acceptable), editing shell profiles (`~/.zshrc`) or creating launchd/system services, plugin-marketplace config edits, launching agents with `--dangerously-skip-permissions`.
+- **Destructive cleanup**: prefer explicit file-by-file removal over broad `rm -rf` on source/tool directories; confirm before deleting anything you did not create.

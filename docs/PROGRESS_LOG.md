@@ -2,8 +2,28 @@
 
 Last updated: 2026-07-05
 
-This file keeps **only the latest incremental summaries** (latest 5 items). The long 2026-06 detailed log (including per-stage route-node session detail) is in
+This file keeps **only recent incremental summaries within the 120-line budget**. The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
+
+## 2026-07-05 — Cloud image root-cause fix #2: GCS presign on Cloud Run (rev `00021-mxt`) + WS guard
+- Status: `make check` 765 green; **Cloud Run rev `00021-mxt` live** (2 redeploys — `00020` exposed a second layer). `/diagnose` from user live play.
+- **Root cause (live tracebacks, user session)**: every turn `_emit_visual_status` → `GCSStorageAdapter.presigned_url` → `AttributeError: you need a private key` (Cloud Run metadata creds) **killed the WS stream** + `/assets/resolve` 500 → image stuck "그림 생성 준비 중…" and choices intermittently unrendered (finalize stalled on prior turn). Layer 2 (rev `00020`): IAM signBlob with the storage client's token → 403 `ACCESS_TOKEN_SCOPE_INSUFFICIENT`.
+- **Fix**: IAM signBlob fallback on dedicated `cloud-platform`-scoped credentials (`visual_service.py`) + `_visual_frame` guard — signing failure degrades to a `failed` frame, never kills the socket (`app.py`). 2 regression tests. IAM: user granted `roles/iam.serviceAccountTokenCreator` to `mythos-run` SA (self, one-time).
+- Verified: before/after on the SAME failing asset — resolve **500 → 200**, signed URL serves 1.0MB from GCS; rev `00021` logs **0 signing failures**; AGY cloud QA `cloudimg-161428` (15m timeout, but turn-0 screenshot = image + 3 choices; ~50 server turns, no WS deaths); WS probe loops: choices render every turn; opening turns 0-4 skip generation by design (curated cuts). Definitive dynamic-turn display = user's next mid-loop turn.
+- Also queued in NEXT_PLAN: postgres stale-conn retry (Neon `AdminShutdown`, hit twice live), image-placeholder i18n init race (EN leak in KO session), save-slot overwrite feature (user request). Live-QA checklist re-pointed at rev `00021` + known-noise notes.
+
+## 2026-07-05 — Allocate CBT key for jye6440@naver.com
+- Status: Uncommitted.
+- Changed: Allocated `mythos-a8b0cffc` with Korean query param (`&lang=ko`) to `jye6440@naver.com` in [INVITE_KEY.md](file:///Users/men1692/Desktop/local/MythOS/INVITE_KEY.md) and [tester_invite_round1.md](file:///Users/men1692/Desktop/local/MythOS/docs/cbt/tester_invite_round1.md).
+- Verified: Visual inspection of configuration and template files.
+- Next: Distribute invite and monitor feedback.
+
+## 2026-07-05 — Research doc: local LLM vs Gemini 3.5 Flash · GPU usage split · game-industry link
+- Status: Base research committed `d8efd92`; MythOS applicability extension uncommitted. Curiosity/research track, no product runtime change.
+- Changed: `docs/research/2026-07-05-local-llm-vs-cloud-gpu-landscape.md` now adds the Cloud Run vs on-device boundary, KRAFTON System 1/2 mapping, per-task cloud/local/deterministic placement, cost projections, safe local-SLM pilots, teacher→student data path, promotion gates, and anti-patterns. `docs/NEXT_PLAN.md` now carries an explicit post-sign-off key-beat hybrid enablement/A-B verdict item; the split is implemented but current rev `00019-jf6` remains full-3.5.
+- Verified: original 8 claims via 3-vote adversarial verification; Google official 3.5 pricing/Flex-Batch and NVIDIA/KRAFTON 2B/8GB/distillation/evaluation claims rechecked on primary sources; current narrative/model/memory code and measured eval inspected; `git diff --check` clean; `harness/check-doc-budget.sh` passes (59/58/91/80).
+- Blockers: none. Remaining ⚠️ claims are still source-only; resume pointer `wf_82fe1a3b-656` remains available.
+- Next: after full-3.5 human sign-off, enable the planned hybrid (`MODEL=gemini-2.5-flash` + `GEMINI_MODEL_KEYBEAT=gemini-3.5-flash`) for a controlled full-loop A/B and record a keep/rollback verdict. A shard-rollup eval corpus remains the first local-SLM implementation candidate if directed.
 
 ## 2026-07-05 — CBT feedback #1 triage + AGY objective live-QA slice (3 runs PASS) + 2 triage findings
 - Status: Committed `9cba9ca..167bfd1` (docs; tree clean, ahead 5). No source changes this unit.

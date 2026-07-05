@@ -4,7 +4,7 @@ Last updated: 2026-07-05
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Human live sign-off is the gate — rev `00019-jf6` serves the dieted 3.5 prompt (~$1.0/loop), and the checklist is now play-order + feel-only** (`docs/test/neo_seoul_live_qa.md`: 3.5 prose verdict + Audrey EN retest; the objective slice — save/load restore, map pairing + horizon refresh (old risk), double-click idempotency, loot/equip/support-target — was closed by 3 AGY runs `obj*-063151`, 2026-07-05). Also queued for humans: **2 triage decisions** (ally-writeback promotion; ungated boot-screen combat simulator burning the tester loop cap — NEXT_PLAN 2026-07-05), `git push` (ahead 5+), Audrey reply. Next code track when directed: CBT onboarding P1 (combat telegraph / first-combat tutorial / progressive disclosure — from `docs/cbt/CBT_FEEDBACK.md`). Rollback = `MODEL=gemini-2.5-flash` env.
+> ▶ NEXT SESSION: **Human live sign-off is the gate — rev `00021-mxt` = dieted 3.5 prompt (~$1.0/loop) + 07-05 GCS presign hotfix** (cloud images/WS were structurally broken before it — fixed via IAM signBlob + WS guard, verified 500→200; user's next mid-loop turn is the final display check). Checklist is play-order + feel-only (`docs/test/neo_seoul_live_qa.md`: 3.5 prose verdict + Audrey EN retest; objective slice closed by AGY `obj*-063151` + `cloudimg-161428` + WS probes). Queued for humans: **2 triage decisions** (ally-writeback promotion; ungated boot-screen combat simulator — NEXT_PLAN 2026-07-05), `git push`, Audrey reply. Next code track when directed: CBT onboarding P1 (`docs/cbt/CBT_FEEDBACK.md`); small `[auto]` seeds: postgres stale-conn retry · placeholder i18n race. Rollback = `MODEL=gemini-2.5-flash` env.
 
 ## Snapshot
 
@@ -28,7 +28,7 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **Human live sign-off on 3.5**: Cloud Run rev `00018-pj9` (narrative = gemini-3.5-flash, adopted 2026-07-04) — fresh-loop checklist (`docs/test/neo_seoul_live_qa.md`) + 3.5 prose/tone/length feel. Human `git push` (ahead 5). Cost levers ready env-only: diet ($1.0/loop at next redeploy) / `GEMINI_MODEL_KEYBEAT` hybrid ($0.5) / full-2.5 ($0.2).
+1. **Human live sign-off on 3.5**: Cloud Run rev `00019-jf6` (gemini-3.5-flash + prompt diet LIVE, ~$1.0/loop) — play-order feel-only checklist (`docs/test/neo_seoul_live_qa.md`) + Audrey EN retest. Human `git push` (ahead 7+). Cost levers env-only: `GEMINI_MODEL_KEYBEAT` hybrid ($0.5) / full-2.5 ($0.2). Then: 2 triage decisions (NEXT_PLAN 2026-07-05) + CBT onboarding P1 when directed.
 2. **Engineering maintenance track (WS0-3 done)**: 6-layer agent ops bible↔MythOS interpretation (including mechanical→semantic→creative verification), slim entry points, structured logging/dashboard, and Resume Pointer continuity. Only WS4 content pipeline remains plan-only (`docs/plans/2026-06-14-engineering-plan.md`).
 3. `glass-library` extension: hold (parity + Story Bible 17 entries done; further extension after Neo-Seoul completion). Completed tracks (combat/progression/party/grant/route-node) → `docs/COMPLETED_SUMMARY.md` M35-M40.
 

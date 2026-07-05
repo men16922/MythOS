@@ -53,9 +53,17 @@ class LoopEngine:
             return LoopTransition(loop=loop, events=[], errors=phase_validation.errors)
 
         state_delta = repaired_payload.world_delta.as_state_delta()
-        # Ensure proper Se-rin flags during the onboarding phase of Neo-Seoul based on player choices
+        # Ensure proper Se-rin flags during the onboarding phase of Neo-Seoul based on player choices.
+        # Only for the DEFAULT Se-rin opening: loop-2+ opening variants (kai/solo/…)
+        # don't feature her in the early turns, so the keyword heuristic would set
+        # met_se_rin spuriously (the else-branch fires on any non-refusal action).
         scenario_id = loop.state.get("scenario_id") if isinstance(loop.state, dict) else None
-        if scenario_id == "neo-seoul" and scene.turn_index <= 2:
+        opening_variant = (
+            str(loop.state.get("_opening_variant") or "default")
+            if isinstance(loop.state, dict)
+            else "default"
+        )
+        if scenario_id == "neo-seoul" and scene.turn_index <= 2 and opening_variant == "default":
             flags = state_delta.setdefault("flags", [])
             action_text = ""
             if chosen_event is not None and chosen_event.actor == Actor.PLAYER:

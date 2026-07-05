@@ -365,7 +365,9 @@ def _str_list(value: str | None) -> list[str]:
 
 def _opening_from_parsed(parsed: ParsedDirectives) -> tuple[str, int, list[OpeningBeat]]:
     header = parsed.file_meta.get("header", "")
-    max_turn = _int_or_none(parsed.file_meta.get("max_turn")) or 4
+    # `or 4` would swallow an authored `max_turn: 0` (1-cut re-entry variants).
+    _parsed_max_turn = _int_or_none(parsed.file_meta.get("max_turn"))
+    max_turn = 4 if _parsed_max_turn is None else _parsed_max_turn
     beats: list[OpeningBeat] = []
     for block in parsed.blocks:
         turn = _int_or_none(block.params.get("turn"))
@@ -593,8 +595,28 @@ def _companion_base_stem(stem: str) -> str:
     return head if head and tail in _KNOWN_LANGS else stem
 
 
+@lru_cache(maxsize=8)
+def available_opening_variants(scenario_id: str) -> frozenset[str]:
+    """Variant ids with an authored ``opening_<id>.md`` (language suffixes ignored).
+
+    E.g. ``opening_kai.md``/``opening_kai.en.md`` → ``"kai"``. Empty when the
+    scenario authors no variants — the caller then always runs the default
+    ``opening.md`` (backward compatible; glass-library etc. are unaffected).
+    """
+    base = PROJECT_ROOT / "resources" / scenario_id / "directives"
+    if not base.exists():
+        return frozenset()
+    variants: set[str] = set()
+    for path in base.glob("opening_*.md"):
+        stem = _companion_base_stem(path.stem)
+        variants.add(stem[len("opening_") :])
+    return frozenset(variants)
+
+
 @lru_cache(maxsize=32)
-def load_scenario_directives(scenario_id: str, language: str = "ko") -> ScenarioDirectives:
+def load_scenario_directives(
+    scenario_id: str, language: str = "ko", opening_variant: str | None = None
+) -> ScenarioDirectives:
     """Load ``resources/<scenario>/directives/*.md`` into a ``ScenarioDirectives``.
 
     Each directive prefers its ``<name>.<language>.md`` variant and falls back to the
@@ -602,6 +624,11 @@ def load_scenario_directives(scenario_id: str, language: str = "ko") -> Scenario
     ``"ko"`` so existing callers are unchanged. Returns an empty object when the folder/
     files are absent (the call sites then fall back to their prior hardcoded behavior).
     Mirrors ``load_story_bible``. Cache key includes ``language``.
+
+    ``opening_variant`` (B2 Loop2+ opening variants) swaps ONLY the opening doc for
+    ``opening_<variant>.md`` when that file exists; every other directive (fallback/
+    naming/stat_voices/encounters/companions/…) is variant-independent. ``None``/
+    ``"default"``/unknown ids resolve to the standard ``opening.md``.
     """
     base = PROJECT_ROOT / "resources" / scenario_id / "directives"
     opening_header: str = ""
@@ -614,7 +641,11 @@ def load_scenario_directives(scenario_id: str, language: str = "ko") -> Scenario
     route_header: str = ""
     route_beats: list[RouteBeatDirective] = []
 
-    opening_path = _directive_path(base, "opening", language)
+    opening_stem = "opening"
+    if opening_variant and opening_variant != "default":
+        if opening_variant in available_opening_variants(scenario_id):
+            opening_stem = f"opening_{opening_variant}"
+    opening_path = _directive_path(base, opening_stem, language)
     if opening_path is not None:
         with open(opening_path, encoding="utf-8") as f:
             parsed = parse_directives_markdown(f.read())

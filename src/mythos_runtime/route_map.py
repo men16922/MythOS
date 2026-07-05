@@ -494,6 +494,7 @@ def attach_side_anchors(
     max_side_anchors: int = 2,
     unlocked_companions: set[str] | None = None,
     met_companions: set[str] | None = None,
+    priority_companion: str | None = None,
 ) -> dict[str, Any] | None:
     """Weave a scenario's ``side_arcs`` into a built route map as optional branches.
 
@@ -548,7 +549,16 @@ def attach_side_anchors(
     # the remaining slots stay fully random. ``met_companions=None`` disables the
     # guarantee (backward compatible).
     guaranteed: list[dict[str, Any]] = []
-    if met_companions is not None:
+    # B2 pairing: a companion opening variant claims the slot for THAT
+    # companion's arc (meet arc or any arc featuring them), so the opening
+    # hook pays off on the same map.
+    if priority_companion:
+        featured = [
+            a for a in arcs if priority_companion in [str(n) for n in (a.get("related_npcs") or [])]
+        ]
+        if featured:
+            guaranteed = [dice.choice(featured)]
+    if not guaranteed and met_companions is not None:
         unmet_meet_arcs = [
             a
             for a in arcs

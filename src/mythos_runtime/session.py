@@ -23,6 +23,7 @@ from mythos_core import (
     new_scene_id,
 )
 from mythos_core.clock import utc_now
+from mythos_core.dice import Dice
 from mythos_core.models import to_json_dict
 from mythos_loop import LoopEngine, LoopTransition, create_player_event, create_world_event
 from mythos_memory import MythOSStore
@@ -139,6 +140,7 @@ from mythos_runtime.scenario_context import (
 )
 from mythos_runtime.scenario_directives import (
     CutsceneDirective,
+    available_opening_variants,
     load_scenario_directives,
 )
 from mythos_runtime.session_memory import record_beat
@@ -151,6 +153,46 @@ ROUTE_CHOICE_PREFIX = "route:"
 # client as a 1-beat interstitial before the tactical board, cleared on the next
 # narrative commit. Mirrors the ``_active_cutscene`` lifecycle.
 COMBAT_INTERSTITIAL_KEY = "_combat_interstitial"
+
+# Companions whose opening variants are always eligible without a meta unlock
+# (mirrors route_map._TUTORIAL_COMPANIONS; se_rin owns the default opening).
+_OPENING_TUTORIAL_COMPANIONS = frozenset({"kai"})
+
+
+def _select_opening_variant(
+    scenario_id: str,
+    *,
+    seed: str,
+    loop_index: int,
+    unlocked_companions: set[str],
+    met_companions: set[str],
+) -> str:
+    """Pick this loop's opening variant (B2 Loop2+ replay variety).
+
+    Loop 1 always runs the authored Se-rin 5-cut tutorial opening. From loop 2
+    a seed-deterministic pick from the authored variant pool applies, with
+    unlocked-but-unmet companions preferred (their hook beat then pairs with
+    the B1 guaranteed meet-arc slot). Scenarios without variant files always
+    get ``"default"`` (behavior-preserving); loop 2+ never replays the 5-cut
+    when variants exist (re-entry shortening is authored into each variant).
+    """
+    if loop_index <= 1:
+        return "default"
+    available = available_opening_variants(scenario_id)
+    if not available:
+        return "default"
+    allowed = _OPENING_TUTORIAL_COMPANIONS | unlocked_companions
+    companions = sorted(v for v in available if v != "solo" and v in allowed)
+    dice = Dice(f"{seed}:opening-variant")
+    unmet = [c for c in companions if c not in met_companions]
+    if unmet:
+        return str(dice.choice(unmet))
+    pool = list(companions)
+    if "solo" in available:
+        pool.append("solo")
+    if not pool:
+        return "default"
+    return str(dice.choice(pool))
 
 if TYPE_CHECKING:
     from mythos_runtime.visual_service import VisualGenerationResult
@@ -280,6 +322,21 @@ class RuntimeSessionService:
             len(loops) + 1,
             {"memories": [memory.content for memory in memories]},
         )
+        # B2 Loop2+ opening variant: loop 1 keeps the Se-rin 5-cut tutorial;
+        # later loops open on a seed-picked authored variant (companion hook /
+        # solo), preferring unlocked-but-unmet companions. The pick is stored on
+        # loop state so the prompt assembler, the mythos_loop flag heuristic, and
+        # the B1 slot promotion below all read the same decision.
+        unlocked_allies = set(getattr(meta_progression, "unlocked_allies", []) or [])
+        allies_met = set(getattr(meta_progression, "allies_met", []) or [])
+        opening_variant = _select_opening_variant(
+            options.scenario_id,
+            seed=loop_seed,
+            loop_index=len(loops) + 1,
+            unlocked_companions=unlocked_allies,
+            met_companions=allies_met,
+        )
+        initial_state["_opening_variant"] = opening_variant
         # Generate this loop's operation map. Two modes:
         #  - dynamic (`route_map.mode == "dynamic"`): seed only the backbone
         #    (anchors + first horizon layers); `extend_route` grows it as the
@@ -298,12 +355,19 @@ class RuntimeSessionService:
             # B1 guaranteed meet-arc slot: an unlocked-but-never-met companion's
             # meet arc is forced into the map (exposure was the recruitment
             # bottleneck — ~25%/run per arc under pure seed-random selection).
+            # A companion opening variant promotes THAT companion's arc into the
+            # slot so the opening hook pays off on the same map (B2 pairing).
             route_map = attach_side_anchors(
                 route_map,
                 scenario.side_arcs,
                 loop_seed,
-                unlocked_companions=set(getattr(meta_progression, "unlocked_allies", []) or []),
-                met_companions=set(getattr(meta_progression, "allies_met", []) or []),
+                unlocked_companions=unlocked_allies,
+                met_companions=allies_met,
+                priority_companion=(
+                    opening_variant
+                    if opening_variant not in ("default", "solo")
+                    else None
+                ),
             )
             initial_state[ROUTE_MAP_KEY] = route_map
 

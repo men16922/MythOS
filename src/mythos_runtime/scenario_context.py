@@ -449,6 +449,16 @@ def build_runtime_narrative_context(
     language: str = "ko",
 ) -> NarrativeContext:
     directives = load_scenario_directives(scenario.scenario_id, language)
+    # B2 Loop2+ opening variants: the loop carries its opening pick (set once at
+    # start_loop). A non-default pick swaps ONLY the opening doc — every other
+    # directive keeps coming from the standard load above.
+    _ov_state = loop.state if isinstance(loop.state, dict) else {}
+    opening_variant = str(_ov_state.get("_opening_variant") or "default")
+    opening_source = (
+        load_scenario_directives(scenario.scenario_id, language, opening_variant=opening_variant)
+        if opening_variant != "default"
+        else directives
+    )
     # Additive EN prose overlay (i18n/<lang>.json); {} for ko / no overlay → KO source used.
     scenario_i18n = load_scenario_i18n(scenario.scenario_id, language)
     brief = str(scenario_i18n.get("brief") or scenario.brief)
@@ -532,8 +542,8 @@ def build_runtime_narrative_context(
     # and let the GM revert to the data-layer starting location. For a scenario that
     # authors an opening, run it for turns 0..max regardless of phase; the existing
     # CONNECT/EXPLORE clauses keep prior behavior for scenarios without one.
-    _has_authored_opening = bool(directives.opening_beats)
-    _max_turn = directives.opening_max_turn
+    _has_authored_opening = bool(opening_source.opening_beats)
+    _max_turn = opening_source.opening_max_turn
     if (
         loop.phase is LoopPhase.CONNECT
         or (loop.phase is LoopPhase.EXPLORE and turn_index <= _max_turn)
@@ -543,8 +553,9 @@ def build_runtime_narrative_context(
         # Replay the opening cinematic (session_intro) so the first playable scenes
         # continue from it. This belongs to the authored opening, so it only runs for
         # scenarios that declare one (a scenario without opening.md must not receive
-        # the neo-seoul continuity guidance).
-        if _has_authored_opening:
+        # the neo-seoul continuity guidance). Variant openings (loop 2+) skip it —
+        # the Se-rin teaser continuity would contradict a kai/solo re-entry beat.
+        if _has_authored_opening and opening_variant == "default":
             opening_directives.extend(
                 _opening_continuity_notes(scenario, turn_index, language, scenario_i18n)
             )
@@ -569,7 +580,7 @@ def build_runtime_narrative_context(
             shot = _shots[idx] if 0 <= idx < len(_shots) and isinstance(_shots[idx], dict) else {}
             return str(shot.get("title") or "").strip(), str(shot.get("body") or "").strip()
 
-        beat = directives.opening_beat(turn_index)
+        beat = opening_source.opening_beat(turn_index)
         if beat is not None:
             shot_title, shot_body = (
                 _shot_text(beat.shot_ref) if beat.shot_ref is not None else ("", "")
@@ -631,7 +642,7 @@ def build_runtime_narrative_context(
     # always lands.
     if opening_directives:
         opening_header = (
-            directives.opening_header
+            opening_source.opening_header
             or "=== 오프닝 장면 지시 (최우선 · 현재 장면 이미지와 정합 필수) ==="
         )
         session_synopsis = [

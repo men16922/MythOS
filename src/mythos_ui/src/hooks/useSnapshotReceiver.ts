@@ -13,7 +13,7 @@ type UseSnapshotReceiverArgs = {
   setLoopId: Dispatch<SetStateAction<string | null>>;
   setLastSnapshot: Dispatch<SetStateAction<RuntimeSnapshot | null>>;
   setNarrativeHistory: Dispatch<SetStateAction<NarrativeHistoryItem[]>>;
-  setImagePlaceholderText: Dispatch<SetStateAction<string>>;
+  setImagePlaceholderText: Dispatch<SetStateAction<string | null>>;
   setKenBurnsActive: Dispatch<SetStateAction<boolean>>;
   setGlitchActive: Dispatch<SetStateAction<boolean>>;
   // Helpers from sibling hooks.

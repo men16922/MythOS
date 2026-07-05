@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import Any
+from typing import Any, cast
 
 import psycopg
 from psycopg.rows import dict_row
@@ -627,42 +627,94 @@ class PostgresMythOSStore(MythOSStore):
         assert self._connection is not None
         return self._connection
 
-    def _execute(self, sql: str, params: tuple[Any, ...]) -> None:
+    @staticmethod
+    def _is_connection_dropped(exc: psycopg.Error) -> bool:
+        """True for server-side connection terminations worth one reconnect.
+
+        Neon (serverless Postgres) reaps idle connections with an
+        ``AdminShutdown`` ("terminating connection due to administrator
+        command"); the app then reuses the pool's dead connection and 500s
+        (live 2026-07-05, ``/auth/connect``). Class 57 = operator intervention;
+        Operational/InterfaceError cover client-visible socket deaths.
+        """
+        if isinstance(exc, psycopg.OperationalError | psycopg.InterfaceError):
+            return True
+        sqlstate = getattr(exc, "sqlstate", None)
+        return bool(sqlstate and str(sqlstate).startswith("57"))
+
+    def _reset_connection(self) -> None:
+        """Discard the (dead) connection so ``_connect`` builds a fresh one."""
+        conn = self._connection
+        self._connection = None
+        if conn is None:
+            return
         try:
+            if PostgresMythOSStore._pool is not None:
+                PostgresMythOSStore._pool.putconn(conn)
+            else:
+                conn.close()
+        except Exception:
+            pass
+
+    def _run_query(self, op: Any) -> Any:
+        """Run a query closure with one reconnect-retry on a dropped connection.
+
+        Retry only OUTSIDE an open transaction: mid-transaction work already
+        lost its state with the connection, so replaying a single statement
+        would be silently partial — the caller must fail and retry the unit.
+        """
+        try:
+            return op()
+        except psycopg.Error as exc:
+            dropped = self._is_connection_dropped(exc)
+            if self._connection is not None and not self._connection.closed:
+                try:
+                    self._connection.rollback()
+                except psycopg.Error:
+                    pass
+            if not dropped or self._transaction_depth > 0:
+                raise StoreError(str(exc)) from exc
+            self._reset_connection()
+            try:
+                return op()
+            except psycopg.Error as retry_exc:
+                if self._connection is not None and not self._connection.closed:
+                    try:
+                        self._connection.rollback()
+                    except psycopg.Error:
+                        pass
+                raise StoreError(str(retry_exc)) from retry_exc
+
+    def _execute(self, sql: str, params: tuple[Any, ...]) -> None:
+        def _op() -> None:
             conn = self._connect()
             conn.execute(sql, params)
             if self._transaction_depth == 0:
                 conn.commit()
-        except psycopg.Error as exc:
-            if self._connection is not None and not self._connection.closed:
-                self._connection.rollback()
-            raise StoreError(str(exc)) from exc
+
+        self._run_query(_op)
 
     def _fetchone(self, sql: str, params: tuple[Any, ...]) -> dict[str, Any] | None:
-        try:
+        def _op() -> dict[str, Any] | None:
             conn = self._connect()
             with conn.execute(sql, params) as cursor:
                 row = cursor.fetchone()
             if self._transaction_depth == 0:
                 conn.commit()
             return row
-        except psycopg.Error as exc:
-            if self._connection is not None and not self._connection.closed:
-                self._connection.rollback()
-            raise StoreError(str(exc)) from exc
+
+        return cast("dict[str, Any] | None", self._run_query(_op))
 
     def _fetchall(self, sql: str, params: tuple[Any, ...]) -> list[dict[str, Any]]:
-        try:
+        def _op() -> list[dict[str, Any]]:
             conn = self._connect()
             with conn.execute(sql, params) as cursor:
                 rows = list(cursor.fetchall())
             if self._transaction_depth == 0:
                 conn.commit()
             return rows
-        except psycopg.Error as exc:
-            if self._connection is not None and not self._connection.closed:
-                self._connection.rollback()
-            raise StoreError(str(exc)) from exc
+
+        return cast("list[dict[str, Any]]", self._run_query(_op))
 
     @staticmethod
     def _loop_from_row(row: dict[str, Any]) -> LoopState:

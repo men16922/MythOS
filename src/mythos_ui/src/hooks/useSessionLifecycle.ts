@@ -47,7 +47,7 @@ type UseSessionLifecycleArgs = {
   resetStreamBuffers: () => void;
   // Scene-visual state.
   setSceneImageUrl: Dispatch<SetStateAction<string | null>>;
-  setImagePlaceholderText: Dispatch<SetStateAction<string>>;
+  setImagePlaceholderText: Dispatch<SetStateAction<string | null>>;
   clearVisualTimeout: () => void;
   // Audio.
   initAudio: () => void;

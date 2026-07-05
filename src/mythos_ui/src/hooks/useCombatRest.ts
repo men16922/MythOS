@@ -26,7 +26,7 @@ type UseCombatRestArgs = {
   setLastSnapshot: Dispatch<SetStateAction<RuntimeSnapshot | null>>;
   setCombatLog: Dispatch<SetStateAction<string>>;
   setCombatTarget: Dispatch<SetStateAction<string | null>>;
-  setImagePlaceholderText: Dispatch<SetStateAction<string>>;
+  setImagePlaceholderText: Dispatch<SetStateAction<string | null>>;
   // Refs shared with the cinema-queue / WS / scene-history concerns.
   dispatchedActionRef: RefObject<CombatAction | null>;
   pendingActionRef: RefObject<string | null>;

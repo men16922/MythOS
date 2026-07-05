@@ -30,7 +30,7 @@ type UseNarrativeStreamArgs = {
   setStatus: Dispatch<SetStateAction<string>>;
   setNarrativeHistory: Dispatch<SetStateAction<NarrativeHistoryItem[]>>;
   setIsStreaming: Dispatch<SetStateAction<boolean>>;
-  setImagePlaceholderText: Dispatch<SetStateAction<string>>;
+  setImagePlaceholderText: Dispatch<SetStateAction<string | null>>;
   // Helpers from sibling hooks.
   resetStreamBuffers: () => void;
   startTyper: () => void;

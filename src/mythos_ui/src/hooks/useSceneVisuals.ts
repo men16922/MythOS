@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import { apiResolveAsset, getLang } from "../api";
-import { DICTS } from "../i18n/lang";
+import { DICTS, useLang } from "../i18n/lang";
 import type { AssetInfo, WebSocketMessage } from "../types";
 
 /**
@@ -13,10 +13,15 @@ import type { AssetInfo, WebSocketMessage } from "../types";
  * (resolves a succeeded asset's storage URI into a presigned URL).
  */
 export function useSceneVisuals(logToConsole: (line: string) => void) {
+  const { lang } = useLang();
   const [sceneImageUrl, setSceneImageUrl] = useState<string | null>(null);
-  const [imagePlaceholderText, setImagePlaceholderText] = useState(
-    DICTS[getLang()]["img.toggleHint"]
-  );
+  // i18n init race fix (live 2026-07-05: EN default leaked into KO sessions):
+  // the pristine hint is DERIVED from the current language every render
+  // (null = no explicit status yet), instead of being frozen at mount time
+  // before the language settles. Explicit status messages set by callers are
+  // already localized at call time.
+  const [placeholderOverride, setImagePlaceholderText] = useState<string | null>(null);
+  const imagePlaceholderText = placeholderOverride ?? DICTS[lang]["img.toggleHint"];
 
   // Fires if a pending/processing visual job never reports a terminal status
   // (worker died mid-flight) so the placeholder doesn't spin forever.

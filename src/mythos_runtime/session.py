@@ -149,7 +149,12 @@ from mythos_runtime.scenario_directives import (
     available_opening_variants,
     load_scenario_directives,
 )
-from mythos_runtime.session_memory import companions_seen, note_companions, record_beat
+from mythos_runtime.session_memory import (
+    companions_seen,
+    note_companions,
+    note_setup,
+    record_beat,
+)
 from mythos_runtime.visual_orchestration import maybe_generate_scene_image
 
 ROUTE_CHOICE_PREFIX = "route:"
@@ -216,6 +221,18 @@ def _companions_in_text(alias_map: dict[str, list[str]], text: str) -> list[str]
                 found.append(name)
                 break
     return found
+
+
+# G1 setup ledger seeds: the opening variant's hook line is a planted setup the
+# climax act must pay off unless the loop resolved it (any listed flag earned).
+_OPENING_HOOK_SETUPS: dict[str, tuple[str, list[str]]] = {
+    "kai": ("카이의 백도어 신호 — 폐기층 좌표 조각의 정체", ["kai_found", "rebooted_kai", "kai_awakened"]),
+    "lin_yue": ("린위에의 의뢰 쪽지 — 깨어날 자리를 알던 자", ["met_lin_yue"]),
+    "han": ("지름길을 알려주고 사라진 사내의 정체", ["met_han"]),
+    "su_ah": ("감시망에 구멍을 뚫는 익명의 핑", ["met_su_ah"]),
+    "tae_o": ("바리케이드 뒤 실루엣과 주민들의 저항", ["met_tae_o"]),
+    "solo": ("세린이 오지 않은 이유", []),
+}
 
 
 def _select_opening_variant(
@@ -396,6 +413,16 @@ class RuntimeSessionService:
             met_companions=allies_met,
         )
         initial_state["_opening_variant"] = opening_variant
+        # G1 setup ledger: the variant's hook is a planted 떡밥 the climax act
+        # must pay off (unless a resolve flag is earned earlier this loop).
+        hook = _OPENING_HOOK_SETUPS.get(opening_variant)
+        if hook is not None:
+            initial_state = note_setup(
+                initial_state,
+                f"opening_hook_{opening_variant}",
+                hook[0],
+                resolve_flags=hook[1],
+            )
         # B3 loop modifier: one authored per-run twist from loop 2, announced to
         # the client as a banner and consumed by the pacing gate / market /
         # route-reward paths through the same state record.

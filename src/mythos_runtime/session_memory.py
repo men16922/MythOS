@@ -25,6 +25,8 @@ from mythos_runtime.route_runtime import route_status
 
 BEATS_KEY = "_beats"
 RECENT_NARRATION_KEY = "_recent_narration"
+# G1 setup ledger: planted narrative hooks ("떡밥") the climax act must pay off.
+SETUPS_KEY = "_setups"
 
 MAX_BEATS = 40
 RECENT_NARRATION_KEEP = 2
@@ -89,6 +91,48 @@ def record_beat(
         new_state[RECENT_NARRATION_KEY] = recent[-RECENT_NARRATION_KEEP:]
 
     return new_state
+
+
+def note_setup(
+    state: dict[str, Any],
+    setup_id: str,
+    text: str,
+    *,
+    resolve_flags: list[str] | None = None,
+) -> dict[str, Any]:
+    """Plant a setup ("떡밥") into the loop's ledger (G1 arc scaffold).
+
+    ``resolve_flags``: earning ANY of these loop flags counts the setup as paid
+    off; ``None``/empty means it stays open until the climax act, which is told
+    to resolve it on screen. Idempotent per ``setup_id``.
+    """
+    if not isinstance(state, dict) or not setup_id:
+        return state
+    setups = [s for s in state.get(SETUPS_KEY, []) if isinstance(s, dict)]
+    if any(s.get("id") == setup_id for s in setups):
+        return state
+    new_state = dict(state)
+    new_state[SETUPS_KEY] = [
+        *setups,
+        {"id": setup_id, "text": str(text), "resolve_flags": list(resolve_flags or [])},
+    ]
+    return new_state
+
+
+def unresolved_setups(state: dict[str, Any]) -> list[dict[str, Any]]:
+    """Setups whose resolve flags have not been earned yet this loop."""
+    if not isinstance(state, dict):
+        return []
+    flags = {str(flag) for flag in state.get("flags", []) or []}
+    open_setups: list[dict[str, Any]] = []
+    for setup in state.get(SETUPS_KEY, []):
+        if not isinstance(setup, dict):
+            continue
+        resolve = {str(f) for f in setup.get("resolve_flags", []) or []}
+        if resolve and resolve & flags:
+            continue
+        open_setups.append(setup)
+    return open_setups
 
 
 def companions_seen(state: dict[str, Any]) -> list[str]:

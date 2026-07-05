@@ -14,6 +14,7 @@ from mythos_core import (
 )
 from mythos_narrative import NarrativeContext
 from mythos_runtime.cutscenes import ACTIVE_CUTSCENE_KEY
+from mythos_runtime.route_map import ROUTE_MAP_KEY
 from mythos_runtime.route_runtime import (
     DEFAULT_TURNS_PER_LAYER,
     junction_options,
@@ -28,7 +29,7 @@ from mythos_runtime.scenario_directives import (
     fill_placeholders,
     load_scenario_directives,
 )
-from mythos_runtime.session_memory import build_session_synopsis
+from mythos_runtime.session_memory import build_session_synopsis, unresolved_setups
 from mythos_runtime.story_bible import (
     load_story_bible,
     select_story_bible_entries,
@@ -394,6 +395,78 @@ def _grant_items_note(scenario: ScenarioConfig, language: str) -> str:
     )
 
 
+# G1 narrative-act scaffold: the authored route layers own the act structure
+# (기승전결 by golden-path progress); the LLM may only vary WITHIN the current
+# act. Each act carries its escalation ceiling; the climax act additionally
+# demands paying off the setup ledger.
+_ACTS: tuple[tuple[str, str], ...] = (
+    (
+        "기 (설정)",
+        "세계·위험·목표를 세우는 막이다. 긴장은 낮게 유지하고 대형 반전을 금지한다. "
+        "떡밥은 심되 아직 회수하지 마라.",
+    ),
+    (
+        "승 (전개)",
+        "갈등을 전개하고 긴장을 점진적으로 끌어올리는 막이다. 새 갈등 요소는 절제해서 "
+        "도입하고(막당 1개 수준), 클라이맥스급 사건은 금지한다.",
+    ),
+    (
+        "전 (위기)",
+        "위기가 정면으로 닥치는 막이다. 선택에 대가를 요구하고 이해관계를 충돌시켜라. "
+        "이미 심은 떡밥을 우선 활용하고, 새 떡밥 도입은 금지한다.",
+    ),
+    (
+        "결 (클라이맥스)",
+        "모든 것이 수렴하는 막이다. 새 인물·새 수수께끼를 도입하지 말고, 심어 둔 떡밥의 "
+        "회수와 최종 대면에 집중하라.",
+    ),
+)
+
+
+def _act_for_progress(layer_index: int, total_layers: int) -> tuple[str, str]:
+    """(act name, escalation directive) for the layer's golden-path progress."""
+    if total_layers <= 1:
+        return _ACTS[-1]
+    ratio = max(0.0, min(1.0, layer_index / (total_layers - 1)))
+    if ratio < 0.2:
+        return _ACTS[0]
+    if ratio < 0.6:
+        return _ACTS[1]
+    if ratio < 0.85:
+        return _ACTS[2]
+    return _ACTS[3]
+
+
+def _narrative_act_note(state: dict[str, Any]) -> str:
+    """G1 act-scaffold directive ("" when no route map / mid-opening handled by caller)."""
+    route = state.get(ROUTE_MAP_KEY) if isinstance(state, dict) else None
+    if not isinstance(route, dict):
+        return ""
+    layers = route.get("layers")
+    nodes = route.get("nodes", {})
+    current = route.get("current")
+    node = nodes.get(current) if isinstance(nodes, dict) else None
+    if not isinstance(layers, list) or not layers or not isinstance(node, dict):
+        return ""
+    try:
+        layer_index = int(node.get("layer", 0) or 0)
+    except (TypeError, ValueError):
+        return ""
+    act_name, escalation = _act_for_progress(layer_index, len(layers))
+    lines = [
+        "=== 서사 막 구조 (ACT SCAFFOLD) ===",
+        f"현재 막: {act_name} — {escalation}",
+    ]
+    if act_name == _ACTS[-1][0]:
+        open_setups = unresolved_setups(state)
+        if open_setups:
+            listed = " · ".join(str(s.get("text") or s.get("id")) for s in open_setups[:4])
+            lines.append(
+                f"미회수 떡밥 — 이 막 안에서 반드시 화면 위에서 회수하라: {listed}"
+            )
+    return "\n".join(lines)
+
+
 def _noop_escalation_note(state: dict[str, Any]) -> str:
     """C1 no-op guard directive for the synopsis channel ("" when not stalled).
 
@@ -694,6 +767,14 @@ def build_runtime_narrative_context(
     noop_note = _noop_escalation_note(_ov_state)
     if noop_note:
         session_synopsis = [noop_note, *session_synopsis]
+
+    # G1 act scaffold: current act + its escalation ceiling (+ the climax act's
+    # unresolved-setup payoff demand). The authored opening owns its own beats,
+    # so this only speaks once the prologue is over.
+    if not _has_authored_opening or turn_index > _max_turn:
+        act_note = _narrative_act_note(_ov_state)
+        if act_note:
+            session_synopsis = [act_note, *session_synopsis]
 
     # The opening (turns 0-4) is a fully scripted 5-beat prologue driven by the
     # ONBOARDING_SCENE1-5 directives above (각성→세린 등장→다가오는 손→첫 접촉→추격+전투),

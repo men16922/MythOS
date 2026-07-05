@@ -20,7 +20,8 @@ Major implemented axes:
 
 Latest verified baseline:
 
-- `make check` **770 green** (presign, WS guard, `gated`, save overwrite/delete, items_gained regressions).
+- `make check` **779 green** (+ P1-A regressions: combat telegraph choice flag/interstitial lifecycle, skill effect payload, blip buff serialization) + `make validate-content` clean.
+- **CBT P1-A track DONE 2026-07-05** (`9226005..e13bf91`, not yet deployed): combat telegraph (⚔ choice badge + entry interstitial w/ authored hook lines), first-combat 4-step interactive tutorial, first-loop progressive disclosure, skill category badge + expected-effect line, buff/enrage status chips (roster + board).
 - Cloud Run rev **`00025-856`**: presign hotfix + simulator gating + save overwrite/delete + dashboard admin rows + companion-equip UI overhaul + item-gain toast + dev-console link fix, live; `mythos-d1b0da3e` admin/cap-exempt (user-directed). Voice audition kit delivered (48 samples: KO natives / EN premades).
 - Three AGY objective runs passed save/load restore, route pairing+horizon refresh, choice idempotency, support targeting, loot persistence, and equip/unequip. Remaining gate is human play feel.
 - Completed detail is compressed in `docs/COMPLETED_SUMMARY.md` M35-M56; latest increments and exact measurements remain in `docs/PROGRESS_LOG.md` and dated plans.
@@ -31,8 +32,8 @@ Authority plan: `docs/NEXT_PLAN.md`.
 
 Direction remains global-first EN/KO closed beta: Gemini/Vertex is the product path; Ollama/FLUX remains the local development path. Deployment/onboarding/localization history is in `docs/COMPLETED_SUMMARY.md` M50 and M56.
 
-1. **CBT P1 implementation (next code track, design snapshot DONE)**: `docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md` — P1-A onboarding/skill legibility first, then replay variety / density-continuity / board layout / signature+boss skills / narrative-arc+cinematic (dialogue markup, ElevenLabs voice).
-2. **Human lane in parallel**: sign-off full run on rev `00025-856` + Audrey EN retest (`docs/test/neo_seoul_live_qa.md`); voice-id pinning (`outputs/voice-auditions/{ko,en}/` → `voices.json`); `git push` (ahead 31); triage calls (ally-writeback · overload-strike range · pacing knob).
+1. **CBT P1 implementation (P1-A DONE 2026-07-05)**: `docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md` — next is **P1-B replay variety** (B1 guaranteed meet-arc slot → B2 opening variants → B3 loop modifiers), then C density-continuity / D3-D4 board layout / P1-D signature+boss skills / P1-E narrative arc. AGY live-QA screen of the P1-A UI on a fresh account still pending (tutorial/disclosure are screen-verify targets).
+2. **Human lane in parallel**: sign-off full run on rev `00025-856` + Audrey EN retest (`docs/test/neo_seoul_live_qa.md`); voice-id pinning (`outputs/voice-auditions/{ko,en}/` → `voices.json`); `git push` (ahead 37); triage calls (ally-writeback · overload-strike range · pacing knob); deploy bundle now also carries P1-A.
 3. **Post-sign-off model experiment**: 2.5-normal/3.5-key-beat hybrid A/B; record keep/rollback verdict.
 4. **Maintenance/hold**: WS4 content pipeline plan-only; Glass Library waits for Neo-Seoul satisfaction; teaser #2 deferred (uncut-single-turn or post-P1 montage).
 

@@ -5,6 +5,14 @@ Last updated: 2026-07-05
 This file keeps **only recent incremental summaries within the 120-line budget**. The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-05 (PM4) — CBT P1-A track DONE: 5 slices (A1 telegraph · A2 tutorial · A3 disclosure · D1 skill legibility · D2 status chips)
+- Status: Committed `9226005..e13bf91` (5 commits, one per slice, each gated); `make check` **779** green + `make validate-content` clean; NOT deployed (rides next bundle).
+- **A1 combat telegraph**: `Choice.combat_risk` (junction→combat-node deterministic + parked-boss scenes flag ALL choices at the serializer) → red "⚔ 충돌 위험" chip; `_combat_interstitial` loop-state beat staged by `_begin_requested_combat` (kind route/boss/ambient + 9 authored KO `intro` hook lines in scenario.json + EN glossary) rendered as a click-through overlay before the board, cleared next narrative commit. 7 tests (`test_combat_telegraph.py`).
+- **A2 first-combat tutorial**: 4-step card (move→attack→skill→defend), each step advances only on the real action (board drag-move = move; both dispatch paths wrapped in App); spotlight pulse on the current control; once-only via `mythos_combat_tutorial_seen` localStorage + meta combat counts; derived state, no effect (eslint cascading-render rule).
+- **A3 progressive disclosure**: first loop (runs_completed 0) turns 0-2 → aside renders gauges only; map/save/log appear turn 3 with one-time reveal pulse. Tab badges + collapsed DEV LOG already existed.
+- **D1+D2 combat legibility**: skill payload ships structured `effect` → role-tinted badge + composed effect line ("이동 4칸" / "방어 +3 · 1턴"); `render_radar` blips carry status/defense_buff(+turns)/enraged → roster chips + board DEF pill + enrage ring.
+- Next: AGY live-QA screen on fresh EN/KO account (tutorial/disclosure are screen-verify targets); then P1-B (B1 guaranteed meet-arc slot first). `[manual]` queue unchanged (sign-off run, voice pinning, push — now ahead 37).
+
 ## 2026-07-05 (PM3) — Companion-equip UI overhaul + item-gain toast (rev `00025-856`) · P1 design snapshot (feedback #2) · voice audition kit
 - Status: Committed through voice-casting fix; `make check` **770** green; **Cloud Run rev `00025-856` live** (carries dev-console link fix too).
 - **Companion equip + inventory promotion (user request, DONE)**: inventory extracted to `InventoryPanel`, rendered ABOVE the bond list in the CHARACTER tab; focusing a party companion pre-targets equip controls at them; companion card shows worn gear w/ one-click unequip. Root cause of "동료 장착 불가": companion view had no inventory at all.

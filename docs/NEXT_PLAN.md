@@ -17,9 +17,10 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. Cloud Run rev `00019-jf6` serves
 - `[ ]` `[manual]` **Key-beat hybrid enablement + A/B verdict (after full-3.5 sign-off)**: deploy `MODEL=gemini-2.5-flash` + `GEMINI_MODEL_KEYBEAT=gemini-3.5-flash`; verify opening/anchor/cutscene/boss-buildup/ending route to 3.5 and normal turns to 2.5; compare matched full loops for quality, repetition/continuity, state/name/language errors, p50/p95 latency, and cost. Done = documented keep/rollback decision; rollback restores full `MODEL=gemini-3.5-flash` with key-beat unset.
 - `[ ]` **CBT P1 (feedback #1 Audrey + #2 owner 7-loop self-play) — design snapshot DONE
   (`docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md`), tracks in priority order**:
-  - `[ ]` **P1-A onboarding+skill legibility**: combat telegraph (A1) · first-combat tutorial overlay (A2) ·
-    progressive disclosure (A3) · skill category badge/expected-effect line (D1) · buff/debuff status chips (D2).
-    Objective UI — `[auto]` eligible per slice (make check + AGY live-QA not FAIL/NEEDS).
+  - `[x]` **P1-A onboarding+skill legibility (DONE 2026-07-05, `9226005..e13bf91`, check 779)**: A1 telegraph ·
+    A2 first-combat tutorial · A3 progressive disclosure · D1 skill badge/effect line · D2 status chips.
+    Remaining `[ ]` `[auto:agy]` AGY live-QA screen on a fresh account (tutorial card, interstitial, disclosure,
+    badges render; not FAIL/NEEDS). Done = QA run PASS_CANDIDATE recorded.
   - `[ ]` **P1-B replay variety**: guaranteed meet-arc slot for unlocked-unmet companions (B1, small) ·
     Loop2+ shortened/variant openings (B2, merges the archetype-openings long-term item) · loop modifiers (B3).
   - `[ ]` **P1-C density/continuity**: ally-join foreshadow rule (C3, Tae-o pop-in) · no-op turn guard (C1) ·

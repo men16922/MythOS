@@ -4,7 +4,7 @@ Last updated: 2026-07-05
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Start CBT P1 implementation** per `docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md` — order P1-A (combat telegraph → tutorial overlay → progressive disclosure → skill badges/status chips) then P1-B/C/D/E; owner feedback #1+#2 fully triaged there. Cloud rev `00025-856` live (= 3.5 diet + presign hotfix + simulator gating + save overwrite/delete + companion-equip UI + item toast). Queued for humans: **voice-id pinning** (listen `outputs/voice-auditions/{ko,en}/` → fill `resources/neo-seoul/audio/voice/voices.json`), sign-off full run (`docs/test/neo_seoul_live_qa.md`), `git push` (ahead 25+), ally-writeback triage, Audrey reply, balance calls (overload-strike range · pacing knob). Teaser #2 deferred (uncut-single-turn or post-P1 montage). Rollback = `MODEL=gemini-2.5-flash` env.
+> ▶ NEXT SESSION: **CBT P1-B replay variety** per `docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md` — first action: B1 guaranteed meet-arc slot (`weave_side_arcs` priority bucket + unit test), then B2 Loop2+ opening variants, B3 loop modifiers. **P1-A is DONE** (`9226005..e13bf91`, `make check` 779; telegraph/tutorial/disclosure/skill-badges/status-chips) but NOT deployed and AGY live-QA screen on a fresh account is pending. Cloud rev `00025-856` live (pre-P1-A). Queued for humans: **voice-id pinning** (`outputs/voice-auditions/{ko,en}/` → `resources/neo-seoul/audio/voice/voices.json`), sign-off full run (`docs/test/neo_seoul_live_qa.md`), `git push` (ahead 37), ally-writeback triage, Audrey reply, balance calls (overload-strike range · pacing knob). Teaser #2 deferred. Rollback = `MODEL=gemini-2.5-flash` env.
 
 ## Snapshot
 
@@ -28,7 +28,7 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **CBT P1 implementation** (`docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md`): onboarding/Loop1-tutorial, replay variety (non-Serin/solo openings, meet-arc slot, modifiers), density/continuity, combat legibility/board, signature+boss skills, narrative arc/cinematic (incl. dialogue markup + ElevenLabs voice). Parallel human lane: sign-off run on rev `00025-856`, voice-id pinning, `git push`, Audrey reply. Cost levers env-only: `GEMINI_MODEL_KEYBEAT` hybrid ($0.5) / full-2.5 ($0.2).
+1. **CBT P1 implementation** (`docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md`): **P1-A done** (telegraph, first-combat tutorial, progressive disclosure, skill badges/effect lines, status chips). Next: P1-B replay variety (B1 meet-arc slot → B2 opening variants → B3 modifiers), then C density/continuity, D3-D4 board, P1-D signature+boss skills, P1-E narrative arc/cinematic (dialogue markup + ElevenLabs voice). Parallel human lane: sign-off run on rev `00025-856`, voice-id pinning, `git push`, Audrey reply. Cost levers env-only: `GEMINI_MODEL_KEYBEAT` hybrid ($0.5) / full-2.5 ($0.2).
 2. **Engineering maintenance track (WS0-3 done)**: 6-layer agent ops bible↔MythOS interpretation (including mechanical→semantic→creative verification), slim entry points, structured logging/dashboard, and Resume Pointer continuity. Only WS4 content pipeline remains plan-only (`docs/plans/2026-06-14-engineering-plan.md`).
 3. `glass-library` extension: hold (parity + Story Bible 17 entries done; further extension after Neo-Seoul completion). Completed tracks (combat/progression/party/grant/route-node) → `docs/COMPLETED_SUMMARY.md` M35-M40.
 

@@ -1,14 +1,38 @@
 {
-  "_doc": "Per-character ElevenLabs voice pinning (G6 stage 1, plan 2026-07-05). model: eleven_v3, KO/EN both use the same voice (v3 is multilingual). Fill `voice_id` after listening to outputs/voice-auditions/<role>/*.mp3; candidates listed for reference. Curated-line batch generation reads this file.",
+  "_doc": "Per-character, per-language ElevenLabs voice pinning (G6 stage 1). model: eleven_v3. KO uses Korean-native voices (shared-library adds), EN uses English premades. Fill each `voice_id` after listening to outputs/voice-auditions/<lang>/<role>/*.mp3; candidates listed for reference. Batch generation reads this file.",
   "model_id": "eleven_v3",
   "roles": {
-    "se_rin": { "voice_id": null, "candidates": { "Sarah": "EXAVITQu4vr4xnSDxMaL", "Jessica": "cgSgspJ2msm6clMCkdW9", "Jicheol": "CtfB5gGKt7VmWeObgBhO" } },
-    "kai": { "voice_id": null, "candidates": { "Will": "bIHbv24MWmeRgasZH58o", "Liam": "TX3LPaxmHKxFdv7VOQHJ", "Jicheol": "CtfB5gGKt7VmWeObgBhO" } },
-    "lin_yue": { "voice_id": null, "candidates": { "Lily": "pFZP5JQG7iQjIQuC4Bku", "Laura": "FGY2WhTYpPnrIDTdsKH5", "Alice": "Xb7hH8MSUJpSbSDYk0k2" } },
-    "han": { "voice_id": null, "candidates": { "Chris": "iP95p4xoKVk53GoZ742B", "Charlie": "IKne3meq5aSn9XLyUdCD", "Jicheol": "CtfB5gGKt7VmWeObgBhO" } },
-    "su_ah": { "voice_id": null, "candidates": { "Jessica": "cgSgspJ2msm6clMCkdW9", "Laura": "FGY2WhTYpPnrIDTdsKH5", "Sarah": "EXAVITQu4vr4xnSDxMaL" } },
-    "tae_o": { "voice_id": null, "candidates": { "Callum": "N2lVS1w4EtoT3dr4eOWO", "Bill": "pqHfZKP75CvOlQylNhV4", "Adam": "pNInz6obpgDQGcFmaJgB" } },
-    "ix": { "voice_id": null, "candidates": { "Adam": "pNInz6obpgDQGcFmaJgB", "Brian": "nPczCjzI2devNBz1zQrb", "River": "SAz9YHcvj6GT2YYXdXww" } },
-    "narrator": { "voice_id": null, "candidates": { "Sejong": "VXuKlbrqxbag8VQNsvHo", "George": "JBFqnCBsd6RMkjVDRZzb", "Jicheol": "CtfB5gGKt7VmWeObgBhO" } }
+    "se_rin": {
+      "ko": { "voice_id": null, "candidates": { "Yooni": "n2fbxG88jqAoaVPUy3IG", "KeleeK": "5DWGv3VDkihNUcbvaonB", "MonoBeige": "SE9upoSoM2ipDUdAVW8q" } },
+      "en": { "voice_id": null, "candidates": { "Sarah": "EXAVITQu4vr4xnSDxMaL", "Jessica": "cgSgspJ2msm6clMCkdW9", "Lily": "pFZP5JQG7iQjIQuC4Bku" } }
+    },
+    "kai": {
+      "ko": { "voice_id": null, "candidates": { "Sanggyu": "nbUV0COSeBNcyu0Dr8z0", "Minjoon": "8cOkLISXzLWeGEsu0cZC", "KimChiNam": "gKy4twPAmGgskTXd6GER" } },
+      "en": { "voice_id": null, "candidates": { "Will": "bIHbv24MWmeRgasZH58o", "Liam": "TX3LPaxmHKxFdv7VOQHJ", "Charlie": "IKne3meq5aSn9XLyUdCD" } }
+    },
+    "lin_yue": {
+      "ko": { "voice_id": null, "candidates": { "MonoBeige": "SE9upoSoM2ipDUdAVW8q", "YuHaon": "B8rl62CpT9zOQ7RC3Mdl", "Esther": "dJlwSfdSqMaQjm3NSl3B" } },
+      "en": { "voice_id": null, "candidates": { "Lily": "pFZP5JQG7iQjIQuC4Bku", "Laura": "FGY2WhTYpPnrIDTdsKH5", "Alice": "Xb7hH8MSUJpSbSDYk0k2" } }
+    },
+    "han": {
+      "ko": { "voice_id": null, "candidates": { "Junsung": "ll1QRYG8HXKW38zKFQWa", "Juan": "8lidWTlnwgjObqCImnE2", "YongGyu": "h5eZa8VFAq0EQ8E81dfL" } },
+      "en": { "voice_id": null, "candidates": { "Chris": "iP95p4xoKVk53GoZ742B", "Charlie": "IKne3meq5aSn9XLyUdCD", "Liam": "TX3LPaxmHKxFdv7VOQHJ" } }
+    },
+    "su_ah": {
+      "ko": { "voice_id": null, "candidates": { "JY": "bQlkYuipD5BHEhntA5iz", "Totoring": "d4fa1MBr1OVekaed8x4e", "Yooni": "n2fbxG88jqAoaVPUy3IG" } },
+      "en": { "voice_id": null, "candidates": { "Jessica": "cgSgspJ2msm6clMCkdW9", "Laura": "FGY2WhTYpPnrIDTdsKH5", "Sarah": "EXAVITQu4vr4xnSDxMaL" } }
+    },
+    "tae_o": {
+      "ko": { "voice_id": null, "candidates": { "Ethan": "K349x43DIDecCYoQWw7U", "Dae": "HHlsD8ZpKBtIAyvlCGoz", "Elias": "19t6kH7z0NFOs68PQy4n" } },
+      "en": { "voice_id": null, "candidates": { "Callum": "N2lVS1w4EtoT3dr4eOWO", "Bill": "pqHfZKP75CvOlQylNhV4", "Adam": "pNInz6obpgDQGcFmaJgB" } }
+    },
+    "ix": {
+      "ko": { "voice_id": null, "candidates": { "Junjin": "xt81Ccro1aAJisdOM64x", "Elias": "19t6kH7z0NFOs68PQy4n", "Dae": "HHlsD8ZpKBtIAyvlCGoz" } },
+      "en": { "voice_id": null, "candidates": { "Adam": "pNInz6obpgDQGcFmaJgB", "Brian": "nPczCjzI2devNBz1zQrb", "River": "SAz9YHcvj6GT2YYXdXww" } }
+    },
+    "narrator": {
+      "ko": { "voice_id": null, "candidates": { "Jihu": "i4rvH83fgM9aBqIBZ5zH", "Jaeil": "HYALOqtTLlRjxo4uBKeg", "Nara": "qWofGdsKN4woEPGCzrdX" } },
+      "en": { "voice_id": null, "candidates": { "George": "JBFqnCBsd6RMkjVDRZzb", "Daniel": "onwK4e9ZLuTAKqWW03F9", "Brian": "nPczCjzI2devNBz1zQrb" } }
+    }
   }
 }

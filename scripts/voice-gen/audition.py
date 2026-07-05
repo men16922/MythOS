@@ -64,8 +64,11 @@ LINES: dict[str, dict[str, str]] = {
     },
 }
 
-# Candidate voice ids from the account library (2026-07-05 snapshot).
+# Candidate voice ids in the account library (2026-07-05 snapshot).
+# KO-* voices are Korean natives added from the shared library (role-cast by
+# gender/age/baseline per VOICE_GUIDE.md §3); the rest are English premades.
 VOICES: dict[str, str] = {
+    # English premades
     "Sarah": "EXAVITQu4vr4xnSDxMaL",
     "Jessica": "cgSgspJ2msm6clMCkdW9",
     "Lily": "pFZP5JQG7iQjIQuC4Bku",
@@ -82,20 +85,52 @@ VOICES: dict[str, str] = {
     "Daniel": "onwK4e9ZLuTAKqWW03F9",
     "River": "SAz9YHcvj6GT2YYXdXww",
     "George": "JBFqnCBsd6RMkjVDRZzb",
-    "Jicheol": "CtfB5gGKt7VmWeObgBhO",
-    "Sejong": "VXuKlbrqxbag8VQNsvHo",
+    # Korean natives (shared-library adds, KO- prefix in the account)
+    "Yooni": "n2fbxG88jqAoaVPUy3IG",
+    "KeleeK": "5DWGv3VDkihNUcbvaonB",
+    "MonoBeige": "SE9upoSoM2ipDUdAVW8q",
+    "Sanggyu": "nbUV0COSeBNcyu0Dr8z0",
+    "Minjoon": "8cOkLISXzLWeGEsu0cZC",
+    "KimChiNam": "gKy4twPAmGgskTXd6GER",
+    "YuHaon": "B8rl62CpT9zOQ7RC3Mdl",
+    "Esther": "dJlwSfdSqMaQjm3NSl3B",
+    "Junsung": "ll1QRYG8HXKW38zKFQWa",
+    "Juan": "8lidWTlnwgjObqCImnE2",
+    "YongGyu": "h5eZa8VFAq0EQ8E81dfL",
+    "JY": "bQlkYuipD5BHEhntA5iz",
+    "Totoring": "d4fa1MBr1OVekaed8x4e",
+    "Ethan": "K349x43DIDecCYoQWw7U",
+    "Dae": "HHlsD8ZpKBtIAyvlCGoz",
+    "Elias": "19t6kH7z0NFOs68PQy4n",
+    "Junjin": "xt81Ccro1aAJisdOM64x",
+    "Jihu": "i4rvH83fgM9aBqIBZ5zH",
+    "Jaeil": "HYALOqtTLlRjxo4uBKeg",
+    "Nara": "qWofGdsKN4woEPGCzrdX",
 }
 
-# role -> candidate voice names (profiles: VOICE_GUIDE.md §3).
-CANDIDATES: dict[str, list[str]] = {
-    "se_rin": ["Sarah", "Jessica", "Jicheol"],
-    "kai": ["Will", "Liam", "Jicheol"],
-    "lin_yue": ["Lily", "Laura", "Alice"],
-    "han": ["Chris", "Charlie", "Jicheol"],
-    "su_ah": ["Jessica", "Laura", "Sarah"],
-    "tae_o": ["Callum", "Bill", "Adam"],
-    "ix": ["Adam", "Brian", "River"],
-    "narrator": ["Sejong", "George", "Jicheol"],
+# lang -> role -> candidates. KO auditions use Korean natives ONLY; EN uses
+# English premades (native-EN localization casting).
+CANDIDATES: dict[str, dict[str, list[str]]] = {
+    "ko": {
+        "se_rin": ["Yooni", "KeleeK", "MonoBeige"],
+        "kai": ["Sanggyu", "Minjoon", "KimChiNam"],
+        "lin_yue": ["MonoBeige", "YuHaon", "Esther"],
+        "han": ["Junsung", "Juan", "YongGyu"],
+        "su_ah": ["JY", "Totoring", "Yooni"],
+        "tae_o": ["Ethan", "Dae", "Elias"],
+        "ix": ["Junjin", "Elias", "Dae"],
+        "narrator": ["Jihu", "Jaeil", "Nara"],
+    },
+    "en": {
+        "se_rin": ["Sarah", "Jessica", "Lily"],
+        "kai": ["Will", "Liam", "Charlie"],
+        "lin_yue": ["Lily", "Laura", "Alice"],
+        "han": ["Chris", "Charlie", "Liam"],
+        "su_ah": ["Jessica", "Laura", "Sarah"],
+        "tae_o": ["Callum", "Bill", "Adam"],
+        "ix": ["Adam", "Brian", "River"],
+        "narrator": ["George", "Daniel", "Brian"],
+    },
 }
 
 
@@ -127,13 +162,13 @@ def main() -> int:
     api_key = match.group(1)
 
     langs = [x for x in os.getenv("AUDITION_LANGS", "ko,en").split(",") if x]
-    roles = sys.argv[1:] or list(CANDIDATES)
+    roles = sys.argv[1:] or list(LINES)
     for lang in langs:
         for role in roles:
             line = LINES[role][lang]
             out = OUT_DIR / lang / role
             out.mkdir(parents=True, exist_ok=True)
-            for name in CANDIDATES[role]:
+            for name in CANDIDATES[lang][role]:
                 dest = out / f"{name}.mp3"
                 if dest.exists():
                     print(f"skip (exists): {dest.relative_to(REPO)}")

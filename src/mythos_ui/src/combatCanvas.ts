@@ -504,6 +504,21 @@ export function drawCombatCanvas(
     }
   }
 
+  // E2 boss telegraphs: danger tiles — stand here and the announced strike
+  // lands next boss turn. Same cell treatment as enemy intents, red + ⚠.
+  for (const telegraph of radar.telegraphs || []) {
+    for (const [tx, ty] of telegraph.tiles || []) {
+      if (tx < 0 || ty < 0 || tx >= cols || ty >= rows) continue;
+      drawIsoTile(ctx, tx, ty, cfg, "rgba(255,82,61,0.22)", "rgba(255,122,107,0.85)", 1.6);
+      const [wx, wy] = toIso(tx + 0.5, ty + 0.5, cfg);
+      ctx.fillStyle = "rgba(255,122,107,0.95)";
+      ctx.font = "bold 11px SF Mono, monospace";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("⚠", wx, wy - 3);
+    }
+  }
+
   // Draw Enemy Intents
   const intents = radar.enemy_intents || [];
   intents.forEach((intent) => {

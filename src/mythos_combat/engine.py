@@ -1304,6 +1304,53 @@ class CombatEngine:
             target=target,
             skill_range=int(skill_def.get("range", 1)),
         )
+        # E2 최적화 프로토콜: seal tiles around the target as electro hazards.
+        seal_count = int(effect.get("seal_tiles", 0) or 0)
+        if seal_count > 0 and target is not None:
+            sealed = self._seal_tiles_near(state, target, seal_count)
+            if sealed:
+                self._log(
+                    state,
+                    actor,
+                    "skill",
+                    clog(state.language, "tiles_sealed", actor=actor.name, count=len(sealed)),
+                    {"sealed": sealed},
+                )
+        # E2 명단 소거: announce a strike on the lowest-HP hostile's position —
+        # it fires on the caster's NEXT turn against the marked tiles (dodgeable).
+        telegraph_damage = str(effect.get("telegraph_damage") or "")
+        if telegraph_damage:
+            victims = state.hostiles_of(actor)
+            if victims:
+                mark = min(victims, key=lambda v: v.hp)
+                radius = int(effect.get("telegraph_radius", 0) or 0)
+                tiles = [
+                    [x, y]
+                    for x in range(mark.x - radius, mark.x + radius + 1)
+                    for y in range(mark.y - radius, mark.y + radius + 1)
+                    if 0 <= x < state.arena_w and 0 <= y < state.arena_h
+                ]
+                state.telegraphs.append(
+                    {
+                        "caster": actor.id,
+                        "name": name,
+                        "tiles": tiles,
+                        "damage": telegraph_damage,
+                    }
+                )
+                self._log(
+                    state,
+                    actor,
+                    "skill",
+                    clog(
+                        state.language,
+                        "boss_telegraph",
+                        actor=actor.name,
+                        skill=name,
+                        target=mark.name,
+                    ),
+                    {"telegraph": tiles, "marked": mark.id},
+                )
         if "heal" in effect:
             heal_target = target if target is not None else actor
             healed = self._apply_heal(heal_target, str(effect.get("heal", "0")), dice)
@@ -1366,23 +1413,96 @@ class CombatEngine:
         sdef = self.skills_pool.get(skill_id) or self.companion_skills_pool.get(skill_id)
         return sdef if isinstance(sdef, dict) else {}
 
+    def _resolve_telegraphs(self, state: CombatState, caster: Combatant) -> None:
+        """E2: fire this caster's announced strikes against their marked tiles.
+
+        Runs at the start of the caster's turn — everyone had a full round to
+        move off the marked tiles, so standing in one is a readable mistake.
+        """
+        pending = [t for t in state.telegraphs if t.get("caster") == caster.id]
+        if not pending:
+            return
+        state.telegraphs = [t for t in state.telegraphs if t.get("caster") != caster.id]
+        dice = self._dice(state)
+        for telegraph in pending:
+            tiles = {(int(x), int(y)) for x, y in telegraph.get("tiles", [])}
+            name = str(telegraph.get("name") or "")
+            struck = False
+            for victim in state.hostiles_of(caster):
+                if (victim.x, victim.y) in tiles:
+                    damage = max(1, dice.roll(str(telegraph.get("damage") or "1d6")))
+                    victim.hp = max(0, victim.hp - damage)
+                    if victim.hp <= 0:
+                        victim.alive = False
+                    struck = True
+                    self._log(
+                        state,
+                        caster,
+                        "hit",
+                        clog(
+                            state.language,
+                            "telegraph_hit",
+                            actor=caster.name,
+                            skill=name,
+                            target=victim.name,
+                            damage=damage,
+                        ),
+                        {"damage": damage, "target": victim.id, "telegraph": True},
+                    )
+            if not struck:
+                self._log(
+                    state,
+                    caster,
+                    "info",
+                    clog(state.language, "telegraph_evaded", actor=caster.name, skill=name),
+                    {"telegraph_evaded": True},
+                )
+
+    def _seal_tiles_near(
+        self, state: CombatState, target: Combatant, count: int
+    ) -> list[list[int]]:
+        """E2: mark up to ``count`` free tiles around ``target`` as electro hazards."""
+        sealed: list[list[int]] = []
+        for radius in (1, 2):
+            for x in range(target.x - radius, target.x + radius + 1):
+                for y in range(target.y - radius, target.y + radius + 1):
+                    if len(sealed) >= count:
+                        return sealed
+                    key = f"{x},{y}"
+                    if not (0 <= x < state.arena_w and 0 <= y < state.arena_h):
+                        continue
+                    if (x, y) == (target.x, target.y) or key in state.hazards:
+                        continue
+                    if self._occupied(state, x, y, target):
+                        continue
+                    state.hazards[key] = "electro"
+                    sealed.append([x, y])
+        return sealed
+
     def _boss_skill_turn(self, state: CombatState, enemy: Combatant, target: Combatant) -> bool:
         """One boss decision: cross the enrage threshold (once), then cast the strongest
         affordable, off-cooldown, phase-permitted skill that can reach ``target``.
 
         Returns True iff a skill was actually cast (the skill pose / "skill" log fires).
         """
+        # E2: announced strikes fire first — the round in between was the dodge window.
+        self._resolve_telegraphs(state, enemy)
         # Phase 2: announce the enrage once HP crosses 50%, unlocking ``phase: enraged`` skills.
         if not enemy.enraged and enemy.hp <= enemy.max_hp // 2:
             enemy.enraged = True
             self._log(state, enemy, "info", clog(state.language, "boss_enrage", name=enemy.name))
 
+        has_pending_telegraph = any(t.get("caster") == enemy.id for t in state.telegraphs)
         candidates: list[tuple[str, dict[str, Any]]] = []
         for skill_id in enemy.skills:
             sdef = self._enemy_skill_def(skill_id)
             if not sdef or skill_id in enemy.cooldowns:
                 continue
             if str(sdef.get("phase", "")) == "enraged" and not enemy.enraged:
+                continue
+            effect_probe = sdef.get("effect", {}) if isinstance(sdef.get("effect"), dict) else {}
+            # Never stack a second announcement while one strike is still pending.
+            if effect_probe.get("telegraph_damage") and has_pending_telegraph:
                 continue
             cost = sdef.get("cost", {}) if isinstance(sdef.get("cost"), dict) else {}
             if enemy.focus < int(cost.get("focus", 0)):
@@ -1393,7 +1513,13 @@ class CombatEngine:
 
         def _avg_damage(item: tuple[str, dict[str, Any]]) -> float:
             effect = item[1].get("effect", {}) if isinstance(item[1].get("effect"), dict) else {}
-            return _avg_dice(str(effect.get("damage", "0")))
+            score = _avg_dice(str(effect.get("damage", "0")))
+            # E2 specials: a telegraphed strike is near-full value (dodgeable),
+            # tile sealing has a flat tactical worth.
+            score = max(score, _avg_dice(str(effect.get("telegraph_damage", "0"))) * 0.9)
+            if effect.get("seal_tiles"):
+                score = max(score, 3.5)
+            return score
 
         skill_id, sdef = max(candidates, key=_avg_damage)
         skill_range = int(sdef.get("range", 1))

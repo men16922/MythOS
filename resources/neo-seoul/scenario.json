@@ -2503,6 +2503,27 @@
       }
     },
     "enemy_skills": {
+      "ix_optimization_protocol": {
+        "id": "ix_optimization_protocol",
+        "name": "최적화 프로토콜",
+        "role": "control",
+        "cost": { "focus": 2 },
+        "range": 5,
+        "cooldown": 3,
+        "effect": { "seal_tiles": 3 },
+        "tags": ["control", "terrain"]
+      },
+      "ix_purge_list": {
+        "id": "ix_purge_list",
+        "name": "명단 소거",
+        "role": "damage",
+        "cost": { "focus": 3 },
+        "range": 6,
+        "cooldown": 3,
+        "phase": "enraged",
+        "effect": { "telegraph_damage": "3d6", "telegraph_radius": 1 },
+        "tags": ["telegraph", "burst"]
+      },
       "ix_purge_field": {
         "id": "ix_purge_field",
         "name": "정화 야장",
@@ -2772,7 +2793,9 @@
         "focus": 2,
         "skills": [
           "ix_purge_field",
-          "ix_optimize_overload"
+          "ix_optimize_overload",
+          "ix_optimization_protocol",
+          "ix_purge_list"
         ],
         "image": "enemies/administrator-ix.png",
         "combat_images": {

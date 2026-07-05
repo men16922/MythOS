@@ -62,7 +62,16 @@ class BossSkillTest(unittest.TestCase):
 
     def test_factory_wires_boss_skills_and_focus(self) -> None:
         _engine, _state, ix, _target = _ix_vs_target()
-        self.assertEqual(ix.skills, ["ix_purge_field", "ix_optimize_overload"])
+        # E2 (2026-07-05): the IX kit gained two boss-exclusive mechanics.
+        self.assertEqual(
+            ix.skills,
+            [
+                "ix_purge_field",
+                "ix_optimize_overload",
+                "ix_optimization_protocol",
+                "ix_purge_list",
+            ],
+        )
         self.assertGreater(ix.max_focus, 0)
 
     def test_boss_casts_skill_when_able(self) -> None:
@@ -73,7 +82,9 @@ class BossSkillTest(unittest.TestCase):
         self.assertLess(ix.focus, 2, "casting a skill must spend focus")
 
     def test_boss_prefers_strongest_affordable_skill_when_enraged(self) -> None:
-        # HP at threshold + full focus → the enraged-only overload (2d6) should win over purge (1d8).
+        # HP at threshold + full focus → the enraged phase opens with the E2
+        # telegraphed 명단 소거 (3d6×0.9 ≈ 9.45 beats overload 2d6 avg 7): the
+        # phase change reads as a NEW pattern, and the strike stays dodgeable.
         engine, state, ix, _target = _ix_vs_target(hp=19, focus=3)
         engine._enemy_turn(state, ix)
         self.assertTrue(ix.enraged, "<=50% HP must set the enrage flag")
@@ -82,9 +93,10 @@ class BossSkillTest(unittest.TestCase):
         cast = [e for e in state.log if e.action == "skill"]
         self.assertTrue(cast)
         self.assertEqual(
-            cast[0].detail.get("skill"), "ix_optimize_overload",
-            "enraged boss with full focus should pick the strongest (enraged) skill",
+            cast[0].detail.get("skill"), "ix_purge_list",
+            "enraged boss with full focus should open with the telegraphed purge",
         )
+        self.assertEqual(len(state.telegraphs), 1)
 
     def test_overload_locked_until_enraged(self) -> None:
         # Above the threshold with full focus: the enraged-only skill must NOT be chosen.

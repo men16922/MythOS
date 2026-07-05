@@ -191,6 +191,8 @@ export interface CombatRadar {
   current?: string;
   enemy_intents?: CombatIntent[];
   round?: number;
+  // E2 boss telegraphs: marked danger tiles (the strike lands next boss turn).
+  telegraphs?: { name?: string | null; tiles: [number, number][] }[];
 }
 
 export interface CombatTargetInfo {

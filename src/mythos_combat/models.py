@@ -133,6 +133,10 @@ class CombatState:
     elevations: dict[str, int] = field(default_factory=dict)
     covers: dict[str, str] = field(default_factory=dict)
     hazards: dict[str, str] = field(default_factory=dict)
+    # E2 boss telegraphs: announced strikes that resolve on the caster's NEXT
+    # turn against marked tiles — dodgeable by moving off them.
+    # [{"caster", "name", "tiles": [[x, y], ...], "damage"}]
+    telegraphs: list[dict[str, Any]] = field(default_factory=list)
     # Active player language for combat-log prose ("ko" default → behavior-preserving).
     language: str = "ko"
 

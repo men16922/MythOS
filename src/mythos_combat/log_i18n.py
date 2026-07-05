@@ -47,6 +47,23 @@ _LINES: dict[str, dict[str, str]] = {
         "ko": "{actor}이(가) {item}을(를) 투척한다 — {target}을(를) 향해 전자기 폭발!",
         "en": "{actor} throws {item} — an electromagnetic burst engulfs {target}!",
     },
+    # E2 boss-exclusive mechanics.
+    "boss_telegraph": {
+        "ko": "{actor}이(가) {skill}을(를) 준비한다 — {target} 주변 구역이 표적으로 지정됐다. 표시된 구역을 벗어나라!",
+        "en": "{actor} charges {skill} — the zone around {target} is marked. Get out of the marked tiles!",
+    },
+    "telegraph_hit": {
+        "ko": "{skill}이(가) 낙뢰처럼 떨어진다 — {target}에게 {damage} 피해!",
+        "en": "{skill} comes down like a thunderbolt — {target} takes {damage}!",
+    },
+    "telegraph_evaded": {
+        "ko": "{actor}의 {skill}이(가) 빈 자리를 태운다 — 회피 성공!",
+        "en": "{actor}'s {skill} scorches empty ground — evaded!",
+    },
+    "tiles_sealed": {
+        "ko": "{actor}이(가) 구역을 봉쇄한다 — 전기장 타일 {count}칸 생성.",
+        "en": "{actor} seals the zone — {count} electrified tiles created.",
+    },
     # E1 companion signature effects.
     "focus_drained": {
         "ko": "{actor}이(가) {target}의 제어 회로에 침투했다 — 집중 -{drained}.",

@@ -40,6 +40,12 @@ def render_radar(state: CombatState) -> dict[str, Any]:
             }
             for intent in getattr(state, "enemy_intents", [])
         ],
+        # E2 boss telegraphs: marked tiles the client must render as danger
+        # zones (the strike resolves on the caster's next turn — dodgeable).
+        "telegraphs": [
+            {"name": t.get("name"), "tiles": t.get("tiles", [])}
+            for t in getattr(state, "telegraphs", [])
+        ],
         "blips": [
             {
                 "id": c.id,

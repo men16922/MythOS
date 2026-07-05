@@ -302,6 +302,16 @@ class CombatSkillTest(unittest.TestCase):
         self.assertIn("focus", actions)
         self.assertEqual({s["id"] for s in actions["skills"]}, set(SKILLS.keys()))
 
+    def test_skill_payload_carries_structured_effect(self) -> None:
+        # D1 스킬 가독성 (CBT 피드백 #2): 액션 바가 기대효과 한 줄을 조립할 수
+        # 있도록 available_actions 스킬 페이로드에 구조화된 effect가 실린다.
+        engine = CombatEngine()
+        state = engine.start([_skilled_player()], [_drone(x=3)], seed="fx", arena=(8, 6))
+        skills = {s["id"]: s for s in engine.available_actions(state)["skills"]}
+        self.assertEqual(skills["signal_step"]["effect"].get("move"), 4)
+        self.assertEqual(skills["covering_noise"]["effect"].get("defense_bonus"), 3)
+        self.assertEqual(skills["packet_shot"]["effect"].get("damage"), "1d8")
+
     def test_packet_shot_hits_at_range_and_spends_focus(self) -> None:
         engine = CombatEngine()
         state = engine.start(

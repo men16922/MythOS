@@ -271,6 +271,10 @@ class CombatEngine:
             "tags": list(definition.get("tags", []) or []),
             "cost": dict(definition.get("cost", {}) or {}),
             "range": definition.get("range"),
+            # Structured effect numbers (damage/heal/move/defense_bonus/duration/…)
+            # so the client can compose a one-line expected-effect summary — CBT
+            # feedback #2: "스킬이 뭘 하는지 안 읽힌다" (D1 skill legibility).
+            "effect": dict(definition.get("effect", {}) or {}),
         }
 
     def update_enemy_intents(self, state: CombatState) -> None:

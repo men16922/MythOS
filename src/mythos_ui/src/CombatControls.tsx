@@ -54,7 +54,38 @@ const ROLE_LABEL_KEYS: Record<string, StringKey> = {
   defense: "cc.role.defense",
   healing: "cc.role.healing",
   support: "cc.role.support",
+  control: "cc.role.control",
+  buff: "cc.role.buff",
 };
+
+/** Compose a one-line expected-effect summary from the skill's structured
+ * `effect` dict (D1 skill legibility — "신호 도약: 이동 4칸"). Only facts the
+ * engine actually applies; unknown keys are skipped rather than guessed. */
+function formatEffect(
+  effect: Record<string, number | string | boolean> | undefined,
+  t: TFn
+): string {
+  if (!effect) return "";
+  const parts: string[] = [];
+  if (effect.damage != null) parts.push(`${t("cc.fx.damage")} ${effect.damage}`);
+  if (effect.damage_bonus != null) parts.push(`${t("cc.fx.bonusDamage")} ${effect.damage_bonus}`);
+  if (effect.armor_pen != null) parts.push(`${t("cc.fx.armorPen")} ${effect.armor_pen}`);
+  if (typeof effect.to_hit_bonus === "number")
+    parts.push(`${t("cc.fx.toHit")} +${effect.to_hit_bonus}`);
+  if (effect.move != null) parts.push(`${t("cc.fx.move")} ${effect.move}${t("cc.fx.tilesSuffix")}`);
+  if (typeof effect.defense_bonus === "number")
+    parts.push(`${t("cc.fx.defense")} +${effect.defense_bonus}`);
+  if (effect.heal != null) parts.push(`${t("cc.fx.heal")} ${effect.heal}`);
+  if (effect.stun) parts.push(t("cc.fx.stun"));
+  if (typeof effect.speed_bonus === "number") parts.push(`${t("cc.fx.speed")} +${effect.speed_bonus}`);
+  if (typeof effect.crit_bonus === "number") parts.push(`${t("cc.fx.crit")} +${effect.crit_bonus}`);
+  if (effect.spawn_decoy) parts.push(t("cc.fx.decoy"));
+  if (effect.damage_scale_clues) parts.push(t("cc.fx.clueScale"));
+  if (effect.hack_control) parts.push(t("cc.fx.hack"));
+  if (typeof effect.duration === "number" && parts.length > 0)
+    parts.push(`${effect.duration}${t("cc.fx.turnsSuffix")}`);
+  return parts.join(" · ");
+}
 
 const SKILL_SYMBOLS: Record<string, string> = {
   signal_step: "⇄",
@@ -134,8 +165,10 @@ export function CombatControls({
     const roleLabel = roleKey ? t(roleKey) : skill.role ?? "";
     const iconSymbol = SKILL_SYMBOLS[skill.id] || roleLabel.slice(0, 1) || "✦";
 
+    const fxStr = formatEffect(skill.effect, t);
     const tooltipParts = [name];
     if (roleLabel) tooltipParts.push(roleLabel);
+    if (fxStr) tooltipParts.push(fxStr);
     if (skill.range != null) tooltipParts.push(`${t("cc.range")} ${skill.range}`);
     if (costStr) tooltipParts.push(`${t("cc.cost")} ${costStr}`);
     if (onCooldown) tooltipParts.push(`${t("cc.cooldown")} ${skill.cooldown}T`);
@@ -170,9 +203,15 @@ export function CombatControls({
         </span>
         <span className="cc-skill-name">{name}</span>
         <span className="cc-skill-badges">
+          {roleLabel && (
+            <span className={`cc-badge role ${skill.role ? `role-${skill.role}` : ""}`}>
+              {roleLabel}
+            </span>
+          )}
           {costStr && <span className="cc-badge cost">{costStr}</span>}
           {skill.range != null && <span className="cc-badge range">⌖{skill.range}</span>}
         </span>
+        {fxStr && <span className="cc-skill-fx">{fxStr}</span>}
       </button>
     );
   };

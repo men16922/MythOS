@@ -212,6 +212,9 @@ export interface CombatSkillInfo {
   tags?: string[];
   cost?: Record<string, number | string>;
   range?: number;
+  // Structured effect numbers (damage/heal/move/defense_bonus/duration/…) for
+  // the one-line expected-effect summary on the action bar (D1 legibility).
+  effect?: Record<string, number | string | boolean>;
 }
 
 export interface CombatAvailableActions {

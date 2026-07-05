@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-07-05
+Last updated: 2026-07-06
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **CBT P1 code track is COMPLETE** (2026-07-05, `9226005..08f764f`, 19 slices, `make check` 862 — A/B/C/D/E all landed + postgres-retry/i18n maintenance pair; NOT deployed). Claude-lane `[auto]` backlog is EMPTY — next session either consumes agy-lane follow-ups (variant art ×6, signature/boss icons ×8, SFX wavs, fresh-account live-QA screen) if running as agy, or picks up post-sign-off work (key-beat hybrid A/B) / WS4-WS5 leftovers. Cloud rev `00025-856` live (pre-P1). Queued for humans: **deploy new bundle + sign-off full run** (`docs/test/neo_seoul_live_qa.md`), G2 twist tone review (`scenario.json twist_bank`), voice-id pinning (`outputs/voice-auditions/{ko,en}/` → `resources/neo-seoul/audio/voice/voices.json`), `git push` (ahead 58), ally-writeback triage, Audrey reply, balance calls. Teaser #2 deferred. Rollback = `MODEL=gemini-2.5-flash` env.
+> ▶ NEXT SESSION: **Launch the agy overnight lane** (user-directed 2026-07-05, deferred once by a transient permission-classifier outage). First action: `git stash push -m "other-agent WIP parked before agy run"` the 4 foreign dirty files (`docs/COMPLETED_SUMMARY.md`, `docs/cbt/ITCH.md` deletion, `docs/cbt/tester_invite_round1.md`, `docs/research/2026-07-05-local-llm-vs-cloud-gpu-landscape.md` — NOT ours; without this the runner "recovers"-commits them), then `make overnight-agy` (backlog ≈4 `[auto:agy]` items: variant art ×6 · signature/boss icons ×8 · SFX wavs · fresh-account live-QA screen), watch `make overnight-logs`, morning `/overnight-report`, restore stash after. **CBT P1 code track is COMPLETE** (2026-07-05, `9226005..08f764f`, 19 slices, check 862; NOT deployed). Cloud rev `00025-856` live (pre-P1). Humans: deploy new bundle + sign-off run (`docs/test/neo_seoul_live_qa.md`), G2 twist tone review (`twist_bank`), voice-id pinning (`outputs/voice-auditions/{ko,en}/` → `voices.json`), `git push` (ahead 55), ally-writeback triage, Audrey reply, balance calls. Rollback = `MODEL=gemini-2.5-flash` env.
 
 ## Snapshot
 

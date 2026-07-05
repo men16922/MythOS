@@ -1,6 +1,6 @@
 # Project MythOS Status
 
-Last updated: 2026-07-05
+Last updated: 2026-07-06
 
 ## Current Baseline
 
@@ -32,7 +32,7 @@ Authority plan: `docs/NEXT_PLAN.md`.
 
 Direction remains global-first EN/KO closed beta: Gemini/Vertex is the product path; Ollama/FLUX remains the local development path. Deployment/onboarding/localization history is in `docs/COMPLETED_SUMMARY.md` M50 and M56.
 
-1. **CBT P1 code track COMPLETE — remaining is agy/human lanes**: `[auto:agy]` variant-opening art ×6, signature/boss icons ×8, SFX wavs (alarm/sting/drone/pickup), live-QA screen (tutorial/interstitial/disclosure/banner/i18n fix) on a fresh account. `[manual]` G2 twist tone review (3 drafts, scenario.json `twist_bank`).
+1. **CBT P1 code track COMPLETE — next: run the agy lane** (`make overnight-agy`; stash the 4 foreign-WIP dirty files FIRST or iteration 1 recovery-commits them): `[auto:agy]` variant-opening art ×6, signature/boss icons ×8, SFX wavs (alarm/sting/drone/pickup), live-QA screen (tutorial/interstitial/disclosure/banner/i18n fix) on a fresh account. `[manual]` G2 twist tone review (3 drafts, scenario.json `twist_bank`).
 2. **Human lane in parallel**: sign-off full run on rev `00025-856` + Audrey EN retest (`docs/test/neo_seoul_live_qa.md`); voice-id pinning (`outputs/voice-auditions/{ko,en}/` → `voices.json`); `git push` (ahead 58); triage calls (ally-writeback · overload-strike range · pacing knob); deploy bundle now carries the FULL P1 code track.
 3. **Post-sign-off model experiment**: 2.5-normal/3.5-key-beat hybrid A/B; record keep/rollback verdict.
 4. **Maintenance/hold**: WS4 content pipeline plan-only; Glass Library waits for Neo-Seoul satisfaction; teaser #2 deferred (uncut-single-turn or post-P1 montage).

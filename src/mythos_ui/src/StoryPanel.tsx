@@ -50,6 +50,9 @@ interface StoryPanelProps {
   onEquip?: (itemId: string, equipped: boolean) => void;
   boardZoom?: number;
   onBoardZoom?: (next: number) => void;
+  // A2 first-combat tutorial: which combat control to spotlight
+  // ("move" | "attack" | "skill" | "defend"), null when the tutorial is off.
+  tutorialHighlight?: string | null;
 }
 
 const decodeGarbageBytes = (text: string): string => {
@@ -611,6 +614,7 @@ export function StoryPanel({
   onEquip,
   boardZoom = 1,
   onBoardZoom,
+  tutorialHighlight,
 }: StoryPanelProps) {
   const { t } = useLang();
   const scrollBottomRef = useRef<HTMLDivElement | null>(null);
@@ -728,7 +732,12 @@ export function StoryPanel({
                 key={snapshot.combat.encounter?.id || "encounter"}
                 combat={snapshot.combat}
               />
-              <div className="tactical-board-canvas-wrapper" style={{ marginTop: "12px" }}>
+              <div
+                className={`tactical-board-canvas-wrapper${
+                  tutorialHighlight === "move" ? " tut-glow" : ""
+                }`}
+                style={{ marginTop: "12px" }}
+              >
                 <canvas
                   id="combat"
                   ref={canvasRef}
@@ -761,6 +770,7 @@ export function StoryPanel({
               onAction={onCombatAction}
               onReturnToMain={onReturnToMain}
               onContinue={onContinueAfterCombat}
+              tutorialHighlight={tutorialHighlight}
             />
           </div>
         </div>

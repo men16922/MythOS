@@ -18,6 +18,8 @@ interface CombatControlsProps {
   onAction: (action: CombatAction) => void;
   onReturnToMain: () => void;
   onContinue: () => void;
+  // A2 first-combat tutorial: which control to spotlight ("attack"/"skill"/"defend").
+  tutorialHighlight?: string | null;
 }
 
 function outcomeLabel(outcome: string, t: TFn): string {
@@ -102,6 +104,7 @@ export function CombatControls({
   onAction,
   onReturnToMain,
   onContinue,
+  tutorialHighlight,
 }: CombatControlsProps) {
   const { t } = useLang();
   // Direction target for heal/shield support skills (self + allies). Kept local:
@@ -282,14 +285,17 @@ export function CombatControls({
             <div className="cc-label">{t("cc.actions")}</div>
             <div className="cc-row">
               <button
-                className="cc-btn"
+                className={`cc-btn${tutorialHighlight === "attack" ? " tut-glow" : ""}`}
                 disabled={!defaultTargetId}
                 title={defaultTargetId ? t("cc.attackOk") : t("cc.attackNone")}
                 onClick={() => onAction({ type: "attack", target_id: defaultTargetId || undefined })}
               >
                 {t("cc.attack")}
               </button>
-              <button className="cc-btn" onClick={() => onAction({ type: "defend" })}>
+              <button
+                className={`cc-btn${tutorialHighlight === "defend" ? " tut-glow" : ""}`}
+                onClick={() => onAction({ type: "defend" })}
+              >
                 {t("cc.defend")}
               </button>
               <button className="cc-btn" onClick={() => onAction({ type: "wait" })}>
@@ -306,7 +312,9 @@ export function CombatControls({
           {available.skills && available.skills.length > 0 && (
             <div className="cc-section">
               <div className="cc-label">{t("cc.skills")}</div>
-              <div className="cc-skill-bar">{available.skills.map(renderSkill)}</div>
+              <div className={`cc-skill-bar${tutorialHighlight === "skill" ? " tut-glow" : ""}`}>
+                {available.skills.map(renderSkill)}
+              </div>
             </div>
           )}
 

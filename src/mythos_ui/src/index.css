@@ -3224,6 +3224,98 @@ main {
   }
 }
 
+/* --- First-combat interactive tutorial (A2) --- */
+.combat-tutorial-card {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  width: min(300px, calc(100vw - 36px));
+  z-index: 900;
+  background: var(--panel);
+  border: 1px solid rgba(41, 255, 198, 0.45);
+  border-radius: 8px;
+  box-shadow: 0 0 28px rgba(41, 255, 198, 0.14);
+  padding: 12px 14px;
+}
+.ct-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.ct-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--term);
+  text-transform: uppercase;
+}
+.ct-skip {
+  background: transparent;
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  color: var(--ink-dim);
+  font-size: 11px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+.ct-skip:hover {
+  color: var(--ink);
+  border-color: var(--term);
+}
+.ct-steps {
+  display: flex;
+  gap: 6px;
+  margin: 10px 0 8px;
+}
+.ct-step {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--line-soft);
+  color: var(--ink-dim);
+  font-size: 11px;
+  font-family: var(--mono);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ct-step.done {
+  border-color: var(--term);
+  color: var(--term);
+}
+.ct-step.current {
+  border-color: var(--term);
+  color: #021018;
+  background: var(--term);
+  font-weight: 700;
+}
+.ct-step-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.ct-step-body {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--ink-dim);
+}
+/* Tutorial spotlight on the control the current step asks for. */
+.tut-glow {
+  animation: tut-glow-pulse 1.4s ease-in-out infinite;
+  border-radius: 6px;
+}
+@keyframes tut-glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(41, 255, 198, 0.55); }
+  50% { box-shadow: 0 0 0 6px rgba(41, 255, 198, 0.12); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tut-glow {
+    animation: none;
+    box-shadow: 0 0 0 2px rgba(41, 255, 198, 0.55);
+  }
+}
+
 /* --- Combat-entry interstitial (1-beat transition before the tactical board) --- */
 .combat-interstitial-backdrop {
   position: fixed;

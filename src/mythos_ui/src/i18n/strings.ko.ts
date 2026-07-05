@@ -294,6 +294,17 @@ export const ko = {
   "cc.fx.hack": "적 기체 일시 조종",
   "cc.fx.turnsSuffix": "턴",
   "cc.item.nanopatch": "나노패치",
+  // First-combat interactive tutorial (A2)
+  "combat.tutorial.title": "첫 전투 가이드",
+  "combat.tutorial.skip": "건너뛰기",
+  "combat.tutorial.move.title": "1. 이동",
+  "combat.tutorial.move.body": "보드의 밝게 표시된 타일을 클릭(드래그)해 이동해 보세요. 엄폐물 뒤가 안전합니다.",
+  "combat.tutorial.attack.title": "2. 공격",
+  "combat.tutorial.attack.body": "표적을 고른 뒤 ⚔ 공격 버튼으로 사거리 안의 적을 공격해 보세요.",
+  "combat.tutorial.skill.title": "3. 스킬",
+  "combat.tutorial.skill.body": "스킬 버튼은 FOCUS를 소모하는 특수 행동입니다. 배지와 효과 줄을 보고 하나 사용해 보세요.",
+  "combat.tutorial.defend.title": "4. 방어",
+  "combat.tutorial.defend.body": "🛡 방어로 턴을 마치면 다음 피해가 줄어듭니다. 마무리로 방어해 보세요.",
   // Combat-entry interstitial (1-beat transition before the tactical board)
   "combat.interstitial.title.route": "⚔ 교전 개시",
   "combat.interstitial.title.boss": "⚡ 최종 대면",

@@ -36,6 +36,9 @@ import type {
 import { CombatAnimator } from "./combatEffects";
 import { CombatCinema } from "./CombatCinema";
 import { CombatInterstitial } from "./CombatInterstitial";
+import { CombatTutorial } from "./CombatTutorial";
+import { COMBAT_TUTORIAL_STEPS } from "./combatText";
+import type { CombatAction } from "./types";
 import { LS_KEY, parseResumeSession } from "./sessionStorage";
 import type { ResumeSessionData } from "./sessionStorage";
 import { buildCodexLists, buildDevConsoleData, buildEpiphanyNotice } from "./viewModels";
@@ -499,6 +502,64 @@ export default function App() {
     logToConsole,
   });
 
+  // A2 first-combat interactive tutorial: 4 steps (move → attack → skill →
+  // defend), each advanced only when the player actually performs that action.
+  // Shown once — gated by localStorage (this device) + meta combat counts
+  // (this player has never fought before). The visible step is DERIVED from
+  // combat state + progress (no effect), so it disappears with the fight and
+  // resumes if an unfinished first combat recurs. Both dispatch paths (board
+  // drag-move via useCombatBoard and the action-bar buttons) flow through the
+  // wrapper below.
+  const [combatTutorialDone, setCombatTutorialDone] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem("mythos_combat_tutorial_seen") === "1";
+    } catch {
+      return false;
+    }
+  });
+  const [combatTutorialProgress, setCombatTutorialProgress] = useState(0);
+  const combatLive = Boolean(finalizedSnapshot?.combat && !finalizedSnapshot.combat.finished);
+  const combatMeta = finalizedSnapshot?.state?.meta_progression as
+    | { total_combats_won?: number; total_combats_lost?: number }
+    | undefined;
+  const isFirstCombat =
+    Number(combatMeta?.total_combats_won ?? 0) + Number(combatMeta?.total_combats_lost ?? 0) === 0;
+  const combatTutorialStep =
+    combatLive && !combatTutorialDone && isFirstCombat &&
+    combatTutorialProgress < COMBAT_TUTORIAL_STEPS.length
+      ? combatTutorialProgress
+      : null;
+
+  const markCombatTutorialSeen = useCallback(() => {
+    try {
+      localStorage.setItem("mythos_combat_tutorial_seen", "1");
+    } catch {
+      /* ignore storage failures */
+    }
+    setCombatTutorialDone(true);
+  }, []);
+
+  const handleCombatActionTutored = useCallback(
+    (action: CombatAction) => {
+      if (combatTutorialStep != null) {
+        const goal = COMBAT_TUTORIAL_STEPS[combatTutorialStep];
+        // A board move is dispatched as `wait` WITH coordinates; the plain wait
+        // button carries none — only the former satisfies the "move" step.
+        const matched =
+          goal === "move" ? action.type === "wait" && action.x != null : action.type === goal;
+        if (matched) {
+          if (combatTutorialStep >= COMBAT_TUTORIAL_STEPS.length - 1) markCombatTutorialSeen();
+          setCombatTutorialProgress(combatTutorialStep + 1);
+        }
+      }
+      handleCombatAction(action);
+    },
+    [combatTutorialStep, handleCombatAction, markCombatTutorialSeen]
+  );
+
+  const tutorialHighlight =
+    combatTutorialStep != null ? COMBAT_TUTORIAL_STEPS[combatTutorialStep] : null;
+
   // --- Keyboard hotkeys choice select ---
   // Number-key (1-9) choice selection for the active scene lives in a hook;
   // behavior-preserving extraction.
@@ -522,7 +583,7 @@ export default function App() {
     animatorRef,
     isBusy,
     selectedScenarioId,
-    onCombatAction: handleCombatAction,
+    onCombatAction: handleCombatActionTutored,
   });
 
   // --- Codex list rendering data mapping ---
@@ -744,7 +805,8 @@ export default function App() {
                 onChoose={sendChoose}
                 onLeaveSession={handleLeaveSession}
                 onSelectCombatTarget={setCombatTarget}
-                onCombatAction={handleCombatAction}
+                onCombatAction={handleCombatActionTutored}
+                tutorialHighlight={tutorialHighlight}
                 onReturnToMain={handleLeaveSession}
                 onContinueAfterCombat={continueAfterCombat}
                 onCanvasPointerDown={handleCanvasPointerDown}
@@ -833,6 +895,10 @@ export default function App() {
       )}
 
       <CombatInterstitial snapshot={finalizedSnapshot ?? lastSnapshot} />
+
+      {combatTutorialStep != null && activeTab === "story" && (
+        <CombatTutorial stepIndex={combatTutorialStep} onSkip={markCombatTutorialSeen} />
+      )}
 
       {saveLoadModal && (
         <SaveLoadModal

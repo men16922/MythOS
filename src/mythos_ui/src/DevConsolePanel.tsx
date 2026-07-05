@@ -40,6 +40,10 @@ const INFRA_LINKS: { label: string; port: number; descKey: StringKey }[] = [
 function InfraLinks() {
   const { t } = useLang();
   const host = window.location.hostname || "localhost";
+  // Adminer/MinIO/Jaeger are docker-compose tools (`make infra-up`) that only
+  // exist next to a local dev server — on a cloud host those ports are dead
+  // links (cloud counterparts: Neon console / GCS browser / Cloud Trace).
+  const isLocalHost = host === "localhost" || host === "127.0.0.1";
   const dashboardUrl = `/admin/dashboard?invite=${new URLSearchParams(window.location.search).get("invite") || localStorage.getItem("mythos_invite_key") || ""}`;
   return (
     <div className="panel" style={{ ...devPanelStyle, marginTop: 0 }}>
@@ -62,24 +66,27 @@ function InfraLinks() {
           <span className="infra-link-url">/admin/dashboard</span>
           <span className="infra-link-desc">Per-key player status & activity</span>
         </a>
-        {INFRA_LINKS.map((l) => (
-          <a
-            key={l.label}
-            className="infra-link"
-            style={{ width: "100%" }}
-            href={`http://${host}:${l.port}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <span className="infra-link-name">{l.label} ▸</span>
-            <span className="infra-link-url">{`${host}:${l.port}`}</span>
-            <span className="infra-link-desc">{t(l.descKey)}</span>
-          </a>
-        ))}
+        {isLocalHost &&
+          INFRA_LINKS.map((l) => (
+            <a
+              key={l.label}
+              className="infra-link"
+              style={{ width: "100%" }}
+              href={`http://${host}:${l.port}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span className="infra-link-name">{l.label} ▸</span>
+              <span className="infra-link-url">{`${host}:${l.port}`}</span>
+              <span className="infra-link-desc">{t(l.descKey)}</span>
+            </a>
+          ))}
       </div>
-      <div className="infra-hint" style={{ marginTop: "12px", fontSize: "11px", color: "var(--ink-dim)" }}>
-        {t("dev.infra.hint")}
-      </div>
+      {isLocalHost && (
+        <div className="infra-hint" style={{ marginTop: "12px", fontSize: "11px", color: "var(--ink-dim)" }}>
+          {t("dev.infra.hint")}
+        </div>
+      )}
     </div>
   );
 }

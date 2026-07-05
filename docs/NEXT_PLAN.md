@@ -15,7 +15,19 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. Cloud Run rev `00019-jf6` serves
   direction = (A) "uncut single-turn" format now-ish or (B) montage after P1 + archetype openings + ending art
   (visible deltas). Metadata drafts ready (`docs/cbt/CBT_TEASER.md`/`.ko.md`); re-scope when picked up.
 - `[ ]` `[manual]` **Key-beat hybrid enablement + A/B verdict (after full-3.5 sign-off)**: deploy `MODEL=gemini-2.5-flash` + `GEMINI_MODEL_KEYBEAT=gemini-3.5-flash`; verify opening/anchor/cutscene/boss-buildup/ending route to 3.5 and normal turns to 2.5; compare matched full loops for quality, repetition/continuity, state/name/language errors, p50/p95 latency, and cost. Done = documented keep/rollback decision; rollback restores full `MODEL=gemini-3.5-flash` with key-beat unset.
-- `[ ]` **CBT feedback #1 (Audrey, EN) — first-session comprehension track (2026-07-05, triage `docs/cbt/CBT_FEEDBACK.md`)**: praise = visuals/theming/intro; all 4 criticisms = onboarding, not depth. Sub-items: `[ ]` combat entry telegraph (risk badge on combat-leading choices + 1-beat transition; boss buildup generalized) · `[ ]` first-combat interactive tutorial overlay (move→attack→skill→guard, one-time) · `[ ]` progressive UI disclosure on first loop (turn 0-2 story+choices+gauges only; map/character panel unlock on first use; DEV LOG collapsed) · `[ ]` `[manual]` EN fresh-loop retest of story coherence on the 3.5+diet stack (the "disjointed story" complaint predates the rule-truncation fix — confirm residue before more prompt work). UI sub-items become `[auto]` after a design snapshot.
+- `[ ]` **CBT P1 (feedback #1 Audrey + #2 owner 7-loop self-play) — design snapshot DONE
+  (`docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md`), tracks in priority order**:
+  - `[ ]` **P1-A onboarding+skill legibility**: combat telegraph (A1) · first-combat tutorial overlay (A2) ·
+    progressive disclosure (A3) · skill category badge/expected-effect line (D1) · buff/debuff status chips (D2).
+    Objective UI — `[auto]` eligible per slice (make check + AGY live-QA not FAIL/NEEDS).
+  - `[ ]` **P1-B replay variety**: guaranteed meet-arc slot for unlocked-unmet companions (B1, small) ·
+    Loop2+ shortened/variant openings (B2, merges the archetype-openings long-term item) · loop modifiers (B3).
+  - `[ ]` **P1-C density/continuity**: ally-join foreshadow rule (C3, Tae-o pop-in) · no-op turn guard (C1) ·
+    deterministic SFX cues (C4) · combat board full-width layout (D3) · cover legibility (D4).
+  - `[ ]` **P1-D character identity**: stun status foundation (F — also fixes inert EMP grenade) ·
+    companion signature skills ×6 w/ codex→agy icon pipeline (E1) · IX boss-exclusive skills + phase (E2).
+  - `[ ]` `[manual]` decisions: in-layer pacing knob (C2) · overload-strike range balance (D5) ·
+    EN fresh-loop retest of story coherence on 3.5+diet (pre-req for more prompt work).
 - `[x]` **Save-slot overwrite + delete (user request, DONE 2026-07-05)**: 수동 슬롯 덮어쓰기(같은 slot_id 재기록,
   autosave 북마크는 거부) + 슬롯 삭제(수동/autosave 모두, 2-클릭 확인 UI) — 스토어 `delete_player_memories`부터
   SAVE 모달 버튼까지 수직 구현, 유닛테스트 6종. 남음 `[manual]`: 라이브 체감 (덮어쓰기/삭제 후 목록 갱신).

@@ -16,6 +16,8 @@ from mythos_core.models import to_json_dict
 from mythos_runtime.companion_growth import companion_sheet
 from mythos_runtime.options import MemoryOverview, RunSummary, RuntimeSnapshot, SaveSlot
 from mythos_runtime.scenario import load_scenario
+from mythos_runtime.scenario_directives import available_opening_variants
+from mythos_runtime.session_memory import unresolved_setups
 
 
 def player_to_dict(player: PlayerProfile) -> dict[str, Any]:
@@ -400,6 +402,49 @@ def _presentation_cues(scene: Any, state: dict[str, Any], combat: Any) -> list[s
     return cues
 
 
+def _next_loop_teaser(loop: Any, state: dict[str, Any]) -> dict[str, Any] | None:
+    """G4 loop hooking: the ended-loop screen's "다음 루프 예고" payload.
+
+    Cliffhanger material derived from what this run left behind: the first
+    unresolved setup ("떡밥"), the opening-variant candidates the player could
+    plausibly draw next (unlocked-but-unmet companions), and the modifier pool.
+    None outside an ended loop or when nothing teases.
+    """
+    if loop.phase.value != "ended":
+        return None
+    teaser: dict[str, Any] = {}
+    open_setups = unresolved_setups(state)
+    if open_setups:
+        teaser["open_setup"] = str(open_setups[0].get("text") or "")
+    scenario_id = str(state.get("scenario_id") or "neo-seoul")
+    try:
+        scenario = load_scenario(scenario_id)
+        variants = available_opening_variants(scenario_id)
+    except Exception:
+        return teaser or None
+    meta = state.get("meta_progression")
+    meta = meta if isinstance(meta, dict) else {}
+    unlocked = {str(a) for a in meta.get("unlocked_allies") or []} | {"kai"}
+    met = {str(a) for a in meta.get("allies_met") or []}
+    allies = scenario.combat.get("allies", {}) if isinstance(scenario.combat, dict) else {}
+    candidates = []
+    for vid in sorted(variants):
+        if vid == "solo" or vid not in unlocked or vid in met:
+            continue
+        entry = allies.get(vid)
+        candidates.append(str(entry.get("name")) if isinstance(entry, dict) else vid)
+    if candidates:
+        teaser["variant_candidates"] = candidates[:3]
+    modifiers = [
+        str(m.get("name") or m.get("id"))
+        for m in scenario.loop_modifiers
+        if isinstance(m, dict) and m.get("id")
+    ]
+    if modifiers:
+        teaser["modifier_names"] = modifiers[:3]
+    return teaser or None
+
+
 def snapshot_to_dict(snapshot: RuntimeSnapshot) -> dict[str, Any]:
     """Serialize a RuntimeSnapshot into the frontend GameState contract."""
     loop = snapshot.loop
@@ -447,6 +492,8 @@ def snapshot_to_dict(snapshot: RuntimeSnapshot) -> dict[str, Any]:
         "image_result": to_json_dict(snapshot.image_result) if snapshot.image_result else None,
         "echo": to_json_dict(snapshot.echo) if snapshot.echo else None,
         "active_echoes": [to_json_dict(echo) for echo in loop.active_echoes],
+        # G4 loop hooking: ended-loop cliffhanger (open setup + next-run teasers).
+        "next_loop_teaser": _next_loop_teaser(loop, state),
         "bgm_path": snapshot.bgm_path,
         "combat": snapshot.combat,
         "epiphanies_unlocked": snapshot.epiphanies_unlocked,

@@ -1006,6 +1006,34 @@ function EndedPanel({
           <li>{t("story.end.carry.meta")}</li>
         </ul>
       </div>
+      {(() => {
+        // G4 loop hooking: cliffhanger for the next run — carried echo, the
+        // loudest unresolved setup, and what might await (variants/modifiers).
+        const teaser = snapshot.next_loop_teaser;
+        const echoText = snapshot.echo?.text || snapshot.echo?.symbol;
+        if (!teaser && !echoText) return null;
+        return (
+          <div className="carry-forward next-loop-teaser" id="next-loop-teaser">
+            <div className="cf-head">{t("story.end.next.title")}</div>
+            <ul className="cf-list">
+              {echoText && <li>{t("story.end.next.echo")}: {echoText}</li>}
+              {teaser?.open_setup && (
+                <li>{t("story.end.next.openSetup")}: {teaser.open_setup}</li>
+              )}
+              {(teaser?.variant_candidates?.length ?? 0) > 0 && (
+                <li>
+                  {t("story.end.next.variants")}: {(teaser?.variant_candidates ?? []).join(" · ")}
+                </li>
+              )}
+              {(teaser?.modifier_names?.length ?? 0) > 0 && (
+                <li>
+                  {t("story.end.next.modifiers")}: {(teaser?.modifier_names ?? []).join(" · ")}
+                </li>
+              )}
+            </ul>
+          </div>
+        );
+      })()}
       <div style={{ marginTop: "12px" }}>
         <button className="cc-btn" id="ended-new-connect" onClick={onLeaveSession}>
           {t("story.end.newConnect")}

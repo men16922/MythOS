@@ -121,5 +121,52 @@ class SetupLedgerTest(unittest.TestCase):
         )
 
 
+class NextLoopTeaserTest(unittest.TestCase):
+    """G4 루프 후킹: 엔딩 스냅샷의 '다음 루프 예고' 페이로드."""
+
+    def _snapshot_dict(self, *, phase: LoopPhase, state: dict[str, Any]) -> dict[str, Any]:
+        from mythos_api.serializers import snapshot_to_dict
+        from mythos_core import Choice, Scene
+        from mythos_runtime.options import RuntimeSnapshot
+
+        player = PlayerProfile("p1", "T", NOW, NOW, {"archetype": "Unclassified"})
+        loop = LoopState("l", "p1", "s", phase, "loc", 50, 50, NOW, None, state, [])
+        scene = Scene(
+            scene_id="s_end",
+            loop_id="l",
+            turn_index=30,
+            title="종료",
+            location="loc",
+            narration="루프가 닫힌다.",
+            choices=[Choice("c1", "…", "archive")],
+            visual_brief=None,
+            created_at=NOW,
+        )
+        return snapshot_to_dict(
+            RuntimeSnapshot(player=player, loop=loop, scene=scene, assets=[])
+        )
+
+    def test_ended_loop_serializes_cliffhanger(self) -> None:
+        state = {
+            "scenario_id": "neo-seoul",
+            "ending_id": "ending_survival",
+            SETUPS_KEY: [{"id": "h", "text": "세린이 오지 않은 이유", "resolve_flags": []}],
+            "meta_progression": {"unlocked_allies": ["han"], "allies_met": ["kai"]},
+        }
+        data = self._snapshot_dict(phase=LoopPhase.ENDED, state=state)
+        teaser = data["next_loop_teaser"]
+        assert teaser is not None
+        self.assertEqual(teaser["open_setup"], "세린이 오지 않은 이유")
+        self.assertIn("한", teaser["variant_candidates"])
+        self.assertNotIn("카이", teaser["variant_candidates"])  # met → 후보 제외
+        self.assertIn("순찰 강화", teaser["modifier_names"])
+
+    def test_live_loop_has_no_teaser(self) -> None:
+        data = self._snapshot_dict(
+            phase=LoopPhase.EXPLORE, state={"scenario_id": "neo-seoul"}
+        )
+        self.assertIsNone(data["next_loop_teaser"])
+
+
 if __name__ == "__main__":
     unittest.main()

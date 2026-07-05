@@ -438,6 +438,12 @@ export interface RuntimeSnapshot {
   boons?: BoonsView | null;
   market?: MarketView | null;
   companions?: CompanionSheet[];
+  // G4 loop hooking: ended-loop cliffhanger (open setup + next-run teasers).
+  next_loop_teaser?: {
+    open_setup?: string;
+    variant_candidates?: string[];
+    modifier_names?: string[];
+  } | null;
 }
 
 // Met companion with growth-folded combat sheet (CHARACTER tab focus card).

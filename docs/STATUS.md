@@ -11,7 +11,7 @@ Major implemented axes:
 - **Shared runtime/UI**: `RuntimeSessionService` is the single orchestration boundary for FastAPI REST/WS, React/Vite, Streamlit, and CLI.
 - **Persistence/infra**: PostgreSQL is authoritative; MinIO/GCS store assets; OTel/Jaeger/Cloud Trace cover observability. Redis was removed 2026-07-04, so images generate synchronously in-request.
 - **Narrative**: local development uses Ollama 8B storyteller + 3B parser with repair/fallback; the cloud product uses Vertex Gemini controlled generation. Prompt directives, Story Bible snippets, deterministic session synopsis, shard rollup, and outcome metrics are integrated.
-- **Cloud model operations**: rev `00024-qpr` runs full `gemini-3.5-flash` + prompt diet (~$1.0/loop) + 07-05 GCS presign hotfix (IAM signBlob) + boot-simulator admin gating + save overwrite/delete. Optional `GEMINI_MODEL_KEYBEAT` routing is implemented and live-probed but **not enabled**.
+- **Cloud model operations**: rev `00025-856` runs full `gemini-3.5-flash` + prompt diet (~$1.0/loop) + the 07-05 fix/feature batch (GCS presign IAM signBlob, simulator gating, save overwrite/delete, companion-equip UI, item toast). Optional `GEMINI_MODEL_KEYBEAT` routing implemented but **not enabled**.
 - **Visuals**: local mflux/FLUX + Redux and cloud Imagen share the provider/storage boundary; curated scene/cutscene/ending art and synchronous generation are active.
 - **Gameplay**: deterministic tactical combat, direct party control, companion growth/equipment, enemy intents, skills/items, combat cinema, rewards, boons, market/recovery, and IX boss flow are implemented.
 - **Scenario/progression**: Neo-Seoul is the primary long-form scenario; route-node DAG + multi-perspective anchors + session memory, Story Bible, Codex, Run History, achievements, meta progression, save/load, and ending resolver are implemented. Glass Library is parity-ready but held.
@@ -20,8 +20,8 @@ Major implemented axes:
 
 Latest verified baseline:
 
-- `make check` **769 green** (presign, WS guard, verify-invite `gated`, save overwrite/delete regressions).
-- Cloud Run rev **`00024-qpr`**: presign hotfix + simulator gating + save overwrite/delete + dashboard admin rows, all live-verified; `mythos-d1b0da3e` elevated to admin (cap-exempt, user-directed). Dev-console infra-link fix committed, rides the next deploy.
+- `make check` **770 green** (presign, WS guard, `gated`, save overwrite/delete, items_gained regressions).
+- Cloud Run rev **`00025-856`**: presign hotfix + simulator gating + save overwrite/delete + dashboard admin rows + companion-equip UI overhaul + item-gain toast + dev-console link fix, live; `mythos-d1b0da3e` admin/cap-exempt (user-directed). Voice audition kit delivered (48 samples: KO natives / EN premades).
 - Three AGY objective runs passed save/load restore, route pairing+horizon refresh, choice idempotency, support targeting, loot persistence, and equip/unequip. Remaining gate is human play feel.
 - Completed detail is compressed in `docs/COMPLETED_SUMMARY.md` M35-M56; latest increments and exact measurements remain in `docs/PROGRESS_LOG.md` and dated plans.
 
@@ -31,11 +31,10 @@ Authority plan: `docs/NEXT_PLAN.md`.
 
 Direction remains global-first EN/KO closed beta: Gemini/Vertex is the product path; Ollama/FLUX remains the local development path. Deployment/onboarding/localization history is in `docs/COMPLETED_SUMMARY.md` M50 and M56.
 
-1. **Human live sign-off**: fresh-loop 3.5 prose verdict + Audrey EN coherence retest using `docs/test/neo_seoul_live_qa.md`; authenticated production turn; human `git push`.
-2. **Post-sign-off model experiment**: enable the planned 2.5-normal/3.5-key-beat hybrid, verify routing and compare full-loop quality, latency, errors, and cost; record keep/rollback verdict.
-3. **CBT onboarding P1**: combat-entry telegraph, first-combat tutorial, and progressive first-loop disclosure after a design snapshot.
-4. **Human triage**: decide ally writeback semantics (simulator gating resolved 07-05 as admin-only).
-5. **Maintenance/hold**: WS4 content pipeline remains plan-only; Glass Library expansion waits for Neo-Seoul satisfaction sign-off.
+1. **CBT P1 implementation (next code track, design snapshot DONE)**: `docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md` — P1-A onboarding/skill legibility first, then replay variety / density-continuity / board layout / signature+boss skills / narrative-arc+cinematic (dialogue markup, ElevenLabs voice).
+2. **Human lane in parallel**: sign-off full run on rev `00025-856` + Audrey EN retest (`docs/test/neo_seoul_live_qa.md`); voice-id pinning (`outputs/voice-auditions/{ko,en}/` → `voices.json`); `git push` (ahead 31); triage calls (ally-writeback · overload-strike range · pacing knob).
+3. **Post-sign-off model experiment**: 2.5-normal/3.5-key-beat hybrid A/B; record keep/rollback verdict.
+4. **Maintenance/hold**: WS4 content pipeline plan-only; Glass Library waits for Neo-Seoul satisfaction; teaser #2 deferred (uncut-single-turn or post-P1 montage).
 
 ## Open Risks
 

@@ -164,6 +164,14 @@ class CombatEngine:
         if actor is None or not actor.alive or not actor.is_controllable:
             return state
 
+        # F stun: a stunned player-driven unit loses this turn outright — the
+        # attempted action is discarded and initiative moves on.
+        if self._consume_stun(state, actor):
+            self._run_until_controllable(state)
+            if not state.active:
+                return self._finish(state)
+            return state
+
         # `spent` is False when the action was rejected (no focus / on cooldown /
         # missing item / no valid target) so the turn is NOT handed to the enemies.
         spent = True
@@ -657,6 +665,25 @@ class CombatEngine:
                 state, player, "info",
                 clog(state.language, "recover_hp", name=support.name, healed=healed),
             )
+        # F stun (EMP pulse): stun the picked/nearest enemy in range; an ``aoe``
+        # tagged skill also catches enemies adjacent to that target.
+        if effect.get("stun"):
+            stun_target = state.by_id(action.target_id)
+            if stun_target is None or not stun_target.alive or stun_target.faction != ENEMY:
+                stun_target = self._nearest_enemy_in_range(state, player, skill_range)
+            if stun_target is not None:
+                duration = max(1, int(effect.get("duration", 1) or 1))
+                self._apply_stun(state, player, stun_target, duration)
+                if "aoe" in (skill_def.get("tags") or []):
+                    for splash in state.living_enemies():
+                        if splash.id != stun_target.id and (
+                            distance(splash.x, splash.y, stun_target.x, stun_target.y) <= 1
+                        ):
+                            self._apply_stun(state, player, splash, duration)
+            else:
+                self._log(
+                    state, player, "info", clog(state.language, "skill_no_target", name=name)
+                )
 
         player.focus = max(0, player.focus - focus_cost)
         player.cooldowns[skill_id] = int(skill_def.get("cooldown", 0))
@@ -698,6 +725,25 @@ class CombatEngine:
                 state, player, "item",
                 clog(state.language, "item_focus", actor=player.name, item=name), detail,
             )
+            return True
+        if effect == "stun":
+            # F stun (EMP grenade — previously inert): stun the chosen/nearest
+            # enemy within throw range for `bonus` of their turns.
+            throw_range = int(item_def.get("range", 3) or 3)
+            victim = state.by_id(action.target_id)
+            if victim is None or not victim.alive or victim.faction != ENEMY:
+                victim = self._nearest_enemy_in_range(state, player, throw_range)
+            if victim is None:
+                self._log(
+                    state, player, "info", clog(state.language, "skill_no_target", name=name)
+                )
+                return False
+            self._log(
+                state, player, "item",
+                clog(state.language, "item_stun", actor=player.name, item=name, target=victim.name),
+                detail,
+            )
+            self._apply_stun(state, player, victim, max(1, int(item_def.get("bonus", 1) or 1)))
             return True
         if effect == "revive":
             # Reboot the most valuable casualty: the first downed ALLY (the
@@ -997,10 +1043,55 @@ class CombatEngine:
 
     def _npc_turn(self, state: CombatState, actor: Combatant) -> None:
         self._tick_round_upkeep(state, actor)
+        # F stun: a stunned NPC (EMP'd machine, mostly) skips its turn entirely.
+        if self._consume_stun(state, actor):
+            return
         if actor.faction == ENEMY:
             self._enemy_turn(state, actor)
         elif actor.faction == ALLY:
             self._ally_turn(state, actor)
+
+    def _apply_stun(
+        self, state: CombatState, source: Combatant, victim: Combatant, turns: int
+    ) -> None:
+        """Stun ``victim`` for ``turns`` of their own initiative (F foundation).
+
+        Shared by the EMP-pulse skill effect and the EMP-grenade item so both
+        finally do what their text promises. Refreshes rather than stacks, and
+        keeps the D2 status chip ("stunned") in sync.
+        """
+        victim.stunned_turns = max(victim.stunned_turns, max(1, int(turns)))
+        if "stunned" not in victim.status:
+            victim.status.append("stunned")
+        self._log(
+            state,
+            source,
+            "skill",
+            clog(
+                state.language,
+                "stun_applied",
+                actor=source.name,
+                target=victim.name,
+                turns=victim.stunned_turns,
+            ),
+            {"stunned": victim.id, "turns": victim.stunned_turns},
+        )
+
+    def _consume_stun(self, state: CombatState, actor: Combatant) -> bool:
+        """True when ``actor`` loses this turn to stun (decrements + chip sync)."""
+        if actor.stunned_turns <= 0:
+            return False
+        actor.stunned_turns -= 1
+        if actor.stunned_turns <= 0 and "stunned" in actor.status:
+            actor.status.remove("stunned")
+        self._log(
+            state,
+            actor,
+            "info",
+            clog(state.language, "stunned_skip", name=actor.name),
+            {"stunned_skip": actor.id},
+        )
+        return True
 
     def _execute_npc_skill(
         self,

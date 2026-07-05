@@ -799,6 +799,51 @@ class CombatNarratorTest(unittest.TestCase):
         self.assertGreater(player_blip["hp_ratio"], 0.0)
         self.assertLessEqual(player_blip["hp_ratio"], 1.0)
 
+    def test_emp_pulse_stuns_enemy_and_skips_its_turn(self) -> None:
+        # F 스턴 기반 (EMP 펄스 — 기존 장식품): 스턴된 적은 자기 턴을 통째로 잃는다.
+        engine = CombatEngine()
+        state = engine.start(
+            [_skilled_player(x=0, y=0)], [_drone(x=2, y=0, hp=30)], seed="stun", arena=(8, 6)
+        )
+        enemy = state.living_enemies()[0]
+        player = state.player()
+        assert player is not None
+        hp_before = player.hp
+        state = engine.take_player_turn(
+            state,
+            PlayerAction(type="skill", skill_id="emp_pulse", target_id=enemy.id),
+            skill_def=SKILLS["emp_pulse"],
+        )
+        details = [e.detail for e in state.log]
+        self.assertTrue(any(d.get("stunned") == enemy.id for d in details), "stun not applied")
+        self.assertTrue(
+            any(d.get("stunned_skip") == enemy.id for d in details), "stunned turn not skipped"
+        )
+        # 스턴된 드론은 이동·공격 없이 턴을 잃는다 → 플레이어 무피해.
+        self.assertEqual(state.player().hp, hp_before)  # type: ignore[union-attr]
+        # 지속 1턴: 스킵과 동시에 소진, 상태 칩도 내려간다.
+        after = state.by_id(enemy.id)
+        assert after is not None
+        self.assertEqual(after.stunned_turns, 0)
+        self.assertNotIn("stunned", after.status)
+
+    def test_emp_grenade_item_finally_stuns(self) -> None:
+        # F: EMP 수류탄(effect="stun")이 실제로 동작한다 (인벤토리 소모 포함).
+        engine = CombatEngine()
+        state = engine.start(
+            [_skilled_player(x=0, y=0)], [_drone(x=2, y=0, hp=30)], seed="stun-item", arena=(8, 6)
+        )
+        enemy = state.living_enemies()[0]
+        state = engine.take_player_turn(
+            state,
+            PlayerAction(type="item", item_id="emp_grenade", target_id=enemy.id),
+            item_def=ITEMS["emp_grenade"],
+            item_available=True,
+        )
+        details = [e.detail for e in state.log]
+        self.assertTrue(any(d.get("stunned") == enemy.id for d in details))
+        self.assertTrue(any(d.get("consumed") == "emp_grenade" for d in details))
+
     def test_cover_saved_miss_narrates_cover(self) -> None:
         # D4 엄폐 가독성: 엄폐 보너스가 명중을 빗나가게 만든 미스는 일반 미스가
         # 아니라 '엄폐물에 막혔다'로 서술되고 detail.cover_saved가 선다.

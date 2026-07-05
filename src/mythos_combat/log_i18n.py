@@ -34,6 +34,19 @@ _LINES: dict[str, dict[str, str]] = {
         "ko": "{attacker}의 {weapon} 공격이 {defender}을(를) 빗나갔다.",
         "en": "{attacker}'s {weapon} attack misses {defender}.",
     },
+    # F stun (EMP pulse skill / EMP grenade item).
+    "stun_applied": {
+        "ko": "{actor}의 전자 충격이 {target}의 회로를 마비시켰다! (기절 {turns}턴)",
+        "en": "{actor}'s electric shock locks up {target}'s circuits! (stunned {turns}T)",
+    },
+    "stunned_skip": {
+        "ko": "{name}은(는) 기절 상태로 움직이지 못한다.",
+        "en": "{name} is stunned and cannot act.",
+    },
+    "item_stun": {
+        "ko": "{actor}이(가) {item}을(를) 투척한다 — {target}을(를) 향해 전자기 폭발!",
+        "en": "{actor} throws {item} — an electromagnetic burst engulfs {target}!",
+    },
     # D4 cover legibility: when cover turned the hit into a miss, SAY so —
     # the +3/+6 bonus was invisible ("엄폐가 뭘 하는지 모름").
     "attack_miss_cover": {

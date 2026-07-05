@@ -65,6 +65,7 @@ class Combatant:
     cooldowns: dict[str, int] = field(default_factory=dict)  # skill_id -> rounds remaining
     defense_buff: int = 0  # temporary defense bonus from skills (e.g. covering_noise)
     defense_buff_turns: int = 0  # rounds the defense_buff persists
+    stunned_turns: int = 0  # turns this combatant loses to stun (EMP pulse/grenade)
     controllable: bool = False  # party member the player drives directly (vs AI ally)
     enraged: bool = False  # boss phase-2 flag: set once HP crosses the enrage threshold
 

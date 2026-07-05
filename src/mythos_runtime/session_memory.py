@@ -36,11 +36,14 @@ def record_beat(
     *,
     scene: Scene,
     player_action: str | None = None,
+    companions: list[str] | None = None,
 ) -> dict[str, Any]:
     """Append a compact beat for ``scene`` and refresh the recent-prose window.
 
     Idempotent per turn: re-committing the same turn index overwrites rather than
-    duplicating its beat.
+    duplicating its beat. ``companions`` (display names detected in the scene by
+    the caller) become the beat's companion-ref ledger — the C3 foreshadow rule
+    reads it to decide whether an ally may enter combat without a join signal.
     """
     if not isinstance(state, dict):
         return state
@@ -64,6 +67,8 @@ def record_beat(
             beat["gist"] = perspective.get("summary")
     if player_action:
         beat["action"] = player_action
+    if companions:
+        beat["companions"] = list(dict.fromkeys(str(name) for name in companions if name))
 
     new_state = dict(state)
     beats = [b for b in new_state.get(BEATS_KEY, []) if isinstance(b, dict)]
@@ -83,6 +88,44 @@ def record_beat(
         recent.sort(key=lambda r: r.get("t", 0))
         new_state[RECENT_NARRATION_KEY] = recent[-RECENT_NARRATION_KEEP:]
 
+    return new_state
+
+
+def companions_seen(state: dict[str, Any]) -> list[str]:
+    """Ordered-unique companion display names referenced by any beat this loop."""
+    if not isinstance(state, dict):
+        return []
+    seen: dict[str, None] = {}
+    for beat in state.get(BEATS_KEY, []):
+        if not isinstance(beat, dict):
+            continue
+        for name in beat.get("companions", []) or []:
+            if name:
+                seen[str(name)] = None
+    return list(seen)
+
+
+def note_companions(state: dict[str, Any], names: list[str]) -> dict[str, Any]:
+    """Merge companion refs into the latest beat (C3 join-signal bookkeeping).
+
+    Used when a companion is INTRODUCED outside a narrative commit (an ally
+    joining combat via the staged join signal): recording them here makes the
+    synopsis call them back and stops the next fight from re-announcing them.
+    No-op when the ledger is empty.
+    """
+    if not isinstance(state, dict) or not names:
+        return state
+    beats = [b for b in state.get(BEATS_KEY, []) if isinstance(b, dict)]
+    if not beats:
+        return state
+    new_state = dict(state)
+    latest = dict(beats[-1])
+    merged = list(latest.get("companions", []) or [])
+    for name in names:
+        if name and name not in merged:
+            merged.append(str(name))
+    latest["companions"] = merged
+    new_state[BEATS_KEY] = [*beats[:-1], latest]
     return new_state
 
 
@@ -166,6 +209,14 @@ def build_session_synopsis(state: dict[str, Any]) -> list[str]:
                 titles.append(title)
         if len(titles) > 1:
             notes.append(f"최근 흐름: {' · '.join(titles[-4:])}")
+        # C3 companion callback: keep introduced companions present in later
+        # scenes instead of letting them vanish (or pop into combat unexplained).
+        companions = companions_seen(state)
+        if companions:
+            notes.append(
+                f"동행/등장 인물(이 루프): {' · '.join(companions[-6:])} — 이들이 다시 "
+                "등장하는 장면에서는 이전 만남·합류를 한 줄로 짧게 콜백하라."
+            )
 
     if recent:
         notes.append("=== 직전 장면 원문 (이어서 작성) ===")

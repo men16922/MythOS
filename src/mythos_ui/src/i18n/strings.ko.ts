@@ -312,6 +312,7 @@ export const ko = {
   "combat.interstitial.title.ambient": "⚔ 기습 조우",
   "combat.interstitial.line.default": "적대 신호가 교전 거리 안으로 들어왔다.",
   "combat.interstitial.begin": "전투 개시",
+  "combat.interstitial.joining": "합류 신호",
   // Combat log
   "combatLog.title": "전술 전투 로그",
   // Route narrative (Codex tab)

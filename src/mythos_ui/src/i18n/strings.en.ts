@@ -310,6 +310,7 @@ export const en: Record<StringKey, string> = {
   "combat.interstitial.title.ambient": "⚔ Ambush",
   "combat.interstitial.line.default": "A hostile signal has closed into engagement range.",
   "combat.interstitial.begin": "Begin combat",
+  "combat.interstitial.joining": "Joining",
   "combatLog.title": "Tactical Combat Log",
   // Route narrative (Codex tab)
   "route.flow": "Route Flow (Route)",

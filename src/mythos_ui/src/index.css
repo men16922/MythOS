@@ -3398,6 +3398,12 @@ main {
   opacity: 0.92;
   margin: 0 0 22px;
 }
+.ci-joining {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: #7dff9b;
+  margin: -10px 0 20px;
+}
 .ci-begin {
   font-family: var(--mono);
   font-size: 13px;

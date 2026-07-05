@@ -35,6 +35,12 @@ export function CombatInterstitial({ snapshot }: CombatInterstitialProps) {
         {beat.name && <h2 className="ci-name">{beat.name}</h2>}
         {beat.location && <div className="ci-location">{beat.location}</div>}
         <p className="ci-line">{beat.line || t("combat.interstitial.line.default")}</p>
+        {(beat.joining?.length ?? 0) > 0 && (
+          <div className="ci-joining">
+            ⚑ {t("combat.interstitial.joining")}:{" "}
+            {(beat.joining ?? []).map((ally) => ally.name || ally.id).join(" · ")}
+          </div>
+        )}
         <button id="ci-begin" className="ci-begin" onClick={() => setDismissedKey(beatKey)}>
           {t("combat.interstitial.begin")}
         </button>

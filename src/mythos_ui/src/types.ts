@@ -333,6 +333,9 @@ export interface GameStateRaw {
     location?: string | null;
     kind?: "route" | "boss" | "ambient" | string;
     line?: string | null;
+    // C3 ally-join foreshadow: flag-unlocked allies entering their first
+    // on-screen appearance this loop, announced as a join signal.
+    joining?: { id: string; name?: string | null }[];
   };
   ending_id?: string;
   ending_label?: string;

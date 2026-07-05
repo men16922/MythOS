@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from collections.abc import Iterator
 from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING, Any
@@ -136,7 +137,7 @@ from mythos_runtime.route_runtime import (
     route_status,
 )
 from mythos_runtime.save_load import SaveLoadService
-from mythos_runtime.scenario import load_scenario
+from mythos_runtime.scenario import load_scenario, load_scenario_i18n
 from mythos_runtime.scenario_context import (
     ROUTE_STEERING_START_TURN,
     apply_archetype_traits,
@@ -148,7 +149,7 @@ from mythos_runtime.scenario_directives import (
     available_opening_variants,
     load_scenario_directives,
 )
-from mythos_runtime.session_memory import record_beat
+from mythos_runtime.session_memory import companions_seen, note_companions, record_beat
 from mythos_runtime.visual_orchestration import maybe_generate_scene_image
 
 ROUTE_CHOICE_PREFIX = "route:"
@@ -162,6 +163,59 @@ COMBAT_INTERSTITIAL_KEY = "_combat_interstitial"
 # Companions whose opening variants are always eligible without a meta unlock
 # (mirrors route_map._TUTORIAL_COMPANIONS; se_rin owns the default opening).
 _OPENING_TUTORIAL_COMPANIONS = frozenset({"kai"})
+
+
+def _companion_alias_map(scenario: Any, scenario_id: str) -> dict[str, list[str]]:
+    """Ally display name (KO canonical) → aliases to detect in scene prose.
+
+    Aliases: the authored KO name, its given-name tail for 3+ char full names
+    (정세린 → 세린 — prose usually drops the surname), and the EN glossary name
+    so EN-mode loops keep the same companion-ref ledger (C3 foreshadow rule).
+    """
+    allies = scenario.combat.get("allies", {}) if isinstance(scenario.combat, dict) else {}
+    overlay = load_scenario_i18n(scenario_id, "en")
+    glossary = overlay.get("glossary") if isinstance(overlay, dict) else None
+    glossary = glossary if isinstance(glossary, dict) else {}
+    alias_map: dict[str, list[str]] = {}
+    for entry in allies.values():
+        if not isinstance(entry, dict):
+            continue
+        name = str(entry.get("name") or "")
+        if not name:
+            continue
+        aliases = [name]
+        if len(name) >= 3:
+            aliases.append(name[1:])
+        en_name = glossary.get(name)
+        if en_name:
+            aliases.append(str(en_name))
+            # EN prose usually drops the surname too (Jung Se-rin → Se-rin).
+            last_token = str(en_name).split()[-1]
+            if last_token and last_token not in aliases:
+                aliases.append(last_token)
+        alias_map[name] = aliases
+    return alias_map
+
+
+def _companions_in_text(alias_map: dict[str, list[str]], text: str) -> list[str]:
+    """Companion display names referenced in ``text``.
+
+    Single-syllable KO names ("한") match only when particle-bounded — a bare
+    substring would hit ordinary words (한다/한강/한 걸음) on every scene.
+    """
+    found: list[str] = []
+    for name, aliases in alias_map.items():
+        for alias in aliases:
+            if len(alias) == 1:
+                if re.search(
+                    rf"(?<![가-힣]){re.escape(alias)}(?=[이가은는와과의에])", text
+                ):
+                    found.append(name)
+                    break
+            elif alias in text:
+                found.append(name)
+                break
+    return found
 
 
 def _select_opening_variant(
@@ -1788,6 +1842,44 @@ class RuntimeSessionService:
         )
         return combat_snapshot
 
+    @staticmethod
+    def _unheralded_allies(loop: LoopState, scenario: Any) -> list[dict[str, str]]:
+        """Flag-unlocked non-party allies with no companion-ref beat this loop.
+
+        These are the C3 "pop-in" cases: an ``unlock_flags`` grant (often a bare
+        LLM ``world_delta`` flag) put them on the combat roster without any
+        narrative introduction. Party members are excluded — joining the party
+        is always a deliberate on-screen event.
+        """
+        state = loop.state if isinstance(loop.state, dict) else {}
+        allies_pool = (
+            scenario.combat.get("allies", {}) if isinstance(scenario.combat, dict) else {}
+        )
+        if not isinstance(allies_pool, dict):
+            return []
+        party = state.get("_party")
+        members = party.get("members", []) if isinstance(party, dict) else []
+        member_ids = {
+            str(m.get("id")) for m in members if isinstance(m, dict) and m.get("id")
+        }
+        flags = {str(flag) for flag in state.get("flags", []) or []}
+        seen_names = set(companions_seen(state))
+        joining: list[dict[str, str]] = []
+        for ally_id, entry in allies_pool.items():
+            if not isinstance(entry, dict):
+                continue
+            actual_id = str(entry.get("id", ally_id))
+            if actual_id in member_ids:
+                continue
+            unlock_flags = {str(flag) for flag in entry.get("unlock_flags", []) or []}
+            if not unlock_flags & flags:
+                continue
+            name = str(entry.get("name") or actual_id)
+            if name in seen_names:
+                continue
+            joining.append({"id": actual_id, "name": name})
+        return joining
+
     def _begin_requested_combat(
         self,
         player: PlayerProfile,
@@ -1810,13 +1902,24 @@ class RuntimeSessionService:
         # ("route"/"boss") from ambient escalation ("ambient").
         encounter_meta = encounters[encounter_id]
         interstitial_state = dict(loop.state) if isinstance(loop.state, dict) else {}
-        interstitial_state[COMBAT_INTERSTITIAL_KEY] = {
+        descriptor: dict[str, Any] = {
             "encounter": encounter_id,
             "name": encounter_meta.get("name"),
             "location": encounter_meta.get("location_hint"),
             "kind": origin,
             "line": encounter_meta.get("intro"),
         }
+        # C3 ally-join foreshadow (Tae-o pop-in): a flag-unlocked non-party ally
+        # never referenced by any beat this loop may not silently stand on the
+        # board — announce them as a join signal on the interstitial and ledger
+        # the ref so the synopsis calls them back (and no re-announce next fight).
+        joining = self._unheralded_allies(loop, scenario)
+        if joining:
+            descriptor["joining"] = joining
+            interstitial_state = note_companions(
+                interstitial_state, [ally["name"] for ally in joining]
+            )
+        interstitial_state[COMBAT_INTERSTITIAL_KEY] = descriptor
         loop = replace(loop, state=interstitial_state)
         archetype = self._resolved_archetype(player, options.scenario_id)
         result = self.combat.begin(
@@ -2502,11 +2605,20 @@ class RuntimeSessionService:
                 scene = replace(scene, choices=_build_route_choices(junction_opts))
 
         # Session memory: record a compact beat + recent-prose window so later
-        # scenes have a "story so far" to continue from (anti-repetition).
+        # scenes have a "story so far" to continue from (anti-repetition). The
+        # beat also ledgers which companions this scene referenced (C3): combat
+        # ally staging reads it to decide who needs a join signal.
         if isinstance(transition.loop.state, dict):
             player_action = player_event.action if player_event is not None else None
+            beat_scenario = load_scenario(options.scenario_id)
             beat_state = record_beat(
-                transition.loop.state, scene=scene, player_action=player_action
+                transition.loop.state,
+                scene=scene,
+                player_action=player_action,
+                companions=_companions_in_text(
+                    _companion_alias_map(beat_scenario, options.scenario_id),
+                    f"{scene.title}\n{scene.narration}",
+                ),
             )
             transition = replace(transition, loop=replace(transition.loop, state=beat_state))
 

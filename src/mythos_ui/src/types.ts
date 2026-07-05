@@ -146,6 +146,9 @@ export interface ActiveScene {
   stakes_summary?: string[];
   choice_result?: ChoiceResult | null;
   scene_type: string;
+  // G3 deterministic cinematic cues (alarm/shake/sting/glitch/vignette/drone/
+  // pickup) — the client effect layer keys off these, never off prose.
+  presentation_cues?: string[];
 }
 
 export interface CombatBlip {

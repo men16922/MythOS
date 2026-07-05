@@ -55,6 +55,7 @@ import { useSessionControls } from "./hooks/useSessionControls";
 import { useSnapshotReceiver } from "./hooks/useSnapshotReceiver";
 import { useNarrativeStream } from "./hooks/useNarrativeStream";
 import { useKeyboardChoice } from "./hooks/useKeyboardChoice";
+import { usePresentationCues } from "./hooks/usePresentationCues";
 import { useLang } from "./i18n/lang";
 
 export type NarrativeHistoryItem = {
@@ -565,6 +566,10 @@ export default function App() {
   // behavior-preserving extraction.
   useKeyboardChoice(finalizedSnapshot, sendChoose);
 
+  // G3 cinematic cues: per-scene deterministic AV punch (shake/vignette/glitch
+  // classes on the play area + mapped SFX), derived server-side — never prose.
+  const cueFxClass = usePresentationCues(finalizedSnapshot, playSfx);
+
   // Combat board pointer interaction (drag-to-move + tile inspector + zoom)
   // lives in a hook; it draws onto the shared canvasRef and dispatches moves
   // back through handleCombatAction.
@@ -785,7 +790,7 @@ export default function App() {
               </div>
             </div>
           )}
-          <main id="play">
+          <main id="play" className={cueFxClass || undefined}>
           <section>
             <TabNav activeTab={activeTab} onTabClick={handleTabClick} notices={tabNotices} showDev={isAdmin} />
 

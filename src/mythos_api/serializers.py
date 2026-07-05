@@ -374,6 +374,32 @@ def _chapter_goal(loop: Any, state: dict[str, Any]) -> str | None:
     return None
 
 
+def _presentation_cues(scene: Any, state: dict[str, Any], combat: Any) -> list[str]:
+    """Deterministic audiovisual cues for this snapshot (G3 cinematic system).
+
+    Derived from state the engine already produced — never from LLM prose — so
+    the client's effect layer (shake/vignette/sting + SFX) fires on rule-true
+    moments: combat entry, cutscene reveal, tension spike, item pickup.
+    """
+    cues: list[str] = []
+    fighting = bool(combat) and not (isinstance(combat, dict) and combat.get("finished"))
+    if fighting and state.get("_combat_interstitial"):
+        cues += ["alarm", "shake"]
+    elif scene.scene_type == "cutscene":
+        cues += ["sting", "glitch"]
+    impact = state.get("_last_choice_impact")
+    if isinstance(impact, dict):
+        try:
+            tension_delta = int(impact.get("tension_delta") or 0)
+        except (TypeError, ValueError):
+            tension_delta = 0
+        if tension_delta >= 8 and not fighting:
+            cues += ["vignette", "drone"]
+        if impact.get("items_gained"):
+            cues.append("pickup")
+    return cues
+
+
 def snapshot_to_dict(snapshot: RuntimeSnapshot) -> dict[str, Any]:
     """Serialize a RuntimeSnapshot into the frontend GameState contract."""
     loop = snapshot.loop
@@ -413,6 +439,9 @@ def snapshot_to_dict(snapshot: RuntimeSnapshot) -> dict[str, Any]:
             "action_result": _clean_text(scene.action_result) if scene.action_result else scene.action_result,
             "stakes_summary": _scene_stakes_summary(loop, state),
             "choice_result": state.get("_last_choice_impact") if isinstance(state, dict) else None,
+            # G3 deterministic cinematic cues (alarm/shake/sting/glitch/vignette/
+            # drone/pickup) — the client effect layer keys off these, not prose.
+            "presentation_cues": _presentation_cues(scene, state, snapshot.combat),
         },
         "assets": [to_json_dict(asset) for asset in snapshot.assets],
         "image_result": to_json_dict(snapshot.image_result) if snapshot.image_result else None,

@@ -111,6 +111,9 @@ export interface SceneChoice {
   axis_label?: string;
   stakes?: string[];
   result_preview?: string;
+  // Deterministic combat telegraph: picking this choice is known to lead into
+  // tactical combat (route junction to a combat node, or a parked boss climax).
+  combat_risk?: boolean;
 }
 
 export interface ChoiceResult {
@@ -305,6 +308,15 @@ export interface GameStateRaw {
     image: string;
   };
   _seen_cutscenes?: string[];
+  // Combat-entry transition beat: written when a fight begins, cleared on the
+  // next narrative commit. Rendered once as a pre-board interstitial overlay.
+  _combat_interstitial?: {
+    encounter: string;
+    name?: string | null;
+    location?: string | null;
+    kind?: "route" | "boss" | "ambient" | string;
+    line?: string | null;
+  };
   ending_id?: string;
   ending_label?: string;
   ending_narration?: string;

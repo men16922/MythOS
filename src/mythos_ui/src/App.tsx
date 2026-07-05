@@ -35,6 +35,7 @@ import type {
 } from "./types";
 import { CombatAnimator } from "./combatEffects";
 import { CombatCinema } from "./CombatCinema";
+import { CombatInterstitial } from "./CombatInterstitial";
 import { LS_KEY, parseResumeSession } from "./sessionStorage";
 import type { ResumeSessionData } from "./sessionStorage";
 import { buildCodexLists, buildDevConsoleData, buildEpiphanyNotice } from "./viewModels";
@@ -815,6 +816,8 @@ export default function App() {
           onFinish={onCinemaFinish}
         />
       )}
+
+      <CombatInterstitial snapshot={finalizedSnapshot ?? lastSnapshot} />
 
       {saveLoadModal && (
         <SaveLoadModal

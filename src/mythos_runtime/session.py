@@ -146,6 +146,12 @@ from mythos_runtime.visual_orchestration import maybe_generate_scene_image
 
 ROUTE_CHOICE_PREFIX = "route:"
 
+# Transient loop-state descriptor for the combat-entry transition beat (CBT
+# feedback #1 "combat jump-scare"): written when a fight begins, rendered by the
+# client as a 1-beat interstitial before the tactical board, cleared on the next
+# narrative commit. Mirrors the ``_active_cutscene`` lifecycle.
+COMBAT_INTERSTITIAL_KEY = "_combat_interstitial"
+
 if TYPE_CHECKING:
     from mythos_runtime.visual_service import VisualGenerationResult
 
@@ -1696,6 +1702,8 @@ class RuntimeSessionService:
         loop: LoopState,
         encounter_id: str,
         options: RuntimeOptions,
+        *,
+        origin: str = "ambient",
     ) -> RuntimeSnapshot:
         scenario = load_scenario(options.scenario_id)
         encounters = (
@@ -1703,6 +1711,21 @@ class RuntimeSessionService:
         )
         if encounter_id not in encounters:
             raise RuntimeError(f"unknown combat encounter requested: {encounter_id}")
+        # Combat telegraph: stage the transition-beat descriptor so the client can
+        # render a 1-beat interstitial (encounter name / place / authored hook line)
+        # before the tactical board — a fight announces itself instead of an
+        # ambush-by-UI. ``origin`` distinguishes a deliberate route-node fight
+        # ("route"/"boss") from ambient escalation ("ambient").
+        encounter_meta = encounters[encounter_id]
+        interstitial_state = dict(loop.state) if isinstance(loop.state, dict) else {}
+        interstitial_state[COMBAT_INTERSTITIAL_KEY] = {
+            "encounter": encounter_id,
+            "name": encounter_meta.get("name"),
+            "location": encounter_meta.get("location_hint"),
+            "kind": origin,
+            "line": encounter_meta.get("intro"),
+        }
+        loop = replace(loop, state=interstitial_state)
         archetype = self._resolved_archetype(player, options.scenario_id)
         result = self.combat.begin(
             loop,
@@ -2243,12 +2266,24 @@ class RuntimeSessionService:
             loop=replace(transition.loop, state=_apply_rest_recovery(transition.loop.state)),
         )
 
+        # The combat-entry interstitial descriptor is transient: any narrative
+        # commit after the fight began clears it (mirrors ``_active_cutscene``).
+        if isinstance(transition.loop.state, dict) and (
+            COMBAT_INTERSTITIAL_KEY in transition.loop.state
+        ):
+            cleared_interstitial = dict(transition.loop.state)
+            cleared_interstitial.pop(COMBAT_INTERSTITIAL_KEY, None)
+            transition = replace(
+                transition, loop=replace(transition.loop, state=cleared_interstitial)
+            )
+
         # Boss buildup: a climax fight parked on node entry fires on the FIRST
         # choice made at the confrontation — the arrival commit stays a narrative
         # beat with choices (IX declares itself; the player answers), so the fight
         # lands as a consequence instead of an ambush-by-UI (live feedback
         # 2026-07-04: "마지막 노드 진입하자마자 급작스럽게 보스전").
         route_combat: str | None = None
+        route_combat_kind: str | None = None
         if isinstance(transition.loop.state, dict):
             pending_boss = transition.loop.state.get("_pending_boss_combat")
             if pending_boss:
@@ -2256,6 +2291,7 @@ class RuntimeSessionService:
                 cleared_state.pop("_pending_boss_combat", None)
                 transition = replace(transition, loop=replace(transition.loop, state=cleared_state))
                 route_combat = str(pending_boss)
+                route_combat_kind = "boss"
                 transition = self._defer_threshold_archive_for_climax(
                     transition, prior_phase=loop.phase, payload=payload
                 )
@@ -2308,6 +2344,7 @@ class RuntimeSessionService:
                         )
                     else:
                         route_combat = candidate
+                        route_combat_kind = "route"
 
                 # Dynamic route growth: now that the pointer advanced, thicken the
                 # upcoming horizon layers with the GM's proposed nodes (type-
@@ -2486,8 +2523,13 @@ class RuntimeSessionService:
                         state=mark_encounter_resolved(transition.loop.state, triggered_combat),
                     ),
                 )
+            combat_origin = (
+                route_combat_kind
+                if route_combat and next_combat == route_combat and route_combat_kind
+                else "ambient"
+            )
             combat_snapshot = self._begin_requested_combat(
-                player, transition.loop, next_combat, options
+                player, transition.loop, next_combat, options, origin=combat_origin
             )
             return combat_snapshot
         return snapshot
@@ -3101,7 +3143,12 @@ def _build_route_choices(options: list[dict[str, Any]]) -> list[Choice]:
         if badges:
             label = f"{label} · {badges}"
         choices.append(
-            Choice(choice_id=f"{ROUTE_CHOICE_PREFIX}{node_id}", label=label, intent="explore")
+            Choice(
+                choice_id=f"{ROUTE_CHOICE_PREFIX}{node_id}",
+                label=label,
+                intent="explore",
+                combat_risk=bool(node.get("combat")),
+            )
         )
     return choices
 

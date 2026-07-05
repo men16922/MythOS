@@ -68,6 +68,11 @@ class Choice:
     # ``loop.state["relationships"]`` by the session, surviving the route reconcile
     # in ``route_runtime.advance_route``. None for Director-generated choices.
     effect: dict[str, Any] | None = None
+    # Deterministic combat telegraph: True when picking this choice is known to
+    # lead into tactical combat (junction choice whose destination node is a
+    # combat-type node). Director-generated choices stay False — only authored
+    # route data can make this promise. CBT feedback #1 "combat jump-scare".
+    combat_risk: bool = False
 
 
 @dataclass(frozen=True)

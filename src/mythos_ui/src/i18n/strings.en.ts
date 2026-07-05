@@ -39,6 +39,7 @@ export const en: Record<StringKey, string> = {
   "choice.node.event": "Chance event",
   "choice.node.story": "Story beat",
   "choice.node.boss": "Final confrontation",
+  "choice.combatRisk": "⚔ Combat risk",
   "choice.intent.explore": "🧭 Explore",
   "choice.intent.interact": "💬 Interact",
   "choice.intent.rewrite": "⚡ System Intervene",
@@ -276,6 +277,11 @@ export const en: Record<StringKey, string> = {
   "cc.role.support": "Support",
   "cc.item.nanopatch": "Nanopatch",
   // Combat log
+  "combat.interstitial.title.route": "⚔ Engagement",
+  "combat.interstitial.title.boss": "⚡ Final Confrontation",
+  "combat.interstitial.title.ambient": "⚔ Ambush",
+  "combat.interstitial.line.default": "A hostile signal has closed into engagement range.",
+  "combat.interstitial.begin": "Begin combat",
   "combatLog.title": "Tactical Combat Log",
   // Route narrative (Codex tab)
   "route.flow": "Route Flow (Route)",

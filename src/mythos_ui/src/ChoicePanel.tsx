@@ -69,6 +69,9 @@ export function ChoicePanel({ choices, stability, tension, routeMap, onChoose }:
               {choiceRequirementLabel(choice, t)}
             </div>
             <div className="cmd-meta-row">
+              {choice.combat_risk && (
+                <span className="cmd-chip combat-risk">{t("choice.combatRisk")}</span>
+              )}
               {choice.axis_label && <span className="cmd-chip">{choice.axis_label}</span>}
               {intentLabel && <span className="cmd-chip muted">{intentLabel}</span>}
               {choice.stakes?.slice(1).map((stake) => (

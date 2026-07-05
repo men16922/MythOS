@@ -2913,6 +2913,7 @@
       "patrol_ambush": {
         "id": "patrol_ambush",
         "name": "순찰 매복",
+        "intro": "수색등이 골목을 훑는다. 순찰 드론의 렌즈가 이쪽에서 멈춘다.",
         "location_hint": "복지 블록",
         "risk": 1,
         "weight": 4,
@@ -2938,6 +2939,7 @@
       "sentinel_checkpoint": {
         "id": "sentinel_checkpoint",
         "name": "감시 검문",
+        "intro": "야시장 초입의 스피커가 일제히 꺼진다. 검문 장벽이 통로를 가로막는다.",
         "location_hint": "한강 야시장",
         "risk": 2,
         "weight": 3,
@@ -2974,6 +2976,7 @@
       "enforcer_standoff": {
         "id": "enforcer_standoff",
         "name": "집행 봉쇄",
+        "intro": "스파이어의 조명이 일제히 붉게 바뀐다. 집행 유닛이 퇴로를 봉쇄한다.",
         "location_hint": "스파이어",
         "risk": 4,
         "weight": 1,
@@ -3000,6 +3003,7 @@
       "wraith_glitch": {
         "id": "wraith_glitch",
         "name": "글리치 조우",
+        "intro": "공기가 지직거린다. 폐기층의 어둠 속에서 윤곽이 어긋난 형체가 걸어 나온다.",
         "location_hint": "폐기층",
         "risk": 3,
         "weight": 2,
@@ -3024,6 +3028,7 @@
       "shock_trooper_patrol": {
         "id": "shock_trooper_patrol",
         "name": "집행특전대 교전",
+        "intro": "강하 케이블이 연달아 떨어진다. 특전대의 부츠가 바닥을 울린다.",
         "location_hint": "스파이어 구역",
         "risk": 3,
         "weight": 2,
@@ -3053,6 +3058,7 @@
       "tracker_ambush": {
         "id": "tracker_ambush",
         "name": "신호추적 매복",
+        "intro": "지하 통로의 불빛이 하나씩 꺼진다. 추적 신호음이 등 뒤에서 겹친다.",
         "location_hint": "복지 블록 지하",
         "risk": 2,
         "weight": 3,
@@ -3078,6 +3084,7 @@
       "mech_siege": {
         "id": "mech_siege",
         "name": "중진압전차 포격",
+        "intro": "벽 너머에서 중장갑의 구동음이 낮게 울린다. 포신이 이쪽을 향해 돌아간다.",
         "location_hint": "지하철 통제 중추",
         "risk": 4,
         "weight": 1,
@@ -3108,6 +3115,7 @@
       "purge_incineration": {
         "id": "purge_incineration",
         "name": "소각드론 소란",
+        "intro": "소각로의 경보가 울린다. 드론 편대가 열기 속에서 선회한다.",
         "location_hint": "데이터 소각로",
         "risk": 3,
         "weight": 2,
@@ -3133,6 +3141,7 @@
       "ix_confrontation": {
         "id": "ix_confrontation",
         "name": "관리자 IX 대면",
+        "intro": "코어의 빛이 한 점으로 모인다. 관리자 IX가 당신을 정면으로 마주한다.",
         "location_hint": "ARK 코어 — 최적화 제단",
         "risk": 5,
         "weight": 1,

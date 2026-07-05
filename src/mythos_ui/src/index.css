@@ -305,6 +305,13 @@ main {
   border-color: var(--line-soft);
   background: rgba(255, 255, 255, 0.03);
 }
+/* Combat telegraph: a choice known to lead into tactical combat. */
+.cmd-chip.combat-risk {
+  color: #ff7a6b;
+  border-color: rgba(255, 122, 107, 0.45);
+  background: rgba(255, 82, 61, 0.1);
+  font-weight: 600;
+}
 .cmd-preview {
   color: var(--ink-dim);
   font-size: 11.5px;
@@ -3161,6 +3168,86 @@ main {
   to {
     transform: translateX(0);
     opacity: 1;
+  }
+}
+
+/* --- Combat-entry interstitial (1-beat transition before the tactical board) --- */
+.combat-interstitial-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 7, 6, 0.9);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  animation: interstitial-fade-in 0.35s ease-out;
+}
+.combat-interstitial {
+  width: min(520px, 90vw);
+  padding: 28px 32px;
+  text-align: center;
+  background: var(--panel);
+  border: 1px solid rgba(255, 122, 107, 0.4);
+  border-radius: 8px;
+  box-shadow: 0 0 48px rgba(255, 82, 61, 0.14);
+}
+.combat-interstitial.kind-boss {
+  border-color: rgba(255, 200, 90, 0.5);
+  box-shadow: 0 0 56px rgba(255, 200, 90, 0.16);
+}
+.ci-kind {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: #ff7a6b;
+  text-transform: uppercase;
+}
+.combat-interstitial.kind-boss .ci-kind {
+  color: #ffc85a;
+}
+.ci-name {
+  margin: 10px 0 2px;
+  font-size: 24px;
+  color: var(--ink);
+  letter-spacing: 1px;
+}
+.ci-location {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-dim);
+  margin-bottom: 14px;
+}
+.ci-line {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink);
+  opacity: 0.92;
+  margin: 0 0 22px;
+}
+.ci-begin {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 2px;
+  padding: 10px 26px;
+  cursor: pointer;
+  color: #ff9a8d;
+  background: rgba(255, 82, 61, 0.12);
+  border: 1px solid rgba(255, 122, 107, 0.5);
+  border-radius: 6px;
+}
+.ci-begin:hover {
+  color: #ffd0c9;
+  border-color: #ff9a8d;
+  background: rgba(255, 82, 61, 0.2);
+}
+@keyframes interstitial-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .combat-interstitial-backdrop {
+    animation: none;
   }
 }
 

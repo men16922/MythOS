@@ -39,6 +39,7 @@ export const ko = {
   "choice.node.event": "돌발 사건",
   "choice.node.story": "주요 장면",
   "choice.node.boss": "최종 대면",
+  "choice.combatRisk": "⚔ 충돌 위험",
   "choice.intent.explore": "🧭 탐색",
   "choice.intent.interact": "💬 상호작용",
   "choice.intent.rewrite": "⚡ 시스템 개입",
@@ -275,6 +276,12 @@ export const ko = {
   "cc.role.healing": "회복",
   "cc.role.support": "지원",
   "cc.item.nanopatch": "나노패치",
+  // Combat-entry interstitial (1-beat transition before the tactical board)
+  "combat.interstitial.title.route": "⚔ 교전 개시",
+  "combat.interstitial.title.boss": "⚡ 최종 대면",
+  "combat.interstitial.title.ambient": "⚔ 기습 조우",
+  "combat.interstitial.line.default": "적대 신호가 교전 거리 안으로 들어왔다.",
+  "combat.interstitial.begin": "전투 개시",
   // Combat log
   "combatLog.title": "전술 전투 로그",
   // Route narrative (Codex tab)

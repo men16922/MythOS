@@ -163,11 +163,16 @@ def _choice_preview(axis: str) -> str:
     return previews.get(axis, "다음 장면의 우선순위를 바꿉니다.")
 
 
-def _choice_to_dict(choice: Any) -> dict[str, Any]:
+def _choice_to_dict(choice: Any, *, combat_pending: bool = False) -> dict[str, Any]:
     choice_data = cast(dict[str, Any], to_json_dict(choice))
     choice_data["label"] = _clean_text(choice_data.get("label"))
     axis = _choice_axis(str(choice_data.get("label") or ""), choice_data.get("intent"))
     axis_label = _CHOICE_AXIS_LABELS[axis]
+    # Combat telegraph: on a parked-climax confrontation scene every choice fires
+    # the boss fight, so all choices carry the risk badge regardless of what the
+    # Director generated.
+    if combat_pending:
+        choice_data["combat_risk"] = True
     return {
         **choice_data,
         "axis": axis,
@@ -397,7 +402,10 @@ def snapshot_to_dict(snapshot: RuntimeSnapshot) -> dict[str, Any]:
             "title": _clean_text(scene.title),
             "location": _clean_text(scene.location),
             "narration": _clean_text(scene.narration),
-            "choices": [_choice_to_dict(choice) for choice in scene.choices],
+            "choices": [
+                _choice_to_dict(choice, combat_pending=bool(state.get("_pending_boss_combat")))
+                for choice in scene.choices
+            ],
             "visual_brief": _clean_text(scene.visual_brief),
             "scene_type": scene.scene_type,
             "objective": _clean_text(scene.objective) if scene.objective else scene.objective,

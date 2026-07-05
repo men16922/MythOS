@@ -2871,6 +2871,26 @@ def _route_boss_reached(state: Any) -> bool:
     return str(node.get("type")) == "boss"
 
 
+def _inventory_counts(state: Any) -> tuple[dict[str, int], dict[str, str]]:
+    """Per-item-id counts + display names from a loop state's ``_inventory``."""
+    counts: dict[str, int] = {}
+    names: dict[str, str] = {}
+    inventory = state.get("_inventory") if isinstance(state, dict) else None
+    for entry in inventory or []:
+        if isinstance(entry, str):
+            item_id, name = entry, entry
+        elif isinstance(entry, dict):
+            item_id = str(entry.get("id") or entry.get("item_id") or "")
+            name = str(entry.get("name") or item_id)
+        else:
+            continue
+        if not item_id:
+            continue
+        counts[item_id] = counts.get(item_id, 0) + 1
+        names.setdefault(item_id, name)
+    return counts, names
+
+
 def _choice_impact_summary(
     *,
     before: LoopState,
@@ -2883,6 +2903,15 @@ def _choice_impact_summary(
     new_flags = sorted(_state_flags(after.state) - _state_flags(before.state))
     route_from = _route_node_label(before.state)
     route_to = _route_node_label(after.state)
+    # Items gained this turn (LLM grant_items / scripted rewards): the player has
+    # no other feedback that a "잔해를 수습한다" pick actually paid out.
+    before_counts, _ = _inventory_counts(before.state)
+    after_counts, after_names = _inventory_counts(after.state)
+    items_gained: list[dict[str, Any]] = [
+        {"id": item_id, "name": after_names.get(item_id, item_id), "count": gained}
+        for item_id, count in after_counts.items()
+        if (gained := count - before_counts.get(item_id, 0)) > 0
+    ]
 
     parts: list[str] = []
     if scene.action_result:
@@ -2891,6 +2920,14 @@ def _choice_impact_summary(
         parts.append(f"안정성 {stability_delta:+d}")
     if tension_delta:
         parts.append(f"긴장도 {tension_delta:+d}")
+    if items_gained:
+        parts.append(
+            "획득 "
+            + ", ".join(
+                f"{item['name']}×{item['count']}" if item["count"] > 1 else str(item["name"])
+                for item in items_gained[:3]
+            )
+        )
     if new_flags:
         parts.append("새 플래그 " + ", ".join(new_flags[:3]))
     if route_from and route_to and route_from != route_to:
@@ -2902,6 +2939,7 @@ def _choice_impact_summary(
         "stability_delta": stability_delta,
         "tension_delta": tension_delta,
         "new_flags": new_flags,
+        "items_gained": items_gained,
         "route_from": route_from,
         "route_to": route_to,
     }

@@ -233,6 +233,51 @@ class GrantItemsTest(unittest.TestCase):
         self.assertEqual(upgraded["_inventory"][1]["id"], "nanopatch")
         self.assertEqual(upgraded["_inventory"][2], "unknown")
 
+    def test_choice_impact_reports_items_gained(self) -> None:
+        # User feedback 2026-07-05: a salvage payout was invisible — the impact
+        # summary (→ item-gain toast) must diff the inventory across the turn.
+        from mythos_core import LoopPhase, LoopState
+        from mythos_runtime.session import _choice_impact_summary
+
+        def _loop(inventory):
+            return LoopState(
+                loop_id="loop_1",
+                player_id="p1",
+                seed="s",
+                phase=LoopPhase.EXPLORE,
+                location_id="l",
+                stability=50,
+                tension=40,
+                started_at=datetime(2026, 7, 5, tzinfo=UTC),
+                state={"_inventory": inventory},
+            )
+
+        before = _loop([{"id": "nanopatch", "name": "나노패치"}])
+        after = _loop(
+            [
+                {"id": "nanopatch", "name": "나노패치"},
+                {"id": "drone_scrap", "name": "드론 부품"},
+                {"id": "drone_scrap", "name": "드론 부품"},
+            ]
+        )
+        scene = Scene(
+            scene_id="scene_1",
+            loop_id="loop_1",
+            turn_index=3,
+            title="t",
+            location="l",
+            narration="n",
+            choices=[],
+            visual_brief=None,
+            created_at=datetime(2026, 7, 5, tzinfo=UTC),
+        )
+        event = create_world_event(loop_id="loop_1", turn_index=3, action="잔해를 수습한다")
+        impact = _choice_impact_summary(before=before, after=after, scene=scene, player_event=event)
+        self.assertEqual(
+            impact["items_gained"], [{"id": "drone_scrap", "name": "드론 부품", "count": 2}]
+        )
+        self.assertIn("획득 드론 부품×2", impact["summary"])
+
 
 class RuntimeSessionTest(unittest.TestCase):
     def test_initial_loop_scores_default_without_archive_memories(self) -> None:

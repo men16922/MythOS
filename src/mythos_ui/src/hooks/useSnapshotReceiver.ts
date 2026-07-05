@@ -22,6 +22,9 @@ type UseSnapshotReceiverArgs = {
   playBgm: (bgmPath: string, forceEnabled?: boolean) => void;
   playSfx: (key: string, scenarioId?: string, volume?: number) => void;
   logToConsole: (line: string) => void;
+  // Item-gain toast: fired when the applied snapshot's choice_result reports
+  // items gained this turn (salvage grants would otherwise be invisible).
+  onItemsGained?: (items: { id: string; name: string; count: number }[]) => void;
 };
 
 /**
@@ -50,11 +53,16 @@ export function useSnapshotReceiver(args: UseSnapshotReceiverArgs) {
     playBgm,
     playSfx,
     logToConsole,
+    onItemsGained,
   } = args;
 
   const handleReceivedSnapshot = (snap: RuntimeSnapshot) => {
     setLoopId(snap.loop_id);
     setLastSnapshot(snap);
+    const gained = snap.active_scene?.choice_result?.items_gained;
+    if (gained && gained.length > 0 && onItemsGained) {
+      onItemsGained(gained);
+    }
     const resultSummary = snap.active_scene?.choice_result?.summary;
     if (resultSummary) {
       setNarrativeHistory((prev) => {

@@ -96,6 +96,9 @@ export default function App() {
   // Whether the server runs invite-gated (CBT). Gated + non-admin hides the boot
   // combat simulator (it creates real loops → burns the tester loop cap).
   const [inviteGated, setInviteGated] = useState(false);
+  // Item-gain toast (auto-dismisses): "잔해 수습" payouts are invisible otherwise.
+  const [itemNotice, setItemNotice] = useState<string | null>(null);
+  const itemNoticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [consoleLogs, setConsoleLogs] = useState<string>("");
   const [isBusy, setIsBusy] = useState(false);
   const [saveSlots, setSaveSlots] = useState<SaveSlot[]>([]);
@@ -346,6 +349,14 @@ export default function App() {
     playBgm,
     playSfx,
     logToConsole,
+    onItemsGained: (items) => {
+      const text = items
+        .map((item) => (item.count > 1 ? `${item.name} ×${item.count}` : item.name))
+        .join(", ");
+      setItemNotice(text);
+      if (itemNoticeTimerRef.current) clearTimeout(itemNoticeTimerRef.current);
+      itemNoticeTimerRef.current = setTimeout(() => setItemNotice(null), 6000);
+    },
   });
 
   // --- Narrative stream (WS socket + token receive + choice send) ---
@@ -675,6 +686,16 @@ export default function App() {
         />
       ) : connected && (
         <>
+          {itemNotice && (
+            <div
+              className="ingame-epiphany-banner item-gain-banner"
+              id="item-gain-banner"
+              onClick={() => setItemNotice(null)}
+            >
+              <div className="banner-title">{t("notice.itemGained")}</div>
+              <div className="banner-body">{itemNotice}</div>
+            </div>
+          )}
           {showInGameNotice && (
             <div
               className="ingame-epiphany-banner"

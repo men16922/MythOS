@@ -119,6 +119,8 @@ export interface ChoiceResult {
   stability_delta?: number;
   tension_delta?: number;
   new_flags?: string[];
+  // Items gained by this turn (salvage grants / scripted rewards) → gain toast.
+  items_gained?: { id: string; name: string; count: number }[];
   route_from?: string | null;
   route_to?: string | null;
 }

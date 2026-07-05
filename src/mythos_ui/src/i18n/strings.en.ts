@@ -480,4 +480,8 @@ export const en: Record<StringKey, string> = {
   "ctab.inParty": "In Party",
   "ctab.skills": "Skills",
   "ctab.growth": "Growth Unlocks",
+  "notice.itemGained": "Items Acquired",
+  "ctab.companionGear": "Equipped Gear",
+  "ctab.companionGearHint": "Nothing equipped — equip from the inventory on the right to give gear to this companion.",
+  "ctab.companionGearNotInParty": "Only companions in your party can wear equipment.",
 };

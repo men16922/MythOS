@@ -480,6 +480,10 @@ export const ko = {
   "ctab.inParty": "파티 합류 중",
   "ctab.skills": "스킬",
   "ctab.growth": "성장 해금",
+  "notice.itemGained": "아이템 획득",
+  "ctab.companionGear": "착용 장비",
+  "ctab.companionGearHint": "착용 중인 장비 없음 — 오른쪽 인벤토리에서 장착하면 이 동료에게 적용됩니다.",
+  "ctab.companionGearNotInParty": "파티에 합류한 동료만 장비를 착용할 수 있습니다.",
 } as const;
 
 export type StringKey = keyof typeof ko;

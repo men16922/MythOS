@@ -111,19 +111,25 @@ export function StatBars({
   );
 }
 
-/** Equip/unequip with a wearer picker — companions in the party wear gear too. */
+/** Equip/unequip with a wearer picker — companions in the party wear gear too.
+ * `defaultWearer` pre-targets the picker (e.g. the companion currently focused
+ * in the CHARACTER tab), so "give gear to a companion" is one click. */
 function EquipControls({
   item,
   wearers,
   onEquip,
   t,
+  defaultWearer,
 }: {
   item: { id: string; equipped?: boolean; equipped_by?: string | null };
   wearers: { id: string; name: string }[];
   onEquip: (itemId: string, equipped: boolean, wearer?: string) => void;
   t: TFn;
+  defaultWearer?: string;
 }) {
-  const [wearer, setWearer] = useState("player");
+  // Callers key this component by `defaultWearer`, so a target change remounts
+  // it and the picker follows without an effect.
+  const [wearer, setWearer] = useState(defaultWearer || "player");
   if (item.equipped) {
     const holderId = item.equipped_by || "player";
     const holder = wearers.find((w) => w.id === holderId);
@@ -254,21 +260,12 @@ export function CharacterPanel({ snapshot, characters, onEquip, compact }: Chara
   // Combat loot lands in loop.state._inventory and is resolved server-side into
   // snapshot.inventory; prefer that over the static traits.inventory.
   const inventory = snapshot?.inventory && snapshot.inventory.length > 0 ? snapshot.inventory : [];
-  const inventoryGroups = ITEM_CATEGORY_ORDER.map((category) => ({
-    category,
-    items: inventory.filter((item) => itemCategory(item) === category),
-  })).filter((group) => group.items.length > 0);
   const autonomy = traits.autonomy_level;
   const scenarioId =
     typeof snapshot?.state?.scenario_id === "string" ? snapshot.state.scenario_id : "neo-seoul";
-  // Equip wearer options: the player + current party members (companion sheets
-  // carry in_party), so gear can be assigned to companions RPG-style.
-  const wearers = [
-    { id: "player", name: player?.display_name || t("char.player") },
-    ...(snapshot?.companions ?? [])
-      .filter((companion) => companion.in_party)
-      .map((companion) => ({ id: companion.id, name: companion.name })),
-  ];
+  // Inventory grid + wearer picker live in `InventoryPanel` (promoted to the
+  // CHARACTER tab column, above the bond list); this card keeps the paper-doll
+  // slots for the player's own worn gear.
 
   return (
     <div className="panel character-panel">
@@ -357,6 +354,41 @@ export function CharacterPanel({ snapshot, characters, onEquip, compact }: Chara
         })}
       </div>
 
+        </>
+      )}
+    </div>
+  );
+}
+
+/** Standalone inventory grid (extracted from the character card so the CHARACTER
+ * tab can promote it above the bond list). `defaultWearer` pre-targets equip
+ * controls at the focused companion. */
+export function InventoryPanel({
+  snapshot,
+  onEquip,
+  defaultWearer,
+}: {
+  snapshot: RuntimeSnapshot | null;
+  onEquip?: (itemId: string, equipped: boolean, wearer?: string) => void;
+  defaultWearer?: string;
+}) {
+  const { t } = useLang();
+  const inventory = snapshot?.inventory && snapshot.inventory.length > 0 ? snapshot.inventory : [];
+  const inventoryGroups = ITEM_CATEGORY_ORDER.map((category) => ({
+    category,
+    items: inventory.filter((item) => itemCategory(item) === category),
+  })).filter((group) => group.items.length > 0);
+  const scenarioId =
+    typeof snapshot?.state?.scenario_id === "string" ? snapshot.state.scenario_id : "neo-seoul";
+  const wearers = [
+    { id: "player", name: snapshot?.player?.display_name || t("char.player") },
+    ...(snapshot?.companions ?? [])
+      .filter((companion) => companion.in_party)
+      .map((companion) => ({ id: companion.id, name: companion.name })),
+  ];
+
+  return (
+    <>
       <div className="char-section-title">{t("char.inventory")} · {inventory.length}</div>
       {inventory.length > 0 ? (
         <div className="char-inventory">
@@ -390,7 +422,14 @@ export function CharacterPanel({ snapshot, characters, onEquip, compact }: Chara
                         </span>
                       </span>
                       {item.kind === "equipment" && onEquip && (
-                        <EquipControls item={item} wearers={wearers} onEquip={onEquip} t={t} />
+                        <EquipControls
+                          key={defaultWearer || "player"}
+                          item={item}
+                          wearers={wearers}
+                          onEquip={onEquip}
+                          t={t}
+                          defaultWearer={defaultWearer}
+                        />
                       )}
                     </li>
                   );
@@ -402,8 +441,6 @@ export function CharacterPanel({ snapshot, characters, onEquip, compact }: Chara
       ) : (
         <div className="char-empty">{t("char.noItems")}</div>
       )}
-        </>
-      )}
-    </div>
+    </>
   );
 }

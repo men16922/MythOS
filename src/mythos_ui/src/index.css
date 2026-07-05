@@ -3111,6 +3111,19 @@ main {
   -webkit-backdrop-filter: blur(8px);
 }
 
+/* Item-gain toast: bottom-right amber variant so it never collides with the
+   epiphany banner pinned top-right. */
+.item-gain-banner {
+  top: auto;
+  bottom: 24px;
+  border-color: #fbbf24;
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.35), inset 0 0 8px rgba(251, 191, 36, 0.12);
+}
+.item-gain-banner .banner-title {
+  color: #fbbf24 !important;
+  text-shadow: 0 0 8px rgba(251, 191, 36, 0.5) !important;
+}
+
 .ingame-epiphany-banner .banner-title {
   color: #00ffa6;
   font-weight: bold;

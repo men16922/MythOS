@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CharacterPanel, StatBars } from "./CharacterPanel";
+import { CharacterPanel, InventoryPanel, StatBars } from "./CharacterPanel";
 import { GaugeBar } from "./GameAside";
 import { buildAffectionGauges } from "./gauges";
 import { useLang } from "./i18n/lang";
@@ -9,7 +9,7 @@ import type { CompanionSheet, RuntimeSnapshot } from "./types";
 interface CharacterTabPanelProps {
   codexLists: CodexLists;
   snapshot?: RuntimeSnapshot | null;
-  onEquip?: (itemId: string, equipped: boolean) => void;
+  onEquip?: (itemId: string, equipped: boolean, wearer?: string) => void;
 }
 
 function getAvatarUrl(name: string, scenarioId?: string): string | undefined {
@@ -86,6 +86,44 @@ export function CharacterTabPanel({
                     </div>
                     <div className="char-section-title">{t("char.stats")}</div>
                     <StatBars stats={sheet.stats} bonus={sheet.stat_bonus} />
+                    {/* Gear this companion is wearing — unequip here; equipping
+                        happens in the inventory column (pre-targeted at this
+                        companion while their card is focused). */}
+                    <div className="char-section-title">{t("ctab.companionGear")}</div>
+                    {(() => {
+                      const worn = (snapshot?.inventory || []).filter(
+                        (item) => item.equipped && item.equipped_by === sheet.id
+                      );
+                      if (worn.length === 0) {
+                        return (
+                          <div className="char-empty">
+                            {sheet.in_party
+                              ? t("ctab.companionGearHint")
+                              : t("ctab.companionGearNotInParty")}
+                          </div>
+                        );
+                      }
+                      return (
+                        <ul className="inv-group-list">
+                          {worn.map((item) => (
+                            <li key={item.id} className="inv-item inv-equipped">
+                              <span className="inv-main">
+                                <span className="inv-name">{item.name}</span>
+                              </span>
+                              {onEquip && (
+                                <button
+                                  type="button"
+                                  className="inv-equip-btn on"
+                                  onClick={() => onEquip(item.id, false, sheet.id)}
+                                >
+                                  {t("char.unequip")}
+                                </button>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      );
+                    })()}
                     {sheet.skills.length > 0 && (
                       <>
                         <div className="char-section-title">{t("ctab.skills")}</div>
@@ -118,7 +156,15 @@ export function CharacterTabPanel({
             )}
           </div>
           <div className="codex-sec">
-            <div className="codex-sec-title">{t("ctab.bonds")}</div>
+            {/* Inventory promoted ABOVE the bond list (user request 2026-07-05):
+                equipping is the tab's main verb. While a party companion's card
+                is focused, equip controls pre-target that companion. */}
+            <InventoryPanel
+              snapshot={snapshot ?? null}
+              onEquip={onEquip}
+              defaultWearer={sheet?.in_party ? sheet.id : "player"}
+            />
+            <div className="codex-sec-title" style={{ marginTop: "16px" }}>{t("ctab.bonds")}</div>
             {affectionGauges.length > 0 ? (
               <div>
                 {affectionGauges.map((gauge) => {

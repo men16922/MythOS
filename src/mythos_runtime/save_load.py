@@ -26,12 +26,19 @@ class SaveLoadService:
         slots.sort(key=lambda s: s.saved_at, reverse=True)
         return slots[:limit]
 
-    def save_slot(self, loop_id: str, label: str | None = None) -> SaveSlot:
+    def save_slot(
+        self, loop_id: str, label: str | None = None, slot_id: str | None = None
+    ) -> SaveSlot:
         """Manual save: a NEW distinct slot carrying a full state snapshot.
 
         Autosave keeps upserting the per-loop bookmark (``slot_<loop_id>``); manual
         saves each get a unique slot id + a ``snapshot`` (loop state + scene) so
         loading one actually restores that moment, not just the live loop.
+
+        With ``slot_id``, OVERWRITE that existing manual slot instead: the new
+        snapshot is written under the same slot id (newest-wins keying makes it
+        the visible one) and superseded rows are pruned best-effort. Autosave
+        bookmarks cannot be overwritten — they re-upsert every turn anyway.
         """
         loop = self.store.get_loop(loop_id)
         if not loop:
@@ -41,10 +48,44 @@ class SaveLoadService:
         scene = self.store.get_latest_scene(loop_id)
         if not scene:
             raise RuntimeError(f"no scenes found for loop_id={loop_id}")
+        stale_ids: list[str] = []
+        if slot_id is not None:
+            memories = self.store.list_player_memories(loop.player_id)
+            existing = _latest_save_slot_memories(memories).get(slot_id)
+            if existing is None:
+                raise RuntimeError(f"save slot not found: {slot_id}")
+            metadata = existing.content.get("metadata")
+            if not (isinstance(metadata, dict) and metadata.get("manual")):
+                raise RuntimeError("autosave bookmarks cannot be overwritten")
+            stale_ids = [
+                m.memory_id
+                for m in memories
+                if m.kind == "save_slot" and str(m.content.get("slot_id")) == slot_id
+            ]
         assets = self.store.list_assets(loop_id)
-        memory = _save_slot_memory(loop, scene, assets, label=label, manual=True)
+        memory = _save_slot_memory(loop, scene, assets, label=label, manual=True, slot_id=slot_id)
         self.store.save_player_memory(memory)
+        if stale_ids:
+            try:
+                self.store.delete_player_memories(loop.player_id, stale_ids)
+            except NotImplementedError:
+                pass  # newest-wins keying keeps the overwrite correct regardless
         return _save_slot_from_memory(memory)
+
+    def delete_save_slot(self, player_id: str, slot_id: str) -> int:
+        """Delete a save slot (all memory rows sharing its slot id).
+
+        Works for manual slots and autosave bookmarks alike — a deleted autosave
+        simply re-appears on the loop's next turn.
+        """
+        memory_ids = [
+            m.memory_id
+            for m in self.store.list_player_memories(player_id)
+            if m.kind == "save_slot" and str(m.content.get("slot_id")) == slot_id
+        ]
+        if not memory_ids:
+            raise RuntimeError(f"save slot not found: {slot_id}")
+        return self.store.delete_player_memories(player_id, memory_ids)
 
     def restore_slot(self, player_id: str, slot_id: str) -> LoopState | None:
         """Restore a manual slot's snapshot into its loop (a real load/rewind).
@@ -98,14 +139,16 @@ def _save_slot_memory(
     assets: list[AssetRecord],
     label: str | None,
     manual: bool = False,
+    slot_id: str | None = None,
 ) -> PlayerMemory:
     now = utc_now()
     memory_id = new_memory_id()
-    slot_id = (
-        f"slot_{loop.loop_id}_{memory_id.removeprefix('memory_')[:8]}"
-        if manual
-        else f"slot_{loop.loop_id}"
-    )
+    if slot_id is None:
+        slot_id = (
+            f"slot_{loop.loop_id}_{memory_id.removeprefix('memory_')[:8]}"
+            if manual
+            else f"slot_{loop.loop_id}"
+        )
     slot = {
         "slot_id": slot_id,
         "player_id": loop.player_id,

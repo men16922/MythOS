@@ -31,6 +31,43 @@ class ManualSaveSlotTest(unittest.TestCase):
         manual = [s for s in slots if s.metadata.get("manual")]
         self.assertEqual({s.label for s in manual}, {"first", "second"})
 
+    def test_overwrite_replaces_manual_slot_in_place(self) -> None:
+        # User request 2026-07-05: SAVE must support overwriting an existing slot.
+        a = self.service.save_slot(self.loop_id, label="first")
+        overwritten = self.service.save_slot(self.loop_id, label="rewritten", slot_id=a.slot_id)
+        self.assertEqual(overwritten.slot_id, a.slot_id)
+        slots = self.service.list_save_slots("p1", limit=20)
+        manual = [s for s in slots if s.metadata.get("manual")]
+        self.assertEqual(len(manual), 1)
+        self.assertEqual(manual[0].label, "rewritten")
+        # Superseded rows were pruned (store supports deletion).
+        rows = [
+            m
+            for m in self.store.list_player_memories("p1")
+            if m.kind == "save_slot" and str(m.content.get("slot_id")) == a.slot_id
+        ]
+        self.assertEqual(len(rows), 1)
+
+    def test_overwrite_rejects_autosave_and_unknown_slots(self) -> None:
+        slots = self.service.list_save_slots("p1", limit=20)
+        bookmark = next(s for s in slots if not s.metadata.get("manual"))
+        with self.assertRaises(RuntimeError):
+            self.service.save_slot(self.loop_id, label="x", slot_id=bookmark.slot_id)
+        with self.assertRaises(RuntimeError):
+            self.service.save_slot(self.loop_id, label="x", slot_id="slot_nope")
+
+    def test_delete_save_slot_removes_it_from_the_list(self) -> None:
+        a = self.service.save_slot(self.loop_id, label="doomed")
+        b = self.service.save_slot(self.loop_id, label="keeper")
+        deleted = self.service.delete_save_slot("p1", a.slot_id)
+        self.assertGreaterEqual(deleted, 1)
+        slots = self.service.list_save_slots("p1", limit=20)
+        manual = [s for s in slots if s.metadata.get("manual")]
+        self.assertEqual({s.label for s in manual}, {"keeper"})
+        self.assertEqual(manual[0].slot_id, b.slot_id)
+        with self.assertRaises(RuntimeError):
+            self.service.delete_save_slot("p1", a.slot_id)
+
     def test_load_restores_the_saved_moment(self) -> None:
         saved = self.service.save_slot(self.loop_id, label="checkpoint")
         loop_before = self.store.get_loop(self.loop_id)

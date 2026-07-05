@@ -4350,6 +4350,10 @@ main {
   font-size: 11px;
   padding: 5px 14px;
 }
+.sl-delete-btn {
+  border-color: rgba(244, 114, 182, 0.5);
+  color: #f472b6;
+}
 .sl-launch {
   display: flex;
   gap: 8px;

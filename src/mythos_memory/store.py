@@ -78,6 +78,11 @@ class MythOSStore(ABC):
     def list_player_memories(self, player_id: str) -> list[PlayerMemory]:
         raise NotImplementedError
 
+    # Non-abstract (save-slot delete/overwrite cleanup) so existing fake stores
+    # keep working; concrete stores override. Returns the number of rows removed.
+    def delete_player_memories(self, player_id: str, memory_ids: list[str]) -> int:
+        raise NotImplementedError
+
     @abstractmethod
     def save_world_memory(self, memory: WorldMemory) -> None:
         raise NotImplementedError

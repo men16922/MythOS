@@ -36,6 +36,8 @@ interface EndingReached {
 interface TesterData {
   invite_key: string;
   player_id: string;
+  // Admin/operator key — badged so operator play doesn't read as tester metrics.
+  is_admin?: boolean;
   registered: boolean;
   display_name: string | null;
   archetype: string | null;
@@ -162,6 +164,9 @@ function TesterCard({ tester }: { tester: TesterData }) {
           </div>
         </div>
         <div style={{ textAlign: "right" }}>
+          {tester.is_admin && (
+            <span style={chipStyle("#ffc107")}>ADMIN</span>
+          )}
           {tester.archetype && (
             <span style={chipStyle("#60a5fa")}>{tester.archetype}</span>
           )}
@@ -363,10 +368,12 @@ export function TesterDashboard() {
     );
   }
 
-  // Summary stats
-  const totalRegistered = data.testers.filter((t) => t.registered).length;
-  const totalActive = data.testers.filter((t) => t.active_loops > 0).length;
-  const totalLoops = data.testers.reduce((sum, t) => sum + t.total_loops, 0);
+  // Summary stats — tester-only, so operator/admin play doesn't inflate metrics
+  // (admin rows still render below with an ADMIN badge).
+  const testerRows = data.testers.filter((t) => !t.is_admin);
+  const totalRegistered = testerRows.filter((t) => t.registered).length;
+  const totalActive = testerRows.filter((t) => t.active_loops > 0).length;
+  const totalLoops = testerRows.reduce((sum, t) => sum + t.total_loops, 0);
 
   return (
     <div className="panel" style={{ width: "100%", padding: "16px" }}>

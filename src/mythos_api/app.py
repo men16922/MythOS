@@ -163,6 +163,13 @@ class EquipRequest(BaseModel):
 class ManualSaveRequest(BaseModel):
     loop_id: str = Field(min_length=1)
     label: str | None = None
+    # Overwrite target: an existing MANUAL slot id to replace (None = new slot).
+    slot_id: str | None = None
+
+
+class DeleteSlotRequest(BaseModel):
+    player_id: str = Field(min_length=1)
+    slot_id: str = Field(min_length=1)
 
 
 class AssetResolveRequest(BaseModel):
@@ -852,10 +859,21 @@ def create_app() -> FastAPI:
         service: RuntimeSessionService = Depends(get_service),
     ) -> dict[str, Any]:
         try:
-            slot = service.save_slot(body.loop_id, label=body.label)
+            slot = service.save_slot(body.loop_id, label=body.label, slot_id=body.slot_id)
             return save_slot_to_dict(slot)
         except RuntimeError as exc:
             raise _as_http_error(exc) from exc
+
+    @app.post(f"{API_PREFIX}/save-slots/delete")
+    def delete_save_slot(
+        body: DeleteSlotRequest,
+        service: RuntimeSessionService = Depends(get_service),
+    ) -> dict[str, Any]:
+        try:
+            deleted = service.delete_save_slot(body.player_id, body.slot_id)
+        except RuntimeError as exc:
+            raise _as_http_error(exc) from exc
+        return {"deleted": deleted, "slot_id": body.slot_id}
 
     @app.post(f"{API_PREFIX}/save-slots/load")
     def load_save_slot(
@@ -946,8 +964,11 @@ def create_app() -> FastAPI:
         raw_keys = os.getenv("MYTHOS_INVITE_KEYS", "")
         admin_keys_set = admin_invite_keys()
         all_keys = [k.strip() for k in raw_keys.split(",") if k.strip()]
-        # Exclude admin keys from the tester list
-        tester_keys = [k for k in all_keys if k not in admin_keys_set]
+        # Testers first, then admin/operator keys (flagged, so the dashboard can
+        # badge them and keep tester metrics readable).
+        tester_keys = [k for k in all_keys if k not in admin_keys_set] + [
+            k for k in all_keys if k in admin_keys_set
+        ]
 
         testers: list[dict[str, Any]] = []
         for tkey in tester_keys:
@@ -959,6 +980,7 @@ def create_app() -> FastAPI:
                 testers.append({
                     "invite_key": tkey,
                     "player_id": pid,
+                    "is_admin": tkey in admin_keys_set,
                     "registered": False,
                     "display_name": None,
                     "archetype": None,
@@ -1034,6 +1056,7 @@ def create_app() -> FastAPI:
             testers.append({
                 "invite_key": tkey,
                 "player_id": pid,
+                "is_admin": tkey in admin_keys_set,
                 "registered": player is not None,
                 "display_name": player.display_name if player else None,
                 "archetype": (player.traits or {}).get("archetype") if player else None,

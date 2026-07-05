@@ -489,6 +489,8 @@ export interface SaveSlot {
   display_name?: string;
   archetype?: string;
   thumb_url?: string;
+  // manual=true marks a real snapshot slot (overwritable); autosave bookmarks are not.
+  metadata?: { manual?: boolean; autosave?: boolean; [key: string]: unknown };
 }
 
 export interface RunSummary {

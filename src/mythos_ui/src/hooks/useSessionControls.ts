@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
-import { apiGetScenarios, apiSaveSlot } from "../api";
+import { apiDeleteSlot, apiGetScenarios, apiSaveSlot } from "../api";
 import { useLang } from "../i18n/lang";
 import { firstUnlockedArchetype } from "../archetypes";
 import { LS_KEY, parseResumeSession } from "../sessionStorage";
@@ -136,12 +136,16 @@ export function useSessionControls(args: UseSessionControlsArgs) {
     }
   };
 
-  const handleSaveSlotSubmit = async () => {
+  const handleSaveSlotSubmit = async (overwriteSlotId?: string) => {
     if (!loopId || isBusy) return;
     setIsBusy(true);
     setStatus(t("sess.saving"));
     try {
-      await apiSaveSlot({ loop_id: loopId, label: saveLabelInput.trim() || null });
+      await apiSaveSlot({
+        loop_id: loopId,
+        label: saveLabelInput.trim() || null,
+        ...(overwriteSlotId ? { slot_id: overwriteSlotId } : {}),
+      });
       setSaveLabelInput("");
       setStatus(t("sess.saveOk"));
       if (playerId) {
@@ -154,5 +158,19 @@ export function useSessionControls(args: UseSessionControlsArgs) {
     }
   };
 
-  return { handleScenarioChange, handleLeaveSession, handleSaveSlotSubmit };
+  const handleDeleteSlot = async (slotId: string) => {
+    if (!playerId || isBusy) return;
+    setIsBusy(true);
+    try {
+      await apiDeleteSlot({ player_id: playerId, slot_id: slotId });
+      setStatus(t("sl.deleteOk"));
+      await loadSlotsAndRuns(playerId);
+    } catch (e) {
+      setStatus(t("sl.deleteFail") + (e as Error).message);
+    } finally {
+      setIsBusy(false);
+    }
+  };
+
+  return { handleScenarioChange, handleLeaveSession, handleSaveSlotSubmit, handleDeleteSlot };
 }

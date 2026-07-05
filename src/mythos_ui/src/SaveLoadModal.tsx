@@ -21,6 +21,10 @@ interface SaveLoadModalProps {
     loopId: string;
     slotId?: string;
   }) => void;
+  // Overwrite an existing MANUAL slot with the current moment (save mode only).
+  onOverwriteSlot: (slot: SaveSlot) => void;
+  // Delete a slot (manual or autosave — autosaves just reappear next turn).
+  onDeleteSlot: (slot: SaveSlot) => void;
   onClose: () => void;
 }
 
@@ -41,6 +45,8 @@ export function SaveLoadModal({
   onSaveLabelChange,
   onSave,
   onLoadSlot,
+  onOverwriteSlot,
+  onDeleteSlot,
   onClose,
 }: SaveLoadModalProps) {
   const { t, lang } = useLang();
@@ -49,6 +55,9 @@ export function SaveLoadModal({
   // The modal remounts on each open (conditionally rendered), so page starts at 0
   // per open. `safePage` clamps if the list shrinks (e.g. after a save reload).
   const [page, setPage] = useState(0);
+  // Two-click destructive confirm (no browser dialogs): first click arms the
+  // slot's button ("확인?"), second click executes; arming resets on other clicks.
+  const [confirmSlotId, setConfirmSlotId] = useState<string | null>(null);
   const safePage = Math.min(page, pageCount - 1);
   const pageSlots = slots.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
 
@@ -171,6 +180,44 @@ export function SaveLoadModal({
                         }}
                       >
                         {t("sl.loadBtn")}
+                      </button>
+                    )}
+                    {!loadMode && canSave && slot.metadata?.manual && slot.slot_id && (
+                      <button
+                        className="sl-load-btn"
+                        disabled={isBusy}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (confirmSlotId === `ow:${slot.slot_id}`) {
+                            setConfirmSlotId(null);
+                            onOverwriteSlot(slot);
+                          } else {
+                            setConfirmSlotId(`ow:${slot.slot_id}`);
+                          }
+                        }}
+                      >
+                        {confirmSlotId === `ow:${slot.slot_id}`
+                          ? t("sl.confirmBtn")
+                          : t("sl.overwriteBtn")}
+                      </button>
+                    )}
+                    {slot.slot_id && (
+                      <button
+                        className="sl-load-btn sl-delete-btn"
+                        disabled={isBusy}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (confirmSlotId === `del:${slot.slot_id}`) {
+                            setConfirmSlotId(null);
+                            onDeleteSlot(slot);
+                          } else {
+                            setConfirmSlotId(`del:${slot.slot_id}`);
+                          }
+                        }}
+                      >
+                        {confirmSlotId === `del:${slot.slot_id}`
+                          ? t("sl.confirmBtn")
+                          : t("sl.deleteBtn")}
                       </button>
                     )}
                   </div>

@@ -79,6 +79,14 @@ class _InMemoryStore(MythOSStore):
     def list_player_memories(self, player_id) -> list:
         return [m for m in self.player_memories if m.player_id == player_id]
 
+    def delete_player_memories(self, player_id, memory_ids) -> int:
+        ids = set(memory_ids)
+        before = len(self.player_memories)
+        self.player_memories = [
+            m for m in self.player_memories if not (m.player_id == player_id and m.memory_id in ids)
+        ]
+        return before - len(self.player_memories)
+
     # unused-by-combat surface
     def save_world_memory(self, memory) -> None:
         self.world_memories.append(memory)

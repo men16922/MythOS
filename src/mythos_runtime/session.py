@@ -968,8 +968,14 @@ class RuntimeSessionService:
         self._require_player(player_id)
         return self.save_load.list_save_slots(player_id, limit)
 
-    def save_slot(self, loop_id: str, label: str | None = None) -> SaveSlot:
-        return self.save_load.save_slot(loop_id, label=label)
+    def save_slot(
+        self, loop_id: str, label: str | None = None, slot_id: str | None = None
+    ) -> SaveSlot:
+        return self.save_load.save_slot(loop_id, label=label, slot_id=slot_id)
+
+    def delete_save_slot(self, player_id: str, slot_id: str) -> int:
+        self._require_player(player_id)
+        return self.save_load.delete_save_slot(player_id, slot_id)
 
     def load_save_slot(
         self, player_id: str, slot_id: str, options: RuntimeOptions | None = None

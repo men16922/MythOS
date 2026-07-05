@@ -423,7 +423,7 @@ export default function App() {
   // --- Session / UI control handlers ---
   // Scenario change / leave-session teardown / save-slot submit live in a hook;
   // behavior-preserving extraction (handlers stay plain functions).
-  const { handleScenarioChange, handleLeaveSession, handleSaveSlotSubmit } =
+  const { handleScenarioChange, handleLeaveSession, handleSaveSlotSubmit, handleDeleteSlot } =
     useSessionControls({
       scenarios,
       connected,
@@ -806,7 +806,13 @@ export default function App() {
           canSave={Boolean(loopId)}
           saveLabelInput={saveLabelInput}
           onSaveLabelChange={setSaveLabelInput}
-          onSave={handleSaveSlotSubmit}
+          onSave={() => handleSaveSlotSubmit()}
+          onOverwriteSlot={(slot) => {
+            if (slot.slot_id) handleSaveSlotSubmit(slot.slot_id);
+          }}
+          onDeleteSlot={(slot) => {
+            if (slot.slot_id) handleDeleteSlot(slot.slot_id);
+          }}
           onLoadSlot={async (data) => {
             setSaveLoadModal(null);
             // Manual slots carry a state snapshot: restore it server-side FIRST,

@@ -321,6 +321,24 @@ class PostgresMythOSStore(MythOSStore):
             ),
         )
 
+    def delete_player_memories(self, player_id: str, memory_ids: list[str]) -> int:
+        if not memory_ids:
+            return 0
+        try:
+            conn = self._connect()
+            cursor = conn.execute(
+                "DELETE FROM player_memories WHERE player_id = %s AND memory_id = ANY(%s)",
+                (player_id, list(memory_ids)),
+            )
+            deleted = int(cursor.rowcount or 0)
+            if self._transaction_depth == 0:
+                conn.commit()
+            return deleted
+        except psycopg.Error as exc:
+            if self._connection is not None and not self._connection.closed:
+                self._connection.rollback()
+            raise StoreError(str(exc)) from exc
+
     def list_player_memories(self, player_id: str) -> list[PlayerMemory]:
         rows = self._fetchall(
             "SELECT * FROM player_memories WHERE player_id = %s ORDER BY created_at",

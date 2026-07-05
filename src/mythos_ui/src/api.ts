@@ -280,8 +280,17 @@ export async function apiGetSlots(
 export async function apiSaveSlot(params: {
   loop_id: string;
   label?: string | null;
+  // Overwrite target: an existing MANUAL slot id to replace (omit = new slot).
+  slot_id?: string;
 }): Promise<SaveSlot> {
   return apiPost<SaveSlot>("/api/v1/save-slots", params);
+}
+
+export async function apiDeleteSlot(params: {
+  player_id: string;
+  slot_id: string;
+}): Promise<{ deleted: number; slot_id: string }> {
+  return apiPost<{ deleted: number; slot_id: string }>("/api/v1/save-slots/delete", params);
 }
 
 export async function apiGetRuns(playerId: string): Promise<{ runs: RunSummary[] }> {

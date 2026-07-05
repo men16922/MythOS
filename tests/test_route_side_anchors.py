@@ -250,6 +250,70 @@ class RouteSideAnchorTest(unittest.TestCase):
                 observed.add(beat)
         self.assertEqual(observed, set(expected), "not every companion entry arc was exercised")
 
+    def test_guaranteed_meet_arc_for_unmet_unlocked_companion(self) -> None:
+        # B1 보장 슬롯 (CBT 피드백 #2: 7루프 동안 카이까지만 만남 — 노출이 병목):
+        # 언락됐지만 아직 못 만난 동료가 있으면 그 만남 아크가 매 시드 지도에
+        # 최소 1개 강제 포함된다. han만 언락+미만남 → 모든 시드에 han 아크.
+        for i in range(20):
+            seed = f"b1-han-{i}"
+            rm = build_route_map(self.config, seed)
+            assert rm is not None
+            rm = attach_side_anchors(
+                rm,
+                self.side_arcs,
+                seed,
+                unlocked_companions={"han"},
+                met_companions=set(),
+            )
+            assert rm is not None
+            beats = {rm["nodes"][nid].get("beat") for nid in _side_ids(rm)}
+            self.assertIn("side_han_meet", beats, f"seed {seed} dropped the guaranteed meet arc")
+
+    def test_guarantee_covers_all_unmet_companions(self) -> None:
+        # 여러 미만남 동료가 있으면 시드 선택으로 그중 하나가 보장된다 (전원 커버).
+        unlocked = {"han", "su_ah", "tae_o", "lin_yue"}
+        meet_beats = {"side_han_meet", "side_su_ah_meet", "side_tae_o_meet", "side_lin_yue_request"}
+        seen: set[str] = set()
+        for i in range(40):
+            seed = f"b1-all-{i}"
+            rm = build_route_map(self.config, seed)
+            assert rm is not None
+            rm = attach_side_anchors(
+                rm,
+                self.side_arcs,
+                seed,
+                unlocked_companions=unlocked,
+                met_companions=set(),
+            )
+            assert rm is not None
+            beats = {str(rm["nodes"][nid].get("beat") or "") for nid in _side_ids(rm)}
+            hit = beats & meet_beats
+            self.assertTrue(hit, f"seed {seed} has no unmet meet arc at all")
+            seen |= hit
+        self.assertEqual(seen, meet_beats, "seed rotation never surfaced some companion")
+
+    def test_met_companions_release_the_guaranteed_slot(self) -> None:
+        # 이미 만난 동료는 보장 대상이 아니다 — han을 만난 뒤에는 순수 랜덤으로
+        # 돌아가므로 han 아크가 없는 시드가 존재해야 한다.
+        missing_some_seed = False
+        for i in range(40):
+            seed = f"b1-met-{i}"
+            rm = build_route_map(self.config, seed)
+            assert rm is not None
+            rm = attach_side_anchors(
+                rm,
+                self.side_arcs,
+                seed,
+                unlocked_companions={"han"},
+                met_companions={"han"},
+            )
+            assert rm is not None
+            beats = {rm["nodes"][nid].get("beat") for nid in _side_ids(rm)}
+            if "side_han_meet" not in beats:
+                missing_some_seed = True
+                break
+        self.assertTrue(missing_some_seed, "met companion still monopolizes the slot")
+
     def test_deterministic(self) -> None:
         a = attach_side_anchors(build_route_map(self.config, "det"), self.side_arcs, "det")
         b = attach_side_anchors(build_route_map(self.config, "det"), self.side_arcs, "det")

@@ -295,11 +295,15 @@ class RuntimeSessionService:
             # Weave authored side_arcs into the DAG as seed-selected optional
             # side-anchor branches (reachable yet skippable; boss distance kept).
             # Companion meet-arcs are gated on achievement-unlocked recruits.
+            # B1 guaranteed meet-arc slot: an unlocked-but-never-met companion's
+            # meet arc is forced into the map (exposure was the recruitment
+            # bottleneck — ~25%/run per arc under pure seed-random selection).
             route_map = attach_side_anchors(
                 route_map,
                 scenario.side_arcs,
                 loop_seed,
                 unlocked_companions=set(getattr(meta_progression, "unlocked_allies", []) or []),
+                met_companions=set(getattr(meta_progression, "allies_met", []) or []),
             )
             initial_state[ROUTE_MAP_KEY] = route_map
 

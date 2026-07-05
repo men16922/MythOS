@@ -471,6 +471,21 @@ def _build_side_node(
 _TUTORIAL_COMPANIONS = frozenset({"se_rin", "kai"})
 
 
+def _meet_arc_companion(arc: dict[str, Any]) -> str | None:
+    """The companion a side arc introduces, or None for non-meet arcs.
+
+    A "meet arc" is identified by its authored effect granting a ``met_<id>``
+    flag (the same flag the recruitment gate consumes), not by ``related_npcs``
+    — arcs can reference an already-met companion without introducing anyone.
+    """
+    effect = arc.get("effect")
+    flags = effect.get("flags") if isinstance(effect, dict) else None
+    for flag in flags or []:
+        if isinstance(flag, str) and flag.startswith("met_"):
+            return flag[len("met_") :]
+    return None
+
+
 def attach_side_anchors(
     route_map: dict[str, Any] | None,
     side_arcs: list[dict[str, Any]] | None,
@@ -478,6 +493,7 @@ def attach_side_anchors(
     *,
     max_side_anchors: int = 2,
     unlocked_companions: set[str] | None = None,
+    met_companions: set[str] | None = None,
 ) -> dict[str, Any] | None:
     """Weave a scenario's ``side_arcs`` into a built route map as optional branches.
 
@@ -525,7 +541,23 @@ def attach_side_anchors(
 
     dice = Dice(f"{seed}:side")
     counter = int(route_map.get("next_node_index", len(nodes)))
-    chosen = dice.shuffle(list(arcs))[: max(1, int(max_side_anchors))]
+    cap = max(1, int(max_side_anchors))
+    # B1 guaranteed meet-arc slot (CBT feedback #2: 7 loops, only Kai ever met).
+    # If an unlocked companion has never been met across runs, force ONE of their
+    # meet arcs into the selection (seed-picked among the unmet candidates); only
+    # the remaining slots stay fully random. ``met_companions=None`` disables the
+    # guarantee (backward compatible).
+    guaranteed: list[dict[str, Any]] = []
+    if met_companions is not None:
+        unmet_meet_arcs = [
+            a
+            for a in arcs
+            if (companion := _meet_arc_companion(a)) and companion not in met_companions
+        ]
+        if unmet_meet_arcs:
+            guaranteed = [dice.choice(unmet_meet_arcs)]
+    remaining = [a for a in arcs if not any(a is g for g in guaranteed)]
+    chosen = (guaranteed + dice.shuffle(remaining))[:cap]
 
     for arc_data in chosen:
         min_layer = max(1, int(arc_data.get("min_layer", 1) or 1))

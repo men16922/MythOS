@@ -272,7 +272,16 @@ def _visual_frame(
     """Build a visual_status frame, signing the URL on success (design §2.2)."""
     frame: dict[str, Any] = {"type": "visual_status", "status": status, "asset_id": asset_id}
     if status == "succeeded" and storage_uri:
-        frame["url"] = storage.presigned_url(storage_uri)
+        try:
+            frame["url"] = storage.presigned_url(storage_uri)
+        except Exception:
+            # URL signing failure must degrade to a failed image frame — the
+            # same WS carries the narrative snapshot, so raising here would
+            # kill the whole turn stream (observed live 2026-07-05).
+            get_logger("mythos.api").exception(
+                "visual url signing failed for %s", storage_uri
+            )
+            frame["status"] = "failed"
     return frame
 
 

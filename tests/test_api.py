@@ -609,6 +609,24 @@ class VisualStatusTest(unittest.TestCase):
         self.assertEqual(frame["status"], "failed")
         self.assertNotIn("url", frame)
 
+    def test_signing_failure_degrades_to_failed_frame(self) -> None:
+        # Live regression (2026-07-05): a presign exception must not escape —
+        # it would kill the WS stream that carries the narrative snapshot.
+        class _BrokenStorage:
+            def presigned_url(self, storage_uri: str, expires_in: int = 600) -> str:
+                raise AttributeError("you need a private key to sign credentials.")
+
+        result = VisualGenerationResult(
+            asset=_asset("asset_5", "succeeded", "gs://mythos-assets/i/s.png"),
+            status="succeeded",
+            storage_uri="gs://mythos-assets/i/s.png",
+            error=None,
+        )
+        frame = _terminal_visual_frame(cast(Any, _BrokenStorage()), result)
+        assert frame is not None
+        self.assertEqual(frame["status"], "failed")
+        self.assertNotIn("url", frame)
+
     def test_pending_result_is_in_flight(self) -> None:
         result = VisualGenerationResult(
             asset=_asset("asset_3", "pending", ""),

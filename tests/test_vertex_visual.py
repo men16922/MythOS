@@ -138,6 +138,40 @@ class _FakeBlob:
         return f"https://signed.example/{version}/{method}?exp={int(expiration.total_seconds())}"
 
 
+class _TokenOnlyBlob(_FakeBlob):
+    """Mimics google-cloud-storage under Cloud Run metadata credentials:
+    local signing raises AttributeError; IAM signBlob kwargs succeed."""
+
+    def generate_signed_url(
+        self,
+        *,
+        version: str,
+        expiration: Any,
+        method: str,
+        service_account_email: str | None = None,
+        access_token: str | None = None,
+    ) -> str:
+        if not (service_account_email and access_token):
+            raise AttributeError("you need a private key to sign credentials.")
+        return (
+            f"https://signed.example/iam/{version}/{method}"
+            f"?sa={service_account_email}&exp={int(expiration.total_seconds())}"
+        )
+
+
+class _FakeMetadataCredentials:
+    """Token-only credentials: no private key, refresh() mints a token."""
+
+    def __init__(self) -> None:
+        self.service_account_email = "runtime-sa@proj.iam.gserviceaccount.com"
+        self.token: str | None = None
+        self.valid = False
+
+    def refresh(self, _request: Any) -> None:
+        self.token = "fresh-access-token"
+        self.valid = True
+
+
 class _FakeBucket:
     def __init__(self) -> None:
         self.blobs: dict[str, _FakeBlob] = {}
@@ -171,6 +205,20 @@ class GCSStorageAdapterTest(unittest.TestCase):
         url = adapter.presigned_url("gs://b/images/p/l/s.png", expires_in=900)
         self.assertTrue(url.startswith("https://signed.example/"))
         self.assertIn("exp=900", url)
+
+    def test_presigned_url_iam_fallback_on_token_only_credentials(self) -> None:
+        # Cloud Run regression (2026-07-05): metadata credentials have no
+        # private key, so presign must fall back to IAM signBlob kwargs using
+        # the dedicated cloud-platform-scoped signing credentials.
+        client = _FakeGCSClient()
+        adapter = GCSStorageAdapter(bucket="b", client=client)
+        adapter._signing_credentials = _FakeMetadataCredentials()
+        client.bucket("b").blobs["images/p/l/s.png"] = _TokenOnlyBlob()
+        url = adapter.presigned_url("gs://b/images/p/l/s.png", expires_in=900)
+        self.assertIn("/iam/v4/GET", url)
+        self.assertIn("sa=runtime-sa@proj.iam.gserviceaccount.com", url)
+        self.assertIn("exp=900", url)
+        self.assertEqual(adapter._signing_credentials.token, "fresh-access-token")
 
     def test_presigned_url_passthrough_non_gs(self) -> None:
         adapter = GCSStorageAdapter(client=_FakeGCSClient())

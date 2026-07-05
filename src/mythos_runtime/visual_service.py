@@ -349,6 +349,9 @@ class GCSStorageAdapter:
         self.bucket = bucket or _env("GCS_BUCKET_ASSETS", "S3_BUCKET_ASSETS") or "mythos-assets"
         self.project = project or _env("GOOGLE_CLOUD_PROJECT", "PROJECT_ID")
         self._injected_client = client
+        # Lazily-built cloud-platform-scoped credentials for the IAM signBlob
+        # fallback (the storage client's own token is storage-scoped only).
+        self._signing_credentials: Any = None
 
     def _client(self) -> Any:
         if self._injected_client is not None:
@@ -381,14 +384,41 @@ class GCSStorageAdapter:
         bucket, _, key = without_scheme.partition("/")
         if not key:
             raise ValueError(f"malformed gs uri: {storage_uri}")
-        blob = self._client().bucket(bucket).blob(key)
-        return str(
-            blob.generate_signed_url(
-                version="v4",
-                expiration=timedelta(seconds=expires_in),
-                method="GET",
+        client = self._client()
+        blob = client.bucket(bucket).blob(key)
+        sign_kwargs: dict[str, Any] = {
+            "version": "v4",
+            "expiration": timedelta(seconds=expires_in),
+            "method": "GET",
+        }
+        try:
+            return str(blob.generate_signed_url(**sign_kwargs))
+        except AttributeError:
+            # Cloud Run / GCE metadata credentials carry an access token but no
+            # private key, so local v4 signing raises AttributeError. Route the
+            # signature through the IAM signBlob API instead (requires
+            # roles/iam.serviceAccountTokenCreator on the runtime SA). The
+            # storage client's own token is storage-scoped and gets 403
+            # ACCESS_TOKEN_SCOPE_INSUFFICIENT from signBlob, so signing uses
+            # dedicated cloud-platform-scoped credentials.
+            import google.auth
+            from google.auth.transport import requests as google_auth_requests
+
+            credentials = self._signing_credentials
+            if credentials is None:
+                credentials, _ = google.auth.default(
+                    scopes=["https://www.googleapis.com/auth/cloud-platform"]
+                )
+                self._signing_credentials = credentials
+            if not getattr(credentials, "valid", False):
+                credentials.refresh(google_auth_requests.Request())
+            return str(
+                blob.generate_signed_url(
+                    **sign_kwargs,
+                    service_account_email=credentials.service_account_email,
+                    access_token=credentials.token,
+                )
             )
-        )
 
 
 def storage_adapter_for(kind: str) -> StorageAdapter:

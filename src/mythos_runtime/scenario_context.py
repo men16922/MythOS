@@ -35,6 +35,7 @@ from mythos_runtime.story_bible import (
     select_story_bible_entries,
     story_bible_notes,
 )
+from mythos_runtime.twists import twist_directive_note
 
 # First turn on which route node/junction steering reaches the prompt. Turns 0-4
 # are the fully scripted 5-beat opening prologue (opening.md), during which
@@ -775,6 +776,11 @@ def build_runtime_narrative_context(
         act_note = _narrative_act_note(_ov_state)
         if act_note:
             session_synopsis = [act_note, *session_synopsis]
+
+    # G2 twist delivery: an armed twist becomes THIS scene's central event.
+    twist_note = twist_directive_note(_ov_state)
+    if twist_note:
+        session_synopsis = [twist_note, *session_synopsis]
 
     # The opening (turns 0-4) is a fully scripted 5-beat prologue driven by the
     # ONBOARDING_SCENE1-5 directives above (각성→세린 등장→다가오는 손→첫 접촉→추격+전투),

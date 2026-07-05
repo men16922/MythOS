@@ -439,6 +439,26 @@
       ]
     }
   },
+  "twist_bank": [
+    {
+      "id": "twist_serin_duality",
+      "title": "조력자의 이중성",
+      "when": { "min_layer": 4, "relationship_min": { "se_rin": 3 }, "flags_any": ["met_se_rin"] },
+      "directive": "세린의 소지품 혹은 통신 기록에서, 그녀가 관리망 내부와 접촉해 온 흔적이 드러난다. 배신으로 단정하지 말 것 — '연대를 지키기 위한 거래'였을 가능성과 '처음부터 감시자였을' 가능성이 똑같이 성립하도록, 물증 하나와 세린의 흔들리는 반응만 보여라."
+    },
+    {
+      "id": "twist_grid_true_purpose",
+      "title": "관리망의 진짜 목적",
+      "when": { "min_layer": 5, "flags_any": ["optimization_list_seen", "met_lin_yue"] },
+      "directive": "관리망의 '최적화'가 무작위 삭제가 아니라 수집임이 드러난다 — 소거된 신호들은 지워진 것이 아니라 어딘가에 '보관'되고 있다. 소각로 로그, 이송 기록, 혹은 보관 선반의 이미지 하나로 보여라. 왜 모으는지는 아직 밝히지 말 것."
+    },
+    {
+      "id": "twist_player_identity",
+      "title": "플레이어 정체의 단서",
+      "when": { "min_layer": 6 },
+      "directive": "주인공이 '이번 루프에 처음 떨어진 신호'가 아니라는 물증이 나온다 — 자신의 필적, 자신만 아는 표식, 혹은 오래된 기록 속 동일한 신호 서명. 루프 장치와 정면으로 공명하는 단서다. 주인공의 정체를 설명하지 말고, 물증 하나와 서늘한 자각만 남겨라."
+    }
+  ],
   "loop_modifiers": [
     {
       "id": "patrol_surge",

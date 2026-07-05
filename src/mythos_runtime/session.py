@@ -155,6 +155,11 @@ from mythos_runtime.session_memory import (
     note_setup,
     record_beat,
 )
+from mythos_runtime.twists import (
+    PENDING_TWIST_KEY,
+    advance_twist_lifecycle,
+    select_twist,
+)
 from mythos_runtime.visual_orchestration import maybe_generate_scene_image
 
 ROUTE_CHOICE_PREFIX = "route:"
@@ -2507,6 +2512,18 @@ class RuntimeSessionService:
                 transition, loop=replace(transition.loop, state=cleared_interstitial)
             )
 
+        # G2 twist lifecycle: the scene being committed is the one whose prompt
+        # saw the pending twist — promote it to the active (delivery) marker so
+        # the snapshot pairs it with the sting+glitch cues; a previous delivery
+        # marker clears.
+        if isinstance(transition.loop.state, dict):
+            transition = replace(
+                transition,
+                loop=replace(
+                    transition.loop, state=advance_twist_lifecycle(transition.loop.state)
+                ),
+            )
+
         # Boss buildup: a climax fight parked on node entry fires on the FIRST
         # choice made at the confrontation — the arrival commit stays a narrative
         # beat with choices (IX declares itself; the player answers), so the fight
@@ -2680,6 +2697,16 @@ class RuntimeSessionService:
             state_with_impact["_noop_turns"] = (
                 0 if eventful or offered_junction else prior_noops + 1
             )
+            # G2 twist selection: once per loop, when an authored twist's
+            # conditions are met, arm it — the NEXT scene delivers it.
+            twist = select_twist(
+                load_scenario(options.scenario_id).twist_bank,
+                state_with_impact,
+                seed=transition.loop.seed,
+                turn_index=story_turn,
+            )
+            if twist is not None:
+                state_with_impact[PENDING_TWIST_KEY] = twist
             transition = replace(transition, loop=replace(transition.loop, state=state_with_impact))
 
         with self.store.transaction():

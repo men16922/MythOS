@@ -387,7 +387,8 @@ def _presentation_cues(scene: Any, state: dict[str, Any], combat: Any) -> list[s
     fighting = bool(combat) and not (isinstance(combat, dict) and combat.get("finished"))
     if fighting and state.get("_combat_interstitial"):
         cues += ["alarm", "shake"]
-    elif scene.scene_type == "cutscene":
+    elif scene.scene_type == "cutscene" or state.get("_active_twist"):
+        # G2: a twist delivery scene is forced to pair with the reveal cues.
         cues += ["sting", "glitch"]
     impact = state.get("_last_choice_impact")
     if isinstance(impact, dict):

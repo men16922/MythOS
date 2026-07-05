@@ -36,6 +36,8 @@ class ScenarioConfig:
     # B3 loop modifiers: authored per-run twists ([{id, name, desc, effect}]),
     # one seed-picked per loop from loop 2 (loop_modifiers.py).
     loop_modifiers: list[dict[str, Any]] = field(default_factory=list)
+    # G2 twist bank: authored condition-gated reversals (twists.py), max 1/loop.
+    twist_bank: list[dict[str, Any]] = field(default_factory=list)
     unlock: dict[str, Any] | None = None
     unlock_hint: str = ""
 
@@ -93,6 +95,7 @@ def load_scenario(scenario_id: str) -> ScenarioConfig:
         combat=data.get("combat", {}),
         route_map=data.get("route_map", {}),
         loop_modifiers=data.get("loop_modifiers", []),
+        twist_bank=data.get("twist_bank", []),
         unlock=data.get("unlock"),
         unlock_hint=data.get("unlock_hint", ""),
     )

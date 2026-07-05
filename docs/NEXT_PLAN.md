@@ -21,8 +21,10 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. Cloud Run rev `00019-jf6` serves
     A2 first-combat tutorial · A3 progressive disclosure · D1 skill badge/effect line · D2 status chips.
     Remaining `[ ]` `[auto:agy]` AGY live-QA screen on a fresh account (tutorial card, interstitial, disclosure,
     badges render; not FAIL/NEEDS). Done = QA run PASS_CANDIDATE recorded.
-  - `[ ]` **P1-B replay variety**: guaranteed meet-arc slot for unlocked-unmet companions (B1, small) ·
-    Loop2+ shortened/variant openings (B2, merges the archetype-openings long-term item) · loop modifiers (B3).
+  - `[x]` **P1-B replay variety (DONE 2026-07-05, `ad2946b..4a100cd`, check 802)**: B1 guaranteed meet-arc
+    slot · B2 six 1-cut opening variants (KO/EN incl. solo; companion pick promotes its arc into the B1 slot) ·
+    B3 loop modifiers (patrol_surge/market_boom/signal_jam + SPA banner). Remaining `[ ]` `[auto:agy]`
+    curated art 1 cut per opening variant (Imagen, opening style spec; integrity gate).
   - `[ ]` **P1-C density/continuity**: ally-join foreshadow rule (C3, Tae-o pop-in) · no-op turn guard (C1) ·
     deterministic SFX cues (C4) · combat board full-width layout (D3) · cover legibility (D4).
   - `[ ]` **P1-D character identity**: stun status foundation (F — also fixes inert EMP grenade) ·

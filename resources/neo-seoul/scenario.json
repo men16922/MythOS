@@ -2119,6 +2119,7 @@
     "allies": {
       "se_rin": {
         "id": "se_rin",
+        "signature": "shield_field",
         "name": "정세린",
         "alias": "물거미",
         "recruit_keywords": [
@@ -2172,6 +2173,7 @@
       },
       "kai": {
         "id": "kai",
+        "signature": "backdoor_route",
         "name": "카이",
         "alias": "RX-09",
         "recruit_keywords": [
@@ -2225,6 +2227,7 @@
       },
       "tae_o": {
         "id": "tae_o",
+        "signature": "guardian_wall",
         "name": "태오",
         "alias": "사냥개",
         "recruit_keywords": [
@@ -2277,6 +2280,7 @@
       },
       "han": {
         "id": "han",
+        "signature": "shortcut_call",
         "name": "한",
         "alias": "신호 파괴자",
         "recruit_keywords": [
@@ -2329,6 +2333,7 @@
       },
       "su_ah": {
         "id": "su_ah",
+        "signature": "system_hack",
         "name": "수아",
         "alias": "잔향 가공사",
         "recruit_keywords": [
@@ -2382,6 +2387,7 @@
       },
       "lin_yue": {
         "id": "lin_yue",
+        "signature": "precision_emp",
         "name": "린위에",
         "alias": "환전상",
         "recruit_keywords": [
@@ -2432,6 +2438,68 @@
             "stats": { "perception": 1 }
           }
         ]
+      }
+    },
+    "companion_skills": {
+      "shield_field": {
+        "id": "shield_field",
+        "name": "차폐 필드",
+        "role": "defense",
+        "cost": { "focus": 2 },
+        "range": 0,
+        "cooldown": 3,
+        "effect": { "defense_bonus": 2, "duration": 1, "radius": 1 },
+        "tags": ["support", "aoe", "shield"]
+      },
+      "backdoor_route": {
+        "id": "backdoor_route",
+        "name": "백도어 루트",
+        "role": "mobility",
+        "cost": { "focus": 2 },
+        "range": 4,
+        "cooldown": 3,
+        "effect": { "relocate_ally": 3 },
+        "tags": ["movement", "support"]
+      },
+      "precision_emp": {
+        "id": "precision_emp",
+        "name": "정밀 EMP",
+        "role": "control",
+        "cost": { "focus": 3 },
+        "range": 4,
+        "cooldown": 3,
+        "effect": { "stun": true, "duration": 1 },
+        "tags": ["ranged", "disable"]
+      },
+      "shortcut_call": {
+        "id": "shortcut_call",
+        "name": "지름길 호출",
+        "role": "buff",
+        "cost": { "focus": 2 },
+        "range": 0,
+        "cooldown": 3,
+        "effect": { "party_speed_bonus": 2, "duration": 1 },
+        "tags": ["support", "speed"]
+      },
+      "system_hack": {
+        "id": "system_hack",
+        "name": "시스템 해킹",
+        "role": "control",
+        "cost": { "focus": 2 },
+        "range": 4,
+        "cooldown": 2,
+        "effect": { "focus_drain": 2 },
+        "tags": ["hack", "debuff"]
+      },
+      "guardian_wall": {
+        "id": "guardian_wall",
+        "name": "수호 방벽",
+        "role": "defense",
+        "cost": { "focus": 2 },
+        "range": 0,
+        "cooldown": 3,
+        "effect": { "taunt": true, "duration": 1, "defense_bonus": 2 },
+        "tags": ["defense", "taunt"]
       }
     },
     "enemy_skills": {

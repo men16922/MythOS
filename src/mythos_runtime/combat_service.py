@@ -199,7 +199,11 @@ class CombatService:
         item_def: dict[str, Any] | None = None
         item_available = False
         if action.type == "skill" and action.skill_id:
-            skill_def = scenario_combat.get("skills", {}).get(action.skill_id)
+            # Companion signatures live in a separate pool (never in the player
+            # skill tree) — a controllable companion can still cast them.
+            skill_def = scenario_combat.get("skills", {}).get(action.skill_id) or (
+                scenario_combat.get("companion_skills", {}) or {}
+            ).get(action.skill_id)
             skill_def = ranked_skill_definition(
                 skill_def,
                 self._player_skill_rank(loop, action.skill_id),
@@ -363,6 +367,12 @@ class CombatService:
                 state, scenario_combat, actual_id
             ).items():
                 bonus_stats[stat] = bonus_stats.get(stat, 0) + value
+            # E1: the companion's signature skill (data-driven, separate pool)
+            # rides along with growth-granted skills.
+            extra_skills = list(growth.skills)
+            signature = str(entry.get("signature") or "")
+            if signature and signature not in extra_skills:
+                extra_skills.append(signature)
             combatant = build_ally_combatant(
                 entry=entry,
                 weapons_pool=weapons_pool,
@@ -372,7 +382,7 @@ class CombatService:
                 controllable=is_party_member,
                 bonus_stats=bonus_stats,
                 bonus_hp=growth.hp,
-                extra_skills=growth.skills,
+                extra_skills=extra_skills,
             )
             if downed:
                 combatant.hp = max(1, combatant.max_hp // 4)

@@ -78,12 +78,16 @@ class CombatEngine:
                 # Boss/enemy-only skill defs live in a SEPARATE pool so they never
                 # pollute the player skill tree / Codex / icon-integrity checks.
                 self.enemy_skills_pool = dict(combat.get("enemy_skills", {}))
+                # E1 companion signature skills: separate pool for the same reason.
+                self.companion_skills_pool = dict(combat.get("companion_skills", {}))
             except Exception:
                 self.skills_pool = {}
                 self.enemy_skills_pool = {}
+                self.companion_skills_pool = {}
         else:
             self.skills_pool = skills_pool
             self.enemy_skills_pool = {}
+            self.companion_skills_pool = {}
 
     def _build_deterministic_terrain(self, state: CombatState) -> None:
         import hashlib
@@ -253,7 +257,7 @@ class CombatEngine:
             "active_actor_id": actor.id,
             "active_actor_name": actor.name,
             "is_player": actor.faction == PLAYER,
-            "move_range": actor.speed,
+            "move_range": actor.effective_speed,
             "reachable": self._reachable_tiles(state, actor),
             "targets": targets,
             "friendly_targets": friendly_targets,
@@ -270,7 +274,7 @@ class CombatEngine:
         animations data-driven (see docs/plans/2026-06-06-combat-darkest-dungeon-
         presentation.md) instead of hardcoding per skill id.
         """
-        definition = self.skills_pool.get(skill_id, {}) or {}
+        definition = self._ally_skill_def(skill_id) or {}
         return {
             "id": skill_id,
             "cooldown": int(player.cooldowns.get(skill_id, 0)),
@@ -314,7 +318,7 @@ class CombatEngine:
             desired = max(reach + 3, 6) if is_coward else max(1, reach)
 
             sim_x, sim_y = curr_x, curr_y
-            budget = enemy.speed
+            budget = enemy.effective_speed
             while budget > 0:
                 current_dist = distance(sim_x, sim_y, target.x, target.y)
                 if current_dist == desired:
@@ -650,7 +654,9 @@ class CombatEngine:
             if ("defense_bonus" in effect or "heal" in effect)
             else player
         )
-        if "defense_bonus" in effect:
+        # Radius-covered defense (차폐 필드) is handled by _apply_extended_effects;
+        # the single-target branch below only serves classic shield skills.
+        if "defense_bonus" in effect and not effect.get("radius"):
             support.defense_buff = int(effect.get("defense_bonus", 0))
             support.defense_buff_turns = max(1, int(effect.get("duration", 1)))
             self._log(
@@ -684,6 +690,15 @@ class CombatEngine:
                 self._log(
                     state, player, "info", clog(state.language, "skill_no_target", name=name)
                 )
+        # E1 signature effects (radius defense / focus drain / party speed /
+        # taunt / ally relocation).
+        self._apply_extended_effects(
+            state,
+            player,
+            effect,
+            target=state.by_id(action.target_id),
+            skill_range=skill_range,
+        )
 
         player.focus = max(0, player.focus - focus_cost)
         player.cooldowns[skill_id] = int(skill_def.get("cooldown", 0))
@@ -945,6 +960,19 @@ class CombatEngine:
             return None
         return min(candidates, key=lambda e: (distance(player.x, player.y, e.x, e.y), e.hp))
 
+    def _nearest_hostile_in_range(
+        self, state: CombatState, actor: Combatant, reach: int
+    ) -> Combatant | None:
+        """Caster-relative variant (works for enemy casters too)."""
+        candidates = [
+            h
+            for h in state.hostiles_of(actor)
+            if h.alive and distance(actor.x, actor.y, h.x, h.y) <= reach
+        ]
+        if not candidates:
+            return None
+        return min(candidates, key=lambda h: (distance(actor.x, actor.y, h.x, h.y), h.hp))
+
     def _apply_hazard_effect(
         self, state: CombatState, combatant: Combatant, hazard_type: str
     ) -> None:
@@ -993,6 +1021,14 @@ class CombatEngine:
             actor.defense_buff_turns -= 1
             if actor.defense_buff_turns <= 0:
                 actor.defense_buff = 0
+        if actor.speed_buff_turns > 0:
+            actor.speed_buff_turns -= 1
+            if actor.speed_buff_turns <= 0:
+                actor.speed_buff = 0
+        if actor.taunt_turns > 0:
+            actor.taunt_turns -= 1
+            if actor.taunt_turns <= 0 and "taunting" in actor.status:
+                actor.status.remove("taunting")
 
         # Hazard check
         key = f"{actor.x},{actor.y}"
@@ -1077,6 +1113,129 @@ class CombatEngine:
             {"stunned": victim.id, "turns": victim.stunned_turns},
         )
 
+    def _apply_extended_effects(
+        self,
+        state: CombatState,
+        caster: Combatant,
+        effect: dict[str, Any],
+        *,
+        target: Combatant | None = None,
+        skill_range: int = 1,
+    ) -> None:
+        """E1 signature-skill effects shared by player-driven and NPC casts.
+
+        Handles the mechanics beyond the classic damage/heal/defense trio:
+        radius ally-defense (차폐 필드), enemy focus drain (시스템 해킹), party
+        speed buff (지름길 호출), taunt (수호 방벽), ally relocation (백도어
+        루트). Each is deterministic and no-ops when its key is absent.
+        """
+        # 차폐 필드: defense_bonus with a radius covers every friendly near the caster.
+        radius = int(effect.get("radius", 0) or 0)
+        if "defense_bonus" in effect and radius > 0:
+            bonus = int(effect.get("defense_bonus", 0))
+            duration = max(1, int(effect.get("duration", 1)))
+            for friendly in state.friendlies_of(caster):
+                if distance(friendly.x, friendly.y, caster.x, caster.y) <= radius:
+                    friendly.defense_buff = max(friendly.defense_buff, bonus)
+                    friendly.defense_buff_turns = max(friendly.defense_buff_turns, duration)
+                    self._log(
+                        state,
+                        caster,
+                        "defend",
+                        clog(state.language, "cover_noise", name=friendly.name, buff=bonus),
+                    )
+        # 시스템 해킹: drain the target enemy's skill resource.
+        drain = int(effect.get("focus_drain", 0) or 0)
+        if drain > 0:
+            victim = target
+            if victim is None or not victim.alive or victim.faction == caster.faction:
+                victim = self._nearest_hostile_in_range(state, caster, skill_range)
+            if victim is not None:
+                drained = min(victim.focus, drain)
+                victim.focus = max(0, victim.focus - drain)
+                self._log(
+                    state,
+                    caster,
+                    "skill",
+                    clog(
+                        state.language,
+                        "focus_drained",
+                        actor=caster.name,
+                        target=victim.name,
+                        drained=drained,
+                    ),
+                    {"focus_drained": victim.id, "amount": drained},
+                )
+        # 지름길 호출: party-wide temporary movement bonus.
+        speed_bonus = int(effect.get("party_speed_bonus", 0) or 0)
+        if speed_bonus > 0:
+            duration = max(1, int(effect.get("duration", 1)))
+            for friendly in state.friendlies_of(caster):
+                friendly.speed_buff = max(friendly.speed_buff, speed_bonus)
+                friendly.speed_buff_turns = max(friendly.speed_buff_turns, duration)
+            self._log(
+                state,
+                caster,
+                "skill",
+                clog(state.language, "party_speed", actor=caster.name, bonus=speed_bonus),
+                {"party_speed": speed_bonus},
+            )
+        # 수호 방벽: the caster forces enemy attention onto itself.
+        if effect.get("taunt"):
+            caster.taunt_turns = max(caster.taunt_turns, max(1, int(effect.get("duration", 1))))
+            if "taunting" not in caster.status:
+                caster.status.append("taunting")
+            self._log(
+                state,
+                caster,
+                "skill",
+                clog(state.language, "taunt", actor=caster.name),
+                {"taunt": caster.id},
+            )
+        # 백도어 루트: instantly reposition the most endangered other friendly
+        # away from its nearest enemy.
+        relocate_budget = int(effect.get("relocate_ally", 0) or 0)
+        if relocate_budget > 0:
+            candidates = [
+                f
+                for f in state.friendlies_of(caster)
+                if f.id != caster.id and f.alive and state.living_enemies()
+            ]
+            if candidates:
+                def _danger(friendly: Combatant) -> tuple[float, float]:
+                    nearest = min(
+                        distance(friendly.x, friendly.y, e.x, e.y)
+                        for e in state.living_enemies()
+                    )
+                    return (nearest, friendly.hp / max(1, friendly.max_hp))
+
+                mover = min(candidates, key=_danger)
+                threat = min(
+                    state.living_enemies(),
+                    key=lambda e: distance(mover.x, mover.y, e.x, e.y),
+                )
+                before = (mover.x, mover.y)
+                self._move_to_band(
+                    state,
+                    mover,
+                    threat,
+                    desired=distance(mover.x, mover.y, threat.x, threat.y) + relocate_budget,
+                    budget=relocate_budget,
+                )
+                if (mover.x, mover.y) != before:
+                    self._log(
+                        state,
+                        caster,
+                        "skill",
+                        clog(
+                            state.language,
+                            "relocated",
+                            actor=caster.name,
+                            target=mover.name,
+                        ),
+                        {"relocated": mover.id, "to": [mover.x, mover.y]},
+                    )
+
     def _consume_stun(self, state: CombatState, actor: Combatant) -> bool:
         """True when ``actor`` loses this turn to stun (decrements + chip sync)."""
         if actor.stunned_turns <= 0:
@@ -1115,7 +1274,7 @@ class CombatEngine:
         dice = self._dice(state)
         if target is not None and ("damage" in effect or "damage_bonus" in effect):
             self._skill_attack(state, actor, target, name, effect, dice)
-        if "defense_bonus" in effect:
+        if "defense_bonus" in effect and not effect.get("radius"):
             buff_target = target if target is not None else actor
             buff_target.defense_buff = int(effect.get("defense_bonus", 0))
             buff_target.defense_buff_turns = max(1, int(effect.get("duration", 1)))
@@ -1125,6 +1284,26 @@ class CombatEngine:
                 "defend",
                 clog(state.language, "cover_noise", name=buff_target.name, buff=buff_target.defense_buff),
             )
+        # F stun for NPC casts (린위에 정밀 EMP, boss disables).
+        if effect.get("stun"):
+            stun_victim = target
+            if stun_victim is None or not stun_victim.alive or stun_victim.faction == actor.faction:
+                stun_victim = self._nearest_hostile_in_range(
+                    state, actor, int(skill_def.get("range", 1))
+                )
+            if stun_victim is not None:
+                self._apply_stun(
+                    state, actor, stun_victim, max(1, int(effect.get("duration", 1) or 1))
+                )
+        # E1 signature effects (radius defense / focus drain / party speed /
+        # taunt / ally relocation).
+        self._apply_extended_effects(
+            state,
+            actor,
+            effect,
+            target=target,
+            skill_range=int(skill_def.get("range", 1)),
+        )
         if "heal" in effect:
             heal_target = target if target is not None else actor
             healed = self._apply_heal(heal_target, str(effect.get("heal", "0")), dice)
@@ -1155,7 +1334,11 @@ class CombatEngine:
         targets = state.hostiles_of(enemy)
         if not targets:
             return
-        target = min(targets, key=lambda t: (distance(enemy.x, enemy.y, t.x, t.y), t.hp))
+        # E1 taunt (tae_o signature): a taunting hostile forces itself into the
+        # enemy's target pool.
+        taunters = [t for t in targets if t.taunt_turns > 0]
+        pool = taunters or targets
+        target = min(pool, key=lambda t: (distance(enemy.x, enemy.y, t.x, t.y), t.hp))
         weapon = enemy.primary_weapon()
         reach = weapon.effective_range if weapon else 1
 
@@ -1176,6 +1359,11 @@ class CombatEngine:
     def _enemy_skill_def(self, skill_id: str) -> dict[str, Any]:
         """Resolve a skill def for an enemy: boss/enemy pool first, then the shared pool."""
         sdef = self.enemy_skills_pool.get(skill_id) or self.skills_pool.get(skill_id)
+        return sdef if isinstance(sdef, dict) else {}
+
+    def _ally_skill_def(self, skill_id: str) -> dict[str, Any]:
+        """Resolve a skill def for a friendly: shared pool first, then companion signatures."""
+        sdef = self.skills_pool.get(skill_id) or self.companion_skills_pool.get(skill_id)
         return sdef if isinstance(sdef, dict) else {}
 
     def _boss_skill_turn(self, state: CombatState, enemy: Combatant, target: Combatant) -> bool:
@@ -1214,10 +1402,66 @@ class CombatEngine:
             return self._execute_npc_skill(state, enemy, skill_id, sdef, target)
         return False
 
+    def _try_signature_cast(
+        self, state: CombatState, ally: Combatant, enemies: list[Combatant]
+    ) -> bool:
+        """AI ally: cast the companion signature when it is clearly useful (E1).
+
+        One deterministic applicability check per effect shape; the skill's own
+        cooldown/focus cost gates spam. Returns True iff a signature fired.
+        """
+        for skill_id in ally.skills:
+            sdef = self.companion_skills_pool.get(skill_id)
+            if not isinstance(sdef, dict) or skill_id in ally.cooldowns:
+                continue
+            cost = sdef.get("cost", {}) if isinstance(sdef.get("cost"), dict) else {}
+            if ally.focus < int(cost.get("focus", 0)):
+                continue
+            effect = sdef.get("effect", {}) if isinstance(sdef.get("effect"), dict) else {}
+            skill_range = int(sdef.get("range", 1))
+            victim = self._nearest_hostile_in_range(state, ally, skill_range)
+            target: Combatant | None = None
+            applicable = False
+            if effect.get("stun"):
+                applicable = victim is not None and victim.stunned_turns <= 0
+                target = victim
+            elif effect.get("focus_drain"):
+                applicable = victim is not None and victim.focus > 0
+                target = victim
+            elif effect.get("taunt"):
+                applicable = ally.taunt_turns <= 0 and len(enemies) >= 2
+            elif effect.get("party_speed_bonus"):
+                applicable = any(
+                    f.speed_buff_turns <= 0 for f in state.friendlies_of(ally)
+                )
+            elif effect.get("relocate_ally"):
+                applicable = any(
+                    f.id != ally.id
+                    and f.hp <= f.max_hp * 0.5
+                    and min(distance(f.x, f.y, e.x, e.y) for e in enemies) <= 1
+                    for f in state.friendlies_of(ally)
+                )
+            elif "defense_bonus" in effect and effect.get("radius"):
+                radius = int(effect.get("radius", 1) or 1)
+                applicable = any(
+                    f.hp <= f.max_hp * 0.7
+                    and f.defense_buff_turns <= 0
+                    and distance(f.x, f.y, ally.x, ally.y) <= radius
+                    for f in state.friendlies_of(ally)
+                )
+            if applicable:
+                return self._execute_npc_skill(state, ally, skill_id, sdef, target)
+        return False
+
     def _ally_turn(self, state: CombatState, ally: Combatant) -> None:
         dice = self._dice(state)
         enemies = state.living_enemies()
         if not enemies:
+            return
+
+        # E1 companion signature: fires before the generic archetype heuristics
+        # so each companion's identity actually shows up in combat.
+        if self._try_signature_cast(state, ally, enemies):
             return
 
         player = state.player()
@@ -1430,7 +1674,7 @@ class CombatEngine:
         budget: int | None = None,
     ) -> None:
         if budget is None:
-            budget = mover.speed
+            budget = mover.effective_speed
         moved = False
         while budget > 0:
             current = distance(mover.x, mover.y, target.x, target.y)
@@ -1466,7 +1710,7 @@ class CombatEngine:
             for nx in range(state.arena_w):
                 if nx == mover.x and ny == mover.y:
                     continue
-                if distance(mover.x, mover.y, nx, ny) > mover.speed:
+                if distance(mover.x, mover.y, nx, ny) > mover.effective_speed:
                     continue
                 if self._occupied(state, nx, ny, mover):
                     continue

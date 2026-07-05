@@ -125,7 +125,9 @@ class CompanionGrowthServiceTest(unittest.TestCase):
         ally = self._se_rin({"flags": ["met_se_rin"]})
         self.assertEqual(ally.max_hp, 14)
         self.assertEqual(ally.stats["strength"], 4)
-        self.assertEqual(ally.skills, ["covering_noise", "packet_shot"])
+        # E1 (2026-07-05): the companion signature is part of the BASELINE kit
+        # (identity, not growth) — growth-derived skills would appear after it.
+        self.assertEqual(ally.skills, ["covering_noise", "packet_shot", "shield_field"])
 
     def test_bond_tier_raises_hp_and_stats(self) -> None:
         ally = self._se_rin({"flags": ["met_se_rin"], "relationships": {"se_rin": 4}})

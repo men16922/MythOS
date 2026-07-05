@@ -47,6 +47,23 @@ _LINES: dict[str, dict[str, str]] = {
         "ko": "{actor}이(가) {item}을(를) 투척한다 — {target}을(를) 향해 전자기 폭발!",
         "en": "{actor} throws {item} — an electromagnetic burst engulfs {target}!",
     },
+    # E1 companion signature effects.
+    "focus_drained": {
+        "ko": "{actor}이(가) {target}의 제어 회로에 침투했다 — 집중 -{drained}.",
+        "en": "{actor} breaches {target}'s control circuits — focus -{drained}.",
+    },
+    "party_speed": {
+        "ko": "{actor}이(가) 지름길을 외친다 — 파티 이동 +{bonus}!",
+        "en": "{actor} calls out a shortcut — party movement +{bonus}!",
+    },
+    "taunt": {
+        "ko": "{actor}이(가) 앞을 막아선다 — 적들의 시선이 그에게 쏠린다.",
+        "en": "{actor} plants themselves in the way — every enemy turns toward them.",
+    },
+    "relocated": {
+        "ko": "{actor}의 신호 경로를 타고 {target}이(가) 순간 재배치된다.",
+        "en": "{target} blinks along {actor}'s signal route to safer ground.",
+    },
     # D4 cover legibility: when cover turned the hit into a miss, SAY so —
     # the +3/+6 bonus was invisible ("엄폐가 뭘 하는지 모름").
     "attack_miss_cover": {

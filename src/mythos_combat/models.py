@@ -66,6 +66,9 @@ class Combatant:
     defense_buff: int = 0  # temporary defense bonus from skills (e.g. covering_noise)
     defense_buff_turns: int = 0  # rounds the defense_buff persists
     stunned_turns: int = 0  # turns this combatant loses to stun (EMP pulse/grenade)
+    speed_buff: int = 0  # temporary movement bonus (E1 han signature)
+    speed_buff_turns: int = 0  # rounds the speed_buff persists
+    taunt_turns: int = 0  # rounds enemies must target this combatant (E1 tae_o signature)
     controllable: bool = False  # party member the player drives directly (vs AI ally)
     enraged: bool = False  # boss phase-2 flag: set once HP crosses the enrage threshold
 
@@ -81,6 +84,10 @@ class Combatant:
     @property
     def effective_defense(self) -> int:
         return self.defense + (4 if self.defending else 0) + max(0, self.defense_buff)
+
+    @property
+    def effective_speed(self) -> int:
+        return self.speed + max(0, self.speed_buff)
 
     def stat(self, name: str) -> int:
         return int(self.stats.get(name, 0))

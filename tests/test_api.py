@@ -922,6 +922,24 @@ class InviteGateTest(unittest.TestCase):
             client = _client(_InMemoryStore())
             self.assertFalse(client.get("/api/v1/auth/verify-invite").json()["is_admin"])
 
+    def test_verify_invite_gated_flag_gates_boot_simulator(self) -> None:
+        # `gated` tells the SPA whether the install runs a keyed beta: gated+non-admin
+        # hides the boot combat simulator (real-loop creation burns the tester loop
+        # cap — triage decision 2026-07-05). Keyless/open installs stay ungated so
+        # local dev and QA tooling keep the simulator.
+        from unittest import mock
+
+        with mock.patch.dict(os.environ, {"MYTHOS_INVITE_KEYS": "tester"}):
+            client = _client(_InMemoryStore())
+            body = client.get(
+                "/api/v1/auth/verify-invite", headers={"X-Invite-Key": "tester"}
+            ).json()
+            self.assertTrue(body["gated"])
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("MYTHOS_INVITE_KEYS", None)
+            client = _client(_InMemoryStore())
+            self.assertFalse(client.get("/api/v1/auth/verify-invite").json()["gated"])
+
     def test_gated_websocket_requires_key(self) -> None:
         from unittest import mock
 

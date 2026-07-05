@@ -93,6 +93,9 @@ export default function App() {
   // Operator-only UI (Dev Console) visibility — true when gating is off (local/open dev)
   // or the invite key is an admin key. Beta testers never see it. Set by the invite probe.
   const [isAdmin, setIsAdmin] = useState(false);
+  // Whether the server runs invite-gated (CBT). Gated + non-admin hides the boot
+  // combat simulator (it creates real loops → burns the tester loop cap).
+  const [inviteGated, setInviteGated] = useState(false);
   const [consoleLogs, setConsoleLogs] = useState<string>("");
   const [isBusy, setIsBusy] = useState(false);
   const [saveSlots, setSaveSlots] = useState<SaveSlot[]>([]);
@@ -239,6 +242,7 @@ export default function App() {
         if (!cancelled) {
           setInviteGate(status.ok ? "ok" : "blocked");
           setIsAdmin(status.isAdmin);
+          setInviteGated(status.gated);
         }
       })
       .catch(() => {
@@ -253,6 +257,7 @@ export default function App() {
     setInviteKey(key);
     const status = await verifyInvite();
     setIsAdmin(status.isAdmin);
+    setInviteGated(status.gated);
     if (status.ok) setInviteGate("ok");
     return status.ok;
   }, []);
@@ -642,6 +647,7 @@ export default function App() {
           onResumeGame={handleResumeGame}
           onOpenLoad={() => setSaveLoadModal("load")}
           onSimulateCombat={handleSimulateCombat}
+          showCombatSim={isAdmin || !inviteGated}
         />
       )}
 

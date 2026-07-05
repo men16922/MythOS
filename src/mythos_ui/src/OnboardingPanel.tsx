@@ -19,6 +19,10 @@ interface OnboardingPanelProps {
   onResumeGame: (data: ResumeSessionData) => void;
   onOpenLoad: () => void;
   onSimulateCombat: (encounterId: string, allyIds: string[]) => void;
+  // The combat simulator creates a REAL loop per run — on gated (CBT) installs
+  // only admins may see it, so testers can't silently burn their loop cap from
+  // the boot screen (triage decision 2026-07-05). Open/local installs keep it.
+  showCombatSim: boolean;
 }
 
 export function OnboardingPanel({
@@ -37,6 +41,7 @@ export function OnboardingPanel({
   onResumeGame,
   onOpenLoad,
   onSimulateCombat,
+  showCombatSim,
 }: OnboardingPanelProps) {
   const { t } = useLang();
   const scenario = scenarios.find((s) => s.id === selectedScenarioId);
@@ -150,7 +155,7 @@ export function OnboardingPanel({
         </span>
       </div>
 
-      {encounters.length > 0 && (
+      {showCombatSim && encounters.length > 0 && (
         <details className="combat-sim" id="combat-simulator">
           <summary>{t("ob.simSummary")}</summary>
           <p className="sub">

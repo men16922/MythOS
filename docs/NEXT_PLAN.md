@@ -96,6 +96,7 @@ Status: `[~]` progression/presentation parity + Story Bible 17 entries done (M38
     전투원을 `_party.members`에 영구 기록** — 플래그로만 참전한 AI 아군(예: met_lin_yue 린위에)이 한 판 함께
     싸우면 이후 영구 플레이어-조작 파티가 됨. 설계 문서("flag-unlocked non-party allies stay AI")와 상충.
     의도("싸우면 영입")인지 버그인지 사람 판정 → 의도면 DESIGN.md에 명문화, 버그면 `is_party_member`만 writeback.
-  - `[ ]` **combat simulator가 CBT에 노출 + 루프 캡 소모**: 부트 화면의 시뮬레이터 `<details>`가 게이트 없음
-    (`OnboardingPanel.tsx` `combat-sim`) — 테스터가 열면 시뮬 1회 = 실루프 1개 생성이라 `MYTHOS_MAX_LOOPS_PER_PLAYER=10`
-    캡을 소모하고, Audrey 지적("정보 과다")의 부트 화면 밀도에도 기여. 후보: admin-key 게이팅 또는 dev 빌드 한정.
+  - `[x]` **combat simulator CBT 노출 → A안(admin-key 게이팅)으로 결정·구현 (2026-07-05)**: verify-invite가
+    `gated` 플래그를 내려주고, SPA는 `isAdmin || !gated`일 때만 부트 시뮬레이터 렌더 — 게이트 켜진 CBT에서
+    테스터는 못 보고(캡 보호 + 부트 화면 경량화), keyless 로컬 dev/AGY QA 경로는 유지. 회귀 테스트 포함.
+    잔여: 기존 시뮬산 활성 루프들(예: d1b0da3e 계정 5개)은 캡에 남아 있음 — 정리 원하면 DB 작업 별도.

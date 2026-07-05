@@ -24,7 +24,7 @@ from pydantic import BaseModel, Field
 from starlette.concurrency import iterate_in_threadpool
 from starlette.responses import Response
 
-from mythos_api.invite import InviteGateMiddleware
+from mythos_api.invite import InviteGateMiddleware, allowed_invite_keys
 from mythos_api.limits import (
     LOOP_CAP_MESSAGE,
     admin_invite_keys,
@@ -598,7 +598,10 @@ def create_app() -> FastAPI:
             request.headers.get("x-invite-key") or request.query_params.get("invite") or ""
         ).strip()
         is_admin = key != "" and key in admin_invite_keys()
-        return {"ok": True, "is_admin": is_admin}
+        # ``gated`` lets the SPA distinguish a keyless open install (local dev —
+        # operator tooling like the boot combat simulator stays visible) from a
+        # gated beta where non-admin testers must not see it (loop-cap burn).
+        return {"ok": True, "is_admin": is_admin, "gated": bool(allowed_invite_keys())}
 
     @app.post(f"{API_PREFIX}/auth/connect")
     def connect(

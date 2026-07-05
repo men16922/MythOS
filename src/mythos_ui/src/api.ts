@@ -42,8 +42,11 @@ export function setInviteKey(key: string): void {
 export interface InviteStatus {
   // ok: key valid OR gating disabled (open app). false on 401 (missing/invalid key).
   ok: boolean;
-  // isAdmin: gating off (local/open dev) OR an admin key — gates operator-only UI (Dev Console).
+  // isAdmin: an admin key was presented — gates operator-only UI (Dev Console).
   isAdmin: boolean;
+  // gated: MYTHOS_INVITE_KEYS is configured on the server. Off = open/local dev,
+  // where operator tooling (boot combat simulator) stays visible to everyone.
+  gated: boolean;
 }
 
 // Probe the gated /auth/verify-invite. Other errors (network/server) rethrow so the
@@ -52,10 +55,10 @@ export async function verifyInvite(): Promise<InviteStatus> {
   const res = await fetch(`${API_BASE}/api/v1/auth/verify-invite`, {
     headers: inviteHeaders(),
   });
-  if (res.status === 401) return { ok: false, isAdmin: false };
+  if (res.status === 401) return { ok: false, isAdmin: false, gated: true };
   if (!res.ok) throw new Error(`verify-invite → ${res.status}`);
-  const data = (await res.json().catch(() => ({}))) as { is_admin?: boolean };
-  return { ok: true, isAdmin: !!data.is_admin };
+  const data = (await res.json().catch(() => ({}))) as { is_admin?: boolean; gated?: boolean };
+  return { ok: true, isAdmin: !!data.is_admin, gated: !!data.gated };
 }
 
 function inviteHeaders(): Record<string, string> {

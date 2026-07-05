@@ -3208,6 +3208,22 @@ main {
   }
 }
 
+/* A3 progressive disclosure: one-time pulse when the operation map first appears. */
+.aside-reveal-nudge {
+  animation: aside-reveal-pulse 1.6s ease-out 2;
+  border-radius: 8px;
+}
+@keyframes aside-reveal-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(41, 255, 198, 0.45); }
+  70% { box-shadow: 0 0 0 10px rgba(41, 255, 198, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(41, 255, 198, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aside-reveal-nudge {
+    animation: none;
+  }
+}
+
 /* --- Combat-entry interstitial (1-beat transition before the tactical board) --- */
 .combat-interstitial-backdrop {
   position: fixed;

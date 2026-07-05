@@ -16,6 +16,10 @@ interface GameAsideProps {
   canSave: boolean;
   finalizedSnapshot: RuntimeSnapshot | null;
   consoleLogs: string;
+  // A3 progressive disclosure: first-loop opening turns render gauges only;
+  // revealNudge pulses the operation map once when the full aside appears.
+  minimal?: boolean;
+  revealNudge?: boolean;
   onOpenSave: () => void;
   onOpenLoad: () => void;
 }
@@ -500,9 +504,18 @@ export function GameAside({
   canSave,
   finalizedSnapshot,
   consoleLogs,
+  minimal,
+  revealNudge,
   onOpenSave,
   onOpenLoad,
 }: GameAsideProps) {
+  if (minimal) {
+    return (
+      <aside>
+        <StatusPanel snapshot={finalizedSnapshot} />
+      </aside>
+    );
+  }
   return (
     <aside>
       <SaveHistoryPanel
@@ -511,7 +524,9 @@ export function GameAside({
         onOpenSave={onOpenSave}
         onOpenLoad={onOpenLoad}
       />
-      <OperationMapPanel snapshot={finalizedSnapshot} />
+      <div className={revealNudge ? "aside-reveal-nudge" : undefined}>
+        <OperationMapPanel snapshot={finalizedSnapshot} />
+      </div>
       <StatusPanel snapshot={finalizedSnapshot} />
       <LogPanel consoleLogs={consoleLogs} />
     </aside>

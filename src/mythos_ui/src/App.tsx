@@ -582,6 +582,19 @@ export default function App() {
     }
   };
 
+  // A3 progressive disclosure (CBT feedback #1 "info-dense layout"): the very
+  // first loop's opening turns show only narrative + choices + gauges; the
+  // operation map / save / log aside panels appear from turn 3 with a one-time
+  // reveal pulse. Later loops (runs_completed > 0) see the full layout at once.
+  const introTurn = finalizedSnapshot?.active_scene?.turn_index ?? 0;
+  const introFirstLoop =
+    Number(
+      (finalizedSnapshot?.state?.meta_progression as { runs_completed?: number } | undefined)
+        ?.runs_completed ?? 0
+    ) === 0;
+  const asideMinimal = introFirstLoop && introTurn <= 2 && !finalizedSnapshot?.combat;
+  const asideRevealNudge = introFirstLoop && introTurn === 3;
+
   // Hold the app behind the invite gate until the key probe resolves. "checking" shows
   // nothing (brief); "blocked" shows the key-entry screen instead of the game.
   if (inviteGate !== "ok") {
@@ -793,6 +806,8 @@ export default function App() {
             canSave={Boolean(loopId)}
             finalizedSnapshot={finalizedSnapshot}
             consoleLogs={consoleLogs}
+            minimal={asideMinimal}
+            revealNudge={asideRevealNudge}
             onOpenSave={() => setSaveLoadModal("save")}
             onOpenLoad={() => setSaveLoadModal("load")}
           />

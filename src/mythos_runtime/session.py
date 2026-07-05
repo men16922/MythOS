@@ -1920,6 +1920,8 @@ class RuntimeSessionService:
                 interstitial_state, [ally["name"] for ally in joining]
             )
         interstitial_state[COMBAT_INTERSTITIAL_KEY] = descriptor
+        # Combat IS the world reacting — reset the C1 no-op streak.
+        interstitial_state.pop("_noop_turns", None)
         loop = replace(loop, state=interstitial_state)
         archetype = self._resolved_archetype(player, options.scenario_id)
         result = self.combat.begin(
@@ -2599,10 +2601,12 @@ class RuntimeSessionService:
         # Route junctions: at a layer boundary, replace this scene's choices with
         # the branch options (next candidate nodes) so the player explicitly picks
         # the next destination. In-layer turns keep the LLM's own choices.
+        offered_junction = False
         if isinstance(transition.loop.state, dict) and transition.loop.state.get(ROUTE_MAP_KEY):
             junction_opts = junction_options(transition.loop.state, turn_index=story_turn)
             if junction_opts:
                 scene = replace(scene, choices=_build_route_choices(junction_opts))
+                offered_junction = True
 
         # Session memory: record a compact beat + recent-prose window so later
         # scenes have a "story so far" to continue from (anti-repetition). The
@@ -2633,6 +2637,22 @@ class RuntimeSessionService:
                 dict(transition.loop.state) if isinstance(transition.loop.state, dict) else {}
             )
             state_with_impact["_last_choice_impact"] = impact
+            # C1 no-op turn guard ("선택이 반영 안 되는 느낌"): count consecutive
+            # non-junction turns whose world state did not move at all; the prompt
+            # assembler escalates the world's reaction at 1 and forces an event at
+            # 2+. Any real delta — or a junction (a decision point by itself) —
+            # resets the streak.
+            eventful = bool(
+                impact.get("stability_delta")
+                or impact.get("tension_delta")
+                or impact.get("new_flags")
+                or impact.get("items_gained")
+                or impact.get("route_from") != impact.get("route_to")
+            )
+            prior_noops = int(state_with_impact.get("_noop_turns", 0) or 0)
+            state_with_impact["_noop_turns"] = (
+                0 if eventful or offered_junction else prior_noops + 1
+            )
             transition = replace(transition, loop=replace(transition.loop, state=state_with_impact))
 
         with self.store.transaction():

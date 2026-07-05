@@ -394,6 +394,35 @@ def _grant_items_note(scenario: ScenarioConfig, language: str) -> str:
     )
 
 
+def _noop_escalation_note(state: dict[str, Any]) -> str:
+    """C1 no-op guard directive for the synopsis channel ("" when not stalled).
+
+    ``_noop_turns`` (session commit counter) tracks consecutive non-junction
+    turns with zero world delta. One stalled turn asks the world to visibly
+    react; two or more mandate a concrete event with a real ``world_delta``.
+    """
+    try:
+        noop_turns = int(state.get("_noop_turns", 0) or 0)
+    except (TypeError, ValueError):
+        return ""
+    if noop_turns <= 0:
+        return ""
+    if noop_turns == 1:
+        return (
+            "=== 세계 반응 에스컬레이션 (직전 턴 무변화) ===\n"
+            "직전 턴은 세계 상태가 전혀 움직이지 않았다. 이번 장면에서는 선택의 결과가 "
+            "반드시 '보이게' 하라 — 추적이 조여들거나(긴장 변화), 새 단서가 노출되거나, "
+            "NPC가 개입하는 식으로 세계가 플레이어의 행동에 반응해야 한다. world_delta에 "
+            "최소 1개의 실질 변화(flags/tension/stability/clues)를 포함하라."
+        )
+    return (
+        f"=== 강제 세계 이벤트 (무변화 {noop_turns}턴 연속) ===\n"
+        "지금 즉시 사건을 일으켜라: 순찰대 접근·구역 봉쇄, 단서의 강제 노출, 조력자나 적 "
+        "NPC의 직접 개입 중 하나를 이번 장면의 중심 사건으로 삼아라. world_delta.tension을 "
+        "최소 5 이상 움직이고, 정적인 관찰·대기 장면은 금지한다."
+    )
+
+
 def _combat_callback_note(
     scenario: ScenarioConfig, loop: LoopState, turn_index: int
 ) -> str:
@@ -658,6 +687,13 @@ def build_runtime_narrative_context(
     combat_callback = _combat_callback_note(scenario, loop, turn_index)
     if combat_callback:
         session_synopsis = [combat_callback, *session_synopsis]
+
+    # C1 no-op turn guard: consecutive zero-delta turns mean the player's choices
+    # are visibly changing nothing ("선택이 반영 안 되는 느낌") — escalate the
+    # world's reaction, and after repeated stalls force a concrete event.
+    noop_note = _noop_escalation_note(_ov_state)
+    if noop_note:
+        session_synopsis = [noop_note, *session_synopsis]
 
     # The opening (turns 0-4) is a fully scripted 5-beat prologue driven by the
     # ONBOARDING_SCENE1-5 directives above (각성→세린 등장→다가오는 손→첫 접촉→추격+전투),

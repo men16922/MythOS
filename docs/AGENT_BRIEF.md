@@ -4,7 +4,7 @@ Last updated: 2026-07-05
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Human sign-off full run on rev `00024-qpr`** (= dieted 3.5 + presign hotfix + simulator gating + save overwrite/delete; `d1b0da3e` is now admin/cap-exempt) **→ `git push` (ahead 18) + version tag → film teaser #2** (`docs/cbt/CBT_TEASER.md` metadata+shot list ready; if the video targets RECRUITING, build CBT onboarding P1 first — `docs/cbt/CBT_FEEDBACK.md`). Checklist `docs/test/neo_seoul_live_qa.md` is play-order + feel-only (objective slices closed by AGY `obj*`/`cloudimg` runs + WS probes). Queued for humans: **1 triage decision** (ally-writeback promotion), Audrey reply. Small `[auto]` seeds: postgres stale-conn retry · placeholder i18n race · deploy bundle carrying the dev-console infra-link fix. Rollback = `MODEL=gemini-2.5-flash` env.
+> ▶ NEXT SESSION: **Start CBT P1 implementation** per `docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md` — order P1-A (combat telegraph → tutorial overlay → progressive disclosure → skill badges/status chips) then P1-B/C/D/E; owner feedback #1+#2 fully triaged there. Cloud rev `00025-856` live (= 3.5 diet + presign hotfix + simulator gating + save overwrite/delete + companion-equip UI + item toast). Queued for humans: **voice-id pinning** (listen `outputs/voice-auditions/{ko,en}/` → fill `resources/neo-seoul/audio/voice/voices.json`), sign-off full run (`docs/test/neo_seoul_live_qa.md`), `git push` (ahead 25+), ally-writeback triage, Audrey reply, balance calls (overload-strike range · pacing knob). Teaser #2 deferred (uncut-single-turn or post-P1 montage). Rollback = `MODEL=gemini-2.5-flash` env.
 
 ## Snapshot
 

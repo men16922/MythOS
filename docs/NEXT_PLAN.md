@@ -19,27 +19,30 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. Cloud Run rev `00019-jf6` serves
   (`docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md`), tracks in priority order**:
   - `[x]` **P1-A onboarding+skill legibility (DONE 2026-07-05, `9226005..e13bf91`, check 779)**: A1 telegraph ·
     A2 first-combat tutorial · A3 progressive disclosure · D1 skill badge/effect line · D2 status chips.
-    `[x]` `[auto:agy]` live-QA screens (DONE 2026-07-06, PASS_CANDIDATE ×2 — detail `PROGRESS_LOG.md`).
-    `[ ]` `[manual]` morning note: simulator action-bar skill buttons render glyphs — check new `skills/*.png` wiring.
+    `[x]` `[auto:agy]` live-QA screens (DONE 2026-07-06, PASS ×2; action-bar glyphs = by design, icons render
+    in SkillTree/cinema — resolved).
   - `[x]` **P1-B replay variety (DONE 2026-07-05, `ad2946b..4a100cd`, check 802)**: B1 guaranteed meet-arc
     slot · B2 six 1-cut opening variants (KO/EN incl. solo; companion pick promotes its arc into the B1 slot) ·
     B3 loop modifiers (patrol_surge/market_boom/signal_jam + SPA banner). `[x]` `[auto:codex]` opening
     variant art ×6 regenerated (DONE 2026-07-06 `d661f44`, POV 1-cut; superseded agy drafts — curated key art = codex).
-    `[x]` per-variant boot OPENING SEQUENCE (DONE 2026-07-06 `ca5c835`: `session_intro_variants` KO+EN,
-    SPA swaps on `_opening_variant`, 1 shot each). Remaining `[ ]` `[auto:codex]` **shots 02/03 per variant**
-    (12 cuts, opening style spec + each variant's directive beat; append to `session_intro_variants[v].cinematic_shots`
-    + EN overlay text; done = `make check` green incl. `test_opening_variant_intro`). `[ ]` `[manual]` in-game feel
-    review of the 6 variant intros + cuts.
+    `[x]` per-variant boot OPENING SEQUENCE (DONE 2026-07-06 `ca5c835` + hold-screen fix: `session_intro_variants`
+    KO+EN, SPA swaps on `_opening_variant`). Remaining `[ ]` `[auto:codex]` **shots 02/03 per variant** (12 cuts,
+    opening style spec + directive beat; append to `session_intro_variants[v].cinematic_shots` + EN text; done =
+    `make check` green incl. `test_opening_variant_intro`). `[ ]` `[manual]` in-game feel review of the 6 intros/cuts.
+    `[ ]` **Variant-ROUTED opening (user-directed 2026-07-06; live evidence: variant evaporates at turn 1 —
+    design `docs/plans/2026-07-06-variant-routed-opening.md`)**: S1 `[auto:claude]` layer-0 anchor `variants`
+    resolution (+beat registration, neutral perspective fallback) · S2 `[auto:claude]` chapter-gate
+    `player_goal_variants` · S3 `[auto:claude]` early-window se_rin flag clamp — each: `make check` green,
+    loop-1 byte-identical. Then S4 `[manual]` directive windows 0→3 + 6종 copy tone verdict (drafts in plan §4).
   - `[x]` **P1-C density/continuity (DONE 2026-07-05, `311e22f..a684011`, check 822)**: C3 join-signal ·
     C1 no-op guard · G3 presentation cues (absorbed C4) · D3 board layout · D4 cover legibility.
   - `[x]` **P1-D/E character identity + narrative arc (DONE 2026-07-05, `30bda9c..c08d5c6`, check 857)**:
-    F stun · E1 signatures ×6 · E2 IX 전용기+텔레그래프 · G1 막 스캐폴드+setup 원장 · G2 반전 뱅크 ·
-    G4 루프 후킹. Remaining `[x]` `[auto:agy]` icons (signatures ×6 + boss ×2, item-icon style spec) ·
-    SFX wavs (sfx_alarm/sting/drone/pickup — playSfx fails gracefully until then).
+    F stun · E1 signatures ×6 · E2 IX 전용기 · G1 막 스캐폴드 · G2 반전 뱅크 · G4 루프 후킹.
+    `[x]` `[auto:agy]` icons ×10 + SFX ×4 (DONE 2026-07-06 `b095446`).
   - `[ ]` `[manual]` decisions: G2 twist tone review (3 drafts in scenario.json `twist_bank`) ·
     in-layer pacing knob (C2) · overload-strike range balance (D5) · EN fresh-loop coherence retest.
 - `[x]` **Save-slot overwrite + delete (DONE 2026-07-05)** — 남음 `[manual]` 라이브 체감. 상세 archive/progress-2026-07.
-- `[/]` **Prompt-layer separation**: Phase 0-4 + node-addressing done. Remaining `[ ]` Phase 5 system-prompt few-shot extraction (cache-prefix sensitive, lowest priority).
+- `[/]` **Prompt-layer separation**: Phase 0-4 + node-addressing done. Remaining `[ ]` Phase 5 few-shot extraction (lowest priority).
 - `[ ]` `[manual]` **Archetype-variant openings (long-term, 2026-07-04)**: the 5-beat opening prologue is shared across archetypes (only stat-voices/GM flavor differ). Author per-archetype opening variations (e.g. Data Smuggler wakes mid-deal, Echo Collector hears the echoes first) — directive-layer work (`resources/neo-seoul/directives/opening.md` variants + KO/EN), gated on CBT priorities.
 
 ## Engineering maintenance track — WS0-3 done (COMPLETED_SUMMARY M43), only WS4 remains
@@ -103,8 +106,7 @@ Status: `[~]` progression/presentation parity + Story Bible 17 entries done (M38
 
 ## Maintenance
 
-- `[x]` **postgres stale-conn retry + placeholder i18n race (DONE 2026-07-05 `08f764f`; i18n 라이브 스크린도
-  AGY 확인 DONE 2026-07-06 `202327-manual`)** — 상세 archive/progress-2026-07.
+- `[x]` postgres stale-conn retry + placeholder i18n race (DONE `08f764f`; i18n 라이브 AGY 확인 07-06) — 상세 archive.
 - `[ ]` `[manual]` long-play Flux1 + Flux1Redux simultaneous-load memory monitor.
 - `[ ]` `[blocked]` `_map` removal cleanup (held until route-node track done; engine records every scene + encounter_map coords·story_bible location·glass-library fallback minimap depend on it). Prereq: all scenarios converted to route_map. When met, promote to `[auto]` (codemod + `make check` green).
 - `[ ]` `[blocked]` `[auto:claude]` frontend god-component decomposition (App.tsx·CombatCinema): extract custom hooks/modules **one slice per iteration**, behavior-preserving. Done = `make check` green + post-commit AGY live-QA not FAIL/NEEDS (auto-screened, §3.4.1). _Progress: slices 1–13 done (App.tsx 1261→696; hooks useInGameEpiphany/useCombatBoard/useTypewriter/useGameSocket/useCombatCinemaQueue/useSceneVisuals/useSessionLifecycle/useDataLoaders/useCombatRest/useSessionControls/useSnapshotReceiver/useNarrativeStream/useKeyboardChoice + shared `archetypes.ts`). Per-slice detail: `bin/docs/archive/progress-2026-06.md` + git. **slice 14 (`useViewModels`, view-model `useMemo` cluster) was committed green (`d7b3b35`) then HUMAN-REVERTED 8s later (`4d88b80`) — DO NOT re-attempt verbatim (deliberate revert; needed a 12-field props object = net-negative). `[blocked]` 2026-06-28 (2nd encounter, twice-blocked rule): remove the tag after a human names a different clean-boundary slice or closes the track._

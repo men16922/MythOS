@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import Any
 
 from mythos_core.models import LoopPhase
+from mythos_runtime.scenario_directives import available_opening_variants
 from mythos_runtime.session import _ROUTE_TYPE_MEANING
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -40,6 +41,35 @@ def _scenarios() -> dict[str, dict[str, Any]]:
         with path.open(encoding="utf-8") as handle:
             out[path.parent.name] = json.load(handle)
     return out
+
+
+def _variant_goal_violations(
+    ctx: str, gate: dict[str, Any], known: frozenset[str]
+) -> list[str]:
+    """Violations in a gate's optional `player_goal_variants` map (S2, plan 2026-07-06 §2.4).
+
+    Keys must be authored opening variants (`_opening_variant` can never hold
+    anything else, so an unknown key is a dead override — typo or removed
+    variant); values must be non-empty strings (a blank one silently falls back
+    to the shared Se-rin `player_goal`)."""
+    overrides = gate.get("player_goal_variants")
+    if overrides is None:
+        return []
+    if not isinstance(overrides, dict):
+        return [f"{ctx} player_goal_variants must be an object, got {type(overrides).__name__}."]
+    violations: list[str] = []
+    for vid, goal in overrides.items():
+        if vid not in known:
+            violations.append(
+                f"{ctx} player_goal_variants key {vid!r} has no authored "
+                f"directives/opening_{vid}.md — dead override (typo or removed variant)."
+            )
+        if not (isinstance(goal, str) and goal.strip()):
+            violations.append(
+                f"{ctx} player_goal_variants[{vid!r}] must be a non-empty string — an "
+                f"empty override falls back to the shared player_goal."
+            )
+    return violations
 
 
 class RouteDestinationMeaningTest(unittest.TestCase):
@@ -109,6 +139,44 @@ class ChapterGoalCompletenessTest(unittest.TestCase):
                 )
         self.assertGreater(
             checked, 0, "no scenario with session_design.chapter_gates was found to check"
+        )
+
+    def test_player_goal_variants_are_valid(self) -> None:
+        """`player_goal_variants` keys must be authored opening variants, values non-empty.
+
+        A typo'd/dangling variant id would silently never resolve (the loop's
+        `_opening_variant` only ever holds ids from `available_opening_variants`),
+        so the variant loop would show the Se-rin goal again — the exact bug the
+        variant-routed opening exists to fix."""
+        for scenario_id, data in _scenarios().items():
+            gates = (data.get("session_design") or {}).get("chapter_gates") or []
+            known = available_opening_variants(scenario_id)
+            for index, gate in enumerate(gates):
+                ctx = f"[{scenario_id}] chapter_gates[{index}] (phase={gate.get('phase')!r})"
+                self.assertEqual(_variant_goal_violations(ctx, gate, known), [])
+
+    def test_variant_goal_guard_flags_bad_entries(self) -> None:
+        """Guard-the-guard: the checker actually fires on the failure modes it exists for
+        (currently no scenario authors player_goal_variants, so the scan above is vacuous
+        until the S4 copy lands)."""
+        known = frozenset({"tae_o", "kai"})
+        self.assertEqual(
+            _variant_goal_violations("[t]", {"player_goal": "g"}, known), []
+        )
+        self.assertEqual(
+            _variant_goal_violations(
+                "[t]", {"player_goal_variants": {"tae_o": "바리케이드"}}, known
+            ),
+            [],
+        )
+        bad_gate = {
+            "player_goal_variants": {"tae_oh": "typo", "kai": "  ", "tae_o": None}
+        }
+        violations = _variant_goal_violations("[t]", bad_gate, known)
+        self.assertEqual(len(violations), 3)
+        self.assertTrue(any("tae_oh" in v for v in violations))
+        self.assertEqual(
+            len(_variant_goal_violations("[t]", {"player_goal_variants": ["g"]}, known)), 1
         )
 
 

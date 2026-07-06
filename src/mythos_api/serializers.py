@@ -360,7 +360,13 @@ def _chapter_goal(loop: Any, state: dict[str, Any]) -> str | None:
     """The current act's player-facing goal from the scenario's `chapter_gates`,
     keyed by loop phase. Gives the objective strip a stable Golden Path goal even
     when the per-scene LLM `objective` is vague or missing. The raw `gate` text
-    (which carries internal flag names) is never exposed — only `player_goal`."""
+    (which carries internal flag names) is never exposed — only `player_goal`.
+
+    On a variant loop (`_opening_variant` != "default") a gate may reskin its
+    goal via `player_goal_variants: {<variant_id>: str}` — the connect gate uses
+    this so a non-Se-rin opening does not display the Se-rin escape objective.
+    Missing map/entry falls back to the shared `player_goal` (loop 1 and later
+    acts converge by design)."""
     scenario_id = state.get("scenario_id") if isinstance(state, dict) else None
     if not scenario_id:
         return None
@@ -369,8 +375,15 @@ def _chapter_goal(loop: Any, state: dict[str, Any]) -> str | None:
     except Exception:  # noqa: BLE001 — scenario lookup is best-effort
         return None
     phase = loop.phase.value
+    variant = str(state.get("_opening_variant") or "default")
     for gate in gates:
         if isinstance(gate, dict) and gate.get("phase") == phase:
+            if variant != "default":
+                overrides = gate.get("player_goal_variants")
+                if isinstance(overrides, dict):
+                    override = overrides.get(variant)
+                    if isinstance(override, str) and override.strip():
+                        return override
             goal = gate.get("player_goal")
             return str(goal) if goal else None
     return None

@@ -5,6 +5,21 @@ Last updated: 2026-07-06
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-07 (overnight, claude lane) — S2 chapter-gate variant goal (variant-routed opening)
+- Status: S2 of `docs/plans/2026-07-06-variant-routed-opening.md` implemented; `make check` **890** green (+10 tests).
+- Changed: `serializers._chapter_goal` — on a variant loop (`state["_opening_variant"]` != "default") a gate's
+  optional `player_goal_variants: {<vid>: str}` overrides `player_goal`; missing map/entry/blank/non-string
+  falls back to the shared copy (loop-1 byte-identical; explore+ gates converge by design, resolution is
+  per-gate). Mechanism only — no scenario ships `player_goal_variants` yet; KO copy lands with the S4 tone
+  verdict (drafts in plan §4).
+- Verified: `make check` green (ruff/eslint/mypy 163/tsc+vite/unittest 890, validate-content 2 scenarios).
+  `tests/test_chapter_goal_variants.py` ×8 (override/default/unmapped/blank/malformed/per-gate/real-scenario
+  dormant invariant). `tests/test_route_meaning_and_goals.py` +2: content guard — `player_goal_variants` keys
+  must be authored opening variants + non-empty values (`_variant_goal_violations`), with a guard-the-guard
+  self-test since the scan is vacuous until S4 copy lands.
+- Blockers: None.
+- Next: S3 early se_rin flag clamp (`[auto:claude]`), then S4 `[manual]` directive/copy tone.
+
 ## 2026-07-07 (overnight, claude lane) — S1 anchor variantization (variant-routed opening)
 - Status: S1 of `docs/plans/2026-07-06-variant-routed-opening.md` implemented; `make check` **880** green (+15 tests).
 - Changed: `route_map.py` — layer-0 (any) anchor gains an optional `variants` map resolved at route

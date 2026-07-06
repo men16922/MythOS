@@ -1,9 +1,16 @@
 # Progress Log
 
-Last updated: 2026-07-05
+Last updated: 2026-07-06
 
 This file keeps **only recent incremental summaries within the 120-line budget**. The long 2026-06 detailed log (including per-stage route-node session detail) is in
 `bin/docs/archive/progress-2026-06.md`, the 2026-05 log in `bin/docs/archive/progress-2026-05.md`.
+
+## 2026-07-06 — Curated art for 6 opening variants (agy)
+- Status: Completed drafting and promoting opening variant images; `make check` / integrity unit tests passed.
+- Changed: Generated 6 opening variant images via in-session Imagen (1672x941 PNG format), saved to `outputs/agy/opening-variants/` staging, promoted to `resources/neo-seoul/opening/` (`opening-han.png`, `opening-kai.png`, `opening-lin_yue.png`, `opening-solo.png`, `opening-su_ah.png`, `opening-tae_o.png`). Created review report at `outputs/agy/opening-variants/review.md`.
+- Verified: Ran `python -m unittest tests/test_image_assets.py tests/test_assets.py` (all tests green).
+- Blockers: Local live-QA screen task (`[auto:agy]` onboarding screen test) is blocked because local PostgreSQL database is down (Docker daemon is offline, and `infra-up` is forbidden for unattended agent).
+- Next: Human play-feel sign-off on the generated opening images, and database/API launch to test the onboarding screens.
 
 ## 2026-07-05 (PM4) — CBT P1 CODE TRACK COMPLETE (A+B+C+D+E, 19 slices) + maintenance pair
 - Status: Committed `9226005..08f764f` (19 slices, each gated); `make check` **862** green + `validate-content` clean; NOT deployed. Maintenance pair included: postgres stale-conn 1회 재연결(스텁 테스트 5종) + placeholder i18n race (언어 반응형 파생).

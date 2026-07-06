@@ -19,17 +19,21 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. Cloud Run rev `00019-jf6` serves
   (`docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md`), tracks in priority order**:
   - `[x]` **P1-A onboarding+skill legibility (DONE 2026-07-05, `9226005..e13bf91`, check 779)**: A1 telegraph ·
     A2 first-combat tutorial · A3 progressive disclosure · D1 skill badge/effect line · D2 status chips.
-    Remaining `[ ]` `[blocked]` `[auto:agy]` AGY live-QA screen on a fresh account (tutorial card, interstitial, disclosure,
-    badges render; not FAIL/NEEDS). Done = QA run PASS_CANDIDATE recorded.
+    Remaining `[ ]` `[auto:agy]` AGY live-QA screen on a fresh account (tutorial card, interstitial, disclosure,
+    badges render; not FAIL/NEEDS). Done = QA run PASS_CANDIDATE recorded. (was `[blocked]` on DB-down — resolved
+    2026-07-06 19:03, human ran Docker + `infra-up` + `db-migrate`; postgres healthy.)
   - `[x]` **P1-B replay variety (DONE 2026-07-05, `ad2946b..4a100cd`, check 802)**: B1 guaranteed meet-arc
     slot · B2 six 1-cut opening variants (KO/EN incl. solo; companion pick promotes its arc into the B1 slot) ·
     B3 loop modifiers (patrol_surge/market_boom/signal_jam + SPA banner). Remaining `[x]` `[auto:agy]`
     curated art 1 cut per opening variant (Imagen, opening style spec; integrity gate).
+    `[ ]` `[auto:codex]` **REGENERATE opening variant art ×6 (user-directed 2026-07-06)**: agy drafts (`fd8e6f9`,
+    situation-cut style) are placeholders — codex re-draws all 6 (`resources/neo-seoul/opening/opening-{han,kai,lin_yue,solo,su_ah,tae_o}.png`)
+    with its in-session Imagen 3/Gemini Image, same opening style spec + 1672x941 wide. Done = 6 files replaced, `make check` green (integrity tests).
   - `[x]` **P1-C density/continuity (DONE 2026-07-05, `311e22f..a684011`, check 822)**: C3 join-signal ·
     C1 no-op guard · G3 presentation cues (absorbed C4) · D3 board layout · D4 cover legibility.
   - `[x]` **P1-D/E character identity + narrative arc (DONE 2026-07-05, `30bda9c..c08d5c6`, check 857)**:
     F stun · E1 signatures ×6 · E2 IX 전용기+텔레그래프 · G1 막 스캐폴드+setup 원장 · G2 반전 뱅크 ·
-    G4 루프 후킹. Remaining `[ ]` `[auto:agy]` icons (signatures ×6 + boss ×2, item-icon style spec) ·
+    G4 루프 후킹. Remaining `[x]` `[auto:agy]` icons (signatures ×6 + boss ×2, item-icon style spec) ·
     SFX wavs (sfx_alarm/sting/drone/pickup — playSfx fails gracefully until then).
   - `[ ]` `[manual]` decisions: G2 twist tone review (3 drafts in scenario.json `twist_bank`) ·
     in-layer pacing knob (C2) · overload-strike range balance (D5) · EN fresh-loop coherence retest.

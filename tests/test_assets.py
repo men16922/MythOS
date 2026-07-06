@@ -133,9 +133,19 @@ class ScenarioImageReferenceIntegrityTest(unittest.TestCase):
             skill_ids = list(skills) if isinstance(skills, dict) else [
                 s.get("id") for s in skills if isinstance(s, dict)
             ]
-            for sid in skill_ids:
-                if not sid:
-                    continue
+            
+            comp_skills = data.get("combat", {}).get("companion_skills", {}) or {}
+            comp_ids = list(comp_skills) if isinstance(comp_skills, dict) else [
+                s.get("id") for s in comp_skills if isinstance(s, dict)
+            ]
+            
+            e_skills = data.get("combat", {}).get("enemy_skills", {}) or {}
+            enemy_ids = list(e_skills) if isinstance(e_skills, dict) else [
+                s.get("id") for s in e_skills if isinstance(s, dict)
+            ]
+            
+            all_ids = sorted({sid for sid in skill_ids + comp_ids + enemy_ids if sid})
+            for sid in all_ids:
                 total_skills += 1
                 path = base / "skills" / f"{sid}.png"
                 if not path.exists():

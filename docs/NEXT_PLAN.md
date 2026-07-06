@@ -1,6 +1,6 @@
 # Project MythOS Next Plan
 
-Last updated: 2026-07-05
+Last updated: 2026-07-06
 
 This file keeps only upcoming (open) work as a rolling plan. Completed tracks live in
 `docs/COMPLETED_SUMMARY.md`, detailed logs in `bin/docs/archive/progress-2026-06.md`, individual designs in
@@ -33,9 +33,8 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. Cloud Run rev `00019-jf6` serves
     SFX wavs (sfx_alarm/sting/drone/pickup — playSfx fails gracefully until then).
   - `[ ]` `[manual]` decisions: G2 twist tone review (3 drafts in scenario.json `twist_bank`) ·
     in-layer pacing knob (C2) · overload-strike range balance (D5) · EN fresh-loop coherence retest.
-- `[x]` **Save-slot overwrite + delete (user request, DONE 2026-07-05)**: 수동 슬롯 덮어쓰기(같은 slot_id 재기록,
-  autosave 북마크는 거부) + 슬롯 삭제(수동/autosave 모두, 2-클릭 확인 UI) — 스토어 `delete_player_memories`부터
-  SAVE 모달 버튼까지 수직 구현, 유닛테스트 6종. 남음 `[manual]`: 라이브 체감 (덮어쓰기/삭제 후 목록 갱신).
+- `[x]` **Save-slot overwrite + delete (DONE 2026-07-05, 유닛테스트 6종)** — 상세 `bin/docs/archive/progress-2026-07.md`.
+  남음 `[manual]`: 라이브 체감 (덮어쓰기/삭제 후 목록 갱신).
 - `[/]` **Prompt-layer separation**: Phase 0-4 + node-addressing done. Remaining `[ ]` Phase 5 system-prompt few-shot extraction (cache-prefix sensitive, lowest priority).
 - `[ ]` `[manual]` **Archetype-variant openings (long-term, 2026-07-04)**: the 5-beat opening prologue is shared across archetypes (only stat-voices/GM flavor differ). Author per-archetype opening variations (e.g. Data Smuggler wakes mid-deal, Echo Collector hears the echoes first) — directive-layer work (`resources/neo-seoul/directives/opening.md` variants + KO/EN), gated on CBT priorities.
 
@@ -100,9 +99,8 @@ Status: `[~]` progression/presentation parity + Story Bible 17 entries done (M38
 
 ## Maintenance
 
-- `[x]` **postgres stale-conn retry + image-placeholder i18n race (both DONE 2026-07-05, `08f764f`,
-  check 862)**: `_run_query` 1회 재연결-재시도(트랜잭션 밖 한정, 스텁 유닛테스트 5종) · 기본 힌트를
-  렌더마다 현재 언어에서 파생. 남음 `[ ]` `[auto:agy]` i18n fix 라이브 스크린 (KO 세션 기본 안내문).
+- `[x]` **postgres stale-conn retry + image-placeholder i18n race (both DONE 2026-07-05, `08f764f`, check 862)** —
+  상세 `bin/docs/archive/progress-2026-07.md`. 남음 `[ ]` `[auto:agy]` i18n fix 라이브 스크린 (KO 세션 기본 안내문).
 - `[ ]` `[manual]` long-play Flux1 + Flux1Redux simultaneous-load memory monitor.
 - `[ ]` `[blocked]` `_map` removal cleanup (held until route-node track done; engine records every scene + encounter_map coords·story_bible location·glass-library fallback minimap depend on it). Prereq: all scenarios converted to route_map. When met, promote to `[auto]` (codemod + `make check` green).
 - `[ ]` `[blocked]` `[auto:claude]` frontend god-component decomposition (App.tsx·CombatCinema): extract custom hooks/modules **one slice per iteration**, behavior-preserving. Done = `make check` green + post-commit AGY live-QA not FAIL/NEEDS (auto-screened, §3.4.1). _Progress: slices 1–13 done (App.tsx 1261→696; hooks useInGameEpiphany/useCombatBoard/useTypewriter/useGameSocket/useCombatCinemaQueue/useSceneVisuals/useSessionLifecycle/useDataLoaders/useCombatRest/useSessionControls/useSnapshotReceiver/useNarrativeStream/useKeyboardChoice + shared `archetypes.ts`). Per-slice detail: `bin/docs/archive/progress-2026-06.md` + git. **slice 14 (`useViewModels`, view-model `useMemo` cluster) was committed green (`d7b3b35`) then HUMAN-REVERTED 8s later (`4d88b80`) — DO NOT re-attempt verbatim (deliberate revert; needed a 12-field props object = net-negative). `[blocked]` 2026-06-28 (2nd encounter, twice-blocked rule): remove the tag after a human names a different clean-boundary slice or closes the track._
@@ -112,7 +110,5 @@ Status: `[~]` progression/presentation parity + Story Bible 17 entries done (M38
     전투원을 `_party.members`에 영구 기록** — 플래그로만 참전한 AI 아군(예: met_lin_yue 린위에)이 한 판 함께
     싸우면 이후 영구 플레이어-조작 파티가 됨. 설계 문서("flag-unlocked non-party allies stay AI")와 상충.
     의도("싸우면 영입")인지 버그인지 사람 판정 → 의도면 DESIGN.md에 명문화, 버그면 `is_party_member`만 writeback.
-  - `[x]` **combat simulator CBT 노출 → A안(admin-key 게이팅)으로 결정·구현 (2026-07-05)**: verify-invite가
-    `gated` 플래그를 내려주고, SPA는 `isAdmin || !gated`일 때만 부트 시뮬레이터 렌더 — 게이트 켜진 CBT에서
-    테스터는 못 보고(캡 보호 + 부트 화면 경량화), keyless 로컬 dev/AGY QA 경로는 유지. 회귀 테스트 포함.
-    잔여: 기존 시뮬산 활성 루프들(예: d1b0da3e 계정 5개)은 캡에 남아 있음 — 정리 원하면 DB 작업 별도.
+  - `[x]` **combat simulator CBT 노출 → admin-key 게이팅 결정·구현 (2026-07-05, 회귀 테스트 포함)** —
+    상세 `bin/docs/archive/progress-2026-07.md`. 잔여: 기존 시뮬산 활성 루프(예: d1b0da3e 5개)는 캡에 남음 — 정리 원하면 DB 작업 별도.

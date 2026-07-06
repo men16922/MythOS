@@ -19,9 +19,10 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. Cloud Run rev `00019-jf6` serves
   (`docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md`), tracks in priority order**:
   - `[x]` **P1-A onboarding+skill legibility (DONE 2026-07-05, `9226005..e13bf91`, check 779)**: A1 telegraph ·
     A2 first-combat tutorial · A3 progressive disclosure · D1 skill badge/effect line · D2 status chips.
-    Remaining `[ ]` `[auto:agy]` AGY live-QA screen on a fresh account (tutorial card, interstitial, disclosure,
-    badges render; not FAIL/NEEDS). Done = QA run PASS_CANDIDATE recorded. (was `[blocked]` on DB-down — resolved
-    2026-07-06 19:03, human ran Docker + `infra-up` + `db-migrate`; postgres healthy.)
+    Remaining `[x]` `[auto:agy]` AGY live-QA screen (DONE 2026-07-06, runs `20260706-202053/202327-manual`
+    both PASS_CANDIDATE, screenshots visually audited): fresh-account onboarding + simulator combat — tutorial
+    card 4-step advances on real action, entry banner, skill badge/effect line, roster chips, cover 🛡, KO placeholder.
+    Note for morning: simulator action-bar skill buttons render glyphs — check new `skills/*.png` wiring.
   - `[x]` **P1-B replay variety (DONE 2026-07-05, `ad2946b..4a100cd`, check 802)**: B1 guaranteed meet-arc
     slot · B2 six 1-cut opening variants (KO/EN incl. solo; companion pick promotes its arc into the B1 slot) ·
     B3 loop modifiers (patrol_surge/market_boom/signal_jam + SPA banner). Remaining `[x]` `[auto:agy]`
@@ -104,7 +105,8 @@ Status: `[~]` progression/presentation parity + Story Bible 17 entries done (M38
 ## Maintenance
 
 - `[x]` **postgres stale-conn retry + image-placeholder i18n race (both DONE 2026-07-05, `08f764f`, check 862)** —
-  상세 `bin/docs/archive/progress-2026-07.md`. 남음 `[ ]` `[auto:agy]` i18n fix 라이브 스크린 (KO 세션 기본 안내문).
+  상세 `bin/docs/archive/progress-2026-07.md`. 남음 `[x]` `[auto:agy]` i18n fix 라이브 스크린 (DONE 2026-07-06,
+  run `20260706-202327-manual`: KO 세션 플레이스홀더 "그림 생성 준비 중…" 한국어 확인).
 - `[ ]` `[manual]` long-play Flux1 + Flux1Redux simultaneous-load memory monitor.
 - `[ ]` `[blocked]` `_map` removal cleanup (held until route-node track done; engine records every scene + encounter_map coords·story_bible location·glass-library fallback minimap depend on it). Prereq: all scenarios converted to route_map. When met, promote to `[auto]` (codemod + `make check` green).
 - `[ ]` `[blocked]` `[auto:claude]` frontend god-component decomposition (App.tsx·CombatCinema): extract custom hooks/modules **one slice per iteration**, behavior-preserving. Done = `make check` green + post-commit AGY live-QA not FAIL/NEEDS (auto-screened, §3.4.1). _Progress: slices 1–13 done (App.tsx 1261→696; hooks useInGameEpiphany/useCombatBoard/useTypewriter/useGameSocket/useCombatCinemaQueue/useSceneVisuals/useSessionLifecycle/useDataLoaders/useCombatRest/useSessionControls/useSnapshotReceiver/useNarrativeStream/useKeyboardChoice + shared `archetypes.ts`). Per-slice detail: `bin/docs/archive/progress-2026-06.md` + git. **slice 14 (`useViewModels`, view-model `useMemo` cluster) was committed green (`d7b3b35`) then HUMAN-REVERTED 8s later (`4d88b80`) — DO NOT re-attempt verbatim (deliberate revert; needed a 12-field props object = net-negative). `[blocked]` 2026-06-28 (2nd encounter, twice-blocked rule): remove the tag after a human names a different clean-boundary slice or closes the track._

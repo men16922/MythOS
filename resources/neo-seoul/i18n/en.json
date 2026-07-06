@@ -72,6 +72,11 @@
           "kicker": "SHOT 01 // SHORTCUT",
           "title": "A stranger points at the drainage hatch",
           "body": "Warning lights stain the shutter red. The bulky silhouette leaves no name — only a wet glove pointing at the drainage cover."
+        },
+        {
+          "kicker": "SHOT 02 // UNDERFLOW",
+          "title": "A waterway opens beneath the shutter",
+          "body": "The steel door cuts away the last red light. Fingers brace against wet concrete as you duck into the storm drain, beyond the patrol's reach."
         }
       ]
     },
@@ -90,6 +95,11 @@
           "kicker": "SHOT 01 // BACKDOOR",
           "title": "A dead terminal spits out coordinates",
           "body": "Letters seep into the rain-streaked screen. An address on no control-net roster — someone left a door open from the inside."
+        },
+        {
+          "kicker": "SHOT 02 // SECOND PULSE",
+          "title": "The coordinates receive a second signal",
+          "body": "As you compare the fragment, a cyan waveform rolls across the device in your hands. The sender stays silent while red searchlights close in."
         }
       ]
     },
@@ -108,6 +118,11 @@
           "kicker": "SHOT 01 // CONTRACT",
           "title": "A commission note soaked in rain",
           "body": "The ink runs, but the sentence stays sharp. Midnight, at the bridge. The gilt seal belongs to no one from the night market."
+        },
+        {
+          "kicker": "SHOT 02 // SILENCE",
+          "title": "The merchant falls silent at the seal",
+          "body": "The gilt mark catches the stall light, and the merchant's face hardens. A tarp closes halfway instead of an answer; the silence proves the commission's weight."
         }
       ]
     },
@@ -126,6 +141,11 @@
           "kicker": "SHOT 01 // GHOST PING",
           "title": "A hole punched in the search pattern",
           "body": "Every lens turns to look at the same place — the place you are not. In the corner, a blinking receipt: PING UNAUTHORIZED."
+        },
+        {
+          "kicker": "SHOT 02 // SHIFT",
+          "title": "The blind spot slips one lane aside",
+          "body": "A red search cone turns sooner than expected. You stop with one hand on the wall as the cyan ping marks a new path across the street — a test, not trust."
         }
       ]
     },
@@ -144,6 +164,11 @@
           "kicker": "SHOT 01 // BARRICADE",
           "title": "A hand signal beyond the barricade",
           "body": "Past the line of scrap and broken furniture, a huge silhouette points away from the patrol in slow, deliberate motions. A child peeks at you from behind its coat."
+        },
+        {
+          "kicker": "SHOT 02 // INSIDE LINE",
+          "title": "The eyes inside the barricade",
+          "body": "Behind the wet scrap line, the displaced hold their breath. A child looks up again from behind the broad back while the patrol light outside fails to cross their boundary."
         }
       ]
     },
@@ -162,6 +187,11 @@
           "kicker": "SHOT 01 // ALONE",
           "title": "The headlight never comes",
           "body": "The alley is empty to its end. Only rain where an engine should be. The hand braced on the wet ground answers for you — get up."
+        },
+        {
+          "kicker": "SHOT 02 // FIRST DECISION",
+          "title": "This time, you choose the way",
+          "body": "You push upright against the wall. Linking one empty lane between red searchlights ends the waiting; for the first time, your own judgment moves the loop."
         }
       ]
     }

@@ -21,8 +21,8 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. Cloud Run rev `00019-jf6` serves
     design)** — detail archive/`PROGRESS_LOG.md`.
   - `[x]` **P1-B replay variety (DONE 2026-07-05; variant art ×6 `d661f44` + per-variant boot intro `ca5c835`
     07-06)** — detail archive/`PROGRESS_LOG.md`. Remaining:
-    `[ ]` `[auto:codex]` **variant intro shot 02 ×6** (opening style spec + each variant's directive beat; append to
-    `session_intro_variants[v].cinematic_shots` + EN overlay text; done = `make check` green incl. `test_opening_variant_intro`).
+    `[x]` `[auto:codex]` **variant intro shot 02 ×6 (DONE 2026-07-07 overnight)** (opening style spec + each
+    variant's directive beat; appended to `session_intro_variants[v].cinematic_shots` + EN overlay; `make check` 901 green).
     `[ ]` `[auto:codex]` **variant intro shot 03 ×6** (same spec + criterion as shot 02).
     `[ ]` `[manual]` in-game feel review of the 6 variant intros/cuts.
   - `[ ]` **Variant-ROUTED opening (user-directed 2026-07-06; live evidence: variant evaporates at turn 1.

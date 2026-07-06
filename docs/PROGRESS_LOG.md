@@ -1,9 +1,17 @@
 # Progress Log
 
-Last updated: 2026-07-06
+Last updated: 2026-07-07
 
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
+
+## 2026-07-07 (overnight, codex lane) — Variant intro SHOT 02 ×6
+- Status: The first codex intro-expansion slice is done; all six Loop 2+ variants now have a two-shot boot cinematic.
+- Changed: generated six 1672×941 RGB PNGs (`opening-{han,kai,lin_yue,su_ah,tae_o,solo}-02.png`) in the
+  established first-person rainy cyan/red style; appended directive-aligned KO metadata + text-only EN overlays.
+- Verified: visually read back all six promoted images; JSON parse clean; `tests.test_opening_variant_intro` 3/3;
+  `make check` green (ruff/eslint/mypy 165/tsc+vite/unittest 901, 2 skipped, validate-content 2).
+- Blockers: None. Next: `[auto:codex]` variant intro SHOT 03 ×6; human intro/cut feel review remains manual.
 
 ## 2026-07-07 (overnight, claude lane) — SFX reference↔file integrity test (QA seed 1/2)
 - Status: Overnight QA Seed item 1 done; `make check` **901** green (+2 tests, `tests/test_sfx_integrity.py`).
@@ -101,20 +109,3 @@ This file keeps **only recent incremental summaries within the 120-line budget**
 - **P1-A**: A1 telegraph (`Choice.combat_risk` → "⚔ 충돌 위험" chip + `_combat_interstitial` 1-beat entry overlay, 9 authored intro lines) · A2 4-step first-combat tutorial (real-action advance, once-only) · A3 progressive disclosure (loop1 turns 0-2 gauges-only) · D1 skill badge+effect line · D2 status chips (roster+board).
 - **P1-B**: B1 guaranteed meet-arc slot (unmet-unlocked priority bucket) · B2 six 1-cut opening variants ×KO/EN incl. solo (companion pick promotes its arc into B1; se_rin heuristic gated; `max_turn: 0` falsy-bug fixed) · B3 loop modifiers (순찰 강화/시장 활황/신호 교란 + SPA banner). Tests +92 total this track (770→862).
 - Next: launch `make overnight-agy` (user-directed; deferred once by a transient classifier outage — stash the 4 foreign-WIP files first) to drain `[auto:agy]` art ×6 · icons ×8 · SFX wavs · live-QA screen. `[manual]`: G2 twist tone review · sign-off run · voice pinning · `git push` (ahead 55) · balance calls.
-
-## 2026-07-05 (PM3) — Companion-equip UI overhaul + item-gain toast (rev `00025-856`) · P1 design snapshot (feedback #2) · voice audition kit
-- Status: Committed through voice-casting fix; `make check` **770** green; **Cloud Run rev `00025-856` live** (carries dev-console link fix too).
-- **Companion equip + inventory promotion (user request, DONE)**: inventory extracted to `InventoryPanel`, rendered ABOVE the bond list in the CHARACTER tab; focusing a party companion pre-targets equip controls at them; companion card shows worn gear w/ one-click unequip. Root cause of "동료 장착 불가": companion view had no inventory at all.
-- **Item-gain toast (user request, DONE)**: `_choice_impact_summary` diffs `_inventory` across the turn → `items_gained` in choice_result + "획득 …" summary part + amber bottom-right auto-dismiss toast. Unit test locks the diff.
-- **CBT P1 design snapshot** (`docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md`): feedback #2 (owner 7-loop self-play) triaged into tracks — A onboarding+Loop1-tutorial-loop, B replay variety (guaranteed meet-arc slot · Loop2+ non-Serin/solo opening variants · loop modifiers), C density/continuity (no-op guard · ally-join foreshadow · SFX), D combat legibility/board layout, E signature/boss skills, F stun foundation (EMP grenade found INERT — engine has no stun branch), G narrative arc & cinematic system ("bible owns skeleton, LLM owns flesh") + G5 speaker-tagged dialogue (3-tone disposition) + G6 ElevenLabs voice.
-- **Voice audition kit (G6 started)**: `scripts/voice-gen/` audition.py + VOICE_GUIDE.md (official v3 best practices sourced: audio tags, ≥250 chars, Natural stability for auditions). **Language-separated casting after owner correction** — 20 Korean-native voices added from the shared library (role-cast by gender/age/baseline); 48 samples live under `outputs/voice-auditions/{ko,en}/<role>/`; per-lang pinning skeleton `resources/neo-seoul/audio/voice/voices.json`. Teaser #2 deferred (montage too similar — uncut-single-turn format or post-P1 montage).
-- Next: owner listens + pins voice ids; P1-A implementation on go (fresh session via `/sync` recommended); sign-off run + `git push` (ahead 25+) still pending.
-
-## 2026-07-05 (PM2) — Save overwrite/delete + dashboard admin rows (rev `00023`) · d1b0da3e admin elevation (rev `00024-qpr`) · teaser #2 metadata
-- Status: Committed `c5ac458..5c87d62`; `make check` **769** green (before the last two cosmetic/docs commits; DevConsole change eslint+build green). **Cloud Run rev `00024-qpr` live.**
-- **Save-slot overwrite + delete (user request, DONE)**: store `delete_player_memories` (Postgres DELETE + in-memory fake) → `SaveLoadService.save_slot(slot_id=…)` overwrite (manual-only, autosave rejected, superseded rows pruned) + `delete_save_slot` → API `slot_id` param + `POST /save-slots/delete` → SAVE modal overwrite/delete buttons with 2-click confirm. 6 unit tests. Live-verified on rev `00023-f92`: QA autosave delete 24→23 slots (`deleted:2`), unknown slot 404.
-- **Tester dashboard shows admin keys**: rows flagged `is_admin`, listed after testers, ADMIN badge; summary metrics now tester-only. Live: 8 tester rows + 1 admin row.
-- **`mythos-d1b0da3e` elevated to admin (user-directed, env-only rev `00024-qpr`)**: loop cap lifted for the user's test account; side effect accepted — DEV tab/simulator visible, excluded from tester metrics; revert = remove key from `MYTHOS_ADMIN_KEYS`.
-- **Dev-console infra links localhost-only** (`0c524fa`): Adminer/MinIO/Jaeger + docker hint are dead on cloud hosts — now rendered only on localhost (Tester Dashboard link kept). **Not yet deployed** — rides the next bundle.
-- **Teaser #2 upload metadata rewritten** (`docs/cbt/CBT_TEASER.md`): live-scene-art hook, NEW-in-this-build list, 2-min timestamps + shot list, recording notes (clean tester key, push+tag before filming). Timing advice given: sign-off run first; if the video targets recruitment, do CBT onboarding P1 before filming.
-- Next: human sign-off full run on `00024` → `git push` (ahead 18) + version tag → film teaser #2 (P1 first if recruiting); deploy bundle carries the dev-console fix.

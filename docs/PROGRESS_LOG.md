@@ -5,6 +5,12 @@ Last updated: 2026-07-06
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-06 (PM, session wrap) — Overnight lanes drained + 3 harness failures fixed in-flight
+- Status: `c85ee52..d661f44` (10 commits incl. 2 phantom-revert pairs); `make check` **862** green independently re-run at final HEAD; **ahead 10** (origin already pushed through `26435c5`). Both runners STOPPED — `[auto:agy]`/`[auto:codex]` backlog fully drained. Asset detail = the three engine entries below.
+- **Harness fixes**: ① PROGRESS_LOG at exactly 120/120 → every commit gate-RED (tidy `c85ee52`) ② agy's integrity-test mypy type-var → phantom-revert; assets recovered + 1-line fix (`b095446`) ③ agy CLI prints its verdict then never exits (dangling chrome-devtools conn, `--print-timeout` dead) → 30-min iteration burns; gtimeout hard ceiling + verdict-rescue (`6f61d9a`).
+- **Live-QA closed** (`deb24c4`): 2 direct non-nested runs PASS_CANDIDATE (`20260706-202053/202327-manual`) — tutorial 4-step card, entry banner, skill badges, roster chips, cover 🛡, KO placeholder; screenshots visually audited. **Nested agy-in-agy hangs intermittently** (burned 3 iterations) — run live-QA direct from a supervising session.
+- Next: `[manual]` in-game feel review of tonight's assets · G2 twist tone review · sign-off run · `git push` (ahead 10). Morning note: simulator action-bar renders glyphs — check `skills/*.png` wiring.
+
 ## 2026-07-06 — Regenerated 6 opening variant cutscenes (codex)
 - Status: Completed the user-directed replacement of all six placeholder opening-variant images.
 - Changed: Replaced `opening-{han,kai,lin_yue,solo,su_ah,tae_o}.png` with in-session generated cinematic first-person cuts matching the original rainy cyan/red opening style; retained 1672x941 8-bit RGB PNG format.

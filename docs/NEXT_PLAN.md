@@ -19,17 +19,13 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. Cloud Run rev `00019-jf6` serves
   (`docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md`), tracks in priority order**:
   - `[x]` **P1-A onboarding+skill legibility (DONE 2026-07-05, `9226005..e13bf91`, check 779)**: A1 telegraph ·
     A2 first-combat tutorial · A3 progressive disclosure · D1 skill badge/effect line · D2 status chips.
-    Remaining `[x]` `[auto:agy]` AGY live-QA screen (DONE 2026-07-06, runs `20260706-202053/202327-manual`
-    both PASS_CANDIDATE, screenshots visually audited): fresh-account onboarding + simulator combat — tutorial
-    card 4-step advances on real action, entry banner, skill badge/effect line, roster chips, cover 🛡, KO placeholder.
-    Note for morning: simulator action-bar skill buttons render glyphs — check new `skills/*.png` wiring.
+    `[x]` `[auto:agy]` live-QA screens (DONE 2026-07-06, PASS_CANDIDATE ×2 — detail `PROGRESS_LOG.md`).
+    `[ ]` `[manual]` morning note: simulator action-bar skill buttons render glyphs — check new `skills/*.png` wiring.
   - `[x]` **P1-B replay variety (DONE 2026-07-05, `ad2946b..4a100cd`, check 802)**: B1 guaranteed meet-arc
     slot · B2 six 1-cut opening variants (KO/EN incl. solo; companion pick promotes its arc into the B1 slot) ·
-    B3 loop modifiers (patrol_surge/market_boom/signal_jam + SPA banner). Remaining `[x]` `[auto:agy]`
-    curated art 1 cut per opening variant (Imagen, opening style spec; integrity gate).
-    `[x]` `[auto:codex]` **REGENERATE opening variant art ×6 (DONE 2026-07-06)**: agy drafts (`fd8e6f9`,
-    situation-cut style) are placeholders — codex re-draws all 6 (`resources/neo-seoul/opening/opening-{han,kai,lin_yue,solo,su_ah,tae_o}.png`)
-    with its in-session Imagen 3/Gemini Image, same opening style spec + 1672x941 wide. Done = 6 files replaced, `make check` green (integrity tests).
+    B3 loop modifiers (patrol_surge/market_boom/signal_jam + SPA banner). `[x]` `[auto:codex]` opening
+    variant art ×6 regenerated (DONE 2026-07-06 `d661f44`, POV 1-cut; superseded agy drafts — curated key art = codex).
+    Remaining `[ ]` `[manual]` in-game feel review of the 6 cuts.
   - `[x]` **P1-C density/continuity (DONE 2026-07-05, `311e22f..a684011`, check 822)**: C3 join-signal ·
     C1 no-op guard · G3 presentation cues (absorbed C4) · D3 board layout · D4 cover legibility.
   - `[x]` **P1-D/E character identity + narrative arc (DONE 2026-07-05, `30bda9c..c08d5c6`, check 857)**:

@@ -5,6 +5,13 @@ Last updated: 2026-07-06
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-06 — Curated art for 6 opening variants (agy)
+- Status: Completed drafting and promoting opening variant images; `make check` / integrity unit tests passed.
+- Changed: Generated 6 opening variant images via in-session Imagen (1672x941 PNG format), saved to `outputs/agy/opening-variants/` staging, promoted to `resources/neo-seoul/opening/` (`opening-han.png`, `opening-kai.png`, `opening-lin_yue.png`, `opening-solo.png`, `opening-su_ah.png`, `opening-tae_o.png`). Created review report at `outputs/agy/opening-variants/review.md`.
+- Verified: Ran `python -m unittest tests/test_image_assets.py` via virtualenv python (all tests green).
+- Blockers: Local live-QA screen task (`[auto:agy]` onboarding screen test) is blocked because local PostgreSQL database is down (Docker daemon is offline, and `infra-up` is forbidden for unattended agent).
+- Next: Human play-feel sign-off on the generated opening images, and database/API launch to test the onboarding screens.
+
 ## 2026-07-05 (PM4) — CBT P1 CODE TRACK COMPLETE (A+B+C+D+E, 19 slices) + maintenance pair
 - Status: Committed `9226005..08f764f` (19 slices, each gated); `make check` **862** green + `validate-content` clean; NOT deployed. Maintenance pair included: postgres stale-conn 1회 재연결(스텁 테스트 5종) + placeholder i18n race (언어 반응형 파생).
 - **P1-D/E**: F stun foundation (EMP pulse/grenade finally work, turn-skip + chips) · E1 signature skills ×6 (companion_skills pool; 차폐 필드/백도어 루트/정밀 EMP/지름길 호출/시스템 해킹/수호 방벽 — new speed_buff/taunt mechanics, AI auto-cast, action-bar exposure) · E2 IX 전용기 (최적화 프로토콜 타일 봉쇄 + enraged 명단 소거 — 회피 가능 텔레그래프, 보드 ⚠ 타일) · G1 막 스캐폴드 (기승전결 by route progress + setup 원장 + 클라이맥스 회수 요구) · G2 반전 뱅크 (조건 트리거·루프당 1회·sting+glitch 강제 결합; 콘텐츠 3종 드래프트 = 사람 톤 검수 대기) · G4 루프 후킹 (엔딩 화면 다음 루프 예고: 에코+미회수 떡밥+변주/모디파이어 티저).

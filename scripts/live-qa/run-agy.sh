@@ -100,10 +100,21 @@ actor_prompt="$(cat "$PROMPT_FILE")
 - Output directory: $OUTPUT_DIR
 - Maximum interactive checkpoints: $MAX_TURNS"
 raw_review="$OUTPUT_DIR/agy-output.raw.txt"
+# The agy CLI can finish its review (verdict printed) yet never exit — a dangling
+# chrome-devtools connection keeps its event loop alive and --print-timeout does not
+# fire (measured 2026-07-06: verdict written, process alive 29m until the outer
+# ITER_TIMEOUT killed the whole tree, so finalize never ran). Wrap in a hard timeout
+# and treat a timeout-kill as success when the verdict line made it to the output.
+TIMEOUT_BIN="$(command -v gtimeout || command -v timeout || true)"
+HARD_TIMEOUT="${LIVE_QA_HARD_TIMEOUT:-1020}"  # seconds; AGY_TIMEOUT(15m) + 2m grace
 set +e
-agy --print "$actor_prompt" --dangerously-skip-permissions --print-timeout "$AGY_TIMEOUT" \
+${TIMEOUT_BIN:+"$TIMEOUT_BIN" "$HARD_TIMEOUT"} agy --print "$actor_prompt" --dangerously-skip-permissions --print-timeout "$AGY_TIMEOUT" \
   --add-dir "$REPO_ROOT" > "$raw_review" 2>&1
 agy_rc=$?
+if [ "$agy_rc" -eq 124 ] && grep -qi 'LIVE_QA_VERDICT:' "$raw_review"; then
+  echo "live-qa: agy hung after completing its review — timeout-kill treated as success" >&2
+  agy_rc=0
+fi
 set -e
 
 stop_server

@@ -92,6 +92,8 @@ export const ko = {
   "sk.insightBal": "통찰 잔액",
   // Intro panel fallback defaults
   "intro.titleDefault": "첫 접속",
+  "intro.aligningTitle": "신호 재정렬 중",
+  "intro.aligningBody": "이번 루프의 진입 지점을 찾는 중입니다. 잠시\u2026",
   "intro.acceptDefault": "접속을 받아들인다",
   // Boot intro (chrome only — signal/boot copy is scenario ui_copy)
   "boot.enter": "접속 기동 · ENTER ▸",

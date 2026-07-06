@@ -92,6 +92,8 @@ export const en: Record<StringKey, string> = {
   "sk.insightBal": "Insight balance",
   // Intro panel fallback defaults
   "intro.titleDefault": "First Connection",
+  "intro.aligningTitle": "Re-aligning signal",
+  "intro.aligningBody": "Locating this loop's entry point. One moment\u2026",
   "intro.acceptDefault": "Accept the connection",
   // Boot intro (chrome only — signal/boot copy is scenario ui_copy)
   "boot.enter": "Initiate Connection · ENTER ▸",

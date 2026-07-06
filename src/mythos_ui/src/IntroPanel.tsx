@@ -19,7 +19,9 @@ export interface IntroData {
 }
 
 interface IntroPanelProps {
-  introData: IntroData;
+  // null = the loop's opening variant is still unknown (returning identity,
+  // first snapshot not yet in) — render the signal-alignment hold screen.
+  introData: IntroData | null;
   scenarioId: string;
   onAccept: () => void;
 }
@@ -32,7 +34,7 @@ export const IntroPanel: React.FC<IntroPanelProps> = ({
   const { t } = useLang();
   const [activeShotIdx, setActiveShotIdx] = useState(0);
   const [glitch, setGlitch] = useState(false);
-  const shots = introData.cinematic_shots || [];
+  const shots = introData?.cinematic_shots || [];
 
   const handleNextShot = () => {
     if (activeShotIdx < shots.length - 1) {
@@ -64,6 +66,20 @@ export const IntroPanel: React.FC<IntroPanelProps> = ({
   }, [activeShotIdx, scenarioId]);
 
   const currentShot = shots[activeShotIdx];
+
+  if (!introData) {
+    return (
+      <div className="intro-container">
+        <div className="intro-overlay-grid">
+          <div className="intro-left-panel">
+            <div className="terminal-kicker">OPENING SEQUENCE</div>
+            <h1 className="intro-title">{t("intro.aligningTitle")}</h1>
+            <p className="intro-body-text">{t("intro.aligningBody")}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="intro-container">

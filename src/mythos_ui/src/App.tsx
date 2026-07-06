@@ -661,21 +661,39 @@ export default function App() {
   const asideMinimal = introFirstLoop && introTurn <= 2 && !finalizedSnapshot?.combat;
   const asideRevealNudge = introFirstLoop && introTurn === 3;
 
-  // B2 loop2+ opening variants: once the first snapshot lands, its loop state
-  // carries _opening_variant — swap the intro to that variant's authored reentry
-  // sequence. Until then (and always on loop 1) the default Se-rin 3-cut shows.
+  // B2 loop2+ opening variants: the first snapshot's loop state names the
+  // variant. Returning identities (stored/invite player id) may be loop 2+, so
+  // their intro holds on a signal-alignment skeleton until the variant arrives —
+  // never swapping sequences mid-read. Brand-new identities are always loop 1 →
+  // default Se-rin sequence immediately. 8s fallback if the stream stalls.
   const introVariantKey =
     finalizedSnapshot?.state?._opening_variant ??
     lastSnapshot?.state?._opening_variant ??
     "default";
+  const introVariantArrived = Boolean(
+    finalizedSnapshot?.state?._opening_variant ?? lastSnapshot?.state?._opening_variant
+  );
+  const [introWaitExpired, setIntroWaitExpired] = useState(false);
+  useEffect(() => {
+    if (!showIntro || introVariantArrived) return;
+    const timer = setTimeout(() => setIntroWaitExpired(true), 8000);
+    return () => clearTimeout(timer);
+  }, [showIntro, introVariantArrived]);
+  useEffect(() => {
+    if (!showIntro) return;
+    // Reset on intro close so the next loop's intro holds again.
+    return () => setIntroWaitExpired(false);
+  }, [showIntro]);
+  const introPending =
+    Boolean(startScreenPlayerId) && !introVariantArrived && !introWaitExpired;
   const introVariants = currentScenario?.ui_copy?.session_intro_variants as
     | Record<string, IntroData>
     | undefined;
-  const introData = (
-    introVariantKey !== "default" && introVariants?.[introVariantKey]
-      ? introVariants[introVariantKey]
-      : currentScenario?.ui_copy?.session_intro
-  ) as IntroData;
+  const introData = introPending
+    ? null
+    : ((introVariantKey !== "default" && introVariants?.[introVariantKey]
+        ? introVariants[introVariantKey]
+        : currentScenario?.ui_copy?.session_intro) as IntroData);
 
   // Hold the app behind the invite gate until the key probe resolves. "checking" shows
   // nothing (brief); "blocked" shows the key-entry screen instead of the game.

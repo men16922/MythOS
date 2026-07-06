@@ -33,13 +33,14 @@ Authority plan: `docs/NEXT_PLAN.md`.
 
 Direction remains global-first EN/KO closed beta: Gemini/Vertex is the product path; Ollama/FLUX remains the local development path. Deployment/onboarding/localization history is in `docs/COMPLETED_SUMMARY.md` M50 and M56.
 
-1. **P1 auto tracks fully drained (2026-07-06)** — remaining is the human lane: in-game feel review of tonight's assets (openings/icons/SFX), G2 twist tone review (3 drafts, scenario.json `twist_bank`), sign-off full run on rev `00025-856` + Audrey EN retest (`docs/test/neo_seoul_live_qa.md`), voice-id pinning (`outputs/voice-auditions/{ko,en}/` → `voices.json`), `git push` (ahead 10), triage calls (ally-writeback · overload-strike range · pacing knob). Deploy bundle now carries the FULL P1 code track + tonight's assets.
+1. **Variant-routed opening (user-directed 2026-07-06)** — live playtest showed B2 variants evaporate at turn 1 (Se-rin rails: layer-0 anchor + connect gate + canon). Design done (`docs/plans/2026-07-06-variant-routed-opening.md`); next = S1 anchor variants resolution → S2 goal variants → S3 se_rin flag clamp (`[auto:claude]`), then S4 directive/copy tone (human). Per-variant boot intro already shipped (`ca5c835`+`0039c45`, check 865).
+2. **Human lane**: S4 tone verdict + in-game feel review of 07-06 assets, G2 twist tone review (`twist_bank`), deploy new bundle + sign-off run (`docs/test/neo_seoul_live_qa.md` refreshed 07-06) + Audrey EN retest, voice-id pinning, `git push` (ahead 4), ally-writeback triage.
 3. **Post-sign-off model experiment**: 2.5-normal/3.5-key-beat hybrid A/B; record keep/rollback verdict.
 4. **Maintenance/hold**: WS4 content pipeline plan-only; Glass Library waits for Neo-Seoul satisfaction; teaser #2 deferred (uncut-single-turn or post-P1 montage).
 
 ## Open Risks
 
-- **push workflow (ongoing)**: private-repo push is a hard-block by the safety classifier so the agent cannot do it → user pushes directly (men16922's own account). Origin pushed through `26435c5`; tonight's 10 commits (assets + harness fixes) await human push.
+- **push workflow (ongoing)**: private-repo push is a hard-block by the safety classifier so the agent cannot do it → user pushes directly (men16922's own account). Origin pushed through `a1e3b81` (2026-07-06 night); the variant-intro feature + design commits await human push.
 - **agy browser attach flaky (new 2026-07-06)**: the live-QA actor intermittently fails to acquire any browser tool and hangs silently — nested-in-agy runs burned 3 iterations; even direct runs failed 21:18+/21:41 after succeeding 20:20/20:23 (suspect Antigravity IDE/browser state). Mitigations landed: gtimeout hard ceiling + verdict-rescue in `run-agy.sh` (`6f61d9a`) so failures now record NEEDS_HUMAN instead of burning 30 min. Practice: run live-QA direct from a supervising session; if attach fails twice, hand the item to human.
 - **3.5-flash cost watch (mitigated 2026-07-05)**: prompt diet cut input −25% → ~$1.0/loop full-3.5. The env-only hybrid (~$0.5) is implemented but remains disabled until the planned post-sign-off A/B.
 - **WS idle drop (~45s)**: observed during live repro — the socket died during a long idle wait between frames. Harmless for normal play (frames flow continuously) but could matter for slow image turns; watch during live QA.

@@ -10,17 +10,17 @@ class ScenarioAssetsTest(unittest.TestCase):
     def test_neo_seoul_assets_exist(self) -> None:
         scenario = load_scenario("neo-seoul")
         resources_dir = PROJECT_ROOT / "resources" / "neo-seoul"
-        
+
         # 1. Check character_map images
-        for char_id, path_rel in scenario.character_map.items():
+        for path_rel in scenario.character_map.values():
             full_path = resources_dir / path_rel
             self.assertTrue(full_path.exists(), f"Character image not found: {full_path}")
-            
+
         # 2. Check concept_map images
-        for concept_id, path_rel in scenario.concept_map.items():
+        for path_rel in scenario.concept_map.values():
             full_path = resources_dir / path_rel
             self.assertTrue(full_path.exists(), f"Concept image not found: {full_path}")
-            
+
         # 3. Check bestiary images
         bestiary = scenario.combat.get("bestiary", {})
         for enemy_id, enemy_data in bestiary.items():
@@ -29,7 +29,7 @@ class ScenarioAssetsTest(unittest.TestCase):
                 # If path starts with enemies/ it's relative to resources_dir
                 full_path = resources_dir / image_rel
                 self.assertTrue(full_path.exists(), f"Bestiary base image not found: {full_path} for {enemy_id}")
-            
+
             combat_images = enemy_data.get("combat_images", {})
             for pose, path_rel in combat_images.items():
                 full_path = resources_dir / path_rel
@@ -42,7 +42,7 @@ class ScenarioAssetsTest(unittest.TestCase):
             if image_rel:
                 full_path = resources_dir / image_rel
                 self.assertTrue(full_path.exists(), f"Ally base image not found: {full_path} for {ally_id}")
-            
+
             combat_images = ally_data.get("combat_images", {})
             for pose, path_rel in combat_images.items():
                 full_path = resources_dir / path_rel
@@ -133,17 +133,17 @@ class ScenarioImageReferenceIntegrityTest(unittest.TestCase):
             skill_ids = list(skills) if isinstance(skills, dict) else [
                 s.get("id") for s in skills if isinstance(s, dict)
             ]
-            
+
             comp_skills = data.get("combat", {}).get("companion_skills", {}) or {}
             comp_ids = list(comp_skills) if isinstance(comp_skills, dict) else [
                 s.get("id") for s in comp_skills if isinstance(s, dict)
             ]
-            
+
             e_skills = data.get("combat", {}).get("enemy_skills", {}) or {}
             enemy_ids = list(e_skills) if isinstance(e_skills, dict) else [
                 s.get("id") for s in e_skills if isinstance(s, dict)
             ]
-            
+
             all_ids = sorted({sid for sid in skill_ids + comp_ids + enemy_ids if sid})
             for sid in all_ids:
                 total_skills += 1

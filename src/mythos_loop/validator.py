@@ -14,6 +14,13 @@ from mythos_narrative.schemas import (
 
 ALLOWED_STATE_DELTA_KEYS = {"stability", "tension", "flags", "phase", "echo"}
 
+# Variant-routed opening (S3): on variant loops the early window belongs to the
+# variant hook, so the canonical Se-rin first-contact flags must not enter world
+# state from the model — the directive alone cannot be trusted (live evidence:
+# loop_88ba… set met_se_rin at turn 1 from a non-Se-rin choice).
+SE_RIN_CONTACT_FLAGS = frozenset({"met_se_rin", "trusted_se_rin", "refused_se_rin"})
+SE_RIN_CLAMP_MAX_TURN = 3
+
 
 @dataclass(frozen=True)
 class ValidationError:
@@ -96,10 +103,14 @@ class Validator:
         # Unsupported keys in world_delta will be naturally filtered out when building clamped_delta.
         # We perform a soft-repair rather than a hard failure to avoid crashing the game.
 
+        flags = list(payload.world_delta.flags)
+        if _se_rin_clamp_active(loop, scene):
+            flags = [flag for flag in flags if flag not in SE_RIN_CONTACT_FLAGS]
+
         clamped_delta = WorldDelta(
             stability=_clamp_delta(payload.world_delta.stability),
             tension=_clamp_delta(payload.world_delta.tension),
-            flags=list(payload.world_delta.flags),
+            flags=flags,
             clues=list(payload.world_delta.clues),
             start_combat=payload.world_delta.start_combat,
             spawn_encounters=list(payload.world_delta.spawn_encounters),
@@ -199,6 +210,12 @@ def _allowed_next_phases(current: LoopPhase) -> set[LoopPhase]:
 
 def _world_delta_keys_ok(world_delta: WorldDelta) -> bool:
     return set(world_delta.as_state_delta()) <= ALLOWED_WORLD_DELTA_KEYS
+
+
+def _se_rin_clamp_active(loop: LoopState, scene: Scene) -> bool:
+    state = loop.state if isinstance(loop.state, dict) else {}
+    variant = str(state.get("_opening_variant") or "default")
+    return variant != "default" and scene.turn_index <= SE_RIN_CLAMP_MAX_TURN
 
 
 def _clamp_delta(value: int) -> int:

@@ -5,6 +5,20 @@ Last updated: 2026-07-06
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-07 (overnight, claude lane) — S3 early se_rin flag clamp (variant-routed opening)
+- Status: S3 of `docs/plans/2026-07-06-variant-routed-opening.md` implemented; `make check` **899** green (+9 tests).
+- Changed: `mythos_loop/validator.py` — `validate_scene_payload` strips `met/trusted/refused_se_rin` from
+  `world_delta.flags` when the loop is a variant loop (`_opening_variant` != "default") and
+  `scene.turn_index <= 3` (`SE_RIN_CLAMP_MAX_TURN`), via the existing `clamped_delta` soft-repair path — so
+  the strip propagates to state merge AND the recorded WorldEvent. Default/loop-1 byte-identical; turn 4+
+  passes through untouched.
+- Verified: `make check` green (ruff/eslint/mypy 164/tsc+vite/unittest 899, validate-content 2 scenarios).
+  `tests/test_serin_flag_clamp.py` ×9: validator strip/boundary/after-window/default-passthrough/non-contact
+  flags + engine-level state+event assertions + design-constant lock.
+- Blockers: None.
+- Next: S1-S3 `[auto:claude]` all done — S4 `[manual]` directive windows 0→3 + copy tone verdict (plan §4),
+  S5 `[auto:codex]` variant shots. Claude lane continues with the Overnight QA Seed items.
+
 ## 2026-07-07 (overnight, claude lane) — S2 chapter-gate variant goal (variant-routed opening)
 - Status: S2 of `docs/plans/2026-07-06-variant-routed-opening.md` implemented; `make check` **890** green (+10 tests).
 - Changed: `serializers._chapter_goal` — on a variant loop (`state["_opening_variant"]` != "default") a gate's

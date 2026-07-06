@@ -33,8 +33,8 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. Cloud Run rev `00019-jf6` serves
     `[x]` `[auto:claude]` **S2 chapter-gate variant goal (DONE 2026-07-07 overnight)** (`player_goal_variants`
     resolution in `_chapter_goal` via `_opening_variant`, fallback preserved + content guard). `make check`
     890 green + 10 tests; copy lands with S4.
-    `[ ]` `[auto:claude]` **S3 early se_rin flag clamp** (variant loops, turn ≤3: strip met/trusted/refused_se_rin
-    from `world_delta.flags`, grant-items-clamp pattern). Done = `make check` green + tests.
+    `[x]` `[auto:claude]` **S3 early se_rin flag clamp (DONE 2026-07-07 overnight)** (validator `clamped_delta`
+    strip on variant loops turn ≤3). `make check` 899 green + 9 tests.
     S4 `[manual]` directive windows 0→3 + 6종 copy tone verdict (drafts in plan §4).
   - `[x]` **P1-C density/continuity + P1-D/E identity/arc (DONE 2026-07-05; icons ×10 + SFX ×4 `b095446`
     07-06)** — detail archive/`PROGRESS_LOG.md`.

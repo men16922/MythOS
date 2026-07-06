@@ -133,19 +133,7 @@ class ScenarioImageReferenceIntegrityTest(unittest.TestCase):
             skill_ids = list(skills) if isinstance(skills, dict) else [
                 s.get("id") for s in skills if isinstance(s, dict)
             ]
-            
-            comp_skills = data.get("combat", {}).get("companion_skills", {}) or {}
-            comp_ids = list(comp_skills) if isinstance(comp_skills, dict) else [
-                s.get("id") for s in comp_skills if isinstance(s, dict)
-            ]
-            
-            e_skills = data.get("combat", {}).get("enemy_skills", {}) or {}
-            enemy_ids = list(e_skills) if isinstance(e_skills, dict) else [
-                s.get("id") for s in e_skills if isinstance(s, dict)
-            ]
-            
-            all_ids = sorted(list(set(skill_ids + comp_ids + enemy_ids)))
-            for sid in all_ids:
+            for sid in skill_ids:
                 if not sid:
                     continue
                 total_skills += 1

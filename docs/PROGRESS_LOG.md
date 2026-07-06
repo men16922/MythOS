@@ -5,13 +5,6 @@ Last updated: 2026-07-06
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
 
-## 2026-07-06 — Generated and promoted 10 new skill icons and SFX wavs (agy)
-- Status: Completed drafting, converting, and promoting 10 new skill card images and 4 SFX WAV files; tests passed.
-- Changed: Generated 10 new skill card images via in-session Imagen 3/Gemini (9:16 aspect ratio), saved as PNG in `outputs/agy/skills/` staging, promoted to `resources/neo-seoul/skills/`. Generated 4 sound effect WAV files (`sfx_alarm.wav`, `sfx_sting.wav`, `sfx_drone.wav`, `sfx_pickup.wav`) in `resources/neo-seoul/audio/sfx/`. Created review report at `outputs/agy/skills/review.md`.
-- Verified: Extended `tests/test_assets.py` to assert companion and enemy skill icons, ran `python -m unittest tests/test_assets.py` and `tests/test_image_assets.py` (both green), and ran `make test` (all 862 tests green).
-- Blockers: None.
-- Next: Human play-feel sign-off on the generated skill cards and SFX.
-
 ## 2026-07-06 — Curated art for 6 opening variants (agy)
 - Status: Completed drafting and promoting opening variant images; `make check` / integrity unit tests passed.
 - Changed: Generated 6 opening variant images via in-session Imagen (1672x941 PNG format), saved to `outputs/agy/opening-variants/` staging, promoted to `resources/neo-seoul/opening/` (`opening-han.png`, `opening-kai.png`, `opening-lin_yue.png`, `opening-solo.png`, `opening-su_ah.png`, `opening-tae_o.png`). Created review report at `outputs/agy/opening-variants/review.md`.

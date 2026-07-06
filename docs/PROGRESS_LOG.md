@@ -5,6 +5,13 @@ Last updated: 2026-07-07
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-07 (overnight, codex lane) — Completed-plan archive + M57
+- Status: Doc-migration seed completed; six implemented plans now live under `bin/docs/plans/`.
+- Changed: repaired all references to the moved plans, added `COMPLETED_SUMMARY.md` M57 for the 07-06 asset/live-QA + boot-intro bundle, and closed the NEXT_PLAN item.
+- Verified: `make check-doc-budget` green; moved-plan `rg`/existence sweep clean; `$GATE_CMD` (`make check`) green (ruff/eslint, mypy 165, frontend build, unittest 901 with 2 skipped, validate-content 2).
+- Blockers: SHOT 03 image generation hit `usage_limit_reached` again (`resets_in_seconds=71218`); second occurrence, so the item is now `[blocked]` with no partial/fake assets promoted.
+- Next: Codex lane is drained except blocked SHOT 03; retry only after quota/human review.
+
 ## 2026-07-07 (overnight, codex lane) — Variant intro SHOT 03 ×6 blocked (attempt 1)
 - Status: Not completed; the image-generation usage limit stopped the six-image batch after 3/6 drafts.
 - Changed: No project assets or scenario metadata were changed. The three partial drafts remain outside the workspace
@@ -110,11 +117,3 @@ This file keeps **only recent incremental summaries within the 120-line budget**
 - Verified: Ran `python -m unittest tests/test_image_assets.py` via virtualenv python (all tests green).
 - Blockers: Local live-QA screen task (`[auto:agy]` onboarding screen test) is blocked because local PostgreSQL database is down (Docker daemon is offline, and `infra-up` is forbidden for unattended agent).
 - Next: Human play-feel sign-off on the generated opening images, and database/API launch to test the onboarding screens.
-
-## 2026-07-05 (PM4) — CBT P1 CODE TRACK COMPLETE (A+B+C+D+E, 19 slices) + maintenance pair
-- Status: Committed `9226005..08f764f` (19 slices, each gated); `make check` **862** green + `validate-content` clean; NOT deployed. Maintenance pair included: postgres stale-conn 1회 재연결(스텁 테스트 5종) + placeholder i18n race (언어 반응형 파생).
-- **P1-D/E**: F stun foundation (EMP pulse/grenade finally work, turn-skip + chips) · E1 signature skills ×6 (companion_skills pool; 차폐 필드/백도어 루트/정밀 EMP/지름길 호출/시스템 해킹/수호 방벽 — new speed_buff/taunt mechanics, AI auto-cast, action-bar exposure) · E2 IX 전용기 (최적화 프로토콜 타일 봉쇄 + enraged 명단 소거 — 회피 가능 텔레그래프, 보드 ⚠ 타일) · G1 막 스캐폴드 (기승전결 by route progress + setup 원장 + 클라이맥스 회수 요구) · G2 반전 뱅크 (조건 트리거·루프당 1회·sting+glitch 강제 결합; 콘텐츠 3종 드래프트 = 사람 톤 검수 대기) · G4 루프 후킹 (엔딩 화면 다음 루프 예고: 에코+미회수 떡밥+변주/모디파이어 티저).
-- **P1-C**: C3 참전 예고 (companion-ref 원장 + "⚑ 합류 신호" + synopsis callback) · C1 no-op guard (에스컬레이션→강제 이벤트) · G3 presentation_cues (rule-derived AV cues + client fx layer) · D3 full-width board · D4 cover legibility (🛡 배지 + cover-saved 미스 서술).
-- **P1-A**: A1 telegraph (`Choice.combat_risk` → "⚔ 충돌 위험" chip + `_combat_interstitial` 1-beat entry overlay, 9 authored intro lines) · A2 4-step first-combat tutorial (real-action advance, once-only) · A3 progressive disclosure (loop1 turns 0-2 gauges-only) · D1 skill badge+effect line · D2 status chips (roster+board).
-- **P1-B**: B1 guaranteed meet-arc slot (unmet-unlocked priority bucket) · B2 six 1-cut opening variants ×KO/EN incl. solo (companion pick promotes its arc into B1; se_rin heuristic gated; `max_turn: 0` falsy-bug fixed) · B3 loop modifiers (순찰 강화/시장 활황/신호 교란 + SPA banner). Tests +92 total this track (770→862).
-- Next: launch `make overnight-agy` (user-directed; deferred once by a transient classifier outage — stash the 4 foreign-WIP files first) to drain `[auto:agy]` art ×6 · icons ×8 · SFX wavs · live-QA screen. `[manual]`: G2 twist tone review · sign-off run · voice pinning · `git push` (ahead 55) · balance calls.

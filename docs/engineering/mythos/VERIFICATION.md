@@ -95,5 +95,5 @@ Deterministic subproblems discovered during review may be split into separate `[
 
 - Bible: [`../VERIFICATION_ENGINEERING.md`](../VERIFICATION_ENGINEERING.md)
 - Harness mapping: [`HARNESS.md`](HARNESS.md) · loop operation: [`LOOP.md`](LOOP.md) · parallel roles: [`AGENTIC.md`](AGENTIC.md)
-- Automatic live-QA plan: `docs/plans/2026-06-21-overnight-auto-agy-qa.md`
+- Automatic live-QA plan: `bin/docs/plans/2026-06-21-overnight-auto-agy-qa.md`
 - Repository mandates: `harness/CORE_MANDATES.md` · open work: `docs/NEXT_PLAN.md`

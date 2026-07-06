@@ -4,7 +4,7 @@ Opt-in dual-cost narrative: key-beat turns (opening / anchor lock / cutscene /
 boss buildup / ending phases) generate on ``GeminiConfig.keybeat_model``
 (env ``GEMINI_MODEL_KEYBEAT``) while normal turns stay on the base ``model`` —
 the ~$0.5/loop alternative to running 3.5-flash on every turn
-(docs/plans/2026-07-04-gemini-2.5-vs-3.5-eval.md §권고 ②). Unset = single model,
+(bin/docs/plans/2026-07-04-gemini-2.5-vs-3.5-eval.md §권고 ②). Unset = single model,
 byte-identical to prior behavior.
 """
 

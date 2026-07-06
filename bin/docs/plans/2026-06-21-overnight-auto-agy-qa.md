@@ -3,7 +3,7 @@
 Status: **Plan only — handoff for Claude, do not treat as implemented**  
 Date: 2026-06-21  
 Primary goal: keep the user-facing command surface at `make overnight` / `make overnight-watch`; let the existing runner decide when browser QA is necessary and invoke AGY automatically.  
-Related plan: `docs/plans/2026-06-21-agy-assisted-live-qa.md`
+Related plan: `bin/docs/plans/2026-06-21-agy-assisted-live-qa.md`
 
 ## 1. User intent and non-negotiable outcome
 
@@ -38,7 +38,7 @@ Relevant current files:
 - `scripts/live-qa/PROMPT.agy.md`: Chrome DevTools priority 1, AGY Playwright MCP priority 2, no Python browser fallback.
 - `scripts/live-qa/artifacts.py`: manifest preparation, server readiness, and artifact/verdict validation only; it has no browser dependency.
 - `Makefile`: currently exposes `live-qa-agy-probe`; this plan removes that as a normal operator command and makes the script an internal runner hook.
-- `docs/plans/2026-06-21-agy-assisted-live-qa.md`: broader live-QA phases.
+- `bin/docs/plans/2026-06-21-agy-assisted-live-qa.md`: broader live-QA phases.
 
 Measured evidence already available locally:
 

@@ -23,7 +23,8 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. Cloud Run rev `00019-jf6` serves
     07-06)** — detail archive/`PROGRESS_LOG.md`. Remaining:
     `[x]` `[auto:codex]` **variant intro shot 02 ×6 (DONE 2026-07-07 overnight)** (opening style spec + each
     variant's directive beat; appended to `session_intro_variants[v].cinematic_shots` + EN overlay; `make check` 901 green).
-    `[ ]` `[auto:codex]` **variant intro shot 03 ×6** (same spec + criterion as shot 02).
+    `[ ]` `[blocked]` `[auto:codex]` **variant intro shot 03 ×6** (same spec + criterion as shot 02;
+    image-generation quota hit twice on 2026-07-07, retry after human/quota review).
     `[ ]` `[manual]` in-game feel review of the 6 variant intros/cuts.
   - `[ ]` **Variant-ROUTED opening (user-directed 2026-07-06; live evidence: variant evaporates at turn 1.
     Design = `docs/plans/2026-07-06-variant-routed-opening.md`)**:
@@ -81,9 +82,9 @@ Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop co
 - `[ ]` `[auto:claude]` **lint/type-noise cleanup**: fix the deprecated `@asynccontextmanager` return
   annotation in `src/mythos_api/app.py` + remove unused loop variables in `tests/test_assets.py`.
   Completion criterion: `make check` green, zero behavior change (no test deltas).
-- `[ ]` `[auto:codex]` **doc migration + M57**: move completed `docs/plans/*` (implemented plans only) to
-  `bin/docs/plans/`, add `COMPLETED_SUMMARY.md` M57 (2026-07-06 overnight: variant art/icons/SFX/live-QA +
-  per-variant boot intro). Completion criterion: `make check-doc-budget` green + `rg` sweep shows no broken links.
+- `[x]` `[auto:codex]` **doc migration + M57 (DONE 2026-07-07 overnight)**: moved six implemented plans to
+  `bin/docs/plans/`, repaired references, and added `COMPLETED_SUMMARY.md` M57 for the 2026-07-06 overnight
+  asset/live-QA + per-variant boot-intro bundle. `make check-doc-budget` green; no stale moved-plan links.
 
 ## Priority 1 — Neo-Seoul Playability Upgrade
 

@@ -85,7 +85,7 @@ GOAL_DIRECTIVE="/goal Either (a) the selected [auto]/[auto:claude] backlog item 
 # CRITIC_PROMPT.md: repo 로컬(없으면 build_critic_prompt 의 내장 기본 사용).
 CRITIC_PROMPT_FILE="scripts/overnight/CRITIC_PROMPT.md"
 
-# --- 자동 브라우저 QA 패스 (WS-C/D, opt-in; 설계 docs/plans/2026-06-21-overnight-auto-agy-qa.md) ---
+# --- 자동 브라우저 QA 패스 (WS-C/D, opt-in; 설계 bin/docs/plans/2026-06-21-overnight-auto-agy-qa.md) ---
 # 게이트+critic 통과한 새 커밋이 UI/런타임/시나리오를 건드리면(후보 필터) AGY 가 브라우저 QA(증거수집)를
 # 한다. PASS/SKIP=유지+계속, FAIL/NEEDS=정지(revert 안 함)+알림. 사람 사인오프는 여전히 권위.
 #   OVERNIGHT_BROWSER_QA: auto=후보필터+AGY 2단계 결정(기본) · 0=끄기(인시던트 킬스위치).

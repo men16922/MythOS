@@ -1,7 +1,7 @@
 """WS-A fixture matrix for scripts/overnight/browser-qa-filter.sh.
 
 The candidate filter is Stage 1 of the automatic browser-QA decision
-(docs/plans/2026-06-21-overnight-auto-agy-qa.md §5): a cheap, side-effect-free
+(bin/docs/plans/2026-06-21-overnight-auto-agy-qa.md §5): a cheap, side-effect-free
 cost gate that decides whether a commit range could change anything a player
 sees. These tests build real throwaway git repos, commit fixture diffs, and
 assert the verdict + exit code, plus that the filter mutates nothing.

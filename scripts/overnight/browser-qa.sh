@@ -6,7 +6,7 @@
 #   maybe_browser_qa  post-commit <range> <head>   — after gate + critic pass
 #   maybe_drain_browser_qa        <head>           — once at DONE, bounded A/F sweep
 #
-# Flow (plan docs/plans/2026-06-21-overnight-auto-agy-qa.md §3-§10):
+# Flow (plan bin/docs/plans/2026-06-21-overnight-auto-agy-qa.md §3-§10):
 #   dedup ledger → Stage-1 candidate filter (post-commit only) → AGY hook (Stage 2)
 #   → classify outcome → record ledger + marker.
 # Outcome → return code: 0 = keep commit + continue loop · 3 = stop the loop.

@@ -6,7 +6,7 @@ for the API to come up, and — after AGY has driven the browser itself — vali
 the captured evidence and classifies a machine-readable outcome.
 
 Outcome contract (consumed by scripts/overnight/browser-qa.sh, plan
-docs/plans/2026-06-21-overnight-auto-agy-qa.md §10):
+bin/docs/plans/2026-06-21-overnight-auto-agy-qa.md §10):
 
     PASS_CANDIDATE  evidence complete, AGY browser verdict positive   exit 0
     SKIP            AGY decided no browser-observable behavior         exit 0

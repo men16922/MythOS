@@ -7,7 +7,7 @@
 # commits that cannot change anything a player sees (docs/tests/harness churn).
 #
 # This is Stage 1 of the two-stage decision in
-# docs/plans/2026-06-21-overnight-auto-agy-qa.md §5 — a COST gate, not the final
+# bin/docs/plans/2026-06-21-overnight-auto-agy-qa.md §5 — a COST gate, not the final
 # semantic decision. Stage 2 (AGY `QA_DECISION: RUN|SKIP`) makes the real call.
 # Therefore this filter BIASES TOWARD CANDIDATE whenever it is uncertain.
 #

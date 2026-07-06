@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # AGY live-QA hook: the wrapper owns lifecycle; AGY owns every browser action.
 #
-# Generalized from the WS0 probe (plan docs/plans/2026-06-21-overnight-auto-agy-qa.md §6)
+# Generalized from the WS0 probe (plan bin/docs/plans/2026-06-21-overnight-auto-agy-qa.md §6)
 # so the overnight runner (scripts/overnight/browser-qa.sh) can invoke it for both
 # post-commit and drain-time QA. All inputs arrive via env; defaults reproduce the
 # original probe so `scripts/live-qa/run-agy.sh` still works standalone for diagnosis.

@@ -74,7 +74,7 @@ Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop co
 
 ## Overnight QA Seed (2026-07-07, user-approved)
 
-- `[ ]` `[auto:claude]` **SFX reference↔file integrity test**: every `sfx_*` id referenced in
+- `[x]` `[auto:claude]` **SFX reference↔file integrity test (DONE 2026-07-07 overnight)**: every `sfx_*` id referenced in
   `resources/neo-seoul/scenario.json` / `serializers.py` cues / SPA sources maps to a real file in
   `resources/neo-seoul/audio/sfx/` with RIFF/WAV magic bytes; guard-the-guard ≥8 ids scanned.
   Completion criterion: new test runs inside `make check`, green.

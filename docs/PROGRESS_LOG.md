@@ -5,6 +5,15 @@ Last updated: 2026-07-06
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-07 (overnight, claude lane) — SFX reference↔file integrity test (QA seed 1/2)
+- Status: Overnight QA Seed item 1 done; `make check` **901** green (+2 tests, `tests/test_sfx_integrity.py`).
+- Changed: new test scans `scenario.json` + SPA ts/tsx + static `app.js` for `sfx_*` ids — each must map to
+  `resources/neo-seoul/audio/sfx/<id>.wav` with RIFF/WAVE magic (playSfx fails silently, so a dangling ref was
+  invisible); serializer `_presentation_cues` cues cross-checked vs SPA `CUE_SFX`. Guards: ≥8 ids (10) + ≥5 cues.
+- Verified: `make check` green (ruff/eslint/mypy 165/tsc+vite/unittest 901, 2 skipped, validate-content 2).
+- Blockers: None. Next: QA seed item 2 — lint/type-noise cleanup (`app.py` asynccontextmanager annotation +
+  `tests/test_assets.py` unused loop vars).
+
 ## 2026-07-07 (overnight, claude lane) — S3 early se_rin flag clamp (variant-routed opening)
 - Status: S3 of `docs/plans/2026-07-06-variant-routed-opening.md` implemented; `make check` **899** green (+9 tests).
 - Changed: `mythos_loop/validator.py` — `validate_scene_payload` strips `met/trusted/refused_se_rin` from

@@ -19,11 +19,11 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. Cloud Run rev `00019-jf6` serves
   (`docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md`), tracks in priority order**:
   - `[x]` **P1-A onboarding+skill legibility (DONE 2026-07-05, `9226005..e13bf91`, check 779)**: A1 telegraph ·
     A2 first-combat tutorial · A3 progressive disclosure · D1 skill badge/effect line · D2 status chips.
-    Remaining `[ ]` `[blocked]` `[auto:agy]` AGY live-QA screen on a fresh account (tutorial card, interstitial, disclosure,
+    Remaining `[ ]` `[auto:agy]` AGY live-QA screen on a fresh account (tutorial card, interstitial, disclosure,
     badges render; not FAIL/NEEDS). Done = QA run PASS_CANDIDATE recorded.
   - `[x]` **P1-B replay variety (DONE 2026-07-05, `ad2946b..4a100cd`, check 802)**: B1 guaranteed meet-arc
     slot · B2 six 1-cut opening variants (KO/EN incl. solo; companion pick promotes its arc into the B1 slot) ·
-    B3 loop modifiers (patrol_surge/market_boom/signal_jam + SPA banner). Remaining `[x]` `[auto:agy]`
+    B3 loop modifiers (patrol_surge/market_boom/signal_jam + SPA banner). Remaining `[ ]` `[auto:agy]`
     curated art 1 cut per opening variant (Imagen, opening style spec; integrity gate).
   - `[x]` **P1-C density/continuity (DONE 2026-07-05, `311e22f..a684011`, check 822)**: C3 join-signal ·
     C1 no-op guard · G3 presentation cues (absorbed C4) · D3 board layout · D4 cover legibility.

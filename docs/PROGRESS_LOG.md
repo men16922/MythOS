@@ -5,12 +5,12 @@ Last updated: 2026-07-07
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
 
-## 2026-07-07 (overnight, codex lane) — Completed-plan archive + M57
-- Status: Doc-migration seed completed; six implemented plans now live under `bin/docs/plans/`.
-- Changed: repaired all references to the moved plans, added `COMPLETED_SUMMARY.md` M57 for the 07-06 asset/live-QA + boot-intro bundle, and closed the NEXT_PLAN item.
-- Verified: `make check-doc-budget` green; moved-plan `rg`/existence sweep clean; `$GATE_CMD` (`make check`) green (ruff/eslint, mypy 165, frontend build, unittest 901 with 2 skipped, validate-content 2).
+## 2026-07-07 (overnight, codex failover) — Type-noise cleanup + completed-plan archive
+- Status: Claude-lane cleanup and codex doc-migration seeds completed with no runtime behavior changes.
+- Changed: lifespan annotation now uses `AsyncGenerator[None, None]`; the recovered asset-test cleanup removed unused loop variables. Six implemented plans were archived, references repaired, and M57 added.
+- Verified: `$GATE_CMD` (`make check`) green (ruff/eslint, mypy 165, frontend build, unittest 901 with 2 skipped, validate-content 2); doc budget and moved-plan sweeps green.
 - Blockers: SHOT 03 image generation hit `usage_limit_reached` again (`resets_in_seconds=71218`); second occurrence, so the item is now `[blocked]` with no partial/fake assets promoted.
-- Next: Codex lane is drained except blocked SHOT 03; retry only after quota/human review.
+- Next: Codex/Claude lanes have no unblocked `[auto:*]` items; retry SHOT 03 only after quota/human review.
 
 ## 2026-07-07 (overnight, codex lane) — Variant intro SHOT 03 ×6 blocked (attempt 1)
 - Status: Not completed; the image-generation usage limit stopped the six-image batch after 3/6 drafts.

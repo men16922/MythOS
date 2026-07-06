@@ -12,7 +12,7 @@ request bodies instead of being inferred from an auth context.
 
 from __future__ import annotations
 
-from collections.abc import AsyncIterator, Iterator
+from collections.abc import AsyncGenerator, Iterator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from pathlib import Path
@@ -369,7 +369,7 @@ async def _run_stream(
 
 
 @asynccontextmanager
-async def _lifespan(app: FastAPI) -> AsyncIterator[None]:
+async def _lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Release the shared Postgres pool on shutdown (replaces the deprecated
     ``@app.on_event("shutdown")`` hook). Startup needs no work; the pool is
     created lazily on first store access."""

@@ -79,9 +79,9 @@ Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop co
   `resources/neo-seoul/scenario.json` / `serializers.py` cues / SPA sources maps to a real file in
   `resources/neo-seoul/audio/sfx/` with RIFF/WAV magic bytes; guard-the-guard ≥8 ids scanned.
   Completion criterion: new test runs inside `make check`, green.
-- `[ ]` `[auto:claude]` **lint/type-noise cleanup**: fix the deprecated `@asynccontextmanager` return
-  annotation in `src/mythos_api/app.py` + remove unused loop variables in `tests/test_assets.py`.
-  Completion criterion: `make check` green, zero behavior change (no test deltas).
+- `[x]` `[auto:claude]` **lint/type-noise cleanup (DONE 2026-07-07, codex failover)**: changed the
+  `@asynccontextmanager` return to `AsyncGenerator[None, None]`; unused asset-test loop variables were removed
+  by the preceding recovery commit. `make check` green (901 tests, 2 skipped), zero behavior/test-count delta.
 - `[x]` `[auto:codex]` **doc migration + M57 (DONE 2026-07-07 overnight)**: moved six implemented plans to
   `bin/docs/plans/`, repaired references, and added `COMPLETED_SUMMARY.md` M57 for the 2026-07-06 overnight
   asset/live-QA + per-variant boot-intro bundle. `make check-doc-budget` green; no stale moved-plan links.

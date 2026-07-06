@@ -5,6 +5,15 @@ Last updated: 2026-07-07
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-07 (overnight, codex lane) — Variant intro SHOT 03 ×6 blocked (attempt 1)
+- Status: Not completed; the image-generation usage limit stopped the six-image batch after 3/6 drafts.
+- Changed: No project assets or scenario metadata were changed. The three partial drafts remain outside the workspace
+  under `.codex/generated_images/` and were intentionally not promoted or replaced with placeholders.
+- Verified: `git status --porcelain` was clean before the attempt; generator returned `usage_limit_reached`
+  (`resets_in_seconds=73385`) on image 4/6; `make check` green (901 tests, 2 skipped).
+- Blockers: First occurrence for `[auto:codex]` variant intro SHOT 03 ×6 — in-session image quota unavailable.
+- Next: Retry the same item after quota reset; on a second identical Blocker, append `[blocked]` per loop policy.
+
 ## 2026-07-07 (overnight, codex lane) — Variant intro SHOT 02 ×6
 - Status: The first codex intro-expansion slice is done; all six Loop 2+ variants now have a two-shot boot cinematic.
 - Changed: generated six 1672×941 RGB PNGs (`opening-{han,kai,lin_yue,su_ah,tae_o,solo}-02.png`) in the

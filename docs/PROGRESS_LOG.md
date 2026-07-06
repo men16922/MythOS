@@ -5,6 +5,13 @@ Last updated: 2026-07-06
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-06 — Regenerated 6 opening variant cutscenes (codex)
+- Status: Completed the user-directed replacement of all six placeholder opening-variant images.
+- Changed: Replaced `opening-{han,kai,lin_yue,solo,su_ah,tae_o}.png` with in-session generated cinematic first-person cuts matching the original rainy cyan/red opening style; retained 1672x941 8-bit RGB PNG format.
+- Verified: Read back all six files and SHA-256 hashes; `make check` passed (ruff, eslint, mypy 160 files, frontend build, unittest 862 green / 2 skipped).
+- Blockers: None.
+- Next: Human visual/feel review of the six replacement cuts alongside the original three-cut opening.
+
 ## 2026-07-06 — Generated and promoted 10 new skill icons and SFX wavs (agy)
 - Status: Completed drafting, converting, and promoting 10 new skill card images and 4 SFX WAV files; tests passed.
 - Changed: Generated 10 new skill card images via in-session Imagen 3/Gemini (9:16 aspect ratio), saved as PNG in `outputs/agy/skills/` staging, promoted to `resources/neo-seoul/skills/`. Generated 4 sound effect WAV files (`sfx_alarm.wav`, `sfx_sting.wav`, `sfx_drone.wav`, `sfx_pickup.wav`) in `resources/neo-seoul/audio/sfx/`. Created review report at `outputs/agy/skills/review.md`.

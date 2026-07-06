@@ -15,6 +15,21 @@ from pathlib import Path
 from typing import Any
 
 ENGINE_ROUTE_FLAGS = frozenset({"met_se_rin", "refused_se_rin"})
+
+# Fields an anchor's opening-variant override may declare (route_map's
+# `_apply_anchor_variant` contract; `summary` rewrites the default perspective).
+ANCHOR_VARIANT_FIELDS = frozenset(
+    {
+        "beat",
+        "title",
+        "image",
+        "image_pre",
+        "event",
+        "image_sequence",
+        "default_perspective",
+        "summary",
+    }
+)
 NARRATIVE_ROUTE_FLAGS = frozenset(
     {
         "safety_first",
@@ -51,6 +66,71 @@ def _effect_flags(value: Any) -> set[str]:
     if not isinstance(value, dict):
         return set()
     return _flag_list(value.get("flags"))
+
+
+def _validate_anchor_variants(
+    anchor: dict[str, Any],
+    path: str,
+    perspective_ids: list[str],
+    seen_beats: dict[str, str],
+) -> list[RouteContentIssue]:
+    """Validate an anchor's optional opening-variant override map.
+
+    Variant beat ids join the same uniqueness registry as anchor beats (the beat
+    ledger keys on them at runtime), override fields must come from the
+    resolution contract, and an overridden default perspective must reference a
+    perspective the base anchor actually declares (overrides skin content; they
+    never add perspectives).
+    """
+    variants = anchor.get("variants")
+    if variants is None:
+        return []
+    if not isinstance(variants, dict):
+        return [RouteContentIssue("variants_invalid", f"{path}.variants", "expected an object")]
+    issues: list[RouteContentIssue] = []
+    for variant_id, override in variants.items():
+        v_path = f"{path}.variants[{variant_id}]"
+        if not isinstance(override, dict):
+            issues.append(RouteContentIssue("variant_invalid", v_path, "expected an object"))
+            continue
+        for field in sorted(set(override) - ANCHOR_VARIANT_FIELDS):
+            issues.append(
+                RouteContentIssue(
+                    "variant_field_unknown",
+                    f"{v_path}.{field}",
+                    f"{field!r} is not an overridable anchor field",
+                )
+            )
+        if "beat" in override:
+            beat = str(override.get("beat") or "").strip()
+            if not beat:
+                issues.append(
+                    RouteContentIssue(
+                        "variant_beat_empty",
+                        f"{v_path}.beat",
+                        "variant beat id must be a non-empty string",
+                    )
+                )
+            elif beat in seen_beats:
+                issues.append(
+                    RouteContentIssue(
+                        "beat_duplicate",
+                        f"{v_path}.beat",
+                        f"{beat!r} already declared at {seen_beats[beat]}",
+                    )
+                )
+            else:
+                seen_beats[beat] = f"{v_path}.beat"
+        override_default = override.get("default_perspective")
+        if override_default is not None and str(override_default) not in perspective_ids:
+            issues.append(
+                RouteContentIssue(
+                    "default_perspective_missing",
+                    f"{v_path}.default_perspective",
+                    f"{str(override_default)!r} does not reference a declared perspective id",
+                )
+            )
+    return issues
 
 
 def validate_route_content(route_map: Any) -> list[RouteContentIssue]:
@@ -156,6 +236,8 @@ def validate_route_content(route_map: Any) -> list[RouteContentIssue]:
                     )
                 )
 
+            issues.extend(_validate_anchor_variants(anchor, path, ids, seen_beats))
+
             for perspective_index, perspective in enumerate(perspectives):
                 p_path = f"{path}.perspectives[{perspective_index}]"
                 if not isinstance(perspective, dict):
@@ -217,6 +299,7 @@ def main(argv: list[str] | None = None) -> int:
 
 
 __all__ = [
+    "ANCHOR_VARIANT_FIELDS",
     "ENGINE_ROUTE_FLAGS",
     "NARRATIVE_ROUTE_FLAGS",
     "RouteContentIssue",

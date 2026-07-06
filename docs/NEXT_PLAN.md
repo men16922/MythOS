@@ -27,9 +27,9 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. Cloud Run rev `00019-jf6` serves
     `[ ]` `[manual]` in-game feel review of the 6 variant intros/cuts.
   - `[ ]` **Variant-ROUTED opening (user-directed 2026-07-06; live evidence: variant evaporates at turn 1.
     Design = `docs/plans/2026-07-06-variant-routed-opening.md`)**:
-    `[ ]` `[auto:claude]` **S1 anchor variantization** (plan §2.1: layer-0 anchor `variants` field overrides resolved
-    at route materialization + new beat registration + neutral perspective-summary fallback). Done = `make check`
-    green + unit tests + loop-1/default byte-identical.
+    `[x]` `[auto:claude]` **S1 anchor variantization (DONE 2026-07-07 overnight)** (plan §2.1: layer-0 anchor
+    `variants` field overrides resolved at route materialization + new beat registration + neutral
+    perspective-summary fallback). `make check` 880 green + 15 tests + loop-1/default byte-identical.
     `[ ]` `[auto:claude]` **S2 chapter-gate variant goal** (`player_goal_variants` on the connect gate +
     `_chapter_goal` resolves via `_opening_variant`, fallback preserved). Done = `make check` green + tests.
     `[ ]` `[auto:claude]` **S3 early se_rin flag clamp** (variant loops, turn ≤3: strip met/trusted/refused_se_rin

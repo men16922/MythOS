@@ -31,12 +31,77 @@ from mythos_core.dice import Dice
 ROUTE_MAP_KEY = "_route_map"
 ROUTE_MAP_VERSION = 1
 
+DEFAULT_OPENING_VARIANT = "default"
 
-def build_route_map(config: dict[str, Any] | None, seed: str) -> dict[str, Any] | None:
+# Anchor content fields an opening-variant override may replace. `summary` is
+# handled separately (it rewrites the default perspective's summary line, not a
+# node field). Graph identity (type/mandatory/gate/position) is never variant.
+_ANCHOR_VARIANT_FIELDS = (
+    "beat",
+    "title",
+    "image",
+    "image_pre",
+    "event",
+    "image_sequence",
+    "default_perspective",
+)
+
+
+def _apply_anchor_variant(spec: dict[str, Any], opening_variant: str) -> dict[str, Any]:
+    """Resolve an anchor spec's optional ``variants`` map for this loop's opening.
+
+    One node, several skins: the anchor keeps its graph identity while the
+    authored *content* fields are overridden by the matching variant entry. An
+    explicit ``None`` override clears the base field (e.g. a variant with no
+    ``image_pre`` still). A ``summary`` override replaces the **default
+    perspective's** summary only — the base line is written for the canonical
+    opening and must not render on a variant loop; the trust-axis perspective
+    semantics stay shared. The ``variants`` map itself is always stripped so
+    the persisted node never carries unused skins.
+    """
+    variants = spec.get("variants")
+    resolved = {key: value for key, value in spec.items() if key != "variants"}
+    if (
+        not isinstance(variants, dict)
+        or not opening_variant
+        or opening_variant == DEFAULT_OPENING_VARIANT
+    ):
+        return resolved
+    override = variants.get(opening_variant)
+    if not isinstance(override, dict):
+        return resolved
+    for field in _ANCHOR_VARIANT_FIELDS:
+        if field in override:
+            if override[field] is None:
+                resolved.pop(field, None)
+            else:
+                resolved[field] = override[field]
+    summary = override.get("summary")
+    if isinstance(summary, str) and summary and isinstance(resolved.get("perspectives"), list):
+        default_id = resolved.get("default_perspective")
+        resolved["perspectives"] = [
+            {**perspective, "summary": summary}
+            if isinstance(perspective, dict) and perspective.get("id") == default_id
+            else perspective
+            for perspective in resolved["perspectives"]
+        ]
+    resolved["variant"] = opening_variant
+    return resolved
+
+
+def build_route_map(
+    config: dict[str, Any] | None,
+    seed: str,
+    *,
+    opening_variant: str = DEFAULT_OPENING_VARIANT,
+) -> dict[str, Any] | None:
     """Build a deterministic layered DAG from a `route_map` scenario config.
 
     Returns ``None`` when no usable config is supplied so callers can fall back
-    to the legacy emergent `_map`.
+    to the legacy emergent `_map`. ``opening_variant`` resolves each anchor's
+    optional ``variants`` skin at materialization time, so every downstream
+    consumer (engine, prompts, UI) reads the already-resolved node; the default
+    variant (and configs without ``variants``) build byte-identically.
     """
     if not isinstance(config, dict):
         return None
@@ -57,7 +122,9 @@ def build_route_map(config: dict[str, Any] | None, seed: str) -> dict[str, Any] 
         arc = str(layer.get("arc", ""))
         title = str(layer.get("title", arc or f"layer {layer_index}"))
         is_final = layer_index == len(layers_cfg) - 1
-        specs = _layer_node_specs(layer, node_types, layer_index, is_final, dice)
+        specs = _layer_node_specs(
+            layer, node_types, layer_index, is_final, dice, opening_variant=opening_variant
+        )
         layer_ids: list[str] = []
         for col, node_spec in enumerate(specs):
             node_id = f"rn{counter}"
@@ -104,6 +171,8 @@ def _layer_node_specs(
     is_final: bool,
     dice: Dice,
     include_dynamic: bool = True,
+    *,
+    opening_variant: str = DEFAULT_OPENING_VARIANT,
 ) -> list[dict[str, Any]]:
     """Return ordered node specs for a layer: anchors first, then dynamic nodes.
 
@@ -127,7 +196,7 @@ def _layer_node_specs(
         # mandatory explicitly in the scenario config.
         mandatory = bool(anchor.get("mandatory")) or layer_index == 0 or is_final
         spec = {**anchor, "type": node_type, "anchor": True, "mandatory": mandatory}
-        specs.append(spec)
+        specs.append(_apply_anchor_variant(spec, opening_variant))
 
     width = int(layer.get("width", 0))
     if include_dynamic and width > 0:
@@ -204,7 +273,9 @@ def _build_node(
     # Authored anchor resources (curated image / scripted event / beat id).
     # `image_pre` is shown until the beat's partner enters the scene (e.g. the
     # opening: protagonist-focus still before Se-rin reaches in), then `image`.
-    for field in ("beat", "image", "image_pre", "event", "default_perspective"):
+    # `variant` marks a node whose content was skinned by the loop's opening
+    # variant (set during spec resolution, never authored directly).
+    for field in ("beat", "image", "image_pre", "event", "default_perspective", "variant"):
         if spec.get(field):
             node[field] = str(spec[field])
     if isinstance(spec.get("effect"), dict):
@@ -323,7 +394,11 @@ def route_map_paths_summary(route_map: dict[str, Any]) -> dict[str, bool]:
 
 
 def build_route_seed(
-    config: dict[str, Any] | None, seed: str, *, horizon: int = 2
+    config: dict[str, Any] | None,
+    seed: str,
+    *,
+    horizon: int = 2,
+    opening_variant: str = DEFAULT_OPENING_VARIANT,
 ) -> dict[str, Any] | None:
     """Build a *dynamic* route map: a backbone seed grown later by ``extend_route``.
 
@@ -360,7 +435,13 @@ def build_route_seed(
         is_final = layer_index == len(layers_cfg) - 1
         include_dynamic = layer_index <= horizon
         specs = _layer_node_specs(
-            layer, node_types, layer_index, is_final, dice, include_dynamic=include_dynamic
+            layer,
+            node_types,
+            layer_index,
+            is_final,
+            dice,
+            include_dynamic=include_dynamic,
+            opening_variant=opening_variant,
         )
         layer_ids: list[str] = []
         for col, node_spec in enumerate(specs):
@@ -617,6 +698,7 @@ def _pick_unique_title(titles: list[str], used: set[str], dice: Dice) -> str:
 
 
 __all__ = [
+    "DEFAULT_OPENING_VARIANT",
     "ROUTE_MAP_KEY",
     "ROUTE_MAP_VERSION",
     "SIDE_ANCHOR_ORIGIN",

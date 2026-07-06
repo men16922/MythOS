@@ -442,11 +442,14 @@ class RuntimeSessionService:
         #    player advances, and the LLM may propose nodes. Not seed-reproducible.
         #  - static (default/legacy): the full deterministic DAG is pre-built.
         # Scenarios without a route_map config fall back to the legacy `_map`.
+        # The opening variant resolves each anchor's authored `variants` skin at
+        # materialization, so the persisted nodes already carry the variant
+        # beat/title/image (variant-routed opening S1; default = base skin).
         route_cfg = scenario.route_map if isinstance(scenario.route_map, dict) else None
         if isinstance(route_cfg, dict) and route_cfg.get("mode") == "dynamic":
-            route_map = build_route_seed(route_cfg, loop_seed)
+            route_map = build_route_seed(route_cfg, loop_seed, opening_variant=opening_variant)
         else:
-            route_map = build_route_map(route_cfg, loop_seed)
+            route_map = build_route_map(route_cfg, loop_seed, opening_variant=opening_variant)
         if route_map is not None:
             # Weave authored side_arcs into the DAG as seed-selected optional
             # side-anchor branches (reachable yet skippable; boss distance kept).

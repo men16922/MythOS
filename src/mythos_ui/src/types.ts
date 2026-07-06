@@ -322,6 +322,9 @@ export interface GameStateRaw {
     image: string;
   };
   _seen_cutscenes?: string[];
+  // B2 loop2+ opening variant id ("default" | han/kai/lin_yue/su_ah/tae_o/solo).
+  // The intro panel keys per-variant session-intro copy + cinematic shots off this.
+  _opening_variant?: string;
   // This loop's authored per-run twist (B3): announced as a banner; effects
   // apply server-side (combat pacing / market rates / route rewards).
   _loop_modifier?: {

@@ -390,6 +390,36 @@ class _ScenarioProseL10n:
     archetypes_overlay: dict[str, Any]
 
 
+def _merge_session_intro(base_intro: dict[str, Any], intro_overlay: dict[str, Any]) -> dict[str, Any]:
+    """Field-merge an i18n overlay onto a session-intro block (default or variant)."""
+    merged_intro = dict(base_intro)
+    for key in ("title", "body", "objective", "continue_button"):
+        if intro_overlay.get(key):
+            merged_intro[key] = intro_overlay[key]
+    # rules is a plain string list → replace wholesale.
+    if isinstance(intro_overlay.get("rules"), list):
+        merged_intro["rules"] = intro_overlay["rules"]
+    # cinematic_shots are dicts carrying a language-neutral `image` path, so merge
+    # per index (overlay only truthy text fields) — a whole-list replace would drop
+    # the base image (the EN overlay has no image → broken opening cut).
+    overlay_shots = intro_overlay.get("cinematic_shots")
+    base_shots = base_intro.get("cinematic_shots")
+    if isinstance(overlay_shots, list) and isinstance(base_shots, list):
+        merged_shots: list[Any] = []
+        for i, base_shot in enumerate(base_shots):
+            shot = dict(base_shot) if isinstance(base_shot, dict) else base_shot
+            ov = overlay_shots[i] if i < len(overlay_shots) else None
+            if isinstance(shot, dict) and isinstance(ov, dict):
+                for k, v in ov.items():
+                    if v:  # skip null/empty so a missing image never clobbers base
+                        shot[k] = v
+            merged_shots.append(shot)
+        merged_intro["cinematic_shots"] = merged_shots
+    elif isinstance(overlay_shots, list):
+        merged_intro["cinematic_shots"] = overlay_shots
+    return merged_intro
+
+
 def _localized_scenario_prose(s: Any, lang: str) -> _ScenarioProseL10n:
     """Apply the additive i18n overlay to the player-facing scenario prose the
     ``/scenarios`` endpoint serves (name, brief, ui_copy.session_intro, ending titles,
@@ -414,32 +444,18 @@ def _localized_scenario_prose(s: Any, lang: str) -> _ScenarioProseL10n:
     intro_overlay = i18n.get("session_intro")
     base_intro = ui_copy.get("session_intro")
     if isinstance(intro_overlay, dict) and isinstance(base_intro, dict):
-        merged_intro = dict(base_intro)
-        for key in ("title", "body", "objective", "continue_button"):
-            if intro_overlay.get(key):
-                merged_intro[key] = intro_overlay[key]
-        # rules is a plain string list → replace wholesale.
-        if isinstance(intro_overlay.get("rules"), list):
-            merged_intro["rules"] = intro_overlay["rules"]
-        # cinematic_shots are dicts carrying a language-neutral `image` path, so merge
-        # per index (overlay only truthy text fields) — a whole-list replace would drop
-        # the base image (the EN overlay has no image → broken opening cut).
-        overlay_shots = intro_overlay.get("cinematic_shots")
-        base_shots = base_intro.get("cinematic_shots")
-        if isinstance(overlay_shots, list) and isinstance(base_shots, list):
-            merged_shots: list[Any] = []
-            for i, base_shot in enumerate(base_shots):
-                shot = dict(base_shot) if isinstance(base_shot, dict) else base_shot
-                ov = overlay_shots[i] if i < len(overlay_shots) else None
-                if isinstance(shot, dict) and isinstance(ov, dict):
-                    for k, v in ov.items():
-                        if v:  # skip null/empty so a missing image never clobbers base
-                            shot[k] = v
-                merged_shots.append(shot)
-            merged_intro["cinematic_shots"] = merged_shots
-        elif isinstance(overlay_shots, list):
-            merged_intro["cinematic_shots"] = overlay_shots
-        ui_copy["session_intro"] = merged_intro
+        ui_copy["session_intro"] = _merge_session_intro(base_intro, intro_overlay)
+    # Per-variant reentry intros (B2 loop2+ openings) — same field-merge as
+    # session_intro, applied per variant key.
+    variants_overlay = i18n.get("session_intro_variants")
+    base_variants = ui_copy.get("session_intro_variants")
+    if isinstance(variants_overlay, dict) and isinstance(base_variants, dict):
+        merged_variants = dict(base_variants)
+        for vkey, base_variant in base_variants.items():
+            ov = variants_overlay.get(vkey)
+            if isinstance(ov, dict) and isinstance(base_variant, dict):
+                merged_variants[vkey] = _merge_session_intro(base_variant, ov)
+        ui_copy["session_intro_variants"] = merged_variants
     endings_overlay = i18n.get("endings")
     archetypes_overlay = i18n.get("archetypes")
     return _ScenarioProseL10n(

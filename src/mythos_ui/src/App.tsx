@@ -661,6 +661,22 @@ export default function App() {
   const asideMinimal = introFirstLoop && introTurn <= 2 && !finalizedSnapshot?.combat;
   const asideRevealNudge = introFirstLoop && introTurn === 3;
 
+  // B2 loop2+ opening variants: once the first snapshot lands, its loop state
+  // carries _opening_variant — swap the intro to that variant's authored reentry
+  // sequence. Until then (and always on loop 1) the default Se-rin 3-cut shows.
+  const introVariantKey =
+    finalizedSnapshot?.state?._opening_variant ??
+    lastSnapshot?.state?._opening_variant ??
+    "default";
+  const introVariants = currentScenario?.ui_copy?.session_intro_variants as
+    | Record<string, IntroData>
+    | undefined;
+  const introData = (
+    introVariantKey !== "default" && introVariants?.[introVariantKey]
+      ? introVariants[introVariantKey]
+      : currentScenario?.ui_copy?.session_intro
+  ) as IntroData;
+
   // Hold the app behind the invite gate until the key probe resolves. "checking" shows
   // nothing (brief); "blocked" shows the key-entry screen instead of the game.
   if (inviteGate !== "ok") {
@@ -745,7 +761,10 @@ export default function App() {
       {/* --- Active Game Dashboard --- */}
       {connected && showIntro && currentScenario?.ui_copy?.session_intro ? (
         <IntroPanel
-          introData={currentScenario.ui_copy.session_intro as IntroData}
+          // Remount on variant arrival so the shot slider resets (with its glitch
+          // transition) instead of pointing past the new, shorter shot list.
+          key={introVariantKey}
+          introData={introData}
           scenarioId={selectedScenarioId}
           onAccept={() => {
             setShowIntro(false);

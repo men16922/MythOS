@@ -1720,6 +1720,128 @@
           "body": "헤드라이트가 붉게 찢어진다. 드론의 수색등이 골목을 훑는 순간, 선택지는 하나뿐이다. 따라가거나, 지워지거나."
         }
       ]
+    },
+    "session_intro_variants": {
+      "han": {
+        "kicker": "OPENING SEQUENCE",
+        "title": "재접속 — 닫히는 셔터",
+        "body": "다시 C-17. 기억은 낡았지만 몸은 기억한다. 이번 루프의 첫 얼굴은 세린이 아니다.",
+        "rules": [
+          "지금 — 닫히는 셔터 앞, 젖은 통로에서 다시 깨어난다",
+          "곧 — 낯선 사내가 지름길만 남기고 사라진다",
+          "목표 — 순찰이 오기 전에 통로를 벗어난다"
+        ],
+        "objective": "사내가 가리킨 지름길로 통로를 벗어나라.",
+        "continue_button": "다시 깨어난다",
+        "cinematic_shots": [
+          {
+            "image": "opening/opening-han.png",
+            "kicker": "SHOT 01 // SHORTCUT",
+            "title": "낯선 사내가 배수로를 가리킨다",
+            "body": "경고등이 셔터를 붉게 물들인다. 덩치 큰 실루엣은 이름도 남기지 않는다 — 젖은 장갑이 가리키는 배수로 덮개뿐."
+          }
+        ]
+      },
+      "kai": {
+        "kicker": "OPENING SEQUENCE",
+        "title": "재접속 — 백도어 신호",
+        "body": "다시 C-17. 골목 끝의 죽은 단말기가 혼자 깨어나 좌표를 뱉는다. 수신인은 당신이다.",
+        "rules": [
+          "지금 — 네온 골목, 폐기층 어귀에서 다시 깨어난다",
+          "곧 — 죽은 단말기가 백도어 좌표를 출력한다",
+          "목표 — 발신자를 확인하기 전에 골목을 벗어난다"
+        ],
+        "objective": "백도어 좌표를 기억하고 골목을 벗어나라.",
+        "continue_button": "다시 깨어난다",
+        "cinematic_shots": [
+          {
+            "image": "opening/opening-kai.png",
+            "kicker": "SHOT 01 // BACKDOOR",
+            "title": "죽은 단말기가 좌표를 뱉는다",
+            "body": "빗물이 흐르는 액정에 글자가 스민다. 관리망엔 없는 주소 — 누군가 안쪽에서 문을 열어두었다."
+          }
+        ]
+      },
+      "lin_yue": {
+        "kicker": "OPENING SEQUENCE",
+        "title": "재접속 — 젖은 쪽지",
+        "body": "다시 눈을 뜬 곳은 한강 야시장 뒷골목. 방수포 틈에 당신 앞으로 온 의뢰가 꽂혀 있다.",
+        "rules": [
+          "지금 — 야시장 뒷골목에서 다시 깨어난다",
+          "곧 — 방수포에 끼워진 의뢰 쪽지를 발견한다",
+          "목표 — 쪽지의 인장을 기억하고 야시장을 빠져나간다"
+        ],
+        "objective": "의뢰 쪽지를 회수하고 야시장 어귀를 벗어나라.",
+        "continue_button": "다시 깨어난다",
+        "cinematic_shots": [
+          {
+            "image": "opening/opening-lin_yue.png",
+            "kicker": "SHOT 01 // CONTRACT",
+            "title": "빗물에 젖은 의뢰 쪽지",
+            "body": "잉크가 번져도 문장은 또렷하다. 자정, 다리에서. 금박 인장은 야시장 사람의 것이 아니다."
+          }
+        ]
+      },
+      "su_ah": {
+        "kicker": "OPENING SEQUENCE",
+        "title": "재접속 — 승인되지 않은 핑",
+        "body": "다시 C-17. 감시망 한가운데인데, 수색 패턴에 인위적인 구멍이 나 있다. 누군가 당신을 지켜보며 길을 비운다.",
+        "rules": [
+          "지금 — 감시 카메라 교차 구역에서 다시 깨어난다",
+          "곧 — 승인되지 않은 핑이 수신된다",
+          "목표 — 비워진 사각을 따라 구역을 빠져나간다"
+        ],
+        "objective": "핑이 비워 준 사각을 따라 교차 구역을 벗어나라.",
+        "continue_button": "다시 깨어난다",
+        "cinematic_shots": [
+          {
+            "image": "opening/opening-su_ah.png",
+            "kicker": "SHOT 01 // GHOST PING",
+            "title": "수색 패턴에 뚫린 구멍",
+            "body": "렌즈들이 일제히 같은 곳을 본다 — 당신이 없는 곳을. 화면 구석에 깜빡이는 수신: PING UNAUTHORIZED."
+          }
+        ]
+      },
+      "tae_o": {
+        "kicker": "OPENING SEQUENCE",
+        "title": "재접속 — 바리케이드",
+        "body": "다시 C-17. 지난 루프엔 없던 것이 서 있다 — 밀려난 사람들이 스스로 쌓은 선.",
+        "rules": [
+          "지금 — 복지 블록 초입, 바리케이드 앞에서 다시 깨어난다",
+          "곧 — 커다란 실루엣이 수신호로 안전한 쪽을 가리킨다",
+          "목표 — 순찰 반대편으로 조용히 이동한다"
+        ],
+        "objective": "수신호가 가리킨 안전한 쪽으로 이동하라.",
+        "continue_button": "다시 깨어난다",
+        "cinematic_shots": [
+          {
+            "image": "opening/opening-tae_o.png",
+            "kicker": "SHOT 01 // BARRICADE",
+            "title": "바리케이드 너머의 수신호",
+            "body": "고철과 폐가구의 선 너머, 커다란 실루엣이 크고 느린 동작으로 순찰 반대편을 가리킨다. 아이 하나가 옷자락 뒤에서 당신을 훔쳐본다."
+          }
+        ]
+      },
+      "solo": {
+        "kicker": "OPENING SEQUENCE",
+        "title": "재접속 — 오지 않는 헤드라이트",
+        "body": "같은 골목, 같은 비. 그러나 와야 할 바이크가 오지 않는다. 이번 루프, 시작은 혼자다.",
+        "rules": [
+          "지금 — 첫 루프와 같은 골목에서 다시 깨어난다",
+          "곧 — 아무도 오지 않는다는 사실을 확인한다",
+          "목표 — 혼자 힘으로 정전 구역을 빠져나간다"
+        ],
+        "objective": "혼자 힘으로 C-17 정전 구역을 빠져나가라.",
+        "continue_button": "다시 깨어난다",
+        "cinematic_shots": [
+          {
+            "image": "opening/opening-solo.png",
+            "kicker": "SHOT 01 // ALONE",
+            "title": "헤드라이트는 오지 않는다",
+            "body": "골목 끝까지 비어 있다. 엔진 소리 대신 빗소리뿐. 젖은 바닥을 짚은 손이 스스로에게 답한다 — 일어나."
+          }
+        ]
+      }
     }
   },
   "combat": {

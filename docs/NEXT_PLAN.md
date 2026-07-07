@@ -76,8 +76,8 @@ Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop co
   playing loop_id로 재개(플레이어 폴백 금지) + repro 회귀 테스트. Done = repro red→green + `make check` green (906).
 - `[x]` `[auto:claude]` **T2 click/stream responsiveness (DONE 2026-07-08 overnight)**: WS keepalive+auto-reconnect + 선택지 클릭 즉시
   '전송 중' pending(형제 비활성, 재접속 후 1회 재전송 — 서버 멱등). `make check` 908 green; AGY auto-screen post-commit.
-- `[ ]` `[auto:claude]` **T3a narrative↔choice contract note** (본문 갈림길=선택지 미러, KO/EN prompts). Done = note in
-  prompt notes + unit lock, `make check` green.
+- `[x]` `[auto:claude]` **T3a narrative↔choice contract note (DONE 2026-07-08 overnight)**: `CHOICE_MIRROR_RULE` KO/EN
+  stable-head GM note (모든 서사 경로 공용) + `T3aChoiceMirrorRuleTest` ×3 unit lock. `make check` 911 green.
 - `[ ]` `[auto:codex]` **T3b/T4 route-destination + axis + archetype plain-copy pass** (목적지 1줄 WHAT-IS-THIS 전수 +
   가치축 쉬운 말 + 캐선창 play-first 1줄, KO/EN; validator: route 목적지 desc 비어있으면 red). Done = `make check` green.
 - `[ ]` `[auto:claude]` **T4a axis tooltip + 1회 legend overlay + Codex-term links** (glossary 기반, 신규 저작 없음).

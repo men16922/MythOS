@@ -24,6 +24,7 @@ from mythos_narrative.prompts import (
     _opening_first_scene_instruction,
     _story_system_prompt,
     _system_prompt,
+    build_first_scene_messages,
     build_first_story_messages,
     build_next_story_messages,
 )
@@ -31,8 +32,11 @@ from mythos_narrative.schemas import NarrativeContext
 from mythos_runtime.options import RuntimeOptions
 from mythos_runtime.scenario import load_scenario, load_scenario_i18n
 from mythos_runtime.scenario_context import (
+    CHOICE_MIRROR_RULE,
+    CHOICE_MIRROR_RULE_EN,
     LANGUAGE_RULE,
     LANGUAGE_RULE_EN,
+    _choice_mirror_rule,
     _language_rule,
     _opening_continuity_notes,
     _scenario_structure_notes,
@@ -190,6 +194,37 @@ class EnglishFallbackSceneTest(unittest.TestCase):
         scene, _payload = director.fallback_scene(_bare_context("ko"))
         self.assertRegex(scene.narration, _HANGUL)
         self.assertIn("정전 구역", scene.title)
+
+
+class T3aChoiceMirrorRuleTest(unittest.TestCase):
+    """P1.5 T3a: narrative↔choice contract — when the prose poses an explicit fork,
+    the rendered choices must mirror those options. The rule is a stable-head GM
+    note, so it must reach BOTH prompt formats (single-model JSON prompt and the
+    dual-model DIRECTIVE NOTES block) in both languages."""
+
+    def test_rule_selected_by_language(self) -> None:
+        self.assertIs(_choice_mirror_rule("en"), CHOICE_MIRROR_RULE_EN)
+        self.assertIs(_choice_mirror_rule("ko"), CHOICE_MIRROR_RULE)
+        self.assertNotRegex(CHOICE_MIRROR_RULE_EN, _HANGUL)
+        self.assertRegex(CHOICE_MIRROR_RULE, _HANGUL)
+
+    def test_rule_lands_in_context_notes(self) -> None:
+        self.assertIn(CHOICE_MIRROR_RULE, _context("ko").novelty_notes)
+        self.assertIn(CHOICE_MIRROR_RULE_EN, _context("en").novelty_notes)
+
+    def test_rule_survives_into_both_prompt_formats(self) -> None:
+        # Assert against the rendered messages (not just the context) so the
+        # MAX_PROMPT_NOTES windows can never silently drop the contract: the
+        # single-model prompt keeps the FIRST notes, the dual-model prompt keeps
+        # the LAST — this locks both. The single-model body is JSON-encoded, so
+        # match on the newline-free header line rather than the full rule text.
+        header = "NARRATIVE-CHOICE CONTRACT"
+        for language, rule in (("ko", CHOICE_MIRROR_RULE), ("en", CHOICE_MIRROR_RULE_EN)):
+            ctx = _context(language)
+            single_body = build_first_scene_messages(ctx)[1]["content"]
+            dual_body = build_first_story_messages(ctx)[1]["content"]
+            self.assertIn(header, single_body)
+            self.assertIn(rule, dual_body)
 
 
 class S2DirectiveLanguageTest(unittest.TestCase):

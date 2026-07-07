@@ -5,6 +5,20 @@ Last updated: 2026-07-08
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-08 (overnight, claude lane) — T3a narrative↔choice contract note (P1.5 CBT feedback #3)
+- Status: P1.5 T3a done; `make check` **911** green (+3 tests). Addresses prose that promises a fork the
+  choices never offer ("왼쪽은 지하철 폐노선, 오른쪽은 린위에의 선착장" with neither option rendered).
+- Changed: `scenario_context.py` — new stable-head GM note `CHOICE_MIRROR_RULE`/`_EN` + `_choice_mirror_rule`
+  selector (after the cinematic-clarity rule, cache-safe): an explicit fork in narration MUST be mirrored
+  option-by-option in the choices (near-same wording); conversely no fork-ending prose without matching
+  choices; explicitly does not override the ≥2-choices/distinct-intent rule. The note channel feeds every
+  narrative path (single-model JSON, dual-model DIRECTIVE NOTES, streaming, Gemini — same builders).
+- Verified: `make check` green (ruff/eslint/mypy 166/tsc+vite/unittest 911, 2 skipped, validate-content 2);
+  new `T3aChoiceMirrorRuleTest` ×3 locks language selection (EN Hangul-free), context notes, and survival
+  into BOTH rendered prompt formats (single-model head window / dual-model tail window of MAX_PROMPT_NOTES).
+- Blockers: none. Next: T4a axis tooltip + legend overlay (`[auto:claude]`); T3b/T4 plain-copy pass is codex
+  lane; LLM adherence feel folds into the next sign-off run (`[manual]`).
+
 ## 2026-07-08 (overnight, claude lane) — T2 click/stream responsiveness (P1.5 CBT feedback #3)
 - Status: P1.5 T2 done; `make check` **908** green (+2 tests). Addresses "선택지 3번 클릭" (WS idle drop ~45s).
 - Changed: ① keepalive — SPA `useGameSocket` sends `{"event":"ping"}` every 20s per open socket;
@@ -102,19 +116,3 @@ This file keeps **only recent incremental summaries within the 120-line budget**
   self-test since the scan is vacuous until S4 copy lands.
 - Blockers: None.
 - Next: S3 early se_rin flag clamp (`[auto:claude]`), then S4 `[manual]` directive/copy tone.
-
-## 2026-07-07 (overnight, claude lane) — S1 anchor variantization (variant-routed opening)
-- Status: S1 of `docs/plans/2026-07-06-variant-routed-opening.md` implemented; `make check` **880** green (+15 tests).
-- Changed: `route_map.py` — layer-0 (any) anchor gains an optional `variants` map resolved at route
-  materialization (`_apply_anchor_variant`): content fields (beat/title/image/image_pre/event/image_sequence/
-  default_perspective) override the base, explicit `null` clears a field, a `summary` override rewrites ONLY the
-  default perspective's line (§3.2 neutral fallback), node carries a `variant` marker; `opening_variant` kwarg
-  threaded through `build_route_map`/`build_route_seed`. `session.py` passes the loop's `_opening_variant` to both
-  builders. `route_content.py` — validator registers variant beat ids (unique/non-empty), rejects unknown override
-  fields and dangling `default_perspective` refs.
-- Verified: `make check` green (ruff/eslint/mypy/tsc+vite/unittest 880, validate-content 2 scenarios).
-  `tests/test_route_variants.py` ×15: override resolution, null-clear, summary-only-default, default/unknown-variant
-  byte-identical builds (incl. real neo-seoul config = loop-1 invariant), dynamic seed path, validator contracts,
-  session wiring (spy asserts builders receive the picked variant).
-- Blockers: None. Note: no scenario ships `variants` data yet — mechanism only; copy lands with S4 tone verdict.
-- Next: S2 chapter-gate `player_goal_variants` + S3 se_rin flag clamp (`[auto:claude]`), then S4 `[manual]` tone.

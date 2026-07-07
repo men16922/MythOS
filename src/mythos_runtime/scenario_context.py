@@ -97,12 +97,45 @@ CINEMATIC_CLARITY_RULE_EN = (
 )
 
 
+# T3 narrative↔choice contract (CBT feedback #3): live play surfaced prose that
+# poses an explicit fork ("왼쪽은 지하철 폐노선, 오른쪽은 린위에의 선착장. 선택해야
+# 해") while the rendered choices carried neither option — the story promises a
+# decision the UI never offers. The rule binds the two surfaces both ways.
+CHOICE_MIRROR_RULE = (
+    "NARRATIVE-CHOICE CONTRACT (본문 갈림길 = 선택지 미러 규칙):\n"
+    "- 서사(narration)가 명시적인 갈림길이나 나열된 옵션으로 끝나면(예: '왼쪽은 지하철 폐노선, "
+    "오른쪽은 린위에의 선착장. 선택해야 해'), choices는 반드시 그 옵션들을 하나씩 거의 같은 "
+    "표현으로 반영해야 합니다. 본문이 약속한 옵션이 선택지에 없어서는 안 됩니다.\n"
+    "- 반대로 본문에 없는 갈림길만 선택지로 내놓지 마십시오. 갈림길을 서술하지 않을 장면이라면 "
+    "본문에서 옵션을 나열하며 끝내지 말고, 선택지들이 자연스럽게 이어지도록 장면을 열어 두십시오.\n"
+    "- 이 대응은 선택지 개수 규칙(최소 2개, 서로 다른 의도)보다 우선하지 않습니다. 본문 갈림길 "
+    "옵션을 모두 담은 뒤에도 규칙에 맞게 추가 선택지를 둘 수 있습니다."
+)
+
+CHOICE_MIRROR_RULE_EN = (
+    "NARRATIVE-CHOICE CONTRACT (a fork in the prose = mirrored choices):\n"
+    "- If the narration ends by posing an explicit fork or listing options (e.g. 'The abandoned "
+    "subway line to the left, Lin Yue's dock to the right. You have to choose.'), the choices MUST "
+    "mirror each of those options in nearly the same wording. Never omit an option the prose "
+    "promised from the rendered choices.\n"
+    "- Conversely, do not offer a fork in the choices that the prose never set up. If the scene is "
+    "not meant to end on a fork, do not close the narration by listing options — leave the scene "
+    "open so the choices follow naturally.\n"
+    "- This mapping does not override the choice-count rule (at least 2, distinct intents). After "
+    "covering every option the prose promised, you may still add further valid choices."
+)
+
+
 def _language_rule(language: str) -> str:
     return LANGUAGE_RULE_EN if language == "en" else LANGUAGE_RULE
 
 
 def _cinematic_clarity_rule(language: str) -> str:
     return CINEMATIC_CLARITY_RULE_EN if language == "en" else CINEMATIC_CLARITY_RULE
+
+
+def _choice_mirror_rule(language: str) -> str:
+    return CHOICE_MIRROR_RULE_EN if language == "en" else CHOICE_MIRROR_RULE
 
 CAUSALITY_ENGINE_RULE = (
     "CAUSALITY_ENGINE_RULE: The world is a complex gear-system. "
@@ -575,6 +608,7 @@ def build_runtime_narrative_context(
         f"SCENARIO_BRIEF: {brief}",
         _language_rule(language),
         _cinematic_clarity_rule(language),
+        _choice_mirror_rule(language),
     ]
     # Proper-noun / register rule is now prompt-layer (directives/naming.md), injected
     # generically — any scenario that authors one gets it; the rest get none, exactly as

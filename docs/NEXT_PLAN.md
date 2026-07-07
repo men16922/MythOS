@@ -80,8 +80,8 @@ Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop co
   stable-head GM note (모든 서사 경로 공용) + `T3aChoiceMirrorRuleTest` ×3 unit lock. `make check` 911 green.
 - `[x]` `[auto:codex]` **T3b/T4 route-destination + axis + archetype plain-copy pass (DONE 2026-07-08 overnight)** (목적지 1줄 WHAT-IS-THIS 전수 +
   가치축 쉬운 말 + 캐선창 play-first 1줄, KO/EN; validator: route 목적지 desc 비어있으면 red). Done = `make check` green.
-- `[ ]` `[auto:claude]` **T4a axis tooltip + 1회 legend overlay + Codex-term links** (glossary 기반, 신규 저작 없음).
-  Done = `make check` green + AGY not FAIL/NEEDS.
+- `[x]` `[auto:claude]` **T4a axis tooltip + 1회 legend overlay + Codex-term links (DONE 2026-07-08 codex failover)**:
+  choice axis tooltip/ARIA, once-per-browser tactical legend overlay, route legend Codex tab link; `make check` 916 green.
 - `[ ]` `[manual]` **T5/T6 design decisions**: 전투 보드 시점(줌/탑다운 토글?) · 정보 밀도(공개 창 연장 vs 간결 모드) ·
   T4 카피 톤 검수. 결정 후 슬라이스 승격.
 

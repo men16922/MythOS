@@ -20,6 +20,8 @@ type NarrativeHistoryItem = {
   result?: string | null;
 };
 
+const TACTICAL_LEGEND_SEEN_KEY = "mythos_tactical_legend_seen";
+
 interface StoryPanelProps {
   status: string;
   snapshot: RuntimeSnapshot | null;
@@ -389,6 +391,7 @@ function TacticalLegend({ combat }: { combat: CombatState }) {
   const hazards = Object.values(combat.hazards || {});
   const hasElevation = Object.values(combat.elevations || {}).some((v) => Number(v) > 0);
   const intents = combat.radar?.enemy_intents || [];
+  const hasLegendContent = intents.length > 0 || covers.length > 0 || hazards.length > 0 || hasElevation;
 
   const rows: { sym: string; text: string }[] = [];
   rows.push({ sym: "⚔️/🏃/👣", text: t("story.legend.intents") });
@@ -397,9 +400,24 @@ function TacticalLegend({ combat }: { combat: CombatState }) {
   if (hazards.includes("acid")) rows.push({ sym: "☣", text: t("story.legend.acid") });
   if (hazards.includes("electro")) rows.push({ sym: "⚡", text: t("story.legend.electro") });
   if (hasElevation) rows.push({ sym: "▲n", text: t("story.legend.elevation") });
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(() => {
+    try {
+      return localStorage.getItem(TACTICAL_LEGEND_SEEN_KEY) !== "1";
+    } catch {
+      return false;
+    }
+  });
 
-  if (intents.length === 0 && covers.length === 0 && hazards.length === 0 && !hasElevation) {
+  useEffect(() => {
+    if (!open || !hasLegendContent) return;
+    try {
+      localStorage.setItem(TACTICAL_LEGEND_SEEN_KEY, "1");
+    } catch {
+      /* ignore storage failures */
+    }
+  }, [hasLegendContent, open]);
+
+  if (!hasLegendContent) {
     return null;
   }
 
@@ -409,6 +427,8 @@ function TacticalLegend({ combat }: { combat: CombatState }) {
         type="button"
         className="tactical-legend-toggle"
         aria-expanded={open}
+        aria-label={open ? t("story.legend.close") : t("story.legend.open")}
+        title={t("story.legend.title")}
         onClick={() => setOpen((v) => !v)}
       >
         {open ? t("story.legend.close") : t("story.legend.open")}

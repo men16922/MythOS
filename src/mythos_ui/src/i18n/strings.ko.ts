@@ -49,6 +49,8 @@ export const ko = {
   "choice.costStability": "안정성",
   "choice.costTension": "긴장도",
   "choice.sending": "전송 중…",
+  "choice.axis.tooltip": "가치축: 이 선택이 주로 밀어주는 기준입니다.",
+  "choice.axis.aria": "가치축",
   "skill.learn": "습득",
   "skill.upgrade": "강화",
   "skill.processing": "처리 중...",

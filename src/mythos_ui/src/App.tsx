@@ -916,6 +916,7 @@ export default function App() {
             revealNudge={asideRevealNudge}
             onOpenSave={() => setSaveLoadModal("save")}
             onOpenLoad={() => setSaveLoadModal("load")}
+            onOpenCodex={() => handleTabClick("codex")}
           />
         </main>
         </>

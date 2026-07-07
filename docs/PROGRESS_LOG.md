@@ -5,6 +5,12 @@ Last updated: 2026-07-08
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-08 (overnight, codex failover) — T4a clarity affordances
+- Status: Done; codex failover consumed the top `[auto:claude]` item because no `[auto:codex]` item remained.
+- Changed: choice value-axis chips now expose tooltip/ARIA help; the tactical board legend auto-opens once per browser only when content exists; route-map legend can jump to the localized Codex tab; added source locks for the affordances.
+- Verified: `tests.test_ui_clarity_affordances` 4/4; `$GATE_CMD` (`make check`) green (916 tests, 2 skipped, validate-content 2).
+- Blockers: none. Next: P1.5 T5/T6 remain `[manual]` design decisions.
+
 ## 2026-07-08 (overnight, codex lane) — Variant intro SHOT 03 ×6
 - Status: Done; six Loop 2+ variant boot intros now have third cinematic shots.
 - Changed: generated/promoted `opening-{han,kai,lin_yue,su_ah,tae_o,solo}-03.png`; appended anchor `image_sequence`, KO `cinematic_shots`, and text-only EN overlays; tightened intro invariants for SHOT 03.

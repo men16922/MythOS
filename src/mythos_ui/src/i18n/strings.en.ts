@@ -49,6 +49,8 @@ export const en: Record<StringKey, string> = {
   "choice.costStability": "Stability",
   "choice.costTension": "Tension",
   "choice.sending": "Sending…",
+  "choice.axis.tooltip": "Value axis: the main principle this choice pushes.",
+  "choice.axis.aria": "Value axis",
   "skill.learn": "Learn",
   "skill.upgrade": "Upgrade",
   "skill.processing": "Processing...",

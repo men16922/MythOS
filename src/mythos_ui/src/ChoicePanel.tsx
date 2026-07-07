@@ -59,6 +59,9 @@ export function ChoicePanel({ choices, stability, tension, routeMap, onChoose, p
         const intentLabel = iKey ? t(iKey) : null;
         const destination = routeDestination(choice, routeMap);
         const routeClass = destination ? ` route-choice-link route-choice-link-${destination.index % 4}` : "";
+        const axisTooltip = choice.axis_label
+          ? `${t("choice.axis.tooltip")} ${choice.axis_label}`
+          : undefined;
         return (
           <button
             key={choice.choice_id}
@@ -81,7 +84,16 @@ export function ChoicePanel({ choices, stability, tension, routeMap, onChoose, p
               {choice.combat_risk && (
                 <span className="cmd-chip combat-risk">{t("choice.combatRisk")}</span>
               )}
-              {choice.axis_label && <span className="cmd-chip">{choice.axis_label}</span>}
+              {choice.axis_label && (
+                <span
+                  className="cmd-chip axis-chip"
+                  title={axisTooltip}
+                  aria-label={`${t("choice.axis.aria")}: ${choice.axis_label}`}
+                >
+                  <span>{choice.axis_label}</span>
+                  <span className="axis-chip-icon" aria-hidden="true">ⓘ</span>
+                </span>
+              )}
               {intentLabel && <span className="cmd-chip muted">{intentLabel}</span>}
               {choice.stakes?.slice(1).map((stake) => (
                 <span key={stake} className="cmd-chip muted">

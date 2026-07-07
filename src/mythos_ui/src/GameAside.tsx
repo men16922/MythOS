@@ -22,6 +22,7 @@ interface GameAsideProps {
   revealNudge?: boolean;
   onOpenSave: () => void;
   onOpenLoad: () => void;
+  onOpenCodex?: () => void;
 }
 
 const TILE_GLYPH: Record<string, string> = {
@@ -53,7 +54,15 @@ function rewardSummary(reward: Record<string, number> | undefined, t: TFn): stri
 
 type RouteGraphMode = "compact" | "detail";
 
-function RouteMapPanel({ routeMap, playerFlags }: { routeMap: RouteMap; playerFlags: string[] }) {
+function RouteMapPanel({
+  routeMap,
+  playerFlags,
+  onOpenCodex,
+}: {
+  routeMap: RouteMap;
+  playerFlags: string[];
+  onOpenCodex?: () => void;
+}) {
   const { t } = useLang();
   const [expanded, setExpanded] = useState(false);
   const nodes = routeMap.nodes || {};
@@ -190,6 +199,18 @@ function RouteMapPanel({ routeMap, playerFlags }: { routeMap: RouteMap; playerFl
       <p>{t("aside.route.legend.help1")}</p>
       <p>{t("aside.route.legend.help2")}</p>
       <p>{t("aside.route.legend.help3")}</p>
+      {onOpenCodex && (
+        <button
+          type="button"
+          className="codex-term-link"
+          onClick={() => {
+            setExpanded(false);
+            onOpenCodex();
+          }}
+        >
+          {t("tab.codex")}
+        </button>
+      )}
     </div>
   );
 
@@ -241,13 +262,19 @@ function RouteMapPanel({ routeMap, playerFlags }: { routeMap: RouteMap; playerFl
   );
 }
 
-function OperationMapPanel({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
+function OperationMapPanel({
+  snapshot,
+  onOpenCodex,
+}: {
+  snapshot: RuntimeSnapshot | null;
+  onOpenCodex?: () => void;
+}) {
   const { t } = useLang();
   if (!snapshot || !snapshot.state) return null;
   const routeMap = snapshot.state._route_map;
   const playerFlags = snapshot.state.flags || [];
   if (routeMap && (routeMap.layers || []).length > 0) {
-    return <RouteMapPanel routeMap={routeMap} playerFlags={playerFlags} />;
+    return <RouteMapPanel routeMap={routeMap} playerFlags={playerFlags} onOpenCodex={onOpenCodex} />;
   }
   const mapState = snapshot.state._map;
   if (!mapState || !mapState.current) return null;
@@ -518,6 +545,7 @@ export function GameAside({
   revealNudge,
   onOpenSave,
   onOpenLoad,
+  onOpenCodex,
 }: GameAsideProps) {
   if (minimal) {
     return (
@@ -535,7 +563,7 @@ export function GameAside({
         onOpenLoad={onOpenLoad}
       />
       <div className={revealNudge ? "aside-reveal-nudge" : undefined}>
-        <OperationMapPanel snapshot={finalizedSnapshot} />
+        <OperationMapPanel snapshot={finalizedSnapshot} onOpenCodex={onOpenCodex} />
       </div>
       <StatusPanel snapshot={finalizedSnapshot} />
       <LogPanel consoleLogs={consoleLogs} />

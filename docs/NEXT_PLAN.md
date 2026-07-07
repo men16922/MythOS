@@ -73,7 +73,7 @@ Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop co
 - `[x]` **Track M M1/M2/M3-core + T6a/T6b DONE 2026-07-08 overnight** (`make check` 921 green) — `100vh`→`100dvh` · <600px readable-font + 44px tap targets · hover-`title=`→tap tooltip (axis chip / combat-skill `SkillInfoTooltip` / `GameAside` `InfoPopover` ×4; remaining `CombatControls`×2/`StoryPanel`×3/`HeaderBar`×2 judged **supplementary** — aria-label + visible action already cover touch, convert only per-site if needed) · concise-mode state+toggle (coarse-pointer default) · Save/Map aside→`<details>` chips when concise. Detail archive/`PROGRESS_LOG.md`.
 - **P1.5 open slices**:
   - `[ ]` `[manual]` **M4** verify 7 `position:fixed` modals for scroll-lock/clip on phone.
-  - `[ ]` `[auto:claude]` **T6c** combat-panel density reduction at the ~9–10-cluster peak. Done = `make check` green + AGY mobile not FAIL.
+  - `[x]` `[auto:claude]` **T6c** combat-panel density reduction at the ~9–10-cluster peak (DONE 2026-07-08 overnight; `make check` 922). Done = `make check` green + AGY mobile not FAIL.
   - `[ ]` `[auto:claude]` **T5a** movement affordance: reachable-tile highlight + path/target preview + auto-center on active unit (reachable calc already in TileInspector). Done = `make check` green + AGY mobile not FAIL.
   - `[ ]` `[auto:claude]` **T5b** small-viewport default-zoom bump + min tile-size floor. Done = `make check` green + AGY mobile not FAIL.
   - `[ ]` `[blocked]` **T5c** (LARGE) 2D top-down toggle = second orthogonal render path. Precondition (human): owner confirms isometric still illegible @390px after T5a/b land. NOT unattended-consumable — do not build the second render path on a guess. Promote to `[auto:claude]` after that judgment.

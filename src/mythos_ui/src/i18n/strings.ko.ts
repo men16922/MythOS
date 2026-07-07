@@ -210,6 +210,7 @@ export const ko = {
   "story.learn.reward": "승리 보상",
   "story.learn.close": "학습 목표 닫기",
   // Story panel — tile inspector
+  "story.tile.title": "타일 정보",
   "story.tile.hint": "보드 위 타일을 가리키면 상세가 표시됩니다.",
   "story.tile.enemy": "적",
   "story.tile.ally": "동맹",

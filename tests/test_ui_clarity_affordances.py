@@ -149,6 +149,32 @@ class UIClarityAffordancesTest(unittest.TestCase):
         self.assertIn(".aside-chip-summary", css)
         self.assertIn(".aside-chip-body .panel", css)
 
+    def test_combat_panel_collapses_secondary_clusters_to_chip_in_concise_mode(self) -> None:
+        # T6c (mobile density): at combat's ~9-10-cluster peak, the tile
+        # inspector and combat log — secondary/on-demand info, not needed to
+        # take a turn — start collapsed as a one-line summary chip in concise
+        # mode, reusing the same details/summary chip shape T6b introduced.
+        # Non-concise mode renders them unwrapped, unchanged from before T6c.
+        source = read("src/mythos_ui/src/StoryPanel.tsx")
+
+        self.assertIn('import { useConciseMode } from "./conciseMode";', source)
+        self.assertIn("function CombatChip(", source)
+        self.assertIn('<details className="panel aside-chip">', source)
+        self.assertIn('<summary className="panel-title aside-chip-summary">{title}</summary>', source)
+        self.assertIn("const { conciseMode } = useConciseMode();", source)
+        self.assertIn(
+            'conciseMode ? (\n                <CombatChip title={t("story.tile.title")}>',
+            source,
+        )
+        self.assertIn(
+            'conciseMode && combatLog ? (\n              <CombatChip title={t("combatLog.title")}>',
+            source,
+        )
+
+        for key in ("story.tile.title",):
+            self.assertIn(key, read("src/mythos_ui/src/i18n/strings.ko.ts"))
+            self.assertIn(key, read("src/mythos_ui/src/i18n/strings.en.ts"))
+
     def test_i18n_and_css_keys_are_present(self) -> None:
         ko = read("src/mythos_ui/src/i18n/strings.ko.ts")
         en = read("src/mythos_ui/src/i18n/strings.en.ts")

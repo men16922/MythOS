@@ -6,6 +6,7 @@ import { ChoicePanel } from "./ChoicePanel";
 import { CombatControls } from "./CombatControls";
 import { CombatLog } from "./CombatLog";
 import { CombatRoster } from "./CombatRoster";
+import { useConciseMode } from "./conciseMode";
 import { useLang } from "./i18n/lang";
 import type { StringKey } from "./i18n/strings.ko";
 import type { CombatAction, CombatBlip, CombatState, RuntimeSnapshot, ScenarioCharacter } from "./types";
@@ -565,6 +566,19 @@ function TileInspector({
   );
 }
 
+// T6c (mobile density): in concise mode, secondary combat-panel clusters
+// (tile inspector / combat log) start collapsed as a one-line summary chip —
+// same details/summary shape T6b introduced for the Save/Map aside panels.
+// Non-concise mode renders children unwrapped, unchanged from before T6c.
+function CombatChip({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <details className="panel aside-chip">
+      <summary className="panel-title aside-chip-summary">{title}</summary>
+      <div className="aside-chip-body">{children}</div>
+    </details>
+  );
+}
+
 function ObjectiveStrip({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
   const { t } = useLang();
   const scene = snapshot?.active_scene;
@@ -640,6 +654,7 @@ export function StoryPanel({
   tutorialHighlight,
 }: StoryPanelProps) {
   const { t } = useLang();
+  const { conciseMode } = useConciseMode();
   const scrollBottomRef = useRef<HTMLDivElement | null>(null);
   const scrollTopRef = useRef<HTMLDivElement | null>(null);
   const [showHistory, setShowHistory] = useState(false);
@@ -773,7 +788,13 @@ export function StoryPanel({
                 ></canvas>
               </div>
               <TacticalLegend combat={snapshot.combat} />
-              <TileInspector combat={snapshot.combat} cell={combatInspectCell} />
+              {conciseMode ? (
+                <CombatChip title={t("story.tile.title")}>
+                  <TileInspector combat={snapshot.combat} cell={combatInspectCell} />
+                </CombatChip>
+              ) : (
+                <TileInspector combat={snapshot.combat} cell={combatInspectCell} />
+              )}
             </div>
 
           {/* 하단 행: Party/Enemy Roster · Command Console · Combat Log */}
@@ -793,7 +814,13 @@ export function StoryPanel({
               tutorialHighlight={tutorialHighlight}
             />
 
-            <CombatLog log={combatLog} />
+            {conciseMode && combatLog ? (
+              <CombatChip title={t("combatLog.title")}>
+                <CombatLog log={combatLog} />
+              </CombatChip>
+            ) : (
+              <CombatLog log={combatLog} />
+            )}
           </div>
         </div>
       </div>

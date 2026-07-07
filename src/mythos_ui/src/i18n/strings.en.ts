@@ -210,6 +210,7 @@ export const en: Record<StringKey, string> = {
   "story.learn.reward": "Victory reward",
   "story.learn.close": "Close learning goal",
   // Story panel — tile inspector
+  "story.tile.title": "Tile Info",
   "story.tile.hint": "Point at a tile on the board to see details.",
   "story.tile.enemy": "Enemy",
   "story.tile.ally": "Ally",

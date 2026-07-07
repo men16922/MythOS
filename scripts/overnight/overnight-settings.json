@@ -1,5 +1,6 @@
 {
-  "$comment": "무인 overnight 루프 전용 권한 경계. claude -p --settings 로만 로드된다. interactive 설정(~/.claude/settings.json, .claude/settings.local.json)은 건드리지 않는다. deny가 allow를 이긴다 — deny 목록이 실제 안전 경계다. 새 파괴 타깃이 추가돼도 자동 허용되지 않도록 make 타깃은 화이트리스트로 열거한다(Bash(make *) 전체 허용 금지).",
+  "$comment": "무인 overnight 루프 전용 권한 경계. claude -p --settings 로만 로드된다. interactive 설정(~/.claude/settings.json, .claude/settings.local.json)은 건드리지 않는다. deny가 allow를 이긴다 — deny 목록이 실제 안전 경계다. 새 파괴 타깃이 추가돼도 자동 허용되지 않도록 make 타깃은 화이트리스트로 열거한다(Bash(make *) 전체 허용 금지). model: 러너 전용 모델 고정 — interactive 기본모델(예: 사용자가 fable 로 바꿔도)에 휘둘리지 않게 격리. 변경/제거 자유.",
+  "model": "claude-sonnet-5",
   "permissions": {
     "defaultMode": "acceptEdits",
     "allow": [

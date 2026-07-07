@@ -5,12 +5,6 @@ Last updated: 2026-07-08
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
 
-## 2026-07-08 (overnight, claude lane) — M3 CLOSED: remaining title= sites judged out-of-scope (Track M mobile foundation, final)
-- Status: Done; `make check` **920** green (no code change, docs-only close-out). Top unfinished `[auto:claude]` item was M3's remaining 7 sites (flagged "judge in-scope before converting, may not need it"); inspected each in source and closed the item.
-- Changed: `docs/NEXT_PLAN.md` — M3 checkbox `[/]`→`[x]` DONE. No src/ changes.
-- Verified: read `CombatControls.tsx`/`HeaderBar.tsx`/`StoryPanel.tsx` at each `title=` site — all 7 (`CombatControls`×2 attack/item, `HeaderBar`×3 lang/concise/bgm, `StoryPanel`×3 legend/zoom-in/zoom-out — actually 2+3+3, matches the doc's ×2/×2/×3 tally) are already-tappable `<button>`s with visible text/icon label + working `onClick`; `title=` is a purely supplementary hover hint (disabled-reason, item effect, tooltip caption), same reasoning already used to close `GameAside`'s 2 remaining sites. No hover-only info loss on touch → no conversion needed. `make check` re-run green (920 tests) to confirm baseline unaffected.
-- Blockers: none. Next: T6b collapse secondary aside panels (Save/OperationMap/Log) into summary chips, tap to expand (`[auto:claude]`, next top item).
-
 ## 2026-07-08 (overnight, claude lane) — T6a concise-mode state + persisted toggle (Track M/T6 mobile foundation)
 - Status: Done; `make check` **920** green (+1 test). First T6 slice (info-density mode), gated on Track M
   (M1-M3) which just finished; adds only the state/toggle infra — no panel collapsing yet (T6b/T6c).

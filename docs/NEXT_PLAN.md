@@ -72,16 +72,10 @@ Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop co
 
 ## P1.5 — CBT feedback #3: Clarity & Responsiveness (2026-07-08, design `docs/plans/2026-07-08-cbt-feedback3-clarity-plan.md`)
 
-- `[x]` `[auto:claude]` **T1 identity-swap bug (DONE 2026-07-08 overnight)**: /diagnose(2-신원 재접속 갈아타기 가설) → 루프 세션은 항상
-  playing loop_id로 재개(플레이어 폴백 금지) + repro 회귀 테스트. Done = repro red→green + `make check` green (906).
-- `[x]` `[auto:claude]` **T2 click/stream responsiveness (DONE 2026-07-08 overnight)**: WS keepalive+auto-reconnect + 선택지 클릭 즉시
-  '전송 중' pending(형제 비활성, 재접속 후 1회 재전송 — 서버 멱등). `make check` 908 green; AGY auto-screen post-commit.
-- `[x]` `[auto:claude]` **T3a narrative↔choice contract note (DONE 2026-07-08 overnight)**: `CHOICE_MIRROR_RULE` KO/EN
-  stable-head GM note (모든 서사 경로 공용) + `T3aChoiceMirrorRuleTest` ×3 unit lock. `make check` 911 green.
-- `[x]` `[auto:codex]` **T3b/T4 route-destination + axis + archetype plain-copy pass (DONE 2026-07-08 overnight)** (목적지 1줄 WHAT-IS-THIS 전수 +
-  가치축 쉬운 말 + 캐선창 play-first 1줄, KO/EN; validator: route 목적지 desc 비어있으면 red). Done = `make check` green.
-- `[x]` `[auto:claude]` **T4a axis tooltip + 1회 legend overlay + Codex-term links (DONE 2026-07-08 codex failover)**:
-  choice axis tooltip/ARIA, once-per-browser tactical legend overlay, route legend Codex tab link; `make check` 916 green.
+- `[x]` **T1 identity-swap · T2 responsiveness · T3a fork-mirror · T3b/T4 plain-copy · T4a affordances
+  (ALL DONE 2026-07-08 overnight, `e10f2bb..d1bed45`)** — `make check` **916** green; **2 AGY QA PASS**
+  (`20260708-062258/063004-manual`: T2 force-closed-WS 1-click advance + triple-click guard; T4a axis ⓘ tooltip +
+  legend overlay + plain copy). Detail archive/`PROGRESS_LOG.md`.
 - `[ ]` `[manual]` **T5/T6 design decisions**: 전투 보드 시점(줌/탑다운 토글?) · 정보 밀도(공개 창 연장 vs 간결 모드) ·
   T4 카피 톤 검수. 결정 후 슬라이스 승격.
 

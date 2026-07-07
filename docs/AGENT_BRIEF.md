@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-07-06
+Last updated: 2026-07-08
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Variant-routed opening is CODE+CONTENT COMPLETE (S1-S4, check 902)** — the loop now branches by variant end-to-end (anchor skin + goals + turn 0-3 directive windows, KO/EN). What's left is human: **① S4 카피 톤 검수** (anchor titles/summaries/goals + 12 REENTRY beats — register: screenplay action-line) **② in-game 2회차 feel run** (local `make api-cloud` port 8000 serves it) **③ deploy + sign-off** (`docs/test/neo_seoul_live_qa.md`) · G2 twist tone · voice-id pinning · `git push` · ally-writeback triage. `[blocked]` shot 03 ×6 = codex image quota (resets ~20h from 07-07 23:5x; remove tag then re-run codex lane). Known trap: nested agy-in-agy live-QA hangs — run direct. Rollback = `MODEL=gemini-2.5-flash` env.
+> ▶ NEXT SESSION: **All auto tracks drained (variant-routed opening S1-S4 + P1.5 clarity T1-T4a + shot 03), check 916, 2 AGY QA PASS 07-08.** Everything left is human. **Design decisions the agent is blocked on (needed to unblock more auto slices): ① T5 combat-board viewpoint** (줌-to-active / 2D top-down toggle / larger tiles?) **② T6 info density** (extend progressive disclosure past turn 2, or a 간결 모드 toggle?) — design `docs/plans/2026-07-08-cbt-feedback3-clarity-plan.md`. Other human lane: S4/T4 카피 톤 검수 (variant anchor/goal/12 REENTRY beats + axis/archetype copy — screenplay action-line) · in-game 2회차 feel run (local `make api-cloud` port 8000) · deploy + sign-off (`docs/test/neo_seoul_live_qa.md`) · G2 twist tone · voice-id pinning · `git push` (ahead ~28) · ally-writeback triage. Known trap: nested agy-in-agy live-QA hangs — run direct. Rollback = `MODEL=gemini-2.5-flash` env.
 
 ## Snapshot
 

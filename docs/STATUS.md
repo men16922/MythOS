@@ -1,6 +1,6 @@
 # Project MythOS Status
 
-Last updated: 2026-07-06
+Last updated: 2026-07-08
 
 ## Current Baseline
 
@@ -33,17 +33,19 @@ Authority plan: `docs/NEXT_PLAN.md`.
 
 Direction remains global-first EN/KO closed beta: Gemini/Vertex is the product path; Ollama/FLUX remains the local development path. Deployment/onboarding/localization history is in `docs/COMPLETED_SUMMARY.md` M50 and M56.
 
-1. **Variant-routed opening (user-directed 2026-07-06)** — live playtest showed B2 variants evaporate at turn 1 (Se-rin rails: layer-0 anchor + connect gate + canon). Design done (`docs/plans/2026-07-06-variant-routed-opening.md`); next = S1 anchor variants resolution → S2 goal variants → S3 se_rin flag clamp (`[auto:claude]`), then S4 directive/copy tone (human). Per-variant boot intro already shipped (`ca5c835`+`0039c45`, check 865).
-2. **Human lane**: S4 tone verdict + in-game feel review of 07-06 assets, G2 twist tone review (`twist_bank`), deploy new bundle + sign-off run (`docs/test/neo_seoul_live_qa.md` refreshed 07-06) + Audrey EN retest, voice-id pinning, `git push` (ahead 4), ally-writeback triage.
-3. **Post-sign-off model experiment**: 2.5-normal/3.5-key-beat hybrid A/B; record keep/rollback verdict.
+1. **Auto tracks all drained (07-08)** — variant-routed opening S1-S4 (loop branches by variant end-to-end: anchor skin + goals + turn 0-3 directive windows KO/EN) + P1.5 clarity T1-T4a (identity-swap fix, WS responsiveness, fork-mirror contract, plain copy, axis affordances) + variant intro shot 03. `make check` **916** green; 2 AGY QA PASS (`20260708-062258/063004-manual`). Design `docs/plans/2026-07-08-cbt-feedback3-clarity-plan.md`.
+2. **Agent-blocked design decisions (unblock more slices)**: T5 combat-board viewpoint (줌/탑다운/타일) · T6 info density (disclosure 연장 vs 간결 모드). Human call → then `[auto:claude]` slices.
+3. **Human lane**: S4/T4 copy tone verdict, in-game 2회차 feel run (local `make api-cloud`), G2 twist tone (`twist_bank`), deploy new bundle + sign-off (`docs/test/neo_seoul_live_qa.md`) + Audrey EN retest, voice-id pinning, `git push` (ahead ~28), ally-writeback triage.
+4. **Post-sign-off model experiment**: 2.5-normal/3.5-key-beat hybrid A/B; record keep/rollback verdict.
 4. **Maintenance/hold**: WS4 content pipeline plan-only; Glass Library waits for Neo-Seoul satisfaction; teaser #2 deferred (uncut-single-turn or post-P1 montage).
 
 ## Open Risks
 
-- **push workflow (ongoing)**: private-repo push is a hard-block by the safety classifier so the agent cannot do it → user pushes directly (men16922's own account). Origin pushed through `a1e3b81` (2026-07-06 night); the variant-intro feature + design commits await human push.
+- **push workflow (ongoing)**: private-repo push is a hard-block by the safety classifier so the agent cannot do it → user pushes directly (men16922's own account). Origin last pushed `a1e3b81` (07-06 night); ~28 commits since (S4 + P1.5 + overnight) await human push.
+- **P1.5 T5/T6 blocked on human design decisions** (board viewpoint, info density) — auto slices can't proceed until the owner picks a direction.
 - **agy browser attach flaky (new 2026-07-06)**: the live-QA actor intermittently fails to acquire any browser tool and hangs silently — nested-in-agy runs burned 3 iterations; even direct runs failed 21:18+/21:41 after succeeding 20:20/20:23 (suspect Antigravity IDE/browser state). Mitigations landed: gtimeout hard ceiling + verdict-rescue in `run-agy.sh` (`6f61d9a`) so failures now record NEEDS_HUMAN instead of burning 30 min. Practice: run live-QA direct from a supervising session; if attach fails twice, hand the item to human.
 - **3.5-flash cost watch (mitigated 2026-07-05)**: prompt diet cut input −25% → ~$1.0/loop full-3.5. The env-only hybrid (~$0.5) is implemented but remains disabled until the planned post-sign-off A/B.
-- **WS idle drop (~45s)**: observed during live repro — the socket died during a long idle wait between frames. Harmless for normal play (frames flow continuously) but could matter for slow image turns; watch during live QA.
+- **WS idle drop (~45s) — MITIGATED 07-08 (T2)**: was the root of the tester "3-click" complaint. Fixed by 20s keepalive ping/pong + optimistic choice pending + one-shot reconnect-resend (`2a27e7b`); AGY QA confirmed single-click advance even with the socket force-closed. Watch only if slow image turns still stall.
 - **ally-writeback promotion (open triage)**: `_finish_party_state` promotes any co-fighting AI ally into the permanent party — intended-vs-bug human call pending. (Simulator gating shipped 07-05 closed its main entry path; pre-existing simulator loops still occupy tester caps, e.g. `d1b0da3e` 5/10 — DB cleanup only on request.)
 - DB hygiene (low): `narrative_shards` raw rows retained post-rollup; run summaries/save slots/metrics are JSONB memory records — prune/dedicated tables only if size or query load bites.
 - Some detailed plan files may have stale status headers. Prefer `STATUS.md`, `NEXT_PLAN.md`, and `PROGRESS_LOG.md` for current truth.

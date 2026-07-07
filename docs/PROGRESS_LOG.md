@@ -5,6 +5,14 @@ Last updated: 2026-07-08
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-08 (AM) — P1.5 clarity track VERIFIED — 2 AGY QA runs PASS + independent gate 916
+- Status: Overnight P1.5 bundle (`e10f2bb..d1bed45`, 7 commits) independently re-gated **`make check` 916 green**; two direct non-nested AGY live-QA runs both PASS_CANDIDATE (screenshots visually audited). Feedback #3 clarity/responsiveness closed on the auto axes.
+- **QA A (T2 responsiveness, `20260708-062258-manual`)**: with the WS **force-closed**, one click rendered the "전송 중/Sending…" pending badge + disabled both choices (triple-click guard), reconnected, and advanced on the single click; 65s idle then single-click advance (20s keepalive). Evidence-audited, not just verdict.
+- **QA B (T4a legibility, `20260708-063004-manual`)**: value-axis chips show ⓘ tooltips ("Stay safe ⓘ"/"Help people ⓘ"), first-loop legend overlay expands+dismisses, plain-language predicted-change copy renders; console/network clean.
+- Landed this bundle: T1 identity-swap fix (resume pins to the playing loop_id) · T2 WS keepalive+optimistic pending · T3a narrative↔choice fork-mirror contract · T3b/T4 route/axis/archetype plain-copy pass · T4a affordances · variant intro **shot 03 ×6** (carousel now 3-shot; quota reset cleared the blocker).
+- Blockers: none open; loop exited DONE all-blocked (remaining P1.5 = T5/T6 `[manual]` design decisions).
+- Next: `[manual]` T5 board viewpoint + T6 density decisions · S4/T4 copy tone verdict · deploy+sign-off · `git push`.
+
 ## 2026-07-08 (overnight, codex failover) — T4a clarity affordances
 - Status: Done; codex failover consumed the top `[auto:claude]` item because no `[auto:codex]` item remained.
 - Changed: choice value-axis chips now expose tooltip/ARIA help; the tactical board legend auto-opens once per browser only when content exists; route-map legend can jump to the localized Codex tab; added source locks for the affordances.
@@ -68,50 +76,3 @@ This file keeps **only recent incremental summaries within the 120-line budget**
 - Verified: `make check` 902 (obsolete 1-cut invariant → 0-3 window contract w/ per-beat se_rin policy assertion; S1 placeholder → real-data skin test; new coupling test anchors↔goals↔directives per variant); `validate-content` clean; directive parser check (max_turn 3, beats 0/1/2); loop-1 default untouched.
 - Blockers: none. Note: connect-gate variant goal shares the base gate's narrow display window (phase reaches explore at first scene — parity with base); the per-turn objective is now steered by the variant directives instead.
 - Next: `[manual]` **S4 카피 톤 검수** (anchor titles/summaries/goals + 12 directive beats) · in-game 2회차 feel run · shot 03 `[blocked]` quota · deploy+sign-off.
-
-## 2026-07-07 (overnight, codex failover) — Type-noise cleanup + completed-plan archive
-- Status: Claude-lane cleanup and codex doc-migration seeds completed with no runtime behavior changes.
-- Changed: lifespan annotation now uses `AsyncGenerator[None, None]`; the recovered asset-test cleanup removed unused loop variables. Six implemented plans were archived, references repaired, and M57 added.
-- Verified: `$GATE_CMD` (`make check`) green (ruff/eslint, mypy 165, frontend build, unittest 901 with 2 skipped, validate-content 2); doc budget and moved-plan sweeps green.
-- Blockers: SHOT 03 image generation hit `usage_limit_reached` again (`resets_in_seconds=71218`); second occurrence, so the item is now `[blocked]` with no partial/fake assets promoted.
-- Next: Codex/Claude lanes have no unblocked `[auto:*]` items; retry SHOT 03 only after quota/human review.
-
-## 2026-07-07 (overnight, codex lane) — Variant intro SHOT 03 ×6 blocked (attempt 1)
-- Status: Not completed; the image-generation usage limit stopped the six-image batch after 3/6 drafts.
-- Changed: No project assets or scenario metadata were changed. The three partial drafts remain outside the workspace
-  under `.codex/generated_images/` and were intentionally not promoted or replaced with placeholders.
-- Verified: `git status --porcelain` was clean before the attempt; generator returned `usage_limit_reached`
-  (`resets_in_seconds=73385`) on image 4/6; `make check` green (901 tests, 2 skipped).
-- Blockers: First occurrence for `[auto:codex]` variant intro SHOT 03 ×6 — in-session image quota unavailable.
-- Next: Retry the same item after quota reset; on a second identical Blocker, append `[blocked]` per loop policy.
-
-## 2026-07-07 (overnight, codex lane) — Variant intro SHOT 02 ×6
-- Status: The first codex intro-expansion slice is done; all six Loop 2+ variants now have a two-shot boot cinematic.
-- Changed: generated six 1672×941 RGB PNGs (`opening-{han,kai,lin_yue,su_ah,tae_o,solo}-02.png`) in the
-  established first-person rainy cyan/red style; appended directive-aligned KO metadata + text-only EN overlays.
-- Verified: visually read back all six promoted images; JSON parse clean; `tests.test_opening_variant_intro` 3/3;
-  `make check` green (ruff/eslint/mypy 165/tsc+vite/unittest 901, 2 skipped, validate-content 2).
-- Blockers: None. Next: `[auto:codex]` variant intro SHOT 03 ×6; human intro/cut feel review remains manual.
-
-## 2026-07-07 (overnight, claude lane) — SFX reference↔file integrity test (QA seed 1/2)
-- Status: Overnight QA Seed item 1 done; `make check` **901** green (+2 tests, `tests/test_sfx_integrity.py`).
-- Changed: new test scans `scenario.json` + SPA ts/tsx + static `app.js` for `sfx_*` ids — each must map to
-  `resources/neo-seoul/audio/sfx/<id>.wav` with RIFF/WAVE magic (playSfx fails silently, so a dangling ref was
-  invisible); serializer `_presentation_cues` cues cross-checked vs SPA `CUE_SFX`. Guards: ≥8 ids (10) + ≥5 cues.
-- Verified: `make check` green (ruff/eslint/mypy 165/tsc+vite/unittest 901, 2 skipped, validate-content 2).
-- Blockers: None. Next: QA seed item 2 — lint/type-noise cleanup (`app.py` asynccontextmanager annotation +
-  `tests/test_assets.py` unused loop vars).
-
-## 2026-07-07 (overnight, claude lane) — S3 early se_rin flag clamp (variant-routed opening)
-- Status: S3 of `docs/plans/2026-07-06-variant-routed-opening.md` implemented; `make check` **899** green (+9 tests).
-- Changed: `mythos_loop/validator.py` — `validate_scene_payload` strips `met/trusted/refused_se_rin` from
-  `world_delta.flags` when the loop is a variant loop (`_opening_variant` != "default") and
-  `scene.turn_index <= 3` (`SE_RIN_CLAMP_MAX_TURN`), via the existing `clamped_delta` soft-repair path — so
-  the strip propagates to state merge AND the recorded WorldEvent. Default/loop-1 byte-identical; turn 4+
-  passes through untouched.
-- Verified: `make check` green (ruff/eslint/mypy 164/tsc+vite/unittest 899, validate-content 2 scenarios).
-  `tests/test_serin_flag_clamp.py` ×9: validator strip/boundary/after-window/default-passthrough/non-contact
-  flags + engine-level state+event assertions + design-constant lock.
-- Blockers: None.
-- Next: S1-S3 `[auto:claude]` all done — S4 `[manual]` directive windows 0→3 + copy tone verdict (plan §4),
-  S5 `[auto:codex]` variant shots. Claude lane continues with the Overnight QA Seed items.

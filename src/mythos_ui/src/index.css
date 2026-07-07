@@ -33,7 +33,7 @@ body {
     repeating-linear-gradient(0deg,
       rgba(0, 255, 170, 0.05) 0, rgba(0, 255, 170, 0.05) 1px,
       transparent 1px, transparent 4px);
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* Header */
@@ -3545,7 +3545,7 @@ main#play.fx-glitch {
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
   background: rgba(2, 7, 6, 0.88);
   display: flex;
   align-items: center;

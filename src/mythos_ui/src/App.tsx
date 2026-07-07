@@ -375,6 +375,7 @@ export default function App() {
     beginStream,
     imageOpts,
     sendChoose,
+    pendingChoiceId,
   } = useNarrativeStream({
     finalizedSnapshot,
     withImage,
@@ -845,6 +846,7 @@ export default function App() {
                 kenBurnsActive={kenBurnsActive}
                 canvasRef={canvasRef}
                 onChoose={sendChoose}
+                pendingChoiceId={pendingChoiceId}
                 onLeaveSession={handleLeaveSession}
                 onSelectCombatTarget={setCombatTarget}
                 onCombatAction={handleCombatActionTutored}

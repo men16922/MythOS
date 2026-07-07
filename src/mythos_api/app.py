@@ -1111,6 +1111,12 @@ def create_app() -> FastAPI:
         try:
             while True:
                 message = await websocket.receive_json()
+                if message.get("event") == "ping":
+                    # Client keepalive (SPA sends one every ~20s) — answer
+                    # without entering the stream pipeline so idle sockets
+                    # survive proxy/infra idle timeouts (~45s drop observed).
+                    await websocket.send_json({"type": "pong"})
+                    continue
                 await _run_stream(websocket, service, storage, message)
         except WebSocketDisconnect:
             return

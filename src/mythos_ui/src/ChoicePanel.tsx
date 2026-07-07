@@ -9,6 +9,9 @@ interface ChoicePanelProps {
   tension: number;
   routeMap?: RouteMap | null;
   onChoose: (choiceId: string) => void;
+  // Choice optimistically in flight ("전송 중"): that card shows a sending
+  // badge and every card is disabled until the stream/error resolves it.
+  pendingChoiceId?: string | null;
 }
 
 function routeDestination(choice: SceneChoice, routeMap?: RouteMap | null): { node: RouteNode; index: number } | null {
@@ -44,12 +47,14 @@ const intentKey = (intent?: string): StringKey | null => {
   return null;
 };
 
-export function ChoicePanel({ choices, stability, tension, routeMap, onChoose }: ChoicePanelProps) {
+export function ChoicePanel({ choices, stability, tension, routeMap, onChoose, pendingChoiceId }: ChoicePanelProps) {
   const { t } = useLang();
+  const anyPending = pendingChoiceId != null;
   return (
     <div id="choices">
       {choices.map((choice, index) => {
-        const disabled = isChoiceDisabled(choice, stability, tension);
+        const isPending = pendingChoiceId === choice.choice_id;
+        const disabled = isChoiceDisabled(choice, stability, tension) || anyPending;
         const iKey = intentKey(choice.intent);
         const intentLabel = iKey ? t(iKey) : null;
         const destination = routeDestination(choice, routeMap);
@@ -57,12 +62,16 @@ export function ChoicePanel({ choices, stability, tension, routeMap, onChoose }:
         return (
           <button
             key={choice.choice_id}
-            className={`command-card${routeClass}`}
+            className={`command-card${routeClass}${isPending ? " choice-pending" : ""}`}
             disabled={disabled}
+            aria-busy={isPending || undefined}
             onClick={() => onChoose(choice.choice_id)}
-            style={disabled ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
+            style={disabled && !isPending ? { opacity: 0.5, cursor: "not-allowed" } : undefined}
           >
-            <div className="cmd-hotkey">{t("choice.pick")} {index + 1}</div>
+            <div className="cmd-hotkey">
+              {t("choice.pick")} {index + 1}
+              {isPending && <span className="cmd-chip choice-sending">{t("choice.sending")}</span>}
+            </div>
             <div className="cmd-label">
               {cleanChoiceLabel(choice.label)}
               {choiceCostLabel(choice, t)}

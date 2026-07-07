@@ -33,6 +33,8 @@ interface StoryPanelProps {
   kenBurnsActive: boolean;
   canvasRef: RefObject<HTMLCanvasElement | null>;
   onChoose: (choiceId: string) => void;
+  // Choice optimistically in flight (T2) — passed through to ChoicePanel.
+  pendingChoiceId?: string | null;
   onLeaveSession: () => void;
   onSelectCombatTarget: (targetId: string) => void;
   onCombatAction: (action: CombatAction) => void;
@@ -597,6 +599,7 @@ export function StoryPanel({
   kenBurnsActive,
   canvasRef,
   onChoose,
+  pendingChoiceId,
   onLeaveSession,
   onSelectCombatTarget,
   onCombatAction,
@@ -879,6 +882,7 @@ export function StoryPanel({
                   tension={snapshot?.tension ?? 0}
                   routeMap={routeMap}
                   onChoose={onChoose}
+                  pendingChoiceId={pendingChoiceId}
                 />
               </div>
             )}

@@ -275,6 +275,26 @@ main {
   opacity: 0.45;
   cursor: default;
 }
+/* T2 optimistic feedback: the clicked choice stays fully visible and pulses
+   while its send is in flight (siblings are disabled and dimmed as usual). */
+.command-card.choice-pending:disabled {
+  opacity: 1;
+  border-color: var(--term);
+  animation: choice-pending-pulse 1.1s ease-in-out infinite;
+}
+@keyframes choice-pending-pulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(41, 255, 198, 0.15); }
+  50% { box-shadow: 0 0 20px rgba(41, 255, 198, 0.4); }
+}
+.cmd-chip.choice-sending {
+  margin-left: 8px;
+  color: var(--term);
+  border: 1px solid rgba(41, 255, 198, 0.45);
+  border-radius: 4px;
+  padding: 1px 6px;
+  background: rgba(41, 255, 198, 0.12);
+  font-weight: 600;
+}
 .cmd-hotkey {
   color: var(--term-dim);
   font-size: 11px;

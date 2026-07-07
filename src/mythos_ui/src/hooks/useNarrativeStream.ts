@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import type { Dispatch, RefObject, SetStateAction } from "react";
 import type { NarrativeHistoryItem } from "../App";
 import type { RuntimeSnapshot, WebSocketMessage } from "../types";
@@ -78,6 +78,10 @@ export function useNarrativeStream(args: UseNarrativeStreamArgs) {
   // React state does not update synchronously, so two clicks in one event turn
   // can both observe isStreaming=false. This ref closes that gap immediately.
   const choiceInFlightRef = useRef(false);
+  // The choice optimistically marked "전송 중" the instant it was clicked —
+  // rendered as a spinner on that card with its siblings disabled, so a click
+  // on a dead socket still gives feedback (T2: no more triple-clicking).
+  const [pendingChoiceId, setPendingChoiceId] = useState<string | null>(null);
 
   // WebSocket connect + auto-reconnect lifecycle lives in `useGameSocket`; it
   // parses each inbound frame and hands it to `handleSocketMessage` (the type
@@ -88,6 +92,7 @@ export function useNarrativeStream(args: UseNarrativeStreamArgs) {
       narrationQueueRef.current += msg.content;
     } else if (msg.type === "snapshot" && msg.data) {
       choiceInFlightRef.current = false;
+      setPendingChoiceId(null);
       streamDoneRef.current = true;
       pendingSnapshotRef.current = msg.data;
       setStatus(DICTS[getLang()]["sess.sceneConfirmed"]);
@@ -96,6 +101,7 @@ export function useNarrativeStream(args: UseNarrativeStreamArgs) {
       onVisualStatus(msg);
     } else if (msg.type === "error") {
       choiceInFlightRef.current = false;
+      setPendingChoiceId(null);
       streamDoneRef.current = true;
       setIsStreaming(false);
       setStatus(DICTS[getLang()]["sess.error"] + (msg.detail || DICTS[getLang()]["sess.unknown"]));
@@ -103,7 +109,7 @@ export function useNarrativeStream(args: UseNarrativeStreamArgs) {
     }
   };
 
-  const { websocketRef, openSocket, closeSocket } = useGameSocket({
+  const { websocketRef, openSocket, ensureOpenSocket, closeSocket } = useGameSocket({
     onMessage: handleSocketMessage,
     logToConsole,
   });
@@ -142,31 +148,49 @@ export function useNarrativeStream(args: UseNarrativeStreamArgs) {
 
   const sendChoose = useCallback((choiceId: string) => {
     if (isStreaming || choiceInFlightRef.current) return;
-    if (!websocketRef.current || websocketRef.current.readyState !== WebSocket.OPEN) return;
     choiceInFlightRef.current = true;
+    setPendingChoiceId(choiceId);
     // Remember the chosen label so it can be recorded against the scene it was
     // taken in once that scene scrolls into history.
     const chosen = finalizedSnapshot?.active_scene?.choices?.find(
       (c) => c.choice_id === choiceId
     );
     pendingActionRef.current = chosen?.label ?? null;
-    // Keep previous image visible until the new one is generated asynchronously
-    clearVisualTimeout();
-    setImagePlaceholderText(DICTS[getLang()]["img.preparing"]);
-    beginStream(DICTS[getLang()]["sess.streamChoice"]);
-    websocketRef.current.send(
-      JSON.stringify({
-        event: "choose",
-        loop_id: loopId,
-        scene_id: finalizedSnapshot?.active_scene?.scene_id,
-        choice_id: choiceId,
-        scenario_id: selectedScenarioId,
-        fallback: fallbackMode,
-        lang: getLang(),
-        ...imageOpts(),
-      })
-    );
-  }, [beginStream, clearVisualTimeout, fallbackMode, finalizedSnapshot, imageOpts, isStreaming, loopId, pendingActionRef, selectedScenarioId, setImagePlaceholderText, websocketRef]);
+    const payload = JSON.stringify({
+      event: "choose",
+      loop_id: loopId,
+      scene_id: finalizedSnapshot?.active_scene?.scene_id,
+      choice_id: choiceId,
+      scenario_id: selectedScenarioId,
+      fallback: fallbackMode,
+      lang: getLang(),
+      ...imageOpts(),
+    });
+    const dispatch = (ws: WebSocket) => {
+      // Keep previous image visible until the new one is generated asynchronously
+      clearVisualTimeout();
+      setImagePlaceholderText(DICTS[getLang()]["img.preparing"]);
+      beginStream(DICTS[getLang()]["sess.streamChoice"]);
+      ws.send(payload);
+    };
+    const live = websocketRef.current;
+    if (live && live.readyState === WebSocket.OPEN) {
+      dispatch(live);
+      return;
+    }
+    // Dead/absent socket: the click stays visible as the pending card while we
+    // reconnect, then the choice is re-sent exactly once (the server treats a
+    // duplicate choose as "return current snapshot", so this cannot double-run).
+    setStatus(DICTS[getLang()]["sess.reconnecting"]);
+    ensureOpenSocket()
+      .then((ws) => dispatch(ws))
+      .catch(() => {
+        choiceInFlightRef.current = false;
+        setPendingChoiceId(null);
+        pendingActionRef.current = null;
+        setStatus(DICTS[getLang()]["sess.reconnectFail"]);
+      });
+  }, [beginStream, clearVisualTimeout, ensureOpenSocket, fallbackMode, finalizedSnapshot, imageOpts, isStreaming, loopId, pendingActionRef, selectedScenarioId, setImagePlaceholderText, setStatus, websocketRef]);
 
-  return { websocketRef, openSocket, closeSocket, beginStream, imageOpts, sendChoose };
+  return { websocketRef, openSocket, closeSocket, beginStream, imageOpts, sendChoose, pendingChoiceId };
 }

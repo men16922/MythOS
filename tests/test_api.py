@@ -527,6 +527,33 @@ class ApiStreamTest(unittest.TestCase):
                 advanced["data"]["active_scene"]["scene_id"],
             )
 
+    def test_ping_returns_pong_without_entering_stream(self) -> None:
+        with self.client.websocket_connect("/api/v1/loops/stream") as ws:
+            ws.send_json({"event": "ping"})
+            frame = ws.receive_json()
+            self.assertEqual(frame, {"type": "pong"})
+            # The socket must remain usable for gameplay after a keepalive.
+            ws.send_json({"event": "begin", "player_id": "player_ws", "fallback": True})
+            snapshot = _drain_to_snapshot(ws)
+            self.assertEqual(snapshot["type"], "snapshot")
+
+    def test_ping_between_turns_keeps_choose_working(self) -> None:
+        with self.client.websocket_connect("/api/v1/loops/stream") as ws:
+            ws.send_json({"event": "begin", "player_id": "player_ws", "fallback": True})
+            begin = _drain_to_snapshot(ws)
+            ws.send_json({"event": "ping"})
+            self.assertEqual(ws.receive_json(), {"type": "pong"})
+            ws.send_json(
+                {
+                    "event": "choose",
+                    "loop_id": begin["data"]["loop_id"],
+                    "choice_id": begin["data"]["active_scene"]["choices"][0]["choice_id"],
+                    "fallback": True,
+                }
+            )
+            advanced = _drain_to_snapshot(ws)
+            self.assertGreaterEqual(advanced["data"]["active_scene"]["turn_index"], 1)
+
     def test_unknown_event_returns_error(self) -> None:
         with self.client.websocket_connect("/api/v1/loops/stream") as ws:
             ws.send_json({"event": "nope"})

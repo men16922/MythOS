@@ -9,13 +9,18 @@ type UseGameSocketArgs = {
 };
 
 const MAX_RECONNECT_ATTEMPTS = 5;
+// Server/proxy idle timeouts drop the socket around ~45s of silence (long
+// image turns, reading pauses). A 20s ping keeps well under that window.
+const KEEPALIVE_INTERVAL_MS = 20_000;
 
 /**
  * Owns the gameplay WebSocket lifecycle: connect, parse inbound frames (handing
  * each to `onMessage`), and exponential-backoff auto-reconnect on unexpected
  * close. Exposes the live `websocketRef` for sending plus `openSocket`/
- * `closeSocket`. `closeSocket` marks the close explicit so the reconnect loop
- * stays quiet.
+ * `ensureOpenSocket`/`closeSocket`. Each open socket sends a `{"event":"ping"}`
+ * keepalive every 20s (the server answers `{"type":"pong"}`, swallowed here —
+ * transport-level, never reaches `onMessage`). `closeSocket` marks the close
+ * explicit so the reconnect loop stays quiet.
  */
 export function useGameSocket({ onMessage, logToConsole }: UseGameSocketArgs) {
   const websocketRef = useRef<WebSocket | null>(null);
@@ -30,16 +35,23 @@ export function useGameSocket({ onMessage, logToConsole }: UseGameSocketArgs) {
       logToConsole("WS 소켓 연결 시도: " + url);
       const ws = new WebSocket(url);
       websocketRef.current = ws;
+      let keepalive: ReturnType<typeof setInterval> | null = null;
 
       ws.onopen = () => {
         logToConsole("WS 소켓 연결 완료.");
         reconnectAttemptsRef.current = 0; // Reset reconnection attempts on success
+        keepalive = setInterval(() => {
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ event: "ping" }));
+          }
+        }, KEEPALIVE_INTERVAL_MS);
         resolve(ws);
       };
 
       ws.onmessage = (event) => {
         try {
           const msg = JSON.parse(event.data) as WebSocketMessage;
+          if (msg.type === "pong") return; // keepalive answer, transport-level
           onMessage(msg);
         } catch (e) {
           logToConsole("WS 수신 패킷 파싱 실패: " + (e as Error).message);
@@ -52,6 +64,13 @@ export function useGameSocket({ onMessage, logToConsole }: UseGameSocketArgs) {
       };
 
       ws.onclose = () => {
+        if (keepalive) {
+          clearInterval(keepalive);
+          keepalive = null;
+        }
+        // A newer socket may already have superseded this one (explicit
+        // reconnect via ensureOpenSocket) — don't null it out or re-reconnect.
+        if (websocketRef.current !== ws) return;
         logToConsole("WS 연결 종료.");
         websocketRef.current = null;
 
@@ -74,6 +93,30 @@ export function useGameSocket({ onMessage, logToConsole }: UseGameSocketArgs) {
     });
   };
 
+  // Resolve with an OPEN socket: the current one if live, otherwise cancel any
+  // pending backoff timer and reconnect immediately (a click should not wait
+  // out the backoff). The superseded socket is closed; its onclose is inert
+  // thanks to the identity guard above.
+  const ensureOpenSocket = (): Promise<WebSocket> => {
+    const current = websocketRef.current;
+    if (current && current.readyState === WebSocket.OPEN) {
+      return Promise.resolve(current);
+    }
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+    if (current) {
+      websocketRef.current = null;
+      try {
+        current.close();
+      } catch {
+        /* already dead */
+      }
+    }
+    return openSocket();
+  };
+
   const closeSocket = () => {
     isExplicitCloseRef.current = true;
     if (reconnectTimeoutRef.current) {
@@ -90,5 +133,5 @@ export function useGameSocket({ onMessage, logToConsole }: UseGameSocketArgs) {
     }
   };
 
-  return { websocketRef, openSocket, closeSocket };
+  return { websocketRef, openSocket, ensureOpenSocket, closeSocket };
 }

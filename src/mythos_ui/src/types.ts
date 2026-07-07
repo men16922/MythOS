@@ -617,7 +617,7 @@ export interface MemoryOverview {
 }
 
 export interface WebSocketMessage {
-  type: "token" | "snapshot" | "visual_status" | "error";
+  type: "token" | "snapshot" | "visual_status" | "error" | "pong";
   content?: string;
   data?: RuntimeSnapshot;
   detail?: string;

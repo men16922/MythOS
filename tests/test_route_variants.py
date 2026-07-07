@@ -37,9 +37,9 @@ VARIANT_OVERRIDE: dict[str, Any] = {
 def _config() -> dict[str, Any]:
     return {
         "node_types": {
-            "story": {"label": "이야기", "glyph": "S"},
-            "event": {"label": "사건", "glyph": "E"},
-            "boss": {"label": "보스", "glyph": "B", "combat": True},
+            "story": {"label": "이야기", "description": "이야기 분기", "glyph": "S"},
+            "event": {"label": "사건", "description": "예상 밖 사건", "glyph": "E"},
+            "boss": {"label": "보스", "description": "최종 충돌", "glyph": "B", "combat": True},
         },
         "layers": [
             {

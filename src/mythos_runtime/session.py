@@ -3420,6 +3420,9 @@ _ROUTE_TYPE_MEANING = {
 
 
 def _route_destination_meaning(node: dict[str, Any]) -> str:
+    description = str(node.get("description") or "").strip()
+    if description:
+        return description
     node_type = str(node.get("type") or "")
     return _ROUTE_TYPE_MEANING.get(node_type) or str(node.get("label") or "다음 지점")
 

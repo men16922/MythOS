@@ -43,11 +43,11 @@ class LocalizeTest(unittest.TestCase):
         # the embedded route title / value axis (which are exact glossary keys).
         payload = {
             "stakes_summary": ["현재 지점: 추락과 첫 신뢰"],
-            "choice_stakes": ["가치축: 시민/관계"],
+            "choice_stakes": ["가치축: 사람 돕기"],
         }
         out = localize_for(payload, "neo-seoul", "en")
         self.assertEqual(out["stakes_summary"][0], "Current point: The Fall and First Trust")
-        self.assertEqual(out["choice_stakes"][0], "Value axis: People/Relations")
+        self.assertEqual(out["choice_stakes"][0], "Value axis: Help people")
 
     def test_route_choice_labels_fully_english(self) -> None:
         # Route junction choices are composed in session.py as
@@ -56,24 +56,24 @@ class LocalizeTest(unittest.TestCase):
         # so an EN-mode choice has no residual Hangul.
         payload = {
             "choices": [
-                {"label": "흔들리는 선택(으)로 향한다 — 예기치 못한 사건이 벌어지는 곳 · 위험 1"},
-                {"label": "한강 야시장(으)로 향한다 — 보급·거래로 장비를 갖추는 곳 · 위험 1 · 안정 +4"},
-                {"label": "유출된 로그(으)로 향한다 — 단서를 캐내 진실에 다가가는 곳 · 위험 1 · 통찰 +1"},
+                {"label": "흔들리는 선택(으)로 향한다 — 예상 밖의 부탁이나 변수가 생깁니다. · 위험 1"},
+                {"label": "한강 야시장(으)로 향한다 — 보급과 거래로 장비를 정비합니다. · 위험 1 · 안정 +4"},
+                {"label": "유출된 로그(으)로 향한다 — 기록과 단서를 찾아 진실에 가까워집니다. · 위험 1 · 통찰 +1"},
             ]
         }
         out = localize_for(payload, "neo-seoul", "en")
         labels = [c["label"] for c in out["choices"]]
         self.assertEqual(
-            labels[0], "Wavering Choice — a place where unexpected events unfold · Risk 1"
+            labels[0], "Wavering Choice — An unexpected request or complication appears. · Risk 1"
         )
         self.assertEqual(
             labels[1],
-            "Han River Night Market — a place to gear up through supplies and trade · "
+            "Han River Night Market — Refit through supplies and trade. · "
             "Risk 1 · Stability +4",
         )
         self.assertEqual(
             labels[2],
-            "Leaked Log — a place to dig up clues and close in on the truth · "
+            "Leaked Log — Search records and clues to get closer to the truth. · "
             "Risk 1 · Insight +1",
         )
         for label in labels:

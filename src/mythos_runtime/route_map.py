@@ -256,6 +256,7 @@ def _build_node(
         "arc": arc,
         "title": str(spec.get("title", title)),
         "label": str(type_spec.get("label", node_type)),
+        "description": str(spec.get("description") or type_spec.get("description") or ""),
         "glyph": str(type_spec.get("glyph", "?")),
         "risk": int(spec.get("risk", type_spec.get("risk", 0))),
         "reward": dict(reward or {}),

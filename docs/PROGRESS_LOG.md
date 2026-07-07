@@ -5,6 +5,8 @@ Last updated: 2026-07-08
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-08 (overnight, codex lane) — T3b/T4 plain-copy pass
+- Status: Done; route node-type descriptions now feed junction labels + validator, axis labels/previews and archetype play hints simplified KO/EN; verified `make check` green (912 tests, 2 skipped). Blockers: none. Next: T4a `[auto:claude]`, T5/T6 `[manual]`.
 ## 2026-07-08 (overnight, claude lane) — T3a narrative↔choice contract note (P1.5 CBT feedback #3)
 - Status: P1.5 T3a done; `make check` **911** green (+3 tests). Addresses prose that promises a fork the
   choices never offer ("왼쪽은 지하철 폐노선, 오른쪽은 린위에의 선착장" with neither option rendered).

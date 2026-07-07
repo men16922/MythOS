@@ -2,6 +2,7 @@ export interface ScenarioArchetype {
   id: string;
   name: string;
   attributes: string[];
+  play_hint?: string;
   starting_item?: string;
   stats?: Record<string, number>;
   base_skills?: string[];

@@ -45,7 +45,7 @@ def load_glossary(scenario_id: str, language: str) -> dict[str, str]:
 def _glossary_substrings(scenario_id: str, language: str) -> tuple[tuple[str, str], ...]:
     """Glossary entries usable as **substring** replacements (longest key first), for
     composed strings that embed a glossary term inside variable text (e.g. the route
-    title in ``"현재 지점: 추락과 첫 신뢰"`` or the value axis in ``"가치축: 시민/관계"``).
+    title in ``"현재 지점: 추락과 첫 신뢰"`` or the value axis in ``"가치축: 사람 돕기"``).
     Applied only to strings that still contain Hangul after exact-match + phrases, so
     already-English strings are never touched. Keys below ``_GLOSS_SUBSTR_MIN_LEN`` are
     excluded so a short common token can't mis-replace inside a longer string."""

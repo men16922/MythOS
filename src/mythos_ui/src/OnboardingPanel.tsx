@@ -112,6 +112,9 @@ export function OnboardingPanel({
               <div className="arch-attrs">
                 {(archetype.attributes || []).join(" ")}
               </div>
+              {archetype.play_hint && (
+                <div className="arch-item">{archetype.play_hint}</div>
+              )}
               {archetype.starting_item && (
                 <div className="arch-item">{t("ob.item")} · {archetype.starting_item}</div>
               )}

@@ -240,6 +240,7 @@ class ApiScenariosTest(unittest.TestCase):
         self.assertTrue(neo["name"])
         self.assertTrue(neo["archetypes"])
         self.assertTrue(neo["archetypes"][0]["name"])
+        self.assertTrue(neo["archetypes"][0]["play_hint"])
         self.assertIn("endings", neo)
 
     def test_scenarios_lang_en_localizes_prose(self) -> None:
@@ -270,7 +271,9 @@ class ApiScenariosTest(unittest.TestCase):
         self.assertNotRegex(en_neo["name"], hangul)
         en_ghost = next(a for a in en_neo["archetypes"] if a["id"] == "ghost")
         self.assertEqual(en_ghost["name"], "Ghost")
+        self.assertEqual(en_ghost["play_hint"], "Pick this if you want evasive movement and clue hunting.")
         self.assertNotRegex(" ".join(en_ghost["attributes"]), hangul)
+        self.assertNotRegex(str(en_ghost["play_hint"]), hangul)
         self.assertNotRegex(str(en_ghost["starting_item"]), hangul)
         # Archetype ids stay identical across languages (combat join keys unchanged).
         self.assertEqual(

@@ -31,6 +31,10 @@ class RouteContentContractTest(unittest.TestCase):
         self.route_map["layers"][1]["anchors"].append(duplicate)
         self.assertIn("beat_duplicate", self._codes(self.route_map))
 
+    def test_node_type_description_is_required(self) -> None:
+        self.route_map["node_types"]["market"]["description"] = ""
+        self.assertIn("node_type_description_missing", self._codes(self.route_map))
+
     def test_bad_default_perspective_is_rejected(self) -> None:
         self.route_map["layers"][0]["anchors"][0]["default_perspective"] = "missing"
         self.assertIn("default_perspective_missing", self._codes(self.route_map))

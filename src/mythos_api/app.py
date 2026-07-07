@@ -516,6 +516,10 @@ def create_app() -> FastAPI:
                             or a.get("name"),
                             "attributes": (arche_l10n.get(str(a.get("id"))) or {}).get("attributes")
                             or a.get("attributes", []),
+                            "play_hint": (arche_l10n.get(str(a.get("id"))) or {}).get(
+                                "play_hint"
+                            )
+                            or a.get("play_hint", ""),
                             "starting_item": (arche_l10n.get(str(a.get("id"))) or {}).get(
                                 "starting_item"
                             )

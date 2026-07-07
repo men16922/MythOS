@@ -78,7 +78,7 @@ Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop co
   '전송 중' pending(형제 비활성, 재접속 후 1회 재전송 — 서버 멱등). `make check` 908 green; AGY auto-screen post-commit.
 - `[x]` `[auto:claude]` **T3a narrative↔choice contract note (DONE 2026-07-08 overnight)**: `CHOICE_MIRROR_RULE` KO/EN
   stable-head GM note (모든 서사 경로 공용) + `T3aChoiceMirrorRuleTest` ×3 unit lock. `make check` 911 green.
-- `[ ]` `[auto:codex]` **T3b/T4 route-destination + axis + archetype plain-copy pass** (목적지 1줄 WHAT-IS-THIS 전수 +
+- `[x]` `[auto:codex]` **T3b/T4 route-destination + axis + archetype plain-copy pass (DONE 2026-07-08 overnight)** (목적지 1줄 WHAT-IS-THIS 전수 +
   가치축 쉬운 말 + 캐선창 play-first 1줄, KO/EN; validator: route 목적지 desc 비어있으면 red). Done = `make check` green.
 - `[ ]` `[auto:claude]` **T4a axis tooltip + 1회 legend overlay + Codex-term links** (glossary 기반, 신규 저작 없음).
   Done = `make check` green + AGY not FAIL/NEEDS.

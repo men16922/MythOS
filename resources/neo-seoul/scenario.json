@@ -114,6 +114,7 @@
     {
       "id": "ghost",
       "name": "비접속자 (Ghost)",
+      "play_hint": "빠르게 피하고 단서를 줍는 플레이.",
       "stats": {
         "strength": 3,
         "intelligence": 6,
@@ -134,6 +135,7 @@
     {
       "id": "data_smuggler",
       "name": "데이터 밀수꾼 (Data Smuggler)",
+      "play_hint": "장비와 해킹으로 길을 여는 플레이.",
       "stats": {
         "strength": 5,
         "intelligence": 8,
@@ -158,6 +160,7 @@
     {
       "id": "echo_collector",
       "name": "잔향 수집가 (Echo Collector)",
+      "play_hint": "대화와 회복으로 사람을 붙잡는 플레이.",
       "stats": {
         "strength": 2,
         "intelligence": 5,
@@ -493,6 +496,7 @@
     "node_types": {
       "story": {
         "label": "주요 장면",
+        "description": "이야기가 크게 갈라지는 장면입니다.",
         "glyph": "◆",
         "risk": 0,
         "combat": false,
@@ -507,6 +511,7 @@
       },
       "clue": {
         "label": "단서",
+        "description": "기록과 단서를 찾아 진실에 가까워집니다.",
         "glyph": "❖",
         "risk": 1,
         "combat": false,
@@ -526,6 +531,7 @@
       },
       "combat": {
         "label": "전투",
+        "description": "싸움을 피하기 어렵지만 보상이 큰 길입니다.",
         "glyph": "⚔",
         "risk": 3,
         "combat": true,
@@ -545,6 +551,7 @@
       },
       "patrol": {
         "label": "순찰",
+        "description": "감시를 피해 조용히 지나가는 길입니다.",
         "glyph": "◎",
         "risk": 2,
         "combat": true,
@@ -563,6 +570,7 @@
       },
       "market": {
         "label": "시장",
+        "description": "보급과 거래로 장비를 정비합니다.",
         "glyph": "▣",
         "risk": 1,
         "combat": false,
@@ -582,6 +590,7 @@
       },
       "rest": {
         "label": "정비",
+        "description": "회복하고 다음 위험에 대비합니다.",
         "glyph": "✚",
         "risk": 0,
         "combat": false,
@@ -601,6 +610,7 @@
       },
       "event": {
         "label": "사건",
+        "description": "예상 밖의 부탁이나 변수가 생깁니다.",
         "glyph": "✦",
         "risk": 1,
         "combat": false,
@@ -617,6 +627,7 @@
       },
       "boss": {
         "label": "대면",
+        "description": "지금까지의 선택이 모이는 큰 충돌입니다.",
         "glyph": "❒",
         "risk": 5,
         "combat": true,

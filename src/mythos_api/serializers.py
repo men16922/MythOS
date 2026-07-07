@@ -91,10 +91,10 @@ def _calculate_zone_risk(location_id: str, turn_index: int) -> str:
 
 
 _CHOICE_AXIS_LABELS = {
-    "people": "시민/관계",
-    "data": "증거/진실",
-    "safety": "안전/은신",
-    "control": "통제/돌파",
+    "people": "사람 돕기",
+    "data": "단서 찾기",
+    "safety": "안전하게 가기",
+    "control": "밀고 나가기",
 }
 
 
@@ -157,10 +157,10 @@ def _choice_stakes(choice_data: dict[str, Any], axis_label: str) -> list[str]:
 
 def _choice_preview(axis: str) -> str:
     previews = {
-        "people": "관계와 시민 안전 쪽 결과가 커집니다.",
-        "data": "단서, 기록, 진실 규명 쪽 결과가 커집니다.",
-        "safety": "생존, 은신, 재정비 쪽 결과가 커집니다.",
-        "control": "충돌, 돌파, 시스템 통제 쪽 결과가 커집니다.",
+        "people": "누군가를 살리거나 신뢰를 얻는 쪽입니다.",
+        "data": "단서와 기록을 더 얻는 쪽입니다.",
+        "safety": "위험을 줄이고 버티는 쪽입니다.",
+        "control": "막힌 길을 힘으로 여는 쪽입니다.",
     }
     return previews.get(axis, "다음 장면의 우선순위를 바꿉니다.")
 

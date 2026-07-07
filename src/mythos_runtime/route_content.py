@@ -143,6 +143,21 @@ def validate_route_content(route_map: Any) -> list[RouteContentIssue]:
         return [RouteContentIssue("layers_invalid", "route_map.layers", "expected a list")]
 
     issues: list[RouteContentIssue] = []
+    node_types = route_map.get("node_types") or {}
+    if isinstance(node_types, dict):
+        for node_type, spec in sorted(node_types.items()):
+            path = f"route_map.node_types[{node_type!r}].description"
+            if not isinstance(spec, dict):
+                continue
+            description = spec.get("description")
+            if not (isinstance(description, str) and description.strip()):
+                issues.append(
+                    RouteContentIssue(
+                        "node_type_description_missing",
+                        path,
+                        "node type needs a one-line player-facing destination description",
+                    )
+                )
     seen_beats: dict[str, str] = {}
     # Narrative flags may select a perspective, but only engine or reachable
     # authored effects may satisfy a hard route gate.

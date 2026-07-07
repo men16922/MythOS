@@ -80,6 +80,11 @@
           "kicker": "SHOT 02 // UNDERFLOW",
           "title": "A waterway opens beneath the shutter",
           "body": "The steel door cuts away the last red light. Fingers brace against wet concrete as you duck into the storm drain, beyond the patrol's reach."
+        },
+        {
+          "kicker": "SHOT 03 // PRICE OF TRUST",
+          "title": "The shortcut turns deeper into the dark",
+          "body": "The silhouette ahead vanishes around the bend. Only a cyan mark remains on the wet wall, while a red patrol light skims the shutter behind you."
         }
       ]
     },
@@ -103,6 +108,11 @@
           "kicker": "SHOT 02 // SECOND PULSE",
           "title": "The coordinates receive a second signal",
           "body": "As you compare the fragment, a cyan waveform rolls across the device in your hands. The sender stays silent while red searchlights close in."
+        },
+        {
+          "kicker": "SHOT 03 // UNLOCKED DOOR",
+          "title": "A locked service door opens",
+          "body": "The device cuts a beam through the rain and touches the lock beside the door. It opens without a sound; the sender still never shows their face."
         }
       ]
     },
@@ -126,6 +136,11 @@
           "kicker": "SHOT 02 // SILENCE",
           "title": "The merchant falls silent at the seal",
           "body": "The gilt mark catches the stall light, and the merchant's face hardens. A tarp closes halfway instead of an answer; the silence proves the commission's weight."
+        },
+        {
+          "kicker": "SHOT 03 // BRIDGE LINE",
+          "title": "The crowd parts toward the bridge",
+          "body": "The market current quietly gives way around the note in your hand. Through rain and tarp-shadow, the midnight bridge is the one straight line left."
         }
       ]
     },
@@ -149,6 +164,11 @@
           "kicker": "SHOT 02 // SHIFT",
           "title": "The blind spot slips one lane aside",
           "body": "A red search cone turns sooner than expected. You stop with one hand on the wall as the cyan ping marks a new path across the street — a test, not trust."
+        },
+        {
+          "kicker": "SHOT 03 // GHOST ROUTE",
+          "title": "The ping stitches the blind spots together",
+          "body": "While the cameras sweep different targets, cyan points skip across the wet pavement. A red search cone closes the path one beat too late behind you."
         }
       ]
     },
@@ -172,6 +192,11 @@
           "kicker": "SHOT 02 // INSIDE LINE",
           "title": "The eyes inside the barricade",
           "body": "Behind the wet scrap line, the displaced hold their breath. A child looks up again from behind the broad back while the patrol light outside fails to cross their boundary."
+        },
+        {
+          "kicker": "SHOT 03 // HELD LINE",
+          "title": "A broad hand holds the moment open",
+          "body": "The huge silhouette lowers one palm in a stop-and-go signal. Past the narrow gap behind him, breath and warm light let you through before the patrol can."
         }
       ]
     },
@@ -195,6 +220,11 @@
           "kicker": "SHOT 02 // FIRST DECISION",
           "title": "This time, you choose the way",
           "body": "You push upright against the wall. Linking one empty lane between red searchlights ends the waiting; for the first time, your own judgment moves the loop."
+        },
+        {
+          "kicker": "SHOT 03 // NO HEADLIGHT",
+          "title": "The empty alley answers",
+          "body": "A wet hand pushes off the pavement. The headlight that should arrive never does; only the gap between red searchlights becomes this loop's first choice."
         }
       ]
     }

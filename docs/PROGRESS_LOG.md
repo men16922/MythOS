@@ -5,6 +5,12 @@ Last updated: 2026-07-08
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-08 (overnight, codex lane) — Variant intro SHOT 03 ×6
+- Status: Done; six Loop 2+ variant boot intros now have third cinematic shots.
+- Changed: generated/promoted `opening-{han,kai,lin_yue,su_ah,tae_o,solo}-03.png`; appended anchor `image_sequence`, KO `cinematic_shots`, and text-only EN overlays; tightened intro invariants for SHOT 03.
+- Verified: visual read-back of all six generated images; JSON parse clean; `tests.test_opening_variant_intro` 4/4; `$GATE_CMD` (`make check`) green (912 tests, 2 skipped, validate-content 2).
+- Blockers: none. Next: human in-game feel review of the variant intros/cuts; codex lane has no further open item above manual work.
+
 ## 2026-07-08 (overnight, codex lane) — T3b/T4 plain-copy pass
 - Status: Done; route node-type descriptions now feed junction labels + validator, axis labels/previews and archetype play hints simplified KO/EN; verified `make check` green (912 tests, 2 skipped). Blockers: none. Next: T4a `[auto:claude]`, T5/T6 `[manual]`.
 ## 2026-07-08 (overnight, claude lane) — T3a narrative↔choice contract note (P1.5 CBT feedback #3)
@@ -103,18 +109,3 @@ This file keeps **only recent incremental summaries within the 120-line budget**
 - Blockers: None.
 - Next: S1-S3 `[auto:claude]` all done — S4 `[manual]` directive windows 0→3 + copy tone verdict (plan §4),
   S5 `[auto:codex]` variant shots. Claude lane continues with the Overnight QA Seed items.
-
-## 2026-07-07 (overnight, claude lane) — S2 chapter-gate variant goal (variant-routed opening)
-- Status: S2 of `docs/plans/2026-07-06-variant-routed-opening.md` implemented; `make check` **890** green (+10 tests).
-- Changed: `serializers._chapter_goal` — on a variant loop (`state["_opening_variant"]` != "default") a gate's
-  optional `player_goal_variants: {<vid>: str}` overrides `player_goal`; missing map/entry/blank/non-string
-  falls back to the shared copy (loop-1 byte-identical; explore+ gates converge by design, resolution is
-  per-gate). Mechanism only — no scenario ships `player_goal_variants` yet; KO copy lands with the S4 tone
-  verdict (drafts in plan §4).
-- Verified: `make check` green (ruff/eslint/mypy 163/tsc+vite/unittest 890, validate-content 2 scenarios).
-  `tests/test_chapter_goal_variants.py` ×8 (override/default/unmapped/blank/malformed/per-gate/real-scenario
-  dormant invariant). `tests/test_route_meaning_and_goals.py` +2: content guard — `player_goal_variants` keys
-  must be authored opening variants + non-empty values (`_variant_goal_violations`), with a guard-the-guard
-  self-test since the scan is vacuous until S4 copy lands.
-- Blockers: None.
-- Next: S3 early se_rin flag clamp (`[auto:claude]`), then S4 `[manual]` directive/copy tone.

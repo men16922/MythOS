@@ -681,7 +681,8 @@
                 "image_pre": null,
                 "image_sequence": [
                   "opening/opening-han.png",
-                  "opening/opening-han-02.png"
+                  "opening/opening-han-02.png",
+                  "opening/opening-han-03.png"
                 ],
                 "event": "reentry_han",
                 "summary": "이름 없는 사내의 지름길을 믿는다. 호의의 값은 아직 청구되지 않았다."
@@ -693,7 +694,8 @@
                 "image_pre": null,
                 "image_sequence": [
                   "opening/opening-kai.png",
-                  "opening/opening-kai-02.png"
+                  "opening/opening-kai-02.png",
+                  "opening/opening-kai-03.png"
                 ],
                 "event": "reentry_kai",
                 "summary": "관리망에 없는 좌표를 따라간다. 문을 열어 둔 손은 아직 보이지 않는다."
@@ -705,7 +707,8 @@
                 "image_pre": null,
                 "image_sequence": [
                   "opening/opening-lin_yue.png",
-                  "opening/opening-lin_yue-02.png"
+                  "opening/opening-lin_yue-02.png",
+                  "opening/opening-lin_yue-03.png"
                 ],
                 "event": "reentry_lin_yue",
                 "summary": "젖은 쪽지의 금박 인장을 챙긴다. 자정의 다리가 이번 루프의 첫 약속이 된다."
@@ -717,7 +720,8 @@
                 "image_pre": null,
                 "image_sequence": [
                   "opening/opening-su_ah.png",
-                  "opening/opening-su_ah-02.png"
+                  "opening/opening-su_ah-02.png",
+                  "opening/opening-su_ah-03.png"
                 ],
                 "event": "reentry_su_ah",
                 "summary": "누군가 비워 준 사각을 따라 움직인다. 감시망 안에서, 감시받지 않는 길."
@@ -729,7 +733,8 @@
                 "image_pre": null,
                 "image_sequence": [
                   "opening/opening-tae_o.png",
-                  "opening/opening-tae_o-02.png"
+                  "opening/opening-tae_o-02.png",
+                  "opening/opening-tae_o-03.png"
                 ],
                 "event": "reentry_tae_o",
                 "summary": "수신호가 가리킨 쪽으로 몸을 낮춘다. 바리케이드 너머의 침묵이 당신을 통과시킨다."
@@ -741,7 +746,8 @@
                 "image_pre": null,
                 "image_sequence": [
                   "opening/opening-solo.png",
-                  "opening/opening-solo-02.png"
+                  "opening/opening-solo-02.png",
+                  "opening/opening-solo-03.png"
                 ],
                 "event": "reentry_solo",
                 "summary": "아무도 오지 않는 골목에서 스스로 일어선다. 이번 루프의 첫 손은 자신의 것이다."
@@ -1838,6 +1844,12 @@
             "kicker": "SHOT 02 // UNDERFLOW",
             "title": "셔터 아래, 물길이 열린다",
             "body": "철문이 마지막 붉은 빛을 잘라 낸다. 손끝으로 젖은 콘크리트를 짚고, 순찰 소리가 닿지 않는 배수로의 어둠 속으로 몸을 낮춘다."
+          },
+          {
+            "image": "opening/opening-han-03.png",
+            "kicker": "SHOT 03 // PRICE OF TRUST",
+            "title": "지름길은 더 깊은 어둠으로 꺾인다",
+            "body": "앞서가던 실루엣이 모퉁이 뒤로 사라진다. 젖은 벽의 푸른 표식만 남아 있고, 뒤쪽 셔터 위로 붉은 순찰광이 늦게 스친다."
           }
         ]
       },
@@ -1864,6 +1876,12 @@
             "kicker": "SHOT 02 // SECOND PULSE",
             "title": "좌표가 두 번째 신호를 받는다",
             "body": "기억한 좌표를 대조하는 순간, 손안의 단말에 푸른 파형이 한 번 더 번진다. 발신자는 침묵하고 붉은 수색등만 거리를 좁힌다."
+          },
+          {
+            "image": "opening/opening-kai-03.png",
+            "kicker": "SHOT 03 // UNLOCKED DOOR",
+            "title": "잠겨 있던 서비스 도어가 열린다",
+            "body": "단말의 빛이 빗속을 가르며 문 옆 잠금 장치에 닿는다. 문은 소리 없이 열리고, 발신자는 끝내 모습을 보이지 않는다."
           }
         ]
       },
@@ -1890,6 +1908,12 @@
             "kicker": "SHOT 02 // SILENCE",
             "title": "인장을 본 상인이 입을 닫는다",
             "body": "쪽지의 금박이 등불 아래 드러나자 상인의 표정이 굳는다. 대답 대신 방수포가 반쯤 닫히고, 그 침묵만이 의뢰의 무게를 증명한다."
+          },
+          {
+            "image": "opening/opening-lin_yue-03.png",
+            "kicker": "SHOT 03 // BRIDGE LINE",
+            "title": "사람들이 갈라지고 다리가 보인다",
+            "body": "손안의 쪽지를 따라 시장의 흐름이 조용히 비켜 선다. 비에 흐린 한강 다리 쪽으로, 자정의 약속만 곧게 남는다."
           }
         ]
       },
@@ -1916,6 +1940,12 @@
             "kicker": "SHOT 02 // SHIFT",
             "title": "비워진 사각이 한 칸 어긋난다",
             "body": "붉은 수색선이 예상보다 먼저 꺾인다. 벽에 손을 짚고 멈춘 순간, 푸른 핑이 건너편에 새 통로를 찍는다 — 신뢰가 아니라 시험이다."
+          },
+          {
+            "image": "opening/opening-su_ah-03.png",
+            "kicker": "SHOT 03 // GHOST ROUTE",
+            "title": "핑이 사각의 순서를 잇는다",
+            "body": "감시 카메라들이 서로 다른 곳을 훑는 틈, 푸른 점들이 젖은 바닥 위로 튄다. 한 박자 늦은 붉은 수색선이 뒤에서 길을 닫는다."
           }
         ]
       },
@@ -1942,6 +1972,12 @@
             "kicker": "SHOT 02 // INSIDE LINE",
             "title": "바리케이드 안쪽의 시선들",
             "body": "젖은 고철선 안에는 밀려난 사람들이 숨을 죽이고 있다. 커다란 등 뒤에서 아이가 다시 고개를 들고, 바깥의 순찰광은 그 선을 넘지 못한다."
+          },
+          {
+            "image": "opening/opening-tae_o-03.png",
+            "kicker": "SHOT 03 // HELD LINE",
+            "title": "큰 손이 통과할 순간을 막아 준다",
+            "body": "커다란 실루엣이 손바닥을 낮게 세운다. 그 뒤로 열린 좁은 틈 사이, 사람들의 숨결과 따뜻한 불빛이 먼저 당신을 들인다."
           }
         ]
       },
@@ -1968,6 +2004,12 @@
             "kicker": "SHOT 02 // FIRST DECISION",
             "title": "이번엔 스스로 길을 고른다",
             "body": "벽을 짚고 몸을 일으킨다. 붉은 수색등 사이로 비어 있는 한 줄을 잇자, 기다림은 끝나고 처음으로 자신의 판단이 루프를 움직인다."
+          },
+          {
+            "image": "opening/opening-solo-03.png",
+            "kicker": "SHOT 03 // NO HEADLIGHT",
+            "title": "비어 있는 골목이 대답한다",
+            "body": "젖은 손이 바닥을 밀어낸다. 와야 할 헤드라이트는 끝내 없고, 붉은 수색등 사이의 빈틈만이 이번 루프의 첫 선택이 된다."
           }
         ]
       }

@@ -11,7 +11,7 @@ PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
 class OpeningVariantIntroTest(unittest.TestCase):
     """B2 variant openings own a per-variant session intro (boot cinematic).
 
-    Every authored opening variant must ship a KO intro block with at least two
+    Every authored opening variant must ship a KO intro block with at least three
     cinematic shots whose images really exist (the SPA keys the intro carousel off
     ``ui_copy.session_intro_variants[<variant>]``), plus an EN i18n overlay so EN
     sessions don't fall back to Korean copy.
@@ -33,8 +33,8 @@ class OpeningVariantIntroTest(unittest.TestCase):
                 self.assertTrue(entry.get(field), f"variant '{variant}' intro missing {field}")
             shots = entry.get("cinematic_shots") or []
             self.assertTrue(
-                isinstance(shots, list) and len(shots) >= 2,
-                f"variant '{variant}' intro has fewer than two cinematic shots",
+                isinstance(shots, list) and len(shots) >= 3,
+                f"variant '{variant}' intro has fewer than three cinematic shots",
             )
             self.assertEqual(
                 shots[1].get("image"),
@@ -44,6 +44,15 @@ class OpeningVariantIntroTest(unittest.TestCase):
             self.assertTrue(
                 str(shots[1].get("kicker", "")).startswith("SHOT 02 //"),
                 f"variant '{variant}' SHOT 02 kicker drifted",
+            )
+            self.assertEqual(
+                shots[2].get("image"),
+                f"opening/opening-{variant}-03.png",
+                f"variant '{variant}' SHOT 03 image path drifted",
+            )
+            self.assertTrue(
+                str(shots[2].get("kicker", "")).startswith("SHOT 03 //"),
+                f"variant '{variant}' SHOT 03 kicker drifted",
             )
             for shot in shots:
                 image_rel = shot.get("image")
@@ -67,8 +76,8 @@ class OpeningVariantIntroTest(unittest.TestCase):
             self.assertTrue(entry.get("title"), f"variant '{variant}' EN overlay missing title")
             shots = entry.get("cinematic_shots") or []
             self.assertTrue(
-                isinstance(shots, list) and len(shots) >= 2,
-                f"variant '{variant}' EN overlay has fewer than two shots",
+                isinstance(shots, list) and len(shots) >= 3,
+                f"variant '{variant}' EN overlay has fewer than three shots",
             )
             for shot in shots:
                 # EN shots are text-only; an image key here would clobber the

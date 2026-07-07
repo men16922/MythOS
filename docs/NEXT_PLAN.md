@@ -21,8 +21,8 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. Cloud Run rev `00019-jf6` serves
   - `[x]` **P1-B replay variety (DONE 2026-07-05; variant art ×6 + boot intro 07-06)** — detail archive. Remaining:
     `[x]` `[auto:codex]` **variant intro shot 02 ×6 (DONE 2026-07-07 overnight)** (opening style spec + each
     variant's directive beat; appended to `session_intro_variants[v].cinematic_shots` + EN overlay; `make check` 901 green).
-    `[ ]` `[auto:codex]` **variant intro shot 03 ×6** (same spec + criterion as shot 02). Unblocked 2026-07-08
-    (blocker was image quota only; recorded reset window has passed — if still limited, re-record the blocker).
+    `[x]` `[auto:codex]` **variant intro shot 03 ×6 (DONE 2026-07-08 overnight)** (same spec + criterion as shot 02;
+    six `opening-*-03.png` assets + KO/EN intro metadata; `make check` 912 green).
     `[ ]` `[manual]` in-game feel review of the 6 variant intros/cuts.
   - `[/]` **Variant-ROUTED opening (user-directed 2026-07-06; design `docs/plans/2026-07-06-variant-routed-opening.md`)**:
     `[x]` S1 anchor variantization + `[x]` S2 gate variant goal + `[x]` S3 se_rin flag clamp (DONE 2026-07-07

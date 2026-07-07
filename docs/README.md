@@ -39,7 +39,7 @@ Agents do not read all of `docs/`; follow only the order below.
   - `neo_seoul_live_qa.md`: Neo-Seoul human play-QA checklist.
   - `bible/overnight-review-checklist.md`: the human review-checklist **bible (static template)** after an overnight loop ends.
   - `history/<MMDD-HHMM>-overnight-review-checklist.md`: the **per-run instance** `/overnight-report` generates each run (fills bible B~E with that run's facts). gitignore — a regenerable artifact.
-- `docs/plans/`: dated design snapshots of active work (currently engineering-plan / companion-affection-cutscenes). Completed/retired plans move to `bin/docs/plans/`. May be stale, so prefer `NEXT_PLAN.md`.
+- `docs/plans/`: dated design snapshots of active work (e.g. variant-routed-opening, cbt-feedback3-clarity, the WS4/WS5 engineering plans). Completed/retired plans move to `bin/docs/plans/`. May be stale, so prefer `NEXT_PLAN.md`.
 - `docs/scenarios/`: scenario design docs. Read only when changing content.
 - `bin/docs/archive/`: store for long-form design/logs/past planning. Not in default context.
 - `bin/docs/feedback/`: past feedback source.

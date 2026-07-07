@@ -16,6 +16,10 @@ export interface IsoConfig {
   stepY: number;
 }
 
+// T5b: minimum iso half-step (px) a tile may shrink to, so its diamond
+// footprint (~2x this) stays tappable on small viewports / large arenas.
+export const MIN_ISO_STEP_PX = 26;
+
 export function getIsoConfig(cssW: number, cssH: number, cols: number, rows: number): IsoConfig {
   // Fit to width safely, keeping 2:1 isometric ratio
   const stepX = (cssW / (cols + rows)) * 0.92;
@@ -417,7 +421,10 @@ export function drawCombatCanvas(
   // animation engine) honors it without threading a param through.
   const zoom = Math.max(1, parseFloat(canvas.dataset.boardZoom || "1") || 1);
   const baseW = Math.max(100, Math.floor(container.clientWidth - padLeft - padRight));
-  const cssW = Math.floor(baseW * zoom);
+  // T5b: floor the on-screen tile size so a tap target stays usable even on a
+  // small viewport or a large arena the player hasn't zoomed in on yet.
+  const minCssW = Math.ceil((MIN_ISO_STEP_PX * (cols + rows)) / 0.92);
+  const cssW = Math.max(Math.floor(baseW * zoom), minCssW);
   const cssH = Math.round((cssW * rows) / cols);
 
   canvas.style.width = cssW + "px";

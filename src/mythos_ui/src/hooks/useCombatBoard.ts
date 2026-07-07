@@ -4,6 +4,28 @@ import type { CombatDragOverlay } from "../combatCanvas";
 import type { CombatAnimator } from "../combatEffects";
 import type { RuntimeSnapshot, CombatAction } from "../types";
 
+const COARSE_POINTER_QUERY = "(pointer: coarse)";
+const SMALL_VIEWPORT_QUERY = "(max-width: 600px)";
+
+// T5b: start coarse-pointer/small-viewport devices zoomed in, so tiles begin
+// at a tappable size instead of making the player find the zoom-in button
+// first (the MIN_ISO_STEP_PX floor in combatCanvas.ts backstops the rest).
+function resolveInitialBoardZoom(): number {
+  try {
+    if (
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      (window.matchMedia(COARSE_POINTER_QUERY).matches ||
+        window.matchMedia(SMALL_VIEWPORT_QUERY).matches)
+    ) {
+      return 1.5;
+    }
+  } catch {
+    /* matchMedia unavailable — fall back to the desktop default */
+  }
+  return 1;
+}
+
 // Combat board pointer interaction: drag-to-move for the active controllable
 // unit + tile-inspector hover + board zoom. Reads the live combat from
 // `finalizedSnapshot`, draws onto the shared `canvasRef` (also used by App's
@@ -65,7 +87,7 @@ export function useCombatBoard(opts: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeUnitId]);
 
-  const [boardZoom, setBoardZoom] = useState(1);
+  const [boardZoom, setBoardZoom] = useState(resolveInitialBoardZoom);
   const handleBoardZoom = (next: number) => {
     const z = Math.min(2.5, Math.max(1, Math.round(next * 4) / 4));
     setBoardZoom(z);

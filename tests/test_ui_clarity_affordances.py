@@ -194,6 +194,23 @@ class UIClarityAffordancesTest(unittest.TestCase):
         self.assertIn("wrapper.scrollTo({", board)
         self.assertIn("}, [activeUnitId]);", board)
 
+    def test_board_zoom_defaults_higher_on_small_viewport_with_a_tile_size_floor(self) -> None:
+        # T5b (mobile board affordance): coarse-pointer/small-viewport devices
+        # start the board zoomed in (instead of requiring the player to find
+        # the zoom-in button first), and the on-screen tile size never shrinks
+        # below a tappable floor regardless of zoom, viewport, or arena size.
+        board = read("src/mythos_ui/src/hooks/useCombatBoard.ts")
+
+        self.assertIn('COARSE_POINTER_QUERY = "(pointer: coarse)";', board)
+        self.assertIn('SMALL_VIEWPORT_QUERY = "(max-width: 600px)";', board)
+        self.assertIn("function resolveInitialBoardZoom(): number {", board)
+        self.assertIn("useState(resolveInitialBoardZoom)", board)
+
+        canvas = read("src/mythos_ui/src/combatCanvas.ts")
+        self.assertIn("export const MIN_ISO_STEP_PX = 26;", canvas)
+        self.assertIn("const minCssW = Math.ceil((MIN_ISO_STEP_PX * (cols + rows)) / 0.92);", canvas)
+        self.assertIn("const cssW = Math.max(Math.floor(baseW * zoom), minCssW);", canvas)
+
     def test_i18n_and_css_keys_are_present(self) -> None:
         ko = read("src/mythos_ui/src/i18n/strings.ko.ts")
         en = read("src/mythos_ui/src/i18n/strings.en.ts")

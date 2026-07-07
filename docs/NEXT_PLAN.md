@@ -75,7 +75,7 @@ Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop co
   - `[ ]` `[manual]` **M4** verify 7 `position:fixed` modals for scroll-lock/clip on phone.
   - `[x]` `[auto:claude]` **T6c** combat-panel density reduction at the ~9–10-cluster peak (DONE 2026-07-08 overnight; `make check` 922). Done = `make check` green + AGY mobile not FAIL.
   - `[x]` `[auto:claude]` **T5a** movement affordance: reachable-tile highlight + path/target preview + auto-center on active unit (reachable calc already in TileInspector) (DONE 2026-07-08 overnight; `make check` 923). Done = `make check` green + AGY mobile not FAIL.
-  - `[ ]` `[auto:claude]` **T5b** small-viewport default-zoom bump + min tile-size floor. Done = `make check` green + AGY mobile not FAIL.
+  - `[x]` `[auto:claude]` **T5b** small-viewport default-zoom bump + min tile-size floor (DONE 2026-07-08 overnight; `make check` 924). Done = `make check` green + AGY mobile not FAIL.
   - `[ ]` `[blocked]` **T5c** (LARGE) 2D top-down toggle = second orthogonal render path. Precondition (human): owner confirms isometric still illegible @390px after T5a/b land. NOT unattended-consumable — do not build the second render path on a guess. Promote to `[auto:claude]` after that judgment.
 
 ## Priority 1 — Neo-Seoul Playability Upgrade

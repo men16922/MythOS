@@ -66,18 +66,23 @@ Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop co
 - `[auto:agy]` — agy lane (image draft + simple verify; resources/ image dirs only, integrity gate).
 - When claude's quota is exhausted, codex consumes the claude lane instead (runner auto-failover, `run.sh`).
 
-## Overnight QA Seed (2026-07-07 — ALL DONE overnight, detail archive/PROGRESS_LOG)
-
-- `[x]` SFX integrity test · `[x]` lint/type-noise cleanup · `[x]` doc migration + M57.
-
 ## P1.5 — CBT feedback #3: Clarity & Responsiveness (2026-07-08, design `docs/plans/2026-07-08-cbt-feedback3-clarity-plan.md`)
 
-- `[x]` **T1 identity-swap · T2 responsiveness · T3a fork-mirror · T3b/T4 plain-copy · T4a affordances
-  (ALL DONE 2026-07-08 overnight, `e10f2bb..d1bed45`)** — `make check` **916** green; **2 AGY QA PASS**
-  (`20260708-062258/063004-manual`: T2 force-closed-WS 1-click advance + triple-click guard; T4a axis ⓘ tooltip +
-  legend overlay + plain copy). Detail archive/`PROGRESS_LOG.md`.
-- `[ ]` `[manual]` **T5/T6 design decisions**: 전투 보드 시점(줌/탑다운 토글?) · 정보 밀도(공개 창 연장 vs 간결 모드) ·
-  T4 카피 톤 검수. 결정 후 슬라이스 승격.
+- `[x]` **T1-T4a ALL DONE+VERIFIED 2026-07-08** (`e10f2bb..d1bed45`, `make check` 916, 2 AGY QA PASS) — detail `PROGRESS_LOG.md`/archive.
+- `[x]` **T5/T6 RESOLVED 2026-07-08 (owner: mobile-inclusive P0)** → reframed mobile-first + Track M prerequisite; slices below. Rationale: plan "Decision 2026-07-08". Residual `[manual]`: T4/S4 copy tone + play-feel (owner, local).
+- **Track M — mobile foundation (P0, prerequisite; do first)**:
+  - `[ ]` `[auto:claude]` **M1** `100vh`→`100dvh` (`index.css:36`/`:3548`). Done = `make check` green + AGY @390px no clip.
+  - `[ ]` `[auto:claude]` **M2** <600px phone breakpoint: readable base font (UI text is 9–11px) + 44px tap targets (zoom btn 22px, header toggles). CSS-only. Done = AGY @390px not FAIL.
+  - `[ ]` `[auto:claude]` **M3** hover-only `title=` (~20 sites) → tap-openable tooltip, **starting with the T4a axis chip** (shipped hover-only = dead on touch). Done = unit test + AGY tap opens tooltip; desktop behavior-preserving.
+  - `[ ]` `[manual]` **M4** verify 7 `position:fixed` modals for scroll-lock/clip on phone.
+- **T6 — 간결(concise) mode (mobile default ON)** (after M1/M2):
+  - `[ ]` `[auto:claude]` **T6a** concise-mode state + persisted toggle; default ON for coarse-pointer / small viewport.
+  - `[ ]` `[auto:claude]` **T6b** collapse secondary aside panels (Save/Map/Log) → summary chips, tap to expand.
+  - `[ ]` `[auto:claude]` **T6c** combat-panel density reduction at the ~9–10-cluster peak. Done per slice = `make check` green + AGY mobile not FAIL.
+- **T5 — board viewpoint (mobile-first)**:
+  - `[ ]` `[auto:claude]` **T5a** movement affordance: reachable-tile highlight + path/target preview + auto-center on active unit (reachable calc already in TileInspector).
+  - `[ ]` `[auto:claude]` **T5b** small-viewport default-zoom bump + min tile-size floor.
+  - `[ ]` `[blocked]` **T5c** (LARGE) 2D top-down toggle = second orthogonal render path. Precondition (human): owner confirms isometric still illegible @390px after T5a/b land. NOT unattended-consumable — do not build the second render path on a guess. Promote to `[auto:claude]` after that judgment.
 
 ## Priority 1 — Neo-Seoul Playability Upgrade
 

@@ -5,6 +5,23 @@ Last updated: 2026-07-08
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-08 (PM) — T5/T6 DECIDED (mobile-inclusive P0) — overnight claude lane re-armed
+- Status: Design decision, no code. Owner picked **CBT = mobile-inclusive (P0)** as target form factor,
+  which reframes the two blocked P1.5 decisions (T5 board viewpoint, T6 info density) as mobile-first and
+  adds **Track M (mobile foundation)** as their prerequisite. This unblocks the `[auto:claude]` overnight lane
+  (was all-drained/human-only since the 07-08 AM verification).
+- Basis (3 parallel code scans): board is a **fluid 2.5D isometric `<canvas>`** (not a grid), fit-to-width so
+  no overflow — "이동 시점 불편" = iso depth + tiny tiles, no camera-follow. Density peak is **combat (~9–10
+  clusters)**, which A3 disclosure excludes; **no 간결 mode exists**. Mobile: **not catastrophic** (viewport
+  meta ✓, breakpoints to 600px, 1-col collapse, touch-capable canvas) but UX-degraded — 9–11px fonts,
+  `100vh` chrome-overlap, ~20 hover-only `title=` tooltips dead on touch (**incl. the just-shipped T4a axis
+  chip**), sub-44px tap targets.
+- Recorded: `docs/plans/2026-07-08-cbt-feedback3-clarity-plan.md` ("Decision 2026-07-08" + Track M + T5/T6
+  slices), `NEXT_PLAN.md` P1.5 (slices M1-3/T6a-c/T5a-c promoted, mobile-first order), STATUS + AGENT_BRIEF
+  (blocked→unblocked, NEXT SESSION pointer rewritten).
+- Blockers: none. Next (auto): **M1·M2 → M3 → T6a-c → T5a/b → [conditional] T5c**, all UI/behavior-preserving,
+  gated by `make check` + AGY @390px. Human lane unchanged: copy tone, play-feel, `git push` (ahead ~30).
+
 ## 2026-07-08 (AM) — P1.5 clarity track VERIFIED — 2 AGY QA runs PASS + independent gate 916
 - Status: Overnight P1.5 bundle (`e10f2bb..d1bed45`, 7 commits) independently re-gated **`make check` 916 green**; two direct non-nested AGY live-QA runs both PASS_CANDIDATE (screenshots visually audited). Feedback #3 clarity/responsiveness closed on the auto axes.
 - **QA A (T2 responsiveness, `20260708-062258-manual`)**: with the WS **force-closed**, one click rendered the "전송 중/Sending…" pending badge + disabled both choices (triple-click guard), reconnected, and advanced on the single click; 65s idle then single-click advance (20s keepalive). Evidence-audited, not just verdict.

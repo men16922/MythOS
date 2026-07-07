@@ -1,6 +1,9 @@
 # CBT Feedback #3 — Clarity & Responsiveness plan (P1.5)
 
-Status: DESIGN+TRIAGE (2026-07-08). Source: tester session relayed by owner (player "이용재",
+Status: DESIGN+TRIAGE (2026-07-08). T1-T4a shipped+verified; **T5/T6 DECIDED 2026-07-08 (owner):
+CBT target form factor = mobile-inclusive (P0)** — this reframes T5/T6 as mobile-first and adds a
+new **Track M (mobile foundation)** as their prerequisite. See "Decision 2026-07-08" at the bottom.
+Source: tester session relayed by owner (player "이용재",
 local/cloud unconfirmed). Raw quotes + per-item diagnosis in `docs/cbt/CBT_FEEDBACK.md` #3.
 Theme: **the game withholds meaning** — choices, axes, jargon, skills, and the board all assume
 knowledge the first-time player doesn't have; plus two trust-breaking defects (identity swap,
@@ -55,18 +58,37 @@ choices didn't carry those options.
 
 ### T5 — Combat board viewpoint + skill effects (medium)
 "이동 시점이 보기 불편" · "스킬 뭔 효과인지 모르겠음" (D1 badges exist but not landing).
-- `[manual]` design decision first: board camera options (zoom-to-active-unit on move? 2D
-  top-down toggle? larger tiles?) — needs the owner's play judgment, then slice `[auto:claude]`.
+Board reality (2026-07-08 scan): NOT a CSS grid — a **fluid 2.5D isometric `<canvas>`**
+(`combatCanvas.ts` `getIsoConfig`/`toIso`), fit-to-width so it never overflows; zoom 1.0–2.5
+exists (`useCombatBoard.ts:38-46`) but there is NO camera-follow of the active unit. So "이동
+시점 불편" = isometric depth + tiny default tiles making move targets ambiguous, not overflow.
+- **DECIDED (mobile-first)**: ship cheap affordances first, promote the top-down path only if
+  isometric still fails on a phone. Slices:
+  - **T5a** `[auto:claude]` movement affordance — reachable-tile highlight + path/target preview
+    + auto-center on active unit (reachable calc already exists in TileInspector).
+  - **T5b** `[auto:claude]` small-viewport default-zoom bump + minimum tile-size floor.
+  - **T5c** `[auto:claude]` (LARGE, CONDITIONAL) 2D top-down toggle = second orthogonal render
+    path parallel to `toIso`/`draw3DIsoBlock`. Promote only if AGY @390px shows isometric still
+    illegible after T5a/b; it doubles as the best small-screen view. Done = `make check` green +
+    AGY mobile-viewport live-QA not FAIL.
 - `[auto:codex]` skill effect-line plain-language pass: replace stat shorthand ("◆2 ◇1 bonus
   DMG 1d6 · pierce 2") with sentence form on the hover/tap detail ("공격력 2 · 사거리 1 —
   명중 시 추가 피해 주사위, 방어 2 무시"), keep chips compact.
 
 ### T6 — Information density (medium, design-led)
-"UI가 복잡, 정보량 과다" — A3 disclosure covers loop-1 turns 0-2 only.
-- `[manual]` design decision: extend progressive disclosure beyond turn 2 (e.g. collapse
-  STATUS/OPERATION MAP into summary chips until tapped) or add a 간결 모드 toggle.
-  Candidate slices become `[auto:claude]` after the decision. Ties into the god-component
-  `[blocked]` track — do not entangle; UI-only, behavior-preserving slices.
+"UI가 복잡, 정보량 과다" — A3 disclosure covers loop-1 turns 0-2 only, and **excludes combat**
+where the peak sits (~9–10 info clusters on a first combat turn: board/legend/tile-inspector/
+learning-goal/roster/controls/log/zoom/round/tutorial-glow). No 간결/concise mode exists today.
+- **DECIDED (mobile-first)**: build ONE global 간결(concise) mode, default ON for coarse-pointer /
+  small viewport, expose a toggle on desktop — NOT an A3 extension (A3 only helps loop-1 non-combat).
+  Same artifact answers the mobile density problem. Slices (UI-only, behavior-preserving; do NOT
+  entangle with the god-component `[blocked]` track):
+  - **T6a** `[auto:claude]` concise-mode state + persisted toggle; default ON when coarse-pointer or
+    viewport < small breakpoint.
+  - **T6b** `[auto:claude]` collapse secondary aside panels (Save/OperationMap/Log) into summary
+    chips → tap to expand.
+  - **T6c** `[auto:claude]` combat-panel density reduction at the ~9–10-cluster peak.
+  - Done per slice = `make check` green + AGY mobile-viewport live-QA not FAIL.
 
 ## Sequencing
 
@@ -80,3 +102,33 @@ T1 (diagnose→fix) → T2 → T3/T4 code slices (parallelizable lanes) → T4/T
 - T2: AGY live-QA (induced 60s idle → single click advances), WS probe.
 - T3/T4: unit (route-desc validator, glossary-link renderer), AGY render pass, tone `[manual]`.
 - All: `make check` green; UI-touching slices auto-screened by AGY per LOOP.md §3.4.1.
+
+## Decision 2026-07-08 — Mobile-inclusive (P0); Track M is T5/T6's prerequisite
+
+Owner picked **mobile-inclusive (P0)** as the CBT target form factor. Mobile-blindness was not a
+separate track — it is the top constraint that reframes T5/T6, and it was already **retroactively
+voiding the clarity work**: the T4a axis tooltip shipped as a hover-only `title=`, which is dead on
+touch, so the flagship "reveal the meaning" fix is invisible on a phone.
+
+Responsive scan verdict (2026-07-08): **not catastrophic** — viewport meta present, breakpoints
+down to 600px, layouts collapse to 1 column, the combat canvas is fluid + pointer-event driven
+(touch works). Gaps are UX degradation, not structural overflow.
+
+### Track M — Mobile foundation (P0, prerequisite; cheap wins that unblock the rest)
+- **M1** `[auto:claude]` `100vh` → `100dvh` (`index.css:36`, `:3548`) so full-screen/body stops
+  clipping behind mobile browser chrome. Done = `make check` green + AGY @390px no clip.
+- **M2** `[auto:claude]` phone breakpoint (< 600px): bump base font scale (UI text is 9–11px
+  today) to a readable baseline, and upsize tap targets to 44px (board-zoom btn 22px, header
+  toggles ~30px). CSS-only. Done = AGY @390px screenshot not FAIL.
+- **M3** `[auto:claude]` (★ also repairs clarity-on-touch) replace hover-only `title=` tooltips
+  (~20 sites; `GameAside`×6, `CombatControls`×3, `StoryPanel`×3, `HeaderBar`×2, `ChoicePanel`
+  axis chip, …) with a tap-openable custom tooltip/popover. **Start with the T4a axis chip.**
+  Done = unit test + AGY tap opens the tooltip on touch; behavior-preserving on desktop.
+- **M4** `[manual]`/AGY verify the 7 `position:fixed` modals (SaveLoad/cinema/interstitial) for
+  scroll-lock/clip on a phone.
+
+### Sequencing (mobile-first)
+**M1·M2 (make mobile readable) → M3 (repair touch clarity, incl. shipped T4a) → T6a-c (density +
+mobile in one artifact) → T5a/b → [conditional] T5c (top-down).** All slices are UI/behavior-
+preserving → `make check` + AGY mobile-viewport screen gate ⇒ `[auto:claude]` consumable; only
+play-feel stays `[manual]` (owner, local).

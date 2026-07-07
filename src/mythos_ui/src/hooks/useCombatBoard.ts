@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import { drawCombatCanvas, combatCellFromPoint } from "../combatCanvas";
+import { useEffect, useRef, useState } from "react";
+import { drawCombatCanvas, combatCellFromPoint, getIsoConfig, toIso } from "../combatCanvas";
 import type { CombatDragOverlay } from "../combatCanvas";
 import type { CombatAnimator } from "../combatEffects";
 import type { RuntimeSnapshot, CombatAction } from "../types";
@@ -28,12 +28,42 @@ export function useCombatBoard(opts: {
   // dragging), surfaced to StoryPanel so it can show terrain/occupant/effects.
   const [combatInspectCell, setCombatInspectCell] = useState<[number, number] | null>(null);
 
-  const redrawCombat = (drag?: CombatDragOverlay) => {
+  // Last hovered cell drawn as the movement-preview target, so pointer moves
+  // over the same cell don't trigger redundant canvas redraws.
+  const hoverRef = useRef<[number, number] | null>(null);
+
+  const redrawCombat = (drag?: CombatDragOverlay, hover?: [number, number] | null) => {
     const canvas = canvasRef.current;
     const combat = finalizedSnapshot?.combat;
     if (!canvas || !combat) return;
-    drawCombatCanvas(canvas, combat, selectedScenarioId, drag);
+    drawCombatCanvas(canvas, combat, selectedScenarioId, drag, undefined, hover);
   };
+
+  // Movement affordance (T5a): auto-center the scrollable board wrapper on
+  // the active unit whenever the turn changes, so a zoomed-in / small
+  // viewport doesn't leave the acting unit off-screen.
+  const activeUnitId = finalizedSnapshot?.combat?.radar?.current;
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const combat = finalizedSnapshot?.combat;
+    const wrapper = canvas?.parentElement;
+    if (!canvas || !combat?.radar || !wrapper || !activeUnitId) return;
+    if (!canvas.clientWidth || !canvas.clientHeight) return;
+    const actor = combat.radar.blips.find((b) => b.id === activeUnitId);
+    if (!actor) return;
+    const cols = combat.radar.arena?.w || 8;
+    const rows = combat.radar.arena?.h || 6;
+    const cfg = getIsoConfig(canvas.clientWidth, canvas.clientHeight, cols, rows);
+    const [px, py] = toIso(actor.x + 0.5, actor.y + 0.5, cfg);
+    const maxLeft = Math.max(0, wrapper.scrollWidth - wrapper.clientWidth);
+    const maxTop = Math.max(0, wrapper.scrollHeight - wrapper.clientHeight);
+    wrapper.scrollTo({
+      left: Math.min(maxLeft, Math.max(0, px - wrapper.clientWidth / 2)),
+      top: Math.min(maxTop, Math.max(0, py - wrapper.clientHeight / 2)),
+      behavior: "smooth",
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeUnitId]);
 
   const [boardZoom, setBoardZoom] = useState(1);
   const handleBoardZoom = (next: number) => {
@@ -57,6 +87,7 @@ export function useCombatBoard(opts: {
     if (!actor || actor.x !== cx || actor.y !== cy) return; // must grab the active unit
 
     dragRef.current = { blipId: actor.id, origin: [cx, cy] };
+    hoverRef.current = null;
     canvas.setPointerCapture?.(e.pointerId);
     canvas.style.cursor = "grabbing";
     const rect = canvas.getBoundingClientRect();
@@ -92,6 +123,18 @@ export function useCombatBoard(opts: {
         if (prev && prev[0] === cx && prev[1] === cy) return prev;
         return [cx, cy];
       });
+      // Movement affordance (T5a): preview the reachable-tile target + ground
+      // trail on hover, before the player commits to the drag gesture.
+      const prevHover = hoverRef.current;
+      if (!inBounds) {
+        if (prevHover) {
+          hoverRef.current = null;
+          redrawCombat();
+        }
+      } else if (!prevHover || prevHover[0] !== cx || prevHover[1] !== cy) {
+        hoverRef.current = [cx, cy];
+        redrawCombat(undefined, [cx, cy]);
+      }
       return;
     }
 
@@ -136,6 +179,10 @@ export function useCombatBoard(opts: {
 
   const handleCanvasPointerLeave = () => {
     setCombatInspectCell((prev) => (prev === null ? prev : null));
+    if (hoverRef.current) {
+      hoverRef.current = null;
+      redrawCombat();
+    }
   };
 
   return {

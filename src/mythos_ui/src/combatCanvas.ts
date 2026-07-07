@@ -398,7 +398,8 @@ export function drawCombatCanvas(
   combat: CombatState,
   scenarioId: string,
   drag?: CombatDragOverlay,
-  overlay?: CombatOverlay
+  overlay?: CombatOverlay,
+  hover?: [number, number] | null
 ): void {
   const radar = combat.radar;
   if (!radar || !radar.blips || radar.blips.length === 0) return;
@@ -438,6 +439,13 @@ export function drawCombatCanvas(
   const reach = combat.available?.reachable || [];
   const blipFx = overlay?.blips || {};
 
+  // Movement affordance (T5a): the tile currently being dragged onto, or —
+  // when not dragging — the tile under the pointer. Only a reachable cell
+  // gets the target highlight + ground-trail preview below.
+  const previewCell = drag?.targetCell ?? hover ?? null;
+  const previewReachable =
+    !!previewCell && reach.some(([rx, ry]) => rx === previewCell[0] && ry === previewCell[1]);
+
   // Draw Ground Base (Hazards / Basic Tiles / Elevations / Gridlines)
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
@@ -445,7 +453,7 @@ export function drawCombatCanvas(
       const el = combat.elevations?.[key] || 0;
       const hazard = combat.hazards?.[key];
       const isReach = reach.some(([rx, ry]) => rx === x && ry === y);
-      const isTarget = drag && drag.targetCell && drag.targetCell[0] === x && drag.targetCell[1] === y;
+      const isTarget = previewReachable && previewCell![0] === x && previewCell![1] === y;
       
       let fill = "rgba(41,255,198,0.012)";
       let stroke = "rgba(41,255,198,0.12)";
@@ -501,6 +509,28 @@ export function drawCombatCanvas(
           cfg.stepX
         );
       }
+    }
+  }
+
+  // Movement affordance (T5a): dashed ground trail from the active unit to
+  // the previewed target cell, so the player sees where a move lands before
+  // committing to the drag gesture (important on touch, where drag itself is
+  // hard to discover).
+  if (previewReachable && previewCell) {
+    const actor = radar.blips.find((b) => b.id === radar.current);
+    if (actor && actor.alive !== false && (actor.x !== previewCell[0] || actor.y !== previewCell[1])) {
+      const [ax, ay] = toIso(actor.x + 0.5, actor.y + 0.5, cfg);
+      const [tx, ty] = toIso(previewCell[0] + 0.5, previewCell[1] + 0.5, cfg);
+      ctx.save();
+      ctx.globalAlpha = 0.55;
+      ctx.strokeStyle = "rgba(41,255,198,0.85)";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(ax, ay);
+      ctx.lineTo(tx, ty);
+      ctx.stroke();
+      ctx.restore();
     }
   }
 

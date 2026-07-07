@@ -175,6 +175,25 @@ class UIClarityAffordancesTest(unittest.TestCase):
             self.assertIn(key, read("src/mythos_ui/src/i18n/strings.ko.ts"))
             self.assertIn(key, read("src/mythos_ui/src/i18n/strings.en.ts"))
 
+    def test_combat_board_previews_move_target_and_auto_centers_active_unit(self) -> None:
+        # T5a (mobile board affordance): the reachable-tile highlight already
+        # existed only while actively dragging; hovering (or tapping-before-
+        # drag on touch) now previews the same target highlight plus a dashed
+        # ground-trail path from the active unit, and the board auto-scrolls
+        # to keep the active unit in view when its turn starts.
+        canvas = read("src/mythos_ui/src/combatCanvas.ts")
+
+        self.assertIn("hover?: [number, number] | null", canvas)
+        self.assertIn("const previewCell = drag?.targetCell ?? hover ?? null;", canvas)
+        self.assertIn("const isTarget = previewReachable && previewCell![0] === x && previewCell![1] === y;", canvas)
+        self.assertIn("ctx.setLineDash([5, 5]);", canvas)
+
+        board = read("src/mythos_ui/src/hooks/useCombatBoard.ts")
+        self.assertIn("const hoverRef = useRef<[number, number] | null>(null);", board)
+        self.assertIn("redrawCombat(undefined, [cx, cy]);", board)
+        self.assertIn("wrapper.scrollTo({", board)
+        self.assertIn("}, [activeUnitId]);", board)
+
     def test_i18n_and_css_keys_are_present(self) -> None:
         ko = read("src/mythos_ui/src/i18n/strings.ko.ts")
         en = read("src/mythos_ui/src/i18n/strings.en.ts")

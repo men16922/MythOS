@@ -17,10 +17,8 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. Cloud Run rev `00019-jf6` serves
 - `[ ]` `[manual]` **Key-beat hybrid enablement + A/B verdict (after full-3.5 sign-off)**: deploy `MODEL=gemini-2.5-flash` + `GEMINI_MODEL_KEYBEAT=gemini-3.5-flash`; verify opening/anchor/cutscene/boss-buildup/ending route to 3.5 and normal turns to 2.5; compare matched full loops for quality, repetition/continuity, state/name/language errors, p50/p95 latency, and cost. Done = documented keep/rollback decision; rollback restores full `MODEL=gemini-3.5-flash` with key-beat unset.
 - `[ ]` **CBT P1 (feedback #1 Audrey + #2 owner 7-loop self-play) — design snapshot DONE
   (`docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md`), tracks in priority order**:
-  - `[x]` **P1-A onboarding+skill legibility (DONE 2026-07-05; live-QA PASS ×2 07-06; action-bar glyphs = by
-    design)** — detail archive/`PROGRESS_LOG.md`.
-  - `[x]` **P1-B replay variety (DONE 2026-07-05; variant art ×6 `d661f44` + per-variant boot intro `ca5c835`
-    07-06)** — detail archive/`PROGRESS_LOG.md`. Remaining:
+  - `[x]` P1-A onboarding+skill legibility (DONE 2026-07-05; live-QA PASS ×2 07-06) — detail archive.
+  - `[x]` **P1-B replay variety (DONE 2026-07-05; variant art ×6 + boot intro 07-06)** — detail archive. Remaining:
     `[x]` `[auto:codex]` **variant intro shot 02 ×6 (DONE 2026-07-07 overnight)** (opening style spec + each
     variant's directive beat; appended to `session_intro_variants[v].cinematic_shots` + EN overlay; `make check` 901 green).
     `[ ]` `[blocked]` `[auto:codex]` **variant intro shot 03 ×6** (same spec + criterion as shot 02;
@@ -68,18 +66,24 @@ Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop co
 - `[auto:agy]` — agy lane (image draft + simple verify; resources/ image dirs only, integrity gate).
 - When claude's quota is exhausted, codex consumes the claude lane instead (runner auto-failover, `run.sh`).
 
-## Overnight QA Seed (2026-07-07, user-approved)
+## Overnight QA Seed (2026-07-07 — ALL DONE overnight, detail archive/PROGRESS_LOG)
 
-- `[x]` `[auto:claude]` **SFX reference↔file integrity test (DONE 2026-07-07 overnight)**: every `sfx_*` id referenced in
-  `resources/neo-seoul/scenario.json` / `serializers.py` cues / SPA sources maps to a real file in
-  `resources/neo-seoul/audio/sfx/` with RIFF/WAV magic bytes; guard-the-guard ≥8 ids scanned.
-  Completion criterion: new test runs inside `make check`, green.
-- `[x]` `[auto:claude]` **lint/type-noise cleanup (DONE 2026-07-07, codex failover)**: changed the
-  `@asynccontextmanager` return to `AsyncGenerator[None, None]`; unused asset-test loop variables were removed
-  by the preceding recovery commit. `make check` green (901 tests, 2 skipped), zero behavior/test-count delta.
-- `[x]` `[auto:codex]` **doc migration + M57 (DONE 2026-07-07 overnight)**: moved six implemented plans to
-  `bin/docs/plans/`, repaired references, and added `COMPLETED_SUMMARY.md` M57 for the 2026-07-06 overnight
-  asset/live-QA + per-variant boot-intro bundle. `make check-doc-budget` green; no stale moved-plan links.
+- `[x]` SFX integrity test · `[x]` lint/type-noise cleanup · `[x]` doc migration + M57.
+
+## P1.5 — CBT feedback #3: Clarity & Responsiveness (2026-07-08, design `docs/plans/2026-07-08-cbt-feedback3-clarity-plan.md`)
+
+- `[ ]` `[auto:claude]` **T1 identity-swap bug**: /diagnose(2-신원 재접속 갈아타기 가설) → 루프 세션은 항상
+  playing loop_id로 재개(플레이어 폴백 금지) + repro 회귀 테스트. Done = repro red→green + `make check` green.
+- `[ ]` `[auto:claude]` **T2 click/stream responsiveness**: WS keepalive+auto-reconnect + 선택지 클릭 즉시
+  '전송 중' pending(형제 비활성, 재접속 후 1회 재전송 — 서버 멱등). Done = `make check` green + AGY not FAIL/NEEDS.
+- `[ ]` `[auto:claude]` **T3a narrative↔choice contract note** (본문 갈림길=선택지 미러, KO/EN prompts). Done = note in
+  prompt notes + unit lock, `make check` green.
+- `[ ]` `[auto:codex]` **T3b/T4 route-destination + axis + archetype plain-copy pass** (목적지 1줄 WHAT-IS-THIS 전수 +
+  가치축 쉬운 말 + 캐선창 play-first 1줄, KO/EN; validator: route 목적지 desc 비어있으면 red). Done = `make check` green.
+- `[ ]` `[auto:claude]` **T4a axis tooltip + 1회 legend overlay + Codex-term links** (glossary 기반, 신규 저작 없음).
+  Done = `make check` green + AGY not FAIL/NEEDS.
+- `[ ]` `[manual]` **T5/T6 design decisions**: 전투 보드 시점(줌/탑다운 토글?) · 정보 밀도(공개 창 연장 vs 간결 모드) ·
+  T4 카피 톤 검수. 결정 후 슬라이스 승격.
 
 ## Priority 1 — Neo-Seoul Playability Upgrade
 

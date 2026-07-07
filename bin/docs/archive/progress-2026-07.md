@@ -1,5 +1,21 @@
 # Progress archive — 2026-07
 
+## 2026-07-08 (overnight, claude lane) — T1 identity-swap fix (P1.5 CBT feedback #3)
+- Status: P1.5 T1 done via /diagnose; repro red→green; `make check` **906** green (+4 tests).
+- Changed: `mythos_api/app.py` `/loops/active` — resuming by `loop_id` now 404s when the loop's owner !=
+  requesting `player_id` (snapshot player is the LOOP owner, so a stale/foreign loop_id silently swapped the
+  session identity — the exact 이용재→테스터 shape). SPA: `useSnapshotReceiver.handleReceivedSnapshot` now
+  re-writes the `mythos.session` resume token with the confirmed `{playerId, loopId}` on every snapshot, so
+  resume pins to the loop being played instead of the server's per-player save-slot fallback;
+  `useSessionLifecycle.saveSessionMetadata` comment documents the split. Load-slot path already carried loopId.
+- Verified: measurement (diagnose step 3) reproduced the swap deterministically — `GET /loops/active?player_id=
+  A&loop_id=<B's loop>` returned 200 with B's identity; new `tests/test_resume_identity.py` ×4 (foreign-loop 404,
+  owned-loop resume, player-fallback stays own-identity, unknown-loop 404) red→green; `make check` green
+  (ruff/eslint/mypy 166/tsc+vite/unittest 906, 2 skipped, validate-content 2).
+- Blockers: none. H3 (display_name upsert race between two live sessions sharing a stable id) not unattended-
+  reproducible — covered indirectly: token now always carries the playing loop, and foreign loops are rejected.
+- Next: T2 click/stream responsiveness (`[auto:claude]`, WS keepalive + optimistic pending) is the next lane item.
+
 ## 2026-07-08 — S4 variant-routed opening CONTENT — the loop now branches by variant end-to-end
 - Status: Committed (S4 slice, 16 files); `make check` **902** green; e2e smoke verified (in-memory loop 2 = kai pick → anchor beat `opening_reentry_kai` / title 백도어 좌표 / variant image_sequence).
 - Changed: layer-0 anchor `variants` ×6 (beat/title/summary + variant art incl. 07-07 shot 02 as `image_sequence`, `reentry_<v>` events) · connect gate `player_goal_variants` ×6 · all 12 variant directives (KO+EN parity) extended 1-cut → **turn 0-3 window** with authored REENTRY_SCENE2/3 beats (hook development → route hand-off; every follow-up beat forbids the Se-rin first-contact re-enactment + meeting completion).

@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import { LangProvider } from './i18n/LangProvider'
+import { ConciseModeProvider } from './ConciseModeProvider'
 
 const rootElement = document.getElementById('root')
 
@@ -13,7 +14,9 @@ if (!rootElement) {
 createRoot(rootElement).render(
   <StrictMode>
     <LangProvider>
-      <App />
+      <ConciseModeProvider>
+        <App />
+      </ConciseModeProvider>
     </LangProvider>
   </StrictMode>,
 )

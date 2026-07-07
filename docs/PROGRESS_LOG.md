@@ -5,6 +5,21 @@ Last updated: 2026-07-08
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-08 (overnight, claude lane) — T6a concise-mode state + persisted toggle (Track M/T6 mobile foundation)
+- Status: Done; `make check` **920** green (+1 test). First T6 slice (info-density mode), gated on Track M
+  (M1-M3) which just finished; adds only the state/toggle infra — no panel collapsing yet (T6b/T6c).
+- Changed: new `conciseMode.ts` (Context/hook, `mythos_concise_mode` localStorage key, `resolveInitialConciseMode`
+  defaults ON via `matchMedia('(pointer: coarse)')`/`(max-width: 600px)` unless the user has an explicit stored
+  choice) + `ConciseModeProvider.tsx` (toggles a `concise-mode` class on `<body>` for future CSS-only T6b/T6c
+  slices to key off, no visual effect yet since no selector uses it). Mounted in `main.tsx` alongside
+  `LangProvider`. `HeaderBar.tsx` — new `concise-toggle` button (same is-on/is-off shape as `bgm-toggle`) so
+  desktop users can opt in even though their default is OFF. `index.css` — button styling + M2 44px/13px
+  phone-breakpoint rows extended to include it. i18n `hdr.conciseOn`/`hdr.conciseOff` KO+EN.
+- Verified: `make check` green (ruff/eslint/mypy 167/tsc+vite/unittest 920, 2 skipped, validate-content 2);
+  new `test_concise_mode_state_is_persisted_and_device_aware` source-locks the context/provider/wiring shape.
+- Blockers: none. Next: T6b collapse secondary aside panels (Save/OperationMap/Log) into summary chips
+  (`[auto:claude]`), then T6c combat-panel density reduction.
+
 ## 2026-07-08 (overnight, claude lane) — M3 GameAside no-click-div tooltips tap-openable (Track M mobile foundation, 3rd of ~20 sites)
 - Status: Done; `make check` **919** green (+1 test). Converts the 4 `GameAside.tsx` sites that had no click handler at all (route node, fog stub, minimap enemy cell, minimap tile cell) — highest touch-info-loss of the M3 sites since they had zero tap affordance, not just a supplementary title on an already-tappable control.
 - Changed: `GameAside.tsx` — new shared `InfoPopover` component (same tap-toggle/pointerdown-outside-close shape as `ChoicePanel`'s `AxisChip`/`CombatControls`' `SkillInfoTooltip`, generalized since each call site needs its own hook state); wraps the route-node div (multi-line lock/risk/reward/perspective text), the fog stub, the minimap enemy-contact cell, and the minimap tile cell (skipped when `tile.name` is empty). `index.css` — `.aside-info-hint`/`.aside-info-tooltip`/`.aside-info-open` shared popover rules. `tests/test_ui_clarity_affordances.py` — `test_game_aside_info_divs_are_tap_openable` locks the shape. Judged out-of-scope: `GameAside`'s other 2 title sites (expand/hints-toggle buttons) are supplementary — visible label + click action already work on touch.
@@ -101,20 +116,5 @@ This file keeps **only recent incremental summaries within the 120-line budget**
   new `test_api.py` ping→pong ×2 (idle keepalive + mid-session between begin/choose).
 - Blockers: none. Next: T3a narrative↔choice contract note (`[auto:claude]`); AGY live-QA auto-screens post-commit.
 
-## 2026-07-08 (overnight, claude lane) — T1 identity-swap fix (P1.5 CBT feedback #3)
-- Status: P1.5 T1 done via /diagnose; repro red→green; `make check` **906** green (+4 tests).
-- Changed: `mythos_api/app.py` `/loops/active` — resuming by `loop_id` now 404s when the loop's owner !=
-  requesting `player_id` (snapshot player is the LOOP owner, so a stale/foreign loop_id silently swapped the
-  session identity — the exact 이용재→테스터 shape). SPA: `useSnapshotReceiver.handleReceivedSnapshot` now
-  re-writes the `mythos.session` resume token with the confirmed `{playerId, loopId}` on every snapshot, so
-  resume pins to the loop being played instead of the server's per-player save-slot fallback;
-  `useSessionLifecycle.saveSessionMetadata` comment documents the split. Load-slot path already carried loopId.
-- Verified: measurement (diagnose step 3) reproduced the swap deterministically — `GET /loops/active?player_id=
-  A&loop_id=<B's loop>` returned 200 with B's identity; new `tests/test_resume_identity.py` ×4 (foreign-loop 404,
-  owned-loop resume, player-fallback stays own-identity, unknown-loop 404) red→green; `make check` green
-  (ruff/eslint/mypy 166/tsc+vite/unittest 906, 2 skipped, validate-content 2).
-- Blockers: none. H3 (display_name upsert race between two live sessions sharing a stable id) not unattended-
-  reproducible — covered indirectly: token now always carries the playing loop, and foreign loops are rejected.
-- Next: T2 click/stream responsiveness (`[auto:claude]`, WS keepalive + optimistic pending) is the next lane item.
-
-Older 2026-07-08 entries (S4 variant-routed opening content) moved to `bin/docs/archive/progress-2026-07.md` to hold the line budget.
+Older 2026-07-08 entries (T1 identity-swap fix; S4 variant-routed opening content) moved to
+`bin/docs/archive/progress-2026-07.md` to hold the line budget.

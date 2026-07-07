@@ -89,6 +89,22 @@ header .spacer {
   color: var(--ink-dim);
   border-color: var(--line-soft);
 }
+.concise-toggle {
+  min-width: 92px;
+  padding: 7px 11px;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+}
+.concise-toggle.is-on {
+  color: var(--bg);
+  background: linear-gradient(135deg, rgba(143, 255, 234, 0.95), rgba(41, 255, 198, 0.72));
+  border-color: rgba(143, 255, 234, 0.75);
+  box-shadow: 0 0 16px rgba(41, 255, 198, 0.20);
+}
+.concise-toggle.is-off {
+  color: var(--ink-dim);
+  border-color: var(--line-soft);
+}
 .controls {
   display: flex;
   align-items: center;
@@ -5178,6 +5194,7 @@ main#play.fx-glitch {
   header .sub,
   .bgm-toggle,
   .lang-toggle,
+  .concise-toggle,
   .panel-title,
   .cmd-hotkey,
   .cmd-intent,
@@ -5247,7 +5264,8 @@ main#play.fx-glitch {
     font-size: 16px;
   }
   .lang-toggle,
-  .bgm-toggle {
+  .bgm-toggle,
+  .concise-toggle {
     min-height: 44px;
   }
 }

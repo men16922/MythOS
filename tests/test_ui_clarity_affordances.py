@@ -75,6 +75,44 @@ class UIClarityAffordancesTest(unittest.TestCase):
         self.assertIn(".aside-info-tooltip", css)
         self.assertIn(".aside-info-hint.aside-info-open .aside-info-tooltip", css)
 
+    def test_concise_mode_state_is_persisted_and_device_aware(self) -> None:
+        # T6a (mobile foundation): a global concise/information-density mode
+        # must default ON for coarse-pointer/small-viewport devices (mobile is
+        # UX-degraded by info density) but respect an explicit user override,
+        # and be reachable from anywhere without prop-drilling (Context, same
+        # shape as the existing `lang` context).
+        state = read("src/mythos_ui/src/conciseMode.ts")
+
+        self.assertIn('STORAGE_KEY = "mythos_concise_mode"', state)
+        self.assertIn('COARSE_POINTER_QUERY = "(pointer: coarse)"', state)
+        self.assertIn('SMALL_VIEWPORT_QUERY = "(max-width: 600px)"', state)
+        self.assertIn("export function resolveInitialConciseMode(", state)
+        self.assertIn("export function persistConciseMode(", state)
+        self.assertIn("export const ConciseModeContext = createContext<ConciseModeContextValue | null>(null)", state)
+        self.assertIn("export function useConciseMode(", state)
+
+        provider = read("src/mythos_ui/src/ConciseModeProvider.tsx")
+        self.assertIn("export function ConciseModeProvider(", provider)
+        self.assertIn('document.body.classList.toggle("concise-mode", conciseMode)', provider)
+        self.assertIn("persistConciseMode(next)", provider)
+
+        main = read("src/mythos_ui/src/main.tsx")
+        self.assertIn("<ConciseModeProvider>", main)
+
+        header = read("src/mythos_ui/src/HeaderBar.tsx")
+        self.assertIn("useConciseMode()", header)
+        self.assertIn('className={`concise-toggle ${conciseMode ? "is-on" : "is-off"}`}', header)
+        self.assertIn("aria-pressed={conciseMode}", header)
+
+        css = read("src/mythos_ui/src/index.css")
+        self.assertIn(".concise-toggle {", css)
+        self.assertIn(".concise-toggle.is-on {", css)
+        self.assertIn(".concise-toggle.is-off {", css)
+
+        for key in ("hdr.conciseOn", "hdr.conciseOff"):
+            self.assertIn(key, read("src/mythos_ui/src/i18n/strings.ko.ts"))
+            self.assertIn(key, read("src/mythos_ui/src/i18n/strings.en.ts"))
+
     def test_tactical_legend_auto_opens_once_per_browser(self) -> None:
         source = read("src/mythos_ui/src/StoryPanel.tsx")
 

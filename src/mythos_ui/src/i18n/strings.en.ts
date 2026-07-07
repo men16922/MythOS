@@ -21,6 +21,8 @@ export const en: Record<StringKey, string> = {
   "hdr.brand": "World : Connect",
   "hdr.bgmOff": "Turn BGM off",
   "hdr.bgmOn": "Turn BGM on",
+  "hdr.conciseOff": "Turn concise mode off",
+  "hdr.conciseOn": "Turn concise mode on",
   "hdr.leave": "Disconnect",
   "lang.switch": "Switch language",
   // Tab navigation

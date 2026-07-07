@@ -1,4 +1,5 @@
 import { useLang } from "./i18n/lang";
+import { useConciseMode } from "./conciseMode";
 
 interface HeaderBarProps {
   connected: boolean;
@@ -26,6 +27,7 @@ export function HeaderBar({
   onLeaveSession,
 }: HeaderBarProps) {
   const { lang, setLang, t } = useLang();
+  const { conciseMode, toggleConciseMode } = useConciseMode();
   return (
     <header>
       <div className="brand">
@@ -41,6 +43,15 @@ export function HeaderBar({
         aria-label={t("lang.switch")}
       >
         {lang === "ko" ? "EN" : "KO"}
+      </button>
+      <button
+        type="button"
+        className={`concise-toggle ${conciseMode ? "is-on" : "is-off"}`}
+        aria-pressed={conciseMode}
+        onClick={toggleConciseMode}
+        title={conciseMode ? t("hdr.conciseOff") : t("hdr.conciseOn")}
+      >
+        CONCISE {conciseMode ? "ON" : "OFF"}
       </button>
       <button
         type="button"

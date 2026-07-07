@@ -668,6 +668,15 @@ def create_app() -> FastAPI:
         try:
             if loop_id:
                 snapshot = service.resume(loop_id=loop_id, options=options)
+                # Identity guard (CBT feedback #3 T1): the snapshot's player is
+                # the LOOP owner, so serving a foreign loop_id would silently
+                # swap the session's identity (stale localStorage on a shared
+                # browser). Reject instead of leaking another player's loop.
+                if snapshot.loop.player_id != player_id:
+                    raise HTTPException(
+                        status_code=404,
+                        detail=f"loop not found for player: {loop_id}",
+                    )
             else:
                 snapshot = service.resume(player_id=player_id, options=options)
         except RuntimeError as exc:

@@ -72,8 +72,8 @@ Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop co
 
 ## P1.5 — CBT feedback #3: Clarity & Responsiveness (2026-07-08, design `docs/plans/2026-07-08-cbt-feedback3-clarity-plan.md`)
 
-- `[ ]` `[auto:claude]` **T1 identity-swap bug**: /diagnose(2-신원 재접속 갈아타기 가설) → 루프 세션은 항상
-  playing loop_id로 재개(플레이어 폴백 금지) + repro 회귀 테스트. Done = repro red→green + `make check` green.
+- `[x]` `[auto:claude]` **T1 identity-swap bug (DONE 2026-07-08 overnight)**: /diagnose(2-신원 재접속 갈아타기 가설) → 루프 세션은 항상
+  playing loop_id로 재개(플레이어 폴백 금지) + repro 회귀 테스트. Done = repro red→green + `make check` green (906).
 - `[ ]` `[auto:claude]` **T2 click/stream responsiveness**: WS keepalive+auto-reconnect + 선택지 클릭 즉시
   '전송 중' pending(형제 비활성, 재접속 후 1회 재전송 — 서버 멱등). Done = `make check` green + AGY not FAIL/NEEDS.
 - `[ ]` `[auto:claude]` **T3a narrative↔choice contract note** (본문 갈림길=선택지 미러, KO/EN prompts). Done = note in

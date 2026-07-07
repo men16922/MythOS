@@ -106,6 +106,10 @@ export function useSessionLifecycle(args: UseSessionLifecycleArgs) {
     logToConsole,
   } = args;
 
+  // Written at connect time (no loop yet); once a confirmed snapshot lands,
+  // `useSnapshotReceiver` re-writes this token with the playing loopId so
+  // resume pins to that loop instead of the per-player save-slot fallback
+  // (CBT feedback #3 T1 identity swap).
   const saveSessionMetadata = (pId: string, sId: string) => {
     try {
       localStorage.setItem(

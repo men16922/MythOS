@@ -3,6 +3,7 @@ import type { NarrativeHistoryItem } from "../App";
 import { prefersReducedMotion } from "../combatEffects";
 import { getLang } from "../api";
 import { DICTS } from "../i18n/lang";
+import { LS_KEY, parseResumeSession } from "../sessionStorage";
 import type { AssetInfo, RuntimeSnapshot } from "../types";
 
 type UseSnapshotReceiverArgs = {
@@ -58,6 +59,29 @@ export function useSnapshotReceiver(args: UseSnapshotReceiverArgs) {
 
   const handleReceivedSnapshot = (snap: RuntimeSnapshot) => {
     setLoopId(snap.loop_id);
+    // Pin the resume token to the loop being played (CBT feedback #3 T1): a
+    // token without loopId resumes via the server's per-player save-slot
+    // fallback, which can serve a different loop — and a stale playerId on a
+    // shared browser then swaps the whole identity. The confirmed snapshot is
+    // the authority for both ids.
+    if (snap.loop_id) {
+      try {
+        const saved = parseResumeSession(localStorage.getItem(LS_KEY));
+        const pid = snap.player?.player_id || saved?.playerId || playerId;
+        if (pid) {
+          localStorage.setItem(
+            LS_KEY,
+            JSON.stringify({
+              playerId: pid,
+              scenarioId: saved?.scenarioId ?? "neo-seoul",
+              loopId: snap.loop_id,
+            })
+          );
+        }
+      } catch {
+        logToConsole("로컬 세션 메타데이터 갱신 실패.");
+      }
+    }
     setLastSnapshot(snap);
     const gained = snap.active_scene?.choice_result?.items_gained;
     if (gained && gained.length > 0 && onItemsGained) {

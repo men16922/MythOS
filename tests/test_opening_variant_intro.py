@@ -75,6 +75,45 @@ class OpeningVariantIntroTest(unittest.TestCase):
                 # language-neutral base image on merge.
                 self.assertNotIn("image", shot, f"variant '{variant}' EN shot carries image")
 
+    def test_anchor_variants_and_gate_goals_cover_all_openings(self) -> None:
+        """S4 content coupling: the layer-0 anchor `variants` map and the connect
+        chapter-gate `player_goal_variants` must carry an entry per authored opening
+        variant, with real shot images and reentry beats/events — else the S1/S2
+        mechanisms silently fall back to the Se-rin rail on that variant."""
+        anchor = self.scenario.route_map["layers"][0]["anchors"][0]
+        anchor_variants = anchor.get("variants")
+        assert isinstance(anchor_variants, dict), "layer-0 anchor variants missing"
+        connect_gates = [
+            g
+            for g in self.scenario.session_design.get("chapter_gates", [])
+            if isinstance(g, dict) and g.get("phase") == "connect"
+        ]
+        self.assertEqual(len(connect_gates), 1, "connect chapter gate missing/duplicated")
+        goal_variants = connect_gates[0].get("player_goal_variants")
+        assert isinstance(goal_variants, dict), "connect gate player_goal_variants missing"
+        for variant in sorted(self.variants):
+            entry = anchor_variants.get(variant)
+            assert isinstance(entry, dict), f"anchor variants missing '{variant}'"
+            self.assertEqual(entry.get("beat"), f"opening_reentry_{variant}")
+            self.assertEqual(entry.get("event"), f"reentry_{variant}")
+            self.assertTrue(entry.get("title"), f"anchor variant '{variant}' missing title")
+            self.assertTrue(entry.get("summary"), f"anchor variant '{variant}' missing summary")
+            for rel in [entry.get("image"), *(entry.get("image_sequence") or [])]:
+                self.assertTrue(rel, f"anchor variant '{variant}' has an empty image ref")
+                self.assertTrue(
+                    (self.resources_dir / rel).exists(),
+                    f"anchor variant '{variant}' image missing: {rel}",
+                )
+            self.assertTrue(
+                str(goal_variants.get(variant, "")).strip(),
+                f"connect gate goal missing for '{variant}'",
+            )
+            directive = (self.resources_dir / "directives" / f"opening_{variant}.md").read_text(
+                encoding="utf-8"
+            )
+            self.assertIn("max_turn: 3", directive, f"'{variant}' directive window not 0-3")
+            self.assertIn("REENTRY_SCENE3", directive, f"'{variant}' missing turn-2 beat")
+
     def test_en_merge_localizes_text_and_keeps_base_image(self) -> None:
         prose = _localized_scenario_prose(self.scenario, "en")
         merged = prose.ui_copy.get("session_intro_variants")

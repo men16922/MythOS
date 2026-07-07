@@ -132,10 +132,19 @@ class AnchorVariantResolutionTest(unittest.TestCase):
         self.assertEqual(node["beat"], "opening_reentry_tae_o")
         self.assertEqual(node["variant"], "tae_o")
 
-    def test_neo_seoul_is_variant_neutral_until_authored(self) -> None:
-        """No scenario ships `variants` data yet — any pick must be a no-op."""
+    def test_neo_seoul_variant_pick_skins_the_opening_anchor(self) -> None:
+        """S4 shipped real `variants` data: a variant pick must skin the layer-0
+        anchor (beat/title swap) while the default pick keeps the Se-rin canon."""
         config = load_scenario("neo-seoul").route_map
-        self.assertEqual(_rm(config, "seed"), _rm(config, "seed", opening_variant="tae_o"))
+        default_node = _start_node(_rm(config, "seed"))
+        self.assertEqual(default_node["beat"], "opening_escape")
+        self.assertNotIn("variant", default_node)
+        variant_node = _start_node(_rm(config, "seed", opening_variant="tae_o"))
+        self.assertEqual(variant_node["beat"], "opening_reentry_tae_o")
+        self.assertEqual(variant_node["title"], "바리케이드의 침묵")
+        self.assertEqual(variant_node["variant"], "tae_o")
+        # Graph identity is preserved — only content fields differ.
+        self.assertEqual(default_node.get("crosses"), variant_node.get("crosses"))
 
 
 class AnchorVariantContentContractTest(unittest.TestCase):

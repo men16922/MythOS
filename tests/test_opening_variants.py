@@ -33,26 +33,40 @@ class OpeningVariantFilesTest(unittest.TestCase):
     def test_scenario_without_variants_scans_empty(self) -> None:
         self.assertEqual(available_opening_variants("glass-library"), frozenset())
 
-    def test_every_variant_is_a_one_cut_reentry_in_both_languages(self) -> None:
+    def test_every_variant_owns_a_three_turn_reentry_window_in_both_languages(self) -> None:
+        """S4 (variant-routed opening): the 1-cut design grew into a turn 0-3 window
+        so the variant's hook develops instead of evaporating into the Se-rin rail
+        at turn 1 (live evidence 2026-07-06). Beats at turns 0/1/2; turn 3 rides the
+        header rules only. Every beat forbids the Se-rin first-contact re-enactment
+        and never completes a meeting or starts combat."""
         for variant in sorted(VARIANTS):
             for language in ("ko", "en"):
                 directives = load_scenario_directives(
                     "neo-seoul", language, opening_variant=variant
                 )
                 self.assertEqual(
-                    directives.opening_max_turn, 0, f"{variant}/{language} is not 1-cut"
+                    directives.opening_max_turn, 3, f"{variant}/{language} window is not 0-3"
                 )
                 self.assertEqual(
                     [b.turn for b in directives.opening_beats],
-                    [0],
+                    [0, 1, 2],
                     f"{variant}/{language} beat turns wrong",
                 )
                 self.assertTrue(directives.opening_header, f"{variant}/{language} lost header")
-                self.assertIn(
-                    "REENTRY", directives.opening_beats[0].body, f"{variant}/{language} body"
-                )
-                # 변주는 만남을 완결하지 않는다 — 전투도 시작하지 않는다.
-                self.assertIsNone(directives.opening_beats[0].start_combat)
+                for beat in directives.opening_beats:
+                    self.assertIn(
+                        "REENTRY", beat.body, f"{variant}/{language} turn {beat.turn} body"
+                    )
+                    # 변주는 만남을 완결하지 않는다 — 전투도 시작하지 않는다.
+                    self.assertIsNone(beat.start_combat)
+                    self.assertTrue(beat.forbidden, f"{variant}/{language} turn {beat.turn}")
+                # 후속 비트(턴1+)는 세린 표준 첫-접촉 재연을 명시적으로 금지한다.
+                for beat in directives.opening_beats[1:]:
+                    self.assertIn(
+                        "se_rin",
+                        beat.forbidden.lower().replace("-", "_"),
+                        f"{variant}/{language} turn {beat.turn} missing the se_rin policy",
+                    )
 
     def test_unknown_variant_falls_back_to_default_opening(self) -> None:
         directives = load_scenario_directives("neo-seoul", "ko", opening_variant="nonexistent")

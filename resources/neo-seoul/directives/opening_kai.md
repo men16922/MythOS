@@ -4,7 +4,7 @@
 # _opening_variant='kai'일 때 opening.md 대신 이 파일의 beat를 주입한다.
 # 실제 조우는 만남 아크(B1 보장 슬롯)가 소유한다 — 이 장면은 '예고'만 심는다.
 header: === 오프닝 장면 지시 (재진입 변주 · 최우선) ===
-max_turn: 0
+max_turn: 3
 
 ## ONBOARDING_SCENE1 (turn=0, label=REENTRY // BACKDOOR SIGNAL)
 location_lock: 야외, 비 내리는 C-17 네온 골목 — 폐기층 방향 어귀
@@ -19,3 +19,23 @@ ONBOARDING_SCENE1 (REENTRY // BACKDOOR SIGNAL): 루프 재진입 장면입니다
  2) '단말의 잔여 로그를 훑는다'처럼 신호의 출처를 캐는 선택지
  3) '함정일 수 있다 — 신호를 무시하고 몸을 낮춘다'처럼 경계하는 선택지
 중요: 이 장면은 각성·훅 단계이므로 절대 전투를 시작하지 마십시오. world_delta.start_combat은 반드시 null이어야 하며, met_kai 등 만남 플래그도 설정하지 마십시오(만남은 작전지도의 해당 아크에서 완결됩니다).
+
+## REENTRY_SCENE2 (turn=1, label=REENTRY // TRACE)
+location_lock: 야외, 네온 골목 — 좌표 방향의 이동 경로
+mandatory_event: 좌표 방향으로 이동 중 같은 서명의 두 번째 신호(짧은 재송신)를 수신 (발신자 미공개)
+forbidden: 정세린 표준 첫-접촉 비트 재연(손목 잡기·"뛰어"·바이크 구출), met_se_rin/trusted_se_rin/refused_se_rin 플래그 설정, 실루엣·발신자의 신원 확정, 전투 시작, 카이의 이름·등장
+flags:
+start_combat:
+---
+REENTRY_SCENE2 (TRACE): 좌표가 가리키는 방향으로 골목을 접습니다. 죽은 광고판 하나가 지나치는 순간에만 깜빡이고, 손목의 삭제 마크가 미열처럼 반응합니다 — 신호는 당신을 알아보고 있습니다. 두 번째 재송신은 더 짧고 더 가깝습니다. 발신자를 보여주지 말고, 도시의 죽은 기계들이 한 방향으로 살아나는 리듬으로만 존재를 그리십시오.
+선택지 생성 가이드(전투 없이): 1) 재송신의 리듬에 맞춰 이동한다 2) 신호를 무시하고 큰길로 우회한다 3) 죽은 단말기 하나를 골라 신호를 되짚는다
+
+## REENTRY_SCENE3 (turn=2, label=REENTRY // THRESHOLD)
+location_lock: 야외, 폐기층 어귀 — 신호가 끊기는 지점
+mandatory_event: 좌표 지점 도착 + 신호 종료, 백도어의 입구만 확인 (발신자 신원 미공개)
+forbidden: 정세린 표준 첫-접촉 비트 재연(손목 잡기·"뛰어"·바이크 구출), met_se_rin/trusted_se_rin/refused_se_rin 플래그 설정, 실루엣·발신자의 신원 확정, 전투 시작
+flags:
+start_combat:
+---
+REENTRY_SCENE3 (THRESHOLD): 좌표의 끝은 폐기층으로 내려가는 어귀입니다. 신호는 여기서 딱 끊깁니다 — 문을 열어 둔 손은 끝내 보이지 않습니다. 열린 것은 길이지 초대장의 주인이 아닙니다. 정세린이 등장한다면 원거리 목격·소문까지만. 이후 전개를 작전지도의 경로 선택으로 넘기십시오.
+선택지 생성 가이드: 1) 어귀를 눈에 담고 물러난다 2) 입구 주변의 흔적을 살핀다 3) 좌표를 기억하고 다른 경로로 이동한다

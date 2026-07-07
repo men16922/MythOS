@@ -1,6 +1,6 @@
 # Neo-Seoul Opening Variant — Su-a (Loop 2+ re-entry, 1 cut) — EN
 header: === OPENING SCENE DIRECTIVE (RE-ENTRY VARIANT · HIGHEST PRIORITY) ===
-max_turn: 0
+max_turn: 3
 
 ## ONBOARDING_SCENE1 (turn=0, label=REENTRY // GHOST PING)
 location_lock: Outdoors, rainy C-17 neon street — a surveillance-camera crossfire zone
@@ -15,3 +15,23 @@ Choice generation guide (no combat):
  2) A tracing choice like "Pick apart the ping's forged signature"
  3) A wary choice like "Could be bait — block the ping and take your own path"
 Important: this is an awakening/hook beat — never start combat. world_delta.start_combat must be null, and do not set met_su_ah or any meeting flag (the meeting is completed by its arc on the operation map).
+
+## REENTRY_SCENE2 (turn=1, label=REENTRY // CORRIDOR)
+location_lock: Outdoors, camera-crossed junction — the corridor of emptied blind spots
+mandatory_event: The blind spot slips once (one camera returns early) — the feeling of being tested (no detection)
+forbidden: Re-enacting Se-rin's canonical first-contact beat (wrist grab / "Run" / bike rescue), setting met_se_rin/trusted_se_rin/refused_se_rin flags, confirming the silhouette's/sender's identity, starting combat, Su-ah's name or appearance
+flags:
+start_combat:
+---
+REENTRY_SCENE2 (CORRIDOR): You walk the emptied blind spots. The lenses all watch, in rhythm, the places you are not — then one swings back half a beat early. Three seconds counted flat against a wall. The gap opens again. Do not say whether it was a mistake or a test. Draw the unseen guide only as the choreography of cameras, and let the received ping's coordinates decide where your feet point.
+Choice generation guide (no combat): 1) Trust the choreography and pass on its rhythm 2) Remember the half-beat slip and change your pace 3) Measure a route outside the blind spots by eye
+
+## REENTRY_SCENE3 (turn=2, label=REENTRY // EDGE)
+location_lock: Outdoors, past the junction — the surveillance grid's edge
+mandatory_event: Leave the sector + receive the ping's last echo (a short termination signal; sender undisclosed)
+forbidden: Re-enacting Se-rin's canonical first-contact beat (wrist grab / "Run" / bike rescue), setting met_se_rin/trusted_se_rin/refused_se_rin flags, confirming the silhouette's/sender's identity, starting combat
+flags:
+start_combat:
+---
+REENTRY_SCENE3 (EDGE): Past the junction the camera density thins. The ping sounds once more — short, like a confirmation — and goes silent, as if the watching eyes had finished their shift. Do not settle who cleared the way, or why. If Jung Se-rin appears, distant sighting or rumor only. Hand the flow off to the operation map's route choices.
+Choice generation guide: 1) Memorize the echo's bearing and move 2) Keep a safe margin along the grid's edge 3) Tally the price of the favor you were given

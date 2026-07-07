@@ -1,6 +1,6 @@
 # Neo-Seoul Opening Variant — Han (Loop 2+ re-entry, 1 cut) — EN
 header: === OPENING SCENE DIRECTIVE (RE-ENTRY VARIANT · HIGHEST PRIORITY) ===
-max_turn: 0
+max_turn: 3
 
 ## ONBOARDING_SCENE1 (turn=0, label=REENTRY // SHORTCUT)
 location_lock: Outdoors, rainy C-17 welfare-block passage — before a closing shutter
@@ -15,3 +15,23 @@ Choice generation guide (no combat):
  2) A remembering choice like "Fix the vanishing man's back in your memory"
  3) A wary choice like "Decline unexplained favors — find another way"
 Important: this is an awakening/hook beat — never start combat. world_delta.start_combat must be null, and do not set met_han or any meeting flag (the meeting is completed by its arc on the operation map).
+
+## REENTRY_SCENE2 (turn=1, label=REENTRY // DRAIN)
+location_lock: Indoors, inside the drainage channel — a dark, narrow waterway
+mandatory_event: Let a patrol drone pass overhead beyond the grate (no detection)
+forbidden: Re-enacting Se-rin's canonical first-contact beat (wrist grab / "Run" / bike rescue), setting met_se_rin/trusted_se_rin/refused_se_rin flags, confirming the silhouette's/sender's identity, starting combat, the man reappearing
+flags:
+start_combat:
+---
+REENTRY_SCENE2 (DRAIN): Inside the drainage channel. The man is already gone; what remains is ankle-deep rainwater and red patrol light leaking through the grate overhead. A drone's propellers pass right above — hold your breath and it moves on; hurry and the water sells you out. Show, through sensation only, where an unnamed favor leads and why this shortcut is on no control-net map. Stay with filmable detail (the water's chill, the drifting grate shadows, an old chalk mark on the wall); never explain.
+Choice generation guide (no combat): 1) Kill the sound and wait out the patrol 2) Follow the chalk marks deeper 3) Push for the nearest exit
+
+## REENTRY_SCENE3 (turn=2, label=REENTRY // SURFACE)
+location_lock: Outdoors, back yard of the welfare block — the drain exit
+mandatory_event: Return to the surface + find one trace the man left by the exit (no identity confirmed)
+forbidden: Re-enacting Se-rin's canonical first-contact beat (wrist grab / "Run" / bike rescue), setting met_se_rin/trusted_se_rin/refused_se_rin flags, confirming the silhouette's/sender's identity, starting combat
+flags:
+start_combat:
+---
+REENTRY_SCENE3 (SURFACE): The exit surfaces into the welfare block's back yard. The patrol has already passed — his math was right. On the inside of the cover, one more chalk mark, this time an arrow pointing deeper into the city. The one who left the favor exists only as traces. If Jung Se-rin appears at all, keep it to a distant sighting or a single line of rumor — no contact, dialogue, or rescue. Hand the flow off naturally to the operation map's route choices.
+Choice generation guide: 1) Turn toward where the arrow points 2) Memorize the mark and go your own way 3) Sweep the area for another trace

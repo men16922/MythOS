@@ -242,7 +242,15 @@
         "phase": "connect",
         "turn_range": "0-6",
         "gate": "세린과 C-17을 탈출하고 met_se_rin 또는 refused_se_rin이 기록된다.",
-        "player_goal": "정세린과 함께 C-17 정전 구역을 빠져나간다."
+        "player_goal": "정세린과 함께 C-17 정전 구역을 빠져나간다.",
+        "player_goal_variants": {
+          "han": "사내가 가리킨 배수로 지름길로 통로를 벗어난다.",
+          "kai": "죽은 단말기가 뱉은 좌표가 가리키는 곳을 확인한다.",
+          "lin_yue": "방수포에 꽂힌 의뢰 쪽지의 발신인을 추적한다.",
+          "su_ah": "승인되지 않은 핑이 비워 준 사각을 따라 구역을 벗어난다.",
+          "tae_o": "수신호가 가리킨 안전선을 따라 순찰 반대편으로 이동한다.",
+          "solo": "아무의 손도 없이 C-17 정전 구역을 빠져나간다."
+        }
       },
       {
         "phase": "explore",
@@ -654,6 +662,80 @@
               "opening/opening-03-drone-chase.png"
             ],
             "event": "se_rin_rescue",
+            "variants": {
+              "han": {
+                "beat": "opening_reentry_han",
+                "title": "지름길의 값",
+                "image": "opening/opening-han.png",
+                "image_pre": null,
+                "image_sequence": [
+                  "opening/opening-han.png",
+                  "opening/opening-han-02.png"
+                ],
+                "event": "reentry_han",
+                "summary": "이름 없는 사내의 지름길을 믿는다. 호의의 값은 아직 청구되지 않았다."
+              },
+              "kai": {
+                "beat": "opening_reentry_kai",
+                "title": "백도어 좌표",
+                "image": "opening/opening-kai.png",
+                "image_pre": null,
+                "image_sequence": [
+                  "opening/opening-kai.png",
+                  "opening/opening-kai-02.png"
+                ],
+                "event": "reentry_kai",
+                "summary": "관리망에 없는 좌표를 따라간다. 문을 열어 둔 손은 아직 보이지 않는다."
+              },
+              "lin_yue": {
+                "beat": "opening_reentry_lin_yue",
+                "title": "자정의 의뢰",
+                "image": "opening/opening-lin_yue.png",
+                "image_pre": null,
+                "image_sequence": [
+                  "opening/opening-lin_yue.png",
+                  "opening/opening-lin_yue-02.png"
+                ],
+                "event": "reentry_lin_yue",
+                "summary": "젖은 쪽지의 금박 인장을 챙긴다. 자정의 다리가 이번 루프의 첫 약속이 된다."
+              },
+              "su_ah": {
+                "beat": "opening_reentry_su_ah",
+                "title": "비워진 사각",
+                "image": "opening/opening-su_ah.png",
+                "image_pre": null,
+                "image_sequence": [
+                  "opening/opening-su_ah.png",
+                  "opening/opening-su_ah-02.png"
+                ],
+                "event": "reentry_su_ah",
+                "summary": "누군가 비워 준 사각을 따라 움직인다. 감시망 안에서, 감시받지 않는 길."
+              },
+              "tae_o": {
+                "beat": "opening_reentry_tae_o",
+                "title": "바리케이드의 침묵",
+                "image": "opening/opening-tae_o.png",
+                "image_pre": null,
+                "image_sequence": [
+                  "opening/opening-tae_o.png",
+                  "opening/opening-tae_o-02.png"
+                ],
+                "event": "reentry_tae_o",
+                "summary": "수신호가 가리킨 쪽으로 몸을 낮춘다. 바리케이드 너머의 침묵이 당신을 통과시킨다."
+              },
+              "solo": {
+                "beat": "opening_reentry_solo",
+                "title": "혼자 남은 골목",
+                "image": "opening/opening-solo.png",
+                "image_pre": null,
+                "image_sequence": [
+                  "opening/opening-solo.png",
+                  "opening/opening-solo-02.png"
+                ],
+                "event": "reentry_solo",
+                "summary": "아무도 오지 않는 골목에서 스스로 일어선다. 이번 루프의 첫 손은 자신의 것이다."
+              }
+            },
             "default_perspective": "p_trust",
             "perspectives": [
               {

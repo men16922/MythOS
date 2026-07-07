@@ -72,7 +72,7 @@ Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop co
 - `[x]` **T5/T6 RESOLVED 2026-07-08 (owner: mobile-inclusive P0)** → reframed mobile-first + Track M prerequisite; slices below. Rationale: plan "Decision 2026-07-08". Residual `[manual]`: T4/S4 copy tone + play-feel (owner, local).
 - **Track M — mobile foundation (P0, prerequisite; do first)**:
   - `[x]` `[auto:claude]` **M1** `100vh`→`100dvh` (`index.css:36`/`:3548`). DONE 2026-07-08 overnight; `make check` 916 green. AGY @390px no-clip check pending (post-commit auto-screen).
-  - `[ ]` `[auto:claude]` **M2** <600px phone breakpoint: readable base font (UI text is 9–11px) + 44px tap targets (zoom btn 22px, header toggles). CSS-only. Done = AGY @390px not FAIL.
+  - `[x]` `[auto:claude]` **M2** <600px phone breakpoint: readable base font (UI text is 9–11px) + 44px tap targets (zoom btn 22px, header toggles). CSS-only. DONE 2026-07-08 overnight; `make check` 916 green. AGY @390px check pending (post-commit auto-screen).
   - `[ ]` `[auto:claude]` **M3** hover-only `title=` (~20 sites) → tap-openable tooltip, **starting with the T4a axis chip** (shipped hover-only = dead on touch). Done = unit test + AGY tap opens tooltip; desktop behavior-preserving.
   - `[ ]` `[manual]` **M4** verify 7 `position:fixed` modals for scroll-lock/clip on phone.
 - **T6 — 간결(concise) mode (mobile default ON)** (after M1/M2):

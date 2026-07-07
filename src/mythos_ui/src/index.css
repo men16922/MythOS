@@ -345,11 +345,37 @@ main {
   align-items: center;
   gap: 4px;
   cursor: help;
+  position: relative;
 }
 .axis-chip-icon {
   color: var(--term-dim);
   font-size: 10px;
   line-height: 1;
+}
+/* M3: tap-openable tooltip bubble (replaces hover-only title=, which was
+   dead on touch). Hover still shows it on desktop; .axis-chip-open is the
+   tap-toggled state for touch. */
+.axis-chip-tooltip {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  z-index: 20;
+  min-width: 180px;
+  max-width: 260px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--panel-2);
+  color: var(--ink);
+  font-size: 11px;
+  line-height: 1.4;
+  white-space: normal;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+}
+.axis-chip:hover .axis-chip-tooltip,
+.axis-chip.axis-chip-open .axis-chip-tooltip {
+  display: block;
 }
 /* Combat telegraph: a choice known to lead into tactical combat. */
 .cmd-chip.combat-risk {

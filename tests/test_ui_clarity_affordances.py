@@ -18,8 +18,22 @@ class UIClarityAffordancesTest(unittest.TestCase):
 
         self.assertIn('t("choice.axis.tooltip")', source)
         self.assertIn('t("choice.axis.aria")', source)
-        self.assertIn('className="cmd-chip axis-chip"', source)
+        self.assertIn('className={`cmd-chip axis-chip', source)
         self.assertIn('className="axis-chip-icon"', source)
+
+    def test_choice_axis_chip_tooltip_is_tap_openable(self) -> None:
+        # M3 (mobile clarity): the axis chip's hint was a hover-only `title=`,
+        # dead on touch. Locks that it is now a tap-toggled popover instead.
+        source = read("src/mythos_ui/src/ChoicePanel.tsx")
+
+        self.assertIn("function AxisChip(", source)
+        self.assertIn("setOpen((prev) => !prev)", source)
+        self.assertIn('className="axis-chip-tooltip" role="tooltip"', source)
+        self.assertNotIn("title={axisTooltip}", source)
+
+        css = read("src/mythos_ui/src/index.css")
+        self.assertIn(".axis-chip-tooltip", css)
+        self.assertIn(".axis-chip.axis-chip-open .axis-chip-tooltip", css)
 
     def test_tactical_legend_auto_opens_once_per_browser(self) -> None:
         source = read("src/mythos_ui/src/StoryPanel.tsx")

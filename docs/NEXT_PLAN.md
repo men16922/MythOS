@@ -73,7 +73,7 @@ Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop co
 - **Track M — mobile foundation (P0, prerequisite; do first)**:
   - `[x]` `[auto:claude]` **M1** `100vh`→`100dvh` (`index.css:36`/`:3548`). DONE 2026-07-08 overnight; `make check` 916 green. AGY @390px no-clip check pending (post-commit auto-screen).
   - `[x]` `[auto:claude]` **M2** <600px phone breakpoint: readable base font (UI text is 9–11px) + 44px tap targets (zoom btn 22px, header toggles). CSS-only. DONE 2026-07-08 overnight; `make check` 916 green. AGY @390px check pending (post-commit auto-screen).
-  - `[ ]` `[auto:claude]` **M3** hover-only `title=` (~20 sites) → tap-openable tooltip, **starting with the T4a axis chip** (shipped hover-only = dead on touch). Done = unit test + AGY tap opens tooltip; desktop behavior-preserving.
+  - `[/]` `[auto:claude]` **M3** hover-only `title=` (~20 sites) → tap-openable tooltip. **T4a axis chip DONE 2026-07-08** (`AxisChip` popover in `ChoicePanel.tsx`; unit test `test_choice_axis_chip_tooltip_is_tap_openable`; `make check` 917 green; AGY tap check pending post-commit auto-screen). Remaining sites: `GameAside`×6, `CombatControls`×3, `StoryPanel`×3, `HeaderBar`×2.
   - `[ ]` `[manual]` **M4** verify 7 `position:fixed` modals for scroll-lock/clip on phone.
 - **T6 — 간결(concise) mode (mobile default ON)** (after M1/M2):
   - `[ ]` `[auto:claude]` **T6a** concise-mode state + persisted toggle; default ON for coarse-pointer / small viewport.

@@ -5,6 +5,12 @@ Last updated: 2026-07-08
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-08 (overnight, claude lane) — T6b Save/Map aside panels collapse to chip in concise mode (Track M/T6 mobile foundation)
+- Status: Done; `make check` **921** green (+1 test). Top unfinished `[auto:claude]` item was actually M3's remaining sites, but that item's prior close-out attempt (`b86116d` "M3 CLOSED: remaining sites out-of-scope") was human-reverted 7s later (`5810c3b`) — same signal as the earlier `useViewModels`/slice-14 revert precedent recorded in this file's Maintenance section. Per that precedent (don't re-attempt a reverted judgment call verbatim), this iteration skipped M3 and took the next queued item, T6b, instead. M3 remains `[/]` in `NEXT_PLAN.md`, untouched; needs a human call on whether the 7 remaining `title=` sites (CombatControls×2, StoryPanel×3, HeaderBar×2) should actually convert to tap-openable tooltips rather than be judged out-of-scope.
+- Changed: `GameAside.tsx` — new `AsideChip` (native `<details>`/`<summary>` chip, same shape `LogPanel` already used) wraps `SaveHistoryPanel` and `OperationMapPanel` only when `useConciseMode()` is true, collapsed by default (tap summary to expand); non-concise (desktop default) renders both panels unwrapped, unchanged from before T6b. `LogPanel` was already a `<details>` chip so it needed no change. `index.css` — `.aside-chip`/`.aside-chip-summary`/`.aside-chip-body` chip styling + `.aside-chip-body .panel` override to flatten the nested panel's own border/padding/background so it doesn't double up visually when expanded. `tests/test_ui_clarity_affordances.py` — new `test_aside_save_and_map_panels_collapse_to_chip_in_concise_mode` source-locks the wiring.
+- Verified: `make check` green (ruff/eslint/mypy 167/tsc+vite/unittest 921, 2 skipped, validate-content 2). AGY mobile check not run this iteration (browser QA outside the unattended gate; post-commit AGY live-QA auto-screens per the MythOS live-QA guard).
+- Blockers: none for T6b. M3 (see above) needs human judgment before the next overnight iteration touches it again. Next (auto): T6c combat-panel density reduction, or M3 once a human decides its remaining scope.
+
 ## 2026-07-08 (overnight, claude lane) — T6a concise-mode state + persisted toggle (Track M/T6 mobile foundation)
 - Status: Done; `make check` **920** green (+1 test). First T6 slice (info-density mode), gated on Track M
   (M1-M3) which just finished; adds only the state/toggle infra — no panel collapsing yet (T6b/T6c).
@@ -103,18 +109,5 @@ This file keeps **only recent incremental summaries within the 120-line budget**
 - Blockers: none. Next: T4a axis tooltip + legend overlay (`[auto:claude]`); T3b/T4 plain-copy pass is codex
   lane; LLM adherence feel folds into the next sign-off run (`[manual]`).
 
-## 2026-07-08 (overnight, claude lane) — T2 click/stream responsiveness (P1.5 CBT feedback #3)
-- Status: P1.5 T2 done; `make check` **908** green (+2 tests). Addresses "선택지 3번 클릭" (WS idle drop ~45s).
-- Changed: ① keepalive — SPA `useGameSocket` sends `{"event":"ping"}` every 20s per open socket;
-  `mythos_api/app.py` `loops_stream` answers `{"type":"pong"}` without entering the stream pipeline; pong
-  swallowed client-side (transport-level). ② optimistic choice — `sendChoose` no longer silently no-ops on a
-  dead socket: sets `pendingChoiceId` instantly (clicked card pulses "전송 중", siblings disabled — ChoicePanel/
-  StoryPanel/App wiring + CSS), then `ensureOpenSocket()` (cancels backoff, supersedes dead socket, stale-onclose
-  identity guard) re-sends the choice exactly once (server duplicate-choose already returns current snapshot);
-  reconnect-fail resets pending+status. i18n `sess.reconnecting`/`sess.reconnectFail`/`choice.sending` KO+EN.
-- Verified: `make check` green (ruff/eslint/mypy 166/tsc+vite/unittest 908, 2 skipped, validate-content 2);
-  new `test_api.py` ping→pong ×2 (idle keepalive + mid-session between begin/choose).
-- Blockers: none. Next: T3a narrative↔choice contract note (`[auto:claude]`); AGY live-QA auto-screens post-commit.
-
-Older 2026-07-08 entries (T1 identity-swap fix; S4 variant-routed opening content) moved to
+Older 2026-07-08 entries (T2 responsiveness; T1 identity-swap fix; S4 variant-routed opening content) moved to
 `bin/docs/archive/progress-2026-07.md` to hold the line budget.

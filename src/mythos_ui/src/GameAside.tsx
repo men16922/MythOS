@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { buildGaugeConfig } from "./gauges";
 import { SaveHistoryPanel } from "./SaveHistoryPanel";
+import { useConciseMode } from "./conciseMode";
 import { useLang } from "./i18n/lang";
 import type { StringKey } from "./i18n/strings.ko";
 import type {
@@ -564,6 +565,25 @@ export function GaugeBar({
   );
 }
 
+// T6b (mobile density): in concise mode, secondary aside panels (Save/Map)
+// start collapsed as a one-line summary chip (native <details>/<summary>,
+// same tap-to-expand shape LogPanel already used) instead of full-height
+// cards. Non-concise mode renders children unwrapped, unchanged from before.
+function AsideChip({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <details className="panel aside-chip">
+      <summary className="panel-title aside-chip-summary">{title}</summary>
+      <div className="aside-chip-body">{children}</div>
+    </details>
+  );
+}
+
 function LogPanel({ consoleLogs }: { consoleLogs: string }) {
   const { t } = useLang();
   return (
@@ -602,6 +622,8 @@ export function GameAside({
   onOpenLoad,
   onOpenCodex,
 }: GameAsideProps) {
+  const { t } = useLang();
+  const { conciseMode } = useConciseMode();
   if (minimal) {
     return (
       <aside>
@@ -609,16 +631,28 @@ export function GameAside({
       </aside>
     );
   }
+  const saveHistory = (
+    <SaveHistoryPanel
+      isBusy={isBusy}
+      canSave={canSave}
+      onOpenSave={onOpenSave}
+      onOpenLoad={onOpenLoad}
+    />
+  );
+  const operationMap = <OperationMapPanel snapshot={finalizedSnapshot} onOpenCodex={onOpenCodex} />;
   return (
     <aside>
-      <SaveHistoryPanel
-        isBusy={isBusy}
-        canSave={canSave}
-        onOpenSave={onOpenSave}
-        onOpenLoad={onOpenLoad}
-      />
+      {conciseMode ? (
+        <AsideChip title={t("save.title")}>{saveHistory}</AsideChip>
+      ) : (
+        saveHistory
+      )}
       <div className={revealNudge ? "aside-reveal-nudge" : undefined}>
-        <OperationMapPanel snapshot={finalizedSnapshot} onOpenCodex={onOpenCodex} />
+        {conciseMode ? (
+          <AsideChip title={t("aside.route.title")}>{operationMap}</AsideChip>
+        ) : (
+          operationMap
+        )}
       </div>
       <StatusPanel snapshot={finalizedSnapshot} />
       <LogPanel consoleLogs={consoleLogs} />

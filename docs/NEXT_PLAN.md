@@ -77,7 +77,7 @@ Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop co
   - `[ ]` `[manual]` **M4** verify 7 `position:fixed` modals for scroll-lock/clip on phone.
 - **T6 — 간결(concise) mode (mobile default ON)** (after M1/M2):
   - `[x]` `[auto:claude]` **T6a** concise-mode state + persisted toggle; default ON for coarse-pointer / small viewport. DONE 2026-07-08 overnight (`conciseMode.ts`/`ConciseModeProvider.tsx` + `HeaderBar` toggle); `make check` 920 green.
-  - `[ ]` `[auto:claude]` **T6b** collapse secondary aside panels (Save/Map/Log) → summary chips, tap to expand.
+  - `[x]` `[auto:claude]` **T6b DONE 2026-07-08** collapse secondary aside panels (Save/Map) → summary chips, tap to expand (Log was already a `<details>` chip, unchanged). New `AsideChip` (`GameAside.tsx`) wraps `SaveHistoryPanel`/`OperationMapPanel` in a native `<details>` only when `conciseMode` is on (collapsed by default); non-concise mode renders them unwrapped, byte-identical to before. `make check` 921 green.
   - `[ ]` `[auto:claude]` **T6c** combat-panel density reduction at the ~9–10-cluster peak. Done per slice = `make check` green + AGY mobile not FAIL.
 - **T5 — board viewpoint (mobile-first)**:
   - `[ ]` `[auto:claude]` **T5a** movement affordance: reachable-tile highlight + path/target preview + auto-center on active unit (reachable calc already in TileInspector).

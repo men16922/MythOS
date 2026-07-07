@@ -205,6 +205,32 @@ main {
   color: var(--term);
   border-color: var(--term);
 }
+/* T6b: concise-mode aside panels (Save/Map) collapse into a one-line summary
+   chip by default; tapping the chip title expands to the full panel. */
+.aside-chip {
+  padding: 0;
+}
+.aside-chip-summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 16px;
+  margin: 0;
+}
+.aside-chip-summary::-webkit-details-marker {
+  display: none;
+}
+.aside-chip[open] .aside-chip-summary {
+  padding-bottom: 10px;
+}
+.aside-chip-body {
+  padding: 0 16px 16px;
+}
+.aside-chip-body .panel {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
 /* Status gauges show numbers only by default; descriptions reveal on toggle. */
 .status-panel .gauge-hint {
   display: none;

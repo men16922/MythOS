@@ -1,5 +1,18 @@
 # Progress archive — 2026-07
 
+## 2026-07-08 (overnight, claude lane) — T2 click/stream responsiveness (P1.5 CBT feedback #3)
+- Status: P1.5 T2 done; `make check` **908** green (+2 tests). Addresses "선택지 3번 클릭" (WS idle drop ~45s).
+- Changed: ① keepalive — SPA `useGameSocket` sends `{"event":"ping"}` every 20s per open socket;
+  `mythos_api/app.py` `loops_stream` answers `{"type":"pong"}` without entering the stream pipeline; pong
+  swallowed client-side (transport-level). ② optimistic choice — `sendChoose` no longer silently no-ops on a
+  dead socket: sets `pendingChoiceId` instantly (clicked card pulses "전송 중", siblings disabled — ChoicePanel/
+  StoryPanel/App wiring + CSS), then `ensureOpenSocket()` (cancels backoff, supersedes dead socket, stale-onclose
+  identity guard) re-sends the choice exactly once (server duplicate-choose already returns current snapshot);
+  reconnect-fail resets pending+status. i18n `sess.reconnecting`/`sess.reconnectFail`/`choice.sending` KO+EN.
+- Verified: `make check` green (ruff/eslint/mypy 166/tsc+vite/unittest 908, 2 skipped, validate-content 2);
+  new `test_api.py` ping→pong ×2 (idle keepalive + mid-session between begin/choose).
+- Blockers: none. Next: T3a narrative↔choice contract note (`[auto:claude]`); AGY live-QA auto-screens post-commit.
+
 ## 2026-07-08 (overnight, claude lane) — T1 identity-swap fix (P1.5 CBT feedback #3)
 - Status: P1.5 T1 done via /diagnose; repro red→green; `make check` **906** green (+4 tests).
 - Changed: `mythos_api/app.py` `/loops/active` — resuming by `loop_id` now 404s when the loop's owner !=

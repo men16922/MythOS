@@ -130,6 +130,25 @@ class UIClarityAffordancesTest(unittest.TestCase):
         self.assertIn('t("tab.codex")', aside)
         self.assertIn('onOpenCodex={() => handleTabClick("codex")}', app)
 
+    def test_aside_save_and_map_panels_collapse_to_chip_in_concise_mode(self) -> None:
+        # T6b (mobile density): in concise mode, the Save and Map aside panels
+        # start collapsed as a one-line summary chip (native details/summary,
+        # same tap-to-expand shape LogPanel already used); non-concise mode
+        # renders them unwrapped, unchanged from before T6b.
+        source = read("src/mythos_ui/src/GameAside.tsx")
+
+        self.assertIn('import { useConciseMode } from "./conciseMode";', source)
+        self.assertIn("function AsideChip(", source)
+        self.assertIn('<details className="panel aside-chip">', source)
+        self.assertIn('<summary className="panel-title aside-chip-summary">{title}</summary>', source)
+        self.assertIn("const { conciseMode } = useConciseMode();", source)
+        self.assertIn('conciseMode ? (\n        <AsideChip title={t("save.title")}>{saveHistory}</AsideChip>', source)
+        self.assertIn('conciseMode ? (\n          <AsideChip title={t("aside.route.title")}>{operationMap}</AsideChip>', source)
+
+        css = read("src/mythos_ui/src/index.css")
+        self.assertIn(".aside-chip-summary", css)
+        self.assertIn(".aside-chip-body .panel", css)
+
     def test_i18n_and_css_keys_are_present(self) -> None:
         ko = read("src/mythos_ui/src/i18n/strings.ko.ts")
         en = read("src/mythos_ui/src/i18n/strings.en.ts")

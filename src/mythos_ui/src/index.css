@@ -1053,6 +1053,7 @@ main {
 }
 .cc-skill {
   --role-color: var(--term);
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1167,6 +1168,41 @@ main {
   text-align: center;
   color: var(--ink-dim);
   max-width: 110px;
+}
+/* M3: tap-openable detail (replaces the skill button's hover-only title=,
+   dead on touch since the button itself already casts on tap). Same
+   tap-toggle shape as .axis-chip. */
+.cc-skill-info {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: inline-flex;
+  color: var(--term-dim);
+  font-size: 10px;
+  line-height: 1;
+  cursor: help;
+}
+.cc-skill-info-tooltip {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 20;
+  min-width: 160px;
+  max-width: 220px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--panel-2);
+  color: var(--ink);
+  font-size: 11px;
+  line-height: 1.4;
+  white-space: pre-line;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+}
+.cc-skill-info:hover .cc-skill-info-tooltip,
+.cc-skill-info.cc-skill-info-open .cc-skill-info-tooltip {
+  display: block;
 }
 .combat-outcome {
   margin-top: 8px;

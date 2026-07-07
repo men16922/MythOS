@@ -35,6 +35,23 @@ class UIClarityAffordancesTest(unittest.TestCase):
         self.assertIn(".axis-chip-tooltip", css)
         self.assertIn(".axis-chip.axis-chip-open .axis-chip-tooltip", css)
 
+    def test_combat_skill_tooltip_is_tap_openable(self) -> None:
+        # M3 (mobile clarity): the skill button's cost/range/cooldown detail was
+        # a hover-only `title=` on the whole (already-tappable) button, dead on
+        # touch. Locks that it is now a nested tap-toggle popover instead.
+        source = read("src/mythos_ui/src/CombatControls.tsx")
+
+        self.assertIn("function SkillInfoTooltip(", source)
+        self.assertIn("setOpen((prev) => !prev)", source)
+        self.assertIn('className="cc-skill-info-tooltip" role="tooltip"', source)
+        self.assertIn("event.stopPropagation()", source)
+        self.assertIn("<SkillInfoTooltip tooltip={tooltip} />", source)
+        self.assertNotIn("title={tooltip}", source)
+
+        css = read("src/mythos_ui/src/index.css")
+        self.assertIn(".cc-skill-info-tooltip", css)
+        self.assertIn(".cc-skill-info.cc-skill-info-open .cc-skill-info-tooltip", css)
+
     def test_tactical_legend_auto_opens_once_per_browser(self) -> None:
         source = read("src/mythos_ui/src/StoryPanel.tsx")
 

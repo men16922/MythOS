@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { enemyIntentLabel } from "./combatText";
 import { useLang } from "./i18n/lang";
@@ -9,6 +9,44 @@ import type { CombatAction, CombatSkillInfo, CombatState } from "./types";
 const SUPPORT_ROLES = new Set(["healing", "defense"]);
 
 type TFn = (key: StringKey) => string;
+
+// M3 (mobile clarity): the skill button's cost/range/cooldown detail was a
+// hover-only `title=` on the whole (already-tappable) button, dead on touch.
+// This nested icon (same tap-toggle/stopPropagation shape as ChoicePanel's
+// AxisChip) lets a tap preview the detail without casting the skill.
+function SkillInfoTooltip({ tooltip }: { tooltip: string }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handlePointerDown = (event: PointerEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [open]);
+
+  return (
+    <span
+      ref={ref}
+      className={`cc-skill-info${open ? " cc-skill-info-open" : ""}`}
+      aria-label={tooltip}
+      aria-expanded={open}
+      onClick={(event) => {
+        event.stopPropagation();
+        setOpen((prev) => !prev);
+      }}
+    >
+      <span className="cc-skill-info-icon" aria-hidden="true">ⓘ</span>
+      <span className="cc-skill-info-tooltip" role="tooltip">
+        {tooltip}
+      </span>
+    </span>
+  );
+}
 
 interface CombatControlsProps {
   combat: CombatState;
@@ -186,7 +224,6 @@ export function CombatControls({
           lowFocus && !onCooldown ? "low-focus" : ""
         }`}
         disabled={disabled}
-        title={tooltip}
         onClick={() =>
           onAction({
             type: "skill",
@@ -215,6 +252,7 @@ export function CombatControls({
           {skill.range != null && <span className="cc-badge range">⌖{skill.range}</span>}
         </span>
         {fxStr && <span className="cc-skill-fx">{fxStr}</span>}
+        <SkillInfoTooltip tooltip={tooltip} />
       </button>
     );
   };

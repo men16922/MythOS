@@ -1,5 +1,33 @@
 # Progress archive — 2026-07
 
+## 2026-07-08 (overnight, codex failover) — T4a clarity affordances
+- Status: Done; codex failover consumed the top `[auto:claude]` item because no `[auto:codex]` item remained.
+- Changed: choice value-axis chips now expose tooltip/ARIA help; the tactical board legend auto-opens once per browser only when content exists; route-map legend can jump to the localized Codex tab; added source locks for the affordances.
+- Verified: `tests.test_ui_clarity_affordances` 4/4; `$GATE_CMD` (`make check`) green (916 tests, 2 skipped, validate-content 2).
+- Blockers: none. Next: P1.5 T5/T6 remain `[manual]` design decisions.
+
+## 2026-07-08 (overnight, codex lane) — Variant intro SHOT 03 ×6
+- Status: Done; six Loop 2+ variant boot intros now have third cinematic shots.
+- Changed: generated/promoted `opening-{han,kai,lin_yue,su_ah,tae_o,solo}-03.png`; appended anchor `image_sequence`, KO `cinematic_shots`, and text-only EN overlays; tightened intro invariants for SHOT 03.
+- Verified: visual read-back of all six generated images; JSON parse clean; `tests.test_opening_variant_intro` 4/4; `$GATE_CMD` (`make check`) green (912 tests, 2 skipped, validate-content 2).
+- Blockers: none. Next: human in-game feel review of the variant intros/cuts; codex lane has no further open item above manual work.
+
+## 2026-07-08 (overnight, codex lane) — T3b/T4 plain-copy pass
+- Status: Done; route node-type descriptions now feed junction labels + validator, axis labels/previews and archetype play hints simplified KO/EN; verified `make check` green (912 tests, 2 skipped). Blockers: none. Next: T4a `[auto:claude]`, T5/T6 `[manual]`.
+## 2026-07-08 (overnight, claude lane) — T3a narrative↔choice contract note (P1.5 CBT feedback #3)
+- Status: P1.5 T3a done; `make check` **911** green (+3 tests). Addresses prose that promises a fork the
+  choices never offer ("왼쪽은 지하철 폐노선, 오른쪽은 린위에의 선착장" with neither option rendered).
+- Changed: `scenario_context.py` — new stable-head GM note `CHOICE_MIRROR_RULE`/`_EN` + `_choice_mirror_rule`
+  selector (after the cinematic-clarity rule, cache-safe): an explicit fork in narration MUST be mirrored
+  option-by-option in the choices (near-same wording); conversely no fork-ending prose without matching
+  choices; explicitly does not override the ≥2-choices/distinct-intent rule. The note channel feeds every
+  narrative path (single-model JSON, dual-model DIRECTIVE NOTES, streaming, Gemini — same builders).
+- Verified: `make check` green (ruff/eslint/mypy 166/tsc+vite/unittest 911, 2 skipped, validate-content 2);
+  new `T3aChoiceMirrorRuleTest` ×3 locks language selection (EN Hangul-free), context notes, and survival
+  into BOTH rendered prompt formats (single-model head window / dual-model tail window of MAX_PROMPT_NOTES).
+- Blockers: none. Next: T4a axis tooltip + legend overlay (`[auto:claude]`); T3b/T4 plain-copy pass is codex
+  lane; LLM adherence feel folds into the next sign-off run (`[manual]`).
+
 ## 2026-07-08 (overnight, claude lane) — T2 click/stream responsiveness (P1.5 CBT feedback #3)
 - Status: P1.5 T2 done; `make check` **908** green (+2 tests). Addresses "선택지 3번 클릭" (WS idle drop ~45s).
 - Changed: ① keepalive — SPA `useGameSocket` sends `{"event":"ping"}` every 20s per open socket;

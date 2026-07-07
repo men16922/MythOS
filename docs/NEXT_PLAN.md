@@ -68,20 +68,14 @@ Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop co
 
 ## P1.5 — CBT feedback #3: Clarity & Responsiveness (2026-07-08, design `docs/plans/2026-07-08-cbt-feedback3-clarity-plan.md`)
 
-- `[x]` **T1-T4a ALL DONE+VERIFIED 2026-07-08** (`e10f2bb..d1bed45`, `make check` 916, 2 AGY QA PASS) — detail `PROGRESS_LOG.md`/archive.
-- `[x]` **T5/T6 RESOLVED 2026-07-08 (owner: mobile-inclusive P0)** → reframed mobile-first + Track M prerequisite; slices below. Rationale: plan "Decision 2026-07-08". Residual `[manual]`: T4/S4 copy tone + play-feel (owner, local).
-- **Track M — mobile foundation (P0, prerequisite; do first)**:
-  - `[x]` `[auto:claude]` **M1** `100vh`→`100dvh` (`index.css:36`/`:3548`). DONE 2026-07-08 overnight; `make check` 916 green. AGY @390px no-clip check pending (post-commit auto-screen).
-  - `[x]` `[auto:claude]` **M2** <600px phone breakpoint: readable base font (UI text is 9–11px) + 44px tap targets (zoom btn 22px, header toggles). CSS-only. DONE 2026-07-08 overnight; `make check` 916 green. AGY @390px check pending (post-commit auto-screen).
-  - `[/]` `[auto:claude]` **M3** hover-only `title=` (~20 sites) → tap-openable tooltip. **T4a axis chip DONE 2026-07-08** (`AxisChip` popover in `ChoicePanel.tsx`; unit test `test_choice_axis_chip_tooltip_is_tap_openable`; `make check` 917 green). **Combat-skill tooltip DONE 2026-07-08** (`SkillInfoTooltip` in `CombatControls.tsx`, the richest of its 3 title sites; unit test `test_combat_skill_tooltip_is_tap_openable`; `make check` 918 green; AGY tap check pending post-commit auto-screen). **`GameAside` no-click divs DONE 2026-07-08** (`InfoPopover` shared component in `GameAside.tsx` converts the 4 sites with no click handler at all — route node, fog stub, minimap enemy cell, minimap tile cell — the highest touch-info-loss since they had zero tap affordance; unit test `test_game_aside_info_divs_are_tap_openable`; `make check` 919 green; AGY tap check pending post-commit auto-screen). Judged out-of-scope: `GameAside`'s 2 remaining sites (route-map expand button, status-hints toggle button) are buttons whose title is supplementary (visible label + click action already work on touch), same reasoning as below. Remaining: `CombatControls`×2 (attack/item buttons, supplementary title), `StoryPanel`×3 and `HeaderBar`×2 (icon/toggle buttons whose aria-label + visible action already cover touch — judge in-scope before converting, may not need it).
+- `[x]` **T1-T4a DONE+VERIFIED 2026-07-08** (`e10f2bb..d1bed45`, `make check` 916, 2 AGY QA PASS) — detail archive.
+- `[x]` **T5/T6 RESOLVED 2026-07-08 (owner: mobile-inclusive P0)** → mobile-first + Track M prerequisite. Plan "Decision 2026-07-08". Residual `[manual]`: T4/S4 copy tone + play-feel (owner, local).
+- `[x]` **Track M M1/M2/M3-core + T6a/T6b DONE 2026-07-08 overnight** (`make check` 921 green) — `100vh`→`100dvh` · <600px readable-font + 44px tap targets · hover-`title=`→tap tooltip (axis chip / combat-skill `SkillInfoTooltip` / `GameAside` `InfoPopover` ×4; remaining `CombatControls`×2/`StoryPanel`×3/`HeaderBar`×2 judged **supplementary** — aria-label + visible action already cover touch, convert only per-site if needed) · concise-mode state+toggle (coarse-pointer default) · Save/Map aside→`<details>` chips when concise. Detail archive/`PROGRESS_LOG.md`.
+- **P1.5 open slices**:
   - `[ ]` `[manual]` **M4** verify 7 `position:fixed` modals for scroll-lock/clip on phone.
-- **T6 — 간결(concise) mode (mobile default ON)** (after M1/M2):
-  - `[x]` `[auto:claude]` **T6a** concise-mode state + persisted toggle; default ON for coarse-pointer / small viewport. DONE 2026-07-08 overnight (`conciseMode.ts`/`ConciseModeProvider.tsx` + `HeaderBar` toggle); `make check` 920 green.
-  - `[x]` `[auto:claude]` **T6b DONE 2026-07-08** collapse secondary aside panels (Save/Map) → summary chips, tap to expand (Log was already a `<details>` chip, unchanged). New `AsideChip` (`GameAside.tsx`) wraps `SaveHistoryPanel`/`OperationMapPanel` in a native `<details>` only when `conciseMode` is on (collapsed by default); non-concise mode renders them unwrapped, byte-identical to before. `make check` 921 green.
-  - `[ ]` `[auto:claude]` **T6c** combat-panel density reduction at the ~9–10-cluster peak. Done per slice = `make check` green + AGY mobile not FAIL.
-- **T5 — board viewpoint (mobile-first)**:
-  - `[ ]` `[auto:claude]` **T5a** movement affordance: reachable-tile highlight + path/target preview + auto-center on active unit (reachable calc already in TileInspector).
-  - `[ ]` `[auto:claude]` **T5b** small-viewport default-zoom bump + min tile-size floor.
+  - `[ ]` `[auto:claude]` **T6c** combat-panel density reduction at the ~9–10-cluster peak. Done = `make check` green + AGY mobile not FAIL.
+  - `[ ]` `[auto:claude]` **T5a** movement affordance: reachable-tile highlight + path/target preview + auto-center on active unit (reachable calc already in TileInspector). Done = `make check` green + AGY mobile not FAIL.
+  - `[ ]` `[auto:claude]` **T5b** small-viewport default-zoom bump + min tile-size floor. Done = `make check` green + AGY mobile not FAIL.
   - `[ ]` `[blocked]` **T5c** (LARGE) 2D top-down toggle = second orthogonal render path. Precondition (human): owner confirms isometric still illegible @390px after T5a/b land. NOT unattended-consumable — do not build the second render path on a guess. Promote to `[auto:claude]` after that judgment.
 
 ## Priority 1 — Neo-Seoul Playability Upgrade

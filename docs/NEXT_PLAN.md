@@ -26,17 +26,12 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. Cloud Run rev `00019-jf6` serves
     `[ ]` `[blocked]` `[auto:codex]` **variant intro shot 03 ×6** (same spec + criterion as shot 02;
     image-generation quota hit twice on 2026-07-07, retry after human/quota review).
     `[ ]` `[manual]` in-game feel review of the 6 variant intros/cuts.
-  - `[ ]` **Variant-ROUTED opening (user-directed 2026-07-06; live evidence: variant evaporates at turn 1.
-    Design = `docs/plans/2026-07-06-variant-routed-opening.md`)**:
-    `[x]` `[auto:claude]` **S1 anchor variantization (DONE 2026-07-07 overnight)** (plan §2.1: layer-0 anchor
-    `variants` field overrides resolved at route materialization + new beat registration + neutral
-    perspective-summary fallback). `make check` 880 green + 15 tests + loop-1/default byte-identical.
-    `[x]` `[auto:claude]` **S2 chapter-gate variant goal (DONE 2026-07-07 overnight)** (`player_goal_variants`
-    resolution in `_chapter_goal` via `_opening_variant`, fallback preserved + content guard). `make check`
-    890 green + 10 tests; copy lands with S4.
-    `[x]` `[auto:claude]` **S3 early se_rin flag clamp (DONE 2026-07-07 overnight)** (validator `clamped_delta`
-    strip on variant loops turn ≤3). `make check` 899 green + 9 tests.
-    S4 `[manual]` directive windows 0→3 + 6종 copy tone verdict (drafts in plan §4).
+  - `[/]` **Variant-ROUTED opening (user-directed 2026-07-06; design `docs/plans/2026-07-06-variant-routed-opening.md`)**:
+    `[x]` S1 anchor variantization + `[x]` S2 gate variant goal + `[x]` S3 se_rin flag clamp (DONE 2026-07-07
+    overnight, mechanisms) + `[x]` **S4 content (DONE 2026-07-08)**: anchor `variants` ×6 · `player_goal_variants` ×6 ·
+    12 directives (KO+EN) 1-cut → turn 0-3 window w/ REENTRY_SCENE2/3 beats. `make check` **902** green, e2e smoke
+    (loop-2 kai pick skins beat/title/images; loop-1 untouched). Remaining `[ ]` `[manual]` **S4 카피 톤 검수**
+    (anchor titles/summaries/goals + 12 beat prose — register: screenplay action-line) + in-game 2회차 feel run.
   - `[x]` **P1-C density/continuity + P1-D/E identity/arc (DONE 2026-07-05; icons ×10 + SFX ×4 `b095446`
     07-06)** — detail archive/`PROGRESS_LOG.md`.
   - `[ ]` `[manual]` decisions: G2 twist tone review (3 drafts in scenario.json `twist_bank`) ·

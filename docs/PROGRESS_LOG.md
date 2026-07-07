@@ -5,6 +5,12 @@ Last updated: 2026-07-08
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-08 (overnight, claude lane) — M3 GameAside no-click-div tooltips tap-openable (Track M mobile foundation, 3rd of ~20 sites)
+- Status: Done; `make check` **919** green (+1 test). Converts the 4 `GameAside.tsx` sites that had no click handler at all (route node, fog stub, minimap enemy cell, minimap tile cell) — highest touch-info-loss of the M3 sites since they had zero tap affordance, not just a supplementary title on an already-tappable control.
+- Changed: `GameAside.tsx` — new shared `InfoPopover` component (same tap-toggle/pointerdown-outside-close shape as `ChoicePanel`'s `AxisChip`/`CombatControls`' `SkillInfoTooltip`, generalized since each call site needs its own hook state); wraps the route-node div (multi-line lock/risk/reward/perspective text), the fog stub, the minimap enemy-contact cell, and the minimap tile cell (skipped when `tile.name` is empty). `index.css` — `.aside-info-hint`/`.aside-info-tooltip`/`.aside-info-open` shared popover rules. `tests/test_ui_clarity_affordances.py` — `test_game_aside_info_divs_are_tap_openable` locks the shape. Judged out-of-scope: `GameAside`'s other 2 title sites (expand/hints-toggle buttons) are supplementary — visible label + click action already work on touch.
+- Verified: `make check` green (ruff/eslint/mypy 167/tsc+vite/unittest 919, 2 skipped, validate-content 2).
+- Blockers: none. Next: remaining M3 sites — `CombatControls`×2 (attack/item buttons, supplementary title), `StoryPanel`×3 and `HeaderBar`×2 (icon/toggle buttons, judge in-scope before converting) (`[auto:claude]`).
+
 ## 2026-07-08 (overnight, claude lane) — M3 combat-skill tooltip tap-openable (Track M mobile foundation, 2nd of ~20 sites)
 - Status: Done; `make check` **918** green (+1 test). Second M3 site after the T4a axis chip; addresses the combat skill button's cost/range/cooldown/effect detail, hidden on touch even though the button already casts on tap.
 - Changed: `CombatControls.tsx` — new `SkillInfoTooltip` (same tap-toggle/pointerdown-outside-close shape as `ChoicePanel`'s `AxisChip`), nested as a stopPropagation'd ⓘ icon inside the skill `<button>` so a tap previews detail without casting; drops `title={tooltip}`. `index.css` — `.cc-skill-info*` popover rules (`.cc-skill` gets `position: relative` to anchor it). `tests/test_ui_clarity_affordances.py` — `test_combat_skill_tooltip_is_tap_openable` locks the shape.
@@ -111,9 +117,4 @@ This file keeps **only recent incremental summaries within the 120-line budget**
   reproducible — covered indirectly: token now always carries the playing loop, and foreign loops are rejected.
 - Next: T2 click/stream responsiveness (`[auto:claude]`, WS keepalive + optimistic pending) is the next lane item.
 
-## 2026-07-08 — S4 variant-routed opening CONTENT — the loop now branches by variant end-to-end
-- Status: Committed (S4 slice, 16 files); `make check` **902** green; e2e smoke verified (in-memory loop 2 = kai pick → anchor beat `opening_reentry_kai` / title 백도어 좌표 / variant image_sequence).
-- Changed: layer-0 anchor `variants` ×6 (beat/title/summary + variant art incl. 07-07 shot 02 as `image_sequence`, `reentry_<v>` events) · connect gate `player_goal_variants` ×6 · all 12 variant directives (KO+EN parity) extended 1-cut → **turn 0-3 window** with authored REENTRY_SCENE2/3 beats (hook development → route hand-off; every follow-up beat forbids the Se-rin first-contact re-enactment + meeting completion).
-- Verified: `make check` 902 (obsolete 1-cut invariant → 0-3 window contract w/ per-beat se_rin policy assertion; S1 placeholder → real-data skin test; new coupling test anchors↔goals↔directives per variant); `validate-content` clean; directive parser check (max_turn 3, beats 0/1/2); loop-1 default untouched.
-- Blockers: none. Note: connect-gate variant goal shares the base gate's narrow display window (phase reaches explore at first scene — parity with base); the per-turn objective is now steered by the variant directives instead.
-- Next: `[manual]` **S4 카피 톤 검수** (anchor titles/summaries/goals + 12 directive beats) · in-game 2회차 feel run · shot 03 `[blocked]` quota · deploy+sign-off.
+Older 2026-07-08 entries (S4 variant-routed opening content) moved to `bin/docs/archive/progress-2026-07.md` to hold the line budget.

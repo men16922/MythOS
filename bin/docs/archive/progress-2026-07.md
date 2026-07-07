@@ -1,5 +1,12 @@
 # Progress archive — 2026-07
 
+## 2026-07-08 — S4 variant-routed opening CONTENT — the loop now branches by variant end-to-end
+- Status: Committed (S4 slice, 16 files); `make check` **902** green; e2e smoke verified (in-memory loop 2 = kai pick → anchor beat `opening_reentry_kai` / title 백도어 좌표 / variant image_sequence).
+- Changed: layer-0 anchor `variants` ×6 (beat/title/summary + variant art incl. 07-07 shot 02 as `image_sequence`, `reentry_<v>` events) · connect gate `player_goal_variants` ×6 · all 12 variant directives (KO+EN parity) extended 1-cut → **turn 0-3 window** with authored REENTRY_SCENE2/3 beats (hook development → route hand-off; every follow-up beat forbids the Se-rin first-contact re-enactment + meeting completion).
+- Verified: `make check` 902 (obsolete 1-cut invariant → 0-3 window contract w/ per-beat se_rin policy assertion; S1 placeholder → real-data skin test; new coupling test anchors↔goals↔directives per variant); `validate-content` clean; directive parser check (max_turn 3, beats 0/1/2); loop-1 default untouched.
+- Blockers: none. Note: connect-gate variant goal shares the base gate's narrow display window (phase reaches explore at first scene — parity with base); the per-turn objective is now steered by the variant directives instead.
+- Next: `[manual]` **S4 카피 톤 검수** (anchor titles/summaries/goals + 12 directive beats) · in-game 2회차 feel run · shot 03 `[blocked]` quota · deploy+sign-off.
+
 ## 2026-07-07 (overnight, codex failover) — Type-noise cleanup + completed-plan archive
 - Status: Claude-lane cleanup and codex doc-migration seeds completed with no runtime behavior changes.
 - Changed: lifespan annotation now uses `AsyncGenerator[None, None]`; the recovered asset-test cleanup removed unused loop variables. Six implemented plans were archived, references repaired, and M57 added.

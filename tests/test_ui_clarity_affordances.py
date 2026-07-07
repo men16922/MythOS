@@ -52,6 +52,29 @@ class UIClarityAffordancesTest(unittest.TestCase):
         self.assertIn(".cc-skill-info-tooltip", css)
         self.assertIn(".cc-skill-info.cc-skill-info-open .cc-skill-info-tooltip", css)
 
+    def test_game_aside_info_divs_are_tap_openable(self) -> None:
+        # M3 (mobile clarity): the route node, fog stub, and minimap cell divs
+        # had no click handler at all, so their hover-only `title=` was fully
+        # dead on touch (highest touch-info-loss of the ~20 M3 sites). Locks
+        # that they now share the InfoPopover tap-toggle popover instead.
+        source = read("src/mythos_ui/src/GameAside.tsx")
+
+        self.assertIn("function InfoPopover(", source)
+        self.assertIn("setOpen((prev) => !prev)", source)
+        self.assertIn('className="aside-info-tooltip" role="tooltip"', source)
+        self.assertIn("<InfoPopover key={id} className={cls} tooltip={title} ariaLabel={label}>", source)
+        self.assertIn('<InfoPopover className="route-fog" tooltip={t("aside.route.fogTitle")}>', source)
+        self.assertIn('<InfoPopover key={coordKey} className="mm-cell mm-enemy" tooltip={name}>', source)
+        self.assertIn("<InfoPopover key={coordKey} className={cls} tooltip={tileName}>", source)
+        self.assertNotIn("title={title}", source)
+        self.assertNotIn('title={t("aside.route.fogTitle")}', source)
+        self.assertNotIn("title={name}", source)
+        self.assertNotIn('title={tile.name || ""}', source)
+
+        css = read("src/mythos_ui/src/index.css")
+        self.assertIn(".aside-info-tooltip", css)
+        self.assertIn(".aside-info-hint.aside-info-open .aside-info-tooltip", css)
+
     def test_tactical_legend_auto_opens_once_per_browser(self) -> None:
         source = read("src/mythos_ui/src/StoryPanel.tsx")
 

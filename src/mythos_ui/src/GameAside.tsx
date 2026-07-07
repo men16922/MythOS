@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { buildGaugeConfig } from "./gauges";
 import { SaveHistoryPanel } from "./SaveHistoryPanel";
 import { useLang } from "./i18n/lang";
@@ -50,6 +50,54 @@ function rewardSummary(reward: Record<string, number> | undefined, t: TFn): stri
   if (reward.stability) parts.push(`${t("aside.reward.stability")} +${reward.stability}`);
   if (reward.tension) parts.push(`${t("aside.reward.tension")} +${reward.tension}`);
   return parts.join(" · ");
+}
+
+// M3 (mobile clarity): several GameAside info sites (route node, fog stub,
+// minimap cells) were plain divs with a hover-only `title=`, invisible on
+// touch since they have no click handler at all. Same tap-toggle popover
+// shape as ChoicePanel's AxisChip / CombatControls' SkillInfoTooltip.
+function InfoPopover({
+  className,
+  tooltip,
+  ariaLabel,
+  children,
+}: {
+  className: string;
+  tooltip: string;
+  ariaLabel?: string;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handlePointerDown = (event: PointerEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [open]);
+
+  return (
+    <div
+      ref={ref}
+      className={`${className} aside-info-hint${open ? " aside-info-open" : ""}`}
+      aria-label={ariaLabel}
+      aria-expanded={open}
+      onClick={(event) => {
+        event.stopPropagation();
+        setOpen((prev) => !prev);
+      }}
+    >
+      {children}
+      <div className="aside-info-tooltip" role="tooltip">
+        {tooltip}
+      </div>
+    </div>
+  );
 }
 
 type RouteGraphMode = "compact" | "detail";
@@ -118,7 +166,7 @@ function RouteMapPanel({
       .join("\n");
     const label = mode === "detail" ? node.title || node.label : node.label;
     return (
-      <div key={id} className={cls} title={title}>
+      <InfoPopover key={id} className={cls} tooltip={title} ariaLabel={label}>
         {choiceLinkIndex >= 0 && <span className="route-link-marker">{choiceLinkIndex + 1}</span>}
         <span className="route-glyph">{isLocked ? "🔒" : (node.glyph || "?")}</span>
         <span className="route-label">
@@ -129,7 +177,7 @@ function RouteMapPanel({
           <span className="route-lenses">⑂ {t("aside.route.perspectives")} {perspectives.length}</span>
         )}
         {mode === "detail" && reward && <span className="route-reward">{reward}</span>}
-      </div>
+      </InfoPopover>
     );
   };
 
@@ -174,9 +222,9 @@ function RouteMapPanel({
           <div className="route-layer route-layer-fog">
             <div className="route-layer-rail">
               <div className="route-connector" />
-              <div className="route-fog" title={t("aside.route.fogTitle")}>
+              <InfoPopover className="route-fog" tooltip={t("aside.route.fogTitle")}>
                 {t("aside.route.fog")}
-              </div>
+              </InfoPopover>
             </div>
           </div>
         )}
@@ -324,9 +372,9 @@ function OperationMapPanel({
         const glyph = contact.glyph || "!";
         const name = contact.name || "enemy contact";
         cells.push(
-          <div key={coordKey} className="mm-cell mm-enemy" title={name}>
+          <InfoPopover key={coordKey} className="mm-cell mm-enemy" tooltip={name}>
             {glyph}
-          </div>
+          </InfoPopover>
         );
       } else if (!tileKey) {
         cells.push(<div key={coordKey} className="mm-cell mm-empty"></div>);
@@ -334,10 +382,17 @@ function OperationMapPanel({
         const tile = tiles[tileKey];
         const glyph = TILE_GLYPH[tile.kind || "node"] || "◍";
         const cls = tileKey === curKey ? "mm-cell mm-current" : "mm-cell mm-visited";
+        const tileName = tile.name || "";
         cells.push(
-          <div key={coordKey} className={cls} title={tile.name || ""}>
-            {glyph}
-          </div>
+          tileName ? (
+            <InfoPopover key={coordKey} className={cls} tooltip={tileName}>
+              {glyph}
+            </InfoPopover>
+          ) : (
+            <div key={coordKey} className={cls}>
+              {glyph}
+            </div>
+          )
         );
       }
     }

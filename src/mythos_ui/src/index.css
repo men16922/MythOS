@@ -1987,6 +1987,37 @@ main {
   border-radius: 6px;
   background: rgba(8, 16, 20, 0.35);
 }
+/* M3: tap-openable popover shared by GameAside's no-click info divs (route
+   node, fog stub, minimap cells) — same tap-toggle shape as .axis-chip /
+   .cc-skill-info, applied via the InfoPopover component. */
+.aside-info-hint {
+  position: relative;
+  cursor: help;
+}
+.aside-info-tooltip {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  min-width: 140px;
+  max-width: 240px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--panel-2);
+  color: var(--ink);
+  font-size: 11px;
+  line-height: 1.4;
+  white-space: pre-line;
+  text-align: left;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+}
+.aside-info-hint:hover .aside-info-tooltip,
+.aside-info-hint.aside-info-open .aside-info-tooltip {
+  display: block;
+}
 .route-node {
   position: relative;
   display: flex;

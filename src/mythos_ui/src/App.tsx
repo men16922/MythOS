@@ -671,10 +671,10 @@ export default function App() {
   const asideRevealNudge = introFirstLoop && introTurn === 3;
 
   // B2 loop2+ opening variants: the first snapshot's loop state names the
-  // variant. Returning identities (stored/invite player id) may be loop 2+, so
-  // their intro holds on a signal-alignment skeleton until the variant arrives —
-  // never swapping sequences mid-read. Brand-new identities are always loop 1 →
-  // default Se-rin sequence immediately. 8s fallback if the stream stalls.
+  // variant. The intro holds on a signal-alignment skeleton until we KNOW which
+  // sequence to show — either the loop-2+ variant has arrived, or the first
+  // snapshot confirms this is loop 1 (runs_completed === 0 → default Se-rin, no
+  // variant coming). Never swap sequences mid-read. 8s fallback if the stream stalls.
   const introVariantKey =
     finalizedSnapshot?.state?._opening_variant ??
     lastSnapshot?.state?._opening_variant ??
@@ -693,8 +693,16 @@ export default function App() {
     // Reset on intro close so the next loop's intro holds again.
     return () => setIntroWaitExpired(false);
   }, [showIntro]);
+  // Gate the hold on the SNAPSHOT, not `startScreenPlayerId`: the stored-id proxy
+  // can be falsy/async at first intro render for a returning identity, which let
+  // the default Se-rin sequence render and then remount into the variant (the
+  // "Se-rin flash → variant" bug). A snapshot with `state` but no `_opening_variant`
+  // AND runs_completed 0 is a confirmed loop-1 (default); otherwise hold until the
+  // variant arrives.
+  const introFirstLoopConfirmed =
+    Boolean(finalizedSnapshot?.state ?? lastSnapshot?.state) && introFirstLoop;
   const introPending =
-    Boolean(startScreenPlayerId) && !introVariantArrived && !introWaitExpired;
+    !introVariantArrived && !introFirstLoopConfirmed && !introWaitExpired;
   const introVariants = currentScenario?.ui_copy?.session_intro_variants as
     | Record<string, IntroData>
     | undefined;

@@ -8,7 +8,7 @@ AGY 렌더 QA, 에뮬레이터 레이아웃/패리티, 100-seed 측정)은 전�
 > **플레이 대상**: 실서비스 `https://mythos-api-1004528040791.us-central1.run.app/?invite=<key>`
 > (rev **`00025-856`** = 3.5-flash + 프롬프트 다이어트 + GCS 서명 핫픽스 + 시뮬레이터 admin 게이팅 +
 > 동료 장착 UI + 아이템 토스트) 또는 로컬 `make api-cloud`.
-> ⚠️ **미배포 대량 로컬 배치 (main ahead 65, 2026-07-08 기준)** — 실서비스 rev `00025-856`엔 전부 없음:
+> ⚠️ **미배포 대량 배치 (origin엔 푸시됨 `889f713`, Cloud Run rev `00025-856` 미재배포, 2026-07-08)** — 실서비스엔 전부 없음:
 > CBT P1(19슬라이스)·07-06 에셋(오프닝 6·아이콘 10·SFX 4) + **S4 변주 오프닝 · P1.5 클래리티/모바일-우선
 > (Track M·T5·T6) · Design-System(DS0 토큰·DS1 `Surface`/`Popover`·DS2 패널 마이그레이션) · Landscape
 > Combat(LC0-6)**. 🆕 섹션은 배포 후 실서비스, 또는 로컬 `make api-cloud`(모바일은 그 서버에 폰 브라우저로 접속)로 선검증.

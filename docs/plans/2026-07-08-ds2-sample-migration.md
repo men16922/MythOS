@@ -120,8 +120,15 @@ decomposition — do not entangle):
   (`<section>` via `as="section"`), `ProgressDashboard`, `TesterDashboard` ×4 (inline-style padding
   preserved via `...rest`). Emulator-verified `#onboarding` renders as `<section>` + Surface chrome +
   `max-width:760px` intact.
-- `[ ]` `[auto:claude]` **DS2-e … DS2-n** — remaining ~12 `.panel` div sites, one cluster per slice
-  (e = character/codex/skill panels; f = DevConsolePanel ×6), then the deferred 2
-  `<details className="panel">` chips (now `as="details"`) + bespoke non-`.panel` classes.
-  Each: swap `.panel`→`<Surface>`, delete dead container CSS, `make check` green + AGY not FAIL.
+- ✅ **DS2-e (character/codex/skill)** — CharacterPanel (partner+player), CharacterTabPanel
+  (outer+companion-card), CodexPanel, SkillTreePanel.
+- ✅ **DS2-f (DevConsolePanel ×6)** — `replace_all` opens + tsc-guided close balancing; `devPanelStyle`
+  inline layout forwarded via `...rest`.
+- ✅ **DS2-g (the 3 `<details>` chips)** — AsideChip/LogPanel/CombatChip → `<Surface as="details">`
+  (native summary toggle preserved; `.aside-chip padding:0` override still wins).
+- ✅ **SWEEP COMPLETE** — all ~30 base `.panel` containers migrated; invariant locked by
+  `test_ds2_base_panel_sweep_is_complete` (greps every `*.tsx`, asserts no base `.panel` container left).
+- Out of scope (optional, later): bespoke non-`.panel` classes (`combat-result-panel`,
+  `choice-panel-wrapper`, `modal-panel`, …) — never `.panel`; some (modal backdrops/wrappers) shouldn't
+  be Surface. DS3 (density) remains `[blocked]` on the owner's density-defaults decision.
 - Density/compact wiring stays for **DS3**.

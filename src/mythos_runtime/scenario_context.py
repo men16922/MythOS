@@ -743,7 +743,10 @@ def build_runtime_narrative_context(
     # salvaging downed-drone wreckage → drone_scrap) — otherwise "잔해를 수습한다"
     # choices stay flavor-only. The id whitelist is enforced again at commit
     # (_filter_grant_items), so this note is guidance, not the guard.
-    grant_note = _grant_items_note(scenario, language)
+    # Suppressed during the opening establishing beats (turns 0-2): offering an
+    # item pickup with no earned context breaks the lone-protagonist opening
+    # (user feedback 2026-07-09). Grants resume once gameplay proper begins (turn 3+).
+    grant_note = _grant_items_note(scenario, language) if turn_index > 2 else None
     if grant_note:
         notes.append(grant_note)
 

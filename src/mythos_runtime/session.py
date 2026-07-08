@@ -2443,7 +2443,7 @@ class RuntimeSessionService:
         # LLM item grants: whitelist-clamp BEFORE apply (unknown/non-grantable ids
         # dropped), then upgrade the appended id strings to full item defs so the
         # inventory/equip/consumable UI can render them.
-        payload = _filter_grant_items(payload, scenario)
+        payload = _filter_grant_items(payload, scenario, turn_index=scene.turn_index)
         with span(span_name, player_id=player.player_id, loop_id=loop.loop_id):
             transition = self.engine.apply_scene_payload(loop, scene, payload, player_event)
         if not transition.ok:
@@ -3110,13 +3110,26 @@ GRANTABLE_ITEM_KINDS = {"consumable", "material"}
 MAX_GRANT_ITEMS_PER_SCENE = 2
 
 
-def _filter_grant_items(payload: ScenePayload, scenario: Any) -> ScenePayload:
+OPENING_NO_GRANT_MAX_TURN = 2
+
+
+def _filter_grant_items(
+    payload: ScenePayload, scenario: Any, turn_index: int = OPENING_NO_GRANT_MAX_TURN + 1
+) -> ScenePayload:
     """Clamp LLM item grants to the scenario whitelist (id must exist, kind must
     be grantable) and to ``MAX_GRANT_ITEMS_PER_SCENE`` — a hallucinated id must
-    never become a junk inventory row (cf. the placeholder-clue cleanup)."""
+    never become a junk inventory row (cf. the placeholder-clue cleanup).
+
+    Also drops ALL grants during the opening establishing beats
+    (``turn_index <= OPENING_NO_GRANT_MAX_TURN``): a context-free item pickup in
+    the lone-protagonist opening reads as unmotivated (user feedback 2026-07-09).
+    The prompt affordance is suppressed there too (scenario_context), so this is
+    the backstop for a model that grants anyway."""
     raw = list(payload.world_delta.grant_items or [])
     if not raw:
         return payload
+    if turn_index <= OPENING_NO_GRANT_MAX_TURN:
+        return replace(payload, world_delta=replace(payload.world_delta, grant_items=[]))
     items_def = scenario.combat.get("items", {}) if isinstance(scenario.combat, dict) else {}
     valid = [
         item_id

@@ -177,9 +177,10 @@ class EnglishFallbackSceneTest(unittest.TestCase):
         self.assertNotRegex(scene.title, _HANGUL)
         for choice in scene.choices:
             self.assertNotRegex(choice.label, _HANGUL)
-        # Sanity: it is the C-17 opening, in English.
+        # Sanity: it is the C-17 opening beat, in English. (The fallback is now
+        # variant-neutral — no named companion — so assert a stable setting word.)
         self.assertIn("C-17", scene.title)
-        self.assertIn("Se-rin", scene.narration)
+        self.assertIn("underpass", scene.narration)
 
     def test_en_fallback_renders_english_with_action(self) -> None:
         director = NarrativeDirector()

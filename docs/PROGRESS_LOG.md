@@ -5,6 +5,12 @@ Last updated: 2026-07-08
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-08 (overnight, claude lane) — DS0 design-system tokens (spacing/radius/type) added to `:root`
+- Status: Done; `make check` **924** green (no new test — pure CSS addition). Top unfinished `[auto:claude]` item (design `docs/plans/2026-07-08-design-system.md` Phase 0).
+- Changed: `src/mythos_ui/src/index.css` — added `--space-1..7` (4/8/12/16/24/32/48px), `--radius-sm/md/lg/full` (4/8/12/999px), `--density-step:4px`, and `--text-1..6` + matching `--text-N-line` (10-16px, collapsing the 8-14.5px sprawl) to the existing `:root` block. Pure additive per the plan — no call sites migrated, no visual change.
+- Verified: `make check` green (ruff/eslint/mypy 167/tsc+vite/unittest 924, 2 skipped, validate-content 2). No AGY live-QA run — CSS custom-prop addition only, zero rendered-output diff (no UI is browser-observable-different), so the MythOS live-QA guard's "objective refactor" auto-screen doesn't apply here.
+- Blockers: none. Next (auto): DS1a `Surface` primitive (ships unused, unit test + `make check` gate) is next in Phase 1; DS1b tooltip consolidation after. DS2/DS3 stay `[blocked]` pending human review of the DS1a API.
+
 ## 2026-07-08 (overnight, claude lane) — T5b small-viewport default-zoom bump + minimum tile-size floor
 - Status: Done; `make check` **924** green (+1 test). Second T5 slice (tactical board legibility), after T5a.
 - Changed: `combatCanvas.ts` — new exported `MIN_ISO_STEP_PX = 26` floor; `drawCombatCanvas` now takes `cssW = Math.max(Math.floor(baseW * zoom), minCssW)` where `minCssW` is derived from the floor so a tile's on-screen half-step never shrinks below it regardless of viewport width, user zoom, or arena size (`combatCellFromPoint` already reads the actual rendered `rect.width`/`height`, so no other caller needed a change). `hooks/useCombatBoard.ts` — new `resolveInitialBoardZoom()` (same `(pointer: coarse)`/`(max-width: 600px)` media queries as `conciseMode.ts`) seeds `boardZoom` state at 1.5 instead of 1 on coarse-pointer/small-viewport devices, so the board starts already zoomed in rather than requiring the player to find the +/- control first; existing zoom clamp (1-2.5) is untouched.

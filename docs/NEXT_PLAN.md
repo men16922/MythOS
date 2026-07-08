@@ -71,6 +71,13 @@ Root fix for "too much info at once" + "inconsistent detail-window sizes": no de
 - `[x]` **DS1b** collapse the 3 M3 tooltips → one `Popover` + one passive `Tooltip` (aria-expanded/describedby), migrate call sites, delete bespoke CSS (DONE 2026-07-08 overnight, `make check` 928 green). Detail `PROGRESS_LOG.md`.
 - `[ ]` `[blocked]` **DS2/DS3** panel migration (51 classes) + density modes + combat inspector — gated on human review of the DS1a `Surface` API and density defaults. See plan.
 
+## Landscape Combat — decided A (2026-07-08, design `docs/plans/2026-07-08-design-system.md` "Landscape Combat")
+
+Emulator test: concise mode barely helps combat (10%); combat needs a **landscape split layout**, not density. Narrative stays portrait+concise.
+- `[ ]` `[auto:claude]` **LC0** `useOrientation` hook + rotate-to-landscape overlay on combat start (coarse-pointer portrait). Done = unit test + `make check` green.
+- `[ ]` `[auto:claude]` **LC1** landscape split layout (board height-fit left | controls right; `@media (orientation:landscape) and (pointer:coarse)`). Done = `make check` green + visual verify via mobile emulator post-run.
+- `[ ]` `[auto:claude]` **LC2** landscape: fold TileInfo/Log/Map into the right column so the turn loop fits one screen. Done = `make check` green.
+
 ## Priority 1 — Neo-Seoul Playability Upgrade
 
 Status: `[/]` in progress behind Priority 0; remaining work is mostly `[manual]` human play feel.

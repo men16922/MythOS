@@ -73,3 +73,27 @@ decision]** → DS3. Phases 0–1 are safe autonomous foundation; Phases 2–3 a
 primitive API and density values propagate widely — a wrong call is expensive to unwind. Scale
 reality: DS2 alone is many slices (~51 classes). This is a multi-week track, highest-leverage for
 "consistent UX." T6 concise work is absorbed by DS3, not discarded.
+
+## Landscape Combat (LC) — decided A, 2026-07-08 (owner)
+Finding (mobile emulator test 2026-07-08): concise mode barely helps *combat* — portrait combat is
+2914px (concise ON) vs 3246px (OFF) = only ~10%, because the board/roster/controls dominate and
+can't collapse (they're needed every turn). Concise's real value is *narrative* scenes (aside is a
+big fraction there). Combat is fundamentally cramped in portrait. **Decision A: dedicated landscape
+split layout + orientation guidance.** Supersedes the "mobile = portrait concise" assumption *for
+combat only*; narrative stays portrait + concise.
+- The board is already a fluid fit-to-width iso canvas → in landscape it must **fit-to-HEIGHT** so it
+  doesn't overflow the ~390px viewport.
+- Target: `@media (orientation: landscape) and (pointer: coarse)` → `.combat-layout` becomes **board
+  (left ~55–60%, height-fit) | control column (right: roster + targets + actions + skills, own
+  scroll)** so the core turn loop fits one screen with no page scroll.
+- Portrait combat stays stacked but shows a **rotate-to-landscape prompt** on combat start.
+- Ties into DS3 combat inspector; build on the new tokens/`Surface`.
+
+Slices:
+- **LC0** `[auto:claude]` `useOrientation` hook + rotate-to-landscape overlay on combat start
+  (coarse-pointer portrait only). Done = unit test + `make check` green.
+- **LC1** `[auto:claude]` landscape split layout (board height-fit left | controls right). Done =
+  `make check` green; **VISUAL verify via mobile-landscape emulator post-run** (AGY runs a desktop
+  viewport and will NOT catch landscape layout — human/emulator review required).
+- **LC2** `[auto:claude]` in landscape, fold TileInfo/Log/OperationMap into the right column
+  (chip/tab) so the turn loop fits one screen. Done = `make check` green.

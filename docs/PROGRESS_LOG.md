@@ -62,55 +62,6 @@ This file keeps **only recent incremental summaries within the 120-line budget**
 - Blockers: none. Next: T6b collapse secondary aside panels (Save/OperationMap/Log) into summary chips
   (`[auto:claude]`), then T6c combat-panel density reduction.
 
-## 2026-07-08 (overnight, claude lane) — M3 GameAside no-click-div tooltips tap-openable (Track M mobile foundation, 3rd of ~20 sites)
-- Status: Done; `make check` **919** green (+1 test). Converts the 4 `GameAside.tsx` sites that had no click handler at all (route node, fog stub, minimap enemy cell, minimap tile cell) — highest touch-info-loss of the M3 sites since they had zero tap affordance, not just a supplementary title on an already-tappable control.
-- Changed: `GameAside.tsx` — new shared `InfoPopover` component (same tap-toggle/pointerdown-outside-close shape as `ChoicePanel`'s `AxisChip`/`CombatControls`' `SkillInfoTooltip`, generalized since each call site needs its own hook state); wraps the route-node div (multi-line lock/risk/reward/perspective text), the fog stub, the minimap enemy-contact cell, and the minimap tile cell (skipped when `tile.name` is empty). `index.css` — `.aside-info-hint`/`.aside-info-tooltip`/`.aside-info-open` shared popover rules. `tests/test_ui_clarity_affordances.py` — `test_game_aside_info_divs_are_tap_openable` locks the shape. Judged out-of-scope: `GameAside`'s other 2 title sites (expand/hints-toggle buttons) are supplementary — visible label + click action already work on touch.
-- Verified: `make check` green (ruff/eslint/mypy 167/tsc+vite/unittest 919, 2 skipped, validate-content 2).
-- Blockers: none. Next: remaining M3 sites — `CombatControls`×2 (attack/item buttons, supplementary title), `StoryPanel`×3 and `HeaderBar`×2 (icon/toggle buttons, judge in-scope before converting) (`[auto:claude]`).
-
-## 2026-07-08 (overnight, claude lane) — M3 combat-skill tooltip tap-openable (Track M mobile foundation, 2nd of ~20 sites)
-- Status: Done; `make check` **918** green (+1 test). Second M3 site after the T4a axis chip; addresses the combat skill button's cost/range/cooldown/effect detail, hidden on touch even though the button already casts on tap.
-- Changed: `CombatControls.tsx` — new `SkillInfoTooltip` (same tap-toggle/pointerdown-outside-close shape as `ChoicePanel`'s `AxisChip`), nested as a stopPropagation'd ⓘ icon inside the skill `<button>` so a tap previews detail without casting; drops `title={tooltip}`. `index.css` — `.cc-skill-info*` popover rules (`.cc-skill` gets `position: relative` to anchor it). `tests/test_ui_clarity_affordances.py` — `test_combat_skill_tooltip_is_tap_openable` locks the shape.
-- Verified: `make check` green (ruff/eslint/mypy 167/tsc+vite/unittest 918, 2 skipped, validate-content 2).
-- Blockers: none. Next: remaining M3 sites — `GameAside`×6 (route-node/minimap divs have no click handler at all, highest touch-info-loss), `StoryPanel`×3 and `HeaderBar`×2 are icon/toggle buttons whose title is supplementary (aria-label + visible action already cover touch) — lower priority, may not need conversion (`[auto:claude]`).
-
-## 2026-07-08 (overnight, claude lane) — M3 axis chip tap-openable tooltip (Track M mobile foundation, starts touch-clarity repair)
-- Status: Done; third slice of Track M, first of ~20 hover-only `title=` sites (starting with the shipped T4a axis chip per plan scope). `make check` **917** green (+1 test: new source-level lock).
-- Changed: `src/mythos_ui/src/ChoicePanel.tsx` — new `AxisChip` component replaces the axis chip's hover-only `title=` with a tap-toggled popover (`useState`/`useRef`/pointerdown-outside-close), following the existing `.tactical-legend-popup` toggle convention already in this codebase; kept as a plain `<span>` (not a nested `<button>`/focusable widget) since it lives inside the choice card `<button>`. `src/mythos_ui/src/index.css` — `.axis-chip-tooltip` popover styling (`position:absolute`, shown on `:hover` for desktop parity or `.axis-chip-open` for tap). `tests/test_ui_clarity_affordances.py` — updated the T4a source-lock for the new className pattern + added `test_choice_axis_chip_tooltip_is_tap_openable` locking the tap-toggle/no-title-attr/CSS-popover shape.
-- Verified: `make check` green (ruff/eslint/mypy 167/tsc+vite/unittest **917**, 2 skipped, validate-content 2). AGY tap-open check not run this iteration (browser QA outside the unattended gate; post-commit AGY live-QA auto-screens per the MythOS live-QA guard).
-- Blockers: none. Next: remaining M3 sites (`GameAside`×6, `CombatControls`×3, `StoryPanel`×3, `HeaderBar`×2) — reuse the `AxisChip` popover pattern per site, or extract a shared `Tooltip` component if the next site needs the same shape (`[auto:claude]`).
-
-## 2026-07-08 (overnight, claude lane) — M2 phone-readable font floor + 44px tap targets (Track M mobile foundation)
-- Status: Done; second slice of Track M (P1.5 mobile-first prerequisite). `make check` **916** green (no test count change — CSS-only).
-- Changed: `src/mythos_ui/src/index.css` — new `@media (max-width: 600px)` block (appended at file end) bumping every UI text selector under ~12px to a tiered readable floor (9-9.5px→12px, 10-10.5px→12.5px, 11-11.5px→13px; 123 selectors covered, discovered by scripted scan of all `font-size: 9-11.5px` declarations and their owning selector, none pre-nested in another media query so the append-order override is safe/behavior-preserving on desktop). Also sized `.board-zoom-btn` to 44x44px (was 22x22) and gave `.lang-toggle`/`.bgm-toggle` a 44px `min-height` floor, matching the plan's two named sub-44px controls. `src/mythos_api/static/assets/index.css` regenerated by `make frontend-build` (part of the gate) — not hand-edited.
-- Verified: `make check` green (ruff/eslint/mypy 167/tsc+vite/unittest 916, 2 skipped, validate-content 2). AGY @390px screenshot not run this iteration (browser QA is outside the unattended gate; post-commit AGY live-QA auto-screens per the MythOS live-QA guard).
-- Blockers: none. Next: M3 hover-only `title=` → tap-openable tooltip, starting with the T4a axis chip (`[auto:claude]`).
-
-## 2026-07-08 (PM) — T5/T6 DECIDED (mobile-inclusive P0) — overnight claude lane re-armed
-- Status: Design decision, no code. Owner picked **CBT = mobile-inclusive (P0)** as target form factor,
-  which reframes the two blocked P1.5 decisions (T5 board viewpoint, T6 info density) as mobile-first and
-  adds **Track M (mobile foundation)** as their prerequisite. This unblocks the `[auto:claude]` overnight lane
-  (was all-drained/human-only since the 07-08 AM verification).
-- Basis (3 parallel code scans): board is a **fluid 2.5D isometric `<canvas>`** (not a grid), fit-to-width so
-  no overflow — "이동 시점 불편" = iso depth + tiny tiles, no camera-follow. Density peak is **combat (~9–10
-  clusters)**, which A3 disclosure excludes; **no 간결 mode exists**. Mobile: **not catastrophic** (viewport
-  meta ✓, breakpoints to 600px, 1-col collapse, touch-capable canvas) but UX-degraded — 9–11px fonts,
-  `100vh` chrome-overlap, ~20 hover-only `title=` tooltips dead on touch (**incl. the just-shipped T4a axis
-  chip**), sub-44px tap targets.
-- Recorded: `docs/plans/2026-07-08-cbt-feedback3-clarity-plan.md` ("Decision 2026-07-08" + Track M + T5/T6
-  slices), `NEXT_PLAN.md` P1.5 (slices M1-3/T6a-c/T5a-c promoted, mobile-first order), STATUS + AGENT_BRIEF
-  (blocked→unblocked, NEXT SESSION pointer rewritten).
-- Blockers: none. Next (auto): **M1·M2 → M3 → T6a-c → T5a/b → [conditional] T5c**, all UI/behavior-preserving,
-  gated by `make check` + AGY @390px. Human lane unchanged: copy tone, play-feel, `git push` (ahead ~30).
-
-## 2026-07-08 (AM) — P1.5 clarity track VERIFIED — 2 AGY QA runs PASS + independent gate 916
-- Status: Overnight P1.5 bundle (`e10f2bb..d1bed45`, 7 commits) independently re-gated **`make check` 916 green**; two direct non-nested AGY live-QA runs both PASS_CANDIDATE (screenshots visually audited). Feedback #3 clarity/responsiveness closed on the auto axes.
-- **QA A (T2 responsiveness, `20260708-062258-manual`)**: with the WS **force-closed**, one click rendered the "전송 중/Sending…" pending badge + disabled both choices (triple-click guard), reconnected, and advanced on the single click; 65s idle then single-click advance (20s keepalive). Evidence-audited, not just verdict.
-- **QA B (T4a legibility, `20260708-063004-manual`)**: value-axis chips show ⓘ tooltips ("Stay safe ⓘ"/"Help people ⓘ"), first-loop legend overlay expands+dismisses, plain-language predicted-change copy renders; console/network clean.
-- Landed this bundle: T1 identity-swap fix (resume pins to the playing loop_id) · T2 WS keepalive+optimistic pending · T3a narrative↔choice fork-mirror contract · T3b/T4 route/axis/archetype plain-copy pass · T4a affordances · variant intro **shot 03 ×6** (carousel now 3-shot; quota reset cleared the blocker).
-- Blockers: none open; loop exited DONE all-blocked (remaining P1.5 = T5/T6 `[manual]` design decisions).
-- Next: `[manual]` T5 board viewpoint + T6 density decisions · S4/T4 copy tone verdict · deploy+sign-off · `git push`.
-
 Older 2026-07-08 entries (M1 100vh→100dvh; T4a affordances; SHOT 03 ×6; T3b/T4 plain-copy; T3a fork-mirror;
 T2 responsiveness; T1 identity-swap; S4 variant-routed opening) moved to `bin/docs/archive/progress-2026-07.md`
 to hold the line budget.

@@ -75,9 +75,11 @@ Root fix for "too much info at once" + "inconsistent detail-window sizes": no de
 
 Emulator test: concise mode barely helps combat (10%); combat needs a **landscape split layout**, not density. Narrative stays portrait+concise.
 - `[x]` **LC0/LC1/LC2 DONE 2026-07-08 overnight** (`make check` 941) — orientation hook+rotate prompt · landscape split (board left | TileInfo+roster right) · TileInfo folded. Detail `PROGRESS_LOG.md`/plan.
-- **LC3/LC4 DONE 2026-07-08** (`make check` 948): LC3 compacted header/banner; LC4 made `.combat-layout` fixed-height `overflow:hidden` + folded aside into an independently-scrolling `.combat-bottom-row`. **Emulator verify #2 (this session): page now 1.00× (no page scroll ✅), banner→chip ✅** — but still NOT "board+actions co-visible": header+tab-nav eat ~215px (board shows only ~180px) and the right column leads with TileInfo/roster so the action bar sits at y≈1084 (scroll-only). Two fixes left:
-  - `[ ]` `[auto:claude]` **LC5** landscape combat: hide the tab-nav (Story/Codex/CHARACTER/SKILL TREE) + shrink the app header so the board reclaims ~215px. Done = `make check` green + emulator verify.
-  - `[ ]` `[auto:claude]` **LC6** reorder the landscape right column to **actions-first** (targets + Attack/Defend/Skills before roster/Save/STATUS) so the action bar is co-visible with the board. Done = `make check` green + emulator verify.
+- **LC3/LC4 DONE 2026-07-08** (`make check` 948): LC3 compacted header/banner; LC4 made `.combat-layout` fixed-height `overflow:hidden` + folded aside into an independently-scrolling `.combat-bottom-row`. Emulator verify #2: page 1.00× (no scroll ✅), banner→chip ✅ — but header+tab-nav still ate ~215px and the right column led with TileInfo/roster → LC5/LC6 below.
+- **LC5/LC6 DONE+EMULATOR-VERIFIED 2026-07-08** (`make check` 953): **the Landscape Combat track is now complete.**
+  - `[x]` `[auto:claude]` **LC5** — `body.combat-active` signal (App.tsx effect off `combatLive`) scopes a landscape+coarse CSS block that hides the tab-nav entirely + shrinks the header + drops `.combat-layout` chrome offset 160px→96px, so the board reclaims the height. Narrative landscape keeps its nav.
+  - `[x]` `[auto:claude]` **LC6** — hoisted `CombatControls` into one `controlsEl`; in landscape+coarse it leads the right column (actions-first: TARGETS/ACTIONS/SKILLS before TileInfo/roster/Map/Save/STATUS), portrait/desktop unchanged.
+  - **Emulator @844×390 (cloud build, combat sim, this session)**: tab-nav `display:none` ✅, page `scrollRatio 1.00` (no page scroll) ✅, board fills full layout height (canvas ~297px) ✅, right-column order `[combat-controls, …]` with ACTIONS co-visible with the board ✅.
 
 ## Priority 1 — Neo-Seoul Playability Upgrade
 

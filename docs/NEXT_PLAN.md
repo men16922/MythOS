@@ -74,9 +74,10 @@ Root fix for "too much info at once" + "inconsistent detail-window sizes": no de
 ## Landscape Combat — decided A (2026-07-08, design `docs/plans/2026-07-08-design-system.md` "Landscape Combat")
 
 Emulator test: concise mode barely helps combat (10%); combat needs a **landscape split layout**, not density. Narrative stays portrait+concise.
-- `[x]` `[auto:claude]` **LC0** `useOrientation` hook + rotate-to-landscape overlay on combat start (coarse-pointer portrait) (DONE 2026-07-08 overnight; `make check` 933). Done = unit test + `make check` green.
-- `[x]` `[auto:claude]` **LC1** landscape split layout (board height-fit left | controls right; `@media (orientation:landscape) and (pointer:coarse)`) (DONE 2026-07-08 overnight; `make check` 936). Done = `make check` green + visual verify via mobile emulator post-run. Visual verify still pending — `160px` header/tab-nav offset in `index.css` is an estimate, not measured.
-- `[x]` `[auto:claude]` **LC2** landscape: fold TileInfo/Log/Map into the right column so the turn loop fits one screen (DONE 2026-07-08 overnight; `make check` 941). Detail `PROGRESS_LOG.md`.
+- `[x]` **LC0/LC1/LC2 DONE 2026-07-08 overnight** (`make check` 941) — orientation hook+rotate prompt · landscape split (board left | TileInfo+roster right) · TileInfo folded. Detail `PROGRESS_LOG.md`/plan.
+- **Emulator verify 2026-07-08 (concise-on landscape combat): skeleton works, NOT one-screen** — 917px/2.4 screens (was 2206px); only TileInfo folded (Save/STATUS/Map still full-width stacked), board squished ~295px (encounter banner), header eats ~260px, actions below fold. Refine:
+  - `[ ]` `[auto:claude]` **LC3** landscape-combat chrome compaction: shrink header + collapse encounter banner to a chip in `@media (orientation:landscape) and (pointer:coarse)` so the board fills the left column. Done = `make check` green + emulator verify.
+  - `[ ]` `[auto:claude]` **LC4** true one-screen: `.combat-layout` = fixed-height flex row (`calc(100dvh−header)`), LEFT board column non-scrolling (board fills height), RIGHT column (roster+targets+actions+skills, then Save/STATUS/Map as collapsed chips) scrolls independently; page itself must not scroll. Done = `make check` green + emulator verify (board + action bar co-visible).
 
 ## Priority 1 — Neo-Seoul Playability Upgrade
 

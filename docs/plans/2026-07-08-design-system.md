@@ -97,3 +97,18 @@ Slices:
   viewport and will NOT catch landscape layout — human/emulator review required).
 - **LC2** `[auto:claude]` in landscape, fold TileInfo/Log/OperationMap into the right column
   (chip/tab) so the turn loop fits one screen. Done = `make check` green.
+
+### LC refinement (emulator verify 2026-07-08 — skeleton works, not one-screen yet)
+Landscape combat (concise-on) measured **917px / 2.4 screens** post-LC (was 2206px — improved). But:
+the 2-col split covers only the top row (board | TileInfo+roster); **Save/Load + STATUS(expanded) +
+OperationMap stay full-width stacked below** (LC2 only folded TileInfo), the board is squished to
+~295px by the encounter banner, and the app header eats ~260px of the 390px height. Action/skill
+controls sit below the fold, so board+actions are NOT co-visible. Refinement slices:
+- **LC3** `[auto:claude]` landscape-combat chrome compaction: in `@media (orientation:landscape) and
+  (pointer:coarse)`, shrink the app header and collapse the encounter banner to a one-line chip so the
+  board fills the left column. Done = `make check` green + emulator verify.
+- **LC4** `[auto:claude]` true one-screen: make `.combat-layout` a **fixed-height flex row**
+  (`height: calc(100dvh − header)`), LEFT = board column that does NOT scroll (board fills the height),
+  RIGHT = the control column (roster + targets + actions + skills, then Save/STATUS/Map as collapsed
+  chips) that scrolls **independently** — so the PAGE itself never scrolls. Done = `make check` green +
+  emulator verify (landscape ≈ 1 viewport; board + action bar co-visible).

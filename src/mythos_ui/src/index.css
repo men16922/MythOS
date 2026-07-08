@@ -50,6 +50,39 @@
   box-sizing: border-box;
 }
 
+/* Design-system Surface primitive (DS1a, docs/plans/2026-07-08-design-system.md).
+   variant x size x density; ships unused — no call sites migrated yet. */
+.surface {
+  --surface-density-offset: 0px;
+  box-sizing: border-box;
+  border-radius: var(--radius-md);
+  padding: calc(var(--surface-pad, var(--space-3)) - var(--surface-density-offset));
+}
+.surface-size-1 {
+  --surface-pad: var(--space-2);
+}
+.surface-size-2 {
+  --surface-pad: var(--space-3);
+}
+.surface-size-3 {
+  --surface-pad: var(--space-5);
+}
+.surface-density-compact {
+  --surface-density-offset: var(--density-step);
+}
+.surface-surface {
+  background: var(--panel);
+  border: 1px solid var(--line);
+}
+.surface-outline {
+  background: transparent;
+  border: 1px solid var(--line);
+}
+.surface-ghost {
+  background: transparent;
+  border: none;
+}
+
 body {
   margin: 0;
   color: var(--ink);

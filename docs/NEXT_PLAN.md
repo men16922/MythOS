@@ -67,7 +67,7 @@ Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop co
 
 Root fix for "too much info at once" + "inconsistent detail-window sizes": no design tokens today (9 radii · 20 paddings · 51 bespoke panels · 3 duplicate tooltips). Absorbs the T6 concise toggle into a real density system.
 - `[x]` **DS0** add spacing/radius/type tokens to `:root` (DONE 2026-07-08 overnight, `make check` 924) — `--space-1..7`/`--radius-sm..full`/`--density-step`/`--text-1..6`+line-heights added, pure additive, no call sites changed.
-- `[ ]` `[auto:claude]` **DS1a** `Surface` primitive (variant×size×density), ships unused. Done = unit test + `make check` green.
+- `[x]` **DS1a** `Surface` primitive (variant×size×density), ships unused (DONE 2026-07-08 overnight, `make check` 927 green, +3 source-lock tests) — detail `PROGRESS_LOG.md`.
 - `[ ]` `[auto:claude]` **DS1b** collapse the 3 M3 tooltips → one `Popover` + one passive `Tooltip` (aria-expanded/describedby), migrate call sites, delete bespoke CSS. Done = tap-tooltip tests green + `make check` + AGY not FAIL.
 - `[ ]` `[blocked]` **DS2/DS3** panel migration (51 classes) + density modes + combat inspector — gated on human review of the DS1a `Surface` API and density defaults. See plan.
 

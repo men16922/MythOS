@@ -115,8 +115,13 @@ decomposition — do not entangle):
   `scene-image-panel`, `narrative-script-panel`. Removed the now-dead `padding:16px` from the first
   three; `narrative-script-panel` keeps its bespoke `18px 24px` (wins over Surface by source order).
   Board+roster verified rendering live as `.surface`; scene/narrative parity via injected nodes.
-- `[ ]` `[auto:claude]` **DS2-d … DS2-n** — remaining ~21 `.panel` sites, one cluster per slice
-  (intro/onboarding · modals · dashboards), then bespoke non-`.panel` classes + the deferred
-  `<details className="panel">` chips (need a Surface `as="details"`).
+- ✅ **DS2-d (onboarding/dashboard cluster + `as` prop)** — `Surface` gained `as?: ElementType`
+  (default `<div>`, renders a semantic element with the same chrome). Migrated `OnboardingPanel`
+  (`<section>` via `as="section"`), `ProgressDashboard`, `TesterDashboard` ×4 (inline-style padding
+  preserved via `...rest`). Emulator-verified `#onboarding` renders as `<section>` + Surface chrome +
+  `max-width:760px` intact.
+- `[ ]` `[auto:claude]` **DS2-e … DS2-n** — remaining ~12 `.panel` div sites, one cluster per slice
+  (e = character/codex/skill panels; f = DevConsolePanel ×6), then the deferred 2
+  `<details className="panel">` chips (now `as="details"`) + bespoke non-`.panel` classes.
   Each: swap `.panel`→`<Surface>`, delete dead container CSS, `make check` green + AGY not FAIL.
 - Density/compact wiring stays for **DS3**.

@@ -342,3 +342,11 @@ Decision: CBT 서사 모델을 gemini-2.5-flash → **gemini-3.5-flash**로 전�
 Reason: 실측 근거 3종 — ① 품질: 감각 밀도·캐릭터성 우위(A/B + AGY 브라우저 QA PASS, `gemini35-eval-210231`); ② 비용: $1.24 vs $0.26/루프(4.8×)지만 CBT 80루프 절대액 ~$99로 수용 가능; ③ 캐싱: 프리픽스 ≥4096 달성에도 11–12k 프롬프트 구간 적중률 8%(실측)라 실효 절감 ~2% — 레버가 아님. 상세 `bin/docs/plans/2026-07-04-gemini-2.5-vs-3.5-eval.md`.
 
 Impact: 턴당 서사비 ~5배(모니터링 리스크 등재). 롤백 = env 1줄. 비용이 문제 되면 키비트 이원화(~$0.5/루프) 또는 프롬프트 다이어트 <8k(캐싱 신뢰 구간 진입)가 준비된 대안. 부산물: `MAX_PROMPT_NOTES=8` 잘림 버그 수정으로 저작 규칙이 처음으로 매 턴 모델에 도달(장면 길이 목표 명시로 단축 부작용 상쇄, 유저 확인).
+
+### Design-System density defaults + combat-inspector always-visible set (2026-07-09)
+
+Decision (owner-approved): **DS3a** — the compact-density mode uses `--density-step: 4px` (one step); default **comfortable on desktop, compact on coarse-pointer/small viewports**; the existing "concise" header toggle is **unified into** the density switch (relabelled COMPACT). Compact drops one step of padding on every `<Surface>` app-wide via `body.concise-mode .surface`, on top of the T6 collapse-to-chip. **DS3b** — the combat `TileInspector` becomes a fixed-size box whose **always-visible set = HP · Enemy intent · Cover**; per-tile detail (elevation/hazard/reach/terrain) is secondary.
+
+Reason: research-backed density scale (Material comfortable/compact −4dp) + game-HUD inspector pattern (Into the Breach / XCOM: one fixed inspector, decision-critical stats only), per `docs/plans/2026-07-08-design-system.md` Phase 3. 48px min tap target is preserved because density only shrinks container padding, never buttons.
+
+Impact: unblocks DS3 (was `[blocked]` on this decision); DS3a/b landed `make check` 956 + emulator-verified (padding 16→12px on compact; inspector fixed at 96px with the trio). Reversible: DS3a = remove the one CSS rule; DS3b = restore the variable-row inspector. The density step and the inspector's always-visible set can be tuned later without structural change.

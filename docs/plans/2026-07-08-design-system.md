@@ -61,12 +61,14 @@ type scale: collapse the current 8/9/10/11/12/13/14.5px sprawl → ~6 steps, eac
   and **DS2-a** (`StatusPanel` sample) DONE; remaining clusters are `[auto:claude]`. Detail + sweep order
   in the sample-migration doc.
 
-**Phase 3 — density system + combat inspector (gated on human density decision)**
-- `[blocked]` **DS3a** replace the T6 concise toggle with a real `density` prop (comfortable/compact,
-  −4px steps, 48px min tap target). Precondition: owner picks the density defaults + step.
-- `[blocked]` **DS3b** combat: make `TileInspector` a single fixed-size inspector that re-populates on
-  select/hover (fixes the min-height 52px jump); always-visible = decision-critical only. Precondition:
-  owner confirms which combat stats stay always-visible vs. deferred.
+**Phase 3 — density system + combat inspector — DONE 2026-07-09** (owner decision → `DECISIONS.md`)
+- `[x]` **DS3a** compact-density mode: step = `--density-step` (4px), default comfortable/desktop ·
+  compact/coarse-pointer, the concise toggle unified into the density switch (relabelled COMPACT).
+  `body.concise-mode .surface` drops one step of padding on every `<Surface>` app-wide; 48px tap
+  targets preserved (only container padding shrinks). Emulator-verified 16→12px.
+- `[x]` **DS3b** `TileInspector` is now fixed-size (min-height 96px, no empty↔populated jump); the
+  always-visible set = **HP · Enemy intent · Cover** (owner-chosen), per-tile detail secondary.
+  Emulator-verified: stable 96px with the 3-row trio even with nothing selected.
 
 ## Sequencing / risk
 DS0 → DS1a/DS1b (parallel-safe) → **[human review of Surface API]** → DS2 sweep → **[human density

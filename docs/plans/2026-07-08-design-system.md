@@ -54,11 +54,12 @@ type scale: collapse the current 8/9/10/11/12/13/14.5px sprawl → ~6 steps, eac
   remaining `title=` in those paths. Done = existing tap-tooltip tests still green + `make check` +
   AGY not FAIL.
 
-**Phase 2 — migrate panels onto Surface (gated on human review of the DS1a API)**
-- `[blocked]` **DS2** migrate the 51 panel classes onto `Surface`, **one cluster per slice**,
-  behavior-preserving (same discipline as the god-component decomposition track — do not entangle).
-  Precondition: owner reviews the DS1a `Surface` API + one sample migration before the mass sweep
-  (wrong primitive API propagates everywhere). Promote to `[auto:claude]` after that sign-off.
+**Phase 2 — migrate panels onto Surface** — **UNBLOCKED 2026-07-08** (owner sign-off; review packet
++ resolutions in `docs/plans/2026-07-08-ds2-sample-migration.md`).
+- `[/]` **DS2** migrate the ~30 `.panel` sites (of 51 panel classes) onto `Surface`, **one cluster per
+  slice**, behavior-preserving. **DS2-api** (size remap: default size-2 = 16px + glow on `.surface-surface`)
+  and **DS2-a** (`StatusPanel` sample) DONE; remaining clusters are `[auto:claude]`. Detail + sweep order
+  in the sample-migration doc.
 
 **Phase 3 — density system + combat inspector (gated on human density decision)**
 - `[blocked]` **DS3a** replace the T6 concise toggle with a real `density` prop (comfortable/compact,

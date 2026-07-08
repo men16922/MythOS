@@ -69,7 +69,9 @@ Root fix for "too much info at once" + "inconsistent detail-window sizes": no de
 - `[x]` **DS0** add spacing/radius/type tokens to `:root` (DONE 2026-07-08 overnight, `make check` 924) — `--space-1..7`/`--radius-sm..full`/`--density-step`/`--text-1..6`+line-heights added, pure additive, no call sites changed.
 - `[x]` **DS1a** `Surface` primitive (variant×size×density), ships unused (DONE 2026-07-08 overnight, `make check` 927 green, +3 source-lock tests) — detail `PROGRESS_LOG.md`.
 - `[x]` **DS1b** collapse the 3 M3 tooltips → one `Popover` + one passive `Tooltip` (aria-expanded/describedby), migrate call sites, delete bespoke CSS (DONE 2026-07-08 overnight, `make check` 928 green). Detail `PROGRESS_LOG.md`.
-- `[ ]` `[blocked]` **DS2/DS3** panel migration (51 classes) + density modes + combat inspector — gated on human review of the DS1a `Surface` API and density defaults. See plan.
+- `[/]` **DS2 UNBLOCKED 2026-07-08** (owner sign-off, review packet `docs/plans/2026-07-08-ds2-sample-migration.md`: G1 size remap ✓ · G3 bake glow ✓ · G2 accept 6→8px ✓). **DS2-api + DS2-a DONE** (`make check` 953, emulator computed-style parity vs `.panel`): api = size scale remapped so default size-2 = 16px + glow baked into `.surface-surface`; sample = `StatusPanel` migrated `.panel`→`<Surface variant="surface">`. Remaining:
+  - `[ ]` `[auto:claude]` **DS2-b … DS2-n** migrate the remaining ~29 `.panel` sites, **one cluster per slice** (aside · combat · intro/onboarding · modals · dashboards; bespoke non-`.panel` classes last), behavior-preserving. Done = `make check` green + post-commit AGY live-QA not FAIL (objective refactor, auto-screened).
+- `[ ]` `[blocked]` **DS3** density modes + combat inspector — gated on owner's density defaults/step decision. See plan.
 
 ## Landscape Combat — decided A (2026-07-08, design `docs/plans/2026-07-08-design-system.md` "Landscape Combat")
 

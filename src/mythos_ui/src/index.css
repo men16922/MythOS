@@ -2363,6 +2363,22 @@ main {
     min-height: 0;
     overflow-y: auto;
   }
+  /* LC3: shrink the app header + tab bar so the board fills more of the
+     fixed-height left column (emulator verify 2026-07-08 found the header
+     alone eating ~260px of a 390px-tall viewport). */
+  header {
+    padding: 6px 14px;
+    gap: 8px;
+  }
+  header .sub {
+    display: none;
+  }
+  .tabs {
+    margin-bottom: 8px;
+  }
+  .tab-btn {
+    padding: 5px 12px;
+  }
 }
 .combat-grid {
   display: grid;
@@ -2560,6 +2576,41 @@ main {
 }
 .combat-learning-goal-close:hover {
   color: var(--term);
+}
+/* LC3: collapse the encounter banner to a one-line chip in landscape+coarse
+   combat so it stops squishing the board's fixed-height column (must come
+   after the base rules above so this override wins the cascade). */
+@media (orientation: landscape) and (pointer: coarse) {
+  .combat-learning-goal {
+    margin-top: 4px;
+    padding: 4px 8px;
+    gap: 6px;
+    align-items: center;
+  }
+  .combat-learning-goal-body {
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+  .combat-learning-goal-label {
+    flex-shrink: 0;
+  }
+  .combat-learning-goal-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+  }
+  .combat-learning-goal-summary {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+  .lg-more {
+    flex-shrink: 0;
+  }
 }
 
 /* Tile inspector: details of the board cell under the pointer. */

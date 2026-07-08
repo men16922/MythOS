@@ -76,7 +76,7 @@ Root fix for "too much info at once" + "inconsistent detail-window sizes": no de
 Emulator test: concise mode barely helps combat (10%); combat needs a **landscape split layout**, not density. Narrative stays portrait+concise.
 - `[x]` **LC0/LC1/LC2 DONE 2026-07-08 overnight** (`make check` 941) — orientation hook+rotate prompt · landscape split (board left | TileInfo+roster right) · TileInfo folded. Detail `PROGRESS_LOG.md`/plan.
 - **Emulator verify 2026-07-08 (concise-on landscape combat): skeleton works, NOT one-screen** — 917px/2.4 screens (was 2206px); only TileInfo folded (Save/STATUS/Map still full-width stacked), board squished ~295px (encounter banner), header eats ~260px, actions below fold. Refine:
-  - `[ ]` `[auto:claude]` **LC3** landscape-combat chrome compaction: shrink header + collapse encounter banner to a chip in `@media (orientation:landscape) and (pointer:coarse)` so the board fills the left column. Done = `make check` green + emulator verify.
+  - `[x]` `[auto:claude]` **LC3** landscape-combat chrome compaction (DONE 2026-07-08 overnight; `make check` 944) — shrink header + collapse encounter banner to a one-line chip in `@media (orientation:landscape) and (pointer:coarse)`. `make check` green; emulator verify still pending (human/mobile-landscape pass, same as LC0-2). Detail `PROGRESS_LOG.md`.
   - `[ ]` `[auto:claude]` **LC4** true one-screen: `.combat-layout` = fixed-height flex row (`calc(100dvh−header)`), LEFT board column non-scrolling (board fills height), RIGHT column (roster+targets+actions+skills, then Save/STATUS/Map as collapsed chips) scrolls independently; page itself must not scroll. Done = `make check` green + emulator verify (board + action bar co-visible).
 
 ## Priority 1 — Neo-Seoul Playability Upgrade

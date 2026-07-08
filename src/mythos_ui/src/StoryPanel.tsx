@@ -475,7 +475,7 @@ function LearningGoalBanner({ combat }: { combat: CombatState }) {
         </span>
         {!expanded && (
           <span className="combat-learning-goal-text">
-            🎯 {firstSentence}{" "}
+            🎯 <span className="combat-learning-goal-summary">{firstSentence}</span>
             <button className="lg-more" onClick={() => setExpanded(true)}>
               {t("story.learn.more")}
             </button>

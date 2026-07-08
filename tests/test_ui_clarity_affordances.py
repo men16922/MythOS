@@ -168,7 +168,7 @@ class UIClarityAffordancesTest(unittest.TestCase):
 
         self.assertIn('import { useConciseMode } from "./conciseMode";', source)
         self.assertIn("function AsideChip(", source)
-        self.assertIn('<details className="panel aside-chip">', source)
+        self.assertIn('<Surface as="details" variant="surface" className="aside-chip">', source)
         self.assertIn('<summary className="panel-title aside-chip-summary">{title}</summary>', source)
         self.assertIn("const { conciseMode } = useConciseMode();", source)
         self.assertIn('conciseMode ? (\n        <AsideChip title={t("save.title")}>{saveHistory}</AsideChip>', source)
@@ -188,7 +188,7 @@ class UIClarityAffordancesTest(unittest.TestCase):
 
         self.assertIn('import { useConciseMode } from "./conciseMode";', source)
         self.assertIn("function CombatChip(", source)
-        self.assertIn('<details className="panel aside-chip">', source)
+        self.assertIn('<Surface as="details" variant="surface" className="aside-chip">', source)
         self.assertIn('<summary className="panel-title aside-chip-summary">{title}</summary>', source)
         self.assertIn("const { conciseMode } = useConciseMode();", source)
         self.assertIn(

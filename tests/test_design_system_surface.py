@@ -122,6 +122,22 @@ class DesignSystemSurfaceTest(unittest.TestCase):
         # App.tsx has no base `.panel` container of its own → stays unmigrated.
         self.assertNotIn("Surface", read("src/mythos_ui/src/App.tsx"))
 
+    def test_ds2_base_panel_sweep_is_complete(self) -> None:
+        # DS2-a..f + the deferred <details> chips migrated every base `.panel`
+        # container onto <Surface> (incl. as="section"/as="details"). Guard that
+        # no `<div|section|details|aside className="panel"|"panel …">` container
+        # regresses in. Child classes (panel-title, panel-info-toggle, …) are fine.
+        import re
+
+        pat = re.compile(r'<(?:div|section|details|aside|article)\b[^>]*className=(?:"panel"|"panel |`panel )')
+        src_dir = ROOT / "src" / "mythos_ui" / "src"
+        offenders = [
+            p.relative_to(ROOT).as_posix()
+            for p in src_dir.glob("*.tsx")
+            if pat.search(p.read_text(encoding="utf-8"))
+        ]
+        self.assertEqual(offenders, [], f"un-migrated base .panel containers: {offenders}")
+
 
 if __name__ == "__main__":
     unittest.main()

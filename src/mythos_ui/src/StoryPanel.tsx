@@ -584,10 +584,10 @@ function TileInspector({
 // Non-concise mode renders children unwrapped, unchanged from before T6c.
 function CombatChip({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <details className="panel aside-chip">
+    <Surface as="details" variant="surface" className="aside-chip">
       <summary className="panel-title aside-chip-summary">{title}</summary>
       <div className="aside-chip-body">{children}</div>
-    </details>
+    </Surface>
   );
 }
 

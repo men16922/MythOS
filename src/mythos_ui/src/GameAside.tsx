@@ -562,17 +562,17 @@ function AsideChip({
   children: React.ReactNode;
 }) {
   return (
-    <details className="panel aside-chip">
+    <Surface as="details" variant="surface" className="aside-chip">
       <summary className="panel-title aside-chip-summary">{title}</summary>
       <div className="aside-chip-body">{children}</div>
-    </details>
+    </Surface>
   );
 }
 
 function LogPanel({ consoleLogs }: { consoleLogs: string }) {
   const { t } = useLang();
   return (
-    <details className="panel" id="log-panel">
+    <Surface as="details" variant="surface" id="log-panel">
       <summary
         className="panel-title"
         style={{ cursor: "pointer", listStyle: "none" }}
@@ -592,7 +592,7 @@ function LogPanel({ consoleLogs }: { consoleLogs: string }) {
       >
         {consoleLogs}
       </div>
-    </details>
+    </Surface>
   );
 }
 

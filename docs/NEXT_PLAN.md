@@ -75,9 +75,9 @@ Root fix for "too much info at once" + "inconsistent detail-window sizes": no de
 
 Emulator test: concise mode barely helps combat (10%); combat needs a **landscape split layout**, not density. Narrative stays portrait+concise.
 - `[x]` **LC0/LC1/LC2 DONE 2026-07-08 overnight** (`make check` 941) — orientation hook+rotate prompt · landscape split (board left | TileInfo+roster right) · TileInfo folded. Detail `PROGRESS_LOG.md`/plan.
-- **Emulator verify 2026-07-08 (concise-on landscape combat): skeleton works, NOT one-screen** — 917px/2.4 screens (was 2206px); only TileInfo folded (Save/STATUS/Map still full-width stacked), board squished ~295px (encounter banner), header eats ~260px, actions below fold. Refine:
-  - `[x]` `[auto:claude]` **LC3** landscape-combat chrome compaction (DONE 2026-07-08 overnight; `make check` 944) — shrink header + collapse encounter banner to a one-line chip in `@media (orientation:landscape) and (pointer:coarse)`. `make check` green; emulator verify still pending (human/mobile-landscape pass, same as LC0-2). Detail `PROGRESS_LOG.md`.
-  - `[x]` **LC4** true one-screen (DONE 2026-07-08 overnight; `make check` 948) — `.combat-layout` bounded fixed-height + `overflow:hidden` in landscape+coarse combat; page-level aside folds entirely (Save/Status join Map/TileInfo/Log in `.combat-bottom-row`, which scrolls independently). `make check` green; emulator verify (board + action bar co-visible, page doesn't scroll) still pending — same human mobile-landscape pass flagged for LC0-3. Detail `PROGRESS_LOG.md`.
+- **LC3/LC4 DONE 2026-07-08** (`make check` 948): LC3 compacted header/banner; LC4 made `.combat-layout` fixed-height `overflow:hidden` + folded aside into an independently-scrolling `.combat-bottom-row`. **Emulator verify #2 (this session): page now 1.00× (no page scroll ✅), banner→chip ✅** — but still NOT "board+actions co-visible": header+tab-nav eat ~215px (board shows only ~180px) and the right column leads with TileInfo/roster so the action bar sits at y≈1084 (scroll-only). Two fixes left:
+  - `[ ]` `[auto:claude]` **LC5** landscape combat: hide the tab-nav (Story/Codex/CHARACTER/SKILL TREE) + shrink the app header so the board reclaims ~215px. Done = `make check` green + emulator verify.
+  - `[ ]` `[auto:claude]` **LC6** reorder the landscape right column to **actions-first** (targets + Attack/Defend/Skills before roster/Save/STATUS) so the action bar is co-visible with the board. Done = `make check` green + emulator verify.
 
 ## Priority 1 — Neo-Seoul Playability Upgrade
 

@@ -138,6 +138,19 @@ class DesignSystemSurfaceTest(unittest.TestCase):
         header = read("src/mythos_ui/src/HeaderBar.tsx")
         self.assertIn('COMPACT {conciseMode ? "ON" : "OFF"}', header)
 
+    def test_ds3b_tile_inspector_is_fixed_size_with_primary_trio(self) -> None:
+        # DS3b (owner-approved): the combat TileInspector always renders the
+        # decision-critical trio (HP/Intent/Cover) as "primary" rows so its shape
+        # is stable (no empty↔populated height jump); per-tile detail is secondary.
+        source = read("src/mythos_ui/src/StoryPanel.tsx")
+        self.assertIn('label: t("story.tile.hp")', source)
+        self.assertIn('label: t("story.tile.intent")', source)
+        self.assertIn('label: t("story.tile.cover")', source)
+        self.assertIn('className="tile-inspector-row primary"', source)
+        css = read("src/mythos_ui/src/index.css")
+        self.assertIn("min-height: 96px;", css)
+        self.assertIn(".tile-inspector-row.primary .tile-inspector-key {", css)
+
     def test_ds2_base_panel_sweep_is_complete(self) -> None:
         # DS2-a..f + the deferred <details> chips migrated every base `.panel`
         # container onto <Surface> (incl. as="section"/as="details"). Guard that

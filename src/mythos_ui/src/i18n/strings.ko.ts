@@ -222,6 +222,8 @@ export const ko = {
   "story.tile.terrain": "지형",
   "story.tile.high": "고지",
   "story.tile.risk": "위험",
+  "story.tile.hp": "HP",
+  "story.tile.cover": "엄폐",
   "story.tile.intent": "적 의도",
   "story.tile.attack": "공격 예고",
   "story.tile.flee": "도주",

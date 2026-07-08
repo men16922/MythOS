@@ -516,59 +516,76 @@ function TileInspector({
   cell: [number, number] | null;
 }) {
   const { t } = useLang();
-  if (!cell) {
-    return (
-      <div className="tile-inspector empty">
-        <span className="tile-inspector-hint">{t("story.tile.hint")}</span>
-      </div>
+  // DS3b (owner-approved 2026-07-09): a single FIXED-size inspector. The three
+  // decision-critical stats — HP · Enemy intent · Cover — are ALWAYS rendered
+  // (as "—" when absent) so the panel keeps a stable shape and never jumps on
+  // hover/select; per-tile detail (elevation/hazard/reach/terrain) fills the
+  // secondary rows below. Fixes the old empty(52px)↔populated height jump.
+  const dash = "—";
+  let coordLabel = t("story.tile.hint");
+  let hpVal = dash;
+  let intentVal = dash;
+  let coverVal = dash;
+  const secondary: { label: string; value: string }[] = [];
+
+  if (cell) {
+    const [x, y] = cell;
+    coordLabel = `${t("story.tile.coord")} (${x}, ${y})`;
+    const key = `${x},${y}`;
+    const elevation = Number(combat.elevations?.[key] || 0);
+    const cover = combat.covers?.[key];
+    const hazard = combat.hazards?.[key];
+    const occupant = (combat.radar?.blips || []).find(
+      (b) => b.x === x && b.y === y && b.alive !== false
     );
-  }
-  const [x, y] = cell;
-  const key = `${x},${y}`;
-  const elevation = Number(combat.elevations?.[key] || 0);
-  const cover = combat.covers?.[key];
-  const hazard = combat.hazards?.[key];
-  const occupant = (combat.radar?.blips || []).find(
-    (b) => b.x === x && b.y === y && b.alive !== false
-  );
-  const reachable = (combat.available?.reachable || []).some(
-    ([rx, ry]) => rx === x && ry === y
-  );
-  const intent = (combat.radar?.enemy_intents || []).find(
-    (i) => i.target_x === x && i.target_y === y
-  );
+    const reachable = (combat.available?.reachable || []).some(
+      ([rx, ry]) => rx === x && ry === y
+    );
+    const intent = (combat.radar?.enemy_intents || []).find(
+      (i) => i.target_x === x && i.target_y === y
+    );
 
-  const factionLabel = (faction?: string) =>
-    faction === "enemy" ? t("story.tile.enemy") : faction === "ally" ? t("story.tile.ally") : t("story.tile.friendly");
-  const coverLabel = cover === "full" ? t("story.tile.coverFull") : cover === "half" ? t("story.tile.coverHalf") : null;
-  const hazardLabel =
-    hazard === "acid" ? t("story.tile.acid") : hazard === "electro" ? t("story.tile.electro") : hazard || null;
+    const factionLabel = (faction?: string) =>
+      faction === "enemy" ? t("story.tile.enemy") : faction === "ally" ? t("story.tile.ally") : t("story.tile.friendly");
+    const coverLabel = cover === "full" ? t("story.tile.coverFull") : cover === "half" ? t("story.tile.coverHalf") : null;
+    const hazardLabel =
+      hazard === "acid" ? t("story.tile.acid") : hazard === "electro" ? t("story.tile.electro") : hazard || null;
 
-  const rows: { label: string; value: string }[] = [];
-  if (occupant) {
-    rows.push({
-      label: factionLabel(occupant.faction),
-      value: `${occupant.name || occupant.id} · HP ${occupant.hp}/${occupant.max_hp}`,
-    });
+    // Primary trio.
+    if (occupant) {
+      hpVal = `${occupant.name || occupant.id} · ${occupant.hp}/${occupant.max_hp} (${factionLabel(occupant.faction)})`;
+    }
+    if (intent) {
+      intentVal = intent.action === "attack" ? t("story.tile.attack") : intent.action === "flee" ? t("story.tile.flee") : t("story.tile.move");
+    }
+    if (coverLabel) coverVal = coverLabel;
+
+    // Secondary (per-tile) detail.
+    if (elevation > 0) secondary.push({ label: t("story.tile.high"), value: `+${elevation}` });
+    if (hazardLabel) secondary.push({ label: t("story.tile.risk"), value: hazardLabel });
+    if (reachable) secondary.push({ label: t("story.tile.move"), value: t("story.tile.moveable") });
+    if (!occupant && !coverLabel && !hazardLabel && elevation === 0)
+      secondary.push({ label: t("story.tile.terrain"), value: t("story.tile.empty") });
   }
-  if (coverLabel) rows.push({ label: t("story.tile.terrain"), value: coverLabel });
-  if (elevation > 0) rows.push({ label: t("story.tile.high"), value: `+${elevation}` });
-  if (hazardLabel) rows.push({ label: t("story.tile.risk"), value: hazardLabel });
-  if (intent) {
-    rows.push({
-      label: t("story.tile.intent"),
-      value: intent.action === "attack" ? t("story.tile.attack") : intent.action === "flee" ? t("story.tile.flee") : t("story.tile.move"),
-    });
-  }
-  if (reachable) rows.push({ label: t("story.tile.move"), value: t("story.tile.moveable") });
-  if (rows.length === 0) rows.push({ label: t("story.tile.terrain"), value: t("story.tile.empty") });
+
+  const primary = [
+    { label: t("story.tile.hp"), value: hpVal },
+    { label: t("story.tile.intent"), value: intentVal },
+    { label: t("story.tile.cover"), value: coverVal },
+  ];
 
   return (
     <div className="tile-inspector">
-      <div className="tile-inspector-coord">{t("story.tile.coord")} ({x}, {y})</div>
+      <div className="tile-inspector-coord">{coordLabel}</div>
       <div className="tile-inspector-rows">
-        {rows.map((r, i) => (
-          <div key={i} className="tile-inspector-row">
+        {primary.map((r) => (
+          <div key={r.label} className="tile-inspector-row primary">
+            <span className="tile-inspector-key">{r.label}</span>
+            <span className="tile-inspector-val">{r.value}</span>
+          </div>
+        ))}
+        {secondary.map((r, i) => (
+          <div key={`sec-${i}`} className="tile-inspector-row">
             <span className="tile-inspector-key">{r.label}</span>
             <span className="tile-inspector-val">{r.value}</span>
           </div>

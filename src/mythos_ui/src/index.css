@@ -2671,11 +2671,20 @@ main {
   border: 1px solid var(--line-soft);
   border-radius: 6px;
   background: rgba(8, 16, 20, 0.5);
-  min-height: 52px;
+  /* DS3b: fixed floor sized to the coord line + the always-rendered primary
+     trio (HP/Intent/Cover), so the inspector no longer jumps between its empty
+     (was 52px) and populated states on hover/select. Secondary rows extend
+     below without moving the primary block. */
+  min-height: 96px;
 }
 .tile-inspector.empty {
   display: flex;
   align-items: center;
+}
+/* DS3b: the decision-critical trio reads as primary (brighter, bold key). */
+.tile-inspector-row.primary .tile-inspector-key {
+  color: var(--term);
+  font-weight: 600;
 }
 .tile-inspector-hint {
   font-size: 11px;

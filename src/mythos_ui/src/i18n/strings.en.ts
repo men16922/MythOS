@@ -222,6 +222,8 @@ export const en: Record<StringKey, string> = {
   "story.tile.terrain": "Terrain",
   "story.tile.high": "High ground",
   "story.tile.risk": "Hazard",
+  "story.tile.hp": "HP",
+  "story.tile.cover": "Cover",
   "story.tile.intent": "Enemy intent",
   "story.tile.attack": "Attack telegraph",
   "story.tile.flee": "Flee",

@@ -15,25 +15,10 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. Cloud Run rev `00019-jf6` serves
   direction = (A) "uncut single-turn" format now-ish or (B) montage after P1 + archetype openings + ending art
   (visible deltas). Metadata drafts ready (`docs/cbt/CBT_TEASER.md`/`.ko.md`); re-scope when picked up.
 - `[ ]` `[manual]` **Key-beat hybrid enablement + A/B verdict (after full-3.5 sign-off)**: deploy `MODEL=gemini-2.5-flash` + `GEMINI_MODEL_KEYBEAT=gemini-3.5-flash`; verify opening/anchor/cutscene/boss-buildup/ending route to 3.5 and normal turns to 2.5; compare matched full loops for quality, repetition/continuity, state/name/language errors, p50/p95 latency, and cost. Done = documented keep/rollback decision; rollback restores full `MODEL=gemini-3.5-flash` with key-beat unset.
-- `[ ]` **CBT P1 (feedback #1 Audrey + #2 owner 7-loop self-play) — design snapshot DONE
-  (`docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md`), tracks in priority order**:
-  - `[x]` P1-A onboarding+skill legibility (DONE 2026-07-05; live-QA PASS ×2 07-06) — detail archive.
-  - `[x]` **P1-B replay variety (DONE 2026-07-05; variant art ×6 + boot intro 07-06)** — detail archive. Remaining:
-    `[x]` `[auto:codex]` **variant intro shot 02 ×6 (DONE 2026-07-07 overnight)** (opening style spec + each
-    variant's directive beat; appended to `session_intro_variants[v].cinematic_shots` + EN overlay; `make check` 901 green).
-    `[x]` `[auto:codex]` **variant intro shot 03 ×6 (DONE 2026-07-08 overnight)** (same spec + criterion as shot 02;
-    six `opening-*-03.png` assets + KO/EN intro metadata; `make check` 912 green).
-    `[ ]` `[manual]` in-game feel review of the 6 variant intros/cuts.
-  - `[/]` **Variant-ROUTED opening (user-directed 2026-07-06; design `docs/plans/2026-07-06-variant-routed-opening.md`)**:
-    `[x]` S1 anchor variantization + `[x]` S2 gate variant goal + `[x]` S3 se_rin flag clamp (DONE 2026-07-07
-    overnight, mechanisms) + `[x]` **S4 content (DONE 2026-07-08)**: anchor `variants` ×6 · `player_goal_variants` ×6 ·
-    12 directives (KO+EN) 1-cut → turn 0-3 window w/ REENTRY_SCENE2/3 beats. `make check` **902** green, e2e smoke
-    (loop-2 kai pick skins beat/title/images; loop-1 untouched). Remaining `[ ]` `[manual]` **S4 카피 톤 검수**
-    (anchor titles/summaries/goals + 12 beat prose — register: screenplay action-line) + in-game 2회차 feel run.
-  - `[x]` **P1-C density/continuity + P1-D/E identity/arc (DONE 2026-07-05; icons ×10 + SFX ×4 `b095446`
-    07-06)** — detail archive/`PROGRESS_LOG.md`.
-  - `[ ]` `[manual]` decisions: G2 twist tone review (3 drafts in scenario.json `twist_bank`) ·
-    in-layer pacing knob (C2) · overload-strike range balance (D5) · EN fresh-loop coherence retest.
+- `[/]` **CBT P1 (design `docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md`)** — P1-A/B/C/D/E all DONE 2026-07-05..08 (onboarding+legibility · replay variety + variant intro shots 02/03 ×6 · density/identity/arc; live-QA PASS ×2). Detail archive/`PROGRESS_LOG.md`. Remaining:
+  - `[/]` **Variant-ROUTED opening**: S1-S4 mechanisms+content DONE 2026-07-07/08 (`make check` 902, e2e smoke). Remaining `[ ]` `[manual]` **S4 카피 톤 검수** (anchor/goal + 12 beat prose, screenplay action-line) + in-game 2회차 feel run.
+  - `[ ]` `[manual]` in-game feel review of the 6 variant intros/cuts.
+  - `[ ]` `[manual]` decisions: G2 twist tone (3 `twist_bank` drafts) · in-layer pacing (C2) · overload-strike range (D5) · EN fresh-loop coherence retest.
 - `[x]` **Save-slot overwrite + delete (DONE 2026-07-05)** — 남음 `[manual]` 라이브 체감. 상세 archive/progress-2026-07.
 - `[/]` **Prompt-layer separation**: Phase 0-4 + node-addressing done. Remaining `[ ]` Phase 5 few-shot extraction (lowest priority).
 - `[ ]` `[manual]` **Archetype-variant openings (long-term, 2026-07-04)**: the 5-beat opening prologue is shared across archetypes (only stat-voices/GM flavor differ). Author per-archetype opening variations (e.g. Data Smuggler wakes mid-deal, Echo Collector hears the echoes first) — directive-layer work (`resources/neo-seoul/directives/opening.md` variants + KO/EN), gated on CBT priorities.
@@ -77,6 +62,14 @@ Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop co
   - `[x]` `[auto:claude]` **T5a** movement affordance: reachable-tile highlight + path/target preview + auto-center on active unit (reachable calc already in TileInspector) (DONE 2026-07-08 overnight; `make check` 923). Done = `make check` green + AGY mobile not FAIL.
   - `[x]` `[auto:claude]` **T5b** small-viewport default-zoom bump + min tile-size floor (DONE 2026-07-08 overnight; `make check` 924). Done = `make check` green + AGY mobile not FAIL.
   - `[ ]` `[blocked]` **T5c** (LARGE) 2D top-down toggle = second orthogonal render path. Precondition (human): owner confirms isometric still illegible @390px after T5a/b land. NOT unattended-consumable — do not build the second render path on a guess. Promote to `[auto:claude]` after that judgment.
+
+## Design System — consistent UX (2026-07-08, design `docs/plans/2026-07-08-design-system.md`)
+
+Root fix for "too much info at once" + "inconsistent detail-window sizes": no design tokens today (9 radii · 20 paddings · 51 bespoke panels · 3 duplicate tooltips). Absorbs the T6 concise toggle into a real density system.
+- `[ ]` `[auto:claude]` **DS0** add spacing/radius/type tokens to `:root` (values in plan); additive, no call-site change. Done = `make check` green.
+- `[ ]` `[auto:claude]` **DS1a** `Surface` primitive (variant×size×density), ships unused. Done = unit test + `make check` green.
+- `[ ]` `[auto:claude]` **DS1b** collapse the 3 M3 tooltips → one `Popover` + one passive `Tooltip` (aria-expanded/describedby), migrate call sites, delete bespoke CSS. Done = tap-tooltip tests green + `make check` + AGY not FAIL.
+- `[ ]` `[blocked]` **DS2/DS3** panel migration (51 classes) + density modes + combat inspector — gated on human review of the DS1a `Surface` API and density defaults. See plan.
 
 ## Priority 1 — Neo-Seoul Playability Upgrade
 

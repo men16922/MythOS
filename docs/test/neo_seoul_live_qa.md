@@ -1,8 +1,8 @@
 # Neo-Seoul Live QA Checklist
 
-최종 갱신: 2026-07-08
+최종 갱신: 2026-07-09
 
-**사람이 직접 플레이하며 체감으로만 판단할 항목**. 기계/에이전트 검증 통과분(unittest 953, E2E,
+**사람이 직접 플레이하며 체감으로만 판단할 항목**. 기계/에이전트 검증 통과분(unittest 956, E2E,
 AGY 렌더 QA, 에뮬레이터 레이아웃/패리티, 100-seed 측정)은 전부 제외 — 이력은 git + `PROGRESS_LOG`.
 
 > **플레이 대상**: 실서비스 `https://mythos-api-1004528040791.us-central1.run.app/?invite=<key>`
@@ -10,8 +10,9 @@ AGY 렌더 QA, 에뮬레이터 레이아웃/패리티, 100-seed 측정)은 전�
 > 동료 장착 UI + 아이템 토스트) 또는 로컬 `make api-cloud`.
 > ⚠️ **미배포 대량 배치 (origin엔 푸시됨 `889f713`, Cloud Run rev `00025-856` 미재배포, 2026-07-08)** — 실서비스엔 전부 없음:
 > CBT P1(19슬라이스)·07-06 에셋(오프닝 6·아이콘 10·SFX 4) + **S4 변주 오프닝 · P1.5 클래리티/모바일-우선
-> (Track M·T5·T6) · Design-System(DS0 토큰·DS1 `Surface`/`Popover`·DS2 패널 마이그레이션) · Landscape
-> Combat(LC0-6)**. 🆕 섹션은 배포 후 실서비스, 또는 로컬 `make api-cloud`(모바일은 그 서버에 폰 브라우저로 접속)로 선검증.
+> (Track M·T5·T6) · Design-System 전체(DS0 토큰·DS1 `Surface`/`Popover`·DS2 패널 30개 마이그레이션·**DS3**
+> compact 밀도 + 고정 전투 인스펙터) · Landscape Combat(LC0-6)**. 🆕/📱 섹션은 배포 후 실서비스, 또는
+> 로컬 `make api-cloud`(모바일은 그 서버에 폰 브라우저로 접속)로 선검증.
 > 반드시 **새 루프** + **admin 키 권장**(테스터 키는 루프 캡 10). KO 1완주(~30분) + EN 1루프(짧게) 권장.
 > ⚠️ 부트 화면의 **전투 시뮬레이터는 사인오프에 사용 금지** — 본편 루프만 (시뮬은 실루프를 생성해 캡을
 > 소모하고, ally-writeback 트리아지 중 — NEXT_PLAN 2026-07-05).
@@ -71,7 +72,9 @@ computed-style 패리티(radius +2px만)*는 확인했으나, **노치·브라�
 **세로 — 내러티브 (P1.5 Track M / Design-System)**
 - [ ] <600px에서 폰트 가독(구 9-11px 문제 해소) · 44px 탭타깃이 엄지로 눌리나 · `100dvh`로 상/하단 브라우저
   크롬과 겹침 없나(URL바 접힘/펼침 포함).
-- [ ] CONCISE 모드가 coarse-pointer 기본 ON · 토글 동작 · aside(Save/Map)가 `<details>` 칩으로 접히나.
+- [ ] **COMPACT 밀도 토글(구 CONCISE, DS3a)** — coarse-pointer/작은뷰포트 기본 ON · 헤더 토글 라벨이
+  "COMPACT ON/OFF" · 켜면 **모든 패널 여백이 한 단계(−4px) 촘촘**해지고 aside(Save/Map)가 `<details>` 칩으로
+  접히나 (데스크톱 기본 OFF → 수동 토글로 16→12px 체감 확인). 탭타깃은 줄지 않아야(48px 유지).
 - [ ] 탭 툴팁(선택지 축 칩 / 전투 스킬 / aside info)이 **터치 탭으로** 열리나(hover 아님, 데스크톱 `title=` 대체).
 - [ ] 패널 룩 일관성(DS2 `Surface` 이관분: STATUS·작전지도·세이브/기록 — 배경/보더/글로우/여백이 이전과 동일,
   라운드만 6→8px). 어색한 크기 차이 있으면 `[!]`.
@@ -124,6 +127,9 @@ computed-style 패리티(radius +2px만)*는 확인했으나, **노치·브라�
   *(주의: 현재 코드상 한 판 참전한 AI 아군이 영구 파티로 승격되는 writeback 있음 — 알려진 트리아지, 참전
   여부·연출만 판정하고 영구 합류는 `[!]`로 잡지 말 것.)*
 - [ ] Rank 2/3 효과·집중 비용·재사용이 표시값대로 실전투 반영 · Clues에 단서 증거·용도가 읽히나.
+- [ ] **전투 타일 인스펙터(DS3b, 2026-07-09)**: 보드 타일 호버/선택 시 인스펙터가 **높이가 안 튀고**(고정
+  96px), 항상 **HP · 적 의도 · 엄폐** 3줄이 먼저(강조) 보이고 나머지 상세(고지/위험/이동)는 아래로. 뷰포트 무관
+  (데스크톱·모바일 공통). 선택 없을 땐 3줄이 "—"로.
 
 **시장/인벤토리**
 - [x] 시장 교환 카드(2→nanopatch/3→stim_shard/**5→restart_core**/6→mesh_vest) + 린위에 상인 연출 자연스러움
@@ -166,5 +172,7 @@ computed-style 패리티(radius +2px만)*는 확인했으나, **노치·브라�
 > 튜토리얼 4단계 카드·진입 배너·스킬 배지·로스터 칩·커버 🛡·KO 플레이스홀더 — 로컬 fallback/시뮬 경로**) ·
 > **가로 전투 레이아웃(LC0-6) 에뮬레이터 통과(2026-07-08 @844×390: 탭바 숨김·페이지 무스크롤·board+actions
 > 공존, 보드 화면높이 채움)** — 단 **실기기 체감은 📱 섹션에서 여전히 열림** · **DS2 `Surface` 이관
-> computed-style 패리티(`.panel` 대비 radius +2px만)** · unittest 953/gate green.
+> computed-style 패리티(`.panel` 대비 radius +2px만)** · **DS3a 에뮬레이터(#onboarding 16→12px, 탭타깃 불변)
+> + DS3b(인스펙터 96px 고정·HP/의도/엄폐 3줄) 통과** — 실기기 밀도 체감·인스펙터 실전투 체감은 위에서 열림 ·
+> unittest 956/gate green.
 > 상세 git + `PROGRESS_LOG`. glass-library EN 글로서리는 별도 프론트 트랙.

@@ -112,6 +112,7 @@ class DesignSystemSurfaceTest(unittest.TestCase):
             "src/mythos_ui/src/CharacterTabPanel.tsx",
             "src/mythos_ui/src/CodexPanel.tsx",
             "src/mythos_ui/src/SkillTreePanel.tsx",
+            "src/mythos_ui/src/DevConsolePanel.tsx",
         ):
             src = read(path)
             self.assertIn('import { Surface } from "./Surface";', src)

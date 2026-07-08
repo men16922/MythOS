@@ -1,4 +1,5 @@
 import { useState, type CSSProperties } from "react";
+import { Surface } from "./Surface";
 
 import { useLang } from "./i18n/lang";
 import type { StringKey } from "./i18n/strings.ko";
@@ -46,7 +47,7 @@ function InfraLinks() {
   const isLocalHost = host === "localhost" || host === "127.0.0.1";
   const dashboardUrl = `/admin/dashboard?invite=${new URLSearchParams(window.location.search).get("invite") || localStorage.getItem("mythos_invite_key") || ""}`;
   return (
-    <div className="panel" style={{ ...devPanelStyle, marginTop: 0 }}>
+    <Surface variant="surface" style={{ ...devPanelStyle, marginTop: 0 }}>
       <div className="cc-label" style={{ marginBottom: "12px", borderBottom: "1px solid var(--line-soft)", paddingBottom: "6px" }}>
         {t("dev.infra.title")}
       </div>
@@ -87,7 +88,7 @@ function InfraLinks() {
           {t("dev.infra.hint")}
         </div>
       )}
-    </div>
+    </Surface>
   );
 }
 
@@ -117,7 +118,7 @@ export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
         {/* Right Column Stack */}
         <div style={{ display: "flex", flexDirection: "column", gap: "16px", width: "100%" }}>
           {/* Card 2: 인과율 메트릭 */}
-          <div className="panel" style={{ ...devPanelStyle, marginTop: 0 }}>
+          <Surface variant="surface" style={{ ...devPanelStyle, marginTop: 0 }}>
             <div className="cc-label" style={{ marginBottom: "12px", borderBottom: "1px solid var(--line-soft)", paddingBottom: "6px" }}>
               {t("dev.causalityMetrics")}
             </div>
@@ -162,10 +163,10 @@ export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
                 );
               })}
             </div>
-          </div>
+          </Surface>
 
           {/* Card 4: 분기 및 엔딩 도달 가능성 */}
-          <div className="panel" style={{ ...devPanelStyle, marginTop: 0 }}>
+          <Surface variant="surface" style={{ ...devPanelStyle, marginTop: 0 }}>
             <div className="cc-label" style={{ marginBottom: "12px", borderBottom: "1px solid var(--line-soft)", paddingBottom: "6px" }}>
               {t("dev.causalityEndings")}
             </div>
@@ -274,7 +275,7 @@ export function DevConsolePanel({ data, snapshot }: DevConsolePanelProps) {
                 </div>
               </div>
             </div>
-          </div>
+          </Surface>
         </div>
 
         {/* Card 5: 원시 게임상태 스냅샷 (전체 너비 차지 & 탭 기반 구조화) */}
@@ -289,7 +290,7 @@ function NarrativeMetricsPanel({ data }: { data: DevConsoleData }) {
   const metrics = data.narrativeMetrics;
 
   return (
-    <div className="panel" style={{ ...devPanelStyle, marginTop: 0 }}>
+    <Surface variant="surface" style={{ ...devPanelStyle, marginTop: 0 }}>
       <div className="cc-label" style={{ marginBottom: "12px", borderBottom: "1px solid var(--line-soft)", paddingBottom: "6px" }}>
         {t("dev.aiGmTitle")}
       </div>
@@ -371,7 +372,7 @@ function NarrativeMetricsPanel({ data }: { data: DevConsoleData }) {
           {t("dev.noMetrics")}
         </div>
       )}
-    </div>
+    </Surface>
   );
 }
 
@@ -383,14 +384,14 @@ function SnapshotPanel({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
 
   if (!snapshot) {
     return (
-      <div className="panel" style={{ ...devPanelStyle, gridColumn: "1 / -1", marginTop: 0 }}>
+      <Surface variant="surface" style={{ ...devPanelStyle, gridColumn: "1 / -1", marginTop: 0 }}>
         <div className="cc-label" style={{ marginBottom: "8px", borderBottom: "1px solid var(--line-soft)", paddingBottom: "6px" }}>
           {t("dev.rawGameState")}
         </div>
         <div style={{ color: "var(--ink-dim)", fontSize: "12px", padding: "16px", textAlign: "center" }}>
           {t("dev.noSession")}
         </div>
-      </div>
+      </Surface>
     );
   }
 
@@ -408,7 +409,7 @@ function SnapshotPanel({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
   });
 
   return (
-    <div className="panel" style={{ ...devPanelStyle, gridColumn: "1 / -1", marginTop: 0 }}>
+    <Surface variant="surface" style={{ ...devPanelStyle, gridColumn: "1 / -1", marginTop: 0 }}>
       <div
         style={{
           display: "flex",
@@ -459,7 +460,7 @@ function SnapshotPanel({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
           </pre>
         )}
       </div>
-    </div>
+    </Surface>
   );
 }
 

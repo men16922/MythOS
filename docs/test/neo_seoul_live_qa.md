@@ -6,13 +6,11 @@
 AGY 렌더 QA, 에뮬레이터 레이아웃/패리티, 100-seed 측정)은 전부 제외 — 이력은 git + `PROGRESS_LOG`.
 
 > **플레이 대상**: 실서비스 `https://mythos-api-1004528040791.us-central1.run.app/?invite=<key>`
-> (rev **`00025-856`** = 3.5-flash + 프롬프트 다이어트 + GCS 서명 핫픽스 + 시뮬레이터 admin 게이팅 +
-> 동료 장착 UI + 아이템 토스트) 또는 로컬 `make api-cloud`.
-> ⚠️ **미배포 대량 배치 (origin `889f713`까지 푸시됨, 그 뒤 ~22커밋 미푸시, Cloud Run rev `00025-856` 미재배포)** — 실서비스엔 전부 없음:
-> CBT P1·07-06 에셋 + **S4 변주 오프닝 · P1.5 클래리티/모바일(Track M·T5·T6) · Design-System 전체(DS0-DS3)
-> · Landscape Combat(LC0-6) · 07-09 오프닝/초기-루프 수정 묶음**(세린 플래시·변형 fallback 세린 제거·오프닝
-> 아이템 억제·오프닝 카드/분/인트로 문구 자연화). 🆕/📱/🔧 섹션은 배포 후 실서비스, 또는 로컬 `make api-cloud`
-> (재시작해야 07-09 변경 반영; 모바일은 폰 브라우저로 접속)로 선검증.
+> — **rev `mythos-api-00026-s2g` 배포됨 (2026-07-09, MODEL=gemini-3.5-flash)**. 아래 전 섹션(🔧/🆕/📱 포함)
+> 이 이제 실서비스에 반영됨.
+> ✅ **배포된 배치 (rev `00026-s2g`)**: CBT P1·07-06 에셋 + S4 변주 오프닝 · P1.5 클래리티/모바일(Track M·T5·T6)
+> · Design-System 전체(DS0-DS3) · Landscape Combat(LC0-6) · 07-09 오프닝/초기-루프 수정 묶음(세린 플래시·변형
+> fallback 세린 제거·오프닝 아이템 억제·오프닝 카드/분/인트로 문구 자연화). git은 origin 대비 아직 ahead(재푸시 별도).
 > 반드시 **새 루프** + **admin 키 권장**(테스터 키는 루프 캡 10). KO 1완주(~30분) + EN 1루프(짧게) 권장.
 > ⚠️ 부트 화면의 **전투 시뮬레이터는 사인오프에 사용 금지** — 본편 루프만 (시뮬은 실루프를 생성해 캡을
 > 소모하고, ally-writeback 트리아지 중 — NEXT_PLAN 2026-07-05).
@@ -152,4 +150,8 @@ LC6 actions-first 공존·DS2 패널 Surface 렌더 — **전부 확인됨**. �
 > `<section>`+전투 board/roster가 Surface(16px·glow·radius8) 렌더 · ③ **DS3a** 데스크톱 기본 COMPACT OFF·
 > coarse 기본 ON·토글 시 패널 16→12px·탭타깃 높이 불변 · ④ **DS3b** 인스펙터 96px 고정·[HP/적의도/엄폐] 3줄
 > 상시(빈 타일 "—"). **실기기 감각(터치/노치/URL바)·실전투 체감·서사 톤만 📱/본문에서 열림.** unittest 956/gate green.
+> **2026-07-09 Playwright(fallback 모드) 객관 확인**(`scratch/e2e_check_0709.py`): **#2a 분 스탯 라벨** —
+> intelligence 분이 KO에서 "**연산 +N**", EN에서 "**INT +N**"으로 정상 렌더(원문 키 누출 없음). **#4 변형-중립
+> fallback**은 fallback.md↔DEFAULT_FALLBACK byte-parity 테스트로 잠금(브라우저 렌더는 하네스 모달-순서로 SKIP).
+> 세린 플래시·han 톤·오프닝 아이템 억제(🔧)는 fallback 불가 → 재배포 후 2회차+ 실루프 몫.
 > 상세 git + `PROGRESS_LOG`. glass-library EN 글로서리는 별도 프론트 트랙.

@@ -172,7 +172,7 @@ class UIClarityAffordancesTest(unittest.TestCase):
         self.assertIn('<summary className="panel-title aside-chip-summary">{title}</summary>', source)
         self.assertIn("const { conciseMode } = useConciseMode();", source)
         self.assertIn('conciseMode ? (\n        <AsideChip title={t("save.title")}>{saveHistory}</AsideChip>', source)
-        self.assertIn('conciseMode ? (\n            <AsideChip title={t("aside.route.title")}>{operationMap}</AsideChip>', source)
+        self.assertIn('conciseMode ? (\n          <AsideChip title={t("aside.route.title")}>{operationMap}</AsideChip>', source)
 
         css = read("src/mythos_ui/src/index.css")
         self.assertIn(".aside-chip-summary", css)

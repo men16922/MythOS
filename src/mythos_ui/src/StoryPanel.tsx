@@ -6,8 +6,9 @@ import { ChoicePanel } from "./ChoicePanel";
 import { CombatControls } from "./CombatControls";
 import { CombatLog } from "./CombatLog";
 import { CombatRoster } from "./CombatRoster";
-import { OperationMapPanel } from "./GameAside";
+import { OperationMapPanel, StatusPanel } from "./GameAside";
 import { RotateOverlay } from "./RotateOverlay";
+import { SaveHistoryPanel } from "./SaveHistoryPanel";
 import { useConciseMode } from "./conciseMode";
 import { useOrientation } from "./hooks/useOrientation";
 import { useLang } from "./i18n/lang";
@@ -62,6 +63,12 @@ interface StoryPanelProps {
   // ("move" | "attack" | "skill" | "defend"), null when the tutorial is off.
   tutorialHighlight?: string | null;
   onOpenCodex?: () => void;
+  // LC4: threaded through only for the landscape+coarse combat fold of
+  // Save/Status into the combat-bottom-row right column.
+  isBusy?: boolean;
+  canSave?: boolean;
+  onOpenSave?: () => void;
+  onOpenLoad?: () => void;
 }
 
 const decodeGarbageBytes = (text: string): string => {
@@ -657,6 +664,10 @@ export function StoryPanel({
   onBoardZoom,
   tutorialHighlight,
   onOpenCodex,
+  isBusy = false,
+  canSave = false,
+  onOpenSave,
+  onOpenLoad,
 }: StoryPanelProps) {
   const { t } = useLang();
   const { conciseMode } = useConciseMode();
@@ -838,6 +849,26 @@ export function StoryPanel({
             {isLandscapeCoarseCombat && (
               <CombatChip title={t("aside.route.title")}>
                 <OperationMapPanel snapshot={snapshot} onOpenCodex={onOpenCodex} />
+              </CombatChip>
+            )}
+
+            {/* LC4: GameAside renders nothing in this state (folded entirely),
+                so Save/Status join Map here — the right column is now the
+                single scrollable surface and the page itself never scrolls. */}
+            {isLandscapeCoarseCombat && onOpenSave && onOpenLoad && (
+              <CombatChip title={t("save.title")}>
+                <SaveHistoryPanel
+                  isBusy={isBusy}
+                  canSave={canSave}
+                  onOpenSave={onOpenSave}
+                  onOpenLoad={onOpenLoad}
+                />
+              </CombatChip>
+            )}
+
+            {isLandscapeCoarseCombat && (
+              <CombatChip title={t("aside.status.title")}>
+                <StatusPanel snapshot={snapshot} />
               </CombatChip>
             )}
           </div>

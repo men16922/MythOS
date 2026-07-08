@@ -2343,11 +2343,20 @@ main {
    160px offset approximates header + tab-nav chrome; combatCanvas.ts reads
    the resulting panel height to fit the board to it (see drawCombatCanvas). */
 @media (orientation: landscape) and (pointer: coarse) {
+  /* LC4: bound `.combat-layout` itself (not just the flex row inside it) to
+     the viewport with hidden overflow, so the page never scrolls even if the
+     160px chrome estimate below is slightly off — only `.combat-bottom-row`
+     (the right column) scrolls internally. `.combat-stack` fills 100% of
+     this instead of repeating the calc. */
+  .combat-layout {
+    height: calc(100dvh - 160px);
+    min-height: 240px;
+    overflow: hidden;
+  }
   .combat-stack {
     flex-direction: row;
     align-items: stretch;
-    height: calc(100dvh - 160px);
-    min-height: 240px;
+    height: 100%;
     gap: 12px;
   }
   .combat-stack .tactical-board-panel {

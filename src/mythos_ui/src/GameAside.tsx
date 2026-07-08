@@ -416,7 +416,7 @@ export function OperationMapPanel({
   );
 }
 
-function StatusPanel({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
+export function StatusPanel({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
   const { t } = useLang();
   const gaugesConfig = snapshot ? buildGaugeConfig(snapshot) : null;
   const [showHints, setShowHints] = useState(false);
@@ -604,6 +604,16 @@ export function GameAside({
   const { t } = useLang();
   const { conciseMode } = useConciseMode();
   const { isLandscape, isCoarsePointer } = useOrientation();
+  // LC4: in landscape+coarse-pointer combat, StoryPanel folds Save/Status/Map
+  // into the combat-bottom-row right column instead of this page-level aside —
+  // rendering nothing here means `main`'s single-column stack (<900px) gets no
+  // second row below the fixed-height combat split, so the page itself never
+  // scrolls (docs/plans/2026-07-08-design-system.md "Landscape Combat").
+  const combatActive = Boolean(finalizedSnapshot?.combat && !finalizedSnapshot.combat.finished);
+  const foldedIntoCombat = combatActive && isLandscape && isCoarsePointer;
+  if (foldedIntoCombat) {
+    return null;
+  }
   if (minimal) {
     return (
       <aside>
@@ -619,11 +629,6 @@ export function GameAside({
       onOpenLoad={onOpenLoad}
     />
   );
-  // LC2: in landscape+coarse-pointer combat, StoryPanel folds the operation
-  // map into the combat-bottom-row right column instead — don't render it
-  // here too (docs/plans/2026-07-08-design-system.md "Landscape Combat").
-  const combatActive = Boolean(finalizedSnapshot?.combat && !finalizedSnapshot.combat.finished);
-  const operationMapFoldedIntoCombat = combatActive && isLandscape && isCoarsePointer;
   const operationMap = <OperationMapPanel snapshot={finalizedSnapshot} onOpenCodex={onOpenCodex} />;
   return (
     <aside>
@@ -632,15 +637,13 @@ export function GameAside({
       ) : (
         saveHistory
       )}
-      {!operationMapFoldedIntoCombat && (
-        <div className={revealNudge ? "aside-reveal-nudge" : undefined}>
-          {conciseMode ? (
-            <AsideChip title={t("aside.route.title")}>{operationMap}</AsideChip>
-          ) : (
-            operationMap
-          )}
-        </div>
-      )}
+      <div className={revealNudge ? "aside-reveal-nudge" : undefined}>
+        {conciseMode ? (
+          <AsideChip title={t("aside.route.title")}>{operationMap}</AsideChip>
+        ) : (
+          operationMap
+        )}
+      </div>
       <StatusPanel snapshot={finalizedSnapshot} />
       <LogPanel consoleLogs={consoleLogs} />
     </aside>

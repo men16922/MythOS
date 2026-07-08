@@ -30,7 +30,7 @@ class LandscapeCombatLC2Test(unittest.TestCase):
     def test_operation_map_folds_into_bottom_row_in_landscape_coarse_pointer(self) -> None:
         source = read("src/mythos_ui/src/StoryPanel.tsx")
 
-        self.assertIn('import { OperationMapPanel } from "./GameAside";', source)
+        self.assertIn('import { OperationMapPanel, StatusPanel } from "./GameAside";', source)
         self.assertIn(
             'import { useOrientation } from "./hooks/useOrientation";', source
         )
@@ -47,7 +47,10 @@ class LandscapeCombatLC2Test(unittest.TestCase):
 
         self.assertIn("export function OperationMapPanel({", source)
 
-    def test_aside_suppresses_operation_map_when_folded_into_combat(self) -> None:
+    def test_aside_returns_null_when_folded_into_combat(self) -> None:
+        # LC4: the aside no longer just suppresses OperationMap — the whole
+        # <aside> renders nothing in landscape+coarse combat, since StoryPanel's
+        # combat-bottom-row now also carries Save/Status (see LC4 test module).
         source = read("src/mythos_ui/src/GameAside.tsx")
 
         self.assertIn(
@@ -55,10 +58,10 @@ class LandscapeCombatLC2Test(unittest.TestCase):
             source,
         )
         self.assertIn(
-            "const operationMapFoldedIntoCombat = combatActive && isLandscape && isCoarsePointer;",
+            "const foldedIntoCombat = combatActive && isLandscape && isCoarsePointer;",
             source,
         )
-        self.assertIn("{!operationMapFoldedIntoCombat && (", source)
+        self.assertIn("if (foldedIntoCombat) {\n    return null;\n  }", source)
 
     def test_story_panel_wires_on_open_codex_from_app(self) -> None:
         source = read("src/mythos_ui/src/App.tsx")

@@ -866,6 +866,10 @@ export default function App() {
                 boardZoom={boardZoom}
                 onBoardZoom={handleBoardZoom}
                 onOpenCodex={() => handleTabClick("codex")}
+                isBusy={isBusy}
+                canSave={Boolean(loopId)}
+                onOpenSave={() => setSaveLoadModal("save")}
+                onOpenLoad={() => setSaveLoadModal("load")}
               />
             )}
 

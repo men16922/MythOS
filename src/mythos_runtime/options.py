@@ -63,9 +63,15 @@ class RuntimeSnapshot:
 
 @dataclass(frozen=True)
 class RuntimeStreamEvent:
-    kind: Literal["text", "final"]
+    # ``meta`` is emitted once at the start of ``stream_start_loop`` — after the
+    # loop (and its opening variant) is prepared but BEFORE the slow narrative
+    # generation — so the client can reveal the correct opening intro sequence
+    # immediately instead of racing a timeout and flashing the default cut.
+    kind: Literal["text", "final", "meta"]
     text: str = ""
     snapshot: RuntimeSnapshot | None = None
+    opening_variant: str | None = None
+    runs_completed: int | None = None
 
 
 @dataclass(frozen=True)

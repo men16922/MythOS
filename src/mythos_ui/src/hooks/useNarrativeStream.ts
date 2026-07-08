@@ -37,6 +37,9 @@ type UseNarrativeStreamArgs = {
   clearVisualTimeout: () => void;
   onVisualStatus: (msg: WebSocketMessage) => void;
   handleReceivedSnapshot: (snap: RuntimeSnapshot) => void;
+  // Early opening-variant frame (begin only): fired before the first-scene
+  // generation so the intro can reveal the correct sequence without a timeout.
+  onLoopMeta: (variant: string, runsCompleted: number) => void;
   logToConsole: (line: string) => void;
 };
 
@@ -73,6 +76,7 @@ export function useNarrativeStream(args: UseNarrativeStreamArgs) {
     clearVisualTimeout,
     onVisualStatus,
     handleReceivedSnapshot,
+    onLoopMeta,
     logToConsole,
   } = args;
   // React state does not update synchronously, so two clicks in one event turn
@@ -90,6 +94,8 @@ export function useNarrativeStream(args: UseNarrativeStreamArgs) {
   const handleSocketMessage = (msg: WebSocketMessage) => {
     if (msg.type === "token" && msg.content) {
       narrationQueueRef.current += msg.content;
+    } else if (msg.type === "loop_meta") {
+      onLoopMeta(msg.opening_variant || "default", msg.runs_completed || 0);
     } else if (msg.type === "snapshot" && msg.data) {
       choiceInFlightRef.current = false;
       setPendingChoiceId(null);

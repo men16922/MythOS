@@ -563,6 +563,23 @@ class RuntimeSessionService:
         player = prepared.player
         loop = prepared.loop
         context = prepared.context
+        # Emit the chosen opening variant up front, before the (slow, LLM-driven)
+        # first-scene generation. The variant is fixed the moment the loop is
+        # prepared, but the snapshot that carries it only lands after generation
+        # completes (8-20s on cloud). Without this early frame the client's intro
+        # hold times out and reveals the default Se-rin cut, then remounts into
+        # the real variant when the snapshot finally arrives (the "Se-rin flash →
+        # variant swap" bug). This frame lets the intro pick the right sequence
+        # in <1s. Fallback path emits it too — it also runs _prepare_start_loop.
+        _loop_state = loop.state if isinstance(loop.state, dict) else {}
+        _loop_meta = _loop_state.get("meta_progression")
+        yield RuntimeStreamEvent(
+            kind="meta",
+            opening_variant=str(_loop_state.get("_opening_variant") or "default"),
+            runs_completed=(
+                int(_loop_meta.get("runs_completed", 0)) if isinstance(_loop_meta, dict) else 0
+            ),
+        )
         metric_total_before = _director_metric_total(self.director)
         stream = (
             self._fallback_stream_event(context)

@@ -129,6 +129,12 @@ export default function App() {
   // --- Typewriter / Narration State ---
   const [lastSnapshot, setLastSnapshot] = useState<RuntimeSnapshot | null>(null);
   const [finalizedSnapshot, setFinalizedSnapshot] = useState<RuntimeSnapshot | null>(null);
+  // Opening variant, delivered by the server's early `loop_meta` frame (before
+  // the slow first-scene generation). This is the AUTHORITATIVE, per-loop intro
+  // signal — the snapshot carries the same variant but arrives 8-20s later, so
+  // relying on it alone flashed the default Se-rin cut then swapped. Reset per
+  // loop on intro close so a prior loop's variant can never leak in.
+  const [openingVariant, setOpeningVariant] = useState<string | null>(null);
 
   // Typewriter narration reveal (state + streaming refs) lives in a hook; it
   // drains the WS token queue into `displayedNarration` and finalizes the
@@ -396,6 +402,7 @@ export default function App() {
     clearVisualTimeout,
     onVisualStatus,
     handleReceivedSnapshot,
+    onLoopMeta: (variant) => setOpeningVariant(variant),
     logToConsole,
   });
 
@@ -670,39 +677,41 @@ export default function App() {
   const asideMinimal = introFirstLoop && introTurn <= 2 && !finalizedSnapshot?.combat;
   const asideRevealNudge = introFirstLoop && introTurn === 3;
 
-  // B2 loop2+ opening variants: the first snapshot's loop state names the
-  // variant. The intro holds on a signal-alignment skeleton until we KNOW which
-  // sequence to show — either the loop-2+ variant has arrived, or the first
-  // snapshot confirms this is loop 1 (runs_completed === 0 → default Se-rin, no
-  // variant coming). Never swap sequences mid-read. 8s fallback if the stream stalls.
+  // B2 loop2+ opening variants: the server names this loop's variant up front
+  // via the early `loop_meta` frame (`openingVariant`), which arrives within ~1s
+  // of `begin` — long before the snapshot that also carries it (that lands only
+  // after the 8-20s first-scene generation). The intro holds on a signal-
+  // alignment skeleton until the variant is known, then reveals the right
+  // sequence once and never swaps. `openingVariant` is the primary source; the
+  // snapshot is a fallback for an older server that predates the meta frame.
   const introVariantKey =
+    openingVariant ??
     finalizedSnapshot?.state?._opening_variant ??
     lastSnapshot?.state?._opening_variant ??
     "default";
   const introVariantArrived = Boolean(
-    finalizedSnapshot?.state?._opening_variant ?? lastSnapshot?.state?._opening_variant
+    openingVariant ??
+      finalizedSnapshot?.state?._opening_variant ??
+      lastSnapshot?.state?._opening_variant
   );
   const [introWaitExpired, setIntroWaitExpired] = useState(false);
   useEffect(() => {
     if (!showIntro || introVariantArrived) return;
-    const timer = setTimeout(() => setIntroWaitExpired(true), 8000);
+    // Last-resort reveal only if the meta frame never lands (dead stream): the
+    // happy-path frame arrives in ~1s, so this timer normally never fires.
+    const timer = setTimeout(() => setIntroWaitExpired(true), 12000);
     return () => clearTimeout(timer);
   }, [showIntro, introVariantArrived]);
   useEffect(() => {
     if (!showIntro) return;
-    // Reset on intro close so the next loop's intro holds again.
-    return () => setIntroWaitExpired(false);
+    // Reset on intro close so the next loop's intro holds again with a clean
+    // per-loop variant signal (no leak from the loop just finished).
+    return () => {
+      setIntroWaitExpired(false);
+      setOpeningVariant(null);
+    };
   }, [showIntro]);
-  // Gate the hold on the SNAPSHOT, not `startScreenPlayerId`: the stored-id proxy
-  // can be falsy/async at first intro render for a returning identity, which let
-  // the default Se-rin sequence render and then remount into the variant (the
-  // "Se-rin flash → variant" bug). A snapshot with `state` but no `_opening_variant`
-  // AND runs_completed 0 is a confirmed loop-1 (default); otherwise hold until the
-  // variant arrives.
-  const introFirstLoopConfirmed =
-    Boolean(finalizedSnapshot?.state ?? lastSnapshot?.state) && introFirstLoop;
-  const introPending =
-    !introVariantArrived && !introFirstLoopConfirmed && !introWaitExpired;
+  const introPending = !introVariantArrived && !introWaitExpired;
   const introVariants = currentScenario?.ui_copy?.session_intro_variants as
     | Record<string, IntroData>
     | undefined;

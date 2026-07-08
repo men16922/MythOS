@@ -618,12 +618,16 @@ export interface MemoryOverview {
 }
 
 export interface WebSocketMessage {
-  type: "token" | "snapshot" | "visual_status" | "error" | "pong";
+  type: "token" | "snapshot" | "visual_status" | "error" | "pong" | "loop_meta";
   content?: string;
   data?: RuntimeSnapshot;
   detail?: string;
   status?: "pending" | "processing" | "succeeded" | string;
   url?: string;
+  // loop_meta: the opening variant, sent up front (before the slow first-scene
+  // generation) so the intro can pick the right sequence without a timeout race.
+  opening_variant?: string;
+  runs_completed?: number;
 }
 
 export interface CombatCinemaContext {

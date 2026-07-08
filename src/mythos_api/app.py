@@ -349,6 +349,16 @@ async def _run_stream(
             async for event in iterate_in_threadpool(generator):
                 if event.kind == "text":
                     await websocket.send_json({"type": "token", "content": event.text})
+                elif event.kind == "meta":
+                    # Early opening-variant frame (begin only): lets the client's
+                    # intro reveal the right sequence before generation finishes.
+                    await websocket.send_json(
+                        {
+                            "type": "loop_meta",
+                            "opening_variant": event.opening_variant or "default",
+                            "runs_completed": event.runs_completed or 0,
+                        }
+                    )
                 elif event.snapshot is not None:
                     last_snapshot = event.snapshot
                     snap = localize_for(

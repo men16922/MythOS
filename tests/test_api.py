@@ -470,7 +470,8 @@ class ApiNarrativeFlowTest(unittest.TestCase):
 
 def _drain_to_snapshot(ws: Any) -> dict[str, Any]:
     frame = ws.receive_json()
-    while frame["type"] == "token":
+    # `loop_meta` (opening-variant announce) precedes tokens on a `begin` stream.
+    while frame["type"] in ("token", "loop_meta"):
         frame = ws.receive_json()
     return cast(dict[str, Any], frame)
 
@@ -484,9 +485,17 @@ class ApiStreamTest(unittest.TestCase):
             json={"display_name": "테스터", "player_id": "player_ws"},
         )
 
-    def test_begin_streams_token_then_snapshot(self) -> None:
+    def test_begin_streams_meta_then_token_then_snapshot(self) -> None:
         with self.client.websocket_connect("/api/v1/loops/stream") as ws:
             ws.send_json({"event": "begin", "player_id": "player_ws", "fallback": True})
+            # The opening variant is announced up front — before the (slow)
+            # first-scene generation — so the client intro reveals the correct
+            # sequence immediately instead of timing out onto the default cut
+            # and then swapping when the snapshot finally lands.
+            meta = ws.receive_json()
+            self.assertEqual(meta["type"], "loop_meta")
+            self.assertEqual(meta["opening_variant"], "default")  # loop 1 is always default
+            self.assertEqual(meta["runs_completed"], 0)
             first = ws.receive_json()
             self.assertEqual(first["type"], "token")
             self.assertTrue(first["content"])

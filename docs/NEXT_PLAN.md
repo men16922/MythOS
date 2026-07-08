@@ -53,15 +53,10 @@ Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop co
 
 ## P1.5 — CBT feedback #3: Clarity & Responsiveness (2026-07-08, design `docs/plans/2026-07-08-cbt-feedback3-clarity-plan.md`)
 
-- `[x]` **T1-T4a DONE+VERIFIED 2026-07-08** (`e10f2bb..d1bed45`, `make check` 916, 2 AGY QA PASS) — detail archive.
-- `[x]` **T5/T6 RESOLVED 2026-07-08 (owner: mobile-inclusive P0)** → mobile-first + Track M prerequisite. Plan "Decision 2026-07-08". Residual `[manual]`: T4/S4 copy tone + play-feel (owner, local).
-- `[x]` **Track M M1/M2/M3-core + T6a/T6b DONE 2026-07-08 overnight** (`make check` 921 green) — `100vh`→`100dvh` · <600px readable-font + 44px tap targets · hover-`title=`→tap tooltip (axis chip / combat-skill `SkillInfoTooltip` / `GameAside` `InfoPopover` ×4; remaining `CombatControls`×2/`StoryPanel`×3/`HeaderBar`×2 judged **supplementary** — aria-label + visible action already cover touch, convert only per-site if needed) · concise-mode state+toggle (coarse-pointer default) · Save/Map aside→`<details>` chips when concise. Detail archive/`PROGRESS_LOG.md`.
+- `[x]` **T1-T4a + T5/T6 + Track M (M1-3/T6a-c) + T5a/T5b DONE+VERIFIED 2026-07-08** — clarity affordances + mobile-first (100dvh · <600px readable fonts + 44px taps · tap tooltips · concise-mode + coarse-pointer default · board zoom/affordance/tile-floor). Owner decision: mobile-inclusive P0. Summary → `COMPLETED_SUMMARY.md` M58; detail → archive/`progress-2026-07.md`. Residual `[manual]`: T4/S4 copy tone + play-feel.
 - **P1.5 open slices**:
   - `[ ]` `[manual]` **M4** verify 7 `position:fixed` modals for scroll-lock/clip on phone.
-  - `[x]` `[auto:claude]` **T6c** combat-panel density reduction at the ~9–10-cluster peak (DONE 2026-07-08 overnight; `make check` 922). Done = `make check` green + AGY mobile not FAIL.
-  - `[x]` `[auto:claude]` **T5a** movement affordance: reachable-tile highlight + path/target preview + auto-center on active unit (reachable calc already in TileInspector) (DONE 2026-07-08 overnight; `make check` 923). Done = `make check` green + AGY mobile not FAIL.
-  - `[x]` `[auto:claude]` **T5b** small-viewport default-zoom bump + min tile-size floor (DONE 2026-07-08 overnight; `make check` 924). Done = `make check` green + AGY mobile not FAIL.
-  - `[ ]` `[blocked]` **T5c** (LARGE) 2D top-down toggle = second orthogonal render path. Precondition (human): owner confirms isometric still illegible @390px after T5a/b land. NOT unattended-consumable — do not build the second render path on a guess. Promote to `[auto:claude]` after that judgment.
+  - `[ ]` `[blocked]` **T5c** (LARGE) 2D top-down toggle = second orthogonal render path. Precondition (human): owner confirms isometric still illegible @390px after T5a/b. NOT unattended-consumable — do not build on a guess. Promote to `[auto:claude]` after that judgment.
 
 ## Design System — consistent UX (2026-07-08, design `docs/plans/2026-07-08-design-system.md`)
 

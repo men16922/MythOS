@@ -74,6 +74,16 @@
 .surface-density-compact {
   --surface-density-offset: var(--density-step);
 }
+/* DS3a (owner-approved 2026-07-09): the compact-density mode. The header toggle
+   drives `body.concise-mode` (default ON for coarse-pointer/small viewports); in
+   that mode EVERY `<Surface>` panel drops one --density-step (4px) of padding
+   app-wide — a real spacing reduction, not just the T6 collapse-to-chip. Higher
+   specificity than `.surface`'s 0px default, so it wins without threading a
+   `density` prop into 30 call sites. Only container padding shrinks — button/tap
+   targets are unaffected, so the 48px min hit target (a11y) is preserved. */
+body.concise-mode .surface {
+  --surface-density-offset: var(--density-step);
+}
 .surface-surface {
   background: var(--panel);
   border: 1px solid var(--line);

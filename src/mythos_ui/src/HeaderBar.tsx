@@ -51,7 +51,7 @@ export function HeaderBar({
         onClick={toggleConciseMode}
         title={conciseMode ? t("hdr.conciseOff") : t("hdr.conciseOn")}
       >
-        CONCISE {conciseMode ? "ON" : "OFF"}
+        COMPACT {conciseMode ? "ON" : "OFF"}
       </button>
       <button
         type="button"

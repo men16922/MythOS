@@ -21,8 +21,8 @@ export const ko = {
   "hdr.brand": "세계 : 접속",
   "hdr.bgmOff": "BGM 끄기",
   "hdr.bgmOn": "BGM 켜기",
-  "hdr.conciseOff": "간결 모드 끄기",
-  "hdr.conciseOn": "간결 모드 켜기",
+  "hdr.conciseOff": "compact 밀도 끄기 (여유 간격)",
+  "hdr.conciseOn": "compact 밀도 켜기 (간격 축소 + 보조 패널 접기)",
   "hdr.leave": "접속 종료",
   "lang.switch": "언어 전환",
   // Tab navigation

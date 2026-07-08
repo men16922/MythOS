@@ -122,6 +122,22 @@ class DesignSystemSurfaceTest(unittest.TestCase):
         # App.tsx has no base `.panel` container of its own → stays unmigrated.
         self.assertNotIn("Surface", read("src/mythos_ui/src/App.tsx"))
 
+    def test_ds3a_compact_density_reduces_surface_padding_globally(self) -> None:
+        # DS3a (owner-approved): the header's compact toggle drives
+        # `body.concise-mode`; in that mode every <Surface> drops one
+        # --density-step of padding app-wide (a real spacing reduction, not just
+        # the T6 collapse). Only container padding shrinks → 48px tap targets safe.
+        css = read("src/mythos_ui/src/index.css")
+        self.assertIn("body.concise-mode .surface {", css)
+        idx = css.index("body.concise-mode .surface {")
+        self.assertIn(
+            "--surface-density-offset: var(--density-step);",
+            css[idx : idx + 120],
+        )
+        # The toggle is relabelled from CONCISE to a density/COMPACT control.
+        header = read("src/mythos_ui/src/HeaderBar.tsx")
+        self.assertIn('COMPACT {conciseMode ? "ON" : "OFF"}', header)
+
     def test_ds2_base_panel_sweep_is_complete(self) -> None:
         # DS2-a..f + the deferred <details> chips migrated every base `.panel`
         # container onto <Surface> (incl. as="section"/as="details"). Guard that

@@ -107,7 +107,11 @@ decomposition — do not entangle):
   vs `.panel` confirmed (only delta = +2px radius, intended).
 - ✅ **DS2-a (sample)** — `StatusPanel` (`GameAside.tsx`) migrated `.panel`→`<Surface variant="surface">`;
   `.status-panel` kept as behavior-only passthrough. Gate green.
-- `[ ]` `[auto:claude]` **DS2-b … DS2-n** — remaining ~29 `.panel` sites, one cluster per slice
-  (aside · combat · intro/onboarding · modals · dashboards), then bespoke non-`.panel` classes.
+- ✅ **DS2-b (aside cluster)** — `Surface` now forwards `...rest` (id/style/handlers/aria); migrated
+  `OperationMapPanel` (main + fallback) and `SaveHistoryPanel`/`RunHistoryPanel`. The 2
+  `<details className="panel">` chips (AsideChip/LogPanel) deferred — need a Surface `as="details"`
+  or stay `<details>`. Gate green; emulator parity re-checked (id forwarded, only radius +2px).
+- `[ ]` `[auto:claude]` **DS2-c … DS2-n** — remaining ~25 `.panel` sites, one cluster per slice
+  (combat · intro/onboarding · modals · dashboards), then bespoke non-`.panel` classes.
   Each: swap `.panel`→`<Surface>`, delete dead container CSS, `make check` green + AGY not FAIL.
 - Density/compact wiring stays for **DS3**.

@@ -424,7 +424,24 @@ export function drawCombatCanvas(
   // T5b: floor the on-screen tile size so a tap target stays usable even on a
   // small viewport or a large arena the player hasn't zoomed in on yet.
   const minCssW = Math.ceil((MIN_ISO_STEP_PX * (cols + rows)) / 0.92);
-  const cssW = Math.max(Math.floor(baseW * zoom), minCssW);
+  let cssW = Math.max(Math.floor(baseW * zoom), minCssW);
+
+  // LC1: the landscape split layout (index.css "LC1") bounds the board
+  // panel's own height instead of just its width, so a width-only fit can
+  // overflow the fixed-height row and force page scroll. Fit to whichever
+  // axis is tighter, using the same cssH = cssW * rows/cols aspect used
+  // below (solved for width instead of height).
+  const isLandscapeCoarse =
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(orientation: landscape)").matches &&
+    window.matchMedia("(pointer: coarse)").matches;
+  if (isLandscapeCoarse) {
+    const padTop = parseFloat(computed.paddingTop) || 0;
+    const padBottom = parseFloat(computed.paddingBottom) || 0;
+    const baseH = Math.max(80, Math.floor(container.clientHeight - padTop - padBottom));
+    const cssWFromHeight = Math.floor((baseH * cols) / rows);
+    cssW = Math.max(minCssW, Math.min(cssW, cssWFromHeight));
+  }
   const cssH = Math.round((cssW * rows) / cols);
 
   canvas.style.width = cssW + "px";

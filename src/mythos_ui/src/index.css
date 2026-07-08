@@ -2335,6 +2335,35 @@ main {
     grid-template-columns: 1fr;
   }
 }
+/* LC1: landscape split layout for coarse-pointer (touch) combat — board
+   (height-fit, left) | roster/controls/log column (right, own scroll) —
+   so the core turn loop fits one screen instead of the portrait stack
+   (docs/plans/2026-07-08-design-system.md "Landscape Combat", decided
+   direction A). Desktop/mouse and portrait layouts are unaffected. The
+   160px offset approximates header + tab-nav chrome; combatCanvas.ts reads
+   the resulting panel height to fit the board to it (see drawCombatCanvas). */
+@media (orientation: landscape) and (pointer: coarse) {
+  .combat-stack {
+    flex-direction: row;
+    align-items: stretch;
+    height: calc(100dvh - 160px);
+    min-height: 240px;
+    gap: 12px;
+  }
+  .combat-stack .tactical-board-panel {
+    width: 58%;
+    flex: 0 0 58%;
+    min-height: 0;
+  }
+  .combat-bottom-row {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 42%;
+    width: 42%;
+    min-height: 0;
+    overflow-y: auto;
+  }
+}
 .combat-grid {
   display: grid;
   /* Board column widened (was 1.8fr) so the Tactical Board reads large enough

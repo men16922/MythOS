@@ -238,7 +238,7 @@ class UIClarityAffordancesTest(unittest.TestCase):
         canvas = read("src/mythos_ui/src/combatCanvas.ts")
         self.assertIn("export const MIN_ISO_STEP_PX = 26;", canvas)
         self.assertIn("const minCssW = Math.ceil((MIN_ISO_STEP_PX * (cols + rows)) / 0.92);", canvas)
-        self.assertIn("const cssW = Math.max(Math.floor(baseW * zoom), minCssW);", canvas)
+        self.assertIn("let cssW = Math.max(Math.floor(baseW * zoom), minCssW);", canvas)
 
     def test_i18n_and_css_keys_are_present(self) -> None:
         ko = read("src/mythos_ui/src/i18n/strings.ko.ts")

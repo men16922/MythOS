@@ -35,11 +35,15 @@ class DesignSystemSurfaceTest(unittest.TestCase):
         self.assertIn("`surface-${variant}`", source)
         self.assertIn("`surface-size-${size}`", source)
         self.assertIn("`surface-density-${density}`", source)
-        # DS2-b: forwards standard div attributes (id/style/handlers/data-*/aria-*)
-        # so `.panel` sites carrying an id migrate without enumerating each prop.
-        self.assertIn("extends HTMLAttributes<HTMLDivElement>", source)
+        # DS2-b: forwards standard element attributes (id/style/handlers/data-*/
+        # aria-*) so `.panel` sites carrying an id migrate without enumerating each.
+        self.assertIn("extends HTMLAttributes<HTMLElement>", source)
         self.assertIn("...rest", source)
-        self.assertIn("<div className={classes} {...rest}>", source)
+        # DS2-d: `as` renders a semantic element (section/details/…) with the same
+        # chrome; defaults to <div>.
+        self.assertIn("as?: ElementType;", source)
+        self.assertIn('as: Tag = "div"', source)
+        self.assertIn("<Tag className={classes} {...rest}>", source)
 
     def test_surface_css_uses_design_system_tokens(self) -> None:
         css = read("src/mythos_ui/src/index.css")
@@ -96,6 +100,15 @@ class DesignSystemSurfaceTest(unittest.TestCase):
             "narrative-script-panel",
         ):
             self.assertNotIn(f'<div className="panel {cls}"', story)
+        # DS2-d onboarding/dashboard cluster: OnboardingPanel's `<section>` uses
+        # the new `as` prop; ProgressDashboard/TesterDashboard migrated too.
+        onboarding = read("src/mythos_ui/src/OnboardingPanel.tsx")
+        self.assertIn('<Surface as="section" variant="surface" id="onboarding">', onboarding)
+        for path in (
+            "src/mythos_ui/src/ProgressDashboard.tsx",
+            "src/mythos_ui/src/TesterDashboard.tsx",
+        ):
+            self.assertIn('import { Surface } from "./Surface";', read(path))
         # App.tsx has no base `.panel` container of its own → stays unmigrated.
         self.assertNotIn("Surface", read("src/mythos_ui/src/App.tsx"))
 

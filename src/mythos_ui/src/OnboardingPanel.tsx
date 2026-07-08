@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Surface } from "./Surface";
 import type { ResumeSessionData } from "./sessionStorage";
 import type { ScenarioInfo } from "./types";
 import { useLang } from "./i18n/lang";
@@ -66,7 +67,7 @@ export function OnboardingPanel({
   };
 
   return (
-    <section className="panel" id="onboarding">
+    <Surface as="section" variant="surface" id="onboarding">
       <h2>{t("ob.title")}</h2>
       <div className="ob-row">
         <input
@@ -201,6 +202,6 @@ export function OnboardingPanel({
           </button>
         </details>
       )}
-    </section>
+    </Surface>
   );
 }

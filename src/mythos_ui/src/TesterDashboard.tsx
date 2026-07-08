@@ -1,4 +1,5 @@
 import { useEffect, useState, type CSSProperties } from "react";
+import { Surface } from "./Surface";
 
 /**
  * Admin-only Tester Dashboard — shows per-invite-key player status
@@ -346,25 +347,25 @@ export function TesterDashboard() {
 
   if (loading) {
     return (
-      <div className="panel" style={{ padding: "24px", textAlign: "center", color: "var(--ink-dim)" }}>
+      <Surface variant="surface" style={{ padding: "24px", textAlign: "center", color: "var(--ink-dim)" }}>
         Loading tester status...
-      </div>
+      </Surface>
     );
   }
 
   if (error) {
     return (
-      <div className="panel" style={{ padding: "24px", textAlign: "center", color: "#f472b6" }}>
+      <Surface variant="surface" style={{ padding: "24px", textAlign: "center", color: "#f472b6" }}>
         Error: {error}
-      </div>
+      </Surface>
     );
   }
 
   if (!data || data.testers.length === 0) {
     return (
-      <div className="panel" style={{ padding: "24px", textAlign: "center", color: "var(--ink-dim)" }}>
+      <Surface variant="surface" style={{ padding: "24px", textAlign: "center", color: "var(--ink-dim)" }}>
         No tester keys configured
-      </div>
+      </Surface>
     );
   }
 
@@ -376,7 +377,7 @@ export function TesterDashboard() {
   const totalLoops = testerRows.reduce((sum, t) => sum + t.total_loops, 0);
 
   return (
-    <div className="panel" style={{ width: "100%", padding: "16px" }}>
+    <Surface variant="surface" style={{ width: "100%", padding: "16px" }}>
       {/* Section Header */}
       <div style={{
         display: "flex",
@@ -429,6 +430,6 @@ export function TesterDashboard() {
           <TesterCard key={tester.invite_key} tester={tester} />
         ))}
       </div>
-    </div>
+    </Surface>
   );
 }

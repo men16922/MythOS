@@ -1,3 +1,4 @@
+import { Surface } from "./Surface";
 import { useLang } from "./i18n/lang";
 import type { EchoItem, MemoryOverview, RunSummary, RuntimeSnapshot } from "./types";
 
@@ -99,7 +100,7 @@ export function ProgressDashboard({
   };
 
   return (
-    <div className="panel progress-dashboard-panel">
+    <Surface variant="surface" className="progress-dashboard-panel">
       <p className="panel-title">{t("prog.title")}</p>
       <div className="progress-grid">
         <div className="progress-stat">
@@ -195,6 +196,6 @@ export function ProgressDashboard({
           ))}
         </div>
       )}
-    </div>
+    </Surface>
   );
 }

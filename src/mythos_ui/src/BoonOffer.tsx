@@ -7,6 +7,8 @@ const STAT_LABEL: Record<string, { ko: string; en: string }> = {
   strength: { ko: "근력", en: "STR" },
   agility: { ko: "민첩", en: "AGI" },
   perception: { ko: "지각", en: "PER" },
+  intelligence: { ko: "연산", en: "INT" },
+  focus: { ko: "집중", en: "FOC" },
 };
 
 function statLine(stats: Record<string, number>, lang: "ko" | "en"): string {

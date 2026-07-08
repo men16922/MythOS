@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { buildGaugeConfig } from "./gauges";
+import { Popover } from "./Popover";
 import { SaveHistoryPanel } from "./SaveHistoryPanel";
 import { useConciseMode } from "./conciseMode";
 import { useLang } from "./i18n/lang";
@@ -55,8 +56,8 @@ function rewardSummary(reward: Record<string, number> | undefined, t: TFn): stri
 
 // M3 (mobile clarity): several GameAside info sites (route node, fog stub,
 // minimap cells) were plain divs with a hover-only `title=`, invisible on
-// touch since they have no click handler at all. Same tap-toggle popover
-// shape as ChoicePanel's AxisChip / CombatControls' SkillInfoTooltip.
+// touch since they have no click handler at all. DS1b: now a thin wrapper
+// over the shared Popover (top-center anchor, block element).
 function InfoPopover({
   className,
   tooltip,
@@ -68,36 +69,10 @@ function InfoPopover({
   ariaLabel?: string;
   children: React.ReactNode;
 }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const handlePointerDown = (event: PointerEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("pointerdown", handlePointerDown);
-    return () => document.removeEventListener("pointerdown", handlePointerDown);
-  }, [open]);
-
   return (
-    <div
-      ref={ref}
-      className={`${className} aside-info-hint${open ? " aside-info-open" : ""}`}
-      aria-label={ariaLabel}
-      aria-expanded={open}
-      onClick={(event) => {
-        event.stopPropagation();
-        setOpen((prev) => !prev);
-      }}
-    >
+    <Popover as="div" className={`${className} aside-info-hint`} anchor="top-center" tooltip={tooltip} ariaLabel={ariaLabel}>
       {children}
-      <div className="aside-info-tooltip" role="tooltip">
-        {tooltip}
-      </div>
-    </div>
+    </Popover>
   );
 }
 

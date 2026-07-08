@@ -1,5 +1,11 @@
 # Progress archive — 2026-07
 
+## 2026-07-08 (overnight, claude lane) — M1 100vh→100dvh (Track M mobile foundation)
+- Status: Done; first slice of Track M (P1.5 mobile-first prerequisite). `make check` **916** green (no test count change — CSS-only).
+- Changed: `src/mythos_ui/src/index.css` — `body` `min-height: 100vh`→`100dvh` (line 36) and `.cinema-overlay` `height: 100vh`→`100dvh` (line 3548), per plan `docs/plans/2026-07-08-cbt-feedback3-clarity-plan.md` M1 scope exactly. Left `.intro-container`'s `calc(100vh - 50px)` (line 1527) untouched — not named in the M1 scope, avoiding scope creep.
+- Verified: `make check` green (ruff/eslint/mypy 167/tsc+vite/unittest 916, 2 skipped, validate-content 2). AGY @390px clip check not run this iteration (browser QA is outside the unattended gate; post-commit AGY live-QA auto-screens per the MythOS live-QA guard).
+- Blockers: none. Next: M2 phone breakpoint (`[auto:claude]`, readable base font + 44px tap targets, CSS-only).
+
 ## 2026-07-08 (overnight, codex failover) — T4a clarity affordances
 - Status: Done; codex failover consumed the top `[auto:claude]` item because no `[auto:codex]` item remained.
 - Changed: choice value-axis chips now expose tooltip/ARIA help; the tactical board legend auto-opens once per browser only when content exists; route-map legend can jump to the localized Codex tab; added source locks for the affordances.

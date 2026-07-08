@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
 import { choiceCostLabel, choiceRequirementLabel, isChoiceDisabled, cleanChoiceLabel } from "./choices";
+import { Popover } from "./Popover";
 import type { RouteMap, RouteNode, SceneChoice } from "./types";
 import { useLang } from "./i18n/lang";
 import type { StringKey } from "./i18n/strings.ko";
@@ -39,43 +39,15 @@ const NODE_TYPE_HINT_KEYS: Record<string, StringKey> = {
 };
 
 // M3 (mobile clarity): the axis chip's hint used to be a hover-only `title=`,
-// invisible on touch. This popover keeps desktop hover (CSS :hover) and adds
-// tap-to-toggle, without nesting a focusable control inside the choice <button>.
+// invisible on touch. DS1b: now a thin wrapper over the shared Popover
+// (bottom-left anchor), which keeps desktop hover and adds tap-to-toggle,
+// without nesting a focusable control inside the choice <button>.
 function AxisChip({ label, tooltip, ariaLabel }: { label: string; tooltip?: string; ariaLabel: string }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const handlePointerDown = (event: PointerEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("pointerdown", handlePointerDown);
-    return () => document.removeEventListener("pointerdown", handlePointerDown);
-  }, [open]);
-
   return (
-    <span
-      ref={ref}
-      className={`cmd-chip axis-chip${open ? " axis-chip-open" : ""}`}
-      aria-label={ariaLabel}
-      aria-expanded={tooltip ? open : undefined}
-      onClick={(event) => {
-        if (!tooltip) return;
-        event.stopPropagation();
-        setOpen((prev) => !prev);
-      }}
-    >
+    <Popover className="cmd-chip axis-chip" anchor="bottom-left" tooltip={tooltip} ariaLabel={ariaLabel}>
       <span>{label}</span>
       <span className="axis-chip-icon" aria-hidden="true">ⓘ</span>
-      {tooltip && (
-        <span className="axis-chip-tooltip" role="tooltip">
-          {tooltip}
-        </span>
-      )}
-    </span>
+    </Popover>
   );
 }
 

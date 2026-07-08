@@ -5,6 +5,12 @@ Last updated: 2026-07-08
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
 
+## 2026-07-08 (overnight, claude lane) — DS1b tap-tooltips collapsed onto one shared `Popover` primitive
+- Status: Done; `make check` **928** green (+1 test, -2 old source-lock tests folded into it). Top unfinished `[auto:claude]` item after DS1a (design `docs/plans/2026-07-08-design-system.md` Phase 1).
+- Changed: new `src/mythos_ui/src/Popover.tsx` — `Popover` (tap-toggle+hover, `aria-expanded`/`aria-controls`, `as="span"|"div"`, `anchor="bottom-left"|"top-right"|"top-center"`) replaces the 3 near-identical M3 hand-rolled tap-toggle components (`AxisChip` in `ChoicePanel.tsx`, `SkillInfoTooltip` in `CombatControls.tsx`, `InfoPopover` in `GameAside.tsx`), which are now thin wrappers over it; plus a passive `Tooltip` (`aria-describedby`), ships unused like DS1a's `Surface` — for a future human call converting the remaining supplementary `title=` sites (CombatControls attack/item buttons, StoryPanel, HeaderBar). `index.css` — the 3 bespoke tooltip-bubble blocks (`.axis-chip-tooltip`/`.cc-skill-info-tooltip`/`.aside-info-tooltip` + their hover/open triggers) collapsed into one tokenised `.popover-anchor`/`.popover-tooltip`/`.popover-{bottom-left,top-right,top-center}` block (DS0 `--space-2`/`--radius-sm`/`--text-2`), plus a `.tooltip-anchor`/`.tooltip-bubble` block for the unused `Tooltip`; each call site keeps its own layout class (`.axis-chip`/`.cc-skill-info`/`.aside-info-hint`) for positioning only. `tests/test_ui_clarity_affordances.py` — updated the 3 M3 tap-tooltip locks to check the new thin-wrapper shape + new `test_popover_primitive_backs_all_three_tap_tooltip_sites` locking the shared primitive + CSS consolidation + still-unused `Tooltip`.
+- Verified: `make check` green (ruff/eslint/mypy 168/tsc+vite/unittest 928, 2 skipped, validate-content 2). No AGY live-QA run this iteration (browser QA outside the unattended gate; post-commit AGY live-QA auto-screens per the MythOS live-QA guard) — behavior/markup of the 3 sites is unchanged (same tap-toggle/hover/aria shape, only the implementation is shared), so regression risk is low.
+- Blockers: none. Next (auto): no other `[auto:claude]` P1.5/design-system slice remains queued — DS2/DS3 stay `[blocked]` pending human review of the DS1a `Surface` API + density decision.
+
 ## 2026-07-08 (overnight, claude lane) — DS1a `Surface` primitive (variant x size x density), ships unused
 - Status: Done; `make check` **927** green (+3 tests). Top unfinished `[auto:claude]` item (design `docs/plans/2026-07-08-design-system.md` Phase 1).
 - Changed: new `src/mythos_ui/src/Surface.tsx` — `Surface` component with `variant` (`surface`/`outline`/`ghost`) x `size` (1-3) x `density` (`comfortable`/`compact`) props, composing token-based class names (`surface-${variant}` etc). `src/mythos_ui/src/index.css` — new `.surface`/`.surface-size-*`/`.surface-density-compact`/`.surface-surface`/`.surface-outline`/`.surface-ghost` rules built entirely on the DS0 tokens (`--space-*`/`--radius-md`/`--density-step`) plus existing colour vars (`--panel`/`--line`). Not imported anywhere yet — ships unused per the plan (DS2 migration is a separate gated slice pending human review of this API).
@@ -80,12 +86,6 @@ This file keeps **only recent incremental summaries within the 120-line budget**
 - Verified: `make check` green (ruff/eslint/mypy 167/tsc+vite/unittest 916, 2 skipped, validate-content 2). AGY @390px screenshot not run this iteration (browser QA is outside the unattended gate; post-commit AGY live-QA auto-screens per the MythOS live-QA guard).
 - Blockers: none. Next: M3 hover-only `title=` → tap-openable tooltip, starting with the T4a axis chip (`[auto:claude]`).
 
-## 2026-07-08 (overnight, claude lane) — M1 100vh→100dvh (Track M mobile foundation)
-- Status: Done; first slice of Track M (P1.5 mobile-first prerequisite). `make check` **916** green (no test count change — CSS-only).
-- Changed: `src/mythos_ui/src/index.css` — `body` `min-height: 100vh`→`100dvh` (line 36) and `.cinema-overlay` `height: 100vh`→`100dvh` (line 3548), per plan `docs/plans/2026-07-08-cbt-feedback3-clarity-plan.md` M1 scope exactly. Left `.intro-container`'s `calc(100vh - 50px)` (line 1527) untouched — not named in the M1 scope, avoiding scope creep.
-- Verified: `make check` green (ruff/eslint/mypy 167/tsc+vite/unittest 916, 2 skipped, validate-content 2). AGY @390px clip check not run this iteration (browser QA is outside the unattended gate; post-commit AGY live-QA auto-screens per the MythOS live-QA guard).
-- Blockers: none. Next: M2 phone breakpoint (`[auto:claude]`, readable base font + 44px tap targets, CSS-only).
-
 ## 2026-07-08 (PM) — T5/T6 DECIDED (mobile-inclusive P0) — overnight claude lane re-armed
 - Status: Design decision, no code. Owner picked **CBT = mobile-inclusive (P0)** as target form factor,
   which reframes the two blocked P1.5 decisions (T5 board viewpoint, T6 info density) as mobile-first and
@@ -111,5 +111,6 @@ This file keeps **only recent incremental summaries within the 120-line budget**
 - Blockers: none open; loop exited DONE all-blocked (remaining P1.5 = T5/T6 `[manual]` design decisions).
 - Next: `[manual]` T5 board viewpoint + T6 density decisions · S4/T4 copy tone verdict · deploy+sign-off · `git push`.
 
-Older 2026-07-08 entries (T4a affordances; SHOT 03 ×6; T3b/T4 plain-copy; T3a fork-mirror; T2 responsiveness;
-T1 identity-swap; S4 variant-routed opening) moved to `bin/docs/archive/progress-2026-07.md` to hold the line budget.
+Older 2026-07-08 entries (M1 100vh→100dvh; T4a affordances; SHOT 03 ×6; T3b/T4 plain-copy; T3a fork-mirror;
+T2 responsiveness; T1 identity-swap; S4 variant-routed opening) moved to `bin/docs/archive/progress-2026-07.md`
+to hold the line budget.

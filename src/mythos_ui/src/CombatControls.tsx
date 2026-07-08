@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 import { enemyIntentLabel } from "./combatText";
+import { Popover } from "./Popover";
 import { useLang } from "./i18n/lang";
 import type { StringKey } from "./i18n/strings.ko";
 import type { CombatAction, CombatSkillInfo, CombatState } from "./types";
@@ -12,39 +13,13 @@ type TFn = (key: StringKey) => string;
 
 // M3 (mobile clarity): the skill button's cost/range/cooldown detail was a
 // hover-only `title=` on the whole (already-tappable) button, dead on touch.
-// This nested icon (same tap-toggle/stopPropagation shape as ChoicePanel's
-// AxisChip) lets a tap preview the detail without casting the skill.
+// DS1b: now a thin wrapper over the shared Popover (top-right anchor), so a
+// tap previews the detail without casting the skill.
 function SkillInfoTooltip({ tooltip }: { tooltip: string }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const handlePointerDown = (event: PointerEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("pointerdown", handlePointerDown);
-    return () => document.removeEventListener("pointerdown", handlePointerDown);
-  }, [open]);
-
   return (
-    <span
-      ref={ref}
-      className={`cc-skill-info${open ? " cc-skill-info-open" : ""}`}
-      aria-label={tooltip}
-      aria-expanded={open}
-      onClick={(event) => {
-        event.stopPropagation();
-        setOpen((prev) => !prev);
-      }}
-    >
+    <Popover className="cc-skill-info" anchor="top-right" tooltip={tooltip} ariaLabel={tooltip}>
       <span className="cc-skill-info-icon" aria-hidden="true">ⓘ</span>
-      <span className="cc-skill-info-tooltip" role="tooltip">
-        {tooltip}
-      </span>
-    </span>
+    </Popover>
   );
 }
 

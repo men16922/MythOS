@@ -18,50 +18,43 @@ class UIClarityAffordancesTest(unittest.TestCase):
 
         self.assertIn('t("choice.axis.tooltip")', source)
         self.assertIn('t("choice.axis.aria")', source)
-        self.assertIn('className={`cmd-chip axis-chip', source)
+        self.assertIn('className="cmd-chip axis-chip"', source)
         self.assertIn('className="axis-chip-icon"', source)
 
     def test_choice_axis_chip_tooltip_is_tap_openable(self) -> None:
         # M3 (mobile clarity): the axis chip's hint was a hover-only `title=`,
-        # dead on touch. Locks that it is now a tap-toggled popover instead.
+        # dead on touch. DS1b: locks that it's now a thin wrapper over the
+        # shared Popover primitive instead of a bespoke tap-toggle.
         source = read("src/mythos_ui/src/ChoicePanel.tsx")
 
         self.assertIn("function AxisChip(", source)
-        self.assertIn("setOpen((prev) => !prev)", source)
-        self.assertIn('className="axis-chip-tooltip" role="tooltip"', source)
+        self.assertIn('import { Popover } from "./Popover"', source)
+        self.assertIn('<Popover className="cmd-chip axis-chip" anchor="bottom-left"', source)
         self.assertNotIn("title={axisTooltip}", source)
-
-        css = read("src/mythos_ui/src/index.css")
-        self.assertIn(".axis-chip-tooltip", css)
-        self.assertIn(".axis-chip.axis-chip-open .axis-chip-tooltip", css)
 
     def test_combat_skill_tooltip_is_tap_openable(self) -> None:
         # M3 (mobile clarity): the skill button's cost/range/cooldown detail was
         # a hover-only `title=` on the whole (already-tappable) button, dead on
-        # touch. Locks that it is now a nested tap-toggle popover instead.
+        # touch. DS1b: locks that it's now a thin wrapper over the shared
+        # Popover primitive instead of a bespoke tap-toggle.
         source = read("src/mythos_ui/src/CombatControls.tsx")
 
         self.assertIn("function SkillInfoTooltip(", source)
-        self.assertIn("setOpen((prev) => !prev)", source)
-        self.assertIn('className="cc-skill-info-tooltip" role="tooltip"', source)
-        self.assertIn("event.stopPropagation()", source)
+        self.assertIn('import { Popover } from "./Popover"', source)
+        self.assertIn('<Popover className="cc-skill-info" anchor="top-right"', source)
         self.assertIn("<SkillInfoTooltip tooltip={tooltip} />", source)
         self.assertNotIn("title={tooltip}", source)
-
-        css = read("src/mythos_ui/src/index.css")
-        self.assertIn(".cc-skill-info-tooltip", css)
-        self.assertIn(".cc-skill-info.cc-skill-info-open .cc-skill-info-tooltip", css)
 
     def test_game_aside_info_divs_are_tap_openable(self) -> None:
         # M3 (mobile clarity): the route node, fog stub, and minimap cell divs
         # had no click handler at all, so their hover-only `title=` was fully
-        # dead on touch (highest touch-info-loss of the ~20 M3 sites). Locks
-        # that they now share the InfoPopover tap-toggle popover instead.
+        # dead on touch (highest touch-info-loss of the ~20 M3 sites). DS1b:
+        # locks that InfoPopover is now a thin wrapper over the shared Popover.
         source = read("src/mythos_ui/src/GameAside.tsx")
 
         self.assertIn("function InfoPopover(", source)
-        self.assertIn("setOpen((prev) => !prev)", source)
-        self.assertIn('className="aside-info-tooltip" role="tooltip"', source)
+        self.assertIn('import { Popover } from "./Popover"', source)
+        self.assertIn('anchor="top-center"', source)
         self.assertIn("<InfoPopover key={id} className={cls} tooltip={title} ariaLabel={label}>", source)
         self.assertIn('<InfoPopover className="route-fog" tooltip={t("aside.route.fogTitle")}>', source)
         self.assertIn('<InfoPopover key={coordKey} className="mm-cell mm-enemy" tooltip={name}>', source)
@@ -71,9 +64,45 @@ class UIClarityAffordancesTest(unittest.TestCase):
         self.assertNotIn("title={name}", source)
         self.assertNotIn('title={tile.name || ""}', source)
 
+    def test_popover_primitive_backs_all_three_tap_tooltip_sites(self) -> None:
+        # DS1b: the 3 M3 tap-toggle tooltips (axis chip / combat skill info /
+        # aside info-divs) collapse onto one shared Popover primitive (plus a
+        # passive Tooltip, shipped unused pending a human call on the
+        # remaining supplementary title= sites) — same shape as DS1a's Surface.
+        source = read("src/mythos_ui/src/Popover.tsx")
+
+        self.assertIn("export function Popover(", source)
+        self.assertIn("export function Tooltip(", source)
+        self.assertIn("setOpen((prev) => !prev)", source)
+        self.assertIn("aria-expanded={tooltip ? open : undefined}", source)
+        self.assertIn("aria-controls={tooltip ? tooltipId : undefined}", source)
+        self.assertIn('className="tooltip-bubble" role="tooltip"', source)
+
         css = read("src/mythos_ui/src/index.css")
-        self.assertIn(".aside-info-tooltip", css)
-        self.assertIn(".aside-info-hint.aside-info-open .aside-info-tooltip", css)
+        self.assertIn(".popover-anchor", css)
+        self.assertIn(".popover-tooltip", css)
+        self.assertIn(".popover-anchor.popover-open .popover-tooltip", css)
+        self.assertIn(".popover-bottom-left .popover-tooltip", css)
+        self.assertIn(".popover-top-right .popover-tooltip", css)
+        self.assertIn(".popover-top-center .popover-tooltip", css)
+        self.assertIn(".tooltip-anchor", css)
+        self.assertIn(".tooltip-bubble", css)
+        # bespoke per-site tooltip-bubble blocks are gone
+        self.assertNotIn(".axis-chip-tooltip", css)
+        self.assertNotIn(".cc-skill-info-tooltip", css)
+        self.assertNotIn(".aside-info-tooltip", css)
+
+        # not wired into any call site yet (Tooltip ships unused, like Surface)
+        for path in (
+            "src/mythos_ui/src/ChoicePanel.tsx",
+            "src/mythos_ui/src/CombatControls.tsx",
+            "src/mythos_ui/src/GameAside.tsx",
+            "src/mythos_ui/src/StoryPanel.tsx",
+            "src/mythos_ui/src/HeaderBar.tsx",
+        ):
+            site_source = read(path)
+            self.assertNotIn("import { Tooltip", site_source)
+            self.assertNotIn("<Tooltip", site_source)
 
     def test_concise_mode_state_is_persisted_and_device_aware(self) -> None:
         # T6a (mobile foundation): a global concise/information-density mode

@@ -111,7 +111,12 @@ decomposition — do not entangle):
   `OperationMapPanel` (main + fallback) and `SaveHistoryPanel`/`RunHistoryPanel`. The 2
   `<details className="panel">` chips (AsideChip/LogPanel) deferred — need a Surface `as="details"`
   or stay `<details>`. Gate green; emulator parity re-checked (id forwarded, only radius +2px).
-- `[ ]` `[auto:claude]` **DS2-c … DS2-n** — remaining ~25 `.panel` sites, one cluster per slice
-  (combat · intro/onboarding · modals · dashboards), then bespoke non-`.panel` classes.
+- ✅ **DS2-c (StoryPanel cluster)** — migrated board (`tactical-board-panel`), `roster-panel`,
+  `scene-image-panel`, `narrative-script-panel`. Removed the now-dead `padding:16px` from the first
+  three; `narrative-script-panel` keeps its bespoke `18px 24px` (wins over Surface by source order).
+  Board+roster verified rendering live as `.surface`; scene/narrative parity via injected nodes.
+- `[ ]` `[auto:claude]` **DS2-d … DS2-n** — remaining ~21 `.panel` sites, one cluster per slice
+  (intro/onboarding · modals · dashboards), then bespoke non-`.panel` classes + the deferred
+  `<details className="panel">` chips (need a Surface `as="details"`).
   Each: swap `.panel`→`<Surface>`, delete dead container CSS, `make check` green + AGY not FAIL.
 - Density/compact wiring stays for **DS3**.

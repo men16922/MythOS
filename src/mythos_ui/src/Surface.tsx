@@ -1,15 +1,13 @@
-import type { CSSProperties, ReactNode } from "react";
+import type { HTMLAttributes, ReactNode } from "react";
 
 export type SurfaceVariant = "surface" | "outline" | "ghost";
 export type SurfaceSize = 1 | 2 | 3;
 export type SurfaceDensity = "comfortable" | "compact";
 
-interface SurfaceProps {
+interface SurfaceProps extends HTMLAttributes<HTMLDivElement> {
   variant?: SurfaceVariant;
   size?: SurfaceSize;
   density?: SurfaceDensity;
-  className?: string;
-  style?: CSSProperties;
   children?: ReactNode;
 }
 
@@ -18,8 +16,11 @@ export function Surface({
   size = 2,
   density = "comfortable",
   className,
-  style,
   children,
+  // DS2-b: forward standard div attributes (id, style, onClick, data-*, aria-*,
+  // role, …) so `.panel` sites that carry an id/handler migrate onto Surface
+  // without the primitive having to enumerate each one. Container-primitive idiom.
+  ...rest
 }: SurfaceProps) {
   const classes = [
     "surface",
@@ -32,7 +33,7 @@ export function Surface({
     .join(" ");
 
   return (
-    <div className={classes} style={style}>
+    <div className={classes} {...rest}>
       {children}
     </div>
   );

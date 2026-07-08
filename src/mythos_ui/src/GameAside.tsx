@@ -241,7 +241,7 @@ function RouteMapPanel({
   );
 
   return (
-    <div className="panel minimap-panel" id="operation-map">
+    <Surface variant="surface" className="minimap-panel" id="operation-map">
       <div className="panel-title-row">
         <p className="panel-title">{t("aside.route.title")}</p>
         <button
@@ -284,7 +284,7 @@ function RouteMapPanel({
           </div>
         </div>
       )}
-    </div>
+    </Surface>
   );
 }
 
@@ -393,7 +393,7 @@ export function OperationMapPanel({
     .slice(0, 2);
 
   return (
-    <div className="panel minimap-panel" id="operation-map">
+    <Surface variant="surface" className="minimap-panel" id="operation-map">
       <p className="panel-title">{t("aside.route.title")}</p>
       <div className="minimap">{rows}</div>
       <div className="sub" style={{ fontSize: "11px", color: "var(--ink-dim)" }}>
@@ -413,7 +413,7 @@ export function OperationMapPanel({
       <div className="sub" style={{ fontSize: "11px", color: "var(--ink-dim)", marginTop: "6px" }}>
         {t("amap.explored")} {Object.keys(tiles).length}{t("amap.places")} · {t("amap.contacts")} {liveContacts.length} · {t("amap.spotType")} {TILE_LABEL_KEYS[cur.kind || "node"] ? t(TILE_LABEL_KEYS[cur.kind || "node"]) : (cur.kind || t("amap.tile.node"))}
       </div>
-    </div>
+    </Surface>
   );
 }
 

@@ -35,6 +35,11 @@ class DesignSystemSurfaceTest(unittest.TestCase):
         self.assertIn("`surface-${variant}`", source)
         self.assertIn("`surface-size-${size}`", source)
         self.assertIn("`surface-density-${density}`", source)
+        # DS2-b: forwards standard div attributes (id/style/handlers/data-*/aria-*)
+        # so `.panel` sites carrying an id migrate without enumerating each prop.
+        self.assertIn("extends HTMLAttributes<HTMLDivElement>", source)
+        self.assertIn("...rest", source)
+        self.assertIn("<div className={classes} {...rest}>", source)
 
     def test_surface_css_uses_design_system_tokens(self) -> None:
         css = read("src/mythos_ui/src/index.css")
@@ -62,16 +67,23 @@ class DesignSystemSurfaceTest(unittest.TestCase):
         self.assertIn(".surface-ghost {", css)
 
     def test_surface_adoption_is_deliberate(self) -> None:
-        # DS2 is unblocked (owner sign-off 2026-07-08). DS2-a migrated the
-        # StatusPanel sample onto Surface; the remaining clusters migrate
-        # per-slice in later DS2 work. Guard the still-unmigrated files against
-        # accidental adoption so each cluster stays a deliberate, reviewed slice.
+        # DS2 is unblocked (owner sign-off 2026-07-08) and migrates per-slice.
+        # DS2-a: StatusPanel. DS2-b: the aside cluster (OperationMap x2 +
+        # Save/RunHistory). Guard the still-unmigrated files against accidental
+        # adoption so each cluster stays a deliberate, reviewed slice.
         gameaside = read("src/mythos_ui/src/GameAside.tsx")
         self.assertIn('import { Surface } from "./Surface";', gameaside)
         self.assertIn(
             '<Surface variant="surface" className={`status-panel ${showHints ? "hints-on" : ""}`}>',
             gameaside,
         )
+        # DS2-b aside cluster: the OperationMap `.panel` div containers are gone
+        # (the two remaining `<details className="panel …">` chips — AsideChip /
+        # LogPanel — are deferred: Surface renders a <div>, not <details>).
+        self.assertNotIn('<div className="panel minimap-panel"', gameaside)
+        savehistory = read("src/mythos_ui/src/SaveHistoryPanel.tsx")
+        self.assertIn('import { Surface } from "./Surface";', savehistory)
+        self.assertNotIn('className="panel"', savehistory)
         for path in (
             "src/mythos_ui/src/App.tsx",
             "src/mythos_ui/src/StoryPanel.tsx",

@@ -1,3 +1,4 @@
+import { Surface } from "./Surface";
 import { useLang } from "./i18n/lang";
 import type { RunSummary } from "./types";
 
@@ -21,7 +22,7 @@ export function SaveHistoryPanel({
 }: SaveHistoryPanelProps) {
   const { t } = useLang();
   return (
-    <div className="panel" id="save-load-panel">
+    <Surface variant="surface" id="save-load-panel">
       <p className="panel-title">{t("save.title")}</p>
       <div className="sl-launch">
         <button onClick={onOpenSave} disabled={isBusy || !canSave}>
@@ -31,14 +32,14 @@ export function SaveHistoryPanel({
           {t("sl.loadBtn")}
         </button>
       </div>
-    </div>
+    </Surface>
   );
 }
 
 export function RunHistoryPanel({ runsHistory }: { runsHistory: RunSummary[] }) {
   const { t, lang } = useLang();
   return (
-    <div className="panel" id="history-panel">
+    <Surface variant="surface" id="history-panel">
       <p className="panel-title">{t("save.archiveTitle")}</p>
       <div className="run-history-hint">
         {t("save.archiveDesc")}
@@ -75,6 +76,6 @@ export function RunHistoryPanel({ runsHistory }: { runsHistory: RunSummary[] }) 
           </div>
         )}
       </div>
-    </div>
+    </Surface>
   );
 }

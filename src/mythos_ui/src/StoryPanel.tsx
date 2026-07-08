@@ -947,8 +947,16 @@ export function StoryPanel({
           </div>
         </Surface>
 
-        {/* 우측: Character 창 */}
-        <CharacterPanel snapshot={snapshot} characters={scenarioCharacters} onEquip={onEquip} compact />
+        {/* 우측: Character 창. Concise mode (mobile default) folds it into a
+            collapsed chip — it duplicates the CHARACTER tab, so on a phone it
+            should not push the narration + choices down. Desktop renders inline. */}
+        {conciseMode ? (
+          <CombatChip title="CHARACTER">
+            <CharacterPanel snapshot={snapshot} characters={scenarioCharacters} onEquip={onEquip} compact />
+          </CombatChip>
+        ) : (
+          <CharacterPanel snapshot={snapshot} characters={scenarioCharacters} onEquip={onEquip} compact />
+        )}
       </div>
 
       {/* 하단: 전체 폭 대화 기록 스크롤 영역 & 제어 패널 */}

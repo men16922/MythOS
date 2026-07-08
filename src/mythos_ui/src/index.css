@@ -143,6 +143,14 @@ header .sub {
 header .spacer {
   flex: 1;
 }
+/* Header control glyphs + overflow menu are mobile-only; desktop shows the full
+   button labels and the inline session chip (mobile rules flip these). */
+.ctl-ico {
+  display: none;
+}
+.hdr-overflow {
+  display: none;
+}
 .bgm-toggle {
   min-width: 92px;
   padding: 7px 11px;
@@ -5543,5 +5551,97 @@ main#play.fx-glitch {
   .bgm-toggle,
   .concise-toggle {
     min-height: 44px;
+  }
+
+  /* --- Mobile header: one compact row --- */
+  header {
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+  .brand {
+    min-width: 0;
+    flex-shrink: 1;
+  }
+  .brand h1 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: 2px;
+  }
+  /* Dev/flavor subtitle removed on phones (the biggest header space-waster). */
+  .brand-sub {
+    display: none;
+  }
+  /* Swap toggle labels → glyphs and shrink each to a 44px square. */
+  .ctl-lbl {
+    display: none;
+  }
+  .ctl-ico {
+    display: inline;
+    font-size: 16px;
+  }
+  .lang-toggle,
+  .concise-toggle,
+  .bgm-toggle {
+    min-width: 44px;
+    width: 44px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+  }
+  /* Session info + leave move from the inline chip into a ⋯ overflow menu. */
+  #session-chip {
+    display: none;
+  }
+  .hdr-overflow {
+    display: block;
+    position: relative;
+    flex: 0 0 auto;
+  }
+  .hdr-overflow > summary {
+    list-style: none;
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: var(--ink-dim);
+    cursor: pointer;
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius-sm, 6px);
+  }
+  .hdr-overflow > summary::-webkit-details-marker {
+    display: none;
+  }
+  .hdr-overflow-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 6px);
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    min-width: 210px;
+    background: var(--bg);
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius-md, 8px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  }
+  .hdr-overflow-menu .sub {
+    font-size: 12px;
+    color: var(--ink-dim);
+  }
+  .hdr-overflow-menu .leave-btn {
+    min-height: 44px;
+  }
+
+  /* --- Narration-first: cap the scene image to a 16:9 banner so narration +
+     choices sit near the top instead of below a full-width square. --- */
+  .narrative-top-row .image-frame {
+    aspect-ratio: 16 / 9;
   }
 }

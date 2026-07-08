@@ -650,7 +650,13 @@ export function GameAside({
           operationMap
         )}
       </div>
-      <StatusPanel snapshot={finalizedSnapshot} />
+      {conciseMode ? (
+        <AsideChip title={t("aside.status.title")}>
+          <StatusPanel snapshot={finalizedSnapshot} />
+        </AsideChip>
+      ) : (
+        <StatusPanel snapshot={finalizedSnapshot} />
+      )}
       <LogPanel consoleLogs={consoleLogs} />
     </aside>
   );

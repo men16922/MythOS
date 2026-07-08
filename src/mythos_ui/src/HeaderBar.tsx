@@ -32,9 +32,13 @@ export function HeaderBar({
     <header>
       <div className="brand">
         <h1>{t("hdr.brand")}</h1>
-        <span className="sub">MythOS React SPA · WS Streamer + Canvas Radar</span>
+        {/* Dev/flavor subtitle — hidden on mobile (CSS) to keep the header one row. */}
+        <span className="sub brand-sub">MythOS React SPA · WS Streamer + Canvas Radar</span>
       </div>
       <div className="spacer"></div>
+      {/* The three toggles carry both a full label (desktop) and a compact glyph
+          (mobile); CSS swaps which shows so the header collapses to icons on phones
+          without changing the desktop text or the test-locked classNames. */}
       <button
         type="button"
         className="lang-toggle"
@@ -51,7 +55,8 @@ export function HeaderBar({
         onClick={toggleConciseMode}
         title={conciseMode ? t("hdr.conciseOff") : t("hdr.conciseOn")}
       >
-        COMPACT {conciseMode ? "ON" : "OFF"}
+        <span className="ctl-ico" aria-hidden="true">▤</span>
+        <span className="ctl-lbl">COMPACT {conciseMode ? "ON" : "OFF"}</span>
       </button>
       <button
         type="button"
@@ -60,18 +65,35 @@ export function HeaderBar({
         onClick={onToggleBgm}
         title={bgmEnabled && bgmReady ? t("hdr.bgmOff") : t("hdr.bgmOn")}
       >
-        BGM {bgmEnabled ? (bgmReady ? "ON" : "START") : "OFF"}
+        <span className="ctl-ico" aria-hidden="true">♪</span>
+        <span className="ctl-lbl">BGM {bgmEnabled ? (bgmReady ? "ON" : "START") : "OFF"}</span>
       </button>
       {connected && (
-        <div className="controls" id="session-chip">
-          <span className="sub" id="session-info">
-            {playerName || displayName} · {selectedScenarioId} ·{" "}
-            {archetype || selectedArchetype || ""}
-          </span>
-          <button onClick={onLeaveSession} id="leave">
-            {t("hdr.leave")}
-          </button>
-        </div>
+        <>
+          {/* Desktop: inline session chip. */}
+          <div className="controls" id="session-chip">
+            <span className="sub" id="session-info">
+              {playerName || displayName} · {selectedScenarioId} ·{" "}
+              {archetype || selectedArchetype || ""}
+            </span>
+            <button onClick={onLeaveSession} id="leave">
+              {t("hdr.leave")}
+            </button>
+          </div>
+          {/* Mobile: overflow menu (native details) holding the session info + leave. */}
+          <details className="hdr-overflow">
+            <summary aria-label={t("hdr.leave")}>⋯</summary>
+            <div className="hdr-overflow-menu">
+              <span className="sub">
+                {playerName || displayName} · {selectedScenarioId}
+                {archetype || selectedArchetype ? ` · ${archetype || selectedArchetype}` : ""}
+              </span>
+              <button onClick={onLeaveSession} className="leave-btn">
+                {t("hdr.leave")}
+              </button>
+            </div>
+          </details>
+        </>
       )}
     </header>
   );

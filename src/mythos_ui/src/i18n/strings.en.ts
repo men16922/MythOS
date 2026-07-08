@@ -315,6 +315,9 @@ export const en: Record<StringKey, string> = {
   "combat.tutorial.skill.body": "Skills are special actions that spend FOCUS. Check the badge and effect line, then try one.",
   "combat.tutorial.defend.title": "4. Defend",
   "combat.tutorial.defend.body": "Ending your turn with 🛡 Defend reduces the next hit. Finish up by defending.",
+  // Rotate-to-landscape prompt (LC0, coarse-pointer portrait combat only)
+  "combat.rotate.prompt": "Rotate your device to landscape for a roomier combat view.",
+  "combat.rotate.dismiss": "Got it",
   "combat.interstitial.title.route": "⚔ Engagement",
   "combat.interstitial.title.boss": "⚡ Final Confrontation",
   "combat.interstitial.title.ambient": "⚔ Ambush",

@@ -6,6 +6,7 @@ import { ChoicePanel } from "./ChoicePanel";
 import { CombatControls } from "./CombatControls";
 import { CombatLog } from "./CombatLog";
 import { CombatRoster } from "./CombatRoster";
+import { RotateOverlay } from "./RotateOverlay";
 import { useConciseMode } from "./conciseMode";
 import { useLang } from "./i18n/lang";
 import type { StringKey } from "./i18n/strings.ko";
@@ -728,6 +729,7 @@ export function StoryPanel({
   if (snapshot?.combat && !snapshot.combat.finished) {
     return (
       <div id="story-tab-content" className="combat-layout">
+        <RotateOverlay />
         {/* D3 board legibility: TACTICAL BOARD full-width on top; roster /
             command console / log as a bottom row. */}
         <div className="combat-stack">

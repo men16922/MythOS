@@ -316,6 +316,9 @@ export const ko = {
   "combat.tutorial.skill.body": "스킬 버튼은 FOCUS를 소모하는 특수 행동입니다. 배지와 효과 줄을 보고 하나 사용해 보세요.",
   "combat.tutorial.defend.title": "4. 방어",
   "combat.tutorial.defend.body": "🛡 방어로 턴을 마치면 다음 피해가 줄어듭니다. 마무리로 방어해 보세요.",
+  // Rotate-to-landscape prompt (LC0, coarse-pointer portrait combat only)
+  "combat.rotate.prompt": "화면을 가로로 돌리면 전투를 더 넓게 볼 수 있어요.",
+  "combat.rotate.dismiss": "확인",
   // Combat-entry interstitial (1-beat transition before the tactical board)
   "combat.interstitial.title.route": "⚔ 교전 개시",
   "combat.interstitial.title.boss": "⚡ 최종 대면",

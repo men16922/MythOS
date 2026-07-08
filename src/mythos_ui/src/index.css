@@ -3559,6 +3559,53 @@ main#play.fx-glitch {
   }
 }
 
+/* --- LC0: rotate-to-landscape prompt (coarse-pointer portrait combat) --- */
+.rotate-overlay {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  background: var(--panel);
+  border: 1px solid rgba(41, 255, 198, 0.45);
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(41, 255, 198, 0.12);
+}
+.rotate-overlay-icon {
+  font-size: 18px;
+  color: var(--term);
+  flex-shrink: 0;
+}
+.rotate-overlay-text {
+  flex: 1;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ink);
+}
+.rotate-overlay-dismiss {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  color: var(--ink-dim);
+  font-size: 11px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+.rotate-overlay-dismiss:hover {
+  color: var(--ink);
+  border-color: var(--term);
+}
+@media (orientation: landscape) {
+  .rotate-overlay {
+    display: none;
+  }
+}
+
 /* --- First-combat interactive tutorial (A2) --- */
 .combat-tutorial-card {
   position: fixed;

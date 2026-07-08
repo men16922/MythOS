@@ -74,7 +74,7 @@ Root fix for "too much info at once" + "inconsistent detail-window sizes": no de
 ## Landscape Combat — decided A (2026-07-08, design `docs/plans/2026-07-08-design-system.md` "Landscape Combat")
 
 Emulator test: concise mode barely helps combat (10%); combat needs a **landscape split layout**, not density. Narrative stays portrait+concise.
-- `[ ]` `[auto:claude]` **LC0** `useOrientation` hook + rotate-to-landscape overlay on combat start (coarse-pointer portrait). Done = unit test + `make check` green.
+- `[x]` `[auto:claude]` **LC0** `useOrientation` hook + rotate-to-landscape overlay on combat start (coarse-pointer portrait) (DONE 2026-07-08 overnight; `make check` 933). Done = unit test + `make check` green.
 - `[ ]` `[auto:claude]` **LC1** landscape split layout (board height-fit left | controls right; `@media (orientation:landscape) and (pointer:coarse)`). Done = `make check` green + visual verify via mobile emulator post-run.
 - `[ ]` `[auto:claude]` **LC2** landscape: fold TileInfo/Log/Map into the right column so the turn loop fits one screen. Done = `make check` green.
 

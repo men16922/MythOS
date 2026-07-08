@@ -521,6 +521,14 @@ export default function App() {
   });
   const [combatTutorialProgress, setCombatTutorialProgress] = useState(0);
   const combatLive = Boolean(finalizedSnapshot?.combat && !finalizedSnapshot.combat.finished);
+  // LC5: mark <body> while a fight is live so the landscape+coarse CSS can hide
+  // the tab-nav and shrink the header (scoped to combat only — narrative
+  // landscape keeps its nav + full header). The board reclaims the ~215px of
+  // chrome the emulator pass found it was losing.
+  useEffect(() => {
+    document.body.classList.toggle("combat-active", combatLive);
+    return () => document.body.classList.remove("combat-active");
+  }, [combatLive]);
   const combatMeta = finalizedSnapshot?.state?.meta_progression as
     | { total_combats_won?: number; total_combats_lost?: number }
     | undefined;

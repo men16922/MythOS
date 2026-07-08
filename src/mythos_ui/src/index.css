@@ -2388,6 +2388,30 @@ main {
   .tab-btn {
     padding: 5px 12px;
   }
+  /* LC5: in landscape combat *specifically* (scoped to body.combat-active so
+     narrative landscape keeps full nav), drop the tab-nav entirely and squeeze
+     the header to a single compact row — during a fight the board matters, not
+     the Story/Codex/CHARACTER/SKILL-TREE tabs (Map/Save/Status are already
+     folded into the combat right column as chips per LC2/LC4). This reclaims
+     the ~215px of chrome the emulator pass found above the board. */
+  body.combat-active .tabs {
+    display: none;
+  }
+  body.combat-active header {
+    padding: 4px 12px;
+  }
+  body.combat-active header h1 {
+    font-size: 15px;
+  }
+  body.combat-active #session-chip .sub {
+    display: none;
+  }
+  body.combat-active .combat-layout {
+    /* tab-nav gone + header shorter → less chrome to subtract than LC4's 160px,
+       so the fixed-height board column grows. overflow:hidden (above) stays the
+       backstop if this estimate is slightly off — the page still never scrolls. */
+    height: calc(100dvh - 96px);
+  }
 }
 .combat-grid {
   display: grid;

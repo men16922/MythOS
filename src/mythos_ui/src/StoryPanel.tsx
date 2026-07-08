@@ -744,6 +744,22 @@ export function StoryPanel({
 
   // 전투 진행 중인 경우, 가로 분할(Streamlit 스타일) 레이아웃 출력
   if (snapshot?.combat && !snapshot.combat.finished) {
+    // LC6: the command console (target selection + Attack/Defend/Skills) is the
+    // one cluster the player acts on every turn. Hoist it into a single element
+    // so it can lead the landscape right column (actions-first, co-visible with
+    // the board) while portrait/desktop keep it in its original mid-column slot.
+    const controlsEl = (
+      <CombatControls
+        combat={snapshot.combat}
+        scenarioId={scenarioId}
+        selectedTargetId={combatTarget}
+        onSelectTarget={onSelectCombatTarget}
+        onAction={onCombatAction}
+        onReturnToMain={onReturnToMain}
+        onContinue={onContinueAfterCombat}
+        tutorialHighlight={tutorialHighlight}
+      />
+    );
     return (
       <div id="story-tab-content" className="combat-layout">
         <RotateOverlay />
@@ -815,6 +831,11 @@ export function StoryPanel({
               loop fits one screen (docs/plans/2026-07-08-design-system.md
               "Landscape Combat"). */}
           <div className="combat-bottom-row">
+            {/* LC6: actions-first in landscape+coarse combat — the command
+                console leads so the action bar is co-visible with the board;
+                portrait/desktop keep it in its original slot below the roster. */}
+            {isLandscapeCoarseCombat && controlsEl}
+
             {conciseMode ? (
               <CombatChip title={t("story.tile.title")}>
                 <TileInspector combat={snapshot.combat} cell={combatInspectCell} />
@@ -827,16 +848,7 @@ export function StoryPanel({
               <CombatRoster combat={snapshot.combat} scenarioId={scenarioId} />
             </div>
 
-            <CombatControls
-              combat={snapshot.combat}
-              scenarioId={scenarioId}
-              selectedTargetId={combatTarget}
-              onSelectTarget={onSelectCombatTarget}
-              onAction={onCombatAction}
-              onReturnToMain={onReturnToMain}
-              onContinue={onContinueAfterCombat}
-              tutorialHighlight={tutorialHighlight}
-            />
+            {!isLandscapeCoarseCombat && controlsEl}
 
             {conciseMode && combatLog ? (
               <CombatChip title={t("combatLog.title")}>

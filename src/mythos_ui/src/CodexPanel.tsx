@@ -1,4 +1,5 @@
 import { CutsceneGallery } from "./CutsceneGallery";
+import { Surface } from "./Surface";
 import { ProgressDashboard } from "./ProgressDashboard";
 import { RouteNarrative } from "./RouteNarrative";
 import { RunHistoryPanel } from "./SaveHistoryPanel";
@@ -28,7 +29,7 @@ export function CodexPanel({
   const visibleRuns = mergedRuns(runsHistory, memoryOverview?.run_summaries);
   return (
     <div id="codex-tab-content">
-      <div className="panel">
+      <Surface variant="surface">
         <h2 className="tab-panel-title">{t("codex.title")}</h2>
         <div className="codex-grid">
           <RouteNarrative routeMap={routeMap} />
@@ -106,7 +107,7 @@ export function CodexPanel({
           entries={memoryOverview?.cutscene_gallery}
           scenarioId={scenarioId}
         />
-      </div>
+      </Surface>
     </div>
   );
 }

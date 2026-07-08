@@ -104,11 +104,20 @@ class DesignSystemSurfaceTest(unittest.TestCase):
         # the new `as` prop; ProgressDashboard/TesterDashboard migrated too.
         onboarding = read("src/mythos_ui/src/OnboardingPanel.tsx")
         self.assertIn('<Surface as="section" variant="surface" id="onboarding">', onboarding)
+        # DS2-e character/codex/skill cluster migrated too.
         for path in (
             "src/mythos_ui/src/ProgressDashboard.tsx",
             "src/mythos_ui/src/TesterDashboard.tsx",
+            "src/mythos_ui/src/CharacterPanel.tsx",
+            "src/mythos_ui/src/CharacterTabPanel.tsx",
+            "src/mythos_ui/src/CodexPanel.tsx",
+            "src/mythos_ui/src/SkillTreePanel.tsx",
         ):
-            self.assertIn('import { Surface } from "./Surface";', read(path))
+            src = read(path)
+            self.assertIn('import { Surface } from "./Surface";', src)
+            # No base `.panel` div container should remain in a migrated file.
+            self.assertNotIn('className="panel"', src)
+            self.assertNotIn('className="panel ', src)
         # App.tsx has no base `.panel` container of its own → stays unmigrated.
         self.assertNotIn("Surface", read("src/mythos_ui/src/App.tsx"))
 

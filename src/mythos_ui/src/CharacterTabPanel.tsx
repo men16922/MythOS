@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Surface } from "./Surface";
 import { CharacterPanel, InventoryPanel, StatBars } from "./CharacterPanel";
 import { GaugeBar } from "./GameAside";
 import { buildAffectionGauges } from "./gauges";
@@ -46,12 +47,12 @@ export function CharacterTabPanel({
 
   return (
     <div id="character-tab-content">
-      <div className="panel">
+      <Surface variant="surface">
         <h2 className="tab-panel-title">CHARACTER</h2>
         <div className="character-tab-grid">
           <div className="codex-sec codex-character-sec">
             {selectedGauge ? (
-              <div className="panel character-panel companion-card">
+              <Surface variant="surface" className="character-panel companion-card">
                 <button
                   type="button"
                   className="companion-back"
@@ -150,7 +151,7 @@ export function CharacterTabPanel({
                     )}
                   </>
                 )}
-              </div>
+              </Surface>
             ) : (
               <CharacterPanel snapshot={snapshot ?? null} onEquip={onEquip} />
             )}
@@ -224,7 +225,7 @@ export function CharacterTabPanel({
             </div>
           </div>
         </div>
-      </div>
+      </Surface>
     </div>
   );
 }

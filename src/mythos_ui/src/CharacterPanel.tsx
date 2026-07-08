@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Surface } from "./Surface";
 
 import {
   BadgeQuestionMark,
@@ -232,7 +233,7 @@ export function CharacterPanel({ snapshot, characters, onEquip, compact }: Chara
   // 대화 상대가 장면에 있으면 그 인물의 portrait/정보를 보여준다.
   if (partner) {
     return (
-      <div className="panel character-panel">
+      <Surface variant="surface" className="character-panel">
         <div className="panel-title">CHARACTER</div>
         {partner.portrait && (
           <div className="char-portrait-frame">
@@ -244,7 +245,7 @@ export function CharacterPanel({ snapshot, characters, onEquip, compact }: Chara
           <div className="char-name">{partner.name}</div>
           {partner.role && <div className="char-arch">{partner.role}</div>}
         </div>
-      </div>
+      </Surface>
     );
   }
 
@@ -268,7 +269,7 @@ export function CharacterPanel({ snapshot, characters, onEquip, compact }: Chara
   // slots for the player's own worn gear.
 
   return (
-    <div className="panel character-panel">
+    <Surface variant="surface" className="character-panel">
       <div className="panel-title">CHARACTER</div>
 
       <div className="char-portrait-frame">
@@ -356,7 +357,7 @@ export function CharacterPanel({ snapshot, characters, onEquip, compact }: Chara
 
         </>
       )}
-    </div>
+    </Surface>
   );
 }
 

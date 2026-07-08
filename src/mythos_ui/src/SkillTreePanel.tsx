@@ -1,6 +1,7 @@
 import type { CodexLists } from "./viewModels";
 import type { SkillTreeNode, SkillTreeResponse } from "./types";
 import { deriveSkillAction } from "./skillState";
+import { Surface } from "./Surface";
 import { useLang } from "./i18n/lang";
 
 interface SkillTreePanelProps {
@@ -75,7 +76,7 @@ export function SkillTreePanel({
 
   return (
     <div id="skill-tab-content">
-      <div className="panel">
+      <Surface variant="surface">
         <h2 className="tab-panel-title">SKILL TREE · {t("skill.insight")} {insight}p</h2>
         <div className="skill-tree-hint" style={{ marginBottom: "10px" }}>
           {t("skill.graphHint")} · {t("skill.insightHint")}
@@ -177,7 +178,7 @@ export function SkillTreePanel({
             </div>
           )}
         </div>
-      </div>
+      </Surface>
     </div>
   );
 }

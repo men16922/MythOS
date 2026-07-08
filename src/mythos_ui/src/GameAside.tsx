@@ -2,6 +2,7 @@ import { useState } from "react";
 import { buildGaugeConfig } from "./gauges";
 import { Popover } from "./Popover";
 import { SaveHistoryPanel } from "./SaveHistoryPanel";
+import { Surface } from "./Surface";
 import { useConciseMode } from "./conciseMode";
 import { useOrientation } from "./hooks/useOrientation";
 import { useLang } from "./i18n/lang";
@@ -422,7 +423,12 @@ export function StatusPanel({ snapshot }: { snapshot: RuntimeSnapshot | null }) 
   const [showHints, setShowHints] = useState(false);
 
   return (
-    <div className={`panel status-panel ${showHints ? "hints-on" : ""}`}>
+    // DS2-a sample migration (docs/plans/2026-07-08-ds2-sample-migration.md §5):
+    // the base `.panel` container styling now comes from <Surface variant="surface">
+    // (bg/border/radius/16px pad/glow); `.status-panel` stays as a passthrough for
+    // its two behavior-only rules (gauge-hint show/hide, hints-on margin). Pixel-
+    // identical to the pre-DS2 `.panel` look given the DS2-api defaults.
+    <Surface variant="surface" className={`status-panel ${showHints ? "hints-on" : ""}`}>
       <div className="panel-title-row">
         <p className="panel-title">{t("aside.status.title")}</p>
         <button
@@ -490,7 +496,7 @@ export function StatusPanel({ snapshot }: { snapshot: RuntimeSnapshot | null }) 
           />
         </>
       )}
-    </div>
+    </Surface>
   );
 }
 

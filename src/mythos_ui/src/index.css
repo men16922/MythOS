@@ -56,13 +56,17 @@
   --surface-density-offset: 0px;
   box-sizing: border-box;
   border-radius: var(--radius-md);
-  padding: calc(var(--surface-pad, var(--space-3)) - var(--surface-density-offset));
+  padding: calc(var(--surface-pad, var(--space-4)) - var(--surface-density-offset));
 }
+/* DS2-api (owner-approved 2026-07-08, docs/plans/2026-07-08-ds2-sample-migration.md
+   §4): the size scale is remapped so the DEFAULT size-2 = --space-4 (16px), which
+   is the padding the 30 base `.panel` call sites already use — so the mass sweep
+   migrates them as a bare `<Surface variant="surface">` with pixel-parity. */
 .surface-size-1 {
-  --surface-pad: var(--space-2);
+  --surface-pad: var(--space-3);
 }
 .surface-size-2 {
-  --surface-pad: var(--space-3);
+  --surface-pad: var(--space-4);
 }
 .surface-size-3 {
   --surface-pad: var(--space-5);
@@ -73,6 +77,10 @@
 .surface-surface {
   background: var(--panel);
   border: 1px solid var(--line);
+  /* DS2-api (G3, owner-approved): the app-wide brand glow (used 19x) lives on the
+     surface variant so migrated `.panel` sites keep the current look with no
+     per-site change. A flat redesign, if ever wanted, is a separate visible commit. */
+  box-shadow: 0 0 22px rgba(0, 255, 170, 0.07);
 }
 .surface-outline {
   background: transparent;

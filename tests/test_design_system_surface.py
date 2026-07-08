@@ -41,28 +41,39 @@ class DesignSystemSurfaceTest(unittest.TestCase):
 
         self.assertIn(".surface {", css)
         self.assertIn("border-radius: var(--radius-md);", css)
+        # DS2-api: default fallback + size-2 both = --space-4 (16px), matching the
+        # base `.panel` padding so the sweep keeps pixel-parity.
         self.assertIn(
-            "padding: calc(var(--surface-pad, var(--space-3)) - var(--surface-density-offset));",
+            "padding: calc(var(--surface-pad, var(--space-4)) - var(--surface-density-offset));",
             css,
         )
         self.assertIn(".surface-size-1 {", css)
-        self.assertIn("--surface-pad: var(--space-2);", css)
-        self.assertIn(".surface-size-2 {", css)
         self.assertIn("--surface-pad: var(--space-3);", css)
+        self.assertIn(".surface-size-2 {", css)
+        self.assertIn("--surface-pad: var(--space-4);", css)
         self.assertIn(".surface-size-3 {", css)
         self.assertIn("--surface-pad: var(--space-5);", css)
         self.assertIn(".surface-density-compact {", css)
         self.assertIn("--surface-density-offset: var(--density-step);", css)
         self.assertIn(".surface-surface {", css)
+        # DS2-api (G3): the brand glow lives on the surface variant.
+        self.assertIn("box-shadow: 0 0 22px rgba(0, 255, 170, 0.07);", css)
         self.assertIn(".surface-outline {", css)
         self.assertIn(".surface-ghost {", css)
 
-    def test_surface_ships_unused_no_call_sites_migrated_yet(self) -> None:
-        # DS1a is additive-only per the plan; DS2 (gated, human review first)
-        # is the migration slice. Guard against accidental early adoption.
+    def test_surface_adoption_is_deliberate(self) -> None:
+        # DS2 is unblocked (owner sign-off 2026-07-08). DS2-a migrated the
+        # StatusPanel sample onto Surface; the remaining clusters migrate
+        # per-slice in later DS2 work. Guard the still-unmigrated files against
+        # accidental adoption so each cluster stays a deliberate, reviewed slice.
+        gameaside = read("src/mythos_ui/src/GameAside.tsx")
+        self.assertIn('import { Surface } from "./Surface";', gameaside)
+        self.assertIn(
+            '<Surface variant="surface" className={`status-panel ${showHints ? "hints-on" : ""}`}>',
+            gameaside,
+        )
         for path in (
             "src/mythos_ui/src/App.tsx",
-            "src/mythos_ui/src/GameAside.tsx",
             "src/mythos_ui/src/StoryPanel.tsx",
         ):
             self.assertNotIn("Surface", read(path))

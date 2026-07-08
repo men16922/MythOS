@@ -42,8 +42,8 @@ export function TabNav({ activeTab, onTabClick, notices, showDev = false }: TabN
     <div className="tabs">
       <TabButton tab="story" label={t("tab.story")} activeTab={activeTab} notices={notices} onTabClick={onTabClick} />
       <TabButton tab="codex" label={t("tab.codex")} activeTab={activeTab} notices={notices} onTabClick={onTabClick} />
-      <TabButton tab="character" label="CHARACTER" activeTab={activeTab} notices={notices} onTabClick={onTabClick} />
-      <TabButton tab="skills" label="SKILL TREE" activeTab={activeTab} notices={notices} onTabClick={onTabClick} />
+      <TabButton tab="character" label={t("tab.character")} activeTab={activeTab} notices={notices} onTabClick={onTabClick} />
+      <TabButton tab="skills" label={t("tab.skills")} activeTab={activeTab} notices={notices} onTabClick={onTabClick} />
       {showDev && (
         <TabButton tab="dev" label={t("tab.dev")} activeTab={activeTab} notices={notices} onTabClick={onTabClick} />
       )}

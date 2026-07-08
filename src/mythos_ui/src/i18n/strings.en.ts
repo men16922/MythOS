@@ -25,10 +25,12 @@ export const en: Record<StringKey, string> = {
   "hdr.conciseOn": "Turn compact density on (tighter spacing + folded panels)",
   "hdr.leave": "Disconnect",
   "lang.switch": "Switch language",
-  // Tab navigation
+  // Tab navigation (short, clear nouns — one word each)
   "tab.story": "Story",
-  "tab.codex": "Memory Constellation (Codex)",
-  "tab.dev": "Developer Console (Dev)",
+  "tab.codex": "Codex",
+  "tab.character": "Character",
+  "tab.skills": "Skills",
+  "tab.dev": "Dev",
   // Choice panel (chrome only — choice text itself is server narrative)
   "choice.pick": "Choice",
   "choice.preview": "Predicted change",

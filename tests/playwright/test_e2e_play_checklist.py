@@ -1481,14 +1481,14 @@ def run_test():
             print("Verified: Combat defeat banner successfully displayed.")
 
             # Verify Run History — the archive panel moved from the sidebar into
-            # the Memory Constellation (Codex) tab.
+            # the Codex (도감) tab.
             print("Verifying Run History in the Codex tab before returning to main...")
-            page.click('button:has-text("기억의 별자리")')
+            page.click('button:has-text("도감")')
             page.wait_for_selector("#history-panel .save-slot-item", timeout=3000)
             text = page.locator("#history-panel .save-slot-item").first.inner_text()
             assert "유리성의 사서" in text, f"Run history should show finished ending, got '{text}'"
             print("Verified: Codex tab shows Run History.")
-            page.click('button:has-text("서사 접속")')
+            page.click('button:has-text("이야기")')
             page.wait_for_timeout(400)
 
             # A run-ending defeat now renders the ENDED screen (ending art +

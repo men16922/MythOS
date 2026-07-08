@@ -25,10 +25,12 @@ export const ko = {
   "hdr.conciseOn": "compact 밀도 켜기 (간격 축소 + 보조 패널 접기)",
   "hdr.leave": "접속 종료",
   "lang.switch": "언어 전환",
-  // Tab navigation
-  "tab.story": "서사 접속",
-  "tab.codex": "기억의 별자리 (Codex)",
-  "tab.dev": "개발자 콘솔 (Dev)",
+  // Tab navigation (short, clear nouns — one word each)
+  "tab.story": "이야기",
+  "tab.codex": "도감",
+  "tab.character": "인물",
+  "tab.skills": "스킬",
+  "tab.dev": "개발자",
   // Choice panel (chrome only — choice text itself is server narrative)
   "choice.pick": "선택",
   "choice.preview": "예상 변화",

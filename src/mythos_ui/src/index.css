@@ -2469,7 +2469,7 @@ main {
   }
 }
 .tactical-board-panel {
-  padding: 16px;
+  /* DS2-c: padding now from <Surface variant="surface"> (16px = former value). */
   display: flex;
   flex-direction: column;
   flex-grow: 1;
@@ -2911,7 +2911,7 @@ main {
   width: 100%;
 }
 .scene-image-panel {
-  padding: 16px;
+  /* DS2-c: padding now from <Surface variant="surface"> (16px = former value). */
   display: flex;
   flex-direction: column;
 }

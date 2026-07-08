@@ -84,11 +84,20 @@ class DesignSystemSurfaceTest(unittest.TestCase):
         savehistory = read("src/mythos_ui/src/SaveHistoryPanel.tsx")
         self.assertIn('import { Surface } from "./Surface";', savehistory)
         self.assertNotIn('className="panel"', savehistory)
-        for path in (
-            "src/mythos_ui/src/App.tsx",
-            "src/mythos_ui/src/StoryPanel.tsx",
+        # DS2-c StoryPanel cluster: board/roster/scene-image/narrative-script
+        # migrated; only the deferred `<details className="panel aside-chip">`
+        # (CombatChip) keeps a `panel` token here.
+        story = read("src/mythos_ui/src/StoryPanel.tsx")
+        self.assertIn('import { Surface } from "./Surface";', story)
+        for cls in (
+            "tactical-board-panel",
+            "roster-panel",
+            "scene-image-panel",
+            "narrative-script-panel",
         ):
-            self.assertNotIn("Surface", read(path))
+            self.assertNotIn(f'<div className="panel {cls}"', story)
+        # App.tsx has no base `.panel` container of its own → stays unmigrated.
+        self.assertNotIn("Surface", read("src/mythos_ui/src/App.tsx"))
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ import { CombatRoster } from "./CombatRoster";
 import { OperationMapPanel, StatusPanel } from "./GameAside";
 import { RotateOverlay } from "./RotateOverlay";
 import { SaveHistoryPanel } from "./SaveHistoryPanel";
+import { Surface } from "./Surface";
 import { useConciseMode } from "./conciseMode";
 import { useOrientation } from "./hooks/useOrientation";
 import { useLang } from "./i18n/lang";
@@ -766,7 +767,7 @@ export function StoryPanel({
         {/* D3 board legibility: TACTICAL BOARD full-width on top; roster /
             command console / log as a bottom row. */}
         <div className="combat-stack">
-            <div className="panel tactical-board-panel">
+            <Surface variant="surface" className="tactical-board-panel">
               <div className="panel-title-row">
                 <div className="panel-title">
                   TACTICAL BOARD :: ROUND {String(snapshot.combat.radar?.round || 1).padStart(2, "0")}
@@ -823,7 +824,7 @@ export function StoryPanel({
                 ></canvas>
               </div>
               <TacticalLegend combat={snapshot.combat} />
-            </div>
+            </Surface>
 
           {/* 하단 행(랜드스케이프에서는 우측 컬럼): Tile Inspector · Party/Enemy
               Roster · Command Console · Combat Log · (landscape+coarse) Operation
@@ -844,9 +845,9 @@ export function StoryPanel({
               <TileInspector combat={snapshot.combat} cell={combatInspectCell} />
             )}
 
-            <div className="panel roster-panel">
+            <Surface variant="surface" className="roster-panel">
               <CombatRoster combat={snapshot.combat} scenarioId={scenarioId} />
-            </div>
+            </Surface>
 
             {!isLandscapeCoarseCombat && controlsEl}
 
@@ -906,7 +907,7 @@ export function StoryPanel({
 
       <div className="narrative-top-row">
         {/* 좌측: 장면 이미지 */}
-        <div className="panel scene-image-panel">
+        <Surface variant="surface" className="scene-image-panel">
           <div className="panel-title">
             {anchorImageOk && curatedSceneTitle ? `${t("story.scene")} · ${curatedSceneTitle}` : t("story.sceneImage")}
           </div>
@@ -927,7 +928,7 @@ export function StoryPanel({
               )}
             </div>
           </div>
-        </div>
+        </Surface>
 
         {/* 우측: Character 창 */}
         <CharacterPanel snapshot={snapshot} characters={scenarioCharacters} onEquip={onEquip} compact />
@@ -935,7 +936,7 @@ export function StoryPanel({
 
       {/* 하단: 전체 폭 대화 기록 스크롤 영역 & 제어 패널 */}
       <div className="narrative-script-row">
-        <div className="panel narrative-script-panel">
+        <Surface variant="surface" className="narrative-script-panel">
             <div className="narrative-scroll-area">
               {/* 전체 기록은 별도 화면(오버레이)에서. 인라인은 직전 장면만 유지 */}
               {hasNarrativeHistory && (
@@ -1015,7 +1016,7 @@ export function StoryPanel({
                 />
               </div>
             )}
-          </div>
+          </Surface>
         </div>
 
       {/* 별도 화면: 전체 서사 기록 (스크립트 + 내 행동) */}

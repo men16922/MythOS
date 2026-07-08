@@ -865,6 +865,7 @@ export default function App() {
                 onEquip={handleEquip}
                 boardZoom={boardZoom}
                 onBoardZoom={handleBoardZoom}
+                onOpenCodex={() => handleTabClick("codex")}
               />
             )}
 

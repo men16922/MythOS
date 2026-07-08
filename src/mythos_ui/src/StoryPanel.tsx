@@ -6,8 +6,10 @@ import { ChoicePanel } from "./ChoicePanel";
 import { CombatControls } from "./CombatControls";
 import { CombatLog } from "./CombatLog";
 import { CombatRoster } from "./CombatRoster";
+import { OperationMapPanel } from "./GameAside";
 import { RotateOverlay } from "./RotateOverlay";
 import { useConciseMode } from "./conciseMode";
+import { useOrientation } from "./hooks/useOrientation";
 import { useLang } from "./i18n/lang";
 import type { StringKey } from "./i18n/strings.ko";
 import type { CombatAction, CombatBlip, CombatState, RuntimeSnapshot, ScenarioCharacter } from "./types";
@@ -59,6 +61,7 @@ interface StoryPanelProps {
   // A2 first-combat tutorial: which combat control to spotlight
   // ("move" | "attack" | "skill" | "defend"), null when the tutorial is off.
   tutorialHighlight?: string | null;
+  onOpenCodex?: () => void;
 }
 
 const decodeGarbageBytes = (text: string): string => {
@@ -653,9 +656,12 @@ export function StoryPanel({
   boardZoom = 1,
   onBoardZoom,
   tutorialHighlight,
+  onOpenCodex,
 }: StoryPanelProps) {
   const { t } = useLang();
   const { conciseMode } = useConciseMode();
+  const { isLandscape, isCoarsePointer } = useOrientation();
+  const isLandscapeCoarseCombat = isLandscape && isCoarsePointer;
   const scrollBottomRef = useRef<HTMLDivElement | null>(null);
   const scrollTopRef = useRef<HTMLDivElement | null>(null);
   const [showHistory, setShowHistory] = useState(false);
@@ -790,17 +796,22 @@ export function StoryPanel({
                 ></canvas>
               </div>
               <TacticalLegend combat={snapshot.combat} />
-              {conciseMode ? (
-                <CombatChip title={t("story.tile.title")}>
-                  <TileInspector combat={snapshot.combat} cell={combatInspectCell} />
-                </CombatChip>
-              ) : (
-                <TileInspector combat={snapshot.combat} cell={combatInspectCell} />
-              )}
             </div>
 
-          {/* 하단 행: Party/Enemy Roster · Command Console · Combat Log */}
+          {/* 하단 행(랜드스케이프에서는 우측 컬럼): Tile Inspector · Party/Enemy
+              Roster · Command Console · Combat Log · (landscape+coarse) Operation
+              Map — LC2 folds all of these into one scroll column so the turn
+              loop fits one screen (docs/plans/2026-07-08-design-system.md
+              "Landscape Combat"). */}
           <div className="combat-bottom-row">
+            {conciseMode ? (
+              <CombatChip title={t("story.tile.title")}>
+                <TileInspector combat={snapshot.combat} cell={combatInspectCell} />
+              </CombatChip>
+            ) : (
+              <TileInspector combat={snapshot.combat} cell={combatInspectCell} />
+            )}
+
             <div className="panel roster-panel">
               <CombatRoster combat={snapshot.combat} scenarioId={scenarioId} />
             </div>
@@ -822,6 +833,12 @@ export function StoryPanel({
               </CombatChip>
             ) : (
               <CombatLog log={combatLog} />
+            )}
+
+            {isLandscapeCoarseCombat && (
+              <CombatChip title={t("aside.route.title")}>
+                <OperationMapPanel snapshot={snapshot} onOpenCodex={onOpenCodex} />
+              </CombatChip>
             )}
           </div>
         </div>

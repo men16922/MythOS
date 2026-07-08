@@ -76,7 +76,7 @@ Root fix for "too much info at once" + "inconsistent detail-window sizes": no de
 Emulator test: concise mode barely helps combat (10%); combat needs a **landscape split layout**, not density. Narrative stays portrait+concise.
 - `[x]` `[auto:claude]` **LC0** `useOrientation` hook + rotate-to-landscape overlay on combat start (coarse-pointer portrait) (DONE 2026-07-08 overnight; `make check` 933). Done = unit test + `make check` green.
 - `[x]` `[auto:claude]` **LC1** landscape split layout (board height-fit left | controls right; `@media (orientation:landscape) and (pointer:coarse)`) (DONE 2026-07-08 overnight; `make check` 936). Done = `make check` green + visual verify via mobile emulator post-run. Visual verify still pending — `160px` header/tab-nav offset in `index.css` is an estimate, not measured.
-- `[ ]` `[auto:claude]` **LC2** landscape: fold TileInfo/Log/Map into the right column so the turn loop fits one screen. Done = `make check` green.
+- `[x]` `[auto:claude]` **LC2** landscape: fold TileInfo/Log/Map into the right column so the turn loop fits one screen (DONE 2026-07-08 overnight; `make check` 941). Detail `PROGRESS_LOG.md`.
 
 ## Priority 1 — Neo-Seoul Playability Upgrade
 

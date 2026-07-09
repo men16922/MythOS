@@ -148,6 +148,35 @@ class UnlockEvaluationTest(unittest.TestCase):
             )
         )
 
+    def test_present_companions_gate_suppresses_absent_companion_cutscene(self) -> None:
+        # Carried affection alone (se_rin=5) unlocks A_LOW, but if Se-rin is not
+        # present this loop the cutscene must NOT play in-game — she has to be
+        # re-introduced first (owner design). This is the "Se-rin cutscene pops in
+        # during a Lin-yue scene" bug.
+        self.assertIsNone(
+            next_unseen_cutscene(
+                self.cutscenes,
+                {"se_rin": 5},
+                [],
+                [],
+                present_companions=set(),
+            )
+        )
+        # Once she is present this loop, the same cutscene plays.
+        present = next_unseen_cutscene(
+            self.cutscenes,
+            {"se_rin": 5},
+            [],
+            [],
+            present_companions={"se_rin"},
+        )
+        self.assertEqual(present.cutscene_id if present else None, "A_LOW")
+
+    def test_present_companions_none_keeps_legacy_ungated_behavior(self) -> None:
+        # No gate passed → unchanged (gallery/legacy callers unaffected).
+        result = next_unseen_cutscene(self.cutscenes, {"se_rin": 2}, [], [])
+        self.assertEqual(result.cutscene_id if result else None, "A_LOW")
+
 
 class CutsceneGalleryTest(unittest.TestCase):
     def setUp(self) -> None:

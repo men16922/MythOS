@@ -3438,11 +3438,26 @@ def _next_runtime_cutscene(
     ):
         return None
     directives = load_scenario_directives(scenario_id, language)
+    # Present-this-loop gate: a companion cutscene only plays in-game if the
+    # companion is actually present — the same unlock_flags∩flags set that spawns
+    # them in combat. Affection carries across loops, but a companion re-met only
+    # in a prior loop must be re-introduced before their cutscene fires again
+    # (else a carried-affection cutscene pops in mid-scene with another NPC).
+    scenario = load_scenario(scenario_id)
+    allies = scenario.combat.get("allies", {}) if isinstance(scenario.combat, dict) else {}
+    flag_set = {str(flag) for flag in state.get("flags", []) or []}
+    present_companions = {
+        str(entry.get("id", key))
+        for key, entry in (allies.items() if isinstance(allies, dict) else [])
+        if isinstance(entry, dict)
+        and {str(f) for f in entry.get("unlock_flags", []) or []} & flag_set
+    }
     return next_unseen_cutscene(
         directives.cutscenes,
         state.get("relationships"),
         state.get("flags"),
         state.get(SEEN_CUTSCENES_KEY),
+        present_companions,
     )
 
 

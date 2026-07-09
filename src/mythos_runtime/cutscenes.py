@@ -75,20 +75,31 @@ def next_unseen_cutscene(
     relationships: Mapping[str, Any] | None,
     flags: Iterable[str] | None,
     seen_ids: Iterable[str] | None,
+    present_companions: Iterable[str] | None = None,
 ) -> CutsceneDirective | None:
     """Return the first authored cutscene that is eligible but not yet shown.
 
     In-game appearance is once per loop.  Authored order is deliberately preserved
     so simultaneous unlocks resolve deterministically without sorting away the
     scenario author's priority.
+
+    ``present_companions`` (optional) gates in-game appearance on the companion
+    actually being present THIS loop — the same ``unlock_flags`` set that spawns
+    them in combat. Affection persists across loops, but a companion met/trusted
+    only in a PRIOR loop must re-introduce themselves before their cutscene can
+    play again, so a carried-affection cutscene never pops in unannounced (owner
+    design). ``None`` disables the gate (the cross-loop gallery still lists every
+    earned cutscene via ``evaluate_unlocked_cutscenes``, which is unaffected).
     """
     flag_set = {str(flag) for flag in (flags or [])}
     seen = {str(cutscene_id) for cutscene_id in (seen_ids or [])}
+    present = None if present_companions is None else {str(c) for c in present_companions}
     return next(
         (
             cutscene
             for cutscene in cutscenes
             if cutscene.cutscene_id not in seen
+            and (present is None or cutscene.companion in present)
             and is_cutscene_unlocked(cutscene, relationships, flag_set)
         ),
         None,

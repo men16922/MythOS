@@ -240,6 +240,52 @@ _OPENING_HOOK_SETUPS: dict[str, tuple[str, list[str]]] = {
 }
 
 
+# Per-loop companion presence is gated on flags earned THIS loop; these prefixes
+# are the "already met/trusted/refused/recruited" markers a companion carries.
+_COMPANION_FLAG_PREFIXES = ("met_", "trusted_", "refused_", "ally_")
+
+
+def _strip_carried_companion_presence(state: dict[str, Any], scenario: Any) -> None:
+    """Guardrail: deny a prior-loop companion an unearned appearance this loop.
+
+    A companion met/trusted/recruited in an earlier loop must re-introduce
+    themselves through their meet-arc (or the authored opening) in the NEW loop
+    before they can appear, guide, or join combat — no sudden pop-in from a
+    carried flag (owner design 2026-07-10). So at the start of every loop after
+    the first, drop any carried ``met_``/``trusted_``/``refused_``/``ally_``
+    <companion> flag and remove any carried companion from the party. Only the
+    affection BONUS (``meta_progression.relationships``) persists — the warmth is
+    felt as narrative echoes, not as an already-present ally. The combat spawn
+    (``combat_service`` unlock_flags∩flags), the C3 unheralded-ally join signal,
+    and the Story-Bible flag gate all key off ``state["flags"]``, so clearing the
+    carried flags here denies every downstream appearance vector at once.
+    """
+    combat = scenario.combat if isinstance(scenario.combat, dict) else {}
+    allies = combat.get("allies", {})
+    companion_ids = {
+        str(entry.get("id", key))
+        for key, entry in (allies.items() if isinstance(allies, dict) else [])
+        if isinstance(entry, dict)
+    }
+    if not companion_ids:
+        return
+    carried = {
+        f"{prefix}{cid}" for prefix in _COMPANION_FLAG_PREFIXES for cid in companion_ids
+    }
+    flags = state.get("flags")
+    if isinstance(flags, list):
+        state["flags"] = [flag for flag in flags if str(flag) not in carried]
+    party = state.get("_party")
+    if isinstance(party, dict):
+        members = party.get("members")
+        if isinstance(members, list):
+            party["members"] = [
+                member
+                for member in members
+                if not (isinstance(member, dict) and str(member.get("id")) in companion_ids)
+            ]
+
+
 def _select_opening_variant(
     scenario_id: str,
     *,
@@ -372,6 +418,12 @@ class RuntimeSessionService:
             meta_progression,
             scenario.combat,
         )
+        # GUARDRAIL: from loop 2 on, deny carried companion flags/party an
+        # unearned appearance — each loop must re-introduce them (see
+        # _strip_carried_companion_presence). The first loop's tutorial Se-rin
+        # seed is added just below.
+        if len(loops) > 0:
+            _strip_carried_companion_presence(initial_state, scenario)
         party = dict(initial_state.get("_party", {}))
         party.setdefault("player_hp", max_hp)
         party.setdefault("player_max_hp", max_hp)

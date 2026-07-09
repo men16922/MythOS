@@ -24,6 +24,7 @@ from mythos_runtime.narrative_rollup import (
     _prepare_narrative_memory_context,
 )
 from mythos_runtime.options import RuntimeOptions
+from mythos_runtime.scenario import load_scenario
 from mythos_runtime.session import (
     RuntimeSessionService,
     _filter_grant_items,
@@ -32,6 +33,7 @@ from mythos_runtime.session import (
     _initial_loop_scores,
     _materialize_inventory_items,
     _save_narrative_metric_memory,
+    _strip_carried_companion_presence,
 )
 from mythos_runtime.visual_orchestration import is_key_beat
 
@@ -1588,3 +1590,47 @@ def _at(base, offset_seconds):
     from datetime import timedelta
 
     return base + timedelta(seconds=offset_seconds)
+
+
+class CarriedCompanionGuardrailTest(unittest.TestCase):
+    """Guardrail: a prior-loop companion must re-introduce itself each new loop.
+
+    A carried met_/trusted_/refused_/ally_<companion> flag (or a companion left
+    in the party) must NOT auto-present or auto-recruit them at the start of a
+    new loop — only the affection bonus (relationships) carries. Owner design
+    2026-07-10; enforces the deny condition behind the Se-rin-everywhere reports.
+    """
+
+    def test_strip_denies_carried_companion_flags_and_party(self) -> None:
+        scenario = load_scenario("neo-seoul")
+        state: dict[str, Any] = {
+            "flags": [
+                "met_se_rin",
+                "trusted_se_rin",
+                "ally_tae_o",
+                "found_terminal",  # non-companion flag: must survive
+                "control_net_lockdown",
+            ],
+            "_party": {
+                "player_hp": 12,
+                "members": [{"id": "se_rin"}, {"id": "tae_o"}],
+            },
+            "relationships": {"se_rin": 5},  # affection bonus: must survive
+        }
+
+        _strip_carried_companion_presence(state, scenario)
+
+        self.assertEqual(state["flags"], ["found_terminal", "control_net_lockdown"])
+        self.assertEqual(state["_party"]["members"], [])
+        self.assertEqual(state["_party"]["player_hp"], 12)
+        # Affection persists — the warmth is a narrative echo, not a present ally.
+        self.assertEqual(state["relationships"], {"se_rin": 5})
+
+    def test_strip_is_a_no_op_when_no_companion_flags_present(self) -> None:
+        scenario = load_scenario("neo-seoul")
+        state: dict[str, Any] = {"flags": ["found_terminal"], "_party": {"members": []}}
+
+        _strip_carried_companion_presence(state, scenario)
+
+        self.assertEqual(state["flags"], ["found_terminal"])
+        self.assertEqual(state["_party"]["members"], [])

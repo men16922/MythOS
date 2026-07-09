@@ -24,6 +24,8 @@ export const en: Record<StringKey, string> = {
   "hdr.conciseOff": "Turn compact density off (roomier spacing)",
   "hdr.conciseOn": "Turn compact density on (tighter spacing + folded panels)",
   "hdr.leave": "Disconnect",
+  "hdr.menu": "Menu",
+  "hdr.langLabel": "Language",
   "lang.switch": "Switch language",
   // Tab navigation (short, clear nouns — one word each)
   "tab.story": "Story",

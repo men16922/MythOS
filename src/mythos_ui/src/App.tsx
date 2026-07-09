@@ -536,6 +536,13 @@ export default function App() {
     document.body.classList.toggle("combat-active", combatLive);
     return () => document.body.classList.remove("combat-active");
   }, [combatLive]);
+  // In-session signal: on mobile the full header is hidden mid-play (its
+  // controls move to a floating ⋯ menu) so the tab bar + scene sit at the top.
+  // Onboarding/boot keep the header (language must be settable before playing).
+  useEffect(() => {
+    document.body.classList.toggle("in-session", connected);
+    return () => document.body.classList.remove("in-session");
+  }, [connected]);
   const combatMeta = finalizedSnapshot?.state?.meta_progression as
     | { total_combats_won?: number; total_combats_lost?: number }
     | undefined;

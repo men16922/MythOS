@@ -24,6 +24,8 @@ export const ko = {
   "hdr.conciseOff": "compact 밀도 끄기 (여유 간격)",
   "hdr.conciseOn": "compact 밀도 켜기 (간격 축소 + 보조 패널 접기)",
   "hdr.leave": "접속 종료",
+  "hdr.menu": "메뉴",
+  "hdr.langLabel": "언어",
   "lang.switch": "언어 전환",
   // Tab navigation (short, clear nouns — one word each)
   "tab.story": "이야기",

@@ -947,10 +947,11 @@ export function StoryPanel({
           </div>
         </Surface>
 
-        {/* 우측: Character 창. Concise mode (mobile default) folds it into a
-            collapsed chip — it duplicates the CHARACTER tab, so on a phone it
-            should not push the narration + choices down. Desktop renders inline. */}
-        {conciseMode ? (
+        {/* 우측: Character 창. On any touch device (or concise mode) it folds
+            into a chip that stays COLLAPSED by default — it duplicates the 인물
+            tab, so on a phone it must not push the narration + choices down.
+            Desktop (fine pointer, non-concise) still renders it inline. */}
+        {conciseMode || isCoarsePointer ? (
           <CombatChip title="CHARACTER">
             <CharacterPanel snapshot={snapshot} characters={scenarioCharacters} onEquip={onEquip} compact />
           </CombatChip>

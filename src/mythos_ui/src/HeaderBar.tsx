@@ -29,7 +29,8 @@ export function HeaderBar({
   const { lang, setLang, t } = useLang();
   const { conciseMode, toggleConciseMode } = useConciseMode();
   return (
-    <header>
+    <>
+      <header>
       <div className="brand">
         <h1>{t("hdr.brand")}</h1>
         {/* Dev/flavor subtitle — hidden on mobile (CSS) to keep the header one row. */}
@@ -95,6 +96,38 @@ export function HeaderBar({
           </details>
         </>
       )}
-    </header>
+      </header>
+      {/* Floating controls for mobile mid-play: the full header is hidden by CSS
+          while in-session on a phone, so language / density / BGM / leave move
+          into this fixed ⋯ menu. Hidden on desktop and off-session. Kept OUTSIDE
+          <header> so `body.in-session header{display:none}` doesn't hide it too. */}
+      {connected && (
+        <details className="mobile-controls">
+          <summary aria-label={t("hdr.menu")}>⋯</summary>
+          <div className="mobile-controls-menu">
+            <span className="sub">
+              {playerName || displayName} · {selectedScenarioId}
+              {archetype || selectedArchetype ? ` · ${archetype || selectedArchetype}` : ""}
+            </span>
+            <button type="button" onClick={() => setLang(lang === "ko" ? "en" : "ko")}>
+              {t("hdr.langLabel")} · {lang === "ko" ? "EN" : "KO"}
+            </button>
+            <button
+              type="button"
+              aria-pressed={conciseMode}
+              onClick={toggleConciseMode}
+            >
+              COMPACT · {conciseMode ? "ON" : "OFF"}
+            </button>
+            <button type="button" aria-pressed={bgmEnabled} onClick={onToggleBgm}>
+              BGM · {bgmEnabled ? (bgmReady ? "ON" : "START") : "OFF"}
+            </button>
+            <button onClick={onLeaveSession} className="leave-btn">
+              {t("hdr.leave")}
+            </button>
+          </div>
+        </details>
+      )}
+    </>
   );
 }

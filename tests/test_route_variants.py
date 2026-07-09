@@ -146,6 +146,36 @@ class AnchorVariantResolutionTest(unittest.TestCase):
         # Graph identity is preserved — only content fields differ.
         self.assertEqual(default_node.get("crosses"), variant_node.get("crosses"))
 
+    def test_variant_opening_anchor_denies_se_rin_contact_flags(self) -> None:
+        """The opening anchor is authored for the Se-rin opening and its effect
+        hardcodes `trusted_se_rin`; `effect` is not variant-overridable, so a
+        non-default variant would inherit it and spawn Se-rin in the opening
+        combat (combat unlock_flags ∩ flags). A variant anchor must NOT carry her
+        first-contact flags; the default anchor keeps them."""
+
+        def _anchor_effect_flags(node: dict[str, Any]) -> set[str]:
+            flags: set[str] = set()
+            if isinstance(node.get("effect"), dict):
+                flags.update(str(f) for f in node["effect"].get("flags", []) or [])
+            for persp in node.get("perspectives", []) or []:
+                if isinstance(persp, dict) and isinstance(persp.get("effect"), dict):
+                    flags.update(str(f) for f in persp["effect"].get("flags", []) or [])
+            return flags
+
+        config = load_scenario("neo-seoul").route_map
+        contact = {"met_se_rin", "trusted_se_rin", "refused_se_rin"}
+        # Default opening features Se-rin — her contact flags are intended.
+        default_flags = _anchor_effect_flags(_start_node(_rm(config, "seed")))
+        self.assertIn("trusted_se_rin", default_flags)
+        # Every non-default variant opening must drop them (she re-appears only
+        # via her meet-arc, not the inherited opening effect).
+        for variant in ("han", "kai", "solo", "su_ah", "tae_o", "lin_yue"):
+            with self.subTest(variant=variant):
+                variant_flags = _anchor_effect_flags(
+                    _start_node(_rm(config, "seed", opening_variant=variant))
+                )
+                self.assertEqual(variant_flags & contact, set())
+
 
 class AnchorVariantContentContractTest(unittest.TestCase):
     def setUp(self) -> None:

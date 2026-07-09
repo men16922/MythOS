@@ -47,6 +47,41 @@ _ANCHOR_VARIANT_FIELDS = (
 )
 
 
+# The canonical opening anchor is authored for the Se-rin opening and its
+# perspective/entry effects hardcode her first-contact flags. `effect` is not a
+# variant-overridable field, so a non-default variant (han/kai/solo/…) would
+# inherit `trusted_se_rin` and spawn her in the opening combat even though the
+# variant prose never introduces her. These are stripped from a variant anchor's
+# effects (see `_strip_opening_contact_flags`); her real meet-arc side anchor is
+# untouched (it carries no opening `variants` map, so the variant path skips it).
+_OPENING_CONTACT_FLAGS = frozenset({"met_se_rin", "trusted_se_rin", "refused_se_rin"})
+
+
+def _without_contact_flags(effect: Any) -> Any:
+    """Return a copy of an ``effect`` dict with Se-rin contact flags removed."""
+    if not isinstance(effect, dict) or not isinstance(effect.get("flags"), list):
+        return effect
+    return {
+        **effect,
+        "flags": [flag for flag in effect["flags"] if str(flag) not in _OPENING_CONTACT_FLAGS],
+    }
+
+
+def _strip_opening_contact_flags(node: dict[str, Any]) -> None:
+    """Drop carried Se-rin contact flags from a variant anchor's node/perspective
+    effects in place (new nested objects, so the shared scenario spec is intact)."""
+    if isinstance(node.get("effect"), dict):
+        node["effect"] = _without_contact_flags(node["effect"])
+    perspectives = node.get("perspectives")
+    if isinstance(perspectives, list):
+        node["perspectives"] = [
+            {**p, "effect": _without_contact_flags(p["effect"])}
+            if isinstance(p, dict) and isinstance(p.get("effect"), dict)
+            else p
+            for p in perspectives
+        ]
+
+
 def _apply_anchor_variant(spec: dict[str, Any], opening_variant: str) -> dict[str, Any]:
     """Resolve an anchor spec's optional ``variants`` map for this loop's opening.
 
@@ -86,6 +121,10 @@ def _apply_anchor_variant(spec: dict[str, Any], opening_variant: str) -> dict[st
             for perspective in resolved["perspectives"]
         ]
     resolved["variant"] = opening_variant
+    # Deny the canonical Se-rin opening's first-contact flags to a variant loop —
+    # her appearance must be earned via her meet-arc, not the inherited anchor
+    # effect (which otherwise spawns her in the opening combat).
+    _strip_opening_contact_flags(resolved)
     return resolved
 
 

@@ -681,6 +681,16 @@ def build_runtime_narrative_context(
     # CONNECT/EXPLORE clauses keep prior behavior for scenarios without one.
     _has_authored_opening = bool(opening_source.opening_beats)
     _max_turn = opening_source.opening_max_turn
+    # A loop-2+ variant opening (han/kai/…) plays as a SOLO re-entry: companions
+    # met/trusted in a PRIOR loop have not rejoined yet in-fiction. Through the
+    # opening window their carried-over presence is suppressed (relationship
+    # bible entries via `solo_opening`, echo ally names below) and a solo
+    # directive is injected — otherwise a carried ally (Se-rin, in the party +
+    # met_se_rin/trusted_se_rin from a prior loop) overrides the variant
+    # directive's "no Se-rin yet" and reappears mid-opening (owner-reported).
+    is_variant_opening = (
+        _has_authored_opening and opening_variant != "default" and turn_index <= _max_turn
+    )
     if (
         loop.phase is LoopPhase.CONNECT
         or (loop.phase is LoopPhase.EXPLORE and turn_index <= _max_turn)
@@ -696,6 +706,8 @@ def build_runtime_narrative_context(
             opening_directives.extend(
                 _opening_continuity_notes(scenario, turn_index, language, scenario_i18n)
             )
+        elif is_variant_opening:
+            opening_directives.append(_variant_opening_solo_note(_max_turn, language))
         # The pre-rendered cinematic shots (teaser) are the authored source for the
         # Se-rin beats; each beat references one by index (shot_ref) so the teaser's
         # promise is paid off as lived experience. Resolve the shot, fill the authored
@@ -735,7 +747,9 @@ def build_runtime_narrative_context(
             )
 
     bible = load_story_bible(scenario.scenario_id, language)
-    entries = select_story_bible_entries(bible, loop, turn_index=turn_index)
+    entries = select_story_bible_entries(
+        bible, loop, turn_index=turn_index, solo_opening=is_variant_opening
+    )
     notes.extend(story_bible_notes(entries))
 
     # Item-grant affordance: tell the GM it may hand out real carriables via
@@ -875,9 +889,13 @@ def build_runtime_narrative_context(
             allies = ", ".join(content.get("allies_met") or [])
             summary_txt = content.get("summary_text") or ""
 
+            # In a solo variant opening, drop the "met people" list — naming a
+            # carried ally (Se-rin) here reinforces her presence and fights the
+            # solo re-entry. The rest of the echo (ending / déjà vu) still lands.
+            ally_clause = "" if is_variant_opening else f" | 만난 인물: [{allies}]"
             notes.append(
                 f"[과거 루프 #{i}] 엔딩: {ending_lbl} | 진행 턴수: {turns} | "
-                f"발견한 단서: [{clues}] | 만난 인물: [{allies}]"
+                f"발견한 단서: [{clues}]{ally_clause}"
             )
             if summary_txt:
                 notes.append(f" - 요약: {summary_txt}")
@@ -998,6 +1016,32 @@ def build_runtime_narrative_context(
         fallback_scene=directives.fallback_scene,
         language=language,
         key_beat=key_beat,
+    )
+
+
+def _variant_opening_solo_note(max_turn: int, language: str = "ko") -> str:
+    """Directive for a loop-2+ variant opening: the player re-enters ALONE.
+
+    A carried-over ally (Se-rin, held in the party + met_se_rin/trusted_se_rin
+    from a prior loop) otherwise gets reintroduced mid-opening and overrides the
+    variant beat's "no Se-rin yet". This makes the solo intent explicit; the
+    bible/echo relationship signals are suppressed alongside it.
+    """
+    if language.startswith("en"):
+        return (
+            "IMPORTANT (variant re-entry opening — SOLO): this loop opens on a solo "
+            "re-entry. Companions met or trusted in a PRIOR loop (Se-rin, etc.) have "
+            f"NOT rejoined yet. Through the opening (turns 0-{max_turn}) do NOT bring "
+            "Se-rin or any prior companion on-screen — no rescue, grabbed wrist, "
+            "dialogue, or offered hand. Their reunion belongs to the post-opening "
+            "meet-arc. Follow only the variant opening beat above."
+        )
+    return (
+        "중요(변형 재진입 오프닝 — 홀로): 이번 루프의 오프닝은 주인공이 '홀로' 재진입하는 "
+        "장면이다. 이전 루프에서 만나거나 신뢰하게 된 동료(정세린 등)는 아직 이번 루프에 "
+        f"합류하지 않았다 — 오프닝 구간(턴 0~{max_turn}) 동안 정세린을 포함한 기존 동료를 "
+        "등장·구조·손내밀기·대화시키지 마라(손목 잡기·'뛰어'·구출 금지). 그들과의 재회는 "
+        "오프닝 이후 만남 아크가 소유한다. 위 변형 오프닝 지시문의 장면만 따르라."
     )
 
 

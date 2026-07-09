@@ -84,13 +84,14 @@ def select_story_bible_entries(
     turn_index: int,
     token_budget: int = 1600,
     max_entries: int = 3,
+    solo_opening: bool = False,
 ) -> list[StoryBibleEntry]:
     if bible.empty or token_budget <= 0 or max_entries <= 0:
         return []
 
     scored: list[tuple[int, StoryBibleEntry]] = []
     for entry in bible.entries:
-        score = _entry_score(entry, loop, turn_index)
+        score = _entry_score(entry, loop, turn_index, solo_opening=solo_opening)
         if score is None:
             continue
         scored.append((score, entry))
@@ -125,9 +126,22 @@ def story_bible_notes(entries: list[StoryBibleEntry]) -> list[str]:
     return notes
 
 
-def _entry_score(entry: StoryBibleEntry, loop: LoopState, turn_index: int) -> int | None:
+def _entry_score(
+    entry: StoryBibleEntry, loop: LoopState, turn_index: int, *, solo_opening: bool = False
+) -> int | None:
     when = entry.when
     score = entry.priority
+
+    # Solo variant-opening suppression: on a loop-2+ variant opening the player
+    # re-enters ALONE — companions met/trusted in a prior loop have not rejoined
+    # yet in-fiction. Every companion/route entry is gated by a relationship
+    # flag (`flags_any`: met_*/ally_*/trusted_*/…), so skipping any flag-gated
+    # entry here keeps a carried-over ally (e.g. Se-rin via met_se_rin) from
+    # being reintroduced as a present companion and overriding the variant
+    # directive's "no Se-rin yet". Scenario-wide entries (`when` w/o flags_any)
+    # and the variant-gated act openings are unaffected.
+    if solo_opening and _lower_set(when.get("flags_any")):
+        return None
 
     # Opening-variant gate: an entry tagged `opening_variant` applies only when
     # THIS loop's opening variant is in that set. The default Se-rin act-1 bible

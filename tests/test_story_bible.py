@@ -178,6 +178,37 @@ class StoryBibleTest(unittest.TestCase):
         self.assertNotIn("default_opening", ids("han"))
         self.assertIn("always", ids("han"))
 
+    def test_solo_opening_suppresses_relationship_gated_entries(self) -> None:
+        # A loop-2+ variant opening re-enters SOLO: a companion met/trusted in a
+        # prior loop (met_se_rin flag carried in) must not reintroduce its
+        # relationship bible (se_rin_trust_thread), which would override the
+        # variant directive. `solo_opening=True` drops every flags_any-gated
+        # entry (all companion/route entries are flag-gated); scenario-wide
+        # entries (no flags_any) survive. Regression for the owner-reported
+        # Se-rin-in-variant-opening leak (2026-07-09).
+        bible = load_story_bible("neo-seoul", "ko")
+        loop = LoopState(
+            loop_id="l",
+            player_id="p",
+            seed="s",
+            phase=LoopPhase.EXPLORE,
+            location_id="c-17",
+            stability=80,
+            tension=20,
+            started_at=datetime(2026, 5, 31, tzinfo=UTC),
+            state={"_opening_variant": "kai", "flags": ["met_se_rin", "trusted_se_rin"]},
+        )
+
+        normal = {e.entry_id for e in select_story_bible_entries(bible, loop, turn_index=1)}
+        solo = {
+            e.entry_id
+            for e in select_story_bible_entries(bible, loop, turn_index=1, solo_opening=True)
+        }
+
+        self.assertIn("se_rin_trust_thread", normal)  # would leak without the gate
+        self.assertNotIn("se_rin_trust_thread", solo)  # suppressed on a solo opening
+        self.assertIn("neo_seoul_canon_core", solo)  # scenario-wide entry survives
+
     def test_neo_seoul_act1_opening_bible_is_default_variant_gated(self) -> None:
         # Regression: the real neo-seoul act-1 opening entries hardcode Se-rin's
         # rescue; on a loop-2+ variant (han/kai/…) they must NOT be selected, or

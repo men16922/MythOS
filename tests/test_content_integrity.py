@@ -1038,6 +1038,42 @@ class NpcAgendaSubjectIntegrityTest(unittest.TestCase):
         )
 
 
+class CharacterDetectionKeywordIntegrityTest(unittest.TestCase):
+    """Portrait-detection keywords must be character-specific, not ambient nouns.
+
+    ``detectSceneCharacter`` (frontend ``sceneCharacter.ts``) shows a character's
+    portrait whenever any ``characters[].keyword`` appears in the scene text
+    (title + location + narration + visual_brief). A keyword that is a generic
+    role common-noun therefore fires a false-positive: e.g. tae_o's ``사냥개``
+    ("hound") matched ambient narration describing IX's pursuit on the Han route,
+    so his portrait flashed in and out although he was never in the scene
+    (owner-reported 2026-07-10). Names/aliases/nicknames stay specific
+    (``물거미``/``신호 파괴자``/``rx-09``); this denylist bars the common nouns
+    that collide with ordinary prose. Exact-match, so multi-word keys like
+    ``관리자 ix`` are unaffected.
+    """
+
+    # Common nouns the LLM narration routinely uses for ambience/enemies. A
+    # character keyword equal to one of these detects the character on any
+    # passing mention (a portrait false-positive), so they belong in ``alias``
+    # (display only), never in the detection ``keywords`` list.
+    AMBIENT_COMMON_NOUNS = frozenset({"사냥개", "해커", "순찰대", "드론", "시민"})
+
+    def test_detection_keywords_exclude_ambient_common_nouns(self) -> None:
+        scenario = load_scenario("neo-seoul")
+        offenders = []
+        for character in scenario.characters:
+            for keyword in character.get("keywords", []) or []:
+                if str(keyword).strip().lower() in self.AMBIENT_COMMON_NOUNS:
+                    offenders.append(f"{character.get('name')}:{keyword!r}")
+        self.assertEqual(
+            offenders,
+            [],
+            "character detection keywords that are ambient common nouns (move to "
+            f"alias, they cause portrait false-positives): {offenders}",
+        )
+
+
 def _route_effect_keys(scenario_data: dict[str, Any]) -> set[str]:
     """Every key authored on a route perspective or scene-choice ``effect`` block.
 

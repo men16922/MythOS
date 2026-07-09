@@ -204,6 +204,16 @@ class UIClarityAffordancesTest(unittest.TestCase):
             self.assertIn(key, read("src/mythos_ui/src/i18n/strings.ko.ts"))
             self.assertIn(key, read("src/mythos_ui/src/i18n/strings.en.ts"))
 
+    def test_setup_screen_controls_are_width_bounded_on_mobile(self) -> None:
+        # Mobile audit (390px): the connection/setup screen must not scroll
+        # horizontally. Two width sources are capped: (1) the scenario <select>
+        # sizes to its longest option (~670px) — bounded to the row; (2) the
+        # Connect/Resume/Load action row wraps instead of spilling past the edge.
+        css = read("src/mythos_ui/src/index.css")
+
+        self.assertRegex(css, r"\.ob-row select \{[^}]*max-width: 100%;")
+        self.assertRegex(css, r"\.ob-actions \{[^}]*flex-wrap: wrap;")
+
     def test_mobile_narration_first_demotes_objective_and_drops_character_chip(self) -> None:
         # Narration-first (mobile, coarse pointer): the narration is the thing the
         # player reads every turn, so nothing secondary should stack above it.

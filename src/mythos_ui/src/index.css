@@ -1513,10 +1513,18 @@ main {
   flex-wrap: wrap;
   margin-bottom: 16px;
 }
+/* A native <select> sizes to its longest option — the scenario name is wide
+   enough to blow past a phone viewport. Cap it to the row and let it shrink. */
+.ob-row select {
+  max-width: 100%;
+  min-width: 0;
+}
 .ob-actions {
   display: flex;
   gap: 10px;
   align-items: center;
+  /* wrap on a phone so Connect/Resume/Load don't spill past the viewport */
+  flex-wrap: wrap;
 }
 .combat-sim {
   margin-top: 20px;

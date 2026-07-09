@@ -2556,12 +2556,15 @@ main {
 }
 .tactical-legend-popup {
   position: absolute;
-  z-index: 20;
+  z-index: 50;
   top: 32px;
   left: 0;
   min-width: 240px;
   margin-top: 0;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+  /* OPAQUE — the base .tactical-legend background is 50% translucent, which let
+     the STATUS/roster text behind the popup bleed through and read as overlap. */
+  background: var(--bg, #0a0f13);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.7);
 }
 .tactical-board-canvas-wrapper {
   background: #020706;

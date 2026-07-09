@@ -481,6 +481,16 @@ class CombatService:
         for combatant in state.combatants:
             if combatant.faction != "ally":
                 continue
+            # Only real party members persist. `controllable` was set from
+            # `is_party_member` at build (True = already in _party.members via the
+            # initial party or a route `party_add`). A story-flag ally (Se-rin via
+            # met_se_rin, etc.) co-fights this encounter AI-driven (controllable=
+            # False) and must NOT be promoted into the permanent party — that
+            # writeback was carrying Se-rin across loops and reintroducing her
+            # everywhere (incl. variant openings). Combat only UPDATES existing
+            # members' HP; it never recruits.
+            if not combatant.controllable:
+                continue
             member = members_by_id.get(combatant.id, {"id": combatant.id, "name": combatant.name})
             member["id"] = combatant.id
             member["name"] = combatant.name

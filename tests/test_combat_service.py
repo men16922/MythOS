@@ -215,7 +215,13 @@ class CombatServiceTest(unittest.TestCase):
         self.assertEqual(ally.hp, max(1, ally.max_hp // 4))
         self.assertLess(ally.hp, ally.max_hp)
 
-    def test_unlock_flag_spawns_ally_and_persists_hp(self) -> None:
+    def test_unlock_flag_ally_fights_but_is_not_promoted_to_party(self) -> None:
+        # A story-flag ally (unlocked via `trusted_se_rin`, NOT in _party.members)
+        # co-fights AI-driven, but must NOT be written into the permanent party by
+        # _finish_party_state — that writeback was silently promoting a temporary
+        # ally into the party and carrying it across loops (the root of Se-rin
+        # reappearing everywhere, incl. variant openings). Only real party members
+        # (controllable) persist; combat updates HP, it never recruits.
         service = CombatService()
         loop = _loop(state={"flags": ["trusted_se_rin"]})
         result = self._begin(service, loop)
@@ -224,10 +230,26 @@ class CombatServiceTest(unittest.TestCase):
         ally = state.by_id("se_rin")
         self.assertIsNotNone(ally)
         assert ally is not None
+        self.assertFalse(ally.controllable)  # AI-driven, not a party member
         ally.hp = 5
         party = service._finish_party_state(result.loop, state, player_hp=10)
-        members = party.get("members", [])
-        se_rin = next(member for member in members if member["id"] == "se_rin")
+        member_ids = {member["id"] for member in party.get("members", [])}
+        self.assertNotIn("se_rin", member_ids)
+
+    def test_finish_party_state_persists_real_party_member_hp(self) -> None:
+        # A genuine party member (already in _party.members → controllable) still
+        # has its post-combat HP written back, so within-loop persistence works.
+        service = CombatService()
+        loop = _loop(state={"_party": {"members": [{"id": "se_rin", "hp": 12}]}})
+        result = self._begin(service, loop)
+        state = CombatService.load_state(result.loop)
+        assert state is not None
+        ally = state.by_id("se_rin")
+        assert ally is not None
+        self.assertTrue(ally.controllable)  # party member → player-driven
+        ally.hp = 5
+        party = service._finish_party_state(result.loop, state, player_hp=10)
+        se_rin = next(m for m in party.get("members", []) if m["id"] == "se_rin")
         self.assertEqual(se_rin["hp"], 5)
 
     def test_item_action_consumes_from_inventory(self) -> None:

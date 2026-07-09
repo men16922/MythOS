@@ -608,13 +608,75 @@ function CombatChip({ title, children }: { title: string; children: React.ReactN
   );
 }
 
-function ObjectiveStrip({ snapshot }: { snapshot: RuntimeSnapshot | null }) {
+// `collapsible` (mobile/coarse) renders the strip as a one-line 현재 목표 summary
+// that taps open to reveal the act goal / stakes / last result — so the strip no
+// longer pushes the narration (the thing the player reads every turn) far down.
+// Desktop keeps the full always-open strip.
+function ObjectiveStrip({
+  snapshot,
+  collapsible,
+}: {
+  snapshot: RuntimeSnapshot | null;
+  collapsible?: boolean;
+}) {
   const { t } = useLang();
   const scene = snapshot?.active_scene;
   if (!scene) return null;
   const stakes = scene.stakes_summary || [];
   const result = scene.choice_result?.summary || scene.action_result;
   if (!scene.objective && !scene.chapter_goal && stakes.length === 0 && !result) return null;
+
+  // The act goal only appears in the body when the current objective already
+  // owns the summary line, so the two never duplicate.
+  const summaryText = scene.objective || scene.chapter_goal || "";
+  const showChapterInBody = Boolean(scene.chapter_goal && scene.objective);
+  const bodyBlocks = (
+    <>
+      {showChapterInBody && (
+        <div className="objective-main objective-chapter">
+          <span className="objective-kicker">{t("story.obj.chapter")}</span>
+          <span className="objective-text">{scene.chapter_goal}</span>
+        </div>
+      )}
+      {stakes.length > 0 && (
+        <div className="objective-stakes">
+          {stakes.map((stake) => (
+            <span key={stake} className="objective-chip">
+              {stake}
+            </span>
+          ))}
+        </div>
+      )}
+      {result && (
+        <div className="objective-result">
+          <span className="objective-kicker">{t("story.obj.lastResult")}</span>
+          <span>{result}</span>
+        </div>
+      )}
+    </>
+  );
+
+  if (collapsible) {
+    const hasDetail = showChapterInBody || stakes.length > 0 || Boolean(result);
+    // No extra detail → a plain one-liner (no pointless empty toggle).
+    if (!hasDetail) {
+      return (
+        <div className="objective-strip objective-strip-oneline">
+          <span className="objective-kicker">{t("story.obj.current")}</span>
+          <span className="objective-text">{summaryText}</span>
+        </div>
+      );
+    }
+    return (
+      <details className="objective-strip objective-strip-collapsible">
+        <summary className="objective-summary">
+          <span className="objective-kicker">{t("story.obj.current")}</span>
+          <span className="objective-text">{summaryText}</span>
+        </summary>
+        <div className="objective-body">{bodyBlocks}</div>
+      </details>
+    );
+  }
 
   return (
     <div className="objective-strip">
@@ -947,11 +1009,13 @@ export function StoryPanel({
           </div>
         </Surface>
 
-        {/* 우측: Character 창. On any touch device (or concise mode) it folds
-            into a chip that stays COLLAPSED by default — it duplicates the 인물
-            tab, so on a phone it must not push the narration + choices down.
-            Desktop (fine pointer, non-concise) still renders it inline. */}
-        {conciseMode || isCoarsePointer ? (
+        {/* 우측: Character 창.
+            - Touch/coarse (phone): OMITTED here entirely — it is a pure duplicate
+              of the 인물 tab and, even collapsed, its labelled box ate ~140px of
+              vertical space above the narration. The 인물 tab is the single source.
+            - Desktop concise (fine pointer): folds into a COLLAPSED chip.
+            - Desktop default: renders inline. */}
+        {isCoarsePointer ? null : conciseMode ? (
           <CombatChip title="CHARACTER">
             <CharacterPanel snapshot={snapshot} characters={scenarioCharacters} onEquip={onEquip} compact />
           </CombatChip>
@@ -998,7 +1062,7 @@ export function StoryPanel({
                 <h2 id="scene-title" style={{ marginTop: "8px" }}>
                   {snapshot?.active_scene?.title || ""}
                 </h2>
-                <ObjectiveStrip snapshot={snapshot} />
+                <ObjectiveStrip snapshot={snapshot} collapsible={isCoarsePointer} />
                 <div id="narration">
                   {renderFormattedNarration(displayedNarration, snapshot?.active_scene?.turn_index ?? 0, t)}
                   {isStreaming && <span className="caret">▌</span>}

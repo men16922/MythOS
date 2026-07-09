@@ -250,7 +250,10 @@ main {
 }
 @media (max-width: 900px) {
   main {
-    grid-template-columns: 1fr;
+    /* minmax(0,…) not 1fr: a wide curated anchor-scene image would otherwise
+       set the track's min-content and blow the single column past the phone
+       viewport (horizontal scroll). 0 minimum forces the column to shrink. */
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -2936,7 +2939,8 @@ main {
 }
 @media (max-width: 900px) {
   .narrative-top-row {
-    grid-template-columns: 1fr;
+    /* minmax(0,…): same anchor-image blowout guard as `main` above. */
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 .narrative-script-row {
@@ -2976,6 +2980,18 @@ main {
 .narrative-scroll-area::-webkit-scrollbar-thumb {
   background: var(--line);
   border-radius: 3px;
+}
+/* Mobile/coarse (narration-first): the 46vh cap makes sense on desktop, where
+   the image sits left and the narration scrolls in a box on the right so both
+   stay in view. On a phone (single column) it just boxes the primary read into
+   a half-screen scroll-within-scroll. Let the narration flow in the page so the
+   whole thing is one natural top-to-bottom scroll: banner → 목표 → 대본 → 선택지. */
+@media (pointer: coarse) {
+  .narrative-scroll-area {
+    max-height: none;
+    overflow-y: visible;
+    padding-right: 0;
+  }
 }
 
 /* Character panel (장면 이미지 우측) */
@@ -3358,6 +3374,66 @@ main {
   font-family: var(--mono);
   font-size: 10.5px;
   background: rgba(255, 255, 255, 0.025);
+}
+
+/* Mobile/coarse: 현재 목표 collapses to one tap-to-open line so it no longer
+   pushes the narration down (desktop keeps the full always-open strip). */
+.objective-strip-oneline,
+.objective-strip-collapsible {
+  margin: 8px 0 12px;
+  padding: 8px 12px;
+}
+.objective-strip-oneline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+}
+.objective-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  cursor: pointer;
+  list-style: none;
+  font-size: 12.5px;
+  line-height: 1.45;
+  /* full-row tap target on a phone */
+  min-height: 24px;
+}
+.objective-summary::-webkit-details-marker {
+  display: none;
+}
+.objective-summary::after {
+  content: "▸";
+  margin-left: auto;
+  color: var(--head);
+  font-size: 10px;
+  transition: transform 0.15s ease;
+}
+.objective-strip-collapsible[open] .objective-summary::after {
+  transform: rotate(90deg);
+}
+.objective-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--line-soft);
+}
+/* Collapsed: the 현재 목표 summary stays a single ellipsized line (a glance, not
+   a paragraph). Expanding the strip lets it wrap to the full objective text
+   alongside the stakes/result body — so nothing is permanently hidden. */
+.objective-strip-collapsible:not([open]) .objective-summary {
+  flex-wrap: nowrap;
+}
+.objective-strip-collapsible:not([open]) .objective-summary .objective-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .choice-panel-wrapper {
@@ -5651,8 +5727,14 @@ main#play.fx-glitch {
     display: none;
   }
   body.in-session .tabs {
-    /* keep the last tab clear of the floating ⋯ */
+    /* keep the last tab clear of the floating ⋯; scroll the bar internally
+       (not the page) if the labels + that clearance exceed the phone width. */
     padding-right: 46px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  body.in-session .tabs::-webkit-scrollbar {
+    display: none;
   }
   body.in-session .mobile-controls {
     display: block;

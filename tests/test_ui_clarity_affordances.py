@@ -204,6 +204,43 @@ class UIClarityAffordancesTest(unittest.TestCase):
             self.assertIn(key, read("src/mythos_ui/src/i18n/strings.ko.ts"))
             self.assertIn(key, read("src/mythos_ui/src/i18n/strings.en.ts"))
 
+    def test_mobile_narration_first_demotes_objective_and_drops_character_chip(self) -> None:
+        # Narration-first (mobile, coarse pointer): the narration is the thing the
+        # player reads every turn, so nothing secondary should stack above it.
+        #   1. ObjectiveStrip renders `collapsible={isCoarsePointer}` — on a phone
+        #      the 현재 목표 folds to one tap-to-open line instead of a tall block.
+        #   2. The story-view CHARACTER panel is OMITTED entirely on coarse pointer
+        #      (it is a pure duplicate of the 인물 tab and even collapsed ate ~140px
+        #      above the narration); desktop concise still gets the chip, desktop
+        #      default renders it inline.
+        source = read("src/mythos_ui/src/StoryPanel.tsx")
+
+        self.assertIn(
+            "<ObjectiveStrip snapshot={snapshot} collapsible={isCoarsePointer} />",
+            source,
+        )
+        self.assertIn("objective-strip-collapsible", source)
+        # coarse → no character panel in the story view; only concise (desktop) → chip.
+        self.assertIn("{isCoarsePointer ? null : conciseMode ? (", source)
+
+        css = read("src/mythos_ui/src/index.css")
+        self.assertIn(".objective-strip-collapsible", css)
+        self.assertIn(".objective-summary", css)
+        # The 46vh inner-scroll cap on the narration is lifted on coarse pointers
+        # so the primary read flows in the page instead of a scroll-within-scroll.
+        self.assertIn("@media (pointer: coarse) {", css)
+        self.assertRegex(
+            css,
+            r"@media \(pointer: coarse\) \{\s*\.narrative-scroll-area \{\s*max-height: none;",
+        )
+        # Mobile single-column grids use minmax(0,1fr), not 1fr: a wide curated
+        # anchor-scene image must not set the track min-content and blow the
+        # column past the phone viewport (horizontal scroll). Regression guard.
+        self.assertRegex(css, r"main \{[^}]*grid-template-columns: minmax\(0, 1fr\);")
+        self.assertRegex(
+            css, r"\.narrative-top-row \{[^}]*grid-template-columns: minmax\(0, 1fr\);"
+        )
+
     def test_combat_board_previews_move_target_and_auto_centers_active_unit(self) -> None:
         # T5a (mobile board affordance): the reachable-tile highlight already
         # existed only while actively dragging; hovering (or tapping-before-

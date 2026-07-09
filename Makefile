@@ -280,6 +280,20 @@ ENVFILE ?= .env
 cloud-run-local:
 	docker run --rm -p 8080:8080 -e PORT=8080 $$( [ -f $(ENVFILE) ] && echo --env-file $(ENVFILE) ) $(CLOUD_IMAGE)
 
+# Deploy to Cloud Run, ALWAYS targeting .env's PROJECT_ID via --project (never
+# the ambient `gcloud config` project — that once drifted to the wrong project
+# and a deploy landed a stray service elsewhere). Env-preserving `--source .`:
+# no --set-env-vars, so the existing revision's env (MODEL, DATABASE_URL, invite
+# keys, …) is kept. Region overridable: make deploy REGION=us-central1.
+REGION ?= us-central1
+.PHONY: deploy
+deploy:
+	@test -f .env || { echo "ERROR: .env not found"; exit 1; }
+	@PROJECT_ID=$$(grep -E '^PROJECT_ID=' .env | cut -d= -f2- | tr -d '"'); \
+	test -n "$$PROJECT_ID" || { echo "ERROR: PROJECT_ID not set in .env"; exit 1; }; \
+	echo "Deploying mythos-api to project [$$PROJECT_ID] region [$(REGION)] (env-preserving)…"; \
+	gcloud run deploy mythos-api --source . --region $(REGION) --project "$$PROJECT_ID" --quiet
+
 # One-command dev stack: docker infra + db migrate + API(foreground).
 # Ollama is host-side (not docker); start it separately with `ollama serve`.
 # Ctrl+C stops the API; infra keeps running. Tear everything down: make dev-down.

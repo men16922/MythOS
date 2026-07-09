@@ -57,6 +57,11 @@ gcloud storage buckets add-iam-policy-binding gs://$BUCKET \
 
 ## 4. Cloud Run 배포
 
+> **재배포(env-보존)는 `make deploy`** — `.env`의 `PROJECT_ID`를 `--project`로 **항상 명시**한다.
+> ambient `gcloud config` 프로젝트에 의존하지 말 것(한 번 다른 프로젝트로 드리프트해 엉뚱한 곳에
+> stray 서비스가 배포된 적 있음, 2026-07-09). `make deploy`는 `--set-env-vars` 없이 `--source .`만
+> 올려 기존 리비전 env(MODEL/DATABASE_URL/초대키)를 보존한다. 최초 생성/환경 변경 시에만 아래 전체 명령.
+
 ```bash
 # Dockerfile 로 Cloud Build → Cloud Run (소스 빌드, Artifact Registry 수동 푸시 불필요)
 gcloud run deploy mythos-api \

@@ -1,6 +1,6 @@
 # Project MythOS Status
 
-Last updated: 2026-07-08
+Last updated: 2026-07-09
 
 ## Current Baseline
 
@@ -41,8 +41,8 @@ Direction remains global-first EN/KO closed beta: Gemini/Vertex is the product p
 
 ## Open Risks
 
-- **DEPLOYED 2026-07-09** — Cloud Run rev **`mythos-api-00026-s2g`** (`gcloud run deploy --source .`, env preserved MODEL=gemini-3.5-flash, smoke root=200): the full batch is now live (DS0-DS3 · LC0-6 · S4 · P1.5 · 07-09 opening/early-loop fixes + prose). No-downtime rollout. **Remaining**: git is ahead of origin (re-push, safety hard-block → user) + live sign-off (2회차+ variant loop for the opening fixes) + real-device mobile pass. `.env`/pid-5031 note obsolete.
-- **P1.5 T5/T6 UNBLOCKED 2026-07-08** (owner decided mobile-inclusive P0) — `[auto:claude]` slices (Track M + T6 concise-mode + T5 board) now queued in `NEXT_PLAN.md`. New watch: the UI was never phone-tested — mobile is UX-degraded (9–11px fonts, `100vh` chrome-overlap, ~20 hover-only `title=` tooltips dead on touch incl. the shipped T4a axis chip, sub-44px tap targets), not structurally broken. Track M addresses it.
+- **DEPLOYED 2026-07-09 — latest rev `mythos-api-00029-b9z`** (env-preserving `--source .`, MODEL=gemini-3.5-flash, root=200; superseded 00026-s2g→00027-wcb→00028-n77→00029-b9z in one session). Live: the full prior batch (DS0-DS3 · LC0-6 · S4 · P1.5 · opening/prose) **+ the reopened Se-rin-flash fix** (early `loop_meta` WS frame — owner-confirmed working live) **+ mobile UX** (header hidden mid-play behind a floating ⋯ · narration-first 16:9 banner + CHARACTER chip · tab rename 이야기/도감/인물/스킬). **Remaining**: git ahead of origin (re-push, hard-block → user) + real-device touch/notch/URL-bar pass.
+- **Mobile UX still emulator-only (2026-07-09)** — the mobile pass (header-hide/floating ⋯, banner, chip, tab rename) is verified in chrome-devtools @390px but **never on a real phone** (owner's phone couldn't reach the local LAN server). Watch: touch targets, `100dvh` vs URL-bar, notch, real-device font rendering. Not structurally broken.
 - **agy browser attach flaky (new 2026-07-06)**: the live-QA actor intermittently fails to acquire any browser tool and hangs silently — nested-in-agy runs burned 3 iterations; even direct runs failed 21:18+/21:41 after succeeding 20:20/20:23 (suspect Antigravity IDE/browser state). Mitigations landed: gtimeout hard ceiling + verdict-rescue in `run-agy.sh` (`6f61d9a`) so failures now record NEEDS_HUMAN instead of burning 30 min. Practice: run live-QA direct from a supervising session; if attach fails twice, hand the item to human.
 - **3.5-flash cost watch (mitigated 2026-07-05)**: prompt diet cut input −25% → ~$1.0/loop full-3.5. The env-only hybrid (~$0.5) is implemented but remains disabled until the planned post-sign-off A/B.
 - **WS idle drop (~45s) — MITIGATED 07-08 (T2)**: was the root of the tester "3-click" complaint. Fixed by 20s keepalive ping/pong + optimistic choice pending + one-shot reconnect-resend (`2a27e7b`); AGY QA confirmed single-click advance even with the socket force-closed. Watch only if slow image turns still stall.

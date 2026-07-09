@@ -1,6 +1,6 @@
 # Project MythOS Next Plan
 
-Last updated: 2026-07-06
+Last updated: 2026-07-09
 
 This file keeps only upcoming (open) work as a rolling plan. Completed tracks live in
 `docs/COMPLETED_SUMMARY.md`, detailed logs in `bin/docs/archive/progress-2026-06.md`, individual designs in
@@ -8,9 +8,9 @@ This file keeps only upcoming (open) work as a rolling plan. Completed tracks li
 
 ## Priority 0 — Human live sign-off on the deployed bundle
 
-Authority QA: `docs/test/neo_seoul_live_qa.md`. Cloud Run rev `00019-jf6` serves the dieted full-3.5 stack; completed 07-04/05 gameplay, companion, cloud-runtime, model-routing, and Kiro work is summarized in `docs/COMPLETED_SUMMARY.md` M55-M56.
+Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00029-b9z` (2026-07-09)** — full stack + Se-rin-flash fix (owner-confirmed live) + mobile UX (header-hide/floating ⋯, narration-first, tab rename). Completed 07-04/05 gameplay/companion/cloud-runtime/model-routing/Kiro work → `docs/COMPLETED_SUMMARY.md` M55-M56.
 
-- `[ ]` `[manual]` **Full-3.5 live sign-off**: fresh-loop prose/tone/length verdict, Audrey EN coherence retest, IX/companion/equipment/growth feel, authenticated production turn, and human `git push`. Objective save/load/map/idempotency/support/loot/equip checks already passed via three AGY runs.
+- `[/]` `[manual]` **Full-3.5 live sign-off**: opening/Se-rin-flash **confirmed fixed by owner (2026-07-09)**. Remaining = fresh-loop prose/tone/length verdict, Audrey EN retest, IX/companion/equipment/growth feel, authenticated production turn, **`! git push`** (git ahead of origin), and a **real-device mobile pass** (the header-hide/banner/chip/tab-rename UX is emulator-verified @390px only — touch/notch/`100dvh` URL-bar). Objective save/load/map/idempotency/support/loot/equip already passed via three AGY runs.
 - `[ ]` `[manual]` **Teaser #2 (DEFERRED 2026-07-05 — next plan)**: montage format too similar to teaser #1; decided
   direction = (A) "uncut single-turn" format now-ish or (B) montage after P1 + archetype openings + ending art
   (visible deltas). Metadata drafts ready (`docs/cbt/CBT_TEASER.md`/`.ko.md`); re-scope when picked up.

@@ -1,9 +1,17 @@
 # Progress Log
 
-Last updated: 2026-07-08
+Last updated: 2026-07-09
 
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
+
+## 2026-07-09 (live session #2) — loop_meta opening fix + mobile UX overhaul + tab rename; DEPLOYED 00027→00029
+- Status: Done + deployed across 3 Cloud Run revs (`00027-wcb`→`00028-n77`→`00029-b9z`, env-preserving MODEL=gemini-3.5-flash, root=200 each). `make check` **956** green throughout. **Owner confirmed the opening fix works live** ("오프닝은 잘 고쳐졌어"); mobile emulator-verified @390px.
+- Changed (narrative — Se-rin flash → variant swap, the reopened bug): root cause = the prior `0d96ff8` fix left an 8s intro-hold timeout that fires **before** the opening snapshot, which only carries `_opening_variant` after the slow LLM generation → default Se-rin renders then remounts into the variant. Fixed with an **early `loop_meta` WS frame**: `stream_start_loop` yields the variant right after `_prepare_start_loop` (before generation); `_run_stream` relays `{"type":"loop_meta"}`; client `openingVariant` state (per-loop, reset on intro close) is now the authoritative intro signal; dropped the lagging `introFirstLoopConfirmed`; 8s→12s dead-stream fallback. `RuntimeStreamEvent` gains `kind="meta"`.
+- Changed (mobile UX, from real-device feedback): **header 1-row** (dev subtitle hidden, EN/COMPACT/BGM→44px glyph squares, session+leave→⋯) → then **header fully hidden mid-play** on phones (`body.in-session`) with a floating ⋯ menu (language/COMPACT/BGM/leave, rendered outside `<header>`). **Narration-first**: scene image capped to a 16:9 banner + inline CHARACTER panel folded to a collapsed chip on any touch device (dup of the 인물 tab). **Tab rename** — 5 tabs → one clear i18n noun each (KO/EN): 서사접속→이야기, 기억의별자리(Codex)→도감, CHARACTER→인물, SKILL TREE→스킬, dev→개발자 (character/skills were English literals, now i18n).
+- Verified: `make check` 956 green (all 4 commits `ede6fa5`/`89cce9e`/`cb51702`/`25534af`); WS frame order `loop_meta→token→snapshot` test-locked (`test_begin_streams_meta_then_token_then_snapshot`); chrome-devtools @390px in-session — header `display:none` + floating ⋯ (언어·COMPACT·BGM·접속종료) + 16:9 banner + CHARACTER chip collapsed + tab bar 42px single row; 2회차 kai-variant opening renders from the start (no flash). e2e tab-click text updated.
+- Blockers: none. Remaining = git re-push (ahead of origin, hardblock → user) + real-device touch/notch/URL-bar pass (emulator-only so far).
+- Next: `! git push`; optional polish (stat labels / other screens) on request.
 
 ## 2026-07-09 (live session) — opening/early-loop coherence fixes + prose naturalization + DEPLOYED rev 00026-s2g
 - Status: Done + **deployed to production**. `make check` 956 green throughout. Live CBT feedback pass (owner playtest) → 6 fixes, then the whole undeployed batch (DS0-DS3 · LC0-6 · S4 · P1.5 · these) shipped to Cloud Run **`mythos-api-00026-s2g`** (2026-07-09, `gcloud run deploy --source .`, env preserved MODEL=gemini-3.5-flash; smoke root=200). Rollout was no-downtime (old rev served until ready).

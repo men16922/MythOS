@@ -377,10 +377,15 @@ class RuntimeSessionService:
         party.setdefault("player_max_hp", max_hp)
         # First loop = a guided tutorial: Se-rin is the Connector's established first
         # guide (present in the opening), so she is the guaranteed starting party.
-        # Kai and the rest join *with narrative context* via their meet side-arcs
-        # (Kai stays an always-eligible tutorial companion) rather than being placed
-        # in the party out of nowhere — the party still varies run to run.
-        if int(getattr(meta_progression, "runs_completed", 0)) == 0 and not party.get("members"):
+        # Gate on loop_index (len(loops)==0 = the player's first loop), NOT
+        # runs_completed: a tester who abandons loops without archiving keeps
+        # runs_completed at 0, which used to re-seed Se-rin into EVERY loop's party
+        # even while `_select_opening_variant` (keyed on len(loops)) served a loop-2+
+        # variant opening — yielding a variant opening WITH a tutorial Se-rin in the
+        # party. Keying both on len(loops) removes that mismatch. Kai and the rest
+        # join with narrative context via their meet side-arcs; the party varies run
+        # to run.
+        if len(loops) == 0 and not party.get("members"):
             party["members"] = [{"id": "se_rin"}]
             flags = list(initial_state.get("flags", []) or [])
             for flag in ("met_se_rin", "tutorial_loop"):

@@ -716,6 +716,45 @@ class RunHistoryTest(unittest.TestCase):
         inventory_ids = [item["id"] for item in next_loop.state["_inventory"]]
         self.assertIn("memory_slip", inventory_ids)
 
+    def test_se_rin_starting_party_only_on_first_loop_not_replays(self) -> None:
+        # Se-rin is the guaranteed starting party ONLY on the player's first loop
+        # (len(loops)==0), matching `_select_opening_variant` (also keyed on
+        # len(loops)). A tester who abandons loops without archiving keeps
+        # runs_completed at 0; the old runs_completed==0 gate then re-seeded a
+        # tutorial Se-rin into every loop's party even as a loop-2+ variant opening
+        # played — a variant opening WITH Se-rin in the party (owner-reported).
+        now = datetime(2026, 6, 3, tzinfo=UTC)
+        store = _ArchiveStore()
+        store.create_player(
+            PlayerProfile(
+                player_id="player_1",
+                display_name="Connector",
+                created_at=now,
+                updated_at=now,
+            )
+        )
+
+        def _party_ids(loop: LoopState) -> list[Any]:
+            members = loop.state.get("_party", {}).get("members", []) or []
+            return [m.get("id") for m in members if isinstance(m, dict)]
+
+        first = (
+            RuntimeSessionService(store, director=None)
+            .start_loop("player_1", RuntimeOptions(fallback=True, scenario_id="neo-seoul"))
+            .loop
+        )
+        self.assertIn("se_rin", _party_ids(first))  # first loop = tutorial party
+
+        # start_loop persisted `first`, so the next start sees len(loops)==1 and
+        # must NOT re-seed Se-rin (runs_completed is still 0 — the old bug's trigger).
+        second = (
+            RuntimeSessionService(store, director=None)
+            .start_loop("player_1", RuntimeOptions(fallback=True, scenario_id="neo-seoul"))
+            .loop
+        )
+        self.assertEqual(second.state["meta_progression"]["runs_completed"], 0)
+        self.assertNotIn("se_rin", _party_ids(second))
+
     def test_save_slots_include_only_active_loops_and_resume_latest_slot(self) -> None:
         now = datetime(2026, 6, 3, tzinfo=UTC)
         store = _ArchiveStore()

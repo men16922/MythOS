@@ -452,9 +452,13 @@ class StatVoiceDirectiveParityTest(unittest.TestCase):
         notes = self._context_for("neo-seoul", "data-layer-01")
         banner = "=== 스탯 기반 내면 독백 지침 (DISCO ELYSIUM STYLE INNER MONOLOGUE) ==="
         self.assertIn(banner, notes)
-        # Max-stat note: agility (8), filled with its voice prose.
+        # Gating rule: stat voices only fire on this turn's choice stat-checks.
         self.assertTrue(
-            any("플레이어의 가장 뛰어난 특성은 민첩 (Agility) (수치: 8)" in n for n in notes)
+            any("해당 스탯 판정이 실제로 걸린 경우에만 등장" in n for n in notes)
+        )
+        # Max-stat coloring note: agility (8) sounds competent/confident.
+        self.assertTrue(
+            any("참고로 플레이어가 가장 뛰어난 특성은 민첩 (Agility) (수치: 8)이므로" in n for n in notes)
         )
         # Min-stat note: charisma (2), {name_first} → "매력".
         self.assertTrue(

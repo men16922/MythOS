@@ -439,7 +439,8 @@ class StoryBibleTest(unittest.TestCase):
         self.assertIn(
             "=== 스탯 기반 내면 독백 지침 (DISCO ELYSIUM STYLE INNER MONOLOGUE) ===", notes
         )
-        self.assertIn("플레이어의 가장 뛰어난 특성은 근력 (Strength) (수치: 8)입니다.", notes)
+        self.assertIn("해당 스탯 판정이 실제로 걸린 경우에만 등장", notes)
+        self.assertIn("참고로 플레이어가 가장 뛰어난 특성은 근력 (Strength) (수치: 8)이므로", notes)
         self.assertIn("플레이어의 가장 취약한 특성은 민첩 (Agility) (수치: 2)입니다.", notes)
 
     def test_runtime_context_includes_travel_and_emergency_encounters(self) -> None:

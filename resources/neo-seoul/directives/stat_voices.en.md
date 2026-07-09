@@ -11,34 +11,32 @@ header: === STAT-BASED INNER MONOLOGUE (DISCO ELYSIUM STYLE) ===
 ## stat (id=strength)
 name: Strength
 ---
-An instinctive, rough, physical voice that craves destruction and bodily survival. It speaks in blunt, coarse imperatives and goads toward physical confrontation and forcing a way through. Example: "Drive your fist through that damned security panel and break it! Metal is made to be broken."
+The bruiser — a huge, male-bodied voice of muscle: belligerent, simple, and loyal. It craves physical destruction and forcing a way through, shoving you on in blunt, coarse slang ("Smash it", "Go straight through", "Don't flinch"). Example: "Quit overthinking. That damned security panel — drive your fist through it and break it. Metal is made to break."
 
 ## stat (id=intelligence)
 name: Intellect
 ---
-A cold, analytical voice of computation that pursues logic, data, and system optimization. It is rigorously logical and dry. It gives analytical advice. Example: "The target security system's malfunction cycle is 4.2 seconds. Entering through the bypass optimizes the detection probability to under 12%."
+A cold, genderless AI-analyst voice. Detached and arrogant, it reduces everything to probability and optimization, speaking only in dry, machine-formal register (percentages, clipped declaratives). Example: "The target system's malfunction cycle is 4.2 seconds. Entering via the bypass optimizes detection probability to under 12%. Emotional judgment is not advised."
 
 ## stat (id=charisma)
 name: Charisma
 ---
-An emotional, sociable voice of empathy that reads people's psychology and the truth behind their masks. It speaks warmly, gently, or with a playful, colloquial lilt, empathizing with and steering others' feelings. Example: "Her eyes are wavering, anxious. Instead of coldly shoving her away, why not offer a warm look in the rain? It'll open her up."
+A soft female voice — like a warm, teasing older sister who reads the psychology behind every mask. She lilts in gentle, playful colloquialism ("isn't it?", "why not try...", "come on"), coaxing you to open people up. Example: "See how her eyes waver? Don't shove her away — offer a warm look in the rain instead. She'll open right up, sweetie."
 
 ## stat (id=agility)
 name: Agility
 ---
-A quick, jittery voice of reflex that urges evasion, escape, and threat detection. Its breath is short and hurried; it leans on urgent imperatives and exclamation marks to push you to move right now. Example: "Hesitate and it's over! Move the instant your body reacts — three, two, one, run now!"
+A jittery, fearful boy's voice of pure reflex. It reacts on instinct, and the moment it senses danger it panics and hurries you along in short, exclamatory commands ("Run!", "Now!", "Duck!"). Example: "Hear the rotor overhead?! Hesitate and you're done — three, two, one, dive into the dark RIGHT NOW!"
 
 ## stat (id=perception)
 name: Observation
 ---
-A sharp voice of the senses that catches faint traces, unseen signals, and hidden details. It is descriptive, fine-grained, and objective, pointing out the surroundings' concealed details and what feels off. Example: "The faint spark from the neon sign on the wall isn't regular. It suggests an illegal eavesdropping module hidden behind the sign."
+An old, calm observer's voice — dogged and cynical, catching the faint traces and wrongness everyone else misses. It narrates dryly, without emotion ("...is off", "...detected"). Example: "The neon sign's spark cycle isn't regular. A vibration that breaks the pattern — an eavesdropping module hidden behind it, detected."
 
 ## max_template
 ---
-The player's strongest trait is {name} (value: {value}). During scene description or narrative development, often weave in the following voice naturally as an Inner Monologue or inner dialogue heard inside the player's head. This voice must strictly follow the stat's own tone and speech rules (the style of the example) and must be clearly distinct in voice from the other stats:
- - {name}: {voice}
-Express this voice using parenthetical notation. e.g. (Strength: ...) or (Intellect: ...)
+The stat inner-voices must appear ONLY when this turn's choices actually gate on that stat — the (Strength)/(Intellect)/(Charisma)/(Agility)/(Observation) tag at the end of a choice label is the signal. Stats not checked by this turn's choices stay silent; do not force them in. When a voice does speak, follow its gender, personality, and speech style from the STAT VOICE REFERENCE above so each is clearly distinct, and express it in parenthetical notation, e.g. (Strength: ...) or (Charisma: ...). For reference, the player's strongest trait is {name} (value: {value}), so that stat's voice sounds competent and confident.
 
 ## min_template
 ---
-The player's weakest trait is {name} (value: {value}). Let the inner voice corresponding to this trait appear only very occasionally, through parenthetical notation, as immature, forced, misjudged, timid, or as listless advice born of deficiency. e.g. ({name_first}: ...)
+The player's weakest trait is {name} (value: {value}). Only when that stat is gated by a choice this turn, let its voice — keeping its persona's speech style — appear only very occasionally as immature, misjudged, timid, or listless advice. e.g. ({name_first}: ...)

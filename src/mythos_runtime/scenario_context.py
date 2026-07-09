@@ -174,37 +174,31 @@ NEO_SEOUL_NAMING_RULE = (
 DEFAULT_STAT_VOICES = StatVoices(
     header="=== 스탯 기반 내면 독백 지침 (DISCO ELYSIUM STYLE INNER MONOLOGUE) ===",
     max_template=(
-        "플레이어의 가장 뛰어난 특성은 {name} (수치: {value})입니다. "
-        "장면 묘사나 내러티브 전개 중에 종종 플레이어의 머릿속 혹은 내면에서 들려오는 독백(Inner Monologue)이나 내적 대화 형태로 "
-        "다음 목소리를 자연스럽게 주입하십시오. 특히 이 목소리는 스탯 고유의 어조와 어투 규칙(예시의 스타일)을 철저히 따라야 하며, 다른 스탯과 어투가 뚜렷이 구별되어야 합니다: \n"
-        " - {name}: {voice}\n"
-        "이 목소리는 괄호 표기법을 사용하여 표현해야 합니다. 예: (근력: ...) 또는 (지능: ...)"
+        "스탯 내면의 목소리는 이번 턴 당신이 제시하는 선택지 중 해당 스탯 판정이 실제로 걸린 경우에만 등장시키십시오 — 선택지 label 끝의 (근력)/(지능)/(매력)/(민첩)/(관측) 태그가 그 신호입니다. 이번 턴 선택지에 판정이 없는 스탯의 목소리는 침묵하며, 억지로 넣지 마십시오. 목소리를 넣을 때는 위 STAT VOICE REFERENCE의 성별·성격·말투를 철저히 지켜 서로 뚜렷이 구별되게 하고, 괄호 표기로 표현하십시오. 예: (근력: ...) 또는 (매력: ...). 참고로 플레이어가 가장 뛰어난 특성은 {name} (수치: {value})이므로, 그 스탯의 목소리는 유능하고 자신감 있게 들립니다."
     ),
     min_template=(
-        "플레이어의 가장 취약한 특성은 {name} (수치: {value})입니다. "
-        "이 특성에 대응하는 내면의 목소리는 미숙함, 억지, 잘못된 오판을 하거나 소심함, 혹은 결핍으로 인해 무기력한 충고를 던지는 형태로 괄호 표기법을 통해 아주 가끔 등장시켜 주십시오. "
-        "예: ({name_first}: ...)"
+        "플레이어의 가장 취약한 특성은 {name} (수치: {value})입니다. 그 스탯 판정이 이번 턴 선택지에 걸렸을 때에 한해, 그 목소리는 페르소나의 말투는 유지하되 미숙하거나 오판하거나 소심한, 무기력한 충고의 형태로 아주 가끔 등장시키십시오. 예: ({name_first}: ...)"
     ),
     descriptions={
         "strength": StatVoiceProfile(
             name="근력 (Strength)",
-            voice='본능적이고 거칠며 물리적 파괴와 신체적 생존을 자극하는 육체의 목소리. 투박한 반말과 거친 어조를 사용하며 물리적 충돌과 정면 돌파를 부추깁니다. 예시: "주먹으로 저 빌어먹을 보안 패널을 들이받아 부숴버려! 쇠붙이는 부서지게 되어 있다."',
+            voice='거구의 남성. 호전적이고 단순하며 의리로 움직이는 육체의 목소리. 물리적 파괴와 정면 돌파를 부추기고, 거칠고 투박한 반말("부숴", "정면으로 가", "쫄지 마")로 밀어붙인다. 예시: "잔머리 굴리지 마. 저 빌어먹을 보안 패널, 주먹으로 들이받아 부숴버려. 쇠붙이는 부서지게 되어 있어."',
         ),
         "intelligence": StatVoiceProfile(
             name="지능 (Intelligence)",
-            voice='냉정하고 분석적이며 논리와 데이터, 시스템 최적화를 추구하는 연산의 목소리. 철저히 논리적이고 건조한 기계식 종결어미(~다, ~하십시오)를 사용하며 분석적 조언을 제공합니다. 예시: "대상 보안 시스템의 오동작 주기는 4.2초입니다. 우회로 진입 시 발각 확률은 12% 미만으로 최적화됩니다."',
+            voice='감정이 배제된 중성적 AI 분석관의 목소리. 냉정하고 오만하며 모든 것을 확률과 최적화로 환산한다. 건조한 기계식 존댓말(~입니다, ~하십시오, 확률은 ~%)만 사용한다. 예시: "대상 보안 시스템의 오동작 주기는 4.2초입니다. 우회로 진입 시 발각 확률 12% 미만으로 최적화됩니다. 감정적 판단은 권장하지 않습니다."',
         ),
         "charisma": StatVoiceProfile(
             name="매력 (Charisma)",
-            voice='감정적이고 사교적이며 사람들의 심리와 가면 뒤의 진실을 읽는 감응의 목소리. 친근하고 부드럽거나 장난기 섞인 구어체 말투(~잖아, ~지 않아?, ~보렴)를 사용하며 타인의 감정에 공감하고 유도하는 조언을 합니다. 예시: "저 여자의 눈망울이 불안하게 흔들리고 있잖아. 차갑게 밀쳐내기보단 빗속에서 따스한 시선을 건네보는 게 어때? 마음을 열어줄 거야."',
+            voice='나긋한 여성의 목소리 — 다정한 누나처럼 능청스럽고 요염하며, 사람의 가면 뒤 심리를 읽어낸다. 부드럽고 장난기 섞인 구어체(~잖아, ~보렴, ~아니겠어?)로 상대의 마음을 파고들도록 유도한다. 예시: "저 사람 눈빛이 흔들리고 있잖아. 차갑게 밀쳐내지 말고, 빗속에서 따뜻한 눈길 한 번 건네보렴. 마음이 스르르 열릴 거야."',
         ),
         "agility": StatVoiceProfile(
             name="민첩 (Agility)",
-            voice='기민하고 신경질적이며 회피와 탈출, 위험 감지를 부추기는 반사의 목소리. 호흡이 짧고 급하며 다급한 명령형(~해, ~뛰어, ~서둘러!)과 느낌표를 다용하여 당장 움직이도록 다그칩니다. 예시: "망설이면 끝이다! 몸이 먼저 반응하는 대로 당장 움직여, 셋 둘 하나, 지금 뛰어!"',
+            voice='겁 많고 신경질적인 소년의 목소리. 본능과 반사로 먼저 반응하고, 위험을 감지하면 안절부절 다급하게 몰아붙인다. 호흡이 짧고 명령형과 느낌표를 쏟아낸다("뛰어!", "지금!", "숙여!"). 예시: "머리 위 로터 소리 안 들려?! 망설이면 끝장이야, 셋 둘 하나— 지금 당장 어둠 속으로 뛰어들어!"',
         ),
         "perception": StatVoiceProfile(
             name="관측 (Perception)",
-            voice='예리하고 미세한 흔적과 보이지 않는 신호, 감춰진 디테일을 포착하는 감각의 목소리. 묘사적이고 세밀하며 객관적인 어조(~다, ~을 포착함)를 사용하며 주변의 숨겨진 디테일과 이질감을 짚어냅니다. 예시: "벽면 네온 간판의 미세한 스파크 소리가 규칙적이지 않다. 간판 뒤에 불법 도청 모듈이 숨겨져 있음을 시사한다."',
+            voice='늙고 침착한 관찰자의 목소리. 집요하고 냉소적이며, 남들이 놓친 미세한 흔적과 이질감을 짚어낸다. 감정 없이 건조하게 서술한다(~다, ~을 포착함, ~이 어긋난다). 예시: "벽면 네온 간판의 스파크 주기가 일정하지 않다. 규칙에서 어긋나는 진동 — 간판 뒤에 도청 모듈이 숨어 있음을 포착함."',
         ),
     },
 )
@@ -244,39 +238,31 @@ DEFAULT_ENCOUNTERS = Encounters(
 DEFAULT_STAT_VOICES_EN = StatVoices(
     header="=== STAT-BASED INNER MONOLOGUE (DISCO ELYSIUM STYLE) ===",
     max_template=(
-        "The player's strongest trait is {name} (value: {value}). During scene description or "
-        "narrative development, often weave in the following voice naturally as an Inner Monologue "
-        "or inner dialogue heard inside the player's head. This voice must strictly follow the "
-        "stat's own tone and speech rules (the style of the example) and must be clearly distinct "
-        "in voice from the other stats: \n"
-        " - {name}: {voice}\n"
-        "Express this voice using parenthetical notation. e.g. (Strength: ...) or (Intellect: ...)"
+        "The stat inner-voices must appear ONLY when this turn's choices actually gate on that stat — the (Strength)/(Intellect)/(Charisma)/(Agility)/(Observation) tag at the end of a choice label is the signal. Stats not checked by this turn's choices stay silent; do not force them in. When a voice does speak, follow its gender, personality, and speech style from the STAT VOICE REFERENCE above so each is clearly distinct, and express it in parenthetical notation, e.g. (Strength: ...) or (Charisma: ...). For reference, the player's strongest trait is {name} (value: {value}), so that stat's voice sounds competent and confident."
     ),
     min_template=(
-        "The player's weakest trait is {name} (value: {value}). Let the inner voice corresponding "
-        "to this trait appear only very occasionally, through parenthetical notation, as immature, "
-        "forced, misjudged, timid, or as listless advice born of deficiency. e.g. ({name_first}: ...)"
+        "The player's weakest trait is {name} (value: {value}). Only when that stat is gated by a choice this turn, let its voice — keeping its persona's speech style — appear only very occasionally as immature, misjudged, timid, or listless advice. e.g. ({name_first}: ...)"
     ),
     descriptions={
         "strength": StatVoiceProfile(
             name="Strength",
-            voice='An instinctive, rough, physical voice that craves destruction and bodily survival. It speaks in blunt, coarse imperatives and goads toward physical confrontation and forcing a way through. Example: "Drive your fist through that damned security panel and break it! Metal is made to be broken."',
+            voice='The bruiser — a huge, male-bodied voice of muscle: belligerent, simple, and loyal. It craves physical destruction and forcing a way through, shoving you on in blunt, coarse slang ("Smash it", "Go straight through", "Don\'t flinch"). Example: "Quit overthinking. That damned security panel — drive your fist through it and break it. Metal is made to break."',
         ),
         "intelligence": StatVoiceProfile(
             name="Intellect",
-            voice='A cold, analytical voice of computation that pursues logic, data, and system optimization. It is rigorously logical and dry. It gives analytical advice. Example: "The target security system\'s malfunction cycle is 4.2 seconds. Entering through the bypass optimizes the detection probability to under 12%."',
+            voice='A cold, genderless AI-analyst voice. Detached and arrogant, it reduces everything to probability and optimization, speaking only in dry, machine-formal register (percentages, clipped declaratives). Example: "The target system\'s malfunction cycle is 4.2 seconds. Entering via the bypass optimizes detection probability to under 12%. Emotional judgment is not advised."',
         ),
         "charisma": StatVoiceProfile(
             name="Charisma",
-            voice='An emotional, sociable voice of empathy that reads people\'s psychology and the truth behind their masks. It speaks warmly, gently, or with a playful, colloquial lilt, empathizing with and steering others\' feelings. Example: "Her eyes are wavering, anxious. Instead of coldly shoving her away, why not offer a warm look in the rain? It\'ll open her up."',
+            voice='A soft female voice — like a warm, teasing older sister who reads the psychology behind every mask. She lilts in gentle, playful colloquialism ("isn\'t it?", "why not try...", "come on"), coaxing you to open people up. Example: "See how her eyes waver? Don\'t shove her away — offer a warm look in the rain instead. She\'ll open right up, sweetie."',
         ),
         "agility": StatVoiceProfile(
             name="Agility",
-            voice='A quick, jittery voice of reflex that urges evasion, escape, and threat detection. Its breath is short and hurried; it leans on urgent imperatives and exclamation marks to push you to move right now. Example: "Hesitate and it\'s over! Move the instant your body reacts — three, two, one, run now!"',
+            voice='A jittery, fearful boy\'s voice of pure reflex. It reacts on instinct, and the moment it senses danger it panics and hurries you along in short, exclamatory commands ("Run!", "Now!", "Duck!"). Example: "Hear the rotor overhead?! Hesitate and you\'re done — three, two, one, dive into the dark RIGHT NOW!"',
         ),
         "perception": StatVoiceProfile(
             name="Observation",
-            voice='A sharp voice of the senses that catches faint traces, unseen signals, and hidden details. It is descriptive, fine-grained, and objective, pointing out the surroundings\' concealed details and what feels off. Example: "The faint spark from the neon sign on the wall isn\'t regular. It suggests an illegal eavesdropping module hidden behind the sign."',
+            voice='An old, calm observer\'s voice — dogged and cynical, catching the faint traces and wrongness everyone else misses. It narrates dryly, without emotion ("...is off", "...detected"). Example: "The neon sign\'s spark cycle isn\'t regular. A vibration that breaks the pattern — an eavesdropping module hidden behind it, detected."',
         ),
     },
 )

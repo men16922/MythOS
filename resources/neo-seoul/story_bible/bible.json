@@ -43,7 +43,8 @@
           "connect",
           "explore"
         ],
-        "turn_max": 6
+        "turn_max": 6,
+        "opening_variant": "default"
       },
       "priority": 20,
       "token_budget": 330,
@@ -65,7 +66,8 @@
           "explore"
         ],
         "turn_min": 1,
-        "turn_max": 8
+        "turn_max": 8,
+        "opening_variant": "default"
       },
       "priority": 18,
       "token_budget": 300,

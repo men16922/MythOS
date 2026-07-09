@@ -128,6 +128,82 @@ class StoryBibleTest(unittest.TestCase):
 
         self.assertEqual([entry.entry_id for entry in entries], ["se_rin", "market"])
 
+    def test_opening_variant_gate_excludes_default_only_entries_on_variant_loops(self) -> None:
+        # An entry tagged `opening_variant` applies only when THIS loop's
+        # `_opening_variant` is in that set. Generic mechanism check.
+        bible = StoryBible(
+            scenario_id="test",
+            title="Test",
+            premise="",
+            entries=[
+                StoryBibleEntry(
+                    entry_id="default_opening",
+                    kind="act",
+                    title="Default opening",
+                    summary="se-rin rescue",
+                    content="se-rin rescue content",
+                    when={"phase": ["connect"], "opening_variant": "default"},
+                    priority=10,
+                ),
+                StoryBibleEntry(
+                    entry_id="always",
+                    kind="note",
+                    title="Always",
+                    summary="canon",
+                    content="canon content",
+                    when={"phase": ["connect"]},
+                    priority=5,
+                ),
+            ],
+        )
+
+        def ids(variant: str) -> list[str]:
+            loop = LoopState(
+                loop_id="l",
+                player_id="p",
+                seed="s",
+                phase=LoopPhase.CONNECT,
+                location_id="c-17",
+                stability=80,
+                tension=20,
+                started_at=datetime(2026, 5, 31, tzinfo=UTC),
+                state={"_opening_variant": variant},
+            )
+            return [e.entry_id for e in select_story_bible_entries(bible, loop, turn_index=0)]
+
+        # default (loop 1 / tutorial): the Se-rin opening entry is present.
+        self.assertIn("default_opening", ids("default"))
+        # a loop-2+ variant opening: it is excluded (its own directive owns the
+        # scene and forbids Se-rin), while untagged entries still apply.
+        self.assertNotIn("default_opening", ids("han"))
+        self.assertIn("always", ids("han"))
+
+    def test_neo_seoul_act1_opening_bible_is_default_variant_gated(self) -> None:
+        # Regression: the real neo-seoul act-1 opening entries hardcode Se-rin's
+        # rescue; on a loop-2+ variant (han/kai/…) they must NOT be selected, or
+        # they override the variant directive and Se-rin leaks into a non-Se-rin
+        # opening (owner-reported 2026-07-09).
+        bible = load_story_bible("neo-seoul", "ko")
+
+        def opening_ids(variant: str, turn_index: int) -> set[str]:
+            loop = LoopState(
+                loop_id="l",
+                player_id="p",
+                seed="s",
+                phase=LoopPhase.CONNECT,
+                location_id="c-17",
+                stability=80,
+                tension=20,
+                started_at=datetime(2026, 5, 31, tzinfo=UTC),
+                state={"_opening_variant": variant},
+            )
+            return {e.entry_id for e in select_story_bible_entries(bible, loop, turn_index=turn_index)}
+
+        self.assertIn("act1_c17_blackout", opening_ids("default", 0))
+        for variant in ("han", "kai", "tae_o", "solo"):
+            self.assertNotIn("act1_c17_blackout", opening_ids(variant, 0))
+            self.assertNotIn("act1_first_moral_cut", opening_ids(variant, 2))
+
     def test_story_bible_notes_are_prompt_ready(self) -> None:
         note = story_bible_notes(
             [

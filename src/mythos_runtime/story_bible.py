@@ -129,6 +129,21 @@ def _entry_score(entry: StoryBibleEntry, loop: LoopState, turn_index: int) -> in
     when = entry.when
     score = entry.priority
 
+    # Opening-variant gate: an entry tagged `opening_variant` applies only when
+    # THIS loop's opening variant is in that set. The default Se-rin act-1 bible
+    # (act1_c17_blackout / act1_first_moral_cut) is tagged "default" so it stays
+    # OUT of a loop-2+ variant opening (han/kai/…), whose own directive owns the
+    # scene and forbids Se-rin — otherwise the bible's concrete "정세린의 구조"
+    # beat overrides that directive and Se-rin leaks in. Additive: entries with
+    # no `opening_variant` are unaffected.
+    variant_gate = _lower_set(when.get("opening_variant"))
+    if variant_gate:
+        state = loop.state if isinstance(loop.state, dict) else {}
+        loop_variant = str(state.get("_opening_variant") or "default").lower()
+        if loop_variant not in variant_gate:
+            return None
+        score += 3
+
     phases = _lower_set(when.get("phase"))
     if phases:
         phase = loop.phase.value if isinstance(loop.phase, LoopPhase) else str(loop.phase)

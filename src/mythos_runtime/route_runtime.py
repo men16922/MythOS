@@ -30,6 +30,24 @@ from typing import Any
 from mythos_core.dice import Dice
 from mythos_runtime.route_map import ROUTE_MAP_KEY
 
+# Deterministic play-style → axis-intent flags. Each selected perspective carries
+# an ``axis`` (people/control/evidence/safety); the running tally of those axes
+# crosses a threshold and DETERMINISTICALLY sets the intent flag that downstream
+# perspective / story-bible / ending gates consume. Before this these flags were
+# never produced (and never surfaced to the LLM), so almost every anchor fell
+# back to its ``default_perspective`` no matter how the player played — the whole
+# choice→consequence system was dormant. Emission is progressive within a route
+# walk so an accumulated leaning shapes the perspective chosen at later anchors.
+# ``destruction_will`` is intentionally left unset — its only consumer,
+# ``p_demolish``, is already reachable via the engine-produced ``high_tension``.
+_AXIS_INTENT_FLAG = {
+    "people": "humanity_first",
+    "control": "dominance_focus",
+    "evidence": "insight_focus",
+    "safety": "stability_focus",
+}
+_AXIS_INTENT_THRESHOLD = 2
+
 # How many player turns are spent before the route advances one layer. Tunable;
 # kept small so the boss/ending is reachable within a typical session.
 # Story turns the route lingers on each layer. Raised 4→5 (2026-07-04 live
@@ -119,6 +137,7 @@ def advance_route(
     active: dict[str, str] = {}
     tally: dict[str, int] = {}
     rel_tally: dict[str, int] = {}
+    axis_tally: dict[str, int] = {}
     party_add: set[str] = set()
     flag_set = set(flags)
     for node_id in visited:
@@ -156,6 +175,15 @@ def advance_route(
             party_add.update(str(member) for member in effect.get("party_add", []) or [])
         for ending in chosen.get("ending_influence", []) or []:
             tally[str(ending)] = tally.get(str(ending), 0) + 1
+        # Deterministic play-style accrual: tally this perspective's axis and, on
+        # crossing the threshold, set its intent flag so later anchors in this
+        # same walk (and downstream bible/ending gates) actually react to how the
+        # player has been playing instead of always falling to the default lens.
+        axis = chosen.get("axis")
+        if isinstance(axis, str) and axis in _AXIS_INTENT_FLAG:
+            axis_tally[axis] = axis_tally.get(axis, 0) + 1
+            if axis_tally[axis] >= _AXIS_INTENT_THRESHOLD:
+                flag_set.add(_AXIS_INTENT_FLAG[axis])
 
     leaderboard = sorted(tally.items(), key=lambda kv: (-kv[1], kv[0]))
     new_route_map = {
@@ -167,6 +195,7 @@ def advance_route(
         "ending_tally": tally,
         "ending_leaderboard": [list(item) for item in leaderboard],
         "relationship_tally": rel_tally,
+        "axis_tally": axis_tally,
         "preferred_next": None,  # consumed
     }
     new_state = dict(state)

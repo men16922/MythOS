@@ -527,3 +527,47 @@ class RouteDirectorNotesTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AxisIntentFlagTest(unittest.TestCase):
+    """Deterministic play-style → axis-intent flags (route_runtime).
+
+    Selected perspectives carry an axis (people/control/evidence/safety); once an
+    axis is tallied >= threshold the mapped intent flag (humanity_first/…) is set
+    deterministically, waking the previously-dormant perspective/bible/ending
+    gates that consume it.
+    """
+
+    def test_people_path_sets_humanity_first_deterministically(self) -> None:
+        from mythos_runtime.route_runtime import _AXIS_INTENT_FLAG, _AXIS_INTENT_THRESHOLD
+
+        # The trusted-Se-rin path selects people-axis default perspectives
+        # (p_trust/p_fair/p_rescue …); after >= threshold, humanity_first is set.
+        state = _state("seed", ["met_se_rin", "trusted_se_rin"])
+        late = advance_route(state, turn_index=DEFAULT_TURNS_PER_LAYER * 4, seed="seed")
+        rm = late[ROUTE_MAP_KEY]
+        axis_tally = rm.get("axis_tally", {})
+        self.assertTrue(axis_tally, "no axis accrued along the path")
+        self.assertGreaterEqual(axis_tally.get("people", 0), _AXIS_INTENT_THRESHOLD)
+        self.assertIn("humanity_first", late["flags"])
+        # Every axis at/over threshold must have set its intent flag; none below.
+        for axis, count in axis_tally.items():
+            flag = _AXIS_INTENT_FLAG.get(axis)
+            if flag is None:
+                continue
+            if count >= _AXIS_INTENT_THRESHOLD:
+                self.assertIn(flag, late["flags"])
+
+    def test_axis_intent_emission_is_reproducible(self) -> None:
+        a = advance_route(
+            _state("seed", ["met_se_rin", "trusted_se_rin"]),
+            turn_index=DEFAULT_TURNS_PER_LAYER * 4,
+            seed="seed",
+        )
+        b = advance_route(
+            _state("seed", ["met_se_rin", "trusted_se_rin"]),
+            turn_index=DEFAULT_TURNS_PER_LAYER * 4,
+            seed="seed",
+        )
+        self.assertEqual(a["flags"], b["flags"])
+        self.assertEqual(a[ROUTE_MAP_KEY]["axis_tally"], b[ROUTE_MAP_KEY]["axis_tally"])

@@ -18,9 +18,64 @@ function keywordMatches(haystack: string, rawKeyword: string): boolean {
   return haystack.includes(keyword);
 }
 
-// 현재 장면에 명확히 등장한 대화 상대를 키워드로 탐지한다.
-// 시장 노드에서는 벤더(예: 린위에)가 장면의 "상대"이므로, 서사에 등장했다면
-// 레지스트리 순서(세린 우선)보다 벤더를 먼저 보여준다.
+// Quote pairs the narration uses for spoken lines. Korean prose also uses
+// single quotes for term emphasis ('최적화', '비식별 신호'), so a quoted span
+// only counts as dialogue when it reads like a sentence (see SPEECH_PUNCTUATION).
+const QUOTE_PAIRS: ReadonlyArray<readonly [string, string]> = [
+  ["“", "”"], // “ ”
+  ["‘", "’"], // ‘ ’
+  ['"', '"'],
+  ["'", "'"],
+  ["「", "」"],
+  ["『", "』"],
+];
+
+const SPEECH_PUNCTUATION = /[.!?…~—]/;
+
+interface ParagraphSpeech {
+  /** Paragraph contains at least one sentence-like quoted span (spoken line). */
+  hasDialogue: boolean;
+  /** Paragraph text with every quoted span removed — the attribution text
+   * ("세린이 속삭였다") where the speaker's name lives. Names that appear only
+   * inside someone else's quote don't count as the speaker. */
+  outsideQuotes: string;
+}
+
+function analyzeParagraph(paragraph: string): ParagraphSpeech {
+  let outside = "";
+  let hasDialogue = false;
+  let i = 0;
+  while (i < paragraph.length) {
+    const ch = paragraph[i];
+    const pair = QUOTE_PAIRS.find(([open]) => open === ch);
+    if (pair) {
+      const end = paragraph.indexOf(pair[1], i + 1);
+      if (end > i) {
+        if (SPEECH_PUNCTUATION.test(paragraph.slice(i + 1, end))) hasDialogue = true;
+        i = end + 1;
+        continue;
+      }
+    }
+    outside += ch;
+    i += 1;
+  }
+  return { hasDialogue, outsideQuotes: outside };
+}
+
+// 현재 장면에서 "말하고 있는" 대화 상대를 탐지한다.
+//
+// DIALOGUE GATE (owner rule 2026-07-11): a character's portrait shows ONLY when
+// that character has a spoken line this scene — a passing mention is not
+// presence. The old any-mention match over title+location+narration+visual_brief
+// produced two false-positive classes (owner screenshots 2026-07-11):
+//  - absent-character mentions: "정세린의 숨겨진 과거 … 그녀의 서명" (a document
+//    ABOUT her) showed her portrait though she isn't in the scene;
+//  - hidden-text hits: visual_brief is an English image prompt the player never
+//    sees, so "kai"/"rx-09" in it flashed Kai's portrait with zero on-screen text.
+// Now we scan narration only, paragraph by paragraph: the character must be
+// named in the attribution text of a paragraph that carries a spoken line.
+// 시장 노드의 벤더는 예외(결정론적) — 흥정 도크가 열려 있는 동안 그 노드의
+// "상대"는 벤더이므로 프롬프트가 이름을 생략해도 벤더를 보여준다.
 export function detectSceneCharacter(
   snapshot: RuntimeSnapshot | null,
   characters?: ScenarioCharacter[]
@@ -28,13 +83,6 @@ export function detectSceneCharacter(
   if (!characters || characters.length === 0) return null;
   const scene = snapshot?.active_scene;
   if (!scene) return null;
-  const haystack = `${scene.title} ${scene.location} ${scene.narration} ${
-    scene.visual_brief || ""
-  }`.toLowerCase();
-
-  const matches = (character: ScenarioCharacter) =>
-    Boolean(character.portrait) &&
-    character.keywords.some((kw) => keywordMatches(haystack, kw));
 
   const vendorName = snapshot?.market?.vendor?.name?.toLowerCase();
   if (vendorName) {
@@ -47,6 +95,19 @@ export function detectSceneCharacter(
     );
     if (vendor) return vendor;
   }
+
+  const speakerHaystacks = (scene.narration || "")
+    .split(/\n+/)
+    .map(analyzeParagraph)
+    .filter((p) => p.hasDialogue)
+    .map((p) => p.outsideQuotes.toLowerCase());
+  if (speakerHaystacks.length === 0) return null;
+
+  const matches = (character: ScenarioCharacter) =>
+    Boolean(character.portrait) &&
+    speakerHaystacks.some((haystack) =>
+      character.keywords.some((kw) => keywordMatches(haystack, kw))
+    );
 
   for (const character of characters) {
     if (matches(character)) return character;

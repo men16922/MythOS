@@ -1042,15 +1042,16 @@ class CharacterDetectionKeywordIntegrityTest(unittest.TestCase):
     """Portrait-detection keywords must be character-specific, not ambient nouns.
 
     ``detectSceneCharacter`` (frontend ``sceneCharacter.ts``) shows a character's
-    portrait whenever any ``characters[].keyword`` appears in the scene text
-    (title + location + narration + visual_brief). A keyword that is a generic
-    role common-noun therefore fires a false-positive: e.g. tae_o's ``사냥개``
-    ("hound") matched ambient narration describing IX's pursuit on the Han route,
-    so his portrait flashed in and out although he was never in the scene
-    (owner-reported 2026-07-10). Names/aliases/nicknames stay specific
-    (``물거미``/``신호 파괴자``/``rx-09``); this denylist bars the common nouns
-    that collide with ordinary prose. Exact-match, so multi-word keys like
-    ``관리자 ix`` are unaffected.
+    portrait when a ``characters[].keyword`` appears in the attribution text of a
+    narration paragraph that carries a spoken line (dialogue gate, 2026-07-11 —
+    locked by ``test_scene_character_dialogue_gate.py``). A keyword that is a
+    generic role common-noun can still fire a false-positive inside such a
+    paragraph: e.g. tae_o's ``사냥개`` ("hound") matched ambient narration
+    describing IX's pursuit on the Han route, so his portrait flashed in and out
+    although he was never in the scene (owner-reported 2026-07-10).
+    Names/aliases/nicknames stay specific (``물거미``/``신호 파괴자``/``rx-09``);
+    this denylist bars the common nouns that collide with ordinary prose.
+    Exact-match, so multi-word keys like ``관리자 ix`` are unaffected.
     """
 
     # Common nouns the LLM narration routinely uses for ambience/enemies. A

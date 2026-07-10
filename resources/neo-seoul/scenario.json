@@ -549,7 +549,7 @@
       },
       "patrol": {
         "label": "순찰",
-        "description": "감시를 피해 조용히 지나가는 길입니다.",
+        "description": "감시망을 은밀히 파고드는 지름길이지만, 순찰과 마주쳐 매복·교전에 휘말릴 위험이 크다.",
         "glyph": "◎",
         "risk": 2,
         "combat": true,

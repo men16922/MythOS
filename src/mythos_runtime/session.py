@@ -3495,14 +3495,15 @@ def _route_choice_badges(node: dict[str, Any]) -> str:
     parts: list[str] = []
     reward_raw = node.get("reward")
     reward: dict[str, Any] = reward_raw if isinstance(reward_raw, dict) else {}
+    # Costs first (so heat never reads as a reward), then gains.
     if node.get("risk"):
         parts.append(f"위험 {node.get('risk')}")
+    if reward.get("tension"):
+        parts.append(f"추적도 +{reward['tension']} ⚠")
     if reward.get("insight"):
         parts.append(f"통찰 +{reward['insight']}")
     if reward.get("stability"):
         parts.append(f"안정 +{reward['stability']}")
-    if reward.get("tension"):
-        parts.append(f"추적 +{reward['tension']}")
     return " · ".join(parts)
 
 
@@ -3516,7 +3517,7 @@ _ROUTE_TYPE_MEANING = {
     "rest": "정비·회복으로 다음 전투에 대비하는 곳",
     "clue": "단서를 캐내 진실에 다가가는 곳",
     "event": "예기치 못한 사건이 벌어지는 곳",
-    "patrol": "조용히 이동하는, 조우가 적은 경로",
+    "patrol": "감시망을 은밀히 파고드는 지름길 — 순찰 매복·교전 위험이 크다",
     "combat": "교전이 기다리는 경로",
 }
 

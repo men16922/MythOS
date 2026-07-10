@@ -2,7 +2,7 @@
   "scenario_id": "neo-seoul",
   "name": "Neo-Seoul: 접속 (접속자 각성)",
   "version": "2.0.0",
-  "brief": "WORLD: Neo-Seoul. 폐허 위에 ARK가 재건한 효율 절대주의 도시. \nPREMISE: 당신은 시스템의 통제를 벗어난 '비식별 신호'입니다. \nTONE: 인간찬가, Y2K 디지털 잔향, 처절한 저항. \nPHILOSOPHY: 살아남는 것은 선택이지만, 사람이 되는 것은 결단입니다.",
+  "brief": "WORLD: Neo-Seoul. 폐허 위에 ARK가 재건한 효율 절대주의 도시. \nPREMISE: 당신은 시스템의 통제를 벗어난 '비식별 신호'입니다. \nTONE: 인간찬가, Y2K 디지털 여운, 처절한 저항. \nPHILOSOPHY: 살아남는 것은 선택이지만, 사람이 되는 것은 결단입니다.",
   "character_map": {
     "se-rin": "characters/se-rin.png",
     "kai": "characters/kai.png",
@@ -92,8 +92,8 @@
     {
       "id": "administrator_ix",
       "name": "관리자 IX",
-      "alias": "Control Net",
-      "role": "ARK 관리망",
+      "alias": "관리망의 목소리",
+      "role": "재건기구 ARK의 관리 지능 — 관리망이 말할 때 쓰는 하나의 인격",
       "image": "characters/administrator-ix.png",
       "keywords": [
         "관리자 ix",
@@ -1758,7 +1758,7 @@
     "intro_logo": "PROJECT MYTHOS",
     "key_art": "concept/00-project-mythos-main.png",
     "signal_title": "NEO-SEOUL // UNREGISTERED SIGNAL",
-    "signal_body": "동북아 전쟁 이후, 폐허의 도시들은 재건기구 ARK의 예측 엔진 위에서 다시 태어났다. Neo-Seoul의 시민은 이름보다 먼저 점수로 식별되고, 기준에서 벗어난 기억은 조용히 최적화된다. 방금, 관리망의 검은 층 아래에서 어떤 명단에도 없는 접속 신호가 깨어났다. 발신자는 미확인. 세계는 아직 당신을 설명하지 못한다.",
+    "signal_body": "동북아 전쟁 이후, 폐허의 도시들은 재건기구 ARK의 예측 엔진 위에서 다시 태어났다. Neo-Seoul의 시민은 이름보다 먼저 점수로 식별되고, 기준에서 벗어난 기억은 조용히 최적화된다. 방금, 관리망의 검은 층 아래에서 어떤 명단에도 없는 '비식별 신호' 하나가 깨어났다 — 시스템은 신호로 읽지만, 눈을 뜬 것은 사람이다. 세계는 아직 당신을 설명하지 못한다.",
     "signal_lines": [
       "01001101 10011000 00101110  SIGNAL LOST",
       "ARK://CITIZEN-SCORE/NULL  CLASS: UNREGISTERED",
@@ -1789,7 +1789,7 @@
     "session_intro": {
       "kicker": "OPENING SEQUENCE",
       "title": "첫 접속 — C-17 정전",
-      "body": "당신은 어떤 명단에도 없는 비식별 신호다. 관리자 IX는 기준에서 벗어난 당신을 기억째 지우려 한다.",
+      "body": "당신은 이 도시의 어떤 명단에도 오르지 않은 사람 — 시스템은 당신을 '비식별 신호'로만 읽는다. 재건기구 ARK의 관리 지능 '관리자 IX'가 기준에서 벗어난 당신을 기억째 지우려 한다.",
       "rules": [
         "정전의 틈이 벌어진 젖은 거리에서 홀로 눈을 뜬다.",
         "드론의 붉은 빛이 가까워질 때, 한 라이더가 먼저 당신을 찾아낸다.",

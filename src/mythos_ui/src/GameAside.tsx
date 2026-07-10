@@ -444,9 +444,14 @@ export function StatusPanel({ snapshot }: { snapshot: RuntimeSnapshot | null }) 
       {snapshot && gaugesConfig && (
         <>
           <div className="hud-meta">
-            {t("aside.status.loop")} <b>{snapshot.loop_id || "—"}</b> · {t("aside.status.phase")}{" "}
-            <b>{snapshot.phase || "—"}</b> · {t("aside.status.location")}{" "}
-            <b>{snapshot.location || "—"}</b>
+            {/* The raw loop UUID + English phase enum are dev/tester context; on a
+               phone they read as noise (real-device feedback 2026-07-10 "UI 난해").
+               Hidden on coarse pointer, kept on desktop. Location stays for players. */}
+            <span className="hud-meta-dev">
+              {t("aside.status.loop")} <b>{snapshot.loop_id || "—"}</b> · {t("aside.status.phase")}{" "}
+              <b>{snapshot.phase || "—"}</b> ·{" "}
+            </span>
+            {t("aside.status.location")} <b>{snapshot.location || "—"}</b>
           </div>
 
           {snapshot.state?._loop_modifier?.name && (

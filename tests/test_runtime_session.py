@@ -1585,6 +1585,108 @@ class ArchiveRollupTest(unittest.TestCase):
         self.assertEqual(updated_loop.stability, 15)
         self.assertEqual(updated_loop.tension, 60)
 
+    def test_stream_choose_defers_image_until_after_snapshot(self) -> None:
+        # Regression for the prod "choices are late / turn hangs" issue (2026-07-10):
+        # the scene image used to be generated INSIDE _commit_scene, so the
+        # choices-carrying snapshot only shipped after the ~6-15s (p50/max) image
+        # gen. The streaming path now defers the image — the snapshot yields first,
+        # then the image is generated and returned as a trailing ``visual`` event.
+        now = datetime(2026, 7, 10, tzinfo=UTC)
+        store = _ArchiveStore()
+        store.create_player(
+            PlayerProfile(
+                player_id="player_1",
+                display_name="Connector",
+                created_at=now,
+                updated_at=now,
+            )
+        )
+        store.save_loop(
+            LoopState(
+                loop_id="loop_1",
+                player_id="player_1",
+                seed="seed_1",
+                phase=LoopPhase.EXPLORE,
+                location_id="catalog-hall",
+                stability=60,
+                tension=20,
+                started_at=now,
+                state={"scenario_id": "glass-library"},
+            )
+        )
+        store.save_scene(
+            Scene(
+                scene_id="scene_1",
+                loop_id="loop_1",
+                turn_index=0,
+                title="갈림길",
+                location="catalog-hall",
+                narration="갈림길이 나타났다.",
+                choices=[Choice(choice_id="go", label="전진", intent="explore")],
+                visual_brief="",
+                created_at=now,
+            )
+        )
+
+        class _FakeStreamDirector:
+            def stream_next_scene(self, context):
+                from mythos_narrative import NarrativeStreamEvent, ScenePayload
+
+                payload = ScenePayload(
+                    title="다음 씬",
+                    location="catalog-hall",
+                    narration="진행했다.",
+                    choices=[Choice(choice_id="dummy", label="계속", intent="explore")],
+                    visual_brief="",
+                )
+                scene = Scene(
+                    scene_id="scene_2",
+                    loop_id="loop_1",
+                    turn_index=1,
+                    title="다음 씬",
+                    location="catalog-hall",
+                    narration="진행했다.",
+                    choices=[Choice(choice_id="dummy", label="계속", intent="explore")],
+                    visual_brief="",
+                    created_at=now,
+                )
+                yield NarrativeStreamEvent(kind="text", text=scene.narration)
+                yield NarrativeStreamEvent(kind="final", scene=scene, payload=payload)
+
+        service = RuntimeSessionService(store, director=cast(Any, _FakeStreamDirector()))
+
+        # Record the committed latest scene at image-gen time: proves the image is
+        # generated only AFTER scene_2 is committed (i.e. after the snapshot yields).
+        sentinel = cast(Any, object())
+        gen_calls: list[str | None] = []
+
+        def _fake_gen(options, loop, scene, player_id):
+            latest = store.get_latest_scene("loop_1")
+            gen_calls.append(latest.scene_id if latest else None)
+            return sentinel
+
+        service._maybe_generate_image = _fake_gen  # type: ignore[assignment,method-assign]
+
+        events = list(
+            service.stream_choose(
+                "loop_1", choice_id="go", options=RuntimeOptions(with_image=True)
+            )
+        )
+
+        # Image generated exactly once, after scene_2 was committed.
+        self.assertEqual(gen_calls, ["scene_2"])
+        # The choices-carrying snapshot ships first, with NO inline image.
+        final_events = [e for e in events if e.kind == "final"]
+        self.assertEqual(len(final_events), 1)
+        final_snapshot = final_events[0].snapshot
+        assert final_snapshot is not None  # mypy narrowing
+        self.assertIsNone(final_snapshot.image_result)
+        # The image trails as the final ``visual`` event.
+        self.assertEqual(events[-1].kind, "visual")
+        self.assertIs(events[-1].visual, sentinel)
+        # REST / non-streaming callers must NOT defer (they keep the inline image).
+        self.assertFalse(RuntimeOptions().defer_image)
+
 
 def _at(base, offset_seconds):
     from datetime import timedelta

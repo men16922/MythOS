@@ -104,10 +104,14 @@ export function useSnapshotReceiver(args: UseSnapshotReceiverArgs) {
       const hasCuratedImage = Boolean(
         snap.state?._active_cutscene?.image || (currentNode?.anchor && currentNode?.image)
       );
+      // Deferred-image streaming (2026-07-10): the scene image is now generated
+      // AFTER the snapshot ships and arrives via a trailing visual_status frame,
+      // so a non-curated with-image turn has an image *incoming* — show "준비 중"
+      // rather than "미생성" (which read as "no image" while one was generating).
       setImagePlaceholderText(
         hasCuratedImage
           ? DICTS[getLang()]["img.curatedPreferred"]
-          : DICTS[getLang()]["img.notGenerated"]
+          : DICTS[getLang()]["img.preparing"]
       );
     }
     loadSlotsAndRuns(snap.player?.player_id || playerId || "");

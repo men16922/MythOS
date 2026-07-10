@@ -6,8 +6,9 @@ import { useLang } from "./i18n/lang";
 const STAT_LABEL: Record<string, { ko: string; en: string }> = {
   strength: { ko: "근력", en: "STR" },
   agility: { ko: "민첩", en: "AGI" },
-  perception: { ko: "지각", en: "PER" },
-  intelligence: { ko: "연산", en: "INT" },
+  perception: { ko: "관측", en: "OBS" },
+  intelligence: { ko: "지능", en: "INT" },
+  charisma: { ko: "매력", en: "CHA" },
   focus: { ko: "집중", en: "FOC" },
 };
 

@@ -47,7 +47,7 @@ export function choiceCostLabel(choice: SceneChoice, t: TFn): string {
 // active language) so the cleanup works for either.
 const _CHOICE_STAT_TAGS = [
   "근력", "지능", "매력", "민첩", "관측", "통찰",
-  "Strength", "Intellect", "Charisma", "Agility", "Observation", "Insight",
+  "Strength", "Intellect", "Intelligence", "Charisma", "Agility", "Observation", "Perception", "Insight",
 ];
 
 export function cleanChoiceLabel(label: string): string {

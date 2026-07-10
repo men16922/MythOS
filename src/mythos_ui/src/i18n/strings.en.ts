@@ -388,9 +388,9 @@ export const en: Record<StringKey, string> = {
   "roster.stunned": "Stunned",
   // Character panel (play-screen right column) — neo-seoul flavored stat names
   "char.stat.strength": "Strength",
-  "char.stat.intelligence": "Computation",
-  "char.stat.charisma": "Resonance",
-  "char.stat.agility": "Reflex",
+  "char.stat.intelligence": "Intelligence",
+  "char.stat.charisma": "Charisma",
+  "char.stat.agility": "Agility",
   "char.stat.perception": "Observation",
   "char.cat.weapon": "Weapon",
   "char.cat.armor": "Armor",

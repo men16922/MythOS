@@ -391,9 +391,9 @@ export const ko = {
   "roster.stunned": "기절",
   // Character panel (play-screen right column)
   "char.stat.strength": "근력",
-  "char.stat.intelligence": "연산",
-  "char.stat.charisma": "공명",
-  "char.stat.agility": "반사",
+  "char.stat.intelligence": "지능",
+  "char.stat.charisma": "매력",
+  "char.stat.agility": "민첩",
   "char.stat.perception": "관측",
   "char.cat.weapon": "무기",
   "char.cat.armor": "방어구",

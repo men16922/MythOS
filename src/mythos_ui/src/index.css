@@ -17,6 +17,12 @@
   --head: #ffb454;    /* amber — section/panel headers (landmarks) */
   --threat: #ff5fd0;  /* magenta — enemy/adversary signature (control grid) */
   --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  /* Reading font for long-form prose (narration / choices / objective). Monospace
+     renders Korean in fixed-width cells — wide, heavy, and tiring to read at length
+     (real-device feedback 2026-07-10 "텍스트가 많아 피로"). Proportional Korean
+     faces (native Apple SD Gothic Neo on iOS) read far lighter. The terminal/HUD
+     chrome keeps var(--mono) for the SF identity; only the reading surfaces switch. */
+  --font-read: "Apple SD Gothic Neo", Pretendard, "Noto Sans KR", system-ui, -apple-system, sans-serif;
 
   /* Design-system tokens (DS0, docs/plans/2026-07-08-design-system.md) — additive only,
      no call sites migrated yet. Collapse 9 radii / 20 paddings / 8-14.5px type sprawl. */
@@ -380,6 +386,16 @@ main {
   white-space: pre-wrap;
   max-width: 70ch;
   font-size: 15.5px;
+  /* Proportional reading font + slightly tighter leading than the mono default
+     (1.7) so the same prose reads lighter and shorter on a phone. */
+  font-family: var(--font-read);
+  line-height: 1.62;
+  letter-spacing: 0;
+}
+/* Prose reading surfaces share the proportional face; the terminal HUD stays mono. */
+.command-card,
+.objective-text {
+  font-family: var(--font-read);
 }
 #narration .caret {
   color: var(--term);
@@ -589,6 +605,13 @@ main {
 }
 .hud-meta b {
   color: var(--ink);
+}
+/* Touch/phone: drop the raw loop UUID + English phase enum (dev context, noise on
+   a small screen); the location stays for the player. Desktop keeps the full line. */
+@media (pointer: coarse) {
+  .hud-meta-dev {
+    display: none;
+  }
 }
 
 /* Image panel */
@@ -2576,6 +2599,22 @@ main {
   align-items: center;
   flex-grow: 1;
   overflow: auto;
+}
+/* Real-device feedback (2026-07-10, portrait): dragging a finger over the board
+   to scroll the page did nothing — the wrapper's `overflow:auto` made it an
+   inner scroll container that swallowed the vertical gesture (and the T5a
+   auto-center snapped it back), so the controls/log above and below the board
+   were unreachable. On touch devices, scroll the wide iso board horizontally
+   only and let vertical pans bubble to the page. `touch-action: pan-x` makes the
+   element consume horizontal drags (board scroll) while vertical drags fall
+   through to the page's scroll. Desktop (fine pointer) keeps free 2-axis scroll
+   for a zoomed board. */
+@media (pointer: coarse) {
+  .tactical-board-canvas-wrapper {
+    overflow-x: auto;
+    overflow-y: hidden;
+    touch-action: pan-x;
+  }
 }
 .board-zoom {
   display: flex;

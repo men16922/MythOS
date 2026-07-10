@@ -105,10 +105,12 @@ const renderBoldText = (text: string): React.ReactNode[] => {
 // id for color/icon lookup so the inner-monologue styling works in either language.
 const STAT_CANON: Record<string, "strength" | "intelligence" | "charisma" | "agility" | "perception"> = {
   "근력": "strength", "Strength": "strength",
-  "지능": "intelligence", "Intellect": "intelligence",
+  // The stat-voice directive emits "Intelligence"/"Perception"; keep the older
+  // "Intellect"/"Observation" spellings as aliases so either still styles/icons.
+  "지능": "intelligence", "Intellect": "intelligence", "Intelligence": "intelligence",
   "매력": "charisma", "Charisma": "charisma",
   "민첩": "agility", "Agility": "agility",
-  "관측": "perception", "Observation": "perception",
+  "관측": "perception", "Observation": "perception", "Perception": "perception",
 };
 const STAT_NAMES = Object.keys(STAT_CANON).join("|");
 const STAT_STYLE: Record<string, { color: string; icon: string; emoji: string }> = {
@@ -799,13 +801,35 @@ export function StoryPanel({
   const hasNarrativeHistory = narrativeHistory.length > 0;
 
   // Auto scroll to bottom when new streaming text arrives or history updates —
-  // but not while a finished-combat result is showing (we surface that at the top).
+  // but not while a finished-combat result is showing (we surface that at the top),
+  // and not while the reader has scrolled up to re-read. Real-device feedback
+  // (2026-07-10, "글씨 나오는 도중 스크롤하면 드드드드"): the typewriter fires
+  // `setDisplayedNarration` every ~12ms, so a per-tick *smooth* scrollIntoView
+  // stacked animation frames and fought the touch gesture. Two fixes: (1)
+  // `stickToBottomRef` — an IntersectionObserver on the bottom sentinel tracks
+  // whether the reader is (near-)bottom, so scrolling up is never yanked back;
+  // (2) during streaming use instant ("auto") scroll so ticks don't pile up.
   const combatJustFinished = Boolean(snapshot?.combat?.finished);
   const combatOutcome = snapshot?.combat?.finished ? snapshot.combat.outcome ?? null : null;
+  const stickToBottomRef = useRef(true);
+  useEffect(() => {
+    const sentinel = scrollBottomRef.current;
+    if (!sentinel || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        stickToBottomRef.current = entries[0]?.isIntersecting ?? true;
+      },
+      // "Near bottom" = the sentinel is within ~140px of the viewport bottom.
+      { rootMargin: "0px 0px 140px 0px" }
+    );
+    io.observe(sentinel);
+    return () => io.disconnect();
+  }, []);
   useEffect(() => {
     if (combatJustFinished) return;
-    scrollBottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [displayedNarration, narrativeHistory, combatJustFinished]);
+    if (!stickToBottomRef.current) return;
+    scrollBottomRef.current?.scrollIntoView({ behavior: isStreaming ? "auto" : "smooth" });
+  }, [displayedNarration, narrativeHistory, combatJustFinished, isStreaming]);
 
   // When a combat resolves (victory/defeat/flee), bring the result panel into
   // view at the top instead of leaving the player scrolled to the bottom.

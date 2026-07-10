@@ -40,6 +40,14 @@ class RuntimeOptions:
     language: str = "ko"
     # When False (default), only generate images on key beats; True forces every turn.
     image_every_turn: bool = False
+    # Streaming-only: when True, ``_commit_scene`` skips the synchronous scene-image
+    # generation so the choices-carrying snapshot is emitted immediately; the stream
+    # then generates the image AFTER the snapshot and delivers it as a trailing
+    # ``visual`` event (→ visual_status frame). Measured on prod (2026-07-10): image
+    # gen adds a p50 ~6s / max ~15s dead wait between narration and choices, and its
+    # multi-minute hangs stranded whole turns (4% failed, two 7-8min). REST callers
+    # keep the inline image (image_result on the returned snapshot) — default False.
+    defer_image: bool = False
 
 
 @dataclass(frozen=True)
@@ -67,11 +75,15 @@ class RuntimeStreamEvent:
     # loop (and its opening variant) is prepared but BEFORE the slow narrative
     # generation — so the client can reveal the correct opening intro sequence
     # immediately instead of racing a timeout and flashing the default cut.
-    kind: Literal["text", "final", "meta"]
+    # ``visual`` trails a ``final`` snapshot on the streaming path: the scene image
+    # is generated AFTER choices are delivered (see RuntimeOptions.defer_image) and
+    # handed back here so the socket relays it as a visual_status frame.
+    kind: Literal["text", "final", "meta", "visual"]
     text: str = ""
     snapshot: RuntimeSnapshot | None = None
     opening_variant: str | None = None
     runs_completed: int | None = None
+    visual: VisualGenerationResult | None = None
 
 
 @dataclass(frozen=True)

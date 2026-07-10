@@ -367,7 +367,17 @@ async def _run_stream(
                         message.get("lang", "ko"),
                     )
                     await websocket.send_json({"type": "snapshot", "data": snap})
+                elif event.kind == "visual" and event.visual is not None:
+                    # Deferred scene image (streaming): the snapshot already carried
+                    # the choices, so relay the now-ready image as its terminal
+                    # visual_status frame — the client swaps it into the scene.
+                    terminal = _terminal_visual_frame(storage, event.visual)
+                    if terminal is not None:
+                        await websocket.send_json(terminal)
             if last_snapshot is not None:
+                # No-op when the image was deferred (image_result is None) — the
+                # trailing visual event above already relayed it; kept for any
+                # non-deferred stream path.
                 await _emit_visual_status(websocket, storage, last_snapshot)
         except KeyError as exc:
             await websocket.send_json({"type": "error", "detail": str(exc).strip("'\"")})

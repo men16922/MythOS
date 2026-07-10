@@ -620,6 +620,9 @@ class RuntimeSessionService:
         player = prepared.player
         loop = prepared.loop
         context = prepared.context
+        # Defer the scene image (see stream_choose): ship the first-scene snapshot,
+        # then generate the image and relay it as a trailing visual event.
+        options = replace(options, defer_image=True)
         # Emit the chosen opening variant up front, before the (slow, LLM-driven)
         # first-scene generation. The variant is fixed the moment the loop is
         # prepared, but the snapshot that carries it only lands after generation
@@ -660,6 +663,13 @@ class RuntimeSessionService:
                 metric_total_before=metric_total_before,
             )
             yield RuntimeStreamEvent(kind="final", snapshot=snapshot)
+            # Choices are delivered; generate the opening image off the critical
+            # path and hand it back as a trailing visual event.
+            image_result = self._maybe_generate_image(
+                options, snapshot.loop, snapshot.scene, player.player_id
+            )
+            if image_result is not None:
+                yield RuntimeStreamEvent(kind="visual", visual=image_result)
 
     def _prepare_choice(
         self,
@@ -1112,6 +1122,10 @@ class RuntimeSessionService:
         if redirect is not None:
             yield RuntimeStreamEvent(kind="final", snapshot=redirect)
             return
+        # Defer the scene image so the choice-carrying snapshot ships before the
+        # slow (~6-15s p50/max on prod) image generation, which then runs after the
+        # snapshot and returns as a trailing visual event.
+        options = replace(options, defer_image=True)
         prepared = self._prepare_choice(loop_id, choice_id, action, options)
         player = prepared.player
         loop = prepared.loop
@@ -1146,6 +1160,13 @@ class RuntimeSessionService:
                 cutscene_id=prepared.cutscene_id,
             )
             yield RuntimeStreamEvent(kind="final", snapshot=snapshot)
+            # Choices are delivered; generate the scene image off the critical path
+            # and hand it back so the socket relays a trailing visual_status frame.
+            image_result = self._maybe_generate_image(
+                options, snapshot.loop, snapshot.scene, player.player_id
+            )
+            if image_result is not None:
+                yield RuntimeStreamEvent(kind="visual", visual=image_result)
 
     def _snapshot_for_stale_choice(
         self,
@@ -2801,7 +2822,14 @@ class RuntimeSessionService:
                 player.player_id, transition.loop.loop_id, metric_total_before
             )
 
-        image_result = self._maybe_generate_image(options, transition.loop, scene, player.player_id)
+        # Streaming defers the (slow) scene image so the choices-carrying snapshot
+        # ships first; the caller generates it afterward and relays a visual_status
+        # frame. REST callers keep the inline image. See RuntimeOptions.defer_image.
+        image_result = (
+            None
+            if options.defer_image
+            else self._maybe_generate_image(options, transition.loop, scene, player.player_id)
+        )
         bgm_path = self.audio.get_current_bgm(transition.loop, scene)
         # Per-scene INFO log: the finished script (narration), the resulting state, and
         # the choices on offer — a full readable scene summary each turn (instead of the

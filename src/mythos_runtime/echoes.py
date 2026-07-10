@@ -61,7 +61,7 @@ _ECHO_EFFECTS: tuple[dict[str, Any], ...] = (
         "key": "tempered_signal",
         "name": "단련된 신호",
         "name_en": "Tempered Signal",
-        "desc": "균형 잡힌 각성 — 근력과 지각이 함께 오른다.",
+        "desc": "균형 잡힌 각성 — 근력과 관측이 함께 오른다.",
         "desc_en": "A balanced awakening — strength and perception both rise.",
         "stats": {"strength": 2, "perception": 1},
     },

@@ -116,6 +116,9 @@
           "refuge",
           "underground",
           "data-layer-01"
+        ],
+        "flags_all": [
+          "met_se_rin"
         ]
       },
       "priority": 15,
@@ -390,7 +393,10 @@
           "abandoned_citizen",
           "safety_first"
         ],
-        "turn_min": 2
+        "turn_min": 2,
+        "flags_all": [
+          "met_se_rin"
+        ]
       },
       "priority": 18,
       "token_budget": 300,
@@ -650,6 +656,9 @@
       "when": {
         "flags_any": [
           "help_citizen"
+        ],
+        "flags_all": [
+          "met_se_rin"
         ]
       },
       "priority": 16,

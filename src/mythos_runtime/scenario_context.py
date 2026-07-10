@@ -556,6 +556,38 @@ def _combat_callback_note(
     return note
 
 
+def _companion_presence_rule(language: str) -> str:
+    """Persistent every-turn guard against the GM casting an un-joined companion.
+
+    After the opening window, prior-loop "met people" names (NARRATIVE ECHOES)
+    plus the standing character roster let the storyteller pull a companion who
+    has NOT joined THIS loop into the scene as an incidental guide/sender/rescuer
+    — owner-reported 2026-07-10: Se-rin appearing in a su_ah variant loop at
+    turn 2 with no ``met_se_rin`` flag and an empty party (pure model casting;
+    every structured surface correctly showed her absent). Presence is per-loop:
+    a companion appears only once THIS loop's opening or an authored meet-arc
+    introduces them. The meet-arc carve-out keeps legit route recruitment working.
+    """
+    if language == "en":
+        return (
+            "=== COMPANION PRESENCE RULE (this loop) ===\n"
+            "Do NOT introduce, name, or imply any companion who has not yet joined "
+            "THIS loop — not as a guide, sender, rescuer, voice, or silhouette — "
+            "unless THIS scene's authored directive explicitly tells you to introduce "
+            "them (a meet-arc). A companion named in NARRATIVE ECHOES was met in a "
+            "PAST loop and is NOT here now. If you need a guide or signal source, use "
+            "someone already joined this loop, or an as-yet-anonymous presence."
+        )
+    return (
+        "=== 동료 등장 규칙 (이번 루프) ===\n"
+        "이번 루프에 아직 합류하지 않은 동료는 — 안내자·발신자·구조자·목소리·실루엣 등 "
+        "어떤 형태로도 — 이 장면의 authored 지시(만남 아크)가 명시적으로 등장을 지시하지 "
+        "않는 한, 새로 등장시키거나 이름을 특정하지 마라. NARRATIVE ECHOES에 이름이 있는 "
+        "동료는 과거 루프에서 만난 것이며 이번 루프의 '지금 여기'에는 없다. 안내자나 신호원이 "
+        "필요하면 이미 이번 루프에 합류한 인물, 또는 아직 정체를 밝히지 않은 익명의 존재로 처리하라."
+    )
+
+
 def build_runtime_narrative_context(
     *,
     player: PlayerProfile,
@@ -604,6 +636,10 @@ def build_runtime_narrative_context(
         notes.append(directives.naming_rule)
     notes.extend(_scenario_structure_notes(scenario, scenario_i18n))
     notes.append(CAUSALITY_ENGINE_RULE)
+    # Every-turn guard: an un-joined companion (esp. one only met in a PRIOR loop
+    # and named in NARRATIVE ECHOES) must not be cast into this scene. Static text,
+    # so it stays in the cacheable prefix. Meet-arc carve-out preserves recruitment.
+    notes.append(_companion_presence_rule(language))
 
     # P4-1 스탯 기반 내면 독백 (Disco Elysium) 지침 — prose는 이제 프롬프트 레이어
     # (directives/stat_voices.md)다. min/max 선택 로직만 코드에 남고, 시나리오가 stat_voices.md를
@@ -876,10 +912,17 @@ def build_runtime_narrative_context(
             allies = ", ".join(content.get("allies_met") or [])
             summary_txt = content.get("summary_text") or ""
 
-            # In a solo variant opening, drop the "met people" list — naming a
-            # carried ally (Se-rin) here reinforces her presence and fights the
-            # solo re-entry. The rest of the echo (ending / déjà vu) still lands.
-            ally_clause = "" if is_variant_opening else f" | 만난 인물: [{allies}]"
+            # The "met people" list is a PAST-loop memory. During a variant opening
+            # it is dropped entirely (naming a carried ally fights the solo re-entry);
+            # otherwise it is kept but explicitly framed as past-and-absent, so the GM
+            # treats it as déjà-vu flavor rather than a license to cast that companion
+            # into the present scene (owner-reported Se-rin leak, 2026-07-10). Works
+            # with the COMPANION PRESENCE RULE above.
+            ally_clause = (
+                ""
+                if is_variant_opening or not allies
+                else f" | 과거 루프에서 스친 인물(이번 루프엔 아직 없음, 등장시키지 말 것): [{allies}]"
+            )
             notes.append(
                 f"[과거 루프 #{i}] 엔딩: {ending_lbl} | 진행 턴수: {turns} | "
                 f"발견한 단서: [{clues}]{ally_clause}"

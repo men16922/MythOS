@@ -225,5 +225,69 @@ class OpeningVariantEngineGuardTest(unittest.TestCase):
         self.assertNotIn("refused_se_rin", variant_flags)
 
 
+class CompanionPresenceGuardTest(unittest.TestCase):
+    """An un-joined companion must not be castable into a variant loop mid-play.
+
+    Owner-reported 2026-07-10 (prod loop_2a0ddb…, su_ah variant, turn 2): the model
+    wrote Se-rin in as the "가이드 핑" sender with NO met_se_rin flag and an empty
+    party — pure GM casting, primed by the prior-loop 'met people' echo. Two guards:
+    a persistent COMPANION PRESENCE RULE, and reframing the past-ally echo as absent.
+    """
+
+    def _ctx(self, *, variant: str, turn: int, world_memories):
+        now = datetime(2026, 7, 10, tzinfo=UTC)
+        player = PlayerProfile("p1", "T", now, now, {"archetype": "Unclassified"})
+        state: dict = {"_loop_index": 2, "_opening_variant": variant, "scenario_id": "neo-seoul"}
+        loop = LoopState("l", "p1", "s", LoopPhase.EXPLORE, "data-layer-01", 70, 30, now, None, state, [])
+        return build_runtime_narrative_context(
+            player=player,
+            loop=loop,
+            scenario=load_scenario("neo-seoul"),
+            turn_index=turn,
+            recent_events=[],
+            memories=[],
+            world_memories=world_memories,
+            narrative_shards=[],
+            novelty_notes=[],
+            player_action="가이드 핑의 발신원을 추적한다",
+        )
+
+    def _run_summary(self, allies: list[str]):
+        from mythos_core.models import WorldMemory
+
+        now = datetime(2026, 7, 10, tzinfo=UTC)
+        return WorldMemory(
+            memory_id="m1",
+            world_id="w",
+            kind="run_summary",
+            content={
+                "ending_label": "생존",
+                "turns": 12,
+                "clues_collected": [],
+                "allies_met": allies,
+                "summary_text": "이전 루프의 잔향.",
+            },
+            weight=1.0,
+            created_at=now,
+            updated_at=now,
+        )
+
+    def test_presence_rule_injected_every_turn(self) -> None:
+        notes = "\n".join(self._ctx(variant="su_ah", turn=8, world_memories=[]).novelty_notes)
+        self.assertIn("동료 등장 규칙", notes)
+
+    def test_past_ally_echo_reframed_as_absent_not_present(self) -> None:
+        # Post-opening su_ah loop whose PRIOR run met Se-rin: her name may appear
+        # only as past-and-absent, never as the bare present-tense "만난 인물" list.
+        notes = "\n".join(
+            self._ctx(
+                variant="su_ah", turn=8, world_memories=[self._run_summary(["정세린"])]
+            ).novelty_notes
+        )
+        self.assertIn("정세린", notes)
+        self.assertIn("과거 루프에서 스친 인물", notes)
+        self.assertNotIn("만난 인물: [", notes)
+
+
 if __name__ == "__main__":
     unittest.main()

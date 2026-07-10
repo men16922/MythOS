@@ -17,6 +17,9 @@
 #   LIVE_QA_TIMEOUT    AGY hard cap (e.g. 15m)             (default 15m)
 #   LIVE_QA_MAX_TURNS  interactive checkpoints            (default 2)
 #   LIVE_QA_RUN_ID / LIVE_QA_PORT                          (optional overrides)
+#   LIVE_QA_TARGET_URL external deployment to test         (e.g. the Cloud Run
+#                      prod URL incl. ?invite=…; skips the local server startup
+#                      and points AGY at that URL directly. MODE should be real.)
 #
 # Output: prints one final line `LIVE_QA_OUTCOME: <PASS_CANDIDATE|SKIP|FAIL_EVIDENCE|NEEDS_HUMAN>`.
 # Exit: 0=pass/skip, 4=fail_evidence, 5=needs_human, 3=git-invariance, 2=setup error.
@@ -51,12 +54,20 @@ emit() { printf 'LIVE_QA_OUTCOME: %s\n' "$1"; }
 command -v agy >/dev/null 2>&1 || { echo "live-qa: agy not found" >&2; emit NEEDS_HUMAN; exit 2; }
 
 before_status="$(git status --porcelain=v1 --untracked-files=all)"
-port="${LIVE_QA_PORT:-$($PYTHON -c 'import socket; s=socket.socket(); s.bind(("127.0.0.1", 0)); print(s.getsockname()[1]); s.close()')}"
-base_url="http://127.0.0.1:$port"
-if [ "$MODE" = "real" ]; then
-  target_url="$base_url/"
+TARGET_URL_OVERRIDE="${LIVE_QA_TARGET_URL:-}"
+if [ -n "$TARGET_URL_OVERRIDE" ]; then
+  # External deployment under test: no local server, AGY hits the URL as-is.
+  port=0
+  base_url="$TARGET_URL_OVERRIDE"
+  target_url="$TARGET_URL_OVERRIDE"
 else
-  target_url="$base_url/?fallback=1&image=0"
+  port="${LIVE_QA_PORT:-$($PYTHON -c 'import socket; s=socket.socket(); s.bind(("127.0.0.1", 0)); print(s.getsockname()[1]); s.close()')}"
+  base_url="http://127.0.0.1:$port"
+  if [ "$MODE" = "real" ]; then
+    target_url="$base_url/"
+  else
+    target_url="$base_url/?fallback=1&image=0"
+  fi
 fi
 
 "$PYTHON" "$ARTIFACTS" prepare \
@@ -80,10 +91,14 @@ stop_server() {
 trap stop_server EXIT INT TERM
 
 echo "live-qa: AGY actor run=$RUN_ID trigger=$TRIGGER case=$CASE mode=$MODE url=$target_url turns=$MAX_TURNS"
-MYTHOS_API_HOST=127.0.0.1 MYTHOS_API_PORT="$port" \
-  "$PYTHON" -m mythos_api > "$OUTPUT_DIR/server.log" 2>&1 &
-server_pid=$!
-"$PYTHON" "$ARTIFACTS" wait --url "$base_url/?fallback=1&image=0" --timeout 30
+if [ -n "$TARGET_URL_OVERRIDE" ]; then
+  "$PYTHON" "$ARTIFACTS" wait --url "$target_url" --timeout 30
+else
+  MYTHOS_API_HOST=127.0.0.1 MYTHOS_API_PORT="$port" \
+    "$PYTHON" -m mythos_api > "$OUTPUT_DIR/server.log" 2>&1 &
+  server_pid=$!
+  "$PYTHON" "$ARTIFACTS" wait --url "$base_url/?fallback=1&image=0" --timeout 30
+fi
 
 actor_prompt="$(cat "$PROMPT_FILE")
 

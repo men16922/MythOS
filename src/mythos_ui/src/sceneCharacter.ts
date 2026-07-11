@@ -10,12 +10,17 @@ export function keywordMatches(haystack: string, rawKeyword: string): boolean {
   // Avoid false positives like the character "한" matching ordinary Korean text
   // ("한 명", "한 번", etc.). Short Korean names need another alias/keyword.
   if (keyword.length === 1 && /[가-힣]/.test(keyword)) return false;
+  // Possessive guard (owner 2026-07-11: "린위에의 부하가 말하는데 린위에로 표기"):
+  // a name in the possessive — Korean particle 의 or English 's — is a modifier,
+  // not the speaker ("린위에의 부하"/"Lin-yue's henchman" ≠ Lin-yue), so the name
+  // must NOT be immediately followed by 의 / 's to count as the speaker.
+  const notPossessive = "(?!의|['’]s)";
   if (/^[a-z0-9_-]+$/i.test(keyword)) {
-    return new RegExp(`(^|[^a-z0-9_-])${escapeRegExp(keyword)}([^a-z0-9_-]|$)`).test(
-      haystack
-    );
+    return new RegExp(
+      `(^|[^a-z0-9_-])${escapeRegExp(keyword)}${notPossessive}([^a-z0-9_-]|$)`
+    ).test(haystack);
   }
-  return haystack.includes(keyword);
+  return new RegExp(`${escapeRegExp(keyword)}${notPossessive}`).test(haystack);
 }
 
 // Quote pairs the narration uses for spoken lines. Korean prose also uses

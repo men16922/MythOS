@@ -874,6 +874,28 @@ export function drawCombatCanvas(
       ctx.fillText(chipLabel, cx, chipY);
       ctx.restore();
     }
+    // Cover legibility (owner 2026-07-11 "반/완전엄폐 진입 시 명확하게"): a unit
+    // standing on a cover tile gets a shield badge at its base with the ranged-DEF
+    // bonus it's receiving (half +3 / full +6), in the tile's cover color, so
+    // "이 캐릭터가 엄폐 중" reads on the board without inspecting the tile.
+    const coverHere = aliveHere
+      ? combat.covers?.[`${Math.round(bx)},${Math.round(by)}`]
+      : undefined;
+    if (coverHere === "half" || coverHere === "full") {
+      const full = coverHere === "full";
+      const label = full ? "🛡 +6" : "🛡 +3";
+      const badgeY = cy + r * 0.62;
+      ctx.save();
+      ctx.font = "bold 10px SF Mono, monospace";
+      const bw = ctx.measureText(label).width + 10;
+      ctx.fillStyle = full ? "rgba(41,255,198,0.92)" : "rgba(255,180,50,0.92)";
+      ctx.fillRect(cx - bw / 2, badgeY - 8, bw, 15);
+      ctx.fillStyle = "#021018";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(label, cx, badgeY);
+      ctx.restore();
+    }
     // Boss enrage: dashed red ring so the phase shift is visible at a glance.
     if (aliveHere && b.enraged) {
       ctx.save();

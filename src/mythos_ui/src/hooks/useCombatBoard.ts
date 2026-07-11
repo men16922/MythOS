@@ -58,7 +58,7 @@ export function useCombatBoard(opts: {
     const canvas = canvasRef.current;
     const combat = finalizedSnapshot?.combat;
     if (!canvas || !combat) return;
-    drawCombatCanvas(canvas, combat, selectedScenarioId, drag, undefined, hover);
+    drawCombatCanvas(canvas, combat, selectedScenarioId, drag, undefined, hover, combatInspectCell);
   };
 
   // Movement affordance (T5a): auto-center the scrollable board wrapper on

@@ -424,7 +424,8 @@ export function drawCombatCanvas(
   scenarioId: string,
   drag?: CombatDragOverlay,
   overlay?: CombatOverlay,
-  hover?: [number, number] | null
+  hover?: [number, number] | null,
+  inspectCell?: [number, number] | null
 ): void {
   const radar = combat.radar;
   if (!radar || !radar.blips || radar.blips.length === 0) return;
@@ -491,6 +492,15 @@ export function drawCombatCanvas(
   const previewReachable =
     !!previewCell && reach.some(([rx, ry]) => rx === previewCell[0] && ry === previewCell[1]);
 
+  // Board declutter (owner 2026-07-11: "위에 뜬 게 너무 정신없다"): terrain badges
+  // (elevation ▲N, cover 🛡) used to draw on EVERY tile, drowning the board. The
+  // tile art itself now carries the type (raised block = elevation, cover prop =
+  // cover); the exact-value badge shows only for the tile the player is pointing
+  // at or has tapped-to-inspect. The inspector panel still lists every field.
+  const isFocusedCell = (x: number, y: number): boolean =>
+    (!!previewCell && previewCell[0] === x && previewCell[1] === y) ||
+    (!!inspectCell && inspectCell[0] === x && inspectCell[1] === y);
+
   // Draw Ground Base (Hazards / Basic Tiles / Elevations / Gridlines)
   const floorSprite = terrainSprite(scenarioId, "floor");
   for (let y = 0; y < rows; y++) {
@@ -524,7 +534,7 @@ export function drawCombatCanvas(
 
       // Draw 3D block
       draw3DIsoBlock(ctx, x, y, el, cfg, fill, stroke);
-      if (el > 0) {
+      if (el > 0 && isFocusedCell(x, y)) {
         const [cx, cy] = toIso(x + 0.5, y + 0.5, cfg);
         drawTerrainBadge(
           ctx,
@@ -568,16 +578,19 @@ export function drawCombatCanvas(
         } else {
           drawCoverObject(ctx, cx, cy + hOffset, cover, r);
         }
-        // D4 cover legibility: shield-prefixed badge so a functional cover tile
-        // reads instantly apart from decorative props (full=+6, half=+3).
-        drawTerrainBadge(
-          ctx,
-          cx,
-          cy + hOffset - r * 1.45,
-          cover === "full" ? "🛡▣" : "🛡◧",
-          cover === "full" ? "rgba(41,255,198,0.95)" : "rgba(255,180,50,0.9)",
-          cfg.stepX
-        );
+        // D4 cover legibility: the cover PROP sprite already reads as cover; the
+        // shield-value badge (full=+6, half=+3) now shows only for the focused tile
+        // (hover / tap-inspect) so the board isn't blanketed in badges.
+        if (isFocusedCell(x, y)) {
+          drawTerrainBadge(
+            ctx,
+            cx,
+            cy + hOffset - r * 1.45,
+            cover === "full" ? "🛡▣" : "🛡◧",
+            cover === "full" ? "rgba(41,255,198,0.95)" : "rgba(255,180,50,0.9)",
+            cfg.stepX
+          );
+        }
       }
     }
   }

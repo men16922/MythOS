@@ -2,8 +2,8 @@
 
 Last updated: 2026-07-12
 
-## 2026-07-12 — overnight Codex: final two cover-pose sprites regenerated
-- Status: Done; the seven-character cover set is ready for owner identity sign-off, still undeployed.
+## 2026-07-12 — overnight Codex: final two cover-pose sprites regenerated → 오너 리뷰: player-noise 승인, su-ah 스타일 리젝
+- Status: player-noise **오너 승인** 확정; su-ah는 무기(나이프)는 맞지만 attempt-1 대비 스타일 회귀(회로 자수 질감/디테일 밀도 소실)로 **오너 리젝** → 4차 재시드(attempt-1을 1순위 레퍼런스로 무기 든 손만 교체, 브리프 4차 개정). still undeployed.
 - Changed: regenerated and promoted `player-noise-cover.png` (short-haired masked, unarmed, green hex shield) and `su-ah-cover.png` (glasses/bun, purple shield, guard-matching knife); refreshed `outputs/cover-pose-regen/comparison-sheet.png` and the review table.
 - Verified: inspected each target's idle/guard references and final alpha candidates; both final files are 512×768 RGBA with transparent corners. `make check` green (993 tests).
 - Blockers: none for the automated item; `[manual]` owner comparison-sheet identity approval still gates deployment.

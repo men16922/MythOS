@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-07-12 — Overnight inter-agent cooperation = runner-mediated one-shot relays, NOT live A2A
+
+Decision: rejected persistent agent-to-agent connections between the overnight engines. Instead `run.sh` gained two runner-mediated one-shot relays (same idiom as critic/browser-qa): **Relay 1 image-identity judge gate** (`OVERNIGHT_IMAGE_JUDGE=1`) — commits touching `resources/*/{characters,enemies}` art get a claude vision judge (plan mode) comparing each new image to the character's canon (`-idle`/`-guard` sibling, else portrait); identity mismatch auto-reverts like critic-reject, fail-open on judge glitches. **Relay 2 same-night blocker escalation** (`OVERNIGHT_ESCALATE=1`) — a non-claude iteration recording `Blocker`/`[blocked]` schedules the next iteration as a claude cross-lane pass (cap 2/run, inactive under `--once`). Design: `docs/plans/2026-07-12-a2a-relays.md`.
+
+Reason/impact: live A2A breaks the harness's recovery property (one-shot iterations, max loss 1) and its conflict-by-structure principle; live sessions are the flakiest unattended component (agy attach incidents); the engines share no common protocol; consults double quota burn. Both relays answer same-night failures: the identity-shuffled cover batch `4d5b3be` survived gate+integrity and was only caught by a human post-commit (judge live-validated: correctly FAILs that batch), and codex burned 2 iterations on a TS error claude fixed in minutes. Aesthetic quality beyond identity stays human review.
+
 ## 2026-07-05 — GCS read URLs sign via IAM signBlob on Cloud Run (no SA key files); signing failure never kills the WS stream
 
 Decision: `GCSStorageAdapter.presigned_url` falls back to the IAM signBlob API when credentials carry no private key (Cloud Run/GCE metadata), using dedicated `cloud-platform`-scoped credentials — NOT the storage client's storage-scoped token (403 `ACCESS_TOKEN_SCOPE_INSUFFICIENT`). Prerequisite: `roles/iam.serviceAccountTokenCreator` on the runtime SA over itself (granted for `mythos-run`, user-executed). Service-account key files stay banned. In the API, `_visual_frame` degrades a signing failure to a `failed` visual frame — the WS stream carrying the narrative snapshot must never die for an image-delivery error.

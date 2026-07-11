@@ -2,6 +2,12 @@
 
 Last updated: 2026-07-11
 
+## 2026-07-11 (live session #4, claude lane) — combat P0 telegraph ROOT-CAUSED (stale radar) + dialogue callout speech-only; DEPLOY 00045-pr6
+- Status: Done + **DEPLOYED `mythos-api-00045-pr6`** (owner-run `make deploy`, smoke health/root **200**, tile `/resources/neo-seoul/combat/tiles/floor.png` **200** live). `make check` **981** green. This deploy also carries session #3's until-now-undeployed work (terrain tiles / A-V sync C / EN opening parity).
+- **P0 telegraph "전혀 안 바뀜" ROOT-CAUSED + FIXED (`055fa9d`)**: owner live report. The per-action combat path `_build_result` called `render_radar` BEFORE `available_actions()` — but `available_actions` is what runs the intent planner (`update_enemy_intents`). So the board radar serialized STALE intents (enemies had already moved) or empty at combat start; the ⚔dice+connector telegraph never reflected the enemies' actual next move. Reordered plan→snapshot (matching the correct `session.py` order); +regression `test_build_result_radar_reflects_freshly_planned_intents`.
+- **Dialogue callout speech-only (`b996438`)**: the bubble rendered the whole paragraph (action beats + attribution prose). `segmentParagraph()` splits a paragraph into ordered speech/narration segments → only sentence-like quoted spans go in the portrait+name bubble, surrounding prose renders as normal narration, in document order.
+- Owner board-size verdict: 10×7 good (keep). Next: owner re-run the combat-P0 verdict on 00045 (telegraph + tiles now actually live) → **P1 GO/NO-GO** · `! git push` (ahead of origin).
+
 ## 2026-07-11 (live session #3, claude lane) — 3 [auto] items via parallel worktree agents: terrain tiles + A/V sync C + EN opening-card parity (undeployed)
 - Status: 3 `[auto]` backlog items done via 3 background subagents (isolated git worktrees, parallel), consolidated onto main; `make check` **980** green (mypy 176 clean, frontend build clean). Undeployed. Live-QA play guide gained a combat-**P0 verdict checklist** (= the P1 GO/NO-GO gate) at the top.
 - **Terrain tile art ×3** (`37afcd2`, `[auto:agy]`): FLUX iso tiles `resources/neo-seoul/combat/tiles/{floor,cover_half,cover_full}.png`. FLUX emits opaque RGB on black, but the combatCanvas contract expects transparent-corner iso diamonds — raw tiles would paint black squares over neighbours (worse than the procedural fallback). Alpha-post-processed: geometric inscribed-diamond mask for floor (clean tessellation), near-black luminance key for covers; verified by compositing over a checker.

@@ -2168,8 +2168,22 @@ main {
 }
 .route-map-modal-graph {
   margin: 14px 0 16px;
-  overflow-x: auto;
+  /* Drag-to-pan (owner 2026-07-11): scroll both axes and grab-drag to move a big
+     map. touch-action:none routes touch drags to our pointer handler (pan) instead
+     of native scroll; a plain tap still activates a node. */
+  overflow: auto;
+  max-height: min(62vh, 560px);
   padding-bottom: 6px;
+  cursor: grab;
+  touch-action: none;
+  overscroll-behavior: contain;
+}
+.route-map-modal-graph.is-panning {
+  cursor: grabbing;
+}
+/* The nodes themselves keep pointer cursor so they read as tappable. */
+.route-map-modal-graph .route-node {
+  cursor: pointer;
 }
 .route-graph {
   display: flex;
@@ -2536,6 +2550,20 @@ main {
 @media (max-width: 760px) {
   .combat-bottom-row {
     grid-template-columns: 1fr;
+  }
+}
+/* Portrait touch combat (owner 2026-07-11 "세로 전투 겹침/플레이 불가"): the command
+   console is now actions-first (rendered right under the board via isCoarsePointer),
+   and this clears the fixed first-combat tutorial card / rotate nudge (position:
+   fixed, bottom) off the bottom of the scroll so they never sit permanently over
+   the last action buttons. Board itself stays fully visible (no clip); it scrolls
+   horizontally within its wrapper as before. */
+@media (orientation: portrait) and (pointer: coarse) {
+  .combat-stack {
+    gap: 12px;
+  }
+  .combat-bottom-row {
+    padding-bottom: 104px;
   }
 }
 /* LC1: landscape split layout for coarse-pointer (touch) combat — board

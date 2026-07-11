@@ -1045,10 +1045,12 @@ export function StoryPanel({
               loop fits one screen (docs/plans/2026-07-08-design-system.md
               "Landscape Combat"). */}
           <div className="combat-bottom-row">
-            {/* LC6: actions-first in landscape+coarse combat — the command
-                console leads so the action bar is co-visible with the board;
-                portrait/desktop keep it in its original slot below the roster. */}
-            {isLandscapeCoarseCombat && controlsEl}
+            {/* Actions-first on ANY touch device (LC6 for landscape, plus portrait
+                2026-07-11 "세로 전투 플레이 불가"): the command console leads so the
+                action bar sits right under the board and the player can act without
+                scrolling past the roster. Desktop (fine pointer) keeps it in its
+                original slot below the roster. */}
+            {isCoarsePointer && controlsEl}
 
             {conciseMode ? (
               <CombatChip title={t("story.tile.title")}>
@@ -1062,7 +1064,7 @@ export function StoryPanel({
               <CombatRoster combat={rosterCombat} scenarioId={scenarioId} />
             </Surface>
 
-            {!isLandscapeCoarseCombat && controlsEl}
+            {!isCoarsePointer && controlsEl}
 
             {conciseMode && combatLog ? (
               <CombatChip title={t("combatLog.title")}>

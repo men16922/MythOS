@@ -9,9 +9,23 @@ const easeOut = (t: number): number => 1 - Math.pow(1 - t, 3);
 const clamp01 = (t: number): number => (t < 0 ? 0 : t > 1 ? 1 : t);
 
 const MOVE_DUR = 260;
+const YANK_DUR = 170; // forced movement (밀기/당기기): a snatch, not a stroll
+const YANK_IMPACT = 200; // arrival crunch window after the snatch lands
 const HIT_DUR = 440;
 const DEATH_DUR = 520;
 const TOTAL_CAP = 1500;
+
+// Forced-movement metadata mined from the engine log (detail.forced): lets the
+// animator style a push/pull as a YANK — accelerating snatch + drag trail +
+// arrival crunch — instead of the default walk tween that made the owner ask
+// "발동이 된 건지도 모르겠다".
+interface Yank {
+  mode: "push" | "pull";
+  from: [number, number];
+  actorAt?: [number, number];
+}
+
+const easeIn = (t: number): number => t * t * t;
 
 interface AnimateOptions {
   dispatched?: CombatAction | null;
@@ -120,8 +134,29 @@ export class CombatAnimator {
     const hasMove = moveEvents.length > 0;
     const hitBase = hasMove ? 200 : 60;
 
+    // Mine this turn's new log entries for forced-movement (push/pull) marks.
+    const newLog = (next.log || []).slice(prev?.log?.length ?? 0);
+    const yanks = new Map<string, Yank>();
+    for (const entry of newLog) {
+      const d = entry.detail || {};
+      if (
+        (d.forced === "push" || d.forced === "pull") &&
+        typeof d.target === "string" &&
+        Array.isArray(d.from) &&
+        (d.tiles as number) > 0
+      ) {
+        yanks.set(d.target, {
+          mode: d.forced,
+          from: d.from as [number, number],
+          actorAt: Array.isArray(d.actor_at) ? (d.actor_at as [number, number]) : undefined,
+        });
+      }
+    }
+
     const sched: Scheduled[] = [];
-    moveEvents.forEach((ev) => sched.push({ ev, start: 0, dur: MOVE_DUR }));
+    moveEvents.forEach((ev) =>
+      sched.push({ ev, start: 0, dur: yanks.has(ev.id) ? YANK_DUR : MOVE_DUR })
+    );
     hitEvents.forEach((ev, i) => sched.push({ ev, start: hitBase + i * 130, dur: HIT_DUR }));
     const deathBase = hitBase + hitEvents.length * 130;
     deathEvents.forEach((ev, i) => sched.push({ ev, start: deathBase + i * 90, dur: DEATH_DUR }));
@@ -162,11 +197,68 @@ export class CombatAnimator {
         const ev = s.ev;
 
         if (ev.kind === "move") {
+          const yank = yanks.get(ev.id);
           if (local < 1) {
-            const p = easeOut(clamp01(local));
+            // Yanks ACCELERATE into the destination (snatch); walks decelerate.
+            const p = yank ? easeIn(clamp01(local)) : easeOut(clamp01(local));
             const ov = ovFor(ev.id);
             ov.cellX = ev.from[0] + (ev.to[0] - ev.from[0]) * p;
             ov.cellY = ev.from[1] + (ev.to[1] - ev.from[1]) * p;
+            if (yank) {
+              ov.pose = "hit";
+              const color = yank.mode === "pull" ? "#e07dff" : "#ffb347";
+              // Drag trail: a fading streak from the origin to the unit.
+              overlay.fx!.push({
+                kind: "tracer",
+                x1: ev.from[0] + 0.5,
+                y1: ev.from[1] + 0.5,
+                x2: ov.cellX + 0.5,
+                y2: ov.cellY + 0.5,
+                color,
+                alpha: 0.85,
+                width: 5 * (1 - clamp01(local) * 0.5),
+              });
+              // Pull shows the magnet line from the caster while dragging.
+              if (yank.mode === "pull" && yank.actorAt) {
+                overlay.fx!.push({
+                  kind: "tracer",
+                  x1: yank.actorAt[0] + 0.5,
+                  y1: yank.actorAt[1] + 0.5,
+                  x2: ov.cellX + 0.5,
+                  y2: ov.cellY + 0.5,
+                  color,
+                  alpha: 0.5,
+                  width: 2,
+                });
+              }
+            }
+          } else if (yank) {
+            // Arrival crunch: dust ring + sparks + a brief hit pose right where
+            // the unit slammed down.
+            const age = t - (s.start + s.dur);
+            if (age >= 0 && age <= YANK_IMPACT) {
+              const ip = age / YANK_IMPACT;
+              const color = yank.mode === "pull" ? "#e07dff" : "#ffb347";
+              const ov = ovFor(ev.id);
+              ov.pose = "hit";
+              overlay.fx!.push({
+                kind: "ring",
+                cellX: ev.to[0] + 0.5,
+                cellY: ev.to[1] + 0.5,
+                cellR: 0.12 + 0.45 * ip,
+                color,
+                alpha: 0.85 * (1 - ip),
+                width: 3.5 * (1 - ip),
+              });
+              overlay.fx!.push({
+                kind: "spark",
+                cellX: ev.to[0] + 0.5,
+                cellY: ev.to[1] + 0.5,
+                cellR: 0.1 + 0.24 * (1 - ip),
+                color: "#ffffff",
+                alpha: 0.9 * (1 - ip),
+              });
+            }
           }
         } else if (ev.kind === "damage" || ev.kind === "heal") {
           const ov = ovFor(ev.id);
@@ -298,6 +390,17 @@ export class CombatAnimator {
           const amp = (atk.skill ? 8.5 : 4.5) * ratio;
           shakeX += Math.sin(age * 0.18) * amp;
           shakeY += Math.cos(age * 0.22) * amp;
+        }
+      }
+      // Yank arrivals thump the board too — the crunch is what sells the drag.
+      for (const s of sched) {
+        if (s.ev.kind !== "move" || !yanks.has(s.ev.id)) continue;
+        const impactAt = s.start + s.dur;
+        if (t >= impactAt && t < impactAt + 180) {
+          const age = t - impactAt;
+          const ratio = 1 - age / 180;
+          shakeX += Math.sin(age * 0.2) * 6 * ratio;
+          shakeY += Math.cos(age * 0.24) * 6 * ratio;
         }
       }
       overlay.shakeX = shakeX;

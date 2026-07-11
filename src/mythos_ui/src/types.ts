@@ -298,6 +298,10 @@ export interface CombatConsumable {
   name: string;
   effect?: string | null;
   count: number;
+  // Ground-targeted throwables (EMP 수류탄): throw range + blast radius drive
+  // the XCOM-style cell picker on the board.
+  range?: number | null;
+  radius?: number | null;
 }
 
 export interface CombatAction {
@@ -307,6 +311,8 @@ export interface CombatAction {
   item_id?: string;
   x?: number;
   y?: number;
+  // XCOM-style AoE throw: the board cell the item lands on.
+  target_cell?: [number, number];
 }
 
 export interface AssetInfo {

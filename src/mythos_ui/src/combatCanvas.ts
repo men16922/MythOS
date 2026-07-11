@@ -919,6 +919,37 @@ export function drawCombatCanvas(
       ctx.fillText(label, cx, badgeY);
       ctx.restore();
     }
+    // Stun legibility (owner 2026-07-12 "스턴이 보여야 한다"): a stunned unit
+    // gets a bright 💫 pill above it + a dashed yellow halo, so "이 적은 다음
+    // 턴을 통째로 쉰다" reads on the board without opening the inspector.
+    if (aliveHere && b.status?.includes("stunned")) {
+      const stunLabel = "💫 기절";
+      const stunY = drewSprite ? cy - r * 3.1 : cardCy - r - 34;
+      ctx.save();
+      ctx.font = "bold 10px SF Mono, monospace";
+      const sw = ctx.measureText(stunLabel).width + 10;
+      ctx.fillStyle = "rgba(255, 214, 106, 0.95)";
+      ctx.fillRect(cx - sw / 2, stunY - 8, sw, 15);
+      ctx.fillStyle = "#1a1200";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(stunLabel, cx, stunY);
+      ctx.strokeStyle = "rgba(255, 214, 106, 0.75)";
+      ctx.lineWidth = 2;
+      ctx.setLineDash([3, 4]);
+      ctx.beginPath();
+      ctx.ellipse(
+        cx,
+        drewSprite ? cy - r * 1.05 : cardCy,
+        r + 9,
+        drewSprite ? r * 1.6 : r + 4,
+        0,
+        0,
+        Math.PI * 2
+      );
+      ctx.stroke();
+      ctx.restore();
+    }
     // Boss enrage: dashed red ring so the phase shift is visible at a glance.
     if (aliveHere && b.enraged) {
       ctx.save();

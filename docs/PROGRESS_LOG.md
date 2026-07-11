@@ -2,6 +2,12 @@
 
 Last updated: 2026-07-12
 
+## 2026-07-12 (live session #13, claude lane) — 전투 피드백 배치 1: 스킬 리워크 + 가독성 VFX + XCOM 투척
+- Status: Done, `make check` **1008** green (+15 tests). UNDEPLOYED (00052 위 신규 번들 시작).
+- 오너 라이브 피드백 반영 (00052 플레이 세션): **시스템 해킹 → 1턴 스턴** (구 focus_drain은 집중 0 적에 "-0" 무효과; cd 2→3) · **과부하 일격 → 근접 스플래시** (aoe_radius 1, 명중 피해가 인접 적에 확산; push 제거) · **자기 반발 신설** (전용 밀기 스킬: push 2 + 1d4 충격, 자기 견인 트리에서 해금) · **무피해 유틸 리밸런싱** (자기 견인=끌려온 충격 1d4 보장, 신호 도약=착지 인접 1d4 방전 — 명중 굴림 없는 고정 피해라 유틸 캐스트가 턴 낭비가 안 됨) · **EMP 수류탄 → XCOM식 광역 스턴** (지도에서 칸 지정 투척, range 4/radius 1, 셀 프리뷰 링+조준 모드 UI).
+- **가독성 VFX**: 밀기/당기기 = 낚아채기 연출 (가속 스냅 170ms + 드래그 트레일 + 착지 크런치 링/셰이크; 엔진이 from/forced 메타 방출, 0칸이면 "꿈쩍도 안 한다" 로그) · **스턴 = 💫 기절 배지 + 노란 대시 헤일로** (보드 상시 표시) · control 스킬 = 수렴 링(흡착 큐) · aoe = 블래스트 웨이브 링.
+- Next: `[auto:agy]` magnetic_repulse 전용 아이콘 (현재 magnetic_pull 복사 플레이스홀더) · 오너 후속 지시 대기 3건 = 2-티어 컨트롤(타겟팅·행동 예측) · 전투 반응성 진단 · 상태이상 시스템(부식·연소·산성·냉동·감전) 설계.
+
 ## 2026-07-12 (live session, claude lane) — 커버 아트 오너 승인 → IMAGEN_MODEL Makefile 고정 → **DEPLOYED `00052-fcx`**
 - 오너 비교시트 승인(7장 확정, su-ah 4차=attempt-1 스타일+나이프 교체 포함) → cover 아트 블로커 해제.
 - `make deploy`에 `IMAGEN_MODEL ?= gemini-3.1-flash-image` + `--update-env-vars` 고정 (`893457f`) — env-보존 배포가 리비전의 낡은 imagen-3.0 값을 계속 되살리던 함정 봉인. 오버라이드: `make deploy IMAGEN_MODEL=<id>`.

@@ -1,8 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { drawCombatCanvas, combatCellFromPoint, getIsoConfig, toIso } from "../combatCanvas";
-import type { CombatDragOverlay } from "../combatCanvas";
+import type { CombatDragOverlay, CombatOverlay } from "../combatCanvas";
 import type { CombatAnimator } from "../combatEffects";
-import type { RuntimeSnapshot, CombatAction } from "../types";
+import type { RuntimeSnapshot, CombatAction, CombatConsumable } from "../types";
+
+// XCOM-style ground targeting (2026-07-12): an armed throwable (EMP 수류탄)
+// turns the board into a cell picker — hover previews the blast radius, a tap
+// inside throw range dispatches the item at that cell.
+export interface ItemTargeting {
+  itemId: string;
+  name: string;
+  range: number;
+  radius: number;
+}
 
 const COARSE_POINTER_QUERY = "(pointer: coarse)";
 const SMALL_VIEWPORT_QUERY = "(max-width: 600px)";
@@ -50,16 +60,60 @@ export function useCombatBoard(opts: {
   // dragging), surfaced to StoryPanel so it can show terrain/occupant/effects.
   const [combatInspectCell, setCombatInspectCell] = useState<[number, number] | null>(null);
 
+  // Armed ground-target item (EMP 수류탄): while set, board taps throw instead
+  // of inspecting/dragging, and hover paints the blast-radius preview. The
+  // handlers below are recreated every render, so they close over fresh state.
+  const [itemTargeting, setItemTargeting] = useState<ItemTargeting | null>(null);
+
   // Last hovered cell drawn as the movement-preview target, so pointer moves
   // over the same cell don't trigger redundant canvas redraws.
   const hoverRef = useRef<[number, number] | null>(null);
+
+  const blastPreview = (cell: [number, number], tg: ItemTargeting): CombatOverlay => ({
+    fx: [
+      {
+        kind: "ring",
+        cellX: cell[0] + 0.5,
+        cellY: cell[1] + 0.5,
+        cellR: tg.radius + 0.5,
+        color: "#ffd76a",
+        alpha: 0.8,
+        width: 2.5,
+      },
+      {
+        kind: "spark",
+        cellX: cell[0] + 0.5,
+        cellY: cell[1] + 0.5,
+        cellR: 0.14,
+        color: "#ffd76a",
+        alpha: 0.9,
+      },
+    ],
+  });
 
   const redrawCombat = (drag?: CombatDragOverlay, hover?: [number, number] | null) => {
     const canvas = canvasRef.current;
     const combat = finalizedSnapshot?.combat;
     if (!canvas || !combat) return;
-    drawCombatCanvas(canvas, combat, selectedScenarioId, drag, undefined, hover, combatInspectCell);
+    const tg = itemTargeting;
+    const overlay = tg && hover ? blastPreview(hover, tg) : undefined;
+    drawCombatCanvas(canvas, combat, selectedScenarioId, drag, overlay, hover, combatInspectCell);
   };
+
+  const startItemTargeting = (item: CombatConsumable) => {
+    setItemTargeting((prev) =>
+      prev?.itemId === item.item_id
+        ? null // pressing the armed item again disarms it
+        : {
+            itemId: item.item_id,
+            name: item.name,
+            range: Number(item.range ?? 4),
+            radius: Number(item.radius ?? 1),
+          }
+    );
+  };
+
+  const cancelItemTargeting = () => setItemTargeting(null);
 
   // Movement affordance (T5a): auto-center the scrollable board wrapper on
   // the active unit whenever the turn changes, so a zoomed-in / small
@@ -105,6 +159,27 @@ export function useCombatBoard(opts: {
     if (!av || !av.can_act) return;
 
     const [cx, cy] = combatCellFromPoint(canvas, combat.radar, e.clientX, e.clientY);
+
+    // Armed throwable: this tap IS the throw. In-bounds + in-range → dispatch
+    // the item at the cell; out-of-bounds → disarm (escape hatch).
+    const tg = itemTargeting;
+    if (tg) {
+      const cols = combat.radar.arena?.w || 8;
+      const rows = combat.radar.arena?.h || 6;
+      const inBounds = cx >= 0 && cy >= 0 && cx < cols && cy < rows;
+      if (!inBounds) {
+        setItemTargeting(null);
+        redrawCombat();
+        return;
+      }
+      const actor = combat.radar.blips.find((b) => b.id === combat.radar!.current);
+      const dist = actor ? Math.max(Math.abs(actor.x - cx), Math.abs(actor.y - cy)) : 0;
+      if (dist > tg.range) return; // out of throw range — keep aiming
+      setItemTargeting(null);
+      onCombatAction({ type: "item", item_id: tg.itemId, target_cell: [cx, cy] });
+      return;
+    }
+
     const actor = combat.radar.blips.find((b) => b.id === combat.radar!.current);
     if (!actor || actor.x !== cx || actor.y !== cy) return; // must grab the active unit
 
@@ -130,11 +205,16 @@ export function useCombatBoard(opts: {
     const [cx, cy] = combatCellFromPoint(canvas, combat.radar, e.clientX, e.clientY);
 
     if (!dragRef.current) {
-      // Hover affordance: show "grab" cursor over the active, controllable unit.
+      // Hover affordance: crosshair while a throwable is armed, else "grab"
+      // over the active, controllable unit.
       const av = combat.available;
       const actor = combat.radar.blips.find((b) => b.id === combat.radar!.current);
       const overActor = !!actor && actor.x === cx && actor.y === cy;
-      canvas.style.cursor = overActor && av?.can_act && !isBusy ? "grab" : "default";
+      canvas.style.cursor = itemTargeting
+        ? "crosshair"
+        : overActor && av?.can_act && !isBusy
+          ? "grab"
+          : "default";
       // Tile inspector hover: only track in-bounds cells, and only update state
       // when the cell actually changes to avoid per-move re-render churn.
       const cols = combat.radar.arena?.w || 8;
@@ -216,5 +296,8 @@ export function useCombatBoard(opts: {
     handleCanvasPointerUp,
     handleCanvasPointerCancel,
     handleCanvasPointerLeave,
+    itemTargeting,
+    startItemTargeting,
+    cancelItemTargeting,
   };
 }

@@ -626,6 +626,8 @@ export default function App() {
     handleCanvasPointerUp,
     handleCanvasPointerCancel,
     handleCanvasPointerLeave,
+    itemTargeting,
+    startItemTargeting,
   } = useCombatBoard({
     finalizedSnapshot,
     canvasRef,
@@ -917,6 +919,8 @@ export default function App() {
                 onLeaveSession={handleLeaveSession}
                 onSelectCombatTarget={setCombatTarget}
                 onCombatAction={handleCombatActionTutored}
+                onCombatItemTarget={startItemTargeting}
+                combatArmedItemId={itemTargeting?.itemId ?? null}
                 tutorialHighlight={tutorialHighlight}
                 onReturnToMain={handleLeaveSession}
                 onContinueAfterCombat={continueAfterCombat}

@@ -15,7 +15,7 @@ import { useConciseMode } from "./conciseMode";
 import { useOrientation } from "./hooks/useOrientation";
 import { useLang } from "./i18n/lang";
 import type { StringKey } from "./i18n/strings.ko";
-import type { CombatAction, CombatBlip, CombatState, RuntimeSnapshot, ScenarioCharacter } from "./types";
+import type { CombatAction, CombatBlip, CombatConsumable, CombatState, RuntimeSnapshot, ScenarioCharacter } from "./types";
 
 type TFn = (key: StringKey) => string;
 
@@ -52,6 +52,9 @@ interface StoryPanelProps {
   onLeaveSession: () => void;
   onSelectCombatTarget: (targetId: string) => void;
   onCombatAction: (action: CombatAction) => void;
+  // XCOM-style throwable targeting (EMP 수류탄): arm the board cell picker.
+  onCombatItemTarget?: (item: CombatConsumable) => void;
+  combatArmedItemId?: string | null;
   onReturnToMain: () => void;
   onContinueAfterCombat: () => void;
   onCanvasPointerDown: PointerEventHandler<HTMLCanvasElement>;
@@ -835,6 +838,8 @@ export function StoryPanel({
   onLeaveSession,
   onSelectCombatTarget,
   onCombatAction,
+  onCombatItemTarget,
+  combatArmedItemId,
   onReturnToMain,
   onContinueAfterCombat,
   onCanvasPointerDown,
@@ -972,6 +977,8 @@ export function StoryPanel({
         onReturnToMain={onReturnToMain}
         onContinue={onContinueAfterCombat}
         tutorialHighlight={tutorialHighlight}
+        onItemTarget={onCombatItemTarget}
+        armedItemId={combatArmedItemId}
       />
     );
     return (
@@ -1252,6 +1259,8 @@ export function StoryPanel({
                   onAction={onCombatAction}
                   onReturnToMain={onReturnToMain}
                   onContinue={onContinueAfterCombat}
+                  onItemTarget={onCombatItemTarget}
+                  armedItemId={combatArmedItemId}
                 />
               </div>
             )}

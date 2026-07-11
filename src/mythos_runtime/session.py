@@ -1646,6 +1646,10 @@ class RuntimeSessionService:
                 "name": items_def[item_id].get("name", item_id),
                 "effect": items_def[item_id].get("effect"),
                 "count": counts[item_id],
+                # Ground-targeted throwables (EMP 수류탄): the client needs the
+                # throw range + blast radius to run the XCOM-style cell picker.
+                "range": items_def[item_id].get("range"),
+                "radius": items_def[item_id].get("radius"),
             }
             for item_id in order
         ]

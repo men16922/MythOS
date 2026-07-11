@@ -65,6 +65,9 @@ class PlayerAction:
     move_to: tuple[int, int] | None = None
     item_id: str | None = None
     skill_id: str | None = None
+    # XCOM-style ground targeting (2026-07-12): an AoE consumable (EMP 수류탄)
+    # is thrown at a CELL, not a unit — everything in the blast radius is hit.
+    target_cell: tuple[int, int] | None = None
 
 
 class CombatEngine:
@@ -652,6 +655,16 @@ class CombatEngine:
         dice = self._dice(state)
         if "move" in effect:
             self._skill_move(state, player, action.move_to, int(effect.get("move", player.speed)))
+            # Arrival discharge (신호 도약 rider): guaranteed small shock to every
+            # enemy adjacent to the landing cell — a blink into melee has value,
+            # while a blink to safety still works with no target requirement.
+            arrival = str(effect.get("arrival_damage", "") or "")
+            if arrival:
+                for foe in state.living_enemies():
+                    if distance(player.x, player.y, foe.x, foe.y) <= 1:
+                        self._apply_shock_damage(
+                            state, player, foe, arrival, dice, name, "arrival_shock"
+                        )
         if target is not None:
             self._skill_attack(state, player, target, name, effect, dice)
         # 밀기/당기기 (P1 forced movement): displace an enemy along the line. Resolve
@@ -664,6 +677,12 @@ class CombatEngine:
                 self._skill_displace(state, player, disp, int(effect.get("push", 0) or 0), toward=False)
             if "pull" in effect:
                 self._skill_displace(state, player, disp, int(effect.get("pull", 0) or 0), toward=True)
+            # Slam rider (자기 견인): the yank itself hurts — guaranteed shock on
+            # the gripped target even if it could not be moved, so the cast is
+            # never a wasted turn.
+            slam = str(effect.get("displace_damage", "") or "")
+            if slam and disp is not None and disp.alive:
+                self._apply_shock_damage(state, player, disp, slam, dice, name, "displace_shock")
         # Heal/shield support effects can target a friendly in range (default self).
         support = (
             self._friendly_target(state, player, action.target_id, skill_range)
@@ -758,23 +777,55 @@ class CombatEngine:
             )
             return True
         if effect == "stun":
-            # F stun (EMP grenade — previously inert): stun the chosen/nearest
-            # enemy within throw range for `bonus` of their turns.
-            throw_range = int(item_def.get("range", 3) or 3)
-            victim = state.by_id(action.target_id)
-            if victim is None or not victim.alive or victim.faction != ENEMY:
-                victim = self._nearest_enemy_in_range(state, player, throw_range)
-            if victim is None:
+            # F stun, upgraded to an XCOM-style AoE throw (owner 2026-07-12):
+            # the grenade targets a CELL within throw range and stuns every
+            # enemy inside the blast radius. Falls back to the chosen/nearest
+            # enemy's cell when no ground target was given (old callers).
+            throw_range = int(item_def.get("range", 4) or 4)
+            radius = int(item_def.get("radius", 1) or 1)
+            cell: tuple[int, int] | None = None
+            if action.target_cell is not None:
+                cx, cy = int(action.target_cell[0]), int(action.target_cell[1])
+                if (
+                    self._in_bounds(state, cx, cy)
+                    and distance(player.x, player.y, cx, cy) <= throw_range
+                ):
+                    cell = (cx, cy)
+            if cell is None:
+                aim = state.by_id(action.target_id)
+                if aim is None or not aim.alive or aim.faction != ENEMY:
+                    aim = self._nearest_enemy_in_range(state, player, throw_range)
+                if aim is not None:
+                    cell = (aim.x, aim.y)
+            if cell is None:
                 self._log(
                     state, player, "info", clog(state.language, "skill_no_target", name=name)
                 )
                 return False
+            victims = [
+                foe
+                for foe in state.living_enemies()
+                if distance(foe.x, foe.y, cell[0], cell[1]) <= radius
+            ]
+            if not victims:
+                self._log(
+                    state, player, "info", clog(state.language, "skill_no_target", name=name)
+                )
+                return False
+            turns = max(1, int(item_def.get("bonus", 1) or 1))
+            detail["cell"] = [cell[0], cell[1]]
+            detail["radius"] = radius
+            detail["stunned"] = [v.id for v in victims]
             self._log(
                 state, player, "item",
-                clog(state.language, "item_stun", actor=player.name, item=name, target=victim.name),
+                clog(
+                    state.language, "item_stun_aoe",
+                    actor=player.name, item=name, x=cell[0], y=cell[1], count=len(victims),
+                ),
                 detail,
             )
-            self._apply_stun(state, player, victim, max(1, int(item_def.get("bonus", 1) or 1)))
+            for victim in victims:
+                self._apply_stun(state, player, victim, turns)
             return True
         if effect == "revive":
             # Reboot the most valuable casualty: the first downed ALLY (the
@@ -878,7 +929,13 @@ class CombatEngine:
         combatant's CURRENT tile. Objectives flagged ``immovable`` don't budge."""
         if target is None or not target.alive or tiles <= 0:
             return
+        mode = "pull" if toward else "push"
         if getattr(target, "immovable", False):
+            self._log(
+                state, actor, "info",
+                clog(state.language, "skill_no_budge", target=target.name),
+                {"target": target.id, "forced": mode, "tiles": 0},
+            )
             return
         sx = _unit(target.x - actor.x)
         sy = _unit(target.y - actor.y)
@@ -886,6 +943,7 @@ class CombatEngine:
             sx, sy = -sx, -sy
         if sx == 0 and sy == 0:
             return
+        from_xy = [target.x, target.y]
         moved = 0
         for _ in range(tiles):
             nx, ny = target.x + sx, target.y + sy
@@ -905,7 +963,66 @@ class CombatEngine:
                     x=target.x,
                     y=target.y,
                 ),
-                {"to": [target.x, target.y], "target": target.id, "tiles": moved},
+                {
+                    "to": [target.x, target.y],
+                    "from": from_xy,
+                    "target": target.id,
+                    "tiles": moved,
+                    "forced": mode,
+                    "actor_at": [actor.x, actor.y],
+                },
+            )
+        else:
+            # A yank that moved nothing must still SAY something — the silent
+            # no-op was unreadable ("발동했는지도 모르겠다").
+            self._log(
+                state, actor, "info",
+                clog(state.language, "skill_no_budge", target=target.name),
+                {"target": target.id, "forced": mode, "tiles": 0},
+            )
+
+    def _apply_shock_damage(
+        self,
+        state: CombatState,
+        actor: Combatant,
+        victim: Combatant,
+        expr: str | int,
+        dice: Dice,
+        skill_name: str,
+        msg_key: str,
+    ) -> None:
+        """Flat, no-to-hit rider damage (forced-movement slam / arrival
+        discharge / AoE splash — pass an int to reuse an already-rolled value).
+
+        Bypasses armor by design: the value of these riders is that they are
+        small but GUARANTEED, so the utility cast never feels wasted."""
+        damage = max(1, expr if isinstance(expr, int) else dice.roll(expr))
+        victim.hp = max(0, victim.hp - damage)
+        detail = {
+            "damage": damage,
+            "target": victim.id,
+            "target_hp": victim.hp,
+            "target_max_hp": victim.max_hp,
+            "shock": True,
+        }
+        if victim.hp <= 0:
+            victim.alive = False
+            self._log(
+                state, actor, "defeat",
+                clog(
+                    state.language, "skill_kill",
+                    actor=actor.name, skill=skill_name, target=victim.name, damage=damage,
+                ),
+                detail,
+            )
+        else:
+            self._log(
+                state, actor, "hit",
+                clog(
+                    state.language, msg_key,
+                    actor=actor.name, target=victim.name, damage=damage,
+                ),
+                detail,
             )
 
     def _skill_attack(
@@ -981,6 +1098,18 @@ class CombatEngine:
                 ),
                 detail,
             )
+        # Splash (펄스 폭발): the blast that landed on the primary target also
+        # catches every other enemy within ``aoe_radius`` of the impact cell —
+        # flat (no separate to-hit), same rolled damage, so the AoE is legible.
+        radius = int(effect.get("aoe_radius", 0) or 0)
+        if radius > 0:
+            for foe in list(state.living_enemies()):
+                if foe.id == target.id:
+                    continue
+                if distance(foe.x, foe.y, target.x, target.y) <= radius:
+                    self._apply_shock_damage(
+                        state, player, foe, damage, dice, skill_name, "splash_hit"
+                    )
 
     def _apply_heal(self, combatant: Combatant, heal_dice: str, dice: Dice) -> int:
         amount = dice.roll(heal_dice)

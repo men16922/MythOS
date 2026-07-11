@@ -122,6 +122,9 @@ def _player_action_from_dict(data: dict[str, Any]) -> PlayerAction:
         move_to = (int(data["move_to"][0]), int(data["move_to"][1]))
     elif "x" in data and "y" in data:
         move_to = (int(data["x"]), int(data["y"]))
+    target_cell: tuple[int, int] | None = None
+    if isinstance(data.get("target_cell"), list | tuple) and len(data["target_cell"]) == 2:
+        target_cell = (int(data["target_cell"][0]), int(data["target_cell"][1]))
     return PlayerAction(
         type=action_type,
         target_id=str(data["target_id"]) if data.get("target_id") else None,
@@ -129,6 +132,7 @@ def _player_action_from_dict(data: dict[str, Any]) -> PlayerAction:
         move_to=move_to,
         item_id=str(data["item_id"]) if data.get("item_id") else None,
         skill_id=str(data["skill_id"]) if data.get("skill_id") else None,
+        target_cell=target_cell,
     )
 
 

@@ -4,7 +4,7 @@ import { enemyIntentLabel } from "./combatText";
 import { Popover } from "./Popover";
 import { useLang } from "./i18n/lang";
 import type { StringKey } from "./i18n/strings.ko";
-import type { CombatAction, CombatSkillInfo, CombatState } from "./types";
+import type { CombatAction, CombatConsumable, CombatSkillInfo, CombatState } from "./types";
 
 /** Roles whose skills the engine directs at a friendly (heal / defense_bonus). */
 const SUPPORT_ROLES = new Set(["healing", "defense"]);
@@ -33,6 +33,10 @@ interface CombatControlsProps {
   onContinue: () => void;
   // A2 first-combat tutorial: which control to spotlight ("attack"/"skill"/"defend").
   tutorialHighlight?: string | null;
+  // XCOM-style ground-target throwables (EMP 수류탄): arm/disarm the board cell
+  // picker instead of firing the item blind. `armedItemId` echoes the armed one.
+  onItemTarget?: (item: CombatConsumable) => void;
+  armedItemId?: string | null;
 }
 
 function outcomeLabel(outcome: string, t: TFn): string {
@@ -120,6 +124,8 @@ export function CombatControls({
   onReturnToMain,
   onContinue,
   tutorialHighlight,
+  onItemTarget,
+  armedItemId,
 }: CombatControlsProps) {
   const { t } = useLang();
   // Direction target for heal/shield support skills (self + allies). Kept local:
@@ -345,21 +351,40 @@ export function CombatControls({
             <div className="cc-label">{t("cc.consumables")}</div>
             {combat.consumables && combat.consumables.length > 0 ? (
               <div className="cc-skill-bar">
-                {combat.consumables.map((item) => (
-                  <button
-                    key={item.item_id}
-                    type="button"
-                    className="cc-item-btn"
-                    // Party-shared consumables: the engine applies items to the ACTIVE
-                    // actor (take_player_turn → _player_item(actor)), and the inventory
-                    // is loop-level, so a controlled ally's turn can spend them too.
-                    title={item.effect === "heal" ? t("cc.healHp") : item.effect === "focus" ? t("cc.healFocus") : item.name}
-                    onClick={() => onAction({ type: "item", item_id: item.item_id })}
-                  >
-                    <span className="cc-item-name">{item.name}</span>
-                    <span className="cc-item-count">×{item.count}</span>
-                  </button>
-                ))}
+                {combat.consumables.map((item) => {
+                  // Ground-targeted throwable (radius set): arm the XCOM-style
+                  // board cell picker instead of firing blind at the nearest enemy.
+                  const groundTargeted = item.radius != null && !!onItemTarget;
+                  const armed = groundTargeted && armedItemId === item.item_id;
+                  return (
+                    <button
+                      key={item.item_id}
+                      type="button"
+                      className={`cc-item-btn${armed ? " cc-item-armed" : ""}`}
+                      aria-pressed={armed || undefined}
+                      // Party-shared consumables: the engine applies items to the ACTIVE
+                      // actor (take_player_turn → _player_item(actor)), and the inventory
+                      // is loop-level, so a controlled ally's turn can spend them too.
+                      title={
+                        groundTargeted
+                          ? t("cc.throwAtCell")
+                          : item.effect === "heal"
+                            ? t("cc.healHp")
+                            : item.effect === "focus"
+                              ? t("cc.healFocus")
+                              : item.name
+                      }
+                      onClick={() =>
+                        groundTargeted
+                          ? onItemTarget!(item)
+                          : onAction({ type: "item", item_id: item.item_id })
+                      }
+                    >
+                      <span className="cc-item-name">{armed ? `🎯 ${item.name}` : item.name}</span>
+                      <span className="cc-item-count">×{item.count}</span>
+                    </button>
+                  );
+                })}
               </div>
             ) : (
               <div className="cc-empty">{t("cc.noConsumables")}</div>

@@ -43,6 +43,10 @@ _LINES: dict[str, dict[str, str]] = {
         "ko": "{name}은(는) 기절 상태로 움직이지 못한다.",
         "en": "{name} is stunned and cannot act.",
     },
+    "item_stun_aoe": {
+        "ko": "{actor}의 {item}이(가) ({x}, {y}) 일대를 뒤덮는다 — 적 {count}기 회로 마비!",
+        "en": "{actor}'s {item} blankets the area around ({x}, {y}) — {count} enemies short-circuit!",
+    },
     "item_stun": {
         "ko": "{actor}이(가) {item}을(를) 투척한다 — {target}을(를) 향해 전자기 폭발!",
         "en": "{actor} throws {item} — an electromagnetic burst engulfs {target}!",
@@ -167,6 +171,22 @@ _LINES: dict[str, dict[str, str]] = {
     "skill_pull": {
         "ko": "{target}이(가) ({x}, {y})로 끌려온다.",
         "en": "{target} is dragged to ({x}, {y}).",
+    },
+    "skill_no_budge": {
+        "ko": "{target}이(가) 버티고 서서 꿈쩍도 하지 않는다!",
+        "en": "{target} braces and doesn't budge an inch!",
+    },
+    "displace_shock": {
+        "ko": "{target}이(가) 끌려온 충격으로 {damage} 피해를 입는다!",
+        "en": "{target} takes {damage} slam damage from the forced shift!",
+    },
+    "arrival_shock": {
+        "ko": "{actor}의 도약 방전이 {target}에게 {damage} 전격 피해!",
+        "en": "{actor}'s arrival discharge shocks {target} for {damage}!",
+    },
+    "splash_hit": {
+        "ko": "폭발이 번져 {target}에게 {damage} 피해!",
+        "en": "The blast spreads to {target} for {damage}!",
     },
     "skill_miss": {
         "ko": "{actor}의 {skill}이(가) {target}을(를) 빗나갔다.",

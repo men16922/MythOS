@@ -284,6 +284,7 @@ export const ko = {
   "cc.flee": "✦ 도주",
   "cc.healHp": "체력 회복",
   "cc.healFocus": "집중 회복",
+  "cc.throwAtCell": "지도에서 칸을 탭해 투척 (다시 누르면 취소)",
   "cc.noConsumables": "사용 가능한 소모품 없음",
   "cc.range": "사거리",
   "cc.cost": "코스트",

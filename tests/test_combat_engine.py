@@ -362,50 +362,105 @@ class CombatSkillTest(unittest.TestCase):
         self.assertEqual(state.round, round_mid)
         self.assertGreater(round_mid, round_before)
 
-    def test_overload_strike_pushes_enemy_one_tile_away(self) -> None:
-        # P1 밀기: the melee heavy strike knocks the target 1 tile along the line
-        # away from the attacker (call the skill directly so the enemy AI turn does
-        # not move it afterward). Hit chance is unchanged; the push is the reposition.
+    def test_overload_strike_splashes_adjacent_enemies(self) -> None:
+        # 2026-07-12 owner call: 과부하 일격 is now the melee SPLASH skill — the
+        # blast that lands on the primary target spreads flat to every enemy
+        # within aoe_radius of the impact cell (no separate to-hit).
         engine = CombatEngine()
         state = engine.start(
-            [_skilled_player(x=0, y=0)], [_drone(x=1, y=0, hp=80, defense=1)],
-            seed="push", arena=(8, 6),
+            [_skilled_player(x=0, y=0)],
+            [_drone("d1", x=1, y=0, hp=80, defense=1, speed=0),
+             _drone("d2", x=1, y=1, hp=80, defense=1, speed=0)],
+            seed="ov-splash", arena=(8, 6),
         )
         player = state.player()
         assert player is not None
-        enemy = state.living_enemies()[0]
         engine._player_skill(
             state, player,
-            PlayerAction(type="skill", skill_id="overload_strike", target_id=enemy.id),
+            PlayerAction(type="skill", skill_id="overload_strike", target_id="d1"),
             SKILLS["overload_strike"], True,
         )
-        moved = state.by_id(enemy.id)
-        assert moved is not None
-        self.assertEqual((moved.x, moved.y), (2, 0))
+        d1 = state.by_id("d1")
+        d2 = state.by_id("d2")
+        assert d1 is not None and d2 is not None
+        self.assertLess(d1.hp, 80)
+        self.assertLess(d2.hp, 80)
+        # And it no longer shoves the target (push moved to 자기 반발).
+        self.assertEqual((d1.x, d1.y), (1, 0))
 
-    def test_push_stops_at_board_edge(self) -> None:
-        # No overshoot: an enemy against the wall can't be pushed off-board.
+    def test_magnetic_repulse_pushes_and_stops_at_board_edge(self) -> None:
+        # 자기 반발 (the dedicated push skill): shoves 2 tiles along the line
+        # with a guaranteed 1d4 slam; no overshoot past the wall.
         engine = CombatEngine()
         state = engine.start(
-            [_skilled_player(x=5, y=0)], [_drone(x=7, y=0, hp=80, defense=1)],
-            seed="edge", arena=(8, 6),
+            [_skilled_player(x=4, y=0)], [_drone(x=6, y=0, hp=80, defense=1, speed=0)],
+            seed="repulse", arena=(8, 6),
         )
         player = state.player()
         assert player is not None
         enemy = state.living_enemies()[0]
-        # move adjacent first would change x; instead cast from range via a reach —
-        # overload_strike is range 1, so put the enemy at the far wall and the
-        # player one tile in; the push target is at max x (arena_w-1 = 7).
-        enemy.x, enemy.y = 7, 0
-        player.x, player.y = 6, 0
         engine._player_skill(
             state, player,
-            PlayerAction(type="skill", skill_id="overload_strike", target_id=enemy.id),
-            SKILLS["overload_strike"], True,
+            PlayerAction(type="skill", skill_id="magnetic_repulse", target_id=enemy.id),
+            SKILLS["magnetic_repulse"], True,
         )
         moved = state.by_id(enemy.id)
         assert moved is not None
-        self.assertEqual((moved.x, moved.y), (7, 0))
+        self.assertEqual((moved.x, moved.y), (7, 0))  # 2-tile push clipped at the wall
+        self.assertLess(moved.hp, 80)
+        self.assertTrue(
+            any(e.detail.get("forced") == "push" and e.detail.get("tiles") == 1 for e in state.log)
+        )
+
+    def test_emp_grenade_stuns_area_at_target_cell(self) -> None:
+        # 2026-07-12 owner call: the EMP grenade is an XCOM-style ground-target
+        # AoE — thrown at a CELL, stunning every enemy in the blast radius.
+        engine = CombatEngine()
+        state = engine.start(
+            [_skilled_player(x=0, y=0)],
+            [_drone("d1", x=3, y=0, hp=80, defense=1, speed=0),
+             _drone("d2", x=4, y=1, hp=80, defense=1, speed=0),
+             _drone("d3", x=7, y=5, hp=80, defense=1, speed=0)],
+            seed="emp-aoe", arena=(8, 6),
+        )
+        player = state.player()
+        assert player is not None
+        ok = engine._player_item(
+            state, player,
+            PlayerAction(type="item", item_id="emp_grenade", target_cell=(3, 1)),
+            ITEMS["emp_grenade"], True,
+        )
+        self.assertTrue(ok)
+        d1 = state.by_id("d1")
+        d2 = state.by_id("d2")
+        d3 = state.by_id("d3")
+        assert d1 is not None and d2 is not None and d3 is not None
+        self.assertEqual(d1.stunned_turns, 1)  # within radius 1 of (3,1)
+        self.assertEqual(d2.stunned_turns, 1)
+        self.assertEqual(d3.stunned_turns, 0)  # far corner untouched
+        aoe = [e for e in state.log if e.detail.get("cell") is not None]
+        self.assertTrue(aoe)
+        self.assertEqual(aoe[-1].detail.get("cell"), [3, 1])
+        self.assertEqual(set(aoe[-1].detail.get("stunned") or []), {"d1", "d2"})
+
+    def test_emp_grenade_rejects_out_of_range_cell(self) -> None:
+        # A cell beyond throw range must not consume the grenade; with no valid
+        # fallback enemy nearby the action is refused.
+        engine = CombatEngine()
+        state = engine.start(
+            [_skilled_player(x=0, y=0)], [_drone(x=7, y=5, hp=80, defense=1, speed=0)],
+            seed="emp-range", arena=(8, 6),
+        )
+        player = state.player()
+        assert player is not None
+        ok = engine._player_item(
+            state, player,
+            PlayerAction(type="item", item_id="emp_grenade", target_cell=(7, 5)),
+            ITEMS["emp_grenade"], True,
+        )
+        self.assertFalse(ok)
+        foe = state.living_enemies()[0]
+        self.assertEqual(foe.stunned_turns, 0)
 
     def test_pull_drags_enemy_toward_actor(self) -> None:
         # P1 당기기: a control skill pulls the target toward the caster.
@@ -429,6 +484,98 @@ class CombatSkillTest(unittest.TestCase):
         moved = state.by_id(enemy.id)
         assert moved is not None
         self.assertEqual((moved.x, moved.y), (2, 0))
+
+    def test_magnetic_pull_slams_for_guaranteed_damage(self) -> None:
+        # 2026-07-12 rebalance: a zero-damage utility cast never justified the
+        # turn — the yank now deals a guaranteed 1d4 slam (no to-hit, no armor).
+        # The move log also carries from/forced metadata for the yank VFX.
+        engine = CombatEngine()
+        state = engine.start(
+            [_skilled_player(x=0, y=0)], [_drone(x=4, y=0, hp=80, defense=1, speed=0)],
+            seed="pull-slam", arena=(8, 6),
+        )
+        player = state.player()
+        assert player is not None
+        enemy = state.living_enemies()[0]
+        engine._player_skill(
+            state, player,
+            PlayerAction(type="skill", skill_id="magnetic_pull", target_id=enemy.id),
+            SKILLS["magnetic_pull"], True,
+        )
+        moved = state.by_id(enemy.id)
+        assert moved is not None
+        self.assertEqual((moved.x, moved.y), (2, 0))
+        self.assertLess(moved.hp, 80)
+        self.assertGreaterEqual(moved.hp, 76)  # 1d4 slam, armor-bypassing
+        move_logs = [e for e in state.log if e.detail.get("forced") == "pull" and e.detail.get("tiles")]
+        self.assertTrue(move_logs)
+        self.assertEqual(move_logs[-1].detail.get("from"), [4, 0])
+        self.assertTrue(any(e.detail.get("shock") for e in state.log))
+
+    def test_pull_blocked_logs_no_budge_and_still_slams(self) -> None:
+        # An adjacent enemy can't be dragged into the caster's own cell: the
+        # yank moves 0 tiles but must SAY so, and the slam rider still lands.
+        engine = CombatEngine()
+        state = engine.start(
+            [_skilled_player(x=0, y=0)], [_drone(x=1, y=0, hp=80, defense=1, speed=0)],
+            seed="pull-block", arena=(8, 6),
+        )
+        player = state.player()
+        assert player is not None
+        enemy = state.living_enemies()[0]
+        engine._player_skill(
+            state, player,
+            PlayerAction(type="skill", skill_id="magnetic_pull", target_id=enemy.id),
+            SKILLS["magnetic_pull"], True,
+        )
+        held = state.by_id(enemy.id)
+        assert held is not None
+        self.assertEqual((held.x, held.y), (1, 0))
+        self.assertTrue(
+            any(e.detail.get("forced") == "pull" and e.detail.get("tiles") == 0 for e in state.log)
+        )
+        self.assertLess(held.hp, 80)
+
+    def test_signal_step_arrival_discharge_shocks_adjacent(self) -> None:
+        # 2026-07-12 rebalance: blinking INTO melee discharges 1d4 on adjacent
+        # enemies; blinking away stays a free escape (no target requirement).
+        engine = CombatEngine()
+        state = engine.start(
+            [_skilled_player(x=0, y=0)], [_drone(x=4, y=0, hp=80, defense=1, speed=0)],
+            seed="step-shock", arena=(8, 6),
+        )
+        player = state.player()
+        assert player is not None
+        enemy = state.living_enemies()[0]
+        engine._player_skill(
+            state, player,
+            PlayerAction(type="skill", skill_id="signal_step", move_to=(3, 0)),
+            SKILLS["signal_step"], True,
+        )
+        self.assertEqual((player.x, player.y), (3, 0))
+        shocked = state.by_id(enemy.id)
+        assert shocked is not None
+        self.assertLess(shocked.hp, 80)
+        self.assertGreaterEqual(shocked.hp, 76)
+
+    def test_signal_step_away_from_enemies_costs_no_damage_logs(self) -> None:
+        engine = CombatEngine()
+        state = engine.start(
+            [_skilled_player(x=3, y=0)], [_drone(x=4, y=0, hp=80, defense=1, speed=0)],
+            seed="step-away", arena=(8, 6),
+        )
+        player = state.player()
+        assert player is not None
+        enemy = state.living_enemies()[0]
+        engine._player_skill(
+            state, player,
+            PlayerAction(type="skill", skill_id="signal_step", move_to=(0, 0)),
+            SKILLS["signal_step"], True,
+        )
+        self.assertEqual((player.x, player.y), (0, 0))
+        untouched = state.by_id(enemy.id)
+        assert untouched is not None
+        self.assertEqual(untouched.hp, 80)
 
     def test_covering_noise_applies_defense_buff(self) -> None:
         engine = CombatEngine()

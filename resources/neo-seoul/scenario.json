@@ -2202,7 +2202,8 @@
         "cooldown": 2,
         "effect": {
           "move": 4,
-          "ignore_occupied": true
+          "ignore_occupied": true,
+          "arrival_damage": "1d4"
         },
         "tags": [
           "movement",
@@ -2225,11 +2226,12 @@
         "effect": {
           "damage_bonus": "1d6",
           "armor_pen": 2,
-          "push": 1
+          "aoe_radius": 1
         },
         "tags": [
           "melee",
-          "burst"
+          "burst",
+          "aoe"
         ],
         "tier": 1,
         "epiphany": "first_combat_victory",
@@ -2341,6 +2343,32 @@
         "rankup_cost": 2,
         "max_rank": 3,
         "unlock_hint": "전투 중 획득한 단서를 분석하여 전자기 충격파를 생성하면 해금됩니다."
+      },
+      "magnetic_repulse": {
+        "id": "magnetic_repulse",
+        "name": "자기 반발",
+        "role": "control",
+        "cost": {
+          "focus": 2
+        },
+        "range": 3,
+        "cooldown": 2,
+        "effect": {
+          "push": 2,
+          "displace_damage": "1d4"
+        },
+        "tags": [
+          "ranged",
+          "control"
+        ],
+        "tier": 1,
+        "requires": [
+          "magnetic_pull"
+        ],
+        "insight_cost": 3,
+        "rankup_cost": 2,
+        "max_rank": 3,
+        "unlock_hint": "자기 견인의 극성을 반전해 적을 2칸 밀쳐내고 1d4 충격 피해를 입힙니다. 위험 지대·전기장 타일로 밀어 넣으세요."
       },
       "nanoshield_projector": {
         "id": "nanoshield_projector",
@@ -2484,13 +2512,14 @@
         "range": 4,
         "cooldown": 2,
         "effect": {
-          "pull": 2
+          "pull": 2,
+          "displace_damage": "1d4"
         },
         "tags": [
           "ranged",
           "control"
         ],
-        "unlock_hint": "자기장으로 적을 2칸 끌어당깁니다. 엄폐·고지에서 끌어내려 이점을 무력화하세요."
+        "unlock_hint": "자기장으로 적을 2칸 끌어당기고 끌려온 충격으로 1d4 피해를 입힙니다. 엄폐·고지에서 끌어내려 이점을 무력화하세요."
       }
     },
     "allies": {
@@ -2864,9 +2893,9 @@
         "role": "control",
         "cost": { "focus": 2 },
         "range": 4,
-        "cooldown": 2,
-        "effect": { "focus_drain": 2 },
-        "tags": ["hack", "debuff"]
+        "cooldown": 3,
+        "effect": { "stun": true, "duration": 1 },
+        "tags": ["hack", "debuff", "disable"]
       },
       "guardian_wall": {
         "id": "guardian_wall",
@@ -3264,6 +3293,8 @@
         "kind": "consumable",
         "effect": "stun",
         "bonus": 1,
+        "range": 4,
+        "radius": 1,
         "rarity": "rare"
       },
       "heavy_exosuit": {

@@ -303,6 +303,8 @@ export const ko = {
   "cc.fx.armorPen": "관통",
   "cc.fx.toHit": "명중",
   "cc.fx.move": "이동",
+  "cc.fx.push": "밀기",
+  "cc.fx.pull": "당기기",
   "cc.fx.tilesSuffix": "칸",
   "cc.fx.defense": "방어",
   "cc.fx.heal": "회복",

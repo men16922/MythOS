@@ -88,6 +88,8 @@ function formatEffect(
   if (typeof effect.to_hit_bonus === "number")
     parts.push(`${t("cc.fx.toHit")} +${effect.to_hit_bonus}`);
   if (effect.move != null) parts.push(`${t("cc.fx.move")} ${effect.move}${t("cc.fx.tilesSuffix")}`);
+  if (typeof effect.push === "number") parts.push(`${t("cc.fx.push")} ${effect.push}${t("cc.fx.tilesSuffix")}`);
+  if (typeof effect.pull === "number") parts.push(`${t("cc.fx.pull")} ${effect.pull}${t("cc.fx.tilesSuffix")}`);
   if (typeof effect.defense_bonus === "number")
     parts.push(`${t("cc.fx.defense")} +${effect.defense_bonus}`);
   if (effect.heal != null) parts.push(`${t("cc.fx.heal")} ${effect.heal}`);

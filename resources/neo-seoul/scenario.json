@@ -2197,7 +2197,8 @@
         "cooldown": 2,
         "effect": {
           "damage_bonus": "1d6",
-          "armor_pen": 2
+          "armor_pen": 2,
+          "push": 1
         },
         "tags": [
           "melee",

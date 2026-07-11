@@ -1,7 +1,9 @@
-"""Source-level lock for the Landscape Combat LC6 slice: in landscape+coarse
-combat the command console (target selection + Attack/Defend/Skills) leads the
-right column (actions-first, co-visible with the board) while portrait/desktop
-keep it in its original mid-column slot below the roster.
+"""Source-level lock for the Landscape Combat LC6 slice + portrait extension: on
+any COARSE-pointer (touch) combat the command console (target selection +
+Attack/Defend/Skills) leads the row (actions-first, right under the board) while
+DESKTOP (fine pointer) keeps it in its original mid slot below the roster.
+Landscape was the original LC6 case; portrait joined it 2026-07-11 ("세로 전투
+플레이 불가") via the shared `isCoarsePointer` gate.
 docs/plans/2026-07-08-design-system.md "Landscape Combat" (LC refinement).
 """
 
@@ -30,20 +32,20 @@ class LandscapeCombatLC6Test(unittest.TestCase):
         # No inline <CombatControls> in the row — it is placed only via controlsEl.
         self.assertNotIn("<CombatControls", block)
 
-    def test_actions_lead_the_landscape_right_column(self) -> None:
+    def test_actions_lead_the_row_on_touch(self) -> None:
         source = read("src/mythos_ui/src/StoryPanel.tsx")
         row = source.index('<div className="combat-bottom-row">')
         end = source.index('</div>\n        </div>\n      </div>', row)
         block = source[row:end]
 
-        landscape_controls = block.index("{isLandscapeCoarseCombat && controlsEl}")
+        touch_controls = block.index("{isCoarsePointer && controlsEl}")
         roster = block.index("roster-panel")
-        portrait_controls = block.index("{!isLandscapeCoarseCombat && controlsEl}")
+        desktop_controls = block.index("{!isCoarsePointer && controlsEl}")
 
-        # Landscape places the console at the very top of the column…
-        self.assertLess(landscape_controls, roster)
-        # …while the portrait/desktop placement stays below the roster.
-        self.assertLess(roster, portrait_controls)
+        # Any touch device places the console at the top of the row (actions-first)…
+        self.assertLess(touch_controls, roster)
+        # …while the desktop (fine-pointer) placement stays below the roster.
+        self.assertLess(roster, desktop_controls)
 
 
 if __name__ == "__main__":

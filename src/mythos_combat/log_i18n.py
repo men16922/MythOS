@@ -160,6 +160,14 @@ _LINES: dict[str, dict[str, str]] = {
         "ko": "{name}이(가) 신호 도약으로 ({x}, {y})로 파고든다.",
         "en": "{name} signal-steps deep to ({x}, {y}).",
     },
+    "skill_push": {
+        "ko": "{target}이(가) 충격에 밀려 ({x}, {y})로 밀려난다.",
+        "en": "{target} is knocked back to ({x}, {y}).",
+    },
+    "skill_pull": {
+        "ko": "{target}이(가) ({x}, {y})로 끌려온다.",
+        "en": "{target} is dragged to ({x}, {y}).",
+    },
     "skill_miss": {
         "ko": "{actor}의 {skill}이(가) {target}을(를) 빗나갔다.",
         "en": "{actor}'s {skill} misses {target}.",

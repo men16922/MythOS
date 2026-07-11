@@ -20,6 +20,11 @@ from .models import (
 _NEIGHBORS = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
 
 
+def _unit(delta: int) -> int:
+    """Sign of a coordinate delta (-1/0/+1) — one grid step along an axis."""
+    return (delta > 0) - (delta < 0)
+
+
 def _avg_dice(spec: str) -> float:
     """Expected value of an ``NdM(+/-K)`` dice spec (for ranking, not rolling).
 
@@ -649,6 +654,16 @@ class CombatEngine:
             self._skill_move(state, player, action.move_to, int(effect.get("move", player.speed)))
         if target is not None:
             self._skill_attack(state, player, target, name, effect, dice)
+        # 밀기/당기기 (P1 forced movement): displace an enemy along the line. Resolve
+        # the target even for a no-damage skill; a defeated target isn't shoved.
+        if "push" in effect or "pull" in effect:
+            disp = target or state.by_id(action.target_id)
+            if disp is None or not disp.alive or disp.faction != ENEMY:
+                disp = self._nearest_enemy_in_range(state, player, skill_range)
+            if "push" in effect:
+                self._skill_displace(state, player, disp, int(effect.get("push", 0) or 0), toward=False)
+            if "pull" in effect:
+                self._skill_displace(state, player, disp, int(effect.get("pull", 0) or 0), toward=True)
         # Heal/shield support effects can target a friendly in range (default self).
         support = (
             self._friendly_target(state, player, action.target_id, skill_range)
@@ -844,6 +859,53 @@ class CombatEngine:
                 "move",
                 clog(state.language, "signal_step_dive", name=player.name, x=player.x, y=player.y),
                 {"to": [player.x, player.y]},
+            )
+
+    def _skill_displace(
+        self,
+        state: CombatState,
+        actor: Combatant,
+        target: Combatant | None,
+        tiles: int,
+        *,
+        toward: bool,
+    ) -> None:
+        """Forced movement (밀기/당기기). Steps ``target`` one tile at a time along
+        the actor↔target line — away for push, toward the actor for pull — stopping
+        at the board edge or an occupied tile (no overshoot). Terrain-meaningful by
+        design: shoving an enemy off a cover / high-ground tile strips the bonus it
+        was standing on, since every combat calc reads elevation/cover from the
+        combatant's CURRENT tile. Objectives flagged ``immovable`` don't budge."""
+        if target is None or not target.alive or tiles <= 0:
+            return
+        if getattr(target, "immovable", False):
+            return
+        sx = _unit(target.x - actor.x)
+        sy = _unit(target.y - actor.y)
+        if toward:
+            sx, sy = -sx, -sy
+        if sx == 0 and sy == 0:
+            return
+        moved = 0
+        for _ in range(tiles):
+            nx, ny = target.x + sx, target.y + sy
+            if not self._in_bounds(state, nx, ny) or self._occupied(state, nx, ny, target):
+                break
+            target.x, target.y = nx, ny
+            moved += 1
+        if moved:
+            self._log(
+                state,
+                actor,
+                "move",
+                clog(
+                    state.language,
+                    "skill_pull" if toward else "skill_push",
+                    target=target.name,
+                    x=target.x,
+                    y=target.y,
+                ),
+                {"to": [target.x, target.y], "target": target.id, "tiles": moved},
             )
 
     def _skill_attack(

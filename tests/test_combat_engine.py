@@ -362,6 +362,74 @@ class CombatSkillTest(unittest.TestCase):
         self.assertEqual(state.round, round_mid)
         self.assertGreater(round_mid, round_before)
 
+    def test_overload_strike_pushes_enemy_one_tile_away(self) -> None:
+        # P1 밀기: the melee heavy strike knocks the target 1 tile along the line
+        # away from the attacker (call the skill directly so the enemy AI turn does
+        # not move it afterward). Hit chance is unchanged; the push is the reposition.
+        engine = CombatEngine()
+        state = engine.start(
+            [_skilled_player(x=0, y=0)], [_drone(x=1, y=0, hp=80, defense=1)],
+            seed="push", arena=(8, 6),
+        )
+        player = state.player()
+        assert player is not None
+        enemy = state.living_enemies()[0]
+        engine._player_skill(
+            state, player,
+            PlayerAction(type="skill", skill_id="overload_strike", target_id=enemy.id),
+            SKILLS["overload_strike"], True,
+        )
+        moved = state.by_id(enemy.id)
+        assert moved is not None
+        self.assertEqual((moved.x, moved.y), (2, 0))
+
+    def test_push_stops_at_board_edge(self) -> None:
+        # No overshoot: an enemy against the wall can't be pushed off-board.
+        engine = CombatEngine()
+        state = engine.start(
+            [_skilled_player(x=5, y=0)], [_drone(x=7, y=0, hp=80, defense=1)],
+            seed="edge", arena=(8, 6),
+        )
+        player = state.player()
+        assert player is not None
+        enemy = state.living_enemies()[0]
+        # move adjacent first would change x; instead cast from range via a reach —
+        # overload_strike is range 1, so put the enemy at the far wall and the
+        # player one tile in; the push target is at max x (arena_w-1 = 7).
+        enemy.x, enemy.y = 7, 0
+        player.x, player.y = 6, 0
+        engine._player_skill(
+            state, player,
+            PlayerAction(type="skill", skill_id="overload_strike", target_id=enemy.id),
+            SKILLS["overload_strike"], True,
+        )
+        moved = state.by_id(enemy.id)
+        assert moved is not None
+        self.assertEqual((moved.x, moved.y), (7, 0))
+
+    def test_pull_drags_enemy_toward_actor(self) -> None:
+        # P1 당기기: a control skill pulls the target toward the caster.
+        engine = CombatEngine()
+        engine.skills_pool["tether"] = {
+            "id": "tether", "name": "견인", "role": "control",
+            "range": 6, "cooldown": 0, "cost": {}, "effect": {"pull": 2},
+        }
+        state = engine.start(
+            [_skilled_player(x=0, y=0)], [_drone(x=4, y=0, hp=80, defense=1)],
+            seed="pull", arena=(8, 6),
+        )
+        player = state.player()
+        assert player is not None
+        enemy = state.living_enemies()[0]
+        engine._player_skill(
+            state, player,
+            PlayerAction(type="skill", skill_id="tether", target_id=enemy.id),
+            engine.skills_pool["tether"], True,
+        )
+        moved = state.by_id(enemy.id)
+        assert moved is not None
+        self.assertEqual((moved.x, moved.y), (2, 0))
+
     def test_covering_noise_applies_defense_buff(self) -> None:
         engine = CombatEngine()
         state = engine.start(

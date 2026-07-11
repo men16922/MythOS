@@ -302,6 +302,8 @@ export const en: Record<StringKey, string> = {
   "cc.fx.armorPen": "pierce",
   "cc.fx.toHit": "to-hit",
   "cc.fx.move": "move",
+  "cc.fx.push": "push",
+  "cc.fx.pull": "pull",
   "cc.fx.tilesSuffix": " tiles",
   "cc.fx.defense": "DEF",
   "cc.fx.heal": "heal",

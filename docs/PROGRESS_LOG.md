@@ -2,11 +2,11 @@
 
 Last updated: 2026-07-11
 
-## 2026-07-11 (live session #7, claude lane) — mobile market dock dismissible + dialogue possessive-name fix; DEPLOY 00049-p98
-- Status: Done + **DEPLOYED `mythos-api-00049-p98`** (owner-run `make deploy`, smoke health/root 200). `make check` **983** green.
+## 2026-07-11 (live session #7, claude lane) — mobile market dock + dialogue: possessive fix + always-distinct speech; DEPLOY 00049→00050
+- Status: Done + **DEPLOYED `mythos-api-00049-p98` then `00050-q66`** (owner-run `make deploy` ×2, smoke health/root 200 each). `make check` **983** green.
 - **Market barter dock (`2ae52ba`)**: the fixed bottom-right dock covered the narration on mobile → now collapsed by default on coarse pointer (compact launcher chip), opens on tap, ✕ to close; desktop keeps the open dock.
 - **Dialogue possessive false-positive (`b312dfc`)**: "린위에의 부하가 말했다"(Lin-yue's subordinate) was attributed to 린위에. `keywordMatches` now rejects a name immediately followed by the possessive 의 / 's (modifier ≠ speaker); applies to the dialogue callout + CHARACTER panel. Verified 7 cases.
-- Open (owner deciding): the dialogue callout only appears when the speaker is NAMED in the attribution — quoted speech with a pronoun / unnamed / prior-paragraph speaker gets no bubble (strict gate to avoid wrong portraits, the "Se-rin appears unearned" class). Owner noted the dialogue itself IS reliably detectable (quotes) even when the speaker isn't → option to style all quoted speech as dialogue (portrait/name only when the speaker is known). Not yet built.
+- **Dialogue always distinct (`0e04104`, owner-approved → DEPLOY 00050-q66)**: previously the callout only fired on a NAMED speaker, so quoted speech with a pronoun/unnamed/prior-paragraph speaker fell back to plain prose (the "들쭉날쭉"). Now every paragraph is segmented — a sentence-like quoted span ALWAYS renders as dialogue (`.dialogue-line` accent block), and a confident named speaker upgrades it to the portrait+name callout. Split rests on the reliable signal (is-it-a-quote) not the unreliable one (who) → consistent dialogue/narration separation with zero wrong-face risk.
 
 ## 2026-07-11 (live session #6, claude lane) — mobile: tab-swipe nav + inline story-history collapsed by default; DEPLOY 00047-hln
 - Status: Done + **DEPLOYED `mythos-api-00048-p7b`** (owner-run `make deploy` ×2; 00047-hln then a tab-swipe wrap-around follow-up; smoke health/root 200). `make check` **983** green.

@@ -14,7 +14,7 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00
 - `[x]` **전투 A/V 싱크 A+B DONE (`654bdd0`)**: SFX 캐시+전투 시작 프리로드 · 투사체 비행을 임팩트 큐에 정렬(0.65s/0.45s). 남음 `[ ]` (C) 연출 리플레이 중 로스터/인스펙터가 최종 턴-후 HP 표시 — 설계 작업, 별도 판단.
 - `[x]` **drone_scrap 무근거 지급 FIXED (`654bdd0`)**: few-shot 예시 `grant_items` 중립화(빈 배열+주석, KO/EN). `[ ]` `[manual]` 라이브 체감(지급 빈도 정상화). 부수 잔여: 직전결과 raw id/한글명 혼용 표시(용어 패스에 폴드).
 - `[x]` **한 뜬금 전투 합류 FIXED (`654bdd0`)**: 미등장 아군 HOLD — 산문이 언급한 적 없는 플래그-언락 아군은 참전 보류(언급 후 다음 전투부터), 파티는 항상 참전; 만남 아크 장면엔 "이름+대사 필수" 의무 조항 추가. `[ ]` `[manual]` 라이브 재확인(만남 아크→합류 흐름 자연스러운지).
-- `[ ]` **프로덕션 이미지 생성 실패 1건**(`visual_status: failed`): 서버 로그 레벨이 INFO 억제라 사유는 DB `assets.metadata.error`에만 있음 — 오너 실행 필요(아래 커맨드, 본문 참조). 빈도 관찰.
+- `[x]` **프로덕션 이미지 생성 실패 ROOT-CAUSED + RETRY FIX (`40ccaea`)**: 오너 DB 조회로 확정 — 429(Imagen 분당 쿼터, 4건) + 빈 응답(안전 필터, 3건). 프로바이더 재시도(쿼터 8s/15s 백오프·빈 응답 1.5s 재롤, +4 tests). 남음 `[ ]` `[manual]` **GCP 콘솔에서 `imagen-3.0-generate` `online_prediction_requests_per_base_model` 쿼터 증액 신청**(근본 해소) · 배포 후 실패 빈도 재관찰.
 - `[x]` **용어 직관화 DONE (`ece8e08`)**: 도감 용어집 섹션(정본 11개 KO/EN) + naming 가드(시스템 명사 발명 금지·첫 등장 주석, byte-parity 유지) + 직전결과 raw id 해소(materialize 무조건 실행). 남음 `[ ]` `[manual]` 라이브 체감 · `[ ]` EN 오프닝 카드 패리티(감사 구체 항목 필요) · 용어집 저작 데이터 승격(scenario.json 오버레이)은 후속.
 - **전투 갈아엎기 리서치 DONE** → `docs/plans/2026-07-11-combat-redesign-research.md` (ItB 결정론 퍼즐 A안 권고, P0-P2 로드맵) — `[ ]` `[manual]` 오너 방향 결정.
 

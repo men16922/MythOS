@@ -87,6 +87,24 @@ class CombatServiceTest(unittest.TestCase):
         self.assertEqual(len(result.radar["blips"]), 3)  # player + 2 drones
         self.assertTrue(result.available["can_act"])
 
+    def test_build_result_radar_reflects_freshly_planned_intents(self) -> None:
+        """P0 full telegraph: the board radar must serialize the enemy intents
+        planned for the upcoming turn. render_radar has to run AFTER the planner
+        (available_actions -> update_enemy_intents); building the radar first
+        serialized stale/empty intents so the telegraph never updated."""
+        service = CombatService()
+        result = self._begin(service, _loop())
+        state = CombatService.load_state(result.loop)
+        assert state is not None and state.active
+        living = len(state.living_enemies())
+        self.assertGreater(living, 0)
+        # Simulate the stale/empty intent list a prior cycle would leave behind.
+        state.enemy_intents = []
+        rebuilt = service._build_result(result.loop, state, "prose", POOL)
+        # update_enemy_intents appends exactly one intent per living enemy; if the
+        # radar were built before planning (the bug), this would be 0.
+        self.assertEqual(len(rebuilt.radar["enemy_intents"]), living)
+
     def test_humanoid_enemy_combat_images_include_guard_pose(self) -> None:
         bestiary = POOL["bestiary"]
         for enemy_id, slug in (

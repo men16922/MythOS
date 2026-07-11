@@ -241,6 +241,14 @@ class CombatService:
         prose: str,
         scenario_combat: dict[str, Any],
     ) -> CombatTurnResult:
+        # Plan the enemies' next moves BEFORE snapshotting the radar so the board's
+        # full telegraph (⚔ dice cost + attacker→target connector) reflects what the
+        # enemies will actually do on the upcoming turn. available_actions() runs the
+        # intent planner (update_enemy_intents); calling render_radar first serialized
+        # stale intents from the previous cycle (enemies had since moved) or an empty
+        # list at combat start, so the telegraph never updated. session.py builds the
+        # snapshot in this same order.
+        available = self.engine.available_actions(state) if state.active else {}
         radar = render_radar(state)
         log = serialize_combat_log(state.log)
         terrain: dict[str, Any] = {
@@ -253,7 +261,7 @@ class CombatService:
                 loop=loop,
                 prose=prose,
                 radar=radar,
-                available=self.engine.available_actions(state),
+                available=available,
                 finished=False,
                 log=log,
                 **terrain,

@@ -202,15 +202,35 @@ def _first_image_bytes(response: object) -> bytes:
     return bytes(data)
 
 
+def _gemini_image_bytes(response: object) -> bytes:
+    """Extract image bytes from a Gemini image ``generate_content`` response —
+    ``candidates[].content.parts[].inline_data.data`` (tolerant of shape)."""
+    for cand in getattr(response, "candidates", None) or []:
+        content = getattr(cand, "content", None)
+        for part in getattr(content, "parts", None) or []:
+            inline = getattr(part, "inline_data", None)
+            data = getattr(inline, "data", None) if inline is not None else None
+            if isinstance(data, (bytes, bytearray)):
+                return bytes(data)
+    # Reuse the imagen retry-classifier substring so an empty safety-filtered
+    # response re-rolls the same way.
+    raise RuntimeError("Gemini image model returned no images")
+
+
 class VertexImageProvider:
-    """``VisualProvider`` backed by Vertex AI **Imagen** (cloud product image path).
+    """``VisualProvider`` backed by Vertex AI cloud image generation.
+
+    Two model families, chosen by the ``IMAGEN_MODEL`` id:
+      * ``gemini-*-image`` (default ``gemini-3.1-flash-image``) → ``generate_content``
+        with the scene prompt plus, when available, the character's curated portrait
+        as a reference image for identity consistency (fixes face drift; also the
+        supported path since imagen-3.0-generate-002 was retired mid-2026);
+      * ``imagen-*`` → the legacy ``generate_images`` text-to-image path.
 
     Mirrors the narrative ``VertexGeminiJSONProvider``: the `google-genai` SDK is an
-    optional dep imported lazily inside ``_client()`` and the client is injectable for
-    tests. Replaces the local FLUX/MPS pipeline with an API call — the cloud cost driver
-    (`GCP_PLAN.md` §1), so anchor curation still skips most generations upstream. Reuses
-    the same env names as the narrative provider (``GOOGLE_CLOUD_PROJECT``/``PROJECT_ID``,
-    ``GOOGLE_GENAI_USE_VERTEXAI``); the model is ``IMAGEN_MODEL`` (default imagen-3).
+    optional dep imported lazily and the client is injectable for tests. Reuses the same
+    env names as the narrative provider (``GOOGLE_CLOUD_PROJECT``/``PROJECT_ID``,
+    ``GOOGLE_GENAI_USE_VERTEXAI``); anchor curation still skips most generations upstream.
     """
 
     def __init__(
@@ -226,10 +246,16 @@ class VertexImageProvider:
         sleep: Callable[[float], None] = time.sleep,
     ) -> None:
         self._sleep = sleep
-        self.model = model or _env("IMAGEN_MODEL", "IMAGE_MODEL_ID_VERTEX") or "imagen-3.0-generate-002"
+        # Default to a Gemini image model (2026-07: imagen-3.0-generate-002 is past
+        # its shutdown date). Gemini image models take the curated portrait as a
+        # reference for character consistency; `IMAGEN_MODEL` still overrides (e.g.
+        # gemini-2.5-flash-image for GA, or an imagen-* id to use the legacy path).
+        self.model = (
+            model or _env("IMAGEN_MODEL", "IMAGE_MODEL_ID_VERTEX") or "gemini-3.1-flash-image"
+        )
         # Truth labels for asset records/logs: requests are stamped with local-FLUX
         # defaults, which must not survive onto a billed cloud generation.
-        self.provider_label = "vertex_imagen"
+        self.provider_label = "vertex_image"
         self.model_label = self.model
         self.project = project or _env("GOOGLE_CLOUD_PROJECT", "PROJECT_ID")
         self.location = location or _env("GOOGLE_CLOUD_LOCATION") or "us-central1"
@@ -262,20 +288,15 @@ class VertexImageProvider:
 
     def generate(self, request: VisualGenerationRequest, output_path: Path) -> Path:
         client = self._client()
-        config = {
-            "number_of_images": self.number_of_images,
-            "aspect_ratio": _nearest_aspect_ratio(request.width, request.height),
-        }
         model = request.metadata.get("vertex_image_model") or self.model
+        use_gemini = str(model).startswith("gemini")
         attempts = len(_QUOTA_RETRY_DELAYS_S) + 1
         for attempt in range(attempts):
             try:
-                response = client.models.generate_images(
-                    model=model,
-                    prompt=request.prompt,
-                    config=config,
-                )
-                data = _first_image_bytes(response)
+                if use_gemini:
+                    data = self._generate_gemini(client, model, request)
+                else:
+                    data = self._generate_imagen(client, model, request)
             except Exception as exc:
                 if attempt >= attempts - 1 or not _is_retryable_imagen_error(exc):
                     raise
@@ -288,7 +309,40 @@ class VertexImageProvider:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_bytes(data)
             return output_path
-        raise RuntimeError("unreachable: imagen retry loop exhausted")  # pragma: no cover
+        raise RuntimeError("unreachable: image retry loop exhausted")  # pragma: no cover
+
+    def _generate_imagen(self, client: Any, model: str, request: VisualGenerationRequest) -> bytes:
+        """Legacy Imagen text-to-image path (imagen-* models)."""
+        response = client.models.generate_images(
+            model=model,
+            prompt=request.prompt,
+            config={
+                "number_of_images": self.number_of_images,
+                "aspect_ratio": _nearest_aspect_ratio(request.width, request.height),
+            },
+        )
+        return _first_image_bytes(response)
+
+    def _generate_gemini(self, client: Any, model: str, request: VisualGenerationRequest) -> bytes:
+        """Gemini image path (gemini-*-image): text prompt + optional curated
+        portrait as a reference so the character stays consistent across scenes.
+        `google.genai.types` is imported lazily (optional cloud dep, like `_client`)."""
+        from google.genai import types  # type: ignore[import-not-found]
+
+        contents: list[Any] = [request.prompt]
+        ref = request.metadata.get("reference_image")
+        if ref and os.path.exists(str(ref)):
+            contents.append(
+                types.Part.from_bytes(data=Path(ref).read_bytes(), mime_type="image/png")
+            )
+        config = types.GenerateContentConfig(
+            response_modalities=["IMAGE"],
+            image_config=types.ImageConfig(
+                aspect_ratio=_nearest_aspect_ratio(request.width, request.height)
+            ),
+        )
+        response = client.models.generate_content(model=model, contents=contents, config=config)
+        return _gemini_image_bytes(response)
 
 
 def default_visual_provider(config: AgentConfig | None = None) -> VisualProvider:

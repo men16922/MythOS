@@ -63,15 +63,36 @@ class _FakeGenaiClient:
         self.models = _FakeImagenModels(image_bytes)
 
 
-class _FlakyImagenModels:
-    """Scripted per-call outcomes: '429' raises quota, 'empty' returns no images,
-    'ok' succeeds — for the transient-failure retry tests."""
+def _gemini_resp(image_bytes: bytes) -> Any:
+    """A Gemini image `generate_content` response: candidates[].content.parts[].inline_data.data."""
+    part = types.SimpleNamespace(inline_data=types.SimpleNamespace(data=image_bytes))
+    content = types.SimpleNamespace(parts=[part])
+    return types.SimpleNamespace(candidates=[types.SimpleNamespace(content=content)])
 
+
+class _FakeGeminiModels:
+    def __init__(self, image_bytes: bytes | None) -> None:
+        self._image_bytes = image_bytes
+        self.calls: list[dict[str, Any]] = []
+
+    def generate_content(self, *, model: str, contents: Any, config: Any):
+        self.calls.append({"model": model, "contents": contents, "config": config})
+        if self._image_bytes is None:
+            return types.SimpleNamespace(candidates=[])
+        return _gemini_resp(self._image_bytes)
+
+
+class _FakeGeminiClient:
+    def __init__(self, image_bytes: bytes | None = _PNG) -> None:
+        self.models = _FakeGeminiModels(image_bytes)
+
+
+class _FlakyGeminiModels:
     def __init__(self, outcomes: list[str]) -> None:
         self.outcomes = list(outcomes)
         self.calls = 0
 
-    def generate_images(self, *, model: str, prompt: str, config: Any):
+    def generate_content(self, *, model: str, contents: Any, config: Any):
         self.calls += 1
         outcome = self.outcomes.pop(0)
         if outcome == "429":
@@ -80,14 +101,13 @@ class _FlakyImagenModels:
                 "aiplatform.googleapis.com/online_prediction_requests_per_base_model"
             )
         if outcome == "empty":
-            return types.SimpleNamespace(generated_images=[])
-        image = types.SimpleNamespace(image_bytes=_PNG)
-        return types.SimpleNamespace(generated_images=[types.SimpleNamespace(image=image)])
+            return types.SimpleNamespace(candidates=[])
+        return _gemini_resp(_PNG)
 
 
-class _FlakyGenaiClient:
+class _FlakyGeminiClient:
     def __init__(self, outcomes: list[str]) -> None:
-        self.models = _FlakyImagenModels(outcomes)
+        self.models = _FlakyGeminiModels(outcomes)
 
 
 class AspectRatioTest(unittest.TestCase):
@@ -127,8 +147,36 @@ class VertexImageProviderTest(unittest.TestCase):
             provider.generate(req, Path(tmp) / "s.png")
         self.assertEqual(client.models.calls[0]["model"], "imagen-3.0-fast-generate-001")
 
+    def test_gemini_default_uses_generate_content_and_writes_png(self) -> None:
+        # Default model is now a gemini image model → the generate_content path.
+        client = _FakeGeminiClient(_PNG)
+        provider = VertexImageProvider(client=client)
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "s.png"
+            provider.generate(_request(1080, 1920), out)
+            self.assertEqual(out.read_bytes(), _PNG)
+        call = client.models.calls[0]
+        self.assertTrue(str(call["model"]).startswith("gemini"))
+        # No reference portrait in metadata → text-only (single content part).
+        self.assertEqual(len(call["contents"]), 1)
+
+    def test_gemini_passes_curated_portrait_as_reference(self) -> None:
+        # When metadata carries a reference_image that exists, it is sent as a
+        # second content part (the identity anchor) alongside the prompt.
+        client = _FakeGeminiClient(_PNG)
+        provider = VertexImageProvider(client=client)
+        with tempfile.TemporaryDirectory() as tmp:
+            portrait = Path(tmp) / "se-rin.png"
+            portrait.write_bytes(_PNG)
+            req = VisualGenerationRequest(
+                player_id="p", loop_id="l", scene_id="s", prompt="a scene",
+                metadata={"reference_image": str(portrait)},
+            )
+            provider.generate(req, Path(tmp) / "out.png")
+        self.assertEqual(len(client.models.calls[0]["contents"]), 2)
+
     def test_no_images_raises_after_retries(self) -> None:
-        client = _FlakyGenaiClient(["empty", "empty", "empty"])
+        client = _FlakyGeminiClient(["empty", "empty", "empty"])
         provider = VertexImageProvider(client=client, sleep=lambda _s: None)
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaises(RuntimeError):
@@ -136,9 +184,9 @@ class VertexImageProviderTest(unittest.TestCase):
         self.assertEqual(client.models.calls, 3)
 
     def test_quota_429_retries_with_backoff_then_succeeds(self) -> None:
-        # Prod evidence 2026-07-11: bursty turns tripped the per-minute Imagen
-        # quota and the empty safety-filter response; both must survive a re-roll.
-        client = _FlakyGenaiClient(["429", "ok"])
+        # Prod evidence 2026-07-11: bursty turns tripped the per-minute quota and
+        # the empty safety-filter response; both must survive a re-roll.
+        client = _FlakyGeminiClient(["429", "ok"])
         delays: list[float] = []
         provider = VertexImageProvider(client=client, sleep=delays.append)
         with tempfile.TemporaryDirectory() as tmp:
@@ -149,7 +197,7 @@ class VertexImageProviderTest(unittest.TestCase):
         self.assertEqual(delays, [8.0])
 
     def test_empty_response_retries_quickly_then_succeeds(self) -> None:
-        client = _FlakyGenaiClient(["empty", "ok"])
+        client = _FlakyGeminiClient(["empty", "ok"])
         delays: list[float] = []
         provider = VertexImageProvider(client=client, sleep=delays.append)
         with tempfile.TemporaryDirectory() as tmp:
@@ -161,7 +209,7 @@ class VertexImageProviderTest(unittest.TestCase):
         class _Boom:
             calls = 0
 
-            def generate_images(self, **_kw):
+            def generate_content(self, **_kw):
                 _Boom.calls += 1
                 raise RuntimeError("PERMISSION_DENIED: caller lacks permission")
 

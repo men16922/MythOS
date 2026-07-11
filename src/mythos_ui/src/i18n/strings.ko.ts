@@ -246,6 +246,7 @@ export const ko = {
   "story.scene": "장면",
   "story.sceneImage": "장면 이미지",
   "story.history.viewAll": "📜 서사 기록 전체 보기",
+  "story.history.previousScene": "직전 장면 보기",
   "story.history.myAction": "▸ 내 행동:",
   "story.history.result": "↳ 결과:",
   "story.history.close": "닫기 ✕",

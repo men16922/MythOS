@@ -3380,6 +3380,38 @@ main {
 .history-open-btn:hover {
   background: rgba(0, 255, 170, 0.12);
 }
+/* Inline previous-scene block is collapsed by default (owner 2026-07-11): keep
+   the current scene the focus; expand only to re-read the immediate context. */
+.history-inline-details {
+  margin-bottom: 12px;
+}
+.history-inline-summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 5px 9px;
+  color: var(--term);
+  font-family: var(--mono);
+  font-size: 11px;
+  border: 1px dashed var(--line-soft);
+  border-radius: 5px;
+  opacity: 0.65;
+  transition: opacity 0.15s ease;
+}
+.history-inline-summary::-webkit-details-marker {
+  display: none;
+}
+.history-inline-summary::before {
+  content: "▸ ";
+}
+.history-inline-details[open] .history-inline-summary {
+  margin-bottom: 8px;
+}
+.history-inline-details[open] .history-inline-summary::before {
+  content: "▾ ";
+}
+.history-inline-summary:hover {
+  opacity: 1;
+}
 .history-overlay {
   position: fixed;
   inset: 0;

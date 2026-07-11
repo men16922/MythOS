@@ -1148,23 +1148,31 @@ export function StoryPanel({
                 </button>
               )}
 
-              {/* 직전 장면(맥락 유지용) */}
-              {inlineHistory.map((h, idx) => (
-                <div key={`${h.sceneId}-${idx}`} className="history-scene-block">
-                  <h3 className="history-scene-title">
-                    {h.title}
-                  </h3>
-                  <div className="history-scene-text">
-                    {h.text}
-                  </div>
-                  {h.action && (
-                    <div className="history-scene-action">{t("story.history.myAction")} {h.action}</div>
-                  )}
-                  {h.result && (
-                    <div className="history-scene-result">{t("story.history.result")} {h.result}</div>
-                  )}
-                </div>
-              ))}
+              {/* 직전 장면(맥락 유지용) — 기본 접힘 (owner 2026-07-11): 현재 지문에
+                  집중하고, 맥락이 필요할 때만 펼쳐 직전 장면을 본다. */}
+              {inlineHistory.length > 0 && (
+                <details className="history-inline-details">
+                  <summary className="history-inline-summary">
+                    {t("story.history.previousScene")}
+                  </summary>
+                  {inlineHistory.map((h, idx) => (
+                    <div key={`${h.sceneId}-${idx}`} className="history-scene-block">
+                      <h3 className="history-scene-title">
+                        {h.title}
+                      </h3>
+                      <div className="history-scene-text">
+                        {h.text}
+                      </div>
+                      {h.action && (
+                        <div className="history-scene-action">{t("story.history.myAction")} {h.action}</div>
+                      )}
+                      {h.result && (
+                        <div className="history-scene-result">{t("story.history.result")} {h.result}</div>
+                      )}
+                    </div>
+                  ))}
+                </details>
+              )}
 
               {/* 현재 지문 스트리밍 */}
               <div className="current-scene-block">

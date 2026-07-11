@@ -22,6 +22,7 @@ import { MarketExchange } from "./MarketExchange";
 import { StoryPanel } from "./StoryPanel";
 import { TabNav } from "./TabNav";
 import type { ActiveTab } from "./TabNav";
+import { useTabSwipe } from "./hooks/useTabSwipe";
 import { SkillTreePanel } from "./SkillTreePanel";
 import { IntroPanel } from "./IntroPanel";
 import type { IntroData } from "./IntroPanel";
@@ -691,6 +692,19 @@ export default function App() {
     }
   };
 
+  // Tab-swipe (touch, owner 2026-07-11): a horizontal swipe moves between tabs.
+  // Routes through handleTabClick so switching to a codex-backed tab still
+  // lazy-loads its data; the hook itself ignores swipes that start on the combat
+  // board or any horizontal scroller.
+  const swipeTabs: ActiveTab[] = [
+    "story",
+    "codex",
+    "character",
+    "skills",
+    ...(isAdmin ? (["dev"] as ActiveTab[]) : []),
+  ];
+  const tabSwipe = useTabSwipe(swipeTabs, activeTab, handleTabClick);
+
   // A3 progressive disclosure (CBT feedback #1 "info-dense layout"): the very
   // first loop's opening turns show only narrative + choices + gauges; the
   // operation map / save / log aside panels appear from turn 3 with a one-time
@@ -881,7 +895,7 @@ export default function App() {
             </div>
           )}
           <main id="play" className={cueFxClass || undefined}>
-          <section>
+          <section onTouchStart={tabSwipe.onTouchStart} onTouchEnd={tabSwipe.onTouchEnd}>
             <TabNav activeTab={activeTab} onTabClick={handleTabClick} notices={tabNotices} showDev={isAdmin} />
 
             {activeTab === "story" && (

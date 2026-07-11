@@ -246,6 +246,7 @@ export const en: Record<StringKey, string> = {
   "story.scene": "Scene",
   "story.sceneImage": "Scene Image",
   "story.history.viewAll": "📜 View full story log",
+  "story.history.previousScene": "Previous scene",
   "story.history.myAction": "▸ My action:",
   "story.history.result": "↳ Result:",
   "story.history.close": "Close ✕",

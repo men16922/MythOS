@@ -2,6 +2,12 @@
 
 Last updated: 2026-07-11
 
+## 2026-07-11 (live session #6, claude lane) — mobile: tab-swipe nav + inline story-history collapsed by default; DEPLOY 00047-hln
+- Status: Done + **DEPLOYED `mythos-api-00047-hln`** (owner-run `make deploy`, smoke health/root 200). `make check` **983** green.
+- **Tab-swipe (`4e42c85`)**: horizontal swipe moves between tabs (`useTabSwipe`), routed through handleTabClick so codex-backed tabs still lazy-load. Guarded to ignore swipes starting on the combat board's pan-x wrapper or any horizontal scroller; needs a deliberate horizontal-dominant <600ms drag so a vertical read-scroll never triggers it.
+- **Inline story-history collapsed by default**: the previous-scene block is now a `<details>` collapsed by default (owner: keep the current scene the focus). Counts clarified for owner — inline = 1 previous scene, full 전체보기 overlay = recent 20 (kept at 20 per owner).
+- Next: owner mobile real-device pass on 00047 (swipe + collapse) · combat-P0 re-verdict → P1 GO/NO-GO · `! git push` (ahead of origin).
+
 ## 2026-07-11 (live session #5, claude lane) — owner combat verdict → board declutter + dark floor + heal-skill fix; DEPLOY 00046-mvs
 - Status: Done + **DEPLOYED `mythos-api-00046-mvs`** (owner-run `make deploy`, smoke health/root + floor-tile 200). `make check` **983** green. Live-QA guide updated (A0 items now reflect shipped tiles/declutter + a heal check).
 - **Owner P0 verdict on 00045**: board "정신없다"(badges) · tiles "무의미"(floor = redundant neon) · telegraph still felt popup-gated. Direction chosen: terrain declutter + meaning first (P1 mechanics deferred).

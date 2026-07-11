@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import type { PointerEventHandler, RefObject } from "react";
 import { CharacterPanel } from "./CharacterPanel";
-import { detectSceneCharacter, speakerForParagraph } from "./sceneCharacter";
+import { detectSceneCharacter, segmentParagraph, speakerForParagraph } from "./sceneCharacter";
 import { ChoicePanel } from "./ChoicePanel";
 import { CombatControls } from "./CombatControls";
 import { CombatLog } from "./CombatLog";
@@ -310,23 +310,35 @@ const renderNarrationWithSpeakers = (
   return paragraphs.map((para, idx) => {
     const speaker = speakerForParagraph(para, characters);
     if (speaker) {
+      // 말풍선에는 따옴표 안 대사만 (오너 2026-07-11): 지문·행동 묘사는 일반
+      // 나레이션으로, 대사 인용문만 초상+이름 말풍선으로 순서대로 분리 렌더.
       return (
-        <div key={idx} className="dialogue-callout">
-          {speaker.portrait && (
-            <img
-              className="dialogue-callout-portrait"
-              src={speaker.portrait}
-              alt={speaker.name}
-              draggable={false}
-            />
+        <Fragment key={idx}>
+          {segmentParagraph(para).map((seg, si) =>
+            seg.kind === "speech" ? (
+              <div key={si} className="dialogue-callout">
+                {speaker.portrait && (
+                  <img
+                    className="dialogue-callout-portrait"
+                    src={speaker.portrait}
+                    alt={speaker.name}
+                    draggable={false}
+                  />
+                )}
+                <div className="dialogue-callout-body">
+                  <div className="dialogue-callout-name">{speaker.name}</div>
+                  <div className="dialogue-callout-text">
+                    {renderFormattedNarration(seg.text, turnIndex, t)}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div key={si} className="narration-para">
+                {renderFormattedNarration(seg.text, turnIndex, t)}
+              </div>
+            )
           )}
-          <div className="dialogue-callout-body">
-            <div className="dialogue-callout-name">{speaker.name}</div>
-            <div className="dialogue-callout-text">
-              {renderFormattedNarration(para, turnIndex, t)}
-            </div>
-          </div>
-        </div>
+        </Fragment>
       );
     }
     return (

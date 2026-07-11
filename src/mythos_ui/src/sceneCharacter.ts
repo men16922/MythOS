@@ -62,6 +62,43 @@ export function analyzeParagraph(paragraph: string): ParagraphSpeech {
   return { hasDialogue, outsideQuotes: outside };
 }
 
+export type ParagraphSegment =
+  | { kind: "speech"; text: string }
+  | { kind: "narration"; text: string };
+
+// Split a paragraph into ordered segments so the dialogue callout shows ONLY the
+// spoken line (owner 2026-07-11: the bubble was rendering the whole paragraph —
+// action lines + attribution mixed in). Sentence-like quoted spans become
+// `speech`; everything else (attribution prose, action beats, single-quote term
+// emphasis like '최적화') stays `narration`. Order is preserved so a
+// quote / action / quote paragraph renders bubble, prose, bubble.
+export function segmentParagraph(paragraph: string): ParagraphSegment[] {
+  const segments: ParagraphSegment[] = [];
+  let narration = "";
+  const flush = () => {
+    if (narration.trim()) segments.push({ kind: "narration", text: narration.trim() });
+    narration = "";
+  };
+  let i = 0;
+  while (i < paragraph.length) {
+    const ch = paragraph[i];
+    const pair = QUOTE_PAIRS.find(([open]) => open === ch);
+    if (pair) {
+      const end = paragraph.indexOf(pair[1], i + 1);
+      if (end > i && SPEECH_PUNCTUATION.test(paragraph.slice(i + 1, end))) {
+        flush();
+        segments.push({ kind: "speech", text: paragraph.slice(i, end + 1) });
+        i = end + 1;
+        continue;
+      }
+    }
+    narration += ch;
+    i += 1;
+  }
+  flush();
+  return segments;
+}
+
 // 한 문단의 화자를 찾는다 — 대사 인용문이 있고 지문(인용부 밖)에 이름이 있는
 // 인물. StoryPanel의 대사 말풍선(썸네일+대사 분리 표시)과 CHARACTER 패널이
 // 같은 판정을 공유한다 (오너 규칙 2026-07-11).

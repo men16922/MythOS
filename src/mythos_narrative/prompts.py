@@ -93,8 +93,10 @@ JSON_CONTRACT = {
                 "tags": ["tag1", "tag2"],
             }
         ],
-        # optional: 선택한 행동으로 실물 아이템을 획득한 장면에서만, 지침에 제시된 id 1-2개
-        "grant_items": ["drone_scrap"],
+        # optional: 기본은 빈 배열. 선택한 행동으로 실물 아이템을 실제로 '주운/받은'
+        # 장면에서만, 지침에 제시된 id 1-2개. (구체 id를 예시로 넣으면 모델이 매
+        # Success 턴마다 그 아이템을 모방 지급함 — 라이브 2026-07-11)
+        "grant_items": [],
     },
     "end_condition": None,
 }
@@ -139,9 +141,11 @@ JSON_CONTRACT_EN = {
                 "tags": ["tag1", "tag2"],
             }
         ],
-        # optional: only when the chosen action actually acquires a physical item,
-        # 1-2 ids from the list given in the directives
-        "grant_items": ["drone_scrap"],
+        # optional: default empty. Only when the chosen action actually picks up /
+        # receives a physical item, 1-2 ids from the list given in the directives.
+        # (A concrete example id makes the model grant that item on every Success
+        # turn — live 2026-07-11.)
+        "grant_items": [],
     },
     "end_condition": None,
 }

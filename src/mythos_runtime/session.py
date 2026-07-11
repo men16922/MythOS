@@ -151,7 +151,6 @@ from mythos_runtime.scenario_directives import (
 )
 from mythos_runtime.session_memory import (
     companions_seen,
-    note_companions,
     note_setup,
     record_beat,
 )
@@ -2039,16 +2038,14 @@ class RuntimeSessionService:
             "kind": origin,
             "line": encounter_meta.get("intro"),
         }
-        # C3 ally-join foreshadow (Tae-o pop-in): a flag-unlocked non-party ally
-        # never referenced by any beat this loop may not silently stand on the
-        # board — announce them as a join signal on the interstitial and ledger
-        # the ref so the synopsis calls them back (and no re-announce next fight).
-        joining = self._unheralded_allies(loop, scenario)
-        if joining:
-            descriptor["joining"] = joining
-            interstitial_state = note_companions(
-                interstitial_state, [ally["name"] for ally in joining]
-            )
+        # C3 unheralded-ally HOLD (owner 2026-07-11, replaces the announce-and-join
+        # signal): a flag-unlocked non-party ally never referenced by any beat this
+        # loop does NOT enter this fight — a route node-entry effect can set
+        # ``met_han`` before the prose ever introduces Han (live: "사이드: 러너의
+        # 지름길" node entry → Han popped into the next combat "뜬금없이"). Held
+        # allies join the first combat AFTER the narration names them (record_beat
+        # ledgers prose refs every committed scene).
+        held = self._unheralded_allies(loop, scenario)
         interstitial_state[COMBAT_INTERSTITIAL_KEY] = descriptor
         # Combat IS the world reacting — reset the C1 no-op streak.
         interstitial_state.pop("_noop_turns", None)
@@ -2062,6 +2059,7 @@ class RuntimeSessionService:
             player_stats=self._player_combat_stats(player, loop, scenario),
             archetype=archetype,
             language=options.language,
+            exclude_ally_ids={ally["id"] for ally in held},
         )
         return self._commit_combat_turn(player, result, "combat triggered by scene", options)
 

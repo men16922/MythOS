@@ -4407,10 +4407,13 @@ main#play.fx-glitch {
   transform: translateY(-50%);
   z-index: 25;
   pointer-events: none;
-  animation: projectileFly 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  /* Flight time is aligned to the cinema impact cue so the projectile lands ON
+     the impact frame (std: attack@400ms + 650ms = impact@1050ms; fast: 200+450=650).
+     A shorter flight visibly lands ~250ms before the sound/HP tick (owner 2026-07-11). */
+  animation: projectileFly 0.65s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 .cinema-overlay.fast-speed .cinema-projectile {
-  animation-duration: 0.2s;
+  animation-duration: 0.45s;
 }
 
 @keyframes projectileFly {

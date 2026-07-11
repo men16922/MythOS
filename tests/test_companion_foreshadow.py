@@ -1,9 +1,11 @@
-"""C3 참전 예고 규칙 (CBT 피드백 #2: 태오 뜬금 참전).
+"""C3 참전 규칙 (CBT 피드백 #2 태오 뜬금 참전 → 2026-07-11 HOLD로 강화).
 
 - 비트 원장 companion-ref: 장면 프로즈에서 동료 이름 감지(정세린→세린 별칭, EN 글로서리,
   1음절 '한'은 조사 경계) → beat["companions"] 기록, 시놉시스가 콜백 지시를 낸다.
-- 합류 신호: 플래그 언락(비파티) 아군이 이 루프에서 한 번도 언급된 적 없이 전투에
-  들어오면 인터스티셜 joining으로 명시 + 원장 기록(다음 전투 재공지 없음).
+- 미등장 아군 HOLD: 플래그 언락(비파티) 아군이 이 루프에서 한 번도 언급된 적 없으면
+  이번 전투에 참전하지 않는다 (예고 후 합류가 아니라 보류 — 노드 진입 효과가 산문보다
+  먼저 met_* 플래그를 세팅하는 경우의 뜬금 합류 차단, 라이브 2026-07-11 han).
+  산문이 이름을 언급한 다음 전투부터 정상 참전. 파티 멤버는 항상 참전.
 """
 
 from __future__ import annotations
@@ -113,28 +115,33 @@ class JoinSignalStagingTest(unittest.TestCase):
             log_message="test",
         )
 
-    def test_unheralded_flag_ally_gets_join_signal(self) -> None:
+    def _combat_blip_ids(self, snap) -> set[str]:
+        combat = snap.loop.state.get("_combat") or {}
+        return {
+            str(unit.get("combatant_id") or unit.get("id"))
+            for unit in combat.get("combatants", []) or []
+        }
+
+    def test_unheralded_flag_ally_is_held_out_of_combat(self) -> None:
         snap = self._commit_combat({"flags": ["met_tae_o"], BEATS_KEY: [{"t": 4, "title": "이동"}]})
+        # HOLD: 산문에 한 번도 안 나온 아군은 이번 전투에 서지 않는다 —
+        # 예고 배너도, 원장 합류 기록도 없다 (언급된 다음 전투부터 참전).
+        self.assertNotIn("tae_o", self._combat_blip_ids(snap))
         beat = snap.loop.state.get(COMBAT_INTERSTITIAL_KEY)
         assert beat is not None
-        joining = {ally["id"] for ally in beat.get("joining", [])}
-        self.assertIn("tae_o", joining)
-        # 원장에 기록되어 시놉시스 콜백 + 재공지 방지.
-        self.assertIn("태오", companions_seen(snap.loop.state))
+        self.assertNotIn("joining", beat)
+        self.assertNotIn("태오", companions_seen(snap.loop.state))
 
-    def test_previously_mentioned_ally_needs_no_signal(self) -> None:
+    def test_previously_mentioned_ally_spawns_normally(self) -> None:
         snap = self._commit_combat(
             {
                 "flags": ["met_tae_o"],
                 BEATS_KEY: [{"t": 4, "title": "바리케이드", "companions": ["태오"]}],
             }
         )
-        beat = snap.loop.state.get(COMBAT_INTERSTITIAL_KEY)
-        assert beat is not None
-        joining = {ally["id"] for ally in beat.get("joining", [])}
-        self.assertNotIn("tae_o", joining)
+        self.assertIn("tae_o", self._combat_blip_ids(snap))
 
-    def test_party_members_are_never_announced(self) -> None:
+    def test_party_members_are_never_held(self) -> None:
         snap = self._commit_combat(
             {
                 "flags": ["met_se_rin"],
@@ -142,10 +149,7 @@ class JoinSignalStagingTest(unittest.TestCase):
                 BEATS_KEY: [{"t": 4, "title": "이동"}],
             }
         )
-        beat = snap.loop.state.get(COMBAT_INTERSTITIAL_KEY)
-        assert beat is not None
-        joining = {ally["id"] for ally in beat.get("joining", [])}
-        self.assertNotIn("se_rin", joining)
+        self.assertIn("se_rin", self._combat_blip_ids(snap))
 
 
 if __name__ == "__main__":

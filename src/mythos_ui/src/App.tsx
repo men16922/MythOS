@@ -199,6 +199,7 @@ export default function App() {
     handleToggleBgm,
     enableBgm,
     playSfx,
+    preloadSfx,
     playCombatCinemaCue,
     resetAudioRefs,
     mainBgmPath,
@@ -536,6 +537,24 @@ export default function App() {
     document.body.classList.toggle("combat-active", combatLive);
     return () => document.body.classList.remove("combat-active");
   }, [combatLive]);
+  // Warm every combat SFX the moment a fight goes live so the first swing's
+  // sound doesn't pay fetch+decode startup (A/V desync, owner 2026-07-11).
+  useEffect(() => {
+    if (!combatLive) return;
+    preloadSfx([
+      "sfx_attack",
+      "sfx_defend",
+      "sfx_move",
+      "sfx_glitch",
+      "sfx_victory",
+      "sfx_defeat",
+      "skills/signal_step",
+      "skills/overload_strike",
+      "skills/packet_shot",
+      "skills/covering_noise",
+      "skills/patch_protocol",
+    ]);
+  }, [combatLive, preloadSfx]);
   // In-session signal: on mobile the full header is hidden mid-play (its
   // controls move to a floating ⋯ menu) so the tab bar + scene sit at the top.
   // Onboarding/boot keep the header (language must be settable before playing).

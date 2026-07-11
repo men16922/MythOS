@@ -148,11 +148,34 @@ export function useAudio(
     logToConsole("BGM ON");
   }, [bgmEnabled, preferredBgmPath, initAudio, playBgm, pauseBgm, logToConsole]);
 
+  // SFX element cache: a fresh `new Audio(url).play()` per shot pays fetch+decode
+  // startup every time, so the sound lagged the setTimeout-scheduled visuals
+  // (combat A/V desync, owner 2026-07-11). Cached base elements load once;
+  // playback clones them (clones reuse the cached media data, near-instant start).
+  const sfxCacheRef = useRef<Map<string, HTMLAudioElement>>(new Map());
+  const sfxBase = useCallback((srcUrl: string): HTMLAudioElement => {
+    let base = sfxCacheRef.current.get(srcUrl);
+    if (!base) {
+      base = new Audio(srcUrl);
+      base.preload = "auto";
+      sfxCacheRef.current.set(srcUrl, base);
+    }
+    return base;
+  }, []);
+
+  // Warm the cache ahead of need (e.g. every combat SFX at combat start).
+  // Creating+loading Audio needs no user gesture — only play() is gated.
+  const preloadSfx = useCallback((keys: string[], scenarioId = selectedScenarioId) => {
+    for (const key of keys) {
+      sfxBase(`/resources/${scenarioId}/audio/sfx/${key}.wav`);
+    }
+  }, [selectedScenarioId, sfxBase]);
+
   const playSfx = useCallback((key: string, scenarioId = selectedScenarioId, volume = 0.55) => {
     if (!audioContextActive.current) return;
     const playClip = (sfxKey: string, sfxVolume: number, onError?: () => void) => {
       const srcUrl = `/resources/${scenarioId}/audio/sfx/${sfxKey}.wav`;
-      const audio = new Audio(srcUrl);
+      const audio = sfxBase(srcUrl).cloneNode(true) as HTMLAudioElement;
       audio.volume = Math.min(1, Math.max(0, sfxVolume));
       if (onError) {
         audio.addEventListener("error", onError, { once: true });
@@ -165,7 +188,7 @@ export function useAudio(
       ? () => playClip("sfx_glitch", Math.min(volume, 0.34))
       : undefined
     );
-  }, [selectedScenarioId, logToConsole]);
+  }, [selectedScenarioId, sfxBase, logToConsole]);
 
   const skillSfxKey = useCallback((skillName?: string): string => {
     const normalized = (skillName || "").replace(/\s+/g, "").toLowerCase();
@@ -245,6 +268,7 @@ export function useAudio(
     handleToggleBgm,
     enableBgm,
     playSfx,
+    preloadSfx,
     playCombatCinemaCue,
     resetAudioRefs,
     mainBgmPath,

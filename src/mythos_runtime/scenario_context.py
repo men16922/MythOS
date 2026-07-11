@@ -576,7 +576,11 @@ def _companion_presence_rule(language: str) -> str:
             "unless THIS scene's authored directive explicitly tells you to introduce "
             "them (a meet-arc). A companion named in NARRATIVE ECHOES was met in a "
             "PAST loop and is NOT here now. If you need a guide or signal source, use "
-            "someone already joined this loop, or an as-yet-anonymous presence."
+            "someone already joined this loop, or an as-yet-anonymous presence. "
+            "Conversely, in a meet-arc scene (a node that introduces a companion) you "
+            "MUST bring that companion on screen by name with at least one spoken "
+            "line — the meeting may never happen off-screen. Until the narration has "
+            "introduced them, they will not fight alongside the player."
         )
     return (
         "=== 동료 등장 규칙 (이번 루프) ===\n"
@@ -584,7 +588,10 @@ def _companion_presence_rule(language: str) -> str:
         "어떤 형태로도 — 이 장면의 authored 지시(만남 아크)가 명시적으로 등장을 지시하지 "
         "않는 한, 새로 등장시키거나 이름을 특정하지 마라. NARRATIVE ECHOES에 이름이 있는 "
         "동료는 과거 루프에서 만난 것이며 이번 루프의 '지금 여기'에는 없다. 안내자나 신호원이 "
-        "필요하면 이미 이번 루프에 합류한 인물, 또는 아직 정체를 밝히지 않은 익명의 존재로 처리하라."
+        "필요하면 이미 이번 루프에 합류한 인물, 또는 아직 정체를 밝히지 않은 익명의 존재로 처리하라. "
+        "반대로, 만남 아크(동료를 소개하는 노드) 장면에서는 그 동료를 반드시 이름으로 명확히 "
+        "등장시키고 최소 한 마디 대사를 주어라 — 만남이 화면 밖에서 처리되어서는 안 된다. "
+        "서사가 그 동료를 소개하기 전까지는 전투에도 함께 서지 않는다."
     )
 
 

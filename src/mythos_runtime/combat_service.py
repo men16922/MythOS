@@ -148,6 +148,7 @@ class CombatService:
         archetype: str | None,
         seed: str | None = None,
         language: str = "ko",
+        exclude_ally_ids: frozenset[str] | set[str] = frozenset(),
     ) -> CombatTurnResult:
         weapon_ids = loadout_for_archetype(scenario_combat, archetype)
         skill_ids = self._player_skill_ids(loop, scenario_combat, archetype)
@@ -163,7 +164,7 @@ class CombatService:
             skills=skill_ids,
         )
         player.portrait = "characters/player-noise.png"
-        allies = self._build_allies(loop, scenario_combat)
+        allies = self._build_allies(loop, scenario_combat, exclude_ally_ids=exclude_ally_ids)
         combat_seed = seed or f"{loop.seed}:combat:{encounter_id}"
         # Meta scaling input: the boss keeps pace with cross-loop player growth
         # (encounters opt in via ``meta_scaling``; first loop = no-op).
@@ -319,7 +320,13 @@ class CombatService:
             new_state["_inventory"] = inventory
         return replace(loop, state=new_state)
 
-    def _build_allies(self, loop: LoopState, scenario_combat: dict[str, Any]) -> list[Combatant]:
+    def _build_allies(
+        self,
+        loop: LoopState,
+        scenario_combat: dict[str, Any],
+        *,
+        exclude_ally_ids: frozenset[str] | set[str] = frozenset(),
+    ) -> list[Combatant]:
         allies_pool = scenario_combat.get("allies", {})
         if not isinstance(allies_pool, dict):
             return []
@@ -344,6 +351,13 @@ class CombatService:
             unlock_flags = {str(flag) for flag in entry.get("unlock_flags", [])}
             unlocked = bool(member) or bool(unlock_flags.intersection(flags))
             if not unlocked:
+                continue
+            # C3 unheralded hold (owner 2026-07-11): a flag-only ally the narration
+            # has never referenced this loop is held out of the fight instead of
+            # popping in with a join signal — they join the first combat AFTER the
+            # prose introduces them. Party members are never held (joining the
+            # party is always an on-screen event).
+            if not member and actual_id in exclude_ally_ids:
                 continue
             hp = member.get("hp") if isinstance(member, dict) else None
             # A member downed in a previous fight is not lost for the loop — they

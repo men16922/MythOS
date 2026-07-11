@@ -1,5 +1,10 @@
 # Progress archive — 2026-07
 
+## 2026-07-10 (live session, claude lane) — Se-rin combat-spawn is NOT a flag-carry bug (reproduced) + tae_o/han portrait-flash fix + DEPLOY 00034-8xj
+- Status: Done + **DEPLOYED `mythos-api-00034-8xj`** (smoke 200). Owner live-confirmed Se-rin no longer appears in a fresh han loop. `make check` **964** green.
+- **Se-rin flag-carry RULED OUT** (repro `scratch/repro_serin.py`): a fresh loop-2+ variant carries ZERO contact flags + empty `_party` — no met_/trusted_ carry into new-loop initial state. The "stop carrying flags" fix had no target. Mid-loop reintroduction (model writes her in during play) was the separate OPEN vector (later closed by the companion-appearance sweep + presence guard).
+- **tae_o/han portrait flash FIXED** (`6e5f13f`): `detectSceneCharacter` matched ambient common nouns (tae_o `사냥개`, han `해커`) in IX-pursuit prose → dropped those from detection keywords (aliases kept for display); source-lock `CharacterDetectionKeywordIntegrityTest` bars ambient nouns. "이번 막" objective = two-tier by design (not a bug).
+
 ## 2026-07-09 (live session #7, claude lane) — su_ah "핑" clarity + board-legend opacity; Se-rin combat-spawn diagnosed (design decided, OPEN)
 - Status: Two fixes DONE + committed (`d175522`, `make check` 963 green, undeployed); one bug diagnosed with a decided fix, NOT yet implemented (next session).
 - Changed (committed): **su_ah "핑" reads as a named actor** in the ghost-ping choices → `opening_su_ah.md`/`.en.md` add a clarity directive (핑 = handmade detection signal, never personify) + render example choices as "핑 신호 / ping signal". **Board-legend overlap** — `.tactical-legend-popup` inherited the base 50%-translucent bg, so STATUS/roster text bled through and looked like overlap → opaque bg + higher z-index.

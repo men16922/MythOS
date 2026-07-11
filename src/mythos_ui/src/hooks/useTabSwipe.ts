@@ -62,10 +62,11 @@ export function useTabSwipe(
     if (Math.abs(dx) < SWIPE_MIN_PX) return;
     if (Math.abs(dx) < Math.abs(dy) * HORIZONTAL_RATIO) return;
     const idx = tabs.indexOf(activeTab);
-    if (idx < 0) return;
-    // Swipe left (dx < 0) advances to the next tab; swipe right goes back.
-    const nextIdx = dx < 0 ? idx + 1 : idx - 1;
-    if (nextIdx < 0 || nextIdx >= tabs.length) return;
+    if (idx < 0 || tabs.length < 2) return;
+    // Swipe left (dx < 0) advances to the next tab; swipe right goes back. Wrap
+    // around at the ends (owner 2026-07-11: swiping outward at the first/last tab
+    // dead-ended) so an edge swipe cycles to the opposite end.
+    const nextIdx = (idx + (dx < 0 ? 1 : -1) + tabs.length) % tabs.length;
     setActiveTab(tabs[nextIdx]);
   };
 

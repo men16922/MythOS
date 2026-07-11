@@ -2,13 +2,6 @@
 
 Last updated: 2026-07-12
 
-## 2026-07-12 — overnight Codex: cover-pose regeneration completed
-- Status: Done; all seven owner-rejection replacements are now promoted.
-- Changed: generated and identity-reviewed lin-yue, su-ah, tae-o, han, and player-noise cover sprites from their own idle/guard references; promoted the five new PASS candidates alongside the prior se-rin and kai promotions.
-- Verified: all five new sprites are 512×768 RGBA PNGs with transparent corners; each passed the five-point identity, shield, prop, and distinct-pose review in `outputs/cover-pose-regen/review.md`; `make check` green (993 tests).
-- Blockers: none.
-- Next: the Codex lane is drained; the runner image-judge must screen this asset commit before any deployment.
-
 ## 2026-07-12 — overnight Codex: cover-pose regeneration partial promotion
 - Status: In progress; two of seven identity-reviewed candidates promoted, remaining five stay pending.
 - Changed: regenerated `se-rin-cover.png` and `kai-cover.png` from each character's guard/idle references; preserved chroma-key sources and RGBA candidates in `outputs/cover-pose-regen/` with a per-character review table.

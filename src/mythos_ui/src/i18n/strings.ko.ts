@@ -287,6 +287,7 @@ export const ko = {
   "cc.cost": "코스트",
   "cc.cooldown": "재사용",
   "cc.lowFocus": "FOCUS 부족",
+  "cc.needItem": "필요",
   "cc.role.damage": "공격",
   "cc.role.mobility": "기동",
   "cc.role.defense": "방어",

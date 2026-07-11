@@ -175,7 +175,10 @@ export function CombatControls({
     const name = skill.name || skill.id;
     const focusCost = typeof skill.cost?.focus === "number" ? skill.cost.focus : 0;
     const lowFocus = focus != null && focusCost > focus;
-    const disabled = onCooldown || lowFocus;
+    // Item-gated skill with the consumable missing (e.g. patch_protocol needs a
+    // nanopatch): disable so pressing it can't silently no-op.
+    const noItem = skill.item_available === false;
+    const disabled = onCooldown || lowFocus || noItem;
     const costStr = formatCost(skill.cost, t);
     const roleKey = skill.role ? ROLE_LABEL_KEYS[skill.role] : undefined;
     const roleLabel = roleKey ? t(roleKey) : skill.role ?? "";
@@ -189,6 +192,11 @@ export function CombatControls({
     if (costStr) tooltipParts.push(`${t("cc.cost")} ${costStr}`);
     if (onCooldown) tooltipParts.push(`${t("cc.cooldown")} ${skill.cooldown}T`);
     else if (lowFocus) tooltipParts.push(t("cc.lowFocus"));
+    if (noItem) {
+      const itemKey = ITEM_LABEL_KEYS[String(skill.cost?.item)];
+      const itemLabel = itemKey ? t(itemKey) : String(skill.cost?.item ?? "");
+      tooltipParts.push(`${itemLabel} ${t("cc.needItem")}`);
+    }
     const tags = (skill.tags || []).join(" · ");
     const tooltip = tooltipParts.join(" · ") + (tags ? `\n${tags}` : "");
 
@@ -196,7 +204,7 @@ export function CombatControls({
       <button
         key={skill.id}
         className={`cc-skill ${skill.role ? `role-${skill.role}` : ""} ${
-          lowFocus && !onCooldown ? "low-focus" : ""
+          (lowFocus || noItem) && !onCooldown ? "low-focus" : ""
         }`}
         disabled={disabled}
         onClick={() =>

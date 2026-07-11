@@ -2118,6 +2118,12 @@
         "shock_baton"
       ]
     },
+    "archetype_starting_items": {
+      "echo_collector": [
+        "nanopatch",
+        "nanopatch"
+      ]
+    },
     "archetype_base_skills": {
       "ghost": [
         "signal_step",

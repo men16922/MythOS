@@ -453,6 +453,28 @@ class RuntimeSessionService:
         archetype = player.traits.get("archetype") if isinstance(player.traits, dict) else None
         if archetype:
             initial_state["archetype"] = str(archetype)
+        # Seed the archetype's starting consumables so an item-gated BASE skill is
+        # usable from the first combat instead of silently no-op'ing (echo_collector's
+        # patch_protocol heal needs a nanopatch, but the loadout only granted a
+        # weapon). Keyed by the resolved archetype id, same as archetype_base_skills.
+        starting_items = (
+            scenario.combat.get("archetype_starting_items", {})
+            if isinstance(scenario.combat, dict)
+            else {}
+        )
+        archetype_id = self._resolved_archetype(player, options.scenario_id)
+        item_ids = (
+            starting_items.get(archetype_id or "", [])
+            if isinstance(starting_items, dict)
+            else []
+        )
+        if item_ids:
+            item_defs = scenario.combat.get("items", {}) if isinstance(scenario.combat, dict) else {}
+            inventory = list(initial_state.get("_inventory", []))
+            for item_id in item_ids:
+                if item_id in item_defs:
+                    inventory.append(item_defs[item_id])
+            initial_state["_inventory"] = inventory
 
         loop_seed = create_loop_seed(
             player.player_id,

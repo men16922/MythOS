@@ -287,6 +287,7 @@ export const en: Record<StringKey, string> = {
   "cc.cost": "Cost",
   "cc.cooldown": "Cooldown",
   "cc.lowFocus": "Low FOCUS",
+  "cc.needItem": "needed",
   "cc.role.damage": "Attack",
   "cc.role.mobility": "Mobility",
   "cc.role.defense": "Defense",

@@ -249,6 +249,16 @@ class CombatService:
         # list at combat start, so the telegraph never updated. session.py builds the
         # snapshot in this same order.
         available = self.engine.available_actions(state) if state.active else {}
+        # Flag each skill's consumable availability so the action bar can disable
+        # an item-gated skill (e.g. patch_protocol needs a nanopatch) instead of
+        # letting the player press a no-op. The engine plans skills without the
+        # inventory, so annotate here where loop.state._inventory is in scope.
+        skills = available.get("skills") if isinstance(available, dict) else None
+        if skills:
+            inv = loop.state.get("_inventory", []) if isinstance(loop.state, dict) else []
+            for sk in skills:
+                item_cost = (sk.get("cost") or {}).get("item")
+                sk["item_available"] = self._has_item(inv, str(item_cost)) if item_cost else True
         radar = render_radar(state)
         log = serialize_combat_log(state.log)
         terrain: dict[str, Any] = {

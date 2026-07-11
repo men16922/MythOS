@@ -105,6 +105,33 @@ class CombatServiceTest(unittest.TestCase):
         # radar were built before planning (the bug), this would be 0.
         self.assertEqual(len(rebuilt.radar["enemy_intents"]), living)
 
+    def test_item_gated_base_skills_seed_their_consumable(self) -> None:
+        """A base skill gated on a consumable (patch_protocol -> nanopatch) must have
+        that item in the archetype's starting kit, else it silently no-ops in the
+        first combat (the '패치 프로토콜 무효과' bug)."""
+        base = POOL.get("archetype_base_skills", {})
+        starting = POOL.get("archetype_starting_items", {})
+        skills = POOL.get("skills", {})
+        for archetype, skill_ids in base.items():
+            kit = list(starting.get(archetype, []))
+            for sid in skill_ids:
+                item = ((skills.get(sid) or {}).get("cost") or {}).get("item")
+                if item:
+                    self.assertIn(
+                        item, kit,
+                        f"{archetype} base skill {sid} needs {item} in archetype_starting_items",
+                    )
+
+    def test_available_skills_flag_item_availability(self) -> None:
+        """The action bar needs to know whether an item-gated skill is castable, so
+        _build_result annotates every skill with item_available."""
+        service = CombatService()
+        result = self._begin(service, _loop())
+        skills = result.available.get("skills", [])
+        self.assertTrue(skills)
+        for sk in skills:
+            self.assertIn("item_available", sk)
+
     def test_humanoid_enemy_combat_images_include_guard_pose(self) -> None:
         bestiary = POOL["bestiary"]
         for enemy_id, slug in (

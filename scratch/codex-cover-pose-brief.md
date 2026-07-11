@@ -26,7 +26,12 @@ tae-o=여성, su-ah=시그니처 마젠타 소실, han/player-noise=개성 없�
 | **han** | young East-Asian man early 20s, **tousled messy black hair**, sharp intense eyes, clean-shaven, black **high-collar techwear jacket with cabling and a data harness** | 청록(시안) 홀로그램 | 한쪽 무릎만 낮춘 채 하네스의 케이블/휴대 장비를 쥐고 실드 모서리 너머로 고개만 내민 — 기민한 해커의 정찰 자세 |
 | **player-noise** | (정본 = 기존 5포즈 세트) 짧은 검은 머리 청년, **하관을 덮는 페이스 마스크**, 초록 네온 회로가 흐르는 **롱코트** | **초록** 육각 홀로그램 | 코트 자락이 바닥에 깔리도록 깊게 앉아 소총을 낮춰 들고 실드 너머 정면을 응시 — 주인공다운 결의 |
 
-### 승격 전 셀프체크 (각 장마다 기록, 하나라도 FAIL이면 재생성)
+### 작업 절차 (전량 폐기 금지 — 2026-07-12 1차 재생성이 1장 FAIL로 7장 전부를 버렸다)
+1. 후보는 **반드시 `outputs/cover-pose-regen/`에 먼저 저장**한다 (FAIL이어도 삭제 금지 — 사람 검수 증거).
+2. 셀프체크 **PASS인 장은 즉시 `resources/.../<char>-cover.png`로 승격**한다. FAIL인 장만 재생성한다 (장당 최대 2회 시도).
+3. 재시도 후에도 FAIL로 남는 장은 그 장만 Blocker로 기록하고, **PASS 승격분은 정상 커밋**한다.
+
+### 승격 전 셀프체크 (각 장마다 기록, FAIL이면 그 장만 재생성)
 1. 성별/종족(인간·안드로이드)이 guard 스프라이트와 일치하는가?
 2. 머리 모양·마스크 유무·안경·흉터 등 식별 특징이 일치하는가?
 3. 실드 색이 위 표와 일치하는가?

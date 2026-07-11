@@ -276,6 +276,14 @@ export function CombatControls({
                   const intent = (combat.radar?.enemy_intents || []).find(
                     (item) => item.enemy_id === target.id
                   );
+                  // Two-tier slice 2: deterministic shot forecast (server-computed
+                  // to mirror the exact attack math) — the XCOM HUD in one line.
+                  const forecast =
+                    target.in_range && target.hit_chance != null
+                      ? ` · 🎯${target.hit_chance}% ⚔${target.damage_min}-${target.damage_max}${
+                          (target.cover_bonus ?? 0) > 0 ? " 🛡" : ""
+                        }`
+                      : "";
                   return (
                     <button
                       key={target.id}
@@ -284,6 +292,7 @@ export function CombatControls({
                     >
                       {target.name}
                       {enemyIntentLabel(intent, t)} · HP {target.hp}/{target.max_hp}
+                      {forecast}
                       {!target.in_range && ` · ${t("cc.outOfRange")}`}
                     </button>
                   );

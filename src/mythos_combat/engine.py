@@ -57,6 +57,35 @@ def _avg_dice(spec: str) -> float:
         return mod
 
 
+def _dice_range(spec: str) -> tuple[int, int]:
+    """(min, max) of an ``NdM(+/-K)`` spec — for the shot-preview HUD, not rolling."""
+    spec = spec.strip().replace(" ", "")
+    if not spec:
+        return (0, 0)
+    mod = 0
+    for sign in ("+", "-"):
+        idx = spec.find(sign, 1)
+        if idx != -1:
+            try:
+                mod = int(float(spec[idx:]))
+            except ValueError:
+                mod = 0
+            spec = spec[:idx]
+            break
+    if "d" in spec:
+        n_str, _, m_str = spec.partition("d")
+        try:
+            n, m = int(n_str or 1), int(m_str)
+        except ValueError:
+            return (mod, mod)
+        return (n + mod, n * m + mod)
+    try:
+        v = int(float(spec))
+        return (v + mod, v + mod)
+    except ValueError:
+        return (mod, mod)
+
+
 @dataclass
 class PlayerAction:
     type: str = "wait"  # attack|defend|flee|wait|skill|item
@@ -245,6 +274,10 @@ class CombatEngine:
                     "in_range": self._weapon_in_range(actor, enemy, actor.primary_weapon()),
                     "hp": enemy.hp,
                     "max_hp": enemy.max_hp,
+                    # Two-tier slice 2 (2026-07-12): deterministic shot preview —
+                    # hit % + post-armor damage range + the cover the shot faces —
+                    # mirrors _attack's exact math, XCOM-HUD style.
+                    **self._attack_preview(state, actor, enemy),
                 }
             )
         # Friendlies (self + allies) so the UI can direct heal/shield support skills.
@@ -273,6 +306,42 @@ class CombatEngine:
             "focus": actor.focus,
             "max_focus": actor.max_focus,
             "skills": [self._skill_action_info(skill_id, actor) for skill_id in actor.skills],
+        }
+
+    def _attack_preview(
+        self, state: CombatState, actor: Combatant, enemy: Combatant
+    ) -> dict[str, Any]:
+        """Deterministic weapon-attack forecast against ``enemy``.
+
+        MUST mirror ``_attack``'s to-hit/damage math (stat + weapon + elevation
+        + perception vs effective_defense + ranged cover; crit always hits).
+        Returns {} when the actor has no weapon, so the target chip degrades."""
+        weapon = actor.primary_weapon()
+        if weapon is None:
+            return {}
+        melee = not weapon.is_ranged
+        stat = actor.stat("strength") if melee else actor.stat("agility")
+        accuracy_bonus, crit_widen = self._perception_mods(actor)
+        att_el = state.elevations.get(f"{actor.x},{actor.y}", 0)
+        def_el = state.elevations.get(f"{enemy.x},{enemy.y}", 0)
+        el_bonus = 2 if att_el > def_el else 0
+        el_dmg = 1 if att_el > def_el else 0
+        cover_bonus = 0
+        if weapon.is_ranged:
+            cover_type = state.covers.get(f"{enemy.x},{enemy.y}", "none")
+            cover_bonus = 3 if cover_type == "half" else 6 if cover_type == "full" else 0
+        dc = enemy.effective_defense + cover_bonus
+        mod = stat + weapon.to_hit_bonus + el_bonus + accuracy_bonus
+        crit_floor = 20 - crit_widen
+        hits = sum(1 for r in range(1, 21) if r >= crit_floor or r + mod >= dc)
+        lo, hi = _dice_range(weapon.damage)
+        dmg_bonus = (stat // 2 if melee else stat // 3) + el_dmg
+        armor = max(0, enemy.armor - weapon.armor_pen)
+        return {
+            "hit_chance": round(hits / 20 * 100),
+            "damage_min": max(1, lo + dmg_bonus - armor),
+            "damage_max": max(1, hi + dmg_bonus - armor),
+            "cover_bonus": cover_bonus,
         }
 
     def _skill_action_info(self, skill_id: str, player: Combatant) -> dict[str, Any]:

@@ -204,6 +204,11 @@ export interface CombatTargetInfo {
   hp: number;
   max_hp: number;
   in_range: boolean;
+  // Two-tier slice 2: server-computed shot forecast (mirrors _attack math).
+  hit_chance?: number;
+  damage_min?: number;
+  damage_max?: number;
+  cover_bonus?: number;
 }
 
 /** Self + living allies — direction targets for heal/shield support skills. */

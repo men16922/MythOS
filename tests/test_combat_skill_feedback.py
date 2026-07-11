@@ -10,6 +10,7 @@ Owner findings from live play on the 00052 deploy:
 
 from __future__ import annotations
 
+import sys
 import unittest
 from pathlib import Path
 
@@ -66,6 +67,51 @@ class AoeAndPushSkillTest(unittest.TestCase):
     def test_aoe_blast_ring_in_skill_fx(self) -> None:
         source = read("src/mythos_ui/src/combatAnim.ts")
         self.assertIn('tags.includes("aoe") && p > 0.35', source)
+
+
+class ShotForecastTest(unittest.TestCase):
+    """Two-tier slice 2: deterministic shot preview on target chips."""
+
+    def test_targets_payload_carries_hit_chance_and_damage_range(self) -> None:
+        sys.path.insert(0, str(ROOT / "tests"))
+        from test_combat_engine import _drone, _player
+
+        from mythos_combat import CombatEngine
+
+        engine = CombatEngine()
+        state = engine.start(
+            [_player(x=0, y=0)], [_drone(x=1, y=0, hp=30, defense=11)],
+            seed="forecast", arena=(8, 6),
+        )
+        actions = engine.available_actions(state)
+        target = actions["targets"][0]
+        self.assertIn("hit_chance", target)
+        self.assertGreaterEqual(target["hit_chance"], 5)  # crit floor: never 0
+        self.assertLessEqual(target["hit_chance"], 100)
+        self.assertGreaterEqual(target["damage_max"], target["damage_min"])
+        self.assertGreaterEqual(target["damage_min"], 1)
+        # vibro_blade 2d6 + str(8)//2 = 6..16, no armor on the drone.
+        self.assertEqual((target["damage_min"], target["damage_max"]), (6, 16))
+
+    def test_forecast_reflects_ranged_cover(self) -> None:
+        sys.path.insert(0, str(ROOT / "tests"))
+        from test_combat_engine import _drone, _player
+
+        from mythos_combat import CombatEngine
+
+        engine = CombatEngine()
+        state = engine.start(
+            [_player(x=0, y=0, weapon="rivet_gun")], [_drone(x=3, y=0, hp=30, defense=11)],
+            seed="forecast-cover", arena=(8, 6),
+        )
+        enemy = state.living_enemies()[0]
+        player = state.player()
+        assert player is not None
+        open_preview = engine._attack_preview(state, player, enemy)
+        state.covers[f"{enemy.x},{enemy.y}"] = "full"
+        covered_preview = engine._attack_preview(state, player, enemy)
+        self.assertEqual(covered_preview["cover_bonus"], 6)
+        self.assertLess(covered_preview["hit_chance"], open_preview["hit_chance"])
 
 
 class CombatResponsivenessTest(unittest.TestCase):

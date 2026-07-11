@@ -2286,17 +2286,47 @@ main {
 }
 .route-legend {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
-  gap: 6px 10px;
-  color: var(--ink-dim);
-  font-size: 11px;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 6px 8px;
+  color: var(--ink);
+  font-size: 12px;
   line-height: 1.5;
   border-top: 1px solid var(--line-soft);
   padding-top: 12px;
 }
+/* Chip per legend entry so the symbol row reads at a glance (owner 2026-07-11:
+   the flat dim text row was invisible next to the highlighted nodes). */
+.route-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 9px;
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  background: rgba(41, 255, 198, 0.05);
+}
+.route-legend-sym {
+  color: var(--term);
+  font-weight: 700;
+  text-shadow: 0 0 6px rgba(41, 255, 198, 0.5);
+}
+.route-legend-combat .route-legend-sym {
+  color: #ff6b7d;
+  text-shadow: 0 0 6px rgba(255, 107, 125, 0.5);
+}
+.route-legend-fixed .route-legend-sym {
+  color: var(--gold, #ffd479);
+  text-shadow: 0 0 6px rgba(255, 212, 121, 0.5);
+}
+.route-legend-fog {
+  border-style: dashed;
+  background: transparent;
+  color: var(--ink-dim);
+}
 .route-legend p {
   grid-column: 1 / -1;
   margin: 2px 0 0;
+  color: var(--ink-dim);
   opacity: 0.85;
 }
 .route-active-lens {

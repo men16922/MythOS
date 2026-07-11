@@ -210,18 +210,30 @@ function RouteMapPanel({
     );
   };
 
+  // Legend entries as chips: the symbol carries the accent color (combat keeps
+  // the map's red) so the row reads at a glance (owner 2026-07-11: too dim).
+  const legendEntries: Array<{ key: string; sym: string; label: string }> = [
+    { key: "fixed", sym: "★", label: t("aside.route.legend.fixed") },
+    { key: "scene", sym: "◆", label: t("aside.route.legend.scene") },
+    { key: "clue", sym: "❖", label: t("aside.route.legend.clue") },
+    { key: "combat", sym: "⚔", label: t("aside.route.legend.combat") },
+    { key: "patrol", sym: "◎", label: t("aside.route.legend.patrol") },
+    { key: "market", sym: "▣", label: t("aside.route.legend.market") },
+    { key: "maintenance", sym: "✚", label: t("aside.route.legend.maintenance") },
+    { key: "event", sym: "✦", label: t("aside.route.legend.event") },
+    { key: "confront", sym: "❒", label: t("aside.route.legend.confront") },
+  ];
   const legend = (
     <div className="route-legend">
-      <div>★ {t("aside.route.legend.fixed")}</div>
-      <div>◆ {t("aside.route.legend.scene")}</div>
-      <div>❖ {t("aside.route.legend.clue")}</div>
-      <div>⚔ {t("aside.route.legend.combat")}</div>
-      <div>◎ {t("aside.route.legend.patrol")}</div>
-      <div>▣ {t("aside.route.legend.market")}</div>
-      <div>✚ {t("aside.route.legend.maintenance")}</div>
-      <div>✦ {t("aside.route.legend.event")}</div>
-      <div>❒ {t("aside.route.legend.confront")}</div>
-      <div>{t("aside.route.fog")}</div>
+      {legendEntries.map((e) => (
+        <div key={e.key} className={`route-legend-item route-legend-${e.key}`}>
+          <span className="route-legend-sym">{e.sym}</span>
+          <span className="route-legend-label">{e.label}</span>
+        </div>
+      ))}
+      <div className="route-legend-item route-legend-fog">
+        <span className="route-legend-label">{t("aside.route.fog")}</span>
+      </div>
       <p>{t("aside.route.legend.help1")}</p>
       <p>{t("aside.route.legend.help2")}</p>
       <p>{t("aside.route.legend.help3")}</p>

@@ -174,6 +174,28 @@ const renderFormattedNarration = (rawText: string, turnIndex: number, t: TFn) =>
     }
   }
 
+  // 3. 줄머리 패턴 — 모델이 괄호를 생략하고 "민첩: …"로 문단을 여는 형식 드리프트
+  //    (라이브 제보 2026-07-11: 같은 배포에서 (민첩: …)와 민첩: … 가 섞여 나옴).
+  //    줄 시작에서만 매칭하므로 본문 산문과 충돌하지 않는다.
+  const lineRegex = new RegExp(`(?:^|\\n)[ \\t]*(${STAT_NAMES}):[ \\t]*([^\\n]+)`, "g");
+  let matchLine: RegExpExecArray | null;
+  lineRegex.lastIndex = 0;
+  while ((matchLine = lineRegex.exec(text)) !== null) {
+    const cur = matchLine;
+    const isOverlapping = matches.some(m =>
+      (cur.index >= m.index && cur.index < m.index + m.length) ||
+      (cur.index + cur[0].length > m.index && cur.index + cur[0].length <= m.index + m.length)
+    );
+    if (!isOverlapping) {
+      matches.push({
+        index: cur.index,
+        length: cur[0].length,
+        statName: cur[1],
+        statText: cur[2]
+      });
+    }
+  }
+
   // 인덱스 순으로 정렬
   matches.sort((a, b) => a.index - b.index);
 

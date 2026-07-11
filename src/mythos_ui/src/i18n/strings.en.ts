@@ -436,6 +436,8 @@ export const en: Record<StringKey, string> = {
   "cut.empty": "No cutscenes registered yet. As your bond with a companion deepens, special scenes open.",
   // Codex panel
   "codex.title": "Memory Constellation",
+  "codex.glossary": "Glossary",
+  "codex.glossaryHint": "Check here when a term in the story feels unfamiliar. Number/score-like words not on this list are not canon terms.",
   "codex.clues": "Clues",
   "codex.cluesHint": "Key evidence secured during play. Clues accumulate toward routes, endings, and some companion unlocks.",
   "codex.clue": "Clue",

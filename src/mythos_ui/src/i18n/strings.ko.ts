@@ -439,6 +439,8 @@ export const ko = {
   "cut.empty": "아직 등록된 컷씬이 없습니다. 동료와의 관계가 깊어지면 특별한 장면이 열립니다.",
   // Codex panel
   "codex.title": "기억의 별자리",
+  "codex.glossary": "용어",
+  "codex.glossaryHint": "장면 속 용어가 낯설 때 여기서 확인하세요. 이 목록에 없는 수치·점수류 단어는 세계관 용어가 아닙니다.",
   "codex.clues": "단서 목록 (Clues)",
   "codex.cluesHint": "플레이 중 확보한 핵심 증거입니다. 일부 루트·엔딩·동료 해금 조건에 누적 반영됩니다.",
   "codex.clue": "단서",

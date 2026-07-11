@@ -2541,14 +2541,17 @@ class RuntimeSessionService:
             transition = self.engine.apply_scene_payload(loop, scene, payload, player_event)
         if not transition.ok:
             raise RuntimeError(_format_errors(transition.errors))
-        if payload.world_delta.grant_items:
-            transition = replace(
-                transition,
-                loop=replace(
-                    transition.loop,
-                    state=_materialize_inventory_items(transition.loop.state, scenario),
-                ),
-            )
+        # Materialize unconditionally (was: only on LLM grant_items) — bare item-id
+        # strings also arrive via route/effect rewards, and an unmaterialized id
+        # leaks raw into the 직전-결과 line ("획득 drone_scrap", owner 2026-07-11).
+        # No-op when nothing in _inventory is a bare string.
+        transition = replace(
+            transition,
+            loop=replace(
+                transition.loop,
+                state=_materialize_inventory_items(transition.loop.state, scenario),
+            ),
+        )
         if _is_recovery_scene_after_soft_defeat(loop, scene):
             transition = replace(
                 transition,

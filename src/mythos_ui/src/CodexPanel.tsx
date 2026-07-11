@@ -5,6 +5,7 @@ import { RouteNarrative } from "./RouteNarrative";
 import { RunHistoryPanel } from "./SaveHistoryPanel";
 import { mergedRuns } from "./runHistory";
 import { useLang } from "./i18n/lang";
+import { glossaryFor } from "./glossary";
 import type { CodexLists } from "./viewModels";
 import type { MemoryOverview, RouteMap, RunSummary, RuntimeSnapshot } from "./types";
 
@@ -25,14 +26,33 @@ export function CodexPanel({
   memoryOverview = null,
   scenarioId,
 }: CodexPanelProps) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const visibleRuns = mergedRuns(runsHistory, memoryOverview?.run_summaries);
+  const glossary = glossaryFor(scenarioId);
   return (
     <div id="codex-tab-content">
       <Surface variant="surface">
         <h2 className="tab-panel-title">{t("codex.title")}</h2>
         <div className="codex-grid">
           <RouteNarrative routeMap={routeMap} />
+          {glossary.length > 0 && (
+            <div className="codex-sec">
+              <div className="codex-sec-title">{t("codex.glossary")}</div>
+              <div className="codex-section-hint">{t("codex.glossaryHint")}</div>
+              <div className="codex-list">
+                {glossary.map((entry) => (
+                  <div className="codex-item" key={entry.id}>
+                    <div className="codex-item-head">
+                      <span>{lang === "en" ? entry.term.en : entry.term.ko}</span>
+                    </div>
+                    <div className="codex-item-desc">
+                      {lang === "en" ? entry.desc.en : entry.desc.ko}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="codex-sec">
             <div className="codex-sec-title">{t("codex.clues")}</div>
             <div className="codex-section-hint">{t("codex.cluesHint")}</div>

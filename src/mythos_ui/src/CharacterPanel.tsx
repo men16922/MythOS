@@ -46,6 +46,14 @@ const SLOT_KEYS: Record<string, StringKey> = {
   armor: "char.cat.armor",
   accessory: "char.cat.accessory",
 };
+// Raw item `effect` keywords (scenario.json consumables) → readable copy; the
+// bare keyword ("stun") leaked into the inventory meta line (owner 2026-07-11).
+const ITEM_EFFECT_KEYS: Record<string, StringKey> = {
+  stun: "char.effect.stun",
+  heal: "char.effect.heal",
+  focus: "char.effect.focus",
+  revive: "char.effect.revive",
+};
 const KIND_KEYS: Record<string, StringKey> = {
   consumable: "char.cat.consumable",
   equipment: "char.cat.equipment",
@@ -419,7 +427,7 @@ export function InventoryPanel({
                         <span className="inv-meta">
                           {item.kind === "equipment"
                             ? `${slotLabel}${bonus ? ` · ${bonus}` : ""}`
-                            : item.effect || (item.kind && KIND_KEYS[item.kind] ? t(KIND_KEYS[item.kind]) : t("char.owned"))}
+                            : (item.effect && ITEM_EFFECT_KEYS[item.effect] ? t(ITEM_EFFECT_KEYS[item.effect]) : item.effect) || (item.kind && KIND_KEYS[item.kind] ? t(KIND_KEYS[item.kind]) : t("char.owned"))}
                         </span>
                       </span>
                       {item.kind === "equipment" && onEquip && (

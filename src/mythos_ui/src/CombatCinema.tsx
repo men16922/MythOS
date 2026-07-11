@@ -171,8 +171,10 @@ export const CombatCinema: React.FC<CombatCinemaProps> = ({
           </div>
         )}
 
-        {/* Floating damage pop (hidden during DEFEND to prevent duplicates) */}
-        {!isDefend && (
+        {/* Floating damage pop (hidden during DEFEND to prevent duplicates).
+            Zero-damage non-miss blows (EMP stun, buffs) render no number — the
+            skill card is the feedback; "-0" read as a broken hit (owner 2026-07-11). */}
+        {!isDefend && (miss || damage > 0) && (
           <div className={`damage-number ${(miss ? "evade" : (crit ? "critical" : ""))}`}>
             {miss ? "MISS" : (crit ? `CRIT! -${damage}` : `-${damage}`)}
           </div>

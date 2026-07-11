@@ -55,9 +55,13 @@ export function SaveLoadModal({
   // The modal remounts on each open (conditionally rendered), so page starts at 0
   // per open. `safePage` clamps if the list shrinks (e.g. after a save reload).
   const [page, setPage] = useState(0);
-  // Two-click destructive confirm (no browser dialogs): first click arms the
-  // slot's button ("확인?"), second click executes; arming resets on other clicks.
-  const [confirmSlotId, setConfirmSlotId] = useState<string | null>(null);
+  // Destructive confirm as an explicit in-modal dialog (owner 2026-07-11: the
+  // old armed-button label swap "확인?" was too easy to miss). No browser
+  // dialogs — window.confirm blocks automation and clashes with the theme.
+  const [pendingAction, setPendingAction] = useState<{
+    kind: "overwrite" | "delete";
+    slot: SaveSlot;
+  } | null>(null);
   const safePage = Math.min(page, pageCount - 1);
   const pageSlots = slots.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
 
@@ -188,17 +192,10 @@ export function SaveLoadModal({
                         disabled={isBusy}
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (confirmSlotId === `ow:${slot.slot_id}`) {
-                            setConfirmSlotId(null);
-                            onOverwriteSlot(slot);
-                          } else {
-                            setConfirmSlotId(`ow:${slot.slot_id}`);
-                          }
+                          setPendingAction({ kind: "overwrite", slot });
                         }}
                       >
-                        {confirmSlotId === `ow:${slot.slot_id}`
-                          ? t("sl.confirmBtn")
-                          : t("sl.overwriteBtn")}
+                        {t("sl.overwriteBtn")}
                       </button>
                     )}
                     {slot.slot_id && (
@@ -207,17 +204,10 @@ export function SaveLoadModal({
                         disabled={isBusy}
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (confirmSlotId === `del:${slot.slot_id}`) {
-                            setConfirmSlotId(null);
-                            onDeleteSlot(slot);
-                          } else {
-                            setConfirmSlotId(`del:${slot.slot_id}`);
-                          }
+                          setPendingAction({ kind: "delete", slot });
                         }}
                       >
-                        {confirmSlotId === `del:${slot.slot_id}`
-                          ? t("sl.confirmBtn")
-                          : t("sl.deleteBtn")}
+                        {t("sl.deleteBtn")}
                       </button>
                     )}
                   </div>
@@ -226,6 +216,49 @@ export function SaveLoadModal({
             );
           })}
         </div>
+
+        {pendingAction && (
+          <div className="sl-confirm-overlay" onClick={() => setPendingAction(null)}>
+            <div
+              className="sl-confirm-box"
+              role="alertdialog"
+              aria-modal="true"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="sl-confirm-msg">
+                {pendingAction.kind === "overwrite"
+                  ? t("sl.confirmOverwrite")
+                  : t("sl.confirmDelete")}
+              </div>
+              <div className="sl-confirm-slot">
+                {pendingAction.slot.label ||
+                  pendingAction.slot.scene_title ||
+                  t("save.autosave")}
+                {" · "}
+                {slotDate(pendingAction.slot.saved_at, lang)}
+              </div>
+              <div className="sl-confirm-actions">
+                <button
+                  className={`sl-load-btn${pendingAction.kind === "delete" ? " sl-delete-btn" : ""}`}
+                  disabled={isBusy}
+                  onClick={() => {
+                    const action = pendingAction;
+                    setPendingAction(null);
+                    if (action.kind === "overwrite") onOverwriteSlot(action.slot);
+                    else onDeleteSlot(action.slot);
+                  }}
+                >
+                  {pendingAction.kind === "overwrite"
+                    ? t("sl.overwriteBtn")
+                    : t("sl.deleteBtn")}
+                </button>
+                <button className="sl-load-btn" onClick={() => setPendingAction(null)}>
+                  {t("sl.cancel")}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {pageCount > 1 && (
           <div className="sl-pager">

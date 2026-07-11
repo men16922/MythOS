@@ -4,7 +4,7 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function keywordMatches(haystack: string, rawKeyword: string): boolean {
+export function keywordMatches(haystack: string, rawKeyword: string): boolean {
   const keyword = rawKeyword.trim().toLowerCase();
   if (!keyword) return false;
   // Avoid false positives like the character "한" matching ordinary Korean text
@@ -32,7 +32,7 @@ const QUOTE_PAIRS: ReadonlyArray<readonly [string, string]> = [
 
 const SPEECH_PUNCTUATION = /[.!?…~—]/;
 
-interface ParagraphSpeech {
+export interface ParagraphSpeech {
   /** Paragraph contains at least one sentence-like quoted span (spoken line). */
   hasDialogue: boolean;
   /** Paragraph text with every quoted span removed — the attribution text
@@ -41,7 +41,7 @@ interface ParagraphSpeech {
   outsideQuotes: string;
 }
 
-function analyzeParagraph(paragraph: string): ParagraphSpeech {
+export function analyzeParagraph(paragraph: string): ParagraphSpeech {
   let outside = "";
   let hasDialogue = false;
   let i = 0;
@@ -60,6 +60,25 @@ function analyzeParagraph(paragraph: string): ParagraphSpeech {
     i += 1;
   }
   return { hasDialogue, outsideQuotes: outside };
+}
+
+// 한 문단의 화자를 찾는다 — 대사 인용문이 있고 지문(인용부 밖)에 이름이 있는
+// 인물. StoryPanel의 대사 말풍선(썸네일+대사 분리 표시)과 CHARACTER 패널이
+// 같은 판정을 공유한다 (오너 규칙 2026-07-11).
+export function speakerForParagraph(
+  paragraph: string,
+  characters?: ScenarioCharacter[]
+): ScenarioCharacter | null {
+  if (!characters || characters.length === 0) return null;
+  const speech = analyzeParagraph(paragraph);
+  if (!speech.hasDialogue) return null;
+  const haystack = speech.outsideQuotes.toLowerCase();
+  for (const character of characters) {
+    if (character.keywords.some((kw) => keywordMatches(haystack, kw))) {
+      return character;
+    }
+  }
+  return null;
 }
 
 // 현재 장면에서 "말하고 있는" 대화 상대를 탐지한다.

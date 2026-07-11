@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { PointerEventHandler, RefObject } from "react";
 import { CharacterPanel } from "./CharacterPanel";
-import { detectSceneCharacter } from "./sceneCharacter";
+import { detectSceneCharacter, speakerForParagraph } from "./sceneCharacter";
 import { ChoicePanel } from "./ChoicePanel";
 import { CombatControls } from "./CombatControls";
 import { CombatLog } from "./CombatLog";
@@ -289,6 +289,47 @@ const renderFormattedNarration = (rawText: string, turnIndex: number, t: TFn) =>
   }
 
   return <>{parts}</>;
+};
+
+// 대사 문단 분리 (오너 2026-07-11): 화자가 확인된 문단은 스탯 보이스처럼 별도
+// 말풍선(초상 썸네일 + 이름 + 대사)으로 렌더해 지문과 구분한다. 화자 판정은
+// CHARACTER 패널과 같은 sceneCharacter 로직(대사 인용문 + 지문의 이름)을 공유.
+const renderNarrationWithSpeakers = (
+  rawText: string,
+  turnIndex: number,
+  t: TFn,
+  characters?: ScenarioCharacter[]
+) => {
+  if (!rawText) return null;
+  const paragraphs = rawText.split(/\n{2,}/);
+  return paragraphs.map((para, idx) => {
+    const speaker = speakerForParagraph(para, characters);
+    if (speaker) {
+      return (
+        <div key={idx} className="dialogue-callout">
+          {speaker.portrait && (
+            <img
+              className="dialogue-callout-portrait"
+              src={speaker.portrait}
+              alt={speaker.name}
+              draggable={false}
+            />
+          )}
+          <div className="dialogue-callout-body">
+            <div className="dialogue-callout-name">{speaker.name}</div>
+            <div className="dialogue-callout-text">
+              {renderFormattedNarration(para, turnIndex, t)}
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div key={idx} className="narration-para">
+        {renderFormattedNarration(para, turnIndex, t)}
+      </div>
+    );
+  });
 };
 
 const combatOutcomeLabel = (outcome: string | undefined, t: TFn): string => {
@@ -1110,7 +1151,12 @@ export function StoryPanel({
                 </h2>
                 <ObjectiveStrip snapshot={snapshot} collapsible={isCoarsePointer} />
                 <div id="narration">
-                  {renderFormattedNarration(displayedNarration, snapshot?.active_scene?.turn_index ?? 0, t)}
+                  {renderNarrationWithSpeakers(
+                    displayedNarration,
+                    snapshot?.active_scene?.turn_index ?? 0,
+                    t,
+                    scenarioCharacters
+                  )}
                   {isStreaming && <span className="caret">▌</span>}
                 </div>
               </div>

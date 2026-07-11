@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Dispatch, RefObject, SetStateAction } from "react";
 import type { NarrativeHistoryItem } from "../App";
 import type { RuntimeSnapshot, WebSocketMessage } from "../types";
@@ -87,6 +87,37 @@ export function useNarrativeStream(args: UseNarrativeStreamArgs) {
   // on a dead socket still gives feedback (T2: no more triple-clicking).
   const [pendingChoiceId, setPendingChoiceId] = useState<string | null>(null);
 
+  // Mid-stream drop recovery (owner 2026-07-11: "간헐적으로 선택지 안 나옴"). The
+  // choices UI is driven by finalizedSnapshot, which is only set when the typer
+  // finalizes — and that needs the server's `snapshot` frame. If the socket drops
+  // AFTER a choose was sent but BEFORE the snapshot frame arrives, nothing ever
+  // re-requests it, so choices never appear. We stash the last CHOOSE payload
+  // (never `begin` — resending that would mint a new loop) and re-send it once on
+  // reconnect / watchdog timeout. Re-sending a choose is idempotent server-side:
+  // it carries the original scene_id, so an already-advanced loop just returns the
+  // current snapshot (session.py `_snapshot_for_stale_choice`).
+  const lastChoosePayloadRef = useRef<string | null>(null);
+  const resendAttemptedRef = useRef(false);
+  const watchdogRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Generous — normal p95 snapshot latency is well under this even on slow turns
+  // (image is decoupled and ships after the snapshot); only a truly stuck stream
+  // trips it.
+  const STREAM_WATCHDOG_MS = 35_000;
+
+  const clearWatchdog = () => {
+    if (watchdogRef.current) {
+      clearTimeout(watchdogRef.current);
+      watchdogRef.current = null;
+    }
+  };
+  // Called when a stream completes (snapshot) or errors: stop the watchdog and
+  // clear the in-flight resend state.
+  const finishStreamTracking = () => {
+    clearWatchdog();
+    lastChoosePayloadRef.current = null;
+    resendAttemptedRef.current = false;
+  };
+
   // WebSocket connect + auto-reconnect lifecycle lives in `useGameSocket`; it
   // parses each inbound frame and hands it to `handleSocketMessage` (the type
   // switch stays here), and exposes `openSocket`/`closeSocket` plus the live
@@ -97,6 +128,7 @@ export function useNarrativeStream(args: UseNarrativeStreamArgs) {
     } else if (msg.type === "loop_meta") {
       onLoopMeta(msg.opening_variant || "default", msg.runs_completed || 0);
     } else if (msg.type === "snapshot" && msg.data) {
+      finishStreamTracking();
       choiceInFlightRef.current = false;
       setPendingChoiceId(null);
       streamDoneRef.current = true;
@@ -106,6 +138,7 @@ export function useNarrativeStream(args: UseNarrativeStreamArgs) {
     } else if (msg.type === "visual_status") {
       onVisualStatus(msg);
     } else if (msg.type === "error") {
+      finishStreamTracking();
       choiceInFlightRef.current = false;
       setPendingChoiceId(null);
       streamDoneRef.current = true;
@@ -115,9 +148,67 @@ export function useNarrativeStream(args: UseNarrativeStreamArgs) {
     }
   };
 
+  // Recover an in-flight choose whose snapshot was lost (defined below, after the
+  // socket helpers exist) — reached via a ref so useGameSocket's reconnect and the
+  // watchdog both call the current implementation.
+  const recoverInFlightRef = useRef<(reason: string) => void>(() => {});
+
   const { websocketRef, openSocket, ensureOpenSocket, closeSocket } = useGameSocket({
     onMessage: handleSocketMessage,
+    onReconnected: () => recoverInFlightRef.current("reconnect"),
     logToConsole,
+  });
+
+  const armWatchdog = useCallback(() => {
+    clearWatchdog();
+    watchdogRef.current = setTimeout(
+      () => recoverInFlightRef.current("watchdog"),
+      STREAM_WATCHDOG_MS
+    );
+  }, []);
+
+  // Give up on the stalled stream: stop the spinner and let the prior scene's
+  // choices reappear (finalizedSnapshot is unchanged) so the player can retry.
+  const abandonStream = (reason: string) => {
+    clearWatchdog();
+    lastChoosePayloadRef.current = null;
+    choiceInFlightRef.current = false;
+    setPendingChoiceId(null);
+    setIsStreaming(false);
+    setStatus(DICTS[getLang()]["sess.reconnectFail"]);
+    logToConsole(`stream recovery gave up (${reason}); choices restored for manual retry`);
+  };
+
+  const recoverInFlight = (reason: string) => {
+    // Only recover a pending choose whose snapshot never arrived.
+    if (streamDoneRef.current || !choiceInFlightRef.current || !lastChoosePayloadRef.current) {
+      return;
+    }
+    const payload = lastChoosePayloadRef.current;
+    // A watchdog trip while the socket is still OPEN means a server-side stall,
+    // not a lost frame — the original request may still be processing, so blindly
+    // re-sending could double-advance. Restore the choices for a manual retry
+    // instead. Only resend when the socket actually dropped (reconnect path, or a
+    // watchdog trip on a closed socket) — there the server handler is gone, so a
+    // re-send (idempotent via scene_id) is safe.
+    const socketOpen = websocketRef.current?.readyState === WebSocket.OPEN;
+    if ((reason === "watchdog" && socketOpen) || resendAttemptedRef.current) {
+      abandonStream(reason);
+      return;
+    }
+    resendAttemptedRef.current = true;
+    logToConsole(`stream stalled (${reason}) — re-sending choose`);
+    ensureOpenSocket()
+      .then((ws) => {
+        resetStreamBuffers();
+        startTyper();
+        armWatchdog();
+        ws.send(payload);
+      })
+      .catch(() => abandonStream(reason));
+  };
+  useEffect(() => {
+    recoverInFlightRef.current = recoverInFlight;
   });
 
   // --- WebSocket Streaming logic ---
@@ -177,6 +268,11 @@ export function useNarrativeStream(args: UseNarrativeStreamArgs) {
       clearVisualTimeout();
       setImagePlaceholderText(DICTS[getLang()]["img.preparing"]);
       beginStream(DICTS[getLang()]["sess.streamChoice"]);
+      // Arm mid-stream-drop recovery: stash this choose so a lost snapshot can be
+      // re-requested (idempotent), and start the stall watchdog.
+      lastChoosePayloadRef.current = payload;
+      resendAttemptedRef.current = false;
+      armWatchdog();
       ws.send(payload);
     };
     const live = websocketRef.current;
@@ -196,7 +292,7 @@ export function useNarrativeStream(args: UseNarrativeStreamArgs) {
         pendingActionRef.current = null;
         setStatus(DICTS[getLang()]["sess.reconnectFail"]);
       });
-  }, [beginStream, clearVisualTimeout, ensureOpenSocket, fallbackMode, finalizedSnapshot, imageOpts, isStreaming, loopId, pendingActionRef, selectedScenarioId, setImagePlaceholderText, setStatus, websocketRef]);
+  }, [armWatchdog, beginStream, clearVisualTimeout, ensureOpenSocket, fallbackMode, finalizedSnapshot, imageOpts, isStreaming, loopId, pendingActionRef, selectedScenarioId, setImagePlaceholderText, setStatus, websocketRef]);
 
   return { websocketRef, openSocket, closeSocket, beginStream, imageOpts, sendChoose, pendingChoiceId };
 }

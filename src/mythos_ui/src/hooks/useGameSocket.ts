@@ -1,10 +1,15 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { getWebSocketUrl } from "../api";
 import type { WebSocketMessage } from "../types";
 
 type UseGameSocketArgs = {
   // Called with each parsed inbound frame; the caller owns the type switch.
   onMessage: (msg: WebSocketMessage) => void;
+  // Fired after an *unexpected*-close auto-reconnect reopens the socket, so the
+  // caller can re-send an in-flight request that was lost mid-stream (the choose
+  // whose snapshot frame never arrived). Not called for the initial open or an
+  // explicit reconnect via ensureOpenSocket.
+  onReconnected?: (ws: WebSocket) => void;
   logToConsole: (line: string) => void;
 };
 
@@ -22,11 +27,17 @@ const KEEPALIVE_INTERVAL_MS = 20_000;
  * transport-level, never reaches `onMessage`). `closeSocket` marks the close
  * explicit so the reconnect loop stays quiet.
  */
-export function useGameSocket({ onMessage, logToConsole }: UseGameSocketArgs) {
+export function useGameSocket({ onMessage, onReconnected, logToConsole }: UseGameSocketArgs) {
   const websocketRef = useRef<WebSocket | null>(null);
   const reconnectAttemptsRef = useRef(0);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isExplicitCloseRef = useRef(false);
+  // Read the latest onReconnected via a ref so the reconnect closure captured in
+  // an old socket's onclose still calls the current handler.
+  const onReconnectedRef = useRef(onReconnected);
+  useEffect(() => {
+    onReconnectedRef.current = onReconnected;
+  });
 
   const openSocket = (): Promise<WebSocket> => {
     isExplicitCloseRef.current = false;
@@ -81,9 +92,11 @@ export function useGameSocket({ onMessage, logToConsole }: UseGameSocketArgs) {
             logToConsole(`WS 연결이 유실되었습니다. ${delay / 1000}초 후 재접속을 시도합니다. (${reconnectAttemptsRef.current + 1}/${MAX_RECONNECT_ATTEMPTS})`);
             reconnectTimeoutRef.current = setTimeout(() => {
               reconnectAttemptsRef.current += 1;
-              openSocket().catch((err) => {
-                logToConsole("WS 재접속 실패: " + (err as Error).message);
-              });
+              openSocket()
+                .then((sock) => onReconnectedRef.current?.(sock))
+                .catch((err) => {
+                  logToConsole("WS 재접속 실패: " + (err as Error).message);
+                });
             }, delay);
           } else {
             logToConsole("WS 최대 재접속 시도 횟수를 초과했습니다. 새로고침이 필요할 수 있습니다.");

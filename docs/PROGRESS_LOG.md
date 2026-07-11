@@ -2,6 +2,13 @@
 
 Last updated: 2026-07-11
 
+## 2026-07-11 (live session #8, claude lane) — tab reorder + collapsible 도감 + companion party-join bug fixed (4 companions); UNDEPLOYED
+- Status: Done, 2 commits (`b9a5b63` UI + `dddd3e2` scenario), **UNDEPLOYED**. `make test` **983** green · frontend lint/build clean · `make validate-content` clean (2 scenarios). git ahead 16.
+- **Tab reorder** (`b9a5b63`): 이야기 → 인물 → 스킬 → 도감 (TabNav + App.tsx swipe order matched).
+- **Collapsible 도감** (`b9a5b63`): new shared `CodexSection` (`<details>` accordion: title + count pill + chevron) — open on fine-pointer desktop, collapsed on coarse/small viewport (new `viewport.ts` device check) so mobile reads as a scannable table of contents. RouteNarrative + CutsceneGallery routed through it. Noisy parenthetical labels simplified (세계 아카이브(Lore)→세계 설정, 회상 잔향(Active Echoes)→이전 루프의 잔향, 루트 흐름(Route)→루트 흐름, 동료 컷씬→동료 컷신); KO/EN parity; new `codex.progress` key.
+- **Companion party-join bug** (`dddd3e2`, owner report "만난 후 대화는 되는데 파티엔 안 들어옴"): audited all 6 combat allies — **lin_yue/han/su_ah/tae_o were half-implemented** (meet arc sets `met_<id>` but NO `party_add` anywhere; `ally_<id>` unlock flags were dead). Only `_party.members` IDs are controllable (se_rin hardcoded, kai via `kai_awaken` `party_add`), so these 4 could only ever co-fight as AI allies. Fix: each meet side-arc effect now sets `ally_<id>` + `party_add:[<id>]` + description "정식 동료로 파티에 합류" (mirrors kai; no code change — `route_runtime` already reads `party_add` from visited side-arc nodes). Recruitment fires on entering that companion's optional side anchor on the operation map; `max_side_anchors=2`/loop so the party grows across loops, not all at once.
+- Next: `! git push` (owner-run, ahead 16) · owner `make deploy` (billable/PROD) · owner play verdict: 도감 접이식 real-device + each companion actually joins as a controllable party member (side anchor → next combat) + party-size balance. **Design note for owner**: the 4 meet arcs auto-recruit on node visit (no choice/check/cost, unlike kai's awaken branch) — optional future polish.
+
 ## 2026-07-11 (live session #7, claude lane) — mobile market dock + dialogue: possessive fix + always-distinct speech; DEPLOY 00049→00050
 - Status: Done + **DEPLOYED `mythos-api-00049-p98` then `00050-q66`** (owner-run `make deploy` ×2, smoke health/root 200 each). `make check` **983** green.
 - **Market barter dock (`2ae52ba`)**: the fixed bottom-right dock covered the narration on mobile → now collapsed by default on coarse pointer (compact launcher chip), opens on tap, ✕ to close; desktop keeps the open dock.

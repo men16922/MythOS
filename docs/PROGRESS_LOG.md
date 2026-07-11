@@ -2,6 +2,12 @@
 
 Last updated: 2026-07-11
 
+## 2026-07-11 (live session #7, claude lane) — mobile market dock dismissible + dialogue possessive-name fix; DEPLOY 00049-p98
+- Status: Done + **DEPLOYED `mythos-api-00049-p98`** (owner-run `make deploy`, smoke health/root 200). `make check` **983** green.
+- **Market barter dock (`2ae52ba`)**: the fixed bottom-right dock covered the narration on mobile → now collapsed by default on coarse pointer (compact launcher chip), opens on tap, ✕ to close; desktop keeps the open dock.
+- **Dialogue possessive false-positive (`b312dfc`)**: "린위에의 부하가 말했다"(Lin-yue's subordinate) was attributed to 린위에. `keywordMatches` now rejects a name immediately followed by the possessive 의 / 's (modifier ≠ speaker); applies to the dialogue callout + CHARACTER panel. Verified 7 cases.
+- Open (owner deciding): the dialogue callout only appears when the speaker is NAMED in the attribution — quoted speech with a pronoun / unnamed / prior-paragraph speaker gets no bubble (strict gate to avoid wrong portraits, the "Se-rin appears unearned" class). Owner noted the dialogue itself IS reliably detectable (quotes) even when the speaker isn't → option to style all quoted speech as dialogue (portrait/name only when the speaker is known). Not yet built.
+
 ## 2026-07-11 (live session #6, claude lane) — mobile: tab-swipe nav + inline story-history collapsed by default; DEPLOY 00047-hln
 - Status: Done + **DEPLOYED `mythos-api-00048-p7b`** (owner-run `make deploy` ×2; 00047-hln then a tab-swipe wrap-around follow-up; smoke health/root 200). `make check` **983** green.
 - **Tab-swipe (`4e42c85` + wrap-around `f583f83`)**: horizontal swipe moves between tabs (`useTabSwipe`), routed through handleTabClick so codex-backed tabs still lazy-load. Guarded to ignore swipes starting on the combat board's pan-x wrapper or any horizontal scroller; needs a deliberate horizontal-dominant <600ms drag so a vertical read-scroll never triggers it. Wraps around at the ends (edge swipe cycles to the opposite tab; the outward edge swipe used to dead-end).

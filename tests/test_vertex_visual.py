@@ -63,6 +63,33 @@ class _FakeGenaiClient:
         self.models = _FakeImagenModels(image_bytes)
 
 
+class _FlakyImagenModels:
+    """Scripted per-call outcomes: '429' raises quota, 'empty' returns no images,
+    'ok' succeeds — for the transient-failure retry tests."""
+
+    def __init__(self, outcomes: list[str]) -> None:
+        self.outcomes = list(outcomes)
+        self.calls = 0
+
+    def generate_images(self, *, model: str, prompt: str, config: Any):
+        self.calls += 1
+        outcome = self.outcomes.pop(0)
+        if outcome == "429":
+            raise RuntimeError(
+                "429 RESOURCE_EXHAUSTED. Quota exceeded for "
+                "aiplatform.googleapis.com/online_prediction_requests_per_base_model"
+            )
+        if outcome == "empty":
+            return types.SimpleNamespace(generated_images=[])
+        image = types.SimpleNamespace(image_bytes=_PNG)
+        return types.SimpleNamespace(generated_images=[types.SimpleNamespace(image=image)])
+
+
+class _FlakyGenaiClient:
+    def __init__(self, outcomes: list[str]) -> None:
+        self.models = _FlakyImagenModels(outcomes)
+
+
 class AspectRatioTest(unittest.TestCase):
     def test_maps_to_nearest_supported_ratio(self) -> None:
         self.assertEqual(_nearest_aspect_ratio(1024, 1024), "1:1")
@@ -100,11 +127,50 @@ class VertexImageProviderTest(unittest.TestCase):
             provider.generate(req, Path(tmp) / "s.png")
         self.assertEqual(client.models.calls[0]["model"], "imagen-3.0-fast-generate-001")
 
-    def test_no_images_raises(self) -> None:
-        provider = VertexImageProvider(client=_FakeGenaiClient(image_bytes=None))
+    def test_no_images_raises_after_retries(self) -> None:
+        client = _FlakyGenaiClient(["empty", "empty", "empty"])
+        provider = VertexImageProvider(client=client, sleep=lambda _s: None)
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaises(RuntimeError):
                 provider.generate(_request(), Path(tmp) / "s.png")
+        self.assertEqual(client.models.calls, 3)
+
+    def test_quota_429_retries_with_backoff_then_succeeds(self) -> None:
+        # Prod evidence 2026-07-11: bursty turns tripped the per-minute Imagen
+        # quota and the empty safety-filter response; both must survive a re-roll.
+        client = _FlakyGenaiClient(["429", "ok"])
+        delays: list[float] = []
+        provider = VertexImageProvider(client=client, sleep=delays.append)
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "s.png"
+            provider.generate(_request(), out)
+            self.assertEqual(out.read_bytes(), _PNG)
+        self.assertEqual(client.models.calls, 2)
+        self.assertEqual(delays, [8.0])
+
+    def test_empty_response_retries_quickly_then_succeeds(self) -> None:
+        client = _FlakyGenaiClient(["empty", "ok"])
+        delays: list[float] = []
+        provider = VertexImageProvider(client=client, sleep=delays.append)
+        with tempfile.TemporaryDirectory() as tmp:
+            provider.generate(_request(), Path(tmp) / "s.png")
+        self.assertEqual(client.models.calls, 2)
+        self.assertEqual(delays, [1.5])
+
+    def test_non_retryable_error_raises_immediately(self) -> None:
+        class _Boom:
+            calls = 0
+
+            def generate_images(self, **_kw):
+                _Boom.calls += 1
+                raise RuntimeError("PERMISSION_DENIED: caller lacks permission")
+
+        client = types.SimpleNamespace(models=_Boom())
+        provider = VertexImageProvider(client=client, sleep=lambda _s: None)
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(RuntimeError):
+                provider.generate(_request(), Path(tmp) / "s.png")
+        self.assertEqual(_Boom.calls, 1)
 
     def test_missing_sdk_raises_actionable_error(self) -> None:
         provider = VertexImageProvider()  # no injected client

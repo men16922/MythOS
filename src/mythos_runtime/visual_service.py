@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import os
 import shutil
+import time
+from collections.abc import Callable
 from dataclasses import dataclass, field, replace
 from datetime import timedelta
 from pathlib import Path
@@ -168,6 +170,26 @@ def _nearest_aspect_ratio(width: int, height: int) -> str:
     return min(_IMAGEN_ASPECT_RATIOS, key=lambda k: abs(_IMAGEN_ASPECT_RATIOS[k] - ratio))
 
 
+# Transient Imagen failures worth a re-roll (prod Neon evidence 2026-07-11, 7
+# failed assets): ``429 RESOURCE_EXHAUSTED`` = the per-minute
+# online_prediction_requests_per_base_model quota tripping on bursty multi-turn
+# image runs, and an EMPTY ``generated_images`` list = the safety filter
+# rejecting one stochastic sample — both usually succeed on retry. The scene
+# image is already deferred behind the choices (session #5 image-decouple), so
+# a bounded wait costs no interactivity.
+_QUOTA_RETRY_DELAYS_S = (8.0, 15.0)
+_EMPTY_RETRY_DELAY_S = 1.5
+
+
+def _is_imagen_quota_error(exc: Exception) -> bool:
+    text = str(exc)
+    return "429" in text or "RESOURCE_EXHAUSTED" in text
+
+
+def _is_retryable_imagen_error(exc: Exception) -> bool:
+    return _is_imagen_quota_error(exc) or "returned no images" in str(exc)
+
+
 def _first_image_bytes(response: object) -> bytes:
     """Extract PNG bytes from a google-genai GenerateImagesResponse (tolerant of shape)."""
     images = getattr(response, "generated_images", None) or []
@@ -201,7 +223,9 @@ class VertexImageProvider:
         api_key: str | None = None,
         number_of_images: int = 1,
         client: object = None,
+        sleep: Callable[[float], None] = time.sleep,
     ) -> None:
+        self._sleep = sleep
         self.model = model or _env("IMAGEN_MODEL", "IMAGE_MODEL_ID_VERTEX") or "imagen-3.0-generate-002"
         # Truth labels for asset records/logs: requests are stamped with local-FLUX
         # defaults, which must not survive onto a billed cloud generation.
@@ -242,14 +266,29 @@ class VertexImageProvider:
             "number_of_images": self.number_of_images,
             "aspect_ratio": _nearest_aspect_ratio(request.width, request.height),
         }
-        response = client.models.generate_images(
-            model=request.metadata.get("vertex_image_model") or self.model,
-            prompt=request.prompt,
-            config=config,
-        )
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_bytes(_first_image_bytes(response))
-        return output_path
+        model = request.metadata.get("vertex_image_model") or self.model
+        attempts = len(_QUOTA_RETRY_DELAYS_S) + 1
+        for attempt in range(attempts):
+            try:
+                response = client.models.generate_images(
+                    model=model,
+                    prompt=request.prompt,
+                    config=config,
+                )
+                data = _first_image_bytes(response)
+            except Exception as exc:
+                if attempt >= attempts - 1 or not _is_retryable_imagen_error(exc):
+                    raise
+                self._sleep(
+                    _QUOTA_RETRY_DELAYS_S[attempt]
+                    if _is_imagen_quota_error(exc)
+                    else _EMPTY_RETRY_DELAY_S
+                )
+                continue
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            output_path.write_bytes(data)
+            return output_path
+        raise RuntimeError("unreachable: imagen retry loop exhausted")  # pragma: no cover
 
 
 def default_visual_provider(config: AgentConfig | None = None) -> VisualProvider:

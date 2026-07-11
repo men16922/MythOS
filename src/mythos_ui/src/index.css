@@ -783,6 +783,65 @@ main {
   border-bottom: 1px solid var(--line-soft);
   padding-bottom: 4px;
 }
+/* Collapsible codex sections (mobile-first accordion). The <summary> is the tap
+   target: title + count pill + chevron on one row; the title's own border/margin
+   is neutralized inside the summary so the divider sits under the whole header. */
+.codex-sec[open] {
+  padding-bottom: 12px;
+}
+.codex-sec-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+  min-height: 24px;
+}
+.codex-sec-summary::-webkit-details-marker {
+  display: none;
+}
+.codex-sec > .codex-sec-summary .codex-sec-title {
+  flex: 1;
+  margin: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.codex-sec-count {
+  flex: none;
+  font-size: 10px;
+  color: var(--ink-dim);
+  background: var(--panel);
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  padding: 1px 8px;
+  min-width: 20px;
+  text-align: center;
+}
+.codex-sec-chevron {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid var(--head);
+  border-bottom: 2px solid var(--head);
+  transform: rotate(45deg);
+  transition: transform 0.15s ease;
+  opacity: 0.7;
+  margin-right: 2px;
+}
+.codex-sec[open] > .codex-sec-summary .codex-sec-chevron {
+  transform: rotate(-135deg);
+}
+.codex-sec-body {
+  margin-top: 10px;
+}
+.codex-sec .codex-section-hint {
+  margin-top: 6px;
+}
+/* Full-width sections below the reference grid (진행·기록 / 컷신). */
+.codex-sec.codex-standalone {
+  margin-top: 16px;
+}
 .codex-section-hint {
   color: var(--ink-dim);
   font-size: 10px;

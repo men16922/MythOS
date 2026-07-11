@@ -1,3 +1,4 @@
+import { CodexSection } from "./CodexSection";
 import { useLang } from "./i18n/lang";
 import type { StringKey } from "./i18n/strings.ko";
 import type { CutsceneGalleryEntry } from "./types";
@@ -7,6 +8,7 @@ type TFn = (key: StringKey) => string;
 interface CutsceneGalleryProps {
   entries?: CutsceneGalleryEntry[];
   scenarioId: string;
+  defaultOpen?: boolean;
 }
 
 function lockHint(entry: CutsceneGalleryEntry, t: TFn): string {
@@ -20,11 +22,16 @@ function lockHint(entry: CutsceneGalleryEntry, t: TFn): string {
 export function CutsceneGallery({
   entries = [],
   scenarioId,
+  defaultOpen = true,
 }: CutsceneGalleryProps) {
   const { t } = useLang();
   return (
-    <div className="codex-sec" style={{ marginTop: "16px" }}>
-      <div className="codex-sec-title">{t("cut.title")}</div>
+    <CodexSection
+      title={t("cut.title")}
+      count={entries.length}
+      defaultOpen={defaultOpen}
+      className="codex-standalone"
+    >
       {entries.length > 0 ? (
         <div className="skill-tree-list">
           {entries.map((entry) => (
@@ -77,6 +84,6 @@ export function CutsceneGallery({
           {t("cut.empty")}
         </div>
       )}
-    </div>
+    </CodexSection>
   );
 }

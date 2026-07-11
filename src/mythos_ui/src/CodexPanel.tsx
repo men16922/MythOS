@@ -1,4 +1,6 @@
 import { CutsceneGallery } from "./CutsceneGallery";
+import { CodexSection } from "./CodexSection";
+import { isCoarseOrSmallViewport } from "./viewport";
 import { Surface } from "./Surface";
 import { ProgressDashboard } from "./ProgressDashboard";
 import { RouteNarrative } from "./RouteNarrative";
@@ -29,16 +31,20 @@ export function CodexPanel({
   const { t, lang } = useLang();
   const visibleRuns = mergedRuns(runsHistory, memoryOverview?.run_summaries);
   const glossary = glossaryFor(scenarioId);
+  // Desktop (fine pointer): sections open. Mobile: collapsed into a scannable list.
+  const open = !isCoarseOrSmallViewport();
   return (
     <div id="codex-tab-content">
       <Surface variant="surface">
         <h2 className="tab-panel-title">{t("codex.title")}</h2>
         <div className="codex-grid">
-          <RouteNarrative routeMap={routeMap} />
           {glossary.length > 0 && (
-            <div className="codex-sec">
-              <div className="codex-sec-title">{t("codex.glossary")}</div>
-              <div className="codex-section-hint">{t("codex.glossaryHint")}</div>
+            <CodexSection
+              title={t("codex.glossary")}
+              hint={t("codex.glossaryHint")}
+              count={glossary.length}
+              defaultOpen={open}
+            >
               <div className="codex-list">
                 {glossary.map((entry) => (
                   <div className="codex-item" key={entry.id}>
@@ -51,11 +57,14 @@ export function CodexPanel({
                   </div>
                 ))}
               </div>
-            </div>
+            </CodexSection>
           )}
-          <div className="codex-sec">
-            <div className="codex-sec-title">{t("codex.clues")}</div>
-            <div className="codex-section-hint">{t("codex.cluesHint")}</div>
+          <CodexSection
+            title={t("codex.clues")}
+            hint={t("codex.cluesHint")}
+            count={codexLists.clues.length}
+            defaultOpen={open}
+          >
             <div className="codex-list">
               {codexLists.clues.length > 0 ? (
                 codexLists.clues.map((clue, idx) => (
@@ -73,10 +82,13 @@ export function CodexPanel({
                 </div>
               )}
             </div>
-          </div>
+          </CodexSection>
 
-          <div className="codex-sec">
-            <div className="codex-sec-title">{t("codex.lore")}</div>
+          <CodexSection
+            title={t("codex.lore")}
+            count={codexLists.allLore.length}
+            defaultOpen={open}
+          >
             <div className="codex-list">
               {codexLists.allLore.length > 0 ? (
                 codexLists.allLore.map((lore, idx) => (
@@ -91,41 +103,51 @@ export function CodexPanel({
                 </div>
               )}
             </div>
-          </div>
-        </div>
+          </CodexSection>
 
-        <div className="codex-sec" style={{ marginTop: "16px" }}>
-          <div className="codex-sec-title">
-            {t("codex.echoes")}
-          </div>
-          <div className="codex-list">
-            {codexLists.echoes.length > 0 ? (
-              codexLists.echoes.map((echo, idx) => (
-                <div className="codex-item" key={idx}>
-                  <div className="codex-item-head">{echo.symbol}</div>
-                  <div className="codex-item-desc">{echo.text}</div>
+          <CodexSection
+            title={t("codex.echoes")}
+            count={codexLists.echoes.length}
+            defaultOpen={open}
+          >
+            <div className="codex-list">
+              {codexLists.echoes.length > 0 ? (
+                codexLists.echoes.map((echo, idx) => (
+                  <div className="codex-item" key={idx}>
+                    <div className="codex-item-head">{echo.symbol}</div>
+                    <div className="codex-item-desc">{echo.text}</div>
+                  </div>
+                ))
+              ) : (
+                <div style={{ color: "var(--ink-dim)" }}>
+                  {t("codex.noEchoes")}
                 </div>
-              ))
-            ) : (
-              <div style={{ color: "var(--ink-dim)" }}>
-                {t("codex.noEchoes")}
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          </CodexSection>
+
+          <RouteNarrative routeMap={routeMap} defaultOpen={open} />
         </div>
 
-        <div className="codex-status-grid">
-          <ProgressDashboard
-            snapshot={snapshot ?? null}
-            memoryOverview={memoryOverview}
-            runs={visibleRuns}
-          />
-          <RunHistoryPanel runsHistory={visibleRuns} />
-        </div>
+        <CodexSection
+          title={t("codex.progress")}
+          defaultOpen={open}
+          className="codex-standalone"
+        >
+          <div className="codex-status-grid">
+            <ProgressDashboard
+              snapshot={snapshot ?? null}
+              memoryOverview={memoryOverview}
+              runs={visibleRuns}
+            />
+            <RunHistoryPanel runsHistory={visibleRuns} />
+          </div>
+        </CodexSection>
 
         <CutsceneGallery
           entries={memoryOverview?.cutscene_gallery}
           scenarioId={scenarioId}
+          defaultOpen={open}
         />
       </Surface>
     </div>

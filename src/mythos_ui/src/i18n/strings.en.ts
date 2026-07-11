@@ -444,10 +444,11 @@ export const en: Record<StringKey, string> = {
   "codex.cluesHint": "Key evidence secured during play. Clues accumulate toward routes, endings, and some companion unlocks.",
   "codex.clue": "Clue",
   "codex.noClues": "No clues obtained.",
-  "codex.lore": "World Archive (Lore)",
+  "codex.lore": "World Archive",
   "codex.noLore": "No archive available.",
-  "codex.echoes": "Echoes of Past Loops (Active Echoes)",
+  "codex.echoes": "Echoes of Past Loops",
   "codex.noEchoes": "No echoes detected.",
+  "codex.progress": "Progress · History",
   // Skill tree
   "skill.insight": "Insight",
   "skill.insightHint": "Insight is earned from combat rewards, archiving a loop (+2), securing clues (+1), and combat victories (+1).",

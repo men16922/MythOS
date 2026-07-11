@@ -337,7 +337,7 @@ export const ko = {
   // Combat log
   "combatLog.title": "전술 전투 로그",
   // Route narrative (Codex tab)
-  "route.flow": "루트 흐름 (Route)",
+  "route.flow": "루트 흐름",
   "route.currentTag": "현재 시점",
   "route.headingEnding": "이 루트가 향하는 결말",
   "route.endingHelpTitle": "지금까지 내린 선택이 어느 결말로 기울고 있는지 보여주는 누적 경향입니다. 확정이 아니라, 앞으로의 선택으로 바뀔 수 있는 가중치입니다.",
@@ -435,7 +435,7 @@ export const ko = {
   // Cutscene gallery
   "cut.affection": "호감도",
   "cut.flag": "플래그",
-  "cut.title": "동료 컷씬 (Cutscene Gallery)",
+  "cut.title": "동료 컷신",
   "cut.viewScript": "대본 보기",
   "cut.locked": "잠김",
   "cut.empty": "아직 등록된 컷씬이 없습니다. 동료와의 관계가 깊어지면 특별한 장면이 열립니다.",
@@ -443,14 +443,15 @@ export const ko = {
   "codex.title": "기억의 별자리",
   "codex.glossary": "용어",
   "codex.glossaryHint": "장면 속 용어가 낯설 때 여기서 확인하세요. 이 목록에 없는 수치·점수류 단어는 세계관 용어가 아닙니다.",
-  "codex.clues": "단서 목록 (Clues)",
+  "codex.clues": "단서",
   "codex.cluesHint": "플레이 중 확보한 핵심 증거입니다. 일부 루트·엔딩·동료 해금 조건에 누적 반영됩니다.",
   "codex.clue": "단서",
   "codex.noClues": "획득한 단서가 없습니다.",
-  "codex.lore": "세계 아카이브 (Lore)",
+  "codex.lore": "세계 설정",
   "codex.noLore": "조회 가능한 아카이브가 없습니다.",
-  "codex.echoes": "이전 루프 회상 잔향 (Active Echoes)",
+  "codex.echoes": "이전 루프의 잔향",
   "codex.noEchoes": "감지된 회상 잔향이 없습니다.",
+  "codex.progress": "진행 · 기록",
   // Skill tree
   "skill.insight": "통찰",
   "skill.insightHint": "통찰은 전투 보상, 루프 보관(+2), 단서 확보(+1), 전투 승리(+1)로 얻습니다.",

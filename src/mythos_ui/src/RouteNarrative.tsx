@@ -1,3 +1,4 @@
+import { CodexSection } from "./CodexSection";
 import { useLang } from "./i18n/lang";
 import type { StringKey } from "./i18n/strings.ko";
 import type { RouteMap } from "./types";
@@ -17,7 +18,13 @@ const ENDING_KEYS: Record<string, { label: StringKey; gloss: StringKey }> = {
  * is living right now and which ending their accumulated choices lean toward.
  * Lives in the 기억의 별자리(Codex) tab so the operation map stays a clean graph.
  */
-export function RouteNarrative({ routeMap }: { routeMap?: RouteMap | null }) {
+export function RouteNarrative({
+  routeMap,
+  defaultOpen = true,
+}: {
+  routeMap?: RouteMap | null;
+  defaultOpen?: boolean;
+}) {
   const { t } = useLang();
   const layers = routeMap?.layers || [];
   if (!routeMap || layers.length === 0) return null;
@@ -34,9 +41,7 @@ export function RouteNarrative({ routeMap }: { routeMap?: RouteMap | null }) {
   if (!activeLens && leaderboard.length === 0) return null;
 
   return (
-    <div className="codex-sec route-narrative">
-      <div className="codex-sec-title">{t("route.flow")}</div>
-
+    <CodexSection title={t("route.flow")} defaultOpen={defaultOpen} className="route-narrative">
       {activeLens && (
         <div className="route-active-lens">
           <span className="route-active-tag">{t("route.currentTag")}</span> {activeLens.lens}
@@ -77,6 +82,6 @@ export function RouteNarrative({ routeMap }: { routeMap?: RouteMap | null }) {
           })}
         </div>
       )}
-    </div>
+    </CodexSection>
   );
 }

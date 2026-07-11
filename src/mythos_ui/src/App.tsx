@@ -698,9 +698,9 @@ export default function App() {
   // board or any horizontal scroller.
   const swipeTabs: ActiveTab[] = [
     "story",
-    "codex",
     "character",
     "skills",
+    "codex",
     ...(isAdmin ? (["dev"] as ActiveTab[]) : []),
   ];
   const tabSwipe = useTabSwipe(swipeTabs, activeTab, handleTabClick);

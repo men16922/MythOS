@@ -2,6 +2,12 @@
 
 Last updated: 2026-07-12
 
+## 2026-07-12 (live session, claude lane) — 커버 아트 오너 승인 → IMAGEN_MODEL Makefile 고정 → **DEPLOYED `00052-fcx`**
+- 오너 비교시트 승인(7장 확정, su-ah 4차=attempt-1 스타일+나이프 교체 포함) → cover 아트 블로커 해제.
+- `make deploy`에 `IMAGEN_MODEL ?= gemini-3.1-flash-image` + `--update-env-vars` 고정 (`893457f`) — env-보존 배포가 리비전의 낡은 imagen-3.0 값을 계속 되살리던 함정 봉인. 오버라이드: `make deploy IMAGEN_MODEL=<id>`.
+- **오너 `make deploy` 실행 → `mythos-api-00052-fcx` 100% 트래픽.** 검증: health/root 200 + 리비전 env에 IMAGEN_MODEL 고정 확인(gcloud describe). 세션 #8-#12 번들 전체가 라이브.
+- Next: `! git push` · 오너 라이브 체감(이미지 일관성 · push/pull+cover · hot-path choices · portrait combat 실기기) — `docs/test/neo_seoul_live_qa.md` 갱신본이 권위.
+
 ## 2026-07-12 — overnight Codex: Su-ah cover pose regenerated from the approved style anchor
 - Status: Done; still undeployed and awaiting the existing human cover-art identity sign-off.
 - Changed: replaced `su-ah-cover.png` with a 512×768 RGBA cover sprite that retains attempt-1's crouch, magenta hex shield, circuit-embroidery coat, utility belt, and lighting, replacing only the datapad with the guard-matching low purple knife.

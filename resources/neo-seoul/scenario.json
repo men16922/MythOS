@@ -1580,7 +1580,7 @@
     {
       "trigger_location": "한강 야시장",
       "title": "사이드: 린위에의 은밀한 의뢰",
-      "description": "린위에가 잃어버린 '기억의 조각'을 찾아주고 강력한 장비를 지원받는 이야기. 완료하면 린위에가 전투에 합류할 수 있게 된다.",
+      "description": "린위에가 잃어버린 '기억의 조각'을 찾아주고 강력한 장비를 지원받는 이야기. 완료하면 린위에가 정식 동료로 파티에 합류한다.",
       "beat": "side_lin_yue_request",
       "image": "scenes/lin_yue_secret_request.png",
       "related_npcs": [
@@ -1588,8 +1588,10 @@
       ],
       "effect": {
         "flags": [
-          "met_lin_yue"
+          "met_lin_yue",
+          "ally_lin_yue"
         ],
+        "party_add": ["lin_yue"],
         "relationship": {
           "lin_yue": 1
         }
@@ -1626,7 +1628,7 @@
     },
     {
       "title": "사이드: 러너의 지름길",
-      "description": "데이터 러너 한이 관리망 사각지대를 통과하는 지름길을 제안한다. 완료하면 이동 우위와 한의 합류 가능성이 열린다.",
+      "description": "데이터 러너 한이 관리망 사각지대를 통과하는 지름길을 제안한다. 완료하면 이동 우위를 얻고 한이 정식 동료로 파티에 합류한다.",
       "beat": "side_han_meet",
       "image": "scenes/han_meet.png",
       "related_npcs": [
@@ -1634,8 +1636,10 @@
       ],
       "effect": {
         "flags": [
-          "met_han"
+          "met_han",
+          "ally_han"
         ],
+        "party_add": ["han"],
         "relationship": {
           "han": 1
         }
@@ -1643,7 +1647,7 @@
     },
     {
       "title": "사이드: 잠금 너머",
-      "description": "해커 수아가 ARK 데이터 볼트를 함께 열자고 한다. 성공하면 관리망 내부 정보와 수아의 신뢰를 얻는다.",
+      "description": "해커 수아가 ARK 데이터 볼트를 함께 열자고 한다. 성공하면 관리망 내부 정보를 얻고 수아가 정식 동료로 파티에 합류한다.",
       "beat": "side_su_ah_meet",
       "image": "scenes/su_ah_meet.png",
       "related_npcs": [
@@ -1651,8 +1655,10 @@
       ],
       "effect": {
         "flags": [
-          "met_su_ah"
+          "met_su_ah",
+          "ally_su_ah"
         ],
+        "party_add": ["su_ah"],
         "relationship": {
           "su_ah": 1
         }
@@ -1660,7 +1666,7 @@
     },
     {
       "title": "사이드: 오래된 상처",
-      "description": "흉터의 베테랑 태오가 과거 관리망에 잃은 것을 마주한다. 그의 상처를 따라가면 강한 동료와 무거운 진실을 얻는다.",
+      "description": "흉터의 베테랑 태오가 과거 관리망에 잃은 것을 마주한다. 그의 상처를 따라가면 무거운 진실과 함께 태오가 정식 동료로 파티에 합류한다.",
       "beat": "side_tae_o_meet",
       "image": "scenes/tae_o_meet.png",
       "related_npcs": [
@@ -1668,8 +1674,10 @@
       ],
       "effect": {
         "flags": [
-          "met_tae_o"
+          "met_tae_o",
+          "ally_tae_o"
         ],
+        "party_add": ["tae_o"],
         "relationship": {
           "tae_o": 1
         }

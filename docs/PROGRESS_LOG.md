@@ -2,12 +2,12 @@
 
 Last updated: 2026-07-11
 
-## 2026-07-11 — overnight Codex cover-pose attempt reverted
-- Status: Blocker #1 recorded; no code or asset changes remain.
-- Changed: attempted `combatCanvas` cover pose plus guard fallback, then restored it after the gate failure.
-- Verified: focused `test_ui_clarity_affordances` passed; `make check` reached frontend build and failed TS2448/TS2454 (`aliveHere` used before declaration).
-- Blockers: cover-pose item remains `[auto:codex]`; retry only with declaration ordering checked before the full gate.
-- Next: top Codex candidate remains cover pose.
+## 2026-07-11 — overnight Codex cover-pose attempts reverted
+- Status: Blocker #2 recorded; no code or asset changes remain.
+- Changed: attempted `combatCanvas` cover pose plus guard fallback, then restored it after each gate failure.
+- Verified: first attempt's focused `test_ui_clarity_affordances` passed; `make check` failed TS2448/TS2454 (`aliveHere` before declaration). Second attempt's `test_combat_cover_pose` passed; `make check` failed ruff I001 (new test import order).
+- Blockers: cover-pose is now `[blocked]` after two failed unattended attempts; it needs human review before retry.
+- Next: top eligible Codex candidate is `magnetic_pull` icon regeneration.
 ## 2026-07-11 (live session #10, claude lane) — combat P1 push/pull + cover legibility + CLOUD IMAGE MODEL MIGRATION; UNDEPLOYED
 - Status: 4 commits, **UNDEPLOYED**. `make check` **989** green (typecheck/validate-content/doc-budget/skills OK).
 - **Combat push/pull** (`5d75d63`, owner GO — hit chance KEPT): `_skill_displace` steps the target along the actor↔target line (push=away/pull=toward), stops at edge/occupied, `immovable` guard. Terrain-meaningful: shoving off cover/high-ground strips that tile's bonus. Wired `push:1` onto overload_strike; pull engine-ready+tested, needs a carrier skill. UI shows 밀기/당기기 N칸; +3 tests. Also fixed the LC6 source-lock test to the portrait `isCoarsePointer` gate (gate-red had slipped into pushed `008297e`).

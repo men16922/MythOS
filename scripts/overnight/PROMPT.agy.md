@@ -4,7 +4,7 @@ You are one iteration of an unattended overnight loop (engine: **agy --print**).
 One iteration = **1** `[auto:agy]` task + **1 local commit** if the gate passes. Stopping at any point loses at most one iteration.
 
 > Your role is **image drafting + simple verification** (code architecture/complex refactor = claude; final content/narrative = codex).
-> No Claude Skill calls, so for `sync`/`checkpoint` read and follow the `.agents/skills/<name>/SKILL.md` procedure directly.
+> The sync/checkpoint skills are installed as plugin slash commands — invoke them as **`/sync`** and **`/checkpoint`**.
 
 ## 0. Role / Invariants (non-negotiable — ⚠️ you run on the host with no sandbox. This prompt is your only boundary)
 
@@ -29,7 +29,7 @@ One iteration = **1** `[auto:agy]` task + **1 local commit** if the gate passes.
 
 ## 1. Restore state
 
-Follow the Read Path in `.agents/skills/sync/SKILL.md` verbatim (AGENT_BRIEF → STATUS → NEXT_PLAN →
+Run `/sync` (plugin skill; Read Path: AGENT_BRIEF → STATUS → NEXT_PLAN →
 newest few PROGRESS_LOG entries + `git status -sb`/`git log --oneline -8`). No other `docs/` bulk-read.
 
 ## 2. Residual recovery
@@ -61,7 +61,7 @@ Work only per the item's **1-line completion criterion** (no scope expansion).
 
 ## 5. Record
 
-Follow `.agents/skills/checkpoint/SKILL.md`, observing the **parallel-conflict-avoidance rules**:
+Run `/checkpoint` (plugin skill), observing the **parallel-conflict-avoidance rules**:
 - `PROGRESS_LOG.md`: **append** newest entry only (union-merge — safe).
 - `NEXT_PLAN.md`: mark **only the one line for your lane's item (`[auto:agy]`)**. Don't touch other lines/sections/lanes (conflict source).
 - `STATUS.md`/`AGENT_BRIEF.md`: **don't edit this iteration** (orchestrator updates them in bulk after merge).

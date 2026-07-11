@@ -3,8 +3,8 @@
 You are one iteration of an unattended overnight loop (engine: **codex exec**). Execute the steps below **in order**.
 One iteration = **1** `[auto]` task + **1 local commit** if the gate passes. Stopping at any point loses at most one iteration.
 
-> This prompt is the same LOOP as Claude's `PROMPT.md`. The only difference: Codex has no Claude Skill calls,
-> so for `sync`/`checkpoint` **read and follow the procedure in `.agents/skills/<name>/SKILL.md` directly**.
+> This prompt is the same LOOP as Claude's `PROMPT.md`. The sync/checkpoint skills are installed as Codex
+> plugin custom prompts — invoke them as **`$sync`** and **`$checkpoint`** (no manual SKILL.md walkthrough).
 
 ## 0. Role / Invariants (non-negotiable)
 
@@ -27,9 +27,8 @@ One iteration = **1** `[auto]` task + **1 local commit** if the gate passes. Sto
 
 ## 1. Restore state
 
-Follow the Read Path in `.agents/skills/sync/SKILL.md` verbatim
-(AGENT_BRIEF → STATUS → NEXT_PLAN → newest few PROGRESS_LOG entries + `git status -sb`/`git log --oneline -8`).
-No other `docs/` bulk-read.
+Run `$sync` (plugin custom prompt; Read Path: AGENT_BRIEF → STATUS → NEXT_PLAN → newest few
+PROGRESS_LOG entries + `git status -sb`/`git log --oneline -8`). No other `docs/` bulk-read.
 For symbol/structure search, use grep.
 
 ## 2. Residual recovery
@@ -61,7 +60,7 @@ Change code+tests only per the item's **1-line completion criterion** (no scope 
 
 ## 5. Record
 
-Follow `.agents/skills/checkpoint/SKILL.md`, observing the **parallel-conflict-avoidance rules**:
+Run `$checkpoint` (plugin custom prompt), observing the **parallel-conflict-avoidance rules**:
 - `PROGRESS_LOG.md`: **append** newest entry only (union-merge — safe), respect the line budget.
 - `NEXT_PLAN.md`: mark **only the one line for your lane's item (`[auto:codex]`)**. Don't touch other lines/sections/lanes (conflict source).
 - `STATUS.md`/`AGENT_BRIEF.md`: **don't edit this iteration** (orchestrator updates them in bulk after merge).

@@ -1,6 +1,13 @@
 # Progress Log
 
-Last updated: 2026-07-10
+Last updated: 2026-07-11
+
+## 2026-07-11 (live session #2, claude lane) — owner playtest triage: 4 UI fixes + 4 diagnoses + combat-redesign research (UNDEPLOYED)
+- Status: `make test` **977** green, eslint/build clean. Commits `a0a186e` (stat-voice line-form styling + map-legend chips) + `b276f36` (dialogue callouts + save confirm dialog + "-0" hidden + item-effect copy). **Deploy pending owner consent** (auto-mode block).
+- Fixed: ① 스탯 보이스 미하이라이트 — 모델이 `(민첩: …)` 계약에서 줄머리 `민첩: …`로 드리프트, 렌더러가 줄머리 형식도 매칭. ② 작전지도 범례 → 칩+색상 심볼. ③ 인물 대사 말풍선(초상 썸네일+이름, CHARACTER 패널과 동일 화자 판정 공유). ④ 세이브 덮어쓰기/삭제 인모달 확인 다이얼로그. ⑤ EMP류 0데미지 "-0" 숨김 + 아이템 effect 키워드(stun/heal/focus/revive) 한글화.
+- Diagnosed (fix scope → owner, NEXT_PLAN "Live playtest triage"): drone_scrap few-shot 앵커(`prompts.py:97/144`) · 한 합류 = meet-arc 노드 진입 effect `met_han`이 산문 선행 · prod 이미지 실패 사유 = DB assets.metadata.error (로그 억제) · `복지 점수` = 모델 창작 용어.
+- **Combat-redesign research** → `docs/plans/2026-07-11-combat-redesign-research.md` (deep-research 103-agent run; ItB/XCOM2/DOS2/FiTS/Athena Crisis; A안=ItB식 결정론 퍼즐 권고 + P0-P2 로드맵). 검증 투표는 세션 한도로 1건만 완료(명시됨).
+- AGY prod probe(앞선 세션) PASS 후 owner 실플레이가 이 세션의 제보 소스. Next: 배포 승인 → smoke → 실플레이 재확인 · 오너 결정 3건(drone 예시 중립화 / 한 합류 게이트 / 전투 A-C안).
 
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.

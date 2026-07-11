@@ -2,6 +2,13 @@
 
 Last updated: 2026-07-12
 
+## 2026-07-12 — overnight Codex: final two cover-pose sprites regenerated
+- Status: Done; the seven-character cover set is ready for owner identity sign-off, still undeployed.
+- Changed: regenerated and promoted `player-noise-cover.png` (short-haired masked, unarmed, green hex shield) and `su-ah-cover.png` (glasses/bun, purple shield, guard-matching knife); refreshed `outputs/cover-pose-regen/comparison-sheet.png` and the review table.
+- Verified: inspected each target's idle/guard references and final alpha candidates; both final files are 512×768 RGBA with transparent corners. `make check` green (993 tests).
+- Blockers: none for the automated item; `[manual]` owner comparison-sheet identity approval still gates deployment.
+- Next: owner reviews `outputs/cover-pose-regen/comparison-sheet.png`; if approved, push and deploy with `IMAGEN_MODEL=gemini-3.1-flash-image` remain owner-only actions.
+
 ## 2026-07-12 (live session, claude lane) — cover-pose regen: 잔여 5장 재적용 → 오너 리뷰로 2장 재오픈
 - Status: 5/7 확정 (`2942a74`). 오너 비교시트 리뷰에서 신규 캐논 규칙 확정 — **cover 소품은 그 캐릭터 guard 정본에 있는 것만** → player-noise(라이플, 정본은 비무장)·su-ah(데이터패드, guard=나이프) FAIL 재시드(브리프 3차 개정: guard-소품 규칙 명문화, 오염원이던 브리프의 "소총/데이터패드" 지시 수정). UNDEPLOYED.
 - 러너 2회차(codex)가 잔여 5장(lin-yue/su-ah/tae-o/han/player-noise)을 승격했으나(`33b5a4a`) critic이 정당하게 reject — NEXT_PLAN에서 이 항목을 `[manual]` 후속 없이 DONE으로 닫고 불릿의 잔여 이력을 삭제했기 때문(아트 품질 문제 아님). revert(`0647fab`) 후 claude가 아트 5장만 복원하고 문서를 후속-보존형으로 재작성.

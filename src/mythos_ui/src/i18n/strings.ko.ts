@@ -550,6 +550,7 @@ export const ko = {
   "echo.subtitle": "이전 루프에서 가져온 기억(Echo) 하나를 각인해 이번 런에 힘을 더하세요.",
   "echo.card": "기억",
   "market.title": "물물 교환",
+  "market.close": "닫기",
   "story.learn.more": "자세히",
   "ctab.backToPlayer": "내 캐릭터로",
   "ctab.bondTier": "유대 티어",

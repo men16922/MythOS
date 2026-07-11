@@ -19,6 +19,13 @@ export function MarketExchange({
 }) {
   const { t } = useLang();
   const [busy, setBusy] = useState(false);
+  // On touch/mobile the fixed dock floated over the narration ("물물 교환창이 메인
+  // 대본을 가림"), so start collapsed there and let the player open it on demand;
+  // desktop (fine pointer) keeps the dock open as before. Trading stays optional.
+  const [open, setOpen] = useState(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return true;
+    return !window.matchMedia("(pointer: coarse)").matches;
+  });
   const market = snapshot?.market;
   if (!market || !snapshot || snapshot.combat?.finished === false) return null;
 
@@ -42,13 +49,31 @@ export function MarketExchange({
     .map(([, n]) => n)
     .reduce((a, b) => a + b, 0);
 
+  const dockLabel = market.vendor ? `${market.vendor.name} · ${t("market.title")}` : t("market.title");
+
+  if (!open) {
+    return (
+      <button type="button" className="market-launcher" onClick={() => setOpen(true)}>
+        ▣ {market.vendor ? market.vendor.name : t("market.title")}
+      </button>
+    );
+  }
+
   return (
     <div className="market-dock">
       <div className="market-head">
-        {market.vendor ? `${market.vendor.name} · ${t("market.title")}` : t("market.title")}
+        <span className="market-title">{dockLabel}</span>
         <span className="market-held">
           {market.offers[0]?.give_name}: {market.held[market.offers[0]?.give] ?? heldScrap}
         </span>
+        <button
+          type="button"
+          className="market-close"
+          onClick={() => setOpen(false)}
+          aria-label={t("market.close")}
+        >
+          ✕
+        </button>
       </div>
       <div className="market-offers">
         {market.offers.map((offer) => (

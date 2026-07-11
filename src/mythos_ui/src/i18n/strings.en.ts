@@ -547,6 +547,7 @@ export const en: Record<StringKey, string> = {
   "echo.subtitle": "Inscribe one Echo carried from a prior loop to empower this run.",
   "echo.card": "Echo",
   "market.title": "Barter",
+  "market.close": "Close",
   "story.learn.more": "More",
   "ctab.backToPlayer": "Back to player",
   "ctab.bondTier": "Bond Tier",

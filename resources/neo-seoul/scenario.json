@@ -3,6 +3,7 @@
   "name": "Neo-Seoul: 접속 (접속자 각성)",
   "version": "2.0.0",
   "brief": "WORLD: Neo-Seoul. 폐허 위에 ARK가 재건한 효율 절대주의 도시. \nPREMISE: 당신은 시스템의 통제를 벗어난 '비식별 신호'입니다. \nTONE: 인간찬가, Y2K 디지털 여운, 처절한 저항. \nPHILOSOPHY: 살아남는 것은 선택이지만, 사람이 되는 것은 결단입니다.",
+  "visual_style": "cinematic neo-Seoul cyberpunk, rain-soaked neon-lit night, teal and magenta palette with warm amber accents, moody volumetric lighting, wet reflective surfaces, ruined-yet-rebuilt megacity, high detail, photographic, filmic color grade",
   "character_map": {
     "se-rin": "characters/se-rin.png",
     "kai": "characters/kai.png",
@@ -33,6 +34,7 @@
       "alias": "환전상",
       "role": "야시장 브로커",
       "image": "characters/lin-yue.png",
+      "appearance": "elegant East-Asian woman, black hair in an ornate updo with gold hairpins and dangling tassels, dark eyes, deep red lips, ornate dark-teal hanbok robe embroidered with glowing gold circuitry, jeweled rings and bracelets, poised night-market broker, rain, neon-lit",
       "keywords": [
         "린위에",
         "lin yue",
@@ -58,6 +60,7 @@
       "alias": "사냥개",
       "role": "탈주 집행관 / 전술 조력자",
       "image": "characters/tae-o.png",
+      "appearance": "weathered East-Asian man in his 40s, short spiky black hair, a prominent scar across his right cheek, light stubble, stern hard eyes, black tactical jacket over a strapped combat vest, rain-soaked, neon-lit",
       "keywords": [
         "태오",
         "tae-o",
@@ -70,6 +73,7 @@
       "alias": "신호 파괴자",
       "role": "비접속자 해커",
       "image": "characters/han.png",
+      "appearance": "young East-Asian man in his early 20s, tousled messy black hair, sharp intense eyes, clean-shaven, black high-collar techwear jacket with cabling and a data harness, blue-and-magenta neon light, rain",
       "keywords": [
         "한",
         "han",
@@ -82,6 +86,7 @@
       "alias": "잔향 가공사",
       "role": "기억의 대장장이",
       "image": "characters/su-ah.png",
+      "appearance": "young East-Asian woman, black hair in a loose messy bun with stray strands, thin-rimmed glasses, red lips, black high-collar techwear jacket with glowing purple accents, small earrings, rain, neon-lit",
       "keywords": [
         "수아",
         "su-ah",
@@ -95,6 +100,7 @@
       "alias": "관리망의 목소리",
       "role": "재건기구 ARK의 관리 지능 — 관리망이 말할 때 쓰는 하나의 인격",
       "image": "characters/administrator-ix.png",
+      "appearance": "not human — a colossal symmetrical crystalline glass entity within a cathedral of light, translucent silver-white architecture with glowing concentric rings above and a single piercing red core point, towering, impersonal, god-like",
       "keywords": [
         "관리자 ix",
         "administrator ix"

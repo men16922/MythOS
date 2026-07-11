@@ -658,6 +658,14 @@ class VisualService:
         scenario_id = overrides.get("scenario_id", "neo-seoul")
         scenario = load_scenario(scenario_id)
 
+        # Stable style/world preamble (owner 2026-07-11 "이미지가 여전히 랜덤"):
+        # prepend a fixed per-scenario look so every image reads as one world
+        # instead of drifting per turn. This is the main consistency lever on the
+        # cloud Imagen path, which is text-to-image only (no reference/seed).
+        style = str(getattr(scenario, "visual_style", "") or "").strip()
+        if style and style.lower() not in prompt.lower():
+            prompt = f"{style}. {prompt}"
+
         # Get autonomy level for visual scaling
         player = self.store.get_player(player_id) if self.store else None
         autonomy_level = 1

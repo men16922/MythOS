@@ -16,6 +16,10 @@ class ScenarioConfig:
     scenario_id: str
     name: str
     brief: str
+    # Stable style/world preamble prepended to every generated image prompt so
+    # scene images read as one consistent world instead of drifting per turn
+    # (esp. on the cloud Imagen path, which has no reference/seed conditioning).
+    visual_style: str = ""
     system_prompt: str = ""
     archetypes: list[dict[str, Any]] = field(default_factory=list)
     starting_location: str = "data-layer-01"
@@ -77,6 +81,7 @@ def load_scenario(scenario_id: str) -> ScenarioConfig:
         scenario_id=data.get("scenario_id", scenario_id),
         name=data.get("name", scenario_id),
         brief=data.get("brief", ""),
+        visual_style=data.get("visual_style", ""),
         system_prompt=data.get("system_prompt", ""),
         archetypes=data.get("archetypes", []),
         starting_location=data.get("starting_location", "data-layer-01"),

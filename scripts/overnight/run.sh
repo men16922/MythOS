@@ -184,9 +184,12 @@ prune_logs() {
 }
 
 # 회차 결과 분류: success / limit / failure
-# 1) --output-format json 의 객체 is_error==false → success (성공 회차 텍스트의 "rate limit" 언급 무시)
-# 2) 성공이 아닐 때만 limit 텍스트 검사 → limit
-# 3) 그 외 rc≠0 → failure, 아니면 success
+# 1) claude --output-format json 의 객체 is_error==false → success
+# 2) codex JSONL 의 turn.completed (rc==0) → success (codex 이벤트엔 is_error 필드가 없다)
+# 3) 성공이 아닐 때만 limit 텍스트 검사 — 에이전트의 **마지막 메시지**에서만.
+#    전체 로그 검사는 저장소 문서/커밋 제목에 에코된 "quota"/"rate limit" 문자열로
+#    성공 회차를 limit 으로 오탐했다 (2026-07-11 codex 회차 → 회차마다 30분 헛대기).
+# 4) 그 외 rc≠0 → failure, 아니면 success
 classify_outcome() {
   python3 - "$1" "$2" <<'PY'
 import sys, json
@@ -198,7 +201,9 @@ except OSError:
     text = ""
 
 obj = None
-# claude -p --output-format json 은 단일 JSON 객체를 낸다; 스트림 대비 줄단위도 시도.
+turn_completed = False
+last_agent_msg = None
+# claude -p --output-format json 은 단일 JSON 객체를 낸다; codex 는 JSONL 이벤트 스트림.
 try:
     cand = json.loads(text)
     if isinstance(cand, dict):
@@ -210,15 +215,26 @@ except Exception:
             continue
         try:
             cand = json.loads(line)
-            if isinstance(cand, dict):
-                obj = cand
         except Exception:
-            pass
+            continue
+        if not isinstance(cand, dict):
+            continue
+        obj = cand
+        typ = cand.get("type")
+        if typ == "turn.completed":
+            turn_completed = True
+        elif typ == "item.completed":
+            item = cand.get("item")
+            if isinstance(item, dict) and item.get("type") == "agent_message":
+                last_agent_msg = item.get("text") or ""
 
 if isinstance(obj, dict) and obj.get("is_error") is False:
     print("success"); sys.exit(0)
+if turn_completed and rc == 0:
+    print("success"); sys.exit(0)
 
-low = text.lower()
+scan = last_agent_msg if last_agent_msg is not None else text
+low = scan.lower()
 markers = ["usage limit", "session limit", "rate limit", "overloaded",
            "hit your", "too many requests", "quota"]
 if any(m in low for m in markers):

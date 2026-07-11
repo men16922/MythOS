@@ -853,6 +853,11 @@
             "beat": "night_market",
             "title": "한강 야시장",
             "image": "scenes/night_market.png",
+            "image_sequence": [
+              "scenes/night_market.png",
+              "scenes/night_market.png",
+              "scenes/night_market.png"
+            ],
             "event": "lin_yue_deal",
             "effect": {
               "flags": [
@@ -954,6 +959,11 @@
             "beat": "data_incinerator",
             "title": "데이터 소각로",
             "image": "concept/05-data-incinerator.png",
+            "image_sequence": [
+              "concept/05-data-incinerator.png",
+              "concept/05-data-incinerator.png",
+              "concept/05-data-incinerator.png"
+            ],
             "event": "incinerator_choice",
             "default_perspective": "p_rescue",
             "perspectives": [
@@ -1075,6 +1085,11 @@
             "beat": "kai_awakening",
             "title": "카이 재가동",
             "image": "scenes/kai_awakening.png",
+            "image_sequence": [
+              "scenes/kai_awakening.png",
+              "scenes/kai_awakening.png",
+              "scenes/kai_awakening.png"
+            ],
             "event": "kai_awaken",
             "default_perspective": "p_awaken",
             "perspectives": [
@@ -1257,6 +1272,11 @@
             "beat": "spire_gate",
             "title": "스파이어 접근",
             "image": "scenes/spire_gate.png",
+            "image_sequence": [
+              "scenes/spire_gate.png",
+              "scenes/spire_gate.png",
+              "scenes/spire_gate.png"
+            ],
             "event": "spire_breach",
             "default_perspective": "p_infiltrate",
             "perspectives": [
@@ -1379,6 +1399,11 @@
             "beat": "ix_confrontation",
             "title": "관리자 IX 대면",
             "image": "scenes/ix_confrontation.png",
+            "image_sequence": [
+              "scenes/ix_confrontation.png",
+              "scenes/ix_confrontation.png",
+              "scenes/ix_confrontation.png"
+            ],
             "event": "ix_face_off",
             "default_perspective": "p_refuge",
             "perspectives": [

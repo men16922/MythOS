@@ -29,7 +29,7 @@ from mythos_runtime.route_map import (
     route_map_paths_summary,
 )
 from mythos_runtime.route_runtime import DEFAULT_TURNS_PER_LAYER
-from mythos_runtime.scenario import load_scenario
+from mythos_runtime.scenario import PROJECT_ROOT, load_scenario
 
 
 def _reachable_set(start: str, edges: dict[str, list[str]]) -> set[str]:
@@ -119,6 +119,29 @@ class RouteIntegrityTest(unittest.TestCase):
             for nid in anchors:
                 beat = rm["nodes"][nid].get("beat") or rm["nodes"][nid]["type"]
                 self.assertIn(nid, reachable, f"anchor {nid} ({beat}) unreachable from start")
+
+    def test_recurring_key_beats_have_fixed_curated_sequences(self) -> None:
+        """High-impact beats use fixed art for every ordinary three-turn node visit."""
+        expected = {
+            "night_market": "scenes/night_market.png",
+            "data_incinerator": "concept/05-data-incinerator.png",
+            "kai_awakening": "scenes/kai_awakening.png",
+            "spire_gate": "scenes/spire_gate.png",
+            "ix_confrontation": "scenes/ix_confrontation.png",
+        }
+        anchors = {
+            str(anchor.get("beat")): anchor
+            for layer in self.config.get("layers", [])
+            for anchor in layer.get("anchors", [])
+            if isinstance(anchor, dict) and anchor.get("beat") in expected
+        }
+        self.assertEqual(set(anchors), set(expected), "recurring key beat missing from route map")
+        resources_dir = PROJECT_ROOT / "resources" / "neo-seoul"
+        for beat, image in expected.items():
+            anchor = anchors[beat]
+            self.assertEqual(anchor.get("image"), image)
+            self.assertEqual(anchor.get("image_sequence"), [image, image, image])
+            self.assertTrue((resources_dir / image).is_file(), f"{beat} image missing: {image}")
 
     def test_both_combat_and_avoid_paths_exist(self) -> None:
         for rm in self._maps():

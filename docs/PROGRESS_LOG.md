@@ -2,12 +2,12 @@
 
 Last updated: 2026-07-11
 
-## 2026-07-11 — overnight Codex cover-pose attempts reverted
-- Status: Blocker #2 recorded; no code or asset changes remain.
-- Changed: attempted `combatCanvas` cover pose plus guard fallback, then restored it after each gate failure.
-- Verified: first attempt's focused `test_ui_clarity_affordances` passed; `make check` failed TS2448/TS2454 (`aliveHere` before declaration). Second attempt's `test_combat_cover_pose` passed; `make check` failed ruff I001 (new test import order).
+## 2026-07-11 — overnight Codex cover-pose blocked; magnetic-pull icon regenerated
+- Status: Cover-pose Blocker #2 recorded; magnetic-pull icon completed.
+- Changed: attempted `combatCanvas` cover pose plus guard fallback, then restored it after each gate failure; replaced `resources/neo-seoul/skills/magnetic_pull.png` (the `emp_pulse` placeholder copy) with a dedicated self-traction illustration.
+- Verified: cover-pose attempts: focused test passed, then `make check` failed TS2448/TS2454 and ruff I001; magnetic-pull: `make check` green (content validation, ruff, ESLint, mypy, Vite build, 989 tests) and SHA-256 differs from `emp_pulse.png`.
 - Blockers: cover-pose is now `[blocked]` after two failed unattended attempts; it needs human review before retry.
-- Next: top eligible Codex candidate is `magnetic_pull` icon regeneration.
+- Next: top eligible Codex candidate is image-continuity lever #2 curated key-beat anchor coverage.
 ## 2026-07-11 (live session #10, claude lane) — combat P1 push/pull + cover legibility + CLOUD IMAGE MODEL MIGRATION; UNDEPLOYED
 - Status: 4 commits, **UNDEPLOYED**. `make check` **989** green (typecheck/validate-content/doc-budget/skills OK).
 - **Combat push/pull** (`5d75d63`, owner GO — hit chance KEPT): `_skill_displace` steps the target along the actor↔target line (push=away/pull=toward), stops at edge/occupied, `immovable` guard. Terrain-meaningful: shoving off cover/high-ground strips that tile's bonus. Wired `push:1` onto overload_strike; pull engine-ready+tested, needs a carrier skill. UI shows 밀기/당기기 N칸; +3 tests. Also fixed the LC6 source-lock test to the portrait `isCoarsePointer` gate (gate-red had slipped into pushed `008297e`).

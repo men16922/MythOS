@@ -17,9 +17,9 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00
 ### Combat feedback batch 2026-07-12 (owner live session on 00052) — batch 1 DONE, follow-ups open
 - `[x]` **배치 1 DONE (`make check` 1008)**: 시스템 해킹→스턴 · 과부하 일격→스플래시 · 자기 반발(밀기) 신설 · 유틸 스킬 고정 피해 라이더 · EMP 수류탄 XCOM식 광역 투척(셀 지정+프리뷰) · 낚아채기 VFX · 스턴 💫 배지. 상세 `PROGRESS_LOG.md`.
 - `[x]` `[auto:agy]` **magnetic_repulse 스킬 아이콘** DONE (agy 생성, review.md 완료, make check green)
-- `[ ]` **2-티어 전투 컨트롤 설계** (오너: 캐주얼=버튼 클릭, 전투 애호가=SRPG식 수동 타겟팅+적 행동 예측) — 설계 스냅샷 `docs/plans/` 필요, EMP 셀 타겟팅이 1호 슬라이스.
-- `[ ]` **전투 반응성 진단** (오너 체감: 클릭 딜레이 + 제멋대로 진행되는 느낌) — diagnose 프로토콜로 WS 왕복·애니메이션 큐·적 턴 자동재생 계측 후 개선.
-- `[ ]` **상태이상 시스템 설계** (부식·연소·산성·냉동·감전 — 회피 감소/지속 피해/이동 불가/받는 피해 증가 매핑 + 보드 시각 임팩트) — 설계 스냅샷 필요, 스턴 status 채널 위에 확장.
+- `[x]` **전투 반응성 진단+개선 DONE (`5aa65d8`)** — 계측: 서버 턴 해소 0.1ms대(무죄); 원인=로그 항목당 풀스크린 시네마 직렬 재생(클릭당 p50 7.0s/max 10.5s 강제 관람). 수정: 시네마는 내가 지시한 유닛의 타격+처치 비트만(재계측 p50 3.6s), 나머지는 보드 애니메이션 + **탭하여 스킵**(잔여 큐 플러시, ~1.5s 복귀). 소스락 tests. `[manual]` 라이브 체감 재확인은 다음 배포 후.
+- `[/]` **2-티어 전투 컨트롤** — 설계 `docs/plans/2026-07-12-two-tier-combat-control.md` (기존 자산 인벤토리 + 갭 3슬라이스). slice 1(EMP 셀 타겟팅) DONE. `[ ]` `[auto:claude]` **slice 2: TARGETS 칩에 명중%·피해 범위·엄폐 마커** (서버 available.targets에 hit_chance/dmg_range 노출 + 칩 렌더; criterion: make check green + AGY 스크린 통과) · `[ ]` `[auto:claude]` **slice 3: 적 인텐트 호버 렌즈** (적 탭/호버 시 그 적의 텔레그래프 하이라이트 + 인스펙터 "다음 행동" 줄) · `[ ]` slice 1 확장(푸시/풀/aoe 스킬도 셀 지정+프리뷰 — 설계 §1) · slice 4(턴 순서 스트립)는 오너 판단 대기.
+- `[/]` **상태이상 시스템** — 설계 `docs/plans/2026-07-12-status-effects-design.md` (5종 매핑: 연소=DoT·감전=집중/쿨다운 정지·부식=장갑↓·산성=방어↓·냉동=이동불가; 세계관명/부여 콘텐츠/보드 배지·틱 VFX 포함). `[ ]` `[auto:claude]` **slice 1: 엔진 프레임워크 + 연소/부식 + 배지/틱 로그 + tests** (criterion: make check green + 결정론 리플레이 유지) · `[ ]` slice 2: 산성/냉동/감전 훅 + apply FX · `[ ]` slice 3: 부여 콘텐츠 매핑(`[manual]` 밸런스 패스 후 `[auto:codex]`).
 
 ### Narrative clarity audit follow-ups (2026-07-10, 4-lane audit)
 - `[ ]` `[manual]` **Track 4 balance playtest** — play-style consequence system now ON (`advance_route` axis tally → intent flag @ threshold 2); play two loops in different styles, confirm story/results diverge + balance OK, tune threshold/mapping if needed. **B4 stat-tag** decision rides along (`(민첩)` reads as a check but has 0 effect — make real or restyle).

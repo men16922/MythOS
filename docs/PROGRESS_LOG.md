@@ -2,6 +2,11 @@
 
 Last updated: 2026-07-12
 
+## 2026-07-12 (live session #13 cont.) — 전투 반응성 진단→수정 + 2-티어/상태이상 설계 스냅샷
+- **반응성 diagnose 완료** (`5aa65d8`, make check 1010): H3 서버지연 기각(턴 해소 p50 0.08ms) / H1 확정 — 클릭 1회가 시네마 4~6개 직렬(표준 2.1s·빠름 1.2s) = **p50 7.0s/max 10.5s 강제 관람**(="제멋대로 진행"), 입력은 그동안 드랍(="클릭 딜레이"). 수정: 풀스크린 시네마는 지시한 유닛의 타격+처치 비트만 → **재계측 p50 3.6s/max 4.8s** + 시네마 **탭하여 스킵**(큐 플러시, ~1.5s 복귀). 적/아군 AI 타격은 보드 애니메이션(러시/트레이서/플로트/셰이크 기존 구현)이 담당. 계측 스크립트 scratchpad, 소스락 tests +2.
+- **설계 스냅샷 2건**: `docs/plans/2026-07-12-two-tier-combat-control.md` (기존 자산 인벤토리 — 수동 타겟·텔레그래프·EMP 셀 타겟팅은 이미 있음 → 갭은 명중% 프리뷰·인텐트 렌즈·스킬 셀 타겟팅 패리티 3슬라이스) · `docs/plans/2026-07-12-status-effects-design.md` (5종 키워드 매핑 + 스턴 패턴 미러 엔진 셰이프 + 보드 배지/틱 VFX + 슬라이스 3단).
+- ⚠ 히스토리 노트: agy 러너(아이콘 회차)가 도는 동안 반응성 소스 수정이 진행돼 러너 커밋 `86e8ffb`에 아이콘+반응성 소스가 섞여 들어감(게이트는 GREEN·critic PASS — 내용 무결). NEEDS_HUMAN STOP도 같은 동시편집 아티팩트라 확인 후 해제. **러너 가동 중 repo 편집 금지 재확인.**
+
 ## 2026-07-12 (overnight agy lane) — magnetic_repulse skill icon generated
 - Status: Done; `make check` green (1008 tests).
 - Changed: generated `magnetic_repulse.png` skill icon matching the `magnetic_pull.png` reference image and style guidelines; promoted the icon from staging outputs to `resources/neo-seoul/skills/magnetic_repulse.png`.

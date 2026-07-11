@@ -2,6 +2,13 @@
 
 Last updated: 2026-07-12
 
+## 2026-07-12 — overnight Codex: cover-pose regeneration blocked at identity review
+- Status: Blocker #1; no project assets were changed.
+- Changed: generated seven reference-guided cover-pose candidates in a temporary workspace and chroma-keyed them to RGBA 512×768 for inspection.
+- Verified: opened every target's `-idle`/`-guard` reference, then visually checked all seven candidates against the five-item brief.
+- Blockers: `player-noise` rendered a neutral/dark shield instead of the required green hexagonal hologram, so the all-PASS promotion criterion failed; assets were deliberately not replaced and `make check` was not run.
+- Next: human review/reseed direction needed before another unattended regeneration; do not promote partial art.
+
 ## 2026-07-12 (live session, claude lane) — A2A 러너 릴레이 2종 구현 + cover 아트 7장 재생성 재시드
 - **A2A 검토→구현** (`docs/plans/2026-07-12-a2a-relays.md`, run.sh): 라이브 A2A는 비채택(one-shot 복구성 훼손·공통 프로토콜 부재·쿼터 이중 소모). 대신 러너 중개 one-shot 릴레이 2종 — **Relay 1 image-judge 게이트**: 캐릭터/적 아트 커밋을 claude 시각 판정자(plan 모드)가 정본(-idle/-guard/초상)과 대조, FAIL=critic-reject 식 자동 revert, fail-open; **리젝 배치 `4d5b3be` 실판정 FAIL 재현 확인**(kai=인간 오검출 정확 지목). **Relay 2 당일 블로커 에스컬레이션**: codex/agy 회차가 Blocker/[blocked] 기록 시 다음 1회차를 claude 크로스레인 처리(상한 2/run, --once 미발동). `OVERNIGHT_IMAGE_JUDGE`/`OVERNIGHT_ESCALATE` 기본 on.
 - **cover 스프라이트 1차(4d5b3be) 오너 전량 리젝** — 7장이 동일 템플릿 + 정체성 뒤섞임(세린=플레이어 디자인, 카이=인간, 린위에=카이 로봇 바디, 태오=여성). 브리프 `scratch/codex-cover-pose-brief.md`를 7장 전원 개성 앵커로 확대(han 해커 정찰·player 주인공 결의 추가, "7장 같은 자세=전체 실패" 명문화) 후 `[auto:codex]` 재시드, codex --once 재실행(커밋은 image-judge 가 스크린).

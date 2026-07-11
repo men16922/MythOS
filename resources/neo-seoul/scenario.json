@@ -133,7 +133,8 @@
       "starting_item": "말소된 ID 카드",
       "base_skills": [
         "signal_step",
-        "packet_shot"
+        "packet_shot",
+        "magnetic_pull"
       ]
     },
     {
@@ -2141,7 +2142,8 @@
     "archetype_base_skills": {
       "ghost": [
         "signal_step",
-        "packet_shot"
+        "packet_shot",
+        "magnetic_pull"
       ],
       "data_smuggler": [
         "packet_shot",
@@ -2446,6 +2448,24 @@
         "rankup_cost": 2,
         "max_rank": 3,
         "unlock_hint": "기계 적의 통제망에 침투하여 일시적으로 지배권을 획득합니다."
+      },
+      "magnetic_pull": {
+        "id": "magnetic_pull",
+        "name": "자기 견인",
+        "role": "control",
+        "cost": {
+          "focus": 2
+        },
+        "range": 4,
+        "cooldown": 2,
+        "effect": {
+          "pull": 2
+        },
+        "tags": [
+          "ranged",
+          "control"
+        ],
+        "unlock_hint": "자기장으로 적을 2칸 끌어당깁니다. 엄폐·고지에서 끌어내려 이점을 무력화하세요."
       }
     },
     "allies": {

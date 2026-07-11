@@ -2,6 +2,13 @@
 
 Last updated: 2026-07-11
 
+## 2026-07-11 (live session #5, claude lane) — owner combat verdict → board declutter + dark floor + heal-skill fix; DEPLOY 00046-mvs
+- Status: Done + **DEPLOYED `mythos-api-00046-mvs`** (owner-run `make deploy`, smoke health/root + floor-tile 200). `make check` **983** green. Live-QA guide updated (A0 items now reflect shipped tiles/declutter + a heal check).
+- **Owner P0 verdict on 00045**: board "정신없다"(badges) · tiles "무의미"(floor = redundant neon) · telegraph still felt popup-gated. Direction chosen: terrain declutter + meaning first (P1 mechanics deferred).
+- **Board declutter (`302b4c7`)**: elevation ▲N + cover 🛡 value badges drew on EVERY tile → now only for the focused tile (hover / tap-inspect; `combatInspectCell` threaded into the canvas). Type is read from the tile art (raised block = elevation, cover prop = cover). floor.png darkened ×0.30 → dark-concrete diamond (was a second neon grid fighting the cyan gridlines).
+- **Heal skill fix (`59da01d`)**: patch_protocol (echo_collector base) consumes a nanopatch but the loadout gave only a weapon → the first-combat heal silently no-op'd with no UI feedback. Added `archetype_starting_items` (echo_collector ×2 nanopatch, seeded at loop start by resolved id) + per-skill `item_available` annotation → CombatControls disables an item-gated skill + tooltip "나노패치 필요". +3 regression tests.
+- **Telegraph note**: the 00045 stale-radar fix (`055fa9d`) is live, but round-1 drones are out of weapon range → only a move-intent (👣), not ⚔ — that's part of the "안 바뀜" perception. Real enemy-threat legibility + terrain-that-matters is P1. Next: owner re-verdict on 00046 → **P1 GO/NO-GO**.
+
 ## 2026-07-11 (live session #4, claude lane) — combat P0 telegraph ROOT-CAUSED (stale radar) + dialogue callout speech-only; DEPLOY 00045-pr6
 - Status: Done + **DEPLOYED `mythos-api-00045-pr6`** (owner-run `make deploy`, smoke health/root **200**, tile `/resources/neo-seoul/combat/tiles/floor.png` **200** live). `make check` **981** green. This deploy also carries session #3's until-now-undeployed work (terrain tiles / A-V sync C / EN opening parity).
 - **P0 telegraph "전혀 안 바뀜" ROOT-CAUSED + FIXED (`055fa9d`)**: owner live report. The per-action combat path `_build_result` called `render_radar` BEFORE `available_actions()` — but `available_actions` is what runs the intent planner (`update_enemy_intents`). So the board radar serialized STALE intents (enemies had already moved) or empty at combat start; the ⚔dice+connector telegraph never reflected the enemies' actual next move. Reordered plan→snapshot (matching the correct `session.py` order); +regression `test_build_result_radar_reflects_freshly_planned_intents`.

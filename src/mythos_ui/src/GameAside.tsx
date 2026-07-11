@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import type { PointerEvent as ReactPointerEvent } from "react";
 import { buildGaugeConfig } from "./gauges";
 import { Popover } from "./Popover";
 import { SaveHistoryPanel } from "./SaveHistoryPanel";
@@ -91,6 +92,27 @@ function RouteMapPanel({
 }) {
   const { t } = useLang();
   const [expanded, setExpanded] = useState(false);
+  // Drag-to-pan the expanded map (owner 2026-07-11): grab empty space and drag to
+  // move a large map, esp. on touch. No pointer capture / preventDefault so a plain
+  // tap on a node still fires its tooltip; only a button-held move scrolls.
+  const panRef = useRef<HTMLDivElement>(null);
+  const panStart = useRef<{ x: number; y: number; left: number; top: number } | null>(null);
+  const onPanPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const el = panRef.current;
+    if (!el) return;
+    panStart.current = { x: e.clientX, y: e.clientY, left: el.scrollLeft, top: el.scrollTop };
+    el.classList.add("is-panning");
+  };
+  const onPanPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const el = panRef.current;
+    if (!el || !panStart.current) return;
+    el.scrollLeft = panStart.current.left - (e.clientX - panStart.current.x);
+    el.scrollTop = panStart.current.top - (e.clientY - panStart.current.y);
+  };
+  const endPan = () => {
+    panStart.current = null;
+    panRef.current?.classList.remove("is-panning");
+  };
   const nodes = routeMap.nodes || {};
   const layers = routeMap.layers || [];
   const edges = routeMap.edges || {};
@@ -291,7 +313,17 @@ function RouteMapPanel({
                 {t("aside.route.close")}
               </button>
             </div>
-            <div className="route-map-modal-graph">{renderGraph("detail")}</div>
+            <div
+              className="route-map-modal-graph"
+              ref={panRef}
+              onPointerDown={onPanPointerDown}
+              onPointerMove={onPanPointerMove}
+              onPointerUp={endPan}
+              onPointerLeave={endPan}
+              onPointerCancel={endPan}
+            >
+              {renderGraph("detail")}
+            </div>
             {legend}
           </div>
         </div>

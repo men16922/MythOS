@@ -363,6 +363,7 @@ class CombatEngine:
                         target_x=target.x,
                         target_y=target.y,
                         target_name=target.name,
+                        damage_hint=weapon.damage,
                     )
                 )
             elif is_coward:

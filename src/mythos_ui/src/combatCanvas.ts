@@ -44,6 +44,27 @@ export function fromIso(sx: number, sy: number, cfg: IsoConfig): [number, number
   return [x, y];
 }
 
+// --- Terrain sprite layer (combat P0 2026-07-11) ---------------------------
+// Optional per-scenario tile art: resources/<sid>/combat/tiles/<kind>.png is
+// drawn under the grid when present; the procedural neon look remains the
+// fallback so the board never gates on assets. `floor` is an iso diamond
+// (2:1, transparent corners); covers are free-standing props (bottom-anchored).
+type TerrainKind = "floor" | "cover_half" | "cover_full";
+const terrainSprites = new Map<string, HTMLImageElement | "loading" | "broken">();
+
+function terrainSprite(scenarioId: string, kind: TerrainKind): HTMLImageElement | null {
+  const key = `${scenarioId}/${kind}`;
+  const cached = terrainSprites.get(key);
+  if (cached instanceof HTMLImageElement) return cached;
+  if (cached === "loading" || cached === "broken") return null;
+  const img = new Image();
+  terrainSprites.set(key, "loading");
+  img.onload = () => terrainSprites.set(key, img);
+  img.onerror = () => terrainSprites.set(key, "broken");
+  img.src = `/resources/${scenarioId}/combat/tiles/${kind}.png`;
+  return null;
+}
+
 function drawIsoTile(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -471,6 +492,7 @@ export function drawCombatCanvas(
     !!previewCell && reach.some(([rx, ry]) => rx === previewCell[0] && ry === previewCell[1]);
 
   // Draw Ground Base (Hazards / Basic Tiles / Elevations / Gridlines)
+  const floorSprite = terrainSprite(scenarioId, "floor");
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
       const key = `${x},${y}`;
@@ -478,14 +500,28 @@ export function drawCombatCanvas(
       const hazard = combat.hazards?.[key];
       const isReach = reach.some(([rx, ry]) => rx === x && ry === y);
       const isTarget = previewReachable && previewCell![0] === x && previewCell![1] === y;
-      
+
       let fill = "rgba(41,255,198,0.012)";
       let stroke = "rgba(41,255,198,0.12)";
       if (isReach) {
         fill = isTarget ? "rgba(41,255,198,0.28)" : "rgba(41,255,198,0.08)";
         stroke = isTarget ? "rgba(41,255,198,0.85)" : "rgba(41,255,198,0.22)";
       }
-      
+
+      // Terrain sprite under the grid (fill above is near-transparent, so the
+      // reach/target highlight still reads on top of the art).
+      if (floorSprite) {
+        const [fx, fy] = toIso(x + 0.5, y + 0.5, cfg);
+        const hOff = -el * cfg.stepY * 1.2;
+        ctx.drawImage(
+          floorSprite,
+          fx - cfg.stepX,
+          fy - cfg.stepY + hOff,
+          cfg.stepX * 2,
+          cfg.stepY * 2
+        );
+      }
+
       // Draw 3D block
       draw3DIsoBlock(ctx, x, y, el, cfg, fill, stroke);
       if (el > 0) {
@@ -521,7 +557,17 @@ export function drawCombatCanvas(
         const hOffset = -el * cfg.stepY * 1.2;
         const [cx, cy] = toIso(x + 0.5, y + 0.5, cfg);
         const r = Math.min(cfg.stepX, cfg.stepY * 2) * 0.36;
-        drawCoverObject(ctx, cx, cy + hOffset, cover, r);
+        const coverSprite = terrainSprite(
+          scenarioId,
+          cover === "full" ? "cover_full" : "cover_half"
+        );
+        if (coverSprite) {
+          const w = cfg.stepX * 1.6;
+          const h = w * (coverSprite.naturalHeight / Math.max(1, coverSprite.naturalWidth));
+          ctx.drawImage(coverSprite, cx - w / 2, cy + hOffset + cfg.stepY * 0.5 - h, w, h);
+        } else {
+          drawCoverObject(ctx, cx, cy + hOffset, cover, r);
+        }
         // D4 cover legibility: shield-prefixed badge so a functional cover tile
         // reads instantly apart from decorative props (full=+6, half=+3).
         drawTerrainBadge(
@@ -573,23 +619,48 @@ export function drawCombatCanvas(
     }
   }
 
-  // Draw Enemy Intents
+  // Draw Enemy Intents — full telegraph (P0 2026-07-11): an attack intent shows
+  // its dice cost on the threatened tile ("⚔ 2d6") plus a dashed attacker→target
+  // connector, so the player reads exactly who will hit where for how much.
   const intents = radar.enemy_intents || [];
+  const blipById = new Map((radar.blips || []).map((b) => [b.id, b]));
   intents.forEach((intent) => {
     const tx = intent.target_x;
     const ty = intent.target_y;
     const isAtk = intent.action === "attack";
     const fill = isAtk ? "rgba(255,107,125,0.14)" : "rgba(255,180,50,0.08)";
     const stroke = isAtk ? "rgba(255,107,125,0.55)" : "rgba(255,180,50,0.45)";
-    
+
     drawIsoTile(ctx, tx, ty, cfg, fill, stroke, 1.5);
+
+    if (isAtk) {
+      const attacker = blipById.get(intent.enemy_id);
+      if (attacker && (attacker.x !== tx || attacker.y !== ty)) {
+        const p1 = toIso(attacker.x + 0.5, attacker.y + 0.5, cfg);
+        const p2 = toIso(tx + 0.5, ty + 0.5, cfg);
+        ctx.save();
+        ctx.strokeStyle = "rgba(255,107,125,0.5)";
+        ctx.lineWidth = 1.4;
+        ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        ctx.moveTo(p1[0], p1[1]);
+        ctx.lineTo(p2[0], p2[1]);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
 
     const [cx, cy] = toIso(tx + 0.5, ty + 0.5, cfg);
     ctx.fillStyle = isAtk ? "#ff6b7d" : "#ffd76a";
     ctx.font = "11px SF Mono, monospace";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText(isAtk ? "⚔️" : "👣", cx, cy - 3);
+    if (isAtk && intent.damage_hint) {
+      ctx.font = "bold 10px SF Mono, monospace";
+      ctx.fillText(`⚔${intent.damage_hint}`, cx, cy - 3);
+    } else {
+      ctx.fillText(isAtk ? "⚔️" : "👣", cx, cy - 3);
+    }
   });
 
   // Draw Transient FX (Tracers / Rings / Sparks)

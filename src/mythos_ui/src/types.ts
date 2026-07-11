@@ -181,6 +181,8 @@ export interface CombatIntent {
   target_x: number;
   target_y: number;
   target_name?: string;
+  /** Full telegraph (P0): the announced attack's dice cost, e.g. "2d6". */
+  damage_hint?: string | null;
 }
 
 export interface CombatRadar {

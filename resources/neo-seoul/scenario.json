@@ -2015,8 +2015,8 @@
   },
   "combat": {
     "arena": {
-      "width": 8,
-      "height": 6
+      "width": 10,
+      "height": 7
     },
     "weapons": {
       "vibro_blade": {
@@ -3341,8 +3341,8 @@
         "weight": 4,
         "map_distance": 2,
         "arena": {
-          "width": 8,
-          "height": 6
+          "width": 10,
+          "height": 7
         },
         "enemies": [
           {
@@ -3368,7 +3368,7 @@
         "map_distance": 2,
         "arena": {
           "width": 10,
-          "height": 6
+          "height": 7
         },
         "enemies": [
           {
@@ -3404,8 +3404,8 @@
         "weight": 1,
         "map_distance": 3,
         "arena": {
-          "width": 8,
-          "height": 6
+          "width": 10,
+          "height": 7
         },
         "enemies": [
           {
@@ -3431,8 +3431,8 @@
         "weight": 2,
         "map_distance": 3,
         "arena": {
-          "width": 9,
-          "height": 6
+          "width": 10,
+          "height": 7
         },
         "enemies": [
           {
@@ -3456,8 +3456,8 @@
         "weight": 2,
         "map_distance": 3,
         "arena": {
-          "width": 8,
-          "height": 6
+          "width": 10,
+          "height": 7
         },
         "enemies": [
           {
@@ -3486,8 +3486,8 @@
         "weight": 3,
         "map_distance": 2,
         "arena": {
-          "width": 8,
-          "height": 6
+          "width": 10,
+          "height": 7
         },
         "enemies": [
           {
@@ -3512,7 +3512,7 @@
         "weight": 1,
         "map_distance": 3,
         "arena": {
-          "width": 9,
+          "width": 10,
           "height": 7
         },
         "enemies": [
@@ -3543,8 +3543,8 @@
         "weight": 2,
         "map_distance": 2,
         "arena": {
-          "width": 8,
-          "height": 6
+          "width": 10,
+          "height": 7
         },
         "enemies": [
           {

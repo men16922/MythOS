@@ -103,6 +103,10 @@ class EnemyIntent:
     target_x: int
     target_y: int
     target_name: str | None = None
+    # Full telegraph (combat P0 2026-07-11): what the announced attack will
+    # cost, as the weapon's dice notation (e.g. "2d6") — the threatened tile
+    # reads "⚔ 2d6" instead of a bare threat icon.
+    damage_hint: str | None = None
 
 
 @dataclass

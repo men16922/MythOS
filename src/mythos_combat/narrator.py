@@ -37,6 +37,8 @@ def render_radar(state: CombatState) -> dict[str, Any]:
                 "target_x": intent.target_x,
                 "target_y": intent.target_y,
                 "target_name": intent.target_name,
+                # Full telegraph (P0): the announced attack's dice cost ("2d6").
+                "damage_hint": getattr(intent, "damage_hint", None),
             }
             for intent in getattr(state, "enemy_intents", [])
         ],

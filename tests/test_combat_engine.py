@@ -923,6 +923,13 @@ class CombatNarratorTest(unittest.TestCase):
         self.assertEqual(intent["action"], "attack")
         self.assertEqual(intent["target_x"], 0)
         self.assertEqual(intent["target_y"], 0)
+        # Full telegraph (P0 2026-07-11): an announced attack carries its dice
+        # cost so the threatened tile reads "⚔ 2d6", not a bare threat icon.
+        attacker = state.by_id(intent["enemy_id"])
+        assert attacker is not None
+        weapon = attacker.primary_weapon()
+        assert weapon is not None
+        self.assertEqual(intent["damage_hint"], weapon.damage)
 
         # 2. 드론이 (7, 0)에 있어서 speed 4로도 플레이어(0, 0) 사거리 1에 닿지 못하는 경우 -> 단순 move 예측
         state2 = engine.start(

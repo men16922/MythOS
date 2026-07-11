@@ -15,7 +15,7 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00
 - `[x]` **drone_scrap 무근거 지급 FIXED (`654bdd0`)**: few-shot 예시 `grant_items` 중립화(빈 배열+주석, KO/EN). `[ ]` `[manual]` 라이브 체감(지급 빈도 정상화). 부수 잔여: 직전결과 raw id/한글명 혼용 표시(용어 패스에 폴드).
 - `[x]` **한 뜬금 전투 합류 FIXED (`654bdd0`)**: 미등장 아군 HOLD — 산문이 언급한 적 없는 플래그-언락 아군은 참전 보류(언급 후 다음 전투부터), 파티는 항상 참전; 만남 아크 장면엔 "이름+대사 필수" 의무 조항 추가. `[ ]` `[manual]` 라이브 재확인(만남 아크→합류 흐름 자연스러운지).
 - `[ ]` **프로덕션 이미지 생성 실패 1건**(`visual_status: failed`): 서버 로그 레벨이 INFO 억제라 사유는 DB `assets.metadata.error`에만 있음 — 오너 실행 필요(아래 커맨드, 본문 참조). 빈도 관찰.
-- `[ ]` **용어 직관화**: `복지 점수` = 모델 창작 용어(저작 아님) — directive에 "게임 수치·화폐류 명사는 저작 용어만" 가드 + 잔여 명료성 항목(Echo 정의·물거미/최적화/핑 주석)과 묶어 1패스. Codex(도감)가 용어집 역할 — 커버리지 감사 포함.
+- `[x]` **용어 직관화 DONE (`ece8e08`)**: 도감 용어집 섹션(정본 11개 KO/EN) + naming 가드(시스템 명사 발명 금지·첫 등장 주석, byte-parity 유지) + 직전결과 raw id 해소(materialize 무조건 실행). 남음 `[ ]` `[manual]` 라이브 체감 · `[ ]` EN 오프닝 카드 패리티(감사 구체 항목 필요) · 용어집 저작 데이터 승격(scenario.json 오버레이)은 후속.
 - **전투 갈아엎기 리서치 DONE** → `docs/plans/2026-07-11-combat-redesign-research.md` (ItB 결정론 퍼즐 A안 권고, P0-P2 로드맵) — `[ ]` `[manual]` 오너 방향 결정.
 
 ### Narrative clarity audit follow-ups (2026-07-10, 4-lane audit)

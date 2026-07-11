@@ -2,13 +2,6 @@
 
 Last updated: 2026-07-11
 
-## 2026-07-11 — overnight Codex: cover-pose regeneration incomplete
-- Status: Blocked; no project assets were changed.
-- Changed: generated and visually inspected non-promoted Se-rin, Kai, and Lin-yue cover-pose candidates using their own guard/idle sprites as references.
-- Verified: identity anchors pass visual inspection for those three candidates; Su-ah and Tae-o generation, five-file alpha conversion, five-by-five review, and `make check` remain unverified.
-- Blockers: the five-file completion criterion could not be completed within this iteration; partial generated candidates remain outside the repository and were deliberately not promoted.
-- Next: regenerate the complete five-asset set, run chroma-key alpha validation and the required review table, then run `make check` before replacing any project asset.
-
 ## 2026-07-11 — overnight Codex: player cover sprites regenerated
 - Status: Done; UNDEPLOYED.
 - Changed: added seven player-side crouching cover sprites (`se-rin`, `kai`, `lin-yue`, `han`, `su-ah`, `tae-o`, `player-noise`) at `resources/neo-seoul/characters/combat/*-cover.png`; enemies retain the guard fallback.

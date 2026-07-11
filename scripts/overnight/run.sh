@@ -95,6 +95,19 @@ CRITIC_PROMPT_FILE="scripts/overnight/CRITIC_PROMPT.md"
 # shellcheck source=scripts/overnight/browser-qa.sh
 . "$SCRIPT_DIR/browser-qa.sh"
 
+# --- A2A 러너 중개 릴레이 (2026-07-12, docs/plans/2026-07-12-a2a-relays.md) ---
+# 라이브 A2A(상시 에이전트 연결) 대신 기존 관용구(critic/browser-qa 형 one-shot 릴레이)로
+# 엔진 간 협업 2종을 러너가 중개한다. one-shot 회차의 복구성(손실 최대 1회차)은 그대로 유지.
+# Relay 1 — 이미지 정체성 판정 게이트: 커밋이 캐릭터/적 아트를 추가·변경하면 claude 시각 판정자가
+#   신규 이미지를 같은 캐릭터의 정본(-idle/-guard 형제·초상)과 대조, FAIL 이면 critic-reject 처럼 revert.
+#   (실증 동기: 2026-07-11 cover 스프라이트 배치의 정체성 뒤섞임이 커밋 후에야 사람에게 발견됨.)
+: "${OVERNIGHT_IMAGE_JUDGE:=1}"   # 1=활성(기본) · 0=끄기
+: "${IMAGE_JUDGE_MAX:=8}"         # 회차당 판정 신규 이미지 상한(초과분은 미판정 로그)
+# Relay 2 — 당일 블로커 에스컬레이션: codex/agy 회차가 Blocker/[blocked] 를 기록하면 다음 1회차를
+#   claude 가 그 항목만 크로스레인으로 처리(아침까지 대기 없음). claude→codex failover 의 역방향 일반화.
+: "${OVERNIGHT_ESCALATE:=1}"      # 1=활성(기본) · 0=끄기 (--once 는 다음 회차가 없어 미발동)
+: "${MAX_ESCALATE:=2}"            # 러너 1회 실행당 에스컬레이션 상한(루프 방지)
+
 ONCE=0
 [ "${1:-}" = "--once" ] && ONCE=1
 
@@ -350,6 +363,66 @@ critic_verdict() {
   echo "$verdict"
 }
 
+# --- A2A Relay 1 헬퍼 -------------------------------------------------------
+# 커밋 range 에서 정체성 판정 대상(추가/변경된 캐릭터·적 아트) 나열.
+image_judge_targets() {
+  git diff --name-status "$1" 2>/dev/null \
+    | awk -F'\t' '$1 ~ /^(A|M)/ && $2 ~ /^resources\/[^\/]+\/(characters|enemies)(\/|$)/ \
+        && tolower($2) ~ /\.(png|jpe?g|webp)$/ { print $2 }'
+}
+
+# 신규 이미지의 정본 레퍼런스 탐색: 같은 스템(-마지막 포즈 세그먼트 제거)의 -idle/-guard 형제 →
+# 상위 디렉토리의 캐릭터 초상 순. 없으면 빈 출력(그 파일은 판정 스킵 — 최초 아트는 대조 기준이 없다).
+image_judge_reference() {
+  local f="$1" dir stem base cand
+  dir="$(dirname "$f")"; stem="$(basename "$f")"; stem="${stem%.*}"; base="${stem%-*}"
+  for cand in "$dir/$base-idle.png" "$dir/$base-guard.png" "$(dirname "$dir")/$base.png"; do
+    [ "$cand" != "$f" ] && [ -f "$cand" ] && { printf '%s' "$cand"; return 0; }
+  done
+  return 0
+}
+
+# claude 시각 판정자(plan 모드=읽기 전용) 실행 → PASS|FAIL|SKIP.
+# fail-open: claude CLI/설정 부재·레퍼런스 전무·판정 파싱 실패는 커밋을 버리지 않는다(게이트·critic 은 이미 통과).
+image_judge_verdict() {
+  local range="$1" files f ref pairs="" n=0 jlog jprompt verdict
+  command -v claude >/dev/null 2>&1 || { echo SKIP; return 0; }
+  [ -f "$SETTINGS_FILE" ] || { echo SKIP; return 0; }
+  files="$(image_judge_targets "$range")"
+  [ -n "$files" ] || { echo SKIP; return 0; }
+  while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    ref="$(image_judge_reference "$f")"
+    if [ -z "$ref" ]; then log "  image-judge: 정본 레퍼런스 없음 — 스킵: $f"; continue; fi
+    n=$((n + 1))
+    if [ "$n" -gt "$IMAGE_JUDGE_MAX" ]; then log "  image-judge: 상한 $IMAGE_JUDGE_MAX 초과 — 미판정: $f"; continue; fi
+    pairs="$pairs
+- NEW: $f
+  CANON: $ref"
+  done <<< "$files"
+  [ "$n" -gt 0 ] || { echo SKIP; return 0; }
+  jlog="$LOG_DIR/image-judge-$iter.log"
+  jprompt="You are the image-identity judge for an unattended loop. For each pair below, Read BOTH image
+files and compare the NEW art against the CANON art of the same character. FAIL when an identity
+attribute differs: gender or species (human vs android/robot), hair style/length, signature features
+(face mask, glasses, facial scar), signature palette (e.g. hologram-shield color), or when the NEW
+image clearly depicts a different established character. Pose/action/framing differences are expected
+and are NOT failures. Judge every pair; one bad pair fails the batch.
+End with EXACTLY one line: 'IMAGE_JUDGE_VERDICT: PASS — <reason>' or 'IMAGE_JUDGE_VERDICT: FAIL — <file>: <reason>'.
+$pairs"
+  set +e
+  $TIMEOUT_BIN ${TIMEOUT_BIN:+$ITER_TIMEOUT} claude -p "$jprompt" \
+    --permission-mode plan --settings "$SETTINGS_FILE" --output-format json > "$jlog" 2>&1
+  set -e
+  verdict="$(grep -oiE 'IMAGE_JUDGE_VERDICT:[[:space:]]*(PASS|FAIL)' "$jlog" 2>/dev/null \
+    | grep -oiE '(PASS|FAIL)' | tail -1 | tr '[:lower:]' '[:upper:]')"
+  if [ -z "$verdict" ]; then
+    log "  image-judge: 판정 파싱 실패 — fail-open(PASS); 로그: $jlog"
+    echo PASS; return 0
+  fi
+  echo "$verdict"
+}
+
 # 텔레메트리: 엔진 JSON 출력에서 토큰/비용을 best-effort 파싱. "tokens\tcost"(탭 구분, 미노출 시 빈칸) 출력.
 # 루프를 절대 죽이지 않는다. 엔진별 스키마가 달라(claude/codex/agy) 하드코딩 대신 모든 JSON 객체를
 # 재귀 스캔(전체 또는 줄단위 JSONL)해 토큰/비용 키를 찾아 최댓값 채택(누적/스트림 총계 대응).
@@ -486,6 +559,27 @@ while :; do
 
   iter=$((iter + 1))
   prune_logs || true
+
+  # A2A Relay 2: 직전 에스컬레이션 회차 종료 → 원래 엔진/프롬프트 복원.
+  # 루프 상단에서 복원해야 limit/failure 의 continue 경로에서도 누락되지 않는다.
+  if [ "${ESCALATE_ACTIVE:-0}" = "1" ]; then
+    ENGINE="$SAVED_ENGINE"; PROMPT_CONTENT="$SAVED_PROMPT"; ESCALATE_ACTIVE=0
+    log "escalate: 회차 종료 — 엔진 복원($ENGINE)"
+  fi
+  # A2A Relay 2: 예약된 에스컬레이션 — 이번 1회차만 claude 가 직전 Blocker 항목을 크로스레인 처리.
+  if [ "${ESCALATE_NEXT:-0}" = "1" ]; then
+    ESCALATE_NEXT=0; ESCALATE_ACTIVE=1
+    ESCALATE_COUNT=$(( ${ESCALATE_COUNT:-0} + 1 ))
+    SAVED_ENGINE="$ENGINE"; SAVED_PROMPT="$PROMPT_CONTENT"
+    ENGINE="claude"
+    PROMPT_CONTENT="$(cat scripts/overnight/PROMPT.md)
+
+[러너 알림] ESCALATION 모드($ESCALATE_COUNT/$MAX_ESCALATE): 직전 $SAVED_ENGINE 회차가 Blocker 를 기록했다.
+이번 회차는 NEXT_PLAN/PROGRESS_LOG 의 가장 최근 Blocker 항목 1개만 처리하라 — 이 1회차에 한해 그
+항목의 레인 태그를 무시하고 소비해도 된다([blocked] 이면 해결 후 태그를 제거). 완전 해결이 불가하면
+원인 진단을 Blocker 에 보강 기록하고 정리 후 끝내라. 다른 백로그 항목은 시작하지 말 것."
+    log "escalate: 이번 회차 claude 크로스레인 수행 (직전 $SAVED_ENGINE Blocker, $ESCALATE_COUNT/$MAX_ESCALATE)"
+  fi
 
   HEAD_BEFORE="$(git rev-parse HEAD 2>/dev/null || echo none)"
   ITER_LOG="$LOG_DIR/iter-$iter.log"
@@ -664,6 +758,38 @@ $PROMPT_CONTENT"
             fi
           fi
         fi
+        # A2A Relay 1: 이미지 정체성 판정 — 게이트+critic 통과 커밋이 캐릭터/적 아트를 바꾸면
+        # claude 시각 판정자가 정본과 대조. 무결성 게이트(존재/치수)가 못 보는 "다른 인물" 오류를
+        # 커밋이 밤새 살아남기 전에 잡는다. FAIL 이면 critic-reject 와 동일하게 revert.
+        if [ "$OVERNIGHT_IMAGE_JUDGE" != "0" ] && [ "${commit_live:-0}" = "1" ]; then
+          ij_targets="$(image_judge_targets "$HEAD_BEFORE..$HEAD_AFTER")"
+          if [ -n "$ij_targets" ]; then
+            log "image-judge: 캐릭터 아트 변경 감지($(printf '%s\n' "$ij_targets" | grep -c . )건) — 정체성 판정 (engine=claude)"
+            ij="$(image_judge_verdict "$HEAD_BEFORE..$HEAD_AFTER")"
+            if [ "$ij" = "FAIL" ]; then
+              commit_live=0
+              log "⚠ IMAGE-JUDGE-REJECT: 커밋 ${HEAD_AFTER:0:9} 정체성 불일치 — revert + 알림 (로그: $LOG_DIR/image-judge-$iter.log)"
+              emit_status "image-judge-reject" "$HEAD_AFTER" "$ITER_DUR"
+              if git revert --no-edit HEAD >> "$RUNNER_LOG" 2>&1; then
+                log "image-judge-reject 커밋 revert 완료 — 브랜치 복구"
+              else
+                git revert --abort >/dev/null 2>&1 || true
+                git reset --hard "$HEAD_BEFORE" >> "$RUNNER_LOG" 2>&1 || true
+                log "revert 충돌 → HEAD_BEFORE 로 reset"
+              fi
+              notify_failure "image-judge-reject @ ${HEAD_AFTER:0:9}"
+              consec_fail=$((consec_fail + 1))
+              if [ "$consec_fail" -ge "$MAX_CONSEC_FAIL" ]; then
+                exit_reason="image-judge-reject 누적 $MAX_CONSEC_FAIL회"; log "image-judge 한계 — 안전 중단"; break
+              fi
+            elif [ "$ij" = "SKIP" ]; then
+              log "image-judge: 건너뜀 (claude CLI/설정 부재 또는 대조 가능한 정본 없음)"
+            else
+              log "image-judge: PASS — 커밋 유지"
+              emit_status "image-judge-pass" "$HEAD_AFTER" "$ITER_DUR"
+            fi
+          fi
+        fi
         # WS-C: 자동 브라우저 QA — 게이트+critic 통과(commit_live=1) 커밋에만. 후보 필터가 UI/런타임/
         # 시나리오 변경으로 판정하면 AGY 가 브라우저 QA. revert 절대 안 함(주관적 QA로 커밋 폐기 금지).
         # 무진행/연속실패 카운터엔 영향 없음 — 성공 회차의 서브페이즈일 뿐.
@@ -676,6 +802,17 @@ $PROMPT_CONTENT"
             exit_reason="browser-qa ${QA_LAST_OUTCOME:-?} @ ${HEAD_AFTER:0:9}"
             log "browser-qa 정지 — ${QA_LAST_OUTCOME:-?} (커밋 유지, 증거: outputs/live-qa, 검수 필요)"; break
           fi
+        fi
+        # A2A Relay 2: codex/agy 회차가 방금 커밋에서 Blocker/[blocked] 를 기록했으면 다음 1회차를
+        # claude 크로스레인으로 예약(아침 human review 대기 없이 당일 재시도). 에스컬레이션 회차
+        # 자신은 예약하지 않는다(ESCALATE_ACTIVE 중엔 ENGINE=claude 라 조건이 걸러짐).
+        if [ "$OVERNIGHT_ESCALATE" != "0" ] && [ "$ENGINE" != "claude" ] && [ "$ONCE" -eq 0 ] \
+           && [ "${commit_live:-0}" = "1" ] && [ "${ESCALATE_COUNT:-0}" -lt "$MAX_ESCALATE" ] \
+           && command -v claude >/dev/null 2>&1 && [ -f "$SETTINGS_FILE" ] \
+           && git diff "$HEAD_BEFORE..$HEAD_AFTER" -- docs/NEXT_PLAN.md docs/PROGRESS_LOG.md 2>/dev/null \
+              | grep '^+' | grep -qiE 'blocker|\[blocked\]'; then
+          ESCALATE_NEXT=1
+          log "escalate: $ENGINE 회차가 Blocker 기록 — 다음 회차 claude 에스컬레이션 예약"
         fi
       else
         no_progress=$((no_progress + 1))

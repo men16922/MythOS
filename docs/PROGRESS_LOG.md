@@ -2,6 +2,13 @@
 
 Last updated: 2026-07-12
 
+## 2026-07-12 — overnight Codex: Su-ah cover pose regenerated from the approved style anchor
+- Status: Done; still undeployed and awaiting the existing human cover-art identity sign-off.
+- Changed: replaced `su-ah-cover.png` with a 512×768 RGBA cover sprite that retains attempt-1's crouch, magenta hex shield, circuit-embroidery coat, utility belt, and lighting, replacing only the datapad with the guard-matching low purple knife.
+- Verified: inspected the candidate against Su-ah idle/guard and the attempt-1 anchor; alpha conversion reports transparent corners. `make check` green (993 tests; content, lint, types, and Vite build passed).
+- Blockers: the visual comparison sheet needs its Su-ah cover cell refreshed before the manual owner approval; deployment remains blocked on that approval.
+- Next: refresh `outputs/cover-pose-regen/comparison-sheet.png`, then obtain the manual approval before any owner-only push/deploy.
+
 ## 2026-07-12 — overnight Codex: final two cover-pose sprites regenerated → 오너 리뷰: player-noise 승인, su-ah 스타일 리젝
 - Status: player-noise **오너 승인** 확정; su-ah는 무기(나이프)는 맞지만 attempt-1 대비 스타일 회귀(회로 자수 질감/디테일 밀도 소실)로 **오너 리젝** → 4차 재시드(attempt-1을 1순위 레퍼런스로 무기 든 손만 교체, 브리프 4차 개정). still undeployed.
 - Changed: regenerated and promoted `player-noise-cover.png` (short-haired masked, unarmed, green hex shield) and `su-ah-cover.png` (glasses/bun, purple shield, guard-matching knife); refreshed `outputs/cover-pose-regen/comparison-sheet.png` and the review table.

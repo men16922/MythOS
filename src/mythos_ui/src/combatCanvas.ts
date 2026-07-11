@@ -118,7 +118,7 @@ export interface BlipOverride {
   flashColor?: string;
   alpha?: number; // overrides blip alpha (death fade)
   scale?: number; // radius multiplier (impact pop / lunge)
-  pose?: "idle" | "attack" | "skill" | "hit" | "guard";
+  pose?: "idle" | "attack" | "skill" | "hit" | "guard" | "cover";
 }
 
 export interface FloatText {
@@ -143,12 +143,20 @@ export interface CombatOverlay {
   shakeY?: number;
 }
 
+// Sprite URLs that failed to load (e.g. a <char>-cover.png crouch sprite that
+// hasn't shipped yet) so drawBlipSprite can substitute a pose fallback on redraw.
+const brokenSprites = new Set<string>();
+
 function loadImage(url: string, onLoad: () => void): HTMLImageElement {
   let img = imageCache[url];
   if (!img) {
     img = new Image();
     img.src = url;
     img.onload = onLoad;
+    img.onerror = () => {
+      brokenSprites.add(url);
+      onLoad();
+    };
     imageCache[url] = img;
   }
   return img;
@@ -157,6 +165,13 @@ function loadImage(url: string, onLoad: () => void): HTMLImageElement {
 function combatImagePath(b: CombatBlip, pose: BlipOverride["pose"]): string {
   const images = b.combat_images || {};
   const currentPose = pose || "idle";
+  if (currentPose === "cover") {
+    // Scenario data predates the cover pose: derive <char>-cover.png from the
+    // authored guard/idle sprite name instead of requiring an authored key.
+    if (images.cover) return images.cover;
+    const base = images.guard || images.idle || "";
+    return base.replace(/-(guard|idle)\.png$/, "-cover.png");
+  }
   return images[currentPose] || images.idle || "";
 }
 
@@ -171,10 +186,16 @@ function drawBlipSprite(
   r: number,
   pose: BlipOverride["pose"]
 ): boolean {
-  const spritePath = combatImagePath(b, pose);
+  let spritePath = combatImagePath(b, pose);
   if (!spritePath) return false;
 
-  const imgUrl = `/resources/${scenarioId}/${spritePath}`;
+  let imgUrl = `/resources/${scenarioId}/${spritePath}`;
+  if (pose === "cover" && brokenSprites.has(imgUrl)) {
+    // Crouch art hasn't shipped for this unit — fall back to the guard pose.
+    spritePath = combatImagePath(b, "guard");
+    if (!spritePath) return false;
+    imgUrl = `/resources/${scenarioId}/${spritePath}`;
+  }
   const img = loadImage(imgUrl, () => {
     drawCombatCanvas(canvas, combat, scenarioId);
   });
@@ -809,7 +830,12 @@ export function drawCombatCanvas(
     // --- Vertical Billboard Card Position ---
     const cardCy = cy - r * 1.1;
 
-    const pose = ov?.pose || (ov?.flash && ov.flash > 0 ? "hit" : (b.defending ? "guard" : "idle"));
+    // Cover pose: a unit standing on a cover tile crouches behind it. Animation
+    // overrides and the explicit defend stance stay ahead of it.
+    const coverKind = alive ? combat.covers?.[`${Math.round(bx)},${Math.round(by)}`] : undefined;
+    const inCover = coverKind === "half" || coverKind === "full";
+    const pose =
+      ov?.pose || (ov?.flash && ov.flash > 0 ? "hit" : b.defending ? "guard" : inCover ? "cover" : "idle");
     const drewSprite = drawBlipSprite(ctx, canvas, combat, scenarioId, b, cx, cy, r, pose);
     if (!drewSprite) {
       drawBlipPortrait(ctx, canvas, combat, scenarioId, b, cx, cardCy, r);
@@ -878,11 +904,8 @@ export function drawCombatCanvas(
     // standing on a cover tile gets a shield badge at its base with the ranged-DEF
     // bonus it's receiving (half +3 / full +6), in the tile's cover color, so
     // "이 캐릭터가 엄폐 중" reads on the board without inspecting the tile.
-    const coverHere = aliveHere
-      ? combat.covers?.[`${Math.round(bx)},${Math.round(by)}`]
-      : undefined;
-    if (coverHere === "half" || coverHere === "full") {
-      const full = coverHere === "full";
+    if (inCover) {
+      const full = coverKind === "full";
       const label = full ? "🛡 +6" : "🛡 +3";
       const badgeY = cy + r * 0.62;
       ctx.save();

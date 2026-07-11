@@ -9,7 +9,7 @@ Last updated: 2026-07-11
 - **Combat-redesign research** → `docs/plans/2026-07-11-combat-redesign-research.md` (deep-research 103-agent run; ItB/XCOM2/DOS2/FiTS/Athena Crisis; A안=ItB식 결정론 퍼즐 권고 + P0-P2 로드맵). 검증 투표는 세션 한도로 1건만 완료(명시됨).
 - **Owner 우선순위 승인 → 2차 배치 (`654bdd0`)**: ① 미등장 아군 HOLD(합류 신호 → 보류; 노드 진입 effect가 산문보다 먼저 met_* 세팅해도 참전 안 함, 산문 언급 후 다음 전투부터; +만남 아크 "이름+대사 필수" 규칙) ② grant_items few-shot 중립화 ③ 전투 A/V 싱크 A+B(SFX 캐시/프리로드 + 투사체 0.65s/0.45s 임팩트 정렬). `make test` 977 · ruff/mypy/eslint 클린. C3 테스트 3건 HOLD 의미론으로 갱신.
 - **3차 배치 (owner "바로 할 수 있는 것 수행" → 우선순위대로)**: 용어 패스 (`ece8e08` 도감 용어집 11종 + naming 발명금지/첫등장주석 가드 + raw id materialize) · **Imagen 재시도** (`40ccaea` — 오너 DB 조회로 429 쿼터+안전필터 빈응답 확정, 8s/15s 백오프+1.5s 재롤, +4 tests; 근본 해소는 오너 GCP 쿼터 증액) · **전투 P0** (`139587b` — 완전 텔레그래프 ⚔주사위+공격선, 아레나 10×7, 지형 스프라이트 레이어 폴백형; plan `docs/plans/2026-07-11-combat-p0-terrain-grid-telegraph.md`). `make test` 980 green.
-- AGY prod probe(앞선 세션) PASS 후 owner 실플레이가 이 세션의 제보 소스. Next: 재배포(3차 배치분) → P0 실플레이 체감 · `[auto:agy]` 지형 타일 아트 3종 · P1은 오너 GO 후 · GCP Imagen 쿼터 증액(오너).
+- **3차 배치 DEPLOYED `mythos-api-00044-mtz`** (smoke health/root 200). **Imagen 쿼터 오너가 1→30/min 증액 완료** (429 근본 원인 = 분당 1건이었음 — 연속 턴이면 무조건 실패하던 값; 재시도와 합쳐져 이미지 실패 해소 기대). Next: P0 실플레이 체감 → P1 GO/NO-GO · `[auto:agy]` 지형 타일 아트 3종 · `! git push`.
 
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.

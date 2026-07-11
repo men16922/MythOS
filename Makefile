@@ -286,15 +286,18 @@ cloud-run-local:
 # the ambient `gcloud config` project — that once drifted to the wrong project
 # and a deploy landed a stray service elsewhere). Env-preserving `--source .`:
 # no --set-env-vars, so the existing revision's env (MODEL, DATABASE_URL, invite
-# keys, …) is kept. Region overridable: make deploy REGION=us-central1.
+# keys, …) is kept — EXCEPT IMAGEN_MODEL, pinned via --update-env-vars because a
+# stale revision value (dead imagen-3.0 endpoint) would override the code default.
+# Overridable: make deploy REGION=us-central1 IMAGEN_MODEL=<id>.
 REGION ?= us-central1
+IMAGEN_MODEL ?= gemini-3.1-flash-image
 .PHONY: deploy
 deploy:
 	@test -f .env || { echo "ERROR: .env not found"; exit 1; }
 	@PROJECT_ID=$$(grep -E '^PROJECT_ID=' .env | cut -d= -f2- | tr -d '"'); \
 	test -n "$$PROJECT_ID" || { echo "ERROR: PROJECT_ID not set in .env"; exit 1; }; \
-	echo "Deploying mythos-api to project [$$PROJECT_ID] region [$(REGION)] (env-preserving)…"; \
-	gcloud run deploy mythos-api --source . --region $(REGION) --project "$$PROJECT_ID" --quiet
+	echo "Deploying mythos-api to project [$$PROJECT_ID] region [$(REGION)] (env-preserving; IMAGEN_MODEL=$(IMAGEN_MODEL))…"; \
+	gcloud run deploy mythos-api --source . --region $(REGION) --project "$$PROJECT_ID" --update-env-vars IMAGEN_MODEL=$(IMAGEN_MODEL) --quiet
 
 # One-command dev stack: docker infra + db migrate + API(foreground).
 # Ollama is host-side (not docker); start it separately with `ollama serve`.

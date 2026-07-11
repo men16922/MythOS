@@ -37,6 +37,14 @@ export function useCombatCinemaQueue({
   const [cinemaQueue, setCinemaQueue] = useState<CombatCinemaContext[]>([]);
   const pendingTransitionRef = useRef<{ prev: CombatState; next: CombatState } | null>(null);
 
+  // A/V sync C: while a cinema is replaying a turn, the canvas shows interim
+  // (pre-final) HP but the roster/inspector read the committed snapshot (final
+  // post-turn HP), so three surfaces disagree mid-replay. This holds the SAME
+  // interim board the canvas is drawing (pre-turn `prev`, decremented on each
+  // impact) so the caller can feed roster/inspector the replayed HP instead of
+  // the truth. It is null whenever no cinema is playing → truth as before.
+  const [replayCombat, setReplayCombat] = useState<CombatState | null>(null);
+
   // Combat board animation: the animator diffs prev→next combat states and
   // tweens movement / damage / death; the dispatched action lets it draw the
   // attack/cast connector the snapshot diff can't recover.
@@ -148,6 +156,10 @@ export function useCombatCinemaQueue({
           pendingTransitionRef.current = { prev, next: combat };
           setCinemaQueue(queueItems);
           setCinemaContext(queueItems[0]);
+          // Roster/inspector follow the canvas: at cinema start the board still
+          // shows the pre-turn `prev` (no impact has landed yet), so seed the
+          // interim with it and let onCinemaImpact decrement from there.
+          setReplayCombat(prev);
 
           prevCombatRef.current = combat;
           return;
@@ -200,6 +212,9 @@ export function useCombatCinemaQueue({
       },
     };
     animatorRef.current?.drawStatic(tempCombat);
+    // Mirror the exact interim board onto the roster/inspector so all three
+    // surfaces agree during the replay (not the committed post-turn HP).
+    setReplayCombat(tempCombat);
   };
 
   // CombatCinema overlay finished: advance to the next queued blow, or once the
@@ -211,6 +226,10 @@ export function useCombatCinemaQueue({
       setCinemaContext(nextQueue[0]);
     } else {
       setCinemaContext(null);
+      // Queue drained: the deferred prev→next board tween now settles the canvas
+      // to the committed truth, so release the interim override and let the
+      // roster/inspector read the final snapshot again.
+      setReplayCombat(null);
       if (pendingTransitionRef.current) {
         const { prev: p, next: n } = pendingTransitionRef.current;
         pendingTransitionRef.current = null;
@@ -226,6 +245,11 @@ export function useCombatCinemaQueue({
   return {
     cinemaContext,
     cinemaQueue,
+    // Only surface the interim board while a cinema is actually on screen.
+    // `cinemaContext` is set/cleared in lockstep with `replayCombat` (both at
+    // queue start, both on drain), so gating here keeps a stale interim from a
+    // prior/interrupted cinema from ever leaking onto the roster/inspector.
+    replayCombat: cinemaContext ? replayCombat : null,
     prevCombatRef,
     dispatchedActionRef,
     onCinemaImpact,

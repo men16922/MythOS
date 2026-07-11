@@ -31,6 +31,11 @@ const TACTICAL_LEGEND_SEEN_KEY = "mythos_tactical_legend_seen";
 interface StoryPanelProps {
   status: string;
   snapshot: RuntimeSnapshot | null;
+  // A/V sync C: while a combat cinema is replaying a turn, this holds the same
+  // interim board the canvas is drawing (pre-final HP). The roster/inspector use
+  // it instead of the committed `snapshot.combat` so all three surfaces agree
+  // mid-replay; null when no cinema is playing (roster/inspector show truth).
+  replayCombat?: CombatState | null;
   displayedNarration: string;
   isStreaming: boolean;
   combatTarget: string | null;
@@ -779,6 +784,7 @@ function ObjectiveStrip({
 export function StoryPanel({
   status,
   snapshot,
+  replayCombat,
   displayedNarration,
   isStreaming,
   combatTarget,
@@ -911,6 +917,11 @@ export function StoryPanel({
 
   // 전투 진행 중인 경우, 가로 분할(Streamlit 스타일) 레이아웃 출력
   if (snapshot?.combat && !snapshot.combat.finished) {
+    // A/V sync C: during a cinema replay the canvas draws interim (pre-final) HP
+    // while `snapshot.combat` already holds the committed post-turn truth. The
+    // roster + tile inspector read this interim board so they match the canvas
+    // mid-replay; `replayCombat` is null when no cinema plays → truth as before.
+    const rosterCombat = replayCombat ?? snapshot.combat;
     // LC6: the command console (target selection + Attack/Defend/Skills) is the
     // one cluster the player acts on every turn. Hoist it into a single element
     // so it can lead the landscape right column (actions-first, co-visible with
@@ -1005,14 +1016,14 @@ export function StoryPanel({
 
             {conciseMode ? (
               <CombatChip title={t("story.tile.title")}>
-                <TileInspector combat={snapshot.combat} cell={combatInspectCell} />
+                <TileInspector combat={rosterCombat} cell={combatInspectCell} />
               </CombatChip>
             ) : (
-              <TileInspector combat={snapshot.combat} cell={combatInspectCell} />
+              <TileInspector combat={rosterCombat} cell={combatInspectCell} />
             )}
 
             <Surface variant="surface" className="roster-panel">
-              <CombatRoster combat={snapshot.combat} scenarioId={scenarioId} />
+              <CombatRoster combat={rosterCombat} scenarioId={scenarioId} />
             </Surface>
 
             {!isLandscapeCoarseCombat && controlsEl}

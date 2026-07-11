@@ -22,7 +22,7 @@ class LandscapeCombatLC2Test(unittest.TestCase):
 
         board_idx = source.index('<TacticalLegend combat={snapshot.combat} />')
         bottom_row_idx = source.index('<div className="combat-bottom-row">')
-        tile_inspector_idx = source.index("<TileInspector combat={snapshot.combat} cell={combatInspectCell} />")
+        tile_inspector_idx = source.index("<TileInspector combat={rosterCombat} cell={combatInspectCell} />")
 
         self.assertLess(board_idx, bottom_row_idx)
         self.assertGreater(tile_inspector_idx, bottom_row_idx)

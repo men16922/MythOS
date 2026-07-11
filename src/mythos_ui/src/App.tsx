@@ -232,6 +232,7 @@ export default function App() {
   const {
     cinemaContext,
     cinemaQueue,
+    replayCombat,
     prevCombatRef,
     dispatchedActionRef,
     onCinemaImpact,
@@ -887,6 +888,7 @@ export default function App() {
               <StoryPanel
                 status={status}
                 snapshot={finalizedSnapshot}
+                replayCombat={replayCombat}
                 displayedNarration={displayedNarration}
                 isStreaming={isStreaming}
                 combatTarget={combatTarget}

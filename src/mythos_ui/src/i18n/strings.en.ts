@@ -239,6 +239,7 @@ export const en: Record<StringKey, string> = {
   "story.obj.chapter": "This Act",
   "story.obj.current": "Current Objective",
   "story.obj.lastResult": "Last Result",
+  "story.innerVoiceLabel": "Inner voice",
   "story.statWhisper": "Stat whisper:",
   "story.statWhisperPre": "The player's high stat (currently: ",
   "story.statWhisperPost": ") offers advice as an inner monologue in your head.",

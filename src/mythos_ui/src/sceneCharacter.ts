@@ -1,3 +1,4 @@
+import { inStatVoiceRange, statVoiceRanges } from "./statVoice";
 import type { RuntimeSnapshot, ScenarioCharacter } from "./types";
 
 function escapeRegExp(value: string): string {
@@ -47,13 +48,16 @@ export interface ParagraphSpeech {
 }
 
 export function analyzeParagraph(paragraph: string): ParagraphSpeech {
+  // Stat-voice monologue quotes — (관측: "…") — are NOT dialogue: skip them so a
+  // stat check never counts as a spoken line or gets attributed to a character.
+  const statRanges = statVoiceRanges(paragraph);
   let outside = "";
   let hasDialogue = false;
   let i = 0;
   while (i < paragraph.length) {
     const ch = paragraph[i];
     const pair = QUOTE_PAIRS.find(([open]) => open === ch);
-    if (pair) {
+    if (pair && !inStatVoiceRange(i, statRanges)) {
       const end = paragraph.indexOf(pair[1], i + 1);
       if (end > i) {
         if (SPEECH_PUNCTUATION.test(paragraph.slice(i + 1, end))) hasDialogue = true;
@@ -78,6 +82,9 @@ export type ParagraphSegment =
 // emphasis like '최적화') stays `narration`. Order is preserved so a
 // quote / action / quote paragraph renders bubble, prose, bubble.
 export function segmentParagraph(paragraph: string): ParagraphSegment[] {
+  // Stat-voice monologue quotes — (관측: "…") — stay in narration so the renderer
+  // styles them as inner monologue; only NON-stat quotes segment as speech.
+  const statRanges = statVoiceRanges(paragraph);
   const segments: ParagraphSegment[] = [];
   let narration = "";
   const flush = () => {
@@ -88,7 +95,7 @@ export function segmentParagraph(paragraph: string): ParagraphSegment[] {
   while (i < paragraph.length) {
     const ch = paragraph[i];
     const pair = QUOTE_PAIRS.find(([open]) => open === ch);
-    if (pair) {
+    if (pair && !inStatVoiceRange(i, statRanges)) {
       const end = paragraph.indexOf(pair[1], i + 1);
       if (end > i && SPEECH_PUNCTUATION.test(paragraph.slice(i + 1, end))) {
         flush();

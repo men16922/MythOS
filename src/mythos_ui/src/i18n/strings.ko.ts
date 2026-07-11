@@ -239,6 +239,7 @@ export const ko = {
   "story.obj.chapter": "이번 막",
   "story.obj.current": "현재 목표",
   "story.obj.lastResult": "직전 결과",
+  "story.innerVoiceLabel": "내면의 목소리",
   "story.statWhisper": "스탯 속삭임:",
   "story.statWhisperPre": "플레이어의 높은 특성(현재: ",
   "story.statWhisperPost": ")이 머릿속 내면의 독백으로 조언을 건넵니다.",

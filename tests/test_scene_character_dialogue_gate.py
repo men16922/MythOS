@@ -50,6 +50,15 @@ class SceneCharacterDialogueGateTest(unittest.TestCase):
         self.assertIn("SPEECH_PUNCTUATION", self.source)
         self.assertIn(".filter((p) => p.hasDialogue)", self.source)
 
+    def test_stat_voice_quotes_excluded_from_dialogue(self) -> None:
+        # Stat-voice inner monologue — (관측: "…") — is NOT spoken dialogue. The
+        # dialogue segmenter must skip those quoted spans (via statVoiceRanges /
+        # inStatVoiceRange) so a stat check never renders as a character portrait
+        # callout or leaves an empty "(관측: "")" shell (regression 2026-07-11).
+        self.assertIn('from "./statVoice"', self.source)
+        self.assertIn("statVoiceRanges", self.source)
+        self.assertIn("inStatVoiceRange", self.source)
+
     def test_market_vendor_override_survives(self) -> None:
         # The deterministic barter-dock vendor face (live 2026-07-04) is exempt
         # from the dialogue gate by design.

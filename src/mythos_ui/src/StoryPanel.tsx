@@ -2,6 +2,7 @@ import { Fragment, useEffect, useRef, useState } from "react";
 import type { PointerEventHandler, RefObject } from "react";
 import { CharacterPanel } from "./CharacterPanel";
 import { detectSceneCharacter, segmentParagraph, speakerForParagraph } from "./sceneCharacter";
+import { STAT_CANON, STAT_NAMES } from "./statVoice";
 import { ChoicePanel } from "./ChoicePanel";
 import { CombatControls } from "./CombatControls";
 import { CombatLog } from "./CombatLog";
@@ -105,19 +106,9 @@ const renderBoldText = (text: string): React.ReactNode[] => {
   });
 };
 
-// Stat-monologue markers appear in the SERVER narration as `(<stat>: ...)`, where
-// <stat> is Korean (ko narration) or English (en narration). Both map to one canonical
-// id for color/icon lookup so the inner-monologue styling works in either language.
-const STAT_CANON: Record<string, "strength" | "intelligence" | "charisma" | "agility" | "perception"> = {
-  "근력": "strength", "Strength": "strength",
-  // The stat-voice directive emits "Intelligence"/"Perception"; keep the older
-  // "Intellect"/"Observation" spellings as aliases so either still styles/icons.
-  "지능": "intelligence", "Intellect": "intelligence", "Intelligence": "intelligence",
-  "매력": "charisma", "Charisma": "charisma",
-  "민첩": "agility", "Agility": "agility",
-  "관측": "perception", "Observation": "perception", "Perception": "perception",
-};
-const STAT_NAMES = Object.keys(STAT_CANON).join("|");
+// STAT_CANON / STAT_NAMES now live in ./statVoice (shared with the dialogue
+// segmenter so it never mistakes a stat voice for spoken dialogue). Presentation
+// (color/icon/emoji per canonical id) stays here.
 const STAT_STYLE: Record<string, { color: string; icon: string; emoji: string }> = {
   strength: { color: "#FF5555", icon: "/assets/icons/stat_strength.png", emoji: "💪" },
   intelligence: { color: "#8BE9FD", icon: "/assets/icons/stat_intelligence.png", emoji: "🧠" },
@@ -245,8 +236,6 @@ const renderFormattedNarration = (rawText: string, turnIndex: number, t: TFn) =>
         <span
           className="inner-monologue"
           style={{
-            color,
-            fontStyle: "italic",
             display: "block",
             padding: "8px 12px",
             backgroundColor: "rgba(255, 255, 255, 0.05)",
@@ -254,11 +243,26 @@ const renderFormattedNarration = (rawText: string, turnIndex: number, t: TFn) =>
             borderRadius: "0 4px 4px 0",
           }}
         >
-          <span style={{ marginRight: "6px", display: "inline-flex", alignItems: "center", verticalAlign: "middle" }}>
-            <img 
-              src={iconUrl} 
-              alt={m.statName} 
-              style={{ width: "16px", height: "16px", objectFit: "contain" }}
+          {/* Always-on label so a stat voice is unmistakably an inner read, never
+              confused with a character's dialogue callout (portrait + name). */}
+          <span
+            className="inner-monologue-tag"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "5px",
+              color,
+              fontSize: "10.5px",
+              fontWeight: 700,
+              letterSpacing: "0.6px",
+              textTransform: "uppercase",
+              marginBottom: "4px",
+            }}
+          >
+            <img
+              src={iconUrl}
+              alt={m.statName}
+              style={{ width: "15px", height: "15px", objectFit: "contain" }}
               onError={(e) => {
                 (e.target as HTMLElement).style.display = "none";
                 const parent = (e.target as HTMLElement).parentElement;
@@ -270,18 +274,24 @@ const renderFormattedNarration = (rawText: string, turnIndex: number, t: TFn) =>
                 }
               }}
             />
+            <span>
+              {m.statName}
+              {m.statValue ? ` ${m.statValue}` : ""} · {t("story.innerVoiceLabel")}
+            </span>
           </span>
-          {m.statValue ? (
-            <>
-              <strong>[{m.statName} {m.statValue}]</strong>
-              {m.description ? ` ${m.description} ` : " "}
-              <span style={{ color: "#ffffff", fontStyle: "normal" }}>{renderBoldText(m.statText)}</span>
-            </>
-          ) : (
-            <>
-              <strong>[{m.statName}]</strong> {renderBoldText(m.statText)}
-            </>
-          )}
+          <span
+            className="inner-monologue-body"
+            style={{ display: "block", color, fontStyle: "italic" }}
+          >
+            {m.statValue ? (
+              <>
+                {m.description ? `${m.description} ` : ""}
+                <span style={{ color: "#ffffff", fontStyle: "normal" }}>{renderBoldText(m.statText)}</span>
+              </>
+            ) : (
+              renderBoldText(m.statText)
+            )}
+          </span>
         </span>
       </span>
     );

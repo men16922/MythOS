@@ -2,8 +2,8 @@
 
 Last updated: 2026-07-12
 
-## 2026-07-12 (live session, claude lane) — cover-pose regen 완주: 잔여 5장 재적용 (critic-reject 문서 수정)
-- Status: Done — 7장 전부 교체 완료. UNDEPLOYED (오너 정체성 최종 확인 `[manual]` 남음).
+## 2026-07-12 (live session, claude lane) — cover-pose regen: 잔여 5장 재적용 → 오너 리뷰로 2장 재오픈
+- Status: 5/7 확정 (`2942a74`). 오너 비교시트 리뷰에서 신규 캐논 규칙 확정 — **cover 소품은 그 캐릭터 guard 정본에 있는 것만** → player-noise(라이플, 정본은 비무장)·su-ah(데이터패드, guard=나이프) FAIL 재시드(브리프 3차 개정: guard-소품 규칙 명문화, 오염원이던 브리프의 "소총/데이터패드" 지시 수정). UNDEPLOYED.
 - 러너 2회차(codex)가 잔여 5장(lin-yue/su-ah/tae-o/han/player-noise)을 승격했으나(`33b5a4a`) critic이 정당하게 reject — NEXT_PLAN에서 이 항목을 `[manual]` 후속 없이 DONE으로 닫고 불릿의 잔여 이력을 삭제했기 때문(아트 품질 문제 아님). revert(`0647fab`) 후 claude가 아트 5장만 복원하고 문서를 후속-보존형으로 재작성.
 - Verified: claude 시각 정체성 재판정 5장 전원 PASS vs 정본 idle/guard — 오너 리젝 사유 해소(린위에=여성 인간, 태오=남성, player-noise 초록 육각 실드) + 7장 포즈 전부 상이. 1회차 se-rin/kai(`df8d1e6`)는 러너 image-judge PASS + AGY live-QA PASS_CANDIDATE. `make check` green.
 - Next: `[manual]` 오너 비교 시트 확인 → 승인 시 deploy 블로커 해제 · `! git push` · `make deploy` w/ `IMAGEN_MODEL=gemini-3.1-flash-image`.

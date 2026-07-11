@@ -101,6 +101,27 @@ export function useCombatCinemaQueue({
         const queueItems: CombatCinemaContext[] = [];
         const latestSkillByActor = new Map<string, string>();
 
+        // Responsiveness (measured 2026-07-12): a full-screen cinema for EVERY
+        // log entry serialized one click into a 7-10.5s forced watch (owner:
+        // "제멋대로 진행되는 느낌"). Full-screen cinema is now reserved for the
+        // beats that are about YOU — the blow of the unit the player just
+        // commanded, plus any kill blow. Ally-AI and ordinary enemy attacks
+        // stay on the tactical board (lunge/tracer/floats/shake, 1.5s cap).
+        // The unit that just acted is the PREVIOUS snapshot's active unit —
+        // the new snapshot's `current` already points at the next turn.
+        const commandedActor =
+          dispatched && (dispatched.type === "attack" || dispatched.type === "skill")
+            ? prev.radar?.current ?? null
+            : null;
+        const deservesCinema = (entry: CombatLogEntry): boolean => {
+          if (entry.action === "defeat") return true;
+          if (commandedActor) return entry.actor === commandedActor;
+          // No dispatched action this transition (resume, etc.): fall back to
+          // player-faction blows only.
+          const blip = combat.radar.blips.find((b) => b.id === entry.actor);
+          return blip?.faction === "player";
+        };
+
         newLogs.forEach((entry: CombatLogEntry) => {
           if (entry.action === "skill") {
             const skillId = typeof entry.detail?.skill === "string" ? entry.detail.skill : undefined;
@@ -108,7 +129,7 @@ export function useCombatCinemaQueue({
             latestSkillByActor.set(entry.actor, skillName);
 
             // If this actor has no follow-up hit/defend/miss logs in this turn, trigger utility skill cinema immediately
-            if (!hasFollowUpActors.has(entry.actor)) {
+            if (!hasFollowUpActors.has(entry.actor) && deservesCinema(entry)) {
               const attackerBlip = combat.radar.blips.find((b) => b.id === entry.actor);
               const targetId = entry.detail?.target || entry.actor;
               const defenderBlip = combat.radar.blips.find((b) => b.id === targetId);
@@ -128,6 +149,7 @@ export function useCombatCinemaQueue({
             return;
           }
           if (!cinematicActions.has(entry.action)) return;
+          if (!deservesCinema(entry)) return;
 
           const attackerBlip = combat.radar.blips.find((b) => b.id === entry.actor);
           const targetId = entry.detail?.target || (entry.action === "defend" ? entry.actor : undefined);
@@ -242,9 +264,28 @@ export function useCombatCinemaQueue({
     }
   };
 
+  // Tap-to-skip (owner 2026-07-12 "제멋대로 진행"): flush the remaining cinema
+  // queue on demand and settle straight into the deferred board animation, so
+  // an impatient player gets control back instead of watching the whole reel.
+  const flushCinema = () => {
+    setCinemaQueue([]);
+    setCinemaContext(null);
+    setReplayCombat(null);
+    if (pendingTransitionRef.current) {
+      const { prev: p, next: n } = pendingTransitionRef.current;
+      pendingTransitionRef.current = null;
+      animatorRef.current?.animate(p, n, {
+        dispatched: null,
+        instant: false,
+        onSfx: playTerminalCombatSfx,
+      });
+    }
+  };
+
   return {
     cinemaContext,
     cinemaQueue,
+    flushCinema,
     // Only surface the interim board while a cinema is actually on screen.
     // `cinemaContext` is set/cleared in lockstep with `replayCombat` (both at
     // queue start, both on drain), so gating here keeps a stale interim from a

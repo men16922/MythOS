@@ -15,6 +15,8 @@ interface CombatCinemaProps {
   onFinish?: () => void;
   onImpact?: (defenderId: string, damage: number) => void; // HP 실시간 동기화 콜백
   onCue?: (cue: "enter" | "windup" | "impact" | "exit") => void;
+  // Tap-to-skip: flush this and every queued cinema, settle to the board.
+  onSkip?: () => void;
 }
 
 export const CombatCinema: React.FC<CombatCinemaProps> = ({
@@ -29,6 +31,7 @@ export const CombatCinema: React.FC<CombatCinemaProps> = ({
   onFinish,
   onImpact,
   onCue,
+  onSkip,
 }) => {
   const { lang } = useLang();
   const {
@@ -77,7 +80,13 @@ export const CombatCinema: React.FC<CombatCinemaProps> = ({
   };
 
   return (
-    <div className={`cinema-overlay mode-${mode} phase-${phase} ${isFast ? "fast-speed" : ""} ${isSelfTarget ? "self-target" : ""}`}>
+    <div
+      className={`cinema-overlay mode-${mode} phase-${phase} ${isFast ? "fast-speed" : ""} ${isSelfTarget ? "self-target" : ""}`}
+      onPointerDown={onSkip}
+    >
+      {onSkip && (
+        <div className="cinema-skip-hint">{lang === "en" ? "TAP TO SKIP ▸▸" : "탭하여 스킵 ▸▸"}</div>
+      )}
       <div className={`cinema-strip ${hasSkillCard ? "has-skill" : ""} ${isDefend ? "has-defend" : ""} ${hasSignal ? "has-signal" : ""} ${isSelfTarget ? "self-target-strip" : ""}`}>
         {/* Attacker (Left Side) */}
         <div className="actor-side left">

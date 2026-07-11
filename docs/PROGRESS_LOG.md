@@ -2,6 +2,13 @@
 
 Last updated: 2026-07-12
 
+## 2026-07-12 (overnight agy lane) — magnetic_repulse skill icon generated
+- Status: Done; `make check` green (1008 tests).
+- Changed: generated `magnetic_repulse.png` skill icon matching the `magnetic_pull.png` reference image and style guidelines; promoted the icon from staging outputs to `resources/neo-seoul/skills/magnetic_repulse.png`.
+- Verified: run `make check` (all tests, types, lint, and build green); inspected size and dimensions of the generated icon.
+- Blockers: None.
+- Next: human play-feel QA of the new skill mechanics and icons.
+
 ## 2026-07-12 (live session #13, claude lane) — 전투 피드백 배치 1: 스킬 리워크 + 가독성 VFX + XCOM 투척
 - Status: Done, `make check` **1008** green (+15 tests). UNDEPLOYED (00052 위 신규 번들 시작).
 - 오너 라이브 피드백 반영 (00052 플레이 세션): **시스템 해킹 → 1턴 스턴** (구 focus_drain은 집중 0 적에 "-0" 무효과; cd 2→3) · **과부하 일격 → 근접 스플래시** (aoe_radius 1, 명중 피해가 인접 적에 확산; push 제거) · **자기 반발 신설** (전용 밀기 스킬: push 2 + 1d4 충격, 자기 견인 트리에서 해금) · **무피해 유틸 리밸런싱** (자기 견인=끌려온 충격 1d4 보장, 신호 도약=착지 인접 1d4 방전 — 명중 굴림 없는 고정 피해라 유틸 캐스트가 턴 낭비가 안 됨) · **EMP 수류탄 → XCOM식 광역 스턴** (지도에서 칸 지정 투척, range 4/radius 1, 셀 프리뷰 링+조준 모드 UI).

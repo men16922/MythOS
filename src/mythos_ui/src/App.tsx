@@ -233,6 +233,7 @@ export default function App() {
   const {
     cinemaContext,
     cinemaQueue,
+    flushCinema,
     replayCombat,
     prevCombatRef,
     dispatchedActionRef,
@@ -1012,6 +1013,7 @@ export default function App() {
           onImpact={onCinemaImpact}
           onCue={(cue) => playCombatCinemaCue(cinemaContext, cue)}
           onFinish={onCinemaFinish}
+          onSkip={flushCinema}
         />
       )}
 

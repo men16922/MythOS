@@ -16,7 +16,7 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00
 
 ### Combat feedback batch 2026-07-12 (owner live session on 00052) — batch 1 DONE, follow-ups open
 - `[x]` **배치 1 DONE (`make check` 1008)**: 시스템 해킹→스턴 · 과부하 일격→스플래시 · 자기 반발(밀기) 신설 · 유틸 스킬 고정 피해 라이더 · EMP 수류탄 XCOM식 광역 투척(셀 지정+프리뷰) · 낚아채기 VFX · 스턴 💫 배지. 상세 `PROGRESS_LOG.md`.
-- `[ ]` `[auto:agy]` **magnetic_repulse 스킬 아이콘** — 현재 `resources/neo-seoul/skills/magnetic_repulse.png`는 magnetic_pull 복사 플레이스홀더. 기존 스킬 아이콘 세트와 동일 스타일(오너 지시 "최대한 기존 스타일에 맞게 일관성")로 "밀쳐내는 자기장/척력" 전용 일러스트 생성·교체. criterion: 파일 교체 + `make check` green.
+- `[x]` `[auto:agy]` **magnetic_repulse 스킬 아이콘** DONE (agy 생성, review.md 완료, make check green)
 - `[ ]` **2-티어 전투 컨트롤 설계** (오너: 캐주얼=버튼 클릭, 전투 애호가=SRPG식 수동 타겟팅+적 행동 예측) — 설계 스냅샷 `docs/plans/` 필요, EMP 셀 타겟팅이 1호 슬라이스.
 - `[ ]` **전투 반응성 진단** (오너 체감: 클릭 딜레이 + 제멋대로 진행되는 느낌) — diagnose 프로토콜로 WS 왕복·애니메이션 큐·적 턴 자동재생 계측 후 개선.
 - `[ ]` **상태이상 시스템 설계** (부식·연소·산성·냉동·감전 — 회피 감소/지속 피해/이동 불가/받는 피해 증가 매핑 + 보드 시각 임팩트) — 설계 스냅샷 필요, 스턴 status 채널 위에 확장.
@@ -67,25 +67,7 @@ Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop co
   - `[ ]` `[manual]` **M4** verify 7 `position:fixed` modals for scroll-lock/clip on phone.
   - `[ ]` `[blocked]` **T5c** (LARGE) 2D top-down toggle = second orthogonal render path. Precondition (human): owner confirms isometric still illegible @390px after T5a/b. NOT unattended-consumable — do not build on a guess. Promote to `[auto:claude]` after that judgment.
 
-## Design System — consistent UX (2026-07-08, design `docs/plans/2026-07-08-design-system.md`)
 
-Root fix for "too much info at once" + "inconsistent detail-window sizes": no design tokens today (9 radii · 20 paddings · 51 bespoke panels · 3 duplicate tooltips). Absorbs the T6 concise toggle into a real density system.
-- `[x]` **DS0** add spacing/radius/type tokens to `:root` (DONE 2026-07-08 overnight, `make check` 924) — `--space-1..7`/`--radius-sm..full`/`--density-step`/`--text-1..6`+line-heights added, pure additive, no call sites changed.
-- `[x]` **DS1a** `Surface` primitive (variant×size×density), ships unused (DONE 2026-07-08 overnight, `make check` 927 green, +3 source-lock tests) — detail `PROGRESS_LOG.md`.
-- `[x]` **DS1b** collapse the 3 M3 tooltips → one `Popover` + one passive `Tooltip` (aria-expanded/describedby), migrate call sites, delete bespoke CSS (DONE 2026-07-08 overnight, `make check` 928 green). Detail `PROGRESS_LOG.md`.
-- `[x]` **DS2 base-`.panel` sweep COMPLETE 2026-07-08** (`make check` 954; owner sign-off G1/G2/G3). **All ~30 base `.panel` containers → `<Surface>`**: api (size-2=16px + glow + `...rest`/`id` + `as` prop) · a StatusPanel · b aside ×4 · c StoryPanel ×4 · d onboarding `<section>`+dashboards ×6 · e character/codex/skill ×6 · f DevConsolePanel ×6 · g the 3 `<details>` chips via `as="details"`. Sweep invariant locked by `test_ds2_base_panel_sweep_is_complete`. Detail → `PROGRESS_LOG`/`docs/plans/2026-07-08-ds2-sample-migration.md` §8.
-  - `[ ]` (optional, low-priority) **bespoke non-`.panel` classes** (`combat-result-panel`/`choice-panel-wrapper`/`modal-panel`/…) — never `.panel`, outside the consistency-sweep scope; some (modal backdrops/wrappers) shouldn't be Surface. Migrate case-by-case only if a real inconsistency shows.
-- `[x]` **DS3 DONE 2026-07-09** (`make check` 956; owner decision → `DECISIONS.md`). **DS3a** compact-density mode: `body.concise-mode .surface` drops one 4px step app-wide (default coarse=compact), header toggle CONCISE→COMPACT; 48px tap targets untouched. **DS3b** fixed-size combat inspector: always-visible HP·Intent·Cover trio, `.tile-inspector` 52→96px (no jump). Emulator-verified. **→ Design-System DS0-DS3 COMPLETE.**
-
-## Landscape Combat — decided A (2026-07-08, design `docs/plans/2026-07-08-design-system.md` "Landscape Combat")
-
-Emulator test: concise mode barely helps combat (10%); combat needs a **landscape split layout**, not density. Narrative stays portrait+concise.
-- `[x]` **LC0/LC1/LC2 DONE 2026-07-08 overnight** (`make check` 941) — orientation hook+rotate prompt · landscape split (board left | TileInfo+roster right) · TileInfo folded. Detail `PROGRESS_LOG.md`/plan.
-- **LC3/LC4 DONE 2026-07-08** (`make check` 948): LC3 compacted header/banner; LC4 made `.combat-layout` fixed-height `overflow:hidden` + folded aside into an independently-scrolling `.combat-bottom-row`. Emulator verify #2: page 1.00× (no scroll ✅), banner→chip ✅ — but header+tab-nav still ate ~215px and the right column led with TileInfo/roster → LC5/LC6 below.
-- **LC5/LC6 DONE+EMULATOR-VERIFIED 2026-07-08** (`make check` 953): **the Landscape Combat track is now complete.**
-  - `[x]` `[auto:claude]` **LC5** — `body.combat-active` signal (App.tsx effect off `combatLive`) scopes a landscape+coarse CSS block that hides the tab-nav entirely + shrinks the header + drops `.combat-layout` chrome offset 160px→96px, so the board reclaims the height. Narrative landscape keeps its nav.
-  - `[x]` `[auto:claude]` **LC6** — hoisted `CombatControls` into one `controlsEl`; in landscape+coarse it leads the right column (actions-first: TARGETS/ACTIONS/SKILLS before TileInfo/roster/Map/Save/STATUS), portrait/desktop unchanged.
-  - **Emulator @844×390 (cloud build, combat sim, this session)**: tab-nav `display:none` ✅, page `scrollRatio 1.00` (no page scroll) ✅, board fills full layout height (canvas ~297px) ✅, right-column order `[combat-controls, …]` with ACTIONS co-visible with the board ✅.
 
 ## Priority 1 — Neo-Seoul Playability Upgrade
 

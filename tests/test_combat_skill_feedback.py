@@ -68,6 +68,28 @@ class AoeAndPushSkillTest(unittest.TestCase):
         self.assertIn('tags.includes("aoe") && p > 0.35', source)
 
 
+class CombatResponsivenessTest(unittest.TestCase):
+    """Regression locks for the 2026-07-12 responsiveness diagnosis.
+
+    Measured: one click serialized 4-6 full-screen cinemas -> 7-10.5s forced
+    watching (owner: "제멋대로 진행"). Fix: cinema only for the commanded
+    unit's blow / kill blows (measured p50 3.6s), plus tap-to-skip.
+    """
+
+    def test_cinema_reserved_for_commanded_blows_and_defeats(self) -> None:
+        source = read("src/mythos_ui/src/hooks/useCombatCinemaQueue.ts")
+        self.assertIn("deservesCinema", source)
+        self.assertIn('if (entry.action === "defeat") return true;', source)
+        self.assertIn("prev.radar?.current", source)
+
+    def test_tap_to_skip_flushes_the_queue(self) -> None:
+        queue = read("src/mythos_ui/src/hooks/useCombatCinemaQueue.ts")
+        self.assertIn("flushCinema", queue)
+        cinema = read("src/mythos_ui/src/CombatCinema.tsx")
+        self.assertIn("onPointerDown={onSkip}", cinema)
+        self.assertIn("cinema-skip-hint", cinema)
+
+
 class XcomGroundTargetingTest(unittest.TestCase):
     def test_emp_grenade_defines_range_and_radius(self) -> None:
         import json

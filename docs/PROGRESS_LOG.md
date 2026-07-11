@@ -2,6 +2,13 @@
 
 Last updated: 2026-07-12
 
+## 2026-07-12 — overnight Codex: cover-pose regeneration partial promotion
+- Status: In progress; two of seven identity-reviewed candidates promoted, remaining five stay pending.
+- Changed: regenerated `se-rin-cover.png` and `kai-cover.png` from each character's guard/idle references; preserved chroma-key sources and RGBA candidates in `outputs/cover-pose-regen/` with a per-character review table.
+- Verified: both promoted files are 512×768 RGBA PNGs with transparent corners; visual identity/prop/shield/pose review passed.
+- Blockers: none in this partial promotion; the task completion criterion still requires five reviewed candidates and `make check`.
+- Next: regenerate lin-yue, su-ah, tae-o, han, and player-noise using their own guard/idle references; only promote PASS candidates.
+
 ## 2026-07-12 — overnight Codex: cover-pose regeneration blocked at identity review
 - Status: Blocker #1; no project assets were changed.
 - Changed: generated seven reference-guided cover-pose candidates in a temporary workspace and chroma-keyed them to RGBA 512×768 for inspection.

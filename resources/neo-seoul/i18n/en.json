@@ -36,13 +36,13 @@
   },
   "session_intro": {
     "title": "First Connection — C-17 Blackout",
-    "body": "You are an 'unregistered signal' — a being on no roster. Administrator IX means to erase you, who fall outside the baseline (memory deletion).",
-    "objective": "Take Se-rin's hand and escape the C-17 blackout zone.",
+    "body": "You are a person on no roster in this city — one the system reads only as an 'unregistered signal.' The Reconstruction Agency ARK's management intelligence, 'Administrator IX,' means to erase you — memory and all — for falling outside the baseline.",
+    "objective": "Take the hand Se-rin holds out and escape the C-17 blackout zone.",
     "continue_button": "Awaken",
     "rules": [
-      "NOW — in the blackout's gap, you wake alone on a wet street",
-      "SOON — a rider finds you",
-      "GOAL — escape the C-17 blackout zone alive"
+      "You wake alone on a wet street where the blackout has torn a gap open.",
+      "As a drone's red light draws near, a rider finds you first.",
+      "Take Jung Se-rin's hand and escape the C-17 blackout zone alive."
     ],
     "cinematic_shots": [
       {

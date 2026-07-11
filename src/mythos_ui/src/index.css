@@ -433,6 +433,19 @@ main {
 .dialogue-callout-text {
   white-space: pre-wrap;
 }
+/* Anonymous dialogue (owner 2026-07-11): quoted speech whose speaker we can't
+   confidently attribute is still set apart from prose as a spoken line — same
+   accent as the named callout but lighter, and no portrait/name (so a wrong
+   face is never shown). Keeps dialogue-vs-narration separation consistent. */
+.dialogue-line {
+  margin: 8px 0 10px;
+  padding: 6px 12px;
+  border-left: 3px solid rgba(41, 255, 198, 0.35);
+  border-radius: 0 6px 6px 0;
+  background: rgba(41, 255, 198, 0.03);
+  color: var(--term);
+  white-space: pre-wrap;
+}
 #narration .caret {
   color: var(--term);
   animation: blink 1s steps(1) infinite;

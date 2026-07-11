@@ -308,14 +308,32 @@ const renderNarrationWithSpeakers = (
   if (!rawText) return null;
   const paragraphs = rawText.split(/\n{2,}/);
   return paragraphs.map((para, idx) => {
-    const speaker = speakerForParagraph(para, characters);
-    if (speaker) {
-      // 말풍선에는 따옴표 안 대사만 (오너 2026-07-11): 지문·행동 묘사는 일반
-      // 나레이션으로, 대사 인용문만 초상+이름 말풍선으로 순서대로 분리 렌더.
+    const segments = segmentParagraph(para);
+    const hasSpeech = segments.some((s) => s.kind === "speech");
+    // 순수 지문은 그대로.
+    if (!hasSpeech) {
       return (
-        <Fragment key={idx}>
-          {segmentParagraph(para).map((seg, si) =>
-            seg.kind === "speech" ? (
+        <div key={idx} className="narration-para">
+          {renderFormattedNarration(para, turnIndex, t)}
+        </div>
+      );
+    }
+    // 따옴표 대사는 화자를 몰라도 항상 지문과 구분해 표시 (오너 2026-07-11):
+    // 화자가 확인되면 초상+이름 말풍선, 확인 안 되면 익명 대사 라인(오표기 위험
+    // 0). 지문/행동 묘사 세그먼트는 일반 나레이션으로, 문서 순서대로 렌더.
+    const speaker = speakerForParagraph(para, characters);
+    return (
+      <Fragment key={idx}>
+        {segments.map((seg, si) => {
+          if (seg.kind !== "speech") {
+            return (
+              <div key={si} className="narration-para">
+                {renderFormattedNarration(seg.text, turnIndex, t)}
+              </div>
+            );
+          }
+          if (speaker) {
+            return (
               <div key={si} className="dialogue-callout">
                 {speaker.portrait && (
                   <img
@@ -332,19 +350,15 @@ const renderNarrationWithSpeakers = (
                   </div>
                 </div>
               </div>
-            ) : (
-              <div key={si} className="narration-para">
-                {renderFormattedNarration(seg.text, turnIndex, t)}
-              </div>
-            )
-          )}
-        </Fragment>
-      );
-    }
-    return (
-      <div key={idx} className="narration-para">
-        {renderFormattedNarration(para, turnIndex, t)}
-      </div>
+            );
+          }
+          return (
+            <div key={si} className="dialogue-line">
+              {renderFormattedNarration(seg.text, turnIndex, t)}
+            </div>
+          );
+        })}
+      </Fragment>
     );
   });
 };

@@ -164,6 +164,15 @@
 - **EN end-to-end**: route-choice labels + **combat-log prose (K6, `mythos_combat/log_i18n.py` + `CombatState.language`)** + post-combat continue + EN default flip (`getLang`/`resolveInitialLang`/`index.html`) + BGM first-gesture auto-on. Free narration is persisted per-scene (not re-translatable at serving) → fresh EN loops clean; pre-fix loops keep KO. K9 ending cost-free-verified (archive + `localize_for` scan = 0 residual KO).
 - **Cost guards**: invite gate + loop cap 10 + scale-to-zero (idle ~$0); per-tester ≈ $3–7 @ cap 10. Runbook `docs/cloud/DEPLOY.md` §10; keys `INVITE_KEY.md`; recruitment `CBT_TEASER.md`/`CBT_RECRUIT_POST.md`. `make check` 610 green (commits `daa5438..86d3970`).
 
+## M59 — Combat overhaul arc: telegraph → control → status → visuals (2026-07-11..12)
+
+- **P0 (deployed 00044..00048)**: full telegraph (⚔+dice+attack line; stale-radar root cause fixed), all arenas 10×7, terrain sprite layer + FLUX tiles ×3 (alpha post-processing), board declutter/dark floor/heal fix.
+- **P1 + cover-pose saga**: push/pull `_skill_displace` (terrain-meaningful, hit chance kept per owner) + cover badge 🛡+3/+6 + crouch pose (`<char>-cover.png` convention). Cover sprites: 4 codex rounds + owner canon rule ("cover props only from the char's own guard sheet") → 7 approved 2026-07-12; image-judge A2A relay live-validated on the rejected batch.
+- **Feedback batches (deployed 00052/00053/00055)**: skill rework (시스템 해킹=스턴 · 과부하=스플래시 · 자기 반발 신설 · 유틸 고정피해 라이더) · XCOM cell throws (EMP/소이/냉각 + previews) · responsiveness (cinema diet p50 7.0→3.6s + tap-skip) · two-tier control slices 1-3 + 🎯 aimed casts · status effects slices 1-3 (burn/corrode/acid/freeze/shock/hacked + enemy weapon riders + sim test kit) · owner live-QA fix batches.
+- **Visual overhaul V1-V6 + completeness**: camera drag-pan + centering bugfix · biome-tinted backdrops · cell-true AoE/chevron range · badge chips · cinema impact slashes + grenade item-art cards · full glyph/thumbnail coverage · real grenade blasts (×2.7) · tutorial Next button.
+- **Session #15 batch**: status stacking (duration accumulates, cap 6, stun included) + multi-status coherence (upkeep-DoT death fix) · collision slam (edge/full-cover/unit = flat 1d4 + burst; full cover blocks forced movement only) · cryo grenade 1d4 · `DEFAULT_BGM_ON` env-driven BGM default · victory-lineup slice(0,3) + loot-pill localization (codex lane).
+- Verification: `make check` 980→**1058** green across the arc; per-batch non-fallback sim evidence (`outputs/vis-diag/`, `outputs/qa-slam/`); owner live verdicts on 00053/00055. Detail: `bin/docs/archive/progress-2026-07.md`.
+
 ## Archive Reference
 
 M0-M10의 상세 체크리스트, work log, verification log는 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`에 보존한다.

@@ -55,7 +55,7 @@ Direction remains global-first EN/KO closed beta: Gemini/Vertex is the product p
 
 ## Open Risks
 
-- **Combat batch UNDEPLOYED (2026-07-12, origin+11, make check 1058)**: sessions #14-#15 — visual overhaul V1-V6, grenade cut-ins, status stacking, collision slam, cryo damage, BGM env, lineup/loot fixes. Full feel pass (A-1/A-3/A-4 + slam/cryo/stacking) after deploy gates the agy art seeds. Owner ticked several A-3 items locally (QA-doc checkbox edits left uncommitted — owner's working copy).
+- **Combat batch UNDEPLOYED (2026-07-12, origin+11, make check 1058)**: sessions #14-#15 — visual overhaul V1-V6, grenade cut-ins, status stacking, collision slam, cryo damage, BGM env, lineup/loot fixes. Full feel pass after deploy gates the agy art seeds — QA guide refreshed 2026-07-12: owner-confirmed items removed, slam/cryo/stacking checks added (`docs/test/neo_seoul_live_qa.md`).
 - **Combat balance triage (remaining)**: 한's 시스템 침투 costs ◆4 but his max FOCUS is 3 → signature is uncastable, ever — needs an owner balance call (cost 3 vs max_focus 4). (린위에 victory-lineup + loot-pill raw ids fixed 2026-07-12 session #15.)
 - **fallback = static combat is intended (2026-06-06 design)**: combat VFX only play at `?fallback=0`; the sim is entered via a fallback URL but its narrative-fallback is hardcoded in the API call, so open the sim WITHOUT `?fallback=1` to see animations. A decoupling attempt was reverted.
 - **Cover sprites RESOLVED 2026-07-12 (owner-approved)**: 7 regenerated over 4 codex rounds; canon rule recorded (cover props must exist in the char's own guard sprite). `make deploy` pins `IMAGEN_MODEL=gemini-3.1-flash-image` by default.

@@ -2,6 +2,15 @@
 
 Last updated: 2026-07-12
 
+## 2026-07-12 (live session #14, claude lane) — combat VISUAL overhaul V1-V6 (owner probe: all four areas)
+- Status: Done, `make check` **1041** green. UNDEPLOYED (origin+3; owner pushed the prior +20 mid-session).
+- Owner answered the "시각적으로 별로임" probe: **ALL FOUR** (status badges / aim·blast rings / cinema cards / board look) + two live requests (camera drag-pan, node-themed combat backdrops). Diagnosed by direct chrome-devtools sim run — evidence `outputs/vis-diag/01..32`, design `docs/plans/2026-07-12-combat-visual-overhaul.md`.
+- **V1 (`8b86423`)**: `getIsoConfig` centering BUG fixed (10×7 arenas clipped right-edge enemy sprites off-canvas) + **camera drag-pan** on empty background (dataset-shared like boardZoom; unit drag/taps keep priority; double-press recenters; works on enemy turns).
+- **V2+V3 (`075da28`)**: node-tinted backdrop (biome from encounter id: streets/undercity/industrial/spire — gradient+glow+vignette+arena rim; art hook `combat/backdrops/<biome>.png`) · floor stamp alpha-jitter + checker (kills uniform circuit noise) · **cell-true AoE**: new `cells` FX fills exact chebyshev blast tiles; ring/spark → grid-aligned diamonds; range tint → corner chevrons; out-of-range hover = red cell.
+- **V4-V6 (`6eaa975`)**: status badges → dark circular chips + color rim ABOVE the name (was icon-on-name mush; cap 3 + "+N") · cinema impact slashes across defender card + strip speed-lines + 62/74px damage numbers + grenade throws show item art center card (`itemId` through the queue) · SKILL_SYMBOLS full coverage (제어/강화 skills showed bare "제/강" letters) + consumable item thumbnails.
+- Non-visual findings for triage (NOT fixed): 한's 시스템 침투 cost ◆4 > max FOCUS 3 (uncastable ever) · 린위에 missing from victory lineup · loot pills show raw ids (`drone_scrap`/`nanopatch`).
+- Next: `! git push` → owner `make deploy` → owner feel pass (A-1/A-3 + new A-4 visual overhaul) · agy art seeds (backdrop plates ×4, flat badge glyphs ×7, brighter floor tile, cover_full prop).
+
 ## 2026-07-12 (live session #13 cont.10, claude lane) — 전투 완성도 배치: 직접 시뮬 테스트로 발굴+수정
 - Status: Done, `make check` **1041** green. UNDEPLOYED (origin+19). 오너 지시 "직접 전투 시뮬레이터 들어가서 테스트하고 개선" → chrome-devtools로 로컬 시뮬 구동해 발굴.
 - **스킬 카드 안 뜸** (자기 견인/자기 반발 등): 시네마 레지스트리에 스킬 5/~20개만 등록돼 있었음 → 전 스킬 카드 추가 + `getSkillId` 정확-id 우선 + 특정-우선 키워드 폴백("신호"가 신호 오버드라이브 삼키던 버그 수정) (`abe2d6a`).

@@ -1,5 +1,25 @@
 # Progress archive — 2026-07
 
+## 2026-07-12 — overnight Codex: Su-ah cover pose regenerated from the approved style anchor
+- Status: Done; still undeployed and awaiting the existing human cover-art identity sign-off.
+- Changed: replaced `su-ah-cover.png` with a 512×768 RGBA cover sprite that retains attempt-1's crouch, magenta hex shield, circuit-embroidery coat, utility belt, and lighting, replacing only the datapad with the guard-matching low purple knife.
+- Verified: inspected the candidate against Su-ah idle/guard and the attempt-1 anchor; alpha conversion reports transparent corners. `make check` green (993 tests; content, lint, types, and Vite build passed).
+- Blockers: the visual comparison sheet needs its Su-ah cover cell refreshed before the manual owner approval; deployment remains blocked on that approval.
+- Next: refresh `outputs/cover-pose-regen/comparison-sheet.png`, then obtain the manual approval before any owner-only push/deploy.
+
+## 2026-07-12 — overnight Codex: final two cover-pose sprites regenerated → 오너 리뷰: player-noise 승인, su-ah 스타일 리젝
+- Status: player-noise **오너 승인** 확정; su-ah는 무기(나이프)는 맞지만 attempt-1 대비 스타일 회귀(회로 자수 질감/디테일 밀도 소실)로 **오너 리젝** → 4차 재시드(attempt-1을 1순위 레퍼런스로 무기 든 손만 교체, 브리프 4차 개정). still undeployed.
+- Changed: regenerated and promoted `player-noise-cover.png` (short-haired masked, unarmed, green hex shield) and `su-ah-cover.png` (glasses/bun, purple shield, guard-matching knife); refreshed `outputs/cover-pose-regen/comparison-sheet.png` and the review table.
+- Verified: inspected each target's idle/guard references and final alpha candidates; both final files are 512×768 RGBA with transparent corners. `make check` green (993 tests).
+- Blockers: none for the automated item; `[manual]` owner comparison-sheet identity approval still gates deployment.
+- Next: owner reviews `outputs/cover-pose-regen/comparison-sheet.png`; if approved, push and deploy with `IMAGEN_MODEL=gemini-3.1-flash-image` remain owner-only actions.
+
+## 2026-07-12 (live session, claude lane) — cover-pose regen: 잔여 5장 재적용 → 오너 리뷰로 2장 재오픈
+- Status: 5/7 확정 (`2942a74`). 오너 비교시트 리뷰에서 신규 캐논 규칙 확정 — **cover 소품은 그 캐릭터 guard 정본에 있는 것만** → player-noise(라이플, 정본은 비무장)·su-ah(데이터패드, guard=나이프) FAIL 재시드(브리프 3차 개정: guard-소품 규칙 명문화, 오염원이던 브리프의 "소총/데이터패드" 지시 수정). UNDEPLOYED.
+- 러너 2회차(codex)가 잔여 5장(lin-yue/su-ah/tae-o/han/player-noise)을 승격했으나(`33b5a4a`) critic이 정당하게 reject — NEXT_PLAN에서 이 항목을 `[manual]` 후속 없이 DONE으로 닫고 불릿의 잔여 이력을 삭제했기 때문(아트 품질 문제 아님). revert(`0647fab`) 후 claude가 아트 5장만 복원하고 문서를 후속-보존형으로 재작성.
+- Verified: claude 시각 정체성 재판정 5장 전원 PASS vs 정본 idle/guard — 오너 리젝 사유 해소(린위에=여성 인간, 태오=남성, player-noise 초록 육각 실드) + 7장 포즈 전부 상이. 1회차 se-rin/kai(`df8d1e6`)는 러너 image-judge PASS + AGY live-QA PASS_CANDIDATE. `make check` green.
+- Next: `[manual]` 오너 비교 시트 확인 → 승인 시 deploy 블로커 해제 · `! git push` · `make deploy` w/ `IMAGEN_MODEL=gemini-3.1-flash-image`.
+
 ## 2026-07-12 — overnight Codex: cover-pose regeneration partial promotion
 - Status: In progress; two of seven identity-reviewed candidates promoted, remaining five stay pending.
 - Changed: regenerated `se-rin-cover.png` and `kai-cover.png` from each character's guard/idle references; preserved chroma-key sources and RGBA candidates in `outputs/cover-pose-regen/` with a per-character review table.

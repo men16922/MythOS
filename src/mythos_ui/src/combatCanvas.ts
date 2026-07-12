@@ -97,6 +97,100 @@ function terrainSprite(scenarioId: string, kind: TerrainKind): HTMLImageElement 
   return null;
 }
 
+// --- Node-themed backdrop (visual overhaul 2026-07-12) ----------------------
+// The encounter's biome tints the whole scene and picks an optional backdrop
+// plate: resources/<sid>/combat/backdrops/<biome>.png (agy lane seeds the art;
+// the gradient wash below never gates on it). Biome is derived from the
+// encounter id so route nodes map onto combat ambience deterministically —
+// the owner's "노드 지도에 따라 전투 맵 배경" request.
+export function encounterBiome(encounterId: string | undefined | null): string {
+  const id = encounterId || "";
+  if (/purge|incinerat|mech/.test(id)) return "industrial";
+  if (/tracker|wraith|glitch/.test(id)) return "undercity";
+  if (/ix_|spire/.test(id)) return "spire";
+  return "streets";
+}
+
+const BIOME_TINTS: Record<string, { horizon: string; floor: string; glow: string }> = {
+  streets: { horizon: "#0b1d26", floor: "#04090c", glow: "rgba(64, 200, 255, 0.10)" },
+  undercity: { horizon: "#170f28", floor: "#080512", glow: "rgba(190, 120, 255, 0.11)" },
+  industrial: { horizon: "#241107", floor: "#0d0604", glow: "rgba(255, 140, 60, 0.11)" },
+  spire: { horizon: "#0a2026", floor: "#040b0e", glow: "rgba(120, 255, 235, 0.10)" },
+};
+
+function backdropSprite(scenarioId: string, biome: string): HTMLImageElement | null {
+  const key = `${scenarioId}/backdrops/${biome}`;
+  const cached = terrainSprites.get(key);
+  if (cached instanceof HTMLImageElement) return cached;
+  if (cached === "loading" || cached === "broken") return null;
+  const img = new Image();
+  terrainSprites.set(key, "loading");
+  img.onload = () => terrainSprites.set(key, img);
+  img.onerror = () => terrainSprites.set(key, "broken");
+  img.src = `/resources/${scenarioId}/combat/backdrops/${biome}.png`;
+  return null;
+}
+
+function drawBoardBackdrop(
+  ctx: CanvasRenderingContext2D,
+  cssW: number,
+  cssH: number,
+  cfg: IsoConfig,
+  cols: number,
+  rows: number,
+  biome: string,
+  scenarioId: string
+): void {
+  const tint = BIOME_TINTS[biome] ?? BIOME_TINTS.streets;
+  // Fill past the canvas edges so a screen shake never reveals bare clears.
+  const pad = 32;
+  const grad = ctx.createLinearGradient(0, -pad, 0, cssH + pad);
+  grad.addColorStop(0, tint.horizon);
+  grad.addColorStop(0.55, tint.floor);
+  grad.addColorStop(1, "#020404");
+  ctx.fillStyle = grad;
+  ctx.fillRect(-pad, -pad, cssW + pad * 2, cssH + pad * 2);
+
+  // Optional biome plate: cover-fit across the top half, faded into the floor.
+  const img = backdropSprite(scenarioId, biome);
+  if (img && img.complete && img.naturalWidth > 0) {
+    const scale = Math.max(cssW / img.naturalWidth, (cssH * 0.62) / img.naturalHeight);
+    const w = img.naturalWidth * scale;
+    const h = img.naturalHeight * scale;
+    ctx.save();
+    ctx.globalAlpha = 0.4;
+    ctx.drawImage(img, (cssW - w) / 2, -pad, w, h);
+    ctx.globalAlpha = 1;
+    const fade = ctx.createLinearGradient(0, cssH * 0.3, 0, cssH * 0.64);
+    fade.addColorStop(0, "rgba(2, 4, 4, 0)");
+    fade.addColorStop(1, tint.floor);
+    ctx.fillStyle = fade;
+    ctx.fillRect(-pad, cssH * 0.3, cssW + pad * 2, cssH * 0.34 + pad);
+    ctx.restore();
+  }
+
+  // Ambient glow pooled under the arena center + corner vignette for depth.
+  const [bcx, bcy] = toIso(cols / 2, rows / 2, cfg);
+  const rad = ctx.createRadialGradient(bcx, bcy, 12, bcx, bcy, Math.max(cssW, cssH) * 0.55);
+  rad.addColorStop(0, tint.glow);
+  rad.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = rad;
+  ctx.fillRect(-pad, -pad, cssW + pad * 2, cssH + pad * 2);
+
+  const vig = ctx.createRadialGradient(
+    cssW / 2,
+    cssH / 2,
+    Math.min(cssW, cssH) * 0.42,
+    cssW / 2,
+    cssH / 2,
+    Math.max(cssW, cssH) * 0.72
+  );
+  vig.addColorStop(0, "rgba(0,0,0,0)");
+  vig.addColorStop(1, "rgba(0,0,0,0.5)");
+  ctx.fillStyle = vig;
+  ctx.fillRect(-pad, -pad, cssW + pad * 2, cssH + pad * 2);
+}
+
 function drawIsoTile(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -165,7 +259,10 @@ export interface FloatText {
 export type CombatFx =
   | { kind: "tracer"; x1: number; y1: number; x2: number; y2: number; color: string; alpha: number; width?: number }
   | { kind: "ring"; cellX: number; cellY: number; cellR: number; color: string; alpha: number; width?: number }
-  | { kind: "spark"; cellX: number; cellY: number; cellR: number; color: string; alpha: number };
+  | { kind: "spark"; cellX: number; cellY: number; cellR: number; color: string; alpha: number }
+  // Cell-true AoE mark: fills the exact affected tiles (the old free-floating
+  // ellipse ring implied a blast area unrelated to the actual cells).
+  | { kind: "cells"; cells: [number, number][]; color: string; alpha: number; fillAlpha?: number };
 
 export interface CombatOverlay {
   blips?: Record<string, BlipOverride>;
@@ -543,6 +640,10 @@ export function drawCombatCanvas(
   const reach = combat.available?.reachable || [];
   const blipFx = overlay?.blips || {};
 
+  // Node-tinted ambience behind the arena (replaces the flat black void).
+  const biome = encounterBiome(combat.encounter?.id);
+  drawBoardBackdrop(ctx, cssW, cssH, cfg, cols, rows, biome, scenarioId);
+
   // Movement affordance (T5a): the tile currently being dragged onto, or —
   // when not dragging — the tile under the pointer. Only a reachable cell
   // gets the target highlight + ground-trail preview below.
@@ -569,18 +670,26 @@ export function drawCombatCanvas(
       const isReach = reach.some(([rx, ry]) => rx === x && ry === y);
       const isTarget = previewReachable && previewCell![0] === x && previewCell![1] === y;
 
-      let fill = "rgba(41,255,198,0.012)";
-      let stroke = "rgba(41,255,198,0.12)";
+      // Alternating shade + faint interior grid: the uniform per-tile neon
+      // stamp read as "repetitive circuit noise" (owner 2026-07-12), so the
+      // checker carries the grid rhythm and the stamp fades per-tile below.
+      const checker = (x + y) % 2 === 0;
+      let fill = checker ? "rgba(120,220,255,0.020)" : "rgba(0,0,0,0.05)";
+      let stroke = "rgba(41,255,198,0.07)";
       if (isReach) {
         fill = isTarget ? "rgba(41,255,198,0.28)" : "rgba(41,255,198,0.08)";
         stroke = isTarget ? "rgba(41,255,198,0.85)" : "rgba(41,255,198,0.22)";
       }
 
       // Terrain sprite under the grid (fill above is near-transparent, so the
-      // reach/target highlight still reads on top of the art).
+      // reach/target highlight still reads on top of the art). Deterministic
+      // per-cell alpha jitter breaks the uniform stamp pattern.
       if (floorSprite) {
         const [fx, fy] = toIso(x + 0.5, y + 0.5, cfg);
         const hOff = -el * cfg.stepY * 1.2;
+        const seed = (((x + 3) * 73856093) ^ ((y + 7) * 19349663)) >>> 0;
+        ctx.save();
+        ctx.globalAlpha = 0.45 + (seed % 1000) / 1000 * 0.4;
         ctx.drawImage(
           floorSprite,
           fx - cfg.stepX,
@@ -588,6 +697,7 @@ export function drawCombatCanvas(
           cfg.stepX * 2,
           cfg.stepY * 2
         );
+        ctx.restore();
       }
 
       // Draw 3D block
@@ -613,6 +723,28 @@ export function drawCombatCanvas(
         ctx.restore();
       }
     }
+  }
+
+  // Arena rim: one glowing outline around the whole board replaces the strong
+  // per-tile strokes as the "this is the playfield" cue.
+  {
+    const c0 = toIso(0, 0, cfg);
+    const c1 = toIso(cols, 0, cfg);
+    const c2 = toIso(cols, rows, cfg);
+    const c3 = toIso(0, rows, cfg);
+    ctx.save();
+    ctx.strokeStyle = "rgba(41,255,198,0.4)";
+    ctx.lineWidth = 1.5;
+    ctx.shadowColor = "rgba(41,255,198,0.8)";
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    ctx.moveTo(c0[0], c0[1]);
+    ctx.lineTo(c1[0], c1[1]);
+    ctx.lineTo(c2[0], c2[1]);
+    ctx.lineTo(c3[0], c3[1]);
+    ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
   }
 
   // Draw Cover Obstacles on top of cells
@@ -755,10 +887,31 @@ export function drawCombatCanvas(
     ctx.restore();
   });
 
-  // Aiming range tint: every tile the armed skill/item can reach (drawn under
-  // units — the FX/blip passes below paint over it).
+  // Aiming range affordance: soft amber fill + crisp corner ticks on every
+  // reachable tile (the old flat wash read as "dirty olive", not targeting).
   for (const [rx, ry] of overlay?.rangeTiles || []) {
-    drawIsoTile(ctx, rx, ry, cfg, "rgba(255, 215, 106, 0.10)", "rgba(255, 215, 106, 0.30)", 1);
+    drawIsoTile(ctx, rx, ry, cfg, "rgba(255, 215, 106, 0.06)");
+    const t0 = toIso(rx, ry, cfg);
+    const t1 = toIso(rx + 1, ry, cfg);
+    const t2 = toIso(rx + 1, ry + 1, cfg);
+    const t3 = toIso(rx, ry + 1, cfg);
+    ctx.save();
+    ctx.strokeStyle = "rgba(255, 215, 106, 0.55)";
+    ctx.lineWidth = 1.4;
+    // Two opposing corner chevrons: short segments hugging the top and bottom
+    // corners of the diamond.
+    const corners: [number[], number[], number[]][] = [
+      [t3, t0, t1],
+      [t1, t2, t3],
+    ];
+    for (const [prev, corner, next] of corners) {
+      ctx.beginPath();
+      ctx.moveTo(corner[0] + (prev[0] - corner[0]) * 0.28, corner[1] + (prev[1] - corner[1]) * 0.28);
+      ctx.lineTo(corner[0], corner[1]);
+      ctx.lineTo(corner[0] + (next[0] - corner[0]) * 0.28, corner[1] + (next[1] - corner[1]) * 0.28);
+      ctx.stroke();
+    }
+    ctx.restore();
   }
 
   // Draw Transient FX (Tracers / Rings / Sparks)
@@ -783,12 +936,42 @@ export function drawCombatCanvas(
       ctx.globalAlpha = fx.alpha;
       ctx.strokeStyle = fx.color;
       ctx.lineWidth = fx.width || 2;
+      ctx.shadowColor = fx.color;
+      ctx.shadowBlur = 6;
       ctx.beginPath();
-      // Draw isometric ring as an ellipse
-      const rx = fx.cellR * cfg.stepX * 2.5;
-      const ry = rx * 0.5;
-      ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+      // Grid-aligned diamond ring: a chebyshev radius of cellR cells projects
+      // to an iso diamond with half-extents 2·cellR·step — so the wave hugs the
+      // actual affected tiles instead of the old oversized free ellipse.
+      const hx = fx.cellR * cfg.stepX * 2;
+      const hy = fx.cellR * cfg.stepY * 2;
+      ctx.moveTo(cx, cy - hy);
+      ctx.lineTo(cx + hx, cy);
+      ctx.lineTo(cx, cy + hy);
+      ctx.lineTo(cx - hx, cy);
+      ctx.closePath();
       ctx.stroke();
+      ctx.restore();
+    } else if (fx.kind === "cells") {
+      ctx.save();
+      for (const [cxCell, cyCell] of fx.cells) {
+        const q0 = toIso(cxCell, cyCell, cfg);
+        const q1 = toIso(cxCell + 1, cyCell, cfg);
+        const q2 = toIso(cxCell + 1, cyCell + 1, cfg);
+        const q3 = toIso(cxCell, cyCell + 1, cfg);
+        ctx.beginPath();
+        ctx.moveTo(q0[0], q0[1]);
+        ctx.lineTo(q1[0], q1[1]);
+        ctx.lineTo(q2[0], q2[1]);
+        ctx.lineTo(q3[0], q3[1]);
+        ctx.closePath();
+        ctx.globalAlpha = fx.fillAlpha ?? fx.alpha * 0.3;
+        ctx.fillStyle = fx.color;
+        ctx.fill();
+        ctx.globalAlpha = fx.alpha;
+        ctx.strokeStyle = fx.color;
+        ctx.lineWidth = 1.6;
+        ctx.stroke();
+      }
       ctx.restore();
     } else if (fx.kind === "spark") {
       const [cx, cy] = toIso(fx.cellX, fx.cellY, cfg);
@@ -798,9 +981,14 @@ export function drawCombatCanvas(
       ctx.shadowColor = fx.color;
       ctx.shadowBlur = 10;
       ctx.beginPath();
-      const rx = fx.cellR * cfg.stepX * 2.2;
-      const ry = rx * 0.5;
-      ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+      // Filled diamond burst, matching the grid-aligned ring language.
+      const hx = fx.cellR * cfg.stepX * 2;
+      const hy = fx.cellR * cfg.stepY * 2;
+      ctx.moveTo(cx, cy - hy);
+      ctx.lineTo(cx + hx, cy);
+      ctx.lineTo(cx, cy + hy);
+      ctx.lineTo(cx - hx, cy);
+      ctx.closePath();
       ctx.fill();
       ctx.restore();
     }

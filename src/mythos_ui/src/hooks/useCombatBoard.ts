@@ -130,22 +130,23 @@ export function useCombatBoard(opts: {
     const fx: NonNullable<CombatOverlay["fx"]> = [];
     const combat = finalizedSnapshot?.combat;
     const blips = combat?.radar?.blips || [];
+    const cols = combat?.radar?.arena?.w || 8;
+    const rows = combat?.radar?.arena?.h || 6;
+    const shooter = blips.find((b) => b.id === combat?.radar?.current);
     // Range affordance: tint every reachable cell while aiming.
     const rangeTiles: [number, number][] = [];
-    {
-      const shooter = blips.find((b) => b.id === combat?.radar?.current);
-      if (shooter) {
-        const cols = combat?.radar?.arena?.w || 8;
-        const rows = combat?.radar?.arena?.h || 6;
-        for (let ry = 0; ry < rows; ry++) {
-          for (let rx = 0; rx < cols; rx++) {
-            if (Math.max(Math.abs(shooter.x - rx), Math.abs(shooter.y - ry)) <= tg.range) {
-              rangeTiles.push([rx, ry]);
-            }
+    if (shooter) {
+      for (let ry = 0; ry < rows; ry++) {
+        for (let rx = 0; rx < cols; rx++) {
+          if (Math.max(Math.abs(shooter.x - rx), Math.abs(shooter.y - ry)) <= tg.range) {
+            rangeTiles.push([rx, ry]);
           }
         }
       }
     }
+    const inRange =
+      !shooter ||
+      Math.max(Math.abs(shooter.x - cell[0]), Math.abs(shooter.y - cell[1])) <= tg.range;
     const victim =
       tg.kind === "skill"
         ? blips.find(
@@ -153,16 +154,34 @@ export function useCombatBoard(opts: {
           )
         : undefined;
 
-    if (tg.kind === "item" || tg.radius > 0) {
-      // Blast ring (item throw always; skills only when they splash).
+    if (!inRange) {
+      // Out-of-range hover: mark the cell itself red so "왜 안 던져짐" reads.
       fx.push({
-        kind: "ring",
-        cellX: cell[0] + 0.5,
-        cellY: cell[1] + 0.5,
-        cellR: (tg.radius || 0) + 0.5,
+        kind: "cells",
+        cells: [cell],
+        color: "#ff5a4d",
+        alpha: 0.5,
+        fillAlpha: 0.12,
+      });
+      return { fx, rangeTiles };
+    }
+
+    if (tg.kind === "item" || tg.radius > 0) {
+      // Cell-true blast footprint (chebyshev, mirrors the engine's distance()):
+      // exactly the tiles the blast will catch, not an approximating ellipse.
+      const radius = tg.radius || 0;
+      const blastCells: [number, number][] = [];
+      for (let by = cell[1] - radius; by <= cell[1] + radius; by++) {
+        for (let bx = cell[0] - radius; bx <= cell[0] + radius; bx++) {
+          if (bx >= 0 && by >= 0 && bx < cols && by < rows) blastCells.push([bx, by]);
+        }
+      }
+      fx.push({
+        kind: "cells",
+        cells: blastCells,
         color: "#ffd76a",
-        alpha: tg.kind === "item" || victim ? 0.8 : 0.35,
-        width: 2.5,
+        alpha: tg.kind === "item" || victim ? 0.85 : 0.4,
+        fillAlpha: tg.kind === "item" || victim ? 0.22 : 0.08,
       });
     }
     if (tg.kind === "skill") {

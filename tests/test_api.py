@@ -71,6 +71,35 @@ class ApiHealthTest(unittest.TestCase):
         self.assertEqual(response.json(), {"status": "ok"})
 
 
+class ApiClientConfigTest(unittest.TestCase):
+    """DEFAULT_BGM_ON env → /api/v1/client-config (owner 2026-07-12: server-driven
+    BGM default; production true, `make api` exports false)."""
+
+    def test_bgm_defaults_on(self) -> None:
+        os.environ.pop("DEFAULT_BGM_ON", None)
+        client = _client(_InMemoryStore())
+        response = client.get("/api/v1/client-config")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"default_bgm_on": True})
+
+    def test_bgm_env_false_wins(self) -> None:
+        os.environ["DEFAULT_BGM_ON"] = "false"
+        try:
+            client = _client(_InMemoryStore())
+            self.assertEqual(
+                client.get("/api/v1/client-config").json(), {"default_bgm_on": False}
+            )
+        finally:
+            os.environ.pop("DEFAULT_BGM_ON", None)
+
+    def test_client_config_is_open_pre_invite(self) -> None:
+        from mythos_api.invite import _is_gated_path
+
+        self.assertFalse(_is_gated_path("/api/v1/client-config"))
+        self.assertFalse(_is_gated_path("/api/v1/health"))
+        self.assertTrue(_is_gated_path("/api/v1/scenarios"))
+
+
 class ApiSerializerTest(unittest.TestCase):
     def test_resolve_inventory_accepts_table_form_equipment(self) -> None:
         inventory = _resolve_inventory(

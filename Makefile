@@ -252,7 +252,7 @@ api:
 	@pkill -f "mythos_api" 2>/dev/null && echo "stopped previous api" || true
 	@echo "API: http://$${MYTHOS_API_HOST:-127.0.0.1}:$${MYTHOS_API_PORT:-8000}  (PoC client at /, endpoints under /api/v1)"
 	@echo "      구조화 JSON 로그가 콘솔에 출력됨(턴마다 최종 narration+latency, INFO). uvicorn은 INFO 고정(토큰 프레임 스팸 없음)."
-	$(VENV)/bin/python -m mythos_api
+	DEFAULT_BGM_ON=false $(VENV)/bin/python -m mythos_api
 
 api-stop:
 	@pkill -f "mythos_api" && echo "api stopped" || echo "no api running"
@@ -268,7 +268,7 @@ api-cloud:
 	@echo "      서사=Vertex Gemini · 이미지=Vertex Imagen · ⚠️ Vertex 호출은 GCP 프로젝트에 과금됨."
 	@echo "      🔴 DB=PRODUCTION Neon (MYTHOS_DEPLOY_DATABASE_URL) — DEV 콘솔이 실서비스 데이터에 붙음. 쓰기 주의!"
 	@DB=$$(grep -E '^MYTHOS_DEPLOY_DATABASE_URL=' .env | cut -d= -f2-); \
-	MYTHOS_NARRATIVE_PROVIDER=gemini MYTHOS_VISUAL_PROVIDER=vertex DATABASE_URL="$$DB" $(VENV)/bin/python -m mythos_api
+	MYTHOS_NARRATIVE_PROVIDER=gemini MYTHOS_VISUAL_PROVIDER=vertex DATABASE_URL="$$DB" DEFAULT_BGM_ON=false $(VENV)/bin/python -m mythos_api
 
 # --- GCP Cloud Run container (lean: narrative=Gemini, image=Imagen are API calls) ---
 CLOUD_IMAGE ?= mythos-api:local

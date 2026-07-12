@@ -14,8 +14,10 @@ from collections.abc import Awaitable, Callable
 from typing import Any
 from urllib.parse import unquote
 
-_HEALTH_PATH = "/api/v1/health"
 _GATED_PREFIX = "/api/v1/"
+# Cost-free endpoints that stay open pre-invite: health probes and the client
+# boot config (BGM default etc.) — the boot screen reads config before any key.
+_OPEN_PATHS = {"/api/v1/health", "/api/v1/client-config"}
 
 
 def allowed_invite_keys() -> set[str]:
@@ -24,7 +26,7 @@ def allowed_invite_keys() -> set[str]:
 
 
 def _is_gated_path(path: str) -> bool:
-    return path.startswith(_GATED_PREFIX) and path != _HEALTH_PATH
+    return path.startswith(_GATED_PREFIX) and path not in _OPEN_PATHS
 
 
 def _extract_key(scope: dict[str, Any]) -> str | None:

@@ -501,6 +501,19 @@ def create_app() -> FastAPI:
     def health() -> dict[str, str]:
         return {"status": "ok"}
 
+    @app.get("/api/v1/client-config")
+    def client_config() -> dict[str, Any]:
+        """Client boot defaults (open pre-invite, cost-free).
+
+        ``DEFAULT_BGM_ON``: whether BGM auto-starts when the player holds no
+        stored preference — true unless the env says otherwise; ``make api`` /
+        ``make api-cloud`` export false so repeated local test reloads stay
+        silent (owner 2026-07-12; replaces the hostname heuristic)."""
+        import os
+
+        raw = os.getenv("DEFAULT_BGM_ON", "true").strip().lower()
+        return {"default_bgm_on": raw not in ("0", "false", "off", "no")}
+
     @app.get(f"{API_PREFIX}/scenarios")
     def scenarios(
         player_id: str | None = None,

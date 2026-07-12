@@ -8,20 +8,40 @@ export function useAudio(
   bgmPathFromSnapshot: string | null | undefined,
   logToConsole: (line: string) => void
 ) {
+  // The BGM default is server-driven via /api/v1/client-config (DEFAULT_BGM_ON
+  // env — owner 2026-07-12: no hostname heuristics; `make api` exports false so
+  // local runs stay silent, production defaults true). An explicit user toggle
+  // (localStorage) always wins over the server default.
   const [bgmEnabled, setBgmEnabled] = useState(() => {
     try {
-      // Local dev always boots silent (owner 2026-07-12 "로컬에서는 항상 BGM
-      // 기본 OFF") — repeated test reloads shouldn't blast music. The in-app
-      // toggle still works for the session; production keeps the stored pref.
-      if (/^(localhost|127\.|0\.0\.0\.0|192\.168\.|10\.)/.test(window.location.hostname)) {
-        return false;
-      }
-      return localStorage.getItem(BGM_PREF_KEY) !== "off";
+      return localStorage.getItem(BGM_PREF_KEY) === "on";
     } catch {
-      return true;
+      return false;
     }
   });
   const [bgmReady, setBgmReady] = useState(false);
+  const serverBgmDefault = useRef<boolean | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/v1/client-config")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((cfg) => {
+        if (cancelled) return;
+        const def = cfg ? cfg.default_bgm_on !== false : true;
+        serverBgmDefault.current = def;
+        let pref: string | null = null;
+        try {
+          pref = localStorage.getItem(BGM_PREF_KEY);
+        } catch { /* ignore */ }
+        if (pref == null && def) setBgmEnabled(true);
+      })
+      .catch(() => {
+        serverBgmDefault.current = true; // unreachable config → prod-safe default
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const audioContextActive = useRef(false);
   const bgmAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -255,7 +275,14 @@ export function useAudio(
 
   // Force BGM ON (opening entry): a new game should always start with music,
   // even if a previous session persisted "off" — the toggle still works after.
+  // EXCEPT where the server default says silent (DEFAULT_BGM_ON=false, i.e.
+  // local `make api` runs): then the opening only unlocks the audio context
+  // (SFX keep working) and music stays off until the user toggles it.
   const enableBgm = useCallback(() => {
+    if (serverBgmDefault.current === false) {
+      initAudio();
+      return;
+    }
     setBgmEnabled(true);
     try {
       localStorage.setItem(BGM_PREF_KEY, "on");

@@ -948,6 +948,9 @@ export function drawCombatCanvas(
       stunned: { label: "💫 기절", bg: "rgba(255, 214, 106, 0.95)", fg: "#1a1200" },
       burn: { label: "🔥 과열", bg: "rgba(255, 122, 61, 0.95)", fg: "#1c0800" },
       corrode: { label: "🧪 부식", bg: "rgba(154, 245, 108, 0.92)", fg: "#0c1a02" },
+      acid: { label: "💧 용해", bg: "rgba(199, 146, 255, 0.92)", fg: "#160526" },
+      freeze: { label: "❄ 동결", bg: "rgba(140, 220, 255, 0.94)", fg: "#03141f" },
+      shock: { label: "⚡ 감전", bg: "rgba(255, 240, 120, 0.94)", fg: "#1a1500" },
     };
     const activeBadges = aliveHere
       ? (b.status || []).filter((s) => STATUS_BADGES[s]).slice(0, 3)

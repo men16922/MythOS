@@ -86,9 +86,10 @@ def _dice_range(spec: str) -> tuple[int, int]:
         return (mod, mod)
 
 
-# Persistent status effects shipped so far (design 2026-07-12; acid/freeze/
-# shock arrive in slice 2). Whitelist guards content typos at apply time.
-STATUS_EFFECT_IDS = ("burn", "corrode")
+# Persistent status effects (design 2026-07-12, slices 1+2). Whitelist guards
+# content typos at apply time. burn=DoT · corrode=armor-2 · acid=defense-2 ·
+# freeze=no movement (can still act) · shock=focus regen + cooldown tick frozen.
+STATUS_EFFECT_IDS = ("burn", "corrode", "acid", "freeze", "shock")
 
 
 @dataclass
@@ -227,7 +228,7 @@ class CombatEngine:
             spent = self._player_item(state, actor, action, item_def, item_available)
         else:
             dice = self._dice(state)
-            if action.move_to is not None:
+            if action.move_to is not None and not self._movement_frozen(state, actor):
                 self._move_player(state, actor, action.move_to)
             if action.type == "attack":
                 self._player_attack(state, actor, action, dice)
@@ -727,7 +728,7 @@ class CombatEngine:
         )
 
         dice = self._dice(state)
-        if "move" in effect:
+        if "move" in effect and not self._movement_frozen(state, player):
             self._skill_move(state, player, action.move_to, int(effect.get("move", player.speed)))
             # Arrival discharge (신호 도약 rider): guaranteed small shock to every
             # enemy adjacent to the landing cell — a blink into melee has value,
@@ -1283,12 +1284,16 @@ class CombatEngine:
 
     def _tick_round_upkeep(self, state: CombatState, actor: Combatant) -> None:
         """Per-turn upkeep for any combatant: focus regen, cooldowns, expiring buffs, hazards."""
-        if actor.max_focus:
+        # 감전 (slice 2): circuits lag — no focus regen and cooldowns stay
+        # frozen for the shocked turn (the status itself still ticks below).
+        shocked = "shock" in actor.status_effects
+        if actor.max_focus and not shocked:
             actor.focus = min(actor.max_focus, actor.focus + 1)
-        for skill_id in list(actor.cooldowns):
-            actor.cooldowns[skill_id] -= 1
-            if actor.cooldowns[skill_id] <= 0:
-                del actor.cooldowns[skill_id]
+        if not shocked:
+            for skill_id in list(actor.cooldowns):
+                actor.cooldowns[skill_id] -= 1
+                if actor.cooldowns[skill_id] <= 0:
+                    del actor.cooldowns[skill_id]
         if actor.defense_buff_turns > 0:
             actor.defense_buff_turns -= 1
             if actor.defense_buff_turns <= 0:
@@ -1435,6 +1440,17 @@ class CombatEngine:
         if "corrode" in combatant.status_effects:
             armor -= 2
         return max(0, armor)
+
+    def _movement_frozen(self, state: CombatState, actor: Combatant) -> bool:
+        """True + a log line when 냉동 blocks this movement (acting stays allowed)."""
+        if "freeze" not in actor.status_effects:
+            return False
+        self._log(
+            state, actor, "info",
+            clog(state.language, "status_freeze_hold", name=actor.name),
+            {"status": "freeze", "target": actor.id, "held": True},
+        )
+        return True
 
     def _apply_stun(
         self, state: CombatState, source: Combatant, victim: Combatant, turns: int
@@ -2156,6 +2172,9 @@ class CombatEngine:
     ) -> None:
         if budget is None:
             budget = mover.effective_speed
+        if "freeze" in mover.status_effects:
+            # 냉동 (slice 2): actuators locked — the AI stays put but still acts.
+            return
         moved = False
         while budget > 0:
             current = distance(mover.x, mover.y, target.x, target.y)
@@ -2186,6 +2205,10 @@ class CombatEngine:
             )
 
     def _reachable_tiles(self, state: CombatState, mover: Combatant) -> list[list[int]]:
+        # 냉동 (slice 2): no reachable tiles → the board affordance (bright
+        # tiles / drag) honestly shows the unit cannot move this turn.
+        if "freeze" in mover.status_effects:
+            return []
         tiles: list[list[int]] = []
         for ny in range(state.arena_h):
             for nx in range(state.arena_w):

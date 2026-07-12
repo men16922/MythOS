@@ -117,6 +117,40 @@ class StatusEffectEngineTest(unittest.TestCase):
         )
         self.assertIn("burn", foe.status_effects)
 
+    def test_acid_lowers_effective_defense_with_floor(self) -> None:
+        engine, state, player, foe = self._fixture()
+        base_dc = foe.effective_defense
+        engine._apply_status_effect(state, player, foe, "acid", 2)
+        self.assertEqual(foe.effective_defense, max(1, base_dc - 2))
+
+    def test_freeze_blocks_movement_but_not_actions(self) -> None:
+        engine, state, player, foe = self._fixture()
+        engine._apply_status_effect(state, player, foe, "freeze", 1)
+        # AI movement helper refuses to step while frozen.
+        fx, fy = foe.x, foe.y
+        engine._move_to_band(state, foe, player, desired=1)
+        self.assertEqual((foe.x, foe.y), (fx, fy))
+        # Board affordance: no reachable tiles while frozen.
+        self.assertEqual(engine._reachable_tiles(state, foe), [])
+        # Player-side move_to is held with a ❄ log line.
+        engine._apply_status_effect(state, player, player, "freeze", 1)
+        self.assertTrue(engine._movement_frozen(state, player))
+        self.assertTrue(any(e.detail.get("held") for e in state.log))
+
+    def test_shock_freezes_focus_regen_and_cooldowns(self) -> None:
+        engine, state, player, foe = self._fixture()
+        foe.max_focus = 4
+        foe.focus = 1
+        foe.cooldowns["some_skill"] = 2
+        engine._apply_status_effect(state, player, foe, "shock", 1)
+        engine._tick_round_upkeep(state, foe)
+        self.assertEqual(foe.focus, 1)  # no regen while shocked
+        self.assertEqual(foe.cooldowns["some_skill"], 2)  # cooldown frozen
+        self.assertNotIn("shock", foe.status_effects)  # 1T shock expired at tick
+        engine._tick_round_upkeep(state, foe)
+        self.assertEqual(foe.focus, 2)  # regen resumes
+        self.assertEqual(foe.cooldowns["some_skill"], 1)
+
     def test_status_effects_survive_serialization(self) -> None:
         from mythos_combat import combat_state_from_dict, combat_state_to_dict
 

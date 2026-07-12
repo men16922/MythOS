@@ -68,6 +68,34 @@ _LINES: dict[str, dict[str, str]] = {
         "ko": "{name}의 부식이 멎는다.",
         "en": "{name}'s corrosion stops.",
     },
+    "status_acid_applied": {
+        "ko": "{target}의 피막이 산에 녹아내린다 — 💧 방어 -2!",
+        "en": "{target}'s plating dissolves in acid — 💧 defense -2!",
+    },
+    "status_acid_expired": {
+        "ko": "{name}의 피막 용해가 멎는다.",
+        "en": "{name}'s plating stops dissolving.",
+    },
+    "status_freeze_applied": {
+        "ko": "{target}의 구동계가 얼어붙는다 — ❄ 이동 불가!",
+        "en": "{target}'s actuators freeze over — ❄ cannot move!",
+    },
+    "status_freeze_expired": {
+        "ko": "{name}의 구동계가 다시 돌기 시작한다.",
+        "en": "{name}'s actuators grind back to life.",
+    },
+    "status_freeze_hold": {
+        "ko": "❄ {name}이(가) 얼어붙어 움직이지 못한다!",
+        "en": "❄ {name} is frozen in place and cannot move!",
+    },
+    "status_shock_applied": {
+        "ko": "{target}의 회로가 지연된다 — ⚡ 감전!",
+        "en": "{target}'s circuits lag — ⚡ shocked!",
+    },
+    "status_shock_expired": {
+        "ko": "{name}의 회로가 안정을 되찾는다.",
+        "en": "{name}'s circuits stabilize.",
+    },
     "item_stun_aoe": {
         "ko": "{actor}의 {item}이(가) ({x}, {y}) 일대를 뒤덮는다 — 적 {count}기 회로 마비!",
         "en": "{actor}'s {item} blankets the area around ({x}, {y}) — {count} enemies short-circuit!",

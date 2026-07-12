@@ -2,6 +2,12 @@
 
 Last updated: 2026-07-12
 
+## 2026-07-12 (live session #14 cont.) — grenade cut-in gap diagnosed + fixed; blast amplified; QA-skill wiring
+- Status: Done, `make check` **1042** green. UNDEPLOYED. Owner live reports (local): 견인/반발 스킬 카드 안 뜸 · EMP 폭발 이펙트 없음.
+- **/diagnose 결과**: 견인 카드는 현재 번들에서 정상 렌더(DOM 덤프로 `magnetic_pull.png` 풀 시퀀스 확인 — 스테일 탭/더블탭 플러시 추정, **하드 리로드 필요**). EMP는 실제 갭 2개: ① 무피해 수류탄(스턴만)은 `item`+`info` 로그뿐이라 컷인 게이트(hit/defeat) 미통과 — 소이만 컷인이 뜨던 비대칭 ② 보드 폭발은 재생되지만 계측상 밝기 2.0×/0.5s로 약해 "없음"으로 체감.
+- **수정 (`7882d3d`)**: 셀 투척 아이템은 항상 아이템 아트 컷인(오너 "수류탄도 스킬카드처럼") · 폭발 = 피격 셀 백→화염 점화 + 코어 확대 + 1150ms + 셰이크 18/450 (재계측 피크 2.7×) · 컷인 마운트 후 350ms 스킵 유예(더블탭 플러시 방지) · 로컬 호스트 BGM 기본 OFF(오너 요청). 소스락 +2.
+- Also: `gameplay-qa` 스킬 체크(한국어 트리거 보강) + `sync-skills.sh` references/ 투영 · CORE_MANDATES §5 gameplay-qa 의무화 · QA 가이드 A-4 신설.
+
 ## 2026-07-12 — Shared gameplay QA skill for local combat verification
 - Status: Done.
 - Changed: Added `$gameplay-qa` as a canonical `.claude/skills` skill and mirrored it to `.agents`, `.codex`, and `.gemini`; it routes combat rules through narrow unit tests, `make check`, non-fallback simulator/browser evidence, and preserves manual feel verdicts.

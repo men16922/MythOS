@@ -1542,6 +1542,8 @@ main {
 }
 .combat-result-party {
   gap: 8px;
+  flex-wrap: wrap;
+  align-content: flex-end;
 }
 .combat-result-enemies {
   justify-content: flex-end;

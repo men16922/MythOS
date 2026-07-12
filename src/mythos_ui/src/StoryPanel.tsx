@@ -420,7 +420,10 @@ function CombatResultPanel({
   const isDefeat = outcome === "player_defeat";
   const isSoftDefeat = isDefeat && Boolean(combat.defeat_soft);
   const blips = combat.radar?.blips || [];
-  const party = blips.filter((b) => b.faction !== "enemy" && b.alive !== false).slice(0, 3);
+  // The combat snapshot is the source of truth for the victory lineup.  Do not
+  // cap it here: a four-member party (for example, with Lin Yue recruited)
+  // previously lost its last actor before the renderer ever saw it.
+  const party = blips.filter((b) => b.faction !== "enemy" && b.alive !== false);
   const enemies = blips.filter((b) => b.faction === "enemy").slice(0, 3);
   const reward = combat.rewards?.encounter_reward || {};
   const rewardEntries = Object.entries(reward).filter(([, value]) => value !== 0 && value !== "");

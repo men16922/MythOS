@@ -395,6 +395,33 @@ const combatOutcomeCopy = (outcome: string | undefined, defeatSoft: boolean | un
   return t("story.combat.copy.default");
 };
 
+// Reward payloads carry stable item ids, while their player-facing names are
+// localized UI copy. Keep this aligned with every entry referenced by the
+// scenario's combat.loot_tables.
+const COMBAT_LOOT_LABEL_KEYS: Record<string, StringKey> = {
+  access_key: "combat.item.accessKey",
+  data_fragment: "combat.item.dataFragment",
+  drone_scrap: "combat.item.droneScrap",
+  emp_grenade: "combat.item.empGrenade",
+  heavy_exosuit: "combat.item.heavyExosuit",
+  mesh_vest: "combat.item.meshVest",
+  nanopatch: "combat.item.nanopatch",
+  overload_stim: "combat.item.overloadStim",
+  signal_blade: "combat.item.signalBlade",
+  stealth_cloak: "combat.item.stealthCloak",
+  stim_shard: "combat.item.stimShard",
+};
+
+const combatLootLabel = (itemId: string, t: TFn): string => {
+  const labelKey = COMBAT_LOOT_LABEL_KEYS[itemId];
+  if (labelKey) return t(labelKey);
+  // Content can add a new drop before UI copy lands. Preserve legibility rather
+  // than exposing its transport id verbatim.
+  return itemId
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+};
+
 const combatImageSrc = (scenarioId: string, blip: CombatBlip): string => {
   const images = blip.combat_images || {};
   const path = images.idle || images.guard || images.skill || blip.portrait || "";
@@ -485,7 +512,7 @@ function CombatResultPanel({
             <div className="combat-reward-row">
               {items.map((item, idx) => (
                 <span key={`${item}-${idx}`} className="combat-reward-chip item">
-                  {t("story.combat.loot")} {item}
+                  {t("story.combat.loot")} {combatLootLabel(item, t)}
                 </span>
               ))}
             </div>

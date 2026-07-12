@@ -318,6 +318,18 @@ export const ko = {
   "cc.fx.hack": "적 기체 일시 조종",
   "cc.fx.turnsSuffix": "턴",
   "cc.item.nanopatch": "나노패치",
+  // Combat victory loot (stable scenario item ids -> localized display names)
+  "combat.item.accessKey": "접근 키",
+  "combat.item.dataFragment": "데이터 파편",
+  "combat.item.droneScrap": "드론 잔해",
+  "combat.item.empGrenade": "EMP 수류탄",
+  "combat.item.heavyExosuit": "중전술 외골격",
+  "combat.item.meshVest": "메시 베스트",
+  "combat.item.nanopatch": "나노패치",
+  "combat.item.overloadStim": "과부하 각성제",
+  "combat.item.signalBlade": "신호 블레이드",
+  "combat.item.stealthCloak": "전술 은신 망토",
+  "combat.item.stimShard": "자극 파편",
   // First-combat interactive tutorial (A2)
   "combat.tutorial.title": "첫 전투 가이드",
   "combat.tutorial.skip": "건너뛰기",

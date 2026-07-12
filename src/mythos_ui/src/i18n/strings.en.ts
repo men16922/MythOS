@@ -317,6 +317,18 @@ export const en: Record<StringKey, string> = {
   "cc.fx.hack": "briefly control enemy",
   "cc.fx.turnsSuffix": "T",
   "cc.item.nanopatch": "Nanopatch",
+  // Combat victory loot (stable scenario item ids -> localized display names)
+  "combat.item.accessKey": "Access Key",
+  "combat.item.dataFragment": "Data Fragment",
+  "combat.item.droneScrap": "Drone Scrap",
+  "combat.item.empGrenade": "EMP Grenade",
+  "combat.item.heavyExosuit": "Heavy Tactical Exoskeleton",
+  "combat.item.meshVest": "Mesh Vest",
+  "combat.item.nanopatch": "Nanopatch",
+  "combat.item.overloadStim": "Overload Stimulant",
+  "combat.item.signalBlade": "Signal Blade",
+  "combat.item.stealthCloak": "Tactical Stealth Cloak",
+  "combat.item.stimShard": "Stim Shard",
   // Combat log
   "combat.tutorial.title": "First Combat Guide",
   "combat.tutorial.skip": "Skip",

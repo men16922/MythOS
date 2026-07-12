@@ -8,7 +8,7 @@ Guide for the Claude Code agent in this repo. Ground all design in `harness/CORE
 
 Seeing two skills of the same name in `/skills` is **intentional, not duplication** — same name, different content.
 
-- **No-prefix** (`checkpoint`, `sync`, `tidy-docs`, `overnight-report`, `overnight-seed`) — this repo's **`.claude/skills/`** local copies, repo-aware of the MythOS doc system (`STATUS.md`/`NEXT_PLAN.md`/`PROGRESS_LOG.md` …). **Use these for MythOS work.** Bodies are English; the frontmatter `description:` keeps Korean trigger keywords for invocation matching.
+- **No-prefix** (`checkpoint`, `sync`, `tidy-docs`, `overnight-report`, `overnight-seed`, `diagnose`, `gameplay-qa`) — this repo's **`.claude/skills/`** local copies, repo-aware of the MythOS doc system (`STATUS.md`/`NEXT_PLAN.md`/`PROGRESS_LOG.md` …). **Use these for MythOS work.** Bodies are English; the frontmatter `description:` keeps Korean trigger keywords for invocation matching. **Any combat/gameplay change verifies via `gameplay-qa` before claiming done** (`harness/CORE_MANDATES.md` §5).
 - **`overnight-harness:`-prefixed** — the plugin's generic (repo-agnostic) originals, the SSOT for installing the harness into other repos; they don't know MythOS context.
 
 Why both: MythOS is the harness **origin tier**, not a consumer, so the local copies are not de-vendored. `.claude/skills/` is the multi-engine SSOT — edit **only `.claude/skills/`**, then `bash harness/sync-skills.sh` projects to the `.codex`/`.gemini`/`.agents` mirrors (`make check` catches drift via `--check`). Mirrors are git-tracked, no symlinks. Rationale: `harness/sync-skills.sh` header.

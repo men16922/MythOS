@@ -41,6 +41,7 @@ From `docs/NEXT_PLAN.md`, pick **only the top unfinished item in the claude lane
 
 Change code+tests only per the item's **1-line completion criterion** (no scope expansion).
 
+- **Combat/gameplay items** (engine rules, skills, items, statuses, board interaction, combat VFX): apply Skill `gameplay-qa`'s deterministic layer — run the narrowest relevant `tests/test_combat_*.py` module first and add/amend a regression test. Its browser layer is covered post-commit by the AGY hook (`OVERNIGHT_BROWSER_QA=auto`); do NOT start `make api` yourself (forbidden above).
 - Run `$GATE_CMD` (default `make check` = ruff + eslint + mypy + tsc/vite-build + unittest) until **fully green**.
 - Gate failure → first **isolate which phase broke**: run `make python-lint`/`make typecheck`/`make frontend-build`/`make test` individually to pin the failing phase, and use `/diagnose` step 1 (reproduce + evidence) to record the root cause **in the Blocker as phase + evidence** (no opaque "failure"). Then revert via `git restore`/`git checkout -- <path>` (unattended iterations are conservative — don't fix unless it's an obvious in-scope change; revert instead).
   Second failure on the same item → mark `[blocked]` and move to the next candidate (or DONE if none).

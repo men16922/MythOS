@@ -1302,6 +1302,12 @@ class CombatEngine:
             if actor.taunt_turns <= 0 and "taunting" in actor.status:
                 actor.status.remove("taunting")
 
+        # Stun chip cleanup: the badge outlives the consumed stun until the
+        # unit's next turn starts (so the skipped turn is visible on the board);
+        # clear it here, right before the unit actually acts again.
+        if actor.stunned_turns <= 0 and "stunned" in actor.status:
+            actor.status.remove("stunned")
+
         # Persistent status effects (2026-07-12 design): DoT tick + expiry at
         # the owner's turn start, before they act.
         if actor.status_effects and actor.alive:
@@ -1442,10 +1448,13 @@ class CombatEngine:
         victim.stunned_turns = max(victim.stunned_turns, max(1, int(turns)))
         if "stunned" not in victim.status:
             victim.status.append("stunned")
+        # Action "info", not "skill": this is a RESULT line — logging it as a
+        # second "skill" entry made the cinema queue play the cast twice
+        # (owner 2026-07-12 "시스템 해킹이 2번 표시").
         self._log(
             state,
             source,
-            "skill",
+            "info",
             clog(
                 state.language,
                 "stun_applied",
@@ -1580,12 +1589,15 @@ class CombatEngine:
                     )
 
     def _consume_stun(self, state: CombatState, actor: Combatant) -> bool:
-        """True when ``actor`` loses this turn to stun (decrements + chip sync)."""
+        """True when ``actor`` loses this turn to stun (decrements the counter).
+
+        The "stunned" chip is deliberately NOT removed here: a stun applied and
+        consumed within one server transition would otherwise never appear in
+        any client snapshot (owner 2026-07-12 "기절이 보드에 표기가 안 돼") —
+        the chip stays visible until the unit's next upkeep clears it."""
         if actor.stunned_turns <= 0:
             return False
         actor.stunned_turns -= 1
-        if actor.stunned_turns <= 0 and "stunned" in actor.status:
-            actor.status.remove("stunned")
         self._log(
             state,
             actor,

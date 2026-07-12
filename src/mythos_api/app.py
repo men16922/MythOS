@@ -782,7 +782,9 @@ def create_app() -> FastAPI:
                 body.loop_id,
                 body.encounter_id,
                 options,
-                party_members=body.party_members or None,
+                # Pass an explicit roster through verbatim — an EMPTY list means
+                # "solo run" (exclusive), not "use the default flag allies".
+                party_members=body.party_members,
             )
             resp = combat_state_response(service, body.loop_id, body.scenario_id)
             return localize_for(resp, body.scenario_id, body.lang)

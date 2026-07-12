@@ -1036,10 +1036,15 @@ class CombatNarratorTest(unittest.TestCase):
         )
         # 스턴된 드론은 이동·공격 없이 턴을 잃는다 → 플레이어 무피해.
         self.assertEqual(state.player().hp, hp_before)  # type: ignore[union-attr]
-        # 지속 1턴: 스킵과 동시에 소진, 상태 칩도 내려간다.
+        # 지속 1턴: 스킵과 동시에 소진 — 하지만 상태 칩(💫 배지)은 남는다.
+        # (2026-07-12: 같은 트랜지션 안에서 적용+소모되면 클라이언트 스냅샷에
+        # 기절이 한 번도 안 보였음 — 칩은 그 유닛의 다음 upkeep에 걷힌다.)
         after = state.by_id(enemy.id)
         assert after is not None
         self.assertEqual(after.stunned_turns, 0)
+        self.assertIn("stunned", after.status)
+        # 다음 upkeep(그 유닛의 다음 턴 시작)에 칩이 정리된다.
+        engine._tick_round_upkeep(state, after)
         self.assertNotIn("stunned", after.status)
 
     def test_emp_grenade_item_finally_stuns(self) -> None:

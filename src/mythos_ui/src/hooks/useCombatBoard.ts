@@ -181,9 +181,34 @@ export function useCombatBoard(opts: {
     }
 
     const actor = combat.radar.blips.find((b) => b.id === combat.radar!.current);
-    if (!actor || actor.x !== cx || actor.y !== cy) return; // must grab the active unit
+    // Grab the active unit by its GROUND CELL or by its SPRITE BODY — the tall
+    // character art sits above its cell in iso space, so requiring an exact
+    // cell hit made "드래그로 안 옮겨짐" (owner 2026-07-12): players grab the
+    // art, which maps to a cell behind the unit.
+    let grabbed = !!actor && actor.x === cx && actor.y === cy;
+    if (!grabbed && actor) {
+      const rect = canvas.getBoundingClientRect();
+      const cols = combat.radar.arena?.w || 8;
+      const rows = combat.radar.arena?.h || 6;
+      const cfg = getIsoConfig(rect.width, rect.height, cols, rows);
+      const [axp, ayp] = toIso(actor.x + 0.5, actor.y + 0.5, cfg);
+      const px = e.clientX - rect.left;
+      const py = e.clientY - rect.top;
+      grabbed = Math.abs(px - axp) <= cfg.stepX * 1.1 && ayp - py >= -cfg.stepY && ayp - py <= cfg.stepY * 6;
+    }
+    if (!grabbed) {
+      // Click-to-move (owner 2026-07-12 + tutorial copy "밝게 표시된 타일을
+      // 클릭"): tapping a highlighted reachable tile moves there directly —
+      // dragging stays available but is no longer the only way.
+      const reachable = combat.available?.reachable || [];
+      if (reachable.some(([rx, ry]: [number, number]) => rx === cx && ry === cy)) {
+        onCombatAction({ type: "wait", x: cx, y: cy });
+      }
+      return;
+    }
+    if (!actor) return;
 
-    dragRef.current = { blipId: actor.id, origin: [cx, cy] };
+    dragRef.current = { blipId: actor.id, origin: [actor.x, actor.y] };
     hoverRef.current = null;
     canvas.setPointerCapture?.(e.pointerId);
     canvas.style.cursor = "grabbing";

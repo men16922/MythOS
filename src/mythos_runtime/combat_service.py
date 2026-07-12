@@ -361,13 +361,16 @@ class CombatService:
         meta_progression = state.get("meta_progression")
         run_boons = state.get(RUN_BOONS_KEY)
         built = []
+        # Exclusive roster (combat simulator): when the caller pinned the party
+        # explicitly, story-flag allies do not auto-join.
+        exclusive = bool(party.get("exclusive"))
         for ally_id, entry in allies_pool.items():
             if not isinstance(entry, dict):
                 continue
             actual_id = str(entry.get("id", ally_id))
             member = members.get(actual_id)
             unlock_flags = {str(flag) for flag in entry.get("unlock_flags", [])}
-            unlocked = bool(member) or bool(unlock_flags.intersection(flags))
+            unlocked = bool(member) or (not exclusive and bool(unlock_flags.intersection(flags)))
             if not unlocked:
                 continue
             # C3 unheralded hold (owner 2026-07-11): a flag-only ally the narration

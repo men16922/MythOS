@@ -51,6 +51,27 @@ export function useCombatCinemaQueue({
   const prevCombatRef = useRef<CombatState | null>(null);
   const dispatchedActionRef = useRef<CombatAction | null>(null);
 
+  // Cinema image preload (owner 2026-07-12 "공격 이미지가 늦게 뜸"): the first
+  // attack cinema fetched its pose art on demand. Warm every combatant's
+  // portrait + pose set once per combat so the cut-in opens fully drawn.
+  const preloadedCombatRef = useRef<string | null>(null);
+  useEffect(() => {
+    const combat = finalizedSnapshot?.combat;
+    if (!combat?.radar?.blips || combat.finished) return;
+    const key = `${selectedScenarioId}:${combat.radar.blips.map((b) => b.id).join(",")}`;
+    if (preloadedCombatRef.current === key) return;
+    preloadedCombatRef.current = key;
+    for (const b of combat.radar.blips) {
+      const paths = new Set<string>(Object.values(b.combat_images || {}));
+      if (b.portrait) paths.add(b.portrait);
+      for (const path of paths) {
+        if (!path) continue;
+        const img = new Image();
+        img.src = `/resources/${selectedScenarioId}/${path}`;
+      }
+    }
+  }, [finalizedSnapshot, selectedScenarioId]);
+
   const playTerminalCombatSfx = (key: string) => {
     if (key === "sfx_victory" || key === "sfx_defeat") {
       playSfx(key);
@@ -122,6 +143,10 @@ export function useCombatCinemaQueue({
           return blip?.faction === "player";
         };
 
+        // One orphan-skill cinema per actor per transition: effect-result lines
+        // that also log as "skill" (지름길 호출 etc.) must not replay the cast.
+        const orphanCinemaActors = new Set<string>();
+
         newLogs.forEach((entry: CombatLogEntry) => {
           if (entry.action === "skill") {
             const skillId = typeof entry.detail?.skill === "string" ? entry.detail.skill : undefined;
@@ -129,7 +154,12 @@ export function useCombatCinemaQueue({
             latestSkillByActor.set(entry.actor, skillName);
 
             // If this actor has no follow-up hit/defend/miss logs in this turn, trigger utility skill cinema immediately
-            if (!hasFollowUpActors.has(entry.actor) && deservesCinema(entry)) {
+            if (
+              !hasFollowUpActors.has(entry.actor) &&
+              !orphanCinemaActors.has(entry.actor) &&
+              deservesCinema(entry)
+            ) {
+              orphanCinemaActors.add(entry.actor);
               const attackerBlip = combat.radar.blips.find((b) => b.id === entry.actor);
               const targetId = entry.detail?.target || entry.actor;
               const defenderBlip = combat.radar.blips.find((b) => b.id === targetId);

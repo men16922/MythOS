@@ -1742,9 +1742,13 @@ class RuntimeSessionService:
         loop = self._require_loop(loop_id)
         if loop.phase is LoopPhase.ENDED:
             raise RuntimeError(f"loop_id={loop.loop_id} is ended")
-        if party_members:
+        if party_members is not None:
             party = dict(loop.state.get("_party", {})) if isinstance(loop.state, dict) else {}
             party["members"] = [dict(member) for member in party_members]
+            # Simulator contract (owner 2026-07-12 "세린을 선택 안 해도 항상
+            # 참전"): an explicit roster is EXCLUSIVE — story-flag allies
+            # (unlock_flags∩flags, e.g. the opening's se_rin) must not ride in.
+            party["exclusive"] = True
             state = dict(loop.state) if isinstance(loop.state, dict) else {}
             state["_party"] = party
             loop = replace(loop, state=state)

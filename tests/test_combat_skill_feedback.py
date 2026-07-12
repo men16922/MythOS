@@ -211,6 +211,68 @@ class IntentLensTest(unittest.TestCase):
         self.assertIn("i.enemy_id === occupant.id", source)
 
 
+class LiveQaFixesTest(unittest.TestCase):
+    """2026-07-12 owner live-QA on 00053: five findings, one lock each."""
+
+    def test_stun_chip_survives_the_consumed_turn(self) -> None:
+        # 기절 배지가 보드에 안 보임: applied+consumed in one transition left
+        # no snapshot with the chip — _consume_stun keeps it, upkeep clears it.
+        source = read("src/mythos_combat/engine.py")
+        self.assertIn('if actor.stunned_turns <= 0 and "stunned" in actor.status:', source)
+
+    def test_stun_result_line_is_not_a_second_skill_log(self) -> None:
+        # 시스템 해킹 컷인 2회: stun_applied logged as action "skill" made the
+        # orphan-skill cinema fire twice; it is a result line -> "info", and the
+        # client additionally dedupes orphan cinemas per actor.
+        engine_src = read("src/mythos_combat/engine.py")
+        self.assertNotIn('"skill",\n            clog(\n                state.language,\n                "stun_applied"', engine_src)
+        queue_src = read("src/mythos_ui/src/hooks/useCombatCinemaQueue.ts")
+        self.assertIn("orphanCinemaActors", queue_src)
+
+    def test_board_supports_click_to_move_and_body_grab(self) -> None:
+        # 드래그로 안 옮겨짐 + 튜토리얼 1→2 막힘: exact-cell grab only, and the
+        # tutorial copy promised click-to-move that didn't exist.
+        source = read("src/mythos_ui/src/hooks/useCombatBoard.ts")
+        self.assertIn("reachable.some(([rx, ry]", source)
+        self.assertIn('onCombatAction({ type: "wait", x: cx, y: cy })', source)
+        self.assertIn("cfg.stepY * 6", source)  # sprite-body grab tolerance
+
+    def test_combat_images_preload_on_combat_start(self) -> None:
+        # 공격 이미지가 늦게 뜸: warm portrait + pose art once per combat.
+        source = read("src/mythos_ui/src/hooks/useCombatCinemaQueue.ts")
+        self.assertIn("preloadedCombatRef", source)
+        self.assertIn("new Image()", source)
+
+    def test_explicit_party_roster_is_exclusive(self) -> None:
+        # 시뮬레이터에서 세린 미선택인데 항상 참전: story-flag allies must not
+        # auto-join when the caller pinned the roster.
+        from dataclasses import replace
+
+        from mythos_core.clock import utc_now
+        from mythos_core.models import LoopPhase, LoopState
+        from mythos_runtime.combat_service import CombatService
+        from mythos_runtime.scenario import load_scenario
+
+        combat_pool = load_scenario("neo-seoul").combat
+        loop = LoopState(
+            loop_id="loop_t", player_id="p", seed="s",
+            phase=LoopPhase.EXPLORE, location_id="start", stability=50, tension=50,
+            started_at=utc_now(),
+            state={
+                "flags": ["met_se_rin", "ally_se_rin"],
+                "_party": {"members": [], "exclusive": True},
+            },
+        )
+        service = CombatService()
+        allies = service._build_allies(loop, combat_pool)
+        self.assertEqual(allies, [])  # flag-unlocked se_rin held out
+        loop_inclusive = replace(
+            loop, state={"flags": ["met_se_rin", "ally_se_rin"], "_party": {"members": []}}
+        )
+        allies2 = service._build_allies(loop_inclusive, combat_pool)
+        self.assertTrue(any(a.id == "se_rin" for a in allies2))  # default path unchanged
+
+
 class CombatResponsivenessTest(unittest.TestCase):
     """Regression locks for the 2026-07-12 responsiveness diagnosis.
 

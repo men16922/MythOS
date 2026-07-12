@@ -6,6 +6,8 @@ Last updated: 2026-07-12
 - Status: Done, `make check` **1042** green. UNDEPLOYED. Owner live reports (local): 견인/반발 스킬 카드 안 뜸 · EMP 폭발 이펙트 없음.
 - **/diagnose 결과**: 견인 카드는 현재 번들에서 정상 렌더(DOM 덤프로 `magnetic_pull.png` 풀 시퀀스 확인 — 스테일 탭/더블탭 플러시 추정, **하드 리로드 필요**). EMP는 실제 갭 2개: ① 무피해 수류탄(스턴만)은 `item`+`info` 로그뿐이라 컷인 게이트(hit/defeat) 미통과 — 소이만 컷인이 뜨던 비대칭 ② 보드 폭발은 재생되지만 계측상 밝기 2.0×/0.5s로 약해 "없음"으로 체감.
 - **수정 (`7882d3d`)**: 셀 투척 아이템은 항상 아이템 아트 컷인(오너 "수류탄도 스킬카드처럼") · 폭발 = 피격 셀 백→화염 점화 + 코어 확대 + 1150ms + 셰이크 18/450 (재계측 피크 2.7×) · 컷인 마운트 후 350ms 스킵 유예(더블탭 플러시 방지) · 로컬 호스트 BGM 기본 OFF(오너 요청). 소스락 +2.
+- **튜토리얼 다음 버튼 (`c7165f9`)**: 첫 전투 가이드가 행동 수행으로만 진행돼 2-4페이지를 못 읽던 것(오너 보고) → 다음 ▸/완료 버튼 추가, 행동 자동 진행 유지. 시뮬에서 4페이지 넘김+닫힘 검증.
+- **오너 결정**: 상태이상 **중첩 = 지속 턴수 누적**(강도 스택 아닌 B안) + **서로 다른 상태 다중 동시 적용** 처리 보장 — NEXT_PLAN `[auto:claude]` 등재 (구현은 다음 작업).
 - Also: `gameplay-qa` 스킬 체크(한국어 트리거 보강) + `sync-skills.sh` references/ 투영 · CORE_MANDATES §5 gameplay-qa 의무화 · QA 가이드 A-4 신설.
 
 ## 2026-07-12 — Shared gameplay QA skill for local combat verification

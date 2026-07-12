@@ -27,6 +27,7 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00
 - `[ ]` `[auto:agy]` **전투 배경 플레이트 4종** (오너 체감 GO 후) — `resources/neo-seoul/combat/backdrops/{streets,undercity,industrial,spire}.png` 1024×640, 저휘도(≤25%), 소프트 포커스 원경; criterion: `make check` green + 시뮬에서 4 biome 렌더 확인.
 - `[ ]` `[auto:agy]` **상태 배지 플랫 글리프 7종 재생성** (오너 체감 GO 후) — 현 포스터형(영문 캡션 내장)을 단일 글리프·투명·무텍스트·동일 스트로크로: `status/{stunned,burn,corrode,acid,freeze,shock,hacked}.png`; criterion: 256² RGBA + make check green. 칩 배경은 코드가 그림.
 - `[ ]` `[auto:agy]` **바닥 타일 밝기 개선 + cover_full 프롭 재디자인** — floor.png가 근흑(보드가 어두운 원인), cover_full 회색 오벨리스크는 네온 톤 불일치 → cover_half 언어와 맞는 네온 바리케이드/서버랙.
+- `[ ]` `[auto:claude]` **상태이상 중첩 + 다중 동시 적용 (오너 확정 2026-07-12)** — 같은 상태 재적용 시 지속 턴수 **누적**(현행은 max-refresh; 강도 스택 아님, 상한 ~6턴 튜너블) + 서로 다른 상태 여러 개가 한 유닛에 동시에 걸릴 때(틱 순서·만료·배지 행·로그) 정합 보장. criterion: 누적/상한/다중 동시(부여·틱·만료) unittest + `make check` green + 시뮬 non-fallback 렌더 확인(gameplay-qa).
 - `[ ]` **트리아지 (session #14 발견, 미수정)**: 한 시스템 침투 코스트 ◆4 > 한 최대 FOCUS 3 → **영구 시전 불가** (코스트 3으로 인하 or 한 max_focus 4 — 밸런스 판단 필요) · 린위에 승리 라인업 누락 · 전리품 필 raw id (`drone_scrap`/`nanopatch` 미번역).
 - `[ ]` `[manual]` **밸런스 튜닝** — 상태이상 부여 턴수/빈도 · 스플래시/라이더 수치 · 2-티어 slice 4(턴 순서 스트립) GO/NO-GO.
 

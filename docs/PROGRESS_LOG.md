@@ -2,6 +2,10 @@
 
 Last updated: 2026-07-12
 
+## 2026-07-12 (live session #13 cont.3) — **DEPLOYED `mythos-api-00053-hj4`** (전투 피드백 번들)
+- 오너 지시로 `make deploy` 실행 → 100% 트래픽. 검증: health/root 200 + 리비전 env `IMAGEN_MODEL=gemini-3.1-flash-image` 고정 확인. git push는 오너가 선행 완료.
+- QA 가이드에 **플레이 A-0** 섹션 추가 (오전 지적 6건 재확인 체크리스트: 해킹 스턴 💫 · 낚아채기 · EMP 셀 투척 · 스플래시 · 반응성/탭스킵 · 명중% 칩+인텐트 렌즈). 이 체감 판정이 상태이상 slice 2-3 착수 게이트 (오너 확인: 검증 후 진행).
+
 ## 2026-07-12 (live session #13 cont.2) — 2-티어 슬라이스 2·3 + 상태이상 슬라이스 1 구현
 - Status: Done, `make check` **1019** green. UNDEPLOYED (전투 피드백 번들 누적: `1d26a20`..`b55b37b`).
 - **2-티어 slice 2** (`a164f81`): TARGETS 칩에 결정론 사격 예보 — 서버 `_attack_preview`(실제 `_attack` 수식 미러: 스탯+무기+고저차+지각 vs 유효방어+원거리 엄폐, 크리트 하한 5%) → "🎯65% ⚔6-16 🛡". **slice 3** (`de00355`): 적 호버/탭 시 그 적의 텔레그래프 스포트라이트(실선+글로우, 타 인텐트 딤) + 인스펙터 Intent 행이 그 적의 다음 행동("⚔2d6 → 세린") 표시.

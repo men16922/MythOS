@@ -36,6 +36,18 @@ export const CombatCinema: React.FC<CombatCinemaProps> = ({
   onSkip,
 }) => {
   const [itemImgError, setItemImgError] = React.useState(false);
+  // Skip grace: a double-click on the action button lands its second press on
+  // this overlay and used to flush the whole queue instantly — the cut-in
+  // "never appeared". Ignore skips in the first 350ms after mount.
+  const mountedAtRef = React.useRef(0);
+  React.useEffect(() => {
+    mountedAtRef.current = Date.now();
+  }, []);
+  const handleSkip = onSkip
+    ? () => {
+        if (mountedAtRef.current !== 0 && Date.now() - mountedAtRef.current > 350) onSkip();
+      }
+    : undefined;
   const { lang } = useLang();
   const {
     phase,
@@ -85,7 +97,7 @@ export const CombatCinema: React.FC<CombatCinemaProps> = ({
   return (
     <div
       className={`cinema-overlay mode-${mode} phase-${phase} ${isFast ? "fast-speed" : ""} ${isSelfTarget ? "self-target" : ""}`}
-      onPointerDown={onSkip}
+      onPointerDown={handleSkip}
     >
       {onSkip && (
         <div className="cinema-skip-hint">{lang === "en" ? "TAP TO SKIP ▸▸" : "탭하여 스킵 ▸▸"}</div>

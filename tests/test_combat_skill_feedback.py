@@ -547,8 +547,23 @@ class CombatResponsivenessTest(unittest.TestCase):
         queue = read("src/mythos_ui/src/hooks/useCombatCinemaQueue.ts")
         self.assertIn("flushCinema", queue)
         cinema = read("src/mythos_ui/src/CombatCinema.tsx")
-        self.assertIn("onPointerDown={onSkip}", cinema)
+        # Skip grace (2026-07-12): a double-click's second press used to land on
+        # the overlay and flush the cut-in instantly ("스킬 이미지 안 뜸" report).
+        self.assertIn("onPointerDown={handleSkip}", cinema)
+        self.assertIn("mountedAtRef.current > 350", cinema)
         self.assertIn("cinema-skip-hint", cinema)
+
+    def test_zero_damage_grenade_throws_get_an_item_cinema(self) -> None:
+        # EMP/cryo throws log only "item"+"info" (statuses, no damage), so the
+        # hit/defeat gate silently dropped their cut-in while the incendiary
+        # (damage hits) got one — measured live 2026-07-12. The throw now
+        # queues an item-art cinema and the gate admits commanded item logs.
+        queue = read("src/mythos_ui/src/hooks/useCombatCinemaQueue.ts")
+        self.assertIn('entry.action === "item" && typeof entry.detail?.item === "string"', queue)
+        self.assertIn("Orphan item cut-in", queue)
+        self.assertIn('dispatched.type === "item"', queue)
+        cinema = read("src/mythos_ui/src/CombatCinema.tsx")
+        self.assertIn("item-illustration", cinema)
 
 
 class AimedSkillTargetingTest(unittest.TestCase):

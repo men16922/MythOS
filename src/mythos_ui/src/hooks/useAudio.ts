@@ -10,6 +10,12 @@ export function useAudio(
 ) {
   const [bgmEnabled, setBgmEnabled] = useState(() => {
     try {
+      // Local dev always boots silent (owner 2026-07-12 "로컬에서는 항상 BGM
+      // 기본 OFF") — repeated test reloads shouldn't blast music. The in-app
+      // toggle still works for the session; production keeps the stored pref.
+      if (/^(localhost|127\.|0\.0\.0\.0|192\.168\.|10\.)/.test(window.location.hostname)) {
+        return false;
+      }
       return localStorage.getItem(BGM_PREF_KEY) !== "off";
     } catch {
       return true;

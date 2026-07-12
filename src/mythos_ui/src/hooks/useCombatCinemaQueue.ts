@@ -115,6 +115,10 @@ export function useCombatCinemaQueue({
       const hasCinematicEvent = newLogs.some((entry: CombatLogEntry) => {
         if (cinematicActions.has(entry.action)) return true;
         if (entry.action === "skill" && !hasFollowUpActors.has(entry.actor)) return true;
+        // Zero-damage grenade throws (EMP/cryo stun) log only "item"+"info", so
+        // they never passed this gate — the throw had NO cut-in while the
+        // incendiary (damage hits) did (owner 2026-07-12 "수류탄도 스킬카드처럼").
+        if (entry.action === "item" && typeof entry.detail?.item === "string") return true;
         return false;
       });
 
@@ -134,7 +138,8 @@ export function useCombatCinemaQueue({
         // The unit that just acted is the PREVIOUS snapshot's active unit —
         // the new snapshot's `current` already points at the next turn.
         const commandedActor =
-          dispatched && (dispatched.type === "attack" || dispatched.type === "skill")
+          dispatched &&
+          (dispatched.type === "attack" || dispatched.type === "skill" || dispatched.type === "item")
             ? prev.radar?.current ?? null
             : null;
         const deservesCinema = (entry: CombatLogEntry): boolean => {
@@ -156,6 +161,34 @@ export function useCombatCinemaQueue({
         newLogs.forEach((entry: CombatLogEntry) => {
           if (entry.action === "item" && typeof entry.detail?.item === "string") {
             latestItemByActor.set(entry.actor, entry.detail.item);
+            // Orphan item cut-in: a throw whose whole payload is statuses
+            // (EMP/cryo — no hit/defeat follow-up by this actor) still gets a
+            // full-screen item-card cinema, mirroring the orphan-skill path.
+            // Only for CELL throws (detail.cell present): swallowing a potion
+            // shouldn't hijack the screen.
+            if (
+              Array.isArray(entry.detail?.cell) &&
+              !hasFollowUpActors.has(entry.actor) &&
+              !orphanCinemaActors.has(entry.actor) &&
+              deservesCinema(entry)
+            ) {
+              orphanCinemaActors.add(entry.actor);
+              const attackerBlip = combat.radar.blips.find((b) => b.id === entry.actor);
+              const struck = Array.isArray(entry.detail?.stunned) ? entry.detail.stunned : [];
+              const defenderBlip =
+                combat.radar.blips.find((b) => struck.includes(b.id)) || attackerBlip;
+              if (attackerBlip && defenderBlip) {
+                queueItems.push({
+                  attacker: attackerBlip,
+                  defender: defenderBlip,
+                  damage: 0,
+                  kind: "attack",
+                  crit: false,
+                  itemId: entry.detail.item,
+                  miss: false,
+                });
+              }
+            }
             return;
           }
           if (entry.action === "skill") {

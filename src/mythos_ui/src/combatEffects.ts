@@ -12,7 +12,8 @@ const MOVE_DUR = 260;
 const YANK_DUR = 230; // forced movement (밀기/당기기): a snatch, not a stroll
 const YANK_IMPACT = 320; // arrival crunch window after the snatch lands
 const STATUS_POP_DUR = 620; // status-apply burst (rings + icon float)
-const BLAST_DUR = 750; // grenade detonation at the target cell
+const BLAST_DUR = 1150; // grenade detonation at the target cell (measured too
+// subtle at 750ms — a ~0.5s brightness bump read as "이펙트 없음", 2026-07-12)
 const HIT_DUR = 440;
 const DEATH_DUR = 520;
 const TOTAL_CAP = 1500;
@@ -460,13 +461,31 @@ export class CombatAnimator {
         const local = (t - blast.at) / BLAST_DUR;
         if (local < 0 || local > 1) continue;
         const [bx, by] = blast.cell;
+        // The actual affected tiles ignite (cell-true, matching the aim
+        // preview) — the single expanding ring alone read as nothing.
+        if (local < 0.5) {
+          const fp = local / 0.5;
+          const cells: [number, number][] = [];
+          for (let cy = by - blast.radius; cy <= by + blast.radius; cy++) {
+            for (let cx = bx - blast.radius; cx <= bx + blast.radius; cx++) {
+              if (cx >= 0 && cy >= 0) cells.push([cx, cy]);
+            }
+          }
+          overlay.fx!.push({
+            kind: "cells",
+            cells,
+            color: fp < 0.3 ? "#ffffff" : "#ff8a3d",
+            alpha: 0.9 * (1 - fp),
+            fillAlpha: 0.55 * (1 - fp),
+          });
+        }
         if (local < 0.25) {
           const cp = local / 0.25;
           overlay.fx!.push({
             kind: "spark",
             cellX: bx + 0.5,
             cellY: by + 0.5,
-            cellR: 0.2 + 0.5 * cp,
+            cellR: 0.35 + 0.75 * cp,
             color: "#ffffff",
             alpha: 1 - cp * 0.4,
           });
@@ -570,11 +589,11 @@ export class CombatAnimator {
       }
       // Grenade detonations hit the camera hardest of all.
       for (const blast of blasts) {
-        if (t >= blast.at && t < blast.at + 300) {
+        if (t >= blast.at && t < blast.at + 450) {
           const age = t - blast.at;
-          const ratio = 1 - age / 300;
-          shakeX += Math.sin(age * 0.22) * 14 * ratio;
-          shakeY += Math.cos(age * 0.26) * 14 * ratio;
+          const ratio = 1 - age / 450;
+          shakeX += Math.sin(age * 0.22) * 18 * ratio;
+          shakeY += Math.cos(age * 0.26) * 18 * ratio;
         }
       }
       overlay.shakeX = shakeX;

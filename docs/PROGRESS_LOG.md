@@ -2,6 +2,15 @@
 
 Last updated: 2026-07-12
 
+## 2026-07-12 (live session #16, CBT-day sprint) — DEPLOYED 00056 · castability fix · CBT ops survey · round-2 promo · codex art batch in flight
+- Status: in progress (3-hour CBT-prep window; codex art batch still generating). `make check` **1060** green.
+- **DEPLOYED `mythos-api-00056-z77`** (owner-run `make deploy`): sessions #14-#15 now LIVE. Smoke: health/root 200, `/api/v1/client-config` `{default_bgm_on:true}` (prod default correct), `IMAGEN_MODEL=gemini-3.1-flash-image` pinned, invite gate 401 on `/scenarios` without key.
+- **Uncastable signatures FIXED (`d70ff86`, owner call: pool 4, keep cost)**: 한 시스템 침투 + 수아 기억 공명 (the new invariant test caught the second one) both cost ◆4 over a derived pool of 3 → ally builder now honors explicit `max_focus`; every-companion castability invariant locked (+2 tests).
+- **CBT cap survey (read-only, owner chose report-only)**: 86 loops / 27 players. Two 24-loop players = cap-exempt admin pattern; `player_capchec…` = synthetic test id at 10/10; real testers max 4 → **no cleanup needed for today's round**.
+- **Round-2 promo**: `CBT_RECRUIT_POST(.ko).md` rewritten with the combat-overhaul highlights + 2 fresh sim screenshots (`Mythos_Combat_Preview2.png` party+🔥 badges, `Mythos_Status_Preview.png` stacked statuses).
+- **codex art batch (owner: agy→codex)**: 14 assets dispatched on worktree branch `art/codex-0713` — first run failed (sandbox has no Metal → local FLUX impossible); rediagnosed via `image-regen.sh`: codex generates via its own image API needing NETWORK ON → redispatched without the network block. Pending: image-judge review → cherry-pick → bundle rebuild → make check.
+- Next: art batch review/merge · owner publishes promo + opens round 2 · owner feel pass on 00056.
+
 ## 2026-07-12 (live session #15) — status stacking · collision slam · cryo damage · BGM env · codex parallel triage
 - Status: Done, `make check` **1058** green. Pushed to origin (owner, 07-12 night); UNDEPLOYED. 5 code commits `2d94ad6..ac66266`.
 - **Status stacking (owner-decided)** (`2d94ad6`): reapply now ACCUMULATES turns (cap `STATUS_EFFECT_TURNS_CAP=6`, tunable) for statuses AND stun; multi-status coherence locked (independent tick/expire/badges) + fixed `_run_until_controllable` handing the turn to a unit its own upkeep burn just killed.

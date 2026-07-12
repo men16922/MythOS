@@ -13,12 +13,12 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00
 ### Combat overhaul arc 2026-07-11..12 — CODE COMPLETE → `COMPLETED_SUMMARY.md` **M59**
 - `[x]` All code tracks done and compressed into M59: P0 telegraph/terrain/10×7 · P1 push/pull + cover (포즈 7종 오너 승인, canon rule 기록) · feedback batches (스킬 리워크 · 반응성 · 2-티어 slices 1-3 + 🎯 · 상태이상 slices 1-3) · visual overhaul V1-V6 + 완성도 배치 · session #15 (중첩/슬램/냉각/BGM env/라인업·전리품). Deployed through `00055-46x`; sessions #14-#15 are pushed to origin but UNDEPLOYED (owner `make deploy` pending). Detail: M59 + `bin/docs/archive/progress-2026-07.md`.
 - **Open items only below.**
-- `[ ]` `[manual]` **오너 체감 재판정** — 배포 후 `docs/test/neo_seoul_live_qa.md` (2026-07-12 갱신본: 확인 완료 항목 제거, 슬램/냉각/중첩 신규 판정 추가). 판정이 아래 agy 아트 시드 착수 게이트.
-- `[ ]` `[auto:agy]` **소이/냉각 수류탄 전용 아이콘** (현재 emp_grenade 복사 플레이스홀더).
-- `[ ]` `[auto:agy]` **전투 배경 플레이트 4종** (오너 체감 GO 후) — `resources/neo-seoul/combat/backdrops/{streets,undercity,industrial,spire}.png` 1024×640, 저휘도(≤25%), 소프트 포커스 원경; criterion: `make check` green + 시뮬에서 4 biome 렌더 확인.
-- `[ ]` `[auto:agy]` **상태 배지 플랫 글리프 7종 재생성** (오너 체감 GO 후) — 현 포스터형(영문 캡션 내장)을 단일 글리프·투명·무텍스트·동일 스트로크로: `status/{stunned,burn,corrode,acid,freeze,shock,hacked}.png`; criterion: 256² RGBA + make check green. 칩 배경은 코드가 그림.
-- `[ ]` `[auto:agy]` **바닥 타일 밝기 개선 + cover_full 프롭 재디자인** — floor.png가 근흑(보드가 어두운 원인), cover_full 회색 오벨리스크는 네온 톤 불일치 → cover_half 언어와 맞는 네온 바리케이드/서버랙.
-- `[ ]` `[manual]` **트리아지 잔여 — 한 시스템 침투 코스트 ◆4 > 한 최대 FOCUS 3 → 영구 시전 불가** (코스트 3 인하 or 한 max_focus 4 — 오너 밸런스 판단 필요; 판단 후 구현은 1줄 콘텐츠 수정).
+- `[ ]` `[manual]` **오너 체감 재판정** — `00056-z77` 배포 완료(07-12 심야, sessions #14-#15 라이브) 후 `docs/test/neo_seoul_live_qa.md` (갱신본: 확인 완료 항목 제거, 슬램/냉각/중첩 신규 판정 추가).
+- `[/]` `[auto:codex]` **소이/냉각 수류탄 전용 아이콘** (현재 emp_grenade 복사 플레이스홀더).
+- `[/]` `[auto:codex]` **전투 배경 플레이트 4종** (오너 지시 07-12: agy→codex, 게이트 해제, CBT-day 배치로 생성 중) — `resources/neo-seoul/combat/backdrops/{streets,undercity,industrial,spire}.png` 1024×640, 저휘도(≤25%), 소프트 포커스 원경; criterion: `make check` green + 시뮬에서 4 biome 렌더 확인.
+- `[/]` `[auto:codex]` **상태 배지 플랫 글리프 7종 재생성** (오너 지시: agy→codex) — 현 포스터형(영문 캡션 내장)을 단일 글리프·투명·무텍스트·동일 스트로크로: `status/{stunned,burn,corrode,acid,freeze,shock,hacked}.png`; criterion: 256² RGBA + make check green. 칩 배경은 코드가 그림.
+- `[/]` `[auto:codex]` **바닥 타일 밝기 개선 + cover_full 프롭 재디자인** — floor.png가 근흑(보드가 어두운 원인), cover_full 회색 오벨리스크는 네온 톤 불일치 → cover_half 언어와 맞는 네온 바리케이드/서버랙.
+- `[x]` **시전 불가 시그니처 FIXED (`d70ff86`, 오너 결정: 풀 4·코스트 유지)** — 한 시스템 침투 + (인바리언트 테스트가 추가 발견한) 수아 기억 공명 둘 다 ◆4 > 풀 3이었음 → ally 빌더 `max_focus` 명시 오버라이드 + 전 동료 castable 인바리언트 테스트로 재발 봉쇄.
 - `[ ]` `[manual]` **밸런스 튜닝** — 상태이상 부여 턴수/빈도 · 중첩 cap(6) · 슬램 수치(1d4) · 스플래시/라이더 수치 · 2-티어 slice 4(턴 순서 스트립) GO/NO-GO.
 
 ### Narrative clarity audit follow-ups (2026-07-10, 4-lane audit)

@@ -20,8 +20,8 @@ export interface GroundTargeting {
 }
 
 // Client-side mirror of the engine's _skill_displace stepping (line toward/away
-// from the caster, stop at board edge or an occupied tile) — preview only; the
-// server remains authoritative.
+// from the caster, stop at board edge, a full-cover structure, or an occupied
+// tile) — preview only; the server remains authoritative.
 function displaceDest(
   actor: { x: number; y: number },
   victim: { x: number; y: number; id: string },
@@ -29,7 +29,8 @@ function displaceDest(
   toward: boolean,
   blips: { id: string; x: number; y: number; alive?: boolean }[],
   cols: number,
-  rows: number
+  rows: number,
+  covers?: Record<string, string>
 ): [number, number] {
   let sx = Math.sign(victim.x - actor.x);
   let sy = Math.sign(victim.y - actor.y);
@@ -44,6 +45,7 @@ function displaceDest(
     const nx = vx + sx;
     const ny = vy + sy;
     if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) break;
+    if (covers?.[`${nx},${ny}`] === "full") break;
     if (blips.some((b) => b.alive !== false && b.id !== victim.id && b.x === nx && b.y === ny)) break;
     vx = nx;
     vy = ny;
@@ -202,7 +204,7 @@ export function useCombatBoard(opts: {
         const rows = combat?.radar?.arena?.h || 6;
         const toward = !!tg.pull;
         const tiles = Number(tg.pull || tg.push || 0);
-        const [dx, dy] = displaceDest(actor, victim, tiles, toward, blips, cols, rows);
+        const [dx, dy] = displaceDest(actor, victim, tiles, toward, blips, cols, rows, combat?.covers);
         const color = toward ? "#e07dff" : "#ffb347";
         fx.push({
           kind: "tracer",

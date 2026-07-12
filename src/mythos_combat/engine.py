@@ -93,6 +93,16 @@ def _dice_range(spec: str) -> tuple[int, int]:
 # (시스템 침투; consumed at act time like stun, not by the generic tick).
 STATUS_EFFECT_IDS = ("burn", "corrode", "acid", "freeze", "shock", "hacked")
 
+# Reapplying a status (or stun) ACCUMULATES remaining turns instead of
+# max-refreshing (owner call 2026-07-12: duration stacks, intensity does not),
+# bounded by this cap so chained casts can't freeze a unit out of the fight.
+STATUS_EFFECT_TURNS_CAP = 6
+
+# Forced movement (밀기/당기기) that runs into a blocker — board edge, a
+# full-cover structure, or another unit — slams the target for this flat,
+# armor-bypassing rider (owner 2026-07-12: collisions should hurt).
+SLAM_DAMAGE_DICE = "1d4"
+
 
 @dataclass
 class PlayerAction:
@@ -1040,10 +1050,17 @@ class CombatEngine:
     ) -> None:
         """Forced movement (밀기/당기기). Steps ``target`` one tile at a time along
         the actor↔target line — away for push, toward the actor for pull — stopping
-        at the board edge or an occupied tile (no overshoot). Terrain-meaningful by
-        design: shoving an enemy off a cover / high-ground tile strips the bonus it
-        was standing on, since every combat calc reads elevation/cover from the
-        combatant's CURRENT tile. Objectives flagged ``immovable`` don't budge."""
+        at the board edge, a full-cover structure, or an occupied tile (no
+        overshoot). Terrain-meaningful by design: shoving an enemy off a cover /
+        high-ground tile strips the bonus it was standing on, since every combat
+        calc reads elevation/cover from the combatant's CURRENT tile. Objectives
+        flagged ``immovable`` don't budge.
+
+        Collision slam (owner 2026-07-12): a displacement cut short by a blocker
+        slams the target into it for ``SLAM_DAMAGE_DICE`` armor-bypassing bonus
+        damage. Full cover blocks FORCED movement only (you get slammed against
+        the server rack; walking behind it deliberately stays legal), and being
+        pulled flush against the caster is a clean catch, not a collision."""
         if target is None or not target.alive or tiles <= 0:
             return
         mode = "pull" if toward else "push"
@@ -1062,9 +1079,27 @@ class CombatEngine:
             return
         from_xy = [target.x, target.y]
         moved = 0
+        obstacle: str | None = None
         for _ in range(tiles):
             nx, ny = target.x + sx, target.y + sy
-            if not self._in_bounds(state, nx, ny) or self._occupied(state, nx, ny, target):
+            if not self._in_bounds(state, nx, ny):
+                obstacle = "edge"
+                break
+            if state.covers.get(f"{nx},{ny}") == "full":
+                obstacle = "cover"
+                break
+            occupant = next(
+                (
+                    c
+                    for c in state.combatants
+                    if c.alive and c.id != target.id and c.x == nx and c.y == ny
+                ),
+                None,
+            )
+            if occupant is not None:
+                # Landing flush against the caster (pull terminus) is a clean
+                # catch; bumping into anyone else is a collision.
+                obstacle = None if occupant.id == actor.id else "unit"
                 break
             target.x, target.y = nx, ny
             moved += 1
@@ -1097,6 +1132,17 @@ class CombatEngine:
                 clog(state.language, "skill_no_budge", target=target.name),
                 {"target": target.id, "forced": mode, "tiles": 0},
             )
+        if obstacle is not None and target.alive:
+            self._apply_shock_damage(
+                state,
+                actor,
+                target,
+                SLAM_DAMAGE_DICE,
+                self._dice(state),
+                clog(state.language, "slam_label"),
+                "slam_hit",
+                extra={"slam": True, "obstacle": obstacle, "forced": mode},
+            )
 
     def _apply_shock_damage(
         self,
@@ -1107,6 +1153,7 @@ class CombatEngine:
         dice: Dice,
         skill_name: str,
         msg_key: str,
+        extra: dict[str, Any] | None = None,
     ) -> None:
         """Flat, no-to-hit rider damage (forced-movement slam / arrival
         discharge / AoE splash — pass an int to reuse an already-rolled value).
@@ -1122,6 +1169,8 @@ class CombatEngine:
             "target_max_hp": victim.max_hp,
             "shock": True,
         }
+        if extra:
+            detail.update(extra)
         if victim.hp <= 0:
             victim.alive = False
             self._log(
@@ -1405,6 +1454,15 @@ class CombatEngine:
                 if actor.is_controllable:
                     actor.defending = False
                     self._tick_round_upkeep(state, actor)
+                    # A DoT tick (burn/hazard) can down the unit in its own
+                    # upkeep — never hand the turn to a corpse: settle the
+                    # outcome and keep walking the order instead.
+                    if not actor.alive:
+                        self._check_outcome(state)
+                        if not state.active:
+                            return
+                        i = (i + 1) % n
+                        continue
                     state.turn_ptr = i
                     return
                 self._npc_turn(state, actor)
@@ -1468,14 +1526,17 @@ class CombatEngine:
         self, state: CombatState, source: Combatant, victim: Combatant,
         status_id: str, turns: int,
     ) -> None:
-        """Apply/refresh a persistent status (2026-07-12 design; mirrors stun).
+        """Apply/extend a persistent status (2026-07-12 design; mirrors stun).
 
-        Slice 1 ids: ``burn`` (1d4 DoT at the victim's turn start) and
-        ``corrode`` (armor -2 while active). Durations refresh, no stacking."""
+        Reapplying the same status ACCUMULATES remaining turns up to
+        ``STATUS_EFFECT_TURNS_CAP`` (owner call 2026-07-12: duration stacks,
+        intensity does not). ``hacked`` is consumed wholesale at act time, so
+        extra turns on it are cosmetic."""
         if status_id not in STATUS_EFFECT_IDS or not victim.alive:
             return
-        victim.status_effects[status_id] = max(
-            victim.status_effects.get(status_id, 0), max(1, int(turns))
+        victim.status_effects[status_id] = min(
+            STATUS_EFFECT_TURNS_CAP,
+            victim.status_effects.get(status_id, 0) + max(1, int(turns)),
         )
         if status_id not in victim.status:
             victim.status.append(status_id)
@@ -1546,10 +1607,13 @@ class CombatEngine:
         """Stun ``victim`` for ``turns`` of their own initiative (F foundation).
 
         Shared by the EMP-pulse skill effect and the EMP-grenade item so both
-        finally do what their text promises. Refreshes rather than stacks, and
-        keeps the D2 status chip ("stunned") in sync.
+        finally do what their text promises. Reapplying ACCUMULATES turns up to
+        ``STATUS_EFFECT_TURNS_CAP`` (owner call 2026-07-12), and keeps the D2
+        status chip ("stunned") in sync.
         """
-        victim.stunned_turns = max(victim.stunned_turns, max(1, int(turns)))
+        victim.stunned_turns = min(
+            STATUS_EFFECT_TURNS_CAP, victim.stunned_turns + max(1, int(turns))
+        )
         if "stunned" not in victim.status:
             victim.status.append("stunned")
         # Action "info", not "skill": this is a RESULT line — logging it as a

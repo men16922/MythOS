@@ -494,6 +494,9 @@ class CombatSkillTest(unittest.TestCase):
             [_skilled_player(x=0, y=0)], [_drone(x=4, y=0, hp=80, defense=1, speed=0)],
             seed="pull-slam", arena=(8, 6),
         )
+        # This seed drops full cover on (3,0), which since 07-12 blocks forced
+        # movement (collision slam) — clear terrain: this test is about the yank.
+        state.covers.clear()
         player = state.player()
         assert player is not None
         enemy = state.living_enemies()[0]

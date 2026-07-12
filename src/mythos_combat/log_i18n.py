@@ -245,6 +245,14 @@ _LINES: dict[str, dict[str, str]] = {
         "ko": "{target}이(가) 버티고 서서 꿈쩍도 하지 않는다!",
         "en": "{target} braces and doesn't budge an inch!",
     },
+    "slam_label": {
+        "ko": "충돌",
+        "en": "Slam",
+    },
+    "slam_hit": {
+        "ko": "💥 {target}이(가) 장애물에 부딪혀 {damage} 충돌 피해!",
+        "en": "💥 {target} slams into an obstacle for {damage} bonus damage!",
+    },
     "displace_shock": {
         "ko": "{target}이(가) 끌려온 충격으로 {damage} 피해를 입는다!",
         "en": "{target} takes {damage} slam damage from the forced shift!",

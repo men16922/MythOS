@@ -382,6 +382,10 @@ class StatusContentMappingTest(unittest.TestCase):
         player = state.player()
         assert player is not None
         player.defense = 1  # guarantee the hit so the rider is deterministic
+        # The opening auto-turn may already have landed a rider — reset so the
+        # assertion isolates ONE explicit hit (durations accumulate since 07-12).
+        player.status_effects.clear()
+        player.status.clear()
         weapon = enemy.primary_weapon()
         assert weapon is not None
         engine._attack(state, enemy, player, weapon, engine._dice(state))
@@ -605,6 +609,271 @@ class XcomGroundTargetingTest(unittest.TestCase):
         self.assertIn("startItemTargeting", source)
         self.assertIn("targetingPreview", source)
         self.assertIn('target_cell: [cx, cy]', source)
+
+
+class StatusStackingTest(unittest.TestCase):
+    """Owner call 2026-07-12: reapplying a status ACCUMULATES duration (was
+    max-refresh), capped at STATUS_EFFECT_TURNS_CAP; intensity never stacks."""
+
+    def _fixture(self):
+        sys.path.insert(0, str(ROOT / "tests"))
+        from test_combat_engine import _drone, _player
+
+        from mythos_combat import CombatEngine
+
+        engine = CombatEngine()
+        state = engine.start(
+            [_player(x=0, y=0)], [_drone(x=5, y=0, hp=30, defense=11, speed=0, armor=3)],
+            seed="status-stack", arena=(8, 6),
+        )
+        player = state.player()
+        foe = state.living_enemies()[0]
+        assert player is not None
+        return engine, state, player, foe
+
+    def test_status_duration_accumulates_on_reapply(self) -> None:
+        engine, state, player, foe = self._fixture()
+        engine._apply_status_effect(state, player, foe, "burn", 2)
+        engine._apply_status_effect(state, player, foe, "burn", 3)
+        self.assertEqual(foe.status_effects["burn"], 5)
+        # The badge list carries one chip, not one per application.
+        self.assertEqual(foe.status.count("burn"), 1)
+
+    def test_status_duration_caps(self) -> None:
+        from mythos_combat.engine import STATUS_EFFECT_TURNS_CAP
+
+        engine, state, player, foe = self._fixture()
+        engine._apply_status_effect(state, player, foe, "corrode", 4)
+        engine._apply_status_effect(state, player, foe, "corrode", 4)
+        self.assertEqual(foe.status_effects["corrode"], STATUS_EFFECT_TURNS_CAP)
+        # Corrode intensity does NOT stack with duration: still a flat -2.
+        self.assertEqual(engine._effective_armor(foe), 1)
+
+    def test_stun_accumulates_and_caps(self) -> None:
+        from mythos_combat.engine import STATUS_EFFECT_TURNS_CAP
+
+        engine, state, player, foe = self._fixture()
+        engine._apply_stun(state, player, foe, 1)
+        engine._apply_stun(state, player, foe, 2)
+        self.assertEqual(foe.stunned_turns, 3)
+        engine._apply_stun(state, player, foe, STATUS_EFFECT_TURNS_CAP)
+        self.assertEqual(foe.stunned_turns, STATUS_EFFECT_TURNS_CAP)
+
+
+class MultiStatusConcurrencyTest(unittest.TestCase):
+    """Owner call 2026-07-12: several DIFFERENT statuses on one unit must
+    apply, tick, and expire independently (badges and logs included)."""
+
+    def _fixture(self):
+        sys.path.insert(0, str(ROOT / "tests"))
+        from test_combat_engine import _drone, _player
+
+        from mythos_combat import CombatEngine
+
+        engine = CombatEngine()
+        state = engine.start(
+            [_player(x=0, y=0)], [_drone(x=5, y=0, hp=30, defense=11, speed=0, armor=3)],
+            seed="multi-status", arena=(8, 6),
+        )
+        player = state.player()
+        foe = state.living_enemies()[0]
+        assert player is not None
+        return engine, state, player, foe
+
+    def test_statuses_tick_and_expire_independently(self) -> None:
+        engine, state, player, foe = self._fixture()
+        engine._apply_status_effect(state, player, foe, "burn", 1)
+        engine._apply_status_effect(state, player, foe, "corrode", 2)
+        engine._apply_status_effect(state, player, foe, "freeze", 1)
+        self.assertEqual(set(foe.status), {"burn", "corrode", "freeze"})
+        engine._tick_status_effects(state, foe)
+        # burn and freeze expired after one turn; corrode has one turn left.
+        self.assertEqual(foe.status_effects, {"corrode": 1})
+        self.assertEqual(foe.status, ["corrode"])
+        expired = [e.detail["status"] for e in state.log if e.detail.get("expired")]
+        self.assertEqual(set(expired), {"burn", "freeze"})
+        # Effects composed while co-active and drop with expiry.
+        self.assertEqual(engine._effective_armor(foe), 1)
+        engine._tick_status_effects(state, foe)
+        self.assertEqual(foe.status_effects, {})
+        self.assertEqual(engine._effective_armor(foe), 3)
+
+    def test_burn_death_in_controllable_upkeep_never_hands_it_the_turn(self) -> None:
+        sys.path.insert(0, str(ROOT / "tests"))
+        from test_combat_engine import _ally, _drone, _skilled_player
+
+        from mythos_combat import CombatEngine
+
+        engine = CombatEngine()
+        ally = _ally("kai", x=1, y=1, hp=2)
+        ally.controllable = True
+        state = engine.start(
+            [_skilled_player(x=0, y=0), ally],
+            [_drone(x=7, y=5, hp=40, defense=11, speed=0)],
+            seed="burn-upkeep-death", arena=(8, 6),
+        )
+        player = state.player()
+        burned = state.by_id("kai")
+        assert player is not None and burned is not None
+        burned.hp = 1
+        engine._apply_status_effect(state, player, burned, "burn", 2)
+        # Start the walk from the PLAYER's slot so the cyclic scan must pass
+        # through kai: his upkeep burn tick kills him — the turn must never
+        # point at the corpse.
+        state.turn_ptr = state.order.index(player.id)
+        engine._run_until_controllable(state)
+        self.assertFalse(burned.alive)
+        active = state.active_actor()
+        if state.active:
+            assert active is not None
+            self.assertTrue(active.alive)
+            self.assertNotEqual(active.id, "kai")
+
+
+class CollisionSlamTest(unittest.TestCase):
+    """Owner call 2026-07-12: forced movement into the board edge / a full-cover
+    structure / another unit deals bonus slam damage."""
+
+    def _engine_state(self, foe_kwargs=None, second_foe=None):
+        sys.path.insert(0, str(ROOT / "tests"))
+        from test_combat_engine import _drone, _skilled_player
+
+        from mythos_combat import CombatEngine
+
+        engine = CombatEngine()
+        foes = [_drone("d1", **(foe_kwargs or {"x": 6, "y": 0, "hp": 80, "defense": 1, "speed": 0}))]
+        if second_foe:
+            foes.append(_drone("d2", **second_foe))
+        state = engine.start(
+            [_skilled_player(x=4, y=0)], foes, seed="slam", arena=(8, 6),
+        )
+        # Procedural terrain could drop cover on the push line — these tests
+        # place obstacles explicitly, so start from a clean board.
+        state.covers.clear()
+        state.hazards.clear()
+        player = state.player()
+        assert player is not None
+        return engine, state, player
+
+    def test_push_into_edge_slams(self) -> None:
+        engine, state, player = self._engine_state()
+        foe = state.by_id("d1")
+        assert foe is not None
+        hp0 = foe.hp
+        engine._skill_displace(state, player, foe, 3, toward=False)
+        self.assertEqual((foe.x, foe.y), (7, 0))
+        slams = [e for e in state.log if e.detail.get("slam")]
+        self.assertEqual(len(slams), 1)
+        self.assertEqual(slams[0].detail.get("obstacle"), "edge")
+        self.assertLess(foe.hp, hp0)
+
+    def test_push_into_full_cover_structure_slams_and_stops(self) -> None:
+        engine, state, player = self._engine_state(
+            foe_kwargs={"x": 5, "y": 0, "hp": 80, "defense": 1, "speed": 0}
+        )
+        state.covers["6,0"] = "full"
+        foe = state.by_id("d1")
+        assert foe is not None
+        engine._skill_displace(state, player, foe, 2, toward=False)
+        self.assertEqual((foe.x, foe.y), (5, 0))  # blocked before entering the structure
+        slams = [e for e in state.log if e.detail.get("slam")]
+        self.assertEqual(len(slams), 1)
+        self.assertEqual(slams[0].detail.get("obstacle"), "cover")
+
+    def test_half_cover_does_not_block_forced_movement(self) -> None:
+        engine, state, player = self._engine_state(
+            foe_kwargs={"x": 5, "y": 0, "hp": 80, "defense": 1, "speed": 0}
+        )
+        state.covers["6,0"] = "half"
+        foe = state.by_id("d1")
+        assert foe is not None
+        hp0 = foe.hp
+        engine._skill_displace(state, player, foe, 1, toward=False)
+        self.assertEqual((foe.x, foe.y), (6, 0))  # shoved over the low barricade
+        self.assertEqual(foe.hp, hp0)  # clean displacement — no slam
+        self.assertFalse(any(e.detail.get("slam") for e in state.log))
+
+    def test_push_into_another_unit_slams(self) -> None:
+        engine, state, player = self._engine_state(
+            foe_kwargs={"x": 5, "y": 0, "hp": 80, "defense": 1, "speed": 0},
+            second_foe={"x": 6, "y": 0, "hp": 80, "defense": 1, "speed": 0},
+        )
+        foe = state.by_id("d1")
+        blocker = state.by_id("d2")
+        assert foe is not None and blocker is not None
+        engine._skill_displace(state, player, foe, 2, toward=False)
+        self.assertEqual((foe.x, foe.y), (5, 0))
+        slams = [e for e in state.log if e.detail.get("slam")]
+        self.assertEqual(len(slams), 1)
+        self.assertEqual(slams[0].detail.get("obstacle"), "unit")
+        self.assertEqual(blocker.hp, 80)  # the bumped unit is not damaged (yet)
+
+    def test_pull_flush_to_caster_is_a_clean_catch(self) -> None:
+        engine, state, player = self._engine_state(
+            foe_kwargs={"x": 6, "y": 0, "hp": 80, "defense": 1, "speed": 0}
+        )
+        foe = state.by_id("d1")
+        assert foe is not None
+        hp0 = foe.hp
+        engine._skill_displace(state, player, foe, 4, toward=True)
+        self.assertEqual((foe.x, foe.y), (5, 0))  # adjacent to the caster at (4,0)
+        self.assertEqual(foe.hp, hp0)  # landing against the caster is not a collision
+        self.assertFalse(any(e.detail.get("slam") for e in state.log))
+
+    def test_full_displacement_without_blocker_never_slams(self) -> None:
+        engine, state, player = self._engine_state(
+            foe_kwargs={"x": 5, "y": 0, "hp": 80, "defense": 1, "speed": 0}
+        )
+        foe = state.by_id("d1")
+        assert foe is not None
+        hp0 = foe.hp
+        engine._skill_displace(state, player, foe, 1, toward=False)
+        self.assertEqual((foe.x, foe.y), (6, 0))
+        self.assertEqual(foe.hp, hp0)
+        self.assertFalse(any(e.detail.get("slam") for e in state.log))
+
+
+class CryoGrenadeDamageTest(unittest.TestCase):
+    """Owner call 2026-07-12: the cryo grenade deals blast damage too (was a
+    pure ❄ utility throw)."""
+
+    def test_cryo_grenade_defines_blast_damage(self) -> None:
+        import json
+
+        combat = json.loads(read("resources/neo-seoul/scenario.json"))["combat"]
+        cryo = combat["items"]["cryo_grenade"]
+        self.assertEqual(cryo.get("damage"), "1d4")
+        self.assertEqual(cryo.get("applies"), {"freeze": 1})
+
+    def test_cryo_grenade_deals_damage_and_freezes(self) -> None:
+        import json
+
+        sys.path.insert(0, str(ROOT / "tests"))
+        from test_combat_engine import _drone, _skilled_player
+
+        from mythos_combat import CombatEngine, PlayerAction
+
+        item_def = json.loads(read("resources/neo-seoul/scenario.json"))["combat"]["items"][
+            "cryo_grenade"
+        ]
+        engine = CombatEngine()
+        state = engine.start(
+            [_skilled_player(x=0, y=0)],
+            [_drone("d1", x=3, y=0, hp=40, defense=1, speed=0)],
+            seed="cryo", arena=(8, 6),
+        )
+        player = state.player()
+        assert player is not None
+        ok = engine._player_item(
+            state, player,
+            PlayerAction(type="item", item_id="cryo_grenade", target_cell=(3, 0)),
+            item_def, True,
+        )
+        self.assertTrue(ok)
+        foe = state.by_id("d1")
+        assert foe is not None
+        self.assertLess(foe.hp, 40)
+        self.assertEqual(foe.status_effects.get("freeze"), 1)
 
 
 if __name__ == "__main__":

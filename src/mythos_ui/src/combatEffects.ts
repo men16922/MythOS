@@ -12,6 +12,7 @@ const MOVE_DUR = 260;
 const YANK_DUR = 230; // forced movement (밀기/당기기): a snatch, not a stroll
 const YANK_IMPACT = 320; // arrival crunch window after the snatch lands
 const STATUS_POP_DUR = 620; // status-apply burst (rings + icon float)
+const SLAM_DUR = 460; // collision slam burst (shove into edge/structure/unit)
 const BLAST_DUR = 1150; // grenade detonation at the target cell (measured too
 // subtle at 750ms — a ~0.5s brightness bump read as "이펙트 없음", 2026-07-12)
 const HIT_DUR = 440;
@@ -127,7 +128,8 @@ export class CombatAnimator {
       return (
         (Array.isArray(d.cell) && d.radius != null) || // grenade blast
         (typeof d.status === "string" && d.turns != null && STATUS_BADGES[d.status]) || // status pop
-        (d.forced === "push" || d.forced === "pull") // yank
+        (d.forced === "push" || d.forced === "pull") || // yank
+        d.slam === true // collision slam
       );
     });
 
@@ -187,6 +189,18 @@ export class CombatAnimator {
       }
     }
 
+    // Collision slams (owner 2026-07-12 "부딪치면 추가 데미지"): a shove cut
+    // short by the edge / a structure / another unit logs detail.slam — stage
+    // an impact burst so even a 0-tile blocked push reads on the board
+    // (before this, a wall-adjacent 자기 반발 showed almost nothing).
+    const slams: { id: string; at: number }[] = [];
+    for (const entry of newLog) {
+      const d = entry.detail || {};
+      if (d.slam === true && typeof d.target === "string") {
+        slams.push({ id: d.target, at: hasMove ? YANK_DUR : 60 });
+      }
+    }
+
     // Grenade detonations (owner 2026-07-12 "수류탄 이펙트가 없음"): the AoE
     // item logs carry the impact cell + radius — stage a real explosion there.
     const blasts: { cell: [number, number]; radius: number; at: number }[] = [];
@@ -216,6 +230,7 @@ export class CombatAnimator {
     sched.forEach((s) => (total = Math.max(total, s.start + s.dur)));
     attacks.forEach((a) => (total = Math.max(total, a.impactAt + 160)));
     statusPops.forEach((p) => (total = Math.max(total, p.at + STATUS_POP_DUR)));
+    slams.forEach((s) => (total = Math.max(total, s.at + SLAM_DUR)));
     blasts.forEach((b) => (total = Math.max(total, b.at + BLAST_DUR)));
     sched.forEach((s) => {
       if (s.ev.kind === "move" && yanks.has(s.ev.id)) {
@@ -562,6 +577,45 @@ export class CombatAnimator {
         });
       }
 
+      // Collision slam bursts: amber crunch rings + 💥 float on the unit that
+      // got shoved into the obstacle — the blocked push must still read.
+      for (const slam of slams) {
+        const local = (t - slam.at) / SLAM_DUR;
+        if (local < 0 || local > 1) continue;
+        const [px, py] = curPos(overlay, slam.id);
+        const ov = ovFor(slam.id);
+        if (local < 0.3) {
+          ov.flash = Math.max(ov.flash || 0, 1 - local / 0.3);
+          ov.flashColor = "#ffb347";
+        }
+        overlay.fx!.push({
+          kind: "ring",
+          cellX: px + 0.5,
+          cellY: py + 0.5,
+          cellR: 0.12 + 0.9 * easeOut(clamp01(local)),
+          color: "#ffb347",
+          alpha: 0.9 * (1 - local),
+          width: 5 * (1 - local) + 1,
+        });
+        overlay.fx!.push({
+          kind: "ring",
+          cellX: px + 0.5,
+          cellY: py + 0.5,
+          cellR: 0.08 + 0.5 * local,
+          color: "#ffffff",
+          alpha: 0.6 * (1 - local),
+          width: 2,
+        });
+        overlay.floats!.push({
+          cellX: px + 0.5,
+          cellY: py - 0.25 - 0.6 * local,
+          text: "💥 충돌!",
+          color: "#ffb347",
+          alpha: 1 - local * 0.6,
+          size: 24,
+        });
+      }
+
       // Screen shake calculation
       let shakeX = 0;
       let shakeY = 0;
@@ -585,6 +639,15 @@ export class CombatAnimator {
           const ratio = 1 - age / 220;
           shakeX += Math.sin(age * 0.2) * 12 * ratio;
           shakeY += Math.cos(age * 0.24) * 12 * ratio;
+        }
+      }
+      // Collision slams thump the board like a yank arrival.
+      for (const slam of slams) {
+        if (t >= slam.at && t < slam.at + 220) {
+          const age = t - slam.at;
+          const ratio = 1 - age / 220;
+          shakeX += Math.sin(age * 0.2) * 10 * ratio;
+          shakeY += Math.cos(age * 0.24) * 10 * ratio;
         }
       }
       // Grenade detonations hit the camera hardest of all.

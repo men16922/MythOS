@@ -3331,6 +3331,7 @@
         "name": "냉각 수류탄",
         "kind": "consumable",
         "effect": "status_grenade",
+        "damage": "1d4",
         "applies": { "freeze": 1 },
         "range": 4,
         "radius": 1,

@@ -2345,7 +2345,8 @@
         "cooldown": 3,
         "effect": {
           "stun": true,
-          "duration": 1
+          "duration": 1,
+          "shock_damage": "1d4"
         },
         "tags": [
           "debuff",
@@ -2891,7 +2892,7 @@
         "cost": { "focus": 3 },
         "range": 4,
         "cooldown": 3,
-        "effect": { "applies": { "shock": 2 } },
+        "effect": { "applies": { "shock": 2 }, "shock_damage": "1d4" },
         "tags": ["ranged", "debuff", "disable"]
       },
       "shortcut_call": {
@@ -2911,7 +2912,7 @@
         "cost": { "focus": 2 },
         "range": 4,
         "cooldown": 3,
-        "effect": { "stun": true, "duration": 1 },
+        "effect": { "stun": true, "duration": 1, "shock_damage": "1d4" },
         "tags": ["hack", "debuff", "disable"]
       },
       "guardian_wall": {

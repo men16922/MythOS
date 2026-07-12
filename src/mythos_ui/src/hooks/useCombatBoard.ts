@@ -110,6 +110,22 @@ export function useCombatBoard(opts: {
     const fx: NonNullable<CombatOverlay["fx"]> = [];
     const combat = finalizedSnapshot?.combat;
     const blips = combat?.radar?.blips || [];
+    // Range affordance: tint every reachable cell while aiming.
+    const rangeTiles: [number, number][] = [];
+    {
+      const shooter = blips.find((b) => b.id === combat?.radar?.current);
+      if (shooter) {
+        const cols = combat?.radar?.arena?.w || 8;
+        const rows = combat?.radar?.arena?.h || 6;
+        for (let ry = 0; ry < rows; ry++) {
+          for (let rx = 0; rx < cols; rx++) {
+            if (Math.max(Math.abs(shooter.x - rx), Math.abs(shooter.y - ry)) <= tg.range) {
+              rangeTiles.push([rx, ry]);
+            }
+          }
+        }
+      }
+    }
     const victim =
       tg.kind === "skill"
         ? blips.find(
@@ -180,7 +196,7 @@ export function useCombatBoard(opts: {
         });
       }
     }
-    return { fx };
+    return { fx, rangeTiles };
   };
 
   const redrawCombat = (drag?: CombatDragOverlay, hover?: [number, number] | null) => {

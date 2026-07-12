@@ -203,17 +203,41 @@ export function useCombatCinemaQueue({
               crit: !!entry.detail?.crit,
               skillName,
               miss: entry.action === "miss",
+              kill: entry.action === "defeat",
             });
           }
         });
 
-        if (queueItems.length > 0) {
+        // One cut-in per attacker per transition, preferring the kill blow —
+        // a splash kill used to play a SECOND full-screen cinema right after
+        // the hit (owner: "한 번 쓰니 두 번 발동되는 것처럼 보임").
+        const perActorIdx = new Map<string, number>();
+        const dedupedItems: CombatCinemaContext[] = [];
+        for (const item of queueItems) {
+          const key = item.attacker.id;
+          const existing = perActorIdx.get(key);
+          if (existing == null) {
+            perActorIdx.set(key, dedupedItems.length);
+            dedupedItems.push(item);
+          } else if (item.kill && !dedupedItems[existing].kill) {
+            dedupedItems[existing] = item; // upgrade the hit to its kill blow
+          }
+        }
+
+        if (dedupedItems.length > 0) {
           pendingTransitionRef.current = { prev, next: combat };
-          setCinemaQueue(queueItems);
-          setCinemaContext(queueItems[0]);
+          // Diff-driven animation orchestration: seeding the cinema queue from
+          // the prev→next combat diff is the whole point of this effect, so the
+          // synchronous setState here is intentional (same pattern as the
+          // pre-dedup code path).
+          // eslint-disable-next-line react-hooks/set-state-in-effect
+          setCinemaQueue(dedupedItems);
+          // eslint-disable-next-line react-hooks/set-state-in-effect
+          setCinemaContext(dedupedItems[0]);
           // Roster/inspector follow the canvas: at cinema start the board still
           // shows the pre-turn `prev` (no impact has landed yet), so seed the
           // interim with it and let onCinemaImpact decrement from there.
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setReplayCombat(prev);
 
           prevCombatRef.current = combat;

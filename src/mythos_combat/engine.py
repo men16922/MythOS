@@ -789,20 +789,29 @@ class CombatEngine:
                 clog(state.language, "recover_hp", name=support.name, healed=healed),
             )
         # F stun (EMP pulse): stun the picked/nearest enemy in range; an ``aoe``
-        # tagged skill also catches enemies adjacent to that target.
+        # tagged skill also catches enemies adjacent to that target. A
+        # ``shock_damage`` rider (owner 2026-07-12 "EMP 펄스 등도 데미지가
+        # 없음") zaps every stunned victim for a small guaranteed hit.
         if effect.get("stun"):
             stun_target = state.by_id(action.target_id)
             if stun_target is None or not stun_target.alive or stun_target.faction != ENEMY:
                 stun_target = self._nearest_enemy_in_range(state, player, skill_range)
             if stun_target is not None:
                 duration = max(1, int(effect.get("duration", 1) or 1))
-                self._apply_stun(state, player, stun_target, duration)
+                zap = str(effect.get("shock_damage", "") or "")
+                victims = [stun_target]
                 if "aoe" in (skill_def.get("tags") or []):
                     for splash in state.living_enemies():
                         if splash.id != stun_target.id and (
                             distance(splash.x, splash.y, stun_target.x, stun_target.y) <= 1
                         ):
-                            self._apply_stun(state, player, splash, duration)
+                            victims.append(splash)
+                for victim in victims:
+                    self._apply_stun(state, player, victim, duration)
+                    if zap and victim.alive:
+                        self._apply_shock_damage(
+                            state, player, victim, zap, dice, name, "splash_hit"
+                        )
             else:
                 self._log(
                     state, player, "info", clog(state.language, "skill_no_target", name=name)
@@ -1212,17 +1221,19 @@ class CombatEngine:
         if isinstance(applies, dict) and target.alive:
             for status_id, turns in applies.items():
                 self._apply_status_effect(state, player, target, str(status_id), int(turns or 1))
-        # Splash (펄스 폭발): the blast that landed on the primary target also
+        # Splash (과부하 일격): the blast that landed on the primary target also
         # catches every other enemy within ``aoe_radius`` of the impact cell —
-        # flat (no separate to-hit), same rolled damage, so the AoE is legible.
+        # flat (no separate to-hit) at HALF the rolled damage (owner 2026-07-12:
+        # full-damage splash one-shot two drones per cast, "스킬 언밸런스").
         radius = int(effect.get("aoe_radius", 0) or 0)
         if radius > 0:
+            splash_damage = max(1, damage // 2)
             for foe in list(state.living_enemies()):
                 if foe.id == target.id:
                     continue
                 if distance(foe.x, foe.y, target.x, target.y) <= radius:
                     self._apply_shock_damage(
-                        state, player, foe, damage, dice, skill_name, "splash_hit"
+                        state, player, foe, splash_damage, dice, skill_name, "splash_hit"
                     )
 
     def _apply_heal(self, combatant: Combatant, heal_dice: str, dice: Dice) -> int:
@@ -1605,6 +1616,11 @@ class CombatEngine:
                     self._apply_status_effect(
                         state, caster, victim, str(status_id), int(turns or 1)
                     )
+                zap = str(effect.get("shock_damage", "") or "")
+                if zap and victim.alive:
+                    self._apply_shock_damage(
+                        state, caster, victim, zap, self._dice(state), "", "splash_hit"
+                    )
         # 시스템 침투 (hack_control — previously a phantom effect with no engine
         # handling): seize the target's next turn; it attacks its nearest
         # fellow enemy instead (resolved in _hacked_turn).
@@ -1759,7 +1775,7 @@ class CombatEngine:
                 "defend",
                 clog(state.language, "cover_noise", name=buff_target.name, buff=buff_target.defense_buff),
             )
-        # F stun for NPC casts (린위에 정밀 EMP, boss disables).
+        # F stun for NPC casts (수아 시스템 해킹, boss disables).
         if effect.get("stun"):
             stun_victim = target
             if stun_victim is None or not stun_victim.alive or stun_victim.faction == actor.faction:
@@ -1770,6 +1786,12 @@ class CombatEngine:
                 self._apply_stun(
                     state, actor, stun_victim, max(1, int(effect.get("duration", 1) or 1))
                 )
+                zap = str(effect.get("shock_damage", "") or "")
+                if zap and stun_victim.alive:
+                    self._apply_shock_damage(
+                        state, actor, stun_victim, zap, self._dice(state),
+                        str(skill_def.get("name", "")), "splash_hit",
+                    )
         # E1 signature effects (radius defense / focus drain / party speed /
         # taunt / ally relocation).
         self._apply_extended_effects(

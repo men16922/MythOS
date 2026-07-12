@@ -154,6 +154,10 @@ export interface CombatOverlay {
   fx?: CombatFx[];
   shakeX?: number;
   shakeY?: number;
+  // Aiming affordance: tiles inside the armed skill/item's range render with a
+  // subtle tint so "여기까지 닿는다" reads on the board (owner 2026-07-12
+  // "사정거리 조건도 봐도 모르겠음").
+  rangeTiles?: [number, number][];
 }
 
 // Sprite URLs that failed to load (e.g. a <char>-cover.png crouch sprite that
@@ -730,6 +734,12 @@ export function drawCombatCanvas(
     }
     ctx.restore();
   });
+
+  // Aiming range tint: every tile the armed skill/item can reach (drawn under
+  // units — the FX/blip passes below paint over it).
+  for (const [rx, ry] of overlay?.rangeTiles || []) {
+    drawIsoTile(ctx, rx, ry, cfg, "rgba(255, 215, 106, 0.10)", "rgba(255, 215, 106, 0.30)", 1);
+  }
 
   // Draw Transient FX (Tracers / Rings / Sparks)
   (overlay?.fx || []).forEach((fx) => {

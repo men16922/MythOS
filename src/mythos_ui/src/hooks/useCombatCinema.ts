@@ -64,11 +64,169 @@ export const SKILL_REGISTRY: Record<string, SkillMetadata> = {
     glitchCodes: ["PATCH_VER: 9.4.2", "CLEAN_SYSTEM: YES", "BUFFER_REGEN: MAX"],
     description: "치유 코드 패키지를 주입하여 파손된 회로를 급속 복구합니다.",
   },
+  magnetic_pull: {
+    id: "magnetic_pull",
+    nameEn: "MAGNETIC PULL",
+    nameKo: "자기 견인",
+    role: "CONTROLLER / FIELD",
+    icon: "⥢",
+    color: "#e07dff", // Neon Violet
+    glitchCodes: ["MAG_FIELD: LOCK", "VECTOR: INBOUND", "GRIP_FORCE: 2T"],
+    description: "자기장 그물로 적을 낚아채 내 앞까지 끌어옵니다.",
+  },
+  magnetic_repulse: {
+    id: "magnetic_repulse",
+    nameEn: "MAGNETIC REPULSE",
+    nameKo: "자기 반발",
+    role: "CONTROLLER / FIELD",
+    icon: "⥤",
+    color: "#ffb347", // Neon Amber
+    glitchCodes: ["POLARITY: FLIP", "VECTOR: OUTBOUND", "SHOVE_FORCE: 2T"],
+    description: "극성을 반전시켜 적을 강하게 밀쳐냅니다.",
+  },
+  emp_pulse: {
+    id: "emp_pulse",
+    nameEn: "EMP PULSE",
+    nameKo: "EMP 펄스",
+    role: "DISRUPTOR / AOE",
+    icon: "⌁",
+    color: "#ffd76a", // Neon Gold
+    glitchCodes: ["EM_BURST: WIDE", "CIRCUITS: LOCKED", "STUN_FIELD: 1T"],
+    description: "광역 전자기 폭발로 일대의 회로를 마비시킵니다.",
+  },
+  precision_emp: {
+    id: "precision_emp",
+    nameEn: "PRECISION EMP",
+    nameKo: "정밀 EMP",
+    role: "DISRUPTOR / SNIPE",
+    icon: "⌁",
+    color: "#fff078", // Neon Yellow
+    glitchCodes: ["EM_LANCE: FOCUS", "REGEN_HALT: 2T", "COOLDOWN_FREEZE"],
+    description: "정밀 전자기 창으로 대상의 회로를 지연시킵니다 (⚡감전).",
+  },
+  system_hack: {
+    id: "system_hack",
+    nameEn: "SYSTEM HACK",
+    nameKo: "시스템 해킹",
+    role: "HACKER / CONTROL",
+    icon: "⎔",
+    color: "#a78bfa", // Neon Purple
+    glitchCodes: ["ROOT_ACCESS: OK", "CTRL_LOOP: HALT", "STUN: 1T"],
+    description: "제어 회로에 침투해 대상을 1턴 기절시킵니다.",
+  },
+  system_intrusion: {
+    id: "system_intrusion",
+    nameEn: "SYSTEM BREACH",
+    nameKo: "시스템 침투",
+    role: "HACKER / DOMINATE",
+    icon: "🕹",
+    color: "#ff82c8", // Neon Pink
+    glitchCodes: ["MIND_CTRL: SEIZED", "IFF_TABLE: FLIPPED", "TURN_STOLEN: 1"],
+    description: "적의 제어권을 탈취해 다음 턴 아군을 공격하게 만듭니다.",
+  },
+  glitch_blink: {
+    id: "glitch_blink",
+    nameEn: "GLITCH BLINK",
+    nameKo: "글리치 점멸",
+    role: "INFILTRATOR / EVADE",
+    icon: "⧉",
+    color: "#c084fc",
+    glitchCodes: ["FRAME_SKIP: 3", "DECOY_SPAWN: OK", "TRACE: LOST"],
+    description: "프레임 사이로 미끄러지며 잔상을 남기고 재배치합니다.",
+  },
+  nanoshield_projector: {
+    id: "nanoshield_projector",
+    nameEn: "NANOSHIELD DEPLOY",
+    nameKo: "나노방막 전개",
+    role: "DEFENDER / SUPPORT",
+    icon: "⛨",
+    color: "#22d3ee",
+    glitchCodes: ["NANO_WALL: UP", "DEF_BONUS: +3", "DURATION: 2T"],
+    description: "나노 입자 방막을 전개해 아군을 보호합니다.",
+  },
+  signal_overdrive: {
+    id: "signal_overdrive",
+    nameEn: "SIGNAL OVERDRIVE",
+    nameKo: "신호 오버드라이브",
+    role: "BOOSTER / SELF",
+    icon: "↯",
+    color: "#f97316",
+    glitchCodes: ["CLOCK_BOOST: ON", "SPD+2 / CRIT+2", "THERMAL: RISING"],
+    description: "신경 신호를 과구동해 속도와 치명타를 끌어올립니다.",
+  },
+  memory_resonance: {
+    id: "memory_resonance",
+    nameEn: "MEMORY RESONANCE",
+    nameKo: "기억 공명",
+    role: "PSION / SCALING",
+    icon: "◈",
+    color: "#8be9fd",
+    glitchCodes: ["ECHO_AMP: CLUES", "RESONANCE: BUILD", "DMG_SCALE: ON"],
+    description: "수집한 단서의 잔향을 증폭해 공명 타격을 가합니다.",
+  },
+  shortcut_call: {
+    id: "shortcut_call",
+    nameEn: "SHORTCUT CALL",
+    nameKo: "지름길 호출",
+    role: "RUNNER / PARTY",
+    icon: "⇶",
+    color: "#7dff9b",
+    glitchCodes: ["ROUTE_OPT: FOUND", "PARTY_SPD: +2", "PATH_SYNC: OK"],
+    description: "숨은 경로를 공유해 파티 전체의 기동을 가속합니다.",
+  },
+  shield_field: {
+    id: "shield_field",
+    nameEn: "SHIELD FIELD",
+    nameKo: "차폐 필드",
+    role: "DEFENDER / AOE",
+    icon: "⛨",
+    color: "#8fffea",
+    glitchCodes: ["FIELD_RADIUS: 1", "ALLY_DEF: +2", "PROJECTION: ON"],
+    description: "반경 내 아군 전체에 차폐막을 투사합니다.",
+  },
+  guardian_wall: {
+    id: "guardian_wall",
+    nameEn: "GUARDIAN WALL",
+    nameKo: "수호 방벽",
+    role: "TANK / TAUNT",
+    icon: "⌸",
+    color: "#ffb347",
+    glitchCodes: ["AGGRO_BEACON: ON", "DEF_BONUS: +2", "LINE_HELD"],
+    description: "앞을 막아서며 적의 시선을 자신에게 고정합니다.",
+  },
+  backdoor_route: {
+    id: "backdoor_route",
+    nameEn: "BACKDOOR ROUTE",
+    nameKo: "백도어 루트",
+    role: "RUNNER / RESCUE",
+    icon: "⇄",
+    color: "#7dff9b",
+    glitchCodes: ["EXIT_NODE: OPEN", "ALLY_WARP: OK", "SAFE_HOP: 3"],
+    description: "숨겨진 신호 경로로 위험에 빠진 아군을 재배치합니다.",
+  },
 };
 
 export const getSkillId = (name?: string): string => {
   if (!name) return "";
   const n = name.replace(/\s+/g, "").toLowerCase();
+  // Exact id (the engine logs skill IDs — e.g. "magnetic_pull") wins outright.
+  if (SKILL_REGISTRY[n]) return n;
+  // Keyword fallbacks, MOST SPECIFIC FIRST (a bare "신호" test used to swallow
+  // 신호 오버드라이브 into signal_step and knew nothing after the first 5 skills).
+  if (n.includes("반발") || n.includes("repulse")) return "magnetic_repulse";
+  if (n.includes("견인") || n.includes("자기") || n.includes("magnetic")) return "magnetic_pull";
+  if (n.includes("정밀") || n.includes("precision")) return "precision_emp";
+  if (n.includes("emp") || n.includes("펄스")) return "emp_pulse";
+  if (n.includes("해킹") || n.includes("systemhack") || n.includes("hack")) return "system_hack";
+  if (n.includes("침투") || n.includes("breach") || n.includes("intrusion")) return "system_intrusion";
+  if (n.includes("글리치") || n.includes("glitch")) return "glitch_blink";
+  if (n.includes("나노") || n.includes("nano")) return "nanoshield_projector";
+  if (n.includes("오버드라이브") || n.includes("overdrive")) return "signal_overdrive";
+  if (n.includes("공명") || n.includes("resonance")) return "memory_resonance";
+  if (n.includes("지름길") || n.includes("shortcut")) return "shortcut_call";
+  if (n.includes("차폐") || n.includes("shieldfield")) return "shield_field";
+  if (n.includes("방벽") || n.includes("guardian")) return "guardian_wall";
+  if (n.includes("백도어") || n.includes("backdoor")) return "backdoor_route";
   if (n.includes("신호") || n.includes("signal")) return "signal_step";
   if (n.includes("과부하") || n.includes("overload")) return "overload_strike";
   if (n.includes("패킷") || n.includes("packet")) return "packet_shot";

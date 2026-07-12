@@ -12,6 +12,7 @@ const MOVE_DUR = 260;
 const YANK_DUR = 230; // forced movement (밀기/당기기): a snatch, not a stroll
 const YANK_IMPACT = 320; // arrival crunch window after the snatch lands
 const STATUS_POP_DUR = 620; // status-apply burst (rings + icon float)
+const BLAST_DUR = 750; // grenade detonation at the target cell
 const HIT_DUR = 440;
 const DEATH_DUR = 520;
 const TOTAL_CAP = 1500;
@@ -175,6 +176,20 @@ export class CombatAnimator {
       }
     }
 
+    // Grenade detonations (owner 2026-07-12 "수류탄 이펙트가 없음"): the AoE
+    // item logs carry the impact cell + radius — stage a real explosion there.
+    const blasts: { cell: [number, number]; radius: number; at: number }[] = [];
+    for (const entry of newLog) {
+      const d = entry.detail || {};
+      if (Array.isArray(d.cell) && d.cell.length === 2 && d.radius != null) {
+        blasts.push({
+          cell: [Number(d.cell[0]), Number(d.cell[1])],
+          radius: Number(d.radius) || 1,
+          at: hasMove ? 200 : 60,
+        });
+      }
+    }
+
     const sched: Scheduled[] = [];
     moveEvents.forEach((ev) =>
       sched.push({ ev, start: 0, dur: yanks.has(ev.id) ? YANK_DUR : MOVE_DUR })
@@ -190,6 +205,7 @@ export class CombatAnimator {
     sched.forEach((s) => (total = Math.max(total, s.start + s.dur)));
     attacks.forEach((a) => (total = Math.max(total, a.impactAt + 160)));
     statusPops.forEach((p) => (total = Math.max(total, p.at + STATUS_POP_DUR)));
+    blasts.forEach((b) => (total = Math.max(total, b.at + BLAST_DUR)));
     sched.forEach((s) => {
       if (s.ev.kind === "move" && yanks.has(s.ev.id)) {
         total = Math.max(total, s.start + s.dur + YANK_IMPACT);
@@ -428,6 +444,55 @@ export class CombatAnimator {
         }
       }
 
+      // Grenade detonations: white core flash → expanding fireball rings out
+      // to the blast radius → lingering smoke ring. Loud by design.
+      for (const blast of blasts) {
+        const local = (t - blast.at) / BLAST_DUR;
+        if (local < 0 || local > 1) continue;
+        const [bx, by] = blast.cell;
+        if (local < 0.25) {
+          const cp = local / 0.25;
+          overlay.fx!.push({
+            kind: "spark",
+            cellX: bx + 0.5,
+            cellY: by + 0.5,
+            cellR: 0.2 + 0.5 * cp,
+            color: "#ffffff",
+            alpha: 1 - cp * 0.4,
+          });
+        }
+        overlay.fx!.push({
+          kind: "ring",
+          cellX: bx + 0.5,
+          cellY: by + 0.5,
+          cellR: 0.15 + (blast.radius + 0.6) * easeOut(clamp01(local)),
+          color: "#ffd76a",
+          alpha: 0.95 * (1 - local),
+          width: 6 * (1 - local) + 1.5,
+        });
+        overlay.fx!.push({
+          kind: "ring",
+          cellX: bx + 0.5,
+          cellY: by + 0.5,
+          cellR: 0.1 + (blast.radius + 0.2) * easeOut(clamp01(local * 1.3)),
+          color: "#ff8a3d",
+          alpha: 0.8 * (1 - local),
+          width: 4 * (1 - local) + 1,
+        });
+        if (local > 0.3) {
+          const sp = (local - 0.3) / 0.7;
+          overlay.fx!.push({
+            kind: "ring",
+            cellX: bx + 0.5,
+            cellY: by + 0.5,
+            cellR: 0.3 + blast.radius * sp,
+            color: "#9aa5b1",
+            alpha: 0.35 * (1 - sp),
+            width: 8 * (1 - sp) + 1,
+          });
+        }
+      }
+
       // Status-apply pops: double shockwave in the status color + the badge
       // floating up + a flash tint on the afflicted unit.
       for (const pop of statusPops) {
@@ -491,6 +556,15 @@ export class CombatAnimator {
           const ratio = 1 - age / 220;
           shakeX += Math.sin(age * 0.2) * 12 * ratio;
           shakeY += Math.cos(age * 0.24) * 12 * ratio;
+        }
+      }
+      // Grenade detonations hit the camera hardest of all.
+      for (const blast of blasts) {
+        if (t >= blast.at && t < blast.at + 300) {
+          const age = t - blast.at;
+          const ratio = 1 - age / 300;
+          shakeX += Math.sin(age * 0.22) * 14 * ratio;
+          shakeY += Math.cos(age * 0.26) * 14 * ratio;
         }
       }
       overlay.shakeX = shakeX;

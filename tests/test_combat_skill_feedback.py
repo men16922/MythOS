@@ -435,6 +435,84 @@ class StatusContentMappingTest(unittest.TestCase):
         self.assertIn("export const STATUS_BADGES", canvas)
 
 
+class SkillCardCoverageTest(unittest.TestCase):
+    """Every player/companion skill must have a cinema card (owner 2026-07-12
+    "자기 견인/자기 반발 스킬카드가 안 뜸" — the registry only had 5 skills)."""
+
+    def test_every_scenario_skill_has_cinema_metadata(self) -> None:
+        import json
+        import re
+
+        combat = json.loads(read("resources/neo-seoul/scenario.json"))["combat"]
+        skill_ids = set(combat.get("skills", {})) | set(combat.get("companion_skills", {}))
+        registry_src = read("src/mythos_ui/src/hooks/useCombatCinema.ts")
+        registry_ids = set(re.findall(r"^\s{2}(\w+):\s*\{", registry_src, re.MULTILINE))
+        # Every combat skill id resolves to a card by exact id.
+        self.assertTrue(
+            skill_ids <= registry_ids,
+            f"skills missing cinema cards: {skill_ids - registry_ids}",
+        )
+
+    def test_getskillid_prefers_exact_id(self) -> None:
+        source = read("src/mythos_ui/src/hooks/useCombatCinema.ts")
+        self.assertIn("if (SKILL_REGISTRY[n]) return n;", source)
+
+
+class SkillDamageRiderTest(unittest.TestCase):
+    """EMP-family and grenade damage (owner 2026-07-12 "EMP 펄스 등도 데미지가 없음")."""
+
+    def _fx(self):
+        sys.path.insert(0, str(ROOT / "tests"))
+        from test_combat_engine import SKILLS, _drone, _skilled_player
+
+        from mythos_combat import CombatEngine, PlayerAction
+
+        return CombatEngine, PlayerAction, SKILLS, _drone, _skilled_player
+
+    def test_emp_pulse_deals_shock_damage_and_aoe_stun(self) -> None:
+        CombatEngine, PlayerAction, SKILLS, _drone, _skilled_player = self._fx()
+        e = CombatEngine()
+        s = e.start(
+            [_skilled_player(0, 0)],
+            [_drone("d1", 2, 0, hp=40, defense=1, speed=0),
+             _drone("d2", 2, 1, hp=40, defense=1, speed=0)],
+            seed="emp", arena=(8, 6),
+        )
+        p = s.player()
+        assert p is not None
+        e._player_skill(
+            s, p, PlayerAction(type="skill", skill_id="emp_pulse", target_id="d1"),
+            SKILLS["emp_pulse"], True,
+        )
+        d1, d2 = s.by_id("d1"), s.by_id("d2")
+        assert d1 is not None and d2 is not None
+        self.assertLess(d1.hp, 40)
+        self.assertLess(d2.hp, 40)  # aoe splash zaps the neighbor too
+        self.assertEqual(d1.stunned_turns, 1)
+
+    def test_overload_splash_is_half_damage(self) -> None:
+        CombatEngine, PlayerAction, SKILLS, _drone, _skilled_player = self._fx()
+        e = CombatEngine()
+        s = e.start(
+            [_skilled_player(0, 0)],
+            [_drone("d1", 1, 0, hp=60, defense=1, speed=0),
+             _drone("d2", 1, 1, hp=60, defense=1, speed=0)],
+            seed="ov", arena=(8, 6),
+        )
+        p = s.player()
+        assert p is not None
+        e._player_skill(
+            s, p, PlayerAction(type="skill", skill_id="overload_strike", target_id="d1"),
+            SKILLS["overload_strike"], True,
+        )
+        d1, d2 = s.by_id("d1"), s.by_id("d2")
+        assert d1 is not None and d2 is not None
+        primary = 60 - d1.hp
+        splash = 60 - d2.hp
+        self.assertGreater(primary, 0)
+        self.assertLessEqual(splash, (primary + 1) // 2 + 1)  # splash ≈ half, floored
+
+
 class SimulatorTestKitTest(unittest.TestCase):
     """Owner 2026-07-12: every changed combat feature must be exercisable in
     the simulator — a fresh sim loop hid tier-1 skills and had no grenades."""

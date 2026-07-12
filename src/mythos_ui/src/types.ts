@@ -654,6 +654,8 @@ export interface CombatCinemaContext {
   crit: boolean;
   skillName?: string;
   miss?: boolean;
+  // Kill blow — used to prefer the defeat cut-in when deduping per attacker.
+  kill?: boolean;
 }
 
 export type CombatCinemaCue = "enter" | "windup" | "impact" | "exit";

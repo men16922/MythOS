@@ -2,6 +2,14 @@
 
 Last updated: 2026-07-12
 
+## 2026-07-12 (live session #13 cont.10, claude lane) — 전투 완성도 배치: 직접 시뮬 테스트로 발굴+수정
+- Status: Done, `make check` **1041** green. UNDEPLOYED (origin+19). 오너 지시 "직접 전투 시뮬레이터 들어가서 테스트하고 개선" → chrome-devtools로 로컬 시뮬 구동해 발굴.
+- **스킬 카드 안 뜸** (자기 견인/자기 반발 등): 시네마 레지스트리에 스킬 5/~20개만 등록돼 있었음 → 전 스킬 카드 추가 + `getSkillId` 정확-id 우선 + 특정-우선 키워드 폴백("신호"가 신호 오버드라이브 삼키던 버그 수정) (`abe2d6a`).
+- **EMP 펄스/정밀 EMP/시스템 해킹 데미지 0**: 순수 제어기라 피해 없음 → 1d4 `shock_damage` 라이더(플레이어·NPC·시그니처 3경로). **과부하 일격 언밸런스**(적 2 원샷): 스플래시 절반 피해로. **"2번 발동"**: 처치 시 컷인 중복 → 공격자당 1회(처치 우선) dedup.
+- **EMP 수류탄 폭발 이펙트 없음**: 착탄 셀 실폭발 VFX(흰 코어→화염 링→연기)+최대 셰이크. **냉각 수류탄(피해 0)**도 안 뜸: diff 이벤트 없어 instant 경로로 빠지던 것 → board-fx 마커 조기 스캔(`84210e3`). **조준 사거리** 안 보임: 닿는 칸 황색 틴트.
+- i18n: 신규 수류탄/무기 EN 용어집(`84a24c4`). +6 tests.
+- ⚠ **fallback 모드 전투 애니메이션 분리 시도→REVERT**: fallback→정적 전투는 설계 의도(2026-06-06)이고 오너가 non-fallback에서 확인 완료 → 되돌림. 잔여: 오너 "시각적으로 별로임" 대상 미확정(상태 배지 아이콘 / 조준·폭발 링 / 컷인 카드 / 보드 룩 중 어느 것인지 확인 필요).
+
 ## 2026-07-12 (agy lane) — status effect & item grenade icons generated (`make check` green)
 - Status: Done
 - Changed:
@@ -95,26 +103,6 @@ Last updated: 2026-07-12
 - 러너 2회차(codex)가 잔여 5장(lin-yue/su-ah/tae-o/han/player-noise)을 승격했으나(`33b5a4a`) critic이 정당하게 reject — NEXT_PLAN에서 이 항목을 `[manual]` 후속 없이 DONE으로 닫고 불릿의 잔여 이력을 삭제했기 때문(아트 품질 문제 아님). revert(`0647fab`) 후 claude가 아트 5장만 복원하고 문서를 후속-보존형으로 재작성.
 - Verified: claude 시각 정체성 재판정 5장 전원 PASS vs 정본 idle/guard — 오너 리젝 사유 해소(린위에=여성 인간, 태오=남성, player-noise 초록 육각 실드) + 7장 포즈 전부 상이. 1회차 se-rin/kai(`df8d1e6`)는 러너 image-judge PASS + AGY live-QA PASS_CANDIDATE. `make check` green.
 - Next: `[manual]` 오너 비교 시트 확인 → 승인 시 deploy 블로커 해제 · `! git push` · `make deploy` w/ `IMAGEN_MODEL=gemini-3.1-flash-image`.
-
-## 2026-07-12 — overnight Codex: cover-pose regeneration partial promotion
-- Status: In progress; two of seven identity-reviewed candidates promoted, remaining five stay pending.
-- Changed: regenerated `se-rin-cover.png` and `kai-cover.png` from each character's guard/idle references; preserved chroma-key sources and RGBA candidates in `outputs/cover-pose-regen/` with a per-character review table.
-- Verified: both promoted files are 512×768 RGBA PNGs with transparent corners; visual identity/prop/shield/pose review passed.
-- Blockers: none in this partial promotion; the task completion criterion still requires five reviewed candidates and `make check`.
-- Next: regenerate lin-yue, su-ah, tae-o, han, and player-noise using their own guard/idle references; only promote PASS candidates.
-
-## 2026-07-12 — overnight Codex: cover-pose regeneration blocked at identity review
-- Status: Blocker #1; no project assets were changed.
-- Changed: generated seven reference-guided cover-pose candidates in a temporary workspace and chroma-keyed them to RGBA 512×768 for inspection.
-- Verified: opened every target's `-idle`/`-guard` reference, then visually checked all seven candidates against the five-item brief.
-- Blockers: `player-noise` rendered a neutral/dark shield instead of the required green hexagonal hologram, so the all-PASS promotion criterion failed; assets were deliberately not replaced and `make check` was not run.
-- Next: human review/reseed direction needed before another unattended regeneration; do not promote partial art.
-
-## 2026-07-12 (live session, claude lane) — A2A 러너 릴레이 2종 구현 + cover 아트 7장 재생성 재시드
-- **A2A 검토→구현** (`docs/plans/2026-07-12-a2a-relays.md`, run.sh): 라이브 A2A는 비채택(one-shot 복구성 훼손·공통 프로토콜 부재·쿼터 이중 소모). 대신 러너 중개 one-shot 릴레이 2종 — **Relay 1 image-judge 게이트**: 캐릭터/적 아트 커밋을 claude 시각 판정자(plan 모드)가 정본(-idle/-guard/초상)과 대조, FAIL=critic-reject 식 자동 revert, fail-open; **리젝 배치 `4d5b3be` 실판정 FAIL 재현 확인**(kai=인간 오검출 정확 지목). **Relay 2 당일 블로커 에스컬레이션**: codex/agy 회차가 Blocker/[blocked] 기록 시 다음 1회차를 claude 크로스레인 처리(상한 2/run, --once 미발동). `OVERNIGHT_IMAGE_JUDGE`/`OVERNIGHT_ESCALATE` 기본 on.
-- **cover 스프라이트 1차(4d5b3be) 오너 전량 리젝** — 7장이 동일 템플릿 + 정체성 뒤섞임(세린=플레이어 디자인, 카이=인간, 린위에=카이 로봇 바디, 태오=여성). 브리프 `scratch/codex-cover-pose-brief.md`를 7장 전원 개성 앵커로 확대(han 해커 정찰·player 주인공 결의 추가, "7장 같은 자세=전체 실패" 명문화) 후 `[auto:codex]` 재시드, codex --once 재실행(커밋은 image-judge 가 스크린).
-- Follow-up: regen #1 obeyed the self-check but the all-PASS criterion discarded all 7 candidates over ONE fail (player-noise shield color; blocker `bd907af`, ~6M tok, nothing kept) → criterion relaxed to **partial promotion** (`e5f847a`: stage in `outputs/cover-pose-regen/`, promote PASS immediately, retry only FAILs, 2 tries each). Regen #2 hit the codex usage limit instantly (00:23, resets **03:29**) — correctly classified `limit` by the fixed classifier; runner stopped on owner request.
-- Next: after 03:29 rearm `ENGINE=codex nohup caffeinate -dimsu scripts/overnight/run.sh --once &` (image-judge screens the commit, then human identity re-check on a comparison sheet) · ⚠ rejected batch-1 sprites remain in `resources/` until then · `! git push` (ahead 26) · owner `make deploy` w/ `IMAGEN_MODEL=gemini-3.1-flash-image`.
 
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.

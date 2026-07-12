@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { drawCombatCanvas, combatCellFromPoint, getIsoConfig, toIso } from "../combatCanvas";
+import { drawCombatCanvas, combatCellFromPoint, getIsoConfig, toIso, canvasPan } from "../combatCanvas";
 import type { CombatDragOverlay, CombatOverlay } from "../combatCanvas";
 import type { CombatAnimator } from "../combatEffects";
 import type { RuntimeSnapshot, CombatAction, CombatConsumable } from "../types";
@@ -92,6 +92,26 @@ export function useCombatBoard(opts: {
   // Combat board drag & drop: pick up the current actor's blip, drag it to a
   // reachable tile, and drop to move. A plain click no longer teleports the unit.
   const dragRef = useRef<{ blipId: string; origin: [number, number] } | null>(null);
+
+  // Camera pan (owner 2026-07-12 "배경을 잡고 드래그하면 뷰가 움직여야"):
+  // a press that lands on empty background — not the active unit, not a
+  // reachable tile, no armed targeting — drags the camera instead. The offset
+  // lives on canvas.dataset (like boardZoom) so every draw path shares it.
+  const panRef = useRef<{
+    startX: number;
+    startY: number;
+    baseX: number;
+    baseY: number;
+    moved: boolean;
+  } | null>(null);
+
+  const setPan = (canvas: HTMLCanvasElement, px: number, py: number) => {
+    // Clamp so the board can never be flung fully out of view.
+    const maxX = canvas.clientWidth * 0.6;
+    const maxY = canvas.clientHeight * 0.6;
+    canvas.dataset.panX = String(Math.max(-maxX, Math.min(maxX, px)));
+    canvas.dataset.panY = String(Math.max(-maxY, Math.min(maxY, py)));
+  };
 
   // Tile inspector: the board cell currently under the pointer (when not
   // dragging), surfaced to StoryPanel so it can show terrain/occupant/effects.
@@ -261,7 +281,8 @@ export function useCombatBoard(opts: {
     if (!actor) return;
     const cols = combat.radar.arena?.w || 8;
     const rows = combat.radar.arena?.h || 6;
-    const cfg = getIsoConfig(canvas.clientWidth, canvas.clientHeight, cols, rows);
+    const [apx, apy] = canvasPan(canvas);
+    const cfg = getIsoConfig(canvas.clientWidth, canvas.clientHeight, cols, rows, apx, apy);
     const [px, py] = toIso(actor.x + 0.5, actor.y + 0.5, cfg);
     const maxLeft = Math.max(0, wrapper.scrollWidth - wrapper.clientWidth);
     const maxTop = Math.max(0, wrapper.scrollHeight - wrapper.clientHeight);
@@ -272,6 +293,18 @@ export function useCombatBoard(opts: {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeUnitId]);
+
+  // Camera pan resets between encounters so a new fight always opens centered.
+  const hasCombat = !!finalizedSnapshot?.combat?.radar;
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      canvas.dataset.panX = "0";
+      canvas.dataset.panY = "0";
+    }
+    panRef.current = null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasCombat]);
 
   const [boardZoom, setBoardZoom] = useState(resolveInitialBoardZoom);
   const handleBoardZoom = (next: number) => {
@@ -286,11 +319,30 @@ export function useCombatBoard(opts: {
   const handleCanvasPointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const combat = finalizedSnapshot?.combat;
     const canvas = canvasRef.current;
-    if (!combat?.radar || !canvas || isBusy || animatorRef.current?.isAnimating()) return;
-    const av = combat.available;
-    if (!av || !av.can_act) return;
+    if (!combat?.radar || !canvas) return;
+    const canAct =
+      !isBusy && !animatorRef.current?.isAnimating() && !!combat.available?.can_act;
 
     const [cx, cy] = combatCellFromPoint(canvas, combat.radar, e.clientX, e.clientY);
+
+    // Camera pan fallthrough: any press the action layer below doesn't consume
+    // (empty background, enemy turn, mid-animation) grabs the camera instead.
+    const beginPan = () => {
+      // Double-press on the background recenters the camera.
+      if (e.detail >= 2) {
+        setPan(canvas, 0, 0);
+        redrawCombat();
+        return;
+      }
+      const [bx, by] = canvasPan(canvas);
+      panRef.current = { startX: e.clientX, startY: e.clientY, baseX: bx, baseY: by, moved: false };
+      canvas.setPointerCapture?.(e.pointerId);
+    };
+
+    if (!canAct) {
+      beginPan();
+      return;
+    }
 
     // Armed pick: this tap IS the throw/cast. In-bounds + in-range → dispatch;
     // out-of-bounds → disarm (escape hatch).
@@ -332,7 +384,8 @@ export function useCombatBoard(opts: {
       const rect = canvas.getBoundingClientRect();
       const cols = combat.radar.arena?.w || 8;
       const rows = combat.radar.arena?.h || 6;
-      const cfg = getIsoConfig(rect.width, rect.height, cols, rows);
+      const [panX, panY] = canvasPan(canvas);
+      const cfg = getIsoConfig(rect.width, rect.height, cols, rows, panX, panY);
       const [axp, ayp] = toIso(actor.x + 0.5, actor.y + 0.5, cfg);
       const px = e.clientX - rect.left;
       const py = e.clientY - rect.top;
@@ -345,7 +398,10 @@ export function useCombatBoard(opts: {
       const reachable = combat.available?.reachable || [];
       if (reachable.some(([rx, ry]: [number, number]) => rx === cx && ry === cy)) {
         onCombatAction({ type: "wait", x: cx, y: cy });
+        return;
       }
+      // Not a unit, not a reachable tile → the press grabs the camera.
+      beginPan();
       return;
     }
     if (!actor) return;
@@ -368,6 +424,20 @@ export function useCombatBoard(opts: {
     const combat = finalizedSnapshot?.combat;
     const canvas = canvasRef.current;
     if (!combat?.radar || !canvas) return;
+
+    // Camera pan in progress: follow the pointer, skip hover/drag logic.
+    const pan = panRef.current;
+    if (pan) {
+      const dx = e.clientX - pan.startX;
+      const dy = e.clientY - pan.startY;
+      if (!pan.moved && Math.hypot(dx, dy) < 4) return;
+      pan.moved = true;
+      canvas.style.cursor = "grabbing";
+      setPan(canvas, pan.baseX + dx, pan.baseY + dy);
+      redrawCombat(undefined, hoverRef.current);
+      return;
+    }
+
     const rect = canvas.getBoundingClientRect();
     const [cx, cy] = combatCellFromPoint(canvas, combat.radar, e.clientX, e.clientY);
 
@@ -419,6 +489,12 @@ export function useCombatBoard(opts: {
   };
 
   const handleCanvasPointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (panRef.current) {
+      panRef.current = null;
+      const canvas = canvasRef.current;
+      if (canvas) canvas.style.cursor = "default";
+      return;
+    }
     const drag = dragRef.current;
     if (!drag) return;
     dragRef.current = null;
@@ -439,6 +515,7 @@ export function useCombatBoard(opts: {
   };
 
   const handleCanvasPointerCancel = () => {
+    panRef.current = null;
     if (!dragRef.current) return;
     dragRef.current = null;
     const canvas = canvasRef.current;

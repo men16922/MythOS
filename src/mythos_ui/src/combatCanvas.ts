@@ -33,14 +33,33 @@ export interface IsoConfig {
 // footprint (~2x this) stays tappable on small viewports / large arenas.
 export const MIN_ISO_STEP_PX = 26;
 
-export function getIsoConfig(cssW: number, cssH: number, cols: number, rows: number): IsoConfig {
+export function getIsoConfig(
+  cssW: number,
+  cssH: number,
+  cols: number,
+  rows: number,
+  panX = 0,
+  panY = 0
+): IsoConfig {
   // Fit to width safely, keeping 2:1 isometric ratio
   const stepX = (cssW / (cols + rows)) * 0.92;
   const stepY = stepX * 0.5;
-  const centerX = cssW / 2;
+  // The projected diamond's horizontal midpoint sits (cols - rows) * stepX / 2
+  // right of the origin column, so shift the origin the other way. Without this
+  // a non-square arena (e.g. 10×7) hangs past the right canvas edge and the
+  // rightmost units render clipped.
+  const centerX = cssW / 2 - ((cols - rows) * stepX) / 2 + panX;
   const totalH = (cols + rows) * stepY;
-  const centerY = Math.max(20, (cssH - totalH) / 2);
+  const centerY = Math.max(20, (cssH - totalH) / 2) + panY;
   return { centerX, centerY, stepX, stepY };
+}
+
+// Camera pan offset (CSS px), persisted on the canvas dataset like boardZoom so
+// every draw path (App redraw, animator frames, hit-testing) shares one camera.
+export function canvasPan(canvas: HTMLCanvasElement): [number, number] {
+  const px = parseFloat(canvas.dataset.panX || "0") || 0;
+  const py = parseFloat(canvas.dataset.panY || "0") || 0;
+  return [px, py];
 }
 
 export function toIso(x: number, y: number, cfg: IsoConfig): [number, number] {
@@ -518,8 +537,9 @@ export function drawCombatCanvas(
     ctx.translate(overlay.shakeX || 0, overlay.shakeY || 0);
   }
 
-  // Calculate Isometric configuration
-  const cfg = getIsoConfig(cssW, cssH, cols, rows);
+  // Calculate Isometric configuration (camera pan rides the canvas dataset)
+  const [panX, panY] = canvasPan(canvas);
+  const cfg = getIsoConfig(cssW, cssH, cols, rows, panX, panY);
   const reach = combat.available?.reachable || [];
   const blipFx = overlay?.blips || {};
 
@@ -1131,7 +1151,8 @@ export function combatCellFromPoint(
   const px = clientX - rect.left;
   const py = clientY - rect.top;
 
-  const cfg = getIsoConfig(rect.width, rect.height, cols, rows);
+  const [panX, panY] = canvasPan(canvas);
+  const cfg = getIsoConfig(rect.width, rect.height, cols, rows, panX, panY);
   const [x, y] = fromIso(px, py, cfg);
   return [Math.floor(x), Math.floor(y)];
 }

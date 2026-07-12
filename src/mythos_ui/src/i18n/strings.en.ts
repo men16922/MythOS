@@ -320,6 +320,8 @@ export const en: Record<StringKey, string> = {
   // Combat log
   "combat.tutorial.title": "First Combat Guide",
   "combat.tutorial.skip": "Skip",
+  "combat.tutorial.next": "Next ▸",
+  "combat.tutorial.done": "Done",
   "combat.tutorial.move.title": "1. Move",
   "combat.tutorial.move.body": "Click (or drag to) a highlighted tile on the board to move. Behind cover is safest.",
   "combat.tutorial.attack.title": "2. Attack",

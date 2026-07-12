@@ -26,12 +26,17 @@ const STEP_BODY_KEYS: Record<CombatTutorialStep, StringKey> = {
 interface CombatTutorialProps {
   stepIndex: number;
   onSkip: () => void;
+  // Manual page-through (owner 2026-07-12 "다음 버튼이 없고 건너뛰기밖에 없어서
+  // 2,3,4번 못 봄"): the steps still auto-advance when the matching action is
+  // performed, but the player can now also read ahead without acting.
+  onNext: () => void;
 }
 
-export function CombatTutorial({ stepIndex, onSkip }: CombatTutorialProps) {
+export function CombatTutorial({ stepIndex, onSkip, onNext }: CombatTutorialProps) {
   const { t } = useLang();
   const step = COMBAT_TUTORIAL_STEPS[stepIndex];
   if (!step) return null;
+  const isLast = stepIndex >= COMBAT_TUTORIAL_STEPS.length - 1;
   return (
     <div className="combat-tutorial-card" id="combat-tutorial">
       <div className="ct-head">
@@ -52,6 +57,9 @@ export function CombatTutorial({ stepIndex, onSkip }: CombatTutorialProps) {
       </div>
       <div className="ct-step-title">{t(STEP_TITLE_KEYS[step])}</div>
       <div className="ct-step-body">{t(STEP_BODY_KEYS[step])}</div>
+      <button type="button" className="ct-next" id="ct-next" onClick={onNext}>
+        {isLast ? t("combat.tutorial.done") : t("combat.tutorial.next")}
+      </button>
     </div>
   );
 }

@@ -4169,6 +4169,23 @@ main#play.fx-glitch {
   color: var(--ink);
   border-color: var(--term);
 }
+/* Manual page-through (2026-07-12): steps also advance without performing the
+   action, so all four pages are readable up front. */
+.ct-next {
+  margin-top: 10px;
+  width: 100%;
+  background: rgba(41, 255, 198, 0.08);
+  border: 1px solid rgba(41, 255, 198, 0.45);
+  border-radius: 5px;
+  color: var(--term, #29ffc6);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 0;
+  cursor: pointer;
+}
+.ct-next:hover {
+  background: rgba(41, 255, 198, 0.16);
+}
 .ct-steps {
   display: flex;
   gap: 6px;

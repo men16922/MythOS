@@ -321,6 +321,8 @@ export const ko = {
   // First-combat interactive tutorial (A2)
   "combat.tutorial.title": "첫 전투 가이드",
   "combat.tutorial.skip": "건너뛰기",
+  "combat.tutorial.next": "다음 ▸",
+  "combat.tutorial.done": "완료",
   "combat.tutorial.move.title": "1. 이동",
   "combat.tutorial.move.body": "보드의 밝게 표시된 타일을 클릭(드래그)해 이동해 보세요. 엄폐물 뒤가 안전합니다.",
   "combat.tutorial.attack.title": "2. 공격",

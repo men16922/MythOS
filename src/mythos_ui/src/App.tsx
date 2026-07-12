@@ -1024,7 +1024,17 @@ export default function App() {
       <CombatInterstitial snapshot={finalizedSnapshot ?? lastSnapshot} />
 
       {combatTutorialStep != null && activeTab === "story" && (
-        <CombatTutorial stepIndex={combatTutorialStep} onSkip={markCombatTutorialSeen} />
+        <CombatTutorial
+          stepIndex={combatTutorialStep}
+          onSkip={markCombatTutorialSeen}
+          onNext={() => {
+            if (combatTutorialStep >= COMBAT_TUTORIAL_STEPS.length - 1) {
+              markCombatTutorialSeen();
+            } else {
+              setCombatTutorialProgress(combatTutorialStep + 1);
+            }
+          }}
+        />
       )}
 
       {saveLoadModal && (

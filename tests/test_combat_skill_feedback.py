@@ -114,6 +114,20 @@ class ShotForecastTest(unittest.TestCase):
         self.assertLess(covered_preview["hit_chance"], open_preview["hit_chance"])
 
 
+class IntentLensTest(unittest.TestCase):
+    """Two-tier slice 3: pointing at an enemy spotlights ITS telegraph."""
+
+    def test_canvas_spotlights_focused_enemy_intent(self) -> None:
+        source = read("src/mythos_ui/src/combatCanvas.ts")
+        self.assertIn("focusedEnemyId", source)
+        self.assertIn("dimmed", source)
+
+    def test_inspector_shows_enemy_own_next_action(self) -> None:
+        source = read("src/mythos_ui/src/StoryPanel.tsx")
+        self.assertIn("ownIntent", source)
+        self.assertIn("i.enemy_id === occupant.id", source)
+
+
 class CombatResponsivenessTest(unittest.TestCase):
     """Regression locks for the 2026-07-12 responsiveness diagnosis.
 

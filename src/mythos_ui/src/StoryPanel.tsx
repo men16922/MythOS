@@ -653,6 +653,12 @@ function TileInspector({
     const intent = (combat.radar?.enemy_intents || []).find(
       (i) => i.target_x === x && i.target_y === y
     );
+    // Two-tier slice 3 (intent lens): inspecting an ENEMY shows that enemy's
+    // own next action ("⚔2d6 → 세린"), not just whether this tile is targeted.
+    const ownIntent =
+      occupant?.faction === "enemy"
+        ? (combat.radar?.enemy_intents || []).find((i) => i.enemy_id === occupant.id)
+        : undefined;
 
     const factionLabel = (faction?: string) =>
       faction === "enemy" ? t("story.tile.enemy") : faction === "ally" ? t("story.tile.ally") : t("story.tile.friendly");
@@ -664,7 +670,16 @@ function TileInspector({
     if (occupant) {
       hpVal = `${occupant.name || occupant.id} · ${occupant.hp}/${occupant.max_hp} (${factionLabel(occupant.faction)})`;
     }
-    if (intent) {
+    if (ownIntent) {
+      if (ownIntent.action === "attack") {
+        const victim = (combat.radar?.blips || []).find(
+          (b) => b.x === ownIntent.target_x && b.y === ownIntent.target_y && b.alive !== false
+        );
+        intentVal = `⚔${ownIntent.damage_hint || ""}${victim ? ` → ${victim.name || victim.id}` : ""}`;
+      } else {
+        intentVal = ownIntent.action === "flee" ? t("story.tile.flee") : t("story.tile.move");
+      }
+    } else if (intent) {
       intentVal = intent.action === "attack" ? t("story.tile.attack") : intent.action === "flee" ? t("story.tile.flee") : t("story.tile.move");
     }
     if (coverLabel) coverVal = coverLabel;

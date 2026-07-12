@@ -658,14 +658,28 @@ export function drawCombatCanvas(
   // connector, so the player reads exactly who will hit where for how much.
   const intents = radar.enemy_intents || [];
   const blipById = new Map((radar.blips || []).map((b) => [b.id, b]));
+  // Two-tier slice 3 (intent hover lens): pointing at an ENEMY spotlights that
+  // enemy's telegraph — its line/tile brighten and thicken while the other
+  // intents dim — so a crowded board can be read one threat at a time.
+  const focusedEnemyId = (() => {
+    const cell = inspectCell || hover;
+    if (!cell) return null;
+    const b = (radar.blips || []).find(
+      (x) => x.alive !== false && x.faction === "enemy" && x.x === cell[0] && x.y === cell[1]
+    );
+    return b ? b.id : null;
+  })();
   intents.forEach((intent) => {
     const tx = intent.target_x;
     const ty = intent.target_y;
     const isAtk = intent.action === "attack";
-    const fill = isAtk ? "rgba(255,107,125,0.14)" : "rgba(255,180,50,0.08)";
-    const stroke = isAtk ? "rgba(255,107,125,0.55)" : "rgba(255,180,50,0.45)";
+    const focused = focusedEnemyId === intent.enemy_id;
+    const dimmed = focusedEnemyId !== null && !focused;
+    const emph = (base: number): number => (focused ? Math.min(1, base * 1.8) : dimmed ? base * 0.35 : base);
+    const fill = isAtk ? `rgba(255,107,125,${emph(0.14)})` : `rgba(255,180,50,${emph(0.08)})`;
+    const stroke = isAtk ? `rgba(255,107,125,${emph(0.55)})` : `rgba(255,180,50,${emph(0.45)})`;
 
-    drawIsoTile(ctx, tx, ty, cfg, fill, stroke, 1.5);
+    drawIsoTile(ctx, tx, ty, cfg, fill, stroke, focused ? 2.5 : 1.5);
 
     if (isAtk) {
       const attacker = blipById.get(intent.enemy_id);
@@ -673,9 +687,13 @@ export function drawCombatCanvas(
         const p1 = toIso(attacker.x + 0.5, attacker.y + 0.5, cfg);
         const p2 = toIso(tx + 0.5, ty + 0.5, cfg);
         ctx.save();
-        ctx.strokeStyle = "rgba(255,107,125,0.5)";
-        ctx.lineWidth = 1.4;
-        ctx.setLineDash([5, 4]);
+        ctx.strokeStyle = `rgba(255,107,125,${emph(0.5)})`;
+        ctx.lineWidth = focused ? 2.6 : 1.4;
+        ctx.setLineDash(focused ? [] : [5, 4]);
+        if (focused) {
+          ctx.shadowColor = "#ff6b7d";
+          ctx.shadowBlur = 7;
+        }
         ctx.beginPath();
         ctx.moveTo(p1[0], p1[1]);
         ctx.lineTo(p2[0], p2[1]);
@@ -685,16 +703,19 @@ export function drawCombatCanvas(
     }
 
     const [cx, cy] = toIso(tx + 0.5, ty + 0.5, cfg);
+    ctx.save();
+    if (dimmed) ctx.globalAlpha = 0.4;
     ctx.fillStyle = isAtk ? "#ff6b7d" : "#ffd76a";
     ctx.font = "11px SF Mono, monospace";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     if (isAtk && intent.damage_hint) {
-      ctx.font = "bold 10px SF Mono, monospace";
+      ctx.font = focused ? "bold 12px SF Mono, monospace" : "bold 10px SF Mono, monospace";
       ctx.fillText(`⚔${intent.damage_hint}`, cx, cy - 3);
     } else {
       ctx.fillText(isAtk ? "⚔️" : "👣", cx, cy - 3);
     }
+    ctx.restore();
   });
 
   // Draw Transient FX (Tracers / Rings / Sparks)

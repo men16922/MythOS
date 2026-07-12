@@ -30,6 +30,7 @@ IMAGE_SUBDIRS = [
     "skills",
     "status",
     "items",
+    "combat/backdrops", "combat/tiles",
 ]
 SCENARIOS = ["neo-seoul", "glass-library"]
 

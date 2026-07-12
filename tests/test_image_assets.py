@@ -28,6 +28,8 @@ IMAGE_SUBDIRS = [
     "opening",
     "scenes",
     "skills",
+    "status",
+    "items",
 ]
 SCENARIOS = ["neo-seoul", "glass-library"]
 

@@ -2,6 +2,19 @@
 
 Last updated: 2026-07-12
 
+## 2026-07-12 (agy lane) — status effect & item grenade icons generated (`make check` green)
+- Status: Done
+- Changed:
+  - Generated and post-processed 7 status icons (`stunned.png`, `burn.png`, `corrode.png`, `acid.png`, `freeze.png`, `shock.png`, `hacked.png`) to `resources/neo-seoul/status/` as transparent RGBA 256x256 images.
+  - Generated and resized 2 tactical grenade items (`incendiary_grenade.png`, `cryo_grenade.png`) to `resources/neo-seoul/items/` as 512x512 RGB images.
+  - Added `status` and `items` paths to `tests/test_image_assets.py` `IMAGE_SUBDIRS` array for automated integrity checks.
+  - Added staging audit records and quality reviews at `outputs/agy/status-icons/review.md`.
+- Verified:
+  - Ran `make check` (1037 unit tests green, including image asset format, non-empty, and dimension integrity checks).
+- Blockers: None
+- Next:
+  - Owner playtest and live aesthetic review of the generated badges and items.
+
 ## 2026-07-12 (live session #13 cont.9) — 보드 임팩트 오버홀 + 상태이상 콘텐츠 배선 (`1937a84`, make check 1037)
 - 오너 00055 피드백("효과가 미약, 비주얼 임팩트 부족, 조종이 즉발처럼 보임") 반영: 낚아채기=2중 쇼크웨이브+유닛 플래시+"밀려남!/끌려옴!" 플로트+셰이크 12 · 상태 부여=색상 링 폭발+배지 상승+플래시 · AoE 셰이크 1.7배 · **🕹 배신 타격=풀스크린 컷인**(엔진 hacked_blow 마커) · 배지=**아이콘 이미지**(`status/<id>.png` 규약, 필 폴백) — 아트는 `[auto:agy]` 시드.
 - **상태이상 slice 3 배선 (오너 "같이 진행")**: 소각기→플라즈마 토치(🔥2턴)·신호추적기→산성 분사구(💧2+🧪2)·집행유닛 충격봉(⚡1) — 무기 `applies` 라이더 신설(양방향: 적→파티도 걸림). 소이 수류탄(1d4+🔥2)/냉각 수류탄(❄1) 신설 — `status_grenade` 범용 셀 투척, 테스트 킷 포함, 아이콘 플레이스홀더.

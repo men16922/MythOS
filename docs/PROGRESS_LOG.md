@@ -2,6 +2,13 @@
 
 Last updated: 2026-07-12
 
+## 2026-07-12 — Shared gameplay QA skill for local combat verification
+- Status: Done.
+- Changed: Added `$gameplay-qa` as a canonical `.claude/skills` skill and mirrored it to `.agents`, `.codex`, and `.gemini`; it routes combat rules through narrow unit tests, `make check`, non-fallback simulator/browser evidence, and preserves manual feel verdicts.
+- Verified: `./.venv/bin/python -m unittest tests.test_combat_engine` (51 tests) · `quick_validate.py` for all four copies · `make check-skills` · `git diff --check`.
+- Blockers: None. The skill deliberately does not deploy, mutate production data, or convert human play-feel checks into automated passes.
+- Next: Invoke `$gameplay-qa` for the next combat mechanic, targeting, VFX, or board-interaction change.
+
 ## 2026-07-12 (live session #14, claude lane) — combat VISUAL overhaul V1-V6 (owner probe: all four areas)
 - Status: Done, `make check` **1041** green. UNDEPLOYED (origin+3; owner pushed the prior +20 mid-session).
 - Owner answered the "시각적으로 별로임" probe: **ALL FOUR** (status badges / aim·blast rings / cinema cards / board look) + two live requests (camera drag-pan, node-themed combat backdrops). Diagnosed by direct chrome-devtools sim run — evidence `outputs/vis-diag/01..32`, design `docs/plans/2026-07-12-combat-visual-overhaul.md`.

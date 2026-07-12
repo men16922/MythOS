@@ -27,17 +27,26 @@ MIRRORS=(".agents/skills" ".codex/skills" ".gemini/skills")
 CHECK=0; [ "${1:-}" = "--check" ] && CHECK=1
 rc=0; changed=0
 
+# Projected files: SKILL.md bodies plus their references/ payloads (gameplay-qa
+# was the first skill to ship one — SKILL.md-only projection let references
+# drift silently). Engine-specific extras living only in a mirror (e.g.
+# .codex/**/agents/openai.yaml) are deliberately NOT scanned, so they are
+# neither projected nor deleted as strays.
+project_files() {
+  find "$1" -type f \( -name 'SKILL.md' -o -path '*/references/*' \)
+}
+
 for m in "${MIRRORS[@]}"; do
-  # 1) source → mirror: add/update every SKILL.md
+  # 1) source → mirror: add/update every projected file
   while IFS= read -r f; do
     rel="${f#"$SRC"/}"; dst="$m/$rel"
     if [ ! -f "$dst" ] || ! cmp -s "$f" "$dst"; then
       if [ "$CHECK" -eq 1 ]; then echo "  out-of-sync: $dst"; rc=1
       else mkdir -p "$(dirname "$dst")"; cp "$f" "$dst"; echo "  + $dst"; changed=1; fi
     fi
-  done < <(find "$SRC" -type f -name 'SKILL.md')
+  done < <(project_files "$SRC")
 
-  # 2) mirror → source: drop strays (skills removed from the source)
+  # 2) mirror → source: drop strays (skill/reference files removed from the source)
   if [ -d "$m" ]; then
     while IFS= read -r f; do
       rel="${f#"$m"/}"
@@ -45,7 +54,7 @@ for m in "${MIRRORS[@]}"; do
         if [ "$CHECK" -eq 1 ]; then echo "  stray (not in source): $f"; rc=1
         else rm -f "$f"; echo "  - $f"; changed=1; fi
       fi
-    done < <(find "$m" -type f -name 'SKILL.md')
+    done < <(project_files "$m")
   fi
 done
 

@@ -86,6 +86,11 @@ def _dice_range(spec: str) -> tuple[int, int]:
         return (mod, mod)
 
 
+# Persistent status effects shipped so far (design 2026-07-12; acid/freeze/
+# shock arrive in slice 2). Whitelist guards content typos at apply time.
+STATUS_EFFECT_IDS = ("burn", "corrode")
+
+
 @dataclass
 class PlayerAction:
     type: str = "wait"  # attack|defend|flee|wait|skill|item
@@ -594,7 +599,7 @@ class CombatEngine:
             return
 
         damage = dice.roll(weapon.damage) + (stat // 2 if melee else stat // 3) + el_dmg
-        damage = max(1, damage - max(0, defender.armor - weapon.armor_pen))
+        damage = max(1, damage - max(0, self._effective_armor(defender) - weapon.armor_pen))
         if crit:
             damage *= 2
         defender.hp = max(0, defender.hp - damage)
@@ -1129,7 +1134,7 @@ class CombatEngine:
         if "damage_bonus" in effect:
             damage += dice.roll(str(effect["damage_bonus"]))
         armor_pen = int(effect.get("armor_pen", 0))
-        damage = max(1, damage - max(0, target.armor - armor_pen))
+        damage = max(1, damage - max(0, self._effective_armor(target) - armor_pen))
         if crit:
             damage *= 2
         target.hp = max(0, target.hp - damage)
@@ -1167,6 +1172,12 @@ class CombatEngine:
                 ),
                 detail,
             )
+        # Persistent status riders (2026-07-12): a landed skill hit can apply
+        # statuses via effect `applies: {"burn": 2, ...}` (whitelisted ids).
+        applies = effect.get("applies")
+        if isinstance(applies, dict) and target.alive:
+            for status_id, turns in applies.items():
+                self._apply_status_effect(state, player, target, str(status_id), int(turns or 1))
         # Splash (펄스 폭발): the blast that landed on the primary target also
         # catches every other enemy within ``aoe_radius`` of the impact cell —
         # flat (no separate to-hit), same rolled damage, so the AoE is legible.
@@ -1291,6 +1302,11 @@ class CombatEngine:
             if actor.taunt_turns <= 0 and "taunting" in actor.status:
                 actor.status.remove("taunting")
 
+        # Persistent status effects (2026-07-12 design): DoT tick + expiry at
+        # the owner's turn start, before they act.
+        if actor.status_effects and actor.alive:
+            self._tick_status_effects(state, actor)
+
         # Hazard check
         key = f"{actor.x},{actor.y}"
         hazard = state.hazards.get(key)
@@ -1340,6 +1356,9 @@ class CombatEngine:
 
     def _npc_turn(self, state: CombatState, actor: Combatant) -> None:
         self._tick_round_upkeep(state, actor)
+        # A burn tick in upkeep can down the actor before it acts.
+        if not actor.alive:
+            return
         # F stun: a stunned NPC (EMP'd machine, mostly) skips its turn entirely.
         if self._consume_stun(state, actor):
             return
@@ -1347,6 +1366,69 @@ class CombatEngine:
             self._enemy_turn(state, actor)
         elif actor.faction == ALLY:
             self._ally_turn(state, actor)
+
+    def _apply_status_effect(
+        self, state: CombatState, source: Combatant, victim: Combatant,
+        status_id: str, turns: int,
+    ) -> None:
+        """Apply/refresh a persistent status (2026-07-12 design; mirrors stun).
+
+        Slice 1 ids: ``burn`` (1d4 DoT at the victim's turn start) and
+        ``corrode`` (armor -2 while active). Durations refresh, no stacking."""
+        if status_id not in STATUS_EFFECT_IDS or not victim.alive:
+            return
+        victim.status_effects[status_id] = max(
+            victim.status_effects.get(status_id, 0), max(1, int(turns))
+        )
+        if status_id not in victim.status:
+            victim.status.append(status_id)
+        self._log(
+            state, source, "info",
+            clog(state.language, f"status_{status_id}_applied", target=victim.name),
+            {"status": status_id, "target": victim.id, "turns": victim.status_effects[status_id]},
+        )
+
+    def _tick_status_effects(self, state: CombatState, actor: Combatant) -> None:
+        """Turn-start tick: burn deals its DoT, every status counts down/expires."""
+        dice = self._dice(state)
+        for status_id in list(actor.status_effects):
+            if status_id == "burn" and actor.alive:
+                damage = max(1, dice.roll("1d4"))
+                actor.hp = max(0, actor.hp - damage)
+                detail = {
+                    "status": "burn", "damage": damage, "target": actor.id,
+                    "target_hp": actor.hp, "target_max_hp": actor.max_hp,
+                }
+                if actor.hp <= 0:
+                    actor.alive = False
+                    self._log(
+                        state, actor, "defeat",
+                        clog(state.language, "status_burn_kill", name=actor.name, damage=damage),
+                        detail,
+                    )
+                else:
+                    self._log(
+                        state, actor, "hit",
+                        clog(state.language, "status_burn_tick", name=actor.name, damage=damage),
+                        detail,
+                    )
+            actor.status_effects[status_id] -= 1
+            if actor.status_effects[status_id] <= 0:
+                del actor.status_effects[status_id]
+                if status_id in actor.status:
+                    actor.status.remove(status_id)
+                self._log(
+                    state, actor, "info",
+                    clog(state.language, f"status_{status_id}_expired", name=actor.name),
+                    {"status": status_id, "target": actor.id, "expired": True},
+                )
+
+    def _effective_armor(self, combatant: Combatant) -> int:
+        """Armor after persistent-status penalties (corrode: -2 while active)."""
+        armor = combatant.armor
+        if "corrode" in combatant.status_effects:
+            armor -= 2
+        return max(0, armor)
 
     def _apply_stun(
         self, state: CombatState, source: Combatant, victim: Combatant, turns: int

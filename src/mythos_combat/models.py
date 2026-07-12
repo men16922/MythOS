@@ -66,6 +66,10 @@ class Combatant:
     defense_buff: int = 0  # temporary defense bonus from skills (e.g. covering_noise)
     defense_buff_turns: int = 0  # rounds the defense_buff persists
     stunned_turns: int = 0  # turns this combatant loses to stun (EMP pulse/grenade)
+    # Persistent status effects (2026-07-12 design): id -> remaining turns.
+    # ids: "burn" (DoT at turn start) · "corrode" (armor -2 while active); the
+    # `status` chip list mirrors active ids so UI badges stay in sync.
+    status_effects: dict[str, int] = field(default_factory=dict)
     speed_buff: int = 0  # temporary movement bonus (E1 han signature)
     speed_buff_turns: int = 0  # rounds the speed_buff persists
     taunt_turns: int = 0  # rounds enemies must target this combatant (E1 tae_o signature)

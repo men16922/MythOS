@@ -38,11 +38,94 @@ class YankVfxTest(unittest.TestCase):
         self.assertIn("YANK_IMPACT", source)
 
 
-class StunLegibilityTest(unittest.TestCase):
-    def test_canvas_badges_stunned_units(self) -> None:
+class StatusLegibilityTest(unittest.TestCase):
+    def test_canvas_badges_stunned_and_status_units(self) -> None:
         source = read("src/mythos_ui/src/combatCanvas.ts")
-        self.assertIn('b.status?.includes("stunned")', source)
+        self.assertIn("STATUS_BADGES", source)
         self.assertIn("💫", source)
+        self.assertIn("🔥", source)
+        self.assertIn("🧪", source)
+        self.assertIn('activeBadges.includes("stunned")', source)
+
+
+class StatusEffectEngineTest(unittest.TestCase):
+    """Slice 1 of docs/plans/2026-07-12-status-effects-design.md: burn/corrode."""
+
+    def _fixture(self):
+        sys.path.insert(0, str(ROOT / "tests"))
+        from test_combat_engine import _drone, _player
+
+        from mythos_combat import CombatEngine
+
+        engine = CombatEngine()
+        state = engine.start(
+            [_player(x=0, y=0)], [_drone(x=5, y=0, hp=30, defense=11, speed=0, armor=3)],
+            seed="status-fx", arena=(8, 6),
+        )
+        player = state.player()
+        foe = state.living_enemies()[0]
+        assert player is not None
+        return engine, state, player, foe
+
+    def test_burn_ticks_at_turn_start_and_expires(self) -> None:
+        engine, state, player, foe = self._fixture()
+        engine._apply_status_effect(state, player, foe, "burn", 2)
+        self.assertIn("burn", foe.status)
+        hp0 = foe.hp
+        engine._tick_status_effects(state, foe)
+        self.assertLess(foe.hp, hp0)
+        self.assertEqual(foe.status_effects["burn"], 1)
+        engine._tick_status_effects(state, foe)
+        self.assertNotIn("burn", foe.status_effects)
+        self.assertNotIn("burn", foe.status)
+        self.assertTrue(any(e.detail.get("expired") for e in state.log))
+
+    def test_corrode_reduces_effective_armor(self) -> None:
+        engine, state, player, foe = self._fixture()
+        self.assertEqual(engine._effective_armor(foe), 3)
+        engine._apply_status_effect(state, player, foe, "corrode", 2)
+        self.assertEqual(engine._effective_armor(foe), 1)
+
+    def test_unknown_status_id_is_rejected(self) -> None:
+        engine, state, player, foe = self._fixture()
+        engine._apply_status_effect(state, player, foe, "poison", 2)
+        self.assertEqual(foe.status_effects, {})
+
+    def test_skill_applies_rider_lands_status_on_hit(self) -> None:
+        sys.path.insert(0, str(ROOT / "tests"))
+        from test_combat_engine import _drone, _skilled_player
+
+        from mythos_combat import CombatEngine, PlayerAction
+
+        engine = CombatEngine()
+        engine.skills_pool["heat_lash"] = {
+            "id": "heat_lash", "name": "과열 채찍", "role": "damage",
+            "range": 3, "cooldown": 0, "cost": {},
+            "effect": {"damage": "1d6", "applies": {"burn": 2}},
+        }
+        state = engine.start(
+            [_skilled_player(x=0, y=0)], [_drone(x=2, y=0, hp=40, defense=1, speed=0)],
+            seed="applies", arena=(8, 6),
+        )
+        player = state.player()
+        assert player is not None
+        foe = state.living_enemies()[0]
+        engine._player_skill(
+            state, player,
+            PlayerAction(type="skill", skill_id="heat_lash", target_id=foe.id),
+            engine.skills_pool["heat_lash"], True,
+        )
+        self.assertIn("burn", foe.status_effects)
+
+    def test_status_effects_survive_serialization(self) -> None:
+        from mythos_combat import combat_state_from_dict, combat_state_to_dict
+
+        engine, state, player, foe = self._fixture()
+        engine._apply_status_effect(state, player, foe, "burn", 2)
+        restored = combat_state_from_dict(combat_state_to_dict(state))
+        rfoe = restored.by_id(foe.id)
+        assert rfoe is not None
+        self.assertEqual(rfoe.status_effects, {"burn": 2})
 
 
 class AoeAndPushSkillTest(unittest.TestCase):

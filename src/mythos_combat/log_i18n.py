@@ -43,6 +43,31 @@ _LINES: dict[str, dict[str, str]] = {
         "ko": "{name}은(는) 기절 상태로 움직이지 못한다.",
         "en": "{name} is stunned and cannot act.",
     },
+    # Persistent status effects (2026-07-12 design — 세계관명: 과열/부식 프로토콜).
+    "status_burn_applied": {
+        "ko": "{target}의 외장이 과열되기 시작한다 — 🔥 연소!",
+        "en": "{target}'s plating starts to overheat — 🔥 burning!",
+    },
+    "status_burn_tick": {
+        "ko": "🔥 {name}이(가) 과열로 {damage} 피해를 입는다.",
+        "en": "🔥 {name} takes {damage} overheat damage.",
+    },
+    "status_burn_kill": {
+        "ko": "🔥 {name}이(가) 과열을 견디지 못하고 쓰러진다! ({damage} 피해)",
+        "en": "🔥 {name} succumbs to the overheat! ({damage} dmg)",
+    },
+    "status_burn_expired": {
+        "ko": "{name}의 과열이 가라앉는다.",
+        "en": "{name}'s overheat subsides.",
+    },
+    "status_corrode_applied": {
+        "ko": "{target}의 장갑이 부식되기 시작한다 — 🧪 방어 약화!",
+        "en": "{target}'s armor starts to corrode — 🧪 defense weakened!",
+    },
+    "status_corrode_expired": {
+        "ko": "{name}의 부식이 멎는다.",
+        "en": "{name}'s corrosion stops.",
+    },
     "item_stun_aoe": {
         "ko": "{actor}의 {item}이(가) ({x}, {y}) 일대를 뒤덮는다 — 적 {count}기 회로 마비!",
         "en": "{actor}'s {item} blankets the area around ({x}, {y}) — {count} enemies short-circuit!",

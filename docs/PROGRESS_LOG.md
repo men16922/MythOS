@@ -2,7 +2,16 @@
 
 Last updated: 2026-07-12
 
-## 2026-07-12 (live session #14 cont.) — grenade cut-in gap diagnosed + fixed; blast amplified; QA-skill wiring
+## 2026-07-12 (live session #15) — status stacking · collision slam · cryo damage · BGM env · codex parallel triage
+- Status: Done, `make check` **1058** green. UNDEPLOYED (origin+11). 5 commits `2d94ad6..ac66266`.
+- **Status stacking (owner-decided)** (`2d94ad6`): reapply now ACCUMULATES turns (cap `STATUS_EFFECT_TURNS_CAP=6`, tunable) for statuses AND stun; multi-status coherence locked (independent tick/expire/badges) + fixed `_run_until_controllable` handing the turn to a unit its own upkeep burn just killed.
+- **Collision slam (owner request)**: forced movement (밀기/당기기) cut short by board edge / **full-cover structure** (now blocks FORCED movement only) / another unit deals flat 1d4 armor-bypass slam (`detail.slam`+`obstacle`) with amber burst + 💥 충돌! float + shake; 🎯 aim preview mirrors the cover block. Sim-verified: full-cover push → "꿈쩍도 하지 않는다!" + "💥 장애물에 부딪혀 2 충돌 피해!" (evidence `outputs/qa-slam/`).
+- **자기 반발 진단**: cut-in fires correctly at HEAD (`magnetic_repulse.png` card verified in sim) — the invisible case was the 0-tile blocked push, which now slams visibly. Likely also a stale-tab factor on the owner's build.
+- **냉각 수류탄 데미지** (owner request): +`"damage": "1d4"` (scenario.json), engine path already generic; sim-verified -3 blast ×2 + ❄×2.
+- **BGM ENV** (`c300f1a`, owner request): `DEFAULT_BGM_ON` env → open `/api/v1/client-config`; hostname heuristic removed; `enableBgm()` no longer force-starts when the server default is false; `make api`/`api-cloud` export false. Browser-verified silent after ENTER.
+- **codex 병렬 레인** (worktree, reviewed+cherry-picked): victory lineup `.slice(0,3)` truncation dropped 린위에 → render all survivors (`0066319`) · loot pills raw ids → KO/EN 표시명 매핑 11종 + readable fallback (`89d05d8`).
+- Blockers: none. 한's 시스템 침투 ◆4 > max FOCUS 3 (uncastable) still open — needs owner balance call (cost 3 vs max_focus 4).
+- Next: `! git push` → owner `make deploy` → feel pass (A-1/A-3/A-4 + slam/cryo/stacking) → agy art seeds. Note: local API left running with the new bundle; owner QA-doc checkbox ticks left uncommitted (owner's).
 - Status: Done, `make check` **1042** green. UNDEPLOYED. Owner live reports (local): 견인/반발 스킬 카드 안 뜸 · EMP 폭발 이펙트 없음.
 - **/diagnose 결과**: 견인 카드는 현재 번들에서 정상 렌더(DOM 덤프로 `magnetic_pull.png` 풀 시퀀스 확인 — 스테일 탭/더블탭 플러시 추정, **하드 리로드 필요**). EMP는 실제 갭 2개: ① 무피해 수류탄(스턴만)은 `item`+`info` 로그뿐이라 컷인 게이트(hit/defeat) 미통과 — 소이만 컷인이 뜨던 비대칭 ② 보드 폭발은 재생되지만 계측상 밝기 2.0×/0.5s로 약해 "없음"으로 체감.
 - **수정 (`7882d3d`)**: 셀 투척 아이템은 항상 아이템 아트 컷인(오너 "수류탄도 스킬카드처럼") · 폭발 = 피격 셀 백→화염 점화 + 코어 확대 + 1150ms + 셰이크 18/450 (재계측 피크 2.7×) · 컷인 마운트 후 350ms 스킵 유예(더블탭 플러시 방지) · 로컬 호스트 BGM 기본 OFF(오너 요청). 소스락 +2.

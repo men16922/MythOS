@@ -951,6 +951,7 @@ export function drawCombatCanvas(
       acid: { label: "💧 용해", bg: "rgba(199, 146, 255, 0.92)", fg: "#160526" },
       freeze: { label: "❄ 동결", bg: "rgba(140, 220, 255, 0.94)", fg: "#03141f" },
       shock: { label: "⚡ 감전", bg: "rgba(255, 240, 120, 0.94)", fg: "#1a1500" },
+      hacked: { label: "🕹 조종", bg: "rgba(255, 130, 200, 0.94)", fg: "#20031a" },
     };
     const activeBadges = aliveHere
       ? (b.status || []).filter((s) => STATUS_BADGES[s]).slice(0, 3)

@@ -1,7 +1,8 @@
 """E1 동료 시그니처 스킬 (CBT 피드백 #2: 공용 풀이라 전투에서 개성이 안 읽힘).
 
 - 데이터 무결성: allies[*].signature가 companion_skills 풀에 존재, 필수 필드 보유.
-- 효과 수치 잠금: 차폐 필드(반경 아군 방어+2) · 정밀 EMP(스턴) · 시스템 해킹(1턴 스턴; 구 집중 드레인은
+- 효과 수치 잠금: 차폐 필드(반경 아군 방어+2) · 정밀 EMP(⚡감전 2턴 — su_ah 스턴화로 시그니처가
+  겹쳐져 2026-07-12 분리) · 시스템 해킹(1턴 스턴; 구 집중 드레인은
   집중 0 적에게 "-0" 무효과라 2026-07-12 오너 지시로 교체) ·
   지름길 호출(파티 이동+2) · 수호 방벽(도발+방어) · 백도어 루트(아군 재배치).
 - AI 아군이 시그니처를 상황에 맞게 자동 발동; 컨트롤러블 동료 액션 바에도 노출.
@@ -98,14 +99,18 @@ class SignatureEffectTest(unittest.TestCase):
         self.assertEqual(player.defense_buff, 2)  # 인접 아군
         self.assertEqual(se_rin.defense_buff, 2)  # 시전자 자신 포함
 
-    def test_precision_emp_stuns_via_shared_stun_path(self) -> None:
+    def test_precision_emp_applies_shock(self) -> None:
+        # 2026-07-12 owner call: system_hack's stun rework made su_ah and
+        # lin_yue functionally identical — 정밀 EMP now applies ⚡감전 (2T of no
+        # focus regen + frozen cooldowns) instead of a stun.
         engine, state = self._engine_state([_ally("lin_yue", 1, 0)], [_enemy_entry(4, 0)])
         lin = state.by_id("lin_yue")
         foe = state.by_id("foe")
         assert lin is not None and foe is not None
         engine._execute_npc_skill(state, lin, "precision_emp", SIGS["precision_emp"], foe)
-        self.assertEqual(foe.stunned_turns, 1)
-        self.assertIn("stunned", foe.status)
+        self.assertEqual(foe.stunned_turns, 0)
+        self.assertEqual(foe.status_effects.get("shock"), 2)
+        self.assertIn("shock", foe.status)
 
     def test_system_hack_stuns_target(self) -> None:
         # 2026-07-12 owner call: focus_drain was an invisible no-op vs 0-focus
@@ -160,7 +165,9 @@ class SignatureEffectTest(unittest.TestCase):
 
 
 class SignatureAiAndBarTest(unittest.TestCase):
-    def test_ai_ally_autocasts_stun_signature(self) -> None:
+    def test_ai_ally_autocasts_status_signature(self) -> None:
+        # AI lin_yue reads the `applies` shape and fires 정밀 EMP when the
+        # victim lacks the status it would apply.
         engine = CombatEngine()
         state = engine.start([_player()], [_enemy_entry(4, 0)], seed="ai-sig", arena=(10, 6))
         lin = _ally("lin_yue", 1, 0)
@@ -168,7 +175,7 @@ class SignatureAiAndBarTest(unittest.TestCase):
         engine._ally_turn(state, lin)
         foe = state.by_id("foe")
         assert foe is not None
-        self.assertEqual(foe.stunned_turns, 1)
+        self.assertIn("shock", foe.status_effects)
 
     def test_controllable_companion_sees_signature_on_action_bar(self) -> None:
         engine = CombatEngine()

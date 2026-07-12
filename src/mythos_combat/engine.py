@@ -88,8 +88,10 @@ def _dice_range(spec: str) -> tuple[int, int]:
 
 # Persistent status effects (design 2026-07-12, slices 1+2). Whitelist guards
 # content typos at apply time. burn=DoT · corrode=armor-2 · acid=defense-2 ·
-# freeze=no movement (can still act) · shock=focus regen + cooldown tick frozen.
-STATUS_EFFECT_IDS = ("burn", "corrode", "acid", "freeze", "shock")
+# freeze=no movement (can still act) · shock=focus regen + cooldown tick frozen ·
+# hacked=the enemy spends its next turn attacking its nearest fellow enemy
+# (시스템 침투; consumed at act time like stun, not by the generic tick).
+STATUS_EFFECT_IDS = ("burn", "corrode", "acid", "freeze", "shock", "hacked")
 
 
 @dataclass
@@ -1312,6 +1314,11 @@ class CombatEngine:
         # clear it here, right before the unit actually acts again.
         if actor.stunned_turns <= 0 and "stunned" in actor.status:
             actor.status.remove("stunned")
+        # Same for act-time-consumed statuses (hacked): the chip stays visible
+        # through the betrayal turn and clears at the unit's next upkeep.
+        for sid in list(actor.status):
+            if sid in STATUS_EFFECT_IDS and sid not in actor.status_effects:
+                actor.status.remove(sid)
 
         # Persistent status effects (2026-07-12 design): DoT tick + expiry at
         # the owner's turn start, before they act.
@@ -1373,10 +1380,40 @@ class CombatEngine:
         # F stun: a stunned NPC (EMP'd machine, mostly) skips its turn entirely.
         if self._consume_stun(state, actor):
             return
+        # 시스템 침투: a hacked enemy spends this turn attacking its own side.
+        if actor.faction == ENEMY and "hacked" in actor.status_effects:
+            self._hacked_turn(state, actor)
+            return
         if actor.faction == ENEMY:
             self._enemy_turn(state, actor)
         elif actor.faction == ALLY:
             self._ally_turn(state, actor)
+
+    def _hacked_turn(self, state: CombatState, actor: Combatant) -> None:
+        """해킹된 적의 배신 턴: 가장 가까운 동료 적을 공격한다 (1턴 소모).
+
+        Consumed at act time (mirrors stun); the 🕹 chip stays until the unit's
+        next upkeep so the seized turn reads on the board."""
+        del actor.status_effects["hacked"]
+        others = [e for e in state.living_enemies() if e.id != actor.id]
+        if not others:
+            self._log(
+                state, actor, "info",
+                clog(state.language, "hacked_idle", name=actor.name),
+                {"status": "hacked", "target": actor.id},
+            )
+            return
+        target = min(others, key=lambda e: distance(actor.x, actor.y, e.x, e.y))
+        self._log(
+            state, actor, "info",
+            clog(state.language, "hacked_turn", name=actor.name, target=target.name),
+            {"status": "hacked", "target": target.id},
+        )
+        weapon = actor.primary_weapon()
+        reach = weapon.effective_range if weapon else 1
+        self._move_to_band(state, actor, target, desired=max(1, reach))
+        if weapon and distance(actor.x, actor.y, target.x, target.y) <= reach:
+            self._attack(state, actor, target, weapon, self._dice(state))
 
     def _apply_status_effect(
         self, state: CombatState, source: Combatant, victim: Combatant,
@@ -1403,6 +1440,8 @@ class CombatEngine:
         """Turn-start tick: burn deals its DoT, every status counts down/expires."""
         dice = self._dice(state)
         for status_id in list(actor.status_effects):
+            if status_id == "hacked":
+                continue  # consumed when the hacked turn plays out (_hacked_turn)
             if status_id == "burn" and actor.alive:
                 damage = max(1, dice.roll("1d4"))
                 actor.hp = max(0, actor.hp - damage)
@@ -1512,6 +1551,33 @@ class CombatEngine:
                         "defend",
                         clog(state.language, "cover_noise", name=friendly.name, buff=bonus),
                     )
+        # Persistent status riders for UTILITY casts (정밀 EMP ⚡감전 등): damage
+        # skills apply theirs on-hit inside _skill_attack, so skip those here.
+        applies = effect.get("applies")
+        if (
+            isinstance(applies, dict)
+            and "damage" not in effect
+            and "damage_bonus" not in effect
+        ):
+            victim = target
+            if victim is None or not victim.alive or victim.faction == caster.faction:
+                victim = self._nearest_hostile_in_range(state, caster, skill_range)
+            if victim is not None:
+                for status_id, turns in applies.items():
+                    self._apply_status_effect(
+                        state, caster, victim, str(status_id), int(turns or 1)
+                    )
+        # 시스템 침투 (hack_control — previously a phantom effect with no engine
+        # handling): seize the target's next turn; it attacks its nearest
+        # fellow enemy instead (resolved in _hacked_turn).
+        if effect.get("hack_control"):
+            victim = target
+            if victim is None or not victim.alive or victim.faction == caster.faction:
+                victim = self._nearest_hostile_in_range(state, caster, skill_range)
+            if victim is not None:
+                self._apply_status_effect(
+                    state, caster, victim, "hacked", max(1, int(effect.get("duration", 1) or 1))
+                )
         # 시스템 해킹: drain the target enemy's skill resource.
         drain = int(effect.get("focus_drain", 0) or 0)
         if drain > 0:
@@ -1921,6 +1987,13 @@ class CombatEngine:
             applicable = False
             if effect.get("stun"):
                 applicable = victim is not None and victim.stunned_turns <= 0
+                target = victim
+            elif isinstance(effect.get("applies"), dict):
+                # Status rider signature (정밀 EMP ⚡감전): useful while the
+                # victim lacks at least one of the statuses it would apply.
+                applicable = victim is not None and any(
+                    sid not in victim.status_effects for sid in effect["applies"]
+                )
                 target = victim
             elif effect.get("focus_drain"):
                 applicable = victim is not None and victim.focus > 0

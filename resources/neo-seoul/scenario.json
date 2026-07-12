@@ -2874,8 +2874,8 @@
         "cost": { "focus": 3 },
         "range": 4,
         "cooldown": 3,
-        "effect": { "stun": true, "duration": 1 },
-        "tags": ["ranged", "disable"]
+        "effect": { "applies": { "shock": 2 } },
+        "tags": ["ranged", "debuff", "disable"]
       },
       "shortcut_call": {
         "id": "shortcut_call",

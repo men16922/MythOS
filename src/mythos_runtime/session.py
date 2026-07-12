@@ -1737,11 +1737,32 @@ class RuntimeSessionService:
         encounter_id: str,
         options: RuntimeOptions | None = None,
         party_members: list[dict[str, Any]] | None = None,
+        test_kit: bool = False,
     ) -> RuntimeSnapshot:
         options = options or RuntimeOptions()
         loop = self._require_loop(loop_id)
         if loop.phase is LoopPhase.ENDED:
             raise RuntimeError(f"loop_id={loop.loop_id} is ended")
+        if test_kit:
+            # Combat-simulator test kit (owner 2026-07-12 "바뀐 부분 전부 테스트
+            # 가능하게"): a fresh sim loop has no insight unlocks and no
+            # consumables, hiding tier-1 skills (자기 반발/과부하 일격 …) and the
+            # EMP grenade from the sandbox. Grant the full skill pool + sample
+            # throwables so every combat feature is exercisable.
+            scenario_for_kit = load_scenario(options.scenario_id)
+            skills_pool = (
+                scenario_for_kit.combat.get("skills", {})
+                if isinstance(scenario_for_kit.combat, dict)
+                else {}
+            )
+            state = dict(loop.state) if isinstance(loop.state, dict) else {}
+            meta = dict(state.get("meta_progression") or {})
+            meta["learned_skills"] = sorted(skills_pool.keys())
+            state["meta_progression"] = meta
+            inventory = list(state.get("_inventory") or [])
+            inventory += ["emp_grenade", "emp_grenade", "nanopatch", "nanopatch"]
+            state["_inventory"] = inventory
+            loop = replace(loop, state=state)
         if party_members is not None:
             party = dict(loop.state.get("_party", {})) if isinstance(loop.state, dict) else {}
             party["members"] = [dict(member) for member in party_members]

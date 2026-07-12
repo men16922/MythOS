@@ -151,6 +151,42 @@ class StatusEffectEngineTest(unittest.TestCase):
         self.assertEqual(foe.focus, 2)  # regen resumes
         self.assertEqual(foe.cooldowns["some_skill"], 1)
 
+    def test_system_intrusion_hacks_enemy_to_attack_its_own(self) -> None:
+        # 시스템 침투 (hack_control) was a PHANTOM effect — defined in content,
+        # labeled in the UI, but with zero engine handling. It now seizes the
+        # target's next turn: the hacked enemy attacks its nearest fellow enemy.
+        sys.path.insert(0, str(ROOT / "tests"))
+        from test_combat_engine import _drone, _skilled_player
+
+        from mythos_combat import CombatEngine, PlayerAction
+
+        engine = CombatEngine()
+        state = engine.start(
+            [_skilled_player(x=0, y=0)],
+            [_drone("d1", x=2, y=0, hp=40, defense=1, speed=0),
+             _drone("d2", x=3, y=0, hp=40, defense=1, speed=0)],
+            seed="hacked", arena=(8, 6),
+        )
+        player = state.player()
+        assert player is not None
+        engine._player_skill(
+            state, player,
+            PlayerAction(type="skill", skill_id="system_intrusion", target_id="d1"),
+            engine.skills_pool["system_intrusion"], True,
+        )
+        d1 = state.by_id("d1")
+        d2 = state.by_id("d2")
+        assert d1 is not None and d2 is not None
+        self.assertIn("hacked", d1.status_effects)
+        self.assertIn("hacked", d1.status)  # 🕹 badge visible
+        engine._npc_turn(state, d1)
+        self.assertNotIn("hacked", d1.status_effects)  # consumed by the betrayal turn
+        self.assertTrue(any(e.detail.get("status") == "hacked" and e.detail.get("target") == "d2" for e in state.log))
+        self.assertLess(d2.hp, 40)  # defense 1 → the betrayal blow lands
+        # Chip clears at the unit's next upkeep, not silently mid-transition.
+        engine._tick_round_upkeep(state, d1)
+        self.assertNotIn("hacked", d1.status)
+
     def test_status_effects_survive_serialization(self) -> None:
         from mythos_combat import combat_state_from_dict, combat_state_to_dict
 
@@ -305,6 +341,21 @@ class LiveQaFixesTest(unittest.TestCase):
         )
         allies2 = service._build_allies(loop_inclusive, combat_pool)
         self.assertTrue(any(a.id == "se_rin" for a in allies2))  # default path unchanged
+
+
+class SimulatorTestKitTest(unittest.TestCase):
+    """Owner 2026-07-12: every changed combat feature must be exercisable in
+    the simulator — a fresh sim loop hid tier-1 skills and had no grenades."""
+
+    def test_begin_request_and_ui_send_test_kit(self) -> None:
+        self.assertIn("test_kit: bool = False", read("src/mythos_api/app.py"))
+        self.assertIn("test_kit=body.test_kit", read("src/mythos_api/app.py"))
+        self.assertIn("test_kit: true", read("src/mythos_ui/src/hooks/useSessionLifecycle.ts"))
+
+    def test_kit_unlocks_full_skill_pool_and_grants_throwables(self) -> None:
+        source = read("src/mythos_runtime/session.py")
+        self.assertIn('meta["learned_skills"] = sorted(skills_pool.keys())', source)
+        self.assertIn('"emp_grenade", "emp_grenade", "nanopatch", "nanopatch"', source)
 
 
 class CombatResponsivenessTest(unittest.TestCase):

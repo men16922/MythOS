@@ -202,6 +202,9 @@ export function useSessionLifecycle(args: UseSessionLifecycleArgs) {
         scenario_id: selectedScenarioId,
         encounter_id: encounterId,
         party_members: allyIds.map((id) => ({ id })),
+        // Sandbox = test kit: every skill unlocked + EMP grenades in the bag,
+        // so all combat features are exercisable without an insight grind.
+        test_kit: true,
       });
 
       const combatBgmPath = snap.bgm_path?.includes("bgm_combat")

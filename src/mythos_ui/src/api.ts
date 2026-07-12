@@ -244,6 +244,8 @@ export async function apiCombatBegin(params: {
   scenario_id: string;
   encounter_id: string;
   party_members?: { id: string }[];
+  // Simulator sandbox: full skill pool + sample throwables (see server).
+  test_kit?: boolean;
 }): Promise<{ combat: CombatState }> {
   return apiPost<{ combat: CombatState }>("/api/v1/combat/begin", { ...params, lang: getLang() });
 }

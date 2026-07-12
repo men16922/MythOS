@@ -96,6 +96,18 @@ _LINES: dict[str, dict[str, str]] = {
         "ko": "{name}의 회로가 안정을 되찾는다.",
         "en": "{name}'s circuits stabilize.",
     },
+    "status_hacked_applied": {
+        "ko": "{target}의 제어권이 탈취당한다 — 🕹 다음 턴 아군 오인 공격!",
+        "en": "{target}'s control is seized — 🕹 it will turn on its own side!",
+    },
+    "hacked_turn": {
+        "ko": "🕹 {name}이(가) 조종당해 {target}을(를) 공격한다!",
+        "en": "🕹 {name}, under hacked control, attacks {target}!",
+    },
+    "hacked_idle": {
+        "ko": "🕹 {name}이(가) 조종당했지만 공격할 동료가 없다 — 시스템 재부팅.",
+        "en": "🕹 {name} is hacked but has no ally to strike — systems reboot.",
+    },
     "item_stun_aoe": {
         "ko": "{actor}의 {item}이(가) ({x}, {y}) 일대를 뒤덮는다 — 적 {count}기 회로 마비!",
         "en": "{actor}'s {item} blankets the area around ({x}, {y}) — {count} enemies short-circuit!",

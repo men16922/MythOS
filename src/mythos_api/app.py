@@ -112,6 +112,9 @@ class CombatBeginRequest(BaseModel):
     encounter_id: str = Field(min_length=1)
     scenario_id: str = "neo-seoul"
     party_members: list[dict[str, Any]] | None = None
+    # Combat-simulator sandbox: unlock the full skill pool + sample throwables
+    # so every combat feature is exercisable without a long insight grind.
+    test_kit: bool = False
     lang: str = "ko"
 
 
@@ -785,6 +788,7 @@ def create_app() -> FastAPI:
                 # Pass an explicit roster through verbatim — an EMPTY list means
                 # "solo run" (exclusive), not "use the default flag allies".
                 party_members=body.party_members,
+                test_kit=body.test_kit,
             )
             resp = combat_state_response(service, body.loop_id, body.scenario_id)
             return localize_for(resp, body.scenario_id, body.lang)

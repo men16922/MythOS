@@ -656,6 +656,9 @@ export interface CombatCinemaContext {
   miss?: boolean;
   // Kill blow — used to prefer the defeat cut-in when deduping per attacker.
   kill?: boolean;
+  // Thrown consumable behind this blow (grenades): shows the item art as the
+  // center card instead of the generic crossed-swords ATTACK widget.
+  itemId?: string;
 }
 
 export type CombatCinemaCue = "enter" | "windup" | "impact" | "exit";

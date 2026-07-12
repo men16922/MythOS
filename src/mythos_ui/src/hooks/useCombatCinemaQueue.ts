@@ -121,6 +121,9 @@ export function useCombatCinemaQueue({
       if (hasCinematicEvent && !fallbackMode && !prefersReducedMotion()) {
         const queueItems: CombatCinemaContext[] = [];
         const latestSkillByActor = new Map<string, string>();
+        // Grenade/consumable throws: remember the thrown item so follow-up hit
+        // entries can show the item art as the cut-in's center card.
+        const latestItemByActor = new Map<string, string>();
 
         // Responsiveness (measured 2026-07-12): a full-screen cinema for EVERY
         // log entry serialized one click into a 7-10.5s forced watch (owner:
@@ -151,6 +154,10 @@ export function useCombatCinemaQueue({
         const orphanCinemaActors = new Set<string>();
 
         newLogs.forEach((entry: CombatLogEntry) => {
+          if (entry.action === "item" && typeof entry.detail?.item === "string") {
+            latestItemByActor.set(entry.actor, entry.detail.item);
+            return;
+          }
           if (entry.action === "skill") {
             const skillId = typeof entry.detail?.skill === "string" ? entry.detail.skill : undefined;
             const skillName = entry.detail?.skill_name || skillId || "SKILL";
@@ -202,6 +209,7 @@ export function useCombatCinemaQueue({
               kind,
               crit: !!entry.detail?.crit,
               skillName,
+              itemId: skillName ? undefined : latestItemByActor.get(entry.actor),
               miss: entry.action === "miss",
               kill: entry.action === "defeat",
             });

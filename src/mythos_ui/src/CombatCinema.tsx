@@ -11,6 +11,7 @@ interface CombatCinemaProps {
   kind?: "attack" | "skill" | "defend";
   crit?: boolean;
   skillName?: string;
+  itemId?: string;
   miss?: boolean;
   onFinish?: () => void;
   onImpact?: (defenderId: string, damage: number) => void; // HP 실시간 동기화 콜백
@@ -27,12 +28,14 @@ export const CombatCinema: React.FC<CombatCinemaProps> = ({
   kind,
   crit = false,
   skillName,
+  itemId,
   miss = false,
   onFinish,
   onImpact,
   onCue,
   onSkip,
 }) => {
+  const [itemImgError, setItemImgError] = React.useState(false);
   const { lang } = useLang();
   const {
     phase,
@@ -162,8 +165,30 @@ export const CombatCinema: React.FC<CombatCinemaProps> = ({
           </div>
         )}
 
+        {/* Thrown item card: grenade art beats the generic ATTACK widget. */}
+        {!hasSkillCard && itemId && !itemImgError && (
+          <div className="action-signal-side item-card-side" style={{ "--signal-color": "#ffd76a" } as React.CSSProperties}>
+            <div
+              className="cinema-card signal-card item-card"
+              style={{
+                borderColor: "#ffd76a",
+                boxShadow: "0 0 14px #ffd76a, inset 0 0 10px rgba(255,215,106,0.5)",
+              }}
+            >
+              <img
+                className="item-illustration"
+                src={`/resources/${scenarioId}/items/${itemId}.png`}
+                alt={itemId}
+                draggable={false}
+                onError={() => setItemImgError(true)}
+              />
+              <div className="signal-code">CMD: ORDNANCE_OUT</div>
+            </div>
+          </div>
+        )}
+
         {/* Action Signal Card (Center Poster for basic actions) */}
-        {!hasSkillCard && actionSignal && (
+        {!hasSkillCard && (!itemId || itemImgError) && actionSignal && (
           <div className="action-signal-side" style={{ "--signal-color": actionSignal.color } as React.CSSProperties}>
             <div
               className="cinema-card signal-card"
@@ -202,6 +227,14 @@ export const CombatCinema: React.FC<CombatCinemaProps> = ({
             }}
           >
             {renderActorImage(defender, defenderSrc, "right")}
+            {/* Impact linkage: energy slashes sweep ACROSS the target card on
+                the impact frame so the blow visibly lands (vs. shake alone). */}
+            {!isDefend && !miss && (
+              <>
+                <div className="impact-slash a" aria-hidden="true" />
+                <div className="impact-slash b" aria-hidden="true" />
+              </>
+            )}
           </div>
           <span className="actor-label" style={{ borderColor: `${factionCol(defender.faction)}40`, color: factionCol(defender.faction) }}>
             {defender.faction.toUpperCase()} // {defenderPose.toUpperCase()}

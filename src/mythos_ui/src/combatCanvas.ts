@@ -1175,39 +1175,73 @@ export function drawCombatCanvas(
     // active statuses render as ICON IMAGES floating above the unit
     // (resources/<scenario>/status/<id>.png, glow in the status color); until
     // the art lands (or if it 404s) each falls back to its colored text pill.
-    const activeBadges = aliveHere
-      ? (b.status || []).filter((s) => STATUS_BADGES[s]).slice(0, 3)
-      : [];
+    const allBadges = aliveHere ? (b.status || []).filter((s) => STATUS_BADGES[s]) : [];
+    const activeBadges = allBadges.slice(0, 3);
+    const badgeOverflow = allBadges.length - activeBadges.length;
     if (activeBadges.length) {
-      const iconSize = Math.max(22, r * 0.85);
-      const rowW = activeBadges.length * (iconSize + 4) - 4;
-      let iconX = cx - rowW / 2;
-      const iconY = (drewSprite ? cy - r * 3.1 : cardCy - r - 34) - iconSize / 2;
+      // Badge stack redesign (visual overhaul 2026-07-12): the icons used to
+      // draw ON the name label line — an illegible mush. Now each status sits
+      // in a dark circular chip with a colored rim, in a row ABOVE the name.
+      const chipR = Math.max(12, r * 0.42);
+      const gap = 5;
+      const slots = activeBadges.length + (badgeOverflow > 0 ? 1 : 0);
+      const rowW = slots * (chipR * 2 + gap) - gap;
+      const nameBaseline = (drewSprite ? cy - r * 2.85 : cardCy - r) - 4;
+      const chipCy = nameBaseline - 12 - chipR - 4;
+      let chipCx = cx - rowW / 2 + chipR;
       ctx.save();
       for (const sid of activeBadges) {
         const meta = STATUS_BADGES[sid];
+        // Chip base: dark disc + status-color rim, so mixed icon art still
+        // reads as one badge family.
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(chipCx, chipCy, chipR, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(3, 9, 9, 0.88)";
+        ctx.fill();
+        ctx.strokeStyle = meta.bg;
+        ctx.lineWidth = 1.8;
+        ctx.shadowColor = meta.bg;
+        ctx.shadowBlur = 7;
+        ctx.stroke();
+        ctx.restore();
         const iconUrl = `/resources/${scenarioId}/status/${sid}.png`;
         const icon = brokenSprites.has(iconUrl)
           ? null
           : loadImage(iconUrl, () => drawCombatCanvas(canvas, combat, scenarioId));
         if (icon && icon.complete && icon.naturalWidth > 0) {
+          const inset = chipR * 0.82;
           ctx.save();
-          ctx.shadowColor = meta.bg;
-          ctx.shadowBlur = 10;
-          ctx.drawImage(icon, iconX, iconY, iconSize, iconSize);
+          ctx.beginPath();
+          ctx.arc(chipCx, chipCy, chipR - 1.5, 0, Math.PI * 2);
+          ctx.clip();
+          ctx.drawImage(icon, chipCx - inset, chipCy - inset, inset * 2, inset * 2);
           ctx.restore();
         } else {
-          // Fallback pill while the icon art is missing/loading.
-          ctx.font = "bold 10px SF Mono, monospace";
+          // Fallback glyph while the icon art is missing/loading.
+          ctx.font = `bold ${Math.round(chipR * 0.9)}px SF Mono, monospace`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
-          const sw = ctx.measureText(meta.label).width + 10;
-          ctx.fillStyle = meta.bg;
-          ctx.fillRect(iconX + iconSize / 2 - sw / 2, iconY + iconSize / 2 - 8, sw, 15);
           ctx.fillStyle = meta.fg;
-          ctx.fillText(meta.label, iconX + iconSize / 2, iconY + iconSize / 2);
+          ctx.fillText(meta.label.slice(0, 2), chipCx, chipCy + 0.5);
         }
-        iconX += iconSize + 4;
+        chipCx += chipR * 2 + gap;
+      }
+      if (badgeOverflow > 0) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(chipCx, chipCy, chipR, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(3, 9, 9, 0.88)";
+        ctx.fill();
+        ctx.strokeStyle = "rgba(214, 255, 246, 0.6)";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.fillStyle = "#d6fff6";
+        ctx.font = `bold ${Math.round(chipR * 0.85)}px SF Mono, monospace`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(`+${badgeOverflow}`, chipCx, chipCy + 0.5);
+        ctx.restore();
       }
       if (activeBadges.includes("stunned")) {
         ctx.strokeStyle = "rgba(255, 214, 106, 0.75)";

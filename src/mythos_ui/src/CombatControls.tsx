@@ -112,16 +112,34 @@ function formatEffect(
   return parts.join(" · ");
 }
 
+// Every player-facing skill id gets a glyph — missing entries used to fall
+// back to the role label's first letter, so 제어/강화 skills rendered as bare
+// "제"/"강" tiles (visual overhaul 2026-07-12).
 const SKILL_SYMBOLS: Record<string, string> = {
   signal_step: "⇄",
-  overload_strike: "⚡",
+  overload_strike: "💥",
   packet_shot: "⌖",
   covering_noise: "◌",
-  patch_protocol: "+",
+  patch_protocol: "✚",
+  magnetic_pull: "⇤",
+  magnetic_repulse: "⇥",
+  emp_pulse: "◎",
+  precision_emp: "⚡",
+  system_hack: "💫",
+  system_intrusion: "🕹",
+  shortcut_call: "»",
+  signal_overdrive: "↯",
+  glitch_blink: "⟡",
+  backdoor_route: "⌘",
+  guardian_wall: "▣",
+  shield_field: "⛨",
+  memory_resonance: "♒",
+  nanoshield_projector: "◈",
 };
 
 export function CombatControls({
   combat,
+  scenarioId,
   selectedTargetId,
   onSelectTarget,
   onAction,
@@ -422,6 +440,18 @@ export function CombatControls({
                           : onAction({ type: "item", item_id: item.item_id })
                       }
                     >
+                      {/* Item art thumbnail (grenade/nanopatch PNGs already exist);
+                          hides itself on 404 so text-only stays the fallback. */}
+                      <img
+                        className="cc-item-icon"
+                        src={`/resources/${scenarioId}/items/${item.item_id}.png`}
+                        alt=""
+                        aria-hidden="true"
+                        draggable={false}
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).style.display = "none";
+                        }}
+                      />
                       <span className="cc-item-name">{armed ? `🎯 ${item.name}` : item.name}</span>
                       <span className="cc-item-count">×{item.count}</span>
                     </button>

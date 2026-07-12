@@ -1012,6 +1012,7 @@ export default function App() {
           kind={cinemaContext.kind}
           crit={cinemaContext.crit}
           skillName={cinemaContext.skillName}
+          itemId={cinemaContext.itemId}
           miss={cinemaContext.miss}
           onImpact={onCinemaImpact}
           onCue={(cue) => playCombatCinemaCue(cinemaContext, cue)}

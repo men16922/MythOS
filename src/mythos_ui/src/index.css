@@ -1283,6 +1283,16 @@ main {
   border-color: var(--term);
   color: var(--term);
 }
+/* Item art thumbnail inside the consumable button (visual overhaul 2026-07-12). */
+.cc-item-icon {
+  width: 26px;
+  height: 26px;
+  object-fit: cover;
+  border-radius: 5px;
+  border: 1px solid rgba(41, 255, 198, 0.25);
+  background: #04090c;
+  flex: 0 0 auto;
+}
 .cc-item-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
@@ -4371,6 +4381,38 @@ main#play.fx-glitch {
   pointer-events: none;
 }
 
+/* Anime speed-lines: horizontal energy streaks rushing through the strip
+   during the windup/impact frames (visual overhaul 2026-07-12 — the strip
+   used to be a static dark band, so the whole cut-in read as three floating
+   rectangles). */
+.cinema-strip::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: repeating-linear-gradient(
+    100deg,
+    transparent 0px,
+    transparent 34px,
+    rgba(143, 255, 234, 0.05) 35px,
+    rgba(143, 255, 234, 0.11) 37px,
+    transparent 38px,
+    transparent 89px
+  );
+  background-size: 260% 100%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease-out;
+}
+.cinema-overlay.phase-attack .cinema-strip::after,
+.cinema-overlay.phase-impact .cinema-strip::after {
+  opacity: 1;
+  animation: speedLinesRush 0.5s linear infinite;
+}
+@keyframes speedLinesRush {
+  0% { background-position: 0% 0; }
+  100% { background-position: -125% 0; }
+}
+
 .actor-side {
   display: flex;
   flex-direction: column;
@@ -4730,14 +4772,63 @@ main#play.fx-glitch {
 .damage-number {
   position: absolute;
   right: 22%;
-  top: 30%;
-  font-size: 46px;
+  top: 26%;
+  font-size: 62px;
   font-weight: 900;
   color: #ff5566;
-  text-shadow: 0 0 8px rgba(255,85,102,0.85), 0 0 16px rgba(0,0,0,0.9);
+  text-shadow: 0 0 10px rgba(255,85,102,0.9), 0 3px 22px rgba(0,0,0,0.95);
+  -webkit-text-stroke: 1.5px rgba(10, 0, 2, 0.85);
   opacity: 0;
   z-index: 15;
   pointer-events: none;
+}
+
+/* Impact linkage: two energy slashes sweeping across the defender card on the
+   impact frame, so the blow visibly LANDS instead of only shaking the card. */
+.impact-slash {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 175%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #ffffff 35%, #ffe9ec 60%, transparent);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.9), 0 0 26px rgba(255, 107, 125, 0.8);
+  opacity: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+.impact-slash.a { transform: translate(-50%, -50%) rotate(-38deg); }
+.impact-slash.b { transform: translate(-50%, -50%) rotate(26deg); height: 2px; }
+.cinema-overlay.phase-impact .impact-slash.a {
+  animation: impactSlash 0.34s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+}
+.cinema-overlay.phase-impact .impact-slash.b {
+  animation: impactSlash 0.3s cubic-bezier(0.19, 1, 0.22, 1) 0.06s forwards;
+}
+@keyframes impactSlash {
+  0% { opacity: 0; clip-path: inset(0 100% 0 0); }
+  18% { opacity: 1; }
+  70% { opacity: 1; clip-path: inset(0 0 0 0); }
+  100% { opacity: 0; clip-path: inset(0 0 0 100%); }
+}
+
+/* Thrown-item center card (grenade art). */
+.item-illustration {
+  width: 100%;
+  height: 78%;
+  object-fit: cover;
+  filter: saturate(1.1);
+}
+.cinema-card.item-card {
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 8px;
+  padding-bottom: 10px;
+}
+.cinema-overlay.phase-attack .item-card-side {
+  transform: scale(1.28) translateY(-8px);
+  transition: transform 0.22s cubic-bezier(0.19, 1, 0.22, 1);
+  filter: drop-shadow(0 0 24px rgba(255, 215, 106, 0.65));
 }
 
 .cinema-strip.has-skill .damage-number {
@@ -4749,8 +4840,8 @@ main#play.fx-glitch {
 }
 .damage-number.critical {
   color: #ffd76a;
-  text-shadow: 0 0 12px #ffd76a, 0 0 24px rgba(0,0,0,0.95);
-  font-size: 56px;
+  text-shadow: 0 0 14px #ffd76a, 0 3px 26px rgba(0,0,0,0.95);
+  font-size: 74px;
 }
 .damage-number.evade {
   color: #8fffea;

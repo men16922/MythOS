@@ -833,6 +833,43 @@ class CollisionSlamTest(unittest.TestCase):
         self.assertFalse(any(e.detail.get("slam") for e in state.log))
 
 
+class SignatureCastabilityTest(unittest.TestCase):
+    """Owner finding 2026-07-12: 한's 시스템 침투 cost ◆4 exceeded his derived
+    focus pool of 3 — a permanently uncastable signature. Owner call: raise
+    han's pool via an explicit max_focus override (ally builder now honors it,
+    mirroring the enemy builder). Lock the invariant for EVERY companion."""
+
+    def test_every_companion_skill_is_castable(self) -> None:
+        import json
+
+        from mythos_combat import build_ally_combatant
+
+        combat = json.loads(read("resources/neo-seoul/scenario.json"))["combat"]
+        skills = combat["skills"]
+        for ally_id, entry in combat["allies"].items():
+            ally = build_ally_combatant(
+                entry=entry, weapons_pool=combat["weapons"], x=0, y=0
+            )
+            for skill_id in ally.skills:
+                cost = int((skills.get(skill_id, {}).get("cost") or {}).get("focus", 0))
+                self.assertLessEqual(
+                    cost,
+                    ally.max_focus,
+                    f"{ally_id}'s {skill_id} costs ◆{cost} but max focus is {ally.max_focus} — uncastable",
+                )
+
+    def test_han_pool_honors_explicit_override(self) -> None:
+        import json
+
+        from mythos_combat import build_ally_combatant
+
+        combat = json.loads(read("resources/neo-seoul/scenario.json"))["combat"]
+        han = build_ally_combatant(
+            entry=combat["allies"]["han"], weapons_pool=combat["weapons"], x=0, y=0
+        )
+        self.assertEqual(han.max_focus, 4)
+
+
 class CryoGrenadeDamageTest(unittest.TestCase):
     """Owner call 2026-07-12: the cryo grenade deals blast damage too (was a
     pure ❄ utility throw)."""

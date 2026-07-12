@@ -179,7 +179,10 @@ def build_ally_combatant(
         if isinstance(delta, int | float):
             stats[key] = stats.get(key, 0) + int(delta)
     max_hp = int(entry.get("hp", derive_max_hp(stats))) + max(0, int(bonus_hp))
-    max_focus = derive_max_focus(stats)
+    # Explicit override mirrors the enemy builder: 한's signature (시스템 침투,
+    # ◆4) costs more than his derived pool of 3 — uncastable forever without it
+    # (owner call 2026-07-12: raise the pool, keep the premium cost).
+    max_focus = int(entry.get("max_focus", derive_max_focus(stats)))
     skills = [str(skill_id) for skill_id in entry.get("skills", [])]
     for skill_id in extra_skills or []:
         if str(skill_id) not in skills:

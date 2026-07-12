@@ -117,8 +117,21 @@ export class CombatAnimator {
       }
     };
 
+    // Mine this turn's new log entries — status pops / grenade blasts can be
+    // the ONLY thing to show (a cryo grenade or a pure-stun cast produces no
+    // hp/pos diff), so scan BEFORE the instant-path early-return.
+    const newLog = (next.log || []).slice(prev?.log?.length ?? 0);
+    const hasBoardFx = newLog.some((entry) => {
+      const d = entry.detail || {};
+      return (
+        (Array.isArray(d.cell) && d.radius != null) || // grenade blast
+        (typeof d.status === "string" && d.turns != null && STATUS_BADGES[d.status]) || // status pop
+        (d.forced === "push" || d.forced === "pull") // yank
+      );
+    });
+
     const hasDispatchedSkill = opts.dispatched?.type === "skill";
-    if (opts.instant || (events.length === 0 && !hasDispatchedSkill)) {
+    if (opts.instant || (events.length === 0 && !hasDispatchedSkill && !hasBoardFx)) {
       drawCombatCanvas(canvas, next, this.scenarioId);
       if (events.some((e) => e.kind === "move") && !events.some((e) => e.kind === "damage")) {
         opts.onSfx?.("sfx_move");
@@ -135,9 +148,6 @@ export class CombatAnimator {
     const deathEvents = events.filter((e) => e.kind === "death");
     const hasMove = moveEvents.length > 0;
     const hitBase = hasMove ? 200 : 60;
-
-    // Mine this turn's new log entries for forced-movement (push/pull) marks.
-    const newLog = (next.log || []).slice(prev?.log?.length ?? 0);
     const yanks = new Map<string, Yank>();
     for (const entry of newLog) {
       const d = entry.detail || {};

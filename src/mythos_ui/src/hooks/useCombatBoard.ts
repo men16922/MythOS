@@ -5,13 +5,50 @@ import type { CombatAnimator } from "../combatEffects";
 import type { RuntimeSnapshot, CombatAction, CombatConsumable } from "../types";
 
 // XCOM-style ground targeting (2026-07-12): an armed throwable (EMP 수류탄)
-// turns the board into a cell picker — hover previews the blast radius, a tap
-// inside throw range dispatches the item at that cell.
-export interface ItemTargeting {
-  itemId: string;
+// or an aimed skill (🎯 on push/pull/aoe/stun skills) turns the board into a
+// picker — hover previews the outcome (blast radius / displacement arrow /
+// stun mark), a tap dispatches. Items target CELLS; skills target ENEMY UNITS.
+export interface GroundTargeting {
+  kind: "item" | "skill";
+  id: string;
   name: string;
   range: number;
-  radius: number;
+  radius: number; // blast ring radius (0 = unit-only)
+  push?: number;
+  pull?: number;
+  stun?: boolean;
+}
+
+// Client-side mirror of the engine's _skill_displace stepping (line toward/away
+// from the caster, stop at board edge or an occupied tile) — preview only; the
+// server remains authoritative.
+function displaceDest(
+  actor: { x: number; y: number },
+  victim: { x: number; y: number; id: string },
+  tiles: number,
+  toward: boolean,
+  blips: { id: string; x: number; y: number; alive?: boolean }[],
+  cols: number,
+  rows: number
+): [number, number] {
+  let sx = Math.sign(victim.x - actor.x);
+  let sy = Math.sign(victim.y - actor.y);
+  if (toward) {
+    sx = -sx;
+    sy = -sy;
+  }
+  if (!sx && !sy) return [victim.x, victim.y];
+  let vx = victim.x;
+  let vy = victim.y;
+  for (let i = 0; i < tiles; i++) {
+    const nx = vx + sx;
+    const ny = vy + sy;
+    if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) break;
+    if (blips.some((b) => b.alive !== false && b.id !== victim.id && b.x === nx && b.y === ny)) break;
+    vx = nx;
+    vy = ny;
+  }
+  return [vx, vy];
 }
 
 const COARSE_POINTER_QUERY = "(pointer: coarse)";
@@ -60,52 +97,108 @@ export function useCombatBoard(opts: {
   // dragging), surfaced to StoryPanel so it can show terrain/occupant/effects.
   const [combatInspectCell, setCombatInspectCell] = useState<[number, number] | null>(null);
 
-  // Armed ground-target item (EMP 수류탄): while set, board taps throw instead
-  // of inspecting/dragging, and hover paints the blast-radius preview. The
-  // handlers below are recreated every render, so they close over fresh state.
-  const [itemTargeting, setItemTargeting] = useState<ItemTargeting | null>(null);
+  // Armed ground-target pick (item throw or aimed skill): while set, board
+  // taps dispatch instead of inspecting/dragging, and hover paints the outcome
+  // preview. The handlers below are recreated every render (fresh state).
+  const [groundTargeting, setGroundTargeting] = useState<GroundTargeting | null>(null);
 
   // Last hovered cell drawn as the movement-preview target, so pointer moves
   // over the same cell don't trigger redundant canvas redraws.
   const hoverRef = useRef<[number, number] | null>(null);
 
-  const blastPreview = (cell: [number, number], tg: ItemTargeting): CombatOverlay => ({
-    fx: [
-      {
+  const targetingPreview = (cell: [number, number], tg: GroundTargeting): CombatOverlay => {
+    const fx: NonNullable<CombatOverlay["fx"]> = [];
+    const combat = finalizedSnapshot?.combat;
+    const blips = combat?.radar?.blips || [];
+    const victim =
+      tg.kind === "skill"
+        ? blips.find(
+            (b) => b.alive !== false && b.faction === "enemy" && b.x === cell[0] && b.y === cell[1]
+          )
+        : undefined;
+
+    if (tg.kind === "item" || tg.radius > 0) {
+      // Blast ring (item throw always; skills only when they splash).
+      fx.push({
         kind: "ring",
         cellX: cell[0] + 0.5,
         cellY: cell[1] + 0.5,
-        cellR: tg.radius + 0.5,
+        cellR: (tg.radius || 0) + 0.5,
         color: "#ffd76a",
-        alpha: 0.8,
+        alpha: tg.kind === "item" || victim ? 0.8 : 0.35,
         width: 2.5,
-      },
-      {
-        kind: "spark",
+      });
+    }
+    if (tg.kind === "skill") {
+      // Aim marker: bright when the hovered cell holds a valid enemy.
+      fx.push({
+        kind: "ring",
         cellX: cell[0] + 0.5,
         cellY: cell[1] + 0.5,
-        cellR: 0.14,
-        color: "#ffd76a",
-        alpha: 0.9,
-      },
-    ],
-  });
+        cellR: 0.42,
+        color: victim ? (tg.stun ? "#ffd76a" : "#e07dff") : "#8fffea",
+        alpha: victim ? 0.9 : 0.3,
+        width: victim ? 3 : 1.5,
+      });
+      const actor = blips.find((b) => b.id === combat?.radar?.current);
+      if (victim && actor && (tg.push || tg.pull)) {
+        // Displacement preview: where the shove/yank would land the enemy.
+        const cols = combat?.radar?.arena?.w || 8;
+        const rows = combat?.radar?.arena?.h || 6;
+        const toward = !!tg.pull;
+        const tiles = Number(tg.pull || tg.push || 0);
+        const [dx, dy] = displaceDest(actor, victim, tiles, toward, blips, cols, rows);
+        const color = toward ? "#e07dff" : "#ffb347";
+        fx.push({
+          kind: "tracer",
+          x1: victim.x + 0.5,
+          y1: victim.y + 0.5,
+          x2: dx + 0.5,
+          y2: dy + 0.5,
+          color,
+          alpha: 0.85,
+          width: 3.5,
+        });
+        fx.push({
+          kind: "ring",
+          cellX: dx + 0.5,
+          cellY: dy + 0.5,
+          cellR: 0.4,
+          color,
+          alpha: 0.9,
+          width: 2.5,
+        });
+      }
+      if (victim && tg.stun) {
+        fx.push({
+          kind: "spark",
+          cellX: cell[0] + 0.5,
+          cellY: cell[1] - 0.2,
+          cellR: 0.16,
+          color: "#ffd76a",
+          alpha: 0.95,
+        });
+      }
+    }
+    return { fx };
+  };
 
   const redrawCombat = (drag?: CombatDragOverlay, hover?: [number, number] | null) => {
     const canvas = canvasRef.current;
     const combat = finalizedSnapshot?.combat;
     if (!canvas || !combat) return;
-    const tg = itemTargeting;
-    const overlay = tg && hover ? blastPreview(hover, tg) : undefined;
+    const tg = groundTargeting;
+    const overlay = tg && hover ? targetingPreview(hover, tg) : undefined;
     drawCombatCanvas(canvas, combat, selectedScenarioId, drag, overlay, hover, combatInspectCell);
   };
 
   const startItemTargeting = (item: CombatConsumable) => {
-    setItemTargeting((prev) =>
-      prev?.itemId === item.item_id
+    setGroundTargeting((prev) =>
+      prev?.kind === "item" && prev.id === item.item_id
         ? null // pressing the armed item again disarms it
         : {
-            itemId: item.item_id,
+            kind: "item",
+            id: item.item_id,
             name: item.name,
             range: Number(item.range ?? 4),
             radius: Number(item.radius ?? 1),
@@ -113,7 +206,30 @@ export function useCombatBoard(opts: {
     );
   };
 
-  const cancelItemTargeting = () => setItemTargeting(null);
+  const startSkillTargeting = (skill: {
+    id: string;
+    name?: string;
+    range?: number | null;
+    effect?: Record<string, unknown>;
+  }) => {
+    const effect = skill.effect || {};
+    setGroundTargeting((prev) =>
+      prev?.kind === "skill" && prev.id === skill.id
+        ? null // pressing 🎯 again disarms
+        : {
+            kind: "skill",
+            id: skill.id,
+            name: skill.name || skill.id,
+            range: Number(skill.range ?? 1),
+            radius: Number(effect.aoe_radius ?? 0) || 0,
+            push: Number(effect.push ?? 0) || undefined,
+            pull: Number(effect.pull ?? 0) || undefined,
+            stun: !!effect.stun,
+          }
+    );
+  };
+
+  const cancelItemTargeting = () => setGroundTargeting(null);
 
   // Movement affordance (T5a): auto-center the scrollable board wrapper on
   // the active unit whenever the turn changes, so a zoomed-in / small
@@ -160,23 +276,33 @@ export function useCombatBoard(opts: {
 
     const [cx, cy] = combatCellFromPoint(canvas, combat.radar, e.clientX, e.clientY);
 
-    // Armed throwable: this tap IS the throw. In-bounds + in-range → dispatch
-    // the item at the cell; out-of-bounds → disarm (escape hatch).
-    const tg = itemTargeting;
+    // Armed pick: this tap IS the throw/cast. In-bounds + in-range → dispatch;
+    // out-of-bounds → disarm (escape hatch).
+    const tg = groundTargeting;
     if (tg) {
       const cols = combat.radar.arena?.w || 8;
       const rows = combat.radar.arena?.h || 6;
       const inBounds = cx >= 0 && cy >= 0 && cx < cols && cy < rows;
       if (!inBounds) {
-        setItemTargeting(null);
+        setGroundTargeting(null);
         redrawCombat();
         return;
       }
       const actor = combat.radar.blips.find((b) => b.id === combat.radar!.current);
       const dist = actor ? Math.max(Math.abs(actor.x - cx), Math.abs(actor.y - cy)) : 0;
-      if (dist > tg.range) return; // out of throw range — keep aiming
-      setItemTargeting(null);
-      onCombatAction({ type: "item", item_id: tg.itemId, target_cell: [cx, cy] });
+      if (dist > tg.range) return; // out of range — keep aiming
+      if (tg.kind === "item") {
+        setGroundTargeting(null);
+        onCombatAction({ type: "item", item_id: tg.id, target_cell: [cx, cy] });
+        return;
+      }
+      // Aimed skill: needs an enemy UNIT on the picked cell.
+      const victim = combat.radar.blips.find(
+        (b) => b.alive !== false && b.faction === "enemy" && b.x === cx && b.y === cy
+      );
+      if (!victim) return; // empty ground — keep aiming
+      setGroundTargeting(null);
+      onCombatAction({ type: "skill", skill_id: tg.id, target_id: victim.id });
       return;
     }
 
@@ -235,7 +361,7 @@ export function useCombatBoard(opts: {
       const av = combat.available;
       const actor = combat.radar.blips.find((b) => b.id === combat.radar!.current);
       const overActor = !!actor && actor.x === cx && actor.y === cy;
-      canvas.style.cursor = itemTargeting
+      canvas.style.cursor = groundTargeting
         ? "crosshair"
         : overActor && av?.can_act && !isBusy
           ? "grab"
@@ -321,8 +447,9 @@ export function useCombatBoard(opts: {
     handleCanvasPointerUp,
     handleCanvasPointerCancel,
     handleCanvasPointerLeave,
-    itemTargeting,
+    groundTargeting,
     startItemTargeting,
+    startSkillTargeting,
     cancelItemTargeting,
   };
 }

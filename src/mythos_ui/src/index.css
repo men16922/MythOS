@@ -1287,6 +1287,33 @@ main {
   opacity: 0.4;
   cursor: not-allowed;
 }
+/* Aimed-skill 🎯 toggle: sits beside push/pull/aoe/stun skill buttons; armed
+   state shares the throwable pulse so "board pick pending" reads the same. */
+.cc-skill-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  gap: 2px;
+}
+.cc-skill-aim {
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  background: rgba(8, 16, 20, 0.6);
+  color: var(--term-dim);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0 6px;
+}
+.cc-skill-aim:hover {
+  border-color: #ffd76a;
+  color: #ffd76a;
+}
+.cc-skill-aim.armed,
+.cc-skill-armed {
+  border-color: #ffd76a;
+  animation: cc-armed-pulse 1.1s ease-in-out infinite;
+}
+
 /* XCOM-style throwable armed for ground targeting: the button pulses until
    the player taps a board cell (or presses it again to disarm). */
 .cc-item-armed {

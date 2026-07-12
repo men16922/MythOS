@@ -285,6 +285,7 @@ export const en: Record<StringKey, string> = {
   "cc.healHp": "Restore HP",
   "cc.healFocus": "Restore Focus",
   "cc.throwAtCell": "Tap a board cell to throw (press again to cancel)",
+  "cc.aimSkill": "Aim: tap an enemy on the board — previews the shove/blast outcome (press again to cancel)",
   "cc.noConsumables": "No usable consumables",
   "cc.range": "Range",
   "cc.cost": "Cost",

@@ -37,6 +37,10 @@ interface CombatControlsProps {
   // picker instead of firing the item blind. `armedItemId` echoes the armed one.
   onItemTarget?: (item: CombatConsumable) => void;
   armedItemId?: string | null;
+  // Aimed skills (🎯 on push/pull/aoe/stun skills): arm the board unit picker
+  // with an outcome preview; the plain skill button keeps the auto-target flow.
+  onSkillTarget?: (skill: CombatSkillInfo) => void;
+  armedSkillId?: string | null;
 }
 
 function outcomeLabel(outcome: string, t: TFn): string {
@@ -126,6 +130,8 @@ export function CombatControls({
   tutorialHighlight,
   onItemTarget,
   armedItemId,
+  onSkillTarget,
+  armedSkillId,
 }: CombatControlsProps) {
   const { t } = useLang();
   // Direction target for heal/shield support skills (self + allies). Kept local:
@@ -208,12 +214,23 @@ export function CombatControls({
     const tags = (skill.tags || []).join(" · ");
     const tooltip = tooltipParts.join(" · ") + (tags ? `\n${tags}` : "");
 
-    return (
+    // Two-tier slice 1-ext: skills whose outcome depends on WHERE (push/pull
+    // displacement, splash, stun) get an opt-in 🎯 aim toggle — board pick with
+    // outcome preview. The main button keeps the casual auto-target flow.
+    const effect = skill.effect || {};
+    const aimable =
+      !!onSkillTarget &&
+      !disabled &&
+      (skill.range ?? 0) > 0 &&
+      (effect.push != null || effect.pull != null || effect.aoe_radius != null || !!effect.stun);
+    const armed = aimable && armedSkillId === skill.id;
+
+    const mainButton = (
       <button
-        key={skill.id}
+        key={aimable ? undefined : skill.id}
         className={`cc-skill ${skill.role ? `role-${skill.role}` : ""} ${
           (lowFocus || noItem) && !onCooldown ? "low-focus" : ""
-        }`}
+        }${armed ? " cc-skill-armed" : ""}`}
         disabled={disabled}
         onClick={() =>
           onAction({
@@ -245,6 +262,22 @@ export function CombatControls({
         {fxStr && <span className="cc-skill-fx">{fxStr}</span>}
         <SkillInfoTooltip tooltip={tooltip} />
       </button>
+    );
+
+    if (!aimable) return mainButton;
+    return (
+      <span key={skill.id} className="cc-skill-wrap">
+        {mainButton}
+        <button
+          type="button"
+          className={`cc-skill-aim${armed ? " armed" : ""}`}
+          aria-pressed={armed || undefined}
+          title={t("cc.aimSkill")}
+          onClick={() => onSkillTarget!(skill)}
+        >
+          🎯
+        </button>
+      </span>
     );
   };
 

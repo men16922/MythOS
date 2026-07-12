@@ -295,6 +295,24 @@ class CombatResponsivenessTest(unittest.TestCase):
         self.assertIn("cinema-skip-hint", cinema)
 
 
+class AimedSkillTargetingTest(unittest.TestCase):
+    """Two-tier slice 1-ext: 🎯 board pick + outcome preview for skills."""
+
+    def test_board_hook_supports_skill_targeting_with_preview(self) -> None:
+        source = read("src/mythos_ui/src/hooks/useCombatBoard.ts")
+        self.assertIn("GroundTargeting", source)
+        self.assertIn("startSkillTargeting", source)
+        self.assertIn("displaceDest", source)  # push/pull destination preview
+        self.assertIn('onCombatAction({ type: "skill", skill_id: tg.id, target_id: victim.id })', source)
+
+    def test_controls_render_aim_toggle_for_positional_skills(self) -> None:
+        source = read("src/mythos_ui/src/CombatControls.tsx")
+        self.assertIn("cc-skill-aim", source)
+        self.assertIn("effect.aoe_radius != null", source)
+        # Casual flow preserved: the main button still auto-targets.
+        self.assertIn("defaultTargetId) || undefined", source)
+
+
 class XcomGroundTargetingTest(unittest.TestCase):
     def test_emp_grenade_defines_range_and_radius(self) -> None:
         import json
@@ -314,7 +332,7 @@ class XcomGroundTargetingTest(unittest.TestCase):
     def test_board_hook_arms_and_throws(self) -> None:
         source = read("src/mythos_ui/src/hooks/useCombatBoard.ts")
         self.assertIn("startItemTargeting", source)
-        self.assertIn("blastPreview", source)
+        self.assertIn("targetingPreview", source)
         self.assertIn('target_cell: [cx, cy]', source)
 
 

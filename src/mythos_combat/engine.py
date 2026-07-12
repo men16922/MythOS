@@ -650,6 +650,11 @@ class CombatEngine:
                 ),
                 detail,
             )
+        # Weapon status riders (status slice 3): 화염 분사 등이 명중 시 상태를
+        # 남긴다 — enemies now spread burn/acid/shock onto the party too.
+        if defender.alive and weapon.applies:
+            for status_id, turns in weapon.applies.items():
+                self._apply_status_effect(state, attacker, defender, status_id, turns)
 
     def _player_flee(self, state: CombatState, player: Combatant, dice: Dice) -> None:
         adjacent = [
@@ -853,11 +858,12 @@ class CombatEngine:
                 clog(state.language, "item_focus", actor=player.name, item=name), detail,
             )
             return True
-        if effect == "stun":
-            # F stun, upgraded to an XCOM-style AoE throw (owner 2026-07-12):
-            # the grenade targets a CELL within throw range and stuns every
-            # enemy inside the blast radius. Falls back to the chosen/nearest
-            # enemy's cell when no ground target was given (old callers).
+        if effect in ("stun", "status_grenade"):
+            # XCOM-style AoE throws (owner 2026-07-12): the grenade targets a
+            # CELL within throw range and hits every enemy in the blast radius.
+            # "stun" = EMP 수류탄; "status_grenade" = 소이/냉각 수류탄 (optional
+            # flat damage dice + `applies` status riders). Falls back to the
+            # chosen/nearest enemy's cell when no ground target was given.
             throw_range = int(item_def.get("range", 4) or 4)
             radius = int(item_def.get("radius", 1) or 1)
             cell: tuple[int, int] | None = None
@@ -889,20 +895,45 @@ class CombatEngine:
                     state, player, "info", clog(state.language, "skill_no_target", name=name)
                 )
                 return False
-            turns = max(1, int(item_def.get("bonus", 1) or 1))
             detail["cell"] = [cell[0], cell[1]]
             detail["radius"] = radius
-            detail["stunned"] = [v.id for v in victims]
+            if effect == "stun":
+                turns = max(1, int(item_def.get("bonus", 1) or 1))
+                detail["stunned"] = [v.id for v in victims]
+                self._log(
+                    state, player, "item",
+                    clog(
+                        state.language, "item_stun_aoe",
+                        actor=player.name, item=name, x=cell[0], y=cell[1], count=len(victims),
+                    ),
+                    detail,
+                )
+                for victim in victims:
+                    self._apply_stun(state, player, victim, turns)
+                return True
+            # status_grenade: flat blast damage (no to-hit) + status riders.
+            detail["hit"] = [v.id for v in victims]
             self._log(
                 state, player, "item",
                 clog(
-                    state.language, "item_stun_aoe",
+                    state.language, "item_status_aoe",
                     actor=player.name, item=name, x=cell[0], y=cell[1], count=len(victims),
                 ),
                 detail,
             )
+            blast = str(item_def.get("damage", "") or "")
+            applies_raw = item_def.get("applies")
+            applies = applies_raw if isinstance(applies_raw, dict) else {}
             for victim in victims:
-                self._apply_stun(state, player, victim, turns)
+                if blast:
+                    self._apply_shock_damage(
+                        state, player, victim, blast, dice, name, "splash_hit"
+                    )
+                if victim.alive:
+                    for status_id, turns_raw in applies.items():
+                        self._apply_status_effect(
+                            state, player, victim, str(status_id), int(turns_raw or 1)
+                        )
             return True
         if effect == "revive":
             # Reboot the most valuable casualty: the first downed ALLY (the
@@ -1413,7 +1444,14 @@ class CombatEngine:
         reach = weapon.effective_range if weapon else 1
         self._move_to_band(state, actor, target, desired=max(1, reach))
         if weapon and distance(actor.x, actor.y, target.x, target.y) <= reach:
+            log_before = len(state.log)
             self._attack(state, actor, target, weapon, self._dice(state))
+            # Mark the betrayal blow so the client gives it a full-screen
+            # cinema beat — owner 2026-07-12: resolved in one transition it
+            # read as "즉발 데미지", not as the enemy's seized turn.
+            for entry in state.log[log_before:]:
+                if entry.action in ("hit", "miss", "defeat"):
+                    entry.detail["hacked_blow"] = True
 
     def _apply_status_effect(
         self, state: CombatState, source: Combatant, victim: Combatant,

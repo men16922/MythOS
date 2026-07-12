@@ -343,6 +343,98 @@ class LiveQaFixesTest(unittest.TestCase):
         self.assertTrue(any(a.id == "se_rin" for a in allies2))  # default path unchanged
 
 
+class StatusContentMappingTest(unittest.TestCase):
+    """Status slice 3: who applies what (owner greenlight 2026-07-12)."""
+
+    def test_enemy_weapons_carry_status_riders(self) -> None:
+        import json
+
+        combat = json.loads(read("resources/neo-seoul/scenario.json"))["combat"]
+        weapons = combat["weapons"]
+        self.assertEqual(weapons["plasma_torch"]["applies"], {"burn": 2})
+        self.assertEqual(weapons["acid_spitter"]["applies"], {"acid": 2, "corrode": 2})
+        self.assertEqual(weapons["shock_baton"]["applies"], {"shock": 1})
+        self.assertEqual(combat["bestiary"]["purge_drone"]["weapons"], ["plasma_torch"])
+        self.assertEqual(combat["bestiary"]["tracker_spider"]["weapons"], ["acid_spitter"])
+
+    def test_weapon_hit_applies_status(self) -> None:
+        sys.path.insert(0, str(ROOT / "tests"))
+        from test_combat_engine import _player
+
+        from mythos_combat import CombatEngine, build_enemy_combatant
+
+        torch_pool = {
+            "plasma_torch": {
+                "id": "plasma_torch", "name": "플라즈마 토치", "kind": "melee",
+                "damage": "1d6", "reach": 1, "applies": {"burn": 2},
+            }
+        }
+        enemy = build_enemy_combatant(
+            entry={
+                "id": "pd", "name": "소각기", "hp": 20, "defense": 10, "speed": 3,
+                "stats": {"strength": 9, "agility": 5, "perception": 4},
+                "weapons": ["plasma_torch"], "ai": "melee", "blip": "🔥",
+            },
+            weapons_pool=torch_pool, x=1, y=0,
+        )
+        engine = CombatEngine()
+        state = engine.start([_player(x=0, y=0)], [enemy], seed="torch", arena=(8, 6))
+        player = state.player()
+        assert player is not None
+        player.defense = 1  # guarantee the hit so the rider is deterministic
+        weapon = enemy.primary_weapon()
+        assert weapon is not None
+        engine._attack(state, enemy, player, weapon, engine._dice(state))
+        self.assertEqual(player.status_effects.get("burn"), 2)
+
+    def test_status_grenade_deals_blast_and_applies(self) -> None:
+        sys.path.insert(0, str(ROOT / "tests"))
+        from test_combat_engine import _drone, _skilled_player
+
+        from mythos_combat import CombatEngine, PlayerAction
+
+        engine = CombatEngine()
+        state = engine.start(
+            [_skilled_player(x=0, y=0)],
+            [_drone("d1", x=3, y=0, hp=40, defense=1, speed=0),
+             _drone("d2", x=4, y=1, hp=40, defense=1, speed=0)],
+            seed="incendiary", arena=(8, 6),
+        )
+        player = state.player()
+        assert player is not None
+        item_def = {
+            "id": "incendiary_grenade", "name": "소이 수류탄", "kind": "consumable",
+            "effect": "status_grenade", "damage": "1d4", "applies": {"burn": 2},
+            "range": 4, "radius": 1,
+        }
+        ok = engine._player_item(
+            state, player,
+            PlayerAction(type="item", item_id="incendiary_grenade", target_cell=(3, 1)),
+            item_def, True,
+        )
+        self.assertTrue(ok)
+        d1 = state.by_id("d1")
+        d2 = state.by_id("d2")
+        assert d1 is not None and d2 is not None
+        for victim in (d1, d2):
+            self.assertLess(victim.hp, 40)
+            self.assertEqual(victim.status_effects.get("burn"), 2)
+
+    def test_hacked_blow_marked_for_cinema(self) -> None:
+        source = read("src/mythos_combat/engine.py")
+        self.assertIn('entry.detail["hacked_blow"] = True', source)
+        queue = read("src/mythos_ui/src/hooks/useCombatCinemaQueue.ts")
+        self.assertIn("hacked_blow", queue)
+
+    def test_board_fx_status_pops_and_icon_badges(self) -> None:
+        fx = read("src/mythos_ui/src/combatEffects.ts")
+        self.assertIn("statusPops", fx)
+        self.assertIn("STATUS_POP_DUR", fx)
+        canvas = read("src/mythos_ui/src/combatCanvas.ts")
+        self.assertIn("/status/${sid}.png", canvas)  # icon-image badge convention
+        self.assertIn("export const STATUS_BADGES", canvas)
+
+
 class SimulatorTestKitTest(unittest.TestCase):
     """Owner 2026-07-12: every changed combat feature must be exercisable in
     the simulator — a fresh sim loop hid tier-1 skills and had no grenades."""
@@ -355,7 +447,8 @@ class SimulatorTestKitTest(unittest.TestCase):
     def test_kit_unlocks_full_skill_pool_and_grants_throwables(self) -> None:
         source = read("src/mythos_runtime/session.py")
         self.assertIn('meta["learned_skills"] = sorted(skills_pool.keys())', source)
-        self.assertIn('"emp_grenade", "emp_grenade", "nanopatch", "nanopatch"', source)
+        self.assertIn('"incendiary_grenade", "cryo_grenade",', source)
+        self.assertIn('"emp_grenade", "emp_grenade",', source)
 
 
 class CombatResponsivenessTest(unittest.TestCase):

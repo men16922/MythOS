@@ -136,6 +136,9 @@ export function useCombatCinemaQueue({
             : null;
         const deservesCinema = (entry: CombatLogEntry): boolean => {
           if (entry.action === "defeat") return true;
+          // 🕹 hacked betrayal (owner 2026-07-12 "즉발 데미지처럼 들어감"):
+          // the seized enemy attacking its own side is a beat worth a cut-in.
+          if (entry.detail?.hacked_blow) return true;
           if (commandedActor) return entry.actor === commandedActor;
           // No dispatched action this transition (resume, etc.): fall back to
           // player-faction blows only.

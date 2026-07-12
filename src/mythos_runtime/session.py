@@ -1760,7 +1760,11 @@ class RuntimeSessionService:
             meta["learned_skills"] = sorted(skills_pool.keys())
             state["meta_progression"] = meta
             inventory = list(state.get("_inventory") or [])
-            inventory += ["emp_grenade", "emp_grenade", "nanopatch", "nanopatch"]
+            inventory += [
+                "emp_grenade", "emp_grenade",
+                "incendiary_grenade", "cryo_grenade",
+                "nanopatch", "nanopatch",
+            ]
             state["_inventory"] = inventory
             loop = replace(loop, state=state)
         if party_members is not None:

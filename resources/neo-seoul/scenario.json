@@ -2108,7 +2108,24 @@
         "name": "충격 봉",
         "kind": "melee",
         "damage": "1d6",
-        "reach": 1
+        "reach": 1,
+        "applies": { "shock": 1 }
+      },
+      "plasma_torch": {
+        "id": "plasma_torch",
+        "name": "플라즈마 토치",
+        "kind": "melee",
+        "damage": "1d6",
+        "reach": 1,
+        "applies": { "burn": 2 }
+      },
+      "acid_spitter": {
+        "id": "acid_spitter",
+        "name": "산성 분사구",
+        "kind": "ranged",
+        "damage": "1d4",
+        "range": 3,
+        "applies": { "acid": 2, "corrode": 2 }
       },
       "arc_lance": {
         "id": "arc_lance",
@@ -3120,7 +3137,7 @@
           "hit": "enemies/combat/tracker-spider-hit.png"
         },
         "weapons": [
-          "cutter_claw"
+          "acid_spitter"
         ],
         "loot_table": "drone_scrap",
         "stats": {
@@ -3176,7 +3193,7 @@
           "hit": "enemies/combat/purge-drone-hit.png"
         },
         "weapons": [
-          "cutter_claw"
+          "plasma_torch"
         ],
         "loot_table": "drone_scrap",
         "stats": {
@@ -3293,6 +3310,27 @@
         "kind": "consumable",
         "effect": "stun",
         "bonus": 1,
+        "range": 4,
+        "radius": 1,
+        "rarity": "rare"
+      },
+      "incendiary_grenade": {
+        "id": "incendiary_grenade",
+        "name": "소이 수류탄",
+        "kind": "consumable",
+        "effect": "status_grenade",
+        "damage": "1d4",
+        "applies": { "burn": 2 },
+        "range": 4,
+        "radius": 1,
+        "rarity": "rare"
+      },
+      "cryo_grenade": {
+        "id": "cryo_grenade",
+        "name": "냉각 수류탄",
+        "kind": "consumable",
+        "effect": "status_grenade",
+        "applies": { "freeze": 1 },
         "range": 4,
         "radius": 1,
         "rarity": "rare"

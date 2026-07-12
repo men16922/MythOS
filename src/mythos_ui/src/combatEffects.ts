@@ -1,4 +1,4 @@
-import { drawCombatCanvas } from "./combatCanvas";
+import { drawCombatCanvas, STATUS_BADGES } from "./combatCanvas";
 import type { CombatOverlay } from "./combatCanvas";
 import { diffCombat } from "./combatDiff";
 import type { CombatEvent } from "./combatDiff";
@@ -9,8 +9,9 @@ const easeOut = (t: number): number => 1 - Math.pow(1 - t, 3);
 const clamp01 = (t: number): number => (t < 0 ? 0 : t > 1 ? 1 : t);
 
 const MOVE_DUR = 260;
-const YANK_DUR = 170; // forced movement (밀기/당기기): a snatch, not a stroll
-const YANK_IMPACT = 200; // arrival crunch window after the snatch lands
+const YANK_DUR = 230; // forced movement (밀기/당기기): a snatch, not a stroll
+const YANK_IMPACT = 320; // arrival crunch window after the snatch lands
+const STATUS_POP_DUR = 620; // status-apply burst (rings + icon float)
 const HIT_DUR = 440;
 const DEATH_DUR = 520;
 const TOTAL_CAP = 1500;
@@ -153,6 +154,27 @@ export class CombatAnimator {
       }
     }
 
+    // Status-apply pops (owner 2026-07-12 "시각적으로 강렬해야"): every applied
+    // status gets a board burst — expanding rings in the status color + a big
+    // floating badge — scheduled after the blow that caused it.
+    const statusPops: { id: string; status: string; at: number }[] = [];
+    {
+      let popIndex = 0;
+      for (const entry of newLog) {
+        const d = entry.detail || {};
+        if (typeof d.status === "string" && d.turns != null && typeof d.target === "string") {
+          if (STATUS_BADGES[d.status]) {
+            statusPops.push({
+              id: d.target,
+              status: d.status,
+              at: (hasMove ? 200 : 60) + 180 + popIndex * 160,
+            });
+            popIndex += 1;
+          }
+        }
+      }
+    }
+
     const sched: Scheduled[] = [];
     moveEvents.forEach((ev) =>
       sched.push({ ev, start: 0, dur: yanks.has(ev.id) ? YANK_DUR : MOVE_DUR })
@@ -167,7 +189,13 @@ export class CombatAnimator {
     let total = 0;
     sched.forEach((s) => (total = Math.max(total, s.start + s.dur)));
     attacks.forEach((a) => (total = Math.max(total, a.impactAt + 160)));
-    total = Math.min(TOTAL_CAP, total);
+    statusPops.forEach((p) => (total = Math.max(total, p.at + STATUS_POP_DUR)));
+    sched.forEach((s) => {
+      if (s.ev.kind === "move" && yanks.has(s.ev.id)) {
+        total = Math.max(total, s.start + s.dur + YANK_IMPACT);
+      }
+    });
+    total = Math.min(TOTAL_CAP + 600, total);
 
     // --- Sfx triggers --------------------------------------------------------
     const sfx: SfxTrigger[] = [];
@@ -233,30 +261,50 @@ export class CombatAnimator {
               }
             }
           } else if (yank) {
-            // Arrival crunch: dust ring + sparks + a brief hit pose right where
-            // the unit slammed down.
+            // Arrival crunch: a BIG double shockwave + white flash + sparks +
+            // a brief hit pose right where the unit slammed down (owner
+            // 2026-07-12 "밀려나는 게 안 보임" — this has to be unmissable).
             const age = t - (s.start + s.dur);
             if (age >= 0 && age <= YANK_IMPACT) {
               const ip = age / YANK_IMPACT;
               const color = yank.mode === "pull" ? "#e07dff" : "#ffb347";
               const ov = ovFor(ev.id);
               ov.pose = "hit";
+              ov.flash = Math.max(ov.flash || 0, 0.9 * (1 - ip));
+              ov.flashColor = color;
               overlay.fx!.push({
                 kind: "ring",
                 cellX: ev.to[0] + 0.5,
                 cellY: ev.to[1] + 0.5,
-                cellR: 0.12 + 0.45 * ip,
+                cellR: 0.15 + 0.95 * ip,
                 color,
-                alpha: 0.85 * (1 - ip),
-                width: 3.5 * (1 - ip),
+                alpha: 0.9 * (1 - ip),
+                width: 5 * (1 - ip) + 1,
+              });
+              overlay.fx!.push({
+                kind: "ring",
+                cellX: ev.to[0] + 0.5,
+                cellY: ev.to[1] + 0.5,
+                cellR: 0.1 + 0.55 * ip,
+                color: "#ffffff",
+                alpha: 0.7 * (1 - ip),
+                width: 2.5,
               });
               overlay.fx!.push({
                 kind: "spark",
                 cellX: ev.to[0] + 0.5,
                 cellY: ev.to[1] + 0.5,
-                cellR: 0.1 + 0.24 * (1 - ip),
+                cellR: 0.14 + 0.34 * (1 - ip),
                 color: "#ffffff",
-                alpha: 0.9 * (1 - ip),
+                alpha: 0.95 * (1 - ip),
+              });
+              overlay.floats!.push({
+                cellX: ev.to[0] + 0.5,
+                cellY: ev.to[1] - 0.1 - 0.55 * ip,
+                text: yank.mode === "pull" ? "끌려옴!" : "밀려남!",
+                color,
+                alpha: 1 - ip * 0.7,
+                size: 18,
               });
             }
           }
@@ -380,6 +428,46 @@ export class CombatAnimator {
         }
       }
 
+      // Status-apply pops: double shockwave in the status color + the badge
+      // floating up + a flash tint on the afflicted unit.
+      for (const pop of statusPops) {
+        const local = (t - pop.at) / STATUS_POP_DUR;
+        if (local < 0 || local > 1) continue;
+        const meta = STATUS_BADGES[pop.status];
+        const [px, py] = curPos(overlay, pop.id);
+        const ov = ovFor(pop.id);
+        if (local < 0.35) {
+          ov.flash = Math.max(ov.flash || 0, 1 - local / 0.35);
+          ov.flashColor = meta.bg;
+        }
+        overlay.fx!.push({
+          kind: "ring",
+          cellX: px + 0.5,
+          cellY: py + 0.5,
+          cellR: 0.15 + 1.05 * local,
+          color: meta.bg,
+          alpha: 0.85 * (1 - local),
+          width: 4.5 * (1 - local) + 1,
+        });
+        overlay.fx!.push({
+          kind: "ring",
+          cellX: px + 0.5,
+          cellY: py + 0.5,
+          cellR: 0.1 + 0.6 * local,
+          color: "#ffffff",
+          alpha: 0.55 * (1 - local),
+          width: 2,
+        });
+        overlay.floats!.push({
+          cellX: px + 0.5,
+          cellY: py - 0.2 - 0.8 * local,
+          text: meta.label,
+          color: meta.bg,
+          alpha: 1 - local * 0.6,
+          size: 22,
+        });
+      }
+
       // Screen shake calculation
       let shakeX = 0;
       let shakeY = 0;
@@ -387,7 +475,9 @@ export class CombatAnimator {
         if (t >= atk.impactAt && t < atk.impactAt + 240) {
           const age = t - atk.impactAt;
           const ratio = 1 - age / 240;
-          const amp = (atk.skill ? 8.5 : 4.5) * ratio;
+          // AoE blasts (스플래시) rattle the board harder than single hits.
+          const aoeBoost = atk.tags?.includes("aoe") ? 1.7 : 1;
+          const amp = (atk.skill ? 8.5 : 4.5) * ratio * aoeBoost;
           shakeX += Math.sin(age * 0.18) * amp;
           shakeY += Math.cos(age * 0.22) * amp;
         }
@@ -396,11 +486,11 @@ export class CombatAnimator {
       for (const s of sched) {
         if (s.ev.kind !== "move" || !yanks.has(s.ev.id)) continue;
         const impactAt = s.start + s.dur;
-        if (t >= impactAt && t < impactAt + 180) {
+        if (t >= impactAt && t < impactAt + 220) {
           const age = t - impactAt;
-          const ratio = 1 - age / 180;
-          shakeX += Math.sin(age * 0.2) * 6 * ratio;
-          shakeY += Math.cos(age * 0.24) * 6 * ratio;
+          const ratio = 1 - age / 220;
+          shakeX += Math.sin(age * 0.2) * 12 * ratio;
+          shakeY += Math.cos(age * 0.24) * 12 * ratio;
         }
       }
       overlay.shakeX = shakeX;

@@ -26,6 +26,9 @@ class Weapon:
     range: int = 0  # ranged distance in tiles (0 = melee only)
     to_hit_bonus: int = 0
     armor_pen: int = 0
+    # Persistent-status riders on hit (status slice 3): id -> turns, e.g.
+    # 화염 분사 {"burn": 2}. Whitelisted at apply time by the engine.
+    applies: dict[str, int] = field(default_factory=dict)
 
     @property
     def is_ranged(self) -> bool:

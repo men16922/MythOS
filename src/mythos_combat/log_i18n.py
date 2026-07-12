@@ -108,6 +108,10 @@ _LINES: dict[str, dict[str, str]] = {
         "ko": "🕹 {name}이(가) 조종당했지만 공격할 동료가 없다 — 시스템 재부팅.",
         "en": "🕹 {name} is hacked but has no ally to strike — systems reboot.",
     },
+    "item_status_aoe": {
+        "ko": "{actor}의 {item}이(가) ({x}, {y}) 일대를 뒤덮는다 — 적 {count}기 피격!",
+        "en": "{actor}'s {item} blankets the area around ({x}, {y}) — {count} enemies caught!",
+    },
     "item_stun_aoe": {
         "ko": "{actor}의 {item}이(가) ({x}, {y}) 일대를 뒤덮는다 — 적 {count}기 회로 마비!",
         "en": "{actor}'s {item} blankets the area around ({x}, {y}) — {count} enemies short-circuit!",

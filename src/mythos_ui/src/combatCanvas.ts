@@ -8,6 +8,19 @@ function factionColor(faction: string): string {
 
 const imageCache: Record<string, HTMLImageElement> = {};
 
+// Persistent-status badge metadata (2026-07-12 design). Icon art convention:
+// resources/<scenario>/status/<id>.png — text pill is the loading/404 fallback.
+// `bg` doubles as the status color for board FX (apply pops, glows).
+export const STATUS_BADGES: Record<string, { label: string; bg: string; fg: string }> = {
+  stunned: { label: "💫 기절", bg: "rgba(255, 214, 106, 0.95)", fg: "#1a1200" },
+  burn: { label: "🔥 과열", bg: "rgba(255, 122, 61, 0.95)", fg: "#1c0800" },
+  corrode: { label: "🧪 부식", bg: "rgba(154, 245, 108, 0.92)", fg: "#0c1a02" },
+  acid: { label: "💧 용해", bg: "rgba(199, 146, 255, 0.92)", fg: "#160526" },
+  freeze: { label: "❄ 동결", bg: "rgba(140, 220, 255, 0.94)", fg: "#03141f" },
+  shock: { label: "⚡ 감전", bg: "rgba(255, 240, 120, 0.94)", fg: "#1a1500" },
+  hacked: { label: "🕹 조종", bg: "rgba(255, 130, 200, 0.94)", fg: "#20031a" },
+};
+
 // --- 2.5D Isometric Projection Helpers ---
 export interface IsoConfig {
   centerX: number;
@@ -940,36 +953,43 @@ export function drawCombatCanvas(
       ctx.fillText(label, cx, badgeY);
       ctx.restore();
     }
-    // Status legibility (owner 2026-07-12 "스턴/상태이상이 보여야 한다"): active
-    // statuses render as colored pills above the unit — stun additionally gets
-    // a dashed halo (it costs the whole turn). Extend STATUS_BADGES as slice 2
-    // lands acid/freeze/shock.
-    const STATUS_BADGES: Record<string, { label: string; bg: string; fg: string }> = {
-      stunned: { label: "💫 기절", bg: "rgba(255, 214, 106, 0.95)", fg: "#1a1200" },
-      burn: { label: "🔥 과열", bg: "rgba(255, 122, 61, 0.95)", fg: "#1c0800" },
-      corrode: { label: "🧪 부식", bg: "rgba(154, 245, 108, 0.92)", fg: "#0c1a02" },
-      acid: { label: "💧 용해", bg: "rgba(199, 146, 255, 0.92)", fg: "#160526" },
-      freeze: { label: "❄ 동결", bg: "rgba(140, 220, 255, 0.94)", fg: "#03141f" },
-      shock: { label: "⚡ 감전", bg: "rgba(255, 240, 120, 0.94)", fg: "#1a1500" },
-      hacked: { label: "🕹 조종", bg: "rgba(255, 130, 200, 0.94)", fg: "#20031a" },
-    };
+    // Status legibility (owner 2026-07-12 "다른 게임들처럼 효과 이미지로"):
+    // active statuses render as ICON IMAGES floating above the unit
+    // (resources/<scenario>/status/<id>.png, glow in the status color); until
+    // the art lands (or if it 404s) each falls back to its colored text pill.
     const activeBadges = aliveHere
       ? (b.status || []).filter((s) => STATUS_BADGES[s]).slice(0, 3)
       : [];
     if (activeBadges.length) {
-      let badgeTop = drewSprite ? cy - r * 3.1 : cardCy - r - 34;
+      const iconSize = Math.max(22, r * 0.85);
+      const rowW = activeBadges.length * (iconSize + 4) - 4;
+      let iconX = cx - rowW / 2;
+      const iconY = (drewSprite ? cy - r * 3.1 : cardCy - r - 34) - iconSize / 2;
       ctx.save();
-      ctx.font = "bold 10px SF Mono, monospace";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
       for (const sid of activeBadges) {
         const meta = STATUS_BADGES[sid];
-        const sw = ctx.measureText(meta.label).width + 10;
-        ctx.fillStyle = meta.bg;
-        ctx.fillRect(cx - sw / 2, badgeTop - 8, sw, 15);
-        ctx.fillStyle = meta.fg;
-        ctx.fillText(meta.label, cx, badgeTop);
-        badgeTop -= 17;
+        const iconUrl = `/resources/${scenarioId}/status/${sid}.png`;
+        const icon = brokenSprites.has(iconUrl)
+          ? null
+          : loadImage(iconUrl, () => drawCombatCanvas(canvas, combat, scenarioId));
+        if (icon && icon.complete && icon.naturalWidth > 0) {
+          ctx.save();
+          ctx.shadowColor = meta.bg;
+          ctx.shadowBlur = 10;
+          ctx.drawImage(icon, iconX, iconY, iconSize, iconSize);
+          ctx.restore();
+        } else {
+          // Fallback pill while the icon art is missing/loading.
+          ctx.font = "bold 10px SF Mono, monospace";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          const sw = ctx.measureText(meta.label).width + 10;
+          ctx.fillStyle = meta.bg;
+          ctx.fillRect(iconX + iconSize / 2 - sw / 2, iconY + iconSize / 2 - 8, sw, 15);
+          ctx.fillStyle = meta.fg;
+          ctx.fillText(meta.label, iconX + iconSize / 2, iconY + iconSize / 2);
+        }
+        iconX += iconSize + 4;
       }
       if (activeBadges.includes("stunned")) {
         ctx.strokeStyle = "rgba(255, 214, 106, 0.75)";

@@ -12,7 +12,6 @@ import re
 import urllib.request
 from pathlib import Path
 
-
 REPO = Path(__file__).resolve().parents[2]
 MANIFEST_PATH = REPO / "docs" / "cbt" / "v2" / "narration.en.json"
 OUTPUT_DIR = MANIFEST_PATH.parent

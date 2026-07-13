@@ -131,8 +131,8 @@ def unit_filters(unit: Unit) -> str:
     if unit.still:
         frames = int(unit.dur * FPS)
         zoom = {
-            "in": f"zoompan=z='min(zoom+0.0011,1.16)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'",
-            "out": f"zoompan=z='if(eq(on,1),1.16,max(zoom-0.0011,1.0))':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'",
+            "in": "zoompan=z='min(zoom+0.0011,1.16)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'",
+            "out": "zoompan=z='if(eq(on,1),1.16,max(zoom-0.0011,1.0))':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'",
             "pan": f"zoompan=z='1.12':x='(iw-iw/zoom)*on/{frames}':y='ih/2-(ih/zoom/2)'",
         }[unit.kb]
         chains.append(

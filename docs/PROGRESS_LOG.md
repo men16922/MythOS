@@ -2,6 +2,14 @@
 
 Last updated: 2026-07-13
 
+## 2026-07-13 (live session #18, claude lane) — 적 로스터 개선: 텔레그래프 보드 버그 + 등장 다양성 + 아트 일관화 브리프
+- Status: 코드 Done, UNDEPLOYED. `make check` **1067** green (lint/typecheck/skills/doc-budget 포함). 3개 병렬 조사 레인(텔레그래프 진단 · 등장조건 매핑 · 아트 비교)로 스코프 확정 후 수정.
+- **텔레그래프 보드 미표시 = 실제 버그였음 (오너 지적 옳음)**: 공격 텔레그래프 `⚔{피해}` 마커 + 연결선이 **blip(유닛)보다 먼저 그려져** 대상(=적이 선 타일)의 스프라이트에 가려짐. 이동(👣, 빈 타일)만 보이고 콘솔 텍스트는 별개라 멀쩡했던 것. → `combatCanvas.ts`에 **blip 이후 오버레이 패스** 추가(연결선 + 피해 칩을 유닛 위 재렌더). 시뮬 렌더로 검증(집행 유닛→Tester `⚔1d6` 유닛 위 표시). 서버 intent·plan→snapshot 순서는 정상.
+- **적 등장 다양성**: `enforcer_standoff`가 어느 `combat_encounters` 풀에도 없어 route로 절대 미배치(고아, LLM 호출로만) → `combat` 풀에 추가. `node_encounter_id`를 **루프 내 no-repeat**(균등 중복 픽 → 미출현 우선, `exclude` 파라미터 + `session.py` `_route_encounters_seen` 8-window)로 바꿔 중진압 전차(mech_siege) 등 set-piece가 한 루프의 전투들에서 실제로 뜨게. (원인: combat-type 노드는 레이어 2·6·7에만, 대부분 전투는 patrol-type=드론/거미라 mech가 여러 루프 안 뜸.)
+- **적 상태이상 킷은 정상 — 손 안 댐**: 진단 결과 `weapon.applies` 배선 정상(acid_spitter→acid+corrode / plasma_torch→burn / shock_baton→shock). A-3 "적이 거는 상태이상"은 이미 작동. 진단 우선 원칙으로 멀쩡한 것 안 건드림.
+- **아트 이질 4종 (codex 레인, 미생성)**: purge_drone·shock_trooper·suppression_mech·tracker_spider가 캐논(봇=잉크코믹 러스트/레드 · 휴머노이드=페인터리 렌더)과 이질 — shock_trooper=**픽셀아트+"ARK"텍스트**, purge_drone=광택 3D 토이, mech/spider=플랫 셀 네이비+주황. 각 4종을 가장 가까운 캐논 형제에 매칭하는 재생성 브리프 작성: `docs/plans/2026-07-13-enemy-art-consistency.md` (4종×5포즈=20장, **FLUX 아닌 codex**). NEXT_PLAN `[auto:codex]` 시드.
+- Blockers: 아트 20장은 codex 엔진 몫(claude 직접 생성 시 스타일 불일치 → 미수행, 시드만). Remaining `[manual]`: 오너 배포 후 텔레그래프 체감 · 여러 루프 적 다양성 · `! git push`.
+
 ## 2026-07-13 (live session #17, claude lane) — Desktop combat split + skill quick-slots · teaser V2 asset sprint · EN leak fixes
 - Status: Done locally, UNDEPLOYED. `make test` **1067** green, typecheck + frontend lint/build clean, `make validate-content` clean. (`make check` lint blocked only by pre-existing untracked `scratch/`+`scripts/cbt` probe files from the teaser session.)
 - **Desktop combat split (owner spec)**: during combat the page aside (Save/Map/Status/DEV LOG) folds on every form factor (`GameAside` returns null; widens LC4) and `.combat-stack` becomes a desktop 2-col grid — board left, roster+command console+log docked right (sticky, own scroll; `@media (pointer:fine) and (min-width:1101px)`, LC/portrait untouched).

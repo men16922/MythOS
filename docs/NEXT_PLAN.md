@@ -22,6 +22,13 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00
 - `[x]` **시전 불가 시그니처 FIXED (`d70ff86`, 오너 결정: 풀 4·코스트 유지)** — 한 시스템 침투 + (인바리언트 테스트가 추가 발견한) 수아 기억 공명 둘 다 ◆4 > 풀 3이었음 → ally 빌더 `max_focus` 명시 오버라이드 + 전 동료 castable 인바리언트 테스트로 재발 봉쇄.
 - `[ ]` `[manual]` **밸런스 튜닝** — 상태이상 부여 턴수/빈도 · 중첩 cap(6) · 슬램 수치(1d4) · 스플래시/라이더 수치 · 2-티어 slice 4(턴 순서 스트립) GO/NO-GO.
 
+### Enemy roster overhaul 2026-07-13 (아트 + 등장 + 텔레그래프)
+- `[ ]` `[auto:codex]` **적 아트 스타일 일관화 (4종×5포즈 = 20장)** — purge_drone·shock_trooper·suppression_mech·tracker_spider가 캐논(봇=잉크코믹 러스트/레드 · 휴머노이드=페인터리 렌더)과 이질(픽셀아트·광택토이·블루/주황·박힌 텍스트). 브리프+매칭 기준: `docs/plans/2026-07-13-enemy-art-consistency.md`. 완료 기준: 20장 재생성 → `tests.test_image_assets` 통과 + 캐논 형제와 나란히 같은 로스터로 읽힘 + 전투 시뮬 렌더 확인. **FLUX 아닌 codex로**(스타일 매칭).
+- `[x]` **텔레그래프 보드 미표시 FIXED** — 공격 `⚔피해`+연결선이 대상(=적이 선 타일)의 스프라이트에 가려짐(blip 이전 렌더) → blip 이후 오버레이 패스로 유닛 위 재렌더(`combatCanvas.ts`). 시뮬 렌더 검증(집행 유닛→Tester `⚔1d6` 유닛 위 표시). 오너 "그런거 안뜨는데" 확인 → 실제 버그였음.
+- `[x]` **적 등장 다양성 FIXED** — `enforcer_standoff`가 어느 `combat_encounters` 풀에도 없어 route 미배치(고아) → `combat` 풀 추가; `node_encounter_id` 루프 내 no-repeat 선택(`route_runtime.py` exclude + `session.py` `_route_encounters_seen`)으로 중진압 전차 등 set-piece가 한 루프의 전투들에서 실제로 뜨게. `make check` 통과.
+- 참고: 적 상태이상 킷은 **이미 정상**(acid_spitter→acid+corrode / plasma_torch→burn / shock_baton→shock, `weapon.applies`) — 진단 결과 갭 아님, 변경 없음.
+- `[ ]` `[manual]` 오너 확인: 텔레그래프 실제 체감 · 여러 루프에서 적 종류 다양성.
+
 ### Narrative clarity audit follow-ups (2026-07-10, 4-lane audit)
 - `[ ]` `[manual]` **Track 4 balance playtest** — play-style consequence system now ON (`advance_route` axis tally → intent flag @ threshold 2); play two loops in different styles, confirm story/results diverge + balance OK, tune threshold/mapping if needed. **B4 stat-tag** decision rides along (`(민첩)` reads as a check but has 0 effect — make real or restyle).
 - `[ ]` remaining clarity items: Su-ah `잔향 가공사` rename (deferred) · Echo/loop-memory in-fiction definition · 물거미/최적화/핑 first-use gloss · EN opening-card parity. Deploy hygiene: use `make deploy` (pins .env project; ambient gcloud config once drifted → stray service in claude-study-501117, deleted). Completed 07-04/05 gameplay/companion/cloud-runtime/model-routing/Kiro work → `docs/COMPLETED_SUMMARY.md` M55-M56.

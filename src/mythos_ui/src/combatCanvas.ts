@@ -1322,6 +1322,47 @@ export function drawCombatCanvas(
     ctx.globalAlpha = 1;
   });
 
+  // Attack-telegraph overlay — draw AFTER the unit sprites. An attack intent's
+  // target tile is the victim's OWN occupied tile, so the pre-blip "⚔{damage}"
+  // marker + connector are painted under the victim's sprite and vanish (only
+  // move/flee markers, which target empty tiles, survived the pre-blip pass).
+  // Redraw the informative attack telegraph here, on top, with a dark chip so it
+  // reads over the sprite. (Move/flee stay in the pre-blip pass.)
+  intents.forEach((intent) => {
+    if (intent.action !== "attack") return;
+    const tx = intent.target_x;
+    const ty = intent.target_y;
+    const focused = focusedEnemyId === intent.enemy_id;
+    const dimmed = focusedEnemyId !== null && !focused;
+    ctx.save();
+    ctx.globalAlpha = focused ? 1 : dimmed ? 0.5 : 0.95;
+    const attacker = blipById.get(intent.enemy_id);
+    if (attacker && (attacker.x !== tx || attacker.y !== ty)) {
+      const p1 = toIso(attacker.x + 0.5, attacker.y + 0.5, cfg);
+      const p2 = toIso(tx + 0.5, ty + 0.5, cfg);
+      ctx.strokeStyle = "rgba(255,107,125,0.9)";
+      ctx.lineWidth = focused ? 2.6 : 1.6;
+      ctx.setLineDash(focused ? [] : [5, 4]);
+      ctx.beginPath();
+      ctx.moveTo(p1[0], p1[1]);
+      ctx.lineTo(p2[0], p2[1]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    const [cx, cy] = toIso(tx + 0.5, ty + 0.5, cfg);
+    const label = intent.damage_hint ? `⚔${intent.damage_hint}` : "⚔️";
+    ctx.font = focused ? "bold 12px SF Mono, monospace" : "bold 11px SF Mono, monospace";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    const my = cy - 3;
+    const w = ctx.measureText(label).width + 8;
+    ctx.fillStyle = "rgba(2,7,6,0.74)";
+    ctx.fillRect(cx - w / 2, my - 8, w, 16);
+    ctx.fillStyle = "#ff6b7d";
+    ctx.fillText(label, cx, my);
+    ctx.restore();
+  });
+
   // Draw Transient Floating Numbers (last to layer on top)
   (overlay?.floats || []).forEach((f) => {
     // Convert text floating cells to isometric

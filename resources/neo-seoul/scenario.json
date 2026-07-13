@@ -646,6 +646,7 @@
         "sentinel_checkpoint",
         "wraith_glitch",
         "shock_trooper_patrol",
+        "enforcer_standoff",
         "mech_siege"
       ],
       "patrol": [

@@ -380,10 +380,17 @@ def node_encounter_id(
     combat_encounters: dict[str, Any] | None,
     *,
     seed: str,
+    exclude: set[str] | list[str] | None = None,
 ) -> str | None:
     """Pick the encounter id for a combat-type node, deterministically by seed.
 
     Returns ``None`` for non-combat nodes or when no encounter pool is mapped.
+
+    ``exclude`` lists encounters already used earlier in this loop; the pick
+    prefers an *unseen* encounter so one loop's combat nodes surface the roster's
+    variety (independent uniform picks otherwise repeat one encounter and can
+    never roll the rarer set-piece fights). Once every option has been seen the
+    full pool is used again.
     """
     if not node or not node.get("combat"):
         return None
@@ -396,7 +403,10 @@ def node_encounter_id(
         return None
     if len(pool) == 1:
         return pool[0]
-    return str(Dice(f"{seed}:encounter:{node.get('id')}").choice(pool))
+    seen = {str(e) for e in exclude} if exclude else set()
+    unseen = [e for e in pool if e not in seen]
+    choices = unseen or pool
+    return str(Dice(f"{seed}:encounter:{node.get('id')}").choice(choices))
 
 
 def route_status(state: dict[str, Any]) -> dict[str, Any] | None:

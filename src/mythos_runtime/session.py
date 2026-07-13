@@ -2722,10 +2722,16 @@ class RuntimeSessionService:
                     transition.loop, new_current, entered, status.get("perspective")
                 )
                 transition = replace(transition, loop=rewarded)
+                seen_encounters: list[str] = []
+                if isinstance(transition.loop.state, dict):
+                    raw_seen = transition.loop.state.get("_route_encounters_seen")
+                    if isinstance(raw_seen, list):
+                        seen_encounters = [str(e) for e in raw_seen]
                 candidate = node_encounter_id(
                     entered,
                     scenario.route_map.get("combat_encounters"),
                     seed=transition.loop.seed,
+                    exclude=seen_encounters,
                 )
                 if candidate and candidate in scenario.combat.get("encounters", {}):
                     if entered.get("type") == "boss":
@@ -2746,6 +2752,17 @@ class RuntimeSessionService:
                     else:
                         route_combat = candidate
                         route_combat_kind = "route"
+                        # Record the encounter so this loop's later combat nodes
+                        # prefer unseen encounters (roster variety). Bounded window.
+                        tracked_state = dict(transition.loop.state)
+                        tracked_state["_route_encounters_seen"] = [
+                            *seen_encounters,
+                            candidate,
+                        ][-8:]
+                        transition = replace(
+                            transition,
+                            loop=replace(transition.loop, state=tracked_state),
+                        )
 
                 # Dynamic route growth: now that the pointer advanced, thicken the
                 # upcoming horizon layers with the GM's proposed nodes (type-

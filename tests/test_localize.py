@@ -1,10 +1,13 @@
 """Tests for the serving-boundary combat/status glossary localization."""
 from __future__ import annotations
 
+import json
 import unittest
 from typing import Any
 
 from mythos_api.localize import load_glossary, localize_for, localize_payload
+from mythos_runtime.echoes import echo_card
+from mythos_runtime.scenario import PROJECT_ROOT
 
 
 class LocalizeTest(unittest.TestCase):
@@ -96,12 +99,95 @@ class LocalizeTest(unittest.TestCase):
         self.assertEqual(g["깜빡이는 신뢰"], "Flickering Trust")
         self.assertEqual(g["약속의 잔향"], "Echo of a Promise")
 
+    def test_combat_echo_symbol_localizes(self) -> None:
+        # Combat scenes are code-titled "교전 R{n}" (session._commit_combat_turn), and an
+        # Echo minted from one takes the title's first word as its symbol — so the bare
+        # 2-char "교전" reaches EN echo-inscription cards. It is below the substring
+        # min-length by design; only an exact glossary entry can localize it
+        # (live 2026-07-12: "교전 Scarred Resolve" in EN INSCRIBE MEMORY).
+        # In an EN session the source action is already English; only the code-titled
+        # "교전 R{n}" prefix and the derived symbol are Korean.
+        card = echo_card("echo_test", symbol="교전", text="교전 R2: retreat", language="en")
+        out = localize_for(card, "neo-seoul", "en")
+        self.assertEqual(out["symbol"], "Engagement")
+        self.assertNotRegex(json.dumps(out, ensure_ascii=False), r"[가-힣]")
+
     def test_localize_payload_without_gloss_sub_keeps_prose(self) -> None:
         # Calling localize_payload with only a glossary (no gloss_sub) preserves the
         # exact-match-only behavior — a glossary term inside prose stays put.
         g = {"신호 도약": "Signal Step"}
         out = localize_payload({"narration": "신호 도약 inside prose"}, g)
         self.assertEqual(out["narration"], "신호 도약 inside prose")
+
+
+class RouteAnchorGlossaryCoverageTest(unittest.TestCase):
+    """Every route-anchor string served verbatim (anchor/variant titles, variant and
+    perspective summaries) must have an EN glossary entry. The base anchors were
+    covered when the glossary was authored, but variant *skins* added later were
+    not scanned by anything — which leaked Korean into EN scene headers
+    (live 2026-07-12: "Scene · 비워진 사각"). This ratchet makes new authored
+    route content fail fast instead."""
+
+    def test_route_anchor_titles_and_summaries_have_en_glossary_entries(self) -> None:
+        scenario = json.loads(
+            (PROJECT_ROOT / "resources" / "neo-seoul" / "scenario.json").read_text()
+        )
+        glossary = load_glossary("neo-seoul", "en")
+        missing: list[str] = []
+
+        def check(kind: str, value: Any) -> None:
+            if isinstance(value, str) and value and value not in glossary:
+                missing.append(f"{kind}: {value}")
+
+        for layer in scenario.get("route_map", {}).get("layers", []):
+            for anchor in layer.get("anchors", []):
+                check("anchor title", anchor.get("title"))
+                for variant_id, variant in (anchor.get("variants") or {}).items():
+                    check(f"variant[{variant_id}] title", variant.get("title"))
+                    check(f"variant[{variant_id}] summary", variant.get("summary"))
+                for perspective in anchor.get("perspectives") or []:
+                    check("perspective summary", perspective.get("summary"))
+
+        self.assertEqual(
+            missing,
+            [],
+            "route-anchor strings without an EN glossary entry (leak Korean into "
+            f"EN mode): {missing}",
+        )
+
+    def test_combat_entity_names_have_en_glossary_entries(self) -> None:
+        # Every authored combat object with an id + Korean display name (skills,
+        # allies, upgrades, enemy skills, bestiary) serves that name verbatim to
+        # EN clients — action bar, upgrade banner, IX telegraphs (live 2026-07-13:
+        # "자기 견인" on the EN skill bar).
+        import re
+
+        scenario = json.loads(
+            (PROJECT_ROOT / "resources" / "neo-seoul" / "scenario.json").read_text()
+        )
+        glossary = load_glossary("neo-seoul", "en")
+        hangul = re.compile(r"[가-힣]")
+        missing: set[str] = set()
+
+        def walk(obj: Any) -> None:
+            if isinstance(obj, dict):
+                name = obj.get("name")
+                if "id" in obj and isinstance(name, str) and hangul.search(name):
+                    if name not in glossary:
+                        missing.add(name)
+                for value in obj.values():
+                    walk(value)
+            elif isinstance(obj, list):
+                for value in obj:
+                    walk(value)
+
+        walk(scenario.get("combat", {}))
+        self.assertEqual(
+            sorted(missing),
+            [],
+            "combat entity names without an EN glossary entry (leak Korean into "
+            f"EN mode): {sorted(missing)}",
+        )
 
 
 if __name__ == "__main__":

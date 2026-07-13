@@ -1,0 +1,82 @@
+{
+  "project": "Project MythOS CBT Teaser V2",
+  "language": "en",
+  "model_id": "eleven_v3",
+  "voice": {
+    "name": "user-provided V3 narrator",
+    "voice_id": "n1PvBOwxb8X6m7tahp2h",
+    "status": "user-selected ElevenLabs narrator; regenerated 2026-07-12"
+  },
+  "segments": [
+    {
+      "order": 1,
+      "start": "00:00",
+      "end": "00:08",
+      "file": "01_neo_seoul_is_falling.mp3",
+      "text": "Neo-Seoul is falling. And somewhere beneath its rain, you wake up with no name. [pauses]"
+    },
+    {
+      "order": 2,
+      "start": "00:08",
+      "end": "00:18",
+      "file": "02_every_street_has_a_price.mp3",
+      "text": "Every street has a price. Every signal has a history."
+    },
+    {
+      "order": 3,
+      "start": "00:18",
+      "end": "00:32",
+      "file": "03_choices_carry_forward.mp3",
+      "text": "In Project MythOS, an AI Game Master carries your choices forward — into the next scene, the next road, and the people who choose to stand beside you."
+    },
+    {
+      "order": 4,
+      "start": "00:32",
+      "end": "00:43",
+      "file": "04_choose_a_path.mp3",
+      "text": "Choose a path. Earn a companion's trust. Decide what you are willing to lose. [pauses]"
+    },
+    {
+      "order": 5,
+      "start": "00:43",
+      "end": "00:53",
+      "file": "05_when_danger_arrives.mp3",
+      "text": "When danger arrives, the story gives way to your command."
+    },
+    {
+      "order": 6,
+      "start": "00:53",
+      "end": "01:03",
+      "file": "06_read_the_next_move.mp3",
+      "text": "Read the enemy's next move. Take cover. Break their line."
+    },
+    {
+      "order": 7,
+      "start": "01:03",
+      "end": "01:27",
+      "file": "07_change_the_fight.mp3",
+      "text": "Turn one decision into the moment that changes the fight. Because the outcome is yours."
+    },
+    {
+      "order": 8,
+      "start": "01:27",
+      "end": "01:38",
+      "file": "08_neo_seoul_remembers.mp3",
+      "text": "And when the fight is over, Neo-Seoul remembers. [pauses]"
+    },
+    {
+      "order": 9,
+      "start": "01:38",
+      "end": "01:48",
+      "file": "09_survive_the_loop.mp3",
+      "text": "Choose the story. Protect your people. Survive the loop."
+    },
+    {
+      "order": 10,
+      "start": "01:48",
+      "end": "01:58",
+      "file": "10_closed_beta_cta.mp3",
+      "text": "Project MythOS. Closed Beta now recruiting."
+    }
+  ]
+}

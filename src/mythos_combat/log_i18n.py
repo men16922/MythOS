@@ -43,6 +43,11 @@ _LINES: dict[str, dict[str, str]] = {
         "ko": "{name}은(는) 기절 상태로 움직이지 못한다.",
         "en": "{name} is stunned and cannot act.",
     },
+    # Boss consecutive-stun resistance (owner call 2026-07-14).
+    "stun_resisted": {
+        "ko": "{target}의 코어가 재차 마비를 거부한다 — 기절 저항!",
+        "en": "{target}'s core refuses a second lockup — stun resisted!",
+    },
     # Persistent status effects (2026-07-12 design — 세계관명: 과열/부식 프로토콜).
     "status_burn_applied": {
         "ko": "{target}의 외장이 과열되기 시작한다 — 🔥 연소!",

@@ -3335,7 +3335,7 @@
         "kind": "consumable",
         "effect": "status_grenade",
         "damage": "1d4",
-        "applies": { "freeze": 1 },
+        "applies": { "freeze": 2 },
         "range": 4,
         "radius": 1,
         "rarity": "rare"

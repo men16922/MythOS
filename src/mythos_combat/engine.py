@@ -95,8 +95,14 @@ STATUS_EFFECT_IDS = ("burn", "corrode", "acid", "freeze", "shock", "hacked")
 
 # Reapplying a status (or stun) ACCUMULATES remaining turns instead of
 # max-refreshing (owner call 2026-07-12: duration stacks, intensity does not),
-# bounded by this cap so chained casts can't freeze a unit out of the fight.
+# bounded by a cap so chained casts can't freeze a unit out of the fight.
+# Split caps (owner call 2026-07-14, docs/plans/2026-07-14-combat-balance-tuning.md):
+# hard crowd-control — burn's armor-bypass DoT (a capped burn was expected-15
+# damage, outright killing every small enemy) and stun's lost turns — caps at 3,
+# while utility statuses (corrode/acid/freeze/shock/hacked) keep 6.
 STATUS_EFFECT_TURNS_CAP = 6
+HARD_CC_TURNS_CAP = 3
+STATUS_EFFECT_TURNS_CAPS = {"burn": HARD_CC_TURNS_CAP}
 
 # Forced movement (밀기/당기기) that runs into a blocker — board edge, a
 # full-cover structure, or another unit — slams the target for this flat,
@@ -1479,7 +1485,15 @@ class CombatEngine:
             return
         # F stun: a stunned NPC (EMP'd machine, mostly) skips its turn entirely.
         if self._consume_stun(state, actor):
+            # Boss stun resistance: remember the lost turn so the NEXT stun is
+            # halved (see _apply_stun) — no rotation-lock on bosses.
+            if actor.ai == "boss":
+                actor.stun_guard = True
             return
+        # Completing any non-stunned turn (acting, or even a betrayal turn)
+        # clears the boss's consecutive-stun guard.
+        if actor.ai == "boss":
+            actor.stun_guard = False
         # 시스템 침투: a hacked enemy spends this turn attacking its own side.
         if actor.faction == ENEMY and "hacked" in actor.status_effects:
             self._hacked_turn(state, actor)
@@ -1528,14 +1542,15 @@ class CombatEngine:
     ) -> None:
         """Apply/extend a persistent status (2026-07-12 design; mirrors stun).
 
-        Reapplying the same status ACCUMULATES remaining turns up to
-        ``STATUS_EFFECT_TURNS_CAP`` (owner call 2026-07-12: duration stacks,
-        intensity does not). ``hacked`` is consumed wholesale at act time, so
-        extra turns on it are cosmetic."""
+        Reapplying the same status ACCUMULATES remaining turns up to its cap
+        (owner call 2026-07-12: duration stacks, intensity does not; 2026-07-14:
+        burn caps at ``HARD_CC_TURNS_CAP``, utility statuses keep
+        ``STATUS_EFFECT_TURNS_CAP``). ``hacked`` is consumed wholesale at act
+        time, so extra turns on it are cosmetic."""
         if status_id not in STATUS_EFFECT_IDS or not victim.alive:
             return
         victim.status_effects[status_id] = min(
-            STATUS_EFFECT_TURNS_CAP,
+            STATUS_EFFECT_TURNS_CAPS.get(status_id, STATUS_EFFECT_TURNS_CAP),
             victim.status_effects.get(status_id, 0) + max(1, int(turns)),
         )
         if status_id not in victim.status:
@@ -1608,12 +1623,29 @@ class CombatEngine:
 
         Shared by the EMP-pulse skill effect and the EMP-grenade item so both
         finally do what their text promises. Reapplying ACCUMULATES turns up to
-        ``STATUS_EFFECT_TURNS_CAP`` (owner call 2026-07-12), and keeps the D2
-        status chip ("stunned") in sync.
+        ``HARD_CC_TURNS_CAP`` (owner calls 2026-07-12 stacking / 2026-07-14 cap
+        split), and keeps the D2 status chip ("stunned") in sync.
+
+        Boss stun resistance (owner call 2026-07-14): two cd-3 stun sources
+        could rotation-lock IX out of the fight, so a boss that lost its last
+        turn to stun (``stun_guard``) halves any follow-up stun — rounding
+        DOWN, so the common 1-turn stun is fully resisted and the boss is
+        guaranteed an action between stuns. The guard clears once the boss
+        completes a non-stunned turn.
         """
-        victim.stunned_turns = min(
-            STATUS_EFFECT_TURNS_CAP, victim.stunned_turns + max(1, int(turns))
-        )
+        turns = max(1, int(turns))
+        if victim.ai == "boss" and victim.stun_guard:
+            turns //= 2
+            if turns <= 0:
+                self._log(
+                    state,
+                    source,
+                    "info",
+                    clog(state.language, "stun_resisted", target=victim.name),
+                    {"stun_resisted": victim.id},
+                )
+                return
+        victim.stunned_turns = min(HARD_CC_TURNS_CAP, victim.stunned_turns + turns)
         if "stunned" not in victim.status:
             victim.status.append("stunned")
         # Action "info", not "skill": this is a RESULT line — logging it as a

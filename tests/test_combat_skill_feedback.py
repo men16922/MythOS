@@ -198,6 +198,88 @@ class StatusEffectEngineTest(unittest.TestCase):
         self.assertEqual(rfoe.status_effects, {"burn": 2})
 
 
+class BalanceTuning20260714Test(unittest.TestCase):
+    """Owner verdicts from docs/plans/2026-07-14-combat-balance-tuning.md:
+    B안 split caps (burn/stun 3, utility 6) + boss consecutive-stun resistance
+    + cryo freeze 2."""
+
+    def _fixture(self, **enemy_over):
+        sys.path.insert(0, str(ROOT / "tests"))
+        from test_combat_engine import _drone, _player
+
+        from mythos_combat import CombatEngine
+
+        engine = CombatEngine()
+        state = engine.start(
+            [_player(x=0, y=0)],
+            [_drone(x=5, y=0, hp=40, defense=11, speed=0, armor=0, **enemy_over)],
+            seed="balance-0714", arena=(8, 6),
+        )
+        player = state.player()
+        foe = state.living_enemies()[0]
+        assert player is not None
+        return engine, state, player, foe
+
+    def test_burn_caps_at_hard_cc_cap_while_utility_keeps_six(self) -> None:
+        from mythos_combat.engine import HARD_CC_TURNS_CAP, STATUS_EFFECT_TURNS_CAP
+
+        engine, state, player, foe = self._fixture()
+        for _ in range(4):
+            engine._apply_status_effect(state, player, foe, "burn", 2)
+            engine._apply_status_effect(state, player, foe, "corrode", 2)
+        self.assertEqual(foe.status_effects["burn"], HARD_CC_TURNS_CAP)  # 3, not 6
+        self.assertEqual(foe.status_effects["corrode"], STATUS_EFFECT_TURNS_CAP)
+
+    def test_stun_accumulation_caps_at_hard_cc_cap(self) -> None:
+        from mythos_combat.engine import HARD_CC_TURNS_CAP
+
+        engine, state, player, foe = self._fixture()
+        for _ in range(4):
+            engine._apply_stun(state, player, foe, 2)
+        self.assertEqual(foe.stunned_turns, HARD_CC_TURNS_CAP)
+
+    def test_boss_resists_consecutive_stun_but_not_the_first(self) -> None:
+        engine, state, player, boss = self._fixture(ai="boss")
+        # First stun lands in full.
+        engine._apply_stun(state, player, boss, 1)
+        self.assertEqual(boss.stunned_turns, 1)
+        # Boss loses its turn to the stun → guard arms.
+        engine._npc_turn(state, boss)
+        self.assertEqual(boss.stunned_turns, 0)
+        self.assertTrue(boss.stun_guard)
+        # Follow-up 1-turn stun is halved to 0 → fully resisted, logged.
+        engine._apply_stun(state, player, boss, 1)
+        self.assertEqual(boss.stunned_turns, 0)
+        self.assertTrue(any(e.detail.get("stun_resisted") for e in state.log))
+        # A multi-turn follow-up stun still lands at half strength.
+        engine._apply_stun(state, player, boss, 2)
+        self.assertEqual(boss.stunned_turns, 1)
+        # After the boss completes a non-stunned turn, the guard clears and
+        # a fresh stun lands in full again.
+        engine._npc_turn(state, boss)  # consumes the remaining stun → guard stays
+        self.assertTrue(boss.stun_guard)
+        engine._npc_turn(state, boss)  # acts normally → guard clears
+        self.assertFalse(boss.stun_guard)
+        engine._apply_stun(state, player, boss, 1)
+        self.assertEqual(boss.stunned_turns, 1)
+
+    def test_non_boss_units_never_gain_stun_resistance(self) -> None:
+        engine, state, player, foe = self._fixture()  # ai="melee"
+        engine._apply_stun(state, player, foe, 1)
+        engine._npc_turn(state, foe)
+        self.assertFalse(foe.stun_guard)
+        engine._apply_stun(state, player, foe, 1)
+        self.assertEqual(foe.stunned_turns, 1)
+
+    def test_cryo_grenade_freeze_rider_is_two_turns(self) -> None:
+        import json
+
+        combat = json.loads(read("resources/neo-seoul/scenario.json"))["combat"]
+        self.assertEqual(combat["items"]["cryo_grenade"]["applies"], {"freeze": 2})
+        # Incendiary stays the damage-rider grenade — unchanged by the verdict.
+        self.assertEqual(combat["items"]["incendiary_grenade"]["applies"], {"burn": 2})
+
+
 class AoeAndPushSkillTest(unittest.TestCase):
     def test_overload_strike_is_the_melee_splash_skill(self) -> None:
         import json
@@ -632,12 +714,14 @@ class StatusStackingTest(unittest.TestCase):
         return engine, state, player, foe
 
     def test_status_duration_accumulates_on_reapply(self) -> None:
+        # Accumulation (2026-07-12) demonstrated on a utility status; burn's own
+        # lower cap is locked by BalanceTuning20260714Test (2026-07-14 B안).
         engine, state, player, foe = self._fixture()
-        engine._apply_status_effect(state, player, foe, "burn", 2)
-        engine._apply_status_effect(state, player, foe, "burn", 3)
-        self.assertEqual(foe.status_effects["burn"], 5)
+        engine._apply_status_effect(state, player, foe, "corrode", 2)
+        engine._apply_status_effect(state, player, foe, "corrode", 3)
+        self.assertEqual(foe.status_effects["corrode"], 5)
         # The badge list carries one chip, not one per application.
-        self.assertEqual(foe.status.count("burn"), 1)
+        self.assertEqual(foe.status.count("corrode"), 1)
 
     def test_status_duration_caps(self) -> None:
         from mythos_combat.engine import STATUS_EFFECT_TURNS_CAP
@@ -650,14 +734,14 @@ class StatusStackingTest(unittest.TestCase):
         self.assertEqual(engine._effective_armor(foe), 1)
 
     def test_stun_accumulates_and_caps(self) -> None:
-        from mythos_combat.engine import STATUS_EFFECT_TURNS_CAP
+        from mythos_combat.engine import HARD_CC_TURNS_CAP
 
         engine, state, player, foe = self._fixture()
         engine._apply_stun(state, player, foe, 1)
         engine._apply_stun(state, player, foe, 2)
-        self.assertEqual(foe.stunned_turns, 3)
-        engine._apply_stun(state, player, foe, STATUS_EFFECT_TURNS_CAP)
-        self.assertEqual(foe.stunned_turns, STATUS_EFFECT_TURNS_CAP)
+        self.assertEqual(foe.stunned_turns, HARD_CC_TURNS_CAP)
+        engine._apply_stun(state, player, foe, HARD_CC_TURNS_CAP)
+        self.assertEqual(foe.stunned_turns, HARD_CC_TURNS_CAP)
 
 
 class MultiStatusConcurrencyTest(unittest.TestCase):
@@ -880,7 +964,9 @@ class CryoGrenadeDamageTest(unittest.TestCase):
         combat = json.loads(read("resources/neo-seoul/scenario.json"))["combat"]
         cryo = combat["items"]["cryo_grenade"]
         self.assertEqual(cryo.get("damage"), "1d4")
-        self.assertEqual(cryo.get("applies"), {"freeze": 1})
+        # freeze 1→2 (owner call 2026-07-14): movement-only rider was strictly
+        # inferior to incendiary's burn 2 at the same cost/rarity.
+        self.assertEqual(cryo.get("applies"), {"freeze": 2})
 
     def test_cryo_grenade_deals_damage_and_freezes(self) -> None:
         import json
@@ -910,7 +996,7 @@ class CryoGrenadeDamageTest(unittest.TestCase):
         foe = state.by_id("d1")
         assert foe is not None
         self.assertLess(foe.hp, 40)
-        self.assertEqual(foe.status_effects.get("freeze"), 1)
+        self.assertEqual(foe.status_effects.get("freeze"), 2)
 
 
 if __name__ == "__main__":

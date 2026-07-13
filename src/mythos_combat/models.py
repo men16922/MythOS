@@ -69,6 +69,10 @@ class Combatant:
     defense_buff: int = 0  # temporary defense bonus from skills (e.g. covering_noise)
     defense_buff_turns: int = 0  # rounds the defense_buff persists
     stunned_turns: int = 0  # turns this combatant loses to stun (EMP pulse/grenade)
+    # Boss consecutive-stun guard (owner call 2026-07-14): set when a boss loses
+    # a turn to stun, cleared after it completes a non-stunned turn; while set,
+    # a follow-up stun is halved (floor) in _apply_stun — no rotation-lock.
+    stun_guard: bool = False
     # Persistent status effects (2026-07-12 design): id -> remaining turns.
     # ids: "burn" (DoT at turn start) · "corrode" (armor -2 while active); the
     # `status` chip list mirrors active ids so UI badges stay in sync.

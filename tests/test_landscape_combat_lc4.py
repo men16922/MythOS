@@ -31,13 +31,11 @@ class LandscapeCombatLC4Test(unittest.TestCase):
         self.assertIn("height: 100%;", block)
 
     def test_aside_folds_entirely_into_combat_in_landscape_coarse_pointer(self) -> None:
+        # Widened by the desktop combat split (owner 2026-07-13): the aside now
+        # folds during ANY active combat, which subsumes the landscape+coarse case.
         source = read("src/mythos_ui/src/GameAside.tsx")
 
-        self.assertIn(
-            "const foldedIntoCombat = combatActive && isLandscape && isCoarsePointer;",
-            source,
-        )
-        self.assertIn("if (foldedIntoCombat) {\n    return null;\n  }", source)
+        self.assertIn("if (combatActive) {\n    return null;\n  }", source)
         self.assertIn("export function StatusPanel({", source)
 
     def test_save_and_status_join_combat_bottom_row(self) -> None:

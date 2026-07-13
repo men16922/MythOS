@@ -5,7 +5,6 @@ import { Popover } from "./Popover";
 import { SaveHistoryPanel } from "./SaveHistoryPanel";
 import { Surface } from "./Surface";
 import { useConciseMode } from "./conciseMode";
-import { useOrientation } from "./hooks/useOrientation";
 import { useLang } from "./i18n/lang";
 import type { StringKey } from "./i18n/strings.ko";
 import type {
@@ -658,15 +657,13 @@ export function GameAside({
 }: GameAsideProps) {
   const { t } = useLang();
   const { conciseMode } = useConciseMode();
-  const { isLandscape, isCoarsePointer } = useOrientation();
-  // LC4: in landscape+coarse-pointer combat, StoryPanel folds Save/Status/Map
-  // into the combat-bottom-row right column instead of this page-level aside —
-  // rendering nothing here means `main`'s single-column stack (<900px) gets no
-  // second row below the fixed-height combat split, so the page itself never
-  // scrolls (docs/plans/2026-07-08-design-system.md "Landscape Combat").
+  // Combat folds this page-level aside away on EVERY form factor (owner
+  // 2026-07-13: no Save/Map/Status menus during combat — the freed right column
+  // hosts the roster + command console instead, see the desktop combat split in
+  // index.css). Landscape+coarse already relied on this (LC4); StoryPanel folds
+  // the Operation Map back in as a combat-bottom-row chip there.
   const combatActive = Boolean(finalizedSnapshot?.combat && !finalizedSnapshot.combat.finished);
-  const foldedIntoCombat = combatActive && isLandscape && isCoarsePointer;
-  if (foldedIntoCombat) {
+  if (combatActive) {
     return null;
   }
   if (minimal) {

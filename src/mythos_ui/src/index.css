@@ -1324,6 +1324,67 @@ main {
   animation: cc-armed-pulse 1.1s ease-in-out infinite;
 }
 
+/* Quick-slot skill bar (owner 2026-07-13): six slots max; the ⇄ affordance
+   opens a per-slot picker of the benched skills. */
+.cc-slot {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  gap: 2px;
+}
+.cc-slot-swap {
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  background: rgba(8, 16, 20, 0.6);
+  color: var(--term-dim);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0 6px;
+}
+.cc-slot-swap:hover,
+.cc-slot-swap.open {
+  border-color: #7fe7c4;
+  color: #7fe7c4;
+}
+.cc-slot-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 40;
+  min-width: 200px;
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  background: rgba(6, 13, 16, 0.97);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+  padding: 6px;
+}
+.cc-slot-menu-title {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--term-dim);
+  padding: 4px 6px 6px;
+  text-transform: uppercase;
+}
+.cc-slot-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  padding: 7px 8px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 13px;
+}
+.cc-slot-menu-item:hover {
+  background: rgba(127, 231, 196, 0.12);
+}
+
 /* XCOM-style throwable armed for ground targeting: the button pulses until
    the player taps a board cell (or presses it again to disarm). */
 .cc-item-armed {
@@ -2600,6 +2661,31 @@ main {
 @media (max-width: 760px) {
   .combat-bottom-row {
     grid-template-columns: 1fr;
+  }
+}
+/* Desktop combat split (owner 2026-07-13): during combat the page aside folds
+   away (GameAside returns null), the board takes the wide left track, and the
+   roster + command console + log stack into the freed right column — mirroring
+   the landscape-combat direction on mouse/desktop. Scoped to fine pointers and
+   wide viewports so LC (coarse landscape) and portrait rules are untouched. */
+@media (pointer: fine) and (min-width: 1101px) {
+  body.combat-active main {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 1560px;
+  }
+  body.combat-active .combat-stack {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 400px;
+    gap: 16px;
+    align-items: start;
+  }
+  body.combat-active .combat-bottom-row {
+    grid-template-columns: 1fr;
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
+    position: sticky;
+    top: 12px;
+    padding-right: 4px;
   }
 }
 /* Portrait touch combat (owner 2026-07-11 "세로 전투 겹침/플레이 불가"): the command

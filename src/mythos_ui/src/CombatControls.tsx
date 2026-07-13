@@ -137,6 +137,22 @@ const SKILL_SYMBOLS: Record<string, string> = {
   nanoshield_projector: "◈",
 };
 
+// Quick-slot skill bar (owner 2026-07-13): the action bar shows at most six
+// skills; each slot has a ⇄ affordance that opens a picker of the remaining
+// learned skills, so deep builds stay one row tall. Assignments persist per
+// scenario+actor in localStorage (cosmetic client state — the engine still
+// accepts any learned skill id).
+const MAX_SKILL_SLOTS = 6;
+
+function loadSlotIds(storageKey: string): string[] {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(storageKey) || "[]");
+    return Array.isArray(parsed) ? parsed.filter((v) => typeof v === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
 export function CombatControls({
   combat,
   scenarioId,
@@ -155,6 +171,11 @@ export function CombatControls({
   // Direction target for heal/shield support skills (self + allies). Kept local:
   // it resets naturally when the controls remount between fights.
   const [supportTargetId, setSupportTargetId] = useState<string | null>(null);
+  // Quick-slot state: per-actor slot assignments (mirrored to localStorage) and
+  // which slot's swap picker is open. Keyed by storage key so control handoffs
+  // between party members mid-fight each keep their own bar.
+  const [slotOverrides, setSlotOverrides] = useState<Record<string, string[]>>({});
+  const [swapSlot, setSwapSlot] = useState<number | null>(null);
   if (combat.finished && combat.outcome) {
     const canContinue = combat.outcome !== "player_defeat" || combat.defeat_soft;
     return (
@@ -398,14 +419,79 @@ export function CombatControls({
             </div>
           </div>
 
-          {available.skills && available.skills.length > 0 && (
-            <div className="cc-section">
-              <div className="cc-label">{t("cc.skills")}</div>
-              <div className={`cc-skill-bar${tutorialHighlight === "skill" ? " tut-glow" : ""}`}>
-                {available.skills.map(renderSkill)}
+          {available.skills && available.skills.length > 0 && (() => {
+            const allSkills = available.skills;
+            const skillById = new Map(allSkills.map((s) => [s.id, s]));
+            const storageKey = `mythos-skill-slots:${scenarioId}:${available.active_actor_id || "player"}`;
+            const stored = slotOverrides[storageKey] ?? loadSlotIds(storageKey);
+            const slotIds: string[] = [];
+            for (const id of stored) {
+              if (skillById.has(id) && !slotIds.includes(id)) slotIds.push(id);
+            }
+            for (const skill of allSkills) {
+              if (slotIds.length >= MAX_SKILL_SLOTS) break;
+              if (!slotIds.includes(skill.id)) slotIds.push(skill.id);
+            }
+            const visibleIds = slotIds.slice(0, MAX_SKILL_SLOTS);
+            const bench = allSkills.filter((s) => !visibleIds.includes(s.id));
+            const assignSlot = (slotIdx: number, skillId: string) => {
+              const next = [...visibleIds];
+              next[slotIdx] = skillId;
+              setSlotOverrides((prev) => ({ ...prev, [storageKey]: next }));
+              try {
+                localStorage.setItem(storageKey, JSON.stringify(next));
+              } catch {
+                /* private mode etc. — the in-memory override still applies */
+              }
+              setSwapSlot(null);
+            };
+            return (
+              <div className="cc-section">
+                <div className="cc-label">{t("cc.skills")}</div>
+                <div className={`cc-skill-bar${tutorialHighlight === "skill" ? " tut-glow" : ""}`}>
+                  {visibleIds.map((id, idx) => {
+                    const skill = skillById.get(id)!;
+                    return (
+                      <span key={id} className="cc-slot">
+                        {renderSkill(skill)}
+                        {bench.length > 0 && (
+                          <button
+                            type="button"
+                            className={`cc-slot-swap${swapSlot === idx ? " open" : ""}`}
+                            title={t("cc.swapSkill")}
+                            aria-label={t("cc.swapSkill")}
+                            aria-expanded={swapSlot === idx}
+                            onClick={() => setSwapSlot(swapSlot === idx ? null : idx)}
+                          >
+                            ⇄
+                          </button>
+                        )}
+                        {swapSlot === idx && bench.length > 0 && (
+                          <div className="cc-slot-menu" role="menu">
+                            <div className="cc-slot-menu-title">{t("cc.swapPick")}</div>
+                            {bench.map((benchSkill) => (
+                              <button
+                                key={benchSkill.id}
+                                type="button"
+                                className="cc-slot-menu-item"
+                                role="menuitem"
+                                onClick={() => assignSlot(idx, benchSkill.id)}
+                              >
+                                <span className="cc-skill-symbol" aria-hidden="true">
+                                  {SKILL_SYMBOLS[benchSkill.id] || "✦"}
+                                </span>
+                                <span>{benchSkill.name || benchSkill.id}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           <div className="cc-section">
             <div className="cc-label">{t("cc.consumables")}</div>

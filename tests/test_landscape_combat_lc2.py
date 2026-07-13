@@ -48,20 +48,18 @@ class LandscapeCombatLC2Test(unittest.TestCase):
         self.assertIn("export function OperationMapPanel({", source)
 
     def test_aside_returns_null_when_folded_into_combat(self) -> None:
-        # LC4: the aside no longer just suppresses OperationMap — the whole
-        # <aside> renders nothing in landscape+coarse combat, since StoryPanel's
-        # combat-bottom-row now also carries Save/Status (see LC4 test module).
+        # LC4 established the landscape+coarse fold; the desktop combat split
+        # (owner 2026-07-13) widened it: the whole <aside> renders nothing during
+        # ANY active combat — the right column belongs to roster + command console
+        # (index.css "Desktop combat split"), and landscape's combat-bottom-row
+        # still carries Save/Status (see LC4 test module).
         source = read("src/mythos_ui/src/GameAside.tsx")
 
         self.assertIn(
             "const combatActive = Boolean(finalizedSnapshot?.combat && !finalizedSnapshot.combat.finished);",
             source,
         )
-        self.assertIn(
-            "const foldedIntoCombat = combatActive && isLandscape && isCoarsePointer;",
-            source,
-        )
-        self.assertIn("if (foldedIntoCombat) {\n    return null;\n  }", source)
+        self.assertIn("if (combatActive) {\n    return null;\n  }", source)
 
     def test_story_panel_wires_on_open_codex_from_app(self) -> None:
         source = read("src/mythos_ui/src/App.tsx")

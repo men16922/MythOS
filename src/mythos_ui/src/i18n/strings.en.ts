@@ -274,6 +274,8 @@ export const en: Record<StringKey, string> = {
   "cc.supportSelf": "Self",
   "cc.actions": "Actions",
   "cc.skills": "Skills",
+  "cc.swapSkill": "Swap slot: pick another skill from the list into this slot",
+  "cc.swapPick": "Pick a skill to slot",
   "cc.consumables": "Consumables",
   "cc.outOfRange": "out of range",
   "cc.attackOk": "Attack the selected target.",

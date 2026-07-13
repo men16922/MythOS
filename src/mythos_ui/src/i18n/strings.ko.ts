@@ -274,6 +274,8 @@ export const ko = {
   "cc.supportSelf": "자신",
   "cc.actions": "행동",
   "cc.skills": "스킬",
+  "cc.swapSkill": "슬롯 교체: 목록에서 다른 스킬을 골라 이 칸에 배치",
+  "cc.swapPick": "교체할 스킬 선택",
   "cc.consumables": "소모품",
   "cc.outOfRange": "사거리밖",
   "cc.attackOk": "선택된 표적을 공격합니다.",

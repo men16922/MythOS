@@ -1,15 +1,40 @@
 # Progress Log
 
-Last updated: 2026-07-12
+Last updated: 2026-07-13
 
-## 2026-07-12 (live session #16, CBT-day sprint) — DEPLOYED 00056 · castability fix · CBT ops survey · round-2 promo · codex art batch in flight
-- Status: in progress (3-hour CBT-prep window; codex art batch still generating). `make check` **1060** green.
+## 2026-07-13 (live session #17, claude lane) — Desktop combat split + skill quick-slots · teaser V2 asset sprint · EN leak fixes
+- Status: Done locally, UNDEPLOYED. `make test` **1067** green, typecheck + frontend lint/build clean, `make validate-content` clean. (`make check` lint blocked only by pre-existing untracked `scratch/`+`scripts/cbt` probe files from the teaser session.)
+- **Desktop combat split (owner spec)**: during combat the page aside (Save/Map/Status/DEV LOG) folds on every form factor (`GameAside` returns null; widens LC4) and `.combat-stack` becomes a desktop 2-col grid — board left, roster+command console+log docked right (sticky, own scroll; `@media (pointer:fine) and (min-width:1101px)`, LC/portrait untouched).
+- **Skill quick-slots**: action bar caps at **6 slots**; per-slot ⇄ opens a bench picker of remaining learned skills; assignment persists in localStorage per scenario+actor. Browser-verified on the local sim (13 skills → 6+bench 7, swap+persist, JS errors 0). Source locks: `tests/test_desktop_combat_split.py` (+4), LC2/LC4 locks updated to the widened fold.
+- **EN Korean-leak fixes (serving-boundary glossary)**: morning batch — echo symbol `교전`→"Engagement" + 6 opening variant titles/summaries (live "Scene · 비워진 사각" / "교전 Scarred Resolve") with a route-anchor scanner ratchet; evening batch — `자기 견인/자기 반발` skill names + 6 companion upgrade names + 2 IX skill names, plus a combat-entity-name scanner ratchet (`tests/test_localize.py`).
+- **Teaser V2 assets (docs/cbt/v2/, scene_01..10 folders + per-scene MP3s)**: scene_01 = owner-picked `omni_1` (+1080p lanczos master; Vertex Veo 1080p alternate `veo_serin_arrival_1080p.mp4` — Veo pipeline via `scripts/cbt/generate_teaser_videos.py` proven, ADC+PROJECT_ID) · scene_02 = 11s Ken Burns landmark montage (ffmpeg) · scene_03 = 41s choice→stream HQ clip · scene_04 = 9s map-modal zoom video · scene_05/09 tab clips · scene_06/07 source = **52s new-layout local-sim combat with cut-ins** (`hq_combat_newlayout.mp4`) · BGM ×2 (ElevenLabs Music, v1 mainstream / v2 low dark; `scripts/cbt/generate_teaser_bgm.py`). HQ recorder = CDP screencast → ffmpeg VFR (`scripts/cbt/hq_record.py`; headed+visible window required — occluded windows starve paint).
+- **DEPLOYED `mythos-api-00059-8j4`** (owner-run `make deploy`, 100% traffic, `IMAGEN_MODEL` preserved): desktop combat split + quick-slots + all EN glossary fixes now live; health 200.
+- **TEASER ASSEMBLED: `docs/cbt/v2/final/mythos_teaser_v2.mp4`** (1:49, 1080p30, H.264+AAC) — hook(omni_1)→landmarks→choice/stream→map→companions→combat entry/action (live new layout)→consequence→**Veo IX climax** (`veo_ix_confrontation_1080p.mp4`, new generation)→endings→flash montage→CTA card. No subtitles except the CTA card (owner direction). Audio: 10 narrations + BGM v1, all onset-verified via silencedetect/volumedetect. Build system `scripts/cbt/build_teaser.py` (edit UNITS/NARRATION → rerun). **ffmpeg pitfalls fixed**: no drawtext on this build → PIL overlay PNG; 44.1k MP3 adelay drift → `aresample=48000` first; concat-video+multi-audio single graph silently attenuates → audio built in separate passes, muxed last.
+- All entry/Load navigation footage removed (owner request): scene_03/05/09 re-recorded with post-entry recording start; superseded takes/probes/duplicates deleted (scratch teaser probes, captures/, per-scene MP3 copies, unused alternates); `docs/cbt/v2/` consolidated with a rebuilt README.
+- Blockers: none. Remaining `[manual]`: owner watch-through of `final/mythos_teaser_v2.mp4` (revision loop ready — script/voice/video all regenerable), owner feel pass on the live desktop combat layout, `! git push` (origin behind).
+
+## 2026-07-12 (live session #16 cont.) — Teaser V2 automation, combat autoplayer, save state prep
+- Status: In progress.
+- Changed:
+  - Overwrote `scripts/cbt/capture_teaser_scenes.py` with robust slot loading and aside panel details expansion (`details.nth(i).evaluate("el => el.open = true")`) to show hidden Route Maps.
+  - Created `scratch/play_combat_r1.py` to auto-play combat by clicking attack and wait buttons dynamically.
+  - Created `scratch/play_and_inspect_route.py` and `scratch/test_new_slots.py` to inspect state.
+- Verified:
+  - Ran `scratch/play_combat_r1.py` on slot 0 (`Engagement R1`); successfully won combat in 5 turns, exiting to the explore phase.
+  - Auto-saved state to `A Quiet Corner of the Grid` at Turn 10.
+  - Verified via screenshot `scratch/after_load_quiet_corner.png` that Slot 0 now loads directly to the post-combat reward screen with the Operation Map (Route Map) fully visible in the sidebar.
+- Next: Update scene capture scripts to load the new `A Quiet Corner of the Grid` slot and dismiss the reward boon modal to cleanly record Scenes 4, 5, 9, 10 without combat playback in the video.
+
+## 2026-07-12 (live session #16, CBT-day sprint) — DEPLOYED 00057 · castability fix · CBT ops survey · round-2 promo · Codex art batch live
+- Status: deployed; manual feel pass and promo publication pending. `make check` **1060** green.
 - **DEPLOYED `mythos-api-00056-z77`** (owner-run `make deploy`): sessions #14-#15 now LIVE. Smoke: health/root 200, `/api/v1/client-config` `{default_bgm_on:true}` (prod default correct), `IMAGEN_MODEL=gemini-3.1-flash-image` pinned, invite gate 401 on `/scenarios` without key.
 - **Uncastable signatures FIXED (`d70ff86`, owner call: pool 4, keep cost)**: 한 시스템 침투 + 수아 기억 공명 (the new invariant test caught the second one) both cost ◆4 over a derived pool of 3 → ally builder now honors explicit `max_focus`; every-companion castability invariant locked (+2 tests).
 - **CBT cap survey (read-only, owner chose report-only)**: 86 loops / 27 players. Two 24-loop players = cap-exempt admin pattern; `player_capchec…` = synthetic test id at 10/10; real testers max 4 → **no cleanup needed for today's round**.
 - **Round-2 promo**: `CBT_RECRUIT_POST(.ko).md` rewritten with the combat-overhaul highlights + 2 fresh sim screenshots (`Mythos_Combat_Preview2.png` party+🔥 badges, `Mythos_Status_Preview.png` stacked statuses).
-- **codex art batch (owner: agy→codex)**: 14 assets dispatched on worktree branch `art/codex-0713` — first run failed (sandbox has no Metal → local FLUX impossible); rediagnosed via `image-regen.sh`: codex generates via its own image API needing NETWORK ON → redispatched without the network block. Pending: image-judge review → cherry-pick → bundle rebuild → make check.
-- Next: art batch review/merge · owner publishes promo + opens round 2 · owner feel pass on 00056.
+- **Codex art batch (owner: agy→codex)**: reviewed as 15 assets and committed directly on `main` (`bdaaa3e..c00bb52`): backdrops×4, flat glyphs×7, brighter floor, neon server-rack `cover_full`, and elemental grenade icons×2. Direct asset inspection, `tests.test_image_assets`, and `make check` passed; `outputs/codex-art-0713/review.md` records the review. Browser-render evidence is unverified because no browser binding was available.
+- **DEPLOYED `mythos-api-00057-c2c`** (owner-run `make deploy`): the art bundle is serving 100% of traffic; deploy preserved `IMAGEN_MODEL=gemini-3.1-flash-image`.
+- **CBT Teaser V2**: rewrote the Korean and English plans around world/AI-choice/companions-loop/tactics; generated ten ordered English ElevenLabs `eleven_v3` narration MP3s and a reproducible generator. Live Playwright entry capture passed (1920×1080 WebM + screenshot); `ffprobe` confirmed all ten MP3s. The first Start Loop attempt stayed at character setup after 60 seconds, so only the entry clip is verified. Playwright WebM has no audio; final mix remains separate.
+- Next: diagnose fresh-loop transition → capture/verify `scene01`–`scene10` → mix/review teaser → publish promo/open round 2, then complete the `00057` owner feel pass.
 
 ## 2026-07-12 (live session #15) — status stacking · collision slam · cryo damage · BGM env · codex parallel triage
 - Status: Done, `make check` **1058** green. Pushed to origin (owner, 07-12 night); UNDEPLOYED. 5 code commits `2d94ad6..ac66266`.

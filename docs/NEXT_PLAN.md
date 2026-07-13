@@ -1,6 +1,6 @@
 # Project MythOS Next Plan
 
-Last updated: 2026-07-12
+Last updated: 2026-07-14
 
 This file keeps only upcoming (open) work as a rolling plan. Completed tracks live in
 `docs/COMPLETED_SUMMARY.md`, detailed logs in `bin/docs/archive/progress-2026-06.md`, individual designs in
@@ -8,11 +8,11 @@ This file keeps only upcoming (open) work as a rolling plan. Completed tracks li
 
 ## Priority 0 — Human live sign-off on the deployed bundle
 
-Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00057-c2c` (2026-07-12, owner-run; 100% traffic; `IMAGEN_MODEL=gemini-3.1-flash-image` preserved)** — sessions #14-#15 combat overhaul plus the reviewed art bundle (`bdaaa3e..c00bb52`: backdrops×4, status glyphs×7, terrain×2, grenade icons×2) are live. Next required action: owner feel pass for image character consistency, backdrop/status/terrain readability, push/pull/slam feel, hot-path choices, and portrait combat on a real device.
+Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00060-ldj` (2026-07-14, owner-run; 100% traffic; `IMAGEN_MODEL=gemini-3.1-flash-image` preserved)** — session #17-#18 code is now live: board attack-telegraph fix, enemy spawn variety, desktop combat split, skill quick-slots (on top of the #14-#15 overhaul + art bundle). The 2026-07-14 enemy-art regen (20 sprites) landed AFTER this deploy — next `make deploy` picks it up. Next required action: owner feel pass — telegraph 체감, enemy variety across loops, desktop split/quick-slots, plus the carried-over image/backdrop/slam/portrait checks.
 
 ### CBT Teaser V2 — production lane (highest immediate promo priority)
-- `[/]` `[manual]` **English V2 package** — balanced KO/EN edit plans, ten ordered ElevenLabs `eleven_v3` narrator MP3s, and a Playwright capture utility are ready. Captured scenes 2, 3, and 4 (initial pass). Verified loading Slot 0 (`A Quiet Corner of the Grid`) to expose the Route Map.
-- `[ ]` `[manual]` **Scene capture and final mix** — update `scripts/cbt/capture_teaser_scenes.py` to handle the post-combat boon modal and cleanly capture `scene04`–`scene10`; mix narration with approved BGM/SFX outside Playwright. Done = ten verified source clips, final English audio/subtitle timing, and human release review.
+- `[x]` **Teaser ASSEMBLED (session #17)** — `docs/cbt/v2/final/mythos_teaser_v2.mp4` (1:49, 1080p30, H.264+AAC): hook→landmarks→choice/stream→map→companions→combat(new layout)→consequence→Veo IX climax→endings→CTA. 10 narrations + BGM v1, onset-verified. Build system `scripts/cbt/build_teaser.py`.
+- `[ ]` `[manual]` **Owner watch-through + release review** — approve `final/mythos_teaser_v2.mp4` (script/voice/video all regenerable via the build system), then publish. Media stays out of git (YouTube-distributed).
 
 ### Combat overhaul arc 2026-07-11..12 — CODE COMPLETE → `COMPLETED_SUMMARY.md` **M59**
 - `[x]` All code tracks done and compressed into M59: P0 telegraph/terrain/10×7 · P1 push/pull + cover (포즈 7종 오너 승인, canon rule 기록) · feedback batches (스킬 리워크 · 반응성 · 2-티어 slices 1-3 + 🎯 · 상태이상 slices 1-3) · visual overhaul V1-V6 + 완성도 배치 · session #15 (중첩/슬램/냉각/BGM env/라인업·전리품). `00057-c2c` now serves both that work and the art asset bundle. Detail: M59 + `bin/docs/archive/progress-2026-07.md`.
@@ -23,11 +23,11 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00
 - `[ ]` `[manual]` **밸런스 튜닝** — 상태이상 부여 턴수/빈도 · 중첩 cap(6) · 슬램 수치(1d4) · 스플래시/라이더 수치 · 2-티어 slice 4(턴 순서 스트립) GO/NO-GO.
 
 ### Enemy roster overhaul 2026-07-13 (아트 + 등장 + 텔레그래프)
-- `[ ]` `[auto:codex]` **적 아트 스타일 일관화 (4종×5포즈 = 20장)** — purge_drone·shock_trooper·suppression_mech·tracker_spider가 캐논(봇=잉크코믹 러스트/레드 · 휴머노이드=페인터리 렌더)과 이질(픽셀아트·광택토이·블루/주황·박힌 텍스트). 브리프+매칭 기준: `docs/plans/2026-07-13-enemy-art-consistency.md`. 완료 기준: 20장 재생성 → `tests.test_image_assets` 통과 + 캐논 형제와 나란히 같은 로스터로 읽힘 + 전투 시뮬 렌더 확인. **FLUX 아닌 codex로**(스타일 매칭).
+- `[x]` `[auto:codex]` **적 아트 스타일 일관화 DONE 2026-07-14 (4종×5포즈 = 20장)** — codex 생성 → claude vision 판정(그린스크린 3장 리롤) → 알파 후처리(512×768) → 승격. `tests.test_image_assets` + `make check` 1067 green + 시뮬 렌더 확인(3 인카운터, `outputs/live-qa/manual-20260714-enemy-art/`). 재생성 도구 `outputs/codex-art-0714-enemies/`. UNDEPLOYED — 다음 `make deploy`에 포함.
 - `[x]` **텔레그래프 보드 미표시 FIXED** — 공격 `⚔피해`+연결선이 대상(=적이 선 타일)의 스프라이트에 가려짐(blip 이전 렌더) → blip 이후 오버레이 패스로 유닛 위 재렌더(`combatCanvas.ts`). 시뮬 렌더 검증(집행 유닛→Tester `⚔1d6` 유닛 위 표시). 오너 "그런거 안뜨는데" 확인 → 실제 버그였음.
 - `[x]` **적 등장 다양성 FIXED** — `enforcer_standoff`가 어느 `combat_encounters` 풀에도 없어 route 미배치(고아) → `combat` 풀 추가; `node_encounter_id` 루프 내 no-repeat 선택(`route_runtime.py` exclude + `session.py` `_route_encounters_seen`)으로 중진압 전차 등 set-piece가 한 루프의 전투들에서 실제로 뜨게. `make check` 통과.
 - 참고: 적 상태이상 킷은 **이미 정상**(acid_spitter→acid+corrode / plasma_torch→burn / shock_baton→shock, `weapon.applies`) — 진단 결과 갭 아님, 변경 없음.
-- `[ ]` `[manual]` 오너 확인: 텔레그래프 실제 체감 · 여러 루프에서 적 종류 다양성.
+- `[ ]` `[manual]` 오너 확인 (`00060-ldj`에서): 텔레그래프 실제 체감 · 여러 루프에서 적 종류 다양성 · (다음 배포 후) 신규 적 아트 4종의 로스터 일관성.
 
 ### Narrative clarity audit follow-ups (2026-07-10, 4-lane audit)
 - `[ ]` `[manual]` **Track 4 balance playtest** — play-style consequence system now ON (`advance_route` axis tally → intent flag @ threshold 2); play two loops in different styles, confirm story/results diverge + balance OK, tune threshold/mapping if needed. **B4 stat-tag** decision rides along (`(민첩)` reads as a check but has 0 effect — make real or restyle).

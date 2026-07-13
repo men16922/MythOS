@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-07-12
+Last updated: 2026-07-14
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **2026-07-12 CBT teaser V2 capture**: We verified slot loading of `A Quiet Corner of the Grid` at Turn 10 which loads directly to the Route Map (Operation Map) after tutorial combat is won. Next session should update the scene capture script `scripts/cbt/capture_teaser_scenes.py` to load this slot, click/dismiss the post-combat boon reward modal to cleanly expose the Route Map, and complete recordings for Scenes 4 to 10.
+> ▶ NEXT SESSION: **Deploy the enemy-art bundle + owner live pass**. Enemy art 20/20 is regenerated to canon (2026-07-14, `docs/plans/2026-07-13-enemy-art-consistency.md` DONE) but landed AFTER the `00060-ldj` build — owner `make deploy` (art) then verify live: telegraph 체감, enemy variety across loops, 신규 적 아트 4종 roster consistency, desktop split/quick-slots feel. `! git push` also pending (origin behind).
 
 ## Snapshot
 
@@ -28,9 +28,10 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **CBT teaser V2 (`[manual]`)**: English narrative/subtitle package and ten ElevenLabs MP3s are ready; capture and verify remaining live `scene01`–`scene10` clips, then mix approved audio. Plan: `docs/plans/2026-07-12-cbt-teaser-v2.md`.
-2. **Combat art live sign-off (`00057-c2c`)**: Codex batch is deployed (backdrops, status glyphs, terrain, elemental grenades). Owner feel-pass A-1/A-3/A-4 is the next product gate.
-3. **Maintenance/hold**: WS4 content pipeline plan-only; `glass-library` held until Neo-Seoul satisfaction (`docs/COMPLETED_SUMMARY.md` M35-M40).
+1. **Enemy roster overhaul (`[manual]` residue)**: telegraph fix + spawn variety LIVE in `00060-ldj`; enemy art 20/20 regenerated to canon (codex, 2026-07-14) but UNDEPLOYED — next `make deploy` ships it. Remaining: owner live feel pass. Plan: `docs/plans/2026-07-13-enemy-art-consistency.md` (DONE).
+2. **CBT teaser V2 (`[manual]`)**: full teaser is ASSEMBLED — `docs/cbt/v2/final/mythos_teaser_v2.mp4` (1:49, 1080p). Remaining is owner watch-through + release review (revision loop ready).
+3. **Combat live sign-off**: `00060-ldj` serves the full combat overhaul + session #17-#18 (desktop split, quick-slots, EN fixes, telegraph/spawn). Owner feel-pass A-1/A-3/A-4 + telegraph/spawn live-verify is the next product gate.
+4. **Maintenance/hold**: WS4 content pipeline plan-only; `glass-library` held until Neo-Seoul satisfaction (`docs/COMPLETED_SUMMARY.md` M35-M40).
 
 ## Read Order
 

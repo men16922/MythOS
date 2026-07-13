@@ -1,6 +1,14 @@
 # Progress Log
 
-Last updated: 2026-07-13
+Last updated: 2026-07-14
+
+## 2026-07-14 (live session #19, claude lane) — 적 아트 일관화 20장 codex 재생성 완료 + DEPLOYED 00060
+- Status: Done. `make check` **1067** green; `tests.test_image_assets` green. Art committed locally, UNDEPLOYED (next `make deploy` picks it up).
+- **DEPLOYED `mythos-api-00060-ldj`** (owner-run `make deploy`, 100% traffic, `IMAGEN_MODEL` preserved): session #17-#18 code now LIVE — board attack-telegraph fix, enemy spawn variety, desktop combat split, quick-slots. NOTE: deployed BEFORE the art regen below, so the new enemy art is not in 00060.
+- **Enemy art 20/20 regenerated via codex** (`[auto:codex]` consumed, orchestrated per `docs/plans/2026-07-13-enemy-art-consistency.md`): shock-trooper → painterly black armor + red visor (enforcer sibling); purge-drone/suppression-mech/tracker-spider → inked-comic rust/gunmetal + red optics (maintenance/sentinel siblings). Pipeline: per-pose codex `exec` prompts (text-only canon description; codex has no vision) → collect from `~/.codex/generated_images` → claude vision judge vs canon refs (3 green-screen rejects re-rolled → 20/20 PASS) → `postprocess.py` alpha strip (codex outputs RGB with PAINTED checkerboard/green bg — border-connected flood fill + two-tone checker detection for enclosed pockets, fit 512×768 bottom-center) → promote.
+- **Sim render verified** (gameplay-qa, non-fallback, evidence `outputs/live-qa/manual-20260714-enemy-art/`): shock_trooper_patrol / mech_siege / tracker_ambush — all 4 enemies spawn + render transparent at board scale, roster thumbnails updated, telegraph `×1d6` chip renders above units (fce92b1 confirmed locally). Only console noise = pre-existing `-cover.png` 404 → guard fallback (by design, unrelated).
+- Tooling kept in `outputs/codex-art-0714-enemies/` (`gen_enemies.sh` resume-safe generator + `postprocess.py`); probe `scratch/render_check_enemies.py`.
+- Blockers: none. Remaining `[manual]`: owner `make deploy` (art), live feel — telegraph 체감 · 루프 간 적 다양성 · 신규 적 아트 로스터 일관성, `! git push`.
 
 ## 2026-07-13 (live session #18, claude lane) — 적 로스터 개선: 텔레그래프 보드 버그 + 등장 다양성 + 아트 일관화 브리프
 - Status: 코드 Done, UNDEPLOYED. `make check` **1067** green (lint/typecheck/skills/doc-budget 포함). 3개 병렬 조사 레인(텔레그래프 진단 · 등장조건 매핑 · 아트 비교)로 스코프 확정 후 수정.
@@ -9,6 +17,11 @@ Last updated: 2026-07-13
 - **적 상태이상 킷은 정상 — 손 안 댐**: 진단 결과 `weapon.applies` 배선 정상(acid_spitter→acid+corrode / plasma_torch→burn / shock_baton→shock). A-3 "적이 거는 상태이상"은 이미 작동. 진단 우선 원칙으로 멀쩡한 것 안 건드림.
 - **아트 이질 4종 (codex 레인, 미생성)**: purge_drone·shock_trooper·suppression_mech·tracker_spider가 캐논(봇=잉크코믹 러스트/레드 · 휴머노이드=페인터리 렌더)과 이질 — shock_trooper=**픽셀아트+"ARK"텍스트**, purge_drone=광택 3D 토이, mech/spider=플랫 셀 네이비+주황. 각 4종을 가장 가까운 캐논 형제에 매칭하는 재생성 브리프 작성: `docs/plans/2026-07-13-enemy-art-consistency.md` (4종×5포즈=20장, **FLUX 아닌 codex**). NEXT_PLAN `[auto:codex]` 시드.
 - Blockers: 아트 20장은 codex 엔진 몫(claude 직접 생성 시 스타일 불일치 → 미수행, 시드만). Remaining `[manual]`: 오너 배포 후 텔레그래프 체감 · 여러 루프 적 다양성 · `! git push`.
+
+## 2026-07-13 (session #18 cont.) — codebase-design skill · local combat QA pass
+- Status: Done. Skill committed (`a2a2f43`); QA evidence in `outputs/live-qa/manual-20260713-combat/`.
+- **`codebase-design` local skill added**: adapted from mattpocock/skills into a MythOS-aware deep-module vocabulary (module/interface/seam/adapter/depth) grounded in real modules (`RuntimeSessionService`, `MythOSStore`+postgres, `VisualProvider`/`StorageAdapter` ports) + the App.tsx/CombatCinema decomposition track. English body + KO triggers; projected to `.codex`/`.gemini`/`.agents` via `sync-skills.sh` (check-skills green); registered in CLAUDE.md. Only this one skill was adopted (rest overlapped existing harness skills). `references/{deepening,design-it-twice}.md`.
+- **Direct local combat QA** (chrome-devtools + a Playwright autoplayer `scratch/play_combat_stun.py`, `make api` :8000): confirmed A-4 skill glyphs (no letter tiles) + item thumbnails · A-4 backdrop tint · A-0 party-selection respected · P0 telegraph console text · attack resolution · A-0 #1 **stun** (real: `#combat-log` event + roster 기절 badge + EMP cut-in) via `enforcer_standoff`. Updated `docs/test/neo_seoul_live_qa.md` with ✅ auto-verified / 🙋 direct-check markers. (Learned: raw `python -m mythos_api` leaves BGM on — always launch via `make api`; saved to memory.)
 
 ## 2026-07-13 (live session #17, claude lane) — Desktop combat split + skill quick-slots · teaser V2 asset sprint · EN leak fixes
 - Status: Done locally, UNDEPLOYED. `make test` **1067** green, typecheck + frontend lint/build clean, `make validate-content` clean. (`make check` lint blocked only by pre-existing untracked `scratch/`+`scripts/cbt` probe files from the teaser session.)

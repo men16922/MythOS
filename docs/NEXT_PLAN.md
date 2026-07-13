@@ -12,7 +12,7 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00
 
 ### CBT Teaser V2 — production lane (highest immediate promo priority)
 - `[x]` **Teaser ASSEMBLED (session #17)** — `docs/cbt/v2/final/mythos_teaser_v2.mp4` (1:49, 1080p30, H.264+AAC): hook→landmarks→choice/stream→map→companions→combat(new layout)→consequence→Veo IX climax→endings→CTA. 10 narrations + BGM v1, onset-verified. Build system `scripts/cbt/build_teaser.py`.
-- `[ ]` `[manual]` **Owner watch-through + release review** — approve `final/mythos_teaser_v2.mp4` (script/voice/video all regenerable via the build system), then publish. Media stays out of git (YouTube-distributed).
+- `[x]` `[manual]` **PUBLISHED 2026-07-14 (owner)** — owner approved and uploaded `final/mythos_teaser_v2.mp4`. Teaser V2 lane CLOSED; media stays out of git (YouTube-distributed). Revision loop remains available via `scripts/cbt/build_teaser.py` if feedback warrants a V2.1.
 
 ### Combat overhaul arc 2026-07-11..12 — CODE COMPLETE → `COMPLETED_SUMMARY.md` **M59**
 - `[x]` All code tracks done and compressed into M59: P0 telegraph/terrain/10×7 · P1 push/pull + cover (포즈 7종 오너 승인, canon rule 기록) · feedback batches (스킬 리워크 · 반응성 · 2-티어 slices 1-3 + 🎯 · 상태이상 slices 1-3) · visual overhaul V1-V6 + 완성도 배치 · session #15 (중첩/슬램/냉각/BGM env/라인업·전리품). `00057-c2c` now serves both that work and the art asset bundle. Detail: M59 + `bin/docs/archive/progress-2026-07.md`.
@@ -20,7 +20,7 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00
 - `[ ]` `[manual]` **오너 체감 재판정** — `00057-c2c`에서 `docs/test/neo_seoul_live_qa.md` (갱신본: 확인 완료 항목 제거, 슬램/냉각/중첩 신규 판정 추가) 수행.
 - `[x]` `[auto:codex]` **Art batch COMPLETE + DEPLOYED** (`bdaaa3e..c00bb52`, `00057-c2c`) — elemental grenade icons×2, low-key backdrop plates×4, transparent flat status glyphs×7, brighter floor and neon `cover_full`; direct visual and asset-integrity inspection + `make check` 1060 passed. Pending only manual browser-render/feel confirmation.
 - `[x]` **시전 불가 시그니처 FIXED (`d70ff86`, 오너 결정: 풀 4·코스트 유지)** — 한 시스템 침투 + (인바리언트 테스트가 추가 발견한) 수아 기억 공명 둘 다 ◆4 > 풀 3이었음 → ally 빌더 `max_focus` 명시 오버라이드 + 전 동료 castable 인바리언트 테스트로 재발 봉쇄.
-- `[ ]` `[manual]` **밸런스 튜닝** — 상태이상 부여 턴수/빈도 · 중첩 cap(6) · 슬램 수치(1d4) · 스플래시/라이더 수치 · 2-티어 slice 4(턴 순서 스트립) GO/NO-GO.
+- `[/]` `[manual]` **밸런스 튜닝** — 사전 분석 DONE 2026-07-14: `docs/plans/2026-07-14-combat-balance-tuning.md` (현재 값 전수 + 관찰 + 제안). 오너 판정 대기 — 우선순위: ①burn cap 6=기대 15 방무딜(소형 적 전멸/파티 압박) ②기절 순환 보스 락(IX) ③냉각 freeze 1→2 제안 ④슬램/스플래시 현행 유지 권고 ⑤2-티어 slice 4는 ①② 확정 후 판단.
 
 ### Enemy roster overhaul 2026-07-13 (아트 + 등장 + 텔레그래프)
 - `[x]` `[auto:codex]` **적 아트 스타일 일관화 DONE 2026-07-14 (4종×5포즈 = 20장)** — codex 생성 → claude vision 판정(그린스크린 3장 리롤) → 알파 후처리(512×768) → 승격. `tests.test_image_assets` + `make check` 1067 green + 시뮬 렌더 확인(3 인카운터, `outputs/live-qa/manual-20260714-enemy-art/`). 재생성 도구 `outputs/codex-art-0714-enemies/`. UNDEPLOYED — 다음 `make deploy`에 포함.

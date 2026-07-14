@@ -1,0 +1,475 @@
+[
+  {
+    "insertId": "6a55d431000045980ecba157",
+    "jsonPayload": {
+      "latency_ms": 569.872,
+      "level": "info",
+      "logger": "mythos.api",
+      "loop_id": "loop_1f82c07192af4ebc95b26539e9d40316",
+      "message": "token streaming pipeline finished",
+      "status": "succeeded",
+      "ts": "2026-07-14T06:16:17.018379+00:00"
+    },
+    "labels": {
+      "instanceId": "002f8ffd47696ac6bd324c07038658a7f3e67ebebbb5b98d72bc34586ac8672944fa62b389b7e940b37c72d90bb07fe9b29716c717d8cc909134c76bc345a13e1eb51371c6821368cb99bffb9e13cb"
+    },
+    "logName": "projects/project-ec7809f7-0fb5-45d4-b6d/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-07-14T06:16:17.345130699Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "mythos-api",
+        "location": "us-central1",
+        "project_id": "project-ec7809f7-0fb5-45d4-b6d",
+        "revision_name": "mythos-api-00066-blc",
+        "service_name": "mythos-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "timestamp": "2026-07-14T06:16:17.017816Z"
+  },
+  {
+    "insertId": "6a55d431000008ba2d0de9bb",
+    "labels": {
+      "instanceId": "002f8ffd47696ac6bd324c07038658a7f3e67ebebbb5b98d72bc34586ac8672944fa62b389b7e940b37c72d90bb07fe9b29716c717d8cc909134c76bc345a13e1eb51371c6821368cb99bffb9e13cb"
+    },
+    "logName": "projects/project-ec7809f7-0fb5-45d4-b6d/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-07-14T06:16:17.011504670Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "mythos-api",
+        "location": "us-central1",
+        "project_id": "project-ec7809f7-0fb5-45d4-b6d",
+        "revision_name": "mythos-api-00066-blc",
+        "service_name": "mythos-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "discarding closed connection: <psycopg.Connection [BAD] at 0x7f4477c35810>",
+    "timestamp": "2026-07-14T06:16:17.002234Z"
+  },
+  {
+    "insertId": "6a55d4210005e46b407f7fab",
+    "labels": {
+      "instanceId": "002f8ffd47696ac6bd324c07038658a7f3e67ebebbb5b98d72bc34586ac8672944fa62b389b7e940b37c72d90bb07fe9b29716c717d8cc909134c76bc345a13e1eb51371c6821368cb99bffb9e13cb"
+    },
+    "logName": "projects/project-ec7809f7-0fb5-45d4-b6d/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-07-14T06:16:01.394796121Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "mythos-api",
+        "location": "us-central1",
+        "project_id": "project-ec7809f7-0fb5-45d4-b6d",
+        "revision_name": "mythos-api-00066-blc",
+        "service_name": "mythos-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "INFO:     169.254.169.126:17202 - \"GET /resources/neo-seoul/characters/player-noise.png HTTP/1.1\" 304 Not Modified",
+    "timestamp": "2026-07-14T06:16:01.386155Z"
+  },
+  {
+    "httpRequest": {
+      "latency": "0.003899458s",
+      "protocol": "HTTP/1.1",
+      "referer": "https://mythos-api-1004528040791.us-central1.run.app/?invite=mythos-d1b0da3e",
+      "remoteIp": "59.16.166.138",
+      "requestMethod": "GET",
+      "requestSize": "843",
+      "requestUrl": "https://mythos-api-1004528040791.us-central1.run.app/resources/neo-seoul/characters/player-noise.png",
+      "responseSize": "94",
+      "serverIp": "34.143.73.2",
+      "status": 304,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
+    },
+    "insertId": "6a55d4210005e7accfe87dd5",
+    "labels": {
+      "instanceId": "002f8ffd47696ac6bd324c07038658a7f3e67ebebbb5b98d72bc34586ac8672944fa62b389b7e940b37c72d90bb07fe9b29716c717d8cc909134c76bc345a13e1eb51371c6821368cb99bffb9e13cb"
+    },
+    "logName": "projects/project-ec7809f7-0fb5-45d4-b6d/logs/run.googleapis.com%2Frequests",
+    "receiveTimestamp": "2026-07-14T06:16:01.397597501Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "mythos-api",
+        "location": "us-central1",
+        "project_id": "project-ec7809f7-0fb5-45d4-b6d",
+        "revision_name": "mythos-api-00066-blc",
+        "service_name": "mythos-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "spanId": "fc8248e177646dcd",
+    "timestamp": "2026-07-14T06:16:01.380548Z",
+    "trace": "projects/project-ec7809f7-0fb5-45d4-b6d/traces/b0633e90e21775eb4c8388f0aed75ae1",
+    "traceSampled": true
+  },
+  {
+    "insertId": "6a55d413000077e849489e3b",
+    "labels": {
+      "instanceId": "002f8ffd47696ac6bd324c07038658a7f3e67ebebbb5b98d72bc34586ac8672944fa62b389b7e940b37c72d90bb07fe9b29716c717d8cc909134c76bc345a13e1eb51371c6821368cb99bffb9e13cb"
+    },
+    "logName": "projects/project-ec7809f7-0fb5-45d4-b6d/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-07-14T06:15:47.042072031Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "mythos-api",
+        "location": "us-central1",
+        "project_id": "project-ec7809f7-0fb5-45d4-b6d",
+        "revision_name": "mythos-api-00066-blc",
+        "service_name": "mythos-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "INFO:     connection open",
+    "timestamp": "2026-07-14T06:15:47.030696Z"
+  },
+  {
+    "insertId": "6a55d4130000772f23db2dc5",
+    "labels": {
+      "instanceId": "002f8ffd47696ac6bd324c07038658a7f3e67ebebbb5b98d72bc34586ac8672944fa62b389b7e940b37c72d90bb07fe9b29716c717d8cc909134c76bc345a13e1eb51371c6821368cb99bffb9e13cb"
+    },
+    "logName": "projects/project-ec7809f7-0fb5-45d4-b6d/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-07-14T06:15:47.042072031Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "mythos-api",
+        "location": "us-central1",
+        "project_id": "project-ec7809f7-0fb5-45d4-b6d",
+        "revision_name": "mythos-api-00066-blc",
+        "service_name": "mythos-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "INFO:     169.254.169.126:21292 - \"WebSocket /api/v1/loops/stream?invite=mythos-d1b0da3e\" [accepted]",
+    "timestamp": "2026-07-14T06:15:47.030511Z"
+  },
+  {
+    "httpRequest": {
+      "latency": "258.029465s",
+      "protocol": "HTTP/1.1",
+      "remoteIp": "59.16.166.138",
+      "requestMethod": "GET",
+      "requestSize": "1244",
+      "requestUrl": "https://mythos-api-1004528040791.us-central1.run.app/api/v1/loops/stream?invite=mythos-d1b0da3e",
+      "responseSize": "488",
+      "serverIp": "34.143.73.2",
+      "status": 101,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
+    },
+    "insertId": "6a55d5150000d7e2dc3fe939",
+    "labels": {
+      "instanceId": "002f8ffd47696ac6bd324c07038658a7f3e67ebebbb5b98d72bc34586ac8672944fa62b389b7e940b37c72d90bb07fe9b29716c717d8cc909134c76bc345a13e1eb51371c6821368cb99bffb9e13cb"
+    },
+    "logName": "projects/project-ec7809f7-0fb5-45d4-b6d/logs/run.googleapis.com%2Frequests",
+    "receiveTimestamp": "2026-07-14T06:20:05.202309291Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "mythos-api",
+        "location": "us-central1",
+        "project_id": "project-ec7809f7-0fb5-45d4-b6d",
+        "revision_name": "mythos-api-00066-blc",
+        "service_name": "mythos-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "spanId": "f8738ad681305ae8",
+    "timestamp": "2026-07-14T06:15:47.010014Z",
+    "trace": "projects/project-ec7809f7-0fb5-45d4-b6d/traces/986ef7385f44bbbb79754b0751efb347",
+    "traceSampled": true
+  },
+  {
+    "insertId": "6a55d2f80000da3e37949a69",
+    "labels": {
+      "instanceId": "002f8ffd47696ac6bd324c07038658a7f3e67ebebbb5b98d72bc34586ac8672944fa62b389b7e940b37c72d90bb07fe9b29716c717d8cc909134c76bc345a13e1eb51371c6821368cb99bffb9e13cb"
+    },
+    "logName": "projects/project-ec7809f7-0fb5-45d4-b6d/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-07-14T06:11:04.118868294Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "mythos-api",
+        "location": "us-central1",
+        "project_id": "project-ec7809f7-0fb5-45d4-b6d",
+        "revision_name": "mythos-api-00066-blc",
+        "service_name": "mythos-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "INFO:     169.254.169.126:37380 - \"GET /api/v1/memory?player_id=player_0353f4b966705d&lang=en HTTP/1.1\" 200 OK",
+    "timestamp": "2026-07-14T06:11:04.055870Z"
+  },
+  {
+    "httpRequest": {
+      "latency": "1.794465122s",
+      "protocol": "HTTP/1.1",
+      "referer": "https://mythos-api-1004528040791.us-central1.run.app/?invite=mythos-d1b0da3e",
+      "remoteIp": "59.16.166.138",
+      "requestMethod": "GET",
+      "requestSize": "730",
+      "requestUrl": "https://mythos-api-1004528040791.us-central1.run.app/api/v1/memory?player_id=player_0353f4b966705d&lang=en",
+      "responseSize": "7610",
+      "serverIp": "34.143.79.2",
+      "status": 200,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
+    },
+    "insertId": "6a55d2f80000def6d7e551d4",
+    "labels": {
+      "instanceId": "002f8ffd47696ac6bd324c07038658a7f3e67ebebbb5b98d72bc34586ac8672944fa62b389b7e940b37c72d90bb07fe9b29716c717d8cc909134c76bc345a13e1eb51371c6821368cb99bffb9e13cb"
+    },
+    "logName": "projects/project-ec7809f7-0fb5-45d4-b6d/logs/run.googleapis.com%2Frequests",
+    "receiveTimestamp": "2026-07-14T06:11:04.120264493Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "mythos-api",
+        "location": "us-central1",
+        "project_id": "project-ec7809f7-0fb5-45d4-b6d",
+        "revision_name": "mythos-api-00066-blc",
+        "service_name": "mythos-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "spanId": "014293e068ad61a7",
+    "timestamp": "2026-07-14T06:11:02.260348Z",
+    "trace": "projects/project-ec7809f7-0fb5-45d4-b6d/traces/e5f27257180b6ae4ba235364ba736308"
+  },
+  {
+    "insertId": "6a55d2f600011b96deac7fe0",
+    "labels": {
+      "instanceId": "002f8ffd47696ac6bd324c07038658a7f3e67ebebbb5b98d72bc34586ac8672944fa62b389b7e940b37c72d90bb07fe9b29716c717d8cc909134c76bc345a13e1eb51371c6821368cb99bffb9e13cb"
+    },
+    "logName": "projects/project-ec7809f7-0fb5-45d4-b6d/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-07-14T06:11:02.121035549Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "mythos-api",
+        "location": "us-central1",
+        "project_id": "project-ec7809f7-0fb5-45d4-b6d",
+        "revision_name": "mythos-api-00066-blc",
+        "service_name": "mythos-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "INFO:     169.254.169.126:37374 - \"GET /api/v1/runs?player_id=player_0353f4b966705d&lang=en HTTP/1.1\" 200 OK",
+    "timestamp": "2026-07-14T06:11:02.072598Z"
+  },
+  {
+    "insertId": "6a55d2f60000a00ea4e56c1d",
+    "labels": {
+      "instanceId": "002f8ffd47696ac6bd324c07038658a7f3e67ebebbb5b98d72bc34586ac8672944fa62b389b7e940b37c72d90bb07fe9b29716c717d8cc909134c76bc345a13e1eb51371c6821368cb99bffb9e13cb"
+    },
+    "logName": "projects/project-ec7809f7-0fb5-45d4-b6d/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-07-14T06:11:02.121035549Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "mythos-api",
+        "location": "us-central1",
+        "project_id": "project-ec7809f7-0fb5-45d4-b6d",
+        "revision_name": "mythos-api-00066-blc",
+        "service_name": "mythos-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "INFO:     169.254.169.126:37364 - \"GET /api/v1/memory?player_id=player_0353f4b966705d&lang=en HTTP/1.1\" 200 OK",
+    "timestamp": "2026-07-14T06:11:02.040974Z"
+  },
+  {
+    "httpRequest": {
+      "latency": "0.216820290s",
+      "protocol": "HTTP/1.1",
+      "referer": "https://mythos-api-1004528040791.us-central1.run.app/?invite=mythos-d1b0da3e",
+      "remoteIp": "59.16.166.138",
+      "requestMethod": "GET",
+      "requestSize": "728",
+      "requestUrl": "https://mythos-api-1004528040791.us-central1.run.app/api/v1/runs?player_id=player_0353f4b966705d&lang=en",
+      "responseSize": "4005",
+      "serverIp": "34.143.79.2",
+      "status": 200,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
+    },
+    "insertId": "6a55d2f600012494ebb8e141",
+    "labels": {
+      "instanceId": "002f8ffd47696ac6bd324c07038658a7f3e67ebebbb5b98d72bc34586ac8672944fa62b389b7e940b37c72d90bb07fe9b29716c717d8cc909134c76bc345a13e1eb51371c6821368cb99bffb9e13cb"
+    },
+    "logName": "projects/project-ec7809f7-0fb5-45d4-b6d/logs/run.googleapis.com%2Frequests",
+    "receiveTimestamp": "2026-07-14T06:11:02.121990980Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "mythos-api",
+        "location": "us-central1",
+        "project_id": "project-ec7809f7-0fb5-45d4-b6d",
+        "revision_name": "mythos-api-00066-blc",
+        "service_name": "mythos-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "spanId": "da0b38f9473727d5",
+    "timestamp": "2026-07-14T06:11:01.856173Z",
+    "trace": "projects/project-ec7809f7-0fb5-45d4-b6d/traces/1c60724527adcd8bba235364ba7364c7"
+  },
+  {
+    "insertId": "6a55d2f5000a29797d9301a8",
+    "labels": {
+      "instanceId": "002f8ffd47696ac6bd324c07038658a7f3e67ebebbb5b98d72bc34586ac8672944fa62b389b7e940b37c72d90bb07fe9b29716c717d8cc909134c76bc345a13e1eb51371c6821368cb99bffb9e13cb"
+    },
+    "logName": "projects/project-ec7809f7-0fb5-45d4-b6d/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-07-14T06:11:01.788142719Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "mythos-api",
+        "location": "us-central1",
+        "project_id": "project-ec7809f7-0fb5-45d4-b6d",
+        "revision_name": "mythos-api-00066-blc",
+        "service_name": "mythos-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "INFO:     169.254.169.126:37370 - \"GET /api/v1/save-slots?player_id=player_0353f4b966705d&lang=en&limit=60 HTTP/1.1\" 200 OK",
+    "timestamp": "2026-07-14T06:11:01.665977Z"
+  },
+  {
+    "httpRequest": {
+      "latency": "0.584295879s",
+      "protocol": "HTTP/1.1",
+      "referer": "https://mythos-api-1004528040791.us-central1.run.app/?invite=mythos-d1b0da3e",
+      "remoteIp": "59.16.166.138",
+      "requestMethod": "GET",
+      "requestSize": "743",
+      "requestUrl": "https://mythos-api-1004528040791.us-central1.run.app/api/v1/save-slots?player_id=player_0353f4b966705d&lang=en&limit=60",
+      "responseSize": "26021",
+      "serverIp": "34.143.79.2",
+      "status": 200,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
+    },
+    "insertId": "6a55d2f5000a2d44ab6de04e",
+    "labels": {
+      "instanceId": "002f8ffd47696ac6bd324c07038658a7f3e67ebebbb5b98d72bc34586ac8672944fa62b389b7e940b37c72d90bb07fe9b29716c717d8cc909134c76bc345a13e1eb51371c6821368cb99bffb9e13cb"
+    },
+    "logName": "projects/project-ec7809f7-0fb5-45d4-b6d/logs/run.googleapis.com%2Frequests",
+    "receiveTimestamp": "2026-07-14T06:11:01.787788765Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "mythos-api",
+        "location": "us-central1",
+        "project_id": "project-ec7809f7-0fb5-45d4-b6d",
+        "revision_name": "mythos-api-00066-blc",
+        "service_name": "mythos-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "spanId": "14accd5472919f8b",
+    "timestamp": "2026-07-14T06:11:01.080618Z",
+    "trace": "projects/project-ec7809f7-0fb5-45d4-b6d/traces/5909bb007c5b9220ba235364ba73616e"
+  },
+  {
+    "insertId": "6a55d2f4000d90b021f9fcbf",
+    "labels": {
+      "instanceId": "002f8ffd47696ac6bd324c07038658a7f3e67ebebbb5b98d72bc34586ac8672944fa62b389b7e940b37c72d90bb07fe9b29716c717d8cc909134c76bc345a13e1eb51371c6821368cb99bffb9e13cb"
+    },
+    "logName": "projects/project-ec7809f7-0fb5-45d4-b6d/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-07-14T06:11:01.124240024Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "mythos-api",
+        "location": "us-central1",
+        "project_id": "project-ec7809f7-0fb5-45d4-b6d",
+        "revision_name": "mythos-api-00066-blc",
+        "service_name": "mythos-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "INFO:     169.254.169.126:37346 - \"POST /api/v1/echoes/inscribe HTTP/1.1\" 200 OK",
+    "timestamp": "2026-07-14T06:11:00.889008Z"
+  },
+  {
+    "httpRequest": {
+      "latency": "1.648327320s",
+      "protocol": "HTTP/1.1",
+      "referer": "https://mythos-api-1004528040791.us-central1.run.app/?invite=mythos-d1b0da3e",
+      "remoteIp": "59.16.166.138",
+      "requestMethod": "GET",
+      "requestSize": "728",
+      "requestUrl": "https://mythos-api-1004528040791.us-central1.run.app/api/v1/memory?player_id=player_0353f4b966705d&lang=en",
+      "responseSize": "7610",
+      "serverIp": "34.143.79.2",
+      "status": 200,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
+    },
+    "insertId": "6a55d2f60000a4988dceea0b",
+    "labels": {
+      "instanceId": "002f8ffd47696ac6bd324c07038658a7f3e67ebebbb5b98d72bc34586ac8672944fa62b389b7e940b37c72d90bb07fe9b29716c717d8cc909134c76bc345a13e1eb51371c6821368cb99bffb9e13cb"
+    },
+    "logName": "projects/project-ec7809f7-0fb5-45d4-b6d/logs/run.googleapis.com%2Frequests",
+    "receiveTimestamp": "2026-07-14T06:11:02.121990980Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "mythos-api",
+        "location": "us-central1",
+        "project_id": "project-ec7809f7-0fb5-45d4-b6d",
+        "revision_name": "mythos-api-00066-blc",
+        "service_name": "mythos-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "spanId": "f7c6721311b7b84a",
+    "timestamp": "2026-07-14T06:11:00.390431Z",
+    "trace": "projects/project-ec7809f7-0fb5-45d4-b6d/traces/213bb9b39de1ce16ba235364ba736c94"
+  },
+  {
+    "insertId": "6a55d2f40003145b732e84cd",
+    "labels": {
+      "instanceId": "002f8ffd47696ac6bd324c07038658a7f3e67ebebbb5b98d72bc34586ac8672944fa62b389b7e940b37c72d90bb07fe9b29716c717d8cc909134c76bc345a13e1eb51371c6821368cb99bffb9e13cb"
+    },
+    "logName": "projects/project-ec7809f7-0fb5-45d4-b6d/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2026-07-14T06:11:00.455528024Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "mythos-api",
+        "location": "us-central1",
+        "project_id": "project-ec7809f7-0fb5-45d4-b6d",
+        "revision_name": "mythos-api-00066-blc",
+        "service_name": "mythos-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "INFO:     169.254.169.126:37360 - \"GET /api/v1/runs?player_id=player_0353f4b966705d&lang=en HTTP/1.1\" 200 OK",
+    "timestamp": "2026-07-14T06:11:00.201819Z"
+  },
+  {
+    "httpRequest": {
+      "latency": "0.190941912s",
+      "protocol": "HTTP/1.1",
+      "referer": "https://mythos-api-1004528040791.us-central1.run.app/?invite=mythos-d1b0da3e",
+      "remoteIp": "59.16.166.138",
+      "requestMethod": "GET",
+      "requestSize": "728",
+      "requestUrl": "https://mythos-api-1004528040791.us-central1.run.app/api/v1/runs?player_id=player_0353f4b966705d&lang=en",
+      "responseSize": "4005",
+      "serverIp": "34.143.79.2",
+      "status": 200,
+      "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
+    },
+    "insertId": "6a55d2f4000318412b0e538a",
+    "labels": {
+      "instanceId": "002f8ffd47696ac6bd324c07038658a7f3e67ebebbb5b98d72bc34586ac8672944fa62b389b7e940b37c72d90bb07fe9b29716c717d8cc909134c76bc345a13e1eb51371c6821368cb99bffb9e13cb"
+    },
+    "logName": "projects/project-ec7809f7-0fb5-45d4-b6d/logs/run.googleapis.com%2Frequests",
+    "receiveTimestamp": "2026-07-14T06:11:00.459064084Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "mythos-api",
+        "location": "us-central1",
+        "project_id": "project-ec7809f7-0fb5-45d4-b6d",
+        "revision_name": "mythos-api-00066-blc",
+        "service_name": "mythos-api"
+      },
+      "type": "cloud_run_revision"
+    },
+    "severity": "INFO",
+    "spanId": "2d51d0fd42b8e301",
+    "timestamp": "2026-07-14T06:11:00.009704Z",
+    "trace": "projects/project-ec7809f7-0fb5-45d4-b6d/traces/1ebf2c15d6163cccba235364ba7363c6"
+  }
+]

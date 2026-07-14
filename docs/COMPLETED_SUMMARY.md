@@ -173,6 +173,14 @@
 - **Session #15 batch**: status stacking (duration accumulates, cap 6, stun included) + multi-status coherence (upkeep-DoT death fix) · collision slam (edge/full-cover/unit = flat 1d4 + burst; full cover blocks forced movement only) · cryo grenade 1d4 · `DEFAULT_BGM_ON` env-driven BGM default · victory-lineup slice(0,3) + loot-pill localization (codex lane).
 - Verification: `make check` 980→**1058** green across the arc; per-batch non-fallback sim evidence (`outputs/vis-diag/`, `outputs/qa-slam/`); owner live verdicts on 00053/00055. Detail: `bin/docs/archive/progress-2026-07.md`.
 
+## M60 — Enemy roster + balance verdicts + two-tier complete + portrait dock (2026-07-13..14)
+
+- **Enemy roster overhaul (owner QA PASS on 00061)**: board attack-telegraph occlusion fixed (post-blip overlay pass — marker/connector were hidden under the target sprite), spawn variety (enforcer_standoff un-orphaned + per-loop no-repeat `_route_encounters_seen`), and **enemy art 20/20 regenerated via codex** to canon styles (shock-trooper→painterly enforcer sibling; purge/mech/spider→inked-comic rust/red). Pipeline: text-only canon prompts → collect from `~/.codex/generated_images` → claude vision judge (3 green-screen re-rolls) → alpha strip (codex paints a checkerboard, not real alpha; flood-fill + two-tone pocket detection) → 512×768 promote. `docs/plans/2026-07-13-enemy-art-consistency.md`.
+- **Balance verdicts (owner GO on the analysis, feel-passed)**: hard-CC cap split (burn/stun 3 vs utility 6 — capped burn was expected-15 armor-bypass), boss consecutive-stun resistance (`stun_guard`, floor-halving so 1-turn rotation-lock dies; deliberate deviation from the plan's "min 1" noted), cryo freeze 1→2. `docs/plans/2026-07-14-combat-balance-tuning.md` (판정 기록 section).
+- **Two-tier combat control COMPLETE (slices 1-4)**: slice 4 turn-order strip (`TurnOrderStrip.tsx` — server-sent `turn_order` rotated active-first, faction rings, 💫/⚔/👣 badges, LC-hidden) closed the 2026-07-12 track.
+- **Portrait action dock (owner pain "스킬/공격하려면 자꾸 스크롤")**: fixed bottom console sheet (38dvh, safe-area) + LC5-style chrome diet in portrait combat; layering fixes (legend popup z50 < dock z52 < boon z55 < modals 60 — the popup was swallowing boon-card and dock taps at phone widths). Emulator-verified @390×844; real-device pass open.
+- **Also**: CBT Teaser V2 published (YouTube, owner). Deploys `00060-ldj`→`00063-hpz`; `make check` 1067→**1082** green; locks `BalanceTuning20260714Test`/`test_turn_order_strip`/`test_portrait_combat_dock`.
+
 ## Archive Reference
 
 M0-M10의 상세 체크리스트, work log, verification log는 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`에 보존한다.

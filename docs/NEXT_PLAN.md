@@ -14,21 +14,10 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00
 - `[x]` **Teaser ASSEMBLED (session #17)** — `docs/cbt/v2/final/mythos_teaser_v2.mp4` (1:49, 1080p30, H.264+AAC): hook→landmarks→choice/stream→map→companions→combat(new layout)→consequence→Veo IX climax→endings→CTA. 10 narrations + BGM v1, onset-verified. Build system `scripts/cbt/build_teaser.py`.
 - `[x]` `[manual]` **PUBLISHED 2026-07-14 (owner)** — owner approved and uploaded `final/mythos_teaser_v2.mp4`. Teaser V2 lane CLOSED; media stays out of git (YouTube-distributed). Revision loop remains available via `scripts/cbt/build_teaser.py` if feedback warrants a V2.1.
 
-### Combat overhaul arc 2026-07-11..12 — CODE COMPLETE → `COMPLETED_SUMMARY.md` **M59**
-- `[x]` All code tracks done and compressed into M59: P0 telegraph/terrain/10×7 · P1 push/pull + cover (포즈 7종 오너 승인, canon rule 기록) · feedback batches (스킬 리워크 · 반응성 · 2-티어 slices 1-3 + 🎯 · 상태이상 slices 1-3) · visual overhaul V1-V6 + 완성도 배치 · session #15 (중첩/슬램/냉각/BGM env/라인업·전리품). `00057-c2c` now serves both that work and the art asset bundle. Detail: M59 + `bin/docs/archive/progress-2026-07.md`.
+### Combat overhaul arc + enemy roster + balance — COMPLETE → `COMPLETED_SUMMARY.md` **M59-M60**
+- `[x]` 2026-07-11..14 arc fully closed and compressed: M59 (telegraph→control→status→visuals) + M60 (enemy roster overhaul: 텔레그래프 오클루전·스폰 다양성·적 아트 20/20 codex 재생성 · balance verdicts: cap 분리/보스 기절 저항/냉각 2 · 2-티어 slice 1-4 완결 · 포트레이트 액션 독). **Owner QA PASS on `00061-dzr` 2026-07-14.** Detail: M59-M60 + dated plans.
 - **Open items only below.**
-- `[ ]` `[manual]` **오너 체감 재판정** — `00057-c2c`에서 `docs/test/neo_seoul_live_qa.md` (갱신본: 확인 완료 항목 제거, 슬램/냉각/중첩 신규 판정 추가) 수행.
-- `[x]` `[auto:codex]` **Art batch COMPLETE + DEPLOYED** (`bdaaa3e..c00bb52`, `00057-c2c`) — elemental grenade icons×2, low-key backdrop plates×4, transparent flat status glyphs×7, brighter floor and neon `cover_full`; direct visual and asset-integrity inspection + `make check` 1060 passed. Pending only manual browser-render/feel confirmation.
-- `[x]` **시전 불가 시그니처 FIXED (`d70ff86`, 오너 결정: 풀 4·코스트 유지)** — 한 시스템 침투 + (인바리언트 테스트가 추가 발견한) 수아 기억 공명 둘 다 ◆4 > 풀 3이었음 → ally 빌더 `max_focus` 명시 오버라이드 + 전 동료 castable 인바리언트 테스트로 재발 봉쇄.
-- `[x]` **밸런스 튜닝 — 판정+구현+체감 PASS 2026-07-14** (`docs/plans/2026-07-14-combat-balance-tuning.md`): ①cap 분리(burn·기절 3/유틸 6) ②보스 연속 기절 내림 반감 ③냉각 freeze 2 — `00061-dzr` 라이브, 오너 QA 패스.
-- `[/]` **2-티어 slice 4 턴 순서 스트립 — 구현 DONE 2026-07-14 (오너 GO)**: `TurnOrderStrip.tsx` 보드 상단 이니셔티브 예보(액티브 선두 회전·진영 링·💫/⚔/👣 배지·LC 가드). 소스락 `tests/test_turn_order_strip.py` + 시뮬 렌더 PASS(`outputs/live-qa/manual-20260714-turn-strip/`). Remaining `[ ]` `[manual]`: 배포 후 오너 체감(가독성·모바일 포트레이트 밀도).
-
-### Enemy roster overhaul 2026-07-13 (아트 + 등장 + 텔레그래프)
-- `[x]` `[auto:codex]` **적 아트 스타일 일관화 DONE 2026-07-14 (4종×5포즈 = 20장)** — codex 생성 → claude vision 판정(그린스크린 3장 리롤) → 알파 후처리(512×768) → 승격. `tests.test_image_assets` + `make check` 1067 green + 시뮬 렌더 확인(3 인카운터, `outputs/live-qa/manual-20260714-enemy-art/`). 재생성 도구 `outputs/codex-art-0714-enemies/`. UNDEPLOYED — 다음 `make deploy`에 포함.
-- `[x]` **텔레그래프 보드 미표시 FIXED** — 공격 `⚔피해`+연결선이 대상(=적이 선 타일)의 스프라이트에 가려짐(blip 이전 렌더) → blip 이후 오버레이 패스로 유닛 위 재렌더(`combatCanvas.ts`). 시뮬 렌더 검증(집행 유닛→Tester `⚔1d6` 유닛 위 표시). 오너 "그런거 안뜨는데" 확인 → 실제 버그였음.
-- `[x]` **적 등장 다양성 FIXED** — `enforcer_standoff`가 어느 `combat_encounters` 풀에도 없어 route 미배치(고아) → `combat` 풀 추가; `node_encounter_id` 루프 내 no-repeat 선택(`route_runtime.py` exclude + `session.py` `_route_encounters_seen`)으로 중진압 전차 등 set-piece가 한 루프의 전투들에서 실제로 뜨게. `make check` 통과.
-- 참고: 적 상태이상 킷은 **이미 정상**(acid_spitter→acid+corrode / plasma_torch→burn / shock_baton→shock, `weapon.applies`) — 진단 결과 갭 아님, 변경 없음.
-- `[ ]` `[manual]` 오너 확인 (`00060-ldj`에서): 텔레그래프 실제 체감 · 여러 루프에서 적 종류 다양성 · (다음 배포 후) 신규 적 아트 4종의 로스터 일관성.
+- `[ ]` `[manual]` **실기기 포트레이트 전투 패스 (`00063-hpz`)** — 액션 독 도달성 · 38dvh 높이감 · URL바/노치 · 턴 순서 스트립 가독성. (에뮬레이터 PASS, 실기기 미검증 — 기존 standing gap.)
 
 ### Narrative clarity audit follow-ups (2026-07-10, 4-lane audit)
 - `[ ]` `[manual]` **Track 4 balance playtest** — play-style consequence system now ON (`advance_route` axis tally → intent flag @ threshold 2); play two loops in different styles, confirm story/results diverge + balance OK, tune threshold/mapping if needed. **B4 stat-tag** decision rides along (`(민첩)` reads as a check but has 0 effect — make real or restyle).

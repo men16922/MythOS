@@ -4,7 +4,7 @@ Last updated: 2026-07-14
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Deploy the turn-order strip + owner strip feel check**. 00061 QA PASSED (art/telegraph/variety/balance). Slice 4 turn-order strip is implemented + sim-verified but UNDEPLOYED — owner `make deploy`, then feel check strip readability (esp. mobile portrait density; LC hides it by design). `! git push` pending (origin behind).
+> ▶ NEXT SESSION: **Key-beat hybrid A/B is the next dev lane** (owner said sign-off judgment pending — confirm, then wire `MODEL=gemini-2.5-flash` + `GEMINI_MODEL_KEYBEAT=gemini-3.5-flash` + comparison protocol; halves loop cost ~$1.0→$0.5; NEXT_PLAN "Key-beat hybrid enablement"). Everything else is live on `00062-qjt` (00061 QA PASSED + turn-order strip) and origin is in sync (`d33892e`). Owner residue: strip readability feel check · Track 4 two-style playtest · real-device mobile pass.
 
 ## Snapshot
 

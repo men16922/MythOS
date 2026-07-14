@@ -8,7 +8,7 @@ This file keeps only upcoming (open) work as a rolling plan. Completed tracks li
 
 ## Priority 0 — Human live sign-off on the deployed bundle
 
-Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00061-dzr` (2026-07-14, owner-run; 100% traffic; `IMAGEN_MODEL` preserved; smoke health/root/new-sprite 200 + byte-exact)** — now live: enemy-art regen 20/20 (canon-consistent 4 sets) + balance verdicts (burn/stun cap 3, boss stun resistance, cryo freeze 2) on top of 00060's telegraph fix/spawn variety/desktop split/quick-slots. Next required action: owner feel pass — telegraph 체감, enemy variety across loops, 신규 적 아트 roster consistency, burn 압박/IX 기절 저항/냉각 체감, desktop split/quick-slots.
+Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00062-qjt` (2026-07-14, owner-run; 100% traffic; smoke health 200 + strip verified in served bundle)** — adds the turn-order strip on top of 00061 (enemy art 20/20 + balance verdicts + telegraph/spawn/split/quick-slots — all owner QA PASSED on 00061). Origin in sync (`d33892e` pushed). Next required action: owner strip feel check (가독성 · mobile portrait density; LC hides it by design).
 
 ### CBT Teaser V2 — production lane (highest immediate promo priority)
 - `[x]` **Teaser ASSEMBLED (session #17)** — `docs/cbt/v2/final/mythos_teaser_v2.mp4` (1:49, 1080p30, H.264+AAC): hook→landmarks→choice/stream→map→companions→combat(new layout)→consequence→Veo IX climax→endings→CTA. 10 narrations + BGM v1, onset-verified. Build system `scripts/cbt/build_teaser.py`.

@@ -1,6 +1,6 @@
 # Project MythOS Status
 
-Last updated: 2026-07-14 (session #19)
+Last updated: 2026-07-14 (session #20)
 
 ## Current Baseline
 
@@ -20,6 +20,7 @@ Major implemented axes:
 
 Latest verified baseline:
 
+- **2026-07-14 session #20 (`make check` green, `make test` 1088)** — Key-beat hybrid A/B PREPARED (owner GO): streaming-finished log + timed log now carry `model_override`/`key_beat` and `JsonFormatter` whitelists them (they would previously have been dropped from prod JSON logs); streaming-path routing source-locked (`test_keybeat_model.py` 18 tests). Protocol + owner enable/rollback commands: `docs/plans/2026-07-14-keybeat-hybrid-ab.md`. Remaining is owner-side: env flip → routing verify → A/B verdict.
 - **2026-07-14 session #19 (DEPLOYED `mythos-api-00060-ldj` + enemy art 20/20, `make check` 1067 green)** — Owner `make deploy` put session #17-#18 live (telegraph fix, spawn variety, desktop split, quick-slots; 100% traffic, `IMAGEN_MODEL` preserved). Then the `[auto:codex]` enemy-art item was consumed: 20 sprites (purge_drone/shock_trooper/suppression_mech/tracker_spider × 5 poses) regenerated via codex to canon styles, claude-vision judged vs references (3 green-screen rejects re-rolled), alpha-stripped (codex outputs painted checkerboard, not real alpha) to 512×768, promoted to `resources/neo-seoul/enemies/combat/`. `tests.test_image_assets` green; sim render verified across shock_trooper_patrol/mech_siege/tracker_ambush (evidence `outputs/live-qa/manual-20260714-enemy-art/`). Art is committed AFTER the 00060 build → needs the next deploy.
 - **2026-07-14 session #18 (`make check` 1067 green, code now in 00060)** — Enemy roster overhaul, scoped via 3 parallel investigation lanes. **Board attack-telegraph occlusion FIXED** (the `⚔{damage}` marker + connector were drawn pre-blip and hidden under the target's own sprite — owner "그런거 안뜨는데" was a real bug; a post-blip overlay pass in `combatCanvas.ts` redraws them on top; sim-render verified). **Enemy spawn variety FIXED** (`enforcer_standoff` was orphaned from every `combat_encounters` pool → added; `node_encounter_id` now prefers unseen encounters per loop via `_route_encounters_seen`, so `mech_siege`/set-pieces surface). Enemy status kits (`weapon.applies`: acid+corrode/burn/shock) verified intact — not touched. Also this session: added `codebase-design` local skill (deep-module vocabulary, synced to 4 engines); ran a direct-browser + autoplayer combat QA pass (A-4 icons/backdrop, A-0 party/stun/cut-in, P0 telegraph) with evidence in `outputs/live-qa/manual-20260713-combat/`. Art: 4 style-alien enemy sprite sets briefed for codex regen (`docs/plans/2026-07-13-enemy-art-consistency.md`).
 - **2026-07-13 session #17 (deployed `mythos-api-00059-8j4`, `make test` 1067 green)** — desktop combat split (page aside folds; 2-col board+console grid @ pointer:fine ≥1101px) + 6-slot skill quick-slots (bench picker, localStorage persist) + EN Korean-leak fixes (serving-boundary glossary + scanner ratchets). CBT Teaser V2 fully assembled (`docs/cbt/v2/final/mythos_teaser_v2.mp4`, 1:49 1080p; Veo pipeline proven).
@@ -62,7 +63,7 @@ Direction remains global-first EN/KO closed beta: Gemini/Vertex is the product p
 ## Open Risks
 
 - **Full 07-14 bundle DEPLOYED (`00061-dzr`) + owner QA PASS 2026-07-14**: enemy art, telegraph, enemy variety, balance feel (burn/stun-resist/cryo), desktop split/quick-slots all owner-passed live.
-- **Turn-order strip (`00062`) + portrait action dock (`00063-hpz`, dock rules verified in served CSS) DEPLOYED — owner real-device portrait pass pending**: dock reachability · 38dvh height feel · URL-bar/notch behavior · strip readability. Emulator-verified only (the standing real-device gap). `! git push` pending (origin 2 behind).
+- **Turn-order strip (`00062`) + portrait action dock (`00063-hpz`, dock rules verified in served CSS) DEPLOYED — owner real-device portrait pass pending**: dock reachability · 38dvh height feel · URL-bar/notch behavior · strip readability. Emulator-verified only (the standing real-device gap). (git push: origin in sync as of session #20.)
 - **Live-QA telegraph line was mis-marked ✅ then corrected**: the board telegraph render was a real bug (now `[~]` 🙋 in `docs/test/neo_seoul_live_qa.md`, fixed locally, pending deploy). Lesson: console-text presence ≠ board render; verify the actual surface.
 - **CBT round 2 opens 2026-07-12**: `00057-c2c`/`00059-8j4` serve the full combat overhaul plus reviewed Codex art at 100% traffic. Owner feel pass on the refreshed QA guide and promo publication remain; the rendered-art verdict is deliberately manual.
 - **Teaser V2 PUBLISHED 2026-07-14 (owner)** — approved and uploaded to YouTube; lane closed (rebuild via `scripts/cbt/build_teaser.py` if needed).

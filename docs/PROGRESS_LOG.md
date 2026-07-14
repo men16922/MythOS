@@ -2,6 +2,13 @@
 
 Last updated: 2026-07-14
 
+## 2026-07-14 (live session #20, claude lane) — key-beat hybrid A/B 준비 완료 (오너 GO)
+- Status: Done (agent side). `make check` green, `make test` **1088** OK. 오너 "수행" 지시로 sign-off 게이트 해소 판단.
+- **라우팅 관측성 갭 2개 발견+수정**: ①프로덕션 경로인 스트리밍 종료 로그(`narrative streaming finished`)에 라우팅 모델이 안 남았음 → `model_override`(""=base)+`key_beat` 추가 (`director.py`; timed 로그에도 `key_beat` 추가) ②`JsonFormatter`가 필드 화이트리스트라 두 필드가 프로덕션 JSON에서 **탈락**했을 것 → 화이트리스트 등재 (`observability.py`). 소스락: 스트리밍 경로 키비트 라우팅 5 테스트(기존엔 generate_*만 커버) + 포매터 방출 1 테스트.
+- **A/B 프로토콜 문서**: `docs/plans/2026-07-14-keybeat-hybrid-ab.md` — enable/rollback gcloud 커맨드(오너 `!` 실행; `make deploy`가 env-preserving이라 flip이 유지됨), 로그 쿼리 기반 라우팅 검증(비트 클래스별 1회 이상), matched-loop 비교 축 표, keep/rollback 기준 + 오너 체감 체크리스트(KO).
+- 코드 배선 자체는 2026-07-04에 완성돼 있었음(재작업 없음) — 이번 세션은 검증 가능성(observability)+실행 절차만 채움.
+- Blockers: none. Remaining `[manual]`: 오너 env flip → 라우팅 확인 → A/B 판정 기록. (참고: 문서에 남아있던 `! git push` 잔여는 stale — origin 동기 확인.)
+
 ## 2026-07-14 (live session #19, claude lane) — 적 아트 일관화 20장 codex 재생성 완료 + DEPLOYED 00060/00061
 - Status: Done. `make check` **1078** green (final). **DEPLOYED `mythos-api-00061-dzr`** (owner-run, 100% traffic): enemy art 20/20 + balance verdicts now live — smoke health/root 200 + new-sprite byte-exact (293374). **Owner live QA feel pass: PASS** (art consistency · telegraph · enemy variety · balance feel · desktop split/quick-slots).
 - **2-티어 slice 4 턴 순서 스트립 구현 (오너 GO, QA 패스 직후)**: `TurnOrderStrip.tsx` — radar `turn_order`(서버가 이미 전송)를 액티브 선두로 회전, 스프라이트 썸 칩 + 진영 링 + 💫 기절/⚔주사위/👣 인텐트 배지. 수동 렌즈(신규 인터랙션 0 = 캐주얼 티어 무부담); LC(landscape-coarse) 전투에선 CSS 가드로 숨겨 한 화면 바 보존. i18n KO/EN, 소스락 `tests/test_turn_order_strip.py`(6), 시뮬 렌더 PASS(3칩·썸네일·액티브 글로우, 콘솔 에러 0, `outputs/live-qa/manual-20260714-turn-strip/`). DEPLOYED `00062-qjt`.

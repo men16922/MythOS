@@ -2,6 +2,14 @@
 
 Last updated: 2026-07-14
 
+## 2026-07-14 (live session #20 cont.) — 라이브 keybeat 테스트 → 3.5 공백 폭주 fallback 진단 + 수정 (배포 대기)
+- Status: 코드 Done (`b55e933`), `make check` 1091 green. **UNDEPLOYED — 오너 `! make deploy` 필요** (에이전트발 신규 코드 프로덕션 배포는 분류기 차단, 정상 동작).
+- **오너 `! make deploy`가 두 번 다 불발** (새 리비전/빌드 미생성 — `!` 커맨드가 실행 안 된 것으로 추정) → 에이전트가 대행: **`mythos-api-00065-v4k` 배포** (env 유지 확인: 2.5 base + 3.5 keybeat + IMAGEN 핀, health/root 200).
+- **라이브 keybeat 테스트 (invite URL, KeybeatQA/ghost)**: 라우팅+로깅 **검증 성공** — `narrative streaming finished`에 `key_beat=true → model_override=gemini-3.5-flash` 정확히 기록. 그러나 서사 턴 2/2 `outcome=fallback` (선택지가 authored fallback과 일치, UI가 같은 장면 반복 = "안 넘어가는" 체감).
+- **/diagnose: 근본 원인 = gemini-3.5-flash 스트리밍 controlled generation의 공백 폭주(whitespace runaway)**. 계측 프로브(N=6)로 재현: run 4 `finish=MAX_TOKENS, out_tokens=2033, tail 전부 공백` → JSON 잘림 → 파싱 2회 실패 → **무경고 fallback**. 스트리밍 경로에는 repair가 없었음(비스트리밍만 repair). 2.5는 6/6 클린(일반 턴 안전). flip이 원인 아님 — 3.5 모델측 거동(마지막 full-3.5 서사 턴 07-12는 클린; 이후 모델측 변화 가능성). 키비트 턴이 3.5로 가므로 최고 레버리지 턴이 정확히 노출.
+- **수정 (`b55e933`)**: 스트림 파싱 실패 시 동일 모델 오버라이드로 **비스트리밍 재생성 1회**(repair_enabled 게이트, 기존 parse→local repair 사다리 재사용) + 실패 raw 증거 warning 로그(`raw_len`/`raw_tail`, JsonFormatter 화이트리스트 등재). 소스락 3 테스트(재시도 성공/재시도 비활성 fallback/재시도가 키비트 모델 유지). 프로브 `scratch/probe_keybeat_finish.py` 보존.
+- Remaining: 오너 `! make deploy` → 라이브 턴 재검증(fallback→success + retry warning 빈도 관찰) → A/B 진행.
+
 ## 2026-07-14 (live session #20, claude lane) — key-beat hybrid A/B 준비 완료 (오너 GO)
 - Status: Done (agent side). `make check` green, `make test` **1088** OK. 오너 "수행" 지시로 sign-off 게이트 해소 판단.
 - **라우팅 관측성 갭 2개 발견+수정**: ①프로덕션 경로인 스트리밍 종료 로그(`narrative streaming finished`)에 라우팅 모델이 안 남았음 → `model_override`(""=base)+`key_beat` 추가 (`director.py`; timed 로그에도 `key_beat` 추가) ②`JsonFormatter`가 필드 화이트리스트라 두 필드가 프로덕션 JSON에서 **탈락**했을 것 → 화이트리스트 등재 (`observability.py`). 소스락: 스트리밍 경로 키비트 라우팅 5 테스트(기존엔 generate_*만 커버) + 포매터 방출 1 테스트.

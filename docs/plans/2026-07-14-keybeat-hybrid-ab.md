@@ -48,6 +48,16 @@ a new revision without a rebuild, and later `make deploy`s keep it.
 
 Smoke after the new revision: `/api/v1/health` 200 + one real narrative turn streams.
 
+## Live finding 2026-07-14 (during first routing test)
+
+Routing itself VERIFIED on `00065-v4k` (`key_beat=true → model_override=gemini-3.5-flash` in logs),
+but both key-beat turns fell back: **gemini-3.5-flash streaming controlled generation intermittently
+degenerates into a whitespace run → MAX_TOKENS truncation → parse fail → silent fallback** (reproduced
+1/6 locally via `scratch/probe_keybeat_finish.py`; 2.5 was 6/6 clean, so normal turns are safe).
+Fixed in `b55e933`: one non-streaming retry on the same model + parse-fail warning with raw evidence.
+Watch the `streamed payload unparseable` warning frequency during the A/B — if the runaway rate is
+high, key-beat latency degrades (stream + retry) and that belongs in the verdict.
+
 ## Step 2 — routing verification (agent-runnable read-only, or owner)
 
 After a few played turns, confirm the split actually routes:

@@ -179,3 +179,60 @@ class PostgresStoreTest(unittest.TestCase):
                 )
 
         self.assertIsNone(self.store.get_player(self.player.player_id))
+
+
+@unittest.skipUnless(os.getenv("MYTHOS_RUN_DB_TESTS") == "1", "DB tests are opt-in")
+class PostgresConnectionReapTest(unittest.TestCase):
+    """Neon idle-reap resilience (live incident 2026-07-14: a choose turn was
+    swallowed). Neon kills ALL idle backends at once (AdminShutdown), so both
+    the held connection AND every pooled spare die together — the pool checkout
+    check + the transaction() pre-ping must recover without surfacing an error.
+    Simulated with pg_terminate_backend."""
+
+    def setUp(self) -> None:
+        self.store = PostgresMythOSStore()
+
+    def tearDown(self) -> None:
+        self.store.close()
+
+    def _kill_all_backends(self) -> None:
+        import psycopg
+
+        url = self.store.database_url
+        with psycopg.connect(str(url), autocommit=True) as admin:
+            admin.execute(
+                "SELECT pg_terminate_backend(pid) FROM pg_stat_activity "
+                "WHERE datname = current_database() AND pid <> pg_backend_pid()"
+            )
+
+    def test_single_statement_survives_full_reap(self) -> None:
+        self.store._fetchone("SELECT 1", ())
+        self._kill_all_backends()
+        row = self.store._fetchone("SELECT 1 AS ok", ())
+        assert row is not None
+        self.assertEqual(row["ok"], 1)
+
+    def test_transaction_unit_survives_full_reap(self) -> None:
+        # The live incident shape: store holds a reaped connection, next player
+        # action opens the per-transition transaction unit.
+        self.store._fetchone("SELECT 1", ())
+        self._kill_all_backends()
+        with self.store.transaction():
+            row = self.store._fetchone("SELECT 1 AS ok", ())
+        assert row is not None
+        self.assertEqual(row["ok"], 1)
+
+    def test_fresh_store_survives_dead_pooled_connections(self) -> None:
+        # Conn dies while idle IN the pool; a new request-scoped store checks
+        # it out (the 06:16:17 prod log shape).
+        self.store._fetchone("SELECT 1", ())
+        self.store.close()
+        self._kill_all_backends()
+        fresh = PostgresMythOSStore()
+        try:
+            with fresh.transaction():
+                row = fresh._fetchone("SELECT 1 AS ok", ())
+            assert row is not None
+            self.assertEqual(row["ok"], 1)
+        finally:
+            fresh.close()

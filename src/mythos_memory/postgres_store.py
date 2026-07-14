@@ -49,6 +49,12 @@ class PostgresMythOSStore(MythOSStore):
                 min_size=1,
                 max_size=10,
                 open=True,
+                # Neon reaps ALL idle backends at once (AdminShutdown), leaving
+                # multiple dead connections in the pool — a single reconnect
+                # retry then just draws the next corpse (measured live 2026-07-14,
+                # swallowed a choose turn). Verify liveness on checkout so
+                # getconn never hands out a dead connection.
+                check=ConnectionPool.check_connection,
             )
         self._connection: psycopg.Connection[dict[str, Any]] | None = None
         self._transaction_depth = 0
@@ -608,6 +614,14 @@ class PostgresMythOSStore(MythOSStore):
 
     @contextmanager
     def transaction(self) -> Iterator[None]:
+        if self._transaction_depth == 0:
+            # The transition unit deliberately never retries mid-flight (state
+            # died with the socket), so verify the HELD connection before BEGIN:
+            # a store that lives across an idle gap (the WS session service) can
+            # be holding a connection Neon already reaped. _fetchone routes
+            # through _run_query, whose reset+retry (with the pool's checkout
+            # check) lands us on a live connection before any work starts.
+            self._fetchone("SELECT 1", ())
         conn = self._connect()
         try:
             self._transaction_depth += 1

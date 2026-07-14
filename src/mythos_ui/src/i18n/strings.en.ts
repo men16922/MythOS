@@ -197,6 +197,9 @@ export const en: Record<StringKey, string> = {
   "story.board.zoomIn": "Zoom in",
   "story.board.zoomOutAria": "Zoom out tactical board",
   "story.board.zoomInAria": "Zoom in tactical board",
+  // Story panel — turn-order strip (two-tier slice 4)
+  "story.board.turnOrder": "Turn order",
+  "story.board.turnOrderStunned": "Stunned — turn skipped",
   // Story panel — tactical legend
   "story.legend.title": "Board Legend",
   "story.legend.close": "Close legend ✕",

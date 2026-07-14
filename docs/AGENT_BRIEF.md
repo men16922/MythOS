@@ -4,7 +4,7 @@ Last updated: 2026-07-14
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Owner live feel pass on `00061-dzr`** (everything is deployed): telegraph 체감 · enemy variety across loops · 신규 적 아트 4종 roster consistency · balance feel (purge burn 압박 / IX 기절 저항 "기절 저항!" / 냉각 freeze 2) · desktop split/quick-slots — then the deferred **2-tier slice 4 (턴 순서 스트립) GO/NO-GO** (`docs/plans/2026-07-14-combat-balance-tuning.md` ⑥). `! git push` pending (origin behind).
+> ▶ NEXT SESSION: **Deploy the turn-order strip + owner strip feel check**. 00061 QA PASSED (art/telegraph/variety/balance). Slice 4 turn-order strip is implemented + sim-verified but UNDEPLOYED — owner `make deploy`, then feel check strip readability (esp. mobile portrait density; LC hides it by design). `! git push` pending (origin behind).
 
 ## Snapshot
 

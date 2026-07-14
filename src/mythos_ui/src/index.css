@@ -6364,3 +6364,83 @@ main#play.fx-glitch {
     aspect-ratio: 16 / 9;
   }
 }
+
+/* --- Two-tier slice 4 (owner GO 2026-07-14): turn-order strip.
+   Passive initiative forecast above the tactical board: acting unit first,
+   sprite thumbs with faction rings, 💫 stun + ⚔/👣 intent badges. --- */
+.turn-order-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  min-height: 36px;
+}
+.turn-order-label {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.6;
+  white-space: nowrap;
+}
+.turn-order-chips {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  padding-bottom: 2px;
+}
+.turn-chip {
+  position: relative;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 34px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.35);
+  overflow: visible;
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.turn-chip-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom;
+}
+.turn-chip-glyph {
+  font-size: 13px;
+  line-height: 32px;
+  opacity: 0.8;
+}
+.turn-chip.faction-player { border-color: var(--accent, #29d398); }
+.turn-chip.faction-ally { border-color: rgba(41, 211, 152, 0.55); }
+.turn-chip.faction-enemy { border-color: rgba(255, 84, 130, 0.75); }
+.turn-chip-active {
+  box-shadow: 0 0 6px rgba(41, 211, 152, 0.6);
+  border-width: 2px;
+}
+.turn-chip-stunned .turn-chip-img { filter: grayscale(0.8) brightness(0.7); }
+.turn-chip-badge {
+  position: absolute;
+  top: -7px;
+  right: -4px;
+  font-size: 10px;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+  pointer-events: none;
+}
+.turn-chip-intent {
+  font-size: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 4px;
+  padding: 1px 2px;
+  white-space: nowrap;
+}
+/* LC guard: landscape-coarse combat must keep the board+actions on one screen
+   (LC5/LC6 bar) — the strip is a desktop/portrait affordance there. */
+@media (orientation: landscape) and (pointer: coarse) {
+  body.combat-active .turn-order-strip {
+    display: none;
+  }
+}

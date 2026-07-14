@@ -34,8 +34,11 @@ missing is DEPTH on the tactical side:
 3. **Enemy intent hover-line** — hovering/tapping an enemy highlights ITS telegraph (target
    line + damage) even out of my-turn context, and the inspector adds "next action: ⚔ 2d6 →
    세린". Data already in radar intents; purely a lens.
-4. **(defer) full forecast timeline** (XCOM2-style turn order strip with intents) — only if
-   1-3 don't satisfy; adds UI surface cost.
+4. **full forecast timeline — SHIPPED 2026-07-14 (owner GO after the 00061 QA pass)**:
+   `TurnOrderStrip.tsx` above the board — initiative order (radar `turn_order`, already
+   server-sent) rotated so the acting unit leads, sprite-thumb chips with faction rings,
+   💫 stun + ⚔dice/👣 intent badges. Passive lens, no new interactions; hidden in
+   landscape-coarse combat (LC one-screen bar preserved). Locks `tests/test_turn_order_strip.py`.
 
 Slices 1-3 are independently shippable; each ends with `make check` green + AGY post-commit
 screen (browser-observable). Owner feel-verdict decides whether tier depth is "enough" before

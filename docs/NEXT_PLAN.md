@@ -20,7 +20,8 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00
 - `[ ]` `[manual]` **오너 체감 재판정** — `00057-c2c`에서 `docs/test/neo_seoul_live_qa.md` (갱신본: 확인 완료 항목 제거, 슬램/냉각/중첩 신규 판정 추가) 수행.
 - `[x]` `[auto:codex]` **Art batch COMPLETE + DEPLOYED** (`bdaaa3e..c00bb52`, `00057-c2c`) — elemental grenade icons×2, low-key backdrop plates×4, transparent flat status glyphs×7, brighter floor and neon `cover_full`; direct visual and asset-integrity inspection + `make check` 1060 passed. Pending only manual browser-render/feel confirmation.
 - `[x]` **시전 불가 시그니처 FIXED (`d70ff86`, 오너 결정: 풀 4·코스트 유지)** — 한 시스템 침투 + (인바리언트 테스트가 추가 발견한) 수아 기억 공명 둘 다 ◆4 > 풀 3이었음 → ally 빌더 `max_focus` 명시 오버라이드 + 전 동료 castable 인바리언트 테스트로 재발 봉쇄.
-- `[/]` **밸런스 튜닝 — 판정+구현 DONE 2026-07-14** (`docs/plans/2026-07-14-combat-balance-tuning.md` 판정 기록): ①B안 cap 분리(burn·기절 3/유틸 6) ②보스 연속 기절 내림 반감(`stun_guard`, 1턴 기절은 저항) ③냉각 freeze 2 — `make check` 1072 green + `BalanceTuning20260714Test` 소스락. Remaining `[ ]` `[manual]`: 체감 확인(purge_incineration burn 압박 · ix_confrontation 기절 순환 시도 · 냉각 실사용) 후 ⑥2-티어 slice 4 GO/NO-GO.
+- `[x]` **밸런스 튜닝 — 판정+구현+체감 PASS 2026-07-14** (`docs/plans/2026-07-14-combat-balance-tuning.md`): ①cap 분리(burn·기절 3/유틸 6) ②보스 연속 기절 내림 반감 ③냉각 freeze 2 — `00061-dzr` 라이브, 오너 QA 패스.
+- `[/]` **2-티어 slice 4 턴 순서 스트립 — 구현 DONE 2026-07-14 (오너 GO)**: `TurnOrderStrip.tsx` 보드 상단 이니셔티브 예보(액티브 선두 회전·진영 링·💫/⚔/👣 배지·LC 가드). 소스락 `tests/test_turn_order_strip.py` + 시뮬 렌더 PASS(`outputs/live-qa/manual-20260714-turn-strip/`). Remaining `[ ]` `[manual]`: 배포 후 오너 체감(가독성·모바일 포트레이트 밀도).
 
 ### Enemy roster overhaul 2026-07-13 (아트 + 등장 + 텔레그래프)
 - `[x]` `[auto:codex]` **적 아트 스타일 일관화 DONE 2026-07-14 (4종×5포즈 = 20장)** — codex 생성 → claude vision 판정(그린스크린 3장 리롤) → 알파 후처리(512×768) → 승격. `tests.test_image_assets` + `make check` 1067 green + 시뮬 렌더 확인(3 인카운터, `outputs/live-qa/manual-20260714-enemy-art/`). 재생성 도구 `outputs/codex-art-0714-enemies/`. UNDEPLOYED — 다음 `make deploy`에 포함.

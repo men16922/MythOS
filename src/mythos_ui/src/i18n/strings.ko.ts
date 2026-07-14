@@ -197,6 +197,9 @@ export const ko = {
   "story.board.zoomIn": "확대",
   "story.board.zoomOutAria": "전술 보드 축소",
   "story.board.zoomInAria": "전술 보드 확대",
+  // Story panel — turn-order strip (two-tier slice 4)
+  "story.board.turnOrder": "턴 순서",
+  "story.board.turnOrderStunned": "기절 — 턴 건너뜀",
   // Story panel — tactical legend
   "story.legend.title": "보드 범례",
   "story.legend.close": "범례 닫기 ✕",

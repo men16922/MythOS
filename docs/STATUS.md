@@ -61,7 +61,8 @@ Direction remains global-first EN/KO closed beta: Gemini/Vertex is the product p
 
 ## Open Risks
 
-- **Full 07-14 bundle DEPLOYED (`00061-dzr`), feel-unverified**: enemy art 20/20 (byte-exact serving verified) + balance verdicts (burn/stun cap 3 · boss stun resistance · cryo freeze 2) + the #17-#18 telegraph/spawn/split/quick-slots. Owner feel verdict pending: telegraph 체감 · 적 다양성 · 신규 아트 로스터 일관성 · burn 압박/IX 기절 저항 체감 → then 2-tier slice 4 GO/NO-GO.
+- **Full 07-14 bundle DEPLOYED (`00061-dzr`) + owner QA PASS 2026-07-14**: enemy art, telegraph, enemy variety, balance feel (burn/stun-resist/cryo), desktop split/quick-slots all owner-passed live.
+- **Turn-order strip (slice 4, owner GO) implemented but UNDEPLOYED**: sim-verified; next deploy ships it, then owner readability check (mobile portrait density; LC hides it by design). `! git push` pending (origin behind).
 - **Live-QA telegraph line was mis-marked ✅ then corrected**: the board telegraph render was a real bug (now `[~]` 🙋 in `docs/test/neo_seoul_live_qa.md`, fixed locally, pending deploy). Lesson: console-text presence ≠ board render; verify the actual surface.
 - **CBT round 2 opens 2026-07-12**: `00057-c2c`/`00059-8j4` serve the full combat overhaul plus reviewed Codex art at 100% traffic. Owner feel pass on the refreshed QA guide and promo publication remain; the rendered-art verdict is deliberately manual.
 - **Teaser V2 PUBLISHED 2026-07-14 (owner)** — approved and uploaded to YouTube; lane closed (rebuild via `scripts/cbt/build_teaser.py` if needed).

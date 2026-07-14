@@ -7,6 +7,7 @@ import { ChoicePanel } from "./ChoicePanel";
 import { CombatControls } from "./CombatControls";
 import { CombatLog } from "./CombatLog";
 import { CombatRoster } from "./CombatRoster";
+import { TurnOrderStrip } from "./TurnOrderStrip";
 import { OperationMapPanel, StatusPanel } from "./GameAside";
 import { RotateOverlay } from "./RotateOverlay";
 import { SaveHistoryPanel } from "./SaveHistoryPanel";
@@ -1078,6 +1079,10 @@ export function StoryPanel({
                 key={snapshot.combat.encounter?.id || "encounter"}
                 combat={snapshot.combat}
               />
+              {/* Two-tier slice 4 (owner GO 2026-07-14): initiative forecast strip. */}
+              {snapshot.combat.radar && (
+                <TurnOrderStrip radar={snapshot.combat.radar} scenarioId={scenarioId} />
+              )}
               <div
                 className={`tactical-board-canvas-wrapper${
                   tutorialHighlight === "move" ? " tut-glow" : ""

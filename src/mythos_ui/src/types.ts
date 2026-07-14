@@ -192,6 +192,8 @@ export interface CombatRadar {
   };
   blips: CombatBlip[];
   current?: string;
+  /** Two-tier slice 4: full initiative order (unit ids) — already server-sent. */
+  turn_order?: string[];
   enemy_intents?: CombatIntent[];
   round?: number;
   // E2 boss telegraphs: marked danger tiles (the strike lands next boss turn).

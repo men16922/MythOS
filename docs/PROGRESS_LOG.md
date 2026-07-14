@@ -2,8 +2,8 @@
 
 Last updated: 2026-07-14
 
-## 2026-07-14 (live session #19, claude lane) — 적 아트 일관화 20장 codex 재생성 완료 + DEPLOYED 00060
-- Status: Done. `make check` **1067** green; `tests.test_image_assets` green. Art committed locally, UNDEPLOYED (next `make deploy` picks it up).
+## 2026-07-14 (live session #19, claude lane) — 적 아트 일관화 20장 codex 재생성 완료 + DEPLOYED 00060/00061
+- Status: Done. `make check` **1072** green (final). **DEPLOYED `mythos-api-00061-dzr`** (owner-run, 100% traffic): enemy art 20/20 + balance verdicts now live — smoke health/root 200 + new-sprite byte-exact (293374).
 - **DEPLOYED `mythos-api-00060-ldj`** (owner-run `make deploy`, 100% traffic, `IMAGEN_MODEL` preserved): session #17-#18 code now LIVE — board attack-telegraph fix, enemy spawn variety, desktop combat split, quick-slots. NOTE: deployed BEFORE the art regen below, so the new enemy art is not in 00060.
 - **Enemy art 20/20 regenerated via codex** (`[auto:codex]` consumed, orchestrated per `docs/plans/2026-07-13-enemy-art-consistency.md`): shock-trooper → painterly black armor + red visor (enforcer sibling); purge-drone/suppression-mech/tracker-spider → inked-comic rust/gunmetal + red optics (maintenance/sentinel siblings). Pipeline: per-pose codex `exec` prompts (text-only canon description; codex has no vision) → collect from `~/.codex/generated_images` → claude vision judge vs canon refs (3 green-screen rejects re-rolled → 20/20 PASS) → `postprocess.py` alpha strip (codex outputs RGB with PAINTED checkerboard/green bg — border-connected flood fill + two-tone checker detection for enclosed pockets, fit 512×768 bottom-center) → promote.
 - **Sim render verified** (gameplay-qa, non-fallback, evidence `outputs/live-qa/manual-20260714-enemy-art/`): shock_trooper_patrol / mech_siege / tracker_ambush — all 4 enemies spawn + render transparent at board scale, roster thumbnails updated, telegraph `×1d6` chip renders above units (fce92b1 confirmed locally). Only console noise = pre-existing `-cover.png` 404 → guard fallback (by design, unrelated).

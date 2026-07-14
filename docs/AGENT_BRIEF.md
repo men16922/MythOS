@@ -4,7 +4,7 @@ Last updated: 2026-07-14
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Deploy the enemy-art bundle + owner live pass**. Enemy art 20/20 is regenerated to canon (2026-07-14, `docs/plans/2026-07-13-enemy-art-consistency.md` DONE) but landed AFTER the `00060-ldj` build — owner `make deploy` (art) then verify live: telegraph 체감, enemy variety across loops, 신규 적 아트 4종 roster consistency, desktop split/quick-slots feel. `! git push` also pending (origin behind).
+> ▶ NEXT SESSION: **Owner live feel pass on `00061-dzr`** (everything is deployed): telegraph 체감 · enemy variety across loops · 신규 적 아트 4종 roster consistency · balance feel (purge burn 압박 / IX 기절 저항 "기절 저항!" / 냉각 freeze 2) · desktop split/quick-slots — then the deferred **2-tier slice 4 (턴 순서 스트립) GO/NO-GO** (`docs/plans/2026-07-14-combat-balance-tuning.md` ⑥). `! git push` pending (origin behind).
 
 ## Snapshot
 
@@ -28,10 +28,9 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **Enemy roster overhaul (`[manual]` residue)**: telegraph fix + spawn variety LIVE in `00060-ldj`; enemy art 20/20 regenerated to canon (codex, 2026-07-14) but UNDEPLOYED — next `make deploy` ships it. Remaining: owner live feel pass. Plan: `docs/plans/2026-07-13-enemy-art-consistency.md` (DONE).
+1. **Combat live sign-off on `00061-dzr`** (the whole 07-14 bundle is live: enemy art 20/20 + balance verdicts + telegraph/spawn/split/quick-slots): owner feel-pass is the next product gate, then 2-tier slice 4 GO/NO-GO. Plans: `docs/plans/2026-07-13-enemy-art-consistency.md`, `docs/plans/2026-07-14-combat-balance-tuning.md` (both DONE, feel residue only).
 2. **CBT teaser V2: PUBLISHED 2026-07-14** — owner approved + uploaded (YouTube). Lane closed; `scripts/cbt/build_teaser.py` regenerates if a V2.1 is ever needed.
-3. **Combat live sign-off**: `00060-ldj` serves the full combat overhaul + session #17-#18 (desktop split, quick-slots, EN fixes, telegraph/spawn). Owner feel-pass A-1/A-3/A-4 + telegraph/spawn live-verify is the next product gate.
-4. **Maintenance/hold**: WS4 content pipeline plan-only; `glass-library` held until Neo-Seoul satisfaction (`docs/COMPLETED_SUMMARY.md` M35-M40).
+3. **Maintenance/hold**: WS4 content pipeline plan-only; `glass-library` held until Neo-Seoul satisfaction (`docs/COMPLETED_SUMMARY.md` M35-M40).
 
 ## Read Order
 

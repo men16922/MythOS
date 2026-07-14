@@ -15,9 +15,9 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00
 - `[x]` `[manual]` **PUBLISHED 2026-07-14 (owner)** — owner approved and uploaded `final/mythos_teaser_v2.mp4`. Teaser V2 lane CLOSED; media stays out of git (YouTube-distributed). Revision loop remains available via `scripts/cbt/build_teaser.py` if feedback warrants a V2.1.
 
 ### Combat overhaul arc + enemy roster + balance — COMPLETE → `COMPLETED_SUMMARY.md` **M59-M60**
-- `[x]` 2026-07-11..14 arc fully closed and compressed: M59 (telegraph→control→status→visuals) + M60 (enemy roster overhaul: 텔레그래프 오클루전·스폰 다양성·적 아트 20/20 codex 재생성 · balance verdicts: cap 분리/보스 기절 저항/냉각 2 · 2-티어 slice 1-4 완결 · 포트레이트 액션 독). **Owner QA PASS on `00061-dzr` 2026-07-14.** Detail: M59-M60 + dated plans.
+- `[x]` 2026-07-11..14 arc fully closed and compressed: M59 (telegraph→control→status→visuals) + M60 (enemy roster overhaul: 텔레그래프 오클루전·스폰 다양성·적 아트 20/20 codex 재생성 · balance verdicts: cap 분리/보스 기절 저항/냉각 2 · 2-티어 slice 1-4 완결 · 포트레이트 액션 독). **Owner QA PASS on `00061-dzr` 2026-07-14 + combat-feel residue (status stacking · backdrop tints · overall verdict) owner-PASSED via QA guide §4, no art-regen escalation.** Detail: M59-M60 + dated plans.
 - **Open items only below.**
-- `[ ]` `[manual]` **실기기 포트레이트 전투 패스 (`00063-hpz`)** — 액션 독 도달성 · 38dvh 높이감 · URL바/노치 · 턴 순서 스트립 가독성. (에뮬레이터 PASS, 실기기 미검증 — 기존 standing gap.)
+- `[ ]` `[manual]` **실기기 포트레이트 전투 패스** — QA guide §2: 액션 독 도달성 · 38dvh 높이감 · URL바/노치 · 턴 순서 스트립 가독성. (에뮬레이터 PASS, 실기기 미검증 — 기존 standing gap.)
 
 ### Narrative clarity audit follow-ups (2026-07-10, 4-lane audit)
 - `[ ]` `[manual]` **Track 4 balance playtest** — play-style consequence system now ON (`advance_route` axis tally → intent flag @ threshold 2); play two loops in different styles, confirm story/results diverge + balance OK, tune threshold/mapping if needed. **B4 stat-tag** decision rides along (`(민첩)` reads as a check but has 0 effect — make real or restyle).

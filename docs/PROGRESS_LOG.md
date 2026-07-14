@@ -7,7 +7,8 @@ Last updated: 2026-07-14
 - **/diagnose (keybeat 테스트 중 실측된 결함)**: Neon `AdminShutdown`이 **모든 유휴 백엔드를 동시 reap** → ①풀에 `check=` 부재로 `getconn()`이 죽은 커넥션을 그대로 배급 — 기존 08f764f 1회 재시도가 **다음 시체를 또 뽑아** 단문 경로도 실패(계측 확인) ②per-transition `transaction()` 유닛은 BEGIN이 `_run_query` 바깥 + 유닛 재시도 caller 부재 → choose가 StoreError→WS error 이벤트로 조용히 삼켜지고 UI는 pending 고착. 재현 프로브 `scratch/probe_neon_drop.py`: 수정 전 3/3 FAILED → 수정 후 **3/3 RECOVERED** (동일 측정 before/after).
 - **수정 (`456b522`, 스토어 심 2점)**: `ConnectionPool(check=check_connection)` (체크아웃 시 생존 검증 — 시체 배급 원천 차단) + `transaction()` 진입 프리핑 (depth 0에서 `SELECT 1`을 `_run_query` 경유 — WS 수명 store가 유휴 후 들고 있는 죽은 커넥션을 BEGIN 전에 교체). 회귀 잠금 `PostgresConnectionReapTest` 3 테스트(DB-gated).
 - 잔여 관찰: H3(클라이언트가 error 이벤트 후 choice pending 방치 — 재시도 UX 없음)는 서버 수정으로 발생 빈도가 급감하므로 보류; 재발 시 프론트 티켓.
-- Remaining `[manual]`: 오너 A/B 체감 판정 · `! git push`(터미널 직접).
+- **Live-QA guide rewritten to owner-only checks** (`60229e4`, 191→100 lines): auto-verified/owner-passed items removed; §1 A/B verdict (5-line KO checklist) + §2 real-device portrait dock/turn-strip lead; stale 한-uncastable warning dropped; idle-error note flipped to "must NOT appear now" (doubles as Neon-fix live check). **Owner then passed §4 combat-feel residue** (`[x]` no `[!]`: status-stacking balance · backdrop tint variety · combat overall verdict — no art-regen escalation requested).
+- Remaining `[manual]`: 오너 QA guide §1 A/B 판정 + §2 실기기 패스 · `git push`(터미널 직접, ahead 10+).
 
 ## 2026-07-14 (live session #20 cont.) — 라이브 keybeat 테스트 → 3.5 공백 폭주 fallback 진단 + 수정 (배포 대기)
 - Status: 코드 Done (`b55e933`), `make check` 1091 green. **UNDEPLOYED — 오너 `! make deploy` 필요** (에이전트발 신규 코드 프로덕션 배포는 분류기 차단, 정상 동작).

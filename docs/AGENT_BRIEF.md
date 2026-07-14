@@ -4,7 +4,7 @@ Last updated: 2026-07-14
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Key-beat hybrid LIVE + ROUTING VERIFIED (`00066-blc`, 2026-07-14)** — 2.5 base + 3.5 key-beat serving; live play confirmed 4/4 key-beat + 1/1 normal turns success. En route: found+fixed a real 3.5 streaming whitespace-runaway → silent-fallback bug (`b55e933`, non-streaming retry). Next: owner matched-loop A/B feel verdict → `DECISIONS.md` keep/rollback (`docs/plans/2026-07-14-keybeat-hybrid-ab.md` Step 3-4). Owner residue: A/B verdict · real-device portrait combat pass (dock/38dvh/URL-bar/notch + strip 가독성) · Track 4 two-style playtest · `! git push`.
+> ▶ NEXT SESSION: **Owner QA is the gate; agent lanes are clear.** Live = `00067-x4d`: key-beat hybrid VERIFIED (2.5 base + 3.5 key-beat, 4/4+1/1 success) + 3.5 whitespace-runaway retry fix + Neon idle-reap store fix (pool check + tx pre-ping). Owner checklist = trimmed `docs/test/neo_seoul_live_qa.md`: **§1 A/B verdict** (→ `DECISIONS.md` keep/rollback, plan Step 3-4) · **§2 real-device portrait dock/strip** · §3 two-style playtest. §4 combat-feel residue owner-PASSED (no art escalation). `git push` from a real terminal (ahead 10+; `!` prefix doesn't execute this session).
 
 ## Snapshot
 

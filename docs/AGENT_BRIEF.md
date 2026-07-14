@@ -4,7 +4,7 @@ Last updated: 2026-07-14
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Key-beat hybrid A/B is the next dev lane** (owner said sign-off judgment pending — confirm, then wire `MODEL=gemini-2.5-flash` + `GEMINI_MODEL_KEYBEAT=gemini-3.5-flash` + comparison protocol; halves loop cost ~$1.0→$0.5; NEXT_PLAN "Key-beat hybrid enablement"). Everything else is live on `00062-qjt` (00061 QA PASSED + turn-order strip) and origin is in sync (`d33892e`). Owner residue: strip readability feel check · Track 4 two-style playtest · real-device mobile pass.
+> ▶ NEXT SESSION: **Key-beat hybrid A/B is the next dev lane** (confirm sign-off judgment with owner, then wire `MODEL=gemini-2.5-flash` + `GEMINI_MODEL_KEYBEAT=gemini-3.5-flash` + comparison protocol; halves loop cost ~$1.0→$0.5). Live rev `00063-hpz` = 00061 QA-passed bundle + turn-order strip + PORTRAIT ACTION DOCK (owner pain fix, emulator-verified). Owner residue: real-device portrait combat pass (dock/38dvh/URL-bar/notch + strip 가독성) · Track 4 two-style playtest · `! git push` (origin 2 behind).
 
 ## Snapshot
 

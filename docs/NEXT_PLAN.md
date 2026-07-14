@@ -8,7 +8,7 @@ This file keeps only upcoming (open) work as a rolling plan. Completed tracks li
 
 ## Priority 0 — Human live sign-off on the deployed bundle
 
-Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00062-qjt` (2026-07-14, owner-run; 100% traffic; smoke health 200 + strip verified in served bundle)** — adds the turn-order strip on top of 00061 (enemy art 20/20 + balance verdicts + telegraph/spawn/split/quick-slots — all owner QA PASSED on 00061). Origin in sync (`d33892e` pushed). Next required action: owner strip feel check (가독성 · mobile portrait density; LC hides it by design).
+Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00063-hpz` (2026-07-14, owner-run; 100% traffic; smoke health 200 + dock rules verified in served CSS)** — adds the PORTRAIT ACTION DOCK (fixed bottom console sheet + chrome diet; owner pain "스킬/공격하려면 자꾸 스크롤") and the legend/boon layering fixes, on top of 00062's turn-order strip and 00061's owner-QA-passed bundle. Next required action: owner REAL-DEVICE portrait combat pass — dock reachability/height(38dvh)/URL-bar 100dvh/notch + strip 가독성.
 
 ### CBT Teaser V2 — production lane (highest immediate promo priority)
 - `[x]` **Teaser ASSEMBLED (session #17)** — `docs/cbt/v2/final/mythos_teaser_v2.mp4` (1:49, 1080p30, H.264+AAC): hook→landmarks→choice/stream→map→companions→combat(new layout)→consequence→Veo IX climax→endings→CTA. 10 narrations + BGM v1, onset-verified. Build system `scripts/cbt/build_teaser.py`.

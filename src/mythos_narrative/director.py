@@ -598,6 +598,28 @@ class NarrativeDirector:
                     yield NarrativeStreamEvent(kind="text", text=text)
             raw_payload = "".join(raw_parts)
             scene, payload, outcome = self._scene_from_raw_or_fallback(context, raw_payload)
+            if outcome == OUTCOME_FALLBACK and self._repair_enabled(context):
+                # Streamed controlled generation can degenerate into a whitespace
+                # run that hits max_output_tokens (observed on gemini-3.5-flash:
+                # finish=MAX_TOKENS, tail all spaces), so a parse failure here is
+                # usually transient. One non-streaming retry recovers the turn
+                # instead of silently serving the canned fallback scene on the
+                # highest-leverage (key-beat) turns.
+                self.logger.warning(
+                    "streamed payload unparseable, retrying non-streaming",
+                    extra={
+                        "player_id": context.player.player_id,
+                        "loop_id": context.loop.loop_id,
+                        "raw_len": len(raw_payload),
+                        "raw_tail": raw_payload[-120:],
+                    },
+                )
+                retry_raw = (
+                    cast(Any, self.provider).generate(messages, model=model)
+                    if model
+                    else self.provider.generate(messages)
+                )
+                scene, payload, outcome = self._scene_from_raw_or_fallback(context, retry_raw)
         except Exception:
             self.logger.warning("legacy streaming failed, using fallback", exc_info=True)
             scene, payload = self.fallback_scene(context)

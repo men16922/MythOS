@@ -18,6 +18,23 @@ class FakeStreamingProvider:
         yield from self.chunks
 
 
+class DegeneratingStreamProvider:
+    """Stream returns a truncated whitespace-runaway payload (the observed
+    gemini-3.5-flash MAX_TOKENS degeneration); generate returns a valid one."""
+
+    def __init__(self, valid_raw: str) -> None:
+        self.valid_raw = valid_raw
+        self.generate_calls: list[str | None] = []
+
+    def generate(self, messages: list[dict[str, str]], *, model: str | None = None) -> str:
+        self.generate_calls.append(model)
+        return self.valid_raw
+
+    def stream(self, messages: list[dict[str, str]], *, model: str | None = None):
+        yield '{"scene":{"title":"Broken","narration":"잘린 문장'
+        yield " " * 400
+
+
 class NarrativeStreamingTest(unittest.TestCase):
     def setUp(self) -> None:
         now = datetime(2026, 5, 30, tzinfo=UTC)
@@ -78,6 +95,42 @@ class NarrativeStreamingTest(unittest.TestCase):
         self.assertIsNotNone(events[-1].scene)
         assert events[-1].scene is not None
         self.assertEqual(events[-1].scene.title, "Streamed")
+
+    def _valid_raw(self) -> str:
+        return json.dumps(
+            {
+                "scene": {
+                    "title": "Recovered",
+                    "location": "data-layer-01",
+                    "narration": "재생성된 장면.",
+                    "choices": [{"choice_id": "choice_1", "label": "Enter", "intent": "explore"}],
+                    "visual_brief": "A recovered gate.",
+                },
+                "world_delta": {"stability": 0, "tension": 1, "flags": []},
+            },
+            ensure_ascii=False,
+        )
+
+    def test_unparseable_stream_retries_non_streaming_once(self) -> None:
+        # Whitespace-runaway truncation (gemini-3.5-flash MAX_TOKENS) must not
+        # silently serve the fallback scene: one non-streaming retry recovers.
+        provider = DegeneratingStreamProvider(self._valid_raw())
+
+        events = list(NarrativeDirector(provider).stream_first_scene(self.context))
+
+        self.assertEqual(provider.generate_calls, [None])
+        self.assertEqual(events[-1].kind, "final")
+        assert events[-1].scene is not None
+        self.assertEqual(events[-1].scene.title, "Recovered")
+
+    def test_unparseable_stream_retry_disabled_falls_back(self) -> None:
+        provider = DegeneratingStreamProvider(self._valid_raw())
+
+        director = NarrativeDirector(provider, repair_enabled=False)
+        events = list(director.stream_first_scene(self.context))
+
+        self.assertEqual(provider.generate_calls, [])
+        self.assertEqual(events[-1].kind, "fallback")
 
     def test_plain_text_story_extractor_strips_headers(self) -> None:
         from mythos_narrative.streaming import PlainTextStoryExtractor

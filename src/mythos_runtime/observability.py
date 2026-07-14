@@ -47,6 +47,9 @@ class JsonFormatter(logging.Formatter):
             # the hybrid A/B verdict is read off these in Cloud Run logs.
             "model_override",
             "key_beat",
+            # Streamed-payload parse-failure evidence (whitespace-runaway diagnosis).
+            "raw_len",
+            "raw_tail",
             "latency_ms",
             "provider_ms",
             "postprocess_ms",

@@ -70,6 +70,16 @@ class _RecordingStreamProvider(_RecordingProvider):
         yield _VALID_PAYLOAD
 
 
+class _DegeneratingStreamProvider(_RecordingProvider):
+    """Stream degenerates (whitespace runaway) so the director's non-streaming
+    retry fires; generate stays valid. models_seen records both calls."""
+
+    def stream(self, messages, *, model=None):  # noqa: ANN001, ANN201
+        self.models_seen.append(model)
+        yield '{"scene":{"title":"Broken'
+        yield " " * 400
+
+
 def _player() -> PlayerProfile:
     return PlayerProfile("p1", "T", _NOW, _NOW, {"archetype": "ghost"})
 
@@ -182,6 +192,14 @@ class StreamingKeybeatOverrideTest(unittest.TestCase):
         self.assertEqual(len(finished), 1)
         self.assertEqual(getattr(finished[0], "model_override", None), "gemini-3.5-flash")
         self.assertIs(getattr(finished[0], "key_beat", None), True)
+
+    def test_stream_parse_retry_keeps_keybeat_override(self) -> None:
+        # The non-streaming retry after a degenerate stream must stay on the
+        # key-beat model, not silently drop to base.
+        provider = _DegeneratingStreamProvider()
+        director = NarrativeDirector(provider=provider)
+        self._drain(director.stream_next_scene(_context(key_beat=True)))
+        self.assertEqual(provider.models_seen, ["gemini-3.5-flash", "gemini-3.5-flash"])
 
     def test_stream_finished_log_base_turn_has_empty_override(self) -> None:
         provider = _RecordingStreamProvider()

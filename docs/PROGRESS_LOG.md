@@ -114,13 +114,3 @@ Last updated: 2026-07-14
 - Non-visual findings for triage (NOT fixed): 한's 시스템 침투 cost ◆4 > max FOCUS 3 (uncastable ever) · 린위에 missing from victory lineup · loot pills show raw ids (`drone_scrap`/`nanopatch`).
 - Next: `! git push` → owner `make deploy` → owner feel pass (A-1/A-3 + new A-4 visual overhaul) · agy art seeds (backdrop plates ×4, flat badge glyphs ×7, brighter floor tile, cover_full prop).
 
-## 2026-07-12 (live session #13 cont.10, claude lane) — 전투 완성도 배치: 직접 시뮬 테스트로 발굴+수정
-- Status: Done, `make check` **1041** green. UNDEPLOYED (origin+19). 오너 지시 "직접 전투 시뮬레이터 들어가서 테스트하고 개선" → chrome-devtools로 로컬 시뮬 구동해 발굴.
-- **스킬 카드 안 뜸** (자기 견인/자기 반발 등): 시네마 레지스트리에 스킬 5/~20개만 등록돼 있었음 → 전 스킬 카드 추가 + `getSkillId` 정확-id 우선 + 특정-우선 키워드 폴백("신호"가 신호 오버드라이브 삼키던 버그 수정) (`abe2d6a`).
-- **EMP 펄스/정밀 EMP/시스템 해킹 데미지 0**: 순수 제어기라 피해 없음 → 1d4 `shock_damage` 라이더(플레이어·NPC·시그니처 3경로). **과부하 일격 언밸런스**(적 2 원샷): 스플래시 절반 피해로. **"2번 발동"**: 처치 시 컷인 중복 → 공격자당 1회(처치 우선) dedup.
-- **EMP 수류탄 폭발 이펙트 없음**: 착탄 셀 실폭발 VFX(흰 코어→화염 링→연기)+최대 셰이크. **냉각 수류탄(피해 0)**도 안 뜸: diff 이벤트 없어 instant 경로로 빠지던 것 → board-fx 마커 조기 스캔(`84210e3`). **조준 사거리** 안 보임: 닿는 칸 황색 틴트.
-- i18n: 신규 수류탄/무기 EN 용어집(`84a24c4`). +6 tests.
-- ⚠ **fallback 모드 전투 애니메이션 분리 시도→REVERT**: fallback→정적 전투는 설계 의도(2026-06-06)이고 오너가 non-fallback에서 확인 완료 → 되돌림. 잔여: 오너 "시각적으로 별로임" 대상 미확정(상태 배지 아이콘 / 조준·폭발 링 / 컷인 카드 / 보드 룩 중 어느 것인지 확인 필요).
-
-This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
-`bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.

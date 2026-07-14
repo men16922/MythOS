@@ -5792,7 +5792,11 @@ main#play.fx-glitch {
 .boon-overlay {
   position: fixed;
   inset: 0;
-  z-index: 40;
+  /* 55: a MODAL draft must beat the tactical-legend popup (z 50) — on a fresh
+     profile the legend auto-opens and, at phone widths, sat ON TOP of the boon
+     cards and swallowed their taps (found by the portrait-dock probe). Stays
+     under the route-map modal tier (60). */
+  z-index: 55;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -6441,6 +6445,54 @@ main#play.fx-glitch {
    (LC5/LC6 bar) — the strip is a desktop/portrait affordance there. */
 @media (orientation: landscape) and (pointer: coarse) {
   body.combat-active .turn-order-strip {
+    display: none;
+  }
+}
+
+/* --- Portrait combat action dock (owner 2026-07-14: "모바일 전투에서 스킬이나
+   공격하려면 자꾸 스크롤"). In PORTRAIT touch combat the command console docks
+   to the viewport bottom as a fixed sheet with its own scroll: the board stays
+   on screen and TARGETS/ACTIONS/skills stay under the thumb — no scroll loop
+   between looking and acting. Landscape-coarse is LC5/LC6's one-screen column
+   (untouched); desktop (pointer:fine) keeps the bottom-row grid. --- */
+@media (orientation: portrait) and (pointer: coarse) {
+  body.combat-active .combat-bottom-row #combat-controls {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* 52: the ACTION dock must beat the tactical-legend popup (z 50 — an
+       informational popup may slide under it) while staying below the boon
+       draft (55) and route-map modal tier (60). */
+    z-index: 52;
+    max-height: 38dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    background: var(--panel-1, #050d0c);
+    border-top: 1px solid rgba(41, 211, 152, 0.35);
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.55);
+  }
+  /* The sheet covers the viewport tail — pad the page so the roster/log/legend
+     underneath stay scroll-reachable above the dock. */
+  body.combat-active .combat-layout {
+    padding-bottom: 42dvh;
+  }
+  /* Chrome diet during portrait combat (same rationale as LC5 for landscape):
+     the tab-nav and full header pushed the canvas below the dock's top edge —
+     during a fight the board matters, not Story/Codex tabs. */
+  body.combat-active .tabs {
+    display: none;
+  }
+  body.combat-active header {
+    padding: 4px 12px;
+  }
+  body.combat-active header h1 {
+    font-size: 15px;
+  }
+  body.combat-active header .sub {
     display: none;
   }
 }

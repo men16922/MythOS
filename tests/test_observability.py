@@ -36,6 +36,26 @@ class ObservabilityTest(unittest.TestCase):
         self.assertEqual(payload["scene_id"], "scene_1")
         self.assertEqual(payload["status"], "succeeded")
 
+    def test_json_formatter_emits_keybeat_routing_fields(self) -> None:
+        # The hybrid A/B verdict is read off these fields in Cloud Run logs;
+        # the formatter whitelists keys, so absence here = silently dropped.
+        record = logging.LogRecord(
+            name="mythos.narrative",
+            level=logging.INFO,
+            pathname=__file__,
+            lineno=10,
+            msg="narrative streaming finished",
+            args=(),
+            exc_info=None,
+        )
+        record.model_override = "gemini-3.5-flash"
+        record.key_beat = False
+
+        payload = json.loads(JsonFormatter().format(record))
+
+        self.assertEqual(payload["model_override"], "gemini-3.5-flash")
+        self.assertIs(payload["key_beat"], False)
+
     def test_debug_formatter_includes_source_location(self) -> None:
         record = logging.LogRecord(
             name="mythos.test",

@@ -43,6 +43,10 @@ class JsonFormatter(logging.Formatter):
             "asset_id",
             "provider",
             "model_id",
+            # Key-beat model-split routing evidence (director streaming/timed logs);
+            # the hybrid A/B verdict is read off these in Cloud Run logs.
+            "model_override",
+            "key_beat",
             "latency_ms",
             "provider_ms",
             "postprocess_ms",

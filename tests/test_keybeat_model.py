@@ -62,6 +62,14 @@ class _RecordingProvider:
         return _VALID_PAYLOAD
 
 
+class _RecordingStreamProvider(_RecordingProvider):
+    """Provider with a stream seam — the production (Gemini) shape."""
+
+    def stream(self, messages, *, model=None):  # noqa: ANN001, ANN201
+        self.models_seen.append(model)
+        yield _VALID_PAYLOAD
+
+
 def _player() -> PlayerProfile:
     return PlayerProfile("p1", "T", _NOW, _NOW, {"archetype": "ghost"})
 
@@ -136,6 +144,56 @@ class DirectorKeybeatOverrideTest(unittest.TestCase):
         director = NarrativeDirector(provider=provider)
         director.generate_first_scene(_context(key_beat=True))
         self.assertEqual(provider.models_seen, ["gemini-3.5-flash"])
+
+
+class StreamingKeybeatOverrideTest(unittest.TestCase):
+    """Streaming is the production path — routing + its log evidence both locked."""
+
+    def _drain(self, events):  # noqa: ANN001, ANN201
+        return list(events)
+
+    def test_stream_key_beat_turn_uses_keybeat_model(self) -> None:
+        provider = _RecordingStreamProvider()
+        director = NarrativeDirector(provider=provider)
+        self._drain(director.stream_next_scene(_context(key_beat=True)))
+        self.assertEqual(provider.models_seen, ["gemini-3.5-flash"])
+
+    def test_stream_normal_turn_uses_base_model(self) -> None:
+        provider = _RecordingStreamProvider()
+        director = NarrativeDirector(provider=provider)
+        self._drain(director.stream_next_scene(_context(key_beat=False)))
+        self.assertEqual(provider.models_seen, [None])
+
+    def test_stream_first_scene_key_beat_also_overrides(self) -> None:
+        provider = _RecordingStreamProvider()
+        director = NarrativeDirector(provider=provider)
+        self._drain(director.stream_first_scene(_context(key_beat=True)))
+        self.assertEqual(provider.models_seen, ["gemini-3.5-flash"])
+
+    def test_stream_finished_log_carries_routing_fields(self) -> None:
+        # The A/B verdict is read off model_override/key_beat in prod logs.
+        provider = _RecordingStreamProvider()
+        director = NarrativeDirector(provider=provider)
+        with self.assertLogs("mythos.narrative", level="INFO") as captured:
+            self._drain(director.stream_next_scene(_context(key_beat=True)))
+        finished = [
+            r for r in captured.records if r.getMessage() == "narrative streaming finished"
+        ]
+        self.assertEqual(len(finished), 1)
+        self.assertEqual(getattr(finished[0], "model_override", None), "gemini-3.5-flash")
+        self.assertIs(getattr(finished[0], "key_beat", None), True)
+
+    def test_stream_finished_log_base_turn_has_empty_override(self) -> None:
+        provider = _RecordingStreamProvider()
+        director = NarrativeDirector(provider=provider)
+        with self.assertLogs("mythos.narrative", level="INFO") as captured:
+            self._drain(director.stream_next_scene(_context(key_beat=False)))
+        finished = [
+            r for r in captured.records if r.getMessage() == "narrative streaming finished"
+        ]
+        self.assertEqual(len(finished), 1)
+        self.assertEqual(getattr(finished[0], "model_override", None), "")
+        self.assertIs(getattr(finished[0], "key_beat", None), False)
 
 
 class ContextBuilderKeybeatTest(unittest.TestCase):

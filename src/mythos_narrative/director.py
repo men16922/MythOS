@@ -526,6 +526,7 @@ class NarrativeDirector:
                 loop_id=context.loop.loop_id,
                 provider=type(self.provider).__name__,
                 model_override=model or "",
+                key_beat=context.key_beat,
             ):
                 if model:
                     raw_payload = cast(Any, self.provider).generate(messages, model=model)
@@ -609,6 +610,11 @@ class NarrativeDirector:
                 "player_id": context.player.player_id,
                 "loop_id": context.loop.loop_id,
                 "provider": type(self.provider).__name__,
+                # Which model actually served this turn ("" = provider base model).
+                # The key-beat A/B verdict is read off these two fields in prod logs;
+                # streaming is the production path, so they must be logged here too.
+                "model_override": model or "",
+                "key_beat": context.key_beat,
                 "latency_ms": latency_ms,
                 "status": "fallback" if outcome == OUTCOME_FALLBACK else "succeeded",
                 "outcome": outcome,

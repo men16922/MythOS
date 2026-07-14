@@ -2,6 +2,13 @@
 
 Last updated: 2026-07-14
 
+## 2026-07-14 (live session #20 cont.2) — Neon idle-reap 턴 삼킴 /diagnose → 스토어 수정 + DEPLOYED 00067
+- Status: Done. `make check` green (1094), DB 스위트 5/5. **DEPLOYED `mythos-api-00067-x4d`** (env 유지, health/root 200).
+- **/diagnose (keybeat 테스트 중 실측된 결함)**: Neon `AdminShutdown`이 **모든 유휴 백엔드를 동시 reap** → ①풀에 `check=` 부재로 `getconn()`이 죽은 커넥션을 그대로 배급 — 기존 08f764f 1회 재시도가 **다음 시체를 또 뽑아** 단문 경로도 실패(계측 확인) ②per-transition `transaction()` 유닛은 BEGIN이 `_run_query` 바깥 + 유닛 재시도 caller 부재 → choose가 StoreError→WS error 이벤트로 조용히 삼켜지고 UI는 pending 고착. 재현 프로브 `scratch/probe_neon_drop.py`: 수정 전 3/3 FAILED → 수정 후 **3/3 RECOVERED** (동일 측정 before/after).
+- **수정 (`456b522`, 스토어 심 2점)**: `ConnectionPool(check=check_connection)` (체크아웃 시 생존 검증 — 시체 배급 원천 차단) + `transaction()` 진입 프리핑 (depth 0에서 `SELECT 1`을 `_run_query` 경유 — WS 수명 store가 유휴 후 들고 있는 죽은 커넥션을 BEGIN 전에 교체). 회귀 잠금 `PostgresConnectionReapTest` 3 테스트(DB-gated).
+- 잔여 관찰: H3(클라이언트가 error 이벤트 후 choice pending 방치 — 재시도 UX 없음)는 서버 수정으로 발생 빈도가 급감하므로 보류; 재발 시 프론트 티켓.
+- Remaining `[manual]`: 오너 A/B 체감 판정 · `! git push`(터미널 직접).
+
 ## 2026-07-14 (live session #20 cont.) — 라이브 keybeat 테스트 → 3.5 공백 폭주 fallback 진단 + 수정 (배포 대기)
 - Status: 코드 Done (`b55e933`), `make check` 1091 green. **UNDEPLOYED — 오너 `! make deploy` 필요** (에이전트발 신규 코드 프로덕션 배포는 분류기 차단, 정상 동작).
 - **오너 `! make deploy`가 두 번 다 불발** (새 리비전/빌드 미생성 — `!` 커맨드가 실행 안 된 것으로 추정) → 에이전트가 대행: **`mythos-api-00065-v4k` 배포** (env 유지 확인: 2.5 base + 3.5 keybeat + IMAGEN 핀, health/root 200).
@@ -106,13 +113,4 @@ Last updated: 2026-07-14
 - Verified: `./.venv/bin/python -m unittest tests.test_combat_engine` (51 tests) · `quick_validate.py` for all four copies · `make check-skills` · `git diff --check`.
 - Blockers: None. The skill deliberately does not deploy, mutate production data, or convert human play-feel checks into automated passes.
 - Next: Invoke `$gameplay-qa` for the next combat mechanic, targeting, VFX, or board-interaction change.
-
-## 2026-07-12 (live session #14, claude lane) — combat VISUAL overhaul V1-V6 (owner probe: all four areas)
-- Status: Done, `make check` **1041** green. UNDEPLOYED (origin+3; owner pushed the prior +20 mid-session).
-- Owner answered the "시각적으로 별로임" probe: **ALL FOUR** (status badges / aim·blast rings / cinema cards / board look) + two live requests (camera drag-pan, node-themed combat backdrops). Diagnosed by direct chrome-devtools sim run — evidence `outputs/vis-diag/01..32`, design `docs/plans/2026-07-12-combat-visual-overhaul.md`.
-- **V1 (`8b86423`)**: `getIsoConfig` centering BUG fixed (10×7 arenas clipped right-edge enemy sprites off-canvas) + **camera drag-pan** on empty background (dataset-shared like boardZoom; unit drag/taps keep priority; double-press recenters; works on enemy turns).
-- **V2+V3 (`075da28`)**: node-tinted backdrop (biome from encounter id: streets/undercity/industrial/spire — gradient+glow+vignette+arena rim; art hook `combat/backdrops/<biome>.png`) · floor stamp alpha-jitter + checker (kills uniform circuit noise) · **cell-true AoE**: new `cells` FX fills exact chebyshev blast tiles; ring/spark → grid-aligned diamonds; range tint → corner chevrons; out-of-range hover = red cell.
-- **V4-V6 (`6eaa975`)**: status badges → dark circular chips + color rim ABOVE the name (was icon-on-name mush; cap 3 + "+N") · cinema impact slashes across defender card + strip speed-lines + 62/74px damage numbers + grenade throws show item art center card (`itemId` through the queue) · SKILL_SYMBOLS full coverage (제어/강화 skills showed bare "제/강" letters) + consumable item thumbnails.
-- Non-visual findings for triage (NOT fixed): 한's 시스템 침투 cost ◆4 > max FOCUS 3 (uncastable ever) · 린위에 missing from victory lineup · loot pills show raw ids (`drone_scrap`/`nanopatch`).
-- Next: `! git push` → owner `make deploy` → owner feel pass (A-1/A-3 + new A-4 visual overhaul) · agy art seeds (backdrop plates ×4, flat badge glyphs ×7, brighter floor tile, cover_full prop).
 

@@ -882,3 +882,14 @@ _(older 2026-06-29 entries — K6 EN combat-log i18n, CBT invite-identity/save-l
 
 This file keeps **only recent incremental summaries within the 120-line budget**. Older 2026-07 entries are in
 `bin/docs/archive/progress-2026-07.md`; the 2026-06 detailed log in `bin/docs/archive/progress-2026-06.md`, 2026-05 in `bin/docs/archive/progress-2026-05.md`.
+
+<!-- moved from PROGRESS_LOG.md 2026-07-14 (doc budget) -->
+## 2026-07-12 (live session #14, claude lane) — combat VISUAL overhaul V1-V6 (owner probe: all four areas)
+- Status: Done, `make check` **1041** green. UNDEPLOYED (origin+3; owner pushed the prior +20 mid-session).
+- Owner answered the "시각적으로 별로임" probe: **ALL FOUR** (status badges / aim·blast rings / cinema cards / board look) + two live requests (camera drag-pan, node-themed combat backdrops). Diagnosed by direct chrome-devtools sim run — evidence `outputs/vis-diag/01..32`, design `docs/plans/2026-07-12-combat-visual-overhaul.md`.
+- **V1 (`8b86423`)**: `getIsoConfig` centering BUG fixed (10×7 arenas clipped right-edge enemy sprites off-canvas) + **camera drag-pan** on empty background (dataset-shared like boardZoom; unit drag/taps keep priority; double-press recenters; works on enemy turns).
+- **V2+V3 (`075da28`)**: node-tinted backdrop (biome from encounter id: streets/undercity/industrial/spire — gradient+glow+vignette+arena rim; art hook `combat/backdrops/<biome>.png`) · floor stamp alpha-jitter + checker (kills uniform circuit noise) · **cell-true AoE**: new `cells` FX fills exact chebyshev blast tiles; ring/spark → grid-aligned diamonds; range tint → corner chevrons; out-of-range hover = red cell.
+- **V4-V6 (`6eaa975`)**: status badges → dark circular chips + color rim ABOVE the name (was icon-on-name mush; cap 3 + "+N") · cinema impact slashes across defender card + strip speed-lines + 62/74px damage numbers + grenade throws show item art center card (`itemId` through the queue) · SKILL_SYMBOLS full coverage (제어/강화 skills showed bare "제/강" letters) + consumable item thumbnails.
+- Non-visual findings for triage (NOT fixed): 한's 시스템 침투 cost ◆4 > max FOCUS 3 (uncastable ever) · 린위에 missing from victory lineup · loot pills show raw ids (`drone_scrap`/`nanopatch`).
+- Next: `! git push` → owner `make deploy` → owner feel pass (A-1/A-3 + new A-4 visual overhaul) · agy art seeds (backdrop plates ×4, flat badge glyphs ×7, brighter floor tile, cover_full prop).
+

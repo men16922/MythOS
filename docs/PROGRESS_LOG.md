@@ -8,7 +8,9 @@ Last updated: 2026-07-14
 - **라이브 keybeat 테스트 (invite URL, KeybeatQA/ghost)**: 라우팅+로깅 **검증 성공** — `narrative streaming finished`에 `key_beat=true → model_override=gemini-3.5-flash` 정확히 기록. 그러나 서사 턴 2/2 `outcome=fallback` (선택지가 authored fallback과 일치, UI가 같은 장면 반복 = "안 넘어가는" 체감).
 - **/diagnose: 근본 원인 = gemini-3.5-flash 스트리밍 controlled generation의 공백 폭주(whitespace runaway)**. 계측 프로브(N=6)로 재현: run 4 `finish=MAX_TOKENS, out_tokens=2033, tail 전부 공백` → JSON 잘림 → 파싱 2회 실패 → **무경고 fallback**. 스트리밍 경로에는 repair가 없었음(비스트리밍만 repair). 2.5는 6/6 클린(일반 턴 안전). flip이 원인 아님 — 3.5 모델측 거동(마지막 full-3.5 서사 턴 07-12는 클린; 이후 모델측 변화 가능성). 키비트 턴이 3.5로 가므로 최고 레버리지 턴이 정확히 노출.
 - **수정 (`b55e933`)**: 스트림 파싱 실패 시 동일 모델 오버라이드로 **비스트리밍 재생성 1회**(repair_enabled 게이트, 기존 parse→local repair 사다리 재사용) + 실패 raw 증거 warning 로그(`raw_len`/`raw_tail`, JsonFormatter 화이트리스트 등재). 소스락 3 테스트(재시도 성공/재시도 비활성 fallback/재시도가 키비트 모델 유지). 프로브 `scratch/probe_keybeat_finish.py` 보존.
-- Remaining: 오너 `! make deploy` → 라이브 턴 재검증(fallback→success + retry warning 빈도 관찰) → A/B 진행.
+- **FIX DEPLOYED `mythos-api-00066-blc` + 라이브 재검증 PASS**: 오너가 `Bash(make deploy)` 권한을 승인(settings.local.json)해 에이전트가 배포(env 유지 + health 200). 새 루프(KeybeatQA2) 라이브 플레이: **키비트 턴 4/4 success**(`key_beat=true → gemini-3.5-flash`, 4.5~8.1s) + **일반 턴 1/1 success**(`key_beat=false → 2.5 base`, 4.2s), 재시도 warning 0회, 스토리가 실제 생성 서사로 진행(오프닝→3턴→Patrol Ambush 전투 진입 정상). **라우팅 검증(플랜 Step 2) 완료** — 남은 비트 클래스(앵커/컷씬/보스/엔딩)는 오너 플레이 중 로그로 자연 축적.
+- 부수 관찰: Neon Postgres "terminating connection due to administrator command"가 턴 1회를 삼킴(리로드+Resume으로 복구, 기존 stale-conn 트랙과 동일 계열) — keybeat와 무관, 빈도 관찰.
+- Remaining `[manual]`: 오너 matched-loop A/B 체감 판정(품질/반복/오류/latency/비용) → `DECISIONS.md` keep/rollback 기록 · `! git push`.
 
 ## 2026-07-14 (live session #20, claude lane) — key-beat hybrid A/B 준비 완료 (오너 GO)
 - Status: Done (agent side). `make check` green, `make test` **1088** OK. 오너 "수행" 지시로 sign-off 게이트 해소 판단.

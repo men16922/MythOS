@@ -58,6 +58,11 @@ Fixed in `b55e933`: one non-streaming retry on the same model + parse-fail warni
 Watch the `streamed payload unparseable` warning frequency during the A/B — if the runaway rate is
 high, key-beat latency degrades (stream + retry) and that belongs in the verdict.
 
+**Fix deployed + routing verified live on `00066-blc` (2026-07-14)**: fresh loop played through
+opening — 4× key-beat turns all `gemini-3.5-flash`/success (4.5–8.1s), 1× normal turn base-2.5/success
+(4.2s), zero retry warnings. Step 2 is done for the opening class; anchor/cutscene/boss/ending rows
+accrue during owner play. Next open step: the owner A/B feel verdict (Step 3-4).
+
 ## Step 2 — routing verification (agent-runnable read-only, or owner)
 
 After a few played turns, confirm the split actually routes:

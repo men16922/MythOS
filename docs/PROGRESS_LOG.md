@@ -7,7 +7,8 @@ Last updated: 2026-07-14
 - **라우팅 관측성 갭 2개 발견+수정**: ①프로덕션 경로인 스트리밍 종료 로그(`narrative streaming finished`)에 라우팅 모델이 안 남았음 → `model_override`(""=base)+`key_beat` 추가 (`director.py`; timed 로그에도 `key_beat` 추가) ②`JsonFormatter`가 필드 화이트리스트라 두 필드가 프로덕션 JSON에서 **탈락**했을 것 → 화이트리스트 등재 (`observability.py`). 소스락: 스트리밍 경로 키비트 라우팅 5 테스트(기존엔 generate_*만 커버) + 포매터 방출 1 테스트.
 - **A/B 프로토콜 문서**: `docs/plans/2026-07-14-keybeat-hybrid-ab.md` — enable/rollback gcloud 커맨드(오너 `!` 실행; `make deploy`가 env-preserving이라 flip이 유지됨), 로그 쿼리 기반 라우팅 검증(비트 클래스별 1회 이상), matched-loop 비교 축 표, keep/rollback 기준 + 오너 체감 체크리스트(KO).
 - 코드 배선 자체는 2026-07-04에 완성돼 있었음(재작업 없음) — 이번 세션은 검증 가능성(observability)+실행 절차만 채움.
-- Blockers: none. Remaining `[manual]`: 오너 env flip → 라우팅 확인 → A/B 판정 기록. (참고: 문서에 남아있던 `! git push` 잔여는 stale — origin 동기 확인.)
+- **HYBRID ENV LIVE: `mythos-api-00064-k99`** (오너 flip 커맨드가 서브셸 미해석으로 불발 → 에이전트가 동일 커맨드 실행; 100% traffic, health/root 200, env 확인: `MODEL=gemini-2.5-flash`+`GEMINI_MODEL_KEYBEAT=gemini-3.5-flash`+`IMAGEN_MODEL` 보존). **캐비앗: `services update`는 이미지 재사용** — 라우팅 자체(07-04 코드)는 작동하지만 오늘 추가한 로그 필드는 00063 빌드에 없음 → **로그 기반 라우팅 검증은 다음 `make deploy`(소스 리빌드, env-preserving이라 하이브리드 유지) 이후 가능**.
+- Blockers: none. Remaining `[manual]`: 오너 `make deploy`(관측성 코드 반영) → 라우팅 로그 확인 → A/B 판정 기록. (참고: 문서에 남아있던 `! git push` 잔여는 stale이었음 — 단 세션 #20 커밋으로 다시 ahead, push 필요.)
 
 ## 2026-07-14 (live session #19, claude lane) — 적 아트 일관화 20장 codex 재생성 완료 + DEPLOYED 00060/00061
 - Status: Done. `make check` **1078** green (final). **DEPLOYED `mythos-api-00061-dzr`** (owner-run, 100% traffic): enemy art 20/20 + balance verdicts now live — smoke health/root 200 + new-sprite byte-exact (293374). **Owner live QA feel pass: PASS** (art consistency · telegraph · enemy variety · balance feel · desktop split/quick-slots).

@@ -4,7 +4,7 @@ Last updated: 2026-07-14
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Key-beat hybrid A/B PREPARED (owner GO 2026-07-14)** — routing observability + protocol done; next is the OWNER env flip + A/B verdict per `docs/plans/2026-07-14-keybeat-hybrid-ab.md` (halves loop cost ~$1.0→$0.5; rollback = one command). Live rev `00063-hpz` = 00061 QA-passed bundle + turn-order strip + PORTRAIT ACTION DOCK. Owner residue: keybeat env flip (`!` commands in plan) · real-device portrait combat pass (dock/38dvh/URL-bar/notch + strip 가독성) · Track 4 two-style playtest.
+> ▶ NEXT SESSION: **Key-beat hybrid ENV LIVE (`00064-k99`, 2026-07-14)** — `MODEL=gemini-2.5-flash`+`GEMINI_MODEL_KEYBEAT=gemini-3.5-flash` serving; A/B per `docs/plans/2026-07-14-keybeat-hybrid-ab.md`. CAVEAT: image predates the routing-log fields → owner `make deploy` once (env-preserving) BEFORE log-verifying routing. Owner residue: `make deploy` + play → A/B verdict · real-device portrait combat pass (dock/38dvh/URL-bar/notch + strip 가독성) · Track 4 two-style playtest · `! git push`.
 
 ## Snapshot
 

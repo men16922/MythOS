@@ -221,7 +221,7 @@ class VertexImageProvider:
     """``VisualProvider`` backed by Vertex AI cloud image generation.
 
     Two model families, chosen by the ``IMAGEN_MODEL`` id:
-      * ``gemini-*-image`` (default ``gemini-3.1-flash-image``) → ``generate_content``
+      * ``gemini-*-image`` (default ``gemini-2.5-flash-image``) → ``generate_content``
         with the scene prompt plus, when available, the character's curated portrait
         as a reference image for identity consistency (fixes face drift; also the
         supported path since imagen-3.0-generate-002 was retired mid-2026);
@@ -251,7 +251,7 @@ class VertexImageProvider:
         # reference for character consistency; `IMAGEN_MODEL` still overrides (e.g.
         # gemini-2.5-flash-image for GA, or an imagen-* id to use the legacy path).
         self.model = (
-            model or _env("IMAGEN_MODEL", "IMAGE_MODEL_ID_VERTEX") or "gemini-3.1-flash-image"
+            model or _env("IMAGEN_MODEL", "IMAGE_MODEL_ID_VERTEX") or "gemini-2.5-flash-image"
         )
         # Truth labels for asset records/logs: requests are stamped with local-FLUX
         # defaults, which must not survive onto a billed cloud generation.

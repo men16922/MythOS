@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-07-15 — Cloud image default = `gemini-2.5-flash-image`, not the unavailable 3.1 alias
+
+Decision: pin `IMAGEN_MODEL=gemini-2.5-flash-image` in code, `.env.example`, and `make deploy`; deploy it on `mythos-api-00068-76m`. Keep the same `generate_content` path and curated portrait reference.
+
+Reason/impact: three consecutive live-loop assets on `00067-x4d` failed with `404 NOT_FOUND` for `gemini-3.1-flash-image` in this project/`us-central1`; this was not the pre-existing 429 quota condition, so retry could not recover it. A direct same-project/region 2.5 probe returned image bytes before the switch. The next app-generated asset remains the confirmation point; 429/empty-image retry handling stays unchanged.
+
 ## 2026-07-12 — Overnight inter-agent cooperation = runner-mediated one-shot relays, NOT live A2A
 
 Decision: rejected persistent agent-to-agent connections between the overnight engines. Instead `run.sh` gained two runner-mediated one-shot relays (same idiom as critic/browser-qa): **Relay 1 image-identity judge gate** (`OVERNIGHT_IMAGE_JUDGE=1`) — commits touching `resources/*/{characters,enemies}` art get a claude vision judge (plan mode) comparing each new image to the character's canon (`-idle`/`-guard` sibling, else portrait); identity mismatch auto-reverts like critic-reject, fail-open on judge glitches. **Relay 2 same-night blocker escalation** (`OVERNIGHT_ESCALATE=1`) — a non-claude iteration recording `Blocker`/`[blocked]` schedules the next iteration as a claude cross-lane pass (cap 2/run, inactive under `--once`). Design: `docs/plans/2026-07-12-a2a-relays.md`.

@@ -150,13 +150,18 @@ class VertexImageProviderTest(unittest.TestCase):
     def test_gemini_default_uses_generate_content_and_writes_png(self) -> None:
         # Default model is now a gemini image model → the generate_content path.
         client = _FakeGeminiClient(_PNG)
-        provider = VertexImageProvider(client=client)
-        with tempfile.TemporaryDirectory() as tmp:
-            out = Path(tmp) / "s.png"
-            provider.generate(_request(1080, 1920), out)
-            self.assertEqual(out.read_bytes(), _PNG)
+        with mock.patch.dict(
+            os.environ,
+            {"IMAGEN_MODEL": "", "IMAGE_MODEL_ID_VERTEX": ""},
+            clear=False,
+        ):
+            provider = VertexImageProvider(client=client)
+            with tempfile.TemporaryDirectory() as tmp:
+                out = Path(tmp) / "s.png"
+                provider.generate(_request(1080, 1920), out)
+                self.assertEqual(out.read_bytes(), _PNG)
         call = client.models.calls[0]
-        self.assertTrue(str(call["model"]).startswith("gemini"))
+        self.assertEqual(call["model"], "gemini-2.5-flash-image")
         # No reference portrait in metadata → text-only (single content part).
         self.assertEqual(len(call["contents"]), 1)
 

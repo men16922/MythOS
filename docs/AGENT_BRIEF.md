@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-07-14
+Last updated: 2026-07-15
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Owner QA is the gate; agent lanes are clear.** Live = `00067-x4d`: key-beat hybrid VERIFIED (2.5 base + 3.5 key-beat, 4/4+1/1 success) + 3.5 whitespace-runaway retry fix + Neon idle-reap store fix (pool check + tx pre-ping). Owner checklist = trimmed `docs/test/neo_seoul_live_qa.md`: **§1 A/B verdict** (→ `DECISIONS.md` keep/rollback, plan Step 3-4) · **§2 real-device portrait dock/strip** · §3 two-style playtest. §4 combat-feel residue owner-PASSED (no art escalation). `git push` from a real terminal (ahead 10+; `!` prefix doesn't execute this session).
+> ▶ NEXT SESSION: **Owner QA is the gate; agent lanes are clear.** Live = `00068-76m`: image generation restored with `gemini-2.5-flash-image` after 3.1 returned 404; key-beat hybrid VERIFIED (2.5 base + 3.5 key-beat, 4/4+1/1) + 3.5 retry + Neon idle-reap fix. Owner checklist = `docs/test/neo_seoul_live_qa.md`: **§1 A/B verdict** (→ `DECISIONS.md`) · **§2 real-device portrait dock/strip** · §3 two-style playtest. §4 combat-feel owner-PASSED.
 
 ## Snapshot
 
@@ -20,7 +20,7 @@ Current baseline:
 - Operation map route-node-ified (deterministic DAG + multi-perspective anchors `route_map.py`/`route_runtime.py`) + session memory (`session_memory.py` beat ledger + rolling synopsis, not RAG).
 - Progression unlock (archetype gates, insight investment tree, rank pips/upgrade banner, epiphany banner, Run History + Echo/Shard dashboard, cross-scenario unlock, data-driven grant).
 - Persistent objective/stakes display and choice value-axis/expected-result/actual-result summary UX.
-- mflux/FLUX (local) / Vertex Imagen (cloud) images generate sync in-request; Redux character consistency; MinIO/GCS asset paths verified.
+- mflux/FLUX (local) / Vertex Gemini Image (cloud, `gemini-2.5-flash-image`) generate sync in-request; Redux character consistency; MinIO/GCS asset paths verified.
 - Narrative is dual-model: storyteller `OLLAMA_MODEL_STORY`=`gemma4:latest` (8B, free text) → parser `OLLAMA_MODEL_PARSER`=`qwen2.5:3b-instruct` (JSON structuring). Streaming path runs a regex parser in parallel.
 - Opening sequence consistency (5 cuts: awakening→se_rin appears→approaching hand→first contact→pursuit+combat). Prompt-layer separation in progress (authored directives→`resources/<scenario>/directives/*.md`, `docs/PROMPT_LAYER.md`). Detailed state in `STATUS.md`.
 

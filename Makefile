@@ -290,7 +290,7 @@ cloud-run-local:
 # stale revision value (dead imagen-3.0 endpoint) would override the code default.
 # Overridable: make deploy REGION=us-central1 IMAGEN_MODEL=<id>.
 REGION ?= us-central1
-IMAGEN_MODEL ?= gemini-3.1-flash-image
+IMAGEN_MODEL ?= gemini-2.5-flash-image
 .PHONY: deploy
 deploy:
 	@test -f .env || { echo "ERROR: .env not found"; exit 1; }

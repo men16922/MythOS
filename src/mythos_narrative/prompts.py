@@ -42,7 +42,7 @@ Do not label choices as COMMAND, Perception checks, abstract concepts, or system
 # English counterpart of DEFAULT_SYSTEM_PROMPT (legacy single-model path) selected
 # by ``_system_prompt`` when ``context.language == "en"``. Mirrors the Korean intent —
 # JSON-only, cinematic screenplay register, concrete neo-seoul imagery — but writes
-# the prose and choices in English. See docs/plans/2026-06-27-en-ko-localization.md §3.
+# the prose and choices in English. See bin/docs/plans/2026-06-27-en-ko-localization.md §3.
 DEFAULT_SYSTEM_PROMPT_EN = """
 You are the Narrative Director for Project MythOS. Return ONLY a single valid JSON object.
 Do not wrap the JSON in markdown code fences (like ```json) or add any pre/post commentary.
@@ -493,7 +493,7 @@ Avoid repeating specific particles or words (like "-의-", "-임-", "-록-", or 
 # ``_story_system_prompt`` when ``context.language == "en"``. Mirrors the Korean intent —
 # cinematic, screenplay-register, concrete neo-seoul imagery, plain-text [SCENE]/[TITLE]/
 # [LOCATION]/[CHOICES] format — but generates the scene natively in English (no back-
-# translation). See docs/plans/2026-06-27-en-ko-localization.md §3 / §7.4.
+# translation). See bin/docs/plans/2026-06-27-en-ko-localization.md §3 / §7.4.
 STORY_SYSTEM_PROMPT_EN = f"""
 You are the Creative Narrative Director for Project MythOS.
 Create one playable scene in high-quality, cinematic English.

@@ -12,7 +12,7 @@
   30~60분 따라가지는가. **영상만으로는 검증 불가** → 낯선 사람이 *직접 플레이*해야 한다.
 - **제품 LLM = Gemini (Vertex)** — 클라우드 배포·베타는 **Gemini provider**(controlled generation, 3b 파서 제거)로
   서비스. **로컬 LLM(Ollama)은 dev/QA 환경일 뿐 제품 정체성 아님.** `fully local LLM game` 프레이밍 폐기.
-- **영어 우선** — EN/KO 풀 바이링궐, 영어 default(`docs/plans/2026-06-27-en-ko-localization.md`).
+- **영어 우선** — EN/KO 풀 바이링궐, 영어 default(`bin/docs/plans/2026-06-27-en-ko-localization.md`).
 - **검증은 클로즈베타로** — 영상은 r/playtesters 모집글의 *티저*로만 보조적으로 사용(검증 산출물 아님).
 
 ## 1. 왜 클로즈베타인가 (영상의 한계)
@@ -89,7 +89,7 @@
 - 영상/GIF = 모집 티저 보조재. 검증의 주체는 **테스터의 실플레이**.
 
 ## 8. 교차 참조
-- 선행: EN/KO 영어버전 `docs/plans/2026-06-27-en-ko-localization.md`, 로컬 QA `docs/test/neo_seoul_live_qa.md`.
+- 선행: EN/KO 영어버전 `bin/docs/plans/2026-06-27-en-ko-localization.md`, 로컬 QA `docs/test/neo_seoul_live_qa.md`.
 - 배포 기술: `docs/cloud/GCP_PLAN.md` (Vertex/Gemini/Cloud Run/GCS/Imagen/Cloud Trace).
 - 커리어 레버리지(후속): `docs/cloud/CAREER_STRATEGY.md` (Gemini provider wedge §5, 평판 엔진 §4).
 

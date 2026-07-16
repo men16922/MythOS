@@ -1106,7 +1106,7 @@ export function StoryPanel({
           {/* 하단 행(랜드스케이프에서는 우측 컬럼): Tile Inspector · Party/Enemy
               Roster · Command Console · Combat Log · (landscape+coarse) Operation
               Map — LC2 folds all of these into one scroll column so the turn
-              loop fits one screen (docs/plans/2026-07-08-design-system.md
+              loop fits one screen (bin/docs/plans/2026-07-08-design-system.md
               "Landscape Combat"). */}
           <div className="combat-bottom-row">
             {/* Actions-first on ANY touch device (LC6 for landscape, plus portrait

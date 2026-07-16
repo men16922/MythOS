@@ -1,6 +1,6 @@
 # Project MythOS Docs
 
-Last updated: 2026-06-21
+Last updated: 2026-07-17
 
 This directory separates current docs from archive to keep the working context small.
 Agents do not read all of `docs/`; follow only the order below.

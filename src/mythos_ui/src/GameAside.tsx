@@ -333,7 +333,7 @@ function RouteMapPanel({
 
 // LC2: also reused by StoryPanel's combat-bottom-row in landscape+coarse-pointer
 // combat, where it's folded into the right column instead of the separate
-// aside (docs/plans/2026-07-08-design-system.md "Landscape Combat").
+// aside (bin/docs/plans/2026-07-08-design-system.md "Landscape Combat").
 export function OperationMapPanel({
   snapshot,
   onOpenCodex,
@@ -466,7 +466,7 @@ export function StatusPanel({ snapshot }: { snapshot: RuntimeSnapshot | null }) 
   const [showHints, setShowHints] = useState(false);
 
   return (
-    // DS2-a sample migration (docs/plans/2026-07-08-ds2-sample-migration.md §5):
+    // DS2-a sample migration (bin/docs/plans/2026-07-08-ds2-sample-migration.md §5):
     // the base `.panel` container styling now comes from <Surface variant="surface">
     // (bg/border/radius/16px pad/glow); `.status-panel` stays as a passthrough for
     // its two behavior-only rules (gauge-hint show/hide, hints-on margin). Pixel-

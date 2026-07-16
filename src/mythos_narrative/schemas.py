@@ -167,7 +167,7 @@ class NarrativeContext:
     # Target output language for narrative generation ("ko" | "en"). S0 threads this
     # end-to-end (RuntimeOptions → session → here → prompt builders); the EN system
     # prompts / authored content land in S1, so today both languages render Korean
-    # (behavior-preserving). See docs/plans/2026-06-27-en-ko-localization.md.
+    # (behavior-preserving). See bin/docs/plans/2026-06-27-en-ko-localization.md.
     language: str = "ko"
     # True on story turns that carry authored/high-impact beats (opening prologue,
     # anchor-node locks, companion cutscenes, boss confrontation, ending phases).

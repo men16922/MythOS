@@ -24,7 +24,7 @@
      chrome keeps var(--mono) for the SF identity; only the reading surfaces switch. */
   --font-read: "Apple SD Gothic Neo", Pretendard, "Noto Sans KR", system-ui, -apple-system, sans-serif;
 
-  /* Design-system tokens (DS0, docs/plans/2026-07-08-design-system.md) — additive only,
+  /* Design-system tokens (DS0, bin/docs/plans/2026-07-08-design-system.md) — additive only,
      no call sites migrated yet. Collapse 9 radii / 20 paddings / 8-14.5px type sprawl. */
   --space-1: 4px;
   --space-2: 8px;
@@ -56,7 +56,7 @@
   box-sizing: border-box;
 }
 
-/* Design-system Surface primitive (DS1a, docs/plans/2026-07-08-design-system.md).
+/* Design-system Surface primitive (DS1a, bin/docs/plans/2026-07-08-design-system.md).
    variant x size x density; ships unused — no call sites migrated yet. */
 .surface {
   --surface-density-offset: 0px;
@@ -64,7 +64,7 @@
   border-radius: var(--radius-md);
   padding: calc(var(--surface-pad, var(--space-4)) - var(--surface-density-offset));
 }
-/* DS2-api (owner-approved 2026-07-08, docs/plans/2026-07-08-ds2-sample-migration.md
+/* DS2-api (owner-approved 2026-07-08, bin/docs/plans/2026-07-08-ds2-sample-migration.md
    §4): the size scale is remapped so the DEFAULT size-2 = --space-4 (16px), which
    is the padding the 30 base `.panel` call sites already use — so the mass sweep
    migrates them as a bare `<Surface variant="surface">` with pixel-parity. */
@@ -2705,7 +2705,7 @@ main {
 /* LC1: landscape split layout for coarse-pointer (touch) combat — board
    (height-fit, left) | roster/controls/log column (right, own scroll) —
    so the core turn loop fits one screen instead of the portrait stack
-   (docs/plans/2026-07-08-design-system.md "Landscape Combat", decided
+   (bin/docs/plans/2026-07-08-design-system.md "Landscape Combat", decided
    direction A). Desktop/mouse and portrait layouts are unaffected. The
    160px offset approximates header + tab-nav chrome; combatCanvas.ts reads
    the resulting panel height to fit the board to it (see drawCombatCanvas). */

@@ -25,4 +25,4 @@ The bible holds the "what/why"; the interpretation holds "how in this repo." Eac
 ## Authority / Higher Docs
 - Design invariants (shared by all agents): `harness/CORE_MANDATES.md`
 - Doc operating rules: `docs/DOCS_POLICY.md` · docs index: `docs/README.md` · backlog/lane tags: `docs/NEXT_PLAN.md`
-- Raw research (preserved): `bin/docs/archive/HARNESS_RESEARCH.md` · `bin/docs/archive/AI_REARCH.md` · refined `docs/research/AI_TEAM_BLUEPRINT.md`
+- Raw research (preserved): `bin/docs/archive/HARNESS_RESEARCH.md` · `bin/docs/archive/AI_REARCH.md` · refined `bin/docs/archive/AI_TEAM_BLUEPRINT.md`

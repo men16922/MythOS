@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-07-15
+Last updated: 2026-07-17
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Owner QA is the gate; agent lanes are clear.** Live = `00068-76m`: image generation restored with `gemini-2.5-flash-image` after 3.1 returned 404; key-beat hybrid VERIFIED (2.5 base + 3.5 key-beat, 4/4+1/1) + 3.5 retry + Neon idle-reap fix. Owner checklist = `docs/test/neo_seoul_live_qa.md`: **§1 A/B verdict** (→ `DECISIONS.md`) · **§2 real-device portrait dock/strip** · §3 two-style playtest. §4 combat-feel owner-PASSED.
+> ▶ NEXT SESSION: **Owner QA is the gate; agent lanes are clear.** Live = `00069-gdn` (source rebuild of the 2.5 image pin; env verified 07-17): image generation restored with `gemini-2.5-flash-image` after 3.1 returned 404 (log audit: 3.1 never succeeded in prod); key-beat hybrid VERIFIED (2.5 base + 3.5 key-beat, 4/4+1/1) + 3.5 retry + Neon idle-reap fix. Owner checklist = `docs/test/neo_seoul_live_qa.md`: **§1 A/B verdict** (→ `DECISIONS.md`) · **§2 real-device portrait dock/strip** · §3 two-style playtest. §4 combat-feel owner-PASSED.
 
 ## Snapshot
 
@@ -28,8 +28,8 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **Combat live sign-off on `00061-dzr`** (the whole 07-14 bundle is live: enemy art 20/20 + balance verdicts + telegraph/spawn/split/quick-slots): owner feel-pass is the next product gate, then 2-tier slice 4 GO/NO-GO. Plans: `docs/plans/2026-07-13-enemy-art-consistency.md`, `docs/plans/2026-07-14-combat-balance-tuning.md` (both DONE, feel residue only).
-2. **CBT teaser V2: PUBLISHED 2026-07-14** — owner approved + uploaded (YouTube). Lane closed; `scripts/cbt/build_teaser.py` regenerates if a V2.1 is ever needed.
+1. **Owner live QA gate on `00068-76m`** — the only open Priority 0 work: §1 key-beat A/B verdict (→ `DECISIONS.md`; protocol/rollback `docs/plans/2026-07-14-keybeat-hybrid-ab.md`) · §2 real-device portrait combat pass · §3 two-style balance playtest. Combat overhaul arc + teaser V2 are closed (`COMPLETED_SUMMARY.md` M59-M60).
+2. **Manual content residuals**: S4 copy tone, variant intro feel, G2 twist tone, EN fresh-loop retest (CBT P1; see `NEXT_PLAN.md`).
 3. **Maintenance/hold**: WS4 content pipeline plan-only; `glass-library` held until Neo-Seoul satisfaction (`docs/COMPLETED_SUMMARY.md` M35-M40).
 
 ## Read Order

@@ -96,7 +96,7 @@ STATUS_EFFECT_IDS = ("burn", "corrode", "acid", "freeze", "shock", "hacked")
 # Reapplying a status (or stun) ACCUMULATES remaining turns instead of
 # max-refreshing (owner call 2026-07-12: duration stacks, intensity does not),
 # bounded by a cap so chained casts can't freeze a unit out of the fight.
-# Split caps (owner call 2026-07-14, docs/plans/2026-07-14-combat-balance-tuning.md):
+# Split caps (owner call 2026-07-14, bin/docs/plans/2026-07-14-combat-balance-tuning.md):
 # hard crowd-control — burn's armor-bypass DoT (a capped burn was expected-15
 # damage, outright killing every small enemy) and stun's lost turns — caps at 3,
 # while utility statuses (corrode/acid/freeze/shock/hacked) keep 6.
@@ -372,7 +372,7 @@ class CombatEngine:
         """Skill payload for the UI: cooldown + presentation/animation metadata.
 
         ``role``/``tags`` let the web client pick icons and skill-specific
-        animations data-driven (see docs/plans/2026-06-06-combat-darkest-dungeon-
+        animations data-driven (see bin/docs/plans/2026-06-06-combat-darkest-dungeon-
         presentation.md) instead of hardcoding per skill id.
         """
         definition = self._ally_skill_def(skill_id) or {}

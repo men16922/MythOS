@@ -16,9 +16,10 @@ is still required before public release.
 
 ## Contents
 
-- `final/` — the assembled teaser.
-- `scene_01..09/` — per-scene video sources (owner picks: `scene_01` omni_1, `scene_02` montage).
-  `scene_09/veo_ix_confrontation_1080p.mp4` is the Veo-generated climax clip.
+- `final/` — the assembled teaser (published to YouTube 2026-07-14).
+- Per-scene video sources (`scene_01..09/`) were **pruned 2026-07-17** after publication to free disk;
+  a V2.1 revision needs recapture via `hq_record.py` / `generate_teaser_videos.py` (prompts and the
+  source manifest below are kept).
 - `01..10_*.mp3` + `narration.en.json` — narration segments (regenerate via
   `scripts/voice-gen/generate_teaser_v2.py`; voice `n1PvBOwxb8X6m7tahp2h`, `eleven_v3`;
   the JSON `text` fields contain v3 delivery tags such as `[pauses]`).

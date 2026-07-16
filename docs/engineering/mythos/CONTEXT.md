@@ -21,7 +21,7 @@ git per-iteration commits · structured ledger `scripts/overnight/logs/status.ts
 - Authoritative active focus aligned across 3 docs (AGENT_BRIEF Active Work #1 + STATUS Active Focus + NEXT_PLAN priority).
 - `/sync` echoes it first (`.claude/skills/sync/SKILL.md`). The rule is `docs/DOCS_POLICY.md` "Dated Plans".
 - **Forbidden**: a `~/.claude/plans/*` scratch path as the authoritative pointer. **Regression case (2026-06-14)**: a reserved task left only as a preamble note + scratch
-  path meant `/sync` couldn't take it over → fixed with this convention (`docs/plans/2026-06-14-engineering-plan.md` WS0).
+  path meant `/sync` couldn't take it over → fixed with this convention (`bin/docs/plans/2026-06-14-engineering-plan.md` WS0).
 
 ## Preventing entry-point divergence
 `CLAUDE.md` (canonical body) + `AGENTS.md`/`GEMINI.md` (thin wrappers, shared read-path + `docs/engineering/README` link).

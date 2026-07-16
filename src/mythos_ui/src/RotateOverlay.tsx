@@ -3,7 +3,7 @@ import { useOrientation } from "./hooks/useOrientation";
 import { useLang } from "./i18n/lang";
 
 // LC0: nudge coarse-pointer (touch) players to rotate into landscape when
-// combat starts in portrait (docs/plans/2026-07-08-design-system.md "Landscape
+// combat starts in portrait (bin/docs/plans/2026-07-08-design-system.md "Landscape
 // Combat"). Desktop/mouse players never see it. Dismissible per mount; the
 // actual landscape split layout is LC1/LC2, built on top of this signal.
 export function RotateOverlay() {

@@ -25,7 +25,7 @@ md 재편/툴링/계획)은 한 세션에 안전히 안 들어간다. 다음 세
 - 원칙: 신규 3종(HARNESS/CONTEXT/PROMPT)은 **얇게**(정의+현 repo 구현 매핑+권위 링크), 운영 상세는 권위 문서에만.
 
 ## WS2 — md 재편 / 컨텍스트 최적화
-- **원시 연구 아카이브**: `docs/research/AI_REARCH.md`(237, 원본 ChatGPT) → `bin/docs/archive/`. 정제본 `AI_TEAM_BLUEPRINT.md`는
+- **원시 연구 아카이브**: `bin/docs/archive/AI_REARCH.md`(237, 원본 ChatGPT) → `bin/docs/archive/`. 정제본 `AI_TEAM_BLUEPRINT.md`는
   `docs/engineering/`로 이동(또는 research 유지) — AGENTIC와 링크.
 - **per-agent 진입점 슬림화 + 공유 read-path**: `CLAUDE.md`(현재 5.7k tok)·`AGENTS.md`·`GEMINI.md`를 **얇은 래퍼**로
   통일 — (what-this-is 요약 + commands + 공유 read-path `AGENT_BRIEF→STATUS→NEXT_PLAN` + `docs/engineering/README` 링크 +
@@ -60,7 +60,7 @@ NEXT_PLAN 콘텐츠 레인, codex 콘텐츠 프롬프트. **이번엔 문서화�
   (LOOP/AGENTIC는 기존 LOOP_ENGINEERING/MULTI_AGENT 이동분), `scripts/overnight/{status.sh,dashboard.sh}`.
 - 수정: `scripts/overnight/run.sh`(status.tsv emit), `Makefile`(dashboard/status), `CLAUDE.md`/`AGENTS.md`/`GEMINI.md`(슬림화),
   `docs/README.md`·`docs/DOCS_POLICY.md`(인덱스/read-path), repo-wide ref 갱신.
-- 아카이브: `docs/research/AI_REARCH.md` → `bin/docs/archive/`.
+- 아카이브: `bin/docs/archive/AI_REARCH.md` → `bin/docs/archive/`.
 
 ## 검증 (다음 세션)
 - WS1/2: `rg`로 깨진 링크 0, README/DOCS_POLICY read-path 정합, 진입점 라인/토큰 축소 확인.

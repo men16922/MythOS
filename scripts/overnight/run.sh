@@ -95,7 +95,7 @@ CRITIC_PROMPT_FILE="scripts/overnight/CRITIC_PROMPT.md"
 # shellcheck source=scripts/overnight/browser-qa.sh
 . "$SCRIPT_DIR/browser-qa.sh"
 
-# --- A2A 러너 중개 릴레이 (2026-07-12, docs/plans/2026-07-12-a2a-relays.md) ---
+# --- A2A 러너 중개 릴레이 (2026-07-12, bin/docs/plans/2026-07-12-a2a-relays.md) ---
 # 라이브 A2A(상시 에이전트 연결) 대신 기존 관용구(critic/browser-qa 형 one-shot 릴레이)로
 # 엔진 간 협업 2종을 러너가 중개한다. one-shot 회차의 복구성(손실 최대 1회차)은 그대로 유지.
 # Relay 1 — 이미지 정체성 판정 게이트: 커밋이 캐릭터/적 아트를 추가·변경하면 claude 시각 판정자가

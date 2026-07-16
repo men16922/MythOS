@@ -3,7 +3,7 @@
 This package exposes the same orchestration that the Streamlit UI uses
 (`RuntimeSessionService`) as a `/api/v1` REST surface so a decoupled
 frontend (Next.js/Vite) can drive the game over HTTP. See
-`docs/plans/2026-06-03-web-ui-decoupling.md` for the full design.
+`bin/docs/plans/2026-06-03-web-ui-decoupling.md` for the full design.
 
 Installed via the optional `web` extra: ``pip install -e ".[web]"``.
 """

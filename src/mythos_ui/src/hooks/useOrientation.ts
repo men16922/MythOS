@@ -23,7 +23,7 @@ function readOrientationState(): OrientationState {
 }
 
 // LC0: live orientation + pointer-type signal for the combat rotate-to-landscape
-// prompt (docs/plans/2026-07-08-design-system.md "Landscape Combat" — portrait
+// prompt (bin/docs/plans/2026-07-08-design-system.md "Landscape Combat" — portrait
 // combat is cramped and concise mode barely helps, ~10%). Desktop/mouse users
 // (fine pointer) are never affected; only coarse-pointer (touch) portrait
 // matters. Tracks live orientation changes via matchMedia listeners rather than

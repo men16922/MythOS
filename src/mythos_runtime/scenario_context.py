@@ -1058,6 +1058,7 @@ def build_runtime_narrative_context(
         system_prompt=scenario.system_prompt,
         fast_mode=fast_mode,
         fallback_scene=directives.fallback_scene,
+        story_examples=directives.story_examples,
         language=language,
         key_beat=key_beat,
     )

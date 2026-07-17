@@ -20,14 +20,14 @@ Closed lanes: CBT Teaser V2 published 2026-07-14 (YouTube; rebuild via `scripts/
 - `[ ]` remaining clarity items: Su-ah `잔향 가공사` rename (deferred). (2026-07-17: echo in-fiction definition + first-use term gloss SHIPPED — deterministic `termGloss.ts` strip + naming.md echo rule; EN opening-card parity found already done 07-11 `8a9362a`, stale item dropped.) Deploy hygiene: use `make deploy` (pins .env project).
 - `[/]` `[manual]` **Full-3.5 live sign-off residuals**: fresh-loop prose/tone/length verdict, Audrey EN retest, IX/companion/equipment/growth feel, authenticated production turn. Objective save/load/map/idempotency/support/loot/equip already passed via three AGY runs.
 - `[/]` **CBT P1 residuals** (design `docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md`; P1-A..E + S1-S4 all DONE): `[ ]` `[manual]` S4 카피 톤 검수(anchor/goal + 12 beat prose) · 6 variant intros in-game feel · decisions G2 twist tone(3 `twist_bank`)/in-layer pacing(C2)/overload-strike range(D5) · EN fresh-loop coherence retest.
-- `[/]` **Prompt-layer separation**: Phase 0-4 + node-addressing done. Remaining `[ ]` Phase 5 few-shot extraction (lowest priority).
+- `[x]` **Prompt-layer separation COMPLETE 2026-07-17**: Phase 0-4 + node-addressing + Phase 5 few-shot extraction (`directives/story_examples(.en).md` ↔ `STORY_EXAMPLE_DEFAULTS` byte-parity; prompt renders byte-identical today). Authority doc `docs/PROMPT_LAYER.md`.
 - `[ ]` `[manual]` **Archetype-variant openings (long-term, 2026-07-04)**: author per-archetype opening variations (directive-layer, `resources/neo-seoul/directives/opening.md` + KO/EN), gated on CBT priorities.
 - Image continuity: lever #1 (style preamble + `appearance` ×7) + lever #2 (curated key-art sequences, codex) SHIPPED; cloud model pinned `gemini-2.5-flash-image`. Watch app-path image success; 큐레이션 키아트는 codex 레인 (오너 지시 2026-07-06).
 
 ## Engineering maintenance track — WS0-3 done (COMPLETED_SUMMARY M43)
 
-- `[/]` **WS4 content pipeline**: image regen/judge loop live-validated; remaining `[ ]` agy→codex authored-content pipeline, plan-only. Design `docs/plans/2026-06-20-ws4-image-regen-loop.md`.
-- `[/]` **WS5 harness hardening (deprioritized)**: remaining `[ ]` automatic shutdown digest, `[ ]` Model-B 3-lane demonstration, `[ ]` runner iteration-output cap. Design `docs/plans/2026-06-19-goal-in-overnight-loop.md`.
+- `[x]` **WS4 content pipeline COMPLETE 2026-07-17**: image regen/judge loop live-validated (M47) + authored-content pipeline DESIGNED — `docs/plans/2026-07-17-ws4-authored-content-pipeline.md` (brief → codex gen+wire → judge relay → human adopt; implementation on-demand at the next real content need, all gates/relays already exist).
+- `[/]` **WS5 harness hardening**: shutdown digest + iteration-output cap DONE 2026-07-17 (`run.sh` `OVERNIGHT_DIGEST` digest md+mail at exit / `ITER_LOG_MAX_KB` post-classification head+tail cap; fixture-verified). Remaining `[ ]` `[manual]` **Model-B 3-lane demonstration** — arm+observe during a real overnight run (`make overnight-worktrees-setup` + 3 engines; burns real quota, owner-armed).
 
 ## Rules
 

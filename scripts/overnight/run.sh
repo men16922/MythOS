@@ -56,6 +56,8 @@ STATUS_TSV="$LOG_DIR/status.tsv"   # 머신리더블 회차 원장(status.sh/대
 : "${MAX_CONSEC_FAIL:=3}"       # 연속 실패 N회 시 안전 중단
 : "${MAX_NO_PROGRESS:=2}"       # success인데 새 커밋 없음 연속 N회 시 안전 중단 (얇은 백로그의 주 종료 사유)
 : "${KEEP_ITER_LOGS:=30}"       # iter-*.log 최근 N개만 보존 (runner.log 는 항상 보존)
+: "${ITER_LOG_MAX_KB:=768}"     # WS5: 회차 로그 캡(KB, 0=무제한). 분류·사용량 파싱 뒤 head+tail 만 보존
+: "${OVERNIGHT_DIGEST:=1}"      # WS5: 종료 시 자동 다이제스트(logs/digest-*.md) 작성 + 메일(--once 는 파일만)
 : "${GATE_CMD:=make check}"     # 커밋 게이트(green) = ruff + eslint + mypy + tsc/vite-build + unittest.
                                  # 더 빠른 변형: GATE_CMD="make check-auto"(mypy 제외) 또는 "make smoke-local".
 export GATE_CMD                 # PROMPT.md 가 $GATE_CMD 로 참조
@@ -185,6 +187,29 @@ CRITIC_PROMPT_CONTENT=""
 if [ "$OVERNIGHT_CRITIC" != "0" ] && [ -f "$CRITIC_PROMPT_FILE" ]; then
   CRITIC_PROMPT_CONTENT="$(cat "$CRITIC_PROMPT_FILE")"
 fi
+
+# WS5 회차 출력 캡: 폭주 스트림(토큰 스팸/에러 루프)이 iter 로그를 무한정 키우는 것을 막는다.
+# 반드시 classify_outcome/parse_usage **이후** 호출 — 둘 다 파일 전체를 파싱하며, 결과 JSON 은
+# 로그 끝에 있으므로 head+tail 보존이면 사후 재분류(수동 디버깅)도 안전하다. 회차 중 실시간
+# 디스크 폭주는 ITER_TIMEOUT(하드 실링)이 지속시간을 바운드한다.
+cap_iter_log() {
+  local f="$1" max_bytes head_bytes tail_bytes size tmp
+  [ "$ITER_LOG_MAX_KB" -gt 0 ] 2>/dev/null || return 0
+  [ -f "$f" ] || return 0
+  max_bytes=$((ITER_LOG_MAX_KB * 1024))
+  size=$(wc -c < "$f" | tr -d ' ')
+  [ "$size" -le "$max_bytes" ] && return 0
+  head_bytes=$((max_bytes / 8))
+  tail_bytes=$((max_bytes - head_bytes))
+  tmp="$f.cap.$$"
+  {
+    head -c "$head_bytes" "$f"
+    printf '\n\n[runner] iter log truncated: %s bytes total, kept head %sB + tail %sB (ITER_LOG_MAX_KB=%s)\n\n' \
+      "$size" "$head_bytes" "$tail_bytes" "$ITER_LOG_MAX_KB"
+    tail -c "$tail_bytes" "$f"
+  } > "$tmp" && mv "$tmp" "$f"
+  log "회차 로그 캡 적용: $(basename "$f") ${size}B → ~${max_bytes}B (head+tail 보존)"
+}
 
 # iter-*.log 를 최근 KEEP_ITER_LOGS 개만 남기고 정리
 prune_logs() {
@@ -528,6 +553,12 @@ PY
 
 log "=== overnight 루프 시작 (engine=$ENGINE, branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null), gate='$GATE_CMD', MAX_ITER=$MAX_ITER, once=$ONCE) ==="
 
+# WS5 다이제스트용 런 마커 (종료 시 이 지점 기준으로 커밋/회차 원장을 요약한다)
+RUN_START_EPOCH="$(date +%s)"
+RUN_START_STAMP="$(date '+%Y%m%d-%H%M%S')"
+RUN_START_ISO="$(date '+%Y-%m-%dT%H:%M:%S')"
+RUN_START_HEAD="$(git rev-parse HEAD 2>/dev/null || echo none)"
+
 iter=0
 consec_fail=0
 no_progress=0
@@ -655,6 +686,7 @@ $PROMPT_CONTENT"
   [ "$outcome" = "failure" ] && FAIL_CLASS="$(classify_failclass "$ITER_LOG" 2>/dev/null || echo '')"
   log "회차 $iter 결과: $outcome (rc=$rc)${FAIL_CLASS:+ [$FAIL_CLASS]}${ITER_TOKENS:+ tok=$ITER_TOKENS}${ITER_COST:+ \$$ITER_COST}"
   emit_status "$outcome" "$HEAD_NOW" "$ITER_DUR" "" "" "" "$ITER_TOKENS" "$ITER_COST" "$FAIL_CLASS"
+  cap_iter_log "$ITER_LOG"   # WS5: 분류·사용량 파싱이 끝난 뒤에만 캡(결과 JSON 은 tail 에 보존됨)
 
   case "$outcome" in
     limit)
@@ -833,6 +865,55 @@ done
 
 log "=== overnight 루프 종료: $exit_reason (총 $iter 회차) ==="
 emit_status "exit:$exit_reason" "$(git rev-parse HEAD 2>/dev/null || echo none)" ""
+
+# WS5 자동 셧다운 다이제스트: 종료 사유와 무관하게 그 자리에서 요약 md 를 남기고(기본) 메일로도
+# 보낸다. 아침 /overnight-report(검수·재게이트)의 대체가 아니라 즉시 스냅샷 — 원장(status.tsv)과
+# 커밋 범위를 사람이 아침에 바로 훑을 수 있는 형태로 접어 둔다. 실패 알림(notify_failure)과 별개.
+write_shutdown_digest() {
+  local digest="$LOG_DIR/digest-$RUN_START_STAMP.md"
+  local head_now dur_min commits tally open_auto open_blocked findings
+  head_now="$(git rev-parse HEAD 2>/dev/null || echo none)"
+  dur_min=$(( ( $(date +%s) - RUN_START_EPOCH ) / 60 ))
+  commits="$(git log --oneline "$RUN_START_HEAD..$head_now" 2>/dev/null)"
+  [ -n "$commits" ] || commits="(no new commits)"
+  # 이 런의 회차 원장 요약(outcome 별 카운트). ts 는 ISO 라 문자열 비교로 시간 필터가 성립한다.
+  tally="$(awk -F'\t' -v s="$RUN_START_ISO" \
+    'NR > 1 && $1 >= s && $5 != "running" { c[$5]++ } END { for (k in c) printf "- %s: %d\n", k, c[k] }' \
+    "$STATUS_TSV" 2>/dev/null)"
+  [ -n "$tally" ] || tally="(no ledger rows)"
+  open_auto="$(grep '\[ \]' docs/NEXT_PLAN.md 2>/dev/null | grep -c '\[auto' || true)"
+  open_blocked="$(grep -c '\[blocked\]' docs/NEXT_PLAN.md 2>/dev/null || true)"
+  findings="none"
+  [ -s "$LOG_DIR/qa-findings.md" ] && findings="$LOG_DIR/qa-findings.md (triage via /overnight-report)"
+  cat > "$digest" <<EOF
+# Overnight shutdown digest — $RUN_START_STAMP
+
+- Exit: $exit_reason (after $iter iteration(s), ${dur_min}m)
+- Engine (final): $ENGINE · branch $(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo '?')
+- HEAD: ${RUN_START_HEAD:0:9} → ${head_now:0:9}
+
+## Iteration outcomes (this run)
+$tally
+
+## Commits since run start
+$commits
+
+## Backlog after run
+- open [auto*] items: $open_auto · [blocked] tags: $open_blocked
+- QA findings: $findings
+
+Logs: $RUNNER_LOG · $STATUS_TSV · iter logs $LOG_DIR/iter-*.log (capped ${ITER_LOG_MAX_KB}KB)
+Morning review: /overnight-report (independent re-gate + checklist) remains the authority.
+EOF
+  log "셧다운 다이제스트: $digest"
+  if [ "$ONCE" -eq 0 ]; then
+    bash scripts/overnight/notify.sh "[MythOS overnight] digest — $exit_reason ($iter iter)" \
+      "$(cat "$digest")" >> "$RUNNER_LOG" 2>&1 || true
+  fi
+}
+if [ "$OVERNIGHT_DIGEST" != "0" ]; then
+  write_shutdown_digest || log "경고: 다이제스트 작성 실패(루프 종료엔 영향 없음)"
+fi
 
 # 실패 클래스에서만 메일(연속 실패 / 전부 blocked). drained·무진행·MAX_ITER·수동 STOP·--once 는 정상 → 안 보냄.
 case "$exit_reason" in

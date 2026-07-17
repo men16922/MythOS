@@ -30,7 +30,7 @@ Current baseline:
 
 1. **Owner live QA gate on `00068-76m`** — the only open Priority 0 work: §1 key-beat A/B verdict (→ `DECISIONS.md`; protocol/rollback `docs/plans/2026-07-14-keybeat-hybrid-ab.md`) · §2 real-device portrait combat pass · §3 two-style balance playtest. Combat overhaul arc + teaser V2 are closed (`COMPLETED_SUMMARY.md` M59-M60).
 2. **Manual content residuals**: S4 copy tone, variant intro feel, G2 twist tone, EN fresh-loop retest (CBT P1; see `NEXT_PLAN.md`).
-3. **Maintenance/hold**: WS4 content pipeline plan-only; `glass-library` held until Neo-Seoul satisfaction (`docs/COMPLETED_SUMMARY.md` M35-M40).
+3. **Maintenance/hold**: WS4 closed (design `docs/plans/2026-07-17-ws4-authored-content-pipeline.md`, impl on-demand); WS5 residual = Model-B demo (owner-armed); `glass-library` held until Neo-Seoul satisfaction.
 
 ## Read Order
 

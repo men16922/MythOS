@@ -164,6 +164,12 @@ class NarrativeContext:
     # shared code default (mythos_narrative.fallbacks) is used, so constructors and
     # tests that omit it are unaffected.
     fallback_scene: dict[str, Any] | None = None
+    # Phase 5 (prompt-layer separation): scenario-authored few-shot snippets for the
+    # dual-model storyteller system prompt (directives/story_examples.md), keyed by
+    # stable snippet id (choice_examples/grounding/texture). None → the code defaults
+    # in prompts.STORY_EXAMPLE_DEFAULTS render (prior behavior; constructors and tests
+    # that omit it are unaffected).
+    story_examples: dict[str, str] | None = None
     # Target output language for narrative generation ("ko" | "en"). S0 threads this
     # end-to-end (RuntimeOptions → session → here → prompt builders); the EN system
     # prompts / authored content land in S1, so today both languages render Korean

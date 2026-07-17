@@ -438,6 +438,48 @@ def _context_prompt(context: NarrativeContext, instruction: str) -> str:
 
 # ── Dual-Model Orchestration Templates ─────────────────────────────────────
 
+# Phase 5 (prompt-layer separation): the scenario-flavored few-shot snippets inside the
+# storyteller system prompts. These are the CODE DEFAULTS and byte-parity anchors — the
+# authored canonical text lives in resources/<scenario>/directives/story_examples.md
+# (`.en.md` for English) and reaches here via ``NarrativeContext.story_examples``;
+# ``_story_system_prompt`` swaps each default snippet for its authored counterpart.
+# Scenarios without a story_examples.md keep these defaults (prior behavior).
+# Scaffolding (format contract, register rules, world block) STAYS in code.
+STORY_EXAMPLE_DEFAULTS: dict[str, dict[str, str]] = {
+    "ko": {
+        "choice_examples": (
+            'Good: "세린의 손을 잡고 뛴다", "드론 불빛을 피해 숨는다", "경고 문구의 출처를 찾는다".\n'
+            'Bad: "주변을 감도는 데이터 파형을 역추적한다", "Perception 체크", "접속 제한 메시지의 근원지 탐색".'
+        ),
+        "grounding": (
+            "For neo-seoul, ground scenes in physical Neo-Seoul first: rain on concrete, drone\n"
+            "searchlights, subway shutters, welfare kiosks, market neon, motorcycle engines,\n"
+            "breath, blood, static, hands, faces. Avoid generic virtual limbo unless the node\n"
+            "explicitly says the player is inside a data core."
+        ),
+        "texture": (
+            'Good scene texture: "비가 깨진 간판을 때린다. 드론 불빛이 세린의 어깨를 스치고,\n'
+            '그녀가 네 손목을 잡아 주차장 셔터 아래로 밀어 넣는다."'
+        ),
+    },
+    "en": {
+        "choice_examples": (
+            'Good: "Grab Se-rin\'s hand and run", "Duck out of the drone\'s searchlight", "Trace where the warning message came from".\n'
+            'Bad: "Back-trace the data waveform in the air", "Make a Perception check", "Locate the origin of the access-denied message".'
+        ),
+        "grounding": (
+            "For neo-seoul, ground scenes in physical Neo-Seoul first: rain on concrete, drone\n"
+            "searchlights, subway shutters, welfare kiosks, market neon, motorcycle engines,\n"
+            "breath, blood, static, hands, faces. Avoid generic virtual limbo unless the node\n"
+            "explicitly says the player is inside a data core."
+        ),
+        "texture": (
+            'Good scene texture: "Rain hammers a cracked sign. A drone\'s light grazes Se-rin\'s\n'
+            'shoulder, and she grabs your wrist and shoves you under the parking-garage shutter."'
+        ),
+    },
+}
+
 STORY_SYSTEM_PROMPT = f"""
 You are the Creative Narrative Director for Project MythOS.
 Create one playable scene in high-quality, cinematic Korean.
@@ -445,26 +487,21 @@ Write a concrete description of the scene and provide 2-3 distinct, meaningful c
 ALWAYS give at least two choices — never a single option. Each choice must pursue a
 different intent (탐색/조사, 대화/설득, 해킹/개입, 회피/이동 등) so the player has a real decision.
 Write each choice as a concrete action the player can understand immediately.
-Good: "세린의 손을 잡고 뛴다", "드론 불빛을 피해 숨는다", "경고 문구의 출처를 찾는다".
-Bad: "주변을 감도는 데이터 파형을 역추적한다", "Perception 체크", "접속 제한 메시지의 근원지 탐색".
+{STORY_EXAMPLE_DEFAULTS["ko"]["choice_examples"]}
 The [SCENE] prose should read like a movie scene the player can picture immediately:
 1) Start with the visible physical place and immediate danger in the first sentence.
 2) Show people moving, reacting, grabbing, aiming, running, hiding, or speaking.
 3) Keep paragraphs short: 2-4 paragraphs, 1-3 sentences each. No wall-of-text blocks.
 4) Use one concrete sensory detail per paragraph, not a catalogue of abstractions.
 5) End by making the next playable decision obvious.
-For neo-seoul, ground scenes in physical Neo-Seoul first: rain on concrete, drone
-searchlights, subway shutters, welfare kiosks, market neon, motorcycle engines,
-breath, blood, static, hands, faces. Avoid generic virtual limbo unless the node
-explicitly says the player is inside a data core.
+{STORY_EXAMPLE_DEFAULTS["ko"]["grounding"]}
 Abstract system terms like "데이터 흐름", "잔향 회랑", "오버레이 코어", "불안 영역",
 "플레이어의 존재 자체" are NOT banned — the problem is REPEATING them scene after scene.
 Match register to the scene: ordinary scenes use plain, physical, screenplay-style
 action lines (what is seen/heard, people moving, strong verbs); reserve abstract or
 conceptual texture for scenes that are deliberately esoteric (inside a data core, an
 IX system confrontation). Never let the same abstract phrasing recur every scene.
-Good scene texture: "비가 깨진 간판을 때린다. 드론 불빛이 세린의 어깨를 스치고,
-그녀가 네 손목을 잡아 주차장 셔터 아래로 밀어 넣는다."
+{STORY_EXAMPLE_DEFAULTS["ko"]["texture"]}
 Do NOT output JSON. Write in plain text matching the format guidelines below.
 Avoid repeating specific particles or words (like "-의-", "-임-", "-록-", or repeating terms).
 
@@ -501,26 +538,21 @@ Write a concrete description of the scene and provide 2-3 distinct, meaningful c
 ALWAYS give at least two choices — never a single option. Each choice must pursue a
 different intent (explore/investigate, talk/persuade, hack/intervene, evade/move, etc.) so the player has a real decision.
 Write each choice as a concrete action the player can understand immediately.
-Good: "Grab Se-rin's hand and run", "Duck out of the drone's searchlight", "Trace where the warning message came from".
-Bad: "Back-trace the data waveform in the air", "Make a Perception check", "Locate the origin of the access-denied message".
+{STORY_EXAMPLE_DEFAULTS["en"]["choice_examples"]}
 The [SCENE] prose should read like a movie scene the player can picture immediately:
 1) Start with the visible physical place and immediate danger in the first sentence.
 2) Show people moving, reacting, grabbing, aiming, running, hiding, or speaking.
 3) Keep paragraphs short: 2-4 paragraphs, 1-3 sentences each. No wall-of-text blocks.
 4) Use one concrete sensory detail per paragraph, not a catalogue of abstractions.
 5) End by making the next playable decision obvious.
-For neo-seoul, ground scenes in physical Neo-Seoul first: rain on concrete, drone
-searchlights, subway shutters, welfare kiosks, market neon, motorcycle engines,
-breath, blood, static, hands, faces. Avoid generic virtual limbo unless the node
-explicitly says the player is inside a data core.
+{STORY_EXAMPLE_DEFAULTS["en"]["grounding"]}
 Abstract system terms like "data flow", "resonance corridor", "overlay core", "unstable zone",
 "the player's very existence" are NOT banned — the problem is REPEATING them scene after scene.
 Match register to the scene: ordinary scenes use plain, physical, screenplay-style
 action lines (what is seen/heard, people moving, strong verbs); reserve abstract or
 conceptual texture for scenes that are deliberately esoteric (inside a data core, an
 IX system confrontation). Never let the same abstract phrasing recur every scene.
-Good scene texture: "Rain hammers a cracked sign. A drone's light grazes Se-rin's
-shoulder, and she grabs your wrist and shoves you under the parking-garage shutter."
+{STORY_EXAMPLE_DEFAULTS["en"]["texture"]}
 Do NOT output JSON. Write in plain text matching the format guidelines below.
 Avoid repeating the same words, phrases, or sentence openers across paragraphs.
 
@@ -551,10 +583,21 @@ def _story_system_prompt(context: NarrativeContext) -> str:
     Returns the English storyteller system prompt when ``context.language == "en"``,
     else the Korean default. Kept as a helper (rather than a hardcoded inline constant)
     so the dual-model path is context-aware — see localization plan §7.1.
+
+    Phase 5: when the scenario ships ``directives/story_examples.md``, its authored
+    snippets (``context.story_examples``) replace the code-default few-shot examples
+    (``STORY_EXAMPLE_DEFAULTS``) inside the template. The swap is per stable snippet
+    key, so the prompt stays constant per scenario+language (cache-prefix safe); no
+    directive file → byte-identical to the historical prompt.
     """
-    if context.language == "en":
-        return STORY_SYSTEM_PROMPT_EN.strip()
-    return STORY_SYSTEM_PROMPT.strip()
+    lang = "en" if context.language == "en" else "ko"
+    prompt = STORY_SYSTEM_PROMPT_EN if lang == "en" else STORY_SYSTEM_PROMPT
+    authored = context.story_examples or {}
+    for key, default in STORY_EXAMPLE_DEFAULTS[lang].items():
+        replacement = authored.get(key, "")
+        if replacement:
+            prompt = prompt.replace(default, replacement)
+    return prompt.strip()
 
 
 def build_first_story_messages(context: NarrativeContext) -> list[dict[str, str]]:

@@ -59,7 +59,7 @@ scenario.json → load_scenario() [lru_cached, src/mythos_runtime/scenario.py] �
 | stat-voice 독백 prose | scenario_context | **MOVE** → `directives/stat_voices.md` |
 | travel/emergency 조우 prose | scenario_context | **MOVE** → `directives/encounters.md` |
 | `_fallback_payload` neo-seoul prose (parser.py와 중복) | director.py/parser.py | **MOVE** → `directives/fallback.md` (+ 공유 코드 기본값) |
-| system prompt few-shot 예시(neo-seoul) | prompts.py | **MOVE 예시만** (scaffolding STAY) |
+| system prompt few-shot 예시(neo-seoul) | prompts.py | **MOVE 완료 (Phase 5, 2026-07-17)** → `directives/story_examples.md` + `.en.md` (scaffolding·포맷 계약은 STAY; 코드 기본값 = `STORY_EXAMPLE_DEFAULTS` byte-parity 앵커, `tests/test_story_example_directives.py`) |
 
 ### directives/*.md 포맷
 

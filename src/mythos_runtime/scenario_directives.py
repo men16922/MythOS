@@ -317,6 +317,11 @@ class ScenarioDirectives:
     # code default (DEFAULT_ENCOUNTERS); this prose was previously shared by every
     # scenario, so a scenario without one keeps the prior behavior.
     encounters: Encounters | None = None
+    # Phase 5: scenario-authored few-shot snippets for the storyteller system prompt
+    # (directives/story_examples.md), keyed by stable snippet id (choice_examples/
+    # grounding/texture). None when the scenario ships no story_examples.md → the code
+    # defaults in mythos_narrative.prompts.STORY_EXAMPLE_DEFAULTS render (prior behavior).
+    story_examples: dict[str, str] | None = None
     # Companion cutscenes (directives/companions/<name>.md), flat across all companions
     # (each carries its own ``companion`` id). Empty when no companions/ folder is
     # shipped. Unlock evaluation is in ``mythos_runtime.cutscenes``.
@@ -505,6 +510,27 @@ def _encounters_from_parsed(parsed: ParsedDirectives) -> Encounters | None:
     )
 
 
+# Phase 5: stable snippet ids the storyteller system prompt can swap. Unknown block
+# ids in story_examples.md are ignored (forward-compatible; prompts.py only replaces
+# keys it knows).
+_STORY_EXAMPLE_KEYS = ("choice_examples", "grounding", "texture")
+
+
+def _story_examples_from_parsed(parsed: ParsedDirectives) -> dict[str, str] | None:
+    """Map a parsed ``story_examples.md`` into snippet-id → prose (``None`` if empty).
+
+    Each ``## <snippet_id>`` block body is one few-shot snippet for the storyteller
+    system prompt (``mythos_narrative.prompts.STORY_EXAMPLE_DEFAULTS`` documents the
+    ids and holds the code defaults / byte-parity anchors).
+    """
+    out = {
+        block.block_id: block.body
+        for block in parsed.blocks
+        if block.block_id in _STORY_EXAMPLE_KEYS and block.body
+    }
+    return out or None
+
+
 def _cutscenes_from_parsed(parsed: ParsedDirectives, default_companion: str) -> list[CutsceneDirective]:
     """Map a parsed ``companions/<name>.md`` into ``CutsceneDirective``s.
 
@@ -671,6 +697,12 @@ def load_scenario_directives(
         with open(encounters_path, encoding="utf-8") as f:
             encounters = _encounters_from_parsed(parse_directives_markdown(f.read()))
 
+    story_examples: dict[str, str] | None = None
+    story_examples_path = _directive_path(base, "story_examples", language)
+    if story_examples_path is not None:
+        with open(story_examples_path, encoding="utf-8") as f:
+            story_examples = _story_examples_from_parsed(parse_directives_markdown(f.read()))
+
     side_arcs_path = _directive_path(base, "side_arcs", language)
     if side_arcs_path is not None:
         with open(side_arcs_path, encoding="utf-8") as f:
@@ -705,6 +737,7 @@ def load_scenario_directives(
         naming_rule=naming_rule,
         stat_voices=stat_voices,
         encounters=encounters,
+        story_examples=story_examples,
         cutscenes=cutscenes,
         route_header=route_header,
         route_beats=route_beats,

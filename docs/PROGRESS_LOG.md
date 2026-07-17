@@ -9,7 +9,7 @@ Last updated: 2026-07-17
 - **Owner findings**: 보드가 콘솔보다 작음 · 스킬 컷인 카드가 아군/적 카드와 겹침 · 시뮬레이터가 루프 강화(분)를 강요.
 - **Fixes**: ①board band + HEIGHT-fit (`100dvh−176px−30dvh` wrapper + `combatCanvas` grow-only portrait fit): canvas 273→**389px tall** (554w, pan-x), board finally > dock ②dock diet 38→**30dvh** ③**board-first scroll** (bottom-stick suppressed during combat; re-pin 120/400ms after layout shifts — the stick was yanking the viewport past the board to the console on entry) ④cinema cards 220/240px→**27/31vw** (390px: 105+121+105=331, no overlap) ⑤sim entry drops `boons` (straight to combat).
 - Verified: locks `test_portrait_combat_dock.py` 7 (30dvh/34dvh, band calc, canvas fit markers, vw cards, boons strip) · emulator: wrapperTop 0 / boardFullyVisible true / boonOverlay false / console clean · probe-strip measurement 331px<390. Evidence `outputs/live-qa/manual-20260717-portrait-board/`.
-- Remaining `[manual]`: 실기기 재검(§2 재작성됨 — 보드 크기 체감·팬 감·컷인 가독·독 3할). Candidates if owner wants more board: rotate-hint/goal-banner auto-suppress, camera auto-center (plan doc "NOT done").
+- **DEPLOYED `mythos-api-00073-zx2`** (100% traffic; env pins verified `MODEL=gemini-3.5-flash` + `IMAGEN_MODEL=gemini-2.5-flash-image`; health ok). Remaining `[manual]`: 실기기 재검(§2 재작성됨 — 보드 크기 체감·팬 감·컷인 가독·독 3할). Candidates if owner wants more board: rotate-hint/goal-banner auto-suppress, camera auto-center (plan doc "NOT done").
 
 ## 2026-07-17 (cont.4) — A/B VERDICT: ROLLBACK — full-3.5 narrative restored on 00071
 - Status: Done. Rollback in two steps: env-only `00071-gt9` (`MODEL=gemini-3.5-flash`, `GEMINI_MODEL_KEYBEAT` removed; `IMAGEN_MODEL` intact) → source-pinned rebuild **`mythos-api-00072-pw9`** (serving 100%; health ok).

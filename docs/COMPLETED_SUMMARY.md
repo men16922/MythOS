@@ -181,6 +181,15 @@
 - **Portrait action dock (owner pain "스킬/공격하려면 자꾸 스크롤")**: fixed bottom console sheet (38dvh, safe-area) + LC5-style chrome diet in portrait combat; layering fixes (legend popup z50 < dock z52 < boon z55 < modals 60 — the popup was swallowing boon-card and dock taps at phone widths). Emulator-verified @390×844; real-device pass open.
 - **Also**: CBT Teaser V2 published (YouTube, owner). Deploys `00060-ldj`→`00063-hpz`; `make check` 1067→**1082** green; locks `BalanceTuning20260714Test`/`test_turn_order_strip`/`test_portrait_combat_dock`.
 
+## M61 — Ops day: A/B verdict + agent-backlog drain + eval harness + portrait hierarchy (2026-07-17)
+
+- **Key-beat hybrid A/B CLOSED = ROLLBACK**: owner felt the 2.5 normal-turn prose drop → full `gemini-3.5-flash` restored AND source-pinned (provider default + `.env.example` + DEPLOY.md; location auto-`global`); routing/observability kept for future retries. Partial-2.5 audit: no viable spot (2 LLM touchpoints; thinking already 0; ~$1.0/loop accepted). `DECISIONS.md` 07-17.
+- **3.1 image-model log audit**: prod logs proved `gemini-3.1-flash-image` NEVER succeeded (0 successes over its whole deployed life); "worked before" was `imagen-3.0` on 07-11 → probe-before-deploy lesson recorded.
+- **Agent backlog drained**: clarity follow-ups (deterministic first-use term-gloss UI `termGloss.ts` + echo in-fiction naming rule) · WS4 closed by design (`docs/plans/2026-07-17-ws4-authored-content-pipeline.md`) · WS5 shutdown digest + iter-log cap (`run.sh`) · prompt-layer Phase 5 few-shot extraction (byte-parity, track complete).
+- **Narrative eval harness**: `scripts/eval/` golden bank + claude-CLI rubric judge (`make eval-narrative`), end-to-end validated (judge caught canned-fallback artifacts with turn-anchored quotes). Reference analyses `docs/reference/` (Google ADK 2.0 fact-check — Antigravity≠runtime; Anthropic/OpenAI borrow list — eval loop was our gap).
+- **Portrait combat hierarchy rework** (owner real-device findings): board height-fit 389px + board-first scroll (board finally dominates), dock 38→30dvh, cinema cards vw-scaled (no overlap @390px), simulator skips the boon draft. Design `docs/plans/2026-07-17-portrait-combat-hierarchy.md`.
+- **Ops/cost**: docs tidied to budget (plans archived, media pruned 250→68MB), 56 stale AR build images deleted + cleanup policy, git commit/push allowlisted. Deploys `00070`→`00073-zx2`; `make check` 1094→**1124** green.
+
 ## Archive Reference
 
 M0-M10의 상세 체크리스트, work log, verification log는 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`에 보존한다.

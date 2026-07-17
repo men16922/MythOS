@@ -4,7 +4,7 @@ Last updated: 2026-07-17
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Owner QA is the gate; agent lanes are clear.** Live = `00071-gt9→00072-pw9(source-pinned)`: **A/B VERDICT = ROLLBACK** (owner: 2.5 normal-turn quality drop) → full-3.5 narrative restored, keybeat env removed (routing code kept); term-gloss UI + image `gemini-2.5-flash-image` live (3.1 never worked in prod — log audit). Owner checklist = `docs/test/neo_seoul_live_qa.md`: **§2 real-device portrait dock/strip** · **§3 two-style playtest** (+§5 image recovery check). Eval bank ready — bank real loop ids after play.
+> ▶ NEXT SESSION: **Owner QA is the gate; agent lanes are clear.** Live = `00073-zx2`: full-3.5 narrative (A/B ROLLBACK verdict, source-pinned) + **portrait combat hierarchy rework** (board dominates 389px/height-fit, dock 30dvh, cinema cards vw-scaled, sim skips boons — `docs/plans/2026-07-17-portrait-combat-hierarchy.md`) + term-gloss UI + image 2.5. Owner checklist = `docs/test/neo_seoul_live_qa.md`: **§2 재검 (portrait rework)** · **§3 two-style playtest** (+§5 image recovery). Eval bank ready — hand loop ids after play.
 
 ## Snapshot
 

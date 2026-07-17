@@ -210,7 +210,12 @@ export function useSessionLifecycle(args: UseSessionLifecycleArgs) {
       const combatBgmPath = snap.bgm_path?.includes("bgm_combat")
         ? snap.bgm_path
         : `resources/${selectedScenarioId}/audio/bgm_combat_normal.wav`;
-      const combatSnap = { ...snap, combat, bgm_path: combatBgmPath };
+      // Simulator = straight into combat (owner 2026-07-17: "왜 루프 강화를
+      // 선택하는거야"): apiBegin creates a real loop whose snapshot carries the
+      // run-start boon draft, but a boon pick is loop-progression furniture the
+      // sandbox doesn't need — strip it so BoonOffer never interposes. The test
+      // kit already grants every skill/item the sandbox exercises.
+      const combatSnap = { ...snap, combat, bgm_path: combatBgmPath, boons: null };
       initAudio();
       playBgm(combatBgmPath);
       // Reset the animator baseline so the opening board draws statically

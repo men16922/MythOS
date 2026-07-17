@@ -618,6 +618,25 @@ export function drawCombatCanvas(
     const cssWFromHeight = Math.floor((baseH * cols) / rows);
     cssW = Math.max(minCssW, Math.min(cssW, cssWFromHeight));
   }
+  // Portrait hierarchy (owner 2026-07-17: "전투화면이 너무 작아 … 행동/스킬보다
+  // 훨씬 커야"): in portrait touch combat the wrapper gets a bounded HEIGHT
+  // band (index.css "Portrait combat board band") and the canvas grows to FILL
+  // it — the width-derived size (~273px tall on a 390px phone) made the board
+  // subordinate to the console. Width overflow pans (wrapper pan-x + drag-pan),
+  // matching how a zoomed board already behaves. Fit UP, never shrink.
+  const isPortraitCoarse =
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(orientation: portrait)").matches &&
+    window.matchMedia("(pointer: coarse)").matches;
+  if (isPortraitCoarse && document.body.classList.contains("combat-active")) {
+    const padTop = parseFloat(computed.paddingTop) || 0;
+    const padBottom = parseFloat(computed.paddingBottom) || 0;
+    const baseH = Math.floor(container.clientHeight - padTop - padBottom);
+    if (baseH > 160) {
+      const cssWFromHeight = Math.floor((baseH * cols) / rows);
+      cssW = Math.max(cssW, cssWFromHeight, minCssW);
+    }
+  }
   const cssH = Math.round((cssW * rows) / cols);
 
   canvas.style.width = cssW + "px";

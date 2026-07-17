@@ -29,12 +29,44 @@ class PortraitCombatDockTest(unittest.TestCase):
         self.assertIn("position: fixed", block)
         self.assertIn("bottom: 0", block)
         # Own scroll, bounded height: board stays co-visible above the sheet.
-        self.assertIn("max-height: 38dvh", block)
+        # 30dvh (was 38) since the 2026-07-17 portrait-hierarchy verdict — the
+        # board is the protagonist, the console a compact tool shelf.
+        self.assertIn("max-height: 30dvh", block)
         self.assertIn("overflow-y: auto", block)
         self.assertIn("env(safe-area-inset-bottom)", block)
 
     def test_page_padded_so_content_stays_reachable_above_the_dock(self) -> None:
-        self.assertIn("padding-bottom: 42dvh", self._portrait_block())
+        self.assertIn("padding-bottom: 34dvh", self._portrait_block())
+
+    def test_board_band_claims_the_space_between_chrome_and_dock(self) -> None:
+        # Portrait hierarchy 2026-07-17: the canvas wrapper gets an explicit
+        # height band and combatCanvas fits the board INTO it (height-fit, grow
+        # only) — without this the board was width-bound to ~273px on a 390px
+        # phone, smaller than the console it should dominate.
+        block = self._portrait_block()
+        self.assertIn("body.combat-active .tactical-board-canvas-wrapper", block)
+        self.assertIn("height: calc(100dvh - 176px - 30dvh)", block)
+        self.assertIn("justify-content: flex-start", block)
+        canvas_src = read("src/mythos_ui/src/combatCanvas.ts")
+        self.assertIn("isPortraitCoarse", canvas_src)
+        self.assertIn('window.matchMedia("(orientation: portrait)")', canvas_src)
+        self.assertIn("cssW = Math.max(cssW, cssWFromHeight, minCssW)", canvas_src)
+
+    def test_cinema_cards_scale_on_narrow_portrait(self) -> None:
+        # Owner 2026-07-17: fixed 220/240px cinema cards overlapped on a 390px
+        # phone (skill poster over both unit cards). The narrow-portrait block
+        # rescales them in vw so the three lanes stay separate.
+        css = read("src/mythos_ui/src/index.css")
+        start = css.index("Narrow portrait (owner 2026-07-17")
+        block = css[start : start + 1600]
+        self.assertIn("width: 27vw", block)
+        self.assertIn("width: 31vw", block)
+
+    def test_simulator_entry_strips_the_boon_draft(self) -> None:
+        # Owner 2026-07-17: the sandbox must go straight to combat — no run
+        # boon pick (apiBegin's real loop carries one; the sim snapshot drops it).
+        hook = read("src/mythos_ui/src/hooks/useSessionLifecycle.ts")
+        self.assertIn("boons: null", hook)
 
     def test_portrait_combat_gets_the_lc5_style_chrome_diet(self) -> None:
         block = self._portrait_block()

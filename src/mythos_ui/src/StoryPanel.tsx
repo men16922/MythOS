@@ -972,6 +972,7 @@ export function StoryPanel({
   // whether the reader is (near-)bottom, so scrolling up is never yanked back;
   // (2) during streaming use instant ("auto") scroll so ticks don't pile up.
   const combatJustFinished = Boolean(snapshot?.combat?.finished);
+  const combatActive = Boolean(snapshot?.combat && !snapshot.combat.finished);
   const combatOutcome = snapshot?.combat?.finished ? snapshot.combat.outcome ?? null : null;
   const stickToBottomRef = useRef(true);
   useEffect(() => {
@@ -989,9 +990,34 @@ export function StoryPanel({
   }, []);
   useEffect(() => {
     if (combatJustFinished) return;
+    // Portrait hierarchy (owner 2026-07-17): while a fight is RUNNING the board
+    // is the protagonist — the bottom-stick (which chases narration) yanked the
+    // viewport past the board to the console on combat entry. The board-first
+    // effect below owns combat scrolling instead.
+    if (combatActive) return;
     if (!stickToBottomRef.current) return;
     scrollBottomRef.current?.scrollIntoView({ behavior: isStreaming ? "auto" : "smooth" });
-  }, [displayedNarration, narrativeHistory, combatJustFinished, isStreaming]);
+  }, [displayedNarration, narrativeHistory, combatJustFinished, combatActive, isStreaming]);
+
+  // Board-first scroll on combat start (touch devices): pin the board band to
+  // the viewport top so board + action dock fill the screen; the chrome above
+  // (title/goal banner) scrolls away — it is secondary during a fight. Fires
+  // once per combat (combatActive edge), so mid-fight panning is never yanked.
+  const boardWrapRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!combatActive || !isCoarsePointer) return;
+    const pin = () => boardWrapRef.current?.scrollIntoView({ behavior: "auto", block: "start" });
+    // Pin now AND after layout settles: the canvas height-fit and the goal
+    // banner/rotate hint mount right after combat entry and shift the wrapper,
+    // so a single immediate scroll lands ~100px past the board.
+    pin();
+    const t1 = window.setTimeout(pin, 120);
+    const t2 = window.setTimeout(pin, 400);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, [combatActive, isCoarsePointer]);
 
   // When a combat resolves (victory/defeat/flee), bring the result panel into
   // view at the top instead of leaving the player scrolled to the bottom.
@@ -1085,6 +1111,7 @@ export function StoryPanel({
                 <TurnOrderStrip radar={snapshot.combat.radar} scenarioId={scenarioId} />
               )}
               <div
+                ref={boardWrapRef}
                 className={`tactical-board-canvas-wrapper${
                   tutorialHighlight === "move" ? " tut-glow" : ""
                 }`}

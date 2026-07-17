@@ -4610,6 +4610,40 @@ main#play.fx-glitch {
   background: #020706;
 }
 
+/* Narrow portrait (owner 2026-07-17: "스킬 카드가 아군과 적 사이에 겹쳐서"):
+   three fixed-width cards (220+240+220px) can never fit a 390px phone — the
+   center skill poster overlapped both unit cards. Scale the whole strip in vw
+   so attacker / skill / target keep clear lanes; total ≈ 27+31+27vw + gaps. */
+@media (orientation: portrait) and (max-width: 620px) {
+  .cinema-strip {
+    height: 300px;
+    padding: 0 3%;
+  }
+  .cinema-strip.has-skill {
+    padding: 0 2%;
+  }
+  .cinema-card {
+    width: 27vw;
+    height: 36vw;
+  }
+  .cinema-card.skill-card {
+    width: 31vw;
+  }
+  .actor-side,
+  .cinema-strip.has-skill .actor-side,
+  .cinema-strip.has-signal .actor-side {
+    width: 29%;
+  }
+  .actor-name-tag,
+  .skill-title-tag {
+    font-size: 11px;
+    max-width: 30vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
 .cinema-card::before {
   content: "";
   position: absolute;
@@ -6493,11 +6527,14 @@ main#play.fx-glitch {
        informational popup may slide under it) while staying below the boon
        draft (55) and route-map modal tier (60). */
     z-index: 52;
-    max-height: 38dvh;
+    /* 30dvh (was 38): portrait hierarchy verdict 2026-07-17 — the BOARD is the
+       protagonist; the console is a compact tool shelf. Own scroll keeps every
+       action reachable inside the shorter sheet. */
+    max-height: 30dvh;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     margin: 0;
-    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
     background: var(--panel-1, #050d0c);
     border-top: 1px solid rgba(41, 211, 152, 0.35);
     border-radius: 12px 12px 0 0;
@@ -6506,7 +6543,18 @@ main#play.fx-glitch {
   /* The sheet covers the viewport tail — pad the page so the roster/log/legend
      underneath stay scroll-reachable above the dock. */
   body.combat-active .combat-layout {
-    padding-bottom: 42dvh;
+    padding-bottom: 34dvh;
+  }
+  /* Portrait combat board band (owner 2026-07-17: "전투화면이 너무 작아"):
+     the wrapper claims the viewport band between the top chrome (~header +
+     status/title + goal banner + turn strip ≈ 176px after the chrome diet)
+     and the 30dvh dock; combatCanvas fits the board INTO this height, so the
+     battlefield — not the console — dominates the screen. flex-start (not
+     center) so a wider-than-viewport board pans from a reachable left edge. */
+  body.combat-active .tactical-board-canvas-wrapper {
+    height: calc(100dvh - 176px - 30dvh);
+    min-height: 300px;
+    justify-content: flex-start;
   }
   /* Chrome diet during portrait combat (same rationale as LC5 for landscape):
      the tab-nav and full header pushed the canvas below the dock's top edge —

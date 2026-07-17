@@ -41,6 +41,7 @@ Agents do not read all of `docs/`; follow only the order below.
   - `history/<MMDD-HHMM>-overnight-review-checklist.md`: the **per-run instance** `/overnight-report` generates each run (fills bible B~E with that run's facts). gitignore — a regenerable artifact.
 - `docs/plans/`: dated design snapshots of active work (e.g. variant-routed-opening, cbt-feedback3-clarity, the WS4/WS5 engineering plans). Completed/retired plans move to `bin/docs/plans/`. May be stale, so prefer `NEXT_PLAN.md`.
 - `docs/scenarios/`: scenario design docs. Read only when changing content.
+- `docs/reference/`: external-tech reference analyses (verified claims + what MythOS should/shouldn't borrow). Read on demand.
 - `bin/docs/archive/`: store for long-form design/logs/past planning. Not in default context.
 - `bin/docs/feedback/`: past feedback source.
 

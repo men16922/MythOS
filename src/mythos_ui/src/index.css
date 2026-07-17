@@ -450,6 +450,34 @@ main {
   color: var(--term);
   animation: blink 1s steps(1) infinite;
 }
+
+/* First-use term gloss (2026-07-17): one-line definition chips under the
+   narration the first time a glossary term appears this session. Muted,
+   reads as a marginal note — never competes with the prose. */
+.term-gloss-strip {
+  margin: 10px 0 4px;
+  padding: 6px 12px;
+  border-left: 3px solid var(--line-soft);
+  border-radius: 0 6px 6px 0;
+  background: rgba(127, 127, 127, 0.05);
+}
+.term-gloss-line {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--ink-dim);
+}
+.term-gloss-line + .term-gloss-line {
+  margin-top: 4px;
+}
+.term-gloss-term {
+  color: var(--term-dim);
+  font-weight: 600;
+}
+.term-gloss-term::after {
+  content: " — ";
+  color: var(--ink-dim);
+  font-weight: 400;
+}
 @keyframes blink {
   50% { opacity: 0; }
 }

@@ -15,6 +15,7 @@ import { Surface } from "./Surface";
 import { useConciseMode } from "./conciseMode";
 import { useOrientation } from "./hooks/useOrientation";
 import { useLang } from "./i18n/lang";
+import { firstUseTermsForScene } from "./termGloss";
 import type { StringKey } from "./i18n/strings.ko";
 import type { CombatAction, CombatBlip, CombatConsumable, CombatSkillInfo, CombatState, RuntimeSnapshot, ScenarioCharacter } from "./types";
 
@@ -912,7 +913,7 @@ export function StoryPanel({
   onOpenSave,
   onOpenLoad,
 }: StoryPanelProps) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const { conciseMode } = useConciseMode();
   const { isLandscape, isCoarsePointer } = useOrientation();
   const isLandscapeCoarseCombat = isLandscape && isCoarsePointer;
@@ -1280,6 +1281,33 @@ export function StoryPanel({
                   )}
                   {isStreaming && <span className="caret">▌</span>}
                 </div>
+                {/* 첫 등장 용어 주석 (deterministic): 이번 세션에서 처음 언급된
+                    용어집 용어를 지문 아래 한 줄로 정의 — 도감 없이 뜻이 잡히게.
+                    directive의 "첫 등장 주석"은 LLM 준수라 이 칩이 보증 계층. */}
+                {!isStreaming &&
+                  (() => {
+                    const glossEntries = firstUseTermsForScene(
+                      snapshot?.active_scene?.scene_id ?? "",
+                      snapshot?.active_scene?.narration ?? "",
+                      scenarioId,
+                      lang
+                    );
+                    if (glossEntries.length === 0) return null;
+                    return (
+                      <div className="term-gloss-strip" id="term-gloss">
+                        {glossEntries.map((entry) => (
+                          <div key={entry.id} className="term-gloss-line">
+                            <span className="term-gloss-term">
+                              {lang === "en" ? entry.term.en : entry.term.ko}
+                            </span>
+                            <span className="term-gloss-desc">
+                              {lang === "en" ? entry.desc.en : entry.desc.ko}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
               </div>
 
               {/* 자동 스크롤용 앵커 */}

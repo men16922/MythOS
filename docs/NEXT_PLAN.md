@@ -17,7 +17,7 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00
 Closed lanes: CBT Teaser V2 published 2026-07-14 (YouTube; rebuild via `scripts/cbt/build_teaser.py`; scene sources pruned 2026-07-17 — final mp4 + narrations/BGM kept). Combat overhaul arc 07-11..14 fully owner-passed → `COMPLETED_SUMMARY.md` M59-M60.
 
 ### Narrative clarity / content follow-ups (mostly `[manual]`)
-- `[ ]` remaining clarity items: Su-ah `잔향 가공사` rename (deferred) · Echo/loop-memory in-fiction definition · 물거미/최적화/핑 first-use gloss · EN opening-card parity. Deploy hygiene: use `make deploy` (pins .env project).
+- `[ ]` remaining clarity items: Su-ah `잔향 가공사` rename (deferred). (2026-07-17: echo in-fiction definition + first-use term gloss SHIPPED — deterministic `termGloss.ts` strip + naming.md echo rule; EN opening-card parity found already done 07-11 `8a9362a`, stale item dropped.) Deploy hygiene: use `make deploy` (pins .env project).
 - `[/]` `[manual]` **Full-3.5 live sign-off residuals**: fresh-loop prose/tone/length verdict, Audrey EN retest, IX/companion/equipment/growth feel, authenticated production turn. Objective save/load/map/idempotency/support/loot/equip already passed via three AGY runs.
 - `[/]` **CBT P1 residuals** (design `docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md`; P1-A..E + S1-S4 all DONE): `[ ]` `[manual]` S4 카피 톤 검수(anchor/goal + 12 beat prose) · 6 variant intros in-game feel · decisions G2 twist tone(3 `twist_bank`)/in-layer pacing(C2)/overload-strike range(D5) · EN fresh-loop coherence retest.
 - `[/]` **Prompt-layer separation**: Phase 0-4 + node-addressing done. Remaining `[ ]` Phase 5 few-shot extraction (lowest priority).

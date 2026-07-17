@@ -8,10 +8,10 @@ This file keeps only upcoming (open) work as a rolling plan. Completed tracks li
 
 ## Priority 0 — Human live sign-off on the deployed bundle
 
-Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00069-gdn` (2026-07-15 evening source rebuild; 100% traffic, env verified 07-17)** — portrait action dock + turn-order strip + key-beat hybrid live, cloud images restored on the directly verified `gemini-2.5-flash-image` after 3.1 returned 404. All agent lanes are drained; open Priority 0 work is owner-side:
+Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00072-pw9` (2026-07-17; 100% traffic)** — full-3.5 narrative (A/B rollback source-pinned), term-gloss UI, portrait dock + turn-order strip, images on `gemini-2.5-flash-image`. All agent lanes are drained; open Priority 0 work is owner-side:
 
-- `[x]` **§1 Key-beat hybrid A/B — VERDICT: ROLLBACK 2026-07-17** (owner: normal-turn 2.5 prose quality drop). Full 3.5 restored on `00071-gt9` (`GEMINI_MODEL_KEYBEAT` removed; routing code + observability kept for future retries). Partial-2.5 audit: no viable spot (2 LLM touchpoints only; thinking already 0). → `DECISIONS.md` 2026-07-17. Lane CLOSED.
-- `[ ]` `[manual]` **§2 실기기 포트레이트 전투 패스** — 액션 독 도달성 · 38dvh 높이감 · URL바/노치 · 턴 순서 스트립 가독성. (에뮬레이터 PASS, 실기기 미검증 — 기존 standing gap.) 겸사: `00069` 첫 실루프 이미지 생성 성공 + idle 에러 미재현(Neon fix) 확인.
+- `[x]` **§1 Key-beat hybrid A/B — VERDICT: ROLLBACK 2026-07-17** (owner: normal-turn 2.5 prose quality drop). Full 3.5 restored on `00071-gt9→00072-pw9(source-pinned)` (`GEMINI_MODEL_KEYBEAT` removed; routing code + observability kept for future retries). Partial-2.5 audit: no viable spot (2 LLM touchpoints only; thinking already 0). → `DECISIONS.md` 2026-07-17. Lane CLOSED.
+- `[ ]` `[manual]` **§2 실기기 포트레이트 전투 패스** — 액션 독 도달성 · 38dvh 높이감 · URL바/노치 · 턴 순서 스트립 가독성. (에뮬레이터 PASS, 실기기 미검증 — 기존 standing gap.) 겸사: `00072` 첫 실루프 이미지 생성 성공 + §8 용어 주석 칩 + idle 에러 미재현(Neon fix) 확인.
 - `[ ]` `[manual]` **§3 Two-style balance playtest** — play-style consequence system ON (`advance_route` axis tally → intent flag @ threshold 2); play two loops in different styles, confirm story/results diverge + balance OK, tune threshold/mapping if needed. **B4 stat-tag** decision rides along (`(민첩)` reads as a check but has 0 effect — make real or restyle).
 
 Closed lanes: CBT Teaser V2 published 2026-07-14 (YouTube; rebuild via `scripts/cbt/build_teaser.py`; scene sources pruned 2026-07-17 — final mp4 + narrations/BGM kept). Combat overhaul arc 07-11..14 fully owner-passed → `COMPLETED_SUMMARY.md` M59-M60.

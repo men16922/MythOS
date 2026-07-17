@@ -4,7 +4,7 @@ Last updated: 2026-07-17
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Owner QA is the gate; agent lanes are clear.** Live = `00071-gt9`: **A/B VERDICT = ROLLBACK** (owner: 2.5 normal-turn quality drop) → full-3.5 narrative restored, keybeat env removed (routing code kept); term-gloss UI + image `gemini-2.5-flash-image` live (3.1 never worked in prod — log audit). Owner checklist = `docs/test/neo_seoul_live_qa.md`: **§2 real-device portrait dock/strip** · **§3 two-style playtest** (+§5 image recovery check). Eval bank ready — bank real loop ids after play.
+> ▶ NEXT SESSION: **Owner QA is the gate; agent lanes are clear.** Live = `00071-gt9→00072-pw9(source-pinned)`: **A/B VERDICT = ROLLBACK** (owner: 2.5 normal-turn quality drop) → full-3.5 narrative restored, keybeat env removed (routing code kept); term-gloss UI + image `gemini-2.5-flash-image` live (3.1 never worked in prod — log audit). Owner checklist = `docs/test/neo_seoul_live_qa.md`: **§2 real-device portrait dock/strip** · **§3 two-style playtest** (+§5 image recovery check). Eval bank ready — bank real loop ids after play.
 
 ## Snapshot
 
@@ -28,7 +28,7 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **Owner live QA gate on `00068-76m`** — the only open Priority 0 work: §1 key-beat A/B verdict (→ `DECISIONS.md`; protocol/rollback `docs/plans/2026-07-14-keybeat-hybrid-ab.md`) · §2 real-device portrait combat pass · §3 two-style balance playtest. Combat overhaul arc + teaser V2 are closed (`COMPLETED_SUMMARY.md` M59-M60).
+1. **Owner live QA gate on `00072-pw9`** — the only open Priority 0 work (§1 A/B DECIDED: rollback, `DECISIONS.md` 07-17): §2 real-device portrait combat pass · §3 two-style balance playtest (+§5 image recovery, §8 term-gloss). Combat overhaul arc + teaser V2 closed (M59-M60).
 2. **Manual content residuals**: S4 copy tone, variant intro feel, G2 twist tone, EN fresh-loop retest (CBT P1; see `NEXT_PLAN.md`).
 3. **Maintenance/hold**: WS4 closed (design `docs/plans/2026-07-17-ws4-authored-content-pipeline.md`, impl on-demand); WS5 residual = Model-B demo (owner-armed); `glass-library` held until Neo-Seoul satisfaction.
 

@@ -13,7 +13,7 @@
 |---|---|---|
 | FastAPI 백엔드(REST+WS) | **Cloud Run** (lean 컨테이너, scale-to-zero) | `Dockerfile` |
 | React SPA | 컨테이너 동봉(`/` 정적 mount) | 별도 호스팅 불필요(초기) |
-| 서사 LLM | **Vertex Gemini** (`gemini-2.5-flash`, controlled gen, thinking off) | `MYTHOS_NARRATIVE_PROVIDER=gemini` |
+| 서사 LLM | **Vertex Gemini** (`gemini-3.5-flash`, controlled gen, thinking off — 2.5 하이브리드는 2026-07-17 품질 판정으로 롤백) | `MYTHOS_NARRATIVE_PROVIDER=gemini` |
 | 이미지 | **Vertex Gemini Image** (`gemini-2.5-flash-image`, 큐레이트 초상 레퍼런스) | `MYTHOS_VISUAL_PROVIDER=vertex` |
 | 에셋 저장 | **GCS** (`gs://` + v4 signed URL) | `MYTHOS_STORAGE_BACKEND=gcs` |
 | DB | **Neon**(권장) 또는 Cloud SQL | `DATABASE_URL` |

@@ -99,14 +99,20 @@ class GeminiConfig:
     and we additionally honor the user's ``.env`` shorthands (``MODEL``, ``PROJECT_ID``).
     """
 
+    # Default = gemini-3.5-flash since the 2026-07-17 A/B verdict: the 2.5-base
+    # hybrid was rolled back after an owner-felt normal-turn prose quality drop
+    # (DECISIONS.md 2026-07-17). Narrative quality is the product; cost is
+    # accepted at ~$1.0/loop.
     model: str = field(
-        default_factory=lambda: _env("GEMINI_MODEL", "MODEL", default="gemini-2.5-flash")
-        or "gemini-2.5-flash"
+        default_factory=lambda: _env("GEMINI_MODEL", "MODEL", default="gemini-3.5-flash")
+        or "gemini-3.5-flash"
     )
-    # Optional key-beat model split: when set (e.g. gemini-3.5-flash with
-    # MODEL=gemini-2.5-flash), the director generates key-beat turns (opening/
+    # Optional key-beat model split: when set (e.g. GEMINI_MODEL_KEYBEAT with a
+    # cheaper base MODEL), the director generates key-beat turns (opening/
     # anchor/cutscene/boss/ending — NarrativeContext.key_beat) on this model and
     # everything else on `model`. Unset (default) = single model, current behavior.
+    # Kept (with its observability fields) so a future cost experiment is a
+    # two-env-var flip — see docs/plans/2026-07-14-keybeat-hybrid-ab.md.
     keybeat_model: str | None = field(
         default_factory=lambda: _env("GEMINI_MODEL_KEYBEAT", "MODEL_KEYBEAT")
     )

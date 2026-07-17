@@ -158,10 +158,13 @@ class GeminiConfigEnvAliasTest(unittest.TestCase):
         self.assertEqual(cfg.model, "ns-model")
 
     def test_defaults_when_unset(self) -> None:
+        # Default pinned to 3.5 by the 2026-07-17 A/B rollback verdict (DECISIONS.md).
         with mock.patch.dict(os.environ, {}, clear=True):
             cfg = GeminiConfig()
-        self.assertEqual(cfg.model, "gemini-2.5-flash")
-        self.assertEqual(cfg.location, "us-central1")
+        self.assertEqual(cfg.model, "gemini-3.5-flash")
+        # 3.x models auto-route to the "global" endpoint (regional 404s) — with a
+        # 3.5 default model, the default location follows.
+        self.assertEqual(cfg.location, "global")
         self.assertTrue(cfg.use_vertex)
         self.assertIsNone(cfg.project)
         self.assertEqual(cfg.thinking_budget, 0)  # thinking disabled by default

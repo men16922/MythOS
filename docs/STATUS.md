@@ -11,7 +11,7 @@ Major implemented axes:
 - **Shared runtime/UI**: `RuntimeSessionService` is the single orchestration boundary for FastAPI REST/WS, React/Vite, Streamlit, and CLI.
 - **Persistence/infra**: PostgreSQL is authoritative; MinIO/GCS store assets; OTel/Jaeger/Cloud Trace cover observability. Redis was removed 2026-07-04, so images generate synchronously in-request.
 - **Narrative**: local development uses Ollama 8B storyteller + 3B parser with repair/fallback; the cloud product uses Vertex Gemini controlled generation. Prompt directives, Story Bible snippets, deterministic session synopsis, shard rollup, and outcome metrics are integrated.
-- **Cloud model operations**: narrative key-beat hybrid is LIVE (2.5 base + 3.5 key-beat, routing verified); image generation runs `gemini-2.5-flash-image` (serving `00069-gdn`, env verified 07-17) after the unavailable 3.1 alias caused live 404s. A/B verdict remains pending (`docs/plans/2026-07-14-keybeat-hybrid-ab.md`).
+- **Cloud model operations**: narrative is **full `gemini-3.5-flash`** — the key-beat hybrid A/B verdict was **ROLLBACK 2026-07-17** (owner: normal-turn 2.5 prose quality drop; routing code/observability kept, `DECISIONS.md`). Image generation runs `gemini-2.5-flash-image` (serving `00071-gt9`) after the unavailable 3.1 alias caused live 404s.
 - **Visuals**: local mflux/FLUX + Redux and cloud Gemini image share the provider/storage boundary; curated scene/cutscene/ending art and synchronous generation are active.
 - **Gameplay**: deterministic tactical combat, direct party control, companion growth/equipment, enemy intents, skills/items, combat cinema, rewards, boons, market/recovery, and IX boss flow are implemented. The 2026-07-11..14 combat overhaul arc (telegraph→control→status→visuals→enemy roster→balance→portrait dock) is owner-QA-passed — `COMPLETED_SUMMARY.md` M59-M60.
 - **Scenario/progression**: Neo-Seoul is the primary long-form scenario; route-node DAG + multi-perspective anchors + session memory, Story Bible, Codex, Run History, achievements, meta progression, save/load, and ending resolver are implemented. Glass Library is parity-ready but held.
@@ -29,7 +29,7 @@ Latest verified baseline:
 
 Authority plan: `docs/NEXT_PLAN.md`. Direction remains global-first EN/KO closed beta: Gemini/Vertex is the product path; Ollama/FLUX remains the local development path.
 
-1. **Owner live QA gate** (`docs/test/neo_seoul_live_qa.md`) — all agent lanes are drained; the remaining Priority 0 work is owner-side: **§1 key-beat A/B feel verdict** (→ keep/rollback in `DECISIONS.md`) · **§2 real-device portrait combat pass** (dock reachability / 38dvh / URL-bar / notch / turn-strip readability) · **§3 two-style playtest** (play-style consequence system balance). While playing: confirm the first real-loop image on `00069` and that idle errors no longer appear (Neon-fix live check).
+1. **Owner live QA gate** (`docs/test/neo_seoul_live_qa.md`) — all agent lanes are drained; §1 A/B is DECIDED (rollback). Remaining owner-side: **§2 real-device portrait combat pass** (dock reachability / 38dvh / URL-bar / notch / turn-strip readability) · **§3 two-style playtest** (play-style consequence system balance). While playing: confirm the first real-loop image on `00071`, term-gloss chips (§8), and that idle errors no longer appear; hand loop ids to the agent for the golden eval bank.
 2. **Remaining manual content checks** (CBT P1 residuals): S4 copy tone, 6 variant intros in-game feel, G2 twist tone, EN fresh-loop coherence retest.
 3. **Maintenance/hold**: WS4 content pipeline plan-only; WS5 deprioritized; Glass Library held until Neo-Seoul satisfaction.
 
@@ -43,7 +43,7 @@ Authority plan: `docs/NEXT_PLAN.md`. Direction remains global-first EN/KO closed
 - **fallback = static combat is intended (2026-06-06 design)**: combat VFX only play at `?fallback=0`; open the sim WITHOUT `?fallback=1` to see animations.
 - **ally-writeback**: fixed 2026-07-09 (`efa1c8f`, no more auto-promotion of story-flag allies); residual = one-time DB cleanup of players promoted by the old bug, on request.
 - **agy browser attach flaky**: intermittent silent hang acquiring browser tools; gtimeout ceiling + verdict-rescue landed. Run live-QA direct from a supervising session; if attach fails twice, hand to human.
-- **3.5-flash cost watch**: prompt diet cut input −25%; hybrid (~$0.5/loop) is now live — the A/B verdict decides keep/rollback.
+- **3.5-flash cost accepted (~$1.0/loop)**: hybrid rolled back 2026-07-17 (quality verdict); partial-2.5 audit found no viable spot (2 LLM touchpoints; thinking already 0). Remaining levers: prompt-cache hit monitoring · prompt diet round 2 (feel-sensitive, deliberately held) · re-evaluate at scale with golden-bank rubric scores.
 - DB hygiene (low): `narrative_shards` raw rows retained post-rollup; prune only if size/query load bites.
 - Some dated plan files may have stale status headers. Prefer `STATUS.md`, `NEXT_PLAN.md`, `PROGRESS_LOG.md` for current truth.
 - Combat image quality varies per character. Prefer an action-sheet-based pipeline over independent pose generation.

@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-07-17 — Key-beat hybrid A/B verdict: ROLLBACK — narrative stays full 3.5
+
+Decision: 서사 모델을 전 턴 `gemini-3.5-flash`로 복귀 (`mythos-api-00071-gt9`: `MODEL=gemini-3.5-flash`, `GEMINI_MODEL_KEYBEAT` 제거). 하이브리드(2.5 base + 3.5 key-beat) 실험 종료.
+
+Reason/impact: 오너 §1 판정 — **일반 턴(2.5) 프로즈 품질 저하가 체감됨** ("퀄리티가 떨어졌어. 대본도 3.5로 하는 게 맞아"). failure axis = normal-turn prose flatness (플랜의 KEEP 1번 조건 위반). 라우팅 코드·관측 필드(`model_override`/`key_beat`)는 유지 — env 두 줄이면 재실험 가능. **부분 2.5 적용 감사 결과: 실익 지점 없음** — 클라우드 경로의 LLM 접점은 서사(턴당 1콜)와 이미지(이미 2.5-flash-image) 둘뿐이고, 서사 내 하위 호출은 드문 repair 재생성뿐이며 thinking은 이미 전 턴 budget=0. 잔여 비용 레버 = 프롬프트 캐시 적중 모니터링 · prompt diet 2라운드(감각 민감 구간이라 보류) · ~$1.0/loop 수용 후 규모에서 재평가. 골든 뱅크가 채워지면 루브릭 점수로 향후 모델/프롬프트 실험을 정량 비교.
+
 ## 2026-07-15 — Cloud image default = `gemini-2.5-flash-image`, not the unavailable 3.1 alias
 
 Decision: pin `IMAGEN_MODEL=gemini-2.5-flash-image` in code, `.env.example`, and `make deploy`; deploy it on `mythos-api-00068-76m`. Keep the same `generate_content` path and curated portrait reference.

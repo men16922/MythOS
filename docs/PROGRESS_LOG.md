@@ -4,6 +4,12 @@ Last updated: 2026-07-17
 
 > Older entries: `bin/docs/archive/progress-2026-07.md` (July), `progress-2026-06.md`, `progress-2026-05.md`.
 
+## 2026-07-17 (cont.4) — A/B VERDICT: ROLLBACK — full-3.5 narrative restored on 00071
+- Status: Done. **DEPLOYED `mythos-api-00071-gt9`** (env-only update: `MODEL=gemini-3.5-flash`, `GEMINI_MODEL_KEYBEAT` removed; `IMAGEN_MODEL` intact; health ok via WebFetch).
+- **Owner §1 verdict**: normal-turn(2.5) prose quality drop was felt → "대본도 3.5로 하는 게 맞아". Failure axis = normal-turn flatness (plan's KEEP condition #1 violated). Recorded in `DECISIONS.md`; QA guide §1 flipped to resolved; routing code + `model_override`/`key_beat` observability KEPT (two env vars re-enable a future retry).
+- **Partial-2.5 audit (owner asked "다른 곳에 2.5 적용할 곳?")**: cloud path has exactly TWO LLM touchpoints — narrative (1 call/turn via `gemini_provider`, incl. rare repair regen) + image (already `gemini-2.5-flash-image`). Session synopsis/rollup/metrics are deterministic (no LLM); parsing is in-call controlled generation; thinking budget already 0 on every turn. **Conclusion: no viable partial-2.5 spot.** Cost levers left: prompt-cache hit monitoring, prompt-diet round 2 (feel-sensitive, held), accept ~$1.0/loop and re-evaluate at scale with golden-bank rubric scores.
+- Blockers: none. Remaining owner QA: §2 real-device portrait, §3 two-style playtest (+§5 image recovery, §8 term-gloss chips on `00071`).
+
 ## 2026-07-17 (cont.3) — Reference analyses (Google/Anthropic/OpenAI) + narrative eval harness SHIPPED
 - Status: Done. `make check` **1121** green; judge validated end-to-end. Deployed earlier today: `00070-trl` (term-gloss UI live, env pins verified). git: pushed through this work (commit/push now allowlisted in settings.local.json).
 - **`docs/reference/` created (owner request)**: ①ADK 2.0/Agents CLI/Antigravity fact-check — session summary's Antigravity-as-runtime claim WRONG (it's the IDE/orchestration app; runtime features = Agent Runtime), CLI names corrected; mapping table shows MythOS already implements the deterministic-graph blueprint (route DAG, LLM-freedom gradation, prompt diet −25%, durable resume) ②Anthropic/OpenAI stacks — Anthropic leads on context engineering (compaction/clearing/memory + pre-clear warning; dreaming + rubric grading), OpenAI on trace→evals; **MythOS's real gap = the eval loop**.

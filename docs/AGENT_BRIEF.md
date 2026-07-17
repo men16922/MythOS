@@ -4,7 +4,7 @@ Last updated: 2026-07-17
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Owner QA is the gate; agent lanes are clear.** Live = `00069-gdn` (source rebuild of the 2.5 image pin; env verified 07-17): image generation restored with `gemini-2.5-flash-image` after 3.1 returned 404 (log audit: 3.1 never succeeded in prod); key-beat hybrid VERIFIED (2.5 base + 3.5 key-beat, 4/4+1/1) + 3.5 retry + Neon idle-reap fix. Owner checklist = `docs/test/neo_seoul_live_qa.md`: **§1 A/B verdict** (→ `DECISIONS.md`) · **§2 real-device portrait dock/strip** · §3 two-style playtest. §4 combat-feel owner-PASSED.
+> ▶ NEXT SESSION: **Owner QA is the gate; agent lanes are clear.** Live = `00071-gt9`: **A/B VERDICT = ROLLBACK** (owner: 2.5 normal-turn quality drop) → full-3.5 narrative restored, keybeat env removed (routing code kept); term-gloss UI + image `gemini-2.5-flash-image` live (3.1 never worked in prod — log audit). Owner checklist = `docs/test/neo_seoul_live_qa.md`: **§2 real-device portrait dock/strip** · **§3 two-style playtest** (+§5 image recovery check). Eval bank ready — bank real loop ids after play.
 
 ## Snapshot
 

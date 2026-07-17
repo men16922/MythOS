@@ -1,0 +1,33 @@
+{
+  "name": "sample-fallback-ko",
+  "scenario_id": "neo-seoul",
+  "language": "ko",
+  "note": "harness demo only: local fallback (canned) loop from 07-17 term-gloss QA — NOT a narrative-quality golden; replace with real prod loops",
+  "loop_id": "loop_5253fd24c827472cb4ca618374b2fa4a",
+  "scenes": [
+    {
+      "turn_index": 0,
+      "title": "C-17의 바뀐 경고 신호",
+      "location": "C-17 네온 골목 (야외, 비)",
+      "narration": "C-17 지하보도 비상등이 한 줄씩 꺼진다. 젖은 콘크리트 바닥 위로 당신의 이름 없는 신호가 희미하게 번지고, 출구 쪽에서는 감시 드론의 붉은 수색등이 빗줄기를 가르며 내려온다.\n\n관리망이 신호를 다시 붙잡기 전에 움직여야 한다. 반쯤 내려온 셔터 아래 배수로 쪽으로 몸을 낮춰 빠지거나, 드론의 수색 패턴을 먼저 읽어 막히지 않는 길을 골라야 한다. 지난 루프와 같은 길을 피하려는 듯, 골목 끝 신호등이 한 박자 늦게 붉게 바뀐다.",
+      "action_result": null,
+      "scene_type": "static",
+      "choices": [
+        "배수로 쪽으로 몸을 낮춰 빠져나간다",
+        "드론의 수색등 패턴을 먼저 읽는다"
+      ]
+    },
+    {
+      "turn_index": 1,
+      "title": "빗속의 다음 골목",
+      "location": "C-17 네온 골목 (야외, 비)",
+      "narration": "당신은 배수로 쪽으로 몸을 낮춰 빠져나간다.\n\n지하보도 천장에 붙은 감시 렌즈가 뒤늦게 고개를 돌린다. 빗물이 계단을 타고 흘러내리고, 멀리서 순찰 드론의 프로펠러 소리가 좁은 통로 안으로 밀려온다. 지금 멈추면 관리망이 신호를 다시 붙잡는다. 앞으로 움직여야 한다. 지난 루프와 같은 길을 피하려는 듯, 골목 끝 신호등이 한 박자 늦게 붉게 바뀐다.",
+      "action_result": "행동이 적용되었습니다.",
+      "scene_type": "static",
+      "choices": [
+        "배수로 쪽으로 몸을 낮춰 빠져나간다",
+        "드론의 수색등 패턴을 먼저 읽는다"
+      ]
+    }
+  ]
+}

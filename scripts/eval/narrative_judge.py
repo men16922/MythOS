@@ -1,0 +1,170 @@
+"""Narrative eval harness: golden loop transcripts → LLM-judge rubric scores.
+
+Closes the trace→eval gap identified in
+docs/reference/2026-07-17-anthropic-openai-agent-stacks.md §3-1: banked real-play
+transcripts (scripts/eval/golden/*.json, exported by bank_loop.py) are scored by a
+judge model against scripts/eval/RUBRIC.md, producing a per-transcript report that
+backs the key-beat A/B verdict and gates future prompt/directive changes.
+
+Usage:
+    .venv/bin/python scripts/eval/narrative_judge.py               # all golden/*.json
+    .venv/bin/python scripts/eval/narrative_judge.py golden/x.json # subset
+    make eval-narrative
+
+The judge engine is `claude -p` (same idiom as the overnight critic/image-judge
+relays); override with EVAL_JUDGE_CMD (must accept the prompt as its last argv and
+print the verdict JSON on stdout). Pure functions (load/validate, prompt assembly,
+verdict parsing, report rendering) are import-safe and locked by
+tests/test_narrative_eval.py without invoking any CLI.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import re
+import shlex
+import subprocess
+import sys
+from datetime import datetime
+from pathlib import Path
+from typing import Any
+
+EVAL_DIR = Path(__file__).resolve().parent
+GOLDEN_DIR = EVAL_DIR / "golden"
+RUBRIC_PATH = EVAL_DIR / "RUBRIC.md"
+REPO_ROOT = EVAL_DIR.parents[1]
+
+REQUIRED_TRANSCRIPT_KEYS = ("name", "scenario_id", "language", "scenes")
+REQUIRED_SCENE_KEYS = ("turn_index", "title", "narration", "choices")
+
+
+def load_golden(path: Path) -> dict[str, Any]:
+    """Load + validate one golden transcript (raises ValueError on shape errors)."""
+    data = json.loads(path.read_text(encoding="utf-8"))
+    missing = [k for k in REQUIRED_TRANSCRIPT_KEYS if k not in data]
+    if missing:
+        raise ValueError(f"{path.name}: missing keys {missing}")
+    if not isinstance(data["scenes"], list) or not data["scenes"]:
+        raise ValueError(f"{path.name}: scenes must be a non-empty list")
+    for scene in data["scenes"]:
+        scene_missing = [k for k in REQUIRED_SCENE_KEYS if k not in scene]
+        if scene_missing:
+            raise ValueError(
+                f"{path.name}: scene turn={scene.get('turn_index', '?')} missing {scene_missing}"
+            )
+    return data
+
+
+def _render_scene(scene: dict[str, Any]) -> str:
+    lines = [f"### Turn {scene['turn_index']} — {scene['title']}"]
+    if scene.get("location"):
+        lines.append(f"장소: {scene['location']}")
+    if scene.get("action_result"):
+        lines.append(f"직전 행동 결과: {scene['action_result']}")
+    lines.append(scene["narration"].strip())
+    if scene["choices"]:
+        lines.append("선택지: " + " / ".join(str(c) for c in scene["choices"]))
+    return "\n".join(lines)
+
+
+def build_judge_prompt(transcript: dict[str, Any], rubric: str) -> str:
+    """Assemble the full judge prompt: role + rubric + transcript + output demand."""
+    scenes = "\n\n".join(_render_scene(s) for s in transcript["scenes"])
+    meta = (
+        f"transcript={transcript['name']} · scenario={transcript['scenario_id']} · "
+        f"language={transcript['language']} · scenes={len(transcript['scenes'])}"
+        + (f" · note={transcript['note']}" if transcript.get("note") else "")
+    )
+    return (
+        "You are a strict narrative-quality judge for Project MythOS (an AI-GM loop "
+        "TRPG). Score the following play transcript against the rubric. Judge only "
+        "what is in the transcript; do not invent context.\n\n"
+        f"[META] {meta}\n\n=== RUBRIC ===\n{rubric}\n\n"
+        f"=== TRANSCRIPT ===\n{scenes}\n\n"
+        "=== OUTPUT ===\nReturn ONLY the raw JSON verdict object defined in the "
+        "rubric's output contract. No markdown fences, no prose."
+    )
+
+
+def parse_verdict(raw: str) -> dict[str, Any]:
+    """Parse the judge's verdict JSON (tolerates accidental code fences/prose tails)."""
+    text = raw.strip()
+    fenced = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.S)
+    if fenced:
+        text = fenced.group(1)
+    else:
+        start, end = text.find("{"), text.rfind("}")
+        if start >= 0 and end > start:
+            text = text[start : end + 1]
+    verdict = json.loads(text)
+    if "scores" not in verdict or "overall" not in verdict:
+        raise ValueError("verdict missing scores/overall")
+    return verdict
+
+
+def render_report(results: list[tuple[str, dict[str, Any]]], generated_at: str) -> str:
+    """Fold (name, verdict) pairs into a markdown report."""
+    lines = [f"# Narrative eval report — {generated_at}", ""]
+    for name, verdict in results:
+        scores = verdict.get("scores", {})
+        score_str = " · ".join(f"{axis} {value}" for axis, value in scores.items())
+        lines.append(f"## {name} — overall {verdict.get('overall', '?')}/5")
+        lines.append(f"- {score_str}")
+        if verdict.get("one_line"):
+            lines.append(f"- 총평: {verdict['one_line']}")
+        for issue in verdict.get("issues", []):
+            lines.append(
+                f"- [turn {issue.get('turn', '?')}] {issue.get('axis', '?')}: "
+                f"“{issue.get('quote', '')}” — {issue.get('note', '')}"
+            )
+        lines.append("")
+    return "\n".join(lines)
+
+
+def _judge_cmd(prompt: str) -> list[str]:
+    override = os.environ.get("EVAL_JUDGE_CMD", "")
+    if override:
+        return [*shlex.split(override), prompt]
+    return ["claude", "-p", prompt, "--permission-mode", "plan"]
+
+
+def run(paths: list[Path]) -> int:
+    rubric = RUBRIC_PATH.read_text(encoding="utf-8")
+    results: list[tuple[str, dict[str, Any]]] = []
+    for path in paths:
+        transcript = load_golden(path)
+        prompt = build_judge_prompt(transcript, rubric)
+        print(f"judging {transcript['name']} ({len(transcript['scenes'])} scenes)…")
+        proc = subprocess.run(
+            _judge_cmd(prompt), capture_output=True, text=True, timeout=600
+        )
+        if proc.returncode != 0:
+            print(f"  judge failed (rc={proc.returncode}): {proc.stderr[:300]}")
+            return 1
+        results.append((transcript["name"], parse_verdict(proc.stdout)))
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    out_dir = REPO_ROOT / "outputs" / "evals" / stamp
+    out_dir.mkdir(parents=True, exist_ok=True)
+    report = render_report(results, stamp)
+    (out_dir / "report.md").write_text(report, encoding="utf-8")
+    (out_dir / "verdicts.json").write_text(
+        json.dumps(dict(results), ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    print(f"\n{report}\nreport → {out_dir / 'report.md'}")
+    return 0
+
+
+def main(argv: list[str]) -> int:
+    if argv:
+        paths = [Path(a) if Path(a).is_absolute() else EVAL_DIR / a for a in argv]
+    else:
+        paths = sorted(GOLDEN_DIR.glob("*.json"))
+    if not paths:
+        print("no golden transcripts found — bank one with scripts/eval/bank_loop.py")
+        return 1
+    return run(paths)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))

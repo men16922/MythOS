@@ -23,6 +23,9 @@ Closed lanes: CBT Teaser V2 published 2026-07-14 (YouTube; rebuild via `scripts/
 - `[x]` **Prompt-layer separation COMPLETE 2026-07-17**: Phase 0-4 + node-addressing + Phase 5 few-shot extraction (`directives/story_examples(.en).md` ↔ `STORY_EXAMPLE_DEFAULTS` byte-parity; prompt renders byte-identical today). Authority doc `docs/PROMPT_LAYER.md`.
 - `[ ]` `[manual]` **Archetype-variant openings (long-term, 2026-07-04)**: author per-archetype opening variations (directive-layer, `resources/neo-seoul/directives/opening.md` + KO/EN), gated on CBT priorities.
 - Image continuity: lever #1 (style preamble + `appearance` ×7) + lever #2 (curated key-art sequences, codex) SHIPPED; cloud model pinned `gemini-2.5-flash-image`. Watch app-path image success; 큐레이션 키아트는 codex 레인 (오너 지시 2026-07-06).
+- **Narrative eval bank (harness SHIPPED 2026-07-17)**: `scripts/eval/` (RUBRIC + `narrative_judge.py` claude-CLI judge + `bank_loop.py`; `make eval-narrative`; sample verdict validated end-to-end). Remaining:
+  - `[ ]` `[manual]` **bank 2+ real prod loops** during owner QA play (matched keybeat A/B pair ideal) — export via `bank_loop.py` with `DATABASE_URL` pointed at prod, or ask the agent with the loop ids.
+  - `[ ]` rubric scores ride along the §1 A/B verdict as supporting data once real loops are banked; later: run `make eval-narrative` on prompt/directive changes as a narrative regression gate.
 
 ## Engineering maintenance track — WS0-3 done (COMPLETED_SUMMARY M43)
 

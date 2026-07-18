@@ -23,13 +23,13 @@ outputs/*
 .docker/
 
 # AI Agent local config — skills/ 는 추적(에이전트 공유 자산), 나머지(설정/캐시/머신로컬)는 무시.
-# (.codex 는 무시 대상 아님 — .codex/.mcp.json 등 추적. .codex/skills/ 도 자연히 추적됨.)
+# skills 미러는 .agents/skills 하나 (codex + agy 공용, 원본 .claude/skills — harness/sync-skills.sh).
+# (.codex 는 무시 대상 아님 — .codex/.mcp.json 등 추적. .gemini 는 더 이상 추적 파일 없음.)
 .claude/*
 !.claude/skills/
 .agents/*
 !.agents/skills/
-.gemini/*
-!.gemini/skills/
+.gemini/
 .playwright-mcp
 .antigravitycli/
 screenshots/

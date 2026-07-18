@@ -2,12 +2,13 @@
 #
 # sync-skills.sh — keep the multi-engine skill copies in sync from ONE source.
 # ----------------------------------------------------------------------------
-# MythOS runs several engines (claude / codex / agy / gemini); each reads its skills from its
-# OWN dir, and all must stay git-tracked so every worktree checkout carries them (NO symlinks —
-# a past symlink-tracked skills dir was deleted by checkout churn; see worktrees.sh).
+# MythOS runs several engines: claude reads .claude/skills, and codex + agy (Antigravity) both
+# read the shared .agents/skills (the official Codex repo-skills path). All copies stay
+# git-tracked so every worktree checkout carries them (NO symlinks — a past symlink-tracked
+# skills dir was deleted by checkout churn; see worktrees.sh).
 #
 # Single Source of Truth = .claude/skills/  (Claude is the primary engine; skills are authored
-# in that format). This script projects it verbatim into the other engine dirs. These skills are
+# in that format). This script projects it verbatim into .agents/skills. These skills are
 # MythOS-customized (Korean, repo-aware) and intentionally DIFFER from the generic overnight-harness
 # plugin's skills — the plugin is SSOT for *other* repos, this script is SSOT for MythOS's own copies.
 #
@@ -21,7 +22,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
 SRC=".claude/skills"
-MIRRORS=(".agents/skills" ".codex/skills" ".gemini/skills")
+MIRRORS=(".agents/skills")
 [ -d "$SRC" ] || { echo "FATAL: canonical skills source '$SRC' missing" >&2; exit 1; }
 
 CHECK=0; [ "${1:-}" = "--check" ] && CHECK=1
@@ -30,8 +31,8 @@ rc=0; changed=0
 # Projected files: SKILL.md bodies plus their references/ payloads (gameplay-qa
 # was the first skill to ship one — SKILL.md-only projection let references
 # drift silently). Engine-specific extras living only in a mirror (e.g.
-# .codex/**/agents/openai.yaml) are deliberately NOT scanned, so they are
-# neither projected nor deleted as strays.
+# .agents/**/agents/openai.yaml, Codex UI metadata) are deliberately NOT
+# scanned, so they are neither projected nor deleted as strays.
 project_files() {
   find "$1" -type f \( -name 'SKILL.md' -o -path '*/references/*' \)
 }

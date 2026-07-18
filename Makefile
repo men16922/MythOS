@@ -50,8 +50,8 @@ check:
 	$(MAKE) typecheck
 	$(MAKE) test
 
-# Multi-engine skills SSOT: .claude/skills is canonical; .agents/.codex/.gemini are mirrors kept
-# in sync (no symlinks) by harness/sync-skills.sh. This step fails the gate if they drift.
+# Multi-engine skills SSOT: .claude/skills is canonical; .agents/skills (shared by codex + agy)
+# is the mirror kept in sync (no symlinks) by harness/sync-skills.sh. Fails the gate on drift.
 check-skills:
 	@bash harness/sync-skills.sh --check
 sync-skills:

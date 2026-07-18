@@ -1,4 +1,0 @@
-interface:
-  display_name: "Gameplay QA"
-  short_description: "Run deterministic MythOS combat and browser QA."
-  default_prompt: "Use $gameplay-qa to validate the MythOS combat change locally."

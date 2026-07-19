@@ -15,6 +15,7 @@ from mythos_core import PlayerProfile
 from mythos_core.models import to_json_dict
 from mythos_runtime.companion_growth import companion_sheet
 from mythos_runtime.options import MemoryOverview, RunSummary, RuntimeSnapshot, SaveSlot
+from mythos_runtime.route_runtime import node_axis, select_perspective
 from mythos_runtime.scenario import load_scenario
 from mythos_runtime.scenario_directives import available_opening_variants
 from mythos_runtime.session_memory import unresolved_setups
@@ -134,8 +135,8 @@ def _safe_int(value: Any) -> int:
         return 0
 
 
-def _choice_stakes(choice_data: dict[str, Any], axis_label: str) -> list[str]:
-    stakes = [f"가치축: {axis_label}"]
+def _choice_stakes(choice_data: dict[str, Any], axis_label: str | None) -> list[str]:
+    stakes = [f"가치축: {axis_label}"] if axis_label else []
     cost = choice_data.get("cost")
     if isinstance(cost, dict):
         stability = _safe_int(cost.get("stability"))
@@ -165,23 +166,60 @@ def _choice_preview(axis: str) -> str:
     return previews.get(axis, "다음 장면의 우선순위를 바꿉니다.")
 
 
-def _choice_to_dict(choice: Any, *, combat_pending: bool = False) -> dict[str, Any]:
+# Route-runtime axis vocabulary → the UI chip vocabulary (only "evidence"
+# differs; the UI has always called that chip "data").
+_ROUTE_AXIS_TO_UI = {"people": "people", "evidence": "data", "safety": "safety", "control": "control"}
+
+
+def _route_choice_axis(choice_id: str, state: dict[str, Any]) -> str | None:
+    """UI axis for a junction (route:) choice, from the destination node itself.
+
+    The keyword heuristic must not run on route choices: destination labels are
+    full of words like 데이터/단서/추적(도) that classify almost every branch as
+    "단서 찾기" regardless of what picking it actually tallies (§3 2026-07-19
+    finding). Anchors answer with the perspective that would be selected under
+    current flags — the axis that will really accrue on entry; waypoints answer
+    with their node axis. ``None`` (market/event…) renders no value-axis chip.
+    """
+    target = choice_id[len("route:") :]
+    route = state.get("_route_map")
+    nodes = route.get("nodes") if isinstance(route, dict) else None
+    node = nodes.get(target) if isinstance(nodes, dict) else None
+    if not isinstance(node, dict):
+        return None
+    if node.get("perspectives"):
+        chosen = select_perspective(node, set(state.get("flags", []) or []))
+        axis = chosen.get("axis") if isinstance(chosen, dict) else None
+    else:
+        axis = node_axis(node)
+    return _ROUTE_AXIS_TO_UI.get(axis) if isinstance(axis, str) else None
+
+
+def _choice_to_dict(
+    choice: Any, *, combat_pending: bool = False, state: dict[str, Any] | None = None
+) -> dict[str, Any]:
     choice_data = cast(dict[str, Any], to_json_dict(choice))
     choice_data["label"] = _clean_text(choice_data.get("label"))
-    axis = _choice_axis(str(choice_data.get("label") or ""), choice_data.get("intent"))
-    axis_label = _CHOICE_AXIS_LABELS[axis]
+    choice_id = str(choice_data.get("choice_id") or "")
+    if choice_id.startswith("route:") and state is not None:
+        axis = _route_choice_axis(choice_id, state)
+    else:
+        axis = _choice_axis(str(choice_data.get("label") or ""), choice_data.get("intent"))
+    axis_label = _CHOICE_AXIS_LABELS[axis] if axis else None
     # Combat telegraph: on a parked-climax confrontation scene every choice fires
     # the boss fight, so all choices carry the risk badge regardless of what the
     # Director generated.
     if combat_pending:
         choice_data["combat_risk"] = True
-    return {
+    out = {
         **choice_data,
-        "axis": axis,
-        "axis_label": axis_label,
         "stakes": _choice_stakes(choice_data, axis_label),
-        "result_preview": _choice_preview(axis),
     }
+    if axis:
+        out["axis"] = axis
+        out["axis_label"] = axis_label
+        out["result_preview"] = _choice_preview(axis)
+    return out
 
 
 def _route_node_label(state: dict[str, Any]) -> str | None:
@@ -488,7 +526,11 @@ def snapshot_to_dict(snapshot: RuntimeSnapshot) -> dict[str, Any]:
             "location": _clean_text(scene.location),
             "narration": _clean_text(scene.narration),
             "choices": [
-                _choice_to_dict(choice, combat_pending=bool(state.get("_pending_boss_combat")))
+                _choice_to_dict(
+                    choice,
+                    combat_pending=bool(state.get("_pending_boss_combat")),
+                    state=state,
+                )
                 for choice in scene.choices
             ],
             "visual_brief": _clean_text(scene.visual_brief),

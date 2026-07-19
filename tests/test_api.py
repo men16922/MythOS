@@ -120,6 +120,87 @@ class ApiSerializerTest(unittest.TestCase):
         self.assertEqual(by_id["nanopatch"]["count"], 2)
 
 
+class RouteChoiceAxisSerializerTest(unittest.TestCase):
+    """§3 2026-07-19: the value-axis chip on a junction (route:) choice must come
+    from the destination node's real semantics, never the keyword heuristic.
+
+    Measured failure: every stored junction label of the style-pair loops
+    classified as "단서 찾기" (words like 데이터/단서/추적도 in titles and badges),
+    including the rn4 anchor whose applied perspective was people-axis
+    ``p_rescue`` — the UI promised evidence while the tally moved people.
+    """
+
+    def _state(self) -> dict[str, Any]:
+        return {
+            "flags": [],
+            "_route_map": {
+                "nodes": {
+                    "rn_anchor": {
+                        "id": "rn_anchor",
+                        "type": "story",
+                        "title": "데이터 소각로",
+                        "default_perspective": "p_rescue",
+                        "perspectives": [
+                            {"id": "p_rescue", "axis": "people", "when": ["humanity_first"]},
+                            {"id": "p_steal", "axis": "evidence", "when": ["insight_focus"]},
+                        ],
+                    },
+                    "rn_clue": {"id": "rn_clue", "type": "clue", "title": "암호화된 흔적"},
+                    "rn_patrol": {"id": "rn_patrol", "type": "patrol", "title": "순찰 우회로"},
+                    "rn_market": {"id": "rn_market", "type": "market", "title": "환전 부스"},
+                },
+            },
+        }
+
+    def _serialize(self, choice_id: str, label: str) -> dict[str, Any]:
+        from mythos_api.serializers import _choice_to_dict
+
+        choice = Choice(choice_id=choice_id, label=label, intent="explore")
+        return _choice_to_dict(choice, state=self._state())
+
+    def test_anchor_destination_uses_selected_perspective_axis(self) -> None:
+        # "데이터" in the label used to classify this as 단서 찾기 (data) while the
+        # entry perspective (default p_rescue) tallies people.
+        data = self._serialize("route:rn_anchor", "데이터 소각로(으)로 향한다 — 이야기가 크게 갈라지는 장면입니다.")
+        self.assertEqual(data["axis"], "people")
+        self.assertEqual(data["axis_label"], "사람 돕기")
+
+    def test_anchor_destination_axis_follows_accumulated_flags(self) -> None:
+        from mythos_api.serializers import _choice_to_dict
+
+        state = self._state()
+        state["flags"] = ["insight_focus"]
+        choice = Choice(choice_id="route:rn_anchor", label="데이터 소각로(으)로 향한다", intent="explore")
+        data = _choice_to_dict(choice, state=state)
+        self.assertEqual(data["axis"], "data")
+        self.assertEqual(data["axis_label"], "단서 찾기")
+
+    def test_clue_destination_is_data_axis(self) -> None:
+        data = self._serialize("route:rn_clue", "암호화된 흔적(으)로 향한다 — 기록과 단서를 찾아 진실에 가까워집니다.")
+        self.assertEqual(data["axis"], "data")
+        self.assertEqual(data["axis_label"], "단서 찾기")
+
+    def test_patrol_badge_keywords_no_longer_leak_into_axis(self) -> None:
+        # "추적도 +3" in the badge used to keyword-match 추적 → data.
+        data = self._serialize(
+            "route:rn_patrol", "순찰 우회로(으)로 향한다 — 감시망을 파고드는 지름길 · 위험 2 · 추적도 +3 ⚠"
+        )
+        self.assertEqual(data["axis"], "safety")
+        self.assertEqual(data["axis_label"], "안전하게 가기")
+
+    def test_axisless_destination_renders_no_chip(self) -> None:
+        data = self._serialize("route:rn_market", "환전 부스(으)로 향한다 — 보급과 거래로 장비를 정비합니다.")
+        self.assertNotIn("axis", data)
+        self.assertNotIn("axis_label", data)
+        self.assertNotIn("result_preview", data)
+        self.assertEqual([s for s in data["stakes"] if s.startswith("가치축")], [])
+
+    def test_director_choices_keep_keyword_heuristic(self) -> None:
+        data = self._serialize("choice_1", "무너진 서가에서 기록을 뒤진다")
+        self.assertEqual(data["axis"], "data")
+        self.assertEqual(data["axis_label"], "단서 찾기")
+
+
 class ApiRelationshipSerializerTest(unittest.TestCase):
     """Lock the relationship-exposure contract produced by seeds L/M/N.
 

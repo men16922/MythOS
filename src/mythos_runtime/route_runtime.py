@@ -48,6 +48,38 @@ _AXIS_INTENT_FLAG = {
 }
 _AXIS_INTENT_THRESHOLD = 2
 
+# Play-style axis a non-anchor node expresses when the player *explicitly* picks
+# it at a junction. Anchors express axes through their selected perspective, but
+# typed waypoint nodes (clue/rest/patrol/combat) have no perspectives, so before
+# this an evidence-leaning player who kept picking clue routes accrued nothing —
+# the evidence intent flag was unreachable in normal play (its anchor
+# perspectives gate on flags that only this accrual can bootstrap). Only
+# explicit junction picks count (recorded in ``junction_picks``): auto-walk
+# steps are dice/flag-biased, not player intent. market/event stay unmapped —
+# they express no single value axis.
+_NODE_TYPE_AXIS = {
+    "clue": "evidence",
+    "rest": "safety",
+    "patrol": "safety",
+    "combat": "control",
+}
+
+
+def node_axis(node: dict[str, Any]) -> str | None:
+    """Value axis a route node expresses, or ``None`` when it has no clear one.
+
+    An authored per-node ``axis`` wins over the type default so scenarios can
+    override (e.g. a control-flavored clue node). Anchor nodes return ``None`` —
+    their axis belongs to the perspective selected on entry.
+    """
+    if not isinstance(node, dict) or node.get("perspectives"):
+        return None
+    authored = node.get("axis")
+    if isinstance(authored, str) and authored in _AXIS_INTENT_FLAG:
+        return authored
+    node_type = node.get("type")
+    return _NODE_TYPE_AXIS.get(node_type) if isinstance(node_type, str) else None
+
 # How many player turns are spent before the route advances one layer. Tunable;
 # kept small so the boss/ending is reachable within a typical session.
 # Story turns the route lingers on each layer. Raised 4→5 (2026-07-04 live
@@ -88,6 +120,7 @@ def advance_route(
     visited = list(route_map.get("visited") or [current])
     flags = list(state.get("flags", []) or [])
     preference = preferred_next or route_map.get("preferred_next")
+    junction_picks = [str(pick) for pick in route_map.get("junction_picks") or []]
 
     # Walk the current pointer forward to the target layer, one edge at a time,
     # honoring an explicit junction pick first, otherwise biasing toward nodes
@@ -105,6 +138,8 @@ def advance_route(
         ):
             current = preference
             preference = None
+            if current not in junction_picks:
+                junction_picks.append(current)
         else:
             next_node_id = _choose_next(
                 candidates, nodes, flags, Dice(f"{seed}:route-advance:{cur_layer}")
@@ -140,6 +175,7 @@ def advance_route(
     axis_tally: dict[str, int] = {}
     party_add: set[str] = set()
     flag_set = set(flags)
+    junction_set = set(junction_picks)
     for node_id in visited:
         node = nodes.get(node_id, {})
         node_effect = node.get("effect", {})
@@ -156,6 +192,13 @@ def advance_route(
             party_add.update(str(member) for member in node_effect.get("party_add", []) or [])
         perspectives = node.get("perspectives")
         if not perspectives:
+            # An explicitly picked waypoint (clue/rest/patrol/combat) is a
+            # play-style statement even without perspectives: accrue its axis in
+            # causal order so the intent flag can shape *later* anchors.
+            if node_id in junction_set:
+                waypoint_axis = node_axis(node)
+                if waypoint_axis is not None:
+                    _accrue_axis(waypoint_axis, axis_tally, flag_set)
             continue
         chosen = select_perspective(node, flag_set)
         if chosen is None:
@@ -181,9 +224,7 @@ def advance_route(
         # player has been playing instead of always falling to the default lens.
         axis = chosen.get("axis")
         if isinstance(axis, str) and axis in _AXIS_INTENT_FLAG:
-            axis_tally[axis] = axis_tally.get(axis, 0) + 1
-            if axis_tally[axis] >= _AXIS_INTENT_THRESHOLD:
-                flag_set.add(_AXIS_INTENT_FLAG[axis])
+            _accrue_axis(axis, axis_tally, flag_set)
 
     leaderboard = sorted(tally.items(), key=lambda kv: (-kv[1], kv[0]))
     new_route_map = {
@@ -196,6 +237,7 @@ def advance_route(
         "ending_leaderboard": [list(item) for item in leaderboard],
         "relationship_tally": rel_tally,
         "axis_tally": axis_tally,
+        "junction_picks": junction_picks,
         "preferred_next": None,  # consumed
     }
     new_state = dict(state)
@@ -214,6 +256,13 @@ def advance_route(
         party["members"] = members
         new_state["_party"] = party
     return new_state
+
+
+def _accrue_axis(axis: str, axis_tally: dict[str, int], flag_set: set[str]) -> None:
+    """Tally one axis expression and emit its intent flag at the threshold."""
+    axis_tally[axis] = axis_tally.get(axis, 0) + 1
+    if axis_tally[axis] >= _AXIS_INTENT_THRESHOLD:
+        flag_set.add(_AXIS_INTENT_FLAG[axis])
 
 
 def _reconcile_relationships(
@@ -440,6 +489,7 @@ __all__ = [
     "advance_route",
     "fold_relationship",
     "junction_options",
+    "node_axis",
     "node_encounter_id",
     "route_status",
     "select_perspective",

@@ -20,6 +20,36 @@ def _state(seed: str, flags: list[str] | None = None) -> dict:
     return {ROUTE_MAP_KEY: build_route_map(config, seed), "flags": initial_flags}
 
 
+def _synthetic_axis_map() -> dict[str, Any]:
+    """Minimal 4-layer graph for junction-pick axis accrual tests: two clue/rest
+    junction layers feeding an anchor whose evidence perspective gates on the
+    ``insight_focus`` flag that only the accrual can bootstrap."""
+    nodes: dict[str, Any] = {
+        "a": {"id": "a", "type": "story", "layer": 0},
+        "b": {"id": "b", "type": "clue", "layer": 1},
+        "c": {"id": "c", "type": "rest", "layer": 1},
+        "d": {"id": "d", "type": "clue", "layer": 2},
+        "e": {"id": "e", "type": "rest", "layer": 2},
+        "f": {
+            "id": "f",
+            "type": "story",
+            "layer": 3,
+            "default_perspective": "p_def",
+            "perspectives": [
+                {"id": "p_def", "axis": "people", "when": []},
+                {"id": "p_evi", "axis": "evidence", "when": ["insight_focus"]},
+            ],
+        },
+    }
+    return {
+        "layers": [["a"], ["b", "c"], ["d", "e"], ["f"]],
+        "nodes": nodes,
+        "edges": {"a": ["b", "c"], "b": ["d", "e"], "c": ["d", "e"], "d": ["f"], "e": ["f"]},
+        "current": "a",
+        "visited": ["a"],
+    }
+
+
 class RouteRuntimeTest(unittest.TestCase):
     def test_noop_without_route_map(self) -> None:
         state: dict[str, Any] = {"flags": []}
@@ -571,6 +601,67 @@ class AxisIntentFlagTest(unittest.TestCase):
         )
         self.assertEqual(a["flags"], b["flags"])
         self.assertEqual(a[ROUTE_MAP_KEY]["axis_tally"], b[ROUTE_MAP_KEY]["axis_tally"])
+
+    def test_junction_picked_waypoints_accrue_their_axis(self) -> None:
+        """§3 2026-07-19: an evidence-leaning player who explicitly picks clue
+        routes at junctions must accrue the evidence axis — before this, waypoint
+        nodes (no perspectives) tallied nothing, so ``insight_focus`` was
+        unreachable in normal play and evidence anchor perspectives stayed dormant
+        (loop_5b212d ended with an empty evidence tally despite clue picks)."""
+        state = {ROUTE_MAP_KEY: _synthetic_axis_map(), "flags": []}
+        s1 = advance_route(state, turn_index=5, seed="axis-seed", preferred_next="b")
+        rm1 = s1[ROUTE_MAP_KEY]
+        self.assertEqual(rm1["junction_picks"], ["b"])
+        self.assertEqual(rm1["axis_tally"], {"evidence": 1})
+        self.assertNotIn("insight_focus", s1["flags"])
+
+        s2 = advance_route(s1, turn_index=10, seed="axis-seed", preferred_next="d")
+        rm2 = s2[ROUTE_MAP_KEY]
+        self.assertEqual(rm2["junction_picks"], ["b", "d"])
+        self.assertEqual(rm2["axis_tally"], {"evidence": 2})
+        self.assertIn("insight_focus", s2["flags"])
+
+        # The bootstrapped intent flag now wakes the anchor's evidence
+        # perspective instead of the default lens.
+        s3 = advance_route(s2, turn_index=15, seed="axis-seed")
+        rm3 = s3[ROUTE_MAP_KEY]
+        self.assertEqual(rm3["active_perspectives"]["f"], "p_evi")
+        self.assertEqual(rm3["axis_tally"], {"evidence": 3})
+
+    def test_junction_pick_accrual_is_replay_safe(self) -> None:
+        """advance_route replays the visited path every turn; junction-pick axis
+        accrual must recompute fresh (no += on persisted state)."""
+        state = {ROUTE_MAP_KEY: _synthetic_axis_map(), "flags": []}
+        s1 = advance_route(state, turn_index=5, seed="axis-seed", preferred_next="b")
+        again = advance_route(s1, turn_index=5, seed="axis-seed")
+        self.assertEqual(again[ROUTE_MAP_KEY]["axis_tally"], {"evidence": 1})
+        self.assertEqual(again[ROUTE_MAP_KEY]["junction_picks"], ["b"])
+
+    def test_auto_walk_waypoints_do_not_accrue_axis(self) -> None:
+        """Only explicit junction picks are play-style statements: nodes the walk
+        auto-advances through (dice/flag bias) must not move the axis tally."""
+        state = {ROUTE_MAP_KEY: _synthetic_axis_map(), "flags": []}
+        late = advance_route(state, turn_index=15, seed="axis-seed")
+        rm = late[ROUTE_MAP_KEY]
+        self.assertEqual(rm["junction_picks"], [])
+        # The only accrual allowed is the anchor's default perspective (people).
+        self.assertEqual(rm["axis_tally"].get("evidence", 0), 0)
+        self.assertEqual(rm["axis_tally"].get("safety", 0), 0)
+        self.assertNotIn("insight_focus", late["flags"])
+
+    def test_node_axis_mapping_and_overrides(self) -> None:
+        from mythos_runtime.route_runtime import node_axis
+
+        self.assertEqual(node_axis({"type": "clue"}), "evidence")
+        self.assertEqual(node_axis({"type": "rest"}), "safety")
+        self.assertEqual(node_axis({"type": "patrol"}), "safety")
+        self.assertEqual(node_axis({"type": "combat"}), "control")
+        self.assertIsNone(node_axis({"type": "market"}))
+        self.assertIsNone(node_axis({"type": "event"}))
+        # Authored per-node axis wins over the type default.
+        self.assertEqual(node_axis({"type": "clue", "axis": "control"}), "control")
+        # Anchors express axes via perspectives, never a node axis.
+        self.assertIsNone(node_axis({"type": "story", "perspectives": [{"id": "p"}]}))
 
     def test_tied_boss_perspective_scores_prefer_authored_default(self) -> None:
         route_map = build_route_map(load_scenario("neo-seoul").route_map, "style-qa")

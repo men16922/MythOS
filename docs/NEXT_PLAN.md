@@ -10,7 +10,7 @@ This file keeps only upcoming (open) work as a rolling plan. Completed tracks li
 
 Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00076-jhc` (2026-07-17; 100% traffic)**. B4 stat-tag clarity, combat density, and the perspective-tie fix are live (`make check` 1125; health 200). Owner-side Priority 0:
 
-- `[/]` `[manual]` **§3 route-axis alignment + two-style verdict on `00076-jhc`** — local same-player Ghost loops are banked (`loop_22e71c...` people/help vs `loop_5b212d...` evidence→safety), and route state diverged, but the second loop gained no `evidence` tally while at least one `p_rescue` destination rendered as `단서 찾기`. First add a deterministic regression and align label→applied perspective/axis semantics; then run two non-fallback deployed loops for the remaining dull/sensitive and distinct-ending verdict.
+- `[/]` `[manual]` **§3 two-style verdict on the deployed bundle** — label→perspective/axis alignment FIXED + regression-locked 2026-07-19 (junction-pick axis accrual, destination-true chips; `make check` 1158). Remaining: deploy the fix (`make deploy`, owner-run), then two non-fallback deployed loops for the dull/sensitive and distinct-ending verdict (prior banked pair: `loop_22e71c...` people/help vs `loop_5b212d...` evidence→safety).
 
 ### Narrative clarity / content follow-ups (mostly `[manual]`)
 - `[ ]` remaining clarity item: Su-ah `잔향 가공사` rename (deferred). Deploy hygiene: use `make deploy` (pins .env project).

@@ -4,6 +4,14 @@ Last updated: 2026-07-19
 
 > Older entries: `bin/docs/archive/progress-2026-07.md` (July), `progress-2026-06.md`, `progress-2026-05.md`.
 
+## 2026-07-19 — §3 route label→axis alignment: junction-pick accrual + destination-true chips
+- Status: Diagnosed with evidence and fixed; no commit/push. Deployed dull/sensitive owner verdict still open (now unblocked).
+- Diagnosed (from `loop_5b212d`/`loop_22e71c` DB data): (B) waypoint nodes (clue/rest/patrol/combat) have no perspectives, so explicit evidence-route picks tallied nothing and `insight_focus` was unreachable in normal play (bootstrap deadlock — final flags were `[fallback_scene, safe_refuge]` only); (A) the UI value-axis chip came from a keyword heuristic — all four stored junction labels classified as `단서 찾기` (badge word `추적도` included), and the rn4 anchor showed `단서 찾기` while applying people-axis `p_rescue`.
+- Changed: `route_runtime.advance_route` records explicit `junction_picks` and accrues the picked waypoint's axis (clue→evidence, rest/patrol→safety, combat→control; authored `axis` override wins) in causal order, replay-safe; `serializers._choice_to_dict` derives `route:` choice chips from the destination (anchor → `select_perspective` axis under current flags, waypoint → `node_axis`), omits the chip when no axis (market/event), and keeps the keyword heuristic for Director choices only.
+- Verified: 10 new regressions (4 route_runtime accrual/replay/auto-walk + 6 serializer chip); re-measured on the real stored loop — replaying `loop_5b212d`'s picks now yields `evidence:1` (was 0) + `stability_focus`, and the four stored labels render `사람 돕기`/`단서 찾기`/`안전하게 가기`/no-chip correctly; full `make check` **1158 OK** (5 skipped, 2 pre-existing frontend warnings).
+- Blockers: none. `axis_tally` has no consumers outside route_runtime; EN i18n labels already exist for all four chips.
+- Next: owner runs the paired non-fallback dull/sensitive verdict on deployed `00076-jhc` (deploy the fix first via `make deploy`); then resume three-release Harness V2 evidence.
+
 ## 2026-07-19 — Blank-narrative fallback hardened; same-character style pair completed locally
 - Status: Code/test slice and local rendered QA complete; no commit/push. Deployed `00076-jhc` dull/sensitive owner verdict remains open.
 - Changed: `parse_story_text` now rejects cleaned-but-empty narration so dual-model output falls back to an authored scene; parser/director regressions cover blank fenced story output and two-choice fallback.

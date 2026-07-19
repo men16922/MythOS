@@ -4,7 +4,7 @@ Last updated: 2026-07-19
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Diagnose and lock the §3 route label→perspective/axis mismatch from `docs/NEXT_PLAN.md`.** Reproduce an evidence-labeled junction that adds no `evidence`, fix it, then rerun the deployed non-fallback dull/sensitive verdict.
+> ▶ NEXT SESSION: **Deploy the §3 alignment fix (`make deploy`, owner-armed) and run the paired non-fallback dull/sensitive verdict** (`docs/NEXT_PLAN.md` Priority 0). The label→axis mismatch is fixed + regression-locked locally (2026-07-19, uncommitted); commit/deploy needs the owner.
 
 ## Snapshot
 
@@ -28,7 +28,7 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **§3 route-axis alignment + deployed owner verdict** — local same-character pair is banked, but an evidence-labeled route produced no `evidence` tally; regression/fix first, then non-fallback dull/sensitive sign-off on `00076-jhc`.
+1. **§3 deployed owner verdict** — label→axis alignment fixed + regression-locked locally 2026-07-19 (junction-pick axis accrual, destination-true chips); deploy the fix, then non-fallback dull/sensitive sign-off.
 2. **Harness V2 human-load rollout** — all six objective assertions are live-calibrated on the local prepared stack; eight required runs PASS with 0/8 observed false accepts, and reporting keeps 1 exception while sampling 2/9 clean bundles. Formal reduction remains 0/16 until the same contract holds across three distinct release bundles.
 3. **Manual residuals/hold**: S4 copy tone, variant intro feel, G2 twist tone, EN fresh-loop retest; Model-B demo owner-armed; `glass-library` held.
 

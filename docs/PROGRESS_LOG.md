@@ -2,6 +2,13 @@
 
 Last updated: 2026-07-20
 
+## 2026-07-20 — V2 release-bundle 2/3 evidence collected on 00077-8g9 (6/6 PASS)
+- Status: Done. Owner ran `scratch/run-release-calibration-00077.sh` (agy allowlisted in settings.local.json per owner); agent audited.
+- Measured: six assertions all PASS_CANDIDATE at HEAD `4a43904` (= deployed `00077-8g9` app source; later commits docs-only). Audit: required PASS 6/6 · artifact hashes 25/25 match · required-evidence screenshots all present · decisions/manifest outcomes agree.
+- Report: `report-evidence.py` → attention 1 (the known prior post-commit DB exception, retained), clean 15 → deterministic sample 3 (cap), invalid 0.
+- Evidence state: release bundles with the full six-assertion contract = **2/3** (07-19 local build + `00077-8g9`). Remaining: one more distinct release + human-minutes measurement before changing 0/16.
+- Next: third release bundle rides the next deploy (post-§3-verdict). Owner: §3 two-style playtest · `git push`.
+
 ## 2026-07-20 — Live-QA checklist on 00077-8g9; slice-15 candidates proposed
 - Status: Done. Agent-runnable queue is drained; every open item now waits on owner input.
 - Changed: `docs/test/neo_seoul_live_qa.md` rebased to `00077-8g9` (+1 갈림길 가치축 칩 check; image-arrival doubles as post-pin first confirmation; 17 open items). Checklist hash changed → browser QA re-eligible.

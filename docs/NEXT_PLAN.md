@@ -25,7 +25,7 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00
 ## Engineering maintenance track — WS0-3 done (COMPLETED_SUMMARY M43)
 
 - `[/]` **WS5 harness operation**: plugin V2 cutover DONE 2026-07-19 (`COMPLETED_SUMMARY` M63). Remaining `[ ]` `[manual]` **Model-B 3-lane demonstration** — first run one objective `make overnight-<engine>-once`, then arm+observe `make overnight-worktrees-setup` + 3 engines (burns real quota, owner-armed).
-- `[/]` **V2 human-load rollout**: current formal reduction is **0/16**; 6 auto / 8 monitored / 2 human is the target. `[x]` six assertions + hashed bundles; `[x]` exception/all + deterministic 20% clean sampling; `[x]` all six locally live-calibrated (eight required runs, 0/8 observed false accepts; report attention 1, clean 9→sample 2). Next: collect the same contract on three distinct release bundles and measure human minutes before claiming 50–70%.
+- `[/]` **V2 human-load rollout**: current formal reduction is **0/16**; 6 auto / 8 monitored / 2 human is the target. `[x]` six assertions + hashed bundles; `[x]` exception/all + deterministic 20% clean sampling; `[x]` all six locally live-calibrated (eight required runs, 0/8 observed false accepts; report attention 1, clean 9→sample 2). Next: collect the same contract on three distinct release bundles and measure human minutes before claiming 50–70% — release-2 run is armed: owner runs `bash scratch/run-release-calibration-00077.sh` (agy hard-block; agent audits bundles after).
 
 ## Rules
 

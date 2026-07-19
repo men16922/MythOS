@@ -4,6 +4,13 @@ Last updated: 2026-07-19
 
 > Older entries: `bin/docs/archive/progress-2026-07.md` (July), `progress-2026-06.md`, `progress-2026-05.md`.
 
+## 2026-07-19 — V2 release-2 calibration armed + prod watch audit
+- Status: Done (prep + audit). Session commits `fc4ebc5`/`feac385`/`a06034f`; branch ahead 3 — `git push` is owner-run.
+- Changed: `scratch/run-release-calibration-00077.sh` reproduces the 2026-07-19 six-assertion calibration contract verbatim (trigger=calibration/case=probe/mode=fallback, companion_join turns=3, run ids `release-00077-8g9-*`) for Harness V2 release-bundle 2/3 evidence; invocation params recovered from `outputs/live-qa/calibration-20260719-*` manifests.
+- Blocked: the runner launches `agy --dangerously-skip-permissions` (permission hard block) — owner runs `bash scratch/run-release-calibration-00077.sh` (~8-9 min); agent then audits bundles + `report-evidence.py`.
+- Verified: preflight green (agy 1.1.4, gtimeout, venv, Postgres up). Prod watch audit (read-only): `streamed payload unparseable` 0 in 5 days; zero app-path image attempts since the 2.5 pin (only pre-pin 3.1 404 ×3), so §3 verdict loops double as image-continuity confirmation; psycopg_pool teardown traceback noise 4/5d (benign, scale-to-zero); `00077-8g9` warnings/errors 0.
+- Next: owner triad — `git push` · run the calibration script · §3 two-style non-fallback verdict on `00077-8g9` (bank loop ids).
+
 ## 2026-07-19 — §3 route label→axis alignment: junction-pick accrual + destination-true chips
 - Status: **DEPLOYED `mythos-api-00077-8g9`** at 100% traffic (commit `fc4ebc5`; push pending — private-repo push is owner-run). Deployed dull/sensitive owner verdict now unblocked.
 - Live: Cloud Build SUCCESS; root + `/api/v1/health` 200; model pins preserved (`gemini-3.5-flash` narrative, `gemini-2.5-flash-image` image). Production data untouched.

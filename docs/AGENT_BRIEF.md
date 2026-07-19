@@ -4,7 +4,7 @@ Last updated: 2026-07-19
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Owner runs the §3 paired non-fallback dull/sensitive verdict on deployed `00077-8g9`** (`docs/NEXT_PLAN.md` Priority 0); bank both loop ids. Alignment fix deployed 2026-07-19 (`fc4ebc5`; `git push` pending, owner-run). Then: Harness V2 evidence on three distinct release bundles (`00077-8g9` counts as one).
+> ▶ NEXT SESSION: **Owner triad on `00077-8g9`** (`docs/NEXT_PLAN.md` Priority 0): `git push` (ahead 3) · `bash scratch/run-release-calibration-00077.sh` (V2 release-2 evidence, ~9 min) · §3 paired non-fallback dull/sensitive verdict (bank loop ids; doubles as image-continuity confirmation). Agent picks up bundle audit + verdict banking after.
 
 ## Snapshot
 

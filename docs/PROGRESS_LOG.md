@@ -1,6 +1,13 @@
 # Progress Log
 
-Last updated: 2026-07-19
+Last updated: 2026-07-20
+
+## 2026-07-20 — Live-QA checklist on 00077-8g9; slice-15 candidates proposed
+- Status: Done. Agent-runnable queue is drained; every open item now waits on owner input.
+- Changed: `docs/test/neo_seoul_live_qa.md` rebased to `00077-8g9` (+1 갈림길 가치축 칩 check; image-arrival doubles as post-pin first confirmation; 17 open items). Checklist hash changed → browser QA re-eligible.
+- Changed: slice-15 decomposition proposal `docs/plans/2026-07-20-app-decomposition-slice15-candidates.md` (useCombatTutorial 추천 · useInviteGate · EpiphanyBanner; shallow `useSessionChrome` explicitly rejected); track stays `[blocked]` until owner picks.
+- Verified: doc-budget gate; `git diff --check`. Commits `b8d0f91`, `6621ef6`; branch ahead of origin — push owner-run.
+- Next (owner): `git push` · `bash scratch/run-release-calibration-00077.sh` · §3 two-style verdict (bank loop ids) · pick slice 15 / judge T5c.
 
 > Older entries: `bin/docs/archive/progress-2026-07.md` (July), `progress-2026-06.md`, `progress-2026-05.md`.
 

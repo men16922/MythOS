@@ -1,6 +1,6 @@
 # Project MythOS Status
 
-Last updated: 2026-07-19
+Last updated: 2026-07-20
 
 ## Current Baseline
 
@@ -16,10 +16,11 @@ Major implemented axes:
 - **Gameplay**: deterministic tactical combat, direct party control, companion growth/equipment, enemy intents, skills/items, combat cinema, rewards, boons, market/recovery, and IX boss flow are implemented. The 2026-07-11..14 combat overhaul arc (telegraph→control→status→visuals→enemy roster→balance→portrait dock) is owner-QA-passed — `COMPLETED_SUMMARY.md` M59-M60.
 - **Scenario/progression**: Neo-Seoul is the primary long-form scenario; route-node DAG + multi-perspective anchors + session memory, Story Bible, Codex, Run History, achievements, meta progression, save/load, and ending resolver are implemented. Glass Library is parity-ready but held.
 - **Localization/CBT**: EN-default/KO bilingual UI+API+prompts, invite-gated stable identity, loop caps, Save/Load UX, and the Cloud Run closed beta are live. Teaser V2 published (YouTube, 2026-07-14).
-- **Agent operations**: plugin-owned Overnight Harness V2, required lane-aware contracts, real Codex commit probe, semantic/domain verifier evidence, six fail-closed objective browser assertions with hashed bundles, three-engine worktree tooling, and resume-pointer docs workflow are active. Generic lifecycle skills use only the namespaced plugin and `.claude/harness-config.json`; repo-local skills are limited to `$gameplay-qa` and `$codebase-design`, with mirror/duplicate guards in `make check`.
+- **Agent operations**: plugin-owned Overnight Harness V2, required lane-aware contracts, real Codex commit probe, semantic/domain verifier evidence, seven fail-closed objective browser assertions with hashed bundles (route_axis_chip added 2026-07-20), three-engine worktree tooling, and resume-pointer docs workflow are active. Generic lifecycle skills use only the namespaced plugin and `.claude/harness-config.json`; repo-local skills are limited to `$gameplay-qa` and `$codebase-design`, with mirror/duplicate guards in `make check`.
 
 Latest verified baseline:
 
+- **2026-07-20 V2 RELEASE EVIDENCE 2/3 + route_axis_chip SHIPPED** — the six-assertion contract repeated on `00077-8g9` (6/6 PASS, artifact hashes 25/25, report attention 1/clean 15→sample 3), and a 7th objective assertion (§2 junction value-axis chip vs destination semantics, independently re-encoded policy) was calibrated live (turn-4 junction PASS, hashes 5/5); live-QA checklist §2 keeps feel-only. `make check` green.
 - **2026-07-19 DEPLOYED `mythos-api-00077-8g9` — §3 ROUTE LABEL→AXIS ALIGNMENT (`make check` 1158; 100% traffic)** — explicit junction picks now accrue the destination waypoint's axis (clue→evidence, rest/patrol→safety, combat→control), bootstrapping `insight_focus` in normal play, and `route:` choice chips derive from the destination's real semantics (anchor = perspective under current flags; no chip when axisless) instead of the keyword heuristic that mislabeled all four stored junction labels `단서 찾기`. Re-measured on `loop_5b212d`: replayed picks yield `evidence:1` (was 0); rn4 now chips `사람 돕기` matching its applied `p_rescue`. 10 new regressions; commit `fc4ebc5` (push pending, owner-run); live root/health 200, model pins preserved.
 - **2026-07-19 LOCAL NARRATIVE FALLBACK + SAME-CHARACTER STYLE PAIR (`make check` 1148)** — blank cleaned narration now raises `NarrativeParseError` and falls back to an authored two-choice scene. Same Ghost/player completed two rendered 46-turn loops: people/help reached `people:2`, `p_rescue`, Safe Refuge 3; evidence-then-safety reached `people:1,safety:1`, Safe Refuge 2. Both boss escapes ended in Forced Erasure. Evidence-labeled choices failing to add an `evidence` tally, plus a `p_rescue` destination shown as `단서 찾기`, remains an objective alignment finding; second loop used local `fallback=1&image=0`, so deployed subjective feel is still open.
 - **2026-07-19 Harness V2 OBJECTIVE QA LIVE-CALIBRATED (6/6 assertions)**: image arrival, companion join, exact party distribution, cutscene single-entry/return, choice arrival, and first-use gloss all have required PASS bundles with hashed screenshots/events. Eight required runs (choice 3 + five remaining) produced 0/8 observed false accepts; the authoritative six-bundle set took 507.7s/84.6s mean. Reporting retains the prior DB exception and samples 2/9 clean bundles, omitting 7. Formal auto-close remains **0/16** until three distinct release bundles confirm calibration.
@@ -37,7 +38,7 @@ Latest verified baseline:
 Authority plan: `docs/NEXT_PLAN.md`. Direction remains global-first EN/KO closed beta: Gemini/Vertex is the product path; Ollama/FLUX remains the local development path.
 
 1. **§3 deployed owner verdict** (`docs/test/neo_seoul_live_qa.md`) — label→perspective/axis alignment is fixed and regression-locked locally (2026-07-19); deploy the fix (`make deploy`), then run the paired non-fallback dull/sensitive + distinct-ending verdict.
-2. **V2 human-load realization** — all six assertions are locally live-calibrated with no observed false accept; next repeat the contract on three distinct release bundles and measure actual human minutes before changing 0/16.
+2. **V2 human-load realization** — release-bundle evidence 2/3 with no observed false accept (six-assertion contract; route_axis_chip rides along from the next collection); next: third distinct release (next deploy) + measure actual human minutes before changing 0/16.
 3. **Remaining manual content checks/hold**: S4 copy tone, 6 variant intros, G2 twist tone, EN fresh-loop coherence; Glass Library held.
 
 ## Open Risks

@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-07-19
+Last updated: 2026-07-20
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Owner triad on `00077-8g9`** (`docs/NEXT_PLAN.md` Priority 0): `git push` (ahead 3) · `bash scratch/run-release-calibration-00077.sh` (V2 release-2 evidence, ~9 min) · §3 paired non-fallback dull/sensitive verdict (bank loop ids; doubles as image-continuity confirmation). Agent picks up bundle audit + verdict banking after.
+> ▶ NEXT SESSION: **Owner runs the §3 paired non-fallback dull/sensitive verdict on deployed `00077-8g9`** (`docs/NEXT_PLAN.md` Priority 0); bank both loop ids (doubles as image-continuity confirmation). The next deploy then doubles as V2 release-bundle 3/3 evidence (six assertions + new route_axis_chip). Slice-15 pick (`docs/plans/2026-07-20-app-decomposition-slice15-candidates.md`) unblocks decomposition.
 
 ## Snapshot
 
@@ -29,7 +29,7 @@ Current baseline:
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
 1. **§3 deployed owner verdict** — label→axis alignment fixed + regression-locked locally 2026-07-19 (junction-pick axis accrual, destination-true chips); deploy the fix, then non-fallback dull/sensitive sign-off.
-2. **Harness V2 human-load rollout** — all six objective assertions are live-calibrated on the local prepared stack; eight required runs PASS with 0/8 observed false accepts, and reporting keeps 1 exception while sampling 2/9 clean bundles. Formal reduction remains 0/16 until the same contract holds across three distinct release bundles.
+2. **Harness V2 human-load rollout** — seven objective assertions live-calibrated (route_axis_chip added 2026-07-20); release-bundle evidence 2/3 with 0 observed false accepts. Formal reduction remains 0/16 until a third distinct release repeats the contract and human minutes are measured.
 3. **Manual residuals/hold**: S4 copy tone, variant intro feel, G2 twist tone, EN fresh-loop retest; Model-B demo owner-armed; `glass-library` held.
 
 ## Read Order

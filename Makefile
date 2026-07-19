@@ -4,7 +4,7 @@ COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
-.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback narrative-smoke-fallback-en visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny connect-demo sim-boss smoke smoke-local streamlit streamlit-stop api api-stop api-cloud cloud-image cloud-run-local dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build validate-content check check-skills sync-skills check-auto overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-clean overnight-codex overnight-codex-watch overnight-codex-once overnight-agy overnight-agy-watch overnight-agy-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review image-regen eval-narrative
+.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback narrative-smoke-fallback-en visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny connect-demo sim-boss smoke smoke-local streamlit streamlit-stop api api-stop api-cloud cloud-image cloud-run-local dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build validate-content check check-skills sync-skills check-auto _harness-guard _overnight-clean-tree overnight-env-doctor overnight-where overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-clean overnight-claude overnight-claude-watch overnight-claude-once overnight-codex overnight-codex-watch overnight-codex-once overnight-opencode overnight-opencode-watch overnight-opencode-once overnight-agy overnight-agy-watch overnight-agy-once overnight-kiro overnight-kiro-watch overnight-kiro-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review image-regen eval-narrative
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -50,8 +50,8 @@ check:
 	$(MAKE) typecheck
 	$(MAKE) test
 
-# Multi-engine skills SSOT: .claude/skills is canonical; .agents/skills (shared by codex + agy)
-# is the mirror kept in sync (no symlinks) by harness/sync-skills.sh. Fails the gate on drift.
+# MythOS-only skills SSOT: .claude/skills is canonical; .agents/skills (codex + agy) is the
+# mirror. Plugin-owned harness skills stay external and duplicate local copies fail this gate.
 check-skills:
 	@bash harness/sync-skills.sh --check
 sync-skills:
@@ -70,57 +70,80 @@ check-auto:
 	$(MAKE) frontend-build
 	$(MAKE) smoke-local
 
-# --- Overnight 무인 루프 (scripts/overnight/, 설계: docs/engineering/mythos/LOOP.md) ---
-# 자는 동안 헤드리스 claude가 NEXT_PLAN의 [auto] 작업을 구현·검증(make check)·기록·로컬 커밋한다.
-# 가동 전: 워킹트리 clean + [auto] 항목 seeding + (권장) brew install coreutils(회차 타임아웃).
-# 환경변수로 조절: GATE_CMD(기본 make check), MAX_ITER, MAX_NO_PROGRESS, ITER_TIMEOUT 등.
+# --- Overnight V2: plugin = controller SoT, this repo = policy/state/verifiers ---
+ENGINE ?= claude
+HARNESS_ROOT ?= $(shell \
+	if [ -n "$$OVERNIGHT_HARNESS_ROOT" ] && [ -d "$$OVERNIGHT_HARNESS_ROOT/templates/scripts/overnight" ]; then echo "$$OVERNIGHT_HARNESS_ROOT"; \
+	elif [ -n "$$OVERNIGHT_HARNESS_ROOT" ] && [ -d "$$OVERNIGHT_HARNESS_ROOT/plugins/overnight-harness/templates/scripts/overnight" ]; then echo "$$OVERNIGHT_HARNESS_ROOT/plugins/overnight-harness"; \
+	elif [ -f .claude/harness-config.json ] && grep -q '"harness_root"' .claude/harness-config.json; then \
+		pin="$$(sed -n 's/.*"harness_root"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' .claude/harness-config.json | head -1)"; \
+		if [ -d "$$pin/templates/scripts/overnight" ]; then echo "$$pin"; elif [ -d "$$pin/plugins/overnight-harness/templates/scripts/overnight" ]; then echo "$$pin/plugins/overnight-harness"; fi; \
+	else \
+		{ ls -d $$HOME/.claude/plugins/cache/overnight-harness/overnight-harness/*/ 2>/dev/null; find $$HOME/.codex/plugins/cache -path '*/overnight-harness/*' -type d 2>/dev/null; } \
+		| while read d; do [ -d "$$d/templates/scripts/overnight" ] && echo "$$d"; done | sort -V | tail -1; \
+	fi)
+OVN_SRC := $(HARNESS_ROOT:%/=%)/templates/scripts/overnight
+OVN := scripts/overnight
+OVERNIGHT_CRITIC_MODE ?= auto
+OVERNIGHT_OVERSIGHT_MODE ?= graduated
+OVERNIGHT_V2_ENV = OVERNIGHT_ENGINE=$(ENGINE) OVERNIGHT_LANE=$(ENGINE) \
+	OVERNIGHT_CONTRACT=1 OVERNIGHT_CONTRACT_REQUIRED=1 \
+	OVERNIGHT_CONTRACT_COMPILER=$(abspath $(OVN)/compile-contract.sh) \
+	OVERNIGHT_VERIFY=1 OVERNIGHT_CRITIC=$(OVERNIGHT_CRITIC_MODE) OVERNIGHT_OVERSIGHT=$(OVERNIGHT_OVERSIGHT_MODE) \
+	OVERNIGHT_SUBAGENTS=0 OVERNIGHT_REPO_WRITE_PROBE=auto \
+	OVERNIGHT_REPO_WRITE_REQUIRED=$(if $(filter codex,$(ENGINE)),1,0) \
+	AGY_SKIP_PERMISSIONS=$(if $(filter agy,$(ENGINE)),1,0)
 
-# 백그라운드 가동(절전 방지 + 터미널 닫혀도 유지). 예: MAX_ITER=12 make overnight
-overnight:
-	@if pgrep -f "scripts/overnight/run.sh" >/dev/null 2>&1; then echo "이미 실행 중 (중단: make overnight-stop)"; exit 1; fi
-	@command -v gtimeout >/dev/null 2>&1 || command -v timeout >/dev/null 2>&1 || echo "⚠ gtimeout/timeout 없음 — 회차 타임아웃 비활성(brew install coreutils 권장)"
-	@if [ -n "$$(git status --porcelain)" ]; then echo "⚠ 워킹트리 dirty — 1회차가 잔여물 복구로 빠집니다(또는 red면 STOP). 먼저 커밋/정리 권장."; fi
-	@mkdir -p scripts/overnight/logs
-	@rm -f scripts/overnight/STOP scripts/overnight/DONE
-	@nohup caffeinate -dimsu scripts/overnight/run.sh > scripts/overnight/logs/nohup.out 2>&1 & echo "▶ overnight 시작 (pid $$!, gate=$${GATE_CMD:-make check}, MAX_ITER=$${MAX_ITER:-20}). 관찰: make overnight-logs · 중단: make overnight-stop · 아침: /overnight-report"
+_harness-guard:
+	@test -x "$(OVN_SRC)/run.sh" || { echo "overnight-harness plugin not found (HARNESS_ROOT='$(HARNESS_ROOT)')"; exit 1; }
+	@test -x "$(OVN)/compile-contract.sh" || { echo "MythOS contract compiler missing"; exit 1; }
 
-# 가동 + 즉시 로그 follow(한 방에). Ctrl+C로 빠져나와도 루프는 백그라운드에서 계속 돈다.
+_overnight-clean-tree:
+	@test -z "$$(git status --porcelain)" || { echo "FATAL: unattended dispatch requires a clean worktree; checkpoint or recover changes first."; exit 1; }
+
+overnight-env-doctor:
+	@$(OVN)/env-doctor.sh
+
+overnight-where:
+	@echo "HARNESS_ROOT = $(HARNESS_ROOT)"; echo "runner       = $(OVN_SRC)/run.sh"; echo "compiler     = $(abspath $(OVN)/compile-contract.sh)"
+
+overnight: _harness-guard _overnight-clean-tree overnight-env-doctor
+	@if pgrep -f "$(OVN_SRC)/run.sh" >/dev/null 2>&1; then echo "이미 실행 중 (중단: make overnight-stop)"; exit 1; fi
+	@mkdir -p $(OVN)/logs; rm -f $(OVN)/STOP $(OVN)/DONE
+	@nohup env $(OVERNIGHT_V2_ENV) caffeinate -dimsu $(OVN_SRC)/run.sh >$(OVN)/logs/nohup.out 2>&1 & echo "▶ overnight V2 시작 (pid $$!, engine=$(ENGINE), gate=$${GATE_CMD:-make check})"
+
 overnight-watch:
-	@$(MAKE) overnight
+	@$(MAKE) ENGINE=$(ENGINE) overnight
 	@sleep 1
 	@$(MAKE) overnight-logs
 
-# 1회차만(체인 검증). 포그라운드 실행. (`overnight`와 동일하게 stale STOP/DONE 자동 제거 —
-# 안 그러면 이전 회차가 남긴 DONE이 회차를 막고 드레인 QA만 돌고 종료된다.)
-overnight-once:
-	@rm -f scripts/overnight/STOP scripts/overnight/DONE
-	scripts/overnight/run.sh --once
+overnight-once: _harness-guard _overnight-clean-tree overnight-env-doctor
+	@rm -f $(OVN)/STOP $(OVN)/DONE
+	env $(OVERNIGHT_V2_ENV) $(OVN_SRC)/run.sh --once
 
-# graceful 중단(현재 회차 마치고 다음 회차 진입 전 종료).
 overnight-stop:
-	@touch scripts/overnight/STOP && echo "STOP 생성 — 현재 회차 마치고 종료(완료 후 make overnight-clean 권장)."
+	@touch $(OVN)/STOP && echo "STOP 생성 — 현재 회차 마치고 종료."
 
-# runner.log 실시간 관찰.
 overnight-logs:
-	@touch scripts/overnight/logs/runner.log && tail -f scripts/overnight/logs/runner.log
+	@mkdir -p $(OVN)/logs; touch $(OVN)/logs/runner.log; tail -f $(OVN)/logs/runner.log
 
-# 상태: 3엔진 lane 집계 트리(status.sh) + 프로세스 확인. 풍부한 검수는 claude 세션의 /overnight-report.
-overnight-status:
-	@bash scripts/overnight/status.sh
-	@pgrep -f "scripts/overnight/run.sh" >/dev/null 2>&1 && echo "── 프로세스: ● 실행 중 (pid $$(pgrep -f 'scripts/overnight/run.sh' | tr '\n' ' '))" || echo "── 프로세스: ○ 미실행"
+overnight-status: _harness-guard
+	@bash $(OVN_SRC)/status.sh
+	@pgrep -f "$(OVN_SRC)/run.sh" >/dev/null 2>&1 && echo "── 프로세스: ● 실행 중" || echo "── 프로세스: ○ 미실행"
 
-# tmux 멀티페인 대시보드: 상단 집계 트리(2s) + 하단 lane 별 runner.log tail. tmux 없으면 트리 1회 폴백.
-overnight-dashboard:
-	@bash scripts/overnight/dashboard.sh
+overnight-dashboard: _harness-guard
+	@bash $(OVN_SRC)/dashboard.sh
 
-# 종료 후 제어 파일 정리(STOP/DONE 제거). 다음 가동 전 클린업.
 overnight-clean:
-	@rm -f scripts/overnight/STOP scripts/overnight/DONE && echo "STOP/DONE 제거 — 다음 가동 준비 완료."
+	@rm -f $(OVN)/STOP $(OVN)/DONE && echo "STOP/DONE 제거 — 다음 가동 준비 완료."
 
-# --- Codex 엔진 변형 (ENGINE=codex) — 동일 run.sh/LOOP, 호출 에이전트만 codex exec ---
-# 안전 경계는 전역 ~/.codex/config.toml(danger-full-access)이 아니라 run.sh 가 CLI 로 강제한다
-# (workspace-write + network 차단 + approval never). 프롬프트는 scripts/overnight/PROMPT.codex.md.
-# stop/logs/status/clean 은 같은 run.sh 프로세스라 엔진 구분 없이 위 타깃을 그대로 쓴다.
+overnight-claude:
+	@ENGINE=claude $(MAKE) overnight
+overnight-claude-watch:
+	@ENGINE=claude $(MAKE) overnight-watch
+overnight-claude-once:
+	@ENGINE=claude $(MAKE) overnight-once
+
 overnight-codex:
 	@ENGINE=codex $(MAKE) overnight
 overnight-codex-watch:
@@ -128,9 +151,13 @@ overnight-codex-watch:
 overnight-codex-once:
 	@ENGINE=codex $(MAKE) overnight-once
 
-# --- agy(Antigravity) 엔진 변형 (ENGINE=agy) — 이미지 초안/간단 검증 레인 ---
-# ⚠️ agy 는 호스트 접근(FLUX/MPS/네트워크)이 필요해 샌드박스 없이 돈다. 경계는 PROMPT.agy.md 가드레일 +
-# worktree/브랜치 격리(loop/agy)에 의존한다. 무인 가동 전 worktree 격리(make overnight-worktrees) 권장.
+overnight-opencode:
+	@ENGINE=opencode $(MAKE) overnight
+overnight-opencode-watch:
+	@ENGINE=opencode $(MAKE) overnight-watch
+overnight-opencode-once:
+	@ENGINE=opencode $(MAKE) overnight-once
+
 overnight-agy:
 	@ENGINE=agy $(MAKE) overnight
 overnight-agy-watch:
@@ -138,7 +165,6 @@ overnight-agy-watch:
 overnight-agy-once:
 	@ENGINE=agy $(MAKE) overnight-once
 
-# --- Kiro CLI 엔진 변형 (ENGINE=kiro) — kiro-cli chat --no-interactive ---
 overnight-kiro:
 	@ENGINE=kiro $(MAKE) overnight
 overnight-kiro-watch:
@@ -162,7 +188,7 @@ overnight-review:           # codex 가 통합 diff 를 읽기전용 리뷰(생�
 	@scripts/overnight/review.sh $(RANGE)
 
 # WS4 이미지 재생성 루프(opt-in, 사람 가동): agy 생성→claude 비전 판정→codex 프롬프트 정제→FLUX 폴백.
-# 실제 생성 비용 발생(야간 드레인 비포함). 설계: docs/plans/2026-06-20-ws4-image-regen-loop.md
+# 실제 생성 비용 발생(야간 드레인 비포함). 설계: bin/docs/plans/2026-06-20-ws4-image-regen-loop.md
 image-regen:
 	@scripts/overnight/image-regen.sh
 
@@ -184,7 +210,7 @@ clean:
 	rm -rf __pycache__ src/**/__pycache__ src/*.egg-info .pytest_cache .ruff_cache
 
 test:
-	MYTHOS_LOG_LEVEL=ERROR $(VENV)/bin/python -m unittest discover -s tests
+	PYTHONPATH=src MYTHOS_LOG_LEVEL=ERROR $(VENV)/bin/python -m unittest discover -s tests
 
 test-db:
 	MYTHOS_LOG_LEVEL=ERROR MYTHOS_RUN_DB_TESTS=1 $(VENV)/bin/python -m unittest discover -s tests -p 'test_postgres_store.py'

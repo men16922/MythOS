@@ -12,7 +12,7 @@ An operations system that, instead of letting an AI agent generate code freely, 
 | L1 Basic Harness | Agent instruction file + lint/test gate + worktree/branch isolation + documented plans |
 | L2 Automated Feedback | Gate script + independent reviewer + auto-retry on failure + checkpoint saving |
 | L3 Multi-Agent | coder/reviewer/gardener role split + risk-based approval + parallel worktrees + periodic entropy scan |
-| L4 Self-Evolving | Failure-trace analysis + self-improving harness PRs + human intervention only on exceptions |
+| L4 Self-Evolving | Failure-trace analysis + verifier/rubric co-evolution + targeted harness PRs + human intervention only on exceptions |
 For most projects **L2→L3** is the realistic target. Self-diagnose your level and invest only in the next one-step gap.
 
 ## 2. Feedback Ladder — recurring feedback gets promoted to a stronger system
@@ -54,7 +54,31 @@ Tier 3 requires a plan before execution (what/why/impact/recovery/command). An u
 git history (change history) + structured ledger (work/event ledger) + natural language (state/progress/handoff docs).
 Disk, not memory, is the source of truth → restore from fresh context each iteration.
 
-## 7. Sibling Concepts (bible)
+## 7. Capability-aware autonomy
+
+A stronger model changes the **inner actor policy**, not the outer safety and evidence contract.
+
+- Prefer lean, outcome-oriented prompts; keep success criteria, permissions, budget, and stop conditions explicit.
+- Continue a capable agent across several turns when the goal and assumptions remain stable, but checkpoint to disk at
+  milestones and reset on drift, context pressure, timeout, or engine failure.
+- Use subagents only for independent bounded work. Cap concurrency; serialize writes to shared mutable state; require
+  the root/orchestrator to synthesize the result.
+- Detect capabilities (`continuation`, `compaction`, `subagents`, `browser`, `approval review`) rather than routing by
+  a model/version name alone.
+
+## 8. Graduated oversight — HITL is an exception policy
+
+Do not route everything to either `auto` or `human`. Classify by customer proximity, reversibility, data sensitivity,
+environment, and evaluator confidence:
+
+- **Automated**: deterministic, reversible, isolated; evidence contract passes.
+- **Monitored**: agent/evaluator passes; human audits a sample and every low-confidence/disagreement case.
+- **Human decision**: irreversible, production/customer-sensitive, strategic, or irreducibly taste-based.
+
+The completion criterion is an **evidence contract** defined before execution. Human decisions are stored as calibration
+data so future evaluators can reduce review volume without silently redefining intent.
+
+## 9. Sibling Concepts (bible)
 - Autonomous loop: [`LOOP_ENGINEERING.md`](LOOP_ENGINEERING.md) · verification: [`VERIFICATION_ENGINEERING.md`](VERIFICATION_ENGINEERING.md) · multi-agent: [`AGENTIC_ENGINEERING.md`](AGENTIC_ENGINEERING.md)
 - Context: [`CONTEXT_ENGINEERING.md`](CONTEXT_ENGINEERING.md) · prompt: [`PROMPT_ENGINEERING.md`](PROMPT_ENGINEERING.md)
 - This repo's application: [`mythos/HARNESS.md`](mythos/HARNESS.md)

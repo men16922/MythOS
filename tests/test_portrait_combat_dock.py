@@ -21,18 +21,17 @@ class PortraitCombatDockTest(unittest.TestCase):
         css = read("src/mythos_ui/src/index.css")
         # The dock lives in the portrait+coarse media block added 2026-07-14.
         start = css.index("Portrait combat action dock")
-        return css[start : start + 2500]
+        return css[start : start + 9000]
 
     def test_console_docks_fixed_to_viewport_bottom_in_portrait_combat(self) -> None:
         block = self._portrait_block()
         self.assertIn("body.combat-active .combat-bottom-row #combat-controls", block)
         self.assertIn("position: fixed", block)
         self.assertIn("bottom: 0", block)
-        # Own scroll, bounded height: board stays co-visible above the sheet.
-        # 30dvh (was 38) since the 2026-07-17 portrait-hierarchy verdict — the
-        # board is the protagonist, the console a compact tool shelf.
-        self.assertIn("max-height: 30dvh", block)
-        self.assertIn("overflow-y: auto", block)
+        # Fixed-height, no inner scroll: all dense controls stay co-visible.
+        self.assertIn("height: 30dvh", block)
+        self.assertIn("overflow: visible", block)
+        self.assertNotIn("overflow-y: auto", block)
         self.assertIn("env(safe-area-inset-bottom)", block)
 
     def test_page_padded_so_content_stays_reachable_above_the_dock(self) -> None:
@@ -76,19 +75,22 @@ class PortraitCombatDockTest(unittest.TestCase):
         self.assertIn("body.combat-active .tabs", block)
         self.assertIn("display: none", block)
 
-    def test_layering_dock_beats_legend_popup_and_boon_beats_dock(self) -> None:
+    def test_boon_modal_beats_dock_and_legend_popup_is_gone(self) -> None:
         css = read("src/mythos_ui/src/index.css")
         block = self._portrait_block()
         dock_z = int(re.search(r"z-index:\s*(\d+)", block).group(1))  # type: ignore[union-attr]
         boon = css[css.index(".boon-overlay") :]
         boon_z = int(re.search(r"z-index:\s*(\d+)", boon).group(1))  # type: ignore[union-attr]
-        legend = css[css.index(".tactical-legend-popup") :]
-        legend_z = int(re.search(r"z-index:\s*(\d+)", legend).group(1))  # type: ignore[union-attr]
-        # Action dock > informational legend popup; boon draft MODAL > both.
-        # (The legend popup at 50 used to sit on top of the boon cards and
-        # swallow their taps on phone widths — found by the dock probe.)
-        self.assertGreater(dock_z, legend_z)
         self.assertGreater(boon_z, dock_z)
+        self.assertNotIn(".tactical-legend-popup", css)
+
+    def test_dense_portrait_controls_use_image_actions_and_real_skill_art(self) -> None:
+        block = self._portrait_block()
+        source = read("src/mythos_ui/src/CombatControls.tsx")
+        self.assertIn("grid-template-columns: repeat(4, minmax(0, 1fr))", block)
+        self.assertIn("width: 50px", block)
+        self.assertIn('src={`/assets/icons/combat-${action}.svg`}', source)
+        self.assertIn('src={`/resources/${scenarioId}/skills/${skill.id}.png`}', source)
 
 
 if __name__ == "__main__":

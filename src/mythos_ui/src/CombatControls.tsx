@@ -11,6 +11,20 @@ const SUPPORT_ROLES = new Set(["healing", "defense"]);
 
 type TFn = (key: StringKey) => string;
 
+type CoreAction = "attack" | "defend" | "wait" | "flee";
+
+function ActionIcon({ action }: { action: CoreAction }) {
+  return (
+    <img
+      className="cc-action-icon"
+      src={`/assets/icons/combat-${action}.svg`}
+      alt=""
+      aria-hidden="true"
+      draggable={false}
+    />
+  );
+}
+
 // M3 (mobile clarity): the skill button's cost/range/cooldown detail was a
 // hover-only `title=` on the whole (already-tappable) button, dead on touch.
 // DS1b: now a thin wrapper over the shared Popover (top-right anchor), so a
@@ -285,6 +299,19 @@ export function CombatControls({
         }
       >
         <span className="cc-skill-icon">
+          <img
+            className="cc-skill-art"
+            src={`/resources/${scenarioId}/skills/${skill.id}.png`}
+            alt=""
+            aria-hidden="true"
+            draggable={false}
+            onLoad={(event) => {
+              event.currentTarget.nextElementSibling?.setAttribute("hidden", "");
+            }}
+            onError={(event) => {
+              event.currentTarget.style.display = "none";
+            }}
+          />
           <span className="cc-skill-symbol" aria-hidden="true">{iconSymbol}</span>
           {onCooldown && <span className="cc-cd-overlay">CD {skill.cooldown}</span>}
         </span>
@@ -341,9 +368,9 @@ export function CombatControls({
       ) : (
         <>
           {available.targets && available.targets.length > 0 && (
-            <div className="cc-section">
+            <div className="cc-section cc-target-section" aria-label={t("cc.targets")}>
               <div className="cc-label">{t("cc.targets")}</div>
-              <div className="cc-row">
+              <div className="cc-row cc-target-row">
                 {available.targets.map((target) => {
                   const intent = (combat.radar?.enemy_intents || []).find(
                     (item) => item.enemy_id === target.id
@@ -352,8 +379,8 @@ export function CombatControls({
                   // to mirror the exact attack math) — the XCOM HUD in one line.
                   const forecast =
                     target.in_range && target.hit_chance != null
-                      ? ` · 🎯${target.hit_chance}% ⚔${target.damage_min}-${target.damage_max}${
-                          (target.cover_bonus ?? 0) > 0 ? " 🛡" : ""
+                      ? `${target.hit_chance}% · ${target.damage_min}-${target.damage_max}${
+                          (target.cover_bonus ?? 0) > 0 ? " · DEF" : ""
                         }`
                       : "";
                   return (
@@ -362,10 +389,11 @@ export function CombatControls({
                       className={`cc-btn tgt ${defaultTargetId === target.id ? "sel" : ""}`}
                       onClick={() => onSelectTarget(target.id)}
                     >
-                      {target.name}
-                      {enemyIntentLabel(intent, t)} · HP {target.hp}/{target.max_hp}
-                      {forecast}
-                      {!target.in_range && ` · ${t("cc.outOfRange")}`}
+                      <span className="cc-target-name">{target.name}</span>
+                      <span className="cc-target-intent">{enemyIntentLabel(intent, t)}</span>
+                      <span className="cc-target-vitals">HP {target.hp}/{target.max_hp}</span>
+                      {forecast && <span className="cc-target-forecast">{forecast}</span>}
+                      {!target.in_range && <span className="cc-target-range">{t("cc.outOfRange")}</span>}
                     </button>
                   );
                 })}
@@ -374,7 +402,7 @@ export function CombatControls({
           )}
 
           {hasSupportSkill && friendlies.length > 1 && (
-            <div className="cc-section">
+            <div className="cc-section cc-support-section" aria-label={t("cc.supportTargets")}>
               <div className="cc-label">{t("cc.supportTargets")}</div>
               <div className="cc-row">
                 {friendlies.map((friendly) => (
@@ -391,29 +419,33 @@ export function CombatControls({
             </div>
           )}
 
-          <div className="cc-section">
+          <div className="cc-section cc-action-section" aria-label={t("cc.actions")}>
             <div className="cc-label">{t("cc.actions")}</div>
-            <div className="cc-row">
+            <div className="cc-row cc-action-row">
               <button
                 className={`cc-btn${tutorialHighlight === "attack" ? " tut-glow" : ""}`}
                 disabled={!defaultTargetId}
                 title={defaultTargetId ? t("cc.attackOk") : t("cc.attackNone")}
                 onClick={() => onAction({ type: "attack", target_id: defaultTargetId || undefined })}
               >
-                {t("cc.attack")}
+                <ActionIcon action="attack" />
+                <span>{t("cc.attack")}</span>
               </button>
               <button
                 className={`cc-btn${tutorialHighlight === "defend" ? " tut-glow" : ""}`}
                 onClick={() => onAction({ type: "defend" })}
               >
-                {t("cc.defend")}
+                <ActionIcon action="defend" />
+                <span>{t("cc.defend")}</span>
               </button>
               <button className="cc-btn" onClick={() => onAction({ type: "wait" })}>
-                {t("cc.wait")}
+                <ActionIcon action="wait" />
+                <span>{t("cc.wait")}</span>
               </button>
               {isPlayerTurn && (
                 <button className="cc-btn danger" onClick={() => onAction({ type: "flee" })}>
-                  {t("cc.flee")}
+                  <ActionIcon action="flee" />
+                  <span>{t("cc.flee")}</span>
                 </button>
               )}
             </div>
@@ -446,7 +478,7 @@ export function CombatControls({
               setSwapSlot(null);
             };
             return (
-              <div className="cc-section">
+              <div className="cc-section cc-skills-section" aria-label={t("cc.skills")}>
                 <div className="cc-label">{t("cc.skills")}</div>
                 <div className={`cc-skill-bar${tutorialHighlight === "skill" ? " tut-glow" : ""}`}>
                   {visibleIds.map((id, idx) => {
@@ -493,7 +525,7 @@ export function CombatControls({
             );
           })()}
 
-          <div className="cc-section">
+          <div className="cc-section cc-consumables-section" aria-label={t("cc.consumables")}>
             <div className="cc-label">{t("cc.consumables")}</div>
             {combat.consumables && combat.consumables.length > 0 ? (
               <div className="cc-skill-bar">

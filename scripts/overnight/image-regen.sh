@@ -4,7 +4,7 @@
 # ----------------------------------------------------------------------------
 # Closes the loop the overnight [auto:agy] lane can't: aesthetic/frame fitness needs a
 # VISION judge, and frame consistency needs ITERATION. Pipeline (design:
-# docs/plans/2026-06-20-ws4-image-regen-loop.md):
+# bin/docs/plans/2026-06-20-ws4-image-regen-loop.md):
 #
 #   agy (Imagen) generate  →  claude --print vision-judge vs frame bible
 #     →  pass: cp to resources/  |  fail: codex --print refine the instruction → regenerate

@@ -1,35 +1,36 @@
-# Engineering Interpretation — <PROJECT>
+# Engineering Interpretation — Project MythOS
 
 This document maps the **general concepts (Bibles)** defined in `docs/engineering/*_ENGINEERING.md` to the **actual files, commands, and mechanisms of this repository**.
 The Bibles define "What/Why" (portable), and this document defines "How in this repository" (repo-specific). Fill out each section.
 
 ## HARNESS — Maturity/Verification/Permissions (Bible `HARNESS_ENGINEERING.md`)
-- gate (verification): `<e.g. make check — harness-config.gate>`
+- gate (verification): `make check` (`.claude/harness-config.json`)
 - permission boundary: `scripts/overnight/overnight-settings.json` (allow=this repo's gate targets, deny=destructive/online actions)
-- current maturity / next investment: <...>
+- current maturity / next investment: L3 with plugin-owned V2 control plane; next investment is measured evaluator calibration and continuation, not another controller fork.
 
 ## LOOP — Unattended Loop (Bible `LOOP_ENGINEERING.md`)
-- runner: `scripts/overnight/run.sh` (defaults to claude engine). env: `GATE_CMD`/`MAX_ITER`/`PAUSE`/...
-- backlog tags: `[auto]`/`[manual]`/`[blocked]` in `<NEXT_PLAN path>`
-- iteration prompt: `scripts/overnight/PROMPT.md`
-- skills: `/sync` `/checkpoint` `/overnight-report` `/overnight-seed` (provided by plugin)
+- runner: resolved plugin `templates/scripts/overnight/run.sh`; `make overnight-where` proves the selected root.
+- repo adapters: `scripts/overnight/compile-contract.sh` + `verifiers.d/*.sh`
+- backlog tags: lane-specific `[auto:<engine>]`/`[manual]`/`[blocked]` in `docs/NEXT_PLAN.md`
+- actor prompt: plugin renders a required typed WorkContract; no repo-local procedure prompt.
+- skills: `$overnight-harness:sync`, `$overnight-harness:checkpoint`, `$overnight-harness:overnight-report`, and `$overnight-harness:overnight-seed` (plugin-owned); repo-local skills are only domain-specific.
 
 ## VERIFICATION — 3 Layers (Bible `VERIFICATION_ENGINEERING.md`)
 Declare all three layers in one place. Push each check as far DOWN this list as it can go (mechanical > semantic > creative).
-- mechanical (gate): `<gate cmd>` — proves: `<lint/type/build/test — what it actually verifies>`
-- semantic (critic): `OVERNIGHT_CRITIC=<0|auto|1>` · prompt: `scripts/overnight/CRITIC_PROMPT.md` (copy from `.example.md`)
-  - this repo's domain invariants ("green but wrong"): `<e.g. balance constants / API contract / generated files — or "none yet, generic critic">`
-- creative (human): `[manual]` criteria = `<what here needs taste/balance/UX feel and can't be auto-verified>` · morning-review focus = `<what /overnight-report should scrutinize>`
+- mechanical: `make check` — lint/type/build/unit/content/doc/skill sync.
+- semantic: `OVERNIGHT_CRITIC=auto` + `CRITIC_PROMPT.md`; fail-closed.
+- domain: scope, gameplay, browser, and image-identity verifiers; uncertainty becomes `needs_human`.
+- creative: narrative/play/balance/aesthetic/product decisions stay human.
 
 ## AGENTIC — Multi-Agent (Bible `AGENTIC_ENGINEERING.md`)
-- currently single engine. (If introducing multi-agent) Map lane/domain splitting, worktree isolation, and builder≠reviewer patterns here.
+- plugin instances remain single-runner; MythOS isolates Claude/Codex/AGY lanes in worktrees and integrates serially. Builder and read-only reviewer are separate roles.
 
 ## CONTEXT — Context/Doc Discipline (Bible `CONTEXT_ENGINEERING.md`)
-- entry point/Read Path: `<AGENT_BRIEF>` → `<STATUS>` → `<NEXT_PLAN>` → `<PROGRESS_LOG>`
+- entry point/Read Path: `AGENT_BRIEF` → `STATUS` → `NEXT_PLAN` → recent `PROGRESS_LOG`
 - line budget: brief ≤60 · status/plan/log ≤120 (harness-config.budgets)
-- Resume Pointer: `▶ NEXT SESSION` line at the very top of `<AGENT_BRIEF>`
-- archive: `<docs/archive/...>`
+- Resume Pointer: `▶ NEXT SESSION` in `docs/AGENT_BRIEF.md`
+- archive: `bin/docs/archive/`
 
 ## PROMPT — Prompt Layer (Bible `PROMPT_ENGINEERING.md`)
-- harness prompt: `scripts/overnight/PROMPT.md`
-- runtime/domain prompt: `<path if this repo uses LLM; N/A otherwise>`
+- harness prompt: required WorkContract compiled by MythOS and rendered by the plugin.
+- runtime/domain prompt: `src/mythos_narrative/` (separate product surface).

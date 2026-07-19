@@ -3,7 +3,7 @@
 Date: 2026-07-17. Status: **design (plan-only item consumed)**. Closes the last open WS4 line in
 `NEXT_PLAN.md` ("agy→codex authored-content pipeline"). Supersedes the WS4 sketch in
 `bin/docs/plans/2026-06-14-engineering-plan.md` §WS4; sibling of the shipped image-regen loop
-(`docs/plans/2026-06-20-ws4-image-regen-loop.md`).
+(`bin/docs/plans/2026-06-20-ws4-image-regen-loop.md`).
 
 ## What changed since the 06-14 sketch (why this design differs)
 

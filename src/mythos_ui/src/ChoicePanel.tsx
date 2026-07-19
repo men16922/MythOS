@@ -90,7 +90,7 @@ export function ChoicePanel({ choices, stability, tension, routeMap, onChoose, p
               {isPending && <span className="cmd-chip choice-sending">{t("choice.sending")}</span>}
             </div>
             <div className="cmd-label">
-              {cleanChoiceLabel(choice.label)}
+              {cleanChoiceLabel(choice.label, t("choice.statApproach"))}
               {choiceCostLabel(choice, t)}
               {choiceRequirementLabel(choice, t)}
             </div>

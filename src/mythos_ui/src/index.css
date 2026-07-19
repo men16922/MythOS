@@ -1272,6 +1272,18 @@ main {
   color: var(--danger);
   border-color: rgba(255,107,125,0.5);
 }
+.cc-action-row .cc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+.cc-action-icon {
+  width: 21px;
+  height: 21px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
 .cc-hint {
   font-size: 11px;
   color: var(--ink-dim);
@@ -1476,6 +1488,12 @@ main {
   align-items: center;
   justify-content: center;
   box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.45);
+}
+.cc-skill-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
 }
 .cc-skill-glyph {
   font-size: 20px;
@@ -2861,65 +2879,34 @@ main {
   flex-direction: column;
   flex-grow: 1;
 }
-.tactical-legend {
-  margin-top: 10px;
-  padding: 8px 10px;
-  border: 1px solid var(--line-soft);
-  border-radius: 6px;
-  background: rgba(8, 16, 20, 0.5);
-}
-.tactical-legend-title {
-  font-size: 11px;
-  color: var(--ink-dim);
-  margin-bottom: 5px;
-  letter-spacing: 0.04em;
-}
-.tactical-legend-row {
+/* Always-visible board key: no popup or extra tap. Each mark pairs the exact
+   board symbol with a short plain-language meaning. */
+.tactical-key {
   display: flex;
-  gap: 8px;
-  align-items: baseline;
-  font-size: 11px;
-  line-height: 1.5;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 5px;
 }
-.tactical-legend-sym {
-  min-width: 56px;
-  color: var(--term);
-  font-family: monospace;
-}
-.tactical-legend-text {
-  color: var(--term-dim);
-}
-/* Legend as a toggle button + popup (instead of an always-on overlay). */
-.tactical-legend-wrap {
-  position: relative;
-  margin-top: 10px;
-}
-.tactical-legend-toggle {
-  font-size: 11px;
-  letter-spacing: 0.04em;
-  color: var(--term);
-  background: rgba(8, 16, 20, 0.6);
+.tactical-key-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
   border: 1px solid var(--line-soft);
-  border-radius: 6px;
-  padding: 5px 10px;
-  cursor: pointer;
+  border-radius: 999px;
+  background: rgba(2, 7, 6, 0.82);
+  color: var(--term-dim);
+  font-size: 9px;
+  line-height: 1.25;
+  white-space: nowrap;
 }
-.tactical-legend-toggle:hover {
-  border-color: var(--term);
-}
-.tactical-legend-popup {
-  position: absolute;
-  z-index: 50;
-  top: 32px;
-  left: 0;
-  min-width: 240px;
-  margin-top: 0;
-  /* OPAQUE — the base .tactical-legend background is 50% translucent, which let
-     the STATUS/roster text behind the popup bleed through and read as overlap. */
-  background: var(--bg, #0a0f13);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.7);
+.tactical-key-sym {
+  color: var(--term);
+  font-family: var(--mono);
+  font-weight: 800;
 }
 .tactical-board-canvas-wrapper {
+  position: relative;
   background: #020706;
   border: 1px solid var(--line-soft);
   border-radius: 6px;
@@ -2978,86 +2965,72 @@ main {
   text-align: center;
 }
 
-/* Combat learning-goal banner: shown at the top of the board so the player
-   knows what the encounter is teaching. Dismissible per encounter. */
+/* Combat goal: a single folded row at the very top of the board. */
 .combat-learning-goal {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin-top: 10px;
-  padding: 9px 11px;
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  z-index: 4;
+  margin: 0;
+  padding: 4px 8px;
+  max-width: 520px;
   border: 1px solid rgba(0, 255, 204, 0.32);
-  border-left: 3px solid var(--term);
   border-radius: 6px;
   background: rgba(0, 255, 204, 0.07);
 }
+.combat-learning-goal-summary-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  cursor: pointer;
+  list-style: none;
+}
+.combat-learning-goal-summary-row::-webkit-details-marker {
+  display: none;
+}
+.combat-learning-goal-summary-row::after {
+  content: "▸";
+  margin-left: auto;
+  color: var(--term);
+  font-size: 9px;
+}
+.combat-learning-goal[open] .combat-learning-goal-summary-row::after {
+  transform: rotate(90deg);
+}
 .combat-learning-goal-icon {
-  font-size: 14px;
-  line-height: 1.4;
+  color: var(--term);
+  font-size: 11px;
+  line-height: 1;
 }
 .combat-learning-goal-body {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  flex: 1;
+  gap: 3px;
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px dashed var(--line-soft);
 }
 .combat-learning-goal-label {
-  font-size: 11px;
+  flex-shrink: 0;
+  font-size: 9px;
   letter-spacing: 0.04em;
   color: var(--term);
   font-weight: 600;
 }
-.combat-learning-goal-text {
-  font-size: 12px;
-  line-height: 1.5;
+.combat-learning-goal-summary {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: var(--term-dim);
+  font-size: 9px;
 }
-.combat-learning-goal-close {
-  background: none;
-  border: none;
-  color: var(--ink-dim);
-  cursor: pointer;
-  font-size: 12px;
-  line-height: 1;
-  padding: 2px 4px;
-}
-.combat-learning-goal-close:hover {
-  color: var(--term);
-}
-/* LC3: collapse the encounter banner to a one-line chip in landscape+coarse
-   combat so it stops squishing the board's fixed-height column (must come
-   after the base rules above so this override wins the cascade). */
-@media (orientation: landscape) and (pointer: coarse) {
-  .combat-learning-goal {
-    margin-top: 4px;
-    padding: 4px 8px;
-    gap: 6px;
-    align-items: center;
-  }
-  .combat-learning-goal-body {
-    flex-direction: row;
-    align-items: center;
-    gap: 6px;
-    min-width: 0;
-  }
-  .combat-learning-goal-label {
-    flex-shrink: 0;
-  }
-  .combat-learning-goal-text {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    min-width: 0;
-  }
-  .combat-learning-goal-summary {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-width: 0;
-  }
-  .lg-more {
-    flex-shrink: 0;
-  }
+.combat-learning-goal-text {
+  font-size: 10px;
+  line-height: 1.35;
+  color: var(--term-dim);
 }
 
 /* Tile inspector: details of the board cell under the pointer. */
@@ -4197,53 +4170,6 @@ main#play.fx-glitch {
 @media (prefers-reduced-motion: reduce) {
   .aside-reveal-nudge {
     animation: none;
-  }
-}
-
-/* --- LC0: rotate-to-landscape prompt (coarse-pointer portrait combat) --- */
-.rotate-overlay {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  margin-bottom: 12px;
-  padding: 10px 14px;
-  background: var(--panel);
-  border: 1px solid rgba(41, 255, 198, 0.45);
-  border-radius: 8px;
-  box-shadow: 0 0 20px rgba(41, 255, 198, 0.12);
-}
-.rotate-overlay-icon {
-  font-size: 18px;
-  color: var(--term);
-  flex-shrink: 0;
-}
-.rotate-overlay-text {
-  flex: 1;
-  font-size: 12px;
-  line-height: 1.4;
-  color: var(--ink);
-}
-.rotate-overlay-dismiss {
-  flex-shrink: 0;
-  background: transparent;
-  border: 1px solid var(--line-soft);
-  border-radius: 4px;
-  color: var(--ink-dim);
-  font-size: 11px;
-  padding: 4px 10px;
-  cursor: pointer;
-}
-.rotate-overlay-dismiss:hover {
-  color: var(--ink);
-  border-color: var(--term);
-}
-@media (orientation: landscape) {
-  .rotate-overlay {
-    display: none;
   }
 }
 
@@ -5854,10 +5780,7 @@ main#play.fx-glitch {
 .boon-overlay {
   position: fixed;
   inset: 0;
-  /* 55: a MODAL draft must beat the tactical-legend popup (z 50) — on a fresh
-     profile the legend auto-opens and, at phone widths, sat ON TOP of the boon
-     cards and swallowed their taps (found by the portrait-dock probe). Stays
-     under the route-map modal tier (60). */
+  /* Modal tier: above the portrait action shelf, below the route-map modal. */
   z-index: 55;
   display: flex;
   align-items: center;
@@ -6011,17 +5934,6 @@ main#play.fx-glitch {
 .mo-cost { color: var(--term-dim); }
 .mo-arrow { color: var(--head); }
 .mo-get { font-weight: 700; }
-
-/* Learning-goal banner "more" toggle */
-.lg-more {
-  background: none;
-  border: none;
-  color: var(--head);
-  cursor: pointer;
-  font: inherit;
-  text-decoration: underline;
-  padding: 0;
-}
 
 /* Companion focus on the CHARACTER tab */
 .bond-row { cursor: pointer; border-radius: 4px; padding: 2px 4px; }
@@ -6227,9 +6139,7 @@ main#play.fx-glitch {
   .route-active-lens,
   .route-ending-title,
   .route-ending-name,
-  .tactical-legend-title,
-  .tactical-legend-row,
-  .tactical-legend-toggle,
+  .tactical-key-item,
   .combat-learning-goal-label,
   .tile-inspector-hint,
   .tile-inspector-coord,
@@ -6511,34 +6421,170 @@ main#play.fx-glitch {
   }
 }
 
-/* --- Portrait combat action dock (owner 2026-07-14: "모바일 전투에서 스킬이나
-   공격하려면 자꾸 스크롤"). In PORTRAIT touch combat the command console docks
-   to the viewport bottom as a fixed sheet with its own scroll: the board stays
-   on screen and TARGETS/ACTIONS/skills stay under the thumb — no scroll loop
-   between looking and acting. Landscape-coarse is LC5/LC6's one-screen column
-   (untouched); desktop (pointer:fine) keeps the bottom-row grid. --- */
+/* --- Portrait combat action dock. The fixed 30dvh shelf is dense enough to
+   show targets, four core actions, six skills, and items together — no inner
+   scrolling between looking at the board and acting. --- */
 @media (orientation: portrait) and (pointer: coarse) {
   body.combat-active .combat-bottom-row #combat-controls {
     position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
-    /* 52: the ACTION dock must beat the tactical-legend popup (z 50 — an
-       informational popup may slide under it) while staying below the boon
-       draft (55) and route-map modal tier (60). */
+    /* Stay below the boon draft (55) and route-map modal tier (60). */
     z-index: 52;
-    /* 30dvh (was 38): portrait hierarchy verdict 2026-07-17 — the BOARD is the
-       protagonist; the console is a compact tool shelf. Own scroll keeps every
-       action reachable inside the shorter sheet. */
-    max-height: 30dvh;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
+    height: 30dvh;
+    overflow: visible;
     margin: 0;
     padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
     background: var(--panel-1, #050d0c);
     border-top: 1px solid rgba(41, 211, 152, 0.35);
     border-radius: 12px 12px 0 0;
     box-shadow: 0 -6px 18px rgba(0, 0, 0, 0.55);
+  }
+  body.combat-active #combat-controls .combat-bar {
+    margin-bottom: 3px;
+    font-size: 10px;
+  }
+  body.combat-active #combat-controls .cc-section {
+    margin-bottom: 3px;
+  }
+  body.combat-active #combat-controls .cc-label {
+    display: none;
+  }
+  body.combat-active #combat-controls .cc-row {
+    gap: 4px;
+  }
+  body.combat-active #combat-controls .cc-target-row {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+  }
+  body.combat-active #combat-controls .cc-target-row .cc-btn,
+  body.combat-active #combat-controls .cc-support-section .cc-btn {
+    min-width: 0;
+    padding: 3px 4px;
+    font-size: 8.5px;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  body.combat-active #combat-controls .cc-target-row .cc-btn {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1px 3px;
+    text-align: left;
+  }
+  body.combat-active #combat-controls .cc-target-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  body.combat-active #combat-controls .cc-target-intent {
+    display: none;
+  }
+  body.combat-active #combat-controls .cc-target-vitals,
+  body.combat-active #combat-controls .cc-target-forecast,
+  body.combat-active #combat-controls .cc-target-range {
+    color: var(--ink-dim);
+    font-size: 7.5px;
+  }
+  body.combat-active #combat-controls .cc-action-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  body.combat-active #combat-controls .cc-action-row .cc-btn {
+    min-width: 0;
+    min-height: 31px;
+    padding: 2px 4px;
+    gap: 3px;
+    font-size: 9px;
+  }
+  body.combat-active #combat-controls .cc-action-icon {
+    width: 19px;
+    height: 19px;
+  }
+  body.combat-active #combat-controls .cc-skill-bar {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 4px;
+  }
+  body.combat-active #combat-controls .cc-slot,
+  body.combat-active #combat-controls .cc-skill-wrap {
+    display: block;
+    width: 50px;
+    flex: 0 1 50px;
+  }
+  body.combat-active #combat-controls .cc-skill {
+    box-sizing: border-box;
+    width: 50px;
+    min-height: 53px;
+    gap: 1px;
+    padding: 3px 2px 2px;
+  }
+  body.combat-active #combat-controls .cc-skill-icon {
+    width: 29px;
+    height: 29px;
+  }
+  body.combat-active #combat-controls .cc-skill-symbol {
+    font-size: 16px;
+  }
+  body.combat-active #combat-controls .cc-skill-name {
+    width: 100%;
+    min-height: 9px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 8px;
+  }
+  body.combat-active #combat-controls .cc-badge {
+    padding: 0 2px;
+    font-size: 7px;
+  }
+  body.combat-active #combat-controls .cc-badge.role,
+  body.combat-active #combat-controls .cc-skill-fx {
+    display: none;
+  }
+  body.combat-active #combat-controls .cc-skill-info {
+    top: 1px;
+    right: 1px;
+    font-size: 8px;
+  }
+  body.combat-active #combat-controls .cc-skill-aim,
+  body.combat-active #combat-controls .cc-slot-swap {
+    position: absolute;
+    z-index: 3;
+    width: 15px;
+    height: 15px;
+    padding: 0;
+    border-radius: 4px;
+    font-size: 8px;
+    line-height: 13px;
+  }
+  body.combat-active #combat-controls .cc-skill-aim {
+    right: -1px;
+    bottom: 11px;
+  }
+  body.combat-active #combat-controls .cc-slot-swap {
+    left: -1px;
+    top: -1px;
+  }
+  body.combat-active #combat-controls .cc-slot-menu {
+    top: auto;
+    bottom: calc(100% + 4px);
+  }
+  body.combat-active #combat-controls .cc-item-btn {
+    min-width: 0;
+    padding: 2px 5px;
+    gap: 3px;
+    font-size: 8.5px;
+  }
+  body.combat-active #combat-controls .cc-item-icon {
+    width: 22px;
+    height: 22px;
+  }
+  body.combat-active #combat-controls .cc-empty {
+    display: none;
   }
   /* The sheet covers the viewport tail — pad the page so the roster/log/legend
      underneath stay scroll-reachable above the dock. */

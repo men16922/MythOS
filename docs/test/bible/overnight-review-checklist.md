@@ -1,21 +1,21 @@
 # Overnight 루프 종료 후 검수 체크리스트
 
 매 overnight 가동(`make overnight-watch`) **종료 후 사람이 수행하는 반복 검수 프로세스**.
-자동 검수는 `/overnight-report`가, 사람 판단(무엇이 깨졌나·뭘 고칠까·다음 seed)은 이 체크리스트가 담당한다.
+자동 검수는 `$overnight-harness:overnight-report`가, 사람 판단(무엇이 깨졌나·뭘 고칠까·다음 seed)은 이 체크리스트가 담당한다.
 
-> 이 파일은 **정적 바이블(템플릿)** 이다(`docs/test/bible/`). `/overnight-report`는 마지막 단계에서 아래 B~E를
+> 이 파일은 **정적 바이블(템플릿)** 이다(`docs/test/bible/`). `$overnight-harness:overnight-report`는 마지막 단계에서 아래 B~E를
 > **이번 런 사실로 채운 체크박스 인스턴스**(커밋 해시·새 `[blocked]`·ahead 수·잔여 seed)를
 > `docs/test/history/<MMDD-HHMM>-overnight-review-checklist.md` 파일로 **생성**한다. 그 파일들은 gitignore —
 > 재생성 가능한 산출물이라 커밋하지 않는다. "이번 런에 내가 확인할 리스트"가 곧 그 생성 파일이다.
 
 > 한 줄 흐름:
-> `make overnight-status`(끝났나?) → `/overnight-report`(자동 요약 + 런별 체크리스트) → 아래 A~E 처리 → `git push` → 다음 seed
+> `make overnight-status`(끝났나?) → `$overnight-harness:overnight-report`(자동 요약 + 런별 체크리스트) → 아래 A~E 처리 → `git push` → 다음 seed
 
 ---
 
 ## A. 종료 상태 확인
 - [ ] `make overnight-status` — 프로세스 종료됨? 종료 사유는?(DONE 소진 / STOP 수동·red잔여물 / MAX_ITER / 연속실패 / 무진행)
-- [ ] claude 세션에서 **`/overnight-report`** — 회차 수, 만든 커밋, **게이트 재실측(green?)**, 잔여 `[auto]` 확인.
+- [ ] agent 세션에서 **`$overnight-harness:overnight-report`** — 회차 수, 만든 커밋, **게이트 재실측(green?)**, 잔여 `[auto]` 확인.
 - [ ] STOP으로 멈췄다면: red 잔여물(사람 검수 필요)이 핵심 신호. `git status` + `scripts/overnight/logs/iter-<N>.log` 마지막 부분 확인.
 
 ## B. 루프가 만든 것 검토 (커밋)

@@ -129,6 +129,117 @@ class ParseFindingsTest(unittest.TestCase):
         self.assertEqual(fs[0]["severity"], "major")
 
 
+class ObjectiveAssertionsTest(unittest.TestCase):
+    @staticmethod
+    def _passing_events():
+        return [
+            {
+                "turn": 0,
+                "scene_id": "meet_han",
+                "screenshot": "screenshots/turn-00.png",
+                "objective_evidence": {
+                    "image": {"status": "loaded", "wait_ms": 1200},
+                    "party": {"recruit_trigger": "han"},
+                    "choice": {
+                        "status": "visible",
+                        "wait_ms": 900,
+                        "reload_required": False,
+                    },
+                    "gloss": {
+                        "mentioned_terms": ["핑"],
+                        "visible_terms": ["핑"],
+                    },
+                },
+            },
+            {
+                "turn": 1,
+                "scene_id": "companion_cutscene",
+                "screenshot": "screenshots/turn-01.png",
+                "objective_evidence": {
+                    "image": {"status": "loaded", "wait_ms": 800},
+                    "cutscene": {
+                        "id": "han_safe_route",
+                        "phase": "enter",
+                        "expected_return_scene_id": "safe_return",
+                    },
+                    "choice": {
+                        "status": "visible",
+                        "wait_ms": 700,
+                        "reload_required": False,
+                    },
+                    "gloss": {
+                        "mentioned_terms": ["핑"],
+                        "visible_terms": [],
+                    },
+                },
+            },
+            {
+                "turn": 2,
+                "scene_id": "safe_return",
+                "screenshot": "screenshots/turn-02.png",
+                "objective_evidence": {
+                    "party": {
+                        "expected_members": ["ghost", "han"],
+                        "controllable_members": ["ghost", "han"],
+                    },
+                    "cutscene": {
+                        "id": "han_safe_route",
+                        "phase": "return",
+                        "scene_id": "safe_return",
+                    },
+                    "choice": {
+                        "status": "visible",
+                        "wait_ms": 600,
+                        "reload_required": False,
+                    },
+                },
+            },
+        ]
+
+    def test_all_six_assertions_pass_with_complete_evidence(self):
+        bundle = artifacts.evaluate_objectives(
+            self._passing_events(), list(artifacts.OBJECTIVE_IDS)
+        )
+        statuses = {
+            assertion["id"]: assertion["status"]
+            for assertion in bundle["assertions"]
+        }
+        self.assertEqual(set(statuses), set(artifacts.OBJECTIVE_IDS))
+        self.assertTrue(all(status == "pass" for status in statuses.values()))
+        self.assertEqual(bundle["summary"]["pass"], 6)
+
+    def test_all_six_assertions_fail_on_objective_defects(self):
+        events = self._passing_events()
+        events[0]["objective_evidence"]["image"]["status"] = "error"
+        events[2]["objective_evidence"]["party"]["controllable_members"] = ["ghost"]
+        events[1]["objective_evidence"]["cutscene"]["id"] = "dup"
+        events[2]["objective_evidence"]["cutscene"] = {
+            "id": "dup",
+            "phase": "enter",
+            "expected_return_scene_id": "safe_return",
+        }
+        events[1]["objective_evidence"]["choice"]["wait_ms"] = 30_001
+        events[0]["objective_evidence"]["gloss"]["visible_terms"] = []
+        events[1]["objective_evidence"]["gloss"]["visible_terms"] = ["핑"]
+
+        bundle = artifacts.evaluate_objectives(events, list(artifacts.OBJECTIVE_IDS))
+        statuses = {
+            assertion["id"]: assertion["status"]
+            for assertion in bundle["assertions"]
+        }
+        self.assertTrue(all(status == "fail" for status in statuses.values()))
+
+    def test_unknown_required_assertion_is_inconclusive(self):
+        bundle = artifacts.evaluate_objectives([], ["unknown_assertion"])
+        unknown = next(
+            assertion
+            for assertion in bundle["assertions"]
+            if assertion["id"] == "unknown_assertion"
+        )
+        self.assertEqual(unknown["status"], "inconclusive")
+        self.assertTrue(unknown["required"])
+
+
 class FinalizeTest(unittest.TestCase):
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
@@ -194,6 +305,57 @@ class FinalizeTest(unittest.TestCase):
         self.assertEqual(rc, 5)
         self.assertIn("LIVE_QA_OUTCOME: NEEDS_HUMAN", out)
         self.assertTrue(verdict["validation_errors"])
+
+
+    def _set_required(self, *objective_ids):
+        manifest = json.loads((self.out / "manifest.json").read_text())
+        manifest["required_objectives"] = list(objective_ids)
+        (self.out / "manifest.json").write_text(json.dumps(manifest) + "\n")
+
+    def _write_objective_events(self, events):
+        (self.out / "events.jsonl").write_text(
+            "\n".join(json.dumps(event) for event in events) + "\n"
+        )
+
+    def test_finalize_required_assertion_passes_and_writes_bundle(self):
+        events = ObjectiveAssertionsTest._passing_events()
+        self._evidence(n_events=0, n_shots=3)
+        self._write_objective_events(events)
+        self._set_required("choice_arrival")
+        rc, out, verdict = self._finalize("QA_DECISION: RUN\n" + RUN_END)
+        self.assertEqual(rc, 0)
+        self.assertEqual(verdict["objective_decision"], "pass")
+        self.assertIn("LIVE_QA_EVIDENCE:", out)
+        bundle = json.loads((self.out / "evidence-bundle.json").read_text())
+        self.assertEqual(bundle["required_objectives"], ["choice_arrival"])
+        self.assertEqual(bundle["decision"], "pass")
+        self.assertGreaterEqual(len(bundle["artifacts"]), 5)
+        self.assertTrue(all(artifact["sha256"] for artifact in bundle["artifacts"]))
+
+    def test_finalize_unobserved_required_assertion_needs_human(self):
+        self._evidence()
+        self._set_required("companion_join")
+        rc, _, verdict = self._finalize("QA_DECISION: RUN\n" + RUN_END)
+        self.assertEqual(rc, 5)
+        self.assertEqual(verdict["outcome"], "NEEDS_HUMAN")
+        self.assertEqual(verdict["objective_decision"], "needs_human")
+
+    def test_finalize_required_assertion_failure_overrides_actor_pass(self):
+        events = ObjectiveAssertionsTest._passing_events()
+        events[1]["objective_evidence"]["choice"]["wait_ms"] = 30_001
+        self._evidence(n_events=0, n_shots=3)
+        self._write_objective_events(events)
+        self._set_required("choice_arrival")
+        rc, _, verdict = self._finalize("QA_DECISION: RUN\n" + RUN_END)
+        self.assertEqual(rc, 4)
+        self.assertEqual(verdict["outcome"], "FAIL_EVIDENCE")
+        self.assertEqual(verdict["objective_decision"], "fail")
+
+    def test_finalize_required_assertion_cannot_clean_skip(self):
+        self._set_required("choice_arrival")
+        rc, _, verdict = self._finalize("QA_DECISION: SKIP — no ui surface")
+        self.assertEqual(rc, 5)
+        self.assertEqual(verdict["outcome"], "NEEDS_HUMAN")
 
 
 if __name__ == "__main__":

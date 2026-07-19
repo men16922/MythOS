@@ -2,6 +2,14 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-07-19 — Overnight Harness plugin is the behavior SoT; MythOS owns adapters only
+
+Decision: adopt `overnight-harness` plugin 1.1.0 as the only generic runner/controller implementation. MythOS owns repo state, permission policy, lane-aware WorkContract compilation, project verifiers, and operator/worktree tooling. The vendored `run.sh`/`status.sh`/`dashboard.sh`/`notify.sh` and duplicated procedure prompts were retired in one cutover; no second fallback runner is kept.
+
+Reason/impact: the plugin implements the V2 claim/recovery/event/contract/verifier/evidence/oversight perimeter and now passes 51 offline checks. Reimplementing `RunController` would preserve the drift V2 removes. The three generic gaps were closed upstream: external contract compilation, a real Codex commit probe/common-dir boundary, and bounded typed `needs_human` verification. MythOS adapters are deliberately small and interface-tested. The repo stays pinned to the verified source checkout until the normal plugin publication/reinstall step; Git plus plugin versioning is the rollback path.
+
+Skill ownership follows the same seam: `sync`/`checkpoint`/`tidy-docs`/`diagnose`/`overnight-report`/`overnight-seed` are invoked only through the namespaced plugin and configured by `.claude/harness-config.json`. Their stale no-prefix copies were removed from `.claude/skills` and `.agents/skills`. MythOS keeps only domain-specific local skills (`gameplay-qa`, `codebase-design`); objective evidence projection remains repo-owned as `scripts/overnight/report-evidence.py`, not as a conflicting skill fork.
+
 ## 2026-07-17 — Key-beat hybrid A/B verdict: ROLLBACK — narrative stays full 3.5
 
 Decision: 서사 모델을 전 턴 `gemini-3.5-flash`로 복귀 (`mythos-api-00071-gt9`: `MODEL=gemini-3.5-flash`, `GEMINI_MODEL_KEYBEAT` 제거). 하이브리드(2.5 base + 3.5 key-beat) 실험 종료.
@@ -17,6 +25,8 @@ Reason/impact: three consecutive live-loop assets on `00067-x4d` failed with `40
 Addendum (2026-07-17 log audit): `gemini-3.1-flash-image` **never succeeded in prod** — zero `visual asset recorded status=succeeded` entries with that model_id across its entire deployed life (00052..00067, 2026-07-12..15); every 3.1 asset record is `failed`. The "images worked before" memory refers to 2026-07-11, when `imagen-3.0-generate-002` was still serving (after the owner raised the 1 req/min quota). The 07-11 migration was deployed without a single verified live 3.1 generation (unit tests mock the provider) and request volume was ~1-3/day, so the gap took three days to surface. Lesson: a provider/model swap needs one real generation probe against the target project/region before deploy.
 
 ## 2026-07-12 — Overnight inter-agent cooperation = runner-mediated one-shot relays, NOT live A2A
+
+Superseded in implementation by the 2026-07-19 plugin cutover: the image relay is now a fail-closed/`needs_human` verifier, and cross-engine failover is explicit operator policy rather than an inline runner branch. The no-live-A2A principle remains.
 
 Decision: rejected persistent agent-to-agent connections between the overnight engines. Instead `run.sh` gained two runner-mediated one-shot relays (same idiom as critic/browser-qa): **Relay 1 image-identity judge gate** (`OVERNIGHT_IMAGE_JUDGE=1`) — commits touching `resources/*/{characters,enemies}` art get a claude vision judge (plan mode) comparing each new image to the character's canon (`-idle`/`-guard` sibling, else portrait); identity mismatch auto-reverts like critic-reject, fail-open on judge glitches. **Relay 2 same-night blocker escalation** (`OVERNIGHT_ESCALATE=1`) — a non-claude iteration recording `Blocker`/`[blocked]` schedules the next iteration as a claude cross-lane pass (cap 2/run, inactive under `--once`). Design: `bin/docs/plans/2026-07-12-a2a-relays.md`.
 
@@ -96,11 +106,15 @@ Reason/impact: a direct capability measurement proved AGY can navigate/click the
 
 ## 2026-06-21 — Adopt plugin 0.6.0 verification taxonomy selectively; keep the MythOS runner
 
+Superseded by the 2026-07-19 decision above after plugin 1.1.0 absorbed the required generic seams.
+
 Decision: Adopt the plugin's mechanical → semantic → creative verification taxonomy as a sixth engineering bible plus a paired MythOS interpretation. Keep the repo's customized origin-tier `scripts/overnight/run.sh`; do not replace it with the generic plugin runner. The existing repo-local critic prompt is the active semantic policy and now carries MythOS-specific invariants. MythOS specializes the generic plugin default by setting `OVERNIGHT_CRITIC=auto`: low-risk commits skip paid review, risky diffs trigger it, `0` explicitly disables it, and `1` reviews every commit. Subjective game/narrative/visual work remains `[manual]`.
 
 Reason/impact: plugin 0.6.0 is documentation/scaffolding-only, while MythOS already contains the 0.5.1 token-accounting fix and additional 3-engine/worktree/status behavior. Selective adoption preserves those extensions and makes the proof boundary explicit: `make check` + external re-gate proves mechanical correctness, the read-only critic catches concrete green-but-wrong evidence, and human QA owns taste/balance/feel. Repeated semantic failures should still be promoted into deterministic tests.
 
 ## 2026-06-21 — overnight 0.5.0 critic 포팅: origin tier가 플러그인을 앞서고, 토큰 텔레메트리는 블록-max
+
+Superseded in ownership by the 2026-07-19 plugin cutover; the critic role separation and block-max telemetry rule remain active in the plugin.
 
 결정: 플러그인 0.5.0의 critic/telemetry/RCA를 MythOS origin-tier 러너(`scripts/overnight/run.sh`)에 **이식**하되 — ① critic은 **읽기 전용**(claude `--permission-mode plan` / codex `--sandbox read-only` / agy `--print` skip-perms 없음): "검증자가 코드를 만지면 검증이 아니게 된다"(역할분리 · 재게이트 안 거친 변경 방지 · revert가 patch보다 안전). 부수효과로 권한우회 플래그가 없어 안전분류기에 안 걸려 격리 실행도 가능. ② `parse_usage` 토큰 집계는 트리 전체 합산이 아니라 **usage 블록별 자체합의 블록 간 max** — 현재 claude CLI가 `usage.iterations[]`/`modelUsage`/`cache_creation.ephemeral_*`에 같은 수치를 중복으로 실어 합산이 ~2.6배 부풀린다(실측 88292→33272; 비용은 max라 이미 정확).
 
@@ -108,7 +122,7 @@ Reason/impact: plugin 0.6.0 is documentation/scaffolding-only, while MythOS alre
 
 ## 2026-06-20 — WS4 이미지 재생성 루프의 엔진-역할 매핑 (codex도 이미지 생성 가능)
 
-결정: 이미지 재생성-온-리젝트 루프(`scripts/overnight/image-regen.sh` + `make image-regen`)에서 엔진 역할을 능력에 맞춰 매핑한다. **생성** = `GEN_ENGINE` (agy | codex) — **codex도 자체 in-session Imagen 3/Gemini Image로 이미지를 생성한다**(`PROMPT.codex.md:23`, STATUS "agy/codex images use their own Imagen/Gemini"). **비전 판정** = claude/agy(기존 PNG의 프레임 일치도 채점 — codex는 비전 입력 없음). **프롬프트 정제** = codex(텍스트). **결정론적 오프라인 폴백** = FLUX 로컬(카드+텍스트엔 약함, `FLUX_FALLBACK=0`로 옵트아웃). 이유: "codex는 이미지를 못 만든다"는 일반 OpenAI Codex CLI 가정이 **이 환경에선 틀림** — codex는 image_gen 툴 보유. 다만 codex의 image_gen은 `~/.codex/generated_images/<uuid>/`에 고정 저장(출력경로 지정 불가)이라, **오케스트레이터가 타임스탬프 마커로 per-target 수거**한다(codex의 find/copy 의존 제거). `GEN_ENGINE=codex`는 생성물을 신뢰해 **비전 판정 skip + 직통 승격**. 영향: 멀티엔진 이미지 파이프라인의 표준 — 향후 "codex는 이미지 못 만든다"고 재가정하지 말 것. 설계 `docs/plans/2026-06-20-ws4-image-regen-loop.md`.
+결정: 이미지 재생성-온-리젝트 루프(`scripts/overnight/image-regen.sh` + `make image-regen`)에서 엔진 역할을 능력에 맞춰 매핑한다. **생성** = `GEN_ENGINE` (agy | codex) — **codex도 자체 in-session Imagen 3/Gemini Image로 이미지를 생성한다**(`PROMPT.codex.md:23`, STATUS "agy/codex images use their own Imagen/Gemini"). **비전 판정** = claude/agy(기존 PNG의 프레임 일치도 채점 — codex는 비전 입력 없음). **프롬프트 정제** = codex(텍스트). **결정론적 오프라인 폴백** = FLUX 로컬(카드+텍스트엔 약함, `FLUX_FALLBACK=0`로 옵트아웃). 이유: "codex는 이미지를 못 만든다"는 일반 OpenAI Codex CLI 가정이 **이 환경에선 틀림** — codex는 image_gen 툴 보유. 다만 codex의 image_gen은 `~/.codex/generated_images/<uuid>/`에 고정 저장(출력경로 지정 불가)이라, **오케스트레이터가 타임스탬프 마커로 per-target 수거**한다(codex의 find/copy 의존 제거). `GEN_ENGINE=codex`는 생성물을 신뢰해 **비전 판정 skip + 직통 승격**. 영향: 멀티엔진 이미지 파이프라인의 표준 — 향후 "codex는 이미지 못 만든다"고 재가정하지 말 것. 설계 `bin/docs/plans/2026-06-20-ws4-image-regen-loop.md`.
 
 ## 2026-06-19 — 코드 탐색 = LSP-first, Quarkify 완전 폐기
 

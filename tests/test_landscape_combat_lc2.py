@@ -20,7 +20,7 @@ class LandscapeCombatLC2Test(unittest.TestCase):
     def test_tile_inspector_moved_into_combat_bottom_row(self) -> None:
         source = read("src/mythos_ui/src/StoryPanel.tsx")
 
-        board_idx = source.index('<TacticalLegend combat={snapshot.combat} />')
+        board_idx = source.index('<TacticalKey combat={snapshot.combat} />')
         bottom_row_idx = source.index('<div className="combat-bottom-row">')
         tile_inspector_idx = source.index("<TileInspector combat={rosterCombat} cell={combatInspectCell} />")
 

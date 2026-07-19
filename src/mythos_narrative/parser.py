@@ -441,6 +441,8 @@ def parse_story_text(story_text: str) -> ScenePayload:
     narration_match = re.search(r"\[SCENE\]\s*\n*(.*?)(?=\n*\[|$)", story_text, re.DOTALL | re.IGNORECASE)
     narration = narration_match.group(1).strip() if narration_match else story_text.split("[")[0].strip()
     narration = _clean_player_text(narration)
+    if not narration:
+        raise NarrativeParseError(["story text must include non-empty narration"])
 
     # 4. Choices
     choices_match = re.search(r"\[CHOICES\]\s*\n*(.*?)(?=\n*\[|$)", story_text, re.DOTALL | re.IGNORECASE)

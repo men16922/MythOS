@@ -571,3 +571,22 @@ class AxisIntentFlagTest(unittest.TestCase):
         )
         self.assertEqual(a["flags"], b["flags"])
         self.assertEqual(a[ROUTE_MAP_KEY]["axis_tally"], b[ROUTE_MAP_KEY]["axis_tally"])
+
+    def test_tied_boss_perspective_scores_prefer_authored_default(self) -> None:
+        route_map = build_route_map(load_scenario("neo-seoul").route_map, "style-qa")
+        self.assertIsNotNone(route_map)
+        assert route_map is not None
+        boss = next(
+            node
+            for node in route_map["nodes"].values()
+            if node.get("beat") == "ix_confrontation"
+        )
+
+        selected = select_perspective(
+            boss,
+            {"met_se_rin", "trusted_se_rin", "kai_awakened", "humanity_first"},
+        )
+
+        self.assertIsNotNone(selected)
+        assert selected is not None
+        self.assertEqual(selected["id"], "p_refuge")

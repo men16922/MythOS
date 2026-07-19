@@ -328,14 +328,18 @@ def select_perspective(node: dict[str, Any], flags: set[str] | list[str]) -> dic
 
     best_score = -1
     best: dict[str, Any] | None = None
+    best_tied = False
     for perspective in perspectives:
         when = perspective.get("when", []) or []
         score = len(set(when) & flag_set)
         if score > best_score:
             best_score = score
             best = perspective
+            best_tied = False
+        elif score == best_score:
+            best_tied = True
 
-    if best_score <= 0 and default_id:
+    if default_id and (best_score <= 0 or best_tied):
         for perspective in perspectives:
             if perspective.get("id") == default_id:
                 return perspective

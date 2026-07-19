@@ -42,20 +42,21 @@ export function choiceCostLabel(choice: SceneChoice, t: TFn): string {
   return changes.length > 0 ? ` (${changes.join(", ")})` : "";
 }
 
-// Strips the stat-tag tail's inner text from a server-authored choice label, keeping
-// just `(<stat>)`. Matches both Korean and English stat names (the LLM emits in the
-// active language) so the cleanup works for either.
+// Restyles a server-authored stat tag as a narrative approach, not a mechanical
+// check. The current choice pipeline does not roll or gate on these labels, so
+// `(Agility 12+)` would promise a rule that does not exist; `[Approach: Agility]`
+// keeps the authored intent without the false affordance. Matches KO and EN.
 const _CHOICE_STAT_TAGS = [
   "근력", "지능", "매력", "민첩", "관측", "통찰",
   "Strength", "Intellect", "Intelligence", "Charisma", "Agility", "Observation", "Perception", "Insight",
 ];
 
-export function cleanChoiceLabel(label: string): string {
+export function cleanChoiceLabel(label: string, statApproachLabel: string): string {
   if (!label) return "";
   let cleaned = label;
   for (const stat of _CHOICE_STAT_TAGS) {
     const regex = new RegExp(`\\((${stat})[^)]*\\)`, "g");
-    cleaned = cleaned.replace(regex, `($1)`);
+    cleaned = cleaned.replace(regex, `[${statApproachLabel}: $1]`);
   }
   return cleaned;
 }

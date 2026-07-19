@@ -3,12 +3,12 @@
 > **General concept doc (bible).** This repo's application (runner · env · make targets) is → [`mythos/LOOP.md`](mythos/LOOP.md).
 
 ## Definition
-An autonomous run loop that repeatedly invokes one prompt headless, where each iteration **restores state from a small context → implements one task and passes the gate → records → commits locally**. One iteration = one atomic unit of work. Because each iteration commits, **whenever it stops, loss is at most one iteration**.
+An autonomous run loop that executes a bounded **work contract** through one or more agent turns: **reconcile state → claim → act/checkpoint → verify evidence → review → record/commit**. An iteration remains one atomic commit unit, while a mission may span several iterations or sessions. Because each iteration commits, **whenever it stops, loss is at most one iteration**.
 
 ## 1. Core Principles
 | Principle | Why |
 | --- | --- |
-| **Fresh context per iteration** | New process each iteration → no context bloat/summarization. Re-read only the Read Path to restore. |
+| **Capability-aware context** | Continue within a stable mission when useful; checkpoint and reset on milestone, drift, timeout, context pressure, or engine failure. Re-read only the Read Path + mission checkpoint. |
 | **Iteration = one task + immediate commit** | Whenever a limit/crash hits, uncommitted loss is just one iteration. The next iteration takes over. |
 | **Offline gate = commit gate** | If the deterministic gate (lint+type+build+test) isn't green, no commit → broken code doesn't accumulate. This is the mechanical layer; semantic critic and creative `[manual]` review sit above it. |
 | **State on files** | Backlog · history · git history. Disk, not memory, is the source of truth. |
@@ -17,7 +17,8 @@ An autonomous run loop that repeatedly invokes one prompt headless, where each i
 ## 2. One Iteration Flow (loop-once)
 ```
 restore state → recover leftovers (prior iteration's interrupted work) → pick one task from backlog
-  → implement + pass gate → record → local commit → (pause) → repeat
+  → compile/validate work contract → claim → implement/checkpoint → verify evidence → independent review
+  → record → local commit → reconcile tracker → continue/retry/release
 ```
 - **Leftover recovery**: a dirty tree at start = the prior iteration's interrupted leftover. If the gate is green, commit the recovery; if red, leave untouched + signal stop.
 - **Outcome classification**: judge the iteration result as success/limit/failure structurally (no free-text grep — avoid false misjudgment).
@@ -31,11 +32,20 @@ Tag automation on an **axis separate** from the status box:
 - untagged = not an unattended target (safe default). The runner consumes only `auto*`; no arbitrary promotion.
 > **A thin backlog is normal**: the more a repo is creative/feel-heavy, the faster the `auto` backlog drains. Frequent no-progress exits are normal; for efficiency, **seed** `auto` items before running (regression backfill · codemod · lint/type debt · stale-doc cleanup).
 
+Before dispatch, compile the selected item into a runtime work contract: goal, scope, allowed actions, budgets,
+risk/oversight tier, executable evidence, and escalation rule. Markdown remains the human authority; the contract is the
+machine control surface. Refuse unattended execution when no verifier or explicit human handoff is defined.
+
 ## 4. Stop Conditions (backstops)
-Backlog drained (DONE) · manual/red leftover (STOP) · max iterations · N consecutive failures · N no-progress. **Stop when done** (0 extra tokens).
+Backlog drained (DONE) · human decision required · red leftover · max iterations/turns/tokens/wall time · stalled lease ·
+N consecutive failures · N no-progress · repeated verifier disagreement. Distinguish timed-out, stalled, failed, and
+canceled states because reconciliation and retry policies differ. **Stop when done** (0 extra tokens).
 
 ## 5. Applicability Limits
-This loop fits **hygiene/regression/refactor/codemod/deterministic-bugfix**. Do not use it for creative/feel/content authoring — the unattended gate can't verify those (that's `manual`, human QA).
+Full auto-accept fits **hygiene/regression/refactor/codemod/deterministic-bugfix**. Creative/feel/content work may still
+enter the loop for candidate generation, objective replay, rubric prefilter, or evidence collection under the
+**monitored** tier; only its irreducible taste residue remains a human decision. Never let a model judge silently become
+the product authority.
 
 ## 6. Sibling Concepts (bible)
 - Higher harness: [`HARNESS_ENGINEERING.md`](HARNESS_ENGINEERING.md) · commit verification: [`VERIFICATION_ENGINEERING.md`](VERIFICATION_ENGINEERING.md) · parallel multi-engine: [`AGENTIC_ENGINEERING.md`](AGENTIC_ENGINEERING.md)

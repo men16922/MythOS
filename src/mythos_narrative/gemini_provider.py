@@ -112,7 +112,7 @@ class GeminiConfig:
     # anchor/cutscene/boss/ending — NarrativeContext.key_beat) on this model and
     # everything else on `model`. Unset (default) = single model, current behavior.
     # Kept (with its observability fields) so a future cost experiment is a
-    # two-env-var flip — see docs/plans/2026-07-14-keybeat-hybrid-ab.md.
+    # two-env-var flip — see bin/docs/plans/2026-07-14-keybeat-hybrid-ab.md.
     keybeat_model: str | None = field(
         default_factory=lambda: _env("GEMINI_MODEL_KEYBEAT", "MODEL_KEYBEAT")
     )

@@ -1,91 +1,70 @@
-# MythOS interpretation — AGENTIC_ENGINEERING (3-engine parallel multi-agent)
-Last updated: 2026-06-14
+# MythOS interpretation — AGENTIC_ENGINEERING
 
-> Maps the bible [`../AGENTIC_ENGINEERING.md`](../AGENTIC_ENGINEERING.md) concepts **onto this repo's implementation**.
-> Implementation: three engines claude·codex·agy run the unattended loop **concurrently, each in its own worktree+branch**,
-> with claude doing orchestration (lane assignment + integration merge). Code basis: `scripts/overnight/{run.sh,PROMPT*.md,
-> worktrees.sh,merge-loops.sh}`, [`LOOP.md`](LOOP.md), `docs/NEXT_PLAN.md`. Raw research `bin/docs/archive/AI_REARCH.md`.
+> Maps [`../AGENTIC_ENGINEERING.md`](../AGENTIC_ENGINEERING.md) onto MythOS's engine lanes and
+> worktree operator tools. The plugin controller itself remains single-runner.
 
-## 0. Core principle — block conflicts by "structure"
-Concurrent-write conflicts are blocked by **isolation**, not willpower. Keep three axes non-overlapping:
-1. **worktree isolation** — a different work tree + branch per engine (`loop/{claude,codex,agy}`) → they cannot touch the same file at once.
-2. **lane separation** — engine-suffix tags on `NEXT_PLAN` tasks → two engines don't pick the same item.
-3. **domain split** — per-engine directory ownership → merge conflicts are effectively nil.
-4. **shared-doc convention** — checkpoint docs are the exception to the domain split (all three touch them), so a separate convention blocks conflicts:
-   - `PROGRESS_LOG.md` = append-only + **`.gitattributes merge=union`** → both sides' additions auto-merge (0 conflict markers).
-   - `NEXT_PLAN.md` = each engine toggles **only its own lane's one line** → different lines, so 3-way merge auto-resolves.
-   - `STATUS.md`/`AGENT_BRIEF.md` = **engines do not edit mid-iteration**; the orchestrator (claude) updates them in bulk after merge.
-   (Demonstrated 2026-06-14: before this convention, 3 engines appending to PROGRESS_LOG/NEXT_PLAN/STATUS simultaneously caused merge conflicts.)
-On top of that, the existing **concurrent-writer-detection STOP** (run.sh) remains as a last-resort safety net.
+## Conflict prevention by structure
 
-## 1. Engine · lane · domain · gate
-| Engine | Lane tag | Owned domain (these dirs only) | Sandbox | Gate | Branch |
-| --- | --- | --- | --- | --- | --- |
-| **claude** | `[auto]` / `[auto:claude]` | `src/`, `tests/`, `harness/`, `scripts/overnight/`, complex refactor · invariant · orchestration | `overnight-settings.json` (deny push/net/destructive) | `make check` | `loop/claude` |
-| **codex** | `[auto:codex]` | Builder: `docs/`/scenario/story_bible deterministic refactor · verification · dialogue scripts. **+ Reviewer (Auditor)**: read-only audit of the integration diff | `codex exec` workspace-write + no-net + `.git` writable | `make check` (build) / read-only (review) | `loop/codex` |
-| **agy** | `[auto:agy]` | `resources/<scn>/{characters,characters/combat,concept,enemies,enemies/combat,opening,scenes}` image drafts + simple verification | none (needs host FLUX/MPS/network) → prompt guardrails + branch isolation | **integrity gate** (asset exists/dimensions/naming; make check for no code breakage) | `loop/agy` (review) |
+Parallelism is across isolated missions, not concurrent writers in one checkout:
 
-- **codex = claude failover**: if a claude iteration is `limit`, the runner has codex consume the claude lane instead (Phase 6, `run.sh`).
-- **agy output is review material**: an image's aesthetic "fit" can't be judged unattended → stack it on `loop/agy` and **a human reviews in the morning**.
-  The auto gate sees only integrity (exists/matches spec). **No fabricating** a missing asset as a placeholder (PROMPT.agy.md §0).
-- **`[qa:agy]` is a separate evidence lane, not an overnight commit lane**: AGY directly plays through Chrome DevTools first / its Playwright MCP second and writes ignored evidence under `outputs/live-qa/`. The wrapper only manages services/safety; Python only validates artifacts. AGY never edits source or closes the human-owned checklist. Design: `bin/docs/plans/2026-06-21-agy-assisted-live-qa.md`.
+1. one worktree and branch per engine: `loop/{claude,codex,agy}`;
+2. one explicit lane tag per backlog item;
+3. domain-aware scope emitted by the WorkContract compiler;
+4. integration owned by a human/Claude orchestrator after each lane stops;
+5. creator and reviewer are different roles where practical.
 
-## 1.5 Creator ≠ Reviewer (Claude → Codex → Claude)
-Applying AI_REARCH's core principle: separate the maker from the auditor to reduce self-confirmation bias.
-- claude/agy **create** in their lanes (build/draft) → integrate into `loop/integration` via `overnight-merge`.
-- **codex read-only-audits the integration diff** (`make overnight-review` → `scripts/overnight/review.sh` +
-  `PROMPT.review.md`): scores bugs/edges/missing-tests/simplification/performance, writes only one `logs/review-latest.md`, and notes
-  **proposed follow-up work** (with lane tags). **Does not modify code or NEXT_PLAN.**
-- The orchestrator (claude/human) reflects findings into `NEXT_PLAN` → next iteration claude **fixes** them. Loop complete.
-- Images (agy) follow the same spirit: agy drafts via in-session Imagen + a fit review (`outputs/combat-sprite-compare/*-review.md`),
-  and final aesthetic acceptance is a human call.
+`PROGRESS_LOG.md` is append-oriented; lane actors touch only their own plan item. `STATUS.md` and
+`AGENT_BRIEF.md` are integration/checkpoint surfaces, not simultaneous shared-write targets.
 
-## 2. Why content/images have a different gate from claude's code loop
-Image generation needs host FLUX/MPS + network and is **non-deterministic** (same prompt differs each time), so it can't be frozen by `make check`.
-story_bible/dialogue authoring is "feel" judgment too, so not unattended-verifiable. Hence:
-- **Tier 1 (deterministic code)**: claude (+failover codex) → `make check` green → auto commit. Safe.
-- **Tier 2 (content/image)**: codex (deterministic refactor/verification) + agy (image draft) → auto-commit only via an **integrity gate**,
-  aesthetic/narrative quality goes to human review. Auto-generated output doesn't go straight to main but stacks on a review branch (`loop/{codex,agy}`).
+## Engine roles
 
-## 2.7 Operating-model choice — the reality of the worktree gate (demonstrated 2026-06-14)
-A **key constraint** confirmed in the 3-engine parallel demonstration: a worktree has no `.venv`/`node_modules` (gitignore). symlinking them from main
-**breaks the gate** — (a) `.venv` symlink → editable install resolves to main src → code changes are **false green**, (b) `node_modules` symlink → tsc/vite write to a shared `.tmp` → **EPERM**. Hence:
-- **Model A — code lanes sequential in the main checkout (recommended default).** claude/codex `[auto*]` code work runs in main,
-  repeating `--once` in lane-tag order (concurrent-writer STOP as safety net). The gate is faithful, 0 env duplication. But not "concurrent."
-- **Model B — true worktree parallelism (incl. code lanes).** Provision each worktree's own venv+node_modules once via `make overnight-worktrees-setup`
-  (needs network, by a human outside the loop). Then its own editable install points at that worktree's src, faithful. Cost: disk/time.
-- **Image/doc lanes (agy, codex-docs)** work in a worktree without their own env (demonstrated: agy generated+committed 6 skill icons in a worktree). Because no code gate is needed.
-→ **Recommended**: agy (images) on worktree, claude/codex (code) on Model A (main sequential) or B (worktree after provision).
+| Engine | Lane | Typical work | Boundary |
+| --- | --- | --- | --- |
+| Claude | `[auto]`, `[auto:claude]` | complex deterministic code/refactor/invariants | repo unattended settings; no push/network/destructive commands |
+| Codex | `[auto:codex]` | code/docs/resources with objective Done criteria; integration reviewer is a separate read-only invocation | workspace-write, network off, approval never, Git common-dir writable; real commit probe required |
+| AGY | `[auto:agy]` | bounded image/resource drafts and browser evidence | explicit no-sandbox opt-in, isolated review branch, integrity/identity verifier, human aesthetic authority |
+| Kiro/OpenCode | explicit engine lane | deterministic work with the same contract/gate/verifier chain | adapter-specific permissions plus contract scope |
 
-## 3. Operation (make targets)
+Codex does not silently inherit Claude work. An operator may set `OVERNIGHT_CLAUDE_FAILOVER=1`; this
+is visible in the compiled contract. AGY browser QA is evidence work and never closes subjective play
+items.
+
+## Two scales of delegation
+
+- Cross-mission: separate plugin runners in separate worktrees.
+- Intra-mission: the contract may budget up to three bounded subagents for independent exploration,
+  diagnosis, test analysis, or read-only review.
+
+The default MythOS Make targets set the subagent budget to zero. A child cannot widen scope,
+permissions, network, production authority, or share a write target. Shared writes stay serialized.
+
+## Environment fidelity
+
+A worktree must not symlink the main checkout's `.venv` or `node_modules`: editable Python imports can
+point at the wrong source, and frontend tools write shared temporary state. Use one of two modes:
+
+- code lanes sequentially in the main checkout; or
+- provision each code worktree's own environment with `make overnight-worktrees-setup` before launch.
+
+Image/doc-only lanes may omit a code environment only if their contract and gate remain computable.
+`env-doctor.sh` fails before dispatch when the required local environment is absent.
+
+## Operation
+
 ```sh
-# 1) Prepare worktree isolation. symlink only .claude/.agents (don't symlink .venv/node_modules — breaks the gate).
-make overnight-worktrees          # create/refresh (+.claude/.agents symlink)
-make overnight-worktrees-setup    # (Model B) per-worktree venv+node_modules for code lanes — network once
-make overnight-worktrees-status   # status + symlink check
-make overnight-worktrees-down     # remove (branches preserved)
+make overnight-worktrees
+make overnight-worktrees-setup       # required for parallel code lanes
 
-# 2) Start each engine in its own worktree (separate terminal/background → true parallelism)
-(cd ../MythOS-loop-claude && make overnight-watch)              # claude lane
-(cd ../MythOS-loop-codex  && make overnight-codex-watch)        # codex lane
-(cd ../MythOS-loop-agy    && make overnight-agy-watch)          # agy lane
+(cd ../MythOS-loop-claude && make overnight-claude-watch)
+(cd ../MythOS-loop-codex  && make overnight-codex-watch)
+(cd ../MythOS-loop-agy    && make overnight-agy-watch)
 
-# 3) Morning: claude integrates + codex reviews + human reviews
-make overnight-merge              # loop/* → loop/integration + rerun make check (no push)
-make overnight-review             # codex read-only-audits the main...loop/integration diff → logs/review-latest.md
-# Reflect review findings into NEXT_PLAN (next iteration claude fixes) → review loop/integration
-# (especially agy image aesthetic fit) → if clean, merge/push to main.
+make overnight-merge                 # local integration + gate, never push
+make overnight-review                # independent read-only Codex review
 ```
-- Each worktree has its own `scripts/overnight/logs|STOP|DONE` (gitignore) so they don't interfere.
-- Commits stay local on each engine's own branch (`loop/<eng>`). **No engine pushes** (human does after integration).
 
-## 4. Limits / cautions
-- **agy no-sandbox**: agy runs unrestricted on the host. The boundary is only the `PROMPT.agy.md` guardrails + worktree/branch isolation.
-  If destructive actions worry you, review the agy lane more often or trial+adopt `agy --sandbox` (terminal restriction).
-- **Lane assignment is the human/claude's responsibility**: without an `[auto:codex]`/`[auto:agy]` tag, that engine exits immediately as `drained`.
-  Assignment = `NEXT_PLAN` tagging. The claude orchestrator tags work onto its domain-appropriate lane.
-- **No domain trespass**: each PROMPT §0/§3 forbids edits outside the owned domain. A trespass surfaces as a merge conflict + STOP.
+Each worktree owns its ignored claim/log/sentinel state. Commits remain local. The orchestrator reviews
+evidence and pending `needs_human` items before merging or pushing.
 
-## 5. Related docs
-- Bible (concept): [`../AGENTIC_ENGINEERING.md`](../AGENTIC_ENGINEERING.md) · sibling interpretations: [`LOOP.md`](LOOP.md) · [`HARNESS.md`](HARNESS.md) · [`PROMPT.md`](PROMPT.md)
-- Backlog/lane tags: `docs/NEXT_PLAN.md` · design invariants: `harness/CORE_MANDATES.md` · image standard: `docs/IMAGE_POLICY.md`
+Related: [`LOOP.md`](LOOP.md), [`VERIFICATION.md`](VERIFICATION.md),
+[`../../plans/2026-07-18-overnight-harness-v2.md`](../../plans/2026-07-18-overnight-harness-v2.md).

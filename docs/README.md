@@ -1,6 +1,6 @@
 # Project MythOS Docs
 
-Last updated: 2026-07-17
+Last updated: 2026-07-19
 
 This directory separates current docs from archive to keep the working context small.
 Agents do not read all of `docs/`; follow only the order below.
@@ -34,12 +34,14 @@ Agents do not read all of `docs/`; follow only the order below.
 
 ## On-Demand Docs
 
-- `docs/engineering/`: **the 5 agent-operations harness concepts** (HARNESS/LOOP/AGENTIC/CONTEXT/PROMPT). Start from `docs/engineering/README.md` for unattended-loop · multi-agent · context · prompt work. (`LOOP_ENGINEERING.md` · `AGENTIC_ENGINEERING.md` moved from the old `docs/LOOP_ENGINEERING.md` · `docs/MULTI_AGENT.md`.)
+- `docs/engineering/`: **the 6 agent-operations harness concepts** (HARNESS/LOOP/AGENTIC/CONTEXT/PROMPT/VERIFICATION). Start from `docs/engineering/README.md` for unattended-loop · multi-agent · context · prompt · verification work. (`LOOP_ENGINEERING.md` · `AGENTIC_ENGINEERING.md` moved from the old `docs/LOOP_ENGINEERING.md` · `docs/MULTI_AGENT.md`.)
 - `docs/test/`: **checklists humans run by hand** (not default agent context — the user opens them).
   - `neo_seoul_live_qa.md`: Neo-Seoul human play-QA checklist.
   - `bible/overnight-review-checklist.md`: the human review-checklist **bible (static template)** after an overnight loop ends.
-  - `history/<MMDD-HHMM>-overnight-review-checklist.md`: the **per-run instance** `/overnight-report` generates each run (fills bible B~E with that run's facts). gitignore — a regenerable artifact.
-- `docs/plans/`: dated design snapshots of active work (e.g. variant-routed-opening, cbt-feedback3-clarity, the WS4/WS5 engineering plans). Completed/retired plans move to `bin/docs/plans/`. May be stale, so prefer `NEXT_PLAN.md`.
+  - `history/<MMDD-HHMM>-overnight-review-checklist.md`: the **per-run instance** `$overnight-harness:overnight-report` generates each run (fills bible B~E with that run's facts). gitignore — a regenerable artifact.
+- `docs/cbt/`: CBT recruitment, feedback, invite, and teaser publication material. Open only for CBT operations/content changes.
+- `docs/cloud/`: Cloud Run deployment, closed-beta operations, and GCP planning. Open only for cloud/deploy work.
+- `docs/plans/`: dated design snapshots of active work (currently CBT onboarding, feedback-3 clarity, WS4 authored-content, and Harness V2 rollout). Completed/retired plans move to `bin/docs/plans/`. May be stale, so prefer `NEXT_PLAN.md`.
 - `docs/scenarios/`: scenario design docs. Read only when changing content.
 - `docs/reference/`: external-tech reference analyses (verified claims + what MythOS should/shouldn't borrow). Read on demand.
 - `bin/docs/archive/`: store for long-form design/logs/past planning. Not in default context.

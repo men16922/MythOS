@@ -9,7 +9,6 @@ import { CombatLog } from "./CombatLog";
 import { CombatRoster } from "./CombatRoster";
 import { TurnOrderStrip } from "./TurnOrderStrip";
 import { OperationMapPanel, StatusPanel } from "./GameAside";
-import { RotateOverlay } from "./RotateOverlay";
 import { SaveHistoryPanel } from "./SaveHistoryPanel";
 import { Surface } from "./Surface";
 import { useConciseMode } from "./conciseMode";
@@ -28,8 +27,6 @@ type NarrativeHistoryItem = {
   action?: string | null;
   result?: string | null;
 };
-
-const TACTICAL_LEGEND_SEEN_KEY = "mythos_tactical_legend_seen";
 
 interface StoryPanelProps {
   status: string;
@@ -542,65 +539,38 @@ function CombatResultPanel({
   );
 }
 
-function TacticalLegend({ combat }: { combat: CombatState }) {
+function TacticalKey({ combat }: { combat: CombatState }) {
   const { t } = useLang();
   const covers = Object.values(combat.covers || {});
   const hazards = Object.values(combat.hazards || {});
   const hasElevation = Object.values(combat.elevations || {}).some((v) => Number(v) > 0);
   const intents = combat.radar?.enemy_intents || [];
-  const hasLegendContent = intents.length > 0 || covers.length > 0 || hazards.length > 0 || hasElevation;
-
   const rows: { sym: string; text: string }[] = [];
-  rows.push({ sym: "⚔️/🏃/👣", text: t("story.legend.intents") });
+  if (intents.some((intent) => intent.action === "attack")) {
+    rows.push({ sym: "⚔", text: t("story.legend.attack") });
+  }
+  if (intents.some((intent) => intent.action === "move")) {
+    rows.push({ sym: "→", text: t("story.legend.move") });
+  }
+  if (intents.some((intent) => intent.action === "flee")) {
+    rows.push({ sym: "↗", text: t("story.legend.flee") });
+  }
   if (covers.includes("full")) rows.push({ sym: "▣", text: t("story.legend.coverFull") });
   if (covers.includes("half")) rows.push({ sym: "◧", text: t("story.legend.coverHalf") });
   if (hazards.includes("acid")) rows.push({ sym: "☣", text: t("story.legend.acid") });
-  if (hazards.includes("electro")) rows.push({ sym: "⚡", text: t("story.legend.electro") });
-  if (hasElevation) rows.push({ sym: "▲n", text: t("story.legend.elevation") });
-  const [open, setOpen] = useState(() => {
-    try {
-      return localStorage.getItem(TACTICAL_LEGEND_SEEN_KEY) !== "1";
-    } catch {
-      return false;
-    }
-  });
+  if (hazards.includes("electro")) rows.push({ sym: "ϟ", text: t("story.legend.electro") });
+  if (hasElevation) rows.push({ sym: "▲", text: t("story.legend.elevation") });
 
-  useEffect(() => {
-    if (!open || !hasLegendContent) return;
-    try {
-      localStorage.setItem(TACTICAL_LEGEND_SEEN_KEY, "1");
-    } catch {
-      /* ignore storage failures */
-    }
-  }, [hasLegendContent, open]);
-
-  if (!hasLegendContent) {
-    return null;
-  }
+  if (rows.length === 0) return null;
 
   return (
-    <div className="tactical-legend-wrap">
-      <button
-        type="button"
-        className="tactical-legend-toggle"
-        aria-expanded={open}
-        aria-label={open ? t("story.legend.close") : t("story.legend.open")}
-        title={t("story.legend.title")}
-        onClick={() => setOpen((v) => !v)}
-      >
-        {open ? t("story.legend.close") : t("story.legend.open")}
-      </button>
-      {open && (
-        <div className="tactical-legend tactical-legend-popup" role="dialog" aria-label={t("story.legend.title")}>
-          <div className="tactical-legend-title">{t("story.legend.title")}</div>
-          {rows.map((r, i) => (
-            <div key={i} className="tactical-legend-row">
-              <span className="tactical-legend-sym">{r.sym}</span>
-              <span className="tactical-legend-text">{r.text}</span>
-            </div>
-          ))}
-        </div>
-      )}
+    <div className="tactical-key" role="note" aria-label={t("story.legend.title")}>
+      {rows.map((row) => (
+        <span key={`${row.sym}-${row.text}`} className="tactical-key-item">
+          <span className="tactical-key-sym" aria-hidden="true">{row.sym}</span>
+          <span>{row.text}</span>
+        </span>
+      ))}
     </div>
   );
 }
@@ -611,44 +581,24 @@ function LearningGoalBanner({ combat }: { combat: CombatState }) {
   const goal = encounter?.learning_goal;
   const trigger = encounter?.narrative_trigger;
   const reward = encounter?.reward_intent;
-  const [dismissed, setDismissed] = useState(false);
-  // Collapsed by default: one lesson line, full detail on demand (live feedback
-  // 2026-07-04 — the three-paragraph banner crowded the board).
-  const [expanded, setExpanded] = useState(false);
-  if ((!goal && !trigger && !reward) || dismissed) return null;
+  if (!goal && !trigger && !reward) return null;
   const summary = goal || trigger || reward || "";
   const firstSentence = summary.split(/(?<=[.!?。])\s/)[0] || summary;
   return (
-    <div className="combat-learning-goal" role="note">
-      <span className="combat-learning-goal-icon">🎯</span>
-      <div className="combat-learning-goal-body">
+    <details className="combat-learning-goal">
+      <summary className="combat-learning-goal-summary-row">
+        <span className="combat-learning-goal-icon" aria-hidden="true">◎</span>
         <span className="combat-learning-goal-label">
           {t("story.learn.bg")}{encounter?.name ? ` · ${encounter.name}` : ""}
         </span>
-        {!expanded && (
-          <span className="combat-learning-goal-text">
-            🎯 <span className="combat-learning-goal-summary">{firstSentence}</span>
-            <button className="lg-more" onClick={() => setExpanded(true)}>
-              {t("story.learn.more")}
-            </button>
-          </span>
-        )}
-        {expanded && (
-          <>
-            {trigger && <span className="combat-learning-goal-text">⚑ {t("story.learn.trigger")} · {trigger}</span>}
-            {goal && <span className="combat-learning-goal-text">🎯 {t("story.learn.goal")} · {goal}</span>}
-            {reward && <span className="combat-learning-goal-text">🎁 {t("story.learn.reward")} · {reward}</span>}
-          </>
-        )}
+        <span className="combat-learning-goal-summary">{firstSentence}</span>
+      </summary>
+      <div className="combat-learning-goal-body">
+        {trigger && <span className="combat-learning-goal-text">{t("story.learn.trigger")} · {trigger}</span>}
+        {goal && <span className="combat-learning-goal-text">{t("story.learn.goal")} · {goal}</span>}
+        {reward && <span className="combat-learning-goal-text">{t("story.learn.reward")} · {reward}</span>}
       </div>
-      <button
-        className="combat-learning-goal-close"
-        onClick={() => setDismissed(true)}
-        aria-label={t("story.learn.close")}
-      >
-        ✕
-      </button>
-    </div>
+    </details>
   );
 }
 
@@ -1063,7 +1013,6 @@ export function StoryPanel({
     );
     return (
       <div id="story-tab-content" className="combat-layout">
-        <RotateOverlay />
         {/* D3 board legibility: TACTICAL BOARD full-width on top; roster /
             command console / log as a bottom row. */}
         <div className="combat-stack">
@@ -1102,10 +1051,6 @@ export function StoryPanel({
                   </div>
                 )}
               </div>
-              <LearningGoalBanner
-                key={snapshot.combat.encounter?.id || "encounter"}
-                combat={snapshot.combat}
-              />
               {/* Two-tier slice 4 (owner GO 2026-07-14): initiative forecast strip. */}
               {snapshot.combat.radar && (
                 <TurnOrderStrip radar={snapshot.combat.radar} scenarioId={scenarioId} />
@@ -1117,6 +1062,10 @@ export function StoryPanel({
                 }`}
                 style={{ marginTop: "12px" }}
               >
+                <LearningGoalBanner
+                  key={snapshot.combat.encounter?.id || "encounter"}
+                  combat={snapshot.combat}
+                />
                 <canvas
                   id="combat"
                   ref={canvasRef}
@@ -1128,7 +1077,7 @@ export function StoryPanel({
                   style={{ display: "block", touchAction: "none" }}
                 ></canvas>
               </div>
-              <TacticalLegend combat={snapshot.combat} />
+              <TacticalKey combat={snapshot.combat} />
             </Surface>
 
           {/* 하단 행(랜드스케이프에서는 우측 컬럼): Tile Inspector · Party/Enemy

@@ -35,6 +35,20 @@ class DegeneratingStreamProvider:
         yield " " * 400
 
 
+class DegenerateStoryProvider:
+    class Config:
+        ollama_model_story = "story-model"
+        ollama_model_parser = "parser-model"
+
+    config = Config()
+
+    def generate(self, messages: list[dict[str, str]], *, model: str | None = None) -> str:
+        return ""
+
+    def stream_story(self, messages: list[dict[str, str]], *, model: str | None = None):
+        yield "[TITLE]\nThreshold\n[LOCATION]\ndata-layer-01\n[SCENE]\n\n[CHOICES]\n"
+
+
 class NarrativeStreamingTest(unittest.TestCase):
     def setUp(self) -> None:
         now = datetime(2026, 5, 30, tzinfo=UTC)
@@ -131,6 +145,15 @@ class NarrativeStreamingTest(unittest.TestCase):
 
         self.assertEqual(provider.generate_calls, [])
         self.assertEqual(events[-1].kind, "fallback")
+
+    def test_blank_dual_model_scene_is_reported_as_fallback(self) -> None:
+        events = list(NarrativeDirector(DegenerateStoryProvider()).stream_first_scene(self.context))
+
+        self.assertEqual(events[-1].kind, "fallback")
+        self.assertEqual(events[-1].outcome, "fallback")
+        assert events[-1].payload is not None
+        self.assertTrue(events[-1].payload.narration.strip())
+        self.assertGreaterEqual(len(events[-1].payload.choices), 2)
 
     def test_plain_text_story_extractor_strips_headers(self) -> None:
         from mythos_narrative.streaming import PlainTextStoryExtractor

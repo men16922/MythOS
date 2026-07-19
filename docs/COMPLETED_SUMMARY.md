@@ -1,6 +1,6 @@
 # Completed Summary
 
-최종 갱신: 2026-07-04
+최종 갱신: 2026-07-19
 
 이 문서는 완료된 milestone의 압축 요약이다. 세부 작업 로그와 검증 기록은 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`, `bin/docs/archive/progress-2026-05.md`, `bin/docs/archive/progress-2026-06.md`를 참고한다. 최신 짧은 로그만 `PROGRESS_LOG.md`에 남긴다.
 
@@ -187,8 +187,31 @@
 - **3.1 image-model log audit**: prod logs proved `gemini-3.1-flash-image` NEVER succeeded (0 successes over its whole deployed life); "worked before" was `imagen-3.0` on 07-11 → probe-before-deploy lesson recorded.
 - **Agent backlog drained**: clarity follow-ups (deterministic first-use term-gloss UI `termGloss.ts` + echo in-fiction naming rule) · WS4 closed by design (`docs/plans/2026-07-17-ws4-authored-content-pipeline.md`) · WS5 shutdown digest + iter-log cap (`run.sh`) · prompt-layer Phase 5 few-shot extraction (byte-parity, track complete).
 - **Narrative eval harness**: `scripts/eval/` golden bank + claude-CLI rubric judge (`make eval-narrative`), end-to-end validated (judge caught canned-fallback artifacts with turn-anchored quotes). Reference analyses `docs/reference/` (Google ADK 2.0 fact-check — Antigravity≠runtime; Anthropic/OpenAI borrow list — eval loop was our gap).
-- **Portrait combat hierarchy rework** (owner real-device findings): board height-fit 389px + board-first scroll (board finally dominates), dock 38→30dvh, cinema cards vw-scaled (no overlap @390px), simulator skips the boon draft. Design `docs/plans/2026-07-17-portrait-combat-hierarchy.md`.
+- **Portrait combat hierarchy rework** (owner real-device findings): board height-fit 389px + board-first scroll (board finally dominates), dock 38→30dvh, cinema cards vw-scaled (no overlap @390px), simulator skips the boon draft. Design `bin/docs/plans/2026-07-17-portrait-combat-hierarchy.md`.
 - **Ops/cost**: docs tidied to budget (plans archived, media pruned 250→68MB), 56 stale AR build images deleted + cleanup policy, git commit/push allowlisted. Deploys `00070`→`00073-zx2`; `make check` 1094→**1124** green.
+
+## M62 — OpenAI + Anthropic Overnight Harness V2 research and design (2026-07-18)
+
+- **Research translated**: the Sol/OpenAI and Fable/Anthropic source views plus their final synthesis are recorded under `docs/reference/2026-07-18-*harness*.md` and reflected across the engineering bibles/MythOS interpretations.
+- **V2 boundary designed**: a permanent safety/evidence/recovery perimeter plus capability-aware removable scaffold around `RunController`, `WorkContract`, `VerifierRegistry`, `OversightPolicy`, and `EvidenceBundle`; assumptions are measured and ablated rather than promoted to a runtime module.
+- **HITL target defined**: Neo-Seoul's 16 manual checks become 6 auto-close + 8 monitored/prefiltered + 2 human-authority, measured over three release bundles rather than assumed safe.
+- **Delivery plan recorded**: `docs/plans/2026-07-18-overnight-harness-v2.md` P0–P5; no runtime implementation or irreversible runner-ownership decision in this milestone. Documentation checks passed.
+
+## M63 — Overnight Harness V2 plugin adoption (2026-07-19)
+
+- **Plugin 1.1.0**: external required WorkContract compiler, real Codex repo-write/commit probe with Git common-dir boundary, bounded verifiers, and typed `needs_human` pending evidence; 51 offline checks plus a real Codex 0.144.5 disposable commit pass.
+- **MythOS adapters**: lane/subjectivity/scope-aware contract compiler; diff-scope, deterministic gameplay, objective browser, and image-identity verifiers; offline idempotent environment doctor and five adapter tests.
+- **Skill ownership**: plugin-only namespaced lifecycle skills configured by `.claude/harness-config.json`; stale no-prefix copies removed from both engine skill roots. MythOS retains only `gameplay-qa`/`codebase-design`, and the skill-sync gate rejects plugin duplicates.
+- **Single controller SoT**: Make targets resolve the plugin; repo-local runner/status/dashboard/notify, duplicate actor prompts, and stale snippet removed. `harness-init --check` confirms no vendored behavior.
+- **Verification**: `make check` 1130 OK (5 skipped), `make smoke-local` PASS, plugin package/AGY manifests, shell syntax, doc budgets, and diff checks PASS. Publication/cache reinstall remains a separate normal release action; source pin is active meanwhile.
+- **Boundary**: this milestone improves autonomous execution, rejection, and exception evidence; it does not yet remove live-play checks. Current formal human-QA reduction is 0/16. The 6 auto / 8 monitored / 2 human split remains a measured rollout, not a completed benefit.
+
+## M64 — Harness V2 objective browser-QA live calibration (2026-07-19)
+
+- **Six assertions exercised**: image arrival, companion join into a real combat roster, exact four-person party distribution, one-shot companion cutscene + normal return, choice arrival, and first-use-only term gloss each produced a required PASS `evidence-bundle.json` with hashed events/screenshots.
+- **Production-state fixture seam**: isolated local players/loops prepare only the long-progression starting point; Resume, narrative choice, route `party_add`, combat begin/roster, cutscene staging/clearing, and rendered UI remain production paths. Pure fixture transforms are unit-locked.
+- **Calibration result**: eight required runs (three choice + one per remaining assertion) had 0/8 observed false accepts. The authoritative six-bundle audit had 0 hash mismatches and took 507.7s total/84.6s mean; evidence reporting keeps one DB exception and samples 2/9 clean bundles.
+- **Verification/boundary**: `make check` 1146 OK (5 skipped), browser screenshots independently reviewed. Formal human-QA reduction remains 0/16 until three distinct release bundles preserve false-accept/false-stop limits and demonstrate lower human minutes.
 
 ## Archive Reference
 

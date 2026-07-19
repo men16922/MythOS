@@ -32,6 +32,17 @@ class UIClarityAffordancesTest(unittest.TestCase):
         self.assertIn('<Popover className="cmd-chip axis-chip" anchor="bottom-left"', source)
         self.assertNotIn("title={axisTooltip}", source)
 
+    def test_stat_tags_are_labeled_as_non_mechanical_approaches(self) -> None:
+        choices = read("src/mythos_ui/src/choices.ts")
+        panel = read("src/mythos_ui/src/ChoicePanel.tsx")
+
+        self.assertIn("cleanChoiceLabel(label: string, statApproachLabel: string)", choices)
+        self.assertIn("`[${statApproachLabel}: $1]`", choices)
+        self.assertNotIn("cleaned.replace(regex, `($1)`)", choices)
+        self.assertIn('cleanChoiceLabel(choice.label, t("choice.statApproach"))', panel)
+        self.assertIn('"choice.statApproach": "접근"', read("src/mythos_ui/src/i18n/strings.ko.ts"))
+        self.assertIn('"choice.statApproach": "Approach"', read("src/mythos_ui/src/i18n/strings.en.ts"))
+
     def test_combat_skill_tooltip_is_tap_openable(self) -> None:
         # M3 (mobile clarity): the skill button's cost/range/cooldown detail was
         # a hover-only `title=` on the whole (already-tappable) button, dead on
@@ -142,13 +153,12 @@ class UIClarityAffordancesTest(unittest.TestCase):
             self.assertIn(key, read("src/mythos_ui/src/i18n/strings.ko.ts"))
             self.assertIn(key, read("src/mythos_ui/src/i18n/strings.en.ts"))
 
-    def test_tactical_legend_auto_opens_once_per_browser(self) -> None:
+    def test_tactical_key_is_always_visible_without_a_legend_button(self) -> None:
         source = read("src/mythos_ui/src/StoryPanel.tsx")
-
-        self.assertIn('TACTICAL_LEGEND_SEEN_KEY = "mythos_tactical_legend_seen"', source)
-        self.assertIn("localStorage.getItem(TACTICAL_LEGEND_SEEN_KEY)", source)
-        self.assertIn('localStorage.setItem(TACTICAL_LEGEND_SEEN_KEY, "1")', source)
-        self.assertIn('title={t("story.legend.title")}', source)
+        self.assertIn("function TacticalKey", source)
+        self.assertIn('className="tactical-key"', source)
+        self.assertNotIn("TACTICAL_LEGEND_SEEN_KEY", source)
+        self.assertNotIn("tactical-legend-toggle", source)
 
     def test_route_legend_codex_term_opens_codex_tab(self) -> None:
         aside = read("src/mythos_ui/src/GameAside.tsx")

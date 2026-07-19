@@ -26,3 +26,10 @@ The bible holds the "what/why"; the interpretation holds "how in this repo." Eac
 - Design invariants (shared by all agents): `harness/CORE_MANDATES.md`
 - Doc operating rules: `docs/DOCS_POLICY.md` · docs index: `docs/README.md` · backlog/lane tags: `docs/NEXT_PLAN.md`
 - Raw research (preserved): `bin/docs/archive/HARNESS_RESEARCH.md` · `bin/docs/archive/AI_REARCH.md` · refined `bin/docs/archive/AI_TEAM_BLUEPRINT.md`
+
+## Current research baseline
+
+- GPT-5.6 Sol / long-horizon / lower-HITL synthesis (2026-07-18):
+  [`../reference/2026-07-18-sol-harness-long-loop-hitl.md`](../reference/2026-07-18-sol-harness-long-loop-hitl.md)
+- MythOS Harness V2 implementation plan (design only):
+  [`../plans/2026-07-18-overnight-harness-v2.md`](../plans/2026-07-18-overnight-harness-v2.md)

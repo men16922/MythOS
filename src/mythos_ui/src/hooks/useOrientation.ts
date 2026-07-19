@@ -22,12 +22,9 @@ function readOrientationState(): OrientationState {
   }
 }
 
-// LC0: live orientation + pointer-type signal for the combat rotate-to-landscape
-// prompt (bin/docs/plans/2026-07-08-design-system.md "Landscape Combat" — portrait
-// combat is cramped and concise mode barely helps, ~10%). Desktop/mouse users
-// (fine pointer) are never affected; only coarse-pointer (touch) portrait
-// matters. Tracks live orientation changes via matchMedia listeners rather than
-// resize, since rotation doesn't always fire a resize event on every device.
+// Live orientation + pointer-type signal shared by the portrait and landscape
+// combat layouts. Tracks matchMedia changes directly because rotation does not
+// consistently emit resize on every device.
 export function useOrientation(): OrientationState {
   const [state, setState] = useState<OrientationState>(readOrientationState);
 

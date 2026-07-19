@@ -29,20 +29,15 @@ class LandscapeCombatLC3Test(unittest.TestCase):
         self.assertIn(".tabs {", block)
         self.assertIn(".tab-btn {", block)
 
-    def test_encounter_banner_collapses_to_one_line_chip(self) -> None:
+    def test_encounter_goal_is_a_globally_folded_top_row(self) -> None:
         css = read("src/mythos_ui/src/index.css")
-
-        close_hover_idx = css.index(".combat-learning-goal-close:hover {")
-        tile_inspector_idx = css.index("/* Tile inspector:")
-        block = css[close_hover_idx:tile_inspector_idx]
-
-        self.assertIn("@media (orientation: landscape) and (pointer: coarse) {", block)
-        self.assertIn(".combat-learning-goal {", block)
-        self.assertIn(".combat-learning-goal-body {", block)
-        self.assertIn("flex-direction: row;", block)
-        self.assertIn(".combat-learning-goal-summary {", block)
-        self.assertIn("white-space: nowrap;", block)
-        self.assertIn("text-overflow: ellipsis;", block)
+        source = read("src/mythos_ui/src/StoryPanel.tsx")
+        self.assertIn('<details className="combat-learning-goal">', source)
+        self.assertIn('<summary className="combat-learning-goal-summary-row">', source)
+        self.assertIn(".combat-learning-goal-summary-row {", css)
+        self.assertIn(".combat-learning-goal-summary {", css)
+        self.assertIn("white-space: nowrap;", css)
+        self.assertIn("text-overflow: ellipsis;", css)
 
     def test_learning_goal_summary_wrapped_for_truncation(self) -> None:
         source = read("src/mythos_ui/src/StoryPanel.tsx")

@@ -37,7 +37,21 @@ The reviewer fixes neither code nor backlog directly — it only produces findin
 ## 5. Reasoning Sandwich
 Planning = high reasoning, implementation = medium reasoning, verification = high reasoning. Using the top model at every stage is wasteful. Match the model tier to each stage.
 
-## 6. Sibling Concepts (bible)
+## 6. Bounded intra-task subagents
+
+Modern frontier models can coordinate subagents inside one task. Treat this as a second scale below worktree lanes:
+
+- Use subagents for independent exploration, competing hypotheses, test design, log analysis, or read-only review.
+- Prefer one agent for ordered chains, small tasks, slow external bottlenecks, or shared mutable writes.
+- Default to at most three concurrent subagents. Give each a bounded deliverable and require root synthesis.
+- All descendants inherit the mission's permissions, tool allowlist, budget, and evidence rules. A child cannot widen scope.
+- Measure wall-clock and cost per verified outcome; parallelism that only increases tokens is removed.
+
+Use model/version names only as adapter configuration. The orchestrator routes by capability and measured role quality,
+not prestige: high-value planning/review may use a flagship model, while repetitive classification may use a cheaper
+adapter after role-specific evals.
+
+## 7. Sibling Concepts (bible)
 - Higher harness: [`HARNESS_ENGINEERING.md`](HARNESS_ENGINEERING.md) · single loop: [`LOOP_ENGINEERING.md`](LOOP_ENGINEERING.md)
 - Context: [`CONTEXT_ENGINEERING.md`](CONTEXT_ENGINEERING.md) · prompt: [`PROMPT_ENGINEERING.md`](PROMPT_ENGINEERING.md)
 - This repo's application: [`mythos/AGENTIC.md`](mythos/AGENTIC.md)

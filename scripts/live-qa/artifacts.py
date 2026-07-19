@@ -20,6 +20,7 @@ transcripts without a browser, API, or git.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import subprocess
@@ -81,13 +82,17 @@ def prepare(
     diff_range: str = "",
     reason: str = "",
     checklist: str = "docs/test/neo_seoul_live_qa.md",
+    objectives: str = "",
 ) -> int:
+    required_objectives = [
+        objective.strip() for objective in objectives.split(",") if objective.strip()
+    ]
     output_dir.mkdir(parents=True, exist_ok=False)
     (output_dir / "screenshots").mkdir()
     write_json(
         output_dir / "manifest.json",
         {
-            "schema_version": 2,
+            "schema_version": 3,
             "run_id": output_dir.name,
             "trigger": trigger,
             "case": case,
@@ -98,6 +103,7 @@ def prepare(
             "commit": git_output("rev-parse", "HEAD"),
             "checklist": checklist,
             "checklist_commit": git_output("hash-object", checklist),
+            "required_objectives": required_objectives,
             "started_at": utc_now(),
             "ended_at": None,
             "port": port,
@@ -143,6 +149,377 @@ def read_events(path: Path) -> tuple[list[dict[str, Any]], list[str]]:
             continue
         events.append(value)
     return events, errors
+
+
+OBJECTIVE_IDS = (
+    "image_arrival",
+    "companion_join",
+    "party_distribution",
+    "cutscene_cardinality_return",
+    "choice_arrival",
+    "first_use_gloss",
+)
+
+
+def _event_ref(event: dict[str, Any]) -> dict[str, Any]:
+    return {
+        key: event[key]
+        for key in ("turn", "scene_id", "screenshot")
+        if event.get(key) not in (None, "")
+    }
+
+
+def evaluate_objectives(
+    events: list[dict[str, Any]], required: list[str] | tuple[str, ...] = ()
+) -> dict[str, Any]:
+    """Evaluate six objective live-QA assertions from structured browser facts.
+
+    The actor records facts under objective_evidence. An assertion passes only
+    when enough evidence proves its whole invariant; incomplete coverage stays
+    not_observed and cannot auto-close a required objective.
+    """
+
+    required_set = set(required)
+    facts = [
+        event.get("objective_evidence", {})
+        if isinstance(event.get("objective_evidence"), dict)
+        else {}
+        for event in events
+    ]
+
+    def result(
+        objective_id: str,
+        status: str,
+        reason: str,
+        indexes: list[int] | tuple[int, ...] = (),
+    ) -> dict[str, Any]:
+        return {
+            "id": objective_id,
+            "required": objective_id in required_set,
+            "status": status,
+            "reason": reason,
+            "evidence": [_event_ref(events[index]) for index in indexes],
+        }
+
+    assertions: list[dict[str, Any]] = []
+
+    image_rows = [
+        (index, value["image"])
+        for index, value in enumerate(facts)
+        if isinstance(value.get("image"), dict)
+        and value["image"].get("status") is not None
+    ]
+    if len(image_rows) < 2:
+        assertions.append(result("image_arrival", "not_observed", "need at least two image-bearing turns"))
+    else:
+        known = {"loaded", "missing", "pending", "timeout", "error"}
+        invalid = [
+            (index, str(image.get("status")))
+            for index, image in image_rows
+            if str(image.get("status")).lower() not in known
+        ]
+        bad_indexes = [
+            index
+            for index, image in image_rows
+            if str(image.get("status")).lower() in {"timeout", "error"}
+        ]
+        consecutive_missing: list[int] = []
+        for left, right in zip(image_rows, image_rows[1:]):
+            left_missing = str(left[1].get("status")).lower() in {"missing", "pending"}
+            right_missing = str(right[1].get("status")).lower() in {"missing", "pending"}
+            if left_missing and right_missing:
+                consecutive_missing.extend((left[0], right[0]))
+        if invalid:
+            assertions.append(
+                result(
+                    "image_arrival",
+                    "inconclusive",
+                    f"unknown image status: {invalid[0][1]}",
+                    [invalid[0][0]],
+                )
+            )
+        elif bad_indexes or consecutive_missing:
+            refs = sorted(set(bad_indexes + consecutive_missing))
+            assertions.append(
+                result(
+                    "image_arrival",
+                    "fail",
+                    "image errored/timed out or was absent on consecutive turns",
+                    refs,
+                )
+            )
+        else:
+            assertions.append(
+                result(
+                    "image_arrival",
+                    "pass",
+                    "no image error and no consecutive missing-image turns",
+                    [index for index, _ in image_rows],
+                )
+            )
+
+    recruit_rows = [
+        (index, value["party"])
+        for index, value in enumerate(facts)
+        if isinstance(value.get("party"), dict)
+        and value["party"].get("recruit_trigger")
+    ]
+    if not recruit_rows:
+        assertions.append(result("companion_join", "not_observed", "no companion recruit trigger observed"))
+    else:
+        join_failures: list[int] = []
+        join_incomplete = False
+        join_refs: list[int] = []
+        for trigger_index, party in recruit_rows:
+            companion = str(party["recruit_trigger"])
+            later = [
+                (index, later_fact["party"])
+                for index, later_fact in enumerate(facts[trigger_index:], trigger_index)
+                if isinstance(later_fact.get("party"), dict)
+                and isinstance(later_fact["party"].get("controllable_members"), list)
+            ]
+            if not later:
+                join_incomplete = True
+                join_refs.append(trigger_index)
+                continue
+            observed_index, observed_party = later[-1]
+            join_refs.extend((trigger_index, observed_index))
+            members = {str(member) for member in observed_party["controllable_members"]}
+            if companion not in members:
+                join_failures.append(observed_index)
+        if join_failures:
+            assertions.append(
+                result(
+                    "companion_join",
+                    "fail",
+                    "recruited companion missing from a later controllable party",
+                    sorted(set(join_refs + join_failures)),
+                )
+            )
+        elif join_incomplete:
+            assertions.append(
+                result(
+                    "companion_join",
+                    "not_observed",
+                    "recruit trigger observed but no later controllable-party snapshot",
+                    sorted(set(join_refs)),
+                )
+            )
+        else:
+            assertions.append(
+                result(
+                    "companion_join",
+                    "pass",
+                    "every observed recruit appears in a later controllable party",
+                    sorted(set(join_refs)),
+                )
+            )
+
+    distribution_rows = [
+        (index, value["party"])
+        for index, value in enumerate(facts)
+        if isinstance(value.get("party"), dict)
+        and isinstance(value["party"].get("expected_members"), list)
+        and isinstance(value["party"].get("controllable_members"), list)
+    ]
+    if not distribution_rows:
+        assertions.append(
+            result("party_distribution", "not_observed", "no expected/controllable party snapshot observed")
+        )
+    else:
+        mismatches: list[int] = []
+        for index, party in distribution_rows:
+            expected = [str(member) for member in party["expected_members"]]
+            actual = [str(member) for member in party["controllable_members"]]
+            if len(actual) != len(set(actual)) or set(expected) != set(actual):
+                mismatches.append(index)
+        assertions.append(
+            result(
+                "party_distribution",
+                "fail" if mismatches else "pass",
+                (
+                    "controllable party differs from expected state or contains duplicates"
+                    if mismatches
+                    else "controllable party exactly matches expected state"
+                ),
+                mismatches or [index for index, _ in distribution_rows],
+            )
+        )
+
+    cutscene_rows = [
+        (index, value["cutscene"])
+        for index, value in enumerate(facts)
+        if isinstance(value.get("cutscene"), dict) and value["cutscene"].get("id")
+    ]
+    enter_rows = [
+        (index, cutscene)
+        for index, cutscene in cutscene_rows
+        if cutscene.get("phase") == "enter"
+    ]
+    if not enter_rows:
+        assertions.append(
+            result("cutscene_cardinality_return", "not_observed", "no cutscene entry observed")
+        )
+    else:
+        cutscene_failures: list[int] = []
+        cutscene_incomplete = False
+        cutscene_refs: list[int] = []
+        ids = [str(cutscene["id"]) for _, cutscene in enter_rows]
+        for cutscene_id in set(ids):
+            matching_enters = [
+                (index, cutscene)
+                for index, cutscene in enter_rows
+                if str(cutscene["id"]) == cutscene_id
+            ]
+            cutscene_refs.extend(index for index, _ in matching_enters)
+            if len(matching_enters) != 1:
+                cutscene_failures.extend(index for index, _ in matching_enters)
+                continue
+            enter_index, enter = matching_enters[0]
+            returns = [
+                (index, cutscene)
+                for index, cutscene in cutscene_rows
+                if index > enter_index
+                and str(cutscene["id"]) == cutscene_id
+                and cutscene.get("phase") == "return"
+            ]
+            if not returns:
+                cutscene_incomplete = True
+                continue
+            return_index, returned = returns[0]
+            cutscene_refs.append(return_index)
+            expected_scene = enter.get("expected_return_scene_id")
+            if not expected_scene or returned.get("scene_id") != expected_scene:
+                cutscene_failures.append(return_index)
+        if cutscene_failures:
+            assertions.append(
+                result(
+                    "cutscene_cardinality_return",
+                    "fail",
+                    "cutscene repeated or returned to the wrong scene",
+                    sorted(set(cutscene_refs + cutscene_failures)),
+                )
+            )
+        elif cutscene_incomplete:
+            assertions.append(
+                result(
+                    "cutscene_cardinality_return",
+                    "not_observed",
+                    "cutscene entry observed without a return checkpoint",
+                    sorted(set(cutscene_refs)),
+                )
+            )
+        else:
+            assertions.append(
+                result(
+                    "cutscene_cardinality_return",
+                    "pass",
+                    "each cutscene appeared once and returned to its declared scene",
+                    sorted(set(cutscene_refs)),
+                )
+            )
+
+    choice_rows = [
+        (index, value["choice"])
+        for index, value in enumerate(facts)
+        if isinstance(value.get("choice"), dict)
+    ]
+    if len(choice_rows) < 2:
+        assertions.append(result("choice_arrival", "not_observed", "need at least two choice checkpoints"))
+    else:
+        choice_failures = [
+            index
+            for index, choice in choice_rows
+            if choice.get("status") != "visible"
+            or not isinstance(choice.get("wait_ms"), (int, float))
+            or choice["wait_ms"] > 30_000
+            or choice.get("reload_required") is not False
+        ]
+        assertions.append(
+            result(
+                "choice_arrival",
+                "fail" if choice_failures else "pass",
+                (
+                    "choice missing, late, or required a reload"
+                    if choice_failures
+                    else "choices arrived within 30 seconds without reload"
+                ),
+                choice_failures or [index for index, _ in choice_rows],
+            )
+        )
+
+    gloss_rows = [
+        (index, value["gloss"])
+        for index, value in enumerate(facts)
+        if isinstance(value.get("gloss"), dict)
+        and isinstance(value["gloss"].get("mentioned_terms"), list)
+        and isinstance(value["gloss"].get("visible_terms"), list)
+    ]
+    if not gloss_rows:
+        assertions.append(result("first_use_gloss", "not_observed", "no term-gloss evidence observed"))
+    else:
+        mentions: dict[str, list[int]] = {}
+        visible_by_index: dict[int, set[str]] = {}
+        gloss_failures: list[int] = []
+        for index, gloss in gloss_rows:
+            mentioned = {str(term) for term in gloss["mentioned_terms"]}
+            visible = {str(term) for term in gloss["visible_terms"]}
+            visible_by_index[index] = visible
+            if visible - mentioned:
+                gloss_failures.append(index)
+            for term in mentioned:
+                mentions.setdefault(term, []).append(index)
+        repeated = {term: indexes for term, indexes in mentions.items() if len(indexes) >= 2}
+        for term, indexes in mentions.items():
+            first, *rest = indexes
+            if term not in visible_by_index[first]:
+                gloss_failures.append(first)
+            if any(term in visible_by_index[index] for index in rest):
+                gloss_failures.extend(index for index in rest if term in visible_by_index[index])
+        if gloss_failures:
+            assertions.append(
+                result(
+                    "first_use_gloss",
+                    "fail",
+                    "gloss missing on first mention, repeated later, or shown for an unmentioned term",
+                    sorted(set(gloss_failures)),
+                )
+            )
+        elif not repeated:
+            assertions.append(
+                result(
+                    "first_use_gloss",
+                    "not_observed",
+                    "first mention observed but no repeated mention proves one-time behavior",
+                    [index for index, _ in gloss_rows],
+                )
+            )
+        else:
+            refs = sorted({index for indexes in repeated.values() for index in indexes})
+            assertions.append(
+                result(
+                    "first_use_gloss",
+                    "pass",
+                    "gloss appears on first mention only and does not repeat",
+                    refs,
+                )
+            )
+
+    for objective_id in sorted(required_set - set(OBJECTIVE_IDS)):
+        assertions.append(
+            result(objective_id, "inconclusive", "unknown required objective assertion")
+        )
+
+    counts = {
+        status: sum(assertion["status"] == status for assertion in assertions)
+        for status in ("pass", "fail", "not_observed", "inconclusive")
+    }
+    return {
+        "schema_version": 1,
+        "required_objectives": list(required),
+        "summary": counts,
+        "assertions": assertions,
+    }
 
 
 def parse_findings(raw: str) -> list[dict[str, str]]:
@@ -220,6 +597,24 @@ def finalize(output_dir: Path, raw_review: Path, agy_exit: int, server_stopped: 
     empty_screenshot = any(path.stat().st_size == 0 for path in screenshots)
     console_present = (output_dir / "console.log").is_file()
 
+    manifest_path = output_dir / "manifest.json"
+    manifest: dict[str, Any] = {}
+    if manifest_path.is_file():
+        try:
+            loaded_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            if isinstance(loaded_manifest, dict):
+                manifest = loaded_manifest
+        except (OSError, json.JSONDecodeError):
+            event_errors.append("invalid manifest.json")
+    raw_required = manifest.get("required_objectives", [])
+    if not isinstance(raw_required, list) or not all(
+        isinstance(objective, str) for objective in raw_required
+    ):
+        event_errors.append("manifest required_objectives must be a string list")
+        required_objectives: list[str] = []
+    else:
+        required_objectives = raw_required
+
     outcome, decision, verdict, browser_tool, errors = decide_outcome(
         raw,
         event_count=len(events),
@@ -230,10 +625,77 @@ def finalize(output_dir: Path, raw_review: Path, agy_exit: int, server_stopped: 
         server_stopped=server_stopped,
         event_errors=event_errors,
     )
-    findings = parse_findings(raw)
+    objective_bundle = evaluate_objectives(events, required_objectives)
+    required_results = [
+        assertion
+        for assertion in objective_bundle["assertions"]
+        if assertion["required"]
+    ]
+    if not required_results:
+        objective_decision = "not_required"
+    elif any(assertion["status"] == "fail" for assertion in required_results):
+        objective_decision = "fail"
+    elif all(assertion["status"] == "pass" for assertion in required_results):
+        objective_decision = "pass"
+    else:
+        objective_decision = "needs_human"
 
+    if required_results and decision == "SKIP":
+        outcome = "NEEDS_HUMAN"
+        errors.append("required objective assertions cannot be skipped")
+    elif outcome == "PASS_CANDIDATE":
+        if objective_decision == "fail":
+            outcome = "FAIL_EVIDENCE"
+        elif objective_decision == "needs_human":
+            outcome = "NEEDS_HUMAN"
+            unresolved = [
+                f"{assertion['id']}={assertion['status']}"
+                for assertion in required_results
+                if assertion["status"] != "pass"
+            ]
+            errors.append("required objective assertions unresolved: " + ", ".join(unresolved))
+
+    def artifact(path: Path, artifact_type: str) -> dict[str, Any] | None:
+        if not path.is_file():
+            return None
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        try:
+            ref = str(path.relative_to(output_dir))
+        except ValueError:
+            ref = str(path)
+        return {
+            "type": artifact_type,
+            "ref": ref,
+            "sha256": digest,
+            "bytes": path.stat().st_size,
+        }
+
+    evidence_artifacts = [
+        value
+        for value in (
+            artifact(output_dir / "events.jsonl", "browser-events"),
+            artifact(output_dir / "console.log", "browser-console"),
+            *(artifact(path, "screenshot") for path in screenshots),
+        )
+        if value is not None
+    ]
+    objective_bundle.update(
+        {
+            "run_id": output_dir.name,
+            "created_at": utc_now(),
+            "commit": manifest.get("commit", "(unknown)"),
+            "checklist": manifest.get("checklist", "(unknown)"),
+            "checklist_commit": manifest.get("checklist_commit", "(unknown)"),
+            "decision": objective_decision,
+            "artifacts": evidence_artifacts,
+        }
+    )
+    evidence_path = output_dir / "evidence-bundle.json"
+    write_json(evidence_path, objective_bundle)
+
+    findings = parse_findings(raw)
     verdict_payload = {
-        "schema_version": 2,
+        "schema_version": 3,
         "run_id": output_dir.name,
         "reviewed_at": utc_now(),
         "actor": "agy",
@@ -247,25 +709,31 @@ def finalize(output_dir: Path, raw_review: Path, agy_exit: int, server_stopped: 
         "screenshot_count": len(screenshots),
         "validation_errors": errors,
         "findings": findings,
+        "required_objectives": required_objectives,
+        "objective_decision": objective_decision,
+        "objective_summary": objective_bundle["summary"],
+        "evidence_bundle": str(evidence_path),
     }
     write_json(output_dir / "verdict.json", verdict_payload)
     report = (
         "# AGY Live-QA Run\n\n"
-        f"- Run: `{output_dir.name}`\n"
-        f"- Browser actor: `agy` (tool `{browser_tool}`)\n"
-        f"- QA decision: `{decision or '(unspecified)'}`\n"
-        f"- AGY verdict: `{verdict or '(none)'}`\n"
-        f"- Validated outcome: `{outcome}`\n"
-        f"- Events/screenshots: `{len(events)}/{len(screenshots)}`\n"
-        f"- Validation errors: `{errors or 'none'}`\n\n"
+        f"- Run: {output_dir.name}\n"
+        f"- Browser actor: agy (tool {browser_tool})\n"
+        f"- QA decision: {decision or '(unspecified)'}\n"
+        f"- AGY verdict: {verdict or '(none)'}\n"
+        f"- Validated outcome: {outcome}\n"
+        f"- Events/screenshots: {len(events)}/{len(screenshots)}\n"
+        f"- Required objectives: {required_objectives or 'none'}\n"
+        f"- Objective decision: {objective_decision}\n"
+        f"- Objective summary: {objective_bundle['summary']}\n"
+        f"- Evidence bundle: {evidence_path}\n"
+        f"- Validation errors: {errors or 'none'}\n\n"
         "## Raw AGY output\n\n"
         f"{raw.strip()}\n"
     )
     (output_dir / "report.md").write_text(report, encoding="utf-8")
 
-    manifest_path = output_dir / "manifest.json"
-    if manifest_path.is_file():
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if manifest:
         manifest["ended_at"] = utc_now()
         manifest["status"] = "completed" if outcome in ("PASS_CANDIDATE", "SKIP") else "needs_review"
         manifest["browser_tool"] = browser_tool
@@ -273,14 +741,18 @@ def finalize(output_dir: Path, raw_review: Path, agy_exit: int, server_stopped: 
         manifest["outcome"] = outcome
         manifest["server_stopped"] = server_stopped
         manifest["validation_errors"] = errors
+        manifest["objective_decision"] = objective_decision
+        manifest["objective_summary"] = objective_bundle["summary"]
+        manifest["evidence_bundle"] = str(evidence_path)
         write_json(manifest_path, manifest)
 
-    # Final machine-readable line — browser-qa.sh treats this as authoritative.
     print(f"LIVE_QA_OUTCOME: {outcome}")
-    # Re-emit findings in canonical form so the runner can record them from stdout
-    # (the raw AGY transcript is in a file, not on this process's stdout).
-    for f in findings:
-        print(f"QA_FINDING: {f['severity']} | {f['area']} | {f['detail']}")
+    print(f"LIVE_QA_EVIDENCE: {evidence_path}")
+    for finding in findings:
+        print(
+            f"QA_FINDING: {finding['severity']} | "
+            f"{finding['area']} | {finding['detail']}"
+        )
     return OUTCOME_EXIT.get(outcome, 5)
 
 
@@ -298,6 +770,7 @@ def parse_args() -> argparse.Namespace:
     prepare_parser.add_argument("--range", dest="diff_range", default="")
     prepare_parser.add_argument("--reason", default="")
     prepare_parser.add_argument("--checklist", default="docs/test/neo_seoul_live_qa.md")
+    prepare_parser.add_argument("--objectives", default="")
 
     wait_parser = subparsers.add_parser("wait")
     wait_parser.add_argument("--url", required=True)
@@ -324,6 +797,7 @@ def main() -> int:
             diff_range=args.diff_range,
             reason=args.reason,
             checklist=args.checklist,
+            objectives=args.objectives,
         )
     if args.command == "wait":
         return wait_for_server(args.url, args.timeout)

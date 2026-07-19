@@ -4,14 +4,12 @@ Guide for the Claude Code agent in this repo. Ground all design in `harness/CORE
 
 **Doc language:** agent-facing operational docs (this file, `harness/*`, `docs/engineering/**`, the `/sync` entry docs, skill bodies, `scripts/overnight/PROMPT*.md`) are authored in **English**. User-facing and narrative content (scenarios, `story_bible`, `directives`, `docs/test` live-QA) stays **Korean**.
 
-## Skills (local + plugin coexistence)
+## Skills (plugin-owned harness + repo-owned domain skills)
 
-Seeing two skills of the same name in `/skills` is **intentional, not duplication** — same name, different content.
+- **`overnight-harness:`-prefixed** (`sync`, `checkpoint`, `tidy-docs`, `overnight-report`, `overnight-seed`, `diagnose`) — the plugin is the only source of these generic workflows. They become repo-aware through `.claude/harness-config.json`. Always use the namespaced form in MythOS; do not add no-prefix copies.
+- **No-prefix repo skills** (`gameplay-qa`, `codebase-design`) — MythOS-only domain workflows that the generic plugin does not provide. Any combat/gameplay change verifies via `gameplay-qa` before claiming done (`harness/CORE_MANDATES.md` §5).
 
-- **No-prefix** (`checkpoint`, `sync`, `tidy-docs`, `overnight-report`, `overnight-seed`, `diagnose`, `gameplay-qa`, `codebase-design`) — this repo's **`.claude/skills/`** local copies, repo-aware of the MythOS doc system (`STATUS.md`/`NEXT_PLAN.md`/`PROGRESS_LOG.md` …). **Use these for MythOS work.** Bodies are English; the frontmatter `description:` keeps Korean trigger keywords for invocation matching. **Any combat/gameplay change verifies via `gameplay-qa` before claiming done** (`harness/CORE_MANDATES.md` §5).
-- **`overnight-harness:`-prefixed** — the plugin's generic (repo-agnostic) originals, the SSOT for installing the harness into other repos; they don't know MythOS context.
-
-Why both: MythOS is the harness **origin tier**, not a consumer, so the local copies are not de-vendored. `.claude/skills/` is the multi-engine SSOT — edit **only `.claude/skills/`**, then `bash harness/sync-skills.sh` projects to the `.codex`/`.gemini`/`.agents` mirrors (`make check` catches drift via `--check`). Mirrors are git-tracked, no symlinks. Rationale: `harness/sync-skills.sh` header.
+`.claude/skills/` is the source only for repo-owned domain skills. Run `bash harness/sync-skills.sh` to project them into `.agents/skills/` for Codex/AGY; `make check` rejects drift or reintroduced plugin duplicates. Plugin lifecycle skills are installed/versioned outside this repository and are never mirrored here.
 
 ## Code navigation (LSP-first)
 

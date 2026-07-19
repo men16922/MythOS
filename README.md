@@ -133,7 +133,7 @@ brew install tmux             # (e, 대시보드 쓸 때만) 없으면 dashboard
 **2. 1회차 체인 테스트** — 첫 가동 전 항상 한 번 (포그라운드, 토큰 거의 안 씀)
 
 ```bash
-make overnight-once           # /sync → 잔여물점검 → [auto] 1개 → 게이트 → /checkpoint → 커밋 → 종료
+make overnight-once           # plugin sync → 잔여물점검 → [auto] 1개 → 게이트 → plugin checkpoint → 커밋 → 종료
                               #   ([auto] 가 없으면 DONE 만 찍고 정상 종료 — 그게 맞는 동작)
 ```
 
@@ -150,7 +150,8 @@ make overnight-stop           # graceful 중단(현재 회차 마치고 종료)
 **4. 다음날 아침 — 검수**
 
 ```bash
-# claude 세션에서:  /overnight-report      # 종료사유·커밋·게이트 재실측·잔여 [auto]
+# agent 세션에서: $overnight-harness:overnight-report  # 종료사유·커밋·게이트 재실측·잔여 [auto]
+.venv/bin/python scripts/overnight/report-evidence.py  # MythOS objective evidence projection
 # 그다음 사람 검수:  docs/test/bible/overnight-review-checklist.md
 make overnight-clean          # STOP/DONE 제어 파일 정리(다음 가동 준비)
 ```

@@ -44,7 +44,21 @@ When a session ends plan-only or incomplete and the next session must continue:
 ## 6. Preventing entry-point divergence
 Multiple agent entry points (per-tool instruction files) keep **one shared body + the rest as links**. Copy-pasting the same content soon causes divergence. Unify entry points as thin wrappers and own the details in one place.
 
-## 7. Sibling Concepts (bible)
+## 7. Long-horizon context policy
+
+Fresh context and continuous context are tools, not dogma.
+
+- Continue the same thread while goal, assumptions, scope, and current implementation layer remain stable.
+- At every milestone, write a structured checkpoint: mission state, completed evidence, dirty/clean tree, next action,
+  unresolved hypotheses, budgets consumed, and verifier versions.
+- Reset to a fresh session on context pressure, drift, repeated self-reference, engine failure, or layer change; restore
+  from the checkpoint instead of conversation compaction alone.
+- Keep the prompt lean. Do not resend the full task on continuation turns; send the delta and current checkpoint.
+- Subagents return summaries/evidence references, not raw transcripts, to protect the root context.
+
+The controller, not the model, decides whether a session continues, resets, retries, or releases its claim.
+
+## 8. Sibling Concepts (bible)
 - Higher harness: [`HARNESS_ENGINEERING.md`](HARNESS_ENGINEERING.md) · loop: [`LOOP_ENGINEERING.md`](LOOP_ENGINEERING.md)
 - Multi-agent: [`AGENTIC_ENGINEERING.md`](AGENTIC_ENGINEERING.md) · prompt: [`PROMPT_ENGINEERING.md`](PROMPT_ENGINEERING.md)
 - This repo's application: [`mythos/CONTEXT.md`](mythos/CONTEXT.md)

@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-07-17
+Last updated: 2026-07-19
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Owner QA is the gate; agent lanes are clear.** Live = `00073-zx2`: full-3.5 narrative (A/B ROLLBACK verdict, source-pinned) + **portrait combat hierarchy rework** (board dominates 389px/height-fit, dock 30dvh, cinema cards vw-scaled, sim skips boons — `docs/plans/2026-07-17-portrait-combat-hierarchy.md`) + term-gloss UI + image 2.5. Owner checklist = `docs/test/neo_seoul_live_qa.md`: **§2 재검 (portrait rework)** · **§3 two-style playtest** (+§5 image recovery). Eval bank ready — hand loop ids after play.
+> ▶ NEXT SESSION: **Diagnose and lock the §3 route label→perspective/axis mismatch from `docs/NEXT_PLAN.md`.** Reproduce an evidence-labeled junction that adds no `evidence`, fix it, then rerun the deployed non-fallback dull/sensitive verdict.
 
 ## Snapshot
 
@@ -16,7 +16,7 @@ Current baseline:
 - PostgreSQL/MinIO/OTel/Jaeger local infra (Redis removed 2026-07-04; images generate synchronously in-request).
 - Neo-Seoul 01 is the primary scenario, `glass-library` is an extension sample.
 - Story Bible, Codex, Run History, Meta Progression, Save/Load, Ending Resolver implemented.
-- Tactical combat (full-body action pose, role/tags skill animations, icon action bar, direct party control, 3 new allies and 4 enemy types with 35 new combat sprites mapped into scenario.json), Tactical Board legend/tile inspector/learning-goal banner, Playwright E2E implemented.
+- Tactical combat (full-body action pose, role/tags skill animations, compact image action bar, direct party control, 3 new allies and 4 enemy types with 35 new combat sprites mapped into scenario.json), Tactical Board direct key/tile inspector/folded learning goal, Playwright E2E implemented.
 - Operation map route-node-ified (deterministic DAG + multi-perspective anchors `route_map.py`/`route_runtime.py`) + session memory (`session_memory.py` beat ledger + rolling synopsis, not RAG).
 - Progression unlock (archetype gates, insight investment tree, rank pips/upgrade banner, epiphany banner, Run History + Echo/Shard dashboard, cross-scenario unlock, data-driven grant).
 - Persistent objective/stakes display and choice value-axis/expected-result/actual-result summary UX.
@@ -28,9 +28,9 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **Owner live QA gate on `00072-pw9`** — the only open Priority 0 work (§1 A/B DECIDED: rollback, `DECISIONS.md` 07-17): §2 real-device portrait combat pass · §3 two-style balance playtest (+§5 image recovery, §8 term-gloss). Combat overhaul arc + teaser V2 closed (M59-M60).
-2. **Manual content residuals**: S4 copy tone, variant intro feel, G2 twist tone, EN fresh-loop retest (CBT P1; see `NEXT_PLAN.md`).
-3. **Maintenance/hold**: WS4 closed (design `docs/plans/2026-07-17-ws4-authored-content-pipeline.md`, impl on-demand); WS5 residual = Model-B demo (owner-armed); `glass-library` held until Neo-Seoul satisfaction.
+1. **§3 route-axis alignment + deployed owner verdict** — local same-character pair is banked, but an evidence-labeled route produced no `evidence` tally; regression/fix first, then non-fallback dull/sensitive sign-off on `00076-jhc`.
+2. **Harness V2 human-load rollout** — all six objective assertions are live-calibrated on the local prepared stack; eight required runs PASS with 0/8 observed false accepts, and reporting keeps 1 exception while sampling 2/9 clean bundles. Formal reduction remains 0/16 until the same contract holds across three distinct release bundles.
+3. **Manual residuals/hold**: S4 copy tone, variant intro feel, G2 twist tone, EN fresh-loop retest; Model-B demo owner-armed; `glass-library` held.
 
 ## Read Order
 

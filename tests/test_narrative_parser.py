@@ -2,9 +2,23 @@ import json
 import unittest
 
 from mythos_narrative import NarrativeParseError, parse_scene_payload, repair_scene_payload
+from mythos_narrative.parser import parse_story_text
 
 
 class NarrativeParserTest(unittest.TestCase):
+    def test_story_text_rejects_blank_scene_instead_of_fake_success(self) -> None:
+        raw = """[TITLE]
+Threshold
+[LOCATION]
+data-layer-01
+[SCENE]
+
+[CHOICES]
+"""
+
+        with self.assertRaises(NarrativeParseError):
+            parse_story_text(raw)
+
     def test_parse_valid_scene_payload(self) -> None:
         payload = parse_scene_payload(
             {

@@ -7,7 +7,7 @@
 #
 # Caps: AGENT_BRIEF.md <= 60 ; STATUS.md / NEXT_PLAN.md / PROGRESS_LOG.md <= 120.
 # When over budget: compress completed items into COMPLETED_SUMMARY.md / archive the
-# old PROGRESS_LOG tail (see the /tidy-docs skill).
+# old PROGRESS_LOG tail (see `$overnight-harness:tidy-docs`).
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -23,7 +23,7 @@ check() {
   local n
   n=$(wc -l < "$path" | tr -d ' ')
   if [ "$n" -gt "$cap" ]; then
-    echo "doc-budget: OVER  $path = ${n} lines (cap ${cap}) — run /tidy-docs"
+    echo "doc-budget: OVER  $path = ${n} lines (cap ${cap}) — run \$overnight-harness:tidy-docs"
     fail=1
   else
     echo "doc-budget: ok    $path = ${n}/${cap}"

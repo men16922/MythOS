@@ -6,7 +6,7 @@ This doc is the operating rule for keeping Project MythOS docs current. The goal
 
 ## Language
 
-Agent-facing operational docs (`CLAUDE.md`, `harness/*`, `docs/engineering/**`, the `/sync` entry docs, skill bodies, overnight `PROMPT*.md`) are authored in English; user-facing and narrative content (scenarios, `story_bible`, directives, `docs/test` live-QA) stays Korean.
+Agent-facing operational docs (`CLAUDE.md`, `harness/*`, `docs/engineering/**`, the `$overnight-harness:sync` entry docs, repo-skill bodies, and WorkContract policy) are authored in English; user-facing and narrative content (scenarios, `story_bible`, directives, `docs/test` live-QA) stays Korean.
 
 ## Core Principle
 
@@ -71,7 +71,7 @@ Rules:
 - Do not delete a completed dated plan; check off its completion or summarize it in `COMPLETED_SUMMARY.md`.
 - When a plan changes substantially, make a new dated plan rather than overwriting the old one.
 - **Keep plans inside the repo (`docs/plans/`) only.** Do not record the scratch files that plan-mode creates under `~/.claude/plans/*` (random names, machine-local, outside the repo) as authoritative pointers in `NEXT_PLAN.md`/`AGENT_BRIEF.md` — the next session / another agent cannot find them. If needed, copy that content into `docs/plans/YYYY-MM-DD-<topic>.md` and point at that path.
-- **Session continuity (Resume Pointer):** when a session ends plan-only/incomplete and the next session must continue, update the single `▶ NEXT SESSION:` line at the top of `AGENT_BRIEF.md` (in-repo plan path + first action), and promote that work to the authoritative active focus (AGENT_BRIEF/STATUS/NEXT_PLAN aligned). `/sync` echoes this pointer first.
+- **Session continuity (Resume Pointer):** when a session ends plan-only/incomplete and the next session must continue, update the single `▶ NEXT SESSION:` line at the top of `AGENT_BRIEF.md` (in-repo plan path + first action), and promote that work to the authoritative active focus (AGENT_BRIEF/STATUS/NEXT_PLAN aligned). `$overnight-harness:sync` echoes this pointer first.
 
 ## Incremental Progress
 

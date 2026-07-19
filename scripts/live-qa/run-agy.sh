@@ -16,6 +16,7 @@
 #   LIVE_QA_MODE       fallback | real | auto              (default fallback)
 #   LIVE_QA_TIMEOUT    AGY hard cap (e.g. 15m)             (default 15m)
 #   LIVE_QA_MAX_TURNS  interactive checkpoints            (default 2)
+#   LIVE_QA_OBJECTIVES comma-separated objective assertion ids (optional)
 #   LIVE_QA_RUN_ID / LIVE_QA_PORT                          (optional overrides)
 #   LIVE_QA_TARGET_URL external deployment to test         (e.g. the Cloud Run
 #                      prod URL incl. ?invite=…; skips the local server startup
@@ -32,6 +33,7 @@ cd "$REPO_ROOT"
 PYTHON="$REPO_ROOT/.venv/bin/python"
 ARTIFACTS="$REPO_ROOT/scripts/live-qa/artifacts.py"
 PROMPT_FILE="$REPO_ROOT/scripts/live-qa/PROMPT.agy.md"
+FIXTURE_PREP="$REPO_ROOT/scripts/live-qa/prepare-objective-fixture.py"
 
 TRIGGER="${LIVE_QA_TRIGGER:-probe}"
 RANGE="${LIVE_QA_RANGE:-}"
@@ -42,6 +44,7 @@ CASE="${LIVE_QA_CASE:-probe}"
 MODE="${LIVE_QA_MODE:-fallback}"
 AGY_TIMEOUT="${LIVE_QA_TIMEOUT:-${LIVE_QA_AGY_TIMEOUT:-15m}}"
 MAX_TURNS="${LIVE_QA_MAX_TURNS:-2}"
+OBJECTIVES="${LIVE_QA_OBJECTIVES:-}"
 RUN_ID="${LIVE_QA_RUN_ID:-$(date '+%Y%m%d-%H%M%S')-${TRIGGER}}"
 OUTPUT_DIR="$REPO_ROOT/outputs/live-qa/$RUN_ID"
 
@@ -75,7 +78,24 @@ fi
   --port "$port" \
   --max-turns "$MAX_TURNS" \
   --case "$CASE" --mode "$MODE" --trigger "$TRIGGER" \
-  --range "$RANGE" --reason "$REASON" --checklist "$CHECKLIST"
+  --range "$RANGE" --reason "$REASON" --checklist "$CHECKLIST" \
+  --objectives "$OBJECTIVES"
+
+fixture_context="（none — use the normal new-loop procedure）"
+fixture_objective=""
+for candidate in companion_join party_distribution cutscene_cardinality_return; do
+  case ",$OBJECTIVES," in
+    *",$candidate,"*) fixture_objective="$candidate"; break ;;
+  esac
+done
+if [ -n "$fixture_objective" ]; then
+  fixture_file="$OUTPUT_DIR/objective-fixture.json"
+  "$PYTHON" "$FIXTURE_PREP" \
+    --objective "$fixture_objective" \
+    --run-id "$RUN_ID" \
+    --output "$fixture_file" > "$OUTPUT_DIR/objective-fixture.prepare.log" 2>&1
+  fixture_context="$(cat "$fixture_file")"
+fi
 
 server_pid=""
 server_stopped=0
@@ -94,7 +114,8 @@ echo "live-qa: AGY actor run=$RUN_ID trigger=$TRIGGER case=$CASE mode=$MODE url=
 if [ -n "$TARGET_URL_OVERRIDE" ]; then
   "$PYTHON" "$ARTIFACTS" wait --url "$target_url" --timeout 30
 else
-  MYTHOS_API_HOST=127.0.0.1 MYTHOS_API_PORT="$port" \
+  PYTHONPATH="$REPO_ROOT/src${PYTHONPATH:+:$PYTHONPATH}" \
+    MYTHOS_API_HOST=127.0.0.1 MYTHOS_API_PORT="$port" \
     "$PYTHON" -m mythos_api > "$OUTPUT_DIR/server.log" 2>&1 &
   server_pid=$!
   "$PYTHON" "$ARTIFACTS" wait --url "$base_url/?fallback=1&image=0" --timeout 30
@@ -113,6 +134,8 @@ actor_prompt="$(cat "$PROMPT_FILE")
 - Base URL: $base_url
 - Suggested target URL: $target_url
 - Output directory: $OUTPUT_DIR
+- Required objective assertions: ${OBJECTIVES:-（none）}
+- Persisted objective fixture (browser Resume; none means create a new loop): $fixture_context
 - Maximum interactive checkpoints: $MAX_TURNS"
 raw_review="$OUTPUT_DIR/agy-output.raw.txt"
 # The agy CLI can finish its review (verdict printed) yet never exit — a dangling

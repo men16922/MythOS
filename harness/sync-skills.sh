@@ -1,16 +1,15 @@
 #!/usr/bin/env bash
 #
-# sync-skills.sh — keep the multi-engine skill copies in sync from ONE source.
+# sync-skills.sh — keep MythOS-specific multi-engine skills in sync from ONE source.
 # ----------------------------------------------------------------------------
 # MythOS runs several engines: claude reads .claude/skills, and codex + agy (Antigravity) both
 # read the shared .agents/skills (the official Codex repo-skills path). All copies stay
 # git-tracked so every worktree checkout carries them (NO symlinks — a past symlink-tracked
 # skills dir was deleted by checkout churn; see worktrees.sh).
 #
-# Single Source of Truth = .claude/skills/  (Claude is the primary engine; skills are authored
-# in that format). This script projects it verbatim into .agents/skills. These skills are
-# MythOS-customized (Korean, repo-aware) and intentionally DIFFER from the generic overnight-harness
-# plugin's skills — the plugin is SSOT for *other* repos, this script is SSOT for MythOS's own copies.
+# Single Source of Truth = .claude/skills/ for MythOS-only domain skills. This script projects
+# them verbatim into .agents/skills. Generic lifecycle skills are owned by the installed
+# overnight-harness plugin and MUST NOT be copied here under unprefixed duplicate names.
 #
 # Usage:
 #   harness/sync-skills.sh           # write: make the mirrors match .claude/skills
@@ -23,7 +22,17 @@ cd "$REPO_ROOT"
 
 SRC=".claude/skills"
 MIRRORS=(".agents/skills")
+PLUGIN_OWNED_SKILLS=(checkpoint diagnose overnight-report overnight-seed sync tidy-docs)
 [ -d "$SRC" ] || { echo "FATAL: canonical skills source '$SRC' missing" >&2; exit 1; }
+
+for skill in "${PLUGIN_OWNED_SKILLS[@]}"; do
+  for root in "$SRC" "${MIRRORS[@]}"; do
+    if [ -f "$root/$skill/SKILL.md" ]; then
+      echo "FATAL: plugin-owned skill duplicated locally: $root/$skill/SKILL.md" >&2
+      exit 1
+    fi
+  done
+done
 
 CHECK=0; [ "${1:-}" = "--check" ] && CHECK=1
 rc=0; changed=0

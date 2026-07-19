@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 #
-# browser-qa.sh — WS-C/WS-D: the overnight runner's automatic browser-QA phase.
+# browser-qa.sh — MythOS browser-evidence adapter used by verifiers.d.
 # ----------------------------------------------------------------------------
-# Sourced by scripts/overnight/run.sh and called at two trigger points:
-#   maybe_browser_qa  post-commit <range> <head>   — after gate + critic pass
-#   maybe_drain_browser_qa        <head>           — once at DONE, bounded A/F sweep
+# Called by 30-browser-objective.sh after the plugin gate/critic pass. The drain entry remains
+# available for explicit operator QA but is no longer wired into a repo-local controller.
 #
 # Flow (plan bin/docs/plans/2026-06-21-overnight-auto-agy-qa.md §3-§10):
 #   dedup ledger → Stage-1 candidate filter (post-commit only) → AGY hook (Stage 2)

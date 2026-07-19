@@ -2,6 +2,13 @@
 
 Last updated: 2026-07-20
 
+## 2026-07-20 — route_axis_chip: 7th objective assertion shipped + calibrated
+- Status: Done. §2 갈림길 가치축 칩 정합이 objective-QA로 자동화됨; live-QA checklist §2는 느낌 판정만 남김.
+- Changed: `artifacts.py` evaluator independently re-encodes destination→chip policy (double-entry vs serializer; anchor = flag-scored perspective mirror, waypoint = type policy; chip-on-axisless fails, chipless-only evidence stays not_observed); `PROMPT.agy.md` actor procedure (lang=ko, ≤6 transitions to junction, DOM chip by index, node/flags verbatim from `/loops/active`).
+- Verified: `test_live_qa_artifacts` 28/28 (pre-fix keyword-lie shape fails; incomplete evidence never passes); full `make check` green; calibration run `calibration-20260720-route-axis-chip-1` PASS with real turn-4 junction evidence (event=no chip, rest=안전하게 가기), artifact hashes 5/5.
+- Note: release-bundle 3/3 evidence stays on the six-assertion contract for comparability; route_axis_chip rides alongside from the next collection. Residual: clue/anchor junction shapes not yet observed live (policy matrix locked by unit tests).
+- Next: owner §3 two-style verdict; third release bundle on next deploy (six + new assertion).
+
 ## 2026-07-20 — V2 release-bundle 2/3 evidence collected on 00077-8g9 (6/6 PASS)
 - Status: Done. Owner ran `scratch/run-release-calibration-00077.sh` (agy allowlisted in settings.local.json per owner); agent audited.
 - Measured: six assertions all PASS_CANDIDATE at HEAD `4a43904` (= deployed `00077-8g9` app source; later commits docs-only). Audit: required PASS 6/6 · artifact hashes 25/25 match · required-evidence screenshots all present · decisions/manifest outcomes agree.

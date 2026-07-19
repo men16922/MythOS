@@ -4,7 +4,7 @@ Last updated: 2026-07-19
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Deploy the §3 alignment fix (`make deploy`, owner-armed) and run the paired non-fallback dull/sensitive verdict** (`docs/NEXT_PLAN.md` Priority 0). The label→axis mismatch is fixed + regression-locked locally (2026-07-19, uncommitted); commit/deploy needs the owner.
+> ▶ NEXT SESSION: **Owner runs the §3 paired non-fallback dull/sensitive verdict on deployed `00077-8g9`** (`docs/NEXT_PLAN.md` Priority 0); bank both loop ids. Alignment fix deployed 2026-07-19 (`fc4ebc5`; `git push` pending, owner-run). Then: Harness V2 evidence on three distinct release bundles (`00077-8g9` counts as one).
 
 ## Snapshot
 

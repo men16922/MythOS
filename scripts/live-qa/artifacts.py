@@ -158,7 +158,72 @@ OBJECTIVE_IDS = (
     "cutscene_cardinality_return",
     "choice_arrival",
     "first_use_gloss",
+    "route_axis_chip",
 )
+
+
+# Independent re-encoding of the §2 value-axis chip policy (2026-07-19 fix:
+# junction chips derive from the destination node, never keyword heuristics).
+# Deliberately NOT imported from mythos_api/mythos_runtime — the evaluator is
+# double-entry bookkeeping: if the serializer policy regresses, the mirror here
+# disagrees and the assertion fails instead of both drifting together. KO labels
+# only; the actor is instructed to run with lang=ko.
+_ROUTE_AXIS_CHIP = {
+    "people": "사람 돕기",
+    "evidence": "단서 찾기",
+    "safety": "안전하게 가기",
+    "control": "밀고 나가기",
+}
+_ROUTE_TYPE_AXIS_POLICY = {
+    "clue": "evidence",
+    "rest": "safety",
+    "patrol": "safety",
+    "combat": "control",
+}
+
+
+def _expected_route_chip(
+    node: Any, flags: list[str] | tuple[str, ...]
+) -> tuple[str | None, bool]:
+    """Expected KO chip for a junction destination, and whether it was computable.
+
+    Anchors (nodes with perspectives) answer with the perspective that flag
+    scoring would select (highest |when ∩ flags|; zero/tie prefers the authored
+    ``default_perspective``); waypoints answer with the authored ``axis`` or the
+    type policy. ``(None, True)`` means "no chip should render" (market/event).
+    ``(None, False)`` means the recorded node data is unusable.
+    """
+    if not isinstance(node, dict):
+        return None, False
+    perspectives = node.get("perspectives")
+    if isinstance(perspectives, list) and perspectives:
+        if not all(isinstance(p, dict) for p in perspectives):
+            return None, False
+        flag_set = {str(flag) for flag in flags}
+        best_score, best, tied = -1, None, False
+        for perspective in perspectives:
+            when = perspective.get("when") or []
+            score = len({str(w) for w in when} & flag_set)
+            if score > best_score:
+                best_score, best, tied = score, perspective, False
+            elif score == best_score:
+                tied = True
+        chosen = best
+        default_id = node.get("default_perspective")
+        if default_id and (best_score <= 0 or tied):
+            chosen = next(
+                (p for p in perspectives if p.get("id") == default_id), best
+            )
+        axis = chosen.get("axis") if isinstance(chosen, dict) else None
+        return (_ROUTE_AXIS_CHIP.get(axis) if isinstance(axis, str) else None), True
+    authored = node.get("axis")
+    if isinstance(authored, str) and authored in _ROUTE_AXIS_CHIP:
+        return _ROUTE_AXIS_CHIP[authored], True
+    node_type = node.get("type")
+    if not isinstance(node_type, str) or not node_type:
+        return None, False
+    axis = _ROUTE_TYPE_AXIS_POLICY.get(node_type)
+    return (_ROUTE_AXIS_CHIP[axis] if axis else None), True
 
 
 def _event_ref(event: dict[str, Any]) -> dict[str, Any]:
@@ -172,7 +237,7 @@ def _event_ref(event: dict[str, Any]) -> dict[str, Any]:
 def evaluate_objectives(
     events: list[dict[str, Any]], required: list[str] | tuple[str, ...] = ()
 ) -> dict[str, Any]:
-    """Evaluate six objective live-QA assertions from structured browser facts.
+    """Evaluate the objective live-QA assertions from structured browser facts.
 
     The actor records facts under objective_evidence. An assertion passes only
     when enough evidence proves its whole invariant; incomplete coverage stays
@@ -502,6 +567,85 @@ def evaluate_objectives(
                     "pass",
                     "gloss appears on first mention only and does not repeat",
                     refs,
+                )
+            )
+
+    route_rows = [
+        (index, value["route_axis"])
+        for index, value in enumerate(facts)
+        if isinstance(value.get("route_axis"), dict)
+        and isinstance(value["route_axis"].get("options"), list)
+    ]
+    junction_rows = [
+        (index, route_axis)
+        for index, route_axis in route_rows
+        if len(route_axis["options"]) >= 2
+    ]
+    if not junction_rows:
+        assertions.append(
+            result(
+                "route_axis_chip",
+                "not_observed",
+                "no junction checkpoint with at least two route options observed",
+            )
+        )
+    else:
+        chip_failures: list[int] = []
+        chip_invalid: list[int] = []
+        verified_chips = 0
+        for index, route_axis in junction_rows:
+            raw_flags = route_axis.get("flags")
+            flags = (
+                [str(flag) for flag in raw_flags] if isinstance(raw_flags, list) else []
+            )
+            for option in route_axis["options"]:
+                if not isinstance(option, dict):
+                    chip_invalid.append(index)
+                    continue
+                expected, computable = _expected_route_chip(option.get("node"), flags)
+                if not computable:
+                    chip_invalid.append(index)
+                    continue
+                chip = option.get("chip")
+                observed = str(chip) if isinstance(chip, str) and chip.strip() else None
+                if observed != expected:
+                    chip_failures.append(index)
+                elif expected is not None:
+                    verified_chips += 1
+        if chip_failures:
+            assertions.append(
+                result(
+                    "route_axis_chip",
+                    "fail",
+                    "displayed value-axis chip contradicts the destination node's semantics",
+                    sorted(set(chip_failures)),
+                )
+            )
+        elif chip_invalid:
+            assertions.append(
+                result(
+                    "route_axis_chip",
+                    "inconclusive",
+                    "route option recorded without usable destination node data",
+                    sorted(set(chip_invalid)),
+                )
+            )
+        elif verified_chips < 1:
+            assertions.append(
+                result(
+                    "route_axis_chip",
+                    "not_observed",
+                    "junction observed but no chip-bearing option proves alignment",
+                    [index for index, _ in junction_rows],
+                )
+            )
+        else:
+            assertions.append(
+                result(
+                    "route_axis_chip",
+                    "pass",
+                    "every junction chip matches its destination's authored semantics",
+                    [index for index, _ in junction_rows],
                 )
             )
 

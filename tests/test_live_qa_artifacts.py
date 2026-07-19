@@ -192,6 +192,21 @@ class ObjectiveAssertionsTest(unittest.TestCase):
                         "wait_ms": 600,
                         "reload_required": False,
                     },
+                    "route_axis": {
+                        "flags": [],
+                        "options": [
+                            {
+                                "choice_id": "route:rn_clue",
+                                "chip": "단서 찾기",
+                                "node": {"id": "rn_clue", "type": "clue"},
+                            },
+                            {
+                                "choice_id": "route:rn_market",
+                                "chip": None,
+                                "node": {"id": "rn_market", "type": "market"},
+                            },
+                        ],
+                    },
                 },
             },
         ]
@@ -206,9 +221,9 @@ class ObjectiveAssertionsTest(unittest.TestCase):
         }
         self.assertEqual(set(statuses), set(artifacts.OBJECTIVE_IDS))
         self.assertTrue(all(status == "pass" for status in statuses.values()))
-        self.assertEqual(bundle["summary"]["pass"], 6)
+        self.assertEqual(bundle["summary"]["pass"], len(artifacts.OBJECTIVE_IDS))
 
-    def test_all_six_assertions_fail_on_objective_defects(self):
+    def test_all_assertions_fail_on_objective_defects(self):
         events = self._passing_events()
         events[0]["objective_evidence"]["image"]["status"] = "error"
         events[2]["objective_evidence"]["party"]["controllable_members"] = ["ghost"]
@@ -221,6 +236,9 @@ class ObjectiveAssertionsTest(unittest.TestCase):
         events[1]["objective_evidence"]["choice"]["wait_ms"] = 30_001
         events[0]["objective_evidence"]["gloss"]["visible_terms"] = []
         events[1]["objective_evidence"]["gloss"]["visible_terms"] = ["핑"]
+        # Keyword-heuristic regression shape: an evidence-looking chip on an
+        # axisless market destination.
+        events[2]["objective_evidence"]["route_axis"]["options"][1]["chip"] = "단서 찾기"
 
         bundle = artifacts.evaluate_objectives(events, list(artifacts.OBJECTIVE_IDS))
         statuses = {
@@ -228,6 +246,101 @@ class ObjectiveAssertionsTest(unittest.TestCase):
             for assertion in bundle["assertions"]
         }
         self.assertTrue(all(status == "fail" for status in statuses.values()))
+
+    def test_route_axis_chip_anchor_follows_flag_selected_perspective(self):
+        anchor = {
+            "id": "rn_anchor",
+            "type": "story",
+            "default_perspective": "p_rescue",
+            "perspectives": [
+                {"id": "p_rescue", "axis": "people", "when": ["humanity_first"]},
+                {"id": "p_steal", "axis": "evidence", "when": ["insight_focus"]},
+            ],
+        }
+        def junction(flags, chip):
+            return [{
+                "turn": 0,
+                "scene_id": "junction",
+                "objective_evidence": {
+                    "route_axis": {
+                        "flags": flags,
+                        "options": [
+                            {"choice_id": "route:rn_anchor", "chip": chip, "node": anchor},
+                            {"choice_id": "route:rn_rest", "chip": "안전하게 가기",
+                             "node": {"id": "rn_rest", "type": "rest"}},
+                        ],
+                    }
+                },
+            }]
+
+        def status(events):
+            bundle = artifacts.evaluate_objectives(events, ["route_axis_chip"])
+            return next(a for a in bundle["assertions"] if a["id"] == "route_axis_chip")["status"]
+
+        # No flags → default p_rescue (people) → 사람 돕기 expected.
+        self.assertEqual(status(junction([], "사람 돕기")), "pass")
+        # The pre-fix keyword lie ("단서 찾기" on a p_rescue destination) fails.
+        self.assertEqual(status(junction([], "단서 찾기")), "fail")
+        # insight_focus flips the anchor to its evidence perspective.
+        self.assertEqual(status(junction(["insight_focus"], "단서 찾기")), "pass")
+        # A chip on an axisless destination fails; absence passes.
+        market = junction([], "사람 돕기")
+        market[0]["objective_evidence"]["route_axis"]["options"].append(
+            {"choice_id": "route:rn_m", "chip": "안전하게 가기", "node": {"id": "rn_m", "type": "market"}}
+        )
+        self.assertEqual(status(market), "fail")
+
+    def test_route_axis_chip_incomplete_evidence_never_passes(self):
+        # Fewer than two options is not a junction.
+        one_option = [{
+            "turn": 0,
+            "scene_id": "not_junction",
+            "objective_evidence": {
+                "route_axis": {
+                    "flags": [],
+                    "options": [
+                        {"choice_id": "route:rn_c", "chip": "단서 찾기", "node": {"type": "clue"}}
+                    ],
+                }
+            },
+        }]
+        bundle = artifacts.evaluate_objectives(one_option, ["route_axis_chip"])
+        row = next(a for a in bundle["assertions"] if a["id"] == "route_axis_chip")
+        self.assertEqual(row["status"], "not_observed")
+        # All-chipless matches prove nothing → not_observed, not pass.
+        chipless = [{
+            "turn": 0,
+            "scene_id": "junction",
+            "objective_evidence": {
+                "route_axis": {
+                    "flags": [],
+                    "options": [
+                        {"choice_id": "route:rn_a", "chip": None, "node": {"type": "market"}},
+                        {"choice_id": "route:rn_b", "chip": None, "node": {"type": "event"}},
+                    ],
+                }
+            },
+        }]
+        bundle = artifacts.evaluate_objectives(chipless, ["route_axis_chip"])
+        row = next(a for a in bundle["assertions"] if a["id"] == "route_axis_chip")
+        self.assertEqual(row["status"], "not_observed")
+        # A node without type/perspectives cannot be judged → inconclusive.
+        broken = [{
+            "turn": 0,
+            "scene_id": "junction",
+            "objective_evidence": {
+                "route_axis": {
+                    "flags": [],
+                    "options": [
+                        {"choice_id": "route:rn_a", "chip": "단서 찾기", "node": {"type": "clue"}},
+                        {"choice_id": "route:rn_b", "chip": None, "node": {}},
+                    ],
+                }
+            },
+        }]
+        bundle = artifacts.evaluate_objectives(broken, ["route_axis_chip"])
+        row = next(a for a in bundle["assertions"] if a["id"] == "route_axis_chip")
+        self.assertEqual(row["status"], "inconclusive")
 
     def test_unknown_required_assertion_is_inconclusive(self):
         bundle = artifacts.evaluate_objectives([], ["unknown_assertion"])

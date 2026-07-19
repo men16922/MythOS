@@ -72,6 +72,27 @@ When the appended **Persisted objective fixture** is not `none`, it replaces ste
   one `enter` and one later `return` event. After observing the return, set the enter event's
   `expected_return_scene_id` to that actual returned scene id.
 
+For `route_axis_chip`, use `lang=ko` on both the page URL and API calls. From the first interactive
+scene, keep making one legal choice at a time (at most 6 transitions) until a scene's choices include
+ids starting with `route:` (the 작전지도 갈림길). If none appears within 6 transitions, stop with
+`NEEDS_HUMAN`. At the junction checkpoint, map DOM buttons to choices by index (`#choices
+.command-card` order equals the snapshot's `active_scene.choices` order) and, through page-context
+`fetch`, GET `/api/v1/loops/active?player_id=<id>&loop_id=<id>&lang=ko`. Record in that event:
+
+```json
+"route_axis": {"flags": [...], "options": [
+  {"choice_id": "route:rn3", "chip": "안전하게 가기", "node": { ...verbatim... }}
+]}
+```
+
+- `flags` = the response's `state.flags`, verbatim.
+- One options entry per `route:` choice. `chip` = the exact text of that button's `.axis-chip` with
+  the trailing ⓘ icon text removed; `null` when the button has no `.axis-chip`.
+- `node` = the response's `state._route_map.nodes[<target>]` object copied verbatim (the target is
+  the choice id after `route:`). Never edit, summarize, or infer node fields.
+
+Then select one `route:` option and capture the following scene as the final checkpoint.
+
 For `first_use_gloss`, use `?lang=ko` and calculate the evidence from the DOM, not visual memory:
 for each checkpoint, compare the current `#narration` text with the canonical terms `비식별 신호`,
 `최적화`, `관리망`, `루프`, `에코`, `안정성`, `긴장도`, `추적도`, `통찰`, `물거미`, `핑`;

@@ -5,6 +5,12 @@ Last updated: 2026-07-21
 Newest entries only; older 2026-07 increments are in `bin/docs/archive/progress-2026-07.md`
 (and `progress-2026-06.md` for June). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
 
+## 2026-07-21 — slice 17 (`useInviteGate`) landed
+- Status: Done (code). Owner directed slice 17 = `useInviteGate` (lowest-risk candidate from the slice-16 doc).
+- Changed: closed-beta invite gate (isAdmin/inviteGated/inviteGate state, mount probe, fail-open policy, `handleInviteSubmit` key-store+re-probe) → `hooks/useInviteGate.ts`; zero inputs (api module internal). App aliases `{ gate, gated, isAdmin, submitKey }` to preserve consumer names. App.tsx 1010→979 (under 1000). Commit `fe1585c` (push owner-run).
+- Verified: full `make check` green (1161 OK); lint/build clean; no dangling setters, all consumers resolve. Behavior-preserving (identical probe/submit logic moved).
+- Next: decomposition deep-candidate pool now thin (only `EpiphanyBanner` presentational-only + `useItemNotice` mention-only left in the slice-16 doc) — a fresh survey needed before slice 18. Owner-gated: eval-bank script + §3 verdict + push.
+
 ## 2026-07-21 — slice 16 (`useIntroSequencer`) landed + slice-17 candidates + eval-bank armed
 - Status: Done (code). Owner picked slice 16 = `useIntroSequencer` from the fresh candidate doc (`docs/plans/2026-07-21-app-decomposition-slice16-candidates.md`).
 - Changed: B2 opening-variant resolution (openingVariant state, meta-frame-vs-snapshot race, 12s dead-stream reveal timer, per-loop reset, introData/introVariantKey selection) → `hooks/useIntroSequencer.ts`; App.tsx 1050→1010. `setOpeningVariant` exposed for the WS onLoopMeta callback. Commit `68a6dc4` (push owner-run).

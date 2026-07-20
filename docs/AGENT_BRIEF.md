@@ -4,7 +4,7 @@ Last updated: 2026-07-21
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **slice 16 `useIntroSequencer` landed 2026-07-21 (`68a6dc4`)**; QA reduction RATIFIED (M65; checklist 직접확인 3). Owner: `git push` (7 commits) + **§3 two-style verdict on `00078-rs9`** (sole active human QA) + run `bash scratch/bank-style-pair-loops.sh` (prod-DB banking is classifier-blocked for the agent). Agent next: after banking → `make eval-narrative` (§3 supporting rubric data); slice-17 = `useInviteGate` from `docs/plans/2026-07-21-app-decomposition-slice16-candidates.md` on request. Log at budget → `/tidy-docs`.
+> ▶ NEXT SESSION: **slices 16–17 landed 2026-07-21 (`68a6dc4` useIntroSequencer, `fe1585c` useInviteGate; App.tsx →979)**; QA reduction RATIFIED (M65; 직접확인 3). Owner: `git push` + **§3 two-style verdict on `00078-rs9`** (sole active human QA) + run `bash scratch/bank-style-pair-loops.sh` (prod-DB banking is classifier-blocked for the agent). Agent next: after banking → `make eval-narrative`; decomposition deep-candidate pool now thin — **a fresh App.tsx survey is needed before slice 18** (slice-16 doc's leftovers are shallow).
 
 ## Snapshot
 

@@ -1,6 +1,12 @@
 # Progress Log
 
-Last updated: 2026-07-20
+Last updated: 2026-07-21
+
+## 2026-07-21 — QA reduction ratified + slice 15 (`useCombatTutorial`) landed
+- Status: Done. Owner ratified the live-QA split (5+1 auto / 8 monitored / 3 human; `docs/plans/2026-07-21-live-qa-reduction-split.md`) — checklist restructured to 직접확인 3 / 이상시기록 8, active-play surface 16→3. Owner also picked slice 15 = `useCombatTutorial`, lifting the decomposition `[blocked]`.
+- Changed: first-combat tutorial policy (localStorage gate, first-combat meta detection, step derivation, move/wait rule, action-decorator, overlay advance) extracted to `hooks/useCombatTutorial.ts`; App.tsx 1102→1050 lines, duplicate overlay `onNext` logic absorbed into the hook's `advance`.
+- Verified: full `make check` green (1161 OK); rendered sim QA of every path — overlay gates on fresh player, plain 대기 does NOT satisfy the move step, `다음` advance 0→1, attack action match 1→2 with `tut-glow` on 공격, skip writes `seen=1` and dismisses; console errors 0.
+- Next: rides the next deploy; decomposition track open for a slice-16 candidate when wanted.
 
 ## 2026-07-20 — V2 release-bundle evidence 3/3 COMPLETE on 00078-rs9 (7/7 PASS)
 - Status: Done. Agent ran `scratch/run-release-calibration-00078.sh` directly (`bash scratch/*` owner-allowlisted) and audited.

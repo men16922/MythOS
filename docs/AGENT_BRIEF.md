@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-07-20
+Last updated: 2026-07-21
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **`00078-rs9` deployed + V2 evidence 3/3 COMPLETE 2026-07-20** (7/7 PASS, 0 false accepts across all calibrations). Owner decisions now: (1) **ratify the 16-item reduction split** (6 auto / 8 monitored / 2 human); (2) **§3 paired non-fallback dull/sensitive verdict** on `00078-rs9` — bank both loop ids (doubles as image-continuity + icon/loadout feel check); (3) slice-15 pick (`docs/plans/2026-07-20-app-decomposition-slice15-candidates.md`).
+> ▶ NEXT SESSION: **QA reduction RATIFIED + slice 15 landed 2026-07-21** (M65; checklist 직접확인 3만 남음). Owner: `git push` (5 commits) + **§3 two-style verdict on `00078-rs9`** — the sole active human QA item. Agent next: bank prod style-pair loops (`loop_22e71c…`/`loop_5b212d…`) via `scripts/eval/bank_loop.py` against prod DB + `make eval-narrative` (§3 supporting rubric data — started 07-21, interrupted before export); then slice-16 candidates on request.
 
 ## Snapshot
 
@@ -28,8 +28,8 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **§3 deployed owner verdict** — label→axis alignment fixed + regression-locked locally 2026-07-19 (junction-pick axis accrual, destination-true chips); deploy the fix, then non-fallback dull/sensitive sign-off.
-2. **Harness V2 human-load rollout** — seven objective assertions live-calibrated (route_axis_chip added 2026-07-20); release-bundle evidence 2/3 with 0 observed false accepts. Formal reduction remains 0/16 until a third distinct release repeats the contract and human minutes are measured.
+1. **§3 deployed owner verdict on `00078-rs9`** — the sole active human QA item after the ratified reduction (직접확인 3; alignment fix + icon set + loadout editor all live).
+2. **Narrative eval bank** — export the two prod style-pair loops + `make eval-narrative` rubric scores as §3 supporting data (agent-runnable; in progress).
 3. **Manual residuals/hold**: S4 copy tone, variant intro feel, G2 twist tone, EN fresh-loop retest; Model-B demo owner-armed; `glass-library` held.
 
 ## Read Order

@@ -1,6 +1,6 @@
 # Project MythOS Status
 
-Last updated: 2026-07-20
+Last updated: 2026-07-21
 
 ## Current Baseline
 
@@ -20,6 +20,7 @@ Major implemented axes:
 
 Latest verified baseline:
 
+- **2026-07-21 QA REDUCTION RATIFIED + SLICE 15 LANDED (`make check` 1161)** — owner ratified 5(+1 chip) auto / 8 monitored / 3 human (checklist active surface 16→3; M65, DECISIONS 07-21) after V2 evidence completed 3/3 on `00078-rs9` (7/7 PASS, hashes 32/32, agent-run collection 7.8 min). App.tsx decomposition resumed: slice 15 `useCombatTutorial` extracted (1102→1050 lines), all tutorial paths verified in the combat sim (move/wait invariant, advance, match, skip). Local commits — push owner-run; rides the next deploy.
 - **2026-07-20 DEPLOYED `mythos-api-00078-rs9` (`make check` 1161; 100% traffic; pushed `c51cf63`)** — custom icon set + skill loadout editor + aim corner badge live. `GameIcon` inline-SVG set replaces text-presentation glyphs (⚔❖◎▣✚✦❒★◆ etc.) across route map/legend, choice chips, interstitial, save slots, tactical key, market, turn-order, epiphany banners — the CBT "⚔ → thin ✕" report is resolved. Skill quick-slot setup moved off the bar into a dedicated 편성 modal (owner request; per-slot ⇄ picker removed, lock test re-pinned), and the aim(🎯) toggle became a crosshair corner badge on the card. Live root + `/api/v1/health` 200; live/local `app.js` SHA-256 match; model pins preserved (`gemini-3.5-flash` / `gemini-2.5-flash-image`). This deploy is the target for V2 release-bundle 3/3 (`scratch/run-release-calibration-00078.sh`, owner-run).
 - **2026-07-20 V2 RELEASE EVIDENCE 2/3 + route_axis_chip SHIPPED** — the six-assertion contract repeated on `00077-8g9` (6/6 PASS, artifact hashes 25/25, report attention 1/clean 15→sample 3), and a 7th objective assertion (§2 junction value-axis chip vs destination semantics, independently re-encoded policy) was calibrated live (turn-4 junction PASS, hashes 5/5); live-QA checklist §2 keeps feel-only. `make check` green.
 - **2026-07-19 DEPLOYED `mythos-api-00077-8g9` — §3 ROUTE LABEL→AXIS ALIGNMENT (`make check` 1158; 100% traffic)** — explicit junction picks now accrue the destination waypoint's axis (clue→evidence, rest/patrol→safety, combat→control), bootstrapping `insight_focus` in normal play, and `route:` choice chips derive from the destination's real semantics (anchor = perspective under current flags; no chip when axisless) instead of the keyword heuristic that mislabeled all four stored junction labels `단서 찾기`. Re-measured on `loop_5b212d`: replayed picks yield `evidence:1` (was 0); rn4 now chips `사람 돕기` matching its applied `p_rescue`. 10 new regressions; commit `fc4ebc5` (push pending, owner-run); live root/health 200, model pins preserved.
@@ -38,8 +39,8 @@ Latest verified baseline:
 
 Authority plan: `docs/NEXT_PLAN.md`. Direction remains global-first EN/KO closed beta: Gemini/Vertex is the product path; Ollama/FLUX remains the local development path.
 
-1. **§3 deployed owner verdict** (`docs/test/neo_seoul_live_qa.md`) — label→perspective/axis alignment is fixed and regression-locked locally (2026-07-19); deploy the fix (`make deploy`), then run the paired non-fallback dull/sensitive + distinct-ending verdict.
-2. **V2 human-load realization** — release-bundle evidence 2/3 with no observed false accept (six-assertion contract; route_axis_chip rides along from the next collection); next: third distinct release (next deploy) + measure actual human minutes before changing 0/16.
+1. **§3 deployed owner verdict** (`docs/test/neo_seoul_live_qa.md` 직접확인 3) — the last active human QA item: paired non-fallback dull/sensitive + distinct-ending verdict on `00078-rs9` (banks loop ids; doubles as image-continuity + icon/loadout feel check).
+2. **Agent next**: bank the two prod style-pair loops (`loop_22e71c…`/`loop_5b212d…`) into the narrative eval bank (`bank_loop.py` vs prod DB) + run `make eval-narrative` as §3 supporting rubric data; propose slice-16 candidates on request.
 3. **Remaining manual content checks/hold**: S4 copy tone, 6 variant intros, G2 twist tone, EN fresh-loop coherence; Glass Library held.
 
 ## Open Risks

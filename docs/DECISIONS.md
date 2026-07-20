@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-07-21 — Live-QA ownership split ratified: 5(+1) auto / 8 monitored / 3 human
+
+Decision: the Neo-Seoul live-QA checklist is no longer fully human-owned. Items closed by a fail-closed assertion (image arrival, companion join/party, cutscene cardinality/return, choice arrival, first-use gloss, route-axis chip) are AUTO; eight items with objective signals but no closing assertion are MONITORED (passive "record only if it feels wrong" + report attention escalation); three judgment items (two-style dull/sensitive, ending conviction, overall impressions) stay HUMAN. Target was 6/8/2 — 엔딩 납득/총평 were deliberately kept human rather than force-fitting the target.
+
+Reason/impact: evidence bar met — three distinct releases passed the assertion contract with 0 observed false accepts, hashed artifacts, and a measured 4-bundle review surface vs the 16-item checklist. Active human play surface drops 16→3. Reversal path: any false accept observed in production flips the affected item back to HUMAN and freezes further reductions; the per-deploy 7-assertion contract plus attention reporting is the ongoing guard. Design: `docs/plans/2026-07-21-live-qa-reduction-split.md`.
+
 ## 2026-07-19 — Overnight Harness plugin is the behavior SoT; MythOS owns adapters only
 
 Decision: adopt `overnight-harness` plugin 1.1.0 as the only generic runner/controller implementation. MythOS owns repo state, permission policy, lane-aware WorkContract compilation, project verifiers, and operator/worktree tooling. The vendored `run.sh`/`status.sh`/`dashboard.sh`/`notify.sh` and duplicated procedure prompts were retired in one cutover; no second fallback runner is kept.

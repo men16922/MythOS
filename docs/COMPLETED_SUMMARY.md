@@ -213,6 +213,13 @@
 - **Calibration result**: eight required runs (three choice + one per remaining assertion) had 0/8 observed false accepts. The authoritative six-bundle audit had 0 hash mismatches and took 507.7s total/84.6s mean; evidence reporting keeps one DB exception and samples 2/9 clean bundles.
 - **Verification/boundary**: `make check` 1146 OK (5 skipped), browser screenshots independently reviewed. Formal human-QA reduction remains 0/16 until three distinct release bundles preserve false-accept/false-stop limits and demonstrate lower human minutes.
 
+## M65 — Harness V2 human-load reduction RATIFIED (2026-07-20..21)
+
+- **Purpose**: convert the live-QA checklist from fully human-owned (16 active items) to an evidence-backed split.
+- **Evidence**: seven fail-closed assertions (route_axis_chip added 07-20); release-bundle contract passed on three distinct releases (07-19 local · `00077-8g9` · `00078-rs9` 7/7, hashes 32/32); 0 observed false accepts across all calibrations; 7.8 min unattended collection, 4-bundle human-review surface.
+- **Ratified split (owner 2026-07-21)**: 5(+1 chip) auto / 8 monitored / 3 human — active-play surface 16→3 (81%). Design: `docs/plans/2026-07-21-live-qa-reduction-split.md`; checklist restructured accordingly.
+- **Ongoing**: the 7-assertion contract runs per deploy; `report-evidence.py` attention list is the human touchpoint.
+
 ## Archive Reference
 
 M0-M10의 상세 체크리스트, work log, verification log는 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`에 보존한다.

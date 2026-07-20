@@ -26,7 +26,6 @@ import type { ActiveTab } from "./TabNav";
 import { useTabSwipe } from "./hooks/useTabSwipe";
 import { SkillTreePanel } from "./SkillTreePanel";
 import { IntroPanel } from "./IntroPanel";
-import type { IntroData } from "./IntroPanel";
 import type {
   ScenarioInfo,
   RuntimeSnapshot,
@@ -57,6 +56,7 @@ import { useSnapshotReceiver } from "./hooks/useSnapshotReceiver";
 import { useNarrativeStream } from "./hooks/useNarrativeStream";
 import { useKeyboardChoice } from "./hooks/useKeyboardChoice";
 import { usePresentationCues } from "./hooks/usePresentationCues";
+import { useIntroSequencer } from "./hooks/useIntroSequencer";
 import { useLang } from "./i18n/lang";
 
 export type NarrativeHistoryItem = {
@@ -130,12 +130,6 @@ export default function App() {
   // --- Typewriter / Narration State ---
   const [lastSnapshot, setLastSnapshot] = useState<RuntimeSnapshot | null>(null);
   const [finalizedSnapshot, setFinalizedSnapshot] = useState<RuntimeSnapshot | null>(null);
-  // Opening variant, delivered by the server's early `loop_meta` frame (before
-  // the slow first-scene generation). This is the AUTHORITATIVE, per-loop intro
-  // signal — the snapshot carries the same variant but arrives 8-20s later, so
-  // relying on it alone flashed the default Se-rin cut then swapped. Reset per
-  // loop on intro close so a prior loop's variant can never leak in.
-  const [openingVariant, setOpeningVariant] = useState<string | null>(null);
 
   // Typewriter narration reveal (state + streaming refs) lives in a hook; it
   // drains the WS token queue into `displayedNarration` and finalizes the
@@ -676,49 +670,15 @@ export default function App() {
   const asideMinimal = introFirstLoop && introTurn <= 2 && !finalizedSnapshot?.combat;
   const asideRevealNudge = introFirstLoop && introTurn === 3;
 
-  // B2 loop2+ opening variants: the server names this loop's variant up front
-  // via the early `loop_meta` frame (`openingVariant`), which arrives within ~1s
-  // of `begin` — long before the snapshot that also carries it (that lands only
-  // after the 8-20s first-scene generation). The intro holds on a signal-
-  // alignment skeleton until the variant is known, then reveals the right
-  // sequence once and never swaps. `openingVariant` is the primary source; the
-  // snapshot is a fallback for an older server that predates the meta frame.
-  const introVariantKey =
-    openingVariant ??
-    finalizedSnapshot?.state?._opening_variant ??
-    lastSnapshot?.state?._opening_variant ??
-    "default";
-  const introVariantArrived = Boolean(
-    openingVariant ??
-      finalizedSnapshot?.state?._opening_variant ??
-      lastSnapshot?.state?._opening_variant
-  );
-  const [introWaitExpired, setIntroWaitExpired] = useState(false);
-  useEffect(() => {
-    if (!showIntro || introVariantArrived) return;
-    // Last-resort reveal only if the meta frame never lands (dead stream): the
-    // happy-path frame arrives in ~1s, so this timer normally never fires.
-    const timer = setTimeout(() => setIntroWaitExpired(true), 12000);
-    return () => clearTimeout(timer);
-  }, [showIntro, introVariantArrived]);
-  useEffect(() => {
-    if (!showIntro) return;
-    // Reset on intro close so the next loop's intro holds again with a clean
-    // per-loop variant signal (no leak from the loop just finished).
-    return () => {
-      setIntroWaitExpired(false);
-      setOpeningVariant(null);
-    };
-  }, [showIntro]);
-  const introPending = !introVariantArrived && !introWaitExpired;
-  const introVariants = currentScenario?.ui_copy?.session_intro_variants as
-    | Record<string, IntroData>
-    | undefined;
-  const introData = introPending
-    ? null
-    : ((introVariantKey !== "default" && introVariants?.[introVariantKey]
-        ? introVariants[introVariantKey]
-        : currentScenario?.ui_copy?.session_intro) as IntroData);
+  // B2 loop2+ opening variants: the meta-frame-vs-snapshot race, the hold-until-
+  // known skeleton, the 12s dead-stream fallback, and the per-loop reset live in
+  // a hook. `setOpeningVariant` is fed by the WS `onLoopMeta` callback above.
+  const { introData, introVariantKey, setOpeningVariant } = useIntroSequencer({
+    showIntro,
+    currentScenario,
+    finalizedSnapshot,
+    lastSnapshot,
+  });
 
   // Hold the app behind the invite gate until the key probe resolves. "checking" shows
   // nothing (brief); "blocked" shows the key-entry screen instead of the game.

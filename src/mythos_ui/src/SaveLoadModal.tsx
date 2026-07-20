@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { GameIcon } from "./icons";
 import { useLang } from "./i18n/lang";
 import type { SaveSlot, ScenarioInfo } from "./types";
 
@@ -131,9 +132,11 @@ export function SaveLoadModal({
                   {slot.thumb_url ? (
                     <img src={slot.thumb_url} alt="" loading="lazy" />
                   ) : (
-                    <span className="sl-thumb-ph">◍</span>
+                    <span className="sl-thumb-ph"><GameIcon name="nodeDot" /></span>
                   )}
-                  {slot.in_combat && <span className="sl-thumb-combat">⚔</span>}
+                  {slot.in_combat && (
+                    <span className="sl-thumb-combat"><GameIcon name="swords" /></span>
+                  )}
                 </div>
 
                 <div className="sl-body">

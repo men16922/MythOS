@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { buildGaugeConfig } from "./gauges";
+import { GameIcon, type GameIconName } from "./icons";
 import { Popover } from "./Popover";
 import { SaveHistoryPanel } from "./SaveHistoryPanel";
 import { Surface } from "./Surface";
@@ -29,11 +30,23 @@ interface GameAsideProps {
   onOpenCodex?: () => void;
 }
 
-const TILE_GLYPH: Record<string, string> = {
-  node: "◍",
-  checkpoint: "◈",
-  clue: "❖",
-  player: "◆",
+/** Route-map node type → icon (mirrors scenario.json node_types glyphs). */
+const NODE_TYPE_ICON: Record<string, GameIconName> = {
+  story: "diamond",
+  clue: "magnifier",
+  combat: "swords",
+  patrol: "rings",
+  market: "bag",
+  rest: "cross",
+  event: "spark",
+  boss: "skull",
+};
+
+const TILE_ICON: Record<string, GameIconName> = {
+  node: "nodeDot",
+  checkpoint: "checkpoint",
+  clue: "magnifier",
+  player: "diamond",
 };
 
 const TILE_LABEL_KEYS: Record<string, StringKey> = {
@@ -167,9 +180,21 @@ function RouteMapPanel({
     return (
       <InfoPopover key={id} className={cls} tooltip={title} ariaLabel={label}>
         {choiceLinkIndex >= 0 && <span className="route-link-marker">{choiceLinkIndex + 1}</span>}
-        <span className="route-glyph">{isLocked ? "🔒" : (node.glyph || "?")}</span>
+        <span className="route-glyph">
+          {isLocked ? (
+            "🔒"
+          ) : NODE_TYPE_ICON[node.type] ? (
+            <GameIcon name={NODE_TYPE_ICON[node.type]} />
+          ) : (
+            node.glyph || "?"
+          )}
+        </span>
         <span className="route-label">
-          {node.anchor && <span className="route-anchor">★</span>}
+          {node.anchor && (
+            <span className="route-anchor">
+              <GameIcon name="star" />
+            </span>
+          )}
           {label}
         </span>
         {mode === "detail" && perspectives.length > 1 && (
@@ -233,22 +258,24 @@ function RouteMapPanel({
 
   // Legend entries as chips: the symbol carries the accent color (combat keeps
   // the map's red) so the row reads at a glance (owner 2026-07-11: too dim).
-  const legendEntries: Array<{ key: string; sym: string; label: string }> = [
-    { key: "fixed", sym: "★", label: t("aside.route.legend.fixed") },
-    { key: "scene", sym: "◆", label: t("aside.route.legend.scene") },
-    { key: "clue", sym: "❖", label: t("aside.route.legend.clue") },
-    { key: "combat", sym: "⚔", label: t("aside.route.legend.combat") },
-    { key: "patrol", sym: "◎", label: t("aside.route.legend.patrol") },
-    { key: "market", sym: "▣", label: t("aside.route.legend.market") },
-    { key: "maintenance", sym: "✚", label: t("aside.route.legend.maintenance") },
-    { key: "event", sym: "✦", label: t("aside.route.legend.event") },
-    { key: "confront", sym: "❒", label: t("aside.route.legend.confront") },
+  const legendEntries: Array<{ key: string; icon: GameIconName; label: string }> = [
+    { key: "fixed", icon: "star", label: t("aside.route.legend.fixed") },
+    { key: "scene", icon: "diamond", label: t("aside.route.legend.scene") },
+    { key: "clue", icon: "magnifier", label: t("aside.route.legend.clue") },
+    { key: "combat", icon: "swords", label: t("aside.route.legend.combat") },
+    { key: "patrol", icon: "rings", label: t("aside.route.legend.patrol") },
+    { key: "market", icon: "bag", label: t("aside.route.legend.market") },
+    { key: "maintenance", icon: "cross", label: t("aside.route.legend.maintenance") },
+    { key: "event", icon: "spark", label: t("aside.route.legend.event") },
+    { key: "confront", icon: "skull", label: t("aside.route.legend.confront") },
   ];
   const legend = (
     <div className="route-legend">
       {legendEntries.map((e) => (
         <div key={e.key} className={`route-legend-item route-legend-${e.key}`}>
-          <span className="route-legend-sym">{e.sym}</span>
+          <span className="route-legend-sym">
+            <GameIcon name={e.icon} />
+          </span>
           <span className="route-legend-label">{e.label}</span>
         </div>
       ))}
@@ -404,17 +431,17 @@ export function OperationMapPanel({
         cells.push(<div key={coordKey} className="mm-cell mm-empty"></div>);
       } else {
         const tile = tiles[tileKey];
-        const glyph = TILE_GLYPH[tile.kind || "node"] || "◍";
+        const tileIcon = <GameIcon name={TILE_ICON[tile.kind || "node"] || "nodeDot"} />;
         const cls = tileKey === curKey ? "mm-cell mm-current" : "mm-cell mm-visited";
         const tileName = tile.name || "";
         cells.push(
           tileName ? (
             <InfoPopover key={coordKey} className={cls} tooltip={tileName}>
-              {glyph}
+              {tileIcon}
             </InfoPopover>
           ) : (
             <div key={coordKey} className={cls}>
-              {glyph}
+              {tileIcon}
             </div>
           )
         );
@@ -442,8 +469,13 @@ export function OperationMapPanel({
       <div className="sub" style={{ fontSize: "11px", color: "var(--ink-dim)" }}>
         {t("aside.route.curPosition")}: {cur.name || t("amap.unknownSpot")} ({cx}, {cy})
       </div>
-      <div className="sub" style={{ fontSize: "11px", color: "var(--ink-dim)", marginTop: "6px" }}>
-        {t("amap.legend")}
+      <div className="sub amap-legend" style={{ fontSize: "11px", color: "var(--ink-dim)", marginTop: "6px" }}>
+        {(["player", "node", "checkpoint", "clue"] as const).map((kind) => (
+          <span key={kind} className="amap-legend-item">
+            <GameIcon name={TILE_ICON[kind]} /> {t(TILE_LABEL_KEYS[kind])}
+          </span>
+        ))}
+        <span className="amap-legend-item">{t("amap.legend.contacts")}</span>
       </div>
       {nearestContacts.length > 0 && (
         <div className="sub" style={{ fontSize: "11px", color: "var(--ink-dim)", marginTop: "6px" }}>

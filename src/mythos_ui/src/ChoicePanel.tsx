@@ -1,4 +1,5 @@
 import { choiceCostLabel, choiceRequirementLabel, isChoiceDisabled, cleanChoiceLabel } from "./choices";
+import { GameIcon } from "./icons";
 import { Popover } from "./Popover";
 import type { RouteMap, RouteNode, SceneChoice } from "./types";
 import { useLang } from "./i18n/lang";
@@ -96,7 +97,9 @@ export function ChoicePanel({ choices, stability, tension, routeMap, onChoose, p
             </div>
             <div className="cmd-meta-row">
               {choice.combat_risk && (
-                <span className="cmd-chip combat-risk">{t("choice.combatRisk")}</span>
+                <span className="cmd-chip combat-risk">
+                  <GameIcon name="swords" /> {t("choice.combatRisk")}
+                </span>
               )}
               {choice.axis_label && (
                 <AxisChip

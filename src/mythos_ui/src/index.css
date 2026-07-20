@@ -6618,3 +6618,54 @@ main#play.fx-glitch {
     display: none;
   }
 }
+
+/* --- GameIcon (icons.tsx): inline SVG replacements for text glyphs (⚔ etc.)
+   that rendered as thin ✕/default shapes on some platforms (player feedback
+   2026-07-20). 1em sizing + currentColor keeps every accent rule working;
+   glyph slots that used text-shadow glow get a drop-shadow equivalent. --- */
+.gicon {
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  vertical-align: -0.125em;
+  flex: none;
+}
+.route-legend-sym {
+  display: inline-flex;
+  align-items: center;
+}
+.route-legend-sym .gicon {
+  width: 14px;
+  height: 14px;
+  filter: drop-shadow(0 0 3px rgba(41, 255, 198, 0.5));
+}
+.route-legend-combat .route-legend-sym .gicon {
+  filter: drop-shadow(0 0 3px rgba(255, 107, 125, 0.5));
+}
+.route-legend-fixed .route-legend-sym .gicon {
+  filter: drop-shadow(0 0 3px rgba(255, 212, 121, 0.5));
+}
+.cmd-chip.combat-risk {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.amap-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px 10px;
+}
+.amap-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.ci-kind .gicon,
+.ci-joining .gicon,
+.banner-title .gicon,
+.epiphany-head .gicon {
+  vertical-align: -0.155em;
+}
+.turn-chip-intent .gicon {
+  vertical-align: -0.18em;
+}

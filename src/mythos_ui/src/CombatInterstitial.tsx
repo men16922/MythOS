@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { RuntimeSnapshot } from "./types";
+import { GameIcon } from "./icons";
 import { useLang } from "./i18n/lang";
 import type { StringKey } from "./i18n/strings.ko";
 
@@ -31,13 +32,15 @@ export function CombatInterstitial({ snapshot }: CombatInterstitialProps) {
   return (
     <div className="combat-interstitial-backdrop" id="combat-interstitial">
       <div className={`combat-interstitial kind-${kind}`}>
-        <div className="ci-kind">{t(KIND_TITLE_KEYS[kind])}</div>
+        <div className="ci-kind">
+          <GameIcon name={kind === "boss" ? "bolt" : "swords"} /> {t(KIND_TITLE_KEYS[kind])}
+        </div>
         {beat.name && <h2 className="ci-name">{beat.name}</h2>}
         {beat.location && <div className="ci-location">{beat.location}</div>}
         <p className="ci-line">{beat.line || t("combat.interstitial.line.default")}</p>
         {(beat.joining?.length ?? 0) > 0 && (
           <div className="ci-joining">
-            ⚑ {t("combat.interstitial.joining")}:{" "}
+            <GameIcon name="flag" /> {t("combat.interstitial.joining")}:{" "}
             {(beat.joining ?? []).map((ally) => ally.name || ally.id).join(" · ")}
           </div>
         )}

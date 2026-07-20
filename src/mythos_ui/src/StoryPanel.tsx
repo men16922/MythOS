@@ -9,6 +9,7 @@ import { CombatLog } from "./CombatLog";
 import { CombatRoster } from "./CombatRoster";
 import { TurnOrderStrip } from "./TurnOrderStrip";
 import { OperationMapPanel, StatusPanel } from "./GameAside";
+import { GameIcon, type GameIconName } from "./icons";
 import { SaveHistoryPanel } from "./SaveHistoryPanel";
 import { Surface } from "./Surface";
 import { useConciseMode } from "./conciseMode";
@@ -545,29 +546,29 @@ function TacticalKey({ combat }: { combat: CombatState }) {
   const hazards = Object.values(combat.hazards || {});
   const hasElevation = Object.values(combat.elevations || {}).some((v) => Number(v) > 0);
   const intents = combat.radar?.enemy_intents || [];
-  const rows: { sym: string; text: string }[] = [];
+  const rows: { icon: GameIconName; text: string }[] = [];
   if (intents.some((intent) => intent.action === "attack")) {
-    rows.push({ sym: "⚔", text: t("story.legend.attack") });
+    rows.push({ icon: "swords", text: t("story.legend.attack") });
   }
   if (intents.some((intent) => intent.action === "move")) {
-    rows.push({ sym: "→", text: t("story.legend.move") });
+    rows.push({ icon: "arrowRight", text: t("story.legend.move") });
   }
   if (intents.some((intent) => intent.action === "flee")) {
-    rows.push({ sym: "↗", text: t("story.legend.flee") });
+    rows.push({ icon: "arrowUpRight", text: t("story.legend.flee") });
   }
-  if (covers.includes("full")) rows.push({ sym: "▣", text: t("story.legend.coverFull") });
-  if (covers.includes("half")) rows.push({ sym: "◧", text: t("story.legend.coverHalf") });
-  if (hazards.includes("acid")) rows.push({ sym: "☣", text: t("story.legend.acid") });
-  if (hazards.includes("electro")) rows.push({ sym: "ϟ", text: t("story.legend.electro") });
-  if (hasElevation) rows.push({ sym: "▲", text: t("story.legend.elevation") });
+  if (covers.includes("full")) rows.push({ icon: "coverFull", text: t("story.legend.coverFull") });
+  if (covers.includes("half")) rows.push({ icon: "coverHalf", text: t("story.legend.coverHalf") });
+  if (hazards.includes("acid")) rows.push({ icon: "droplet", text: t("story.legend.acid") });
+  if (hazards.includes("electro")) rows.push({ icon: "bolt", text: t("story.legend.electro") });
+  if (hasElevation) rows.push({ icon: "triangle", text: t("story.legend.elevation") });
 
   if (rows.length === 0) return null;
 
   return (
     <div className="tactical-key" role="note" aria-label={t("story.legend.title")}>
       {rows.map((row) => (
-        <span key={`${row.sym}-${row.text}`} className="tactical-key-item">
-          <span className="tactical-key-sym" aria-hidden="true">{row.sym}</span>
+        <span key={`${row.icon}-${row.text}`} className="tactical-key-item">
+          <span className="tactical-key-sym" aria-hidden="true"><GameIcon name={row.icon} /></span>
           <span>{row.text}</span>
         </span>
       ))}
@@ -587,7 +588,7 @@ function LearningGoalBanner({ combat }: { combat: CombatState }) {
   return (
     <details className="combat-learning-goal">
       <summary className="combat-learning-goal-summary-row">
-        <span className="combat-learning-goal-icon" aria-hidden="true">◎</span>
+        <span className="combat-learning-goal-icon" aria-hidden="true"><GameIcon name="rings" /></span>
         <span className="combat-learning-goal-label">
           {t("story.learn.bg")}{encounter?.name ? ` · ${encounter.name}` : ""}
         </span>

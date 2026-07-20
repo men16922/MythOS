@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { apiMarketExchange } from "./api";
+import { GameIcon } from "./icons";
 import type { MarketOffer, RuntimeSnapshot } from "./types";
 import { useLang } from "./i18n/lang";
 
@@ -54,7 +55,7 @@ export function MarketExchange({
   if (!open) {
     return (
       <button type="button" className="market-launcher" onClick={() => setOpen(true)}>
-        ▣ {market.vendor ? market.vendor.name : t("market.title")}
+        <GameIcon name="bag" /> {market.vendor ? market.vendor.name : t("market.title")}
       </button>
     );
   }

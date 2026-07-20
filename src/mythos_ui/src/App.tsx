@@ -12,6 +12,7 @@ import { CodexPanel } from "./CodexPanel";
 import { CharacterTabPanel } from "./CharacterTabPanel";
 import { DevConsolePanel } from "./DevConsolePanel";
 import { GameAside } from "./GameAside";
+import { GameIcon } from "./icons";
 import { BootIntro } from "./BootIntro";
 import { HeaderBar } from "./HeaderBar";
 import { OnboardingPanel } from "./OnboardingPanel";
@@ -803,7 +804,7 @@ export default function App() {
       {!connected && !showBoot && epiphanyNotice && (
         <div className="epiphany-banner" id="epiphany-banner">
           <div className="epiphany-head">
-            <span>{t("app.epiphany.title")}</span>
+            <span><GameIcon name="spark" /> {t("app.epiphany.title")}</span>
             <button
               type="button"
               onClick={() => dismissEpiphany(epiphanyNotice.loopId)}
@@ -890,7 +891,7 @@ export default function App() {
               id="ingame-epiphany-banner"
               onClick={() => setShowInGameNotice(null)}
             >
-              <div className="banner-title">{t("app.epiphanyLive.title")}</div>
+              <div className="banner-title"><GameIcon name="spark" /> {t("app.epiphanyLive.title")}</div>
               <div className="banner-body">
                 {t("app.epiphanyLive.body")}<strong>{getSkillName(showInGameNotice)}</strong>
                 <br />

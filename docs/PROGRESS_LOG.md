@@ -2,6 +2,13 @@
 
 Last updated: 2026-07-20
 
+## 2026-07-20 — Custom SVG icon set replaces text-glyph UI icons (CBT feedback)
+- Status: Done. Tester feedback (Discord, MelGibzon): the "⚔ Combat" chip renders as a thin red ✕ on platforms without the glyph — replace text glyphs with custom icons.
+- Changed: new `icons.tsx` `GameIcon` inline-SVG set (19 icons, currentColor + 1em sizing, stroke style matched to existing `assets/icons/combat-*.svg`). Applied to: route map nodes/legend/anchor star + ambient minimap tiles/legend (GameAside), choice combat-risk chip, combat interstitial titles + joining flag, save-slot combat marker/placeholder, tactical board key + learning-goal bullseye, market launcher, turn-order attack badge, epiphany banners. Glyphs stripped from affected i18n strings (`amap.legend` → composed items + `amap.legend.contacts`).
+- Kept: canvas-drawn emoji (combatCanvas), skill-tile fallback symbols (PNG art covers them), color-emoji intents (👣🏃💫) — text-presentation glyphs were the broken class, not color emoji.
+- Verified: full `make check` green (1160 OK, 5 skipped); rendered browser QA on local fallback loop — compact+expanded route map and all 9 legend chips render the new icons (swords/magnifier/rings/bag/cross/spark/skull/star/diamond), console errors 0.
+- Next: owner eyeballs the icon feel in the next §3 playtest; rides the next deploy.
+
 ## 2026-07-20 — route_axis_chip: 7th objective assertion shipped + calibrated
 - Status: Done. §2 갈림길 가치축 칩 정합이 objective-QA로 자동화됨; live-QA checklist §2는 느낌 판정만 남김.
 - Changed: `artifacts.py` evaluator independently re-encodes destination→chip policy (double-entry vs serializer; anchor = flag-scored perspective mirror, waypoint = type policy; chip-on-axisless fails, chipless-only evidence stays not_observed); `PROMPT.agy.md` actor procedure (lang=ko, ≤6 transitions to junction, DOM chip by index, node/flags verbatim from `/loops/active`).

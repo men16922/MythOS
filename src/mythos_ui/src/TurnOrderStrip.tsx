@@ -1,4 +1,5 @@
 import type { CombatRadar } from "./types";
+import { GameIcon } from "./icons";
 import { useLang } from "./i18n/lang";
 
 interface TurnOrderStripProps {
@@ -41,13 +42,16 @@ export function TurnOrderStrip({ radar, scenarioId }: TurnOrderStripProps) {
           const stunned = (b.status || []).includes("stunned");
           const intent = b.faction === "enemy" ? intentByEnemy.get(b.id) : undefined;
           const intentMark =
-            intent?.action === "attack"
-              ? `⚔${intent.damage_hint || ""}`
-              : intent?.action === "move"
-                ? "👣"
-                : intent?.action === "flee"
-                  ? "🏃"
-                  : null;
+            intent?.action === "attack" ? (
+              <>
+                <GameIcon name="swords" />
+                {intent.damage_hint || ""}
+              </>
+            ) : intent?.action === "move" ? (
+              "👣"
+            ) : intent?.action === "flee" ? (
+              "🏃"
+            ) : null;
           const title = [
             b.name || b.id,
             stunned ? t("story.board.turnOrderStunned") : null,

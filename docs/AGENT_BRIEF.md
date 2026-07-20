@@ -4,7 +4,7 @@ Last updated: 2026-07-20
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Owner runs the §3 paired non-fallback dull/sensitive verdict on deployed `00077-8g9`** (`docs/NEXT_PLAN.md` Priority 0); bank both loop ids (doubles as image-continuity confirmation). The next deploy then doubles as V2 release-bundle 3/3 evidence (six assertions + new route_axis_chip). Slice-15 pick (`docs/plans/2026-07-20-app-decomposition-slice15-candidates.md`) unblocks decomposition.
+> ▶ NEXT SESSION: **`mythos-api-00078-rs9` DEPLOYED 2026-07-20** (icon set + loadout editor + aim badge; pushed). Owner pair: (1) `bash scratch/run-release-calibration-00078.sh` → agent audits = V2 release-bundle 3/3; (2) §3 paired non-fallback dull/sensitive verdict on the deployed bundle — bank both loop ids (doubles as image-continuity + icon/loadout feel check). Slice-15 pick (`docs/plans/2026-07-20-app-decomposition-slice15-candidates.md`) unblocks decomposition.
 
 ## Snapshot
 

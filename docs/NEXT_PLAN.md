@@ -8,9 +8,10 @@ This file keeps only upcoming (open) work as a rolling plan. Completed tracks li
 
 ## Priority 0 — Human live sign-off on the deployed bundle
 
-Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00076-jhc` (2026-07-17; 100% traffic)**. B4 stat-tag clarity, combat density, and the perspective-tie fix are live (`make check` 1125; health 200). Owner-side Priority 0:
+Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00078-rs9` (2026-07-20; 100% traffic; pushed `c51cf63`)** — §3 alignment fix + custom icon set + skill loadout editor + aim badge are all live (`make check` 1161; health 200; app.js hash match). Owner-side Priority 0:
 
-- `[/]` `[manual]` **§3 two-style verdict on `00077-8g9`** — alignment fix DEPLOYED 2026-07-19 (junction-pick axis accrual, destination-true chips; `make check` 1158; commit `fc4ebc5`, push pending owner-run). Remaining: two non-fallback deployed loops for the dull/sensitive and distinct-ending verdict (prior banked pair: `loop_22e71c...` people/help vs `loop_5b212d...` evidence→safety).
+- `[/]` `[manual]` **§3 two-style verdict on the deployed bundle (`00078-rs9`)** — alignment fix live since `00077-8g9`. Remaining: two non-fallback deployed loops for the dull/sensitive and distinct-ending verdict (prior banked pair: `loop_22e71c...` people/help vs `loop_5b212d...` evidence→safety). Doubles as icon/loadout feel check.
+- `[ ]` `[manual]` **V2 release-bundle 3/3 collection on `00078-rs9`** — owner runs `bash scratch/run-release-calibration-00078.sh` (~10 min; six-assertion contract counts, `route_axis_chip` rides along); agent then audits bundles + `report-evidence.py` and measures human minutes.
 
 ### Narrative clarity / content follow-ups (mostly `[manual]`)
 - `[ ]` remaining clarity item: Su-ah `잔향 가공사` rename (deferred). Deploy hygiene: use `make deploy` (pins .env project).

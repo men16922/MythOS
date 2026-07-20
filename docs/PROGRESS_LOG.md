@@ -2,6 +2,12 @@
 
 Last updated: 2026-07-20
 
+## 2026-07-20 — DEPLOYED `mythos-api-00078-rs9`: icon set + loadout editor + aim badge
+- Status: **DEPLOYED at 100% traffic** (commit `c51cf63`; owner pushed `4a43904..c51cf63`). Third distinct release for Harness V2 evidence.
+- Live: root + `/api/v1/health` 200; live/local `app.js` SHA-256 match (`08c0be0c…`); model pins preserved (`MODEL=gemini-3.5-flash`, `IMAGEN_MODEL=gemini-2.5-flash-image`).
+- Prepared: `scratch/run-release-calibration-00078.sh` — six-assertion contract (counts toward 3/3) + `route_axis_chip` rider (max_turns=6). Owner-run (agy permission); agent audits bundles + report after.
+- Next (owner): run the 00078 calibration script · §3 two-style non-fallback verdict on the deployed bundle (banks loop ids + first app-path image since the 2.5 pin).
+
 ## 2026-07-20 — Skill quick-slot config moved to a separate loadout editor (owner request)
 - Status: Done. Owner: per-slot ⇄ swap pickers cluttered the bar — pull slot setup out into its own surface.
 - Follow-up (same session): the aim(🎯) toggle's full-height side column read as a broken empty strip (owner) — now a small round corner badge over the art's bottom-right (GameIcon `crosshair`; armed = gold pulse card border), mirroring the landscape-coarse overlay. Verified in the combat sim: no empty columns, badge + armed state render, console errors 0.

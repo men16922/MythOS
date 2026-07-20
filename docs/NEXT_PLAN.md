@@ -11,7 +11,7 @@ This file keeps only upcoming (open) work as a rolling plan. Completed tracks li
 Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00078-rs9` (2026-07-20; 100% traffic; pushed `c51cf63`)** — §3 alignment fix + custom icon set + skill loadout editor + aim badge are all live (`make check` 1161; health 200; app.js hash match). Owner-side Priority 0:
 
 - `[/]` `[manual]` **§3 two-style verdict on the deployed bundle (`00078-rs9`)** — alignment fix live since `00077-8g9`. Remaining: two non-fallback deployed loops for the dull/sensitive and distinct-ending verdict (prior banked pair: `loop_22e71c...` people/help vs `loop_5b212d...` evidence→safety). Doubles as icon/loadout feel check.
-- `[x]` **V2 release-bundle 3/3 collection on `00078-rs9`** — DONE 2026-07-20 (agent-run, allowlisted): 7/7 PASS incl. `route_axis_chip` rider, hashes 32/32, 7.8 min unattended, report attention 1/clean 23→3. Remaining `[ ]` `[manual]`: **owner ratifies the 16-item reduction split** (target 6 auto / 8 monitored / 2 human).
+- `[x]` **V2 reduction RATIFIED 2026-07-21** (owner): split = 5(+1 chip) auto / 8 monitored / 3 human (`docs/plans/2026-07-21-live-qa-reduction-split.md`); checklist active-play surface 16→3. Release calibrations keep running the 7-assertion contract per deploy.
 
 ### Narrative clarity / content follow-ups (mostly `[manual]`)
 - `[ ]` remaining clarity item: Su-ah `잔향 가공사` rename (deferred). Deploy hygiene: use `make deploy` (pins .env project).
@@ -26,7 +26,7 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00
 ## Engineering maintenance track — WS0-3 done (COMPLETED_SUMMARY M43)
 
 - `[/]` **WS5 harness operation**: plugin V2 cutover DONE 2026-07-19 (`COMPLETED_SUMMARY` M63). Remaining `[ ]` `[manual]` **Model-B 3-lane demonstration** — first run one objective `make overnight-<engine>-once`, then arm+observe `make overnight-worktrees-setup` + 3 engines (burns real quota, owner-armed).
-- `[/]` **V2 human-load rollout**: formal reduction is **0/16** pending owner ratification; 6 auto / 8 monitored / 2 human is the target. `[x]` six assertions + hashed bundles; `[x]` exception/all + deterministic 20% clean sampling; `[x]` all six locally live-calibrated (0/8 observed false accepts); `[x]` release-bundle evidence **3/3** (07-19 local · `00077-8g9` · `00078-rs9` 7/7 with `route_axis_chip` rider; 7.8 min unattended collection, 4-bundle review surface). Next `[manual]`: owner ratifies the split, then flip checklist items to auto/monitored.
+- `[x]` **V2 human-load rollout — COMPLETE 2026-07-21**: evidence 3/3 (0 false accepts) → owner ratified **5(+1 chip) auto / 8 monitored / 3 human**; checklist restructured (직접확인 3 / 이상시기록 8), active surface 16→3 (81% reduction). Ongoing: 7-assertion contract per deploy; report attention list is the human touchpoint. Compress to COMPLETED_SUMMARY on next tidy.
 
 ## Rules
 
@@ -80,6 +80,6 @@ Key criteria (compressed): 5-min goal/risk clarity · choices reveal the value a
 
 - `[ ]` `[manual]` long-play Flux1 + Flux1Redux simultaneous-load memory monitor.
 - `[ ]` `[blocked]` `_map` removal cleanup (held until route-node track done; engine records every scene + encounter_map coords·story_bible location·glass-library fallback minimap depend on it). Prereq: all scenarios converted to route_map. When met, promote to `[auto]` (codemod + `make check` green).
-- `[ ]` `[blocked]` `[auto:claude]` frontend god-component decomposition (App.tsx·CombatCinema): extract custom hooks/modules **one slice per iteration**, behavior-preserving. Done = `make check` green + post-commit AGY live-QA not FAIL/NEEDS (auto-screened, §3.4.1). _Progress: slices 1–13 done (App.tsx 1261→696; 13 hooks + shared `archetypes.ts`; detail `bin/docs/archive/progress-2026-06.md` + git). **slice 14 (`useViewModels`) was committed green (`d7b3b35`) then HUMAN-REVERTED (`4d88b80`) — DO NOT re-attempt verbatim (deliberate revert; 12-field props object = net-negative). `[blocked]` 2026-06-28 (twice-blocked rule): remove the tag after a human names a different clean-boundary slice or closes the track. Slice-15 candidates proposed 2026-07-20 (`docs/plans/2026-07-20-app-decomposition-slice15-candidates.md`: useCombatTutorial 추천 · useInviteGate · EpiphanyBanner) — owner picks one to unblock._
+- `[/]` `[auto:claude]` frontend god-component decomposition (App.tsx·CombatCinema): extract custom hooks/modules **one slice per iteration**, behavior-preserving. Done = `make check` green + post-commit AGY live-QA not FAIL/NEEDS (auto-screened, §3.4.1). _Progress: slices 1–13 done (App.tsx 1261→696; detail `bin/docs/archive/progress-2026-06.md` + git). **slice 14 (`useViewModels`) HUMAN-REVERTED (`4d88b80`) — DO NOT re-attempt verbatim.** [blocked] lifted 2026-07-21: owner picked **slice 15 = `useCombatTutorial`** (`docs/plans/2026-07-20-app-decomposition-slice15-candidates.md`)._
 - One-time DB cleanups available on request (not scheduled): players wrongly promoted by the old ally-writeback bug (fixed `efa1c8f` 07-09) · simulator-born active loops occupying tester caps (sim admin-gated since 07-05).
 - AGY live-QA findings: none open.

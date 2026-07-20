@@ -343,9 +343,10 @@ export function CombatControls({
           className={`cc-skill-aim${armed ? " armed" : ""}`}
           aria-pressed={armed || undefined}
           title={t("cc.aimSkill")}
+          aria-label={t("cc.aimSkill")}
           onClick={() => onSkillTarget!(skill)}
         >
-          🎯
+          <GameIcon name="crosshair" />
         </button>
       </span>
     );

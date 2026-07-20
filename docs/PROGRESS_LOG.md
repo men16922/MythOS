@@ -4,6 +4,7 @@ Last updated: 2026-07-20
 
 ## 2026-07-20 — Skill quick-slot config moved to a separate loadout editor (owner request)
 - Status: Done. Owner: per-slot ⇄ swap pickers cluttered the bar — pull slot setup out into its own surface.
+- Follow-up (same session): the aim(🎯) toggle's full-height side column read as a broken empty strip (owner) — now a small round corner badge over the art's bottom-right (GameIcon `crosshair`; armed = gold pulse card border), mirroring the landscape-coarse overlay. Verified in the combat sim: no empty columns, badge + armed state render, console errors 0.
 - Changed: `CombatControls` skill header gains one ⚙ 편성 button opening a modal (`cc-loadout`): 6 numbered slot tiles + full learned-skill grid; tap a slot then a skill to place it (already-slotted skills trade places, selection auto-advances). Same per-scenario+actor localStorage persistence; per-slot ⚑/menu JSX+CSS removed, `cc.swap*` strings replaced by `cc.loadout.*` (KO/EN). `gear` icon added to GameIcon.
 - Locks: `test_desktop_combat_split.py` re-locked to the new design (asserts loadout modal present AND per-slot picker absent — deliberate owner reversal of the 2026-07-13 swap-picker design; do not reintroduce).
 - Verified: full `make check` green (1161 OK); combat-simulator browser QA — bar shows no per-slot affordance, modal assigns/swaps slots with live bar update, console errors 0.

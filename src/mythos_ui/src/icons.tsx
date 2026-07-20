@@ -28,6 +28,7 @@ export type GameIconName =
   | "coverHalf"
   | "droplet"
   | "triangle"
+  | "crosshair"
   | "gear";
 
 const STROKE = {
@@ -136,6 +137,14 @@ const ICON_PATHS: Record<GameIconName, ReactNode> = {
   ),
   // 고지대 ▲
   triangle: <path {...STROKE} d="M16 6 28 26H4L16 6Z" />,
+  // 조준 🎯
+  crosshair: (
+    <g>
+      <circle {...STROKE} cx="16" cy="16" r="8" />
+      <path {...STROKE} d="M16 2v6M16 24v6M2 16h6M24 16h6" />
+      <circle {...FILL} cx="16" cy="16" r="2.2" />
+    </g>
+  ),
   // 설정/편성 ⚙
   gear: (
     <g {...STROKE}>

@@ -1342,17 +1342,27 @@ main {
 .cc-skill-wrap {
   position: relative;
   display: inline-flex;
-  align-items: stretch;
-  gap: 2px;
 }
+/* Aim toggle rides the card as a corner badge over the art's bottom-right
+   (owner 2026-07-20: the old full-height side button read as a broken empty
+   column) — mirrors the landscape-coarse overlay treatment. */
 .cc-skill-aim {
+  position: absolute;
+  z-index: 3;
+  top: 42px;
+  right: 9px;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid var(--line-soft);
-  border-radius: 6px;
-  background: rgba(8, 16, 20, 0.6);
+  border-radius: 50%;
+  background: rgba(2, 7, 6, 0.88);
   color: var(--term-dim);
   cursor: pointer;
-  font-size: 12px;
-  padding: 0 6px;
+  font-size: 11px;
+  padding: 0;
 }
 .cc-skill-aim:hover {
   border-color: #ffd76a;
@@ -6666,14 +6676,11 @@ main#play.fx-glitch {
     font-size: 8px;
   }
   body.combat-active #combat-controls .cc-skill-aim {
-    position: absolute;
-    z-index: 3;
     width: 15px;
     height: 15px;
-    padding: 0;
-    border-radius: 4px;
     font-size: 8px;
     line-height: 13px;
+    top: auto;
     right: -1px;
     bottom: 11px;
   }

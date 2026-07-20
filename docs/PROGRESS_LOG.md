@@ -2,6 +2,13 @@
 
 Last updated: 2026-07-20
 
+## 2026-07-20 — Skill quick-slot config moved to a separate loadout editor (owner request)
+- Status: Done. Owner: per-slot ⇄ swap pickers cluttered the bar — pull slot setup out into its own surface.
+- Changed: `CombatControls` skill header gains one ⚙ 편성 button opening a modal (`cc-loadout`): 6 numbered slot tiles + full learned-skill grid; tap a slot then a skill to place it (already-slotted skills trade places, selection auto-advances). Same per-scenario+actor localStorage persistence; per-slot ⚑/menu JSX+CSS removed, `cc.swap*` strings replaced by `cc.loadout.*` (KO/EN). `gear` icon added to GameIcon.
+- Locks: `test_desktop_combat_split.py` re-locked to the new design (asserts loadout modal present AND per-slot picker absent — deliberate owner reversal of the 2026-07-13 swap-picker design; do not reintroduce).
+- Verified: full `make check` green (1161 OK); combat-simulator browser QA — bar shows no per-slot affordance, modal assigns/swaps slots with live bar update, console errors 0.
+- Next: owner feel-check during next combat playtest; rides the next deploy.
+
 ## 2026-07-20 — Custom SVG icon set replaces text-glyph UI icons (CBT feedback)
 - Status: Done. Tester feedback (Discord, MelGibzon): the "⚔ Combat" chip renders as a thin red ✕ on platforms without the glyph — replace text glyphs with custom icons.
 - Changed: new `icons.tsx` `GameIcon` inline-SVG set (19 icons, currentColor + 1em sizing, stroke style matched to existing `assets/icons/combat-*.svg`). Applied to: route map nodes/legend/anchor star + ambient minimap tiles/legend (GameAside), choice combat-risk chip, combat interstitial titles + joining flag, save-slot combat marker/placeholder, tactical board key + learning-goal bullseye, market launcher, turn-order attack badge, epiphany banners. Glyphs stripped from affected i18n strings (`amap.legend` → composed items + `amap.legend.contacts`).

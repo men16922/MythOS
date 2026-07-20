@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import { enemyIntentLabel } from "./combatText";
+import { GameIcon } from "./icons";
 import { Popover } from "./Popover";
 import { useLang } from "./i18n/lang";
 import type { StringKey } from "./i18n/strings.ko";
@@ -151,11 +152,12 @@ const SKILL_SYMBOLS: Record<string, string> = {
   nanoshield_projector: "◈",
 };
 
-// Quick-slot skill bar (owner 2026-07-13): the action bar shows at most six
-// skills; each slot has a ⇄ affordance that opens a picker of the remaining
-// learned skills, so deep builds stay one row tall. Assignments persist per
-// scenario+actor in localStorage (cosmetic client state — the engine still
-// accepts any learned skill id).
+// Quick-slot skill bar (owner 2026-07-13; reshaped 2026-07-20): the action bar
+// shows at most six skills. Slot assignment lives in a separate loadout editor
+// (one 편성 button on the section header) instead of a per-slot ⇄ picker, so
+// the bar itself stays clean. Assignments persist per scenario+actor in
+// localStorage (cosmetic client state — the engine still accepts any learned
+// skill id).
 const MAX_SKILL_SLOTS = 6;
 
 function loadSlotIds(storageKey: string): string[] {
@@ -189,7 +191,9 @@ export function CombatControls({
   // which slot's swap picker is open. Keyed by storage key so control handoffs
   // between party members mid-fight each keep their own bar.
   const [slotOverrides, setSlotOverrides] = useState<Record<string, string[]>>({});
-  const [swapSlot, setSwapSlot] = useState<number | null>(null);
+  // Loadout editor: open state + which slot the next picked skill lands in.
+  const [loadoutOpen, setLoadoutOpen] = useState(false);
+  const [loadoutSlot, setLoadoutSlot] = useState(0);
   if (combat.finished && combat.outcome) {
     const canContinue = combat.outcome !== "player_defeat" || combat.defeat_soft;
     return (
@@ -465,9 +469,13 @@ export function CombatControls({
               if (!slotIds.includes(skill.id)) slotIds.push(skill.id);
             }
             const visibleIds = slotIds.slice(0, MAX_SKILL_SLOTS);
-            const bench = allSkills.filter((s) => !visibleIds.includes(s.id));
-            const assignSlot = (slotIdx: number, skillId: string) => {
+            // Loadout assignment: placing a skill into the selected slot; if it
+            // already sits in another slot the two trade places (no dupes).
+            const assignToSlot = (slotIdx: number, skillId: string) => {
               const next = [...visibleIds];
+              const existing = next.indexOf(skillId);
+              if (existing === slotIdx) return;
+              if (existing >= 0) next[existing] = next[slotIdx];
               next[slotIdx] = skillId;
               setSlotOverrides((prev) => ({ ...prev, [storageKey]: next }));
               try {
@@ -475,52 +483,110 @@ export function CombatControls({
               } catch {
                 /* private mode etc. — the in-memory override still applies */
               }
-              setSwapSlot(null);
+              setLoadoutSlot((slotIdx + 1) % next.length);
             };
+            const skillThumb = (skill: CombatSkillInfo) => (
+              <span className="cc-loadout-thumb" aria-hidden="true">
+                <img
+                  src={`/resources/${scenarioId}/skills/${skill.id}.png`}
+                  alt=""
+                  draggable={false}
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display = "none";
+                  }}
+                />
+                <span className="cc-loadout-sym">
+                  {SKILL_SYMBOLS[skill.id] || <GameIcon name="spark" />}
+                </span>
+              </span>
+            );
             return (
               <div className="cc-section cc-skills-section" aria-label={t("cc.skills")}>
-                <div className="cc-label">{t("cc.skills")}</div>
-                <div className={`cc-skill-bar${tutorialHighlight === "skill" ? " tut-glow" : ""}`}>
-                  {visibleIds.map((id, idx) => {
-                    const skill = skillById.get(id)!;
-                    return (
-                      <span key={id} className="cc-slot">
-                        {renderSkill(skill)}
-                        {bench.length > 0 && (
-                          <button
-                            type="button"
-                            className={`cc-slot-swap${swapSlot === idx ? " open" : ""}`}
-                            title={t("cc.swapSkill")}
-                            aria-label={t("cc.swapSkill")}
-                            aria-expanded={swapSlot === idx}
-                            onClick={() => setSwapSlot(swapSlot === idx ? null : idx)}
-                          >
-                            ⇄
-                          </button>
-                        )}
-                        {swapSlot === idx && bench.length > 0 && (
-                          <div className="cc-slot-menu" role="menu">
-                            <div className="cc-slot-menu-title">{t("cc.swapPick")}</div>
-                            {bench.map((benchSkill) => (
-                              <button
-                                key={benchSkill.id}
-                                type="button"
-                                className="cc-slot-menu-item"
-                                role="menuitem"
-                                onClick={() => assignSlot(idx, benchSkill.id)}
-                              >
-                                <span className="cc-skill-symbol" aria-hidden="true">
-                                  {SKILL_SYMBOLS[benchSkill.id] || "✦"}
-                                </span>
-                                <span>{benchSkill.name || benchSkill.id}</span>
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </span>
-                    );
-                  })}
+                <div className="cc-label cc-skills-label">
+                  <span>{t("cc.skills")}</span>
+                  {allSkills.length > 1 && (
+                    <button
+                      type="button"
+                      className="cc-loadout-btn"
+                      aria-haspopup="dialog"
+                      onClick={() => {
+                        setLoadoutSlot(0);
+                        setLoadoutOpen(true);
+                      }}
+                    >
+                      <GameIcon name="gear" /> {t("cc.loadout")}
+                    </button>
+                  )}
                 </div>
+                <div className={`cc-skill-bar${tutorialHighlight === "skill" ? " tut-glow" : ""}`}>
+                  {visibleIds.map((id) => (
+                    <span key={id} className="cc-slot">
+                      {renderSkill(skillById.get(id)!)}
+                    </span>
+                  ))}
+                </div>
+                {loadoutOpen && (
+                  <div className="cc-loadout-backdrop" onClick={() => setLoadoutOpen(false)}>
+                    <div
+                      className="cc-loadout"
+                      role="dialog"
+                      aria-modal="true"
+                      aria-label={t("cc.loadout.title")}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="cc-loadout-head">
+                        <span>{t("cc.loadout.title")}</span>
+                        <button
+                          type="button"
+                          className="cc-loadout-close"
+                          aria-label={t("cc.loadout.close")}
+                          onClick={() => setLoadoutOpen(false)}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                      <div className="cc-loadout-hint">{t("cc.loadout.hint")}</div>
+                      <div className="cc-loadout-slots">
+                        {visibleIds.map((id, idx) => {
+                          const skill = skillById.get(id)!;
+                          return (
+                            <button
+                              key={id}
+                              type="button"
+                              className={`cc-loadout-slot${loadoutSlot === idx ? " sel" : ""}`}
+                              aria-pressed={loadoutSlot === idx}
+                              onClick={() => setLoadoutSlot(idx)}
+                            >
+                              <span className="cc-loadout-slot-num">{idx + 1}</span>
+                              {skillThumb(skill)}
+                              <span className="cc-loadout-name">{skill.name || skill.id}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                      <div className="cc-loadout-all-title">{t("cc.loadout.all")}</div>
+                      <div className="cc-loadout-all">
+                        {allSkills.map((skill) => {
+                          const slottedAt = visibleIds.indexOf(skill.id);
+                          return (
+                            <button
+                              key={skill.id}
+                              type="button"
+                              className={`cc-loadout-pick${slottedAt >= 0 ? " slotted" : ""}`}
+                              onClick={() => assignToSlot(loadoutSlot, skill.id)}
+                            >
+                              {slottedAt >= 0 && (
+                                <span className="cc-loadout-badge">{slottedAt + 1}</span>
+                              )}
+                              {skillThumb(skill)}
+                              <span className="cc-loadout-name">{skill.name || skill.id}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })()}

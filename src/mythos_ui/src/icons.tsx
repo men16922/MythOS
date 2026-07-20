@@ -27,7 +27,8 @@ export type GameIconName =
   | "coverFull"
   | "coverHalf"
   | "droplet"
-  | "triangle";
+  | "triangle"
+  | "gear";
 
 const STROKE = {
   stroke: "currentColor",
@@ -135,6 +136,13 @@ const ICON_PATHS: Record<GameIconName, ReactNode> = {
   ),
   // 고지대 ▲
   triangle: <path {...STROKE} d="M16 6 28 26H4L16 6Z" />,
+  // 설정/편성 ⚙
+  gear: (
+    <g {...STROKE}>
+      <circle cx="16" cy="16" r="6" />
+      <path d="M16 3v5M16 24v5M3 16h5M24 16h5M6.8 6.8l3.5 3.5M21.7 21.7l3.5 3.5M25.2 6.8l-3.5 3.5M10.3 21.7l-3.5 3.5" />
+    </g>
+  ),
 };
 
 export function GameIcon({ name, className }: { name: GameIconName; className?: string }) {

@@ -3,9 +3,7 @@ import {
   apiGetScenarios,
   apiGetSlots,
   apiLoadSlot,
-  setInviteKey,
   stablePlayerId,
-  verifyInvite,
 } from "./api";
 import { firstUnlockedArchetype } from "./archetypes";
 import { CodexPanel } from "./CodexPanel";
@@ -57,6 +55,7 @@ import { useNarrativeStream } from "./hooks/useNarrativeStream";
 import { useKeyboardChoice } from "./hooks/useKeyboardChoice";
 import { usePresentationCues } from "./hooks/usePresentationCues";
 import { useIntroSequencer } from "./hooks/useIntroSequencer";
+import { useInviteGate } from "./hooks/useInviteGate";
 import { useLang } from "./i18n/lang";
 
 export type NarrativeHistoryItem = {
@@ -96,12 +95,6 @@ export default function App() {
   const [loopId, setLoopId] = useState<string | null>(null);
   const [status, setStatus] = useState(() => t("app.statusWaiting"));
   const [activeTab, setActiveTab] = useState<ActiveTab>("story");
-  // Operator-only UI (Dev Console) visibility — true when gating is off (local/open dev)
-  // or the invite key is an admin key. Beta testers never see it. Set by the invite probe.
-  const [isAdmin, setIsAdmin] = useState(false);
-  // Whether the server runs invite-gated (CBT). Gated + non-admin hides the boot
-  // combat simulator (it creates real loops → burns the tester loop cap).
-  const [inviteGated, setInviteGated] = useState(false);
   // Item-gain toast (auto-dismisses): "잔해 수습" payouts are invisible otherwise.
   const [itemNotice, setItemNotice] = useState<string | null>(null);
   const itemNoticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -109,9 +102,6 @@ export default function App() {
   const [isBusy, setIsBusy] = useState(false);
   const [saveSlots, setSaveSlots] = useState<SaveSlot[]>([]);
   const [saveLoadModal, setSaveLoadModal] = useState<"save" | "load" | null>(null);
-  // Closed-beta invite gate: "checking" until the probe resolves, "blocked" if the
-  // key is missing/invalid (show the gate screen), "ok" if valid or gating is off.
-  const [inviteGate, setInviteGate] = useState<"checking" | "blocked" | "ok">("checking");
   const [runsHistory, setRunsHistory] = useState<RunSummary[]>([]);
   const [memoryOverview, setMemoryOverview] = useState<MemoryOverview | null>(null);
   const [saveLabelInput, setSaveLabelInput] = useState("");
@@ -243,36 +233,15 @@ export default function App() {
     playSfx,
   });
 
-  // --- Invite gate probe (closed beta) ---
-  // Checks the stored/URL key against the gated API once on mount. 401 → show the gate
-  // screen; 200 (valid key, or gating disabled) → proceed. Network/server errors fail
-  // open so a backend hiccup can't lock everyone out.
-  useEffect(() => {
-    let cancelled = false;
-    verifyInvite()
-      .then((status) => {
-        if (!cancelled) {
-          setInviteGate(status.ok ? "ok" : "blocked");
-          setIsAdmin(status.isAdmin);
-          setInviteGated(status.gated);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setInviteGate("ok");
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const handleInviteSubmit = useCallback(async (key: string): Promise<boolean> => {
-    setInviteKey(key);
-    const status = await verifyInvite();
-    setIsAdmin(status.isAdmin);
-    setInviteGated(status.gated);
-    if (status.ok) setInviteGate("ok");
-    return status.ok;
-  }, []);
+  // --- Invite gate (closed beta) ---
+  // The mount probe, the fail-open policy, key storage + re-probe, and the
+  // admin/gated identity live in a hook; App reads the resolved values.
+  const {
+    gate: inviteGate,
+    gated: inviteGated,
+    isAdmin,
+    submitKey: handleInviteSubmit,
+  } = useInviteGate();
 
   // --- Onboarding & Setup effect ---
   useEffect(() => {

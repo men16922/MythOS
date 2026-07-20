@@ -11,7 +11,7 @@ This file keeps only upcoming (open) work as a rolling plan. Completed tracks li
 Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00078-rs9` (2026-07-20; 100% traffic; pushed `c51cf63`)** — §3 alignment fix + custom icon set + skill loadout editor + aim badge are all live (`make check` 1161; health 200; app.js hash match). Owner-side Priority 0:
 
 - `[/]` `[manual]` **§3 two-style verdict on the deployed bundle (`00078-rs9`)** — alignment fix live since `00077-8g9`. Remaining: two non-fallback deployed loops for the dull/sensitive and distinct-ending verdict (prior banked pair: `loop_22e71c...` people/help vs `loop_5b212d...` evidence→safety). Doubles as icon/loadout feel check.
-- `[ ]` `[manual]` **V2 release-bundle 3/3 collection on `00078-rs9`** — owner runs `bash scratch/run-release-calibration-00078.sh` (~10 min; six-assertion contract counts, `route_axis_chip` rides along); agent then audits bundles + `report-evidence.py` and measures human minutes.
+- `[x]` **V2 release-bundle 3/3 collection on `00078-rs9`** — DONE 2026-07-20 (agent-run, allowlisted): 7/7 PASS incl. `route_axis_chip` rider, hashes 32/32, 7.8 min unattended, report attention 1/clean 23→3. Remaining `[ ]` `[manual]`: **owner ratifies the 16-item reduction split** (target 6 auto / 8 monitored / 2 human).
 
 ### Narrative clarity / content follow-ups (mostly `[manual]`)
 - `[ ]` remaining clarity item: Su-ah `잔향 가공사` rename (deferred). Deploy hygiene: use `make deploy` (pins .env project).
@@ -26,7 +26,7 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00
 ## Engineering maintenance track — WS0-3 done (COMPLETED_SUMMARY M43)
 
 - `[/]` **WS5 harness operation**: plugin V2 cutover DONE 2026-07-19 (`COMPLETED_SUMMARY` M63). Remaining `[ ]` `[manual]` **Model-B 3-lane demonstration** — first run one objective `make overnight-<engine>-once`, then arm+observe `make overnight-worktrees-setup` + 3 engines (burns real quota, owner-armed).
-- `[/]` **V2 human-load rollout**: current formal reduction is **0/16**; 6 auto / 8 monitored / 2 human is the target. `[x]` six assertions + hashed bundles; `[x]` exception/all + deterministic 20% clean sampling; `[x]` all six locally live-calibrated (eight required runs, 0/8 observed false accepts; report attention 1, clean 9→sample 2). `[x]` release-bundle evidence **2/3** (07-19 local build + `00077-8g9` 2026-07-20: 6/6 PASS, hashes 25/25, report attention 1/clean 15→3). Next: third distinct release (rides the next deploy) + measure human minutes before claiming 50–70%.
+- `[/]` **V2 human-load rollout**: formal reduction is **0/16** pending owner ratification; 6 auto / 8 monitored / 2 human is the target. `[x]` six assertions + hashed bundles; `[x]` exception/all + deterministic 20% clean sampling; `[x]` all six locally live-calibrated (0/8 observed false accepts); `[x]` release-bundle evidence **3/3** (07-19 local · `00077-8g9` · `00078-rs9` 7/7 with `route_axis_chip` rider; 7.8 min unattended collection, 4-bundle review surface). Next `[manual]`: owner ratifies the split, then flip checklist items to auto/monitored.
 
 ## Rules
 

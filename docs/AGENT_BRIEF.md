@@ -4,7 +4,7 @@ Last updated: 2026-07-20
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **`mythos-api-00078-rs9` DEPLOYED 2026-07-20** (icon set + loadout editor + aim badge; pushed). Owner pair: (1) `bash scratch/run-release-calibration-00078.sh` → agent audits = V2 release-bundle 3/3; (2) §3 paired non-fallback dull/sensitive verdict on the deployed bundle — bank both loop ids (doubles as image-continuity + icon/loadout feel check). Slice-15 pick (`docs/plans/2026-07-20-app-decomposition-slice15-candidates.md`) unblocks decomposition.
+> ▶ NEXT SESSION: **`00078-rs9` deployed + V2 evidence 3/3 COMPLETE 2026-07-20** (7/7 PASS, 0 false accepts across all calibrations). Owner decisions now: (1) **ratify the 16-item reduction split** (6 auto / 8 monitored / 2 human); (2) **§3 paired non-fallback dull/sensitive verdict** on `00078-rs9` — bank both loop ids (doubles as image-continuity + icon/loadout feel check); (3) slice-15 pick (`docs/plans/2026-07-20-app-decomposition-slice15-candidates.md`).
 
 ## Snapshot
 

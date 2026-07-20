@@ -2,6 +2,14 @@
 
 Last updated: 2026-07-20
 
+## 2026-07-20 — V2 release-bundle evidence 3/3 COMPLETE on 00078-rs9 (7/7 PASS)
+- Status: Done. Agent ran `scratch/run-release-calibration-00078.sh` directly (`bash scratch/*` owner-allowlisted) and audited.
+- Measured: six-assertion contract 6/6 PASS + `route_axis_chip` rider PASS at HEAD `f3e1fc3` (= deployed `00078-rs9` app source; trailing commits docs-only). Audit: required PASS 7/7 · artifact hashes 32/32 · evidence screenshots present · decisions/manifest agree. Collection wall-clock 465.8s (7.8 min unattended; mean 66.5s/run).
+- Spot check: `route_axis_chip` turn-4 junction screenshot manually verified destination-true (clue→`단서 찾기`, anchor→`사람 돕기`, event→chipless); deployed icon set renders in evidence. 0 false accepts observed.
+- Report: `report-evidence.py` → attention 1 (known 07-19 post-commit NEEDS_HUMAN, retained), clean 23 → deterministic sample 3, invalid 0. Human-review surface = 4 bundles (~3 min) vs the 16-item manual checklist.
+- Evidence state: release bundles = **3/3** (07-19 local build · `00077-8g9` · `00078-rs9`), 0 observed false accepts across all calibrations. Formal 16-item reduction (target 6 auto / 8 monitored / 2 human) is now an owner ratification decision.
+- Next (owner): ratify the reduction split · §3 two-style verdict on `00078-rs9`.
+
 ## 2026-07-20 — DEPLOYED `mythos-api-00078-rs9`: icon set + loadout editor + aim badge
 - Status: **DEPLOYED at 100% traffic** (commit `c51cf63`; owner pushed `4a43904..c51cf63`). Third distinct release for Harness V2 evidence.
 - Live: root + `/api/v1/health` 200; live/local `app.js` SHA-256 match (`08c0be0c…`); model pins preserved (`MODEL=gemini-3.5-flash`, `IMAGEN_MODEL=gemini-2.5-flash-image`).

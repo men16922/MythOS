@@ -2,6 +2,13 @@
 
 Last updated: 2026-07-21
 
+## 2026-07-21 — slice 16 (`useIntroSequencer`) landed + slice-17 candidates + eval-bank armed
+- Status: Done (code). Owner picked slice 16 = `useIntroSequencer` from the fresh candidate doc (`docs/plans/2026-07-21-app-decomposition-slice16-candidates.md`).
+- Changed: B2 opening-variant resolution (openingVariant state, meta-frame-vs-snapshot race, 12s dead-stream reveal timer, per-loop reset, introData/introVariantKey selection) → `hooks/useIntroSequencer.ts`; App.tsx 1050→1010. `setOpeningVariant` exposed for the WS onLoopMeta callback. Commit `68a6dc4` (push owner-run).
+- Verified: full `make check` green (1161 OK); lint 0 errors / build clean; no dangling refs, wiring confirmed. Behavior-preserving (identical expressions moved). **Loop-2 non-fallback intro branch is live-only — unverified locally**; watch = post-commit AGY live-QA + owner §3 (no flash-then-swap; 12s fallback still reveals).
+- Also: eval-bank owner-run script prepared (`scratch/bank-style-pair-loops.sh`) — banks the two prod style-pair loops (prefix-resolve `loop_22e71c…`/`loop_5b212d…` against prod DSN, read-only); prod-DB access is classifier-blocked for the agent, so owner runs it, then agent runs `make eval-narrative`.
+- Next: owner `git push` + run bank script → agent `make eval-narrative`; §3 two-style verdict on `00078-rs9`; slice-17 candidate from the slice-16 doc (`useInviteGate`) on request. Log at budget → run `/tidy-docs`.
+
 ## 2026-07-21 — QA reduction ratified + slice 15 (`useCombatTutorial`) landed
 - Status: Done. Owner ratified the live-QA split (5+1 auto / 8 monitored / 3 human; `docs/plans/2026-07-21-live-qa-reduction-split.md`) — checklist restructured to 직접확인 3 / 이상시기록 8, active-play surface 16→3. Owner also picked slice 15 = `useCombatTutorial`, lifting the decomposition `[blocked]`.
 - Changed: first-combat tutorial policy (localStorage gate, first-combat meta detection, step derivation, move/wait rule, action-decorator, overlay advance) extracted to `hooks/useCombatTutorial.ts`; App.tsx 1102→1050 lines, duplicate overlay `onNext` logic absorbed into the hook's `advance`.

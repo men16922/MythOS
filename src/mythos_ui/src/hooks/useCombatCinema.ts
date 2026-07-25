@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import type { CombatBlip } from "../types";
 import { resolveCombatSkill } from "../combatCinemaSkills";
+import { useCombatCinemaTimeline } from "./useCombatCinemaTimeline";
 
 export interface ActionSignal {
   type: "ATTACK" | "DEFEND" | "EVADE";
@@ -42,7 +43,6 @@ export function useCombatCinema(
   onImpact?: (defenderId: string, damage: number) => void,
   onCue?: (cue: "enter" | "windup" | "impact" | "exit") => void
 ) {
-  const [phase, setPhase] = useState<"enter" | "attack" | "impact" | "exit">("enter");
   const [imgError, setImgError] = useState(false);
 
   // Reset the image-error flag when the skill changes
@@ -58,70 +58,14 @@ export function useCombatCinema(
 
   // 빠른 속도 진행 조건 (적의 일반공격, 회피, 방어)
   const isFast = attacker.faction === "enemy" || miss || isDefend;
-
-  const onFinishRef = useRef(onFinish);
-  const onImpactRef = useRef(onImpact);
-  const onCueRef = useRef(onCue);
-
-  useEffect(() => {
-    onFinishRef.current = onFinish;
-    onImpactRef.current = onImpact;
-    onCueRef.current = onCue;
+  const phase = useCombatCinemaTimeline({
+    isFast,
+    defenderId: defender.id,
+    damage,
+    onFinish,
+    onImpact,
+    onCue,
   });
-
-  useEffect(() => {
-    let t1: ReturnType<typeof setTimeout>;
-    let t2: ReturnType<typeof setTimeout>;
-    let t3: ReturnType<typeof setTimeout>;
-    let t4: ReturnType<typeof setTimeout>;
-
-    onCueRef.current?.("enter");
-
-    if (isFast) {
-      // 1.2초 빠른 타임라인
-      t1 = setTimeout(() => {
-        setPhase("attack");
-        onCueRef.current?.("windup");
-      }, 200);
-      t2 = setTimeout(() => {
-        setPhase("impact");
-        onCueRef.current?.("impact");
-        onImpactRef.current?.(defender.id, damage);
-      }, 650);
-      t3 = setTimeout(() => {
-        setPhase("exit");
-        onCueRef.current?.("exit");
-      }, 950);
-      t4 = setTimeout(() => {
-        onFinishRef.current?.();
-      }, 1200);
-    } else {
-      // 2.1초 표준 타임라인
-      t1 = setTimeout(() => {
-        setPhase("attack");
-        onCueRef.current?.("windup");
-      }, 400);
-      t2 = setTimeout(() => {
-        setPhase("impact");
-        onCueRef.current?.("impact");
-        onImpactRef.current?.(defender.id, damage);
-      }, 1050);
-      t3 = setTimeout(() => {
-        setPhase("exit");
-        onCueRef.current?.("exit");
-      }, 1750);
-      t4 = setTimeout(() => {
-        onFinishRef.current?.();
-      }, 2100);
-    }
-
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-      clearTimeout(t4);
-    };
-  }, [isFast, defender.id, damage]);
 
   const factionCol = (faction: string) => (faction === "enemy" ? "#ff6b7d" : "#8fffea");
 

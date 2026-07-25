@@ -616,6 +616,20 @@ class SimulatorTestKitTest(unittest.TestCase):
 
 
 class CombatResponsivenessTest(unittest.TestCase):
+    def test_cinema_timeline_preserves_fast_and_standard_profiles(self) -> None:
+        source = read("src/mythos_ui/src/hooks/useCombatCinemaTimeline.ts")
+        self.assertIn(
+            "FAST_TIMELINE = { windup: 200, impact: 650, exit: 950, finish: 1200 }",
+            source,
+        )
+        self.assertIn(
+            "STANDARD_TIMELINE = { windup: 400, impact: 1050, exit: 1750, finish: 2100 }",
+            source,
+        )
+        self.assertIn("}, [isFast, defenderId, damage]);", source)
+        for timer in ("windupTimer", "impactTimer", "exitTimer", "finishTimer"):
+            self.assertIn(f"clearTimeout({timer})", source)
+
     """Regression locks for the 2026-07-12 responsiveness diagnosis.
 
     Measured: one click serialized 4-6 full-screen cinemas -> 7-10.5s forced

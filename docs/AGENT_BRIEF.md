@@ -4,7 +4,7 @@ Last updated: 2026-07-26
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **2026-07-26 slice 18 A `useSaveLoad` DONE LOCALLY (uncommitted)** — App.tsx 979→956; restore→resume isolated Playwright order PASS; `make check` 1166. Commit/post-commit AGY on request. Owner picks: **B `useEpiphanyBanner` next or stop App.tsx half** · held-out bank 구성 비준 · **§3 verdict on `00078-rs9`** (banks 2+ prod loops → held-out split). Watch `fallback_reasons.blank_output` after next deploy.
+> ▶ NEXT SESSION: **2026-07-26 slice 18 B `useEpiphanyBanner` DONE LOCALLY (uncommitted)** — A `useSaveLoad` is `e4ca67c` + AGY PASS; B moves dismissal persistence + notice derivation behind `{ notice, dismiss }`; App.tsx 956→940; `make check` 1166. Next: commit/post-commit AGY B, then owner closes App.tsx half or explicitly picks width-risk C. Held-out bank 비준 + **§3 verdict on `00078-rs9`** remain owner priorities. Push not performed.
 
 ## Snapshot
 

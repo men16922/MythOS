@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { apiGetScenarios, stablePlayerId } from "./api";
 import { firstUnlockedArchetype } from "./archetypes";
 import { CodexPanel } from "./CodexPanel";
@@ -32,7 +32,7 @@ import { CombatInterstitial } from "./CombatInterstitial";
 import { CombatTutorial } from "./CombatTutorial";
 import { LS_KEY, parseResumeSession } from "./sessionStorage";
 import type { ResumeSessionData } from "./sessionStorage";
-import { buildCodexLists, buildDevConsoleData, buildEpiphanyNotice } from "./viewModels";
+import { buildCodexLists, buildDevConsoleData } from "./viewModels";
 import { useAudio } from "./hooks/useAudio";
 import { useInGameEpiphany } from "./hooks/useInGameEpiphany";
 import { useCombatBoard } from "./hooks/useCombatBoard";
@@ -51,6 +51,7 @@ import { usePresentationCues } from "./hooks/usePresentationCues";
 import { useIntroSequencer } from "./hooks/useIntroSequencer";
 import { useInviteGate } from "./hooks/useInviteGate";
 import { useSaveLoad } from "./hooks/useSaveLoad";
+import { useEpiphanyBanner } from "./hooks/useEpiphanyBanner";
 import { useLang } from "./i18n/lang";
 
 export type NarrativeHistoryItem = {
@@ -101,14 +102,6 @@ export default function App() {
   const [learningSkillId, setLearningSkillId] = useState<string | null>(null);
   const [skillError, setSkillError] = useState<string | null>(null);
   const [skillNotice, setSkillNotice] = useState<string | null>(null);
-  const [dismissedEpiphany, setDismissedEpiphany] = useState<string | null>(() => {
-    try {
-      return localStorage.getItem("mythos_epiphany_seen");
-    } catch {
-      return null;
-    }
-  });
-
   // --- Typewriter / Narration State ---
   const [lastSnapshot, setLastSnapshot] = useState<RuntimeSnapshot | null>(null);
   const [finalizedSnapshot, setFinalizedSnapshot] = useState<RuntimeSnapshot | null>(null);
@@ -555,19 +548,10 @@ export default function App() {
     return buildCodexLists(memoryOverview, finalizedSnapshot, currentScenario);
   }, [memoryOverview, finalizedSnapshot, currentScenario]);
 
-  const epiphanyNotice = useMemo(() => {
-    const notice = buildEpiphanyNotice(runsHistory, scenarios);
-    return notice && notice.loopId !== dismissedEpiphany ? notice : null;
-  }, [runsHistory, scenarios, dismissedEpiphany]);
-
-  const dismissEpiphany = useCallback((loopId: string) => {
-    setDismissedEpiphany(loopId);
-    try {
-      localStorage.setItem("mythos_epiphany_seen", loopId);
-    } catch {
-      /* ignore storage failures */
-    }
-  }, []);
+  const { notice: epiphanyNotice, dismiss: dismissEpiphany } = useEpiphanyBanner({
+    runsHistory,
+    scenarios,
+  });
 
   // --- In-Game Epiphany State ---
   const { showInGameNotice, setShowInGameNotice, getSkillName } = useInGameEpiphany(
@@ -683,7 +667,7 @@ export default function App() {
             <span><GameIcon name="spark" /> {t("app.epiphany.title")}</span>
             <button
               type="button"
-              onClick={() => dismissEpiphany(epiphanyNotice.loopId)}
+              onClick={dismissEpiphany}
               aria-label={t("app.epiphany.close")}
             >
               ✕

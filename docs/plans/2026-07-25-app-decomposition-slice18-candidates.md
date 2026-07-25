@@ -1,6 +1,6 @@
 # App.tsx decomposition — slice 18 candidate boundaries (fresh survey)
 
-Status: A `useSaveLoad` IMPLEMENTED LOCALLY 2026-07-26 (`make check` 1166; commit/post-commit AGY pending). Owner next picks B or closes the App.tsx half.
+Status: A `useSaveLoad` LANDED LOCALLY 2026-07-26 (`e4ca67c`; AGY PASS); B `useEpiphanyBanner` DONE LOCALLY (`make check` 1166; commit/post-commit AGY pending). Default next = close App.tsx half; C needs explicit owner risk acceptance.
 Fresh full-file survey of `App.tsx` at **979 lines** (post slice 17, `8782d70`), 21 hooks
 extracted. Vocabulary: `$codebase-design` (depth = small interface hiding real behavior).
 

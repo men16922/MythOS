@@ -5,6 +5,20 @@ Last updated: 2026-07-26
 Newest entries only; older 2026-07 increments are in `bin/docs/archive/progress-2026-07.md`
 (and `progress-2026-06.md` for June). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
 
+## 2026-07-26 — slice 18 B `useEpiphanyBanner` extracted
+- Status: Done locally (uncommitted); post-commit AGY pending.
+- Changed: past-loop notice derivation + dismissed-loop localStorage init/write/fail-open policy → `hooks/useEpiphanyBanner.ts`; small interface `{ notice, dismiss }` feeds both pre-connect banner and skill-tab dot. App.tsx 956→940.
+- Verified: Serena diagnostics 0; frontend lint 0 errors (2 pre-existing warnings); frontend build; final `make check` 1166 OK.
+- Blockers: none locally. No dedicated JS hook-test framework; post-commit AGY remains the rendered track gate.
+- Next: commit/post-commit AGY B, then close the App.tsx half unless owner explicitly picks width-risk C; owner §3 play + held-out bank ratification remain higher manual priorities.
+
+## 2026-07-26 — slice 18 A committed + post-commit AGY passed
+- Status: Done. Intentional slice/code/build/checkpoint files committed as `e4ca67c`; pre-existing `.serena/project.yml` + scratch files excluded. Branch ahead 1; push not performed.
+- Changed: no product delta after the prior local checkpoint; this closes the track's commit/browser-verifier condition.
+- Verified: browser candidate filter = `CANDIDATE` (`api:src/mythos_api/static/app.js`); official hook = `PASS_CANDIDATE`, source invariant held, local server stopped; evidence `outputs/live-qa/20260726-001650-post-commit/evidence-bundle.json`.
+- Blockers: none for slice 18 A.
+- Next: owner picks B `useEpiphanyBanner` or closes the App.tsx half; §3 deployed verdict and held-out bank composition ratification remain owner priorities.
+
 ## 2026-07-26 — slice 18 A `useSaveLoad` extracted
 - Status: Done locally (uncommitted); post-commit AGY verifier remains pending.
 - Changed: modal/label/slot state, gated pre-connect slot prefetch+cancellation, and manual-slot restore→resume ordering moved into `hooks/useSaveLoad.ts`; App.tsx 979→956. `useDataLoaders` keeps setter access through the hook interface; save/load launchers now use `openSave`/`openLoad`.

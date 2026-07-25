@@ -4,7 +4,7 @@ Last updated: 2026-07-26
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **2026-07-26 slice 18 B `useEpiphanyBanner` DONE LOCALLY (uncommitted)** — A `useSaveLoad` is `e4ca67c` + AGY PASS; B moves dismissal persistence + notice derivation behind `{ notice, dismiss }`; App.tsx 956→940; `make check` 1166. Next: commit/post-commit AGY B, then owner closes App.tsx half or explicitly picks width-risk C. Held-out bank 비준 + **§3 verdict on `00078-rs9`** remain owner priorities. Push not performed.
+> ▶ NEXT SESSION: **2026-07-26 App.tsx HALF CLOSED; CombatCinema slice A LANDED** — `useSaveLoad` `e4ca67c`, `useEpiphanyBanner` `6945a2f`, combat skill resolver `937d2fd`; all `make check` 1166 + post-commit AGY PASS. `useCombatCinema.ts` 419→181 behind `resolveCombatSkill()`. Next agent slice: timeline state machine (candidate B). Held-out bank 비준 + **§3 verdict on `00078-rs9`** remain owner priorities. Branch ahead 3; push not performed.
 
 ## Snapshot
 

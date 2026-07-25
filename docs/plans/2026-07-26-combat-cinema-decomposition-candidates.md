@@ -1,6 +1,6 @@
 # CombatCinema decomposition — candidate boundaries
 
-Status: candidate A selected for the first behavior-preserving slice.
+Status: candidate A LANDED 2026-07-26 (`937d2fd`; `make check` 1166; AGY PASS). Next = B.
 Fresh survey baseline: `CombatCinema.tsx` 258 lines; `hooks/useCombatCinema.ts` 419 lines.
 Vocabulary: `$codebase-design` (small interface hiding cohesive behavior).
 

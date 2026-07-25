@@ -1,6 +1,6 @@
 # App.tsx decomposition — slice 18 candidate boundaries (fresh survey)
 
-Status: A `useSaveLoad` LANDED LOCALLY 2026-07-26 (`e4ca67c`; AGY PASS); B `useEpiphanyBanner` DONE LOCALLY (`make check` 1166; commit/post-commit AGY pending). Default next = close App.tsx half; C needs explicit owner risk acceptance.
+Status: CLOSED 2026-07-26. A `useSaveLoad` (`e4ca67c`) and B `useEpiphanyBanner` (`6945a2f`) landed with `make check` 1166 + AGY PASS; App.tsx 979→940. C declined on interface-width/touch risk; D stays reserved for the held-out bank.
 Fresh full-file survey of `App.tsx` at **979 lines** (post slice 17, `8782d70`), 21 hooks
 extracted. Vocabulary: `$codebase-design` (depth = small interface hiding real behavior).
 

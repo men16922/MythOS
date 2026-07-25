@@ -1,6 +1,6 @@
 # Completed Summary
 
-최종 갱신: 2026-07-19
+최종 갱신: 2026-07-26
 
 이 문서는 완료된 milestone의 압축 요약이다. 세부 작업 로그와 검증 기록은 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`, `bin/docs/archive/progress-2026-05.md`, `bin/docs/archive/progress-2026-06.md`를 참고한다. 최신 짧은 로그만 `PROGRESS_LOG.md`에 남긴다.
 
@@ -219,6 +219,12 @@
 - **Evidence**: seven fail-closed assertions (route_axis_chip added 07-20); release-bundle contract passed on three distinct releases (07-19 local · `00077-8g9` · `00078-rs9` 7/7, hashes 32/32); 0 observed false accepts across all calibrations; 7.8 min unattended collection, 4-bundle human-review surface.
 - **Ratified split (owner 2026-07-21)**: 5(+1 chip) auto / 8 monitored / 3 human — active-play surface 16→3 (81%). Design: `docs/plans/2026-07-21-live-qa-reduction-split.md`; checklist restructured accordingly.
 - **Ongoing**: the 7-assertion contract runs per deploy; `report-evidence.py` attention list is the human touchpoint.
+
+## M66 — App.tsx deep-module decomposition half closed (2026-07-26)
+
+- **Result**: slices 1–13 + 15–18 A/B extracted cohesive hooks; slice 14's shallow `useViewModels` bundle was human-reverted and not repeated. Final slices `useSaveLoad` (`e4ca67c`) + `useEpiphanyBanner` (`6945a2f`) reduced App.tsx 979→940 while preserving restore-before-resume and shared epiphany-notice policy.
+- **Boundary**: C `useTabs` was declined because touch behavior and a wide interface outweighed remaining depth; decomposition focus moves to CombatCinema instead of optimizing line count.
+- **Verification**: both final slices passed `make check` 1166 and official post-commit AGY `PASS_CANDIDATE`; save/load additionally proved POST restore before active-loop GET in rendered Playwright.
 
 ## Archive Reference
 

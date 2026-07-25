@@ -1,6 +1,6 @@
 # Project MythOS Next Plan
 
-Last updated: 2026-07-25
+Last updated: 2026-07-26
 
 This file keeps only upcoming (open) work as a rolling plan. Completed tracks live in
 `docs/COMPLETED_SUMMARY.md`, detailed logs in `bin/docs/archive/progress-2026-0*.md`, individual designs in
@@ -84,6 +84,6 @@ Key criteria (compressed): 5-min goal/risk clarity · choices reveal the value a
 
 - `[ ]` `[manual]` long-play Flux1 + Flux1Redux simultaneous-load memory monitor.
 - `[ ]` `[blocked]` `_map` removal cleanup (held until route-node track done; engine records every scene + encounter_map coords·story_bible location·glass-library fallback minimap depend on it). Prereq: all scenarios converted to route_map. When met, promote to `[auto]` (codemod + `make check` green).
-- `[/]` `[auto:claude]` frontend god-component decomposition (App.tsx·CombatCinema): extract custom hooks/modules **one slice per iteration**, behavior-preserving. Done = `make check` green + post-commit AGY live-QA not FAIL/NEEDS (auto-screened, §3.4.1). _Progress: slices 1–13 + 15–18A done; **18B `useEpiphanyBanner` DONE LOCALLY 2026-07-26** (App.tsx 956→940; `{ notice, dismiss }`; `make check` 1166; commit/post-commit AGY pending). A = `e4ca67c` + AGY PASS. **slice 14 (`useViewModels`) HUMAN-REVERTED (`4d88b80`) — DO NOT re-attempt verbatim.** After B, default recommendation is close App.tsx half; C `useTabs` requires explicit owner acceptance of interface-width/touch risk; D `useItemNotice` is RESERVED for held-out bank._
+- `[/]` `[auto:claude]` frontend god-component decomposition (App.tsx·CombatCinema): extract custom hooks/modules **one slice per iteration**, behavior-preserving. Done = `make check` green + post-commit AGY live-QA not FAIL/NEEDS (auto-screened, §3.4.1). _App.tsx half CLOSED 2026-07-26: slices 1–13 + 15–18 A/B; A `e4ca67c`, B `6945a2f`, both AGY PASS; slice 14 HUMAN-REVERTED (`4d88b80`) and C `useTabs` deliberately declined. CombatCinema A `resolveCombatSkill` = `937d2fd` + AGY PASS (`useCombatCinema.ts` 419→181). **Next `[auto:claude]`: candidate B callback-safe attack/impact/resolve timeline hook** (`docs/plans/2026-07-26-combat-cinema-decomposition-candidates.md`); completion = focused timing locks + `make check` + post-commit AGY PASS/NEEDS-free._
 - One-time DB cleanups available on request (not scheduled): players wrongly promoted by the old ally-writeback bug (fixed `efa1c8f` 07-09) · simulator-born active loops occupying tester caps (sim admin-gated since 07-05).
 - AGY live-QA findings: none open.

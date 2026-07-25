@@ -531,7 +531,7 @@ class SkillCardCoverageTest(unittest.TestCase):
 
         combat = json.loads(read("resources/neo-seoul/scenario.json"))["combat"]
         skill_ids = set(combat.get("skills", {})) | set(combat.get("companion_skills", {}))
-        registry_src = read("src/mythos_ui/src/hooks/useCombatCinema.ts")
+        registry_src = read("src/mythos_ui/src/combatCinemaSkills.ts")
         registry_ids = set(re.findall(r"^\s{2}(\w+):\s*\{", registry_src, re.MULTILINE))
         # Every combat skill id resolves to a card by exact id.
         self.assertTrue(
@@ -540,7 +540,7 @@ class SkillCardCoverageTest(unittest.TestCase):
         )
 
     def test_getskillid_prefers_exact_id(self) -> None:
-        source = read("src/mythos_ui/src/hooks/useCombatCinema.ts")
+        source = read("src/mythos_ui/src/combatCinemaSkills.ts")
         self.assertIn("if (SKILL_REGISTRY[n]) return n;", source)
 
 

@@ -4,7 +4,7 @@ Last updated: 2026-07-21
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **slices 16–17 landed 2026-07-21 (`68a6dc4` useIntroSequencer, `fe1585c` useInviteGate; App.tsx →979)**; QA reduction RATIFIED (M65; 직접확인 3). Owner: `git push` + **§3 two-style verdict on `00078-rs9`** (sole active human QA) + run `bash scratch/bank-style-pair-loops.sh` (prod-DB banking is classifier-blocked for the agent). Agent next: after banking → `make eval-narrative`; decomposition deep-candidate pool now thin — **a fresh App.tsx survey is needed before slice 18** (slice-16 doc's leftovers are shallow).
+> ▶ NEXT SESSION: **2026-07-25 harness 1.2.0 adopted (`c29142b`, repair edge OFF pending held-out bank) + narrative typed reject edges/soft-repair ledger (`046edc8`; `make check` 1166)**. Owner: `git push` (ahead 5) + **§3 two-style verdict on `00078-rs9`** (sole active human QA) + run `bash scratch/bank-style-pair-loops.sh` (prod-DB banking classifier-blocked). Agent next: after banking → `make eval-narrative` (held-out split rule in NEXT_PLAN); **fresh App.tsx survey needed before slice 18**; watch `fallback_reasons.blank_output` after next deploy.
 
 ## Snapshot
 

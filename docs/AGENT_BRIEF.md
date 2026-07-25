@@ -4,7 +4,7 @@ Last updated: 2026-07-21
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **2026-07-25 harness 1.2.0 adopted (`c29142b`, repair edge OFF pending held-out bank) + narrative typed reject edges/soft-repair ledger (`046edc8`; `make check` 1166)**. Owner: `git push` (ahead 5) + **§3 two-style verdict on `00078-rs9`** (sole active human QA) + run `bash scratch/bank-style-pair-loops.sh` (prod-DB banking classifier-blocked). Agent next: after banking → `make eval-narrative` (held-out split rule in NEXT_PLAN); **fresh App.tsx survey needed before slice 18**; watch `fallback_reasons.blank_output` after next deploy.
+> ▶ NEXT SESSION: **2026-07-25 all pushed (`56be1db`)** — 1.2.0 adopted + typed reject edges (`make check` 1166) + eval-bank first run (style pair was LOCAL, banked; 1–2/5 = baseline, `outputs/evals/20260725-234103/`) + slice-18 survey (`docs/plans/2026-07-25-app-decomposition-slice18-candidates.md`) + critic smoke (codex REPAIR vs claude PASS, 1/1) + held-out bank (`scripts/overnight/heldout-bank.md`). Owner picks: **slice 18 = A `useSaveLoad` (recommended)** · held-out bank 구성 비준 · **§3 verdict on `00078-rs9`** (banks prod loops → held-out split). Option: run slice 18 via `make overnight OVERNIGHT_CRITIC_ENGINE=codex` (seeds the critic trial). Watch `fallback_reasons.blank_output` after next deploy.
 
 ## Snapshot
 

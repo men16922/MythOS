@@ -83,7 +83,7 @@
     {
       "id": "su_ah",
       "name": "수아",
-      "alias": "잔향 가공사",
+      "alias": "기억의 대장장이",
       "role": "기억의 대장장이",
       "image": "characters/su-ah.png",
       "appearance": "young East-Asian woman, black hair in a loose messy bun with stray strands, thin-rimmed glasses, red lips, black high-collar techwear jacket with glowing purple accents, small earrings, rain, neon-lit",
@@ -91,7 +91,8 @@
         "수아",
         "su-ah",
         "su ah",
-        "잔향 가공사"
+        "잔향 가공사",
+        "기억의 대장장이"
       ]
     },
     {
@@ -2761,7 +2762,7 @@
         "id": "su_ah",
         "signature": "system_hack",
         "name": "수아",
-        "alias": "잔향 가공사",
+        "alias": "기억의 대장장이",
         "recruit_keywords": [
           "수아",
           "su_ah",

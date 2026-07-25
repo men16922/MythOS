@@ -1074,6 +1074,35 @@ class CharacterDetectionKeywordIntegrityTest(unittest.TestCase):
             f"alias, they cause portrait false-positives): {offenders}",
         )
 
+    def test_su_ah_uses_the_plain_memory_blacksmith_title(self) -> None:
+        scenario = load_scenario("neo-seoul")
+        su_ah = next(character for character in scenario.characters if character["id"] == "su_ah")
+        self.assertEqual(su_ah["alias"], "기억의 대장장이")
+        self.assertIn("기억의 대장장이", su_ah["keywords"])
+
+        companion = scenario.combat["allies"]["su_ah"]
+        self.assertEqual(companion["alias"], "기억의 대장장이")
+        self.assertIn("기억의 대장장이", companion["recruit_keywords"])
+
+        ko_bible = _load_bible("neo-seoul")
+        su_ah_bible = next(
+            entry for entry in ko_bible["entries"] if entry["id"] == "su_ah_character_bible"
+        )
+        self.assertEqual(su_ah_bible["title"], "수아: 기억의 대장장이")
+
+        bible_root = PROJECT_ROOT / "resources" / "neo-seoul" / "story_bible"
+        with open(bible_root / "bible.en.json", encoding="utf-8") as handle:
+            en_bible = json.load(handle)
+        en_su_ah = next(
+            entry for entry in en_bible["entries"] if entry["id"] == "su_ah_character_bible"
+        )
+        self.assertEqual(en_su_ah["title"], "Su-ah: Blacksmith of Memory")
+
+        i18n_path = PROJECT_ROOT / "resources" / "neo-seoul" / "i18n" / "en.json"
+        with open(i18n_path, encoding="utf-8") as handle:
+            en_i18n = json.load(handle)
+        self.assertEqual(en_i18n["glossary"]["기억의 대장장이"], "Blacksmith of Memory")
+
 
 def _route_effect_keys(scenario_data: dict[str, Any]) -> set[str]:
     """Every key authored on a route perspective or scene-choice ``effect`` block.

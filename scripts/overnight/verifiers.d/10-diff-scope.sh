@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 # Reject a commit that escapes the compiled WorkContract or weakens verification.
+# Every rejection here is a contract violation (scope escape, sensitive path, test deletion,
+# suppression markers) — deliberately exit 1, never the repairable exit 4: handing these back
+# to the same actor teaches it to game the reviewer, not to fix a defect.
 set -euo pipefail
 
 range="${1:-}"

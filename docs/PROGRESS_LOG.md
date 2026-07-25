@@ -1,9 +1,16 @@
 # Progress Log
 
-Last updated: 2026-07-21
+Last updated: 2026-07-25
 
 Newest entries only; older 2026-07 increments are in `bin/docs/archive/progress-2026-07.md`
 (and `progress-2026-06.md` for June). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
+
+## 2026-07-25 — overnight-harness 1.2.0 adopted (typed reject edges; repair edge armed but OFF)
+- Status: Done (code+docs). Owner updated the plugin to 1.2.0 and dropped `docs/reference/GRAPH_ADOPTION.md`; repo-side §3 items applied.
+- Changed: `.gitignore` +`scripts/overnight/CLAIM` (repair edge uses dirty-tree as reject signal); `CRITIC_PROMPT.md` → 3-value `PASS/REPAIR/FAIL` (REPAIR = regression/masking/one-sided API pairing; FAIL = subversion/scope/migration/orchestration-dup/hand-edited app.js/creative-boundary); verifiers `20-gameplay-oracle`·`30-browser-objective`·`40-image-identity` FAIL → repairable `exit 4` with `evidence=` paths (`10-diff-scope` stays all-`exit 1` — contract violations are never re-prompted); `compile-contract.sh` writes `budgets.revisions` from `CONTRACT_REVISIONS` (cap 3, default 0); Makefile `OVERNIGHT_REPAIR_MODE ?= 0` + optional `OVERNIGHT_CRITIC_ENGINE` passthrough.
+- Verified: `make check` green (1161 OK); `make overnight-where` resolves the 1.2.0 source-checkout pin; contract compiler dry-run injects `revisions=2` with env / `0` default and keeps verifier routing; `make -n` shows `OVERNIGHT_REPAIR=0` + conditional critic-engine env.
+- Deliberately NOT enabled: `OVERNIGHT_REPAIR=1` (held-out task bank is a precondition — GRAPH_ADOPTION §3.4); cross-engine critic (owner-armed 1-night trial). Notes + graph-engineering analysis + MythOS borrow candidates: `docs/plans/2026-07-25-harness-120-adoption.md`.
+- Next: next overnight run observes REVIEW_QUEUE as usual; owner may arm `OVERNIGHT_CRITIC_ENGINE=codex` for one night; eval-bank held-out split added to NEXT_PLAN.
 
 ## 2026-07-21 — slice 17 (`useInviteGate`) landed
 - Status: Done (code). Owner directed slice 17 = `useInviteGate` (lowest-risk candidate from the slice-16 doc).

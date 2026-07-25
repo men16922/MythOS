@@ -152,6 +152,9 @@ contract = {
         "wall_minutes": max(1, int(os.environ.get("CONTRACT_WALL_MINUTES", "30"))),
         "retries": max(0, int(os.environ.get("CONTRACT_RETRIES", "2"))),
         "subagents": max(0, min(3, int(os.environ.get("CONTRACT_SUBAGENTS", "0") or "0"))),
+        # 1.2.0 repair edge: runner passes CONTRACT_REVISIONS=$OVERNIGHT_REPAIR; external
+        # compilers must write it themselves (schema cap 3). 0 = edge off.
+        "revisions": max(0, min(3, int(os.environ.get("CONTRACT_REVISIONS", "0") or "0"))),
     },
     "evidence": evidence,
     "outcome": {

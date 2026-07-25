@@ -65,6 +65,10 @@ verdict="$(grep -oiE 'IMAGE_JUDGE_VERDICT:[[:space:]]*(PASS|FAIL)' "$judge_log" 
   | grep -oiE '(PASS|FAIL)' | tail -1 | tr '[:lower:]' '[:upper:]')"
 case "$verdict" in
   PASS) echo "identity judge passed $count pair(s)"; exit 0 ;;
-  FAIL) echo "identity judge found a character mismatch; see $judge_log"; exit 1 ;;
+  FAIL)
+    # Identity mismatch names the offending file -> regenerate is a concrete in-scope fix (exit 4).
+    detail="$(grep -oE 'IMAGE_JUDGE_VERDICT:[^"\\]*' "$judge_log" 2>/dev/null | tail -1)"
+    echo "identity judge found a character mismatch${detail:+ — $detail}; evidence=$judge_log"
+    exit 4 ;;
   *) echo "identity judge inconclusive (exit=$rc); see $judge_log"; exit 3 ;;
 esac

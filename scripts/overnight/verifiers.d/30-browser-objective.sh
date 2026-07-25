@@ -51,7 +51,8 @@ evidence_suffix="${evidence:+; evidence=$evidence}"
 case "$result" in
   PASS_CANDIDATE) echo "objective browser QA passed$evidence_suffix"; exit 0 ;;
   SKIP|filter-skip|dedup) echo "objective browser QA skipped: $result"; exit 0 ;;
-  FAIL_EVIDENCE) echo "objective browser QA found reproducible failure$evidence_suffix"; exit 1 ;;
+  # Reproducible objective assertion failure with an evidence bundle -> repairable (exit 4).
+  FAIL_EVIDENCE) echo "objective browser QA found reproducible failure$evidence_suffix"; exit 4 ;;
   NEEDS_HUMAN) echo "objective browser QA needs human decision$evidence_suffix"; exit 3 ;;
   *) echo "objective browser QA inconclusive (exit=$rc result=${result:-none})"; exit 3 ;;
 esac

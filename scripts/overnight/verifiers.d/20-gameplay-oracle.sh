@@ -25,8 +25,14 @@ python_bin="${MYTHOS_PYTHON:-.venv/bin/python}"
 tests=()
 [ "$combat" -eq 1 ] && tests+=(tests.test_combat_engine)
 [ "$route" -eq 1 ] && tests+=(tests.test_route_runtime)
-MYTHOS_LOG_LEVEL=ERROR "$python_bin" -m unittest "${tests[@]}" >&2 || {
-  echo "deterministic gameplay oracle failed: ${tests[*]}"
-  exit 1
+log_dir="${OVERNIGHT_LOG_DIR:-scripts/overnight/logs}"
+mkdir -p "$log_dir"
+oracle_log="$log_dir/gameplay-oracle-$$.log"
+MYTHOS_LOG_LEVEL=ERROR "$python_bin" -m unittest "${tests[@]}" >"$oracle_log" 2>&1 || {
+  cat "$oracle_log" >&2
+  fail_line="$(grep -m1 -E '^(FAIL|ERROR): ' "$oracle_log" || true)"
+  # Objective, in-scope defect with the exact failing test named -> repairable (exit 4).
+  echo "deterministic gameplay oracle failed: ${tests[*]}${fail_line:+ — $fail_line}; evidence=$oracle_log"
+  exit 4
 }
 echo "deterministic gameplay oracle passed: ${tests[*]}"

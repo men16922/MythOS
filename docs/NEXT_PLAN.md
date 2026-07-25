@@ -1,6 +1,6 @@
 # Project MythOS Next Plan
 
-Last updated: 2026-07-19
+Last updated: 2026-07-25
 
 This file keeps only upcoming (open) work as a rolling plan. Completed tracks live in
 `docs/COMPLETED_SUMMARY.md`, detailed logs in `bin/docs/archive/progress-2026-0*.md`, individual designs in
@@ -22,10 +22,14 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00
 - **Narrative eval bank (harness SHIPPED 2026-07-17)**: `scripts/eval/` (RUBRIC + `narrative_judge.py` claude-CLI judge + `bank_loop.py`; `make eval-narrative`; sample verdict validated end-to-end). Remaining:
   - `[ ]` `[manual]` **bank 2+ real prod loops** during owner QA play (matched keybeat A/B pair ideal) — export via `bank_loop.py` with `DATABASE_URL` pointed at prod, or ask the agent with the loop ids.
   - `[ ]` rubric scores ride along the §1 A/B verdict as supporting data once real loops are banked; later: run `make eval-narrative` on prompt/directive changes as a narrative regression gate.
+  - `[ ]` **held-out split from day one** (borrowed from harness GRAPH_ADOPTION §3.4): once ≥4 loops are banked, mark a held-out subset never scored while iterating on prompts/directives — judge promotion only against it, and pair rubric scores with cost/loop + repetition/length compliance.
 
 ## Engineering maintenance track — WS0-3 done (COMPLETED_SUMMARY M43)
 
-- `[/]` **WS5 harness operation**: plugin V2 cutover DONE 2026-07-19 (`COMPLETED_SUMMARY` M63). Remaining `[ ]` `[manual]` **Model-B 3-lane demonstration** — first run one objective `make overnight-<engine>-once`, then arm+observe `make overnight-worktrees-setup` + 3 engines (burns real quota, owner-armed).
+- `[/]` **WS5 harness operation**: plugin V2 cutover DONE 2026-07-19 (`COMPLETED_SUMMARY` M63). **1.2.0 adopted 2026-07-25** (typed verifier exits 4/3, 3-value critic PASS/REPAIR/FAIL, `budgets.revisions`, Makefile repair/critic-engine knobs; `docs/plans/2026-07-25-harness-120-adoption.md`). `OVERNIGHT_REPAIR` stays **0**. Remaining:
+  - `[ ]` `[manual]` **Model-B 3-lane demonstration** — first run one objective `make overnight-<engine>-once`, then arm+observe `make overnight-worktrees-setup` + 3 engines (burns real quota, owner-armed).
+  - `[ ]` `[manual]` **cross-engine critic 1-night trial** — `make overnight OVERNIGHT_CRITIC_ENGINE=codex`; morning: REVIEW_QUEUE + critic verdict disagreement rate (disagreement itself is signal: vendor bias vs real defect).
+  - `[ ]` **held-out task bank — precondition for `OVERNIGHT_REPAIR=1`** (GRAPH_ADOPTION §3.4): a task set NEVER used for prompt/effort/contract tuning, run only before promoting defaults; report completions paired with false-accept rate. Owner decides bank composition; do not enable the repair edge before this exists.
 - `[x]` **V2 human-load rollout — COMPLETE 2026-07-21**: evidence 3/3 (0 false accepts) → owner ratified **5(+1 chip) auto / 8 monitored / 3 human**; checklist restructured (직접확인 3 / 이상시기록 8), active surface 16→3 (81% reduction). Ongoing: 7-assertion contract per deploy; report attention list is the human touchpoint. Compress to COMPLETED_SUMMARY on next tidy.
 
 ## Rules

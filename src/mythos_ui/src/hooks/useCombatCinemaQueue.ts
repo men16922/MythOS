@@ -273,12 +273,10 @@ export function useCombatCinemaQueue({
           // pre-dedup code path).
           // eslint-disable-next-line react-hooks/set-state-in-effect
           setCinemaQueue(dedupedItems);
-          // eslint-disable-next-line react-hooks/set-state-in-effect
           setCinemaContext(dedupedItems[0]);
           // Roster/inspector follow the canvas: at cinema start the board still
           // shows the pre-turn `prev` (no impact has landed yet), so seed the
           // interim with it and let onCinemaImpact decrement from there.
-          // eslint-disable-next-line react-hooks/set-state-in-effect
           setReplayCombat(prev);
 
           prevCombatRef.current = combat;

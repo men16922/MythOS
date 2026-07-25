@@ -5,6 +5,12 @@ Last updated: 2026-07-26
 Newest entries only; older 2026-07 increments are in `bin/docs/archive/progress-2026-07.md`
 (and `progress-2026-06.md` for June). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
 
+## 2026-07-26 — CombatCinema slice B landed; frontend decomposition track closed
+- Status: Done. Timeline commit `5247719`; no actionable `[auto]` backlog remains.
+- Changed: callback refs, fast/standard timing profiles, attack→impact→exit phase transitions, impact/finish cues, and four-timer cleanup moved behind `useCombatCinemaTimeline(...) → phase`; `useCombatCinema.ts` 181→125. Remaining image fallback is kept inline because another seam would be shallow.
+- Verified: Serena diagnostics 0; focused responsiveness tests 4/4 (new timing/dependency/cleanup lock); lint 0 errors (2 pre-existing warnings); build; final `make check` 1167; official post-commit AGY `PASS_CANDIDATE`, evidence `outputs/live-qa/20260726-004325-post-commit/evidence-bundle.json`.
+- Next: owner §3 deployed two-loop verdict + held-out-bank ratification; after owner play, agent banks loop IDs and runs rubric/held-out evaluation. Push not performed.
+
 ## 2026-07-26 — CombatCinema slice A skill resolver landed + AGY passed
 - Status: Done. Code/build/test/plan committed `937d2fd`; App.tsx half was closed before shifting the named decomposition track to CombatCinema.
 - Changed: 19-card registry + exact-ID-first KO/EN alias policy moved from the timeline hook to pure `combatCinemaSkills.ts` behind `resolveCombatSkill()`; `useCombatCinema.ts` 419→181. Scenario coverage and exact-ID source lock now read the owner module.

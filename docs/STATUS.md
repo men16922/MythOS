@@ -20,6 +20,7 @@ Major implemented axes:
 
 Latest verified baseline:
 
+- **2026-07-26 FRONTEND GOD-COMPONENT TRACK CLOSED (`5247719`; `make check` 1167; AGY PASS)** — callback-safe fast/standard attack→impact→exit timeline, four-timer cleanup, and impact/finish cues moved to `useCombatCinemaTimeline`; timing profiles are source-locked. `useCombatCinema.ts` 181→125; official evidence `outputs/live-qa/20260726-004325-post-commit/evidence-bundle.json`. The remaining image fallback is intentionally inline (too shallow to justify another module).
 - **2026-07-26 COMBATCINEMA SLICE A LANDED (`937d2fd`; `make check` 1166; AGY PASS)** — 19-card metadata catalog + exact-ID-first Korean/English alias policy moved behind pure `resolveCombatSkill()`; `useCombatCinema.ts` 419→181. Scenario coverage/exact-ID locks moved with the owner module; official evidence `outputs/live-qa/20260726-003850-post-commit/evidence-bundle.json`.
 - **2026-07-26 APP.TSX DECOMPOSITION HALF CLOSED** — slice 18 B `useEpiphanyBanner` committed `6945a2f` and official AGY returned `PASS_CANDIDATE` (`outputs/live-qa/20260726-003032-post-commit/evidence-bundle.json`). Together with A `useSaveLoad`, App.tsx is 979→940; C `useTabs` is deliberately not taken because its interface-width/touch risk outweighs remaining depth.
 - **2026-07-26 SLICE 18 A `useSaveLoad` LANDED LOCALLY (`e4ca67c`; `make check` 1166; AGY PASS)** — save/load modal/label/slot state, gated pre-connect prefetch+cancellation, and manual-slot restore-before-resume ordering moved behind one hook interface; App.tsx 979→956. Isolated rendered smoke measured modal close + `POST /save-slots/load` before `GET /loops/active`; official post-commit AGY returned `PASS_CANDIDATE` (`outputs/live-qa/20260726-001650-post-commit/evidence-bundle.json`). Branch is ahead 1; push not performed.
@@ -47,7 +48,7 @@ Latest verified baseline:
 Authority plan: `docs/NEXT_PLAN.md`. Direction remains global-first EN/KO closed beta: Gemini/Vertex is the product path; Ollama/FLUX remains the local development path.
 
 1. **§3 deployed owner verdict** (`docs/test/neo_seoul_live_qa.md` 직접확인 3) — the last active human QA item: paired non-fallback dull/sensitive + distinct-ending verdict on `00078-rs9` (banks loop ids; doubles as image-continuity + icon/loadout feel check).
-2. **Agent next**: CombatCinema candidate B — isolate the callback-safe attack/impact/resolve timer state machine; after owner §3 play, bank new prod loop IDs and run the rubric/held-out split.
+2. **Agent backlog**: no actionable `[auto]` item remains. After owner §3 play, bank new prod loop IDs and run the rubric/held-out split.
 3. **Remaining manual content checks/hold**: S4 copy tone, 6 variant intros, G2 twist tone, EN fresh-loop coherence; Glass Library held.
 
 ## Open Risks

@@ -1,6 +1,6 @@
 # CombatCinema decomposition — candidate boundaries
 
-Status: candidate A LANDED 2026-07-26 (`937d2fd`; `make check` 1166; AGY PASS). Next = B.
+Status: CLOSED 2026-07-26. A `937d2fd` + B `5247719` landed with `make check` 1166/1167 and AGY PASS; C declined as shallow after `useCombatCinema.ts` reached 125 lines.
 Fresh survey baseline: `CombatCinema.tsx` 258 lines; `hooks/useCombatCinema.ts` 419 lines.
 Vocabulary: `$codebase-design` (small interface hiding cohesive behavior).
 

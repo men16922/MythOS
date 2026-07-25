@@ -4,7 +4,7 @@ Last updated: 2026-07-26
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **2026-07-26 App.tsx HALF CLOSED; CombatCinema slice A LANDED** — `useSaveLoad` `e4ca67c`, `useEpiphanyBanner` `6945a2f`, combat skill resolver `937d2fd`; all `make check` 1166 + post-commit AGY PASS. `useCombatCinema.ts` 419→181 behind `resolveCombatSkill()`. Next agent slice: timeline state machine (candidate B). Held-out bank 비준 + **§3 verdict on `00078-rs9`** remain owner priorities. Branch ahead 3; push not performed.
+> ▶ NEXT SESSION: **2026-07-26 FRONTEND GOD-COMPONENT TRACK CLOSED** — App hooks A/B `e4ca67c`/`6945a2f`; CombatCinema resolver/timeline `937d2fd`/`5247719`; all `make check` + post-commit AGY PASS. `useCombatCinema.ts` 419→125; remaining image fallback is intentionally kept inline as shallow. No actionable `[auto]` backlog remains. Next: owner **§3 verdict on `00078-rs9`** + held-out bank 비준; agent banks loops/evals after owner play. Local commits only; push not performed.
 
 ## Snapshot
 

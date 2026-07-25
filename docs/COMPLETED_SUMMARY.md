@@ -220,11 +220,12 @@
 - **Ratified split (owner 2026-07-21)**: 5(+1 chip) auto / 8 monitored / 3 human — active-play surface 16→3 (81%). Design: `docs/plans/2026-07-21-live-qa-reduction-split.md`; checklist restructured accordingly.
 - **Ongoing**: the 7-assertion contract runs per deploy; `report-evidence.py` attention list is the human touchpoint.
 
-## M66 — App.tsx deep-module decomposition half closed (2026-07-26)
+## M66 — Frontend deep-module decomposition track closed (2026-07-26)
 
 - **Result**: slices 1–13 + 15–18 A/B extracted cohesive hooks; slice 14's shallow `useViewModels` bundle was human-reverted and not repeated. Final slices `useSaveLoad` (`e4ca67c`) + `useEpiphanyBanner` (`6945a2f`) reduced App.tsx 979→940 while preserving restore-before-resume and shared epiphany-notice policy.
-- **Boundary**: C `useTabs` was declined because touch behavior and a wide interface outweighed remaining depth; decomposition focus moves to CombatCinema instead of optimizing line count.
-- **Verification**: both final slices passed `make check` 1166 and official post-commit AGY `PASS_CANDIDATE`; save/load additionally proved POST restore before active-loop GET in rendered Playwright.
+- **CombatCinema**: skill catalog/alias policy moved behind `resolveCombatSkill` (`937d2fd`), then callback-safe fast/standard phase timing moved behind `useCombatCinemaTimeline` (`5247719`); the orchestration hook fell 419→125 lines. Image fallback remains inline as a deliberately shallow remnant.
+- **Boundary**: App C `useTabs` was declined because touch behavior and a wide interface outweighed remaining depth; the track optimizes module depth, not line count.
+- **Verification**: all four final slices passed `make check` (1166/1167) and official post-commit AGY `PASS_CANDIDATE`; save/load additionally proved POST restore before active-loop GET in rendered Playwright.
 
 ## Archive Reference
 

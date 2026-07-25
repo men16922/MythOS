@@ -5,6 +5,12 @@ Last updated: 2026-07-26
 Newest entries only; older 2026-07 increments are in `bin/docs/archive/progress-2026-07.md`
 (and `progress-2026-06.md` for June). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
 
+## 2026-07-26 — deterministic residual cleanup + Su-ah title clarity
+- Status: Done. `b10bf59` removes the two truly unused React lint suppressions while retaining the one justified effect-boundary suppression; ESLint now reports 0 errors/0 warnings. `f90c3db` closes the deferred Su-ah rename.
+- Changed: player-facing character/ally alias + KO/EN Story Bible use existing canonical `기억의 대장장이` / `Blacksmith of Memory`; legacy `잔향 가공사` remains keyword/glossary-only so old persisted narration still detects/recruits correctly.
+- Verified: focused content integrity 2/2; route content valid; final `make check` 1168 (5 skipped), lint warning-free; official post-commit AGY `PASS_CANDIDATE`, evidence `outputs/live-qa/20260726-005229-post-commit/evidence-bundle.json`.
+- Next: no actionable `[auto]` or deterministic unowned item remains. Owner §3 play + held-out-bank ratification unlock the next agent work; push not performed.
+
 ## 2026-07-26 — CombatCinema slice B landed; frontend decomposition track closed
 - Status: Done. Timeline commit `5247719`; no actionable `[auto]` backlog remains.
 - Changed: callback refs, fast/standard timing profiles, attack→impact→exit phase transitions, impact/finish cues, and four-timer cleanup moved behind `useCombatCinemaTimeline(...) → phase`; `useCombatCinema.ts` 181→125. Remaining image fallback is kept inline because another seam would be shallow.

@@ -4,7 +4,7 @@ Last updated: 2026-07-26
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **2026-07-26 FRONTEND GOD-COMPONENT TRACK CLOSED** — App hooks A/B `e4ca67c`/`6945a2f`; CombatCinema resolver/timeline `937d2fd`/`5247719`; all `make check` + post-commit AGY PASS. `useCombatCinema.ts` 419→125; remaining image fallback is intentionally kept inline as shallow. No actionable `[auto]` backlog remains. Next: owner **§3 verdict on `00078-rs9`** + held-out bank 비준; agent banks loops/evals after owner play. Local commits only; push not performed.
+> ▶ NEXT SESSION: **2026-07-26 AGENT-RUNNABLE RESIDUALS DRAINED** — frontend track closed; stale ESLint suppressions removed (`b10bf59`, lint 0 warnings); Su-ah title clarified to `기억의 대장장이` across KO/EN/runtime (`f90c3db`, `make check` 1168 + AGY PASS). No actionable `[auto]` or deterministic unowned item remains. Next: owner **§3 verdict on `00078-rs9`** + held-out bank 비준; agent banks loops/evals after owner play. Local commits only; push not performed.
 
 ## Snapshot
 

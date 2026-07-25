@@ -14,7 +14,7 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00
 - `[x]` **V2 reduction RATIFIED 2026-07-21** (owner): split = 5(+1 chip) auto / 8 monitored / 3 human (`docs/plans/2026-07-21-live-qa-reduction-split.md`); checklist active-play surface 16→3. Release calibrations keep running the 7-assertion contract per deploy.
 
 ### Narrative clarity / content follow-ups (mostly `[manual]`)
-- `[ ]` remaining clarity item: Su-ah `잔향 가공사` rename (deferred). Deploy hygiene: use `make deploy` (pins .env project).
+- `[x]` Su-ah title clarity: `잔향 가공사` → canonical `기억의 대장장이` / `Blacksmith of Memory` across character/ally/KO+EN Bible (`f90c3db`; legacy keyword/glossary retained; `make check` 1168 + AGY PASS). Deploy hygiene: use `make deploy` (pins .env project).
 - `[/]` `[manual]` **Full-3.5 live sign-off residuals**: fresh-loop prose/tone/length verdict, Audrey EN retest, IX/companion/equipment/growth feel, authenticated production turn. Objective save/load/map/idempotency/support/loot/equip already passed via three AGY runs.
 - `[/]` **CBT P1 residuals** (design `docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md`; P1-A..E + S1-S4 all DONE): `[ ]` `[manual]` S4 카피 톤 검수(anchor/goal + 12 beat prose) · 6 variant intros in-game feel · decisions G2 twist tone(3 `twist_bank`)/in-layer pacing(C2)/overload-strike range(D5) · EN fresh-loop coherence retest.
 - `[ ]` `[manual]` **Archetype-variant openings (long-term, 2026-07-04)**: author per-archetype opening variations (directive-layer, `resources/neo-seoul/directives/opening.md` + KO/EN), gated on CBT priorities.

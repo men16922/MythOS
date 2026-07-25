@@ -2596,6 +2596,19 @@ class RuntimeSessionService:
             transition = self.engine.apply_scene_payload(loop, scene, payload, player_event)
         if not transition.ok:
             raise RuntimeError(_format_errors(transition.errors))
+        if transition.repairs:
+            # Soft-repairs are intended behavior; recording them is what makes
+            # model-output drift (over-limit narration, duplicate choice ids,
+            # out-of-range deltas) measurable instead of silently absorbed.
+            self.logger.info(
+                "scene payload soft-repaired",
+                extra={
+                    "player_id": player.player_id,
+                    "loop_id": loop.loop_id,
+                    "turn_index": scene.turn_index,
+                    "repairs": transition.repairs,
+                },
+            )
         # Materialize unconditionally (was: only on LLM grant_items) — bare item-id
         # strings also arrive via route/effect rewards, and an unmaterialized id
         # leaks raw into the 직전-결과 line ("획득 drone_scrap", owner 2026-07-11).

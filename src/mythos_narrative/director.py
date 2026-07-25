@@ -57,6 +57,22 @@ _OUTCOMES = (
     OUTCOME_FALLBACK,
 )
 
+# Typed fallback reasons. A bare OUTCOME_FALLBACK count cannot distinguish a
+# safety-filter empty (watched prod risk) from a malformed payload or a dead
+# provider, so every fallback records which reject edge it came through.
+REASON_BLANK_OUTPUT = "blank_output"  # provider returned empty/blank content (safety filter)
+REASON_PARSE_ERROR = "parse_error"  # provider returned content we could not parse
+REASON_PROVIDER_ERROR = "provider_error"  # provider call itself raised (network/model)
+
+
+def _classify_fallback_reason(error: BaseException | None) -> str:
+    if isinstance(error, NarrativeParseError):
+        text = " ".join(error.errors).lower()
+        if "empty" in text and ("payload" in text or "narration" in text):
+            return REASON_BLANK_OUTPUT
+        return REASON_PARSE_ERROR
+    return REASON_PROVIDER_ERROR
+
 
 @dataclass
 class NarrativeMetrics:
@@ -68,10 +84,14 @@ class NarrativeMetrics:
 
     counts: dict[str, int] = field(default_factory=lambda: {outcome: 0 for outcome in _OUTCOMES})
     last_outcome: str | None = None
+    fallback_reasons: dict[str, int] = field(default_factory=dict)
 
-    def record(self, outcome: str) -> None:
+    def record(self, outcome: str, reason: str = "") -> None:
         self.counts[outcome] = self.counts.get(outcome, 0) + 1
         self.last_outcome = outcome
+        if outcome == OUTCOME_FALLBACK:
+            key = reason or "unknown"
+            self.fallback_reasons[key] = self.fallback_reasons.get(key, 0) + 1
 
     @property
     def total(self) -> int:
@@ -95,6 +115,7 @@ class NarrativeMetrics:
             "degraded": self.degraded,
             "ratios": self.ratios(),
             "last_outcome": self.last_outcome,
+            "fallback_reasons": dict(self.fallback_reasons),
         }
 
 
@@ -432,20 +453,22 @@ class NarrativeDirector:
         except Exception:
             self.logger.warning("storyteller model failed, using fallback", exc_info=True)
             scene, payload = self.fallback_scene(context)
-            self._record_outcome(context, OUTCOME_FALLBACK)
+            self._record_outcome(context, OUTCOME_FALLBACK, reason=REASON_PROVIDER_ERROR)
             return scene, payload
 
         # Step 2: Structural parsing via Regex & Heuristics (Instant)
+        reason = ""
         try:
             payload = parse_story_text(story_text)
             payload = _apply_novelty_guard(context, payload)
             outcome = OUTCOME_SUCCESS
-        except Exception:
+        except Exception as exc:
             self.logger.warning("storytext parsing failed, using fallback", exc_info=True)
             scene, payload = self.fallback_scene(context)
             outcome = OUTCOME_FALLBACK
+            reason = _classify_fallback_reason(exc)
 
-        self._record_outcome(context, outcome)
+        self._record_outcome(context, outcome, reason=reason)
         return _scene_from_payload(context, payload), payload
 
     def _stream_generate_dual(
@@ -481,10 +504,12 @@ class NarrativeDirector:
             payload = _apply_novelty_guard(context, payload)
             scene = _scene_from_payload(context, payload)
             outcome = OUTCOME_SUCCESS
-        except Exception:
+            reason = ""
+        except Exception as exc:
             self.logger.warning("dual-model streaming failed, using fallback", exc_info=True)
             scene, payload = self.fallback_scene(context)
             outcome = OUTCOME_FALLBACK
+            reason = _classify_fallback_reason(exc)
 
         latency_ms = round((perf_counter() - start) * 1000, 3)
         self.logger.info(
@@ -496,9 +521,10 @@ class NarrativeDirector:
                 "latency_ms": latency_ms,
                 "status": "fallback" if outcome == OUTCOME_FALLBACK else "succeeded",
                 "outcome": outcome,
+                "reason": reason,
             },
         )
-        self._record_outcome(context, outcome)
+        self._record_outcome(context, outcome, reason=reason)
         yield NarrativeStreamEvent(
             kind="fallback" if outcome == OUTCOME_FALLBACK else "final",
             scene=scene,
@@ -542,7 +568,9 @@ class NarrativeDirector:
             except Exception:
                 if not self._repair_enabled(context):
                     scene, payload = self.fallback_scene(context)
-                    self._record_outcome(context, OUTCOME_FALLBACK)
+                    self._record_outcome(
+                        context, OUTCOME_FALLBACK, reason=_classify_fallback_reason(first_error)
+                    )
                     return scene, payload
                 try:
                     repair_messages = build_repair_messages(
@@ -564,7 +592,9 @@ class NarrativeDirector:
                         outcome = OUTCOME_LOCAL_REPAIR
                 except Exception:
                     scene, payload = self.fallback_scene(context)
-                    self._record_outcome(context, OUTCOME_FALLBACK)
+                    self._record_outcome(
+                        context, OUTCOME_FALLBACK, reason=_classify_fallback_reason(first_error)
+                    )
                     return scene, payload
 
         payload = _apply_novelty_guard(context, payload)
@@ -597,7 +627,7 @@ class NarrativeDirector:
                 for text in extractor.feed(chunk):
                     yield NarrativeStreamEvent(kind="text", text=text)
             raw_payload = "".join(raw_parts)
-            scene, payload, outcome = self._scene_from_raw_or_fallback(context, raw_payload)
+            scene, payload, outcome, reason = self._scene_from_raw_or_fallback(context, raw_payload)
             if outcome == OUTCOME_FALLBACK and self._repair_enabled(context):
                 # Streamed controlled generation can degenerate into a whitespace
                 # run that hits max_output_tokens (observed on gemini-3.5-flash:
@@ -619,11 +649,14 @@ class NarrativeDirector:
                     if model
                     else self.provider.generate(messages)
                 )
-                scene, payload, outcome = self._scene_from_raw_or_fallback(context, retry_raw)
-        except Exception:
+                scene, payload, outcome, reason = self._scene_from_raw_or_fallback(
+                    context, retry_raw
+                )
+        except Exception as exc:
             self.logger.warning("legacy streaming failed, using fallback", exc_info=True)
             scene, payload = self.fallback_scene(context)
             outcome = OUTCOME_FALLBACK
+            reason = _classify_fallback_reason(exc)
 
         latency_ms = round((perf_counter() - start) * 1000, 3)
         self.logger.info(
@@ -640,9 +673,10 @@ class NarrativeDirector:
                 "latency_ms": latency_ms,
                 "status": "fallback" if outcome == OUTCOME_FALLBACK else "succeeded",
                 "outcome": outcome,
+                "reason": reason,
             },
         )
-        self._record_outcome(context, outcome)
+        self._record_outcome(context, outcome, reason=reason)
         yield NarrativeStreamEvent(
             kind="fallback" if outcome == OUTCOME_FALLBACK else "final",
             scene=scene,
@@ -652,22 +686,22 @@ class NarrativeDirector:
 
     def _scene_from_raw_or_fallback(
         self, context: NarrativeContext, raw_payload: str
-    ) -> tuple[Scene, ScenePayload, str]:
+    ) -> tuple[Scene, ScenePayload, str, str]:
         try:
             payload = parse_scene_payload(raw_payload)
             payload = _apply_novelty_guard(context, payload)
-            return _scene_from_payload(context, payload), payload, OUTCOME_SUCCESS
-        except Exception:
+            return _scene_from_payload(context, payload), payload, OUTCOME_SUCCESS, ""
+        except Exception as first_error:
             try:
                 payload = parse_scene_payload(repair_scene_payload(raw_payload))
                 payload = _apply_novelty_guard(context, payload)
-                return _scene_from_payload(context, payload), payload, OUTCOME_LOCAL_REPAIR
+                return _scene_from_payload(context, payload), payload, OUTCOME_LOCAL_REPAIR, ""
             except Exception:
                 scene, payload = self.fallback_scene(context)
-                return scene, payload, OUTCOME_FALLBACK
+                return scene, payload, OUTCOME_FALLBACK, _classify_fallback_reason(first_error)
 
-    def _record_outcome(self, context: NarrativeContext, outcome: str) -> None:
-        self.metrics.record(outcome)
+    def _record_outcome(self, context: NarrativeContext, outcome: str, reason: str = "") -> None:
+        self.metrics.record(outcome, reason=reason)
         ratios = self.metrics.ratios()
         # Per-generation in-memory counters reset when a new director is built
         # (e.g. the per-request API path), so also emit the outcome + running
@@ -679,6 +713,7 @@ class NarrativeDirector:
             player_id=context.player.player_id,
             loop_id=context.loop.loop_id,
             outcome=outcome,
+            reason=reason,
             total=self.metrics.total,
             degraded=self.metrics.degraded,
             success_ratio=ratios[OUTCOME_SUCCESS],
@@ -691,6 +726,7 @@ class NarrativeDirector:
                 "loop_id": context.loop.loop_id,
                 "status": "fallback" if outcome == OUTCOME_FALLBACK else "succeeded",
                 "outcome": outcome,
+                "reason": reason,
                 "total": self.metrics.total,
                 "degraded": self.metrics.degraded,
                 "success_ratio": ratios[OUTCOME_SUCCESS],

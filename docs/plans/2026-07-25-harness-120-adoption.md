@@ -57,29 +57,41 @@ Effect to expect once enabled, per the guide: fewer `consec-fail` early exits (a
 longer burns the night), at the cost of ~2× actor calls on repaired iterations; effectiveness is
 explicitly **unmeasured upstream** — hence default-off and paired metrics.
 
-## Concepts worth borrowing into MythOS itself (product, not harness)
+## Concepts borrowed into MythOS itself (product, not harness) — implemented 2026-07-25
 
-1. **Typed reject edges in the narrative pipeline** (cheap, high fit). The director already has one
-   repair edge (parse failure → one LLM repair → fallback). But engine-level rejects
-   (`apply_scene_payload` validation, clamp violations, register/style rejects, safety-filter
-   empties) all collapse into "fallback" — the same untyped-edge smell 1.2.0 fixed. Typing them
-   (repairable-with-reason: schema/validator violations, where the validator's message becomes the
-   repair prompt · non-repairable: safety empties → fallback · log-for-human: story-bible
-   contradictions) would reuse the existing repair machinery and give observability per edge type.
-2. **Held-out eval bank before prompt tuning** (directly actionable now). The narrative eval bank
-   (`scripts/eval/`, `bank_loop.py`, `make eval-narrative`) is about to be used as a prompt/directive
-   regression gate. Split banked loops from day one: a tuning set and a **held-out set never used
-   while iterating on prompts/directives**, scored only before promoting a prompt change to default.
-   Same Goodhart trap as §3.4 of the guide — with n this small it is cheap to avoid now and
-   expensive to retrofit.
-3. **Paired counter-metrics for narrative quality**: never report rubric score alone — pair it with
-   cost/loop and repetition/length-compliance (the failure mode "score up because prose got longer
-   and safer" is otherwise invisible). Mirrors verified-commits⇄false-accepts.
-4. **Name the anchors** (vocabulary only, no code). MythOS already grounds its LLM loop in
-   deterministic nodes the model cannot touch: combat adjudication, stability/tension clamps,
-   ±25 world-delta clamp, route DAG reachability, story-bible frozen facts. Calling these
-   *anchors/perimeter* in DESIGN/GAMEPLAY docs makes "what the narrative LLM may never override"
-   explicit — the same perimeter/scaffold split the harness uses for ablation safety.
+Survey correction before implementing: the engine does NOT collapse LLM defects into fallback — the
+`Validator` already soft-repairs every LLM-caused defect (choice fill/dedup/cap, narration/brief
+truncation, delta clamps, Se-rin flag strip), and engine-fatal errors are programming errors where
+raising is correct. The real 1.1.0-smell gaps were (a) the validator **computes the diagnosis and
+discards it** (soft-repairs and non-fatal errors never reach a log), and (b) fallback is a single
+untyped outcome (safety-filter empty vs malformed payload vs dead provider are indistinguishable —
+and safety empties are a watched prod risk with no counter). Since the guide's own lesson is that
+repair-edge effectiveness is unmeasured, we did NOT add new LLM repair calls; we typed the edges
+and made them observable first:
+
+1. **Typed fallback reasons** (`mythos_narrative/director.py`): every `OUTCOME_FALLBACK` now
+   records a reason — `blank_output` (safety-filter empty) / `parse_error` / `provider_error` —
+   in `NarrativeMetrics.fallback_reasons`, the outcome log line, and the OTel span. The watched
+   "safety-filter empties on violent briefs" risk now has a direct counter.
+2. **Soft-repair ledger** (`mythos_loop/validator.py` → `engine.py` → `session.py`): the validator
+   returns `repairs: list[str]` codes (`narration_truncated`, `choice_id_deduped`,
+   `world_delta_clamped`, …), `LoopTransition` carries them, and `_commit_scene` logs
+   `scene payload soft-repaired` per turn. Zero behavior change — model-output drift becomes
+   measurable instead of silently absorbed.
+3. **Anchors named** (`docs/DESIGN.md` Narrative Flow): the deterministic fixed points the LLM can
+   never override (combat adjudication, score/delta clamps, phase table, route DAG, schema limits,
+   story-bible facts) are now called *anchors (perimeter)*, with a rule: moving one into the
+   negotiable set requires a decision-log entry.
+
+Deferred (recorded in NEXT_PLAN):
+
+- **Held-out eval-bank split** — actionable only once ≥4 prod loops are banked (currently 0; the
+  owner-run bank script is pending). Rule added to the eval-bank plan item: a held-out subset never
+  scored while iterating on prompts/directives, judged only at promotion; rubric scores always
+  paired with cost/loop + repetition/length compliance (never reported alone).
+- **LLM repair edge for engine/validator rejects** — deliberately not built: everything LLM-caused
+  is already soft-repaired deterministically, which is cheaper than a repair round-trip; revisit
+  only if fallback-reason data shows a class of reject where a bounded repair would beat fallback.
 
 ## Rollout state / next
 

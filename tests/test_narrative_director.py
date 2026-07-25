@@ -231,6 +231,31 @@ class NarrativeDirectorTest(unittest.TestCase):
 
         self.assertEqual(director.metrics.counts["fallback"], 1)
         self.assertEqual(director.metrics.degraded, 1)
+        self.assertEqual(director.metrics.fallback_reasons, {"parse_error": 1})
+
+    def test_fallback_reason_blank_output_for_empty_provider_response(self) -> None:
+        # A safety-filter empty (provider returns blank content) must be
+        # distinguishable from a malformed payload in the fallback metrics.
+        provider = FakeProvider(["", ""])
+        director = NarrativeDirector(provider)
+
+        director.generate_first_scene(self.context)
+
+        self.assertEqual(director.metrics.counts["fallback"], 1)
+        self.assertEqual(director.metrics.fallback_reasons, {"blank_output": 1})
+
+    def test_fallback_reason_provider_error_when_provider_raises(self) -> None:
+        class RaisingProvider:
+            def generate(self, messages: list[dict[str, str]]) -> str:
+                raise RuntimeError("model unavailable")
+
+        director = NarrativeDirector(RaisingProvider(), repair_enabled=False)
+
+        director.generate_first_scene(self.context)
+
+        self.assertEqual(director.metrics.counts["fallback"], 1)
+        self.assertEqual(director.metrics.fallback_reasons, {"provider_error": 1})
+        self.assertIn("fallback_reasons", director.metrics.as_dict())
 
     def test_metrics_accumulate_across_generations(self) -> None:
         provider = FakeProvider([_scene_response("One"), "{not json", "{still not json"])

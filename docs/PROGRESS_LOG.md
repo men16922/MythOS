@@ -5,6 +5,13 @@ Last updated: 2026-07-25
 Newest entries only; older 2026-07 increments are in `bin/docs/archive/progress-2026-07.md`
 (and `progress-2026-06.md` for June). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
 
+## 2026-07-25 — graph-borrow: narrative typed reject edges + soft-repair ledger + anchors named
+- Status: Done (code+docs). Applies the 1.2.0 graph lessons to the product pipeline — observability first, no new LLM repair calls (their effectiveness is unmeasured upstream; same reasoning as OVERNIGHT_REPAIR=0).
+- Survey correction: the engine never collapsed LLM defects into fallback — `Validator` already soft-repairs all LLM-caused defects; the real gaps were the discarded diagnosis and the untyped fallback.
+- Changed: `director.py` fallback reasons typed `blank_output`/`parse_error`/`provider_error` (metrics `fallback_reasons` + log + span — the safety-filter-empty watch risk now has a counter); `validator.py` returns `repairs` codes → `LoopTransition.repairs` → `_commit_scene` logs `scene payload soft-repaired`; `DESIGN.md` names the anchors (perimeter) with a decision-log rule for moving one.
+- Verified: `make check` green (1166 OK; +5 tests: validator repair codes ×2, engine surface ×1, fallback reasons ×2) + `make smoke-local` green. Behavior-preserving (logging/metrics only).
+- Next: held-out eval-bank split activates once owner banks ≥4 prod loops (`scratch/bank-style-pair-loops.sh` still pending — `make eval-narrative` on real loops blocked on that); watch `fallback_reasons.blank_output` in prod logs after next deploy.
+
 ## 2026-07-25 — overnight-harness 1.2.0 adopted (typed reject edges; repair edge armed but OFF)
 - Status: Done (code+docs). Owner updated the plugin to 1.2.0 and dropped `docs/reference/GRAPH_ADOPTION.md`; repo-side §3 items applied.
 - Changed: `.gitignore` +`scripts/overnight/CLAIM` (repair edge uses dirty-tree as reject signal); `CRITIC_PROMPT.md` → 3-value `PASS/REPAIR/FAIL` (REPAIR = regression/masking/one-sided API pairing; FAIL = subversion/scope/migration/orchestration-dup/hand-edited app.js/creative-boundary); verifiers `20-gameplay-oracle`·`30-browser-objective`·`40-image-identity` FAIL → repairable `exit 4` with `evidence=` paths (`10-diff-scope` stays all-`exit 1` — contract violations are never re-prompted); `compile-contract.sh` writes `budgets.revisions` from `CONTRACT_REVISIONS` (cap 3, default 0); Makefile `OVERNIGHT_REPAIR_MODE ?= 0` + optional `OVERNIGHT_CRITIC_ENGINE` passthrough.

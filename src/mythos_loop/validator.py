@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 
 from mythos_core import Choice, Echo, LoopPhase, LoopState, Scene, WorldEvent
 from mythos_narrative.schemas import (
@@ -34,6 +34,12 @@ class ValidationResult:
     ok: bool
     errors: list[ValidationError]
     repaired_payload: ScenePayload | None = None
+    # Which soft-repairs were applied to produce repaired_payload. The repair
+    # itself is not new behavior — recording it is: without this ledger the
+    # validator computes the diagnosis (what the model got wrong) and discards
+    # it, so model-output drift (over-limit narration, duplicate choice ids,
+    # out-of-range deltas) stays invisible in logs.
+    repairs: list[str] = field(default_factory=list)
 
 
 class Validator:
@@ -41,6 +47,7 @@ class Validator:
         self, loop: LoopState, scene: Scene, payload: ScenePayload
     ) -> ValidationResult:
         errors: list[ValidationError] = []
+        repairs: list[str] = []
         repaired = payload
 
         if loop.phase is LoopPhase.ENDED:
@@ -65,6 +72,8 @@ class Validator:
                     label=c_label or "계속하기",
                     intent=c_intent or "explore",
                 )
+                if "choice_fields_filled" not in repairs:
+                    repairs.append("choice_fields_filled")
 
         seen_ids = set()
         for i, choice in enumerate(repaired_choices):
@@ -73,6 +82,8 @@ class Validator:
                 new_id = f"{c_id}_{i}"
                 repaired_choices[i] = replace(choice, choice_id=new_id)
                 seen_ids.add(new_id)
+                if "choice_id_deduped" not in repairs:
+                    repairs.append("choice_id_deduped")
             else:
                 seen_ids.add(c_id)
 
@@ -82,8 +93,10 @@ class Validator:
             repaired_choices = [
                 Choice(choice_id="choice_default", label="계속하기", intent="explore")
             ]
+            repairs.append("choices_defaulted")
         elif len(repaired_choices) > MAX_CHOICES:
             repaired_choices = repaired_choices[:MAX_CHOICES]
+            repairs.append("choices_capped")
 
         if repaired_choices != payload.choices:
             repaired = replace(repaired, choices=repaired_choices)
@@ -93,12 +106,14 @@ class Validator:
                 repaired,
                 narration=payload.narration[:MAX_NARRATION_CHARS].rstrip(),
             )
+            repairs.append("narration_truncated")
 
         if len(payload.visual_brief) > MAX_VISUAL_BRIEF_CHARS:
             repaired = replace(
                 repaired,
                 visual_brief=payload.visual_brief[:MAX_VISUAL_BRIEF_CHARS].rstrip(),
             )
+            repairs.append("visual_brief_truncated")
 
         # Unsupported keys in world_delta will be naturally filtered out when building clamped_delta.
         # We perform a soft-repair rather than a hard failure to avoid crashing the game.
@@ -106,10 +121,19 @@ class Validator:
         flags = list(payload.world_delta.flags)
         if _se_rin_clamp_active(loop, scene):
             flags = [flag for flag in flags if flag not in SE_RIN_CONTACT_FLAGS]
+            if flags != list(payload.world_delta.flags):
+                repairs.append("se_rin_flags_stripped")
 
+        clamped_stability = _clamp_delta(payload.world_delta.stability)
+        clamped_tension = _clamp_delta(payload.world_delta.tension)
+        if (
+            clamped_stability != payload.world_delta.stability
+            or clamped_tension != payload.world_delta.tension
+        ):
+            repairs.append("world_delta_clamped")
         clamped_delta = WorldDelta(
-            stability=_clamp_delta(payload.world_delta.stability),
-            tension=_clamp_delta(payload.world_delta.tension),
+            stability=clamped_stability,
+            tension=clamped_tension,
             flags=flags,
             clues=list(payload.world_delta.clues),
             start_combat=payload.world_delta.start_combat,
@@ -124,6 +148,7 @@ class Validator:
             ok=not errors,
             errors=errors,
             repaired_payload=repaired if repaired != payload else None,
+            repairs=repairs,
         )
 
     def validate_choices(self, choices: list[Choice]) -> ValidationResult:

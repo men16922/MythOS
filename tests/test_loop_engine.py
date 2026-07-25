@@ -148,6 +148,34 @@ class LoopEngineTest(unittest.TestCase):
         self.assertEqual(transition.loop.stability, 0)
         self.assertEqual(transition.loop.tension, 100)
 
+    def test_transition_surfaces_validator_repairs(self) -> None:
+        loop = LoopState(
+            loop_id="loop_1",
+            player_id="player_1",
+            seed="seed_1",
+            phase=LoopPhase.CONNECT,
+            location_id="data-layer-01",
+            stability=50,
+            tension=20,
+            started_at=self.now,
+        )
+
+        transition = LoopEngine().apply_scene_payload(
+            loop,
+            self._scene(0),
+            ScenePayload(
+                title="Threshold",
+                location="data-layer-01",
+                narration="The gate opens.",
+                choices=[Choice("choice_1", "Enter", "explore")],
+                visual_brief="A luminous gate.",
+                world_delta=WorldDelta(stability=-99, tension=0),
+            ),
+        )
+
+        self.assertTrue(transition.ok)
+        self.assertIn("world_delta_clamped", transition.repairs)
+
     def test_ended_loop_mutation_guard(self) -> None:
         ended = LoopState(
             loop_id="loop_ended",

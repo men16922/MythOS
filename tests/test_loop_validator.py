@@ -74,6 +74,40 @@ class ValidatorTest(unittest.TestCase):
         assert result.repaired_payload is not None
         self.assertEqual(result.repaired_payload.world_delta.stability, -25)
         self.assertEqual(result.repaired_payload.world_delta.tension, 25)
+        self.assertIn("world_delta_clamped", result.repairs)
+
+    def test_clean_payload_records_no_repairs(self) -> None:
+        payload = ScenePayload(
+            title="Threshold",
+            location="data-layer-01",
+            narration="The gate opens.",
+            choices=[Choice("choice_1", "Enter", "explore")],
+            visual_brief="A luminous gate.",
+            world_delta=WorldDelta(),
+        )
+
+        result = Validator().validate_scene_payload(self.loop, self.scene, payload)
+
+        self.assertTrue(result.ok)
+        self.assertEqual(result.repairs, [])
+
+    def test_repairs_record_truncation_codes(self) -> None:
+        from mythos_narrative.schemas import MAX_NARRATION_CHARS, MAX_VISUAL_BRIEF_CHARS
+
+        payload = ScenePayload(
+            title="Threshold",
+            location="data-layer-01",
+            narration="x" * (MAX_NARRATION_CHARS + 10),
+            choices=[Choice("choice_1", "Enter", "explore")],
+            visual_brief="y" * (MAX_VISUAL_BRIEF_CHARS + 10),
+            world_delta=WorldDelta(),
+        )
+
+        result = Validator().validate_scene_payload(self.loop, self.scene, payload)
+
+        self.assertTrue(result.ok)
+        self.assertIn("narration_truncated", result.repairs)
+        self.assertIn("visual_brief_truncated", result.repairs)
 
     def test_repairs_invalid_choices(self) -> None:
         payload = ScenePayload(
@@ -102,3 +136,5 @@ class ValidatorTest(unittest.TestCase):
         self.assertEqual(repaired.choices[1].choice_id, "dup")
         self.assertEqual(repaired.choices[2].choice_id, "dup_2")
         self.assertTrue(all(not err.is_fatal for err in result.errors))
+        self.assertIn("choice_fields_filled", result.repairs)
+        self.assertIn("choice_id_deduped", result.repairs)

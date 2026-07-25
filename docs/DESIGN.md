@@ -63,6 +63,15 @@ Long-session control:
 - Old `narrative_shards` are rolled up into `PlayerMemory(kind="causality_summary")`.
 - Narrative generation outcomes are aggregated in `WorldMemory(kind="narrative_metrics")`.
 
+Anchors (perimeter): deterministic fixed points the narrative LLM can never override, no matter what
+it emits — combat adjudication (`CombatEngine`), stability/tension score clamps (0–100), world-delta
+clamps (±25), the loop phase transition table, route DAG reachability, choice count/narration length
+limits, and story-bible authored facts. Everything else the model produces is negotiable and passes
+through typed reject edges: parse failure → one bounded repair → deterministic fallback (fallback
+reasons are typed: `blank_output`/`parse_error`/`provider_error`), and validator soft-repairs are
+recorded per turn (`LoopTransition.repairs`) rather than silently absorbed. When tuning prompts or
+adding model freedoms, do not move an anchor into the negotiable set without a decision-log entry.
+
 ## Combat Flow
 
 Combat is engine-authoritative, not LLM-authoritative.

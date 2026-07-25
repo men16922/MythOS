@@ -19,6 +19,10 @@ class LoopTransition:
     errors: list[ValidationError]
     discovered_shards: list[NarrativeShard] = field(default_factory=list)
     echo: Echo | None = None
+    # Soft-repair codes the validator applied to the payload before it was
+    # committed (see Validator.validate_scene_payload). Diagnostic only — the
+    # session logs these so model-output drift is measurable per turn.
+    repairs: list[str] = field(default_factory=list)
 
     @property
     def ok(self) -> bool:
@@ -176,6 +180,7 @@ class LoopEngine:
                     events=events,
                     errors=echo_validation.errors,
                     discovered_shards=discovered_shards,
+                    repairs=validation.repairs,
                 )
 
             # CRITICAL: Add echo to loop state
@@ -190,6 +195,7 @@ class LoopEngine:
                 errors=[],
                 echo=echo,
                 discovered_shards=discovered_shards,
+                repairs=validation.repairs,
             )
 
         return LoopTransition(
@@ -197,6 +203,7 @@ class LoopEngine:
             events=events,
             errors=[],
             discovered_shards=discovered_shards,
+            repairs=validation.repairs,
         )
 
     def append_event(self, loop: LoopState, event: WorldEvent) -> LoopTransition:

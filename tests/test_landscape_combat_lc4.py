@@ -59,8 +59,8 @@ class LandscapeCombatLC4Test(unittest.TestCase):
 
         self.assertIn("onOpenSave?: () => void;", story_panel)
         self.assertIn("onOpenLoad?: () => void;", story_panel)
-        self.assertIn("onOpenSave={() => setSaveLoadModal(\"save\")}", app)
-        self.assertIn("onOpenLoad={() => setSaveLoadModal(\"load\")}", app)
+        self.assertIn("onOpenSave={openSave}", app)
+        self.assertIn("onOpenLoad={openLoad}", app)
 
 
 if __name__ == "__main__":

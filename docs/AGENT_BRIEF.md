@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-07-21
+Last updated: 2026-07-26
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **2026-07-25 all pushed (`56be1db`)** — 1.2.0 adopted + typed reject edges (`make check` 1166) + eval-bank first run (style pair was LOCAL, banked; 1–2/5 = baseline, `outputs/evals/20260725-234103/`) + slice-18 survey (`docs/plans/2026-07-25-app-decomposition-slice18-candidates.md`) + critic smoke (codex REPAIR vs claude PASS, 1/1) + held-out bank (`scripts/overnight/heldout-bank.md`). Owner picks: **slice 18 = A `useSaveLoad` (recommended)** · held-out bank 구성 비준 · **§3 verdict on `00078-rs9`** (banks prod loops → held-out split). Option: run slice 18 via `make overnight OVERNIGHT_CRITIC_ENGINE=codex` (seeds the critic trial). Watch `fallback_reasons.blank_output` after next deploy.
+> ▶ NEXT SESSION: **2026-07-26 slice 18 A `useSaveLoad` DONE LOCALLY (uncommitted)** — App.tsx 979→956; restore→resume isolated Playwright order PASS; `make check` 1166. Commit/post-commit AGY on request. Owner picks: **B `useEpiphanyBanner` next or stop App.tsx half** · held-out bank 구성 비준 · **§3 verdict on `00078-rs9`** (banks 2+ prod loops → held-out split). Watch `fallback_reasons.blank_output` after next deploy.
 
 ## Snapshot
 
@@ -29,7 +29,7 @@ Current baseline:
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
 1. **§3 deployed owner verdict on `00078-rs9`** — the sole active human QA item after the ratified reduction (직접확인 3; alignment fix + icon set + loadout editor all live).
-2. **Narrative eval bank** — export the two prod style-pair loops + `make eval-narrative` rubric scores as §3 supporting data (agent-runnable; in progress).
+2. **Narrative eval bank** — owner §3 play creates 2+ prod loops; agent banks their loop IDs and runs the rubric/held-out split (local 07-19 pair is baseline only).
 3. **Manual residuals/hold**: S4 copy tone, variant intro feel, G2 twist tone, EN fresh-loop retest; Model-B demo owner-armed; `glass-library` held.
 
 ## Read Order

@@ -1,9 +1,16 @@
 # Progress Log
 
-Last updated: 2026-07-25
+Last updated: 2026-07-26
 
 Newest entries only; older 2026-07 increments are in `bin/docs/archive/progress-2026-07.md`
 (and `progress-2026-06.md` for June). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
+
+## 2026-07-26 — slice 18 A `useSaveLoad` extracted
+- Status: Done locally (uncommitted); post-commit AGY verifier remains pending.
+- Changed: modal/label/slot state, gated pre-connect slot prefetch+cancellation, and manual-slot restore→resume ordering moved into `hooks/useSaveLoad.ts`; App.tsx 979→956. `useDataLoaders` keeps setter access through the hook interface; save/load launchers now use `openSave`/`openLoad`.
+- Verified: Serena diagnostics 0; `tests.test_landscape_combat_lc4` 4/4; frontend lint 0 errors (2 pre-existing warnings); frontend build; isolated rendered Playwright smoke measured modal close + `POST /save-slots/load` before `GET /loops/active`; final `make check` 1166 OK.
+- Blockers: broad `make test-e2e-full` did not reach save/load because an existing progression boon overlay intercepted `.intro-accept-btn`; no slice-specific failure observed.
+- Next: owner chooses commit/post-commit AGY, then B `useEpiphanyBanner` or closes the App.tsx half; owner §3 play + held-out bank ratification remain higher manual priorities.
 
 ## 2026-07-25 — pushed; eval bank first real run; slice-18 survey; critic cross-engine smoke; held-out bank
 - Status: Done. Owner directed: push + backlog items 3–6. Pushed `9fffffe..8782d70` (6 commits).

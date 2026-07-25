@@ -1,6 +1,6 @@
 # Project MythOS Status
 
-Last updated: 2026-07-25
+Last updated: 2026-07-26
 
 ## Current Baseline
 
@@ -20,6 +20,7 @@ Major implemented axes:
 
 Latest verified baseline:
 
+- **2026-07-26 SLICE 18 A `useSaveLoad` DONE LOCALLY (`make check` 1166)** — save/load modal/label/slot state, gated pre-connect prefetch+cancellation, and manual-slot restore-before-resume ordering moved behind one hook interface; App.tsx 979→956. Isolated rendered Playwright smoke measured modal close + `POST /save-slots/load` before `GET /loops/active`. Broad `test-e2e-full` did not reach save/load because an existing boon overlay intercepted the intro button; post-commit AGY remains pending until commit.
 - **2026-07-25 PUSHED + EVAL-BANK FIRST REAL RUN + SLICE-18 SURVEY + CRITIC SMOKE** — pushed `9fffffe..8782d70`. 07-19 style pair located in the **local** DB (not prod) and banked; first full `make eval-narrative` = 1–2/5 **baseline** (fallback-arm boilerplate + since-fixed leaks; report `outputs/evals/20260725-234103/`). Slice-18 candidate doc landed (A `useSaveLoad` recommended; D reserved for the held-out bank). Cross-engine critic smoke on `046edc8`: codex REPAIR vs claude PASS — 1/1 disagreement, judged intended-design (comment added). Held-out task bank constructed (`scripts/overnight/heldout-bank.md`, compile-checked; owner ratifies composition).
 - **2026-07-25 NARRATIVE TYPED REJECT EDGES + SOFT-REPAIR LEDGER (`make check` 1166 + smoke-local)** — graph-borrow into the product: every director fallback now records a typed reason (`blank_output`/`parse_error`/`provider_error` — the safety-filter-empty watch risk finally has a counter in metrics/logs/spans), validator soft-repairs surface as `LoopTransition.repairs` codes logged per turn instead of being silently absorbed, and `DESIGN.md` names the deterministic anchors (perimeter) the LLM can never override. Behavior-preserving; no new LLM repair calls (deliberate — unmeasured upstream). Detail: `docs/plans/2026-07-25-harness-120-adoption.md`.
 - **2026-07-25 HARNESS 1.2.0 ADOPTED (`make check` 1161)** — plugin published 1.2.0 (marketplace cache + source-checkout pin both at 1.2.0; `overnight-where` resolves the pin). Repo-side adoption per `docs/reference/GRAPH_ADOPTION.md`: `.gitignore` +CLAIM, critic prompt → 3-value `PASS/REPAIR/FAIL`, typed verifier exits (`20`/`30`/`40` repairable `exit 4` with evidence, `10-diff-scope` deliberately all-revert), external compiler writes `budgets.revisions`, Makefile `OVERNIGHT_REPAIR_MODE=0` + `OVERNIGHT_CRITIC_ENGINE` knobs. Repair edge stays OFF until the held-out task bank exists (NEXT_PLAN WS5). Notes + MythOS borrow candidates: `docs/plans/2026-07-25-harness-120-adoption.md`.
@@ -44,16 +45,16 @@ Latest verified baseline:
 Authority plan: `docs/NEXT_PLAN.md`. Direction remains global-first EN/KO closed beta: Gemini/Vertex is the product path; Ollama/FLUX remains the local development path.
 
 1. **§3 deployed owner verdict** (`docs/test/neo_seoul_live_qa.md` 직접확인 3) — the last active human QA item: paired non-fallback dull/sensitive + distinct-ending verdict on `00078-rs9` (banks loop ids; doubles as image-continuity + icon/loadout feel check).
-2. **Agent next**: bank the two prod style-pair loops (`loop_22e71c…`/`loop_5b212d…`) into the narrative eval bank (`bank_loop.py` vs prod DB) + run `make eval-narrative` as §3 supporting rubric data; propose slice-16 candidates on request.
+2. **Agent next**: after owner direction, commit/post-commit-verify slice 18 A, or take B `useEpiphanyBanner`; after owner §3 play, bank the new prod loop IDs and run the rubric/held-out split.
 3. **Remaining manual content checks/hold**: S4 copy tone, 6 variant intros, G2 twist tone, EN fresh-loop coherence; Glass Library held.
 
 ## Open Risks
 
-- **Harness 1.2.0 watch items**: publication caught up 2026-07-25 (marketplace cache and source-checkout pin both 1.2.0; keep the pin — MythOS is the origin tier). Repair edge (`OVERNIGHT_REPAIR`) is deliberately 0: upstream effectiveness is unmeasured and the held-out task bank (its Goodhart guard) does not exist yet. Cross-engine critic is wired but untried — first night's verdict-disagreement rate is signal, not noise.
+- **Harness 1.2.0 watch items**: publication caught up 2026-07-25 (marketplace cache and source-checkout pin both 1.2.0; keep the pin — MythOS is the origin tier). Repair edge (`OVERNIGHT_REPAIR`) is deliberately 0: upstream effectiveness is unmeasured; the held-out task bank exists but awaits owner composition ratification. Cross-engine critic has only one smoke datum (codex REPAIR vs claude PASS); first-night disagreement rate remains the next signal.
 - ~~Harness QA-reduction evidence gap~~ **RESOLVED — reduction RATIFIED 2026-07-21**: evidence 3/3 (0 false accepts) → owner-approved split 5(+1 chip) auto / 8 monitored / 3 human; checklist active-play surface 16→3. Watch item: keep running the 7-assertion contract on every deploy; report attention list is the human touchpoint.
 - **Image provider recovered 2026-07-15**: `gemini-3.1-flash-image` returned `404 NOT_FOUND` (model not served in this project/`us-central1`) — a 2026-07-17 log audit shows it **never succeeded in prod** (zero successes 07-12..15; the remembered working images were `imagen-3.0` on 07-11). `gemini-2.5-flash-image` was directly verified and is the pinned default on `00068-76m`. Watch the next app-generated asset; 429 quota retry remains separately available. Residual: safety-filter empties on violent scene briefs — watch frequency. Lesson (DECISIONS 07-15 addendum): model swaps need one real generation probe before deploy.
 - **3.5 whitespace runaway**: streaming controlled generation can emit trailing-whitespace runaway → JSON truncation; a same-model non-streaming retry is live (`b55e933`). Watch `streamed payload unparseable` warning frequency in prod logs — 07-19 audit: **0 occurrences in 5 days** (light traffic caveat).
-- **Play-style consequence alignment — code-side RESOLVED 2026-07-19** (junction-pick axis accrual + destination-derived chips, regression-locked; see PROGRESS_LOG). Residual: the fix is local-only until the next deploy, axis-intent threshold 2 remains tunable, and the deployed §3 feel verdict is still pending.
+- **Play-style consequence alignment — code-side RESOLVED and live since `00077-8g9`** (junction-pick axis accrual + destination-derived chips, regression-locked; see PROGRESS_LOG). Residual: axis-intent threshold 2 remains tunable and the deployed §3 feel verdict is still pending.
 - **Companion variant-loop thread closed 2026-07-10** (present = `unlock_flags∩flags` unified across all surfaces): owner clean-loop retest pending; in-flight/legacy loops need a new loop or one-time DB cleanup.
 - **fallback = static combat is intended (2026-06-06 design)**: combat VFX only play at `?fallback=0`; open the sim WITHOUT `?fallback=1` to see animations.
 - **ally-writeback**: fixed 2026-07-09 (`efa1c8f`, no more auto-promotion of story-flag allies); residual = one-time DB cleanup of players promoted by the old bug, on request.

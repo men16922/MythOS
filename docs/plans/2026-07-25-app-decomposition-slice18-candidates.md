@@ -1,6 +1,6 @@
 # App.tsx decomposition — slice 18 candidate boundaries (fresh survey)
 
-Status: PROPOSAL — owner picks to unblock (track rule since the slice-14 revert).
+Status: A `useSaveLoad` IMPLEMENTED LOCALLY 2026-07-26 (`make check` 1166; commit/post-commit AGY pending). Owner next picks B or closes the App.tsx half.
 Fresh full-file survey of `App.tsx` at **979 lines** (post slice 17, `8782d70`), 21 hooks
 extracted. Vocabulary: `$codebase-design` (depth = small interface hiding real behavior).
 

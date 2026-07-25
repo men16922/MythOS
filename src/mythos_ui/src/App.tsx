@@ -1,10 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import {
-  apiGetScenarios,
-  apiGetSlots,
-  apiLoadSlot,
-  stablePlayerId,
-} from "./api";
+import { apiGetScenarios, stablePlayerId } from "./api";
 import { firstUnlockedArchetype } from "./archetypes";
 import { CodexPanel } from "./CodexPanel";
 import { CharacterTabPanel } from "./CharacterTabPanel";
@@ -28,7 +23,6 @@ import type {
   ScenarioInfo,
   RuntimeSnapshot,
   MemoryOverview,
-  SaveSlot,
   RunSummary,
   SkillTreeResponse,
 } from "./types";
@@ -56,6 +50,7 @@ import { useKeyboardChoice } from "./hooks/useKeyboardChoice";
 import { usePresentationCues } from "./hooks/usePresentationCues";
 import { useIntroSequencer } from "./hooks/useIntroSequencer";
 import { useInviteGate } from "./hooks/useInviteGate";
+import { useSaveLoad } from "./hooks/useSaveLoad";
 import { useLang } from "./i18n/lang";
 
 export type NarrativeHistoryItem = {
@@ -100,11 +95,8 @@ export default function App() {
   const itemNoticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [consoleLogs, setConsoleLogs] = useState<string>("");
   const [isBusy, setIsBusy] = useState(false);
-  const [saveSlots, setSaveSlots] = useState<SaveSlot[]>([]);
-  const [saveLoadModal, setSaveLoadModal] = useState<"save" | "load" | null>(null);
   const [runsHistory, setRunsHistory] = useState<RunSummary[]>([]);
   const [memoryOverview, setMemoryOverview] = useState<MemoryOverview | null>(null);
-  const [saveLabelInput, setSaveLabelInput] = useState("");
   const [skillTree, setSkillTree] = useState<SkillTreeResponse | null>(null);
   const [learningSkillId, setLearningSkillId] = useState<string | null>(null);
   const [skillError, setSkillError] = useState<string | null>(null);
@@ -271,23 +263,25 @@ export default function App() {
     [resumeSessionData?.playerId]
   );
 
-  // Pre-connect, fetch this identity's save slots so the start screen can offer a
-  // LOAD picker (not just the latest-loop Resume). Skipped once in-game (the active
-  // dashboard refreshes slots via loadSlotsAndRuns).
-  useEffect(() => {
-    if (inviteGate !== "ok" || connected || !startScreenPlayerId) return;
-    let cancelled = false;
-    apiGetSlots(startScreenPlayerId)
-      .then((data) => {
-        if (!cancelled) setSaveSlots(data.slots || []);
-      })
-      .catch(() => {
-        /* no saves / gated: leave the picker empty */
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [startScreenPlayerId, connected, inviteGate]);
+  // Save/load owns the modal state, pre-connect slot prefetch, and the
+  // restore-before-resume ordering. The callback closes over the lifecycle hook
+  // declared below and is invoked only after render completes.
+  const {
+    saveLoadModal,
+    openSave,
+    openLoad,
+    closeModal,
+    saveSlots,
+    setSaveSlots,
+    saveLabelInput,
+    setSaveLabelInput,
+    loadSlot,
+  } = useSaveLoad({
+    inviteGate,
+    connected,
+    startScreenPlayerId,
+    onResume: (data) => handleResumeGame(data),
+  });
 
   // --- API load functions ---
   // Read-side loaders (save/run/memory + skill tree) and the learn-skill
@@ -724,7 +718,7 @@ export default function App() {
           onArchetypeChange={setSelectedArchetype}
           onStartGame={handleStartGame}
           onResumeGame={handleResumeGame}
-          onOpenLoad={() => setSaveLoadModal("load")}
+          onOpenLoad={openLoad}
           onSimulateCombat={handleSimulateCombat}
           showCombatSim={isAdmin || !inviteGated}
         />
@@ -826,8 +820,8 @@ export default function App() {
                 onOpenCodex={() => handleTabClick("codex")}
                 isBusy={isBusy}
                 canSave={Boolean(loopId)}
-                onOpenSave={() => setSaveLoadModal("save")}
-                onOpenLoad={() => setSaveLoadModal("load")}
+                onOpenSave={openSave}
+                onOpenLoad={openLoad}
               />
             )}
 
@@ -877,8 +871,8 @@ export default function App() {
             consoleLogs={consoleLogs}
             minimal={asideMinimal}
             revealNudge={asideRevealNudge}
-            onOpenSave={() => setSaveLoadModal("save")}
-            onOpenLoad={() => setSaveLoadModal("load")}
+            onOpenSave={openSave}
+            onOpenLoad={openLoad}
             onOpenCodex={() => handleTabClick("codex")}
           />
         </main>
@@ -932,25 +926,8 @@ export default function App() {
           onDeleteSlot={(slot) => {
             if (slot.slot_id) handleDeleteSlot(slot.slot_id);
           }}
-          onLoadSlot={async (data) => {
-            setSaveLoadModal(null);
-            // Manual slots carry a state snapshot: restore it server-side FIRST,
-            // then the normal resume serves the restored moment (cache refreshed
-            // by the load endpoint). Bookmark slots restore nothing (no-op).
-            if (data.slotId) {
-              try {
-                await apiLoadSlot({
-                  player_id: data.playerId,
-                  slot_id: data.slotId,
-                  scenario_id: data.scenarioId,
-                });
-              } catch {
-                /* fall through — resume still loads the live loop */
-              }
-            }
-            handleResumeGame(data);
-          }}
-          onClose={() => setSaveLoadModal(null)}
+          onLoadSlot={loadSlot}
+          onClose={closeModal}
         />
       )}
 

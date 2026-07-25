@@ -68,6 +68,10 @@ REASON_PROVIDER_ERROR = "provider_error"  # provider call itself raised (network
 def _classify_fallback_reason(error: BaseException | None) -> str:
     if isinstance(error, NarrativeParseError):
         text = " ".join(error.errors).lower()
+        # A structurally-present payload whose narration is empty IS the
+        # safety-filter signature (observed 2026-07-19: filtered generations
+        # return structure with blank narration, not an empty body) — counting
+        # it as blank_output rather than parse_error is deliberate.
         if "empty" in text and ("payload" in text or "narration" in text):
             return REASON_BLANK_OUTPUT
         return REASON_PARSE_ERROR

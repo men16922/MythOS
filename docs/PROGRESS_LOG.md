@@ -5,6 +5,14 @@ Last updated: 2026-07-25
 Newest entries only; older 2026-07 increments are in `bin/docs/archive/progress-2026-07.md`
 (and `progress-2026-06.md` for June). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
 
+## 2026-07-25 — pushed; eval bank first real run; slice-18 survey; critic cross-engine smoke; held-out bank
+- Status: Done. Owner directed: push + backlog items 3–6. Pushed `9fffffe..8782d70` (6 commits).
+- Eval bank: the 07-19 style pair was in the **local** DB, not prod (prod prefix-resolve 0 matches — bank script assumption corrected, scratch script now defaults to local DSN). Banked `local-people-help` (60 scenes) + `local-evidence-safety` (62) → first full `make eval-narrative`: **1–2/5 baseline**, dominated by fallback-arm boilerplate + since-fixed leaks (byte tokens, `world_delta` dumps in choices, `player_fled` raw codes, QA name in dialogue, 린위/린위에 혼용). Report `outputs/evals/20260725-234103/`. Not a current-quality verdict — the pair predates 07-19+ fixes and one arm was deliberately `fallback=1`.
+- Slice-18 survey: fresh full-file read of App.tsx (979, 21 hooks) → `docs/plans/2026-07-25-app-decomposition-slice18-candidates.md`: A `useSaveLoad` (deepest — restore-then-resume ordering + prefetch), B `useEpiphanyBanner` (hook form dissolves the slice-16 rejection), C `useTabs` (width risk), D `useItemNotice` (reserved for held-out bank). Honest note: after A+B the file floors ~850 — closing candidate.
+- Cross-engine critic smoke (1.2.0): same CRITIC_PROMPT+diff (`046edc8`) → **codex REPAIR vs claude PASS** (1/1 disagreement). Codex's objection (empty-narration payload counted as `blank_output`) is intended design (07-19 safety-filter signature) → constraint now stated in a `_classify_fallback_reason` comment. First disagreement-rate data point; full 1-night trial still needs seeded backlog.
+- Held-out task bank: `scripts/overnight/heldout-bank.md` (3 reserved tasks, `PLAN_DOC=` dispatch, disposable-worktree rule, paired metrics); compile sanity-checked against the claude lane. Owner ratification of composition pending; `OVERNIGHT_REPAIR` stays 0.
+- Verified: ruff + director tests green after the comment; infra brought up for local banking (`make infra-up`).
+
 ## 2026-07-25 — graph-borrow: narrative typed reject edges + soft-repair ledger + anchors named
 - Status: Done (code+docs). Applies the 1.2.0 graph lessons to the product pipeline — observability first, no new LLM repair calls (their effectiveness is unmeasured upstream; same reasoning as OVERNIGHT_REPAIR=0).
 - Survey correction: the engine never collapsed LLM defects into fallback — `Validator` already soft-repairs all LLM-caused defects; the real gaps were the discarded diagnosis and the untyped fallback.

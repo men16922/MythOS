@@ -4,7 +4,7 @@ Last updated: 2026-07-27
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **FROZEN-BANK COHORT INVALIDATED — CLEAN RE-ARM IS OWNER-GATED** — all three real actors exceeded 12 turns and were exactly compensated, but an unlocked NumPy 2.5.1 install made the base mypy-red. MythOS now pins NumPy `<2.5` and preflights mypy before model dispatch. Next: owner decides whether to spend on one new clean repair-0 cohort; keep repair, fan-out, push, and deploy off.
+> ▶ NEXT SESSION: **FRESH BASE IS GREEN — PAID CLEAN RE-ARM IS OWNER-GATED** — commit `9ffad61` makes documented `make setup` install the cloud SDKs required by tests, while NumPy remains `<2.5`; a brand-new worktree passed the strengthened preflight (mypy 188) and `make check` (1171, 5 skipped). Next: owner decides whether to spend on one new repair-0 cohort; keep repair, fan-out, push, and deploy off.
 
 ## Snapshot
 
@@ -28,7 +28,7 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **MythOS Dev Graph** — frozen-bank cohort ran 3/3: 0 accepted, 3 turn stops, 3 exact compensations, 0 dirty leftovers, $4.3584. It validates fail-close but not productivity because the disposable base was mypy-red; a paid clean re-arm is owner-gated.
+1. **MythOS Dev Graph** — frozen-bank cohort ran 3/3: 0 accepted, 3 turn stops, 3 exact compensations, 0 dirty leftovers, $4.3584. It validates fail-close but not productivity; fresh base-green proof is complete and only a paid clean re-arm remains owner-gated.
 2. **§3 + narrative bank (owner)** — two deployed non-fallback loops provide the final feel verdict and prod IDs for rubric/held-out evaluation.
 3. **Manual residuals/hold**: S4 copy tone, variant intro feel, G2 twist tone, EN fresh-loop retest; Graph repair/fan-out owner-gated; `glass-library` held.
 

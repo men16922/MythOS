@@ -293,6 +293,12 @@
 - **Containment**: NumPy is constrained below 2.5 and overnight preflight now runs mypy before model dispatch; final `make check` passed 1171 tests (5 skipped). Bank task text is unchanged; rejected/evaluation commits never merge. Report: `docs/reports/2026-07-27-heldout-v1-single-actor-baseline.md`.
 - **Decision**: repair/fan-out remain off. A valid clean cohort is a new paid arm requiring owner re-arm after fresh-worktree base-green proof; remote publication remains separate.
 
+## M77 — Reproducible fresh-worktree base-green setup (2026-07-27)
+
+- **Finding/fix**: after the NumPy `<2.5` correction, a clean `make setup` exposed missing GCP test imports because `dev` omitted the SDKs. Commit `9ffad61` adds `google-genai`/`google-cloud-storage` to `dev`; the environment doctor now checks those imports before model dispatch.
+- **Proof**: a second brand-new Python 3.13 worktree selected NumPy 2.4.6 and passed import preflight, mypy across 188 files, and `make check` 1171 (5 skipped); main passed the same full gate.
+- **Boundary**: this closes the clean-base prerequisite only. The invalid first cohort is not a productivity arm; new paid execution, repair, fan-out, remote publication, push, and deploy remain explicitly gated.
+
 ## Archive Reference
 
 M0-M10의 상세 체크리스트, work log, verification log는 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`에 보존한다.

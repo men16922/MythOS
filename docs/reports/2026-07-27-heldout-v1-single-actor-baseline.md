@@ -77,9 +77,12 @@ the tasks or actor edits, as the base-red cause.
 ## Follow-up boundary
 
 MythOS now constrains NumPy below 2.5 and the overnight environment doctor runs the Python
-typecheck before any model invocation. `uv lock --check`, the strengthened environment doctor,
-and final `make check` (1171 tests, 5 skipped) pass. A fresh clean cohort would be a new paid arm, not a retry
-inside this frozen run; it requires an explicit re-arm after base-green preflight. Until then:
+typecheck before any model invocation. A first clean `make setup` then exposed that the `dev`
+extra omitted GCP SDKs imported by the test suite; commit `9ffad61` adds those dependencies and
+preflights their imports. A second brand-new Python 3.13 worktree passed mypy across 188 files and
+`make check` (1171 tests, 5 skipped), as did main. The clean-base prerequisite is therefore closed.
+A fresh cohort would still be a new paid arm, not a retry inside this frozen run, and requires an
+explicit owner re-arm. Until then:
 
 - keep `OVERNIGHT_REPAIR=0` and do not run the paired repair comparison;
 - keep fan-out, push, deploy, and remote Harness publication off;

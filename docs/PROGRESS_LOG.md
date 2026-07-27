@@ -5,12 +5,19 @@ Last updated: 2026-07-27
 Newest entries only; older 2026-07 increments are in `bin/docs/archive/progress-2026-07.md`
 (and `progress-2026-06.md` for June). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
 
+## 2026-07-27 — Fresh-worktree setup and base-green proof completed
+- Status: clean-base prerequisite closed at `9ffad61`; no model call, fan-out, push, deploy, or remote publication.
+- Changed: `dev` setup now installs the GCP SDKs imported by tests; environment doctor checks their imports in addition to mypy. NumPy remains constrained below 2.5.
+- Measured: the first clean setup exposed the missing SDK seam; a focused Vertex test passed after installing the confirmed `gcp` dependency group. A second brand-new Python 3.13 worktree selected NumPy 2.4.6, mypy 2.3.0, google-genai 2.14.0, and google-cloud-storage 3.13.0.
+- Verified: fresh preflight passed all imports and mypy 188; fresh and main `make check` each passed 1171 tests (5 skipped). The proof worktree is clean.
+- Boundary/next: prior cohort remains invalid for productivity. No agent-runnable evaluation step remains; owner explicitly re-arms any new paid repair-0 cohort.
+
 ## 2026-07-27 — Frozen-bank cohort fail-closed 3/3; productivity baseline invalidated
 - Status: three frozen tasks executed once each in a disposable branch with repair/revisions/subagents 0. Results: 0 accepted, 3 turn-budget stops (47/40/46 vs 12), 3 exact compensations, 0 dirty leftovers; 790.198s/$4.3584 total.
 - Audit: no accepted diff existed. All rejected actors recorded the same base mypy error instead of implementing; independent reproduction found unlocked NumPy 2.5.1 stubs require Python 3.12 syntax while MythOS checks its 3.11 support floor. Downgrading only NumPy to 2.4.6 made mypy 2.3.0 pass 188 source files.
 - Changed: constrain NumPy `<2.5`; overnight environment doctor now runs the Python typecheck before model dispatch. Raw logs copied to `outputs/overnight/heldout-v1-baseline/`; report `docs/reports/2026-07-27-heldout-v1-single-actor-baseline.md`. Final `make check` passed 1171 tests (5 skipped).
 - Boundary: the cohort proves 1.3.4 real-call fail-close and compensation, not implementation productivity or repair lift. Repair/fan-out remain off; no bank task change, merge, push, deploy, or remote publication.
-- Next: run final gates and checkpoint locally; a new paid clean cohort requires explicit owner re-arm after fresh-worktree base-green proof.
+- Next: establish fresh-worktree base-green proof before asking the owner to re-arm a new paid cohort.
 
 ## 2026-07-27 — Harness 1.3.4 turn-budget fail-close released; held-out bank ratified
 - Status: Done locally; post-run turn acceptance is enforceable and the three-task evaluation bank is frozen. No model call/push/deploy.

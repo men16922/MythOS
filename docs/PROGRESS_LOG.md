@@ -1,9 +1,17 @@
 # Progress Log
 
-Last updated: 2026-07-27
+Last updated: 2026-07-28
 
 Newest entries only; older 2026-07 increments are in `bin/docs/archive/progress-2026-07.md`
 (and `progress-2026-06.md` for June). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
+
+## 2026-07-28 — Clean frozen-bank repair-0 arm completed; repair A/B blocked by turn gate
+- Status: valid clean-base cohort complete — 0/3 accepted, 3/3 turn rejects (37/28/27 vs 12), 3/3 exact compensations, 0 dirty leftovers. Repair/retry/revision/subagent remained 0; no merge/push/deploy.
+- Measured: valid actor wall/turns/cost/tokens = 504.072s/92/$2.7305/4,927,960. One excluded 1.2.0 pin-drift dispatch was terminated at 15 turns/$0.4674; total actual spend $3.1979, below approval.
+- Audit: all three rejected commits stayed within expected task+bank scope and marked the selected item complete; actor-reported green is not external acceptance evidence because the turn gate rejected before verifiers. Ledgers are 11-event balanced and every compensation tree exactly matches its base.
+- Verified: fresh preflight mypy 188, pre/post independent `make check` 1171 (5 skipped), final eval tree clean. Raw evidence: `outputs/overnight/heldout-v1-clean-baseline/`; report: `docs/reports/2026-07-28-heldout-v1-clean-repair0-baseline.md`.
+- Owner decision: retain strict 12-turn acceptance, accept 0/3, and stop repair rollout. `OVERNIGHT_REPAIR=0`; never tune/retry bank v1. Any reopening needs preregistration, unseen bank v2, and fresh approval.
+- Next: owner §3 two-style deployed live play supplies two non-fallback loop IDs; agent then audits/banks them and runs the narrative rubric. Harness remote publication remains separately approval-gated.
 
 ## 2026-07-27 — Fresh-worktree setup and base-green proof completed
 - Status: clean-base prerequisite closed at `9ffad61`; no model call, fan-out, push, deploy, or remote publication.

@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-07-27
+Last updated: 2026-07-28
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **FRESH BASE IS GREEN — PAID CLEAN RE-ARM IS OWNER-GATED** — commit `9ffad61` makes documented `make setup` install the cloud SDKs required by tests, while NumPy remains `<2.5`; a brand-new worktree passed the strengthened preflight (mypy 188) and `make check` (1171, 5 skipped). Next: owner decides whether to spend on one new repair-0 cohort; keep repair, fan-out, push, and deploy off.
+> ▶ NEXT SESSION: **REPAIR ROLLOUT CLOSED — OWNER §3 LIVE PLAY IS NEXT** — owner retained the strict 12-turn contract after the valid clean arm returned 0/3 and stopped repair rollout; never reuse/tune bank v1. Next: owner completes the three active judgments in `docs/test/neo_seoul_live_qa.md` through two deployed non-fallback loops and supplies both loop IDs; agent then banks/audits them and runs the rubric.
 
 ## Snapshot
 
@@ -28,9 +28,9 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **MythOS Dev Graph** — frozen-bank cohort ran 3/3: 0 accepted, 3 turn stops, 3 exact compensations, 0 dirty leftovers, $4.3584. It validates fail-close but not productivity; fresh base-green proof is complete and only a paid clean re-arm remains owner-gated.
-2. **§3 + narrative bank (owner)** — two deployed non-fallback loops provide the final feel verdict and prod IDs for rubric/held-out evaluation.
-3. **Manual residuals/hold**: S4 copy tone, variant intro feel, G2 twist tone, EN fresh-loop retest; Graph repair/fan-out owner-gated; `glass-library` held.
+1. **§3 + narrative bank (owner)** — two deployed non-fallback loops provide the final feel verdict and prod IDs for rubric/held-out evaluation.
+2. **MythOS Dev Graph** — repair rollout closed at strict-contract 0/3; repair remains 0 and bank v1 stays frozen. Remote publication/fan-out remain separately owner-gated.
+3. **Manual residuals/hold**: S4 copy tone, variant intro feel, G2 twist tone, EN fresh-loop retest; `glass-library` held.
 
 ## Read Order
 

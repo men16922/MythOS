@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-07-28 — Owner retains strict 12-turn contract and closes repair rollout
+
+Decision: accept the clean repair-0 arm as a valid measurement of the current strict contract: verified completion 0/3, with all three candidate commits rejected at 37/28/27 turns before external verification. The owner explicitly retains 12-turn acceptance and stops repair rollout. Keep `OVERNIGHT_REPAIR=0`; do not spend on repair-1 because no candidate can reach a repairable verifier edge under this contract.
+
+Reason/impact: all three clean-base actors implemented the frozen task and self-reported green, but Harness correctly compensated them before gate/critic/domain verification. Raising the threshold or retrying these same tasks after observing their turns would tune against held-out bank v1. Any future reopening therefore needs an independently preregistered rule, a new owner-ratified unseen bank, and separate cost approval.
+
 ## 2026-07-27 — Base-red held-out cohort is safety evidence, not a productivity baseline
 
 Decision: classify the first frozen-bank repair-0 cohort as executed but invalid for productivity comparison. It may support only the claims directly observed: all three 12-turn contracts rejected 47/40/46-turn commits, all three compensations restored clean trees, and no commit reached verification or acceptance. Keep repair 0 and require an explicit paid clean-cohort re-arm after base-green preflight; do not reuse this cohort as a paired-comparison arm.

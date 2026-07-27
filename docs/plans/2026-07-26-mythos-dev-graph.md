@@ -483,6 +483,13 @@ Done:
 
 Precondition: owner ratifies `scripts/overnight/heldout-bank.md` composition.
 
+2026-07-28 measurement: clean repair-0 bank v1 produced 0/3 accepted because all actors exceeded
+the 12-turn acceptance gate before external verifiers (37/28/27); all were exactly compensated.
+Repair-1 cannot exercise a repair edge under this contract. Keep repair off and never tune/retry
+against bank v1. Owner decision 2026-07-28: retain strict 12-turn acceptance and close P5 without
+repair-1. Any future reopening requires preregistration, a new owner-ratified unseen bank, and fresh
+cost approval.
+
 Work:
 
 - run paired disposable-worktree trials with repair `0` and repair `1` against the frozen bank;

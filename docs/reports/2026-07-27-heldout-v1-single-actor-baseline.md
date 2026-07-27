@@ -88,3 +88,6 @@ explicit owner re-arm. Until then:
 - keep fan-out, push, deploy, and remote Harness publication off;
 - do not claim a productivity baseline from this cohort;
 - preserve the three bank tasks unchanged on main.
+
+The approved clean follow-up ran on 2026-07-28; see
+`docs/reports/2026-07-28-heldout-v1-clean-repair0-baseline.md`.

@@ -268,9 +268,9 @@ claim·typed terminal·evidence는 perimeter이므로 롤백 대상이 아니다
 
 | 항목 | 상태 |
 | --- | --- |
-| **repair edge의 실효성** | **미측정.** 27개 offline 검사로 *메커니즘*은 검증됐지만, 실제로 완료 수를 올리고 false-accept를 안 올리는지는 실제 밤샘 A/B가 필요하다. 그래서 기본값이 `0`이다 |
+| **repair edge의 실효성** | **실험 종료.** clean repair-0 arm은 3/3 actor가 구현했지만 37/28/27턴으로 verifier 전에 전부 보상됐다. Owner가 strict 12를 유지하고 rollout을 닫았다; repair-1은 실행하지 않으며 기본값은 `0`이다 |
 | **cross-engine critic의 실효성** | **미측정.** 판정 불일치율 데이터 없음 |
-| held-out bank (§3.4) | frozen bank v1 비준 완료; repair-0 단일 actor baseline과 100% accepted-diff audit가 다음 단계 |
+| held-out bank (§3.4) | frozen bank v1 clean repair-0 완료: strict-contract accepted 0/3, exact compensation 3/3. 같은 bank에 맞춘 turn 조정/재시도는 금지; 계약 변경 시 새 unseen bank 비준 필요 |
 | 병렬 lane / fan-out | **비채택.** multi-worktree scheduler는 V2 명시적 non-goal이고, graph 담론 쪽 증거도 토큰 15배·fan-in 병목 경고로 기울어 있다. 기존 subagent 예산(`OVERNIGHT_SUBAGENTS`, 상한 3)의 P6 wall-clock 측정이 선행 |
 | mission 내부 sub-step checkpoint | **비채택.** "1 iteration = 1 commit"이 crash 경계를 이미 주고 있고 더 쪼개면 그 불변식과 충돌한다. repair edge가 같은 통증을 훨씬 싸게 해결 |
 | graph 프레임워크(LangGraph 등) / graph DSL | **비채택.** no-build·low-dependency 설치 계약을 깬다. mission lifecycle은 이미 graph이고 edge는 `run.sh` 제어 흐름이다 |
@@ -282,5 +282,5 @@ claim·typed terminal·evidence는 perimeter이므로 롤백 대상이 아니다
 1. **오늘** — plugin 업데이트 + `.gitignore` 확인(§3.1). 설정 변경 없이 정상 동작 확인.
 2. **1박** — `OVERNIGHT_CRITIC=auto OVERNIGHT_OVERSIGHT=graduated`. 아침에 REVIEW_QUEUE 확인.
 3. **그 다음** — `OVERNIGHT_CRITIC_ENGINE` (두 번째 CLI가 있다면).
-4. **repair edge 전에** — frozen bank의 repair-0 단일 actor baseline + repo verifier `exit 4` 분류(§3.3).
-5. **그 다음** — `OVERNIGHT_REPAIR=1`, 짝 지표로 2박 비교. 악화되면 `0`으로 되돌린다.
+4. **repair edge 전에** — frozen bank repair-0 결과에서 actor가 verifier/repair edge까지 도달하는지 확인한다. Bank v1은 0/3 도달로 실패했다.
+5. **Owner 결정(2026-07-28)** — strict 12-turn 계약을 유지하고 repair rollout을 종료했다. 미래 재개는 독립 사전등록 + 새 unseen bank + 별도 승인이 있을 때만 가능하다.

@@ -1,6 +1,6 @@
 # Completed Summary
 
-최종 갱신: 2026-07-27
+최종 갱신: 2026-07-28
 
 이 문서는 완료된 milestone의 압축 요약이다. 세부 작업 로그와 검증 기록은 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`, `bin/docs/archive/progress-2026-05.md`, `bin/docs/archive/progress-2026-06.md`를 참고한다. 최신 짧은 로그만 `PROGRESS_LOG.md`에 남긴다.
 
@@ -298,6 +298,12 @@
 - **Finding/fix**: after the NumPy `<2.5` correction, a clean `make setup` exposed missing GCP test imports because `dev` omitted the SDKs. Commit `9ffad61` adds `google-genai`/`google-cloud-storage` to `dev`; the environment doctor now checks those imports before model dispatch.
 - **Proof**: a second brand-new Python 3.13 worktree selected NumPy 2.4.6 and passed import preflight, mypy across 188 files, and `make check` 1171 (5 skipped); main passed the same full gate.
 - **Boundary**: this closes the clean-base prerequisite only. The invalid first cohort is not a productivity arm; new paid execution, repair, fan-out, remote publication, push, and deploy remain explicitly gated.
+
+## M78 — Clean frozen-bank repair-0 strict-contract baseline (2026-07-28)
+
+- **Result**: three clean-base actors produced scoped candidate commits but reported 37/28/27 turns against 12. Harness 1.3.4 rejected before external verification, exactly compensated all three, and left zero dirty trees: strict-contract verified completion 0/3, false accepts 0.
+- **Economics/proof**: valid actor wall/cost/tokens = 504.072s/$2.7305/4,927,960; pre/post `make check` 1171 (5 skipped), ledgers balanced, compensation trees exact. One excluded wrong-runner dispatch raised total spend to $3.1979; evidence/report under `outputs/overnight/heldout-v1-clean-baseline/` and `docs/reports/2026-07-28-heldout-v1-clean-repair0-baseline.md`.
+- **Owner decision**: retain strict 12-turn acceptance, accept current-contract productivity 0/3, and close repair rollout. `OVERNIGHT_REPAIR=0`; never tune/retry bank v1. Any future reopening requires preregistration, unseen owner-ratified bank v2, and fresh approval.
 
 ## Archive Reference
 

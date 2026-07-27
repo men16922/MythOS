@@ -1,17 +1,15 @@
 # Project MythOS Next Plan
 
-Last updated: 2026-07-27
+Last updated: 2026-07-28
 
 This file keeps only upcoming (open) work as a rolling plan. Completed tracks live in
 `docs/COMPLETED_SUMMARY.md`, detailed logs in `bin/docs/archive/progress-2026-0*.md`, individual designs in
 `docs/plans/` (completed plans move to `bin/docs/plans/`).
 
-## Priority 0A — MythOS Dev Graph frozen-bank baseline
+## Hold — MythOS Dev Graph post-baseline owner gates
 
-Authority: `docs/reports/2026-07-27-heldout-v1-single-actor-baseline.md` + `scripts/overnight/heldout-bank.md`. Harness 1.3.4 enforces post-run turn acceptance and the three-task bank is owner-ratified; broader expansion remains held on a valid clean single-actor baseline.
+Authority: `docs/reports/2026-07-28-heldout-v1-clean-repair0-baseline.md`. Owner retained strict 12-turn acceptance and stopped repair rollout on 2026-07-28 after the valid clean arm returned 0/3; `OVERNIGHT_REPAIR=0`, bank v1 is never tuned/retried, and reopening requires preregistration + unseen bank v2 + fresh approval.
 
-- `[x]` **First frozen-bank cohort recorded** — 0 accepted, 3 turn stops, 3 exact compensations, 0 dirty leftovers, 790.198s/$4.3584. Base NumPy/mypy was red, so this proves fail-close but is invalid as a productivity baseline; no evaluation commits merged.
-- `[ ]` `[manual]` **Clean cohort re-arm** — fresh disposable setup/preflight/full gate are green at `9ffad61` (mypy 188; `make check` 1171, 5 skipped). Owner explicitly decides whether to spend on a new repair-0/subagents-0 cohort. Do not reuse the invalid run as arm A or enable repair first.
 - `[ ]` `[manual]` **Harness remote publication** — push upstream commit/tag and update the public marketplace only on explicit approval; not required for local P2 evidence.
 
 ## Priority 0 — Human live sign-off on the deployed bundle
@@ -34,10 +32,9 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00
 
 ## Engineering maintenance track — WS0-3 done (COMPLETED_SUMMARY M43)
 
-- `[/]` **WS5 harness operation**: plugin V2 cutover DONE 2026-07-19 (`COMPLETED_SUMMARY` M63). **1.3.0 locally released/pinned 2026-07-26** (durable graph/provenance/trajectory plus five-value verifier protocol; remote marketplace remains 1.2.0). `OVERNIGHT_REPAIR` stays **0**. Remaining:
+- `[/]` **WS5 harness operation**: plugin V2 cutover DONE 2026-07-19 (`COMPLETED_SUMMARY` M63). **1.3.4 locally released/pinned; repair experiment CLOSED 2026-07-28 at strict-contract 0/3** (`COMPLETED_SUMMARY` M78; remote marketplace remains 1.2.0). `OVERNIGHT_REPAIR` stays **0**. Remaining:
   - `[ ]` `[manual]` **Model-B 3-lane demonstration** — first run one objective `make overnight-<engine>-once`, then arm+observe `make overnight-worktrees-setup` + 3 engines (burns real quota, owner-armed).
   - `[/]` **cross-engine critic** — first same-diff smoke run 2026-07-25 on commit `046edc8`: **codex REPAIR vs claude PASS (1/1 disagreement)**; the codex objection (blank_output classification) was intended design → clarifying comment added to `_classify_fallback_reason`. Remaining `[ ]` `[manual]` full 1-night trial `make overnight OVERNIGHT_CRITIC_ENGINE=codex` (needs seeded `[auto]` backlog; lane currently drained) — morning: REVIEW_QUEUE + disagreement rate.
-  - `[/]` **held-out task bank — precondition for `OVERNIGHT_REPAIR=1`**: three docs/Python/UI tasks owner-ratified and frozen 2026-07-27 at `scripts/overnight/heldout-bank.md`. First cohort safely stopped 3/3 but was base-red and invalid for productivity; fresh base-green proof is complete. Remaining: owner re-arms one clean repair-0 cohort, then a paired comparison before any default changes. Do not merge bank commits or tune against their content.
   - `[ ]` `[manual]` **Graph P2 bounded read-only scatter/gather experiment (upstream)**: only after held-out-bank ratification and explicit multi-agent authorization; compare 2–3 immutable-input scouts against one agent on wall time/tokens/valid defects/duplication. P0-A/P0-B/P1-A/P1-B/P1-C are in the local 1.3.0 release (116/116); no write-lane fan-out.
 - `[x]` **V2 human-load rollout — COMPLETE 2026-07-21**: evidence 3/3 (0 false accepts) → owner ratified **5(+1 chip) auto / 8 monitored / 3 human**; checklist restructured (직접확인 3 / 이상시기록 8), active surface 16→3 (81% reduction). Ongoing: 7-assertion contract per deploy; report attention list is the human touchpoint. Compress to COMPLETED_SUMMARY on next tidy.
 

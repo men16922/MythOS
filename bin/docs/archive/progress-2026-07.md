@@ -1154,3 +1154,87 @@ _(older 2026-06-29 entries — K6 EN combat-log i18n, CBT invite-identity/save-l
 - **V4-V6 (`6eaa975`)**: status badges → dark circular chips + color rim ABOVE the name (was icon-on-name mush; cap 3 + "+N") · cinema impact slashes across defender card + strip speed-lines + 62/74px damage numbers + grenade throws show item art center card (`itemId` through the queue) · SKILL_SYMBOLS full coverage (제어/강화 skills showed bare "제/강" letters) + consumable item thumbnails.
 - Non-visual findings for triage (NOT fixed): 한's 시스템 침투 cost ◆4 > max FOCUS 3 (uncastable ever) · 린위에 missing from victory lineup · loot pills show raw ids (`drone_scrap`/`nanopatch`).
 - Next: `! git push` → owner `make deploy` → owner feel pass (A-1/A-3 + new A-4 visual overhaul) · agy art seeds (backdrop plates ×4, flat badge glyphs ×7, brighter floor tile, cover_full prop).
+
+<!-- moved from PROGRESS_LOG.md 2026-07-26 (doc budget) -->
+## 2026-07-26 — CombatCinema slice A skill resolver landed + AGY passed
+- Status: Done. Code/build/test/plan committed `937d2fd`; App.tsx half was closed before shifting the named decomposition track to CombatCinema.
+- Changed: 19-card registry + exact-ID-first KO/EN alias policy moved from the timeline hook to pure `combatCinemaSkills.ts` behind `resolveCombatSkill()`; `useCombatCinema.ts` 419→181. Scenario coverage and exact-ID source lock now read the owner module.
+- Verified: Serena diagnostics 0; focused tests 2/2; lint 0 errors (2 pre-existing warnings); build; final `make check` 1166; official post-commit AGY `PASS_CANDIDATE`, evidence `outputs/live-qa/20260726-003850-post-commit/evidence-bundle.json`.
+- Next: candidate B isolates callback-safe attack/impact/resolve timing; owner §3 play + held-out-bank ratification remain higher manual priorities.
+
+## 2026-07-26 — slice 18 B `useEpiphanyBanner` committed + AGY passed
+- Status: Done. Commit `6945a2f`; App.tsx half closed after the rendered gate passed.
+- Changed: past-loop notice derivation + dismissed-loop localStorage init/write/fail-open policy → `hooks/useEpiphanyBanner.ts`; small interface `{ notice, dismiss }` feeds both pre-connect banner and skill-tab dot. App.tsx 956→940.
+- Verified: Serena diagnostics 0; frontend lint 0 errors (2 pre-existing warnings); frontend build; final `make check` 1166 OK.
+- Verified: Serena diagnostics 0; frontend lint 0 errors (2 pre-existing warnings); frontend build; `make check` 1166; official post-commit AGY `PASS_CANDIDATE`, evidence `outputs/live-qa/20260726-003032-post-commit/evidence-bundle.json`.
+- Decision: close App.tsx at 940 lines; do not take width/touch-risk C `useTabs` without explicit owner reversal.
+
+## 2026-07-26 — slice 18 A committed + post-commit AGY passed
+- Status: Done. Intentional slice/code/build/checkpoint files committed as `e4ca67c`; pre-existing `.serena/project.yml` + scratch files excluded. Branch ahead 1; push not performed.
+- Changed: no product delta after the prior local checkpoint; this closes the track's commit/browser-verifier condition.
+- Verified: browser candidate filter = `CANDIDATE` (`api:src/mythos_api/static/app.js`); official hook = `PASS_CANDIDATE`, source invariant held, local server stopped; evidence `outputs/live-qa/20260726-001650-post-commit/evidence-bundle.json`.
+- Blockers: none for slice 18 A.
+- Next: owner picks B `useEpiphanyBanner` or closes the App.tsx half; §3 deployed verdict and held-out bank composition ratification remain owner priorities.
+
+## 2026-07-25 — pushed; eval bank first real run; slice-18 survey; critic cross-engine smoke; held-out bank
+- Status: Done. Owner directed: push + backlog items 3–6. Pushed `9fffffe..8782d70` (6 commits).
+- Eval bank: the 07-19 style pair was in the **local** DB, not prod (prod prefix-resolve 0 matches — bank script assumption corrected, scratch script now defaults to local DSN). Banked `local-people-help` (60 scenes) + `local-evidence-safety` (62) → first full `make eval-narrative`: **1–2/5 baseline**, dominated by fallback-arm boilerplate + since-fixed leaks (byte tokens, `world_delta` dumps in choices, `player_fled` raw codes, QA name in dialogue, 린위/린위에 혼용). Report `outputs/evals/20260725-234103/`. Not a current-quality verdict — the pair predates 07-19+ fixes and one arm was deliberately `fallback=1`.
+- Slice-18 survey: fresh full-file read of App.tsx (979, 21 hooks) → `docs/plans/2026-07-25-app-decomposition-slice18-candidates.md`: A `useSaveLoad` (deepest — restore-then-resume ordering + prefetch), B `useEpiphanyBanner` (hook form dissolves the slice-16 rejection), C `useTabs` (width risk), D `useItemNotice` (reserved for held-out bank). Honest note: after A+B the file floors ~850 — closing candidate.
+- Cross-engine critic smoke (1.2.0): same CRITIC_PROMPT+diff (`046edc8`) → **codex REPAIR vs claude PASS** (1/1 disagreement). Codex's objection (empty-narration payload counted as `blank_output`) is intended design (07-19 safety-filter signature) → constraint now stated in a `_classify_fallback_reason` comment. First disagreement-rate data point; full 1-night trial still needs seeded backlog.
+- Held-out task bank: `scripts/overnight/heldout-bank.md` (3 reserved tasks, `PLAN_DOC=` dispatch, disposable-worktree rule, paired metrics); compile sanity-checked against the claude lane. Owner ratification of composition pending; `OVERNIGHT_REPAIR` stays 0.
+- Verified: ruff + director tests green after the comment; infra brought up for local banking (`make infra-up`).
+
+## 2026-07-25 — graph-borrow: narrative typed reject edges + soft-repair ledger + anchors named
+- Status: Done (code+docs). Applies the 1.2.0 graph lessons to the product pipeline — observability first, no new LLM repair calls (their effectiveness is unmeasured upstream; same reasoning as OVERNIGHT_REPAIR=0).
+- Survey correction: the engine never collapsed LLM defects into fallback — `Validator` already soft-repairs all LLM-caused defects; the real gaps were the discarded diagnosis and the untyped fallback.
+- Changed: `director.py` fallback reasons typed `blank_output`/`parse_error`/`provider_error` (metrics `fallback_reasons` + log + span — the safety-filter-empty watch risk now has a counter); `validator.py` returns `repairs` codes → `LoopTransition.repairs` → `_commit_scene` logs `scene payload soft-repaired`; `DESIGN.md` names the anchors (perimeter) with a decision-log rule for moving one.
+- Verified: `make check` green (1166 OK; +5 tests: validator repair codes ×2, engine surface ×1, fallback reasons ×2) + `make smoke-local` green. Behavior-preserving (logging/metrics only).
+- Next: held-out eval-bank split activates once owner banks ≥4 prod loops (`scratch/bank-style-pair-loops.sh` still pending — `make eval-narrative` on real loops blocked on that); watch `fallback_reasons.blank_output` in prod logs after next deploy.
+
+## 2026-07-25 — overnight-harness 1.2.0 adopted (typed reject edges; repair edge armed but OFF)
+- Status: Done (code+docs). Owner updated the plugin to 1.2.0 and dropped `docs/reference/GRAPH_ADOPTION.md`; repo-side §3 items applied.
+- Changed: `.gitignore` +`scripts/overnight/CLAIM` (repair edge uses dirty-tree as reject signal); `CRITIC_PROMPT.md` → 3-value `PASS/REPAIR/FAIL` (REPAIR = regression/masking/one-sided API pairing; FAIL = subversion/scope/migration/orchestration-dup/hand-edited app.js/creative-boundary); verifiers `20-gameplay-oracle`·`30-browser-objective`·`40-image-identity` FAIL → repairable `exit 4` with `evidence=` paths (`10-diff-scope` stays all-`exit 1` — contract violations are never re-prompted); `compile-contract.sh` writes `budgets.revisions` from `CONTRACT_REVISIONS` (cap 3, default 0); Makefile `OVERNIGHT_REPAIR_MODE ?= 0` + optional `OVERNIGHT_CRITIC_ENGINE` passthrough.
+- Verified: `make check` green (1161 OK); `make overnight-where` resolves the 1.2.0 source-checkout pin; contract compiler dry-run injects `revisions=2` with env / `0` default and keeps verifier routing; `make -n` shows `OVERNIGHT_REPAIR=0` + conditional critic-engine env.
+- Deliberately NOT enabled: `OVERNIGHT_REPAIR=1` (held-out task bank is a precondition — GRAPH_ADOPTION §3.4); cross-engine critic (owner-armed 1-night trial). Notes + graph-engineering analysis + MythOS borrow candidates: `docs/plans/2026-07-25-harness-120-adoption.md`.
+- Next: next overnight run observes REVIEW_QUEUE as usual; owner may arm `OVERNIGHT_CRITIC_ENGINE=codex` for one night; eval-bank held-out split added to NEXT_PLAN.
+
+## 2026-07-21 — slice 17 (`useInviteGate`) landed
+- Status: Done (code). Owner directed slice 17 = `useInviteGate` (lowest-risk candidate from the slice-16 doc).
+- Changed: closed-beta invite gate (isAdmin/inviteGated/inviteGate state, mount probe, fail-open policy, `handleInviteSubmit` key-store+re-probe) → `hooks/useInviteGate.ts`; zero inputs (api module internal). App aliases `{ gate, gated, isAdmin, submitKey }` to preserve consumer names. App.tsx 1010→979 (under 1000). Commit `fe1585c` (push owner-run).
+- Verified: full `make check` green (1161 OK); lint/build clean; no dangling setters, all consumers resolve. Behavior-preserving (identical probe/submit logic moved).
+- Next: decomposition deep-candidate pool now thin (only `EpiphanyBanner` presentational-only + `useItemNotice` mention-only left in the slice-16 doc) — a fresh survey needed before slice 18. Owner-gated: eval-bank script + §3 verdict + push.
+
+## 2026-07-21 — slice 16 (`useIntroSequencer`) landed + slice-17 candidates + eval-bank armed
+- Status: Done (code). Owner picked slice 16 = `useIntroSequencer` from the fresh candidate doc (`docs/plans/2026-07-21-app-decomposition-slice16-candidates.md`).
+- Changed: B2 opening-variant resolution (openingVariant state, meta-frame-vs-snapshot race, 12s dead-stream reveal timer, per-loop reset, introData/introVariantKey selection) → `hooks/useIntroSequencer.ts`; App.tsx 1050→1010. `setOpeningVariant` exposed for the WS onLoopMeta callback. Commit `68a6dc4` (push owner-run).
+- Verified: full `make check` green (1161 OK); lint 0 errors / build clean; no dangling refs, wiring confirmed. Behavior-preserving (identical expressions moved). **Loop-2 non-fallback intro branch is live-only — unverified locally**; watch = post-commit AGY live-QA + owner §3 (no flash-then-swap; 12s fallback still reveals).
+- Also: eval-bank owner-run script prepared (`scratch/bank-style-pair-loops.sh`) — banks the two prod style-pair loops (prefix-resolve `loop_22e71c…`/`loop_5b212d…` against prod DSN, read-only); prod-DB access is classifier-blocked for the agent, so owner runs it, then agent runs `make eval-narrative`.
+- Next: owner `git push` + run bank script → agent `make eval-narrative`; §3 two-style verdict on `00078-rs9`; slice-17 candidate from the slice-16 doc (`useInviteGate`) on request. Log at budget → run `/tidy-docs`.
+
+## 2026-07-21 — QA reduction ratified + slice 15 (`useCombatTutorial`) landed
+- Status: Done. Owner ratified the live-QA split (5+1 auto / 8 monitored / 3 human; `docs/plans/2026-07-21-live-qa-reduction-split.md`) — checklist restructured to 직접확인 3 / 이상시기록 8, active-play surface 16→3. Owner also picked slice 15 = `useCombatTutorial`, lifting the decomposition `[blocked]`.
+- Changed: first-combat tutorial policy (localStorage gate, first-combat meta detection, step derivation, move/wait rule, action-decorator, overlay advance) extracted to `hooks/useCombatTutorial.ts`; App.tsx 1102→1050 lines, duplicate overlay `onNext` logic absorbed into the hook's `advance`.
+- Verified: full `make check` green (1161 OK); rendered sim QA of every path — overlay gates on fresh player, plain 대기 does NOT satisfy the move step, `다음` advance 0→1, attack action match 1→2 with `tut-glow` on 공격, skip writes `seen=1` and dismisses; console errors 0.
+- Next: rides the next deploy; decomposition track open for a slice-16 candidate when wanted.
+
+## 2026-07-20 — V2 release-bundle evidence 3/3 COMPLETE on 00078-rs9 (7/7 PASS)
+- Status: Done. Agent ran `scratch/run-release-calibration-00078.sh` directly (`bash scratch/*` owner-allowlisted) and audited.
+- Measured: six-assertion contract 6/6 PASS + `route_axis_chip` rider PASS at HEAD `f3e1fc3` (= deployed `00078-rs9` app source; trailing commits docs-only). Audit: required PASS 7/7 · artifact hashes 32/32 · evidence screenshots present · decisions/manifest agree. Collection wall-clock 465.8s (7.8 min unattended; mean 66.5s/run).
+- Spot check: `route_axis_chip` turn-4 junction screenshot manually verified destination-true (clue→`단서 찾기`, anchor→`사람 돕기`, event→chipless); deployed icon set renders in evidence. 0 false accepts observed.
+- Report: `report-evidence.py` → attention 1 (known 07-19 post-commit NEEDS_HUMAN, retained), clean 23 → deterministic sample 3, invalid 0. Human-review surface = 4 bundles (~3 min) vs the 16-item manual checklist.
+- Evidence state: release bundles = **3/3** (07-19 local build · `00077-8g9` · `00078-rs9`), 0 observed false accepts across all calibrations. Formal 16-item reduction (target 6 auto / 8 monitored / 2 human) is now an owner ratification decision.
+- Next (owner): ratify the reduction split · §3 two-style verdict on `00078-rs9`.
+
+## 2026-07-20 — DEPLOYED `mythos-api-00078-rs9`: icon set + loadout editor + aim badge
+- Status: **DEPLOYED at 100% traffic** (commit `c51cf63`; owner pushed `4a43904..c51cf63`). Third distinct release for Harness V2 evidence.
+- Live: root + `/api/v1/health` 200; live/local `app.js` SHA-256 match (`08c0be0c…`); model pins preserved (`MODEL=gemini-3.5-flash`, `IMAGEN_MODEL=gemini-2.5-flash-image`).
+- Prepared: `scratch/run-release-calibration-00078.sh` — six-assertion contract (counts toward 3/3) + `route_axis_chip` rider (max_turns=6). Owner-run (agy permission); agent audits bundles + report after.
+- Next (owner): run the 00078 calibration script · §3 two-style non-fallback verdict on the deployed bundle (banks loop ids + first app-path image since the 2.5 pin).
+
+## 2026-07-20 — Skill quick-slot config moved to a separate loadout editor (owner request)
+- Status: Done. Owner: per-slot ⇄ swap pickers cluttered the bar — pull slot setup out into its own surface.
+- Follow-up (same session): the aim(🎯) toggle's full-height side column read as a broken empty strip (owner) — now a small round corner badge over the art's bottom-right (GameIcon `crosshair`; armed = gold pulse card border), mirroring the landscape-coarse overlay. Verified in the combat sim: no empty columns, badge + armed state render, console errors 0.
+- Changed: `CombatControls` skill header gains one ⚙ 편성 button opening a modal (`cc-loadout`): 6 numbered slot tiles + full learned-skill grid; tap a slot then a skill to place it (already-slotted skills trade places, selection auto-advances). Same per-scenario+actor localStorage persistence; per-slot ⚑/menu JSX+CSS removed, `cc.swap*` strings replaced by `cc.loadout.*` (KO/EN). `gear` icon added to GameIcon.
+- Locks: `test_desktop_combat_split.py` re-locked to the new design (asserts loadout modal present AND per-slot picker absent — deliberate owner reversal of the 2026-07-13 swap-picker design; do not reintroduce).
+- Verified: full `make check` green (1161 OK); combat-simulator browser QA — bar shows no per-slot affordance, modal assigns/swaps slots with live bar update, console errors 0.
+- Next: owner feel-check during next combat playtest; rides the next deploy.

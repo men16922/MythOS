@@ -4,7 +4,7 @@ COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
-.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback narrative-smoke-fallback-en visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny connect-demo sim-boss smoke smoke-local streamlit streamlit-stop api api-stop api-cloud cloud-image cloud-run-local dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build validate-content check check-skills sync-skills check-auto _harness-guard _overnight-clean-tree overnight-env-doctor overnight-where overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-clean overnight-claude overnight-claude-watch overnight-claude-once overnight-codex overnight-codex-watch overnight-codex-once overnight-opencode overnight-opencode-watch overnight-opencode-once overnight-agy overnight-agy-watch overnight-agy-once overnight-kiro overnight-kiro-watch overnight-kiro-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review image-regen eval-narrative
+.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback narrative-smoke-fallback-en visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny connect-demo sim-boss smoke smoke-local streamlit streamlit-stop api api-stop api-cloud cloud-image cloud-run-local dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build validate-content check check-skills sync-skills check-auto _harness-guard _overnight-clean-tree overnight-env-doctor overnight-where overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-ledger-check overnight-ledger-state overnight-trajectory overnight-resume overnight-provenance-compare overnight-graph-smoke overnight-graph-measure overnight-clean overnight-claude overnight-claude-watch overnight-claude-once overnight-codex overnight-codex-watch overnight-codex-once overnight-opencode overnight-opencode-watch overnight-opencode-once overnight-agy overnight-agy-watch overnight-agy-once overnight-kiro overnight-kiro-watch overnight-kiro-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review image-regen eval-narrative
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -139,6 +139,37 @@ overnight-status: _harness-guard
 
 overnight-dashboard: _harness-guard
 	@bash $(OVN_SRC)/dashboard.sh
+
+overnight-ledger-check: _harness-guard
+	@python3 $(OVN_SRC)/lib/ledger.py check $(OVN)/logs/events.jsonl
+
+overnight-ledger-state: _harness-guard
+	@python3 $(OVN_SRC)/lib/ledger.py project $(OVN)/logs/events.jsonl
+
+overnight-trajectory: _harness-guard
+	@python3 $(OVN_SRC)/lib/trajectory.py $(OVN)/logs/events.jsonl \
+	  $(if $(MISSION),--mission "$(MISSION)",) --format "$(or $(FORMAT),text)"
+
+overnight-resume: _harness-guard
+	@test -x "$(OVN_SRC)/resume.sh" || { echo "설치된 overnight-harness에 resume.sh가 없습니다."; exit 1; }
+	@test -n "$(MISSION)" || { echo "MISSION=<mission-id>가 필요합니다."; exit 2; }
+	@test "$(DECISION)" = "approve" -o "$(DECISION)" = "reject" || { echo "DECISION=approve|reject가 필요합니다."; exit 2; }
+	@HARNESS_REPO_ROOT="$(CURDIR)" bash $(OVN_SRC)/resume.sh "$(MISSION)" --"$(DECISION)"
+
+overnight-provenance-compare: _harness-guard
+	@test -n "$(LEFT)" -a -n "$(RIGHT)" || { echo "LEFT=<manifest>와 RIGHT=<manifest>가 필요합니다."; exit 2; }
+	@python3 $(OVN_SRC)/lib/provenance.py compare --left "$(LEFT)" --right "$(RIGHT)" \
+	  --left-result "$(LEFT_RESULT)" --right-result "$(RIGHT_RESULT)"
+
+overnight-graph-smoke: _harness-guard
+	@bash $(OVN)/graph-smoke.sh "$(HARNESS_ROOT)"
+
+GRAPH_MEASURE_REPEATS ?= 5
+GRAPH_MEASURE_OUTPUT ?= outputs/overnight/dev-graph-empirical-baseline/deterministic
+overnight-graph-measure: _harness-guard
+	@test -n "$(HARNESS_SOURCE_ROOT)" || { echo "HARNESS_SOURCE_ROOT=<released source checkout> is required"; exit 2; }
+	@$(PYTHON) $(OVN)/measure-graph.py --harness-source "$(HARNESS_SOURCE_ROOT)" \
+	  --repetitions "$(GRAPH_MEASURE_REPEATS)" --output "$(GRAPH_MEASURE_OUTPUT)"
 
 overnight-clean:
 	@rm -f $(OVN)/STOP $(OVN)/DONE && echo "STOP/DONE 제거 — 다음 가동 준비 완료."

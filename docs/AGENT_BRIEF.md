@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-07-26
+Last updated: 2026-07-27
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **2026-07-26 AGENT-RUNNABLE RESIDUALS DRAINED** — frontend track closed; stale ESLint suppressions removed (`b10bf59`, lint 0 warnings); Su-ah title clarified to `기억의 대장장이` across KO/EN/runtime (`f90c3db`, `make check` 1168 + AGY PASS). No actionable `[auto]` or deterministic unowned item remains. Next: owner **§3 verdict on `00078-rs9`** + held-out bank 비준; agent banks loops/evals after owner play. Local commits only; push not performed.
+> ▶ NEXT SESSION: **DEV GRAPH TURN GATE CLOSED — FROZEN-BANK BASELINE NEXT** — Harness 1.3.4 rejects/compensates actor commits above WorkContract `turns`, the three-task held-out bank is owner-ratified, and MythOS pins the tag-derived cache. Next: run the frozen bank's repair-0/subagents-0 single-actor baseline in a disposable worktree; keep repair, fan-out, push, and deploy off.
 
 ## Snapshot
 
@@ -28,9 +28,9 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **§3 deployed owner verdict on `00078-rs9`** — the sole active human QA item after the ratified reduction (직접확인 3; alignment fix + icon set + loadout editor all live).
-2. **Narrative eval bank** — owner §3 play creates 2+ prod loops; agent banks their loop IDs and runs the rubric/held-out split (local 07-19 pair is baseline only).
-3. **Manual residuals/hold**: S4 copy tone, variant intro feel, G2 twist tone, EN fresh-loop retest; Model-B demo owner-armed; `glass-library` held.
+1. **MythOS Dev Graph** — Harness 1.3.4 locally released/pinned: turn 14/12 fixture and real 31/12 evidence fail closed before acceptance; held-out bank ratified. Next measured step is its repair-0/subagents-0 single-actor baseline.
+2. **§3 + narrative bank (owner)** — two deployed non-fallback loops provide the final feel verdict and prod IDs for rubric/held-out evaluation.
+3. **Manual residuals/hold**: S4 copy tone, variant intro feel, G2 twist tone, EN fresh-loop retest; Graph repair/fan-out owner-gated; `glass-library` held.
 
 ## Read Order
 

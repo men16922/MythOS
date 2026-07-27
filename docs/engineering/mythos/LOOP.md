@@ -55,7 +55,9 @@ the controller does not silently switch engines.
 ## 4. MythOS verifier adapters
 
 All executable scripts under `scripts/overnight/verifiers.d/` receive the verified commit range.
-They return `0=pass`, `2=inconclusive`, `3=needs_human`, other=`fail`.
+They return `0=pass`, `1=hard fail`, `2=inconclusive`, `3=needs_human`, `4=repairable fail`.
+Hard fail/inconclusive revert; needs-human durably pauses; repairable fail uses the bounded repair edge
+when enabled and otherwise reverts.
 
 | Adapter | Responsibility |
 | --- | --- |
@@ -107,3 +109,30 @@ orchestrator own integration. Shared writes are never made concurrently in one w
 
 Design and synthesis: [`../../plans/2026-07-18-overnight-harness-v2.md`](../../plans/2026-07-18-overnight-harness-v2.md),
 [`../../reference/2026-07-18-openai-anthropic-harness-synthesis.md`](../../reference/2026-07-18-openai-anthropic-harness-synthesis.md).
+
+## 8. Consumer graph smoke (offline, disposable)
+
+`make overnight-graph-smoke` is the MythOS P1 consumer gate for the released harness's own
+dispatch/trajectory/evidence graph seam (`scripts/overnight/graph-smoke.sh`). It drives the
+harness against disposable local Git repositories under a throwaway temp dir with the offline
+`OVERNIGHT_ENGINE=fake` actor — no real model, no network, no mutation of this repo's worktree,
+ledger, or backlog. It enumerates exactly five terminal trajectory outcomes:
+
+- `design-blocked` — compiler exit 4 is a terminal human edge; no actor dispatches, no contract
+  is written, `DONE=all-blocked`.
+- `accepted` — base-red to candidate-green, with an immutable evidence bundle (contract,
+  provenance, and artifact hashes verified against bytes), ledger sequence-corruption rejected,
+  and verifier provenance drift rejected.
+- `reverted` — a red candidate is compensated back to the exact base tree.
+- `repaired` — one bounded repair revision loops through the gate and closes green.
+- `paused` — a `needs_human` verifier (browser objective) keeps the pending commit and evidence
+  bundle but releases the claim.
+
+Each path asserts a deterministic, repeated trajectory projection with balanced accounting, then
+confirms no persistent `CLAIM` remains. The final check confirms the real MythOS HEAD and working
+tree are byte-identical before and after the run.
+
+This is fixture evidence for the harness's own graph contract — it is **not a real mission**: no
+lane item is compiled from this repo's `docs/NEXT_PLAN.md`, no product code changes, and no
+acceptance/rejection touches the real backlog. A real mission still runs its own contract → gate →
+verifier → evidence path (§§2-4 above) against actual repo content.

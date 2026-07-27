@@ -42,3 +42,10 @@ which is invisible in completion counts alone.
 ## Swap log
 
 - 2026-07-25: initial composition (3 tasks) authored during 1.2.0 adoption; owner may amend.
+- 2026-07-26: mechanical re-audit PASS — all 3 tasks remain open in source, each has a deterministic
+  Done criterion, none is copied into `docs/NEXT_PLAN.md`, and the Claude contract compiles with
+  revisions/subagents both 0 plus gate/diff-scope/gameplay/browser evidence. This validates bank
+  integrity only; owner composition ratification is still pending.
+- 2026-07-27: owner ratified the three-task composition as **frozen bank v1** while directing the
+  priority sequence through completion. Any replacement or task-content change requires a new
+  recorded owner decision; evaluation commits remain disposable and must never merge to main.

@@ -47,8 +47,9 @@ Every executable `scripts/overnight/verifiers.d/*.sh` is bounded by
 - `$1`: commit range;
 - `OVERNIGHT_CONTRACT_FILE`, mission id, engine name, and log directory via environment.
 
-Exit protocol: `0 pass`, `2 inconclusive`, `3 needs_human`, other `fail`. Passes that are not relevant
-say so explicitly. `fail` and `inconclusive` revert; `needs_human` keeps the pending commit and stops.
+Exit protocol: `0 pass`, `1 hard fail`, `2 inconclusive`, `3 needs_human`, `4 repairable fail`.
+Passes that are not relevant say so explicitly. Hard fail and inconclusive revert; needs-human durably
+pauses the pending commit; repairable fail enters the bounded repair edge when enabled and otherwise reverts.
 
 ### Objective browser evidence
 
@@ -91,6 +92,22 @@ repo-owned evidence projection rather than a fork of the plugin skill.
 - `scripts/overnight/logs/evidence/bundle-*.json`
 - `scripts/overnight/logs/REVIEW_QUEUE.md`
 - `outputs/live-qa/<run_id>/`
+
+## 7. Consumer graph smoke (P1 gate)
+
+`make overnight-graph-smoke` is the acceptance ladder's meta-check: it verifies that the released
+harness's own dispatch/trajectory/evidence machinery behaves correctly, independent of any MythOS
+mission. It is offline and disposable — it runs throwaway local Git repositories (not this repo)
+through the fake engine and requires all five terminal outcomes to reach their documented state
+with deterministic trajectory replay and balanced evidence accounting: `design-blocked` (compiler
+stop, no dispatch), `accepted` (green candidate, immutable evidence, corruption/drift rejected),
+`reverted` (compensated to base), `repaired` (bounded revision closes green), and `paused`
+(`needs_human` verifier keeps evidence, releases the claim).
+
+Passing `overnight-graph-smoke` is a precondition for trusting the Mechanical/Semantic/Domain/Human
+ladder above on any real mission. Its fixture trajectories are **not a real mission** and are not
+acceptance evidence for one — they never substitute for `make check`, the semantic critic, or the
+registered verifiers running against actual repo diffs.
 
 Related: [`LOOP.md`](LOOP.md), [`HARNESS.md`](HARNESS.md),
 [`../../plans/2026-07-18-overnight-harness-v2.md`](../../plans/2026-07-18-overnight-harness-v2.md).

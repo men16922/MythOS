@@ -227,6 +227,65 @@
 - **Boundary**: App C `useTabs` was declined because touch behavior and a wide interface outweighed remaining depth; the track optimizes module depth, not line count.
 - **Verification**: all four final slices passed `make check` (1166/1167) and official post-commit AGY `PASS_CANDIDATE`; save/load additionally proved POST restore before active-loop GET in rendered Playwright.
 
+## M67 — Graph P0 durable ledger + resumable human checkpoint (2026-07-26, upstream; local 1.3.0 release)
+
+- **P0-A durability**: plugin `ledger.py` owns locked append + `fsync`, schema 1 replay/schema 2 hash refs, deterministic mission projection, and corruption checks. Lifecycle/evidence writes fail closed; claim reconciliation/status/operator commands share the projector.
+- **P0-B human edge**: verifier `needs_human` writes a non-terminal atomic snapshot bound to pending HEAD, evidence, and controller/policy/verifier graph fingerprint. Approve keeps the commit; reject uses the shared history-preserving compensation seam; neither reruns actor/gate/critic/verifiers.
+- **Recovery guards**: interrupted claim remains paused; normal runners do not mark paused missions stalled; double/conflicting decisions and HEAD/worktree/evidence/graph drift are refused without consuming the checkpoint.
+- **Consumer + proof**: MythOS adds `overnight-ledger-check`, `overnight-ledger-state`, `overnight-resume`; harness 7 offline suites 95/95, package/init/syntax checks pass, MythOS `make check` 1168 (5 skipped). Rolled into upstream `bc48e8b` / local tag `overnight-harness--v1.3.0`; no remote push/publication.
+
+## M68 — Graph P1-A canonical mission provenance (2026-07-26, upstream; local 1.3.0 release)
+
+- **Deep module**: `provenance.py` owns canonicalization, atomic manifest write, validation, and diff behind one shell initializer. The manifest records only whitelisted non-secret policy plus plugin/runner, schema/topology, contract compiler binding, actor/critic identity+prompt, and ordered verifier hashes.
+- **Lineage contract**: every new schema-3 mission event and evidence bundle carries one `graph_fingerprint` + immutable `provenance_ref`; ledger replay rejects mixed lineage. Same fingerprint/different result is classified as nondeterministic; config changes return a field diff. Per-iteration WorkContracts stay bound by evidence `contract_ref` because one runner mission can execute several contracts.
+- **Proof + consumer**: harness 8 offline suites 100/100, syntax/package/init/AGY/diff gates pass; MythOS adds `overnight-provenance-compare`, pin/ledger checks pass, and `make check` remains 1168 (5 skipped). Rolled into upstream `bc48e8b` / local tag `overnight-harness--v1.3.0`; no remote push/publication.
+
+## M69 — Graph P1-C transition fault recovery (2026-07-26, upstream; local 1.3.0 release)
+
+- **Recovery Module**: ledger projection exposes the latest pre-effect checkpoint and accepted evidence. Claim takeover validates immutable evidence + exact HEAD to recover accepted; otherwise it compensates the complete actor/repair range to the checkpoint base before closing stalled. Ambiguity blocks dispatch.
+- **Idempotent effect seam**: compensation aborts/retries an interrupted revert and uses base/current tree identity as the durable completion marker, preventing double revert after a kill. Repair events retain diagnosis, budget, original HEAD, and full range.
+- **Proof**: eight real-process `SIGKILL` fixtures cover actor/event, gate/evidence, repair recall/reverify, single/multi-commit revert, and terminal before/after; human-pause HEAD drift remains in the resume suite. Harness 9 offline suites 108/108 plus syntax/package/init/AGY/diff gates pass; MythOS `make check` remains 1168 (5 skipped). Rolled into upstream `bc48e8b` / local tag `overnight-harness--v1.3.0`; no remote push/publication.
+
+## M70 — Graph P1-B edge-level causal trajectory (2026-07-26, upstream; local 1.3.0 release)
+
+- **Projection Module**: `trajectory.py` deterministically derives stable node/attempt/parent identity, input/output state hashes, typed edges/verdict/evidence, and duration/token/cost from the append-only ledger. JSONL remains authoritative; OTel is only a future optional export.
+- **Accounting**: actor/gate/critic/repair/repo-verifier results carry `duration_ms`; usage owns tokens/cost. Mission totals are exact child sums with a fail-closed balanced flag and negative-value rejection.
+- **Proof + consumer**: accepted/repaired/reverted/needs-human paths, unique attempts, actor/repair/critic usage attribution, independent source↔child reconciliation, text path/table, and byte-deterministic replay pass in eight new fixtures; harness 10 offline suites 116/116 and packaging/integration gates pass. MythOS adds `overnight-trajectory`; `make check` remains 1168 (5 skipped). Rolled into upstream `bc48e8b` / local tag `overnight-harness--v1.3.0`; no remote push/publication.
+
+## M71 — MythOS Dev Graph P1 offline integration smoke (2026-07-26)
+
+- **Consumer seam**: `make overnight-graph-smoke` runs the released 1.3.0 controller and MythOS WorkContract compiler only in disposable local Git repos with the fake engine; the product worktree, network, and real mission ledger remain untouched.
+- **Five paths**: design-blocked stops before actor dispatch; accepted proves base-red→candidate-green plus immutable evidence; reverted restores the exact base tree; repaired takes one bounded loop-back; paused preserves the pending commit/evidence while releasing its claim.
+- **Integrity proof**: contract/provenance/artifact hashes match bytes, sequence corruption and verifier drift fail closed, trajectories are causal/accounting-balanced and byte-deterministic, every fixture cleans its claim, and two full target runs produce identical output. P2 remains owner-gated on selecting one real temporary mission.
+
+## M72 — MythOS Dev Graph P2 first non-fixture mission (2026-07-26)
+
+- **Contract seam**: an immutable owner-approved MissionSpec compiles design/risk/one ordered slice into the existing WorkContract and binds `15-regression-validity` through an evidence config hash; repair/revisions and subagents stayed 0.
+- **Measured outcome**: Claude changed only the three approved docs and committed `1ae0d01`; the external gate caught ambient `OVERNIGHT_LANE=claude` contaminating Codex compiler fixtures, then Harness created compensation commit `80f44f0` and terminal `rejected_by_gate`. No actor change was retained.
+- **Independent audit**: 11-event ledger valid, state terminal, trajectory reverted/balanced, diff-scope pass, regression base 1/candidate 0, reverted-base `make check` 1171 (5 skipped), all archived hashes pass. Evidence: `outputs/overnight/p2-first-mission-mission-20260726-181623-39074/`.
+- **Containment**: compiler fixtures now clear inherited lane state before testing their explicit-engine fallback; focused tests and the real-lane graph smoke cover both sides. Claude reported 54 turns/$2.0424 against a soft 12-turn request; another real-engine run requires fresh approval and a budget-semantics decision. P3 can proceed with fake/disposable engines.
+
+## M73 — MythOS Dev Graph empirical baseline + bounded retry (2026-07-26)
+
+- **Current release proof**: local Harness 1.3.2 (`31fe42b`, tag-derived cache) passes 126 offline checks; five repetitions of consumer graph, pause/resume, and real-process fault suites pass 110/110 in 181.102s with 15/15 raw-log hashes and no MythOS worktree drift.
+- **Real cohort**: the first task was safely rejected/compensated after a fixture-coupled gate RED; the isolated same-task retry was accepted with three scoped docs, full gate 1171 (5 skipped), regression/scope evidence, 15-event ledger, balanced trajectory, clean claim/worktree, and byte-identical owner-worktree integration.
+- **Measured boundary**: retry used one Claude invocation, 223.234s, 1,951,605 reported tokens, $1.1495 under hard $2.50, repair/revisions/subagents 0. Across both real runs false accepts=0, but `turns=12` was unenforced (54/31) and retry metadata drifted 0→1.
+- **Decision**: deterministic gates and narrowly bounded one-shot dogfood PROCEED; multi-iteration, repair, critic-effect, fan-out, and general productivity claims HOLD. Authority report: `docs/reports/2026-07-26-dev-graph-empirical-baseline.md`.
+
+## M74 — Harness 1.3.3 retry contract/provenance alignment (2026-07-26)
+
+- **Single authority**: plugin `contract_retry_budget()` preserves an explicit `CONTRACT_RETRIES`, including `0`, for external and built-in compilers; blank keeps the existing `MAX_CONSEC_FAIL` fallback. Canonical provenance records the same effective value.
+- **Truthful cost boundary**: provenance names `CLAUDE_MAX_BUDGET_USD` as per-invocation and records that no mission-wide cost budget is enforced; it does not infer a nonexistent hard ceiling.
+- **Proof/release**: observed MythOS compile changed `requested=0 compiled=1` to `0`; both compiler paths are full-runner fixtures. Harness 128/128 plus syntax/JSON/npm gates pass; local commit/tag/cache `0d2750e` / `overnight-harness--v1.3.3`; MythOS pinned graph smoke and compiler probe pass. No model call/push/deploy.
+- **Remaining gate**: turn-budget semantics and held-out-bank ratification still block another real cohort and unattended expansion.
+
+## M75 — Harness 1.3.4 turn-budget acceptance + held-out bank v1 ratification (2026-07-27)
+
+- **Acceptance boundary**: built-in/external WorkContracts compile `budgets.turns`; successful actor output is parsed for final `num_turns`, recorded with the contract limit, and bound to the actor log by SHA-256. Claude success without the metric fails closed.
+- **Compensation**: reported turns above the contract stop before external verification and exactly compensate any actor commit. This is post-run acceptance, not stream cancellation; wall timeout and per-invocation USD remain the actual resource caps.
+- **Proof/release**: 14/12 fixture changed from success to typed reject + restored base; real retry evidence reads `exceeded|31|12`. Harness 136/136 plus syntax/JSON/npm/AGY/push-policy gates; upstream `c9a8ff7`, local tag/cache `overnight-harness--v1.3.4`; MythOS pin + five-path graph smoke pass.
+- **Bank decision**: the three docs/Python/UI tasks are owner-ratified as frozen bank v1. Repair/fan-out remain off until a repair-0/subagents-0 single-actor baseline is audited; evaluation commits never merge.
+
 ## Archive Reference
 
 M0-M10의 상세 체크리스트, work log, verification log는 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`에 보존한다.

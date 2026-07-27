@@ -2,6 +2,14 @@
 
 plugin을 1.1.0 → 1.2.0으로 올린 **작업 repo**에서 무엇이 좋아지고, 무엇을 추가로 해야 하는지.
 
+> 2026-07-26 후속 구현 감사와 1.3.x durable graph release는
+> [`2026-07-26-graph-engineering-after-harness-120.md`](2026-07-26-graph-engineering-after-harness-120.md)를
+> 기준으로 본다. 1.2.0의 typed reject/repair 이후 남은 durable state, provenance, edge credit 갭을
+> plugin source와 schema writer까지 대조했다. P0-A/P0-B/P1-A/P1-B/P1-C는 upstream commit
+> 1.3.0 `bc48e8b`에서 시작해 turn-budget fail-close까지 1.3.4 `c9a8ff7`, local tag
+> `overnight-harness--v1.3.4`로 릴리스됐고 MythOS는 tag-derived cache를 핀한다.
+> 원격 tag/marketplace publication은 수행하지 않았으므로 공개 marketplace는 여전히 1.2.0이다.
+
 - 연구 근거: [`reference/2026-07-25-graph-engineering-after-loop-engineering.md`](../reference/2026-07-25-graph-engineering-after-loop-engineering.md) §7
 - 변경 목록: [`CHANGELOG.md`](../CHANGELOG.md) 1.2.0 · 동작 상세: [`USAGE.md`](USAGE.md) · engine: [`ENGINES.md`](ENGINES.md)
 - 남은 실험: [`docs/v2/STATUS.md`](v2/STATUS.md)
@@ -43,10 +51,10 @@ Makefile snippet이 설치된 최고 버전을 자동 해석한다(`harness-loca
 
 ```bash
 # 어떤 plugin 경로가 해석됐는지
-"$(bash <plugin>/bin/harness-locate.sh)"/.claude-plugin/plugin.json   # "version": "1.2.0"
+"$(bash <plugin>/bin/harness-locate.sh)"/.claude-plugin/plugin.json   # "version": "1.3.4"
 
-# 실제로 1.2.0 runner가 돌았는지 (한 번 돌린 뒤)
-grep -o '"adapter_version":"[^"]*"' scripts/overnight/logs/events.jsonl | tail -1   # 1.2.0
+# 실제로 1.3.4 runner가 돌았는지 (한 번 돌린 뒤)
+grep -o '"adapter_version":"[^"]*"' scripts/overnight/logs/events.jsonl | tail -1   # 1.3.4
 ```
 
 `.claude/harness-config.json`에 `harness_root`를 **핀으로 박아 뒀다면** 그 경로가 계속 이깁니다 —
@@ -194,8 +202,9 @@ repair edge의 고유 실패 모드는 **actor가 결함을 고치는 대신 리
 - 지표를 짝으로 보고한다: 완료/시간은 **반드시** false-accept와, 비용 절감은 **반드시**
   dirty-leftover rate와 함께.
 
-이 harness 자체의 P3 A/B가 지금 튜닝과 판정에 같은 3-item bank를 쓰고 있고(`docs/v2/BASELINE.md`),
-그래서 이 항목이 미해결로 남아 있다(연구 문서 §7 G4).
+MythOS는 2026-07-27 문서/Python/UI 3개 항목을 `scripts/overnight/heldout-bank.md`의 frozen bank
+v1으로 owner 비준했다. 이제 repair 0 단일 actor baseline을 먼저 측정하고, 그 결과와 짝지은
+비교가 끝날 때까지 repair 기본값은 0을 유지한다.
 
 ### 3.5 계약을 쓴다면 `budgets.revisions`
 
@@ -261,7 +270,7 @@ claim·typed terminal·evidence는 perimeter이므로 롤백 대상이 아니다
 | --- | --- |
 | **repair edge의 실효성** | **미측정.** 27개 offline 검사로 *메커니즘*은 검증됐지만, 실제로 완료 수를 올리고 false-accept를 안 올리는지는 실제 밤샘 A/B가 필요하다. 그래서 기본값이 `0`이다 |
 | **cross-engine critic의 실효성** | **미측정.** 판정 불일치율 데이터 없음 |
-| held-out bank (§3.4) | 미착수 — 위 두 측정의 선행 조건 |
+| held-out bank (§3.4) | frozen bank v1 비준 완료; repair-0 단일 actor baseline과 100% accepted-diff audit가 다음 단계 |
 | 병렬 lane / fan-out | **비채택.** multi-worktree scheduler는 V2 명시적 non-goal이고, graph 담론 쪽 증거도 토큰 15배·fan-in 병목 경고로 기울어 있다. 기존 subagent 예산(`OVERNIGHT_SUBAGENTS`, 상한 3)의 P6 wall-clock 측정이 선행 |
 | mission 내부 sub-step checkpoint | **비채택.** "1 iteration = 1 commit"이 crash 경계를 이미 주고 있고 더 쪼개면 그 불변식과 충돌한다. repair edge가 같은 통증을 훨씬 싸게 해결 |
 | graph 프레임워크(LangGraph 등) / graph DSL | **비채택.** no-build·low-dependency 설치 계약을 깬다. mission lifecycle은 이미 graph이고 edge는 `run.sh` 제어 흐름이다 |
@@ -273,5 +282,5 @@ claim·typed terminal·evidence는 perimeter이므로 롤백 대상이 아니다
 1. **오늘** — plugin 업데이트 + `.gitignore` 확인(§3.1). 설정 변경 없이 정상 동작 확인.
 2. **1박** — `OVERNIGHT_CRITIC=auto OVERNIGHT_OVERSIGHT=graduated`. 아침에 REVIEW_QUEUE 확인.
 3. **그 다음** — `OVERNIGHT_CRITIC_ENGINE` (두 번째 CLI가 있다면).
-4. **repair edge 전에** — held-out bank 구성(§3.4) + repo verifier `exit 4` 분류(§3.3).
+4. **repair edge 전에** — frozen bank의 repair-0 단일 actor baseline + repo verifier `exit 4` 분류(§3.3).
 5. **그 다음** — `OVERNIGHT_REPAIR=1`, 짝 지표로 2박 비교. 악화되면 `0`으로 되돌린다.

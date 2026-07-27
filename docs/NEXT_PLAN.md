@@ -1,10 +1,17 @@
 # Project MythOS Next Plan
 
-Last updated: 2026-07-26
+Last updated: 2026-07-27
 
 This file keeps only upcoming (open) work as a rolling plan. Completed tracks live in
 `docs/COMPLETED_SUMMARY.md`, detailed logs in `bin/docs/archive/progress-2026-0*.md`, individual designs in
 `docs/plans/` (completed plans move to `bin/docs/plans/`).
+
+## Priority 0A — MythOS Dev Graph frozen-bank baseline
+
+Authority: `docs/reports/2026-07-26-dev-graph-empirical-baseline.md` + `scripts/overnight/heldout-bank.md`. Harness 1.3.4 enforces post-run turn acceptance and the three-task bank is owner-ratified; broader expansion remains held on a clean single-actor baseline.
+
+- `[ ]` `[manual]` **Frozen-bank single-actor baseline** — in a disposable evaluation worktree run the three tasks with `MAX_ITER=1`, hard wall/USD caps, repair/revisions/subagents 0; human-audit 100% of accepted diffs and report verified completion + false accepts/stops + compensation + review time + wall/turns/cost + dirty leftovers. Do not merge bank commits.
+- `[ ]` `[manual]` **Harness remote publication** — push upstream commit/tag and update the public marketplace only on explicit approval; not required for local P2 evidence.
 
 ## Priority 0 — Human live sign-off on the deployed bundle
 
@@ -26,10 +33,11 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00
 
 ## Engineering maintenance track — WS0-3 done (COMPLETED_SUMMARY M43)
 
-- `[/]` **WS5 harness operation**: plugin V2 cutover DONE 2026-07-19 (`COMPLETED_SUMMARY` M63). **1.2.0 adopted 2026-07-25** (typed verifier exits 4/3, 3-value critic PASS/REPAIR/FAIL, `budgets.revisions`, Makefile repair/critic-engine knobs; `docs/plans/2026-07-25-harness-120-adoption.md`). `OVERNIGHT_REPAIR` stays **0**. Remaining:
+- `[/]` **WS5 harness operation**: plugin V2 cutover DONE 2026-07-19 (`COMPLETED_SUMMARY` M63). **1.3.0 locally released/pinned 2026-07-26** (durable graph/provenance/trajectory plus five-value verifier protocol; remote marketplace remains 1.2.0). `OVERNIGHT_REPAIR` stays **0**. Remaining:
   - `[ ]` `[manual]` **Model-B 3-lane demonstration** — first run one objective `make overnight-<engine>-once`, then arm+observe `make overnight-worktrees-setup` + 3 engines (burns real quota, owner-armed).
   - `[/]` **cross-engine critic** — first same-diff smoke run 2026-07-25 on commit `046edc8`: **codex REPAIR vs claude PASS (1/1 disagreement)**; the codex objection (blank_output classification) was intended design → clarifying comment added to `_classify_fallback_reason`. Remaining `[ ]` `[manual]` full 1-night trial `make overnight OVERNIGHT_CRITIC_ENGINE=codex` (needs seeded `[auto]` backlog; lane currently drained) — morning: REVIEW_QUEUE + disagreement rate.
-  - `[/]` **held-out task bank — precondition for `OVERNIGHT_REPAIR=1`**: constructed 2026-07-25 at `scripts/overnight/heldout-bank.md` (3 reserved tasks; compile sanity-checked via `PLAN_DOC=` override; eval runs on disposable worktrees; paired metrics mandated). Remaining `[ ]` `[manual]` owner ratifies composition; do not enable the repair edge before then.
+  - `[/]` **held-out task bank — precondition for `OVERNIGHT_REPAIR=1`**: three docs/Python/UI tasks owner-ratified and frozen 2026-07-27 at `scripts/overnight/heldout-bank.md`. Remaining: repair-0 single-actor baseline, then a paired comparison before any default changes; do not merge bank commits or tune against their content.
+  - `[ ]` `[manual]` **Graph P2 bounded read-only scatter/gather experiment (upstream)**: only after held-out-bank ratification and explicit multi-agent authorization; compare 2–3 immutable-input scouts against one agent on wall time/tokens/valid defects/duplication. P0-A/P0-B/P1-A/P1-B/P1-C are in the local 1.3.0 release (116/116); no write-lane fan-out.
 - `[x]` **V2 human-load rollout — COMPLETE 2026-07-21**: evidence 3/3 (0 false accepts) → owner ratified **5(+1 chip) auto / 8 monitored / 3 human**; checklist restructured (직접확인 3 / 이상시기록 8), active surface 16→3 (81% reduction). Ongoing: 7-assertion contract per deploy; report attention list is the human touchpoint. Compress to COMPLETED_SUMMARY on next tidy.
 
 ## Rules

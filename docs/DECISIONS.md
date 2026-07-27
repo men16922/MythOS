@@ -2,6 +2,52 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-07-27 — Contract turns are a post-run fail-close gate; held-out bank v1 is frozen
+
+Decision: Harness accepts a successful actor result only when its reported `num_turns` is present for Claude and does not exceed WorkContract `budgets.turns`. An over-budget actor commit is history-preservingly compensated before the external gate. Wall timeout and the Claude per-invocation USD cap remain the in-flight resource controls because `num_turns` is available only in the final JSON result. The three tasks in `scripts/overnight/heldout-bank.md` are owner-ratified as frozen bank v1; composition changes require another recorded owner decision.
+
+Reason/impact: the empirical cohort compiled 12 turns but returned 54/31 and was still accepted/rejected only by downstream gates. The same 14/12 fixture now emits an actor-log-hashed reject, restores the base tree, and terminates failed; the real 31/12 evidence also classifies exceeded. This closes the turn-semantics and composition gates without claiming in-flight cancellation or productivity benefit. Repair/fan-out stay off until a repair-0/subagents-0 frozen-bank baseline is fully audited.
+
+## 2026-07-26 — Dev Graph rollout holds on unenforced contract budgets
+
+Decision: retain Harness 1.3.3 deterministic graph/recovery gates and allow only one-shot, reversible, non-production dogfood under required scope, `MAX_ITER=1`, hard wall/USD caps, repair 0, and subagents 0. Explicit retry values now compile unchanged. Hold multi-iteration unattended work, repair, critic-effect trials, fan-out, and productivity claims until the Claude turn budget is either enforced or truthfully renamed non-binding. A new real cohort also requires owner ratification of the frozen held-out task bank.
+
+Reason/impact: the preregistered cohort passed 110/110 deterministic cases, 2/2 terminal audits, zero false accepts, and exact compensation; the accepted retry cost $1.1495 and 223.234s. Harness 1.3.3 closed the observed retry 0→1 drift and records the absence of a mission cost cap, but both actors still exceeded `turns: 12` (54 and 31). Safety/recovery are evidenced; autonomous scale and general productivity are not. Authority: `docs/reports/2026-07-26-dev-graph-empirical-baseline.md`.
+
+## 2026-07-26 — MissionSpec stays immutable and extends WorkContract through verifier config
+
+Decision: a real MythOS graph mission references one repo-relative, owner-approved schema-1 MissionSpec by SHA-256. The spec owns design, risk, ordered slices, review budgets, and a base-red/candidate-green command or typed owner exemption. The existing WorkContract schema remains unchanged: scope is compiled from the slices and `15-regression-validity` receives the immutable reference through `evidence[].config`. Runner `OVERNIGHT_LANE` remains the explicit lane authority; compiler-unit subprocesses clear it before exercising the `CONTRACT_ENGINE` fallback so ambient actor state cannot contaminate fixtures.
+
+Reason/impact: one deep compiler/verifier seam keeps policy out of the controller and avoids a second mission schema while making owner approval and regression validity fail closed. P2 proved the boundary by catching an ambient-lane collision in the independent gate and compensating the actor commit. The current Claude CLI offers no hard turn limit, so contract turns remain observed/soft until the owner chooses wall+USD hard caps or a streaming cancellation implementation; no second real-engine mission is authorized meanwhile.
+
+## 2026-07-26 — MythOS Dev Graph starts CLI-first with design-gated single-writer slices
+
+Decision: extend the plugin-owned durable mission graph into a MythOS automated development team through repo-owned WorkContracts and evidence adapters, not a second controller or product-runtime graph. Product/architecture/program design must pass `design.approve` before a structural or vertical-feature actor runs; one leased writer produces independently green reviewable slices, while gate/critic/gameplay/browser/image/narrative reviewers remain read-only. New regression tests prove base-red→candidate-green or carry a typed reviewed exemption. JSONL remains the structured state authority; trajectory/dashboard remain projections.
+
+Reason: coding-agent throughput without trustworthy upstream design and verification edges accumulates false accepts and comprehension debt. Small design-approved slices make interface/type/call-flow decisions legible before implementation and keep a later human audit bounded. Single-writer plus external verifiers preserves the existing recovery and evidence perimeter while the first real missions measure whether more topology is earned.
+
+Impact: `docs/plans/2026-07-26-mythos-dev-graph.md` is the implementation authority. The upstream substrate is locally released/pinned as Harness 1.3.0; next add the design/slice contract, `15-regression-validity`, graph smoke, and one repair-0/subagents-0 mission. Repair, read-only fan-out, separate framework extraction, dashboard, remote publication, push, and deploy remain measured/owner-gated follow-ups; reversal is to stop dispatch and retain the ledger/evidence while reverting the Harness pin.
+
+## 2026-07-26 — Causal trajectory is a read-only ledger projection, not runtime state
+
+Decision: edge-level trajectory is derived from the append-only event ledger through one `trajectory.py` Interface. It assigns stable node/attempt/parent identity, deterministic before/after state hashes, typed edge/verdict/evidence, and duration/token/cost totals. It cannot mutate or resume a mission, and OTel may only export the same projection.
+
+Reason/impact: adding a second trace database or graph runtime would create competing authorities precisely after the ledger became durable. A pure projection makes accepted/repaired/reverted/needs-human missions comparable and accounting-checkable while keeping recovery owned by `ledger.py` + `claim.sh`. Reversal would require a deliberate state-authority migration, not another observer. Implementation is in the local Harness 1.3.0 release; remote publication is pending.
+
+## 2026-07-26 — Transition recovery projects checkpoint/evidence through one idempotent compensation seam
+
+Decision: external-effect boundaries use durable `mission.checkpointed` events rather than an arbitrary step graph. Restart accepts an orphan only when its immutable accepted-evidence bytes and exact HEAD match; every earlier checkpointed actor/repair range is compensated to the recorded base before a typed `stalled` terminal. Compensation aborts/retries an interrupted revert and treats base/current tree identity as completion, so replay cannot double-revert. Ambiguous evidence, HEAD, ancestry, or dirty state blocks the next actor.
+
+Reason: a typed event after each node does not close the crash window between Git effects and ledger writes. A single recovery Interface keeps Git history, ledger state, and claim takeover consistent without introducing LangGraph/Temporal or exposing controller internals to callers.
+
+Impact: `claim.sh` depends only on projected checkpoint/evidence and `revert_commit(base)`; eight real-`SIGKILL` fixtures prove the transition matrix. This is in the local Harness 1.3.0 release; remote publication is pending. The next graph seam is the MythOS P1 integration smoke, not more execution topology.
+
+## 2026-07-26 — Mission provenance is one immutable graph manifest; WorkContracts bind per evidence bundle
+
+Decision: the overnight controller creates one canonical, secret-free provenance manifest before a mission's first event. Schema-3 events and evidence bundles carry the same `graph_fingerprint` and immutable `provenance_ref`; ledger replay rejects a within-mission lineage change. The manifest owns plugin/runner, schema/topology, whitelisted policy, contract compiler, actor/critic identity+prompt, and verifier hashes. It never records credentials or the full environment.
+
+Reason/impact: `MISSION_ID` spans multiple iterations while compiled WorkContracts are iteration-scoped. Freezing the first contract into the mission manifest would mislabel later iterations, while rewriting the manifest would destroy immutability. Therefore the manifest records the compiler and `evidence_bundle.contract_ref` binding rule; each bundle owns its exact compiled contract hash. This preserves one comparable graph identity without lying about task inputs. Reversal requires changing mission granularity to one iteration and migrating schema-3 lineage semantics. Implementation is in the local Harness 1.3.0 release; MythOS pins its tag-derived cache.
+
 ## 2026-07-21 — Live-QA ownership split ratified: 5(+1) auto / 8 monitored / 3 human
 
 Decision: the Neo-Seoul live-QA checklist is no longer fully human-owned. Items closed by a fail-closed assertion (image arrival, companion join/party, cutscene cardinality/return, choice arrival, first-use gloss, route-axis chip) are AUTO; eight items with objective signals but no closing assertion are MONITORED (passive "record only if it feels wrong" + report attention escalation); three judgment items (two-style dull/sensitive, ending conviction, overall impressions) stay HUMAN. Target was 6/8/2 — 엔딩 납득/총평 were deliberately kept human rather than force-fitting the target.

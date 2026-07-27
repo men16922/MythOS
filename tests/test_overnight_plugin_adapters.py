@@ -37,6 +37,7 @@ class ContractCompilerTests(unittest.TestCase):
             "CONTRACT_PLAN_DOC": str(plan),
             "CONTRACT_MISSION_ID": "mission-fixture",
             "CONTRACT_ENGINE": "codex",
+            "OVERNIGHT_LANE": "",
             "CONTRACT_WALL_MINUTES": "30",
             "CONTRACT_RETRIES": "2",
             "CONTRACT_SUBAGENTS": "0",

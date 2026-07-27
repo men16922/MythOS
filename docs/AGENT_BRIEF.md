@@ -4,7 +4,7 @@ Last updated: 2026-07-27
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **DEV GRAPH TURN GATE CLOSED — FROZEN-BANK BASELINE NEXT** — Harness 1.3.4 rejects/compensates actor commits above WorkContract `turns`, the three-task held-out bank is owner-ratified, and MythOS pins the tag-derived cache. Next: run the frozen bank's repair-0/subagents-0 single-actor baseline in a disposable worktree; keep repair, fan-out, push, and deploy off.
+> ▶ NEXT SESSION: **FROZEN-BANK COHORT INVALIDATED — CLEAN RE-ARM IS OWNER-GATED** — all three real actors exceeded 12 turns and were exactly compensated, but an unlocked NumPy 2.5.1 install made the base mypy-red. MythOS now pins NumPy `<2.5` and preflights mypy before model dispatch. Next: owner decides whether to spend on one new clean repair-0 cohort; keep repair, fan-out, push, and deploy off.
 
 ## Snapshot
 
@@ -28,7 +28,7 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **MythOS Dev Graph** — Harness 1.3.4 locally released/pinned: turn 14/12 fixture and real 31/12 evidence fail closed before acceptance; held-out bank ratified. Next measured step is its repair-0/subagents-0 single-actor baseline.
+1. **MythOS Dev Graph** — frozen-bank cohort ran 3/3: 0 accepted, 3 turn stops, 3 exact compensations, 0 dirty leftovers, $4.3584. It validates fail-close but not productivity because the disposable base was mypy-red; a paid clean re-arm is owner-gated.
 2. **§3 + narrative bank (owner)** — two deployed non-fallback loops provide the final feel verdict and prod IDs for rubric/held-out evaluation.
 3. **Manual residuals/hold**: S4 copy tone, variant intro feel, G2 twist tone, EN fresh-loop retest; Graph repair/fan-out owner-gated; `glass-library` held.
 

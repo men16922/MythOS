@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-07-27 — Base-red held-out cohort is safety evidence, not a productivity baseline
+
+Decision: classify the first frozen-bank repair-0 cohort as executed but invalid for productivity comparison. It may support only the claims directly observed: all three 12-turn contracts rejected 47/40/46-turn commits, all three compensations restored clean trees, and no commit reached verification or acceptance. Keep repair 0 and require an explicit paid clean-cohort re-arm after base-green preflight; do not reuse this cohort as a paired-comparison arm.
+
+Reason/impact: the disposable setup selected NumPy 2.5.1 under Python 3.13 even though MythOS type-checks its supported Python 3.11 floor; every actor therefore handled the same pre-existing mypy failure rather than its frozen task. Constraining NumPy `<2.5` and adding mypy to the model-before-dispatch environment doctor closes the detected seam. The owner bank remains unchanged, evaluation commits remain unmerged, and remote publication/fan-out stay separately gated.
+
 ## 2026-07-27 — Contract turns are a post-run fail-close gate; held-out bank v1 is frozen
 
 Decision: Harness accepts a successful actor result only when its reported `num_turns` is present for Claude and does not exceed WorkContract `budgets.turns`. An over-budget actor commit is history-preservingly compensated before the external gate. Wall timeout and the Claude per-invocation USD cap remain the in-flight resource controls because `num_turns` is available only in the final JSON result. The three tasks in `scripts/overnight/heldout-bank.md` are owner-ratified as frozen bank v1; composition changes require another recorded owner decision.

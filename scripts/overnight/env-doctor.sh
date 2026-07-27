@@ -14,6 +14,11 @@ check test -x scripts/overnight/verifiers.d/10-diff-scope.sh
 if [ -x .venv/bin/python ]; then
   check .venv/bin/python -c 'import mythos_runtime, mythos_loop'
 fi
+if [ -x .venv/bin/mypy ]; then
+  # Burn no model quota when the immutable base already fails the Python gate. This also
+  # catches dependency-stub drift that a shallow import probe cannot see.
+  check .venv/bin/mypy src tests
+fi
 if [ "$fail" -ne 0 ]; then
   echo "environment incomplete; run make setup and make frontend-setup manually"
   exit 1

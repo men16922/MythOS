@@ -1,6 +1,6 @@
 # Completed Summary
 
-최종 갱신: 2026-07-26
+최종 갱신: 2026-07-27
 
 이 문서는 완료된 milestone의 압축 요약이다. 세부 작업 로그와 검증 기록은 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`, `bin/docs/archive/progress-2026-05.md`, `bin/docs/archive/progress-2026-06.md`를 참고한다. 최신 짧은 로그만 `PROGRESS_LOG.md`에 남긴다.
 
@@ -285,6 +285,13 @@
 - **Compensation**: reported turns above the contract stop before external verification and exactly compensate any actor commit. This is post-run acceptance, not stream cancellation; wall timeout and per-invocation USD remain the actual resource caps.
 - **Proof/release**: 14/12 fixture changed from success to typed reject + restored base; real retry evidence reads `exceeded|31|12`. Harness 136/136 plus syntax/JSON/npm/AGY/push-policy gates; upstream `c9a8ff7`, local tag/cache `overnight-harness--v1.3.4`; MythOS pin + five-path graph smoke pass.
 - **Bank decision**: the three docs/Python/UI tasks are owner-ratified as frozen bank v1. Repair/fan-out remain off until a repair-0/subagents-0 single-actor baseline is audited; evaluation commits never merge.
+
+## M76 — Frozen-bank repair-0 cohort fail-close + preflight hardening (2026-07-27)
+
+- **Measured cohort**: all three frozen tasks ran once with 15-minute/$2.50 hard caps and retry/repair/revision/subagent 0. Claude reported 47/40/46 turns against 12; Harness 1.3.4 rejected before verification, created three exact compensation commits, and left zero dirty worktrees. Total actor wall/cost = 790.198s/$4.3584.
+- **Validity boundary**: unlocked disposable setup selected NumPy 2.5.1, making the immutable base mypy-red against the Python 3.11 support target. No task was implemented or accepted, so the cohort proves real-call turn fail-close but is invalid for productivity, accepted-diff correctness rates, or repair lift.
+- **Containment**: NumPy is constrained below 2.5 and overnight preflight now runs mypy before model dispatch; final `make check` passed 1171 tests (5 skipped). Bank task text is unchanged; rejected/evaluation commits never merge. Report: `docs/reports/2026-07-27-heldout-v1-single-actor-baseline.md`.
+- **Decision**: repair/fan-out remain off. A valid clean cohort is a new paid arm requiring owner re-arm after fresh-worktree base-green proof; remote publication remains separate.
 
 ## Archive Reference
 

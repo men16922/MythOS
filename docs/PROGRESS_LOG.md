@@ -5,6 +5,13 @@ Last updated: 2026-07-27
 Newest entries only; older 2026-07 increments are in `bin/docs/archive/progress-2026-07.md`
 (and `progress-2026-06.md` for June). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
 
+## 2026-07-27 — Frozen-bank cohort fail-closed 3/3; productivity baseline invalidated
+- Status: three frozen tasks executed once each in a disposable branch with repair/revisions/subagents 0. Results: 0 accepted, 3 turn-budget stops (47/40/46 vs 12), 3 exact compensations, 0 dirty leftovers; 790.198s/$4.3584 total.
+- Audit: no accepted diff existed. All rejected actors recorded the same base mypy error instead of implementing; independent reproduction found unlocked NumPy 2.5.1 stubs require Python 3.12 syntax while MythOS checks its 3.11 support floor. Downgrading only NumPy to 2.4.6 made mypy 2.3.0 pass 188 source files.
+- Changed: constrain NumPy `<2.5`; overnight environment doctor now runs the Python typecheck before model dispatch. Raw logs copied to `outputs/overnight/heldout-v1-baseline/`; report `docs/reports/2026-07-27-heldout-v1-single-actor-baseline.md`. Final `make check` passed 1171 tests (5 skipped).
+- Boundary: the cohort proves 1.3.4 real-call fail-close and compensation, not implementation productivity or repair lift. Repair/fan-out remain off; no bank task change, merge, push, deploy, or remote publication.
+- Next: run final gates and checkpoint locally; a new paid clean cohort requires explicit owner re-arm after fresh-worktree base-green proof.
+
 ## 2026-07-27 — Harness 1.3.4 turn-budget fail-close released; held-out bank ratified
 - Status: Done locally; post-run turn acceptance is enforceable and the three-task evaluation bank is frozen. No model call/push/deploy.
 - Changed: upstream parses final `num_turns`, compares it with WorkContract `budgets.turns`, hashes the actor log into a typed check, and exactly compensates over-budget commits before verification. Built-in/external compilers share the turn value; missing successful Claude metrics fail closed.

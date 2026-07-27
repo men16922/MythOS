@@ -38,6 +38,8 @@ dev = [
     "ruff>=0.4.0",
     "mypy>=1.10.0",
     "playwright>=1.40.0",
+    "google-genai>=1.0.0",
+    "google-cloud-storage>=2.18.0",
 ]
 # P3 Web UI decoupling: FastAPI backend adapter over RuntimeSessionService.
 # Optional so the core runtime / image agent install stays lean.

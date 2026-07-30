@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-07-28
+Last updated: 2026-07-30
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **REPAIR ROLLOUT CLOSED — OWNER §3 LIVE PLAY IS NEXT** — owner retained the strict 12-turn contract after the valid clean arm returned 0/3 and stopped repair rollout; never reuse/tune bank v1. Next: owner completes the three active judgments in `docs/test/neo_seoul_live_qa.md` through two deployed non-fallback loops and supplies both loop IDs; agent then banks/audits them and runs the rubric.
+> ▶ NEXT SESSION: **PUSH HANDOFF, THEN §3 FALLBACK DIAGNOSIS** — deployed product source is committed locally as `3c66de1`, but the enforced overnight no-push guard rejected `git push origin main`. After the owner runs that exact push, diagnose the 2 fallback outcomes in fresh EN `loop_fde2…fec34`, then decide the late-loop repetition scope before another promotion sample.
 
 ## Snapshot
 
@@ -28,7 +28,7 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **§3 + narrative bank (owner)** — two deployed non-fallback loops provide the final feel verdict and prod IDs for rubric/held-out evaluation.
+1. **§3 HOLD follow-through** — the ending archive/continuity contract is live and objectively passed; two production fallbacks and late-loop drainage/searchlight/escape/combat repetition block promotion. Subjective owner feel remains manual.
 2. **MythOS Dev Graph** — repair rollout closed at strict-contract 0/3; repair remains 0 and bank v1 stays frozen. Remote publication/fan-out remain separately owner-gated.
 3. **Manual residuals/hold**: S4 copy tone, variant intro feel, G2 twist tone, EN fresh-loop retest; `glass-library` held.
 

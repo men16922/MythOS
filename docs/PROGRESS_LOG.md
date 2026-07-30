@@ -1,9 +1,27 @@
 # Progress Log
 
-Last updated: 2026-07-28
+Last updated: 2026-07-30
 
 Newest entries only; older 2026-07 increments are in `bin/docs/archive/progress-2026-07.md`
 (and `progress-2026-06.md` for June). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
+
+## 2026-07-30 — Ending contract deployed; fresh production QA is not a promotion sample
+- Status: deployed the current local ending-continuity bundle as `mythos-api-00079-d4k` at 100% traffic. Objective ending archive continuity passes in production; the broader §3 verdict remains HOLD.
+- Verified: focused runtime/combat/API 146/146; `make check` 1182 (5 skipped), mypy 188, frontend production build; health/root 200; live/local `app.js` SHA-256 matched. Browser-observed boot, choices, new app-path image, combat/flee/return, and archive message.
+- Production run: fresh EN `loop_fde284633a654c00852d5c55838fec34` completed Forced Erasure after 63 turns. Run History preserved authored EN ending narration, lost `This loop's body and signal`, and carried `The small glitch that opens the next loop`.
+- Findings: full-loop Cloud Logging audit = 45/47 success + 2 fallback, so the loop was not banked. Late play repeated drainage/vent/searchlight/escape/combat beats; an ended auto-save also rendered as an in-combat slot even though the server run was archived.
+- Publication: product/eval/test source committed locally as `3c66de1` after a fresh `make check` 1182 (5 skipped). `git push origin main` was rejected before execution by the enforced overnight no-push guard; no alternate transport was attempted.
+- Blockers: owner must run `git push origin main`; then diagnose the two untyped fallback outcomes and decide the repetition-remediation scope. Subjective ending/overall feel remains owner-manual.
+- Next: publish the local commits, classify/regression-lock the fallback edges, then collect a fresh zero-fallback production ending only after the late-loop decision.
+
+## 2026-07-28 — §3 direct production play produced one valid arm; safety/evidence replacement required
+- Status: people/help `loop_c661…25bb` completed through Forced Erasure; safety/evidence `loop_f148…2350` reached 14 story turns but is invalid for the style pair.
+- Measured: same player; people/help 89 scenes / `_story_turn=46` / 3 combat wins / 1 defeat / 47 of 47 narrative generations succeeded. Safety/evidence 20 scenes / `_story_turn=14`; 12 of 15 generations succeeded and 3 fell back.
+- Changed: banked only the valid arm as `scripts/eval/golden/prod-people-help-20260728.json`; added fail-closed `bank_loop.py --language` handling because legacy production loops do not persist language and were silently mislabeled KO.
+- Verified: Cloud Logging full-loop audit; DB read-back; narrative-eval unit tests 13/13; corrected EN judge report `outputs/evals/20260728-020105/` = overall 3/5 (continuity 2, register 4, repetition 2, naming 4, choices 3).
+- Findings: repeated late escape/combat cycles, duplicate scene openings, and dropped choice consequences remain visible in the valid arm. The invalid arm is not banked or used for a style verdict.
+- Blockers: the three subjective owner judgments remain open; a fresh zero-fallback safety/evidence production loop is required before pair scoring.
+- Next: run and audit one replacement safety/evidence arm, bank/judge the valid pair, then collect the owner's three checklist judgments. No commit/push/deploy.
 
 ## 2026-07-28 — Clean frozen-bank repair-0 arm completed; repair A/B blocked by turn gate
 - Status: valid clean-base cohort complete — 0/3 accepted, 3/3 turn rejects (37/28/27 vs 12), 3/3 exact compensations, 0 dirty leftovers. Repair/retry/revision/subagent remained 0; no merge/push/deploy.

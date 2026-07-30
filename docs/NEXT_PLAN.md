@@ -1,6 +1,6 @@
 # Project MythOS Next Plan
 
-Last updated: 2026-07-28
+Last updated: 2026-07-30
 
 This file keeps only upcoming (open) work as a rolling plan. Completed tracks live in
 `docs/COMPLETED_SUMMARY.md`, detailed logs in `bin/docs/archive/progress-2026-0*.md`, individual designs in
@@ -12,23 +12,19 @@ Authority: `docs/reports/2026-07-28-heldout-v1-clean-repair0-baseline.md`. Owner
 
 - `[ ]` `[manual]` **Harness remote publication** — push upstream commit/tag and update the public marketplace only on explicit approval; not required for local P2 evidence.
 
-## Priority 0 — Human live sign-off on the deployed bundle
+## Priority 0 — §3 HOLD follow-through before another promotion sample
 
-Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00078-rs9` (2026-07-20; 100% traffic; pushed `c51cf63`)** — §3 alignment fix + custom icon set + skill loadout editor + aim badge are all live (`make check` 1161; health 200; app.js hash match). Owner-side Priority 0:
+Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00079-d4k` (2026-07-30; 100% traffic; source committed locally as `3c66de1`)**. Remote push is pending because the enforced overnight no-push guard rejected `git push origin main`. Objective ending continuity is live and passed. Fresh EN `loop_fde2…fec34` is invalid for promotion because it logged 45/47 success and 2 fallback; late-play style convergence remains open.
 
-- `[/]` `[manual]` **§3 two-style verdict on the deployed bundle (`00078-rs9`)** — alignment fix live since `00077-8g9`. Remaining: two non-fallback deployed loops for the dull/sensitive and distinct-ending verdict (prior banked pair: `loop_22e71c...` people/help vs `loop_5b212d...` evidence→safety). Doubles as icon/loadout feel check.
-- `[x]` **V2 reduction RATIFIED 2026-07-21** (owner): split = 5(+1 chip) auto / 8 monitored / 3 human (`docs/plans/2026-07-21-live-qa-reduction-split.md`); checklist active-play surface 16→3. Release calibrations keep running the 7-assertion contract per deploy.
+- `[ ]` **Fallback diagnosis** — reproduce/classify the two `loop_fde2…fec34` fallback outcomes and restore a typed reason in the outcome evidence; completion = focused regression + `make check`, without banking the invalid loop.
+- `[ ]` `[manual]` **Late-loop repetition decision** — review the fresh drainage/vent/searchlight/escape/combat convergence and choose whether remediation is required before another paid run.
+- `[ ]` `[manual]` **Fresh zero-fallback rendered re-sign-off** — after the diagnosis/decision, complete and audit one production arm; bank only a full-loop non-fallback sample and record the subjective ending/overall verdict.
 
 ### Narrative clarity / content follow-ups (mostly `[manual]`)
-- `[x]` Su-ah title clarity: `잔향 가공사` → canonical `기억의 대장장이` / `Blacksmith of Memory` across character/ally/KO+EN Bible (`f90c3db`; legacy keyword/glossary retained; `make check` 1168 + AGY PASS). Deploy hygiene: use `make deploy` (pins .env project).
 - `[/]` `[manual]` **Full-3.5 live sign-off residuals**: fresh-loop prose/tone/length verdict, Audrey EN retest, IX/companion/equipment/growth feel, authenticated production turn. Objective save/load/map/idempotency/support/loot/equip already passed via three AGY runs.
 - `[/]` **CBT P1 residuals** (design `docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md`; P1-A..E + S1-S4 all DONE): `[ ]` `[manual]` S4 카피 톤 검수(anchor/goal + 12 beat prose) · 6 variant intros in-game feel · decisions G2 twist tone(3 `twist_bank`)/in-layer pacing(C2)/overload-strike range(D5) · EN fresh-loop coherence retest.
 - `[ ]` `[manual]` **Archetype-variant openings (long-term, 2026-07-04)**: author per-archetype opening variations (directive-layer, `resources/neo-seoul/directives/opening.md` + KO/EN), gated on CBT priorities.
-- `[ ]` `[manual]` **Image continuity watch**: confirm the next app-path generation succeeds with pinned `gemini-2.5-flash-image` — 07-19 prod audit: zero app-path attempts since the pin (only the three pre-pin 3.1 404s), so the §3 non-fallback verdict loops double as this confirmation. Curated key art remains the codex lane (owner direction 2026-07-06).
-- **Narrative eval bank (harness SHIPPED 2026-07-17)**: `scripts/eval/` (RUBRIC + `narrative_judge.py` claude-CLI judge + `bank_loop.py`; `make eval-narrative`). **2026-07-25: first real-loop run complete** — the 07-19 style pair was found in the LOCAL DB (prod prefix-resolve = 0 matches; script assumption corrected) and banked as `local-people-help`/`local-evidence-safety`; judge report `outputs/evals/20260725-234103/` scored 1–2/5, dominated by fallback-arm boilerplate + since-fixed leak bugs (byte tokens, `world_delta` dumps, `player_fled` codes) — treat as **baseline**, not a current-quality verdict. Remaining:
-  - `[ ]` `[manual]` **bank 2+ deployed prod loops** during the owner §3 play on `00078-rs9` (agent banks by loop id after).
-  - `[ ]` rubric scores accompany the §3 verdict as supporting data; later: `make eval-narrative` as a prompt/directive regression gate vs the 07-25 baseline.
-  - `[ ]` **held-out split** (GRAPH_ADOPTION §3.4): once ≥4 loops banked, mark a held-out subset never scored while iterating prompts/directives; judge promotion only against it; always pair rubric with cost/loop + repetition/length compliance.
+- `[x]` **Image continuity watch**: the 2026-07-30 fresh production app path generated and rendered a new GCS-backed 1024×1024 image with pinned `gemini-2.5-flash-image`. Curated key art remains the codex lane (owner direction 2026-07-06).
 
 ## Engineering maintenance track — WS0-3 done (COMPLETED_SUMMARY M43)
 
@@ -36,7 +32,6 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00
   - `[ ]` `[manual]` **Model-B 3-lane demonstration** — first run one objective `make overnight-<engine>-once`, then arm+observe `make overnight-worktrees-setup` + 3 engines (burns real quota, owner-armed).
   - `[/]` **cross-engine critic** — first same-diff smoke run 2026-07-25 on commit `046edc8`: **codex REPAIR vs claude PASS (1/1 disagreement)**; the codex objection (blank_output classification) was intended design → clarifying comment added to `_classify_fallback_reason`. Remaining `[ ]` `[manual]` full 1-night trial `make overnight OVERNIGHT_CRITIC_ENGINE=codex` (needs seeded `[auto]` backlog; lane currently drained) — morning: REVIEW_QUEUE + disagreement rate.
   - `[ ]` `[manual]` **Graph P2 bounded read-only scatter/gather experiment (upstream)**: only after held-out-bank ratification and explicit multi-agent authorization; compare 2–3 immutable-input scouts against one agent on wall time/tokens/valid defects/duplication. P0-A/P0-B/P1-A/P1-B/P1-C are in the local 1.3.0 release (116/116); no write-lane fan-out.
-- `[x]` **V2 human-load rollout — COMPLETE 2026-07-21**: evidence 3/3 (0 false accepts) → owner ratified **5(+1 chip) auto / 8 monitored / 3 human**; checklist restructured (직접확인 3 / 이상시기록 8), active surface 16→3 (81% reduction). Ongoing: 7-assertion contract per deploy; report attention list is the human touchpoint. Compress to COMPLETED_SUMMARY on next tidy.
 
 ## Rules
 
@@ -65,7 +60,6 @@ Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop co
 
 T1-T4a + T5/T6 + Track M + T5a/T5b DONE 2026-07-08 → `COMPLETED_SUMMARY.md` M58. Open slices:
 
-- `[ ]` `[manual]` **M4** verify 7 `position:fixed` modals for scroll-lock/clip on phone.
 - `[ ]` `[blocked]` **T5c** (LARGE) 2D top-down toggle = second orthogonal render path. Precondition (human): owner confirms isometric still illegible @390px after T5a/b. NOT unattended-consumable — do not build on a guess. Promote to `[auto:claude]` after that judgment.
 
 ## Priority 1 — Neo-Seoul Playability Upgrade
@@ -90,6 +84,5 @@ Key criteria (compressed): 5-min goal/risk clarity · choices reveal the value a
 
 - `[ ]` `[manual]` long-play Flux1 + Flux1Redux simultaneous-load memory monitor.
 - `[ ]` `[blocked]` `_map` removal cleanup (held until route-node track done; engine records every scene + encounter_map coords·story_bible location·glass-library fallback minimap depend on it). Prereq: all scenarios converted to route_map. When met, promote to `[auto]` (codemod + `make check` green).
-- `[x]` frontend god-component decomposition (App.tsx·CombatCinema) **CLOSED 2026-07-26**: App slices 1–13 + 15–18 A/B; final A `e4ca67c`, B `6945a2f`. CombatCinema resolver `937d2fd` + callback-safe timeline `5247719` reduced `useCombatCinema.ts` 419→125. Every final slice passed `make check` + post-commit AGY. Shallow remnants stay inline by `$codebase-design`; slice 14 `useViewModels` remains deliberately reverted. Detail: `COMPLETED_SUMMARY.md` M66.
 - One-time DB cleanups available on request (not scheduled): players wrongly promoted by the old ally-writeback bug (fixed `efa1c8f` 07-09) · simulator-born active loops occupying tester caps (sim admin-gated since 07-05).
 - AGY live-QA findings: none open.

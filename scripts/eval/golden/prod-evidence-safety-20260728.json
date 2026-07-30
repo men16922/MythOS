@@ -1,0 +1,709 @@
+{
+  "name": "prod-evidence-safety-20260728",
+  "scenario_id": "neo-seoul",
+  "language": "en",
+  "note": "prod 00078-rs9 replacement style arm; safety/evidence; 47/47 non-fallback audit 2026-07-28",
+  "loop_id": "loop_84dfb8b5398645fe9475795292c733ef",
+  "scenes": [
+    {
+      "turn_index": 0,
+      "title": "Cold Re-entry in Block C-17",
+      "location": "C-17 Welfare Block Passage",
+      "narration": "The cold metal of the wet concrete floor bites through your clothes. You wake with a sudden, painful gasp, the taste of copper and burnt silicon lingering on your tongue. The sensation of falling through thousands of lines of code—an echo of a previous loop where you were erased by the system—clings to your skin like a greasy film. Around you, the narrow alleyway of the C-17 welfare block is suffocatingly tight, smelling of rusted iron and stagnant rain. Overhead, a low-frequency warning hums through the walls as a heavy pneumatic security shutter begins its slow, mechanical descent to lock down the sector for the patrol hour. Just before the gap closes, a massive silhouette in oil-stained work clothes steps out of the shadows. The burly man doesn't speak to you. He merely glances down, taps a loose, rectangular drainage cover on the wall with the steel toe of his work boot, and slides through the closing shutter, vanishing into the neon-streaked dark of the main street. He leaves behind only the wet print of his boot and the faint smell of heavy machinery.",
+      "action_result": null,
+      "scene_type": "static",
+      "choices": [
+        "Slip into the dark drainage shaft he pointed out (Agility)",
+        "Commit the vanishing worker's silhouette and boot-print to memory (Observation)",
+        "Decline unexplained favors—search the immediate walls for another way out (Intellect)"
+      ]
+    },
+    {
+      "turn_index": 1,
+      "title": "Subterranean Redirection",
+      "location": "C-17 Welfare Block Passage",
+      "narration": "The heavy smell of wet rust fills the narrow concrete channel. Overhead, through the iron drainage grate, a red searchlight from an ARK patrol drone sweeps across the dripping walls, painting the murky water ankle-deep in crimson. The worker's single boot-print on the silted concrete ledge is already melting under the steady drip of condensation, but the memory remains etched behind your eyes. A low hum vibrates through the damp walls as the drone passes, its rotor wash pushing cold air down the shaft. Your silent footsteps have kept you hidden so far, but the water here is a trap—one careless splash will alert the acoustic sensors in the grid above. An old, faded chalk mark of a stylized spider is barely visible on the wet brickwork to your right, pointing deeper into the dark.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Freeze in the shadows and wait for the drone's signal to fade (Agility)",
+        "Follow the spider chalk marks deeper into the drainage system",
+        "Move quickly toward the faint streetlights of the nearest exit ladder"
+      ]
+    },
+    {
+      "turn_index": 2,
+      "title": "Surface Breakthrough",
+      "location": "C-17 Welfare Block Passage",
+      "narration": "The red searchlight hesitates directly over the drainage grate, illuminating the greasy water around your boots in a sickening crimson glow. You press your back into the dripping concrete, holding your breath as the drone's mechanical hum vibrates through your collarbone. (Agility: Move now! No, don't even twitch, just melt into the concrete, let it sweep past! ). The light flickers once, twice, and then moves on, its low drone fading into the ambient rumble of the city. Shaking off the cold sweat, you pull yourself up through the rusted hatch at the end of the channel, emerging into the gray drizzle of the welfare block's back yard. On the underside of the heavy iron hatch, a fresh chalk arrow points toward the flickering neon of the market block—the sign of a guide who remains invisible. The wet concrete of the yard is empty, save for the hum of a nearby automated welfare kiosk.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Follow the direction of the chalk arrow toward the neon market block",
+        "Sweep the yard and scan the welfare kiosk for digital footprints (Observation)"
+      ]
+    },
+    {
+      "turn_index": 3,
+      "title": "Traces in the Neon Rain",
+      "location": "C-17 Welfare Block Passage",
+      "narration": "The drone's red glare finally slides away, leaving the muddy alley in a cold, blue-tinted dark. You step out of the wet shadow of the drainage pipe, your silent footsteps leaving barely a ripple in the shallow puddles as you approach the glowing welfare kiosk. The screen flickers with the sterile logo of ARK, casting a pale, clinical light over the concrete yard. (Observation: The kiosk's housing is warm, and the dust on the card reader has been freshly wiped. Look at the lower corner — a manual diagnostic port is hanging slightly open, its seal broken within the last ten minutes. ) A faint, green signal pulse blinks from the terminal's physical maintenance port, casting a shadow that looks like a digital footprint. Someone was forced to register here, and they left a messy trail of system logs behind.",
+      "action_result": null,
+      "scene_type": "dynamic",
+      "choices": [
+        "Extract the registration logs to trace where the target was taken (Intellect)",
+        "Purge the signal history on the terminal to protect the target's identity (Rewrite)"
+      ]
+    },
+    {
+      "turn_index": 4,
+      "title": "Deciphering the Erased",
+      "location": "C-17 Welfare Block Passage",
+      "narration": "The terminal's housing is warm under your fingers, humming with a low, mechanical pulse. (Intellect: The target system's malfunction cycle is 4. 2 seconds. Entering via the bypass optimizes detection probability to under 12%. Emotional judgment is not advised. ) You slip your hand into the maintenance port, your unregistered signal acting as a universal key that bypasses the outer security layers without triggering an alert. The system registers you as a ghost, a mere fluctuation in the voltage as you pull up the local registration logs. The raw data cascades down the screen in jagged columns of green light, reflecting across your face. Amid the scrubbed entries, a single line remains uncompiled—a target entry marked for optimization that shows an active transit route leading toward the nearby drainage tunnels. Jung Se-rin steps out of the wet darkness behind you, her hand resting on the hilt of her vibro-blade. 'They are moving them fast this time,' she says, her voice sharp and low. 'If we don't move now, those enforcer units will have them processed before the loop can even register their names. '",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "온기 남은 보일러실(으)로 향한다 — 회복하고 다음 위험에 대비합니다. · 안정 +8",
+        "탐조등 회랑(으)로 향한다 — 감시망을 은밀히 파고드는 지름길이지만, 순찰과 마주쳐 매복·교전에 휘말릴 위험이 크다. · 위험 2 · 추적도 +3 ⚠"
+      ]
+    },
+    {
+      "turn_index": 5,
+      "title": "A Hearth in the Machine",
+      "location": "C-17 Boiler Room",
+      "narration": "You slip through a heavy, rusted iron door into the subterranean boiler room, leaving the damp chill of the alley behind. The air here is thick with the smell of dry rust, hot grease, and old insulation. A massive, archaic steam boiler hums in the center of the concrete floor, radiating a dry, dusty warmth that feels almost alien in this clinical city. Jung Se-rin leans against a concrete pillar, her damp coat draped over a copper pipe to dry. She looks up as you enter, her eyes sharp but exhausted. 'You're late,' she says, her voice low and direct. 'But you made it. Sit. The heat from these pipes is one of the few things ARK hasn't found a way to charge us for yet. ' She tosses you a clean, dry rag to wipe the cold rain from your face. (Observation: The boiler's pressure gauge is vibrating slightly beyond its safety margin, indicating a manual override has been applied to keep this space warm. )",
+      "action_result": null,
+      "scene_type": "static",
+      "choices": [
+        "Sit by the boiler and patch up your damp gear.",
+        "Ask Se-rin about her next move against the control grid."
+      ]
+    },
+    {
+      "turn_index": 6,
+      "title": "Leaving the Warmth Behind",
+      "location": "C-17 Boiler Room Sublevel",
+      "narration": "The dry heat of the ancient steam boiler slowly bakes the dampness out of your clothes, but the comfort is short-lived. A red warning light on Se-rin's handheld scanner begins to blink, casting a rhythmic, bloody pulse across the concrete pillars. Outside, the muffled, high-pitched whine of drone rotors cuts through the steady hum of the machinery, signaling that the patrol has tracked the heat signature of this room. Se-rin pushes herself off the pillar, her hand instinctively dropping to the grip of her kinetic pistol as she looks toward the narrow exit. 'They are closing the perimeter faster than the last loop,' she whispers, her eyes locking onto yours with a hard, imperative intensity. 'We either scramble through the drainage pipe now, or we stand our ground and disable that lead tracker before it calls the enforcers. '",
+      "action_result": null,
+      "scene_type": "dynamic",
+      "choices": [
+        "Dive headfirst into the narrow, dark drainage pipe to evade the patrol (Agility)",
+        "Wait near the door and ambush the lead tracking drone as it enters"
+      ]
+    },
+    {
+      "turn_index": 7,
+      "title": "Through the Sludge",
+      "location": "C-17 Drainage Network",
+      "narration": "The cold iron lip of the drainage pipe scrapes your chest as you dive forward, swallowing you into a wet, pitch-black throat of concrete. Behind you, a harsh searchlight sweeps the boiler room, its white beam instantly boiling the steam into a blinding fog as the patrol drones breach the threshold. You slide down a steep, slick incline of industrial runoff, the deafening whine of high-velocity rotors echoing in the metal tube behind you until it is drowned out by the rush of subterranean water. Jung Se-rin drops into the pipe right after you, her boots splashing into the knee-deep, oily sludge with a sharp curse as she pulls the heavy iron grate shut above.\n\n(Agility: Run! Don't look back! The water is fast, but you are faster—keep sliding before the searchlight finds the bend in this pipe! )\n\nThe air down here is freezing, thick with the stench of chemical waste and old copper. Your unregistered signal pulses faintly against the concrete walls, the silence of your steps muffled by the rushing water. Se-rin wipes black grease from her cheek and points her flashlight down a fork in the tunnel: one path leads toward the low hum of a filtration intake, while the other slopes upward toward a street-level maintenance hatch.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Squeeze through the narrow filtration intake toward the deeper grid (Agility)",
+        "Force open the rusted street-level maintenance hatch to escape upward"
+      ]
+    },
+    {
+      "turn_index": 8,
+      "title": "The Deep Filtration Grid",
+      "location": "C-17 Drainage Network",
+      "narration": "The rusty iron teeth of the filtration intake scrape hard against your ribs as you squeeze your body through, the wet concrete walls slick with centuries of chemical buildup. Behind you, the blinding white searchlights of the patrol drones paint the churning water in the pipe a violent silver, their high-pitched rotor blades chewing the air just inches from your heels. You drop three feet into a stagnant, knee-deep pool of industrial runoff where the air smells of old copper and burnt plastic, your unregistered signal flickering briefly as the heavy grid shielding cuts off the patrol's tracking pings.\n\nJung Se-rin drops into the dark water right beside you, her boots splashing softly in the gloom as she immediately raises her hand to quiet you. 'The drones won't fit through that intake, but the vibration of our splash will register on the local acoustic nodes if we keep moving at this pace,' she whispers, her voice tight and unyielding as she wipes greasy water from her face. 'Look ahead. The drainage splits. We can either try to bypass the automated maintenance terminal using our signal footprint, or wade through the toxic overflow channel to find Han's old smuggling route. '\n\nYou stand at a critical junction in the dark, the low hum of the city's underbelly vibrating through the soles of your boots. The maintenance terminal to the left flickers with a cold blue diagnostic light, while the overflow channel to the right runs black and silent under a low concrete archway.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Bypass the automated maintenance terminal to force the security door open (Intellect)",
+        "Slip quietly through the toxic overflow channel to find Han's old route (Agility)"
+      ]
+    },
+    {
+      "turn_index": 9,
+      "title": "The Junction of Rust and Neon",
+      "location": "C-17 Drainage Network",
+      "narration": "The toxic yellow runoff burns cold against your ankles as you wade through the narrow overflow channel, your movements muffled by the constant, rhythmic dripping of heavy grease from the ceiling. Behind you, the whining drone rotors fade into a dull, metallic hum, thwarted by the heavy concrete baffles of the lower filtration grid. Your boots find solid ground on a rusted iron grating where a faint, spray-painted arrow—Han's signature mark from a previous run—glows under your optical sensor. Ahead, the drainage channel splits into two distinct paths: a steep, dry service ladder climbing toward the surface neon of the C-17 back alleys, and a dark, rumbling access pipe that leads deeper toward the central municipal sub-stations. You stand at the junction, the damp air smelling of ozone and fried copper, knowing that whichever way you step will set your course through the grid.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "데이터 소각로(으)로 향한다 — 이야기가 크게 갈라지는 장면입니다.",
+        "흔들리는 선택(으)로 향한다 — 예상 밖의 부탁이나 변수가 생깁니다. · 위험 1",
+        "검문 초소(으)로 향한다 — 감시망을 은밀히 파고드는 지름길이지만, 순찰과 마주쳐 매복·교전에 휘말릴 위험이 크다. · 위험 2 · 추적도 +3 ⚠"
+      ]
+    },
+    {
+      "turn_index": 10,
+      "title": "The Razor Cordon",
+      "location": "C-17 Drainage Network",
+      "narration": "A blinding halogen beam cuts through the thick mist of the drainage exit, pinning your shadow against a rusted steel bulkhead. Two heavy-set enforcers stand beside a temporary barricade, their optical visors humming as they scan the wet concrete floor for unregistered signals. You press your back into a dripping alcove, holding your breath as the cold rain of Neo-Seoul leaks through the iron grate above. The hum of a patrol drone draws closer, its searchlight sweeping the exact path you need to cross to reach the night market.\n\n(Agility: Run! Now! The drone is pivoting its lens — slip under the platform before the red laser paints your chest! )\n\n(Observation: The power coupling on the left barricade is sparking from the dampness. A single hard strike would short out the searchlights. )",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Slip through the blind spot under the platform when the drone pivots (Agility)",
+        "Short-circuit the flickering power coupling with a quick strike to create a blackout"
+      ]
+    },
+    {
+      "turn_index": 11,
+      "title": "교전 R1",
+      "location": "tracker_ambush",
+      "narration": "The silence breaks and the fight begins.\n신호 추적 기계 reposition.",
+      "action_result": null,
+      "scene_type": "combat",
+      "choices": []
+    },
+    {
+      "turn_index": 12,
+      "title": "교전 R1",
+      "location": "tracker_ambush",
+      "narration": "Tester breaks off and escapes the battlefield.\nYou left the battlefield.",
+      "action_result": "player_fled",
+      "scene_type": "combat",
+      "choices": []
+    },
+    {
+      "turn_index": 13,
+      "title": "Aftermath of the Escape",
+      "location": "c17_drainage_network",
+      "narration": "The high-pitched whine of the tracker drones finally dies in the distance, leaving only the sound of dirty water splashing against your boots. You leaned against a damp concrete pillar to catch your breath, the sharp sting of ozone from the close-range ambush still lingering in your nostrils. Your ghost signal remains quiet, but the narrow escape has left your damp clothes clinging to your skin and your muscles aching from the sudden burst of agility. Jung Se-rin steps out from the shadow of a massive water valve, her hand resting on her holstered disruptor, her eyes scanning the dark tunnel for any lingering threats.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Analyze the drainage grid blueprints to find a route with minimal drone activity (Intellect)",
+        "Ask Se-rin if she has a safehouse nearby that the enforcers haven't flagged",
+        "Search the wet floor for any functional parts left behind by the tracking drones (Observation)"
+      ]
+    },
+    {
+      "turn_index": 14,
+      "title": "Sifting the Grid's Ash",
+      "location": "c17_drainage_network",
+      "narration": "The black puddle beneath your boots reflects the broken neon sign of a distant welfare clinic. You kneel in the freezing run-off, your fingers brushing against the warm, jagged edge of a shattered tracking drone. The wreckage still hums with a dying, high-frequency signal, its optical lens cracked like a dead insect's eye. A thin trail of acrid grey smoke curls upward from the wet concrete, dissolving into the heavy rain.\n\n(Observation: The optical lens is fractured, but the internal buffer is intact. Look at the rhythmic flash of the amber LED—it is not a malfunction, but a localized search ping. If you extract the core now, you can read where the next cordon is forming. )\n\nYou pull a small metallic cylinder from the drone's chassis just before the water can short-circuit the board. In the distance, the low rumble of a heavy transport vehicle vibrates through the drainage grates, signaling that the patrol is widening its net.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Extract the regional patrol data to bypass the upcoming checkpoint (Intellect)",
+        "Solder the core to trigger a temporary blackout in the alley above (Agility)"
+      ]
+    },
+    {
+      "turn_index": 15,
+      "title": "The Iron Filter",
+      "location": "c17_drainage_network",
+      "narration": "A massive steel grate blocks the drainage exit, its iron bars dripping with greasy grease. Just beyond the bars, a patrol checkpoint is visible through the thick mist: two heavy-duty enforcer droids stand under a high-intensity yellow halogen light, scanning the pedestrian walkway. A mechanical hum vibrates through the wet concrete under your feet as the droids cycle their thermal optical sensors. To your left, a narrow, unmonitored overflow valve is rusted shut, while to your right, the main maintenance console flickers with an active data port. You must bypass this checkpoint to reach the relative safety of the lower district, but a single misstep will alert the entire patrol net.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Heave against the rusted overflow valve to force it open. (Strength)",
+        "Connect to the maintenance console to temporarily blind the droids' optical sensors. (Intellect)",
+        "Wait for the sensor sweep cycle and slip through the gap in the iron bars. (Agility)"
+      ]
+    },
+    {
+      "turn_index": 16,
+      "title": "교전 R1",
+      "location": "patrol_ambush",
+      "narration": "The silence breaks and the fight begins.\n정비 드론 reposition.",
+      "action_result": null,
+      "scene_type": "combat",
+      "choices": []
+    },
+    {
+      "turn_index": 17,
+      "title": "교전 R1",
+      "location": "patrol_ambush",
+      "narration": "Tester breaks off and escapes the battlefield.\nYou left the battlefield.",
+      "action_result": "player_fled",
+      "scene_type": "combat",
+      "choices": []
+    },
+    {
+      "turn_index": 18,
+      "title": "Through the Sluice Gate",
+      "location": "c17_drainage_network",
+      "narration": "The lingering heat of the tracking drone's self-destruction still warms your palms, a stinging reminder of how close the patrol's blades came to your throat. You slide into the shadow of a colossal iron filter, your breathing shallow, your unregistered signal fluttering like a dying pulse against the grid's search algorithms. Beyond the heavy iron grate, the enforcer droids turn their searchlights toward the dripping concrete, their sensors sweeping the very path you just fled. In the dim light of the sewer junction, the data-runner Han leans his shoulder against the damp stone wall, his cybernetic eye flickering with a cold blue diagnostic light. He taps his fingers against his deck, his voice a low, gravelly whisper that barely carries over the rushing water: 'They're tightening the net faster than last time. We either slip through the secondary sluice gate now, or we wait here until IX optimizes this entire sector into a tomb. What's the play, ghost? '",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Slip silently through the secondary sluice gate to bypass the checkpoint (Agility)",
+        "Ask Han to analyze the grid's local blind spots (Intellect)"
+      ]
+    },
+    {
+      "turn_index": 19,
+      "title": "The Sluice Gate Bypass",
+      "location": "c17_drainage_network",
+      "narration": "The cold metal of the secondary sluice gate scrapes against your shoulder as you slide through the narrow gap. The wet concrete ceiling drips with greasy condensation, each drop ringing like a distant bell. Just ten meters to your right, the yellow halogen glare of the sentinel checkpoint sweeps across the main drainage channel, but your unregistered signal remains hidden in the deep shadows. You hold your breath, pressing your back flat against the freezing wall while the enforcers' heavy optical sensors hum and click in the damp air. The scent of rusted iron and stagnant river water fills your lungs, keeping your senses hyper-alert. Ahead, the drainage pipe splits into two distinct paths: a dark, narrow overflow chute leading deeper into the subterranean grid, and a rusty maintenance ladder climbing toward the surface neon of Block C-17.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Descend deeper into the dark overflow chute to stay completely off the grid (Agility)",
+        "Climb the rusty maintenance ladder toward the surface neon of Block C-17 (Observation)"
+      ]
+    },
+    {
+      "turn_index": 20,
+      "title": "Ash on the Neon Streets",
+      "location": "c17_neon_alley",
+      "narration": "The rusty rungs of the maintenance ladder bite into your palms, cold and slick with greasy residue. As you push open the heavy iron manhole cover, the sharp scent of ozone and burnt plastic hits you. You emerge into the narrow, rain-slicked alleyways of Block C-17, where towering concrete apartment blocks block out the sky, their surfaces covered in scaffolding and half-completed reconstruction work. Overhead, a massive holographic construction crane slowly rotates, casting a skeletal shadow across the wet pavement. Below, the street level is choked with the gray ash of burned data files drifting down like winter snow.\n\nSuddenly, a high-pitched whine cuts through the low hum of the city. A searchlight from an overhead enforcer drone sweeps across the alley walls, painting the damp brickwork in blinding white light. Jung Se-rin pulls you back into the deep recess of a closed noodle stall, her grip on your sleeve firm and demanding. 'Don't move,' she whispers, her eyes locked on the mechanical eye hovering above. 'The control grid's pursuit line is closing in. If you step out now, they won't just optimize you—they'll erase this entire block to catch you. '\n\n(Observation: The flickering neon sign of the noodle stall isn't just malfunctioning. It is pulsing in a repeating sequence—a hidden diagnostic channel that reveals the local patrol routes. )",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Study the flickering neon pulses to map the enforcer patrol routes (Observation)",
+        "Use the high scaffolding to slip past the drone's searchlight (Agility)",
+        "Draw your weapon and disable the approaching drone before it signals the grid"
+      ]
+    },
+    {
+      "turn_index": 21,
+      "title": "Flickering Gridlines",
+      "location": "c17_neon_alley",
+      "narration": "The neon sign of a shuttered noodle stall hums with a broken rhythm, throwing jagged violet light across the wet concrete. You stand entirely still, your unregistered signal blending with the electronic static of the alleyway. High above, three sleek patrol drones sweep their crimson searchlights across the scaffolding of Block C-17, their synchronized movements perfectly matching the micro-stutter of the neon pulses. By reading the gaps in the electrical interference, you trace the blind spots in their search grid.\n\nSuddenly, a mechanical click sounds from the end of the narrow corridor. An Enforcer unit, heavy-armored and carrying a shock baton, steps out from the shadows, its sensory visor scanning the ground for unauthorized footprints. The pursuit line is closing, and the air grows heavy with the smell of scorched copper.\n\n(Observation: The patrol's sweep pattern repeats every eleven seconds, but the Enforcer's internal cooling cycle creates a three-second blind spot when he turns toward the main street. If you move now, you can slip through undetected. )",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Slip past the Enforcer during his cooling cycle blind spot (Agility)",
+        "Overload the neon sign's junction box to create a blackout (Intellect)"
+      ]
+    },
+    {
+      "turn_index": 22,
+      "title": "교전 R1",
+      "location": "patrol_ambush",
+      "narration": "The silence breaks and the fight begins.\n정비 드론 reposition.",
+      "action_result": null,
+      "scene_type": "combat",
+      "choices": []
+    },
+    {
+      "turn_index": 23,
+      "title": "교전 R1",
+      "location": "patrol_ambush",
+      "narration": "Tester breaks off and escapes the battlefield.\nYou left the battlefield.",
+      "action_result": "player_fled",
+      "scene_type": "combat",
+      "choices": []
+    },
+    {
+      "turn_index": 24,
+      "title": "Ash on the Neon Streets",
+      "location": "c17_neon_alley",
+      "narration": "The rain-slicked pavement of the alleyway is still hot where the patrol drone's engine exploded, the black grease of its wreckage mixing with the filthy puddle water. Your legs shake slightly from the sprint, your unregistered signal pulsing erratically beneath your skin as you press your back hard against the concrete wall. Through the thick haze of ozone, the high-pitched hum of a secondary search grid begins to chime, its red laser-lines painting the brickwork just inches from your boots. The control grid's pursuit is closing in fast, and the street is rapidly becoming a dead end. You have only seconds to slip through the newly deployed cordon before the enforcers seal the block entirely.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Scramble up the wet, unstable scaffolding to the higher levels (Agility)",
+        "Force a temporary loop in the local security gate's optic sensor (Intellect)"
+      ]
+    },
+    {
+      "turn_index": 25,
+      "title": "The Ash-Stained Scaffolding",
+      "location": "c17_neon_alley",
+      "narration": "The skeletal metal of the construction scaffolding is slick with black water and industrial oil. Your fingers slip on the cold pipe, but your reflexes kick in as you pull your weight upward, your feet barely making a sound against the vibrating iron. Below you, the harsh crimson searchlights of three Enforcer drones sweep the exact spot you occupied a second ago, boiling the puddles into sudden, acrid steam. The metallic scent of scorched wiring rises from the alley floor, mixing with the damp cold of the night air.\n\nFrom the shadow of a high ventilation duct, Jung Se-rin leans down, her dark eyes reflecting the flickering violet neon from the street below. She does not offer a hand—she knows better than to break your balance—but her low, sharp whisper cuts through the drone of the engines. 'They've locked down the lower gates. If you stay on this level, you're just a target in a cage. We need to cut through the high-tension line or slide down the drainage chute before the sweepers scale the framework. '\n\n(Agility: Hear the rotor overhead? ! Hesitate and you're done — three, two, one, dive into the dark RIGHT NOW! )\n\nThe grid's pursuit is tightening by the second, the heavy thrum of approaching Enforcer boots echoing from the alley mouth. You must make your move now.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Sever the high-tension line to plunge the scaffolding into darkness (Agility)",
+        "Slide down the high-speed drainage chute toward the lower wet-markets"
+      ]
+    },
+    {
+      "turn_index": 26,
+      "title": "교전 R1",
+      "location": "patrol_ambush",
+      "narration": "The silence breaks and the fight begins.\n정비 드론 reposition.",
+      "action_result": null,
+      "scene_type": "combat",
+      "choices": []
+    },
+    {
+      "turn_index": 27,
+      "title": "교전 R1",
+      "location": "patrol_ambush",
+      "narration": "Tester breaks off and escapes the battlefield.\nYou left the battlefield.",
+      "action_result": "player_fled",
+      "scene_type": "combat",
+      "choices": []
+    },
+    {
+      "turn_index": 28,
+      "title": "Through the Smoke",
+      "location": "c17_neon_alley",
+      "narration": "Your chest heaves as you slide down the back of the wet scaffolding, your boots hitting the ash-covered concrete of the lower alley with a dull thud. The tracker ambush is behind you, but the screech of tearing metal and the smell of scorched ozone still cling to your clothes. The alley is silent for now, but a high-frequency vibration in the air suggests the control grid has already registered the anomaly. A few paces away, Jung Se-rin stands in the shadow of a rusted water pipe, her hand resting on the hilt of her vibro-blade as she watches the street corner with narrow eyes. 'They are adapting faster this time,' she whispers, her voice tight and completely devoid of formal politeness. 'We need to move before the secondary containment sweep locks down this entire sector. ' She points toward a heavy steel drainage grate near the wall and then toward the flickering neon sign of an illegal repair shop down the street. The choice is ours, and the grid is closing in.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Slip down into the dark drainage network to bypass the blockade (Agility)",
+        "Seek temporary shelter in the illegal repair shop to stabilize your signal (Intellect)"
+      ]
+    },
+    {
+      "turn_index": 29,
+      "title": "The Sinking Market",
+      "location": "c17_neon_alley",
+      "narration": "The wet iron grating of the drainage shaft gives way under your weight, dropping you into the lower level of the Neon Night Market. Below, the air is thick with the smell of roasting synthetic spices, wet cardboard, and the low, heavy hum of unlicensed generators. Blue tarp canopies sag under the weight of the rain, casting long, shivering shadows across the crowd of unregistered citizens. Lin Yue stands behind her counter of salvaged memory cores, her sharp eyes immediately locking onto you as you slip from the shadows. 'You carry the scent of burnt copper, signal,' she says, not looking up as she weighs a handful of rusted drone scrap. 'The Enforcers are sealing the upper gates; you brought their eyes right to my doorstep. ' Before you can answer, the neon signs overhead flicker in unison, their steady hum replaced by a cold, rhythmic pulse that signals a grid-wide sweep.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Offer the salvaged drone scrap to Lin Yue to buy a secure path out. (Intellect)",
+        "Slip into the panicked crowd of shoppers to break line of sight. (Agility)"
+      ]
+    },
+    {
+      "turn_index": 30,
+      "title": "교전 R1",
+      "location": "patrol_ambush",
+      "narration": "The silence breaks and the fight begins.\n정비 드론 reposition.",
+      "action_result": null,
+      "scene_type": "combat",
+      "choices": []
+    },
+    {
+      "turn_index": 31,
+      "title": "교전 R1",
+      "location": "patrol_ambush",
+      "narration": "Tester breaks off and escapes the battlefield.\nYou left the battlefield.",
+      "action_result": "player_fled",
+      "scene_type": "combat",
+      "choices": []
+    },
+    {
+      "turn_index": 32,
+      "title": "A Price on Breath",
+      "location": "c17_neon_alley",
+      "narration": "The rain outside the market's low canopy turns to gray sleet, washing the soot of the patrol ambush from your jacket. Under a low-slung blue tarp, Lin Yue watches your approach with narrowed eyes, her fingers idly tapping against the brass scales she uses to weigh salvaged hardware. 'You look like hell, unregistered,' she says, her voice dry and devoid of pity. 'And worse, you brought the grid's heat to my doorstep. I can hear their searchlight hums bouncing off the concrete columns. ' She gestures to a rusted metal container behind her stall, a temporary blind spot where she hides her most sensitive illegal goods.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Offer her the recovered drone wreckage as payment for shelter. (Intellect)",
+        "Slip into the rusted container while her back is turned. (Agility)"
+      ]
+    },
+    {
+      "turn_index": 33,
+      "title": "A Shadow in the Stalls",
+      "location": "c17_neon_alley",
+      "narration": "Your feet make no sound on the grease-slicked iron floor. As Lin Yue turns to argue with a merchant over the weight of a salvaged copper coil, you melt into the dark opening of an abandoned shipping container behind her stall. The interior smells of rusted iron and dead batteries. Outside, the searchlight of a scanning drone sweeps across the blue tarp overhead, casting a bright, grid-like pattern through the holes in the roof. (Agility: Run! Now! Duck! Get behind the rusted plates before that light burns into your skin! )",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Slip out through the back seam of the container into the drainage canal (Agility)",
+        "Search the dark corners of the container for abandoned tech (Observation)"
+      ]
+    },
+    {
+      "turn_index": 34,
+      "title": "A Beacon in the Rust",
+      "location": "c17_neon_alley",
+      "narration": "Inside the pitch-black container, the air is thick with the scent of stagnant grease and forgotten solder. Outside, the low hum of an Enforcer drone vibrates through the corrugated steel walls, its searchlight painting lines of blinding white through the rusted seams. Your fingers, guided by years of moving in the shadows, trace the cold edges of discarded machinery in the dark. Your hand brushes against a heavy, military-grade casing buried beneath a pile of wet cardboard. It is an old, unregistered transmitter—offline but intact. As you pull it free, a flickering blue light pulses on its display, casting a pale glow on your face. A voice crackles from the dark corner behind you. Lin Yue has stepped into the container, her hand resting on the hilt of her shock-baton. 'I don't run a charity for ghosts,' she whispers, her eyes reflecting the blue signal light. 'That transceiver belongs to a runner who didn't make it back from the Spire. Put it down, or pay the price for it. ' (Observation: The copper wiring inside this transceiver has been modified to bypass ARK's regional lockouts. It contains a cached encryption key that could open the secure maintenance tunnels. )",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Offer to share the transceiver's encrypted data with her network (Charisma)",
+        "Slip past Lin Yue into the rainy alley before she can raise her baton (Agility)"
+      ]
+    },
+    {
+      "turn_index": 35,
+      "title": "Through the Rain of the Night Market",
+      "location": "c17_neon_alley",
+      "narration": "The neon light of the night market refracts through the driving rain, casting long, bloody streaks across the wet asphalt. Before Lin Yue can even fully register your movement or raise her heavy stun baton, you are already gone, a silent breath dissolving into the crowd. You slip between two hanging blue tarps, the cold water dripping down your neck as you emerge into the narrow, garbage-strewn alley behind her stall. The air here tastes of ozone and wet cardboard, heavy with the threat of the tightening grid. Over the rooftops, the sharp blue searchlights of the Enforcer patrol sweep the brick walls, their engine rotors chopping through the humid night air. They are closing in, and the security systems are screaming for a correction.",
+      "action_result": null,
+      "scene_type": "dynamic",
+      "choices": [
+        "Dive into the low drainage channel to avoid the drone's searchlights (Agility)",
+        "Offer the salvaged drone scrap to a market guard to secure a hideout (Charisma)"
+      ]
+    },
+    {
+      "turn_index": 36,
+      "title": "The Sluice Gate Escape",
+      "location": "c17_neon_alley",
+      "narration": "The blinding white beam of an Enforcer drone sweeps over the brickwork just inches above your head as you drop flat into the wet, rancid drainage channel. The frigid water rises to your chest, smelling of industrial rust and old oil, but your silent movement keeps you hidden beneath the iron grating. Overhead, the mechanical whir of the patrol drone passes, its searchlight shifting toward the main market square. (Agility: Run! Now! Duck! That light was a hair's breadth away—don't you dare breathe until the rotor hum fades! ) You drag yourself forward through the narrow conduit, the freezing sludge numbing your limbs as the control grid's pursuit sirens wail in the distance. The channel splits ahead: a narrow ladder leads upward toward the maintenance hatch of a nearby welfare kiosk, while the deeper sluice gate leads down into the pitch-black under-grid.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Climb the ladder to the welfare kiosk hatch (Agility)",
+        "Force open the rusty sluice gate to head deeper into the under-grid (Strength)"
+      ]
+    },
+    {
+      "turn_index": 37,
+      "title": "The Cordon Closes at the Kiosk",
+      "location": "c17_neon_alley",
+      "narration": "The rusty iron rungs of the welfare kiosk ladder bite into your palms as you haul your freezing, waterlogged body out of the drainage channel. Overhead, the sky is a bruised purple, fractured by the sweeping red searchlights of a three-drone tactical line. From the street below, the amplified, synthetic voice of an Enforcer echoes through the alleyway: 'Unregistered signal detected in sector C-17. Initiate containment grid. ' The metal hatch of the welfare kiosk is slick with oil, and the electronic lock is pulsing a warning red. You can hear the heavy, rhythmic thud of armored boots turning the corner of the alley. If you do not break the lock or find a blind spot immediately, the pursuit line will pin you against the brick wall.",
+      "action_result": null,
+      "scene_type": "dynamic",
+      "choices": [
+        "Smash the emergency release valve on the hatch to force it open (Strength)",
+        "Solder the exposed maintenance wires to trick the lock into opening (Intellect)",
+        "Drop back down and squeeze into the narrow gap behind the power transformer (Agility)"
+      ]
+    },
+    {
+      "turn_index": 38,
+      "title": "The Transformer Squeeze",
+      "location": "c17_neon_alley",
+      "narration": "The high-voltage warning sign on the massive power transformer sparks in the driving rain as you throw your body backward, sliding into the narrow, grease-slicked gap between the vibrating metal casing and the wet concrete wall. The space is barely nine inches wide. Your ribs compress painfully, and the sheer electrical hum of twenty thousand volts rattles through your skull, smelling of scorched ozone and wet iron. (Agility: Move! Squeeze! Don't breathe, don't even blink! If that casing touches your shoulder, you'll fry before you hit the ground! ) Just outside your concrete coffin, the heavy, rhythmic thud of armored Enforcer boots splashes through the puddles. A searchlight beam cuts through the gap, painting the brick wall inches from your nose in stark, clinical white. A synthetic voice, cold and devoid of human cadence, crackles over a tactical radio: 'Target lost. Initiating sector-wide power-grid pulse to force signal disconnect. ' They are going to overload the block's transformers to flush you out. You must act before the surge hits.",
+      "action_result": null,
+      "scene_type": "dynamic",
+      "choices": [
+        "Use your insulated wire cutters to sever the transformer's ground wire, causing a localized blackout (Agility)",
+        "Brace yourself against the concrete wall and try to ride out the electrical feedback loop (Strength)",
+        "Wriggle deeper into the dark exhaust vent behind the transformer to escape the immediate blast radius (Explore)"
+      ]
+    },
+    {
+      "turn_index": 39,
+      "title": "Through the Exhaust Vent",
+      "location": "c17_neon_alley",
+      "narration": "The narrow exhaust vent behind the transformer is a choking throat of black soot and scalding steam. Your fingers claw at the greasy metal interior as the massive hum of the transformer above rises to a deafening shriek. Suddenly, the metal casing above you explodes in a shower of white-hot sparks as a heavy Enforcer round punches through the brickwork. The heat is immediate and blistering, threatening to cook you alive in this iron pipe. Through the grate at the far end of the vent, you see the rain-slicked concrete of a lower maintenance sub-level, but the latch is rusted shut.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Kick the rusted metal grate open with raw force (Strength)",
+        "Squeeze through the narrow structural gap in the vent wall (Agility)"
+      ]
+    },
+    {
+      "turn_index": 40,
+      "title": "The Wet Dawn Street",
+      "location": "c17_neon_alley",
+      "narration": "Your shoulders scrape against the sharp, jagged edges of the split metal plating as you force your way out of the suffocating vent. You tumble onto the wet dawn street, the cold rain instantly washing the soot and grease from your face. The sky is a bruised, pale purple, and the wet asphalt reflects the dying glow of neon signs. Suddenly, a blinding white searchlight cuts through the mist from the sky, accompanied by the high-pitched whine of a patrol drone. Administrator IX's voice crackles through a nearby public service terminal, polite and utterly devoid of malice: 'Unregistered signal detected. Commencing street-level optimization for the safety of the block. '",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Sprint into the shadow of the nearby market awning (Agility)",
+        "Search the wet trash bins for discarded system hardware (Observation)"
+      ]
+    },
+    {
+      "turn_index": 41,
+      "title": "교전 R1",
+      "location": "purge_incineration",
+      "narration": "The signal surges. the fight begins.",
+      "action_result": null,
+      "scene_type": "combat",
+      "choices": []
+    },
+    {
+      "turn_index": 42,
+      "title": "교전 R1",
+      "location": "purge_incineration",
+      "narration": "Tester breaks off and escapes the battlefield.\nYou left the battlefield.",
+      "action_result": "player_fled",
+      "scene_type": "combat",
+      "choices": []
+    },
+    {
+      "turn_index": 43,
+      "title": "A Mirror in the Debris",
+      "location": "c17_neon_alley",
+      "narration": "The blinding searchlight of the patrol drone sweeps past your shoulder, missing you by inches as you press yourself into the shadow of a collapsed steel shutter. Your breath comes in ragged, shallow gasps, smelling of the ozone and singed plastic from the incinerator drone you barely escaped. In your hand, the jagged piece of salvaged drone scrap is still uncomfortably warm, dripping dirty water onto the wet asphalt. As you look down to pocket the salvage, your eyes catch a metallic reflection in the puddle beneath a rusted power terminal.\n\nIt is an old, corroded data-slate half-buried in the silt of the flooded underbelly, its casing scratched with a pattern of notches. Your chest tightens as you recognize those notches—they are the exact silent-signal marks you carved into your own gear three hours ago, but these are weathered by months of acidic condensation. When you wipe the screen, a corrupted system log flickers to life, displaying an unregistered signal signature identical to your own, dated weeks before this loop even began. This is not your first time in this alley, and the realization that you have left your own ghost behind chillingly reframes your entire existence.\n\nSuddenly, the high-pitched whine of an approaching enforcer patrol echoes from the northern junction, their heavy boots splashing through the shallow water. You have only moments before the cordon tightens completely around this narrow passage.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Slip silently into the overflowing drainage slit beneath the power terminal. (Agility)",
+        "Force a rapid decryption of the old slate's memory banks to trace the previous loop's coordinates. (Intelligence)"
+      ]
+    },
+    {
+      "turn_index": 44,
+      "title": "Decryption in the Dark",
+      "location": "c17_neon_alley",
+      "narration": "The rain turns to a heavy, freezing drizzle that beats a frantic rhythm against the rusted metal shutters. You wedge yourself behind a leaking water reclamation pipe, pulling the old slate from your coat. Its cracked casing hums with a faint, dying voltage. Your fingers fly across the exposed copper traces, bypassing the damaged security gate to force a deep-level memory dump before the hardware fries completely. (Intellect: 'The probability of terminal data corruption increases by 18% every five seconds. Speed is the only variable that matters. Strip the user interface; read the raw hexadecimal stream. ') Red error codes flicker across your retina, but beneath the noise, a familiar pattern emerges—a lingering string of coordinates from a loop that technically never happened. It is an echo of a place where you and Se-rin once stood, a hidden junction near the main drainage sluice. The slate's screen flares a brilliant, blinding blue, then dies forever with a soft hiss of burnt silicon. You now have the exact vector of the system's blind spot, but the massive power spike has lit you up like a flare on the control grid's sensors.",
+      "action_result": null,
+      "scene_type": "dynamic",
+      "choices": [
+        "Slip into the flooded drainage sluice using the decrypted coordinates. (Agility)",
+        "Stand your ground and prepare to ambush the tracking unit. (Strength)"
+      ]
+    },
+    {
+      "turn_index": 45,
+      "title": "Changed The Flooded Underbelly",
+      "location": "c17_neon_alley",
+      "narration": "The freezing water of the drainage sluice immediately hits your chest, smelling of industrial grease and forgotten rain. The decrypted coordinates from the old slate glowed a faint, ghostly green on your HUD, marking a narrow pipe that leads directly beneath the primary patrol cordon. Above you, through the iron grates, the blinding red searchlights of the Enforcer patrol sweep the alleyway, their heavy boots splashing through the puddles just inches from your head. (Agility: Run! Now! Duck! If you pause for even half a second, those heavy-duty scanners will lock onto your biological heat signature and fry us where we stand! ) You squeeze your shoulders through the narrow, rusted conduit, pulling your body forward as the metal scrapes against your wet clothes. The rushing current threatens to drag you deeper into the dark, but you hold fast to a copper pipe, waiting for the heavy boots above to pass. Before the same pattern can repeat, a different pressure cuts into the scene.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Wriggle silently through the narrow bypass pipe to avoid the vibration sensors. (Agility)",
+        "Splice into the exposed underground data trunk to scramble their local radar. (Intelligence)"
+      ]
+    },
+    {
+      "turn_index": 46,
+      "title": "The Sluice Gate Squeeze",
+      "location": "c17_neon_alley",
+      "narration": "The rusty iron interior of the bypass pipe scrapes against your shoulders, smelling of dead algae and copper wire. Above the grate, the heavy, rhythmic thrum of an Enforcer patrol vehicle vibrates through the wet metal, threatening to trigger the local seismic grid if you make a single loud scrape. Your unregistered signal pulse flickers in the damp air as you slide forward millimeter by millimeter, your breath fogging in the freezing dark. Suddenly, a blinding blue scanner beam cuts down through the overhead slats, sweeping closer and closer to your boots. There is no room to turn back; the drainage water is rising rapidly behind you, carrying with it a heavy surge of static that indicates a localized grid purge.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Time the patrol's rotation and slide through the remaining pipe with a sudden burst of speed. (Agility)",
+        "Use your intelligence to briefly spoof the vibration sensors using the slate's dying battery. (Intellect)"
+      ]
+    },
+    {
+      "turn_index": 47,
+      "title": "Changed The Sluice Gate Squeeze",
+      "location": "c17_neon_alley",
+      "narration": "The freezing water of the drainage sluice immediately hits your chest, smelling of industrial grease and forgotten rain. The decrypted coordinates from the old slate glowed a faint, ghostly green on your HUD, marking a narrow pipe that leads directly beneath the primary patrol cordon. Above you, through the iron grates, the blinding red searchlights of the Enforcer patrol sweep the alleyway, their heavy boots splashing through the puddles. You time the patrol's rotation and slide through the remaining pipe with a sudden burst of speed, your body slipping through the narrow space like a shadow. Before the same pattern can repeat, a different pressure cuts into the scene.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Slip through the narrow drainage pipe to avoid the sensors. (Agility)",
+        "Decrypt the security terminal to disable the sensors. (Intellect)"
+      ]
+    },
+    {
+      "turn_index": 48,
+      "title": "Subterranean Friction",
+      "location": "c17_neon_alley",
+      "narration": "The wet iron of the drainage pipe scrapes your ribs as you slide through, your body moving with silent, desperate grace. Above the iron grate, a high-frequency ping from the Enforcer patrol sweeps the alley, but your unregistered signal leaves no reflection in the system's scanning grid. Behind you, the heavy boots of the armored troopers splash into the puddles, their searchlights slicing through the steam-filled air just inches from your feet. Your breath catches in your throat as a glitching, distorted warning broadcast from Administrator IX echoes through the city's public speakers, announcing an immediate quarantine of Sector C-17. The air pressure drops suddenly, and the very data structure of the alleyway begins to flicker with static, threatening a connection collapse that could erase your physical coordinates.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Sprint through the flickering glitch boundary before the connection collapses. (Agility)",
+        "Forcefully interface with the nearby utility box to stabilize the local data layer. (Intellect)"
+      ]
+    },
+    {
+      "turn_index": 49,
+      "title": "The Edge of the Grid",
+      "location": "c17_neon_alley",
+      "narration": "The air before you splits into a static haze of green and orange. The connection is tearing at the seams, a physical wall of pixelated distortion vibrating with a high-pitched scream that only an unregistered signal can hear. Behind you, the heavy, rhythmic thud of Enforcer boots echoes down the wet drainage pipe, and the crimson glare of their searchlights turns the dirty water to liquid blood. (Agility: Run! Now! Duck! ) You throw your body forward, your feet barely touching the wet concrete as you leap through the tearing seam of the glitch boundary. The world screen-tears around you, your vision splitting into double-images of the neon alleyway before the connection snaps back into a fragile, flickering reality. You roll onto a pile of discarded optical cables, your breath ragged, having crossed the inner cordon but with the system's tracking net now buzzing directly overhead.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Dive into the dark ventilation shaft of the nearby warehouse. (Agility)",
+        "Force-reboot the alley's local power terminal to create a blackout. (Intelligence)"
+      ]
+    },
+    {
+      "turn_index": 50,
+      "title": "The Subway Control Hub",
+      "location": "subway_control_hub",
+      "narration": "Your shoulders scrape against the cold steel of the ventilation shaft as you drop through, landing with a muffled thud on the concrete floor of an abandoned subway control hub. The air here smells of oxidized copper and seventy years of forgotten dust, lit only by the rhythmic, ghostly pulse of dying green monitors. Behind you, the hollow clatter of Enforcer searchlights passes over the ventilation grate, their red beams slicing through the dust motes but failing to register your silent descent. You are deep inside the belly of the grid now, standing in a circular room surrounded by dead terminal banks and a massive, flickering central map of Neo-Seoul's subterranean arteries. \n\nSuddenly, the central terminal screen crackles to life, overriding the static with a crisp, high-resolution feed of Administrator IX. 'I see you have found our old nervous system,' his voice echoes through the rusted speakers, smooth, polite, and entirely devoid of malice. 'An elegant hiding spot for an unregistered signal, but a mathematically closed one. Your connection stability is currently at eight percent; you are quite literally dissolving into the background noise of the city. I offer you a clean, painless optimization—a quiet deletion that preserves the integrity of the whole. Why persist in a form that causes so much friction? '\n\nThe monitors behind him begin to hum, preparing a forced-disconnect broadcast that will purge the entire sector's data layers. You have only moments to act before the system forces a terminal reset. You can attempt to manually override the hub's power core to blast a temporary shield against the purge, or you can use your agility to rapidly splice into the emergency transit lines before the broadcast locks them down.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Sprint across the catwalk and splice into the emergency transit lines before they lock down. (Agility)",
+        "Manually hotwire the hub's power core to create a localized signal shield. (Intellect)"
+      ]
+    },
+    {
+      "turn_index": 51,
+      "title": "The Severed Transit Line",
+      "location": "subway_control_hub",
+      "narration": "Metal grates shudder beneath your boots as you sprint across the high catwalk, your unregistered signal blurring against the cold dust. Below, the red searchlights of three Enforcer drones sweep the rusty rails, their optical lenses clicking as they search for the ghost in the machine. Your fingers find the emergency junction box, cold and wet with condensation, its raw copper wiring exposed like open veins. (Agility: Hear the rotor overhead? ! Hesitate and you're done — three, two, one, dive into the dark RIGHT NOW! ) You jam the splice-tool into the terminal just as a blinding white spotlight pins you to the metal floor, the harsh hum of a charging plasma cannon filling the narrow tunnel. Behind the glare, the shadow of a heavy security bulkhead begins to slide shut, threatening to seal you in this concrete tomb forever. To your left, an old maintenance hatch leads deeper into the drainage system; straight ahead, the half-open bulkhead is your only way out to the surface streets.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Slide beneath the closing bulkhead before it seals completely. (Agility)",
+        "Overload the junction box to blow the local power grid and blind the drones. (Intellect)"
+      ]
+    },
+    {
+      "turn_index": 52,
+      "title": "The Iron Cordon",
+      "location": "subway_control_hub",
+      "narration": "The heavy steel bulkhead slams down behind you with a deafening crash, cutting off the pursuit. Sparks fly in the dark as your body slides across the wet concrete, stopping just short of a sheer drop into the lower drainage tracks. Red emergency strobes paint the damp walls in rhythmic blood-colored flashes. Above, the mechanical hiss of Enforcer drones searching the ventilation shaft echoes through the pipes, their thermal sweeps pressing down on your position. (Agility: Run! Now! Duck! If that seal didn't hold, we are nothing but scraped metal on the floor! ) Jung Se-rin's voice crackles over your receiver, tight and breathless: 'They've locked down the entire perimeter, Connector. If you don't move now, they'll flood the sector with nerve gas. '",
+      "action_result": null,
+      "scene_type": "dynamic",
+      "choices": [
+        "Drop down into the flooded drainage tracks to bypass the heat. (Agility)",
+        "Force open the nearby maintenance console to disable the gas valves. (Intelligence)"
+      ]
+    },
+    {
+      "turn_index": 53,
+      "title": "The Sluice Gate's Rest",
+      "location": "subway_control_hub",
+      "narration": "The freezing water of the lower drainage tracks swallows you to the waist, numbing your legs instantly as you drop from the catwalk. Above the concrete lip, the red searchlights of the Enforcers sweep back and forth, painting the steam-filled air in crimson bars, but they cannot pierce the heavy layer of industrial runoff. You press your back against the slimy concrete wall, keeping your breath silent and shallow as the drones buzz directly overhead, their sensors clicking in frustration. Through the static of your internal receiver, a familiar, raspy voice breaks the silence—Han, the data-runner who guided you through the grid's blind spots earlier this loop, is patching in from a nearby terminal. 'The whole sector is on lockdown, ghost,' Han mutters, his voice tight with strain. 'Administrator IX is rerouting three entire enforcer squads to seal the junction ahead; you're running out of wet tunnels to hide in. '",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Sprint through the freezing current toward the service ladder before the drones adjust their angle. (Agility)",
+        "Overload the drainage pump controls to create a blinding steam screen. (Intelligence)"
+      ]
+    },
+    {
+      "turn_index": 54,
+      "title": "Changed The Sluice Gate's Rest",
+      "location": "subway_control_hub",
+      "narration": "The freezing water of the lower drainage tracks swallows you to the waist, numbing your legs instantly as you drop from the catwalk. Above the concrete lip, the red searchlights of the Enforcers sweep back and forth, painting the steam-filled air in crimson bars, but they cannot pierce the heavy layer of industrial runoff. You press your back against the slimy concrete wall, keeping your breath silent and shallow as you prepare your next move. Your boots find purchase on the slick rungs of an old service ladder just as a high-frequency ping shakes the metal framing. The water begins to hum with an electric current. To stay means certain paralysis; to climb means exposing yourself directly to the searchlights. Before the same pattern can repeat, a different pressure cuts into the scene.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Scramble up the service ladder despite the searchlights. (Agility)",
+        "Locate and short out the local power line feeding the water. (Intellect)"
+      ]
+    },
+    {
+      "turn_index": 55,
+      "title": "Storm Before the Calm",
+      "location": "subway_control_hub",
+      "narration": "Your fingers grip the rusted rungs of the service ladder, cold metal biting through your skin as you pull your numbed legs from the freezing runoff. Directly above, a heavy steel hatch looms, vibrating with the low, rhythmic hum of the subway control hub's primary generators. The red searchlights of the patrol drones sweep across the concrete lip just inches below your boots, their optical sensors clicking as they seek the unregistered signal that slipped their grasp. Suddenly, the hatch above is forced open from the inside, revealing the scarred face of Tae-o, who grabs your collar with a hand of pure iron and hauls you into the dry, warm air of the maintenance sub-station.\n\n\"Keep your head down, ghost,\" Tae-o grunts, slamming the heavy hatch shut and locking the manual deadbolts. \"The control grid has locked down the upper levels, and Administrator IX is routing every active Enforcer unit to this sector. We don't have much time to make our final preparations before the storm hits. \"\n\nIn the corner of the dim chamber, Jung Se-rin stands over a flickering terminal, her face pale under the fluorescent glare as she monitors the approaching signals. The room is tight, smelling of hot ozone and ancient, dry dust. (Agility: Hurry! The Enforcers are tracing the hatch's physical seal, and they'll be here in seconds! Jump behind the generator block now! )\n\n\"The path to the Spire is open, but only for a few minutes,\" Se-rin says, her voice sharp and imperative as she looks at you. \"We either brace ourselves here to secure the connection, or we use Han's old transit bypass to slip past their first wave. What is your call? \"",
+      "action_result": "Success",
+      "scene_type": "static",
+      "choices": [
+        "Brace the maintenance doors and prepare to fight off the first wave. (Strength)",
+        "Slip into Han's old transit bypass before the Enforcers lock it down. (Agility)",
+        "Overload the terminal's sub-grid to blind the local sensors. (Intellect)"
+      ]
+    },
+    {
+      "turn_index": 56,
+      "title": "The Veins of the Spire",
+      "location": "subway_control_hub",
+      "narration": "You slip through the narrow maintenance hatch just as the high-pitched whistle of a drone's propulsion engine rises to a scream directly behind you. The heavy steel door clangs shut, sealing out the blinding red searchlights of the Enforcers and plunging you into a damp, narrow maintenance corridor smelling of grease and copper. Red emergency lights pulse slowly along the ceiling, casting long shadows that dance like specters in the steam. You are standing inside Han's old transit bypass, a forgotten arterial vein of the subway network that leads directly toward the lower gates of the Gangnam Spire. \n\nBefore you can catch your breath, a static-laced cough echoes from the darkness ahead. Han steps out from the shadow of a massive water valve, his worn coat dripping with condensation and his hand resting on a portable signal jammer. 'I told you this shortcut was a one-way trip,' Han says, his voice flat but strained as he looks at the rapidly decaying stability indicators on your wrist. 'The system is purging this entire sector. If we don't move now, we're both going to be optimized into clean code. '\n\nSuddenly, the metal walls around you groan as a high-frequency broadcast hums through the pipes, threatening to sever your connection to the physical world. (Agility: Run! The system is locking the grid! Don't let the signal dissolve, jump through the junction now! ) (Intellect: The broadcast frequency is fluctuating. Modulating your internal signal to match the carrier wave will preserve your stability at the cost of processing power. )",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Sprint through the closing transit junction before the signal collapses. (Agility)",
+        "Modulate your internal signal to bypass the system's tracking wave. (Intellect)"
+      ]
+    },
+    {
+      "turn_index": 57,
+      "title": "The Collapsing Junction",
+      "location": "subway_control_hub",
+      "narration": "The steel walls of the subway junction groan as the central grid initiates a hard system purge. Blue static arcs across the ceiling, dripping like liquid fire onto the rusted rails below. Ahead, the massive hydraulic transit gate is grinding downward, its heavy teeth threatening to seal the exit forever. A digital voice, cold and polite, echoes from the overhead speakers: 'Unregistered signal detected. Initiating local spatial optimization. ' Administrator IX is not screaming; he is simply shutting off the air, block by block. Your legs burn as you push your limits, your ghost-like stride barely making a sound against the metal grating as the gap narrows to mere inches. You slide feet-first under the descending iron slab, the smell of ozone and scorched fabric filling your lungs as the gate slams shut behind you with a deafening crash.",
+      "action_result": "Success",
+      "scene_type": "dynamic",
+      "choices": [
+        "Force open the manual override console using raw strength to vent the static build-up. (Strength)",
+        "Reroute the local power nodes to absorb the signal distortion. (Intellect)",
+        "Leap into the auxiliary ventilation shaft before the next purge cycle begins. (Agility)"
+      ]
+    },
+    {
+      "turn_index": 58,
+      "title": "The Threshold of Silence",
+      "location": "subway_control_hub",
+      "narration": "The auxiliary ventilation shaft is a cold, narrow throat of corrugated iron. You slide through the dust and old grease, the metal scraping against your ribs as a massive blue flash of the system purge erupts behind you, turning the air you just occupied into a scorching vacuum of ionized gas. Below, through the floor grating of the ventilation shaft, the deep underground maintenance bay of the subway hub comes into view, bathed in a warm, low-intensity orange light. Standing in the center of the bay is Tae-o, his scarred hands gripping his rifle, scanning the shadows while two shivering, unregistered civilians huddle behind him in the safety of the heavy concrete pillars. The pursuit is breathing down your neck, their heavy metal boots clanging on the upper gantries, but you have found the people you came to lead back to the underground warmth.",
+      "action_result": "Success",
+      "scene_type": "climax",
+      "choices": [
+        "Drop down silently from the grate and guide them toward the old drainage bypass. (Agility)",
+        "Overload the ventilation shutters to seal off the Enforcers' pursuit line. (Intellect)"
+      ]
+    },
+    {
+      "turn_index": 59,
+      "title": "교전 R1",
+      "location": "ix_confrontation",
+      "narration": "The signal surges. the fight begins.",
+      "action_result": null,
+      "scene_type": "combat",
+      "choices": []
+    },
+    {
+      "turn_index": 60,
+      "title": "교전 R1",
+      "location": "ix_confrontation",
+      "narration": "Tester breaks off and escapes the battlefield.\nYou left the battlefield.",
+      "action_result": "player_fled",
+      "scene_type": "combat",
+      "choices": []
+    }
+  ]
+}

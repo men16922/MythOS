@@ -290,6 +290,37 @@
   "playability": {
     "priority": "neo-seoul-rc",
     "core_stake": "당신은 어떤 명단에도 없는 '비식별 신호'입니다. 관리자 IX는 기준에서 벗어난 당신을 '최적화'(기억 삭제·소거)하려 합니다.",
+    "run_history_outcome": {
+      "saved_by_flag": {
+        "incinerator_rescued": "소각로에서 구출한 비식별 시민들",
+        "kai_awakened": "사람으로 깨어난 카이",
+        "subway_redirected": "피난처로 돌려보낸 수송 열차",
+        "incinerator_logged": "소각로에서 보존한 최적화 증거",
+        "data_core_taken": "스파이어에서 확보한 데이터 코어"
+      },
+      "lost_by_flag": {
+        "lost_evidence": "선택하지 못한 증거",
+        "abandoned_citizen": "버려진 시민",
+        "kai_left_dormant": "깨우지 못한 카이의 꿈",
+        "se_rin_distrust": "세린과의 신뢰"
+      },
+      "lost_by_ending": {
+        "ending_erasure": "이번 루프의 몸과 신호",
+        "ending_noble_sacrifice": "당신의 신호"
+      },
+      "carried_by_flag": {
+        "trusted_se_rin": "세린과 맺은 유대",
+        "kai_awakened": "카이가 기억하는 꿈",
+        "incinerator_logged": "지워지지 않은 최적화 기록",
+        "data_core_taken": "다음 접속에 남은 재작성 열쇠"
+      },
+      "carried_by_ending": {
+        "ending_erasure": "다음 루프를 여는 작은 글리치",
+        "ending_noble_sacrifice": "모든 안드로이드 회로에 남은 꿈",
+        "ending_code_rewrite": "당신이 다시 쓴 코드",
+        "ending_safe_refuge": "지하 피난처의 온기"
+      }
+    },
     "golden_path": [
       {
         "minutes": "0-5",

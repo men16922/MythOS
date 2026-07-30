@@ -2,7 +2,7 @@
 
 Usage:
     .venv/bin/python scripts/eval/bank_loop.py --loop-id loop_xxx --name my-golden \
-        [--note "keybeat A-arm, owner run 07-17"]
+        [--note "keybeat A-arm, owner run 07-17"] [--language en]
 
 Reads via MythOSStore against DATABASE_URL (local dev DB by default; point it at
 the prod DSN to bank a production loop). Writes scripts/eval/golden/<name>.json in
@@ -22,11 +22,26 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 GOLDEN_DIR = Path(__file__).resolve().parent / "golden"
 
 
+def resolve_language(state: dict[str, object], override: str | None) -> str:
+    """Resolve transcript language without silently mislabelling old loops as KO."""
+    if override:
+        return override
+    stored = state.get("language")
+    if isinstance(stored, str) and stored:
+        return stored
+    raise ValueError("loop has no stored language; pass --language ko or --language en")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--loop-id", required=True)
     parser.add_argument("--name", required=True, help="golden file stem (kebab-case)")
     parser.add_argument("--note", default="", help="context note (arm, player, date)")
+    parser.add_argument(
+        "--language",
+        choices=("ko", "en"),
+        help="required for legacy loops whose state does not persist language",
+    )
     args = parser.parse_args()
 
     from mythos_memory.postgres_store import PostgresMythOSStore
@@ -47,7 +62,7 @@ def main() -> int:
     payload = {
         "name": args.name,
         "scenario_id": str(loop.state.get("scenario_id") or "neo-seoul"),
-        "language": str(loop.state.get("language") or "ko"),
+        "language": resolve_language(loop.state, args.language),
         "note": args.note,
         "loop_id": args.loop_id,
         "scenes": [

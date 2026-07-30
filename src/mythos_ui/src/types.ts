@@ -563,6 +563,7 @@ export interface SaveSlot {
 export interface RunSummary {
   loop_id: string;
   ending_label?: string;
+  ending_narration?: string;
   final_title?: string;
   final_location?: string;
   turns: number;
@@ -572,7 +573,13 @@ export interface RunSummary {
   clues_collected?: string[];
   combats_won?: number;
   combats_lost?: number;
+  summary_text?: string;
   summary?: string;
+  outcome?: {
+    saved?: string[];
+    lost?: string[];
+    carried?: string[];
+  };
 }
 
 export interface NarrativeShard {

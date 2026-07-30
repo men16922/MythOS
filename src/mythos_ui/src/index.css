@@ -1199,6 +1199,43 @@ main {
   line-height: 1.5;
   margin: -4px 0 10px;
 }
+.run-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.run-history-item {
+  align-items: flex-start;
+  border-style: dashed;
+}
+.run-ending-narration {
+  color: var(--ink);
+  font-size: 11px;
+  line-height: 1.55;
+  margin-top: 7px;
+}
+.run-outcome {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0 0;
+}
+.run-outcome-row {
+  display: grid;
+  grid-template-columns: minmax(74px, auto) 1fr;
+  gap: 8px;
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+.run-outcome-row dt {
+  color: var(--head);
+  font-weight: 700;
+}
+.run-outcome-row dd {
+  color: var(--term-dim);
+  margin: 0;
+}
 
 /* Combat controls & logs */
 #combat-controls {
@@ -6544,6 +6581,33 @@ main#play.fx-glitch {
   body.combat-active .turn-order-strip {
     display: none;
   }
+}
+
+/* M4 mobile modal contract: every blocking fixed surface owns the viewport, so
+   touch/wheel input must never move the page underneath it. The panels that can
+   grow with content get their own bounded scroll below; cinema stays deliberately
+   clipped to its responsive stage. Keep this after the component definitions so
+   source-order checks still resolve each modal's primary z-index rule first. */
+body:has(
+  .boot-intro,
+  .invite-gate,
+  .modal-overlay,
+  .history-overlay,
+  .route-map-modal-backdrop,
+  .boon-overlay,
+  .combat-interstitial-backdrop,
+  .cinema-overlay,
+  .cc-loadout-backdrop
+) {
+  overflow: hidden;
+}
+
+.boon-modal,
+.combat-interstitial,
+.invite-gate-card {
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 /* --- Portrait combat action dock. The fixed 30dvh shelf is dense enough to

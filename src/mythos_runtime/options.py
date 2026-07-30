@@ -110,6 +110,8 @@ class RunSummary:
     allies_met: list[str]
     unlocks_granted: list[str]
     summary_text: str
+    ending_narration: str = ""
+    outcome: dict[str, list[str]] = field(default_factory=dict)
     relationships: dict[str, int] = field(default_factory=dict)
     unlocked_cutscenes: list[str] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)

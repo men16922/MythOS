@@ -408,6 +408,9 @@ export const en: Record<StringKey, string> = {
   "save.archiveTitle": "Archive (Past Loops)",
   "save.archiveDesc": "Loops that ended in a journey's end, collapse, or forced correction remain here.",
   "save.endedLoop": "Concluded Loop",
+  "save.outcome.saved": "Saved",
+  "save.outcome.lost": "Lost",
+  "save.outcome.carried": "Carried forward",
   "save.turns": "Turns",
   "save.archiveEmpty": "No ended-loop records yet. After an ending, collapse, or forced correction, a summary of the past loop remains here.",
   // Combat roster

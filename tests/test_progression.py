@@ -336,6 +336,66 @@ class RelationshipCarryOverTest(unittest.TestCase):
         updated, _ = evaluate_meta_progression(progress, summary)
         self.assertEqual(updated.relationships, {"se_rin": 3, "kai": 1})
 
+    def test_archive_preserves_authored_ending_and_outcome_facts(self) -> None:
+        now = datetime(2026, 7, 29, tzinfo=UTC)
+        loop = LoopState(
+            loop_id="loop_ending",
+            player_id="p",
+            seed="seed",
+            phase=LoopPhase.ENDED,
+            location_id="ix_confrontation",
+            stability=18,
+            tension=96,
+            started_at=now,
+            ended_at=now,
+            state={
+                "scenario_id": "neo-seoul",
+                "ending_id": "ending_erasure",
+                "ending_label": "강제 최적화 (Forced Erasure)",
+                "ending_narration": (
+                    "모든 것이 하얗게 비워집니다. 당신이라는 버그는 수정되었고, "
+                    "도시는 다시 완벽한 통계 속으로 침잠합니다. 하지만 어딘가에서, "
+                    "작은 글리치가 다시 시작됩니다."
+                ),
+                "flags": [
+                    "incinerator_rescued",
+                    "trusted_se_rin",
+                    "lost_evidence",
+                ],
+            },
+        )
+        scene = Scene(
+            scene_id="scene_ending",
+            loop_id=loop.loop_id,
+            turn_index=60,
+            title="교전 R1",
+            location="ix_confrontation",
+            narration="You left the battlefield.",
+            choices=[],
+            visual_brief=None,
+            created_at=now,
+            action_result="player_fled",
+            scene_type="combat",
+        )
+
+        summary = _run_summary_from_memory(
+            _run_summary_memory_from_archive(loop, scene, [], [], "generic summary")
+        )
+
+        self.assertIn("모든 것이 하얗게 비워집니다.", summary.ending_narration)
+        self.assertEqual(
+            summary.outcome["saved"],
+            ["소각로에서 구출한 비식별 시민들"],
+        )
+        self.assertEqual(
+            summary.outcome["lost"],
+            ["선택하지 못한 증거", "이번 루프의 몸과 신호"],
+        )
+        self.assertEqual(
+            summary.outcome["carried"],
+            ["세린과 맺은 유대", "다음 루프를 여는 작은 글리치"],
+        )
+
     def test_carry_over_into_next_loop_state(self) -> None:
         progress = MetaProgression(
             player_id="p", scenario_id="neo-seoul", relationships={"se_rin": 5}

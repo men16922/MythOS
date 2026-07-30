@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "frozen_at": "2026-07-29",
+  "policy": "Development samples may be scored while iterating. Promotion samples are hash-frozen and may be scored only for an explicit promotion decision with companion metrics.",
+  "development": [
+    {
+      "path": "golden/local-evidence-safety.json",
+      "sha256": "325089a70269270d155dd2fffdef266a91772843501170682e0e4966151f918f"
+    },
+    {
+      "path": "golden/local-people-help.json",
+      "sha256": "da094876f6e8954f1735d4168c057a628a7f48d73cef88ff00e76d8a75faf1c5"
+    }
+  ],
+  "promotion": [
+    {
+      "path": "golden/prod-evidence-safety-20260728.json",
+      "sha256": "cf450cb1668d40bfc7a8b1eead5ce6aee575a7b2514677491bb94e8e45f4ede8"
+    },
+    {
+      "path": "golden/prod-people-help-20260728.json",
+      "sha256": "50139a681ec63fb143d2ee9ad1ed16e0697a8ab610acda2d18d288f2525008b2"
+    }
+  ],
+  "promotion_baseline": {
+    "report": "outputs/evals/20260728-030707/report.md",
+    "note": "The 3/5 scores were visible before this split was frozen. Treat these as a disclosed baseline, not a blind held-out result. From frozen_at onward, keep these samples out of prompt/directive iteration."
+  },
+  "excluded": [
+    {
+      "path": "golden/sample-fallback-ko.json",
+      "reason": "Two-scene fallback harness fixture; not a narrative-quality sample."
+    }
+  ]
+}

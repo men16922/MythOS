@@ -28,7 +28,7 @@ from mythos_api.serializers import (
     snapshot_to_dict,
 )
 from mythos_api.service import get_service, get_storage_adapter
-from mythos_core import AssetRecord, Choice, LoopPhase, LoopState, PlayerProfile, Scene
+from mythos_core import AssetRecord, Choice, LoopPhase, LoopState, PlayerProfile, Scene, WorldMemory
 from mythos_runtime.options import MemoryOverview, RuntimeSnapshot
 from mythos_runtime.session import RuntimeSessionService
 from mythos_runtime.visual_service import VisualGenerationResult
@@ -898,6 +898,86 @@ class ApiParityEndpointsTest(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         body = response.json()
         self.assertIn("runs", body)
+
+    def test_get_runs_localizes_legacy_ending_and_outcome_backfill(self) -> None:
+        now = datetime(2026, 7, 29, tzinfo=UTC)
+        loop = LoopState(
+            loop_id="loop_legacy_ending",
+            player_id="player_test",
+            seed="seed_legacy",
+            phase=LoopPhase.ENDED,
+            location_id="ix_confrontation",
+            stability=12,
+            tension=97,
+            started_at=now,
+            ended_at=now,
+            state={
+                "scenario_id": "neo-seoul",
+                "ending_id": "ending_erasure",
+                "ending_label": "강제 최적화 (Forced Erasure)",
+                "ending_narration": (
+                    "모든 것이 하얗게 비워집니다. 당신이라는 버그는 수정되었고, "
+                    "도시는 다시 완벽한 통계 속으로 침잠합니다. 하지만 어딘가에서, "
+                    "작은 글리치가 다시 시작됩니다."
+                ),
+                "flags": ["incinerator_rescued", "trusted_se_rin"],
+            },
+        )
+        self.store.save_loop(loop)
+        self.store.save_world_memory(
+            WorldMemory(
+                memory_id="memory_legacy_ending",
+                world_id="world_mythos",
+                kind="run_summary",
+                content={
+                    "run_id": "run_loop_legacy_ending",
+                    "loop_id": loop.loop_id,
+                    "player_id": loop.player_id,
+                    "scenario_id": "neo-seoul",
+                    "started_at": now.isoformat(),
+                    "ended_at": now.isoformat(),
+                    "ending_id": "ending_erasure",
+                    "ending_label": "강제 최적화 (Forced Erasure)",
+                    "phase": "ended",
+                    "turns": 61,
+                    "summary": "루프는 combat_finished의 잔향을 남기고 접혔다.",
+                },
+                weight=1.0,
+                created_at=now,
+                updated_at=now,
+            )
+        )
+
+        response = self.client.get(
+            "/api/v1/runs",
+            params={
+                "player_id": "player_test",
+                "scenario_id": "neo-seoul",
+                "lang": "en",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        run = next(
+            item for item in response.json()["runs"] if item["loop_id"] == loop.loop_id
+        )
+        self.assertEqual(run["ending_label"], "Forced Erasure")
+        self.assertIn("Everything empties into white.", run["ending_narration"])
+        self.assertEqual(
+            run["outcome"]["saved"],
+            ["The unregistered civilians rescued from the incinerator"],
+        )
+        self.assertEqual(
+            run["outcome"]["lost"],
+            ["This loop's body and signal"],
+        )
+        self.assertEqual(
+            run["outcome"]["carried"],
+            [
+                "The bond forged with Se-rin",
+                "The small glitch that opens the next loop",
+            ],
+        )
 
 
 class ApiSkillTreeTest(unittest.TestCase):

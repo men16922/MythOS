@@ -16,6 +16,7 @@ from mythos_core.ids import new_memory_id
 from mythos_memory import MythOSStore
 from mythos_runtime.combat_service import skill_rank_bonuses
 from mythos_runtime.options import RunSummary
+from mythos_runtime.scenario import load_scenario
 
 DEFAULT_ARCHETYPE = "ghost"
 
@@ -811,6 +812,68 @@ def _item_id(item: Any) -> str:
     return str(item)
 
 
+def _run_outcome_from_loop(loop: LoopState) -> dict[str, list[str]]:
+    """Resolve authored saved/lost/carried facts from durable loop state.
+
+    The archive stores stable player-facing text, while the REST localization
+    seam translates those exact strings for the requested language. Scenarios
+    opt in through playability.run_history_outcome; unknown scenarios degrade to
+    empty groups instead of exposing internal flag ids.
+    """
+    outcome: dict[str, list[str]] = {"saved": [], "lost": [], "carried": []}
+    state = loop.state if isinstance(loop.state, dict) else {}
+    flags = {str(flag) for flag in state.get("flags", []) or []}
+    ending_id = str(state.get("ending_id") or "")
+
+    try:
+        scenario = load_scenario(str(state.get("scenario_id") or "neo-seoul"))
+        config = scenario.playability.get("run_history_outcome", {})
+    except Exception:
+        config = {}
+    if not isinstance(config, dict):
+        return outcome
+
+    for category in outcome:
+        by_flag = config.get(f"{category}_by_flag", {})
+        if isinstance(by_flag, dict):
+            for flag, text in by_flag.items():
+                if str(flag) in flags and isinstance(text, str) and text.strip():
+                    outcome[category].append(text.strip())
+
+        by_ending = config.get(f"{category}_by_ending", {})
+        if (
+            ending_id
+            and isinstance(by_ending, dict)
+            and isinstance(by_ending.get(ending_id), str)
+            and by_ending[ending_id].strip()
+        ):
+            outcome[category].append(by_ending[ending_id].strip())
+
+        # Multiple flags can intentionally resolve to the same authored fact
+        # (for example evidence_first + incinerator_logged). Keep the archive
+        # compact and deterministic.
+        outcome[category] = list(dict.fromkeys(outcome[category]))
+
+    return outcome
+
+
+def _enrich_run_summary_from_loop(summary: RunSummary, loop: LoopState) -> RunSummary:
+    """Backfill new archive fields from the still-durable ended loop.
+
+    Existing production run_summary memories predate these fields, but their
+    ended LoopState remains authoritative. Reading through ProgressionService
+    therefore upgrades old records without a destructive DB migration.
+    """
+    state = loop.state if isinstance(loop.state, dict) else {}
+    narration = summary.ending_narration or str(state.get("ending_narration") or "")
+    outcome = summary.outcome
+    if not any(outcome.get(key) for key in ("saved", "lost", "carried")):
+        outcome = _run_outcome_from_loop(loop)
+    if narration == summary.ending_narration and outcome == summary.outcome:
+        return summary
+    return replace(summary, ending_narration=narration, outcome=outcome)
+
+
 def _run_summary_from_memory(memory: WorldMemory) -> RunSummary:
     content = memory.content
     metadata = content.get("metadata")
@@ -835,6 +898,13 @@ def _run_summary_from_memory(memory: WorldMemory) -> RunSummary:
         allies_met=[str(item) for item in content.get("allies_met", [])],
         unlocks_granted=[str(item) for item in content.get("unlocks_granted", [])],
         summary_text=str(content.get("summary_text") or content.get("summary") or ""),
+        ending_narration=str(content.get("ending_narration") or ""),
+        outcome={
+            key: _string_list((content.get("outcome") or {}).get(key))
+            if isinstance(content.get("outcome"), dict)
+            else []
+            for key in ("saved", "lost", "carried")
+        },
         relationships=_relationship_tally(content.get("relationships")),
         unlocked_cutscenes=_string_list(content.get("unlocked_cutscenes")),
         metadata=metadata if isinstance(metadata, dict) else {},
@@ -887,8 +957,17 @@ class ProgressionService:
         world_memories = self.store.list_world_memories(MYTHOS_WORLD_ID)
         runs = []
         for memory in world_memories:
-            if memory.kind == "run_summary" and memory.content.get("player_id") == player_id:
-                runs.append(_run_summary_from_memory(memory))
+            if memory.kind != "run_summary" or memory.content.get("player_id") != player_id:
+                continue
+            summary = _run_summary_from_memory(memory)
+            needs_backfill = not summary.ending_narration or not any(
+                summary.outcome.get(key) for key in ("saved", "lost", "carried")
+            )
+            if needs_backfill:
+                loop = self.store.get_loop(summary.loop_id)
+                if loop is not None:
+                    summary = _enrich_run_summary_from_loop(summary, loop)
+            runs.append(summary)
         runs.sort(key=lambda r: r.ended_at, reverse=True)
         return runs[:limit]
 
@@ -1051,6 +1130,8 @@ def _run_summary_memory_from_archive(
         "relationships": _relationship_delta_for_loop(loop.state),
         "unlocked_cutscenes": _unlocked_cutscenes_for_loop(loop),
         "summary": summary_text,
+        "ending_narration": str(loop.state.get("ending_narration") or ""),
+        "outcome": _run_outcome_from_loop(loop),
         "saved_at": now.isoformat(),
     }
     return WorldMemory(

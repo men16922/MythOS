@@ -4,6 +4,16 @@
 프롬프트에 주입한다 — **축 튜닝은 이 파일에서만** (코드는 축 이름에 의존하지 않고 verdict JSON을
 그대로 리포트에 접는다). 배경: `docs/reference/2026-07-17-anthropic-openai-agent-stacks.md` §3-1.
 
+## Eval split와 승격 규칙
+
+- `SPLIT.json`의 `development` 표본만 기본 `make eval-narrative`에서 채점합니다.
+- `promotion` 표본은 파일 해시로 고정하며 prompt/directive 반복에 사용하지 않습니다. 2026-07-28
+  기준점 점수는 split 고정 전에 공개됐으므로 블라인드 결과가 아닙니다.
+- 승격 판정 때만 `make eval-narrative-promotion EVAL_PROMOTION_METRICS=<json>`을 사용합니다.
+  JSON의 `samples`는 promotion 표본 이름과 정확히 같아야 하며 각 항목에 숫자
+  `cost_per_loop_usd`, `repetition_compliance`와 `length_compliance`(`pass`/`fail`)가 필요합니다.
+  리포트는 이 지표를 루브릭 점수와 함께 출력합니다.
+
 ## 채점 축 (각 1-5, 5가 최고)
 
 - **continuity (연속성)**: 직전 장면·선택의 결과가 다음 장면에 이어지는가. 방금 한 일을 잊은 듯한

@@ -684,6 +684,57 @@ class SessionCombatTest(unittest.TestCase):
         self.assertEqual(snap.loop.state.get("ending_image"), "endings/forced-erasure.png")
         self.assertFalse(snap.loop.state.get("_soft_defeat_pending"))
 
+    def test_boss_climax_flee_archives_forced_erasure_with_outcome(self) -> None:
+        loop = self.store.get_loop(self.loop_id)
+        assert loop is not None
+        loop = replace(
+            loop,
+            tension=96,
+            state={
+                **loop.state,
+                "scenario_id": "neo-seoul",
+                "flags": ["incinerator_rescued", "trusted_se_rin"],
+            },
+        )
+        player = self.store.get_player("p1")
+        assert player is not None
+        result = CombatTurnResult(
+            loop=loop,
+            prose="Tester breaks off and escapes the battlefield.",
+            radar={"encounter_id": "ix_confrontation", "round": 1},
+            available={},
+            finished=True,
+            outcome="player_fled",
+            rewards={},
+        )
+
+        snap = self.service._commit_combat_turn(player, result, "test", self.options)
+
+        self.assertEqual(snap.loop.phase, LoopPhase.ENDED)
+        self.assertEqual(snap.loop.state.get("ending_id"), "ending_erasure")
+        self.assertIn("모든 것이 하얗게", snap.loop.state.get("ending_narration", ""))
+
+        summaries = self.service.list_run_summaries("p1")
+        self.assertEqual(len(summaries), 1)
+        summary = summaries[0]
+        self.assertEqual(summary.ending_id, "ending_erasure")
+        self.assertEqual(
+            summary.ending_narration,
+            snap.loop.state["ending_narration"],
+        )
+        self.assertEqual(
+            summary.outcome["saved"],
+            ["소각로에서 구출한 비식별 시민들"],
+        )
+        self.assertEqual(
+            summary.outcome["lost"],
+            ["이번 루프의 몸과 신호"],
+        )
+        self.assertEqual(
+            summary.outcome["carried"],
+            ["세린과 맺은 유대", "다음 루프를 여는 작은 글리치"],
+        )
+
     def test_ambient_combat_suppressed_during_soft_defeat_recovery(self) -> None:
         # After a soft defeat, an ambient LLM start_combat must be suppressed for a
         # few scenes regardless of tension, so a losing player gets a recovery beat

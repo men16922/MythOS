@@ -18,6 +18,7 @@ from mythos_api.app import create_app
 # default language (flipped to EN 2026-06-29). EN is covered by the §K live-QA pass.
 APP_URL = "http://127.0.0.1:8080/?fallback=0&image=0&lang=ko"
 OUTPUT_DIR = Path(__file__).parent / "outputs"
+RUN_HISTORY_ONLY = os.getenv("MYTHOS_E2E_RUN_HISTORY_ONLY") == "1"
 
 
 def run_server():
@@ -73,6 +74,13 @@ class MockWebSocket extends EventTarget {
         const event = msg.event;
         console.log("MockWebSocket send() 호출됨. event=" + event);
         if (event === "begin") {
+            this.dispatchEvent(new MessageEvent("message", {
+                data: JSON.stringify({
+                    type: "loop_meta",
+                    opening_variant: "default",
+                    runs_completed: 1,
+                }),
+            }));
             setTimeout(() => window.dispatchMockTokens(0), 100);
         } else if (event === "choose") {
             window.currentMockTurn = (window.currentMockTurn || 0) + 1;
@@ -311,6 +319,12 @@ def run_test():
                     {
                         "loop_id": "loop_ended_999",
                         "ending_label": "엔딩 · 유리성의 사서",
+                        "ending_narration": "도서관의 문은 닫혔지만 대출 카드는 다음 접속에 남았습니다.",
+                        "outcome": {
+                            "saved": ["첫 접속자의 대출 카드"],
+                            "lost": ["무너진 목록실"],
+                            "carried": ["기억의 잔향"],
+                        },
                         "turns": 12,
                         "ended_at": "2026-06-06T12:00:00Z",
                     }
@@ -369,6 +383,7 @@ def run_test():
                 "bgm_path": "resources/neo-seoul/audio/bgm_calm.wav",
                 "state": {
                     "flags": ["met_serin"],
+                    "meta_progression": {"runs_completed": 1},
                     "_party": {"player_hp": 15, "player_max_hp": 15},
                     "_route_map": {
                         "current": "route_start",
@@ -1073,6 +1088,23 @@ def run_test():
             )
             print("Verified: Exploration BGM resource was requested.")
 
+            if RUN_HISTORY_ONLY:
+                page.click('button:has-text("도감")')
+                page.wait_for_selector("#history-panel .save-slot-item", timeout=3000)
+                text = page.locator("#history-panel .save-slot-item").first.inner_text()
+                assert "유리성의 사서" in text, text
+                assert "도서관의 문은 닫혔지만" in text, text
+                assert "구한 것" in text and "첫 접속자의 대출 카드" in text, text
+                assert "잃은 것" in text and "무너진 목록실" in text, text
+                assert "다음 루프에 남은 것" in text and "기억의 잔향" in text, text
+                page.locator("#history-panel .save-slot-item").first.screenshot(
+                    path=str(OUTPUT_DIR / "03.5_run_history_outcome.png")
+                )
+                print("Run History focused E2E passed: ending narration and all outcome groups rendered.")
+                success = True
+                browser.close()
+                return
+
             # Hotkey Focus Test — the save description input moved into the
             # Save/Load modal (CBT save UX), so open the Save modal first.
             page.click("#save-load-panel .sl-launch button:first-child")
@@ -1487,7 +1519,11 @@ def run_test():
             page.wait_for_selector("#history-panel .save-slot-item", timeout=3000)
             text = page.locator("#history-panel .save-slot-item").first.inner_text()
             assert "유리성의 사서" in text, f"Run history should show finished ending, got '{text}'"
-            print("Verified: Codex tab shows Run History.")
+            assert "도서관의 문은 닫혔지만" in text, f"Run history should preserve ending narration, got '{text}'"
+            assert "구한 것" in text and "첫 접속자의 대출 카드" in text, text
+            assert "잃은 것" in text and "무너진 목록실" in text, text
+            assert "다음 루프에 남은 것" in text and "기억의 잔향" in text, text
+            print("Verified: Codex Run History shows ending narration and saved/lost/carried facts.")
             page.click('button:has-text("이야기")')
             page.wait_for_timeout(400)
 

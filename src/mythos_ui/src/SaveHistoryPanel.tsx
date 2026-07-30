@@ -38,38 +38,54 @@ export function SaveHistoryPanel({
 
 export function RunHistoryPanel({ runsHistory }: { runsHistory: RunSummary[] }) {
   const { t, lang } = useLang();
+  const outcomeGroups = [
+    { key: "saved" as const, label: t("save.outcome.saved") },
+    { key: "lost" as const, label: t("save.outcome.lost") },
+    { key: "carried" as const, label: t("save.outcome.carried") },
+  ];
+
   return (
     <Surface variant="surface" id="history-panel">
       <p className="panel-title">{t("save.archiveTitle")}</p>
       <div className="run-history-hint">
         {t("save.archiveDesc")}
       </div>
-      <div
-        style={{
-          fontSize: "11px",
-          maxHeight: "180px",
-          overflowY: "auto",
-          display: "flex",
-          flexDirection: "column",
-          gap: "6px",
-        }}
-      >
+      <div className="run-history-list">
         {runsHistory.length > 0 ? (
-          runsHistory.map((run) => (
-            <div
-              className="save-slot-item"
-              style={{ borderStyle: "dashed" }}
-              key={run.loop_id}
-            >
-              <div className="save-slot-info">
-                <div className="save-slot-label">{run.ending_label || t("save.endedLoop")}</div>
-                <div className="save-slot-meta">
-                  {t("save.loop")}: {run.loop_id.slice(0, 10)}… · {t("save.turns")}: {run.turns} ·{" "}
-                  {localDate(run.ended_at, lang)}
+          runsHistory.map((run) => {
+            const visibleOutcomes = outcomeGroups.filter(
+              ({ key }) => (run.outcome?.[key]?.length ?? 0) > 0
+            );
+            return (
+              <div
+                className="save-slot-item run-history-item"
+                key={run.loop_id}
+              >
+                <div className="save-slot-info">
+                  <div className="save-slot-label">
+                    {run.ending_label || t("save.endedLoop")}
+                  </div>
+                  <div className="save-slot-meta">
+                    {t("save.loop")}: {run.loop_id.slice(0, 10)}… · {t("save.turns")}:{" "}
+                    {run.turns} · {localDate(run.ended_at, lang)}
+                  </div>
+                  {run.ending_narration ? (
+                    <div className="run-ending-narration">{run.ending_narration}</div>
+                  ) : null}
+                  {visibleOutcomes.length > 0 ? (
+                    <dl className="run-outcome">
+                      {visibleOutcomes.map(({ key, label }) => (
+                        <div className={`run-outcome-row run-outcome-${key}`} key={key}>
+                          <dt>{label}</dt>
+                          <dd>{run.outcome?.[key]?.join(" · ")}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                  ) : null}
                 </div>
               </div>
-            </div>
-          ))
+            );
+          })
         ) : (
           <div style={{ color: "var(--ink-dim)" }}>
             {t("save.archiveEmpty")}

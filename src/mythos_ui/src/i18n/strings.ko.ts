@@ -411,6 +411,9 @@ export const ko = {
   "save.archiveTitle": "기록 보관소 (지난 루프)",
   "save.archiveDesc": "여정 종료, 붕괴, 강제 정정으로 끝난 루프가 여기에 남습니다.",
   "save.endedLoop": "종결된 루프",
+  "save.outcome.saved": "구한 것",
+  "save.outcome.lost": "잃은 것",
+  "save.outcome.carried": "다음 루프에 남은 것",
   "save.turns": "턴",
   "save.archiveEmpty": "아직 종료된 루프 기록이 없습니다. 엔딩, 붕괴, 강제 정정 후 지난 루프 요약이 여기에 남습니다.",
   // Combat roster

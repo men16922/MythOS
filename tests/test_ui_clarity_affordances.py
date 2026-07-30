@@ -224,6 +224,34 @@ class UIClarityAffordancesTest(unittest.TestCase):
         self.assertRegex(css, r"\.ob-row select \{[^}]*max-width: 100%;")
         self.assertRegex(css, r"\.ob-actions \{[^}]*flex-wrap: wrap;")
 
+    def test_fixed_modal_surfaces_lock_background_scroll_on_mobile(self) -> None:
+        # M4: blocking fixed surfaces own the phone viewport. Without this
+        # contract a wheel/touch gesture over Save/Load moved the document from
+        # scrollY 337 to 37 behind the still-open modal at 390x844.
+        css = read("src/mythos_ui/src/index.css")
+
+        self.assertIn("M4 mobile modal contract", css)
+        for selector in (
+            ".boot-intro",
+            ".invite-gate",
+            ".modal-overlay",
+            ".history-overlay",
+            ".route-map-modal-backdrop",
+            ".boon-overlay",
+            ".combat-interstitial-backdrop",
+            ".cinema-overlay",
+            ".cc-loadout-backdrop",
+        ):
+            self.assertIn(selector, css)
+        self.assertRegex(css, r"body:has\([^}]+\) \{\s*overflow: hidden;")
+        self.assertRegex(
+            css,
+            r"\.boon-modal,\s*\.combat-interstitial,\s*\.invite-gate-card \{"
+            r"[^}]*max-height: calc\(100dvh - 32px\);"
+            r"[^}]*overflow-y: auto;"
+            r"[^}]*overscroll-behavior: contain;",
+        )
+
     def test_mobile_narration_first_demotes_objective_and_drops_character_chip(self) -> None:
         # Narration-first (mobile, coarse pointer): the narration is the thing the
         # player reads every turn, so nothing secondary should stack above it.

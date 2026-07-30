@@ -22,6 +22,13 @@ assert _spec is not None and _spec.loader is not None
 judge = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(judge)
 
+_bank_spec = importlib.util.spec_from_file_location(
+    "bank_loop", ROOT / "scripts" / "eval" / "bank_loop.py"
+)
+assert _bank_spec is not None and _bank_spec.loader is not None
+bank_loop = importlib.util.module_from_spec(_bank_spec)
+_bank_spec.loader.exec_module(bank_loop)
+
 
 def _transcript(**overrides):
     base = {
@@ -81,6 +88,71 @@ class GoldenValidationTest(unittest.TestCase):
         self.assertTrue(data["scenes"][0]["narration"])
 
 
+class BankLanguageTest(unittest.TestCase):
+    def test_stored_language_is_used(self) -> None:
+        self.assertEqual(bank_loop.resolve_language({"language": "ko"}, None), "ko")
+
+    def test_explicit_language_overrides_missing_legacy_state(self) -> None:
+        self.assertEqual(bank_loop.resolve_language({}, "en"), "en")
+
+    def test_missing_legacy_language_fails_closed(self) -> None:
+        with self.assertRaisesRegex(ValueError, "pass --language"):
+            bank_loop.resolve_language({}, None)
+
+
+class SplitPolicyTest(unittest.TestCase):
+    def test_frozen_development_and_promotion_lanes_are_disjoint(self) -> None:
+        development = judge.load_split_paths("development")
+        promotion = judge.load_split_paths("promotion")
+        self.assertEqual(
+            {path.name for path in development},
+            {"local-evidence-safety.json", "local-people-help.json"},
+        )
+        self.assertEqual(
+            {path.name for path in promotion},
+            {
+                "prod-evidence-safety-20260728.json",
+                "prod-people-help-20260728.json",
+            },
+        )
+        self.assertTrue(set(development).isdisjoint(promotion))
+        self.assertNotIn("sample-fallback-ko.json", {path.name for path in development})
+
+    def test_promotion_requires_explicit_mode_and_metrics(self) -> None:
+        with self.assertRaises(SystemExit):
+            judge.main(["golden/prod-people-help-20260728.json"])
+        with self.assertRaises(SystemExit):
+            judge.main(["--promotion"])
+
+    def test_promotion_metrics_must_cover_every_frozen_sample(self) -> None:
+        path = ROOT / "scripts" / "eval" / "_tmp_metrics.json"
+        path.write_text(
+            json.dumps(
+                {
+                    "samples": {
+                        "prod-evidence-safety-20260728": {
+                            "cost_per_loop_usd": 1.0,
+                            "repetition_compliance": "fail",
+                            "length_compliance": "pass",
+                        }
+                    }
+                }
+            ),
+            encoding="utf-8",
+        )
+        try:
+            with self.assertRaisesRegex(ValueError, "exactly match"):
+                judge.load_promotion_metrics(
+                    path,
+                    {
+                        "prod-evidence-safety-20260728",
+                        "prod-people-help-20260728",
+                    },
+                )
+        finally:
+            path.unlink()
+
+
 class JudgePromptTest(unittest.TestCase):
     def test_prompt_carries_rubric_transcript_and_contract(self) -> None:
         prompt = judge.build_judge_prompt(_transcript(), "RUBRIC_BODY_SENTINEL")
@@ -129,6 +201,30 @@ class ReportTest(unittest.TestCase):
         self.assertIn("continuity 4", report)
         self.assertIn("[turn 2] register", report)
         self.assertIn("잔향 회랑", report)
+
+    def test_promotion_report_pairs_scores_with_companion_metrics(self) -> None:
+        verdict = {
+            "scores": {"repetition": 2},
+            "overall": 3,
+            "issues": [],
+            "one_line": "반복 있음",
+        }
+        metrics = {
+            "samples": {
+                "t1": {
+                    "cost_per_loop_usd": 1.125,
+                    "repetition_compliance": "fail",
+                    "length_compliance": "pass",
+                    "note": "measured production sample",
+                }
+            }
+        }
+        report = judge.render_report(
+            [("t1", verdict)], "20260729-000000", metrics
+        )
+        self.assertIn("Promotion companion metrics", report)
+        self.assertIn("cost/loop $1.1250", report)
+        self.assertIn("repetition fail · length pass", report)
 
 
 if __name__ == "__main__":

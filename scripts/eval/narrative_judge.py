@@ -7,8 +7,10 @@ judge model against scripts/eval/RUBRIC.md, producing a per-transcript report th
 backs the key-beat A/B verdict and gates future prompt/directive changes.
 
 Usage:
-    .venv/bin/python scripts/eval/narrative_judge.py               # all golden/*.json
-    .venv/bin/python scripts/eval/narrative_judge.py golden/x.json # subset
+    .venv/bin/python scripts/eval/narrative_judge.py               # development split
+    .venv/bin/python scripts/eval/narrative_judge.py golden/x.json # non-promotion subset
+    .venv/bin/python scripts/eval/narrative_judge.py --promotion \
+        --metrics /path/to/promotion-metrics.json
     make eval-narrative
 
 The judge engine is `claude -p` (same idiom as the overnight critic/image-judge
@@ -20,6 +22,8 @@ tests/test_narrative_eval.py without invoking any CLI.
 
 from __future__ import annotations
 
+import argparse
+import hashlib
 import json
 import os
 import re
@@ -33,10 +37,74 @@ from typing import Any
 EVAL_DIR = Path(__file__).resolve().parent
 GOLDEN_DIR = EVAL_DIR / "golden"
 RUBRIC_PATH = EVAL_DIR / "RUBRIC.md"
+SPLIT_PATH = EVAL_DIR / "SPLIT.json"
 REPO_ROOT = EVAL_DIR.parents[1]
 
 REQUIRED_TRANSCRIPT_KEYS = ("name", "scenario_id", "language", "scenes")
 REQUIRED_SCENE_KEYS = ("turn_index", "title", "narration", "choices")
+COMPANION_COMPLIANCE_VALUES = ("pass", "fail")
+
+
+def _sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def load_split_paths(lane: str, split_path: Path = SPLIT_PATH) -> list[Path]:
+    """Resolve and hash-check one frozen eval lane from SPLIT.json."""
+    if lane not in {"development", "promotion"}:
+        raise ValueError(f"unknown eval lane: {lane}")
+    split = json.loads(split_path.read_text(encoding="utf-8"))
+    entries = split.get(lane)
+    if not isinstance(entries, list) or not entries:
+        raise ValueError(f"{split_path.name}: {lane} must be a non-empty list")
+    paths: list[Path] = []
+    eval_root = split_path.parent.resolve()
+    for entry in entries:
+        if not isinstance(entry, dict):
+            raise ValueError(f"{split_path.name}: invalid {lane} entry")
+        relative = entry.get("path")
+        expected_hash = entry.get("sha256")
+        if not isinstance(relative, str) or not isinstance(expected_hash, str):
+            raise ValueError(f"{split_path.name}: {lane} entry needs path and sha256")
+        path = (eval_root / relative).resolve()
+        if not path.is_relative_to(eval_root):
+            raise ValueError(f"{split_path.name}: path escapes eval directory: {relative}")
+        if not path.is_file():
+            raise ValueError(f"{split_path.name}: missing frozen sample: {relative}")
+        actual_hash = _sha256(path)
+        if actual_hash != expected_hash:
+            raise ValueError(
+                f"{split_path.name}: frozen sample hash drift: {relative} "
+                f"expected={expected_hash} actual={actual_hash}"
+            )
+        paths.append(path)
+    return paths
+
+
+def load_promotion_metrics(path: Path, expected_names: set[str]) -> dict[str, Any]:
+    """Validate score companion metrics required for a promotion-only run."""
+    metrics = json.loads(path.read_text(encoding="utf-8"))
+    samples = metrics.get("samples")
+    if not isinstance(samples, dict) or set(samples) != expected_names:
+        raise ValueError(
+            f"{path.name}: samples must exactly match promotion bank {sorted(expected_names)}"
+        )
+    for name, sample in samples.items():
+        if not isinstance(sample, dict):
+            raise ValueError(f"{path.name}: {name} metrics must be an object")
+        cost = sample.get("cost_per_loop_usd")
+        if not isinstance(cost, (int, float)) or isinstance(cost, bool) or cost < 0:
+            raise ValueError(f"{path.name}: {name} needs non-negative cost_per_loop_usd")
+        for field in ("repetition_compliance", "length_compliance"):
+            if sample.get(field) not in COMPANION_COMPLIANCE_VALUES:
+                raise ValueError(
+                    f"{path.name}: {name}.{field} must be pass or fail"
+                )
+    return metrics
 
 
 def load_golden(path: Path) -> dict[str, Any]:
@@ -103,7 +171,11 @@ def parse_verdict(raw: str) -> dict[str, Any]:
     return verdict
 
 
-def render_report(results: list[tuple[str, dict[str, Any]]], generated_at: str) -> str:
+def render_report(
+    results: list[tuple[str, dict[str, Any]]],
+    generated_at: str,
+    companion_metrics: dict[str, Any] | None = None,
+) -> str:
     """Fold (name, verdict) pairs into a markdown report."""
     lines = [f"# Narrative eval report — {generated_at}", ""]
     for name, verdict in results:
@@ -119,6 +191,17 @@ def render_report(results: list[tuple[str, dict[str, Any]]], generated_at: str) 
                 f"“{issue.get('quote', '')}” — {issue.get('note', '')}"
             )
         lines.append("")
+    if companion_metrics is not None:
+        lines.extend(["## Promotion companion metrics", ""])
+        samples = companion_metrics["samples"]
+        for name, sample in samples.items():
+            lines.append(
+                f"- {name}: cost/loop ${sample['cost_per_loop_usd']:.4f} · "
+                f"repetition {sample['repetition_compliance']} · "
+                f"length {sample['length_compliance']}"
+                + (f" · {sample['note']}" if sample.get("note") else "")
+            )
+        lines.append("")
     return "\n".join(lines)
 
 
@@ -129,7 +212,9 @@ def _judge_cmd(prompt: str) -> list[str]:
     return ["claude", "-p", prompt, "--permission-mode", "plan"]
 
 
-def run(paths: list[Path]) -> int:
+def run(
+    paths: list[Path], companion_metrics: dict[str, Any] | None = None
+) -> int:
     rubric = RUBRIC_PATH.read_text(encoding="utf-8")
     results: list[tuple[str, dict[str, Any]]] = []
     for path in paths:
@@ -146,24 +231,71 @@ def run(paths: list[Path]) -> int:
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     out_dir = REPO_ROOT / "outputs" / "evals" / stamp
     out_dir.mkdir(parents=True, exist_ok=True)
-    report = render_report(results, stamp)
+    report = render_report(results, stamp, companion_metrics)
     (out_dir / "report.md").write_text(report, encoding="utf-8")
     (out_dir / "verdicts.json").write_text(
         json.dumps(dict(results), ensure_ascii=False, indent=2), encoding="utf-8"
     )
+    if companion_metrics is not None:
+        (out_dir / "companion-metrics.json").write_text(
+            json.dumps(companion_metrics, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
     print(f"\n{report}\nreport → {out_dir / 'report.md'}")
     return 0
 
 
 def main(argv: list[str]) -> int:
-    if argv:
-        paths = [Path(a) if Path(a).is_absolute() else EVAL_DIR / a for a in argv]
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "paths",
+        nargs="*",
+        help="explicit non-promotion transcripts relative to scripts/eval",
+    )
+    parser.add_argument(
+        "--promotion",
+        action="store_true",
+        help="score the frozen promotion bank for an explicit promotion decision",
+    )
+    parser.add_argument(
+        "--metrics",
+        type=Path,
+        help="JSON companion metrics required with --promotion",
+    )
+    args = parser.parse_args(argv)
+
+    promotion_paths = load_split_paths("promotion")
+    companion_metrics: dict[str, Any] | None = None
+    if args.promotion:
+        if args.paths:
+            parser.error("--promotion uses the frozen bank and does not accept paths")
+        if args.metrics is None:
+            parser.error("--promotion requires --metrics")
+        paths = promotion_paths
+        expected_names = {load_golden(path)["name"] for path in paths}
+        companion_metrics = load_promotion_metrics(args.metrics, expected_names)
+    elif args.paths:
+        if args.metrics is not None:
+            parser.error("--metrics is valid only with --promotion")
+        paths = [
+            Path(value) if Path(value).is_absolute() else EVAL_DIR / value
+            for value in args.paths
+        ]
+        frozen = {path.resolve() for path in promotion_paths}
+        selected_frozen = [path for path in paths if path.resolve() in frozen]
+        if selected_frozen:
+            names = ", ".join(path.name for path in selected_frozen)
+            parser.error(
+                f"promotion samples require --promotion and companion metrics: {names}"
+            )
     else:
-        paths = sorted(GOLDEN_DIR.glob("*.json"))
+        if args.metrics is not None:
+            parser.error("--metrics is valid only with --promotion")
+        paths = load_split_paths("development")
     if not paths:
         print("no golden transcripts found — bank one with scripts/eval/bank_loop.py")
         return 1
-    return run(paths)
+    return run(paths, companion_metrics)
 
 
 if __name__ == "__main__":

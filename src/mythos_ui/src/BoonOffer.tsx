@@ -49,6 +49,25 @@ export function BoonOffer({
     setBusy(true);
     try {
       onChosen(await call());
+    } catch (err) {
+      // 409 "… not in the current offer" means the pick was already consumed
+      // server-side and the visible offer is stale — a snapshot generated before
+      // an accepted pick can re-open this modal (observed 2026-08-01: re-opened
+      // after a successful pick, once as a mid-combat overlay, and every re-click
+      // 409'd forever). Treat the conflict as consumption: drop the stale offer
+      // locally so the overlay closes instead of wedging until a full reload.
+      if (err instanceof Error && err.message.includes("409") && err.message.includes("offer")) {
+        onChosen({
+          ...snapshot,
+          boons: {
+            ...snapshot.boons!,
+            offer: mode === "boon" ? null : snapshot.boons!.offer,
+            echoOffer: mode === "echo" ? null : snapshot.boons!.echoOffer,
+          },
+        });
+        return;
+      }
+      throw err;
     } finally {
       setBusy(false);
     }

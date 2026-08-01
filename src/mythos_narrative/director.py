@@ -633,7 +633,7 @@ class NarrativeDirector:
                     yield NarrativeStreamEvent(kind="text", text=text)
             raw_payload = "".join(raw_parts)
             scene, payload, outcome, reason = self._scene_from_raw_or_fallback(context, raw_payload)
-            if outcome == OUTCOME_FALLBACK and self._repair_enabled(context):
+            if outcome == OUTCOME_FALLBACK and self._stream_retry_enabled():
                 # Streamed controlled generation can degenerate into a whitespace
                 # run that hits max_output_tokens (observed on gemini-3.5-flash:
                 # finish=MAX_TOKENS, tail all spaces), so a parse failure here is
@@ -744,6 +744,19 @@ class NarrativeDirector:
         if context.fast_mode:
             return False
         return not load_runtime_settings().fast_mode
+
+    def _stream_retry_enabled(self) -> bool:
+        # Unlike _repair_enabled, fast_mode must NOT veto the streamed parse-fail
+        # retry: player-facing API flows default to RuntimeOptions.fast_mode=True,
+        # which silently disabled this retry in production — the 2026-08-01 arm's
+        # parse_error turn served the canned fallback with zero retry attempts.
+        # By the time this gate is consulted the turn has already failed, so one
+        # non-streaming retry is the fastest route to a real scene; fast_mode is
+        # about perceived latency, not about accepting canned fallbacks. An
+        # explicit repair_enabled=False (tests / deliberate no-repair runs) wins.
+        if self.repair_enabled is not None:
+            return self.repair_enabled
+        return True
 
 
 def _scene_from_payload(context: NarrativeContext, payload: ScenePayload) -> Scene:

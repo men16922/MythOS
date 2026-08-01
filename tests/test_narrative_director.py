@@ -386,3 +386,86 @@ def _scene_response(title: str) -> str:
 
         self.assertEqual(scene.title, "C-17의 바뀐 경고 신호")
         self.assertIn("지난 루프", scene.narration)
+
+
+class UnparseableStreamProvider:
+    """Streams unparseable text; the non-streaming generate returns a valid payload."""
+
+    VALID = json.dumps(
+        {
+            "scene": {
+                "title": "Recovered Turn",
+                "location": "data-layer-01",
+                "narration": "A real scene arrives on the retry.",
+                "choices": [
+                    {"choice_id": "choice_1", "label": "Go", "intent": "explore"},
+                    {"choice_id": "choice_2", "label": "Wait", "intent": "hold"},
+                ],
+                "visual_brief": "rain",
+            },
+            "world_delta": {"stability": -1, "tension": 2, "flags": []},
+        }
+    )
+
+    def __init__(self) -> None:
+        self.generate_calls = 0
+
+    def stream(self, messages, model=None):
+        yield '{"scene": {"title": "Broken'
+        yield "                                  "
+
+    def generate(self, messages, model=None):
+        self.generate_calls += 1
+        return self.VALID
+
+
+class StreamedParseFailRetryTest(unittest.TestCase):
+    """Locks the 2026-08-01 production regression: RuntimeOptions.fast_mode=True
+    (the API default on every player-facing turn) must NOT veto the streamed
+    parse-fail non-streaming retry — that veto served a canned fallback scene
+    with zero retry attempts and disqualified a 47/47 promotion arm."""
+
+    def _context(self, fast_mode: bool) -> NarrativeContext:
+        now = datetime(2026, 8, 2, tzinfo=UTC)
+        return NarrativeContext(
+            player=PlayerProfile(
+                player_id="player_r", display_name="R", created_at=now, updated_at=now
+            ),
+            loop=LoopState(
+                loop_id="loop_r",
+                player_id="player_r",
+                seed="seed_r",
+                phase=LoopPhase.EXPLORE,
+                location_id="data-layer-01",
+                stability=70,
+                tension=50,
+                started_at=now,
+            ),
+            turn_index=9,
+            recent_events=[],
+            fast_mode=fast_mode,
+        )
+
+    def test_fast_mode_turn_retries_non_streaming_once_before_fallback(self) -> None:
+        provider = UnparseableStreamProvider()
+        director = NarrativeDirector(provider=provider)
+
+        events = list(director.stream_next_scene(self._context(fast_mode=True)))
+
+        final = events[-1]
+        self.assertEqual(provider.generate_calls, 1)
+        self.assertEqual(final.kind, "final")
+        self.assertEqual(final.outcome, "success")
+        assert final.payload is not None
+        self.assertEqual(final.payload.title, "Recovered Turn")
+
+    def test_explicit_repair_disabled_still_skips_the_retry(self) -> None:
+        provider = UnparseableStreamProvider()
+        director = NarrativeDirector(provider=provider, repair_enabled=False)
+
+        events = list(director.stream_next_scene(self._context(fast_mode=True)))
+
+        final = events[-1]
+        self.assertEqual(provider.generate_calls, 0)
+        self.assertEqual(final.kind, "fallback")
+        self.assertEqual(final.outcome, "fallback")

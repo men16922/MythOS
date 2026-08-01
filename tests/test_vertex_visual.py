@@ -152,7 +152,12 @@ class VertexImageProviderTest(unittest.TestCase):
         client = _FakeGeminiClient(_PNG)
         with mock.patch.dict(
             os.environ,
-            {"IMAGEN_MODEL": "", "IMAGE_MODEL_ID_VERTEX": ""},
+            {
+                "IMAGEN_MODEL": "",
+                "IMAGE_MODEL_ID_VERTEX": "",
+                "IMAGEN_LOCATION": "",
+                "VERTEX_IMAGE_LOCATION": "",
+            },
             clear=False,
         ):
             provider = VertexImageProvider(client=client)
@@ -161,7 +166,8 @@ class VertexImageProviderTest(unittest.TestCase):
                 provider.generate(_request(1080, 1920), out)
                 self.assertEqual(out.read_bytes(), _PNG)
         call = client.models.calls[0]
-        self.assertEqual(call["model"], "gemini-2.5-flash-image")
+        self.assertEqual(call["model"], "gemini-3.1-flash-image")
+        self.assertEqual(provider.location, "global")
         # No reference portrait in metadata → text-only (single content part).
         self.assertEqual(len(call["contents"]), 1)
 
@@ -235,6 +241,7 @@ class VertexImageProviderTest(unittest.TestCase):
     def test_env_names_match_user_convention(self) -> None:
         env = {
             "IMAGEN_MODEL": "imagen-custom",
+            "IMAGEN_LOCATION": "europe-west4",
             "PROJECT_ID": "proj-abc",
             "GOOGLE_CLOUD_LOCATION": "asia-northeast3",
         }
@@ -243,6 +250,16 @@ class VertexImageProviderTest(unittest.TestCase):
             provider = VertexImageProvider()
         self.assertEqual(provider.model, "imagen-custom")
         self.assertEqual(provider.project, "proj-abc")
+        self.assertEqual(provider.location, "europe-west4")
+
+    def test_legacy_image_model_keeps_shared_regional_location(self) -> None:
+        env = {
+            "IMAGEN_LOCATION": "",
+            "VERTEX_IMAGE_LOCATION": "",
+            "GOOGLE_CLOUD_LOCATION": "asia-northeast3",
+        }
+        with mock.patch.dict(os.environ, env, clear=False):
+            provider = VertexImageProvider(model="gemini-2.5-flash-image")
         self.assertEqual(provider.location, "asia-northeast3")
 
 

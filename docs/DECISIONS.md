@@ -2,6 +2,18 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-07-31 — Gemini 3.1 image uses global; gameplay WebSockets get 3600s
+
+Decision: migrate the cloud image seam to GA `gemini-3.1-flash-image` on its dedicated `IMAGEN_LOCATION=global`, while narrative remains `gemini-3.5-flash`; keep Cloud Run regional resources in `us-central1`. Pin the Cloud Run request timeout to 3600 seconds in `make deploy`.
+
+Reason/impact: a real `us-central1` 3.1 image call reproduced 404 while `global` returned a valid 1024² PNG. Direct production QA then found a 280.016s WebSocket ending under the 300s service timeout 3.1s before a successful deferred image could be sent. On `00081-8lc`, timeout 3600s preserved the socket and the same measurement observed `snapshot`→successful visual frame→new DOM image. Future multi-turn/tool Gemini paths must preserve thought signatures exactly; current MythOS calls are independent single-shot requests, so no signature circulation is required yet.
+
+## 2026-07-31 — Late-loop variety stays in existing narrative/runtime seams
+
+Decision: require remediation before another paid production loop. Ambient combat pacing remains owned by `RuntimeSessionService` and must use the narrative commit clock, with post-flee protection that high pressure cannot bypass; deliberate route/boss combat remains exempt. Structural narrative variety deepens the existing `NoveltyController` interface and Director enforcement instead of adding a second novelty module or relying on another prompt-only instruction.
+
+Reason/impact: the valid pair reached the intended 47 narrative scenes but concentrated 25/47 and 22/47 in one location, returned from flee to combat after median 2/3.5 narrative scenes, and showed cosmetic `Changed ...` title repairs. The route already supplies diverse pools and the prompt already asks for a different location/composition, so another topology or prompt seam would duplicate ownership without enforcing behavior. Implementation order is combat pacing, then structural novelty; typed fallback evidence and both remediations must pass local gates and deploy before a fresh 47/47 production sample. Authority: `docs/reports/2026-07-31-late-loop-repetition-scope.md`.
+
 ## 2026-07-28 — Owner retains strict 12-turn contract and closes repair rollout
 
 Decision: accept the clean repair-0 arm as a valid measurement of the current strict contract: verified completion 0/3, with all three candidate commits rejected at 37/28/27 turns before external verification. The owner explicitly retains 12-turn acceptance and stops repair rollout. Keep `OVERNIGHT_REPAIR=0`; do not spend on repair-1 because no candidate can reach a repairable verifier edge under this contract.

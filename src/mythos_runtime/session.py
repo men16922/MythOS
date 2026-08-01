@@ -604,6 +604,7 @@ class RuntimeSessionService:
             world_memories=world_memories,
             narrative_shards=narrative_shards,
             novelty_notes=novelty_signal.notes,
+            novelty_signal=novelty_signal,
             fast_mode=options.fast_mode,
             language=options.language,
         )
@@ -724,7 +725,7 @@ class RuntimeSessionService:
         narrative_shards = self.store.list_narrative_shards(player.player_id, limit=1000)
         loops = self.store.list_loops(player.player_id)
         novelty_signal = self.novelty.build_signal(
-            [*_latest_scenes(self.store, loops), latest_scene]
+            _recent_novelty_scenes(self.store, loops, active_loop_id=loop.loop_id)
         )
         turn_index = latest_scene.turn_index + 1
         player_event = create_player_event(loop.loop_id, turn_index, resolved_action)
@@ -782,6 +783,7 @@ class RuntimeSessionService:
             world_memories=world_memories,
             narrative_shards=narrative_shards,
             novelty_notes=novelty_signal.notes,
+            novelty_signal=novelty_signal,
             player_action=resolved_action,
             fast_mode=options.fast_mode,
             language=options.language,
@@ -1941,6 +1943,13 @@ class RuntimeSessionService:
             # cooldown (no back-to-back combat) and an early-game difficulty cap.
             stamped = dict(loop.state)
             stamped["_last_combat_turn"] = turn_index
+            story_turn = stamped.get("_story_turn")
+            # Combat rounds consume raw scene turns but not the narrative clock.
+            # Store both clocks: raw remains the post-combat callback seam, while
+            # ambient pacing uses the story clock. Legacy loops fall back safely.
+            stamped["_last_combat_story_turn"] = (
+                story_turn if isinstance(story_turn, int) else turn_index
+            )
             # Markers for the post-combat narrative callback (#5: bridge the
             # tactical board back into the story). Kept separate from
             # ``_last_combat_outcome`` (soft-defeat state machine) to avoid clobber.
@@ -3141,8 +3150,8 @@ class RuntimeSessionService:
 
         Two guards address live-play findings (4턴 2회 + 조기 enforcer 즉사):
         - cooldown: suppress a new combat if the last one was within
-          ``COMBAT_COOLDOWN_SCENES`` scenes, unless tension is high enough that
-          a fight is story-justified.
+          ``COMBAT_COOLDOWN_SCENES`` narrative scenes. High tension may override
+          the normal cooldown, but not after ``player_fled``.
         - early difficulty cap: downgrade encounters whose ``risk`` exceeds the
           tier unlocked by the number of combats already won, so the opening
           fights stay tutorial-tier and ramp as the player learns.
@@ -3154,16 +3163,27 @@ class RuntimeSessionService:
         if not isinstance(encounters, dict) or candidate not in encounters:
             return candidate
 
-        last_combat = loop.state.get("_last_combat_turn")
-        if isinstance(last_combat, int):
+        last_combat_story = loop.state.get("_last_combat_story_turn")
+        current_story = loop.state.get("_story_turn")
+        last_combat_raw = loop.state.get("_last_combat_turn")
+        if isinstance(last_combat_story, int) and isinstance(current_story, int):
+            combat_gap = current_story - last_combat_story
+        elif isinstance(last_combat_raw, int):
+            # Read-compatible fallback for saves created before the narrative
+            # combat marker existed. New combat finishes always stamp both clocks.
+            combat_gap = turn_index - last_combat_raw
+        else:
+            combat_gap = None
+        if combat_gap is not None:
             # B3 patrol-surge style modifiers shorten the ambient-combat cooldown
             # (never below 0); deliberate route combat already bypasses this gate.
             cooldown_scenes = max(
                 0, COMBAT_COOLDOWN_SCENES + modifier_effect(loop.state, "combat_cooldown_delta")
             )
-            within_cooldown = (turn_index - last_combat) < cooldown_scenes
+            within_cooldown = combat_gap < cooldown_scenes
             high_pressure = loop.tension >= COMBAT_COOLDOWN_PRESSURE_TENSION
-            if within_cooldown and not high_pressure:
+            fled_last_combat = loop.state.get("_last_combat_result") == "player_fled"
+            if within_cooldown and (fled_last_combat or not high_pressure):
                 return None
 
         combats_won = int(loop.state.get("_combat_count", 0))
@@ -3367,6 +3387,36 @@ def _story_turn_for_commit(state: Any, scene_turn: int) -> int:
         if isinstance(prev, int):
             return prev + 1
     return int(scene_turn)
+
+
+def _recent_novelty_scenes(
+    store: MythOSStore,
+    loops: list[LoopState],
+    *,
+    active_loop_id: str,
+    limit: int = 6,
+) -> list[Scene]:
+    """Recent narrative scenes for the active loop, then prior-loop context.
+
+    The old input used one latest scene per loop and appended the active latest
+    scene a second time. That made the current run's long repetition invisible.
+    Prioritize the active run's real narrative sequence; fill any remaining
+    window with one latest scene from older loops.
+    """
+    active = [
+        scene
+        for scene in store.list_scenes(active_loop_id)
+        if scene.scene_type != "combat"
+    ][-limit:]
+    remaining = max(0, limit - len(active))
+    if remaining == 0:
+        return active
+    prior = [
+        scene
+        for scene in _latest_scenes(store, loops, limit=limit)
+        if scene.loop_id != active_loop_id and scene.scene_type != "combat"
+    ][-remaining:]
+    return [*prior, *active]
 
 
 def _without_combat_state(state: Any) -> Any:

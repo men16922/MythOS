@@ -221,7 +221,7 @@ class VertexImageProvider:
     """``VisualProvider`` backed by Vertex AI cloud image generation.
 
     Two model families, chosen by the ``IMAGEN_MODEL`` id:
-      * ``gemini-*-image`` (default ``gemini-2.5-flash-image``) → ``generate_content``
+      * ``gemini-*-image`` (default ``gemini-3.1-flash-image``) → ``generate_content``
         with the scene prompt plus, when available, the character's curated portrait
         as a reference image for identity consistency (fixes face drift; also the
         supported path since imagen-3.0-generate-002 was retired mid-2026);
@@ -246,19 +246,27 @@ class VertexImageProvider:
         sleep: Callable[[float], None] = time.sleep,
     ) -> None:
         self._sleep = sleep
-        # Default to a Gemini image model (2026-07: imagen-3.0-generate-002 is past
-        # its shutdown date). Gemini image models take the curated portrait as a
-        # reference for character consistency; `IMAGEN_MODEL` still overrides (e.g.
-        # gemini-2.5-flash-image for GA, or an imagen-* id to use the legacy path).
+        # Default to the current GA Gemini image model. Gemini image models take
+        # the curated portrait as a reference for character consistency;
+        # `IMAGEN_MODEL` still overrides for a deliberate rollback or legacy path.
         self.model = (
-            model or _env("IMAGEN_MODEL", "IMAGE_MODEL_ID_VERTEX") or "gemini-2.5-flash-image"
+            model or _env("IMAGEN_MODEL", "IMAGE_MODEL_ID_VERTEX") or "gemini-3.1-flash-image"
         )
         # Truth labels for asset records/logs: requests are stamped with local-FLUX
         # defaults, which must not survive onto a billed cloud generation.
         self.provider_label = "vertex_image"
         self.model_label = self.model
         self.project = project or _env("GOOGLE_CLOUD_PROJECT", "PROJECT_ID")
-        self.location = location or _env("GOOGLE_CLOUD_LOCATION") or "us-central1"
+        # Gemini 3 image GA endpoints are global-only. Keep the image location
+        # independent from GOOGLE_CLOUD_LOCATION (Cloud Run/GCS stay regional),
+        # while retaining the regional default for older Gemini/Imagen models.
+        self.location = (
+            location
+            or _env("IMAGEN_LOCATION", "VERTEX_IMAGE_LOCATION")
+            or ("global" if self.model.startswith("gemini-3") else None)
+            or _env("GOOGLE_CLOUD_LOCATION")
+            or "us-central1"
+        )
         if use_vertex is None:
             use_vertex = (
                 _env("GOOGLE_GENAI_USE_VERTEXAI", "GEMINI_USE_VERTEX", default="true") or "true"

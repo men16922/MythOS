@@ -28,6 +28,10 @@ class ObservabilityTest(unittest.TestCase):
         record.loop_id = "loop_1"
         record.scene_id = "scene_1"
         record.status = "succeeded"
+        record.fallback_reason = "parse_error"
+        record.total = 3
+        record.degraded = 1
+        record.success_ratio = 0.6667
 
         payload = json.loads(JsonFormatter().format(record))
 
@@ -35,6 +39,10 @@ class ObservabilityTest(unittest.TestCase):
         self.assertEqual(payload["loop_id"], "loop_1")
         self.assertEqual(payload["scene_id"], "scene_1")
         self.assertEqual(payload["status"], "succeeded")
+        self.assertEqual(payload["fallback_reason"], "parse_error")
+        self.assertEqual(payload["total"], 3)
+        self.assertEqual(payload["degraded"], 1)
+        self.assertEqual(payload["success_ratio"], 0.6667)
 
     def test_json_formatter_emits_keybeat_routing_fields(self) -> None:
         # The hybrid A/B verdict is read off these fields in Cloud Run logs;

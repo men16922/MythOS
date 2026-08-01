@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from mythos_core import (
     LoopPhase,
@@ -36,6 +36,9 @@ from mythos_runtime.story_bible import (
     story_bible_notes,
 )
 from mythos_runtime.twists import twist_directive_note
+
+if TYPE_CHECKING:
+    from mythos_narrative.variation import NoveltySignal
 
 # First turn on which route node/junction steering reaches the prompt. Turns 0-4
 # are the fully scripted 5-beat opening prologue (opening.md), during which
@@ -616,6 +619,7 @@ def build_runtime_narrative_context(
     player_action: str | None = None,
     fast_mode: bool = False,
     language: str = "ko",
+    novelty_signal: NoveltySignal | None = None,
 ) -> NarrativeContext:
     directives = load_scenario_directives(scenario.scenario_id, language)
     # B2 Loop2+ opening variants: the loop carries its opening pick (set once at
@@ -1053,6 +1057,7 @@ def build_runtime_narrative_context(
         world_memories=list(world_memories),
         narrative_shards=list(narrative_shards),
         novelty_notes=notes,
+        novelty_signal=novelty_signal,
         session_synopsis=session_synopsis,
         player_action=player_action,
         system_prompt=scenario.system_prompt,
@@ -1630,3 +1635,5 @@ def _compact_named_items(items: Sequence[dict[str, Any]], limit: int = 4) -> str
         elif name:
             chunks.append(str(name))
     return " | ".join(chunks)
+if TYPE_CHECKING:
+    from mythos_narrative.variation import NoveltySignal

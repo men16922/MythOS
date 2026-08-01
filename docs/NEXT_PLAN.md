@@ -1,6 +1,6 @@
 # Project MythOS Next Plan
 
-Last updated: 2026-07-30
+Last updated: 2026-07-31
 
 This file keeps only upcoming (open) work as a rolling plan. Completed tracks live in
 `docs/COMPLETED_SUMMARY.md`, detailed logs in `bin/docs/archive/progress-2026-0*.md`, individual designs in
@@ -14,17 +14,15 @@ Authority: `docs/reports/2026-07-28-heldout-v1-clean-repair0-baseline.md`. Owner
 
 ## Priority 0 — §3 HOLD follow-through before another promotion sample
 
-Authority QA: `docs/test/neo_seoul_live_qa.md`. **Latest deploy = `mythos-api-00079-d4k` (2026-07-30; 100% traffic; source committed locally as `3c66de1`)**. Remote push is pending because the enforced overnight no-push guard rejected `git push origin main`. Objective ending continuity is live and passed. Fresh EN `loop_fde2…fec34` is invalid for promotion because it logged 45/47 success and 2 fallback; late-play style convergence remains open.
+Authority QA: `docs/test/neo_seoul_live_qa.md`; scope: `docs/reports/2026-07-31-late-loop-repetition-scope.md`. **Latest deploy = `mythos-api-00081-8lc` (2026-07-31; 100% traffic); `main` is still pushed through `c89a87c`**. Typed fallback evidence, narrative-clock/post-flee combat pacing, structural novelty enforcement, and Gemini 3.1 image migration are live and directly QA'd. The partial QA loop is evidence only, not a promotion sample.
 
-- `[ ]` **Fallback diagnosis** — reproduce/classify the two `loop_fde2…fec34` fallback outcomes and restore a typed reason in the outcome evidence; completion = focused regression + `make check`, without banking the invalid loop.
-- `[ ]` `[manual]` **Late-loop repetition decision** — review the fresh drainage/vent/searchlight/escape/combat convergence and choose whether remediation is required before another paid run.
-- `[ ]` `[manual]` **Fresh zero-fallback rendered re-sign-off** — after the diagnosis/decision, complete and audit one production arm; bank only a full-loop non-fallback sample and record the subjective ending/overall verdict.
+- `[ ]` `[manual]` **Fresh zero-fallback rendered re-sign-off** — after both remediations and typed-evidence deploy, complete and audit one production arm; bank only a 47/47 non-fallback full loop and record the subjective ending/overall verdict.
 
 ### Narrative clarity / content follow-ups (mostly `[manual]`)
 - `[/]` `[manual]` **Full-3.5 live sign-off residuals**: fresh-loop prose/tone/length verdict, Audrey EN retest, IX/companion/equipment/growth feel, authenticated production turn. Objective save/load/map/idempotency/support/loot/equip already passed via three AGY runs.
 - `[/]` **CBT P1 residuals** (design `docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md`; P1-A..E + S1-S4 all DONE): `[ ]` `[manual]` S4 카피 톤 검수(anchor/goal + 12 beat prose) · 6 variant intros in-game feel · decisions G2 twist tone(3 `twist_bank`)/in-layer pacing(C2)/overload-strike range(D5) · EN fresh-loop coherence retest.
 - `[ ]` `[manual]` **Archetype-variant openings (long-term, 2026-07-04)**: author per-archetype opening variations (directive-layer, `resources/neo-seoul/directives/opening.md` + KO/EN), gated on CBT priorities.
-- `[x]` **Image continuity watch**: the 2026-07-30 fresh production app path generated and rendered a new GCS-backed 1024×1024 image with pinned `gemini-2.5-flash-image`. Curated key art remains the codex lane (owner direction 2026-07-06).
+- `[x]` **Image continuity watch**: `00081-8lc` generated, delivered, and rendered new GCS-backed images with `gemini-3.1-flash-image` on `global`; the Cloud Run WS timeout is 3600s so deferred visual events survive long sessions. Curated key art remains the codex lane.
 
 ## Engineering maintenance track — WS0-3 done (COMPLETED_SUMMARY M43)
 

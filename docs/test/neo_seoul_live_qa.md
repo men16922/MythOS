@@ -1,7 +1,7 @@
 # Neo-Seoul Live QA — 소유자 최종 판정
 
-최종 갱신: 2026-07-30. 문서상 마지막 검증 배포본은 **`mythos-api-00079-d4k`**
-(2026-07-30, 100% traffic 증거)입니다. 이 문서는 자동 검사를 반복하지 않고, 직접 플레이가 필요한
+최종 갱신: 2026-07-31. 문서상 마지막 검증 배포본은 **`mythos-api-00081-8lc`**
+(2026-07-31, 100% traffic·Gemini 3.1 app-path 이미지 증거)입니다. 이 문서는 자동 검사를 반복하지 않고, 직접 플레이가 필요한
 3개 판단과 플레이 중 이상할 때만 남길 8개 관찰만 다룹니다.
 
 ## 준비와 완료 조건
@@ -19,7 +19,7 @@
 
 - [x] **두 스타일의 둔함/예민함 — HOLD.** 사람·개입은 소각로 민간인 방어·구출, 안전·증거는
   발자국·삭제 기록·은폐로 초반 방향이 분명하지만, 후반에는 둘 다 배수로·서치라이트·도주·전투
-  공식으로 수렴해 대비가 완주까지 유지되지 않습니다. 사람·개입은 과잉 추격, 안전·증거는 반복 은폐로
+  공식으로 수렴해 대비가 완주까지 유지되지 않습니다(주요 장소 25/47·22/47, 전투 12·7회, 도주 8·7회). 사람·개입은 과잉 추격, 안전·증거는 반복 은폐로
   각각 치우칩니다. 사람·개입 루프와 안전·증거 루프의 장면 시선, 긴장 흐름,
   선택의 결과와 엔딩 분위기가 자연스럽게 달라지는가?
   - 문제: 선택 방향을 바꿔도 거의 같음(둔함) · 몇 번의 선택만으로 과도하게 쏠림(예민함).
@@ -51,10 +51,11 @@
 - 사람·개입 루프 ID: `loop_c6610a5b29cd451ebb2e06e0bd1e25bb` — Forced Erasure 완주
 - 안전·증거 루프 ID: `loop_84dfb8b5398645fe9475795292c733ef` — Forced Erasure 완주 (`loop_f148…2350`은 3/15 fallback으로 제외)
 - 2026-07-30 신규 EN 엔딩 QA: `loop_fde284633a654c00852d5c55838fec34` — Forced Erasure, 63 turns, 작성된 EN 엔딩·lost/carried·archive 객관 통과
-- 신규 루프 생성 감사: 45/47 success + 2 fallback — promotion/eval bank에 넣지 않음
+- 신규 루프 생성 감사: 45/47 success + 2 fallback (`provider_error` 1, `parse_error` 1; Cloud Trace 재구성) — promotion/eval bank에 넣지 않음
 - non-fallback 확인: 사람·개입 47/47 PASS · 안전·증거 47/47 PASS
 - 루브릭 지원 증거: `outputs/evals/20260728-030707/` — 사람·개입 3/5 · 안전·증거 3/5
 - 오너 검토 패킷: `outputs/evals/20260728-030707/owner-review.md` — 장면 탐색용이며 판정을 대신하지 않음
+- 반복 수정 판정: `docs/reports/2026-07-31-late-loop-repetition-scope.md` — 새 유료 런 전 수정 필요
 - 직접 판정 범위: 위임된 agent review — banked 전체 transcript·47/47 운영 로그·Cloud Run 요청 로그·
   production Run History API를 대조했습니다. 종료 루프는 설계상 재개 불가해 마지막 ending render 자체는 재생하지 못했습니다.
 - 스타일 판정: **HOLD** — 초반 분기는 읽히지만 후반 수렴이 큼

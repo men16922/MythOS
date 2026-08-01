@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from mythos_core import (
     Choice,
@@ -12,6 +12,9 @@ from mythos_core import (
     WorldEvent,
     WorldMemory,
 )
+
+if TYPE_CHECKING:
+    from mythos_narrative.variation import NoveltySignal
 
 MAX_NARRATION_CHARS = 3200
 MAX_VISUAL_BRIEF_CHARS = 700
@@ -149,6 +152,9 @@ class NarrativeContext:
     world_memories: list[WorldMemory] = field(default_factory=list)
     narrative_shards: list[NarrativeShard] = field(default_factory=list)
     novelty_notes: list[str] = field(default_factory=list)
+    # Typed recent-scene structure for deterministic post-generation novelty
+    # enforcement. Prompt notes remain the model-facing projection of this signal.
+    novelty_signal: NoveltySignal | None = None
     # Continuity-critical "story so far" synopsis + previous-scene prose + anti-repeat
     # directives. Kept separate from novelty_notes so the prompt renders it in full
     # (novelty_notes is truncated to MAX_PROMPT_NOTES; the synopsis must never be).

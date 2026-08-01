@@ -14,7 +14,7 @@
 | FastAPI 백엔드(REST+WS) | **Cloud Run** (lean 컨테이너, scale-to-zero) | `Dockerfile` |
 | React SPA | 컨테이너 동봉(`/` 정적 mount) | 별도 호스팅 불필요(초기) |
 | 서사 LLM | **Vertex Gemini** (`gemini-3.5-flash`, controlled gen, thinking off — 2.5 하이브리드는 2026-07-17 품질 판정으로 롤백) | `MYTHOS_NARRATIVE_PROVIDER=gemini` |
-| 이미지 | **Vertex Gemini Image** (`gemini-2.5-flash-image`, 큐레이트 초상 레퍼런스) | `MYTHOS_VISUAL_PROVIDER=vertex` |
+| 이미지 | **Vertex Gemini Image** (`gemini-3.1-flash-image`, `global`, 큐레이트 초상 레퍼런스) | `MYTHOS_VISUAL_PROVIDER=vertex` |
 | 에셋 저장 | **GCS** (`gs://` + v4 signed URL) | `MYTHOS_STORAGE_BACKEND=gcs` |
 | DB | **Neon**(권장) 또는 Cloud SQL | `DATABASE_URL` |
 | 인증 | Cloud Run 서비스계정 ADC(키파일 불필요) | `GOOGLE_GENAI_USE_VERTEXAI=TRUE` |
@@ -69,13 +69,15 @@ gcloud run deploy mythos-api \
   --allow-unauthenticated \
   --min-instances 0 --max-instances 3 \         # 비용캡: idle=0, 동시 폭주 상한
   --concurrency 20 --cpu 1 --memory 1Gi \
-  --set-env-vars "MYTHOS_NARRATIVE_PROVIDER=gemini,MYTHOS_VISUAL_PROVIDER=vertex,MYTHOS_STORAGE_BACKEND=gcs,GOOGLE_GENAI_USE_VERTEXAI=TRUE,GOOGLE_CLOUD_LOCATION=$REGION,MODEL=gemini-2.5-flash,IMAGEN_MODEL=gemini-2.5-flash-image,GEMINI_THINKING_BUDGET=0,GCS_BUCKET_ASSETS=$BUCKET,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,MYTHOS_TRACE_BACKEND=gcp" \
+  --set-env-vars "MYTHOS_NARRATIVE_PROVIDER=gemini,MYTHOS_VISUAL_PROVIDER=vertex,MYTHOS_STORAGE_BACKEND=gcs,GOOGLE_GENAI_USE_VERTEXAI=TRUE,GOOGLE_CLOUD_LOCATION=$REGION,MODEL=gemini-3.5-flash,IMAGEN_MODEL=gemini-3.1-flash-image,IMAGEN_LOCATION=global,GEMINI_THINKING_BUDGET=0,GCS_BUCKET_ASSETS=$BUCKET,GOOGLE_CLOUD_PROJECT=$PROJECT_ID,MYTHOS_TRACE_BACKEND=gcp" \
   --set-env-vars "DATABASE_URL=<neon-or-cloudsql-url>" \
   --set-env-vars "MYTHOS_INVITE_KEYS=<key1,key2,...>" \   # 초대키 게이팅(설정 시 /api/v1/* 보호)
   --set-env-vars "MYTHOS_MAX_LOOPS_PER_PLAYER=10"        # 테스터당 루프 캡(베타 채택값; ~5–7.5h/인, ~$3–7/인)
 ```
 
 - `$PORT` 는 Cloud Run 이 주입 → `Dockerfile` CMD 가 `MYTHOS_API_PORT` 로 매핑(코드 무수정).
+- `make deploy`는 요청 timeout을 **3600초**로 고정한다. 게임 WebSocket은 하나의 장기 Cloud Run 요청이므로
+  300초 timeout이면 snapshot 뒤의 지연 이미지 이벤트 직전에 연결이 만료될 수 있다.
 - ADC: Cloud Run 은 SA 자격으로 자동 인증 → 키파일/`GEMINI_API_KEY` 불필요.
 - **이미지 생성**: **요청 내 동기 생성** 단일 경로 (Redis 큐/워커는 2026-07-04 전면 제거) — 이미지 턴당 ~7s 추가.
   비동기가 필요해지면 Cloud Tasks/2nd Cloud Run이 follow-up 후보.
@@ -101,7 +103,7 @@ PROJECT=$(grep ^PROJECT_ID= .env | cut -d= -f2)
 docker run --rm -p 8096:8080 -e PORT=8080 \
   -e MYTHOS_NARRATIVE_PROVIDER=gemini -e MYTHOS_VISUAL_PROVIDER=vertex -e MYTHOS_STORAGE_BACKEND=filesystem \
   -e GOOGLE_GENAI_USE_VERTEXAI=TRUE -e GOOGLE_CLOUD_PROJECT=$PROJECT -e GOOGLE_CLOUD_LOCATION=us-central1 \
-  -e MODEL=gemini-2.5-flash -e IMAGEN_MODEL=gemini-2.5-flash-image -e GEMINI_THINKING_BUDGET=0 \
+  -e MODEL=gemini-3.5-flash -e IMAGEN_MODEL=gemini-3.1-flash-image -e IMAGEN_LOCATION=global -e GEMINI_THINKING_BUDGET=0 \
   -e MYTHOS_TRACE_BACKEND=none \                # ★ 미설정 시 OTLP가 localhost:4318로 재시도 스팸
   -e DATABASE_URL=postgresql://mythos:mythos@host.docker.internal:5432/mythos \
   -e GOOGLE_APPLICATION_CREDENTIALS=/root/.config/gcloud/application_default_credentials.json \

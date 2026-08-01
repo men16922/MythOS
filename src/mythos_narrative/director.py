@@ -31,6 +31,7 @@ from .schemas import (
     WorldDelta,
 )
 from .streaming import NarrationFieldExtractor, NarrativeStreamEvent, PlainTextStoryExtractor
+from .variation import NoveltyController
 
 
 class JSONProvider(Protocol):
@@ -730,7 +731,7 @@ class NarrativeDirector:
                 "loop_id": context.loop.loop_id,
                 "status": "fallback" if outcome == OUTCOME_FALLBACK else "succeeded",
                 "outcome": outcome,
-                "reason": reason,
+                "fallback_reason": reason or None,
                 "total": self.metrics.total,
                 "degraded": self.metrics.degraded,
                 "success_ratio": ratios[OUTCOME_SUCCESS],
@@ -829,25 +830,66 @@ def _apply_novelty_guard(context: NarrativeContext, payload: ScenePayload) -> Sc
     # "다른 압력이 끼어든다" tail (e.g. the 세린 first-contact/chase beats). Skip it.
     if context.turn_index <= 4:
         return payload
-    if not context.novelty_notes:
-        return payload
-    title_key = payload.title.strip().lower()
-    if not title_key:
-        return payload
-    note_text = " ".join(context.novelty_notes).lower()
-    if title_key not in note_text:
+    alternate_location, fixed_anchor = _route_novelty_target(context)
+    if fixed_anchor:
         return payload
 
-    # Language-aware tail: this canned pressure line leaked Korean into EN
-    # narration (live 2026-07-04) because it ignored context.language.
+    if context.novelty_signal is not None:
+        revision = NoveltyController().revise_candidate(
+            context.novelty_signal,
+            title=payload.title,
+            location=payload.location,
+            narration=payload.narration,
+            alternate_location=alternate_location,
+            language=getattr(context, "language", "ko"),
+        )
+        if revision is None:
+            return payload
+        return replace(
+            payload,
+            title=revision.title,
+            location=revision.location,
+            narration=revision.narration,
+        )
+
+    # Compatibility path for callers that still construct a context with only
+    # prompt notes. It enforces a real state change instead of cosmetically
+    # prefixing the same title with "Changed"/"달라진".
+    if not context.novelty_notes or not payload.title.strip():
+        return payload
+    note_text = " ".join(context.novelty_notes).casefold()
+    if payload.title.strip().casefold() not in note_text:
+        return payload
+    location = (alternate_location or payload.location).strip()
     if getattr(context, "language", "ko") == "en":
-        title = f"Changed {payload.title}"
-        tail = "Before the same pattern can repeat, a different pressure cuts into the scene."
+        title = f"New Vector at {location}"
+        tail = f"The repeated route seals behind you; a new constraint shifts the action to {location}."
     else:
-        title = f"달라진 {payload.title}"
-        tail = "같은 패턴이 반복되기 전에, 다른 압력이 장면 안으로 끼어든다."
-    narration = f"{payload.narration.rstrip()} {tail}"
-    return replace(payload, title=title, narration=narration)
+        title = f"{location}의 새 국면"
+        tail = f"반복되던 경로가 뒤에서 닫히고, 새 제약이 행동을 {location}(으)로 옮긴다."
+    return replace(
+        payload,
+        title=title,
+        location=location,
+        narration=f"{payload.narration.rstrip()} {tail}",
+    )
+
+
+def _route_novelty_target(context: NarrativeContext) -> tuple[str | None, bool]:
+    """Return the staged route location and whether it is an authored anchor."""
+    state = context.loop.state if isinstance(context.loop.state, dict) else {}
+    route_map = state.get("_route_map")
+    if not isinstance(route_map, dict):
+        return None, False
+    nodes = route_map.get("nodes")
+    current = route_map.get("current")
+    if not isinstance(nodes, dict) or current not in nodes:
+        return None, False
+    node = nodes.get(current)
+    if not isinstance(node, dict):
+        return None, False
+    label = str(node.get("title") or node.get("label") or current).strip()
+    return (label or None), bool(node.get("anchor"))
 
 
 def _fallback_loop_summary(events: list[dict[str, Any]]) -> str:

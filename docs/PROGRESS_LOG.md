@@ -1,18 +1,17 @@
 # Progress Log
 
-Last updated: 2026-07-30
+Last updated: 2026-07-31
 
 Newest entries only; older 2026-07 increments are in `bin/docs/archive/progress-2026-07.md`
 (and `progress-2026-06.md` for June). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
 
-## 2026-07-30 — Ending contract deployed; fresh production QA is not a promotion sample
-- Status: deployed the current local ending-continuity bundle as `mythos-api-00079-d4k` at 100% traffic. Objective ending archive continuity passes in production; the broader §3 verdict remains HOLD.
-- Verified: focused runtime/combat/API 146/146; `make check` 1182 (5 skipped), mypy 188, frontend production build; health/root 200; live/local `app.js` SHA-256 matched. Browser-observed boot, choices, new app-path image, combat/flee/return, and archive message.
-- Production run: fresh EN `loop_fde284633a654c00852d5c55838fec34` completed Forced Erasure after 63 turns. Run History preserved authored EN ending narration, lost `This loop's body and signal`, and carried `The small glitch that opens the next loop`.
-- Findings: full-loop Cloud Logging audit = 45/47 success + 2 fallback, so the loop was not banked. Late play repeated drainage/vent/searchlight/escape/combat beats; an ended auto-save also rendered as an in-combat slot even though the server run was archived.
-- Publication: product/eval/test source committed locally as `3c66de1` after a fresh `make check` 1182 (5 skipped). `git push origin main` was rejected before execution by the enforced overnight no-push guard; no alternate transport was attempted.
-- Blockers: owner must run `git push origin main`; then diagnose the two untyped fallback outcomes and decide the repetition-remediation scope. Subjective ending/overall feel remains owner-manual.
-- Next: publish the local commits, classify/regression-lock the fallback edges, then collect a fresh zero-fallback production ending only after the late-loop decision.
+## 2026-07-31 — Repetition remediation and Gemini 3.1 image migration deployed
+- Status: `mythos-api-00081-8lc` serves 100% traffic; `main` remains pushed through `c89a87c`, while this completed source/docs bundle is uncommitted.
+- Changed: ambient combat cooldown now counts narrative commits and protects post-flee scenes; route/boss overrides remain. `NoveltyController` enforces normalized title/location/motif structure while preserving opening/fixed anchors; typed fallback fields remain visible.
+- Model: image default moved from retiring 2.5 to `gemini-3.1-flash-image` at `global`; narrative remains `gemini-3.5-flash`. A real pre-fix regional call reproduced 404 and the global call produced a valid 1024² PNG.
+- QA: focused 94 tests, lint/typecheck/build, `make smoke-local`, and `make check` passed 1191 (5 skipped). Production health/root passed; six initial narrative calls were success/fallback 0.
+- Diagnose/re-measure: a 280.016s WS request expired under the 300s Cloud Run timeout 3.1s before the deferred image event. Timeout is now 3600s; CDP then observed `snapshot`→`visual_status{succeeded,url}`, DOM changed to the new scene asset, and the generated image rendered.
+- Blocker/next: deterministic scope is closed. The partial QA loop is not promotable; complete and audit one fresh 47/47 zero-fallback arm, then collect the owner's subjective ending/overall verdict.
 
 ## 2026-07-28 — §3 direct production play produced one valid arm; safety/evidence replacement required
 - Status: people/help `loop_c661…25bb` completed through Forced Erasure; safety/evidence `loop_f148…2350` reached 14 story turns but is invalid for the style pair.

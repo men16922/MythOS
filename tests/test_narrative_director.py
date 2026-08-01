@@ -2,8 +2,9 @@ import json
 import unittest
 from datetime import UTC, datetime
 
-from mythos_core import LoopPhase, LoopState, PlayerProfile, WorldMemory
+from mythos_core import Choice, LoopPhase, LoopState, PlayerProfile, Scene, WorldMemory
 from mythos_narrative import NarrativeContext, NarrativeDirector
+from mythos_narrative.variation import NoveltyController
 
 
 class FakeProvider:
@@ -143,12 +144,27 @@ class NarrativeDirectorTest(unittest.TestCase):
         # The novelty guard is for ONGOING scenes (repeat suppression); it is
         # intentionally skipped during the scripted opening (turns 0-4), so this
         # exercises a later turn via the next-scene path.
+        recent = [
+            Scene(
+                scene_id=f"scene_{index}",
+                loop_id="loop_1",
+                turn_index=index,
+                title="Threshold" if index == 1 else "Another Gate",
+                location="data-layer-01",
+                narration="The same gate and corridor remain.",
+                choices=[Choice(f"choice_{index}", "Enter", "explore")],
+                visual_brief="A gate.",
+                created_at=datetime(2026, 5, 30, tzinfo=UTC),
+            )
+            for index in (1, 2)
+        ]
         context = NarrativeContext(
             player=self.context.player,
             loop=self.context.loop,
             turn_index=5,
             recent_events=[],
             novelty_notes=["Avoid reusing recent scene titles: Threshold."],
+            novelty_signal=NoveltyController().build_signal(recent),
         )
         provider = FakeProvider(
             [
@@ -176,10 +192,54 @@ class NarrativeDirectorTest(unittest.TestCase):
 
         scene, _ = NarrativeDirector(provider).generate_next_scene(context)
 
-        # KO context → localized retitle + tail (the EN path gets "Changed …" +
-        # an English tail; regression for the 2026-07-04 Korean-leak-in-EN fix).
-        self.assertEqual(scene.title, "달라진 Threshold")
-        self.assertIn("다른 압력", scene.narration)
+        self.assertEqual(scene.location, "data-layer-01 너머의 우회 접근로")
+        self.assertFalse(scene.title.startswith(("Changed ", "달라진 ")))
+        self.assertIn("새 제약", scene.narration)
+
+    def test_novelty_guard_preserves_authored_route_anchor(self) -> None:
+        recent = [
+            Scene(
+                scene_id=f"anchor_prior_{index}",
+                loop_id="loop_1",
+                turn_index=index,
+                title=f"Prior {index}",
+                location="data-layer-01",
+                narration="The same signal grid closes in.",
+                choices=[Choice(f"choice_{index}", "Enter", "explore")],
+                visual_brief="A signal plaza.",
+                created_at=datetime(2026, 5, 30, tzinfo=UTC),
+            )
+            for index in (1, 2)
+        ]
+        loop = LoopState(
+            **{
+                **self.context.loop.__dict__,
+                "state": {
+                    "_route_map": {
+                        "current": "anchor_node",
+                        "nodes": {
+                            "anchor_node": {
+                                "title": "Authored Anchor",
+                                "anchor": True,
+                            }
+                        },
+                    }
+                },
+            }
+        )
+        context = NarrativeContext(
+            player=self.context.player,
+            loop=loop,
+            turn_index=5,
+            recent_events=[],
+            novelty_signal=NoveltyController().build_signal(recent),
+        )
+        provider = FakeProvider([_scene_response("Threshold")])
+
+        scene, _ = NarrativeDirector(provider).generate_next_scene(context)
+
+        self.assertEqual(scene.title, "Threshold")
+        self.assertEqual(scene.location, "data-layer-01")
 
     def test_uses_fallback_when_provider_fails_twice(self) -> None:
         provider = FakeProvider(["{not json", "{still not json"])
@@ -227,11 +287,14 @@ class NarrativeDirectorTest(unittest.TestCase):
         provider = FakeProvider(["{not json", "{still not json"])
         director = NarrativeDirector(provider)
 
-        director.generate_first_scene(self.context)
+        with self.assertLogs("mythos.narrative", level="INFO") as captured:
+            director.generate_first_scene(self.context)
 
         self.assertEqual(director.metrics.counts["fallback"], 1)
         self.assertEqual(director.metrics.degraded, 1)
         self.assertEqual(director.metrics.fallback_reasons, {"parse_error": 1})
+        record = next(r for r in captured.records if r.getMessage() == "narrative outcome")
+        self.assertEqual(getattr(record, "fallback_reason", None), "parse_error")
 
     def test_fallback_reason_blank_output_for_empty_provider_response(self) -> None:
         # A safety-filter empty (provider returns blank content) must be

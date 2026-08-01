@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-07-30
+Last updated: 2026-07-31
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **PUSH HANDOFF, THEN §3 FALLBACK DIAGNOSIS** — deployed product source is committed locally as `3c66de1`, but the enforced overnight no-push guard rejected `git push origin main`. After the owner runs that exact push, diagnose the 2 fallback outcomes in fresh EN `loop_fde2…fec34`, then decide the late-loop repetition scope before another promotion sample.
+> ▶ NEXT SESSION: **§3 HUMAN RE-SIGN-OFF** — code remediation, Gemini image migration, deploy, and direct partial production QA are complete on `mythos-api-00081-8lc`. Next complete and audit one fresh 47/47 zero-fallback production arm, then record the owner's ending/overall feel verdict; do not promote the partial QA loop.
 
 ## Snapshot
 
@@ -20,7 +20,7 @@ Current baseline:
 - Operation map route-node-ified (deterministic DAG + multi-perspective anchors `route_map.py`/`route_runtime.py`) + session memory (`session_memory.py` beat ledger + rolling synopsis, not RAG).
 - Progression unlock (archetype gates, insight investment tree, rank pips/upgrade banner, epiphany banner, Run History + Echo/Shard dashboard, cross-scenario unlock, data-driven grant).
 - Persistent objective/stakes display and choice value-axis/expected-result/actual-result summary UX.
-- mflux/FLUX (local) / Vertex Gemini Image (cloud, `gemini-2.5-flash-image`) generate sync in-request; Redux character consistency; MinIO/GCS asset paths verified.
+- mflux/FLUX (local) / Vertex Gemini Image (cloud, `gemini-3.1-flash-image` via `global`) generate sync in-request; Redux character consistency; MinIO/GCS asset paths verified.
 - Narrative is dual-model: storyteller `OLLAMA_MODEL_STORY`=`gemma4:latest` (8B, free text) → parser `OLLAMA_MODEL_PARSER`=`qwen2.5:3b-instruct` (JSON structuring). Streaming path runs a regex parser in parallel.
 - Opening sequence consistency (5 cuts: awakening→se_rin appears→approaching hand→first contact→pursuit+combat). Prompt-layer separation in progress (authored directives→`resources/<scenario>/directives/*.md`, `docs/PROMPT_LAYER.md`). Detailed state in `STATUS.md`.
 
@@ -28,7 +28,7 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **§3 HOLD follow-through** — the ending archive/continuity contract is live and objectively passed; two production fallbacks and late-loop drainage/searchlight/escape/combat repetition block promotion. Subjective owner feel remains manual.
+1. **§3 human re-sign-off** — one fresh 47/47 zero-fallback production arm plus the owner's ending/overall feel verdict; deterministic remediation and partial direct production QA are complete.
 2. **MythOS Dev Graph** — repair rollout closed at strict-contract 0/3; repair remains 0 and bank v1 stays frozen. Remote publication/fan-out remain separately owner-gated.
 3. **Manual residuals/hold**: S4 copy tone, variant intro feel, G2 twist tone, EN fresh-loop retest; `glass-library` held.
 

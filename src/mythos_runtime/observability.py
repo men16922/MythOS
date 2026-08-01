@@ -56,6 +56,13 @@ class JsonFormatter(logging.Formatter):
             "storage_ms",
             "status",
             "outcome",
+            # Narrative provider health. These are emitted by
+            # NarrativeDirector._record_outcome and must survive JSON formatting
+            # so Cloud Logging can classify each degraded generation directly.
+            "fallback_reason",
+            "total",
+            "degraded",
+            "success_ratio",
         ):
             value = getattr(record, key, None)
             if value is not None:

@@ -15,7 +15,7 @@ from mythos_runtime.combat_service import CombatService, CombatTurnResult
 from mythos_runtime.encounter_map import ENCOUNTER_MAP_KEY
 from mythos_runtime.options import RuntimeOptions
 from mythos_runtime.progression import load_progression
-from mythos_runtime.session import RuntimeSessionService
+from mythos_runtime.session import RuntimeSessionService, _recent_novelty_scenes
 
 
 class _InMemoryStore(MythOSStore):
@@ -173,6 +173,33 @@ class SessionCombatTest(unittest.TestCase):
             if d < best_d:
                 best_d, best = d, (tx, ty)
         return PlayerAction(type="attack", target_id=target.id, move_to=best)
+
+    def test_novelty_window_keeps_active_story_sequence_once(self) -> None:
+        now = datetime(2026, 5, 31, tzinfo=UTC)
+        for index, scene_type in enumerate(("static", "combat", "static", "static")):
+            self.store.save_scene(
+                Scene(
+                    scene_id=f"scene_novelty_{index}",
+                    loop_id=self.loop_id,
+                    turn_index=index,
+                    title=f"Scene {index}",
+                    location=f"loc-{index}",
+                    narration=f"Narration {index}",
+                    choices=[Choice(f"choice_{index}", "Continue", "explore")],
+                    visual_brief="A route.",
+                    created_at=now,
+                    scene_type=scene_type,
+                )
+            )
+
+        scenes = _recent_novelty_scenes(
+            self.store,
+            self.store.list_loops("p1"),
+            active_loop_id=self.loop_id,
+        )
+
+        self.assertEqual([scene.turn_index for scene in scenes], [0, 2, 3])
+        self.assertEqual(len({scene.scene_id for scene in scenes}), len(scenes))
 
     def test_start_combat_creates_combat_scene(self) -> None:
         snap = self.service.start_combat(self.loop_id, "patrol_ambush", self.options)
@@ -693,6 +720,7 @@ class SessionCombatTest(unittest.TestCase):
             state={
                 **loop.state,
                 "scenario_id": "neo-seoul",
+                "_story_turn": 46,
                 "flags": ["incinerator_rescued", "trusted_se_rin"],
             },
         )
@@ -712,6 +740,7 @@ class SessionCombatTest(unittest.TestCase):
 
         self.assertEqual(snap.loop.phase, LoopPhase.ENDED)
         self.assertEqual(snap.loop.state.get("ending_id"), "ending_erasure")
+        self.assertEqual(snap.loop.state.get("_last_combat_story_turn"), 46)
         self.assertIn("모든 것이 하얗게", snap.loop.state.get("ending_narration", ""))
 
         summaries = self.service.list_run_summaries("p1")
@@ -1320,22 +1349,110 @@ class SessionCombatTest(unittest.TestCase):
         self.assertEqual(gated, "enforcer_standoff")
 
     def test_gate_suppresses_back_to_back_combat(self) -> None:
-        # A combat resolved on turn 4; a new one on turn 6 is within cooldown.
-        loop = self._gate_loop(_combat_count=1, _last_combat_turn=4)
-        self.assertIsNone(
-            self.service._gate_next_combat(loop, 6, "patrol_ambush", self.options)
+        # Raw scene turns can jump through a long combat, but only committed
+        # narrative scenes advance the ambient-combat cooldown.
+        loop = self._gate_loop(
+            _combat_count=1,
+            _last_combat_turn=4,
+            _last_combat_story_turn=10,
+            _story_turn=11,
+            _last_combat_result="player_victory",
         )
-        # Past the cooldown window it is allowed again.
+        self.assertIsNone(
+            self.service._gate_next_combat(loop, 40, "patrol_ambush", self.options)
+        )
+        # The third committed narrative scene opens the gate.
+        cooled = replace(loop, state={**loop.state, "_story_turn": 13})
         self.assertEqual(
-            self.service._gate_next_combat(loop, 8, "patrol_ambush", self.options),
+            self.service._gate_next_combat(cooled, 42, "patrol_ambush", self.options),
             "patrol_ambush",
         )
 
     def test_gate_high_pressure_overrides_cooldown(self) -> None:
-        loop = replace(self._gate_loop(_combat_count=1, _last_combat_turn=4), tension=85)
+        loop = replace(
+            self._gate_loop(
+                _combat_count=1,
+                _last_combat_turn=4,
+                _last_combat_story_turn=10,
+                _story_turn=11,
+                _last_combat_result="player_victory",
+            ),
+            tension=85,
+        )
         self.assertEqual(
             self.service._gate_next_combat(loop, 5, "patrol_ambush", self.options),
             "patrol_ambush",
+        )
+
+    def test_gate_flee_cooldown_cannot_be_overridden_by_high_pressure(self) -> None:
+        loop = replace(
+            self._gate_loop(
+                _combat_count=1,
+                _last_combat_turn=40,
+                _last_combat_story_turn=10,
+                _story_turn=11,
+                _last_combat_result="player_fled",
+            ),
+            tension=95,
+        )
+        self.assertIsNone(
+            self.service._gate_next_combat(loop, 41, "patrol_ambush", self.options)
+        )
+        second_scene = replace(loop, state={**loop.state, "_story_turn": 12})
+        self.assertIsNone(
+            self.service._gate_next_combat(second_scene, 42, "patrol_ambush", self.options)
+        )
+        third_scene = replace(loop, state={**loop.state, "_story_turn": 13})
+        self.assertEqual(
+            self.service._gate_next_combat(third_scene, 43, "patrol_ambush", self.options),
+            "patrol_ambush",
+        )
+
+    def test_gate_legacy_save_falls_back_to_raw_combat_turn(self) -> None:
+        loop = self._gate_loop(_combat_count=1, _last_combat_turn=4)
+        self.assertIsNone(
+            self.service._gate_next_combat(loop, 6, "patrol_ambush", self.options)
+        )
+
+    def test_route_combat_bypasses_post_flee_ambient_cooldown(self) -> None:
+        loop = replace(
+            self._gate_loop(
+                scenario_id="neo-seoul",
+                _last_combat_story_turn=10,
+                _story_turn=11,
+                _last_combat_result="player_fled",
+            ),
+            tension=95,
+        )
+        scene = Scene(
+            scene_id="route-combat",
+            loop_id=loop.loop_id,
+            turn_index=41,
+            title="IX",
+            location="hub",
+            narration="The route reaches IX.",
+            choices=[],
+            visual_brief="",
+            created_at=datetime(2026, 5, 31, tzinfo=UTC),
+        )
+        payload = ScenePayload(
+            title=scene.title,
+            location=scene.location,
+            narration=scene.narration,
+            choices=[],
+            visual_brief="",
+            world_delta=WorldDelta(start_combat="patrol_ambush"),
+        )
+        self.assertEqual(
+            self.service._resolve_next_combat(
+                loop,
+                scene,
+                payload,
+                route_combat="ix_confrontation",
+                triggered_combat=None,
+                options=self.options,
+            ),
+            "ix_confrontation",
         )
 
 

@@ -1,6 +1,14 @@
 # Progress Log
 
-Last updated: 2026-08-01
+Last updated: 2026-08-02
+
+## 2026-08-02 — Normal-turn retry gap fixed and deployed (`mythos-api-00082-ffc`)
+- Status: the streamed parse-fail non-streaming retry now runs on player-facing turns; deployed at 100% traffic as `00082-ffc` (env-preserving; MODEL/IMAGEN pins and 3600s timeout confirmed intact; root+health 200). Commits `fc1a1a6` (fix) + docs; push owner-run.
+- Diagnosed (protocol): reproduced locally with an unparseable-stream/valid-generate fake provider. `RuntimeOptions.fast_mode` defaults True on every API flow → `context.fast_mode=True` → `_repair_enabled` returned False → the b55e933 retry never fired in production. This also explains the 07-19 "unparseable warning 0 in 5 days" reading — the warning was on a disabled path, not evidence of zero runaways.
+- Measured before→after (same fixture, fast_mode=True): retries 0→1, outcome fallback→success, canned title→real scene. Explicit `repair_enabled=False` still skips the retry.
+- Changed: `_stream_generate_legacy` now consults a dedicated `_stream_retry_enabled()` gate that ignores fast_mode; `_repair_enabled` (non-streamed legacy repair) is untouched. Regression locked in `StreamedParseFailRetryTest` (2 tests).
+- Verified: focused director tests 17/17; final `make check` 1193 tests (5 skipped) green.
+- Next: AMP-shard modal non-dismiss fix remains open; then rerun one fresh 47/47 zero-fallback arm on `00082-ffc` and collect the owner verdict.
 
 ## 2026-08-01 — Fresh §3 arm attempt excluded at 13/14; typed fallback evidence validated in production
 - Status: direct browser play of a fresh EN Ghost people/help arm on `mythos-api-00081-8lc` (`loop_8b7a32b28b5145b497be2c3a70b60dc2`) stopped at story scene ~13. Cloud Logging shows 13/14 narrative success + 1 fallback → the arm cannot be a 47/47 promotion sample and was not banked. Also committed the deployed 07-31 source/docs bundle as `272f89b` (main ahead; push owner-run).

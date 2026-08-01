@@ -4,7 +4,7 @@ Last updated: 2026-08-02
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **FRESH 47/47 ARM ON `mythos-api-00082-ffc`** — the normal-turn retry gap is fixed and deployed (root cause: `RuntimeOptions.fast_mode=True` API default vetoed the streamed parse-fail retry; `StreamedParseFailRetryTest` locks it). Optionally fix the AMP-shard modal non-dismiss first (NEXT_PLAN P0), then complete/audit one fresh 47/47 zero-fallback production arm and collect the owner's ending/overall verdict. Owner still needs to `git push` (4 local commits).
+> ▶ NEXT SESSION: **FRESH 47/47 ARM ON `mythos-api-00083-jt7`** — the normal-turn retry gap AND the boon-modal 409 wedge are both fixed and deployed. Complete/audit one fresh 47/47 zero-fallback production arm (people/help or safety/evidence, EN, same Ghost player) and collect the owner's ending/overall verdict. Check `git status` for unpushed local commits (push owner-run).
 
 ## Snapshot
 
@@ -28,7 +28,7 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **§3 human re-sign-off** — retry gap closed and deployed (`00082-ffc`); next is one fresh 47/47 zero-fallback production arm plus the owner's ending/overall feel verdict (AMP-shard modal fix optional first).
+1. **§3 human re-sign-off** — retry gap + boon-modal wedge closed and deployed (`00083-jt7`); next is one fresh 47/47 zero-fallback production arm plus the owner's ending/overall feel verdict.
 2. **MythOS Dev Graph** — repair rollout closed at strict-contract 0/3; repair remains 0 and bank v1 stays frozen. Remote publication/fan-out remain separately owner-gated.
 3. **Manual residuals/hold**: S4 copy tone, variant intro feel, G2 twist tone, EN fresh-loop retest; `glass-library` held.
 

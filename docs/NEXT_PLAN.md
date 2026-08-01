@@ -14,10 +14,10 @@ Authority: `docs/reports/2026-07-28-heldout-v1-clean-repair0-baseline.md`. Owner
 
 ## Priority 0 — §3 HOLD follow-through before another promotion sample
 
-Authority QA: `docs/test/neo_seoul_live_qa.md`; scope: `docs/reports/2026-07-31-late-loop-repetition-scope.md`. **Latest deploy = `mythos-api-00082-ffc` (2026-08-02; 100% traffic; normal-turn retry live); local `main` ahead, push owner-run.** Typed fallback evidence, combat pacing, structural novelty enforcement, and Gemini 3.1 image migration are live. The 2026-08-01 fresh-arm attempt (`loop_8b7a…60dc2`) was excluded at 13/14 (`parse_error`); it and the partial QA loop are evidence only.
+Authority QA: `docs/test/neo_seoul_live_qa.md`; scope: `docs/reports/2026-07-31-late-loop-repetition-scope.md`. **Latest deploy = `mythos-api-00083-jt7` (2026-08-02; 100% traffic; normal-turn retry + modal fix live); local `main` ahead, push owner-run.** Typed fallback evidence, combat pacing, structural novelty enforcement, and Gemini 3.1 image migration are live. The 2026-08-01 fresh-arm attempt (`loop_8b7a…60dc2`) was excluded at 13/14 (`parse_error`); it and the partial QA loop are evidence only.
 
 - `[x]` **Normal-turn retry gap diagnose/fix** — root cause `RuntimeOptions.fast_mode=True` API default vetoing `_repair_enabled`; streamed retry now has its own fast_mode-independent gate, locked by `StreamedParseFailRetryTest`, deployed on `00082-ffc` (PROGRESS_LOG 2026-08-02).
-- `[ ]` **AMP-shard modal non-dismiss fix** — boon/echo pick succeeds server-side but the modal re-renders and re-clicks 409 (`not in the current offer`); reproduced at loop start and as a mid-combat overlay. Completion: modal closes on accepted pick and on 409-already-consumed; regression test.
+- `[x]` **AMP-shard modal non-dismiss fix** — 409-already-consumed now clears the stale offer and closes the overlay; verified on a rendered local reproduction and deployed on `00083-jt7` (PROGRESS_LOG 2026-08-02).
 - `[ ]` `[manual]` **Fresh zero-fallback rendered re-sign-off** — after the retry gap closes, complete and audit one production arm; bank only a 47/47 non-fallback full loop and record the subjective ending/overall verdict. Novelty-reviser `New Vector at …` template repetition and the 3× identical `Patrol Ambush` encounter are observation targets for that run.
 
 ### Narrative clarity / content follow-ups (mostly `[manual]`)

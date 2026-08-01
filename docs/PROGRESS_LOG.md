@@ -2,6 +2,12 @@
 
 Last updated: 2026-08-02
 
+## 2026-08-02 — Boon/echo modal 409 wedge fixed and deployed (`mythos-api-00083-jt7`)
+- Status: the AMP-shard/echo-inscription overlay no longer wedges on stale offers; deployed at 100% traffic (root+health 200, live/local `app.js` SHA-256 match). Commit `015b620`; push owner-run.
+- Changed: the pick handler treats a 409 `… not in the current offer` conflict as consumption — the pick (or a prior one) already landed server-side and the visible offer is stale — and drops the stale offer locally so the overlay closes; other errors still propagate. Accepted picks keep the existing snapshot-apply close path.
+- Verified: rendered local reproduction — consumed the offer server-side behind the UI's back, clicked the stale card, observed 409 → modal closed (previously wedged until reload+Resume). `make frontend-lint`/`frontend-build` green; final `make check` 1193 tests (5 skipped).
+- Next: rerun one fresh 47/47 zero-fallback arm on `00083-jt7`, then collect the owner's subjective ending/overall verdict.
+
 ## 2026-08-02 — Normal-turn retry gap fixed and deployed (`mythos-api-00082-ffc`)
 - Status: the streamed parse-fail non-streaming retry now runs on player-facing turns; deployed at 100% traffic as `00082-ffc` (env-preserving; MODEL/IMAGEN pins and 3600s timeout confirmed intact; root+health 200). Commits `fc1a1a6` (fix) + docs; push owner-run.
 - Diagnosed (protocol): reproduced locally with an unparseable-stream/valid-generate fake provider. `RuntimeOptions.fast_mode` defaults True on every API flow → `context.fast_mode=True` → `_repair_enabled` returned False → the b55e933 retry never fired in production. This also explains the 07-19 "unparseable warning 0 in 5 days" reading — the warning was on a disabled path, not evidence of zero runaways.

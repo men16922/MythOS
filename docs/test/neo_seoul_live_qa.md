@@ -63,6 +63,7 @@
 - 기억나는 장면 3개: `The Smoldering Threshold` · `The Sinking Market` · `The Collapsing Junction`
 - 이상 기록·스크린샷: `c661…`은 후반 선택→전투→도주→유사 골목 반복, `84df…`는 배수관/서치라이트 공식·도주 후 격파 전제·KO 템플릿 혼입이 관찰됐습니다. `84df…`는 생성 중 재연결 실패 3회를 같은 선택으로 재시도했지만 최종 서사 outcome은 47/47 success였습니다.
 - 2026-07-30 추가 이상: 신규 루프도 배수로/통풍구/서치라이트/도주/전투 공식을 반복했고, 종료 auto-save가 Load modal에서 `In combat` 슬롯으로 보였지만 서버 Run History는 ended/archive였습니다. 새 app-path 이미지는 GCS 1024×1024로 정상 렌더링되었습니다.
+- 2026-08-01 신규 아암 시도: `loop_8b7a32b28b5145b497be2c3a70b60dc2` (EN·Ghost·사람 돕기) — 13/14 success + 1 fallback(`parse_error`)로 **제외**, 장면 ~13에서 중단. 관찰: 패배 직후 3 서사 커밋 내 ambient 전투 재진입 없음(수정 유효), `Changed …` 제목 없음, 초반 장소 다양화 정상. 문제: novelty 수정 템플릿 `New Vector at …` 제목이 4개 장면에서 반복, 동일한 `Patrol Ambush` 인카운터(같은 드론 2기·같은 문구)가 3회, 도주 시도가 Defeat/CAPTURED로 처리, AMP 샤드 모달이 선택 후 닫히지 않음(재클릭 409, 전투 중 오버레이 포함), EN 화면에 한국어(루트 노드 설명·`획득` 토큰·장면 이미지 내 한글) 혼입. 새 이미지는 정상 생성·렌더링.
 
 이미지 도착, 동료 합류·컷신·복귀, 선택지 도착, 첫 용어 주석, 가치축 칩은 release calibration의
 fail-closed 자동 항목이므로 이 문서에서 능동 테스트하지 않습니다.

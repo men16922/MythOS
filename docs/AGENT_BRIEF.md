@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-07-31
+Last updated: 2026-08-01
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **§3 HUMAN RE-SIGN-OFF** — code remediation, Gemini image migration, deploy, and direct partial production QA are complete on `mythos-api-00081-8lc`. Next complete and audit one fresh 47/47 zero-fallback production arm, then record the owner's ending/overall feel verdict; do not promote the partial QA loop.
+> ▶ NEXT SESSION: **NORMAL-TURN RETRY GAP → FRESH ARM** — the 2026-08-01 fresh arm was excluded at 13/14 (`parse_error`; typed evidence worked, but the non-streaming retry never fired on a normal turn). First diagnose/fix that retry gap (`_repair_enabled` / post-combat `options.fast_mode` path in `director.py`/`session.py`), then rerun one fresh 47/47 zero-fallback arm and collect the owner's ending/overall verdict. Owner still needs to `git push` (272f89b + docs).
 
 ## Snapshot
 
@@ -28,7 +28,7 @@ Current baseline:
 
 `docs/NEXT_PLAN.md` is authoritative for next priorities.
 
-1. **§3 human re-sign-off** — one fresh 47/47 zero-fallback production arm plus the owner's ending/overall feel verdict; deterministic remediation and partial direct production QA are complete.
+1. **§3 human re-sign-off** — first close the normal-turn non-streaming retry gap (2026-08-01 arm excluded at 13/14, `parse_error` with no retry), then one fresh 47/47 zero-fallback production arm plus the owner's ending/overall feel verdict.
 2. **MythOS Dev Graph** — repair rollout closed at strict-contract 0/3; repair remains 0 and bank v1 stays frozen. Remote publication/fan-out remain separately owner-gated.
 3. **Manual residuals/hold**: S4 copy tone, variant intro feel, G2 twist tone, EN fresh-loop retest; `glass-library` held.
 

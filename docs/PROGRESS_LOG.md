@@ -1,6 +1,15 @@
 # Progress Log
 
-Last updated: 2026-07-31
+Last updated: 2026-08-01
+
+## 2026-08-01 — Fresh §3 arm attempt excluded at 13/14; typed fallback evidence validated in production
+- Status: direct browser play of a fresh EN Ghost people/help arm on `mythos-api-00081-8lc` (`loop_8b7a32b28b5145b497be2c3a70b60dc2`) stopped at story scene ~13. Cloud Logging shows 13/14 narrative success + 1 fallback → the arm cannot be a 47/47 promotion sample and was not banked. Also committed the deployed 07-31 source/docs bundle as `272f89b` (main ahead; push owner-run).
+- Typed evidence first real capture: the fallback logged `fallback_reason=parse_error` on the `narrative outcome` event (11:55:43Z, non-key-beat post-flee continuation turn, latency 11.6s, `VertexGeminiJSONProvider`).
+- Retry gap (needs diagnose before the next paid arm): the parse_error turn served the canned fallback without the `streamed payload unparseable, retrying non-streaming` warning, although the revision does not set `MYTHOS_FAST_MODE`. Suspect request-level `options.fast_mode` on the post-combat continuation path or a `_repair_enabled` gating gap; at ~1/14 per-turn fallback odds a 47-turn zero-fallback arm is unlikely until the retry actually fires on normal turns.
+- Remediation field readout (positive): after both defeats, no ambient combat re-entered within 3 narrative commits even at tension 90–100; early-loop locations varied (neon alley → subway ruins → patrol bypass → data incinerator); no cosmetic `Changed …` titles appeared.
+- Remediation field readout (watch): the NoveltyController deterministic revision emitted its own repeated template — `New Vector at …` titled 4 scenes (7/8/9/11) — so the revision surface is now the repetition. The ambient/route combat served the identical `Patrol Ambush` encounter (same 2 maintenance drones, same board, same interstitial and verbatim defeat copy) 3 times; Flee at 3HP resolved as Defeat/CAPTURED.
+- UI defects reproduced: AMP SHARD/INSCRIBE modal does not dismiss after a server-accepted pick (re-click → 409 `not in the current offer`; once as a mid-combat overlay; reload+Resume recovers). KO strings still appear in the EN UI (Patrol Bypass route-node description, `획득` LAST RESULT token, KO text baked into a scene image).
+- Next: diagnose/fix the normal-turn non-streaming retry gap, then rerun one fresh arm; the excluded loop stays live server-side for owner disposal.
 
 Newest entries only; older 2026-07 increments are in `bin/docs/archive/progress-2026-07.md`
 (and `progress-2026-06.md` for June). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
@@ -90,29 +99,3 @@ Newest entries only; older 2026-07 increments are in `bin/docs/archive/progress-
 - Verified: upstream graph suites 116/116, schema/syntax/strict Claude+AGY/package/init gates, local tag read-back; MythOS `overnight-where`, init check, ledger/state/trajectory, resume wiring, immutable provenance validate/equivalent compare, and final `make check` 1168 (5 skipped).
 - Boundary: empty ledger/state/trajectory proves wiring only, not a real mission. Public marketplace remains 1.2.0; remote publication, held-out ratification, repair, real mission, and fan-out remain owner-gated.
 - Next: plan §12 P1 — implement the network-free, read-only `overnight-graph-smoke` with five disposable path fixtures; no push/deploy.
-
-## 2026-07-26 — Live-QA owner checklist refreshed for the final deployed verdict
-- Status: Done; the manual-owner surface remains 3 active judgments + 8 passive observations.
-- Changed: `docs/test/neo_seoul_live_qa.md` now names the last evidenced deploy `00078-rs9`, requires two production loop IDs and a non-fallback audit, folds image/icon/loadout/intro-tone watches into the same play, and adds a result template.
-- Verified: structural count 3/8, `git diff --check`, ledger/state/trajectory operator read-back, and final `make check` 1168 (5 skipped). Live revision re-query was blocked by unattended network policy, so the doc says “last evidenced,” not confirmed-current.
-- Blockers: owner must play the two styles and supply both loop IDs; held-out bank composition remains owner-unratified.
-- Next: audit both IDs for non-fallback, bank them, then run the narrative rubric/held-out split.
-
-## 2026-07-26 — Graph P0-A/P0-B/P1-A/P1-B/P1-C completed upstream
-- Status: Substrate implementation checkpoint, later released/pinned locally by the newest entry above; at this checkpoint it was still uncommitted and source-checkout-only.
-- Changed: durable ledger/evidence, resumable human pause, canonical provenance, idempotent transition recovery, and read-only causal/accounting trajectory now share one authoritative JSONL seam; full detail is preserved in `COMPLETED_SUMMARY.md` M67–M70.
-- Verified: accepted/repaired/reverted/needs-human replay, source↔child accounting, 8 real-`SIGKILL` edges, and negative fail-close; harness 10 offline suites 116/116 plus schema/syntax/package/init/AGY/diff gates pass.
-- Consumer: MythOS ledger/state/resume/provenance/trajectory targets resolve against the checkout; final `make check` 1168 (5 skipped).
-- Next: owner §3 + held-out ratification; P2 read-only fan-out additionally requires explicit multi-agent authorization.
-
-## 2026-07-26 — deterministic residual cleanup + Su-ah title clarity
-- Status: Done. `b10bf59` removes the two truly unused React lint suppressions while retaining the one justified effect-boundary suppression; ESLint now reports 0 errors/0 warnings. `f90c3db` closes the deferred Su-ah rename.
-- Changed: player-facing character/ally alias + KO/EN Story Bible use existing canonical `기억의 대장장이` / `Blacksmith of Memory`; legacy `잔향 가공사` remains keyword/glossary-only so old persisted narration still detects/recruits correctly.
-- Verified: focused content integrity 2/2; route content valid; final `make check` 1168 (5 skipped), lint warning-free; official post-commit AGY `PASS_CANDIDATE`, evidence `outputs/live-qa/20260726-005229-post-commit/evidence-bundle.json`.
-- Next: no actionable `[auto]` or deterministic unowned item remains. Owner §3 play + held-out-bank ratification unlock the next agent work; push not performed.
-
-## 2026-07-26 — CombatCinema slice B landed; frontend decomposition track closed
-- Status: Done. Timeline commit `5247719`; no actionable `[auto]` backlog remains.
-- Changed: callback refs, fast/standard timing profiles, attack→impact→exit phase transitions, impact/finish cues, and four-timer cleanup moved behind `useCombatCinemaTimeline(...) → phase`; `useCombatCinema.ts` 181→125. Remaining image fallback is kept inline because another seam would be shallow.
-- Verified: Serena diagnostics 0; focused responsiveness tests 4/4 (new timing/dependency/cleanup lock); lint 0 errors (2 pre-existing warnings); build; final `make check` 1167; official post-commit AGY `PASS_CANDIDATE`, evidence `outputs/live-qa/20260726-004325-post-commit/evidence-bundle.json`.
-- Next: owner §3 deployed two-loop verdict + held-out-bank ratification; after owner play, agent banks loop IDs and runs rubric/held-out evaluation. Push not performed.

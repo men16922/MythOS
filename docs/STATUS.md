@@ -1,6 +1,6 @@
 # Project MythOS Status
 
-Last updated: 2026-07-31
+Last updated: 2026-08-01
 
 ## Current Baseline
 
@@ -20,6 +20,7 @@ Major implemented axes:
 
 Latest verified baseline:
 
+- **2026-08-01 FRESH ARM ATTEMPT EXCLUDED 13/14 + TYPED EVIDENCE VALIDATED** — a direct-play EN people/help arm on `00081-8lc` (`loop_8b7a…60dc2`) recorded 13 success + 1 fallback and was stopped/excluded per the 47/47 rule. The fallback carried typed `fallback_reason=parse_error` (first production capture), but the non-streaming retry did not fire on that normal turn despite `MYTHOS_FAST_MODE` being unset — a retry-gap diagnose now precedes the next paid arm. Post-defeat combat pacing held (no ambient re-entry within 3 narrative commits at tension 90–100) and no `Changed …` titles appeared, but the novelty reviser's own `New Vector at …` template titled 4 scenes and the identical `Patrol Ambush` encounter/copy served 3×. AMP-shard modal non-dismiss (409 on re-click) reproduced twice. The 07-31 deployed source/docs bundle is now committed (`272f89b`, push owner-run).
 - **2026-07-31 REMEDIATION + GEMINI 3.1 DEPLOYED / DIRECT QA** — `mythos-api-00081-8lc` serves 100% traffic with narrative `gemini-3.5-flash`, image `gemini-3.1-flash-image` at `global`, and Cloud Run timeout 3600s. Narrative-clock/post-flee combat pacing, normalized location/motif novelty enforcement, and typed fallback logging are live. Focused 94, smoke-local, lint/typecheck/build, and final `make check` passed 1191 (5 skipped). Production health/root passed; six initial narrative calls were success/fallback 0; app-path 3.1 images generated, stored, delivered, and rendered.
 - **2026-07-31 DEFERRED IMAGE STALL DIAGNOSED/REMEASURED** — before: the gameplay WS ended after 280.016s under the 300s service timeout, 3.1s before the successful deferred visual send, leaving `Preparing image generation…`. After timeout 3600s: CDP measured `snapshot`→`visual_status{succeeded,url}`, DOM switched to the new scene ID, and the new image rendered. The partial QA loop is operational evidence only, not a promotion sample; one fresh 47/47 zero-fallback arm and owner feel verdict remain.
 - **2026-07-30 ENDING CONTRACT DEPLOYED + DIRECT PRODUCTION QA** — `mythos-api-00079-d4k` serves 100% traffic with `MODEL=gemini-3.5-flash` and `IMAGEN_MODEL=gemini-2.5-flash-image`; health/root returned 200 and live/local `app.js` SHA-256 matched. Predeploy focused tests passed 146; final `make check` passed 1182 (5 skipped). Fresh EN `loop_fde2…fec34` reached Forced Erasure, and Run History preserved authored EN ending narration plus lost/carried outcomes. Browser-observed boot, choices, a successful app-path image, combat/flee/return, and the final archive message passed. The sample is not promotable: Cloud Logging recorded 45/47 success and 2 fallback, while the late loop repeated drainage/vent/searchlight/escape/combat beats. Objective ending continuity passes; subjective ending/overall feel remains owner-manual. Product source was later pushed through `c89a87c`.
@@ -65,7 +66,7 @@ Latest verified baseline:
 
 Authority plan: `docs/NEXT_PLAN.md`. Direction remains global-first EN/KO closed beta: Gemini/Vertex is the product path; Ollama/FLUX remains the local development path.
 
-1. **§3 human re-sign-off** — deterministic remediation is deployed. Complete/audit one fresh 47/47 zero-fallback arm, then record the owner's subjective ending/overall verdict before promotion.
+1. **§3 human re-sign-off** — deterministic remediation is deployed; the 2026-08-01 arm attempt was excluded at 13/14 (parse_error). First diagnose/fix the normal-turn non-streaming retry gap, then complete/audit one fresh 47/47 zero-fallback arm and record the owner's subjective ending/overall verdict.
 2. **Manual/authority hold**: remote Harness publication, repair enablement, and read-only P2 fan-out remain owner-gated; S4 copy tone, variant intros, G2 twist tone, EN fresh-loop coherence and Glass Library remain manual/held.
 
 ## Open Risks
@@ -75,7 +76,7 @@ Authority plan: `docs/NEXT_PLAN.md`. Direction remains global-first EN/KO closed
 - **3.5 whitespace runaway**: streaming controlled generation can emit trailing-whitespace runaway → JSON truncation; a same-model non-streaming retry is live (`b55e933`). Watch `streamed payload unparseable` warning frequency in prod logs — 07-19 audit: **0 occurrences in 5 days** (light traffic caveat).
 - **Play-style consequence alignment — code-side RESOLVED and live since `00077-8g9`** (junction-pick axis accrual + destination-derived chips, regression-locked; see PROGRESS_LOG). Residual: axis-intent threshold 2 remains tunable; the 2026-07-29 deployed §3 verdict is HOLD because the contrast does not survive late-loop repetition.
 - **Production narrative fallback watch (2026-07-28)**: excluded safety/evidence `loop_f148…2350` recorded 3/15 fallback; replacement `loop_84df…33ef` passed 47/47. Continue the full Cloud Logging zero-fallback audit before banking every future production sample.
-- **Fresh production fallback + repetition watch (2026-07-31)**: `loop_fde2…fec34` remains excluded at 45/47. Typed evidence and deterministic combat/novelty remediation are deployed; only a new 47/47 run can show the long-play outcome. Its ended auto-save also appeared as an in-combat slot despite the archived server run.
+- **Fresh production fallback + repetition watch (2026-08-01)**: `loop_fde2…fec34` excluded at 45/47; `loop_8b7a…60dc2` excluded at 13/14 (`parse_error`, non-key-beat post-flee turn, no retry fired). Until the normal-turn retry gap is closed, per-turn fallback odds make a 47-turn zero-fallback arm improbable. Novelty-reviser `New Vector at …` template repetition and the 3× identical `Patrol Ambush` encounter/copy are new watch items; AMP-shard modal non-dismiss (409 re-click) is an open UI defect.
 - **Companion variant-loop thread closed 2026-07-10** (present = `unlock_flags∩flags` unified across all surfaces): owner clean-loop retest pending; in-flight/legacy loops need a new loop or one-time DB cleanup.
 - **fallback = static combat is intended (2026-06-06 design)**: combat VFX only play at `?fallback=0`; open the sim WITHOUT `?fallback=1` to see animations.
 - **ally-writeback**: fixed 2026-07-09 (`efa1c8f`, no more auto-promotion of story-flag allies); residual = one-time DB cleanup of players promoted by the old bug, on request.

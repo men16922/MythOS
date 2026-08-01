@@ -1,5 +1,31 @@
 # Progress archive — 2026-07
 
+## 2026-07-26 — Live-QA owner checklist refreshed for the final deployed verdict
+- Status: Done; the manual-owner surface remains 3 active judgments + 8 passive observations.
+- Changed: `docs/test/neo_seoul_live_qa.md` now names the last evidenced deploy `00078-rs9`, requires two production loop IDs and a non-fallback audit, folds image/icon/loadout/intro-tone watches into the same play, and adds a result template.
+- Verified: structural count 3/8, `git diff --check`, ledger/state/trajectory operator read-back, and final `make check` 1168 (5 skipped). Live revision re-query was blocked by unattended network policy, so the doc says “last evidenced,” not confirmed-current.
+- Blockers: owner must play the two styles and supply both loop IDs; held-out bank composition remains owner-unratified.
+- Next: audit both IDs for non-fallback, bank them, then run the narrative rubric/held-out split.
+
+## 2026-07-26 — Graph P0-A/P0-B/P1-A/P1-B/P1-C completed upstream
+- Status: Substrate implementation checkpoint, later released/pinned locally by the newest entry above; at this checkpoint it was still uncommitted and source-checkout-only.
+- Changed: durable ledger/evidence, resumable human pause, canonical provenance, idempotent transition recovery, and read-only causal/accounting trajectory now share one authoritative JSONL seam; full detail is preserved in `COMPLETED_SUMMARY.md` M67–M70.
+- Verified: accepted/repaired/reverted/needs-human replay, source↔child accounting, 8 real-`SIGKILL` edges, and negative fail-close; harness 10 offline suites 116/116 plus schema/syntax/package/init/AGY/diff gates pass.
+- Consumer: MythOS ledger/state/resume/provenance/trajectory targets resolve against the checkout; final `make check` 1168 (5 skipped).
+- Next: owner §3 + held-out ratification; P2 read-only fan-out additionally requires explicit multi-agent authorization.
+
+## 2026-07-26 — deterministic residual cleanup + Su-ah title clarity
+- Status: Done. `b10bf59` removes the two truly unused React lint suppressions while retaining the one justified effect-boundary suppression; ESLint now reports 0 errors/0 warnings. `f90c3db` closes the deferred Su-ah rename.
+- Changed: player-facing character/ally alias + KO/EN Story Bible use existing canonical `기억의 대장장이` / `Blacksmith of Memory`; legacy `잔향 가공사` remains keyword/glossary-only so old persisted narration still detects/recruits correctly.
+- Verified: focused content integrity 2/2; route content valid; final `make check` 1168 (5 skipped), lint warning-free; official post-commit AGY `PASS_CANDIDATE`, evidence `outputs/live-qa/20260726-005229-post-commit/evidence-bundle.json`.
+- Next: no actionable `[auto]` or deterministic unowned item remains. Owner §3 play + held-out-bank ratification unlock the next agent work; push not performed.
+
+## 2026-07-26 — CombatCinema slice B landed; frontend decomposition track closed
+- Status: Done. Timeline commit `5247719`; no actionable `[auto]` backlog remains.
+- Changed: callback refs, fast/standard timing profiles, attack→impact→exit phase transitions, impact/finish cues, and four-timer cleanup moved behind `useCombatCinemaTimeline(...) → phase`; `useCombatCinema.ts` 181→125. Remaining image fallback is kept inline because another seam would be shallow.
+- Verified: Serena diagnostics 0; focused responsiveness tests 4/4 (new timing/dependency/cleanup lock); lint 0 errors (2 pre-existing warnings); build; final `make check` 1167; official post-commit AGY `PASS_CANDIDATE`, evidence `outputs/live-qa/20260726-004325-post-commit/evidence-bundle.json`.
+- Next: owner §3 deployed two-loop verdict + held-out-bank ratification; after owner play, agent banks loop IDs and runs rubric/held-out evaluation. Push not performed.
+
 ## 2026-07-20 — Custom SVG icon set replaces text-glyph UI icons (CBT feedback)
 - Status: Done. Tester feedback (Discord, MelGibzon): the "⚔ Combat" chip renders as a thin red ✕ on platforms without the glyph — replace text glyphs with custom icons.
 - Changed: new `icons.tsx` `GameIcon` inline-SVG set (19 icons, currentColor + 1em sizing, stroke style matched to existing `assets/icons/combat-*.svg`). Applied to: route map nodes/legend/anchor star + ambient minimap tiles/legend (GameAside), choice combat-risk chip, combat interstitial titles + joining flag, save-slot combat marker/placeholder, tactical board key + learning-goal bullseye, market launcher, turn-order attack badge, epiphany banners. Glyphs stripped from affected i18n strings (`amap.legend` → composed items + `amap.legend.contacts`).

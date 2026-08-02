@@ -4,7 +4,7 @@ Last updated: 2026-08-02
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **FRESH 47/47 ARM ON `mythos-api-00083-jt7`** — the normal-turn retry gap AND the boon-modal 409 wedge are both fixed and deployed. Complete/audit one fresh 47/47 zero-fallback production arm (people/help or safety/evidence, EN, same Ghost player) and collect the owner's ending/overall verdict. Check `git status` for unpushed local commits (push owner-run).
+> ▶ NEXT SESSION: **CONTINUE/AUDIT ARM `loop_426b710d8ec441298f88f4a5d725e5cd`** — a fresh EN Ghost people/help arm is mid-play on `00083-jt7` (~scene 13, no client-visible fallback; Resume · player_1d34fcf… re-enters it). Finish to the authored ending, then Cloud Logging audit 47/47 (`narrative outcome` events for the loop) and bank via `bank_loop.py --language en` if clean; owner subjective verdict follows. Watch: runaway-trickle streamed turns (~2 chars/min for 20-35 min) — stream stall watchdog is the next deterministic candidate (PROGRESS_LOG 2026-08-02).
 
 ## Snapshot
 

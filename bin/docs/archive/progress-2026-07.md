@@ -1,5 +1,19 @@
 # Progress archive — 2026-07
 
+## 2026-07-26 — Dev Graph P1 offline integration smoke completed
+- Status: Done; `make overnight-graph-smoke` is the single read-only/offline consumer gate for released Harness 1.3.0.
+- Changed: `scripts/overnight/graph-smoke.sh` runs design-blocked, accepted, reverted, repaired, and paused missions in disposable Git repos through the real MythOS contract compiler and fake engine; `Makefile` exposes the operator target.
+- Verified: base-red→candidate-green, contract/provenance/evidence byte hashes, ledger sequence-corruption rejection, verifier-drift refusal, exact revert, bounded repair, durable pause, balanced deterministic trajectory, claim cleanup, and unchanged MythOS head/worktree. Two full runs produced identical output; `bash -n` and `git diff --check` pass.
+- Blockers: P2 needs the owner to select/approve one real temporary mission. The actual MythOS ledger remains empty; remote Harness publication, repair, and fan-out remain gated.
+- Next: plan §12 P2 — after mission approval, add design/slice/regression-validity fields and run once with repair 0, subagents 0, no push/deploy.
+
+## 2026-07-26 — Harness 1.3.0 locally released and MythOS pin verified
+- Status: P0 complete locally; upstream commit `bc48e8b` and annotated tag `overnight-harness--v1.3.0` exist only locally, with no remote push/marketplace publication.
+- Changed: 1.3.0 packages the durable ledger, pause/resume, provenance, transition recovery, and causal trajectory; MythOS ignored `harness_root` now points to the tag-derived 1.3.0 cache instead of the personal source checkout. Plugin/MythOS docs name the five verifier exits (`0` pass, `1` hard fail, `2` inconclusive, `3` human, `4` repairable).
+- Verified: upstream graph suites 116/116, schema/syntax/strict Claude+AGY/package/init gates, local tag read-back; MythOS `overnight-where`, init check, ledger/state/trajectory, resume wiring, immutable provenance validate/equivalent compare, and final `make check` 1168 (5 skipped).
+- Boundary: empty ledger/state/trajectory proves wiring only, not a real mission. Public marketplace remains 1.2.0; remote publication, held-out ratification, repair, real mission, and fan-out remain owner-gated.
+- Next: plan §12 P1 — implement the network-free, read-only `overnight-graph-smoke` with five disposable path fixtures; no push/deploy.
+
 ## 2026-07-26 — Live-QA owner checklist refreshed for the final deployed verdict
 - Status: Done; the manual-owner surface remains 3 active judgments + 8 passive observations.
 - Changed: `docs/test/neo_seoul_live_qa.md` now names the last evidenced deploy `00078-rs9`, requires two production loop IDs and a non-fallback audit, folds image/icon/loadout/intro-tone watches into the same play, and adds a result template.

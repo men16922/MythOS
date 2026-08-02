@@ -2,6 +2,16 @@
 
 Last updated: 2026-08-02
 
+Newest entries only; older 2026-07 increments are in `bin/docs/archive/progress-2026-07.md`
+(and `progress-2026-06.md` for June). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
+
+## 2026-08-02 — Fresh §3 arm IN PROGRESS on `00083-jt7` (`loop_426b710d8ec441298f88f4a5d725e5cd`)
+- Status: IN PROGRESS — direct browser play, EN Ghost people/help, same player `player_1d34fcf029cd64`; ~13 narrative scenes committed (welfare-block → market alleys → Witness in the Alley chance event → vent shaft), no client-visible fallback so far. Play continues; final 47/47 Cloud Logging audit (`jsonPayload.loop_id` + `narrative outcome`, count `fallback_reason`) and banking happen only after Forced Erasure completes.
+- Verified live: the boon-modal fix's happy path — AMP shard pick → INSCRIBE pick → overlay closed cleanly at the exact point where 08-01 wedged; opening variant ("Reconnection — The Closing Shutter") and twist ("Signal Jam") differ from prior loops.
+- New watch (severe): two streamed turns ran ~35 min and ~20+ min at ~2 chars/min before completing — a runaway-trickle mode the parse-fail retry cannot touch because the stream never ends; a stream-side stall watchdog (abort+non-streaming retry if <N chars per 60s) is the follow-up candidate.
+- Watch reconfirmed: novelty-reviser `New Vector at …` template titled scenes 5/6/7 consecutively (incl. nested `Alternate access beyond …`); `획득` KO token still in EN LAST RESULT chips.
+- Next: finish the arm to the authored ending, audit 47/47, bank via `scripts/eval/bank_loop.py --language en` if clean, then owner subjective verdict. The excluded 08-01 loop stays live for owner disposal.
+
 ## 2026-08-02 — Boon/echo modal 409 wedge fixed and deployed (`mythos-api-00083-jt7`)
 - Status: the AMP-shard/echo-inscription overlay no longer wedges on stale offers; deployed at 100% traffic (root+health 200, live/local `app.js` SHA-256 match). Commit `015b620`; push owner-run.
 - Changed: the pick handler treats a 409 `… not in the current offer` conflict as consumption — the pick (or a prior one) already landed server-side and the visible offer is stale — and drops the stale offer locally so the overlay closes; other errors still propagate. Accepted picks keep the existing snapshot-apply close path.
@@ -24,9 +34,6 @@ Last updated: 2026-08-02
 - Remediation field readout (watch): the NoveltyController deterministic revision emitted its own repeated template — `New Vector at …` titled 4 scenes (7/8/9/11) — so the revision surface is now the repetition. The ambient/route combat served the identical `Patrol Ambush` encounter (same 2 maintenance drones, same board, same interstitial and verbatim defeat copy) 3 times; Flee at 3HP resolved as Defeat/CAPTURED.
 - UI defects reproduced: AMP SHARD/INSCRIBE modal does not dismiss after a server-accepted pick (re-click → 409 `not in the current offer`; once as a mid-combat overlay; reload+Resume recovers). KO strings still appear in the EN UI (Patrol Bypass route-node description, `획득` LAST RESULT token, KO text baked into a scene image).
 - Next: diagnose/fix the normal-turn non-streaming retry gap, then rerun one fresh arm; the excluded loop stays live server-side for owner disposal.
-
-Newest entries only; older 2026-07 increments are in `bin/docs/archive/progress-2026-07.md`
-(and `progress-2026-06.md` for June). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
 
 ## 2026-07-31 — Repetition remediation and Gemini 3.1 image migration deployed
 - Status: `mythos-api-00081-8lc` serves 100% traffic; `main` remains pushed through `c89a87c`, while this completed source/docs bundle is uncommitted.
@@ -99,17 +106,3 @@ Newest entries only; older 2026-07 increments are in `bin/docs/archive/progress-
 - Budget: repair/revisions 0, subagents 0, wall 6m40s, cost $2.0424; Claude reported 54 turns despite contract 12 because the local CLI has no hard turn option and `/goal` is soft.
 - Evidence: `outputs/overnight/p2-first-mission-mission-20260726-181623-39074/` contains ledger, logs, regression report, provenance, SHA256SUMS, and a Git bundle.
 - Next: P3 uses only fake/disposable engines. Any second real-engine mission needs fresh owner approval plus a hard-budget-semantics decision.
-
-## 2026-07-26 — Dev Graph P1 offline integration smoke completed
-- Status: Done; `make overnight-graph-smoke` is the single read-only/offline consumer gate for released Harness 1.3.0.
-- Changed: `scripts/overnight/graph-smoke.sh` runs design-blocked, accepted, reverted, repaired, and paused missions in disposable Git repos through the real MythOS contract compiler and fake engine; `Makefile` exposes the operator target.
-- Verified: base-red→candidate-green, contract/provenance/evidence byte hashes, ledger sequence-corruption rejection, verifier-drift refusal, exact revert, bounded repair, durable pause, balanced deterministic trajectory, claim cleanup, and unchanged MythOS head/worktree. Two full runs produced identical output; `bash -n` and `git diff --check` pass.
-- Blockers: P2 needs the owner to select/approve one real temporary mission. The actual MythOS ledger remains empty; remote Harness publication, repair, and fan-out remain gated.
-- Next: plan §12 P2 — after mission approval, add design/slice/regression-validity fields and run once with repair 0, subagents 0, no push/deploy.
-
-## 2026-07-26 — Harness 1.3.0 locally released and MythOS pin verified
-- Status: P0 complete locally; upstream commit `bc48e8b` and annotated tag `overnight-harness--v1.3.0` exist only locally, with no remote push/marketplace publication.
-- Changed: 1.3.0 packages the durable ledger, pause/resume, provenance, transition recovery, and causal trajectory; MythOS ignored `harness_root` now points to the tag-derived 1.3.0 cache instead of the personal source checkout. Plugin/MythOS docs name the five verifier exits (`0` pass, `1` hard fail, `2` inconclusive, `3` human, `4` repairable).
-- Verified: upstream graph suites 116/116, schema/syntax/strict Claude+AGY/package/init gates, local tag read-back; MythOS `overnight-where`, init check, ledger/state/trajectory, resume wiring, immutable provenance validate/equivalent compare, and final `make check` 1168 (5 skipped).
-- Boundary: empty ledger/state/trajectory proves wiring only, not a real mission. Public marketplace remains 1.2.0; remote publication, held-out ratification, repair, real mission, and fan-out remain owner-gated.
-- Next: plan §12 P1 — implement the network-free, read-only `overnight-graph-smoke` with five disposable path fixtures; no push/deploy.

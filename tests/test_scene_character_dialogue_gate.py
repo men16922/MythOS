@@ -48,7 +48,11 @@ class SceneCharacterDialogueGateTest(unittest.TestCase):
         self.assertIn("hasDialogue", self.source)
         self.assertIn("outsideQuotes", self.source)
         self.assertIn("SPEECH_PUNCTUATION", self.source)
-        self.assertIn(".filter((p) => p.hasDialogue)", self.source)
+        # The gate lives in speakerForParagraph, which both portrait surfaces
+        # now route through: no spoken line in the paragraph -> no speaker.
+        speaker_fn = self.source.split("export function speakerForParagraph", 1)[1]
+        self.assertIn("if (!speech.hasDialogue) return null;", speaker_fn)
+        self.assertIn("speech.outsideQuotes.toLowerCase()", speaker_fn)
 
     def test_stat_voice_quotes_excluded_from_dialogue(self) -> None:
         # Stat-voice inner monologue — (관측: "…") — is NOT spoken dialogue. The
@@ -92,7 +96,7 @@ class SceneCharacterDialogueGateTest(unittest.TestCase):
         # "Lin-yue's henchman" is a different person, so a possessive followed by
         # anything that is not the speaker's own speech disqualifies the name.
         self.assertIn("possessiveShadows", self.source)
-        matcher = self.source.split("export function keywordMatches", 1)[1]
+        matcher = self.source.split("export function keywordHits", 1)[1]
         self.assertIn("possessiveShadows(", matcher)
 
     def test_possessive_speech_noun_is_the_speaker(self) -> None:
@@ -107,11 +111,43 @@ class SceneCharacterDialogueGateTest(unittest.TestCase):
         for noun in ("voice", "목소리"):
             self.assertIn(noun, self.source)
 
+    def test_speaker_is_the_name_carrying_a_speech_cue(self) -> None:
+        # A paragraph routinely names a second character who only reacts ("Han
+        # grips his weapon tighter"). Scanning the whole attribution text and
+        # taking the first hit let the scenario's character ARRAY ORDER decide
+        # the speaker, so a boss line rendered on an ally's portrait. The name
+        # carrying a speech cue wins; the any-name scan remains the fallback so
+        # single-character paragraphs are unchanged.
+        self.assertIn("SPEECH_CUE", self.source)
+        self.assertIn("isAttributed", self.source)
+        speaker_fn = self.source.split("export function speakerForParagraph", 1)[1]
+        self.assertIn("isAttributed(haystack, character)", speaker_fn)
+        self.assertIn("firstNamed(haystack, characters)", speaker_fn)
+
+    def test_both_portrait_surfaces_share_one_judgment(self) -> None:
+        # Owner rule 2026-07-11: the dialogue callout and the CHARACTER panel must
+        # not disagree. detectSceneCharacter must therefore route through
+        # speakerForParagraph rather than keep its own any-name scan.
+        detect_fn = self.source.split("export function detectSceneCharacter", 1)[1]
+        self.assertIn("speakerForParagraph(paragraph, portrayed)", detect_fn)
+        self.assertNotIn("keywordMatches", detect_fn)
+
+    def test_attribution_comma_counts_as_a_spoken_line(self) -> None:
+        # `"We should go," Se-rin says.` carries no sentence punctuation INSIDE
+        # the quote, so the sentence-like test rejected it and the line rendered
+        # as prose instead of a callout — 5 of 15 quoted spans (33%) in the
+        # 2026-08-08 banked arm. Term-emphasis spans ('최적화'), which that test
+        # exists to exclude, never carry a trailing comma.
+        self.assertIn("ATTRIBUTION_COMMA", self.source)
+        self.assertIn("isSpokenLine", self.source)
+        # Both the dialogue gate and the segmenter must use the same predicate.
+        self.assertEqual(self.source.count("isSpokenLine(paragraph.slice(i + 1, end))"), 2)
+
     def test_name_boundary_stays_zero_width_on_the_right(self) -> None:
         # The possessive decision reads the text *after* the name, so the trailing
         # boundary must not consume a character. The old form
         # `([^a-z0-9_-]|$)` swallowed the apostrophe and made the check impossible.
-        matcher = self.source.split("export function keywordMatches", 1)[1]
+        matcher = self.source.split("export function keywordHits", 1)[1]
         self.assertIn("(?![a-z0-9_-])", matcher)
         self.assertNotIn("([^a-z0-9_-]|$)", matcher)
 

@@ -46,6 +46,13 @@ class NoveltyRevision:
     assessment: NoveltyAssessment
 
 
+# A motif term has to distinguish *this* scene from a neighbour. Premise vocabulary
+# does the opposite: Neo-Seoul's whole premise is an unregistered **signal** hunted by
+# the control **grid**, so "signal"/"grid"/"신호"/"그리드" (and the ambient
+# "archive"/"static") matched 71% of scenes and made the motif streak fire on 91% of
+# turns — the reviser was detecting "this is a Neo-Seoul scene", not a repeat
+# (measured on the 2026-08-08 banked arm). Keep only terms that name a concrete
+# setting or beat.
 _MOTIF_TERMS: dict[str, tuple[str, ...]] = {
     "drainage": (
         "drain", "sewer", "sluice", "sump", "sludge", "filtration", "underbelly",
@@ -57,7 +64,7 @@ _MOTIF_TERMS: dict[str, tuple[str, ...]] = {
     ),
     "combat": ("combat", "fight", "ambush", "battle", "attack", "교전", "전투", "매복"),
     "market": ("market", "stall", "kiosk", "vendor", "시장", "야시장", "가판", "판매"),
-    "signal_grid": ("signal", "grid", "circuit", "static", "archive", "신호", "그리드", "회로", "정전"),
+    "signal_grid": ("circuit", "회로", "정전"),
 }
 
 
@@ -140,24 +147,51 @@ class NoveltyController:
             else:
                 revised_location = f"{location.strip()} 너머의 우회 접근로"
 
-        if language == "en":
-            revised_title = f"New Vector at {revised_location}"
-            tail = (
-                f"The repeated route seals behind you; the action shifts to {revised_location}, "
-                "where a new constraint changes the situation."
-            )
-        else:
-            revised_title = f"{revised_location}의 새 국면"
-            tail = (
-                f"반복되던 경로가 뒤에서 닫히고, 행동은 {revised_location}(으)로 옮겨간다. "
-                "새 제약이 이전과 다른 국면을 만든다."
-            )
+        revised_title, tail = _revision_phrasing(
+            revised_location, language, signal.recent_titles
+        )
         return NoveltyRevision(
             title=revised_title,
             location=revised_location,
             narration=f"{narration.rstrip()} {tail}",
             assessment=assessment,
         )
+
+
+_REVISION_PHRASINGS: dict[str, tuple[tuple[str, str], ...]] = {
+    "en": (
+        ("New Vector at {loc}", "The repeated route seals behind you; the action shifts to {loc}, where a new constraint changes the situation."),
+        ("Rerouted to {loc}", "The way you came is shut. {loc} takes the weight of the next move, on terms you did not set."),
+        ("{loc}, Off the Pattern", "The loop you were tracing breaks here. {loc} answers differently than the ground behind you."),
+        ("Detour Through {loc}", "Doubling back is no longer an option; {loc} is what remains, and it asks something new of you."),
+    ),
+    "ko": (
+        ("{loc}의 새 국면", "반복되던 경로가 뒤에서 닫히고, 행동은 {loc}(으)로 옮겨간다. 새 제약이 이전과 다른 국면을 만든다."),
+        ("{loc}, 경로 이탈", "왔던 길이 잠긴다. 다음 움직임의 무게는 {loc}이(가) 받는다. 조건은 당신이 정한 것이 아니다."),
+        ("{loc}에서 끊긴 반복", "따라 돌던 고리가 여기서 끊긴다. {loc}은(는) 지나온 자리와 다르게 반응한다."),
+        ("{loc}를 지나는 우회", "되돌아갈 길은 없다. 남은 것은 {loc}이고, 그곳은 당신에게 다른 것을 요구한다."),
+    ),
+}
+
+
+def _revision_phrasing(
+    location: str, language: str, recent_titles: list[str]
+) -> tuple[str, str]:
+    """Pick a revision title/tail that is not already in the recent window.
+
+    A single fixed template made the reviser feed its own trigger: it rewrote a
+    repeat into ``New Vector at X``, that title recurred, and the recurrence read as
+    a repeated title on a later turn. On the 2026-08-08 banked arm 13 of the 19
+    repeated-title hits were the reviser's own output. Choosing the first unused
+    phrasing keeps the revision deterministic while breaking that loop."""
+    options = _REVISION_PHRASINGS.get(language) or _REVISION_PHRASINGS["ko"]
+    used = {_normalize_title(title) for title in recent_titles}
+    for title_template, tail_template in options:
+        title = title_template.format(loc=location)
+        if _normalize_title(title) not in used:
+            return title, tail_template.format(loc=location)
+    title_template, tail_template = options[0]
+    return title_template.format(loc=location), tail_template.format(loc=location)
 
 
 def _unique_recent(values: list[str], limit: int = 5) -> list[str]:

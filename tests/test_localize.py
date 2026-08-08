@@ -189,6 +189,126 @@ class RouteAnchorGlossaryCoverageTest(unittest.TestCase):
             f"EN mode): {sorted(missing)}",
         )
 
+    def test_side_arc_and_attribute_strings_have_en_glossary_entries(self) -> None:
+        # Side arcs 7-9 and every archetype attribute were authored after the
+        # glossary and nothing scanned them, so a side-quest route node served its
+        # Korean title as the EN loop's scene title, `Current point`, and `Location`
+        # (live 2026-08-08: "New Vector at 사이드: 러너의 지름길"), and the KO
+        # attribute name reached the model's EN prose ("[무음의 발걸음]").
+        scenario = json.loads(
+            (PROJECT_ROOT / "resources" / "neo-seoul" / "scenario.json").read_text()
+        )
+        glossary = load_glossary("neo-seoul", "en")
+        missing: list[str] = []
+
+        for arc in scenario.get("side_arcs", []):
+            for field in ("title", "description"):
+                value = arc.get(field)
+                if isinstance(value, str) and value and value not in glossary:
+                    missing.append(f"side_arc {field}: {value}")
+        for archetype in scenario.get("archetypes", []):
+            for attribute in archetype.get("attributes", []):
+                bare = attribute.strip("[]")
+                if bare and bare not in glossary:
+                    missing.append(f"attribute: {attribute}")
+
+        self.assertEqual(
+            missing,
+            [],
+            "side-arc / attribute strings without an EN glossary entry (leak Korean "
+            f"into EN mode): {missing}",
+        )
+
+
+class RouteDescriptionLocalizationTest(unittest.TestCase):
+    """Route-node *descriptions* are served inside EN choice labels but were never
+    scanned — the patrol node shipped its Korean description into two banked EN
+    arms ("Surveillance Blind Spot — 감시망을 은밀히 …"). Asserts the served
+    outcome rather than glossary membership, because some descriptions are covered
+    by ``phrases`` instead."""
+
+    def test_every_route_description_serves_as_english(self) -> None:
+        import re
+
+        scenario = json.loads(
+            (PROJECT_ROOT / "resources" / "neo-seoul" / "scenario.json").read_text()
+        )
+        hangul = re.compile(r"[가-힣]")
+        seen: set[str] = set()
+
+        def walk(obj: Any) -> None:
+            if isinstance(obj, dict):
+                description = obj.get("description")
+                if isinstance(description, str) and hangul.search(description):
+                    seen.add(description)
+                for value in obj.values():
+                    walk(value)
+            elif isinstance(obj, list):
+                for value in obj:
+                    walk(value)
+
+        walk(scenario.get("route_map", {}))
+        leaked = [
+            d for d in sorted(seen) if hangul.search(localize_for(d, "neo-seoul", "en"))
+        ]
+        self.assertEqual(
+            leaked, [], f"route descriptions that stay Korean in EN mode: {leaked}"
+        )
+
+
+class ShortGlossaryKeyTest(unittest.TestCase):
+    """One-syllable names (``한`` → Han) are common Korean syllables, so the plain
+    substring pass excludes them — which left the combat log rendering an EN
+    template around a KO name ("Optimization Beam hits 한 for 9", live 2026-08-08).
+    They are applied only where the token stands alone."""
+
+    def test_standalone_short_name_is_translated(self) -> None:
+        payload = {"log": "Administrator IX's Optimization Beam hits 한 for 9."}
+        out = localize_for(payload, "neo-seoul", "en")
+        self.assertEqual(
+            out["log"], "Administrator IX's Optimization Beam hits Han for 9."
+        )
+
+    def test_short_key_inside_a_longer_korean_word_is_untouched(self) -> None:
+        # 한 is a substring of 한국/한번; replacing it there would corrupt the word.
+        payload = {"a": "한국", "b": "전투기"}
+        out = localize_for(payload, "neo-seoul", "en")
+        self.assertEqual(out, {"a": "한국", "b": "전투기"})
+
+    def test_short_keys_are_noop_in_ko_mode(self) -> None:
+        payload = {"log": "한이 상황을 살핀다."}
+        self.assertEqual(localize_for(payload, "neo-seoul", "ko"), payload)
+
+
+class EnGoldenFixtureHasNoHangulTest(unittest.TestCase):
+    """End-to-end ratchet over every banked EN loop: after the serving-boundary
+    localization the whole transcript — titles, locations, narration, choices and
+    the combat log — must contain no Hangul. `bank_loop.py` reads the store
+    directly, so a banked file is raw KO by design; this asserts the *served*
+    form, which is what a player reads."""
+
+    def test_en_golden_transcripts_localize_to_zero_hangul(self) -> None:
+        import re
+
+        hangul = re.compile(r"[가-힣]")
+        golden = sorted((PROJECT_ROOT / "scripts" / "eval" / "golden").glob("*.json"))
+        checked = 0
+        for path in golden:
+            bank = json.loads(path.read_text())
+            if bank.get("language") != "en":
+                continue
+            checked += 1
+            served = localize_for(
+                bank["scenes"], str(bank.get("scenario_id") or "neo-seoul"), "en"
+            )
+            leaked = sorted(
+                {m for m in hangul.findall(json.dumps(served, ensure_ascii=False))}
+            )
+            self.assertEqual(
+                leaked, [], f"{path.name}: Hangul survives EN localization: {leaked}"
+            )
+        self.assertGreater(checked, 0, "no EN golden transcript found to check")
+
 
 if __name__ == "__main__":
     unittest.main()

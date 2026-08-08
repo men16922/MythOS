@@ -843,7 +843,28 @@
     "최적화 빔": "Optimization Beam",
     "작전 지도의 최종 boss 노드(세계를 다시 쓰다) 진입 시 발생한다. 관리자 IX가 코어에서 직접 대면을 선언할 때 시작된다.": "Triggered on entering the operation map's final boss node (Rewriting the World). It begins when Administrator IX declares a direct confrontation from the core.",
     "최종 보스전. 고체력 단일 표적(IX)을 호위 드론과 위험 지형 속에서 분담 공략하며, 회복/엄호/일점사 타이밍과 파티 생존을 종합한다.": "The final boss fight. Split focus on a high-HP single target (IX) amid escort drones and hazardous terrain, combining heal/cover/focus-fire timing with party survival.",
-    "도시의 운명을 가르는 절정. 승리는 최대 통찰과 상급 전리품을 보장하되, 막대한 긴장도와 안정도 비용을 남겨 엔딩 분기로 이어진다.": "The climax that decides the city's fate. Victory guarantees maximum insight and top-tier loot, but leaves a massive tension and stability cost that leads into the ending branches."
+    "도시의 운명을 가르는 절정. 승리는 최대 통찰과 상급 전리품을 보장하되, 막대한 긴장도와 안정도 비용을 남겨 엔딩 분기로 이어진다.": "The climax that decides the city's fate. Victory guarantees maximum insight and top-tier loot, but leaves a massive tension and stability cost that leads into the ending branches.",
+    "린위에가 잃어버린 '기억의 조각'을 찾아주고 강력한 장비를 지원받는 이야기. 완료하면 린위에가 정식 동료로 파티에 합류한다.": "A story of recovering a 'memory fragment' Lin Yue lost and being backed with powerful equipment in return.",
+    "사이드: 러너의 지름길": "Side: The Runner's Shortcut",
+    "데이터 러너 한이 관리망 사각지대를 통과하는 지름길을 제안한다. 완료하면 이동 우위를 얻고 한이 정식 동료로 파티에 합류한다.": "Data-runner Han offers a shortcut through the control grid's blind spots, opening a movement advantage and a chance for him to join.",
+    "사이드: 잠금 너머": "Side: Beyond the Lock",
+    "해커 수아가 ARK 데이터 볼트를 함께 열자고 한다. 성공하면 관리망 내부 정보를 얻고 수아가 정식 동료로 파티에 합류한다.": "Hacker Su-ah proposes opening an ARK data vault together for inside intelligence and her trust.",
+    "사이드: 오래된 상처": "Side: An Old Wound",
+    "흉터의 베테랑 태오가 과거 관리망에 잃은 것을 마주한다. 그의 상처를 따라가면 무거운 진실과 함께 태오가 정식 동료로 파티에 합류한다.": "Scarred veteran Tae-o confronts what the control grid took from him, revealing a heavy truth and a potential ally.",
+    "러너의 지름길": "The Runner's Shortcut",
+    "유령 신호": "Ghost Signal",
+    "무음의 발걸음": "Silent Footsteps",
+    "ARK 링크": "ARK Link",
+    "데이터 세탁": "Data Laundering",
+    "기억의 직공": "Memory Weaver",
+    "과거의 공명": "Resonance of the Past",
+    "감시망을 은밀히 파고드는 지름길이지만, 순찰과 마주쳐 매복·교전에 휘말릴 위험이 크다.": "A shortcut that slips through the surveillance net, but running into a patrol risks ambush and combat.",
+    "감시망을 은밀히 파고드는 지름길 — 순찰 매복·교전 위험이 크다": "A shortcut through the surveillance net — high risk of patrol ambush and combat",
+    "보급·거래로 장비를 갖추는 곳": "Where supplies and trade refit your gear",
+    "정비·회복으로 다음 전투에 대비하는 곳": "Where you repair and recover for the next fight",
+    "단서를 캐내 진실에 다가가는 곳": "Where digging for clues brings the truth closer",
+    "예기치 못한 사건이 벌어지는 곳": "Where something unexpected happens",
+    "교전이 기다리는 경로": "A route with a fight waiting"
   },
   "phrases": {
     "현재 지점: ": "Current point: ",
@@ -878,6 +899,7 @@
     " 이하": " or below",
     "교전 R": "Engagement R",
     "전투 중 ": "In combat ",
-    "알 수 없는 스킬입니다: ": "Unknown skill: "
+    "알 수 없는 스킬입니다: ": "Unknown skill: ",
+    "추적도": "Pursuit"
   }
 }

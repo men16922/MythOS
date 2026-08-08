@@ -56,6 +56,26 @@ def _glossary_substrings(scenario_id: str, language: str) -> tuple[tuple[str, st
 
 
 @lru_cache(maxsize=16)
+def _glossary_short_substrings(
+    scenario_id: str, language: str
+) -> tuple[tuple[re.Pattern[str], str], ...]:
+    """Short glossary keys (below ``_GLOSS_SUBSTR_MIN_LEN``) as **Hangul-isolated**
+    substring replacements. A one-syllable name like ``한`` (Han) is a common Korean
+    syllable, so a bare ``str.replace`` would corrupt any longer word containing it —
+    which is why the plain substring pass excludes short keys. Requiring that neither
+    neighbour is Hangul keeps compounds (``전투기``, ``한국``) intact while still
+    translating the standalone token that combat-log templates interpolate
+    (``"{name} surveys the situation."`` → ``"한 surveys …"``; live EN evidence
+    2026-08-08). Longest key first, same as the main substring pass."""
+    gloss = load_glossary(scenario_id, language)
+    items = [(k, v) for k, v in gloss.items() if len(k) < _GLOSS_SUBSTR_MIN_LEN]
+    items.sort(key=lambda kv: len(kv[0]), reverse=True)
+    return tuple(
+        (re.compile(rf"(?<![가-힣]){re.escape(k)}(?![가-힣])"), v) for k, v in items
+    )
+
+
+@lru_cache(maxsize=16)
 def load_phrases(scenario_id: str, language: str) -> tuple[tuple[str, str], ...]:
     """Ordered KO→EN **substring** replacements for composed strings the exact-match
     glossary can't catch (e.g. ``"현재 지점: …"``, ``"긴장도 -5"`` built in serializers/
@@ -77,6 +97,7 @@ def _localize(
     glossary: dict[str, str],
     phrases: tuple[tuple[str, str], ...],
     gloss_sub: tuple[tuple[str, str], ...],
+    gloss_short: tuple[tuple[re.Pattern[str], str], ...] = (),
 ) -> Any:
     if not glossary and not phrases:
         return obj
@@ -96,11 +117,20 @@ def _localize(
             for ko, en in gloss_sub:
                 if ko in text:
                     text = text.replace(ko, en)
+        # Short keys last: only where the token stands alone (see
+        # ``_glossary_short_substrings``), so a one-syllable name is translated
+        # without touching a compound that happens to contain it.
+        if gloss_short and _HANGUL.search(text):
+            for pattern, en in gloss_short:
+                text = pattern.sub(en, text)
         return text
     if isinstance(obj, list):
-        return [_localize(v, glossary, phrases, gloss_sub) for v in obj]
+        return [_localize(v, glossary, phrases, gloss_sub, gloss_short) for v in obj]
     if isinstance(obj, dict):
-        return {k: _localize(v, glossary, phrases, gloss_sub) for k, v in obj.items()}
+        return {
+            k: _localize(v, glossary, phrases, gloss_sub, gloss_short)
+            for k, v in obj.items()
+        }
     return obj
 
 
@@ -109,11 +139,13 @@ def localize_payload(
     glossary: dict[str, str],
     phrases: tuple[tuple[str, str], ...] = (),
     gloss_sub: tuple[tuple[str, str], ...] = (),
+    gloss_short: tuple[tuple[re.Pattern[str], str], ...] = (),
 ) -> T:
     """Recursively localize a JSON-able payload: exact-match glossary first, then the
     curated substring ``phrases``, then glossary terms as substrings for any still-Korean
-    composed string. New structure; input not mutated. Empty glossary+phrases → input as-is."""
-    return cast(T, _localize(obj, glossary, phrases, gloss_sub))
+    composed string, then short glossary keys where the token stands alone. New structure;
+    input not mutated. Empty glossary+phrases → input as-is."""
+    return cast(T, _localize(obj, glossary, phrases, gloss_sub, gloss_short))
 
 
 def localize_for(payload: T, scenario_id: str, language: str) -> T:
@@ -123,4 +155,5 @@ def localize_for(payload: T, scenario_id: str, language: str) -> T:
         load_glossary(scenario_id, language),
         load_phrases(scenario_id, language),
         _glossary_substrings(scenario_id, language),
+        _glossary_short_substrings(scenario_id, language),
     )

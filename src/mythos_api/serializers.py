@@ -106,26 +106,88 @@ def _clean_text(value: Any) -> str:
     return text.strip()
 
 
-def _choice_axis(label: str, intent: str | None) -> str:
+# Value-axis vocabulary for Director-authored choices. Junction (``route:``)
+# choices do NOT come through here — they read the destination node's real axis
+# (see `_route_choice_axis`, 2026-07-19).
+#
+# The list was Korean-only, so on an EN loop nothing in the label could match and
+# the axis collapsed to the `intent` fallback below: every `interact` choice
+# became "Help people" whatever it actually did, and two choices sharing an
+# intent always drew the same chip. Measured over three banked EN arms, only
+# 5/292 labels hit any keyword — and those were `"ix"` matching inside *Fix* and
+# *Prefix*. English terms are paired with the Korean ones here, and ASCII
+# keywords are word-bounded so a substring can no longer decide a value axis.
+_AXIS_KEYWORDS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("people", (
+        "시민", "세린", "카이", "구출", "도와", "사람", "아이", "동료", "보호", "대화", "설득",
+        "구하", "살리", "지키", "감싸", "부축", "달래",
+        "civilian", "citizen", "rescue", "help", "protect", "shield", "comfort",
+        "reassure", "persuade", "convince", "ally", "companion", "wounded",
+        "child", "aid", "se-rin", "kai", "han", "tae-o", "su-ah", "lin yue",
+        # Deliberately NOT here: "save" (saves a file as often as a person) and
+        # "crowd" (a place to hide in — "blend into the crowd to lose the drones"
+        # is evasion, and calling it "Help people" is the very mislabel this
+        # vocabulary exists to stop).
+    )),
+    ("data", (
+        "데이터", "증거", "단서", "기록", "로그", "명단", "신호", "분석", "추적", "해킹",
+        "살펴", "조사", "확인", "관찰", "기억", "읽",
+        "data", "evidence", "clue", "record", "records", "log", "logs", "ledger",
+        "roster", "signal", "analyze", "analyse", "trace", "decrypt", "hack",
+        "archive", "terminal", "memory", "memorise", "memorize", "observe",
+        "study", "examine", "inspect", "decode", "search", "read", "scan", "map",
+    )),
+    ("safety", (
+        "숨", "우회", "탈출", "도망", "회피", "재정비", "엄폐", "안전", "치료", "휴식",
+        "빠져나", "벗어나", "물러", "잠복", "낮춰", "피한", "피해", "기다",
+        "hide", "evade", "avoid", "slip", "retreat", "flee", "escape", "withdraw",
+        "cover", "shelter", "rest", "recover", "safe", "conceal", "unseen", "wait",
+        "freeze", "bypass", "sneak", "duck", "crouch", "blend", "disengage",
+    )),
+    ("control", (
+        "공격", "돌파", "제압", "봉쇄", "명령", "위협", "강제", "관리자",
+        "부수", "뚫", "차단", "제거", "맞서", "대면",
+        "attack", "strike", "breach", "force", "seize", "suppress", "override",
+        "command", "threaten", "demand", "destroy", "disable", "confront", "smash",
+        "jam", "administrator", "ix",
+    )),
+)
+
+
+def _axis_keyword_hit(text: str, keyword: str) -> bool:
+    """Korean keywords match as substrings (no word boundaries); ASCII ones must
+    stand alone, or `"ix"` decides the axis of every label containing *fix*."""
+    if keyword.isascii():
+        return re.search(rf"(?<![a-z0-9]){re.escape(keyword)}(?![a-z0-9])", text) is not None
+    return keyword in text
+
+
+def _choice_axis(label: str, intent: str | None) -> str | None:
+    """The value axis this choice advertises, or ``None`` for no chip at all.
+
+    ``None`` is a real answer, not a failure: a junction choice whose
+    destination has no axis already renders no chip (2026-07-19). Inventing one
+    is worse than omitting it, because the chip is a promise about what the
+    choice does. Two fallbacks used to invent one and produced exactly the
+    mislabels reported on the 2026-08-08 arm — ``interact`` meant "Help people"
+    however the choice was phrased, so an evasion action advertised rescue, and
+    everything else defaulted to "safety", so both choices in a scene drew the
+    same chip.
+    """
     text = f"{label} {intent or ''}".lower()
-    axis_keywords = [
-        ("people", ["시민", "세린", "카이", "구출", "도와", "사람", "아이", "동료", "보호", "대화", "설득"]),
-        ("data", ["데이터", "증거", "단서", "기록", "로그", "명단", "신호", "분석", "추적", "해킹", "archive"]),
-        ("safety", ["숨", "우회", "탈출", "도망", "회피", "재정비", "엄폐", "안전", "치료", "휴식", "explore"]),
-        ("control", ["공격", "돌파", "제압", "봉쇄", "명령", "위협", "강제", "관리자", "ix", "rewrite"]),
-    ]
-    for axis, keywords in axis_keywords:
-        if any(keyword in text for keyword in keywords):
+    for axis, keywords in _AXIS_KEYWORDS:
+        if any(_axis_keyword_hit(text, keyword) for keyword in keywords):
             return axis
+    # Only intents that *name* their axis are trusted. `interact` does not — a
+    # terminal, a door and a person are all interactions — and neither does
+    # `explore`.
     if intent:
         clean_intent = intent.lower()
-        if "interact" in clean_intent:
-            return "people"
         if "archive" in clean_intent:
             return "data"
         if "rewrite" in clean_intent:
             return "control"
-    return "safety"
+    return None
 
 
 def _safe_int(value: Any) -> int:

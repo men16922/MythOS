@@ -200,6 +200,48 @@ class RouteChoiceAxisSerializerTest(unittest.TestCase):
         self.assertEqual(data["axis"], "data")
         self.assertEqual(data["axis_label"], "단서 찾기")
 
+    def test_interact_intent_alone_does_not_promise_rescue(self) -> None:
+        # The `interact` fallback returned "people" whatever the choice did, so an
+        # evasion action advertised "사람 돕기" (live EN evidence 2026-08-08). A
+        # terminal, a door and a person are all interactions: the intent alone is
+        # not evidence of an axis, so the label has to carry it.
+        from mythos_api.serializers import _choice_axis
+
+        # An evasion action under `interact` reads as evasion, not rescue...
+        self.assertEqual(_choice_axis("Slip away down the service duct", "interact"), "safety")
+        # ...and a signal-free label under `interact` promises nothing at all.
+        self.assertIsNone(_choice_axis("Step toward the far end", "interact"))
+        # The label still decides when it does carry a signal.
+        self.assertEqual(_choice_axis("Help the wounded civilian up", "interact"), "people")
+
+    def test_english_labels_are_classified(self) -> None:
+        # The vocabulary was Korean-only, so on an EN loop nothing in the label
+        # could match and every choice fell to the intent fallback — measured over
+        # three banked EN arms, 96/98 labels came back "people" with intent
+        # `interact`, and both choices in a scene always drew the same chip.
+        from mythos_api.serializers import _choice_axis
+
+        self.assertEqual(_choice_axis("Rescue the child from the stall", None), "people")
+        self.assertEqual(_choice_axis("Decrypt the maintenance log", None), "data")
+        self.assertEqual(_choice_axis("Hide in the drainage alcove", None), "safety")
+        self.assertEqual(_choice_axis("Breach the sealed bulkhead", None), "control")
+
+    def test_substring_cannot_decide_an_axis(self) -> None:
+        # "ix" matched inside *Fix* and *Prefix*, so an observation choice was
+        # advertised as control. ASCII keywords must stand alone.
+        from mythos_api.serializers import _choice_axis
+
+        self.assertNotEqual(_choice_axis("Fix the alley layout in your memory", None), "control")
+        self.assertEqual(_choice_axis("Confront Administrator IX", None), "control")
+
+    def test_unreadable_label_renders_no_chip(self) -> None:
+        # No signal in the label is a real answer: the chip is a promise about
+        # what the choice does, and an invented one is worse than none — the same
+        # rule an axisless junction destination already follows.
+        from mythos_api.serializers import _choice_axis
+
+        self.assertIsNone(_choice_axis("Step through the archway", "explore"))
+
 
 class ApiRelationshipSerializerTest(unittest.TestCase):
     """Lock the relationship-exposure contract produced by seeds L/M/N.

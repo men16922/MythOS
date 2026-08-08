@@ -11,8 +11,11 @@
 배포된 뒤의 결과입니다.
 
 - 새로 플레이하지 않아도 됩니다. 아래 **엔딩 납득**과 **완주 총평** 두 가지만 판정해 주세요.
-  전사를 읽으실 거면 `scripts/eval/golden/prod-people-help-20260808.json`, 게임 화면으로 보실
-  거면 Run History에서 해당 런을 열면 됩니다.
+- 근거를 모아둔 검토 패킷이 있습니다: `outputs/evals/20260808-owner-review/owner-review.md`.
+  장면 앵커, 엔딩 기록, 반복 수치, 그리고 "이미 고쳤지만 미배포라 판정에서 빼도 되는 것"이
+  정리돼 있습니다. 판정을 대신하지는 않습니다.
+- 엔딩은 전사 파일이 아니라 **Run History**에서 보셔야 합니다. 전사의 마지막 세 장면은
+  엔딩이 아니라 보스전 로그입니다.
 - 직접 플레이로 확인하고 싶으시면 주소는 그대로이고 admin 키를 쓰시면 됩니다:
   `https://mythos-api-1004528040791.us-central1.run.app/?invite=<키>`
 - **추가로 결정이 하나 필요합니다.** 이 표본은 플레이 도중 대사 표기 수정이 배포되면서 서사
@@ -79,7 +82,7 @@
 - 신규 루프 생성 감사: 45/47 success + 2 fallback (`provider_error` 1, `parse_error` 1; Cloud Trace 재구성) — promotion/eval bank에 넣지 않음
 - non-fallback 확인: 사람·개입 47/47 PASS · 안전·증거 47/47 PASS
 - 루브릭 지원 증거: `outputs/evals/20260728-030707/` — 사람·개입 3/5 · 안전·증거 3/5
-- 오너 검토 패킷: `outputs/evals/20260728-030707/owner-review.md` — 장면 탐색용이며 판정을 대신하지 않음
+- 오너 검토 패킷: `outputs/evals/20260728-030707/owner-review.md` (07-28 페어) · `outputs/evals/20260808-owner-review/owner-review.md` (08-08 완주 표본) — 장면 탐색용이며 판정을 대신하지 않음
 - 반복 수정 판정: `docs/reports/2026-07-31-late-loop-repetition-scope.md` — 당시 "새 유료 런 전 수정 필요". 2026-08-08 완주 표본으로 재측정한 결과 그 수정 자체가 반복의 주원인이었고, 감지기와 수정 문구를 모두 고쳤습니다(PROGRESS_LOG 2026-08-08).
 - 직접 판정 범위: 위임된 agent review — banked 전체 transcript·47/47 운영 로그·Cloud Run 요청 로그·
   production Run History API를 대조했습니다. 종료 루프는 설계상 재개 불가해 마지막 ending render 자체는 재생하지 못했습니다.

@@ -4,7 +4,7 @@ Last updated: 2026-08-02
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **CONTINUE/AUDIT ARM `loop_426b710d8ec441298f88f4a5d725e5cd`** — a fresh EN Ghost people/help arm is mid-play on `00083-jt7` (~scene 13, no client-visible fallback; Resume · player_1d34fcf… re-enters it). Finish to the authored ending, then Cloud Logging audit 47/47 (`narrative outcome` events for the loop) and bank via `bank_loop.py --language en` if clean; owner subjective verdict follows. Watch: runaway-trickle streamed turns (~2 chars/min for 20-35 min) — stream stall watchdog is the next deterministic candidate (PROGRESS_LOG 2026-08-02).
+> ▶ NEXT SESSION: **OWNER SUBJECTIVE VERDICT ON THE BANKED ARM** — `loop_426b710d…` is finished, audited **47/47 non-fallback**, and banked as `scripts/eval/golden/prod-people-help-20260808.json` (59 scenes, EN, `ending_erasure` at the IX boss). The renderer fix is deployed as `mythos-api-00084-nt2`. Two decisions are yours: the ending/overall feel verdict, and whether the 22+25 split across `00083-jt7`/`00084-nt2` disqualifies it as the §3 promotion sample. Agent-side follow-ups are queued in `docs/NEXT_PLAN.md` — the biggest is EN localization (34/59 scenes carry Korean). **Do not build the stream-stall watchdog**: the trickle was hidden-tab throttling, not a server stall (PROGRESS_LOG 2026-08-08).
 
 ## Snapshot
 

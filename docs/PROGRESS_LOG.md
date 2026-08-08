@@ -1,9 +1,65 @@
 # Progress Log
 
-Last updated: 2026-08-02
+Last updated: 2026-08-08
 
 Newest entries only; older 2026-07 increments are in `bin/docs/archive/progress-2026-07.md`
 (and `progress-2026-06.md` for June). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
+
+## 2026-08-08 — Identical `Patrol Ambush` traced to a downgrade that could not vary
+
+- Status: the repeated ambient encounter is fixed at the pacing gate. `make check` **1211** (5 skipped). Local-only; rides the next deploy. Verified mechanically only — this is encounter *selection*, not UI/targeting/VFX, so `gameplay-qa`'s rendered layer does not apply; the feel of the new variety stays a manual verdict.
+- Diagnosed: `_gate_next_combat` downgraded an over-risk encounter by taking the **highest-weight** affordable entry, which is a constant, not a choice. The risk cap is keyed to combats *won* (`COMBAT_RISK_CAP_BY_COUNT = (1, 2, 3, 4)`), and tier 1 has exactly one authored encounter — `patrol_ambush`. A player who flees or loses never raises the cap, so every downgrade for the whole loop returned the same fight with the same two drones and the same intro copy. The 2026-08-08 arm went 0 wins / 1 loss, which is why it recurred there after three occurrences on 08-01.
+- Changed: the downgrade now excludes the encounter just fought and draws by weight from what remains, seeded per loop and turn. When nothing else is affordable it returns `None` — ambient combat is pacing, so skipping the beat reads better than repeating the identical fight, and deliberate route combat bypasses this gate entirely, so the player can still choose to fight.
+- Verified: three regression tests — the just-fought encounter is never re-served, repeated downgrades inside a tier yield more than one encounter, and the draw stays deterministic for a given turn. Existing difficulty-cap tests (tutorial-tier first fight, hard combat unlocked after three wins) still pass unchanged, so the ramp is untouched.
+- Boundary: tier 1 still has only one authored encounter, so the early game has no variety to draw on — adding low-risk encounters is content work for the codex lane, not a code fix.
+
+## 2026-08-08 — Novelty reviser was the repetition: over-trigger + self-feed both fixed
+
+- Status: the structural-repetition track is re-scoped and closed at the reviser. `make check` **1208** (5 skipped). Local-only; rides the next deploy. The upstream question — how often the model itself repeats — is untouched and stays behind the owner's §3 verdict.
+- Diagnosed on the banked arm, two compounding faults. **Over-trigger**: `repeated_motif_streak` fired on **52/57 turns (91%)**, because the `signal_grid` motif contained the scenario's own premise vocabulary — Neo-Seoul *is* an unregistered "signal" hunted by the control "grid", so those words hit 71% of scenes and `pursuit` 67%. The detector was recognising "this is a Neo-Seoul scene", not a repeat. **Self-feed**: the revision rewrote every repeat to one fixed template, so `New Vector at …` recurred and then read as a repeated title later — **13 of the 19 repeated-title hits were the reviser's own output**, against 6 from model-authored titles.
+- Changed: pruned premise terms from the motif vocabulary (`signal`/`grid`/`신호`/`그리드`/`archive`/`static`), keeping only terms that name a concrete setting or beat; and the revision now picks the first of four phrasings (EN and KO) not already in the recent-title window, so consecutive revisions differ while staying deterministic.
+- Measured before → after: motif streak **91% → 59%** on the same 59-scene fixture; three consecutive revisions on an unchanged repeat now yield three distinct titles (was one repeated template). Two regression tests lock both — premise vocabulary alone is not a repeat, and consecutive revisions never collide.
+- Boundary: 59% is still high, and that residue is the model repeating locations/motifs for real (title repeats 32%, location streak 33% measured independently). Fixing that is prompt/context work on the narrative layer, deliberately not started before the owner's verdict.
+
+## 2026-08-08 — Ended-run summary now follows the loop's language
+
+- Status: an EN loop no longer archives a Korean `summary_text`, and no raw state token reaches player-facing prose. `make check` **1206** (5 skipped), up 5 from the new locks. Local-only; rides the next deploy.
+- Diagnosed: `summarize_loop` had two language faults, not one. The deterministic path (`_fallback_loop_summary`) was Korean-only, **and** the LLM prompt hard-coded "Write the summary in Korean" — so an EN loop got Korean either way. The banked arm hit the deterministic path because it ends in combat defeat, which runs `use_llm=False` by design to avoid blocking loop-end on a slow provider.
+- Changed: `summarize_loop(..., language=...)` threads the loop language into both paths — `options.language` on the combat-defeat path, and a new `_loop_language(loop)` reading persisted state on `archive()`, which has no `RuntimeOptions`. The last action is only quoted when it reads as prose; a snake_case internal token (`combat_finished`) now yields the neutral "closed quietly" phrasing instead of being printed.
+- Verified: EN/KO output for token, prose and empty event lists; five tests lock no-Hangul EN output, token suppression, prose passthrough, KO default, and `_loop_language` rejecting an unknown value rather than inventing a third language. Six test doubles were widened to the real signature.
+- Note: legacy loops predate the persisted `language` field and stay `ko` by design — their archived summaries are not retroactively translatable.
+
+## 2026-08-08 — EN localization sweep closed; yesterday's leak figure corrected
+
+- Status: every banked EN transcript (3 files, 209 scenes) now localizes to **0 Hangul**. `make check` 1201 (5 skipped), up 6 from the new locks. Local-only — no deploy; the fix is data + serving-boundary code, so it rides the next deploy.
+- **Correction to the 2026-08-08 entry below**: "34/59 scenes contain Korean" measured the *banked* file, but `bank_loop.py` reads the store directly while the API localizes at the serving boundary — so ~2/3 of that was a banking artifact, not player-facing. Running the same fixture through `localize_for` gave 11/59 scenes / 231 chars before this work. Measure through the path the player actually reads.
+- Diagnosed: the glossary (494 entries) and the `log_i18n` EN templates already implemented the documented contract ("interpolated names are already English via the serving-boundary glossary"). Two real gaps remained. Side arcs 7-9 and every archetype attribute were authored after the glossary and nothing scanned them, so a side-quest route node served its Korean title as the EN loop's title/`Current point`/`Location`. And one-syllable names were excluded from the substring pass by `_GLOSS_SUBSTR_MIN_LEN=3` — correct for avoiding compound corruption, but it left the combat log rendering an EN template around a KO name.
+- Changed: backfilled 21 glossary entries (3 side arcs with descriptions, 8 attribute names, 7 route-node descriptions) and a `추적도`→`Pursuit` phrase, all from translations that already existed in the EN overlay; added a Hangul-isolated short-key pass (`(?<![가-힣])key(?![가-힣])`) so `한`→`Han` applies to a standalone token while `한국`/`전투기` stay intact.
+- Verified: 0 Hangul across all three EN goldens (was 34/59, 11/59 after the pre-existing layer). Six new tests lock it — a side-arc/attribute glossary ratchet, a route-description served-outcome ratchet, short-key isolation both ways, KO-mode identity, and an end-to-end assertion over every EN golden.
+- Next: `[auto]` structural repetition re-scope is the remaining Priority 0 agent item; the owner's subjective ending verdict is unchanged.
+
+## 2026-08-08 — Renderer fix deployed (`00084-nt2`); fresh arm completed 47/47 and banked
+
+- Status: `mythos-api-00084-nt2` serves 100% traffic (root+health 200, live/local `app.js` SHA-256 match `2909b01a…`, `MODEL`/`IMAGEN_MODEL`/`IMAGEN_LOCATION` pins and timeout 3600s intact). Arm `loop_426b710d…` ran to the authored ending and is banked as `scripts/eval/golden/prod-people-help-20260808.json` (59 scenes, `language=en`). Owner subjective ending/overall verdict is the only remaining §3 item.
+- Audit: **47/47 narrative success, 0 fallback** — but split **22 on `00083-jt7` + 25 on `00084-nt2`** because the renderer deploy landed mid-arm (owner-approved). Note the provenance caveat before treating it as a single-revision promotion sample.
+- Ending: boss defeat at `Confronting Administrator IX` → `ending_erasure` / **Forced Erasure**, 59 scenes, 0 combats won / 1 lost, ally `han` joined, unlocks `insight_points:+2` + `relationship:han:+1` + `relationship:se_rin:+1` + `cutscene:HAN_DEAD_CHANNEL`. Authored EN ending narration and data-driven lost/carried rendered correctly.
+- Renderer fix confirmed in production: Han's contractions (`we've`/`don't`/`we'll`/`didn't`/`It's`) render intact and long quotes bubble as speech; the banked DB narration has **0 split-word artifacts**, confirming the corruption was renderer-only and stored text was always clean.
+- Runaway trickle root-caused as a **QA-harness artifact, not a product defect**: with `document.visibilityState="hidden"` the client reveal ran 5–31 chars/min, and the instant the tab became visible it jumped to **2,147 chars/min** and finished. Server latency for the same turns was 7–26s (one measured 8.9s while the UI appeared to stall 226s). **The planned server-side stream-stall watchdog would not have fixed this** — do not build it on this evidence.
+- Quantified from the banked transcript: **34/59 scenes contain Korean** in an EN loop (712 KO chars) — route-node names in titles (`New Vector at 골목의 목격자`, `New Vector at 암호화된 흔적`), fully-KO combat titles (`교전 R1/R2`), and KO entity/skill names inside EN combat sentences (`감시 드론's 드론 레이저 hits 한 for 3`, `관리자 IX activates 정화 야장`). Repetition: **21/59 titles are `New Vector at …`** and only **37 distinct titles across 59 scenes**.
+- Other findings: `summary_text` on the ended run is generic Korean and leaks an internal token (`루프는 'combat_finished'의 잔향을…`) although `ending_narration` is correct EN; run record shows `clues_collected: []` while the UI showed 8/16, and `saved: []` despite an ally joining; two turns offered **both choices on the same value axis**; one turn labelled an evasion action `Help people`; `CURRENT OBJECTIVE` went missing on three scenes; STATUS `Location` shows raw slugs (`wet_dawn_street`, `sub_station_refuge`); an EN scene embedded the KO attribute `[무음의 발걸음]`; one boss line spoken by Administrator IX was attributed to Han's portrait; prose slipped from present to past tense late in the loop.
+- Evidence: `outputs/live-qa/20260808-arm-426b710d/` (4 screenshots). No new code beyond the renderer fix; no push.
+- Next: owner subjective ending/overall verdict; then decide whether the two-revision split disqualifies this as the §3 promotion sample.
+
+## 2026-08-08 — EN dialogue apostrophe split root-caused and fixed; fresh arm parked at 21/21
+
+- Status: the §3 arm `loop_426b710d…` was resumed on `00083-jt7` and advanced story turn 14 → 21, still **21/21 narrative success, 0 fallback**. Play was stopped deliberately, not because the loop ended: the EN dialogue renderer corrupts the prose the arm exists to judge. The loop stays live and resumable. Local-only — no commit, push, or deploy.
+- Diagnosed (protocol, before → after on the verbatim production paragraph): `sceneCharacter.ts` listed the ASCII apostrophe as a quote pair, so an EN contraction opened a span at `You'` and closed it at `sector'`. Rendered result was narration `"You` + callout `'re cutting it close, ghost," Han mutters …`, i.e. words split mid-token. Second, a quoted span failing `SPEECH_PUNCTUATION` (EN dialogue ending in a comma before attribution) was only partly consumed, so its closing mark was read as the next opening mark and the attribution prose became the bubble while the real spoken line stayed narration. KO was unaffected because KO prose has no contractions.
+- Changed: a word-internal apostrophe no longer opens or closes a span (`APOSTROPHE_LIKE`/`isIntraWordApostrophe`/`opensQuote`/`findClosingQuote`), and a non-speech quoted span is now consumed whole so quote pairing cannot desynchronize.
+- Verified: the real module was executed standalone on the production paragraph — before = 5 segments with split words, after = 2 segments, text intact. Nine-pattern regression probe (curly quotes, curly apostrophe, plural possessive, unmatched quote, KO/EN stat voice, corner brackets, KO term emphasis + speech, no-dialogue prose) returned text-integrity intact on all nine with KO behaviour unchanged. `make frontend-lint`/`frontend-build` clean; `make check` **1195 tests (5 skipped)**, up 2 from the new source-level locks.
+- Field observations on the arm (all reproduced, evidence `outputs/live-qa/20260808-arm-426b710d/`): the novelty reviser still titles scenes `New Vector at …` including the nested `New Vector at Alternate access beyond Encrypted Trace`; the identical `Patrol Ambush` (2 Maintenance Drones, verbatim searchlight copy) served again; drainage/searchlight/pursuit motifs filled four consecutive scenes even on a `Help people` pick; a KO route-node name (`사이드: 러너의 지름길`) became the EN loop's title, `Current point`, and `Location`; the `획득` token persists in EN LAST RESULT chips; combat log timestamps render `[8시 40분 54초]` in EN; one scene omitted `CURRENT OBJECTIVE`; and a choice reading "Overload the terminal completely to blind the Enforcers" was labelled the `Stay safe` axis.
+- Confirmed not a bug: the loop kept serving choices at stability 1 / tension 100 because `_defer_threshold_archive_before_climax` (`session.py:3056`) defers bare threshold archives until the boss node is reached — so the arm can still run to the authored ending.
+- Blockers: the fix is undeployed, so continuing the arm now would still produce a transcript the owner cannot judge for prose/ending feel. Deploy is an owner call because it moves the sample across revisions.
+- Next: deploy the renderer fix, then resume `loop_426b710d…` to the authored ending, audit 47/47, and bank via `bank_loop.py --language en` if clean.
 
 ## 2026-08-02 — Fresh §3 arm IN PROGRESS on `00083-jt7` (`loop_426b710d8ec441298f88f4a5d725e5cd`)
 - Status: IN PROGRESS — direct browser play, EN Ghost people/help, same player `player_1d34fcf029cd64`; ~13 narrative scenes committed (welfare-block → market alleys → Witness in the Alley chance event → vent shaft), no client-visible fallback so far. Play continues; final 47/47 Cloud Logging audit (`jsonPayload.loop_id` + `narrative outcome`, count `fallback_reason`) and banking happen only after Forced Erasure completes.
@@ -34,75 +90,3 @@ Newest entries only; older 2026-07 increments are in `bin/docs/archive/progress-
 - Remediation field readout (watch): the NoveltyController deterministic revision emitted its own repeated template — `New Vector at …` titled 4 scenes (7/8/9/11) — so the revision surface is now the repetition. The ambient/route combat served the identical `Patrol Ambush` encounter (same 2 maintenance drones, same board, same interstitial and verbatim defeat copy) 3 times; Flee at 3HP resolved as Defeat/CAPTURED.
 - UI defects reproduced: AMP SHARD/INSCRIBE modal does not dismiss after a server-accepted pick (re-click → 409 `not in the current offer`; once as a mid-combat overlay; reload+Resume recovers). KO strings still appear in the EN UI (Patrol Bypass route-node description, `획득` LAST RESULT token, KO text baked into a scene image).
 - Next: diagnose/fix the normal-turn non-streaming retry gap, then rerun one fresh arm; the excluded loop stays live server-side for owner disposal.
-
-## 2026-07-31 — Repetition remediation and Gemini 3.1 image migration deployed
-- Status: `mythos-api-00081-8lc` serves 100% traffic; `main` remains pushed through `c89a87c`, while this completed source/docs bundle is uncommitted.
-- Changed: ambient combat cooldown now counts narrative commits and protects post-flee scenes; route/boss overrides remain. `NoveltyController` enforces normalized title/location/motif structure while preserving opening/fixed anchors; typed fallback fields remain visible.
-- Model: image default moved from retiring 2.5 to `gemini-3.1-flash-image` at `global`; narrative remains `gemini-3.5-flash`. A real pre-fix regional call reproduced 404 and the global call produced a valid 1024² PNG.
-- QA: focused 94 tests, lint/typecheck/build, `make smoke-local`, and `make check` passed 1191 (5 skipped). Production health/root passed; six initial narrative calls were success/fallback 0.
-- Diagnose/re-measure: a 280.016s WS request expired under the 300s Cloud Run timeout 3.1s before the deferred image event. Timeout is now 3600s; CDP then observed `snapshot`→`visual_status{succeeded,url}`, DOM changed to the new scene asset, and the generated image rendered.
-- Blocker/next: deterministic scope is closed. The partial QA loop is not promotable; complete and audit one fresh 47/47 zero-fallback arm, then collect the owner's subjective ending/overall verdict.
-
-## 2026-07-28 — §3 direct production play produced one valid arm; safety/evidence replacement required
-- Status: people/help `loop_c661…25bb` completed through Forced Erasure; safety/evidence `loop_f148…2350` reached 14 story turns but is invalid for the style pair.
-- Measured: same player; people/help 89 scenes / `_story_turn=46` / 3 combat wins / 1 defeat / 47 of 47 narrative generations succeeded. Safety/evidence 20 scenes / `_story_turn=14`; 12 of 15 generations succeeded and 3 fell back.
-- Changed: banked only the valid arm as `scripts/eval/golden/prod-people-help-20260728.json`; added fail-closed `bank_loop.py --language` handling because legacy production loops do not persist language and were silently mislabeled KO.
-- Verified: Cloud Logging full-loop audit; DB read-back; narrative-eval unit tests 13/13; corrected EN judge report `outputs/evals/20260728-020105/` = overall 3/5 (continuity 2, register 4, repetition 2, naming 4, choices 3).
-- Findings: repeated late escape/combat cycles, duplicate scene openings, and dropped choice consequences remain visible in the valid arm. The invalid arm is not banked or used for a style verdict.
-- Blockers: the three subjective owner judgments remain open; a fresh zero-fallback safety/evidence production loop is required before pair scoring.
-- Next: run and audit one replacement safety/evidence arm, bank/judge the valid pair, then collect the owner's three checklist judgments. No commit/push/deploy.
-
-## 2026-07-28 — Clean frozen-bank repair-0 arm completed; repair A/B blocked by turn gate
-- Status: valid clean-base cohort complete — 0/3 accepted, 3/3 turn rejects (37/28/27 vs 12), 3/3 exact compensations, 0 dirty leftovers. Repair/retry/revision/subagent remained 0; no merge/push/deploy.
-- Measured: valid actor wall/turns/cost/tokens = 504.072s/92/$2.7305/4,927,960. One excluded 1.2.0 pin-drift dispatch was terminated at 15 turns/$0.4674; total actual spend $3.1979, below approval.
-- Audit: all three rejected commits stayed within expected task+bank scope and marked the selected item complete; actor-reported green is not external acceptance evidence because the turn gate rejected before verifiers. Ledgers are 11-event balanced and every compensation tree exactly matches its base.
-- Verified: fresh preflight mypy 188, pre/post independent `make check` 1171 (5 skipped), final eval tree clean. Raw evidence: `outputs/overnight/heldout-v1-clean-baseline/`; report: `docs/reports/2026-07-28-heldout-v1-clean-repair0-baseline.md`.
-- Owner decision: retain strict 12-turn acceptance, accept 0/3, and stop repair rollout. `OVERNIGHT_REPAIR=0`; never tune/retry bank v1. Any reopening needs preregistration, unseen bank v2, and fresh approval.
-- Next: owner §3 two-style deployed live play supplies two non-fallback loop IDs; agent then audits/banks them and runs the narrative rubric. Harness remote publication remains separately approval-gated.
-
-## 2026-07-27 — Fresh-worktree setup and base-green proof completed
-- Status: clean-base prerequisite closed at `9ffad61`; no model call, fan-out, push, deploy, or remote publication.
-- Changed: `dev` setup now installs the GCP SDKs imported by tests; environment doctor checks their imports in addition to mypy. NumPy remains constrained below 2.5.
-- Measured: the first clean setup exposed the missing SDK seam; a focused Vertex test passed after installing the confirmed `gcp` dependency group. A second brand-new Python 3.13 worktree selected NumPy 2.4.6, mypy 2.3.0, google-genai 2.14.0, and google-cloud-storage 3.13.0.
-- Verified: fresh preflight passed all imports and mypy 188; fresh and main `make check` each passed 1171 tests (5 skipped). The proof worktree is clean.
-- Boundary/next: prior cohort remains invalid for productivity. No agent-runnable evaluation step remains; owner explicitly re-arms any new paid repair-0 cohort.
-
-## 2026-07-27 — Frozen-bank cohort fail-closed 3/3; productivity baseline invalidated
-- Status: three frozen tasks executed once each in a disposable branch with repair/revisions/subagents 0. Results: 0 accepted, 3 turn-budget stops (47/40/46 vs 12), 3 exact compensations, 0 dirty leftovers; 790.198s/$4.3584 total.
-- Audit: no accepted diff existed. All rejected actors recorded the same base mypy error instead of implementing; independent reproduction found unlocked NumPy 2.5.1 stubs require Python 3.12 syntax while MythOS checks its 3.11 support floor. Downgrading only NumPy to 2.4.6 made mypy 2.3.0 pass 188 source files.
-- Changed: constrain NumPy `<2.5`; overnight environment doctor now runs the Python typecheck before model dispatch. Raw logs copied to `outputs/overnight/heldout-v1-baseline/`; report `docs/reports/2026-07-27-heldout-v1-single-actor-baseline.md`. Final `make check` passed 1171 tests (5 skipped).
-- Boundary: the cohort proves 1.3.4 real-call fail-close and compensation, not implementation productivity or repair lift. Repair/fan-out remain off; no bank task change, merge, push, deploy, or remote publication.
-- Next: establish fresh-worktree base-green proof before asking the owner to re-arm a new paid cohort.
-
-## 2026-07-27 — Harness 1.3.4 turn-budget fail-close released; held-out bank ratified
-- Status: Done locally; post-run turn acceptance is enforceable and the three-task evaluation bank is frozen. No model call/push/deploy.
-- Changed: upstream parses final `num_turns`, compares it with WorkContract `budgets.turns`, hashes the actor log into a typed check, and exactly compensates over-budget commits before verification. Built-in/external compilers share the turn value; missing successful Claude metrics fail closed.
-- Verified: before/after fixture `14/12 success` → compensated `failed`; real retry evidence → `exceeded|31|12`; upstream 10 suites 136/136, syntax/JSON/npm/AGY/push-policy gates, tag/cache byte match, MythOS pin read-back, and five-path `make overnight-graph-smoke` pass.
-- Release: upstream `c9a8ff7`, tag/cache `overnight-harness--v1.3.4`; MythOS graph version locks/pin updated locally.
-- Blockers: turn/bank decision gate closed. Repair/fan-out/productivity claims remain held until the frozen single-actor baseline is audited; fan-out also requires explicit multi-agent authorization.
-- Next: run all three held-out tasks in disposable evaluation worktrees with repair/revisions/subagents 0; never merge those commits.
-
-## 2026-07-26 — Harness 1.3.3 retry contract alignment completed
-- Status: Done locally; explicit `CONTRACT_RETRIES` is authoritative across external/built-in compilation and provenance. Upstream commit `0d2750e`, tag/cache `overnight-harness--v1.3.3`; no push or model call.
-- Changed: one `contract_retry_budget` seam replaces unconditional `MAX_CONSEC_FAIL` injection; provenance records effective retries, per-invocation Claude cap scope, and no enforced mission-wide cost budget.
-- Verified: same MythOS measurement `requested=0 compiled=1` → `0`; two full-runner fixtures cover external+built-in compilers; Harness 128/128, shell/JSON/npm package gates, byte-identical tag cache, MythOS five-path `overnight-graph-smoke`, and direct pinned compiler probe pass.
-- Blockers: retry drift is closed. Contract `turns=12` remains unenforced (observed 54/31); owner turn semantics + held-out-bank ratification still block another real cohort and unattended expansion.
-- Next: owner decision only; remote 1.3.3 publication remains separately approval-gated.
-
-## 2026-07-26 — Dev Graph empirical baseline completed; expansion held
-- Status: empirical report complete. Harness 1.3.2 deterministic graph/pause/fault matrix passed 110/110; real missions ended one correctly compensated and one independently audited accepted, with zero false accepts/scope escapes/dirty leftovers/persistent claims.
-- Changed: added repeatable graph measurement + preregistration/report, hard Claude `$2.50` invocation cap, `/goal` 4,000-char preflight and false-success classifier guard, consumer gate documentation, and immutable retry evidence/Git bundle. Upstream local releases: 1.3.1 `3894dba`, 1.3.2 `31fe42b`; no push.
-- Verified: Harness 126/126 + shell/JSON/npm package gates; current-release matrix 110/110 in 181.102s with 15/15 log hashes and unchanged MythOS worktree; retry ledger 15 events, balanced trajectory, scope 3/3, independent `make check` 1171 (5 skipped).
-- Economics: first/retry actor = 400.529s/$2.0424/54 turns vs 223.234s/$1.1495/31 turns; descriptive only (n=1 per condition). Retry hard wall/USD, repair/revision/subagent, and single-invocation controls held.
-- Blockers: contract turns were exceeded 54/12 and 31/12; requested retries 0 compiled as 1 though no retry ran. Overall HOLD for multi-iteration/repair/fan-out/general productivity; one-shot bounded dogfood only.
-- Evidence: `docs/reports/2026-07-26-dev-graph-empirical-baseline.md` and `outputs/overnight/dev-graph-empirical-baseline/`.
-- Next: offline-only contract retry-source alignment; owner chooses turn semantics and ratifies held-out bank before any new real-engine cohort.
-
-## 2026-07-26 — Dev Graph P2 first real mission compensated and audited
-- Status: P2 done as a valid non-fixture rejected trajectory; no actor change was accepted. Claude mission `mission-20260726-181623-39074` committed `1ae0d01`, the independent gate failed, and Harness restored the base with `80f44f0`.
-- Changed: added immutable owner-approved MissionSpec compilation through the existing WorkContract evidence config, `15-regression-validity`, three focused tests, fixture subprocess lane isolation, and goal-turn inheritance in the compiler.
-- Verified: baseline and reverted-base `make check` = 1171 tests (5 skipped); ledger 11 events valid; state terminal `rejected_by_gate`; trajectory reverted/balanced; actor scope exactly three docs; independent regression base 1/candidate 0; artifact manifest hashes all pass.
-- Finding: runner ambient `OVERNIGHT_LANE=claude` overrode test `CONTRACT_ENGINE=codex`, so three adapter fixtures failed and critic/repo verifiers were skipped after gate RED. Fixtures now clear the inherited lane before testing the fallback; 10/10 pass from the same ambient parent.
-- Budget: repair/revisions 0, subagents 0, wall 6m40s, cost $2.0424; Claude reported 54 turns despite contract 12 because the local CLI has no hard turn option and `/goal` is soft.
-- Evidence: `outputs/overnight/p2-first-mission-mission-20260726-181623-39074/` contains ledger, logs, regression report, provenance, SHA256SUMS, and a Git bundle.
-- Next: P3 uses only fake/disposable engines. Any second real-engine mission needs fresh owner approval plus a hard-budget-semantics decision.

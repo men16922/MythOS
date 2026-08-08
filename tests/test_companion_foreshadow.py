@@ -36,7 +36,7 @@ from mythos_runtime.session_memory import (
 
 
 class _NoopDirector:
-    def summarize_loop(self, events, *, use_llm=True):
+    def summarize_loop(self, events, *, use_llm=True, language="ko"):
         return "기록."
 
 

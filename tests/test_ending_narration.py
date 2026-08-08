@@ -8,11 +8,13 @@ the end panel renders that instead of the number. These lock that contract.
 """
 
 import unittest
+from dataclasses import replace
 from datetime import UTC, datetime
 
 from mythos_core import LoopPhase, LoopState
+from mythos_narrative.director import _fallback_loop_summary
 from mythos_runtime.scenario import load_scenario
-from mythos_runtime.session import RuntimeSessionService
+from mythos_runtime.session import RuntimeSessionService, _loop_language
 
 
 def _loop(stability: int = 50, tension: int = 50) -> LoopState:
@@ -66,6 +68,42 @@ class EndingNarrationTest(unittest.TestCase):
     def test_unknown_ending_id_falls_back_to_threshold(self) -> None:
         text = self.svc._ending_narration_text("neo-seoul", "ending_does_not_exist", _loop(tension=99))
         self.assertIn("추적", text)
+
+
+class LoopSummaryLanguageTest(unittest.TestCase):
+    """The archived run's ``summary_text`` sat outside the localization contract:
+    the deterministic path was Korean-only and the LLM prompt hard-coded "Write the
+    summary in Korean", so an EN loop archived a Korean summary that also exposed a
+    raw state token (live 2026-08-08: "루프는 'combat_finished'의 잔향을…" on an EN
+    Forced Erasure, while ``ending_narration`` was correct English). The fast path
+    is what a combat defeat takes, so it is the one players actually hit."""
+
+    def test_en_summary_has_no_hangul(self) -> None:
+        import re
+
+        text = _fallback_loop_summary([{"action": "Slip into the drainage pipe"}], "en")
+        self.assertIsNone(re.search(r"[가-힣]", text), text)
+
+    def test_internal_state_token_never_reaches_summary(self) -> None:
+        for language in ("en", "ko"):
+            text = _fallback_loop_summary([{"action": "combat_finished"}], language)
+            self.assertNotIn("combat_finished", text)
+            self.assertNotIn("_", text)
+
+    def test_prose_action_is_still_quoted(self) -> None:
+        action = "Have Han trigger his EMP blaster"
+        self.assertIn(action, _fallback_loop_summary([{"action": action}], "en"))
+
+    def test_ko_remains_the_default(self) -> None:
+        text = _fallback_loop_summary([{"action": "배수로로 숨는다"}])
+        self.assertIn("루프는", text)
+
+    def test_loop_language_reads_persisted_state(self) -> None:
+        self.assertEqual(_loop_language(_loop()), "ko")
+        en_loop = replace(_loop(), state={"language": "en"})
+        self.assertEqual(_loop_language(en_loop), "en")
+        # An unknown/legacy value must not become a third language.
+        self.assertEqual(_loop_language(replace(_loop(), state={"language": "fr"})), "ko")
 
 
 if __name__ == "__main__":

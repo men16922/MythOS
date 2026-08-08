@@ -1514,7 +1514,11 @@ class RuntimeSessionService:
         has_run_summary = _has_run_summary(world_memories, loop_id=loop.loop_id)
         events = [*self.store.list_events(loop.loop_id), event]
         event_dicts = [to_json_dict(e) for e in events]
-        summary_text = self.director.summarize_loop(event_dicts)
+        # `archive()` has no RuntimeOptions — the loop's own persisted language is
+        # the only source, and an EN loop must not archive a Korean summary.
+        summary_text = self.director.summarize_loop(
+            event_dicts, language=_loop_language(loop)
+        )
         narrative_shards = self.store.list_narrative_shards(loop.player_id, limit=1000)
         run_summary_memory = _run_summary_memory_from_archive(
             ended_loop,
@@ -1924,7 +1928,9 @@ class RuntimeSessionService:
                 # Combat defeat ends the loop mid-combat; never block the action
                 # response on a slow LLM summary in fallback/fast mode.
                 summary_text = self.director.summarize_loop(
-                    event_dicts, use_llm=not (options.fallback or options.fast_mode)
+                    event_dicts,
+                    use_llm=not (options.fallback or options.fast_mode),
+                    language=options.language,
                 )
                 run_summary_memory = _run_summary_memory_from_archive(
                     loop,
@@ -3192,14 +3198,29 @@ class RuntimeSessionService:
         candidate_risk = int(encounters[candidate].get("risk", 1))
         if candidate_risk <= allowed_risk:
             return candidate
-        # Downgrade to the highest-weight encounter within the allowed risk.
+        # Downgrade into the allowed risk tier. Taking the highest-weight entry made
+        # this a constant: the cap is keyed to combats *won*, so a player who keeps
+        # fleeing stays at tier 1, where `patrol_ambush` is the only authored
+        # encounter — the same fight, same enemies, same intro copy, three times in
+        # one arm (live 2026-08-01, recurring 2026-08-08). Draw by weight instead,
+        # and never re-serve the encounter just fought: ambient combat is pacing, so
+        # skipping a beat reads better than a repeat. Deliberate route combat
+        # bypasses this gate entirely, so the player can still pick a fight.
+        last_encounter = str(loop.state.get("_last_combat_encounter") or "")
         affordable = [
-            (eid, enc) for eid, enc in encounters.items() if int(enc.get("risk", 1)) <= allowed_risk
+            (eid, enc)
+            for eid, enc in encounters.items()
+            if int(enc.get("risk", 1)) <= allowed_risk and eid != last_encounter
         ]
         if not affordable:
             return None
-        affordable.sort(key=lambda item: float(item[1].get("weight", 1)), reverse=True)
-        return str(affordable[0][0])
+        dice = Dice(f"{loop.seed}:combat-downgrade:{turn_index}")
+        return str(
+            dice.weighted_choice(
+                [eid for eid, _ in affordable],
+                [float(enc.get("weight", 1)) for _, enc in affordable],
+            )
+        )
 
     def _persist_narrative_metric(
         self, player_id: str, loop_id: str, metric_total_before: int
@@ -3544,6 +3565,14 @@ def _is_recovery_scene_after_soft_defeat(previous_loop: LoopState, scene: Scene)
         and previous_loop.state.get("_soft_defeat_pending")
         and scene.scene_type != "combat"
     )
+
+
+def _loop_language(loop: LoopState) -> str:
+    """The loop's persisted narrative language, for paths that have no
+    ``RuntimeOptions`` (archive). Legacy loops predate the field and stay ``ko``."""
+    state = loop.state if isinstance(loop.state, dict) else {}
+    language = str(state.get("language") or "").strip().lower()
+    return language if language in {"ko", "en"} else "ko"
 
 
 def _clear_soft_defeat_pending(state: dict[str, Any]) -> dict[str, Any]:

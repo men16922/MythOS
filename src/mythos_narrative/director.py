@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Iterator
 from dataclasses import dataclass, field, replace
 from time import perf_counter
@@ -352,7 +353,13 @@ class NarrativeDirector:
         payload = _apply_novelty_guard(context, payload)
         return _scene_from_payload(context, payload), payload
 
-    def summarize_loop(self, events: list[dict[str, Any]], *, use_llm: bool = True) -> str:
+    def summarize_loop(
+        self,
+        events: list[dict[str, Any]],
+        *,
+        use_llm: bool = True,
+        language: str = "ko",
+    ) -> str:
         """Generates a poetic 2-3 sentence summary of the entire loop events.
 
         ``use_llm=False`` (fallback/fast paths) returns a deterministic summary
@@ -362,12 +369,13 @@ class NarrativeDirector:
         a merely-slow response).
         """
         if not use_llm:
-            return _fallback_loop_summary(events)
+            return _fallback_loop_summary(events, language)
+        target = "English" if language == "en" else "Korean"
         prompt = (
             "Summarize the following sequence of events in a loop-based narrative. "
             "Focus on the player's key choices and the significant changes to the world. "
-            "Write the summary in Korean, in a poetic but clear style fitting a cyber-mythic game. "
-            "Keep it to 2-3 sentences.\n\nEvents:\n"
+            f"Write the summary in {target}, in a poetic but clear style fitting a "
+            "cyber-mythic game. Keep it to 2-3 sentences.\n\nEvents:\n"
         )
         for event in events:
             actor = event.get("actor", "UNKNOWN")
@@ -393,7 +401,7 @@ class NarrativeDirector:
             return response.strip()
         except Exception:
             self.logger.debug("loop summary provider failed", exc_info=True)
-            return _fallback_loop_summary(events)
+            return _fallback_loop_summary(events, language)
 
     def summarize_narrative_shards(
         self,
@@ -905,11 +913,37 @@ def _route_novelty_target(context: NarrativeContext) -> tuple[str | None, bool]:
     return (label or None), bool(node.get("anchor"))
 
 
-def _fallback_loop_summary(events: list[dict[str, Any]]) -> str:
+_INTERNAL_TOKEN = re.compile(r"^[a-z0-9]+(?:_[a-z0-9]+)+$")
+
+
+def _summary_action_phrase(events: list[dict[str, Any]]) -> str | None:
+    """The last action, only when it reads as prose. System-generated events carry a
+    raw state token (``combat_finished``) that must not surface in player-facing
+    summary text (live 2026-08-08: "루프는 'combat_finished'의 잔향을…")."""
     if not events:
+        return None
+    action = str(events[-1].get("action") or "").strip()
+    if not action or _INTERNAL_TOKEN.match(action):
+        return None
+    return action
+
+
+def _fallback_loop_summary(events: list[dict[str, Any]], language: str = "ko") -> str:
+    """Deterministic loop summary. Used on the fast/fallback paths (notably combat
+    defeat), so it must honour the loop's language like the LLM path does."""
+    action = _summary_action_phrase(events)
+    if language == "en":
+        if action is None:
+            return (
+                "The loop closed quietly. What remains is a signal that has not "
+                "yet earned a name."
+            )
+        return (
+            f"The loop folded, leaving the afterglow of '{action}'. "
+            "The world files that choice away as a low signal."
+        )
+    if action is None:
         return "루프는 조용히 닫혔다. 남은 것은 아직 이름을 얻지 못한 신호뿐이다."
-    last = events[-1]
-    action = str(last.get("action") or "마지막 선택")
     return f"루프는 '{action}'의 잔향을 남기고 접혔다. 세계는 그 선택을 낮은 신호로 보관한다."
 
 

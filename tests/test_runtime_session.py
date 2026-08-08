@@ -526,7 +526,7 @@ class MemoryOverviewTest(unittest.TestCase):
 
 
 class _SummaryDirector:
-    def summarize_loop(self, events):
+    def summarize_loop(self, events, *, use_llm=True, language="ko"):
         return f"요약된 접속 기록 {len(events)}건."
 
     def summarize_narrative_shards(self, shards, *, existing_summary=None, use_llm=True):

@@ -27,7 +27,7 @@ NOW = datetime(2026, 7, 5, tzinfo=UTC)
 
 
 class _NoopDirector:
-    def summarize_loop(self, events, *, use_llm=True):
+    def summarize_loop(self, events, *, use_llm=True, language="ko"):
         return "기록."
 
 

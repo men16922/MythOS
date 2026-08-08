@@ -118,7 +118,7 @@ class _SummaryDirector:
     def __init__(self):
         self.summary_calls = []
 
-    def summarize_loop(self, events, *, use_llm=True):
+    def summarize_loop(self, events, *, use_llm=True, language="ko"):
         self.summary_calls.append(use_llm)
         return "전투 종료 기록."
 
@@ -1342,6 +1342,36 @@ class SessionCombatTest(unittest.TestCase):
         loop = self._gate_loop(_combat_count=0)
         gated = self.service._gate_next_combat(loop, 4, "enforcer_standoff", self.options)
         self.assertEqual(gated, "patrol_ambush")
+
+    def test_gate_never_reserves_the_encounter_just_fought(self) -> None:
+        # The cap is keyed to combats *won*, so a player who keeps fleeing stays at
+        # tier 1 where only one encounter is authored — the downgrade used to return
+        # it every time, serving the same fight, enemies and intro copy three times
+        # in one arm (live 2026-08-01, recurring 2026-08-08). Ambient combat is
+        # pacing: skip the beat rather than repeat it.
+        loop = self._gate_loop(_combat_count=0, _last_combat_encounter="patrol_ambush")
+        self.assertIsNone(
+            self.service._gate_next_combat(loop, 4, "enforcer_standoff", self.options)
+        )
+
+    def test_gate_downgrade_varies_within_the_allowed_tier(self) -> None:
+        # With more than one affordable encounter the downgrade draws by weight
+        # instead of always taking the highest-weight entry, so repeated downgrades
+        # across a loop do not collapse onto a single fight.
+        seen = {
+            self.service._gate_next_combat(
+                self._gate_loop(_combat_count=1), turn, "enforcer_standoff", self.options
+            )
+            for turn in range(20)
+        }
+        self.assertNotIn(None, seen)
+        self.assertGreater(len(seen), 1, seen)
+
+    def test_gate_downgrade_is_deterministic_for_a_turn(self) -> None:
+        loop = self._gate_loop(_combat_count=1)
+        first = self.service._gate_next_combat(loop, 7, "enforcer_standoff", self.options)
+        again = self.service._gate_next_combat(loop, 7, "enforcer_standoff", self.options)
+        self.assertEqual(first, again)
 
     def test_gate_allows_hard_combat_after_enough_wins(self) -> None:
         loop = self._gate_loop(_combat_count=3)

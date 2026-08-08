@@ -87,6 +87,34 @@ class SceneCharacterDialogueGateTest(unittest.TestCase):
         segment_fn = self.source.split("export function segmentParagraph", 1)[1]
         self.assertIn("narration += paragraph.slice(i, end + 1)", segment_fn)
 
+    def test_possessive_guard_still_rejects_a_modifier(self) -> None:
+        # The owner's original case (2026-07-11) must stay dead: "린위에의 부하" /
+        # "Lin-yue's henchman" is a different person, so a possessive followed by
+        # anything that is not the speaker's own speech disqualifies the name.
+        self.assertIn("possessiveShadows", self.source)
+        matcher = self.source.split("export function keywordMatches", 1)[1]
+        self.assertIn("possessiveShadows(", matcher)
+
+    def test_possessive_speech_noun_is_the_speaker(self) -> None:
+        # ...but "the Administrator's voice echoes" / "세린의 목소리가 갈라진다" IS
+        # that character speaking — it is the ordinary English attribution form.
+        # Rejecting it matched nobody, so the paragraph fell through to whatever
+        # other character it named and an Administrator IX line rendered on Han's
+        # portrait (live EN evidence 2026-08-08, loop_426b710d…, turn 50).
+        self.assertIn("POSSESSIVE_SPEECH", self.source)
+        self.assertIn("SPEECH_NOUNS_EN", self.source)
+        self.assertIn("SPEECH_NOUNS_KO", self.source)
+        for noun in ("voice", "목소리"):
+            self.assertIn(noun, self.source)
+
+    def test_name_boundary_stays_zero_width_on_the_right(self) -> None:
+        # The possessive decision reads the text *after* the name, so the trailing
+        # boundary must not consume a character. The old form
+        # `([^a-z0-9_-]|$)` swallowed the apostrophe and made the check impossible.
+        matcher = self.source.split("export function keywordMatches", 1)[1]
+        self.assertIn("(?![a-z0-9_-])", matcher)
+        self.assertNotIn("([^a-z0-9_-]|$)", matcher)
+
 
 if __name__ == "__main__":
     unittest.main()

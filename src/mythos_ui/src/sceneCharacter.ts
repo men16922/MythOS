@@ -5,23 +5,52 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+// Nouns that name a person's OWN speech. A possessive in front of one of these
+// is the speaker, not a modifier pointing at somebody else.
+const SPEECH_NOUNS_EN =
+  "voice|voices|tone|tones|word|words|reply|replies|answer|answers|question|" +
+  "questions|whisper|whispers|murmur|murmurs|growl|growls|laugh|laughter|hiss|" +
+  "retort|response|shout|call|breath";
+const SPEECH_NOUNS_KO = "목소리|음성|말|말투|대답|속삭임|웃음|외침|한숨";
+const POSSESSIVE_SPEECH = new RegExp(
+  `^(?:['’]s\\s+(?:${SPEECH_NOUNS_EN})\\b|의\\s*(?:${SPEECH_NOUNS_KO}))`,
+  "i"
+);
+
+/** Does a possessive right after the name point at a *different* entity?
+ *
+ * Owner rule 2026-07-11 ("린위에의 부하가 말하는데 린위에로 표기"): a name in the
+ * possessive is normally a modifier — "린위에의 부하" / "Lin-yue's henchman" is
+ * somebody else, so it must not count as the speaker. But that guard was written
+ * against Korean `의 + 사람` and over-generalised: both languages put the
+ * *speaker* in the possessive when the following noun is that person's own
+ * speech ("the Administrator's voice echoes", "세린의 목소리가 갈라진다"), which
+ * is the ordinary English attribution form. Rejecting those matched nobody, so
+ * the paragraph fell through to whatever other character it named — live EN
+ * evidence 2026-08-08: an Administrator IX line rendered on Han's portrait.
+ */
+function possessiveShadows(rest: string): boolean {
+  if (!/^(?:의|['’]s)/.test(rest)) return false;
+  return !POSSESSIVE_SPEECH.test(rest);
+}
+
 export function keywordMatches(haystack: string, rawKeyword: string): boolean {
   const keyword = rawKeyword.trim().toLowerCase();
   if (!keyword) return false;
   // Avoid false positives like the character "한" matching ordinary Korean text
   // ("한 명", "한 번", etc.). Short Korean names need another alias/keyword.
   if (keyword.length === 1 && /[가-힣]/.test(keyword)) return false;
-  // Possessive guard (owner 2026-07-11: "린위에의 부하가 말하는데 린위에로 표기"):
-  // a name in the possessive — Korean particle 의 or English 's — is a modifier,
-  // not the speaker ("린위에의 부하"/"Lin-yue's henchman" ≠ Lin-yue), so the name
-  // must NOT be immediately followed by 의 / 's to count as the speaker.
-  const notPossessive = "(?!의|['’]s)";
-  if (/^[a-z0-9_-]+$/i.test(keyword)) {
-    return new RegExp(
-      `(^|[^a-z0-9_-])${escapeRegExp(keyword)}${notPossessive}([^a-z0-9_-]|$)`
-    ).test(haystack);
+  // Word boundaries stay zero-width on the right so the text after the name can
+  // be inspected for a possessive (see possessiveShadows). One shadowed mention
+  // does not disqualify the name — a later plain mention still counts.
+  const pattern = /^[a-z0-9_-]+$/i.test(keyword)
+    ? `(?:^|[^a-z0-9_-])${escapeRegExp(keyword)}(?![a-z0-9_-])`
+    : escapeRegExp(keyword);
+  const scan = new RegExp(pattern, "g");
+  for (let hit = scan.exec(haystack); hit; hit = scan.exec(haystack)) {
+    if (!possessiveShadows(haystack.slice(hit.index + hit[0].length))) return true;
   }
-  return new RegExp(`${escapeRegExp(keyword)}${notPossessive}`).test(haystack);
+  return false;
 }
 
 // Quote pairs the narration uses for spoken lines. Korean prose also uses

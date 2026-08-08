@@ -1,0 +1,34 @@
+# Progress Log — 2026-08 (archive)
+
+Archived increments from `docs/PROGRESS_LOG.md`. Newest on top; the current log keeps
+only the most recent entries. Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
+
+## 2026-08-02 — Fresh §3 arm IN PROGRESS on `00083-jt7` (`loop_426b710d8ec441298f88f4a5d725e5cd`)
+- Status: IN PROGRESS — direct browser play, EN Ghost people/help, same player `player_1d34fcf029cd64`; ~13 narrative scenes committed (welfare-block → market alleys → Witness in the Alley chance event → vent shaft), no client-visible fallback so far. Play continues; final 47/47 Cloud Logging audit (`jsonPayload.loop_id` + `narrative outcome`, count `fallback_reason`) and banking happen only after Forced Erasure completes.
+- Verified live: the boon-modal fix's happy path — AMP shard pick → INSCRIBE pick → overlay closed cleanly at the exact point where 08-01 wedged; opening variant ("Reconnection — The Closing Shutter") and twist ("Signal Jam") differ from prior loops.
+- New watch (severe): two streamed turns ran ~35 min and ~20+ min at ~2 chars/min before completing — a runaway-trickle mode the parse-fail retry cannot touch because the stream never ends; a stream-side stall watchdog (abort+non-streaming retry if <N chars per 60s) is the follow-up candidate.
+- Watch reconfirmed: novelty-reviser `New Vector at …` template titled scenes 5/6/7 consecutively (incl. nested `Alternate access beyond …`); `획득` KO token still in EN LAST RESULT chips.
+- Next: finish the arm to the authored ending, audit 47/47, bank via `scripts/eval/bank_loop.py --language en` if clean, then owner subjective verdict. The excluded 08-01 loop stays live for owner disposal.
+
+## 2026-08-02 — Boon/echo modal 409 wedge fixed and deployed (`mythos-api-00083-jt7`)
+- Status: the AMP-shard/echo-inscription overlay no longer wedges on stale offers; deployed at 100% traffic (root+health 200, live/local `app.js` SHA-256 match). Commit `015b620`; push owner-run.
+- Changed: the pick handler treats a 409 `… not in the current offer` conflict as consumption — the pick (or a prior one) already landed server-side and the visible offer is stale — and drops the stale offer locally so the overlay closes; other errors still propagate. Accepted picks keep the existing snapshot-apply close path.
+- Verified: rendered local reproduction — consumed the offer server-side behind the UI's back, clicked the stale card, observed 409 → modal closed (previously wedged until reload+Resume). `make frontend-lint`/`frontend-build` green; final `make check` 1193 tests (5 skipped).
+- Next: rerun one fresh 47/47 zero-fallback arm on `00083-jt7`, then collect the owner's subjective ending/overall verdict.
+
+## 2026-08-02 — Normal-turn retry gap fixed and deployed (`mythos-api-00082-ffc`)
+- Status: the streamed parse-fail non-streaming retry now runs on player-facing turns; deployed at 100% traffic as `00082-ffc` (env-preserving; MODEL/IMAGEN pins and 3600s timeout confirmed intact; root+health 200). Commits `fc1a1a6` (fix) + docs; push owner-run.
+- Diagnosed (protocol): reproduced locally with an unparseable-stream/valid-generate fake provider. `RuntimeOptions.fast_mode` defaults True on every API flow → `context.fast_mode=True` → `_repair_enabled` returned False → the b55e933 retry never fired in production. This also explains the 07-19 "unparseable warning 0 in 5 days" reading — the warning was on a disabled path, not evidence of zero runaways.
+- Measured before→after (same fixture, fast_mode=True): retries 0→1, outcome fallback→success, canned title→real scene. Explicit `repair_enabled=False` still skips the retry.
+- Changed: `_stream_generate_legacy` now consults a dedicated `_stream_retry_enabled()` gate that ignores fast_mode; `_repair_enabled` (non-streamed legacy repair) is untouched. Regression locked in `StreamedParseFailRetryTest` (2 tests).
+- Verified: focused director tests 17/17; final `make check` 1193 tests (5 skipped) green.
+- Next: AMP-shard modal non-dismiss fix remains open; then rerun one fresh 47/47 zero-fallback arm on `00082-ffc` and collect the owner verdict.
+
+## 2026-08-01 — Fresh §3 arm attempt excluded at 13/14; typed fallback evidence validated in production
+- Status: direct browser play of a fresh EN Ghost people/help arm on `mythos-api-00081-8lc` (`loop_8b7a32b28b5145b497be2c3a70b60dc2`) stopped at story scene ~13. Cloud Logging shows 13/14 narrative success + 1 fallback → the arm cannot be a 47/47 promotion sample and was not banked. Also committed the deployed 07-31 source/docs bundle as `272f89b` (main ahead; push owner-run).
+- Typed evidence first real capture: the fallback logged `fallback_reason=parse_error` on the `narrative outcome` event (11:55:43Z, non-key-beat post-flee continuation turn, latency 11.6s, `VertexGeminiJSONProvider`).
+- Retry gap (needs diagnose before the next paid arm): the parse_error turn served the canned fallback without the `streamed payload unparseable, retrying non-streaming` warning, although the revision does not set `MYTHOS_FAST_MODE`. Suspect request-level `options.fast_mode` on the post-combat continuation path or a `_repair_enabled` gating gap; at ~1/14 per-turn fallback odds a 47-turn zero-fallback arm is unlikely until the retry actually fires on normal turns.
+- Remediation field readout (positive): after both defeats, no ambient combat re-entered within 3 narrative commits even at tension 90–100; early-loop locations varied (neon alley → subway ruins → patrol bypass → data incinerator); no cosmetic `Changed …` titles appeared.
+- Remediation field readout (watch): the NoveltyController deterministic revision emitted its own repeated template — `New Vector at …` titled 4 scenes (7/8/9/11) — so the revision surface is now the repetition. The ambient/route combat served the identical `Patrol Ambush` encounter (same 2 maintenance drones, same board, same interstitial and verbatim defeat copy) 3 times; Flee at 3HP resolved as Defeat/CAPTURED.
+- UI defects reproduced: AMP SHARD/INSCRIBE modal does not dismiss after a server-accepted pick (re-click → 409 `not in the current offer`; once as a mid-combat overlay; reload+Resume recovers). KO strings still appear in the EN UI (Patrol Bypass route-node description, `획득` LAST RESULT token, KO text baked into a scene image).
+- Next: diagnose/fix the normal-turn non-streaming retry gap, then rerun one fresh arm; the excluded loop stays live server-side for owner disposal.

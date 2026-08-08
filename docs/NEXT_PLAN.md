@@ -1,6 +1,6 @@
 # Project MythOS Next Plan
 
-Last updated: 2026-07-31
+Last updated: 2026-08-08
 
 This file keeps only upcoming (open) work as a rolling plan. Completed tracks live in
 `docs/COMPLETED_SUMMARY.md`, detailed logs in `bin/docs/archive/progress-2026-0*.md`, individual designs in
@@ -14,10 +14,10 @@ Authority: `docs/reports/2026-07-28-heldout-v1-clean-repair0-baseline.md`. Owner
 
 ## Priority 0 — §3 HOLD follow-through before another promotion sample
 
-Authority QA: `docs/test/neo_seoul_live_qa.md`; scope: `docs/reports/2026-07-31-late-loop-repetition-scope.md`. **Latest deploy = `mythos-api-00083-jt7` (2026-08-02; 100% traffic; normal-turn retry + modal fix live); local `main` ahead, push owner-run.** Typed fallback evidence, combat pacing, structural novelty enforcement, and Gemini 3.1 image migration are live. The 2026-08-01 fresh-arm attempt (`loop_8b7a…60dc2`) was excluded at 13/14 (`parse_error`); it and the partial QA loop are evidence only.
+Authority QA: `docs/test/neo_seoul_live_qa.md`; scope: `docs/reports/2026-07-31-late-loop-repetition-scope.md`. **Latest deploy = `mythos-api-00084-nt2` (2026-08-08; 100% traffic; renderer fix live); local `main` ahead, push owner-run — seven fix bundles are committed but undeployed.** Typed fallback evidence, combat pacing, structural novelty enforcement, and Gemini 3.1 image migration are live. The 2026-08-01 fresh-arm attempt (`loop_8b7a…60dc2`) was excluded at 13/14 (`parse_error`); it and the partial QA loop are evidence only.
 
-- `[x]` **Normal-turn retry gap diagnose/fix** — root cause `RuntimeOptions.fast_mode=True` API default vetoing `_repair_enabled`; streamed retry now has its own fast_mode-independent gate, locked by `StreamedParseFailRetryTest`, deployed on `00082-ffc` (PROGRESS_LOG 2026-08-02).
-- `[x]` **AMP-shard modal non-dismiss fix** — 409-already-consumed now clears the stale offer and closes the overlay; verified on a rendered local reproduction and deployed on `00083-jt7` (PROGRESS_LOG 2026-08-02).
+- `[x]` **Normal-turn retry gap diagnose/fix** — root cause `RuntimeOptions.fast_mode=True` API default vetoing `_repair_enabled`; streamed retry now has its own fast_mode-independent gate, locked by `StreamedParseFailRetryTest`, deployed on `00082-ffc` (archive `progress-2026-08.md`, 2026-08-02).
+- `[x]` **AMP-shard modal non-dismiss fix** — 409-already-consumed now clears the stale offer and closes the overlay; verified on a rendered local reproduction and deployed on `00083-jt7` (archive `progress-2026-08.md`, 2026-08-02).
 - `[x]` **EN dialogue apostrophe split fix + deploy** — renderer treated the ASCII apostrophe as a quote delimiter and desynchronized quote pairing; fixed, locked, `make check` 1195, deployed as `mythos-api-00084-nt2` and confirmed in production (PROGRESS_LOG 2026-08-08).
 - `[x]` **Fresh zero-fallback arm completed and banked** — `loop_426b710d…` reached `ending_erasure` after 59 scenes with **47/47 non-fallback**; banked as `scripts/eval/golden/prod-people-help-20260808.json`.
 - `[ ]` `[manual]` **Owner subjective ending/overall verdict** on the banked arm, plus a ruling on whether the 22+25 two-revision generation split disqualifies it as the §3 promotion sample.
@@ -27,7 +27,7 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`; scope: `docs/reports/2026-07-31-
 - `[x]` `[auto]` **Repeated `Patrol Ambush` encounter** — closed: the downgrade took the highest-weight affordable encounter, and the risk cap is keyed to combats *won*, so a player who never wins is locked to the single tier-1 encounter. It now excludes the just-fought encounter and draws by weight, skipping the beat when nothing else is affordable (PROGRESS_LOG 2026-08-08).
 - `[x]` `[auto]` **Clue counter + combat scene location** — closed: `_clues_collected` dropped the store's `limit` (default 8) and ignored shard kind, pinning the CLUE MATRIX gauge at 8/16 and desyncing the displayed Insight from the ending resolver's score; and combat scenes served the raw encounter id as `location`. The archived `clues_collected: []` was correct all along. `make check` 1218 (PROGRESS_LOG 2026-08-08, `b3143d8`).
 - `[ ]` `[manual]` **Residual objective/axis display gaps** — both choices on one axis (2 turns), an evasion action labelled `Help people`, `CURRENT OBJECTIVE` missing on 3 scenes, one IX boss line on Han's portrait. Value-axis authoring and prose attribution, not deterministic display; needs the owner's read alongside the §3 verdict.
-- `[ ]` **Flee odds are invisible** — not a bug: flee is `d20 + agility ≥ 12 + 2×adjacent`, and a failed roll costs the turn, which is fatal at low HP (live 2026-08-01 read it as "flee always loses"). Attack targets show hit chance and damage; the flee button shows nothing (`CombatControls.tsx`). Surfacing the same odds closes the legibility gap. UI change on an owner-QA-passed surface, so it needs `/gameplay-qa`'s rendered layer — not `[auto]`.
+- `[x]` **Flee odds are invisible** — closed: `_flee_preview` mirrors the resolver (0/45 mismatches across agility 0-8 × adjacent 0-4) and the button shows the %. Rendered on the non-fallback simulator: `85%` → `75%` as a drone closes. `make check` 1222 (PROGRESS_LOG 2026-08-08, `4ca1d80`). `[ ]` `[manual]` residual: whether the chip is legible mid-fight at 390px is a feel verdict.
 - `[ ]` `[auto:codex]` **Author low-risk encounters** — tier 1 has exactly one encounter (`patrol_ambush`), so the early game has no variety for the gate to draw on. Completion criterion: at least two more `risk: 1` encounters with distinct enemies and intro copy, `make check` green.
 - `[ ]` `[manual]` **Upstream repetition** — with the reviser corrected, the residual 59% is the model genuinely reusing locations/motifs (title repeats 32%, location streak 33% measured independently). This is narrative prompt/context work and must wait for the owner's §3 verdict, since it changes generation.
 - `[~]` **Stream-stall watchdog — DO NOT BUILD** — the runaway trickle was Chrome hidden-tab timer throttling of the client reveal (5–31 chars/min hidden vs 2,147 visible; server 7–26s). Withdrawn as a candidate; automated play must foreground the tab or reload to resync.

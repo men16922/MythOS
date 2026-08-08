@@ -359,6 +359,53 @@ class ContentEncounterIntegrityTest(unittest.TestCase):
                     f"{missing_files}",
                 )
 
+    def test_tutorial_tier_offers_more_than_one_authored_encounter(self) -> None:
+        """Risk-1 must field several genuinely different fights.
+
+        The early-combat risk cap is keyed to combats *won*, so a player who flees
+        or loses stays on tier 1 for the whole loop. When tier 1 held a single
+        authored encounter the pacing gate had nothing to draw on and served the
+        same enemies and the same intro copy repeatedly (live 2026-08-01, again in
+        the 2026-08-08 arm). Distinct compositions and distinct copy are what make
+        the gate's variety real rather than nominal.
+        """
+        tier_one = {
+            eid: enc
+            for eid, enc in self.encounters.items()
+            if int(enc.get("risk", 1)) <= 1
+        }
+        self.assertGreaterEqual(
+            len(tier_one),
+            3,
+            f"tutorial tier must author at least 3 encounters, has {sorted(tier_one)}",
+        )
+
+        compositions: dict[tuple[tuple[str, int], ...], list[str]] = {}
+        intros: dict[str, list[str]] = {}
+        for encounter_id, encounter in tier_one.items():
+            composition = tuple(
+                sorted(
+                    (str(enemy.get("bestiary", "")), int(enemy.get("count", 1)))
+                    for enemy in encounter.get("enemies", [])
+                )
+            )
+            compositions.setdefault(composition, []).append(encounter_id)
+            intro = str(encounter.get("intro", "")).strip()
+            self.assertTrue(intro, f"tier-1 encounter {encounter_id!r} has no intro copy")
+            intros.setdefault(intro, []).append(encounter_id)
+
+        self.assertEqual(
+            [ids for ids in compositions.values() if len(ids) > 1],
+            [],
+            "tier-1 encounters share an enemy composition (the player fights the "
+            f"same thing under two names): {compositions}",
+        )
+        self.assertEqual(
+            [ids for ids in intros.values() if len(ids) > 1],
+            [],
+            f"tier-1 encounters share intro copy: {intros}",
+        )
+
 
 class WeaponEquipmentIntegrityTest(unittest.TestCase):
     """Weapon/equipment reference integrity for the neo-seoul combat pools.

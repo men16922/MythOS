@@ -5,6 +5,7 @@ from contextlib import contextmanager
 from dataclasses import replace
 from datetime import UTC, datetime
 from typing import Any, cast
+from unittest import mock
 
 from mythos_combat import CombatEngine, PlayerAction
 from mythos_combat.models import distance
@@ -15,6 +16,7 @@ from mythos_runtime.combat_service import CombatService, CombatTurnResult
 from mythos_runtime.encounter_map import ENCOUNTER_MAP_KEY
 from mythos_runtime.options import RuntimeOptions
 from mythos_runtime.progression import load_progression
+from mythos_runtime.scenario import load_scenario
 from mythos_runtime.session import RuntimeSessionService, _recent_novelty_scenes
 
 
@@ -1336,23 +1338,69 @@ class SessionCombatTest(unittest.TestCase):
         assert loop is not None
         return replace(loop, state=state)
 
+    def _tier_one_encounters(self) -> dict[str, Any]:
+        encounters = load_scenario(self.options.scenario_id).combat.get("encounters", {})
+        return {
+            eid: enc for eid, enc in encounters.items() if int(enc.get("risk", 1)) <= 1
+        }
+
     def test_gate_caps_early_combat_difficulty(self) -> None:
         # First combat (combat_count=0) must stay tutorial-tier: an enforcer
         # (risk 4) is downgraded to a risk<=1 encounter so it cannot one-shot.
         loop = self._gate_loop(_combat_count=0)
         gated = self.service._gate_next_combat(loop, 4, "enforcer_standoff", self.options)
-        self.assertEqual(gated, "patrol_ambush")
+        self.assertIn(gated, self._tier_one_encounters())
 
     def test_gate_never_reserves_the_encounter_just_fought(self) -> None:
         # The cap is keyed to combats *won*, so a player who keeps fleeing stays at
-        # tier 1 where only one encounter is authored — the downgrade used to return
-        # it every time, serving the same fight, enemies and intro copy three times
-        # in one arm (live 2026-08-01, recurring 2026-08-08). Ambient combat is
-        # pacing: skip the beat rather than repeat it.
-        loop = self._gate_loop(_combat_count=0, _last_combat_encounter="patrol_ambush")
-        self.assertIsNone(
-            self.service._gate_next_combat(loop, 4, "enforcer_standoff", self.options)
+        # tier 1 — the downgrade used to return its single highest-weight entry
+        # every time, serving the same fight, enemies and intro copy three times in
+        # one arm (live 2026-08-01, recurring 2026-08-08).
+        tier_one = self._tier_one_encounters()
+        for last in tier_one:
+            for turn in range(12):
+                loop = self._gate_loop(_combat_count=0, _last_combat_encounter=last)
+                gated = self.service._gate_next_combat(
+                    loop, turn, "enforcer_standoff", self.options
+                )
+                self.assertNotEqual(gated, last)
+                self.assertIn(gated, tier_one)
+
+    def test_gate_first_combat_downgrade_varies(self) -> None:
+        # The 2026-08-08 arm never won a fight, so it stayed on tier 1 for the whole
+        # loop. Tier 1 now authors more than one encounter, so even the never-wins
+        # path sees different fights.
+        seen = {
+            self.service._gate_next_combat(
+                self._gate_loop(_combat_count=0), turn, "enforcer_standoff", self.options
+            )
+            for turn in range(20)
+        }
+        self.assertNotIn(None, seen)
+        self.assertGreater(len(seen), 1, seen)
+
+    def test_gate_skips_the_beat_when_the_tier_has_no_alternative(self) -> None:
+        # Ambient combat is pacing, so when the only affordable encounter is the one
+        # just fought the gate drops the beat instead of repeating it. Authored
+        # content no longer reaches that state, so pin it against a one-encounter
+        # roster rather than letting the behaviour go uncovered.
+        scenario = load_scenario(self.options.scenario_id)
+        solo = replace(
+            scenario,
+            combat={
+                **scenario.combat,
+                "encounters": {
+                    eid: enc
+                    for eid, enc in scenario.combat["encounters"].items()
+                    if int(enc.get("risk", 1)) > 1 or eid == "patrol_ambush"
+                },
+            },
         )
+        loop = self._gate_loop(_combat_count=0, _last_combat_encounter="patrol_ambush")
+        with mock.patch("mythos_runtime.session.load_scenario", return_value=solo):
+            self.assertIsNone(
+                self.service._gate_next_combat(loop, 4, "enforcer_standoff", self.options)
+            )
 
     def test_gate_downgrade_varies_within_the_allowed_tier(self) -> None:
         # With more than one affordable encounter the downgrade draws by weight

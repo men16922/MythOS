@@ -5,6 +5,17 @@ Last updated: 2026-08-08
 Newest entries only; earlier 2026-08 increments are in `bin/docs/archive/progress-2026-08.md`
 (then `progress-2026-07.md`, `progress-2026-06.md`). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
 
+## 2026-08-08 — Tutorial tier now has four fights instead of one
+
+- Status: the last agent-executable Priority 0 item is closed. `make check` **1225** (5 skipped), up 3 from the new locks; `make smoke-local` exit 0. Local-only; rides the next deploy. Verified mechanically **and** in a rendered session; whether the new fights *feel* distinct stays a manual verdict.
+- Why it mattered: the early risk cap is keyed to combats **won**, so a player who flees or loses sits on tier 1 for the whole loop. Tier 1 authored exactly one encounter, so the 08-08 downgrade fix could only ever choose between repeating `patrol_ambush` and skipping the beat — measured on the never-wins path, **1 fight served and 19 ambient beats dropped out of 20**. The repetition was fixed; the emptiness replaced it.
+- Changed: authored three risk-1 encounters — `ration_line_watch` (배급 줄 감시, lone ranged sentinel at the welfare-block ration line), `stray_incinerator` (이탈한 소각기, an off-route burn drone plus the maintenance drone sent to cool it, in the C-17 blackout zone), `refuge_perimeter_probe` (외곽 탐침, a tracker counting coordinates at the underground afterglow zone with a worn escort). All reuse bestiary units that already ship full action sheets, so no new art. The three ids also joined the system prompt's `start_combat` pool — the LLM can request a tier-1 fight directly, which the downgrade path never sees.
+- Measured before → after on the same never-wins path (20 ambient requests, `_combat_count=0`, last-encounter threaded forward): **`{patrol_ambush: 1, skipped: 19}` → `{patrol_ambush: 6, refuge_perimeter_probe: 5, stray_incinerator: 5, ration_line_watch: 4}`** — every beat now lands, weight-proportionally.
+- Balance is measured, not asserted: the repo's greedy simulator (N=60 fixed seeds) rejected the first draft — three single-enemy encounters scored **0.93/0.93/0.98 solo against the 0.95 trivial-walkover ceiling**. Retuned compositions land tier 1 at **0.58 / 0.72 / 0.77 solo** (`patrol_ambush` = 0.58), party 1.00, all still well clear of tier 2 (0.27/0.28) so the ramp holds.
+- Verified in browser (combat simulator, EN client, solo): all three appear in the picker under English names, board HP matches the authored composition including the `hp: 8` override, every enemy action sheet 200, 0 console errors, 0 failed requests. Evidence: `outputs/live-qa/20260808-tier1-encounters/`.
+- Locks: a content test requires tier 1 to author ≥3 encounters with pairwise-distinct enemy compositions and intro copy; the gate tests now assert the invariant (never re-serves the just-fought encounter, first-combat downgrade varies) instead of the old literal `patrol_ambush`, and the "skip the beat" fallback is pinned against a patched one-encounter roster so it stays covered.
+- Boundary: 21 EN glossary/i18n entries back the new copy, so EN mode serves no Hangul on these fights. Unrelated and untouched: the simulator's busy status is a hard-coded Korean string shown to EN clients (dev-only surface).
+
 ## 2026-08-08 — Flee button now shows its odds
 
 - Status: Priority 0's flee-legibility item is closed at `4ca1d80`. `make check` **1222** (5 skipped). Local-only; rides the next deploy. Verified mechanically **and** in a rendered non-fallback session; the feel verdict stays manual.

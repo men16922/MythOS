@@ -330,6 +330,7 @@ class CombatEngine:
             "focus": actor.focus,
             "max_focus": actor.max_focus,
             "skills": [self._skill_action_info(skill_id, actor) for skill_id in actor.skills],
+            "flee": self._flee_preview(state, actor),
         }
 
     def _attack_preview(
@@ -366,6 +367,27 @@ class CombatEngine:
             "damage_min": max(1, lo + dmg_bonus - armor),
             "damage_max": max(1, hi + dmg_bonus - armor),
             "cover_bonus": cover_bonus,
+        }
+
+    def _flee_preview(self, state: CombatState, actor: Combatant) -> dict[str, Any]:
+        """Deterministic break-off forecast for ``actor``.
+
+        MUST mirror ``_player_flee``'s math (d20 + agility vs 12 + 2 per adjacent
+        enemy). Attack targets have shown hit % since slice 2 while flee showed
+        nothing, so a failed break-off — which costs the turn, and at low HP the
+        run — read as "flee always loses" in live play (2026-08-01). Returns {}
+        for anyone who cannot break off, so the chip simply does not render."""
+        if actor.faction != PLAYER:
+            return {}
+        adjacent = [
+            e for e in state.living_enemies() if distance(actor.x, actor.y, e.x, e.y) <= 1
+        ]
+        dc = 12 + 2 * len(adjacent)
+        mod = actor.stat("agility")
+        successes = sum(1 for r in range(1, 21) if r + mod >= dc)
+        return {
+            "chance": round(successes / 20 * 100),
+            "adjacent": len(adjacent),
         }
 
     def _skill_action_info(self, skill_id: str, player: Combatant) -> dict[str, Any]:

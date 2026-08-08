@@ -17,6 +17,7 @@ from mythos_combat import (
     render_radar,
 )
 from mythos_combat.models import Combatant, Weapon, distance
+from mythos_core.dice import Dice
 from mythos_runtime.scenario import load_scenario
 
 WEAPONS = {
@@ -1325,3 +1326,99 @@ class ControllableAllyTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FleeForecastTest(unittest.TestCase):
+    """Attack targets have shown hit %/damage since slice 2 while the flee button
+    showed nothing, so a failed break-off — which costs the turn, and at low HP
+    the run — read as "flee always loses" in live play (2026-08-01). The preview
+    must mirror ``_player_flee``'s math exactly, the way ``_attack_preview``
+    mirrors ``_attack``."""
+
+    class _FixedDice(Dice):
+        """Pins the d20 so every face can be walked deterministically."""
+
+        def __init__(self, roll: int) -> None:
+            super().__init__(seed=f"fixed:{roll}")
+            self._roll = roll
+
+        def roll_die(self, sides: int) -> int:
+            return self._roll if sides == 20 else super().roll_die(sides)
+
+    def _state(self, agility: int, adjacent: int):
+        from mythos_combat.models import CombatState
+
+        player = _player(x=5, y=5, agility=agility)
+        spots = [(4, 5), (6, 5), (5, 4), (5, 6)]
+        enemies = [
+            _drone(entry_id=f"e{i}", x=spots[i][0], y=spots[i][1]) for i in range(adjacent)
+        ]
+        # A distant enemy keeps the fight alive without touching the flee DC.
+        enemies.append(_drone(entry_id="far", x=0, y=0))
+        combatants = [player, *enemies]
+        return CombatState(
+            active=True,
+            round=1,
+            arena_w=12,
+            arena_h=12,
+            combatants=combatants,
+            order=[c.id for c in combatants],
+            log=[],
+            enemy_intents=[],
+            elevations={},
+            covers={},
+            hazards={},
+            telegraphs=[],
+        )
+
+    def _preview(self, engine: CombatEngine, agility: int, adjacent: int) -> dict:
+        state = self._state(agility, adjacent)
+        player = state.player()
+        assert player is not None
+        return engine._flee_preview(state, player)
+
+    def test_advertised_chance_matches_actual_success_rate(self) -> None:
+        engine = CombatEngine()
+
+        for agility in range(0, 9):
+            for adjacent in range(0, 5):
+                advertised = self._preview(engine, agility, adjacent)
+                wins = 0
+                for face in range(1, 21):
+                    trial = self._state(agility, adjacent)
+                    player = trial.player()
+                    assert player is not None
+                    engine._player_flee(trial, player, self._FixedDice(face))
+                    if trial.outcome == "player_fled":
+                        wins += 1
+                with self.subTest(agility=agility, adjacent=adjacent):
+                    self.assertEqual(advertised["chance"], round(wins / 20 * 100))
+
+    def test_chance_drops_with_each_adjacent_enemy(self) -> None:
+        engine = CombatEngine()
+
+        chances = [self._preview(engine, 6, n)["chance"] for n in range(0, 5)]
+
+        # 12 + 2 per adjacent enemy: each one costs exactly 2 of the 20 d20 faces.
+        self.assertEqual(chances, sorted(chances, reverse=True))
+        self.assertEqual([chances[i] - chances[i + 1] for i in range(4)], [10, 10, 10, 10])
+
+    def test_available_actions_exposes_the_forecast(self) -> None:
+        engine = CombatEngine()
+        state = self._state(6, 1)
+
+        actions = engine.available_actions(state)
+
+        self.assertEqual(actions["flee"]["chance"], 65)
+        self.assertEqual(actions["flee"]["adjacent"], 1)
+
+    def test_party_members_get_no_forecast_because_they_cannot_flee(self) -> None:
+        # Only the player can break off; an ally advertising odds would be a lie.
+        engine = CombatEngine()
+        state = self._state(6, 1)
+        ally = Combatant(
+            id="han", name="한", faction="ally", hp=10, max_hp=10, x=8, y=8,
+            stats={"agility": 6},
+        )
+
+        self.assertEqual(engine._flee_preview(state, ally), {})

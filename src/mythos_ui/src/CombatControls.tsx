@@ -448,9 +448,18 @@ export function CombatControls({
                 <span>{t("cc.wait")}</span>
               </button>
               {isPlayerTurn && (
-                <button className="cc-btn danger" onClick={() => onAction({ type: "flee" })}>
+                <button
+                  className="cc-btn danger"
+                  title={available.flee?.chance != null ? t("cc.fleeHint") : t("cc.flee")}
+                  onClick={() => onAction({ type: "flee" })}
+                >
                   <ActionIcon action="flee" />
                   <span>{t("cc.flee")}</span>
+                  {/* Attack targets have shown hit % since slice 2 while flee showed
+                      nothing, so a failed break-off read as "flee always loses". */}
+                  {available.flee?.chance != null && (
+                    <span className="cc-flee-odds">{available.flee.chance}%</span>
+                  )}
                 </button>
               )}
             </div>

@@ -253,6 +253,9 @@ export interface CombatAvailableActions {
   active_actor_id?: string;
   active_actor_name?: string;
   is_player?: boolean;
+  // Server-computed break-off forecast (mirrors _player_flee math). Absent /
+  // empty for anyone who cannot flee, so the odds chip simply does not render.
+  flee?: { chance?: number; adjacent?: number };
 }
 
 export interface CombatLogDetail {

@@ -291,6 +291,7 @@ export const ko = {
   "cc.defend": "방어",
   "cc.wait": "대기",
   "cc.flee": "도주",
+  "cc.fleeHint": "도주 성공 확률. 인접한 적이 늘수록 낮아지고, 실패하면 이번 턴을 잃습니다.",
   "cc.healHp": "체력 회복",
   "cc.healFocus": "집중 회복",
   "cc.throwAtCell": "지도에서 칸을 탭해 투척 (다시 누르면 취소)",

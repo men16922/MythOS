@@ -291,6 +291,7 @@ export const en: Record<StringKey, string> = {
   "cc.defend": "Defend",
   "cc.wait": "Wait",
   "cc.flee": "Flee",
+  "cc.fleeHint": "Chance to break off. It drops with each adjacent enemy, and a failed roll costs your turn.",
   "cc.healHp": "Restore HP",
   "cc.healFocus": "Restore Focus",
   "cc.throwAtCell": "Tap a board cell to throw (press again to cancel)",

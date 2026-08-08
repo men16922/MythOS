@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-08-02
+Last updated: 2026-08-08
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **OWNER SUBJECTIVE VERDICT ON THE BANKED ARM** — `loop_426b710d…` is finished, audited **47/47 non-fallback**, and banked as `scripts/eval/golden/prod-people-help-20260808.json` (59 scenes, EN, `ending_erasure` at the IX boss). The renderer fix is deployed as `mythos-api-00084-nt2`. Two decisions are yours: the ending/overall feel verdict, and whether the 22+25 split across `00083-jt7`/`00084-nt2` disqualifies it as the §3 promotion sample. Agent-side follow-ups are queued in `docs/NEXT_PLAN.md` — the biggest is EN localization (34/59 scenes carry Korean). **Do not build the stream-stall watchdog**: the trickle was hidden-tab throttling, not a server stall (PROGRESS_LOG 2026-08-08).
+> ▶ NEXT SESSION: **OWNER VERDICT — agent work is exhausted, do not start coding.** The §3 arm `loop_426b710d…` is finished, audited **47/47 non-fallback**, and banked (59 scenes, EN, `ending_erasure` at the IX boss). Evidence is collected in `outputs/evals/20260808-owner-review/owner-review.md`; the checklist is `docs/test/neo_seoul_live_qa.md`. Two decisions are the owner's: the ending/overall feel verdict, and whether the 22+25 generation split across two builds disqualifies the sample. **The ending must be read from Run History — the transcript's last three scenes are the boss-fight log.** After the verdict: register in `SPLIT.json` and score the rubric, or run a fresh arm. Everything else open is `[manual]`, a design call, or the codex lane — **except** that the 08-08 arm's display gaps were re-examined and two closed at `b3143d8` (clue counter, combat scene location); the archive was never the broken side. Five fixes are now committed but undeployed (localization, archive summary, novelty reviser, encounter downgrade) — deploying before the verdict desyncs what the owner judges. **Do not build the stream-stall watchdog**: the trickle was hidden-tab throttling, not a server stall (PROGRESS_LOG 2026-08-08).
 
 ## Snapshot
 

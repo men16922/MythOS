@@ -5,6 +5,27 @@ Last updated: 2026-08-08
 Newest entries only; older 2026-07 increments are in `bin/docs/archive/progress-2026-07.md`
 (and `progress-2026-06.md` for June). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
 
+## 2026-08-08 — Clue gauge and combat locations: the archive was right, the UI was wrong
+
+- Status: two internal-identifier leaks fixed at `b3143d8`. `make check` **1218** (5 skipped), up 4 from the new locks; `make smoke-local` exit 0. Local-only; rides the next deploy.
+- **Correction to the 2026-08-08 entry below**: "run record shows `clues_collected: []` while the UI showed 8/16" read the wrong side as broken. The archive filters clue-kind shards for the loop and was correct; **`8/16` was never a measurement** — it was the store's default `LIMIT 8`.
+- Diagnosed: `_clues_collected` omitted the `limit` argument (`list_narrative_shards` defaults to 8) *and* counted every shard kind across every loop. Any player with ≥8 shards of any kind read 8, so the CLUE MATRIX gauge could never exceed 50%. It also feeds the displayed Insight metric, which mirrors `EndingResolver.calculate_scores` — so the UI disagreed with the score the ending actually resolved against. The same file already computed this correctly three times (`session.py:1489/2203/2506`), and *that* path feeds autonomy tiers and the ending, so gameplay was never affected.
+- Measured before → after over three shard populations (0 / 12 / 3 true clues): the counter read **8, 8, 8** → now **0, 12, 3**; the archived record was `[]`, `[]`, `['sym0','sym1','sym2']` both times — unchanged, because it was already right.
+- Diagnosed second: a combat scene's `location` was the raw encounter id, reaching the archived `final_location`, save-slot labels, the session-memory ledger and the image `LOC:` overlay. Measured on the banked arm: **14 of 59 scenes** served `ix_confrontation`/`patrol_ambush`, and the split by scene type is exact — combat/climax/cutscene locations are runtime-authored, the other 18 slug-like ones are model-authored (see Next).
+- Changed: combat scenes now resolve the encounter's authored `location_hint` (which the combat interstitial already used as the player-facing place), falling back to `loop.location_id`. `ix_confrontation`'s hint had no EN glossary entry, so backfilled `ARK 코어 — 최적화 제단` → `ARK Core — Optimization Altar`; **9/9 hints now serve clean EN**, locked by a new ratchet in the same family as the 08-08 side-arc/attribute ones.
+- Also settled, no code: `saved: []` is **not** a defect. `run_history_outcome.saved_by_flag` authors five rescue flags (`incinerator_rescued`, `kai_awakened`, `subway_redirected`, `incinerator_logged`, `data_core_taken`); an ally joining is not one, so the empty list is correct for that run. Making an ally join count as "saved" is scenario authoring, not a fix.
+- Limit: production shard rows were not queried, so whether the arm truly had zero clue-kind shards is unconfirmed — the banked golden carries no shard data. The fix does not depend on it; the archive was proven correct under all three populations.
+- Next: the remaining raw slugs in STATUS `Location` come from `loop.location_id` ← model-authored `scene.location` (41% of dynamic scenes; 91% in the 07-28 arm), which is prompt work and stays behind the owner's §3 verdict.
+
+## 2026-08-08 — Session committed; owner verdict packet prepared
+
+- Status: the session's five fix bundles are committed as `66e4805`, `b396de7`, `cdc95c1`, `029bb87`, `c0370c7`, `0477bd2`; `main` is ahead 9, push owner-run. Only the renderer fix is deployed — localization, summary language, novelty reviser and encounter downgrade are committed but live only locally.
+- Changed: wrote `outputs/evals/20260808-owner-review/owner-review.md` on the 07-28 packet's pattern — scene anchors, the ending record, repetition counts, the two-build split facts, and the list of already-fixed-but-undeployed observations the owner can skip. It states its own limits: no rubric run and no `SPLIT.json` registration, both of which follow the sample-validity decision.
+- Corrected in the live-QA doc: the banked transcript's last three scenes are the boss-fight log, not the ending, so the ending verdict must come from Run History. Earlier guidance offered the transcript and Run History as equivalent, which was wrong.
+- Verified: `make check` 1211 (5 skipped) and `make smoke-local` (exit 0) on the committed tree — the broader smoke was owed for the runtime-flow changes and had not been run until now. Doc budgets green.
+- Blockers: agent-executable work is exhausted. Remaining items need the owner's verdict, a design call on flee-odds visibility, or the codex lane.
+- Next: owner records the ending/overall verdict and rules on the 22+25 split; then either register the sample and score the rubric, or run a fresh arm.
+
 ## 2026-08-08 — Identical `Patrol Ambush` traced to a downgrade that could not vary
 
 - Status: the repeated ambient encounter is fixed at the pacing gate. `make check` **1211** (5 skipped). Local-only; rides the next deploy. Verified mechanically only — this is encounter *selection*, not UI/targeting/VFX, so `gameplay-qa`'s rendered layer does not apply; the feel of the new variety stays a manual verdict.

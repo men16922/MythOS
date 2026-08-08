@@ -1736,3 +1736,91 @@ class CarriedCompanionGuardrailTest(unittest.TestCase):
 
         self.assertEqual(state["flags"], ["found_terminal"])
         self.assertEqual(state["_party"]["members"], [])
+
+
+class ClueSnapshotCountTest(unittest.TestCase):
+    """The snapshot clue counter feeds the CLUE MATRIX gauge and the displayed
+    Insight metric. It used to omit the store's ``limit`` (default 8) and count
+    every shard kind, so the gauge pinned at 8/16 and disagreed with the
+    kind-filtered count the ending resolver scores against."""
+
+    def _service(self, shards: list[NarrativeShard]) -> RuntimeSessionService:
+        store = _FakeMemoryStore(None, [], [], shards, {})
+        service = RuntimeSessionService.__new__(RuntimeSessionService)
+        service.store = cast(Any, store)
+        return service
+
+    def _shard(self, index: int, kind: str) -> NarrativeShard:
+        return NarrativeShard(
+            shard_id=f"shard_{index:03d}",
+            loop_id="loop_1",
+            player_id="player_1",
+            symbol=f"sym_{index}",
+            emotional_tone="discovered",
+            text=f"text {index}",
+            weight=1.0,
+            created_at=datetime(2026, 8, 8, tzinfo=UTC),
+            kind=kind,
+        )
+
+    def test_counts_clue_shards_beyond_the_store_default_limit(self) -> None:
+        service = self._service([self._shard(i, "clue") for i in range(12)])
+
+        # 12, not the store's default LIMIT of 8.
+        self.assertEqual(service._clues_collected("player_1"), 12)
+
+    def test_ignores_non_clue_shards(self) -> None:
+        shards = [self._shard(i, "general") for i in range(20)]
+        shards += [self._shard(100 + i, "clue") for i in range(3)]
+        service = self._service(shards)
+
+        self.assertEqual(service._clues_collected("player_1"), 3)
+
+    def test_no_clue_shards_counts_zero(self) -> None:
+        service = self._service([self._shard(i, "general") for i in range(25)])
+
+        self.assertEqual(service._clues_collected("player_1"), 0)
+
+
+class CombatSceneLocationTest(unittest.TestCase):
+    """A combat scene's `location` used to be the raw encounter id, which reached
+    the archived `final_location`, save-slot labels and the image `LOC:` overlay
+    as an internal token (live 2026-08-08: `ix_confrontation`, `patrol_ambush`
+    across 14 of 59 scenes)."""
+
+    def _service(self) -> RuntimeSessionService:
+        return RuntimeSessionService.__new__(RuntimeSessionService)
+
+    def test_resolves_the_authored_location_hint(self) -> None:
+        options = RuntimeOptions(scenario_id="neo-seoul")
+
+        self.assertEqual(
+            self._service()._encounter_location("patrol_ambush", options),
+            "복지 블록",
+        )
+
+    def test_unknown_or_absent_encounter_falls_back_to_empty(self) -> None:
+        service = self._service()
+        options = RuntimeOptions(scenario_id="neo-seoul")
+
+        # "" lets the caller fall back to the loop's own location_id.
+        self.assertEqual(service._encounter_location(None, options), "")
+        self.assertEqual(service._encounter_location("no_such_encounter", options), "")
+
+    def test_no_encounter_hint_is_a_raw_identifier(self) -> None:
+        # The hint is player-facing copy; an id-shaped value means someone
+        # authored a slug where a place name belongs.
+        import re
+
+        options = RuntimeOptions(scenario_id="neo-seoul")
+        service = self._service()
+        encounters = load_scenario("neo-seoul").combat.get("encounters", {})
+        slug = re.compile(r"^[a-z0-9]+(_[a-z0-9]+)+$")
+
+        offenders = [
+            encounter_id
+            for encounter_id in encounters
+            if slug.match(service._encounter_location(encounter_id, options))
+        ]
+
+        self.assertEqual(offenders, [])

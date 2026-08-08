@@ -219,6 +219,34 @@ class RouteAnchorGlossaryCoverageTest(unittest.TestCase):
             f"into EN mode): {missing}",
         )
 
+    def test_encounter_location_hints_serve_as_english(self) -> None:
+        # A combat scene's `location` is the encounter's authored `location_hint`
+        # (it used to be the raw encounter id). That reaches the archived
+        # `final_location`, save-slot labels and the image `LOC:` overlay, so a
+        # hint without an EN entry leaks Korean — `ix_confrontation` did.
+        import re
+
+        scenario = json.loads(
+            (PROJECT_ROOT / "resources" / "neo-seoul" / "scenario.json").read_text()
+        )
+        hangul = re.compile(r"[가-힣]")
+        leaking: list[str] = []
+
+        encounters = scenario.get("combat", {}).get("encounters", {})
+        for encounter_id, meta in encounters.items():
+            hint = meta.get("location_hint")
+            if not isinstance(hint, str) or not hint.strip():
+                continue
+            served = localize_for({"location": hint}, "neo-seoul", "en")["location"]
+            if hangul.search(served):
+                leaking.append(f"{encounter_id}: {hint!r} -> {served!r}")
+
+        self.assertEqual(
+            leaking,
+            [],
+            f"encounter location_hints that serve Korean to EN clients: {leaking}",
+        )
+
 
 class RouteDescriptionLocalizationTest(unittest.TestCase):
     """Route-node *descriptions* are served inside EN choice labels but were never

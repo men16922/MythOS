@@ -1861,7 +1861,11 @@ class RuntimeSessionService:
             loop_id=loop.loop_id,
             turn_index=turn_index,
             title=f"교전 R{result.radar.get('round', 1)}",
-            location=str(encounter_id or loop.location_id),
+            # The encounter *id* is an internal token: it reached the archived
+            # `final_location`, save-slot labels and the image `LOC:` overlay as
+            # raw text (`ix_confrontation`). The interstitial already treats
+            # `location_hint` as the player-facing place, so reuse it here.
+            location=self._encounter_location(encounter_id, options) or loop.location_id,
             narration=result.prose or "전투가 이어진다.",
             choices=[],
             visual_brief=_combat_visual_brief(result.radar),
@@ -3257,9 +3261,29 @@ class RuntimeSessionService:
             raise RuntimeError(f"loop not found: {loop_id}")
         return loop
 
-    def _clues_collected(self, player_id: str) -> int:
+    def _encounter_location(self, encounter_id: str | None, options: RuntimeOptions) -> str:
+        """Authored player-facing place for an encounter, or "" when unknown."""
+        if not encounter_id:
+            return ""
         try:
-            return len(self.store.list_narrative_shards(player_id))
+            scenario = load_scenario(options.scenario_id)
+            encounters = (
+                scenario.combat.get("encounters", {}) if isinstance(scenario.combat, dict) else {}
+            )
+            meta = encounters.get(encounter_id)
+        except Exception:
+            return ""
+        if not isinstance(meta, dict):
+            return ""
+        return str(meta.get("location_hint") or "").strip()
+
+    def _clues_collected(self, player_id: str) -> int:
+        # Counts clue shards only, and must pass an explicit limit: the store
+        # default is 8, which silently pinned the CLUE MATRIX gauge at 8/16 and
+        # desynced the displayed Insight from the score the ending resolver uses.
+        try:
+            shards = self.store.list_narrative_shards(player_id, limit=1000)
+            return len([shard for shard in shards if shard.kind == "clue"])
         except Exception:
             return 0
 

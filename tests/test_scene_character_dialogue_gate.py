@@ -64,6 +64,29 @@ class SceneCharacterDialogueGateTest(unittest.TestCase):
         # from the dialogue gate by design.
         self.assertIn("snapshot?.market?.vendor?.name", self.source)
 
+    def test_word_internal_apostrophe_is_not_a_quote_delimiter(self) -> None:
+        # EN narration writes contractions/possessives with the same character KO
+        # prose uses to delimit speech. Treating a word-internal apostrophe as a
+        # quote mark opened a span at "You'" and closed it at "sector'", splitting
+        # both words across a dialogue callout (live EN evidence 2026-08-08,
+        # loop_426b710d…, outputs/live-qa/20260808-arm-426b710d/).
+        self.assertIn("APOSTROPHE_LIKE", self.source)
+        self.assertIn("isIntraWordApostrophe", self.source)
+        # Both the opener guard and the closer search must consult it, or one half
+        # of the split comes back.
+        self.assertIn("opensQuote(paragraph, i)", self.source)
+        self.assertIn("findClosingQuote(paragraph, pair[1], i + 1)", self.source)
+        self.assertNotIn("paragraph.indexOf(pair[1], i + 1)", self.source)
+
+    def test_non_speech_quoted_span_is_consumed_whole(self) -> None:
+        # A quoted span that fails SPEECH_PUNCTUATION stays narration, but the
+        # scanner must still skip PAST it. Resuming inside the span let its
+        # closing mark be read as the next opening mark, so EN attribution prose
+        # ("… Han mutters, …") became the bubble while the real spoken line stayed
+        # narration (same 2026-08-08 evidence).
+        segment_fn = self.source.split("export function segmentParagraph", 1)[1]
+        self.assertIn("narration += paragraph.slice(i, end + 1)", segment_fn)
+
 
 if __name__ == "__main__":
     unittest.main()

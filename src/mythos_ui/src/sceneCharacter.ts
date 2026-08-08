@@ -38,6 +38,41 @@ const QUOTE_PAIRS: ReadonlyArray<readonly [string, string]> = [
 
 const SPEECH_PUNCTUATION = /[.!?…~—]/;
 
+// English narration writes contractions and possessives with the same character
+// the Korean prose uses to delimit speech ("You're", "sector's" vs '이 구역은 …').
+// A word-internal apostrophe is never a quote mark, so it must not open or close
+// a span — otherwise the segmenter opens at "You'" and closes at "sector'",
+// splitting both words across a dialogue callout (live EN evidence 2026-08-08:
+// narration `"You` + bubble `'re cutting it close, ghost," …`).
+const APOSTROPHE_LIKE = new Set(["'", "’"]);
+const WORD_CHAR = /[\p{L}\p{N}]/u;
+
+function isWordChar(ch: string | undefined): boolean {
+  return ch !== undefined && WORD_CHAR.test(ch);
+}
+
+function isIntraWordApostrophe(text: string, index: number): boolean {
+  if (!APOSTROPHE_LIKE.has(text[index])) return false;
+  return isWordChar(text[index - 1]) && isWordChar(text[index + 1]);
+}
+
+/** A quote opens at a word boundary; an apostrophe glued to the end of a word is
+ * a contraction or possessive ("don't", "riders'"), not an opening quote. */
+function opensQuote(text: string, index: number): boolean {
+  if (!APOSTROPHE_LIKE.has(text[index])) return true;
+  return !isWordChar(text[index - 1]);
+}
+
+/** Matching closer, skipping contraction apostrophes ("sector's") so a span ends
+ * at a real closing quote instead of mid-word. */
+function findClosingQuote(text: string, closer: string, from: number): number {
+  let at = text.indexOf(closer, from);
+  while (at > -1 && isIntraWordApostrophe(text, at)) {
+    at = text.indexOf(closer, at + 1);
+  }
+  return at;
+}
+
 export interface ParagraphSpeech {
   /** Paragraph contains at least one sentence-like quoted span (spoken line). */
   hasDialogue: boolean;
@@ -57,8 +92,8 @@ export function analyzeParagraph(paragraph: string): ParagraphSpeech {
   while (i < paragraph.length) {
     const ch = paragraph[i];
     const pair = QUOTE_PAIRS.find(([open]) => open === ch);
-    if (pair && !inStatVoiceRange(i, statRanges)) {
-      const end = paragraph.indexOf(pair[1], i + 1);
+    if (pair && opensQuote(paragraph, i) && !inStatVoiceRange(i, statRanges)) {
+      const end = findClosingQuote(paragraph, pair[1], i + 1);
       if (end > i) {
         if (SPEECH_PUNCTUATION.test(paragraph.slice(i + 1, end))) hasDialogue = true;
         i = end + 1;
@@ -95,11 +130,20 @@ export function segmentParagraph(paragraph: string): ParagraphSegment[] {
   while (i < paragraph.length) {
     const ch = paragraph[i];
     const pair = QUOTE_PAIRS.find(([open]) => open === ch);
-    if (pair && !inStatVoiceRange(i, statRanges)) {
-      const end = paragraph.indexOf(pair[1], i + 1);
-      if (end > i && SPEECH_PUNCTUATION.test(paragraph.slice(i + 1, end))) {
-        flush();
-        segments.push({ kind: "speech", text: paragraph.slice(i, end + 1) });
+    if (pair && opensQuote(paragraph, i) && !inStatVoiceRange(i, statRanges)) {
+      const end = findClosingQuote(paragraph, pair[1], i + 1);
+      if (end > i) {
+        if (SPEECH_PUNCTUATION.test(paragraph.slice(i + 1, end))) {
+          flush();
+          segments.push({ kind: "speech", text: paragraph.slice(i, end + 1) });
+        } else {
+          // Not sentence-like (Korean term emphasis such as '최적화'): keep it as
+          // narration, but consume the WHOLE span. Resuming inside it would let
+          // the span's closing mark be read as the next opening mark, so the
+          // following attribution prose became the bubble while the real spoken
+          // line stayed narration (live EN evidence 2026-08-08).
+          narration += paragraph.slice(i, end + 1);
+        }
         i = end + 1;
         continue;
       }

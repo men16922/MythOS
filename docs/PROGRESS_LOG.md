@@ -5,6 +5,14 @@ Last updated: 2026-08-09
 Newest entries only; earlier 2026-08 increments are in `bin/docs/archive/progress-2026-08.md`
 (then `progress-2026-07.md`, `progress-2026-06.md`). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
 
+## 2026-08-09 — Frontend swept for the same class: clean, one latent trap documented
+
+- Status: **negative result, reported as one.** The Python sweep never covered `src/mythos_ui/`, and this class had already been found there twice (`sceneCharacter.ts`), so the frontend was swept too. **No live instance.** `make check` 1260 (5 skipped), unchanged — comment only, no behaviour touched.
+- `termGloss.ts` already implements the rule independently and correctly: `matchesEn` uses `\b…\b`, `matchesKo` matches as a substring but rejects a hit whose preceding character is Hangul (쇼핑/매핑 → 핑) plus per-term compound exclusions (핑계). Nothing to change.
+- `combatCinemaSkills.ts` is bilingual on every alias, and measured against the real catalog **all 13 skills resolve correctly from id, Korean name and English name — 39/39**. So there is no defect. It cannot be word-bounded either: `n` has whitespace stripped so display names match ids, which means `\bemp\b` would fail on "EMP Pulse" (`emppulse`) as well. The substring design is deliberate and order is what keeps it safe.
+- Left as a documented trap rather than a change: a *future* skill whose name contains an earlier token resolves to that earlier skill and shows the wrong cinema card silently — "Temporal Shield", "Tempest Round", "Empty Channel" all → `emp_pulse`; "Hackle Guard" → `system_hack`. The comment names the measurement and the escape hatch (add the exact id to `SKILL_REGISTRY`, which is checked first). A test could only encode this by porting the ordered chain into Python, which is the duplication this session spent its time removing.
+- Also re-verified rather than assumed: the banked 08-08 arm serves **0 Hangul across all 59 scenes** through `localize_for`, including the `교전 R1` combat titles that looked like leaks in the raw bank file. The 08-08 localization claim holds; the bank file bypasses the serving boundary.
+
 ## 2026-08-09 — An SFX marker ate the rest of the English sentence; EN narration could not start a fight
 
 - Status: the Korean-only matching class is **fully closed**. No agent-executable Priority 0 item remains. `make check` **1260** (5 skipped), up 5. Local-only; rides the next deploy.

@@ -209,6 +209,20 @@ const getSkillId = (name?: string): string => {
   if (SKILL_REGISTRY[n]) return n;
   // Keyword fallbacks, MOST SPECIFIC FIRST (a bare "신호" test used to swallow
   // 신호 오버드라이브 into signal_step and knew nothing after the first 5 skills).
+  //
+  // These are substrings ON PURPOSE and cannot be word-bounded: `n` has its
+  // whitespace stripped so display names match ids, which means `\bemp\b` would
+  // fail on "EMP Pulse" ("emppulse") too. The cost is that a short ASCII token
+  // matches inside longer words, and ORDER is the only thing keeping that safe —
+  // "signal" sits below "overdrive" for exactly this reason.
+  //
+  // Measured 2026-08-09: all 13 authored skills resolve correctly from their id,
+  // Korean name and English name (39/39), so there is no live collision. The trap
+  // is for whoever adds the next skill — a name containing an earlier token
+  // resolves to that earlier skill and shows the wrong cinema card silently:
+  // "Temporal Shield", "Tempest Round" and "Empty Channel" all → emp_pulse, and
+  // "Hackle Guard" → system_hack. Add such a skill's exact id to SKILL_REGISTRY
+  // (checked first, above) rather than relying on this chain.
   if (n.includes("반발") || n.includes("repulse")) return "magnetic_repulse";
   if (n.includes("견인") || n.includes("자기") || n.includes("magnetic")) return "magnetic_pull";
   if (n.includes("정밀") || n.includes("precision")) return "precision_emp";

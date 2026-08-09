@@ -133,6 +133,11 @@ _AXIS_KEYWORDS: tuple[tuple[str, tuple[str, ...]], ...] = (
         "civilian", "citizen", "rescue", "help", "protect", "shield", "comfort",
         "reassure", "persuade", "convince", "ally", "companion", "wounded",
         "child", "aid", "se-rin", "kai", "han", "tae-o", "su-ah", "lin yue",
+        # Plurals are separate keywords — ASCII matching is word-bounded, so
+        # "civilian" never matched "civilians" (2026-08-09). Leading people to
+        # safety is a rescue first and a route second, so these outrank the
+        # traversal terms below by sitting on the earlier axis.
+        "civilians", "survivor", "survivors",
         # Deliberately NOT here: "save" (saves a file as often as a person) and
         # "crowd" (a place to hide in — "blend into the crowd to lose the drones"
         # is evasion, and calling it "Help people" is the very mislabel this

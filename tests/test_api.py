@@ -277,6 +277,35 @@ class RouteChoiceAxisSerializerTest(unittest.TestCase):
         self.assertEqual(_choice_axis("Avoid the fight and slip out the back", None), "safety")
         self.assertEqual(_choice_axis("Flee the fight through the vent", None), "safety")
 
+    def test_plurals_are_their_own_keywords(self) -> None:
+        # ASCII matching is word-bounded, so "civilian" never matched
+        # "civilians". Two labels leading people to safety disagreed with each
+        # other because of it — one read safety, the other nothing at all.
+        from mythos_api.serializers import _choice_axis
+
+        self.assertEqual(
+            _choice_axis("Lead the survivors through the unpowered maintenance tunnels", None),
+            "people",
+        )
+        self.assertEqual(
+            _choice_axis("Lead the survivors through the pipes to evade the sweep", None),
+            "people",
+        )
+        self.assertEqual(
+            _choice_axis("Guide the civilians through the drainage pipes", None), "people"
+        )
+
+    def test_blending_into_a_crowd_is_still_evasion(self) -> None:
+        # "crowd" is deliberately absent from the people axis: it is a place to
+        # hide in, not someone to help. Re-pinned because the plural pass above
+        # is exactly the change that would tempt someone to add it.
+        from mythos_api.serializers import _choice_axis
+
+        self.assertEqual(
+            _choice_axis("Blend into the crowd of the night-market stalls to lose the drones", None),
+            "safety",
+        )
+
     def test_widening_did_not_take_terms_the_audit_rejected(self) -> None:
         # Each of these was measured against the banked arms and dropped
         # because it read a real label wrongly — see

@@ -13,6 +13,7 @@ from typing import Any, Protocol
 from mythos_core import AssetRecord, Scene
 from mythos_core.clock import utc_now
 from mythos_core.ids import new_asset_id
+from mythos_core.text_match import name_mentions
 from mythos_image_agent.config import PROJECT_ROOT, AgentConfig
 from mythos_image_agent.generator import generate_image
 from mythos_image_agent.img2img import generate_image_img2img
@@ -149,6 +150,18 @@ class MfluxProvider:
             reference_path=ref,
             image_strength=request.metadata.get("img2img_strength", 0.6) if ref else None,
         )
+
+
+def _character_mentioned(text: str, keywords: list[Any]) -> bool:
+    """Is a character named in ``text`` by one of their scenario keywords?
+
+    Uses the name rule, not the plain keyword rule: Han's ASCII `han` otherwise
+    matched *channel*, *change* and *handle*, so ordinary English narration bound
+    his portrait as the reference image and — when the word also reached the
+    prompt — pushed his appearance into scenes he was not in. His Korean `한`
+    needs the opposite guard, a following particle, or it matches 한강.
+    """
+    return name_mentions(text, [str(kw) for kw in keywords])
 
 
 def _env(*names: str, default: str | None = None) -> str | None:
@@ -772,7 +785,7 @@ class VisualService:
                 keywords = entry.get("keywords", [])
                 if not image or not isinstance(keywords, list):
                     continue
-                if any(str(kw).lower() in detect_text for kw in keywords if str(kw).strip()):
+                if _character_mentioned(detect_text, keywords):
                     reference_image = str(PROJECT_ROOT / "resources" / scenario_id / image)
                     detected_tag = Path(image).stem  # stable, language-neutral tag
                     is_character = True
@@ -784,9 +797,7 @@ class VisualService:
                     # doesn't depict forces a phantom figure into the composition
                     # (live 2026-07-04: a giant floating Se-rin over a manhole scene).
                     appearance = str(entry.get("appearance") or "").strip()
-                    in_prompt = any(
-                        str(kw).lower() in lower_prompt for kw in keywords if str(kw).strip()
-                    )
+                    in_prompt = _character_mentioned(lower_prompt, keywords)
                     if appearance and in_prompt:
                         prompt = f"{prompt}. Character appearance (keep consistent): {appearance}"
                     break

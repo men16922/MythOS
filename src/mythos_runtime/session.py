@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 from collections.abc import Iterator
 from dataclasses import dataclass, field, replace
 from typing import TYPE_CHECKING, Any
@@ -26,6 +25,7 @@ from mythos_core import (
 from mythos_core.clock import utc_now
 from mythos_core.dice import Dice
 from mythos_core.models import to_json_dict
+from mythos_core.text_match import name_mentions
 from mythos_loop import LoopEngine, LoopTransition, create_player_event, create_world_event
 from mythos_memory import MythOSStore
 from mythos_narrative import NarrativeContext, NarrativeDirector, NarrativeStreamEvent, ScenePayload
@@ -209,22 +209,11 @@ def _companion_alias_map(scenario: Any, scenario_id: str) -> dict[str, list[str]
 def _companions_in_text(alias_map: dict[str, list[str]], text: str) -> list[str]:
     """Companion display names referenced in ``text``.
 
-    Single-syllable KO names ("한") match only when particle-bounded — a bare
-    substring would hit ordinary words (한다/한강/한 걸음) on every scene.
+    Delegates to the shared name rule: single-syllable KO names ("한") match only
+    when particle-bounded, or they hit ordinary words (한다/한강/한 걸음) on every
+    scene; ASCII aliases must stand alone, or "Han" matches inside *Handle*.
     """
-    found: list[str] = []
-    for name, aliases in alias_map.items():
-        for alias in aliases:
-            if len(alias) == 1:
-                if re.search(
-                    rf"(?<![가-힣]){re.escape(alias)}(?=[이가은는와과의에])", text
-                ):
-                    found.append(name)
-                    break
-            elif alias in text:
-                found.append(name)
-                break
-    return found
+    return [name for name, aliases in alias_map.items() if name_mentions(text, aliases)]
 
 
 # G1 setup ledger seeds: the opening variant's hook line is a planted setup the

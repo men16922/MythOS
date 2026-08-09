@@ -13,6 +13,7 @@ from typing import Any, cast
 
 from mythos_core import PlayerProfile
 from mythos_core.models import to_json_dict
+from mythos_core.text_match import mentions
 from mythos_runtime.companion_growth import companion_sheet
 from mythos_runtime.options import MemoryOverview, RunSummary, RuntimeSnapshot, SaveSlot
 from mythos_runtime.route_runtime import node_axis, select_perspective
@@ -154,14 +155,6 @@ _AXIS_KEYWORDS: tuple[tuple[str, tuple[str, ...]], ...] = (
 )
 
 
-def _axis_keyword_hit(text: str, keyword: str) -> bool:
-    """Korean keywords match as substrings (no word boundaries); ASCII ones must
-    stand alone, or `"ix"` decides the axis of every label containing *fix*."""
-    if keyword.isascii():
-        return re.search(rf"(?<![a-z0-9]){re.escape(keyword)}(?![a-z0-9])", text) is not None
-    return keyword in text
-
-
 def _choice_axis(label: str, intent: str | None) -> str | None:
     """The value axis this choice advertises, or ``None`` for no chip at all.
 
@@ -176,7 +169,7 @@ def _choice_axis(label: str, intent: str | None) -> str | None:
     """
     text = f"{label} {intent or ''}".lower()
     for axis, keywords in _AXIS_KEYWORDS:
-        if any(_axis_keyword_hit(text, keyword) for keyword in keywords):
+        if mentions(text, keywords):
             return axis
     # Only intents that *name* their axis are trusted. `interact` does not — a
     # terminal, a door and a person are all interactions — and neither does

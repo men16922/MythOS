@@ -5,6 +5,15 @@ Last updated: 2026-08-09
 Newest entries only; earlier 2026-08 increments are in `bin/docs/archive/progress-2026-08.md`
 (then `progress-2026-07.md`, `progress-2026-06.md`). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
 
+## 2026-08-09 — Han's portrait was bound to any scene containing "change"
+
+- Status: the third instance of the Korean-only/unbounded-matching class is fixed, and the rule now lives in **one** module instead of four copies. `make check` **1250** (5 skipped), up 9. Local-only; rides the next deploy.
+- Diagnosed: `visual_service._request_from_scene` picks a character's reference image with `any(str(kw).lower() in detect_text ...)` — an unbounded substring over narration + title + prompt. Han's keywords are `한`/`han`/`신호 파괴자`, so measured against the real scenario data, all three of "The **chan**nel goes dead…", "You **han**dle the terminal…" and "Ex**chan**ge rates change…" bound **Han's portrait** as the reference image; when the word also reached the image prompt, his canonical appearance line was appended too — the same failure the code's own comment records for Se-rin ("a giant floating Se-rin over a manhole scene"), reached by substring instead.
+- Changed, and this is the part worth noting: the first fix (drop one-syllable Korean keywords, as the frontend does) **traded a false positive for a false negative** — `한이 송신기를 뜯어낸다` stopped detecting Han at all, breaking the language he is authored in. The repo had already solved this properly at `session.py` with particle-bounding, so that rule was promoted rather than reinvented: a one-syllable Korean name counts when a grammatical particle follows (`한이`, `한과`) and not otherwise (`한강`, `한 걸음`).
+- Consolidated: `mythos_core/text_match.py` now owns `keyword_hits` / `mentions` / `name_mentions`, and the four sites that had each grown their own copy — the value-axis chip, Se-rin's opening flags, character reference art, and companion detection — all route through it. `_companions_in_text` gained the ASCII guard it never had (its `alias in text` matched "Han" inside *Handle*).
+- Measured 9/9 on the real scenario data: no character detected in the three English false-positive sentences or in `한강 야시장` / `한 걸음`, and Han detected in EN prose, `한이…` and `한과…`. 13 new tests pin the shared rule.
+- Boundary: mechanical only. This changes which reference image is chosen, so the visible effect is on generated art — not reproducible without running generation, and not verified in a browser.
+
 ## 2026-08-09 — English players could not refuse Se-rin
 
 - Status: a **gameplay** defect, not display — found by sweeping for the class the value-axis bug belonged to. Fixed and locked. `make check` **1241** (5 skipped), up 6. Local-only; rides the next deploy.

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, field, replace
 
 from mythos_core import Echo, LoopPhase, LoopState, NarrativeShard, Scene, WorldEvent
@@ -8,6 +7,7 @@ from mythos_core.clock import utc_now
 from mythos_core.ids import new_event_id, new_shard_id
 from mythos_core.mapgrid import update_map
 from mythos_core.models import Actor
+from mythos_core.text_match import mentions
 from mythos_narrative.schemas import ScenePayload
 
 from .validator import ValidationError, Validator
@@ -101,9 +101,9 @@ class LoopEngine:
             # acceptance word, so "take her hand instead of hiding alone" stays
             # acceptance.
             refusal_verbs = ["거절", "거부", "refuse", "decline", "reject"]
-            is_refused = _mentions(action_text, refusal_verbs) or (
-                _mentions(action_text, refused_keywords)
-                and not _mentions(action_text, met_keywords)
+            is_refused = mentions(action_text, refusal_verbs) or (
+                mentions(action_text, refused_keywords)
+                and not mentions(action_text, met_keywords)
             )
             if is_refused:
                 if "refused_se_rin" not in flags:
@@ -248,24 +248,6 @@ class LoopEngine:
 
         # Default: stay in current phase to allow longer story arcs
         return loop.phase
-
-
-def _mentions(text: str, keywords: list[str]) -> bool:
-    """Is any keyword present? ASCII keywords must stand alone.
-
-    Korean has no word boundaries, so those keywords match as substrings (which
-    is how the stems above are written). An unbounded ASCII match would fire
-    "own" inside *downtown* and "hand" inside *handle*, and these keywords decide
-    a branch of the story.
-    """
-    lowered = text.lower()
-    for keyword in keywords:
-        if keyword.isascii():
-            if re.search(rf"(?<![a-z0-9]){re.escape(keyword)}(?![a-z0-9])", lowered):
-                return True
-        elif keyword in text:
-            return True
-    return False
 
 
 def _archive_requested(loop: LoopState, payload: ScenePayload) -> bool:

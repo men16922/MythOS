@@ -276,3 +276,54 @@ data-layer-01
         self.assertEqual(payload.location, "지하 통제 중추")
         self.assertEqual(payload.narration, "신호가 깨진 채 이어진다.")
         self.assertEqual(payload.choices[0].label, "세린의 손을 잡는다")
+
+
+class PlainTextHeuristicsLanguageTest(unittest.TestCase):
+    """The dual-model plain-text path's heuristics were written against Korean.
+
+    Two of them broke on English in opposite ways: the bare SFX pattern ran off
+    the end of the sentence (Hangul used to stop it), and the combat trigger
+    never fired at all.
+    """
+
+    def test_bare_sfx_marker_does_not_swallow_the_sentence(self) -> None:
+        from mythos_narrative.parser import _clean_player_text
+
+        # `[A-Z0-9 _-]+` under IGNORECASE also matches lowercase and spaces, so
+        # the match ran to the sentence end and the replacement prose ate the
+        # rest of the line. Korean was unaffected because Hangul falls outside
+        # the class — this destroyed English only.
+        out = _clean_player_text("A siren rises. SFX: ALARM WAIL and the crowd scatters.")
+        self.assertIn("and the crowd scatters.", out)
+        out_ko = _clean_player_text("경보가 울린다. SFX: ALARM WAIL 사람들이 흩어진다.")
+        self.assertIn("사람들이 흩어진다.", out_ko)
+
+    def test_bracketed_marker_still_accepts_any_casing(self) -> None:
+        from mythos_narrative.parser import _clean_player_text
+
+        out = _clean_player_text("The lights die. [Cinematic sfx: glitch pop] Something moves.")
+        self.assertNotIn("sfx", out.lower())
+        self.assertIn("Something moves.", out)
+
+    def test_english_narration_can_start_combat(self) -> None:
+        for story in (
+            "Combat begins. Two enforcers step out of the stairwell.",
+            "The drone opens fire; the fight is on.",
+            "A patrol ambush closes the corridor and battle erupts.",
+        ):
+            with self.subTest(story=story):
+                payload = parse_story_text(story)
+                self.assertIsNotNone(payload.world_delta.start_combat)
+
+    def test_korean_narration_still_starts_combat(self) -> None:
+        payload = parse_story_text("전투가 시작된다. 집행 유닛 둘이 걸어 나온다.")
+        self.assertIsNotNone(payload.world_delta.start_combat)
+
+    def test_merely_mentioning_danger_does_not_start_combat(self) -> None:
+        # The heuristic starts a real encounter, so it must stay specific.
+        for story in (
+            "Nothing moves. The corridor is quiet.",
+            "You avoid the ambush and slip past the enemy patrol.",
+        ):
+            with self.subTest(story=story):
+                self.assertIsNone(parse_story_text(story).world_delta.start_combat)

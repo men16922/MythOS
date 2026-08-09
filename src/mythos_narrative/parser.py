@@ -5,6 +5,7 @@ import re
 from typing import Any
 
 from mythos_core import Choice
+from mythos_core.text_match import mentions
 
 from .fallbacks import DEFAULT_FALLBACK
 from .schemas import (
@@ -225,17 +226,38 @@ def _clean_player_text(value: str) -> str:
         value,
         flags=re.IGNORECASE,
     )
-    cleaned = re.sub(
-        r"(?:cinematic\s*)?sfx\s*:\s*[A-Z0-9 _-]+",
-        lambda match: _sfx_to_prose(match.group(0), korean),
-        cleaned,
-        flags=re.IGNORECASE,
-    )
+    cleaned = _SFX_BARE.sub(lambda match: _sfx_to_prose(match.group(0), korean), cleaned)
     cleaned = re.sub(r"(?<=[.!?])(?=\S)", " ", cleaned)
     return re.sub(r"[ \t]{2,}", " ", cleaned).strip()
 
 
 _HANGUL = re.compile(r"[가-힣]")
+
+# An SFX marker the model wrote WITHOUT brackets. The bracketed form is bounded
+# by its `]`; this one has to find its own end, and the label is the only signal
+# — SFX labels are written in caps ("SFX: ALARM WAIL").
+#
+# The previous pattern was `[A-Z0-9 _-]+` under IGNORECASE, which also matches
+# lowercase and spaces, so it ran to the end of the sentence and the replacement
+# prose ate the rest of the line. In Korean the Hangul stopped it, which is why
+# this only destroyed English: "A siren rises. SFX: ALARM WAIL and the crowd
+# scatters." became "A siren rises. An alarm spread somewhere far off. ."
+#
+# Only the `sfx:` prefix is case-insensitive now; the label must be uppercase
+# tokens, so the marker ends where ordinary prose resumes. A fully lowercase bare
+# marker no longer matches — it does not read as a label, and the bracketed form
+# still accepts any casing.
+_SFX_BARE = re.compile(r"(?i:(?:cinematic\s*)?sfx\s*:)\s*[A-Z0-9_-]+(?:[ ][A-Z0-9_-]+)*")
+
+# Phrases that mean a fight starts NOW. Deliberately specific: this heuristic
+# starts a real encounter, so a bare "ambush" or "enemy" would over-trigger on
+# narration that merely mentions danger.
+_COMBAT_TRIGGER_PHRASES = (
+    "전투 시작", "전투가 시작", "시작되는 전투", "적 출현",
+    "combat begins", "combat starts", "battle begins", "battle erupts",
+    "the fight begins", "the fight is on", "a fight breaks out",
+    "opens fire", "enemies appear", "enemy appears",
+)
 
 # A bracketed [SFX: ...] marker the model was told not to emit becomes prose, so
 # the player never sees the label. Both languages are authored: the replacement
@@ -520,10 +542,18 @@ def parse_story_text(story_text: str) -> ScenePayload:
             stability -= 1
             tension += 1
 
-    # Heuristic for starting combat from text
+    # Heuristic for starting combat from text. The phrase list was Korean-only,
+    # so English narration ("Combat begins", "the drone opens fire") matched
+    # nothing — the turn raised the bilingual `combat_imminent` flag below and
+    # then no fight started, which is the degenerate state. `encounter_` stays a
+    # plain substring test: it is a prefix, and word-bounding would reject the id
+    # that follows it.
     start_combat = None
     story_lower = story_text.lower()
-    if any(w in story_lower for w in ["전투 시작", "전투가 시작", "시작되는 전투", "적 출현", "encounter_"]):
+    if (
+        mentions(story_lower, _COMBAT_TRIGGER_PHRASES)
+        or "encounter_" in story_lower
+    ):
         # heuristic try to find encounter id
         encounter_match = re.search(r"encounter_([a-zA-Z0-9_-]+)", story_text)
         if encounter_match:

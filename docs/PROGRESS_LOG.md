@@ -5,6 +5,14 @@ Last updated: 2026-08-09
 Newest entries only; earlier 2026-08 increments are in `bin/docs/archive/progress-2026-08.md`
 (then `progress-2026-07.md`, `progress-2026-06.md`). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
 
+## 2026-08-09 — An SFX marker ate the rest of the English sentence; EN narration could not start a fight
+
+- Status: the Korean-only matching class is **fully closed**. No agent-executable Priority 0 item remains. `make check` **1260** (5 skipped), up 5. Local-only; rides the next deploy.
+- **Bare SFX marker (destructive, main JSON path)**: the pattern was `[A-Z0-9 _-]+` under `IGNORECASE`, which also matches lowercase and spaces, so it ran to the end of the sentence and the replacement prose consumed the rest of the line. `"A siren rises. SFX: ALARM WAIL and the crowd scatters."` became `"A siren rises. An alarm spread somewhere far off. ."` — the trailing clause was deleted outright. **Korean was never affected**, because Hangul falls outside the character class and stopped the match; the class was acting as a boundary that only exists in Korean prose. Now only the `sfx:` prefix is case-insensitive and the label must be uppercase tokens, so the marker ends where ordinary prose resumes. The bracketed form is unchanged (its `]` already bounds it, any casing). A fully lowercase bare marker no longer matches — it does not read as a label.
+- **Combat trigger**: `start_combat` was detected from four Korean phrases plus `encounter_`, so English narration matched nothing and the turn raised the bilingual `combat_imminent` flag with no fight behind it. Verified: `Combat begins.`, `the drone opens fire`, `battle erupts` all returned `start_combat=None`. English phrases added; kept deliberately specific because this starts a real encounter, so `You avoid the ambush and slip past the enemy patrol.` still does **not** trigger. `encounter_` stays a plain substring test — word-bounding would reject the id that follows the prefix.
+- Measured: 5/5 sentences keep their trailing clause (was 0/2 for English), 7/7 on combat triggering across both languages and both negatives. 8 regression tests.
+- Scope note: the combat trigger lives on the dual-model plain-text path (`ollama_model_story` set), which is local development only — the cloud product uses the JSON path. The SFX fix is on the main path and affects production.
+
 ## 2026-08-09 — Opening art dropped after the first shot in English; SFX prose spoke Korean
 
 - Status: the Korean-only matching class is **closed** except one local-dev-only item. `make check` **1255** (5 skipped), up 5. Local-only; rides the next deploy.

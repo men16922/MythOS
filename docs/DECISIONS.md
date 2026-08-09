@@ -2,6 +2,18 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-08-09 — A value-axis chip is omitted rather than invented
+
+Decision: `_choice_axis` returns `None` when a Director-authored choice's label carries no axis signal, and the UI then renders no chip at all — no axis, no label, no result preview, no 가치축 stake. The two fallbacks that used to guarantee an answer (`intent=interact` → people, and a final default of safety) are removed. This follows the rule junction destinations have used since 2026-07-19: an axisless destination shows no chip.
+
+Reason/impact: the vocabulary was Korean-only, so on an EN loop the label could not match and the axis collapsed onto the intent fallback. Measured over three banked EN arms holding intent at `interact`, **96/98, 94/95 and 97/99 labels resolved to "Help people"** and **43 of 45 multi-choice scenes put every choice on the same axis** — the chip was noise, and it actively lied on evasion actions. After: 43/45 → 14/45 scenes collapsed, but **40 of 98 choices now show no chip where all 98 showed one**. That trade is the reversible part and is the owner's to revisit: "choices reveal the value axis" is a Priority-1 criterion, so if coverage matters more than precision the answer is a wider vocabulary in `_AXIS_KEYWORDS`, **not** restoring a default — the default is what made the chip meaningless.
+
+## 2026-08-09 — One text-matching rule for all player-facing text
+
+Decision: `mythos_core/text_match.py` owns keyword and name matching against player-facing text (`keyword_hits` / `mentions` / `name_mentions`). Korean matches as a substring (the scenario authors stems); ASCII must stand alone; a one-syllable Korean **name** is particle-bounded rather than dropped. Four sites that had each grown their own copy — the value-axis chip, Se-rin's opening flags, character reference art, companion detection — now call it.
+
+Reason/impact: the same defect was found six times in one sweep, in both directions. Unbounded ASCII made `ix` fire inside *Fix*, `own` inside *downtown*, `hand` inside *handle* and `han` inside *channel*/*change* — deciding a value axis, a story branch, and which character's portrait was bound as an image reference. Korean-only matching made English narration match nothing, which silently disabled a gameplay branch (`refused_se_rin` was unreachable). A first attempt at the name rule dropped one-syllable Korean names, trading a false positive for a false negative (`한이` stopped matching) — the particle-bounding already in `session.py` was promoted instead. Impact: new matching against player text should use this module rather than `in`; the frontend keeps a parallel implementation in `sceneCharacter.ts` because it is a different language, and the two must be changed together.
+
 ## 2026-07-31 — Gemini 3.1 image uses global; gameplay WebSockets get 3600s
 
 Decision: migrate the cloud image seam to GA `gemini-3.1-flash-image` on its dedicated `IMAGEN_LOCATION=global`, while narrative remains `gemini-3.5-flash`; keep Cloud Run regional resources in `us-central1`. Pin the Cloud Run request timeout to 3600 seconds in `make deploy`.

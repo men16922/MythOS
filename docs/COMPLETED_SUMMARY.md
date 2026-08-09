@@ -1,6 +1,6 @@
 # Completed Summary
 
-최종 갱신: 2026-07-28
+최종 갱신: 2026-08-09
 
 이 문서는 완료된 milestone의 압축 요약이다. 세부 작업 로그와 검증 기록은 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`, `bin/docs/archive/progress-2026-05.md`, `bin/docs/archive/progress-2026-06.md`를 참고한다. 최신 짧은 로그만 `PROGRESS_LOG.md`에 남긴다.
 
@@ -304,6 +304,14 @@
 - **Result**: three clean-base actors produced scoped candidate commits but reported 37/28/27 turns against 12. Harness 1.3.4 rejected before external verification, exactly compensated all three, and left zero dirty trees: strict-contract verified completion 0/3, false accepts 0.
 - **Economics/proof**: valid actor wall/cost/tokens = 504.072s/$2.7305/4,927,960; pre/post `make check` 1171 (5 skipped), ledgers balanced, compensation trees exact. One excluded wrong-runner dispatch raised total spend to $3.1979; evidence/report under `outputs/overnight/heldout-v1-clean-baseline/` and `docs/reports/2026-07-28-heldout-v1-clean-repair0-baseline.md`.
 - **Owner decision**: retain strict 12-turn acceptance, accept current-contract productivity 0/3, and close repair rollout. `OVERNIGHT_REPAIR=0`; never tune/retry bank v1. Any future reopening requires preregistration, unseen owner-ratified bank v2, and fresh approval.
+
+## M79 — 08-08 arm display gaps re-examined; Korean-only matching class closed (2026-08-09)
+
+- **Purpose**: the 2026-08-08 owner-review arm listed its display problems as authoring/`[manual]` items awaiting the owner's read. Re-examining them instead of accepting that classification found **all four were deterministic defects**, and the last one belonged to a *class* — matching logic written in Korean literals running against an EN-default product — which was then swept for across `src/`.
+- **Output (21 commits)**: tutorial tier 1→4 encounters (never-wins path 1 fight + 19 skipped beats → 20/20 across four fights, balance-simulator tuned to 0.58–0.77 solo); speaker attribution (possessive guard rejected `X's voice`, so **every** such attribution showed no portrait; speaker now decided by a speech cue rather than scenario array order; `"…," X says.` was not recognised as dialogue at all — 33% of quoted spans); value-axis chip (Korean-only vocabulary meant 96/98 EN labels read "Help people" and 43/45 scenes shared one axis → 14/45); and six instances of the matching class — Se-rin accept/refuse (**gameplay**: EN players could not refuse; `refused_se_rin` unreachable), character reference art (`change`/`channel`/`handle` bound Han's portrait), opening cinematic gate (4/9 → 8/9 EN opening turns), companion detection, an SFX marker that **deleted the rest of the English sentence** on the main path, and a combat trigger EN narration could never fire.
+- **Structure**: the rule is now one module, `mythos_core/text_match.py` (`keyword_hits`/`mentions`/`name_mentions`), replacing four independently-grown copies. Korean matches as a substring, ASCII must stand alone, and a one-syllable Korean *name* is particle-bounded rather than dropped.
+- **Verification**: `make check` 1222 → **1260** (5 skipped) with 38 new tests; `make smoke-local` exit 0; every fix reproduced before it was written and re-measured after. Rendered evidence: `outputs/live-qa/20260808-tier1-encounters/`, `outputs/live-qa/20260809-axis-and-attribution/`.
+- **Boundary**: all local — nothing pushed or deployed, by design, so the owner's §3 verdict is not desynchronised. Generated-art effects and play feel remain unverified; `CURRENT OBJECTIVE` did not reproduce and still needs the three scene ids.
 
 ## Archive Reference
 

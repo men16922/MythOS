@@ -242,3 +242,96 @@ class LoopEngineTest(unittest.TestCase):
         transition = engine.apply_scene_payload(loop, scene, payload)
         self.assertTrue(transition.ok)
         self.assertEqual(transition.loop.state["_party"]["player_hp"], 0)
+
+
+class SeRinContactFlagTest(unittest.TestCase):
+    """The opening's accept/refuse branch must work in the product's default language.
+
+    The keyword lists were Korean-only, and the branch is not symmetric — anything
+    that is not a detected refusal falls through to ``met_se_rin``. So on an EN
+    loop every player was recorded as having taken Se-rin's hand, whatever they
+    chose, and ``refused_se_rin`` could never be set. These flags gate route
+    content, Se-rin's presence in combat and ending branches, so the whole refusal
+    arm of the opening was unreachable in English (measured 2026-08-09).
+    """
+
+    def setUp(self) -> None:
+        self.now = datetime(2026, 8, 9, tzinfo=UTC)
+
+    def _flags(self, action: str) -> list[str]:
+        from mythos_loop import create_player_event
+
+        loop = LoopState(
+            loop_id="loop_1",
+            player_id="player_1",
+            seed="seed_1",
+            phase=LoopPhase.CONNECT,
+            location_id="data-layer-01",
+            stability=50,
+            tension=20,
+            started_at=self.now,
+            state={"scenario_id": "neo-seoul", "_opening_variant": "default"},
+        )
+        scene = Scene(
+            scene_id="scene_0",
+            loop_id="loop_1",
+            turn_index=0,
+            title="C-17",
+            location="data-layer-01",
+            narration="The alley lights die.",
+            choices=[Choice("choice_0", action, "explore")],
+            visual_brief="",
+            created_at=self.now,
+        )
+        payload = ScenePayload(
+            title="C-17",
+            location="data-layer-01",
+            narration="The alley lights die.",
+            choices=[Choice("choice_1", "Next", "explore")],
+            visual_brief="",
+            world_delta=WorldDelta(stability=0, tension=1, flags=[]),
+        )
+        event = create_player_event(loop_id="loop_1", turn_index=0, action=action)
+        transition = LoopEngine().apply_scene_payload(loop, scene, payload, chosen_event=event)
+        return [f for f in transition.loop.state.get("flags", []) if "se_rin" in f]
+
+    def test_english_refusal_is_recorded_as_refusal(self) -> None:
+        for action in (
+            "Refuse her hand and slip into the alley alone",
+            "Decline unexplained favors and seek another exit",
+            "Hide and watch her from the shadows",
+        ):
+            with self.subTest(action=action):
+                self.assertEqual(self._flags(action), ["refused_se_rin"])
+
+    def test_english_acceptance_is_recorded_as_acceptance(self) -> None:
+        for action in (
+            "Take Jung Se-rin's hand and run",
+            "Follow her onto the bike",
+            "Trust the stranger and go together",
+        ):
+            with self.subTest(action=action):
+                self.assertEqual(self._flags(action), ["met_se_rin"])
+
+    def test_korean_behaviour_is_unchanged(self) -> None:
+        self.assertEqual(self._flags("정세린의 손을 잡는다"), ["met_se_rin"])
+        self.assertEqual(self._flags("그녀를 따라 오토바이에 탑승한다"), ["met_se_rin"])
+        self.assertEqual(self._flags("그녀의 제안을 거절하고 혼자 움직인다"), ["refused_se_rin"])
+
+    def test_refusal_verb_beats_the_noun_it_refuses(self) -> None:
+        # "Refuse her hand" carries both signals; the old rule let "hand" win.
+        self.assertEqual(
+            self._flags("Refuse her hand"), ["refused_se_rin"]
+        )
+        # ...but a soft marker still defers to acceptance.
+        self.assertEqual(
+            self._flags("Take her hand instead of hiding alone"), ["met_se_rin"]
+        )
+
+    def test_ascii_keywords_do_not_match_inside_words(self) -> None:
+        # "own" inside *downtown*, "hand" inside *handle* — these keywords pick a
+        # branch of the story, so a substring must not decide it.
+        self.assertEqual(self._flags("Head downtown past the handlers"), ["met_se_rin"])
+
+    def test_unmatched_action_keeps_the_existing_default(self) -> None:
+        self.assertEqual(self._flags("Step toward the far end"), ["met_se_rin"])

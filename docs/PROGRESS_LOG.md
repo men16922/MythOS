@@ -5,6 +5,15 @@ Last updated: 2026-08-09
 Newest entries only; earlier 2026-08 increments are in `bin/docs/archive/progress-2026-08.md`
 (then `progress-2026-07.md`, `progress-2026-06.md`). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
 
+## 2026-08-09 — English players could not refuse Se-rin
+
+- Status: a **gameplay** defect, not display — found by sweeping for the class the value-axis bug belonged to. Fixed and locked. `make check` **1241** (5 skipped), up 6. Local-only; rides the next deploy.
+- Why the sweep: four of four display gaps from the 08-08 arm turned out to be deterministic defects, and the last one was "Korean-only matching logic in an EN-default product". That is a *class*, so the rest of `src/` was searched for it rather than stopping at the one instance.
+- Diagnosed: `LoopEngine.apply_scene_payload` decides the opening's `met_se_rin` / `refused_se_rin` from the player's chosen choice label using two Korean-only keyword lists — and the branch is not symmetric, so anything not detected as a refusal falls through to `met_se_rin`. On an EN loop neither list can fire. Measured against the real engine: `Refuse her hand and slip into the alley alone` and `Decline unexplained favors and seek another exit` both recorded **`met_se_rin`**, and `refused_se_rin` was unreachable in English. The flags gate route content, Se-rin's presence in combat and ending branches (`route_content`, `combat_service`, five scenario gates), so the entire refusal arm of the opening was dead in the product's default language.
+- Changed: English keywords paired with the Korean ones; ASCII keywords word-bounded (`own` inside *downtown*, `hand` inside *handle* were deciding a story branch); and an explicit refusal **verb** (`refuse/decline/reject/거절/거부`) now outranks the noun it refuses, since "Refuse her hand" carries both signals and the old `is_refused and not is_met` let the noun win. Softer markers (`alone/hide/혼자/은신`) still defer to an acceptance word, so "take her hand instead of hiding alone" stays acceptance.
+- Measured before → after, 12 probes: every English refusal now records refusal, English acceptance is unchanged, and the three Korean cases are byte-identical to before. Six regression tests.
+- **Three more instances of the same class are open and unfixed** (evidence in this entry's plan item): a combat trigger that only fires on Korean phrases, an opening-cinematic gate whose EN path hangs on the literal `C-17`, and an unbounded character-keyword match that binds Han's reference image to any narration containing *change* or *handle*.
+
 ## 2026-08-09 — Nearly every English choice advertised "Help people"
 
 - Status: the last two display gaps filed as authoring were **one deterministic defect**, now fixed. `make check` **1235** (5 skipped), up 4. Local-only; rides the next deploy. Mechanically measured; the chip's readability in play stays a manual verdict.

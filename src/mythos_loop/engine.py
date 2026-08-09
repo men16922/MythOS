@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field, replace
 
 from mythos_core import Echo, LoopPhase, LoopState, NarrativeShard, Scene, WorldEvent
@@ -73,37 +74,38 @@ class LoopEngine:
             if chosen_event is not None and chosen_event.actor == Actor.PLAYER:
                 action_text = chosen_event.action or ""
 
-            # Keywords matching
+            # Keyword matching. These were Korean-only, so on an EN loop neither
+            # list could fire and the else-branch below flagged EVERY English
+            # player `met_se_rin` — "Refuse her hand and slip into the alley
+            # alone" was recorded as acceptance, and `refused_se_rin` was
+            # unreachable in the product's default language. The flags gate route
+            # content, Se-rin's combat presence and ending branches, so the whole
+            # refusal arm of the opening was dead in English.
             met_keywords = [
-                "따라",
-                "수락",
-                "동의",
-                "손을",
-                "신뢰",
-                "오토바이",
-                "타기",
-                "탑승",
-                "잡는다",
-                "동행",
-                "협력",
+                "따라", "수락", "동의", "손을", "신뢰", "오토바이",
+                "타기", "탑승", "잡는다", "동행", "협력",
+                "follow", "accept", "agree", "trust", "ride", "board",
+                "join", "grab", "take", "hand", "along", "together",
             ]
             refused_keywords = [
-                "거절",
-                "거부",
-                "혼자",
-                "독자",
-                "경계",
-                "피해",
-                "숨기",
-                "은신",
-                "기다린다",
-                "분석",
+                "거절", "거부", "혼자", "독자", "경계", "피해",
+                "숨기", "은신", "기다린다", "분석",
+                "refuse", "decline", "reject", "ignore", "alone", "avoid",
+                "hide", "wary", "distrust", "without", "own", "another",
             ]
 
-            is_met = any(kw in action_text for kw in met_keywords)
-            is_refused = any(kw in action_text for kw in refused_keywords)
-
-            if is_refused and not is_met:
+            # An explicit refusal verb decides on its own, because the sentence
+            # usually names what is being refused: "Refuse her hand" carries both
+            # signals, and the old `is_refused and not is_met` let the noun win.
+            # The softer markers (alone / hide / 혼자 / 은신) still defer to an
+            # acceptance word, so "take her hand instead of hiding alone" stays
+            # acceptance.
+            refusal_verbs = ["거절", "거부", "refuse", "decline", "reject"]
+            is_refused = _mentions(action_text, refusal_verbs) or (
+                _mentions(action_text, refused_keywords)
+                and not _mentions(action_text, met_keywords)
+            )
+            if is_refused:
                 if "refused_se_rin" not in flags:
                     flags.append("refused_se_rin")
                 if "met_se_rin" in flags:
@@ -246,6 +248,24 @@ class LoopEngine:
 
         # Default: stay in current phase to allow longer story arcs
         return loop.phase
+
+
+def _mentions(text: str, keywords: list[str]) -> bool:
+    """Is any keyword present? ASCII keywords must stand alone.
+
+    Korean has no word boundaries, so those keywords match as substrings (which
+    is how the stems above are written). An unbounded ASCII match would fire
+    "own" inside *downtown* and "hand" inside *handle*, and these keywords decide
+    a branch of the story.
+    """
+    lowered = text.lower()
+    for keyword in keywords:
+        if keyword.isascii():
+            if re.search(rf"(?<![a-z0-9]){re.escape(keyword)}(?![a-z0-9])", lowered):
+                return True
+        elif keyword in text:
+            return True
+    return False
 
 
 def _archive_requested(loop: LoopState, payload: ScenePayload) -> bool:

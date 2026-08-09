@@ -230,6 +230,59 @@ class VisualServiceTest(unittest.TestCase):
         self.assertIn("se-rin.png", ref_image)
         self.assertEqual(request.metadata.get("ip_adapter_scale"), 0.6)
 
+    def _scene(self, narration: str, *, turn: int = 1, objective: str | None = "Escape") -> Scene:
+        return Scene(
+            scene_id="scene_lang",
+            loop_id="loop_lang",
+            turn_index=turn,
+            title="",
+            location="data-layer-01",
+            narration=narration,
+            choices=[],
+            visual_brief="",
+            created_at=datetime(2026, 8, 9, tzinfo=UTC),
+            objective=objective,
+        )
+
+    def _meta(self, narration: str, *, turn: int = 1) -> dict:
+        service = VisualService(provider=FakeProvider(), store=FakeStore())
+        request = service._request_from_scene(
+            self._scene(narration, turn=turn), player_id="player_test", overrides={}
+        )
+        return dict(request.metadata)
+
+    def test_ascii_character_keyword_cannot_match_inside_a_word(self) -> None:
+        # Han's keyword "han" matched *channel*, *change* and *handle* as a bare
+        # substring, so ordinary English narration bound his portrait as the
+        # reference image and pushed his appearance into scenes he is not in.
+        for narration in (
+            "The channel goes dead over the wet concrete.",
+            "You handle the terminal carefully.",
+            "Exchange rates change on the board.",
+        ):
+            with self.subTest(narration=narration):
+                self.assertIsNone(self._meta(narration, turn=6).get("detected_tag"))
+
+    def test_single_syllable_korean_name_needs_a_particle(self) -> None:
+        # 한 also sits inside 한강 / 한 걸음 — but dropping the name outright would
+        # make Han undetectable in the language he is authored in.
+        self.assertIsNone(self._meta("한강 야시장을 지난다.", turn=6).get("detected_tag"))
+        self.assertEqual(self._meta("한이 송신기를 뜯어낸다.", turn=6).get("detected_tag"), "han")
+
+    def test_opening_cut_applies_to_english_narration(self) -> None:
+        # Three of the gate's four alternatives were Korean, so on an EN loop it
+        # hung on the model writing the literal "C-17" — measured across three
+        # banked EN arms it fired on 4 of 9 opening turns, missing turn 1 in all
+        # three, so the curated opening cuts were dropped after the first shot.
+        meta = self._meta("A surveillance drone sweeps the flooded channel.")
+        self.assertEqual(meta.get("detected_tag"), "opening_shot_1")
+        meta_ko = self._meta("감시 드론이 수로를 훑는다.")
+        self.assertEqual(meta_ko.get("detected_tag"), "opening_shot_1")
+
+    def test_opening_cut_still_needs_an_opening_signal(self) -> None:
+        meta = self._meta("A rusted welfare kiosk stands at the mouth of the alley.")
+        self.assertNotEqual(meta.get("detected_tag"), "opening_shot_1")
+
     def test_concept_detection_does_not_enable_ip_adapter(self) -> None:
         # Create a scene with concept name "night market" in the prompt
         scene = Scene(

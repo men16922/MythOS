@@ -188,9 +188,23 @@ data-layer-01
             }
         )
 
+        # The replacement follows the language of the line it is spliced into:
+        # the first two are Korean scenes, the third is an English one. It used
+        # to be Korean unconditionally, so an EN loop got a Korean sentence
+        # dropped into the middle of English narration.
         self.assertEqual(payload.narration, "치직, 긁히는 정전기가 귓속을 스쳤다. 신호가 열린다.")
         self.assertEqual(payload.objective, "낮은 기계음이 바닥 아래에서 울렸다. 문을 찾는다.")
-        self.assertEqual(payload.action_result, "Partial Success. 짧은 글리치음이 허공을 찢었다.")
+        self.assertEqual(payload.action_result, "Partial Success. A short glitch tore at the air.")
+
+    def test_sfx_prose_follows_the_scene_language(self) -> None:
+        from mythos_narrative.parser import _clean_player_text
+
+        english = _clean_player_text("The corridor lights die. [SFX: GLITCH] Something moves.")
+        self.assertEqual(english, "The corridor lights die. A short glitch tore at the air. Something moves.")
+        self.assertNotRegex(english, r"[가-힣]")
+
+        korean = _clean_player_text("복도의 불이 꺼진다. [SFX: GLITCH] 무언가 움직인다.")
+        self.assertEqual(korean, "복도의 불이 꺼진다. 짧은 글리치음이 허공을 찢었다. 무언가 움직인다.")
 
     def test_strips_tabletop_mechanics_annotations(self) -> None:
         # Live 2026-07-04 leak: the GM prompt forbids "Make a Perception check"

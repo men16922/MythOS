@@ -3,6 +3,48 @@
 Archived increments from `docs/PROGRESS_LOG.md`. Newest on top; the current log keeps
 only the most recent entries. Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
 
+## 2026-08-08 — Session committed; owner verdict packet prepared
+
+- Status: the session's five fix bundles are committed as `66e4805`, `b396de7`, `cdc95c1`, `029bb87`, `c0370c7`, `0477bd2`; `main` is ahead 9, push owner-run. Only the renderer fix is deployed — localization, summary language, novelty reviser and encounter downgrade are committed but live only locally.
+- Changed: wrote `outputs/evals/20260808-owner-review/owner-review.md` on the 07-28 packet's pattern — scene anchors, the ending record, repetition counts, the two-build split facts, and the list of already-fixed-but-undeployed observations the owner can skip. It states its own limits: no rubric run and no `SPLIT.json` registration, both of which follow the sample-validity decision.
+- Corrected in the live-QA doc: the banked transcript's last three scenes are the boss-fight log, not the ending, so the ending verdict must come from Run History. Earlier guidance offered the transcript and Run History as equivalent, which was wrong.
+- Verified: `make check` 1211 (5 skipped) and `make smoke-local` (exit 0) on the committed tree — the broader smoke was owed for the runtime-flow changes and had not been run until now. Doc budgets green.
+- Blockers: agent-executable work is exhausted. Remaining items need the owner's verdict, a design call on flee-odds visibility, or the codex lane.
+- Next: owner records the ending/overall verdict and rules on the 22+25 split; then either register the sample and score the rubric, or run a fresh arm.
+
+## 2026-08-08 — Identical `Patrol Ambush` traced to a downgrade that could not vary
+
+- Status: the repeated ambient encounter is fixed at the pacing gate. `make check` **1211** (5 skipped). Local-only; rides the next deploy. Verified mechanically only — this is encounter *selection*, not UI/targeting/VFX, so `gameplay-qa`'s rendered layer does not apply; the feel of the new variety stays a manual verdict.
+- Diagnosed: `_gate_next_combat` downgraded an over-risk encounter by taking the **highest-weight** affordable entry, which is a constant, not a choice. The risk cap is keyed to combats *won* (`COMBAT_RISK_CAP_BY_COUNT = (1, 2, 3, 4)`), and tier 1 has exactly one authored encounter — `patrol_ambush`. A player who flees or loses never raises the cap, so every downgrade for the whole loop returned the same fight with the same two drones and the same intro copy. The 2026-08-08 arm went 0 wins / 1 loss, which is why it recurred there after three occurrences on 08-01.
+- Changed: the downgrade now excludes the encounter just fought and draws by weight from what remains, seeded per loop and turn. When nothing else is affordable it returns `None` — ambient combat is pacing, so skipping the beat reads better than repeating the identical fight, and deliberate route combat bypasses this gate entirely, so the player can still choose to fight.
+- Verified: three regression tests — the just-fought encounter is never re-served, repeated downgrades inside a tier yield more than one encounter, and the draw stays deterministic for a given turn. Existing difficulty-cap tests (tutorial-tier first fight, hard combat unlocked after three wins) still pass unchanged, so the ramp is untouched.
+- Boundary: tier 1 still has only one authored encounter, so the early game has no variety to draw on — adding low-risk encounters is content work for the codex lane, not a code fix.
+
+## 2026-08-08 — Novelty reviser was the repetition: over-trigger + self-feed both fixed
+
+- Status: the structural-repetition track is re-scoped and closed at the reviser. `make check` **1208** (5 skipped). Local-only; rides the next deploy. The upstream question — how often the model itself repeats — is untouched and stays behind the owner's §3 verdict.
+- Diagnosed on the banked arm, two compounding faults. **Over-trigger**: `repeated_motif_streak` fired on **52/57 turns (91%)**, because the `signal_grid` motif contained the scenario's own premise vocabulary — Neo-Seoul *is* an unregistered "signal" hunted by the control "grid", so those words hit 71% of scenes and `pursuit` 67%. The detector was recognising "this is a Neo-Seoul scene", not a repeat. **Self-feed**: the revision rewrote every repeat to one fixed template, so `New Vector at …` recurred and then read as a repeated title later — **13 of the 19 repeated-title hits were the reviser's own output**, against 6 from model-authored titles.
+- Changed: pruned premise terms from the motif vocabulary (`signal`/`grid`/`신호`/`그리드`/`archive`/`static`), keeping only terms that name a concrete setting or beat; and the revision now picks the first of four phrasings (EN and KO) not already in the recent-title window, so consecutive revisions differ while staying deterministic.
+- Measured before → after: motif streak **91% → 59%** on the same 59-scene fixture; three consecutive revisions on an unchanged repeat now yield three distinct titles (was one repeated template). Two regression tests lock both — premise vocabulary alone is not a repeat, and consecutive revisions never collide.
+- Boundary: 59% is still high, and that residue is the model repeating locations/motifs for real (title repeats 32%, location streak 33% measured independently). Fixing that is prompt/context work on the narrative layer, deliberately not started before the owner's verdict.
+
+## 2026-08-08 — Ended-run summary now follows the loop's language
+
+- Status: an EN loop no longer archives a Korean `summary_text`, and no raw state token reaches player-facing prose. `make check` **1206** (5 skipped), up 5 from the new locks. Local-only; rides the next deploy.
+- Diagnosed: `summarize_loop` had two language faults, not one. The deterministic path (`_fallback_loop_summary`) was Korean-only, **and** the LLM prompt hard-coded "Write the summary in Korean" — so an EN loop got Korean either way. The banked arm hit the deterministic path because it ends in combat defeat, which runs `use_llm=False` by design to avoid blocking loop-end on a slow provider.
+- Changed: `summarize_loop(..., language=...)` threads the loop language into both paths — `options.language` on the combat-defeat path, and a new `_loop_language(loop)` reading persisted state on `archive()`, which has no `RuntimeOptions`. The last action is only quoted when it reads as prose; a snake_case internal token (`combat_finished`) now yields the neutral "closed quietly" phrasing instead of being printed.
+- Verified: EN/KO output for token, prose and empty event lists; five tests lock no-Hangul EN output, token suppression, prose passthrough, KO default, and `_loop_language` rejecting an unknown value rather than inventing a third language. Six test doubles were widened to the real signature.
+- Note: legacy loops predate the persisted `language` field and stay `ko` by design — their archived summaries are not retroactively translatable.
+
+## 2026-08-08 — EN localization sweep closed; yesterday's leak figure corrected
+
+- Status: every banked EN transcript (3 files, 209 scenes) now localizes to **0 Hangul**. `make check` 1201 (5 skipped), up 6 from the new locks. Local-only — no deploy; the fix is data + serving-boundary code, so it rides the next deploy.
+- **Correction to the 2026-08-08 entry below**: "34/59 scenes contain Korean" measured the *banked* file, but `bank_loop.py` reads the store directly while the API localizes at the serving boundary — so ~2/3 of that was a banking artifact, not player-facing. Running the same fixture through `localize_for` gave 11/59 scenes / 231 chars before this work. Measure through the path the player actually reads.
+- Diagnosed: the glossary (494 entries) and the `log_i18n` EN templates already implemented the documented contract ("interpolated names are already English via the serving-boundary glossary"). Two real gaps remained. Side arcs 7-9 and every archetype attribute were authored after the glossary and nothing scanned them, so a side-quest route node served its Korean title as the EN loop's title/`Current point`/`Location`. And one-syllable names were excluded from the substring pass by `_GLOSS_SUBSTR_MIN_LEN=3` — correct for avoiding compound corruption, but it left the combat log rendering an EN template around a KO name.
+- Changed: backfilled 21 glossary entries (3 side arcs with descriptions, 8 attribute names, 7 route-node descriptions) and a `추적도`→`Pursuit` phrase, all from translations that already existed in the EN overlay; added a Hangul-isolated short-key pass (`(?<![가-힣])key(?![가-힣])`) so `한`→`Han` applies to a standalone token while `한국`/`전투기` stay intact.
+- Verified: 0 Hangul across all three EN goldens (was 34/59, 11/59 after the pre-existing layer). Six new tests lock it — a side-arc/attribute glossary ratchet, a route-description served-outcome ratchet, short-key isolation both ways, KO-mode identity, and an end-to-end assertion over every EN golden.
+- Next: `[auto]` structural repetition re-scope is the remaining Priority 0 agent item; the owner's subjective ending verdict is unchanged.
+
 ## 2026-08-08 — Renderer fix deployed (`00084-nt2`); fresh arm completed 47/47 and banked
 
 - Status: `mythos-api-00084-nt2` serves 100% traffic (root+health 200, live/local `app.js` SHA-256 match `2909b01a…`, `MODEL`/`IMAGEN_MODEL`/`IMAGEN_LOCATION` pins and timeout 3600s intact). Arm `loop_426b710d…` ran to the authored ending and is banked as `scripts/eval/golden/prod-people-help-20260808.json` (59 scenes, `language=en`). Owner subjective ending/overall verdict is the only remaining §3 item.

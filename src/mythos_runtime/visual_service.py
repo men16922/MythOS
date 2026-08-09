@@ -13,7 +13,7 @@ from typing import Any, Protocol
 from mythos_core import AssetRecord, Scene
 from mythos_core.clock import utc_now
 from mythos_core.ids import new_asset_id
-from mythos_core.text_match import name_mentions
+from mythos_core.text_match import mentions, name_mentions
 from mythos_image_agent.config import PROJECT_ROOT, AgentConfig
 from mythos_image_agent.generator import generate_image
 from mythos_image_agent.img2img import generate_image_img2img
@@ -758,14 +758,20 @@ class VisualService:
         detect_text = f"{scene.narration} {scene.title} {prompt}".lower()
 
         # 0. Opening cinematic turns keep the curated cut (visual continuity).
+        # Three of the four original alternatives were Korean, so on an EN loop
+        # the gate hung entirely on the model writing the literal "C-17":
+        # measured across three banked EN arms it fired on 4 of 9 opening turns,
+        # missing turn 1 in all three, so the hand-authored opening cuts were
+        # applied to the first shot and then dropped. Bilingual terms take the
+        # same 9 turns to 8. (A deterministic gate — turn_index plus the default
+        # opening variant — would be better still, but the variant is not
+        # threaded into the visual request today.)
         if (
             scene.turn_index <= 2
             and scene.objective
-            and (
-                "정세린" in scene.narration
-                or "세린" in scene.narration
-                or "C-17" in scene.narration
-                or "드론" in scene.narration
+            and mentions(
+                scene.narration,
+                ("정세린", "세린", "드론", "c-17", "se-rin", "serin", "drone", "drones"),
             )
         ):
             opening_shots = [
@@ -803,18 +809,22 @@ class VisualService:
                     break
 
         # 1b. Fallback to legacy character_map (id appears in the English brief).
+        # Same name rule as step 1: the key `han` is a bare substring of *change*,
+        # *channel* and *handle*, and this fallback runs on the prompt, which is
+        # the narration itself whenever the model omitted a visual_brief.
         if not reference_image:
             for key, rel_path in scenario.character_map.items():
-                if key in lower_prompt:
+                if name_mentions(lower_prompt, [key]):
                     reference_image = str(PROJECT_ROOT / "resources" / scenario_id / rel_path)
                     detected_tag = key
                     is_character = True
                     break
 
-        # 2. Concept images if no character detected.
+        # 2. Concept images if no character detected. Multi-word place names, but
+        # word-bounded for the same reason.
         if not reference_image:
             for key, rel_path in scenario.concept_map.items():
-                if key in lower_prompt:
+                if mentions(lower_prompt, [key]):
                     reference_image = str(PROJECT_ROOT / "resources" / scenario_id / rel_path)
                     detected_tag = key
                     break

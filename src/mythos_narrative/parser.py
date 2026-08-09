@@ -214,15 +214,20 @@ def _clean_player_text(value: str) -> str:
     # e.g. "자<0xEC><0xA4>개빛". Strip the artifacts and keep the readable text.
     value = re.sub(r"<0x[0-9a-fA-F]{2}>", "", value)
     value = _MECHANICS_ANNOTATION.sub("", value)
+    # The replacement prose has to match the prose it is spliced into. The SFX
+    # marker itself is ASCII, so Hangul anywhere in the line means this is a
+    # Korean scene; otherwise an EN loop got a Korean sentence dropped into the
+    # middle of English narration.
+    korean = bool(_HANGUL.search(value))
     cleaned = re.sub(
         r"\[\s*(?:cinematic\s*)?sfx\s*:\s*[^\]]+\]",
-        lambda match: _sfx_to_prose(match.group(0)),
+        lambda match: _sfx_to_prose(match.group(0), korean),
         value,
         flags=re.IGNORECASE,
     )
     cleaned = re.sub(
         r"(?:cinematic\s*)?sfx\s*:\s*[A-Z0-9 _-]+",
-        lambda match: _sfx_to_prose(match.group(0)),
+        lambda match: _sfx_to_prose(match.group(0), korean),
         cleaned,
         flags=re.IGNORECASE,
     )
@@ -230,17 +235,32 @@ def _clean_player_text(value: str) -> str:
     return re.sub(r"[ \t]{2,}", " ", cleaned).strip()
 
 
-def _sfx_to_prose(raw: str) -> str:
+_HANGUL = re.compile(r"[가-힣]")
+
+# A bracketed [SFX: ...] marker the model was told not to emit becomes prose, so
+# the player never sees the label. Both languages are authored: the replacement
+# is spliced into the surrounding narration, and a Korean sentence in the middle
+# of an English scene is the mixed-language leak the EN sweep exists to prevent.
+_SFX_PROSE: tuple[tuple[tuple[str, ...], str, str], ...] = (
+    (("scratch", "static"), "치직, 긁히는 정전기가 귓속을 스쳤다.",
+     "A scrape of static grazed the inside of your ear."),
+    (("glitch",), "짧은 글리치음이 허공을 찢었다.",
+     "A short glitch tore at the air."),
+    (("hum",), "낮은 기계음이 바닥 아래에서 울렸다.",
+     "A low mechanical hum rolled somewhere under the floor."),
+    (("alarm", "siren"), "멀리서 경보음이 번졌다.",
+     "An alarm spread somewhere far off."),
+)
+_SFX_PROSE_DEFAULT = ("짧은 전자음이 공기를 흔들었다.", "A brief electronic tone shook the air.")
+
+
+def _sfx_to_prose(raw: str, korean: bool = True) -> str:
     normalized = raw.lower()
-    if "scratch" in normalized or "static" in normalized:
-        return "치직, 긁히는 정전기가 귓속을 스쳤다."
-    if "glitch" in normalized:
-        return "짧은 글리치음이 허공을 찢었다."
-    if "hum" in normalized:
-        return "낮은 기계음이 바닥 아래에서 울렸다."
-    if "alarm" in normalized or "siren" in normalized:
-        return "멀리서 경보음이 번졌다."
-    return "짧은 전자음이 공기를 흔들었다."
+    for cues, ko, en in _SFX_PROSE:
+        if any(cue in normalized for cue in cues):
+            return ko if korean else en
+    ko, en = _SFX_PROSE_DEFAULT
+    return ko if korean else en
 
 
 def _parse_choices(value: Any, errors: list[str]) -> list[Choice]:

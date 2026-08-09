@@ -722,6 +722,14 @@ function CombatChip({ title, children }: { title: string; children: React.ReactN
 // that taps open to reveal the act goal / stakes / last result — so the strip no
 // longer pushes the narration (the thing the player reads every turn) far down.
 // Desktop keeps the full always-open strip.
+//
+// Both layouts resolve the 현재 목표 line the same way — `objective ||
+// chapter_goal` — because `objective` is an optional field the model may omit
+// (it is not in the scene schema's `required` list), and `chapter_goal` exists
+// precisely to fill in when it does. Desktop used to render the two as
+// independent rows, so an omitted `objective` dropped the 현재 목표 line while
+// the act goal stayed: the strip never looked empty, it just silently lost the
+// line that says what to do now (2026-08-09).
 function ObjectiveStrip({
   snapshot,
   collapsible,
@@ -790,16 +798,16 @@ function ObjectiveStrip({
 
   return (
     <div className="objective-strip">
-      {scene.chapter_goal && (
+      {showChapterInBody && (
         <div className="objective-main objective-chapter">
           <span className="objective-kicker">{t("story.obj.chapter")}</span>
           <span className="objective-text">{scene.chapter_goal}</span>
         </div>
       )}
-      {scene.objective && (
+      {summaryText && (
         <div className="objective-main">
           <span className="objective-kicker">{t("story.obj.current")}</span>
-          <span className="objective-text">{scene.objective}</span>
+          <span className="objective-text">{summaryText}</span>
         </div>
       )}
       {stakes.length > 0 && (

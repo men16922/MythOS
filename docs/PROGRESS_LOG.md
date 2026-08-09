@@ -5,6 +5,15 @@ Last updated: 2026-08-09
 Newest entries only; earlier 2026-08 increments are in `bin/docs/archive/progress-2026-08.md`
 (then `progress-2026-07.md`, `progress-2026-06.md`). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
 
+## 2026-08-09 — `CURRENT OBJECTIVE` did reproduce: the desktop strip had no fallback
+
+- Status: the item filed `[~] not reproducible` on 2026-08-09 is a **real defect**, found and fixed. `make check` **1264** (5 skipped), up 4. Local-only; rides the next deploy.
+- Why the earlier ruling-out missed it: it measured the **server**. `_chapter_goal` is keyed by loop phase and covers all five playable phases, so the conclusion "the strip cannot go empty on a well-formed loop" was correct — and irrelevant. The strip never went empty. `ObjectiveStrip` renders two layouts and only the mobile/coarse one (`collapsible={isCoarsePointer}`) resolved the 현재 목표 line as `objective || chapter_goal`. The desktop branch rendered the act goal and the current objective as two independent rows, each guarded by its own field, so an omitted `objective` kept ACT GOAL and silently dropped the CURRENT OBJECTIVE row. What vanished was one line, not the strip — which is exactly what was reported.
+- The input condition is real, not hypothetical: `objective` is absent from the scene schema's `required` list (`title`/`location`/`narration`/`visual_brief`/`choices`) and typed `["string","null"]`, and nothing downstream fills a default — `_optional_clean_str` returns `None`, `Scene.objective` defaults `None`, and the serializer passes it through. `chapter_goal` exists precisely to cover this; its own docstring says "even when the per-scene LLM `objective` is vague or missing".
+- Changed: the desktop branch now reuses the `summaryText` / `showChapterInBody` values the mobile branch already computes, so both layouts resolve the line the same way and the act goal only renders as its own row when a real per-scene objective owns the summary. A guard on `summaryText` was added with it — the early return allows reaching this code with neither field set but stakes or a result present, which would have rendered a kicker with no text.
+- Locked by `tests/test_objective_strip_fallback.py` (4 tests, source-level in the `test_scene_character_dialogue_gate.py` family, since `make check` has no frontend unit runner). Verified the lock discriminates rather than assuming: replayed against `HEAD` source, 2 of its 4 assertions fail there and all 4 pass after.
+- Not claimed: how often the model omits `objective`. The banked arms cannot answer it — `scripts/eval/bank_loop.py` does not export the field at all, so its absence there is a banking artifact, not a frequency measurement. Boundary: confirmed from source and schema, not in a browser.
+
 ## 2026-08-09 — Frontend swept for the same class: clean, one latent trap documented
 
 - Status: **negative result, reported as one.** The Python sweep never covered `src/mythos_ui/`, and this class had already been found there twice (`sceneCharacter.ts`), so the frontend was swept too. **No live instance.** `make check` 1260 (5 skipped), unchanged — comment only, no behaviour touched.

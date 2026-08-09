@@ -242,6 +242,63 @@ class RouteChoiceAxisSerializerTest(unittest.TestCase):
 
         self.assertIsNone(_choice_axis("Step through the archway", "explore"))
 
+    def test_traversal_under_threat_is_safety(self) -> None:
+        # The largest remaining gap after the 2026-08-09 EN fix: this scenario
+        # phrases escape as a body moving through a gap, not as flee/evade/
+        # retreat, and 47 such labels rendered no chip at all.
+        from mythos_api.serializers import _choice_axis
+
+        for label in (
+            "Sprint through the blinding searchlight gaps during the calibration cycle",
+            "Squeeze through the narrow exhaust vent before the door collapses",
+            "Slide under the closing fire-door before it seals the exit",
+            "Scramble up the wet bamboo scaffolding to the rooftops",
+            "Leap over the guardrail into the dark drainage canal",
+        ):
+            self.assertEqual(_choice_axis(label, "interact"), "safety", label)
+
+    def test_sabotage_and_choosing_the_fight_are_control(self) -> None:
+        from mythos_api.serializers import _choice_axis
+
+        for label in (
+            "Overload the substation's auxiliary grid to blind the searchlights",
+            "Sever the high-tension line to plunge the scaffolding into darkness",
+            "Kick the rusted release mechanism with all your weight",
+            "Prepare to ambush the leading Enforcer as it rounds the corner",
+        ):
+            self.assertEqual(_choice_axis(label, "interact"), "control", label)
+
+    def test_evasion_still_wins_over_the_fight_it_evades(self) -> None:
+        # `fight` is only safe to carry because safety is scanned before
+        # control. If that order is ever swapped, avoiding a fight starts
+        # advertising as choosing one.
+        from mythos_api.serializers import _choice_axis
+
+        self.assertEqual(_choice_axis("Avoid the fight and slip out the back", None), "safety")
+        self.assertEqual(_choice_axis("Flee the fight through the vent", None), "safety")
+
+    def test_widening_did_not_take_terms_the_audit_rejected(self) -> None:
+        # Each of these was measured against the banked arms and dropped
+        # because it read a real label wrongly — see
+        # docs/plans/2026-08-09-value-axis-vocabulary-coverage.md.
+        from mythos_api.serializers import _choice_axis
+
+        # "brace" as enduring, not imposing.
+        self.assertIsNone(
+            _choice_axis("Brace yourself against the wall and ride out the feedback loop", None)
+        )
+        # A theft the safety axis would have hidden behind "run".
+        self.assertEqual(
+            _choice_axis("Wrench the slate from her hands and run into the drainage system", None),
+            "control",
+        )
+        # Drawing fire away *from the civilians* is not choosing a fight; it
+        # stays unclassified here rather than being mislabelled control.
+        self.assertNotEqual(
+            _choice_axis("Draw your weapon and draw the drones' attention away from them", None),
+            "control",
+        )
+
 
 class ApiRelationshipSerializerTest(unittest.TestCase):
     """Lock the relationship-exposure contract produced by seeds L/M/N.

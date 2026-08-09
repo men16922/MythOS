@@ -5,6 +5,15 @@ Last updated: 2026-08-09
 Newest entries only; earlier 2026-08 increments are in `bin/docs/archive/progress-2026-08.md`
 (then `progress-2026-07.md`, `progress-2026-06.md`). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
 
+## 2026-08-09 — Value-axis vocabulary widened on the owner's call; three proposed terms failed audit
+
+- Status: the coverage-vs-precision residual is **closed** — owner adopted the recommended three families, `spoof → data` held. `make check` **1268** (5 skipped), up 4. Local-only; rides the next deploy.
+- Before writing the terms in, each was audited against the 292-label sample to see which labels it would actually decide; the memo's pass had only counted them. **Three of the proposed terms were dropped** because the audit showed them reading real labels wrongly: `brace` classed *"Brace yourself against the wall and ride out the feedback loop"* as control when it is enduring, not imposing; `run` took *"Wrench the slate from her hands and run into the drainage system"* to safety and hid the theft in it (dropping it lets `wrench` read it as control, which is better); and `draw your weapon` had exactly one hit — *"Draw your weapon and draw the drones' attention away from the civilians"* — which is a **people** choice, so shipping it would have introduced the very kind of wrong chip this track exists to remove.
+- `fight` is carried broad only because safety is scanned before control, so *"avoid the fight"* and *"flee the fight"* stay safety. That ordering dependency was invisible in the code and is now pinned by a test.
+- Measured on the shipped vocabulary: chipless **100 → 30 (34% → 10%)** over the same 292 labels, with exactly **one** already-chipped label changing axis (the predicted *"Sprint across the shaking catwalk to manually jam the crane gears"*, control → safety).
+- Scene contrast is **not uniformly better and is reported as such**: 08-08 arm 14/45 → 11/45 and evidence-safety 10/45 → 6/45, but people-help-07-28 goes 4/44 → **5/44**. A scene whose two choices were one chip and one blank now shows two chips on the same axis, which the metric counts as no contrast. Net 28/133 → 22/133.
+- Found while auditing, not fixed (separate from the approved change): the people axis carries `civilian` but not `civilians`, so the plural never matches — this is why the drone-distraction label above is unclassified rather than people. `survivor` is missing outright. Filed as the people-noun follow-up.
+
 ## 2026-08-09 — `CURRENT OBJECTIVE` did reproduce: the desktop strip had no fallback
 
 - Status: the item filed `[~] not reproducible` on 2026-08-09 is a **real defect**, found and fixed. `make check` **1264** (5 skipped), up 4. Local-only; rides the next deploy.

@@ -1,6 +1,8 @@
 # Value-axis chip coverage vs precision — decision memo
 
-Status: Measured, awaiting owner decision. No code changed.
+Status: **Decided and shipped 2026-08-09** — owner adopted the recommendation
+(traversal + sabotage + fight; `spoof → data` held). See "What shipped" below for
+the three terms a per-term audit removed before implementation.
 Date: 2026-08-09
 Scope: `_AXIS_KEYWORDS` / `_choice_axis` in `src/mythos_api/serializers.py`
 Decision owner: MythOS owner (NEXT_PLAN Priority 0, `[manual]` residual)
@@ -72,6 +74,50 @@ her into the dark drainage alcove"*, *"Offer the salvaged drone scrap to a marke
 guard"*, and *"Decline unexplained favors and seek another exit"* — the Se-rin
 refusal itself. `survivor` is a clear miss; the others need pronoun or role
 handling that risks the false positives the 08-09 fix exists to prevent.
+
+## What shipped
+
+The recommendation was accepted. Before writing the terms in, each one was
+audited against the 292-label sample to see which labels it would actually
+decide — the exploratory pass had only counted them. Three were dropped:
+
+- **`brace`** produced a measured mislabel: *"Brace yourself against the concrete
+  wall and try to ride out the electrical feedback loop"* is enduring, not
+  imposing. Its one correct hit (*"Brace the maintenance doors and prepare to
+  fight off the first wave"*) is caught by `fight` instead.
+- **`run`** took *"Wrench the slate from her hands and run into the drainage
+  system"* to safety, hiding the theft in it. Dropping it lets `wrench` read the
+  same label as control, which is the better answer.
+- **`draw your weapon`** had one hit — *"Draw your weapon and draw the drones'
+  attention away from the civilians"* — which is a **people** choice. Shipping it
+  would have introduced exactly the kind of wrong chip this track exists to
+  remove.
+
+`fight` is safe to carry broad only because safety is scanned before control, so
+*"avoid the fight"* and *"flee the fight"* stay safety. That ordering dependency
+is now pinned by a test.
+
+Measured on the shipped vocabulary, same 292 labels: chipless **100 → 30
+(34% → 10%)**, distribution safety 114 / data 75 / control 48 / people 25, and
+exactly **one** already-chipped label changes axis (the predicted *"Sprint across
+the shaking catwalk to manually jam the crane gears"*, control → safety).
+
+Scene contrast, all three arms, scenes where every choice shares one axis:
+
+| arm | before | after |
+| --- | --- | --- |
+| `prod-people-help-20260808` | 14/45 | **11/45** |
+| `prod-evidence-safety-20260728` | 10/45 | **6/45** |
+| `prod-people-help-20260728` | 4/44 | **5/44** |
+
+The third arm is one scene **worse**, and that is the real cost of coverage: a
+scene whose two choices were one chip and one blank now shows two chips on the
+same axis, which the metric counts as no contrast. Net across the three arms is
+28/133 → 22/133.
+
+Locked by four tests in `tests/test_api.py` beside the existing axis family,
+including the ordering dependency and all three rejected terms. `make check`
+1268 (5 skipped).
 
 ## Boundary
 

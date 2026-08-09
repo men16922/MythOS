@@ -118,6 +118,14 @@ def _clean_text(value: Any) -> str:
 # 5/292 labels hit any keyword — and those were `"ix"` matching inside *Fix* and
 # *Prefix*. English terms are paired with the Korean ones here, and ASCII
 # keywords are word-bounded so a substring can no longer decide a value axis.
+#
+# Widened again 2026-08-09 after measuring what the remaining chipless labels
+# were: not choices that advertise nothing, but three families this list had no
+# words for — traversal, sabotage, and choosing the fight. Chipless went 34% ->
+# 10% over the same 292 labels with one reclassification. Evidence and the
+# rejected fourth family (spoof -> data, where the *axis* is contested rather
+# than the terms) are in `docs/plans/2026-08-09-value-axis-vocabulary-coverage.md`.
+# Order is load-bearing: people, then data, then safety, then control.
 _AXIS_KEYWORDS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("people", (
         "시민", "세린", "카이", "구출", "도와", "사람", "아이", "동료", "보호", "대화", "설득",
@@ -144,6 +152,14 @@ _AXIS_KEYWORDS: tuple[tuple[str, tuple[str, ...]], ...] = (
         "hide", "evade", "avoid", "slip", "retreat", "flee", "escape", "withdraw",
         "cover", "shelter", "rest", "recover", "safe", "conceal", "unseen", "wait",
         "freeze", "bypass", "sneak", "duck", "crouch", "blend", "disengage",
+        # Traversal under threat (2026-08-09). This scenario almost never
+        # phrases an escape with the abstract verbs above — it phrases it as a
+        # body moving through a gap, and 47 such labels rendered no chip at all.
+        # Deliberately NOT here: "run", whose only hit was "Wrench the slate
+        # from her hands and run into the drainage system" — a theft the safety
+        # axis would have hidden, and which "wrench" now reads as control.
+        "sprint", "squeeze", "slide", "scramble", "climb", "scale", "leap",
+        "dive", "dash", "crawl", "vault", "descend",
     )),
     ("control", (
         "공격", "돌파", "제압", "봉쇄", "명령", "위협", "강제", "관리자",
@@ -151,6 +167,17 @@ _AXIS_KEYWORDS: tuple[tuple[str, tuple[str, ...]], ...] = (
         "attack", "strike", "breach", "force", "seize", "suppress", "override",
         "command", "threaten", "demand", "destroy", "disable", "confront", "smash",
         "jam", "administrator", "ix",
+        # Sabotage — the same family as override/disable/jam above, in the
+        # phrasings the Director actually authors (2026-08-09).
+        "overload", "sever", "short out", "reroute", "cut the power", "blackout",
+        "pry", "wrench", "kick", "rip", "break open",
+        # Choosing the fight. Safe to keep broad because safety is scanned
+        # first, so "avoid the fight" and "flee the fight" stay safety.
+        # Deliberately NOT here: "brace", which read "Brace yourself against the
+        # wall and ride out the feedback loop" — enduring, not imposing — as
+        # control; and "draw your weapon", whose only hit was drawing the drones
+        # away *from the civilians*, a people choice this would have mislabelled.
+        "ambush", "stand your ground", "fight",
     )),
 )
 

@@ -4,7 +4,7 @@ COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
-.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback narrative-smoke-fallback-en visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny connect-demo sim-boss smoke smoke-local streamlit streamlit-stop api api-stop api-cloud cloud-image cloud-run-local dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build validate-content check check-skills sync-skills check-auto _harness-guard _overnight-clean-tree overnight-env-doctor overnight-where overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-ledger-check overnight-ledger-state overnight-trajectory overnight-resume overnight-provenance-compare overnight-graph-smoke overnight-graph-measure overnight-clean overnight-claude overnight-claude-watch overnight-claude-once overnight-codex overnight-codex-watch overnight-codex-once overnight-opencode overnight-opencode-watch overnight-opencode-once overnight-agy overnight-agy-watch overnight-agy-once overnight-kiro overnight-kiro-watch overnight-kiro-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review image-regen eval-narrative eval-narrative-promotion
+.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback narrative-smoke-fallback-en visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny connect-demo sim-boss smoke smoke-local streamlit streamlit-stop api api-stop api-cloud cloud-image cloud-run-local dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build validate-content check check-skills sync-skills check-auto _harness-guard _overnight-clean-tree overnight-env-doctor overnight-where overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-ledger-check overnight-ledger-state overnight-trajectory overnight-resume overnight-provenance-compare overnight-graph-smoke overnight-graph-measure overnight-clean overnight-claude overnight-claude-watch overnight-claude-once overnight-codex overnight-codex-watch overnight-codex-once overnight-opencode overnight-opencode-watch overnight-opencode-once overnight-agy overnight-agy-watch overnight-agy-once overnight-kiro overnight-kiro-watch overnight-kiro-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review image-regen eval-narrative eval-narrative-promotion experiment
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -246,8 +246,10 @@ run:
 clean:
 	rm -rf __pycache__ src/**/__pycache__ src/*.egg-info .pytest_cache .ruff_cache
 
+# PYTHONPATH carries the repo root too, so tests can import experiments/ (a
+# root-level package, not part of the installed src layout).
 test:
-	PYTHONPATH=src MYTHOS_LOG_LEVEL=ERROR $(VENV)/bin/python -m unittest discover -s tests
+	PYTHONPATH=src:. MYTHOS_LOG_LEVEL=ERROR $(VENV)/bin/python -m unittest discover -s tests
 
 test-db:
 	MYTHOS_LOG_LEVEL=ERROR MYTHOS_RUN_DB_TESTS=1 $(VENV)/bin/python -m unittest discover -s tests -p 'test_postgres_store.py'
@@ -265,6 +267,12 @@ narrative-smoke:
 # Judge = claude CLI (override EVAL_JUDGE_CMD). Bank loops via scripts/eval/bank_loop.py.
 eval-narrative:
 	$(VENV)/bin/python scripts/eval/narrative_judge.py
+
+# Serving-research experiments. NOT part of `make check` — these call live
+# engines, take minutes, and are non-deterministic. Each run writes a stamped
+# report under experiments/results/. `make experiment` with no ARGS lists them.
+experiment:
+	PYTHONPATH=src:. $(VENV)/bin/python -m experiments.run $(ARGS)
 
 eval-narrative-promotion:
 	@test -n "$(EVAL_PROMOTION_METRICS)" || (echo "EVAL_PROMOTION_METRICS is required" && exit 2)

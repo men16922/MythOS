@@ -32,6 +32,7 @@ from .schemas import (
     WorldDelta,
 )
 from .streaming import NarrationFieldExtractor, NarrativeStreamEvent, PlainTextStoryExtractor
+from .usage import clear_usage, take_usage
 from .variation import NoveltyController
 
 
@@ -556,6 +557,7 @@ class NarrativeDirector:
         # `model` (key-beat split) overrides the provider's base model for this turn;
         # it is only ever non-None for providers whose config declares keybeat_model,
         # so the bare-protocol generate(messages) call stays valid everywhere else.
+        clear_usage()
         try:
             with timed(
                 "mythos.narrative.generate",
@@ -566,11 +568,15 @@ class NarrativeDirector:
                 provider=type(self.provider).__name__,
                 model_override=model or "",
                 key_beat=context.key_beat,
-            ):
+            ) as log_fields:
                 if model:
                     raw_payload = cast(Any, self.provider).generate(messages, model=model)
                 else:
                     raw_payload = self.provider.generate(messages)
+                # Token counts exist only after the call, and only for providers
+                # that report them; this is what makes per-loop cost recoverable
+                # from the turn log instead of estimated (PROGRESS_LOG 2026-08-13).
+                log_fields.update(take_usage())
             payload = parse_scene_payload(raw_payload)
             outcome = OUTCOME_SUCCESS
         except Exception as first_error:
@@ -631,6 +637,7 @@ class NarrativeDirector:
         raw_parts: list[str] = []
         extractor = NarrationFieldExtractor()
         start = perf_counter()
+        clear_usage()
         try:
             # `model` is only ever non-None for providers whose config declares
             # keybeat_model (Gemini), and that provider's stream accepts it.
@@ -687,6 +694,10 @@ class NarrativeDirector:
                 "status": "fallback" if outcome == OUTCOME_FALLBACK else "succeeded",
                 "outcome": outcome,
                 "reason": reason,
+                # Token counts for every provider call this turn made, including
+                # the non-streaming retry above — this is the production path, so
+                # it is where per-loop cost actually becomes recoverable.
+                **take_usage(),
             },
         )
         self._record_outcome(context, outcome, reason=reason)

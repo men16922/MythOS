@@ -63,6 +63,16 @@ class JsonFormatter(logging.Formatter):
             "total",
             "degraded",
             "success_ratio",
+            # Per-turn LLM token usage (mythos_narrative.usage). These must survive
+            # JSON formatting or per-loop cost stays unrecoverable in Cloud Logging,
+            # which is exactly why the 2026-08-13 promotion eval had to fall back to
+            # a documented ~$1.0/loop figure instead of a measurement.
+            "prompt_tokens",
+            "output_tokens",
+            "total_tokens",
+            "thinking_tokens",
+            "cached_tokens",
+            "provider_calls",
         ):
             value = getattr(record, key, None)
             if value is not None:
@@ -174,12 +184,20 @@ def timed(
     logger: logging.Logger,
     message: str,
     **fields: Any,
-) -> Iterator[None]:
+) -> Iterator[dict[str, Any]]:
+    """Time a block, then log it with ``fields``.
+
+    Yields the mutable field dict so a caller can add what it only learns *during*
+    the call — token usage is the motivating case, since the count exists only
+    after the provider responds. Callers that need nothing extra keep using a bare
+    ``with timed(...):``. Fields added inside the block reach the log but not the
+    span, which is already open by then.
+    """
     start = perf_counter()
     status = "succeeded"
     try:
         with span(name, **_span_attributes(fields)):
-            yield
+            yield fields
     except Exception:
         status = "failed"
         raise

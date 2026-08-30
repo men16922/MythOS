@@ -21,6 +21,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .schemas import SCENE_JSON_SCHEMA
+from .usage import record_usage
 
 # JSON-schema primitive → Vertex/Gemini Schema type (the Schema proto uses uppercase
 # type names and `nullable` instead of a `["string", "null"]` union).
@@ -229,6 +230,7 @@ class VertexGeminiJSONProvider:
             contents=contents,
             config=self._generation_config(system_instruction),
         )
+        record_usage(getattr(response, "usage_metadata", None))
         text = getattr(response, "text", None)
         return text.strip() if isinstance(text, str) else ""
 
@@ -247,10 +249,22 @@ class VertexGeminiJSONProvider:
             contents=contents,
             config=self._generation_config(system_instruction),
         )
-        for chunk in stream:
-            text = getattr(chunk, "text", None)
-            if isinstance(text, str) and text:
-                yield text
+        # Gemini reports usage_metadata cumulatively on chunks, so keep the last
+        # one seen and record it once. Recording per chunk would multiply a turn's
+        # token count by the number of chunks that carried it.
+        latest_usage: Any = None
+        try:
+            for chunk in stream:
+                usage = getattr(chunk, "usage_metadata", None)
+                if usage is not None:
+                    latest_usage = usage
+                text = getattr(chunk, "text", None)
+                if isinstance(text, str) and text:
+                    yield text
+        finally:
+            # finally, not after the loop: a consumer that abandons the generator
+            # still owes the tokens the stream already produced.
+            record_usage(latest_usage)
 
 
 def build_narrative_provider() -> Any:

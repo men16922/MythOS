@@ -2,6 +2,18 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-08-13 — The 22+25 two-build arm is admitted as a single §3 promotion sample
+
+Decision: `golden/prod-people-help-20260808.json` (`loop_426b710d…`, 59 scenes, EN, 47/47 non-fallback) joins the hash-frozen `promotion` lane in `scripts/eval/SPLIT.json`, admitted `2026-08-13`. Its 47 generations were split 22 (`00083-jt7`) + 25 (`00084-nt2`) across a mid-arm deploy; the owner ratified it as one sample rather than re-running a fresh arm.
+
+Reason/impact: the intervening deploy changed only how dialogue spans are rendered — the EN apostrophe/quote-pairing fix — and did not touch narrative generation, prompts, or the model pin; both halves recorded 0 fallback. The cost of the alternative was a full paid arm for a boundary that does not affect what the rubric scores. Impact: the promotion bank is now **three** samples, and because `narrative_judge.py` derives `expected_names` from the whole lane, any `--promotion` run must supply companion metrics for all three and re-scores the two 2026-07-28 samples along with it. `frozen_at` stays 2026-07-29 for the original pair; per-entry `admitted_at` records the later addition.
+
+## 2026-08-09 — Coverage adopted over precision, by widening the vocabulary from measurement only
+
+Decision: the trade left open by the entry below is resolved in favour of coverage. `_AXIS_KEYWORDS` gains three measured families — traversal (safety), sabotage and choosing-the-fight (control) — plus the plural forms `civilians`/`survivor`/`survivors` on people. `spoof → data` is **not** taken: that family's *axis* is contested (spoofing a sensor is either working the system through knowledge or forcing it), and the chip is a promise about what the choice does. The omit-rather-than-invent rule below is unchanged; only the vocabulary grew. **Terms are added from measurement, never from morphology or intuition** — a blanket "add every inflection" pass was measured and rejected the same day.
+
+Reason/impact: chipless went **34% → 10%** over 292 banked EN labels with exactly one already-chipped label changing axis. The discipline is the durable part: a per-term audit against real labels rejected `brace` (read enduring as imposing), `run` (hid a theft behind safety), `draw your weapon` (its only hit was a people choice), `guard` (a trade for a hideout is not helping someone), `decrypted` (an adjective describing a destination is not the action) and `signals`; `crowd` stays out and is now pinned by a test. Ordering is load-bearing and now locked: safety is scanned before control, which is the only reason `fight` is safe to carry broad — *"avoid the fight"* must stay safety. Cost accepted and recorded rather than smoothed: scene contrast improved on two banked arms (14/45 → 11/45, 10/45 → 6/45) and **worsened by one scene on the third** (4/44 → 5/44), because a scene that showed one chip and one blank can now show two chips on one axis. Detail: `docs/plans/2026-08-09-value-axis-vocabulary-coverage.md`.
+
 ## 2026-08-09 — A value-axis chip is omitted rather than invented
 
 Decision: `_choice_axis` returns `None` when a Director-authored choice's label carries no axis signal, and the UI then renders no chip at all — no axis, no label, no result preview, no 가치축 stake. The two fallbacks that used to guarantee an answer (`intent=interact` → people, and a final default of safety) are removed. This follows the rule junction destinations have used since 2026-07-19: an axisless destination shows no chip.

@@ -149,7 +149,7 @@ class OllamaJSONProvider:
             "extra_body": {
                 "keep_alive": "30m",
                 "options": {
-                    "num_ctx": 8192,
+                    "num_ctx": self.config.ollama_num_ctx,
                     "repeat_penalty": 1.3,
                     "repeat_last_n": 256,
                     "top_p": 0.85,
@@ -173,7 +173,7 @@ class OllamaJSONProvider:
             "extra_body": {
                 "keep_alive": "30m",
                 "options": {
-                    "num_ctx": 8192,
+                    "num_ctx": self.config.ollama_num_ctx,
                     "num_predict": 1536,
                 }
             },
@@ -194,7 +194,7 @@ class OllamaJSONProvider:
             "extra_body": {
                 "keep_alive": "30m",
                 "options": {
-                    "num_ctx": 8192,
+                    "num_ctx": self.config.ollama_num_ctx,
                     "repeat_penalty": 1.3,
                     "repeat_last_n": 256,
                     "top_p": 0.85,
@@ -225,7 +225,7 @@ class OllamaJSONProvider:
             "extra_body": {
                 "keep_alive": "30m",
                 "options": {
-                    "num_ctx": 8192,
+                    "num_ctx": self.config.ollama_num_ctx,
                     "repeat_penalty": 1.3,
                     "repeat_last_n": 256,
                     "top_p": 0.85,
@@ -258,7 +258,7 @@ class OllamaJSONProvider:
             "extra_body": {
                 "keep_alive": "30m",
                 "options": {
-                    "num_ctx": 8192,
+                    "num_ctx": self.config.ollama_num_ctx,
                     "repeat_penalty": 1.3,
                     "repeat_last_n": 256,
                     "top_p": 0.85,

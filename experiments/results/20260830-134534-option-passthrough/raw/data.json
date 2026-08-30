@@ -1,0 +1,8 @@
+{
+  "model": "gemma4:latest",
+  "baseline_chars": 691,
+  "extra_body_chars": 691,
+  "max_tokens_chars": 0,
+  "cap": 5,
+  "honoured": false
+}

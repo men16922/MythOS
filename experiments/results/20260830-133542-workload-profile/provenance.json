@@ -1,0 +1,20 @@
+{
+  "ran_at": "2026-08-30T13:37:01.415433+00:00",
+  "slug": "workload-profile",
+  "git_commit": "713a8ca3dc13187a4821f275e1a079d5c50b3ea6",
+  "git_branch": "main",
+  "git_dirty": true,
+  "experiment_sha256": "708ff779965b06ed3b06b39dfb53df24065bde4383f7bdaf3f9ed9e8c83870f3",
+  "python": "3.13.5",
+  "platform": "Darwin 25.6.0 arm64",
+  "controls": {
+    "trace": "/private/tmp/claude-501/-Users-men1692-Desktop-local-MythOS/c28be6b6-9cc1-479f-9d4b-8bde73adbcae/scratchpad/traces-fixed",
+    "model": "gemma4:latest",
+    "method": "generate_story",
+    "선택 정책": "항상 첫 번째 선택지",
+    "이미지 생성": "off"
+  },
+  "variables": {
+    "없음 (관측 실험)": "—"
+  }
+}

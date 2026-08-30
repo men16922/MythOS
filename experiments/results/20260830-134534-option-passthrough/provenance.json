@@ -1,0 +1,19 @@
+{
+  "ran_at": "2026-08-30T13:45:50.815940+00:00",
+  "slug": "option-passthrough",
+  "git_commit": "713a8ca3dc13187a4821f275e1a079d5c50b3ea6",
+  "git_branch": "main",
+  "git_dirty": true,
+  "experiment_sha256": "12fc79111bcd386e70e4fc54f083cfdb339f09289ad681edf0acc49ddfc3ab1b",
+  "python": "3.13.5",
+  "platform": "Darwin 25.6.0 arm64",
+  "controls": {
+    "prompt": "고정 프로브",
+    "model": "gemma4:latest",
+    "endpoint": "http://localhost:11434/v1",
+    "cap": 5
+  },
+  "variables": {
+    "상한 전달 방식": "없음 / extra_body.options / max_tokens"
+  }
+}

@@ -22,7 +22,19 @@ class AgentConfig:
     ollama_model: str = os.getenv("OLLAMA_MODEL", "gemma4:latest")
     ollama_model_story: str = os.getenv("OLLAMA_MODEL_STORY") or os.getenv("OLLAMA_MODEL") or "gemma4:latest"
     ollama_model_parser: str = os.getenv("OLLAMA_MODEL_PARSER") or os.getenv("OLLAMA_MODEL") or "gemma4:latest"
-    ollama_timeout_seconds: float = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "30.0"))
+    # Local narrative generation measured 2026-08-30: an 8B storyteller takes
+    # 12-90s for a ~1.3k-token scene. At the previous 30s default the OpenAI SDK
+    # burned its two retries and raised at ~91s, so slow turns were silently
+    # costing three generations each, and some failed outright. Cloud providers
+    # do not read this field (it is passed only to the Ollama client).
+    ollama_timeout_seconds: float = float(os.getenv("OLLAMA_TIMEOUT_SECONDS", "180.0"))
+    # Context window for local generation. Must hold prompt + num_predict: the
+    # narrative prompt measured 6.8-7.8k tokens and the storyteller asks for
+    # 2048, so the previous 8192 was already overflowing and the model returned
+    # empty scenes that the deterministic fallback then hid
+    # (experiments/results/*-context-overflow). 16384 covers the measured
+    # maximum with roughly 2x headroom; raise it for long-context model variants.
+    ollama_num_ctx: int = int(os.getenv("OLLAMA_NUM_CTX", "16384"))
     hf_token: str | None = os.getenv("HF_TOKEN") or os.getenv("HUGGING_FACE_HUB_TOKEN")
     image_model_id: str = os.getenv("IMAGE_MODEL_ID", "black-forest-labs/FLUX.1-schnell")
     # Image backend: "mflux" (Apple MLX, ~20x faster + quantized, default) or "diffusers"

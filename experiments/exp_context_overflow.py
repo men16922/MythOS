@@ -38,10 +38,22 @@ SHIPPED_SAMPLER = {
     "top_k": 30,
     "num_predict": 2048,
 }
-SHIPPED_NUM_CTX = 8192
 
 
-def build(trace_dir: Path, model: str, wide_ctx: int, method: str) -> Experiment:
+def _shipped_num_ctx() -> int:
+    """Whatever the runtime currently ships, not a number frozen into this file.
+
+    The first run of this experiment hard-coded 8192. When the default was then
+    raised, a stale constant would have kept reporting a comparison nobody was
+    running any more — the exact drift the provenance block exists to catch.
+    """
+    from mythos_image_agent.config import AgentConfig
+
+    return int(AgentConfig().ollama_num_ctx)
+
+
+def build(trace_dir: Path, model: str, wide_ctx: int, method: str, shipped_ctx: int | None = None) -> Experiment:
+    SHIPPED_NUM_CTX = shipped_ctx if shipped_ctx is not None else _shipped_num_ctx()
     def run() -> ExperimentResult:
         if not ollama_available():
             raise SystemExit("Ollama is not reachable")
@@ -148,8 +160,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--model", default="gemma4:latest")
     parser.add_argument("--wide-ctx", type=int, default=32768)
     parser.add_argument("--method", default="generate_story")
+    parser.add_argument("--shipped-ctx", type=int, default=None,
+                        help="override the shipped num_ctx (default: read from AgentConfig)")
     args = parser.parse_args(argv)
-    out = run_experiment(build(args.trace, args.model, args.wide_ctx, args.method))
+    out = run_experiment(build(args.trace, args.model, args.wide_ctx, args.method, args.shipped_ctx))
     print(f"report -> {out/'report.md'}")
     return 0
 

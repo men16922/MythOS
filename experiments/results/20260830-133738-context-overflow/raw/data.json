@@ -1,0 +1,77 @@
+{
+  "model": "gemma4:latest",
+  "shipped_num_ctx": 16384,
+  "wide_num_ctx": 32768,
+  "sampler": {
+    "temperature": 0.4,
+    "repeat_penalty": 1.3,
+    "repeat_last_n": 256,
+    "top_p": 0.85,
+    "top_k": 30,
+    "num_predict": 2048
+  },
+  "arms": [
+    {
+      "index": 0,
+      "shipped": {
+        "num_ctx": 16384,
+        "prompt_tokens": 7245,
+        "output_tokens": 1301,
+        "output_chars": 766
+      },
+      "wide": {
+        "num_ctx": 32768,
+        "prompt_tokens": 7245,
+        "output_tokens": 1363,
+        "output_chars": 696
+      }
+    },
+    {
+      "index": 1,
+      "shipped": {
+        "num_ctx": 16384,
+        "prompt_tokens": 7458,
+        "output_tokens": 1434,
+        "output_chars": 857
+      },
+      "wide": {
+        "num_ctx": 32768,
+        "prompt_tokens": 7458,
+        "output_tokens": 1476,
+        "output_chars": 814
+      }
+    },
+    {
+      "index": 2,
+      "shipped": {
+        "num_ctx": 16384,
+        "prompt_tokens": 7615,
+        "output_tokens": 1689,
+        "output_chars": 871
+      },
+      "wide": {
+        "num_ctx": 32768,
+        "prompt_tokens": 7615,
+        "output_tokens": 1336,
+        "output_chars": 923
+      }
+    },
+    {
+      "index": 3,
+      "shipped": {
+        "num_ctx": 16384,
+        "prompt_tokens": 7440,
+        "output_tokens": 1264,
+        "output_chars": 795
+      },
+      "wide": {
+        "num_ctx": 32768,
+        "prompt_tokens": 7440,
+        "output_tokens": 1572,
+        "output_chars": 953
+      }
+    }
+  ],
+  "recovered": 0,
+  "n": 4
+}

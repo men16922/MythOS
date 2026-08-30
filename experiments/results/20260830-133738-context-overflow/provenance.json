@@ -1,0 +1,19 @@
+{
+  "ran_at": "2026-08-30T13:43:33.248129+00:00",
+  "slug": "context-overflow",
+  "git_commit": "713a8ca3dc13187a4821f275e1a079d5c50b3ea6",
+  "git_branch": "main",
+  "git_dirty": true,
+  "experiment_sha256": "1cfb148e54a57c2500744d796a310cea3be57ad7744209679dab190b0edceb4f",
+  "python": "3.13.5",
+  "platform": "Darwin 25.6.0 arm64",
+  "controls": {
+    "prompts": "빈 응답을 낸 실제 프롬프트를 그대로 재생",
+    "sampler": "director.py generate_story와 동일",
+    "model": "gemma4:latest",
+    "num_predict": 2048
+  },
+  "variables": {
+    "num_ctx": "16384 → 32768"
+  }
+}

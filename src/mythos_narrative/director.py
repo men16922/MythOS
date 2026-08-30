@@ -32,6 +32,7 @@ from .schemas import (
     WorldDelta,
 )
 from .streaming import NarrationFieldExtractor, NarrativeStreamEvent, PlainTextStoryExtractor
+from .trace import set_trace_fields, unwrap_provider, wrap_provider
 from .usage import clear_usage, take_usage
 from .variation import NoveltyController
 
@@ -284,7 +285,10 @@ class NarrativeDirector:
             from .gemini_provider import build_narrative_provider
 
             provider = build_narrative_provider()
-        self.provider = provider
+        # Tracing wraps every provider at one seam, so a workload trace has the
+        # same shape no matter which engine served it. Off unless
+        # MYTHOS_PROMPT_TRACE is set, in which case wrap_provider is a no-op.
+        self.provider = wrap_provider(provider)
         self.repair_enabled = repair_enabled
         self.logger = get_logger("mythos.narrative")
         self.metrics = NarrativeMetrics()
@@ -316,6 +320,11 @@ class NarrativeDirector:
         return getattr(getattr(self.provider, "config", None), "keybeat_model", None)
 
     def generate_first_scene(self, context: NarrativeContext) -> tuple[Scene, ScenePayload]:
+        set_trace_fields(
+            loop_id=getattr(context.loop, "loop_id", None),
+            turn_index=context.turn_index,
+            language=context.language,
+        )
         if self._use_dual_model():
             story_model = self._story_model()
             return self._generate_dual(context, build_first_story_messages(context), model=story_model)
@@ -324,6 +333,11 @@ class NarrativeDirector:
         )
 
     def generate_next_scene(self, context: NarrativeContext) -> tuple[Scene, ScenePayload]:
+        set_trace_fields(
+            loop_id=getattr(context.loop, "loop_id", None),
+            turn_index=context.turn_index,
+            language=context.language,
+        )
         if self._use_dual_model():
             story_model = self._story_model()
             return self._generate_dual(context, build_next_story_messages(context), model=story_model)
@@ -332,6 +346,11 @@ class NarrativeDirector:
         )
 
     def stream_first_scene(self, context: NarrativeContext) -> Iterator[NarrativeStreamEvent]:
+        set_trace_fields(
+            loop_id=getattr(context.loop, "loop_id", None),
+            turn_index=context.turn_index,
+            language=context.language,
+        )
         if self._use_dual_model():
             story_model = self._story_model()
             yield from self._stream_generate_dual(context, build_first_story_messages(context), model=story_model)
@@ -341,6 +360,11 @@ class NarrativeDirector:
             )
 
     def stream_next_scene(self, context: NarrativeContext) -> Iterator[NarrativeStreamEvent]:
+        set_trace_fields(
+            loop_id=getattr(context.loop, "loop_id", None),
+            turn_index=context.turn_index,
+            language=context.language,
+        )
         if self._use_dual_model():
             story_model = self._story_model()
             yield from self._stream_generate_dual(context, build_next_story_messages(context), model=story_model)
@@ -461,7 +485,7 @@ class NarrativeDirector:
                 "storytelling generation finished",
                 player_id=context.player.player_id,
                 loop_id=context.loop.loop_id,
-                provider=type(self.provider).__name__,
+                provider=type(unwrap_provider(self.provider)).__name__,
             ):
                 story_text = cast(Any, self.provider).generate_story(story_messages, model=model)
         except Exception:
@@ -565,7 +589,7 @@ class NarrativeDirector:
                 "narrative generation finished",
                 player_id=context.player.player_id,
                 loop_id=context.loop.loop_id,
-                provider=type(self.provider).__name__,
+                provider=type(unwrap_provider(self.provider)).__name__,
                 model_override=model or "",
                 key_beat=context.key_beat,
             ) as log_fields:

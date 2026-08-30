@@ -20,6 +20,12 @@
     {
       "path": "golden/prod-people-help-20260728.json",
       "sha256": "50139a681ec63fb143d2ee9ad1ed16e0697a8ab610acda2d18d288f2525008b2"
+    },
+    {
+      "path": "golden/prod-people-help-20260808.json",
+      "sha256": "6131a215e4b021614fd26b0a47916ff4ccd590ae33ccec9b2ba5bccdd64df00c",
+      "admitted_at": "2026-08-13",
+      "note": "47/47 non-fallback on mythos-api-00083-jt7 + 00084-nt2. The 47 generations split 22+25 across a mid-arm deploy; the owner ratified it as a single-build sample on 2026-08-13 because that deploy changed only dialogue-span rendering, left narrative generation untouched, and both halves recorded 0 fallback."
     }
   ],
   "promotion_baseline": {

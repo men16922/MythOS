@@ -10,8 +10,10 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import unittest
 from pathlib import Path
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -113,6 +115,10 @@ class SplitPolicyTest(unittest.TestCase):
             {
                 "prod-evidence-safety-20260728.json",
                 "prod-people-help-20260728.json",
+                # Admitted 2026-08-13 (DECISIONS): the 22+25 two-build arm. This set
+                # is pinned so growing the frozen bank stays a deliberate act — a
+                # sample that appears here without an owner ruling is a mistake.
+                "prod-people-help-20260808.json",
             },
         )
         self.assertTrue(set(development).isdisjoint(promotion))
@@ -225,6 +231,49 @@ class ReportTest(unittest.TestCase):
         self.assertIn("Promotion companion metrics", report)
         self.assertIn("cost/loop $1.1250", report)
         self.assertIn("repetition fail · length pass", report)
+
+
+class JudgeProvenanceTest(unittest.TestCase):
+    """Score drift must be attributable to an engine or a rubric edit.
+
+    Two hash-frozen transcripts scored 2/5 on 2026-08-13 where they scored 3/5 in
+    July, and nothing in either run recorded what did the scoring.
+    """
+
+    def test_prompt_is_excluded_from_the_recorded_command(self) -> None:
+        # The default form puts the prompt at index 2 and the override form puts
+        # it last, so dropping the tail records the wrong argv for the default.
+        with mock.patch.dict(os.environ, {"EVAL_JUDGE_CMD": ""}, clear=False):
+            command = judge.judge_provenance()["command"]
+        self.assertEqual(command, ["claude", "-p", "--permission-mode", "plan"])
+
+    def test_override_command_is_recorded_and_flagged(self) -> None:
+        with mock.patch.dict(os.environ, {"EVAL_JUDGE_CMD": "my-judge --json"}, clear=False):
+            provenance = judge.judge_provenance()
+        self.assertEqual(provenance["command"], ["my-judge", "--json"])
+        self.assertTrue(provenance["judge_cmd_override"])
+
+    def test_rubric_hash_is_recorded_so_a_rubric_edit_is_attributable(self) -> None:
+        # The rubric is injected into the judge prompt verbatim, so editing it
+        # moves scores exactly like swapping the engine does.
+        provenance = judge.judge_provenance()
+        self.assertEqual(provenance["rubric_sha256"], judge._sha256(judge.RUBRIC_PATH))
+
+    def test_report_states_the_judge_and_rubric_up_front(self) -> None:
+        report = judge.render_report(
+            [("t1", {"scores": {"a": 3}, "overall": 3})],
+            "20260814-000000",
+            None,
+            {
+                "command": ["claude", "-p"],
+                "judge_version": "2.1.231 (Claude Code)",
+                "rubric_sha256": "abc123",
+            },
+        )
+        header = report.split("## t1")[0]
+        self.assertIn("Judge: `claude -p`", header)
+        self.assertIn("2.1.231 (Claude Code)", header)
+        self.assertIn("abc123", header)
 
 
 if __name__ == "__main__":

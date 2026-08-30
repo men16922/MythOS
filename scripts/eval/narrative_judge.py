@@ -175,9 +175,20 @@ def render_report(
     results: list[tuple[str, dict[str, Any]]],
     generated_at: str,
     companion_metrics: dict[str, Any] | None = None,
+    provenance: dict[str, Any] | None = None,
 ) -> str:
     """Fold (name, verdict) pairs into a markdown report."""
     lines = [f"# Narrative eval report — {generated_at}", ""]
+    if provenance is not None:
+        # Up top, not in an appendix: a reader comparing this report against an
+        # earlier one needs to know whether the judge or the rubric moved first.
+        judge = " ".join(provenance.get("command") or []) or "?"
+        lines.append(f"Judge: `{judge}`")
+        if provenance.get("judge_version"):
+            lines.append(f"Judge version: `{provenance['judge_version']}`")
+        if provenance.get("rubric_sha256"):
+            lines.append(f"Rubric SHA-256: `{provenance['rubric_sha256']}`")
+        lines.append("")
     for name, verdict in results:
         scores = verdict.get("scores", {})
         score_str = " · ".join(f"{axis} {value}" for axis, value in scores.items())
@@ -212,6 +223,42 @@ def _judge_cmd(prompt: str) -> list[str]:
     return ["claude", "-p", prompt, "--permission-mode", "plan"]
 
 
+def judge_provenance(rubric_path: Path = RUBRIC_PATH) -> dict[str, Any]:
+    """Record what actually did the scoring, so score drift is attributable.
+
+    On 2026-08-13 two hash-frozen, byte-identical transcripts scored 2/5 where
+    they had scored 3/5 in July. Nothing in the run recorded which judge engine or
+    which rubric text produced either number, so the drift could not be attributed
+    to a model change, a rubric edit, or plain sampling noise. Both inputs are
+    recorded here; the rubric is injected into the prompt verbatim, so its hash
+    belongs in the record exactly as much as the engine does.
+
+    This records; it does not stabilise. Whether to median over N runs, pin the
+    engine, or drop the numeric gate is an owner decision (NEXT_PLAN).
+    """
+    # Filter the prompt out by sentinel rather than position: the override form
+    # appends it last, but the default form puts it at index 2, so slicing the
+    # tail silently records the wrong argv.
+    sentinel = "\x00mythos-prompt-placeholder\x00"
+    command = [arg for arg in _judge_cmd(sentinel) if arg != sentinel]
+    provenance: dict[str, Any] = {
+        "command": command,
+        "judge_cmd_override": bool(os.environ.get("EVAL_JUDGE_CMD", "")),
+        "rubric_sha256": _sha256(rubric_path) if rubric_path.is_file() else None,
+    }
+    # Best-effort: the engine may not exist (CI, a stubbed override) and must not
+    # take the run down just because its version could not be read.
+    try:
+        proc = subprocess.run(
+            [command[0], "--version"], capture_output=True, text=True, timeout=15
+        )
+        if proc.returncode == 0:
+            provenance["judge_version"] = proc.stdout.strip()[:200] or None
+    except (OSError, subprocess.SubprocessError):
+        pass
+    return provenance
+
+
 def run(
     paths: list[Path], companion_metrics: dict[str, Any] | None = None
 ) -> int:
@@ -228,10 +275,14 @@ def run(
             print(f"  judge failed (rc={proc.returncode}): {proc.stderr[:300]}")
             return 1
         results.append((transcript["name"], parse_verdict(proc.stdout)))
+    provenance = judge_provenance()
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     out_dir = REPO_ROOT / "outputs" / "evals" / stamp
     out_dir.mkdir(parents=True, exist_ok=True)
-    report = render_report(results, stamp, companion_metrics)
+    (out_dir / "provenance.json").write_text(
+        json.dumps(provenance, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    report = render_report(results, stamp, companion_metrics, provenance)
     (out_dir / "report.md").write_text(report, encoding="utf-8")
     (out_dir / "verdicts.json").write_text(
         json.dumps(dict(results), ensure_ascii=False, indent=2), encoding="utf-8"

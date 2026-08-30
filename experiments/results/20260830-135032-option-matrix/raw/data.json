@@ -1,0 +1,60 @@
+{
+  "model": "gemma4:latest",
+  "uncapped_chars": 691,
+  "delivery": [
+    [
+      "none (baseline)",
+      691,
+      "—"
+    ],
+    [
+      "max_tokens=",
+      0,
+      "**예**"
+    ],
+    [
+      "extra_body={'options':{'num_predict'}} — 현행",
+      691,
+      "아니오"
+    ],
+    [
+      "extra_body={'num_predict'} (top level)",
+      691,
+      "아니오"
+    ]
+  ],
+  "knobs": [
+    [
+      "top_p=0.1",
+      762,
+      "아니오"
+    ],
+    [
+      "frequency_penalty=2.0",
+      767,
+      "**예**"
+    ],
+    [
+      "presence_penalty=2.0",
+      884,
+      "**예**"
+    ],
+    [
+      "extra_body top_k=1",
+      762,
+      "아니오"
+    ],
+    [
+      "extra_body repeat_penalty=2.0",
+      762,
+      "아니오"
+    ]
+  ],
+  "working_delivery": [
+    "max_tokens="
+  ],
+  "working_knobs": [
+    "frequency_penalty=2.0",
+    "presence_penalty=2.0"
+  ]
+}

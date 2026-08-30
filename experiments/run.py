@@ -10,12 +10,18 @@ from __future__ import annotations
 
 import sys
 
-from experiments import exp_context_overflow, exp_option_passthrough, exp_workload_profile
+from experiments import (
+    exp_context_overflow,
+    exp_option_matrix,
+    exp_option_passthrough,
+    exp_workload_profile,
+)
 
 EXPERIMENTS = {
     exp_workload_profile.SLUG: exp_workload_profile,
     exp_context_overflow.SLUG: exp_context_overflow,
     exp_option_passthrough.SLUG: exp_option_passthrough,
+    exp_option_matrix.SLUG: exp_option_matrix,
 }
 
 

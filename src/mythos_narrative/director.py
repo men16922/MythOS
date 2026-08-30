@@ -16,6 +16,7 @@ from mythos_image_agent.config import AgentConfig
 from mythos_runtime.observability import get_logger, span, timed
 from mythos_runtime.settings import load_runtime_settings
 
+from .engine_options import SamplerSpec, render
 from .fallbacks import default_fallback
 from .parser import NarrativeParseError, parse_scene_payload, parse_story_text, repair_scene_payload
 from .prompts import (
@@ -127,6 +128,20 @@ class NarrativeMetrics:
         }
 
 
+def _sampler(**fields: Any) -> dict[str, Any]:
+    """Render one sampler intent for the configured engine.
+
+    Every value here used to travel in ``extra_body["options"]``, which Ollama's
+    OpenAI-compatible endpoint discards without a word — measured 2026-08-30, so
+    none of it had ever applied. What an engine can actually carry now lives in
+    engine_options, per engine, and what it cannot is dropped where the reason is
+    written down.
+    """
+    spec = SamplerSpec(**fields)
+    engine = load_runtime_settings().llm_engine
+    return render(spec, engine)
+
+
 @dataclass(frozen=True)
 class OllamaJSONProvider:
     config: AgentConfig
@@ -145,18 +160,13 @@ class OllamaJSONProvider:
         kwargs: dict[str, Any] = {
             "model": target_model,
             "messages": messages,
-            "temperature": 0.4,
-            "extra_body": {
-                "keep_alive": "30m",
-                "options": {
-                    "num_ctx": self.config.ollama_num_ctx,
-                    "repeat_penalty": 1.3,
-                    "repeat_last_n": 256,
-                    "top_p": 0.85,
-                    "top_k": 30,
-                    "num_predict": 2048,
-                }
-            },
+            **_sampler(
+                temperature=0.4,
+                max_output_tokens=2048,
+                top_p=0.85,
+                top_k=30,
+                repetition_penalty=1.3,
+            ),
         }
         response = client.chat.completions.create(**kwargs)
         content = response.choices[0].message.content
@@ -168,15 +178,11 @@ class OllamaJSONProvider:
         kwargs: dict[str, Any] = {
             "model": self.config.ollama_model_parser,
             "messages": messages,
-            "temperature": 0.1,
-            "response_format": {"type": "json_object"},
-            "extra_body": {
-                "keep_alive": "30m",
-                "options": {
-                    "num_ctx": self.config.ollama_num_ctx,
-                    "num_predict": 1536,
-                }
-            },
+            **_sampler(
+                temperature=0.1,
+                max_output_tokens=1536,
+                json_object=True,
+            ),
         }
         response = client.chat.completions.create(**kwargs)
         content = response.choices[0].message.content
@@ -189,19 +195,14 @@ class OllamaJSONProvider:
         kwargs: dict[str, Any] = {
             "model": target_model,
             "messages": messages,
-            "temperature": 0.3,
-            "response_format": {"type": "json_object"},
-            "extra_body": {
-                "keep_alive": "30m",
-                "options": {
-                    "num_ctx": self.config.ollama_num_ctx,
-                    "repeat_penalty": 1.3,
-                    "repeat_last_n": 256,
-                    "top_p": 0.85,
-                    "top_k": 30,
-                    "num_predict": 2048,
-                }
-            },
+            **_sampler(
+                temperature=0.3,
+                max_output_tokens=2048,
+                top_p=0.85,
+                top_k=30,
+                repetition_penalty=1.3,
+                json_object=True,
+            ),
         }
         try:
             response = client.chat.completions.create(**kwargs)
@@ -219,20 +220,15 @@ class OllamaJSONProvider:
         kwargs: dict[str, Any] = {
             "model": self.config.ollama_model,
             "messages": messages,
-            "temperature": 0.3,
             "stream": True,
-            "response_format": {"type": "json_object"},
-            "extra_body": {
-                "keep_alive": "30m",
-                "options": {
-                    "num_ctx": self.config.ollama_num_ctx,
-                    "repeat_penalty": 1.3,
-                    "repeat_last_n": 256,
-                    "top_p": 0.85,
-                    "top_k": 30,
-                    "num_predict": 2048,
-                }
-            },
+            **_sampler(
+                temperature=0.3,
+                max_output_tokens=2048,
+                top_p=0.85,
+                top_k=30,
+                repetition_penalty=1.3,
+                json_object=True,
+            ),
         }
         try:
             stream = client.chat.completions.create(**kwargs)
@@ -253,19 +249,14 @@ class OllamaJSONProvider:
         kwargs: dict[str, Any] = {
             "model": target_model,
             "messages": messages,
-            "temperature": 0.4,
             "stream": True,
-            "extra_body": {
-                "keep_alive": "30m",
-                "options": {
-                    "num_ctx": self.config.ollama_num_ctx,
-                    "repeat_penalty": 1.3,
-                    "repeat_last_n": 256,
-                    "top_p": 0.85,
-                    "top_k": 30,
-                    "num_predict": 2048,
-                }
-            },
+            **_sampler(
+                temperature=0.4,
+                max_output_tokens=2048,
+                top_p=0.85,
+                top_k=30,
+                repetition_penalty=1.3,
+            ),
         }
         stream = client.chat.completions.create(**kwargs)
         for chunk in stream:

@@ -1,0 +1,19 @@
+{
+  "ran_at": "2026-08-30T13:53:44.415745+00:00",
+  "slug": "option-matrix",
+  "git_commit": "ef2c4348d71ab1ab63688c816210fde67be8936d",
+  "git_branch": "main",
+  "git_dirty": true,
+  "experiment_sha256": "931a5575e281cd11ff147055280b88df9e8485413480c464b617852a99facd21",
+  "python": "3.13.5",
+  "platform": "Darwin 25.6.0 arm64",
+  "controls": {
+    "model": "gemma4:latest",
+    "endpoint": "http://localhost:11434/v1",
+    "temperature": "0 (샘플러 팔)",
+    "prompt": "고정"
+  },
+  "variables": {
+    "파라미터 전달 형태와 이름": "표 참조"
+  }
+}

@@ -34,6 +34,10 @@ class RuntimeSettings:
     environment: str
     otel_endpoint: str
     service_name: str
+    #: Which OpenAI-compatible server the local narrative path talks to. Engines
+    #: accept different sampler parameters in different envelopes, so the
+    #: translation is keyed off this (mythos_narrative.engine_options).
+    llm_engine: str
 
 
 def load_runtime_settings() -> RuntimeSettings:
@@ -46,4 +50,5 @@ def load_runtime_settings() -> RuntimeSettings:
         environment=os.getenv("MYTHOS_ENV", "local"),
         otel_endpoint=os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4318").rstrip("/"),
         service_name=os.getenv("OTEL_SERVICE_NAME", "mythos-local"),
+        llm_engine=(os.getenv("MYTHOS_LLM_ENGINE") or "ollama").strip().lower(),
     )

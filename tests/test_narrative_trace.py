@@ -158,42 +158,36 @@ class TraceCaptureTest(unittest.TestCase):
         self.assertEqual(row["model"], "qwen3:8b-64k")
 
 class LocalGenerationBudgetTest(unittest.TestCase):
-    """The local Ollama path must be able to finish a scene it starts.
+    """The local path must be able to finish a scene it starts.
 
-    Measured 2026-08-30 (experiments/results/*-context-overflow): the narrative
-    prompt runs 6.8-7.8k tokens and the storyteller asks for num_predict=2048.
-    With num_ctx=8192 that sum overflows, the model returns an empty scene, and
-    the deterministic fallback hides it — 3/3 of the affected prompts produced
-    text once the window was widened. These pin the budget so a future edit
-    cannot silently reintroduce the overflow.
+    Two independent faults, both measured 2026-08-30 and both invisible in play
+    because the deterministic fallback covered them
+    (experiments/results/*-context-overflow, *-option-passthrough):
+
+    1. the sampler was posted in an envelope the OpenAI-compatible endpoint
+       discards, so nothing it carried ever applied;
+    2. the client timeout was shorter than a legitimate scene, so the SDK burned
+       two retries and a slow turn silently cost three generations.
     """
-
-    def test_the_context_window_holds_the_prompt_plus_what_we_ask_for(self) -> None:
-        from mythos_image_agent.config import AgentConfig
-
-        config = AgentConfig()
-        measured_max_prompt_tokens = 7763  # largest observed, 9-turn local arm
-        largest_num_predict = 2048  # generate_story / generate / stream_story
-        self.assertGreater(
-            config.ollama_num_ctx,
-            measured_max_prompt_tokens + largest_num_predict,
-            "num_ctx must exceed the measured prompt plus the requested generation, "
-            "or the storyteller returns empty scenes that fallback silently covers",
-        )
 
     def test_the_timeout_allows_a_scene_that_legitimately_takes_a_minute(self) -> None:
         from mythos_image_agent.config import AgentConfig
 
-        # Slowest successful local generation observed in the same arm was 89.3s
-        # (itself an SDK retry). Below that the client retries twice, so a slow
-        # turn costs three generations before anyone notices.
+        # Slowest successful local generation observed was 89.3s (itself a retry).
         self.assertGreaterEqual(AgentConfig().ollama_timeout_seconds, 120.0)
 
-    def test_every_local_call_site_reads_the_configured_window(self) -> None:
-        """A hard-coded 8192 anywhere reintroduces the overflow for that path."""
+    def test_context_length_is_not_pretended_to_be_a_request_parameter(self) -> None:
+        """It is a model property: the compat endpoint takes no per-request window.
+
+        A config field for it would be a knob that looks live and does nothing —
+        which is the exact failure this session spent its time diagnosing.
+        """
+        from mythos_image_agent.config import AgentConfig
+
+        self.assertFalse(hasattr(AgentConfig(), "ollama_num_ctx"))
         source = Path("src/mythos_narrative/director.py").read_text(encoding="utf-8")
-        self.assertNotIn('"num_ctx": 8192', source)
-        self.assertIn('"num_ctx": self.config.ollama_num_ctx', source)
+        self.assertNotIn("num_ctx", source)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,20 @@
+{
+  "ran_at": "2026-09-05T15:48:37.407999+00:00",
+  "slug": "workload-profile",
+  "git_commit": "49779f088200dbdb10fcabb51dc339f0d2a6d60c",
+  "git_branch": "p12-prefix-curve",
+  "git_dirty": false,
+  "experiment_sha256": "5127521d06567f979bdc042ea0fc1136daa23d5d436c27014a1be1529dcbaa8d",
+  "python": "3.13.5",
+  "platform": "Darwin 25.6.0 arm64",
+  "controls": {
+    "trace": "/private/tmp/claude-501/-Users-men1692-Desktop-local-MythOS/deab6510-8a7f-4ba9-adfb-ef941c357947/scratchpad/trace-p12",
+    "model": "gemma4:8b-64k",
+    "method": "generate_story",
+    "선택 정책": "항상 첫 번째 선택지",
+    "이미지 생성": "off"
+  },
+  "variables": {
+    "없음 (관측 실험)": "—"
+  }
+}

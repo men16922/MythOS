@@ -2,6 +2,14 @@
 
 Last updated: 2026-09-05
 
+## 2026-09-05 — Review residuals worked down (`9b958b2`, `4d10b35`); deployed `mythos-api-00087-w7z`
+
+- Status: 8 of the 13 residuals closed; **1343** tests (up 3), lint/typecheck/build clean. Deployed as `mythos-api-00087-w7z` (root/health 200, chunks 200, app.js SHA match).
+- **Fixed**: a model-requested `archive`/`ended` phase bypassed the soft-defeat guard; a refusal now clears the pre-seeded `met_se_rin` (union merge had recorded both flags on loop 1 — `remove_flags` in the delta); the intent preview shows `idle` for stunned/hacked enemies, keeps a frozen one in place and uses the taunt target pool like `_enemy_turn`; the socket handler returns the pooled DB connection between messages (10 idle tabs pinned the whole pool); zone-risk matching word-bounded.
+- **Refactored**: `_snapshot_from_loop` is the one read-only snapshot constructor (was 7 copies); `_progress_facts` computes clues + epiphanies from one shard read (was two 1000-row fetches per snapshot, 11 sites); combat canvas redraws the *latest* frame when a sprite finishes loading (late PNGs repainted old positions, or a detached canvas) and stops calling `getComputedStyle`/4× `matchMedia`/`canvas.width=` every frame. **Canvas change not verified in a browser** (Docker down, no local infra) — geometry unchanged.
+- Deliberately not changed: `ending_resolver` metric substring (`humanity_first` etc. rely on it; prefix-only would change ending scores — owner call) and `audio_service` `"boss" in id` (no boss ids exist; the `max_hp>=25` clause carries it).
+- Still open (NEXT_PLAN): `_commit_scene` reducer, `NarrationReveal`/`combatView.ts`, `_weapon_in_range` high-ground rule (owner), route replay re-scoring, migration `008` on prod.
+
 ## 2026-09-05 — Repo-wide code review → three fix/refactor bundles (`047fcf0`, `fb44514`, `f1d22d6`)
 
 - Status: four parallel read-only reviewers (runtime core / runtime support+core+memory / narrative+API+combat / React) produced ~45 findings; each was re-verified in code before acting, two were rejected as false positives (`item_available` **is** emitted, by `combat_service`; the passive `Tooltip` is deliberately unused and test-locked). `make check` minus doc-budget: **1340** tests (up 15), lint/typecheck/frontend-lint/build clean, `smoke-local` green.

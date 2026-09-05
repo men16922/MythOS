@@ -294,6 +294,68 @@ export interface CombatOverlay {
 // hasn't shipped yet) so drawBlipSprite can substitute a pose fallback on redraw.
 const brokenSprites = new Set<string>();
 
+// The arguments of the most recent draw per canvas. A sprite's onload used to
+// capture the (canvas, combat) of whichever draw first requested it, so a PNG
+// that finished after the board had moved on repainted the OLD positions/HP —
+// and, after a tab switch, into a detached canvas. Redraw from the latest.
+const lastDraw = new WeakMap<
+  HTMLCanvasElement,
+  {
+    combat: CombatState;
+    scenarioId: string;
+    drag?: CombatDragOverlay;
+    overlay?: CombatOverlay;
+    hover?: [number, number] | null;
+    inspectCell?: [number, number] | null;
+  }
+>();
+
+function redrawLatest(canvas: HTMLCanvasElement): void {
+  const last = lastDraw.get(canvas);
+  if (!last || !canvas.isConnected) return;
+  drawCombatCanvas(
+    canvas, last.combat, last.scenarioId, last.drag, last.overlay, last.hover, last.inspectCell
+  );
+}
+
+// Live media queries are cheap to read and only need creating once; the draw
+// path used to call matchMedia() four times per frame at 60 fps.
+let mediaQueries: { landscape: MediaQueryList; portrait: MediaQueryList; coarse: MediaQueryList } | null = null;
+function mq() {
+  if (!mediaQueries && typeof window.matchMedia === "function") {
+    mediaQueries = {
+      landscape: window.matchMedia("(orientation: landscape)"),
+      portrait: window.matchMedia("(orientation: portrait)"),
+      coarse: window.matchMedia("(pointer: coarse)"),
+    };
+  }
+  return mediaQueries;
+}
+
+// Container padding, re-read only when the container's box changes: the draw
+// path ran getComputedStyle per frame (a style flush) for four numbers.
+const paddingCache = new WeakMap<
+  Element,
+  { w: number; h: number; left: number; right: number; top: number; bottom: number }
+>();
+function containerPadding(container: HTMLElement) {
+  const cached = paddingCache.get(container);
+  if (cached && cached.w === container.clientWidth && cached.h === container.clientHeight) {
+    return cached;
+  }
+  const computed = window.getComputedStyle(container);
+  const entry = {
+    w: container.clientWidth,
+    h: container.clientHeight,
+    left: parseFloat(computed.paddingLeft) || 0,
+    right: parseFloat(computed.paddingRight) || 0,
+    top: parseFloat(computed.paddingTop) || 0,
+    bottom: parseFloat(computed.paddingBottom) || 0,
+  };
+  paddingCache.set(container, entry);
+  return entry;
+}
+
 function loadImage(url: string, onLoad: () => void): HTMLImageElement {
   let img = imageCache[url];
   if (!img) {
@@ -325,7 +387,6 @@ function combatImagePath(b: CombatBlip, pose: BlipOverride["pose"]): string {
 function drawBlipSprite(
   ctx: CanvasRenderingContext2D,
   canvas: HTMLCanvasElement,
-  combat: CombatState,
   scenarioId: string,
   b: CombatBlip,
   cx: number,
@@ -343,9 +404,7 @@ function drawBlipSprite(
     if (!spritePath) return false;
     imgUrl = `/resources/${scenarioId}/${spritePath}`;
   }
-  const img = loadImage(imgUrl, () => {
-    drawCombatCanvas(canvas, combat, scenarioId);
-  });
+  const img = loadImage(imgUrl, () => redrawLatest(canvas));
   if (!img.complete || img.naturalWidth <= 0) return false;
 
   const w = r * 2.35;
@@ -363,7 +422,6 @@ function drawBlipSprite(
 function drawBlipPortrait(
   ctx: CanvasRenderingContext2D,
   canvas: HTMLCanvasElement,
-  combat: CombatState,
   scenarioId: string,
   b: CombatBlip,
   cx: number,
@@ -376,7 +434,7 @@ function drawBlipPortrait(
   }
   if (portraitPath) {
     const imgUrl = `/resources/${scenarioId}/${portraitPath}`;
-    const img = loadImage(imgUrl, () => drawCombatCanvas(canvas, combat, scenarioId));
+    const img = loadImage(imgUrl, () => redrawLatest(canvas));
     if (img.complete && img.naturalWidth > 0) {
       ctx.save();
       ctx.beginPath();
@@ -595,6 +653,7 @@ export function drawCombatCanvas(
   hover?: [number, number] | null,
   inspectCell?: [number, number] | null
 ): void {
+  lastDraw.set(canvas, { combat, scenarioId, drag, overlay, hover, inspectCell });
   const radar = combat.radar;
   if (!radar || !radar.blips || radar.blips.length === 0) return;
 
@@ -604,9 +663,9 @@ export function drawCombatCanvas(
   const container = canvas.parentElement;
   if (!container) return;
 
-  const computed = window.getComputedStyle(container);
-  const padLeft = parseFloat(computed.paddingLeft) || 0;
-  const padRight = parseFloat(computed.paddingRight) || 0;
+  const pad = containerPadding(container);
+  const padLeft = pad.left;
+  const padRight = pad.right;
   // Board zoom is read from the canvas dataset so every caller (App redraw +
   // animation engine) honors it without threading a param through.
   const zoom = Math.max(1, parseFloat(canvas.dataset.boardZoom || "1") || 1);
@@ -621,13 +680,11 @@ export function drawCombatCanvas(
   // overflow the fixed-height row and force page scroll. Fit to whichever
   // axis is tighter, using the same cssH = cssW * rows/cols aspect used
   // below (solved for width instead of height).
-  const isLandscapeCoarse =
-    typeof window.matchMedia === "function" &&
-    window.matchMedia("(orientation: landscape)").matches &&
-    window.matchMedia("(pointer: coarse)").matches;
+  const queries = mq();
+  const isLandscapeCoarse = !!queries && queries.landscape.matches && queries.coarse.matches;
   if (isLandscapeCoarse) {
-    const padTop = parseFloat(computed.paddingTop) || 0;
-    const padBottom = parseFloat(computed.paddingBottom) || 0;
+    const padTop = pad.top;
+    const padBottom = pad.bottom;
     const baseH = Math.max(80, Math.floor(container.clientHeight - padTop - padBottom));
     const cssWFromHeight = Math.floor((baseH * cols) / rows);
     cssW = Math.max(minCssW, Math.min(cssW, cssWFromHeight));
@@ -638,13 +695,10 @@ export function drawCombatCanvas(
   // it — the width-derived size (~273px tall on a 390px phone) made the board
   // subordinate to the console. Width overflow pans (wrapper pan-x + drag-pan),
   // matching how a zoomed board already behaves. Fit UP, never shrink.
-  const isPortraitCoarse =
-    typeof window.matchMedia === "function" &&
-    window.matchMedia("(orientation: portrait)").matches &&
-    window.matchMedia("(pointer: coarse)").matches;
+  const isPortraitCoarse = !!queries && queries.portrait.matches && queries.coarse.matches;
   if (isPortraitCoarse && document.body.classList.contains("combat-active")) {
-    const padTop = parseFloat(computed.paddingTop) || 0;
-    const padBottom = parseFloat(computed.paddingBottom) || 0;
+    const padTop = pad.top;
+    const padBottom = pad.bottom;
     const baseH = Math.floor(container.clientHeight - padTop - padBottom);
     if (baseH > 160) {
       const cssWFromHeight = Math.floor((baseH * cols) / rows);
@@ -653,10 +707,14 @@ export function drawCombatCanvas(
   }
   const cssH = Math.round((cssW * rows) / cols);
 
-  canvas.style.width = cssW + "px";
-  canvas.style.height = cssH + "px";
-  canvas.width = Math.round(cssW * dpr);
-  canvas.height = Math.round(cssH * dpr);
+  // Reassigning width/height reallocates the backing store (DPR 2-3 → several
+  // MB) and resets context state every frame; only touch them on a change.
+  const targetW = Math.round(cssW * dpr);
+  const targetH = Math.round(cssH * dpr);
+  if (canvas.style.width !== cssW + "px") canvas.style.width = cssW + "px";
+  if (canvas.style.height !== cssH + "px") canvas.style.height = cssH + "px";
+  if (canvas.width !== targetW) canvas.width = targetW;
+  if (canvas.height !== targetH) canvas.height = targetH;
 
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
@@ -1121,9 +1179,9 @@ export function drawCombatCanvas(
     const inCover = coverKind === "half" || coverKind === "full";
     const pose =
       ov?.pose || (ov?.flash && ov.flash > 0 ? "hit" : b.defending ? "guard" : inCover ? "cover" : "idle");
-    const drewSprite = drawBlipSprite(ctx, canvas, combat, scenarioId, b, cx, cy, r, pose);
+    const drewSprite = drawBlipSprite(ctx, canvas, scenarioId, b, cx, cy, r, pose);
     if (!drewSprite) {
-      drawBlipPortrait(ctx, canvas, combat, scenarioId, b, cx, cardCy, r);
+      drawBlipPortrait(ctx, canvas, scenarioId, b, cx, cardCy, r);
     }
 
     // Draw active actor arrow pointer
@@ -1241,7 +1299,7 @@ export function drawCombatCanvas(
         const iconUrl = `/resources/${scenarioId}/status/${sid}.png`;
         const icon = brokenSprites.has(iconUrl)
           ? null
-          : loadImage(iconUrl, () => drawCombatCanvas(canvas, combat, scenarioId));
+          : loadImage(iconUrl, () => redrawLatest(canvas));
         if (icon && icon.complete && icon.naturalWidth > 0) {
           const inset = chipR * 0.82;
           ctx.save();
@@ -1427,7 +1485,7 @@ export function drawCombatCanvas(
       ctx.arc(drag.px, drag.py - r * 1.1, r + 3, 0, Math.PI * 2);
       ctx.stroke();
       ctx.shadowBlur = 0;
-      drawBlipPortrait(ctx, canvas, combat, scenarioId, dragged, drag.px, drag.py - r * 1.1, r);
+      drawBlipPortrait(ctx, canvas, scenarioId, dragged, drag.px, drag.py - r * 1.1, r);
       ctx.restore();
     }
   }

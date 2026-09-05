@@ -1,11 +1,6 @@
 import { useLang } from "./i18n/lang";
 import type { CombatState } from "./types";
-
-function factionColor(faction: string): string {
-  if (faction === "player") return "var(--term)";
-  if (faction === "ally") return "#7dff9b";
-  return "var(--danger)";
-}
+import { blipImageUrl, factionCssColor, hpBandCssColor, hpRatio, isAlive } from "./combatView";
 
 interface CombatRosterProps {
   combat: CombatState;
@@ -19,21 +14,16 @@ export function CombatRoster({ combat, scenarioId }: CombatRosterProps) {
   const enemies = blips.filter((b) => b.faction === "enemy");
 
   const renderCard = (b: typeof blips[0]) => {
-    const alive = b.alive !== false;
-    const hpRatio = b.hp / (b.max_hp || 1);
-    const hpPercent = Math.max(0, Math.min(100, hpRatio * 100));
+    const alive = isAlive(b);
+    const ratio = hpRatio(b);
+    const hpPercent = Math.max(0, Math.min(100, ratio * 100));
 
     const focusVal = b.focus ?? 0;
     const maxFocusVal = b.max_focus ?? 0;
 
-    // Prefer the transparent combat idle SPRITE over the bestiary `portrait`: enemy
-    // portraits are full scene illustrations (lit cityscapes), so they render as a busy
-    // black box in the roster avatar. The idle pose is a clean alpha-cut token.
-    const rosterImg = b.combat_images?.idle || b.portrait;
-    let portraitUrl = rosterImg ? `/resources/${scenarioId}/${rosterImg}` : null;
-    if (b.faction === "player" && !portraitUrl) {
-      portraitUrl = `/resources/${scenarioId}/characters/player-noise.png`;
-    }
+    // Transparent combat sprite before the bestiary `portrait` (a busy scene box
+    // in a small avatar), then the player placeholder — see combatView.
+    const portraitUrl = blipImageUrl(scenarioId, b, "idle", { playerFallback: true }) || null;
     const isCurrent = combat.radar?.current === b.id;
     const isActiveActor = combat.available?.active_actor_id === b.id;
 
@@ -48,7 +38,7 @@ export function CombatRoster({ combat, scenarioId }: CombatRosterProps) {
           {portraitUrl ? (
             <img src={portraitUrl} className="roster-avatar-img" alt="" />
           ) : (
-            <div className="roster-avatar-placeholder" style={{ background: factionColor(b.faction) }}>
+            <div className="roster-avatar-placeholder" style={{ background: factionCssColor(b.faction) }}>
                {b.name?.slice(0, 1) || "?"}
             </div>
           )}
@@ -84,7 +74,7 @@ export function CombatRoster({ combat, scenarioId }: CombatRosterProps) {
                   className="roster-hp-bar-fill"
                   style={{
                     width: `${hpPercent}%`,
-                    background: hpRatio > 0.5 ? "var(--term)" : hpRatio > 0.25 ? "#ffd76a" : "var(--danger)"
+                    background: hpBandCssColor(ratio)
                   }}
                 ></div>
               </div>

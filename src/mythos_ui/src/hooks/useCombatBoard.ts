@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { drawCombatCanvas, combatCellFromPoint, getIsoConfig, toIso, canvasPan } from "../combatCanvas";
 import type { CombatDragOverlay, CombatOverlay } from "../combatCanvas";
 import type { CombatAnimator } from "../combatEffects";
+import { isAlive } from "../combatView";
 import type { RuntimeSnapshot, CombatAction, CombatConsumable } from "../types";
 
 // XCOM-style ground targeting (2026-07-12): an armed throwable (EMP 수류탄)
@@ -46,7 +47,7 @@ function displaceDest(
     const ny = vy + sy;
     if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) break;
     if (covers?.[`${nx},${ny}`] === "full") break;
-    if (blips.some((b) => b.alive !== false && b.id !== victim.id && b.x === nx && b.y === ny)) break;
+    if (blips.some((b) => isAlive(b) && b.id !== victim.id && b.x === nx && b.y === ny)) break;
     vx = nx;
     vy = ny;
   }
@@ -152,7 +153,7 @@ export function useCombatBoard(opts: {
     const victim =
       tg.kind === "skill"
         ? blips.find(
-            (b) => b.alive !== false && b.faction === "enemy" && b.x === cell[0] && b.y === cell[1]
+            (b) => isAlive(b) && b.faction === "enemy" && b.x === cell[0] && b.y === cell[1]
           )
         : undefined;
 
@@ -387,7 +388,7 @@ export function useCombatBoard(opts: {
       }
       // Aimed skill: needs an enemy UNIT on the picked cell.
       const victim = combat.radar.blips.find(
-        (b) => b.alive !== false && b.faction === "enemy" && b.x === cx && b.y === cy
+        (b) => isAlive(b) && b.faction === "enemy" && b.x === cx && b.y === cy
       );
       if (!victim) return; // empty ground — keep aiming
       setGroundTargeting(null);

@@ -28,7 +28,7 @@ class TurnOrderStripTest(unittest.TestCase):
         source = read("src/mythos_ui/src/TurnOrderStrip.tsx")
         # Acting unit leads (rotation on radar.current), dead units drop out.
         self.assertIn("order.slice(currentIdx)", source)
-        self.assertIn("b.alive !== false", source)
+        self.assertIn("isAlive(b)", source)  # living combatants only, via combatView
         # Stun + telegraphed intent badges.
         self.assertIn('includes("stunned")', source)
         self.assertIn("intent.damage_hint", source)

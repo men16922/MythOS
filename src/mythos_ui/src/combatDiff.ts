@@ -1,4 +1,5 @@
 import type { CombatBlip, CombatState } from "./types";
+import { hpRatio, isAlive } from "./combatView";
 
 // A combat action response only carries the *resulting* state, not an event
 // stream. We recover what happened by diffing the previous board against the
@@ -11,12 +12,6 @@ export type CombatEvent =
   | { kind: "heal"; id: string; faction: string; amount: number; fromRatio: number; toRatio: number }
   | { kind: "death"; id: string; faction: string }
   | { kind: "defend"; id: string; faction: string; on: boolean };
-
-function ratioOf(b: CombatBlip): number {
-  if (b.hp_ratio != null) return b.hp_ratio;
-  if (b.max_hp) return b.hp / b.max_hp;
-  return 1;
-}
 
 export function diffCombat(
   prev: CombatState | null | undefined,
@@ -43,8 +38,8 @@ export function diffCombat(
       });
     }
 
-    const oRatio = ratioOf(ob);
-    const nRatio = ratioOf(nb);
+    const oRatio = hpRatio(ob);
+    const nRatio = hpRatio(nb);
     const hpDelta = ob.hp - nb.hp;
     if (hpDelta > 0) {
       events.push({
@@ -66,8 +61,8 @@ export function diffCombat(
       });
     }
 
-    const oAlive = ob.alive !== false;
-    const nAlive = nb.alive !== false;
+    const oAlive = isAlive(ob);
+    const nAlive = isAlive(nb);
     if (oAlive && !nAlive) {
       events.push({ kind: "death", id: nb.id, faction: nb.faction });
     }

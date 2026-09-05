@@ -10,6 +10,7 @@ import { CombatControls } from "./CombatControls";
 import { CombatLog } from "./CombatLog";
 import { CombatRoster } from "./CombatRoster";
 import { TurnOrderStrip } from "./TurnOrderStrip";
+import { blipImageUrl, isAlive } from "./combatView";
 import { OperationMapPanel, StatusPanel } from "./GameAside";
 import { GameIcon, type GameIconName } from "./icons";
 import { SaveHistoryPanel } from "./SaveHistoryPanel";
@@ -424,11 +425,8 @@ const combatLootLabel = (itemId: string, t: TFn): string => {
     .replace(/\b\w/g, (letter) => letter.toUpperCase());
 };
 
-const combatImageSrc = (scenarioId: string, blip: CombatBlip): string => {
-  const images = blip.combat_images || {};
-  const path = images.idle || images.guard || images.skill || blip.portrait || "";
-  return path ? `/resources/${scenarioId}/${path}` : "";
-};
+const combatImageSrc = (scenarioId: string, blip: CombatBlip): string =>
+  blipImageUrl(scenarioId, blip, "idle");
 
 function CombatResultPanel({
   combat,
@@ -452,7 +450,7 @@ function CombatResultPanel({
   // The combat snapshot is the source of truth for the victory lineup.  Do not
   // cap it here: a four-member party (for example, with Lin Yue recruited)
   // previously lost its last actor before the renderer ever saw it.
-  const party = blips.filter((b) => b.faction !== "enemy" && b.alive !== false);
+  const party = blips.filter((b) => b.faction !== "enemy" && isAlive(b));
   const enemies = blips.filter((b) => b.faction === "enemy").slice(0, 3);
   const reward = combat.rewards?.encounter_reward || {};
   const rewardEntries = Object.entries(reward).filter(([, value]) => value !== 0 && value !== "");
@@ -639,7 +637,7 @@ function TileInspector({
     const cover = combat.covers?.[key];
     const hazard = combat.hazards?.[key];
     const occupant = (combat.radar?.blips || []).find(
-      (b) => b.x === x && b.y === y && b.alive !== false
+      (b) => b.x === x && b.y === y && isAlive(b)
     );
     const reachable = (combat.available?.reachable || []).some(
       ([rx, ry]) => rx === x && ry === y
@@ -667,7 +665,7 @@ function TileInspector({
     if (ownIntent) {
       if (ownIntent.action === "attack") {
         const victim = (combat.radar?.blips || []).find(
-          (b) => b.x === ownIntent.target_x && b.y === ownIntent.target_y && b.alive !== false
+          (b) => b.x === ownIntent.target_x && b.y === ownIntent.target_y && isAlive(b)
         );
         intentVal = `⚔${ownIntent.damage_hint || ""}${victim ? ` → ${victim.name || victim.id}` : ""}`;
       } else {

@@ -3,6 +3,7 @@ import type { CombatOverlay } from "./combatCanvas";
 import { diffCombat } from "./combatDiff";
 import type { CombatEvent } from "./combatDiff";
 import type { CombatAction, CombatState } from "./types";
+import { FACTION_HEX, factionColor, isAlive } from "./combatView";
 import { getSkillFx, LOCAL_SKILL_REGISTRY } from "./combatAnim";
 
 const easeOut = (t: number): number => 1 - Math.pow(1 - t, 3);
@@ -802,7 +803,7 @@ export class CombatAnimator {
                 start: Math.max(0, impactAt - 120),
                 impactAt,
                 melee: false,
-                color: caster.faction === "enemy" ? "#ff6b7d" : (caster.faction === "player" ? "#8fffea" : "#7dff9b"),
+                color: factionColor(caster.faction),
                 skill: true,
                 role,
                 tags,
@@ -857,7 +858,7 @@ export class CombatAnimator {
       // 3. Fallback to proximity-based matching if still not found
       if (!attacker) {
         const cands = blips.filter(
-          (b) => b.alive !== false && b.id !== ev.id && (isHeal ? partySide(b.faction) === tSide : partySide(b.faction) !== tSide)
+          (b) => isAlive(b) && b.id !== ev.id && (isHeal ? partySide(b.faction) === tSide : partySide(b.faction) !== tSide)
         );
         attacker = cands.reduce<(typeof blips)[number] | null>((best, b) => {
           if (!best) return b;
@@ -901,7 +902,7 @@ export class CombatAnimator {
         start: Math.max(0, impactAt - 120),
         impactAt,
         melee: isHeal ? false : (attacker ? cheb(attacker.x, attacker.y, target.x, target.y) <= 1 : false),
-        color: isHeal ? "#7dff9b" : (attacker && attacker.faction === "enemy" ? "#ff6b7d" : "#8fffea"),
+        color: isHeal ? FACTION_HEX.ally : factionColor(attacker ? attacker.faction : "player"),
         skill,
         role,
         tags,

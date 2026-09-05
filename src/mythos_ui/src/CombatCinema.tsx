@@ -235,7 +235,7 @@ export const CombatCinema: React.FC<CombatCinemaProps> = ({
             className="cinema-card"
             style={{
               borderColor: factionCol(defender.faction),
-              boxShadow: `0 0 14px ${defender.faction === "enemy" ? "#ff6b7d" : "#8fffea"}, inset 0 0 10px ${defender.faction === "enemy" ? "#ff6b7d" : "#8fffea"}`,
+              boxShadow: `0 0 14px ${factionCol(defender.faction)}, inset 0 0 10px ${factionCol(defender.faction)}`,
             }}
           >
             {renderActorImage(defender, defenderSrc, "right")}

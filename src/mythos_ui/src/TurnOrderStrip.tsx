@@ -1,4 +1,5 @@
 import type { CombatRadar } from "./types";
+import { blipImageUrl, isAlive } from "./combatView";
 import { GameIcon } from "./icons";
 import { useLang } from "./i18n/lang";
 
@@ -26,7 +27,7 @@ export function TurnOrderStrip({ radar, scenarioId }: TurnOrderStripProps) {
   const rotated = [...order.slice(currentIdx), ...order.slice(0, currentIdx)];
   const upcoming = rotated
     .map((id) => blipById.get(id))
-    .filter((b): b is NonNullable<typeof b> => Boolean(b && b.alive !== false));
+    .filter((b): b is NonNullable<typeof b> => Boolean(b && isAlive(b)));
   if (upcoming.length < 2) return null;
   const intentByEnemy = new Map(
     (radar.enemy_intents || []).map((i) => [i.enemy_id, i]),
@@ -37,8 +38,7 @@ export function TurnOrderStrip({ radar, scenarioId }: TurnOrderStripProps) {
       <span className="turn-order-label">{t("story.board.turnOrder")}</span>
       <div className="turn-order-chips">
         {upcoming.map((b, i) => {
-          const img = b.combat_images?.idle || b.portrait;
-          const url = img ? `/resources/${scenarioId}/${img}` : null;
+          const url = blipImageUrl(scenarioId, b, "idle") || null;
           const stunned = (b.status || []).includes("stunned");
           const intent = b.faction === "enemy" ? intentByEnemy.get(b.id) : undefined;
           const intentMark =

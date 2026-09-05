@@ -1,5 +1,7 @@
 import { useState } from "react";
 import type { CombatBlip } from "../types";
+import { blipImageUrl, factionColor } from "../combatView";
+import type { CombatPose } from "../combatView";
 import { resolveCombatSkill } from "../combatCinemaSkills";
 import { useCombatCinemaTimeline } from "./useCombatCinemaTimeline";
 
@@ -67,17 +69,12 @@ export function useCombatCinema(
     onCue,
   });
 
-  const factionCol = (faction: string) => (faction === "enemy" ? "#ff6b7d" : "#8fffea");
+  // Three-way faction palette (was binary here, drawing allies in the player
+  // colour while the VFX in the same cinema drew them green).
+  const factionCol = factionColor;
 
-  const imageFor = (b: CombatBlip, pose: "idle" | "attack" | "skill" | "hit" | "guard") => {
-    const images = b.combat_images || {};
-    const path = images[pose]
-      || (pose === "guard" ? images.skill : "")
-      || images.idle
-      || b.portrait
-      || (b.faction === "player" ? "characters/player-noise.png" : "");
-    return path ? `/resources/${scenarioId}/${path}` : "";
-  };
+  const imageFor = (b: CombatBlip, pose: CombatPose) =>
+    blipImageUrl(scenarioId, b, pose, { playerFallback: true });
 
   const attackerPose = phase === "attack" || phase === "impact" ? (mode === "attack" ? "attack" : (isDefend ? "guard" : "skill")) : "idle";
   const defenderPose = isDefend ? attackerPose : (phase === "impact" && !miss ? "hit" : "idle");

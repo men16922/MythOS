@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import { enemyIntentLabel } from "./combatText";
+import { hpRatio } from "./combatView";
 import { GameIcon } from "./icons";
 import { Popover } from "./Popover";
 import { useLang } from "./i18n/lang";
@@ -236,9 +237,7 @@ export function CombatControls({
   // so "heal" does the intuitive thing without an extra click.
   const defaultSupportId =
     (supportTargetId && friendlies.some((f) => f.id === supportTargetId) && supportTargetId) ||
-    [...friendlies].sort(
-      (a, b) => a.hp / Math.max(1, a.max_hp) - b.hp / Math.max(1, b.max_hp)
-    )[0]?.id ||
+    [...friendlies].sort((a, b) => hpRatio(a) - hpRatio(b))[0]?.id ||
     null;
 
   const renderSkill = (skill: CombatSkillInfo) => {

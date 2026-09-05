@@ -1,4 +1,5 @@
 import type { CombatBlip, CombatRadar, CombatState } from "./types";
+import { factionColor, hpBandColor, hpRatio, isAlive } from "./combatView";
 import { getLang } from "./api";
 import { DICTS } from "./i18n/lang";
 import type { StringKey } from "./i18n/strings.ko";
@@ -6,12 +7,6 @@ import type { StringKey } from "./i18n/strings.ko";
 /** Canvas/effects text outside React: resolve a UI string for the active language. */
 export function boardText(key: StringKey): string {
   return DICTS[getLang()][key];
-}
-
-function factionColor(faction: string): string {
-  if (faction === "player") return "#8fffea";
-  if (faction === "ally") return "#7dff9b";
-  return "#ff6b7d";
 }
 
 const imageCache: Record<string, HTMLImageElement> = {};
@@ -882,7 +877,7 @@ export function drawCombatCanvas(
   // hard to discover).
   if (previewReachable && previewCell) {
     const actor = radar.blips.find((b) => b.id === radar.current);
-    if (actor && actor.alive !== false && (actor.x !== previewCell[0] || actor.y !== previewCell[1])) {
+    if (actor && isAlive(actor) && (actor.x !== previewCell[0] || actor.y !== previewCell[1])) {
       const [ax, ay] = toIso(actor.x + 0.5, actor.y + 0.5, cfg);
       const [tx, ty] = toIso(previewCell[0] + 0.5, previewCell[1] + 0.5, cfg);
       ctx.save();
@@ -925,7 +920,7 @@ export function drawCombatCanvas(
     const cell = inspectCell || hover;
     if (!cell) return null;
     const b = (radar.blips || []).find(
-      (x) => x.alive !== false && x.faction === "enemy" && x.x === cell[0] && x.y === cell[1]
+      (x) => isAlive(x) && x.faction === "enemy" && x.x === cell[0] && x.y === cell[1]
     );
     return b ? b.id : null;
   })();
@@ -1100,7 +1095,7 @@ export function drawCombatCanvas(
     // Radial dimensions
     const baseR = Math.min(cfg.stepX, cfg.stepY * 2) * 0.76;
     const r = baseR * scale;
-    const alive = b.alive !== false;
+    const alive = isAlive(b);
     const isDragged = drag != null && drag.blipId === b.id;
 
     if (isDragged) {
@@ -1228,7 +1223,7 @@ export function drawCombatCanvas(
 
     // D2 status legibility: temporary DEF-buff pill above the unit (mirrors the
     // roster chip so "엄호 노이즈가 뭘 했는지" reads on the board too).
-    const aliveHere = b.alive !== false;
+    const aliveHere = isAlive(b);
     if (aliveHere && (b.defense_buff ?? 0) > 0) {
       const chipLabel = `DEF+${b.defense_buff}`;
       const chipY = drewSprite ? cy - r * 2.7 : cardCy - r - 20;
@@ -1404,9 +1399,8 @@ export function drawCombatCanvas(
       ctx.fillStyle = "rgba(0,0,0,0.6)";
       ctx.fillRect(bxp, byp, bw, 3);
 
-      const baseRatio = b.hp_ratio != null ? b.hp_ratio : b.hp / b.max_hp;
-      const ratio = ov?.hpRatio != null ? ov.hpRatio : baseRatio;
-      ctx.fillStyle = ratio > 0.5 ? "#7dff9b" : ratio > 0.25 ? "#ffd76a" : "#ff6b7d";
+      const ratio = ov?.hpRatio != null ? ov.hpRatio : hpRatio(b);
+      ctx.fillStyle = hpBandColor(ratio);
       ctx.fillRect(bxp, byp, bw * Math.max(0, ratio), 3);
     }
 

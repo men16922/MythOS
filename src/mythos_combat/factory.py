@@ -43,7 +43,9 @@ def derive_max_focus(stats: dict[str, int]) -> int:
 def weapon_from_dict(data: dict[str, Any]) -> Weapon:
     applies_raw = data.get("applies")
     applies = (
-        {str(k): int(v) for k, v in applies_raw.items()} if isinstance(applies_raw, dict) else {}
+        {str(k): int(v) for k, v in applies_raw.items()}
+        if isinstance(applies_raw, dict)
+        else {}
     )
     return Weapon(
         id=str(data.get("id", "weapon")),

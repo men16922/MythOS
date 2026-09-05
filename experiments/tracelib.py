@@ -89,23 +89,18 @@ def token_count(text: str, model: str, *, base_url: str = DEFAULT_OLLAMA) -> int
     )
     total = int(
         ollama_chat(
-            [{"role": "user", "content": text}],
-            model,
-            options={"num_predict": 1},
-            base_url=base_url,
+            [{"role": "user", "content": text}], model, options={"num_predict": 1}, base_url=base_url
         )["prompt_eval_count"]
     )
     return max(total - overhead, 0)
 
 
-def prompt_tokens(
-    messages: list[dict[str, str]], model: str, *, base_url: str = DEFAULT_OLLAMA
-) -> int:
+def prompt_tokens(messages: list[dict[str, str]], model: str, *, base_url: str = DEFAULT_OLLAMA) -> int:
     """Exact prompt tokens for a message list, as the serving model counts them."""
     return int(
-        ollama_chat(
-            messages, model, options={"num_predict": 1, "num_ctx": 32768}, base_url=base_url
-        )["prompt_eval_count"]
+        ollama_chat(messages, model, options={"num_predict": 1, "num_ctx": 32768}, base_url=base_url)[
+            "prompt_eval_count"
+        ]
     )
 
 

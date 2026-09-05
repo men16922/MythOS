@@ -20,12 +20,8 @@ if load_dotenv is not None:
 class AgentConfig:
     ollama_base_url: str = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
     ollama_model: str = os.getenv("OLLAMA_MODEL", "gemma4:latest")
-    ollama_model_story: str = (
-        os.getenv("OLLAMA_MODEL_STORY") or os.getenv("OLLAMA_MODEL") or "gemma4:latest"
-    )
-    ollama_model_parser: str = (
-        os.getenv("OLLAMA_MODEL_PARSER") or os.getenv("OLLAMA_MODEL") or "gemma4:latest"
-    )
+    ollama_model_story: str = os.getenv("OLLAMA_MODEL_STORY") or os.getenv("OLLAMA_MODEL") or "gemma4:latest"
+    ollama_model_parser: str = os.getenv("OLLAMA_MODEL_PARSER") or os.getenv("OLLAMA_MODEL") or "gemma4:latest"
     # Local narrative generation measured 2026-08-30: an 8B storyteller takes
     # 12-90s for a ~1.3k-token scene. At the previous 30s default the OpenAI SDK
     # burned its two retries and raised at ~91s, so slow turns were silently

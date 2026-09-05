@@ -22,7 +22,9 @@ def loadout_for_archetype(combat_pool: dict[str, Any], archetype_name: str | Non
     return list(weapons) if weapons else ["unarmed"]
 
 
-def _meta_scaled(entry: dict[str, Any], scaling: Any, runs_completed: int) -> dict[str, Any]:
+def _meta_scaled(
+    entry: dict[str, Any], scaling: Any, runs_completed: int
+) -> dict[str, Any]:
     """Grow an enemy entry with the player's cross-loop meta progression.
 
     The player gets stronger every completed run (bond tiers, skill ranks,
@@ -125,12 +127,8 @@ def build_encounter(
         ally.x, ally.y = ax, ay
         occupied.add((ax, ay))
     return engine.start(
-        party,
-        enemies,
-        seed=seed,
-        arena=(width, height),
-        encounter_id=encounter_id,
-        language=language,
+        party, enemies, seed=seed, arena=(width, height),
+        encounter_id=encounter_id, language=language,
     )
 
 

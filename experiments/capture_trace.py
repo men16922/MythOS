@@ -61,9 +61,7 @@ def _auto_combat_action(loop) -> PlayerAction:  # noqa: ANN001 - LoopState
     return PlayerAction(type="attack", target_id=target.id, move_to=best)
 
 
-def _play_out_combat(
-    svc: RuntimeSessionService, loop_id: str, snap: RuntimeSnapshot, opts: RuntimeOptions
-) -> RuntimeSnapshot:
+def _play_out_combat(svc: RuntimeSessionService, loop_id: str, snap: RuntimeSnapshot, opts: RuntimeOptions) -> RuntimeSnapshot:
     rounds = 0
     while snap.combat and not snap.combat.get("finished") and rounds < MAX_COMBAT_ROUNDS:
         rounds += 1
@@ -71,7 +69,6 @@ def _play_out_combat(
     outcome = (snap.combat or {}).get("outcome")
     print(f"  combat: {rounds} rounds -> {outcome}", flush=True)
     return snap
-
 
 loop_id = sys.argv[1]
 turns = int(sys.argv[2]) if len(sys.argv) > 2 else 6

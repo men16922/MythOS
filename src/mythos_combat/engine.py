@@ -267,9 +267,7 @@ class CombatEngine:
                 if actor.faction == PLAYER:
                     self._player_flee(state, actor, dice)
                 else:
-                    self._log(
-                        state, actor, "info", clog(state.language, "cannot_leave", name=actor.name)
-                    )
+                    self._log(state, actor, "info", clog(state.language, "cannot_leave", name=actor.name))
                     spent = False
             else:
                 self._log(state, actor, "info", clog(state.language, "observe", name=actor.name))
@@ -381,7 +379,9 @@ class CombatEngine:
         for anyone who cannot break off, so the chip simply does not render."""
         if actor.faction != PLAYER:
             return {}
-        adjacent = [e for e in state.living_enemies() if distance(actor.x, actor.y, e.x, e.y) <= 1]
+        adjacent = [
+            e for e in state.living_enemies() if distance(actor.x, actor.y, e.x, e.y) <= 1
+        ]
         dc = 12 + 2 * len(adjacent)
         mod = actor.stat("agility")
         successes = sum(1 for r in range(1, 21) if r + mod >= dc)
@@ -630,7 +630,9 @@ class CombatEngine:
         if not crit and total < dc:
             # D4 cover legibility: when the shot would have hit WITHOUT the cover
             # bonus, narrate the cover doing its job instead of a generic miss.
-            cover_saved = cover_defense_bonus > 0 and total >= dc - cover_defense_bonus
+            cover_saved = (
+                cover_defense_bonus > 0 and total >= dc - cover_defense_bonus
+            )
             if cover_saved:
                 miss_text = clog(
                     state.language,
@@ -755,9 +757,7 @@ class CombatEngine:
         item_available: bool,
     ) -> bool:
         if not isinstance(skill_def, dict):
-            self._log(
-                state, player, "info", clog(state.language, "unknown_skill", name=player.name)
-            )
+            self._log(state, player, "info", clog(state.language, "unknown_skill", name=player.name))
             return False
         skill_id = str(skill_def.get("id", action.skill_id or ""))
         name = str(skill_def.get("name", skill_id))
@@ -765,9 +765,7 @@ class CombatEngine:
         remaining = int(player.cooldowns.get(skill_id, 0))
         if remaining > 0:
             self._log(
-                state,
-                player,
-                "info",
+                state, player, "info",
                 clog(state.language, "skill_recharge", name=name, remaining=remaining),
             )
             return False
@@ -798,11 +796,8 @@ class CombatEngine:
         if item_cost:
             detail["consumed"] = str(item_cost)
         self._log(
-            state,
-            player,
-            "skill",
-            clog(state.language, "skill_activate", actor=player.name, skill=name),
-            detail,
+            state, player, "skill",
+            clog(state.language, "skill_activate", actor=player.name, skill=name), detail,
         )
 
         dice = self._dice(state)
@@ -827,13 +822,9 @@ class CombatEngine:
             if disp is None or not disp.alive or disp.faction != ENEMY:
                 disp = self._nearest_enemy_in_range(state, player, skill_range)
             if "push" in effect:
-                self._skill_displace(
-                    state, player, disp, int(effect.get("push", 0) or 0), toward=False
-                )
+                self._skill_displace(state, player, disp, int(effect.get("push", 0) or 0), toward=False)
             if "pull" in effect:
-                self._skill_displace(
-                    state, player, disp, int(effect.get("pull", 0) or 0), toward=True
-                )
+                self._skill_displace(state, player, disp, int(effect.get("pull", 0) or 0), toward=True)
             # Slam rider (자기 견인): the yank itself hurts — guaranteed shock on
             # the gripped target even if it could not be moved, so the cast is
             # never a wasted turn.
@@ -860,9 +851,7 @@ class CombatEngine:
         if "heal" in effect:
             healed = self._apply_heal(support, str(effect.get("heal", "0")), dice)
             self._log(
-                state,
-                player,
-                "info",
+                state, player, "info",
                 clog(state.language, "recover_hp", name=support.name, healed=healed),
             )
         # F stun (EMP pulse): stun the picked/nearest enemy in range; an ``aoe``
@@ -890,7 +879,9 @@ class CombatEngine:
                             state, player, victim, zap, dice, name, "splash_hit"
                         )
             else:
-                self._log(state, player, "info", clog(state.language, "skill_no_target", name=name))
+                self._log(
+                    state, player, "info", clog(state.language, "skill_no_target", name=name)
+                )
         # E1 signature effects (radius defense / focus drain / party speed /
         # taunt / ally relocation).
         self._apply_extended_effects(
@@ -914,9 +905,7 @@ class CombatEngine:
         item_available: bool,
     ) -> bool:
         if not isinstance(item_def, dict):
-            self._log(
-                state, player, "info", clog(state.language, "item_unusable", name=player.name)
-            )
+            self._log(state, player, "info", clog(state.language, "item_unusable", name=player.name))
             return False
         if not item_available:
             self._log(state, player, "info", clog(state.language, "item_missing", name=player.name))
@@ -940,11 +929,8 @@ class CombatEngine:
             bonus = int(item_def.get("bonus", 1))
             detail["focus_gained"] = self._restore_focus(player, bonus)
             self._log(
-                state,
-                player,
-                "item",
-                clog(state.language, "item_focus", actor=player.name, item=name),
-                detail,
+                state, player, "item",
+                clog(state.language, "item_focus", actor=player.name, item=name), detail,
             )
             return True
         if effect in ("stun", "status_grenade"):
@@ -970,7 +956,9 @@ class CombatEngine:
                 if aim is not None:
                     cell = (aim.x, aim.y)
             if cell is None:
-                self._log(state, player, "info", clog(state.language, "skill_no_target", name=name))
+                self._log(
+                    state, player, "info", clog(state.language, "skill_no_target", name=name)
+                )
                 return False
             victims = [
                 foe
@@ -978,7 +966,9 @@ class CombatEngine:
                 if distance(foe.x, foe.y, cell[0], cell[1]) <= radius
             ]
             if not victims:
-                self._log(state, player, "info", clog(state.language, "skill_no_target", name=name))
+                self._log(
+                    state, player, "info", clog(state.language, "skill_no_target", name=name)
+                )
                 return False
             detail["cell"] = [cell[0], cell[1]]
             detail["radius"] = radius
@@ -986,17 +976,10 @@ class CombatEngine:
                 turns = max(1, int(item_def.get("bonus", 1) or 1))
                 detail["stunned"] = [v.id for v in victims]
                 self._log(
-                    state,
-                    player,
-                    "item",
+                    state, player, "item",
                     clog(
-                        state.language,
-                        "item_stun_aoe",
-                        actor=player.name,
-                        item=name,
-                        x=cell[0],
-                        y=cell[1],
-                        count=len(victims),
+                        state.language, "item_stun_aoe",
+                        actor=player.name, item=name, x=cell[0], y=cell[1], count=len(victims),
                     ),
                     detail,
                 )
@@ -1006,17 +989,10 @@ class CombatEngine:
             # status_grenade: flat blast damage (no to-hit) + status riders.
             detail["hit"] = [v.id for v in victims]
             self._log(
-                state,
-                player,
-                "item",
+                state, player, "item",
                 clog(
-                    state.language,
-                    "item_status_aoe",
-                    actor=player.name,
-                    item=name,
-                    x=cell[0],
-                    y=cell[1],
-                    count=len(victims),
+                    state.language, "item_status_aoe",
+                    actor=player.name, item=name, x=cell[0], y=cell[1], count=len(victims),
                 ),
                 detail,
             )
@@ -1025,7 +1001,9 @@ class CombatEngine:
             applies = applies_raw if isinstance(applies_raw, dict) else {}
             for victim in victims:
                 if blast:
-                    self._apply_shock_damage(state, player, victim, blast, dice, name, "splash_hit")
+                    self._apply_shock_damage(
+                        state, player, victim, blast, dice, name, "splash_hit"
+                    )
                 if victim.alive:
                     for status_id, turns_raw in applies.items():
                         self._apply_status_effect(
@@ -1036,12 +1014,12 @@ class CombatEngine:
             # Reboot the most valuable casualty: the first downed ALLY (the
             # player being down ends the fight before an item could fire). Not
             # consumed when nobody is down.
-            downed = next((c for c in state.combatants if c.faction == ALLY and not c.alive), None)
+            downed = next(
+                (c for c in state.combatants if c.faction == ALLY and not c.alive), None
+            )
             if downed is None:
                 self._log(
-                    state,
-                    player,
-                    "info",
+                    state, player, "info",
                     clog(state.language, "item_revive_no_target", item=name),
                 )
                 return False
@@ -1144,9 +1122,7 @@ class CombatEngine:
         mode = "pull" if toward else "push"
         if getattr(target, "immovable", False):
             self._log(
-                state,
-                actor,
-                "info",
+                state, actor, "info",
                 clog(state.language, "skill_no_budge", target=target.name),
                 {"target": target.id, "forced": mode, "tiles": 0},
             )
@@ -1208,9 +1184,7 @@ class CombatEngine:
             # A yank that moved nothing must still SAY something — the silent
             # no-op was unreadable ("발동했는지도 모르겠다").
             self._log(
-                state,
-                actor,
-                "info",
+                state, actor, "info",
                 clog(state.language, "skill_no_budge", target=target.name),
                 {"target": target.id, "forced": mode, "tiles": 0},
             )
@@ -1256,30 +1230,19 @@ class CombatEngine:
         if victim.hp <= 0:
             victim.alive = False
             self._log(
-                state,
-                actor,
-                "defeat",
+                state, actor, "defeat",
                 clog(
-                    state.language,
-                    "skill_kill",
-                    actor=actor.name,
-                    skill=skill_name,
-                    target=victim.name,
-                    damage=damage,
+                    state.language, "skill_kill",
+                    actor=actor.name, skill=skill_name, target=victim.name, damage=damage,
                 ),
                 detail,
             )
         else:
             self._log(
-                state,
-                actor,
-                "hit",
+                state, actor, "hit",
                 clog(
-                    state.language,
-                    msg_key,
-                    actor=actor.name,
-                    target=victim.name,
-                    damage=damage,
+                    state.language, msg_key,
+                    actor=actor.name, target=victim.name, damage=damage,
                 ),
                 detail,
             )
@@ -1305,11 +1268,8 @@ class CombatEngine:
                 player,
                 "miss",
                 clog(
-                    state.language,
-                    "skill_miss",
-                    actor=player.name,
-                    skill=skill_name,
-                    target=target.name,
+                    state.language, "skill_miss",
+                    actor=player.name, skill=skill_name, target=target.name,
                 ),
                 {"roll": roll, "total": total, "dc": dc, "target": target.id},
             )
@@ -1343,12 +1303,8 @@ class CombatEngine:
                 player,
                 "defeat",
                 clog(
-                    state.language,
-                    "skill_kill",
-                    actor=player.name,
-                    skill=skill_name,
-                    target=target.name,
-                    damage=damage,
+                    state.language, "skill_kill",
+                    actor=player.name, skill=skill_name, target=target.name, damage=damage,
                 ),
                 detail,
             )
@@ -1359,13 +1315,8 @@ class CombatEngine:
                 player,
                 "hit",
                 clog(
-                    state.language,
-                    "skill_hit",
-                    tag=tag,
-                    actor=player.name,
-                    skill=skill_name,
-                    target=target.name,
-                    damage=damage,
+                    state.language, "skill_hit",
+                    tag=tag, actor=player.name, skill=skill_name, target=target.name, damage=damage,
                 ),
                 detail,
             )
@@ -1611,18 +1562,14 @@ class CombatEngine:
         others = [e for e in state.living_enemies() if e.id != actor.id]
         if not others:
             self._log(
-                state,
-                actor,
-                "info",
+                state, actor, "info",
                 clog(state.language, "hacked_idle", name=actor.name),
                 {"status": "hacked", "target": actor.id},
             )
             return
         target = min(others, key=lambda e: distance(actor.x, actor.y, e.x, e.y))
         self._log(
-            state,
-            actor,
-            "info",
+            state, actor, "info",
             clog(state.language, "hacked_turn", name=actor.name, target=target.name),
             {"status": "hacked", "target": target.id},
         )
@@ -1640,12 +1587,8 @@ class CombatEngine:
                     entry.detail["hacked_blow"] = True
 
     def _apply_status_effect(
-        self,
-        state: CombatState,
-        source: Combatant,
-        victim: Combatant,
-        status_id: str,
-        turns: int,
+        self, state: CombatState, source: Combatant, victim: Combatant,
+        status_id: str, turns: int,
     ) -> None:
         """Apply/extend a persistent status (2026-07-12 design; mirrors stun).
 
@@ -1663,9 +1606,7 @@ class CombatEngine:
         if status_id not in victim.status:
             victim.status.append(status_id)
         self._log(
-            state,
-            source,
-            "info",
+            state, source, "info",
             clog(state.language, f"status_{status_id}_applied", target=victim.name),
             {"status": status_id, "target": victim.id, "turns": victim.status_effects[status_id]},
         )
@@ -1680,26 +1621,19 @@ class CombatEngine:
                 damage = max(1, dice.roll("1d4"))
                 actor.hp = max(0, actor.hp - damage)
                 detail = {
-                    "status": "burn",
-                    "damage": damage,
-                    "target": actor.id,
-                    "target_hp": actor.hp,
-                    "target_max_hp": actor.max_hp,
+                    "status": "burn", "damage": damage, "target": actor.id,
+                    "target_hp": actor.hp, "target_max_hp": actor.max_hp,
                 }
                 if actor.hp <= 0:
                     actor.alive = False
                     self._log(
-                        state,
-                        actor,
-                        "defeat",
+                        state, actor, "defeat",
                         clog(state.language, "status_burn_kill", name=actor.name, damage=damage),
                         detail,
                     )
                 else:
                     self._log(
-                        state,
-                        actor,
-                        "hit",
+                        state, actor, "hit",
                         clog(state.language, "status_burn_tick", name=actor.name, damage=damage),
                         detail,
                     )
@@ -1709,9 +1643,7 @@ class CombatEngine:
                 if status_id in actor.status:
                     actor.status.remove(status_id)
                 self._log(
-                    state,
-                    actor,
-                    "info",
+                    state, actor, "info",
                     clog(state.language, f"status_{status_id}_expired", name=actor.name),
                     {"status": status_id, "target": actor.id, "expired": True},
                 )
@@ -1728,9 +1660,7 @@ class CombatEngine:
         if not actor.has_status("freeze"):
             return False
         self._log(
-            state,
-            actor,
-            "info",
+            state, actor, "info",
             clog(state.language, "status_freeze_hold", name=actor.name),
             {"status": "freeze", "target": actor.id, "held": True},
         )
@@ -1819,7 +1749,11 @@ class CombatEngine:
         # Persistent status riders for UTILITY casts (정밀 EMP ⚡감전 등): damage
         # skills apply theirs on-hit inside _skill_attack, so skip those here.
         applies = effect.get("applies")
-        if isinstance(applies, dict) and "damage" not in effect and "damage_bonus" not in effect:
+        if (
+            isinstance(applies, dict)
+            and "damage" not in effect
+            and "damage_bonus" not in effect
+        ):
             victim = target
             if victim is None or not victim.alive or victim.faction == caster.faction:
                 victim = self._nearest_hostile_in_range(state, caster, skill_range)
@@ -1902,10 +1836,10 @@ class CombatEngine:
                 if f.id != caster.id and f.alive and state.living_enemies()
             ]
             if candidates:
-
                 def _danger(friendly: Combatant) -> tuple[float, float]:
                     nearest = min(
-                        distance(friendly.x, friendly.y, e.x, e.y) for e in state.living_enemies()
+                        distance(friendly.x, friendly.y, e.x, e.y)
+                        for e in state.living_enemies()
                     )
                     return (nearest, friendly.hp / max(1, friendly.max_hp))
 
@@ -1970,11 +1904,8 @@ class CombatEngine:
 
         detail = {"skill": skill_id}
         self._log(
-            state,
-            actor,
-            "skill",
-            clog(state.language, "skill_activate", actor=actor.name, skill=name),
-            detail,
+            state, actor, "skill",
+            clog(state.language, "skill_activate", actor=actor.name, skill=name), detail,
         )
 
         dice = self._dice(state)
@@ -1988,12 +1919,7 @@ class CombatEngine:
                 state,
                 actor,
                 "defend",
-                clog(
-                    state.language,
-                    "cover_noise",
-                    name=buff_target.name,
-                    buff=buff_target.defense_buff,
-                ),
+                clog(state.language, "cover_noise", name=buff_target.name, buff=buff_target.defense_buff),
             )
         # F stun for NPC casts (수아 시스템 해킹, boss disables).
         if effect.get("stun"):
@@ -2009,13 +1935,8 @@ class CombatEngine:
                 zap = str(effect.get("shock_damage", "") or "")
                 if zap and stun_victim.alive:
                     self._apply_shock_damage(
-                        state,
-                        actor,
-                        stun_victim,
-                        zap,
-                        self._dice(state),
-                        str(skill_def.get("name", "")),
-                        "splash_hit",
+                        state, actor, stun_victim, zap, self._dice(state),
+                        str(skill_def.get("name", "")), "splash_hit",
                     )
         # E1 signature effects (radius defense / focus drain / party speed /
         # taunt / ally relocation).
@@ -2080,13 +2001,7 @@ class CombatEngine:
                 state,
                 actor,
                 "info",
-                clog(
-                    state.language,
-                    "heal_other",
-                    actor=actor.name,
-                    target=heal_target.name,
-                    healed=healed,
-                ),
+                clog(state.language, "heal_other", actor=actor.name, target=heal_target.name, healed=healed),
             )
         if "move" in effect:
             move_budget = int(effect.get("move", actor.speed))
@@ -2295,7 +2210,9 @@ class CombatEngine:
             elif effect.get("taunt"):
                 applicable = ally.taunt_turns <= 0 and len(enemies) >= 2
             elif effect.get("party_speed_bonus"):
-                applicable = any(f.speed_buff_turns <= 0 for f in state.friendlies_of(ally))
+                applicable = any(
+                    f.speed_buff_turns <= 0 for f in state.friendlies_of(ally)
+                )
             elif effect.get("relocate_ally"):
                 applicable = any(
                     f.id != ally.id

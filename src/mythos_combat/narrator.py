@@ -106,7 +106,9 @@ def narrate_since(state: CombatState, since_index: int) -> str:
     )
 
 
-def narrate_entries(entries: list[CombatLogEntry], *, seed: str = "", language: str = "ko") -> str:
+def narrate_entries(
+    entries: list[CombatLogEntry], *, seed: str = "", language: str = "ko"
+) -> str:
     dice = Dice(seed or "narrate")
     lines: list[str] = []
     move_buffer: list[str] = []
@@ -123,9 +125,7 @@ def narrate_entries(entries: list[CombatLogEntry], *, seed: str = "", language: 
             continue
         flush_moves()
         if entry.action == "start":
-            lines.append(
-                f"{_pick(dice, leads(language, 'round'))}{clog(language, 'narrate_start')}"
-            )
+            lines.append(f"{_pick(dice, leads(language, 'round'))}{clog(language, 'narrate_start')}")
         elif entry.action == "hit":
             lines.append(f"{_pick(dice, leads(language, 'hit'))}{entry.text}")
         elif entry.action == "miss":

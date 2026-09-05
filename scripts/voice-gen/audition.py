@@ -13,7 +13,6 @@ Usage:
 Output: outputs/voice-auditions/<lang>/<role>/<voice-name>.mp3
 Pin choices in resources/<scenario>/audio/voice/voices.json.
 """
-
 from __future__ import annotations
 
 import json
@@ -136,7 +135,10 @@ CANDIDATES: dict[str, dict[str, list[str]]] = {
 
 
 def synthesize(api_key: str, voice_id: str, text: str, dest: Path) -> None:
-    url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}?output_format=mp3_44100_128"
+    url = (
+        f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+        "?output_format=mp3_44100_128"
+    )
     body = {
         "text": text,
         "model_id": MODEL_ID,
@@ -176,10 +178,8 @@ def main() -> int:
                     print(f"ok: {dest.relative_to(REPO)} ({dest.stat().st_size // 1024}KB)")
                 except Exception as exc:  # noqa: BLE001 — audition tool, report and continue
                     print(f"FAIL {lang}/{role}/{name}: {exc}")
-    print(
-        f"\nListen under {OUT_DIR.relative_to(REPO)}/<lang>/ then pin choices in "
-        "resources/<scenario>/audio/voice/voices.json"
-    )
+    print(f"\nListen under {OUT_DIR.relative_to(REPO)}/<lang>/ then pin choices in "
+          "resources/<scenario>/audio/voice/voices.json")
     return 0
 
 

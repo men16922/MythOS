@@ -101,7 +101,9 @@ def load_promotion_metrics(path: Path, expected_names: set[str]) -> dict[str, An
             raise ValueError(f"{path.name}: {name} needs non-negative cost_per_loop_usd")
         for field in ("repetition_compliance", "length_compliance"):
             if sample.get(field) not in COMPANION_COMPLIANCE_VALUES:
-                raise ValueError(f"{path.name}: {name}.{field} must be pass or fail")
+                raise ValueError(
+                    f"{path.name}: {name}.{field} must be pass or fail"
+                )
     return metrics
 
 
@@ -247,7 +249,9 @@ def judge_provenance(rubric_path: Path = RUBRIC_PATH) -> dict[str, Any]:
     # Best-effort: the engine may not exist (CI, a stubbed override) and must not
     # take the run down just because its version could not be read.
     try:
-        proc = subprocess.run([command[0], "--version"], capture_output=True, text=True, timeout=15)
+        proc = subprocess.run(
+            [command[0], "--version"], capture_output=True, text=True, timeout=15
+        )
         if proc.returncode == 0:
             provenance["judge_version"] = proc.stdout.strip()[:200] or None
     except (OSError, subprocess.SubprocessError):
@@ -255,14 +259,18 @@ def judge_provenance(rubric_path: Path = RUBRIC_PATH) -> dict[str, Any]:
     return provenance
 
 
-def run(paths: list[Path], companion_metrics: dict[str, Any] | None = None) -> int:
+def run(
+    paths: list[Path], companion_metrics: dict[str, Any] | None = None
+) -> int:
     rubric = RUBRIC_PATH.read_text(encoding="utf-8")
     results: list[tuple[str, dict[str, Any]]] = []
     for path in paths:
         transcript = load_golden(path)
         prompt = build_judge_prompt(transcript, rubric)
         print(f"judging {transcript['name']} ({len(transcript['scenes'])} scenes)…")
-        proc = subprocess.run(_judge_cmd(prompt), capture_output=True, text=True, timeout=600)
+        proc = subprocess.run(
+            _judge_cmd(prompt), capture_output=True, text=True, timeout=600
+        )
         if proc.returncode != 0:
             print(f"  judge failed (rc={proc.returncode}): {proc.stderr[:300]}")
             return 1
@@ -321,13 +329,16 @@ def main(argv: list[str]) -> int:
         if args.metrics is not None:
             parser.error("--metrics is valid only with --promotion")
         paths = [
-            Path(value) if Path(value).is_absolute() else EVAL_DIR / value for value in args.paths
+            Path(value) if Path(value).is_absolute() else EVAL_DIR / value
+            for value in args.paths
         ]
         frozen = {path.resolve() for path in promotion_paths}
         selected_frozen = [path for path in paths if path.resolve() in frozen]
         if selected_frozen:
             names = ", ".join(path.name for path in selected_frozen)
-            parser.error(f"promotion samples require --promotion and companion metrics: {names}")
+            parser.error(
+                f"promotion samples require --promotion and companion metrics: {names}"
+            )
     else:
         if args.metrics is not None:
             parser.error("--metrics is valid only with --promotion")

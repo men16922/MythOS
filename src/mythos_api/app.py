@@ -317,7 +317,9 @@ def _visual_frame(
             # URL signing failure must degrade to a failed image frame — the
             # same WS carries the narrative snapshot, so raising here would
             # kill the whole turn stream (observed live 2026-07-05).
-            get_logger("mythos.api").exception("visual url signing failed for %s", storage_uri)
+            get_logger("mythos.api").exception(
+                "visual url signing failed for %s", storage_uri
+            )
             frame["status"] = "failed"
     return frame
 
@@ -457,9 +459,7 @@ class _ScenarioProseL10n:
     archetypes_overlay: dict[str, Any]
 
 
-def _merge_session_intro(
-    base_intro: dict[str, Any], intro_overlay: dict[str, Any]
-) -> dict[str, Any]:
+def _merge_session_intro(base_intro: dict[str, Any], intro_overlay: dict[str, Any]) -> dict[str, Any]:
     """Field-merge an i18n overlay onto a session-intro block (default or variant)."""
     merged_intro = dict(base_intro)
     for key in ("title", "body", "objective", "continue_button"):
@@ -598,7 +598,9 @@ def create_app() -> FastAPI:
                             or a.get("name"),
                             "attributes": (arche_l10n.get(str(a.get("id"))) or {}).get("attributes")
                             or a.get("attributes", []),
-                            "play_hint": (arche_l10n.get(str(a.get("id"))) or {}).get("play_hint")
+                            "play_hint": (arche_l10n.get(str(a.get("id"))) or {}).get(
+                                "play_hint"
+                            )
                             or a.get("play_hint", ""),
                             "starting_item": (arche_l10n.get(str(a.get("id"))) or {}).get(
                                 "starting_item"
@@ -906,7 +908,9 @@ def create_app() -> FastAPI:
         service: RuntimeSessionService = Depends(get_service),
     ) -> dict[str, Any]:
         try:
-            snapshot = service.equip_item(loop_id, body.item_id, body.equipped, wearer=body.wearer)
+            snapshot = service.equip_item(
+                loop_id, body.item_id, body.equipped, wearer=body.wearer
+            )
             # This was the one snapshot endpoint returning raw KO server strings
             # (axis_label/result_preview/stakes) — an equip toggle then swapped an
             # EN session's whole snapshot to Korean (live 2026-07-04).
@@ -1052,7 +1056,6 @@ def create_app() -> FastAPI:
         checks the invite key via the API call; we serve it unconditionally
         (the API endpoint returns 403 for non-admins)."""
         from starlette.responses import HTMLResponse
-
         return HTMLResponse(_ADMIN_DASHBOARD_HTML)
 
     @app.get(f"{API_PREFIX}/admin/tester-status")
@@ -1063,7 +1066,9 @@ def create_app() -> FastAPI:
         """Per-invite-key player dashboard data. Admin-only (returns 403 for
         non-admin keys). Returns detailed status for every configured tester key."""
         key = (
-            request.headers.get("x-invite-key") or request.query_params.get("invite") or ""
+            request.headers.get("x-invite-key")
+            or request.query_params.get("invite")
+            or ""
         ).strip()
         if key not in admin_invite_keys():
             raise HTTPException(status_code=403, detail="admin only")
@@ -1086,28 +1091,26 @@ def create_app() -> FastAPI:
 
             # Player hasn't used this key yet
             if not player:
-                testers.append(
-                    {
-                        "invite_key": tkey,
-                        "player_id": pid,
-                        "is_admin": tkey in admin_keys_set,
-                        "registered": False,
-                        "display_name": None,
-                        "archetype": None,
-                        "created_at": None,
-                        "last_activity": None,
-                        "total_loops": 0,
-                        "active_loops": 0,
-                        "ended_loops": 0,
-                        "max_turn": 0,
-                        "active_loop": None,
-                        "combats_won": 0,
-                        "combats_lost": 0,
-                        "endings_reached": [],
-                        "allies_met": [],
-                        "total_runs_completed": 0,
-                    }
-                )
+                testers.append({
+                    "invite_key": tkey,
+                    "player_id": pid,
+                    "is_admin": tkey in admin_keys_set,
+                    "registered": False,
+                    "display_name": None,
+                    "archetype": None,
+                    "created_at": None,
+                    "last_activity": None,
+                    "total_loops": 0,
+                    "active_loops": 0,
+                    "ended_loops": 0,
+                    "max_turn": 0,
+                    "active_loop": None,
+                    "combats_won": 0,
+                    "combats_lost": 0,
+                    "endings_reached": [],
+                    "allies_met": [],
+                    "total_runs_completed": 0,
+                })
                 continue
 
             loops = service.store.list_loops(pid)
@@ -1164,30 +1167,26 @@ def create_app() -> FastAPI:
                     "started_at": al.started_at.isoformat(),
                 }
 
-            testers.append(
-                {
-                    "invite_key": tkey,
-                    "player_id": pid,
-                    "is_admin": tkey in admin_keys_set,
-                    "registered": player is not None,
-                    "display_name": player.display_name if player else None,
-                    "archetype": (player.traits or {}).get("archetype") if player else None,
-                    "created_at": player.created_at.isoformat()
-                    if player and player.created_at
-                    else None,
-                    "last_activity": last_activity,
-                    "total_loops": len(loops),
-                    "active_loops": len(active_loops),
-                    "ended_loops": len(ended_loops),
-                    "max_turn": max_turn,
-                    "active_loop": active_detail,
-                    "combats_won": total_combats_won,
-                    "combats_lost": total_combats_lost,
-                    "endings_reached": endings_reached,
-                    "allies_met": sorted(all_allies),
-                    "total_runs_completed": len(run_summaries),
-                }
-            )
+            testers.append({
+                "invite_key": tkey,
+                "player_id": pid,
+                "is_admin": tkey in admin_keys_set,
+                "registered": player is not None,
+                "display_name": player.display_name if player else None,
+                "archetype": (player.traits or {}).get("archetype") if player else None,
+                "created_at": player.created_at.isoformat() if player and player.created_at else None,
+                "last_activity": last_activity,
+                "total_loops": len(loops),
+                "active_loops": len(active_loops),
+                "ended_loops": len(ended_loops),
+                "max_turn": max_turn,
+                "active_loop": active_detail,
+                "combats_won": total_combats_won,
+                "combats_lost": total_combats_lost,
+                "endings_reached": endings_reached,
+                "allies_met": sorted(all_allies),
+                "total_runs_completed": len(run_summaries),
+            })
 
         return {"testers": testers, "total_keys": len(tester_keys)}
 

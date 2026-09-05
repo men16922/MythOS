@@ -77,11 +77,7 @@ def build(model: str, base_url: str) -> Experiment:
                             via_extra_body,
                             "**아니오**" if not honoured else "예",
                         ],
-                        [
-                            "`max_tokens=` — OpenAI 네이티브",
-                            via_max_tokens,
-                            "예" if via_max_tokens < baseline / 2 else "아니오",
-                        ],
+                        ["`max_tokens=` — OpenAI 네이티브", via_max_tokens, "예" if via_max_tokens < baseline / 2 else "아니오"],
                     ],
                 )
             ],
@@ -125,12 +121,7 @@ def build(model: str, base_url: str) -> Experiment:
     return Experiment(
         slug=SLUG,
         question="director.py가 extra_body.options로 보내는 샘플러 설정이 실제로 모델에 도달하는가?",
-        controls={
-            "prompt": "고정 프로브",
-            "model": model,
-            "endpoint": f"{base_url}/v1",
-            "cap": TINY_CAP,
-        },
+        controls={"prompt": "고정 프로브", "model": model, "endpoint": f"{base_url}/v1", "cap": TINY_CAP},
         variables={"상한 전달 방식": "없음 / extra_body.options / max_tokens"},
         run=run,
         source=__import__("pathlib").Path(__file__).resolve(),
@@ -143,7 +134,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--base-url", default=DEFAULT_OLLAMA)
     args = parser.parse_args(argv)
     out = run_experiment(build(args.model, args.base_url))
-    print(f"report -> {out / 'report.md'}")
+    print(f"report -> {out/'report.md'}")
     return 0
 
 

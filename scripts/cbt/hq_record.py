@@ -12,7 +12,6 @@ navigation in the clips). Entry prefers the Resume button over the Load modal.
 The invite URL is supplied at runtime and never written to disk. Captures use the
 supplied account; screens that expose admin/DEV-only UI must not reach final cuts.
 """
-
 from __future__ import annotations
 
 import argparse
@@ -59,7 +58,9 @@ class ScreencastRecorder:
 
     def _on_frame(self, params: dict) -> None:
         try:
-            self._session.send("Page.screencastFrameAck", {"sessionId": params["sessionId"]})
+            self._session.send(
+                "Page.screencastFrameAck", {"sessionId": params["sessionId"]}
+            )
         except Exception:
             return
         if not self._recording:
@@ -105,29 +106,13 @@ class ScreencastRecorder:
         output.parent.mkdir(parents=True, exist_ok=True)
         result = subprocess.run(
             [
-                "ffmpeg",
-                "-y",
-                "-v",
-                "error",
-                "-f",
-                "concat",
-                "-safe",
-                "0",
-                "-i",
-                str(listing),
-                "-fps_mode",
-                "vfr",
-                "-vf",
-                "scale=1920:1080:force_original_aspect_ratio=decrease,"
-                "pad=1920:1080:(ow-iw)/2:(oh-ih)/2",
-                "-c:v",
-                "libx264",
-                "-crf",
-                "16",
-                "-preset",
-                "slow",
-                "-pix_fmt",
-                "yuv420p",
+                "ffmpeg", "-y", "-v", "error",
+                "-f", "concat", "-safe", "0", "-i", str(listing),
+                "-fps_mode", "vfr",
+                "-vf", "scale=1920:1080:force_original_aspect_ratio=decrease,"
+                       "pad=1920:1080:(ow-iw)/2:(oh-ih)/2",
+                "-c:v", "libx264", "-crf", "16", "-preset", "slow",
+                "-pix_fmt", "yuv420p",
                 str(output),
             ],
             cwd=self.out_dir,
@@ -233,7 +218,6 @@ Begin = Callable[[], None]
 
 # --- scene drivers: reach the scene FIRST, call begin() at the showcase moment ---
 
-
 def drive_story_view(page: Page, slot: str, begin: Begin) -> None:
     """Choice prompt -> selection -> streaming narration (the AI-GM proof shot)."""
     if not resume_or_load(page, slot):
@@ -334,14 +318,8 @@ def drive_combat_sim(page: Page, slot: str, begin: Begin) -> None:
             skip.click()
             settle(page, 1200)
         blocked = (
-            (
-                page.locator(".boon-overlay").count()
-                and page.locator(".boon-overlay").first.is_visible()
-            )
-            or (
-                page.locator("[role='dialog']").count()
-                and page.locator("[role='dialog']").first.is_visible()
-            )
+            (page.locator(".boon-overlay").count() and page.locator(".boon-overlay").first.is_visible())
+            or (page.locator("[role='dialog']").count() and page.locator("[role='dialog']").first.is_visible())
             or (skip.count() and skip.is_visible())
         )
         if not blocked:

@@ -71,9 +71,7 @@ class Finding:
     def __post_init__(self) -> None:
         allowed = {"measured", "reproduced", "indicative"}
         if self.confidence not in allowed:
-            raise ExperimentError(
-                f"confidence must be one of {sorted(allowed)}: {self.confidence!r}"
-            )
+            raise ExperimentError(f"confidence must be one of {sorted(allowed)}: {self.confidence!r}")
 
 
 @dataclass
@@ -145,9 +143,7 @@ def provenance_for(experiment: Experiment) -> dict[str, Any]:
 def _table_md(table: Table) -> str:
     head = "| " + " | ".join(str(h) for h in table.headers) + " |"
     rule = "|" + "|".join("---" for _ in table.headers) + "|"
-    body = [
-        "| " + " | ".join("" if c is None else str(c) for c in row) + " |" for row in table.rows
-    ]
+    body = ["| " + " | ".join("" if c is None else str(c) for c in row) + " |" for row in table.rows]
     out = [f"### {table.title}", "", head, rule, *body]
     if table.note:
         out += ["", f"> {table.note}"]

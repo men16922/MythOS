@@ -128,232 +128,63 @@ def _clean_text(value: Any) -> str:
 # than the terms) are in `docs/plans/2026-08-09-value-axis-vocabulary-coverage.md`.
 # Order is load-bearing: people, then data, then safety, then control.
 _AXIS_KEYWORDS: tuple[tuple[str, tuple[str, ...]], ...] = (
-    (
-        "people",
-        (
-            "시민",
-            "세린",
-            "카이",
-            "구출",
-            "도와",
-            "사람",
-            "아이",
-            "동료",
-            "보호",
-            "대화",
-            "설득",
-            "구하",
-            "살리",
-            "지키",
-            "감싸",
-            "부축",
-            "달래",
-            "civilian",
-            "citizen",
-            "rescue",
-            "help",
-            "protect",
-            "shield",
-            "comfort",
-            "reassure",
-            "persuade",
-            "convince",
-            "ally",
-            "companion",
-            "wounded",
-            "child",
-            "aid",
-            "se-rin",
-            "kai",
-            "han",
-            "tae-o",
-            "su-ah",
-            "lin yue",
-            # Plurals are separate keywords — ASCII matching is word-bounded, so
-            # "civilian" never matched "civilians" (2026-08-09). Leading people to
-            # safety is a rescue first and a route second, so these outrank the
-            # traversal terms below by sitting on the earlier axis.
-            "civilians",
-            "survivor",
-            "survivors",
-            # Deliberately NOT here: "save" (saves a file as often as a person) and
-            # "crowd" (a place to hide in — "blend into the crowd to lose the drones"
-            # is evasion, and calling it "Help people" is the very mislabel this
-            # vocabulary exists to stop).
-        ),
-    ),
-    (
-        "data",
-        (
-            "데이터",
-            "증거",
-            "단서",
-            "기록",
-            "로그",
-            "명단",
-            "신호",
-            "분석",
-            "추적",
-            "해킹",
-            "살펴",
-            "조사",
-            "확인",
-            "관찰",
-            "기억",
-            "읽",
-            "data",
-            "evidence",
-            "clue",
-            "record",
-            "records",
-            "log",
-            "logs",
-            "ledger",
-            "roster",
-            "signal",
-            "analyze",
-            "analyse",
-            "trace",
-            "decrypt",
-            "hack",
-            "archive",
-            "terminal",
-            "memory",
-            "memorise",
-            "memorize",
-            "observe",
-            "study",
-            "examine",
-            "inspect",
-            "decode",
-            "search",
-            "read",
-            "scan",
-            "map",
-        ),
-    ),
-    (
-        "safety",
-        (
-            "숨",
-            "우회",
-            "탈출",
-            "도망",
-            "회피",
-            "재정비",
-            "엄폐",
-            "안전",
-            "치료",
-            "휴식",
-            "빠져나",
-            "벗어나",
-            "물러",
-            "잠복",
-            "낮춰",
-            "피한",
-            "피해",
-            "기다",
-            "hide",
-            "evade",
-            "avoid",
-            "slip",
-            "retreat",
-            "flee",
-            "escape",
-            "withdraw",
-            "cover",
-            "shelter",
-            "rest",
-            "recover",
-            "safe",
-            "conceal",
-            "unseen",
-            "wait",
-            "freeze",
-            "bypass",
-            "sneak",
-            "duck",
-            "crouch",
-            "blend",
-            "disengage",
-            # Traversal under threat (2026-08-09). This scenario almost never
-            # phrases an escape with the abstract verbs above — it phrases it as a
-            # body moving through a gap, and 47 such labels rendered no chip at all.
-            # Deliberately NOT here: "run", whose only hit was "Wrench the slate
-            # from her hands and run into the drainage system" — a theft the safety
-            # axis would have hidden, and which "wrench" now reads as control.
-            "sprint",
-            "squeeze",
-            "slide",
-            "scramble",
-            "climb",
-            "scale",
-            "leap",
-            "dive",
-            "dash",
-            "crawl",
-            "vault",
-            "descend",
-        ),
-    ),
-    (
-        "control",
-        (
-            "공격",
-            "돌파",
-            "제압",
-            "봉쇄",
-            "명령",
-            "위협",
-            "강제",
-            "관리자",
-            "부수",
-            "뚫",
-            "차단",
-            "제거",
-            "맞서",
-            "대면",
-            "attack",
-            "strike",
-            "breach",
-            "force",
-            "seize",
-            "suppress",
-            "override",
-            "command",
-            "threaten",
-            "demand",
-            "destroy",
-            "disable",
-            "confront",
-            "smash",
-            "jam",
-            "administrator",
-            "ix",
-            # Sabotage — the same family as override/disable/jam above, in the
-            # phrasings the Director actually authors (2026-08-09).
-            "overload",
-            "sever",
-            "short out",
-            "reroute",
-            "cut the power",
-            "blackout",
-            "pry",
-            "wrench",
-            "kick",
-            "rip",
-            "break open",
-            # Choosing the fight. Safe to keep broad because safety is scanned
-            # first, so "avoid the fight" and "flee the fight" stay safety.
-            # Deliberately NOT here: "brace", which read "Brace yourself against the
-            # wall and ride out the feedback loop" — enduring, not imposing — as
-            # control; and "draw your weapon", whose only hit was drawing the drones
-            # away *from the civilians*, a people choice this would have mislabelled.
-            "ambush",
-            "stand your ground",
-            "fight",
-        ),
-    ),
+    ("people", (
+        "시민", "세린", "카이", "구출", "도와", "사람", "아이", "동료", "보호", "대화", "설득",
+        "구하", "살리", "지키", "감싸", "부축", "달래",
+        "civilian", "citizen", "rescue", "help", "protect", "shield", "comfort",
+        "reassure", "persuade", "convince", "ally", "companion", "wounded",
+        "child", "aid", "se-rin", "kai", "han", "tae-o", "su-ah", "lin yue",
+        # Plurals are separate keywords — ASCII matching is word-bounded, so
+        # "civilian" never matched "civilians" (2026-08-09). Leading people to
+        # safety is a rescue first and a route second, so these outrank the
+        # traversal terms below by sitting on the earlier axis.
+        "civilians", "survivor", "survivors",
+        # Deliberately NOT here: "save" (saves a file as often as a person) and
+        # "crowd" (a place to hide in — "blend into the crowd to lose the drones"
+        # is evasion, and calling it "Help people" is the very mislabel this
+        # vocabulary exists to stop).
+    )),
+    ("data", (
+        "데이터", "증거", "단서", "기록", "로그", "명단", "신호", "분석", "추적", "해킹",
+        "살펴", "조사", "확인", "관찰", "기억", "읽",
+        "data", "evidence", "clue", "record", "records", "log", "logs", "ledger",
+        "roster", "signal", "analyze", "analyse", "trace", "decrypt", "hack",
+        "archive", "terminal", "memory", "memorise", "memorize", "observe",
+        "study", "examine", "inspect", "decode", "search", "read", "scan", "map",
+    )),
+    ("safety", (
+        "숨", "우회", "탈출", "도망", "회피", "재정비", "엄폐", "안전", "치료", "휴식",
+        "빠져나", "벗어나", "물러", "잠복", "낮춰", "피한", "피해", "기다",
+        "hide", "evade", "avoid", "slip", "retreat", "flee", "escape", "withdraw",
+        "cover", "shelter", "rest", "recover", "safe", "conceal", "unseen", "wait",
+        "freeze", "bypass", "sneak", "duck", "crouch", "blend", "disengage",
+        # Traversal under threat (2026-08-09). This scenario almost never
+        # phrases an escape with the abstract verbs above — it phrases it as a
+        # body moving through a gap, and 47 such labels rendered no chip at all.
+        # Deliberately NOT here: "run", whose only hit was "Wrench the slate
+        # from her hands and run into the drainage system" — a theft the safety
+        # axis would have hidden, and which "wrench" now reads as control.
+        "sprint", "squeeze", "slide", "scramble", "climb", "scale", "leap",
+        "dive", "dash", "crawl", "vault", "descend",
+    )),
+    ("control", (
+        "공격", "돌파", "제압", "봉쇄", "명령", "위협", "강제", "관리자",
+        "부수", "뚫", "차단", "제거", "맞서", "대면",
+        "attack", "strike", "breach", "force", "seize", "suppress", "override",
+        "command", "threaten", "demand", "destroy", "disable", "confront", "smash",
+        "jam", "administrator", "ix",
+        # Sabotage — the same family as override/disable/jam above, in the
+        # phrasings the Director actually authors (2026-08-09).
+        "overload", "sever", "short out", "reroute", "cut the power", "blackout",
+        "pry", "wrench", "kick", "rip", "break open",
+        # Choosing the fight. Safe to keep broad because safety is scanned
+        # first, so "avoid the fight" and "flee the fight" stay safety.
+        # Deliberately NOT here: "brace", which read "Brace yourself against the
+        # wall and ride out the feedback loop" — enduring, not imposing — as
+        # control; and "draw your weapon", whose only hit was drawing the drones
+        # away *from the civilians*, a people choice this would have mislabelled.
+        "ambush", "stand your ground", "fight",
+    )),
 )
 
 
@@ -425,12 +256,7 @@ def _choice_preview(axis: str) -> str:
 
 # Route-runtime axis vocabulary → the UI chip vocabulary (only "evidence"
 # differs; the UI has always called that chip "data").
-_ROUTE_AXIS_TO_UI = {
-    "people": "people",
-    "evidence": "data",
-    "safety": "safety",
-    "control": "control",
-}
+_ROUTE_AXIS_TO_UI = {"people": "people", "evidence": "data", "safety": "safety", "control": "control"}
 
 
 def _route_choice_axis(choice_id: str, state: dict[str, Any]) -> str | None:
@@ -575,8 +401,7 @@ def _resolve_inventory(state: dict[str, Any]) -> list[dict[str, Any]]:
                 "effect": source.get("effect") or definition.get("effect"),
                 # equipment metadata (slot/stats from scenario def; equipped from state)
                 "slot": source.get("slot") or definition.get("slot"),
-                "stats": source.get("stats")
-                or (definition.get("stats") if isinstance(definition, dict) else None),
+                "stats": source.get("stats") or (definition.get("stats") if isinstance(definition, dict) else None),
                 "equipped": bool(source.get("equipped")),
                 # who wears it — "player" (default) or a party member id
                 "equipped_by": source.get("equipped_by") if source.get("equipped") else None,
@@ -627,7 +452,11 @@ def _companion_roster(state: dict[str, Any]) -> list[dict[str, Any]]:
             continue
         actual_id = str(entry.get("id", ally_id))
         unlock_flags = {str(flag) for flag in entry.get("unlock_flags", [])}
-        met = actual_id in members or bool(unlock_flags & flags) or actual_id in relationships
+        met = (
+            actual_id in members
+            or bool(unlock_flags & flags)
+            or actual_id in relationships
+        )
         if not met:
             continue
         member = members.get(actual_id, {})
@@ -796,9 +625,7 @@ def snapshot_to_dict(snapshot: RuntimeSnapshot) -> dict[str, Any]:
             "scene_type": scene.scene_type,
             "objective": _clean_text(scene.objective) if scene.objective else scene.objective,
             "chapter_goal": _chapter_goal(loop, state),
-            "action_result": _clean_text(scene.action_result)
-            if scene.action_result
-            else scene.action_result,
+            "action_result": _clean_text(scene.action_result) if scene.action_result else scene.action_result,
             "stakes_summary": _scene_stakes_summary(loop, state),
             "choice_result": state.get("_last_choice_impact") if isinstance(state, dict) else None,
             # G3 deterministic cinematic cues (alarm/shake/sting/glitch/vignette/

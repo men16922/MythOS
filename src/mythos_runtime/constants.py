@@ -6,7 +6,12 @@ Kept in a tiny dependency-free module so both ``session`` and
 
 from __future__ import annotations
 
-MYTHOS_WORLD_ID = "mythos-local"
+# The one world id for world_memories rows (loop_archive / run_summary /
+# archive_rollup). progression.py carried its own copy set to "world_mythos"
+# since 2026-06-06 while the readers here used "mythos-local", so every archive
+# ever written was invisible to initial-loop scoring, the memory overview and
+# compaction. "world_mythos" is the value the persisted rows actually hold.
+MYTHOS_WORLD_ID = "world_mythos"
 
 # Per-player active `loop_archive` world memories kept verbatim; older ones are
 # absorbed into a statistical `archive_rollup`. See

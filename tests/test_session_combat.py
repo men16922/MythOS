@@ -765,6 +765,18 @@ class SessionCombatTest(unittest.TestCase):
             summary.outcome["carried"],
             ["세린과 맺은 유대", "다음 루프를 여는 작은 글리치"],
         )
+        # The climax ends the run here, not through archive() (which returns
+        # early on an ENDED loop), so this path must write the same archive
+        # bundle: loop_archive feeds the next loop's starting scores, the shard
+        # feeds the codex. Neither used to be written for a combat-ended loop.
+        from mythos_runtime.constants import MYTHOS_WORLD_ID
+
+        archives = [
+            m for m in self.store.list_world_memories(MYTHOS_WORLD_ID)
+            if m.kind == "loop_archive" and m.content.get("loop_id") == loop.loop_id
+        ]
+        self.assertEqual(len(archives), 1)
+        self.assertEqual(archives[0].content["stability"], snap.loop.stability)
 
     def test_ambient_combat_suppressed_during_soft_defeat_recovery(self) -> None:
         # After a soft defeat, an ambient LLM start_combat must be suppressed for a

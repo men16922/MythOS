@@ -318,6 +318,19 @@ class RuntimeSessionTest(unittest.TestCase):
         self.assertIn("recent_archives_low_stability", adjustment["reasons"])
         self.assertIn("archive_pressure", adjustment["reasons"])
 
+    def test_archive_writers_and_readers_share_one_world_id(self) -> None:
+        # progression.py carried its own MYTHOS_WORLD_ID ("world_mythos") from
+        # 2026-06-06 while session/rollup read constants' "mythos-local": every
+        # loop_archive/run_summary ever written was invisible to initial-loop
+        # scoring, the memory overview and compaction. One constant now.
+        from mythos_runtime import constants, narrative_rollup, progression, session
+
+        self.assertEqual(progression.MYTHOS_WORLD_ID, constants.MYTHOS_WORLD_ID)
+        self.assertEqual(session.MYTHOS_WORLD_ID, constants.MYTHOS_WORLD_ID)
+        self.assertEqual(narrative_rollup.MYTHOS_WORLD_ID, constants.MYTHOS_WORLD_ID)
+        # …and it is the value the persisted production rows hold.
+        self.assertEqual(constants.MYTHOS_WORLD_ID, "world_mythos")
+
     def test_initial_loop_scores_window_is_taken_after_filtering_by_player(self) -> None:
         # World memories are shared across players and hold several kinds per
         # archive; slicing the raw list to 8 before filtering let another

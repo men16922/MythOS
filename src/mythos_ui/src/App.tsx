@@ -1,15 +1,12 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, lazy, Suspense } from "react";
 import { apiGetScenarios, stablePlayerId } from "./api";
 import { firstUnlockedArchetype } from "./archetypes";
-import { CodexPanel } from "./CodexPanel";
 import { CharacterTabPanel } from "./CharacterTabPanel";
-import { DevConsolePanel } from "./DevConsolePanel";
 import { GameAside } from "./GameAside";
 import { GameIcon } from "./icons";
 import { BootIntro } from "./BootIntro";
 import { HeaderBar } from "./HeaderBar";
 import { OnboardingPanel } from "./OnboardingPanel";
-import { SaveLoadModal } from "./SaveLoadModal";
 import { InviteGate } from "./InviteGate";
 import { BoonOffer } from "./BoonOffer";
 import { MarketExchange } from "./MarketExchange";
@@ -17,7 +14,6 @@ import { StoryPanel } from "./StoryPanel";
 import { TabNav } from "./TabNav";
 import type { ActiveTab } from "./TabNav";
 import { useTabSwipe } from "./hooks/useTabSwipe";
-import { SkillTreePanel } from "./SkillTreePanel";
 import { IntroPanel } from "./IntroPanel";
 import type {
   ScenarioInfo,
@@ -27,7 +23,6 @@ import type {
   SkillTreeResponse,
 } from "./types";
 import { CombatAnimator } from "./combatEffects";
-import { CombatCinema } from "./CombatCinema";
 import { CombatInterstitial } from "./CombatInterstitial";
 import { CombatTutorial } from "./CombatTutorial";
 import { LS_KEY, parseResumeSession } from "./sessionStorage";
@@ -53,6 +48,19 @@ import { useInviteGate } from "./hooks/useInviteGate";
 import { useSaveLoad } from "./hooks/useSaveLoad";
 import { useEpiphanyBanner } from "./hooks/useEpiphanyBanner";
 import { useLang } from "./i18n/lang";
+
+// Off the story path: loaded on first use so the initial bundle carries only
+// the play surface (the admin console alone is ~650 lines).
+const CodexPanel = lazy(() => import("./CodexPanel").then((m) => ({ default: m.CodexPanel })));
+const SkillTreePanel = lazy(() =>
+  import("./SkillTreePanel").then((m) => ({ default: m.SkillTreePanel }))
+);
+const DevConsolePanel = lazy(() =>
+  import("./DevConsolePanel").then((m) => ({ default: m.DevConsolePanel }))
+);
+const SaveLoadModal = lazy(() => import("./SaveLoadModal").then((m) => ({ default: m.SaveLoadModal })));
+const CombatCinema = lazy(() => import("./CombatCinema").then((m) => ({ default: m.CombatCinema })));
+
 
 export type NarrativeHistoryItem = {
   sceneId: string;
@@ -829,14 +837,16 @@ export default function App() {
             )}
 
             {activeTab === "codex" && codexLists && (
-              <CodexPanel
-                codexLists={codexLists}
-                routeMap={finalizedSnapshot?.state?._route_map}
-                snapshot={finalizedSnapshot}
-                runsHistory={runsHistory}
-                memoryOverview={memoryOverview}
-                scenarioId={selectedScenarioId}
-              />
+              <Suspense fallback={null}>
+                <CodexPanel
+                  codexLists={codexLists}
+                  routeMap={finalizedSnapshot?.state?._route_map}
+                  snapshot={finalizedSnapshot}
+                  runsHistory={runsHistory}
+                  memoryOverview={memoryOverview}
+                  scenarioId={selectedScenarioId}
+                />
+              </Suspense>
             )}
 
             {activeTab === "character" && codexLists && (
@@ -848,22 +858,26 @@ export default function App() {
             )}
 
             {activeTab === "skills" && codexLists && (
-              <SkillTreePanel
-                codexLists={codexLists}
-                scenarioId={selectedScenarioId}
-                skillTree={skillTree}
-                onLearnSkill={handleLearnSkill}
-                learningSkillId={learningSkillId}
-                skillError={skillError}
-                skillNotice={skillNotice}
-              />
+              <Suspense fallback={null}>
+                <SkillTreePanel
+                  codexLists={codexLists}
+                  scenarioId={selectedScenarioId}
+                  skillTree={skillTree}
+                  onLearnSkill={handleLearnSkill}
+                  learningSkillId={learningSkillId}
+                  skillError={skillError}
+                  skillNotice={skillNotice}
+                />
+              </Suspense>
             )}
 
             {activeTab === "dev" && isAdmin && devConsoleData && (
-              <DevConsolePanel
-                data={devConsoleData}
-                snapshot={finalizedSnapshot}
-              />
+              <Suspense fallback={null}>
+                <DevConsolePanel
+                  data={devConsoleData}
+                  snapshot={finalizedSnapshot}
+                />
+              </Suspense>
             )}
           </section>
 
@@ -883,22 +897,24 @@ export default function App() {
       )}
 
       {cinemaContext && (
-        <CombatCinema
-          key={`${cinemaContext.attacker.id}->${cinemaContext.defender.id}#${cinemaQueue.length}`}
-          scenarioId={selectedScenarioId}
-          attacker={cinemaContext.attacker}
-          defender={cinemaContext.defender}
-          damage={cinemaContext.damage}
-          kind={cinemaContext.kind}
-          crit={cinemaContext.crit}
-          skillName={cinemaContext.skillName}
-          itemId={cinemaContext.itemId}
-          miss={cinemaContext.miss}
-          onImpact={onCinemaImpact}
-          onCue={(cue) => playCombatCinemaCue(cinemaContext, cue)}
-          onFinish={onCinemaFinish}
-          onSkip={flushCinema}
-        />
+        <Suspense fallback={null}>
+          <CombatCinema
+            key={`${cinemaContext.attacker.id}->${cinemaContext.defender.id}#${cinemaQueue.length}`}
+            scenarioId={selectedScenarioId}
+            attacker={cinemaContext.attacker}
+            defender={cinemaContext.defender}
+            damage={cinemaContext.damage}
+            kind={cinemaContext.kind}
+            crit={cinemaContext.crit}
+            skillName={cinemaContext.skillName}
+            itemId={cinemaContext.itemId}
+            miss={cinemaContext.miss}
+            onImpact={onCinemaImpact}
+            onCue={(cue) => playCombatCinemaCue(cinemaContext, cue)}
+            onFinish={onCinemaFinish}
+            onSkip={flushCinema}
+          />
+        </Suspense>
       )}
 
       <CombatInterstitial snapshot={finalizedSnapshot ?? lastSnapshot} />
@@ -912,26 +928,28 @@ export default function App() {
       )}
 
       {saveLoadModal && (
-        <SaveLoadModal
-          mode={saveLoadModal}
-          slots={saveSlots}
-          scenarios={scenarios}
-          playerId={playerId || startScreenPlayerId}
-          currentLoopId={loopId}
-          isBusy={isBusy}
-          canSave={Boolean(loopId)}
-          saveLabelInput={saveLabelInput}
-          onSaveLabelChange={setSaveLabelInput}
-          onSave={() => handleSaveSlotSubmit()}
-          onOverwriteSlot={(slot) => {
-            if (slot.slot_id) handleSaveSlotSubmit(slot.slot_id);
-          }}
-          onDeleteSlot={(slot) => {
-            if (slot.slot_id) handleDeleteSlot(slot.slot_id);
-          }}
-          onLoadSlot={loadSlot}
-          onClose={closeModal}
-        />
+        <Suspense fallback={null}>
+          <SaveLoadModal
+            mode={saveLoadModal}
+            slots={saveSlots}
+            scenarios={scenarios}
+            playerId={playerId || startScreenPlayerId}
+            currentLoopId={loopId}
+            isBusy={isBusy}
+            canSave={Boolean(loopId)}
+            saveLabelInput={saveLabelInput}
+            onSaveLabelChange={setSaveLabelInput}
+            onSave={() => handleSaveSlotSubmit()}
+            onOverwriteSlot={(slot) => {
+              if (slot.slot_id) handleSaveSlotSubmit(slot.slot_id);
+            }}
+            onDeleteSlot={(slot) => {
+              if (slot.slot_id) handleDeleteSlot(slot.slot_id);
+            }}
+            onLoadSlot={loadSlot}
+            onClose={closeModal}
+          />
+        </Suspense>
       )}
 
       <BoonOffer

@@ -107,7 +107,6 @@ class DesignSystemSurfaceTest(unittest.TestCase):
         # DS2-e character/codex/skill cluster migrated too.
         for path in (
             "src/mythos_ui/src/ProgressDashboard.tsx",
-            "src/mythos_ui/src/TesterDashboard.tsx",
             "src/mythos_ui/src/CharacterPanel.tsx",
             "src/mythos_ui/src/CharacterTabPanel.tsx",
             "src/mythos_ui/src/CodexPanel.tsx",

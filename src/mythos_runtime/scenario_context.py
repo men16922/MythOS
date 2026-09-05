@@ -1508,7 +1508,7 @@ def _route_junction_notes(
     # destinations as type-constrained route_nodes (type from the allowed list,
     # title/flavour free). The system wires mechanics from the type and always
     # falls back to authored pools, so a missing/invalid proposal is harmless.
-    route_map = state.get("_route_map") if isinstance(state, dict) else None
+    route_map = state.get(ROUTE_MAP_KEY) if isinstance(state, dict) else None
     if isinstance(route_map, dict) and route_map.get("mode") == "dynamic":
         allowed = _route_node_type_menu(scenario)
         if allowed:
@@ -1636,5 +1636,3 @@ def _compact_named_items(items: Sequence[dict[str, Any]], limit: int = 4) -> str
         elif name:
             chunks.append(str(name))
     return " | ".join(chunks)
-if TYPE_CHECKING:
-    from mythos_narrative.variation import NoveltySignal

@@ -15,6 +15,7 @@ from mythos_core.clock import utc_now
 from mythos_core.ids import new_memory_id
 from mythos_memory import MythOSStore
 from mythos_runtime.combat_service import skill_rank_bonuses
+from mythos_runtime.constants import MYTHOS_WORLD_ID
 from mythos_runtime.options import RunSummary
 from mythos_runtime.scenario import load_scenario
 
@@ -911,7 +912,6 @@ def _run_summary_from_memory(memory: WorldMemory) -> RunSummary:
     )
 
 
-MYTHOS_WORLD_ID = "world_mythos"
 
 
 class ProgressionService:

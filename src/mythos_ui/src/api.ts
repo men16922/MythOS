@@ -171,17 +171,6 @@ export async function apiActive(params: {
   return apiGet<RuntimeSnapshot>(url);
 }
 
-export async function apiChoose(params: {
-  loop_id: string;
-  scene_id?: string;
-  scenario_id: string;
-  choice_id?: string;
-  action?: string;
-  fallback: boolean;
-}): Promise<RuntimeSnapshot> {
-  return apiPost<RuntimeSnapshot>("/api/v1/loops/choose", { ...params, lang: getLang() });
-}
-
 export async function apiChooseBoon(params: {
   loop_id: string;
   scenario_id: string;

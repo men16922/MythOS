@@ -95,12 +95,17 @@ class Combatant:
     @property
     def effective_defense(self) -> int:
         # 산성 (status slice 2): dissolved plating — -2 while active, floor 1.
-        acid_pen = 2 if "acid" in self.status_effects else 0
+        acid_pen = 2 if self.has_status("acid") else 0
         return max(1, self.defense + (4 if self.defending else 0) + max(0, self.defense_buff) - acid_pen)
 
     @property
     def effective_speed(self) -> int:
         return self.speed + max(0, self.speed_buff)
+
+    def has_status(self, status_id: str) -> bool:
+        """Is ``status_id`` active on this unit? The single read seam for status
+        state — the stacking rework changes what ``status_effects`` stores."""
+        return status_id in self.status_effects
 
     def stat(self, name: str) -> int:
         return int(self.stats.get(name, 0))

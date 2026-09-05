@@ -1425,7 +1425,7 @@ class CombatEngine:
         """Per-turn upkeep for any combatant: focus regen, cooldowns, expiring buffs, hazards."""
         # 감전 (slice 2): circuits lag — no focus regen and cooldowns stay
         # frozen for the shocked turn (the status itself still ticks below).
-        shocked = "shock" in actor.status_effects
+        shocked = actor.has_status("shock")
         if actor.max_focus and not shocked:
             actor.focus = min(actor.max_focus, actor.focus + 1)
         if not shocked:
@@ -1454,7 +1454,7 @@ class CombatEngine:
         # Same for act-time-consumed statuses (hacked): the chip stays visible
         # through the betrayal turn and clears at the unit's next upkeep.
         for sid in list(actor.status):
-            if sid in STATUS_EFFECT_IDS and sid not in actor.status_effects:
+            if sid in STATUS_EFFECT_IDS and not actor.has_status(sid):
                 actor.status.remove(sid)
 
         # Persistent status effects (2026-07-12 design): DoT tick + expiry at
@@ -1535,7 +1535,7 @@ class CombatEngine:
         if actor.ai == "boss":
             actor.stun_guard = False
         # 시스템 침투: a hacked enemy spends this turn attacking its own side.
-        if actor.faction == ENEMY and "hacked" in actor.status_effects:
+        if actor.faction == ENEMY and actor.has_status("hacked"):
             self._hacked_turn(state, actor)
             return
         if actor.faction == ENEMY:
@@ -1641,13 +1641,13 @@ class CombatEngine:
     def _effective_armor(self, combatant: Combatant) -> int:
         """Armor after persistent-status penalties (corrode: -2 while active)."""
         armor = combatant.armor
-        if "corrode" in combatant.status_effects:
+        if combatant.has_status("corrode"):
             armor -= 2
         return max(0, armor)
 
     def _movement_frozen(self, state: CombatState, actor: Combatant) -> bool:
         """True + a log line when 냉동 blocks this movement (acting stays allowed)."""
-        if "freeze" not in actor.status_effects:
+        if not actor.has_status("freeze"):
             return False
         self._log(
             state, actor, "info",
@@ -2191,7 +2191,7 @@ class CombatEngine:
                 # Status rider signature (정밀 EMP ⚡감전): useful while the
                 # victim lacks at least one of the statuses it would apply.
                 applicable = victim is not None and any(
-                    sid not in victim.status_effects for sid in effect["applies"]
+                    not victim.has_status(sid) for sid in effect["applies"]
                 )
                 target = victim
             elif effect.get("focus_drain"):
@@ -2448,7 +2448,7 @@ class CombatEngine:
     ) -> None:
         if budget is None:
             budget = mover.effective_speed
-        if "freeze" in mover.status_effects:
+        if mover.has_status("freeze"):
             # 냉동 (slice 2): actuators locked — the AI stays put but still acts.
             return
         moved = False
@@ -2483,7 +2483,7 @@ class CombatEngine:
     def _reachable_tiles(self, state: CombatState, mover: Combatant) -> list[list[int]]:
         # 냉동 (slice 2): no reachable tiles → the board affordance (bright
         # tiles / drag) honestly shows the unit cannot move this turn.
-        if "freeze" in mover.status_effects:
+        if mover.has_status("freeze"):
             return []
         tiles: list[list[int]] = []
         for ny in range(state.arena_h):

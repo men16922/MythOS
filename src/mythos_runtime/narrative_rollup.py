@@ -134,7 +134,12 @@ def _summarize_shards_for_rollup(
         return str(
             summarize(payload, existing_summary=existing_summary or None, use_llm=use_llm)
         ).strip()
-    return _deterministic_shard_summary(shards, existing_summary=existing_summary)
+    # Same deterministic text the director itself falls back to — the rollup
+    # used to carry its own copy, reachable only when a director lacks the
+    # method, and the two had already drifted.
+    from mythos_narrative.director import _fallback_shard_summary
+
+    return _fallback_shard_summary(payload, existing_summary=existing_summary)
 
 
 def _merge_causality_summary_content(
@@ -182,25 +187,6 @@ def _merge_causality_summary_content(
         "symbol_histogram": symbol_histogram,
         "window": window,
     }
-
-
-def _deterministic_shard_summary(
-    shards: list[NarrativeShard], *, existing_summary: str | None = None
-) -> str:
-    if not shards:
-        return existing_summary or "아직 압축할 장기 서사 파편이 없다."
-    symbols = [shard.symbol for shard in shards if shard.symbol]
-    tones = [shard.emotional_tone for shard in shards if shard.emotional_tone]
-    clues = [shard.symbol for shard in shards if shard.kind == "clue" and shard.symbol]
-    symbol_text = ", ".join(dict.fromkeys(symbols[:6])) or "이름 없는 신호"
-    tone_text = ", ".join(dict.fromkeys(tones[:4])) or "불안정한 잔향"
-    clue_text = ", ".join(dict.fromkeys(clues[:6])) or "확정 단서 없음"
-    prefix = f"{existing_summary.rstrip()} " if existing_summary else ""
-    return (
-        f"{prefix}장기 기억은 {len(shards)}개의 파편을 흡수했다. "
-        f"반복 상징은 [{symbol_text}], 정서는 [{tone_text}], 확정 단서는 [{clue_text}]로 남아 "
-        "다음 장면의 인과율 압력과 NPC 반응을 낮은 배경 신호로 조정한다."
-    ).strip()
 
 
 def _archives_to_compact(

@@ -3,19 +3,13 @@ from __future__ import annotations
 import argparse
 
 from mythos_core import (
-    Echo,
     LoopState,
-    PlayerMemory,
-    PlayerProfile,
     Scene,
-    new_memory_id,
 )
-from mythos_core.clock import utc_now
 from mythos_memory import PostgresMythOSStore
 from mythos_runtime.observability import get_logger
 from mythos_runtime.options import RuntimeOptions
 from mythos_runtime.session import RuntimeSessionService
-from mythos_runtime.visual_service import MinIOStorageAdapter, VisualService
 
 LOGGER = get_logger("mythos.cli")
 
@@ -174,57 +168,6 @@ def _print_image_result(image_result) -> None:
     print(f"image_uri={image_result.storage_uri}")
 
 
-def _maybe_generate_image(
-    args: argparse.Namespace,
-    store: PostgresMythOSStore,
-    scene: Scene,
-    player_id: str,
-) -> None:
-    if not args.with_image:
-        return
-    service = VisualService(
-        storage=None if args.filesystem_image else MinIOStorageAdapter(),
-        store=store,
-    )
-    result = service.generate_for_scene(
-        scene,
-        player_id=player_id,
-        request_overrides={
-            "enabled": True,
-            "width": args.image_width,
-            "height": args.image_height,
-            "steps": args.image_steps,
-        },
-    )
-    print(f"image_status={result.status}")
-    print(f"image_uri={result.storage_uri}")
-
-
-def _require_player(store: PostgresMythOSStore, player_id: str) -> PlayerProfile:
-    player = store.get_player(player_id)
-    if player is None:
-        raise SystemExit(f"player not found: {player_id}")
-    return player
-
-
-def _require_loop(store: PostgresMythOSStore, loop_id: str) -> LoopState:
-    loop = store.get_loop(loop_id)
-    if loop is None:
-        raise SystemExit(f"loop not found: {loop_id}")
-    return loop
-
-
-def _resolve_action(scene: Scene, choice_id: str | None, action: str | None) -> str:
-    if action:
-        return action
-    if not choice_id:
-        raise SystemExit("--choice-id or --action is required")
-    for choice in scene.choices:
-        if choice.choice_id == choice_id:
-            return choice.label
-    raise SystemExit(f"choice not found: {choice_id}")
-
-
 def _render_scene(
     loop: LoopState,
     scene: Scene,
@@ -249,62 +192,6 @@ def _render_scene(
             latest_asset = stored_assets[-1]
             print("")
             print(f"asset={latest_asset.storage_uri}")
-
-
-def _echoes_from_memories(memories: list[PlayerMemory]) -> list[Echo]:
-    echoes: list[Echo] = []
-    for memory in memories:
-        if memory.kind != "echo":
-            continue
-        content = memory.content
-        try:
-            echoes.append(
-                Echo(
-                    echo_id=str(content["echo_id"]),
-                    source_loop_id=str(content["source_loop_id"]),
-                    source_event_id=str(content["source_event_id"]),
-                    symbol=str(content["symbol"]),
-                    text=str(content["text"]),
-                    weight=float(content.get("weight", memory.weight)),
-                )
-            )
-        except KeyError:
-            continue
-    return echoes
-
-
-def _save_echo_memory(store: PostgresMythOSStore, player_id: str, echo: Echo) -> PlayerMemory:
-    now = utc_now()
-    memory = PlayerMemory(
-        memory_id=new_memory_id(),
-        player_id=player_id,
-        kind="echo",
-        content={
-            "echo_id": echo.echo_id,
-            "source_loop_id": echo.source_loop_id,
-            "source_event_id": echo.source_event_id,
-            "symbol": echo.symbol,
-            "text": echo.text,
-            "weight": echo.weight,
-        },
-        weight=echo.weight,
-        created_at=now,
-        updated_at=now,
-    )
-    store.save_player_memory(memory)
-    return memory
-
-
-def _symbol_from_scene(scene: Scene) -> str:
-    return next(
-        (word.strip(".,:;!?").lower() for word in scene.title.split() if word.strip()),
-        "echo",
-    )
-
-
-def _print_errors(errors: list) -> None:
-    for error in errors:
-        print(f"error={error.code}: {error.message}")
 
 
 if __name__ == "__main__":

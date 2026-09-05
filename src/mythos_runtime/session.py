@@ -861,18 +861,6 @@ class RuntimeSessionService:
         )
         return snapshot
 
-    def _offer_boons_if_absent(self, loop: LoopState, turn_index: int) -> LoopState:
-        """Stage a fresh boon offer, unless one is already pending (no clobber)."""
-        if not isinstance(loop.state, dict):
-            return loop
-        if loop.state.get(BOON_OFFER_KEY):
-            return loop
-        taken = loop.state.get(RUN_BOONS_KEY) or []
-        offer = offer_boons(seed=loop.seed, turn_index=turn_index, taken=taken)
-        if not offer:
-            return loop
-        return replace(loop, state={**loop.state, BOON_OFFER_KEY: offer})
-
     def choose_boon(
         self, loop_id: str, boon_id: str, options: RuntimeOptions | None = None
     ) -> RuntimeSnapshot:
@@ -1917,8 +1905,22 @@ class RuntimeSessionService:
         run_summary_memory: WorldMemory | None = None
         meta_progress: MetaProgression | None = None
         snapshot_player = player
+        archive_memory: WorldMemory | None = None
+        archive_shard: NarrativeShard | None = None
         if result.finished and loop.phase is LoopPhase.ENDED:
             world_memories = self.store.list_world_memories(MYTHOS_WORLD_ID)
+            # The boss climax ends the run here, not through archive() — which
+            # returns early on an ENDED loop — so this path must persist the same
+            # archive bundle: the loop_archive memory feeds the next loop's
+            # starting scores and the memory overview, the shard feeds the codex.
+            if not _has_archive_world_memory(
+                world_memories, loop_id=loop.loop_id, player_id=loop.player_id
+            ):
+                archive_memory = _world_memory_from_archive(loop, scene)
+            if echo is not None and not _has_narrative_shard(
+                self.store.list_narrative_shards(loop.player_id, limit=100), loop_id=loop.loop_id
+            ):
+                archive_shard = _narrative_shard_from_archive(loop, scene, echo)
             if not _has_run_summary(world_memories, loop_id=loop.loop_id):
                 events = self.store.list_events(loop.loop_id)
                 if defeat_event is not None:
@@ -1994,11 +1996,18 @@ class RuntimeSessionService:
             # failed save_loop re-credit the reward on the retried turn.
             if combat_progress is not None:
                 persist_progression(self.store, combat_progress)
+            if archive_memory is not None:
+                self.store.save_world_memory(archive_memory)
+            if archive_shard is not None:
+                self.store.save_narrative_shard(archive_shard)
             if run_summary_memory is not None:
                 self.store.save_world_memory(run_summary_memory)
                 if meta_progress is not None:
                     persist_progression(self.store, meta_progress)
                     self.store.create_player(snapshot_player)
+
+        if archive_memory is not None:
+            _compact_player_archives(self.store, loop.player_id)
 
         image_result = self._maybe_generate_image(options, loop, scene, player.player_id)
         bgm_path = self.audio.get_current_bgm(loop, scene)
@@ -2493,41 +2502,6 @@ class RuntimeSessionService:
                 tension=_clamp_score(loop.tension + dtens),
             )
         return loop, progress
-
-    def _combat_permadeath(
-        self, loop: LoopState, scene: Scene
-    ) -> tuple[LoopState, Echo, WorldEvent]:
-        event = create_world_event(
-            loop.loop_id,
-            scene.turn_index + 1,
-            "combat_defeat",
-            "Connector signal lost in combat.",
-            {"phase": "ended"},
-        )
-        echo = Echo(
-            echo_id=f"echo_{event.event_id.removeprefix('event_')}",
-            source_loop_id=loop.loop_id,
-            source_event_id=event.event_id,
-            symbol="fallen",
-            text=f"{scene.title}: 신호 소실",
-        )
-        narrative_shards = self.store.list_narrative_shards(loop.player_id, limit=1000)
-        clue_count = len([s for s in narrative_shards if s.kind == "clue"])
-        loop_state = self._resolved_ending_state(
-            loop,
-            clue_count=clue_count,
-            context="combat permadeath",
-            combat_defeat_fallback=True,
-        )
-
-        ended = replace(
-            loop,
-            phase=LoopPhase.ENDED,
-            ended_at=utc_now(),
-            active_echoes=[*loop.active_echoes, echo],
-            state=loop_state,
-        )
-        return ended, echo, event
 
     def _combat_soft_defeat(
         self, loop: LoopState, scene: Scene, encounter_id: Any
@@ -3933,29 +3907,6 @@ def _has_run_summary(memories: list[WorldMemory], loop_id: str) -> bool:
 
 def _has_narrative_shard(shards: list[NarrativeShard], loop_id: str) -> bool:
     return any(shard.loop_id == loop_id for shard in shards)
-
-
-def _count_combat_outcomes(events: list[WorldEvent], outcome: str) -> int:
-    count = 0
-    for event in events:
-        delta = event.state_delta if isinstance(event.state_delta, dict) else {}
-        if delta.get("combat_outcome") == outcome:
-            count += 1
-    return count
-
-
-def _allies_from_loop_state(state: dict[str, Any]) -> list[str]:
-    party = state.get("_party")
-    if not isinstance(party, dict):
-        return []
-    members = party.get("members")
-    if not isinstance(members, list):
-        return []
-    allies = []
-    for member in members:
-        if isinstance(member, dict) and member.get("id"):
-            allies.append(str(member["id"]))
-    return allies
 
 
 def _symbol_from_scene(scene: Scene) -> str:

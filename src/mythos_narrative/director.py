@@ -894,44 +894,27 @@ def _apply_novelty_guard(context: NarrativeContext, payload: ScenePayload) -> Sc
     if fixed_anchor:
         return payload
 
-    if context.novelty_signal is not None:
-        revision = NoveltyController().revise_candidate(
-            context.novelty_signal,
-            title=payload.title,
-            location=payload.location,
-            narration=payload.narration,
-            alternate_location=alternate_location,
-            language=getattr(context, "language", "ko"),
-        )
-        if revision is None:
-            return payload
-        return replace(
-            payload,
-            title=revision.title,
-            location=revision.location,
-            narration=revision.narration,
-        )
-
-    # Compatibility path for callers that still construct a context with only
-    # prompt notes. It enforces a real state change instead of cosmetically
-    # prefixing the same title with "Changed"/"달라진".
-    if not context.novelty_notes or not payload.title.strip():
+    # Every production context builder sets ``novelty_signal``; a context with
+    # only prompt notes gets no guard (the old notes-only path carried a single
+    # un-rotated "New Vector at …" template — the largest repetition source in
+    # the 08-08 arm — and was reachable only from hand-built test contexts).
+    if context.novelty_signal is None:
         return payload
-    note_text = " ".join(context.novelty_notes).casefold()
-    if payload.title.strip().casefold() not in note_text:
+    revision = NoveltyController().revise_candidate(
+        context.novelty_signal,
+        title=payload.title,
+        location=payload.location,
+        narration=payload.narration,
+        alternate_location=alternate_location,
+        language=getattr(context, "language", "ko"),
+    )
+    if revision is None:
         return payload
-    location = (alternate_location or payload.location).strip()
-    if getattr(context, "language", "ko") == "en":
-        title = f"New Vector at {location}"
-        tail = f"The repeated route seals behind you; a new constraint shifts the action to {location}."
-    else:
-        title = f"{location}의 새 국면"
-        tail = f"반복되던 경로가 뒤에서 닫히고, 새 제약이 행동을 {location}(으)로 옮긴다."
     return replace(
         payload,
-        title=title,
-        location=location,
-        narration=f"{payload.narration.rstrip()} {tail}",
+        title=revision.title,
+        location=revision.location,
+        narration=revision.narration,
     )
 
 
@@ -986,6 +969,21 @@ def _fallback_loop_summary(events: list[dict[str, Any]], language: str = "ko") -
     return f"루프는 '{action}'의 잔향을 남기고 접혔다. 세계는 그 선택을 낮은 신호로 보관한다."
 
 
+# The deterministic summary prefixes the previous one, and in fallback/fast mode
+# it runs every turn once a player holds 40+ shards — so the prompt-injected
+# summary grew linearly with play. Keep the most recent sentences only.
+_SUMMARY_PREFIX_CHARS = 600
+
+
+def _bounded_summary_prefix(existing_summary: str) -> str:
+    text = existing_summary.rstrip()
+    if len(text) <= _SUMMARY_PREFIX_CHARS:
+        return text
+    tail = text[-_SUMMARY_PREFIX_CHARS:]
+    cut = tail.find(". ")
+    return tail[cut + 2 :] if 0 <= cut < len(tail) - 2 else tail
+
+
 def _fallback_shard_summary(
     shards: list[dict[str, Any]], *, existing_summary: str | None = None
 ) -> str:
@@ -1007,7 +1005,7 @@ def _fallback_shard_summary(
     symbol_text = ", ".join(dict.fromkeys(symbols[:6])) or "이름 없는 신호"
     tone_text = ", ".join(dict.fromkeys(tones[:4])) or "불안정한 잔향"
     clue_text = ", ".join(dict.fromkeys(clues[:6])) or "확정 단서 없음"
-    prefix = f"{existing_summary.rstrip()} " if existing_summary else ""
+    prefix = f"{_bounded_summary_prefix(existing_summary)} " if existing_summary else ""
     return (
         f"{prefix}장기 기억은 {len(shards)}개의 파편을 흡수했다. "
         f"반복 상징은 [{symbol_text}], 정서는 [{tone_text}], 확정 단서는 [{clue_text}]로 남아 "

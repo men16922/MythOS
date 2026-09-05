@@ -205,3 +205,79 @@ class ShareTrendTest(unittest.TestCase):
         one = share_trend([50.0], [100], [50])
         self.assertEqual(one["direction"], "flat")
         self.assertEqual(len(one["thirds"]), 1)
+
+
+class CaptureTraceAutoplayTest(unittest.TestCase):
+    """Seed 8 (2026-09-06): the combat autoplay helper that lets `capture_trace` walk
+    through patrol nodes. Importing the module must not run the script body."""
+
+    def _combat_loop(self):  # noqa: ANN202 - LoopState from the real encounter builder
+        from datetime import UTC, datetime
+
+        from mythos_core import LoopPhase, LoopState
+        from mythos_runtime.combat_service import CombatService
+        from mythos_runtime.scenario import load_scenario
+
+        loop = LoopState(
+            loop_id="loop_autoplay",
+            player_id="p_autoplay",
+            seed="seed_autoplay",
+            phase=LoopPhase.EXPLORE,
+            location_id="loc",
+            stability=70,
+            tension=20,
+            started_at=datetime(2026, 9, 6, tzinfo=UTC),
+            state={},
+        )
+        result = CombatService().begin(
+            loop,
+            scenario_combat=load_scenario("neo-seoul").combat,
+            encounter_id="patrol_ambush",
+            player_name="P",
+            player_stats={"strength": 9, "agility": 8, "perception": 6},
+            archetype=None,
+        )
+        return result.loop
+
+    def test_attacks_the_nearest_enemy_and_only_steps_closer(self) -> None:
+        from experiments.capture_trace import _auto_combat_action
+        from mythos_combat.engine import CombatEngine, distance
+        from mythos_runtime.combat_service import CombatService
+
+        loop = self._combat_loop()
+        state = CombatService.load_state(loop)
+        assert state is not None
+        actor = state.active_actor()
+        assert actor is not None
+        nearest = min(state.living_enemies(), key=lambda e: distance(actor.x, actor.y, e.x, e.y))
+
+        action = _auto_combat_action(loop)
+
+        self.assertEqual(action.type, "attack")
+        self.assertEqual(action.target_id, nearest.id)
+        if action.move_to is not None:
+            reachable = CombatEngine().available_actions(state)["reachable"]
+            self.assertIn(list(action.move_to), [list(r) for r in reachable])
+            self.assertLess(
+                distance(action.move_to[0], action.move_to[1], nearest.x, nearest.y),
+                distance(actor.x, actor.y, nearest.x, nearest.y),
+            )
+
+    def test_defends_when_there_is_no_combat_state(self) -> None:
+        from datetime import UTC, datetime
+
+        from experiments.capture_trace import _auto_combat_action
+        from mythos_core import LoopPhase, LoopState
+
+        loop = LoopState(
+            loop_id="l",
+            player_id="p",
+            seed="s",
+            phase=LoopPhase.EXPLORE,
+            location_id="loc",
+            stability=70,
+            tension=20,
+            started_at=datetime(2026, 9, 6, tzinfo=UTC),
+            state={},
+        )
+        self.assertEqual(_auto_combat_action(loop).type, "defend")

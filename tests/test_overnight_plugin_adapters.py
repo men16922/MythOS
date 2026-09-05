@@ -152,6 +152,30 @@ class VerifierTests(unittest.TestCase):
         self.assertEqual(escaped.returncode, 1)
         self.assertIn("out-of-scope", escaped.stdout)
 
+    def test_diff_scope_suppression_scan_ignores_prose_but_not_code(self) -> None:
+        """A NEXT_PLAN seed that *mentions* `# type: ignore` is re-added when its checkbox
+        is ticked; that must not read as a new suppression marker (2026-09-06 false
+        reject of a clean commit). The same marker in code still rejects."""
+        verifier = VERIFIERS / "10-diff-scope.sh"
+        prose = self.commit(
+            "docs/note.md", "- [x] remove the 14 `# type: ignore[union-attr]` in tests. Done.\n"
+        )
+        ok = run(
+            [verifier, prose],
+            cwd=self.repo,
+            env={"OVERNIGHT_CONTRACT_FILE": str(self.contract(["docs/", "src/"]))},
+        )
+        self.assertEqual(ok.returncode, 0, ok.stdout + ok.stderr)
+
+        code = self.commit("src/base.py", "VALUE = 2  # type: ignore[assignment]\n")
+        rejected = run(
+            [verifier, code],
+            cwd=self.repo,
+            env={"OVERNIGHT_CONTRACT_FILE": str(self.contract(["docs/", "src/"]))},
+        )
+        self.assertEqual(rejected.returncode, 1)
+        self.assertIn("suppression marker", rejected.stdout)
+
     def test_non_applicable_semantic_verifiers_pass(self) -> None:
         diff_range = self.commit("docs/note.md", "documentation only\n")
         for name in ("20-gameplay-oracle.sh", "40-image-identity.sh"):

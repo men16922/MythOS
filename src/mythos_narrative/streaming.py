@@ -88,7 +88,7 @@ def _decode_escape(char: str) -> str:
 
 class PlainTextStoryExtractor:
     """Incrementally extracts only the narrative text between [SCENE] and [TITLE] from raw storyteller stream.
-    
+
     Strips the '[SCENE]' header and blocks any text once '[TITLE]' or other headers start,
     preventing technical markups and choices from leaking to the player's narration UI.
     """

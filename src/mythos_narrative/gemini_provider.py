@@ -105,8 +105,9 @@ class GeminiConfig:
     # (DECISIONS.md 2026-07-17). Narrative quality is the product; cost is
     # accepted at ~$1.0/loop.
     model: str = field(
-        default_factory=lambda: _env("GEMINI_MODEL", "MODEL", default="gemini-3.5-flash")
-        or "gemini-3.5-flash"
+        default_factory=lambda: (
+            _env("GEMINI_MODEL", "MODEL", default="gemini-3.5-flash") or "gemini-3.5-flash"
+        )
     )
     # Optional key-beat model split: when set (e.g. GEMINI_MODEL_KEYBEAT with a
     # cheaper base MODEL), the director generates key-beat turns (opening/
@@ -122,9 +123,7 @@ class GeminiConfig:
             "GEMINI_USE_VERTEX", "GOOGLE_GENAI_USE_VERTEXAI", default=True
         )
     )
-    project: str | None = field(
-        default_factory=lambda: _env("GOOGLE_CLOUD_PROJECT", "PROJECT_ID")
-    )
+    project: str | None = field(default_factory=lambda: _env("GOOGLE_CLOUD_PROJECT", "PROJECT_ID"))
     # Narrative-specific region. "" = auto, resolved in __post_init__: explicit
     # constructor arg > GEMINI_LOCATION > "global" for gemini-3.x models >
     # GOOGLE_CLOUD_LOCATION > us-central1. Gemini 3.x is served only from the
@@ -132,9 +131,7 @@ class GeminiConfig:
     # regional because Imagen shares it — so swapping MODEL=gemini-3.5-flash
     # needs no other env change.
     location: str = ""
-    api_key: str | None = field(
-        default_factory=lambda: _env("GEMINI_API_KEY", "GOOGLE_API_KEY")
-    )
+    api_key: str | None = field(default_factory=lambda: _env("GEMINI_API_KEY", "GOOGLE_API_KEY"))
     temperature: float = field(
         default_factory=lambda: float(_env("GEMINI_TEMPERATURE", default="0.7") or "0.7")
     )

@@ -133,9 +133,7 @@ class PostgresMythOSStore(MythOSStore):
                 order.append(item_id)
             counts[item_id] = counts.get(item_id, 0) + 1
             equipped[item_id] = equipped.get(item_id, False) or eq
-        return [
-            {"item_id": i, "quantity": counts[i], "equipped": equipped[i]} for i in order
-        ]
+        return [{"item_id": i, "quantity": counts[i], "equipped": equipped[i]} for i in order]
 
     @staticmethod
     def _inventory_working_form(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -402,9 +400,7 @@ class PostgresMythOSStore(MythOSStore):
             content[col] = row.get(col)
         return content
 
-    def save_progression(
-        self, player_id: str, scenario_id: str, content: dict[str, Any]
-    ) -> None:
+    def save_progression(self, player_id: str, scenario_id: str, content: dict[str, Any]) -> None:
         int_vals = [int(content.get(col) or 0) for col in self._PROGRESSION_INT_COLS]
         json_vals = [
             Jsonb(content.get(col) or ({} if col in self._PROGRESSION_DICT_COLS else []))
@@ -431,7 +427,11 @@ class PostgresMythOSStore(MythOSStore):
             (loop_id,),
         )
         return [
-            {"item_id": r["item_id"], "quantity": int(r["quantity"]), "equipped": bool(r["equipped"])}
+            {
+                "item_id": r["item_id"],
+                "quantity": int(r["quantity"]),
+                "equipped": bool(r["equipped"]),
+            }
             for r in rows
         ]
 

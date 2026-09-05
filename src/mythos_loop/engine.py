@@ -82,16 +82,53 @@ class LoopEngine:
             # content, Se-rin's combat presence and ending branches, so the whole
             # refusal arm of the opening was dead in English.
             met_keywords = [
-                "따라", "수락", "동의", "손을", "신뢰", "오토바이",
-                "타기", "탑승", "잡는다", "동행", "협력",
-                "follow", "accept", "agree", "trust", "ride", "board",
-                "join", "grab", "take", "hand", "along", "together",
+                "따라",
+                "수락",
+                "동의",
+                "손을",
+                "신뢰",
+                "오토바이",
+                "타기",
+                "탑승",
+                "잡는다",
+                "동행",
+                "협력",
+                "follow",
+                "accept",
+                "agree",
+                "trust",
+                "ride",
+                "board",
+                "join",
+                "grab",
+                "take",
+                "hand",
+                "along",
+                "together",
             ]
             refused_keywords = [
-                "거절", "거부", "혼자", "독자", "경계", "피해",
-                "숨기", "은신", "기다린다", "분석",
-                "refuse", "decline", "reject", "ignore", "alone", "avoid",
-                "hide", "wary", "distrust", "without", "own", "another",
+                "거절",
+                "거부",
+                "혼자",
+                "독자",
+                "경계",
+                "피해",
+                "숨기",
+                "은신",
+                "기다린다",
+                "분석",
+                "refuse",
+                "decline",
+                "reject",
+                "ignore",
+                "alone",
+                "avoid",
+                "hide",
+                "wary",
+                "distrust",
+                "without",
+                "own",
+                "another",
             ]
 
             # An explicit refusal verb decides on its own, because the sentence
@@ -102,8 +139,7 @@ class LoopEngine:
             # acceptance.
             refusal_verbs = ["거절", "거부", "refuse", "decline", "reject"]
             is_refused = mentions(action_text, refusal_verbs) or (
-                mentions(action_text, refused_keywords)
-                and not mentions(action_text, met_keywords)
+                mentions(action_text, refused_keywords) and not mentions(action_text, met_keywords)
             )
             # The two flags are exclusive, and loop 1 pre-seeds ``met_se_rin``
             # (tutorial party). Removing the loser from the delta alone left the
@@ -247,7 +283,9 @@ class LoopEngine:
                 # The soft-defeat recovery beat must not be ended by the model
                 # asking for "archive"/"ended" directly — the same rule
                 # _archive_requested applies to end_condition and score thresholds.
-                soft_defeat = isinstance(loop.state, dict) and loop.state.get("_soft_defeat_pending")
+                soft_defeat = isinstance(loop.state, dict) and loop.state.get(
+                    "_soft_defeat_pending"
+                )
                 if soft_defeat and requested in (LoopPhase.ARCHIVE, LoopPhase.ENDED):
                     requested = loop.phase
                 # Validate that it's a valid forward transition

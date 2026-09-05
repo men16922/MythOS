@@ -261,10 +261,20 @@ _SFX_BARE = re.compile(r"(?i:(?:cinematic\s*)?sfx\s*:)\s*[A-Z0-9_-]+(?:[ ][A-Z0-
 # starts a real encounter, so a bare "ambush" or "enemy" would over-trigger on
 # narration that merely mentions danger.
 _COMBAT_TRIGGER_PHRASES = (
-    "전투 시작", "전투가 시작", "시작되는 전투", "적 출현",
-    "combat begins", "combat starts", "battle begins", "battle erupts",
-    "the fight begins", "the fight is on", "a fight breaks out",
-    "opens fire", "enemies appear", "enemy appears",
+    "전투 시작",
+    "전투가 시작",
+    "시작되는 전투",
+    "적 출현",
+    "combat begins",
+    "combat starts",
+    "battle begins",
+    "battle erupts",
+    "the fight begins",
+    "the fight is on",
+    "a fight breaks out",
+    "opens fire",
+    "enemies appear",
+    "enemy appears",
 )
 
 # A bracketed [SFX: ...] marker the model was told not to emit becomes prose, so
@@ -272,14 +282,18 @@ _COMBAT_TRIGGER_PHRASES = (
 # is spliced into the surrounding narration, and a Korean sentence in the middle
 # of an English scene is the mixed-language leak the EN sweep exists to prevent.
 _SFX_PROSE: tuple[tuple[tuple[str, ...], str, str], ...] = (
-    (("scratch", "static"), "치직, 긁히는 정전기가 귓속을 스쳤다.",
-     "A scrape of static grazed the inside of your ear."),
-    (("glitch",), "짧은 글리치음이 허공을 찢었다.",
-     "A short glitch tore at the air."),
-    (("hum",), "낮은 기계음이 바닥 아래에서 울렸다.",
-     "A low mechanical hum rolled somewhere under the floor."),
-    (("alarm", "siren"), "멀리서 경보음이 번졌다.",
-     "An alarm spread somewhere far off."),
+    (
+        ("scratch", "static"),
+        "치직, 긁히는 정전기가 귓속을 스쳤다.",
+        "A scrape of static grazed the inside of your ear.",
+    ),
+    (("glitch",), "짧은 글리치음이 허공을 찢었다.", "A short glitch tore at the air."),
+    (
+        ("hum",),
+        "낮은 기계음이 바닥 아래에서 울렸다.",
+        "A low mechanical hum rolled somewhere under the floor.",
+    ),
+    (("alarm", "siren"), "멀리서 경보음이 번졌다.", "An alarm spread somewhere far off."),
 )
 _SFX_PROSE_DEFAULT = ("짧은 전자음이 공기를 흔들었다.", "A brief electronic tone shook the air.")
 
@@ -478,24 +492,36 @@ def _nullable_string(value: Any) -> str | None:
 def parse_story_text(story_text: str) -> ScenePayload:
     """Parses raw storyteller markdown-like markup (SCENE, TITLE, LOCATION, CHOICES) into a ScenePayload."""
     # 1. Title
-    title_match = re.search(r"\[TITLE\]\s*\n*(.*?)(?=\n*\[|$)", story_text, re.DOTALL | re.IGNORECASE)
+    title_match = re.search(
+        r"\[TITLE\]\s*\n*(.*?)(?=\n*\[|$)", story_text, re.DOTALL | re.IGNORECASE
+    )
     title = title_match.group(1).strip() if title_match else DEFAULT_FALLBACK["repair"]["title"]
 
     # 2. Location — prose default (not the raw-ID "data-layer-01") when [LOCATION] omitted.
-    location_match = re.search(r"\[LOCATION\]\s*\n*(.*?)(?=\n*\[|$)", story_text, re.DOTALL | re.IGNORECASE)
+    location_match = re.search(
+        r"\[LOCATION\]\s*\n*(.*?)(?=\n*\[|$)", story_text, re.DOTALL | re.IGNORECASE
+    )
     location = (
-        location_match.group(1).strip() if location_match else DEFAULT_FALLBACK["repair"]["location"]
+        location_match.group(1).strip()
+        if location_match
+        else DEFAULT_FALLBACK["repair"]["location"]
     )
 
     # 3. Narration
-    narration_match = re.search(r"\[SCENE\]\s*\n*(.*?)(?=\n*\[|$)", story_text, re.DOTALL | re.IGNORECASE)
-    narration = narration_match.group(1).strip() if narration_match else story_text.split("[")[0].strip()
+    narration_match = re.search(
+        r"\[SCENE\]\s*\n*(.*?)(?=\n*\[|$)", story_text, re.DOTALL | re.IGNORECASE
+    )
+    narration = (
+        narration_match.group(1).strip() if narration_match else story_text.split("[")[0].strip()
+    )
     narration = _clean_player_text(narration)
     if not narration:
         raise NarrativeParseError(["story text must include non-empty narration"])
 
     # 4. Choices
-    choices_match = re.search(r"\[CHOICES\]\s*\n*(.*?)(?=\n*\[|$)", story_text, re.DOTALL | re.IGNORECASE)
+    choices_match = re.search(
+        r"\[CHOICES\]\s*\n*(.*?)(?=\n*\[|$)", story_text, re.DOTALL | re.IGNORECASE
+    )
     choices_block = choices_match.group(1).strip() if choices_match else ""
 
     choices = []
@@ -510,7 +536,9 @@ def parse_story_text(story_text: str) -> ScenePayload:
         if not line_clean:
             continue
 
-        choice_id_match = re.match(r"^(choice_\d+|choice_[a-zA-Z0-9_]+)\s*:\s*(.*)", line_clean, re.IGNORECASE)
+        choice_id_match = re.match(
+            r"^(choice_\d+|choice_[a-zA-Z0-9_]+)\s*:\s*(.*)", line_clean, re.IGNORECASE
+        )
         if choice_id_match:
             choice_id = choice_id_match.group(1).strip()
             label = choice_id_match.group(2).strip()
@@ -565,10 +593,7 @@ def parse_story_text(story_text: str) -> ScenePayload:
     # that follows it.
     start_combat = None
     story_lower = story_text.lower()
-    if (
-        mentions(story_lower, _COMBAT_TRIGGER_PHRASES)
-        or "encounter_" in story_lower
-    ):
+    if mentions(story_lower, _COMBAT_TRIGGER_PHRASES) or "encounter_" in story_lower:
         # heuristic try to find encounter id
         encounter_match = re.search(r"encounter_([a-zA-Z0-9_-]+)", story_text)
         if encounter_match:
@@ -592,7 +617,7 @@ def parse_story_text(story_text: str) -> ScenePayload:
         spawn_encounters=[],
         grant_items=[],
         hp=None,
-        route_nodes=[]
+        route_nodes=[],
     )
 
     # 5. Visual brief
@@ -606,5 +631,5 @@ def parse_story_text(story_text: str) -> ScenePayload:
         choices=choices,
         visual_brief=visual_brief,
         world_delta=world_delta,
-        scene_type="static"
+        scene_type="static",
     )

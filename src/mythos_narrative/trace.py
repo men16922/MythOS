@@ -116,7 +116,9 @@ class TracingProvider:
         return self._call_stream("stream_story", messages, kwargs)
 
     # -- machinery --------------------------------------------------------
-    def _base_entry(self, method: str, messages: list[dict[str, str]], kwargs: dict[str, Any]) -> dict[str, Any]:
+    def _base_entry(
+        self, method: str, messages: list[dict[str, str]], kwargs: dict[str, Any]
+    ) -> dict[str, Any]:
         return {
             "ts": utc_now().isoformat(),
             "provider": type(self._inner).__name__,

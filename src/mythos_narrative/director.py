@@ -269,7 +269,9 @@ class OllamaJSONProvider:
             stream = client.chat.completions.create(**kwargs)
         yield from _iter_stream_content(stream)
 
-    def stream_story(self, messages: list[dict[str, str]], *, model: str | None = None) -> Iterator[str]:
+    def stream_story(
+        self, messages: list[dict[str, str]], *, model: str | None = None
+    ) -> Iterator[str]:
         """Streams raw story text using storyteller model (gemma4:26b) without constraints."""
         client = self._client()
         target_model = model or self.config.ollama_model_story
@@ -290,7 +292,6 @@ class OllamaJSONProvider:
         }
         stream = client.chat.completions.create(**kwargs)
         yield from _iter_stream_content(stream)
-
 
 
 class NarrativeDirector:
@@ -345,7 +346,9 @@ class NarrativeDirector:
         )
         if self._use_dual_model():
             story_model = self._story_model()
-            return self._generate_dual(context, build_first_story_messages(context), model=story_model)
+            return self._generate_dual(
+                context, build_first_story_messages(context), model=story_model
+            )
         return self._generate_legacy(
             context, build_first_scene_messages(context), model=self._keybeat_model(context)
         )
@@ -358,7 +361,9 @@ class NarrativeDirector:
         )
         if self._use_dual_model():
             story_model = self._story_model()
-            return self._generate_dual(context, build_next_story_messages(context), model=story_model)
+            return self._generate_dual(
+                context, build_next_story_messages(context), model=story_model
+            )
         return self._generate_legacy(
             context, build_next_scene_messages(context), model=self._keybeat_model(context)
         )
@@ -371,7 +376,9 @@ class NarrativeDirector:
         )
         if self._use_dual_model():
             story_model = self._story_model()
-            yield from self._stream_generate_dual(context, build_first_story_messages(context), model=story_model)
+            yield from self._stream_generate_dual(
+                context, build_first_story_messages(context), model=story_model
+            )
         else:
             yield from self._stream_generate_legacy(
                 context, build_first_scene_messages(context), model=self._keybeat_model(context)
@@ -385,7 +392,9 @@ class NarrativeDirector:
         )
         if self._use_dual_model():
             story_model = self._story_model()
-            yield from self._stream_generate_dual(context, build_next_story_messages(context), model=story_model)
+            yield from self._stream_generate_dual(
+                context, build_next_story_messages(context), model=story_model
+            )
         else:
             yield from self._stream_generate_legacy(
                 context, build_next_scene_messages(context), model=self._keybeat_model(context)
@@ -436,7 +445,7 @@ class NarrativeDirector:
                     },
                     {"role": "user", "content": prompt},
                 ],
-                model=parser_model
+                model=parser_model,
             )
             parsed = json.loads(response)
             if isinstance(parsed, dict) and "summary" in parsed:
@@ -482,7 +491,7 @@ class NarrativeDirector:
                     },
                     {"role": "user", "content": prompt},
                 ],
-                model=parser_model
+                model=parser_model,
             )
             parsed = json.loads(response)
             if isinstance(parsed, dict) and "summary" in parsed:
@@ -493,7 +502,11 @@ class NarrativeDirector:
             return _fallback_shard_summary(shards, existing_summary=existing_summary)
 
     def _generate_dual(
-        self, context: NarrativeContext, story_messages: list[dict[str, str]], *, model: str | None = None
+        self,
+        context: NarrativeContext,
+        story_messages: list[dict[str, str]],
+        *,
+        model: str | None = None,
     ) -> tuple[Scene, ScenePayload]:
         # Step 1: Storytelling plain text generation (Gemma 26B / 8B according to model parameter)
         try:
@@ -528,9 +541,15 @@ class NarrativeDirector:
         return _scene_from_payload(context, payload), payload
 
     def _stream_generate_dual(
-        self, context: NarrativeContext, story_messages: list[dict[str, str]], *, model: str | None = None
+        self,
+        context: NarrativeContext,
+        story_messages: list[dict[str, str]],
+        *,
+        model: str | None = None,
     ) -> Iterator[NarrativeStreamEvent]:
-        stream_method = getattr(self.provider, "stream_story", None) or getattr(self.provider, "stream", None)
+        stream_method = getattr(self.provider, "stream_story", None) or getattr(
+            self.provider, "stream", None
+        )
         if not callable(stream_method):
             scene, payload = self._generate_dual(context, story_messages, model=model)
             yield NarrativeStreamEvent(kind="text", text=payload.narration)
@@ -547,7 +566,7 @@ class NarrativeDirector:
                 text = extractor.feed(chunk)
                 if text:
                     yield NarrativeStreamEvent(kind="text", text=text)
-            
+
             # Emit any remaining text in the safety window buffer
             remainder = extractor.flush()
             if remainder:
@@ -854,8 +873,16 @@ def _scene_from_payload(context: NarrativeContext, payload: ScenePayload) -> Sce
 # Authored fallback dicts (directives/fallback.md) carry no connectives, so these stay
 # in code; ko keeps the exact pre-S1 wording (behavior-preserving), en is its mirror.
 _FALLBACK_CONNECTIVES: dict[str, dict[str, str]] = {
-    "ko": {"action_prefix": "당신은 ", "action_suffix": ".", "action_applied": "행동이 적용되었습니다."},
-    "en": {"action_prefix": "You ", "action_suffix": ".", "action_applied": "Your action has been applied."},
+    "ko": {
+        "action_prefix": "당신은 ",
+        "action_suffix": ".",
+        "action_applied": "행동이 적용되었습니다.",
+    },
+    "en": {
+        "action_prefix": "You ",
+        "action_suffix": ".",
+        "action_applied": "Your action has been applied.",
+    },
 }
 
 
@@ -984,8 +1011,7 @@ def _fallback_loop_summary(events: list[dict[str, Any]], language: str = "ko") -
     if language == "en":
         if action is None:
             return (
-                "The loop closed quietly. What remains is a signal that has not "
-                "yet earned a name."
+                "The loop closed quietly. What remains is a signal that has not yet earned a name."
             )
         return (
             f"The loop folded, leaving the afterglow of '{action}'. "

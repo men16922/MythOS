@@ -417,9 +417,7 @@ def _context_prompt(context: NarrativeContext, instruction: str) -> str:
         "loop": _slim_loop_for_prompt(context.loop),
         "turn_index": context.turn_index,
         "recent_events": [_slim_event_for_prompt(event) for event in context.recent_events[-3:]],
-        "memories": _slim_memories_for_prompt(
-            context.memories, _PLAYER_MEMORY_PROMPT_FIELDS, 4
-        ),
+        "memories": _slim_memories_for_prompt(context.memories, _PLAYER_MEMORY_PROMPT_FIELDS, 4),
         "world_memories": _slim_memories_for_prompt(
             context.world_memories, _WORLD_MEMORY_PROMPT_FIELDS, 3
         ),
@@ -474,7 +472,7 @@ STORY_EXAMPLE_DEFAULTS: dict[str, dict[str, str]] = {
             "explicitly says the player is inside a data core."
         ),
         "texture": (
-            'Good scene texture: "Rain hammers a cracked sign. A drone\'s light grazes Se-rin\'s\n'
+            "Good scene texture: \"Rain hammers a cracked sign. A drone's light grazes Se-rin's\n"
             'shoulder, and she grabs your wrist and shoves you under the parking-garage shutter."'
         ),
     },
@@ -633,15 +631,18 @@ def _story_context_prompt(context: NarrativeContext, instruction: str) -> str:
     # 2. DYNAMIC — everything that changes turn to turn, kept below the cached prefix.
     world_memories = json.dumps(
         _slim_memories_for_prompt(context.world_memories, _WORLD_MEMORY_PROMPT_FIELDS, 3),
-        ensure_ascii=False, sort_keys=True,
+        ensure_ascii=False,
+        sort_keys=True,
     )
     narrative_shards = json.dumps(
         [_slim_shard_for_prompt(s) for s in context.narrative_shards[-4:]],
-        ensure_ascii=False, sort_keys=True,
+        ensure_ascii=False,
+        sort_keys=True,
     )
     memories = json.dumps(
         _slim_memories_for_prompt(context.memories, _PLAYER_MEMORY_PROMPT_FIELDS, 4),
-        ensure_ascii=False, sort_keys=True,
+        ensure_ascii=False,
+        sort_keys=True,
     )
     novelty_notes = "\n".join(context.novelty_notes[-MAX_PROMPT_NOTES:])
     # Continuity synopsis is rendered IN FULL (never truncated): it carries the
@@ -651,7 +652,8 @@ def _story_context_prompt(context: NarrativeContext, instruction: str) -> str:
     loop_data = json.dumps(slimmed_loop, ensure_ascii=False, sort_keys=True)
     recent_events = json.dumps(
         [_slim_event_for_prompt(e) for e in context.recent_events[-3:]],
-        ensure_ascii=False, sort_keys=True,
+        ensure_ascii=False,
+        sort_keys=True,
     )
 
     synopsis_block = f"{synopsis}\n\n" if synopsis else ""

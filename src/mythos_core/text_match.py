@@ -43,9 +43,7 @@ def keyword_hits(text: str, keyword: str) -> list[int]:
         return []
     haystack = text.lower()
     pattern = (
-        rf"(?<![a-z0-9]){re.escape(needle)}(?![a-z0-9])"
-        if needle.isascii()
-        else re.escape(needle)
+        rf"(?<![a-z0-9]){re.escape(needle)}(?![a-z0-9])" if needle.isascii() else re.escape(needle)
     )
     return [match.end() for match in re.finditer(pattern, haystack)]
 

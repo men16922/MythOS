@@ -115,9 +115,7 @@ class MythOSStore(ABC):
         value = store.get((player_id, scenario_id))
         return dict(value) if value is not None else None
 
-    def save_progression(
-        self, player_id: str, scenario_id: str, content: dict[str, Any]
-    ) -> None:
+    def save_progression(self, player_id: str, scenario_id: str, content: dict[str, Any]) -> None:
         store = self.__dict__.setdefault("_progression_mem", {})
         store[(player_id, scenario_id)] = dict(content)
 

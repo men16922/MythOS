@@ -110,7 +110,11 @@ DEFAULT_FALLBACK_EN: dict[str, Any] = {
     ),
     "choices": [
         {"suffix": "approach", "label": "Slip low into the drainage channel", "intent": "explore"},
-        {"suffix": "listen", "label": "Read the drone's searchlight pattern first", "intent": "interact"},
+        {
+            "suffix": "listen",
+            "label": "Read the drone's searchlight pattern first",
+            "intent": "interact",
+        },
     ],
     "repair": {
         "title": "C-17 Blackout Zone",
@@ -142,4 +146,9 @@ def default_fallback(language: str = "ko") -> dict[str, Any]:
     return DEFAULT_FALLBACK_BY_LANG.get(language, DEFAULT_FALLBACK)
 
 
-__all__ = ["DEFAULT_FALLBACK", "DEFAULT_FALLBACK_EN", "DEFAULT_FALLBACK_BY_LANG", "default_fallback"]
+__all__ = [
+    "DEFAULT_FALLBACK",
+    "DEFAULT_FALLBACK_EN",
+    "DEFAULT_FALLBACK_BY_LANG",
+    "default_fallback",
+]

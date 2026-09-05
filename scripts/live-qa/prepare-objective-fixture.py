@@ -110,8 +110,7 @@ def prepare_cutscene_state(state: dict[str, Any]) -> tuple[dict[str, Any], dict[
     route_map["relationship_tally"] = {}
     next_state["_route_map"] = route_map
     next_state["flags"] = sorted(
-        {str(flag) for flag in next_state.get("flags", []) or []}
-        | {"met_han", "ally_han"}
+        {str(flag) for flag in next_state.get("flags", []) or []} | {"met_han", "ally_han"}
     )
     relationships = dict(next_state.get("relationships") or {})
     relationships[COMPANION_ID] = max(1, int(relationships.get(COMPANION_ID, 0)))
@@ -149,7 +148,9 @@ def _advance_to_turn(
 def prepare_fixture(objective: str, run_id: str) -> dict[str, Any]:
     digest = hashlib.sha256(run_id.encode("utf-8")).hexdigest()[:16]
     player_id = f"qa_{objective[:12]}_{digest}"
-    options = RuntimeOptions(fallback=True, with_image=False, scenario_id=SCENARIO_ID, language="ko")
+    options = RuntimeOptions(
+        fallback=True, with_image=False, scenario_id=SCENARIO_ID, language="ko"
+    )
     store = PostgresMythOSStore()
     try:
         service = RuntimeSessionService(store)

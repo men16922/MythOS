@@ -76,7 +76,11 @@ def _play(
     engine = CombatEngine()
     allies = [_ally(combat, a) for a in party]
     state = build_encounter(
-        combat, encounter_id, player=_player(combat, archetype), allies=allies, seed=seed,
+        combat,
+        encounter_id,
+        player=_player(combat, archetype),
+        allies=allies,
+        seed=seed,
         engine=engine,
     )
     guard = 0
@@ -133,10 +137,14 @@ def main(argv: list[str] | None = None) -> int:
             wins += state.outcome == "player_victory"
             logged = [e.action for e in state.log]
             boss_skill_runs += any(
-                e.action == "skill" and (s := state.by_id(e.actor)) is not None and s.faction == "enemy"
+                e.action == "skill"
+                and (s := state.by_id(e.actor)) is not None
+                and s.faction == "enemy"
                 for e in state.log
             )
-            enrage_runs += any("overload" in e.text.lower() or "과부하" in e.text for e in state.log)
+            enrage_runs += any(
+                "overload" in e.text.lower() or "과부하" in e.text for e in state.log
+            )
             _ = logged
         n = args.trials
         print(f"encounter={args.encounter} party={'+'.join(party) or 'solo'} trials={n}")
@@ -146,7 +154,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     state = _play(combat, args.encounter, party, args.archetype, f"{args.encounter}:{args.seed}")
-    print(f"# {args.scenario} / {args.encounter} / party={'+'.join(party) or 'solo'} / seed={args.seed}")
+    print(
+        f"# {args.scenario} / {args.encounter} / party={'+'.join(party) or 'solo'} / seed={args.seed}"
+    )
     _print_run(state)
     return 0
 

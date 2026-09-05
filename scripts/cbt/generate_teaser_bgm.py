@@ -5,6 +5,7 @@ MythOS concept (rainy Neo-Seoul, loop melancholy, tactical resolve) but is easie
 on the ear and more mainstream than the in-game ambient set. Instrumental only —
 it sits under an English narrator.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -57,9 +58,7 @@ def main() -> int:
 
     import json
 
-    body = json.dumps(
-        {"prompt": args.prompt, "music_length_ms": args.length_ms}
-    ).encode()
+    body = json.dumps({"prompt": args.prompt, "music_length_ms": args.length_ms}).encode()
     last_error = ""
     for endpoint in (
         "https://api.elevenlabs.io/v1/music",

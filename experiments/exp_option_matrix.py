@@ -57,7 +57,11 @@ def build(model: str, base_url: str) -> Experiment:
         delivery = [
             ("none (baseline)", {}, uncapped),
             ("max_tokens=", {"max_tokens": CAP}, None),
-            ("extra_body={'options':{'num_predict'}} — 현행", {"extra_body": {"options": {"num_predict": CAP}}}, None),
+            (
+                "extra_body={'options':{'num_predict'}} — 현행",
+                {"extra_body": {"options": {"num_predict": CAP}}},
+                None,
+            ),
             ("extra_body={'num_predict'} (top level)", {"extra_body": {"num_predict": CAP}}, None),
         ]
         delivery_rows = []
@@ -68,7 +72,11 @@ def build(model: str, base_url: str) -> Experiment:
             if applied:
                 working_delivery.append(label)
             delivery_rows.append(
-                [label, length, "—" if label.startswith("none") else ("**예**" if applied else "아니오")]
+                [
+                    label,
+                    length,
+                    "—" if label.startswith("none") else ("**예**" if applied else "아니오"),
+                ]
             )
 
         # ---- family 2: sampler knobs -------------------------------------
@@ -83,7 +91,11 @@ def build(model: str, base_url: str) -> Experiment:
             ("frequency_penalty=2.0", {"temperature": 0, "frequency_penalty": 2.0}, True),
             ("presence_penalty=2.0", {"temperature": 0, "presence_penalty": 2.0}, True),
             ("extra_body top_k=1", {"temperature": 0, "extra_body": {"top_k": 1}}, False),
-            ("extra_body repeat_penalty=2.0", {"temperature": 0, "extra_body": {"repeat_penalty": 2.0}}, True),
+            (
+                "extra_body repeat_penalty=2.0",
+                {"temperature": 0, "extra_body": {"repeat_penalty": 2.0}},
+                True,
+            ),
         ]
         knob_rows = []
         working_knobs: list[str] = []
@@ -175,7 +187,12 @@ def build(model: str, base_url: str) -> Experiment:
     return Experiment(
         slug=SLUG,
         question="OpenAI 호환 엔드포인트에서 실제로 도달하는 샘플러 파라미터는 무엇인가?",
-        controls={"model": model, "endpoint": f"{base_url}/v1", "temperature": "0 (샘플러 팔)", "prompt": "고정"},
+        controls={
+            "model": model,
+            "endpoint": f"{base_url}/v1",
+            "temperature": "0 (샘플러 팔)",
+            "prompt": "고정",
+        },
         variables={"파라미터 전달 형태와 이름": "표 참조"},
         run=run,
         source=Path(__file__).resolve(),
@@ -188,7 +205,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--base-url", default=DEFAULT_OLLAMA)
     args = parser.parse_args(argv)
     out = run_experiment(build(args.model, args.base_url))
-    print(f"report -> {out/'report.md'}")
+    print(f"report -> {out / 'report.md'}")
     return 0
 
 

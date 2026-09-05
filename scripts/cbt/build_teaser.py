@@ -8,6 +8,7 @@ The timeline is a flat list of UNITS (clips or Ken-Burns stills), hard-cut in
 trailer rhythm. Narration MP3s are dropped at fixed offsets; BGM runs under
 everything. Revise by editing UNITS / NARRATION and re-running.
 """
+
 from __future__ import annotations
 
 import subprocess
@@ -30,11 +31,11 @@ W, H = 1920, 1080
 class Unit:
     src: Path
     dur: float
-    ss: float = 0.0          # clip start offset
-    still: bool = False      # Ken-Burns a PNG instead of trimming a video
-    kb: str = "in"           # still motion: in | out | pan
-    sub: str = ""            # one-line subtitle
-    tpad: bool = False       # freeze last frame if the clip is shorter than dur
+    ss: float = 0.0  # clip start offset
+    still: bool = False  # Ken-Burns a PNG instead of trimming a video
+    kb: str = "in"  # still motion: in | out | pan
+    sub: str = ""  # one-line subtitle
+    tpad: bool = False  # freeze last frame if the clip is shorter than dur
     texts: tuple[tuple[str, int, int], ...] = ()  # (text, fontsize, y-px) via PIL overlay
 
 
@@ -69,7 +70,10 @@ UNITS: list[Unit] = [
     Unit(V2 / "scene_06/hq_combat_prod.mp4", 0.6, ss=19.0),
     Unit(V2 / "scene_04/route_map_zoom_v2.mp4", 0.6, ss=5.0),
     Unit(
-        RES / "concept/00-project-mythos-main.png", 8.0, still=True, kb="in",
+        RES / "concept/00-project-mythos-main.png",
+        8.0,
+        still=True,
+        kb="in",
         texts=(
             ("PROJECT MYTHOS", 96, 360),
             ("CLOSED BETA — NOW RECRUITING", 44, 520),
@@ -167,14 +171,30 @@ def build(label: str) -> Path:
         cmd += ["-i", str(unit.src)]
         if unit.texts:
             overlay = text_overlay_png(unit.texts, seg_dir / f"u{i:02d}_text.png")
-            cmd += ["-i", str(overlay),
-                    "-filter_complex", f"[0:v]{unit_filters(unit)}[base];[base][1:v]overlay=0:0[v]",
-                    "-map", "[v]"]
+            cmd += [
+                "-i",
+                str(overlay),
+                "-filter_complex",
+                f"[0:v]{unit_filters(unit)}[base];[base][1:v]overlay=0:0[v]",
+                "-map",
+                "[v]",
+            ]
         else:
             cmd += ["-vf", unit_filters(unit)]
-        cmd += ["-t", f"{unit.dur}", "-an",
-                "-c:v", "libx264", "-crf", "18", "-preset", "medium",
-                "-pix_fmt", "yuv420p", str(out)]
+        cmd += [
+            "-t",
+            f"{unit.dur}",
+            "-an",
+            "-c:v",
+            "libx264",
+            "-crf",
+            "18",
+            "-preset",
+            "medium",
+            "-pix_fmt",
+            "yuv420p",
+            str(out),
+        ]
         run(cmd)
         listing.append(f"file '{out}'")
         print(f"  u{i:02d} {unit.dur:>4.1f}s {unit.src.name}")
@@ -204,31 +224,72 @@ def build(label: str) -> Path:
         parts.append(f"[{idx}:a]aresample=48000,adelay={ms}|{ms}[n{idx}]")
         narr_labels.append(f"[n{idx}]")
     parts.append(f"{''.join(narr_labels)}amix=inputs={len(narr_labels)}:normalize=0[a]")
-    cmd += ["-filter_complex", ";".join(parts), "-map", "[a]", "-t", f"{total:.2f}",
-            str(narr_wav)]
+    cmd += ["-filter_complex", ";".join(parts), "-map", "[a]", "-t", f"{total:.2f}", str(narr_wav)]
     run(cmd)
 
     # Pass B: bgm under narration (2-input mix).
     audio_wav = seg_dir / "audio.wav"
-    run([
-        "ffmpeg", "-y", "-v", "error", "-i", str(BGM), "-i", str(narr_wav),
-        "-filter_complex",
-        f"[0:a]aresample=48000,volume={BGM_VOL},afade=in:d=1,"
-        f"afade=out:st={bgm_fade:.2f}:d=4[bg];"
-        f"[bg][1:a]amix=inputs=2:normalize=0[a]",
-        "-map", "[a]", "-t", f"{total:.2f}", str(audio_wav),
-    ])
+    run(
+        [
+            "ffmpeg",
+            "-y",
+            "-v",
+            "error",
+            "-i",
+            str(BGM),
+            "-i",
+            str(narr_wav),
+            "-filter_complex",
+            f"[0:a]aresample=48000,volume={BGM_VOL},afade=in:d=1,"
+            f"afade=out:st={bgm_fade:.2f}:d=4[bg];"
+            f"[bg][1:a]amix=inputs=2:normalize=0[a]",
+            "-map",
+            "[a]",
+            "-t",
+            f"{total:.2f}",
+            str(audio_wav),
+        ]
+    )
 
     # Pass C: concat video + global fades, mux the finished audio.
     output = OUT_DIR / f"{label}.mp4"
-    run([
-        "ffmpeg", "-y", "-v", "error",
-        "-f", "concat", "-safe", "0", "-i", str(concat_file), "-i", str(audio_wav),
-        "-filter_complex", f"[0:v]fade=in:d=0.5,fade=out:st={fade_out:.2f}:d=2[v]",
-        "-map", "[v]", "-map", "1:a", "-t", f"{total:.2f}",
-        "-c:v", "libx264", "-crf", "18", "-preset", "medium", "-pix_fmt", "yuv420p",
-        "-c:a", "aac", "-b:a", "192k", str(output),
-    ])
+    run(
+        [
+            "ffmpeg",
+            "-y",
+            "-v",
+            "error",
+            "-f",
+            "concat",
+            "-safe",
+            "0",
+            "-i",
+            str(concat_file),
+            "-i",
+            str(audio_wav),
+            "-filter_complex",
+            f"[0:v]fade=in:d=0.5,fade=out:st={fade_out:.2f}:d=2[v]",
+            "-map",
+            "[v]",
+            "-map",
+            "1:a",
+            "-t",
+            f"{total:.2f}",
+            "-c:v",
+            "libx264",
+            "-crf",
+            "18",
+            "-preset",
+            "medium",
+            "-pix_fmt",
+            "yuv420p",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "192k",
+            str(output),
+        ]
+    )
     print(f"final: {output.relative_to(REPO)} ({total:.1f}s)")
     return output
 

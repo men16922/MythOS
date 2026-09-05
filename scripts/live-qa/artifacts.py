@@ -36,9 +36,7 @@ ROOT = Path(__file__).resolve().parents[2]
 VERDICT_RE = re.compile(
     r"LIVE_QA_VERDICT:\s*(PASS_CANDIDATE|FAIL_EVIDENCE|NEEDS_HUMAN)", re.IGNORECASE
 )
-TOOL_RE = re.compile(
-    r"AGY_BROWSER_TOOL:\s*(CHROME_DEVTOOLS|PLAYWRIGHT_MCP|NONE)", re.IGNORECASE
-)
+TOOL_RE = re.compile(r"AGY_BROWSER_TOOL:\s*(CHROME_DEVTOOLS|PLAYWRIGHT_MCP|NONE)", re.IGNORECASE)
 # Stage-2 semantic decision (plan §5): AGY's first line when given a candidate.
 DECISION_RE = re.compile(r"QA_DECISION:\s*(RUN|SKIP)", re.IGNORECASE)
 # Autonomous discovery: AGY reports OBJECTIVE defects as machine-parseable lines.
@@ -65,9 +63,7 @@ def write_json(path: Path, value: Any) -> None:
 
 
 def git_output(*args: str) -> str:
-    result = subprocess.run(
-        ["git", *args], cwd=ROOT, check=False, capture_output=True, text=True
-    )
+    result = subprocess.run(["git", *args], cwd=ROOT, check=False, capture_output=True, text=True)
     return result.stdout.strip()
 
 
@@ -182,9 +178,7 @@ _ROUTE_TYPE_AXIS_POLICY = {
 }
 
 
-def _expected_route_chip(
-    node: Any, flags: list[str] | tuple[str, ...]
-) -> tuple[str | None, bool]:
+def _expected_route_chip(node: Any, flags: list[str] | tuple[str, ...]) -> tuple[str | None, bool]:
     """Expected KO chip for a junction destination, and whether it was computable.
 
     Anchors (nodes with perspectives) answer with the perspective that flag
@@ -211,9 +205,7 @@ def _expected_route_chip(
         chosen = best
         default_id = node.get("default_perspective")
         if default_id and (best_score <= 0 or tied):
-            chosen = next(
-                (p for p in perspectives if p.get("id") == default_id), best
-            )
+            chosen = next((p for p in perspectives if p.get("id") == default_id), best)
         axis = chosen.get("axis") if isinstance(chosen, dict) else None
         return (_ROUTE_AXIS_CHIP.get(axis) if isinstance(axis, str) else None), True
     authored = node.get("axis")
@@ -271,11 +263,12 @@ def evaluate_objectives(
     image_rows = [
         (index, value["image"])
         for index, value in enumerate(facts)
-        if isinstance(value.get("image"), dict)
-        and value["image"].get("status") is not None
+        if isinstance(value.get("image"), dict) and value["image"].get("status") is not None
     ]
     if len(image_rows) < 2:
-        assertions.append(result("image_arrival", "not_observed", "need at least two image-bearing turns"))
+        assertions.append(
+            result("image_arrival", "not_observed", "need at least two image-bearing turns")
+        )
     else:
         known = {"loaded", "missing", "pending", "timeout", "error"}
         invalid = [
@@ -326,11 +319,12 @@ def evaluate_objectives(
     recruit_rows = [
         (index, value["party"])
         for index, value in enumerate(facts)
-        if isinstance(value.get("party"), dict)
-        and value["party"].get("recruit_trigger")
+        if isinstance(value.get("party"), dict) and value["party"].get("recruit_trigger")
     ]
     if not recruit_rows:
-        assertions.append(result("companion_join", "not_observed", "no companion recruit trigger observed"))
+        assertions.append(
+            result("companion_join", "not_observed", "no companion recruit trigger observed")
+        )
     else:
         join_failures: list[int] = []
         join_incomplete = False
@@ -389,7 +383,11 @@ def evaluate_objectives(
     ]
     if not distribution_rows:
         assertions.append(
-            result("party_distribution", "not_observed", "no expected/controllable party snapshot observed")
+            result(
+                "party_distribution",
+                "not_observed",
+                "no expected/controllable party snapshot observed",
+            )
         )
     else:
         mismatches: list[int] = []
@@ -417,9 +415,7 @@ def evaluate_objectives(
         if isinstance(value.get("cutscene"), dict) and value["cutscene"].get("id")
     ]
     enter_rows = [
-        (index, cutscene)
-        for index, cutscene in cutscene_rows
-        if cutscene.get("phase") == "enter"
+        (index, cutscene) for index, cutscene in cutscene_rows if cutscene.get("phase") == "enter"
     ]
     if not enter_rows:
         assertions.append(
@@ -490,7 +486,9 @@ def evaluate_objectives(
         if isinstance(value.get("choice"), dict)
     ]
     if len(choice_rows) < 2:
-        assertions.append(result("choice_arrival", "not_observed", "need at least two choice checkpoints"))
+        assertions.append(
+            result("choice_arrival", "not_observed", "need at least two choice checkpoints")
+        )
     else:
         choice_failures = [
             index
@@ -521,7 +519,9 @@ def evaluate_objectives(
         and isinstance(value["gloss"].get("visible_terms"), list)
     ]
     if not gloss_rows:
-        assertions.append(result("first_use_gloss", "not_observed", "no term-gloss evidence observed"))
+        assertions.append(
+            result("first_use_gloss", "not_observed", "no term-gloss evidence observed")
+        )
     else:
         mentions: dict[str, list[int]] = {}
         visible_by_index: dict[int, set[str]] = {}
@@ -577,9 +577,7 @@ def evaluate_objectives(
         and isinstance(value["route_axis"].get("options"), list)
     ]
     junction_rows = [
-        (index, route_axis)
-        for index, route_axis in route_rows
-        if len(route_axis["options"]) >= 2
+        (index, route_axis) for index, route_axis in route_rows if len(route_axis["options"]) >= 2
     ]
     if not junction_rows:
         assertions.append(
@@ -595,9 +593,7 @@ def evaluate_objectives(
         verified_chips = 0
         for index, route_axis in junction_rows:
             raw_flags = route_axis.get("flags")
-            flags = (
-                [str(flag) for flag in raw_flags] if isinstance(raw_flags, list) else []
-            )
+            flags = [str(flag) for flag in raw_flags] if isinstance(raw_flags, list) else []
             for option in route_axis["options"]:
                 if not isinstance(option, dict):
                     chip_invalid.append(index)
@@ -671,7 +667,11 @@ def parse_findings(raw: str) -> list[dict[str, str]]:
     findings: list[dict[str, str]] = []
     for m in FINDING_RE.finditer(raw):
         findings.append(
-            {"severity": m.group(1).lower(), "area": m.group(2).strip(), "detail": m.group(3).strip()}
+            {
+                "severity": m.group(1).lower(),
+                "area": m.group(2).strip(),
+                "detail": m.group(3).strip(),
+            }
         )
     return findings
 
@@ -771,9 +771,7 @@ def finalize(output_dir: Path, raw_review: Path, agy_exit: int, server_stopped: 
     )
     objective_bundle = evaluate_objectives(events, required_objectives)
     required_results = [
-        assertion
-        for assertion in objective_bundle["assertions"]
-        if assertion["required"]
+        assertion for assertion in objective_bundle["assertions"] if assertion["required"]
     ]
     if not required_results:
         objective_decision = "not_required"
@@ -879,7 +877,9 @@ def finalize(output_dir: Path, raw_review: Path, agy_exit: int, server_stopped: 
 
     if manifest:
         manifest["ended_at"] = utc_now()
-        manifest["status"] = "completed" if outcome in ("PASS_CANDIDATE", "SKIP") else "needs_review"
+        manifest["status"] = (
+            "completed" if outcome in ("PASS_CANDIDATE", "SKIP") else "needs_review"
+        )
         manifest["browser_tool"] = browser_tool
         manifest["qa_decision"] = decision or "(unspecified)"
         manifest["outcome"] = outcome
@@ -893,10 +893,7 @@ def finalize(output_dir: Path, raw_review: Path, agy_exit: int, server_stopped: 
     print(f"LIVE_QA_OUTCOME: {outcome}")
     print(f"LIVE_QA_EVIDENCE: {evidence_path}")
     for finding in findings:
-        print(
-            f"QA_FINDING: {finding['severity']} | "
-            f"{finding['area']} | {finding['detail']}"
-        )
+        print(f"QA_FINDING: {finding['severity']} | {finding['area']} | {finding['detail']}")
     return OUTCOME_EXIT.get(outcome, 5)
 
 

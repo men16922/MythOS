@@ -52,8 +52,11 @@ def _shipped_num_ctx() -> int:
     return int(AgentConfig().ollama_num_ctx)
 
 
-def build(trace_dir: Path, model: str, wide_ctx: int, method: str, shipped_ctx: int | None = None) -> Experiment:
+def build(
+    trace_dir: Path, model: str, wide_ctx: int, method: str, shipped_ctx: int | None = None
+) -> Experiment:
     SHIPPED_NUM_CTX = shipped_ctx if shipped_ctx is not None else _shipped_num_ctx()
+
     def run() -> ExperimentResult:
         if not ollama_available():
             raise SystemExit("Ollama is not reachable")
@@ -103,8 +106,13 @@ def build(trace_dir: Path, model: str, wide_ctx: int, method: str, shipped_ctx: 
             tables=[
                 Table(
                     "동일 프롬프트, num_ctx만 변경",
-                    ["#", "프롬프트 토큰", "프롬프트+num_predict vs num_ctx",
-                     f"num_ctx={SHIPPED_NUM_CTX} (현행)", f"num_ctx={wide_ctx}"],
+                    [
+                        "#",
+                        "프롬프트 토큰",
+                        "프롬프트+num_predict vs num_ctx",
+                        f"num_ctx={SHIPPED_NUM_CTX} (현행)",
+                        f"num_ctx={wide_ctx}",
+                    ],
                     table_rows,
                     note="샘플러(temperature/top_p/top_k/repeat_penalty/num_predict)는 두 팔에서 동일합니다.",
                 )
@@ -135,8 +143,15 @@ def build(trace_dir: Path, model: str, wide_ctx: int, method: str, shipped_ctx: 
                 "(프롬프트 축소·num_predict 축소도 후보).",
                 "메모리 사용량은 측정하지 않았습니다.",
             ],
-            raw={"model": model, "shipped_num_ctx": SHIPPED_NUM_CTX, "wide_num_ctx": wide_ctx,
-                 "sampler": SHIPPED_SAMPLER, "arms": raw, "recovered": recovered, "n": n},
+            raw={
+                "model": model,
+                "shipped_num_ctx": SHIPPED_NUM_CTX,
+                "wide_num_ctx": wide_ctx,
+                "sampler": SHIPPED_SAMPLER,
+                "arms": raw,
+                "recovered": recovered,
+                "n": n,
+            },
         )
 
     return Experiment(
@@ -160,11 +175,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--model", default="gemma4:latest")
     parser.add_argument("--wide-ctx", type=int, default=32768)
     parser.add_argument("--method", default="generate_story")
-    parser.add_argument("--shipped-ctx", type=int, default=None,
-                        help="override the shipped num_ctx (default: read from AgentConfig)")
+    parser.add_argument(
+        "--shipped-ctx",
+        type=int,
+        default=None,
+        help="override the shipped num_ctx (default: read from AgentConfig)",
+    )
     args = parser.parse_args(argv)
-    out = run_experiment(build(args.trace, args.model, args.wide_ctx, args.method, args.shipped_ctx))
-    print(f"report -> {out/'report.md'}")
+    out = run_experiment(
+        build(args.trace, args.model, args.wide_ctx, args.method, args.shipped_ctx)
+    )
+    print(f"report -> {out / 'report.md'}")
     return 0
 
 

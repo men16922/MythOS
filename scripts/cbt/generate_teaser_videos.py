@@ -8,6 +8,7 @@ Auth mirrors the prod image path (`VertexImageProvider`): google-genai with
 ``vertexai=True`` + ``PROJECT_ID``/``GOOGLE_CLOUD_LOCATION`` from ``.env`` (ADC).
 Each run is billed — generate one shot at a time and owner-review before the next.
 """
+
 from __future__ import annotations
 
 import argparse

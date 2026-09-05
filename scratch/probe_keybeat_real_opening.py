@@ -40,7 +40,9 @@ print(f"prompt chars={total_chars}")
 
 cfg = GeminiConfig(model="gemini-2.5-flash", keybeat_model="gemini-3.5-flash")
 provider = VertexGeminiJSONProvider(cfg)
-print(f"location={cfg.location} max_output_tokens={cfg.max_output_tokens} thinking={cfg.thinking_budget}")
+print(
+    f"location={cfg.location} max_output_tokens={cfg.max_output_tokens} thinking={cfg.thinking_budget}"
+)
 parts: list[str] = []
 try:
     for chunk in provider.stream(messages, model="gemini-3.5-flash"):

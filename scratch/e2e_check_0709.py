@@ -7,6 +7,7 @@ no image gen — so the first SCENE is the variant-neutral DEFAULT_FALLBACK. Ver
   #2a boon stat labels: the boon overlay leaks NO raw English stat key (intelligence/focus).
 Notes what it can NOT check here (needs a live 2회차+ variant loop or the LLM to fail).
 """
+
 import multiprocessing
 import sys
 import time
@@ -96,18 +97,30 @@ def main():
         # leaves it SKIP (not FAIL).
         reached = bool(choices)
         stat_blob = " | ".join(stat_lines).lower()
-        results.append((
-            "#2a boon stat line has NO raw 'intelligence'/'focus' key (KO 연산/집중, EN INT/FOC)",
-            "PASS" if (stat_lines and "intelligence" not in stat_blob and "focus" not in stat_blob) else "FAIL",
-            " | ".join(stat_lines) if stat_lines else "NO boon stat lines captured",
-        ))
-        results.append((
-            "#4 fallback scene names NO companion (세린) — else test-locked by byte-parity",
-            ("PASS" if ("세린" not in narration and all("세린" not in c for c in choices)) else "FAIL")
-            if reached else "SKIP",
-            (narration[:100] + " || " + " | ".join(choices)) if reached
-            else "scene not reached (fallback-mode modal ordering); content locked by test_scenario_directives byte-parity",
-        ))
+        results.append(
+            (
+                "#2a boon stat line has NO raw 'intelligence'/'focus' key (KO 연산/집중, EN INT/FOC)",
+                "PASS"
+                if (stat_lines and "intelligence" not in stat_blob and "focus" not in stat_blob)
+                else "FAIL",
+                " | ".join(stat_lines) if stat_lines else "NO boon stat lines captured",
+            )
+        )
+        results.append(
+            (
+                "#4 fallback scene names NO companion (세린) — else test-locked by byte-parity",
+                (
+                    "PASS"
+                    if ("세린" not in narration and all("세린" not in c for c in choices))
+                    else "FAIL"
+                )
+                if reached
+                else "SKIP",
+                (narration[:100] + " || " + " | ".join(choices))
+                if reached
+                else "scene not reached (fallback-mode modal ordering); content locked by test_scenario_directives byte-parity",
+            )
+        )
     finally:
         server.terminate()
         server.join(timeout=5)

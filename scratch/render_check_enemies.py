@@ -7,6 +7,7 @@ swaps render), screenshot the spawn board, attack once to trigger a pose swap, a
 record console errors + failed image requests. Evidence lands in
 outputs/live-qa/manual-20260714-enemy-art/.
 """
+
 import sys
 from pathlib import Path
 
@@ -32,9 +33,11 @@ def run_encounter(browser, enc, failures):
     bad_images = []
     page.on(
         "response",
-        lambda r: bad_images.append(f"{r.status} {r.url}")
-        if r.status >= 400 and r.url.endswith(".png")
-        else None,
+        lambda r: (
+            bad_images.append(f"{r.status} {r.url}")
+            if r.status >= 400 and r.url.endswith(".png")
+            else None
+        ),
     )
 
     page.goto(BASE + "/")  # no ?fallback=1 — pose swap/VFX must render
@@ -94,7 +97,9 @@ def run_encounter(browser, enc, failures):
             if "friendly" not in (b.get_attribute("class") or "")
         ]
         in_range = [
-            b for b in enemies if "사거리" not in b.inner_text() and "Out of range" not in b.inner_text()
+            b
+            for b in enemies
+            if "사거리" not in b.inner_text() and "Out of range" not in b.inner_text()
         ]
         if not in_range:
             atk = page.locator(".cc-btn").filter(has_text="대기")

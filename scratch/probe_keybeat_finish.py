@@ -68,8 +68,7 @@ for i in range(n):
     out = getattr(usage, "candidates_token_count", None)
     thk = getattr(usage, "thoughts_token_count", None)
     print(
-        f"run {i}: {ok} finish={finish} raw_len={len(raw)} "
-        f"out_tokens={out} thinking_tokens={thk}"
+        f"run {i}: {ok} finish={finish} raw_len={len(raw)} out_tokens={out} thinking_tokens={thk}"
     )
     if "FAIL" in ok:
         print("  tail:", raw[-200:].replace("\n", " "))

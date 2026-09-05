@@ -1,6 +1,7 @@
 # ruff: noqa: E402
 """Verify the portrait combat action dock: board + docked console co-visible
 at scrollY=0 on a 390x844 touch viewport (no scroll loop to act)."""
+
 import sys
 from pathlib import Path
 
@@ -114,7 +115,9 @@ def main():
         if not metrics["canvasVisible"]:
             failures.append("board canvas not visible at scrollY=0")
         if metrics["ccBottom"] is None or abs(metrics["ccBottom"] - metrics["vh"]) > 4:
-            failures.append(f"dock not flush to viewport bottom ({metrics['ccBottom']} vs {metrics['vh']})")
+            failures.append(
+                f"dock not flush to viewport bottom ({metrics['ccBottom']} vs {metrics['vh']})"
+            )
         if metrics["actionBtns"] < 1:
             failures.append("no action buttons inside the dock")
         page.screenshot(path=str(OUT / "portrait-dock.png"))

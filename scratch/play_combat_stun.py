@@ -15,6 +15,7 @@ Strategy per controllable turn: select nearest in-range enemy, try a stun skill
 (기절), else pull it closer (당기기, may slam into a wall), else defend while enemies
 approach. Loop until a stun is logged, combat ends, or the round cap.
 """
+
 import sys
 from pathlib import Path
 
@@ -121,7 +122,9 @@ def main():
             body = page.inner_text("body")
 
             # Combat resolved?
-            if any(k in body for k in ("전리품", "승리", "패배", "획득 / 변화", "VICTORY", "DEFEAT")):
+            if any(
+                k in body for k in ("전리품", "승리", "패배", "획득 / 변화", "VICTORY", "DEFEAT")
+            ):
                 log("combat ended at step", step)
                 shot(page, f"90-combat-end-step{step:02d}.png")
                 break
@@ -133,8 +136,11 @@ def main():
                 continue
 
             # Controllable turn. Enumerate enemy targets.
-            enemy_btns = [b for b in page.locator(".cc-btn.tgt").all()
-                          if "friendly" not in (b.get_attribute("class") or "")]
+            enemy_btns = [
+                b
+                for b in page.locator(".cc-btn.tgt").all()
+                if "friendly" not in (b.get_attribute("class") or "")
+            ]
             if not enemy_btns:
                 # nothing to target — wait/defend
                 _click_first(page, [".cc-btn"], text="대기")

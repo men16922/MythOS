@@ -36,8 +36,16 @@ _NARRATION = (
 )
 
 _LOCATIONS = [
-    "back_alley", "night_market", "subway_gate", "rooftop_line", "transit_tunnel",
-    "welfare_kiosk", "data_stack", "river_bridge", "old_arcade", "checkpoint_edge",
+    "back_alley",
+    "night_market",
+    "subway_gate",
+    "rooftop_line",
+    "transit_tunnel",
+    "welfare_kiosk",
+    "data_stack",
+    "river_bridge",
+    "old_arcade",
+    "checkpoint_edge",
 ]
 
 
@@ -58,9 +66,21 @@ class RecordingProvider:
                 "action_result": "Success",
                 "requested_next_phase": None,
                 "choices": [
-                    {"choice_id": "choice_1", "label": f"세린을 따라 통로로 이동한다 {i}", "intent": "explore"},
-                    {"choice_id": "choice_2", "label": "좌판 아래에서 순찰을 관찰한다", "intent": "interact"},
-                    {"choice_id": "choice_3", "label": "노인에게 통로 상태를 묻는다", "intent": "interact"},
+                    {
+                        "choice_id": "choice_1",
+                        "label": f"세린을 따라 통로로 이동한다 {i}",
+                        "intent": "explore",
+                    },
+                    {
+                        "choice_id": "choice_2",
+                        "label": "좌판 아래에서 순찰을 관찰한다",
+                        "intent": "interact",
+                    },
+                    {
+                        "choice_id": "choice_3",
+                        "label": "노인에게 통로 상태를 묻는다",
+                        "intent": "interact",
+                    },
                 ],
                 "visual_brief": "rain-soaked neon alley, two figures under a tarp, drone searchlight passing",
             },
@@ -75,6 +95,7 @@ def _load_env() -> None:
     if not env.exists():
         return
     import os
+
     for line in env.read_text().splitlines():
         line = line.strip()
         if not line or line.startswith("#") or "=" not in line:
@@ -132,11 +153,14 @@ def main() -> None:
 
             radar = snap.combat.get("radar") or {}
             enemies = [
-                b for b in (radar.get("blips") or [])
+                b
+                for b in (radar.get("blips") or [])
                 if b.get("faction") == "enemy" and b.get("hp", 0) > 0
             ]
             target = enemies[0]["id"] if enemies else None
-            snap = svc.combat_action(snap.loop.loop_id, PlayerAction(type="attack", target_id=target), opts)
+            snap = svc.combat_action(
+                snap.loop.loop_id, PlayerAction(type="attack", target_id=target), opts
+            )
             continue
         sc = snap.scene
         if not sc.choices:
@@ -158,7 +182,9 @@ def main() -> None:
         body = user.rsplit("\n\nFollow the output_contract", 1)[0]
         payload = json.loads(body)
 
-        print(f"\n=== call {call_idx} (of {len(provider.calls)}) — total user chars {len(user)} ===")
+        print(
+            f"\n=== call {call_idx} (of {len(provider.calls)}) — total user chars {len(user)} ==="
+        )
         total = count(system)
         print(f"  {'system_prompt':<22} {total:>6}")
         for key, value in payload.items():

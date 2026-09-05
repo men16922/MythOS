@@ -28,7 +28,9 @@ def _key(img: Image.Image) -> Image.Image:
     img = img.convert("RGBA")
     out = []
     for r, g, b, a in img.getdata():
-        if (g > 110 and g > r * 1.32 and g > b * 1.32) or (g > 150 and (g - r) > 35 and (g - b) > 35):
+        if (g > 110 and g > r * 1.32 and g > b * 1.32) or (
+            g > 150 and (g - r) > 35 and (g - b) > 35
+        ):
             out.append((0, 0, 0, 0))  # background → transparent
         else:
             # despill: green can't exceed the r/b average (kills edge green cast)

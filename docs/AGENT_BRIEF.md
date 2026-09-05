@@ -1,10 +1,10 @@
 # Agent Brief
 
-Last updated: 2026-09-05
+Last updated: 2026-09-06
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Prod = `mythos-api-00087-w7z` (2026-09-05; the 08-09 hold is lifted, all review bundles live).** Two tracks: **product** is owner-gated (§3 ending/overall verdict + how to make the rubric decidable — NEXT_PLAN Priority 0; a new arm must be played on `00087`, the 08-08 arm is no longer build-comparable); **serving-research** is unblocked (`docs/plans/2026-08-30-mythos-as-serving-research-workload.md` P1-2 first). Read PROGRESS_LOG 2026-09-05 first — the `MYTHOS_WORLD_ID` split it found means the next arm is the first with archive-driven starting scores. Open agent work: NEXT_PLAN "Review residuals". **Do not**: build a stream-stall watchdog (hidden-tab throttling, not a stall); add keyword inflections on principle (measured 2026-08-09: 7/9 no-ops, 2 misclassify); start the status-stacking rework without its `docs/plans/` snapshot.
+> ▶ NEXT SESSION: **Prod = `mythos-api-00087-w7z`; everything since (review residuals, route-replay pin, Ollama usage, `combatView`, ruff-format sweep) is undeployed.** An **overnight run is in flight/just finished** (2026-09-06, claude lane, seeds in NEXT_PLAN "Overnight seeds") — start with `/overnight-report`, then merge-check `main`. Product track is owner-gated (§3 verdict — NEXT_PLAN Priority 0). Serving-research: P0-2/P1-2/T4 done 2026-09-06 (share **flat at ~68%**; MLX ignores `response_format`, Gemma loses the prefix cache → Qwen3 ladder); next is P1-3 workload card / P2 bench port. **Do not**: build a stream-stall watchdog; add keyword inflections on principle; start the status-stacking rework without its `docs/plans/` snapshot; put `experiments/`/`scripts/<other>` paths in `[auto:claude]` seeds (out of contract scope).
 
 ## Snapshot
 

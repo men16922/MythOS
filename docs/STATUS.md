@@ -1,6 +1,6 @@
 # Project MythOS Status
 
-Last updated: 2026-09-05
+Last updated: 2026-09-06
 
 ## Current Baseline
 
@@ -20,6 +20,7 @@ Major implemented axes:
 
 Latest verified baseline:
 
+- **2026-09-06 OVERNIGHT RUN (claude lane) + P1-2/T4 DONE, 1358+ TESTS, UNDEPLOYED** — 8 owner-approved seeds; runner verifier 15 fixed (fail-closed on non-MissionSpec contracts) and the claude-lane scope lesson recorded; 3 format seeds landed. P1-2: 44-call clean arm, prefix share flat ~68%. T4: `mlx_lm.server` no `response_format`, prefix cache only survives on full-attention models (Qwen3). Critic confirmed live on `claude-fable-5-1`.
 - **2026-09-05 OLLAMA TOKEN USAGE LOGGED (`cee577a`) + `combatView.ts` SEAM (`07cbfbe`), 1354 TESTS, UNDEPLOYED** — local turns now log `prompt_tokens`/`output_tokens`; six combat surfaces share one faction/alive/HP/sprite helper (simulator-verified; cinema ally tag now green like the VFX). Review residuals: only owner items remain (`_weapon_in_range`, migration `008`, phone check).
 - **2026-09-05 ROUTE REPLAY PINNED (`1653aa8`), 1347 TESTS, UNDEPLOYED** — passed anchors keep the perspective they were rewarded for; later flags no longer re-score them. Rides the next deploy with `fc70a2f`/`ac8dbd3`.
 - **2026-09-05 REVIEW RESIDUALS 8/13 CLOSED (`9b958b2`, `4d10b35`), 1343 TESTS, DEPLOYED `mythos-api-00087-w7z`** — soft-defeat guard on requested archive, refusal clears pre-seeded `met_se_rin`, CC-aware intent preview, WS returns pooled connection per message, one snapshot builder, one-read progress facts, canvas latest-frame redraw + cached layout (browser-unverified). `fc70a2f` then extracted the `_commit_scene` reducer (undeployed, behaviour-preserving). Open: `_weapon_in_range` (owner), migration `008` on prod.

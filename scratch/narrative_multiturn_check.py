@@ -22,8 +22,16 @@ from mythos_runtime.session import RuntimeSessionService  # noqa: E402
 
 # Abstract terms the reframe says should NOT recur every scene (ordinary scenes).
 ABSTRACT = [
-    "데이터 흐름", "잔향 회랑", "오버레이 코어", "불안 영역", "데이터 노이즈",
-    "존재 자체", "데이터 파형", "신호 흐름", "데이터 안개", "잔향",
+    "데이터 흐름",
+    "잔향 회랑",
+    "오버레이 코어",
+    "불안 영역",
+    "데이터 노이즈",
+    "존재 자체",
+    "데이터 파형",
+    "신호 흐름",
+    "데이터 안개",
+    "잔향",
 ]
 
 

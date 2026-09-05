@@ -28,8 +28,8 @@ _POSES = ("idle", "attack", "guard", "skill", "hit")
 # a clean IX token needs regeneration on a flat chroma key, not a cutout.
 _OPAQUE_ENEMIES = ("purge-drone", "shock-trooper", "suppression-mech", "tracker-spider")
 _BASE = "resources/neo-seoul/enemies/combat"
-_BG_THRESH = 40   # max-channel <= this AND connected to the border ⇒ background
-_FEATHER = 1.0    # gaussian radius for edge anti-alias
+_BG_THRESH = 40  # max-channel <= this AND connected to the border ⇒ background
+_FEATHER = 1.0  # gaussian radius for edge anti-alias
 
 
 def cutout(path: str, bg_thresh: int = _BG_THRESH, feather: float = _FEATHER) -> str:

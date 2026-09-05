@@ -7,6 +7,7 @@ Measures, against the live Ollama:
 
 Run: .venv/bin/python scratch/ttft_bench.py
 """
+
 from __future__ import annotations
 
 import time
@@ -73,9 +74,7 @@ def make_context(heavy: bool) -> NarrativeContext:
             )
 
     return NarrativeContext(
-        player=PlayerProfile(
-            player_id="p1", display_name="세린", created_at=now, updated_at=now
-        ),
+        player=PlayerProfile(player_id="p1", display_name="세린", created_at=now, updated_at=now),
         loop=LoopState(
             loop_id="loop1",
             player_id="p1",
@@ -150,7 +149,9 @@ def main() -> None:
         print(f"=== {label} ===")
         print(f"prompt chars = {chars}")
         ptok = count_prompt_tokens(msgs)
-        print(f"prompt tokens = {ptok}  (num_ctx cap = 8192 -> {'TRUNCATED!' if ptok > 8192 else 'ok'})")
+        print(
+            f"prompt tokens = {ptok}  (num_ctx cap = 8192 -> {'TRUNCATED!' if ptok > 8192 else 'ok'})"
+        )
 
         for run in (1, 2):
             ttft, total, out = stream_once(msgs, 8192)

@@ -92,9 +92,7 @@ def main() -> None:
                 # post-combat path) so the probe reaches later story turns.
                 if sleep_s:
                     time.sleep(sleep_s)
-                snap = svc.choose(
-                    sc.loop_id, action="전투 후 주변을 살피고 이동한다", options=opts
-                )
+                snap = svc.choose(sc.loop_id, action="전투 후 주변을 살피고 이동한다", options=opts)
                 done += 1
                 continue
             print(

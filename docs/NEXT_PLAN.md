@@ -28,17 +28,8 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`; scope: `docs/reports/2026-07-31-
 
 ## Review residuals (2026-09-05 repo-wide review; verified but not yet done)
 
-- `[x]` **`_commit_scene` pure reducer** — closed 2026-09-05 (`fc70a2f`: `_advance_narrative_state` → `_NarrativeAdvance`, locked by a raise-on-write store test).
-- `[x]` **Snapshot builders** — closed 2026-09-05 (7 copies → `_snapshot_from_loop`; `_commit_combat_turn`'s literal kept, it serves `result.*` from the turn).
-- `[x]` **Fetch-once progress facts** — closed 2026-09-05 (`_progress_facts`; was 2-3× shard reads per snapshot).
-- `[x]` **Intent telegraph vs `_enemy_turn`** — closed 2026-09-05 (stun/hack → `idle`, freeze → no move, taunt pool).
-- `[x]` **WS pins a pooled DB connection per open socket** — closed 2026-09-05 (`store.close()` after each `_run_stream`).
+- `[x]` **Closed 2026-09-05** (detail PROGRESS_LOG 2026-09-05): `_commit_scene` pure reducer · Snapshot builders · Fetch-once progress facts · Intent telegraph vs `_enemy_turn` · WS pins a pooled DB connection per open socket · `requested_next_phase: "archive"` bypasses the soft-defeat guard · Refusal cannot clear a pre-seeded `met_se_rin` · Route replay re-scores passed anchors with later flags · Frontend `NarrationReveal` + `combatView.ts` · `combatCanvas` per-frame layout.
 - `[ ]` `[manual]` **`_weapon_in_range(state=None)` high-ground +1 range is dead** (no caller passes `state`) — wire it (gameplay change, `gameplay-qa`) or drop the parameter. Owner call.
-- `[x]` **`requested_next_phase: "archive"` bypasses the soft-defeat guard** — closed 2026-09-05.
-- `[x]` **Refusal cannot clear a pre-seeded `met_se_rin`** — closed 2026-09-05 (`remove_flags` in the delta).
-- `[x]` **Route replay re-scores passed anchors with later flags** — closed 2026-09-05 (`1653aa8`: stored `active_perspectives` pinned during replay, unknown id falls back to fresh scoring; undeployed, rides the next deploy).
-- `[x]` **Frontend `NarrationReveal` + `combatView.ts`** — both closed 2026-09-05 (`ac8dbd3` external store; `07cbfbe` one `combatView.ts` seam for faction colour / `isAlive` / `hpRatio` / sprite fallback across six surfaces, simulator-verified; DevConsole radar palette deliberately separate).
-- `[x]` **`combatCanvas` per-frame layout** — closed 2026-09-05 (+ latest-frame redraw on sprite load); desktop browser check done 2026-09-05 (simulator: sprites/cover/hazards/telegraph/skill VFX render, no console errors). `[ ]` `[manual]` residual: phone check.
 - `[/]` **Lesser substring matches** — `serializers._calculate_zone_risk` done 2026-09-05; `ending_resolver.py:111`/`audio_service.py:63` deliberately left (scoring semantics / no boss ids exist) — `[manual]` owner call if wanted.
 - `[ ]` `[manual]` **Apply migration `008`** (`narrative_shards(player_id, created_at)` index) on the production DB.
 
@@ -47,10 +38,10 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`; scope: `docs/reports/2026-07-31-
 Scope is a research bench, **not** production self-hosting — the evidence puts that far out of range (`docs/reference/2026-08-30-self-hosted-inference-and-mythos-as-research-platform.md`). Two benches: 12GB CUDA (mechanism) and the 48GB M4 Max (quality/capacity).
 
 - `[x]` **P0 instrumentation** — prompt trace + per-engine sampler adapter + `experiments/` harness; found/fixed two local sampler defects on the way (degradation 44% → 0%, PROGRESS_LOG 2026-08-30).
-- `[ ]` `[auto]` **P1-2 prefix-sharing curve** — capture a long clean arm (30–50 turns) and measure how the ~68% share moves as the loop grows. *Done when a stamped `workload-profile` report covers ≥30 consecutive calls with 0 fallback and states the trend.* Sets the P3 design.
+- `[/]` **P1-2 prefix-sharing curve** — in progress 2026-09-06 in a supervised session (40-turn arm on `gemma4:8b-64k`, `capture_trace` now auto-plays combat). *Done when a stamped `workload-profile` report covers ≥30 consecutive calls with 0 fallback and states the trend.* Not unattended: needs a live engine (`experiments/README`).
 - `[x]` **P0-2 residual: Ollama token usage** — closed 2026-09-05 (`cee577a`: `normalize_usage` reads the OpenAI `CompletionUsage` vocabulary, every `OllamaJSONProvider` call records it, streams request `stream_options.include_usage`; a local streamed turn logs `prompt_tokens`/`output_tokens`, director-level test).
 - `[ ]` `[manual]` **T4 — MLX capability check** (doc reading, not code): does `mlx_lm.server` accept `response_format`, and does it reuse a prefix cache across requests? Gates the whole Apple-silicon bench; **needed before P0-3's mlx row is worth writing**.
-- `[ ]` `[auto]` **Verify the unverified adapter rows** — `vllm`/`llamacpp`/`mlx` in `engine_options.py` are marked unverified by design. *Done when `make experiment ARGS=option-matrix` has been run against that engine and its row matches.*
+- `[ ]` `[blocked]` **Verify the unverified adapter rows** — `vllm`/`llamacpp`/`mlx` in `engine_options.py`; blocked until one of those engines is installed locally (none is, 2026-09-06). *Done when `make experiment ARGS=option-matrix` has been run against that engine and its row matches.*
 - `[ ]` **P2 bench port** — add a `mythos` trace-replay scenario to `labs/wsl2-vllm-baseline/` so results sit in the same table as the study's `prefill`/`decode`.
 - `[ ]` **P3 mechanism experiments** (bench A, vLLM): E-A prefix caching on real partial sharing · E-B ngram acceptance split between JSON scaffolding and prose · E-C structured-output mode vs schema-valid rate.
 - `[ ]` **P4 judge noise floor** — **the same open decision the §3 promotion track carries** (median over N / pin the judge / drop the numeric gate). Gates every quality experiment; doing it once serves both tracks.
@@ -62,6 +53,17 @@ Scope is a research bench, **not** production self-hosting — the evidence puts
   - `[ ]` `[manual]` **Model-B 3-lane demonstration** — first run one objective `make overnight-<engine>-once`, then arm+observe `make overnight-worktrees-setup` + 3 engines (burns real quota, owner-armed).
   - `[/]` **cross-engine critic** — first same-diff smoke run 2026-07-25 on commit `046edc8`: **codex REPAIR vs claude PASS (1/1 disagreement)**; the codex objection (blank_output classification) was intended design → clarifying comment added to `_classify_fallback_reason`. Remaining `[ ]` `[manual]` full 1-night trial `make overnight OVERNIGHT_CRITIC_ENGINE=codex` (needs seeded `[auto]` backlog; lane currently drained) — morning: REVIEW_QUEUE + disagreement rate.
   - `[ ]` `[manual]` **Graph P2 bounded read-only scatter/gather experiment (upstream)**: only after held-out-bank ratification and explicit multi-agent authorization; compare 2–3 immutable-input scouts against one agent on wall time/tokens/valid defects/duplication. P0-A/P0-B/P1-A/P1-B/P1-C are in the local 1.3.0 release (116/116); no write-lane fan-out.
+
+## Overnight seeds (recorded 2026-09-06, owner-approved)
+
+- `[ ]` `[auto:claude]` ruff-format `src/mythos_runtime`. Done: `.venv/bin/ruff format --check src/mythos_runtime` passes, `make check` green, no semantic change.
+- `[ ]` `[auto:claude]` ruff-format `src/mythos_narrative src/mythos_core src/mythos_memory src/mythos_loop`. Done: `ruff format --check` on those dirs passes, `make check` green.
+- `[ ]` `[auto:claude]` ruff-format `src/mythos_combat src/mythos_api src/mythos_image_agent src/mythos_ui/*.py experiments scripts`. Done: `ruff format --check` on those paths passes, `make check` green.
+- `[ ]` `[auto:claude]` ruff-format `tests`. Done: `ruff format --check tests` passes, `make check` green.
+- `[ ]` `[auto:claude]` wire `ruff format --check .` into the `python-lint` Makefile target (only after the four format seeds above are `[x]`). Done: `make lint` runs it and is green.
+- `[ ]` `[auto:codex]` compress `docs/PROGRESS_LOG.md` (17.7k/18k chars): keep the newest 5 increments, move older ones into `bin/docs/archive/progress-2026-09.md` (newest-on-top, no data loss). Done: `make check-doc-budget` green, `rg '^## ' bin/docs/archive/progress-2026-09.md` has no duplicate headers.
+- `[ ]` `[auto:claude]` remove the 14 `# type: ignore[union-attr]` in `tests/test_combat_engine.py` via a typed `_player(state) -> Combatant` helper that asserts non-None. Done: `rg 'type: ignore' tests/test_combat_engine.py` is empty, `make check` green.
+- `[ ]` `[auto:claude]` unit-test `experiments/capture_trace._auto_combat_action` on a seeded `CombatState` (nearest enemy attacked, `move_to` only when it shortens distance, `defend` when no enemy/uncontrollable). Done: new cases in `tests/test_experiment_harness.py` pass, `make check` green.
 
 ## Rules
 

@@ -1602,3 +1602,53 @@ class CombatScenarioContentTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class NarrativeReducerTest(unittest.TestCase):
+    """``_advance_narrative_state`` is the pure middle of ``_commit_scene``: it
+    reduces loop state from the engine's transition to the loop that gets
+    saved, and must not write to the store (the transaction is the caller's)."""
+
+    class _ReadOnlyStore(_InMemoryStore):
+        def _refuse(self, *_a: Any, **_k: Any) -> None:
+            raise AssertionError("the narrative reducer must not write to the store")
+
+        save_loop = save_scene = append_event = save_narrative_shard = _refuse  # type: ignore[assignment]
+        save_progression = save_world_memory = save_player_memory = _refuse  # type: ignore[assignment]
+
+    def test_reducer_advances_state_without_writing(self) -> None:
+        seeded = _InMemoryStore()
+        loop_id = _seed_loop(seeded, "p9", "비접속자 (Ghost)")
+        loop = seeded.get_loop(loop_id)
+        assert loop is not None
+        loop = replace(loop, state={**loop.state, "scenario_id": "neo-seoul", "_story_turn": 3})
+        store = self._ReadOnlyStore()
+        store.players = dict(seeded.players)  # players only; every write refuses
+        service = RuntimeSessionService(store, director=cast(Any, _SummaryDirector()))
+        now = datetime(2026, 9, 5, tzinfo=UTC)
+        scene = Scene(
+            scene_id="scene_r1", loop_id=loop_id, turn_index=4, title="Vent shaft",
+            location="Drainage sluice", narration="Water hums below.",
+            choices=[Choice("choice_1", "Push on", "explore")], visual_brief="", created_at=now,
+        )
+        payload = ScenePayload(
+            title=scene.title, location=scene.location, narration=scene.narration,
+            choices=list(scene.choices), visual_brief="",
+            world_delta=WorldDelta(stability=-2, tension=3, flags=["clue_found"]),
+        )
+        transition = service.engine.apply_scene_payload(loop, scene, payload, None)
+        self.assertTrue(transition.ok)
+
+        advance = service._advance_narrative_state(
+            transition=transition, loop=loop, scene=scene, payload=payload,
+            options=RuntimeOptions(fallback=True), player_event=None, route_target=None,
+            impact_base_loop=None, choice_relationship=None, cutscene_id=None,
+        )
+
+        state = advance.transition.loop.state
+        self.assertEqual(advance.story_turn, 4)
+        self.assertEqual(state["_story_turn"], 4)
+        self.assertIn("clue_found", state["flags"])
+        self.assertIsNone(advance.route_progress)
+        self.assertIsNone(advance.route_combat)
+        self.assertFalse(advance.offered_junction)

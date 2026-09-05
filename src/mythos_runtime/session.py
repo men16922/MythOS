@@ -331,6 +331,20 @@ class _PreparedChoice:
     cutscene_id: str | None = None
 
 
+@dataclass(frozen=True)
+class _NarrativeAdvance:
+    """Output of ``RuntimeSessionService._advance_narrative_state``."""
+
+    transition: LoopTransition
+    scene: Scene
+    story_turn: int
+    route_combat: str | None
+    route_combat_kind: str | None
+    triggered_combat: str | None
+    offered_junction: bool
+    route_progress: MetaProgression | None
+
+
 class RuntimeSessionService:
     def __init__(
         self,
@@ -2498,45 +2512,34 @@ class RuntimeSessionService:
             player_id=player_id,
         )
 
-    def _commit_scene(
+    def _advance_narrative_state(
         self,
         *,
-        player: PlayerProfile,
+        transition: LoopTransition,
         loop: LoopState,
         scene: Scene,
         payload: ScenePayload,
         options: RuntimeOptions,
-        span_name: str,
-        log_message: str,
-        player_event=None,
-        metric_total_before: int | None = None,
-        route_target: str | None = None,
-        impact_base_loop: LoopState | None = None,
-        choice_relationship: dict[str, int] | None = None,
-        cutscene_id: str | None = None,
-    ) -> RuntimeSnapshot:
+        player_event: WorldEvent | None,
+        route_target: str | None,
+        impact_base_loop: LoopState | None,
+        choice_relationship: dict[str, int] | None,
+        cutscene_id: str | None,
+    ) -> _NarrativeAdvance:
+        """The narrative-turn reducer: everything between the engine's transition
+        and the transaction, with no store writes.
+
+        Materialize items → clear soft-defeat → encounter map → relationship fold
+        → story clock → rest → interstitial → twist lifecycle → pending boss →
+        route advance + node reward → pre-climax threshold deferral → cutscene →
+        junction choices → session-memory beat → choice impact / no-op streak →
+        twist selection. ``loop`` is the loop BEFORE this turn (its phase and
+        soft-defeat marker are inputs); ``transition`` is the engine's output.
+        The single store *read* is the progression behind a route-node reward,
+        which is returned as ``route_progress`` for the caller to persist inside
+        the same transaction as the loop state.
+        """
         scenario = load_scenario(options.scenario_id)
-        # LLM item grants: whitelist-clamp BEFORE apply (unknown/non-grantable ids
-        # dropped), then upgrade the appended id strings to full item defs so the
-        # inventory/equip/consumable UI can render them.
-        payload = _filter_grant_items(payload, scenario, turn_index=scene.turn_index)
-        with span(span_name, player_id=player.player_id, loop_id=loop.loop_id):
-            transition = self.engine.apply_scene_payload(loop, scene, payload, player_event)
-        if not transition.ok:
-            raise RuntimeError(_format_errors(transition.errors))
-        if transition.repairs:
-            # Soft-repairs are intended behavior; recording them is what makes
-            # model-output drift (over-limit narration, duplicate choice ids,
-            # out-of-range deltas) measurable instead of silently absorbed.
-            self.logger.info(
-                "scene payload soft-repaired",
-                extra={
-                    "player_id": player.player_id,
-                    "loop_id": loop.loop_id,
-                    "turn_index": scene.turn_index,
-                    "repairs": transition.repairs,
-                },
-            )
         # Materialize unconditionally (was: only on LLM grant_items) — bare item-id
         # strings also arrive via route/effect rewards, and an unmaterialized id
         # leaks raw into the 직전-결과 line ("획득 drone_scrap", owner 2026-07-11).
@@ -2821,6 +2824,72 @@ class RuntimeSessionService:
             if twist is not None:
                 state_with_impact[PENDING_TWIST_KEY] = twist
             transition = replace(transition, loop=replace(transition.loop, state=state_with_impact))
+
+        return _NarrativeAdvance(
+            transition=transition,
+            scene=scene,
+            story_turn=story_turn,
+            route_combat=route_combat,
+            route_combat_kind=route_combat_kind,
+            triggered_combat=triggered_combat,
+            offered_junction=offered_junction,
+            route_progress=route_progress,
+        )
+
+    def _commit_scene(
+        self,
+        *,
+        player: PlayerProfile,
+        loop: LoopState,
+        scene: Scene,
+        payload: ScenePayload,
+        options: RuntimeOptions,
+        span_name: str,
+        log_message: str,
+        player_event=None,
+        metric_total_before: int | None = None,
+        route_target: str | None = None,
+        impact_base_loop: LoopState | None = None,
+        choice_relationship: dict[str, int] | None = None,
+        cutscene_id: str | None = None,
+    ) -> RuntimeSnapshot:
+        scenario = load_scenario(options.scenario_id)
+        # LLM item grants: whitelist-clamp BEFORE apply (unknown/non-grantable ids
+        # dropped), then upgrade the appended id strings to full item defs so the
+        # inventory/equip/consumable UI can render them.
+        payload = _filter_grant_items(payload, scenario, turn_index=scene.turn_index)
+        with span(span_name, player_id=player.player_id, loop_id=loop.loop_id):
+            transition = self.engine.apply_scene_payload(loop, scene, payload, player_event)
+        if not transition.ok:
+            raise RuntimeError(_format_errors(transition.errors))
+        if transition.repairs:
+            # Soft-repairs are intended behavior; recording them is what makes
+            # model-output drift (over-limit narration, duplicate choice ids,
+            # out-of-range deltas) measurable instead of silently absorbed.
+            self.logger.info(
+                "scene payload soft-repaired",
+                extra={
+                    "player_id": player.player_id,
+                    "loop_id": loop.loop_id,
+                    "turn_index": scene.turn_index,
+                    "repairs": transition.repairs,
+                },
+            )
+        advance = self._advance_narrative_state(
+            transition=transition,
+            loop=loop,
+            scene=scene,
+            payload=payload,
+            options=options,
+            player_event=player_event,
+            route_target=route_target,
+            impact_base_loop=impact_base_loop,
+            choice_relationship=choice_relationship,
+            cutscene_id=cutscene_id,
+        )
+        transition, scene = advance.transition, advance.scene
+        route_combat, route_combat_kind = advance.route_combat, advance.route_combat_kind
+        triggered_combat, route_progress = advance.triggered_combat, advance.route_progress
 
         with self.store.transaction():
             self.store.save_loop(transition.loop)

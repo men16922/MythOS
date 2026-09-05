@@ -72,6 +72,16 @@ check-auto:
 
 # --- Overnight V2: plugin = controller SoT, this repo = policy/state/verifiers ---
 ENGINE ?= claude
+
+# Model routing (1.4.0, Claude engine). The actor does bounded implementation; the critic is a
+# read-only reviewer whose judgment is what you pay for. Blank = the CLI's own default. Per-repo
+# policy, so pinned here rather than left to the plugin.
+CLAUDE_MODEL ?= claude-sonnet-5
+CLAUDE_EFFORT ?=
+OVERNIGHT_CRITIC_MODEL ?= claude-fable-5-1
+CLAUDE_CRITIC_EFFORT ?=
+export CLAUDE_MODEL CLAUDE_EFFORT OVERNIGHT_CRITIC_MODEL CLAUDE_CRITIC_EFFORT
+
 HARNESS_ROOT ?= $(shell \
 	if [ -n "$$OVERNIGHT_HARNESS_ROOT" ] && [ -d "$$OVERNIGHT_HARNESS_ROOT/templates/scripts/overnight" ]; then echo "$$OVERNIGHT_HARNESS_ROOT"; \
 	elif [ -n "$$OVERNIGHT_HARNESS_ROOT" ] && [ -d "$$OVERNIGHT_HARNESS_ROOT/plugins/overnight-harness/templates/scripts/overnight" ]; then echo "$$OVERNIGHT_HARNESS_ROOT/plugins/overnight-harness"; \
@@ -79,7 +89,10 @@ HARNESS_ROOT ?= $(shell \
 		pin="$$(sed -n 's/.*"harness_root"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' .claude/harness-config.json | head -1)"; \
 		if [ -d "$$pin/templates/scripts/overnight" ]; then echo "$$pin"; elif [ -d "$$pin/plugins/overnight-harness/templates/scripts/overnight" ]; then echo "$$pin/plugins/overnight-harness"; fi; \
 	else \
-		{ ls -d $$HOME/.claude/plugins/cache/overnight-harness/overnight-harness/*/ 2>/dev/null; find $$HOME/.codex/plugins/cache -path '*/overnight-harness/*' -type d 2>/dev/null; } \
+		{ ls -d $$HOME/.claude/plugins/cache/overnight-harness/overnight-harness/*/ 2>/dev/null; \
+		  find $$HOME/.codex/plugins/cache -path '*/overnight-harness/*' -type d 2>/dev/null; \
+		  [ -d $$HOME/.gemini/antigravity-cli/plugins/overnight-harness ] && echo $$HOME/.gemini/antigravity-cli/plugins/overnight-harness; \
+		  [ -d $$HOME/.cache/opencode/node_modules/opencode-overnight-harness ] && echo $$HOME/.cache/opencode/node_modules/opencode-overnight-harness; } \
 		| while read d; do [ -d "$$d/templates/scripts/overnight" ] && echo "$$d"; done | sort -V | tail -1; \
 	fi)
 OVN_SRC := $(HARNESS_ROOT:%/=%)/templates/scripts/overnight

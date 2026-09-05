@@ -1,6 +1,6 @@
 # Project MythOS Next Plan
 
-Last updated: 2026-08-15
+Last updated: 2026-09-05
 
 This file keeps only upcoming (open) work as a rolling plan. Completed tracks live in
 `docs/COMPLETED_SUMMARY.md`, detailed logs in `bin/docs/archive/progress-2026-0*.md`, individual designs in
@@ -45,6 +45,20 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`; scope: `docs/reports/2026-07-31-
 - `[/]` **CBT P1 residuals** (design `docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md`; P1-A..E + S1-S4 all DONE): `[ ]` `[manual]` S4 카피 톤 검수(anchor/goal + 12 beat prose) · 6 variant intros in-game feel · decisions G2 twist tone(3 `twist_bank`)/in-layer pacing(C2)/overload-strike range(D5) · EN fresh-loop coherence retest.
 - `[ ]` `[manual]` **Archetype-variant openings (long-term, 2026-07-04)**: author per-archetype opening variations (directive-layer, `resources/neo-seoul/directives/opening.md` + KO/EN), gated on CBT priorities.
 - `[x]` **Image continuity watch**: `00081-8lc` generated, delivered, and rendered new GCS-backed images with `gemini-3.1-flash-image` on `global`; the Cloud Run WS timeout is 3600s so deferred visual events survive long sessions. Curated key art remains the codex lane.
+
+## Serving-research track — open, needs no owner decision (design `docs/plans/2026-08-30-mythos-as-serving-research-workload.md`)
+
+Scope is a research bench, **not** production self-hosting — the evidence puts that far out of range (`docs/reference/2026-08-30-self-hosted-inference-and-mythos-as-research-platform.md`). Two benches: 12GB CUDA (mechanism) and the 48GB M4 Max (quality/capacity).
+
+- `[x]` **P0 instrumentation** — prompt trace at the provider seam (`MYTHOS_PROMPT_TRACE`), per-engine sampler adapter (`MYTHOS_LLM_ENGINE`), `experiments/` harness + `make experiment`. Found and fixed two local defects on the way (degradation 44% → 0%). `make check` 1325.
+- `[ ]` `[auto]` **P1-2 prefix-sharing curve** — capture a long clean arm (30–50 turns) and measure how the ~68% share moves as the loop grows. *Done when a stamped `workload-profile` report covers ≥30 consecutive calls with 0 fallback and states the trend.* Sets the P3 design.
+- `[ ]` `[auto]` **P0-2 residual: Ollama token usage** — `prompt_eval_count`/`eval_count` are returned and still recorded nowhere; fold into the existing `usage.py` path. *Done when a local turn logs `prompt_tokens`/`output_tokens`.*
+- `[ ]` `[manual]` **T4 — MLX capability check** (doc reading, not code): does `mlx_lm.server` accept `response_format`, and does it reuse a prefix cache across requests? Gates the whole Apple-silicon bench; **needed before P0-3's mlx row is worth writing**.
+- `[ ]` `[auto]` **Verify the unverified adapter rows** — `vllm`/`llamacpp`/`mlx` in `engine_options.py` are marked unverified by design. *Done when `make experiment ARGS=option-matrix` has been run against that engine and its row matches.*
+- `[ ]` **P2 bench port** — add a `mythos` trace-replay scenario to `labs/wsl2-vllm-baseline/` so results sit in the same table as the study's `prefill`/`decode`.
+- `[ ]` **P3 mechanism experiments** (bench A, vLLM): E-A prefix caching on real partial sharing · E-B ngram acceptance split between JSON scaffolding and prose · E-C structured-output mode vs schema-valid rate.
+- `[ ]` **P4 judge noise floor** — **the same open decision the §3 promotion track carries** (median over N / pin the judge / drop the numeric gate). Gates every quality experiment; doing it once serves both tracks.
+- `[ ]` **P5 quality × cost** (bench B, 48GB): quantization ladder, model ladder to 30B-class, Gemini-vs-local Pareto on the frozen bank. Blocked on P4.
 
 ## Engineering maintenance track — WS0-3 done (COMPLETED_SUMMARY M43)
 

@@ -1,6 +1,29 @@
 # Progress Log
 
-Last updated: 2026-08-15
+Last updated: 2026-09-05
+
+## 2026-09-05 — Overnight Harness pin repaired to 1.4.0; Fable 5.1 critic wired in
+
+- Status: harness plugin updated to 1.4.0 upstream, and the repo's pin was stale — `.claude/harness-config.json` `harness_root` pointed at the 1.3.4 cache dir, which no longer exists (only 1.2.0/1.4.0 are cached). `make overnight-where` was silently resolving `HARNESS_ROOT` to empty, i.e. every `overnight*` target was broken. Local-only, doc/config/Makefile edit; no model call.
+- Changed: `.claude/harness-config.json` `harness_root` → the 1.4.0 cache path. `Makefile` gained 1.4.0's per-repo model-routing block (`CLAUDE_MODEL=claude-sonnet-5` actor, `OVERNIGHT_CRITIC_MODEL=claude-fable-5-1` critic, both `export`ed) and the widened `HARNESS_ROOT` fallback probe (adds antigravity-cli/opencode cache paths) from the plugin's `Makefile.harness.snippet`. MythOS's own additions (contract compiler, verify/oversight/repair env, graph-smoke/measure targets) were left untouched — those are repo-owned, not part of the plugin template.
+- Verified: `make overnight-where` now resolves `HARNESS_ROOT` to the 1.4.0 path (was empty).
+- **Deployed `mythos-api-00085-mvr`** (owner lifted the 08-09 hold, DECISIONS 2026-09-05): the 39-commit fix bundle since `00084-nt2`. Pre-deploy gate: lint/typecheck 0, **1325** tests OK (6 skipped), rebuilt `app.js` byte-identical to the committed bundle; doc-budget was the only red item (pre-existing, needs `/tidy-docs`). Post-deploy: 100% traffic, root + `/api/v1/health` 200, live/local `app.js` SHA-256 match (`8a26071b…`), pins preserved (`gemini-3.5-flash` / `gemini-3.1-flash-image` @ `global`, timeout 3600), 0 WARNING+ logs in the first 30 min. Consequence: the banked 08-08 arm is no longer build-comparable — the next promotion sample must be a fresh arm on `00085`.
+- Next: run `make overnight-once` to confirm the critic actually launches on `claude-fable-5-1` before trusting it unattended.
+
+## 2026-08-30 — Serving-research track opened; the local sampler had never reached the model
+
+- Status: new track (MythOS as a serving-research workload, **not** production self-hosting) plus two local-path defects found and fixed by its first experiments. `make check` **1325** (6 skipped), up 40. Local-only; rides the next deploy. 8 commits, `main` ahead 39.
+- Changed: `docs/reference/2026-08-30-self-hosted-inference-and-mythos-as-research-platform.md` + `docs/plans/2026-08-30-mythos-as-serving-research-workload.md`; `mythos_narrative/trace.py` (prompt capture at the provider seam, `MYTHOS_PROMPT_TRACE`); `mythos_narrative/engine_options.py` (per-engine sampler translation, `MYTHOS_LLM_ENGINE`); `experiments/` harness + 4 experiments + `make experiment`.
+- **The reference doc's answer runs against its premise**: the inference-engineering text puts disaggregation's entry at 100M–1B tokens/day and says a latency-sensitive app with light traffic leaning on scale-to-zero should stay on a pay-per-token API. Neo-Seoul at ~15k output tokens/loop is orders off. Self-hosting is a **scale** question; the work worth doing is the measurement that says when it changes.
+- Measured (real tokenizer, `experiments/results/`): input **7,098 tok** median vs output 235 → **30:1 prefill-heavy**; consecutive turns share **~68%** of the prompt as a literal prefix (stable across three arms). The earlier 85.3% was a fixture upper bound, correctly labelled as such. `char÷4` and cl100k over-count this Korean by ~44%.
+- **Defect 1 — the sampler was never applied.** `OllamaJSONProvider` sent six options as `extra_body={"options": {...}}`, the *native* API shape; the OpenAI-compatible endpoint discards it. `num_predict=5` that way returned 691 chars, byte-identical to uncapped; as `max_tokens`, 0. So `num_ctx`/`num_predict`/`repeat_penalty`/`repeat_last_n`/`top_p`/`top_k` had never once applied locally.
+- **Defect 2 — the timeout was shorter than a scene.** 30s against 12–90s generations, so the SDK burned two retries and raised at ~91s: slow turns were silently costing three generations. Now 180s.
+- Result: local degradation **44% → 0%** over a 9-call arm (empty 3→0, timeouts 1→0, median output 235→300 tok). Both faults were invisible in play because the deterministic fallback covered them.
+- A wrong fix, kept visible: raising `num_ctx` looked right (replay recovered 3/3) and **did nothing** — a fresh arm still degraded 4/9, and those prompts succeeded on replay at the very setting they had failed under. The stamped-report design is what caught it.
+- Verified: `make check` 1325 · three stamped `workload-profile` reports (44%/44%/0%) · `option-passthrough` + `option-matrix` measuring what the endpoint accepts. **Not** verified: vLLM/llama.cpp/MLX rows in `engine_options` are marked unverified by design.
+- Blockers: unchanged — the §3 owner verdict still gates the product track, and the judge's ~1-point noise floor still gates any quality experiment (research P4 = the same open decision).
+- Next: `docs/plans/2026-08-30-mythos-as-serving-research-workload.md` P1-2 — a long clean arm (30–50 turns) to curve prefix sharing over loop length, which sets the P3 prefix-caching design.
+- ⚠️ **Any local repetition judgement made before this session was made against a model that never received `repeat_penalty`.** Production (Vertex Gemini) is a separate path and unaffected.
 
 ## 2026-08-15 — Owner decision recorded: status effects will stack ("option 2"); plan-only
 

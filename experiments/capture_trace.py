@@ -73,49 +73,55 @@ def _play_out_combat(
     return snap
 
 
-loop_id = sys.argv[1]
-turns = int(sys.argv[2]) if len(sys.argv) > 2 else 6
+def main(argv: list[str]) -> int:
+    loop_id = argv[0]
+    turns = int(argv[1]) if len(argv) > 1 else 6
 
-svc = RuntimeSessionService(PostgresMythOSStore())
-# No image generation: it would add minutes per turn and is not part of the
-# narrative workload being characterised.
-opts = RuntimeOptions(with_image=False)
+    svc = RuntimeSessionService(PostgresMythOSStore())
+    # No image generation: it would add minutes per turn and is not part of the
+    # narrative workload being characterised.
+    opts = RuntimeOptions(with_image=False)
 
-snap = svc.resume(loop_id, options=opts)
-for n in range(turns):
-    if snap.combat and not snap.combat.get("finished"):
-        snap = _play_out_combat(svc, loop_id, snap, opts)
-    offer = (snap.boons or {}).get("offer") if isinstance(snap.boons, dict) else None
-    if isinstance(offer, list) and offer:
-        first = offer[0]
-        boon_id = first.get("id") if isinstance(first, dict) else str(first)
-        if boon_id:
-            svc.choose_boon(loop_id, str(boon_id), options=opts)
-            print(f"  boon: {boon_id}", flush=True)
-            # The boon snapshot carries no combat view; re-read so a just-finished
-            # fight is still visible to the post-combat branch below.
-            snap = svc.resume(loop_id, options=opts)
-    choices = list(snap.scene.choices or [])
-    start = time.perf_counter()
-    try:
-        if choices:
-            snap = svc.choose(loop_id, choice_id=choices[0].choice_id, options=opts)
-        elif snap.combat and snap.combat.get("finished"):
-            snap = svc.choose(loop_id, action=POST_COMBAT_ACTION, options=opts)
-        else:
-            print(f"turn {n}: no choices (phase={snap.loop.phase}); stopping", flush=True)
+    snap = svc.resume(loop_id, options=opts)
+    for n in range(turns):
+        if snap.combat and not snap.combat.get("finished"):
+            snap = _play_out_combat(svc, loop_id, snap, opts)
+        offer = (snap.boons or {}).get("offer") if isinstance(snap.boons, dict) else None
+        if isinstance(offer, list) and offer:
+            first = offer[0]
+            boon_id = first.get("id") if isinstance(first, dict) else str(first)
+            if boon_id:
+                svc.choose_boon(loop_id, str(boon_id), options=opts)
+                print(f"  boon: {boon_id}", flush=True)
+                # The boon snapshot carries no combat view; re-read so a just-finished
+                # fight is still visible to the post-combat branch below.
+                snap = svc.resume(loop_id, options=opts)
+        choices = list(snap.scene.choices or [])
+        start = time.perf_counter()
+        try:
+            if choices:
+                snap = svc.choose(loop_id, choice_id=choices[0].choice_id, options=opts)
+            elif snap.combat and snap.combat.get("finished"):
+                snap = svc.choose(loop_id, action=POST_COMBAT_ACTION, options=opts)
+            else:
+                print(f"turn {n}: no choices (phase={snap.loop.phase}); stopping", flush=True)
+                break
+        except Exception as exc:  # noqa: BLE001 - a failed turn is data, keep going
+            print(f"turn {n}: FAILED {type(exc).__name__}: {exc}", flush=True)
             break
-    except Exception as exc:  # noqa: BLE001 - a failed turn is data, keep going
-        print(f"turn {n}: FAILED {type(exc).__name__}: {exc}", flush=True)
-        break
-    took = time.perf_counter() - start
-    print(
-        f"turn {n}: phase={snap.loop.phase} scene='{(snap.scene.title or '')[:40]}' "
-        f"narration={len(snap.scene.narration or '')}ch choices={len(snap.scene.choices or [])} "
-        f"{took:.1f}s",
-        flush=True,
-    )
-    if str(snap.loop.phase) in {"LoopPhase.ENDED", "ended", "LoopPhase.ARCHIVE", "archive"}:
-        print("loop ended", flush=True)
-        break
-print("done", flush=True)
+        took = time.perf_counter() - start
+        print(
+            f"turn {n}: phase={snap.loop.phase} scene='{(snap.scene.title or '')[:40]}' "
+            f"narration={len(snap.scene.narration or '')}ch choices={len(snap.scene.choices or [])} "
+            f"{took:.1f}s",
+            flush=True,
+        )
+        if str(snap.loop.phase) in {"LoopPhase.ENDED", "ended", "LoopPhase.ARCHIVE", "archive"}:
+            print("loop ended", flush=True)
+            break
+    print("done", flush=True)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))

@@ -147,7 +147,9 @@ class GeminiProviderUsageTest(unittest.TestCase):
         chunks = [_Chunk("{", _Usage(900, 10, 910)), _Chunk('"a": 1}', _Usage(900, 20, 920))]
         provider = VertexGeminiJSONProvider(client=_FakeClient(chunks=chunks))
 
-        stream = cast(Generator[str, None, None], provider.stream([{"role": "user", "content": "hi"}]))
+        stream = cast(
+            Generator[str, None, None], provider.stream([{"role": "user", "content": "hi"}])
+        )
         next(stream)
         stream.close()
 
@@ -236,6 +238,198 @@ class StreamedTurnLogTest(unittest.TestCase):
         self.assertEqual(fields["output_tokens"], 160)
         self.assertEqual(fields["total_tokens"], 1960)
         self.assertEqual(fields["provider_calls"], 2)
+
+
+class _OAUsage:
+    """OpenAI ``CompletionUsage`` shape, as Ollama's compat endpoint returns it."""
+
+    def __init__(self, prompt: int, completion: int, total: int) -> None:
+        self.prompt_tokens = prompt
+        self.completion_tokens = completion
+        self.total_tokens = total
+
+
+class _OADelta:
+    def __init__(self, content: str | None) -> None:
+        self.content = content
+
+
+class _OAChoice:
+    def __init__(self, content: str | None) -> None:
+        self.delta = _OADelta(content)
+        self.message = _OADelta(content)
+
+
+class _OAChunk:
+    def __init__(self, content: str | None, usage: Any = None) -> None:
+        self.choices = [_OAChoice(content)] if content is not None else []
+        self.usage = usage
+
+
+class _OAResponse:
+    def __init__(self, content: str, usage: Any = None) -> None:
+        self.choices = [_OAChoice(content)]
+        self.usage = usage
+
+
+class _OACompletions:
+    def __init__(self, response: Any = None, chunks: list[_OAChunk] | None = None) -> None:
+        self._response = response
+        self._chunks = chunks or []
+        self.calls: list[dict[str, Any]] = []
+
+    def create(self, **kwargs: Any) -> Any:
+        self.calls.append(kwargs)
+        if kwargs.get("stream"):
+            return iter(self._chunks)
+        return self._response
+
+
+class _OAClient:
+    def __init__(self, response: Any = None, chunks: list[_OAChunk] | None = None) -> None:
+        self.completions = _OACompletions(response, chunks)
+        self.chat = self
+
+
+def _ollama_provider(client: _OAClient) -> Any:
+    from unittest.mock import patch
+
+    from mythos_image_agent.config import AgentConfig
+    from mythos_narrative.director import OllamaJSONProvider
+
+    # Same story/parser model → the director takes the single-model stream path.
+    config = AgentConfig(ollama_model="m", ollama_model_story="m", ollama_model_parser="m")
+    provider = OllamaJSONProvider(config=config)
+    patcher = patch.object(OllamaJSONProvider, "_client", lambda self: client)
+    patcher.start()
+    return provider, patcher
+
+
+class OllamaProviderUsageTest(unittest.TestCase):
+    """P0-2 residual (NEXT_PLAN serving-research): the local path returned
+    ``prompt_eval_count``/``eval_count`` — surfaced by the OpenAI-compat endpoint
+    as ``usage.prompt_tokens``/``completion_tokens`` — and recorded them nowhere,
+    so a local turn could never state its token cost."""
+
+    def setUp(self) -> None:
+        clear_usage()
+        self._patcher: Any = None
+
+    def tearDown(self) -> None:
+        if self._patcher is not None:
+            self._patcher.stop()
+
+    def test_openai_usage_vocabulary_normalises(self) -> None:
+        self.assertEqual(
+            normalize_usage(_OAUsage(700, 150, 850)),
+            {"prompt_tokens": 700, "output_tokens": 150, "total_tokens": 850},
+        )
+
+    def test_object_carrying_both_vocabularies_does_not_double_count(self) -> None:
+        class Both:
+            prompt_token_count = 10
+            prompt_tokens = 99
+            candidates_token_count = 5
+            completion_tokens = 99
+
+        self.assertEqual(normalize_usage(Both()), {"prompt_tokens": 10, "output_tokens": 5})
+
+    def test_generate_records_response_usage(self) -> None:
+        client = _OAClient(response=_OAResponse('{"a": 1}', _OAUsage(700, 150, 850)))
+        provider, self._patcher = _ollama_provider(client)
+
+        self.assertEqual(provider.generate([{"role": "user", "content": "hi"}]), '{"a": 1}')
+        self.assertEqual(
+            take_usage(),
+            {"prompt_tokens": 700, "output_tokens": 150, "total_tokens": 850, "provider_calls": 1},
+        )
+
+    def test_story_and_json_paths_record_usage_too(self) -> None:
+        client = _OAClient(response=_OAResponse("text", _OAUsage(10, 5, 15)))
+        provider, self._patcher = _ollama_provider(client)
+
+        provider.generate_story([{"role": "user", "content": "hi"}])
+        provider.generate_json([{"role": "user", "content": "hi"}])
+        self.assertEqual(take_usage()["provider_calls"], 2)
+
+    def test_stream_requests_usage_and_records_the_final_empty_chunk(self) -> None:
+        # With stream_options.include_usage the compat server appends one chunk
+        # with choices == [] carrying usage. It must be recorded, and the empty
+        # choices list must not raise (the old loop indexed choices[0]).
+        chunks = [
+            _OAChunk("{"),
+            _OAChunk('"a": 1'),
+            _OAChunk("}"),
+            _OAChunk(None, _OAUsage(700, 30, 730)),
+        ]
+        client = _OAClient(chunks=chunks)
+        provider, self._patcher = _ollama_provider(client)
+
+        self.assertEqual("".join(provider.stream([{"role": "user", "content": "hi"}])), '{"a": 1}')
+        self.assertEqual(client.completions.calls[0]["stream_options"], {"include_usage": True})
+        self.assertEqual(
+            take_usage(),
+            {"prompt_tokens": 700, "output_tokens": 30, "total_tokens": 730, "provider_calls": 1},
+        )
+
+    def test_stream_without_usage_chunk_still_streams_and_logs_nothing(self) -> None:
+        # An older server ignoring stream_options: behaviour unchanged, no zeros.
+        client = _OAClient(chunks=[_OAChunk("{"), _OAChunk("}")])
+        provider, self._patcher = _ollama_provider(client)
+
+        self.assertEqual("".join(provider.stream_story([{"role": "user", "content": "hi"}])), "{}")
+        self.assertEqual(take_usage(), {})
+
+    def test_local_streamed_turn_logs_prompt_and_output_tokens(self) -> None:
+        """Done-criterion of the NEXT_PLAN item: a local turn logs the counts."""
+        from datetime import UTC, datetime
+
+        from mythos_core import LoopPhase, LoopState, PlayerProfile
+        from mythos_narrative.director import NarrativeDirector
+        from mythos_narrative.schemas import NarrativeContext
+
+        valid = _RetryingUsageProvider.VALID
+        half = len(valid) // 2
+        chunks = [
+            _OAChunk(valid[:half]),
+            _OAChunk(valid[half:]),
+            _OAChunk(None, _OAUsage(1200, 260, 1460)),
+        ]
+        client = _OAClient(chunks=chunks)
+        provider, self._patcher = _ollama_provider(client)
+        director = NarrativeDirector(provider=provider)
+
+        now = datetime(2026, 9, 5, tzinfo=UTC)
+        context = NarrativeContext(
+            player=PlayerProfile(
+                player_id="player_o", display_name="O", created_at=now, updated_at=now
+            ),
+            loop=LoopState(
+                loop_id="loop_o",
+                player_id="player_o",
+                seed="seed_o",
+                phase=LoopPhase.EXPLORE,
+                location_id="data-layer-01",
+                stability=70,
+                tension=50,
+                started_at=now,
+            ),
+            turn_index=3,
+            recent_events=[],
+            fast_mode=True,
+        )
+
+        with self.assertLogs(director.logger, level="INFO") as captured:
+            events = list(director.stream_next_scene(context))
+
+        self.assertEqual(events[-1].kind, "final")
+        finished = [r for r in captured.records if r.getMessage() == "narrative streaming finished"]
+        self.assertEqual(len(finished), 1)
+        fields = finished[0].__dict__
+        self.assertEqual(fields["loop_id"], "loop_o")
+        self.assertEqual(fields["prompt_tokens"], 1200)
+        self.assertEqual(fields["output_tokens"], 260)
+        self.assertEqual(fields["provider_calls"], 1)
 
 
 class JsonFormatterTest(unittest.TestCase):

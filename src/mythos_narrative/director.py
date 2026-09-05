@@ -34,7 +34,7 @@ from .schemas import (
 )
 from .streaming import NarrationFieldExtractor, NarrativeStreamEvent, PlainTextStoryExtractor
 from .trace import set_trace_fields, unwrap_provider, wrap_provider
-from .usage import clear_usage, take_usage
+from .usage import clear_usage, record_usage, take_usage
 from .variation import NoveltyController
 
 
@@ -142,6 +142,30 @@ def _sampler(**fields: Any) -> dict[str, Any]:
     return render(spec, engine)
 
 
+_STREAM_USAGE_OPTIONS: dict[str, bool] = {"include_usage": True}
+
+
+def _iter_stream_content(stream: Any) -> Iterator[str]:
+    """Yield delta text from an OpenAI-compat stream and record its usage.
+
+    With ``stream_options.include_usage`` the server appends one final chunk
+    that has ``choices == []`` and carries ``usage``; an ordinary chunk has a
+    delta and ``usage`` unset. Both shapes are handled: an empty ``choices`` must
+    not raise, and usage is recorded from whichever chunk carries it (the compat
+    contract is once, on the final chunk).
+    """
+    for chunk in stream:
+        usage = getattr(chunk, "usage", None)
+        if usage is not None:
+            record_usage(usage)
+        choices = getattr(chunk, "choices", None) or []
+        if not choices:
+            continue
+        content = choices[0].delta.content
+        if content:
+            yield content
+
+
 @dataclass(frozen=True)
 class OllamaJSONProvider:
     config: AgentConfig
@@ -169,6 +193,7 @@ class OllamaJSONProvider:
             ),
         }
         response = client.chat.completions.create(**kwargs)
+        record_usage(getattr(response, "usage", None))
         content = response.choices[0].message.content
         return content.strip() if content else ""
 
@@ -185,6 +210,7 @@ class OllamaJSONProvider:
             ),
         }
         response = client.chat.completions.create(**kwargs)
+        record_usage(getattr(response, "usage", None))
         content = response.choices[0].message.content
         return content.strip() if content else ""
 
@@ -211,6 +237,7 @@ class OllamaJSONProvider:
                 raise
             kwargs["response_format"] = {"type": "json_object"}
             response = client.chat.completions.create(**kwargs)
+        record_usage(getattr(response, "usage", None))
         content = response.choices[0].message.content
         return content.strip() if content else ""
 
@@ -221,6 +248,9 @@ class OllamaJSONProvider:
             "model": self.config.ollama_model,
             "messages": messages,
             "stream": True,
+            # Ask for the usage-bearing final chunk (OpenAI compat; Ollama honours
+            # it since 0.3.x). Without it a streamed local turn logs no tokens.
+            "stream_options": _STREAM_USAGE_OPTIONS,
             **_sampler(
                 temperature=0.3,
                 max_output_tokens=2048,
@@ -237,10 +267,7 @@ class OllamaJSONProvider:
                 raise
             kwargs["response_format"] = {"type": "json_object"}
             stream = client.chat.completions.create(**kwargs)
-        for chunk in stream:
-            content = chunk.choices[0].delta.content
-            if content:
-                yield content
+        yield from _iter_stream_content(stream)
 
     def stream_story(self, messages: list[dict[str, str]], *, model: str | None = None) -> Iterator[str]:
         """Streams raw story text using storyteller model (gemma4:26b) without constraints."""
@@ -250,6 +277,9 @@ class OllamaJSONProvider:
             "model": target_model,
             "messages": messages,
             "stream": True,
+            # Ask for the usage-bearing final chunk (OpenAI compat; Ollama honours
+            # it since 0.3.x). Without it a streamed local turn logs no tokens.
+            "stream_options": _STREAM_USAGE_OPTIONS,
             **_sampler(
                 temperature=0.4,
                 max_output_tokens=2048,
@@ -259,10 +289,7 @@ class OllamaJSONProvider:
             ),
         }
         stream = client.chat.completions.create(**kwargs)
-        for chunk in stream:
-            content = chunk.choices[0].delta.content
-            if content:
-                yield content
+        yield from _iter_stream_content(stream)
 
 
 

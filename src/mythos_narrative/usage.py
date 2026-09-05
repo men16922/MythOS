@@ -20,14 +20,23 @@ from __future__ import annotations
 from contextvars import ContextVar
 from typing import Any
 
-# Gemini's usage_metadata field -> the key used in logs and spans. Names are kept
-# explicit rather than derived so a future SDK rename fails loudly in tests.
+# Provider usage field -> the key used in logs and spans. Names are kept explicit
+# rather than derived so a future SDK rename fails loudly in tests. Two vocabularies
+# are recognised: Gemini's ``usage_metadata`` and the OpenAI ``CompletionUsage``
+# shape that Ollama's compat endpoint returns (``prompt_eval_count``/``eval_count``
+# arrive there as ``prompt_tokens``/``completion_tokens``). The first vocabulary
+# to fill a key wins; an object carrying both never double-counts.
 _USAGE_FIELDS: tuple[tuple[str, str], ...] = (
+    # Gemini
     ("prompt_token_count", "prompt_tokens"),
     ("candidates_token_count", "output_tokens"),
     ("total_token_count", "total_tokens"),
     ("thoughts_token_count", "thinking_tokens"),
     ("cached_content_token_count", "cached_tokens"),
+    # OpenAI-compatible (Ollama, vLLM, llama.cpp server, mlx_lm.server)
+    ("prompt_tokens", "prompt_tokens"),
+    ("completion_tokens", "output_tokens"),
+    ("total_tokens", "total_tokens"),
 )
 
 _USAGE: ContextVar[dict[str, int] | None] = ContextVar("mythos_narrative_usage", default=None)
@@ -44,6 +53,8 @@ def normalize_usage(raw: Any) -> dict[str, int]:
         return {}
     usage: dict[str, int] = {}
     for source, name in _USAGE_FIELDS:
+        if name in usage:
+            continue
         value = getattr(raw, source, None)
         if isinstance(value, bool) or not isinstance(value, int):
             continue

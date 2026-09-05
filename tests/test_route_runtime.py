@@ -559,6 +559,98 @@ if __name__ == "__main__":
     unittest.main()
 
 
+class ReplayPinsPassedPerspectivesTest(unittest.TestCase):
+    """2026-09-05 review residual: ``advance_route`` replays the whole visited
+    path every turn. A passed anchor's perspective must stay the one it was
+    rewarded for (``session._apply_route_node_reward`` pays once, on entry) —
+    flags the player gains *later* must not re-score it and drift the ending /
+    relationship / axis tallies away from the paid reward."""
+
+    @staticmethod
+    def _map() -> dict[str, Any]:
+        nodes: dict[str, Any] = {
+            "a": {"id": "a", "type": "story", "layer": 0},
+            "b": {
+                "id": "b",
+                "type": "story",
+                "layer": 1,
+                "default_perspective": "p_def",
+                "perspectives": [
+                    {
+                        "id": "p_def",
+                        "axis": "people",
+                        "when": [],
+                        "ending_influence": ["e_def"],
+                        "effect": {"flags": ["saw_default"], "relationship": {"se_rin": 1}},
+                    },
+                    {
+                        "id": "p_alt",
+                        "axis": "control",
+                        "when": ["later_flag"],
+                        "ending_influence": ["e_alt"],
+                        "effect": {"flags": ["saw_alt"], "relationship": {"kai": 2}},
+                    },
+                ],
+            },
+            "c": {"id": "c", "type": "rest", "layer": 2},
+        }
+        return {
+            "layers": [["a"], ["b"], ["c"]],
+            "nodes": nodes,
+            "edges": {"a": ["b"], "b": ["c"]},
+            "current": "a",
+            "visited": ["a"],
+        }
+
+    def test_flag_added_later_does_not_rescore_passed_anchor(self) -> None:
+        state = {ROUTE_MAP_KEY: self._map(), "flags": []}
+        entered = advance_route(state, turn_index=5, seed="pin")
+        rm1 = entered[ROUTE_MAP_KEY]
+        self.assertEqual(rm1["current"], "b")
+        self.assertEqual(rm1["active_perspectives"]["b"], "p_def")
+        self.assertEqual(rm1["ending_tally"], {"e_def": 1})
+        self.assertEqual(rm1["relationship_tally"], {"se_rin": 1})
+        self.assertIn("saw_default", entered["flags"])
+
+        # A scene choice grants the alt-perspective flag while the route lingers
+        # on the anchor, and later after moving past it. Both replays must keep
+        # the rewarded perspective and its tallies.
+        later = dict(entered)
+        later["flags"] = sorted(set(entered["flags"]) | {"later_flag"})
+        for turn in (6, 9, 10, 14):
+            replayed = advance_route(later, turn_index=turn, seed="pin")
+            rm = replayed[ROUTE_MAP_KEY]
+            self.assertEqual(rm["active_perspectives"]["b"], "p_def", turn)
+            self.assertEqual(rm["ending_tally"], {"e_def": 1}, turn)
+            self.assertEqual(rm["relationship_tally"], {"se_rin": 1}, turn)
+            self.assertEqual(rm["axis_tally"], {"people": 1}, turn)
+            self.assertNotIn("saw_alt", replayed["flags"], turn)
+            self.assertIn("later_flag", replayed["flags"], turn)
+            later = replayed
+
+    def test_fresh_entry_still_scores_against_current_flags(self) -> None:
+        # Control: the pin only holds *stored* perspectives. A player who holds the
+        # flag before entering the anchor gets the alt perspective on entry.
+        state = {ROUTE_MAP_KEY: self._map(), "flags": ["later_flag"]}
+        entered = advance_route(state, turn_index=5, seed="pin")
+        rm = entered[ROUTE_MAP_KEY]
+        self.assertEqual(rm["active_perspectives"]["b"], "p_alt")
+        self.assertEqual(rm["ending_tally"], {"e_alt": 1})
+        self.assertEqual(rm["relationship_tally"], {"kai": 2})
+
+    def test_unknown_pinned_id_falls_back_to_fresh_scoring(self) -> None:
+        # A stored id the scenario no longer authors must not crash or drop the
+        # anchor from the tally; it re-scores like a fresh entry.
+        route_map = self._map()
+        route_map["current"] = "b"
+        route_map["visited"] = ["a", "b"]
+        route_map["active_perspectives"] = {"b": "p_removed"}
+        state = {ROUTE_MAP_KEY: route_map, "flags": []}
+        replayed = advance_route(state, turn_index=6, seed="pin")
+        self.assertEqual(replayed[ROUTE_MAP_KEY]["active_perspectives"]["b"], "p_def")
+        self.assertEqual(replayed[ROUTE_MAP_KEY]["ending_tally"], {"e_def": 1})
+
+
 class AxisIntentFlagTest(unittest.TestCase):
     """Deterministic play-style → axis-intent flags (route_runtime).
 

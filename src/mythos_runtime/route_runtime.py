@@ -176,6 +176,16 @@ def advance_route(
     party_add: set[str] = set()
     flag_set = set(flags)
     junction_set = set(junction_picks)
+    # Perspectives already resolved on an earlier turn are *pinned*: the node's
+    # reward/effect was paid once on entry for that perspective (session
+    # ``_apply_route_node_reward``), so re-scoring a passed anchor against flags
+    # the player gained later would drift the ending/relationship/axis tallies
+    # and the displayed lens away from what was actually rewarded. Only nodes
+    # entered this call (not yet in the stored map) are scored fresh.
+    raw_pinned = route_map.get("active_perspectives")
+    pinned: dict[str, str] = (
+        {str(k): str(v) for k, v in raw_pinned.items()} if isinstance(raw_pinned, dict) else {}
+    )
     for node_id in visited:
         node = nodes.get(node_id, {})
         node_effect = node.get("effect", {})
@@ -200,7 +210,9 @@ def advance_route(
                 if waypoint_axis is not None:
                     _accrue_axis(waypoint_axis, axis_tally, flag_set)
             continue
-        chosen = select_perspective(node, flag_set)
+        chosen = _pinned_perspective(perspectives, pinned.get(node_id)) or select_perspective(
+            node, flag_set
+        )
         if chosen is None:
             continue
         active[node_id] = str(chosen.get("id", ""))
@@ -256,6 +268,22 @@ def advance_route(
         party["members"] = members
         new_state["_party"] = party
     return new_state
+
+
+def _pinned_perspective(
+    perspectives: list[dict[str, Any]], perspective_id: str | None
+) -> dict[str, Any] | None:
+    """Return the authored perspective matching a stored id, or ``None``.
+
+    ``None`` (unknown id, or a perspective the scenario no longer authors) lets
+    the caller fall back to a fresh ``select_perspective`` scoring.
+    """
+    if not perspective_id:
+        return None
+    for perspective in perspectives:
+        if isinstance(perspective, dict) and str(perspective.get("id", "")) == perspective_id:
+            return perspective
+    return None
 
 
 def _accrue_axis(axis: str, axis_tally: dict[str, int], flag_set: set[str]) -> None:

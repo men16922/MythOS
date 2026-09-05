@@ -70,9 +70,7 @@ def _glossary_short_substrings(
     gloss = load_glossary(scenario_id, language)
     items = [(k, v) for k, v in gloss.items() if len(k) < _GLOSS_SUBSTR_MIN_LEN]
     items.sort(key=lambda kv: len(kv[0]), reverse=True)
-    return tuple(
-        (re.compile(rf"(?<![가-힣]){re.escape(k)}(?![가-힣])"), v) for k, v in items
-    )
+    return tuple((re.compile(rf"(?<![가-힣]){re.escape(k)}(?![가-힣])"), v) for k, v in items)
 
 
 @lru_cache(maxsize=16)
@@ -127,10 +125,7 @@ def _localize(
     if isinstance(obj, list):
         return [_localize(v, glossary, phrases, gloss_sub, gloss_short) for v in obj]
     if isinstance(obj, dict):
-        return {
-            k: _localize(v, glossary, phrases, gloss_sub, gloss_short)
-            for k, v in obj.items()
-        }
+        return {k: _localize(v, glossary, phrases, gloss_sub, gloss_short) for k, v in obj.items()}
     return obj
 
 

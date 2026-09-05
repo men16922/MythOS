@@ -4,6 +4,7 @@ Reads docs/cbt/v2/narration.en.json and ELEVENLAB_API_KEY from .env. The manifes
 contains the exact timeline and source text, so a different approved narrator can
 be regenerated deterministically with --voice-id.
 """
+
 from __future__ import annotations
 
 import argparse

@@ -43,9 +43,7 @@ def _review_item(
     }
 
 
-def _classify(
-    bundle_path: Path, bundle: dict[str, Any]
-) -> tuple[str, dict[str, Any]]:
+def _classify(bundle_path: Path, bundle: dict[str, Any]) -> tuple[str, dict[str, Any]]:
     verdict = _read_json(bundle_path.parent / "verdict.json") or {}
     required = bundle.get("required_objectives", [])
     if not isinstance(required, list) or not required:
@@ -140,9 +138,7 @@ def build_review(
         sample_count = min(sample_cap, max(1, math.ceil(len(clean) * sample_rate)))
     ranked = sorted(
         clean,
-        key=lambda item: hashlib.sha256(
-            f"{seed}:{item['run_id']}".encode()
-        ).hexdigest(),
+        key=lambda item: hashlib.sha256(f"{seed}:{item['run_id']}".encode()).hexdigest(),
     )
     sample = ranked[:sample_count]
     return {

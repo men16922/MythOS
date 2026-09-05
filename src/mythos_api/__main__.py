@@ -28,9 +28,7 @@ def main() -> None:
     # per streamed token. MYTHOS_LOG_LEVEL controls only our own "mythos" structured
     # logs (set above via configure_logging); the finished scene narration is logged
     # once at INFO (session._commit_scene), so the final sentence shows without spam.
-    uvicorn.run(
-        "mythos_api.app:create_app", host=host, port=port, factory=True, log_level="info"
-    )
+    uvicorn.run("mythos_api.app:create_app", host=host, port=port, factory=True, log_level="info")
 
 
 if __name__ == "__main__":

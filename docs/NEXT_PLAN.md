@@ -58,7 +58,7 @@ Scope is a research bench, **not** production self-hosting — the evidence puts
 
 - `[x]` `[auto:claude]` ruff-format `src/mythos_runtime`. Done: `.venv/bin/ruff format --check src/mythos_runtime` passes, `make check` green, no semantic change.
 - `[x]` `[auto:claude]` ruff-format `src/mythos_narrative src/mythos_core src/mythos_memory src/mythos_loop`. Done: `ruff format --check` on those dirs passes, `make check` green.
-- `[ ]` `[auto:claude]` ruff-format `src/mythos_combat src/mythos_api src/mythos_image_agent src/mythos_ui/*.py experiments scripts`. Done: `ruff format --check` on those paths passes, `make check` green.
+- `[x]` `[auto:claude]` ruff-format `src/mythos_combat src/mythos_api src/mythos_image_agent src/mythos_ui/*.py experiments scripts`. Done: `ruff format --check` on those paths passes, `make check` green.
 - `[ ]` `[auto:claude]` ruff-format `tests`. Done: `ruff format --check tests` passes, `make check` green.
 - `[ ]` `[auto:claude]` wire `ruff format --check .` into the `python-lint` Makefile target (only after the four format seeds above are `[x]`). Done: `make lint` runs it and is green.
 - `[ ]` `[auto:codex]` compress `docs/PROGRESS_LOG.md` (17.7k/18k chars): keep the newest 5 increments, move older ones into `bin/docs/archive/progress-2026-09.md` (newest-on-top, no data loss). Done: `make check-doc-budget` green, `rg '^## ' bin/docs/archive/progress-2026-09.md` has no duplicate headers.

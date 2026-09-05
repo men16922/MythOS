@@ -96,7 +96,9 @@ class Combatant:
     def effective_defense(self) -> int:
         # 산성 (status slice 2): dissolved plating — -2 while active, floor 1.
         acid_pen = 2 if self.has_status("acid") else 0
-        return max(1, self.defense + (4 if self.defending else 0) + max(0, self.defense_buff) - acid_pen)
+        return max(
+            1, self.defense + (4 if self.defending else 0) + max(0, self.defense_buff) - acid_pen
+        )
 
     @property
     def effective_speed(self) -> int:

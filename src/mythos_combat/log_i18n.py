@@ -190,9 +190,18 @@ _LINES: dict[str, dict[str, str]] = {
         "ko": "{name}을(를) 발동할 집중이 부족하다.",
         "en": "Not enough focus to use {name}.",
     },
-    "skill_no_resource": {"ko": "{name}에 필요한 자원이 없다.", "en": "No resources to use {name}."},
-    "skill_no_target": {"ko": "{name}: 사거리 안에 표적이 없다.", "en": "{name}: no target in range."},
-    "skill_activate": {"ko": "{actor}이(가) {skill}을(를) 발동한다.", "en": "{actor} activates {skill}."},
+    "skill_no_resource": {
+        "ko": "{name}에 필요한 자원이 없다.",
+        "en": "No resources to use {name}.",
+    },
+    "skill_no_target": {
+        "ko": "{name}: 사거리 안에 표적이 없다.",
+        "en": "{name}: no target in range.",
+    },
+    "skill_activate": {
+        "ko": "{actor}이(가) {skill}을(를) 발동한다.",
+        "en": "{actor} activates {skill}.",
+    },
     "boss_enrage": {
         "ko": "{name}의 코어가 과부하로 점화된다 — 최적화 의지가 한계를 넘어선다.",
         "en": "{name}'s core ignites into overload — its optimization will breaks past all limits.",
@@ -298,9 +307,15 @@ _LINES: dict[str, dict[str, str]] = {
         "ko": "{actor}이(가) {target}의 HP를 {healed} 회복시켰다.",
         "en": "{actor} restores {healed} HP to {target}.",
     },
-    "enemy_flee": {"ko": "{name}이(가) 겁에 질려 물러난다.", "en": "{name} recoils in fear and pulls back."},
+    "enemy_flee": {
+        "ko": "{name}이(가) 겁에 질려 물러난다.",
+        "en": "{name} recoils in fear and pulls back.",
+    },
     "move": {"ko": "{name}이(가) ({x}, {y})로 이동한다.", "en": "{name} moves to ({x}, {y})."},
-    "move_shift": {"ko": "{name}이(가) ({x}, {y})로 움직인다.", "en": "{name} shifts to ({x}, {y})."},
+    "move_shift": {
+        "ko": "{name}이(가) ({x}, {y})로 움직인다.",
+        "en": "{name} shifts to ({x}, {y}).",
+    },
     "crit_tag": {"ko": "치명타! ", "en": "Critical! "},
     # engine "end" log-entry outcome text
     "end_victory": {"ko": "적을 모두 제압했다.", "en": "All enemies subdued."},
@@ -315,7 +330,10 @@ _LINES: dict[str, dict[str, str]] = {
         "ko": "교전이 끝났다. 당신은 살아남았다.",
         "en": "The engagement ends. You survived.",
     },
-    "outcome_defeat": {"ko": "시야가 흐려진다. 신호가 끊긴다…", "en": "Your vision blurs. The signal cuts out…"},
+    "outcome_defeat": {
+        "ko": "시야가 흐려진다. 신호가 끊긴다…",
+        "en": "Your vision blurs. The signal cuts out…",
+    },
     "outcome_fled": {
         "ko": "당신은 어둠 속으로 몸을 던져 전장을 빠져나간다.",
         "en": "You hurl yourself into the dark and slip off the battlefield.",

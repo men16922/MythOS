@@ -509,6 +509,7 @@ class NarrativeDirector:
         model: str | None = None,
     ) -> tuple[Scene, ScenePayload]:
         # Step 1: Storytelling plain text generation (Gemma 26B / 8B according to model parameter)
+        clear_usage()
         try:
             with timed(
                 "mythos.narrative.generate_story",
@@ -517,8 +518,11 @@ class NarrativeDirector:
                 player_id=context.player.player_id,
                 loop_id=context.loop.loop_id,
                 provider=type(unwrap_provider(self.provider)).__name__,
-            ):
+            ) as log_fields:
                 story_text = cast(Any, self.provider).generate_story(story_messages, model=model)
+                # The local dual path is the default dev path; without this the
+                # provider's recorded usage never reached a log (live check 2026-09-06).
+                log_fields.update(take_usage())
         except Exception:
             self.logger.warning("storyteller model failed, using fallback", exc_info=True)
             scene, payload = self.fallback_scene(context)
@@ -559,6 +563,7 @@ class NarrativeDirector:
         raw_parts: list[str] = []
         extractor = PlainTextStoryExtractor()
         start = perf_counter()
+        clear_usage()
         try:
             # Stream storyteller text in real-time (routed model)
             for chunk in stream_method(story_messages, model=model):
@@ -597,6 +602,8 @@ class NarrativeDirector:
                 "status": "fallback" if outcome == OUTCOME_FALLBACK else "succeeded",
                 "outcome": outcome,
                 "reason": reason,
+                # Token counts recorded by the storyteller stream (usage chunk).
+                **take_usage(),
             },
         )
         self._record_outcome(context, outcome, reason=reason)

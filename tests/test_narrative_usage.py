@@ -432,6 +432,103 @@ class OllamaProviderUsageTest(unittest.TestCase):
         self.assertEqual(fields["provider_calls"], 1)
 
 
+class OllamaDualPathUsageTest(unittest.TestCase):
+    """The local default is the dual path (storyteller model != parser model). Its
+    stream/generate branches logged no token fields even though the provider
+    recorded them (live check 2026-09-06: prompt_tokens None on a real turn)."""
+
+    STORY = "[TITLE]\nRecovered\n[LOCATION]\ndata-layer-01\n[SCENE]\nA real scene arrives.\n"
+
+    def setUp(self) -> None:
+        clear_usage()
+        self._patcher: Any = None
+
+    def tearDown(self) -> None:
+        if self._patcher is not None:
+            self._patcher.stop()
+
+    def _dual_provider(self, client: _OAClient) -> Any:
+        from unittest.mock import patch
+
+        from mythos_image_agent.config import AgentConfig
+        from mythos_narrative.director import OllamaJSONProvider
+
+        config = AgentConfig(
+            ollama_model="m", ollama_model_story="story-m", ollama_model_parser="parser-m"
+        )
+        provider = OllamaJSONProvider(config=config)
+        self._patcher = patch.object(OllamaJSONProvider, "_client", lambda self: client)
+        self._patcher.start()
+        return provider
+
+    def _context(self) -> Any:
+        from datetime import UTC, datetime
+
+        from mythos_core import LoopPhase, LoopState, PlayerProfile
+        from mythos_narrative.schemas import NarrativeContext
+
+        now = datetime(2026, 9, 6, tzinfo=UTC)
+        return NarrativeContext(
+            player=PlayerProfile(
+                player_id="player_d", display_name="D", created_at=now, updated_at=now
+            ),
+            loop=LoopState(
+                loop_id="loop_d",
+                player_id="player_d",
+                seed="seed_d",
+                phase=LoopPhase.EXPLORE,
+                location_id="data-layer-01",
+                stability=70,
+                tension=50,
+                started_at=now,
+            ),
+            turn_index=3,
+            recent_events=[],
+            fast_mode=True,
+        )
+
+    def test_dual_stream_logs_the_storyteller_usage(self) -> None:
+        from mythos_narrative.director import NarrativeDirector
+
+        half = len(self.STORY) // 2
+        client = _OAClient(
+            chunks=[
+                _OAChunk(self.STORY[:half]),
+                _OAChunk(self.STORY[half:]),
+                _OAChunk(None, _OAUsage(1500, 210, 1710)),
+            ]
+        )
+        director = NarrativeDirector(provider=self._dual_provider(client))
+        self.assertTrue(director._use_dual_model())
+
+        with self.assertLogs(director.logger, level="INFO") as captured:
+            events = list(director.stream_next_scene(self._context()))
+
+        self.assertEqual(events[-1].kind, "final")
+        finished = [r for r in captured.records if r.getMessage() == "narrative streaming finished"]
+        self.assertEqual(len(finished), 1)
+        self.assertEqual(finished[0].__dict__["prompt_tokens"], 1500)
+        self.assertEqual(finished[0].__dict__["output_tokens"], 210)
+        self.assertEqual(finished[0].__dict__["provider_calls"], 1)
+
+    def test_dual_generate_logs_the_storyteller_usage(self) -> None:
+        from mythos_narrative.director import NarrativeDirector
+
+        client = _OAClient(response=_OAResponse(self.STORY, _OAUsage(1400, 190, 1590)))
+        director = NarrativeDirector(provider=self._dual_provider(client))
+
+        with self.assertLogs(director.logger, level="INFO") as captured:
+            scene, _payload = director.generate_next_scene(self._context())
+
+        self.assertEqual(scene.title, "Recovered")
+        finished = [
+            r for r in captured.records if r.getMessage() == "storytelling generation finished"
+        ]
+        self.assertEqual(len(finished), 1)
+        self.assertEqual(finished[0].__dict__["prompt_tokens"], 1400)
+        self.assertEqual(finished[0].__dict__["output_tokens"], 190)
+
+
 class JsonFormatterTest(unittest.TestCase):
     """The counts must survive JSON formatting, not just reach the LogRecord.
 

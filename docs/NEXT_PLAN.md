@@ -56,7 +56,7 @@ Scope is a research bench, **not** production self-hosting — the evidence puts
 
 ## Overnight seeds (recorded 2026-09-06, owner-approved)
 
-- `[x]` `[auto:claude]` ruff-format `src/mythos_runtime`. Done: `.venv/bin/ruff format --check src/mythos_runtime` passes, `make check` green, no semantic change.
+- `[ ]` `[auto:claude]` ruff-format `src/mythos_runtime`. Done: `.venv/bin/ruff format --check src/mythos_runtime` passes, `make check` green, no semantic change.
 - `[ ]` `[auto:claude]` ruff-format `src/mythos_narrative src/mythos_core src/mythos_memory src/mythos_loop`. Done: `ruff format --check` on those dirs passes, `make check` green.
 - `[ ]` `[auto:claude]` ruff-format `src/mythos_combat src/mythos_api src/mythos_image_agent src/mythos_ui/*.py experiments scripts`. Done: `ruff format --check` on those paths passes, `make check` green.
 - `[ ]` `[auto:claude]` ruff-format `tests`. Done: `ruff format --check tests` passes, `make check` green.

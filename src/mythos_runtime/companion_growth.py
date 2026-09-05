@@ -118,7 +118,9 @@ def growth_bonus(
     for stat, delta in boon_stats.items():
         stats[stat] = stats.get(stat, 0) + delta
 
-    return GrowthBonus(stats=stats, hp=hp, skills=skills, bond_tier=tier, upgrade_ids=upgrade_ids)
+    return GrowthBonus(
+        stats=stats, hp=hp, skills=skills, bond_tier=tier, upgrade_ids=upgrade_ids
+    )
 
 
 def companion_sheet(

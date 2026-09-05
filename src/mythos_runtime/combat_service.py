@@ -94,7 +94,9 @@ def ranked_skill_definition(skill_def: Any, rank: int) -> dict[str, Any] | None:
     if isinstance(cost.get("focus"), int | float):
         cost["focus"] = max(1, int(cost["focus"]) - bonuses["focus_reduction"])
     ranked["cost"] = cost
-    ranked["cooldown"] = max(0, int(skill_def.get("cooldown", 0)) - bonuses["cooldown_reduction"])
+    ranked["cooldown"] = max(
+        0, int(skill_def.get("cooldown", 0)) - bonuses["cooldown_reduction"]
+    )
     ranked["rank"] = max(1, int(rank))
     ranked["rank_bonuses"] = bonuses
     return ranked

@@ -141,7 +141,6 @@ def _cinematic_clarity_rule(language: str) -> str:
 def _choice_mirror_rule(language: str) -> str:
     return CHOICE_MIRROR_RULE_EN if language == "en" else CHOICE_MIRROR_RULE
 
-
 CAUSALITY_ENGINE_RULE = (
     "CAUSALITY_ENGINE_RULE: The world is a complex gear-system. "
     "1. MAIN ARC: Follow the main story progression but don't rush. "
@@ -493,7 +492,9 @@ def _narrative_act_note(state: dict[str, Any]) -> str:
         open_setups = unresolved_setups(state)
         if open_setups:
             listed = " · ".join(str(s.get("text") or s.get("id")) for s in open_setups[:4])
-            lines.append(f"미회수 떡밥 — 이 막 안에서 반드시 화면 위에서 회수하라: {listed}")
+            lines.append(
+                f"미회수 떡밥 — 이 막 안에서 반드시 화면 위에서 회수하라: {listed}"
+            )
     return "\n".join(lines)
 
 
@@ -526,7 +527,9 @@ def _noop_escalation_note(state: dict[str, Any]) -> str:
     )
 
 
-def _combat_callback_note(scenario: ScenarioConfig, loop: LoopState, turn_index: int) -> str:
+def _combat_callback_note(
+    scenario: ScenarioConfig, loop: LoopState, turn_index: int
+) -> str:
     """Post-combat narrative bridge (#5).
 
     Returns a full-render directive only on the scene immediately following a
@@ -542,7 +545,9 @@ def _combat_callback_note(scenario: ScenarioConfig, loop: LoopState, turn_index:
     enc_id = str(state.get("_last_combat_encounter") or "")
     enc_name = enc_id
     reward_intent = ""
-    encounters = scenario.combat.get("encounters", {}) if isinstance(scenario.combat, dict) else {}
+    encounters = (
+        scenario.combat.get("encounters", {}) if isinstance(scenario.combat, dict) else {}
+    )
     enc = encounters.get(enc_id) if isinstance(encounters, dict) else None
     if isinstance(enc, dict):
         enc_name = str(enc.get("name") or enc_id)
@@ -681,7 +686,8 @@ def build_runtime_narrative_context(
             notes.append(
                 "STAT VOICE REFERENCE: "
                 + " | ".join(
-                    f"{profile.name}: {profile.voice}" for profile in descriptions.values()
+                    f"{profile.name}: {profile.voice}"
+                    for profile in descriptions.values()
                 )
             )
             notes.append(
@@ -751,17 +757,13 @@ def build_runtime_narrative_context(
         # Prefer the localized cinematic shots (i18n overlay) so the opening beat's
         # {shot_title}/{shot_body} fills are in the active language; fall back to the
         # scenario's own (Korean) shots.
-        _intro = (
-            scenario.ui_copy.get("session_intro") if isinstance(scenario.ui_copy, dict) else None
-        )
+        _intro = scenario.ui_copy.get("session_intro") if isinstance(scenario.ui_copy, dict) else None
         _overlay_intro = scenario_i18n.get("session_intro")
         _overlay_shots = (
             _overlay_intro.get("cinematic_shots") if isinstance(_overlay_intro, dict) else None
         )
-        _shots = (
-            _overlay_shots
-            if isinstance(_overlay_shots, list)
-            else (_intro.get("cinematic_shots") if isinstance(_intro, dict) else None)
+        _shots = _overlay_shots if isinstance(_overlay_shots, list) else (
+            _intro.get("cinematic_shots") if isinstance(_intro, dict) else None
         )
         _shots = _shots if isinstance(_shots, list) else []
 
@@ -822,7 +824,9 @@ def build_runtime_narrative_context(
     # FULL — merging it let the MAX_PROMPT_NOTES truncation silently drop the
     # anti-repeat directives + previous-scene prose, which is why repetition
     # suppression looked broken in live play.
-    session_synopsis = build_session_synopsis(loop.state) if isinstance(loop.state, dict) else []
+    session_synopsis = (
+        build_session_synopsis(loop.state) if isinstance(loop.state, dict) else []
+    )
 
     # The opening 5-beat directives must reach the model verbatim. novelty_notes
     # is truncated to the last MAX_PROMPT_NOTES entries, and on the opening turns
@@ -1293,9 +1297,7 @@ def _route_director_notes(
         ]
     node_image = str(node.get("image") or "").strip()
     if node_image and fresh_node:
-        image_hint = (
-            node_image.rsplit("/", 1)[-1].rsplit(".", 1)[0].replace("-", " ").replace("_", " ")
-        )
+        image_hint = node_image.rsplit("/", 1)[-1].rsplit(".", 1)[0].replace("-", " ").replace("_", " ")
         if en:
             lines.append(
                 f"Key scene-image consistency: this node uses the pre-made image '{node_image}'. "
@@ -1590,7 +1592,9 @@ def _scenario_structure_notes(
             if isinstance(source, dict):
                 goal = str(source.get("goal", "")).strip()
                 rules = source.get("behavior_rules")
-                rule_text = " / ".join(str(r) for r in rules) if isinstance(rules, list) else ""
+                rule_text = (
+                    " / ".join(str(r) for r in rules) if isinstance(rules, list) else ""
+                )
                 detail = " — ".join(part for part in (goal, rule_text) if part)
                 agendas.append(f"{display}: {detail}" if detail else display)
             else:
@@ -1602,7 +1606,9 @@ def _scenario_structure_notes(
     return notes
 
 
-def _localized_named_items(items: Sequence[dict[str, Any]], overlay: Any) -> list[dict[str, Any]]:
+def _localized_named_items(
+    items: Sequence[dict[str, Any]], overlay: Any
+) -> list[dict[str, Any]]:
     """Overlay localized prose onto named items by index (additive; missing → KO source).
 
     Each overlay entry's keys (title/summary/description) shadow the source item's, so a

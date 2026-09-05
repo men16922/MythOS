@@ -57,9 +57,7 @@ def extend_route(
     # into the caller's previous loop state — its layers listed node ids its
     # own ``nodes`` did not hold.
     layers = [list(layer) for layer in raw_layers]
-    growth = {
-        key: (dict(spec) if isinstance(spec, dict) else spec) for key, spec in raw_growth.items()
-    }
+    growth = {key: (dict(spec) if isinstance(spec, dict) else spec) for key, spec in raw_growth.items()}
 
     nodes = {nid: dict(n) for nid, n in route_map.get("nodes", {}).items()}
     edges = {nid: list(t) for nid, t in route_map.get("edges", {}).items()}

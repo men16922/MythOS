@@ -616,8 +616,8 @@ class SimulatorTestKitTest(unittest.TestCase):
     def test_kit_unlocks_full_skill_pool_and_grants_throwables(self) -> None:
         source = read("src/mythos_runtime/session.py")
         self.assertIn('meta["learned_skills"] = sorted(skills_pool.keys())', source)
-        self.assertRegex(source, r'"incendiary_grenade",\s*"cryo_grenade",')
-        self.assertRegex(source, r'"emp_grenade",\s*"emp_grenade",')
+        self.assertIn('"incendiary_grenade", "cryo_grenade",', source)
+        self.assertIn('"emp_grenade", "emp_grenade",', source)
 
 
 class CombatResponsivenessTest(unittest.TestCase):

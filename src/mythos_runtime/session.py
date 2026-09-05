@@ -219,10 +219,7 @@ def _companions_in_text(alias_map: dict[str, list[str]], text: str) -> list[str]
 # G1 setup ledger seeds: the opening variant's hook line is a planted setup the
 # climax act must pay off unless the loop resolved it (any listed flag earned).
 _OPENING_HOOK_SETUPS: dict[str, tuple[str, list[str]]] = {
-    "kai": (
-        "카이의 백도어 신호 — 폐기층 좌표 조각의 정체",
-        ["kai_found", "rebooted_kai", "kai_awakened"],
-    ),
+    "kai": ("카이의 백도어 신호 — 폐기층 좌표 조각의 정체", ["kai_found", "rebooted_kai", "kai_awakened"]),
     "lin_yue": ("린위에의 의뢰 쪽지 — 깨어날 자리를 알던 자", ["met_lin_yue"]),
     "han": ("지름길을 알려주고 사라진 사내의 정체", ["met_han"]),
     "su_ah": ("감시망에 구멍을 뚫는 익명의 핑", ["met_su_ah"]),
@@ -260,7 +257,9 @@ def _strip_carried_companion_presence(state: dict[str, Any], scenario: Any) -> N
     }
     if not companion_ids:
         return
-    carried = {f"{prefix}{cid}" for prefix in _COMPANION_FLAG_PREFIXES for cid in companion_ids}
+    carried = {
+        f"{prefix}{cid}" for prefix in _COMPANION_FLAG_PREFIXES for cid in companion_ids
+    }
     flags = state.get("flags")
     if isinstance(flags, list):
         state["flags"] = [flag for flag in flags if str(flag) not in carried]
@@ -309,7 +308,6 @@ def _select_opening_variant(
     if not pool:
         return "default"
     return str(dice.choice(pool))
-
 
 if TYPE_CHECKING:
     from mythos_runtime.visual_service import VisualGenerationResult
@@ -469,12 +467,12 @@ class RuntimeSessionService:
         )
         archetype_id = self._resolved_archetype(player, options.scenario_id)
         item_ids = (
-            starting_items.get(archetype_id or "", []) if isinstance(starting_items, dict) else []
+            starting_items.get(archetype_id or "", [])
+            if isinstance(starting_items, dict)
+            else []
         )
         if item_ids:
-            item_defs = (
-                scenario.combat.get("items", {}) if isinstance(scenario.combat, dict) else {}
-            )
+            item_defs = scenario.combat.get("items", {}) if isinstance(scenario.combat, dict) else {}
             inventory = list(initial_state.get("_inventory", []))
             for item_id in item_ids:
                 if item_id in item_defs:
@@ -549,7 +547,9 @@ class RuntimeSessionService:
                 unlocked_companions=unlocked_allies,
                 met_companions=allies_met,
                 priority_companion=(
-                    opening_variant if opening_variant not in ("default", "solo") else None
+                    opening_variant
+                    if opening_variant not in ("default", "solo")
+                    else None
                 ),
             )
             # B3 signal-jam style modifiers shrink the dynamic map's lookahead
@@ -1429,7 +1429,9 @@ class RuntimeSessionService:
         event_dicts = [to_json_dict(e) for e in events]
         # `archive()` has no RuntimeOptions — the loop's own persisted language is
         # the only source, and an EN loop must not archive a Korean summary.
-        summary_text = self.director.summarize_loop(event_dicts, language=_loop_language(loop))
+        summary_text = self.director.summarize_loop(
+            event_dicts, language=_loop_language(loop)
+        )
         narrative_shards = self.store.list_narrative_shards(loop.player_id, limit=1000)
         run_summary_memory = _run_summary_memory_from_archive(
             ended_loop,
@@ -1630,7 +1632,9 @@ class RuntimeSessionService:
         if wearer_id != "player":
             party = loop.state.get("_party") if isinstance(loop.state, dict) else {}
             members = party.get("members", []) if isinstance(party, dict) else []
-            member_ids = {str(m.get("id")) if isinstance(m, dict) else str(m) for m in members}
+            member_ids = {
+                str(m.get("id")) if isinstance(m, dict) else str(m) for m in members
+            }
             if wearer_id not in member_ids:
                 raise RuntimeError(f"wearer {wearer_id!r} is not in the current party")
         inventory = list(loop.state.get("_inventory", [])) if isinstance(loop.state, dict) else []
@@ -1692,12 +1696,9 @@ class RuntimeSessionService:
             state["meta_progression"] = meta
             inventory = list(state.get("_inventory") or [])
             inventory += [
-                "emp_grenade",
-                "emp_grenade",
-                "incendiary_grenade",
-                "cryo_grenade",
-                "nanopatch",
-                "nanopatch",
+                "emp_grenade", "emp_grenade",
+                "incendiary_grenade", "cryo_grenade",
+                "nanopatch", "nanopatch",
             ]
             state["_inventory"] = inventory
             loop = replace(loop, state=state)
@@ -2010,12 +2011,16 @@ class RuntimeSessionService:
         is always a deliberate on-screen event.
         """
         state = loop.state if isinstance(loop.state, dict) else {}
-        allies_pool = scenario.combat.get("allies", {}) if isinstance(scenario.combat, dict) else {}
+        allies_pool = (
+            scenario.combat.get("allies", {}) if isinstance(scenario.combat, dict) else {}
+        )
         if not isinstance(allies_pool, dict):
             return []
         party = state.get("_party")
         members = party.get("members", []) if isinstance(party, dict) else []
-        member_ids = {str(m.get("id")) for m in members if isinstance(m, dict) and m.get("id")}
+        member_ids = {
+            str(m.get("id")) for m in members if isinstance(m, dict) and m.get("id")
+        }
         flags = {str(flag) for flag in state.get("flags", []) or []}
         seen_names = set(companions_seen(state))
         joining: list[dict[str, str]] = []
@@ -2235,7 +2240,9 @@ class RuntimeSessionService:
         except Exception:
             ending = None
         if ending:
-            loop_state["ending_label"] = ending.get("label") or ending.get("title") or ending_id
+            loop_state["ending_label"] = (
+                ending.get("label") or ending.get("title") or ending_id
+            )
             if isinstance(ending.get("image"), str):
                 loop_state["ending_image"] = ending["image"]
         narration = self._ending_narration_text(scenario_id, ending_id, loop)
@@ -2610,7 +2617,9 @@ class RuntimeSessionService:
         if isinstance(transition.loop.state, dict):
             transition = replace(
                 transition,
-                loop=replace(transition.loop, state=advance_twist_lifecycle(transition.loop.state)),
+                loop=replace(
+                    transition.loop, state=advance_twist_lifecycle(transition.loop.state)
+                ),
             )
 
         # Boss buildup: a climax fight parked on node entry fires on the FIRST
@@ -3298,6 +3307,7 @@ class RuntimeSessionService:
         return {"clues_collected": clues, "epiphanies_unlocked": epiphanies}
 
 
+
 def _heal_party(party: Any, frac: float) -> dict[str, Any] | None:
     """Restore player + party-member HP by a fraction of max (rest/market nodes)."""
     if not isinstance(party, dict):
@@ -3445,9 +3455,11 @@ def _recent_novelty_scenes(
     Prioritize the active run's real narrative sequence; fill any remaining
     window with one latest scene from older loops.
     """
-    active = [scene for scene in store.list_scenes(active_loop_id) if scene.scene_type != "combat"][
-        -limit:
-    ]
+    active = [
+        scene
+        for scene in store.list_scenes(active_loop_id)
+        if scene.scene_type != "combat"
+    ][-limit:]
     remaining = max(0, limit - len(active))
     if remaining == 0:
         return active

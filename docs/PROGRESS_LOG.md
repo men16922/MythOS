@@ -2,6 +2,22 @@
 
 Last updated: 2026-09-05
 
+## 2026-09-05 — Route replay pinned to the rewarded perspective (`1653aa8`)
+
+- Status: NEXT_PLAN review-residual `[auto:claude]` closed. `advance_route` replays the whole visited path every turn and re-scored every anchor's perspective against the *current* flags, while `session._apply_route_node_reward` had already paid that node once for the perspective chosen on entry — a flag gained later could flip a passed anchor's lens and drift `ending_tally`/`relationship_tally`/`axis_tally`/effect flags away from the paid reward.
+- Changed: `route_runtime.py` pins perspectives already in `route_map["active_perspectives"]` (`_pinned_perspective`); only nodes entered this call are scored fresh; a stored id the scenario no longer authors falls back to fresh scoring. `route_status`/`RouteNarrative` therefore show a stable lens while the route lingers.
+- Verified: new `ReplayPinsPassedPerspectivesTest` (flag-added-later across lingering + post-move turns / fresh-entry control / unknown-id fallback) fails without the fix, passes with it; existing ending-tally test passes. `make check` green — ruff, mypy 198 files, **1347** tests (6 skipped), doc-budget, skills.
+- Blockers: none. Undeployed — rides the next deploy with `fc70a2f`/`ac8dbd3`.
+- Next: remaining agent residuals — `combatView.ts` dedup (check whether the three faction palettes differ on purpose first); serving-research P1-2 / P0-2 Ollama token usage.
+
+## 2026-09-05 — Doc-budget gate was gameable by long lines; entry docs cut to their compressed state
+
+- Status: `/tidy-docs` closed the line-budget overage from this session's deploy/review commits (PROGRESS_LOG 154→56, STATUS 123→69, NEXT_PLAN 144→118); measuring actual per-session token load then found the line cap alone was gameable — `docs/AGENT_BRIEF.md`'s single `▶ NEXT SESSION` line was 3,421 chars (~900 tok), and `docs/STATUS.md`'s "Open Risks" carried 8 already-closed/historical bullets (4.2k chars) that get read every session for no decision they affect. `bin/docs/archive/progress-2026-08.md` 151→249 lines (merge target, no data loss).
+- Changed: `docs/PROGRESS_LOG.md` kept the newest 5 increments, moved 08-14..08-09(Se-rin refusal) into the archive above its existing top entry (newest-on-top preserved); `docs/STATUS.md`'s "Latest verified baseline" 07-26..08-09 detail collapsed to one pointer at `COMPLETED_SUMMARY` M75-M79, and 8 closed Open-Risks bullets collapsed to one "re-check on the next arm" line; `docs/NEXT_PLAN.md`'s Priority-0 closed-defect block and each closed Review-residuals item lost their pre-fix problem descriptions (dead weight once `[x]`); `docs/AGENT_BRIEF.md`'s pointer trimmed 3,421→861 chars. `harness/check-doc-budget.sh` now also caps characters (brief 6k, others 18k) so a long line cannot pass the line cap again.
+- Verified: `make check-doc-budget` / `check-skills` / `validate-content` green; `rg` over the merged archive found no duplicate `## ` headers and no dangling references to the moved/removed text.
+- Blockers: none.
+- Next: none — this was doc hygiene, not a NEXT_PLAN item. `docs/LESSONS.md` does not exist in this repo (no lesson recorded there).
+
 ## 2026-09-05 — Review residuals worked down (`9b958b2`, `4d10b35`); deployed `mythos-api-00087-w7z`
 
 - Status: 8 of the 13 residuals closed; **1343** tests (up 3), lint/typecheck/build clean. Deployed as `mythos-api-00087-w7z` (root/health 200, chunks 200, app.js SHA match).

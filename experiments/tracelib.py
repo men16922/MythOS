@@ -68,7 +68,8 @@ def ollama_chat(
         f"{base_url}/api/chat", data=body, headers={"Content-Type": "application/json"}
     )
     with urllib.request.urlopen(request, timeout=timeout) as response:  # noqa: S310 - localhost
-        return json.loads(response.read())
+        payload: dict[str, Any] = json.loads(response.read())
+        return payload
 
 
 def ollama_available(base_url: str = DEFAULT_OLLAMA) -> bool:
@@ -81,12 +82,16 @@ def ollama_available(base_url: str = DEFAULT_OLLAMA) -> bool:
 
 def token_count(text: str, model: str, *, base_url: str = DEFAULT_OLLAMA) -> int:
     """Tokens in ``text`` under ``model``'s tokenizer, chat overhead subtracted."""
-    overhead = ollama_chat(
-        [{"role": "user", "content": ""}], model, options={"num_predict": 1}, base_url=base_url
-    )["prompt_eval_count"]
-    total = ollama_chat(
-        [{"role": "user", "content": text}], model, options={"num_predict": 1}, base_url=base_url
-    )["prompt_eval_count"]
+    overhead = int(
+        ollama_chat(
+            [{"role": "user", "content": ""}], model, options={"num_predict": 1}, base_url=base_url
+        )["prompt_eval_count"]
+    )
+    total = int(
+        ollama_chat(
+            [{"role": "user", "content": text}], model, options={"num_predict": 1}, base_url=base_url
+        )["prompt_eval_count"]
+    )
     return max(total - overhead, 0)
 
 

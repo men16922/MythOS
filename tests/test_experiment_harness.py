@@ -115,7 +115,15 @@ class ProvenanceTest(unittest.TestCase):
     def test_provenance_records_what_makes_a_run_comparable(self) -> None:
         exp = _experiment(ExperimentResult(limits=["n=1"]))
         prov = provenance_for(exp)
-        for key in ("ran_at", "git_commit", "git_dirty", "python", "platform", "controls", "variables"):
+        for key in (
+            "ran_at",
+            "git_commit",
+            "git_dirty",
+            "python",
+            "platform",
+            "controls",
+            "variables",
+        ):
             self.assertIn(key, prov)
         self.assertIsInstance(prov["git_dirty"], bool)
 
@@ -163,3 +171,37 @@ class RunArtifactsTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ShareTrendTest(unittest.TestCase):
+    """P1-2 prefix-sharing curve: the trend helper must read a falling share off a
+    growing prompt with a flat shared prefix, and not call noise a trend."""
+
+    def test_flat_shared_prefix_over_growing_prompt_reads_as_falling(self) -> None:
+        from experiments.exp_workload_profile import share_trend
+
+        shared = [10_000] * 9
+        prompts = [14_000 + 500 * i for i in range(9)]
+        shares = [100 * s / p for s, p in zip(shared, prompts, strict=True)]
+        trend = share_trend(shares, prompts, shared)
+        self.assertEqual(trend["direction"], "falling")
+        thirds = trend["thirds"]
+        self.assertEqual([t["label"] for t in thirds], ["early", "mid", "late"])
+        self.assertGreater(thirds[0]["median_share_pct"], thirds[-1]["median_share_pct"])
+        self.assertEqual(thirds[0]["median_shared_chars"], thirds[-1]["median_shared_chars"])
+
+    def test_noise_inside_the_dead_band_is_flat(self) -> None:
+        from experiments.exp_workload_profile import share_trend
+
+        shares = [68.0, 69.0, 67.5, 68.5, 68.2, 67.9]
+        trend = share_trend(shares, [15_000] * 6, [10_200] * 6)
+        self.assertEqual(trend["direction"], "flat")
+        self.assertAlmostEqual(trend["slope_pct_per_pair"], 0.0, delta=0.25)
+
+    def test_short_and_empty_inputs_do_not_raise(self) -> None:
+        from experiments.exp_workload_profile import share_trend
+
+        self.assertEqual(share_trend([], [], [])["n"], 0)
+        one = share_trend([50.0], [100], [50])
+        self.assertEqual(one["direction"], "flat")
+        self.assertEqual(len(one["thirds"]), 1)

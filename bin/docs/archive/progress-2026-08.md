@@ -3,6 +3,31 @@
 Archived increments from `docs/PROGRESS_LOG.md`. Newest on top; the current log keeps
 only the most recent entries. Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
 
+## 2026-08-30 — Serving-research track opened; the local sampler had never reached the model
+
+- Status: new track (MythOS as a serving-research workload, **not** production self-hosting) plus two local-path defects found and fixed by its first experiments. `make check` **1325** (6 skipped), up 40. Local-only; rides the next deploy. 8 commits, `main` ahead 39.
+- Changed: `docs/reference/2026-08-30-self-hosted-inference-and-mythos-as-research-platform.md` + `docs/plans/2026-08-30-mythos-as-serving-research-workload.md`; `mythos_narrative/trace.py` (prompt capture at the provider seam, `MYTHOS_PROMPT_TRACE`); `mythos_narrative/engine_options.py` (per-engine sampler translation, `MYTHOS_LLM_ENGINE`); `experiments/` harness + 4 experiments + `make experiment`.
+- **The reference doc's answer runs against its premise**: the inference-engineering text puts disaggregation's entry at 100M–1B tokens/day and says a latency-sensitive app with light traffic leaning on scale-to-zero should stay on a pay-per-token API. Neo-Seoul at ~15k output tokens/loop is orders off. Self-hosting is a **scale** question; the work worth doing is the measurement that says when it changes.
+- Measured (real tokenizer, `experiments/results/`): input **7,098 tok** median vs output 235 → **30:1 prefill-heavy**; consecutive turns share **~68%** of the prompt as a literal prefix (stable across three arms). The earlier 85.3% was a fixture upper bound, correctly labelled as such. `char÷4` and cl100k over-count this Korean by ~44%.
+- **Defect 1 — the sampler was never applied.** `OllamaJSONProvider` sent six options as `extra_body={"options": {...}}`, the *native* API shape; the OpenAI-compatible endpoint discards it. `num_predict=5` that way returned 691 chars, byte-identical to uncapped; as `max_tokens`, 0. So `num_ctx`/`num_predict`/`repeat_penalty`/`repeat_last_n`/`top_p`/`top_k` had never once applied locally.
+- **Defect 2 — the timeout was shorter than a scene.** 30s against 12–90s generations, so the SDK burned two retries and raised at ~91s: slow turns were silently costing three generations. Now 180s.
+- Result: local degradation **44% → 0%** over a 9-call arm (empty 3→0, timeouts 1→0, median output 235→300 tok). Both faults were invisible in play because the deterministic fallback covered them.
+- A wrong fix, kept visible: raising `num_ctx` looked right (replay recovered 3/3) and **did nothing** — a fresh arm still degraded 4/9, and those prompts succeeded on replay at the very setting they had failed under. The stamped-report design is what caught it.
+- Verified: `make check` 1325 · three stamped `workload-profile` reports (44%/44%/0%) · `option-passthrough` + `option-matrix` measuring what the endpoint accepts. **Not** verified: vLLM/llama.cpp/MLX rows in `engine_options` are marked unverified by design.
+- Blockers: unchanged — the §3 owner verdict still gates the product track, and the judge's ~1-point noise floor still gates any quality experiment (research P4 = the same open decision).
+- Next: `docs/plans/2026-08-30-mythos-as-serving-research-workload.md` P1-2 — a long clean arm (30–50 turns) to curve prefix sharing over loop length, which sets the P3 prefix-caching design.
+- ⚠️ **Any local repetition judgement made before this session was made against a model that never received `repeat_penalty`.** Production (Vertex Gemini) is a separate path and unaffected.
+
+## 2026-08-15 — Owner decision recorded: status effects will stack ("option 2"); plan-only
+
+- Status: plan-only checkpoint — no code changed. The owner picked "option 2" of a status-effect design discussion held in conversation (options not in-repo): reapplying a status should **build stacks** (intensity), not just extend duration, and **multiple simultaneous statuses** on one combatant must be handled correctly.
+- Changed: `docs/NEXT_PLAN.md` gains a "Combat — status-effect stacking rework" track under Priority 1 with two items (stacking semantics; concurrent multi-status resolution) plus the implementation baseline: `CombatEngine._apply_status_effect` currently accumulates *remaining turns* into `status_effects: dict[str, int]` — duration-accumulation only, fixed magnitude per status.
+- Verified: nothing run — doc edit only.
+- Blockers: the full option list behind "2번" exists only in the owner conversation; a `docs/plans/` design snapshot (per-status stack scaling, caps vs `HARD_CC_TURNS_CAP`, UI chip representation) must be written before the items can be tagged `[auto:claude]`.
+- Next: unchanged — the §3 owner verdict remains the top blocker; this track queues behind it. When picked up: design snapshot → implement in `mythos_combat` → verify via combat sim + `gameplay-qa`.
+Newest entries only; earlier 2026-08 increments are in `bin/docs/archive/progress-2026-08.md`
+(then `progress-2026-07.md`, `progress-2026-06.md`). Milestone rollups live in `docs/COMPLETED_SUMMARY.md`.
+
 ## 2026-08-14 — Per-turn token usage is logged, so per-loop cost stops being an estimate
 
 - Status: closes the blocker the promotion eval hit hours earlier (same session, across midnight) — no provider recorded token counts, so `cost_per_loop_usd` could not be measured for any sample and fell back to a documented figure. `make check` **1285** (5 skipped), up 15 across both of this session's changes. Local-only; rides the next deploy.

@@ -80,6 +80,7 @@ def node_axis(node: dict[str, Any]) -> str | None:
     node_type = node.get("type")
     return _NODE_TYPE_AXIS.get(node_type) if isinstance(node_type, str) else None
 
+
 # How many player turns are spent before the route advances one layer. Tunable;
 # kept small so the boss/ending is reachable within a typical session.
 # Story turns the route lingers on each layer. Raised 4→5 (2026-07-04 live

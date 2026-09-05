@@ -531,7 +531,9 @@ def _story_examples_from_parsed(parsed: ParsedDirectives) -> dict[str, str] | No
     return out or None
 
 
-def _cutscenes_from_parsed(parsed: ParsedDirectives, default_companion: str) -> list[CutsceneDirective]:
+def _cutscenes_from_parsed(
+    parsed: ParsedDirectives, default_companion: str
+) -> list[CutsceneDirective]:
     """Map a parsed ``companions/<name>.md`` into ``CutsceneDirective``s.
 
     The companion id comes from the ``companion:`` file-meta (falling back to the

@@ -53,12 +53,12 @@
 
 ### T4 — MLX 쪽은 확인부터 (가정 금지)
 
-MLX 생태계는 빠르게 움직여서 아래를 **문서로 확인한 뒤에** 계획에 반영한다. 지금 단계에서는 전부 미확인으로 둔다.
+**2026-09-06 확인 완료** — 답과 근거는 `docs/reference/2026-09-06-mlx-lm-server-capability-check.md`. 요약:
 
-- `[ ]` `mlx_lm.server`의 OpenAI 호환 범위 — `response_format`(`json_object`/`json_schema`)을 받는가? **MythOS는 파서 단계가 JSON을 강제하므로 이게 안 되면 통합 비용이 크게 오른다.**
-- `[ ]` **프롬프트/프리픽스 캐시** — 요청 *간* 재사용이 되는가, 아니면 한 세션 안에서만인가. E-A(프리픽스 캐싱)를 벤치 B에서 돌릴 수 있는지가 여기 걸린다.
-- `[ ]` 연속 배칭 지원 수준 — 저동시성이라 덜 중요하지만, c>1을 재려면 필요.
-- `[ ]` 추측 디코딩 지원 여부.
+- `[x]` `mlx_lm.server`의 `response_format` — **받지 않는다**(본문에서 읽지 않음). 파서 단계는 프롬프트 계약 + repair/fallback으로 버티거나, `response_format`을 구현한 서드파티 MLX 서버를 쓴다(E-C에서 구조 실패율 측정).
+- `[x]` **프리픽스 캐시** — 요청 *간* 재사용 **있음**(`LRUPromptCache`, 최장 접두 일치, `--prompt-cache-size` 기본 10). 단 **Gemma 3/4는 sliding-window 층(`RotatingKVCache`) 때문에 재사용이 깨짐(#980)**, **Qwen3는 전층 full-attention이라 온전**. → E-A는 Qwen3 사다리로.
+- `[x]` 추측 디코딩 — 있음(`draft_model`/`num_draft_tokens`).
+- `[ ]` 연속 배칭 지원 수준 — 문서 미언급, 소스로 미확정. c>1 측정 전 확인.
 - `[ ]` 48GB에서 실제로 올라가는 모델 상한 — 4-bit/8-bit별. **가중치만이 아니라 KV까지 계산해야 한다**(스터디 규칙 5: 손계산은 GQA 반영, 최종값은 기동 로그 확인).
 
 대안 엔진도 같은 표로 재둔다: **llama.cpp**(GGUF, 문법 제약 디코딩 지원), **Ollama**(현행, llama.cpp 래퍼), 그리고 vLLM의 Apple Silicon 지원 현황.

@@ -74,6 +74,15 @@ export default function App() {
   const withImage = !(urlParams.get("image") === "0" || urlParams.get("image") === "false");
   const [obStatus, setObStatus] = useState("");
   const [connected, setConnected] = useState(false);
+  // Read by the scenario-list effect without re-running it on every change.
+  const connectedRef = useRef(connected);
+  const selectedScenarioIdRef = useRef(selectedScenarioId);
+  useEffect(() => {
+    connectedRef.current = connected;
+  }, [connected]);
+  useEffect(() => {
+    selectedScenarioIdRef.current = selectedScenarioId;
+  }, [selectedScenarioId]);
   const [showIntro, setShowIntro] = useState(false);
 
   // 앱 첫 진입(메인 화면) 시 1회 재생되는 부팅 오프닝.
@@ -155,6 +164,7 @@ export default function App() {
     imagePlaceholderText,
     setImagePlaceholderText,
     clearVisualTimeout,
+    noteScene,
     onVisualStatus,
     resolveImage,
   } = useSceneVisuals(logToConsole);
@@ -235,11 +245,19 @@ export default function App() {
       try {
         const data = await apiGetScenarios(resumeSessionData?.playerId, lang);
         setScenarios(data.scenarios || []);
-        if (data.scenarios.length > 0) {
+        // This effect also re-runs on a language toggle. Mid-run (connected) the
+        // list is only refreshed for its localized prose — re-picking the first
+        // scenario here used to switch scenario_id (and every sprite/BGM/portrait
+        // path) under a player who was in the second scenario. Off-run, keep the
+        // player's current pick when it is still in the list.
+        if (data.scenarios.length > 0 && !connectedRef.current) {
+          const current = data.scenarios.find((s) => s.id === selectedScenarioIdRef.current);
           const firstPlayable =
-            data.scenarios.find((s) => s.unlocked !== false) || data.scenarios[0];
-          setSelectedScenarioId(firstPlayable.id);
-          setSelectedArchetype(firstUnlockedArchetype(firstPlayable.archetypes || []));
+            current ?? data.scenarios.find((s) => s.unlocked !== false) ?? data.scenarios[0];
+          if (!current) {
+            setSelectedScenarioId(firstPlayable.id);
+            setSelectedArchetype(firstUnlockedArchetype(firstPlayable.archetypes || []));
+          }
         }
       } catch (e) {
         logToConsole(t("app.scenarioLoadFail") + (e as Error).message);
@@ -310,6 +328,7 @@ export default function App() {
     setKenBurnsActive,
     setGlitchActive,
     resolveImage,
+    noteScene,
     loadSlotsAndRuns,
     playBgm,
     playSfx,

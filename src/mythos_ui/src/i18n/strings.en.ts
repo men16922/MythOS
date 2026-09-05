@@ -588,4 +588,22 @@ export const en: Record<StringKey, string> = {
   "ctab.companionGear": "Equipped Gear",
   "ctab.companionGearHint": "Nothing equipped — equip from the inventory on the right to give gear to this companion.",
   "ctab.companionGearNotInParty": "Only companions in your party can wear equipment.",
+  // Story panel — combat result stamps
+  "story.combat.noParty": "NO PARTY SIGNAL",
+  "story.combat.stampVictory": "VICTORY",
+  "story.combat.stampCaptured": "CAPTURED",
+  "story.combat.stampCollapse": "LOOP COLLAPSE",
+  "story.combat.stampDisengaged": "DISENGAGED",
+  "story.tile.idle": "Idle",
+  // Tactical board text drawn on canvas
+  "board.status.stunned": "💫 Stunned",
+  "board.status.burn": "🔥 Overheat",
+  "board.status.corrode": "🧪 Corroded",
+  "board.status.acid": "💧 Dissolving",
+  "board.status.freeze": "❄ Frozen",
+  "board.status.shock": "⚡ Shocked",
+  "board.status.hacked": "🕹 Hijacked",
+  "board.fx.pulled": "Pulled!",
+  "board.fx.pushed": "Shoved!",
+  "board.fx.slam": "💥 Slam!",
 };

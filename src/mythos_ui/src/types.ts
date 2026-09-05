@@ -177,7 +177,7 @@ export interface CombatBlip {
 
 export interface CombatIntent {
   enemy_id: string;
-  action: "attack" | "move" | "flee";
+  action: "attack" | "move" | "flee" | "idle";
   target_x: number;
   target_y: number;
   target_name?: string;
@@ -602,7 +602,8 @@ export interface EchoItem {
 
 export interface UnlockedLore {
   title: string;
-  summary: string;
+  // Mirrors mythos_narrative.codex.LoreEntry (serialized field-for-field).
+  description: string;
 }
 
 export interface CutsceneGalleryEntry {
@@ -652,6 +653,9 @@ export interface WebSocketMessage {
   detail?: string;
   status?: "pending" | "processing" | "succeeded" | string;
   url?: string;
+  // visual_status: the scene this image belongs to (deferred images can land
+  // after the player has moved on; the client drops frames for other scenes).
+  scene_id?: string;
   // loop_meta: the opening variant, sent up front (before the slow first-scene
   // generation) so the intro can pick the right sequence without a timeout race.
   opening_variant?: string;

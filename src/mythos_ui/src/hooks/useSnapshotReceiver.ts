@@ -1,4 +1,4 @@
-import type { Dispatch, SetStateAction } from "react";
+import { useRef, type Dispatch, type SetStateAction } from "react";
 import type { NarrativeHistoryItem } from "../App";
 import { prefersReducedMotion } from "../combatEffects";
 import { getLang } from "../api";
@@ -19,6 +19,8 @@ type UseSnapshotReceiverArgs = {
   setGlitchActive: Dispatch<SetStateAction<boolean>>;
   // Helpers from sibling hooks.
   resolveImage: (assets: AssetInfo[]) => Promise<void>;
+  // Tells the visuals hook which scene the next visual_status frame belongs to.
+  noteScene?: (sceneId: string | null | undefined) => void;
   loadSlotsAndRuns: (pId: string) => Promise<void>;
   playBgm: (bgmPath: string, forceEnabled?: boolean) => void;
   playSfx: (key: string, scenarioId?: string, volume?: number) => void;
@@ -50,12 +52,18 @@ export function useSnapshotReceiver(args: UseSnapshotReceiverArgs) {
     setKenBurnsActive,
     setGlitchActive,
     resolveImage,
+    noteScene,
     loadSlotsAndRuns,
     playBgm,
     playSfx,
     logToConsole,
     onItemsGained,
   } = args;
+  // Scene the entry motion last fired for: a loop-start boon/market pick also
+  // routes through here with turn_index 0, and used to replay the Ken Burns +
+  // glitch motion (and re-issue the save/run loads) on every such snapshot.
+  const cinematicSceneRef = useRef<string | null>(null);
+  const glitchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleReceivedSnapshot = (snap: RuntimeSnapshot) => {
     setLoopId(snap.loop_id);
@@ -96,6 +104,7 @@ export function useSnapshotReceiver(args: UseSnapshotReceiverArgs) {
         return [...prev.slice(0, -1), { ...last, result: resultSummary }];
       });
     }
+    noteScene?.(snap.active_scene?.scene_id);
     resolveImage(snap.assets || []);
     if (withImage && !(snap.assets || []).some((a) => a.status === "pending" || a.status === "processing" || a.status === "succeeded")) {
       const currentNode = snap.state?._route_map?.current
@@ -126,7 +135,9 @@ export function useSnapshotReceiver(args: UseSnapshotReceiverArgs) {
     // Accessibility: skip the entry glitch/Ken Burns motion under reduced-motion.
     if (prefersReducedMotion()) return;
 
-    if (snap.active_scene && snap.active_scene.turn_index === 0) {
+    const scene = snap.active_scene;
+    if (scene && scene.turn_index === 0 && cinematicSceneRef.current !== scene.scene_id) {
+      cinematicSceneRef.current = scene.scene_id;
       logToConsole("시네마틱 효과 기동 (turn_index = 0)");
       setKenBurnsActive(true);
       setGlitchActive(true);
@@ -135,8 +146,10 @@ export function useSnapshotReceiver(args: UseSnapshotReceiverArgs) {
         playSfx("sfx_move");
       }, 200);
 
-      setTimeout(() => {
+      if (glitchTimerRef.current) clearTimeout(glitchTimerRef.current);
+      glitchTimerRef.current = setTimeout(() => {
         setGlitchActive(false);
+        glitchTimerRef.current = null;
       }, 3200);
     }
   };

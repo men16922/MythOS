@@ -1,4 +1,12 @@
 import type { CombatBlip, CombatRadar, CombatState } from "./types";
+import { getLang } from "./api";
+import { DICTS } from "./i18n/lang";
+import type { StringKey } from "./i18n/strings.ko";
+
+/** Canvas/effects text outside React: resolve a UI string for the active language. */
+export function boardText(key: StringKey): string {
+  return DICTS[getLang()][key];
+}
 
 function factionColor(faction: string): string {
   if (faction === "player") return "#8fffea";
@@ -11,15 +19,21 @@ const imageCache: Record<string, HTMLImageElement> = {};
 // Persistent-status badge metadata (2026-07-12 design). Icon art convention:
 // resources/<scenario>/status/<id>.png — text pill is the loading/404 fallback.
 // `bg` doubles as the status color for board FX (apply pops, glows).
-export const STATUS_BADGES: Record<string, { label: string; bg: string; fg: string }> = {
-  stunned: { label: "💫 기절", bg: "rgba(255, 214, 106, 0.95)", fg: "#1a1200" },
-  burn: { label: "🔥 과열", bg: "rgba(255, 122, 61, 0.95)", fg: "#1c0800" },
-  corrode: { label: "🧪 부식", bg: "rgba(154, 245, 108, 0.92)", fg: "#0c1a02" },
-  acid: { label: "💧 용해", bg: "rgba(199, 146, 255, 0.92)", fg: "#160526" },
-  freeze: { label: "❄ 동결", bg: "rgba(140, 220, 255, 0.94)", fg: "#03141f" },
-  shock: { label: "⚡ 감전", bg: "rgba(255, 240, 120, 0.94)", fg: "#1a1500" },
-  hacked: { label: "🕹 조종", bg: "rgba(255, 130, 200, 0.94)", fg: "#20031a" },
+export const STATUS_BADGES: Record<string, { labelKey: StringKey; bg: string; fg: string }> = {
+  stunned: { labelKey: "board.status.stunned", bg: "rgba(255, 214, 106, 0.95)", fg: "#1a1200" },
+  burn: { labelKey: "board.status.burn", bg: "rgba(255, 122, 61, 0.95)", fg: "#1c0800" },
+  corrode: { labelKey: "board.status.corrode", bg: "rgba(154, 245, 108, 0.92)", fg: "#0c1a02" },
+  acid: { labelKey: "board.status.acid", bg: "rgba(199, 146, 255, 0.92)", fg: "#160526" },
+  freeze: { labelKey: "board.status.freeze", bg: "rgba(140, 220, 255, 0.94)", fg: "#03141f" },
+  shock: { labelKey: "board.status.shock", bg: "rgba(255, 240, 120, 0.94)", fg: "#1a1500" },
+  hacked: { labelKey: "board.status.hacked", bg: "rgba(255, 130, 200, 0.94)", fg: "#20031a" },
 };
+
+/** Localized badge text ("💫 기절" / "💫 Stunned") for a status id. */
+export function statusBadgeLabel(statusId: string): string {
+  const meta = STATUS_BADGES[statusId];
+  return meta ? boardText(meta.labelKey) : statusId;
+}
 
 // --- 2.5D Isometric Projection Helpers ---
 export interface IsoConfig {
@@ -1242,7 +1256,7 @@ export function drawCombatCanvas(
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillStyle = meta.fg;
-          ctx.fillText(meta.label.slice(0, 2), chipCx, chipCy + 0.5);
+          ctx.fillText(statusBadgeLabel(sid).slice(0, 2), chipCx, chipCy + 0.5);
         }
         chipCx += chipR * 2 + gap;
       }

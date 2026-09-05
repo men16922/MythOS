@@ -45,7 +45,7 @@ function InfraLinks() {
   // exist next to a local dev server — on a cloud host those ports are dead
   // links (cloud counterparts: Neon console / GCS browser / Cloud Trace).
   const isLocalHost = host === "localhost" || host === "127.0.0.1";
-  const dashboardUrl = `/admin/dashboard?invite=${new URLSearchParams(window.location.search).get("invite") || localStorage.getItem("mythos_invite_key") || ""}`;
+  const dashboardUrl = `/admin/dashboard?invite=${new URLSearchParams(window.location.search).get("invite") || localStorage.getItem("mythos_invite") || ""}`;
   return (
     <Surface variant="surface" style={{ ...devPanelStyle, marginTop: 0 }}>
       <div className="cc-label" style={{ marginBottom: "12px", borderBottom: "1px solid var(--line-soft)", paddingBottom: "6px" }}>

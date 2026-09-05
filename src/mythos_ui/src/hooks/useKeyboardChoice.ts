@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { isChoiceDisabled } from "../choices";
+import { blockingOverlayOpen } from "../overlays";
 import type { RuntimeSnapshot } from "../types";
 
 // Number-key (1-9) choice hotkeys for the active scene. Pressing a digit picks
@@ -14,6 +15,9 @@ export function useKeyboardChoice(
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement) return;
+      // A boon offer / save-load modal / cinema on top: the digit must not pick
+      // a choice behind it (a loop-start boon then 409s as a stale offer).
+      if (blockingOverlayOpen()) return;
       const keyNum = parseInt(e.key, 10);
       if (keyNum >= 1 && keyNum <= 9 && finalizedSnapshot) {
         const choices = finalizedSnapshot.active_scene?.choices || [];

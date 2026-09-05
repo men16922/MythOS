@@ -71,6 +71,26 @@ class ApiHealthTest(unittest.TestCase):
         self.assertEqual(response.json(), {"status": "ok"})
 
 
+class VisualFrameSceneBindingTest(unittest.TestCase):
+    def test_terminal_frame_names_the_scene_it_belongs_to(self) -> None:
+        # A deferred image can land after the player has moved to the next
+        # scene; without scene_id the client applied it to whatever was current.
+        from mythos_api.app import _visual_frame
+
+        class _Storage:
+            def presigned_url(self, uri: str) -> str:
+                return f"https://signed/{uri}"
+
+        frame = _visual_frame(
+            cast(Any, _Storage()), status="succeeded", asset_id="asset_1",
+            storage_uri="s3://x", scene_id="scene_42",
+        )
+        self.assertEqual(frame["scene_id"], "scene_42")
+        self.assertEqual(frame["url"], "https://signed/s3://x")
+        bare = _visual_frame(cast(Any, _Storage()), status="failed", asset_id=None, storage_uri=None)
+        self.assertNotIn("scene_id", bare)
+
+
 class WsFrameValidationTest(unittest.TestCase):
     def test_image_ints_are_bounded_and_typed(self) -> None:
         from mythos_api.app import _bounded_int

@@ -483,14 +483,20 @@ function CombatResultPanel({
             {party.length > 0 ? (
               party.map((b) => renderBlip(b, "hero"))
             ) : (
-              <div className="combat-result-empty">NO PARTY SIGNAL</div>
+              <div className="combat-result-empty">{t("story.combat.noParty")}</div>
             )}
           </div>
           <div className="combat-result-enemies">
             {enemies.map((b) => renderBlip(b, "enemy"))}
           </div>
           <div className="combat-result-stamp">
-            {isVictory ? "VICTORY" : isSoftDefeat ? "CAPTURED" : isDefeat ? "LOOP COLLAPSE" : "DISENGAGED"}
+            {isVictory
+              ? t("story.combat.stampVictory")
+              : isSoftDefeat
+                ? t("story.combat.stampCaptured")
+                : isDefeat
+                  ? t("story.combat.stampCollapse")
+                  : t("story.combat.stampDisengaged")}
           </div>
         </div>
       </div>
@@ -663,10 +669,10 @@ function TileInspector({
         );
         intentVal = `⚔${ownIntent.damage_hint || ""}${victim ? ` → ${victim.name || victim.id}` : ""}`;
       } else {
-        intentVal = ownIntent.action === "flee" ? t("story.tile.flee") : t("story.tile.move");
+        intentVal = intentLabelFor(t, ownIntent.action);
       }
     } else if (intent) {
-      intentVal = intent.action === "attack" ? t("story.tile.attack") : intent.action === "flee" ? t("story.tile.flee") : t("story.tile.move");
+      intentVal = intent.action === "attack" ? t("story.tile.attack") : intentLabelFor(t, intent.action);
     }
     if (coverLabel) coverVal = coverLabel;
 
@@ -827,6 +833,14 @@ function ObjectiveStrip({
       )}
     </div>
   );
+}
+
+// Enemy-intent tile label; "idle" (a stunned/frozen enemy) used to fall into the
+// move branch and read as "Move".
+function intentLabelFor(t: TFn, action: string): string {
+  if (action === "flee") return t("story.tile.flee");
+  if (action === "idle") return t("story.tile.idle");
+  return t("story.tile.move");
 }
 
 export function StoryPanel({

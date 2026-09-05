@@ -62,9 +62,11 @@ export function useDataLoaders(args: UseDataLoadersArgs) {
   const loadSlotsAndRuns = async (pId: string) => {
     if (!pId) return;
     try {
-      const slotsData = await apiGetSlots(pId);
-      const runsData = await apiGetRuns(pId);
-      const overview = await apiGetMemory(pId);
+      const [slotsData, runsData, overview] = await Promise.all([
+        apiGetSlots(pId),
+        apiGetRuns(pId),
+        apiGetMemory(pId),
+      ]);
       setSaveSlots(slotsData.slots || []);
       setRunsHistory(runsData.runs || []);
       setMemoryOverview(overview);

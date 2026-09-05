@@ -42,10 +42,15 @@ class StatusLegibilityTest(unittest.TestCase):
     def test_canvas_badges_stunned_and_status_units(self) -> None:
         source = read("src/mythos_ui/src/combatCanvas.ts")
         self.assertIn("STATUS_BADGES", source)
-        self.assertIn("💫", source)
-        self.assertIn("🔥", source)
-        self.assertIn("🧪", source)
         self.assertIn('activeBadges.includes("stunned")', source)
+        # Badge text lives in the i18n dictionaries (it used to be hard-coded
+        # Korean on the canvas, leaking into EN sessions); both languages carry
+        # the icon so the chip family reads the same either way.
+        for dictionary in ("strings.ko.ts", "strings.en.ts"):
+            strings = read(f"src/mythos_ui/src/i18n/{dictionary}")
+            for icon, key in (("💫", "board.status.stunned"), ("🔥", "board.status.burn"), ("🧪", "board.status.corrode")):
+                with self.subTest(dictionary=dictionary, key=key):
+                    self.assertRegex(strings, rf'"{key}": "{icon}')
 
 
 class StatusEffectEngineTest(unittest.TestCase):

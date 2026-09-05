@@ -299,9 +299,17 @@ def _visual_frame(
     status: str,
     asset_id: str | None,
     storage_uri: str | None,
+    scene_id: str | None = None,
 ) -> dict[str, Any]:
-    """Build a visual_status frame, signing the URL on success (design §2.2)."""
+    """Build a visual_status frame, signing the URL on success (design §2.2).
+
+    ``scene_id`` names the scene the image belongs to. The deferred image of
+    turn N can land after the player has already moved to turn N+1; without
+    it the client applied any succeeded URL to whatever scene was current.
+    """
     frame: dict[str, Any] = {"type": "visual_status", "status": status, "asset_id": asset_id}
+    if scene_id:
+        frame["scene_id"] = scene_id
     if status == "succeeded" and storage_uri:
         try:
             frame["url"] = storage.presigned_url(storage_uri)
@@ -317,15 +325,27 @@ def _visual_frame(
 
 
 def _terminal_visual_frame(
-    storage: SigningStorageAdapter, result: VisualGenerationResult
+    storage: SigningStorageAdapter,
+    result: VisualGenerationResult,
+    *,
+    scene_id: str | None = None,
 ) -> dict[str, Any] | None:
     """Frame for an already-resolved image; None if still in flight (pending)."""
     asset_id = result.asset.asset_id if result.asset else None
     if result.status in _TERMINAL_VISUAL:
         return _visual_frame(
-            storage, status=result.status, asset_id=asset_id, storage_uri=result.storage_uri
+            storage,
+            status=result.status,
+            asset_id=asset_id,
+            storage_uri=result.storage_uri,
+            scene_id=scene_id,
         )
     return None
+
+
+def _snapshot_scene_id(snapshot: RuntimeSnapshot | None) -> str | None:
+    scene = snapshot.scene if snapshot is not None else None
+    return scene.scene_id if scene is not None else None
 
 
 async def _emit_visual_status(
@@ -338,7 +358,7 @@ async def _emit_visual_status(
     result = snapshot.image_result
     if result is None:
         return
-    terminal = _terminal_visual_frame(storage, result)
+    terminal = _terminal_visual_frame(storage, result, scene_id=_snapshot_scene_id(snapshot))
     if terminal is not None:
         await websocket.send_json(terminal)
 
@@ -395,7 +415,9 @@ async def _run_stream(
                     # Deferred scene image (streaming): the snapshot already carried
                     # the choices, so relay the now-ready image as its terminal
                     # visual_status frame — the client swaps it into the scene.
-                    terminal = _terminal_visual_frame(storage, event.visual)
+                    terminal = _terminal_visual_frame(
+                        storage, event.visual, scene_id=_snapshot_scene_id(last_snapshot)
+                    )
                     if terminal is not None:
                         await websocket.send_json(terminal)
             if last_snapshot is not None:

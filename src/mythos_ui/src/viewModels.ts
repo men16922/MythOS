@@ -105,7 +105,7 @@ export function buildCodexLists(
   const characters = shards.filter((s) => s.kind === "character");
   const allLore = [
     ...lore.map((entry) => ({ title: entry.symbol, desc: entry.text })),
-    ...unlockedLore.map((entry) => ({ title: entry.title, desc: entry.summary })),
+    ...unlockedLore.map((entry) => ({ title: entry.title, desc: entry.description })),
   ];
 
   const meta = snapshot?.state?.meta_progression;

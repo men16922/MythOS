@@ -1,4 +1,4 @@
-import { drawCombatCanvas, STATUS_BADGES } from "./combatCanvas";
+import { boardText, drawCombatCanvas, STATUS_BADGES, statusBadgeLabel } from "./combatCanvas";
 import type { CombatOverlay } from "./combatCanvas";
 import { diffCombat } from "./combatDiff";
 import type { CombatEvent } from "./combatDiff";
@@ -343,7 +343,7 @@ export class CombatAnimator {
               overlay.floats!.push({
                 cellX: ev.to[0] + 0.5,
                 cellY: ev.to[1] - 0.1 - 0.55 * ip,
-                text: yank.mode === "pull" ? "끌려옴!" : "밀려남!",
+                text: yank.mode === "pull" ? boardText("board.fx.pulled") : boardText("board.fx.pushed"),
                 color,
                 alpha: 1 - ip * 0.7,
                 size: 18,
@@ -570,7 +570,7 @@ export class CombatAnimator {
         overlay.floats!.push({
           cellX: px + 0.5,
           cellY: py - 0.2 - 0.8 * local,
-          text: meta.label,
+          text: statusBadgeLabel(pop.status),
           color: meta.bg,
           alpha: 1 - local * 0.6,
           size: 22,
@@ -609,7 +609,7 @@ export class CombatAnimator {
         overlay.floats!.push({
           cellX: px + 0.5,
           cellY: py - 0.25 - 0.6 * local,
-          text: "💥 충돌!",
+          text: boardText("board.fx.slam"),
           color: "#ffb347",
           alpha: 1 - local * 0.6,
           size: 24,

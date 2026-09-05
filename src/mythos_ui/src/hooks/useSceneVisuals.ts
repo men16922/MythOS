@@ -26,6 +26,12 @@ export function useSceneVisuals(logToConsole: (line: string) => void) {
   // Fires if a pending/processing visual job never reports a terminal status
   // (worker died mid-flight) so the placeholder doesn't spin forever.
   const visualTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // The scene whose image we are waiting for. A deferred image is generated
+  // after its snapshot ships, so turn N's frame can arrive during turn N+1.
+  const expectedSceneRef = useRef<string | null>(null);
+  const noteScene = useCallback((sceneId: string | null | undefined) => {
+    expectedSceneRef.current = sceneId ?? null;
+  }, []);
 
   // Stable identity so callers can list it in their useCallback dep arrays
   // without forcing a re-create each render.
@@ -37,6 +43,10 @@ export function useSceneVisuals(logToConsole: (line: string) => void) {
   }, []);
 
   const onVisualStatus = (msg: WebSocketMessage) => {
+    if (msg.scene_id && expectedSceneRef.current && msg.scene_id !== expectedSceneRef.current) {
+      logToConsole(`visual_status for a previous scene ignored (${msg.scene_id})`);
+      return;
+    }
     clearVisualTimeout();
     if (msg.status === "pending" || msg.status === "processing") {
       setImagePlaceholderText(`${DICTS[getLang()]["img.generating"]} (${msg.status})`);
@@ -70,6 +80,7 @@ export function useSceneVisuals(logToConsole: (line: string) => void) {
     imagePlaceholderText,
     setImagePlaceholderText,
     clearVisualTimeout,
+    noteScene,
     onVisualStatus,
     resolveImage,
   };

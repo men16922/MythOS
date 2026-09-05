@@ -137,6 +137,11 @@ export function useSessionLifecycle(args: UseSessionLifecycleArgs) {
         scenario_id: selectedScenarioId,
       });
 
+      // Open the socket BEFORE leaving the onboarding screen: a handshake
+      // failure used to land in `obStatus`, which only renders on the panel
+      // that had just been unmounted, leaving the player on an empty story.
+      const ws = await openSocket();
+
       setPlayerId(player.player_id);
       saveSessionMetadata(player.player_id, selectedScenarioId);
       setConnected(true);
@@ -145,11 +150,18 @@ export function useSessionLifecycle(args: UseSessionLifecycleArgs) {
       playBgm(mainBgmPath());
       logToConsole(`접속: ${player.player_id} (${selectedArchetype || "-"})`);
 
-      const ws = await openSocket();
+      const beginFrame = JSON.stringify({
+        event: "begin",
+        player_id: player.player_id,
+        scenario_id: selectedScenarioId,
+        fallback: fallbackMode,
+        lang: getLang(),
+        ...imageOpts(),
+      });
       // Wait slightly for websocket
       setTimeout(() => {
         // Send begin event
-         setSceneImageUrl(null);
+        setSceneImageUrl(null);
         setNarrativeHistory([]);
         clearVisualTimeout();
         setImagePlaceholderText(DICTS[getLang()]["img.preparing"]);
@@ -157,16 +169,20 @@ export function useSessionLifecycle(args: UseSessionLifecycleArgs) {
         setStatus(DICTS[getLang()]["sess.loopCreating"]);
         setIsStreaming(true);
 
-        ws.send(
-          JSON.stringify({
-            event: "begin",
-            player_id: player.player_id,
-            scenario_id: selectedScenarioId,
-            fallback: fallbackMode,
-            lang: getLang(),
-            ...imageOpts(),
-          })
-        );
+        // The socket can close inside this window; `send` on a closed socket
+        // throws and would leave isStreaming stuck. Reopen and send instead.
+        const sendBegin = (sock: WebSocket) => sock.send(beginFrame);
+        if (ws.readyState === WebSocket.OPEN) {
+          sendBegin(ws);
+        } else {
+          openSocket()
+            .then(sendBegin)
+            .catch((err) => {
+              setIsStreaming(false);
+              setStatus(DICTS[getLang()]["sess.authFail"] + (err as Error).message);
+              logToConsole("WS begin 실패: " + (err as Error).message);
+            });
+        }
       }, 300);
       setObStatus("");
     } catch (err) {

@@ -591,6 +591,25 @@ export const ko = {
   "ctab.companionGear": "착용 장비",
   "ctab.companionGearHint": "착용 중인 장비 없음 — 오른쪽 인벤토리에서 장착하면 이 동료에게 적용됩니다.",
   "ctab.companionGearNotInParty": "파티에 합류한 동료만 장비를 착용할 수 있습니다.",
+  // Story panel — combat result stamps (were hard-coded English)
+  "story.combat.noParty": "파티 신호 없음",
+  "story.combat.stampVictory": "승리",
+  "story.combat.stampCaptured": "포획",
+  "story.combat.stampCollapse": "루프 붕괴",
+  "story.combat.stampDisengaged": "이탈",
+  "story.tile.idle": "대기",
+  // Tactical board text drawn on canvas (was hard-coded Korean)
+  "board.status.stunned": "💫 기절",
+  "board.status.burn": "🔥 과열",
+  "board.status.corrode": "🧪 부식",
+  "board.status.acid": "💧 용해",
+  "board.status.freeze": "❄ 동결",
+  "board.status.shock": "⚡ 감전",
+  "board.status.hacked": "🕹 조종",
+  "board.fx.pulled": "끌려옴!",
+  "board.fx.pushed": "밀려남!",
+  "board.fx.slam": "💥 충돌!",
 } as const;
+
 
 export type StringKey = keyof typeof ko;

@@ -12,7 +12,7 @@ function getInviteKey(): string {
   try {
     const url = new URLSearchParams(window.location.search).get("invite");
     if (url) return url;
-    return window.localStorage.getItem("mythos_invite_key") || "";
+    return window.localStorage.getItem("mythos_invite") || "";
   } catch {
     return "";
   }

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { prefersReducedMotion } from "../combatEffects";
+import { createNarrationStore } from "../narrationStore";
 import type { RuntimeSnapshot } from "../types";
 
 // Typewriter narration reveal: tokens arrive on the WS stream and are pushed
@@ -13,7 +14,9 @@ import type { RuntimeSnapshot } from "../types";
 // / mark done / stash the pending snapshot directly, and `resetStreamBuffers`
 // clears them before a new generation begins.
 export function useTypewriter(onFinalizeSnapshot: (snap: RuntimeSnapshot) => void) {
-  const [displayedNarration, setDisplayedNarration] = useState("");
+  // Revealed text lives OUTSIDE React state: a tick must not re-render App.
+  const [narration] = useState(createNarrationStore);
+  const setDisplayedNarration = narration.set;
   const [isStreaming, setIsStreaming] = useState(false);
 
   const narrationQueueRef = useRef("");
@@ -32,7 +35,7 @@ export function useTypewriter(onFinalizeSnapshot: (snap: RuntimeSnapshot) => voi
     narrationQueueRef.current = "";
     narrationTypedRef.current = "";
     setDisplayedNarration("");
-  }, []);
+  }, [setDisplayedNarration]);
 
   // Typewriter Loop
   useEffect(() => {
@@ -61,10 +64,10 @@ export function useTypewriter(onFinalizeSnapshot: (snap: RuntimeSnapshot) => voi
       }
     }, 12);
     return () => clearInterval(interval);
-  }, [isStreaming, onFinalizeSnapshot]);
+  }, [isStreaming, onFinalizeSnapshot, setDisplayedNarration]);
 
   return {
-    displayedNarration,
+    narration,
     setDisplayedNarration,
     isStreaming,
     setIsStreaming,

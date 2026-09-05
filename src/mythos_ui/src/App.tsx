@@ -127,7 +127,7 @@ export default function App() {
   // drains the WS token queue into `displayedNarration` and finalizes the
   // pending snapshot when the stream ends.
   const {
-    displayedNarration,
+    narration,
     setDisplayedNarration,
     isStreaming,
     setIsStreaming,
@@ -795,7 +795,7 @@ export default function App() {
                 status={status}
                 snapshot={finalizedSnapshot}
                 replayCombat={replayCombat}
-                displayedNarration={displayedNarration}
+                narration={narration}
                 isStreaming={isStreaming}
                 combatTarget={combatTarget}
                 combatLog={combatLog}

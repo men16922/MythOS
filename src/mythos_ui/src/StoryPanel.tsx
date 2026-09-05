@@ -1,6 +1,8 @@
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import type { PointerEventHandler, RefObject } from "react";
 import { CharacterPanel } from "./CharacterPanel";
+import { NarrationReveal } from "./NarrationReveal";
+import type { NarrationSource } from "./narrationStore";
 import { detectSceneCharacter, segmentParagraph, speakerForParagraph } from "./sceneCharacter";
 import { STAT_CANON, STAT_NAMES } from "./statVoice";
 import { ChoicePanel } from "./ChoicePanel";
@@ -37,7 +39,7 @@ interface StoryPanelProps {
   // it instead of the committed `snapshot.combat` so all three surfaces agree
   // mid-replay; null when no cinema is playing (roster/inspector show truth).
   replayCombat?: CombatState | null;
-  displayedNarration: string;
+  narration: NarrationSource;
   isStreaming: boolean;
   combatTarget: string | null;
   combatLog: string;
@@ -847,7 +849,7 @@ export function StoryPanel({
   status,
   snapshot,
   replayCombat,
-  displayedNarration,
+  narration,
   isStreaming,
   combatTarget,
   combatLog,
@@ -970,7 +972,13 @@ export function StoryPanel({
     if (combatActive) return;
     if (!stickToBottomRef.current) return;
     scrollBottomRef.current?.scrollIntoView({ behavior: isStreaming ? "auto" : "smooth" });
-  }, [displayedNarration, narrativeHistory, combatJustFinished, combatActive, isStreaming]);
+  }, [narrativeHistory, combatJustFinished, combatActive, isStreaming]);
+  // Same bottom-stick, driven by the reveal leaf per tick (the revealed text is
+  // no longer panel state, so it cannot be an effect dependency here).
+  const handleNarrationChange = useCallback(() => {
+    if (combatJustFinished || combatActive || !stickToBottomRef.current) return;
+    scrollBottomRef.current?.scrollIntoView({ behavior: isStreaming ? "auto" : "smooth" });
+  }, [combatJustFinished, combatActive, isStreaming]);
 
   // Board-first scroll on combat start (touch devices): pin the board band to
   // the viewport top so board + action dock fill the screen; the chrome above
@@ -1272,12 +1280,18 @@ export function StoryPanel({
                 </h2>
                 <ObjectiveStrip snapshot={snapshot} collapsible={isCoarsePointer} />
                 <div id="narration">
-                  {renderNarrationWithSpeakers(
-                    displayedNarration,
-                    snapshot?.active_scene?.turn_index ?? 0,
-                    t,
-                    scenarioCharacters
-                  )}
+                  <NarrationReveal
+                    source={narration}
+                    onTextChange={handleNarrationChange}
+                    render={(text) =>
+                      renderNarrationWithSpeakers(
+                        text,
+                        snapshot?.active_scene?.turn_index ?? 0,
+                        t,
+                        scenarioCharacters
+                      )
+                    }
+                  />
                   {isStreaming && <span className="caret">▌</span>}
                 </div>
                 {/* 첫 등장 용어 주석 (deterministic): 이번 세션에서 처음 언급된

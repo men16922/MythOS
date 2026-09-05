@@ -298,12 +298,45 @@ class PlainTextHeuristicsLanguageTest(unittest.TestCase):
         out_ko = _clean_player_text("경보가 울린다. SFX: ALARM WAIL 사람들이 흩어진다.")
         self.assertIn("사람들이 흩어진다.", out_ko)
 
+    def test_sentence_gap_repair_leaves_ellipses_decimals_and_quotes_alone(self) -> None:
+        from mythos_narrative.parser import _clean_player_text
+
+        # The gap repair used to fire on any non-space after a terminator, so it
+        # split ellipses, decimals, "?!" and a closing quote after a period.
+        cases = {
+            '그는 말했다... 아니. 3.5초 뒤 v2.0 "끝났다."라고 했다?!': (
+                '그는 말했다... 아니. 3.5초 뒤 v2.0 "끝났다."라고 했다?!'
+            ),
+            "He said...nothing. Sector 7.5 is gone!": "He said...nothing. Sector 7.5 is gone!",
+            "Wait.What? Run!Now.": "Wait. What? Run! Now.",
+            "불이 꺼진다.무언가 움직인다.": "불이 꺼진다. 무언가 움직인다.",
+        }
+        for raw, expected in cases.items():
+            with self.subTest(raw=raw):
+                self.assertEqual(_clean_player_text(raw), expected)
+
     def test_bracketed_marker_still_accepts_any_casing(self) -> None:
         from mythos_narrative.parser import _clean_player_text
 
         out = _clean_player_text("The lights die. [Cinematic sfx: glitch pop] Something moves.")
         self.assertNotIn("sfx", out.lower())
         self.assertIn("Something moves.", out)
+
+    def test_plain_text_choice_ids_are_unique(self) -> None:
+        # `choice_1: A` then a bare `B` minted a second `choice_1`; the runtime
+        # resolves a pick by first id match, so clicking B chose A.
+        payload = parse_story_text(
+            "[SCENE]\nThe corridor hums.\n[CHOICES]\nchoice_1: Push on\nWait here\nTurn back"
+        )
+        ids = [c.choice_id for c in payload.choices]
+        self.assertEqual(len(ids), len(set(ids)), ids)
+        self.assertEqual([c.label for c in payload.choices], ["Push on", "Wait here", "Turn back"])
+
+    def test_plain_text_intent_keywords_are_word_bounded(self) -> None:
+        payload = parse_story_text("[SCENE]\nQuiet.\n[CHOICES]\nPut on the mask\nAsk the guard")
+        by_label = {c.label: c.intent for c in payload.choices}
+        self.assertNotEqual(by_label["Put on the mask"], "interact")
+        self.assertEqual(by_label["Ask the guard"], "interact")
 
     def test_english_narration_can_start_combat(self) -> None:
         for story in (

@@ -1422,3 +1422,65 @@ class FleeForecastTest(unittest.TestCase):
         )
 
         self.assertEqual(engine._flee_preview(state, ally), {})
+
+
+class TwoPathsMustAgreeTest(unittest.TestCase):
+    """Preview/validation paths that had drifted from the resolution they mirror."""
+
+    def test_buffed_move_reaches_the_tiles_the_client_was_offered(self) -> None:
+        engine = CombatEngine()
+        state = engine.start([_player(x=0, y=0)], [_drone(x=7, y=0, hp=20)], seed="buff", arena=(10, 4))
+        player = state.player()
+        assert player is not None
+        player.speed_buff = 2
+        player.speed_buff_turns = 2
+        far = (player.speed + 2, 0)
+        self.assertIn(list(far), [list(t) for t in engine.available_actions(state)["reachable"]])
+        state = engine.take_player_turn(state, PlayerAction(type="defend", move_to=far))
+        moved = state.player()
+        assert moved is not None
+        self.assertEqual((moved.x, moved.y), far)
+
+    def test_attack_cannot_target_an_ally(self) -> None:
+        engine = CombatEngine()
+        state = engine.start(
+            [_player(x=0, y=0), _ally("han", x=1, y=0)], [_drone(x=6, y=0, hp=20)], seed="ff", arena=(8, 4)
+        )
+        han = state.by_id("han")
+        assert han is not None
+        before = han.hp
+        state = engine.take_player_turn(state, PlayerAction(type="attack", target_id="han"))
+        after = state.by_id("han")
+        assert after is not None
+        self.assertEqual(after.hp, before)
+        player_strikes = [
+            e for e in state.log if e.actor == "player" and e.action in ("hit", "miss", "defeat")
+        ]
+        self.assertEqual(player_strikes, [])
+
+    def test_attack_preview_applies_corrode_like_the_attack_does(self) -> None:
+        engine = CombatEngine()
+        state = engine.start([_player(x=0, y=0)], [_drone(x=1, y=0, hp=20, armor=3)], seed="cor", arena=(6, 4))
+        player = state.player()
+        enemy = state.living_enemies()[0]
+        assert player is not None
+        plain = engine._attack_preview(state, player, enemy)
+        enemy.status_effects["corrode"] = 2
+        corroded = engine._attack_preview(state, player, enemy)
+        self.assertEqual(corroded["damage_min"], plain["damage_min"] + 2)
+        self.assertEqual(corroded["damage_max"], plain["damage_max"] + 2)
+
+    def test_telegraph_kill_is_logged_as_a_defeat(self) -> None:
+        engine = CombatEngine()
+        state = engine.start([_player(x=0, y=0)], [_drone(x=3, y=0, hp=20)], seed="tele", arena=(6, 4))
+        enemy = state.living_enemies()[0]
+        player = state.player()
+        assert player is not None
+        player.hp = 1
+        state.telegraphs.append(
+            {"caster": enemy.id, "name": "낙하 타격", "tiles": [[0, 0]], "damage": "1d4"}
+        )
+        engine._resolve_telegraphs(state, enemy)
+        self.assertFalse(state.player().alive)  # type: ignore[union-attr]
+        kills = [e for e in state.log if e.detail.get("telegraph")]
+        self.assertEqual([e.action for e in kills], ["defeat"])

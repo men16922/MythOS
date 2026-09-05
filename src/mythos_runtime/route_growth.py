@@ -47,11 +47,17 @@ def extend_route(
     route_map = state.get(ROUTE_MAP_KEY) if isinstance(state, dict) else None
     if not isinstance(route_map, dict) or route_map.get("mode") != "dynamic":
         return state
-    layers = route_map.get("layers", [])
-    growth = route_map.get("growth", {})
+    raw_layers = route_map.get("layers", [])
+    raw_growth = route_map.get("growth", {})
     node_types = route_map.get("node_types", {})
-    if not layers or not isinstance(growth, dict) or not isinstance(node_types, dict):
+    if not raw_layers or not isinstance(raw_growth, dict) or not isinstance(node_types, dict):
         return state
+    # Copies, like ``nodes``/``edges`` below: ``_fill_layer`` appends to a layer
+    # and the ``filled`` flag is set per spec, and both used to write through
+    # into the caller's previous loop state — its layers listed node ids its
+    # own ``nodes`` did not hold.
+    layers = [list(layer) for layer in raw_layers]
+    growth = {key: (dict(spec) if isinstance(spec, dict) else spec) for key, spec in raw_growth.items()}
 
     nodes = {nid: dict(n) for nid, n in route_map.get("nodes", {}).items()}
     edges = {nid: list(t) for nid, t in route_map.get("edges", {}).items()}

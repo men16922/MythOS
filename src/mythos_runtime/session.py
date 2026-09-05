@@ -1423,9 +1423,16 @@ class RuntimeSessionService:
         self,
         player: PlayerProfile,
         run_summary_memory: WorldMemory,
+        *,
+        previous: MetaProgression | None = None,
     ) -> tuple[WorldMemory, MetaProgression, PlayerProfile]:
         scenario_id = str(run_summary_memory.content.get("scenario_id") or "neo-seoul")
-        previous = load_progression(self.store, player.player_id, scenario_id)
+        # ``previous`` is a progression this transition already advanced but has
+        # not written yet (combat reward insight); reading the store here instead
+        # would build the run-summary unlocks on stale points and then overwrite
+        # the reward when both land in the same transaction.
+        if previous is None or previous.scenario_id != scenario_id:
+            previous = load_progression(self.store, player.player_id, scenario_id)
         scenario = load_scenario(scenario_id)
         progress, unlocks = evaluate_meta_progression(
             previous,
@@ -1867,9 +1874,10 @@ class RuntimeSessionService:
         echo: Echo | None = None
         defeat_event: WorldEvent | None = None
         combat_event: WorldEvent | None = None
+        combat_progress: MetaProgression | None = None
         boss_climax = False
         if result.finished:
-            loop = self._apply_combat_rewards(loop, result)
+            loop, combat_progress = self._apply_combat_rewards(loop, result)
             boss_climax = self._is_boss_climax_encounter(encounter_id, options)
             if boss_climax:
                 # The IX climax has a definite outcome — win or lose ENDS the run.
@@ -1935,6 +1943,7 @@ class RuntimeSessionService:
                 run_summary_memory, meta_progress, snapshot_player = self._apply_meta_progression(
                     player,
                     run_summary_memory,
+                    previous=combat_progress,
                 )
 
         if result.finished and isinstance(loop.state, dict):
@@ -1980,6 +1989,11 @@ class RuntimeSessionService:
                 self.store.append_event(combat_event)
             if echo is not None:
                 _save_echo_memory(self.store, loop.player_id, echo)
+            # Reward insight lands in the same transaction as the loop state that
+            # records it as applied; committing it early (as this used to) let a
+            # failed save_loop re-credit the reward on the retried turn.
+            if combat_progress is not None:
+                persist_progression(self.store, combat_progress)
             if run_summary_memory is not None:
                 self.store.save_world_memory(run_summary_memory)
                 if meta_progress is not None:
@@ -2367,19 +2381,21 @@ class RuntimeSessionService:
             return "신호가 더는 형상을 유지하지 못하고, 접속이 풀리며 이번 루프가 닫혔다."
         return ""
 
-    def _apply_combat_rewards(self, loop: LoopState, result: CombatTurnResult) -> LoopState:
+    def _apply_combat_rewards(
+        self, loop: LoopState, result: CombatTurnResult
+    ) -> tuple[LoopState, MetaProgression | None]:
         encounter_id = result.radar.get("encounter_id") if isinstance(result.radar, dict) else None
         encounter_id = str(encounter_id) if encounter_id else None
         if result.outcome == "player_fled":
-            return replace(loop, state=mark_encounter_alerted(loop.state, encounter_id))
+            return replace(loop, state=mark_encounter_alerted(loop.state, encounter_id)), None
         if result.outcome != "player_victory":
-            return loop
+            return loop, None
 
         reward = (
             result.rewards.get("encounter_reward", {}) if isinstance(result.rewards, dict) else {}
         )
         if not isinstance(reward, dict):
-            return loop
+            return loop, None
         loop = replace(loop, state=mark_encounter_resolved(loop.state, encounter_id))
         stability = _clamp_score(loop.stability + int(reward.get("stability", 0)))
         tension = _clamp_score(loop.tension + int(reward.get("tension", 0)))
@@ -2388,6 +2404,7 @@ class RuntimeSessionService:
         if insight > 0:
             insight = max(0, insight + modifier_effect(loop.state, "combat_insight_bonus"))
 
+        progress: MetaProgression | None = None
         if insight > 0:
             scenario_id = str(loop.state.get("scenario_id") or "neo-seoul")
             previous = load_progression(self.store, loop.player_id, scenario_id)
@@ -2397,11 +2414,10 @@ class RuntimeSessionService:
                 loop,
                 state=apply_meta_progression_to_state(loop.state, progress, scenario.combat),
             )
-            persist_progression(self.store, progress)
 
         if stability == loop.stability and tension == loop.tension:
-            return loop
-        return replace(loop, stability=stability, tension=tension)
+            return loop, progress
+        return replace(loop, stability=stability, tension=tension), progress
 
     def _apply_route_node_reward(
         self,
@@ -2409,7 +2425,7 @@ class RuntimeSessionService:
         node_id: str,
         node: dict[str, Any],
         perspective: dict[str, Any] | None,
-    ) -> LoopState:
+    ) -> tuple[LoopState, MetaProgression | None]:
         """Apply a newly-entered route node's reward + perspective effect once.
 
         Closes the "choice -> session impact" loop numerically: non-combat node
@@ -2422,10 +2438,10 @@ class RuntimeSessionService:
         state = loop.state if isinstance(loop.state, dict) else {}
         route = state.get(ROUTE_MAP_KEY)
         if not isinstance(route, dict):
-            return loop
+            return loop, None
         applied = list(route.get("applied_rewards", []))
         if node_id in applied:
-            return loop
+            return loop, None
 
         dstab = dtens = dins = 0
         heal_frac = 0.0
@@ -2460,6 +2476,7 @@ class RuntimeSessionService:
         new_state[ROUTE_MAP_KEY] = new_route
         loop = replace(loop, state=new_state)
 
+        progress: MetaProgression | None = None
         if dins > 0:
             scenario_id = str(loop.state.get("scenario_id") or "neo-seoul")
             previous = load_progression(self.store, loop.player_id, scenario_id)
@@ -2468,7 +2485,6 @@ class RuntimeSessionService:
             loop = replace(
                 loop, state=apply_meta_progression_to_state(loop.state, progress, scenario.combat)
             )
-            persist_progression(self.store, progress)
 
         if dstab or dtens:
             loop = replace(
@@ -2476,7 +2492,7 @@ class RuntimeSessionService:
                 stability=_clamp_score(loop.stability + dstab),
                 tension=_clamp_score(loop.tension + dtens),
             )
-        return loop
+        return loop, progress
 
     def _combat_permadeath(
         self, loop: LoopState, scene: Scene
@@ -2722,6 +2738,7 @@ class RuntimeSessionService:
         # the player's junction pick), resolve anchor perspectives from accumulated
         # flags, and tally ending influence. If the move enters a combat-type node,
         # trigger that node's encounter so combat/patrol/boss nodes mean combat.
+        route_progress: MetaProgression | None = None
         if isinstance(transition.loop.state, dict) and transition.loop.state.get(ROUTE_MAP_KEY):
             prev_route = transition.loop.state[ROUTE_MAP_KEY]
             prev_current = prev_route.get("current")
@@ -2739,7 +2756,7 @@ class RuntimeSessionService:
                 scenario = load_scenario(options.scenario_id)
                 # Apply the entered node's reward + active perspective effect once.
                 status = route_status(transition.loop.state) or {}
-                rewarded = self._apply_route_node_reward(
+                rewarded, route_progress = self._apply_route_node_reward(
                     transition.loop, new_current, entered, status.get("perspective")
                 )
                 transition = replace(transition, loop=rewarded)
@@ -2911,6 +2928,11 @@ class RuntimeSessionService:
                 self.store.save_narrative_shard(shard)
             if transition.echo is not None:
                 _save_echo_memory(self.store, transition.loop.player_id, transition.echo)
+            # Route-node insight is persisted with the loop state that lists the
+            # node in ``applied_rewards``; an early commit would double-credit it
+            # if save_loop failed and the turn was retried.
+            if route_progress is not None:
+                persist_progression(self.store, route_progress)
         if metric_total_before is not None:
             self._persist_narrative_metric(
                 player.player_id, transition.loop.loop_id, metric_total_before
@@ -3160,7 +3182,17 @@ class RuntimeSessionService:
         scenario = load_scenario(options.scenario_id)
         encounters = scenario.combat.get("encounters", {})
         if not isinstance(encounters, dict) or candidate not in encounters:
-            return candidate
+            # The plain-text parser synthesizes ``combat_default`` when prose
+            # mentions a fight without naming an encounter, and the LLM can
+            # invent ids outright. Passing an unknown id through here made
+            # ``_begin_requested_combat`` raise AFTER the scene transaction had
+            # committed — a 500 on a turn that was already persisted. No fight
+            # is the right answer; the narration still carries the beat.
+            self.logger.warning(
+                "unknown combat encounter requested; ignoring",
+                extra={"loop_id": loop.loop_id, "encounter_id": candidate},
+            )
+            return None
 
         last_combat_story = loop.state.get("_last_combat_story_turn")
         current_story = loop.state.get("_story_turn")

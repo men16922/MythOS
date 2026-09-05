@@ -56,3 +56,14 @@ class MapGridTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ClassifyKindBoundaryTest(unittest.TestCase):
+    def test_ascii_kind_keywords_are_word_bounded(self) -> None:
+        from mythos_core.mapgrid import classify_kind
+
+        self.assertEqual(classify_kind("Planet Cabinet Corridor"), "node")
+        self.assertEqual(classify_kind("Ledge over the river"), "node")
+        self.assertEqual(classify_kind("Data Layer 01"), "data")
+        self.assertEqual(classify_kind("은신처 지하"), "refuge")
+

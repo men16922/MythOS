@@ -200,22 +200,43 @@ def _as_http_error(exc: RuntimeError) -> HTTPException:
 # --- WebSocket streaming (design §2.2) --------------------------------------
 
 
+# The socket frame is client-authored JSON with no schema in front of it, unlike
+# the REST models. Image parameters go straight to the image provider, so they
+# are bounded here (a 4096² request must not reach it) and a non-integer value
+# is a client error frame, not a socket close.
+_WS_IMAGE_BOUNDS = {"image_width": (64, 2048), "image_height": (64, 2048), "image_steps": (1, 50)}
+
+
+def _bounded_int(message: dict[str, Any], key: str, default: int) -> int:
+    raw = message.get(key, default)
+    if isinstance(raw, bool) or not isinstance(raw, (int, float, str)):
+        raise ValueError(f"{key} must be an integer")
+    try:
+        value = int(raw)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{key} must be an integer") from exc
+    lo, hi = _WS_IMAGE_BOUNDS[key]
+    if not lo <= value <= hi:
+        raise ValueError(f"{key} must be between {lo} and {hi}")
+    return value
+
+
 def _stream_for(
     service: RuntimeSessionService,
     message: dict[str, Any],
 ) -> Iterator[RuntimeStreamEvent]:
     """Map an inbound socket message to the matching runtime token stream."""
     options = RuntimeOptions(
-        scenario_id=message.get("scenario_id", "neo-seoul"),
+        scenario_id=str(message.get("scenario_id", "neo-seoul")),
         fallback=bool(message.get("fallback", False)),
         language=str(message.get("lang", "ko")),
         with_image=bool(message.get("with_image", False)),
         image_every_turn=bool(message.get("image_every_turn", False)),
         # Streamlit player-preset parity: 512x512 / 4 steps keeps mflux generation
         # fast (~8-15s) instead of the 1024x1024 default (~70-100s measured).
-        image_width=int(message.get("image_width", 512)),
-        image_height=int(message.get("image_height", 512)),
-        image_steps=int(message.get("image_steps", 4)),
+        image_width=_bounded_int(message, "image_width", 512),
+        image_height=_bounded_int(message, "image_height", 512),
+        image_steps=_bounded_int(message, "image_steps", 4),
     )
     event = message.get("event")
     if event == "begin":
@@ -384,7 +405,10 @@ async def _run_stream(
                 await _emit_visual_status(websocket, storage, last_snapshot)
         except KeyError as exc:
             await websocket.send_json({"type": "error", "detail": str(exc).strip("'\"")})
-        except RuntimeError as exc:
+        except (RuntimeError, ValueError, TypeError) as exc:
+            # ValueError/TypeError = a malformed frame (bad image ints, wrong
+            # field type). Answer with an error frame; closing the socket with
+            # 1011 would look like an outage to the client.
             await websocket.send_json({"type": "error", "detail": str(exc)})
 
 
@@ -1154,6 +1178,11 @@ def create_app() -> FastAPI:
         try:
             while True:
                 message = await websocket.receive_json()
+                if not isinstance(message, dict):
+                    await websocket.send_json(
+                        {"type": "error", "detail": "frame must be a JSON object"}
+                    )
+                    continue
                 if message.get("event") == "ping":
                     # Client keepalive (SPA sends one every ~20s) — answer
                     # without entering the stream pipeline so idle sockets

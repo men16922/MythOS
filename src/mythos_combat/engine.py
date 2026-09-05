@@ -361,7 +361,7 @@ class CombatEngine:
         hits = sum(1 for r in range(1, 21) if r >= crit_floor or r + mod >= dc)
         lo, hi = _dice_range(weapon.damage)
         dmg_bonus = (stat // 2 if melee else stat // 3) + el_dmg
-        armor = max(0, enemy.armor - weapon.armor_pen)
+        armor = max(0, self._effective_armor(enemy) - weapon.armor_pen)
         return {
             "hit_chance": round(hits / 20 * 100),
             "damage_min": max(1, lo + dmg_bonus - armor),
@@ -529,8 +529,8 @@ class CombatEngine:
     def _player_attack(
         self, state: CombatState, player: Combatant, action: PlayerAction, dice: Dice
     ) -> None:
-        target = state.by_id(action.target_id)
-        if target is None or not target.alive:
+        target = self._hostile_target(state, player, action.target_id)
+        if target is None:
             self._log(state, player, "info", clog(state.language, "target_gone", name=player.name))
             return
         weapon = self._select_weapon(player, action.weapon_id)
@@ -547,6 +547,24 @@ class CombatEngine:
             )
             return
         self._attack(state, player, target, weapon, dice)
+
+    @staticmethod
+    def _hostile_target(
+        state: CombatState, actor: Combatant, target_id: str | None
+    ) -> Combatant | None:
+        """The living hostile ``target_id`` names, else None.
+
+        ``target_id`` comes straight off the wire and the client already knows
+        ally ids (``friendly_targets``), so an attack must not resolve against
+        the actor's own side — the push/stun/grenade branches already guard
+        faction; attack and damage skills did not.
+        """
+        target = state.by_id(target_id)
+        if target is None or not target.alive:
+            return None
+        if target.faction not in {c.faction for c in state.hostiles_of(actor)}:
+            return None
+        return target
 
     @staticmethod
     def _perception_mods(combatant: Combatant) -> tuple[int, int]:
@@ -757,8 +775,8 @@ class CombatEngine:
         # Pre-validate damage target (so a whiffed cast does not burn focus/turn).
         target: Combatant | None = None
         if "damage" in effect or "damage_bonus" in effect:
-            target = state.by_id(action.target_id)
-            if target is None or not target.alive:
+            target = self._hostile_target(state, player, action.target_id)
+            if target is None:
                 target = self._nearest_enemy_in_range(state, player, skill_range)
             if target is None:
                 self._log(state, player, "info", clog(state.language, "skill_no_target", name=name))
@@ -2053,7 +2071,10 @@ class CombatEngine:
                     self._log(
                         state,
                         caster,
-                        "hit",
+                        # Every other kill path logs "defeat" and the client keys
+                        # its kill cut-in on that action; a telegraphed kill used
+                        # to render as a plain hit.
+                        "defeat" if not victim.alive else "hit",
                         clog(
                             state.language,
                             "telegraph_hit",
@@ -2399,7 +2420,11 @@ class CombatEngine:
         dx, dy = dest
         if not self._in_bounds(state, dx, dy) or self._occupied(state, dx, dy, player):
             return
-        if distance(player.x, player.y, dx, dy) > player.speed:
+        # ``effective_speed`` — the client is offered tiles out to speed+buff
+        # (available_actions/move_range), so checking bare ``speed`` here
+        # silently dropped every buffed move and then resolved the attack from
+        # the old tile.
+        if distance(player.x, player.y, dx, dy) > player.effective_speed:
             return
         old = (player.x, player.y)
         player.x, player.y = dx, dy

@@ -318,6 +318,33 @@ class RuntimeSessionTest(unittest.TestCase):
         self.assertIn("recent_archives_low_stability", adjustment["reasons"])
         self.assertIn("archive_pressure", adjustment["reasons"])
 
+    def test_initial_loop_scores_window_is_taken_after_filtering_by_player(self) -> None:
+        # World memories are shared across players and hold several kinds per
+        # archive; slicing the raw list to 8 before filtering let another
+        # player's activity push this player's archives out of the window.
+        now = datetime(2026, 5, 30, tzinfo=UTC)
+
+        def memory(index: int, kind: str, player_id: str) -> WorldMemory:
+            return WorldMemory(
+                memory_id=f"memory_{kind}_{player_id}_{index}",
+                world_id="mythos-local",
+                kind=kind,
+                content={
+                    "loop_id": f"loop_{player_id}_{index}",
+                    "player_id": player_id,
+                    "stability": 30,
+                    "tension": 82,
+                },
+                weight=1.0,
+                created_at=now,
+                updated_at=now,
+            )
+
+        mine = [memory(i, "loop_archive", "me") for i in range(3)]
+        noise = [memory(i, kind, "other") for i in range(6) for kind in ("loop_archive", "run_summary")]
+        scores = _initial_loop_scores([*mine, *noise], player_id="me")
+        self.assertEqual(scores.state["initial_world_memory_adjustment"]["sample_size"], 3)
+
     def test_initial_loop_scores_reflect_calm_stable_archives(self) -> None:
         now = datetime(2026, 5, 30, tzinfo=UTC)
         memories = [

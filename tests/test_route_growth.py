@@ -182,3 +182,24 @@ class RouteGrowthTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class RouteGrowthPurityTest(unittest.TestCase):
+    def test_extend_route_leaves_the_input_state_untouched(self) -> None:
+        # layers/growth were shared with the caller, so growing a layer appended
+        # node ids into the PREVIOUS loop state's layer list — ids its own
+        # ``nodes`` did not hold — and flipped ``filled`` on it.
+        import copy
+
+        config = load_scenario("neo-seoul").route_map
+        state: dict[str, Any] = {ROUTE_MAP_KEY: _seed(config, "pure-seed"), "flags": []}
+        initial_nodes = sum(len(layer) for layer in state[ROUTE_MAP_KEY]["layers"])
+        last = len(state[ROUTE_MAP_KEY]["layers"]) - 1
+        for layer in range(last + 1):
+            state = _advance_pointer(state, layer)
+            input_state = state
+            before = copy.deepcopy(state)
+            state = extend_route(state, seed="pure-seed", turn_index=layer * 4)
+            # The input handed in must come back out unchanged, grown or not.
+            self.assertEqual(input_state, before)
+        self.assertGreater(sum(len(layer) for layer in state[ROUTE_MAP_KEY]["layers"]), initial_nodes)

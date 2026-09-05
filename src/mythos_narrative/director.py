@@ -546,7 +546,7 @@ class NarrativeDirector:
             extra={
                 "player_id": context.player.player_id,
                 "loop_id": context.loop.loop_id,
-                "provider": type(self.provider).__name__,
+                "provider": type(unwrap_provider(self.provider)).__name__,
                 "latency_ms": latency_ms,
                 "status": "fallback" if outcome == OUTCOME_FALLBACK else "succeeded",
                 "outcome": outcome,
@@ -618,6 +618,19 @@ class NarrativeDirector:
                         )
                     else:
                         repaired_raw = self.provider.generate(repair_messages)
+                    # A second billed call on this turn. The first call's usage
+                    # was already taken into the generation log above, so this
+                    # one gets its own record — otherwise the next turn's
+                    # clear_usage() would discard exactly the priciest turns.
+                    self.logger.info(
+                        "narrative provider repair finished",
+                        extra={
+                            "player_id": context.player.player_id,
+                            "loop_id": context.loop.loop_id,
+                            "provider": type(unwrap_provider(self.provider)).__name__,
+                            **take_usage(),
+                        },
+                    )
                     try:
                         payload = parse_scene_payload(repaired_raw)
                         outcome = OUTCOME_PROVIDER_REPAIR
@@ -699,7 +712,7 @@ class NarrativeDirector:
             extra={
                 "player_id": context.player.player_id,
                 "loop_id": context.loop.loop_id,
-                "provider": type(self.provider).__name__,
+                "provider": type(unwrap_provider(self.provider)).__name__,
                 # Which model actually served this turn ("" = provider base model).
                 # The key-beat A/B verdict is read off these two fields in prod logs;
                 # streaming is the production path, so they must be logged here too.

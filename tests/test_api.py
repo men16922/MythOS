@@ -71,6 +71,20 @@ class ApiHealthTest(unittest.TestCase):
         self.assertEqual(response.json(), {"status": "ok"})
 
 
+class WsFrameValidationTest(unittest.TestCase):
+    def test_image_ints_are_bounded_and_typed(self) -> None:
+        from mythos_api.app import _bounded_int
+
+        self.assertEqual(_bounded_int({}, "image_width", 512), 512)
+        self.assertEqual(_bounded_int({"image_width": "768"}, "image_width", 512), 768)
+        for bad in ({"image_width": "abc"}, {"image_width": 4096}, {"image_width": True},
+                    {"image_width": None}, {"image_steps": 0}):
+            with self.subTest(frame=bad):
+                key = next(iter(bad))
+                with self.assertRaises(ValueError):
+                    _bounded_int(bad, key, 512)
+
+
 class ApiClientConfigTest(unittest.TestCase):
     """DEFAULT_BGM_ON env → /api/v1/client-config (owner 2026-07-12: server-driven
     BGM default; production true, `make api` exports false)."""

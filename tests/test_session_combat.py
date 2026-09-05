@@ -1143,7 +1143,7 @@ class SessionCombatTest(unittest.TestCase):
             rewards={"encounter_reward": {"stability": 2, "tension": -1}},
         )
 
-        updated = self.service._apply_combat_rewards(loop, result)
+        updated, _ = self.service._apply_combat_rewards(loop, result)
 
         contact = updated.state[ENCOUNTER_MAP_KEY]["contacts"]["c1"]
         self.assertEqual(contact["state"], "defeated")
@@ -1164,12 +1164,16 @@ class SessionCombatTest(unittest.TestCase):
             rewards={"encounter_reward": {"insight": 2}},
         )
 
-        updated = self.service._apply_combat_rewards(loop, result)
+        updated, progress = self.service._apply_combat_rewards(loop, result)
 
-        # Progression now persists to the dedicated table (store.get_progression).
-        progress = load_progression(self.store, updated.player_id, "neo-seoul")
+        # The helper returns the advanced progression instead of committing it:
+        # persistence happens inside the combat-turn transaction, next to the loop
+        # state that records the reward, so a failed save cannot double-credit it.
+        assert progress is not None
         self.assertEqual(progress.insight_points, 2)
         self.assertEqual(updated.state["meta_progression"]["insight_points"], 2)
+        untouched = load_progression(self.store, updated.player_id, "neo-seoul")
+        self.assertEqual(untouched.insight_points, 0)
 
     def test_equip_item_toggles_and_applies_stat_bonus(self) -> None:
         from mythos_core import Scene
@@ -1285,7 +1289,7 @@ class SessionCombatTest(unittest.TestCase):
             rewards={"encounter_reward": {"stability": 2, "tension": -1}},
         )
 
-        updated = self.service._apply_combat_rewards(loop, result)
+        updated, _ = self.service._apply_combat_rewards(loop, result)
 
         contact = updated.state[ENCOUNTER_MAP_KEY]["contacts"]["c1"]
         self.assertEqual(contact["state"], "alerted")
@@ -1350,6 +1354,16 @@ class SessionCombatTest(unittest.TestCase):
         loop = self._gate_loop(_combat_count=0)
         gated = self.service._gate_next_combat(loop, 4, "enforcer_standoff", self.options)
         self.assertIn(gated, self._tier_one_encounters())
+
+    def test_gate_drops_an_encounter_the_scenario_does_not_define(self) -> None:
+        # The plain-text parser synthesizes ``combat_default`` when prose mentions
+        # a fight without an encounter id. Passing it through used to make
+        # ``_begin_requested_combat`` raise after the scene transaction had
+        # already committed — a 500 on a persisted turn.
+        loop = self._gate_loop(_combat_count=3)
+        for bogus in ("combat_default", "encounter_made_up_by_the_model"):
+            with self.subTest(candidate=bogus):
+                self.assertIsNone(self.service._gate_next_combat(loop, 6, bogus, self.options))
 
     def test_gate_never_reserves_the_encounter_just_fought(self) -> None:
         # The cap is keyed to combats *won*, so a player who keeps fleeing stays at

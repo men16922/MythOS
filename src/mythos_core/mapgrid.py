@@ -15,6 +15,8 @@ from __future__ import annotations
 import hashlib
 from typing import Any
 
+from .text_match import mentions
+
 MAP_STATE_KEY = "_map"
 
 # N, E, S, W first (orthogonal), then diagonals — preferred adjacency order.
@@ -37,9 +39,10 @@ def normalize_location(location: str) -> str:
 
 
 def classify_kind(location: str) -> str:
-    text = (location or "").lower()
+    # word-bounded ASCII ("Planet Cabinet" is not `net`, "Ledge" is not `edge`).
+    text = location or ""
     for keys, kind in _KIND_RULES:
-        if any(k in text for k in keys):
+        if mentions(text, keys):
             return kind
     return "node"
 

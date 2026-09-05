@@ -12,6 +12,7 @@ from mythos_core import (
     WorldEvent,
     WorldMemory,
 )
+from mythos_core.text_match import mentions
 from mythos_narrative import NarrativeContext
 from mythos_runtime.cutscenes import ACTIVE_CUTSCENE_KEY
 from mythos_runtime.route_map import ROUTE_MAP_KEY
@@ -1003,8 +1004,8 @@ def build_runtime_narrative_context(
             "leave",
             "escape",
         ]
-        action_lower = player_action.lower()
-        if any(kw in action_lower for kw in travel_keywords):
+        # word-bounded: "Remove the drone's casing" is not a `move`.
+        if mentions(player_action, travel_keywords):
             notes.append(encounters.travel_header)
             notes.append(
                 fill_placeholders(

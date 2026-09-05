@@ -150,3 +150,31 @@ class EncounterMapTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ContactIdDeterminismTest(unittest.TestCase):
+    def test_contact_id_does_not_depend_on_the_process_hash_seed(self) -> None:
+        # ``abs(hash(seed))`` is salted per interpreter; the id feeds later
+        # movement seeds, so a restart moved persisted contacts differently.
+        import subprocess
+        import sys
+
+        code = (
+            "from mythos_core.mapgrid import update_map\n"
+            "from mythos_runtime.encounter_map import tick_encounter_map, ENCOUNTER_MAP_KEY\n"
+            "from mythos_runtime.scenario import load_scenario\n"
+            "s, _ = tick_encounter_map(update_map({}, 'Data Layer 01', 0), combat_pool=load_scenario('neo-seoul').combat,"
+            " seed='seed', turn_index=1, requested=['patrol_ambush'])\n"
+            "print(next(iter(s[ENCOUNTER_MAP_KEY]['contacts'])))"
+        )
+        ids = {
+            subprocess.run(
+                [sys.executable, "-c", code],
+                capture_output=True,
+                text=True,
+                check=True,
+                env={**__import__("os").environ, "PYTHONHASHSEED": str(n), "MYTHOS_LOG_LEVEL": "ERROR"},
+            ).stdout.strip()
+            for n in (1, 2)
+        }
+        self.assertEqual(len(ids), 1, ids)

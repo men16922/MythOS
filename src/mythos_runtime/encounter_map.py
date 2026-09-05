@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from mythos_core.dice import Dice
+from mythos_core.dice import Dice, _seed_int
 
 ENCOUNTER_MAP_KEY = "_encounter_map"
 
@@ -168,7 +168,10 @@ def _build_contact(
     risk = int(encounter.get("risk", max(1, len(enemies))))
     glyph = enemies[0].get("glyph", "!") if enemies else "!"
     return {
-        "id": f"contact_{turn_index}_{encounter_id}_{abs(hash(seed)) % 10000}",
+        # sha-derived, not ``hash()``: str hashing is salted per process, and
+        # the id is folded into later movement seeds — a restart must not
+        # move a persisted contact differently.
+        "id": f"contact_{turn_index}_{encounter_id}_{_seed_int(seed) % 10000}",
         "encounter_id": encounter_id,
         "name": str(encounter.get("name", encounter_id)),
         "x": x,

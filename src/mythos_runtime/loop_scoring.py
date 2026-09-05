@@ -35,11 +35,17 @@ def _initial_loop_scores(
 ) -> InitialLoopScores:
     base_stability = 70
     base_tension = 20
-    archives = []
-    for memory in world_memories[-8:]:
-        if memory.kind == "loop_archive" and isinstance(memory.content, dict):
-            if player_id is None or memory.content.get("player_id") == player_id:
-                archives.append(memory.content)
+    # Filter first, then window: world memories are shared across players and
+    # hold several kinds per archive, so slicing the raw list to 8 let another
+    # player's activity (or this player's own run summaries) push every
+    # loop_archive out of the window and silently drop the adjustment.
+    archives = [
+        memory.content
+        for memory in world_memories
+        if memory.kind == "loop_archive"
+        and isinstance(memory.content, dict)
+        and (player_id is None or memory.content.get("player_id") == player_id)
+    ][-8:]
 
     score_pairs = []
     for content in archives:

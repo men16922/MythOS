@@ -227,8 +227,16 @@ def _clean_player_text(value: str) -> str:
         flags=re.IGNORECASE,
     )
     cleaned = _SFX_BARE.sub(lambda match: _sfx_to_prose(match.group(0), korean), cleaned)
-    cleaned = re.sub(r"(?<=[.!?])(?=\S)", " ", cleaned)
+    cleaned = _SENTENCE_GAP.sub(" ", cleaned)
     return re.sub(r"[ \t]{2,}", " ", cleaned).strip()
+
+
+# Re-open the gap the model closed between sentences ("Wait.What?" → "Wait. What?").
+# Only when a terminator is followed by something that starts a sentence — a
+# capital letter or Hangul. The previous `(?=\S)` fired on ANY non-space, so it
+# rewrote "3.5초" as "3. 5초", "..." as ". . .", "?!" as "? !" and '"끝났다."라고'
+# as '"끝났다. "라고' — on every scene, both languages, production included.
+_SENTENCE_GAP = re.compile(r"(?<=[.!?])(?=[A-Z가-힣])")
 
 
 _HANGUL = re.compile(r"[가-힣]")
@@ -493,6 +501,7 @@ def parse_story_text(story_text: str) -> ScenePayload:
     choices = []
     lines = choices_block.split("\n")
     choice_idx = 1
+    seen_ids: set[str] = set()
     for line in lines:
         line = line.strip()
         if not line:
@@ -509,17 +518,23 @@ def parse_story_text(story_text: str) -> ScenePayload:
             choice_id = f"choice_{choice_idx}"
             label = line_clean
             choice_idx += 1
+        # `choice_1: A` followed by a bare `B` used to mint a second `choice_1`,
+        # and the runtime resolves a pick by first id match — clicking B chose A.
+        while choice_id in seen_ids:
+            choice_id = f"choice_{choice_idx}"
+            choice_idx += 1
+        seen_ids.add(choice_id)
 
-        # Default intents based on keyword heuristic or exploring default
+        # Default intents based on keyword heuristic or exploring default.
+        # ``mentions`` word-bounds the ASCII terms: "mask" is not "ask".
         intent = "explore"
-        label_lower = label.lower()
-        if any(w in label_lower for w in ["조사", "탐색", "기록", "look", "search", "explore", "scan"]):
+        if mentions(label, ["조사", "탐색", "기록", "look", "search", "explore", "scan"]):
             intent = "explore"
-        elif any(w in label_lower for w in ["대화", "이야기", "질문", "말", "설득", "talk", "ask", "chat"]):
+        elif mentions(label, ["대화", "이야기", "질문", "말", "설득", "talk", "ask", "chat"]):
             intent = "interact"
-        elif any(w in label_lower for w in ["해킹", "수정", "개입", "조작", "rewrite", "hack", "inject"]):
+        elif mentions(label, ["해킹", "수정", "개입", "조작", "rewrite", "hack", "inject"]):
             intent = "rewrite"
-        elif any(w in label_lower for w in ["아카이브", "보존", "저장", "archive"]):
+        elif mentions(label, ["아카이브", "보존", "저장", "archive"]):
             intent = "archive"
 
         choices.append(Choice(choice_id=choice_id, label=label, intent=intent))
@@ -563,9 +578,9 @@ def parse_story_text(story_text: str) -> ScenePayload:
 
     # Heuristic for flags
     flags = []
-    if "clue" in story_lower or "단서" in story_lower:
+    if mentions(story_lower, ("clue", "단서")):
         flags.append("clue_found")
-    if "combat" in story_lower or "전투" in story_lower:
+    if mentions(story_lower, ("combat", "전투")):
         flags.append("combat_imminent")
 
     world_delta = WorldDelta(

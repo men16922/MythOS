@@ -119,7 +119,7 @@ class LoopModifierEffectTest(unittest.TestCase):
                     **extra,
                 },
             )
-            out = service._apply_route_node_reward(loop, "n1", node, None)
+            out, _ = service._apply_route_node_reward(loop, "n1", node, None)
             meta = out.state.get("meta_progression", {})
             return int(meta.get("insight_points", 0))
 

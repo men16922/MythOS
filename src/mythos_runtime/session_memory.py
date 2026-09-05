@@ -212,7 +212,7 @@ def build_session_synopsis(state: dict[str, Any]) -> list[str]:
             "이 반복을 희미하게 감지할 수 있다 — 기시감, '또 너인가' 같은 인식, 미세하게 달라진 "
             "반응을 드물게(과하지 않게) 드러내라. 단, 플레이어의 이전 루프 선택을 구체적으로 "
             "안다고 단정하지는 말 것.\n"
-            f"IX 참고 대사(있는 그대로 쓰지 말고 이 톤·인식 수준을 참고): \"{ix_line}\""
+            f'IX 참고 대사(있는 그대로 쓰지 말고 이 톤·인식 수준을 참고): "{ix_line}"'
         )
 
     if beats:
@@ -239,9 +239,7 @@ def build_session_synopsis(state: dict[str, Any]) -> list[str]:
                 "다시 깔지 말고, 첫 문장부터 새로운 전개(사건·대사·이동·결정)로 바로 진입하라."
             )
         if anchors:
-            spine = " → ".join(
-                f"{b.get('node')}({_short(b.get('lens'))})" for b in anchors
-            )
+            spine = " → ".join(f"{b.get('node')}({_short(b.get('lens'))})" for b in anchors)
             notes.append(f"주요 전환점: {spine}")
             for b in anchors[-3:]:
                 if b.get("gist"):

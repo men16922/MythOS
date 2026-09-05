@@ -63,9 +63,7 @@ def evaluate_unlocked_cutscenes(
     """Return the sorted ids of cutscenes unlocked by the given affection + flags."""
     flag_set = {str(f) for f in (flags or [])}
     unlocked = [
-        cs.cutscene_id
-        for cs in cutscenes
-        if is_cutscene_unlocked(cs, relationships, flag_set)
+        cs.cutscene_id for cs in cutscenes if is_cutscene_unlocked(cs, relationships, flag_set)
     ]
     return sorted(unlocked)
 

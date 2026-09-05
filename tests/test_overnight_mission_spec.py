@@ -109,7 +109,9 @@ class MissionSpecCompilerTest(unittest.TestCase):
             self.assertEqual(contract["budgets"]["revisions"], 0)
             self.assertEqual(contract["budgets"]["subagents"], 0)
             regression = next(
-                item for item in contract["evidence"] if item["verifier"] == "15-regression-validity"
+                item
+                for item in contract["evidence"]
+                if item["verifier"] == "15-regression-validity"
             )
             expected_hash = hashlib.sha256(spec_path.read_bytes()).hexdigest()
             self.assertEqual(
@@ -131,11 +133,65 @@ class MissionSpecCompilerTest(unittest.TestCase):
 
 
 class RegressionValidityVerifierTest(unittest.TestCase):
+    def test_contract_without_mission_spec_binding_is_not_applicable(self) -> None:
+        """The runner executes every verifiers.d script regardless of the contract and
+        rejects on fail/inconclusive. An ordinary [auto] seed carries no MissionSpec
+        entry, so this verifier must pass as not-applicable instead of reverting the
+        commit (2026-09-06: iteration 1's clean ruff-format commit was rejected here
+        with an empty reason — a bare ``StopIteration``)."""
+        with tempfile.TemporaryDirectory() as temp:
+            repo = Path(temp)
+            subprocess.run(["git", "init", "-q", str(repo)], check=True)
+            subprocess.run(
+                ["git", "-C", str(repo), "config", "user.email", "fixture@mythos.local"], check=True
+            )
+            subprocess.run(["git", "-C", str(repo), "config", "user.name", "Fixture"], check=True)
+            (repo / "a.txt").write_text("base\n")
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
+            subprocess.run(["git", "-C", str(repo), "commit", "-qm", "test: base"], check=True)
+            base = subprocess.check_output(
+                ["git", "-C", str(repo), "rev-parse", "HEAD"], text=True
+            ).strip()
+            (repo / "a.txt").write_text("candidate\n")
+            subprocess.run(
+                ["git", "-C", str(repo), "commit", "-qam", "test: candidate"], check=True
+            )
+            head = subprocess.check_output(
+                ["git", "-C", str(repo), "rev-parse", "HEAD"], text=True
+            ).strip()
+            contract_path = repo / "contract.json"
+            contract_path.write_text(
+                json.dumps(
+                    {"id": "auto-seed", "evidence": [{"verifier": "gate", "required": True}]}
+                )
+            )
+            env = os.environ.copy()
+            env.update(
+                {
+                    "OVERNIGHT_CONTRACT_FILE": str(contract_path),
+                    "OVERNIGHT_LOG_DIR": str(repo / "logs"),
+                }
+            )
+
+            result = subprocess.run(
+                [str(REGRESSION_VERIFIER), f"{base}..{head}"],
+                cwd=repo,
+                env=env,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("not applicable", result.stdout)
+
     def test_same_assertion_fails_on_base_and_passes_on_candidate(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             repo = Path(temp)
             subprocess.run(["git", "init", "-q", str(repo)], check=True)
-            subprocess.run(["git", "-C", str(repo), "config", "user.email", "fixture@mythos.local"], check=True)
+            subprocess.run(
+                ["git", "-C", str(repo), "config", "user.email", "fixture@mythos.local"], check=True
+            )
             subprocess.run(["git", "-C", str(repo), "config", "user.name", "Fixture"], check=True)
             spec_path = repo / "docs/plans/fixture.json"
             spec_path.parent.mkdir(parents=True)
@@ -145,7 +201,9 @@ class RegressionValidityVerifierTest(unittest.TestCase):
             plan.write_text("- [ ] [auto:claude] Create target.\n")
             subprocess.run(["git", "-C", str(repo), "add", "."], check=True)
             subprocess.run(["git", "-C", str(repo), "commit", "-qm", "test: base"], check=True)
-            base = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"], text=True).strip()
+            base = subprocess.check_output(
+                ["git", "-C", str(repo), "rev-parse", "HEAD"], text=True
+            ).strip()
             (repo / "target.txt").write_text("candidate\n")
             plan.write_text("- [x] [auto:claude] Create target.\n")
             subprocess.run(["git", "-C", str(repo), "add", "."], check=True)

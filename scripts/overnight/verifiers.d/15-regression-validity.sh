@@ -24,7 +24,26 @@ repo = Path.cwd().resolve()
 
 try:
     contract = json.load(open(contract_path))
-    entry = next(item for item in contract["evidence"] if item["verifier"] == "15-regression-validity")
+except (OSError, json.JSONDecodeError) as exc:
+    print(f"invalid MissionSpec contract binding: {exc}")
+    sys.exit(1)
+
+# The runner executes every script in verifiers.d regardless of the contract, and
+# treats fail/inconclusive as a reject. This verifier only has something to prove
+# when the compiler bound a MissionSpec (contract evidence carries our entry);
+# an ordinary [auto] seed has none, and rejecting it would revert every such
+# commit (2026-09-06: iteration 1's clean ruff-format commit was rejected here).
+bound = [
+    item
+    for item in contract.get("evidence", [])
+    if isinstance(item, dict) and item.get("verifier") == "15-regression-validity"
+]
+if not bound:
+    print("no MissionSpec bound in WorkContract — not applicable, skipped")
+    sys.exit(0)
+
+try:
+    entry = bound[0]
     ref = entry["config"]["mission_spec_ref"]
     expected_slices = entry["config"]["slice_ids"]
     path_text, expected_hash = ref.rsplit("#sha256=", 1)

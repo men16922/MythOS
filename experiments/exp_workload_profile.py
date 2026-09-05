@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import statistics as st
 from pathlib import Path
+from typing import TypedDict
 
 from experiments.harness import Experiment, ExperimentResult, Finding, Table, run_experiment
 from experiments.tracelib import (
@@ -33,6 +34,63 @@ from experiments.tracelib import (
 )
 
 SLUG = "workload-profile"
+
+
+class ShareThird(TypedDict):
+    label: str
+    pairs: str
+    median_share_pct: float
+    median_shared_chars: int
+    median_prompt_chars: int
+
+
+class ShareTrend(TypedDict):
+    n: int
+    thirds: list[ShareThird]
+    slope_pct_per_pair: float
+    direction: str
+
+
+def share_trend(shares: list[float], prompt_lens: list[int], shared_lens: list[int]) -> ShareTrend:
+    """How prefix sharing moves as the loop grows (P1-2).
+
+    Splits the consecutive pairs into early / mid / late thirds and reports the
+    median share %, median shared chars and median prompt length per third, plus
+    a least-squares slope of share % per pair. The question this answers: as the
+    session synopsis grows, does the shared *prefix* stay roughly flat in chars
+    (so its share of a longer prompt falls) or does it grow with the prompt?
+    ``direction`` is "falling" / "rising" / "flat" on the slope, with a ±0.25
+    pct/pair dead band so noise on a short arm does not read as a trend.
+    """
+    n = len(shares)
+    if n == 0:
+        return {"n": 0, "thirds": [], "slope_pct_per_pair": 0.0, "direction": "flat"}
+    cut1, cut2 = max(1, n // 3), max(2, (2 * n) // 3)
+    bounds = [(0, cut1), (cut1, cut2), (cut2, n)] if n >= 3 else [(0, n)]
+    thirds: list[ShareThird] = []
+    for label, (lo, hi) in zip(("early", "mid", "late"), bounds, strict=False):
+        if hi <= lo:
+            continue
+        thirds.append(
+            {
+                "label": label,
+                "pairs": f"{lo}→{hi}",
+                "median_share_pct": st.median(shares[lo:hi]),
+                "median_shared_chars": int(st.median(shared_lens[lo:hi])),
+                "median_prompt_chars": int(st.median(prompt_lens[lo:hi])),
+            }
+        )
+    if n >= 2:
+        xs = list(range(n))
+        mx, my = st.mean(xs), st.mean(shares)
+        sxx = sum((x - mx) ** 2 for x in xs)
+        slope = (
+            sum((x - mx) * (y - my) for x, y in zip(xs, shares, strict=True)) / sxx if sxx else 0.0
+        )
+    else:
+        slope = 0.0
+    direction = "falling" if slope < -0.25 else "rising" if slope > 0.25 else "flat"
+    return {"n": n, "thirds": thirds, "slope_pct_per_pair": slope, "direction": direction}
 
 
 def build(trace_dir: Path, model: str, method: str) -> Experiment:
@@ -53,8 +111,12 @@ def build(trace_dir: Path, model: str, method: str) -> Experiment:
         size_rows = [
             ["input tokens", min(in_tok), int(st.median(in_tok)), max(in_tok)],
             ["output tokens", min(out_tok), int(st.median(out_tok)), max(out_tok)],
-            ["input chars", min(len(p) for p in prompts), int(st.median([len(p) for p in prompts])),
-             max(len(p) for p in prompts)],
+            [
+                "input chars",
+                min(len(p) for p in prompts),
+                int(st.median([len(p) for p in prompts])),
+                max(len(p) for p in prompts),
+            ],
         ]
         ratio = st.median(in_tok) / max(st.median(out_tok), 1)
         chars_per_token = st.median([len(p) for p in prompts]) / max(st.median(in_tok), 1)
@@ -62,13 +124,28 @@ def build(trace_dir: Path, model: str, method: str) -> Experiment:
         # -- prefix sharing -----------------------------------------------
         share_rows = []
         shares = []
+        shared_lens = []
         for i in range(len(rows) - 1):
             a, b = prompts[i], prompts[i + 1]
             shared = common_prefix_len(a, b)
             pct = 100 * shared / max(len(a), 1)
             shares.append(pct)
-            share_rows.append([f"{i}→{i+1}", len(a), shared, f"{pct:.1f}%"])
+            shared_lens.append(shared)
+            share_rows.append([f"{i}→{i + 1}", len(a), shared, f"{pct:.1f}%"])
         median_share = st.median(shares)
+        trend = share_trend(shares, [len(p) for p in prompts[:-1]], shared_lens)
+        trend_rows = [
+            [
+                t["label"],
+                t["pairs"],
+                f"{t['median_share_pct']:.1f}%",
+                t["median_shared_chars"],
+                t["median_prompt_chars"],
+            ]
+            for t in trend["thirds"]
+        ]
+        slope = trend["slope_pct_per_pair"]
+        direction_ko = {"falling": "하락", "rising": "상승", "flat": "평탄"}[trend["direction"]]
 
         # -- degradation ---------------------------------------------------
         empty = sum(1 for r in rows if r.get("response") == "")
@@ -102,12 +179,22 @@ def build(trace_dir: Path, model: str, method: str) -> Experiment:
                     ),
                 ),
                 Table(
+                    "프리픽스 공유 곡선 — 루프가 자라며 공유율이 어떻게 움직이는가 (P1-2)",
+                    ["구간", "쌍", "공유율 중앙값", "공유 문자 중앙값", "프롬프트 길이 중앙값"],
+                    trend_rows,
+                    note=(
+                        f"최소제곱 기울기 **{slope:+.2f} pct/쌍** → **{direction_ko}** (±0.25 dead band). "
+                        "공유 문자수가 평탄한데 프롬프트가 길어지면 비율만 떨어지는 것이고, "
+                        "공유 문자수 자체가 움직이면 프롬프트 앞부분(시놉시스·상태)이 재작성되는 것입니다."
+                    ),
+                ),
+                Table(
                     "생성 결과",
                     ["항목", "건수", "비율"],
                     [
-                        ["빈 응답", empty, f"{100*empty/len(rows):.0f}%"],
-                        ["예외/타임아웃", errored, f"{100*errored/len(rows):.0f}%"],
-                        ["저하 합계", degraded, f"{100*degraded/len(rows):.0f}%"],
+                        ["빈 응답", empty, f"{100 * empty / len(rows):.0f}%"],
+                        ["예외/타임아웃", errored, f"{100 * errored / len(rows):.0f}%"],
+                        ["저하 합계", degraded, f"{100 * degraded / len(rows):.0f}%"],
                     ],
                     note="저하된 턴은 fallback이 덮으므로 플레이 화면에서는 정상으로 보입니다.",
                 ),
@@ -122,11 +209,28 @@ def build(trace_dir: Path, model: str, method: str) -> Experiment:
                     claim=f"연속 턴이 프롬프트의 {median_share:.1f}%를 리터럴 프리픽스로 공유한다.",
                     evidence=f"{len(shares)}개 연속 쌍, 범위 {min(shares):.1f}–{max(shares):.1f}%.",
                 ),
+                Finding(
+                    claim=(
+                        f"루프가 진행되며 공유율은 **{direction_ko}**한다 "
+                        f"(기울기 {slope:+.2f} pct/쌍"
+                        + (
+                            f"; early {trend_rows[0][2]} → late {trend_rows[-1][2]}"
+                            if len(trend_rows) >= 2
+                            else ""
+                        )
+                        + ")."
+                    ),
+                    evidence=(
+                        "연속 쌍을 early/mid/late 3분할한 공유율·공유 문자수·프롬프트 길이 중앙값 "
+                        "(위 곡선 표)."
+                    ),
+                    confidence="indicative" if len(shares) < 30 else "measured",
+                ),
             ]
             + (
                 [
                     Finding(
-                        claim=f"이 실행에서 생성의 {100*degraded/len(rows):.0f}%가 저하됐다 "
+                        claim=f"이 실행에서 생성의 {100 * degraded / len(rows):.0f}%가 저하됐다 "
                         f"(빈 응답 {empty}, 오류 {errored}).",
                         evidence="트레이스 레코드의 response 길이 0 및 error 필드.",
                         confidence="measured",
@@ -150,6 +254,8 @@ def build(trace_dir: Path, model: str, method: str) -> Experiment:
                 "output_tokens": out_tok,
                 "prompt_chars": [len(p) for p in prompts],
                 "prefix_share_pct": shares,
+                "prefix_shared_chars": shared_lens,
+                "share_trend": trend,
                 "empty": empty,
                 "errored": errored,
             },
@@ -179,7 +285,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--method", default="generate_story")
     args = parser.parse_args(argv)
     out = run_experiment(build(args.trace, args.model, args.method))
-    print(f"report -> {out/'report.md'}")
+    print(f"report -> {out / 'report.md'}")
     return 0
 
 

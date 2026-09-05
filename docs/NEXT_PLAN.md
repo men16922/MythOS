@@ -60,7 +60,7 @@ Scope is a research bench, **not** production self-hosting — the evidence puts
 - `[x]` `[auto:claude]` ruff-format `src/mythos_narrative src/mythos_core src/mythos_memory src/mythos_loop`. Done: `ruff format --check` on those dirs passes, `make check` green.
 - `[x]` `[auto:claude]` ruff-format `src/mythos_combat src/mythos_api src/mythos_image_agent src/mythos_ui/*.py experiments scripts`. Done: `ruff format --check` on those paths passes, `make check` green.
 - `[x]` `[auto:claude]` ruff-format `tests`. Done: `ruff format --check tests` passes, `make check` green.
-- `[ ]` `[auto:claude]` wire `ruff format --check .` into the `python-lint` Makefile target (only after the four format seeds above are `[x]`). Done: `make lint` runs it and is green.
+- `[x]` `[auto:claude]` wire `ruff format --check .` into the `python-lint` Makefile target (only after the four format seeds above are `[x]`). Done: `make lint` runs it and is green.
 - `[x]` compress `docs/PROGRESS_LOG.md` — done 2026-09-06 by the supervising session (`49779f0`; 17.7k→10.9k chars, entries archived by month). The claude runner does not consume the codex lane.
 - `[ ]` `[auto:claude]` remove the 14 `# type: ignore[union-attr]` in `tests/test_combat_engine.py` via a typed `_player(state) -> Combatant` helper that asserts non-None. Done: `rg 'type: ignore' tests/test_combat_engine.py` is empty, `make check` green.
 - `[ ]` `[auto:claude]` unit-test `experiments/capture_trace._auto_combat_action` on a seeded `CombatState` (nearest enemy attacked, `move_to` only when it shortens distance, `defend` when no enemy/uncontrollable). Done: new cases in `tests/test_experiment_harness.py` pass, `make check` green.

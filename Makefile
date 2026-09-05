@@ -21,6 +21,7 @@ lint:
 
 python-lint:
 	$(VENV)/bin/ruff check .
+	$(VENV)/bin/ruff format --check .
 
 frontend-lint:
 	cd $(FRONTEND_DIR) && npm run lint

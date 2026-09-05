@@ -2,6 +2,14 @@
 
 Last updated: 2026-09-05
 
+## 2026-09-05 — Ollama token usage logged (`cee577a`); `combatView.ts` seam (`07cbfbe`)
+
+- Status: two more NEXT_PLAN items closed — serving-research **P0-2** and the last review residual **`combatView.ts`**. `make check` green: ruff, mypy 198 files, eslint, build, **1354** tests (6 skipped; +7 this session), doc-budget, skills.
+- **P0-2** (`cee577a`): the local path never recorded tokens — Ollama's compat endpoint returns `prompt_eval_count`/`eval_count` as `usage.prompt_tokens`/`completion_tokens` and `OllamaJSONProvider` read only content. `normalize_usage` now knows that vocabulary next to Gemini's (first to fill a key wins, no double count); all three non-streaming calls record `response.usage`; both stream paths send `stream_options.include_usage` and `_iter_stream_content` reads the usage-bearing final chunk (its empty `choices` would have crashed the old `choices[0]` loop). Director-level test on the real provider with a fake client proves a local streamed turn logs `prompt_tokens`/`output_tokens`; a server ignoring `stream_options` streams as before and logs no zeros. Ollama 0.33.2 client is installed; server was down, so live confirmation rides the P1-2 arm.
+- **`combatView.ts`** (`07cbfbe`): `factionColor`/`isAlive`/`hpRatio`/sprite fallback were inline in six surfaces (20 alive checks, 3 palettes, 4 fallback chains). One module now: hex palette for canvas/VFX/cinema + theme-token variant for the roster, HP bands, `isAlive`, `hpRatio` (server `hp_ratio` → `hp/max_hp` → 1), `blipImageUrl` (pose chain → portrait → opt-in player placeholder). Palette audit before unifying: DevConsole's radar is a deliberate debug palette (left alone); the cinema's binary `factionCol` drew allies in player cyan while its own VFX drew them green — now three-way (the one visible change). **Simulator-verified** (Patrol Ambush + Se-rin + Kai, `make api` on local infra): board rings, roster portraits/HP bands, turn-order sprites, ally-attack cinema (green attacker card, red enemy), no console errors. `test_turn_order_strip` source pin moved to `isAlive(b)`.
+- Blockers: none. Both undeployed.
+- Next: serving-research P1-2 (needs a live Ollama arm), T4 MLX capability check, P2 bench port.
+
 ## 2026-09-05 — Route replay pinned to the rewarded perspective (`1653aa8`)
 
 - Status: NEXT_PLAN review-residual `[auto:claude]` closed. `advance_route` replays the whole visited path every turn and re-scored every anchor's perspective against the *current* flags, while `session._apply_route_node_reward` had already paid that node once for the perspective chosen on entry — a flag gained later could flip a passed anchor's lens and drift `ending_tally`/`relationship_tally`/`axis_tally`/effect flags away from the paid reward.

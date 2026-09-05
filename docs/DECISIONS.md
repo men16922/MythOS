@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-09-05 — `MYTHOS_WORLD_ID` is `world_mythos`, the value the persisted rows hold
+
+Decision: the two definitions (`constants.py` `"mythos-local"`, read by session/rollup; `progression.py` `"world_mythos"`, used by every archive/run-summary writer since the 2026-06-06 extraction) collapse into one constant set to **`world_mythos`**.
+
+Reason/impact: choosing the writers' value keeps every production `loop_archive`/`run_summary` row readable; the readers' value had matched nothing — no `archive_rollup` row was ever written under it, so nothing is orphaned by the switch. Consequence in play: existing players' *next* loop is the first to receive the `recent_archives_*` starting-score adjustment and to list past archives in the memory overview; compaction runs for the first time on players beyond the retention window. `narrative_metrics.DEFAULT_WORLD_ID` (`mythos-local`) is a separate namespace and is left alone.
+
 ## 2026-09-05 — The 08-09 deploy hold is lifted: the defect-fix bundle ships ahead of the §3 verdict
 
 Decision: the owner ordered the locally-committed fix bundle (everything on `main` since `00084-nt2`, 39 commits: EN Se-rin refusal branch, value-axis vocabulary + chip coverage, portrait attribution, `CURRENT OBJECTIVE` fallback, clue counter, combat-scene location, opening-cinematic gate, SFX prose, tier-1 encounters, ended-run summary localization, per-turn token usage, local sampler/timeout fixes) deployed to production, and a repo-wide code review → refactor pass to follow.

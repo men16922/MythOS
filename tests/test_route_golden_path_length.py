@@ -82,8 +82,7 @@ class RouteGoldenPathLengthTest(unittest.TestCase):
                 return beats
             beats += 1
         self.fail(
-            f"boss node never reached within {max_turns} turns "
-            f"({builder.__name__}, seed {seed})"
+            f"boss node never reached within {max_turns} turns ({builder.__name__}, seed {seed})"
         )
 
     def test_golden_path_reaches_at_least_12_beats_before_ending(self) -> None:

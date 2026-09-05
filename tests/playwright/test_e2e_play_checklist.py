@@ -1100,7 +1100,9 @@ def run_test():
                 page.locator("#history-panel .save-slot-item").first.screenshot(
                     path=str(OUTPUT_DIR / "03.5_run_history_outcome.png")
                 )
-                print("Run History focused E2E passed: ending narration and all outcome groups rendered.")
+                print(
+                    "Run History focused E2E passed: ending narration and all outcome groups rendered."
+                )
                 success = True
                 browser.close()
                 return
@@ -1519,11 +1521,15 @@ def run_test():
             page.wait_for_selector("#history-panel .save-slot-item", timeout=3000)
             text = page.locator("#history-panel .save-slot-item").first.inner_text()
             assert "유리성의 사서" in text, f"Run history should show finished ending, got '{text}'"
-            assert "도서관의 문은 닫혔지만" in text, f"Run history should preserve ending narration, got '{text}'"
+            assert "도서관의 문은 닫혔지만" in text, (
+                f"Run history should preserve ending narration, got '{text}'"
+            )
             assert "구한 것" in text and "첫 접속자의 대출 카드" in text, text
             assert "잃은 것" in text and "무너진 목록실" in text, text
             assert "다음 루프에 남은 것" in text and "기억의 잔향" in text, text
-            print("Verified: Codex Run History shows ending narration and saved/lost/carried facts.")
+            print(
+                "Verified: Codex Run History shows ending narration and saved/lost/carried facts."
+            )
             page.click('button:has-text("이야기")')
             page.wait_for_timeout(400)
 

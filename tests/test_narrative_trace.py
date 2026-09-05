@@ -157,6 +157,7 @@ class TraceCaptureTest(unittest.TestCase):
         self.assertEqual(row["provider"], "_FakeProvider")
         self.assertEqual(row["model"], "qwen3:8b-64k")
 
+
 class LocalGenerationBudgetTest(unittest.TestCase):
     """The local path must be able to finish a scene it starts.
 

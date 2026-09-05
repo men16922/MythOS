@@ -38,21 +38,31 @@ class ReportEvidenceTest(unittest.TestCase):
         run = self.root / run_id
         run.mkdir()
         objective_ids = ["choice_arrival"] if required else []
-        (run / "evidence-bundle.json").write_text(json.dumps({
-            "run_id": run_id,
-            "required_objectives": objective_ids,
-            "decision": decision,
-            "assertions": [{
-                "id": "choice_arrival",
-                "required": required,
-                "status": status,
-                "reason": "fixture",
-            }],
-        }))
-        (run / "verdict.json").write_text(json.dumps({
-            "requested_verdict": actor,
-            "outcome": outcome,
-        }))
+        (run / "evidence-bundle.json").write_text(
+            json.dumps(
+                {
+                    "run_id": run_id,
+                    "required_objectives": objective_ids,
+                    "decision": decision,
+                    "assertions": [
+                        {
+                            "id": "choice_arrival",
+                            "required": required,
+                            "status": status,
+                            "reason": "fixture",
+                        }
+                    ],
+                }
+            )
+        )
+        (run / "verdict.json").write_text(
+            json.dumps(
+                {
+                    "requested_verdict": actor,
+                    "outcome": outcome,
+                }
+            )
+        )
 
     def test_surfaces_all_fail_incomplete_and_disagreement(self) -> None:
         self.bundle("fail", status="fail", decision="fail", outcome="FAIL_EVIDENCE")
@@ -75,9 +85,7 @@ class ReportEvidenceTest(unittest.TestCase):
             {item["run_id"] for item in review["attention"]},
             {"fail", "incomplete", "disagree"},
         )
-        disagreement = next(
-            item for item in review["attention"] if item["run_id"] == "disagree"
-        )
+        disagreement = next(item for item in review["attention"] if item["run_id"] == "disagree")
         self.assertTrue(any("disagreement" in reason for reason in disagreement["reasons"]))
 
     def test_samples_twenty_percent_with_minimum_one_and_cap_three(self) -> None:

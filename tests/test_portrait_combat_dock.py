@@ -89,8 +89,8 @@ class PortraitCombatDockTest(unittest.TestCase):
         source = read("src/mythos_ui/src/CombatControls.tsx")
         self.assertIn("grid-template-columns: repeat(4, minmax(0, 1fr))", block)
         self.assertIn("width: 50px", block)
-        self.assertIn('src={`/assets/icons/combat-${action}.svg`}', source)
-        self.assertIn('src={`/resources/${scenarioId}/skills/${skill.id}.png`}', source)
+        self.assertIn("src={`/assets/icons/combat-${action}.svg`}", source)
+        self.assertIn("src={`/resources/${scenarioId}/skills/${skill.id}.png`}", source)
 
 
 if __name__ == "__main__":

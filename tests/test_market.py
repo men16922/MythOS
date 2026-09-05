@@ -54,7 +54,9 @@ class MarketExchangeTest(unittest.TestCase):
         view = self.service._market_view(loop, self.options)
         assert view is not None
         self.assertTrue(any(o["get"] == "nanopatch" and o["affordable"] for o in view["offers"]))
-        self.assertTrue(any(o["get"] == "mesh_vest" and not o["affordable"] for o in view["offers"]))
+        self.assertTrue(
+            any(o["get"] == "mesh_vest" and not o["affordable"] for o in view["offers"])
+        )
 
         self._place_on("story", scrap=2)
         loop = self.store.get_loop(self.loop_id)
@@ -63,7 +65,9 @@ class MarketExchangeTest(unittest.TestCase):
 
     def test_exchange_consumes_scrap_and_grants_item(self) -> None:
         self._place_on("market", scrap=3)
-        snap = self.service.exchange_material(self.loop_id, "drone_scrap", "nanopatch", self.options)
+        snap = self.service.exchange_material(
+            self.loop_id, "drone_scrap", "nanopatch", self.options
+        )
         inv = snap.loop.state["_inventory"]
         ids = [e.get("id") for e in inv]
         self.assertEqual(ids.count("drone_scrap"), 1)  # 3 - 2
@@ -81,7 +85,9 @@ class MarketExchangeTest(unittest.TestCase):
             self.service.exchange_material(self.loop_id, "drone_scrap", "nanopatch", self.options)
         self._place_on("market", scrap=5)
         with self.assertRaises(RuntimeError):
-            self.service.exchange_material(self.loop_id, "drone_scrap", "not_an_offer", self.options)
+            self.service.exchange_material(
+                self.loop_id, "drone_scrap", "not_an_offer", self.options
+            )
 
 
 if __name__ == "__main__":

@@ -173,7 +173,11 @@ class ContactIdDeterminismTest(unittest.TestCase):
                 capture_output=True,
                 text=True,
                 check=True,
-                env={**__import__("os").environ, "PYTHONHASHSEED": str(n), "MYTHOS_LOG_LEVEL": "ERROR"},
+                env={
+                    **__import__("os").environ,
+                    "PYTHONHASHSEED": str(n),
+                    "MYTHOS_LOG_LEVEL": "ERROR",
+                },
             ).stdout.strip()
             for n in (1, 2)
         }

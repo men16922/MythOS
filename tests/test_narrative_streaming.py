@@ -168,7 +168,7 @@ class NarrativeStreamingTest(unittest.TestCase):
             "[LOCATION]\n",
             "data-layer-01\n",
             "[CHOICES]\n",
-            "- choice_1: 손을 뻗는다."
+            "- choice_1: 손을 뻗는다.",
         ]
         emitted = []
         for chunk in chunks:

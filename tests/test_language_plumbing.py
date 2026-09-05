@@ -151,8 +151,12 @@ class SystemPromptAndContractLanguageTest(unittest.TestCase):
 
     def test_authored_system_prompt_wins_over_language_default(self) -> None:
         ctx = NarrativeContext(
-            player=_player(), loop=_loop(), turn_index=0, recent_events=[],
-            system_prompt="AUTHORED", language="en",
+            player=_player(),
+            loop=_loop(),
+            turn_index=0,
+            recent_events=[],
+            system_prompt="AUTHORED",
+            language="en",
         )
         self.assertEqual(_system_prompt(ctx), "AUTHORED")
 
@@ -264,12 +268,8 @@ class S2DirectiveLanguageTest(unittest.TestCase):
         en = load_scenario_directives("neo-seoul", "en").fallback_scene
         assert ko is not None and en is not None
         self.assertNotRegex(str(en["narration_no_action"]), _HANGUL)
-        self.assertEqual(
-            [c["suffix"] for c in en["choices"]], [c["suffix"] for c in ko["choices"]]
-        )
-        self.assertEqual(
-            [c["intent"] for c in en["choices"]], [c["intent"] for c in ko["choices"]]
-        )
+        self.assertEqual([c["suffix"] for c in en["choices"]], [c["suffix"] for c in ko["choices"]])
+        self.assertEqual([c["intent"] for c in en["choices"]], [c["intent"] for c in ko["choices"]])
 
     def test_en_stat_voices_and_encounters_preserve_placeholders(self) -> None:
         en = load_scenario_directives("neo-seoul", "en")
@@ -306,7 +306,9 @@ class S2bScenarioProseOverlayTest(unittest.TestCase):
         self.assertEqual(load_scenario_i18n("neo-seoul", "ko"), {})
         self.assertEqual(load_scenario_i18n("neo-seoul", "fr"), {})
         # glass-library now ships an EN overlay too (both scenarios localized).
-        self.assertNotRegex(str(load_scenario_i18n("glass-library", "en").get("brief", "")), _HANGUL)
+        self.assertNotRegex(
+            str(load_scenario_i18n("glass-library", "en").get("brief", "")), _HANGUL
+        )
         self.assertEqual(load_scenario_i18n("glass-library", "ko"), {})
 
     def test_opening_continuity_uses_english_overlay_prose_and_framing(self) -> None:
@@ -381,9 +383,7 @@ class S4StoryBibleLanguageTest(unittest.TestCase):
         # glass-library ships no bible.en.json → en load returns the bible.json entries.
         en = load_story_bible("glass-library", "en")
         ko = load_story_bible("glass-library", "ko")
-        self.assertEqual(
-            [e.entry_id for e in en.entries], [e.entry_id for e in ko.entries]
-        )
+        self.assertEqual([e.entry_id for e in en.entries], [e.entry_id for e in ko.entries])
 
 
 if __name__ == "__main__":

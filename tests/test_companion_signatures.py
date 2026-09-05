@@ -134,9 +134,7 @@ class SignatureEffectTest(unittest.TestCase):
         self.assertEqual(player.effective_speed, player.speed + 2)
 
     def test_guardian_wall_taunts_enemy_targeting(self) -> None:
-        engine, state = self._engine_state(
-            [_ally("tae_o", 1, 1)], [_enemy_entry(3, 0, hp=40)]
-        )
+        engine, state = self._engine_state([_ally("tae_o", 1, 1)], [_enemy_entry(3, 0, hp=40)])
         tae_o = state.by_id("tae_o")
         foe = state.by_id("foe")
         assert tae_o is not None and foe is not None

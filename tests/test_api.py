@@ -82,12 +82,17 @@ class VisualFrameSceneBindingTest(unittest.TestCase):
                 return f"https://signed/{uri}"
 
         frame = _visual_frame(
-            cast(Any, _Storage()), status="succeeded", asset_id="asset_1",
-            storage_uri="s3://x", scene_id="scene_42",
+            cast(Any, _Storage()),
+            status="succeeded",
+            asset_id="asset_1",
+            storage_uri="s3://x",
+            scene_id="scene_42",
         )
         self.assertEqual(frame["scene_id"], "scene_42")
         self.assertEqual(frame["url"], "https://signed/s3://x")
-        bare = _visual_frame(cast(Any, _Storage()), status="failed", asset_id=None, storage_uri=None)
+        bare = _visual_frame(
+            cast(Any, _Storage()), status="failed", asset_id=None, storage_uri=None
+        )
         self.assertNotIn("scene_id", bare)
 
 
@@ -97,8 +102,13 @@ class WsFrameValidationTest(unittest.TestCase):
 
         self.assertEqual(_bounded_int({}, "image_width", 512), 512)
         self.assertEqual(_bounded_int({"image_width": "768"}, "image_width", 512), 768)
-        for bad in ({"image_width": "abc"}, {"image_width": 4096}, {"image_width": True},
-                    {"image_width": None}, {"image_steps": 0}):
+        for bad in (
+            {"image_width": "abc"},
+            {"image_width": 4096},
+            {"image_width": True},
+            {"image_width": None},
+            {"image_steps": 0},
+        ):
             with self.subTest(frame=bad):
                 key = next(iter(bad))
                 with self.assertRaises(ValueError):
@@ -120,9 +130,7 @@ class ApiClientConfigTest(unittest.TestCase):
         os.environ["DEFAULT_BGM_ON"] = "false"
         try:
             client = _client(_InMemoryStore())
-            self.assertEqual(
-                client.get("/api/v1/client-config").json(), {"default_bgm_on": False}
-            )
+            self.assertEqual(client.get("/api/v1/client-config").json(), {"default_bgm_on": False})
         finally:
             os.environ.pop("DEFAULT_BGM_ON", None)
 
@@ -195,7 +203,9 @@ class RouteChoiceAxisSerializerTest(unittest.TestCase):
     def test_anchor_destination_uses_selected_perspective_axis(self) -> None:
         # "데이터" in the label used to classify this as 단서 찾기 (data) while the
         # entry perspective (default p_rescue) tallies people.
-        data = self._serialize("route:rn_anchor", "데이터 소각로(으)로 향한다 — 이야기가 크게 갈라지는 장면입니다.")
+        data = self._serialize(
+            "route:rn_anchor", "데이터 소각로(으)로 향한다 — 이야기가 크게 갈라지는 장면입니다."
+        )
         self.assertEqual(data["axis"], "people")
         self.assertEqual(data["axis_label"], "사람 돕기")
 
@@ -204,26 +214,33 @@ class RouteChoiceAxisSerializerTest(unittest.TestCase):
 
         state = self._state()
         state["flags"] = ["insight_focus"]
-        choice = Choice(choice_id="route:rn_anchor", label="데이터 소각로(으)로 향한다", intent="explore")
+        choice = Choice(
+            choice_id="route:rn_anchor", label="데이터 소각로(으)로 향한다", intent="explore"
+        )
         data = _choice_to_dict(choice, state=state)
         self.assertEqual(data["axis"], "data")
         self.assertEqual(data["axis_label"], "단서 찾기")
 
     def test_clue_destination_is_data_axis(self) -> None:
-        data = self._serialize("route:rn_clue", "암호화된 흔적(으)로 향한다 — 기록과 단서를 찾아 진실에 가까워집니다.")
+        data = self._serialize(
+            "route:rn_clue", "암호화된 흔적(으)로 향한다 — 기록과 단서를 찾아 진실에 가까워집니다."
+        )
         self.assertEqual(data["axis"], "data")
         self.assertEqual(data["axis_label"], "단서 찾기")
 
     def test_patrol_badge_keywords_no_longer_leak_into_axis(self) -> None:
         # "추적도 +3" in the badge used to keyword-match 추적 → data.
         data = self._serialize(
-            "route:rn_patrol", "순찰 우회로(으)로 향한다 — 감시망을 파고드는 지름길 · 위험 2 · 추적도 +3 ⚠"
+            "route:rn_patrol",
+            "순찰 우회로(으)로 향한다 — 감시망을 파고드는 지름길 · 위험 2 · 추적도 +3 ⚠",
         )
         self.assertEqual(data["axis"], "safety")
         self.assertEqual(data["axis_label"], "안전하게 가기")
 
     def test_axisless_destination_renders_no_chip(self) -> None:
-        data = self._serialize("route:rn_market", "환전 부스(으)로 향한다 — 보급과 거래로 장비를 정비합니다.")
+        data = self._serialize(
+            "route:rn_market", "환전 부스(으)로 향한다 — 보급과 거래로 장비를 정비합니다."
+        )
         self.assertNotIn("axis", data)
         self.assertNotIn("axis_label", data)
         self.assertNotIn("result_preview", data)
@@ -336,7 +353,9 @@ class RouteChoiceAxisSerializerTest(unittest.TestCase):
         from mythos_api.serializers import _choice_axis
 
         self.assertEqual(
-            _choice_axis("Blend into the crowd of the night-market stalls to lose the drones", None),
+            _choice_axis(
+                "Blend into the crowd of the night-market stalls to lose the drones", None
+            ),
             "safety",
         )
 
@@ -543,7 +562,9 @@ class ApiScenariosTest(unittest.TestCase):
         self.assertNotRegex(en_neo["name"], hangul)
         en_ghost = next(a for a in en_neo["archetypes"] if a["id"] == "ghost")
         self.assertEqual(en_ghost["name"], "Ghost")
-        self.assertEqual(en_ghost["play_hint"], "Pick this if you want evasive movement and clue hunting.")
+        self.assertEqual(
+            en_ghost["play_hint"], "Pick this if you want evasive movement and clue hunting."
+        )
         self.assertNotRegex(" ".join(en_ghost["attributes"]), hangul)
         self.assertNotRegex(str(en_ghost["play_hint"]), hangul)
         self.assertNotRegex(str(en_ghost["starting_item"]), hangul)
@@ -1120,9 +1141,7 @@ class ApiParityEndpointsTest(unittest.TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        run = next(
-            item for item in response.json()["runs"] if item["loop_id"] == loop.loop_id
-        )
+        run = next(item for item in response.json()["runs"] if item["loop_id"] == loop.loop_id)
         self.assertEqual(run["ending_label"], "Forced Erasure")
         self.assertIn("Everything empties into white.", run["ending_narration"])
         self.assertEqual(

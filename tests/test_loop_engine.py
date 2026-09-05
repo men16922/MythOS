@@ -79,7 +79,6 @@ class LoopEngineTest(unittest.TestCase):
         transition = LoopEngine().apply_scene_payload(self.loop, self._scene(0), payload)
         self.assertEqual(transition.discovered_shards, [])
 
-
     def test_soft_defeat_pending_blocks_immediate_archive(self) -> None:
         engine = LoopEngine()
         loop = replace(
@@ -317,20 +316,38 @@ class SeRinContactFlagTest(unittest.TestCase):
         from mythos_loop import create_player_event
 
         loop = LoopState(
-            loop_id="loop_1", player_id="player_1", seed="seed_1", phase=LoopPhase.CONNECT,
-            location_id="data-layer-01", stability=50, tension=20, started_at=self.now,
-            state={"scenario_id": "neo-seoul", "_opening_variant": "default",
-                   "flags": ["met_se_rin", "tutorial_loop"]},
+            loop_id="loop_1",
+            player_id="player_1",
+            seed="seed_1",
+            phase=LoopPhase.CONNECT,
+            location_id="data-layer-01",
+            stability=50,
+            tension=20,
+            started_at=self.now,
+            state={
+                "scenario_id": "neo-seoul",
+                "_opening_variant": "default",
+                "flags": ["met_se_rin", "tutorial_loop"],
+            },
         )
         action = "Refuse her hand and slip into the alley alone"
         scene = Scene(
-            scene_id="scene_0", loop_id="loop_1", turn_index=0, title="C-17",
-            location="data-layer-01", narration="The alley lights die.",
-            choices=[Choice("choice_0", action, "explore")], visual_brief="", created_at=self.now,
+            scene_id="scene_0",
+            loop_id="loop_1",
+            turn_index=0,
+            title="C-17",
+            location="data-layer-01",
+            narration="The alley lights die.",
+            choices=[Choice("choice_0", action, "explore")],
+            visual_brief="",
+            created_at=self.now,
         )
         payload = ScenePayload(
-            title="C-17", location="data-layer-01", narration="The alley lights die.",
-            choices=[Choice("choice_1", "Next", "explore")], visual_brief="",
+            title="C-17",
+            location="data-layer-01",
+            narration="The alley lights die.",
+            choices=[Choice("choice_1", "Next", "explore")],
+            visual_brief="",
             world_delta=WorldDelta(stability=0, tension=1, flags=[]),
         )
         event = create_player_event(loop_id="loop_1", turn_index=0, action=action)
@@ -365,13 +382,9 @@ class SeRinContactFlagTest(unittest.TestCase):
 
     def test_refusal_verb_beats_the_noun_it_refuses(self) -> None:
         # "Refuse her hand" carries both signals; the old rule let "hand" win.
-        self.assertEqual(
-            self._flags("Refuse her hand"), ["refused_se_rin"]
-        )
+        self.assertEqual(self._flags("Refuse her hand"), ["refused_se_rin"])
         # ...but a soft marker still defers to acceptance.
-        self.assertEqual(
-            self._flags("Take her hand instead of hiding alone"), ["met_se_rin"]
-        )
+        self.assertEqual(self._flags("Take her hand instead of hiding alone"), ["met_se_rin"])
 
     def test_ascii_keywords_do_not_match_inside_words(self) -> None:
         # "own" inside *downtown*, "hand" inside *handle* — these keywords pick a

@@ -99,9 +99,7 @@ class JsonModeTest(unittest.TestCase):
         spec = SamplerSpec(temperature=0.1, max_output_tokens=1536, json_object=True)
         for engine in KNOWN_ENGINES:
             with self.subTest(engine=engine):
-                self.assertEqual(
-                    render(spec, engine)["response_format"], {"type": "json_object"}
-                )
+                self.assertEqual(render(spec, engine)["response_format"], {"type": "json_object"})
 
     def test_json_is_not_requested_when_not_asked_for(self) -> None:
         self.assertNotIn("response_format", render(FULL, OLLAMA))

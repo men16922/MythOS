@@ -355,7 +355,9 @@ class RuntimeSessionTest(unittest.TestCase):
             )
 
         mine = [memory(i, "loop_archive", "me") for i in range(3)]
-        noise = [memory(i, kind, "other") for i in range(6) for kind in ("loop_archive", "run_summary")]
+        noise = [
+            memory(i, kind, "other") for i in range(6) for kind in ("loop_archive", "run_summary")
+        ]
         scores = _initial_loop_scores([*mine, *noise], player_id="me")
         self.assertEqual(scores.state["initial_world_memory_adjustment"]["sample_size"], 3)
 
@@ -1445,9 +1447,7 @@ class ArchiveRollupTest(unittest.TestCase):
                 )
                 return scene, payload
 
-        service = RuntimeSessionService(
-            store, director=cast(Any, _RelationshipDirector())
-        )
+        service = RuntimeSessionService(store, director=cast(Any, _RelationshipDirector()))
 
         service.choose("loop_1", choice_id="choice_trust")
         after_first = store.get_loop("loop_1")
@@ -1457,9 +1457,7 @@ class ArchiveRollupTest(unittest.TestCase):
         service.choose("loop_1", choice_id="choice_more")
         after_second = store.get_loop("loop_1")
         assert after_second is not None
-        self.assertEqual(
-            after_second.state.get("relationships"), {"se_rin": 2, "kai": 1}
-        )
+        self.assertEqual(after_second.state.get("relationships"), {"se_rin": 2, "kai": 1})
 
     def test_choose_without_relationship_effect_leaves_state_clean(self) -> None:
         # A choice with no effect must not introduce a relationships key.
@@ -1494,9 +1492,7 @@ class ArchiveRollupTest(unittest.TestCase):
                 title="갈림길",
                 location="catalog-hall",
                 narration="조용한 복도.",
-                choices=[
-                    Choice(choice_id="choice_plain", label="살핀다", intent="explore")
-                ],
+                choices=[Choice(choice_id="choice_plain", label="살핀다", intent="explore")],
                 visual_brief="",
                 created_at=now,
             )
@@ -1709,9 +1705,7 @@ class ArchiveRollupTest(unittest.TestCase):
         service._maybe_generate_image = _fake_gen  # type: ignore[assignment,method-assign]
 
         events = list(
-            service.stream_choose(
-                "loop_1", choice_id="go", options=RuntimeOptions(with_image=True)
-            )
+            service.stream_choose("loop_1", choice_id="go", options=RuntimeOptions(with_image=True))
         )
 
         # Image generated exactly once, after scene_2 was committed.
@@ -1800,8 +1794,14 @@ class ClueSnapshotCountTest(unittest.TestCase):
             player_id="player_1", display_name="Connector", created_at=now, updated_at=now
         )
         loop = LoopState(
-            loop_id="loop_1", player_id="player_1", seed="seed", phase=LoopPhase.EXPLORE,
-            location_id="data-layer-01", stability=50, tension=20, started_at=now,
+            loop_id="loop_1",
+            player_id="player_1",
+            seed="seed",
+            phase=LoopPhase.EXPLORE,
+            location_id="data-layer-01",
+            stability=50,
+            tension=20,
+            started_at=now,
             state={"scenario_id": "neo-seoul"},
         )
         return int(service._progress_facts(player, loop)["clues_collected"])

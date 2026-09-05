@@ -28,12 +28,17 @@ class ScenarioAssetsTest(unittest.TestCase):
             if image_rel:
                 # If path starts with enemies/ it's relative to resources_dir
                 full_path = resources_dir / image_rel
-                self.assertTrue(full_path.exists(), f"Bestiary base image not found: {full_path} for {enemy_id}")
+                self.assertTrue(
+                    full_path.exists(), f"Bestiary base image not found: {full_path} for {enemy_id}"
+                )
 
             combat_images = enemy_data.get("combat_images", {})
             for pose, path_rel in combat_images.items():
                 full_path = resources_dir / path_rel
-                self.assertTrue(full_path.exists(), f"Bestiary combat image '{pose}' not found: {full_path} for {enemy_id}")
+                self.assertTrue(
+                    full_path.exists(),
+                    f"Bestiary combat image '{pose}' not found: {full_path} for {enemy_id}",
+                )
 
         # 4. Check allies images
         allies = scenario.combat.get("allies", {})
@@ -41,12 +46,17 @@ class ScenarioAssetsTest(unittest.TestCase):
             image_rel = ally_data.get("image")
             if image_rel:
                 full_path = resources_dir / image_rel
-                self.assertTrue(full_path.exists(), f"Ally base image not found: {full_path} for {ally_id}")
+                self.assertTrue(
+                    full_path.exists(), f"Ally base image not found: {full_path} for {ally_id}"
+                )
 
             combat_images = ally_data.get("combat_images", {})
             for pose, path_rel in combat_images.items():
                 full_path = resources_dir / path_rel
-                self.assertTrue(full_path.exists(), f"Ally combat image '{pose}' not found: {full_path} for {ally_id}")
+                self.assertTrue(
+                    full_path.exists(),
+                    f"Ally combat image '{pose}' not found: {full_path} for {ally_id}",
+                )
 
 
 class ScenarioImageReferenceIntegrityTest(unittest.TestCase):
@@ -130,19 +140,25 @@ class ScenarioImageReferenceIntegrityTest(unittest.TestCase):
         not_png: list[str] = []
         for scn, data, base in self._scenario_jsons():
             skills = data.get("combat", {}).get("skills", {}) or {}
-            skill_ids = list(skills) if isinstance(skills, dict) else [
-                s.get("id") for s in skills if isinstance(s, dict)
-            ]
+            skill_ids = (
+                list(skills)
+                if isinstance(skills, dict)
+                else [s.get("id") for s in skills if isinstance(s, dict)]
+            )
 
             comp_skills = data.get("combat", {}).get("companion_skills", {}) or {}
-            comp_ids = list(comp_skills) if isinstance(comp_skills, dict) else [
-                s.get("id") for s in comp_skills if isinstance(s, dict)
-            ]
+            comp_ids = (
+                list(comp_skills)
+                if isinstance(comp_skills, dict)
+                else [s.get("id") for s in comp_skills if isinstance(s, dict)]
+            )
 
             e_skills = data.get("combat", {}).get("enemy_skills", {}) or {}
-            enemy_ids = list(e_skills) if isinstance(e_skills, dict) else [
-                s.get("id") for s in e_skills if isinstance(s, dict)
-            ]
+            enemy_ids = (
+                list(e_skills)
+                if isinstance(e_skills, dict)
+                else [s.get("id") for s in e_skills if isinstance(s, dict)]
+            )
 
             all_ids = sorted({sid for sid in skill_ids + comp_ids + enemy_ids if sid})
             for sid in all_ids:

@@ -57,8 +57,16 @@ def _config() -> dict[str, Any]:
                         "event": "se_rin_rescue",
                         "default_perspective": "p_trust",
                         "perspectives": [
-                            {"id": "p_trust", "when": ["met_se_rin"], "summary": "세린의 손을 잡는다."},
-                            {"id": "p_caution", "when": ["safety_first"], "summary": "거리를 둔다."},
+                            {
+                                "id": "p_trust",
+                                "when": ["met_se_rin"],
+                                "summary": "세린의 손을 잡는다.",
+                            },
+                            {
+                                "id": "p_caution",
+                                "when": ["safety_first"],
+                                "summary": "거리를 둔다.",
+                            },
                         ],
                         "variants": {"tae_o": copy.deepcopy(VARIANT_OVERRIDE)},
                     }

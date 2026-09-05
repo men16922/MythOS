@@ -48,7 +48,11 @@ class StatusLegibilityTest(unittest.TestCase):
         # the icon so the chip family reads the same either way.
         for dictionary in ("strings.ko.ts", "strings.en.ts"):
             strings = read(f"src/mythos_ui/src/i18n/{dictionary}")
-            for icon, key in (("💫", "board.status.stunned"), ("🔥", "board.status.burn"), ("🧪", "board.status.corrode")):
+            for icon, key in (
+                ("💫", "board.status.stunned"),
+                ("🔥", "board.status.burn"),
+                ("🧪", "board.status.corrode"),
+            ):
                 with self.subTest(dictionary=dictionary, key=key):
                     self.assertRegex(strings, rf'"{key}": "{icon}')
 
@@ -64,8 +68,10 @@ class StatusEffectEngineTest(unittest.TestCase):
 
         engine = CombatEngine()
         state = engine.start(
-            [_player(x=0, y=0)], [_drone(x=5, y=0, hp=30, defense=11, speed=0, armor=3)],
-            seed="status-fx", arena=(8, 6),
+            [_player(x=0, y=0)],
+            [_drone(x=5, y=0, hp=30, defense=11, speed=0, armor=3)],
+            seed="status-fx",
+            arena=(8, 6),
         )
         player = state.player()
         foe = state.living_enemies()[0]
@@ -104,21 +110,29 @@ class StatusEffectEngineTest(unittest.TestCase):
 
         engine = CombatEngine()
         engine.skills_pool["heat_lash"] = {
-            "id": "heat_lash", "name": "과열 채찍", "role": "damage",
-            "range": 3, "cooldown": 0, "cost": {},
+            "id": "heat_lash",
+            "name": "과열 채찍",
+            "role": "damage",
+            "range": 3,
+            "cooldown": 0,
+            "cost": {},
             "effect": {"damage": "1d6", "applies": {"burn": 2}},
         }
         state = engine.start(
-            [_skilled_player(x=0, y=0)], [_drone(x=2, y=0, hp=40, defense=1, speed=0)],
-            seed="applies", arena=(8, 6),
+            [_skilled_player(x=0, y=0)],
+            [_drone(x=2, y=0, hp=40, defense=1, speed=0)],
+            seed="applies",
+            arena=(8, 6),
         )
         player = state.player()
         assert player is not None
         foe = state.living_enemies()[0]
         engine._player_skill(
-            state, player,
+            state,
+            player,
             PlayerAction(type="skill", skill_id="heat_lash", target_id=foe.id),
-            engine.skills_pool["heat_lash"], True,
+            engine.skills_pool["heat_lash"],
+            True,
         )
         self.assertIn("burn", foe.status_effects)
 
@@ -168,16 +182,21 @@ class StatusEffectEngineTest(unittest.TestCase):
         engine = CombatEngine()
         state = engine.start(
             [_skilled_player(x=0, y=0)],
-            [_drone("d1", x=2, y=0, hp=40, defense=1, speed=0),
-             _drone("d2", x=3, y=0, hp=40, defense=1, speed=0)],
-            seed="hacked", arena=(8, 6),
+            [
+                _drone("d1", x=2, y=0, hp=40, defense=1, speed=0),
+                _drone("d2", x=3, y=0, hp=40, defense=1, speed=0),
+            ],
+            seed="hacked",
+            arena=(8, 6),
         )
         player = state.player()
         assert player is not None
         engine._player_skill(
-            state, player,
+            state,
+            player,
             PlayerAction(type="skill", skill_id="system_intrusion", target_id="d1"),
-            engine.skills_pool["system_intrusion"], True,
+            engine.skills_pool["system_intrusion"],
+            True,
         )
         d1 = state.by_id("d1")
         d2 = state.by_id("d2")
@@ -186,7 +205,12 @@ class StatusEffectEngineTest(unittest.TestCase):
         self.assertIn("hacked", d1.status)  # 🕹 badge visible
         engine._npc_turn(state, d1)
         self.assertNotIn("hacked", d1.status_effects)  # consumed by the betrayal turn
-        self.assertTrue(any(e.detail.get("status") == "hacked" and e.detail.get("target") == "d2" for e in state.log))
+        self.assertTrue(
+            any(
+                e.detail.get("status") == "hacked" and e.detail.get("target") == "d2"
+                for e in state.log
+            )
+        )
         self.assertLess(d2.hp, 40)  # defense 1 → the betrayal blow lands
         # Chip clears at the unit's next upkeep, not silently mid-transition.
         engine._tick_round_upkeep(state, d1)
@@ -218,7 +242,8 @@ class BalanceTuning20260714Test(unittest.TestCase):
         state = engine.start(
             [_player(x=0, y=0)],
             [_drone(x=5, y=0, hp=40, defense=11, speed=0, armor=0, **enemy_over)],
-            seed="balance-0714", arena=(8, 6),
+            seed="balance-0714",
+            arena=(8, 6),
         )
         player = state.player()
         foe = state.living_enemies()[0]
@@ -320,8 +345,10 @@ class ShotForecastTest(unittest.TestCase):
 
         engine = CombatEngine()
         state = engine.start(
-            [_player(x=0, y=0)], [_drone(x=1, y=0, hp=30, defense=11)],
-            seed="forecast", arena=(8, 6),
+            [_player(x=0, y=0)],
+            [_drone(x=1, y=0, hp=30, defense=11)],
+            seed="forecast",
+            arena=(8, 6),
         )
         actions = engine.available_actions(state)
         target = actions["targets"][0]
@@ -341,8 +368,10 @@ class ShotForecastTest(unittest.TestCase):
 
         engine = CombatEngine()
         state = engine.start(
-            [_player(x=0, y=0, weapon="rivet_gun")], [_drone(x=3, y=0, hp=30, defense=11)],
-            seed="forecast-cover", arena=(8, 6),
+            [_player(x=0, y=0, weapon="rivet_gun")],
+            [_drone(x=3, y=0, hp=30, defense=11)],
+            seed="forecast-cover",
+            arena=(8, 6),
         )
         enemy = state.living_enemies()[0]
         player = state.player()
@@ -382,7 +411,10 @@ class LiveQaFixesTest(unittest.TestCase):
         # orphan-skill cinema fire twice; it is a result line -> "info", and the
         # client additionally dedupes orphan cinemas per actor.
         engine_src = read("src/mythos_combat/engine.py")
-        self.assertNotIn('"skill",\n            clog(\n                state.language,\n                "stun_applied"', engine_src)
+        self.assertNotIn(
+            '"skill",\n            clog(\n                state.language,\n                "stun_applied"',
+            engine_src,
+        )
         queue_src = read("src/mythos_ui/src/hooks/useCombatCinemaQueue.ts")
         self.assertIn("orphanCinemaActors", queue_src)
 
@@ -412,8 +444,13 @@ class LiveQaFixesTest(unittest.TestCase):
 
         combat_pool = load_scenario("neo-seoul").combat
         loop = LoopState(
-            loop_id="loop_t", player_id="p", seed="s",
-            phase=LoopPhase.EXPLORE, location_id="start", stability=50, tension=50,
+            loop_id="loop_t",
+            player_id="p",
+            seed="s",
+            phase=LoopPhase.EXPLORE,
+            location_id="start",
+            stability=50,
+            tension=50,
             started_at=utc_now(),
             state={
                 "flags": ["met_se_rin", "ally_se_rin"],
@@ -452,17 +489,29 @@ class StatusContentMappingTest(unittest.TestCase):
 
         torch_pool = {
             "plasma_torch": {
-                "id": "plasma_torch", "name": "플라즈마 토치", "kind": "melee",
-                "damage": "1d6", "reach": 1, "applies": {"burn": 2},
+                "id": "plasma_torch",
+                "name": "플라즈마 토치",
+                "kind": "melee",
+                "damage": "1d6",
+                "reach": 1,
+                "applies": {"burn": 2},
             }
         }
         enemy = build_enemy_combatant(
             entry={
-                "id": "pd", "name": "소각기", "hp": 20, "defense": 10, "speed": 3,
+                "id": "pd",
+                "name": "소각기",
+                "hp": 20,
+                "defense": 10,
+                "speed": 3,
                 "stats": {"strength": 9, "agility": 5, "perception": 4},
-                "weapons": ["plasma_torch"], "ai": "melee", "blip": "🔥",
+                "weapons": ["plasma_torch"],
+                "ai": "melee",
+                "blip": "🔥",
             },
-            weapons_pool=torch_pool, x=1, y=0,
+            weapons_pool=torch_pool,
+            x=1,
+            y=0,
         )
         engine = CombatEngine()
         state = engine.start([_player(x=0, y=0)], [enemy], seed="torch", arena=(8, 6))
@@ -487,21 +536,31 @@ class StatusContentMappingTest(unittest.TestCase):
         engine = CombatEngine()
         state = engine.start(
             [_skilled_player(x=0, y=0)],
-            [_drone("d1", x=3, y=0, hp=40, defense=1, speed=0),
-             _drone("d2", x=4, y=1, hp=40, defense=1, speed=0)],
-            seed="incendiary", arena=(8, 6),
+            [
+                _drone("d1", x=3, y=0, hp=40, defense=1, speed=0),
+                _drone("d2", x=4, y=1, hp=40, defense=1, speed=0),
+            ],
+            seed="incendiary",
+            arena=(8, 6),
         )
         player = state.player()
         assert player is not None
         item_def = {
-            "id": "incendiary_grenade", "name": "소이 수류탄", "kind": "consumable",
-            "effect": "status_grenade", "damage": "1d4", "applies": {"burn": 2},
-            "range": 4, "radius": 1,
+            "id": "incendiary_grenade",
+            "name": "소이 수류탄",
+            "kind": "consumable",
+            "effect": "status_grenade",
+            "damage": "1d4",
+            "applies": {"burn": 2},
+            "range": 4,
+            "radius": 1,
         }
         ok = engine._player_item(
-            state, player,
+            state,
+            player,
             PlayerAction(type="item", item_id="incendiary_grenade", target_cell=(3, 1)),
-            item_def, True,
+            item_def,
+            True,
         )
         self.assertTrue(ok)
         d1 = state.by_id("d1")
@@ -565,15 +624,21 @@ class SkillDamageRiderTest(unittest.TestCase):
         e = CombatEngine()
         s = e.start(
             [_skilled_player(0, 0)],
-            [_drone("d1", 2, 0, hp=40, defense=1, speed=0),
-             _drone("d2", 2, 1, hp=40, defense=1, speed=0)],
-            seed="emp", arena=(8, 6),
+            [
+                _drone("d1", 2, 0, hp=40, defense=1, speed=0),
+                _drone("d2", 2, 1, hp=40, defense=1, speed=0),
+            ],
+            seed="emp",
+            arena=(8, 6),
         )
         p = s.player()
         assert p is not None
         e._player_skill(
-            s, p, PlayerAction(type="skill", skill_id="emp_pulse", target_id="d1"),
-            SKILLS["emp_pulse"], True,
+            s,
+            p,
+            PlayerAction(type="skill", skill_id="emp_pulse", target_id="d1"),
+            SKILLS["emp_pulse"],
+            True,
         )
         d1, d2 = s.by_id("d1"), s.by_id("d2")
         assert d1 is not None and d2 is not None
@@ -586,15 +651,21 @@ class SkillDamageRiderTest(unittest.TestCase):
         e = CombatEngine()
         s = e.start(
             [_skilled_player(0, 0)],
-            [_drone("d1", 1, 0, hp=60, defense=1, speed=0),
-             _drone("d2", 1, 1, hp=60, defense=1, speed=0)],
-            seed="ov", arena=(8, 6),
+            [
+                _drone("d1", 1, 0, hp=60, defense=1, speed=0),
+                _drone("d2", 1, 1, hp=60, defense=1, speed=0),
+            ],
+            seed="ov",
+            arena=(8, 6),
         )
         p = s.player()
         assert p is not None
         e._player_skill(
-            s, p, PlayerAction(type="skill", skill_id="overload_strike", target_id="d1"),
-            SKILLS["overload_strike"], True,
+            s,
+            p,
+            PlayerAction(type="skill", skill_id="overload_strike", target_id="d1"),
+            SKILLS["overload_strike"],
+            True,
         )
         d1, d2 = s.by_id("d1"), s.by_id("d2")
         assert d1 is not None and d2 is not None
@@ -679,7 +750,9 @@ class AimedSkillTargetingTest(unittest.TestCase):
         self.assertIn("GroundTargeting", source)
         self.assertIn("startSkillTargeting", source)
         self.assertIn("displaceDest", source)  # push/pull destination preview
-        self.assertIn('onCombatAction({ type: "skill", skill_id: tg.id, target_id: victim.id })', source)
+        self.assertIn(
+            'onCombatAction({ type: "skill", skill_id: tg.id, target_id: victim.id })', source
+        )
 
     def test_controls_render_aim_toggle_for_positional_skills(self) -> None:
         source = read("src/mythos_ui/src/CombatControls.tsx")
@@ -701,7 +774,9 @@ class XcomGroundTargetingTest(unittest.TestCase):
     def test_player_action_carries_target_cell_end_to_end(self) -> None:
         # engine dataclass + WS deserializer + frontend action type all speak
         # `target_cell`, so the XCOM throw survives the full round trip.
-        self.assertIn("target_cell: tuple[int, int] | None = None", read("src/mythos_combat/engine.py"))
+        self.assertIn(
+            "target_cell: tuple[int, int] | None = None", read("src/mythos_combat/engine.py")
+        )
         self.assertIn('data.get("target_cell")', read("src/mythos_runtime/combat_server.py"))
         self.assertIn("target_cell?: [number, number]", read("src/mythos_ui/src/types.ts"))
 
@@ -709,7 +784,7 @@ class XcomGroundTargetingTest(unittest.TestCase):
         source = read("src/mythos_ui/src/hooks/useCombatBoard.ts")
         self.assertIn("startItemTargeting", source)
         self.assertIn("targetingPreview", source)
-        self.assertIn('target_cell: [cx, cy]', source)
+        self.assertIn("target_cell: [cx, cy]", source)
 
 
 class StatusStackingTest(unittest.TestCase):
@@ -724,8 +799,10 @@ class StatusStackingTest(unittest.TestCase):
 
         engine = CombatEngine()
         state = engine.start(
-            [_player(x=0, y=0)], [_drone(x=5, y=0, hp=30, defense=11, speed=0, armor=3)],
-            seed="status-stack", arena=(8, 6),
+            [_player(x=0, y=0)],
+            [_drone(x=5, y=0, hp=30, defense=11, speed=0, armor=3)],
+            seed="status-stack",
+            arena=(8, 6),
         )
         player = state.player()
         foe = state.living_enemies()[0]
@@ -775,8 +852,10 @@ class MultiStatusConcurrencyTest(unittest.TestCase):
 
         engine = CombatEngine()
         state = engine.start(
-            [_player(x=0, y=0)], [_drone(x=5, y=0, hp=30, defense=11, speed=0, armor=3)],
-            seed="multi-status", arena=(8, 6),
+            [_player(x=0, y=0)],
+            [_drone(x=5, y=0, hp=30, defense=11, speed=0, armor=3)],
+            seed="multi-status",
+            arena=(8, 6),
         )
         player = state.player()
         foe = state.living_enemies()[0]
@@ -813,7 +892,8 @@ class MultiStatusConcurrencyTest(unittest.TestCase):
         state = engine.start(
             [_skilled_player(x=0, y=0), ally],
             [_drone(x=7, y=5, hp=40, defense=11, speed=0)],
-            seed="burn-upkeep-death", arena=(8, 6),
+            seed="burn-upkeep-death",
+            arena=(8, 6),
         )
         player = state.player()
         burned = state.by_id("kai")
@@ -844,11 +924,16 @@ class CollisionSlamTest(unittest.TestCase):
         from mythos_combat import CombatEngine
 
         engine = CombatEngine()
-        foes = [_drone("d1", **(foe_kwargs or {"x": 6, "y": 0, "hp": 80, "defense": 1, "speed": 0}))]
+        foes = [
+            _drone("d1", **(foe_kwargs or {"x": 6, "y": 0, "hp": 80, "defense": 1, "speed": 0}))
+        ]
         if second_foe:
             foes.append(_drone("d2", **second_foe))
         state = engine.start(
-            [_skilled_player(x=4, y=0)], foes, seed="slam", arena=(8, 6),
+            [_skilled_player(x=4, y=0)],
+            foes,
+            seed="slam",
+            arena=(8, 6),
         )
         # Procedural terrain could drop cover on the push line — these tests
         # place obstacles explicitly, so start from a clean board.
@@ -950,9 +1035,7 @@ class SignatureCastabilityTest(unittest.TestCase):
         combat = json.loads(read("resources/neo-seoul/scenario.json"))["combat"]
         skills = combat["skills"]
         for ally_id, entry in combat["allies"].items():
-            ally = build_ally_combatant(
-                entry=entry, weapons_pool=combat["weapons"], x=0, y=0
-            )
+            ally = build_ally_combatant(entry=entry, weapons_pool=combat["weapons"], x=0, y=0)
             for skill_id in ally.skills:
                 cost = int((skills.get(skill_id, {}).get("cost") or {}).get("focus", 0))
                 self.assertLessEqual(
@@ -1002,14 +1085,17 @@ class CryoGrenadeDamageTest(unittest.TestCase):
         state = engine.start(
             [_skilled_player(x=0, y=0)],
             [_drone("d1", x=3, y=0, hp=40, defense=1, speed=0)],
-            seed="cryo", arena=(8, 6),
+            seed="cryo",
+            arena=(8, 6),
         )
         player = state.player()
         assert player is not None
         ok = engine._player_item(
-            state, player,
+            state,
+            player,
             PlayerAction(type="item", item_id="cryo_grenade", target_cell=(3, 0)),
-            item_def, True,
+            item_def,
+            True,
         )
         self.assertTrue(ok)
         foe = state.by_id("d1")

@@ -43,9 +43,7 @@ def _scenarios() -> dict[str, dict[str, Any]]:
     return out
 
 
-def _variant_goal_violations(
-    ctx: str, gate: dict[str, Any], known: frozenset[str]
-) -> list[str]:
+def _variant_goal_violations(ctx: str, gate: dict[str, Any], known: frozenset[str]) -> list[str]:
     """Violations in a gate's optional `player_goal_variants` map (S2, plan 2026-07-06 §2.4).
 
     Keys must be authored opening variants (`_opening_variant` can never hold
@@ -82,9 +80,7 @@ class RouteDestinationMeaningTest(unittest.TestCase):
             if not route_map:
                 continue  # scenario does not use the procedural route map
             checked += 1
-            types: set[str] = {
-                str(t) for t in (route_map.get("node_types") or {}).keys()
-            }
+            types: set[str] = {str(t) for t in (route_map.get("node_types") or {}).keys()}
             for layer in route_map.get("layers", []) or []:
                 for anchor in layer.get("anchors", []) or []:
                     node_type = anchor.get("type")
@@ -160,18 +156,14 @@ class ChapterGoalCompletenessTest(unittest.TestCase):
         (currently no scenario authors player_goal_variants, so the scan above is vacuous
         until the S4 copy lands)."""
         known = frozenset({"tae_o", "kai"})
-        self.assertEqual(
-            _variant_goal_violations("[t]", {"player_goal": "g"}, known), []
-        )
+        self.assertEqual(_variant_goal_violations("[t]", {"player_goal": "g"}, known), [])
         self.assertEqual(
             _variant_goal_violations(
                 "[t]", {"player_goal_variants": {"tae_o": "바리케이드"}}, known
             ),
             [],
         )
-        bad_gate = {
-            "player_goal_variants": {"tae_oh": "typo", "kai": "  ", "tae_o": None}
-        }
+        bad_gate = {"player_goal_variants": {"tae_oh": "typo", "kai": "  ", "tae_o": None}}
         violations = _variant_goal_violations("[t]", bad_gate, known)
         self.assertEqual(len(violations), 3)
         self.assertTrue(any("tae_oh" in v for v in violations))

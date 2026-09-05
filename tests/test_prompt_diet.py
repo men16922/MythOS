@@ -126,7 +126,7 @@ class MachineMemoryExclusionTest(unittest.TestCase):
             content = _user_content(context, builder)
             self.assertNotIn("save_slot", content)
             self.assertNotIn("slot_z", content)
-            self.assertNotIn("meta_progression\"", content.replace("'", '"'))
+            self.assertNotIn('meta_progression"', content.replace("'", '"'))
             self.assertIn("세린의 손을 잡았다", content)
 
     def test_machine_world_memory_kinds_never_reach_the_prompt(self) -> None:
@@ -136,7 +136,12 @@ class MachineMemoryExclusionTest(unittest.TestCase):
                 _world_memory("archive_compacted", {"loop_id": "loop_old"}),
                 _world_memory(
                     "loop_archive",
-                    {"final_title": "마지막 신호", "final_location": "core", "stability": 8, "tension": 92},
+                    {
+                        "final_title": "마지막 신호",
+                        "final_location": "core",
+                        "stability": 8,
+                        "tension": 92,
+                    },
                 ),
             ]
         )
@@ -152,9 +157,7 @@ class MachineMemoryExclusionTest(unittest.TestCase):
         # NARRATIVE ECHOES / CAUSALITY SUMMARY note blocks — the raw records must
         # not ALSO be serialized into the memory windows.
         context = _context(
-            memories=[
-                _player_memory("causality_summary", {"summary_text": "장기 인과 요약문"})
-            ],
+            memories=[_player_memory("causality_summary", {"summary_text": "장기 인과 요약문"})],
             world_memories=[
                 _world_memory("run_summary", {"ending_label": "고결한 희생", "turns": 42})
             ],

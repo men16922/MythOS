@@ -36,8 +36,8 @@ from mythos_runtime.scenario import load_scenario
 
 # 고정 표본 크기와 공통 밴드. 시나리오별 관측 기준선은 모듈 docstring 참조.
 _SEEDS = 60
-_PARTY_WIN_FLOOR = 0.50      # 대표 파티로도 이 미만이면 = 사실상 불가능(Blocker)
-_SOLO_WIN_CEILING = 0.95     # 솔로가 이 초과면 = 공짜 조우(Blocker)
+_PARTY_WIN_FLOOR = 0.50  # 대표 파티로도 이 미만이면 = 사실상 불가능(Blocker)
+_SOLO_WIN_CEILING = 0.95  # 솔로가 이 초과면 = 공짜 조우(Blocker)
 
 # 대표 플레이어 스탯(시나리오 무관, 평균치). 무기/스킬은 아키타입에서 가져온다.
 _PLAYER_STATS = {"strength": 8, "intelligence": 6, "charisma": 5, "agility": 7, "perception": 6}
@@ -88,7 +88,12 @@ def _simulate(
     engine = CombatEngine()
     allies = [_ally(combat, a) for a in ally_ids]
     state: CombatState = build_encounter(
-        combat, encounter_id, player=_player(combat, archetype), allies=allies, seed=seed, engine=engine
+        combat,
+        encounter_id,
+        player=_player(combat, archetype),
+        allies=allies,
+        seed=seed,
+        engine=engine,
     )
     guard = 0
     while state.active and guard < 300:
@@ -116,8 +121,8 @@ class _EncounterBalanceContract:
     (`unittest.TestCase` 를 직접 상속하지 않아 베이스 자체는 수집되지 않는다.)
     """
 
-    scenario: str            # load_scenario 키
-    archetype: str           # 대표 플레이어 아키타입
+    scenario: str  # load_scenario 키
+    archetype: str  # 대표 플레이어 아키타입
     representative_party: tuple[str, ...]  # 초반 핵심 동료(직접조작)
 
     @property
@@ -133,7 +138,8 @@ class _EncounterBalanceContract:
             if rate < _PARTY_WIN_FLOOR:
                 offenders.append(f"{eid}={rate:.2f}")
         self.assertEqual(  # type: ignore[attr-defined]
-            offenders, [],
+            offenders,
+            [],
             f"[{self.scenario}] 대표 파티({'+'.join(self.representative_party)})로도 승률 "
             f"< {_PARTY_WIN_FLOOR:.0%} 인 조우(사실상 불가능): {sorted(offenders)}. "
             f"적 스탯/조우 구성 점검 필요.",
@@ -148,7 +154,8 @@ class _EncounterBalanceContract:
             if rate > _SOLO_WIN_CEILING:
                 offenders.append(f"{eid}={rate:.2f}")
         self.assertEqual(  # type: ignore[attr-defined]
-            offenders, [],
+            offenders,
+            [],
             f"[{self.scenario}] 솔로 승률 > {_SOLO_WIN_CEILING:.0%} 인 조우(시시함): "
             f"{sorted(offenders)}. 적이 너무 약하지 않은지 점검 필요.",
         )

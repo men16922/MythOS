@@ -210,12 +210,8 @@ class OpeningVariantEngineGuardTest(unittest.TestCase):
         )
 
         def _run(state: dict) -> list[str]:
-            loop = LoopState(
-                "l", "p1", "s", LoopPhase.EXPLORE, "loc", 70, 30, now, None, state, []
-            )
-            transition = LoopEngine().apply_scene_payload(
-                loop, scene, payload, chosen_event=event
-            )
+            loop = LoopState("l", "p1", "s", LoopPhase.EXPLORE, "loc", 70, 30, now, None, state, [])
+            transition = LoopEngine().apply_scene_payload(loop, scene, payload, chosen_event=event)
             return list(transition.loop.state.get("flags", []))
 
         default_flags = _run({"scenario_id": "neo-seoul"})
@@ -238,7 +234,9 @@ class CompanionPresenceGuardTest(unittest.TestCase):
         now = datetime(2026, 7, 10, tzinfo=UTC)
         player = PlayerProfile("p1", "T", now, now, {"archetype": "Unclassified"})
         state: dict = {"_loop_index": 2, "_opening_variant": variant, "scenario_id": "neo-seoul"}
-        loop = LoopState("l", "p1", "s", LoopPhase.EXPLORE, "data-layer-01", 70, 30, now, None, state, [])
+        loop = LoopState(
+            "l", "p1", "s", LoopPhase.EXPLORE, "data-layer-01", 70, 30, now, None, state, []
+        )
         return build_runtime_narrative_context(
             player=player,
             loop=loop,

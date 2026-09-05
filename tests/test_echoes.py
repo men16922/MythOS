@@ -28,16 +28,24 @@ class EchoUnitTest(unittest.TestCase):
         self.assertIn("name", a)  # themed name, not a bare stat
         mod = echo_run_modifier("echo_abc")
         self.assertTrue(mod)  # yields a stat profile
-        self.assertTrue(all(s in {"strength", "agility", "perception", "intelligence"} for s in mod))
+        self.assertTrue(
+            all(s in {"strength", "agility", "perception", "intelligence"} for s in mod)
+        )
 
     def test_stat_bonus_sums(self) -> None:
         total = echo_stat_bonus(["echo_abc", "echo_xyz"])
-        self.assertEqual(sum(total.values()), sum(echo_run_modifier("echo_abc").values())
-                         + sum(echo_run_modifier("echo_xyz").values()))
+        self.assertEqual(
+            sum(total.values()),
+            sum(echo_run_modifier("echo_abc").values())
+            + sum(echo_run_modifier("echo_xyz").values()),
+        )
         self.assertEqual(echo_stat_bonus(None), {})
 
     def test_offer_ids_takes_recent(self) -> None:
-        echoes = [Echo(echo_id=f"e{i}", source_loop_id="l", source_event_id="v", symbol="◈", text="t") for i in range(5)]
+        echoes = [
+            Echo(echo_id=f"e{i}", source_loop_id="l", source_event_id="v", symbol="◈", text="t")
+            for i in range(5)
+        ]
         self.assertEqual(echo_offer_ids(echoes, size=3), ["e0", "e1", "e2"])
 
 
@@ -55,8 +63,15 @@ class EchoIntegrationTest(unittest.TestCase):
 
     def test_carried_echo_can_be_inscribed_and_applies_stats(self) -> None:
         _save_echo_memory(
-            self.store, "p1",
-            Echo(echo_id="echo_mem", source_loop_id="l0", source_event_id="e0", symbol="◈", text="a scar"),
+            self.store,
+            "p1",
+            Echo(
+                echo_id="echo_mem",
+                source_loop_id="l0",
+                source_event_id="e0",
+                symbol="◈",
+                text="a scar",
+            ),
         )
         snap = self.service.start_loop("p1", self.options)
         assert snap.boons is not None
@@ -74,7 +89,9 @@ class EchoIntegrationTest(unittest.TestCase):
 
         player = self.store.get_player("p1")
         assert player is not None
-        stats = self.service._player_combat_stats(player, inscribed.loop, load_scenario("neo-seoul"))
+        stats = self.service._player_combat_stats(
+            player, inscribed.loop, load_scenario("neo-seoul")
+        )
         expected = echo_run_modifier("echo_mem")
         for stat, delta in expected.items():
             self.assertGreaterEqual(stats.get(stat, 0), delta)

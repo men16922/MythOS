@@ -46,9 +46,7 @@ def _scene() -> Scene:
 
 class CuratedAnchorImageTests(unittest.TestCase):
     def test_active_cutscene_image_precedes_route_anchor(self) -> None:
-        loop = _loop(
-            {"current": "n1", "nodes": {"n1": {"anchor": True, "image": "scenes/x.png"}}}
-        )
+        loop = _loop({"current": "n1", "nodes": {"n1": {"anchor": True, "image": "scenes/x.png"}}})
         state = dict(loop.state)
         state["_active_cutscene"] = {"image": "characters/se-rin.png"}
         loop = replace(loop, state=state)

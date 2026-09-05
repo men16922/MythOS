@@ -225,9 +225,7 @@ class ReportTest(unittest.TestCase):
                 }
             }
         }
-        report = judge.render_report(
-            [("t1", verdict)], "20260729-000000", metrics
-        )
+        report = judge.render_report([("t1", verdict)], "20260729-000000", metrics)
         self.assertIn("Promotion companion metrics", report)
         self.assertIn("cost/loop $1.1250", report)
         self.assertIn("repetition fail · length pass", report)

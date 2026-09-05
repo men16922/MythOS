@@ -309,7 +309,9 @@ class FallbackDirectiveParityTest(unittest.TestCase):
 
         now = datetime(2026, 6, 16, tzinfo=UTC)
         player = PlayerProfile("p1", "T", now, now, {"archetype": "Unclassified"})
-        loop = LoopState("l", "p1", "s", LoopPhase.CONNECT, "data-layer-01", 70, 30, now, None, {}, [])
+        loop = LoopState(
+            "l", "p1", "s", LoopPhase.CONNECT, "data-layer-01", 70, 30, now, None, {}, []
+        )
         ctx = build_runtime_narrative_context(
             player=player,
             loop=loop,
@@ -357,7 +359,9 @@ class NamingDirectiveParityTest(unittest.TestCase):
 
         now = datetime(2026, 6, 16, tzinfo=UTC)
         player = PlayerProfile("p1", "T", now, now, {"archetype": "Unclassified"})
-        loop = LoopState("l", "p1", "s", LoopPhase.CONNECT, "data-layer-01", 70, 30, now, None, {}, [])
+        loop = LoopState(
+            "l", "p1", "s", LoopPhase.CONNECT, "data-layer-01", 70, 30, now, None, {}, []
+        )
         ctx = build_runtime_narrative_context(
             player=player,
             loop=loop,
@@ -428,9 +432,7 @@ class StatVoiceDirectiveParityTest(unittest.TestCase):
         # strength 3 / intelligence 6 / charisma 2 / agility 8 / perception 7
         # → max = agility (8), min = charisma (2).
         stats = {"strength": 3, "intelligence": 6, "charisma": 2, "agility": 8, "perception": 7}
-        player = PlayerProfile(
-            "p1", "T", now, now, {"archetype": "Unclassified", "stats": stats}
-        )
+        player = PlayerProfile("p1", "T", now, now, {"archetype": "Unclassified", "stats": stats})
         loop = LoopState(
             "l", "p1", scenario_id, LoopPhase.CONNECT, location, 70, 30, now, None, {}, []
         )
@@ -453,12 +455,13 @@ class StatVoiceDirectiveParityTest(unittest.TestCase):
         banner = "=== 스탯 기반 내면 독백 지침 (DISCO ELYSIUM STYLE INNER MONOLOGUE) ==="
         self.assertIn(banner, notes)
         # Gating rule: stat voices only fire on this turn's choice stat-checks.
-        self.assertTrue(
-            any("해당 스탯 판정이 실제로 걸린 경우에만 등장" in n for n in notes)
-        )
+        self.assertTrue(any("해당 스탯 판정이 실제로 걸린 경우에만 등장" in n for n in notes))
         # Max-stat coloring note: agility (8) sounds competent/confident.
         self.assertTrue(
-            any("참고로 플레이어가 가장 뛰어난 특성은 민첩 (Agility) (수치: 8)이므로" in n for n in notes)
+            any(
+                "참고로 플레이어가 가장 뛰어난 특성은 민첩 (Agility) (수치: 8)이므로" in n
+                for n in notes
+            )
         )
         # Min-stat note: charisma (2), {name_first} → "매력".
         self.assertTrue(
@@ -523,7 +526,10 @@ class EncounterDirectiveParityTest(unittest.TestCase):
         notes = self._context_for("neo-seoul", stability=70, tension=30, action="지하로 이동한다")
         self.assertIn("=== TRAVEL ENCOUNTER (이동 중 조우 이벤트) ===", notes)
         self.assertTrue(
-            any("플레이어가 구역을 이동하거나 여행(Travel)하는 액션('지하로 이동한다')" in n for n in notes)
+            any(
+                "플레이어가 구역을 이동하거나 여행(Travel)하는 액션('지하로 이동한다')" in n
+                for n in notes
+            )
         )
 
     def test_runtime_context_injects_emergency_directives(self) -> None:
@@ -553,9 +559,7 @@ class CompanionCutsceneAssemblerTest(unittest.TestCase):
 
         now = datetime(2026, 7, 3, tzinfo=UTC)
         player = PlayerProfile("p1", "T", now, now, {"archetype": "Unclassified"})
-        loop = LoopState(
-            "l", "p1", "s", LoopPhase.EXPLORE, "loc", 70, 30, now, None, state, []
-        )
+        loop = LoopState("l", "p1", "s", LoopPhase.EXPLORE, "loc", 70, 30, now, None, state, [])
         return build_runtime_narrative_context(
             player=player,
             loop=loop,

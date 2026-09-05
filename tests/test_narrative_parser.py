@@ -51,9 +51,7 @@ data-layer-01
                     "title": "Crossroads",
                     "location": "loc",
                     "narration": "Two roads diverge.",
-                    "choices": [
-                        {"choice_id": "c1", "label": "Left", "intent": "explore"}
-                    ],
+                    "choices": [{"choice_id": "c1", "label": "Left", "intent": "explore"}],
                     "visual_brief": "A forked alley.",
                 },
                 "world_delta": {
@@ -200,11 +198,15 @@ data-layer-01
         from mythos_narrative.parser import _clean_player_text
 
         english = _clean_player_text("The corridor lights die. [SFX: GLITCH] Something moves.")
-        self.assertEqual(english, "The corridor lights die. A short glitch tore at the air. Something moves.")
+        self.assertEqual(
+            english, "The corridor lights die. A short glitch tore at the air. Something moves."
+        )
         self.assertNotRegex(english, r"[가-힣]")
 
         korean = _clean_player_text("복도의 불이 꺼진다. [SFX: GLITCH] 무언가 움직인다.")
-        self.assertEqual(korean, "복도의 불이 꺼진다. 짧은 글리치음이 허공을 찢었다. 무언가 움직인다.")
+        self.assertEqual(
+            korean, "복도의 불이 꺼진다. 짧은 글리치음이 허공을 찢었다. 무언가 움직인다."
+        )
 
     def test_strips_tabletop_mechanics_annotations(self) -> None:
         # Live 2026-07-04 leak: the GM prompt forbids "Make a Perception check"

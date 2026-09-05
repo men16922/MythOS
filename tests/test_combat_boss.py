@@ -37,14 +37,24 @@ def _ix_vs_target(
     ix.hp = hp
     ix.focus = focus
     target = build_player_combatant(
-        combatant_id="dummy", name="T", stats={"strength": 5, "agility": 5},
-        weapon_ids=[], weapons_pool=combat["weapons"], x=4, y=3,  # adjacent → in skill range
+        combatant_id="dummy",
+        name="T",
+        stats={"strength": 5, "agility": 5},
+        weapon_ids=[],
+        weapons_pool=combat["weapons"],
+        x=4,
+        y=3,  # adjacent → in skill range
     )
     target.faction = ALLY  # a hostile the boss will target
     target.hp = target.max_hp = 40
     state = CombatState(
-        active=True, round=1, arena_w=10, arena_h=7, combatants=[ix, target],
-        order=[ix.id, target.id], seed="boss-test",
+        active=True,
+        round=1,
+        arena_w=10,
+        arena_h=7,
+        combatants=[ix, target],
+        order=[ix.id, target.id],
+        seed="boss-test",
     )
     return engine, state, ix, target
 
@@ -93,7 +103,8 @@ class BossSkillTest(unittest.TestCase):
         cast = [e for e in state.log if e.action == "skill"]
         self.assertTrue(cast)
         self.assertEqual(
-            cast[0].detail.get("skill"), "ix_purge_list",
+            cast[0].detail.get("skill"),
+            "ix_purge_list",
             "enraged boss with full focus should open with the telegraphed purge",
         )
         self.assertEqual(len(state.telegraphs), 1)
@@ -118,12 +129,21 @@ class BossSkillTest(unittest.TestCase):
 
         def _ix(runs: int):
             player = build_player_combatant(
-                combatant_id="player", name="P", stats={"strength": 5, "agility": 5},
-                weapon_ids=[], weapons_pool=combat["weapons"], x=0, y=0,
+                combatant_id="player",
+                name="P",
+                stats={"strength": 5, "agility": 5},
+                weapon_ids=[],
+                weapons_pool=combat["weapons"],
+                x=0,
+                y=0,
             )
             state = build_encounter(
-                combat, "ix_confrontation", player=player, allies=[],
-                seed="meta-scale", runs_completed=runs,
+                combat,
+                "ix_confrontation",
+                player=player,
+                allies=[],
+                seed="meta-scale",
+                runs_completed=runs,
             )
             return next(e for e in state.living_enemies() if "administrator_ix" in e.id)
 
@@ -145,19 +165,33 @@ class BossSkillTest(unittest.TestCase):
 
         def _enemy_count(n_allies: int) -> int:
             player = build_player_combatant(
-                combatant_id="player", name="P", stats={"strength": 5, "agility": 5},
-                weapon_ids=[], weapons_pool=combat["weapons"], x=0, y=0,
+                combatant_id="player",
+                name="P",
+                stats={"strength": 5, "agility": 5},
+                weapon_ids=[],
+                weapons_pool=combat["weapons"],
+                x=0,
+                y=0,
             )
             allies = []
             for i in range(n_allies):
                 a = build_player_combatant(
-                    combatant_id=f"ally{i}", name=f"A{i}", stats={"strength": 5, "agility": 5},
-                    weapon_ids=[], weapons_pool=combat["weapons"], x=0, y=0,
+                    combatant_id=f"ally{i}",
+                    name=f"A{i}",
+                    stats={"strength": 5, "agility": 5},
+                    weapon_ids=[],
+                    weapons_pool=combat["weapons"],
+                    x=0,
+                    y=0,
                 )
                 a.faction = ALLY
                 allies.append(a)
             state = build_encounter(
-                combat, "ix_confrontation", player=player, allies=allies, seed="scale-test",
+                combat,
+                "ix_confrontation",
+                player=player,
+                allies=allies,
+                seed="scale-test",
             )
             return len(state.living_enemies())
 

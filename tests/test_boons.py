@@ -53,11 +53,11 @@ class BoonUnitTest(unittest.TestCase):
 class BoonIntegrationTest(unittest.TestCase):
     def setUp(self) -> None:
         self.store = _InMemoryStore()
-        self.service = RuntimeSessionService(self.store)  # default director → fallback works offline
+        self.service = RuntimeSessionService(
+            self.store
+        )  # default director → fallback works offline
         self.options = RuntimeOptions(fallback=True, scenario_id="neo-seoul")
-        self.service.create_player(
-            "Tester", player_id="p1", traits={"stats": {"strength": 5}}
-        )
+        self.service.create_player("Tester", player_id="p1", traits={"stats": {"strength": 5}})
 
     def test_loop_start_offers_a_boon(self) -> None:
         snap = self.service.start_loop("p1", self.options)

@@ -101,9 +101,7 @@ class NoopCounterTest(unittest.TestCase):
         self.assertEqual(snap.loop.state.get("_noop_turns"), 0)
 
     def test_combat_begin_clears_streak(self) -> None:
-        snap = self._commit(
-            {"_noop_turns": 2}, delta=WorldDelta(start_combat="patrol_ambush")
-        )
+        snap = self._commit({"_noop_turns": 2}, delta=WorldDelta(start_combat="patrol_ambush"))
         self.assertEqual(snap.scene.scene_type, "combat")
         self.assertNotIn("_noop_turns", snap.loop.state)
 
@@ -114,9 +112,7 @@ class NoopPromptInjectionTest(unittest.TestCase):
         state: dict[str, Any] = {"_loop_index": 1}
         if noop_turns:
             state["_noop_turns"] = noop_turns
-        loop = LoopState(
-            "l", "p1", "s", LoopPhase.EXPLORE, "loc", 70, 30, NOW, None, state, []
-        )
+        loop = LoopState("l", "p1", "s", LoopPhase.EXPLORE, "loc", 70, 30, NOW, None, state, [])
         ctx = build_runtime_narrative_context(
             player=player,
             loop=loop,

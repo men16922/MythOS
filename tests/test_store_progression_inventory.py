@@ -15,7 +15,9 @@ class StoreProgressionInventoryDefaultsTest(unittest.TestCase):
 
     def test_progression_roundtrip_and_isolation(self) -> None:
         self.assertIsNone(self.store.get_progression("p1", "neo-seoul"))
-        self.store.save_progression("p1", "neo-seoul", {"insight_points": 5, "unlocked_skills": ["a"]})
+        self.store.save_progression(
+            "p1", "neo-seoul", {"insight_points": 5, "unlocked_skills": ["a"]}
+        )
         got = self.store.get_progression("p1", "neo-seoul")
         assert got is not None
         self.assertEqual(got["insight_points"], 5)

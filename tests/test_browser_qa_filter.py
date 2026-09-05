@@ -83,9 +83,7 @@ class BrowserQAFilterTest(unittest.TestCase):
         after_status = _git(self.repo, "status", "--porcelain")
 
         verdict = line.split("\t", 1)[0]
-        self.assertEqual(
-            verdict, expected, f"files={list(files)} → {line!r} (exit {code})"
-        )
+        self.assertEqual(verdict, expected, f"files={list(files)} → {line!r} (exit {code})")
         # exit code must agree with the printed verdict
         self.assertEqual(code, 0 if expected == "CANDIDATE" else 1, line)
         # machine-readable: exactly "VERDICT<TAB>reason"
@@ -131,22 +129,16 @@ class BrowserQAFilterTest(unittest.TestCase):
         self._assert_verdict({"src/mythos_combat/engine.py": "x\n"}, "CANDIDATE")
 
     def test_scenario_json_is_candidate(self) -> None:
-        self._assert_verdict(
-            {"resources/neo-seoul/scenario.json": "{}\n"}, "CANDIDATE"
-        )
+        self._assert_verdict({"resources/neo-seoul/scenario.json": "{}\n"}, "CANDIDATE")
 
     def test_curated_asset_is_candidate(self) -> None:
-        self._assert_verdict(
-            {"resources/neo-seoul/scenes/cut.png": "pngbytes\n"}, "CANDIDATE"
-        )
+        self._assert_verdict({"resources/neo-seoul/scenes/cut.png": "pngbytes\n"}, "CANDIDATE")
 
     def test_playwright_selectors_are_candidate(self) -> None:
         self._assert_verdict({"tests/playwright/test_e2e.py": "x\n"}, "CANDIDATE")
 
     def test_mixed_docs_and_ui_is_candidate(self) -> None:
-        self._assert_verdict(
-            {"docs/X.md": "x\n", "src/mythos_ui/Y.tsx": "y\n"}, "CANDIDATE"
-        )
+        self._assert_verdict({"docs/X.md": "x\n", "src/mythos_ui/Y.tsx": "y\n"}, "CANDIDATE")
 
     def test_unknown_path_biases_candidate(self) -> None:
         self._assert_verdict({"src/mythos_brandnew/x.py": "x\n"}, "CANDIDATE")

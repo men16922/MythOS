@@ -228,7 +228,9 @@ class StoryBibleTest(unittest.TestCase):
                 started_at=datetime(2026, 5, 31, tzinfo=UTC),
                 state={"_opening_variant": variant},
             )
-            return {e.entry_id for e in select_story_bible_entries(bible, loop, turn_index=turn_index)}
+            return {
+                e.entry_id for e in select_story_bible_entries(bible, loop, turn_index=turn_index)
+            }
 
         self.assertIn("act1_c17_blackout", opening_ids("default", 0))
         for variant in ("han", "kai", "tae_o", "solo"):

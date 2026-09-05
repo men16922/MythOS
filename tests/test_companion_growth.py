@@ -98,9 +98,7 @@ class CompanionGrowthUnitTest(unittest.TestCase):
         self.assertEqual(boon_stat_bonus(run), {})
         stats, hp = party_boon_bonus(run)
         self.assertEqual(hp, 4)
-        self.assertEqual(
-            stats, {"strength": 1, "perception": 1, "agility": 1, "intelligence": 1}
-        )
+        self.assertEqual(stats, {"strength": 1, "perception": 1, "agility": 1, "intelligence": 1})
 
 
 class CompanionGrowthServiceTest(unittest.TestCase):
@@ -136,9 +134,7 @@ class CompanionGrowthServiceTest(unittest.TestCase):
         self.assertEqual(ally.stats["perception"], 7 + 2)
 
     def test_achievement_upgrade_adds_skill_and_stats(self) -> None:
-        ally = self._se_rin(
-            {"flags": ["met_se_rin"], "meta_progression": {"total_combats_won": 4}}
-        )
+        ally = self._se_rin({"flags": ["met_se_rin"], "meta_progression": {"total_combats_won": 4}})
         self.assertIn("glitch_blink", ally.skills)
         self.assertEqual(ally.stats["agility"], 7 + 1)
 

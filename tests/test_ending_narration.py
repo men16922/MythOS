@@ -66,7 +66,9 @@ class EndingNarrationTest(unittest.TestCase):
         self.assertEqual(self.svc._ending_narration_text("neo-seoul", None, _loop()), "")
 
     def test_unknown_ending_id_falls_back_to_threshold(self) -> None:
-        text = self.svc._ending_narration_text("neo-seoul", "ending_does_not_exist", _loop(tension=99))
+        text = self.svc._ending_narration_text(
+            "neo-seoul", "ending_does_not_exist", _loop(tension=99)
+        )
         self.assertIn("추적", text)
 
 

@@ -20,13 +20,9 @@ class DesignSystemSurfaceTest(unittest.TestCase):
     def test_surface_component_exposes_variant_size_density_props(self) -> None:
         source = read("src/mythos_ui/src/Surface.tsx")
 
-        self.assertIn(
-            'export type SurfaceVariant = "surface" | "outline" | "ghost";', source
-        )
+        self.assertIn('export type SurfaceVariant = "surface" | "outline" | "ghost";', source)
         self.assertIn("export type SurfaceSize = 1 | 2 | 3;", source)
-        self.assertIn(
-            'export type SurfaceDensity = "comfortable" | "compact";', source
-        )
+        self.assertIn('export type SurfaceDensity = "comfortable" | "compact";', source)
         self.assertIn("export function Surface(", source)
         self.assertIn('variant = "surface"', source)
         self.assertIn("size = 2", source)
@@ -157,7 +153,9 @@ class DesignSystemSurfaceTest(unittest.TestCase):
         # regresses in. Child classes (panel-title, panel-info-toggle, …) are fine.
         import re
 
-        pat = re.compile(r'<(?:div|section|details|aside|article)\b[^>]*className=(?:"panel"|"panel |`panel )')
+        pat = re.compile(
+            r'<(?:div|section|details|aside|article)\b[^>]*className=(?:"panel"|"panel |`panel )'
+        )
         src_dir = ROOT / "src" / "mythos_ui" / "src"
         offenders = [
             p.relative_to(ROOT).as_posix()

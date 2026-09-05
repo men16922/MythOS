@@ -95,7 +95,13 @@ class CombatEngineTest(unittest.TestCase):
 
         def unit(perception: int) -> Combatant:
             return Combatant(
-                id="u", name="u", faction="player", hp=10, max_hp=10, x=0, y=0,
+                id="u",
+                name="u",
+                faction="player",
+                hp=10,
+                max_hp=10,
+                x=0,
+                y=0,
                 stats={"strength": 5, "agility": 5, "perception": perception},
             )
 
@@ -370,16 +376,21 @@ class CombatSkillTest(unittest.TestCase):
         engine = CombatEngine()
         state = engine.start(
             [_skilled_player(x=0, y=0)],
-            [_drone("d1", x=1, y=0, hp=80, defense=1, speed=0),
-             _drone("d2", x=1, y=1, hp=80, defense=1, speed=0)],
-            seed="ov-splash", arena=(8, 6),
+            [
+                _drone("d1", x=1, y=0, hp=80, defense=1, speed=0),
+                _drone("d2", x=1, y=1, hp=80, defense=1, speed=0),
+            ],
+            seed="ov-splash",
+            arena=(8, 6),
         )
         player = state.player()
         assert player is not None
         engine._player_skill(
-            state, player,
+            state,
+            player,
             PlayerAction(type="skill", skill_id="overload_strike", target_id="d1"),
-            SKILLS["overload_strike"], True,
+            SKILLS["overload_strike"],
+            True,
         )
         d1 = state.by_id("d1")
         d2 = state.by_id("d2")
@@ -394,16 +405,20 @@ class CombatSkillTest(unittest.TestCase):
         # with a guaranteed 1d4 slam; no overshoot past the wall.
         engine = CombatEngine()
         state = engine.start(
-            [_skilled_player(x=4, y=0)], [_drone(x=6, y=0, hp=80, defense=1, speed=0)],
-            seed="repulse", arena=(8, 6),
+            [_skilled_player(x=4, y=0)],
+            [_drone(x=6, y=0, hp=80, defense=1, speed=0)],
+            seed="repulse",
+            arena=(8, 6),
         )
         player = state.player()
         assert player is not None
         enemy = state.living_enemies()[0]
         engine._player_skill(
-            state, player,
+            state,
+            player,
             PlayerAction(type="skill", skill_id="magnetic_repulse", target_id=enemy.id),
-            SKILLS["magnetic_repulse"], True,
+            SKILLS["magnetic_repulse"],
+            True,
         )
         moved = state.by_id(enemy.id)
         assert moved is not None
@@ -419,17 +434,22 @@ class CombatSkillTest(unittest.TestCase):
         engine = CombatEngine()
         state = engine.start(
             [_skilled_player(x=0, y=0)],
-            [_drone("d1", x=3, y=0, hp=80, defense=1, speed=0),
-             _drone("d2", x=4, y=1, hp=80, defense=1, speed=0),
-             _drone("d3", x=7, y=5, hp=80, defense=1, speed=0)],
-            seed="emp-aoe", arena=(8, 6),
+            [
+                _drone("d1", x=3, y=0, hp=80, defense=1, speed=0),
+                _drone("d2", x=4, y=1, hp=80, defense=1, speed=0),
+                _drone("d3", x=7, y=5, hp=80, defense=1, speed=0),
+            ],
+            seed="emp-aoe",
+            arena=(8, 6),
         )
         player = state.player()
         assert player is not None
         ok = engine._player_item(
-            state, player,
+            state,
+            player,
             PlayerAction(type="item", item_id="emp_grenade", target_cell=(3, 1)),
-            ITEMS["emp_grenade"], True,
+            ITEMS["emp_grenade"],
+            True,
         )
         self.assertTrue(ok)
         d1 = state.by_id("d1")
@@ -449,15 +469,19 @@ class CombatSkillTest(unittest.TestCase):
         # fallback enemy nearby the action is refused.
         engine = CombatEngine()
         state = engine.start(
-            [_skilled_player(x=0, y=0)], [_drone(x=7, y=5, hp=80, defense=1, speed=0)],
-            seed="emp-range", arena=(8, 6),
+            [_skilled_player(x=0, y=0)],
+            [_drone(x=7, y=5, hp=80, defense=1, speed=0)],
+            seed="emp-range",
+            arena=(8, 6),
         )
         player = state.player()
         assert player is not None
         ok = engine._player_item(
-            state, player,
+            state,
+            player,
             PlayerAction(type="item", item_id="emp_grenade", target_cell=(7, 5)),
-            ITEMS["emp_grenade"], True,
+            ITEMS["emp_grenade"],
+            True,
         )
         self.assertFalse(ok)
         foe = state.living_enemies()[0]
@@ -467,20 +491,29 @@ class CombatSkillTest(unittest.TestCase):
         # P1 당기기: a control skill pulls the target toward the caster.
         engine = CombatEngine()
         engine.skills_pool["tether"] = {
-            "id": "tether", "name": "견인", "role": "control",
-            "range": 6, "cooldown": 0, "cost": {}, "effect": {"pull": 2},
+            "id": "tether",
+            "name": "견인",
+            "role": "control",
+            "range": 6,
+            "cooldown": 0,
+            "cost": {},
+            "effect": {"pull": 2},
         }
         state = engine.start(
-            [_skilled_player(x=0, y=0)], [_drone(x=4, y=0, hp=80, defense=1)],
-            seed="pull", arena=(8, 6),
+            [_skilled_player(x=0, y=0)],
+            [_drone(x=4, y=0, hp=80, defense=1)],
+            seed="pull",
+            arena=(8, 6),
         )
         player = state.player()
         assert player is not None
         enemy = state.living_enemies()[0]
         engine._player_skill(
-            state, player,
+            state,
+            player,
             PlayerAction(type="skill", skill_id="tether", target_id=enemy.id),
-            engine.skills_pool["tether"], True,
+            engine.skills_pool["tether"],
+            True,
         )
         moved = state.by_id(enemy.id)
         assert moved is not None
@@ -492,8 +525,10 @@ class CombatSkillTest(unittest.TestCase):
         # The move log also carries from/forced metadata for the yank VFX.
         engine = CombatEngine()
         state = engine.start(
-            [_skilled_player(x=0, y=0)], [_drone(x=4, y=0, hp=80, defense=1, speed=0)],
-            seed="pull-slam", arena=(8, 6),
+            [_skilled_player(x=0, y=0)],
+            [_drone(x=4, y=0, hp=80, defense=1, speed=0)],
+            seed="pull-slam",
+            arena=(8, 6),
         )
         # This seed drops full cover on (3,0), which since 07-12 blocks forced
         # movement (collision slam) — clear terrain: this test is about the yank.
@@ -502,16 +537,20 @@ class CombatSkillTest(unittest.TestCase):
         assert player is not None
         enemy = state.living_enemies()[0]
         engine._player_skill(
-            state, player,
+            state,
+            player,
             PlayerAction(type="skill", skill_id="magnetic_pull", target_id=enemy.id),
-            SKILLS["magnetic_pull"], True,
+            SKILLS["magnetic_pull"],
+            True,
         )
         moved = state.by_id(enemy.id)
         assert moved is not None
         self.assertEqual((moved.x, moved.y), (2, 0))
         self.assertLess(moved.hp, 80)
         self.assertGreaterEqual(moved.hp, 76)  # 1d4 slam, armor-bypassing
-        move_logs = [e for e in state.log if e.detail.get("forced") == "pull" and e.detail.get("tiles")]
+        move_logs = [
+            e for e in state.log if e.detail.get("forced") == "pull" and e.detail.get("tiles")
+        ]
         self.assertTrue(move_logs)
         self.assertEqual(move_logs[-1].detail.get("from"), [4, 0])
         self.assertTrue(any(e.detail.get("shock") for e in state.log))
@@ -521,16 +560,20 @@ class CombatSkillTest(unittest.TestCase):
         # yank moves 0 tiles but must SAY so, and the slam rider still lands.
         engine = CombatEngine()
         state = engine.start(
-            [_skilled_player(x=0, y=0)], [_drone(x=1, y=0, hp=80, defense=1, speed=0)],
-            seed="pull-block", arena=(8, 6),
+            [_skilled_player(x=0, y=0)],
+            [_drone(x=1, y=0, hp=80, defense=1, speed=0)],
+            seed="pull-block",
+            arena=(8, 6),
         )
         player = state.player()
         assert player is not None
         enemy = state.living_enemies()[0]
         engine._player_skill(
-            state, player,
+            state,
+            player,
             PlayerAction(type="skill", skill_id="magnetic_pull", target_id=enemy.id),
-            SKILLS["magnetic_pull"], True,
+            SKILLS["magnetic_pull"],
+            True,
         )
         held = state.by_id(enemy.id)
         assert held is not None
@@ -545,16 +588,20 @@ class CombatSkillTest(unittest.TestCase):
         # enemies; blinking away stays a free escape (no target requirement).
         engine = CombatEngine()
         state = engine.start(
-            [_skilled_player(x=0, y=0)], [_drone(x=4, y=0, hp=80, defense=1, speed=0)],
-            seed="step-shock", arena=(8, 6),
+            [_skilled_player(x=0, y=0)],
+            [_drone(x=4, y=0, hp=80, defense=1, speed=0)],
+            seed="step-shock",
+            arena=(8, 6),
         )
         player = state.player()
         assert player is not None
         enemy = state.living_enemies()[0]
         engine._player_skill(
-            state, player,
+            state,
+            player,
             PlayerAction(type="skill", skill_id="signal_step", move_to=(3, 0)),
-            SKILLS["signal_step"], True,
+            SKILLS["signal_step"],
+            True,
         )
         self.assertEqual((player.x, player.y), (3, 0))
         shocked = state.by_id(enemy.id)
@@ -565,16 +612,20 @@ class CombatSkillTest(unittest.TestCase):
     def test_signal_step_away_from_enemies_costs_no_damage_logs(self) -> None:
         engine = CombatEngine()
         state = engine.start(
-            [_skilled_player(x=3, y=0)], [_drone(x=4, y=0, hp=80, defense=1, speed=0)],
-            seed="step-away", arena=(8, 6),
+            [_skilled_player(x=3, y=0)],
+            [_drone(x=4, y=0, hp=80, defense=1, speed=0)],
+            seed="step-away",
+            arena=(8, 6),
         )
         player = state.player()
         assert player is not None
         enemy = state.living_enemies()[0]
         engine._player_skill(
-            state, player,
+            state,
+            player,
             PlayerAction(type="skill", skill_id="signal_step", move_to=(0, 0)),
-            SKILLS["signal_step"], True,
+            SKILLS["signal_step"],
+            True,
         )
         self.assertEqual((player.x, player.y), (0, 0))
         untouched = state.by_id(enemy.id)
@@ -1082,9 +1133,7 @@ class CombatNarratorTest(unittest.TestCase):
             )
             enemy = state.living_enemies()[0]
             state.covers[f"{enemy.x},{enemy.y}"] = "full"
-            state = engine.take_player_turn(
-                state, PlayerAction(type="attack", target_id=enemy.id)
-            )
+            state = engine.take_player_turn(state, PlayerAction(type="attack", target_id=enemy.id))
             for entry in state.log:
                 if entry.action == "miss" and entry.detail.get("cover_saved"):
                     self.assertIn("엄폐", entry.text)
@@ -1350,9 +1399,7 @@ class FleeForecastTest(unittest.TestCase):
 
         player = _player(x=5, y=5, agility=agility)
         spots = [(4, 5), (6, 5), (5, 4), (5, 6)]
-        enemies = [
-            _drone(entry_id=f"e{i}", x=spots[i][0], y=spots[i][1]) for i in range(adjacent)
-        ]
+        enemies = [_drone(entry_id=f"e{i}", x=spots[i][0], y=spots[i][1]) for i in range(adjacent)]
         # A distant enemy keeps the fight alive without touching the flee DC.
         enemies.append(_drone(entry_id="far", x=0, y=0))
         combatants = [player, *enemies]
@@ -1417,7 +1464,13 @@ class FleeForecastTest(unittest.TestCase):
         engine = CombatEngine()
         state = self._state(6, 1)
         ally = Combatant(
-            id="han", name="한", faction="ally", hp=10, max_hp=10, x=8, y=8,
+            id="han",
+            name="한",
+            faction="ally",
+            hp=10,
+            max_hp=10,
+            x=8,
+            y=8,
             stats={"agility": 6},
         )
 
@@ -1429,7 +1482,9 @@ class TwoPathsMustAgreeTest(unittest.TestCase):
 
     def test_buffed_move_reaches_the_tiles_the_client_was_offered(self) -> None:
         engine = CombatEngine()
-        state = engine.start([_player(x=0, y=0)], [_drone(x=7, y=0, hp=20)], seed="buff", arena=(10, 4))
+        state = engine.start(
+            [_player(x=0, y=0)], [_drone(x=7, y=0, hp=20)], seed="buff", arena=(10, 4)
+        )
         player = state.player()
         assert player is not None
         player.speed_buff = 2
@@ -1444,7 +1499,10 @@ class TwoPathsMustAgreeTest(unittest.TestCase):
     def test_attack_cannot_target_an_ally(self) -> None:
         engine = CombatEngine()
         state = engine.start(
-            [_player(x=0, y=0), _ally("han", x=1, y=0)], [_drone(x=6, y=0, hp=20)], seed="ff", arena=(8, 4)
+            [_player(x=0, y=0), _ally("han", x=1, y=0)],
+            [_drone(x=6, y=0, hp=20)],
+            seed="ff",
+            arena=(8, 4),
         )
         han = state.by_id("han")
         assert han is not None
@@ -1460,7 +1518,9 @@ class TwoPathsMustAgreeTest(unittest.TestCase):
 
     def test_attack_preview_applies_corrode_like_the_attack_does(self) -> None:
         engine = CombatEngine()
-        state = engine.start([_player(x=0, y=0)], [_drone(x=1, y=0, hp=20, armor=3)], seed="cor", arena=(6, 4))
+        state = engine.start(
+            [_player(x=0, y=0)], [_drone(x=1, y=0, hp=20, armor=3)], seed="cor", arena=(6, 4)
+        )
         player = state.player()
         enemy = state.living_enemies()[0]
         assert player is not None
@@ -1472,7 +1532,9 @@ class TwoPathsMustAgreeTest(unittest.TestCase):
 
     def test_telegraph_kill_is_logged_as_a_defeat(self) -> None:
         engine = CombatEngine()
-        state = engine.start([_player(x=0, y=0)], [_drone(x=3, y=0, hp=20)], seed="tele", arena=(6, 4))
+        state = engine.start(
+            [_player(x=0, y=0)], [_drone(x=3, y=0, hp=20)], seed="tele", arena=(6, 4)
+        )
         enemy = state.living_enemies()[0]
         player = state.player()
         assert player is not None
@@ -1505,4 +1567,3 @@ class TwoPathsMustAgreeTest(unittest.TestCase):
         far = state.enemy_intents[0]
         self.assertEqual(far.action, "move")
         self.assertEqual((far.target_x, far.target_y), (enemy.x, enemy.y))
-

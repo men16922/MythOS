@@ -115,9 +115,7 @@ class ToGeminiSchemaTest(unittest.TestCase):
         self.assertTrue(wd["hp"]["nullable"])
 
     def test_enum_preserved(self) -> None:
-        converted = to_gemini_schema(
-            {"type": "string", "enum": ["explore", "press", "retreat"]}
-        )
+        converted = to_gemini_schema({"type": "string", "enum": ["explore", "press", "retreat"]})
         self.assertEqual(converted["type"], "STRING")
         self.assertEqual(converted["enum"], ["explore", "press", "retreat"])
 

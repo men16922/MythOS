@@ -165,9 +165,7 @@ class RouteIntegrityTest(unittest.TestCase):
                 # Reachable from start AND on a viable path to the boss — so the
                 # tally can actually accumulate before the loop resolves.
                 viable = {
-                    nid
-                    for nid in pushers
-                    if nid in reachable and _reaches(nid, boss, rm["edges"])
+                    nid for nid in pushers if nid in reachable and _reaches(nid, boss, rm["edges"])
                 }
                 self.assertTrue(
                     viable,

@@ -95,9 +95,7 @@ class RouteRuntimeTest(unittest.TestCase):
                     "id": "kai",
                     "layer": 0,
                     "default_perspective": "awaken",
-                    "perspectives": [
-                        {"id": "awaken", "effect": {"party_add": ["kai"]}}
-                    ],
+                    "perspectives": [{"id": "awaken", "effect": {"party_add": ["kai"]}}],
                 }
             },
             "edges": {"kai": []},
@@ -106,7 +104,6 @@ class RouteRuntimeTest(unittest.TestCase):
         first = advance_route(state, turn_index=0, seed="kai")
         replay = advance_route(first, turn_index=0, seed="kai")
         self.assertEqual(replay["_party"]["members"], [{"id": "kai"}])
-
 
     def test_night_market_entry_unlocks_kai_causally(self) -> None:
         state = _state("kai-causal", ["met_se_rin"])
@@ -760,9 +757,7 @@ class AxisIntentFlagTest(unittest.TestCase):
         self.assertIsNotNone(route_map)
         assert route_map is not None
         boss = next(
-            node
-            for node in route_map["nodes"].values()
-            if node.get("beat") == "ix_confrontation"
+            node for node in route_map["nodes"].values() if node.get("beat") == "ix_confrontation"
         )
 
         selected = select_perspective(

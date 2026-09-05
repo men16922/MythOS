@@ -62,7 +62,6 @@ class ContractCompilerTests(unittest.TestCase):
             )
             self.assertEqual(contract["oversight"]["mode"], "monitored")
 
-
     def test_compiles_six_objective_assertions_into_browser_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             temp = Path(raw)
@@ -81,14 +80,17 @@ class ContractCompilerTests(unittest.TestCase):
                 for entry in contract["evidence"]
                 if entry["verifier"] == "30-browser-objective"
             )
-            self.assertEqual(browser["assertions"], [
-                "image_arrival",
-                "companion_join",
-                "party_distribution",
-                "cutscene_cardinality_return",
-                "choice_arrival",
-                "first_use_gloss",
-            ])
+            self.assertEqual(
+                browser["assertions"],
+                [
+                    "image_arrival",
+                    "companion_join",
+                    "party_distribution",
+                    "cutscene_cardinality_return",
+                    "choice_arrival",
+                    "first_use_gloss",
+                ],
+            )
 
     def test_drained_and_all_blocked_are_distinct(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
@@ -162,7 +164,9 @@ class VerifierTests(unittest.TestCase):
         filter_script = self.repo / "filter.sh"
         runner_script = self.repo / "runner.sh"
         filter_script.write_text("#!/usr/bin/env bash\nprintf 'CANDIDATE\\tfixture\\n'\n")
-        runner_script.write_text("#!/usr/bin/env bash\nprintf 'QA_RESULT: NEEDS_HUMAN\\n'\nexit 3\n")
+        runner_script.write_text(
+            "#!/usr/bin/env bash\nprintf 'QA_RESULT: NEEDS_HUMAN\\n'\nexit 3\n"
+        )
         filter_script.chmod(0o755)
         runner_script.chmod(0o755)
         result = run(
@@ -176,26 +180,29 @@ class VerifierTests(unittest.TestCase):
         self.assertEqual(result.returncode, 3, result.stdout + result.stderr)
         self.assertIn("needs human", result.stdout)
 
-
     def test_browser_verifier_forwards_contract_assertions_and_evidence_ref(self) -> None:
         diff_range = self.commit("src/objective.tsx", "export const objective = 1\n")
         filter_script = self.repo / "filter-objective.sh"
         runner_script = self.repo / "runner-objective.sh"
         capture = self.repo / "captured-objectives.txt"
         contract = self.repo / "objective-contract.json"
-        contract.write_text(json.dumps({
-            "evidence": [{
-                "verifier": "30-browser-objective",
-                "required": True,
-                "assertions": ["choice_arrival", "first_use_gloss"],
-            }]
-        }))
-        filter_script.write_text(
-            "#!/usr/bin/env bash\nprintf 'CANDIDATE\\tfixture\\n'\n"
+        contract.write_text(
+            json.dumps(
+                {
+                    "evidence": [
+                        {
+                            "verifier": "30-browser-objective",
+                            "required": True,
+                            "assertions": ["choice_arrival", "first_use_gloss"],
+                        }
+                    ]
+                }
+            )
         )
+        filter_script.write_text("#!/usr/bin/env bash\nprintf 'CANDIDATE\\tfixture\\n'\n")
         runner_script.write_text(
             "#!/usr/bin/env bash\n"
-            "printf '%s' \"$LIVE_QA_OBJECTIVES\" > \"$CAPTURE\"\n"
+            'printf \'%s\' "$LIVE_QA_OBJECTIVES" > "$CAPTURE"\n'
             "printf 'LIVE_QA_EVIDENCE: outputs/live-qa/fixture/evidence-bundle.json\\n'\n"
             "printf 'QA_RESULT: PASS_CANDIDATE\\n'\n"
         )

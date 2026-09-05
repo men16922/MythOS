@@ -66,4 +66,3 @@ class ClassifyKindBoundaryTest(unittest.TestCase):
         self.assertEqual(classify_kind("Ledge over the river"), "node")
         self.assertEqual(classify_kind("Data Layer 01"), "data")
         self.assertEqual(classify_kind("은신처 지하"), "refuge")
-

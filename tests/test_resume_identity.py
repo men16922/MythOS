@@ -59,18 +59,14 @@ class ResumeIdentityTest(unittest.TestCase):
     def test_foreign_loop_id_is_rejected_not_identity_swapped(self) -> None:
         # The exact live-bug shape: player A's session resumes with player B's
         # loop_id. Serving it would flip the header/narrative identity to B.
-        response = self.client.get(
-            f"/api/v1/loops/active?player_id=player_a&loop_id={self.loop_b}"
-        )
+        response = self.client.get(f"/api/v1/loops/active?player_id=player_a&loop_id={self.loop_b}")
         self.assertEqual(response.status_code, 404)
         # Regardless of status handling, B's identity must never leak into A's session.
         if response.status_code == 200:  # pragma: no cover - documents the old bug
             self.fail(f"identity swap: {response.json()['player']}")
 
     def test_owned_loop_id_resumes_that_loop(self) -> None:
-        response = self.client.get(
-            f"/api/v1/loops/active?player_id=player_a&loop_id={self.loop_a}"
-        )
+        response = self.client.get(f"/api/v1/loops/active?player_id=player_a&loop_id={self.loop_a}")
         self.assertEqual(response.status_code, 200)
         body = response.json()
         self.assertEqual(body["loop_id"], self.loop_a)
@@ -80,9 +76,7 @@ class ResumeIdentityTest(unittest.TestCase):
     def test_player_fallback_resume_stays_within_own_identity(self) -> None:
         # Legacy resume tokens carry no loop_id; the player fallback must still
         # work and must serve only the requesting player's own loop.
-        self.client.post(
-            "/api/v1/save-slots", json={"loop_id": self.loop_a, "label": "bookmark"}
-        )
+        self.client.post("/api/v1/save-slots", json={"loop_id": self.loop_a, "label": "bookmark"})
         response = self.client.get("/api/v1/loops/active?player_id=player_a")
         self.assertEqual(response.status_code, 200)
         body = response.json()
@@ -90,9 +84,7 @@ class ResumeIdentityTest(unittest.TestCase):
         self.assertEqual(body["loop_id"], self.loop_a)
 
     def test_unknown_loop_id_is_not_found(self) -> None:
-        response = self.client.get(
-            "/api/v1/loops/active?player_id=player_a&loop_id=loop_missing"
-        )
+        response = self.client.get("/api/v1/loops/active?player_id=player_a&loop_id=loop_missing")
         self.assertEqual(response.status_code, 404)
 
 

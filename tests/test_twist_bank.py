@@ -63,9 +63,7 @@ class TwistSelectionTest(unittest.TestCase):
 
 class TwistLifecycleTest(unittest.TestCase):
     def test_pending_becomes_active_then_clears(self) -> None:
-        state: dict[str, Any] = {
-            PENDING_TWIST_KEY: {"id": "t1", "title": "T", "directive": "D"}
-        }
+        state: dict[str, Any] = {PENDING_TWIST_KEY: {"id": "t1", "title": "T", "directive": "D"}}
         # 커밋 N+1: pending → active(발화 장면) + fired 원장.
         state = advance_twist_lifecycle(state)
         self.assertNotIn(PENDING_TWIST_KEY, state)
@@ -90,9 +88,7 @@ class TwistCueCouplingTest(unittest.TestCase):
         class _Scene:
             scene_type: str = "static"
 
-        cues = _presentation_cues(
-            _Scene(), {ACTIVE_TWIST_KEY: {"id": "t"}}, None
-        )
+        cues = _presentation_cues(_Scene(), {ACTIVE_TWIST_KEY: {"id": "t"}}, None)
         self.assertEqual(cues[:2], ["sting", "glitch"])
 
 

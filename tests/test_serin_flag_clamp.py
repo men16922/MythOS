@@ -107,9 +107,7 @@ class SeRinFlagClampValidatorTest(unittest.TestCase):
         self.assertIsNone(result.repaired_payload)
 
     def test_contact_flag_set_matches_design(self) -> None:
-        self.assertEqual(
-            SE_RIN_CONTACT_FLAGS, {"met_se_rin", "trusted_se_rin", "refused_se_rin"}
-        )
+        self.assertEqual(SE_RIN_CONTACT_FLAGS, {"met_se_rin", "trusted_se_rin", "refused_se_rin"})
         self.assertEqual(SE_RIN_CLAMP_MAX_TURN, 3)
 
 

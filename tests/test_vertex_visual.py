@@ -180,7 +180,10 @@ class VertexImageProviderTest(unittest.TestCase):
             portrait = Path(tmp) / "se-rin.png"
             portrait.write_bytes(_PNG)
             req = VisualGenerationRequest(
-                player_id="p", loop_id="l", scene_id="s", prompt="a scene",
+                player_id="p",
+                loop_id="l",
+                scene_id="s",
+                prompt="a scene",
                 metadata={"reference_image": str(portrait)},
             )
             provider.generate(req, Path(tmp) / "out.png")

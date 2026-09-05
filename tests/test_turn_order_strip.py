@@ -38,9 +38,7 @@ class TurnOrderStripTest(unittest.TestCase):
         self.assertIn("TurnOrderStrip", source)
         # Mounted inside the tactical board panel, before the canvas wrapper.
         panel = source[source.index("tactical-board-panel") :]
-        self.assertLess(
-            panel.index("TurnOrderStrip"), panel.index("tactical-board-canvas-wrapper")
-        )
+        self.assertLess(panel.index("TurnOrderStrip"), panel.index("tactical-board-canvas-wrapper"))
 
     def test_radar_type_carries_turn_order(self) -> None:
         self.assertIn("turn_order?: string[]", read("src/mythos_ui/src/types.ts"))
@@ -51,7 +49,10 @@ class TurnOrderStripTest(unittest.TestCase):
         self.assertIn("display: none", guard[:120])
 
     def test_labels_exist_in_both_languages(self) -> None:
-        for path in ("src/mythos_ui/src/i18n/strings.ko.ts", "src/mythos_ui/src/i18n/strings.en.ts"):
+        for path in (
+            "src/mythos_ui/src/i18n/strings.ko.ts",
+            "src/mythos_ui/src/i18n/strings.en.ts",
+        ):
             source = read(path)
             self.assertIn('"story.board.turnOrder"', source)
             self.assertIn('"story.board.turnOrderStunned"', source)

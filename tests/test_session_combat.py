@@ -540,7 +540,9 @@ class SessionCombatTest(unittest.TestCase):
 
         # On the next choice, the stale patrol combat is superseded and the IX
         # climax actually begins.
-        scene2 = replace(scene, scene_id="scene_confront_ix_zombie_2", turn_index=scene.turn_index + 1)
+        scene2 = replace(
+            scene, scene_id="scene_confront_ix_zombie_2", turn_index=scene.turn_index + 1
+        )
         snap2 = self.service._commit_scene(
             player=player,
             loop=snap.loop,
@@ -772,7 +774,8 @@ class SessionCombatTest(unittest.TestCase):
         from mythos_runtime.constants import MYTHOS_WORLD_ID
 
         archives = [
-            m for m in self.store.list_world_memories(MYTHOS_WORLD_ID)
+            m
+            for m in self.store.list_world_memories(MYTHOS_WORLD_ID)
             if m.kind == "loop_archive" and m.content.get("loop_id") == loop.loop_id
         ]
         self.assertEqual(len(archives), 1)
@@ -786,38 +789,58 @@ class SessionCombatTest(unittest.TestCase):
         loop = self.store.get_loop(self.loop_id)
         assert loop is not None
         payload = ScenePayload(
-            title="t", location="l", narration="n", choices=[],
-            visual_brief="", world_delta=WorldDelta(start_combat="patrol_ambush"),
+            title="t",
+            location="l",
+            narration="n",
+            choices=[],
+            visual_brief="",
+            world_delta=WorldDelta(start_combat="patrol_ambush"),
         )
 
         def _scene(turn: int) -> Scene:
             return Scene(
-                scene_id=f"s{turn}", loop_id=loop.loop_id, turn_index=turn, title="t",
-                location="l", narration="n", choices=[], visual_brief="",
+                scene_id=f"s{turn}",
+                loop_id=loop.loop_id,
+                turn_index=turn,
+                title="t",
+                location="l",
+                narration="n",
+                choices=[],
+                visual_brief="",
                 created_at=datetime(2026, 5, 31, tzinfo=UTC),
             )
 
         # Within the recovery window (turn 11, soft defeat at 10) → suppressed even
         # at ceiling tension, which would otherwise bypass the pacing cooldown.
         recovering = replace(
-            loop, tension=95,
+            loop,
+            tension=95,
             state={**loop.state, "scenario_id": "neo-seoul", "_soft_defeat_turn": 10},
         )
         self.assertIsNone(
             self.service._resolve_next_combat(
-                recovering, _scene(11), payload,
-                route_combat=None, triggered_combat=None, options=self.options,
+                recovering,
+                _scene(11),
+                payload,
+                route_combat=None,
+                triggered_combat=None,
+                options=self.options,
             )
         )
         # Without the soft-defeat marker the same ambient request is not suppressed.
         normal = replace(
-            loop, tension=95,
+            loop,
+            tension=95,
             state={**loop.state, "scenario_id": "neo-seoul"},
         )
         self.assertEqual(
             self.service._resolve_next_combat(
-                normal, _scene(11), payload,
-                route_combat=None, triggered_combat=None, options=self.options,
+                normal,
+                _scene(11),
+                payload,
+                route_combat=None,
+                triggered_combat=None,
+                options=self.options,
             ),
             "patrol_ambush",
         )
@@ -860,12 +883,21 @@ class SessionCombatTest(unittest.TestCase):
             created_at=datetime(2026, 5, 31, tzinfo=UTC),
         )
         payload = ScenePayload(
-            title=scene.title, location=scene.location, narration=scene.narration,
-            choices=scene.choices, visual_brief="", world_delta=WorldDelta(),
+            title=scene.title,
+            location=scene.location,
+            narration=scene.narration,
+            choices=scene.choices,
+            visual_brief="",
+            world_delta=WorldDelta(),
         )
         snap = self.service._commit_scene(
-            player=player, loop=loop, scene=scene, payload=payload,
-            options=self.options, span_name="test", log_message="test",
+            player=player,
+            loop=loop,
+            scene=scene,
+            payload=payload,
+            options=self.options,
+            span_name="test",
+            log_message="test",
         )
         rm = snap.loop.state[ROUTE_MAP_KEY]
         # Story turn 3 → target layer 0: the pointer must NOT race to the boss.
@@ -883,13 +915,24 @@ class SessionCombatTest(unittest.TestCase):
         transition = self.service.engine.apply_scene_payload(
             replace(loop, phase=LoopPhase.EXPLORE, tension=95),
             Scene(
-                scene_id="s", loop_id=loop.loop_id, turn_index=9, title="t",
-                location="l", narration="n", choices=[], visual_brief="",
+                scene_id="s",
+                loop_id=loop.loop_id,
+                turn_index=9,
+                title="t",
+                location="l",
+                narration="n",
+                choices=[],
+                visual_brief="",
                 created_at=datetime(2026, 5, 31, tzinfo=UTC),
             ),
             ScenePayload(
-                title="t", location="l", narration="n", choices=[],
-                visual_brief="", world_delta=WorldDelta(), end_condition="ended",
+                title="t",
+                location="l",
+                narration="n",
+                choices=[],
+                visual_brief="",
+                world_delta=WorldDelta(),
+                end_condition="ended",
             ),
         )
         self.assertEqual(transition.loop.phase, LoopPhase.ARCHIVE)
@@ -897,8 +940,13 @@ class SessionCombatTest(unittest.TestCase):
             transition,
             prior_phase=LoopPhase.EXPLORE,
             payload=ScenePayload(
-                title="t", location="l", narration="n", choices=[],
-                visual_brief="", world_delta=WorldDelta(), end_condition="ended",
+                title="t",
+                location="l",
+                narration="n",
+                choices=[],
+                visual_brief="",
+                world_delta=WorldDelta(),
+                end_condition="ended",
             ),
         )
         self.assertEqual(deferred.loop.phase, LoopPhase.ARCHIVE)
@@ -1025,13 +1073,24 @@ class SessionCombatTest(unittest.TestCase):
         transition = self.service.engine.apply_scene_payload(
             replace(loop, phase=LoopPhase.EXPLORE, tension=95, stability=60),
             Scene(
-                scene_id="s", loop_id=loop.loop_id, turn_index=2, title="t",
-                location="l", narration="n", choices=[], visual_brief="",
+                scene_id="s",
+                loop_id=loop.loop_id,
+                turn_index=2,
+                title="t",
+                location="l",
+                narration="n",
+                choices=[],
+                visual_brief="",
                 created_at=datetime(2026, 5, 31, tzinfo=UTC),
             ),
             ScenePayload(
-                title="t", location="l", narration="n", choices=[],
-                visual_brief="", world_delta=WorldDelta(), end_condition="ended",
+                title="t",
+                location="l",
+                narration="n",
+                choices=[],
+                visual_brief="",
+                world_delta=WorldDelta(),
+                end_condition="ended",
             ),
         )
         self.assertEqual(transition.loop.phase, LoopPhase.ARCHIVE)
@@ -1039,8 +1098,13 @@ class SessionCombatTest(unittest.TestCase):
             transition,
             prior_phase=LoopPhase.EXPLORE,
             payload=ScenePayload(
-                title="t", location="l", narration="n", choices=[],
-                visual_brief="", world_delta=WorldDelta(), end_condition="ended",
+                title="t",
+                location="l",
+                narration="n",
+                choices=[],
+                visual_brief="",
+                world_delta=WorldDelta(),
+                end_condition="ended",
             ),
         )
         self.assertEqual(deferred.loop.phase, LoopPhase.ARCHIVE)
@@ -1052,25 +1116,43 @@ class SessionCombatTest(unittest.TestCase):
         loop = self.store.get_loop(self.loop_id)
         assert loop is not None
         scene = Scene(
-            scene_id="s", loop_id=loop.loop_id, turn_index=9, title="t",
-            location="l", narration="n", choices=[], visual_brief="",
+            scene_id="s",
+            loop_id=loop.loop_id,
+            turn_index=9,
+            title="t",
+            location="l",
+            narration="n",
+            choices=[],
+            visual_brief="",
             created_at=datetime(2026, 5, 31, tzinfo=UTC),
         )
         payload = ScenePayload(
-            title="t", location="l", narration="n", choices=[],
-            visual_brief="", world_delta=WorldDelta(start_combat="patrol_ambush"),
+            title="t",
+            location="l",
+            narration="n",
+            choices=[],
+            visual_brief="",
+            world_delta=WorldDelta(start_combat="patrol_ambush"),
         )
         self.assertEqual(
             self.service._resolve_next_combat(
-                loop, scene, payload, route_combat="ix_confrontation",
-                triggered_combat="patrol_ambush", options=self.options,
+                loop,
+                scene,
+                payload,
+                route_combat="ix_confrontation",
+                triggered_combat="patrol_ambush",
+                options=self.options,
             ),
             "ix_confrontation",
         )
         self.assertEqual(
             self.service._resolve_next_combat(
-                loop, scene, payload, route_combat=None,
-                triggered_combat=None, options=self.options,
+                loop,
+                scene,
+                payload,
+                route_combat=None,
+                triggered_combat=None,
+                options=self.options,
             ),
             "patrol_ambush",
         )
@@ -1222,7 +1304,9 @@ class SessionCombatTest(unittest.TestCase):
 
         scenario = load_scenario("neo-seoul")
         player = self.store.get_player("p1")
-        stats = self.service._player_combat_stats(player, self.store.get_loop(self.loop_id), scenario)
+        stats = self.service._player_combat_stats(
+            player, self.store.get_loop(self.loop_id), scenario
+        )
         # signal_blade grants strength +2 over the base of 9.
         self.assertEqual(stats["strength"], 11)
 
@@ -1246,8 +1330,14 @@ class SessionCombatTest(unittest.TestCase):
         self.store.save_loop(loop)
         self.store.save_scene(
             Scene(
-                scene_id="sc-w", loop_id=self.loop_id, turn_index=0, title="t",
-                location="loc", narration="n", choices=[], visual_brief=None,
+                scene_id="sc-w",
+                loop_id=self.loop_id,
+                turn_index=0,
+                title="t",
+                location="loc",
+                narration="n",
+                choices=[],
+                visual_brief=None,
                 created_at=datetime(2026, 5, 31, tzinfo=UTC),
             )
         )
@@ -1356,9 +1446,7 @@ class SessionCombatTest(unittest.TestCase):
 
     def _tier_one_encounters(self) -> dict[str, Any]:
         encounters = load_scenario(self.options.scenario_id).combat.get("encounters", {})
-        return {
-            eid: enc for eid, enc in encounters.items() if int(enc.get("risk", 1)) <= 1
-        }
+        return {eid: enc for eid, enc in encounters.items() if int(enc.get("risk", 1)) <= 1}
 
     def test_gate_caps_early_combat_difficulty(self) -> None:
         # First combat (combat_count=0) must stay tutorial-tier: an enforcer
@@ -1462,9 +1550,7 @@ class SessionCombatTest(unittest.TestCase):
             _story_turn=11,
             _last_combat_result="player_victory",
         )
-        self.assertIsNone(
-            self.service._gate_next_combat(loop, 40, "patrol_ambush", self.options)
-        )
+        self.assertIsNone(self.service._gate_next_combat(loop, 40, "patrol_ambush", self.options))
         # The third committed narrative scene opens the gate.
         cooled = replace(loop, state={**loop.state, "_story_turn": 13})
         self.assertEqual(
@@ -1499,9 +1585,7 @@ class SessionCombatTest(unittest.TestCase):
             ),
             tension=95,
         )
-        self.assertIsNone(
-            self.service._gate_next_combat(loop, 41, "patrol_ambush", self.options)
-        )
+        self.assertIsNone(self.service._gate_next_combat(loop, 41, "patrol_ambush", self.options))
         second_scene = replace(loop, state={**loop.state, "_story_turn": 12})
         self.assertIsNone(
             self.service._gate_next_combat(second_scene, 42, "patrol_ambush", self.options)
@@ -1514,9 +1598,7 @@ class SessionCombatTest(unittest.TestCase):
 
     def test_gate_legacy_save_falls_back_to_raw_combat_turn(self) -> None:
         loop = self._gate_loop(_combat_count=1, _last_combat_turn=4)
-        self.assertIsNone(
-            self.service._gate_next_combat(loop, 6, "patrol_ambush", self.options)
-        )
+        self.assertIsNone(self.service._gate_next_combat(loop, 6, "patrol_ambush", self.options))
 
     def test_route_combat_bypasses_post_flee_ambient_cooldown(self) -> None:
         loop = replace(
@@ -1563,6 +1645,7 @@ class SessionCombatTest(unittest.TestCase):
 class CombatScenarioContentTest(unittest.TestCase):
     def setUp(self) -> None:
         from mythos_runtime.scenario import load_scenario
+
         self.scenario = load_scenario("neo-seoul")
 
     def test_new_allies_and_bestiary_loaded(self) -> None:
@@ -1570,7 +1653,7 @@ class CombatScenarioContentTest(unittest.TestCase):
         self.assertIn("tae_o", combat["allies"])
         self.assertIn("han", combat["allies"])
         self.assertIn("su_ah", combat["allies"])
-        
+
         self.assertIn("shock_trooper", combat["bestiary"])
         self.assertIn("tracker_spider", combat["bestiary"])
         self.assertIn("suppression_mech", combat["bestiary"])
@@ -1579,23 +1662,28 @@ class CombatScenarioContentTest(unittest.TestCase):
     def test_new_skills_and_weapons_loaded(self) -> None:
         combat = self.scenario.combat
         for skill_id in [
-            "emp_pulse", "nanoshield_projector", "glitch_blink",
-            "signal_overdrive", "memory_resonance", "system_intrusion"
+            "emp_pulse",
+            "nanoshield_projector",
+            "glitch_blink",
+            "signal_overdrive",
+            "memory_resonance",
+            "system_intrusion",
         ]:
             self.assertIn(skill_id, combat["skills"])
-            
+
         for weapon_id in ["glitch_dagger", "emp_blaster", "heavy_carbine"]:
             self.assertIn(weapon_id, combat["weapons"])
 
     def test_new_items_and_encounters_loaded(self) -> None:
         combat = self.scenario.combat
-        for item_id in [
-            "emp_grenade", "heavy_exosuit", "stealth_cloak", "overload_stim"
-        ]:
+        for item_id in ["emp_grenade", "heavy_exosuit", "stealth_cloak", "overload_stim"]:
             self.assertIn(item_id, combat["items"])
 
         for encounter_id in [
-            "shock_trooper_patrol", "tracker_ambush", "mech_siege", "purge_incineration"
+            "shock_trooper_patrol",
+            "tracker_ambush",
+            "mech_siege",
+            "purge_incineration",
         ]:
             self.assertIn(encounter_id, combat["encounters"])
 
@@ -1627,22 +1715,38 @@ class NarrativeReducerTest(unittest.TestCase):
         service = RuntimeSessionService(store, director=cast(Any, _SummaryDirector()))
         now = datetime(2026, 9, 5, tzinfo=UTC)
         scene = Scene(
-            scene_id="scene_r1", loop_id=loop_id, turn_index=4, title="Vent shaft",
-            location="Drainage sluice", narration="Water hums below.",
-            choices=[Choice("choice_1", "Push on", "explore")], visual_brief="", created_at=now,
+            scene_id="scene_r1",
+            loop_id=loop_id,
+            turn_index=4,
+            title="Vent shaft",
+            location="Drainage sluice",
+            narration="Water hums below.",
+            choices=[Choice("choice_1", "Push on", "explore")],
+            visual_brief="",
+            created_at=now,
         )
         payload = ScenePayload(
-            title=scene.title, location=scene.location, narration=scene.narration,
-            choices=list(scene.choices), visual_brief="",
+            title=scene.title,
+            location=scene.location,
+            narration=scene.narration,
+            choices=list(scene.choices),
+            visual_brief="",
             world_delta=WorldDelta(stability=-2, tension=3, flags=["clue_found"]),
         )
         transition = service.engine.apply_scene_payload(loop, scene, payload, None)
         self.assertTrue(transition.ok)
 
         advance = service._advance_narrative_state(
-            transition=transition, loop=loop, scene=scene, payload=payload,
-            options=RuntimeOptions(fallback=True), player_event=None, route_target=None,
-            impact_base_loop=None, choice_relationship=None, cutscene_id=None,
+            transition=transition,
+            loop=loop,
+            scene=scene,
+            payload=payload,
+            options=RuntimeOptions(fallback=True),
+            player_event=None,
+            route_target=None,
+            impact_base_loop=None,
+            choice_relationship=None,
+            cutscene_id=None,
         )
 
         state = advance.transition.loop.state

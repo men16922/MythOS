@@ -51,7 +51,9 @@ class ObjectiveStripFallbackTest(unittest.TestCase):
     def test_the_act_goal_row_only_appears_alongside_a_current_objective(self) -> None:
         # Otherwise the act goal renders twice — once as itself and once as the
         # fallback text of the current-objective line.
-        act_goal_rows = re.findall(r"\{(\w+) && \(\n\s+<div className=\"objective-main objective-chapter\"", self.strip)
+        act_goal_rows = re.findall(
+            r"\{(\w+) && \(\n\s+<div className=\"objective-main objective-chapter\"", self.strip
+        )
         self.assertEqual(["showChapterInBody", "showChapterInBody"], act_goal_rows)
         self.assertIn(
             "const showChapterInBody = Boolean(scene.chapter_goal && scene.objective);",

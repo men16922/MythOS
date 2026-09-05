@@ -27,7 +27,7 @@ class LandscapeCombatLC6Test(unittest.TestCase):
         # orientation); both placements reference the same element.
         self.assertIn("const controlsEl = (", source)
         row = source.index('<div className="combat-bottom-row">')
-        end = source.index('</div>\n        </div>\n      </div>', row)
+        end = source.index("</div>\n        </div>\n      </div>", row)
         block = source[row:end]
         # No inline <CombatControls> in the row — it is placed only via controlsEl.
         self.assertNotIn("<CombatControls", block)
@@ -35,7 +35,7 @@ class LandscapeCombatLC6Test(unittest.TestCase):
     def test_actions_lead_the_row_on_touch(self) -> None:
         source = read("src/mythos_ui/src/StoryPanel.tsx")
         row = source.index('<div className="combat-bottom-row">')
-        end = source.index('</div>\n        </div>\n      </div>', row)
+        end = source.index("</div>\n        </div>\n      </div>", row)
         block = source[row:end]
 
         touch_controls = block.index("{isCoarsePointer && controlsEl}")

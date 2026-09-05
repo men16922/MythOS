@@ -75,8 +75,11 @@ class OptimizationProtocolTest(unittest.TestCase):
         assert boss is not None and player is not None
         before = len(state.hazards)
         engine._execute_npc_skill(
-            state, boss, "ix_optimization_protocol",
-            ENEMY_SKILLS["ix_optimization_protocol"], player,
+            state,
+            boss,
+            "ix_optimization_protocol",
+            ENEMY_SKILLS["ix_optimization_protocol"],
+            player,
         )
         self.assertEqual(len(state.hazards) - before, 3)
         self.assertTrue(all(v == "electro" for v in state.hazards.values()))

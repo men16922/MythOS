@@ -116,9 +116,7 @@ class RouteGrowthTest(unittest.TestCase):
         """
         for index in range(64):
             grown = self._grow_seed(f"variety-growth-{index}")
-            dynamic = [
-                node for node in grown["nodes"].values() if node.get("origin") == "dynamic"
-            ]
+            dynamic = [node for node in grown["nodes"].values() if node.get("origin") == "dynamic"]
             titles = [str(node.get("title")) for node in dynamic]
             self.assertEqual(
                 len(titles),
@@ -202,4 +200,6 @@ class RouteGrowthPurityTest(unittest.TestCase):
             state = extend_route(state, seed="pure-seed", turn_index=layer * 4)
             # The input handed in must come back out unchanged, grown or not.
             self.assertEqual(input_state, before)
-        self.assertGreater(sum(len(layer) for layer in state[ROUTE_MAP_KEY]["layers"]), initial_nodes)
+        self.assertGreater(
+            sum(len(layer) for layer in state[ROUTE_MAP_KEY]["layers"]), initial_nodes
+        )

@@ -4,6 +4,7 @@
 무인 에이전트가 누락 자산을 1×1/빈 placeholder 로 fabricate 해 게이트를 강제 green 시키는 실패를
 결정론으로 차단한다(손상 PNG·과소 치수·과소 용량 검출). 미적 "적합도"는 무인 판단 불가라 사람 검수 영역.
 """
+
 from __future__ import annotations
 
 import unittest
@@ -30,12 +31,13 @@ IMAGE_SUBDIRS = [
     "skills",
     "status",
     "items",
-    "combat/backdrops", "combat/tiles",
+    "combat/backdrops",
+    "combat/tiles",
 ]
 SCENARIOS = ["neo-seoul", "glass-library"]
 
-MIN_DIM = 64           # px — 1×1/썸네일 placeholder 차단
-MIN_BYTES = 2048       # B  — 빈/fabricate PNG 차단(실제 아트는 훨씬 큼)
+MIN_DIM = 64  # px — 1×1/썸네일 placeholder 차단
+MIN_BYTES = 2048  # B  — 빈/fabricate PNG 차단(실제 아트는 훨씬 큼)
 VALID_MODES = {"RGB", "RGBA", "P", "LA", "L"}
 
 

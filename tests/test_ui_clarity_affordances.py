@@ -41,7 +41,9 @@ class UIClarityAffordancesTest(unittest.TestCase):
         self.assertNotIn("cleaned.replace(regex, `($1)`)", choices)
         self.assertIn('cleanChoiceLabel(choice.label, t("choice.statApproach"))', panel)
         self.assertIn('"choice.statApproach": "접근"', read("src/mythos_ui/src/i18n/strings.ko.ts"))
-        self.assertIn('"choice.statApproach": "Approach"', read("src/mythos_ui/src/i18n/strings.en.ts"))
+        self.assertIn(
+            '"choice.statApproach": "Approach"', read("src/mythos_ui/src/i18n/strings.en.ts")
+        )
 
     def test_combat_skill_tooltip_is_tap_openable(self) -> None:
         # M3 (mobile clarity): the skill button's cost/range/cooldown detail was
@@ -66,9 +68,15 @@ class UIClarityAffordancesTest(unittest.TestCase):
         self.assertIn("function InfoPopover(", source)
         self.assertIn('import { Popover } from "./Popover"', source)
         self.assertIn('anchor="top-center"', source)
-        self.assertIn("<InfoPopover key={id} className={cls} tooltip={title} ariaLabel={label}>", source)
-        self.assertIn('<InfoPopover className="route-fog" tooltip={t("aside.route.fogTitle")}>', source)
-        self.assertIn('<InfoPopover key={coordKey} className="mm-cell mm-enemy" tooltip={name}>', source)
+        self.assertIn(
+            "<InfoPopover key={id} className={cls} tooltip={title} ariaLabel={label}>", source
+        )
+        self.assertIn(
+            '<InfoPopover className="route-fog" tooltip={t("aside.route.fogTitle")}>', source
+        )
+        self.assertIn(
+            '<InfoPopover key={coordKey} className="mm-cell mm-enemy" tooltip={name}>', source
+        )
         self.assertIn("<InfoPopover key={coordKey} className={cls} tooltip={tileName}>", source)
         self.assertNotIn("title={title}", source)
         self.assertNotIn('title={t("aside.route.fogTitle")}', source)
@@ -128,7 +136,10 @@ class UIClarityAffordancesTest(unittest.TestCase):
         self.assertIn('SMALL_VIEWPORT_QUERY = "(max-width: 600px)"', state)
         self.assertIn("export function resolveInitialConciseMode(", state)
         self.assertIn("export function persistConciseMode(", state)
-        self.assertIn("export const ConciseModeContext = createContext<ConciseModeContextValue | null>(null)", state)
+        self.assertIn(
+            "export const ConciseModeContext = createContext<ConciseModeContextValue | null>(null)",
+            state,
+        )
         self.assertIn("export function useConciseMode(", state)
 
         provider = read("src/mythos_ui/src/ConciseModeProvider.tsx")
@@ -179,10 +190,18 @@ class UIClarityAffordancesTest(unittest.TestCase):
         self.assertIn('import { useConciseMode } from "./conciseMode";', source)
         self.assertIn("function AsideChip(", source)
         self.assertIn('<Surface as="details" variant="surface" className="aside-chip">', source)
-        self.assertIn('<summary className="panel-title aside-chip-summary">{title}</summary>', source)
+        self.assertIn(
+            '<summary className="panel-title aside-chip-summary">{title}</summary>', source
+        )
         self.assertIn("const { conciseMode } = useConciseMode();", source)
-        self.assertIn('conciseMode ? (\n        <AsideChip title={t("save.title")}>{saveHistory}</AsideChip>', source)
-        self.assertIn('conciseMode ? (\n          <AsideChip title={t("aside.route.title")}>{operationMap}</AsideChip>', source)
+        self.assertIn(
+            'conciseMode ? (\n        <AsideChip title={t("save.title")}>{saveHistory}</AsideChip>',
+            source,
+        )
+        self.assertIn(
+            'conciseMode ? (\n          <AsideChip title={t("aside.route.title")}>{operationMap}</AsideChip>',
+            source,
+        )
 
         css = read("src/mythos_ui/src/index.css")
         self.assertIn(".aside-chip-summary", css)
@@ -199,7 +218,9 @@ class UIClarityAffordancesTest(unittest.TestCase):
         self.assertIn('import { useConciseMode } from "./conciseMode";', source)
         self.assertIn("function CombatChip(", source)
         self.assertIn('<Surface as="details" variant="surface" className="aside-chip">', source)
-        self.assertIn('<summary className="panel-title aside-chip-summary">{title}</summary>', source)
+        self.assertIn(
+            '<summary className="panel-title aside-chip-summary">{title}</summary>', source
+        )
         self.assertIn("const { conciseMode } = useConciseMode();", source)
         self.assertIn(
             'conciseMode ? (\n              <CombatChip title={t("story.tile.title")}>',
@@ -299,7 +320,10 @@ class UIClarityAffordancesTest(unittest.TestCase):
 
         self.assertIn("hover?: [number, number] | null", canvas)
         self.assertIn("const previewCell = drag?.targetCell ?? hover ?? null;", canvas)
-        self.assertIn("const isTarget = previewReachable && previewCell![0] === x && previewCell![1] === y;", canvas)
+        self.assertIn(
+            "const isTarget = previewReachable && previewCell![0] === x && previewCell![1] === y;",
+            canvas,
+        )
         self.assertIn("ctx.setLineDash([5, 5]);", canvas)
 
         board = read("src/mythos_ui/src/hooks/useCombatBoard.ts")
@@ -322,7 +346,9 @@ class UIClarityAffordancesTest(unittest.TestCase):
 
         canvas = read("src/mythos_ui/src/combatCanvas.ts")
         self.assertIn("export const MIN_ISO_STEP_PX = 26;", canvas)
-        self.assertIn("const minCssW = Math.ceil((MIN_ISO_STEP_PX * (cols + rows)) / 0.92);", canvas)
+        self.assertIn(
+            "const minCssW = Math.ceil((MIN_ISO_STEP_PX * (cols + rows)) / 0.92);", canvas
+        )
         self.assertIn("let cssW = Math.max(Math.floor(baseW * zoom), minCssW);", canvas)
 
     def test_i18n_and_css_keys_are_present(self) -> None:

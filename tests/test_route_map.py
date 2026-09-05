@@ -29,8 +29,7 @@ class RouteMapTest(unittest.TestCase):
     def test_different_seeds_can_diverge(self) -> None:
         seeds = [_rm(self.config, f"seed-{i}") for i in range(8)]
         type_signatures = {
-            tuple(rm["nodes"][n]["type"] for layer in rm["layers"] for n in layer)
-            for rm in seeds
+            tuple(rm["nodes"][n]["type"] for layer in rm["layers"] for n in layer) for rm in seeds
         }
         self.assertGreater(len(type_signatures), 1)
 
@@ -107,9 +106,7 @@ class RouteMapTest(unittest.TestCase):
         valid = {e["id"] for e in scenario.endings}
         rm = _rm(self.config, "seed")
         boss = rm["nodes"][rm["layers"][-1][0]]
-        covered = {
-            ending for p in boss["perspectives"] for ending in p["ending_influence"]
-        }
+        covered = {ending for p in boss["perspectives"] for ending in p["ending_influence"]}
         self.assertEqual(covered, valid)
 
 

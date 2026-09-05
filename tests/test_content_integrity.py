@@ -75,6 +75,7 @@ def _as_records(pool: Any) -> list[dict[str, Any]]:
 def _record_id(record: dict[str, Any], fallback: str) -> str:
     return str(record.get("id") or fallback)
 
+
 # Flags produced deterministically by engine code, not by authored data.
 # ``mythos_loop.engine`` records exactly one of these from the player's first
 # actions during neo-seoul onboarding (turns 0-2); ``scenario_context`` also
@@ -180,8 +181,7 @@ class ContentFlagIntegrityTest(unittest.TestCase):
             self.assertIn(
                 entry,
                 self.bible_ids,
-                f"route_branch {branch.get('id')!r} references missing story-bible "
-                f"entry {entry!r}",
+                f"route_branch {branch.get('id')!r} references missing story-bible entry {entry!r}",
             )
 
     def test_every_consumed_flag_has_a_recognized_producer(self) -> None:
@@ -270,7 +270,11 @@ class ContentEncounterIntegrityTest(unittest.TestCase):
                     f"combat node {node.get('id')} type {node_type!r} resolved to "
                     f"missing encounter {pick!r}",
                 )
-                missing = sorted(str(encounter_id) for encounter_id in pool if encounter_id not in self.encounters)
+                missing = sorted(
+                    str(encounter_id)
+                    for encounter_id in pool
+                    if encounter_id not in self.encounters
+                )
                 self.assertEqual(
                     missing,
                     [],
@@ -314,14 +318,11 @@ class ContentEncounterIntegrityTest(unittest.TestCase):
                 if node.get("type") != "boss":
                     continue
                 boss_seen = True
-                pick = node_encounter_id(
-                    node, self.combat_encounters, seed=str(rm.get("seed"))
-                )
+                pick = node_encounter_id(node, self.combat_encounters, seed=str(rm.get("seed")))
                 self.assertEqual(
                     pick,
                     "ix_confrontation",
-                    f"boss node {node.get('id')} resolved to {pick!r}, "
-                    f"expected ix_confrontation",
+                    f"boss node {node.get('id')} resolved to {pick!r}, expected ix_confrontation",
                 )
         self.assertTrue(boss_seen, "route map should generate a boss node")
 
@@ -370,9 +371,7 @@ class ContentEncounterIntegrityTest(unittest.TestCase):
         the gate's variety real rather than nominal.
         """
         tier_one = {
-            eid: enc
-            for eid, enc in self.encounters.items()
-            if int(enc.get("risk", 1)) <= 1
+            eid: enc for eid, enc in self.encounters.items() if int(enc.get("risk", 1)) <= 1
         }
         self.assertGreaterEqual(
             len(tier_one),
@@ -422,9 +421,7 @@ class WeaponEquipmentIntegrityTest(unittest.TestCase):
         self.combat = self.scenario.combat
         self.assertIsInstance(self.combat, dict, "neo-seoul must define a combat block")
         self.weapons = self.combat.get("weapons", {})
-        self.weapon_ids = {
-            _record_id(rec, "") for rec in _as_records(self.weapons)
-        } - {""}
+        self.weapon_ids = {_record_id(rec, "") for rec in _as_records(self.weapons)} - {""}
         self.assertTrue(self.weapon_ids, "combat.weapons must declare at least one weapon")
 
     def _assert_weapons_exist(self, owner: str, weapons: Any) -> list[str]:
@@ -449,15 +446,11 @@ class WeaponEquipmentIntegrityTest(unittest.TestCase):
 
     def test_ally_weapons_exist(self) -> None:
         for ally in _as_records(self.combat.get("allies", {})):
-            self._assert_weapons_exist(
-                f"ally {_record_id(ally, '?')!r}", ally.get("weapons")
-            )
+            self._assert_weapons_exist(f"ally {_record_id(ally, '?')!r}", ally.get("weapons"))
 
     def test_bestiary_weapons_exist(self) -> None:
         for beast in _as_records(self.combat.get("bestiary", {})):
-            self._assert_weapons_exist(
-                f"bestiary {_record_id(beast, '?')!r}", beast.get("weapons")
-            )
+            self._assert_weapons_exist(f"bestiary {_record_id(beast, '?')!r}", beast.get("weapons"))
 
     def test_equipment_slots_and_stats_are_valid(self) -> None:
         items = self.combat.get("items", {})
@@ -473,9 +466,7 @@ class WeaponEquipmentIntegrityTest(unittest.TestCase):
                 f"(expected one of {sorted(VALID_EQUIPMENT_SLOTS)})",
             )
             stats = item.get("stats", {})
-            self.assertIsInstance(
-                stats, dict, f"equipment {item_id!r} stats must be an object"
-            )
+            self.assertIsInstance(stats, dict, f"equipment {item_id!r} stats must be an object")
             unknown = sorted(set(stats) - COMBATANT_STATS)
             self.assertEqual(
                 unknown,
@@ -563,9 +554,7 @@ class SkillDataIntegrityTest(unittest.TestCase):
                 )
             rng = skill.get("range")
             if rng is not None:
-                self.assertGreaterEqual(
-                    rng, 0, f"skill {sid!r} has negative range {rng!r}"
-                )
+                self.assertGreaterEqual(rng, 0, f"skill {sid!r} has negative range {rng!r}")
             cost = skill.get("cost", {})
             if isinstance(cost, dict) and "focus" in cost:
                 focus = cost["focus"]
@@ -594,9 +583,7 @@ class SkillDataIntegrityTest(unittest.TestCase):
 
     def test_ally_skills_exist(self) -> None:
         for ally in _as_records(self.combat.get("allies", {})):
-            self._assert_skill_refs_exist(
-                f"ally {_record_id(ally, '?')!r}", ally.get("skills")
-            )
+            self._assert_skill_refs_exist(f"ally {_record_id(ally, '?')!r}", ally.get("skills"))
 
     def test_skill_requires_resolve(self) -> None:
         for skill in self.skill_records:
@@ -654,7 +641,7 @@ class SkillDataIntegrityTest(unittest.TestCase):
             state[node] = 1
             for dep in graph.get(node, []):
                 if state.get(dep, 0) == 1:
-                    cycle.extend(path[path.index(dep):] + [dep])
+                    cycle.extend(path[path.index(dep) :] + [dep])
                     return True
                 if state.get(dep, 0) == 0 and _visit(dep, path + [dep]):
                     return True
@@ -667,8 +654,7 @@ class SkillDataIntegrityTest(unittest.TestCase):
         self.assertEqual(
             cycle,
             [],
-            f"skill.requires forms a prerequisite cycle (unlockable forever): "
-            f"{' -> '.join(cycle)}",
+            f"skill.requires forms a prerequisite cycle (unlockable forever): {' -> '.join(cycle)}",
         )
 
     def test_skill_requires_are_tier_monotonic(self) -> None:
@@ -687,9 +673,7 @@ class SkillDataIntegrityTest(unittest.TestCase):
                     continue  # dangling ref — covered elsewhere
                 ref_tier = self.tier_by_id.get(ref, 0)
                 if ref_tier > skill_tier:
-                    offenders.append(
-                        f"{sid}(tier {skill_tier}) requires {ref}(tier {ref_tier})"
-                    )
+                    offenders.append(f"{sid}(tier {skill_tier}) requires {ref}(tier {ref_tier})")
         self.assertEqual(
             offenders,
             [],
@@ -714,9 +698,7 @@ class LootTableIntegrityTest(unittest.TestCase):
         self.combat = self.scenario.combat
         self.assertIsInstance(self.combat, dict, "neo-seoul must define a combat block")
         self.loot_tables = self.combat.get("loot_tables", {})
-        self.assertIsInstance(
-            self.loot_tables, dict, "combat.loot_tables must be an object"
-        )
+        self.assertIsInstance(self.loot_tables, dict, "combat.loot_tables must be an object")
         self.assertTrue(self.loot_tables, "combat.loot_tables must declare at least one table")
         self.item_ids = {
             _record_id(rec, "") for rec in _as_records(self.combat.get("items", {}))
@@ -786,11 +768,7 @@ class EncounterBoundsIntegrityTest(unittest.TestCase):
             eid = _record_id(encounter, "?")
             for index, enemy in enumerate(encounter.get("enemies", []) or []):
                 count = enemy.get("count")
-                if not (
-                    isinstance(count, int)
-                    and not isinstance(count, bool)
-                    and count >= 1
-                ):
+                if not (isinstance(count, int) and not isinstance(count, bool) and count >= 1):
                     bad.append(f"{eid}.enemies[{index}].count={count!r}")
         self.assertEqual(
             bad,
@@ -825,8 +803,7 @@ class EncounterBoundsIntegrityTest(unittest.TestCase):
         self.assertEqual(
             bad,
             [],
-            f"encounters with non-positive/missing arena dimensions (degenerate "
-            f"board): {bad}",
+            f"encounters with non-positive/missing arena dimensions (degenerate board): {bad}",
         )
 
 
@@ -847,9 +824,7 @@ class ItemKindEnumIntegrityTest(unittest.TestCase):
     # The set the game actually recognises. Keep in sync with
     # CharacterPanel.tsx KIND_LABELS / category mapping and the consumable
     # gate in mythos_runtime.session.
-    RECOGNISED_KINDS = frozenset(
-        {"consumable", "equipment", "key", "data", "material"}
-    )
+    RECOGNISED_KINDS = frozenset({"consumable", "equipment", "key", "data", "material"})
 
     def setUp(self) -> None:
         self.scenario = load_scenario("neo-seoul")
@@ -907,9 +882,7 @@ class StoryBibleMetaIntegrityTest(unittest.TestCase):
 
     def setUp(self) -> None:
         self.bibles = _bible_paths()
-        self.assertTrue(
-            self.bibles, "expected at least one resources/*/story_bible/bible.json"
-        )
+        self.assertTrue(self.bibles, "expected at least one resources/*/story_bible/bible.json")
 
     def _entries(self, path: Any) -> list[dict[str, Any]]:
         with open(path, encoding="utf-8") as handle:
@@ -934,9 +907,7 @@ class StoryBibleMetaIntegrityTest(unittest.TestCase):
                 kind = entry.get("kind")
                 if not (isinstance(kind, str) and kind.strip()):
                     offenders.append(f"{scenario}:{entry.get('id', '?')}.kind={kind!r}")
-        self.assertEqual(
-            offenders, [], f"story-bible entries with empty/missing kind: {offenders}"
-        )
+        self.assertEqual(offenders, [], f"story-bible entries with empty/missing kind: {offenders}")
 
     def test_priority_and_token_budget_are_positive(self) -> None:
         offenders: list[str] = []
@@ -947,9 +918,7 @@ class StoryBibleMetaIntegrityTest(unittest.TestCase):
                 if not _is_positive_number(entry.get("priority")):
                     offenders.append(f"{scenario}:{eid}.priority={entry.get('priority')!r}")
                 if not _is_positive_number(entry.get("token_budget")):
-                    offenders.append(
-                        f"{scenario}:{eid}.token_budget={entry.get('token_budget')!r}"
-                    )
+                    offenders.append(f"{scenario}:{eid}.token_budget={entry.get('token_budget')!r}")
         self.assertEqual(
             offenders,
             [],
@@ -1327,14 +1296,11 @@ class RelationshipSubjectIntegrityTest(unittest.TestCase):
                         f"{name}:{subject!r} (stale: no relationship delta targets it)"
                     )
                 if subject in ally_ids:
-                    offenders.append(
-                        f"{name}:{subject!r} (also a combat ally id — declare once)"
-                    )
+                    offenders.append(f"{name}:{subject!r} (also a combat ally id — declare once)")
         self.assertEqual(
             offenders,
             [],
-            "relationship_subjects entries that are stale or shadow a combat ally "
-            f"id: {offenders}",
+            f"relationship_subjects entries that are stale or shadow a combat ally id: {offenders}",
         )
 
 
@@ -1382,9 +1348,7 @@ class CutsceneIntegrityTest(unittest.TestCase):
             dead = [f for f in cs.flags if f not in producible]
             if dead:
                 offenders.append(f"{scenario_id}:{cs.cutscene_id}->{dead}")
-        self.assertEqual(
-            offenders, [], f"cutscene gate flags no producer can set: {offenders}"
-        )
+        self.assertEqual(offenders, [], f"cutscene gate flags no producer can set: {offenders}")
 
     def test_cutscene_images_exist(self) -> None:
         offenders: list[str] = []
@@ -1441,9 +1405,7 @@ def _ending_symbols_and_flags(condition: str) -> tuple[set[str], set[str]]:
     tree = ast.parse(processed, mode="eval")
     symbols = {n.id for n in ast.walk(tree) if isinstance(n, ast.Name)}
     flags = {
-        n.value
-        for n in ast.walk(tree)
-        if isinstance(n, ast.Constant) and isinstance(n.value, str)
+        n.value for n in ast.walk(tree) if isinstance(n, ast.Constant) and isinstance(n.value, str)
     }
     return symbols, flags
 
@@ -1723,9 +1685,7 @@ class PerspectiveWhenFlagProducibilityTest(unittest.TestCase):
         """Guard-the-guard: if no scenario authors a perspective ``when`` flag the
         producibility check above is vacuously green."""
         total = sum(len(_perspective_when_flags(data)) for _name, data in self._scenarios())
-        self.assertGreater(
-            total, 0, "expected at least one authored perspective 'when' flag"
-        )
+        self.assertGreater(total, 0, "expected at least one authored perspective 'when' flag")
 
 
 class ArchetypeAndCharacterIdIntegrityTest(unittest.TestCase):
@@ -1823,13 +1783,10 @@ class ArchetypeAndCharacterIdIntegrityTest(unittest.TestCase):
                 missing = sorted(id_set - keys)
                 orphan = sorted(keys - id_set)
                 if missing:
-                    offenders.append(
-                        f"{name}:combat.{block} missing keys for archetypes {missing}"
-                    )
+                    offenders.append(f"{name}:combat.{block} missing keys for archetypes {missing}")
                 if orphan:
                     offenders.append(
-                        f"{name}:combat.{block} orphan keys {orphan} "
-                        f"(no such archetypes[].id)"
+                        f"{name}:combat.{block} orphan keys {orphan} (no such archetypes[].id)"
                     )
                 checked += 1
         self.assertEqual(
@@ -2080,9 +2037,7 @@ class SideAnchorIntegrityTest(unittest.TestCase):
                 ref = node.get(key)
                 if ref and not (base / str(ref)).exists():
                     offenders.append(f"neo-seoul:woven {node_id}(seed {seed}).{key}={ref!r}")
-        self.assertEqual(
-            offenders, [], f"side_arc image paths that do not resolve: {offenders}"
-        )
+        self.assertEqual(offenders, [], f"side_arc image paths that do not resolve: {offenders}")
 
     def test_side_arc_encounter_refs_resolve(self) -> None:
         """A side arc that stages a fight must resolve to a real encounter — whether
@@ -2109,9 +2064,7 @@ class SideAnchorIntegrityTest(unittest.TestCase):
                     f"neo-seoul:woven combat side node {node_id}(seed {seed}) "
                     f"type {node.get('type')!r} resolved to missing encounter {pick!r}"
                 )
-        self.assertEqual(
-            offenders, [], f"side_arc encounter refs that do not resolve: {offenders}"
-        )
+        self.assertEqual(offenders, [], f"side_arc encounter refs that do not resolve: {offenders}")
 
     def test_side_arc_npc_refs_resolve(self) -> None:
         """Every companion/NPC a side arc references must resolve to a declared
@@ -2143,9 +2096,7 @@ class SideAnchorIntegrityTest(unittest.TestCase):
             route_map = data.get("route_map") or {}
             if not route_map.get("layers"):
                 continue
-            producer_layers: dict[str, int] = {
-                flag: -1 for flag in ENGINE_PRODUCED_FLAGS
-            }
+            producer_layers: dict[str, int] = {flag: -1 for flag in ENGINE_PRODUCED_FLAGS}
             for layer_index, layer in enumerate(route_map.get("layers", []) or []):
                 for anchor in layer.get("anchors", []) or []:
                     for perspective in anchor.get("perspectives", []) or []:
@@ -2169,8 +2120,7 @@ class SideAnchorIntegrityTest(unittest.TestCase):
         self.assertEqual(
             offenders,
             [],
-            "side_arc trigger flags missing an earlier deterministic producer: "
-            f"{offenders}",
+            f"side_arc trigger flags missing an earlier deterministic producer: {offenders}",
         )
 
     def test_entry_effects_are_carried_to_woven_nodes(self) -> None:

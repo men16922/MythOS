@@ -70,17 +70,13 @@ def _store_with(conn: _Conn) -> PostgresMythOSStore:
 
 class StaleConnectionRetryTest(unittest.TestCase):
     def _admin_shutdown(self) -> psycopg.OperationalError:
-        return psycopg.OperationalError(
-            "terminating connection due to administrator command"
-        )
+        return psycopg.OperationalError("terminating connection due to administrator command")
 
     def test_dropped_connection_reconnects_and_retries_once(self) -> None:
         dead = _Conn(fail_with=self._admin_shutdown())
         fresh = _Conn(row={"ok": 1})
         store = _store_with(dead)
-        with patch(
-            "mythos_memory.postgres_store.psycopg.connect", return_value=fresh
-        ) as connect:
+        with patch("mythos_memory.postgres_store.psycopg.connect", return_value=fresh) as connect:
             row = store._fetchone("SELECT 1", ())
         self.assertEqual(row, {"ok": 1})
         connect.assert_called_once()

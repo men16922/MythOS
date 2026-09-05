@@ -44,9 +44,12 @@ esac
 
 def _git(repo: Path, *args: str) -> str:
     out = subprocess.run(
-        ["git", *args], cwd=repo,
+        ["git", *args],
+        cwd=repo,
         env={"PATH": _PATH, **_GIT_ENV},
-        capture_output=True, text=True, check=True,
+        capture_output=True,
+        text=True,
+        check=True,
     )
     return out.stdout.strip()
 
@@ -88,8 +91,9 @@ class BrowserQARunnerTest(unittest.TestCase):
         after = _git(self.repo, "rev-parse", "HEAD")
         return f"{before}..{after}"
 
-    def _run(self, *args: str, outcome: str = "PASS_CANDIDATE",
-             findings: str = "") -> tuple[str, int]:
+    def _run(
+        self, *args: str, outcome: str = "PASS_CANDIDATE", findings: str = ""
+    ) -> tuple[str, int]:
         env = {
             "PATH": _PATH,
             "QA_LOG_DIR": str(self.logdir),
@@ -102,7 +106,10 @@ class BrowserQARunnerTest(unittest.TestCase):
         }
         proc = subprocess.run(
             ["bash", str(BROWSER_QA), *args],
-            cwd=self.repo, env=env, capture_output=True, text=True,
+            cwd=self.repo,
+            env=env,
+            capture_output=True,
+            text=True,
         )
         return proc.stdout + proc.stderr, proc.returncode
 
@@ -123,8 +130,9 @@ class BrowserQARunnerTest(unittest.TestCase):
     # --- candidate pass: hook runs, loop continues ----------------------------
     def test_ui_commit_pass_continues(self) -> None:
         rng = self._commit("src/mythos_ui/App.tsx")
-        out, code = self._run("maybe_browser_qa", "post-commit", rng, self._head(),
-                              outcome="PASS_CANDIDATE")
+        out, code = self._run(
+            "maybe_browser_qa", "post-commit", rng, self._head(), outcome="PASS_CANDIDATE"
+        )
         self.assertEqual(code, 0, out)
         self.assertIn("QA_RESULT: PASS_CANDIDATE", out)
         self.assertEqual(self._call_count(), 1)
@@ -134,16 +142,18 @@ class BrowserQARunnerTest(unittest.TestCase):
     # --- candidate fail: hook runs, loop stops (exit 3), no revert -------------
     def test_ui_commit_fail_stops(self) -> None:
         rng = self._commit("src/mythos_api/serializers.py")
-        out, code = self._run("maybe_browser_qa", "post-commit", rng, self._head(),
-                              outcome="FAIL_EVIDENCE")
+        out, code = self._run(
+            "maybe_browser_qa", "post-commit", rng, self._head(), outcome="FAIL_EVIDENCE"
+        )
         self.assertEqual(code, 3, out)
         self.assertIn("QA_RESULT: FAIL_EVIDENCE", out)
         self.assertEqual(self._call_count(), 1)
 
     def test_needs_human_stops(self) -> None:
         rng = self._commit("src/mythos_runtime/session.py")
-        out, code = self._run("maybe_browser_qa", "post-commit", rng, self._head(),
-                              outcome="NEEDS_HUMAN")
+        out, code = self._run(
+            "maybe_browser_qa", "post-commit", rng, self._head(), outcome="NEEDS_HUMAN"
+        )
         self.assertEqual(code, 3, out)
         self.assertIn("QA_RESULT: NEEDS_HUMAN", out)
 
@@ -162,10 +172,13 @@ class BrowserQARunnerTest(unittest.TestCase):
     def test_findings_recorded_untagged(self) -> None:
         rng = self._commit("src/mythos_ui/App.tsx")
         out, code = self._run(
-            "maybe_browser_qa", "post-commit", rng, self._head(),
+            "maybe_browser_qa",
+            "post-commit",
+            rng,
+            self._head(),
             outcome="PASS_CANDIDATE",
             findings="QA_FINDING: minor | codex | locked avatar 404\n"
-                     "QA_FINDING: major | combat | hp bar not updating",
+            "QA_FINDING: major | combat | hp bar not updating",
         )
         self.assertEqual(code, 0, out)
         findings_md = self.logdir / "qa-findings.md"

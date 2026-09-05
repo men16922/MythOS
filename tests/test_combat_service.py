@@ -118,7 +118,8 @@ class CombatServiceTest(unittest.TestCase):
                 item = ((skills.get(sid) or {}).get("cost") or {}).get("item")
                 if item:
                     self.assertIn(
-                        item, kit,
+                        item,
+                        kit,
                         f"{archetype} base skill {sid} needs {item} in archetype_starting_items",
                     )
 
@@ -331,7 +332,9 @@ class CombatServiceTest(unittest.TestCase):
         loop = _loop(state={"meta_progression": {"learned_skills": ["covering_noise"]}})
         result = self._begin(service, loop)
         skill_ids = {skill["id"] for skill in result.available.get("skills", [])}
-        self.assertEqual(skill_ids, {"signal_step", "packet_shot", "magnetic_pull", "covering_noise"})
+        self.assertEqual(
+            skill_ids, {"signal_step", "packet_shot", "magnetic_pull", "covering_noise"}
+        )
 
     def _play_end(self, service: CombatService):
         return _play_to_end(service, self._begin(service, _loop()))

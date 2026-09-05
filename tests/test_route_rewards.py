@@ -94,7 +94,9 @@ class CompanionCutsceneRuntimeIntegrationTest(unittest.TestCase):
     def setUp(self) -> None:
         self.store = _InMemoryStore()
         bootstrap = RuntimeSessionService(self.store)
-        bootstrap.create_player("Tester", player_id="cutscene-player", traits={"archetype": "ghost"})
+        bootstrap.create_player(
+            "Tester", player_id="cutscene-player", traits={"archetype": "ghost"}
+        )
         started = bootstrap.start_loop(
             "cutscene-player",
             RuntimeOptions(fallback=True, scenario_id="neo-seoul", language="en"),
@@ -167,9 +169,7 @@ class RouteNodeRewardIntegrationTest(unittest.TestCase):
             route_choices = [c for c in scene.choices if c.choice_id.startswith("route:")]
             pick = None
             if prefer_label:
-                pick = next(
-                    (c.choice_id for c in route_choices if prefer_label in c.label), None
-                )
+                pick = next((c.choice_id for c in route_choices if prefer_label in c.label), None)
             if not pick:
                 pick = (
                     route_choices[0].choice_id
@@ -193,7 +193,9 @@ class RouteNodeRewardIntegrationTest(unittest.TestCase):
         snap = self._drive(loop_id, prefer_label="정비")
         route = snap.loop.state["_route_map"]
         # rest node entered -> HP fully restored, applied tracked
-        self.assertEqual(snap.loop.state["_party"]["player_hp"], snap.loop.state["_party"]["player_max_hp"])
+        self.assertEqual(
+            snap.loop.state["_party"]["player_hp"], snap.loop.state["_party"]["player_max_hp"]
+        )
         self.assertTrue(route.get("applied_rewards"))
         # applied list has no duplicates (applied once even while lingering)
         applied = route["applied_rewards"]
@@ -313,9 +315,7 @@ class RouteNodeRewardIntegrationTest(unittest.TestCase):
         combat = service.start_combat(loop.loop_id, "patrol_ambush", live_opts)
         assert combat.combat is not None
         ally_ids = {
-            blip["id"]
-            for blip in combat.combat["radar"]["blips"]
-            if blip.get("faction") == "ally"
+            blip["id"] for blip in combat.combat["radar"]["blips"] if blip.get("faction") == "ally"
         }
         self.assertIn("han", ally_ids)
 

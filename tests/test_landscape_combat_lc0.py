@@ -22,8 +22,8 @@ class LandscapeCombatLC0Test(unittest.TestCase):
         self.assertIn("isLandscape: boolean;", source)
         self.assertIn("isCoarsePointer: boolean;", source)
         self.assertIn("export function useOrientation(): OrientationState", source)
-        self.assertIn("addEventListener(\"change\", update)", source)
-        self.assertIn("removeEventListener(\"change\", update)", source)
+        self.assertIn('addEventListener("change", update)', source)
+        self.assertIn('removeEventListener("change", update)', source)
 
     def test_rotate_overlay_is_removed_from_combat_layout(self) -> None:
         source = read("src/mythos_ui/src/StoryPanel.tsx")

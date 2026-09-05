@@ -20,9 +20,11 @@ class LandscapeCombatLC2Test(unittest.TestCase):
     def test_tile_inspector_moved_into_combat_bottom_row(self) -> None:
         source = read("src/mythos_ui/src/StoryPanel.tsx")
 
-        board_idx = source.index('<TacticalKey combat={snapshot.combat} />')
+        board_idx = source.index("<TacticalKey combat={snapshot.combat} />")
         bottom_row_idx = source.index('<div className="combat-bottom-row">')
-        tile_inspector_idx = source.index("<TileInspector combat={rosterCombat} cell={combatInspectCell} />")
+        tile_inspector_idx = source.index(
+            "<TileInspector combat={rosterCombat} cell={combatInspectCell} />"
+        )
 
         self.assertLess(board_idx, bottom_row_idx)
         self.assertGreater(tile_inspector_idx, bottom_row_idx)
@@ -31,16 +33,10 @@ class LandscapeCombatLC2Test(unittest.TestCase):
         source = read("src/mythos_ui/src/StoryPanel.tsx")
 
         self.assertIn('import { OperationMapPanel, StatusPanel } from "./GameAside";', source)
-        self.assertIn(
-            'import { useOrientation } from "./hooks/useOrientation";', source
-        )
-        self.assertIn(
-            "const isLandscapeCoarseCombat = isLandscape && isCoarsePointer;", source
-        )
+        self.assertIn('import { useOrientation } from "./hooks/useOrientation";', source)
+        self.assertIn("const isLandscapeCoarseCombat = isLandscape && isCoarsePointer;", source)
         self.assertIn("{isLandscapeCoarseCombat && (", source)
-        self.assertIn(
-            '<OperationMapPanel snapshot={snapshot} onOpenCodex={onOpenCodex} />', source
-        )
+        self.assertIn("<OperationMapPanel snapshot={snapshot} onOpenCodex={onOpenCodex} />", source)
 
     def test_operation_map_panel_is_exported_for_reuse(self) -> None:
         source = read("src/mythos_ui/src/GameAside.tsx")

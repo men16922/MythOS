@@ -84,12 +84,8 @@ def _player() -> PlayerProfile:
     return PlayerProfile("p1", "T", _NOW, _NOW, {"archetype": "ghost"})
 
 
-def _loop(
-    phase: LoopPhase = LoopPhase.EXPLORE, state: dict | None = None
-) -> LoopState:
-    return LoopState(
-        "l", "p1", "seed", phase, "night_market", 70, 30, _NOW, None, state or {}, []
-    )
+def _loop(phase: LoopPhase = LoopPhase.EXPLORE, state: dict | None = None) -> LoopState:
+    return LoopState("l", "p1", "seed", phase, "night_market", 70, 30, _NOW, None, state or {}, [])
 
 
 def _context(*, key_beat: bool) -> NarrativeContext:
@@ -107,7 +103,9 @@ class GeminiConfigKeybeatTest(unittest.TestCase):
         with mock.patch.dict(
             "os.environ", {"GEMINI_MODEL_KEYBEAT": "gemini-3.5-flash"}, clear=False
         ):
-            self.assertEqual(GeminiConfig(model="gemini-2.5-flash").keybeat_model, "gemini-3.5-flash")
+            self.assertEqual(
+                GeminiConfig(model="gemini-2.5-flash").keybeat_model, "gemini-3.5-flash"
+            )
 
     def test_default_is_unset(self) -> None:
         with mock.patch.dict("os.environ", {}, clear=True):
@@ -186,9 +184,7 @@ class StreamingKeybeatOverrideTest(unittest.TestCase):
         director = NarrativeDirector(provider=provider)
         with self.assertLogs("mythos.narrative", level="INFO") as captured:
             self._drain(director.stream_next_scene(_context(key_beat=True)))
-        finished = [
-            r for r in captured.records if r.getMessage() == "narrative streaming finished"
-        ]
+        finished = [r for r in captured.records if r.getMessage() == "narrative streaming finished"]
         self.assertEqual(len(finished), 1)
         self.assertEqual(getattr(finished[0], "model_override", None), "gemini-3.5-flash")
         self.assertIs(getattr(finished[0], "key_beat", None), True)
@@ -206,9 +202,7 @@ class StreamingKeybeatOverrideTest(unittest.TestCase):
         director = NarrativeDirector(provider=provider)
         with self.assertLogs("mythos.narrative", level="INFO") as captured:
             self._drain(director.stream_next_scene(_context(key_beat=False)))
-        finished = [
-            r for r in captured.records if r.getMessage() == "narrative streaming finished"
-        ]
+        finished = [r for r in captured.records if r.getMessage() == "narrative streaming finished"]
         self.assertEqual(len(finished), 1)
         self.assertEqual(getattr(finished[0], "model_override", None), "")
         self.assertIs(getattr(finished[0], "key_beat", None), False)

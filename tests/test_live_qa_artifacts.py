@@ -23,10 +23,7 @@ assert _SPEC and _SPEC.loader
 artifacts = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(artifacts)
 
-RUN_END = (
-    "AGY_BROWSER_TOOL: PLAYWRIGHT_MCP\n"
-    "LIVE_QA_VERDICT: PASS_CANDIDATE — looks good\n"
-)
+RUN_END = "AGY_BROWSER_TOOL: PLAYWRIGHT_MCP\nLIVE_QA_VERDICT: PASS_CANDIDATE — looks good\n"
 
 
 def _full_evidence(**over):
@@ -48,20 +45,31 @@ class DecideOutcomeTest(unittest.TestCase):
 
     def test_skip_decision_clean(self):
         self.assertEqual(
-            self._classify("QA_DECISION: SKIP — docs only", event_count=0, screenshot_count=0,
-                           console_present=False),
+            self._classify(
+                "QA_DECISION: SKIP — docs only",
+                event_count=0,
+                screenshot_count=0,
+                console_present=False,
+            ),
             "SKIP",
         )
 
     def test_skip_decision_with_infra_fault_needs_human(self):
         self.assertEqual(
-            self._classify("QA_DECISION: SKIP — docs only", event_count=0, screenshot_count=0,
-                           console_present=False, agy_exit=1),
+            self._classify(
+                "QA_DECISION: SKIP — docs only",
+                event_count=0,
+                screenshot_count=0,
+                console_present=False,
+                agy_exit=1,
+            ),
             "NEEDS_HUMAN",
         )
 
     def test_run_full_evidence_pass(self):
-        self.assertEqual(self._classify("QA_DECISION: RUN — ui change\n" + RUN_END), "PASS_CANDIDATE")
+        self.assertEqual(
+            self._classify("QA_DECISION: RUN — ui change\n" + RUN_END), "PASS_CANDIDATE"
+        )
 
     def test_run_full_evidence_fail(self):
         raw = (
@@ -80,12 +88,14 @@ class DecideOutcomeTest(unittest.TestCase):
         self.assertEqual(self._classify(raw), "NEEDS_HUMAN")
 
     def test_run_missing_screenshots_needs_human(self):
-        self.assertEqual(self._classify("QA_DECISION: RUN\n" + RUN_END, screenshot_count=1),
-                         "NEEDS_HUMAN")
+        self.assertEqual(
+            self._classify("QA_DECISION: RUN\n" + RUN_END, screenshot_count=1), "NEEDS_HUMAN"
+        )
 
     def test_run_missing_verdict_needs_human(self):
-        self.assertEqual(self._classify("QA_DECISION: RUN\nAGY_BROWSER_TOOL: CHROME_DEVTOOLS\n"),
-                         "NEEDS_HUMAN")
+        self.assertEqual(
+            self._classify("QA_DECISION: RUN\nAGY_BROWSER_TOOL: CHROME_DEVTOOLS\n"), "NEEDS_HUMAN"
+        )
 
     def test_run_no_tool_needs_human(self):
         raw = "QA_DECISION: RUN\nLIVE_QA_VERDICT: PASS_CANDIDATE — ok\n"
@@ -96,8 +106,9 @@ class DecideOutcomeTest(unittest.TestCase):
         self.assertEqual(self._classify(RUN_END), "PASS_CANDIDATE")
 
     def test_server_not_stopped_needs_human(self):
-        self.assertEqual(self._classify("QA_DECISION: RUN\n" + RUN_END, server_stopped=False),
-                         "NEEDS_HUMAN")
+        self.assertEqual(
+            self._classify("QA_DECISION: RUN\n" + RUN_END, server_stopped=False), "NEEDS_HUMAN"
+        )
 
     def test_exit_code_mapping(self):
         self.assertEqual(artifacts.OUTCOME_EXIT["PASS_CANDIDATE"], 0)
@@ -111,13 +122,18 @@ class ParseFindingsTest(unittest.TestCase):
         raw = (
             "QA_DECISION: RUN\n"
             "QA_FINDING: blocker | onboarding | start button throws TypeError in console\n"
-            "QA_FINDING: minor | codex | avatar image 404 on locked entry\n"
-            + RUN_END
+            "QA_FINDING: minor | codex | avatar image 404 on locked entry\n" + RUN_END
         )
         fs = artifacts.parse_findings(raw)
         self.assertEqual(len(fs), 2)
-        self.assertEqual(fs[0], {"severity": "blocker", "area": "onboarding",
-                                 "detail": "start button throws TypeError in console"})
+        self.assertEqual(
+            fs[0],
+            {
+                "severity": "blocker",
+                "area": "onboarding",
+                "detail": "start button throws TypeError in console",
+            },
+        )
         self.assertEqual(fs[1]["severity"], "minor")
         self.assertEqual(fs[1]["area"], "codex")
 
@@ -215,10 +231,7 @@ class ObjectiveAssertionsTest(unittest.TestCase):
         bundle = artifacts.evaluate_objectives(
             self._passing_events(), list(artifacts.OBJECTIVE_IDS)
         )
-        statuses = {
-            assertion["id"]: assertion["status"]
-            for assertion in bundle["assertions"]
-        }
+        statuses = {assertion["id"]: assertion["status"] for assertion in bundle["assertions"]}
         self.assertEqual(set(statuses), set(artifacts.OBJECTIVE_IDS))
         self.assertTrue(all(status == "pass" for status in statuses.values()))
         self.assertEqual(bundle["summary"]["pass"], len(artifacts.OBJECTIVE_IDS))
@@ -241,10 +254,7 @@ class ObjectiveAssertionsTest(unittest.TestCase):
         events[2]["objective_evidence"]["route_axis"]["options"][1]["chip"] = "단서 찾기"
 
         bundle = artifacts.evaluate_objectives(events, list(artifacts.OBJECTIVE_IDS))
-        statuses = {
-            assertion["id"]: assertion["status"]
-            for assertion in bundle["assertions"]
-        }
+        statuses = {assertion["id"]: assertion["status"] for assertion in bundle["assertions"]}
         self.assertTrue(all(status == "fail" for status in statuses.values()))
 
     def test_route_axis_chip_anchor_follows_flag_selected_perspective(self):
@@ -257,21 +267,27 @@ class ObjectiveAssertionsTest(unittest.TestCase):
                 {"id": "p_steal", "axis": "evidence", "when": ["insight_focus"]},
             ],
         }
+
         def junction(flags, chip):
-            return [{
-                "turn": 0,
-                "scene_id": "junction",
-                "objective_evidence": {
-                    "route_axis": {
-                        "flags": flags,
-                        "options": [
-                            {"choice_id": "route:rn_anchor", "chip": chip, "node": anchor},
-                            {"choice_id": "route:rn_rest", "chip": "안전하게 가기",
-                             "node": {"id": "rn_rest", "type": "rest"}},
-                        ],
-                    }
-                },
-            }]
+            return [
+                {
+                    "turn": 0,
+                    "scene_id": "junction",
+                    "objective_evidence": {
+                        "route_axis": {
+                            "flags": flags,
+                            "options": [
+                                {"choice_id": "route:rn_anchor", "chip": chip, "node": anchor},
+                                {
+                                    "choice_id": "route:rn_rest",
+                                    "chip": "안전하게 가기",
+                                    "node": {"id": "rn_rest", "type": "rest"},
+                                },
+                            ],
+                        }
+                    },
+                }
+            ]
 
         def status(events):
             bundle = artifacts.evaluate_objectives(events, ["route_axis_chip"])
@@ -286,58 +302,76 @@ class ObjectiveAssertionsTest(unittest.TestCase):
         # A chip on an axisless destination fails; absence passes.
         market = junction([], "사람 돕기")
         market[0]["objective_evidence"]["route_axis"]["options"].append(
-            {"choice_id": "route:rn_m", "chip": "안전하게 가기", "node": {"id": "rn_m", "type": "market"}}
+            {
+                "choice_id": "route:rn_m",
+                "chip": "안전하게 가기",
+                "node": {"id": "rn_m", "type": "market"},
+            }
         )
         self.assertEqual(status(market), "fail")
 
     def test_route_axis_chip_incomplete_evidence_never_passes(self):
         # Fewer than two options is not a junction.
-        one_option = [{
-            "turn": 0,
-            "scene_id": "not_junction",
-            "objective_evidence": {
-                "route_axis": {
-                    "flags": [],
-                    "options": [
-                        {"choice_id": "route:rn_c", "chip": "단서 찾기", "node": {"type": "clue"}}
-                    ],
-                }
-            },
-        }]
+        one_option = [
+            {
+                "turn": 0,
+                "scene_id": "not_junction",
+                "objective_evidence": {
+                    "route_axis": {
+                        "flags": [],
+                        "options": [
+                            {
+                                "choice_id": "route:rn_c",
+                                "chip": "단서 찾기",
+                                "node": {"type": "clue"},
+                            }
+                        ],
+                    }
+                },
+            }
+        ]
         bundle = artifacts.evaluate_objectives(one_option, ["route_axis_chip"])
         row = next(a for a in bundle["assertions"] if a["id"] == "route_axis_chip")
         self.assertEqual(row["status"], "not_observed")
         # All-chipless matches prove nothing → not_observed, not pass.
-        chipless = [{
-            "turn": 0,
-            "scene_id": "junction",
-            "objective_evidence": {
-                "route_axis": {
-                    "flags": [],
-                    "options": [
-                        {"choice_id": "route:rn_a", "chip": None, "node": {"type": "market"}},
-                        {"choice_id": "route:rn_b", "chip": None, "node": {"type": "event"}},
-                    ],
-                }
-            },
-        }]
+        chipless = [
+            {
+                "turn": 0,
+                "scene_id": "junction",
+                "objective_evidence": {
+                    "route_axis": {
+                        "flags": [],
+                        "options": [
+                            {"choice_id": "route:rn_a", "chip": None, "node": {"type": "market"}},
+                            {"choice_id": "route:rn_b", "chip": None, "node": {"type": "event"}},
+                        ],
+                    }
+                },
+            }
+        ]
         bundle = artifacts.evaluate_objectives(chipless, ["route_axis_chip"])
         row = next(a for a in bundle["assertions"] if a["id"] == "route_axis_chip")
         self.assertEqual(row["status"], "not_observed")
         # A node without type/perspectives cannot be judged → inconclusive.
-        broken = [{
-            "turn": 0,
-            "scene_id": "junction",
-            "objective_evidence": {
-                "route_axis": {
-                    "flags": [],
-                    "options": [
-                        {"choice_id": "route:rn_a", "chip": "단서 찾기", "node": {"type": "clue"}},
-                        {"choice_id": "route:rn_b", "chip": None, "node": {}},
-                    ],
-                }
-            },
-        }]
+        broken = [
+            {
+                "turn": 0,
+                "scene_id": "junction",
+                "objective_evidence": {
+                    "route_axis": {
+                        "flags": [],
+                        "options": [
+                            {
+                                "choice_id": "route:rn_a",
+                                "chip": "단서 찾기",
+                                "node": {"type": "clue"},
+                            },
+                            {"choice_id": "route:rn_b", "chip": None, "node": {}},
+                        ],
+                    }
+                },
+            }
+        ]
         bundle = artifacts.evaluate_objectives(broken, ["route_axis_chip"])
         row = next(a for a in bundle["assertions"] if a["id"] == "route_axis_chip")
         self.assertEqual(row["status"], "inconclusive")
@@ -397,15 +431,17 @@ class FinalizeTest(unittest.TestCase):
 
     def test_finalize_fail_evidence(self):
         self._evidence()
-        raw = ("QA_DECISION: RUN\nAGY_BROWSER_TOOL: CHROME_DEVTOOLS\n"
-               "LIVE_QA_VERDICT: FAIL_EVIDENCE — fatal console error\n")
+        raw = (
+            "QA_DECISION: RUN\nAGY_BROWSER_TOOL: CHROME_DEVTOOLS\n"
+            "LIVE_QA_VERDICT: FAIL_EVIDENCE — fatal console error\n"
+        )
         rc, out, _ = self._finalize(raw)
         self.assertEqual(rc, 4)
         self.assertIn("LIVE_QA_OUTCOME: FAIL_EVIDENCE", out)
 
     def test_finalize_records_and_reemits_findings(self):
         self._evidence()
-        raw = ("QA_DECISION: RUN\nQA_FINDING: minor | codex | locked avatar 404\n" + RUN_END)
+        raw = "QA_DECISION: RUN\nQA_FINDING: minor | codex | locked avatar 404\n" + RUN_END
         rc, out, verdict = self._finalize(raw)
         self.assertEqual(rc, 0)
         self.assertIn("QA_FINDING: minor | codex | locked avatar 404", out)  # re-emitted to stdout
@@ -418,7 +454,6 @@ class FinalizeTest(unittest.TestCase):
         self.assertEqual(rc, 5)
         self.assertIn("LIVE_QA_OUTCOME: NEEDS_HUMAN", out)
         self.assertTrue(verdict["validation_errors"])
-
 
     def _set_required(self, *objective_ids):
         manifest = json.loads((self.out / "manifest.json").read_text())

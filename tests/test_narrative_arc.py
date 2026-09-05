@@ -45,9 +45,7 @@ class ActMappingTest(unittest.TestCase):
 class ActNoteInjectionTest(unittest.TestCase):
     def _synopsis(self, state: dict[str, Any], turn: int = 8) -> str:
         player = PlayerProfile("p1", "T", NOW, NOW, {"archetype": "Unclassified"})
-        loop = LoopState(
-            "l", "p1", "s", LoopPhase.EXPLORE, "loc", 70, 30, NOW, None, state, []
-        )
+        loop = LoopState("l", "p1", "s", LoopPhase.EXPLORE, "loc", 70, 30, NOW, None, state, [])
         ctx = build_runtime_narrative_context(
             player=player,
             loop=loop,
@@ -142,9 +140,7 @@ class NextLoopTeaserTest(unittest.TestCase):
             visual_brief=None,
             created_at=NOW,
         )
-        return snapshot_to_dict(
-            RuntimeSnapshot(player=player, loop=loop, scene=scene, assets=[])
-        )
+        return snapshot_to_dict(RuntimeSnapshot(player=player, loop=loop, scene=scene, assets=[]))
 
     def test_ended_loop_serializes_cliffhanger(self) -> None:
         state = {
@@ -162,9 +158,7 @@ class NextLoopTeaserTest(unittest.TestCase):
         self.assertIn("순찰 강화", teaser["modifier_names"])
 
     def test_live_loop_has_no_teaser(self) -> None:
-        data = self._snapshot_dict(
-            phase=LoopPhase.EXPLORE, state={"scenario_id": "neo-seoul"}
-        )
+        data = self._snapshot_dict(phase=LoopPhase.EXPLORE, state={"scenario_id": "neo-seoul"})
         self.assertIsNone(data["next_loop_teaser"])
 
 

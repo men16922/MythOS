@@ -1,4 +1,5 @@
 """Tests for the serving-boundary combat/status glossary localization."""
+
 from __future__ import annotations
 
 import json
@@ -59,9 +60,15 @@ class LocalizeTest(unittest.TestCase):
         # so an EN-mode choice has no residual Hangul.
         payload = {
             "choices": [
-                {"label": "흔들리는 선택(으)로 향한다 — 예상 밖의 부탁이나 변수가 생깁니다. · 위험 1"},
-                {"label": "한강 야시장(으)로 향한다 — 보급과 거래로 장비를 정비합니다. · 위험 1 · 안정 +4"},
-                {"label": "유출된 로그(으)로 향한다 — 기록과 단서를 찾아 진실에 가까워집니다. · 위험 1 · 통찰 +1"},
+                {
+                    "label": "흔들리는 선택(으)로 향한다 — 예상 밖의 부탁이나 변수가 생깁니다. · 위험 1"
+                },
+                {
+                    "label": "한강 야시장(으)로 향한다 — 보급과 거래로 장비를 정비합니다. · 위험 1 · 안정 +4"
+                },
+                {
+                    "label": "유출된 로그(으)로 향한다 — 기록과 단서를 찾아 진실에 가까워집니다. · 위험 1 · 통찰 +1"
+                },
             ]
         }
         out = localize_for(payload, "neo-seoul", "en")
@@ -71,8 +78,7 @@ class LocalizeTest(unittest.TestCase):
         )
         self.assertEqual(
             labels[1],
-            "Han River Night Market — Refit through supplies and trade. · "
-            "Risk 1 · Stability +4",
+            "Han River Night Market — Refit through supplies and trade. · Risk 1 · Stability +4",
         )
         self.assertEqual(
             labels[2],
@@ -92,10 +98,17 @@ class LocalizeTest(unittest.TestCase):
         # chapter_goal (explore), core_stake premise, cutscene titles
         self.assertIn(
             "Roam the welfare blocks",
-            g["복지 블록과 한강 야시장을 돌며 '최적화 명단'의 정체에 관한 단서를 찾고 동료를 만난다."],
+            g[
+                "복지 블록과 한강 야시장을 돌며 '최적화 명단'의 정체에 관한 단서를 찾고 동료를 만난다."
+            ],
         )
-        self.assertIn("unregistered signal", g["당신은 어떤 명단에도 없는 '비식별 신호'입니다. "
-            "관리자 IX는 기준에서 벗어난 당신을 '최적화'(기억 삭제·소거)하려 합니다."])
+        self.assertIn(
+            "unregistered signal",
+            g[
+                "당신은 어떤 명단에도 없는 '비식별 신호'입니다. "
+                "관리자 IX는 기준에서 벗어난 당신을 '최적화'(기억 삭제·소거)하려 합니다."
+            ],
+        )
         self.assertEqual(g["깜빡이는 신뢰"], "Flickering Trust")
         self.assertEqual(g["약속의 잔향"], "Echo of a Promise")
 
@@ -276,12 +289,8 @@ class RouteDescriptionLocalizationTest(unittest.TestCase):
                     walk(value)
 
         walk(scenario.get("route_map", {}))
-        leaked = [
-            d for d in sorted(seen) if hangul.search(localize_for(d, "neo-seoul", "en"))
-        ]
-        self.assertEqual(
-            leaked, [], f"route descriptions that stay Korean in EN mode: {leaked}"
-        )
+        leaked = [d for d in sorted(seen) if hangul.search(localize_for(d, "neo-seoul", "en"))]
+        self.assertEqual(leaked, [], f"route descriptions that stay Korean in EN mode: {leaked}")
 
 
 class ShortGlossaryKeyTest(unittest.TestCase):
@@ -293,9 +302,7 @@ class ShortGlossaryKeyTest(unittest.TestCase):
     def test_standalone_short_name_is_translated(self) -> None:
         payload = {"log": "Administrator IX's Optimization Beam hits 한 for 9."}
         out = localize_for(payload, "neo-seoul", "en")
-        self.assertEqual(
-            out["log"], "Administrator IX's Optimization Beam hits Han for 9."
-        )
+        self.assertEqual(out["log"], "Administrator IX's Optimization Beam hits Han for 9.")
 
     def test_short_key_inside_a_longer_korean_word_is_untouched(self) -> None:
         # 한 is a substring of 한국/한번; replacing it there would corrupt the word.
@@ -326,15 +333,9 @@ class EnGoldenFixtureHasNoHangulTest(unittest.TestCase):
             if bank.get("language") != "en":
                 continue
             checked += 1
-            served = localize_for(
-                bank["scenes"], str(bank.get("scenario_id") or "neo-seoul"), "en"
-            )
-            leaked = sorted(
-                {m for m in hangul.findall(json.dumps(served, ensure_ascii=False))}
-            )
-            self.assertEqual(
-                leaked, [], f"{path.name}: Hangul survives EN localization: {leaked}"
-            )
+            served = localize_for(bank["scenes"], str(bank.get("scenario_id") or "neo-seoul"), "en")
+            leaked = sorted({m for m in hangul.findall(json.dumps(served, ensure_ascii=False))})
+            self.assertEqual(leaked, [], f"{path.name}: Hangul survives EN localization: {leaked}")
         self.assertGreater(checked, 0, "no EN golden transcript found to check")
 
 

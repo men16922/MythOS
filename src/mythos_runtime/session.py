@@ -845,21 +845,7 @@ class RuntimeSessionService:
             state[ECHO_OFFER_KEY] = remaining
         loop = replace(loop, state=state)
         self.store.save_loop(loop)
-        scene = self.store.get_latest_scene(loop.loop_id)
-        if scene is None:
-            raise RuntimeError(f"loop_id={loop.loop_id} has no scenes")
-        snapshot = RuntimeSnapshot(
-            player=player,
-            loop=loop,
-            scene=scene,
-            assets=self.store.list_assets(loop.loop_id),
-            bgm_path=self.audio.get_current_bgm(loop, scene),
-            combat=self._combat_snapshot(loop, options) if CombatService.is_active(loop) else None,
-            clues_collected=self._clues_collected(player.player_id),
-            epiphanies_unlocked=self._epiphanies_unlocked(player, loop),
-            boons=self._boons_view(loop, options),
-        )
-        return snapshot
+        return self._snapshot_from_loop(player, loop, options)
 
     def choose_boon(
         self, loop_id: str, boon_id: str, options: RuntimeOptions | None = None
@@ -878,21 +864,7 @@ class RuntimeSessionService:
         state.pop(BOON_OFFER_KEY, None)
         loop = replace(loop, state=state)
         self.store.save_loop(loop)
-        scene = self.store.get_latest_scene(loop.loop_id)
-        if scene is None:
-            raise RuntimeError(f"loop_id={loop.loop_id} has no scenes")
-        snapshot = RuntimeSnapshot(
-            player=player,
-            loop=loop,
-            scene=scene,
-            assets=self.store.list_assets(loop.loop_id),
-            bgm_path=self.audio.get_current_bgm(loop, scene),
-            combat=self._combat_snapshot(loop, options) if CombatService.is_active(loop) else None,
-            clues_collected=self._clues_collected(player.player_id),
-            epiphanies_unlocked=self._epiphanies_unlocked(player, loop),
-            boons=self._boons_view(loop, options),
-        )
-        return snapshot
+        return self._snapshot_from_loop(player, loop, options)
 
     @staticmethod
     def _current_route_node(loop: LoopState) -> dict[str, Any]:
@@ -1010,21 +982,7 @@ class RuntimeSessionService:
         state["_inventory"] = inventory
         loop = replace(loop, state=state)
         self.store.save_loop(loop)
-        scene = self.store.get_latest_scene(loop.loop_id)
-        if scene is None:
-            raise RuntimeError(f"loop_id={loop.loop_id} has no scenes")
-        snapshot = RuntimeSnapshot(
-            player=player,
-            loop=loop,
-            scene=scene,
-            assets=self.store.list_assets(loop.loop_id),
-            bgm_path=self.audio.get_current_bgm(loop, scene),
-            clues_collected=self._clues_collected(player.player_id),
-            epiphanies_unlocked=self._epiphanies_unlocked(player, loop),
-            boons=self._boons_view(loop, options),
-            market=self._market_view(loop, options),
-        )
-        return snapshot
+        return self._snapshot_from_loop(player, loop, options)
 
     def _redirect_to_active_combat(
         self, loop_id: str, options: RuntimeOptions
@@ -1048,18 +1006,7 @@ class RuntimeSessionService:
         scene = self.store.get_latest_scene(loop.loop_id)
         if scene is None:
             return None
-        snapshot = RuntimeSnapshot(
-            player=player,
-            loop=loop,
-            scene=scene,
-            assets=self.store.list_assets(loop.loop_id),
-            bgm_path=self.audio.get_current_bgm(loop, scene),
-            combat=self._combat_snapshot(loop, options),
-            clues_collected=self._clues_collected(player.player_id),
-            epiphanies_unlocked=self._epiphanies_unlocked(player, loop),
-            boons=self._boons_view(loop, options),
-        )
-        return snapshot
+        return self._snapshot_from_loop(player, loop, options, scene=scene)
 
     def choose(
         self,
@@ -1222,23 +1169,9 @@ class RuntimeSessionService:
         if scene is None:
             raise RuntimeError(f"loop_id={loop.loop_id} has no scenes")
 
-        bgm_path = self.audio.get_current_bgm(loop, scene)
-        combat = None
-        if scene.scene_type == "combat" or CombatService.is_active(loop):
-            combat = self._combat_snapshot(loop, options)
-        snapshot = RuntimeSnapshot(
-            player=player,
-            loop=loop,
-            scene=scene,
-            assets=self.store.list_assets(loop.loop_id),
-            bgm_path=bgm_path,
-            combat=combat,
-            clues_collected=self._clues_collected(player.player_id),
-            epiphanies_unlocked=self._epiphanies_unlocked(player, loop),
-            boons=self._boons_view(loop, options),
-            market=self._market_view(loop, options),
+        return self._snapshot_from_loop(
+            player, loop, options, scene=scene, include_finished_combat=True
         )
-        return snapshot
 
     def list_active_loops(self, player_id: str) -> list[LoopState]:
         self._require_player(player_id)
@@ -1279,24 +1212,7 @@ class RuntimeSessionService:
                 raise RuntimeError(f"save slot not found: {slot_id}")
             return self.resume(loop_id=slot.loop_id, options=options)
         player = self._require_player(player_id)
-        scene = self.store.get_latest_scene(restored.loop_id)
-        if scene is None:
-            raise RuntimeError(f"loop_id={restored.loop_id} has no scenes")
-        snapshot = RuntimeSnapshot(
-            player=player,
-            loop=restored,
-            scene=scene,
-            assets=self.store.list_assets(restored.loop_id),
-            bgm_path=self.audio.get_current_bgm(restored, scene),
-            combat=self._combat_snapshot(restored, options)
-            if CombatService.is_active(restored)
-            else None,
-            clues_collected=self._clues_collected(player.player_id),
-            epiphanies_unlocked=self._epiphanies_unlocked(player, restored),
-            boons=self._boons_view(restored, options),
-            market=self._market_view(restored, options),
-        )
-        return snapshot
+        return self._snapshot_from_loop(player, restored, options)
 
     def memory_overview(self, player_id: str, limit: int = 8) -> MemoryOverview:
         self._require_player(player_id)
@@ -1451,8 +1367,7 @@ class RuntimeSessionService:
                 loop=loop,
                 scene=latest_scene,
                 assets=self.store.list_assets(loop.loop_id),
-                clues_collected=self._clues_collected(player.player_id),
-                epiphanies_unlocked=self._epiphanies_unlocked(player, loop),
+                **self._progress_facts(player, loop),
             )
 
         event = create_world_event(
@@ -1572,8 +1487,7 @@ class RuntimeSessionService:
             scene=latest_scene,
             assets=self.store.list_assets(loop.loop_id),
             echo=echo,
-            clues_collected=self._clues_collected(player.player_id),
-            epiphanies_unlocked=self._epiphanies_unlocked(snapshot_player, ended_loop),
+            **self._progress_facts(snapshot_player, ended_loop),
         )
 
     def _player_combat_stats(
@@ -1645,25 +1559,42 @@ class RuntimeSessionService:
         ]
 
     def _snapshot_from_loop(
-        self, player: PlayerProfile, loop: LoopState, options: RuntimeOptions | None = None
+        self,
+        player: PlayerProfile,
+        loop: LoopState,
+        options: RuntimeOptions | None = None,
+        *,
+        scene: Scene | None = None,
+        include_finished_combat: bool = False,
     ) -> RuntimeSnapshot:
-        """Build a read-only snapshot for the loop's current scene (no advance)."""
+        """Read-only snapshot of the loop's current scene (no advance).
+
+        The single constructor behind inscribe_echo / choose_boon /
+        exchange_material / resume / load_save_slot / equip_item — they used to
+        be seven hand-rolled copies differing only in which optional views they
+        omitted. ``boons``/``market`` are always filled (``_market_view`` is None
+        off a market node). ``combat`` follows the live fight; ``resume``-style
+        callers also want a *finished* fight's view when the scene is a combat
+        scene, which ``include_finished_combat`` opts into.
+        """
         options = options or RuntimeOptions()
-        scene = self.store.get_latest_scene(loop.loop_id)
+        if scene is None:
+            scene = self.store.get_latest_scene(loop.loop_id)
         if scene is None:
             raise RuntimeError(f"loop_id={loop.loop_id} has no scenes")
-        combat = None
-        if scene.scene_type == "combat" or CombatService.is_active(loop):
-            combat = self._combat_snapshot(loop, options)
+        show_combat = CombatService.is_active(loop) or (
+            include_finished_combat and scene.scene_type == "combat"
+        )
         return RuntimeSnapshot(
             player=player,
             loop=loop,
             scene=scene,
             assets=self.store.list_assets(loop.loop_id),
             bgm_path=self.audio.get_current_bgm(loop, scene),
-            combat=combat,
-            clues_collected=self._clues_collected(player.player_id),
-            epiphanies_unlocked=self._epiphanies_unlocked(player, loop),
+            combat=self._combat_snapshot(loop, options) if show_combat else None,
+            **self._progress_facts(player, loop),
+            boons=self._boons_view(loop, options),
+            market=self._market_view(loop, options),
         )
 
     def equip_item(
@@ -2051,8 +1982,7 @@ class RuntimeSessionService:
                 "consumables": self._combat_consumables(loop, load_scenario(options.scenario_id)),
                 "defeat_soft": _is_soft_defeat(loop),
             },
-            clues_collected=self._clues_collected(player.player_id),
-            epiphanies_unlocked=self._epiphanies_unlocked(snapshot_player, loop),
+            **self._progress_facts(snapshot_player, loop),
             boons=self._boons_view(loop, options),
         )
         return combat_snapshot
@@ -2953,8 +2883,7 @@ class RuntimeSessionService:
             image_result=image_result,
             echo=transition.echo,
             bgm_path=bgm_path,
-            clues_collected=self._clues_collected(player.player_id),
-            epiphanies_unlocked=self._epiphanies_unlocked(player, transition.loop),
+            **self._progress_facts(player, transition.loop),
             boons=self._boons_view(transition.loop, options),
             market=self._market_view(transition.loop, options),
         )
@@ -3272,28 +3201,42 @@ class RuntimeSessionService:
             return ""
         return str(meta.get("location_hint") or "").strip()
 
-    def _clues_collected(self, player_id: str) -> int:
-        # Counts clue shards only, and must pass an explicit limit: the store
-        # default is 8, which silently pinned the CLUE MATRIX gauge at 8/16 and
-        # desynced the displayed Insight from the score the ending resolver uses.
-        try:
-            shards = self.store.list_narrative_shards(player_id, limit=1000)
-            return len([shard for shard in shards if shard.kind == "clue"])
-        except Exception:
-            return 0
-
-    def _epiphanies_unlocked(self, player: PlayerProfile, loop: LoopState) -> list[str]:
+    def _progress_facts(
+        self,
+        player: PlayerProfile,
+        loop: LoopState,
+        *,
+        shards: list[NarrativeShard] | None = None,
+        events: list[WorldEvent] | None = None,
+    ) -> dict[str, Any]:
+        """``clues_collected`` + ``epiphanies_unlocked`` for a snapshot, from ONE
+        shard read (they used to fetch the same 1000-row list twice per
+        snapshot, on top of what the transition had already loaded). Callers
+        that hold the lists pass them in. Failures degrade per fact, as before.
+        """
+        if shards is None:
+            try:
+                # Explicit limit: the store default is 8, which pinned the CLUE
+                # MATRIX gauge at 8/16 and desynced Insight from the resolver.
+                shards = self.store.list_narrative_shards(player.player_id, limit=1000)
+            except Exception:
+                shards = []
+        clues = len([shard for shard in shards if shard.kind == "clue"])
+        epiphanies: list[str] = []
         try:
             from mythos_runtime.progression import check_mid_run_epiphanies, load_progression
 
             scenario_id = str(loop.state.get("scenario_id") or "neo-seoul")
             previous = load_progression(self.store, player.player_id, scenario_id)
-            events = self.store.list_events(loop.loop_id)
-            shards = self.store.list_narrative_shards(player.player_id, limit=1000)
-            return check_mid_run_epiphanies(previous, scenario_id, events, shards, loop.loop_id)
+            if events is None:
+                events = self.store.list_events(loop.loop_id)
+            epiphanies = check_mid_run_epiphanies(
+                previous, scenario_id, events, shards, loop.loop_id
+            )
         except Exception:
             self.logger.warning("failed to calculate mid-run epiphanies", exc_info=True)
-            return []
+        return {"clues_collected": clues, "epiphanies_unlocked": epiphanies}
+
 
 
 def _heal_party(party: Any, frac: float) -> dict[str, Any] | None:

@@ -97,6 +97,22 @@ class LoopEngineTest(unittest.TestCase):
         self.assertIsNone(transition.echo)
         self.assertEqual(transition.loop.tension, 93)
 
+    def test_soft_defeat_pending_also_blocks_a_requested_archive_phase(self) -> None:
+        # The prompt advertises requested_next_phase "archive"; that branch used
+        # to bypass the soft-defeat guard that end_condition/thresholds obey.
+        engine = LoopEngine()
+        loop = replace(
+            self.loop,
+            phase=LoopPhase.EXPLORE,
+            state={"_soft_defeat_pending": True, "_last_combat_outcome": "soft_defeat"},
+        )
+        payload = replace(self._payload(tension=1), requested_next_phase="archive")
+
+        transition = engine.apply_scene_payload(loop, self._scene(3), payload)
+
+        self.assertEqual(transition.loop.phase, LoopPhase.EXPLORE)
+        self.assertIsNone(transition.echo)
+
     def test_archive_phase_transitions_to_ended(self) -> None:
         archive_loop = LoopState(
             loop_id="loop_1",
@@ -294,6 +310,35 @@ class SeRinContactFlagTest(unittest.TestCase):
         event = create_player_event(loop_id="loop_1", turn_index=0, action=action)
         transition = LoopEngine().apply_scene_payload(loop, scene, payload, chosen_event=event)
         return [f for f in transition.loop.state.get("flags", []) if "se_rin" in f]
+
+    def test_refusal_clears_a_pre_seeded_met_flag(self) -> None:
+        # Loop 1 pre-seeds met_se_rin (tutorial party). The merge is a union, so
+        # removing the flag from the delta alone left both flags set.
+        from mythos_loop import create_player_event
+
+        loop = LoopState(
+            loop_id="loop_1", player_id="player_1", seed="seed_1", phase=LoopPhase.CONNECT,
+            location_id="data-layer-01", stability=50, tension=20, started_at=self.now,
+            state={"scenario_id": "neo-seoul", "_opening_variant": "default",
+                   "flags": ["met_se_rin", "tutorial_loop"]},
+        )
+        action = "Refuse her hand and slip into the alley alone"
+        scene = Scene(
+            scene_id="scene_0", loop_id="loop_1", turn_index=0, title="C-17",
+            location="data-layer-01", narration="The alley lights die.",
+            choices=[Choice("choice_0", action, "explore")], visual_brief="", created_at=self.now,
+        )
+        payload = ScenePayload(
+            title="C-17", location="data-layer-01", narration="The alley lights die.",
+            choices=[Choice("choice_1", "Next", "explore")], visual_brief="",
+            world_delta=WorldDelta(stability=0, tension=1, flags=[]),
+        )
+        event = create_player_event(loop_id="loop_1", turn_index=0, action=action)
+        transition = LoopEngine().apply_scene_payload(loop, scene, payload, chosen_event=event)
+        flags = transition.loop.state["flags"]
+        self.assertIn("refused_se_rin", flags)
+        self.assertNotIn("met_se_rin", flags)
+        self.assertIn("tutorial_loop", flags)
 
     def test_english_refusal_is_recorded_as_refusal(self) -> None:
         for action in (

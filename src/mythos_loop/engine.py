@@ -105,16 +105,24 @@ class LoopEngine:
                 mentions(action_text, refused_keywords)
                 and not mentions(action_text, met_keywords)
             )
+            # The two flags are exclusive, and loop 1 pre-seeds ``met_se_rin``
+            # (tutorial party). Removing the loser from the delta alone left the
+            # pre-seeded flag in place — the merge is a union — so a refusal on
+            # loop 1 recorded BOTH and the gates fell to perspective ordering.
+            remove_flags = list(state_delta.get("remove_flags", []))
             if is_refused:
                 if "refused_se_rin" not in flags:
                     flags.append("refused_se_rin")
                 if "met_se_rin" in flags:
                     flags.remove("met_se_rin")
+                remove_flags.append("met_se_rin")
             else:
                 if "met_se_rin" not in flags:
                     flags.append("met_se_rin")
                 if "refused_se_rin" in flags:
                     flags.remove("refused_se_rin")
+                remove_flags.append("refused_se_rin")
+            state_delta["remove_flags"] = remove_flags
         state = _merge_state(loop.state, state_delta)
         # Lay the scene's location onto the dynamic tile map (persisted in loop.state).
         state = update_map(state, scene.location, scene.turn_index)
@@ -236,6 +244,12 @@ class LoopEngine:
         if payload.requested_next_phase:
             try:
                 requested = LoopPhase(payload.requested_next_phase.lower())
+                # The soft-defeat recovery beat must not be ended by the model
+                # asking for "archive"/"ended" directly — the same rule
+                # _archive_requested applies to end_condition and score thresholds.
+                soft_defeat = isinstance(loop.state, dict) and loop.state.get("_soft_defeat_pending")
+                if soft_defeat and requested in (LoopPhase.ARCHIVE, LoopPhase.ENDED):
+                    requested = loop.phase
                 # Validate that it's a valid forward transition
                 if self.validator.validate_phase_transition(loop.phase, requested).ok:
                     return requested
@@ -266,6 +280,8 @@ def _merge_state(state: dict, state_delta: dict) -> dict:
     merged = dict(state)
     flags = set(merged.get("flags", []))
     flags.update(state_delta.get("flags", []))
+    # Explicit removals (exclusive flag pairs) — everything else is a union.
+    flags.difference_update(state_delta.get("remove_flags", []))
     merged["flags"] = sorted(flags)
     grant_items = state_delta.get("grant_items", [])
     if isinstance(grant_items, list) and grant_items:

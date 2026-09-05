@@ -1211,7 +1211,17 @@ def create_app() -> FastAPI:
                     # survive proxy/infra idle timeouts (~45s drop observed).
                     await websocket.send_json({"type": "pong"})
                     continue
-                await _run_stream(websocket, service, storage, message)
+                try:
+                    await _run_stream(websocket, service, storage, message)
+                finally:
+                    # The dependency-scoped store checks a pooled connection out
+                    # on first use and only returns it when the socket ends. Ten
+                    # idle tabs kept alive by the ping loop pinned every pooled
+                    # connection (max_size=10) and the 11th REST call blocked.
+                    # close() returns it; the next message checks one out again.
+                    close = getattr(service.store, "close", None)
+                    if callable(close):
+                        close()
         except WebSocketDisconnect:
             return
 

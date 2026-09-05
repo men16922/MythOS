@@ -72,14 +72,15 @@ def run_summary_to_dict(run: RunSummary) -> dict[str, Any]:
 
 
 def _calculate_zone_risk(location_id: str, turn_index: int) -> str:
-    loc = (location_id or "").lower()
-    if any(k in loc for k in ["spire", "스파이어"]):
+    loc = location_id or ""
+    # word-bounded ASCII ("inspired" is not `spire`); Korean stays substring.
+    if mentions(loc, ["spire", "스파이어"]):
         return "경보 (Critical)"
-    elif any(k in loc for k in ["폐기", "abandoned", "wraith", "underground", "지하"]):
+    elif mentions(loc, ["폐기", "abandoned", "wraith", "underground", "지하"]):
         return "위험 (High)"
-    elif any(k in loc for k in ["야시장", "market", "binder", "hall", "회랑", "열람실"]):
+    elif mentions(loc, ["야시장", "market", "binder", "hall", "회랑", "열람실"]):
         return "경계 (Medium)"
-    elif any(k in loc for k in ["복지", "welfare", "corridor", "복도", "data-layer"]):
+    elif mentions(loc, ["복지", "welfare", "corridor", "복도", "data-layer"]):
         return "보통 (Low)"
 
     if turn_index < 7:

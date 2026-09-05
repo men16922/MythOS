@@ -1,3 +1,4 @@
+import logging
 import unittest
 from dataclasses import replace
 from datetime import UTC, datetime
@@ -1788,7 +1789,22 @@ class ClueSnapshotCountTest(unittest.TestCase):
         store = _FakeMemoryStore(None, [], [], shards, {})
         service = RuntimeSessionService.__new__(RuntimeSessionService)
         service.store = cast(Any, store)
+        service.logger = logging.getLogger("test.clues")
         return service
+
+    def _clues(self, service: RuntimeSessionService) -> int:
+        # The counter now comes out of the snapshot's one-read ``_progress_facts``
+        # (epiphanies degrade to [] on this bare fake — that branch is logged).
+        now = datetime(2026, 8, 8, tzinfo=UTC)
+        player = PlayerProfile(
+            player_id="player_1", display_name="Connector", created_at=now, updated_at=now
+        )
+        loop = LoopState(
+            loop_id="loop_1", player_id="player_1", seed="seed", phase=LoopPhase.EXPLORE,
+            location_id="data-layer-01", stability=50, tension=20, started_at=now,
+            state={"scenario_id": "neo-seoul"},
+        )
+        return int(service._progress_facts(player, loop)["clues_collected"])
 
     def _shard(self, index: int, kind: str) -> NarrativeShard:
         return NarrativeShard(
@@ -1807,19 +1823,19 @@ class ClueSnapshotCountTest(unittest.TestCase):
         service = self._service([self._shard(i, "clue") for i in range(12)])
 
         # 12, not the store's default LIMIT of 8.
-        self.assertEqual(service._clues_collected("player_1"), 12)
+        self.assertEqual(self._clues(service), 12)
 
     def test_ignores_non_clue_shards(self) -> None:
         shards = [self._shard(i, "general") for i in range(20)]
         shards += [self._shard(100 + i, "clue") for i in range(3)]
         service = self._service(shards)
 
-        self.assertEqual(service._clues_collected("player_1"), 3)
+        self.assertEqual(self._clues(service), 3)
 
     def test_no_clue_shards_counts_zero(self) -> None:
         service = self._service([self._shard(i, "general") for i in range(25)])
 
-        self.assertEqual(service._clues_collected("player_1"), 0)
+        self.assertEqual(self._clues(service), 0)
 
 
 class CombatSceneLocationTest(unittest.TestCase):

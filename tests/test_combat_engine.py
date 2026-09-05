@@ -1484,3 +1484,25 @@ class TwoPathsMustAgreeTest(unittest.TestCase):
         self.assertFalse(state.player().alive)  # type: ignore[union-attr]
         kills = [e for e in state.log if e.detail.get("telegraph")]
         self.assertEqual([e.action for e in kills], ["defeat"])
+
+    def test_intent_preview_honours_control_effects(self) -> None:
+        engine = CombatEngine()
+        state = engine.start([_player(x=0, y=0)], [_drone(x=2, y=0)], seed="cc", arena=(8, 6))
+        enemy = state.living_enemies()[0]
+        enemy.stunned_turns = 1
+        engine.available_actions(state)
+        self.assertEqual(state.enemy_intents[0].action, "idle")
+
+        enemy.stunned_turns = 0
+        enemy.status_effects["hacked"] = 1
+        engine.available_actions(state)
+        self.assertEqual(state.enemy_intents[0].action, "idle")
+
+        # Frozen: cannot move, can still strike if already in reach.
+        del enemy.status_effects["hacked"]
+        enemy.status_effects["freeze"] = 1
+        engine.available_actions(state)
+        far = state.enemy_intents[0]
+        self.assertEqual(far.action, "move")
+        self.assertEqual((far.target_x, far.target_y), (enemy.x, enemy.y))
+

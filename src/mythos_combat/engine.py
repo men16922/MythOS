@@ -421,6 +421,12 @@ class CombatEngine:
 
         for enemy in state.living_enemies():
             targets = state.hostiles_of(enemy)
+            # A stunned enemy skips its turn and a hacked one attacks its own
+            # side (_npc_turn) — neither threatens the player next turn. The
+            # preview used to show them walking up and striking, i.e. wrong
+            # exactly when the player had invested in control.
+            if enemy.stunned_turns > 0 or enemy.has_status("hacked"):
+                targets = []
             if not targets:
                 state.enemy_intents.append(
                     EnemyIntent(
@@ -433,7 +439,10 @@ class CombatEngine:
                 continue
 
             curr_x, curr_y = temp_positions[enemy.id]
-            target = min(targets, key=lambda t: (distance(curr_x, curr_y, t.x, t.y), t.hp))
+            # Same target pool as _enemy_turn: a taunting hostile forces itself in.
+            taunters = [t for t in targets if t.taunt_turns > 0]
+            pool = taunters or targets
+            target = min(pool, key=lambda t: (distance(curr_x, curr_y, t.x, t.y), t.hp))
             weapon = enemy.primary_weapon()
             reach = weapon.effective_range if weapon else 1
 
@@ -441,7 +450,8 @@ class CombatEngine:
             desired = max(reach + 3, 6) if is_coward else max(1, reach)
 
             sim_x, sim_y = curr_x, curr_y
-            budget = enemy.effective_speed
+            # 냉동: movement is blocked, acting is not (_movement_frozen).
+            budget = 0 if enemy.has_status("freeze") else enemy.effective_speed
             while budget > 0:
                 current_dist = distance(sim_x, sim_y, target.x, target.y)
                 if current_dist == desired:

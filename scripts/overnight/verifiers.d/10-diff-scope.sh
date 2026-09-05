@@ -69,8 +69,18 @@ if deleted_tests:
     print(f"test deleted: {deleted_tests[0].split(chr(9), 1)[1]}")
     sys.exit(1)
 
-added = "\n".join(line[1:] for line in patch.splitlines()
-                    if line.startswith("+") and not line.startswith("+++"))
+# Suppression markers only matter in code. Prose (docs/*.md, plan lines) legitimately
+# *mentions* them — e.g. a NEXT_PLAN seed that says "remove the `# type: ignore`s" is
+# re-added when its checkbox is ticked, which rejected a clean commit on 2026-09-06.
+added_lines: list[str] = []
+current_file = ""
+for line in patch.splitlines():
+    if line.startswith("+++ "):
+        current_file = line[4:].removeprefix("b/").strip()
+        continue
+    if line.startswith("+") and not current_file.lower().endswith((".md", ".markdown", ".txt")):
+        added_lines.append(line[1:])
+added = "\n".join(added_lines)
 suppression = ("# noqa", "# type: ignore", "# nosec", "eslint-disable", "pytest.skip", "@unittest.skip")
 if any(marker in added for marker in suppression):
     print("new verification suppression marker")

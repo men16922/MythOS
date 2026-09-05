@@ -62,7 +62,6 @@ class ContractCompilerTests(unittest.TestCase):
             )
             self.assertEqual(contract["oversight"]["mode"], "monitored")
 
-
     def test_compiles_six_objective_assertions_into_browser_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             temp = Path(raw)
@@ -81,14 +80,17 @@ class ContractCompilerTests(unittest.TestCase):
                 for entry in contract["evidence"]
                 if entry["verifier"] == "30-browser-objective"
             )
-            self.assertEqual(browser["assertions"], [
-                "image_arrival",
-                "companion_join",
-                "party_distribution",
-                "cutscene_cardinality_return",
-                "choice_arrival",
-                "first_use_gloss",
-            ])
+            self.assertEqual(
+                browser["assertions"],
+                [
+                    "image_arrival",
+                    "companion_join",
+                    "party_distribution",
+                    "cutscene_cardinality_return",
+                    "choice_arrival",
+                    "first_use_gloss",
+                ],
+            )
 
     def test_drained_and_all_blocked_are_distinct(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
@@ -150,6 +152,30 @@ class VerifierTests(unittest.TestCase):
         self.assertEqual(escaped.returncode, 1)
         self.assertIn("out-of-scope", escaped.stdout)
 
+    def test_diff_scope_suppression_scan_ignores_prose_but_not_code(self) -> None:
+        """A NEXT_PLAN seed that *mentions* `# type: ignore` is re-added when its checkbox
+        is ticked; that must not read as a new suppression marker (2026-09-06 false
+        reject of a clean commit). The same marker in code still rejects."""
+        verifier = VERIFIERS / "10-diff-scope.sh"
+        prose = self.commit(
+            "docs/note.md", "- [x] remove the 14 `# type: ignore[union-attr]` in tests. Done.\n"
+        )
+        ok = run(
+            [verifier, prose],
+            cwd=self.repo,
+            env={"OVERNIGHT_CONTRACT_FILE": str(self.contract(["docs/", "src/"]))},
+        )
+        self.assertEqual(ok.returncode, 0, ok.stdout + ok.stderr)
+
+        code = self.commit("src/base.py", "VALUE = 2  # type: ignore[assignment]\n")
+        rejected = run(
+            [verifier, code],
+            cwd=self.repo,
+            env={"OVERNIGHT_CONTRACT_FILE": str(self.contract(["docs/", "src/"]))},
+        )
+        self.assertEqual(rejected.returncode, 1)
+        self.assertIn("suppression marker", rejected.stdout)
+
     def test_non_applicable_semantic_verifiers_pass(self) -> None:
         diff_range = self.commit("docs/note.md", "documentation only\n")
         for name in ("20-gameplay-oracle.sh", "40-image-identity.sh"):
@@ -162,7 +188,9 @@ class VerifierTests(unittest.TestCase):
         filter_script = self.repo / "filter.sh"
         runner_script = self.repo / "runner.sh"
         filter_script.write_text("#!/usr/bin/env bash\nprintf 'CANDIDATE\\tfixture\\n'\n")
-        runner_script.write_text("#!/usr/bin/env bash\nprintf 'QA_RESULT: NEEDS_HUMAN\\n'\nexit 3\n")
+        runner_script.write_text(
+            "#!/usr/bin/env bash\nprintf 'QA_RESULT: NEEDS_HUMAN\\n'\nexit 3\n"
+        )
         filter_script.chmod(0o755)
         runner_script.chmod(0o755)
         result = run(
@@ -176,26 +204,29 @@ class VerifierTests(unittest.TestCase):
         self.assertEqual(result.returncode, 3, result.stdout + result.stderr)
         self.assertIn("needs human", result.stdout)
 
-
     def test_browser_verifier_forwards_contract_assertions_and_evidence_ref(self) -> None:
         diff_range = self.commit("src/objective.tsx", "export const objective = 1\n")
         filter_script = self.repo / "filter-objective.sh"
         runner_script = self.repo / "runner-objective.sh"
         capture = self.repo / "captured-objectives.txt"
         contract = self.repo / "objective-contract.json"
-        contract.write_text(json.dumps({
-            "evidence": [{
-                "verifier": "30-browser-objective",
-                "required": True,
-                "assertions": ["choice_arrival", "first_use_gloss"],
-            }]
-        }))
-        filter_script.write_text(
-            "#!/usr/bin/env bash\nprintf 'CANDIDATE\\tfixture\\n'\n"
+        contract.write_text(
+            json.dumps(
+                {
+                    "evidence": [
+                        {
+                            "verifier": "30-browser-objective",
+                            "required": True,
+                            "assertions": ["choice_arrival", "first_use_gloss"],
+                        }
+                    ]
+                }
+            )
         )
+        filter_script.write_text("#!/usr/bin/env bash\nprintf 'CANDIDATE\\tfixture\\n'\n")
         runner_script.write_text(
             "#!/usr/bin/env bash\n"
-            "printf '%s' \"$LIVE_QA_OBJECTIVES\" > \"$CAPTURE\"\n"
+            'printf \'%s\' "$LIVE_QA_OBJECTIVES" > "$CAPTURE"\n'
             "printf 'LIVE_QA_EVIDENCE: outputs/live-qa/fixture/evidence-bundle.json\\n'\n"
             "printf 'QA_RESULT: PASS_CANDIDATE\\n'\n"
         )

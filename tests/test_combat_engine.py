@@ -4,7 +4,6 @@ import unittest
 
 from mythos_combat import (
     CombatEngine,
-    CombatState,
     PlayerAction,
     build_ally_combatant,
     build_encounter,
@@ -83,20 +82,6 @@ def _auto_attack(engine: CombatEngine, state) -> PlayerAction:
             best_d = d
             best_tile = (tx, ty)
     return PlayerAction(type="attack", target_id=target.id, move_to=best_tile)
-
-
-def _live_player(state: CombatState) -> Combatant:
-    """`state.player()` is Optional; combat is never asserted mid-turn without one."""
-    player = state.player()
-    assert player is not None
-    return player
-
-
-def _live_actor(state: CombatState) -> Combatant:
-    """`state.active_actor()` is Optional; an active combat always has a turn owner."""
-    actor = state.active_actor()
-    assert actor is not None
-    return actor
 
 
 class CombatEngineTest(unittest.TestCase):
@@ -344,7 +329,7 @@ class CombatSkillTest(unittest.TestCase):
         )
         enemy = state.living_enemies()[0]
         before_hp = enemy.hp
-        before_focus = _live_player(state).focus
+        before_focus = state.player().focus  # type: ignore[union-attr]
         state = engine.take_player_turn(
             state,
             PlayerAction(type="skill", skill_id="packet_shot"),
@@ -355,7 +340,7 @@ class CombatSkillTest(unittest.TestCase):
         self.assertLess(after.hp, before_hp)
         self.assertTrue(any(e.action == "skill" for e in state.log))
         # focus spent (2) then regen (+1) creates a real resource tradeoff.
-        self.assertEqual(_live_player(state).focus, before_focus - 1)
+        self.assertEqual(state.player().focus, before_focus - 1)  # type: ignore[union-attr]
 
     def test_skill_on_cooldown_is_rejected(self) -> None:
         engine = CombatEngine()
@@ -681,7 +666,7 @@ class CombatSkillTest(unittest.TestCase):
             skill_def=SKILLS["patch_protocol"],
             item_available=False,
         )
-        self.assertEqual(_live_player(state).hp, 4)
+        self.assertEqual(state.player().hp, 4)  # type: ignore[union-attr]
         # With the item: heals and flags the consumed resource.
         state = engine.take_player_turn(
             state,
@@ -689,7 +674,7 @@ class CombatSkillTest(unittest.TestCase):
             skill_def=SKILLS["patch_protocol"],
             item_available=True,
         )
-        self.assertGreater(_live_player(state).hp, 4)
+        self.assertGreater(state.player().hp, 4)  # type: ignore[union-attr]
         self.assertTrue(any(e.detail.get("consumed") == "nanopatch" for e in state.log if e.detail))
 
     def test_patch_protocol_heals_an_ally_in_range(self) -> None:
@@ -716,7 +701,7 @@ class CombatSkillTest(unittest.TestCase):
         healed_ally = state.by_id(ally.id)
         assert healed_ally is not None
         self.assertGreater(healed_ally.hp, 4)  # ally healed
-        self.assertEqual(_live_player(state).hp, 5)  # caster untouched
+        self.assertEqual(state.player().hp, 5)  # type: ignore[union-attr]  # caster untouched
 
     def test_nanoshield_projector_shields_an_ally_in_range(self) -> None:
         engine = CombatEngine()
@@ -740,7 +725,7 @@ class CombatSkillTest(unittest.TestCase):
         shielded_ally = state.by_id(ally.id)
         assert shielded_ally is not None
         self.assertGreater(shielded_ally.defense_buff, 0)  # ally shielded
-        self.assertEqual(_live_player(state).defense_buff, 0)
+        self.assertEqual(state.player().defense_buff, 0)  # type: ignore[union-attr]
 
     def test_support_falls_back_to_self_when_target_out_of_range(self) -> None:
         # Ally beyond range 3 -> heal falls back to the caster (safe default).
@@ -763,10 +748,8 @@ class CombatSkillTest(unittest.TestCase):
             SKILLS["patch_protocol"],
             item_available=True,
         )
-        self.assertGreater(_live_player(state).hp, 5)  # caster self-healed
-        ally_state = state.by_id(ally.id)
-        assert ally_state is not None
-        self.assertEqual(ally_state.hp, 4)  # ally untouched
+        self.assertGreater(state.player().hp, 5)  # type: ignore[union-attr]  # caster self-healed
+        self.assertEqual(state.by_id(ally.id).hp, 4)  # type: ignore[union-attr]  # ally untouched
 
     def test_available_actions_exposes_friendly_targets(self) -> None:
         engine = CombatEngine()
@@ -805,14 +788,14 @@ class CombatSkillTest(unittest.TestCase):
             item_def=ITEMS["nanopatch"],
             item_available=True,
         )
-        self.assertGreater(_live_player(state).hp, 3)
+        self.assertGreater(state.player().hp, 3)  # type: ignore[union-attr]
         state = engine.take_player_turn(
             state,
             PlayerAction(type="item", item_id="stim_shard"),
             item_def=ITEMS["stim_shard"],
             item_available=True,
         )
-        self.assertGreater(_live_player(state).focus, 0)
+        self.assertGreater(state.player().focus, 0)  # type: ignore[union-attr]
 
     def test_item_restart_core_revives_downed_ally(self) -> None:
         engine = CombatEngine()
@@ -1107,7 +1090,7 @@ class CombatNarratorTest(unittest.TestCase):
             any(d.get("stunned_skip") == enemy.id for d in details), "stunned turn not skipped"
         )
         # 스턴된 드론은 이동·공격 없이 턴을 잃는다 → 플레이어 무피해.
-        self.assertEqual(_live_player(state).hp, hp_before)
+        self.assertEqual(state.player().hp, hp_before)  # type: ignore[union-attr]
         # 지속 1턴: 스킵과 동시에 소진 — 하지만 상태 칩(💫 배지)은 남는다.
         # (2026-07-12: 같은 트랜지션 안에서 적용+소모되면 클라이언트 스냅샷에
         # 기절이 한 번도 안 보였음 — 칩은 그 유닛의 다음 upkeep에 걷힌다.)
@@ -1367,11 +1350,11 @@ class ControllableAllyTest(unittest.TestCase):
         state.order = ["player", "kai", "drone"]
         state.turn_ptr = 0
         state = engine.take_player_turn(state, PlayerAction(type="defend"))
-        self.assertEqual(_live_actor(state).id, "kai")
+        self.assertEqual(state.active_actor().id, "kai")  # type: ignore[union-attr]
 
         # Flee is rejected for party members: turn is not consumed, still kai's turn.
         state = engine.take_player_turn(state, PlayerAction(type="flee"))
-        self.assertEqual(_live_actor(state).id, "kai")
+        self.assertEqual(state.active_actor().id, "kai")  # type: ignore[union-attr]
         self.assertNotEqual(state.outcome, "player_fled")
 
     def test_ai_ally_auto_resolves_turn(self) -> None:
@@ -1560,7 +1543,7 @@ class TwoPathsMustAgreeTest(unittest.TestCase):
             {"caster": enemy.id, "name": "낙하 타격", "tiles": [[0, 0]], "damage": "1d4"}
         )
         engine._resolve_telegraphs(state, enemy)
-        self.assertFalse(_live_player(state).alive)
+        self.assertFalse(state.player().alive)  # type: ignore[union-attr]
         kills = [e for e in state.log if e.detail.get("telegraph")]
         self.assertEqual([e.action for e in kills], ["defeat"])
 

@@ -83,14 +83,19 @@ target-version = "py311"
 extend-exclude = ["scripts/gen_bgm.py"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "C4", "SIM"]
+select = ["E", "F", "I", "UP", "C4", "SIM", "PERF"]
 ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
 # One-off dev/render-check scripts outside the claude-lane WorkContract scope
-# (scripts/overnight/ only) — not touched by the SIM cleanup.
-"scratch/*" = ["SIM"]
+# (src/ tests/ harness/ scripts/overnight/ docs/ Makefile pyproject.toml) —
+# not touched by the SIM/PERF cleanups.
+"scratch/*" = ["SIM", "PERF"]
 "scripts/cbt/*" = ["SIM"]
+"experiments/*" = ["PERF"]
+"scripts/eval/*" = ["PERF"]
+"scripts/live-qa/*" = ["PERF"]
+"streamlit_app.py" = ["PERF"]
 
 [tool.mypy]
 python_version = "3.11"

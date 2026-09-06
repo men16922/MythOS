@@ -295,22 +295,21 @@ class CombatEngine:
         actor = state.active_actor()
         if actor is None or not actor.alive or not state.active or not actor.is_controllable:
             return {"can_act": False, "targets": [], "reachable": []}
-        targets: list[dict[str, Any]] = []
-        for enemy in state.living_enemies():
-            targets.append(
-                {
-                    "id": enemy.id,
-                    "name": enemy.name,
-                    "distance": distance(actor.x, actor.y, enemy.x, enemy.y),
-                    "in_range": self._weapon_in_range(actor, enemy, actor.primary_weapon()),
-                    "hp": enemy.hp,
-                    "max_hp": enemy.max_hp,
-                    # Two-tier slice 2 (2026-07-12): deterministic shot preview —
-                    # hit % + post-armor damage range + the cover the shot faces —
-                    # mirrors _attack's exact math, XCOM-HUD style.
-                    **self._attack_preview(state, actor, enemy),
-                }
-            )
+        targets: list[dict[str, Any]] = [
+            {
+                "id": enemy.id,
+                "name": enemy.name,
+                "distance": distance(actor.x, actor.y, enemy.x, enemy.y),
+                "in_range": self._weapon_in_range(actor, enemy, actor.primary_weapon()),
+                "hp": enemy.hp,
+                "max_hp": enemy.max_hp,
+                # Two-tier slice 2 (2026-07-12): deterministic shot preview —
+                # hit % + post-armor damage range + the cover the shot faces —
+                # mirrors _attack's exact math, XCOM-HUD style.
+                **self._attack_preview(state, actor, enemy),
+            }
+            for enemy in state.living_enemies()
+        ]
         # Friendlies (self + allies) so the UI can direct heal/shield support skills.
         friendly_targets: list[dict[str, Any]] = [
             {
@@ -883,11 +882,12 @@ class CombatEngine:
                 zap = str(effect.get("shock_damage", "") or "")
                 victims = [stun_target]
                 if "aoe" in (skill_def.get("tags") or []):
-                    for splash in state.living_enemies():
-                        if splash.id != stun_target.id and (
-                            distance(splash.x, splash.y, stun_target.x, stun_target.y) <= 1
-                        ):
-                            victims.append(splash)
+                    victims.extend(
+                        splash
+                        for splash in state.living_enemies()
+                        if splash.id != stun_target.id
+                        and distance(splash.x, splash.y, stun_target.x, stun_target.y) <= 1
+                    )
                 for victim in victims:
                     self._apply_stun(state, player, victim, duration)
                     if zap and victim.alive:

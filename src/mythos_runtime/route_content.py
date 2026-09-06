@@ -93,14 +93,14 @@ def _validate_anchor_variants(
         if not isinstance(override, dict):
             issues.append(RouteContentIssue("variant_invalid", v_path, "expected an object"))
             continue
-        for field in sorted(set(override) - ANCHOR_VARIANT_FIELDS):
-            issues.append(
-                RouteContentIssue(
-                    "variant_field_unknown",
-                    f"{v_path}.{field}",
-                    f"{field!r} is not an overridable anchor field",
-                )
+        issues.extend(
+            RouteContentIssue(
+                "variant_field_unknown",
+                f"{v_path}.{field}",
+                f"{field!r} is not an overridable anchor field",
             )
+            for field in sorted(set(override) - ANCHOR_VARIANT_FIELDS)
+        )
         if "beat" in override:
             beat = str(override.get("beat") or "").strip()
             if not beat:
@@ -209,14 +209,14 @@ def validate_route_content(route_map: Any) -> list[RouteContentIssue]:
 
             gates = _flag_list(anchor.get("gate"))
             missing_gates = gates - authored
-            for flag in sorted(missing_gates):
-                issues.append(
-                    RouteContentIssue(
-                        "gate_without_prior_producer",
-                        f"{path}.gate",
-                        f"{flag!r} has no engine/authored producer in an earlier layer",
-                    )
+            issues.extend(
+                RouteContentIssue(
+                    "gate_without_prior_producer",
+                    f"{path}.gate",
+                    f"{flag!r} has no engine/authored producer in an earlier layer",
                 )
+                for flag in sorted(missing_gates)
+            )
             reachable = not missing_gates
             entry_flags = _effect_flags(anchor.get("effect")) if reachable else set()
             local_causal = causal | entry_flags
@@ -304,8 +304,9 @@ def main(argv: list[str] | None = None) -> int:
         with open(path, encoding="utf-8") as handle:
             data = json.load(handle)
         checked += 1
-        for issue in validate_route_content(data.get("route_map", {})):
-            failures.append(f"{path}: {issue}")
+        failures.extend(
+            f"{path}: {issue}" for issue in validate_route_content(data.get("route_map", {}))
+        )
     if failures:
         print("\n".join(failures))
         return 1

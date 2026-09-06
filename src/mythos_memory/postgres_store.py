@@ -138,10 +138,11 @@ class PostgresMythOSStore(MythOSStore):
     @staticmethod
     def _inventory_working_form(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """counted table rows → loop.state working list (id별 quantity 만큼 전개)."""
-        working: list[dict[str, Any]] = []
-        for row in rows:
-            for _ in range(int(row.get("quantity", 1))):
-                working.append({"id": row["item_id"], "equipped": bool(row.get("equipped"))})
+        working: list[dict[str, Any]] = [
+            {"id": row["item_id"], "equipped": bool(row.get("equipped"))}
+            for row in rows
+            for _ in range(int(row.get("quantity", 1)))
+        ]
         return working
 
     def save_loop(self, loop: LoopState) -> None:

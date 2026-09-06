@@ -482,9 +482,7 @@ class RuntimeSessionService:
                 scenario.combat.get("items", {}) if isinstance(scenario.combat, dict) else {}
             )
             inventory = list(initial_state.get("_inventory", []))
-            for item_id in item_ids:
-                if item_id in item_defs:
-                    inventory.append(item_defs[item_id])
+            inventory.extend(item_defs[item_id] for item_id in item_ids if item_id in item_defs)
             initial_state["_inventory"] = inventory
 
         loop_seed = create_loop_seed(

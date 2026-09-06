@@ -299,8 +299,7 @@ def evaluate_meta_progression(
     for companion, delta in sorted(run_summary.relationships.items()):
         if delta:
             grants.append(f"relationship:{companion}:{'+' if delta > 0 else ''}{delta}")
-    for cutscene_id in newly_unlocked_cutscenes:
-        grants.append(f"cutscene:{cutscene_id}")
+    grants.extend(f"cutscene:{cutscene_id}" for cutscene_id in newly_unlocked_cutscenes)
     progress, grants = _grant_if(
         progress,
         grants,
@@ -1043,11 +1042,9 @@ def _allies_from_loop_state(state: dict[str, Any]) -> list[str]:
     members = party.get("members")
     if not isinstance(members, list):
         return []
-    allies = []
-    for member in members:
-        if isinstance(member, dict) and member.get("id"):
-            allies.append(str(member["id"]))
-    return allies
+    return [
+        str(member["id"]) for member in members if isinstance(member, dict) and member.get("id")
+    ]
 
 
 def _world_memory_from_archive(loop: LoopState, scene: Scene) -> WorldMemory:

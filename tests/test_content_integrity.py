@@ -800,9 +800,11 @@ class EncounterBoundsIntegrityTest(unittest.TestCase):
             if not isinstance(arena, dict):
                 bad.append(f"{eid}.arena={arena!r}")
                 continue
-            for dim in ("width", "height"):
-                if not self._is_positive(arena.get(dim)):
-                    bad.append(f"{eid}.arena.{dim}={arena.get(dim)!r}")
+            bad.extend(
+                f"{eid}.arena.{dim}={arena.get(dim)!r}"
+                for dim in ("width", "height")
+                if not self._is_positive(arena.get(dim))
+            )
         self.assertEqual(
             bad,
             [],
@@ -1023,9 +1025,9 @@ class NpcAgendaSubjectIntegrityTest(unittest.TestCase):
                 continue
             chars = self._character_names(data)
             allowed = set(data.get("npc_agenda_allowed_subjects") or [])
-            for key in agendas:
-                if key not in chars and key not in allowed:
-                    offenders.append(f"{name}:{key!r}")
+            offenders.extend(
+                f"{name}:{key!r}" for key in agendas if key not in chars and key not in allowed
+            )
         self.assertEqual(
             offenders,
             [],
@@ -1081,11 +1083,12 @@ class CharacterDetectionKeywordIntegrityTest(unittest.TestCase):
 
     def test_detection_keywords_exclude_ambient_common_nouns(self) -> None:
         scenario = load_scenario("neo-seoul")
-        offenders = []
-        for character in scenario.characters:
-            for keyword in character.get("keywords", []) or []:
-                if str(keyword).strip().lower() in self.AMBIENT_COMMON_NOUNS:
-                    offenders.append(f"{character.get('name')}:{keyword!r}")
+        offenders = [
+            f"{character.get('name')}:{keyword!r}"
+            for character in scenario.characters
+            for keyword in character.get("keywords", []) or []
+            if str(keyword).strip().lower() in self.AMBIENT_COMMON_NOUNS
+        ]
         self.assertEqual(
             offenders,
             [],
@@ -1274,9 +1277,7 @@ class RelationshipSubjectIntegrityTest(unittest.TestCase):
             if not keys:
                 continue
             recognised = _ally_ids(data) | set(data.get("relationship_subjects") or [])
-            for key in sorted(keys):
-                if key not in recognised:
-                    offenders.append(f"{name}:{key!r}")
+            offenders.extend(f"{name}:{key!r}" for key in sorted(keys) if key not in recognised)
         self.assertEqual(
             offenders,
             [],
@@ -1330,8 +1331,10 @@ class CutsceneIntegrityTest(unittest.TestCase):
             scenario_id = path.parent.name
             with open(path, encoding="utf-8") as handle:
                 data = json.load(handle)
-            for cutscene in load_scenario_directives(scenario_id).cutscenes:
-                out.append((scenario_id, data, cutscene))
+            out.extend(
+                (scenario_id, data, cutscene)
+                for cutscene in load_scenario_directives(scenario_id).cutscenes
+            )
         return out
 
     def test_cutscene_companions_resolve(self) -> None:
@@ -1489,8 +1492,10 @@ class EndingConditionReferenceIntegrityTest(unittest.TestCase):
         for name, data in self._scenarios():
             for ending_id, condition in self._conditions(data):
                 symbols, _flags = _ending_symbols_and_flags(condition)
-                for symbol in sorted(symbols - RECOGNISED_ENDING_SYMBOLS):
-                    offenders.append(f"{name}:{ending_id}:{symbol!r}")
+                offenders.extend(
+                    f"{name}:{ending_id}:{symbol!r}"
+                    for symbol in sorted(symbols - RECOGNISED_ENDING_SYMBOLS)
+                )
         self.assertEqual(
             offenders,
             [],
@@ -1505,8 +1510,9 @@ class EndingConditionReferenceIntegrityTest(unittest.TestCase):
             producible = _producible_flags(data)
             for ending_id, condition in self._conditions(data):
                 _symbols, flags = _ending_symbols_and_flags(condition)
-                for flag in sorted(flags - producible):
-                    offenders.append(f"{name}:{ending_id}:{flag!r}")
+                offenders.extend(
+                    f"{name}:{ending_id}:{flag!r}" for flag in sorted(flags - producible)
+                )
         self.assertEqual(
             offenders,
             [],
@@ -1584,10 +1590,8 @@ class RouteNodeTypeClosureTest(unittest.TestCase):
         offenders: list[str] = []
         for name, data in self._scenarios():
             declared, pool_types, anchor_types = _route_node_type_usage(data)
-            for t in sorted(pool_types - declared):
-                offenders.append(f"{name}:pool:{t!r}")
-            for t in sorted(anchor_types - declared):
-                offenders.append(f"{name}:anchor:{t!r}")
+            offenders.extend(f"{name}:pool:{t!r}" for t in sorted(pool_types - declared))
+            offenders.extend(f"{name}:anchor:{t!r}" for t in sorted(anchor_types - declared))
         self.assertEqual(
             offenders,
             [],
@@ -1673,8 +1677,7 @@ class PerspectiveWhenFlagProducibilityTest(unittest.TestCase):
                 continue
             _gate, _when, effect = _route_flag_sets(data.get("route_map") or {})
             producible = effect | ENGINE_PRODUCED_FLAGS | NARRATIVE_DRIVEN_FLAGS
-            for flag in sorted(when - producible):
-                offenders.append(f"{name}:{flag!r}")
+            offenders.extend(f"{name}:{flag!r}" for flag in sorted(when - producible))
         self.assertEqual(
             offenders,
             [],
@@ -1743,8 +1746,10 @@ class ArchetypeAndCharacterIdIntegrityTest(unittest.TestCase):
             for index, rid in enumerate(ids):
                 if not rid:
                     offenders.append(f"{name}:{key}[{index}].id is empty/missing")
-            for dup in sorted({i for i in ids if i and ids.count(i) > 1}):
-                offenders.append(f"{name}:duplicate {label} id {dup!r}")
+            offenders.extend(
+                f"{name}:duplicate {label} id {dup!r}"
+                for dup in sorted({i for i in ids if i and ids.count(i) > 1})
+            )
         self.assertEqual(
             offenders,
             [],
@@ -2077,9 +2082,11 @@ class SideAnchorIntegrityTest(unittest.TestCase):
         for name, data, arcs in self._scenarios_with_side_arcs():
             recognised = _recognised_npc_subjects(data)
             for index, arc in enumerate(arcs):
-                for ref in sorted(_collect_ref_values(arc, SIDE_ARC_NPC_REF_KEYS)):
-                    if ref not in recognised:
-                        offenders.append(f"{name}:side_arcs[{index}] npc {ref!r}")
+                offenders.extend(
+                    f"{name}:side_arcs[{index}] npc {ref!r}"
+                    for ref in sorted(_collect_ref_values(arc, SIDE_ARC_NPC_REF_KEYS))
+                    if ref not in recognised
+                )
         self.assertEqual(
             offenders,
             [],

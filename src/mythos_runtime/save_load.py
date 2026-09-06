@@ -21,9 +21,7 @@ class SaveLoadService:
     def list_save_slots(self, player_id: str, limit: int = 20) -> list[SaveSlot]:
         memories = self.store.list_player_memories(player_id)
         latest_memories = _latest_save_slot_memories(memories)
-        slots = []
-        for memory in latest_memories.values():
-            slots.append(_save_slot_from_memory(memory))
+        slots = [_save_slot_from_memory(memory) for memory in latest_memories.values()]
         slots.sort(key=lambda s: s.saved_at, reverse=True)
         return slots[:limit]
 

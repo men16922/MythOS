@@ -163,17 +163,15 @@ class Validator:
             errors.append(
                 ValidationError("duplicate_choice_id", "choice ids must be unique", is_fatal=False)
             )
-        for choice in choices:
+        errors.extend(
+            ValidationError("invalid_choice", "choice fields must be non-empty", is_fatal=False)
+            for choice in choices
             if (
                 not choice.choice_id.strip()
                 or not choice.label.strip()
                 or not choice.intent.strip()
-            ):
-                errors.append(
-                    ValidationError(
-                        "invalid_choice", "choice fields must be non-empty", is_fatal=False
-                    )
-                )
+            )
+        )
         return ValidationResult(ok=not errors, errors=errors)
 
     def validate_state_delta(self, state_delta: dict[str, Any]) -> ValidationResult:

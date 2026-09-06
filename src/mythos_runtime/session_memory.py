@@ -241,9 +241,11 @@ def build_session_synopsis(state: dict[str, Any]) -> list[str]:
         if anchors:
             spine = " → ".join(f"{b.get('node')}({_short(b.get('lens'))})" for b in anchors)
             notes.append(f"주요 전환점: {spine}")
-            for b in anchors[-3:]:
-                if b.get("gist"):
-                    notes.append(f" - {b.get('node')}: {_short(b.get('gist'), 90)}")
+            notes.extend(
+                f" - {b.get('node')}: {_short(b.get('gist'), 90)}"
+                for b in anchors[-3:]
+                if b.get("gist")
+            )
         titles: list[str] = []
         for b in beats:
             title = _short(b.get("title"), 40)

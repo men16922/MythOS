@@ -63,9 +63,11 @@ class TraceCaptureTest(unittest.TestCase):
     def _records(self) -> list[dict]:
         rows: list[dict] = []
         for path in sorted(self.dir.glob("*.jsonl")):
-            for line in path.read_text(encoding="utf-8").splitlines():
-                if line.strip():
-                    rows.append(json.loads(line))
+            rows.extend(
+                json.loads(line)
+                for line in path.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            )
         return rows
 
     def test_off_by_default_returns_the_provider_untouched(self) -> None:

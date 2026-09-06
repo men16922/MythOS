@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
+from typing import Any
 
 from mythos_core import Echo, LoopPhase, LoopState, NarrativeShard, Scene, WorldEvent
 from mythos_core.clock import utc_now
@@ -314,7 +315,7 @@ def _archive_requested(loop: LoopState, payload: ScenePayload) -> bool:
     return next_stability <= 10 or next_tension >= 90
 
 
-def _merge_state(state: dict, state_delta: dict) -> dict:
+def _merge_state(state: dict[str, Any], state_delta: dict[str, Any]) -> dict[str, Any]:
     merged = dict(state)
     flags = set(merged.get("flags", []))
     flags.update(state_delta.get("flags", []))

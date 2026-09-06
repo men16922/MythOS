@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 from mythos_core import WorldEvent
 from mythos_core.clock import utc_now
 from mythos_core.ids import new_event_id
@@ -11,7 +13,7 @@ def create_player_event(
     turn_index: int,
     action: str,
     result: str | None = None,
-    state_delta: dict | None = None,
+    state_delta: dict[str, Any] | None = None,
 ) -> WorldEvent:
     return WorldEvent(
         event_id=new_event_id(),
@@ -30,7 +32,7 @@ def create_world_event(
     turn_index: int,
     action: str,
     result: str | None = None,
-    state_delta: dict | None = None,
+    state_delta: dict[str, Any] | None = None,
 ) -> WorldEvent:
     return WorldEvent(
         event_id=new_event_id(),

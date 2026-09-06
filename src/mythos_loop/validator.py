@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field, replace
+from typing import Any
 
 from mythos_core import Choice, Echo, LoopPhase, LoopState, Scene, WorldEvent
 from mythos_narrative.schemas import (
@@ -175,7 +176,7 @@ class Validator:
                 )
         return ValidationResult(ok=not errors, errors=errors)
 
-    def validate_state_delta(self, state_delta: dict) -> ValidationResult:
+    def validate_state_delta(self, state_delta: dict[str, Any]) -> ValidationResult:
         errors: list[ValidationError] = []
         unknown_keys = set(state_delta) - ALLOWED_STATE_DELTA_KEYS
         if unknown_keys:

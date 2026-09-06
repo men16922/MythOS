@@ -103,11 +103,10 @@ Status: `[/]` in progress behind Priority 0, mostly `[manual]` human play feel. 
 - `[/]` `[manual]` D narrative repetition + F streaming speed (mitigations wired; remaining = multi-turn feel).
 - `[ ]` Opening montage repositioning + turn1 polish · P2 archetype meaning · Phase 4/5 RC. Detail → COMPLETED_SUMMARY M35-M40 + archive.
 
-### Combat — status-effect stacking rework (owner decision 2026-08-15)
+### Combat — status-effect stacking rework (owner decision 2026-08-15; design snapshot `docs/plans/2026-09-06-status-effect-stacking.md`)
 
-- `[ ]` **Statuses stack on reapplication (owner's "option 2", conversation decision 2026-08-15)** — reapplying a status should build **stacks** (intensity scaling), not just extend duration. Baseline today: `CombatEngine._apply_status_effect` accumulates *remaining turns* into `CombatantState.status_effects: dict[str, int]` (duration-accumulation only; magnitude is fixed per status). Design snapshot needed before implementation: per-status stack semantics (which statuses scale, per-stack magnitude, stack caps vs the existing `HARD_CC_TURNS_CAP`/utility-6 duration caps).
-- `[ ]` **Concurrent multiple statuses must resolve correctly** — a combatant carrying several distinct statuses at once (e.g. burn+acid+shock+hacked) needs verified tick order, independent expiry, damage interaction, and `status` chip/UI badge sync (`_tick_status_effects`, `status` mirror list). Verify via the combat simulator + `gameplay-qa` before claiming done.
-- Untagged on purpose: the full "option 2" design context lives in the owner conversation, not the repo — write the `docs/plans/` design snapshot first, then promote to `[auto:claude]`.
+- `[x]` **Statuses stack on reapplication + concurrent statuses resolve correctly** — done 2026-09-06 (PROGRESS_LOG): `status_stacks` ledger, caps burn 3 / corrode 2 / acid 2, freeze/shock/hacked pinned at 1, `StatusIntensityStackingTest` (incl. burn+acid+shock+hacked mid-tick-death regression), roster chip `×N` + canvas pip, browser-verified on `stray_incinerator`.
+- `[ ]` `[manual]` **Stack feel verdict** — are caps 3/2/2 and the burn `1d4 × stacks` curve right in play, and is the badge pip legible at 390px? Owner call after a live loop; adjust `STATUS_STACK_CAPS` if not.
 
 ## Hold — Scenario Expansion / Glass Library
 

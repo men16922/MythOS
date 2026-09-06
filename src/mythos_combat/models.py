@@ -5,6 +5,8 @@ from typing import Any, cast
 
 from mythos_core.models import from_json_dict, to_json_dict
 
+from .status_rules import rule_for, stack_cap
+
 # Faction tags
 PLAYER = "player"
 ALLY = "ally"
@@ -74,9 +76,17 @@ class Combatant:
     # a follow-up stun is halved (floor) in _apply_stun — no rotation-lock.
     stun_guard: bool = False
     # Persistent status effects (2026-07-12 design): id -> remaining turns.
-    # ids: "burn" (DoT at turn start) · "corrode" (armor -2 while active); the
+    # Rules per id live in status_rules.STATUS_RULES (burn = DoT × stacks,
+    # corrode = armor −2 per stack, acid = defense −2 per stack, …); the
     # `status` chip list mirrors active ids so UI badges stay in sync.
     status_effects: dict[str, int] = field(default_factory=dict)
+    # Stack count per active status (owner "option 2", 2026-08-15 —
+    # docs/plans/2026-09-06-status-effect-stacking.md): reapplying a status
+    # refreshes its turns AND raises its intensity up to a per-status cap.
+    # Kept as a parallel dict so `status_effects` stays the turns ledger every
+    # test/save already reads; a status present in `status_effects` but absent
+    # here counts as 1 stack (old saves, direct test setup).
+    status_stacks: dict[str, int] = field(default_factory=dict)
     speed_buff: int = 0  # temporary movement bonus (E1 han signature)
     speed_buff_turns: int = 0  # rounds the speed_buff persists
     taunt_turns: int = 0  # rounds enemies must target this combatant (E1 tae_o signature)
@@ -94,10 +104,13 @@ class Combatant:
 
     @property
     def effective_defense(self) -> int:
-        # 산성 (status slice 2): dissolved plating — -2 while active, floor 1.
-        acid_pen = 2 if self.has_status("acid") else 0
+        # 산성 (status slice 2): dissolved plating — per-stack penalty, floor 1.
         return max(
-            1, self.defense + (4 if self.defending else 0) + max(0, self.defense_buff) - acid_pen
+            1,
+            self.defense
+            + (4 if self.defending else 0)
+            + max(0, self.defense_buff)
+            - self.status_defense_penalty(),
         )
 
     @property
@@ -106,8 +119,45 @@ class Combatant:
 
     def has_status(self, status_id: str) -> bool:
         """Is ``status_id`` active on this unit? The single read seam for status
-        state — the stacking rework changes what ``status_effects`` stores."""
+        presence; ``status_stack`` is the seam for its intensity."""
         return status_id in self.status_effects
+
+    def status_stack(self, status_id: str) -> int:
+        """Intensity of ``status_id``: 0 when inactive, otherwise 1..cap (a
+        status that predates the stacking rework has no ``status_stacks``
+        entry and behaves as a single stack; a stored value above the rule's
+        cap — hand-set or from an older balance — is clamped on read)."""
+        if status_id not in self.status_effects:
+            return 0
+        return min(stack_cap(status_id), max(1, int(self.status_stacks.get(status_id, 1))))
+
+    def status_armor_penalty(self) -> int:
+        """Armor lost to active statuses (corrode: per-stack)."""
+        return sum(
+            rule_for(sid).armor_per_stack * self.status_stack(sid) for sid in self.status_effects
+        )
+
+    def status_defense_penalty(self) -> int:
+        """Defense lost to active statuses (acid: per-stack)."""
+        return sum(
+            rule_for(sid).defense_per_stack * self.status_stack(sid) for sid in self.status_effects
+        )
+
+    def clear_status(self, status_id: str, *, keep_chip: bool = False) -> None:
+        """Remove ``status_id`` from every ledger at once (turns, stacks and —
+        unless ``keep_chip`` — the UI chip list). The single removal seam, so a
+        new removal path cannot leave a stale stack count behind that the next
+        single hit would revive at full intensity."""
+        self.status_effects.pop(status_id, None)
+        self.status_stacks.pop(status_id, None)
+        if not keep_chip and status_id in self.status:
+            self.status.remove(status_id)
+
+    def clear_all_statuses(self) -> None:
+        """Drop every persistent status (revive: a unit comes back clean, or a
+        burn ×3 tick would down it again before it acts)."""
+        for status_id in list(self.status_effects):
+            self.clear_status(status_id)
 
     def stat(self, name: str) -> int:
         return int(self.stats.get(name, 0))

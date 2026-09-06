@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-09-06 — Status intensity is a second ledger, and only magnitude statuses stack
+
+Decision: status stacking (owner "option 2", 2026-08-15) is stored as `Combatant.status_stacks: dict[str, int]` **beside** the existing turns ledger `status_effects: dict[str, int]`, not as a replacement tuple shape. Only statuses with a numeric magnitude scale — burn (DoT, cap 3), corrode (armor, cap 2), acid (defense, cap 2); freeze/shock/hacked are binary gates pinned at one stack. Stacks never decay per turn; they clear with the status.
+
+Reason/impact: the turns ledger is read as a plain int by ~30 test sites, the generic dataclass JSON round-trip and every persisted combat save — a shape change would have forced a migration for no semantic gain, while a parallel dict with "missing entry = one stack" keeps old saves and direct test setup valid. Restricting stacking to magnitude statuses keeps "×2 frozen" from meaning anything the rules cannot deliver. Per-turn stack decay was rejected explicitly: it would make intensity indistinguishable from duration, which is the very distinction option 2 introduces. The caps are a bounded starting point (mirroring `HARD_CC_TURNS_CAP`'s intent), open to a `[manual]` feel verdict, and every per-status number (turns cap, stack cap, DoT dice, per-stack armor/defense) is one `StatusRule` row in `status_rules.py`. Any status added later must declare whether it stacks, or it defaults to a single stack.
+
 ## 2026-09-05 — `MYTHOS_WORLD_ID` is `world_mythos`, the value the persisted rows hold
 
 Decision: the two definitions (`constants.py` `"mythos-local"`, read by session/rollup; `progression.py` `"world_mythos"`, used by every archive/run-summary writer since the 2026-06-06 extraction) collapse into one constant set to **`world_mythos`**.

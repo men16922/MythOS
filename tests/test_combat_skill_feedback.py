@@ -826,8 +826,10 @@ class StatusStackingTest(unittest.TestCase):
         engine._apply_status_effect(state, player, foe, "corrode", 4)
         engine._apply_status_effect(state, player, foe, "corrode", 4)
         self.assertEqual(foe.status_effects["corrode"], STATUS_EFFECT_TURNS_CAP)
-        # Corrode intensity does NOT stack with duration: still a flat -2.
-        self.assertEqual(engine._effective_armor(foe), 1)
+        # Intensity stacks alongside duration (owner "option 2", 2026-08-15):
+        # two applications = two stacks = -4 armor, floored at 0.
+        self.assertEqual(foe.status_stack("corrode"), 2)
+        self.assertEqual(engine._effective_armor(foe), 0)
 
     def test_stun_accumulates_and_caps(self) -> None:
         from mythos_combat.engine import HARD_CC_TURNS_CAP
@@ -1102,6 +1104,222 @@ class CryoGrenadeDamageTest(unittest.TestCase):
         assert foe is not None
         self.assertLess(foe.hp, 40)
         self.assertEqual(foe.status_effects.get("freeze"), 2)
+
+
+class StatusIntensityStackingTest(unittest.TestCase):
+    """Owner "option 2" (2026-08-15): reapplying a status raises its stack count
+    (intensity) alongside its turns — docs/plans/2026-09-06-status-effect-stacking.md.
+    burn/corrode/acid scale with stacks (caps 3/2/2); freeze/shock/hacked are
+    binary gates pinned at one stack; stacks clear with the status, never alone."""
+
+    def _fixture(self):
+        sys.path.insert(0, str(ROOT / "tests"))
+        from test_combat_engine import _drone, _player
+
+        from mythos_combat import CombatEngine
+
+        engine = CombatEngine()
+        state = engine.start(
+            [_player(x=0, y=0)],
+            [_drone(x=5, y=0, hp=30, defense=11, speed=0, armor=5)],
+            seed="status-intensity",
+            arena=(8, 6),
+        )
+        player = state.player()
+        foe = state.living_enemies()[0]
+        assert player is not None
+        return engine, state, player, foe
+
+    def test_scaling_statuses_stack_up_to_their_caps(self) -> None:
+        from mythos_combat.engine import STATUS_STACK_CAPS
+
+        engine, state, player, foe = self._fixture()
+        for _ in range(5):
+            engine._apply_status_effect(state, player, foe, "burn", 1)
+            engine._apply_status_effect(state, player, foe, "corrode", 1)
+            engine._apply_status_effect(state, player, foe, "acid", 1)
+        self.assertEqual(foe.status_stack("burn"), STATUS_STACK_CAPS["burn"])  # 3
+        self.assertEqual(foe.status_stack("corrode"), STATUS_STACK_CAPS["corrode"])  # 2
+        self.assertEqual(foe.status_stack("acid"), STATUS_STACK_CAPS["acid"])  # 2
+        # Duration still accumulates on its own ledger (07-12/07-14 caps intact).
+        self.assertEqual(foe.status_effects["burn"], 3)
+        self.assertEqual(foe.status_effects["corrode"], 5)
+        # The badge list still carries one chip per status, never one per stack.
+        self.assertEqual(sorted(foe.status), ["acid", "burn", "corrode"])
+        applied = [
+            e for e in state.log if e.detail.get("status") == "burn" and "stacks" in e.detail
+        ]
+        self.assertEqual([e.detail["stacks"] for e in applied], [1, 2, 3, 3, 3])
+        self.assertIn("×2", applied[1].text)  # stacked applications say so
+        self.assertNotIn("×", applied[0].text)
+
+    def test_binary_gate_statuses_stay_at_one_stack(self) -> None:
+        engine, state, player, foe = self._fixture()
+        for _ in range(3):
+            for status_id in ("freeze", "shock", "hacked"):
+                engine._apply_status_effect(state, player, foe, status_id, 1)
+        for status_id in ("freeze", "shock", "hacked"):
+            self.assertEqual(foe.status_stack(status_id), 1, status_id)
+            self.assertEqual(foe.status_effects[status_id], 3, status_id)  # turns accumulate
+
+    def test_burn_dot_scales_with_stacks(self) -> None:
+        engine, state, player, foe = self._fixture()
+        for _ in range(3):
+            engine._apply_status_effect(state, player, foe, "burn", 1)
+        hp_before = foe.hp
+        engine._tick_status_effects(state, foe)
+        tick = next(
+            e for e in state.log if e.detail.get("status") == "burn" and "damage" in e.detail
+        )
+        self.assertEqual(tick.detail["stacks"], 3)
+        self.assertEqual(tick.detail["damage"] % 3, 0)  # 1d4 × 3 stacks
+        self.assertGreaterEqual(tick.detail["damage"], 3)
+        self.assertLessEqual(tick.detail["damage"], 12)
+        self.assertEqual(foe.hp, hp_before - tick.detail["damage"])
+
+    def test_corrode_and_acid_penalties_scale_with_stacks(self) -> None:
+        engine, state, player, foe = self._fixture()
+        self.assertEqual(engine._effective_armor(foe), 5)
+        self.assertEqual(foe.effective_defense, 11)
+        engine._apply_status_effect(state, player, foe, "corrode", 2)
+        engine._apply_status_effect(state, player, foe, "acid", 2)
+        self.assertEqual(engine._effective_armor(foe), 3)
+        self.assertEqual(foe.effective_defense, 9)
+        engine._apply_status_effect(state, player, foe, "corrode", 2)
+        engine._apply_status_effect(state, player, foe, "acid", 2)
+        self.assertEqual(engine._effective_armor(foe), 1)
+        self.assertEqual(foe.effective_defense, 7)
+
+    def test_legacy_status_without_a_stack_entry_counts_as_one(self) -> None:
+        # Old saves / direct test setup write only the turns ledger.
+        engine, state, player, foe = self._fixture()
+        foe.status_effects["corrode"] = 2
+        self.assertEqual(foe.status_stack("corrode"), 1)
+        self.assertEqual(engine._effective_armor(foe), 3)
+        self.assertEqual(foe.status_stack("burn"), 0)  # inactive → 0, not 1
+        # Reapplying a legacy-active status builds on that implicit 1 stack.
+        engine._apply_status_effect(state, player, foe, "corrode", 1)
+        self.assertEqual(foe.status_stack("corrode"), 2)
+        self.assertEqual(engine._effective_armor(foe), 1)
+
+    def test_stored_stack_above_cap_is_clamped_on_read(self) -> None:
+        engine, state, player, foe = self._fixture()
+        foe.status_effects["corrode"] = 2
+        foe.status_stacks["corrode"] = 5  # hand-set / older balance
+        self.assertEqual(foe.status_stack("corrode"), 2)
+        self.assertEqual(engine._effective_armor(foe), 1)
+
+    def test_rule_table_is_the_single_source(self) -> None:
+        from mythos_combat.status_rules import STATUS_RULES, rule_for
+
+        self.assertEqual(
+            set(STATUS_RULES), {"burn", "corrode", "acid", "freeze", "shock", "hacked"}
+        )
+        self.assertEqual(rule_for("burn").dot_dice, "1d4")
+        self.assertEqual(rule_for("corrode").armor_per_stack, 2)
+        self.assertEqual(rule_for("acid").defense_per_stack, 2)
+        for gate in ("freeze", "shock", "hacked"):
+            self.assertEqual(rule_for(gate).stack_cap, 1, gate)
+        self.assertEqual(rule_for("unknown").stack_cap, 1)
+
+    def test_clear_status_can_keep_the_chip_for_the_upkeep_reveal(self) -> None:
+        engine, state, player, foe = self._fixture()
+        engine._apply_status_effect(state, player, foe, "hacked", 1)
+        foe.clear_status("hacked", keep_chip=True)
+        self.assertNotIn("hacked", foe.status_effects)
+        self.assertNotIn("hacked", foe.status_stacks)
+        self.assertIn("hacked", foe.status)  # 🕹 stays until the unit's upkeep
+        foe.clear_status("hacked")
+        self.assertNotIn("hacked", foe.status)
+
+    def test_revive_clears_lingering_statuses(self) -> None:
+        sys.path.insert(0, str(ROOT / "tests"))
+        from test_combat_engine import _drone, _player
+
+        from mythos_combat import CombatEngine
+        from mythos_combat.models import ALLY, Combatant
+
+        engine = CombatEngine()
+        ally = Combatant(
+            id="ally_1", name="Ally", faction=ALLY, x=1, y=0, hp=12, max_hp=12, defense=10
+        )
+        state = engine.start(
+            [_player(x=0, y=0)],
+            [_drone(x=6, y=0, hp=30, defense=11, speed=0, armor=0)],
+            seed="revive-clean",
+            arena=(8, 6),
+        )
+        state.combatants.append(ally)
+        player = state.player()
+        assert player is not None
+        for _ in range(3):
+            engine._apply_status_effect(state, player, ally, "burn", 1)
+        ally.hp = 0
+        ally.alive = False
+        self.assertEqual(ally.status_stack("burn"), 3)
+        from mythos_combat.engine import PlayerAction
+
+        item_def = {"id": "nanopatch_revive", "name": "Revive", "effect": "revive", "bonus": 4}
+        engine._player_item(
+            state, player, PlayerAction(type="item", item_id="nanopatch_revive"), item_def, True
+        )
+        self.assertTrue(ally.alive)
+        self.assertEqual(ally.status_effects, {})
+        self.assertEqual(ally.status_stacks, {})
+        self.assertEqual(ally.status, [])
+
+    def test_stacks_clear_with_the_status_and_survive_serialization(self) -> None:
+        from mythos_combat import combat_state_from_dict, combat_state_to_dict
+
+        engine, state, player, foe = self._fixture()
+        engine._apply_status_effect(state, player, foe, "corrode", 1)
+        engine._apply_status_effect(state, player, foe, "corrode", 1)
+        restored = combat_state_from_dict(combat_state_to_dict(state))
+        rfoe = restored.by_id(foe.id)
+        assert rfoe is not None
+        self.assertEqual(rfoe.status_stacks, {"corrode": 2})
+        self.assertEqual(rfoe.status_stack("corrode"), 2)
+        # Two turns accumulated; stacks do not decay per tick, only with expiry.
+        engine._tick_status_effects(state, foe)
+        self.assertEqual(foe.status_stack("corrode"), 2)
+        engine._tick_status_effects(state, foe)
+        self.assertEqual(foe.status_effects, {})
+        self.assertEqual(foe.status_stacks, {})
+        self.assertEqual(foe.status, [])
+
+    def test_hacked_consumption_clears_its_stack_entry(self) -> None:
+        engine, state, player, foe = self._fixture()
+        engine._apply_status_effect(state, player, foe, "hacked", 1)
+        engine._hacked_turn(state, foe)
+        self.assertNotIn("hacked", foe.status_effects)
+        self.assertNotIn("hacked", foe.status_stacks)
+
+    def test_concurrent_statuses_tick_and_expire_independently(self) -> None:
+        # Regression per the design snapshot: burn+acid+shock+hacked at once.
+        engine, state, player, foe = self._fixture()
+        engine._apply_status_effect(state, player, foe, "burn", 1)
+        engine._apply_status_effect(state, player, foe, "burn", 1)  # 2 turns, 2 stacks
+        engine._apply_status_effect(state, player, foe, "acid", 3)
+        engine._apply_status_effect(state, player, foe, "shock", 1)
+        engine._apply_status_effect(state, player, foe, "hacked", 1)
+        self.assertEqual(set(foe.status), {"burn", "acid", "shock", "hacked"})
+        engine._tick_status_effects(state, foe)
+        # shock expired; burn/acid counted down; hacked untouched (consumed at act time).
+        self.assertEqual(foe.status_effects, {"burn": 1, "acid": 2, "hacked": 1})
+        self.assertEqual(foe.status_stacks, {"burn": 2, "acid": 1, "hacked": 1})
+        self.assertEqual(set(foe.status), set(foe.status_effects))
+        # Mid-tick death: burn kills, the loop still finishes the remaining
+        # statuses without a mutation error and the ledgers stay consistent.
+        foe.hp = 1
+        engine._tick_status_effects(state, foe)
+        self.assertFalse(foe.alive)
+        self.assertNotIn("burn", foe.status_effects)
+        self.assertNotIn("burn", foe.status_stacks)
+        self.assertEqual(foe.status_effects, {"acid": 1, "hacked": 1})
+        self.assertEqual(set(foe.status), set(foe.status_effects))
+        kills = [e for e in state.log if e.action == "defeat"]
+        self.assertEqual(len(kills), 1)
+        self.assertEqual(kills[0].detail["stacks"], 2)
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ Last updated: 2026-09-06
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Prod = `mythos-api-00088-v66` (2026-09-06; main `8bf30b9` deployed, nothing pending).** The 2026-09-06 overnight run is reviewed (`/overnight-report` done, 8/8 seeds, `[auto]` backlog **0** — seed before the next run; verifiers 15/10 fixed). `main` is ahead of `origin/main` by 33 — owner `git push`. Product track is owner-gated (§3 verdict — NEXT_PLAN Priority 0). Serving-research: P0-2/P1-2/T4 done 2026-09-06 (share **flat at ~68%**; MLX ignores `response_format`, Gemma loses the prefix cache → Qwen3 ladder); next is P1-3 workload card / P2 bench port. **Do not**: build a stream-stall watchdog; add keyword inflections on principle; start the status-stacking rework without its `docs/plans/` snapshot; put `experiments/`/`scripts/<other>` paths in `[auto:claude]` seeds (out of contract scope).
+> ▶ NEXT SESSION: **Status-effect stacking is built and browser-verified (2026-09-06, undeployed; `docs/plans/2026-09-06-status-effect-stacking.md`)** — owner feel verdict on caps 3/2/2 + pip legibility is `[manual]`. Everything else open in NEXT_PLAN is owner-gated (§3 verdict, `_weapon_in_range`, prod migration `008`) or `[blocked]` (P2 bench port needs `labs/wsl2-vllm-baseline/`; adapter rows need an engine). `[auto]` backlog is **0** — `/overnight-seed` before the next unattended run. Prod = `mythos-api-00088-v66` (main `8bf30b9`); `main` ahead of `origin/main` — owner `git push`. **Do not**: build a stream-stall watchdog; add keyword inflections on principle; decay stacks per turn (only with expiry — design §Stack decay); put `experiments/`/`scripts/<other>` paths in `[auto:claude]` seeds.
 
 ## Snapshot
 

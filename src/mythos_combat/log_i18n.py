@@ -105,6 +105,10 @@ _LINES: dict[str, dict[str, str]] = {
         "ko": "{target}의 제어권이 탈취당한다 — 🕹 다음 턴 아군 오인 공격!",
         "en": "{target}'s control is seized — 🕹 it will turn on its own side!",
     },
+    "status_stack_suffix": {
+        "ko": " (중첩 ×{stacks})",
+        "en": " (×{stacks})",
+    },
     "hacked_turn": {
         "ko": "🕹 {name}이(가) 조종당해 {target}을(를) 공격한다!",
         "en": "🕹 {name}, under hacked control, attacks {target}!",

@@ -166,6 +166,9 @@ export interface CombatBlip {
   // Active buff/debuff state (D2 status chips): temporary DEF bonus with
   // remaining rounds, boss enrage, generic status ids (e.g. "stunned").
   status?: string[];
+  // Stack count per active status id (owner "option 2", 2026-08-15); absent
+  // or 1 = a single application, >1 renders as "×N" on the chip.
+  status_stacks?: Record<string, number>;
   defense_buff?: number;
   defense_buff_turns?: number;
   enraged?: boolean;

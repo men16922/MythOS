@@ -1311,6 +1311,25 @@ export function drawCombatCanvas(
           ctx.fillStyle = meta.fg;
           ctx.fillText(statusBadgeLabel(sid).slice(0, 2), chipCx, chipCy + 0.5);
         }
+        // Stack count (owner "option 2", 2026-08-15): a small pip in the
+        // status color at the chip's lower-right once a status has stacked.
+        const stacks = b.status_stacks?.[sid] ?? 1;
+        if (stacks > 1) {
+          const pipR = Math.max(6, chipR * 0.42);
+          const pipX = chipCx + chipR * 0.72;
+          const pipY = chipCy + chipR * 0.72;
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(pipX, pipY, pipR, 0, Math.PI * 2);
+          ctx.fillStyle = meta.bg;
+          ctx.fill();
+          ctx.fillStyle = meta.fg;
+          ctx.font = `bold ${Math.round(pipR * 1.4)}px SF Mono, monospace`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(String(stacks), pipX, pipY + 0.5);
+          ctx.restore();
+        }
         chipCx += chipR * 2 + gap;
       }
       if (badgeOverflow > 0) {

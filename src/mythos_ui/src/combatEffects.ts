@@ -172,7 +172,7 @@ export class CombatAnimator {
     // Status-apply pops (owner 2026-07-12 "시각적으로 강렬해야"): every applied
     // status gets a board burst — expanding rings in the status color + a big
     // floating badge — scheduled after the blow that caused it.
-    const statusPops: { id: string; status: string; at: number }[] = [];
+    const statusPops: { id: string; status: string; stacks: number; at: number }[] = [];
     {
       let popIndex = 0;
       for (const entry of newLog) {
@@ -182,6 +182,7 @@ export class CombatAnimator {
             statusPops.push({
               id: d.target,
               status: d.status,
+              stacks: typeof d.stacks === "number" ? d.stacks : 1,
               at: (hasMove ? 200 : 60) + 180 + popIndex * 160,
             });
             popIndex += 1;
@@ -571,7 +572,8 @@ export class CombatAnimator {
         overlay.floats!.push({
           cellX: px + 0.5,
           cellY: py - 0.2 - 0.8 * local,
-          text: statusBadgeLabel(pop.status),
+          // Stack gain reads at the moment it happens (owner "option 2").
+          text: pop.stacks > 1 ? `${statusBadgeLabel(pop.status)} ×${pop.stacks}` : statusBadgeLabel(pop.status),
           color: meta.bg,
           alpha: 1 - local * 0.6,
           size: 22,

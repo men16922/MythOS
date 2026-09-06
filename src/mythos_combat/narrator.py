@@ -64,6 +64,9 @@ def render_radar(state: CombatState) -> dict[str, Any]:
                 # board): temporary DEF bonus w/ remaining rounds, boss enrage,
                 # and the generic status list (e.g. future "stunned").
                 "status": list(c.status),
+                # Stack count per active status (owner "option 2", 2026-08-15)
+                # so the chip can read "×N" without a second round-trip.
+                "status_stacks": dict(c.status_stacks),
                 "defense_buff": c.defense_buff,
                 "defense_buff_turns": c.defense_buff_turns,
                 "enraged": c.enraged,

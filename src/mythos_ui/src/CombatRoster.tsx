@@ -60,11 +60,15 @@ export function CombatRoster({ combat, scenarioId }: CombatRosterProps) {
               </span>
             )}
             {b.enraged && <span className="roster-status-badge enraged">{t("roster.enraged")}</span>}
-            {(b.status || []).map((st) => (
-              <span key={st} className="roster-status-badge debuff">
-                {st === "stunned" ? t("roster.stunned") : st}
-              </span>
-            ))}
+            {(b.status || []).map((st) => {
+              const stacks = b.status_stacks?.[st] ?? 1;
+              return (
+                <span key={st} className="roster-status-badge debuff">
+                  {st === "stunned" ? t("roster.stunned") : st}
+                  {stacks > 1 ? ` ×${stacks}` : ""}
+                </span>
+              );
+            })}
           </div>
 
           {alive ? (

@@ -1,6 +1,6 @@
 # Completed Summary
 
-최종 갱신: 2026-08-09
+최종 갱신: 2026-09-06
 
 이 문서는 완료된 milestone의 압축 요약이다. 세부 작업 로그와 검증 기록은 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`, `bin/docs/archive/progress-2026-05.md`, `bin/docs/archive/progress-2026-06.md`를 참고한다. 최신 짧은 로그만 `PROGRESS_LOG.md`에 남긴다.
 
@@ -312,6 +312,14 @@
 - **Structure**: the rule is now one module, `mythos_core/text_match.py` (`keyword_hits`/`mentions`/`name_mentions`), replacing four independently-grown copies. Korean matches as a substring, ASCII must stand alone, and a one-syllable Korean *name* is particle-bounded rather than dropped.
 - **Verification**: `make check` 1222 → **1260** (5 skipped) with 38 new tests; `make smoke-local` exit 0; every fix reproduced before it was written and re-measured after. Rendered evidence: `outputs/live-qa/20260808-tier1-encounters/`, `outputs/live-qa/20260809-axis-and-attribution/`.
 - **Boundary**: all local — nothing pushed or deployed, by design, so the owner's §3 verdict is not desynchronised. Generated-art effects and play feel remain unverified; `CURRENT OBJECTIVE` did not reproduce and still needs the three scene ids.
+
+## M80 — Status-effect intensity stacking (owner "option 2") (2026-09-06)
+
+- **Purpose**: the owner's 2026-08-15 call — reapplying a status should build **stacks** (intensity), not only extend duration — had sat untagged in NEXT_PLAN because its design context lived only in the conversation. Snapshot first (`docs/plans/2026-09-06-status-effect-stacking.md`), then the build, then simulator evidence.
+- **Output**: `Combatant.status_stacks` as a parallel intensity ledger next to the unchanged turns ledger (`status_effects`), read through `status_stack(id)` (inactive 0, missing entry 1 — old saves and direct test setup keep working); `STATUS_STACK_CAPS = {burn: 3, corrode: 2, acid: 2}`, freeze/shock/hacked pinned at one stack; burn DoT `1d4 × stacks`, corrode armor and acid defense `-2 × stacks`; stacks clear only with the status (expiry, hacked consumption); localized ` (중첩 ×N)` / ` (×N)` suffix on the applied line, `stacks` in log detail and the blip payload; roster chip `burn ×2` and a status-colored count pip on the canvas badge.
+- **Structure**: the 07-12 "duration stacks, intensity does not" rule was test-locked (`test_status_duration_caps`); that assertion now encodes the new rule. Two snapshot corrections surfaced during the build and were written back: acid already had a magnitude site (`effective_defense`), and the tuple shape was dropped for the parallel dict because ~30 test sites, the generic dataclass round-trip and persisted saves all read `status_effects[id]` as an int.
+- **Verification**: `make check` 1363 → **1375** (6 skipped), 12 new tests including a same-session code-review pass (8 findings folded in: seed-before-write, `status_rules.py` table + read clamp, `clear_status` seam, revive cleanup, companion reapply gate, pop badge, comments) and the concurrent burn+acid+shock+hacked regression with a mid-tick death. Browser: non-fallback `stray_incinerator` solo — two plasma-torch hits gave "🔥 burning!" → "🔥 burning! (×2)", DoT 2 → 4, roster `burn ×2`, canvas pip "2", 0 console errors (`outputs/live-qa/20260906-status-stacking/`).
+- **Boundary**: local, undeployed. Stack-clear on expiry is unit-tested, not observed in the browser. The caps and the burn curve are a starting balance, not a verdict — play feel stays `[manual]`.
 
 ## Archive Reference
 

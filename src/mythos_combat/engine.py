@@ -16,6 +16,15 @@ from .models import (
     Weapon,
     distance,
 )
+from .status_rules import (
+    HARD_CC_TURNS_CAP,
+    STATUS_EFFECT_IDS,
+    STATUS_EFFECT_TURNS_CAP,
+    STATUS_EFFECT_TURNS_CAPS,
+    rule_for,
+    stack_cap,
+)
+from .status_rules import STATUS_STACK_CAPS as STATUS_STACK_CAPS  # re-exported for the tests
 
 _NEIGHBORS = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
 
@@ -91,18 +100,14 @@ def _dice_range(spec: str) -> tuple[int, int]:
 # freeze=no movement (can still act) · shock=focus regen + cooldown tick frozen ·
 # hacked=the enemy spends its next turn attacking its nearest fellow enemy
 # (시스템 침투; consumed at act time like stun, not by the generic tick).
-STATUS_EFFECT_IDS = ("burn", "corrode", "acid", "freeze", "shock", "hacked")
-
-# Reapplying a status (or stun) ACCUMULATES remaining turns instead of
-# max-refreshing (owner call 2026-07-12: duration stacks, intensity does not),
-# bounded by a cap so chained casts can't freeze a unit out of the fight.
-# Split caps (owner call 2026-07-14, bin/docs/plans/2026-07-14-combat-balance-tuning.md):
-# hard crowd-control — burn's armor-bypass DoT (a capped burn was expected-15
-# damage, outright killing every small enemy) and stun's lost turns — caps at 3,
-# while utility statuses (corrode/acid/freeze/shock/hacked) keep 6.
-STATUS_EFFECT_TURNS_CAP = 6
-HARD_CC_TURNS_CAP = 3
-STATUS_EFFECT_TURNS_CAPS = {"burn": HARD_CC_TURNS_CAP}
+# The per-status table (ids, turns caps, stack caps, DoT dice, per-stack
+# armor/defense penalties) is status_rules.STATUS_RULES; the names below are
+# re-exported so the apply path and the tests keep their spelling. Reapplying a
+# status ACCUMULATES turns up to its cap for every status (owner call
+# 2026-07-12; split caps 2026-07-14) and, for burn/corrode/acid, raises the
+# stack count up to STATUS_STACK_CAPS (owner "option 2" 2026-08-15 —
+# docs/plans/2026-09-06-status-effect-stacking.md). freeze/shock/hacked are
+# binary gates pinned at one stack. Stacks never decay on their own.
 
 # Forced movement (밀기/당기기) that runs into a blocker — board edge, a
 # full-cover structure, or another unit — slams the target for this flat,
@@ -1047,6 +1052,9 @@ class CombatEngine:
                 return False
             downed.alive = True
             downed.hp = max(int(item_def.get("bonus", 1)), downed.max_hp // 3)
+            # Come back clean: a lingering burn ×3 would roll 3–12 at the
+            # revived unit's next upkeep and down it again before it acts.
+            downed.clear_all_statuses()
             detail["revived"] = downed.id
             self._log(
                 state,
@@ -1607,7 +1615,7 @@ class CombatEngine:
 
         Consumed at act time (mirrors stun); the 🕹 chip stays until the unit's
         next upkeep so the seized turn reads on the board."""
-        del actor.status_effects["hacked"]
+        actor.clear_status("hacked", keep_chip=True)
         others = [e for e in state.living_enemies() if e.id != actor.id]
         if not others:
             self._log(
@@ -1650,38 +1658,59 @@ class CombatEngine:
         """Apply/extend a persistent status (2026-07-12 design; mirrors stun).
 
         Reapplying the same status ACCUMULATES remaining turns up to its cap
-        (owner call 2026-07-12: duration stacks, intensity does not; 2026-07-14:
-        burn caps at ``HARD_CC_TURNS_CAP``, utility statuses keep
-        ``STATUS_EFFECT_TURNS_CAP``). ``hacked`` is consumed wholesale at act
-        time, so extra turns on it are cosmetic."""
+        (owner call 2026-07-12; 2026-07-14: burn caps at ``HARD_CC_TURNS_CAP``,
+        utility statuses keep ``STATUS_EFFECT_TURNS_CAP``) AND raises its
+        stack count up to ``STATUS_STACK_CAPS`` (owner "option 2" 2026-08-15:
+        intensity stacks too — burn/corrode/acid scale, the rest stay at one
+        stack while their turns still accumulate). ``hacked`` is consumed
+        wholesale at act time, so extra turns on it are cosmetic."""
         if status_id not in STATUS_EFFECT_IDS or not victim.alive:
             return
+        # Seed from the read seam BEFORE touching the turns ledger: a status
+        # that is active with no stack entry (older save, direct setup)
+        # already counts as 1, and a fresh application reads 0.
+        prior_stacks = victim.status_stack(status_id)
         victim.status_effects[status_id] = min(
             STATUS_EFFECT_TURNS_CAPS.get(status_id, STATUS_EFFECT_TURNS_CAP),
             victim.status_effects.get(status_id, 0) + max(1, int(turns)),
         )
+        victim.status_stacks[status_id] = min(stack_cap(status_id), prior_stacks + 1)
         if status_id not in victim.status:
             victim.status.append(status_id)
         self._log(
             state,
             source,
             "info",
-            clog(state.language, f"status_{status_id}_applied", target=victim.name),
-            {"status": status_id, "target": victim.id, "turns": victim.status_effects[status_id]},
+            clog(state.language, f"status_{status_id}_applied", target=victim.name)
+            + (
+                clog(state.language, "status_stack_suffix", stacks=stacks)
+                if (stacks := victim.status_stacks[status_id]) > 1
+                else ""
+            ),
+            {
+                "status": status_id,
+                "target": victim.id,
+                "turns": victim.status_effects[status_id],
+                "stacks": victim.status_stacks[status_id],
+            },
         )
 
     def _tick_status_effects(self, state: CombatState, actor: Combatant) -> None:
-        """Turn-start tick: burn deals its DoT, every status counts down/expires."""
+        """Turn-start tick: burn deals its DoT (×stacks), every status counts
+        down/expires; stacks clear together with their status."""
         dice = self._dice(state)
         for status_id in list(actor.status_effects):
             if status_id == "hacked":
                 continue  # consumed when the hacked turn plays out (_hacked_turn)
-            if status_id == "burn" and actor.alive:
-                damage = max(1, dice.roll("1d4"))
+            dot_dice = rule_for(status_id).dot_dice
+            if dot_dice and actor.alive:
+                stacks = actor.status_stack(status_id)
+                damage = max(1, dice.roll(dot_dice)) * stacks
                 actor.hp = max(0, actor.hp - damage)
                 detail = {
-                    "status": "burn",
+                    "status": status_id,
                     "damage": damage,
+                    "stacks": stacks,
                     "target": actor.id,
                     "target_hp": actor.hp,
                     "target_max_hp": actor.max_hp,
@@ -1705,9 +1734,7 @@ class CombatEngine:
                     )
             actor.status_effects[status_id] -= 1
             if actor.status_effects[status_id] <= 0:
-                del actor.status_effects[status_id]
-                if status_id in actor.status:
-                    actor.status.remove(status_id)
+                actor.clear_status(status_id)
                 self._log(
                     state,
                     actor,
@@ -1717,11 +1744,8 @@ class CombatEngine:
                 )
 
     def _effective_armor(self, combatant: Combatant) -> int:
-        """Armor after persistent-status penalties (corrode: -2 while active)."""
-        armor = combatant.armor
-        if combatant.has_status("corrode"):
-            armor -= 2
-        return max(0, armor)
+        """Armor after persistent-status penalties (corrode: per stack)."""
+        return max(0, combatant.armor - combatant.status_armor_penalty())
 
     def _movement_frozen(self, state: CombatState, actor: Combatant) -> bool:
         """True + a log line when 냉동 blocks this movement (acting stays allowed)."""
@@ -2284,9 +2308,10 @@ class CombatEngine:
                 target = victim
             elif isinstance(effect.get("applies"), dict):
                 # Status rider signature (정밀 EMP ⚡감전): useful while the
-                # victim lacks at least one of the statuses it would apply.
+                # victim lacks at least one of the statuses it would apply —
+                # or, for a stacking status, still has stacks to gain.
                 applicable = victim is not None and any(
-                    not victim.has_status(sid) for sid in effect["applies"]
+                    victim.status_stack(sid) < stack_cap(sid) for sid in effect["applies"]
                 )
                 target = victim
             elif effect.get("focus_drain"):

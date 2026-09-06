@@ -2,6 +2,12 @@
 
 Last updated: 2026-09-06
 
+## 2026-09-06 — mypy-strict quality-ladder: mythos_memory/mythos_combat/mythos_api (overnight `[auto:claude]`)
+
+- Status: overnight lane item from the 2026-09-06 seed batch (NEXT_PLAN `Overnight seeds`). All three named packages were already 0-error under `mypy --strict` — added the three `$(VENV)/bin/mypy --strict src/<pkg>` lines to the Makefile `python-typecheck` target (no `pyproject.toml` override, no source changes needed).
+- Verified: `make check` green (skills/doc-budget/validate-content/lint/typecheck incl. all 7 strict packages/frontend build/1380 tests, 5 skipped).
+- Next: `mythos_runtime` under mypy strict remains open in NEXT_PLAN.
+
 ## 2026-09-06 — Deployed `mythos-api-00089-lv8` (owner-approved): intro/offer order fix + status stacking live
 
 - Status: owner picked "deploy now" when asked (prod idle since 08-30 → low player risk; the next promotion sample must play on the latest build). `make deploy` from HEAD `e2c39e2` (1380 tests green).

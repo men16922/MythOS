@@ -328,6 +328,13 @@
 - **Verification**: `make check` green after each package.
 - **Boundary**: `mythos_runtime` and the combined-override seed remain open in `NEXT_PLAN.md`.
 
+## M82 — mypy-strict quality-ladder seed: mythos_memory/mythos_combat/mythos_api (2026-09-06)
+
+- **Purpose**: continue the 2026-09-06 quality-ladder batch — bring the next three already-clean packages under `mypy --strict`.
+- **Output**: `python-typecheck` gained `mypy --strict src/mythos_memory`, `src/mythos_combat`, `src/mythos_api` lines. All three were already 0-error under `--strict` as-is — no source changes and no `pyproject.toml` override needed.
+- **Verification**: `make check` green.
+- **Boundary**: `mythos_runtime` remains open in `NEXT_PLAN.md`.
+
 ## Archive Reference
 
 M0-M10의 상세 체크리스트, work log, verification log는 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`에 보존한다.

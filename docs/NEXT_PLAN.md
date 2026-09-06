@@ -54,7 +54,7 @@ Scope is a research bench, **not** production self-hosting — the evidence puts
 
 Recorded 2026-09-06 (owner-approved, 16 seeds — quality ladder, all `make check`-verifiable; per-iteration ~15–25 min measured 09-06, `MAX_ITER=24`):
 
-- `[ ]` `[auto:claude]` mypy strict for the packages already clean — `mythos_memory`, `mythos_combat`, `mythos_api` (0 errors today): add `$(VENV)/bin/mypy --strict src/<pkg>` lines to the Makefile `python-typecheck` target like the landed core/loop/narrative/image_agent ones (a `[[tool.mypy.overrides]]` in `pyproject.toml` is now also in scope — 2026-09-06 lane-scope fix). Done: `make check` runs strict for all three and is green.
+- `[x]` mypy strict for `mythos_memory`/`mythos_combat`/`mythos_api` — done 2026-09-06 (all three were already 0-error under `--strict`; no `pyproject.toml` override needed), detail `COMPLETED_SUMMARY.md` M82.
 - `[x]` `mythos_core`/`mythos_loop`/`mythos_narrative`/`mythos_image_agent` under mypy strict — done 2026-09-06, detail `COMPLETED_SUMMARY.md` M81.
 - `[ ]` `[auto:claude]` `mythos_runtime` under mypy strict (21: 16 type-arg, 5 no-untyped-def) + override. Done: same criterion for `src/mythos_runtime`.
 - `[ ]` `[auto:claude]` status-effect data closure test in `tests/test_content_integrity.py`: every `applies` status id in scenario weapons/skills/items ⊆ `status_rules.STATUS_EFFECT_IDS`; every id has `status_<id>_applied` + `_expired` in `log_i18n` (hacked: applied only), `board.status.<id>` in both i18n dicts, a `STATUS_BADGES` entry in `combatCanvas.ts`, and `resources/<scenario>/status/<id>.png`. Done: test exists and passes, `make check` green.

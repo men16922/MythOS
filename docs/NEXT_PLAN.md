@@ -14,9 +14,10 @@ Authority: `docs/reports/2026-07-28-heldout-v1-clean-repair0-baseline.md`. Owner
 
 ## Priority 0 — §3 HOLD follow-through before another promotion sample
 
+Closed items are folded out of this file (its rule: open work only) — 2026-08 defect sweep, 2026-09-05 review residuals, serving-research P0/P0-2/P1-2/T4, status-effect stacking, `_weapon_in_range`, the 2026-09-06 seed batch: see `COMPLETED_SUMMARY.md` M79–M80 and PROGRESS_LOG.
+
 Authority QA: `docs/test/neo_seoul_live_qa.md`; scope: `docs/reports/2026-07-31-late-loop-repetition-scope.md`. **Latest deploy = `mythos-api-00089-lv8` (2026-09-06; adds the opening-cinematic/build-offer order fix and status-effect intensity stacking on top of `00088`).** Typed fallback evidence, combat pacing, structural novelty enforcement, and Gemini 3.1 image migration are live. The 2026-08-01 fresh-arm attempt (`loop_8b7a…60dc2`) was excluded at 13/14 (`parse_error`); it and the partial QA loop are evidence only.
 
-- `[x]` **Priority 0 defect sweep closed 2026-08-02..08-14** (retry gap, AMP-shard modal, EN apostrophe split, fresh 47/47 arm banked, per-turn token usage, EN localization, ended-run summary localization, structural repetition, repeated `Patrol Ambush`, clue counter/combat location, flee-odds display, tutorial-tier encounters, and the full Korean-only-matching class — value axis chip, Se-rin refusal, portrait attribution, opening cinematic gate, character-art keyword, SFX prose/marker, combat trigger) — detail in `COMPLETED_SUMMARY.md` M79 and `bin/docs/archive/progress-2026-08.md`.
 - `[/]` **Owner rulings on the banked arm** — `[x]` the 22+25 two-build split does not disqualify it (owner, 2026-08-13, DECISIONS); `[x]` rubric scored (`outputs/evals/20260814-005948/`: new sample 3/5, both 07-28 samples 2/5). `[ ]` `[manual]` the subjective **ending/overall feel verdict** is still open — and is now the *only* usable basis, since the score cannot carry the decision (below).
 - `[ ]` `[manual]` **Upstream repetition** — with the reviser corrected, the residual 59% is the model genuinely reusing locations/motifs (title repeats 32%, location streak 33% measured independently). This is narrative prompt/context work and must wait for the owner's §3 verdict, since it changes generation.
 - `[~]` **Stream-stall watchdog — DO NOT BUILD** — the runaway trickle was Chrome hidden-tab timer throttling of the client reveal (5–31 chars/min hidden vs 2,147 visible; server 7–26s). Withdrawn as a candidate; automated play must foreground the tab or reload to resync.
@@ -28,8 +29,6 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`; scope: `docs/reports/2026-07-31-
 
 ## Review residuals (2026-09-05 repo-wide review; verified but not yet done)
 
-- `[x]` **Closed 2026-09-05** (detail PROGRESS_LOG 2026-09-05): `_commit_scene` pure reducer · Snapshot builders · Fetch-once progress facts · Intent telegraph vs `_enemy_turn` · WS pins a pooled DB connection per open socket · `requested_next_phase: "archive"` bypasses the soft-defeat guard · Refusal cannot clear a pre-seeded `met_se_rin` · Route replay re-scores passed anchors with later flags · Frontend `NarrationReveal` + `combatView.ts` · `combatCanvas` per-frame layout.
-- `[x]` **`_weapon_in_range(state=None)` dead high-ground +1 range — dropped 2026-09-06** under the owner's "keep going" directive after the measurement (0.03% of range checks, 0 outcomes, no player-facing promise; `docs/reference/2026-09-06-status-stacking-balance.md` appendix). One-commit revert if a high-ground positioning feature is ever wanted (DECISIONS 2026-09-06).
 - `[/]` **Lesser substring matches** — `serializers._calculate_zone_risk` done 2026-09-05; `ending_resolver.py:111`/`audio_service.py:63` deliberately left (scoring semantics / no boss ids exist) — `[manual]` owner call if wanted.
 - `[ ]` `[manual]` **Apply migration `008`** (`narrative_shards(player_id, created_at)` index) on the production DB.
 
@@ -37,10 +36,6 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`; scope: `docs/reports/2026-07-31-
 
 Scope is a research bench, **not** production self-hosting — the evidence puts that far out of range (`docs/reference/2026-08-30-self-hosted-inference-and-mythos-as-research-platform.md`). Two benches: 12GB CUDA (mechanism) and the 48GB M4 Max (quality/capacity).
 
-- `[x]` **P0 instrumentation** — prompt trace + per-engine sampler adapter + `experiments/` harness; found/fixed two local sampler defects on the way (degradation 44% → 0%, PROGRESS_LOG 2026-08-30).
-- `[x]` **P1-2 prefix-sharing curve** — done 2026-09-06 (`experiments/results/20260905-154138-workload-profile/`): 44 consecutive `generate_story` calls, 0 degraded, share median **68.1%**, early/mid/late 68.2/68.7/67.4%, slope −0.05 pct/pair → **flat**. Shared prefix ~10.6k chars is constant and the prompt grows only 15.2k→15.8k: the bounded synopsis keeps the ratio flat. Sets P3: E-A runs at a fixed ~68% partial share, not a falling curve.
-- `[x]` **P0-2 residual: Ollama token usage** — closed 2026-09-05 (`cee577a`: `normalize_usage` reads the OpenAI `CompletionUsage` vocabulary, every `OllamaJSONProvider` call records it, streams request `stream_options.include_usage`; a local streamed turn logs `prompt_tokens`/`output_tokens`, director-level test).
-- `[x]` **T4 — MLX capability check** — answered 2026-09-06 (`docs/reference/2026-09-06-mlx-lm-server-capability-check.md`): `mlx_lm.server` ignores `response_format`; `LRUPromptCache` reuses prefixes across requests but sliding-window models (Gemma 3/4) re-prefill fully (#980) while Qwen3 keeps the cache → bench B E-A runs on the Qwen3 ladder.
 - `[ ]` `[blocked]` **Verify the unverified adapter rows** — `vllm`/`llamacpp`/`mlx` in `engine_options.py`; blocked until one of those engines is installed locally (none is, 2026-09-06). *Done when `make experiment ARGS=option-matrix` has been run against that engine and its row matches.*
 - `[ ]` **P2 bench port** — add a `mythos` trace-replay scenario to `labs/wsl2-vllm-baseline/` so results sit in the same table as the study's `prefill`/`decode`.
 - `[ ]` **P3 mechanism experiments** (bench A, vLLM): E-A prefix caching on real partial sharing · E-B ngram acceptance split between JSON scaffolding and prose · E-C structured-output mode vs schema-valid rate.
@@ -55,16 +50,30 @@ Scope is a research bench, **not** production self-hosting — the evidence puts
   - `[ ]` `[manual]` **Graph P2 bounded read-only scatter/gather experiment (upstream)**: only after held-out-bank ratification and explicit multi-agent authorization; compare 2–3 immutable-input scouts against one agent on wall time/tokens/valid defects/duplication. P0-A/P0-B/P1-A/P1-B/P1-C are in the local 1.3.0 release (116/116); no write-lane fan-out.
 
 ## Overnight seeds
-
-- `[x]` **2026-09-06 batch (8 owner-approved seeds) all landed** — ruff-format ×4 + lint wiring, PROGRESS_LOG compression, 14 `union-attr` suppressions → `_require_player`, `capture_trace` autoplay test. Detail: PROGRESS_LOG 2026-09-06 / COMPLETED M80 neighbours.
 - **Seed judgment 2026-09-06 (supervised survey, nothing recorded)**: `[auto]` backlog is 0 and the deterministic debt the runner could consume is essentially gone — 0 TODO/FIXME, eslint clean, ruff ignores only E501, 6 skipped tests are all opt-in/optional-dep, the 6 `visual_service.py` `type: ignore`s were dead (removed in-session, mypy clean) and the 3 left in `pipeline_cache.py` are live diffusers typing gaps, and the one skip-prone harness test was fixed in-session (`experiments/harness.py` counter suffix). Larger candidates (`session.py` 3.9k lines, `combatCanvas.ts` 1.5k) need a `docs/plans/` snapshot first and are not unattended-safe. **Do not manufacture seeds** for the next run; seed only from a new owner decision (boss stack resistance, `_weapon_in_range`, migration `008`) once made.
+
+Recorded 2026-09-06 (owner-approved, 16 seeds — quality ladder, all `make check`-verifiable; per-iteration ~15–25 min measured 09-06, `MAX_ITER=24`):
+
+- `[ ]` `[auto:claude]` mypy strict for packages already clean: add `[[tool.mypy.overrides]] module = ["mythos_memory.*", "mythos_combat.*", "mythos_api.*"]` with `strict = true` in pyproject. Done: override present, `make check` green.
+- `[ ]` `[auto:claude]` `mythos_core` under mypy strict (5 errors: 3 type-arg, 2 no-untyped-def) + its strict override. Done: `.venv/bin/mypy --strict src/mythos_core` 0 errors, override present, `make check` green.
+- `[ ]` `[auto:claude]` `mythos_loop` under mypy strict (4 type-arg) + override. Done: same criterion for `src/mythos_loop`.
+- `[ ]` `[auto:claude]` `mythos_narrative` under mypy strict (1 unused-ignore) + override. Done: same criterion for `src/mythos_narrative`.
+- `[ ]` `[auto:claude]` `mythos_image_agent` under mypy strict (8; the two diffusers `attr-defined` may keep targeted ignores) + override. Done: same criterion for `src/mythos_image_agent`.
+- `[ ]` `[auto:claude]` `mythos_runtime` under mypy strict (21: 16 type-arg, 5 no-untyped-def) + override. Done: same criterion for `src/mythos_runtime`.
+- `[ ]` `[auto:claude]` status-effect data closure test in `tests/test_content_integrity.py`: every `applies` status id in scenario weapons/skills/items ⊆ `status_rules.STATUS_EFFECT_IDS`; every id has `status_<id>_applied` + `_expired` in `log_i18n` (hacked: applied only), `board.status.<id>` in both i18n dicts, a `STATUS_BADGES` entry in `combatCanvas.ts`, and `resources/<scenario>/status/<id>.png`. Done: test exists and passes, `make check` green.
+- `[ ]` `[auto:claude]` i18n key-parity test: the key sets of `src/mythos_ui/src/i18n/strings.ko.ts` and `strings.en.ts` are equal (567 today). Done: test exists and passes.
+- `[ ]` `[auto:claude]` E2E selector source-lock test: every CSS selector / id the two `scratch/run_*e2e*.py` scripts wait on (`.boot-enter-btn`, `#display-name`, `.arch-card`, `#start`, `.intro-accept-btn`, `#play`, `.tab-btn`, `#codex-tab-content`, `#story-tab-content`, `.sl-modal`, `.sl-save-row`, `.sl-title`, `.sl-load-btn`, `.sl-close`, `#save-load-panel`, `.boon-overlay`, `.boon-card`, `#resume`, `#choices`) appears in `src/mythos_ui/src/**`. Done: test exists and passes.
+- `[ ]` `[auto:claude]` ruff `C4` enabled in `[tool.ruff.lint] select` and its 6 findings fixed. Done: `ruff check .` 0 findings with C4 on, `make check` green.
+- `[ ]` `[auto:claude]` ruff `SIM` enabled and its 27 findings fixed (SIM117 with-statements, SIM105, SIM102, …). Done: same criterion with SIM on.
+- `[ ]` `[auto:claude]` ruff `PERF` enabled and its 25 PERF401 findings fixed. Done: same criterion with PERF on.
+- `[ ]` `[auto:claude]` ruff `B` enabled with `per-file-ignores = {"src/mythos_api/**" = ["B008"]}` (FastAPI `Depends` convention) and the other 11 findings fixed (B905 zip strict, B009, B904, B039). Done: same criterion with B on.
+- `[ ]` `[auto:claude]` remove test-side mypy suppressions in `tests/test_combat_*.py`, `test_encounter_balance.py`, `test_session_combat.py`, `test_cutscenes.py`, `test_portrait_combat_dock.py` via typed helpers (pattern: `_require_player`). Done: `rg 'type: ignore\[' <those files>` empty, `make check` green.
+- `[ ]` `[auto:claude]` same for `tests/test_visual_orchestration.py`, `test_gemini_provider.py`, `test_narrative_trace.py`, `test_postgres_retry.py`, `test_overnight_plugin_adapters.py` (code lines only — the docstring that *mentions* the marker stays), `test_runtime_session.py`. Done: `rg 'type: ignore\[' tests/` matches only that docstring, `make check` green.
+- `[ ]` `[auto:claude]` move CLOSED plan docs to `bin/docs/plans/`: `2026-07-25-app-decomposition-slice18-candidates.md`, `2026-07-26-combat-cinema-decomposition-candidates.md`, `2026-08-09-value-axis-vocabulary-coverage.md`, `2026-07-18-overnight-harness-v2.md`, updating every reference (`rg` the basenames across `docs/ harness/ CLAUDE.md .claude/`). Done: no reference to the old paths remains, `make check` (doc-budget) green.
 
 ## Rules
 
-- Before starting work, read `docs/AGENT_BRIEF.md` -> `docs/STATUS.md` -> this file in order.
-- Leave a design snapshot for large work in `docs/plans/YYYY-MM-DD-<topic>.md`.
-- After completion, keep only the latest summary in `docs/PROGRESS_LOG.md`; compress completed tracks into `COMPLETED_SUMMARY.md`.
-- Record hard-to-reverse choices in `docs/DECISIONS.md`.
+- Before starting work, read `docs/AGENT_BRIEF.md` -> `docs/STATUS.md` -> this file in order · Leave a design snapshot for large work in `docs/plans/YYYY-MM-DD-<topic>.md` · After completion, keep only the latest summary in `docs/PROGRESS_LOG.md`; compress completed tracks into `COMPLETED_SUMMARY.md` · Record hard-to-reverse choices in `docs/DECISIONS.md`.
 
 ### Automation tags (for the overnight loop)
 
@@ -77,10 +86,8 @@ Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop co
 - **MythOS live-QA verifier (repo-specific, not a tag)** — browser-observable commits route through `30-browser-objective`; objective failure rejects and unavailable/uncertain evidence becomes `needs_human`. Subjective feel stays `[manual]`. Detail `docs/engineering/mythos/LOOP.md` §4 · `VERIFICATION.md` §4.
 
 **Engine lanes** (design `docs/engineering/mythos/AGENTIC.md`): engine suffix on `[auto]`; each engine consumes only its own lane.
-- `[auto]` / `[auto:claude]` — claude lane (src/tests/harness/complex refactor·invariant). claude consumes both.
-- `[auto:codex]` — codex lane (deterministic docs/scenario/story_bible refactor·verify; make check gate).
-- `[auto:agy]` — agy lane (image draft + simple verify; resources/ image dirs only, integrity gate).
-- Codex consumes the Claude lane only with explicit operator `OVERNIGHT_CLAUDE_FAILOVER=1`; there is no silent cross-engine failover.
+- `[auto]` / `[auto:claude]` — claude lane (src/tests/harness/complex refactor·invariant). claude consumes both · `[auto:codex]` — codex lane (deterministic docs/scenario/story_bible refactor·verify; make check gate).
+- `[auto:agy]` — agy lane (image draft + simple verify; resources/ image dirs only, integrity gate) · Codex consumes the Claude lane only with explicit operator `OVERNIGHT_CLAUDE_FAILOVER=1`; there is no silent cross-engine failover.
 
 ## P1.5 — CBT feedback #3: Clarity & Responsiveness (design `docs/plans/2026-07-08-cbt-feedback3-clarity-plan.md`)
 
@@ -99,7 +106,6 @@ Status: `[/]` in progress behind Priority 0, mostly `[manual]` human play feel. 
 
 ### Combat — status-effect stacking rework (owner decision 2026-08-15; design snapshot `docs/plans/2026-09-06-status-effect-stacking.md`)
 
-- `[x]` **Statuses stack on reapplication + concurrent statuses resolve correctly** — done 2026-09-06 (PROGRESS_LOG): `status_stacks` ledger, caps burn 3 / corrode 2 / acid 2, freeze/shock/hacked pinned at 1, `StatusIntensityStackingTest` (incl. burn+acid+shock+hacked mid-tick-death regression), roster chip `×N` + canvas pip, browser-verified on `stray_incinerator`.
 - `[ ]` `[manual]` **Stack feel verdict** — are caps 3/2/2 and the burn `1d4 × stacks` curve right in play, and is the badge pip legible at 390px? Owner call after a live loop. Baseline-policy evidence: `docs/reference/2026-09-06-status-stacking-balance.md` — 11/12 encounter×party cells unchanged, only `purge_incineration` solo drops 0.65→0.55 (burn ×3); **offensive side is the real question**: burn ×3 pre-placed on IX (synthetic upper bound) lifts the solo win rate 0.30→0.82 and 33% of those fights end with IX dying to a burn tick — decide whether bosses get stack resistance (cap 2 / halve DoT stacks on `ai == "boss"`, mirroring the 07-14 stun guard) or a decisive ×3 is the intended reward. Lever: one `StatusRule` row / engine guard.
 
 ## Hold — Scenario Expansion / Glass Library

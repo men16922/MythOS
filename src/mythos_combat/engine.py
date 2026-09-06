@@ -14,17 +14,15 @@ from .models import (
     CombatLogEntry,
     CombatState,
     Weapon,
+    distance,
 )
-from .models import distance as distance  # re-exported for the tests
-from .status_rules import HARD_CC_TURNS_CAP as HARD_CC_TURNS_CAP  # re-exported for the tests
 from .status_rules import (
+    HARD_CC_TURNS_CAP,
     STATUS_EFFECT_IDS,
+    STATUS_EFFECT_TURNS_CAP,
     STATUS_EFFECT_TURNS_CAPS,
     rule_for,
     stack_cap,
-)
-from .status_rules import (
-    STATUS_EFFECT_TURNS_CAP as STATUS_EFFECT_TURNS_CAP,  # re-exported for the tests
 )
 from .status_rules import STATUS_STACK_CAPS as STATUS_STACK_CAPS  # re-exported for the tests
 

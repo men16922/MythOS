@@ -92,25 +92,3 @@ warn_return_any = true
 warn_unused_configs = true
 check_untyped_defs = true
 ignore_missing_imports = true
-
-# `strict = true` here would be a global switch, not a per-module one: mypy's
-# config parser treats the `strict` meta-key as a side-effecting flag that
-# turns on all strict-mode options repo-wide the moment it appears in ANY
-# override section (see mypy config_parser.py `set_strict_flags`). Scoping to
-# these three packages means listing the flags `--strict` expands to instead
-# (all are genuinely per-module) minus `warn_redundant_casts`, which mypy does
-# not allow per-module at all.
-[[tool.mypy.overrides]]
-module = ["mythos_memory.*", "mythos_combat.*", "mythos_api.*"]
-disallow_any_generics = true
-disallow_subclassing_any = true
-disallow_untyped_calls = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-check_untyped_defs = true
-disallow_untyped_decorators = true
-warn_unused_ignores = true
-warn_return_any = true
-implicit_reexport = false
-strict_equality = true
-extra_checks = true

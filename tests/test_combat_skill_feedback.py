@@ -1322,5 +1322,41 @@ class StatusIntensityStackingTest(unittest.TestCase):
         self.assertEqual(kills[0].detail["stacks"], 2)
 
 
+class StatusStackUiLockTest(unittest.TestCase):
+    """Source locks for the three status renderers + the payload that feeds
+    them, so a later refactor cannot drop the stack count from one surface
+    while the others still show it (the review found exactly that gap once)."""
+
+    def test_payload_carries_status_stacks(self) -> None:
+        self.assertIn(
+            '"status_stacks": dict(c.status_stacks)', read("src/mythos_combat/narrator.py")
+        )
+        self.assertIn("status_stacks?: Record<string, number>;", read("src/mythos_ui/src/types.ts"))
+
+    def test_roster_chip_and_canvas_badge_show_the_count(self) -> None:
+        roster = read("src/mythos_ui/src/CombatRoster.tsx")
+        self.assertIn("b.status_stacks?.[st] ?? 1", roster)
+        self.assertIn('stacks > 1 ? ` ×${stacks}` : ""', roster)
+        canvas = read("src/mythos_ui/src/combatCanvas.ts")
+        self.assertIn("b.status_stacks?.[sid] ?? 1", canvas)
+        self.assertIn("ctx.fillText(String(stacks), pipX, pipY + 0.5)", canvas)
+
+    def test_board_status_pop_reads_the_gain(self) -> None:
+        effects = read("src/mythos_ui/src/combatEffects.ts")
+        self.assertIn('stacks: typeof d.stacks === "number" ? d.stacks : 1', effects)
+        self.assertIn("pop.stacks > 1 ? `${statusBadgeLabel(pop.status)} ×${pop.stacks}`", effects)
+
+    def test_applied_line_does_not_hard_code_a_magnitude(self) -> None:
+        # With intensity stacking, "-2" in the applied line would lie from the
+        # second application on; every applied line names the effect, not a number.
+        from mythos_combat.log_i18n import clog
+
+        for sid in ("burn", "corrode", "acid", "freeze", "shock", "hacked"):
+            for lang in ("ko", "en"):
+                self.assertNotRegex(clog(lang, f"status_{sid}_applied", target="X"), r"-\d")
+        self.assertEqual(clog("ko", "status_stack_suffix", stacks=2), " (중첩 ×2)")
+        self.assertEqual(clog("en", "status_stack_suffix", stacks=3), " (×3)")
+
+
 if __name__ == "__main__":
     unittest.main()

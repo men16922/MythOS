@@ -74,8 +74,8 @@ _LINES: dict[str, dict[str, str]] = {
         "en": "{name}'s corrosion stops.",
     },
     "status_acid_applied": {
-        "ko": "{target}의 피막이 산에 녹아내린다 — 💧 방어 -2!",
-        "en": "{target}'s plating dissolves in acid — 💧 defense -2!",
+        "ko": "{target}의 피막이 산에 녹아내린다 — 💧 방어 약화!",
+        "en": "{target}'s plating dissolves in acid — 💧 defense weakened!",
     },
     "status_acid_expired": {
         "ko": "{name}의 피막 용해가 멎는다.",

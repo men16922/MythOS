@@ -79,6 +79,13 @@ Party survivability rules (2026-07-04):
 - `restart_core` (재기동 코어, rare consumable; market 5 scrap) revives the first downed ally mid-combat at max(bonus, max_hp//3); not consumed when nobody is down.
 - LLM scenes may grant carriable items via `world_delta.grant_items` (e.g. salvaging drone wreckage → drone_scrap): ids whitelisted to kinds consumable/material and capped 2/scene at commit (`session._filter_grant_items`), then materialized to full item defs for the inventory UI.
 
+Status effects (2026-07-12 base, 2026-09-06 intensity stacking — owner "option 2"):
+
+- Six persistent statuses, one rule row each in `mythos_combat/status_rules.py`: burn (DoT at the victim's turn start), corrode (armor down), acid (defense down), freeze (no movement, can still act), shock (no focus regen, cooldowns frozen), hacked (spends its next turn attacking its own side).
+- Reapplying a status **accumulates turns** up to its cap (burn 3, the rest 6) **and raises its stack count** where the status has a magnitude: burn `1d4 × stacks` (cap 3), corrode `-2 armor × stacks` (cap 2), acid `-2 defense × stacks` (cap 2). freeze/shock/hacked are binary gates pinned at one stack.
+- Stacks never decay per turn; they clear with the status (expiry, hacked consumption, revive — a revived unit comes back clean). The log says ` (중첩 ×N)`, the roster chip and board badge show `×N`.
+- Stun is a separate ledger (`stunned_turns`, cap 3, boss follow-up stun halved) and does not stack in intensity.
+
 Current focus:
 
 - Tune Neo-Seoul encounters so each fight has a gameplay purpose: movement, focus use, ally protection, recovery, or escape pressure.

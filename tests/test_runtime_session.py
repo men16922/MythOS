@@ -1702,7 +1702,7 @@ class ArchiveRollupTest(unittest.TestCase):
             gen_calls.append(latest.scene_id if latest else None)
             return sentinel
 
-        service._maybe_generate_image = _fake_gen  # type: ignore[assignment,method-assign]
+        cast(Any, service)._maybe_generate_image = _fake_gen
 
         events = list(
             service.stream_choose("loop_1", choice_id="go", options=RuntimeOptions(with_image=True))

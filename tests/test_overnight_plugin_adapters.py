@@ -167,7 +167,8 @@ class VerifierTests(unittest.TestCase):
         )
         self.assertEqual(ok.returncode, 0, ok.stdout + ok.stderr)
 
-        code = self.commit("src/base.py", "VALUE = 2  # type: ignore[assignment]\n")
+        marker = "type: ignore" + "[assignment]"
+        code = self.commit("src/base.py", f"VALUE = 2  # {marker}\n")
         rejected = run(
             [verifier, code],
             cwd=self.repo,

@@ -1,9 +1,11 @@
 import unittest
 from dataclasses import replace
 from datetime import UTC, datetime
+from typing import cast
 from unittest import mock
 
 from mythos_core import LoopPhase, LoopState, Scene
+from mythos_memory import MythOSStore
 from mythos_runtime import visual_orchestration
 from mythos_runtime.options import RuntimeOptions
 from mythos_runtime.route_map import ROUTE_MAP_KEY
@@ -73,7 +75,7 @@ class MaybeGenerateSkipsCuratedAnchorTests(unittest.TestCase):
         rm = {"current": "n1", "nodes": {"n1": {"anchor": True, "image": "scenes/x.png"}}}
         # store/provider intentionally None: the skip must short-circuit before use.
         result = maybe_generate_scene_image(
-            store=None,  # type: ignore[arg-type]
+            store=cast(MythOSStore, None),
             options=RuntimeOptions(with_image=True, image_every_turn=True, scenario_id="neo-seoul"),
             loop=_loop(rm),
             scene=_scene(),
@@ -83,7 +85,7 @@ class MaybeGenerateSkipsCuratedAnchorTests(unittest.TestCase):
 
     def test_with_image_off_still_returns_none(self) -> None:
         result = maybe_generate_scene_image(
-            store=None,  # type: ignore[arg-type]
+            store=cast(MythOSStore, None),
             options=RuntimeOptions(with_image=False),
             loop=_loop(None),
             scene=_scene(),
@@ -111,7 +113,7 @@ class SyncGenerationTests(unittest.TestCase):
             mock.patch.object(visual_orchestration, "VisualService", _RecordingService),
         ):
             return maybe_generate_scene_image(
-                store=None,  # type: ignore[arg-type]
+                store=cast(MythOSStore, None),
                 options=options,
                 loop=_loop(None),
                 scene=_scene(),

@@ -8,7 +8,7 @@ Postgres 불필요 — 스텁 연결로 검증.
 from __future__ import annotations
 
 import unittest
-from typing import Any
+from typing import Any, cast
 from unittest.mock import patch
 
 import psycopg
@@ -62,7 +62,7 @@ class _Conn:
 
 def _store_with(conn: _Conn) -> PostgresMythOSStore:
     store = PostgresMythOSStore.__new__(PostgresMythOSStore)
-    store._connection = conn  # type: ignore[assignment]
+    store._connection = cast("psycopg.Connection[dict[str, Any]]", conn)
     store._transaction_depth = 0
     store.database_url = "postgresql://stub"
     return store

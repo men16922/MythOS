@@ -1,6 +1,6 @@
 # Project MythOS Next Plan
 
-Last updated: 2026-09-05
+Last updated: 2026-09-07
 
 This file keeps only upcoming (open) work as a rolling plan. Completed tracks live in
 `docs/COMPLETED_SUMMARY.md`, detailed logs in `bin/docs/archive/progress-2026-0*.md`, individual designs in
@@ -65,7 +65,7 @@ Recorded 2026-09-06 (owner-approved, 16 seeds — quality ladder, all `make chec
 - `[x]` `[auto:claude]` ruff `PERF` enabled and its 25 PERF401 findings fixed. Done 2026-09-07: `PERF` added to `[tool.ruff.lint] select`; `scratch/*`/`experiments/*`/`scripts/eval/*`/`scripts/live-qa/*`/`streamlit_app.py` (outside the claude-lane scope) carry a `PERF` per-file-ignore since they hold the other 10 repo-wide findings and are not this seed's to fix. The in-scope 25 (all PERF401 for-loop-append) are rewritten to list comprehensions / `list.extend(...)` across `src/`+`tests/`; `ruff check .` and `make check` both green.
 - `[x]` `[auto:claude]` ruff `B` enabled with `per-file-ignores = {"src/mythos_api/**" = ["B008"]}` (FastAPI `Depends` convention) and the other 11 findings fixed (B905 zip strict, B009, B904, B039). Done 2026-09-07: out-of-scope dirs also get a `B` ignore; in-scope 11 fixed (zip `strict=`, `getattr`→attribute, `raise ... from exc`, `ContextVar` `default=None`); `make check` green.
 - `[x]` `[auto:claude]` remove test-side mypy suppressions in `tests/test_combat_*.py`, `test_encounter_balance.py`, `test_session_combat.py`, `test_cutscenes.py`, `test_portrait_combat_dock.py` via typed helpers. Done 2026-09-07, detail `COMPLETED_SUMMARY.md` M84.
-- `[ ]` `[auto:claude]` same for `tests/test_visual_orchestration.py`, `test_gemini_provider.py`, `test_narrative_trace.py`, `test_postgres_retry.py`, `test_overnight_plugin_adapters.py` (code lines only — the docstring that *mentions* the marker stays), `test_runtime_session.py`. Done: `rg 'type: ignore\[' tests/` matches only that docstring, `make check` green.
+- `[x]` `[auto:claude]` same for `tests/test_visual_orchestration.py`, `test_gemini_provider.py`, `test_narrative_trace.py`, `test_postgres_retry.py`, `test_overnight_plugin_adapters.py` (code lines only — the docstring that *mentions* the marker stays), `test_runtime_session.py`. Done 2026-09-07 — `rg 'type: ignore\[' tests/` matches only that docstring, `make check` green; detail `COMPLETED_SUMMARY.md` M85.
 - `[ ]` `[auto:claude]` move CLOSED plan docs to `bin/docs/plans/`: `2026-07-25-app-decomposition-slice18-candidates.md`, `2026-07-26-combat-cinema-decomposition-candidates.md`, `2026-08-09-value-axis-vocabulary-coverage.md`, `2026-07-18-overnight-harness-v2.md`, updating every reference (`rg` the basenames across `docs/ harness/ CLAUDE.md .claude/`). Done: no reference to the old paths remains, `make check` (doc-budget) green.
 
 ## Rules

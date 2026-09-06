@@ -349,6 +349,13 @@
 - **Verification**: `rg 'type: ignore\[' <those five files>` empty; `make check` green (lint/mypy non-strict `src tests` + the 8 per-package `--strict` lines + 1387 tests, 5 skipped).
 - **Boundary**: the second half of this seed pair (`test_visual_orchestration.py`/`test_gemini_provider.py`/`test_narrative_trace.py`/`test_postgres_retry.py`/`test_overnight_plugin_adapters.py`/`test_runtime_session.py`) remains open in `NEXT_PLAN.md`.
 
+## M85 — test-side mypy suppressions removed, second half (2026-09-07)
+
+- **Purpose**: close out the 2026-09-06 quality-ladder seed pair started in M84 — remove the remaining test-only `# type: ignore[...]` comments across `test_visual_orchestration.py`/`test_gemini_provider.py`/`test_narrative_trace.py`/`test_postgres_retry.py`/`test_overnight_plugin_adapters.py`/`test_runtime_session.py`.
+- **Output**: `test_visual_orchestration.py`'s 3 `store=None` sites now `store=cast(MythOSStore, None)`. `test_gemini_provider.py`'s `_FakeModels`/`_FakeGeminiClient` widened `response_text: str` to `str | None` — a real typing fix, since the fake's `.text` genuinely models the missing-text API case under test. `test_narrative_trace.py`'s `_Boom.generate` override now carries the parent's exact signature (`messages: list[dict[str, str]], *, model: str | None = None) -> str`) instead of being unannotated. `test_postgres_retry.py`'s `_store_with` now does `store._connection = cast("psycopg.Connection[dict[str, Any]]", conn)`. `test_runtime_session.py`'s fake-method-assign became `cast(Any, service)._maybe_generate_image = _fake_gen`. `test_overnight_plugin_adapters.py`'s "code" fixture line (which embeds a literal suppression marker as file content to test the diff-scope verifier's code-rejection path, not a real suppression on this file's own code) now builds the marker via string concatenation (`"type: ignore" + "[assignment]"`) so the source text itself doesn't contain the literal substring; its "prose" fixture line (mimicking a NEXT_PLAN checkbox mentioning the marker, the case the verifier must *not* reject) is left untouched by design.
+- **Verification**: `rg 'type: ignore\[' tests/` matches only the one prose-fixture line in `test_overnight_plugin_adapters.py`; `make check` green (lint/mypy non-strict `src tests` + the 8 per-package `--strict` lines + 1387 tests, 5 skipped).
+- **Boundary**: closes the 2026-09-06 quality-ladder mypy-suppression seed pair; no test-side `type: ignore[...]` remain outside that one documented-as-intentional prose fixture.
+
 ## Archive Reference
 
 M0-M10의 상세 체크리스트, work log, verification log는 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`에 보존한다.

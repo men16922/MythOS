@@ -56,7 +56,7 @@ def _scene_json(title: str = "Threshold") -> str:
 
 
 class _FakeModels:
-    def __init__(self, response_text: str, stream_chunks: list[str] | None = None) -> None:
+    def __init__(self, response_text: str | None, stream_chunks: list[str] | None = None) -> None:
         self._response_text = response_text
         self._stream_chunks = stream_chunks or []
         self.calls: list[dict[str, Any]] = []
@@ -77,7 +77,7 @@ class _FakeModels:
 class _FakeGeminiClient:
     """Stands in for `google.genai.Client` — only `.models.generate_content*` is used."""
 
-    def __init__(self, response_text: str, stream_chunks: list[str] | None = None) -> None:
+    def __init__(self, response_text: str | None, stream_chunks: list[str] | None = None) -> None:
         self.models = _FakeModels(response_text, stream_chunks)
 
 
@@ -233,7 +233,7 @@ class VertexGeminiProviderTest(unittest.TestCase):
         )
 
     def test_generate_handles_missing_text(self) -> None:
-        client = _FakeGeminiClient(response_text=None)  # type: ignore[arg-type]
+        client = _FakeGeminiClient(response_text=None)
         provider = VertexGeminiJSONProvider(client=client)
         self.assertEqual(provider.generate([{"role": "user", "content": "x"}]), "")
 

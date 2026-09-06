@@ -1,6 +1,11 @@
 # Progress Log
 
-Last updated: 2026-09-06
+Last updated: 2026-09-07
+
+## 2026-09-07 — test-side mypy suppressions removed, second half (overnight `[auto:claude]`)
+
+- Status: closes the 2026-09-06 quality-ladder seed pair (NEXT_PLAN `Overnight seeds`, M84 first half). Removed the remaining test-only `# type: ignore[...]` in `test_visual_orchestration.py`/`test_gemini_provider.py`/`test_narrative_trace.py`/`test_postgres_retry.py`/`test_overnight_plugin_adapters.py`/`test_runtime_session.py` with real typed fixes (`cast(...)`, a widened fake-constructor param type, a matching override signature) instead of suppressions; `test_overnight_plugin_adapters.py`'s verifier-fixture "code" line now builds its embedded marker via string concatenation so the source text itself carries no literal `# type: ignore` substring, leaving its "prose" fixture line (the one case the verifier must *not* reject) untouched.
+- Verified: `rg 'type: ignore\[' tests/` matches only that one prose-fixture line; `make check` green (skills/doc-budget/validate-content/lint/typecheck incl. all 8 strict packages/frontend build/1387 tests, 5 skipped). Detail `COMPLETED_SUMMARY.md` M85.
 
 ## 2026-09-06 — ruff `SIM` enabled, 27 in-scope findings fixed (overnight `[auto:claude]`)
 

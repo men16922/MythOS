@@ -119,7 +119,7 @@ class TraceCaptureTest(unittest.TestCase):
 
     def test_a_failing_call_is_recorded_then_re_raised(self) -> None:
         class _Boom(_FakeProvider):
-            def generate(self, messages, *, model=None):  # type: ignore[override]
+            def generate(self, messages: list[dict[str, str]], *, model: str | None = None) -> str:
                 raise RuntimeError("provider down")
 
         provider = wrap_provider(_Boom())

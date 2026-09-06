@@ -163,10 +163,10 @@ class RunArtifactsTest(unittest.TestCase):
             base = Path(tmp)
             first = run_experiment(exp, results_dir=base)
             second = run_experiment(exp, results_dir=base)
-            if first == second:  # same-second stamp; the guarantee is still "no overwrite"
-                self.skipTest("two runs landed in the same UTC second")
+            # Same-second stamps get a counter suffix rather than a skip.
             self.assertNotEqual(first, second)
             self.assertEqual(len(list(base.iterdir())), 2)
+            self.assertTrue((second / "report.md").exists())
 
 
 if __name__ == "__main__":

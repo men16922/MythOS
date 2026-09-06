@@ -54,16 +54,10 @@ Scope is a research bench, **not** production self-hosting — the evidence puts
   - `[/]` **cross-engine critic** — first same-diff smoke run 2026-07-25 on commit `046edc8`: **codex REPAIR vs claude PASS (1/1 disagreement)**; the codex objection (blank_output classification) was intended design → clarifying comment added to `_classify_fallback_reason`. Remaining `[ ]` `[manual]` full 1-night trial `make overnight OVERNIGHT_CRITIC_ENGINE=codex` (needs seeded `[auto]` backlog; lane currently drained) — morning: REVIEW_QUEUE + disagreement rate.
   - `[ ]` `[manual]` **Graph P2 bounded read-only scatter/gather experiment (upstream)**: only after held-out-bank ratification and explicit multi-agent authorization; compare 2–3 immutable-input scouts against one agent on wall time/tokens/valid defects/duplication. P0-A/P0-B/P1-A/P1-B/P1-C are in the local 1.3.0 release (116/116); no write-lane fan-out.
 
-## Overnight seeds (recorded 2026-09-06, owner-approved)
+## Overnight seeds
 
-- `[x]` `[auto:claude]` ruff-format `src/mythos_runtime`. Done: `.venv/bin/ruff format --check src/mythos_runtime` passes, `make check` green, no semantic change.
-- `[x]` `[auto:claude]` ruff-format `src/mythos_narrative src/mythos_core src/mythos_memory src/mythos_loop`. Done: `ruff format --check` on those dirs passes, `make check` green.
-- `[x]` `[auto:claude]` ruff-format `src/mythos_combat src/mythos_api src/mythos_image_agent src/mythos_ui/*.py experiments scripts`. Done: `ruff format --check` on those paths passes, `make check` green.
-- `[x]` `[auto:claude]` ruff-format `tests`. Done: `ruff format --check tests` passes, `make check` green.
-- `[x]` `[auto:claude]` wire `ruff format --check .` into the `python-lint` Makefile target (only after the four format seeds above are `[x]`). Done: `make lint` runs it and is green.
-- `[x]` compress `docs/PROGRESS_LOG.md` — done 2026-09-06 by the supervising session (`49779f0`; 17.7k→10.9k chars, entries archived by month). The claude runner does not consume the codex lane.
-- `[x]` `[auto:claude]` remove the 14 mypy `union-attr` suppressions in `tests/test_combat_engine.py` via a typed `_player(state) -> Combatant` helper that asserts non-None. Done: `rg 'type: ignore' tests/test_combat_engine.py` is empty, `make check` green. (Helper named `_require_player`/`_require` — the module already had an unrelated `_player(...)` combatant-factory fixture, so the seed's suggested name would have collided.)
-- `[x]` unit-test `experiments/capture_trace._auto_combat_action` — done 2026-09-06 by the supervising session (`6eeaaed`; script body moved under `main()` so the helper is importable).
+- `[x]` **2026-09-06 batch (8 owner-approved seeds) all landed** — ruff-format ×4 + lint wiring, PROGRESS_LOG compression, 14 `union-attr` suppressions → `_require_player`, `capture_trace` autoplay test. Detail: PROGRESS_LOG 2026-09-06 / COMPLETED M80 neighbours.
+- **Seed judgment 2026-09-06 (supervised survey, nothing recorded)**: `[auto]` backlog is 0 and the deterministic debt the runner could consume is essentially gone — 0 TODO/FIXME, eslint clean, ruff ignores only E501, 6 skipped tests are all opt-in/optional-dep, the 9 remaining `src/` `type: ignore`s are third-party typing gaps (google genai/cloud, diffusers) that no code change removes, and the one skip-prone harness test was fixed in-session (`experiments/harness.py` counter suffix). Larger candidates (`session.py` 3.9k lines, `combatCanvas.ts` 1.5k) need a `docs/plans/` snapshot first and are not unattended-safe. **Do not manufacture seeds** for the next run; seed only from a new owner decision (boss stack resistance, `_weapon_in_range`, migration `008`) once made.
 
 ## Rules
 

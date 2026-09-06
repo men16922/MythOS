@@ -209,6 +209,13 @@ def run_experiment(experiment: Experiment, results_dir: Path | None = None) -> P
     base = results_dir or RESULTS_DIR
     stamp = datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
     out = base / f"{stamp}-{experiment.slug}"
+    # Two runs inside the same UTC second must still land in two directories —
+    # a stamped directory per run is the point (reports are compared, never
+    # replaced), so disambiguate with a counter instead of overwriting.
+    n = 2
+    while out.exists():
+        out = base / f"{stamp}-{experiment.slug}-{n}"
+        n += 1
 
     result = experiment.run()
     prov = provenance_for(experiment)

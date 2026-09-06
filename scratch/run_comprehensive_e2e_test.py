@@ -17,6 +17,63 @@ def run_server():
     uvicorn.run(app, host="127.0.0.1", port=8080, log_level="error")
 
 
+def resolve_build_offers(page) -> None:
+    """Accept blocking boon/echo offers before interacting with story choices."""
+    for _ in range(3):
+        overlay = page.locator(".boon-overlay")
+        if overlay.count() == 0 or not overlay.is_visible():
+            return
+        heading = page.locator(".boon-modal-head").inner_text()
+        page.wait_for_function(
+            "() => !document.querySelector('.boon-card:first-child')?.disabled", timeout=10000
+        )
+        page.locator(".boon-card:first-child").click()
+        page.wait_for_function(
+            """
+            (previous) => {
+              const overlay = document.querySelector('.boon-overlay');
+              const heading = document.querySelector('.boon-modal-head')?.textContent || '';
+              const button = document.querySelector('.boon-card:first-child');
+              return !overlay || (heading !== previous && button && !button.disabled);
+            }
+            """,
+            arg=heading,
+            timeout=10000,
+        )
+    if page.locator(".boon-overlay").count():
+        raise RuntimeError("Build offer overlay did not settle.")
+
+
+def advance_turn(page) -> None:
+    """Pick the first choice and wait for the next interactive scene."""
+    page.locator("#choices button:first-child").click()
+    page.wait_for_function(
+        "() => document.querySelectorAll('#choices button').length === 0", timeout=10000
+    )
+    page.wait_for_selector("#choices button", timeout=30000)
+    resolve_build_offers(page)
+
+
+def open_save_panel(page) -> None:
+    """Reach the save/load launcher.
+
+    On a first loop the aside is deliberately minimal for turns 0-2 (onboarding
+    density), so the launcher does not exist yet — advance until it does. It
+    then sits inside a folded <details> chip whose summary must be opened."""
+    for _ in range(6):
+        panel = page.locator("#save-load-panel")
+        if panel.count():
+            if not panel.is_visible():
+                summary = page.locator("summary.aside-chip-summary", has_text="Save / Load")
+                if summary.count():
+                    summary.first.click()
+            page.wait_for_selector("#save-load-panel", state="visible", timeout=5000)
+            return
+        print("Save launcher not rendered yet (minimal aside) — advancing a turn...")
+        advance_turn(page)
+    raise RuntimeError("Save/load launcher never appeared")
+
+
 def run_test():
     server_process = multiprocessing.Process(target=run_server)
     server_process.start()
@@ -75,60 +132,50 @@ def run_test():
                 "TENSION gauge missing"
             )
 
+            # Build offers (AMP shard / echo inscription) block the board until picked.
+            resolve_build_offers(page)
+
             # --- STEP 3: Tab Transition (Codex, Dev) ---
             print("[6/10] Navigating tab views...")
-
-            # Go to Codex tab
+            # Tab order: story · character · skills · codex (· dev for admins only).
+            tabs = page.locator(".tab-btn")
             print("Switching to Codex tab...")
-            page.click('.tab-btn:has-text("기억의 별자리")')
-            page.wait_for_selector("#codex-tab-content", timeout=5000)
+            tabs.nth(3).click()
+            page.wait_for_selector("#codex-tab-content", timeout=15000)
             assert page.is_visible("#codex-tab-content"), "Codex tab content is not visible!"
             print("Codex tab rendered successfully.")
 
-            # Go to Dev tab
-            print("Switching to Dev tab...")
-            page.click('.tab-btn:has-text("개발자 콘솔")')
-            page.wait_for_selector("#dev-tab-content", timeout=5000)
-            assert page.is_visible("#dev-tab-content"), "Developer tab content is not visible!"
-            print("Developer tab rendered successfully.")
+            if tabs.count() >= 5:
+                print("Switching to Dev tab...")
+                tabs.nth(4).click()
+                page.wait_for_selector("#dev-tab-content", timeout=5000)
+                assert page.is_visible("#dev-tab-content"), "Developer tab content is not visible!"
+                print("Developer tab rendered successfully.")
+            else:
+                print("Dev tab hidden (not admin) — skipped.")
 
-            # Back to Story tab
             print("Switching back to Story tab...")
-            page.click('.tab-btn:has-text("서사 접속")')
+            tabs.nth(0).click()
             page.wait_for_selector("#story-tab-content", timeout=5000)
             assert page.is_visible("#story-tab-content"), "Story tab content is not visible!"
 
             # --- STEP 4: Session Save ---
             print("[7/10] Verifying Session Save...")
-            save_input = page.locator('#save-load-panel input[placeholder="설명 (선택)"]')
-            save_input.click()
-            save_input.fill("E2E 세이브 스냅샷")
-            page.wait_for_timeout(1000)
-
-            input_val = page.evaluate(
-                "() => document.querySelector('#save-load-panel input').value"
+            open_save_panel(page)
+            page.click("#save-load-panel .sl-launch button:first-child")
+            page.wait_for_selector(".sl-modal .sl-save-row input", timeout=10000)
+            page.fill(".sl-modal .sl-save-row input", "E2E 세이브 스냅샷")
+            page.click(".sl-modal .sl-save-row button")
+            print("Waiting for the saved slot to show the manual label...")
+            page.wait_for_function(
+                "() => Array.from(document.querySelectorAll('.sl-title'))"
+                ".some((e) => (e.textContent || '').includes('E2E 세이브 스냅샷'))",
+                timeout=10000,
             )
-            print(f"Debug: Input field value before click: '{input_val}'")
-
-            page.click('#save-load-panel button:has-text("SAVE")')
-
-            # Wait for save slot to appear and update to the manual save label
-            page.wait_for_selector(".save-slot-item", timeout=5000)
-
-            print("Waiting for save slot label to update in UI...")
-            success = False
-            for _ in range(10):
-                first_slot_label = page.locator(".save-slot-label").first.text_content()
-                if "E2E 세이브 스냅샷" in first_slot_label:
-                    success = True
-                    break
-                page.wait_for_timeout(500)
-
-            first_slot_label = page.locator(".save-slot-label").first.text_content()
-            print(f"First slot label after waiting: {first_slot_label}")
-            assert success, (
-                f"Save label mismatch! Expected 'E2E 세이브 스냅샷' to appear, but got '{first_slot_label}'"
-            )
+            first_slot_label = page.locator(".sl-title").first.text_content()
+            print(f"First slot label after save: {first_slot_label}")
+            page.click(".sl-close")
+            page.wait_for_selector(".sl-modal", state="detached", timeout=5000)
 
             # Capture screenshot after Save
             screenshot_path = str(
@@ -151,6 +198,7 @@ def run_test():
             print("Waiting for next turn's choices to load...")
             time.sleep(6.0)  # Wait a bit for WS response stream
             page.wait_for_selector("#choices button", timeout=20000)
+            resolve_build_offers(page)
 
             # Capture turn 1 state
             screenshot_path_turn1 = str(
@@ -161,7 +209,10 @@ def run_test():
 
             # Load back to turn 0
             print("Clicking LOAD to rollback to turn 0...")
-            page.locator(".save-slot-load-btn").first.click()
+            open_save_panel(page)
+            page.click("#save-load-panel .sl-launch button:nth-child(2)")
+            page.wait_for_selector(".sl-modal .sl-load-btn", timeout=10000)
+            page.locator(".sl-modal .sl-load-btn").first.click()
 
             # Wait for rollback
             print("Waiting for reload/rollback stream...")

@@ -952,26 +952,34 @@ export default function App() {
         </Suspense>
       )}
 
-      <BoonOffer
-        snapshot={finalizedSnapshot ?? lastSnapshot}
-        scenarioId={selectedScenarioId}
-        onChosen={(next) => {
-          // The boon/echo REST result is the current confirmed state (same scene,
-          // updated offer). Update finalizedSnapshot too — handleReceivedSnapshot
-          // only sets lastSnapshot, so without this the overlay never closes.
-          setFinalizedSnapshot(next);
-          handleReceivedSnapshot(next);
-        }}
-      />
+      {/* Build offers and the market wait for the opening cinematic: a loop
+          that starts with an AMP-shard offer used to raise the modal ON TOP of
+          the blurred intro, so the player had to pick an augment before
+          reading the opening (and its Awaken button was unclickable). */}
+      {!showIntro && (
+        <BoonOffer
+          snapshot={finalizedSnapshot ?? lastSnapshot}
+          scenarioId={selectedScenarioId}
+          onChosen={(next) => {
+            // The boon/echo REST result is the current confirmed state (same scene,
+            // updated offer). Update finalizedSnapshot too — handleReceivedSnapshot
+            // only sets lastSnapshot, so without this the overlay never closes.
+            setFinalizedSnapshot(next);
+            handleReceivedSnapshot(next);
+          }}
+        />
+      )}
 
-      <MarketExchange
-        snapshot={finalizedSnapshot ?? lastSnapshot}
-        scenarioId={selectedScenarioId}
-        onExchanged={(next) => {
-          setFinalizedSnapshot(next);
-          handleReceivedSnapshot(next);
-        }}
-      />
+      {!showIntro && (
+        <MarketExchange
+          snapshot={finalizedSnapshot ?? lastSnapshot}
+          scenarioId={selectedScenarioId}
+          onExchanged={(next) => {
+            setFinalizedSnapshot(next);
+            handleReceivedSnapshot(next);
+          }}
+        />
+      )}
     </>
   );
 }

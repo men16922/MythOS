@@ -2,6 +2,14 @@
 
 Last updated: 2026-09-06
 
+## 2026-09-06 — Opening cinematic no longer covered by the build offer; `make test-e2e` green again
+
+- Status: autonomous verification sweep after the stacking work — `make test-db` (5/5 on the live local Postgres, `status_stacks` round-trips) and then `make test-e2e`, which had been **red since the July UI restructure** and nobody had run: the AMP-shard offer modal opened ON TOP of the opening cinematic at loop start, so the Awaken button was unclickable (real UX defect, reproduced in the browser: `boon-overlay` z-index 55 over the intro; on prod `00088` today).
+- Changed: `App.tsx` gates `<BoonOffer>` and `<MarketExchange>` on `!showIntro` — the cinematic is read first, then the offer (browser-verified: intro visible / no overlay → Awaken → AMP SHARD). `scratch/run_playwright_test.py` tab indices updated to the current order (achievements live under Codex = tab 3, skills = tab 2). Source lock `OpeningSequenceOrderTest`.
+- Verified: `make test-e2e` end-to-end green (boot → onboarding → intro → offers → achievements KO/EN → skill tree → first choice → next turn); `make check` green; rebuilt `app.js` committed.
+- Blockers: none. Undeployed — prod players still see the offer over the intro until the next deploy.
+- Next: owner deploy decision now carries a user-visible fix; run `make test-e2e` after any UI-structure change (LESSONS).
+
 ## 2026-09-06 — Status-effect stacking implemented (owner "option 2"), browser-verified
 
 - Status: NEXT_PLAN Priority 1 / Combat closed — both `[auto:claude]` bullets `[x]`. Session started from `git log` (`/sync`): last work was the 2026-09-06 overnight close + P0-2 token-usage fix (`c723694`/`7a26d66`); most open items are `[manual]`/`[blocked]`, so the one owner-decided-but-unbuilt item was taken. Design snapshot first (`docs/plans/2026-09-06-status-effect-stacking.md`), then the build.

@@ -363,5 +363,22 @@ class UIClarityAffordancesTest(unittest.TestCase):
         self.assertIn(".codex-term-link", css)
 
 
+class OpeningSequenceOrderTest(unittest.TestCase):
+    """The opening cinematic is read BEFORE any build offer or market modal.
+
+    A loop that starts with an AMP-shard offer used to raise the boon modal on
+    top of the blurred intro (Awaken button unclickable, `make test-e2e` red
+    since the July UI restructure)."""
+
+    def test_offer_and_market_modals_wait_for_the_intro(self) -> None:
+        app = read("src/mythos_ui/src/App.tsx")
+        for component in ("<BoonOffer", "<MarketExchange"):
+            idx = app.index(component)
+            gate = app.rfind("{!showIntro && (", 0, idx)
+            self.assertNotEqual(gate, -1, component)
+            # The gate must be the nearest opening brace, not one from an earlier block.
+            self.assertNotIn("/>", app[gate:idx], component)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -138,8 +138,10 @@ def run_test():
             wait_for_interactive_scene(page)
             resolve_build_offers(page)
             print("Checking achievements dashboard in both languages...")
-            page.locator(".tab-btn").nth(1).click()
-            page.wait_for_selector(".achievements-section", timeout=10000)
+            # Tab order: story · character · skills · codex — the progress
+            # dashboard (achievements + run history) lives under Codex now.
+            page.locator(".tab-btn").nth(3).click()
+            page.wait_for_selector(".achievements-section", timeout=15000)
             if page.locator(".achievement-totals > div").count() != 3:
                 raise RuntimeError("Expected three cumulative achievement totals")
             if page.locator(".achievement-group").nth(0).locator(".achievement-row").count() != 4:
@@ -156,8 +158,8 @@ def run_test():
             achievements_path = str(OUTPUT_DIR / "e2e_achievements.png")
             page.locator(".achievements-section").screenshot(path=achievements_path)
             print(f"Achievements dashboard verified: {achievements_path}")
-            page.locator(".tab-btn").nth(3).click()
-            page.wait_for_selector(".skill-tree-graph", timeout=10000)
+            page.locator(".tab-btn").nth(2).click()
+            page.wait_for_selector(".skill-tree-graph", timeout=15000)
             if page.locator(".skill-tree-summary > span").count() != 3:
                 raise RuntimeError("Expected learned/available/locked skill summary")
             if page.locator(".skill-tree-column").count() < 2:

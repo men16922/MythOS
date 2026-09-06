@@ -12,6 +12,9 @@ from __future__ import annotations
 import hashlib
 import random
 import re
+from typing import TypeVar
+
+_T = TypeVar("_T")
 
 _DICE_RE = re.compile(r"^\s*(\d*)\s*d\s*(\d+)\s*(?:([+-])\s*(\d+))?\s*$", re.IGNORECASE)
 
@@ -51,13 +54,13 @@ class Dice:
     def chance(self, probability: float) -> bool:
         return self._rng.random() < probability
 
-    def choice(self, items: list):
+    def choice(self, items: list[_T]) -> _T:
         return self._rng.choice(items)
 
-    def weighted_choice(self, items: list, weights: list[float]):
+    def weighted_choice(self, items: list[_T], weights: list[float]) -> _T:
         return self._rng.choices(items, weights=weights, k=1)[0]
 
-    def shuffle(self, items: list) -> list:
+    def shuffle(self, items: list[_T]) -> list[_T]:
         copy = list(items)
         self._rng.shuffle(copy)
         return copy

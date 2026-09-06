@@ -36,6 +36,7 @@ typecheck:
 
 python-typecheck:
 	$(VENV)/bin/mypy src tests
+	$(VENV)/bin/mypy --strict src/mythos_core
 
 frontend-build:
 	cd $(FRONTEND_DIR) && npm run build

@@ -293,18 +293,18 @@ class VertexImageProvider:
         if self._injected_client is not None:
             return self._injected_client
         try:
-            from google import genai  # type: ignore[import-not-found]
+            from google import genai
         except ImportError as exc:  # pragma: no cover - exercised only without the SDK
             raise RuntimeError(
                 "google-genai is not installed. Install the cloud image provider with "
                 "`pip install -e .[gemini]` to use MYTHOS_VISUAL_PROVIDER=vertex."
             ) from exc
         if self.use_vertex:
-            self._injected_client = genai.Client(  # type: ignore[attr-defined]
+            self._injected_client = genai.Client(
                 vertexai=True, project=self.project, location=self.location
             )
         else:
-            self._injected_client = genai.Client(api_key=self.api_key)  # type: ignore[attr-defined]
+            self._injected_client = genai.Client(api_key=self.api_key)
         return self._injected_client
 
     def generate(self, request: VisualGenerationRequest, output_path: Path) -> Path:
@@ -348,7 +348,7 @@ class VertexImageProvider:
         """Gemini image path (gemini-*-image): text prompt + optional curated
         portrait as a reference so the character stays consistent across scenes.
         `google.genai.types` is imported lazily (optional cloud dep, like `_client`)."""
-        from google.genai import types  # type: ignore[import-not-found]
+        from google.genai import types
 
         contents: list[Any] = [request.prompt]
         ref = request.metadata.get("reference_image")
@@ -400,7 +400,7 @@ class MinIOStorageAdapter:
     secret_key: str = os.getenv("S3_SECRET_KEY", "mythos-local-secret")
     bucket: str = os.getenv("S3_BUCKET_ASSETS", "mythos-assets")
 
-    def _client(self):  # type: ignore[no-untyped-def]
+    def _client(self) -> Any:
         try:
             import boto3
         except ImportError as exc:
@@ -471,7 +471,7 @@ class GCSStorageAdapter:
         if self._injected_client is not None:
             return self._injected_client
         try:
-            from google.cloud import storage  # type: ignore[import-not-found]
+            from google.cloud import storage
         except ImportError as exc:  # pragma: no cover - exercised only without the SDK
             raise RuntimeError(
                 "google-cloud-storage is required for GCS access. Install with "

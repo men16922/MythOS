@@ -30,7 +30,7 @@ from mythos_narrative.prompts import (
 )
 from mythos_narrative.schemas import NarrativeContext
 from mythos_runtime.options import RuntimeOptions
-from mythos_runtime.scenario import load_scenario, load_scenario_i18n
+from mythos_runtime.scenario import PROJECT_ROOT, load_scenario, load_scenario_i18n
 from mythos_runtime.scenario_context import (
     CHOICE_MIRROR_RULE,
     CHOICE_MIRROR_RULE_EN,
@@ -384,6 +384,27 @@ class S4StoryBibleLanguageTest(unittest.TestCase):
         en = load_story_bible("glass-library", "en")
         ko = load_story_bible("glass-library", "ko")
         self.assertEqual([e.entry_id for e in en.entries], [e.entry_id for e in ko.entries])
+
+
+_I18N_KEY_RE = re.compile(r'^\s*"([^"]+)":', re.MULTILINE)
+
+
+def _ts_string_keys(path: str) -> set[str]:
+    text = (PROJECT_ROOT / "src" / "mythos_ui" / "src" / "i18n" / path).read_text(encoding="utf-8")
+    return set(_I18N_KEY_RE.findall(text))
+
+
+class I18nStringKeyParityTest(unittest.TestCase):
+    """strings.en.ts is typed Record<StringKey, string> so tsc already enforces key
+    parity at build time — this locks the same invariant at test time (overnight
+    seed 2026-09-06) so `make test` catches drift without a frontend build."""
+
+    def test_ko_and_en_key_sets_are_equal(self) -> None:
+        ko_keys = _ts_string_keys("strings.ko.ts")
+        en_keys = _ts_string_keys("strings.en.ts")
+        self.assertEqual(sorted(ko_keys - en_keys), [], "keys missing from strings.en.ts")
+        self.assertEqual(sorted(en_keys - ko_keys), [], "keys missing from strings.ko.ts")
+        self.assertEqual(len(ko_keys), 567)
 
 
 if __name__ == "__main__":

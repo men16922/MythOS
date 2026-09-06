@@ -14,6 +14,11 @@ from mythos_runtime.scenario_directives import (
 )
 
 
+def _require_cutscene(directive: CutsceneDirective | None) -> CutsceneDirective:
+    assert directive is not None
+    return directive
+
+
 def _cs(cid, companion, affection, flags=None, image="img.png", title="t", body="b"):
     return CutsceneDirective(
         cutscene_id=cid,
@@ -72,7 +77,7 @@ class CutsceneLoaderTest(unittest.TestCase):
             [cutscene.cutscene_id for cutscene in en.cutscenes],
             [cutscene.cutscene_id for cutscene in ko.cutscenes],
         )
-        self.assertIn("promise", en.cutscene("SERIN_PROMISE").body.lower())  # type: ignore[union-attr]
+        self.assertIn("promise", _require_cutscene(en.cutscene("SERIN_PROMISE")).body.lower())
 
     def test_scenario_without_companions_has_no_cutscenes(self) -> None:
         directives = load_scenario_directives("glass-library")

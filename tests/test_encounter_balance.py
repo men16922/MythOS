@@ -23,6 +23,7 @@ content/밸런스 회귀를 잡는다. **정밀 난이도 곡선은 사람 feel-
 from __future__ import annotations
 
 import unittest
+from typing import TYPE_CHECKING
 
 from mythos_combat import (
     CombatEngine,
@@ -115,7 +116,16 @@ def _win_rate(combat: dict, encounter_id: str, ally_ids: tuple[str, ...], archet
     return wins / _SEEDS
 
 
-class _EncounterBalanceContract:
+if TYPE_CHECKING:
+    # Mypy-only base: gives the mixin's `self.assertEqual` etc. a real type
+    # without making `unittest.TestCase` an actual runtime base (that would
+    # let discovery collect the abstract mixin itself).
+    _ContractBase = unittest.TestCase
+else:
+    _ContractBase = object
+
+
+class _EncounterBalanceContract(_ContractBase):
     """시나리오별 조우 밸런스 회귀 가드. 구상 클래스는 클래스 속성 3개를 채운다.
 
     (`unittest.TestCase` 를 직접 상속하지 않아 베이스 자체는 수집되지 않는다.)
@@ -137,7 +147,7 @@ class _EncounterBalanceContract:
             rate = _win_rate(combat, eid, self.representative_party, self.archetype)
             if rate < _PARTY_WIN_FLOOR:
                 offenders.append(f"{eid}={rate:.2f}")
-        self.assertEqual(  # type: ignore[attr-defined]
+        self.assertEqual(
             offenders,
             [],
             f"[{self.scenario}] 대표 파티({'+'.join(self.representative_party)})로도 승률 "
@@ -153,7 +163,7 @@ class _EncounterBalanceContract:
             rate = _win_rate(combat, eid, (), self.archetype)
             if rate > _SOLO_WIN_CEILING:
                 offenders.append(f"{eid}={rate:.2f}")
-        self.assertEqual(  # type: ignore[attr-defined]
+        self.assertEqual(
             offenders,
             [],
             f"[{self.scenario}] 솔로 승률 > {_SOLO_WIN_CEILING:.0%} 인 조우(시시함): "
@@ -166,7 +176,7 @@ class _EncounterBalanceContract:
         eid = next(iter(combat["encounters"]))
         a = _simulate(combat, eid, self.representative_party, self.archetype, "determinism-check")
         b = _simulate(combat, eid, self.representative_party, self.archetype, "determinism-check")
-        self.assertEqual(a, b)  # type: ignore[attr-defined]
+        self.assertEqual(a, b)
 
 
 class EncounterBalanceTest(_EncounterBalanceContract, unittest.TestCase):

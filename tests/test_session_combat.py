@@ -9,7 +9,17 @@ from unittest import mock
 
 from mythos_combat import CombatEngine, PlayerAction
 from mythos_combat.models import distance
-from mythos_core import Choice, LoopPhase, LoopState, PlayerProfile, Scene
+from mythos_core import (
+    Choice,
+    LoopPhase,
+    LoopState,
+    NarrativeShard,
+    PlayerMemory,
+    PlayerProfile,
+    Scene,
+    WorldEvent,
+    WorldMemory,
+)
 from mythos_memory.store import MythOSStore
 from mythos_narrative import ScenePayload, WorldDelta
 from mythos_runtime.combat_service import CombatService, CombatTurnResult
@@ -1698,11 +1708,31 @@ class NarrativeReducerTest(unittest.TestCase):
     saved, and must not write to the store (the transaction is the caller's)."""
 
     class _ReadOnlyStore(_InMemoryStore):
-        def _refuse(self, *_a: Any, **_k: Any) -> None:
+        def _refuse(self) -> None:
             raise AssertionError("the narrative reducer must not write to the store")
 
-        save_loop = save_scene = append_event = save_narrative_shard = _refuse  # type: ignore[assignment]
-        save_progression = save_world_memory = save_player_memory = _refuse  # type: ignore[assignment]
+        def save_loop(self, loop: LoopState) -> None:
+            self._refuse()
+
+        def save_scene(self, scene: Scene) -> None:
+            self._refuse()
+
+        def append_event(self, event: WorldEvent) -> None:
+            self._refuse()
+
+        def save_narrative_shard(self, shard: NarrativeShard) -> None:
+            self._refuse()
+
+        def save_progression(
+            self, player_id: str, scenario_id: str, content: dict[str, Any]
+        ) -> None:
+            self._refuse()
+
+        def save_world_memory(self, memory: WorldMemory) -> None:
+            self._refuse()
+
+        def save_player_memory(self, memory: PlayerMemory) -> None:
+            self._refuse()
 
     def test_reducer_advances_state_without_writing(self) -> None:
         seeded = _InMemoryStore()

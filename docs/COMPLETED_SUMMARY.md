@@ -342,6 +342,13 @@
 - **Verification**: `make check` green (1380 tests, 5 skipped).
 - **Boundary**: closes the mypy-strict quality-ladder batch — all local packages (`mythos_core`/`mythos_loop`/`mythos_narrative`/`mythos_image_agent`/`mythos_memory`/`mythos_combat`/`mythos_api`/`mythos_runtime`) now run under `--strict`.
 
+## M84 — test-side mypy suppressions removed via typed helpers (2026-09-07)
+
+- **Purpose**: 2026-09-06 quality-ladder seed batch, next item — the test-only mypy suppression comments in `test_combat_*.py`/`test_encounter_balance.py`/`test_session_combat.py`/`test_cutscenes.py`/`test_portrait_combat_dock.py` hid real `Optional`/override-type gaps instead of narrowing them, following the `_require_player` pattern already established in `test_combat_engine.py`.
+- **Output**: `test_cutscenes.py` gained `_require_cutscene(directive)`; `test_portrait_combat_dock.py` gained `_require_match(match)` for the two `re.search(...).group(1)` call sites. `test_session_combat.py`'s `_ReadOnlyStore` replaced a same-name multi-assignment (`save_loop = save_scene = ... = _refuse`) with one typed override method per store method, each delegating to `_refuse()` — the multi-assign trick could not carry each method's distinct signature. `test_encounter_balance.py`'s `_EncounterBalanceContract` mixin (deliberately not a `unittest.TestCase` at runtime, so it isn't collected by discovery) gained a `TYPE_CHECKING`-only `unittest.TestCase` base so mypy resolves `self.assertEqual` without changing what discovery collects.
+- **Verification**: `rg 'type: ignore\[' <those five files>` empty; `make check` green (lint/mypy non-strict `src tests` + the 8 per-package `--strict` lines + 1387 tests, 5 skipped).
+- **Boundary**: the second half of this seed pair (`test_visual_orchestration.py`/`test_gemini_provider.py`/`test_narrative_trace.py`/`test_postgres_retry.py`/`test_overnight_plugin_adapters.py`/`test_runtime_session.py`) remains open in `NEXT_PLAN.md`.
+
 ## Archive Reference
 
 M0-M10의 상세 체크리스트, work log, verification log는 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`에 보존한다.

@@ -16,6 +16,11 @@ def read(path: str) -> str:
     return (ROOT / path).read_text(encoding="utf-8")
 
 
+def _require_match(match: re.Match[str] | None) -> re.Match[str]:
+    assert match is not None
+    return match
+
+
 class PortraitCombatDockTest(unittest.TestCase):
     def _portrait_block(self) -> str:
         css = read("src/mythos_ui/src/index.css")
@@ -78,9 +83,9 @@ class PortraitCombatDockTest(unittest.TestCase):
     def test_boon_modal_beats_dock_and_legend_popup_is_gone(self) -> None:
         css = read("src/mythos_ui/src/index.css")
         block = self._portrait_block()
-        dock_z = int(re.search(r"z-index:\s*(\d+)", block).group(1))  # type: ignore[union-attr]
+        dock_z = int(_require_match(re.search(r"z-index:\s*(\d+)", block)).group(1))
         boon = css[css.index(".boon-overlay") :]
-        boon_z = int(re.search(r"z-index:\s*(\d+)", boon).group(1))  # type: ignore[union-attr]
+        boon_z = int(_require_match(re.search(r"z-index:\s*(\d+)", boon)).group(1))
         self.assertGreater(boon_z, dock_z)
         self.assertNotIn(".tactical-legend-popup", css)
 

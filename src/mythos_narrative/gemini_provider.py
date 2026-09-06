@@ -192,7 +192,7 @@ class VertexGeminiJSONProvider:
         if self._injected_client is not None:
             return self._injected_client
         try:
-            from google import genai  # type: ignore[import-not-found]
+            from google import genai
         except ImportError as exc:  # pragma: no cover - exercised only without the SDK
             raise RuntimeError(
                 "google-genai is not installed. Install the cloud provider with "

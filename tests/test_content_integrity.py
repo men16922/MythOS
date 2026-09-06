@@ -2099,7 +2099,7 @@ class SideAnchorIntegrityTest(unittest.TestCase):
             route_map = data.get("route_map") or {}
             if not route_map.get("layers"):
                 continue
-            producer_layers: dict[str, int] = {flag: -1 for flag in ENGINE_PRODUCED_FLAGS}
+            producer_layers: dict[str, int] = dict.fromkeys(ENGINE_PRODUCED_FLAGS, -1)
             for layer_index, layer in enumerate(route_map.get("layers", []) or []):
                 for anchor in layer.get("anchors", []) or []:
                     for perspective in anchor.get("perspectives", []) or []:

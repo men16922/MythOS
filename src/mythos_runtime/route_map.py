@@ -339,7 +339,7 @@ def _build_edges(
     for i in range(len(layers) - 1):
         cur_layer = layers[i]
         nxt_layer = layers[i + 1]
-        incoming: dict[str, int] = {nid: 0 for nid in nxt_layer}
+        incoming: dict[str, int] = dict.fromkeys(nxt_layer, 0)
         for src in cur_layer:
             for tgt in _pick_targets(src, nxt_layer, nodes, dice):
                 if tgt not in edges[src]:

@@ -91,7 +91,7 @@ class NarrativeMetrics:
     recorded here; this only tracks the quality of the live provider path.
     """
 
-    counts: dict[str, int] = field(default_factory=lambda: {outcome: 0 for outcome in _OUTCOMES})
+    counts: dict[str, int] = field(default_factory=lambda: dict.fromkeys(_OUTCOMES, 0))
     last_outcome: str | None = None
     fallback_reasons: dict[str, int] = field(default_factory=dict)
 
@@ -114,7 +114,7 @@ class NarrativeMetrics:
     def ratios(self) -> dict[str, float]:
         total = self.total
         if total == 0:
-            return {outcome: 0.0 for outcome in _OUTCOMES}
+            return dict.fromkeys(_OUTCOMES, 0.0)
         return {outcome: round(self.counts.get(outcome, 0) / total, 4) for outcome in _OUTCOMES}
 
     def as_dict(self) -> dict[str, object]:

@@ -334,7 +334,7 @@ class EnGoldenFixtureHasNoHangulTest(unittest.TestCase):
                 continue
             checked += 1
             served = localize_for(bank["scenes"], str(bank.get("scenario_id") or "neo-seoul"), "en")
-            leaked = sorted({m for m in hangul.findall(json.dumps(served, ensure_ascii=False))})
+            leaked = sorted(set(hangul.findall(json.dumps(served, ensure_ascii=False))))
             self.assertEqual(leaked, [], f"{path.name}: Hangul survives EN localization: {leaked}")
         self.assertGreater(checked, 0, "no EN golden transcript found to check")
 

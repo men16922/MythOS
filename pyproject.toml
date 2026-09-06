@@ -83,7 +83,7 @@ target-version = "py311"
 extend-exclude = ["scripts/gen_bgm.py"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP"]
+select = ["E", "F", "I", "UP", "C4"]
 ignore = ["E501"]
 
 [tool.mypy]

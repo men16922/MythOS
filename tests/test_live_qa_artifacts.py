@@ -27,14 +27,14 @@ RUN_END = "AGY_BROWSER_TOOL: PLAYWRIGHT_MCP\nLIVE_QA_VERDICT: PASS_CANDIDATE —
 
 
 def _full_evidence(**over):
-    facts = dict(
-        event_count=2,
-        screenshot_count=2,
-        empty_screenshot=False,
-        console_present=True,
-        agy_exit=0,
-        server_stopped=True,
-    )
+    facts = {
+        "event_count": 2,
+        "screenshot_count": 2,
+        "empty_screenshot": False,
+        "console_present": True,
+        "agy_exit": 0,
+        "server_stopped": True,
+    }
     facts.update(over)
     return facts
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 
 from mythos_core import (
+    AssetRecord,
     LoopState,
     Scene,
 )
@@ -10,6 +11,7 @@ from mythos_memory import PostgresMythOSStore
 from mythos_runtime.observability import get_logger
 from mythos_runtime.options import RuntimeOptions
 from mythos_runtime.session import RuntimeSessionService
+from mythos_runtime.visual_service import VisualGenerationResult
 
 LOGGER = get_logger("mythos.cli")
 
@@ -161,7 +163,7 @@ def _runtime_options(args: argparse.Namespace) -> RuntimeOptions:
     )
 
 
-def _print_image_result(image_result) -> None:
+def _print_image_result(image_result: VisualGenerationResult | None) -> None:
     if image_result is None:
         return
     print(f"image_status={image_result.status}")
@@ -171,7 +173,7 @@ def _print_image_result(image_result) -> None:
 def _render_scene(
     loop: LoopState,
     scene: Scene,
-    assets: list | None = None,
+    assets: list[AssetRecord] | None = None,
 ) -> None:
     print(f"loop_id={loop.loop_id}")
     print(f"phase={loop.phase.value}")

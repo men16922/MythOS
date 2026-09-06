@@ -36,7 +36,7 @@ class VisualGenerationRequest:
     provider: str = "flux_local_mps"
     model_id: str = "black-forest-labs/FLUX.1-schnell"
     enabled: bool = True
-    metadata: dict = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
     scenario_id: str = "neo-seoul"
     # Set for async jobs so pending/processing/succeeded records share one asset row.
     asset_id: str | None = None
@@ -572,7 +572,7 @@ class VisualService:
         self,
         scene: Scene,
         player_id: str,
-        request_overrides: dict | None = None,
+        request_overrides: dict[str, Any] | None = None,
     ) -> VisualGenerationResult:
         request = self._request_from_scene(scene, player_id, request_overrides or {})
         return self.generate(request)
@@ -727,7 +727,7 @@ class VisualService:
             )
 
     def _request_from_scene(
-        self, scene: Scene, player_id: str, overrides: dict
+        self, scene: Scene, player_id: str, overrides: dict[str, Any]
     ) -> VisualGenerationRequest:
         prompt = scene.visual_brief or scene.narration
         scenario_id = overrides.get("scenario_id", "neo-seoul")

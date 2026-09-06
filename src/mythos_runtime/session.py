@@ -26,7 +26,13 @@ from mythos_core.clock import utc_now
 from mythos_core.dice import Dice
 from mythos_core.models import to_json_dict
 from mythos_core.text_match import name_mentions
-from mythos_loop import LoopEngine, LoopTransition, create_player_event, create_world_event
+from mythos_loop import (
+    LoopEngine,
+    LoopTransition,
+    ValidationError,
+    create_player_event,
+    create_world_event,
+)
 from mythos_memory import MythOSStore
 from mythos_narrative import NarrativeContext, NarrativeDirector, NarrativeStreamEvent, ScenePayload
 from mythos_narrative.codex import CodexService
@@ -2837,7 +2843,7 @@ class RuntimeSessionService:
         options: RuntimeOptions,
         span_name: str,
         log_message: str,
-        player_event=None,
+        player_event: WorldEvent | None = None,
         metric_total_before: int | None = None,
         route_target: str | None = None,
         impact_base_loop: LoopState | None = None,
@@ -3228,7 +3234,7 @@ class RuntimeSessionService:
             increment=total - metric_total_before,
         )
 
-    def _fallback_stream_event(self, context) -> Iterator[NarrativeStreamEvent]:
+    def _fallback_stream_event(self, context: NarrativeContext) -> Iterator[NarrativeStreamEvent]:
         scene, payload = self.director.fallback_scene(context)
         yield NarrativeStreamEvent(kind="text", text=payload.narration)
         yield NarrativeStreamEvent(kind="final", scene=scene, payload=payload)
@@ -3916,5 +3922,5 @@ def _symbol_from_scene(scene: Scene) -> str:
     )
 
 
-def _format_errors(errors: list) -> str:
+def _format_errors(errors: list[ValidationError]) -> str:
     return "; ".join(f"{error.code}: {error.message}" for error in errors)

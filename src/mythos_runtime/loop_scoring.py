@@ -8,6 +8,7 @@ shards. Extracted from ``session`` to keep the orchestration class focused.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Any
 
 from mythos_core import (
     Echo,
@@ -27,7 +28,7 @@ from mythos_runtime.narrative_rollup import _player_rollup
 class InitialLoopScores:
     stability: int
     tension: int
-    state: dict
+    state: dict[str, Any]
 
 
 def _initial_loop_scores(

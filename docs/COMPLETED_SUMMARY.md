@@ -335,6 +335,13 @@
 - **Verification**: `make check` green.
 - **Boundary**: `mythos_runtime` remains open in `NEXT_PLAN.md`.
 
+## M83 — mypy-strict quality-ladder seed: mythos_runtime (2026-09-06)
+
+- **Purpose**: close out the 2026-09-06 quality-ladder batch — bring the last package, `mythos_runtime`, under `mypy --strict`.
+- **Output**: `python-typecheck` gained `mypy --strict src/mythos_runtime`. All 21 pre-existing errors fixed with real annotations, no suppressions and no `pyproject.toml` override: 16 `type-arg` (bare `dict`/`list`/`defaultdict` → `dict[str, Any]`/`list[ValidationError]`/`list[AssetRecord]`/`defaultdict[str, str]` across `narrative_metrics.py`, `scenario_directives.py`, `audio_service.py`, `visual_service.py`, `narrative_rollup.py`, `options.py`, `loop_scoring.py`, `session.py`, `connect_cli.py`) and 5 `no-untyped-def` (`combat_session_helpers._combat_summary_from_state(state: CombatState)`, `session._commit_scene(player_event: WorldEvent | None)`, `session._fallback_stream_event(context: NarrativeContext)`, `connect_cli._print_image_result(image_result: VisualGenerationResult | None)`, `combat_server._with_service(fn: Callable[[RuntimeSessionService], dict[str, Any]])`).
+- **Verification**: `make check` green (1380 tests, 5 skipped).
+- **Boundary**: closes the mypy-strict quality-ladder batch — all local packages (`mythos_core`/`mythos_loop`/`mythos_narrative`/`mythos_image_agent`/`mythos_memory`/`mythos_combat`/`mythos_api`/`mythos_runtime`) now run under `--strict`.
+
 ## Archive Reference
 
 M0-M10의 상세 체크리스트, work log, verification log는 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`에 보존한다.

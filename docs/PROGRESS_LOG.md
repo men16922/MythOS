@@ -2,6 +2,12 @@
 
 Last updated: 2026-09-06
 
+## 2026-09-06 — mypy-strict quality-ladder: mythos_runtime, batch closed (overnight `[auto:claude]`)
+
+- Status: last item of the 2026-09-06 seed batch (NEXT_PLAN `Overnight seeds`). `mythos_runtime` had 21 real `mypy --strict` errors (16 `type-arg`, 5 `no-untyped-def`) — fixed all with real annotations (`dict[str, Any]`, `list[ValidationError]`, `CombatState`, `NarrativeContext`, `Callable[[RuntimeSessionService], dict[str, Any]]`, …), no suppressions, no `pyproject.toml` override. Added the `$(VENV)/bin/mypy --strict src/mythos_runtime` line to the Makefile `python-typecheck` target.
+- Verified: `make check` green (skills/doc-budget/validate-content/lint/typecheck incl. all 8 strict packages/frontend build/1380 tests, 5 skipped).
+- Next: batch closed — every local package now runs under `mypy --strict`. Detail `COMPLETED_SUMMARY.md` M83.
+
 ## 2026-09-06 — mypy-strict quality-ladder: mythos_memory/mythos_combat/mythos_api (overnight `[auto:claude]`)
 
 - Status: overnight lane item from the 2026-09-06 seed batch (NEXT_PLAN `Overnight seeds`). All three named packages were already 0-error under `mypy --strict` — added the three `$(VENV)/bin/mypy --strict src/<pkg>` lines to the Makefile `python-typecheck` target (no `pyproject.toml` override, no source changes needed).

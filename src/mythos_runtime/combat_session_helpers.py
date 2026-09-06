@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from mythos_combat.models import CombatState
 from mythos_narrative import ScenePayload
 from mythos_runtime.combat_service import CombatService, CombatTurnResult
 from mythos_runtime.constants import REST_RECOVERY_HP
@@ -70,7 +71,7 @@ def _combat_summary(result: CombatTurnResult) -> dict[str, Any]:
     return _combat_summary_from_state(state)
 
 
-def _combat_summary_from_state(state) -> dict[str, Any]:
+def _combat_summary_from_state(state: CombatState) -> dict[str, Any]:
     damage_dealt = 0
     damage_taken = 0
     hits = 0

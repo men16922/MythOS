@@ -17,7 +17,7 @@ def director_metric_total(director: Any) -> int:
 
 def player_narrative_metrics(
     world_memories: list[WorldMemory], player_id: str | None
-) -> dict | None:
+) -> dict[str, Any] | None:
     metrics = [
         memory
         for memory in world_memories

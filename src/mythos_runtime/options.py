@@ -145,8 +145,8 @@ class MemoryOverview:
     narrative_shards: list[NarrativeShard]
     novelty_notes: list[str]
     run_summaries: list[RunSummary] = field(default_factory=list)
-    latest_adjustment: dict | None = None
-    rollup: dict | None = None
-    narrative_metrics: dict | None = None
-    meta_progression: dict | None = None
+    latest_adjustment: dict[str, Any] | None = None
+    rollup: dict[str, Any] | None = None
+    narrative_metrics: dict[str, Any] | None = None
+    meta_progression: dict[str, Any] | None = None
     unlocked_lore: list[LoreEntry] = field(default_factory=list)

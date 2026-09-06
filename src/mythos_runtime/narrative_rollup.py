@@ -25,7 +25,9 @@ from mythos_runtime.constants import (
 )
 
 
-def _player_rollup(world_memories: list[WorldMemory], player_id: str | None) -> dict | None:
+def _player_rollup(
+    world_memories: list[WorldMemory], player_id: str | None
+) -> dict[str, Any] | None:
     for memory in world_memories:
         content = memory.content
         if (
@@ -200,11 +202,11 @@ def _archives_to_compact(
 
 
 def _merge_archive_rollup(
-    existing: dict | None,
+    existing: dict[str, Any] | None,
     absorbed: list[WorldMemory],
     shards_by_loop: dict[str, NarrativeShard],
     player_id: str,
-) -> dict:
+) -> dict[str, Any]:
     loop_count = int(existing.get("loop_count", 0)) if existing else 0
     sum_stability = float(existing.get("avg_stability", 0.0)) * loop_count if existing else 0.0
     sum_tension = float(existing.get("avg_tension", 0.0)) * loop_count if existing else 0.0

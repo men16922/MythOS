@@ -164,7 +164,7 @@ def _parse_meta(lines: list[str]) -> dict[str, str]:
 # --- Safe placeholder substitution ------------------------------------------
 
 
-class _SafeDict(defaultdict):
+class _SafeDict(defaultdict[str, str]):
     def __missing__(self, key: str) -> str:  # leave unknown {tokens} literal
         return "{" + key + "}"
 

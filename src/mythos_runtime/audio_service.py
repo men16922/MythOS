@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Protocol
+from typing import Any, Protocol
 
 from mythos_core import AssetRecord, LoopState, Scene
 from mythos_core.clock import utc_now
@@ -16,7 +16,7 @@ class AudioAsset:
     asset_id: str
     storage_uri: str
     kind: str  # 'bgm', 'sfx'
-    metadata: dict = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class AudioProvider(Protocol):

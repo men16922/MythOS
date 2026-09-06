@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import threading
+from collections.abc import Callable
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
 from urllib.parse import parse_qs, urlparse
@@ -199,7 +200,7 @@ class _CombatRequestHandler(BaseHTTPRequestHandler):
     def log_message(self, format: str, *args: Any) -> None:  # noqa: A002
         return
 
-    def _with_service(self, fn) -> None:
+    def _with_service(self, fn: Callable[[RuntimeSessionService], dict[str, Any]]) -> None:
         store = PostgresMythOSStore()
         try:
             service = RuntimeSessionService(store)

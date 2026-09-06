@@ -35,5 +35,32 @@ Reading:
 - Not measured: player-side stacking (the greedy policy casts no skills or grenades), so the offensive
   upside — burning a boss ×3 — has no number yet. The `[manual]` verdict covers it.
 
+## Offensive side — burn pre-applied to the toughest enemy (synthetic upper bound)
+
+Same greedy party, but at fight start burn ×N (3 turns each) is placed on the highest-`max_hp` enemy for
+free — an **upper bound**: in play each application costs a player turn or the single incendiary grenade,
+and the 화염-type skills have cooldowns, so ×3 on a boss is reachable but not free.
+
+| encounter | party | burn ×0 | ×1 | ×3 | rounds ×0→×3 | boss killed by a burn tick (×3) |
+|---|---|---|---|---|---|---|
+| **ix_confrontation** | **solo** | **0.30** | 0.50 | **0.82** | 4.8 → 3.6 | **0.33** |
+| ix_confrontation | se_rin+kai | 0.88 | 0.85 | 0.97 | 5.0 → 3.9 | 0.30 |
+| mech_siege | solo | 0.07 | 0.12 | 0.33 | 3.8 → 3.1 | 0.20 |
+| mech_siege | se_rin+kai | 0.98 | 0.98 | 1.00 | 5.5 → 3.7 | 0.40 |
+| enforcer_standoff | solo | 0.22 | 0.57 | 0.95 | 3.6 → 2.7 | 0.58 |
+| enforcer_standoff | se_rin+kai | 1.00 | 1.00 | 1.00 | 2.9 → 2.2 | 0.45 |
+
+Reading:
+
+- The defensive side is neutral, the **offensive side is not**: a fully stacked burn is the strongest single
+  lever the player now has against a high-HP target. On IX it turns a 0.30 solo fight into 0.82 and ends a
+  third of the fights with the boss dying to an overheat tick rather than a blow.
+- That is exactly the pattern the 2026-07-14 boss stun-resistance call was made against (two cd-3 stun
+  sources could rotation-lock IX). **Decision for the owner**, not made here: keep it (a hard-won ×3 on a
+  boss *should* feel decisive) or give bosses stack resistance — one `StatusRule`/engine guard, e.g. boss
+  stack cap 2, or halve DoT stacks on `ai == "boss"` the way `_apply_stun` halves follow-up stuns.
+- Non-boss fights read as intended: `enforcer_standoff` solo 0.22 → 0.57 at ×1 says the first application
+  already matters; ×3 finishing it is the reward for spending three turns on setup.
+
 Reproduce: the runner script lives outside the repo (session scratchpad); it is ~40 lines over
 `sim_boss._play` with `dataclasses.replace(rule, stack_cap=1)` applied to `status_rules.STATUS_RULES`.

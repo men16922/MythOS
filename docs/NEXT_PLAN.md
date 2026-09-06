@@ -29,7 +29,7 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`; scope: `docs/reports/2026-07-31-
 ## Review residuals (2026-09-05 repo-wide review; verified but not yet done)
 
 - `[x]` **Closed 2026-09-05** (detail PROGRESS_LOG 2026-09-05): `_commit_scene` pure reducer · Snapshot builders · Fetch-once progress facts · Intent telegraph vs `_enemy_turn` · WS pins a pooled DB connection per open socket · `requested_next_phase: "archive"` bypasses the soft-defeat guard · Refusal cannot clear a pre-seeded `met_se_rin` · Route replay re-scores passed anchors with later flags · Frontend `NarrationReveal` + `combatView.ts` · `combatCanvas` per-frame layout.
-- `[ ]` `[manual]` **`_weapon_in_range(state=None)` high-ground +1 range is dead** (no caller passes `state`) — wire it (gameplay change, `gameplay-qa`) or drop the parameter. Owner call.
+- `[ ]` `[manual]` **`_weapon_in_range(state=None)` high-ground +1 range is dead** (no caller passes `state`) — wire it or drop the parameter. Owner call; measured 2026-09-06 (`docs/reference/2026-09-06-status-stacking-balance.md` appendix): wiring changes 0.03% of range checks and no outcome in 24 cells; nothing promises it to players. Recommendation: drop unless a high-ground positioning feature is planned.
 - `[/]` **Lesser substring matches** — `serializers._calculate_zone_risk` done 2026-09-05; `ending_resolver.py:111`/`audio_service.py:63` deliberately left (scoring semantics / no boss ids exist) — `[manual]` owner call if wanted.
 - `[ ]` `[manual]` **Apply migration `008`** (`narrative_shards(player_id, created_at)` index) on the production DB.
 

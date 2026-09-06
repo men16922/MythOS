@@ -64,3 +64,14 @@ Reading:
 
 Reproduce: the runner script lives outside the repo (session scratchpad); it is ~40 lines over
 `sim_boss._play` with `dataclasses.replace(rule, stack_cap=1)` applied to `status_rules.STATUS_RULES`.
+
+## Appendix — `_weapon_in_range` high-ground +1 ranged range, wired vs dead (same harness)
+
+NEXT_PLAN review residual: the `state` parameter that grants ranged weapons +1 range from higher elevation
+has no caller. Measured by injecting `state` through a wrapper (greedy baseline, all 12 Neo-Seoul
+encounters × solo / Se-rin+Kai × 60 seeds): **24/24 cells identical win rate and mean rounds**; the bonus
+flipped the in-range answer in **7 of 23,993 range checks (0.03%)**. Caveat: the greedy policy always
+closes to melee/weapon reach, so a ranged-kiting player on high ground is not represented. Nothing in the
+UI or docs promises the bonus (only "High ground +1" in the tile inspector, which is the damage bonus that
+*is* wired). Recommendation for the owner call: drop the parameter unless a high-ground positioning
+feature is planned; wiring it is free but currently invisible.

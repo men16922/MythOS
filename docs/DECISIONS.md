@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-09-06 — High ground stays a damage bonus, not a reach bonus (dead `state` parameter dropped)
+
+Decision: `_weapon_in_range` loses its never-passed `state` argument and the ranged +1 reach it would have granted from higher elevation. Elevation keeps its wired effect — `+1` damage (`el_dmg`) and the `high_ground` log flag.
+
+Reason/impact: the parameter had been dead since it was written (no caller passed `state`), so dropping it changes nothing in play; wiring it was measured first (24 encounter×party cells × 60 seeds: identical outcomes, 7/23,993 range checks flipped) and no UI or doc promises reach from high ground — the tile inspector's "High ground +1" is the damage bonus. Taken by the agent under the owner's repeated "continue" directive rather than as an owner ruling; reversible in one commit if a positioning feature later wants reach from elevation, at which point it should be a deliberate rule with a `gameplay-qa` pass, not a latent branch.
+
 ## 2026-09-06 — Status intensity is a second ledger, and only magnitude statuses stack
 
 Decision: status stacking (owner "option 2", 2026-08-15) is stored as `Combatant.status_stacks: dict[str, int]` **beside** the existing turns ledger `status_effects: dict[str, int]`, not as a replacement tuple shape. Only statuses with a numeric magnitude scale — burn (DoT, cap 3), corrode (armor, cap 2), acid (defense, cap 2); freeze/shock/hacked are binary gates pinned at one stack. Stacks never decay per turn; they clear with the status.

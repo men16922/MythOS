@@ -7,7 +7,8 @@ Last updated: 2026-09-06
 - Status: owner picked "deploy now" when asked (prod idle since 08-30 → low player risk; the next promotion sample must play on the latest build). `make deploy` from HEAD `e2c39e2` (1380 tests green).
 - Verified: revision `00089-lv8` at 100% traffic; root / `/api/v1/health` / `/app.js` 200; live `app.js` SHA-256 = local `362b799f…`; lazy chunks `CodexPanel`/`CombatCinema`/`DevConsolePanel`/`lang` 200; timeout 3600 and `IMAGEN_MODEL=gemini-3.1-flash-image` @ `IMAGEN_LOCATION=global` preserved; **0 WARNING+ entries on the new revision**.
 - Not verified on prod: the intro→offer order in a real gated session (needs the invite key — owner) and any player turn (no traffic).
-- Next: owner `git push` (ahead 50+); boss stack resistance / `_weapon_in_range` / migration `008` decisions; the next promotion arm on `00089`.
+- After the deploy, on the owner's "next priority" prompt: dropped the dead `_weapon_in_range(state=None)` parameter (measured zero impact; DECISIONS 2026-09-06). `_map` removal stays blocked — `glass-library` has no `route_map`.
+- Next: owner `git push` (ahead 50+ — the `!` attempt did not run); boss stack resistance / migration `008` decisions; the next promotion arm on `00089`.
 
 ## 2026-09-06 — Opening cinematic no longer covered by the build offer; `make test-e2e` green again
 

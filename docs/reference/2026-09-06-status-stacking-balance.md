@@ -73,5 +73,5 @@ encounters × solo / Se-rin+Kai × 60 seeds): **24/24 cells identical win rate a
 flipped the in-range answer in **7 of 23,993 range checks (0.03%)**. Caveat: the greedy policy always
 closes to melee/weapon reach, so a ranged-kiting player on high ground is not represented. Nothing in the
 UI or docs promises the bonus (only "High ground +1" in the tile inspector, which is the damage bonus that
-*is* wired). Recommendation for the owner call: drop the parameter unless a high-ground positioning
-feature is planned; wiring it is free but currently invisible.
+*is* wired). Outcome: the parameter was dropped the same day (DECISIONS 2026-09-06) — high ground stays a
+damage bonus; reach from elevation would be a new, deliberate rule.

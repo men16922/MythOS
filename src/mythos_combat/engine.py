@@ -2623,23 +2623,19 @@ class CombatEngine:
         return any(c.alive and c.id != mover.id and c.x == x and c.y == y for c in state.combatants)
 
     def _weapon_in_range(
-        self,
-        attacker: Combatant,
-        defender: Combatant,
-        weapon: Weapon | None,
-        state: CombatState | None = None,
+        self, attacker: Combatant, defender: Combatant, weapon: Weapon | None
     ) -> bool:
+        """Reach check on the weapon's effective range alone.
+
+        High ground affects damage (``el_dmg`` in ``_attack``), not reach: a
+        ranged +1 from elevation used to live here behind a ``state`` argument
+        that no caller ever passed; measured 2026-09-06 (docs/reference/
+        2026-09-06-status-stacking-balance.md appendix) wiring it changed 0.03%
+        of range checks and no outcome, and nothing promises it to players — so
+        the dead parameter was dropped rather than wired."""
         if weapon is None:
             return False
-        bonus_range = 0
-        if state is not None and weapon.is_ranged:
-            att_el = state.elevations.get(f"{attacker.x},{attacker.y}", 0)
-            def_el = state.elevations.get(f"{defender.x},{defender.y}", 0)
-            if att_el > def_el:
-                bonus_range = 1
-        return distance(attacker.x, attacker.y, defender.x, defender.y) <= (
-            weapon.effective_range + bonus_range
-        )
+        return distance(attacker.x, attacker.y, defender.x, defender.y) <= weapon.effective_range
 
     def _select_weapon(self, combatant: Combatant, weapon_id: str | None) -> Weapon | None:
         if weapon_id is not None:

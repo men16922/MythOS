@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import unittest
+from typing import Protocol, cast
 from unittest import mock
 
 from mythos_runtime.observability import (
@@ -115,12 +116,17 @@ class ObservabilityTest(unittest.TestCase):
         self.assertEqual(value, 2)
 
     def test_timed_logs_latency(self) -> None:
+        class _TimedRecord(Protocol):
+            loop_id: str
+            status: str
+            latency_ms: float
+
         logger = logging.getLogger("mythos.test.timed")
-        records = []
+        records: list[_TimedRecord] = []
 
         class CollectHandler(logging.Handler):
             def emit(self, record: logging.LogRecord) -> None:
-                records.append(record)
+                records.append(cast(_TimedRecord, record))
 
         handler = CollectHandler()
         logger.addHandler(handler)
@@ -133,9 +139,9 @@ class ObservabilityTest(unittest.TestCase):
             logger.removeHandler(handler)
             logger.propagate = True
 
-        self.assertEqual(getattr(records[0], "loop_id"), "loop_1")
-        self.assertEqual(getattr(records[0], "status"), "succeeded")
-        self.assertGreaterEqual(getattr(records[0], "latency_ms"), 0)
+        self.assertEqual(records[0].loop_id, "loop_1")
+        self.assertEqual(records[0].status, "succeeded")
+        self.assertGreaterEqual(records[0].latency_ms, 0)
 
 
 class TraceBackendTest(unittest.TestCase):

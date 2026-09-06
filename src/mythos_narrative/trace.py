@@ -41,7 +41,7 @@ TRACE_DIR_ENV = "MYTHOS_PROMPT_TRACE"
 # does not. A ContextVar rather than an attribute for the same reason usage.py
 # uses one: a provider instance is shared across requests, so an attribute would
 # let one turn's records be labelled with another turn's loop.
-_context_fields: ContextVar[dict[str, Any]] = ContextVar("mythos_trace_fields", default={})
+_context_fields: ContextVar[dict[str, Any] | None] = ContextVar("mythos_trace_fields", default=None)
 
 # One writer per process. Appends are line-oriented and lock-guarded so that
 # concurrent turns (the API serves them from a threadpool) cannot interleave
@@ -124,7 +124,7 @@ class TracingProvider:
             "method": method,
             "model": kwargs.get("model"),
             "messages": messages,
-            **_context_fields.get(),
+            **(_context_fields.get() or {}),
         }
 
     def _call(self, method: str, messages: list[dict[str, str]], kwargs: dict[str, Any]) -> str:

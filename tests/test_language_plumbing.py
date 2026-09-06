@@ -246,7 +246,7 @@ class S2DirectiveLanguageTest(unittest.TestCase):
         en = load_scenario_directives("neo-seoul", "en")
         self.assertEqual(len(en.opening_beats), len(ko.opening_beats))
         self.assertGreater(len(en.opening_beats), 0)
-        for b_ko, b_en in zip(ko.opening_beats, en.opening_beats):
+        for b_ko, b_en in zip(ko.opening_beats, en.opening_beats, strict=True):
             # Structural ids/flags/encounter must be byte-identical across languages.
             self.assertEqual(b_en.turn, b_ko.turn)
             self.assertEqual(b_en.beat_id, b_ko.beat_id)
@@ -368,7 +368,7 @@ class S4StoryBibleLanguageTest(unittest.TestCase):
         en = load_story_bible("neo-seoul", "en")
         self.assertGreater(len(en.entries), 0)
         self.assertEqual(len(en.entries), len(ko.entries))
-        for e_ko, e_en in zip(ko.entries, en.entries):
+        for e_ko, e_en in zip(ko.entries, en.entries, strict=True):
             # Selection-driving / machine fields must be byte-identical across languages.
             self.assertEqual(e_en.entry_id, e_ko.entry_id)
             self.assertEqual(e_en.when, e_ko.when)

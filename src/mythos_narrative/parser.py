@@ -154,7 +154,7 @@ def _load_json(raw_payload: str | dict[str, Any]) -> dict[str, Any]:
     try:
         parsed = json.loads(text)
         return dict(parsed) if isinstance(parsed, dict) else {"_raw": parsed}
-    except json.JSONDecodeError:
+    except json.JSONDecodeError as outer_exc:
         start = text.find("{")
         end = text.rfind("}")
         if start >= 0 and end > start:
@@ -163,7 +163,7 @@ def _load_json(raw_payload: str | dict[str, Any]) -> dict[str, Any]:
                 return dict(parsed) if isinstance(parsed, dict) else {"_raw": parsed}
             except json.JSONDecodeError as exc:
                 raise NarrativeParseError([f"invalid JSON: {exc}"]) from exc
-        raise NarrativeParseError(["invalid JSON object"])
+        raise NarrativeParseError(["invalid JSON object"]) from outer_exc
 
 
 def _normalize_payload(data: dict[str, Any]) -> dict[str, Any]:

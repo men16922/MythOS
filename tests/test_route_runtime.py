@@ -228,7 +228,7 @@ class RouteAntiRepeatTest(unittest.TestCase):
                     len(set(seq)),
                     f"a route node repeats as a main scene ({builder.__name__} seed {i}): {seq}",
                 )
-                for prev_id, next_id in zip(seq, seq[1:]):
+                for prev_id, next_id in zip(seq, seq[1:], strict=False):
                     prev, nxt = nodes[prev_id], nodes[next_id]
                     self.assertNotEqual(
                         prev_id,
@@ -273,7 +273,7 @@ class RouteAntiRepeatTest(unittest.TestCase):
             len(set(sequence)),
             f"a steered route repeats a main-scene node: {sequence}",
         )
-        for prev_id, next_id in zip(sequence, sequence[1:]):
+        for prev_id, next_id in zip(sequence, sequence[1:], strict=False):
             self.assertGreater(
                 int(nodes[next_id].get("layer", 0)),
                 int(nodes[prev_id].get("layer", 0)),

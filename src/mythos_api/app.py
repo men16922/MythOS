@@ -807,7 +807,7 @@ def create_app() -> FastAPI:
             )
             return localize_for(resp, resolved_scenario, lang)
         except Exception as exc:
-            raise HTTPException(status_code=500, detail=str(exc))
+            raise HTTPException(status_code=500, detail=str(exc)) from exc
 
     @app.post(f"{API_PREFIX}/loops/choose")
     def choose(

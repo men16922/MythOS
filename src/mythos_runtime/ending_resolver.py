@@ -37,7 +37,7 @@ class ASTConditionEvaluator:
             raise NameError(f"Name '{node.id}' is not defined in allowed namespace")
         elif isinstance(node, ast.Compare):
             left = self._eval_node(node.left)
-            for op, comparator in zip(node.ops, node.comparators):
+            for op, comparator in zip(node.ops, node.comparators, strict=True):
                 right = self._eval_node(comparator)
                 if not self._eval_compare(left, op, right):
                     return False

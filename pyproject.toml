@@ -83,19 +83,21 @@ target-version = "py311"
 extend-exclude = ["scripts/gen_bgm.py"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "C4", "SIM", "PERF"]
+select = ["E", "F", "I", "UP", "C4", "SIM", "PERF", "B"]
 ignore = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
 # One-off dev/render-check scripts outside the claude-lane WorkContract scope
 # (src/ tests/ harness/ scripts/overnight/ docs/ Makefile pyproject.toml) —
-# not touched by the SIM/PERF cleanups.
-"scratch/*" = ["SIM", "PERF"]
-"scripts/cbt/*" = ["SIM"]
+# not touched by the SIM/PERF/B cleanups.
+"scratch/*" = ["SIM", "PERF", "B"]
+"scripts/cbt/*" = ["SIM", "B"]
 "experiments/*" = ["PERF"]
-"scripts/eval/*" = ["PERF"]
-"scripts/live-qa/*" = ["PERF"]
-"streamlit_app.py" = ["PERF"]
+"scripts/eval/*" = ["PERF", "B"]
+"scripts/live-qa/*" = ["PERF", "B"]
+"streamlit_app.py" = ["PERF", "B"]
+# FastAPI's Depends(...)-as-default-argument is the framework's own DI convention.
+"src/mythos_api/**" = ["B008"]
 
 [tool.mypy]
 python_version = "3.11"

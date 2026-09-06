@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import os
 import threading
-from typing import Any
+from typing import Any, cast
 
 from .config import AgentConfig
 
@@ -51,11 +51,15 @@ def _load_base_pipeline(model_id: str, config: AgentConfig) -> Any:
     device = _require_mps()
     print(f"Loading image model (one-time): {model_id}")
     try:
-        pipe = FluxPipeline.from_pretrained(
-            model_id,
-            torch_dtype=torch.bfloat16,
-            token=config.hf_auth_token,
-        ).to(device)
+        pipe = (
+            cast(Any, FluxPipeline)
+            .from_pretrained(
+                model_id,
+                torch_dtype=torch.bfloat16,
+                token=config.hf_auth_token,
+            )
+            .to(device)
+        )
     except GatedRepoError as exc:
         message = str(exc)
         if "not in the authorized list" in message:
@@ -97,7 +101,7 @@ def get_flux_img2img_pipeline(model_id: str, config: AgentConfig) -> Any:
             base = get_flux_pipeline(model_id, config)
             # Reuse already-loaded components (transformer/vae/text encoders) instead of
             # loading a second ~24GB copy.
-            pipe = FluxImg2ImgPipeline(**base.components)
+            pipe = cast(Any, FluxImg2ImgPipeline)(**base.components)
             _PIPELINES[key] = pipe
         return pipe
 
@@ -127,13 +131,13 @@ def get_flux_ip_adapter_pipeline(model_id: str, config: AgentConfig) -> Any:
             components = dict(base.components)
             components["image_encoder"] = image_encoder
 
-            pipe = FluxPipeline(**components)
+            pipe = cast(Any, FluxPipeline)(**components)
 
             # Load the IP-Adapter weights. Use image_encoder_folder=None to avoid re-loading.
             print(
                 f"Loading IP-Adapter weights: {config.ip_adapter_repo} ({config.ip_adapter_weight_name})"
             )
-            pipe.load_ip_adapter(  # type: ignore[attr-defined]
+            pipe.load_ip_adapter(
                 config.ip_adapter_repo,
                 weight_name=config.ip_adapter_weight_name,
                 image_encoder_folder=None,
@@ -142,7 +146,7 @@ def get_flux_ip_adapter_pipeline(model_id: str, config: AgentConfig) -> Any:
             # Apply CPU Offloading if configured
             if os.getenv("FLUX_ENABLE_CPU_OFFLOAD", "0") == "1":
                 try:
-                    pipe.enable_model_cpu_offload()  # type: ignore[attr-defined]
+                    pipe.enable_model_cpu_offload()
                 except Exception as exc:
                     print(f"Warning: enable_model_cpu_offload failed: {exc}")
 

@@ -44,7 +44,7 @@ def generate_image_img2img(
     height: int | None = None,
 ) -> Path:
     import torch
-    from diffusers.utils import load_image
+    from diffusers.utils.loading_utils import load_image
 
     from .pipeline_cache import get_flux_img2img_pipeline
 

@@ -321,6 +321,13 @@
 - **Verification**: `make check` 1363 → **1375** (6 skipped), 12 new tests including a same-session code-review pass (8 findings folded in: seed-before-write, `status_rules.py` table + read clamp, `clear_status` seam, revive cleanup, companion reapply gate, pop badge, comments) and the concurrent burn+acid+shock+hacked regression with a mid-tick death. Browser: non-fallback `stray_incinerator` solo — two plasma-torch hits gave "🔥 burning!" → "🔥 burning! (×2)", DoT 2 → 4, roster `burn ×2`, canvas pip "2", 0 console errors (`outputs/live-qa/20260906-status-stacking/`).
 - **Boundary**: local, undeployed. Stack-clear on expiry is unit-tested, not observed in the browser. The caps and the burn curve are a starting balance, not a verdict — play feel stays `[manual]`.
 
+## M81 — mypy-strict quality-ladder seeds: mythos_core/mythos_loop/mythos_narrative/mythos_image_agent (2026-09-06)
+
+- **Purpose**: 2026-09-06 quality-ladder seed batch, one `[auto:claude]` item per package — bring each already-clean package under `mypy --strict` without touching `pyproject.toml` (out of the claude lane's scope; see `docs/LESSONS.md`).
+- **Output**: `python-typecheck` gained one `mypy --strict src/<pkg>` line per package (no pyproject edit). `mythos_core`: `dice.py`'s `list`/`weighted_choice`/`choice`/`shuffle` generic over a `_T = TypeVar`. `mythos_loop`: 4 bare `dict` args now `dict[str, Any]`. `mythos_narrative`: dropped an unused ignore on the lazy `google.genai` import in `gemini_provider.py`. `mythos_image_agent`: annotated `_require_mps`'s return type, typed `generator.py`'s kwargs dict, `cast(Any, ...)`'d 3 untyped diffusers pipeline-constructor calls in `pipeline_cache.py` (which freed 2 now-stale `load_ip_adapter`/`enable_model_cpu_offload` suppressions), and imported `load_image` from `diffusers.utils.loading_utils` (its actual defining module) instead of the package's implicit re-export, avoiding the 2 attr-defined errors without any suppression comment — the overnight loop's `10-diff-scope` verifier hard-rejects any commit adding one outside `*.md`, which is exactly what reverted this same seed's first attempt (`41e57f6`→`8890206`, runner.log 22:21–22:24).
+- **Verification**: `make check` green after each package.
+- **Boundary**: `mythos_runtime` and the combined-override seed remain open in `NEXT_PLAN.md`.
+
 ## Archive Reference
 
 M0-M10의 상세 체크리스트, work log, verification log는 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`에 보존한다.

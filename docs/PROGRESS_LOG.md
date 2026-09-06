@@ -2,6 +2,12 @@
 
 Last updated: 2026-09-06
 
+## 2026-09-06 — E2E selector source-lock test (overnight `[auto:claude]`)
+
+- Status: quality-ladder seed batch item (NEXT_PLAN `Overnight seeds`) — `scratch/run_playwright_test.py`/`run_comprehensive_e2e_test.py` are outside `make check` and had gone red unnoticed before (see docs/LESSONS.md 2026-09-06); this locks their 19 selectors/ids against `src/mythos_ui/src/**` so a UI rename fails `make check` instead.
+- Changed: added `tests/test_e2e_selector_source_lock.py` (`E2ESelectorSourceLockTest`).
+- Verified: `make check` green (skills/doc-budget/validate-content/lint/typecheck/frontend build/1387 tests, 5 skipped).
+
 ## 2026-09-06 — mypy-strict quality-ladder: mythos_runtime, batch closed (overnight `[auto:claude]`)
 
 - Status: last item of the 2026-09-06 seed batch (NEXT_PLAN `Overnight seeds`). `mythos_runtime` had 21 real `mypy --strict` errors (16 `type-arg`, 5 `no-untyped-def`) — fixed all with real annotations (`dict[str, Any]`, `list[ValidationError]`, `CombatState`, `NarrativeContext`, `Callable[[RuntimeSessionService], dict[str, Any]]`, …), no suppressions, no `pyproject.toml` override. Added the `$(VENV)/bin/mypy --strict src/mythos_runtime` line to the Makefile `python-typecheck` target.

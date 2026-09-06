@@ -92,22 +92,3 @@ warn_return_any = true
 warn_unused_configs = true
 check_untyped_defs = true
 ignore_missing_imports = true
-
-# mypy's `strict = true` override key leaks strict-mode checks (e.g.
-# disallow_untyped_defs) to every module in the run, not just the ones matched
-# here (reproduced on mypy 2.1.0: a bogus non-matching module glob with
-# `strict = true` still made unrelated files fail). Spell out the per-module
-# strict flags instead (mypy's own definition minus warn_redundant_casts,
-# which PER_MODULE_OPTIONS does not support scoping).
-[[tool.mypy.overrides]]
-module = ["mythos_memory.*", "mythos_combat.*", "mythos_api.*"]
-disallow_any_generics = true
-disallow_subclassing_any = true
-disallow_untyped_calls = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-disallow_untyped_decorators = true
-warn_unused_ignores = true
-strict_equality = true
-extra_checks = true
-implicit_reexport = false

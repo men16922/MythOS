@@ -54,7 +54,7 @@ Scope is a research bench, **not** production self-hosting — the evidence puts
 
 Recorded 2026-09-06 (owner-approved, 16 seeds — quality ladder, all `make check`-verifiable; per-iteration ~15–25 min measured 09-06, `MAX_ITER=24`):
 
-- `[x]` `[auto:claude]` mypy strict for packages already clean: add `[[tool.mypy.overrides]] module = ["mythos_memory.*", "mythos_combat.*", "mythos_api.*"]` with `strict = true` in pyproject. Done: override present, `make check` green. **Note (2026-09-06):** literal `strict = true` in an override is a mypy 2.1.0 bug — it leaks strict-mode checks to every file in the run instead of scoping to the matched modules (reproduced with a non-matching glob). Shipped as the explicit per-module strict-equivalent flag list instead (mypy's own strict definition minus the one global-only flag); `implicit_reexport = false` also required re-exporting `mythos_combat.engine`'s `distance`/`HARD_CC_TURNS_CAP`/`STATUS_EFFECT_TURNS_CAP` (same pattern already used for `STATUS_STACK_CAPS`).
+- `[ ]` `[auto:claude]` mypy strict for packages already clean: add `[[tool.mypy.overrides]] module = ["mythos_memory.*", "mythos_combat.*", "mythos_api.*"]` with `strict = true` in pyproject. Done: override present, `make check` green.
 - `[ ]` `[auto:claude]` `mythos_core` under mypy strict (5 errors: 3 type-arg, 2 no-untyped-def) + its strict override. Done: `.venv/bin/mypy --strict src/mythos_core` 0 errors, override present, `make check` green.
 - `[ ]` `[auto:claude]` `mythos_loop` under mypy strict (4 type-arg) + override. Done: same criterion for `src/mythos_loop`.
 - `[ ]` `[auto:claude]` `mythos_narrative` under mypy strict (1 unused-ignore) + override. Done: same criterion for `src/mythos_narrative`.

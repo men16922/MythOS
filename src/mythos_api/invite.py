@@ -74,12 +74,13 @@ class InviteGateMiddleware:
         receive: Callable[[], Awaitable[dict[str, Any]]],
         send: Callable[[dict[str, Any]], Awaitable[None]],
     ) -> None:
-        if scope["type"] in ("http", "websocket"):
-            # Read keys per-request so deploy/tests can set the env without a rebuild.
-            if not _request_allowed(scope, allowed_invite_keys()):
-                if scope["type"] == "websocket":
-                    await send({"type": "websocket.close", "code": 1008})
-                else:
-                    await _send_http_401(send)
-                return
+        # Read keys per-request so deploy/tests can set the env without a rebuild.
+        if scope["type"] in ("http", "websocket") and not _request_allowed(
+            scope, allowed_invite_keys()
+        ):
+            if scope["type"] == "websocket":
+                await send({"type": "websocket.close", "code": 1008})
+            else:
+                await _send_http_401(send)
+            return
         await self.app(scope, receive, send)

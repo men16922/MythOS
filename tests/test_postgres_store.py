@@ -162,21 +162,20 @@ class PostgresStoreTest(unittest.TestCase):
         self.assertEqual(self.store.list_assets(self.loop.loop_id), [asset])
 
     def test_transaction_rolls_back(self) -> None:
-        with self.assertRaises(StoreError):
-            with self.store.transaction():
-                self.store.create_player(self.player)
-                self.store.save_loop(
-                    LoopState(
-                        loop_id=f"loop_invalid_store_test_{self.suffix}",
-                        player_id="missing_player",
-                        seed="seed",
-                        phase=LoopPhase.CONNECT,
-                        location_id="data-layer-01",
-                        stability=50,
-                        tension=50,
-                        started_at=self.now,
-                    )
+        with self.assertRaises(StoreError), self.store.transaction():
+            self.store.create_player(self.player)
+            self.store.save_loop(
+                LoopState(
+                    loop_id=f"loop_invalid_store_test_{self.suffix}",
+                    player_id="missing_player",
+                    seed="seed",
+                    phase=LoopPhase.CONNECT,
+                    location_id="data-layer-01",
+                    stability=50,
+                    tension=50,
+                    started_at=self.now,
                 )
+            )
 
         self.assertIsNone(self.store.get_player(self.player.player_id))
 

@@ -185,9 +185,13 @@ class RouteAnchorGlossaryCoverageTest(unittest.TestCase):
         def walk(obj: Any) -> None:
             if isinstance(obj, dict):
                 name = obj.get("name")
-                if "id" in obj and isinstance(name, str) and hangul.search(name):
-                    if name not in glossary:
-                        missing.add(name)
+                if (
+                    "id" in obj
+                    and isinstance(name, str)
+                    and hangul.search(name)
+                    and name not in glossary
+                ):
+                    missing.add(name)
                 for value in obj.values():
                     walk(value)
             elif isinstance(obj, list):

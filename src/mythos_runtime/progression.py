@@ -158,9 +158,7 @@ def scenario_unlock_met(
     if unlock.get("tutorial_completed") and tutorial.runs_completed < 1:
         return False
     required_runs = unlock.get("runs_completed")
-    if isinstance(required_runs, int) and tutorial.runs_completed < required_runs:
-        return False
-    return True
+    return not (isinstance(required_runs, int) and tutorial.runs_completed < required_runs)
 
 
 def meta_progression_from_content(
@@ -671,9 +669,7 @@ def _condition_met(condition: dict[str, Any], progress: MetaProgression) -> bool
     if isinstance(wins, int) and progress.total_combats_won < wins:
         return False
     ending = condition.get("ending_seen")
-    if isinstance(ending, str) and ending not in progress.endings_seen:
-        return False
-    return True
+    return not (isinstance(ending, str) and ending not in progress.endings_seen)
 
 
 def _grant_if(

@@ -69,7 +69,6 @@ class RouteGoldenPathLengthTest(unittest.TestCase):
         # A generous ceiling: the boss is (num_layers-1)*per turns out, so this is
         # always reached well inside the budget on a strictly-layered DAG.
         max_turns = len(route_map["layers"]) * DEFAULT_TURNS_PER_LAYER + 5
-        beats = 0
         for turn_index in range(max_turns):
             state = extend_route(
                 state,
@@ -79,8 +78,7 @@ class RouteGoldenPathLengthTest(unittest.TestCase):
             )
             state = advance_route(state, turn_index=turn_index, seed=seed)
             if state[ROUTE_MAP_KEY]["current"] == boss:
-                return beats
-            beats += 1
+                return turn_index
         self.fail(
             f"boss node never reached within {max_turns} turns ({builder.__name__}, seed {seed})"
         )

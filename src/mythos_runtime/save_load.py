@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import suppress
 from dataclasses import replace
 from typing import Any
 
@@ -66,10 +67,9 @@ class SaveLoadService:
         memory = _save_slot_memory(loop, scene, assets, label=label, manual=True, slot_id=slot_id)
         self.store.save_player_memory(memory)
         if stale_ids:
-            try:
+            # newest-wins keying keeps the overwrite correct regardless
+            with suppress(NotImplementedError):
                 self.store.delete_player_memories(loop.player_id, stale_ids)
-            except NotImplementedError:
-                pass  # newest-wins keying keeps the overwrite correct regardless
         return _save_slot_from_memory(memory)
 
     def delete_save_slot(self, player_id: str, slot_id: str) -> int:

@@ -2,6 +2,12 @@
 
 Last updated: 2026-09-06
 
+## 2026-09-06 — ruff `SIM` enabled, 27 in-scope findings fixed (overnight `[auto:claude]`)
+
+- Status: quality-ladder seed batch item (NEXT_PLAN `Overnight seeds`). `SIM` added to `[tool.ruff.lint] select`; the repo-wide 40 findings split 27 in `src/`+`tests/` (this seed's scope) vs. 13 in `scratch/`/`scripts/cbt/` (outside the claude-lane `WorkContract` scope), so those two dirs got a `SIM` per-file-ignore instead of edits.
+- Changed: 6 SIM105 → `contextlib.suppress`, 5 SIM102 → merged nested-ifs, 12 SIM117 → combined `with`-statements, 2 SIM103 → negated-return, 1 SIM113 → dropped a redundant counter in favor of the existing loop index, 1 SIM118 → dropped `.keys()`. No behavior change; `ruff format` reflowed one line.
+- Verified: `ruff check .` 0 findings with `SIM` on; `make check` green (skills/doc-budget/validate-content/lint/typecheck/frontend build/1387 tests, 5 skipped).
+
 ## 2026-09-06 — E2E selector source-lock test (overnight `[auto:claude]`)
 
 - Status: quality-ladder seed batch item (NEXT_PLAN `Overnight seeds`) — `scratch/run_playwright_test.py`/`run_comprehensive_e2e_test.py` are outside `make check` and had gone red unnoticed before (see docs/LESSONS.md 2026-09-06); this locks their 19 selectors/ids against `src/mythos_ui/src/**` so a UI rename fails `make check` instead.

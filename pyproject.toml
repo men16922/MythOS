@@ -83,8 +83,14 @@ target-version = "py311"
 extend-exclude = ["scripts/gen_bgm.py"]
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "UP", "C4"]
+select = ["E", "F", "I", "UP", "C4", "SIM"]
 ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+# One-off dev/render-check scripts outside the claude-lane WorkContract scope
+# (scripts/overnight/ only) — not touched by the SIM cleanup.
+"scratch/*" = ["SIM"]
+"scripts/cbt/*" = ["SIM"]
 
 [tool.mypy]
 python_version = "3.11"

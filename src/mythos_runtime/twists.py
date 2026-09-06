@@ -45,9 +45,8 @@ def _current_layer(state: dict[str, Any]) -> int:
 def _conditions_met(when: dict[str, Any], state: dict[str, Any]) -> bool:
     flags = {str(f) for f in state.get("flags", []) or []}
     flags_any = when.get("flags_any")
-    if isinstance(flags_any, list) and flags_any:
-        if not flags & {str(f) for f in flags_any}:
-            return False
+    if isinstance(flags_any, list) and flags_any and not flags & {str(f) for f in flags_any}:
+        return False
     min_layer = when.get("min_layer")
     if min_layer is not None and _current_layer(state) < int(min_layer):
         return False

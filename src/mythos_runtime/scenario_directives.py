@@ -670,9 +670,12 @@ def load_scenario_directives(
     route_beats: list[RouteBeatDirective] = []
 
     opening_stem = "opening"
-    if opening_variant and opening_variant != "default":
-        if opening_variant in available_opening_variants(scenario_id):
-            opening_stem = f"opening_{opening_variant}"
+    if (
+        opening_variant
+        and opening_variant != "default"
+        and opening_variant in available_opening_variants(scenario_id)
+    ):
+        opening_stem = f"opening_{opening_variant}"
     opening_path = _directive_path(base, opening_stem, language)
     if opening_path is not None:
         with open(opening_path, encoding="utf-8") as f:

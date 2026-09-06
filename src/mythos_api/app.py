@@ -13,7 +13,7 @@ request bodies instead of being inferred from an auth context.
 from __future__ import annotations
 
 from collections.abc import AsyncGenerator, Iterator
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -287,10 +287,8 @@ def _attach_slot_thumbnails(service: RuntimeSessionService, slots: list[dict[str
             except Exception:
                 storage_failed = True
         if storage is not None:
-            try:
+            with suppress(Exception):
                 slot["thumb_url"] = storage.presigned_url(asset.storage_uri)
-            except Exception:
-                pass
 
 
 def _visual_frame(

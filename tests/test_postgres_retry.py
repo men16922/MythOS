@@ -95,9 +95,11 @@ class StaleConnectionRetryTest(unittest.TestCase):
         dead = _Conn(fail_with=self._admin_shutdown())
         store = _store_with(dead)
         store._transaction_depth = 1
-        with patch("mythos_memory.postgres_store.psycopg.connect") as connect:
-            with self.assertRaises(StoreError):
-                store._fetchone("SELECT 1", ())
+        with (
+            patch("mythos_memory.postgres_store.psycopg.connect") as connect,
+            self.assertRaises(StoreError),
+        ):
+            store._fetchone("SELECT 1", ())
         connect.assert_not_called()
 
     def test_non_connection_errors_do_not_retry(self) -> None:
@@ -106,18 +108,22 @@ class StaleConnectionRetryTest(unittest.TestCase):
 
         dead = _Conn(fail_with=_SyntaxError("syntax error"))
         store = _store_with(dead)
-        with patch("mythos_memory.postgres_store.psycopg.connect") as connect:
-            with self.assertRaises(StoreError):
-                store._fetchone("SELECT broken", ())
+        with (
+            patch("mythos_memory.postgres_store.psycopg.connect") as connect,
+            self.assertRaises(StoreError),
+        ):
+            store._fetchone("SELECT broken", ())
         connect.assert_not_called()
 
     def test_second_failure_surfaces_store_error(self) -> None:
         dead = _Conn(fail_with=self._admin_shutdown())
         also_dead = _Conn(fail_with=self._admin_shutdown())
         store = _store_with(dead)
-        with patch("mythos_memory.postgres_store.psycopg.connect", return_value=also_dead):
-            with self.assertRaises(StoreError):
-                store._fetchone("SELECT 1", ())
+        with (
+            patch("mythos_memory.postgres_store.psycopg.connect", return_value=also_dead),
+            self.assertRaises(StoreError),
+        ):
+            store._fetchone("SELECT 1", ())
 
 
 if __name__ == "__main__":

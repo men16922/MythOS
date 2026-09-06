@@ -383,9 +383,8 @@ def junction_options(
         node = nodes.get(target)
         if isinstance(node, dict):
             gate = node.get("gate")
-            if isinstance(gate, list) and gate:
-                if not all(flag in flags for flag in gate):
-                    continue
+            if isinstance(gate, list) and gate and not all(flag in flags for flag in gate):
+                continue
             options.append(node)
 
     return options if len(options) >= 2 else []

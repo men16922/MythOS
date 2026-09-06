@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import os
 import threading
+from contextlib import suppress
 from typing import Any, cast
 
 from .config import AgentConfig
@@ -43,10 +44,8 @@ def _load_base_pipeline(model_id: str, config: AgentConfig) -> Any:
     # the transformers/diffusers "sequence length longer than 77 / truncated" warning is
     # benign noise. Quiet it so the logs stay readable.
     for _mod in ("transformers.utils.logging", "diffusers.utils.logging"):
-        try:
+        with suppress(Exception):
             importlib.import_module(_mod).set_verbosity_error()
-        except Exception:
-            pass
 
     device = _require_mps()
     print(f"Loading image model (one-time): {model_id}")

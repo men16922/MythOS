@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 from collections.abc import Iterator
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from typing import Any, cast
 
 import psycopg
@@ -682,10 +682,8 @@ class PostgresMythOSStore(MythOSStore):
         except psycopg.Error as exc:
             dropped = self._is_connection_dropped(exc)
             if self._connection is not None and not self._connection.closed:
-                try:
+                with suppress(psycopg.Error):
                     self._connection.rollback()
-                except psycopg.Error:
-                    pass
             if not dropped or self._transaction_depth > 0:
                 raise StoreError(str(exc)) from exc
             self._reset_connection()
@@ -693,10 +691,8 @@ class PostgresMythOSStore(MythOSStore):
                 return op()
             except psycopg.Error as retry_exc:
                 if self._connection is not None and not self._connection.closed:
-                    try:
+                    with suppress(psycopg.Error):
                         self._connection.rollback()
-                    except psycopg.Error:
-                        pass
                 raise StoreError(str(retry_exc)) from retry_exc
 
     def _execute(self, sql: str, params: tuple[Any, ...]) -> None:

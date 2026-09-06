@@ -80,7 +80,7 @@ class RouteDestinationMeaningTest(unittest.TestCase):
             if not route_map:
                 continue  # scenario does not use the procedural route map
             checked += 1
-            types: set[str] = {str(t) for t in (route_map.get("node_types") or {}).keys()}
+            types: set[str] = {str(t) for t in (route_map.get("node_types") or {})}
             for layer in route_map.get("layers", []) or []:
                 for anchor in layer.get("anchors", []) or []:
                     node_type = anchor.get("type")

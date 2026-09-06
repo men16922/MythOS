@@ -254,9 +254,11 @@ class VertexGeminiProviderTest(unittest.TestCase):
 
     def test_missing_sdk_raises_actionable_error(self) -> None:
         provider = VertexGeminiJSONProvider()  # no injected client
-        with mock.patch.dict("sys.modules", {"google.genai": None}):
-            with self.assertRaises(RuntimeError) as ctx:
-                provider._client()
+        with (
+            mock.patch.dict("sys.modules", {"google.genai": None}),
+            self.assertRaises(RuntimeError) as ctx,
+        ):
+            provider._client()
         self.assertIn("pip install -e .[gemini]", str(ctx.exception))
 
 

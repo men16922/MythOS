@@ -4,6 +4,7 @@ import os
 import sys
 import time
 import json
+from contextlib import suppress
 from pathlib import Path
 from typing import Any
 
@@ -1583,10 +1584,8 @@ def run_test():
         traceback.print_exc()
     finally:
         if browser is not None:
-            try:
+            with suppress(Exception):
                 browser.close()
-            except Exception:
-                pass
         print("Stopping uvicorn server...")
         server_process.terminate()
         server_process.join(timeout=5)

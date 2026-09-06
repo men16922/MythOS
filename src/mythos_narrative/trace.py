@@ -73,9 +73,8 @@ def _record(entry: dict[str, Any]) -> None:
     # an unattended overnight run self-partitioning.
     path = directory / f"trace-{utc_now().strftime('%Y%m%d')}-{os.getpid()}.jsonl"
     line = json.dumps(entry, ensure_ascii=False)
-    with _write_lock:
-        with path.open("a", encoding="utf-8") as handle:
-            handle.write(line + "\n")
+    with _write_lock, path.open("a", encoding="utf-8") as handle:
+        handle.write(line + "\n")
 
 
 class TracingProvider:

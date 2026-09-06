@@ -192,9 +192,8 @@ class VertexImageProviderTest(unittest.TestCase):
     def test_no_images_raises_after_retries(self) -> None:
         client = _FlakyGeminiClient(["empty", "empty", "empty"])
         provider = VertexImageProvider(client=client, sleep=lambda _s: None)
-        with tempfile.TemporaryDirectory() as tmp:
-            with self.assertRaises(RuntimeError):
-                provider.generate(_request(), Path(tmp) / "s.png")
+        with tempfile.TemporaryDirectory() as tmp, self.assertRaises(RuntimeError):
+            provider.generate(_request(), Path(tmp) / "s.png")
         self.assertEqual(client.models.calls, 3)
 
     def test_quota_429_retries_with_backoff_then_succeeds(self) -> None:
@@ -229,16 +228,17 @@ class VertexImageProviderTest(unittest.TestCase):
 
         client = types.SimpleNamespace(models=_Boom())
         provider = VertexImageProvider(client=client, sleep=lambda _s: None)
-        with tempfile.TemporaryDirectory() as tmp:
-            with self.assertRaises(RuntimeError):
-                provider.generate(_request(), Path(tmp) / "s.png")
+        with tempfile.TemporaryDirectory() as tmp, self.assertRaises(RuntimeError):
+            provider.generate(_request(), Path(tmp) / "s.png")
         self.assertEqual(_Boom.calls, 1)
 
     def test_missing_sdk_raises_actionable_error(self) -> None:
         provider = VertexImageProvider()  # no injected client
-        with mock.patch.dict("sys.modules", {"google.genai": None, "google": None}):
-            with self.assertRaises(RuntimeError) as ctx:
-                provider._client()
+        with (
+            mock.patch.dict("sys.modules", {"google.genai": None, "google": None}),
+            self.assertRaises(RuntimeError) as ctx,
+        ):
+            provider._client()
         self.assertIn(".[gemini]", str(ctx.exception))
 
     def test_env_names_match_user_convention(self) -> None:
@@ -370,9 +370,11 @@ class GCSStorageAdapterTest(unittest.TestCase):
 
     def test_missing_sdk_raises_actionable_error(self) -> None:
         adapter = GCSStorageAdapter()
-        with mock.patch.dict("sys.modules", {"google.cloud.storage": None, "google.cloud": None}):
-            with self.assertRaises(RuntimeError) as ctx:
-                adapter._client()
+        with (
+            mock.patch.dict("sys.modules", {"google.cloud.storage": None, "google.cloud": None}),
+            self.assertRaises(RuntimeError) as ctx,
+        ):
+            adapter._client()
         self.assertIn(".[gcs]", str(ctx.exception))
 
 

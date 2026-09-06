@@ -1357,9 +1357,11 @@ class InviteGateTest(unittest.TestCase):
 
         with mock.patch.dict(os.environ, {"MYTHOS_INVITE_KEYS": "alpha"}):
             client = _client(_InMemoryStore())
-            with self.assertRaises(WebSocketDisconnect):
-                with client.websocket_connect("/api/v1/loops/stream"):
-                    pass
+            with (
+                self.assertRaises(WebSocketDisconnect),
+                client.websocket_connect("/api/v1/loops/stream"),
+            ):
+                pass
             # valid key connects (then close immediately)
             with client.websocket_connect("/api/v1/loops/stream?invite=alpha") as ws:
                 ws.close()

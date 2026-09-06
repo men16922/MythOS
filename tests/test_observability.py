@@ -150,8 +150,10 @@ class TraceBackendTest(unittest.TestCase):
         # `none` short-circuits before any exporter import → tracing off, span() still safe.
         import mythos_runtime.observability as obs
 
-        with mock.patch.object(obs, "_TRACING_CONFIGURED", False):
-            with mock.patch.dict(os.environ, {"MYTHOS_TRACE_BACKEND": "none"}):
-                self.assertFalse(configure_tracing())
+        with (
+            mock.patch.object(obs, "_TRACING_CONFIGURED", False),
+            mock.patch.dict(os.environ, {"MYTHOS_TRACE_BACKEND": "none"}),
+        ):
+            self.assertFalse(configure_tracing())
         with span("test.span.disabled"):
             pass  # must not raise even with tracing disabled

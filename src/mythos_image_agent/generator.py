@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
 
 try:
     from dotenv import load_dotenv
@@ -12,16 +11,13 @@ except ImportError:
 
 from .config import PROJECT_ROOT, AgentConfig
 
-if TYPE_CHECKING:
-    import torch
-
 if load_dotenv is not None:
     load_dotenv(PROJECT_ROOT / ".env")
 
 os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
 
 
-def _require_mps() -> torch.device:
+def _require_mps():
     import torch
 
     if not torch.backends.mps.is_available():
@@ -46,7 +42,7 @@ def generate_image(
     ip_adapter_scale: float = 0.6,
 ) -> Path:
     import torch
-    from diffusers.utils import load_image  # type: ignore[attr-defined]
+    from diffusers.utils import load_image
 
     from .pipeline_cache import get_flux_ip_adapter_pipeline, get_flux_pipeline
 
@@ -54,7 +50,7 @@ def generate_image(
     target_width = width or config.default_width
     target_height = height or config.default_height
 
-    kwargs: dict[str, Any] = {
+    kwargs: dict = {
         "prompt": prompt,
         "guidance_scale": config.guidance_scale,
         "num_inference_steps": steps or config.default_steps,

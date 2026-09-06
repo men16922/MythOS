@@ -39,7 +39,6 @@ python-typecheck:
 	$(VENV)/bin/mypy --strict src/mythos_core
 	$(VENV)/bin/mypy --strict src/mythos_loop
 	$(VENV)/bin/mypy --strict src/mythos_narrative
-	$(VENV)/bin/mypy --strict src/mythos_image_agent
 
 frontend-build:
 	cd $(FRONTEND_DIR) && npm run build

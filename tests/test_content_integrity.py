@@ -35,10 +35,13 @@ not a flaky judgment call.
 
 import ast
 import json
+import re
 import unittest
 from typing import Any
 
 from mythos_combat.factory import _DEFAULT_STATS
+from mythos_combat.log_i18n import clog
+from mythos_combat.status_rules import STATUS_EFFECT_IDS
 from mythos_runtime.ending_resolver import EndingResolver
 from mythos_runtime.route_map import (
     SIDE_ANCHOR_ORIGIN,
@@ -2151,6 +2154,128 @@ class SideAnchorIntegrityTest(unittest.TestCase):
             "attach_side_anchors wove no side nodes into the neo-seoul route — the "
             "woven-node integrity checks are vacuously green",
         )
+
+
+_UI_SRC = PROJECT_ROOT / "src" / "mythos_ui" / "src"
+_COMBAT_CANVAS_TS = _UI_SRC / "combatCanvas.ts"
+_I18N_KO_TS = _UI_SRC / "i18n" / "strings.ko.ts"
+_I18N_EN_TS = _UI_SRC / "i18n" / "strings.en.ts"
+
+_BOARD_STATUS_KEY_RE = re.compile(r'"board\.status\.([a-zA-Z0-9_]+)"')
+_STATUS_BADGES_BLOCK_RE = re.compile(r"export const STATUS_BADGES[^=]*=\s*\{(.*?)\n\};", re.DOTALL)
+_STATUS_BADGE_KEY_RE = re.compile(r"^\s*([a-zA-Z_]\w*):\s*\{", re.MULTILINE)
+
+
+def _scenario_status_ids(scenario_data: dict[str, Any]) -> set[str]:
+    """Every status id a scenario's combat data can put on a combatant: an
+    ``applies`` rider (weapon/skill/item on-hit) or ``hack_control`` (the
+    separate engine mechanic — see ``engine.py`` — that seizes a turn into
+    ``hacked`` without ever authoring an ``applies: {hacked: n}`` rider).
+    """
+    ids: set[str] = set()
+
+    def _walk(obj: Any) -> None:
+        if isinstance(obj, dict):
+            applies = obj.get("applies")
+            if isinstance(applies, dict):
+                ids.update(str(k) for k in applies)
+            if obj.get("hack_control"):
+                ids.add("hacked")
+            for value in obj.values():
+                _walk(value)
+        elif isinstance(obj, list):
+            for item in obj:
+                _walk(item)
+
+    _walk(scenario_data.get("combat") or {})
+    return ids
+
+
+def _board_status_ids(path: Any) -> set[str]:
+    text = path.read_text(encoding="utf-8")
+    return set(_BOARD_STATUS_KEY_RE.findall(text))
+
+
+def _status_badge_ids() -> set[str]:
+    text = _COMBAT_CANVAS_TS.read_text(encoding="utf-8")
+    match = _STATUS_BADGES_BLOCK_RE.search(text)
+    assert match is not None, "STATUS_BADGES block not found in combatCanvas.ts"
+    return set(_STATUS_BADGE_KEY_RE.findall(match.group(1)))
+
+
+class StatusEffectDataClosureTest(unittest.TestCase):
+    """Data-closure test for persistent status effects (overnight seed 2026-09-06).
+
+    A status id authored onto a weapon/skill/item (``applies`` rider) or wired
+    via the ``hack_control`` engine mechanic must resolve through every
+    downstream consumer, or it silently fails to narrate/render for the
+    player: the ``status_rules`` registry (else the engine treats it as an
+    unranked single-stack default), the bilingual combat-log templates
+    (``log_i18n``), the tactical-board i18n key (``board.status.<id>``, both
+    languages), the board badge chip (``STATUS_BADGES`` in
+    ``combatCanvas.ts``), and the scenario's own badge art
+    (``resources/<scenario>/status/<id>.png``).
+
+    ``hacked`` never gains an ``applies`` rider (it is only ever granted via
+    ``hack_control``) and is consumed the instant its turn plays out rather
+    than ticking down and expiring, so it authors no
+    ``status_hacked_expired`` log line — every other status does.
+    """
+
+    def setUp(self) -> None:
+        self.scenarios = _scenario_json_paths()
+        self.assertTrue(self.scenarios, "expected at least one resources/*/scenario.json")
+        self.ids_by_scenario: dict[str, set[str]] = {}
+        for path in self.scenarios:
+            with open(path, encoding="utf-8") as handle:
+                data = json.load(handle)
+            self.ids_by_scenario[path.parent.name] = _scenario_status_ids(data)
+
+    def test_scenario_applied_status_ids_are_registered(self) -> None:
+        registered = set(STATUS_EFFECT_IDS)
+        for scenario, ids in self.ids_by_scenario.items():
+            unknown = sorted(ids - registered)
+            self.assertEqual(
+                unknown,
+                [],
+                f"{scenario}: applies/hack_control status ids not declared in "
+                f"status_rules.STATUS_EFFECT_IDS: {unknown}",
+            )
+
+    def test_every_registered_status_has_log_lines(self) -> None:
+        missing: list[str] = []
+        for status_id in STATUS_EFFECT_IDS:
+            applied_key = f"status_{status_id}_applied"
+            if clog("ko", applied_key) == applied_key:
+                missing.append(applied_key)
+            if status_id == "hacked":
+                continue  # consumed at act time, never ticks down to expiry
+            expired_key = f"status_{status_id}_expired"
+            if clog("ko", expired_key) == expired_key:
+                missing.append(expired_key)
+        self.assertEqual(missing, [], f"log_i18n missing status log templates: {missing}")
+
+    def test_every_registered_status_has_board_i18n(self) -> None:
+        registered = set(STATUS_EFFECT_IDS)
+        missing_ko = sorted(registered - _board_status_ids(_I18N_KO_TS))
+        missing_en = sorted(registered - _board_status_ids(_I18N_EN_TS))
+        self.assertEqual(missing_ko, [], f"strings.ko.ts missing board.status.<id>: {missing_ko}")
+        self.assertEqual(missing_en, [], f"strings.en.ts missing board.status.<id>: {missing_en}")
+
+    def test_every_registered_status_has_a_board_badge(self) -> None:
+        missing = sorted(set(STATUS_EFFECT_IDS) - _status_badge_ids())
+        self.assertEqual(
+            missing, [], f"combatCanvas.ts STATUS_BADGES is missing entries for: {missing}"
+        )
+
+    def test_scenario_applied_status_ids_have_badge_art(self) -> None:
+        missing: list[str] = []
+        for scenario, ids in self.ids_by_scenario.items():
+            for status_id in sorted(ids):
+                png = PROJECT_ROOT / "resources" / scenario / "status" / f"{status_id}.png"
+                if not png.exists():
+                    missing.append(str(png.relative_to(PROJECT_ROOT)))
+        self.assertEqual(missing, [], f"missing status badge art: {missing}")
 
 
 if __name__ == "__main__":

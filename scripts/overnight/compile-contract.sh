@@ -192,7 +192,7 @@ if mission_match:
     mission_spec_ref = f"{relative}#sha256={digest}"
 
 lane_scope = {
-    "claude": ["src/", "tests/", "harness/", "scripts/overnight/", "docs/", "Makefile"],
+    "claude": ["src/", "tests/", "harness/", "scripts/overnight/", "docs/", "Makefile", "pyproject.toml"],
     "codex": ["src/", "tests/", "resources/", "scripts/", "docs/", "Makefile"],
     "agy": ["outputs/agy/", "resources/", "tests/"],
     "kiro": ["src/", "tests/", "docs/", "scripts/", "Makefile"],

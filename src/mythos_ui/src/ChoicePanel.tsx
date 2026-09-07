@@ -73,6 +73,7 @@ export function ChoicePanel({ choices, stability, tension, routeMap, onChoose, p
         const iKey = intentKey(choice.intent);
         const intentLabel = iKey ? t(iKey) : null;
         const destination = routeDestination(choice, routeMap);
+        const destinationHintKey = destination ? NODE_TYPE_HINT_KEYS[destination.node.type] : undefined;
         const routeClass = destination ? ` route-choice-link route-choice-link-${destination.index % 4}` : "";
         const axisTooltip = choice.axis_label
           ? `${t("choice.axis.tooltip")} ${choice.axis_label}`
@@ -125,9 +126,9 @@ export function ChoicePanel({ choices, stability, tension, routeMap, onChoose, p
                 {destination.node.risk != null && (
                   <small>{t("aside.route.risk")} {destination.node.risk}</small>
                 )}
-                {NODE_TYPE_HINT_KEYS[destination.node.type] && (
+                {destinationHintKey && (
                   <small className="route-node-hint">
-                    {t(NODE_TYPE_HINT_KEYS[destination.node.type])}
+                    {t(destinationHintKey)}
                   </small>
                 )}
               </div>

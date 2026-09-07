@@ -50,6 +50,7 @@ export function MarketExchange({
     .map(([, n]) => n)
     .reduce((a, b) => a + b, 0);
 
+  const firstOffer = market.offers[0];
   const dockLabel = market.vendor ? `${market.vendor.name} · ${t("market.title")}` : t("market.title");
 
   if (!open) {
@@ -65,7 +66,7 @@ export function MarketExchange({
       <div className="market-head">
         <span className="market-title">{dockLabel}</span>
         <span className="market-held">
-          {market.offers[0]?.give_name}: {market.held[market.offers[0]?.give] ?? heldScrap}
+          {firstOffer?.give_name}: {(firstOffer && market.held[firstOffer.give]) ?? heldScrap}
         </span>
         <button
           type="button"

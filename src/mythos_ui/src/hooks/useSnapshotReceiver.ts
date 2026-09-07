@@ -99,7 +99,7 @@ export function useSnapshotReceiver(args: UseSnapshotReceiverArgs) {
     if (resultSummary) {
       setNarrativeHistory((prev) => {
         if (prev.length === 0) return prev;
-        const last = prev[prev.length - 1];
+        const last = prev[prev.length - 1]!;
         if (last.result) return prev;
         return [...prev.slice(0, -1), { ...last, result: resultSummary }];
       });

@@ -102,14 +102,14 @@ function isWordChar(ch: string | undefined): boolean {
 }
 
 function isIntraWordApostrophe(text: string, index: number): boolean {
-  if (!APOSTROPHE_LIKE.has(text[index])) return false;
+  if (!APOSTROPHE_LIKE.has(text.charAt(index))) return false;
   return isWordChar(text[index - 1]) && isWordChar(text[index + 1]);
 }
 
 /** A quote opens at a word boundary; an apostrophe glued to the end of a word is
  * a contraction or possessive ("don't", "riders'"), not an opening quote. */
 function opensQuote(text: string, index: number): boolean {
-  if (!APOSTROPHE_LIKE.has(text[index])) return true;
+  if (!APOSTROPHE_LIKE.has(text.charAt(index))) return true;
   return !isWordChar(text[index - 1]);
 }
 

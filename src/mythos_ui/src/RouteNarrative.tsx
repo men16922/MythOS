@@ -30,13 +30,13 @@ export function RouteNarrative({
   if (!routeMap || layers.length === 0) return null;
 
   const nodes = routeMap.nodes || {};
-  const currentId = routeMap.current || (layers[0] || [])[0];
+  const currentId = routeMap.current || (layers[0] || [])[0] || "";
   const activePerspectives = routeMap.active_perspectives || {};
   const leaderboard = routeMap.ending_leaderboard || [];
   const currentNode = nodes[currentId];
   const activeLensId = activePerspectives[currentId];
   const activeLens = (currentNode?.perspectives || []).find((p) => p.id === activeLensId);
-  const topEndingScore = leaderboard.length ? leaderboard[0][1] : 0;
+  const topEndingScore = leaderboard[0]?.[1] ?? 0;
 
   if (!activeLens && leaderboard.length === 0) return null;
 

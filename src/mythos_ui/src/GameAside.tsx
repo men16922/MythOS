@@ -128,7 +128,7 @@ function RouteMapPanel({
   const nodes = routeMap.nodes || {};
   const layers = routeMap.layers || [];
   const edges = routeMap.edges || {};
-  const currentId = routeMap.current || (layers[0] || [])[0];
+  const currentId = routeMap.current || (layers[0] || [])[0] || "";
   const visited = new Set(routeMap.visited || (currentId ? [currentId] : []));
   const nextCandidates = new Set(edges[currentId] || []);
 
@@ -142,6 +142,7 @@ function RouteMapPanel({
     const isVisited = visited.has(id) && !isCurrent;
     const choiceLinkIndex = isNext ? (edges[currentId] || []).indexOf(id) : -1;
 
+    const typeIcon = NODE_TYPE_ICON[node.type];
     const gate = node.gate || [];
     const isLocked = gate.length > 0 && !gate.every((f) => playerFlags.includes(f));
 
@@ -183,8 +184,8 @@ function RouteMapPanel({
         <span className="route-glyph">
           {isLocked ? (
             "🔒"
-          ) : NODE_TYPE_ICON[node.type] ? (
-            <GameIcon name={NODE_TYPE_ICON[node.type]} />
+          ) : typeIcon ? (
+            <GameIcon name={typeIcon} />
           ) : (
             node.glyph || "?"
           )}
@@ -382,6 +383,7 @@ export function OperationMapPanel({
   const curKey = mapState.current;
   const cur = tiles[curKey];
   if (!cur) return null;
+  const curKindKey = TILE_LABEL_KEYS[cur.kind || "node"];
 
   const cx = cur.x;
   const cy = cur.y;
@@ -427,10 +429,10 @@ export function OperationMapPanel({
             {glyph}
           </InfoPopover>
         );
-      } else if (!tileKey) {
+      } else if (!tileKey || !tiles[tileKey]) {
         cells.push(<div key={coordKey} className="mm-cell mm-empty"></div>);
       } else {
-        const tile = tiles[tileKey];
+        const tile = tiles[tileKey]!;
         const tileIcon = <GameIcon name={TILE_ICON[tile.kind || "node"] || "nodeDot"} />;
         const cls = tileKey === curKey ? "mm-cell mm-current" : "mm-cell mm-visited";
         const tileName = tile.name || "";
@@ -470,11 +472,16 @@ export function OperationMapPanel({
         {t("aside.route.curPosition")}: {cur.name || t("amap.unknownSpot")} ({cx}, {cy})
       </div>
       <div className="sub amap-legend" style={{ fontSize: "11px", color: "var(--ink-dim)", marginTop: "6px" }}>
-        {(["player", "node", "checkpoint", "clue"] as const).map((kind) => (
-          <span key={kind} className="amap-legend-item">
-            <GameIcon name={TILE_ICON[kind]} /> {t(TILE_LABEL_KEYS[kind])}
-          </span>
-        ))}
+        {(["player", "node", "checkpoint", "clue"] as const).map((kind) => {
+          const icon = TILE_ICON[kind];
+          const labelKey = TILE_LABEL_KEYS[kind];
+          if (!icon || !labelKey) return null;
+          return (
+            <span key={kind} className="amap-legend-item">
+              <GameIcon name={icon} /> {t(labelKey)}
+            </span>
+          );
+        })}
         <span className="amap-legend-item">{t("amap.legend.contacts")}</span>
       </div>
       {nearestContacts.length > 0 && (
@@ -486,7 +493,7 @@ export function OperationMapPanel({
         </div>
       )}
       <div className="sub" style={{ fontSize: "11px", color: "var(--ink-dim)", marginTop: "6px" }}>
-        {t("amap.explored")} {Object.keys(tiles).length}{t("amap.places")} · {t("amap.contacts")} {liveContacts.length} · {t("amap.spotType")} {TILE_LABEL_KEYS[cur.kind || "node"] ? t(TILE_LABEL_KEYS[cur.kind || "node"]) : (cur.kind || t("amap.tile.node"))}
+        {t("amap.explored")} {Object.keys(tiles).length}{t("amap.places")} · {t("amap.contacts")} {liveContacts.length} · {t("amap.spotType")} {curKindKey ? t(curKindKey) : (cur.kind || t("amap.tile.node"))}
       </div>
     </Surface>
   );

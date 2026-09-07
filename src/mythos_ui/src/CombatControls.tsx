@@ -484,7 +484,11 @@ export function CombatControls({
               const next = [...visibleIds];
               const existing = next.indexOf(skillId);
               if (existing === slotIdx) return;
-              if (existing >= 0) next[existing] = next[slotIdx];
+              if (existing >= 0) {
+                const displaced = next[slotIdx];
+                if (displaced !== undefined) next[existing] = displaced;
+                else next.splice(existing, 1);
+              }
               next[slotIdx] = skillId;
               setSlotOverrides((prev) => ({ ...prev, [storageKey]: next }));
               try {

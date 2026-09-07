@@ -382,6 +382,7 @@ export function InventoryPanel({
   defaultWearer?: string;
 }) {
   const { t } = useLang();
+  const tOr = (key: StringKey | undefined, fallback: string) => (key ? t(key) : fallback);
   const inventory = snapshot?.inventory && snapshot.inventory.length > 0 ? snapshot.inventory : [];
   const inventoryGroups = ITEM_CATEGORY_ORDER.map((category) => ({
     category,
@@ -403,12 +404,12 @@ export function InventoryPanel({
         <div className="char-inventory">
           {inventoryGroups.map((group) => (
             <div key={group.category} className="inv-group">
-              <div className="inv-group-title">{ITEM_CATEGORY_KEYS[group.category] ? t(ITEM_CATEGORY_KEYS[group.category]) : group.category}</div>
+              <div className="inv-group-title">{tOr(ITEM_CATEGORY_KEYS[group.category], group.category)}</div>
               <ul className="inv-group-list">
                 {group.items.map((item, idx) => {
                   const category = itemCategory(item);
                   const bonus = statBonusLabel(item.stats, t);
-                  const slotLabel = item.slot ? (SLOT_KEYS[item.slot] ? t(SLOT_KEYS[item.slot]) : item.slot) : t("char.cat.equipment");
+                  const slotLabel = item.slot ? tOr(SLOT_KEYS[item.slot], item.slot) : t("char.cat.equipment");
                   return (
                     <li
                       key={`${item.id}-${idx}`}
@@ -416,7 +417,7 @@ export function InventoryPanel({
                         item.equipped ? " inv-equipped" : ""
                       }`}
                     >
-                      <span className="inv-icon" title={ITEM_CATEGORY_KEYS[category] ? t(ITEM_CATEGORY_KEYS[category]) : category}>
+                      <span className="inv-icon" title={tOr(ITEM_CATEGORY_KEYS[category], category)}>
                         <ItemArt itemId={item.id} scenarioId={scenarioId} category={category} />
                       </span>
                       <span className="inv-main">
@@ -427,7 +428,7 @@ export function InventoryPanel({
                         <span className="inv-meta">
                           {item.kind === "equipment"
                             ? `${slotLabel}${bonus ? ` · ${bonus}` : ""}`
-                            : (item.effect && ITEM_EFFECT_KEYS[item.effect] ? t(ITEM_EFFECT_KEYS[item.effect]) : item.effect) || (item.kind && KIND_KEYS[item.kind] ? t(KIND_KEYS[item.kind]) : t("char.owned"))}
+                            : (item.effect && tOr(ITEM_EFFECT_KEYS[item.effect], item.effect)) || (item.kind ? tOr(KIND_KEYS[item.kind], t("char.owned")) : t("char.owned"))}
                         </span>
                       </span>
                       {item.kind === "equipment" && onEquip && (

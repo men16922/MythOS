@@ -42,6 +42,7 @@ export function useTabSwipe(
       return;
     }
     const touch = e.touches[0];
+    if (!touch) return;
     start.current = {
       x: touch.clientX,
       y: touch.clientY,
@@ -67,7 +68,8 @@ export function useTabSwipe(
     // around at the ends (owner 2026-07-11: swiping outward at the first/last tab
     // dead-ended) so an edge swipe cycles to the opposite end.
     const nextIdx = (idx + (dx < 0 ? 1 : -1) + tabs.length) % tabs.length;
-    setActiveTab(tabs[nextIdx]);
+    const nextTab = tabs[nextIdx];
+    if (nextTab) setActiveTab(nextTab);
   };
 
   return { onTouchStart, onTouchEnd };

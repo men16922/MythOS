@@ -260,7 +260,7 @@ export function useCombatCinemaQueue({
           if (existing == null) {
             perActorIdx.set(key, dedupedItems.length);
             dedupedItems.push(item);
-          } else if (item.kill && !dedupedItems[existing].kill) {
+          } else if (item.kill && !dedupedItems[existing]?.kill) {
             dedupedItems[existing] = item; // upgrade the hit to its kill blow
           }
         }
@@ -273,7 +273,7 @@ export function useCombatCinemaQueue({
           // pre-dedup code path).
           // eslint-disable-next-line react-hooks/set-state-in-effect
           setCinemaQueue(dedupedItems);
-          setCinemaContext(dedupedItems[0]);
+          setCinemaContext(dedupedItems[0]!);
           // Roster/inspector follow the canvas: at cinema start the board still
           // shows the pre-turn `prev` (no impact has landed yet), so seed the
           // interim with it and let onCinemaImpact decrement from there.
@@ -341,7 +341,7 @@ export function useCombatCinemaQueue({
     const nextQueue = cinemaQueue.slice(1);
     setCinemaQueue(nextQueue);
     if (nextQueue.length > 0) {
-      setCinemaContext(nextQueue[0]);
+      setCinemaContext(nextQueue[0]!);
     } else {
       setCinemaContext(null);
       // Queue drained: the deferred prev→next board tween now settles the canvas

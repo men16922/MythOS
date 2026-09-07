@@ -545,6 +545,7 @@ export class CombatAnimator {
         const local = (t - pop.at) / STATUS_POP_DUR;
         if (local < 0 || local > 1) continue;
         const meta = STATUS_BADGES[pop.status];
+        if (!meta) continue;
         const [px, py] = curPos(overlay, pop.id);
         const ov = ovFor(pop.id);
         if (local < 0.35) {

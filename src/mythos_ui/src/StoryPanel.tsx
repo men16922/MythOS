@@ -153,10 +153,10 @@ const renderFormattedNarration = (rawText: string, turnIndex: number, t: TFn) =>
     matches.push({
       index: matchComplex.index,
       length: matchComplex[0].length,
-      statName: matchComplex[1],
-      statValue: matchComplex[2],
+      statName: matchComplex[1] ?? "",
+      statValue: matchComplex[2] ?? "",
       description: matchComplex[3] ? matchComplex[3].trim() : undefined,
-      statText: matchComplex[4]
+      statText: matchComplex[4] ?? ""
     });
   }
 
@@ -173,8 +173,8 @@ const renderFormattedNarration = (rawText: string, turnIndex: number, t: TFn) =>
       matches.push({
         index: cur.index,
         length: cur[0].length,
-        statName: cur[1],
-        statText: cur[2]
+        statName: cur[1] ?? "",
+        statText: cur[2] ?? ""
       });
     }
   }
@@ -195,8 +195,8 @@ const renderFormattedNarration = (rawText: string, turnIndex: number, t: TFn) =>
       matches.push({
         index: cur.index,
         length: cur[0].length,
-        statName: cur[1],
-        statText: cur[2]
+        statName: cur[1] ?? "",
+        statText: cur[2] ?? ""
       });
     }
   }

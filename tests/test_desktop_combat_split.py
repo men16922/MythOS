@@ -55,7 +55,8 @@ class DesktopCombatSplitTest(unittest.TestCase):
 
     def test_loadout_swap_keeps_slots_duplicate_free(self) -> None:
         source = read("src/mythos_ui/src/CombatControls.tsx")
-        self.assertIn("if (existing >= 0) next[existing] = next[slotIdx];", source)
+        self.assertIn("const displaced = next[slotIdx];", source)
+        self.assertIn("if (displaced !== undefined) next[existing] = displaced;", source)
 
     def test_loadout_strings_exist_in_both_languages(self) -> None:
         for lang in ("ko", "en"):

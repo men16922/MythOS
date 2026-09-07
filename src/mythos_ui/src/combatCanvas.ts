@@ -120,8 +120,9 @@ export function encounterBiome(encounterId: string | undefined | null): string {
   return "streets";
 }
 
+const STREETS_TINT = { horizon: "#0b1d26", floor: "#04090c", glow: "rgba(64, 200, 255, 0.10)" };
 const BIOME_TINTS: Record<string, { horizon: string; floor: string; glow: string }> = {
-  streets: { horizon: "#0b1d26", floor: "#04090c", glow: "rgba(64, 200, 255, 0.10)" },
+  streets: STREETS_TINT,
   undercity: { horizon: "#170f28", floor: "#080512", glow: "rgba(190, 120, 255, 0.11)" },
   industrial: { horizon: "#241107", floor: "#0d0604", glow: "rgba(255, 140, 60, 0.11)" },
   spire: { horizon: "#0a2026", floor: "#040b0e", glow: "rgba(120, 255, 235, 0.10)" },
@@ -150,7 +151,7 @@ function drawBoardBackdrop(
   biome: string,
   scenarioId: string
 ): void {
-  const tint = BIOME_TINTS[biome] ?? BIOME_TINTS.streets;
+  const tint = BIOME_TINTS[biome] ?? STREETS_TINT;
   // Fill past the canvas edges so a screen shake never reveals bare clears.
   const pad = 32;
   const grad = ctx.createLinearGradient(0, -pad, 0, cssH + pad);
@@ -462,10 +463,10 @@ function draw3DIsoBlock(
   const p2 = toIso(x + 1, y + 1, cfg);
   const p3 = toIso(x, y + 1, cfg);
 
-  const tp0 = [p0[0], p0[1] + h];
-  const tp1 = [p1[0], p1[1] + h];
-  const tp2 = [p2[0], p2[1] + h];
-  const tp3 = [p3[0], p3[1] + h];
+  const tp0: [number, number] = [p0[0], p0[1] + h];
+  const tp1: [number, number] = [p1[0], p1[1] + h];
+  const tp2: [number, number] = [p2[0], p2[1] + h];
+  const tp3: [number, number] = [p3[0], p3[1] + h];
 
   if (el > 0) {
     ctx.strokeStyle = strokeColor;
@@ -986,7 +987,7 @@ export function drawCombatCanvas(
     ctx.lineWidth = 1.4;
     // Two opposing corner chevrons: short segments hugging the top and bottom
     // corners of the diamond.
-    const corners: [number[], number[], number[]][] = [
+    const corners: [[number, number], [number, number], [number, number]][] = [
       [t3, t0, t1],
       [t1, t2, t3],
     ];
@@ -1278,6 +1279,7 @@ export function drawCombatCanvas(
       ctx.save();
       for (const sid of activeBadges) {
         const meta = STATUS_BADGES[sid];
+        if (!meta) continue;
         // Chip base: dark disc + status-color rim, so mixed icon art still
         // reads as one badge family.
         ctx.save();

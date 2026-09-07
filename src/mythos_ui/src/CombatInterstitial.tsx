@@ -28,12 +28,14 @@ export function CombatInterstitial({ snapshot }: CombatInterstitialProps) {
   const beatKey = `${snapshot?.loop_id ?? ""}:${beat.encounter}`;
   if (beatKey === dismissedKey) return null;
 
-  const kind = beat.kind && KIND_TITLE_KEYS[beat.kind] ? beat.kind : "ambient";
+  const beatTitleKey = beat.kind ? KIND_TITLE_KEYS[beat.kind] : undefined;
+  const kind = beatTitleKey ? beat.kind : "ambient";
+  const titleKey = beatTitleKey ?? "combat.interstitial.title.ambient";
   return (
     <div className="combat-interstitial-backdrop" id="combat-interstitial">
       <div className={`combat-interstitial kind-${kind}`}>
         <div className="ci-kind">
-          <GameIcon name={kind === "boss" ? "bolt" : "swords"} /> {t(KIND_TITLE_KEYS[kind])}
+          <GameIcon name={kind === "boss" ? "bolt" : "swords"} /> {t(titleKey)}
         </div>
         {beat.name && <h2 className="ci-name">{beat.name}</h2>}
         {beat.location && <div className="ci-location">{beat.location}</div>}

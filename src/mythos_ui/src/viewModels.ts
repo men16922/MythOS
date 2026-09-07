@@ -171,7 +171,7 @@ function parseMetric(flags: string[], name: string): number {
       const match = flag
         .toLowerCase()
         .match(new RegExp(lowerName + "\\w*[\\-_\\+]?(\\d+)"));
-      score += match ? parseInt(match[1], 10) || 1 : 1;
+      score += match ? parseInt(match[1] ?? "", 10) || 1 : 1;
     }
   });
   return score;

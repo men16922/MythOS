@@ -32,7 +32,7 @@ export function useInGameEpiphany(
     if (newEpiphanies.length === 0) return;
 
     newEpiphanies.forEach(id => inGameEpiphaniesRef.current.seen.add(id));
-    const noticeId = newEpiphanies[0];
+    const noticeId = newEpiphanies[0]!;
     const showTimer = window.setTimeout(() => {
       setShowInGameNotice(noticeId);
     }, 0);

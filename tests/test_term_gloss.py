@@ -33,7 +33,7 @@ class TermGlossLogicTest(unittest.TestCase):
 
     def test_ko_matching_guards_short_term_false_positives(self) -> None:
         # 핑 must not fire inside 쇼핑/타이핑 (preceding Hangul) or 핑계 (compound).
-        self.assertIn("HANGUL.test(text[idx - 1])", self.src)
+        self.assertIn("HANGUL.test(text.charAt(idx - 1))", self.src)
         self.assertIn("핑계", self.src)
 
     def test_en_matching_uses_word_boundaries(self) -> None:

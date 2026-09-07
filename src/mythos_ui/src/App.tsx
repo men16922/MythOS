@@ -261,7 +261,7 @@ export default function App() {
         if (data.scenarios.length > 0 && !connectedRef.current) {
           const current = data.scenarios.find((s) => s.id === selectedScenarioIdRef.current);
           const firstPlayable =
-            current ?? data.scenarios.find((s) => s.unlocked !== false) ?? data.scenarios[0];
+            current ?? data.scenarios.find((s) => s.unlocked !== false) ?? data.scenarios[0]!;
           if (!current) {
             setSelectedScenarioId(firstPlayable.id);
             setSelectedArchetype(firstUnlockedArchetype(firstPlayable.archetypes || []));

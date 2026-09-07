@@ -356,6 +356,13 @@
 - **Verification**: `rg 'type: ignore\[' tests/` matches only the one prose-fixture line in `test_overnight_plugin_adapters.py`; `make check` green (lint/mypy non-strict `src tests` + the 8 per-package `--strict` lines + 1387 tests, 5 skipped).
 - **Boundary**: closes the 2026-09-06 quality-ladder mypy-suppression seed pair; no test-side `type: ignore[...]` remain outside that one documented-as-intentional prose fixture.
 
+## M86 — 2026-09-05 hold lift, repo-wide review bundles, replay pin, token usage, combatView seam (2026-09-05)
+
+- **Purpose**: compress the five 2026-09-05 STATUS baseline lines (folded 2026-09-08, seed batch) into one milestone: the day the 08-09 deploy hold was lifted and the repo-wide review landed.
+- **Output**: `mythos-api-00085-mvr` — owner-ordered deploy ahead of the §3 verdict (DECISIONS 2026-09-05), 39-commit fix bundle; harness pin repaired to 1.4.0. Repo-wide review → 3 bundles (`047fcf0`/`fb44514`/`f1d22d6`, deployed `00086-4d5`): sentence-gap regex corrupting every scene, the `MYTHOS_WORLD_ID` write/read split hiding every archive since 06-06, boss-climax loops never writing `loop_archive`, post-commit encounter-id raise, reward insight outside the transaction, empty Codex lore, language toggle re-picking the scenario; combat buffed-move/ally-target/corrode-preview/telegraph-log fixes; UI scene-bound `visual_status`, socket-before-unmount, overlay-gated hotkeys, localized canvas text, lazy chunks (app.js 496→388 kB). Review residuals 8/13 (`9b958b2`/`4d10b35`, deployed `00087-w7z`): soft-defeat archive guard, refusal clears `met_se_rin`, CC-aware intent preview, pooled WS connection per message, one snapshot builder, one-read progress facts, canvas latest-frame redraw; `fc70a2f` extracted the `_commit_scene` reducer. Route replay pinned (`1653aa8`): passed anchors keep their rewarded perspective. Ollama token usage logged (`cee577a`); `combatView.ts` seam (`07cbfbe`) shares faction/alive/HP/sprite across six combat surfaces.
+- **Verification**: gates 1325→1354 tests across the day; each deploy: root/health 200, live/local `app.js` SHA match, pins preserved, 0 WARNING+ in the first minutes.
+- **Boundary**: `_weapon_in_range` and migration `008` (then open) closed 2026-09-06/07 — see M80+ and PROGRESS_LOG.
+
 ## Archive Reference
 
 M0-M10의 상세 체크리스트, work log, verification log는 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`에 보존한다.

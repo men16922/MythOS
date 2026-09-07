@@ -346,22 +346,6 @@ class NarrativeDirectorTest(unittest.TestCase):
         self.assertEqual(fields["degraded"], 0)
         self.assertEqual(fields["success_ratio"], 1.0)
 
-
-def _scene_response(title: str) -> str:
-    return json.dumps(
-        {
-            "scene": {
-                "title": title,
-                "location": "data-layer-01",
-                "narration": "The gate opens.",
-                "choices": [{"choice_id": "choice_1", "label": "Enter", "intent": "explore"}],
-                "visual_brief": "A luminous gate.",
-            },
-            "world_delta": {"stability": 0, "tension": 1, "flags": []},
-            "end_condition": None,
-        }
-    )
-
     def test_fallback_reflects_novelty_context(self) -> None:
         context = NarrativeContext(
             player=self.context.player,
@@ -386,6 +370,22 @@ def _scene_response(title: str) -> str:
 
         self.assertEqual(scene.title, "C-17의 바뀐 경고 신호")
         self.assertIn("지난 루프", scene.narration)
+
+
+def _scene_response(title: str) -> str:
+    return json.dumps(
+        {
+            "scene": {
+                "title": title,
+                "location": "data-layer-01",
+                "narration": "The gate opens.",
+                "choices": [{"choice_id": "choice_1", "label": "Enter", "intent": "explore"}],
+                "visual_brief": "A luminous gate.",
+            },
+            "world_delta": {"stability": 0, "tension": 1, "flags": []},
+            "end_condition": None,
+        }
+    )
 
 
 class UnparseableStreamProvider:

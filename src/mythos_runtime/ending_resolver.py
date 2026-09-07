@@ -29,13 +29,13 @@ class ASTConditionEvaluator:
     def _eval_node(self, node: ast.AST) -> Any:
         if isinstance(node, ast.Expression):
             return self._eval_node(node.body)
-        elif isinstance(node, ast.Constant):
+        if isinstance(node, ast.Constant):
             return node.value
-        elif isinstance(node, ast.Name):
+        if isinstance(node, ast.Name):
             if node.id in self.namespace:
                 return self.namespace[node.id]
             raise NameError(f"Name '{node.id}' is not defined in allowed namespace")
-        elif isinstance(node, ast.Compare):
+        if isinstance(node, ast.Compare):
             left = self._eval_node(node.left)
             for op, comparator in zip(node.ops, node.comparators, strict=True):
                 right = self._eval_node(comparator)
@@ -43,53 +43,52 @@ class ASTConditionEvaluator:
                     return False
                 left = right
             return True
-        elif isinstance(node, ast.BoolOp):
+        if isinstance(node, ast.BoolOp):
             values = [self._eval_node(val) for val in node.values]
             if isinstance(node.op, ast.And):
                 return all(values)
-            elif isinstance(node.op, ast.Or):
+            if isinstance(node.op, ast.Or):
                 return any(values)
             raise NotImplementedError(f"Boolean operator {type(node.op)} is not supported")
-        elif isinstance(node, ast.UnaryOp):
+        if isinstance(node, ast.UnaryOp):
             operand = self._eval_node(node.operand)
             if isinstance(node.op, ast.Not):
                 return not operand
-            elif isinstance(node.op, ast.USub):
+            if isinstance(node.op, ast.USub):
                 return -operand
-            elif isinstance(node.op, ast.UAdd):
+            if isinstance(node.op, ast.UAdd):
                 return +operand
             raise NotImplementedError(f"Unary operator {type(node.op)} is not supported")
-        elif isinstance(node, ast.BinOp):
+        if isinstance(node, ast.BinOp):
             left = self._eval_node(node.left)
             right = self._eval_node(node.right)
             if isinstance(node.op, ast.Add):
                 return left + right
-            elif isinstance(node.op, ast.Sub):
+            if isinstance(node.op, ast.Sub):
                 return left - right
-            elif isinstance(node.op, ast.Mult):
+            if isinstance(node.op, ast.Mult):
                 return left * right
-            elif isinstance(node.op, ast.Div):
+            if isinstance(node.op, ast.Div):
                 return left / right
             raise NotImplementedError(f"Binary operator {type(node.op)} is not supported")
-        else:
-            raise TypeError(f"AST node type {type(node)} is not allowed or supported")
+        raise TypeError(f"AST node type {type(node)} is not allowed or supported")
 
     def _eval_compare(self, left: Any, op: ast.cmpop, right: Any) -> bool:
         if isinstance(op, ast.Gt):
             return bool(left > right)
-        elif isinstance(op, ast.GtE):
+        if isinstance(op, ast.GtE):
             return bool(left >= right)
-        elif isinstance(op, ast.Lt):
+        if isinstance(op, ast.Lt):
             return bool(left < right)
-        elif isinstance(op, ast.LtE):
+        if isinstance(op, ast.LtE):
             return bool(left <= right)
-        elif isinstance(op, ast.Eq):
+        if isinstance(op, ast.Eq):
             return bool(left == right)
-        elif isinstance(op, ast.NotEq):
+        if isinstance(op, ast.NotEq):
             return bool(left != right)
-        elif isinstance(op, ast.In):
+        if isinstance(op, ast.In):
             return bool(left in right)
-        elif isinstance(op, ast.NotIn):
+        if isinstance(op, ast.NotIn):
             return bool(left not in right)
         raise NotImplementedError(f"Comparison operator {type(op)} is not supported")
 
@@ -175,8 +174,12 @@ class EndingResolver:
         }
 
         logger.debug(
-            f"Resolving ending for loop={loop.loop_id}. "
-            f"Metrics: {scores}, stability={loop.stability}, tension={loop.tension}, autonomy={autonomy_level}"
+            "Resolving ending for loop=%s. Metrics: %s, stability=%s, tension=%s, autonomy=%s",
+            loop.loop_id,
+            scores,
+            loop.stability,
+            loop.tension,
+            autonomy_level,
         )
 
         for ending in endings:
@@ -191,12 +194,15 @@ class EndingResolver:
                 # Evaluate expression safely using ASTConditionEvaluator
                 result = ASTConditionEvaluator(eval_namespace).evaluate(processed_cond)
                 if bool(result):
-                    logger.info(f"Ending condition matched: ending_id={ending_id} ('{title}')")
+                    logger.info("Ending condition matched: ending_id=%s ('%s')", ending_id, title)
                     return ending_id, title
             except Exception as e:
                 logger.error(
-                    f"Failed to evaluate ending condition for ending_id={ending_id}: "
-                    f"condition='{condition}', processed='{processed_cond}'. Error: {e}"
+                    "Failed to evaluate ending condition for ending_id=%s: condition='%s', processed='%s'. Error: %s",
+                    ending_id,
+                    condition,
+                    processed_cond,
+                    e,
                 )
 
         return None, "Archived Loop"
@@ -215,6 +221,4 @@ class EndingResolver:
 
         # Convert "flags contains flag_name" to "'flag_name' in flags"
         cond = re.sub(r'\bflags\s+contains\s+["\']([^"\']+)["\']', r'"\1" in flags', cond)
-        cond = re.sub(r"\bflags\s+contains\s+(\w+)", r'"\1" in flags', cond)
-
-        return cond
+        return re.sub(r"\bflags\s+contains\s+(\w+)", r'"\1" in flags', cond)

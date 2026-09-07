@@ -1434,8 +1434,8 @@ class FleeForecastTest(unittest.TestCase):
     def test_advertised_chance_matches_actual_success_rate(self) -> None:
         engine = CombatEngine()
 
-        for agility in range(0, 9):
-            for adjacent in range(0, 5):
+        for agility in range(9):
+            for adjacent in range(5):
                 advertised = self._preview(engine, agility, adjacent)
                 wins = 0
                 for face in range(1, 21):
@@ -1451,7 +1451,7 @@ class FleeForecastTest(unittest.TestCase):
     def test_chance_drops_with_each_adjacent_enemy(self) -> None:
         engine = CombatEngine()
 
-        chances = [self._preview(engine, 6, n)["chance"] for n in range(0, 5)]
+        chances = [self._preview(engine, 6, n)["chance"] for n in range(5)]
 
         # 12 + 2 per adjacent enemy: each one costs exactly 2 of the 20 d20 faces.
         self.assertEqual(chances, sorted(chances, reverse=True))

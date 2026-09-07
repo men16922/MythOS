@@ -279,7 +279,7 @@ def _scene_signature(scene: Scene) -> NoveltySignature:
 
 
 def _signature(title: str, location: str, narration: str) -> NoveltySignature:
-    combined = " ".join((title, location, narration)).casefold()
+    combined = f"{title} {location} {narration}".casefold()
     motifs = frozenset(
         motif for motif, terms in _MOTIF_TERMS.items() if any(term in combined for term in terms)
     )
@@ -292,7 +292,7 @@ def _signature(title: str, location: str, narration: str) -> NoveltySignature:
 
 def _normalize_title(value: str) -> str:
     normalized = value.strip().casefold()
-    while normalized.startswith("changed ") or normalized.startswith("달라진 "):
+    while normalized.startswith(("changed ", "달라진 ")):
         normalized = normalized.split(" ", 1)[1].strip()
     return re.sub(r"[\W_]+", "", normalized, flags=re.UNICODE)
 

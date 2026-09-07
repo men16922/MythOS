@@ -153,7 +153,7 @@ def synthesize(api_key: str, voice_id: str, text: str, dest: Path) -> None:
 
 def main() -> int:
     env = (REPO / ".env").read_text(encoding="utf-8")
-    match = re.search(r"^ELEVENLAB_API_KEY=(\S+)", env, re.M)
+    match = re.search(r"^ELEVENLAB_API_KEY=(\S+)", env, re.MULTILINE)
     if not match:
         print("ELEVENLAB_API_KEY not found in .env")
         return 2

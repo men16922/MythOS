@@ -152,7 +152,7 @@ def build(trace_dir: Path, model: str, method: str) -> Experiment:
         errored = sum(1 for r in rows if r.get("error"))
         degraded = empty + errored
 
-        result = ExperimentResult(
+        return ExperimentResult(
             summary=(
                 f"`{method}` 호출 {len(rows)}건. 입력 중앙값 **{int(st.median(in_tok))} 토큰**, "
                 f"출력 중앙값 **{int(st.median(out_tok))} 토큰**, "
@@ -260,7 +260,6 @@ def build(trace_dir: Path, model: str, method: str) -> Experiment:
                 "errored": errored,
             },
         )
-        return result
 
     return Experiment(
         slug=SLUG,

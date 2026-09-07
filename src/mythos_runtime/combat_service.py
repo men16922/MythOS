@@ -488,7 +488,7 @@ class CombatService:
             ]
 
         filtered = _ordered_unique([*base, *learned])
-        return filtered if filtered else list(skills_pool.keys())
+        return filtered or list(skills_pool.keys())
 
     @staticmethod
     def _party_members(party: dict[str, Any]) -> dict[str, dict[str, Any]]:

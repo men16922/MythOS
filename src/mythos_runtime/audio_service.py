@@ -115,7 +115,7 @@ class AudioService:
         try:
             return self.provider.get_bgm_for_state(loop_state, scene)
         except Exception:
-            self.logger.error("Failed to get BGM for state", exc_info=True)
+            self.logger.exception("Failed to get BGM for state")
             return None
 
     def record_audio_asset(

@@ -34,7 +34,7 @@ def _player(x: int = 0, y: int = 0, hp: int = 30):
 
 
 def _ix(x: int = 6, y: int = 0, *, enraged: bool = False, hp: int = 38):
-    boss = Combatant(
+    return Combatant(
         id="ix",
         name="관리자 IX",
         faction="enemy",
@@ -50,7 +50,6 @@ def _ix(x: int = 6, y: int = 0, *, enraged: bool = False, hp: int = 38):
         skills=["ix_optimization_protocol", "ix_purge_list"],
         enraged=enraged,
     )
-    return boss
 
 
 class BossDataIntegrityTest(unittest.TestCase):

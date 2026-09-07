@@ -58,8 +58,7 @@ def main():
 
         # Write concat list
         with open("concat_list.txt", "w") as f:
-            for f_name in temp_files:
-                f.write(f"file '{f_name}'\n")
+            f.writelines(f"file '{f_name}'\n" for f_name in temp_files)
 
         # Concatenate segments
         cmd_concat = [

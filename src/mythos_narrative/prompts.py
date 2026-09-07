@@ -658,7 +658,7 @@ def _story_context_prompt(context: NarrativeContext, instruction: str) -> str:
 
     synopsis_block = f"{synopsis}\n\n" if synopsis else ""
 
-    prompt = (
+    return (
         "=== STATIC CONTEXT (CACHEABLE) ===\n"
         f"PLAYER:\n{player_data}\n\n"
         "=== DYNAMIC CURRENT TURN STATE (NON-CACHEABLE) ===\n"
@@ -675,7 +675,6 @@ def _story_context_prompt(context: NarrativeContext, instruction: str) -> str:
         f"VALIDATOR FEEDBACK: {context.validator_feedback or 'None'}\n\n"
         "Output contract — return plain text matching the [SCENE], [TITLE], [LOCATION], and [CHOICES] sections."
     )
-    return prompt
 
 
 def _stable_player_for_prompt(player: Any) -> dict[str, Any]:

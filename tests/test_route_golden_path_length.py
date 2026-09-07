@@ -79,7 +79,7 @@ class RouteGoldenPathLengthTest(unittest.TestCase):
             state = advance_route(state, turn_index=turn_index, seed=seed)
             if state[ROUTE_MAP_KEY]["current"] == boss:
                 return turn_index
-        self.fail(
+        raise AssertionError(
             f"boss node never reached within {max_turns} turns ({builder.__name__}, seed {seed})"
         )
 

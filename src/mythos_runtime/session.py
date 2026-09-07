@@ -1970,7 +1970,7 @@ class RuntimeSessionService:
                 "combat_outcome": result.outcome,
             },
         )
-        combat_snapshot = RuntimeSnapshot(
+        return RuntimeSnapshot(
             player=snapshot_player,
             loop=loop,
             scene=scene,
@@ -2002,7 +2002,6 @@ class RuntimeSessionService:
             **self._progress_facts(snapshot_player, loop),
             boons=self._boons_view(loop, options),
         )
-        return combat_snapshot
 
     @staticmethod
     def _unheralded_allies(loop: LoopState, scenario: Any) -> list[dict[str, str]]:
@@ -3000,10 +2999,9 @@ class RuntimeSessionService:
                 if route_combat and next_combat == route_combat and route_combat_kind
                 else "ambient"
             )
-            combat_snapshot = self._begin_requested_combat(
+            return self._begin_requested_combat(
                 player, transition.loop, next_combat, options, origin=combat_origin
             )
-            return combat_snapshot
         return snapshot
 
     def _defer_threshold_archive_for_climax(

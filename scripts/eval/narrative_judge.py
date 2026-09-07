@@ -156,7 +156,7 @@ def build_judge_prompt(transcript: dict[str, Any], rubric: str) -> str:
 def parse_verdict(raw: str) -> dict[str, Any]:
     """Parse the judge's verdict JSON (tolerates accidental code fences/prose tails)."""
     text = raw.strip()
-    fenced = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.S)
+    fenced = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.DOTALL)
     if fenced:
         text = fenced.group(1)
     else:

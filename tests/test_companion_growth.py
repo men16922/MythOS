@@ -116,8 +116,7 @@ class CompanionGrowthServiceTest(unittest.TestCase):
         )
         combat_state = CombatService.load_state(result.loop)
         assert combat_state is not None
-        ally = next(c for c in combat_state.combatants if c.faction == ALLY and c.id == "se_rin")
-        return ally
+        return next(c for c in combat_state.combatants if c.faction == ALLY and c.id == "se_rin")
 
     def test_baseline_ally_is_unchanged_without_growth_state(self) -> None:
         ally = self._se_rin({"flags": ["met_se_rin"]})

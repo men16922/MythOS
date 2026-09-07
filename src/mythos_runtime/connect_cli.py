@@ -182,9 +182,9 @@ def _render_scene(
     print(f"scene_id={scene.scene_id}")
     print(f"title={scene.title}")
     print(f"location={scene.location}")
-    print("")
+    print()
     print(scene.narration)
-    print("")
+    print()
     print("choices:")
     for choice in scene.choices:
         print(f"- {choice.choice_id}: {choice.label} [{choice.intent}]")
@@ -192,7 +192,7 @@ def _render_scene(
         stored_assets = [asset for asset in assets if asset.storage_uri]
         if stored_assets:
             latest_asset = stored_assets[-1]
-            print("")
+            print()
             print(f"asset={latest_asset.storage_uri}")
 
 

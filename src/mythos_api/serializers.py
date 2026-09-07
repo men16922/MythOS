@@ -76,21 +76,20 @@ def _calculate_zone_risk(location_id: str, turn_index: int) -> str:
     # word-bounded ASCII ("inspired" is not `spire`); Korean stays substring.
     if mentions(loc, ["spire", "스파이어"]):
         return "경보 (Critical)"
-    elif mentions(loc, ["폐기", "abandoned", "wraith", "underground", "지하"]):
+    if mentions(loc, ["폐기", "abandoned", "wraith", "underground", "지하"]):
         return "위험 (High)"
-    elif mentions(loc, ["야시장", "market", "binder", "hall", "회랑", "열람실"]):
+    if mentions(loc, ["야시장", "market", "binder", "hall", "회랑", "열람실"]):
         return "경계 (Medium)"
-    elif mentions(loc, ["복지", "welfare", "corridor", "복도", "data-layer"]):
+    if mentions(loc, ["복지", "welfare", "corridor", "복도", "data-layer"]):
         return "보통 (Low)"
 
     if turn_index < 7:
         return "보통 (Low)"
-    elif turn_index < 19:
+    if turn_index < 19:
         return "경계 (Medium)"
-    elif turn_index < 35:
+    if turn_index < 35:
         return "위험 (High)"
-    else:
-        return "경보 (Critical)"
+    return "경보 (Critical)"
 
 
 _CHOICE_AXIS_LABELS = {

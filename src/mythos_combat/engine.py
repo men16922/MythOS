@@ -1406,7 +1406,7 @@ class CombatEngine:
 
     def _restore_focus(self, combatant: Combatant, amount: int) -> int:
         before = combatant.focus
-        cap = combatant.max_focus if combatant.max_focus else before + amount
+        cap = combatant.max_focus or before + amount
         combatant.focus = min(cap, combatant.focus + max(0, amount))
         return combatant.focus - before
 
@@ -2447,7 +2447,7 @@ class CombatEngine:
             return
 
         # 2. Melee Tank Archetype (e.g. kai / melee_tank)
-        elif ai_type == "melee_tank":
+        if ai_type == "melee_tank":
             # Target selection: focus on enemies closest to the player to protect them
             if player and player.alive:
                 enemies_near_player = sorted(
@@ -2487,64 +2487,63 @@ class CombatEngine:
             return
 
         # 3. Generic Companion fallback logic
-        else:
-            target = min(enemies, key=lambda t: (distance(ally.x, ally.y, t.x, t.y), t.hp))
-            weapon = ally.primary_weapon()
-            reach = weapon.effective_range if weapon else 1
+        target = min(enemies, key=lambda t: (distance(ally.x, ally.y, t.x, t.y), t.hp))
+        weapon = ally.primary_weapon()
+        reach = weapon.effective_range if weapon else 1
 
-            for skill_id in ally.skills:
-                if skill_id not in self.skills_pool:
-                    continue
-                skill_def = self.skills_pool[skill_id]
-                cost = skill_def.get("cost", {}) if isinstance(skill_def.get("cost"), dict) else {}
-                focus_cost = int(cost.get("focus", 0))
-                if ally.focus < focus_cost or skill_id in ally.cooldowns:
-                    continue
+        for skill_id in ally.skills:
+            if skill_id not in self.skills_pool:
+                continue
+            skill_def = self.skills_pool[skill_id]
+            cost = skill_def.get("cost", {}) if isinstance(skill_def.get("cost"), dict) else {}
+            focus_cost = int(cost.get("focus", 0))
+            if ally.focus < focus_cost or skill_id in ally.cooldowns:
+                continue
 
-                effect = (
-                    skill_def.get("effect", {}) if isinstance(skill_def.get("effect"), dict) else {}
-                )
+            effect = (
+                skill_def.get("effect", {}) if isinstance(skill_def.get("effect"), dict) else {}
+            )
 
-                # Healing
-                if "heal" in effect:
-                    skill_range = int(skill_def.get("range", 3))
-                    friendlies = [
-                        c for c in state.combatants if c.alive and c.faction in ("player", ALLY)
-                    ]
-                    wounded = [
-                        f
-                        for f in friendlies
-                        if f.hp <= int(f.max_hp * 0.6)
-                        and distance(ally.x, ally.y, f.x, f.y) <= skill_range
-                    ]
-                    if wounded:
-                        heal_target = min(wounded, key=lambda f: f.hp / f.max_hp)
-                        self._execute_npc_skill(state, ally, skill_id, skill_def, heal_target)
-                        return
+            # Healing
+            if "heal" in effect:
+                skill_range = int(skill_def.get("range", 3))
+                friendlies = [
+                    c for c in state.combatants if c.alive and c.faction in ("player", ALLY)
+                ]
+                wounded = [
+                    f
+                    for f in friendlies
+                    if f.hp <= int(f.max_hp * 0.6)
+                    and distance(ally.x, ally.y, f.x, f.y) <= skill_range
+                ]
+                if wounded:
+                    heal_target = min(wounded, key=lambda f: f.hp / f.max_hp)
+                    self._execute_npc_skill(state, ally, skill_id, skill_def, heal_target)
+                    return
 
-                # Defense
-                elif "defense_bonus" in effect:
-                    if ally.defense_buff_turns <= 0:
-                        self._execute_npc_skill(state, ally, skill_id, skill_def)
-                        return
+            # Defense
+            elif "defense_bonus" in effect:
+                if ally.defense_buff_turns <= 0:
+                    self._execute_npc_skill(state, ally, skill_id, skill_def)
+                    return
 
-                # Damage
-                elif "damage" in effect or "damage_bonus" in effect:
-                    skill_range = int(skill_def.get("range", 1))
-                    self._move_to_band(state, ally, target, desired=skill_range)
-                    if distance(ally.x, ally.y, target.x, target.y) <= skill_range:
-                        self._execute_npc_skill(state, ally, skill_id, skill_def, target)
-                        return
+            # Damage
+            elif "damage" in effect or "damage_bonus" in effect:
+                skill_range = int(skill_def.get("range", 1))
+                self._move_to_band(state, ally, target, desired=skill_range)
+                if distance(ally.x, ally.y, target.x, target.y) <= skill_range:
+                    self._execute_npc_skill(state, ally, skill_id, skill_def, target)
+                    return
 
-                # Mobility / Flee
-                elif "move" in effect:
-                    if ally.ai == "coward" and ally.hp <= max(1, int(ally.max_hp * 0.3)):
-                        self._execute_npc_skill(state, ally, skill_id, skill_def, target)
-                        return
+            # Mobility / Flee
+            elif "move" in effect:
+                if ally.ai == "coward" and ally.hp <= max(1, int(ally.max_hp * 0.3)):
+                    self._execute_npc_skill(state, ally, skill_id, skill_def, target)
+                    return
 
-            self._move_to_band(state, ally, target, desired=reach)
-            if weapon and self._weapon_in_range(ally, target, weapon):
-                self._attack(state, ally, target, weapon, dice)
+        self._move_to_band(state, ally, target, desired=reach)
+        if weapon and self._weapon_in_range(ally, target, weapon):
+            self._attack(state, ally, target, weapon, dice)
 
     # --- movement -------------------------------------------------------
     def _move_player(self, state: CombatState, player: Combatant, dest: tuple[int, int]) -> None:

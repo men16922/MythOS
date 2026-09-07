@@ -389,7 +389,7 @@ def _opening_from_parsed(parsed: ParsedDirectives) -> tuple[str, int, list[Openi
                 mandatory_event=block.meta.get("mandatory_event", ""),
                 forbidden=block.meta.get("forbidden", ""),
                 flags=_str_list(block.meta.get("flags")),
-                start_combat=start_combat if start_combat else None,
+                start_combat=start_combat or None,
                 body=block.body,
                 node=block.node,
                 beat=block.beat,

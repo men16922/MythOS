@@ -86,19 +86,18 @@ class LocalFluxProvider:
                     ip_adapter_image_path=Path(reference_image),
                     ip_adapter_scale=request.metadata.get("ip_adapter_scale", 0.6),
                 )
-            else:
-                return generate_image_img2img(
-                    reference_path=Path(reference_image),
-                    prompt=request.prompt,
-                    output_path=output_path,
-                    config=self.config,
-                    strength=request.metadata.get("img2img_strength", 0.6),
-                    model_id_override=request.model_id,
-                    seed=request.seed,
-                    steps=request.steps,
-                    width=request.width,
-                    height=request.height,
-                )
+            return generate_image_img2img(
+                reference_path=Path(reference_image),
+                prompt=request.prompt,
+                output_path=output_path,
+                config=self.config,
+                strength=request.metadata.get("img2img_strength", 0.6),
+                model_id_override=request.model_id,
+                seed=request.seed,
+                steps=request.steps,
+                width=request.width,
+                height=request.height,
+            )
 
         return generate_image(
             prompt=request.prompt,

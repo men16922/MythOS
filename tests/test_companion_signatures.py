@@ -49,7 +49,7 @@ def _ally(ally_id: str, x: int, y: int, *, hp: int | None = None):
 def _enemy_entry(x: int, y: int, *, hp: int = 30, focus: int = 4):
     from mythos_combat.models import Combatant
 
-    enemy = Combatant(
+    return Combatant(
         id="foe",
         name="드론",
         faction="enemy",
@@ -62,7 +62,6 @@ def _enemy_entry(x: int, y: int, *, hp: int = 30, focus: int = 4):
         focus=focus,
         max_focus=max(4, focus),
     )
-    return enemy
 
 
 class SignatureDataIntegrityTest(unittest.TestCase):

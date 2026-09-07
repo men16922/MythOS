@@ -123,5 +123,4 @@ def current_tile(state: dict[str, Any]) -> dict[str, Any] | None:
     if not map_state:
         return None
     current = map_state.get("current")
-    tile = map_state.get("tiles", {}).get(current) if current else None
-    return tile
+    return map_state.get("tiles", {}).get(current) if current else None

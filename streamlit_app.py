@@ -1405,13 +1405,12 @@ def _render_combat_simulator_inline(
 
             def action(service):
                 snap = service.start_loop(player_id or "", options)
-                combat_snap = service.start_combat(
+                return service.start_combat(
                     snap.loop.loop_id,
                     selected_encounter,
                     options,
                     party_members=party_members or None,
                 )
-                return combat_snap
 
             _run_action(
                 action,
@@ -3835,22 +3834,21 @@ def _calculate_zone_risk(
     loc = (location_id or "").lower()
     if any(k in loc for k in ["spire", "스파이어"]):
         return "경보 (Critical)", 100, "linear-gradient(90deg, #ff5b24, #ff2467)"
-    elif any(k in loc for k in ["폐기", "abandoned", "wraith", "underground", "지하"]):
+    if any(k in loc for k in ["폐기", "abandoned", "wraith", "underground", "지하"]):
         return "위험 (High)", 75, "linear-gradient(90deg, #ffd000, #ff5b24)"
-    elif any(k in loc for k in ["야시장", "market", "binder", "hall", "회랑", "열람실"]):
+    if any(k in loc for k in ["야시장", "market", "binder", "hall", "회랑", "열람실"]):
         return "경계 (Medium)", 50, "linear-gradient(90deg, #29ffc6, #ffd000)"
-    elif any(k in loc for k in ["복지", "welfare", "corridor", "복도", "data-layer"]):
+    if any(k in loc for k in ["복지", "welfare", "corridor", "복도", "data-layer"]):
         return "보통 (Low)", 25, "linear-gradient(90deg, #29ffc6, #29ffc6)"
 
     # Fallback by turn index
     if turn_index < 7:
         return "보통 (Low)", 25, "linear-gradient(90deg, #29ffc6, #29ffc6)"
-    elif turn_index < 19:
+    if turn_index < 19:
         return "경계 (Medium)", 50, "linear-gradient(90deg, #29ffc6, #ffd000)"
-    elif turn_index < 35:
+    if turn_index < 35:
         return "위험 (High)", 75, "linear-gradient(90deg, #ffd000, #ff5b24)"
-    else:
-        return "경보 (Critical)", 100, "linear-gradient(90deg, #ff5b24, #ff2467)"
+    return "경보 (Critical)", 100, "linear-gradient(90deg, #ff5b24, #ff2467)"
 
 
 def _render_hud(loop: LoopState, scene: Scene, overview: MemoryOverview | None = None) -> None:
@@ -4893,7 +4891,7 @@ def _render_minimap(loop: LoopState, radius: int = 2) -> None:
     live_contacts = [
         contact
         for contact in contacts.values()
-        if isinstance(contact, dict) and contact.get("state") not in {"defeated"}
+        if isinstance(contact, dict) and contact.get("state") != "defeated"
     ]
     contacts_by_coord: dict[tuple[int, int], dict[str, Any]] = {
         (int(contact.get("x", 0)), int(contact.get("y", 0))): contact for contact in live_contacts

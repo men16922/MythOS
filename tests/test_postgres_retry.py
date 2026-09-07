@@ -24,7 +24,7 @@ class _Cursor:
     def __enter__(self):
         return self
 
-    def __exit__(self, *args: Any) -> None:
+    def __exit__(self, *args: object) -> None:
         pass
 
     def fetchone(self):

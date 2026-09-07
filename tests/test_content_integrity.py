@@ -644,9 +644,9 @@ class SkillDataIntegrityTest(unittest.TestCase):
             state[node] = 1
             for dep in graph.get(node, []):
                 if state.get(dep, 0) == 1:
-                    cycle.extend(path[path.index(dep) :] + [dep])
+                    cycle.extend([*path[path.index(dep) :], dep])
                     return True
-                if state.get(dep, 0) == 0 and _visit(dep, path + [dep]):
+                if state.get(dep, 0) == 0 and _visit(dep, [*path, dep]):
                     return True
             state[node] = 2
             return False

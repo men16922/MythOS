@@ -211,12 +211,12 @@ def build_ally_combatant(
 
 __all__ = [
     "DEFAULT_COMBAT_STATS",
-    "build_player_combatant",
-    "build_enemy_combatant",
     "build_ally_combatant",
-    "weapon_from_dict",
-    "derive_max_hp",
+    "build_enemy_combatant",
+    "build_player_combatant",
     "derive_defense",
-    "derive_speed",
     "derive_max_focus",
+    "derive_max_hp",
+    "derive_speed",
+    "weapon_from_dict",
 ]

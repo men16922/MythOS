@@ -108,7 +108,7 @@ class ProgressionTest(unittest.TestCase):
 
     def test_evaluate_meta_progression_data_driven_neo_seoul(self) -> None:
         progress = MetaProgression(player_id="player_1", scenario_id="neo-seoul")
-        updated, grants = evaluate_meta_progression(
+        updated, _grants = evaluate_meta_progression(
             progress, self._run_summary("neo-seoul", clues=3, won=1)
         )
 

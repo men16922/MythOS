@@ -18,6 +18,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import itertools
 import json
 import re
 from collections import Counter
@@ -61,7 +62,7 @@ def measure_repetition(scenes: list[dict[str, Any]]) -> dict[str, Any]:
     title_counts = Counter(title for title in titles if title)
     repeated_title_scenes = sum(count for count in title_counts.values() if count > 1)
 
-    streak = sum(1 for a, b in zip(locations, locations[1:]) if a and a == b)
+    streak = sum(1 for a, b in itertools.pairwise(locations) if a and a == b)
 
     sentence_counts: Counter[str] = Counter()
     for scene in scenes:

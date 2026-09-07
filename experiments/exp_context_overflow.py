@@ -55,7 +55,7 @@ def _shipped_num_ctx() -> int:
 def build(
     trace_dir: Path, model: str, wide_ctx: int, method: str, shipped_ctx: int | None = None
 ) -> Experiment:
-    SHIPPED_NUM_CTX = shipped_ctx if shipped_ctx is not None else _shipped_num_ctx()
+    shipped_num_ctx = shipped_ctx if shipped_ctx is not None else _shipped_num_ctx()
 
     def run() -> ExperimentResult:
         if not ollama_available():
@@ -72,7 +72,7 @@ def build(
         raw: list[dict] = []
         for i, record in enumerate(empties):
             arms = {}
-            for label, ctx in (("shipped", SHIPPED_NUM_CTX), ("wide", wide_ctx)):
+            for label, ctx in (("shipped", shipped_num_ctx), ("wide", wide_ctx)):
                 out = ollama_chat(
                     record["messages"], model, options={**SHIPPED_SAMPLER, "num_ctx": ctx}
                 )
@@ -90,7 +90,7 @@ def build(
                 [
                     i,
                     shipped["prompt_tokens"],
-                    f"{overflow} {'>' if overflow > SHIPPED_NUM_CTX else '<='} {SHIPPED_NUM_CTX}",
+                    f"{overflow} {'>' if overflow > shipped_num_ctx else '<='} {shipped_num_ctx}",
                     f"{shipped['output_tokens']} tok / **{shipped['output_chars']} 자**",
                     f"{wide['output_tokens']} tok / **{wide['output_chars']} 자**",
                 ]
@@ -101,7 +101,7 @@ def build(
         return ExperimentResult(
             summary=(
                 f"빈 응답을 냈던 프롬프트 {n}개를 그대로 재생. `num_ctx` 하나만 "
-                f"{SHIPPED_NUM_CTX} → {wide_ctx}로 바꿨을 때 **{recovered}/{n}** 이 텍스트를 생성했습니다."
+                f"{shipped_num_ctx} → {wide_ctx}로 바꿨을 때 **{recovered}/{n}** 이 텍스트를 생성했습니다."
             ),
             tables=[
                 Table(
@@ -110,7 +110,7 @@ def build(
                         "#",
                         "프롬프트 토큰",
                         "프롬프트+num_predict vs num_ctx",
-                        f"num_ctx={SHIPPED_NUM_CTX} (현행)",
+                        f"num_ctx={shipped_num_ctx} (현행)",
                         f"num_ctx={wide_ctx}",
                     ],
                     table_rows,
@@ -120,14 +120,14 @@ def build(
             findings=[
                 Finding(
                     claim=f"빈 응답은 컨텍스트 창 부족에서 온다 — {recovered}/{n}이 창을 넓히자 회복됐다.",
-                    evidence=f"동일 프롬프트·동일 샘플러, `num_ctx` {SHIPPED_NUM_CTX}→{wide_ctx} 단일 변수.",
+                    evidence=f"동일 프롬프트·동일 샘플러, `num_ctx` {shipped_num_ctx}→{wide_ctx} 단일 변수.",
                     confidence="reproduced" if recovered >= 2 else "measured",
                 ),
                 Finding(
                     claim="현행 설정은 프롬프트와 요청 생성량의 합이 창을 넘는다.",
                     evidence=f"프롬프트 {min(r['shipped']['prompt_tokens'] for r in raw)}–"
                     f"{max(r['shipped']['prompt_tokens'] for r in raw)} 토큰 + num_predict "
-                    f"{SHIPPED_SAMPLER['num_predict']} > num_ctx {SHIPPED_NUM_CTX}.",
+                    f"{SHIPPED_SAMPLER['num_predict']} > num_ctx {shipped_num_ctx}.",
                 ),
                 Finding(
                     claim="이 실패는 fallback이 덮으므로 플레이 화면과 장면 저장소만 보면 보이지 않는다.",
@@ -145,7 +145,7 @@ def build(
             ],
             raw={
                 "model": model,
-                "shipped_num_ctx": SHIPPED_NUM_CTX,
+                "shipped_num_ctx": shipped_num_ctx,
                 "wide_num_ctx": wide_ctx,
                 "sampler": SHIPPED_SAMPLER,
                 "arms": raw,
@@ -163,7 +163,7 @@ def build(
             "model": model,
             "num_predict": SHIPPED_SAMPLER["num_predict"],
         },
-        variables={"num_ctx": f"{SHIPPED_NUM_CTX} → {wide_ctx}"},
+        variables={"num_ctx": f"{shipped_num_ctx} → {wide_ctx}"},
         run=run,
         source=Path(__file__).resolve(),
     )

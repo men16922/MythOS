@@ -1604,7 +1604,7 @@ def _causality_monitor_panel() -> None:
                     title = ending.get("title") or "Unnamed Ending"
                     condition = ending.get("condition") or "No condition"
 
-                    resolved_id, resolved_label = EndingResolver.resolve_ending(
+                    resolved_id, _resolved_label = EndingResolver.resolve_ending(
                         loop, scenario, clue_count
                     )
                     is_active = resolved_id == ending_id

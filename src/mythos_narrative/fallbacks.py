@@ -148,7 +148,7 @@ def default_fallback(language: str = "ko") -> dict[str, Any]:
 
 __all__ = [
     "DEFAULT_FALLBACK",
-    "DEFAULT_FALLBACK_EN",
     "DEFAULT_FALLBACK_BY_LANG",
+    "DEFAULT_FALLBACK_EN",
     "default_fallback",
 ]

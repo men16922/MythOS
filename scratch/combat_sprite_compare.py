@@ -117,7 +117,7 @@ def codex_baseline(subject: Subject, out_path: Path) -> Path:
     # Add a small faction underglow so the baseline reads clearly on the board.
     glow = Image.new("RGBA", size, (0, 0, 0, 0))
     gd = ImageDraw.Draw(glow)
-    gd.ellipse((136, 626, 376, 704), fill=accent[:3] + (54,))
+    gd.ellipse((136, 626, 376, 704), fill=(*accent[:3], 54))
     canvas.alpha_composite(glow.filter(ImageFilter.GaussianBlur(12)))
 
     out_path.parent.mkdir(parents=True, exist_ok=True)

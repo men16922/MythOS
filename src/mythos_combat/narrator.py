@@ -155,9 +155,9 @@ def _pick(dice: Dice, options: list[str]) -> str:
 
 
 __all__ = [
-    "render_radar",
-    "serialize_combat_log",
-    "narrate_since",
     "narrate_entries",
     "narrate_outcome",
+    "narrate_since",
+    "render_radar",
+    "serialize_combat_log",
 ]

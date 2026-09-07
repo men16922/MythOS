@@ -13,6 +13,7 @@ import json
 import os
 import unittest
 from pathlib import Path
+from typing import Any, ClassVar
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -176,7 +177,12 @@ class JudgePromptTest(unittest.TestCase):
 
 
 class VerdictParsingTest(unittest.TestCase):
-    VERDICT = {"scores": {"continuity": 4}, "overall": 4, "issues": [], "one_line": "ok"}
+    VERDICT: ClassVar[dict[str, Any]] = {
+        "scores": {"continuity": 4},
+        "overall": 4,
+        "issues": [],
+        "one_line": "ok",
+    }
 
     def test_raw_json(self) -> None:
         self.assertEqual(judge.parse_verdict(json.dumps(self.VERDICT))["overall"], 4)

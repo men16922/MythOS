@@ -620,8 +620,8 @@ class SkillDamageRiderTest(unittest.TestCase):
         return CombatEngine, PlayerAction, SKILLS, _drone, _skilled_player
 
     def test_emp_pulse_deals_shock_damage_and_aoe_stun(self) -> None:
-        CombatEngine, PlayerAction, SKILLS, _drone, _skilled_player = self._fx()
-        e = CombatEngine()
+        engine_cls, action_cls, skills, _drone, _skilled_player = self._fx()
+        e = engine_cls()
         s = e.start(
             [_skilled_player(0, 0)],
             [
@@ -636,8 +636,8 @@ class SkillDamageRiderTest(unittest.TestCase):
         e._player_skill(
             s,
             p,
-            PlayerAction(type="skill", skill_id="emp_pulse", target_id="d1"),
-            SKILLS["emp_pulse"],
+            action_cls(type="skill", skill_id="emp_pulse", target_id="d1"),
+            skills["emp_pulse"],
             True,
         )
         d1, d2 = s.by_id("d1"), s.by_id("d2")
@@ -647,8 +647,8 @@ class SkillDamageRiderTest(unittest.TestCase):
         self.assertEqual(d1.stunned_turns, 1)
 
     def test_overload_splash_is_half_damage(self) -> None:
-        CombatEngine, PlayerAction, SKILLS, _drone, _skilled_player = self._fx()
-        e = CombatEngine()
+        engine_cls, action_cls, skills, _drone, _skilled_player = self._fx()
+        e = engine_cls()
         s = e.start(
             [_skilled_player(0, 0)],
             [
@@ -663,8 +663,8 @@ class SkillDamageRiderTest(unittest.TestCase):
         e._player_skill(
             s,
             p,
-            PlayerAction(type="skill", skill_id="overload_strike", target_id="d1"),
-            SKILLS["overload_strike"],
+            action_cls(type="skill", skill_id="overload_strike", target_id="d1"),
+            skills["overload_strike"],
             True,
         )
         d1, d2 = s.by_id("d1"), s.by_id("d2")
@@ -1203,7 +1203,7 @@ class StatusIntensityStackingTest(unittest.TestCase):
         self.assertEqual(engine._effective_armor(foe), 1)
 
     def test_stored_stack_above_cap_is_clamped_on_read(self) -> None:
-        engine, state, player, foe = self._fixture()
+        engine, _state, _player, foe = self._fixture()
         foe.status_effects["corrode"] = 2
         foe.status_stacks["corrode"] = 5  # hand-set / older balance
         self.assertEqual(foe.status_stack("corrode"), 2)

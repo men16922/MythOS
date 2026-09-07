@@ -50,7 +50,7 @@ def fallback_chroma_key_removal(img_path: Path, out_path: Path):
 
     new_data = []
     for item in datas:
-        r, g, b, a = item
+        r, g, b, _a = item
         # Detect bright green chroma-key #00ff00
         # If green is high and significantly larger than red and blue
         if g > 110 and g > r * 1.35 and g > b * 1.35:

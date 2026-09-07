@@ -55,7 +55,7 @@ def remove_chroma_green(img: Image.Image) -> Image.Image:
     datas = img.getdata()
     new_data = []
     for item in datas:
-        r, g, b, a = item
+        r, g, b, _a = item
         # If green is clearly dominant
         if g > 110 and g > r * 1.32 and g > b * 1.32:
             new_data.append((0, 0, 0, 0))

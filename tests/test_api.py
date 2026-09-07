@@ -1403,11 +1403,13 @@ class LoopCapTest(unittest.TestCase):
         # cyrb53 parity with the SPA's stablePlayerId (cross-checked vs node).
         self.assertEqual(stable_player_id("admin-43dc07f266c2"), "player_1d34fcf029cd64")
 
+        class _Store:
+            @staticmethod
+            def list_loops(_pid: str) -> list[int]:
+                return [0] * 999  # far over any cap
+
         class _Svc:
-            class store:
-                @staticmethod
-                def list_loops(_pid: str) -> list[int]:
-                    return [0] * 999  # far over any cap
+            store = _Store
 
         with mock.patch.dict(
             os.environ,

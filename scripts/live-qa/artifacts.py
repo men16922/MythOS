@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import itertools
 import json
 import re
 import subprocess
@@ -282,7 +283,7 @@ def evaluate_objectives(
             if str(image.get("status")).lower() in {"timeout", "error"}
         ]
         consecutive_missing: list[int] = []
-        for left, right in zip(image_rows, image_rows[1:]):
+        for left, right in itertools.pairwise(image_rows):
             left_missing = str(left[1].get("status")).lower() in {"missing", "pending"}
             right_missing = str(right[1].get("status")).lower() in {"missing", "pending"}
             if left_missing and right_missing:

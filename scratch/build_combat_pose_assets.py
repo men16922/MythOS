@@ -146,7 +146,7 @@ def _attack_sprite(spec: AssetSpec, idle: Image.Image) -> Image.Image:
     else:
         lines = [((224, 275), (36, 206)), ((218, 340), (22, 316)), ((236, 410), (60, 486))]
     for i, (p1, p2) in enumerate(lines):
-        d.line((p1, p2), fill=accent[:3] + (180 - i * 42,), width=8 - i * 2)
+        d.line((p1, p2), fill=(*accent[:3], 180 - i * 42), width=8 - i * 2)
     streak = streak.filter(ImageFilter.GaussianBlur(1.8))
 
     out = Image.new("RGBA", SIZE, (0, 0, 0, 0))
@@ -166,12 +166,12 @@ def _skill_sprite(spec: AssetSpec, idle: Image.Image) -> Image.Image:
         alpha = 95 - i * 14
         d.ellipse(
             (inset, 132 + i * 10, SIZE[0] - inset, 684 - i * 8),
-            outline=accent[:3] + (alpha,),
+            outline=(*accent[:3], alpha),
             width=3,
         )
 
     for y in range(120, 700, 54):
-        d.line((96, y, 416, y - 26), fill=accent[:3] + (38,), width=2)
+        d.line((96, y, 416, y - 26), fill=(*accent[:3], 38), width=2)
 
     out.alpha_composite(aura.filter(ImageFilter.GaussianBlur(2.2)))
     out.alpha_composite(idle)

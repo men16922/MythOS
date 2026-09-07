@@ -235,11 +235,11 @@ def run_experiment(experiment: Experiment, results_dir: Path | None = None) -> P
 
 
 __all__ = [
+    "RESULTS_DIR",
     "Experiment",
     "ExperimentError",
     "ExperimentResult",
     "Finding",
-    "RESULTS_DIR",
     "Table",
     "provenance_for",
     "render_report",

@@ -283,8 +283,8 @@ def build_narrative_provider() -> Any:
 
 
 __all__ = [
-    "GeminiConfig",
     "SCENE_GEMINI_SCHEMA",
+    "GeminiConfig",
     "VertexGeminiJSONProvider",
     "build_narrative_provider",
     "to_gemini_schema",

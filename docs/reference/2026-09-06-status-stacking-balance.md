@@ -75,3 +75,26 @@ closes to melee/weapon reach, so a ranged-kiting player on high ground is not re
 UI or docs promises the bonus (only "High ground +1" in the tile inspector, which is the damage bonus that
 *is* wired). Outcome: the parameter was dropped the same day (DECISIONS 2026-09-06) — high ground stays a
 damage bonus; reach from elevation would be a new, deliberate rule.
+
+## Boss stack resistance — `BOSS_STACK_CAP = 2` on vs off (2026-09-07)
+
+Same synthetic upper bound as above (burn ×N pre-placed on the highest-`max_hp` enemy, greedy party,
+60 seeds), re-run with the shipped boss cap (`boss2`) against the 09-06 rule (`off`). Only
+`ix_confrontation` carries an `ai == "boss"` unit, so only it can move.
+
+| encounter | party | cap | ×0 | ×1 | ×3 | boss killed by a burn tick (×3) | max stack (×3) |
+|---|---|---|---|---|---|---|---|
+| **ix_confrontation** | **solo** | **boss2** | 0.30 | 0.50 | **0.68** | **0.15** | 2 |
+| ix_confrontation | solo | off | 0.30 | 0.50 | 0.82 | 0.33 | 3 |
+| ix_confrontation | se_rin+kai | boss2 | 0.88 | 0.85 | 0.93 | 0.23 | 2 |
+| ix_confrontation | se_rin+kai | off | 0.88 | 0.85 | 0.97 | 0.30 | 3 |
+| mech_siege | solo | both | 0.07 | 0.12 | 0.33 | 0.10 | 3 |
+| enforcer_standoff | solo | both | 0.22 | 0.57 | 0.95 | 0.58 | 3 |
+
+Reading: ×0/×1 are byte-identical to the 09-06 table (the cap only bites at the third application).
+A fully invested burn on IX still lifts the solo fight 0.30 → 0.68 — clearly rewarded — but no longer
+to 0.82, and the anticlimax rate (IX dying to a tick rather than a blow) halves, 0.33 → 0.15. Non-boss
+encounters are untouched, so the ×3 payoff the 09-06 reading called "as intended" is kept everywhere
+except on the boss. Reverse with one constant if the feel verdict prefers the decisive ×3.
+Runner: scratchpad script over `sim_boss._player/_ally/_greedy` + `build_encounter`, toggling
+`status_rules.BOSS_STACK_CAP` (2 vs 99).

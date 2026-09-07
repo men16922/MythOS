@@ -17,6 +17,12 @@ from dataclasses import dataclass
 # 3 (owner call 2026-07-14, bin/docs/plans/2026-07-14-combat-balance-tuning.md).
 STATUS_EFFECT_TURNS_CAP = 6
 HARD_CC_TURNS_CAP = 3
+# Boss stack resistance (2026-09-07, DECISIONS): a boss holds at most this many
+# stacks of any status. Same intent as the 07-14 stun guard — a hard-won ×2
+# still matters, but IX cannot be burned down by ticks alone (synthetic ×3
+# lifted the solo win rate 0.30→0.82 with a third of the kills on a DoT tick,
+# docs/reference/2026-09-06-status-stacking-balance.md).
+BOSS_STACK_CAP = 2
 
 
 @dataclass(frozen=True)
@@ -60,5 +66,6 @@ def turns_cap(status_id: str) -> int:
     return rule_for(status_id).turns_cap
 
 
-def stack_cap(status_id: str) -> int:
-    return rule_for(status_id).stack_cap
+def stack_cap(status_id: str, *, boss: bool = False) -> int:
+    cap = rule_for(status_id).stack_cap
+    return min(cap, BOSS_STACK_CAP) if boss else cap

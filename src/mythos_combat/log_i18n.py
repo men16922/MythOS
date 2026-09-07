@@ -48,6 +48,11 @@ _LINES: dict[str, dict[str, str]] = {
         "ko": "{target}의 코어가 재차 마비를 거부한다 — 기절 저항!",
         "en": "{target}'s core refuses a second lockup — stun resisted!",
     },
+    # Boss stack resistance (2026-09-07, DECISIONS).
+    "status_stack_resisted": {
+        "ko": "{target}의 코어가 과부하를 억제한다 — 중첩 저항!",
+        "en": "{target}'s core damps the overload — stacking resisted!",
+    },
     # Persistent status effects (2026-07-12 design — 세계관명: 과열/부식 프로토콜).
     "status_burn_applied": {
         "ko": "{target}의 외장이 과열되기 시작한다 — 🔥 연소!",

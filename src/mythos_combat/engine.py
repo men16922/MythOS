@@ -1674,7 +1674,11 @@ class CombatEngine:
             STATUS_EFFECT_TURNS_CAPS.get(status_id, STATUS_EFFECT_TURNS_CAP),
             victim.status_effects.get(status_id, 0) + max(1, int(turns)),
         )
-        victim.status_stacks[status_id] = min(stack_cap(status_id), prior_stacks + 1)
+        cap = stack_cap(status_id, boss=victim.ai == "boss")
+        victim.status_stacks[status_id] = min(cap, prior_stacks + 1)
+        # Boss stack resistance (2026-09-07): the turns still refresh above, but
+        # a stack a normal unit would have taken is refused and said so.
+        stack_resisted = prior_stacks >= cap and cap < stack_cap(status_id)
         if status_id not in victim.status:
             victim.status.append(status_id)
         self._log(
@@ -1694,6 +1698,14 @@ class CombatEngine:
                 "stacks": victim.status_stacks[status_id],
             },
         )
+        if stack_resisted:
+            self._log(
+                state,
+                source,
+                "info",
+                clog(state.language, "status_stack_resisted", target=victim.name),
+                {"status_stack_resisted": victim.id, "status": status_id},
+            )
 
     def _tick_status_effects(self, state: CombatState, actor: Combatant) -> None:
         """Turn-start tick: burn deals its DoT (×stacks), every status counts
@@ -2311,7 +2323,8 @@ class CombatEngine:
                 # victim lacks at least one of the statuses it would apply —
                 # or, for a stacking status, still has stacks to gain.
                 applicable = victim is not None and any(
-                    victim.status_stack(sid) < stack_cap(sid) for sid in effect["applies"]
+                    victim.status_stack(sid) < stack_cap(sid, boss=victim.ai == "boss")
+                    for sid in effect["applies"]
                 )
                 target = victim
             elif effect.get("focus_drain"):

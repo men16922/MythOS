@@ -129,7 +129,8 @@ class Combatant:
         cap — hand-set or from an older balance — is clamped on read)."""
         if status_id not in self.status_effects:
             return 0
-        return min(stack_cap(status_id), max(1, int(self.status_stacks.get(status_id, 1))))
+        cap = stack_cap(status_id, boss=self.ai == "boss")
+        return min(cap, max(1, int(self.status_stacks.get(status_id, 1))))
 
     def status_armor_penalty(self) -> int:
         """Armor lost to active statuses (corrode: per-stack)."""

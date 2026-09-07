@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-09-07 — Bosses resist status stacking above ×2 (`BOSS_STACK_CAP`)
+
+Decision: a unit with `ai == "boss"` holds at most **2** stacks of any status (`status_rules.BOSS_STACK_CAP`), so burn tops out at ×2 on IX while every non-boss keeps the full 3/2/2 caps. A refused stack still refreshes the status's turns and is logged (`status_stack_resisted`), mirroring the 2026-07-14 boss stun guard.
+
+Reason/impact: the 09-06 offensive-side measurement (`docs/reference/2026-09-06-status-stacking-balance.md`) showed a pre-placed burn ×3 lifting the solo IX win rate 0.30 → 0.82 with a third of those fights ending on a DoT tick — the same rotation-lock pattern the stun guard was built against. With the cap the same setup reaches 0.68 and the tick-kill rate halves (0.33 → 0.15); ×0/×1 and all non-boss encounters are byte-identical. Taken by the agent under the owner's repeated "continue" directive rather than as an owner ruling (the 2026-09-06 `_weapon_in_range` precedent); it is one constant, reversible in a single commit if the `[manual]` feel verdict prefers the decisive ×3. The feel verdict on caps 3/2/2 and the pip stays open and now covers this cap too.
+
 ## 2026-09-06 — High ground stays a damage bonus, not a reach bonus (dead `state` parameter dropped)
 
 Decision: `_weapon_in_range` loses its never-passed `state` argument and the ranged +1 reach it would have granted from higher elevation. Elevation keeps its wired effect — `+1` damage (`el_dmg`) and the `high_ground` log flag.

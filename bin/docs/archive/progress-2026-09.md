@@ -53,3 +53,16 @@ Raw increments moved out of `docs/PROGRESS_LOG.md` (newest on top). Compressed s
 - Verified: `make overnight-where` now resolves `HARNESS_ROOT` to the 1.4.0 path (was empty).
 - **Deployed `mythos-api-00085-mvr`** (owner lifted the 08-09 hold, DECISIONS 2026-09-05): the 39-commit fix bundle since `00084-nt2`. Pre-deploy gate: lint/typecheck 0, **1325** tests OK (6 skipped), rebuilt `app.js` byte-identical to the committed bundle; doc-budget was the only red item (pre-existing, needs `/tidy-docs`). Post-deploy: 100% traffic, root + `/api/v1/health` 200, live/local `app.js` SHA-256 match (`8a26071b…`), pins preserved (`gemini-3.5-flash` / `gemini-3.1-flash-image` @ `global`, timeout 3600), 0 WARNING+ logs in the first 30 min. Consequence: the banked 08-08 arm is no longer build-comparable — the next promotion sample must be a fresh arm on `00085`.
 - Next: run `make overnight-once` to confirm the critic actually launches on `claude-fable-5-1` before trusting it unattended.
+
+## 2026-09-06 — mypy-strict quality-ladder: mythos_runtime, batch closed (overnight `[auto:claude]`)
+
+- Status: last item of the 2026-09-06 seed batch (NEXT_PLAN `Overnight seeds`). `mythos_runtime` had 21 real `mypy --strict` errors (16 `type-arg`, 5 `no-untyped-def`) — fixed all with real annotations (`dict[str, Any]`, `list[ValidationError]`, `CombatState`, `NarrativeContext`, `Callable[[RuntimeSessionService], dict[str, Any]]`, …), no suppressions, no `pyproject.toml` override. Added the `$(VENV)/bin/mypy --strict src/mythos_runtime` line to the Makefile `python-typecheck` target.
+- Verified: `make check` green (skills/doc-budget/validate-content/lint/typecheck incl. all 8 strict packages/frontend build/1380 tests, 5 skipped).
+- Next: batch closed — every local package now runs under `mypy --strict`. Detail `COMPLETED_SUMMARY.md` M83.
+
+## 2026-09-06 — mypy-strict quality-ladder: mythos_memory/mythos_combat/mythos_api (overnight `[auto:claude]`)
+
+- Status: overnight lane item from the 2026-09-06 seed batch (NEXT_PLAN `Overnight seeds`). All three named packages were already 0-error under `mypy --strict` — added the three `$(VENV)/bin/mypy --strict src/<pkg>` lines to the Makefile `python-typecheck` target (no `pyproject.toml` override, no source changes needed).
+- Verified: `make check` green (skills/doc-budget/validate-content/lint/typecheck incl. all 7 strict packages/frontend build/1380 tests, 5 skipped).
+- Next: `mythos_runtime` under mypy strict remains open in NEXT_PLAN.
+

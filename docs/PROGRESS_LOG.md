@@ -2,6 +2,12 @@
 
 Last updated: 2026-09-07
 
+## 2026-09-07 — Boss stack resistance shipped (`BOSS_STACK_CAP = 2`), gameplay-qa mechanical pass
+
+- Status: the one open combat decision (NEXT_PLAN Priority 1) taken as an agent call under the owner's repeated "continue" directive — DECISIONS 2026-09-07, reversible by one constant. `status_rules.BOSS_STACK_CAP = 2`; `stack_cap(sid, boss=...)` clamps for `ai == "boss"` at the three cap-reading seams (`Combatant.status_stack`, `_apply_status_effect`, companion rider check); a refused stack still refreshes turns and logs `status_stack_resisted` (KO/EN) like `stun_resisted`. No UI change — the pip/chip read the same `status_stacks`.
+- Verified (mechanically): `BossStackResistanceTest` ×4 (cap + refusal log + DoT at the capped count, unaffected statuses, non-boss full cap, over-cap save clamps on read); `tests.test_combat_skill_feedback` 84/84; `make check` green. Bench (60 seeds, burn ×N pre-placed on IX): solo ×3 0.82 → **0.68**, tick-kill 0.33 → **0.15**, ×0/×1 and every non-boss cell identical — appended to `docs/reference/2026-09-06-status-stacking-balance.md`. Browser not re-run: the resisted line rides the existing `info` log path verified on 09-06.
+- Next: the `[manual]` feel verdict now covers the boss cap too; migration `008` and the §3 verdict remain the only owner items. Undeployed.
+
 ## 2026-09-07 — Closed plan docs moved to `bin/docs/plans/` (supervised; last quality-ladder seed)
 
 - Status: the one remaining 2026-09-06 seed was `[blocked]` for the *unattended* lane only (`bin/` is outside the claude-lane scope in `compile-contract.sh`, LESSONS 2026-09-07); done here in a supervised session under the owner's "continue by priority" directive. All four docs carried CLOSED/IMPLEMENTED/shipped status headers already.
@@ -25,18 +31,6 @@ Last updated: 2026-09-07
 - Status: quality-ladder seed batch item (NEXT_PLAN `Overnight seeds`) — `scratch/run_playwright_test.py`/`run_comprehensive_e2e_test.py` are outside `make check` and had gone red unnoticed before (see docs/LESSONS.md 2026-09-06); this locks their 19 selectors/ids against `src/mythos_ui/src/**` so a UI rename fails `make check` instead.
 - Changed: added `tests/test_e2e_selector_source_lock.py` (`E2ESelectorSourceLockTest`).
 - Verified: `make check` green (skills/doc-budget/validate-content/lint/typecheck/frontend build/1387 tests, 5 skipped).
-
-## 2026-09-06 — mypy-strict quality-ladder: mythos_runtime, batch closed (overnight `[auto:claude]`)
-
-- Status: last item of the 2026-09-06 seed batch (NEXT_PLAN `Overnight seeds`). `mythos_runtime` had 21 real `mypy --strict` errors (16 `type-arg`, 5 `no-untyped-def`) — fixed all with real annotations (`dict[str, Any]`, `list[ValidationError]`, `CombatState`, `NarrativeContext`, `Callable[[RuntimeSessionService], dict[str, Any]]`, …), no suppressions, no `pyproject.toml` override. Added the `$(VENV)/bin/mypy --strict src/mythos_runtime` line to the Makefile `python-typecheck` target.
-- Verified: `make check` green (skills/doc-budget/validate-content/lint/typecheck incl. all 8 strict packages/frontend build/1380 tests, 5 skipped).
-- Next: batch closed — every local package now runs under `mypy --strict`. Detail `COMPLETED_SUMMARY.md` M83.
-
-## 2026-09-06 — mypy-strict quality-ladder: mythos_memory/mythos_combat/mythos_api (overnight `[auto:claude]`)
-
-- Status: overnight lane item from the 2026-09-06 seed batch (NEXT_PLAN `Overnight seeds`). All three named packages were already 0-error under `mypy --strict` — added the three `$(VENV)/bin/mypy --strict src/<pkg>` lines to the Makefile `python-typecheck` target (no `pyproject.toml` override, no source changes needed).
-- Verified: `make check` green (skills/doc-budget/validate-content/lint/typecheck incl. all 7 strict packages/frontend build/1380 tests, 5 skipped).
-- Next: `mythos_runtime` under mypy strict remains open in NEXT_PLAN.
 
 ## 2026-09-06 — Deployed `mythos-api-00089-lv8` (owner-approved): intro/offer order fix + status stacking live
 

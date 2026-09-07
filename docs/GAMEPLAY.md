@@ -84,6 +84,7 @@ Status effects (2026-07-12 base, 2026-09-06 intensity stacking — owner "option
 - Six persistent statuses, one rule row each in `mythos_combat/status_rules.py`: burn (DoT at the victim's turn start), corrode (armor down), acid (defense down), freeze (no movement, can still act), shock (no focus regen, cooldowns frozen), hacked (spends its next turn attacking its own side).
 - Reapplying a status **accumulates turns** up to its cap (burn 3, the rest 6) **and raises its stack count** where the status has a magnitude: burn `1d4 × stacks` (cap 3), corrode `-2 armor × stacks` (cap 2), acid `-2 defense × stacks` (cap 2). freeze/shock/hacked are binary gates pinned at one stack.
 - Stacks never decay per turn; they clear with the status (expiry, hacked consumption, revive — a revived unit comes back clean). The log says ` (중첩 ×N)`, the roster chip and board badge show `×N`.
+- **Boss stack resistance** (2026-09-07): a unit with `ai == "boss"` holds at most `BOSS_STACK_CAP = 2` stacks of any status (so burn tops out at ×2 on IX); the turns still refresh and the refused stack is logged (`중첩 저항!` / `stacking resisted!`). Same intent as the stun guard below — one constant in `status_rules.py`.
 - Stun is a separate ledger (`stunned_turns`, cap 3, boss follow-up stun halved) and does not stack in intensity.
 
 Current focus:

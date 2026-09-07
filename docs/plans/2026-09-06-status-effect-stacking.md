@@ -129,3 +129,14 @@ must verify (not change):
   one-stack fallback, expiry + serialization, hacked consumption, the
   concurrent-status regression with mid-tick death); the 2026-07-12
   `test_status_duration_caps` "flat -2" assertion updated to the stacked value.
+
+## Addendum 2026-09-07 — boss stack resistance
+
+Taken as an agent decision under the owner's repeated "continue" directive (DECISIONS 2026-09-07),
+reversible by one constant. `status_rules.BOSS_STACK_CAP = 2`; `stack_cap(status_id, boss=...)` returns
+`min(rule.stack_cap, BOSS_STACK_CAP)` for a boss and the three seams that read a cap pass
+`boss=unit.ai == "boss"` (`Combatant.status_stack`, `_apply_status_effect`, the companion-AI rider
+check). A refused stack still refreshes the turns ledger and logs `status_stack_resisted`
+(detail `{"status_stack_resisted": <id>, "status": <sid>}`), mirroring `stun_resisted`. Only burn is
+affected today (cap 3 → 2 on a boss); corrode/acid already cap at 2. Measured effect:
+`docs/reference/2026-09-06-status-stacking-balance.md` §Boss stack resistance.

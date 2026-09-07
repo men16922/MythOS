@@ -1358,5 +1358,88 @@ class StatusStackUiLockTest(unittest.TestCase):
         self.assertEqual(clog("en", "status_stack_suffix", stacks=3), " (×3)")
 
 
+class BossStackResistanceTest(unittest.TestCase):
+    """Boss stack resistance (2026-09-07, DECISIONS): a boss holds at most
+    ``BOSS_STACK_CAP`` stacks of any status — the turns still refresh, the
+    refused stack is logged — mirroring the 07-14 stun guard's no-lockout intent."""
+
+    def _fixture(self, **enemy_over):
+        sys.path.insert(0, str(ROOT / "tests"))
+        from test_combat_engine import _drone, _player
+
+        from mythos_combat import CombatEngine
+
+        engine = CombatEngine()
+        state = engine.start(
+            [_player(x=0, y=0)],
+            [_drone(x=5, y=0, hp=80, defense=11, speed=0, armor=5, **enemy_over)],
+            seed="boss-stacks",
+            arena=(8, 6),
+        )
+        player = state.player()
+        foe = state.living_enemies()[0]
+        assert player is not None
+        return engine, state, player, foe
+
+    def test_boss_burn_stacks_stop_at_boss_cap_and_log_the_refusal(self) -> None:
+        from mythos_combat.status_rules import (
+            BOSS_STACK_CAP,
+            HARD_CC_TURNS_CAP,
+            STATUS_STACK_CAPS,
+        )
+
+        self.assertLess(BOSS_STACK_CAP, STATUS_STACK_CAPS["burn"])
+        engine, state, player, boss = self._fixture(ai="boss")
+        for _ in range(4):
+            engine._apply_status_effect(state, player, boss, "burn", 1)
+        self.assertEqual(boss.status_stack("burn"), BOSS_STACK_CAP)
+        self.assertEqual(boss.status_stacks["burn"], BOSS_STACK_CAP)
+        # Duration kept accumulating on its own ledger even while stacks were refused.
+        self.assertEqual(boss.status_effects["burn"], HARD_CC_TURNS_CAP)
+        resisted = [e for e in state.log if e.detail.get("status_stack_resisted") == boss.id]
+        # 4 applications: 1st→1, 2nd→2, 3rd and 4th refused.
+        self.assertEqual(len(resisted), 2)
+        self.assertTrue(all(e.detail.get("status") == "burn" for e in resisted))
+        # The DoT scales with the capped count, never the rule's full cap.
+        hp0 = boss.hp
+        engine._tick_status_effects(state, boss)
+        tick = next(
+            e for e in state.log if e.detail.get("status") == "burn" and "damage" in e.detail
+        )
+        self.assertEqual(tick.detail["stacks"], BOSS_STACK_CAP)
+        self.assertEqual(hp0 - boss.hp, tick.detail["damage"])
+
+    def test_statuses_already_at_or_under_the_boss_cap_are_unaffected(self) -> None:
+        from mythos_combat.status_rules import BOSS_STACK_CAP, STATUS_STACK_CAPS
+
+        engine, state, player, boss = self._fixture(ai="boss")
+        for _ in range(4):
+            engine._apply_status_effect(state, player, boss, "corrode", 1)
+            engine._apply_status_effect(state, player, boss, "freeze", 1)
+        self.assertEqual(
+            boss.status_stack("corrode"), min(STATUS_STACK_CAPS["corrode"], BOSS_STACK_CAP)
+        )
+        self.assertEqual(boss.status_stack("freeze"), 1)
+        # No refusal line for a status whose own cap the boss cap does not lower.
+        self.assertFalse(any(e.detail.get("status_stack_resisted") for e in state.log))
+
+    def test_non_boss_units_still_reach_the_full_cap(self) -> None:
+        from mythos_combat.status_rules import STATUS_STACK_CAPS
+
+        engine, state, player, foe = self._fixture()  # ai="melee"
+        for _ in range(4):
+            engine._apply_status_effect(state, player, foe, "burn", 1)
+        self.assertEqual(foe.status_stack("burn"), STATUS_STACK_CAPS["burn"])
+        self.assertFalse(any(e.detail.get("status_stack_resisted") for e in state.log))
+
+    def test_boss_read_seam_clamps_an_over_cap_stored_value(self) -> None:
+        from mythos_combat.status_rules import BOSS_STACK_CAP
+
+        _engine, _state, _player, boss = self._fixture(ai="boss")
+        boss.status_effects["burn"] = 2
+        boss.status_stacks["burn"] = 3  # a save written before the boss cap
+        self.assertEqual(boss.status_stack("burn"), BOSS_STACK_CAP)
+
+
 if __name__ == "__main__":
     unittest.main()

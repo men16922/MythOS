@@ -89,7 +89,7 @@ Status: `[/]` in progress behind Priority 0, mostly `[manual]` human play feel. 
 
 ### Combat — status-effect stacking rework (owner decision 2026-08-15; design snapshot `docs/plans/2026-09-06-status-effect-stacking.md`)
 
-- `[ ]` `[manual]` **Stack feel verdict** — are caps 3/2/2 and the burn `1d4 × stacks` curve right in play, and is the badge pip legible at 390px? Owner call after a live loop. Baseline-policy evidence: `docs/reference/2026-09-06-status-stacking-balance.md` — 11/12 encounter×party cells unchanged, only `purge_incineration` solo drops 0.65→0.55 (burn ×3); **offensive side is the real question**: burn ×3 pre-placed on IX (synthetic upper bound) lifts the solo win rate 0.30→0.82 and 33% of those fights end with IX dying to a burn tick — decide whether bosses get stack resistance (cap 2 / halve DoT stacks on `ai == "boss"`, mirroring the 07-14 stun guard) or a decisive ×3 is the intended reward. Lever: one `StatusRule` row / engine guard.
+- `[ ]` `[manual]` **Stack feel verdict** — are caps 3/2/2, the burn `1d4 × stacks` curve and the **boss cap 2** (`BOSS_STACK_CAP`, agent call 2026-09-07 — DECISIONS) right in play, and is the badge pip legible at 390px? Owner call after a live loop. Evidence: `docs/reference/2026-09-06-status-stacking-balance.md` — defensive side 11/12 cells unchanged; offensive side with the boss cap: IX solo ×3 0.68 (was 0.82 uncapped), burn-tick boss kills 15% (was 33%), non-boss fights untouched. Lever: one constant / one `StatusRule` row.
 
 ## Hold — Scenario Expansion / Glass Library
 

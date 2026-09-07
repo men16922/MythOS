@@ -362,7 +362,7 @@ class RouteChoiceAxisSerializerTest(unittest.TestCase):
     def test_widening_did_not_take_terms_the_audit_rejected(self) -> None:
         # Each of these was measured against the banked arms and dropped
         # because it read a real label wrongly — see
-        # docs/plans/2026-08-09-value-axis-vocabulary-coverage.md.
+        # bin/docs/plans/2026-08-09-value-axis-vocabulary-coverage.md.
         from mythos_api.serializers import _choice_axis
 
         # "brace" as enduring, not imposing.

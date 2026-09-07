@@ -67,4 +67,4 @@ Each worktree owns its ignored claim/log/sentinel state. Commits remain local. T
 evidence and pending `needs_human` items before merging or pushing.
 
 Related: [`LOOP.md`](LOOP.md), [`VERIFICATION.md`](VERIFICATION.md),
-[`../../plans/2026-07-18-overnight-harness-v2.md`](../../plans/2026-07-18-overnight-harness-v2.md).
+[`../../../bin/docs/plans/2026-07-18-overnight-harness-v2.md`](../../../bin/docs/plans/2026-07-18-overnight-harness-v2.md).

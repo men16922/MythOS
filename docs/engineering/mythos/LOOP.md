@@ -107,7 +107,7 @@ The plugin is deliberately single-runner. MythOS may run independent plugin inst
 orchestrator own integration. Shared writes are never made concurrently in one worktree. See
 [`AGENTIC.md`](AGENTIC.md).
 
-Design and synthesis: [`../../plans/2026-07-18-overnight-harness-v2.md`](../../plans/2026-07-18-overnight-harness-v2.md),
+Design and synthesis: [`../../../bin/docs/plans/2026-07-18-overnight-harness-v2.md`](../../../bin/docs/plans/2026-07-18-overnight-harness-v2.md),
 [`../../reference/2026-07-18-openai-anthropic-harness-synthesis.md`](../../reference/2026-07-18-openai-anthropic-harness-synthesis.md).
 
 ## 8. Consumer graph smoke (offline, disposable)

@@ -32,4 +32,4 @@ The bible holds the "what/why"; the interpretation holds "how in this repo." Eac
 - GPT-5.6 Sol / long-horizon / lower-HITL synthesis (2026-07-18):
   [`../reference/2026-07-18-sol-harness-long-loop-hitl.md`](../reference/2026-07-18-sol-harness-long-loop-hitl.md)
 - MythOS Harness V2 implementation plan (design only):
-  [`../plans/2026-07-18-overnight-harness-v2.md`](../plans/2026-07-18-overnight-harness-v2.md)
+  [`../../bin/docs/plans/2026-07-18-overnight-harness-v2.md`](../../bin/docs/plans/2026-07-18-overnight-harness-v2.md)

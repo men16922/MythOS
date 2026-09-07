@@ -195,7 +195,7 @@
 - **Research translated**: the Sol/OpenAI and Fable/Anthropic source views plus their final synthesis are recorded under `docs/reference/2026-07-18-*harness*.md` and reflected across the engineering bibles/MythOS interpretations.
 - **V2 boundary designed**: a permanent safety/evidence/recovery perimeter plus capability-aware removable scaffold around `RunController`, `WorkContract`, `VerifierRegistry`, `OversightPolicy`, and `EvidenceBundle`; assumptions are measured and ablated rather than promoted to a runtime module.
 - **HITL target defined**: Neo-Seoul's 16 manual checks become 6 auto-close + 8 monitored/prefiltered + 2 human-authority, measured over three release bundles rather than assumed safe.
-- **Delivery plan recorded**: `docs/plans/2026-07-18-overnight-harness-v2.md` P0–P5; no runtime implementation or irreversible runner-ownership decision in this milestone. Documentation checks passed.
+- **Delivery plan recorded**: `bin/docs/plans/2026-07-18-overnight-harness-v2.md` P0–P5; no runtime implementation or irreversible runner-ownership decision in this milestone. Documentation checks passed.
 
 ## M63 — Overnight Harness V2 plugin adoption (2026-07-19)
 

@@ -33,4 +33,4 @@ Narrative tone, repetition feel, pacing, and story-bible authoring do not compil
 Deterministic subproblems may be split into objective `[auto:<lane>]` items with named tests.
 
 Related: [`LOOP.md`](LOOP.md), [`VERIFICATION.md`](VERIFICATION.md),
-[`../../plans/2026-07-18-overnight-harness-v2.md`](../../plans/2026-07-18-overnight-harness-v2.md).
+[`../../../bin/docs/plans/2026-07-18-overnight-harness-v2.md`](../../../bin/docs/plans/2026-07-18-overnight-harness-v2.md).

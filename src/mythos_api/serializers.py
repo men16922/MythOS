@@ -125,7 +125,7 @@ def _clean_text(value: Any) -> str:
 # words for — traversal, sabotage, and choosing the fight. Chipless went 34% ->
 # 10% over the same 292 labels with one reclassification. Evidence and the
 # rejected fourth family (spoof -> data, where the *axis* is contested rather
-# than the terms) are in `docs/plans/2026-08-09-value-axis-vocabulary-coverage.md`.
+# than the terms) are in `bin/docs/plans/2026-08-09-value-axis-vocabulary-coverage.md`.
 # Order is load-bearing: people, then data, then safety, then control.
 _AXIS_KEYWORDS: tuple[tuple[str, tuple[str, ...]], ...] = (
     (

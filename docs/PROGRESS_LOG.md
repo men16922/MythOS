@@ -2,6 +2,13 @@
 
 Last updated: 2026-09-07
 
+## 2026-09-07 — Closed plan docs moved to `bin/docs/plans/` (supervised; last quality-ladder seed)
+
+- Status: the one remaining 2026-09-06 seed was `[blocked]` for the *unattended* lane only (`bin/` is outside the claude-lane scope in `compile-contract.sh`, LESSONS 2026-09-07); done here in a supervised session under the owner's "continue by priority" directive. All four docs carried CLOSED/IMPLEMENTED/shipped status headers already.
+- Changed: `git mv` of `2026-07-18-overnight-harness-v2`, `2026-07-25-app-decomposition-slice18-candidates`, `2026-07-26-combat-cinema-decomposition-candidates`, `2026-08-09-value-axis-vocabulary-coverage` from `docs/plans/` to `bin/docs/plans/`; every reference rewritten — `serializers.py`/`test_api.py` comments, `COMPLETED_SUMMARY`/`DECISIONS`, the five relative links in `docs/engineering/README.md` + `mythos/{LOOP,PROMPT,VERIFICATION,AGENTIC}.md` (re-pointed `../plans/` → `../../bin/docs/plans/` etc., targets verified to resolve), and the `bin/docs/archive/progress-2026-07.md` line. `docs/plans/` now holds only open/recent snapshots.
+- Verified: `make check` green (1387 tests, 5 skipped); no stale `docs/plans/<name>` references remain.
+- Next: `[auto]` backlog is now truly 0; the remaining open items are owner calls (boss stack resistance, §3 feel verdict, migration `008`) — the `bin/` lane-scope addition is no longer needed for this item.
+
 ## 2026-09-07 — test-side mypy suppressions removed, second half (overnight `[auto:claude]`)
 
 - Status: closes the 2026-09-06 quality-ladder seed pair (NEXT_PLAN `Overnight seeds`, M84 first half). Removed the remaining test-only `# type: ignore[...]` in `test_visual_orchestration.py`/`test_gemini_provider.py`/`test_narrative_trace.py`/`test_postgres_retry.py`/`test_overnight_plugin_adapters.py`/`test_runtime_session.py` with real typed fixes (`cast(...)`, a widened fake-constructor param type, a matching override signature) instead of suppressions; `test_overnight_plugin_adapters.py`'s verifier-fixture "code" line now builds its embedded marker via string concatenation so the source text itself carries no literal `# type: ignore` substring, leaving its "prose" fixture line (the one case the verifier must *not* reject) untouched.

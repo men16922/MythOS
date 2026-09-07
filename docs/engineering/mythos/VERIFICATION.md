@@ -110,4 +110,4 @@ acceptance evidence for one — they never substitute for `make check`, the sema
 registered verifiers running against actual repo diffs.
 
 Related: [`LOOP.md`](LOOP.md), [`HARNESS.md`](HARNESS.md),
-[`../../plans/2026-07-18-overnight-harness-v2.md`](../../plans/2026-07-18-overnight-harness-v2.md).
+[`../../../bin/docs/plans/2026-07-18-overnight-harness-v2.md`](../../../bin/docs/plans/2026-07-18-overnight-harness-v2.md).

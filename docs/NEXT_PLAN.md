@@ -1,6 +1,6 @@
 # Project MythOS Next Plan
 
-Last updated: 2026-09-07
+Last updated: 2026-09-08
 
 This file keeps only upcoming (open) work as a rolling plan. Completed tracks live in
 `docs/COMPLETED_SUMMARY.md`, detailed logs in `bin/docs/archive/progress-2026-0*.md`, individual designs in
@@ -16,7 +16,7 @@ Authority: `docs/reports/2026-07-28-heldout-v1-clean-repair0-baseline.md`. Owner
 
 Closed items are folded out of this file (its rule: open work only) — 2026-08 defect sweep, 2026-09-05 review residuals, serving-research P0/P0-2/P1-2/T4, status-effect stacking, `_weapon_in_range`, the 2026-09-06 seed batch: see `COMPLETED_SUMMARY.md` M79–M80 and PROGRESS_LOG.
 
-Authority QA: `docs/test/neo_seoul_live_qa.md`; scope: `docs/reports/2026-07-31-late-loop-repetition-scope.md`. **Latest deploy = `mythos-api-00089-lv8` (2026-09-06; adds the opening-cinematic/build-offer order fix and status-effect intensity stacking on top of `00088`).** Typed fallback evidence, combat pacing, structural novelty enforcement, and Gemini 3.1 image migration are live. The 2026-08-01 fresh-arm attempt (`loop_8b7a…60dc2`) was excluded at 13/14 (`parse_error`); it and the partial QA loop are evidence only.
+Authority QA: `docs/test/neo_seoul_live_qa.md`; scope: `docs/reports/2026-07-31-late-loop-repetition-scope.md`. **Latest deploy = `mythos-api-00090-ww4` (2026-09-08; adds boss stack resistance `BOSS_STACK_CAP = 2` + the strict-mypy/ruff batch on top of `00089`).** Typed fallback evidence, combat pacing, structural novelty enforcement, and Gemini 3.1 image migration are live. The 2026-08-01 fresh-arm attempt (`loop_8b7a…60dc2`) was excluded at 13/14 (`parse_error`); it and the partial QA loop are evidence only.
 
 - `[/]` **Owner rulings on the banked arm** — `[x]` the 22+25 two-build split does not disqualify it (owner, 2026-08-13, DECISIONS); `[x]` rubric scored (`outputs/evals/20260814-005948/`: new sample 3/5, both 07-28 samples 2/5). `[ ]` `[manual]` the subjective **ending/overall feel verdict** is still open — and is now the *only* usable basis, since the score cannot carry the decision (below).
 - `[ ]` `[manual]` **Upstream repetition** — with the reviser corrected, the residual 59% is the model genuinely reusing locations/motifs (title repeats 32%, location streak 33% measured independently). This is narrative prompt/context work and must wait for the owner's §3 verdict, since it changes generation.

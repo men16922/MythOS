@@ -54,7 +54,7 @@ Scope is a research bench, **not** production self-hosting — the evidence puts
 - **2026-09-08 seed batch (owner "최대한 수행" on the recommended 1–6; live survey in PROGRESS_LOG 2026-09-08)** — consumed supervised in-session, one gated commit each:
   - `[x]` `[auto:claude]` **STATUS.md compression** (2026-09-08) — fold the five 2026-09-05 baseline lines into `COMPLETED_SUMMARY.md` M86 + one pointer line. Done: `make check-doc-budget` OK with ≥ 2k chars headroom on STATUS.
   - `[x]` `[auto:claude]` **RUF100 dead-noqa sweep** (2026-09-08) — `RUF100` in ruff `select`; 62 unused noqa comments removed repo-wide under the full config (the `--select RUF100`-only count of 22 was wrong: alone, it marks every E402/I001 noqa unused). Done: `ruff check --select RUF100 src tests` 0 findings; `make check` green.
-  - `[ ]` `[auto:claude]` **Lock frontend strict** — `"strict": true` + `"noImplicitOverride": true` in `src/mythos_ui/tsconfig.app.json` (0 errors measured 2026-09-08). Done: `make check` (frontend build runs `tsc -b`) green.
+  - `[x]` `[auto:claude]` **Lock frontend strict** (2026-09-08) — `"strict": true` + `"noImplicitOverride": true` in `src/mythos_ui/tsconfig.app.json` (0 errors measured 2026-09-08). Done: `make check` (frontend build runs `tsc -b`) green.
   - `[ ]` `[auto:claude]` **ruff RET/PIE/FURB/FLY/PYI/G** — families in `select`, 34 in-scope findings fixed, per-file-ignores for out-of-scope dirs. Done: `make check` green.
   - `[ ]` `[auto:claude]` **ruff N + RUF022/005/007/059/012 + ERA001** — rules in `select`, ~29 findings fixed (RUF001–003 stay off: Korean-text false positives). Done: `make check` green.
   - `[ ]` `[auto:claude]` **ruff PTH** — `PTH` in `select`, 30 findings fixed (27 `open()` → `Path.open`). Done: `make check` green.

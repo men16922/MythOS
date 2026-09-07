@@ -57,7 +57,7 @@ class _RecordingProvider:
         self.config = _KeybeatConfig(keybeat_model)
         self.models_seen: list[str | None] = []
 
-    def generate(self, messages, *, model=None):  # noqa: ANN001, ANN201
+    def generate(self, messages, *, model=None):
         self.models_seen.append(model)
         return _VALID_PAYLOAD
 
@@ -65,7 +65,7 @@ class _RecordingProvider:
 class _RecordingStreamProvider(_RecordingProvider):
     """Provider with a stream seam — the production (Gemini) shape."""
 
-    def stream(self, messages, *, model=None):  # noqa: ANN001, ANN201
+    def stream(self, messages, *, model=None):
         self.models_seen.append(model)
         yield _VALID_PAYLOAD
 
@@ -74,7 +74,7 @@ class _DegeneratingStreamProvider(_RecordingProvider):
     """Stream degenerates (whitespace runaway) so the director's non-streaming
     retry fires; generate stays valid. models_seen records both calls."""
 
-    def stream(self, messages, *, model=None):  # noqa: ANN001, ANN201
+    def stream(self, messages, *, model=None):
         self.models_seen.append(model)
         yield '{"scene":{"title":"Broken'
         yield " " * 400
@@ -157,7 +157,7 @@ class DirectorKeybeatOverrideTest(unittest.TestCase):
 class StreamingKeybeatOverrideTest(unittest.TestCase):
     """Streaming is the production path — routing + its log evidence both locked."""
 
-    def _drain(self, events):  # noqa: ANN001, ANN201
+    def _drain(self, events):
         return list(events)
 
     def test_stream_key_beat_turn_uses_keybeat_model(self) -> None:

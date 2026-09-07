@@ -1,4 +1,3 @@
-# ruff: noqa: E402
 """Render-check the turn-order strip (two-tier slice 4) in the local sim."""
 
 import sys

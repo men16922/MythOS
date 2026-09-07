@@ -174,7 +174,7 @@ def main() -> int:
                 try:
                     synthesize(api_key, VOICES[name], line, dest)
                     print(f"ok: {dest.relative_to(REPO)} ({dest.stat().st_size // 1024}KB)")
-                except Exception as exc:  # noqa: BLE001 — audition tool, report and continue
+                except Exception as exc:
                     print(f"FAIL {lang}/{role}/{name}: {exc}")
     print(
         f"\nListen under {OUT_DIR.relative_to(REPO)}/<lang>/ then pin choices in "

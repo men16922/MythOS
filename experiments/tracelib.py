@@ -67,14 +67,14 @@ def ollama_chat(
     request = urllib.request.Request(
         f"{base_url}/api/chat", data=body, headers={"Content-Type": "application/json"}
     )
-    with urllib.request.urlopen(request, timeout=timeout) as response:  # noqa: S310 - localhost
+    with urllib.request.urlopen(request, timeout=timeout) as response:
         payload: dict[str, Any] = json.loads(response.read())
         return payload
 
 
 def ollama_available(base_url: str = DEFAULT_OLLAMA) -> bool:
     try:
-        with urllib.request.urlopen(f"{base_url}/api/tags", timeout=3):  # noqa: S310 - localhost
+        with urllib.request.urlopen(f"{base_url}/api/tags", timeout=3):
             return True
     except (urllib.error.URLError, OSError):
         return False

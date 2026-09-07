@@ -14,11 +14,11 @@ import sys
 from collections import Counter
 
 sys.path.insert(0, "tests")  # reuse the test in-memory store
-from test_session_combat import _InMemoryStore  # type: ignore  # noqa: E402
+from test_session_combat import _InMemoryStore  # type: ignore
 
-from mythos_narrative.director import NarrativeDirector  # noqa: E402
-from mythos_runtime.options import RuntimeOptions  # noqa: E402
-from mythos_runtime.session import RuntimeSessionService  # noqa: E402
+from mythos_narrative.director import NarrativeDirector
+from mythos_runtime.options import RuntimeOptions
+from mythos_runtime.session import RuntimeSessionService
 
 # Abstract terms the reframe says should NOT recur every scene (ordinary scenes).
 ABSTRACT = [

@@ -1,4 +1,3 @@
-# ruff: noqa: E402
 """Verify the portrait combat action dock: board + docked console co-visible
 at scrollY=0 on a 390x844 touch viewport (no scroll loop to act)."""
 

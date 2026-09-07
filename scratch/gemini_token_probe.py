@@ -16,16 +16,16 @@ import sys
 import time
 
 sys.path.insert(0, "tests")
-from test_session_combat import _InMemoryStore  # type: ignore  # noqa: E402
+from test_session_combat import _InMemoryStore  # type: ignore
 
-from mythos_narrative.director import NarrativeDirector  # noqa: E402
-from mythos_narrative.gemini_provider import (  # noqa: E402
+from mythos_narrative.director import NarrativeDirector
+from mythos_narrative.gemini_provider import (
     GeminiConfig,
     VertexGeminiJSONProvider,
     _split_messages,
 )
-from mythos_runtime.options import RuntimeOptions  # noqa: E402
-from mythos_runtime.session import RuntimeSessionService  # noqa: E402
+from mythos_runtime.options import RuntimeOptions
+from mythos_runtime.session import RuntimeSessionService
 
 USAGE: list[dict] = []
 

@@ -63,7 +63,7 @@ for i in range(n):
     try:
         parse_scene_payload(raw)
         ok = "PARSE_OK"
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         ok = f"PARSE_FAIL({type(exc).__name__})"
     out = getattr(usage, "candidates_token_count", None)
     thk = getattr(usage, "thoughts_token_count", None)

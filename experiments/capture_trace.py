@@ -29,11 +29,11 @@ import time
 
 os.environ.setdefault("MYTHOS_LOG_LEVEL", "ERROR")
 
-from mythos_combat.engine import CombatEngine, PlayerAction, distance  # noqa: E402
-from mythos_memory import PostgresMythOSStore  # noqa: E402
-from mythos_runtime.combat_service import CombatService  # noqa: E402
-from mythos_runtime.options import RuntimeOptions, RuntimeSnapshot  # noqa: E402
-from mythos_runtime.session import RuntimeSessionService  # noqa: E402
+from mythos_combat.engine import CombatEngine, PlayerAction, distance
+from mythos_memory import PostgresMythOSStore
+from mythos_runtime.combat_service import CombatService
+from mythos_runtime.options import RuntimeOptions, RuntimeSnapshot
+from mythos_runtime.session import RuntimeSessionService
 
 # Fed to the Director as the player's move after a fight (mirrors the SPA's
 # post-combat resume); Korean because the trace scenario runs in Korean.
@@ -41,7 +41,7 @@ POST_COMBAT_ACTION = "전투를 마치고 숨을 고른 뒤 주변을 살핀다.
 MAX_COMBAT_ROUNDS = 120
 
 
-def _auto_combat_action(loop) -> PlayerAction:  # noqa: ANN001 - LoopState
+def _auto_combat_action(loop) -> PlayerAction:
     state = CombatService.load_state(loop)
     if state is None:
         return PlayerAction(type="defend")
@@ -106,7 +106,7 @@ def main(argv: list[str]) -> int:
             else:
                 print(f"turn {n}: no choices (phase={snap.loop.phase}); stopping", flush=True)
                 break
-        except Exception as exc:  # noqa: BLE001 - a failed turn is data, keep going
+        except Exception as exc:
             print(f"turn {n}: FAILED {type(exc).__name__}: {exc}", flush=True)
             break
         took = time.perf_counter() - start

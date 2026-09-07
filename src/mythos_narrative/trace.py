@@ -132,7 +132,7 @@ class TracingProvider:
         start = perf_counter()
         try:
             result = getattr(self._inner, method)(messages, **kwargs)
-        except BaseException as exc:  # noqa: BLE001 - recorded, then re-raised
+        except BaseException as exc:
             entry["error"] = f"{type(exc).__name__}: {exc}"
             entry["duration_ms"] = round((perf_counter() - start) * 1000, 3)
             _record(entry)

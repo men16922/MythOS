@@ -1,4 +1,4 @@
-# ruff: noqa: E402, I001
+# ruff: noqa: I001
 import multiprocessing
 import os
 import sys

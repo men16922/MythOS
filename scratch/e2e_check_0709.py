@@ -1,4 +1,3 @@
-# ruff: noqa: E402, I001
 """Objective Playwright check for the 2026-07-09 opening/early-loop fixes.
 
 Runs the API in fallback narrative mode (?fallback=1) — deterministic, no Vertex,

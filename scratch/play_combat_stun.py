@@ -1,4 +1,3 @@
-# ruff: noqa: E402
 """Combat autoplayer — drive the local sim to capture STUN (💫) and SLAM (💥) VFX.
 
 Points at an already-running `make api` server (default :8000, DEFAULT_BGM_ON=false).

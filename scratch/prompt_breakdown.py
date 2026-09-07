@@ -15,11 +15,11 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, "tests")
-from test_session_combat import _InMemoryStore  # type: ignore  # noqa: E402
+from test_session_combat import _InMemoryStore  # type: ignore
 
-from mythos_narrative.director import NarrativeDirector  # noqa: E402
-from mythos_runtime.options import RuntimeOptions  # noqa: E402
-from mythos_runtime.session import RuntimeSessionService  # noqa: E402
+from mythos_narrative.director import NarrativeDirector
+from mythos_runtime.options import RuntimeOptions
+from mythos_runtime.session import RuntimeSessionService
 
 # Realistic 3.5-length narration (~560 KO chars) so the synopsis/previous-scene
 # window grows like a live session.

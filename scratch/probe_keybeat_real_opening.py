@@ -47,7 +47,7 @@ parts: list[str] = []
 try:
     for chunk in provider.stream(messages, model="gemini-3.5-flash"):
         parts.append(chunk)
-except Exception as exc:  # noqa: BLE001
+except Exception as exc:
     print(f"STREAM RAISED: {type(exc).__name__}: {exc}")
 raw = "".join(parts)
 print(f"chunks={len(parts)} raw_len={len(raw)}")
@@ -56,5 +56,5 @@ print(raw[-300:])
 try:
     payload = parse_scene_payload(raw)
     print(f"PARSE OK: title={payload.title!r} narration_len={len(payload.narration)}")
-except Exception as exc:  # noqa: BLE001
+except Exception as exc:
     print(f"PARSE FAILED: {type(exc).__name__}: {exc}")

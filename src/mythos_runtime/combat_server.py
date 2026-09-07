@@ -158,10 +158,10 @@ def _inventory_counts(raw_inventory: Any) -> dict[str, dict[str, Any]]:
 class _CombatRequestHandler(BaseHTTPRequestHandler):
     server_version = "MythOSCombatBridge/1.0"
 
-    def do_OPTIONS(self) -> None:  # noqa: N802
+    def do_OPTIONS(self) -> None:
         self._send_json({"ok": True})
 
-    def do_GET(self) -> None:  # noqa: N802
+    def do_GET(self) -> None:
         parsed = urlparse(self.path)
         if parsed.path != "/combat/state":
             self._send_json({"ok": False, "error": "not found"}, status=404)
@@ -175,7 +175,7 @@ class _CombatRequestHandler(BaseHTTPRequestHandler):
             )
         )
 
-    def do_POST(self) -> None:  # noqa: N802
+    def do_POST(self) -> None:
         if urlparse(self.path).path != "/combat/action":
             self._send_json({"ok": False, "error": "not found"}, status=404)
             return
@@ -197,7 +197,7 @@ class _CombatRequestHandler(BaseHTTPRequestHandler):
             )
         )
 
-    def log_message(self, format: str, *args: Any) -> None:  # noqa: A002
+    def log_message(self, format: str, *args: Any) -> None:
         return
 
     def _with_service(self, fn: Callable[[RuntimeSessionService], dict[str, Any]]) -> None:

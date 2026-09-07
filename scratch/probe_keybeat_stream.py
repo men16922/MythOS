@@ -42,7 +42,7 @@ def run(model_override: str | None) -> None:
     try:
         for chunk in provider.stream(MESSAGES, model=model_override):
             parts.append(chunk)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         print(f"STREAM RAISED: {type(exc).__name__}: {exc}")
         return
     raw = "".join(parts)
@@ -54,7 +54,7 @@ def run(model_override: str | None) -> None:
     try:
         payload = parse_scene_payload(raw)
         print(f"PARSE OK: title={payload.title!r} choices={len(payload.choices)}")
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         print(f"PARSE FAILED: {type(exc).__name__}: {exc}")
 
 

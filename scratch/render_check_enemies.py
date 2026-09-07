@@ -1,4 +1,3 @@
-# ruff: noqa: E402
 """Render-check the regenerated enemy sprites on the tactical board.
 
 For each encounter covering the 4 regenerated enemies (shock_trooper_patrol,

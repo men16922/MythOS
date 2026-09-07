@@ -508,7 +508,7 @@ def _scene_stakes_summary(loop: Any, state: dict[str, Any]) -> list[str]:
         if scenario_id:
             try:
                 core = load_scenario(str(scenario_id)).playability.get("core_stake")
-            except Exception:  # noqa: BLE001 — scenario lookup is best-effort
+            except Exception:
                 core = None
             if core:
                 stakes.append(str(core))
@@ -546,7 +546,7 @@ def _resolve_inventory(state: dict[str, Any]) -> list[dict[str, Any]]:
         try:
             combat = load_scenario(str(scenario_id)).combat
             items_def = combat.get("items", {}) if isinstance(combat, dict) else {}
-        except Exception:  # noqa: BLE001 — scenario lookup is best-effort
+        except Exception:
             items_def = {}
 
     counts: dict[str, int] = {}
@@ -604,7 +604,7 @@ def _companion_roster(state: dict[str, Any]) -> list[dict[str, Any]]:
         return []
     try:
         combat = load_scenario(str(scenario_id)).combat
-    except Exception:  # noqa: BLE001 — scenario lookup is best-effort
+    except Exception:
         return []
     allies_pool = combat.get("allies", {}) if isinstance(combat, dict) else {}
     if not isinstance(allies_pool, dict):
@@ -669,7 +669,7 @@ def _chapter_goal(loop: Any, state: dict[str, Any]) -> str | None:
         return None
     try:
         gates = load_scenario(str(scenario_id)).session_design.get("chapter_gates", [])
-    except Exception:  # noqa: BLE001 — scenario lookup is best-effort
+    except Exception:
         return None
     phase = loop.phase.value
     variant = str(state.get("_opening_variant") or "default")

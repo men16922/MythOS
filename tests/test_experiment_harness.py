@@ -211,7 +211,7 @@ class CaptureTraceAutoplayTest(unittest.TestCase):
     """Seed 8 (2026-09-06): the combat autoplay helper that lets `capture_trace` walk
     through patrol nodes. Importing the module must not run the script body."""
 
-    def _combat_loop(self):  # noqa: ANN202 - LoopState from the real encounter builder
+    def _combat_loop(self):
         from datetime import UTC, datetime
 
         from mythos_core import LoopPhase, LoopState

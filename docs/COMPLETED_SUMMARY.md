@@ -363,6 +363,14 @@
 - **Verification**: gates 1325→1354 tests across the day; each deploy: root/health 200, live/local `app.js` SHA match, pins preserved, 0 WARNING+ in the first minutes.
 - **Boundary**: `_weapon_in_range` and migration `008` (then open) closed 2026-09-06/07 — see M80+ and PROGRESS_LOG.
 
+## M87 — Quality-ladder batch 2: ruff 8 → 20 families, frontend strict lock, orphaned test revived (2026-09-08)
+
+- **Purpose**: consume the six deterministic seeds the 2026-09-08 `/overnight-seed` survey found after the `[auto]` backlog drained; done supervised under the owner's `/goal 최대한 수행`, one gated commit each.
+- **Output**: `2eea9d2` STATUS 2026-09-05 lines → M86 (budget 17999 → 15836 chars). `f73d56b` `RUF100` on, 62 unused `noqa` removed repo-wide. `f752a7e` `tsconfig.app.json` `"strict": true` + `"noImplicitOverride": true` (0 errors measured; now enforced by `tsc -b` in `make check`). `7e40e38` RET/PIE/FURB/FLY/PYI/G on, 34 fixed — logging f-strings → lazy args, `error(exc_info=True)` → `exception()`, `else`-after-`return` flattening in `combat/engine.py` ally AI and `ending_resolver` AST evaluator. `553b4ab` N + RUF005/007/012/022/059 on, 33 fixed — class-valued test locals renamed, `VERDICT: ClassVar[...]`, `itertools.pairwise`, unused unpacked vars underscored. `2db09eb` PTH on, 49 hand conversions (`open()` → `Path.open`, `os.path.*`/`glob.glob` → `Path`), 7 dead `import os`/`glob` dropped.
+- **Defect found**: RET503 flagged `_scene_response()` in `tests/test_narrative_director.py` — `test_fallback_reflects_novelty_context` sat inside it after the `return`, never collected. Moved into `NarrativeDirectorTest`; passes.
+- **Verification**: `make check` green after every seed; final 1396 tests (5 skipped), ruff 0, format 272/272, mypy strict ×8, eslint, `tsc -b` strict.
+- **Boundary**: ERA001 left off (explanatory arithmetic comments only), RUF001–003 off (Korean text). `noUncheckedIndexedAccess` (77) / `exactOptionalPropertyTypes` (43) / directive KO/EN parity lock not taken — recorded in NEXT_PLAN as un-seeded survey leftovers.
+
 ## Archive Reference
 
 M0-M10의 상세 체크리스트, work log, verification log는 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`에 보존한다.

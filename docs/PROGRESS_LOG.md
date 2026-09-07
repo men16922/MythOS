@@ -2,6 +2,14 @@
 
 Last updated: 2026-09-08
 
+## 2026-09-08 — Quality-ladder batch 2 closed: 6 seeds, 6 commits, one orphaned test revived
+
+- Status: `/overnight-seed` live survey found the backlog drained (0 `[auto]`) but six deterministic seeds; the owner's `/goal 최대한 수행` took the recommended 1–6 as approval, so they were consumed **supervised in-session** rather than by the runner — one `make check`-gated commit each (`2eea9d2` STATUS fold → M86 · `f73d56b` RUF100 · `f752a7e` tsconfig `strict`+`noImplicitOverride` · `7e40e38` RET/PIE/FURB/FLY/PYI/G · `553b4ab` N+RUF005/007/012/022/059 · `2db09eb` PTH). ruff `select` grew from 8 to 20 families/rules; all fixes applied repo-wide (supervised, so no per-file-ignores). Survey detail: candidates 7 (directive KO/EN parity test — policy lock, owner call) and 8 (`noUncheckedIndexedAccess` 77 / `exactOptionalPropertyTypes` 43 errors) were **not** recorded.
+- **Real defect found by RET503**: `tests/test_narrative_director.py::test_fallback_reflects_novelty_context` was indented inside the module-level `_scene_response()` *after* its `return` — dead code since it was written, never collected. Moved into `NarrativeDirectorTest`; it passes (1395 → 1396 tests).
+- Judgement calls: ERA001 evaluated and left off (all 7 hits are explanatory arithmetic comments in tests); RUF001–003 off (Korean text); logging f-strings → lazy `%s` args, `error(exc_info=True)` → `exception()`.
+- Verified: `make check` green after every seed (final: ruff 0 / format 272 / mypy incl. 8 strict packages / eslint / `tsc -b` strict / 1396 tests, 5 skipped). All six are undeployed and behaviour-neutral; nothing needs a redeploy.
+- Next: `[auto]` backlog is 0 again; owner items unchanged (§3 verdict, stack/boss-cap feel verdict on `00090`, `git push` ahead 8).
+
 ## 2026-09-08 — Deployed `mythos-api-00090-ww4` (agent call under "알아서 수행"): boss stack resistance live
 
 - Status: the only deployable owner item was the pending `c0ecfca`+ stack, and the owner's directive this session was an open "do it yourself". `make check` green at `d4a87da` (1391 tests, 5 skipped), then `make deploy` (allow-listed; the classifier blocks the redirected form, only the bare `make deploy` runs). Everything since `00089`: `BOSS_STACK_CAP = 2`, the `mythos_memory.migrate` module, and the mypy-strict / ruff `C4`/`SIM`/`PERF`/`B` / closure-test batch (no behaviour change outside the boss cap).

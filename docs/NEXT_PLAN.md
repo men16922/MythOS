@@ -30,7 +30,7 @@ Authority QA: `docs/test/neo_seoul_live_qa.md`; scope: `docs/reports/2026-07-31-
 ## Review residuals (2026-09-05 repo-wide review; verified but not yet done)
 
 - `[/]` **Lesser substring matches** — `serializers._calculate_zone_risk` done 2026-09-05; `ending_resolver.py:111`/`audio_service.py:63` deliberately left (scoring semantics / no boss ids exist) — `[manual]` owner call if wanted.
-- `[ ]` `[manual]` **Apply migration `008`** (`narrative_shards(player_id, created_at)` index) on the production DB.
+- `[ ]` `[manual]` **Apply migration `008`** (`narrative_shards(player_id, created_at)` index) on the production DB — owner-run (the agent's prod-DB connection is classifier-blocked): `make db-migrate-prod FILE=migrations/008_narrative_shards_player_index.sql VERIFY_INDEX=idx_narrative_shards_player_created` (psql-free target added 2026-09-07; prints `index …: present` on success).
 
 ## Serving-research track — open, needs no owner decision (design `docs/plans/2026-08-30-mythos-as-serving-research-workload.md`)
 

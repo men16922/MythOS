@@ -445,6 +445,17 @@ infra-reset:
 db-migrate:
 	$(COMPOSE) -f $(COMPOSE_FILE) exec -T postgres sh -c 'for file in /migrations/*.sql; do echo "Applying $$file"; psql -v ON_ERROR_STOP=1 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" -f "$$file"; done'
 
+# Apply ONE migration file to the PRODUCTION Neon DB (MYTHOS_DEPLOY_DATABASE_URL in .env).
+# psql-free (mythos_memory.migrate); the URL is never echoed. Owner-run, e.g.
+#   make db-migrate-prod FILE=migrations/008_narrative_shards_player_index.sql VERIFY_INDEX=idx_narrative_shards_player_created
+db-migrate-prod:
+	@test -n "$(FILE)" || { echo "usage: make db-migrate-prod FILE=migrations/NNN_name.sql [VERIFY_INDEX=name]"; exit 1; }
+	@test -f "$(FILE)" || { echo "ERROR: $(FILE) not found"; exit 1; }
+	@DB=$$(grep -E '^MYTHOS_DEPLOY_DATABASE_URL=' .env | cut -d= -f2- | tr -d '"'); \
+	test -n "$$DB" || { echo "ERROR: MYTHOS_DEPLOY_DATABASE_URL not set in .env"; exit 1; }; \
+	echo "🔴 PRODUCTION Neon — applying $(FILE)…"; \
+	MYTHOS_MIGRATION_URL="$$DB" $(VENV)/bin/python -m mythos_memory.migrate "$(FILE)" $(if $(VERIFY_INDEX),--verify-index $(VERIFY_INDEX),)
+
 # Drops and recreates the public schema, then reapplies migrations. Destructive.
 db-reset:
 	$(COMPOSE) -f $(COMPOSE_FILE) exec -T postgres sh -c 'psql -v ON_ERROR_STOP=1 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"'

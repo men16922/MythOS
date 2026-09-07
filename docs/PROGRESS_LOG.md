@@ -2,6 +2,14 @@
 
 Last updated: 2026-09-08
 
+## 2026-09-08 — Survey leftovers taken under "계속해": directive KO/EN lock + `noUncheckedIndexedAccess`; `exactOptionalPropertyTypes` declined
+
+- Status: with the seed batch closed and the backlog at 0, the two un-recorded survey candidates were taken as agent calls. `1daa83e` `tests/test_directive_locale_parity.py` — every `resources/<scenario>/directives/**/*.md` must have its `.en.md` twin and vice-versa (19 pairs today; the loader's KO fallback would otherwise leak Korean into EN-default sessions unnoticed). `0b0f153` (fork agent, verified here: diff read, 5 non-null assertions each under an adjacent guard, `make check` re-run green) — `"noUncheckedIndexedAccess": true` in `tsconfig.app.json`, 77 sites narrowed across 18 files (~52 guards/`?.`/`charAt`, ~14 `?? default`, 5 tuple annotations, 6 guarded `!`); `app.js` + `CodexPanel.js` rebuilt and committed; two source-lock tests re-pointed.
+- Latent oddity fixed on the way: `CombatControls.tsx` loadout swap wrote `undefined` into the slot array when moving a skill into an empty slot (harmless — re-filtered on read — now splices instead, same effective order). No real user-visible bug surfaced; `App.tsx:266` `firstPlayable` was already guarded.
+- **Declined**: `exactOptionalPropertyTypes` — all 43 errors are `X | undefined` handed to an optional `x?: X` prop; the fix is `| undefined` on 43 prop types or conditional spreads, and the flag's absent-vs-undefined distinction never matters in this SPA. Not a seed, not a TODO.
+- Verified: `make check` green at `0b0f153` (eslint, `tsc -b` strict + NUIA, vite build, 1399 tests / 5 skipped).
+- Next: nothing non-owner-gated remains — §3 verdict, stack/boss-cap feel verdict on `00090`, `git push` (ahead 11). Do not manufacture seeds.
+
 ## 2026-09-08 — Quality-ladder batch 2 closed: 6 seeds, 6 commits, one orphaned test revived
 
 - Status: `/overnight-seed` live survey found the backlog drained (0 `[auto]`) but six deterministic seeds; the owner's `/goal 최대한 수행` took the recommended 1–6 as approval, so they were consumed **supervised in-session** rather than by the runner — one `make check`-gated commit each (`2eea9d2` STATUS fold → M86 · `f73d56b` RUF100 · `f752a7e` tsconfig `strict`+`noImplicitOverride` · `7e40e38` RET/PIE/FURB/FLY/PYI/G · `553b4ab` N+RUF005/007/012/022/059 · `2db09eb` PTH). ruff `select` grew from 8 to 20 families/rules; all fixes applied repo-wide (supervised, so no per-file-ignores). Survey detail: candidates 7 (directive KO/EN parity test — policy lock, owner call) and 8 (`noUncheckedIndexedAccess` 77 / `exactOptionalPropertyTypes` 43 errors) were **not** recorded.

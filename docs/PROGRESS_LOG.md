@@ -2,6 +2,12 @@
 
 Last updated: 2026-09-07
 
+## 2026-09-07 — Migration `008` applied on production (owner-run via `make db-migrate-prod`)
+
+- Status: last review residual closed. The agent's own prod-DB connection is classifier-blocked, so `mythos_memory.migrate` + `make db-migrate-prod` (psql-free, URL never echoed, `--verify-index`) were added (`a926da3`, 4 Docker-free tests) and the owner ran the one-liner: `applied migrations/008_…sql` / `index idx_narrative_shards_player_created: present`.
+- Impact: `narrative_shards(player_id, created_at DESC)` is indexed on Neon — the 2–3 per-turn reads (snapshot facts, rollup, archive) stop sequential-scanning. Prod is idle since 08-30, so no live latency delta to report yet.
+- Next: owner items left are the deploy of `c0ecfca`+ (boss stack cap, undeployed) and the §3 / stack-cap feel verdicts.
+
 ## 2026-09-07 — Boss stack resistance shipped (`BOSS_STACK_CAP = 2`), gameplay-qa mechanical pass
 
 - Status: the one open combat decision (NEXT_PLAN Priority 1) taken as an agent call under the owner's repeated "continue" directive — DECISIONS 2026-09-07, reversible by one constant. `status_rules.BOSS_STACK_CAP = 2`; `stack_cap(sid, boss=...)` clamps for `ai == "boss"` at the three cap-reading seams (`Combatant.status_stack`, `_apply_status_effect`, companion rider check); a refused stack still refreshes turns and logs `status_stack_resisted` (KO/EN) like `stun_resisted`. No UI change — the pip/chip read the same `status_stacks`.

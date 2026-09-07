@@ -1,6 +1,5 @@
 # ruff: noqa: I001
 import multiprocessing
-import os
 import sys
 import time
 from pathlib import Path
@@ -177,7 +176,7 @@ def run_test():
 
             # Capture screenshot
             screenshot_path = str(OUTPUT_DIR / "e2e_react_play.png")
-            os.makedirs(os.path.dirname(screenshot_path), exist_ok=True)
+            Path(screenshot_path).parent.mkdir(parents=True, exist_ok=True)
             print(f"Capturing screenshot: {screenshot_path}")
             page.screenshot(path=screenshot_path)
 
@@ -209,7 +208,7 @@ def run_test():
         print(f"E2E Test Failed: {e}", file=sys.stderr)
         try:
             if "page" in locals():
-                os.makedirs(OUTPUT_DIR, exist_ok=True)
+                Path(OUTPUT_DIR).mkdir(parents=True, exist_ok=True)
                 page.screenshot(path=str(OUTPUT_DIR / "e2e_failure.png"))
                 print("Failure diagnostics: " + page_diagnostics(page), file=sys.stderr)
         except Exception as diag_error:

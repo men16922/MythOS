@@ -1,4 +1,3 @@
-import glob
 import json
 import unittest
 from pathlib import Path
@@ -77,9 +76,8 @@ class ScenarioImageReferenceIntegrityTest(unittest.TestCase):
 
     def _scenario_jsons(self) -> list[tuple[str, dict, Path]]:
         out: list[tuple[str, dict, Path]] = []
-        for p in sorted(glob.glob(str(PROJECT_ROOT / "resources" / "*" / "scenario.json"))):
-            path = Path(p)
-            with open(path, encoding="utf-8") as f:
+        for path in sorted(PROJECT_ROOT.glob("resources/*/scenario.json")):
+            with path.open(encoding="utf-8") as f:
                 out.append((path.parent.name, json.load(f), path.parent))
         return out
 

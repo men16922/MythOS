@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from functools import lru_cache
+from pathlib import Path
 from typing import Any
 
 from mythos_core import LoopPhase, LoopState
@@ -45,7 +46,7 @@ def load_story_bible(scenario_id: str, language: str = "ko") -> StoryBible:
     if not path.exists():
         return StoryBible(scenario_id=scenario_id, title=scenario_id, premise="", entries=[])
 
-    with open(path, encoding="utf-8") as f:
+    with Path(path).open(encoding="utf-8") as f:
         data = json.load(f)
 
     entries = []

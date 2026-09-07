@@ -68,8 +68,8 @@ def fallback_chroma_key_removal(img_path: Path, out_path: Path):
 
 def remove_chroma_key(input_path: Path, output_path: Path):
     system_script = Path(
-        os.path.expanduser("~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py")
-    )
+        "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py"
+    ).expanduser()
     if system_script.exists():
         print(f"Running system remove_chroma_key.py on {input_path.name}...")
         try:

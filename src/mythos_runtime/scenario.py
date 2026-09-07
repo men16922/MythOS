@@ -61,7 +61,7 @@ def load_scenario_i18n(scenario_id: str, language: str) -> dict[str, Any]:
     path = PROJECT_ROOT / "resources" / scenario_id / "i18n" / f"{language}.json"
     if not path.exists():
         return {}
-    with open(path, encoding="utf-8") as f:
+    with Path(path).open(encoding="utf-8") as f:
         data = json.load(f)
     return data if isinstance(data, dict) else {}
 
@@ -72,7 +72,7 @@ def load_scenario(scenario_id: str) -> ScenarioConfig:
     if not path.exists():
         raise FileNotFoundError(f"Scenario configuration not found: {path}")
 
-    with open(path, encoding="utf-8") as f:
+    with Path(path).open(encoding="utf-8") as f:
         data = json.load(f)
 
     assert_route_content_valid(data.get("route_map", {}), scenario_id=scenario_id)

@@ -1,5 +1,5 @@
-import os
 import subprocess
+from pathlib import Path
 
 
 def run_cmd(cmd):
@@ -57,7 +57,7 @@ def main():
             print(f"Segment {i} extracted: {start} -> {end}")
 
         # Write concat list
-        with open("concat_list.txt", "w") as f:
+        with Path("concat_list.txt").open("w") as f:
             f.writelines(f"file '{f_name}'\n" for f_name in temp_files)
 
         # Concatenate segments
@@ -80,10 +80,8 @@ def main():
     finally:
         # Clean up temp files
         for f_name in temp_files:
-            if os.path.exists(f_name):
-                os.remove(f_name)
-        if os.path.exists("concat_list.txt"):
-            os.remove("concat_list.txt")
+            Path(f_name).unlink(missing_ok=True)
+        Path("concat_list.txt").unlink(missing_ok=True)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-import os
+from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -56,7 +56,7 @@ def main():
     ]
     font = None
     for fp in font_paths:
-        if os.path.exists(fp):
+        if Path(fp).exists():
             try:
                 font = ImageFont.truetype(fp, 16)
                 break
@@ -69,8 +69,8 @@ def main():
     border_color = (20, 40, 50, 255)
 
     for i in range(num_cols):
-        img_path = os.path.join(base_dir, files[i])
-        if not os.path.exists(img_path):
+        img_path = Path(base_dir) / files[i]
+        if not img_path.exists():
             print(f"Error: {img_path} not found")
             continue
 
@@ -109,8 +109,8 @@ def main():
     draw.line([(0, header_height), (sheet_width, header_height)], fill=border_color, width=1)
 
     out_dir = "outputs/combat-sprite-compare/gemini"
-    os.makedirs(out_dir, exist_ok=True)
-    out_path = os.path.join(out_dir, "se-rin-gemini-final.png")
+    Path(out_dir).mkdir(parents=True, exist_ok=True)
+    out_path = Path(out_dir) / "se-rin-gemini-final.png"
 
     canvas.convert("RGB").save(out_path, "PNG")
     print(f"Successfully saved combined sheet to {out_path}")

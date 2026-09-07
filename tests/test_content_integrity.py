@@ -37,6 +37,7 @@ import ast
 import json
 import re
 import unittest
+from pathlib import Path
 from typing import Any
 
 from mythos_combat.factory import _DEFAULT_STATS
@@ -128,7 +129,7 @@ def _route_flag_sets(route_map: dict[str, Any]) -> tuple[set[str], set[str], set
 
 def _load_bible(scenario_id: str) -> dict[str, Any]:
     path = PROJECT_ROOT / "resources" / scenario_id / "story_bible" / "bible.json"
-    with open(path, encoding="utf-8") as handle:
+    with Path(path).open(encoding="utf-8") as handle:
         data: dict[str, Any] = json.load(handle)
     return data
 
@@ -890,7 +891,7 @@ class StoryBibleMetaIntegrityTest(unittest.TestCase):
         self.assertTrue(self.bibles, "expected at least one resources/*/story_bible/bible.json")
 
     def _entries(self, path: Any) -> list[dict[str, Any]]:
-        with open(path, encoding="utf-8") as handle:
+        with Path(path).open(encoding="utf-8") as handle:
             data = json.load(handle)
         return [e for e in data.get("entries", []) or [] if isinstance(e, dict)]
 
@@ -1005,7 +1006,7 @@ class NpcAgendaSubjectIntegrityTest(unittest.TestCase):
     def _scenarios(self) -> list[tuple[str, dict[str, Any]]]:
         out: list[tuple[str, dict[str, Any]]] = []
         for path in _scenario_json_paths():
-            with open(path, encoding="utf-8") as handle:
+            with Path(path).open(encoding="utf-8") as handle:
                 out.append((path.parent.name, json.load(handle)))
         return out
 
@@ -1113,7 +1114,7 @@ class CharacterDetectionKeywordIntegrityTest(unittest.TestCase):
         self.assertEqual(su_ah_bible["title"], "수아: 기억의 대장장이")
 
         bible_root = PROJECT_ROOT / "resources" / "neo-seoul" / "story_bible"
-        with open(bible_root / "bible.en.json", encoding="utf-8") as handle:
+        with (bible_root / "bible.en.json").open(encoding="utf-8") as handle:
             en_bible = json.load(handle)
         en_su_ah = next(
             entry for entry in en_bible["entries"] if entry["id"] == "su_ah_character_bible"
@@ -1121,7 +1122,7 @@ class CharacterDetectionKeywordIntegrityTest(unittest.TestCase):
         self.assertEqual(en_su_ah["title"], "Su-ah: Blacksmith of Memory")
 
         i18n_path = PROJECT_ROOT / "resources" / "neo-seoul" / "i18n" / "en.json"
-        with open(i18n_path, encoding="utf-8") as handle:
+        with Path(i18n_path).open(encoding="utf-8") as handle:
             en_i18n = json.load(handle)
         self.assertEqual(en_i18n["glossary"]["기억의 대장장이"], "Blacksmith of Memory")
 
@@ -1204,7 +1205,7 @@ class RouteEffectKeyClosureTest(unittest.TestCase):
     def _scenarios(self) -> list[tuple[str, dict[str, Any]]]:
         out: list[tuple[str, dict[str, Any]]] = []
         for path in _scenario_json_paths():
-            with open(path, encoding="utf-8") as handle:
+            with Path(path).open(encoding="utf-8") as handle:
                 out.append((path.parent.name, json.load(handle)))
         return out
 
@@ -1266,7 +1267,7 @@ class RelationshipSubjectIntegrityTest(unittest.TestCase):
     def _scenarios(self) -> list[tuple[str, dict[str, Any]]]:
         out: list[tuple[str, dict[str, Any]]] = []
         for path in _scenario_json_paths():
-            with open(path, encoding="utf-8") as handle:
+            with Path(path).open(encoding="utf-8") as handle:
                 out.append((path.parent.name, json.load(handle)))
         return out
 
@@ -1329,7 +1330,7 @@ class CutsceneIntegrityTest(unittest.TestCase):
         out: list[tuple[str, dict[str, Any], Any]] = []
         for path in _scenario_json_paths():
             scenario_id = path.parent.name
-            with open(path, encoding="utf-8") as handle:
+            with Path(path).open(encoding="utf-8") as handle:
                 data = json.load(handle)
             out.extend(
                 (scenario_id, data, cutscene)
@@ -1467,7 +1468,7 @@ class EndingConditionReferenceIntegrityTest(unittest.TestCase):
     def _scenarios(self) -> list[tuple[str, dict[str, Any]]]:
         out: list[tuple[str, dict[str, Any]]] = []
         for path in _scenario_json_paths():
-            with open(path, encoding="utf-8") as handle:
+            with Path(path).open(encoding="utf-8") as handle:
                 out.append((path.parent.name, json.load(handle)))
         return out
 
@@ -1582,7 +1583,7 @@ class RouteNodeTypeClosureTest(unittest.TestCase):
     def _scenarios(self) -> list[tuple[str, dict[str, Any]]]:
         out: list[tuple[str, dict[str, Any]]] = []
         for path in _scenario_json_paths():
-            with open(path, encoding="utf-8") as handle:
+            with Path(path).open(encoding="utf-8") as handle:
                 out.append((path.parent.name, json.load(handle)))
         return out
 
@@ -1665,7 +1666,7 @@ class PerspectiveWhenFlagProducibilityTest(unittest.TestCase):
     def _scenarios(self) -> list[tuple[str, dict[str, Any]]]:
         out: list[tuple[str, dict[str, Any]]] = []
         for path in _scenario_json_paths():
-            with open(path, encoding="utf-8") as handle:
+            with Path(path).open(encoding="utf-8") as handle:
                 out.append((path.parent.name, json.load(handle)))
         return out
 
@@ -1726,7 +1727,7 @@ class ArchetypeAndCharacterIdIntegrityTest(unittest.TestCase):
     def _scenarios(self) -> list[tuple[str, dict[str, Any]]]:
         out: list[tuple[str, dict[str, Any]]] = []
         for path in _scenario_json_paths():
-            with open(path, encoding="utf-8") as handle:
+            with Path(path).open(encoding="utf-8") as handle:
                 out.append((path.parent.name, json.load(handle)))
         return out
 
@@ -1920,7 +1921,7 @@ class SideAnchorIntegrityTest(unittest.TestCase):
     def _scenarios(self) -> list[tuple[str, dict[str, Any]]]:
         out: list[tuple[str, dict[str, Any]]] = []
         for path in _scenario_json_paths():
-            with open(path, encoding="utf-8") as handle:
+            with Path(path).open(encoding="utf-8") as handle:
                 out.append((path.parent.name, json.load(handle)))
         return out
 
@@ -2234,7 +2235,7 @@ class StatusEffectDataClosureTest(unittest.TestCase):
         self.assertTrue(self.scenarios, "expected at least one resources/*/scenario.json")
         self.ids_by_scenario: dict[str, set[str]] = {}
         for path in self.scenarios:
-            with open(path, encoding="utf-8") as handle:
+            with Path(path).open(encoding="utf-8") as handle:
                 data = json.load(handle)
             self.ids_by_scenario[path.parent.name] = _scenario_status_ids(data)
 

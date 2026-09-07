@@ -3785,7 +3785,7 @@ def _get_image_base64_cached(src_path_or_url: str) -> str | None:
                     mime = "image/jpeg"
                 return f"data:{mime};base64,{encoded}"
         elif Path(src_path_or_url).exists():
-            with open(src_path_or_url, "rb") as f:
+            with Path(src_path_or_url).open("rb") as f:
                 encoded = base64.b64encode(f.read()).decode("utf-8")
                 mime = "image/png"
                 if src_path_or_url.lower().endswith((".jpg", ".jpeg")):
@@ -4062,7 +4062,7 @@ def _get_b64_sfx(name: str) -> str:
         project_root = Path(__file__).resolve().parent
         path = project_root / "resources" / "neo-seoul" / "audio" / "sfx" / f"{name}.wav"
         if path.exists():
-            with open(path, "rb") as f:
+            with Path(path).open("rb") as f:
                 data = f.read()
                 return f"data:audio/wav;base64,{base64.b64encode(data).decode('utf-8')}"
     except Exception:

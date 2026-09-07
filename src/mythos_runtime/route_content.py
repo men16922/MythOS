@@ -301,7 +301,7 @@ def main(argv: list[str] | None = None) -> int:
     failures: list[str] = []
     checked = 0
     for path in sorted(Path(args.root).glob("*/scenario.json")):
-        with open(path, encoding="utf-8") as handle:
+        with Path(path).open(encoding="utf-8") as handle:
             data = json.load(handle)
         checked += 1
         failures.extend(

@@ -1,4 +1,3 @@
-import glob
 from pathlib import Path
 
 from PIL import Image
@@ -14,7 +13,7 @@ OUT_CANDIDATE_DIR.mkdir(parents=True, exist_ok=True)
 
 # Find latest generated candidates files
 def get_latest_file(pattern: str) -> Path | None:
-    files = glob.glob(str(ARTIFACT_DIR / pattern))
+    files = [str(p) for p in ARTIFACT_DIR.glob(pattern)]
     if not files:
         return None
     return Path(max(files, key=lambda f: Path(f).stat().st_mtime))

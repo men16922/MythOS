@@ -351,7 +351,7 @@ class VertexImageProvider:
 
         contents: list[Any] = [request.prompt]
         ref = request.metadata.get("reference_image")
-        if ref and os.path.exists(str(ref)):
+        if ref and Path(str(ref)).exists():
             contents.append(
                 types.Part.from_bytes(data=Path(ref).read_bytes(), mime_type="image/png")
             )

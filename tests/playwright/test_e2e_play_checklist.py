@@ -225,7 +225,7 @@ HTMLCanvasElement.prototype.getContext = function(type, ...args) {
 
 def run_test():
     # Ensure outputs directory exists
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    Path(OUTPUT_DIR).mkdir(parents=True, exist_ok=True)
 
     server_process = multiprocessing.Process(target=run_server)
     server_process.start()

@@ -38,6 +38,7 @@ import string
 from collections import defaultdict
 from dataclasses import dataclass, field
 from functools import lru_cache
+from pathlib import Path
 from typing import Any
 
 from mythos_runtime.scenario import PROJECT_ROOT
@@ -678,39 +679,39 @@ def load_scenario_directives(
         opening_stem = f"opening_{opening_variant}"
     opening_path = _directive_path(base, opening_stem, language)
     if opening_path is not None:
-        with open(opening_path, encoding="utf-8") as f:
+        with Path(opening_path).open(encoding="utf-8") as f:
             parsed = parse_directives_markdown(f.read())
         opening_header, opening_max_turn, opening_beats = _opening_from_parsed(parsed)
 
     fallback_path = _directive_path(base, "fallback", language)
     if fallback_path is not None:
-        with open(fallback_path, encoding="utf-8") as f:
+        with Path(fallback_path).open(encoding="utf-8") as f:
             fallback_scene = _fallback_from_parsed(parse_directives_markdown(f.read()))
 
     naming_path = _directive_path(base, "naming", language)
     if naming_path is not None:
-        with open(naming_path, encoding="utf-8") as f:
+        with Path(naming_path).open(encoding="utf-8") as f:
             naming_rule = _naming_from_parsed(parse_directives_markdown(f.read()))
 
     stat_voices_path = _directive_path(base, "stat_voices", language)
     if stat_voices_path is not None:
-        with open(stat_voices_path, encoding="utf-8") as f:
+        with Path(stat_voices_path).open(encoding="utf-8") as f:
             stat_voices = _stat_voices_from_parsed(parse_directives_markdown(f.read()))
 
     encounters_path = _directive_path(base, "encounters", language)
     if encounters_path is not None:
-        with open(encounters_path, encoding="utf-8") as f:
+        with Path(encounters_path).open(encoding="utf-8") as f:
             encounters = _encounters_from_parsed(parse_directives_markdown(f.read()))
 
     story_examples: dict[str, str] | None = None
     story_examples_path = _directive_path(base, "story_examples", language)
     if story_examples_path is not None:
-        with open(story_examples_path, encoding="utf-8") as f:
+        with Path(story_examples_path).open(encoding="utf-8") as f:
             story_examples = _story_examples_from_parsed(parse_directives_markdown(f.read()))
 
     side_arcs_path = _directive_path(base, "side_arcs", language)
     if side_arcs_path is not None:
-        with open(side_arcs_path, encoding="utf-8") as f:
+        with Path(side_arcs_path).open(encoding="utf-8") as f:
             route_header, route_beats = _route_beats_from_parsed(
                 parse_directives_markdown(f.read())
             )
@@ -729,7 +730,7 @@ def load_scenario_directives(
             resolved = _directive_path(companions_dir, base_stem, language)
             if resolved is None:
                 continue
-            with open(resolved, encoding="utf-8") as f:
+            with Path(resolved).open(encoding="utf-8") as f:
                 parsed = parse_directives_markdown(f.read())
             cutscenes.extend(_cutscenes_from_parsed(parsed, default_companion=base_stem))
 

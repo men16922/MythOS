@@ -1,4 +1,3 @@
-import glob
 import shutil
 from pathlib import Path
 
@@ -14,7 +13,7 @@ OUT_COMBAT_DIR = ROOT / "resources" / "neo-seoul" / "enemies" / "combat"
 
 # Find latest generated idles from artifact folder
 def get_latest_file(pattern: str) -> Path | None:
-    files = glob.glob(str(ARTIFACT_DIR / pattern))
+    files = [str(p) for p in ARTIFACT_DIR.glob(pattern)]
     if not files:
         return None
     return Path(max(files, key=lambda f: Path(f).stat().st_mtime))

@@ -47,3 +47,5 @@ Sources: [mlx_lm/server.py](https://github.com/ml-explore/mlx-lm/blob/main/mlx_l
 부수 관찰: 이 모델은 응답 끝에 `<|im_end|>` 텍스트를 그대로 내보낸다(stop 토큰 문자열 미제거). 벤치 B에서 토크나이저 eos/`stop_words` 확인 항목.
 
 `engine_options.py`의 `mlx` 행은 이 표대로 갱신됐다: `max_tokens`·`top_p` 최상위, `top_k`·`repetition_penalty`는 `extra_body`(=본문 최상위), `json_object`는 보내지 않고 `dropped_for()`가 보고한다(`tests/test_engine_options.py`).
+
+**연속 배칭(09-06 미확인 항목) — 실측 있음.** 같은 4개 요청(6문장, `max_tokens=200`, 7B-4bit): 순차 9.0s(84 tok/s 합산) vs 동시 3.5s(219 tok/s 합산), 재현 3.4s. 서버는 `BatchGenerator`로 디코드 배치(`--decode-concurrency` 기본 32, `--prompt-concurrency` 기본 8). **단, 요청에 `seed`가 있으면 배치에서 제외되어 순차 처리된다**(`_is_batchable: … and args.seed is None` — seed를 준 4개 동시 요청은 7.1s로 순차와 동일). 벤치 B에서 c>1을 잴 때 `seed`를 보내면 배칭을 끄고 재는 셈이니 통제 변수로 기록한다.

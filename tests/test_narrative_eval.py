@@ -32,6 +32,13 @@ assert _bank_spec is not None and _bank_spec.loader is not None
 bank_loop = importlib.util.module_from_spec(_bank_spec)
 _bank_spec.loader.exec_module(bank_loop)
 
+_resolution_spec = importlib.util.spec_from_file_location(
+    "judge_resolution", ROOT / "scripts" / "eval" / "judge_resolution.py"
+)
+assert _resolution_spec is not None and _resolution_spec.loader is not None
+resolution = importlib.util.module_from_spec(_resolution_spec)
+_resolution_spec.loader.exec_module(resolution)
+
 
 def _transcript(**overrides):
     base = {
@@ -247,15 +254,32 @@ class JudgeProvenanceTest(unittest.TestCase):
     def test_prompt_is_excluded_from_the_recorded_command(self) -> None:
         # The default form puts the prompt at index 2 and the override form puts
         # it last, so dropping the tail records the wrong argv for the default.
-        with mock.patch.dict(os.environ, {"EVAL_JUDGE_CMD": ""}, clear=False):
-            command = judge.judge_provenance()["command"]
-        self.assertEqual(command, ["claude", "-p", "--permission-mode", "plan"])
+        with mock.patch.dict(
+            os.environ, {"EVAL_JUDGE_CMD": "", "EVAL_JUDGE_MODEL": ""}, clear=False
+        ):
+            provenance = judge.judge_provenance()
+        self.assertEqual(
+            provenance["command"],
+            ["claude", "-p", "--permission-mode", "plan", "--model", judge.DEFAULT_JUDGE_MODEL],
+        )
+        self.assertEqual(provenance["judge_model"], judge.DEFAULT_JUDGE_MODEL)
+
+    def test_judge_model_is_pinned_and_overridable(self) -> None:
+        # A bare `claude -p` follows the CLI's default model of the day; the
+        # 2026-08-13 drift was not attributable because nothing pinned it.
+        with mock.patch.dict(
+            os.environ, {"EVAL_JUDGE_CMD": "", "EVAL_JUDGE_MODEL": "claude-opus-5"}, clear=False
+        ):
+            provenance = judge.judge_provenance()
+        self.assertEqual(provenance["command"][-2:], ["--model", "claude-opus-5"])
+        self.assertEqual(provenance["judge_model"], "claude-opus-5")
 
     def test_override_command_is_recorded_and_flagged(self) -> None:
         with mock.patch.dict(os.environ, {"EVAL_JUDGE_CMD": "my-judge --json"}, clear=False):
             provenance = judge.judge_provenance()
         self.assertEqual(provenance["command"], ["my-judge", "--json"])
         self.assertTrue(provenance["judge_cmd_override"])
+        self.assertIsNone(provenance["judge_model"])
 
     def test_rubric_hash_is_recorded_so_a_rubric_edit_is_attributable(self) -> None:
         # The rubric is injected into the judge prompt verbatim, so editing it
@@ -278,6 +302,48 @@ class JudgeProvenanceTest(unittest.TestCase):
         self.assertIn("Judge: `claude -p`", header)
         self.assertIn("2.1.231 (Claude Code)", header)
         self.assertIn("abc123", header)
+
+
+class JudgeResolutionTest(unittest.TestCase):
+    """P4-2: the judge's own spread must be a measured number, not an assumption."""
+
+    def _runs(self) -> list[dict[str, dict[str, object]]]:
+        return [
+            {
+                "a": {"scores": {"x": 3, "y": 4}, "overall": 3},
+                "b": {"scores": {"x": 2}, "overall": 2},
+            },
+            {
+                "a": {"scores": {"x": 3, "y": 2}, "overall": 3},
+                "b": {"scores": {"x": 2}, "overall": 3},
+            },
+            {
+                "a": {"scores": {"x": 3, "y": 3}, "overall": 4},
+                "b": {"scores": {"x": 2}, "overall": 2},
+            },
+        ]
+
+    def test_spread_is_per_sample_per_axis_and_resolution_is_the_worst_cell(self) -> None:
+        result = resolution.aggregate(self._runs())
+        self.assertEqual(result["runs"], 3)
+        self.assertEqual(result["samples"]["a"]["axes"]["x"]["stdev"], 0.0)
+        self.assertEqual(result["samples"]["a"]["axes"]["y"]["median"], 3)
+        self.assertEqual(result["samples"]["a"]["axes"]["y"]["range"], 2)
+        self.assertEqual(result["resolution"]["axis_stdev_max_cell"], "a/y")
+        self.assertEqual(result["resolution"]["axis_stdev_max"], 1.0)
+        self.assertEqual(result["resolution"]["overall_range_max"], 1)
+
+    def test_fewer_than_two_runs_or_mismatched_samples_are_refused(self) -> None:
+        with self.assertRaises(ValueError):
+            resolution.aggregate(self._runs()[:1])
+        with self.assertRaises(ValueError):
+            resolution.aggregate([self._runs()[0], {"a": self._runs()[1]["a"]}])
+
+    def test_runs_from_different_judges_are_refused(self) -> None:
+        same = {"judge_model": "m", "rubric_sha256": "r", "command": ["claude", "-p"]}
+        resolution.check_same_judge([same, dict(same)])
+        with self.assertRaises(ValueError):
+            resolution.check_same_judge([same, {**same, "judge_model": "other"}])
 
 
 if __name__ == "__main__":

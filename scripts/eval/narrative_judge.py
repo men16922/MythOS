@@ -13,9 +13,12 @@ Usage:
         --metrics /path/to/promotion-metrics.json
     make eval-narrative
 
-The judge engine is `claude -p` (same idiom as the overnight critic/image-judge
-relays); override with EVAL_JUDGE_CMD (must accept the prompt as its last argv and
-print the verdict JSON on stdout). Pure functions (load/validate, prompt assembly,
+The judge engine is `claude -p --model <pinned>` (same idiom as the overnight
+critic/image-judge relays). The model is pinned — EVAL_JUDGE_MODEL, default
+DEFAULT_JUDGE_MODEL — because a bare `claude -p` follows whatever the CLI's default
+happens to be that day, and on 2026-08-13 that drift ate the whole score gap
+(plan 2026-08-30 P4-1). Override the entire command with EVAL_JUDGE_CMD (must
+accept the prompt as its last argv and print the verdict JSON on stdout). Pure functions (load/validate, prompt assembly,
 verdict parsing, report rendering) are import-safe and locked by
 tests/test_narrative_eval.py without invoking any CLI.
 """
@@ -214,11 +217,19 @@ def render_report(
     return "\n".join(lines)
 
 
+#: The critic pin (Makefile OVERNIGHT_CRITIC_MODEL) — one answer to "which Claude judges".
+DEFAULT_JUDGE_MODEL = "claude-fable-5-1"
+
+
+def judge_model() -> str:
+    return os.environ.get("EVAL_JUDGE_MODEL", "").strip() or DEFAULT_JUDGE_MODEL
+
+
 def _judge_cmd(prompt: str) -> list[str]:
     override = os.environ.get("EVAL_JUDGE_CMD", "")
     if override:
         return [*shlex.split(override), prompt]
-    return ["claude", "-p", prompt, "--permission-mode", "plan"]
+    return ["claude", "-p", prompt, "--permission-mode", "plan", "--model", judge_model()]
 
 
 def judge_provenance(rubric_path: Path = RUBRIC_PATH) -> dict[str, Any]:
@@ -242,6 +253,7 @@ def judge_provenance(rubric_path: Path = RUBRIC_PATH) -> dict[str, Any]:
     provenance: dict[str, Any] = {
         "command": command,
         "judge_cmd_override": bool(os.environ.get("EVAL_JUDGE_CMD", "")),
+        "judge_model": None if os.environ.get("EVAL_JUDGE_CMD", "") else judge_model(),
         "rubric_sha256": _sha256(rubric_path) if rubric_path.is_file() else None,
     }
     # Best-effort: the engine may not exist (CI, a stubbed override) and must not

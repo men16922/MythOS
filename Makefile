@@ -89,7 +89,9 @@ CLAUDE_MODEL ?= claude-sonnet-5
 CLAUDE_EFFORT ?=
 OVERNIGHT_CRITIC_MODEL ?= claude-fable-5-1
 CLAUDE_CRITIC_EFFORT ?=
-export CLAUDE_MODEL CLAUDE_EFFORT OVERNIGHT_CRITIC_MODEL CLAUDE_CRITIC_EFFORT
+# The narrative-eval judge (scripts/eval/narrative_judge.py) rides the critic pin.
+EVAL_JUDGE_MODEL ?= $(OVERNIGHT_CRITIC_MODEL)
+export CLAUDE_MODEL CLAUDE_EFFORT OVERNIGHT_CRITIC_MODEL CLAUDE_CRITIC_EFFORT EVAL_JUDGE_MODEL
 
 HARNESS_ROOT ?= $(shell \
 	if [ -n "$$OVERNIGHT_HARNESS_ROOT" ] && [ -d "$$OVERNIGHT_HARNESS_ROOT/templates/scripts/overnight" ]; then echo "$$OVERNIGHT_HARNESS_ROOT"; \
@@ -286,7 +288,8 @@ narrative-smoke:
 	$(VENV)/bin/python -m mythos_narrative.smoke
 
 # LLM-judge rubric eval over banked golden loop transcripts (scripts/eval/).
-# Judge = claude CLI (override EVAL_JUDGE_CMD). Bank loops via scripts/eval/bank_loop.py.
+# Judge = claude CLI pinned to EVAL_JUDGE_MODEL (override the whole command with
+# EVAL_JUDGE_CMD). Bank loops via scripts/eval/bank_loop.py.
 eval-narrative:
 	$(VENV)/bin/python scripts/eval/narrative_judge.py
 

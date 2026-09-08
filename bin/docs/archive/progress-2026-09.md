@@ -2,6 +2,46 @@
 
 Raw increments moved out of `docs/PROGRESS_LOG.md` (newest on top). Compressed summaries live in `docs/COMPLETED_SUMMARY.md`.
 
+## 2026-09-06 — ruff `SIM` enabled, 27 in-scope findings fixed (overnight `[auto:claude]`)
+
+- Status: quality-ladder seed batch item (NEXT_PLAN `Overnight seeds`). `SIM` added to `[tool.ruff.lint] select`; the repo-wide 40 findings split 27 in `src/`+`tests/` (this seed's scope) vs. 13 in `scratch/`/`scripts/cbt/` (outside the claude-lane `WorkContract` scope), so those two dirs got a `SIM` per-file-ignore instead of edits.
+- Changed: 6 SIM105 → `contextlib.suppress`, 5 SIM102 → merged nested-ifs, 12 SIM117 → combined `with`-statements, 2 SIM103 → negated-return, 1 SIM113 → dropped a redundant counter in favor of the existing loop index, 1 SIM118 → dropped `.keys()`. No behavior change; `ruff format` reflowed one line.
+- Verified: `ruff check .` 0 findings with `SIM` on; `make check` green (skills/doc-budget/validate-content/lint/typecheck/frontend build/1387 tests, 5 skipped).
+
+## 2026-09-06 — E2E selector source-lock test (overnight `[auto:claude]`)
+
+- Status: quality-ladder seed batch item (NEXT_PLAN `Overnight seeds`) — `scratch/run_playwright_test.py`/`run_comprehensive_e2e_test.py` are outside `make check` and had gone red unnoticed before (see docs/LESSONS.md 2026-09-06); this locks their 19 selectors/ids against `src/mythos_ui/src/**` so a UI rename fails `make check` instead.
+- Changed: added `tests/test_e2e_selector_source_lock.py` (`E2ESelectorSourceLockTest`).
+- Verified: `make check` green (skills/doc-budget/validate-content/lint/typecheck/frontend build/1387 tests, 5 skipped).
+
+## 2026-09-06 — Deployed `mythos-api-00089-lv8` (owner-approved): intro/offer order fix + status stacking live
+
+- Status: owner picked "deploy now" when asked (prod idle since 08-30 → low player risk; the next promotion sample must play on the latest build). `make deploy` from HEAD `e2c39e2` (1380 tests green).
+- Verified: revision `00089-lv8` at 100% traffic; root / `/api/v1/health` / `/app.js` 200; live `app.js` SHA-256 = local `362b799f…`; lazy chunks `CodexPanel`/`CombatCinema`/`DevConsolePanel`/`lang` 200; timeout 3600 and `IMAGEN_MODEL=gemini-3.1-flash-image` @ `IMAGEN_LOCATION=global` preserved; **0 WARNING+ entries on the new revision**.
+- Not verified on prod: the intro→offer order in a real gated session (needs the invite key — owner) and any player turn (no traffic).
+- After the deploy, on the owner's "next priority" prompt: dropped the dead `_weapon_in_range(state=None)` parameter (measured zero impact; DECISIONS 2026-09-06). `_map` removal stays blocked — `glass-library` has no `route_map`.
+- Next: owner `git push` (ahead 50+ — the `!` attempt did not run); boss stack resistance / migration `008` decisions; the next promotion arm on `00089`.
+
+## 2026-09-06 — Opening cinematic no longer covered by the build offer; `make test-e2e` green again
+
+- Status: autonomous verification sweep after the stacking work — `make test-db` (5/5 on the live local Postgres, `status_stacks` round-trips) and then `make test-e2e`, which had been **red since the July UI restructure** and nobody had run: the AMP-shard offer modal opened ON TOP of the opening cinematic at loop start, so the Awaken button was unclickable (real UX defect, reproduced in the browser: `boon-overlay` z-index 55 over the intro; on prod `00088` today).
+- Changed: `App.tsx` gates `<BoonOffer>` and `<MarketExchange>` on `!showIntro` — the cinematic is read first, then the offer (browser-verified: intro visible / no overlay → Awaken → AMP SHARD). `scratch/run_playwright_test.py` tab indices updated to the current order (achievements live under Codex = tab 3, skills = tab 2). Source lock `OpeningSequenceOrderTest`.
+- Verified: `make test-e2e` end-to-end green (boot → onboarding → intro → offers → achievements KO/EN → skill tree → first choice → next turn) and **`make test-e2e-full` green** after re-pointing it at the current UI (index-based tabs, dev tab only for admins, save launcher lives in a folded aside chip that the first loop hides for turns 0–2 by design — the script now advances until it appears, then save → turn → load rollback → resume from the landing page); `make test-db` 5/5, `make visual-smoke-minio-db` succeeded; `make check` green; rebuilt `app.js` committed.
+- Full verification sweep of every non-`check` target that needs no owner input: `narrative-smoke-fallback-en`, `visual-smoke-disabled`, `connect-demo` (CLI vertical), `overnight-env-doctor` all green; live `narrative-smoke` on Ollama `gemma4:8b-64k` (env override) — fallback 0, `prompt_tokens 1290 / output_tokens 1146 / provider_calls 1`. Only `make doctor` is red, on the known `.env` `gemma4:latest`-not-installed risk (owner config, left alone).
+- Prod audit (read-only Cloud Logging, `00088` at 100%): since 08-30 **0 narrative turns, 11 API calls (all own probes)**, 3 WARNINGs = own legacy `/static/` 404 probes — the CBT has been idle for a week, so the fallback watch has no sample and the intro/offer defect has not yet been seen by a player on this build.
+- Blockers: none. Undeployed — prod players would still see the offer over the intro until the next deploy.
+- Next: owner deploy decision now carries a user-visible fix; run `make test-e2e` after any UI-structure change (LESSONS).
+
+## 2026-09-06 — Status-effect stacking implemented (owner "option 2"), browser-verified
+
+- Status: NEXT_PLAN Priority 1 / Combat closed — both `[auto:claude]` bullets `[x]`. Session started from `git log` (`/sync`): last work was the 2026-09-06 overnight close + P0-2 token-usage fix (`c723694`/`7a26d66`); most open items are `[manual]`/`[blocked]`, so the one owner-decided-but-unbuilt item was taken. Design snapshot first (`docs/plans/2026-09-06-status-effect-stacking.md`), then the build.
+- Changed: `status_rules.py` is the per-status table (turns cap · stack cap · DoT dice · per-stack armor/defense); `Combatant.status_stacks` sits beside the unchanged turns ledger (missing entry = 1 stack — ~30 test sites + saves keep working), read through `status_stack(id)` (clamps to cap), removed through `clear_status()`/`clear_all_statuses()` (tick expiry, hacked consumption, revive). Caps burn 3 / corrode 2 / acid 2; freeze/shock/hacked single-stack. Applied log line gains ` (중첩 ×N)`/` (×N)` + `detail.stacks`; blip payload carries `status_stacks`; roster chip `burn ×2`, canvas badge count pip, board status pop `×N`; companion AI reapplies a stacking rider until its cap. Detail: `docs/plans/2026-09-06-status-effect-stacking.md`, COMPLETED M80.
+- Verified: `make check` green — ruff/format, mypy 199 files, eslint, build, **1379** tests (6 skipped, +16; `StatusIntensityStackingTest` incl. burn+acid+shock+hacked mid-tick-death regression). `/code-review medium` on the diff (6 confirmed / 2 plausible / 0 refuted) folded in before commit — the important one: the stack seed was read *after* the turns write, so a legacy-active status reapplied stayed at 1 stack. **Browser** (`make api`, non-fallback sim `stray_incinerator` solo): two plasma-torch hits → "🔥 burning!" then "🔥 burning! (×2)", DoT 2 → 4, roster `burn ×2`, canvas pip "2", 0 console errors — `outputs/live-qa/20260906-status-stacking/`. Expiry/stack-clear is unit-tested only (Tester died first).
+- Blockers: none. Undeployed.
+- Balance check (greedy baseline, 60 seeds × 6 status-weapon encounters × solo/party, stacking ON vs OFF): 11/12 cells identical, `purge_incineration` solo 0.65→0.55 (only cell reaching burn ×3), IX fight untouched on the defensive side. **Offensive side (synthetic, burn pre-placed on the toughest enemy)**: IX solo 0.30→0.50→0.82 at ×0/×1/×3 with 33% burn-tick boss kills at ×3; `enforcer_standoff` solo 0.22→0.95. Boss stack resistance is now an explicit owner decision in NEXT_PLAN — `docs/reference/2026-09-06-status-stacking-balance.md`.
+- Also measured the `_weapon_in_range` high-ground +1 residual with the same harness: wired vs dead is identical in 24/24 cells (7/23,993 range checks flip) — recorded as evidence for the owner call (recommend drop).
+- Next: human feel verdict on stack caps (3/2/2) and the pip legibility — `[manual]`, now with baseline evidence; the rest of NEXT_PLAN stays owner-gated/blocked; `/overnight-seed` before the next unattended run.
+
 ## 2026-09-06 — Overnight run seeded and started; P1-2 curve measured; T4 answered; verifier 15 fixed
 
 - Status: owner asked for the remaining priorities to run through the overnight harness. `/overnight-seed`: the two `[auto]` items were not unattended-consumable (P1-2 needs a live engine; adapter rows need engines that are not installed → `[blocked]`), so eight owner-approved seeds were recorded (ruff-format debt ×4 + lint wiring, PROGRESS_LOG compression, 14 `union-attr` ignores, `capture_trace` autoplay test). `MAX_ITER=12 make overnight` (claude actor `claude-sonnet-5`, critic `claude-fable-5-1` — the critic **does** launch on Fable 5.1 and returned PASS, closing the STATUS watch item).

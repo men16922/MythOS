@@ -372,6 +372,21 @@
 - **Follow-ups (same day, "계속해")**: `1daa83e` `test_directive_locale_parity.py` locks the 19 KO/EN directive pairs (loader falls back to KO silently otherwise). `0b0f153` `noUncheckedIndexedAccess` on — 77 sites narrowed (guards / `?? default` / tuple annotations / 6 guarded `!`), `app.js` rebuilt; `CombatControls` loadout swap no longer stores an `undefined` slot.
 - **Boundary**: ERA001 left off (explanatory arithmetic comments only), RUF001–003 off (Korean text), `exactOptionalPropertyTypes` declined (43 errors, all `X | undefined` → optional prop; no bug-finding value).
 
+## M88 — Status-effect stacking arc, boss stack resistance, deploys `00088`→`00090`, migration `008` on prod (2026-09-06..08)
+
+- **Purpose**: close the owner's 2026-08-15 "option 2" stacking decision end-to-end and get it in front of the next promotion sample; take the one open combat decision (boss resistance) as an agent call under the continue directive.
+- **Output**: `status_rules.py` per-status table + `status_stacks` intensity ledger (burn/corrode/acid caps 3/2/2, freeze/shock/hacked single-stack; roster `×N` chip + canvas pip; revive clears). `BOSS_STACK_CAP = 2` clamps at the three cap-reading seams, refused stacks refresh turns and log `status_stack_resisted` (DECISIONS 2026-09-07; one constant to reverse). Opening-cinematic/build-offer order fixed (`BoonOffer`/`MarketExchange` wait for `!showIntro`; the AMP-shard modal had covered the intro since July) and `make test-e2e` re-pointed and green. `mythos_memory.migrate` + `make db-migrate-prod` (URL never echoed) let the owner apply `008` (`narrative_shards(player_id, created_at DESC)` index) on Neon.
+- **Deploys**: `00088-v66` (09-06, review residuals/replay pin/usage/combatView), `00089-lv8` (09-06, intro fix + stacking), `00090-ww4` (09-08, boss cap + strict-mypy/ruff batch). Each: live root/health 200, `/app.js` SHA = local, timeout 3600 + `gemini-3.1-flash-image`@`global` preserved, 0 WARNING+ on the new revision. Prod idle since 08-30 — no player has seen any of it yet.
+- **Evidence**: `docs/reference/2026-09-06-status-stacking-balance.md` — defensive side 11/12 cells unchanged; IX solo burn ×3 0.82 → 0.68 with the boss cap, tick-kills 33% → 15%, non-boss cells identical. Raw increments: `bin/docs/archive/progress-2026-09.md`.
+- **Open**: the `[manual]` feel verdict on caps 3/2/2 + boss cap 2 + pip legibility, and the §3 verdict — both play on `00090`.
+
+## M89 — MLX adapter row measured; judge pinned and its resolution declared (2026-09-08)
+
+- **Purpose**: re-check two "blocked / owner-gated" items against the machine under the owner's `/goal 잔여작업 최대한 수행` — the `engine_options` rows said no engine existed (mlx-lm was installable in a scratch venv), and plan P4-1/P4-2 were measurement steps, not decisions.
+- **Output**: `exp_option_matrix.py --engine {ollama,mlx,vllm,llamacpp}` with four families (delivery form · logit penalties sent twice · truncation samplers at T=1.0 · JSON mode); `engine_options.py` `mlx` row measured and rewritten (`top_k`/`repetition_penalty` top-level, `json_object` dropped + reported); Ollama row re-confirmed with `top_p` now measured. `narrative_judge.py` `--model` pin (`EVAL_JUDGE_MODEL` = critic pin), `scripts/eval/judge_resolution.py` + tests, 5-run resolution on the development split: overall 1 point / `register` 2 on one sample, 0 on the other (lower bound — floor effect).
+- **Facts recorded**: mlx-lm 0.31.3 first-penalised-request processor drop; gemma4 reasoning tokens eat `max_tokens` on Ollama; anaconda mlx-lm broken vs transformers 5.13. Refs: `docs/reference/2026-09-06-mlx-lm-server-capability-check.md` (addendum), `docs/reference/2026-09-08-judge-resolution.md`, `experiments/results/20260908-142007/142102-option-matrix`.
+- **Boundary**: `vllm`/`llamacpp` rows remain unverified (no engine here); the promotion bank was not rescored; P4-3 (median rule / drop the gate) is the owner's, as is any director change for the MLX penalty quirk.
+
 ## Archive Reference
 
 M0-M10의 상세 체크리스트, work log, verification log는 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`에 보존한다.

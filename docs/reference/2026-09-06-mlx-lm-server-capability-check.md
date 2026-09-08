@@ -29,3 +29,21 @@
 - Gemma 4의 `sliding_window_pattern` 기본값은 소스의 기본 인자에서 읽었다; 실제 배포 가중치의 `config.json`이 다를 수 있다.
 
 Sources: [mlx_lm/server.py](https://github.com/ml-explore/mlx-lm/blob/main/mlx_lm/server.py) · [SERVER.md](https://github.com/ml-explore/mlx-lm/blob/main/mlx_lm/SERVER.md) · [Issue #980](https://github.com/ml-explore/mlx-lm/issues/980) · [PR #1405](https://github.com/ml-explore/mlx-lm/pull/1405) · [models/gemma4_text.py](https://github.com/ml-explore/mlx-lm/blob/main/mlx_lm/models/gemma4_text.py) · [models/qwen3.py](https://github.com/ml-explore/mlx-lm/blob/main/mlx_lm/models/qwen3.py)
+
+## 2026-09-08 실측 추가 — `mlx-lm 0.31.3`, `experiments/results/20260908-142007-option-matrix/`
+
+문서 판독이었던 위 표를 `make experiment ARGS="option-matrix --engine mlx …"`로 실측했다(모델 `mlx-community/Qwen2.5-Coder-7B-Instruct-4bit`, 48GB M4 Max). 이 머신의 anaconda `mlx-lm`은 `transformers` 5.13과 충돌해 기동 자체가 안 되므로(`AutoTokenizer.register` 문자열 키), 별도 venv에 `pip install mlx-lm`으로 띄웠다.
+
+| 항목 | 09-06 판독 | 09-08 실측 |
+|---|---|---|
+| `response_format` | 없음 | **무시 확인** — JSON을 언급하지 않는 평문 요청에 `json_object`를 붙여도 산문 그대로(94자, 동일) |
+| 출력 상한 | `max_completion_tokens`만 | **`max_tokens`도 적용** — 서버가 `max_completion_tokens`를 먼저 읽고 없으면 `max_tokens`로 폴백(`server.py` 1169-1172) |
+| `repetition_penalty` | 미노출 | **최상위 본문 필드로 도달**(곱셈 규약). 0.31.3은 `repetition_penalty`·`presence_penalty`·`frequency_penalty`·`top_k`·`min_p`·`seed`를 본문에서 읽는다 |
+| `top_p` / `top_k` | — | 최상위 필드로 도달 — temperature=1.0에서 `top_p=0.01`/`top_k=1`을 넣으면 그리디 기준선과 바이트 동일 |
+| Ollama 이름(`repeat_penalty`, `options.num_predict`) | — | 무시(예상대로) |
+
+**서버 상태 버그(실측, 원인은 추정)**: 페널티가 없는 요청 직후의 **첫** 페널티 요청은 프로세서 없이 돌고, 연속 2회째부터 적용된다. 9-요청 시퀀스(`baseline → rep2.0 → rep2.0 → presence → presence → baseline → baseline → freq → freq`)에서 2번·8번만 기준선과 동일. `top_p`/`top_k`(샘플러)는 영향 없음. 추정 위치는 `mlx_lm/generate.py` `GenerationBatch.extend/filter`의 `any()` 기반 `None`/`[]` 치환(미확정). 이 때문에 `option-matrix` ②는 각 팔을 연속 2회 보내고 2회째로 판정한다. **MythOS 영향**: `director.py`의 파서 호출은 페널티를 싣지 않으므로 MLX에서는 그 직후의 스토리텔러 호출이 매번 무페널티로 돈다 — 벤치 B에서 반복 지표를 읽기 전에 알아야 할 항목이며, 어댑터가 고칠 문제가 아니다(업스트림).
+
+부수 관찰: 이 모델은 응답 끝에 `<|im_end|>` 텍스트를 그대로 내보낸다(stop 토큰 문자열 미제거). 벤치 B에서 토크나이저 eos/`stop_words` 확인 항목.
+
+`engine_options.py`의 `mlx` 행은 이 표대로 갱신됐다: `max_tokens`·`top_p` 최상위, `top_k`·`repetition_penalty`는 `extra_body`(=본문 최상위), `json_object`는 보내지 않고 `dropped_for()`가 보고한다(`tests/test_engine_options.py`).

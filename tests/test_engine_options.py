@@ -84,10 +84,11 @@ class OtherEnginesTest(unittest.TestCase):
     def test_llamacpp_matches_vllm_shape(self) -> None:
         self.assertEqual(render(FULL, LLAMACPP), render(FULL, VLLM))
 
-    def test_mlx_stays_minimal_and_says_what_it_lost(self) -> None:
-        rendered = render(FULL, MLX)
-        self.assertNotIn("extra_body", rendered)
-        self.assertEqual(sorted(dropped_for(FULL, MLX)), ["repetition_penalty", "top_k"])
+    def test_mlx_carries_top_k_and_repetition_penalty_top_level(self) -> None:
+        """Measured 2026-09-08 (mlx-lm 0.31.3): both land as top-level body fields."""
+        extra = render(FULL, MLX)["extra_body"]
+        self.assertEqual(extra, {"top_k": 30, "repetition_penalty": 1.3})
+        self.assertEqual(dropped_for(FULL, MLX), [])
 
     def test_an_unknown_engine_gets_only_the_universally_accepted_fields(self) -> None:
         rendered = render(FULL, "who-knows")
@@ -98,8 +99,17 @@ class JsonModeTest(unittest.TestCase):
     def test_json_object_is_requested_top_level_where_it_is_honoured(self) -> None:
         spec = SamplerSpec(temperature=0.1, max_output_tokens=1536, json_object=True)
         for engine in KNOWN_ENGINES:
+            if engine == MLX:
+                continue
             with self.subTest(engine=engine):
                 self.assertEqual(render(spec, engine)["response_format"], {"type": "json_object"})
+                self.assertNotIn("json_object", dropped_for(spec, engine))
+
+    def test_mlx_never_reads_response_format_so_json_mode_is_dropped_loudly(self) -> None:
+        """Measured 2026-09-08: a plain-sentence prompt stays prose with json_object set."""
+        spec = SamplerSpec(temperature=0.1, max_output_tokens=1536, json_object=True)
+        self.assertNotIn("response_format", render(spec, MLX))
+        self.assertEqual(dropped_for(spec, MLX), ["json_object"])
 
     def test_json_is_not_requested_when_not_asked_for(self) -> None:
         self.assertNotIn("response_format", render(FULL, OLLAMA))

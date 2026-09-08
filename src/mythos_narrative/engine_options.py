@@ -20,8 +20,9 @@ explicitly, here, where the reason is written down, instead of being posted and
 ignored.
 
 What each engine accepts is a **measurement, not a belief**. Ollama's row is
-measured (``experiments/results/*-option-matrix``). The others are marked and
-must be measured before being trusted.
+measured (``experiments/results/20260830-*-option-matrix``) and so is MLX's
+(``20260908-142007-option-matrix``, mlx-lm 0.31.3). vLLM/llama.cpp are marked
+and must be measured before being trusted.
 """
 
 from __future__ import annotations
@@ -80,7 +81,7 @@ def render(spec: SamplerSpec, engine: str) -> dict[str, Any]:
         # OpenAI-compatible endpoint. extra_body, nested or top-level, is dropped.
         "max_tokens": spec.max_output_tokens,
     }
-    if spec.json_object:
+    if spec.json_object and engine != MLX:
         kwargs["response_format"] = {"type": "json_object"}
     if spec.top_p is not None:
         kwargs["top_p"] = spec.top_p
@@ -109,9 +110,23 @@ def render(spec: SamplerSpec, engine: str) -> dict[str, Any]:
         return kwargs
 
     if engine == MLX:
-        # UNVERIFIED, and deliberately minimal: mlx_lm.server's OpenAI surface is
-        # narrower than the others and its response_format support is the open
-        # question that gates the whole Apple-silicon bench (plan T4).
+        # Measured on mlx_lm.server 0.31.3 (2026-09-08): max_tokens caps, top_p and
+        # top-level top_k truncate, top-level repetition_penalty (multiplicative,
+        # same convention as SamplerSpec) lands; response_format is never read, so
+        # json mode is dropped here and the parser stage lives on the prompt
+        # contract + repair/fallback. One server-side quirk to know: the first
+        # request carrying a penalty after one carrying none runs without it
+        # (BatchGenerator bookkeeping upstream). The director's parser call
+        # carries no penalty, so on MLX the storyteller call after it is
+        # unpenalised — an upstream limitation to weigh before the MLX bench,
+        # not something this row can fix.
+        extra_mlx: dict[str, Any] = {}
+        if spec.top_k is not None:
+            extra_mlx["top_k"] = spec.top_k
+        if spec.repetition_penalty is not None:
+            extra_mlx["repetition_penalty"] = spec.repetition_penalty
+        if extra_mlx:
+            kwargs["extra_body"] = extra_mlx
         return kwargs
 
     # Unknown engine: send only what every OpenAI-compatible server accepts.
@@ -129,6 +144,8 @@ def dropped_for(spec: SamplerSpec, engine: str) -> list[str]:
         "repetition_penalty" in extra or "frequency_penalty" in rendered
     ):
         missing.append("repetition_penalty")
+    if spec.json_object and "response_format" not in rendered:
+        missing.append("json_object")
     return missing
 
 

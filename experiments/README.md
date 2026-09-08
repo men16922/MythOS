@@ -26,7 +26,12 @@ MythOS를 서빙 최적화 연구의 워크로드로 쓰기 위한 실험 모음
 make experiment                                   # 목록
 make experiment ARGS="workload-profile --trace /tmp/mythos-trace"
 make experiment ARGS="context-overflow  --trace /tmp/mythos-trace"
+make experiment ARGS="option-matrix"                                     # Ollama 행
+make experiment ARGS="option-matrix --engine mlx --base-url http://127.0.0.1:8081 --model mlx-community/<repo>"
 ```
+
+`option-matrix`의 MLX 팔은 `mlx_lm.server`가 떠 있어야 합니다. 이 머신의 anaconda `mlx-lm`은 `transformers` 5.x와
+충돌해 기동 자체가 안 되므로(2026-09-08), 별도 venv(`python3 -m venv … && pip install mlx-lm`)에서 띄웁니다.
 
 결과는 `experiments/results/<UTC스탬프>-<slug>/` 에 `report.md` · `provenance.json` · `raw/data.json`.
 **덮어쓰지 않습니다** — 실행마다 새 디렉터리라, 두 실행을 diff할 수 있습니다.

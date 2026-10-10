@@ -321,3 +321,15 @@ class RateLimiterTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ByteTokenCleanupTest(unittest.TestCase):
+    def test_byte_fallback_tokens_decode_to_utf8(self) -> None:
+        from mythos_v2.gm import clean_line, decode_byte_tokens
+
+        # "쇳" = EC 87 B3 — a local model emitted it as raw byte tokens.
+        self.assertEqual(decode_byte_tokens("녹슨 <0xEC><0x87><0xB3>소리"), "녹슨 쇳소리")
+        self.assertEqual(decode_byte_tokens("broken <0xEC><0x87> tail"), "broken  tail")
+        self.assertNotIn(
+            "<0x", clean_line("녹슨 <0xEC><0x87><0xB3>소리가 난다.", max_sentences=3, max_chars=200)
+        )

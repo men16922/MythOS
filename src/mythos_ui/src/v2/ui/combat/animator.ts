@@ -150,14 +150,15 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
   const board = useRef<HTMLElement | null>(null)
   const hurt = useRef<HTMLElement | null>(null)
   const ids = useRef(1)
-  const speed = useRef(fast ? 0.5 : 1)
+  // Default pacing is 0.8× the authored timings (playtest: enemy phases dragged at 1×); fast mode ≈ 0.45×.
+  const speed = useRef(fast ? 0.45 : 0.8)
   const langRef = useRef(lang)
   const CRef = useRef(C)
   const traumaV = useRef(0)
   const raf = useRef(0)
 
   useEffect(() => {
-    speed.current = fast ? 0.5 : 1
+    speed.current = fast ? 0.45 : 0.8
     langRef.current = lang
     CRef.current = C
   }, [fast, lang, C])

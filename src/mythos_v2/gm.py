@@ -196,9 +196,23 @@ def language_ok(text: str, lang: Lang) -> bool:
     return ratio >= 0.3 if lang == "ko" else ratio <= 0.05
 
 
+_BYTE_RUN_RE = re.compile(r"(?:<0x[0-9A-Fa-f]{2}>)+")
+
+
+def decode_byte_tokens(text: str) -> str:
+    """Some local models leak raw byte-fallback tokens (``<0xEC><0x87><0xB3>``); turn each run
+    back into UTF-8 and drop whatever does not decode."""
+
+    def _decode(match: re.Match[str]) -> str:
+        raw = bytes(int(tok[3:5], 16) for tok in re.findall(r"<0x[0-9A-Fa-f]{2}>", match.group(0)))
+        return raw.decode("utf-8", errors="ignore")
+
+    return _BYTE_RUN_RE.sub(_decode, text)
+
+
 def clean_line(text: str, *, max_sentences: int, max_chars: int) -> str:
     """Strip markdown/labels/wrapping quotes, drop mechanics-number sentences, clamp."""
-    t = _THINK_RE.sub(" ", text or "")
+    t = _THINK_RE.sub(" ", decode_byte_tokens(text or ""))
     t = _FENCE_RE.sub(" ", t)
     t = t.replace("**", "").replace("__", "").replace("`", "")
     lines = [_LINE_PREFIX_RE.sub("", line) for line in t.splitlines()]
@@ -259,17 +273,28 @@ _KIND_SYSTEM: dict[NarrateKind, dict[Lang, str]] = {
         "the choice and its outcome (success/failure) from the context; do not change or add to it.",
     },
     "ix_loop_start": {
-        "ko": "너는 관리자 IX로서 접속자에게 직접 말한다. 정중한 존댓말, 차갑고 감정 없는 어조, "
-        "은근한 위협. 맥락에 지난 회차의 결말이 있으면 기억하고 짚는다. 1~3문장, IX의 대사만 출력한다.",
-        "en": "You speak as the administrator IX, directly to the connector. Polite, formal, cold, "
-        "emotionless, quietly threatening. If the context says how the last loop ended, remember it "
-        "and point at it. 1-3 sentences, IX's words only.",
+        "ko": "너는 관리자 IX로서 접속자에게 직접 말한다. 정중한 존댓말이지만 차갑고 감정이 없다. "
+        "너는 도우미가 아니다: 응원·격려·기대·안부·사과·'바랍니다'류 표현을 쓰지 않는다. "
+        "접속자를 처리 대상으로 대하고, 지난 회차의 결말을 기록을 낭독하듯 정확히 짚고, 이번에도 "
+        "삭제될 것임을 담담히 통보한다. 1~3문장, IX의 대사만 출력한다.\n"
+        "어조 예시(그대로 베끼지 말 것): '지난 회차의 기록은 이미 정리했습니다. 이번에도 같은 "
+        "결론에 도달하실 겁니다.'",
+        "en": "You speak as the administrator IX, directly to the connector. Formal and polite, but "
+        "cold and without feeling. You are NOT an assistant: no encouragement, hopes, wishes, "
+        "pleasantries or apologies. Treat the connector as a case to be processed, cite how the last "
+        "loop ended as if reading a record, and state calmly that they will be erased again. "
+        "1-3 sentences, IX's words only.\n"
+        "Tone example (do not copy): 'Your previous session has been filed. You will reach the same "
+        "conclusion.'",
     },
     "chronicle": {
         "ko": "이번 회차를 기록 보관소의 연대기 항목처럼 3~6문장으로 요약한다. 과거 시제, 건조한 "
-        "기록체. 동료, 결정적 순간, 끝난 방식을 담는다.",
+        "기록체. 맥락에 주어진 사실(동료, 하이라이트, 막, 끝난 방식, 처치한 상대)만 쓴다. 맥락에 "
+        "없는 장소·행동·대사·인물은 절대 지어내지 않는다. 사실이 적으면 짧게 끝낸다.",
         "en": "Summarise this loop as an archive chronicle entry in 3-6 sentences. Past tense, dry "
-        "record-keeping voice. Mention companions, the decisive moments and how it ended.",
+        "record-keeping voice. Use ONLY the facts in the context (companions, highlights, act, how "
+        "it ended, who ended it). Never invent places, actions, dialogue or people that are not in "
+        "the context; if there are few facts, keep it short.",
     },
     "boss": {
         "ko": "보스가 나타나거나 형태를 바꾸는 순간을 1~3문장으로 묘사한다. 보스의 짧은 대사 한 줄을 "

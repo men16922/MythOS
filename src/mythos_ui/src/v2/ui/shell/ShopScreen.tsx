@@ -15,12 +15,27 @@ function Price({ value, credits }: { value: number; credits: number }) {
   return <span className={`m2-price m2-mono${credits < value ? ' is-short' : ''}`}>{value} ₵</span>
 }
 
+const SHOP_PLACE: Record<number, { ko: string; en: string; bg: string }> = {
+  1: { ko: 'C-17 뒷골목 좌판', en: 'C-17 back-alley stall', bg: 'scenes/wet_dawn_street.png' },
+  2: { ko: '야시장 뒷골목', en: 'Back alley, night market', bg: 'scenes/night_market.png' },
+  3: { ko: '첨탑 하층 · 유령 단말', en: 'Spire underlevel, ghost terminal', bg: 'scenes/control_grid_ghost.png' },
+}
+
 export function ShopScreen({ run, C, lang, act }: ScreenProps) {
   const [bought, setBought] = useState<string | null>(null)
   if (run.screen.kind !== 'shop') return null
   const stock = run.screen.stock
   const ko = lang === 'ko'
   const credits = run.credits
+  // The market moves with the act (it read "night market" inside the ARK Spire).
+  const place = SHOP_PLACE[run.act] ?? SHOP_PLACE[2]!
+  // Service previews come from the engine reducers themselves (run with unlimited credits), so the
+  // numbers shown are exactly what the purchase does — no duplicated constants.
+  const rich = { ...run, credits: Number.MAX_SAFE_INTEGER }
+  const healed = rx.shopHeal(rich, C)
+  const healGain = healed === rich ? 0 : healed.hp - run.hp + healed.party.reduce((sum, m, i) => sum + m.hp - (run.party[i]?.hp ?? m.hp), 0)
+  const scrubbed = rx.shopScrub(rich, C)
+  const scrubDrop = scrubbed === rich ? 0 : run.trace - scrubbed.trace
 
   const buy = (key: string, price: number, next: () => ReturnType<typeof rx.buyCard>) => {
     if (credits < price) {
@@ -34,11 +49,11 @@ export function ShopScreen({ run, C, lang, act }: ScreenProps) {
 
   return (
     <div className="m2-shop">
-      <div className="m2-shop__bg" style={{ backgroundImage: `url(${asset('scenes/night_market.png')})` }} />
+      <div className="m2-shop__bg" style={{ backgroundImage: `url(${asset(place.bg)})` }} />
       <div className="m2-shop__inner">
         <header className="m2-shop__head">
           <div>
-            <div className="m2-shop__kicker">{ko ? '야시장 뒷골목' : 'Back alley, night market'}</div>
+            <div className="m2-shop__kicker">{ko ? place.ko : place.en}</div>
             <h1 className="m2-shop__title">{ko ? '암시장' : 'Black Market'}</h1>
           </div>
           <div className="m2-shop__wallet">
@@ -157,7 +172,7 @@ export function ShopScreen({ run, C, lang, act }: ScreenProps) {
             </button>
             <button
               className="m2-service"
-              disabled={run.hp >= run.maxHp}
+              disabled={healGain <= 0}
               onMouseEnter={() => sound('ui_hover')}
               onClick={() => {
                 if (credits >= stock.healPrice) sound('heal')
@@ -167,20 +182,36 @@ export function ShopScreen({ run, C, lang, act }: ScreenProps) {
               <HeartPulse size={18} />
               <span>
                 <b>{ko ? '응급 처치' : 'Patch up'}</b>
-                <small>{run.hp >= run.maxHp ? (ko ? '이미 최대 체력' : 'Already at full HP') : ko ? '체력을 회복한다' : 'Restore HP'}</small>
+                <small>
+                  {healGain <= 0
+                    ? ko
+                      ? '모두 최대 체력'
+                      : 'Everyone is at full HP'
+                    : ko
+                      ? `파티 전원 회복 · 합계 +${healGain} HP`
+                      : `Heals the whole party · +${healGain} HP total`}
+                </small>
               </span>
               <Price value={stock.healPrice} credits={credits} />
             </button>
             <button
               className="m2-service"
-              disabled={run.trace <= 0}
+              disabled={scrubDrop <= 0}
               onMouseEnter={() => sound('ui_hover')}
               onClick={() => buy('scrub', stock.scrubPrice, () => rx.shopScrub(run, C))}
             >
               <Eraser size={18} />
               <span>
                 <b>{ko ? '흔적 세탁' : 'Scrub Trace'}</b>
-                <small>{ko ? 'IX의 추적 기록 일부를 지운다' : 'Wipe part of IX’s record of you'}</small>
+                <small>
+                  {scrubDrop <= 0
+                    ? ko
+                      ? '지울 추적 기록이 없다'
+                      : 'No Trace to wipe'
+                    : ko
+                      ? `IX의 추적 기록을 지운다 · 추적 −${scrubDrop}`
+                      : `Wipe IX’s record of you · −${scrubDrop} Trace`}
+                </small>
               </span>
               <Price value={stock.scrubPrice} credits={credits} />
             </button>

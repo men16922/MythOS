@@ -558,13 +558,18 @@ export function effectTiles(eff: Effect, res: Resolution): Pos[] {
   return uniqPositions(centres.flatMap((p) => areaTiles(p, area, res.dir)))
 }
 
+const DEBUFFS: ReadonlySet<StatusKind> = new Set<StatusKind>(['burn', 'shock', 'mark', 'weak'])
+
 /** Units an effect applies to. `random_enemy` consumes the combat RNG. */
 export function effectTargets(c: CombatState, eff: Effect, res: Resolution): UnitState[] {
   const scope = scopeOf(eff)
   switch (scope) {
     case 'target': {
       const out: UnitState[] = []
-      const excludeOrigin = res.attack && (eff.kind === 'damage' || eff.kind === 'push')
+      // An attack never hits its own caster — damage, push, or a debuff riding on it (IX stood inside its own
+      // Purge List and marked itself). Buff statuses on 'target' tiles still reach the caster.
+      const excludeOrigin =
+        res.attack && (eff.kind === 'damage' || eff.kind === 'push' || (eff.kind === 'status' && DEBUFFS.has(eff.status)))
       for (const p of effectTiles(eff, res)) {
         const u = unitAt(c, p)
         if (u && !out.includes(u) && !(excludeOrigin && u === res.origin)) out.push(u)

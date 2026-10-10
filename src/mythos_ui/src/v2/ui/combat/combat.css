@@ -652,11 +652,11 @@
 .m2c-unit.is-xray .m2c-fig {
   opacity: 0.3;
 }
-/* An opposing unit stands right behind this one: keep its feet/body solid (you still see where it stands) but
+/* A unit or terrain sits right behind this one: keep its feet/body solid (you still see where it stands) but
    fade the head/shoulders that would otherwise hide the unit behind. Hovering it shows it in full. */
 .m2c-unit.is-occluding:not(.is-hovered) .m2c-fig img {
-  -webkit-mask-image: linear-gradient(to top, #000 46%, rgba(0, 0, 0, 0.55) 66%, rgba(0, 0, 0, 0.45));
-  mask-image: linear-gradient(to top, #000 46%, rgba(0, 0, 0, 0.55) 66%, rgba(0, 0, 0, 0.45));
+  -webkit-mask-image: linear-gradient(to top, #000 34%, rgba(0, 0, 0, 0.42) 52%, rgba(0, 0, 0, 0.32));
+  mask-image: linear-gradient(to top, #000 34%, rgba(0, 0, 0, 0.42) 52%, rgba(0, 0, 0, 0.32));
 }
 .m2c-unit.is-vanish .m2c-fig {
   opacity: 0;
@@ -2435,6 +2435,24 @@
   font-size: 12px;
   color: var(--c-mute);
 }
+/* boss phase thresholds still ahead, marked on the inspector hp bar */
+.m2c-d-hp-tick {
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  width: 2px;
+  margin-left: -1px;
+  background: #ffd36b;
+  box-shadow: 0 0 4px rgba(255, 211, 107, 0.8);
+}
+.m2c-d-phase {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #ffd36b;
+}
+.m2c-d-phase b {
+  font-weight: 700;
+}
 .m2c-d-text {
   margin: 4px 0 0;
   font-size: 12.5px;
@@ -2760,6 +2778,16 @@
 }
 .m2c-end.is-off kbd {
   display: none;
+}
+/* Enemy phase: the same button fast-forwards the timeline. */
+.m2c-end.is-off.is-hurry {
+  cursor: pointer;
+}
+.m2c-end.is-hurry:hover {
+  filter: brightness(1.25);
+}
+.m2c-end.is-hurry svg {
+  opacity: 0.85;
 }
 
 /* hand */

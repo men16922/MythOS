@@ -3243,6 +3243,10 @@ body {
    Reward / card choice
    ===================================================================== */
 
+.m2-rrow__bonus {
+  color: var(--m2-amber);
+  font-weight: 700;
+}
 .m2-reward {
   position: relative;
   min-height: calc(100dvh - 64px);
@@ -4336,6 +4340,16 @@ body {
   line-height: 1.75;
   color: var(--m2-ink-2);
   min-height: 90px;
+}
+.m2-ending__chron-wait {
+  margin: 0;
+  color: var(--m2-ink-2);
+  animation: m2-chron-wait 1.6s ease-in-out infinite;
+}
+@keyframes m2-chron-wait {
+  50% {
+    opacity: 0.35;
+  }
 }
 .m2-ending__chron-head {
   display: flex;

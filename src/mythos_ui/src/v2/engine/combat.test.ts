@@ -123,6 +123,64 @@ test('pushing an enemy drags its relative attack onto its own ally', () => {
   assert.equal(unit(after, 'e2').lastHitBy, 'enemy')
 })
 
+test('a lifesteal attack (heal → owner) only heals when it hits someone', () => {
+  const grunt = C.enemies.grunt
+  assert.ok(grunt)
+  const leech = {
+    ...grunt,
+    id: 'leech',
+    moves: [{ id: 'devour', name: grunt.name, pattern: 'melee' as const, damage: 6, effects: [{ kind: 'heal' as const, amount: 6, to: 'owner' as const }] }],
+  }
+  const C2: ContentRegistry = {
+    ...withEncounter({ ...C.encounters.duel!, id: 'leech_duel', enemies: [{ id: 'leech', pos: { x: 2, y: 2 } }] }),
+    enemies: { ...C.enemies, leech },
+  }
+  const c = startCombat(makeRun(), 'leech_duel', C2)
+  place(c, 'e1', { x: 2, y: 2 })
+  unit(c, 'e1').hp = 4
+  aim(c, 'e1', 'devour', 'left')
+
+  const hit = endTurn(c, C2)
+  assert.equal(unit(hit, 'connector').hp, 28, 'the bite lands on the connector')
+  assert.equal(unit(hit, 'e1').hp, 10, 'and heals the biter')
+
+  const whiff = endTurn(moveUnit(c, C2, 'connector', { x: 1, y: 0 }), C2)
+  assert.equal(unit(whiff, 'connector').hp, 34)
+  assert.equal(unit(whiff, 'e1').hp, 4, 'a bite into an empty tile heals nothing')
+})
+
+test("an area attack's debuff skips its own caster (IX's Purge List no longer marks IX)", () => {
+  const grunt = C.enemies.grunt
+  assert.ok(grunt)
+  const tagger = {
+    ...grunt,
+    id: 'tagger',
+    moves: [
+      {
+        id: 'purge',
+        name: grunt.name,
+        pattern: 'lob' as const,
+        damage: 2,
+        area: 'square' as const,
+        effects: [{ kind: 'status' as const, status: 'mark' as const, amount: 2 }],
+      },
+    ],
+  }
+  const C2: ContentRegistry = {
+    ...withEncounter({ ...C.encounters.duel!, id: 'tag_duel', enemies: [{ id: 'tagger', pos: { x: 2, y: 2 } }] }),
+    enemies: { ...C.enemies, tagger },
+  }
+  const c = startCombat(makeRun(), 'tag_duel', C2)
+  place(c, 'e1', { x: 2, y: 2 })
+  place(c, 'connector', { x: 4, y: 2 })
+  // The 3×3 lands on (3,2): it covers the connector and — after a shove — the caster itself.
+  aim(c, 'e1', 'purge', { x: 3, y: 2 })
+  const after = endTurn(c, C2)
+  assert.equal(unit(after, 'connector').statuses.mark, 2, 'the connector is marked')
+  assert.equal(unit(after, 'e1').statuses.mark, undefined, 'the caster does not mark itself')
+  assert.equal(unit(after, 'e1').hp, unit(c, 'e1').hp, 'nor damage itself')
+})
+
 test('friendly-fire kill counts as an environment kill and fires environment_kill triggers', () => {
   const c = fresh('pair', makeRun({ implants: ['bounty'] }))
   place(c, 'connector', { x: 0, y: 0 })

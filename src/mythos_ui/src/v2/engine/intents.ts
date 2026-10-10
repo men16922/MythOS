@@ -181,7 +181,12 @@ export function fireIntent(c: CombatState, C: ContentRegistry, u: UnitState): vo
   // Weak is applied per hit by dealDamage (the attacker is the origin).
   if (move.damage) effects.push({ kind: 'damage', amount: move.damage + dmgBonusOf(u) })
   if (move.pattern === 'charge') effects.push({ kind: 'push', dir: 'away', distance: 1 })
-  effects.push(...(move.effects ?? []))
+  // Lifesteal (heal → owner) feeds on a hit: an attack that lands on no unit heals nothing.
+  const landed = geo.tiles.some((p) => {
+    const hit = unitAt(c, p)
+    return !!hit && hit !== u
+  })
+  effects.push(...(move.effects ?? []).filter((e) => landed || !(e.kind === 'heal' && e.to === 'owner')))
   const centre = move.pattern === 'nova' ? u.pos : move.area && move.area !== 'single' ? geo.impact : undefined
   applyEffects(c, C, effects, {
     origin: u,

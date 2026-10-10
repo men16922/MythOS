@@ -6,7 +6,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
-import { Layers, Trash2, Flame, BookOpen, Undo2 } from 'lucide-react'
+import { Layers, Trash2, Flame, BookOpen, Undo2, FastForward } from 'lucide-react'
 import {
   canPlay,
   cardFace,
@@ -84,6 +84,9 @@ const SHAKE: Keyframe[] = [
   { transform: 'translateX(0)' },
 ]
 
+/** Ignore end-turn input this long after a new player turn starts (fast-forward overshoot). */
+const TURN_GRACE_MS = 700
+
 export function CombatScreen(props: CombatScreenProps) {
   const { C, lang, settings } = props
   const k = lang === 'ko'
@@ -103,7 +106,27 @@ export function CombatScreen(props: CombatScreenProps) {
   const vc: CombatState = useMemo(() => ({ ...view.base, units: view.units, tiles: view.tiles }), [view.base, view.units, view.tiles])
 
   const [ending, setEnding] = useState(false)
+  /** `encounter#turn` of the last move/card the player committed — see canQueueEnd. */
+  const [actedTurn, setActedTurn] = useState('')
+  const turnKey = `${combat.encounterId}#${combat.turn}`
   const interactive = !anim.busy && combat.phase === 'player' && !ending
+  /** The enemy phase is playing: the end-turn button / Space fast-forward it. */
+  const canHurry = anim.busy && view.enemyPhase && !ending
+  /** One of *this turn's* player actions is animating: an end-turn press is queued until it settles. Never during
+   *  the turn-start sequence after an enemy phase — mashing E to fast-forward would otherwise skip the new turn. */
+  const canQueueEnd = anim.busy && !view.enemyPhase && combat.phase === 'player' && !ending && actedTurn === turnKey
+  const endQueued = useRef(false)
+  const hurryQueued = useRef(false)
+  /** When the current player turn became playable (after an enemy phase). */
+  const turnReadyAt = useRef(0)
+  const wasEnemyPhase = useRef(false)
+  useEffect(() => {
+    if (view.enemyPhase) wasEnemyPhase.current = true
+    else if (wasEnemyPhase.current) {
+      wasEnemyPhase.current = false
+      turnReadyAt.current = performance.now()
+    }
+  }, [view.enemyPhase])
   const enc = C.encounters[combat.encounterId]
 
   // ------------------------------------------------------------ layout
@@ -281,6 +304,28 @@ export function CombatScreen(props: CombatScreenProps) {
     return out
   }, [vc, C, view.pendingIntents, view.ufx])
 
+  // While a card preview moves or kills units, re-aim the telegraphs on the predicted board: pushing an enemy
+  // drags its relative attack along, a kill removes it — the player sees the consequence before committing.
+  const shownIntents: IntentView[] = useMemo(() => {
+    if (!preview || !preview.units.some((r) => r.to || r.dies)) return intents
+    const rows = new Map(preview.units.map((r) => [r.uid, r]))
+    const predicted: CombatState = {
+      ...vc,
+      units: vc.units.map((u) => {
+        const r = rows.get(u.uid)
+        return r ? { ...u, pos: r.to ? { ...r.to } : u.pos, hp: r.hpAfter } : u
+      }),
+    }
+    const out: IntentView[] = []
+    for (const iv of intents) {
+      const unit = predicted.units.find((u) => u.uid === iv.uid)
+      if (!unit || unit.hp <= 0) continue
+      const info = intentInfo(predicted, C, iv.uid)
+      if (info) out.push({ uid: iv.uid, unit, info })
+    }
+    return out
+  }, [preview, intents, vc, C])
+
   const showThreat = (threatOn || altHeld) && !view.enemyPhase
   const threat = useMemo(() => (showThreat ? threatMap(vc, C) : null), [showThreat, vc, C])
 
@@ -293,16 +338,27 @@ export function CombatScreen(props: CombatScreenProps) {
   const hoverTile = hoverPos && !hoverUnit ? (vc.tiles[hoverPos.y]?.[hoverPos.x] ?? null) : null
   const hoverThreat = hoverPos ? (threatMap(vc, C)[posKey(hoverPos)] ?? 0) : 0
 
+  // Expected hp loss per squad member this enemy phase (party hp-bar threat segment + end-turn warning).
+  // Walks the hits in firing order so Mark counts (+N on the next hit, and Lock On re-marks after each hit),
+  // then takes armor and current block off — the raw tile sum under-read a marked Ghost by half.
   const danger = useMemo(() => {
     const out: Record<string, number> = {}
-    const tm: Record<string, number> = {}
-    for (const iv of intents) {
-      if (iv.info.windupLeft > 0) continue
-      for (const p of iv.info.tiles) if (!samePos(p, iv.unit.pos)) tm[posKey(p)] = (tm[posKey(p)] ?? 0) + iv.info.damage
+    for (const u of vc.units) {
+      if (u.side === 'enemy' || u.hp <= 0) continue
+      let mark = u.statuses.mark ?? 0
+      let total = 0
+      for (const iv of shownIntents) {
+        if (iv.info.windupLeft > 0 || (iv.unit.statuses.shock ?? 0) > 0 || iv.info.damage <= 0) continue
+        if (!iv.info.tiles.some((p) => samePos(p, u.pos) && !samePos(p, iv.unit.pos))) continue
+        total += Math.max(0, iv.info.damage + mark - u.armor)
+        mark = 0
+        for (const e of iv.info.move.effects ?? []) if (e.kind === 'status' && e.status === 'mark' && !e.to) mark += e.amount
+      }
+      const lost = total - u.block
+      if (lost > 0) out[u.uid] = lost
     }
-    for (const u of vc.units) if (u.side !== 'enemy' && u.hp > 0 && tm[posKey(u.pos)]) out[u.uid] = tm[posKey(u.pos)] ?? 0
     return out
-  }, [intents, vc.units])
+  }, [shownIntents, vc.units])
 
   // ------------------------------------------------------------ playable cards
   const playable = useMemo(() => {
@@ -362,6 +418,7 @@ export function CombatScreen(props: CombatScreenProps) {
   const commitAction = useCallback(
     (next: CombatState, opts: { card?: { rect: RectLike; upgraded: boolean }; endTurn?: boolean } = {}) => {
       const prev = combat
+      if (!opts.endTurn) setActedTurn(`${prev.encounterId}#${prev.turn}`)
       setCombat(next)
       setArmed(null)
       setHoverDir(null)
@@ -408,7 +465,10 @@ export function CombatScreen(props: CombatScreenProps) {
   }
 
   const onCard = (uid: string, el: HTMLElement) => {
-    if (!interactive) return
+    // While the previous card is still animating a card can be armed (never played), so quick
+    // players don't lose the click.
+    if (!interactive && !canQueueEnd) return
+    endQueued.current = false
     const pl = playable[uid]
     if (!pl?.ok) {
       el.animate(SHAKE, { duration: 320, easing: 'ease-out' })
@@ -417,6 +477,7 @@ export function CombatScreen(props: CombatScreenProps) {
       return
     }
     if (armed?.kind === 'card' && armed.uid === uid) {
+      if (!interactive) return
       if (confirmMode && options[0]) playOpt(options[0])
       else {
         setArmed(null)
@@ -455,7 +516,15 @@ export function CombatScreen(props: CombatScreenProps) {
   }
 
   const onTileClick = (p: Pos) => {
-    if (!interactive) return
+    if (!interactive) {
+      // Mid-animation: still let the player pick which unit acts next (no state change).
+      const mate = canQueueEnd && !isArmed ? combat.units.find((x) => samePos(x.pos, p) && x.hp > 0 && x.side === 'party') : undefined
+      if (mate) {
+        setSel(mate.uid)
+        setPinned(null)
+      }
+      return
+    }
     if (isArmed) {
       if (confirmMode) {
         // Self/untargeted cards: clicking the origin or anything the card touches plays it; elsewhere cancels.
@@ -498,14 +567,25 @@ export function CombatScreen(props: CombatScreenProps) {
   }
 
   const doEndTurn = () => {
-    if (!interactive) return
+    if (!interactive) {
+      // Pressed while the last card is still animating: end the turn as soon as the board settles
+      // instead of silently dropping the input.
+      if (canQueueEnd) endQueued.current = true
+      return
+    }
+    // A fast-forward click / key that lands just as the new turn starts must not end that turn.
+    if (!endQueued.current && performance.now() - turnReadyAt.current < TURN_GRACE_MS) return
+    endQueued.current = false
     setArmed(null)
     setHoverCard(null)
     try {
       commitAction(endTurn(combat, C), { endTurn: true })
+      // Fast-forward pressed while the end turn was still queued: play this enemy phase fast.
+      if (hurryQueued.current) anim.hurry()
     } catch {
       sfx('error')
     }
+    hurryQueued.current = false
   }
 
   const doUndo = () => {
@@ -528,6 +608,18 @@ export function CombatScreen(props: CombatScreenProps) {
   const onKey = (e: KeyboardEvent) => {
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
     if (pile) return
+    // The combat screen owns Space / Enter: never let them "click" whatever button happens to have focus
+    // (a focused end-turn button would otherwise end the next turn on a fast-forward press).
+    if ((e.key === ' ' || e.key === 'Enter') && e.target instanceof HTMLButtonElement) e.preventDefault()
+    if (canHurry && (e.key === ' ' || e.key === 'Enter' || e.key.toLowerCase() === 'e')) {
+      e.preventDefault()
+      anim.hurry()
+      return
+    }
+    if (canQueueEnd && endQueued.current && (e.key === ' ' || e.key === 'Enter')) {
+      hurryQueued.current = true
+      return
+    }
     if (e.key === 'Alt') {
       e.preventDefault()
       setAltHeld(true)
@@ -574,6 +666,14 @@ export function CombatScreen(props: CombatScreenProps) {
         break
     }
   }
+  const endTurnRef = useRef(doEndTurn)
+  useEffect(() => {
+    endTurnRef.current = doEndTurn
+  })
+  useEffect(() => {
+    if (interactive && endQueued.current) endTurnRef.current()
+  }, [interactive])
+
   const keyRef = useRef(onKey)
   useEffect(() => {
     keyRef.current = onKey
@@ -702,7 +802,7 @@ export function CombatScreen(props: CombatScreenProps) {
             ufx={view.ufx}
             C={C}
             lang={lang}
-            intents={intents}
+            intents={shownIntents}
             focusEnemy={focusEnemy}
             firing={view.firing}
             threat={threat}
@@ -734,7 +834,7 @@ export function CombatScreen(props: CombatScreenProps) {
       </div>
 
       <TopStrip
-        c={combat}
+        c={vc}
         enc={enc}
         C={C}
         lang={lang}
@@ -886,12 +986,15 @@ export function CombatScreen(props: CombatScreenProps) {
           <button
             type="button"
             data-coach="endturn"
-            className={`m2c-end${glowEnd ? ' is-glow' : ''}${inDanger && interactive ? ' is-danger' : ''}${!interactive ? ' is-off' : ''}`}
-            onClick={doEndTurn}
-            disabled={!interactive}
+            className={`m2c-end${glowEnd ? ' is-glow' : ''}${inDanger && interactive ? ' is-danger' : ''}${!interactive ? ' is-off' : ''}${canHurry ? ' is-hurry' : ''}`}
+            onClick={canHurry ? anim.hurry : doEndTurn}
+            // Never keep focus: a later Space (fast-forward) must not "click" the focused button and end a turn.
+            onMouseDown={(e) => e.preventDefault()}
+            disabled={!interactive && !canHurry && !canQueueEnd}
+            title={canHurry ? (k ? '클릭 또는 Space: 빨리 감기' : 'Click or Space: fast-forward') : undefined}
           >
             <span>{view.enemyPhase ? (k ? '적 행동 중' : 'ENEMY ACTING') : k ? '턴 종료' : 'END TURN'}</span>
-            <kbd>E</kbd>
+            {canHurry ? <FastForward size={16} strokeWidth={2.6} /> : <kbd>E</kbd>}
           </button>
         </div>
       </div>

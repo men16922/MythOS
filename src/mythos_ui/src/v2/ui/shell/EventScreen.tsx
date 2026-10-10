@@ -202,16 +202,18 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
             {speakerName && <span>{tr(speakerName, lang)}</span>}
           </div>
         )}
-      </div>
-
-      <div className="m2-event__panel">
-        <h1 className="m2-event__title">{tr(ev.title, lang)}</h1>
+        {/* The GM line arrives late (LLM). It lives over the scene art, never in the option column, so
+            its arrival cannot shift the options under the player's cursor. */}
         {gmLine && gmLine.id === ev.id && (
-          <div className="m2-gmline">
+          <div className={`m2-gmline${speaker ? ' has-speaker' : ''}`}>
             <Sparkles size={14} />
             <Typewriter text={gmLine.text} cps={60} instant={settings.fastAnim} />
           </div>
         )}
+      </div>
+
+      <div className="m2-event__panel">
+        <h1 className="m2-event__title">{tr(ev.title, lang)}</h1>
         <Typewriter className="m2-event__text" text={tr(ev.text, lang)} cps={settings.fastAnim ? 400 : 110} />
 
         {rolling && (

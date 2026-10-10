@@ -206,6 +206,24 @@ export const DetailPanel = memo(function DetailPanel(p: {
   const statuses = STATUS_ORDER.filter((k) => (u.statuses[k] ?? 0) > 0)
   const pct = Math.max(0, Math.min(1, u.hp / Math.max(1, u.maxHp)))
   const tier = enemyDef?.tier
+  // Boss phases: show the thresholds still ahead on the hp bar, and what the next one does — otherwise the
+  // phase heal reads as an attack that *healed* the boss (the damage preview shows a green +N).
+  const phasesLeft = (enemyDef?.phases ?? []).slice(u.phase ?? 0)
+  const nextPhase = phasesLeft[0]
+  const phaseGains = nextPhase
+    ? [
+        ...(nextPhase.heal ? [ko(lang, `회복 ${nextPhase.heal}`, `heal ${nextPhase.heal}`)] : []),
+        ...(nextPhase.effects ?? []).flatMap((e) =>
+          e.kind === 'block'
+            ? [ko(lang, `방어막 ${e.amount}`, `block ${e.amount}`)]
+            : e.kind === 'status'
+              ? [`${tr(STATUS_NAME[e.status], lang)} ${e.amount}`]
+              : e.kind === 'heal'
+                ? [ko(lang, `회복 ${e.amount}`, `heal ${e.amount}`)]
+                : [],
+        ),
+      ]
+    : []
   return (
     <div className={`m2c-detail is-${u.side}`}>
       <div className="m2c-panel-h">
@@ -220,6 +238,9 @@ export const DetailPanel = memo(function DetailPanel(p: {
           <span className="m2c-d-name">{tr(u.name, lang)}</span>
           <span className="m2c-d-hp">
             <span style={{ width: `${pct * 100}%` }} />
+            {phasesLeft.map((ph, i) => (
+              <i key={i} className="m2c-d-hp-tick" style={{ left: `${ph.hpBelow * 100}%` }} />
+            ))}
             <b>
               {u.hp}/{u.maxHp}
             </b>
@@ -258,6 +279,12 @@ export const DetailPanel = memo(function DetailPanel(p: {
         </div>
       )}
       {u.side === 'enemy' && !p.intent && <div className="m2c-d-sub">{ko(lang, '예고된 행동 없음', 'No telegraphed action')}</div>}
+      {nextPhase && (
+        <div className="m2c-d-phase">
+          {ko(lang, `다음 단계 · HP ${Math.floor(nextPhase.hpBelow * u.maxHp)} 이하`, `Next phase · HP ≤ ${Math.floor(nextPhase.hpBelow * u.maxHp)}`)}
+          {phaseGains.length > 0 && <b> · {phaseGains.join(' · ')}</b>}
+        </div>
+      )}
       {enemyDef?.passive && (
         <div className="m2c-d-passive">
           <ZapIcon size={11} /> {tr(enemyDef.passive, lang)}

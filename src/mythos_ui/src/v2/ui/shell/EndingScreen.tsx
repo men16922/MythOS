@@ -47,18 +47,24 @@ export interface EndingScreenProps extends ScreenProps {
   onChronicle: (text: string) => void
 }
 
+const CHRONICLE_WAIT_MS = 8000
+
 export function EndingScreen({ run, C, lang, settings, onDone, onChronicle }: EndingScreenProps) {
   const ended = run.screen.kind === 'ended' ? run.screen : null
   const ending = ended ? C.endings[ended.endingId] : undefined
   const breakdown = useMemo(() => computeEchoes(run, C), [run, C])
   const fallback = useMemo(() => authoredChronicle(run, lang, C), [run, lang, C])
   const [chronicle, setChronicle] = useState<string | null>(null)
+  /** Which chronicle is on screen. Locked once chosen: the GM line used to replace the authored one mid-read. */
+  const [chronSource, setChronSource] = useState<'gm' | 'auth' | null>(null)
   const [stage, setStage] = useState(0)
   const ko = lang === 'ko'
 
   useEffect(() => {
     sound(ended?.result === 'victory' ? 'victory' : 'defeat')
     const ts = [700, 1500, 2300].map((ms, i) => window.setTimeout(() => setStage(i + 1), settings.fastAnim ? ms / 4 : ms))
+    // Give the GM a few seconds; after that the authored chronicle stays (a late GM line is still archived).
+    ts.push(window.setTimeout(() => setChronSource((s) => s ?? 'auth'), CHRONICLE_WAIT_MS))
     return () => ts.forEach((t) => window.clearTimeout(t))
     // once per ending screen
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -78,14 +84,17 @@ export function EndingScreen({ run, C, lang, settings, onDone, onChronicle }: En
         actName: tr(C.acts[run.act]?.name, lang),
         party: run.party.map((m) => tr(C.companions[m.id]?.name, lang)),
         kills: run.tally.kills,
-        floors: run.tally.floors,
+        // not "floors": the model read 24 as the tower's height ("24층 높이의 ARK 첨탑")
+        sectorsCleared: run.tally.floors,
         highlights: run.log.slice(-14).map((l) => tr(l.note, lang)),
       },
       15000,
       true,
     ).then((text) => {
-      if (!alive || !text) return
+      if (!alive) return
+      if (!text) return setChronSource((s) => s ?? 'auth')
       setChronicle(text)
+      setChronSource((s) => s ?? 'gm')
       onChronicle(text)
     })
     return () => {
@@ -122,7 +131,10 @@ export function EndingScreen({ run, C, lang, settings, onDone, onChronicle }: En
             <div className="m2-ending__chron-head">
               <Sparkles size={14} /> {ko ? '루프 기록' : 'Loop chronicle'}
             </div>
-            {stage >= 1 && <Typewriter key={chronicle ? 'gm' : 'auth'} text={chronicle ?? fallback} cps={settings.fastAnim ? 500 : 90} tick={false} />}
+            {stage >= 1 && chronSource && (
+              <Typewriter key={chronSource} text={chronSource === 'gm' && chronicle ? chronicle : fallback} cps={settings.fastAnim ? 500 : 90} tick={false} />
+            )}
+            {stage >= 1 && !chronSource && <p className="m2-ending__chron-wait">{ko ? '기록을 정리하는 중…' : 'Compiling the record…'}</p>}
           </div>
         </div>
 

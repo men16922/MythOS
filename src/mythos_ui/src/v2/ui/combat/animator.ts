@@ -128,6 +128,8 @@ export interface Animator {
   busy: boolean
   play: (prev: CombatState, next: CombatState, opts: PlayOpts) => void
   snap: (c: CombatState) => void
+  /** Fast-forward the running timeline (enemy phase skip); the next play() restores the pace. */
+  hurry: () => void
   /** Show a banner outside a timeline (intro / victory). */
   banner: (b: Omit<Banner, 'key'> | null, ms?: number) => void
   setBusy: (b: boolean) => void
@@ -157,8 +159,10 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
   const traumaV = useRef(0)
   const raf = useRef(0)
 
+  const baseSpeed = useRef(fast ? 0.45 : 0.8)
   useEffect(() => {
-    speed.current = fast ? 0.45 : 0.8
+    baseSpeed.current = fast ? 0.45 : 0.8
+    speed.current = baseSpeed.current
     langRef.current = lang
     CRef.current = C
   }, [fast, lang, C])
@@ -931,6 +935,7 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
         }
       })
 
+      speed.current = baseSpeed.current
       commit(start)
       setBusyState(true)
       if (opts.endTurn && !events.some((e) => e.t === 'turn' && e.side === 'enemy')) setMusicDuck(true)
@@ -970,7 +975,15 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
     hurt.current = el
   }, [])
 
-  return { view, fx, busy, play, snap, banner: showBanner, setBusy: setBusyState, trauma, registerFigure, registerStage, registerBoard, registerHurt }
+  /** Fast-forward the rest of the running timeline (the next play() restores the normal pace). */
+  const hurry = useCallback(() => {
+    speed.current = Math.min(speed.current, HURRY_SPEED)
+  }, [])
+
+  return { view, fx, busy, play, snap, hurry, banner: showBanner, setBusy: setBusyState, trauma, registerFigure, registerStage, registerBoard, registerHurt }
 }
+
+/** Timeline pace while the player fast-forwards an enemy phase. */
+const HURRY_SPEED = 0.3
 
 const DIR_VEC: Record<Dir, Pos> = { up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, left: { x: -1, y: 0 }, right: { x: 1, y: 0 } }

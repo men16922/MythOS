@@ -249,8 +249,11 @@ interface UnitProps {
   origin: boolean
   hovered: boolean
   xray: boolean
-  /** An opposing unit stands directly behind this one: fade the upper sprite so it stays readable. */
+  /** A unit or terrain sits directly behind this one: fade the upper sprite so it stays readable. */
   occluding: boolean
+  /** The tile right behind is clickable (a unit, a move or a card target): the hit box stops short of it so the
+   *  tall sprite never swallows a click meant for that tile. */
+  hitShort: boolean
   danger: number
   preview: CombatPreview['units'][number] | undefined
   intent: IntentInfo | null
@@ -387,7 +390,14 @@ const UnitSprite = memo(function UnitSprite(p: UnitProps) {
       {p.layer === 'body' && (
         <div
           className="m2c-u-hit"
-          style={{ width: tw * 0.66 * p.scale * s, height: tw * 1.32 * p.scale * s, left: -tw * 0.33 * p.scale * s, top: -tw * 1.2 * p.scale * s }}
+          style={{
+            width: tw * 0.66 * p.scale * s,
+            left: -tw * 0.33 * p.scale * s,
+            // Tall box = the figure, capped below the centre of the tile two rows back (~1.45 tw up). Short box =
+            // own tile + the front lip of the tile behind (that tile's centre, ~0.74 tw up, stays free).
+            height: (p.hitShort ? tw * 0.66 : tw * (Math.min(1.2 * p.scale, 1.1) + 0.12)) * s,
+            top: (p.hitShort ? -tw * 0.54 : -tw * Math.min(1.2 * p.scale, 1.1)) * s,
+          }}
           onMouseEnter={() => p.onEnter(u.pos)}
           onClick={() => p.onClick(u.pos)}
         />
@@ -460,12 +470,37 @@ export function Board({ registerBoard, ...props }: BoardProps) {
   const hover = props.hoverPos
   const label = (p: Pos, dx: number, dy: number) => g.project(p.x + dx, p.y + dy)
   const moveSet = new Set(props.moves.map(posKey))
+  const targetSet = new Set(props.targets.map(posKey))
 
   const renderUnits = (layer: 'body' | 'hud') =>
     units.map((u) => {
-      const xray = !!hover && hover.y < u.pos.y && u.pos.y - hover.y <= 2 && Math.abs(hover.x - u.pos.x) <= 1 && !(hover.x === u.pos.x && hover.y === u.pos.y)
+      // X-ray (fade units in front of the hovered tile) is for inspecting/moving. While aiming a card it would
+      // fade the very unit you are aiming at (the hover tile goes stale under the direction arrows), so it is off.
+      const xray =
+        !props.originUid && !!hover && hover.y < u.pos.y && u.pos.y - hover.y <= 2 && Math.abs(hover.x - u.pos.x) <= 1 && !(hover.x === u.pos.x && hover.y === u.pos.y)
       const reach = unitScale(C, u) > 1.2 ? 1 : 0
-      const occluding = units.some((v) => v.side !== u.side && v.hp > 0 && v.pos.y === u.pos.y - 1 && Math.abs(v.pos.x - u.pos.x) <= reach)
+      // Fade the upper sprite when it would hide a unit or terrain (cover / hazard / void) right behind it.
+      const terrainBehind = (dx: number) => {
+        const t = vc.tiles[u.pos.y - 1]?.[u.pos.x + dx]
+        return !!t && t.kind !== 'floor'
+      }
+      // Any unit behind counts, same side included: the party column (default formation) otherwise hides the
+      // back-row companion, and a tall executor hides the spider standing behind it.
+      // A boss-size sprite is two tiles tall, so it also hides the unit two rows back in its own column.
+      // Terrain only fades normal-size units: a boss washed out by a cover block behind it reads as a ghost.
+      const occluding =
+        units.some(
+          (v) =>
+            v.uid !== u.uid &&
+            v.hp > 0 &&
+            ((v.pos.y === u.pos.y - 1 && Math.abs(v.pos.x - u.pos.x) <= reach) ||
+              (reach > 0 && v.pos.y === u.pos.y - 2 && v.pos.x === u.pos.x)),
+        ) ||
+        (reach === 0 && terrainBehind(0))
+      const behind = posKey({ x: u.pos.x, y: u.pos.y - 1 })
+      const hitShort =
+        u.pos.y > 0 &&
+        (moveSet.has(behind) || targetSet.has(behind) || units.some((v) => v.uid !== u.uid && v.hp > 0 && v.pos.x === u.pos.x && v.pos.y === u.pos.y - 1))
       return (
         <UnitSprite
           key={u.uid}
@@ -479,6 +514,7 @@ export function Board({ registerBoard, ...props }: BoardProps) {
           hovered={!!hover && hover.x === u.pos.x && hover.y === u.pos.y}
           xray={xray}
           occluding={occluding}
+          hitShort={hitShort}
           danger={danger[u.uid] ?? 0}
           preview={previewByUid[u.uid]}
           intent={intentByUid[u.uid] ?? null}

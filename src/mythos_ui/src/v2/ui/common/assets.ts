@@ -31,7 +31,11 @@ export function sprite(key: string, pose: SpritePose = 'idle'): string {
   return asset(`enemies/combat/${key}-${p}.png`)
 }
 
+/** Companions have painted face art; their 2.0 sprites are full-body and read as a speck in a round portrait. */
+const FACE_ART = new Set(['se-rin', 'han', 'kai', 'lin-yue', 'su-ah', 'tae-o'])
+
 export function portrait(key: string): string {
+  if (FACE_ART.has(key)) return asset(`characters/${key}.png`)
   const v2 = V2_SPRITES[key]?.idle
   if (v2) return asset(v2)
   if (CHARACTER_SPRITES.has(key)) return asset(`characters/${key}.png`)

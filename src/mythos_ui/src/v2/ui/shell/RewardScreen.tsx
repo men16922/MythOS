@@ -24,6 +24,19 @@ export function RewardScreen({ run, C, lang, settings, act }: ScreenProps) {
   const node = run.nodeId ? run.map.nodes[run.nodeId] : undefined
   const enc = node?.encounterId ? C.encounters[node.encounterId] : undefined
   const backdrop = enc ? BACKDROPS[enc.backdrop] : undefined
+  // After a boss the button leads to the next act (or the final choice), not back to this act's map.
+  const afterBoss = !!run.nodeId && run.nodeId === run.map.bossId
+  const onwardLabel = !afterBoss
+    ? ko
+      ? '지도로'
+      : 'To the map'
+    : run.act < 3
+      ? ko
+        ? `${run.act + 1}막으로`
+        : `On to Act ${run.act + 1}`
+      : ko
+        ? '마지막 선택으로'
+        : 'To the final choice'
   const allTaken =
     (reward.credits <= 0 || reward.taken.credits) &&
     reward.cardChoices.every((_, i) => reward.taken.cards[i]) &&
@@ -77,7 +90,11 @@ export function RewardScreen({ run, C, lang, settings, act }: ScreenProps) {
               </span>
               <span className="m2-rrow__label">
                 {ko ? '프로토콜 하나를 덱에 추가' : 'Add a protocol to your deck'}
-                <small>{ko ? `${choices.length}장 중 1장` : `1 of ${choices.length}`}</small>
+                {/* A second card group only comes from a met bonus objective (engine/run.ts buildReward). */}
+                <small>
+                  {gi > 0 && <span className="m2-rrow__bonus">{ko ? '★ 보너스 목표 달성 · ' : '★ Bonus objective · '}</span>}
+                  {ko ? `${choices.length}장 중 1장` : `1 of ${choices.length}`}
+                </small>
               </span>
               <span className="m2-rrow__state">{reward.taken.cards[gi] ? (ko ? '완료' : 'Done') : ko ? '고르기' : 'Choose'}</span>
             </button>
@@ -191,7 +208,7 @@ export function RewardScreen({ run, C, lang, settings, act }: ScreenProps) {
             }}
           >
             <Package size={17} />
-            {allTaken ? (ko ? '지도로' : 'To the map') : ko ? '남은 보상 두고 떠나기' : 'Leave the rest'}
+            {allTaken ? onwardLabel : ko ? '남은 보상 두고 떠나기' : 'Leave the rest'}
           </button>
         </div>
       </div>

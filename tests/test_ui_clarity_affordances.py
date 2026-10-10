@@ -147,7 +147,8 @@ class UIClarityAffordancesTest(unittest.TestCase):
         self.assertIn('document.body.classList.toggle("concise-mode", conciseMode)', provider)
         self.assertIn("persistConciseMode(next)", provider)
 
-        main = read("src/mythos_ui/src/main.tsx")
+        # The 1.x SPA mounts from classic.tsx since 2.0 took over main.tsx (/?classic=1).
+        main = read("src/mythos_ui/src/classic.tsx")
         self.assertIn("<ConciseModeProvider>", main)
 
         header = read("src/mythos_ui/src/HeaderBar.tsx")

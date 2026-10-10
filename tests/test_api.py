@@ -507,9 +507,14 @@ class ApiStaticClientTest(unittest.TestCase):
         client = _client(_InMemoryStore())
         response = client.get("/app.js")
         self.assertEqual(response.status_code, 200)
-        self.assertIn("loops/stream", response.text)
-        # combat is playable: the client drives the combat action endpoint.
-        self.assertIn("/api/v1/combat/action", response.text)
+        # app.js is the entry router: Mythos 2.0 by default, the 1.x SPA behind /?classic=1.
+        self.assertIn("App2.js", response.text)
+        self.assertIn("classic.js", response.text)
+        classic = client.get("/assets/classic.js")
+        self.assertEqual(classic.status_code, 200)
+        self.assertIn("loops/stream", classic.text)
+        # 1.x combat is still playable: the classic client drives the combat action endpoint.
+        self.assertIn("/api/v1/combat/action", classic.text)
 
     def test_api_route_not_shadowed_by_static_mount(self) -> None:
         # The catch-all static mount must not intercept /api/v1 routes.

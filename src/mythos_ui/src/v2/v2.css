@@ -215,8 +215,8 @@ body {
   padding: 1px 8px;
   border: 1px solid var(--m2-line-2);
   border-radius: 2px;
-  font-size: 12px;
-  line-height: 20px;
+  font-size: 13.5px;
+  line-height: 22px;
   color: var(--m2-ink-2);
   background: rgba(8, 22, 26, 0.7);
   white-space: nowrap;
@@ -922,7 +922,7 @@ body {
 
 .m2-hp {
   position: relative;
-  height: 14px;
+  height: 17px;
   background: #1a0a10;
   border: 1px solid #44202b;
   overflow: hidden;
@@ -948,8 +948,8 @@ body {
   position: relative;
   display: block;
   text-align: center;
-  font-size: 10.5px;
-  line-height: 12px;
+  font-size: 13px;
+  line-height: 15px;
   font-weight: 700;
   color: #fff;
   text-shadow: 0 1px 2px #000;
@@ -2066,13 +2066,15 @@ body {
 }
 .m2-stat {
   display: grid;
-  grid-template-columns: 34px 1fr 18px;
-  gap: 6px;
+  grid-template-columns: 40px 1fr 20px;
+  gap: 8px;
   align-items: center;
-  font-size: 11px;
+  font-size: 13px;
+  line-height: 1.35;
 }
 .m2-stat small {
-  color: var(--m2-mute);
+  font-size: 13px;
+  color: var(--m2-ink-2);
 }
 .m2-stat > i {
   height: 4px;
@@ -2084,7 +2086,7 @@ body {
   background: var(--m2-cyan);
 }
 .m2-stat b {
-  font-size: 11px;
+  font-size: 13px;
   text-align: right;
 }
 .m2-arch__lock {
@@ -2857,17 +2859,29 @@ body {
   line-height: 1.1;
   color: #fff;
 }
+/* GM line: a narrator caption over the scene art (absolute, so its late arrival never moves the options). */
 .m2-gmline {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 24px;
+  max-width: 52ch;
   display: flex;
   gap: 8px;
   align-items: flex-start;
-  margin: 0 0 14px;
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-left: 2px solid var(--m2-echo);
-  background: rgba(183, 166, 255, 0.07);
-  font-size: 14px;
+  background: rgba(6, 10, 18, 0.72);
+  backdrop-filter: blur(4px);
+  font-size: 15px;
+  line-height: 1.6;
   font-style: italic;
-  color: #d9d0ff;
+  color: #e2dbff;
+  text-shadow: 0 1px 4px #000;
+  animation: m2-rise 0.5s var(--m2-ease) both;
+}
+.m2-gmline.has-speaker {
+  bottom: 124px;
 }
 .m2-gmline svg {
   flex: none;
@@ -2936,6 +2950,15 @@ body {
   color: var(--m2-cyan);
   font-size: 13px;
 }
+.m2-option__face {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 18%;
+  border: 1px solid var(--m2-gold);
+  box-shadow: 0 0 14px rgba(240, 205, 117, 0.25);
+}
 .m2-option__label {
   display: block;
   font-size: 16px;
@@ -2980,7 +3003,8 @@ body {
   color: var(--o);
 }
 .m2-odds small {
-  font-size: 11.5px;
+  font-size: 13px;
+  white-space: nowrap;
   color: var(--m2-ink-2);
 }
 .m2-odds.is-good {
@@ -4220,7 +4244,11 @@ body {
 .m2-ending-opt__text small {
   display: block;
   margin-top: 4px;
+  font-size: 15px;
   color: var(--m2-ink-2);
+}
+.m2-ending-opt__echo {
+  color: var(--m2-echo);
 }
 .m2-ending-opt__text em {
   display: flex;
@@ -4228,7 +4256,7 @@ body {
   gap: 5px;
   margin-top: 8px;
   font-style: normal;
-  font-size: 12.5px;
+  font-size: 14px;
   color: var(--m2-amber);
 }
 .m2-ending-opt:hover:not(:disabled) {
@@ -4572,4 +4600,71 @@ body {
   .m2-ending-opt {
     height: 320px;
   }
+}
+
+/* --------------------------------------------------------------- trace tier-up banner */
+
+.m2-tier-alert {
+  --t: var(--m2-amber);
+  position: fixed;
+  top: 72px;
+  left: 50%;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 28px 12px;
+  border: 1px solid var(--t);
+  background: rgba(20, 10, 4, 0.92);
+  box-shadow: 0 0 34px color-mix(in srgb, var(--t) 45%, transparent);
+  clip-path: var(--m2-cut-sm);
+  transform: translateX(-50%);
+  pointer-events: none;
+  animation: m2-tier-alert 4.2s var(--m2-ease) both;
+}
+.m2-tier-alert.is-late {
+  animation-delay: 1.7s;
+}
+.m2-tier-alert b {
+  font-family: var(--m2-display);
+  font-size: 19px;
+  letter-spacing: 0.08em;
+  color: var(--t);
+}
+.m2-tier-alert span {
+  font-size: 15px;
+  color: var(--m2-ink);
+}
+.m2-tier-alert--hunted,
+.m2-tier-alert--purge {
+  --t: var(--m2-threat);
+  background: rgba(26, 4, 10, 0.92);
+}
+@keyframes m2-tier-alert {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -14px) scale(1.06);
+  }
+  8%,
+  86% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -6px);
+  }
+}
+
+/* Version tag beside the MYTHOS wordmark on the title screen. */
+.m2-title__ver {
+  margin-left: 0.9em;
+  padding: 0.15em 0.55em;
+  border: 1px solid rgba(95, 242, 224, 0.45);
+  color: #5ff2e0;
+  font-size: 0.55em;
+  letter-spacing: 0.18em;
+  vertical-align: middle;
+  text-shadow: 0 0 10px rgba(95, 242, 224, 0.5);
 }

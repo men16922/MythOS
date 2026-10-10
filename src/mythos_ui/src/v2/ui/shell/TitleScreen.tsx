@@ -38,7 +38,9 @@ export function TitleScreen({ profile, run, C, onContinue, onNewLoop, onArchive,
           <span className="m2-title__ko" data-text="세계:접속">
             세계:접속
           </span>
-          <span className="m2-title__en">MYTHOS</span>
+          <span className="m2-title__en">
+            MYTHOS <span className="m2-title__ver">2.0 · SIGNAL RUN</span>
+          </span>
         </h1>
         <p className="m2-title__tag">
           {ko ? '지워지기 전에, 도시의 끝까지 달려라.' : 'Run the city end to end before it erases you.'}

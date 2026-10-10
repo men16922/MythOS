@@ -1,5 +1,7 @@
 // Asset URL helpers. FastAPI mounts the repo `resources/` dir at `/resources`.
 
+import { V2_SPRITES } from './spriteManifest.ts'
+
 const BASE = '/resources/neo-seoul/'
 
 /** Path relative to resources/neo-seoul/ → URL. */
@@ -18,12 +20,20 @@ const CHARACTER_SPRITES = new Set(['player-noise', 'se-rin', 'han', 'kai', 'lin-
  * Enemies have no 'cover' pose (falls back to guard).
  */
 export function sprite(key: string, pose: SpritePose = 'idle'): string {
+  // 2.0 sprite sets (bosses, archetypes, elites) win; missing poses fall back sensibly.
+  const v2 = V2_SPRITES[key]
+  if (v2) {
+    const path = v2[pose] ?? (pose === 'skill' ? v2.attack : pose === 'cover' ? v2.guard : undefined) ?? v2.idle
+    if (path) return asset(path)
+  }
   if (CHARACTER_SPRITES.has(key)) return asset(`characters/combat/${key}-${pose}.png`)
   const p = pose === 'cover' ? 'guard' : pose
   return asset(`enemies/combat/${key}-${p}.png`)
 }
 
 export function portrait(key: string): string {
+  const v2 = V2_SPRITES[key]?.idle
+  if (v2) return asset(v2)
   if (CHARACTER_SPRITES.has(key)) return asset(`characters/${key}.png`)
   return asset(`enemies/${key}.png`)
 }

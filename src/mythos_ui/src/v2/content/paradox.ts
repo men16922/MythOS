@@ -1,0 +1,40 @@
+// Paradox (difficulty) levels 1-5. Levels are cumulative: Paradox N applies every level <= N.
+// The engine implements the semantics; texts must stay exact to them.
+import type { ParadoxDef } from '../engine/types.ts'
+
+export const PARADOX: ParadoxDef[] = [
+  {
+    level: 1,
+    name: { ko: '두꺼운 장갑', en: 'Hardened Shells' },
+    text: { ko: '엘리트와 보스의 체력 +20%.', en: 'Elites and bosses have +20% HP.' },
+  },
+  {
+    level: 2,
+    name: { ko: '심어진 잡음', en: 'Seeded Static' },
+    text: {
+      ko: '루프를 시작할 때 덱에 정크 카드 ‘잡음’ 1장이 섞여 있다.',
+      en: 'Start each loop with a Static junk card in your deck.',
+    },
+  },
+  {
+    level: 3,
+    name: { ko: '먼저 온 시선', en: 'Watched from the Start' },
+    text: {
+      ko: '추적도가 20에서 시작하고, 노드에 들어설 때마다 +5 오른다.',
+      en: 'Trace starts at 20 and rises +5 per node.',
+    },
+  },
+  {
+    level: 4,
+    name: { ko: '날 선 손', en: 'Sharpened Hands' },
+    text: { ko: '모든 적의 피해 +1.', en: 'All enemies deal +1 damage.' },
+  },
+  {
+    level: 5,
+    name: { ko: '식은 밥', en: 'Cold Rice' },
+    text: {
+      ko: '은신처 휴식은 체력을 20%만 회복한다.',
+      en: 'Safehouse rest heals only 20%.',
+    },
+  },
+]

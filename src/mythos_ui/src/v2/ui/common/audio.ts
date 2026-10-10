@@ -1,10 +1,74 @@
-// Minimal audio manager: one looping BGM channel + fire-and-forget SFX.
-// Browsers block audio until the first user gesture; `unlockAudio()` is called from
-// the title screen's first click.
+// Music + legacy sample playback.
+//
+// Music is decoded into AudioBuffers and played through the WebAudio music bus in sfx.ts:
+// sample-accurate seamless loops, equal-power crossfades between tracks, and the
+// enemy-phase duck (`setMusicDuck`) all come from that graph. Browsers block audio until
+// the first user gesture — `unlockAudio()` is called from the title screen's first click;
+// a track requested before that starts as soon as audio unlocks.
 
+import { MUSIC } from './artManifest.ts'
 import { asset } from './assets.ts'
+import { initSfx, musicBus, setSfxEnabled } from './sfx.ts'
 
-export type Bgm = 'calm' | 'main' | 'tense' | 'unstable' | 'combat_normal' | 'combat_crisis' | 'combat_boss' | null
+/** Track keys. Legacy 1.x names are mapped onto the 2.0 score (see LEGACY). */
+export type Bgm =
+  | 'title'
+  | 'hub'
+  | 'map1'
+  | 'map2'
+  | 'map3'
+  | 'event'
+  | 'shop'
+  | 'rest'
+  | 'combat1'
+  | 'combat2'
+  | 'combat3'
+  | 'elite'
+  | 'boss1'
+  | 'boss2'
+  | 'boss_ix'
+  | 'victory'
+  | 'defeat'
+  | 'ending'
+  | 'calm'
+  | 'main'
+  | 'tense'
+  | 'unstable'
+  | 'combat_normal'
+  | 'combat_crisis'
+  | 'combat_boss'
+  | null
+
+const LEGACY: Record<string, string> = {
+  calm: 'hub',
+  main: 'event',
+  tense: 'map1',
+  unstable: 'map2',
+  combat_normal: 'combat1',
+  combat_crisis: 'elite',
+  combat_boss: 'boss1',
+}
+const LEGACY_FILE: Record<string, string> = {
+  hub: 'audio/bgm_calm.wav',
+  event: 'audio/bgm_main.wav',
+  map1: 'audio/bgm_tense.wav',
+  map2: 'audio/bgm_unstable.wav',
+  map3: 'audio/bgm_tense.wav',
+  combat1: 'audio/bgm_combat_normal.wav',
+  combat2: 'audio/bgm_combat_normal.wav',
+  combat3: 'audio/bgm_combat_crisis.wav',
+  elite: 'audio/bgm_combat_crisis.wav',
+  boss1: 'audio/bgm_combat_boss.wav',
+  boss2: 'audio/bgm_combat_boss.wav',
+  boss_ix: 'audio/bgm_combat_boss.wav',
+  title: 'audio/bgm_main.wav',
+  shop: 'audio/bgm_calm.wav',
+  rest: 'audio/bgm_calm.wav',
+  victory: 'audio/bgm_calm.wav',
+  defeat: 'audio/bgm_unstable.wav',
+  ending: 'audio/bgm_calm.wav',
+}
+
 export type Sfx =
   | 'alarm'
   | 'attack'
@@ -23,47 +87,46 @@ export type Sfx =
   | 'signal_step'
 
 const SKILL_SFX = new Set(['covering_noise', 'overload_strike', 'packet_shot', 'patch_protocol', 'signal_step'])
+const MUSIC_LEVEL = 0.55
 
-let bgmEl: HTMLAudioElement | null = null
-let bgmKey: Bgm = null
 let unlocked = false
 let bgmOn = true
 let sfxOn = true
+let wanted: string | null = null
+let current: { key: string; src: AudioBufferSourceNode; gain: GainNode } | null = null
+const buffers = new Map<string, Promise<AudioBuffer | null>>()
 const cache = new Map<string, HTMLAudioElement>()
 
 export function configureAudio(opts: { bgm: boolean; sfx: boolean }): void {
+  const bgmChanged = opts.bgm !== bgmOn
   bgmOn = opts.bgm
   sfxOn = opts.sfx
-  if (!bgmOn && bgmEl) bgmEl.pause()
-  if (bgmOn && bgmEl && unlocked) void bgmEl.play().catch(() => undefined)
+  setSfxEnabled(opts.sfx)
+  if (bgmChanged) {
+    if (!bgmOn) stopCurrent(0.4)
+    else if (wanted) void startTrack(wanted)
+  }
 }
 
 export function unlockAudio(): void {
+  if (unlocked) return
   unlocked = true
-  if (bgmOn && bgmEl) void bgmEl.play().catch(() => undefined)
+  initSfx()
+  if (wanted) void startTrack(wanted)
 }
 
 export function playBgm(key: Bgm): void {
-  if (key === bgmKey) return
-  bgmKey = key
-  if (bgmEl) {
-    const old = bgmEl
-    fade(old, old.volume, 0, 600, () => old.pause())
-    bgmEl = null
+  const resolved = key ? (LEGACY[key] ?? key) : null
+  if (resolved === wanted) return
+  wanted = resolved
+  if (!resolved) {
+    stopCurrent(0.8)
+    return
   }
-  if (!key) return
-  const el = new Audio(asset(`audio/bgm_${key}.wav`))
-  el.loop = true
-  el.volume = 0
-  bgmEl = el
-  if (bgmOn && unlocked) {
-    void el.play().catch(() => undefined)
-    fade(el, 0, 0.35, 900)
-  } else {
-    el.volume = 0.35
-  }
+  void startTrack(resolved)
 }
 
+/** Fire-and-forget authored sample (prefer `sfx()` from sfx.ts for game-feel cues). */
 export function playSfx(key: Sfx, volume = 0.6): void {
   if (!sfxOn || !unlocked) return
   const path = SKILL_SFX.has(key) ? `audio/sfx/skills/${key}.wav` : `audio/sfx/sfx_${key}.wav`
@@ -78,13 +141,56 @@ export function playSfx(key: Sfx, volume = 0.6): void {
   void el.play().catch(() => undefined)
 }
 
-function fade(el: HTMLAudioElement, from: number, to: number, ms: number, done?: () => void): void {
-  const start = performance.now()
-  const step = (now: number) => {
-    const k = Math.min(1, (now - start) / ms)
-    el.volume = Math.max(0, Math.min(1, from + (to - from) * k))
-    if (k < 1) requestAnimationFrame(step)
-    else done?.()
+function trackPath(key: string): string | null {
+  return MUSIC[key] ?? LEGACY_FILE[key] ?? null
+}
+
+function loadBuffer(ctx: AudioContext, path: string): Promise<AudioBuffer | null> {
+  let p = buffers.get(path)
+  if (!p) {
+    p = fetch(asset(path))
+      .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(String(r.status)))))
+      .then((data) => ctx.decodeAudioData(data))
+      .catch(() => null)
+    buffers.set(path, p)
   }
-  requestAnimationFrame(step)
+  return p
+}
+
+async function startTrack(key: string): Promise<void> {
+  if (!unlocked || !bgmOn) return
+  const bus = musicBus()
+  const path = trackPath(key)
+  if (!bus || !path) return
+  if (current?.key === key) return
+  const buffer = await loadBuffer(bus.ctx, path)
+  // The request may have changed while decoding.
+  if (!buffer || wanted !== key || !bgmOn || current?.key === key) return
+  stopCurrent(1.0)
+  const { ctx } = bus
+  const src = ctx.createBufferSource()
+  src.buffer = buffer
+  src.loop = true
+  const gain = ctx.createGain()
+  const t = ctx.currentTime
+  gain.gain.setValueAtTime(0.0001, t)
+  gain.gain.exponentialRampToValueAtTime(MUSIC_LEVEL, t + 1.2)
+  src.connect(gain).connect(bus.input)
+  src.start(t)
+  current = { key, src, gain }
+}
+
+function stopCurrent(fadeSeconds: number): void {
+  const bus = musicBus()
+  if (!current || !bus) {
+    current = null
+    return
+  }
+  const { src, gain } = current
+  const t = bus.ctx.currentTime
+  gain.gain.cancelScheduledValues(t)
+  gain.gain.setValueAtTime(Math.max(0.0001, gain.gain.value), t)
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + fadeSeconds)
+  src.stop(t + fadeSeconds + 0.05)
+  current = null
 }

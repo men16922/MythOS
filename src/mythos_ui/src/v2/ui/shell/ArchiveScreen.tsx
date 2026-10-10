@@ -22,6 +22,22 @@ const KINDS: { kind: MetaUnlockKind; label: Text; hint: Text }[] = [
 
 type SideTab = 'codex' | 'endings' | 'history'
 
+/** Who killed the connector, as IX would name it: an enemy, not a map label. `killedBy` may be an
+ *  encounter id ("Behind Cover") — then name its toughest enemy instead. */
+function killerName(killerId: string | undefined, C: ContentRegistry): Text | undefined {
+  if (!killerId) return undefined
+  const direct = C.enemies[killerId]
+  if (direct) return direct.name
+  const enc = C.encounters[killerId]
+  if (!enc) return undefined
+  const TIER = { boss: 3, elite: 2, normal: 1, minion: 0 } as const
+  const lead = enc.enemies
+    .map((e) => C.enemies[e.id])
+    .filter((d): d is NonNullable<typeof d> => !!d)
+    .sort((a, b) => TIER[b.tier] - TIER[a.tier] || b.hp - a.hp)[0]
+  return lead?.name ?? enc.name
+}
+
 function ixLine(profile: MetaProfile, C: ContentRegistry, lang: Lang): string {
   const lines = C.ixLines
   const last = profile.history[0]
@@ -31,8 +47,7 @@ function ixLine(profile: MetaProfile, C: ContentRegistry, lang: Lang): string {
   else if (last && profile.lastDeath) pool = lines.afterDeath
   if (pool.length === 0) pool = lines.generic.length ? lines.generic : lines.first
   const line = pool[profile.loops % Math.max(1, pool.length)]
-  const killerId = profile.lastDeath?.killedBy
-  const killer = killerId ? (C.encounters[killerId]?.name ?? C.enemies[killerId]?.name) : undefined
+  const killer = killerName(profile.lastDeath?.killedBy, C)
   return fmtText(line ?? L('…', '…'), lang, {
     loop: profile.loops + 1,
     killer: killer ? tr(killer, lang) : lang === 'ko' ? '도시' : 'the city',
@@ -71,11 +86,14 @@ export function ArchiveScreen({ profile, C, onProfile, onBegin, onBack, activeLo
 
   useEffect(() => {
     let alive = true
-    const killerId = profile.lastDeath?.killedBy
-    const killer = killerId ? (C.encounters[killerId]?.name ?? C.enemies[killerId]?.name) : undefined
+    const killer = killerName(profile.lastDeath?.killedBy, C)
+    const last = profile.history[0]
+    const lastEnding = last?.endingId ? C.endings[last.endingId] : undefined
     void narrate('ix_loop_start', lang, {
       loop: profile.loops + 1,
-      lastResult: profile.history[0]?.result,
+      lastResult: last?.result,
+      lastEnding: lastEnding ? tr(lastEnding.title, lang) : undefined,
+      lastEndingText: lastEnding ? tr(lastEnding.text, lang) : undefined,
       killedBy: killer ? tr(killer, lang) : undefined,
       lastAct: profile.lastDeath?.act,
       wins: profile.wins,

@@ -21,6 +21,9 @@
   height: var(--m2c-h, calc(100dvh - var(--m2-bar-h, 0px)));
   min-height: 520px;
   overflow: hidden;
+  /* clip (not just hide): the drifting backdrop is wider than the root, and focus/scrollIntoView
+     must never be able to scroll the whole fight sideways. */
+  overflow: clip;
   background: #02070a;
   color: var(--c-ink);
   font-family: var(--m2-body, 'Noto Sans KR', system-ui, sans-serif);
@@ -648,6 +651,12 @@
 }
 .m2c-unit.is-xray .m2c-fig {
   opacity: 0.3;
+}
+/* An opposing unit stands right behind this one: keep its feet/body solid (you still see where it stands) but
+   fade the head/shoulders that would otherwise hide the unit behind. Hovering it shows it in full. */
+.m2c-unit.is-occluding:not(.is-hovered) .m2c-fig img {
+  -webkit-mask-image: linear-gradient(to top, #000 46%, rgba(0, 0, 0, 0.55) 66%, rgba(0, 0, 0, 0.45));
+  mask-image: linear-gradient(to top, #000 46%, rgba(0, 0, 0, 0.55) 66%, rgba(0, 0, 0, 0.45));
 }
 .m2c-unit.is-vanish .m2c-fig {
   opacity: 0;

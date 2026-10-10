@@ -67,8 +67,10 @@ export function CombatSandbox() {
     <div
       className="m2-app m2c-sandbox"
       onPointerDownCapture={() => {
-        unlockAudio()
-        configureAudio({ bgm: true, sfx: true })
+        // Dev sandbox: silent unless explicitly asked for (?sound=1); ?mute=1 always wins (audio.ts).
+        const sound = new URLSearchParams(window.location.search).get('sound') === '1'
+        configureAudio({ bgm: sound, sfx: sound })
+        if (sound) unlockAudio()
       }}
     >
       <div className="m2c-sb-bar">

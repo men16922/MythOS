@@ -6,7 +6,7 @@ import { configureAudio, playBgm, unlockAudio, type Bgm } from '../common/audio.
 import { tr } from '../common/lang.ts'
 import { DeckModal } from '../components/DeckModal.tsx'
 import { ErrorBoundary } from '../components/ErrorBoundary.tsx'
-import { traceTier } from '../components/format.ts'
+import { TRACE_EFFECT, TRACE_LABEL, traceTier, type TraceTier } from '../components/format.ts'
 import { Modal } from '../components/Modal.tsx'
 import { SettingsPanel } from '../components/SettingsPanel.tsx'
 import { duckMusic, sound } from '../components/sound.ts'
@@ -124,13 +124,25 @@ export function GameShell() {
     document.documentElement.lang = lang
   }, [lang])
 
-  // Alarm when Trace crosses into a higher tier.
+  // Alarm + banner when Trace crosses into a higher tier (the rule change must be seen, not just heard).
   const tier = run ? traceTier(run.trace) : null
+  const [tierAlert, setTierAlert] = useState<TraceTier | null>(null)
   useEffect(() => {
     const order = ['quiet', 'alert', 'hunted', 'purge']
-    if (tier && lastTier.current && order.indexOf(tier) > order.indexOf(lastTier.current)) sound('alarm')
+    if (tier && lastTier.current && order.indexOf(tier) > order.indexOf(lastTier.current)) {
+      sound('alarm')
+      setTierAlert(tier)
+    }
     lastTier.current = tier
   }, [tier])
+  // Tier changes happen on node entry, usually straight into a fight: there the banner waits for the
+  // encounter splash to clear (CSS delay) instead of being skipped.
+  const tierAlertLate = run?.screen.kind === 'combat'
+  useEffect(() => {
+    if (!tierAlert) return
+    const t = window.setTimeout(() => setTierAlert(null), tierAlertLate ? 6000 : 4200)
+    return () => window.clearTimeout(t)
+  }, [tierAlert, tierAlertLate])
 
   useEffect(() => {
     try {
@@ -337,6 +349,14 @@ export function GameShell() {
           </ErrorBoundary>
         </div>
         <div key={`curtain-${screenKey}`} className="m2-curtain" aria-hidden="true" />
+        {tierAlert && view === 'run' && (
+          <div key={tierAlert} className={`m2-tier-alert m2-tier-alert--${tierAlert}${tierAlertLate ? ' is-late' : ''}`} role="status">
+            <b>
+              {lang === 'ko' ? '추적도' : 'Trace'} · {tr(TRACE_LABEL[tierAlert], lang)}
+            </b>
+            <span>{tr(TRACE_EFFECT[tierAlert], lang)}</span>
+          </div>
+        )}
       </main>
 
       {deckOpen && run && (

@@ -11,18 +11,28 @@ import { Typewriter } from '../components/Typewriter.tsx'
 import { narrate } from './gm.ts'
 import type { ScreenProps } from './types.ts'
 
+/** True when the word's last Hangul syllable has a final consonant (받침); non-Hangul counts as yes. */
+function hasBatchim(word: string): boolean {
+  const code = word.charCodeAt(word.length - 1) - 0xac00
+  return code < 0 || code > 11171 || code % 28 !== 0
+}
+
 function authoredChronicle(run: RunState, lang: Lang, C: ScreenProps['C']): string {
   const ko = lang === 'ko'
   const arch = C.archetypes[run.archetype]
   const party = run.party.map((m) => tr(C.companions[m.id]?.name, lang)).filter(Boolean)
   const won = run.screen.kind === 'ended' && run.screen.result === 'victory'
   const lines: string[] = []
+  const who = tr(arch?.name, lang) || '접속자'
   lines.push(
     ko
-      ? `루프 ${run.loop}. ${tr(arch?.name, lang) || '접속자'}는 ${run.act}막까지 ${run.tally.floors}개 구역을 지났다.`
+      ? `루프 ${run.loop}. ${who}${hasBatchim(who) ? '은' : '는'} ${run.act}막까지 ${run.tally.floors}개 구역을 지났다.`
       : `Loop ${run.loop}. The ${tr(arch?.name, lang) || 'connector'} crossed ${run.tally.floors} sectors, reaching Act ${run.act}.`,
   )
-  if (party.length) lines.push(ko ? `${party.join(', ')}이(가) 곁에 있었다.` : `${party.join(' and ')} stood beside them.`)
+  if (party.length) {
+    const last = party[party.length - 1] ?? ''
+    lines.push(ko ? `${party.join(', ')}${hasBatchim(last) ? '이' : '가'} 곁에 있었다.` : `${party.join(' and ')} stood beside them.`)
+  }
   lines.push(
     ko
       ? `처치 ${run.tally.kills}, 지형을 이용한 처치 ${run.tally.environmentKills}. 받은 피해 ${run.tally.damageTaken}.`

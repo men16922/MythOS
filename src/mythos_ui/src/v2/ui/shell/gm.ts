@@ -19,13 +19,33 @@ function withTimeout<T>(p: Promise<T>, ms: number): Promise<T | null> {
   return Promise.race([p, new Promise<null>((res) => window.setTimeout(() => res(null), ms))])
 }
 
+/** Local models sometimes leak byte-fallback tokens ("<0xEC><0x87><0xB3>") instead of the character they
+ *  encode. Decode runs of them back to UTF-8; drop anything that still does not decode cleanly. */
+export function cleanGmText(text: string): string {
+  return text
+    .replace(/(?:<0x[0-9A-Fa-f]{2}>)+/g, (run) => {
+      const bytes = new Uint8Array((run.match(/[0-9A-Fa-f]{2}(?=>)/g) ?? []).map((h) => parseInt(h, 16)))
+      try {
+        return new TextDecoder('utf-8', { fatal: true }).decode(bytes)
+      } catch {
+        return ''
+      }
+    })
+    .replace(/[ \t]{2,}/g, ' ')
+    .trim()
+}
+
+function cleanText(t: Improvisation['successText']): Improvisation['successText'] {
+  return { ko: cleanGmText(t.ko ?? ''), en: cleanGmText(t.en ?? '') }
+}
+
 /** Returns the GM's line, or null (no backend, timeout, or a server fallback when `acceptFallback` is off). */
 export async function narrate(kind: NarrateKind, lang: Lang, context: Ctx, timeoutMs = 12000, acceptFallback = false): Promise<string | null> {
   try {
     const res = await withTimeout(net.narrate({ kind, lang, context }), timeoutMs)
     if (!res) return null
     if (res.source === 'fallback' && !acceptFallback) return null
-    return res.text?.trim() || null
+    return res.text ? cleanGmText(res.text) || null : null
   } catch {
     return null
   }
@@ -76,8 +96,8 @@ export async function improvise(req: ImproviseReq): Promise<Improvisation> {
       dc,
       reward,
       risk,
-      successText: res.successText?.ko || res.successText?.en ? res.successText : local.successText,
-      failureText: res.failureText?.ko || res.failureText?.en ? res.failureText : local.failureText,
+      successText: res.successText?.ko || res.successText?.en ? cleanText(res.successText) : local.successText,
+      failureText: res.failureText?.ko || res.failureText?.en ? cleanText(res.failureText) : local.failureText,
     }
   } catch {
     return local

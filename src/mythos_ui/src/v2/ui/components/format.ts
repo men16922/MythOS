@@ -14,7 +14,7 @@ export function traceTier(trace: number): TraceTier {
 export const TRACE_LABEL: Record<TraceTier, Text> = {
   quiet: L('잠잠', 'Quiet'),
   alert: L('경계', 'Alert'),
-  hunted: L('추적', 'Hunted'),
+  hunted: L('수배', 'Hunted'),
   purge: L('숙청', 'PURGE'),
 }
 
@@ -39,8 +39,8 @@ export const NODE_HINT: Record<NodeKind, Text> = {
   combat: L('일반 적과 교전. 승리하면 크레딧과 카드 보상.', 'Engage regular enemies. Credits and a card reward.'),
   elite: L('강력한 적. 위험하지만 임플란트를 얻을 수 있다.', 'A dangerous foe. Drops an implant.'),
   event: L('무슨 일이 기다리는지 모른다. 선택에 대가가 따른다.', 'Unknown situation. Choices have real costs.'),
-  shop: L('카드, 임플란트, 소모품을 산다. 카드 제거와 흔적 지우기.', 'Buy cards, implants, consumables. Remove a card or scrub Trace.'),
-  rest: L('회복, 카드 강화, 흔적 지우기, 또는 동료와 유대.', 'Heal, upgrade a card, scrub Trace, or bond with a companion.'),
+  shop: L('카드, 임플란트, 소모품을 산다. 카드 제거와 추적도 낮추기.', 'Buy cards, implants, consumables. Remove a card or scrub Trace.'),
+  rest: L('회복, 카드 강화, 추적도 낮추기, 또는 동료와 유대.', 'Heal, upgrade a card, scrub Trace, or bond with a companion.'),
   treasure: L('잠긴 보급 상자. 임플란트 하나가 들어 있다.', 'A locked cache with an implant inside.'),
   boss: L('이 구역의 지배자.', 'The ruler of this sector.'),
 }
@@ -80,7 +80,7 @@ export function effectChips(effects: RunEffect[], C: ContentRegistry, lang: Lang
         out.push({ text: `${sign(e.amount)} ₵`, tone: e.amount >= 0 ? 'gold' : 'bad' })
         break
       case 'trace':
-        out.push({ text: s(`흔적 ${sign(e.amount)}`, `${sign(e.amount)} Trace`), tone: e.amount > 0 ? 'warn' : 'good' })
+        out.push({ text: s(`추적 ${sign(e.amount)}`, `${sign(e.amount)} Trace`), tone: e.amount > 0 ? 'warn' : 'good' })
         break
       case 'card': {
         const def = C.cards[e.cardId]

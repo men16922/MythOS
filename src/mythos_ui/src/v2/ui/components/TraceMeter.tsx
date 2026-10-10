@@ -13,11 +13,11 @@ export function TraceMeter({ trace, lang, compact }: { trace: number; lang: Lang
       content={
         <div>
           <div className="m2-tip__title">
-            {lang === 'ko' ? '흔적' : 'Trace'} {pct}/100 · {tr(TRACE_LABEL[tier], lang)}
+            {lang === 'ko' ? '추적도' : 'Trace'} {pct}/100 · {tr(TRACE_LABEL[tier], lang)}
           </div>
           <div className="m2-tip__text">
             {lang === 'ko'
-              ? 'IX의 탐지 수준. 노드 이동, 시끄러운 카드, 욕심낸 선택으로 오른다. 은신처와 암시장에서 지울 수 있다.'
+              ? 'IX가 당신을 얼마나 쫓고 있는지. 노드 이동, 시끄러운 카드, 욕심낸 선택으로 오른다. 은신처와 암시장에서 낮출 수 있다.'
               : 'How closely IX is watching. Rises with every node, loud cards and greedy choices. Scrub it at safehouses and the black market.'}
           </div>
           <div className="m2-trace-tips">
@@ -33,7 +33,7 @@ export function TraceMeter({ trace, lang, compact }: { trace: number; lang: Lang
     >
       <div className={`m2-trace m2-trace--${tier}${compact ? ' m2-trace--compact' : ''}`}>
         <div className="m2-trace__head">
-          <span className="m2-trace__label">{lang === 'ko' ? '흔적' : 'Trace'}</span>
+          <span className="m2-trace__label">{lang === 'ko' ? '추적도' : 'Trace'}</span>
           <span className="m2-trace__tier">{tr(TRACE_LABEL[tier], lang)}</span>
           <span className="m2-trace__val m2-mono">{pct}</span>
         </div>

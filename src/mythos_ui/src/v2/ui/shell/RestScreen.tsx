@@ -67,7 +67,7 @@ export function RestScreen({ run, C, lang, settings, act }: ScreenProps) {
             <button className="m2-restopt m2-restopt--scrub" onClick={() => pick({ kind: 'scrub' })} onMouseEnter={() => sound('ui_hover')} disabled={run.trace <= 0}>
               <Eraser size={34} />
               <b>{ko ? '흔적 지우기' : 'Go dark'}</b>
-              <span>{ko ? `흔적 −${scrub}` : `−${scrub} Trace`}</span>
+              <span>{ko ? `추적 −${scrub}` : `−${scrub} Trace`}</span>
             </button>
             <button
               className="m2-restopt m2-restopt--bond"

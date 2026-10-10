@@ -249,6 +249,8 @@ interface UnitProps {
   origin: boolean
   hovered: boolean
   xray: boolean
+  /** An opposing unit stands directly behind this one: fade the upper sprite so it stays readable. */
+  occluding: boolean
   danger: number
   preview: CombatPreview['units'][number] | undefined
   intent: IntentInfo | null
@@ -300,6 +302,7 @@ const UnitSprite = memo(function UnitSprite(p: UnitProps) {
     p.origin ? 'is-origin' : '',
     p.hovered ? 'is-hovered' : '',
     p.xray ? 'is-xray' : '',
+    p.occluding && !p.xray ? 'is-occluding' : '',
     p.danger > 0 ? 'is-danger' : '',
     fx?.dying ? `is-dying is-dying-${fx.dying}` : '',
     fx?.spawning ? 'is-spawning' : '',
@@ -461,6 +464,8 @@ export function Board({ registerBoard, ...props }: BoardProps) {
   const renderUnits = (layer: 'body' | 'hud') =>
     units.map((u) => {
       const xray = !!hover && hover.y < u.pos.y && u.pos.y - hover.y <= 2 && Math.abs(hover.x - u.pos.x) <= 1 && !(hover.x === u.pos.x && hover.y === u.pos.y)
+      const reach = unitScale(C, u) > 1.2 ? 1 : 0
+      const occluding = units.some((v) => v.side !== u.side && v.hp > 0 && v.pos.y === u.pos.y - 1 && Math.abs(v.pos.x - u.pos.x) <= reach)
       return (
         <UnitSprite
           key={u.uid}
@@ -473,6 +478,7 @@ export function Board({ registerBoard, ...props }: BoardProps) {
           origin={props.originUid === u.uid}
           hovered={!!hover && hover.x === u.pos.x && hover.y === u.pos.y}
           xray={xray}
+          occluding={occluding}
           danger={danger[u.uid] ?? 0}
           preview={previewByUid[u.uid]}
           intent={intentByUid[u.uid] ?? null}

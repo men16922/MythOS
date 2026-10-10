@@ -89,7 +89,7 @@ export function MapScreen({ run, C, lang, act, settings }: ScreenProps) {
         <div className="m2-tip__title">{tr(NODE_LABEL[n.kind], lang)}</div>
         {enc && (n.kind === 'elite' || n.kind === 'boss') && <div className="m2-tip__text" style={{ color: 'var(--m2-threat-2)' }}>{tr(enc.name, lang)}</div>}
         <div className="m2-tip__text">{tr(NODE_HINT[n.kind], lang)}</div>
-        {reachable.has(n.id) && <div className="m2-tip__text" style={{ color: 'var(--m2-amber)', marginTop: 4 }}>{lang === 'ko' ? '이동 시 흔적 +3' : 'Entering adds +3 Trace'}</div>}
+        {reachable.has(n.id) && <div className="m2-tip__text" style={{ color: 'var(--m2-amber)', marginTop: 4 }}>{lang === 'ko' ? '이동 시 추적 +3' : 'Entering adds +3 Trace'}</div>}
       </div>
     )
   }
@@ -107,7 +107,7 @@ export function MapScreen({ run, C, lang, act, settings }: ScreenProps) {
 
         <div className={`m2-map__trace m2-map__trace--${tier}`}>
           <div className="m2-map__trace-row">
-            <span>{lang === 'ko' ? 'IX 탐지' : 'IX detection'}</span>
+            <span>{lang === 'ko' ? '추적도' : 'Trace'}</span>
             <b className="m2-mono">{run.trace}</b>
           </div>
           <div className="m2-map__trace-bar">

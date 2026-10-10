@@ -17,12 +17,12 @@ const REWARD_LABEL: Record<Improvisation['reward'], { ko: string; en: string }> 
   credits: L('크레딧', 'Credits'),
   heal: L('회복', 'Heal'),
   card: L('카드 획득', 'A card'),
-  trace_down: L('흔적 감소', 'Less Trace'),
+  trace_down: L('추적도 감소', 'Less Trace'),
   implant: L('임플란트', 'An implant'),
 }
 const RISK_LABEL: Record<Improvisation['risk'], { ko: string; en: string }> = {
   hp: L('HP 손실', 'Lose HP'),
-  trace: L('흔적 증가', 'More Trace'),
+  trace: L('추적도 증가', 'More Trace'),
   credits: L('크레딧 손실', 'Lose credits'),
 }
 
@@ -35,7 +35,7 @@ function rewardText(imp: Improvisation, lang: Lang): string {
     case 'heal':
       return `+${6 + imp.dc} HP`
     case 'trace_down':
-      return ko ? `흔적 −${5 + 2 * imp.dc}` : `−${5 + 2 * imp.dc} Trace`
+      return ko ? `추적 −${5 + 2 * imp.dc}` : `−${5 + 2 * imp.dc} Trace`
     case 'card':
       return ko ? '카드 선택' : 'Choose a card'
     case 'implant':
@@ -48,7 +48,7 @@ function riskText(imp: Improvisation, lang: Lang): string {
     case 'hp':
       return `−${imp.dc + 1} HP`
     case 'trace':
-      return ko ? `흔적 +${2 * imp.dc}` : `+${2 * imp.dc} Trace`
+      return ko ? `추적 +${2 * imp.dc}` : `+${2 * imp.dc} Trace`
     case 'credits':
       return `−${4 * imp.dc} ₵`
   }
@@ -87,6 +87,9 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
   const [pending, setPending] = useState<Improvisation | null>(null)
   const [judging, setJudging] = useState(false)
   const [rolling, setRolling] = useState<{ chance: number; success: boolean; land: number; next: RunState; label: string } | null>(null)
+  // The option list can change once an option resolves (e.g. a recruit leaves the candidate pool), so the
+  // outcome reads the option that was actually clicked, not whatever now sits at that index.
+  const [picked, setPicked] = useState<{ eventId: string; index: number; opt: EventOption } | null>(null)
   const eventId = screen?.eventId ?? ''
 
   useEffect(() => {
@@ -134,7 +137,11 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
   const rolled = screen.improvised?.rolled ? screen.improvised : null
   const resolved = screen.resolved && screen.resolved.optionIndex >= 0 ? screen.resolved : null
   const views = rx.eventOptions(run, C)
-  const resolvedOpt = resolved ? views[resolved.optionIndex]?.option : undefined
+  const resolvedOpt = resolved
+    ? picked && picked.eventId === ev.id && picked.index === resolved.optionIndex
+      ? picked.opt
+      : views[resolved.optionIndex]?.option
+    : undefined
 
   const choose = (i: number, opt: EventOption, available: boolean) => {
     if (rolling) return
@@ -143,6 +150,7 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
       return
     }
     const next = rx.chooseOption(run, i, C)
+    setPicked({ eventId: ev.id, index: i, opt })
     if (opt.check && next.screen.kind === 'event' && next.screen.resolved) {
       const chance = rx.chance(run, opt.check)
       const success = next.screen.resolved.success
@@ -226,6 +234,8 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
             {views.map(({ option: opt, index: i, available, reason, chance }) => {
               const winChips = effectChips(opt.success.effects, C, lang)
               const failChips = opt.failure ? effectChips(opt.failure.effects, C, lang) : []
+              const joinFx = opt.success.effects.find((e) => e.kind === 'companion')
+              const joiner = joinFx && joinFx.kind === 'companion' ? C.companions[joinFx.id] : undefined
               return (
                 <button
                   key={i}
@@ -248,11 +258,14 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
                     </span>
                     {!available && reason && <span className="m2-option__reason">{tr(reason, lang)}</span>}
                   </span>
+                  {joiner && !opt.check && <img className="m2-option__face" src={portrait(joiner.sprite)} alt="" />}
                   {opt.check && chance !== undefined && (
                     <span className={`m2-odds${chance >= 70 ? ' is-good' : chance <= 35 ? ' is-bad' : ''}`}>
                       <b className="m2-mono">{chance}%</b>
                       <small>
-                        {statLabel(opt.check.stat, lang)} {run.stats[opt.check.stat]}
+                        {ko
+                          ? `${statLabel(opt.check.stat, lang)} ${run.stats[opt.check.stat]} vs 난이도 ${opt.check.dc}`
+                          : `${statLabel(opt.check.stat, lang)} ${run.stats[opt.check.stat]} vs DC ${opt.check.dc}`}
                       </small>
                     </span>
                   )}

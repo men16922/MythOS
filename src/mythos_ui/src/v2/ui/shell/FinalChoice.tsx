@@ -9,6 +9,13 @@ import type { ScreenProps } from './types.ts'
 export function FinalChoice({ run, C, lang, act }: ScreenProps) {
   const ko = lang === 'ko'
   const endings = rx.endings(run, C)
+  const bondTotal = run.party.reduce((sum, m) => sum + m.bond, 0)
+  /** Where the player stands against a gate, so a lock reads as a goal ("2 / 4"), not a wall. */
+  const progress = (req: (typeof endings)[number]['def']['requires']): string | null => {
+    if (req?.minBondTotal !== undefined) return `${bondTotal} / ${req.minBondTotal}`
+    if (req?.minCodex !== undefined) return `${run.codex.length} / ${req.minCodex}`
+    return null
+  }
   return (
     <div className="m2-final">
       <div className="m2-final__head">
@@ -32,10 +39,14 @@ export function FinalChoice({ run, C, lang, act }: ScreenProps) {
             <span className="m2-ending-opt__shade" />
             <span className="m2-ending-opt__text">
               <b>{tr(def.choice ?? def.title, lang)}</b>
-              <small>{tr(def.title, lang)}</small>
+              <small>
+                {tr(def.title, lang)}
+                {def.echoBonus > 0 && <span className="m2-ending-opt__echo m2-mono"> · ◈ +{def.echoBonus}</span>}
+              </small>
               {!gate.ok && gate.reason && (
                 <em>
-                  <Lock size={12} /> {tr(gate.reason, lang)}
+                  <Lock size={13} /> {tr(gate.reason, lang)}
+                  {progress(def.requires) && <span className="m2-mono"> ({ko ? '현재' : 'now'} {progress(def.requires)})</span>}
                 </em>
               )}
             </span>

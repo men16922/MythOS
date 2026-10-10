@@ -89,19 +89,36 @@ export type Sfx =
 const SKILL_SFX = new Set(['covering_noise', 'overload_strike', 'packet_shot', 'patch_protocol', 'signal_step'])
 const MUSIC_LEVEL = 0.55
 
+/**
+ * Hard mute for automated/agent testing: `?mute=1` in the URL or localStorage 'mythos2.mute' = '1'.
+ * Overrides the player's settings entirely — no AudioContext is ever created.
+ */
+export function isHardMuted(): boolean {
+  try {
+    if (new URLSearchParams(window.location.search).get('mute') === '1') return true
+    return window.localStorage.getItem('mythos2.mute') === '1'
+  } catch {
+    return false
+  }
+}
+
+const HARD_MUTE = typeof window !== 'undefined' && isHardMuted()
+
 let unlocked = false
-let bgmOn = true
-let sfxOn = true
+let bgmOn = !HARD_MUTE
+let sfxOn = !HARD_MUTE
 let wanted: string | null = null
 let current: { key: string; src: AudioBufferSourceNode; gain: GainNode } | null = null
 const buffers = new Map<string, Promise<AudioBuffer | null>>()
 const cache = new Map<string, HTMLAudioElement>()
 
 export function configureAudio(opts: { bgm: boolean; sfx: boolean }): void {
-  const bgmChanged = opts.bgm !== bgmOn
-  bgmOn = opts.bgm
-  sfxOn = opts.sfx
-  setSfxEnabled(opts.sfx)
+  const bgm = opts.bgm && !HARD_MUTE
+  const sfx = opts.sfx && !HARD_MUTE
+  const bgmChanged = bgm !== bgmOn
+  bgmOn = bgm
+  sfxOn = sfx
+  setSfxEnabled(sfx)
   if (bgmChanged) {
     if (!bgmOn) stopCurrent(0.4)
     else if (wanted) void startTrack(wanted)
@@ -109,7 +126,7 @@ export function configureAudio(opts: { bgm: boolean; sfx: boolean }): void {
 }
 
 export function unlockAudio(): void {
-  if (unlocked) return
+  if (unlocked || HARD_MUTE) return
   unlocked = true
   initSfx()
   if (wanted) void startTrack(wanted)

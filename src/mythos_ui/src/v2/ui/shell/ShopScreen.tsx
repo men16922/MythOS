@@ -180,7 +180,7 @@ export function ShopScreen({ run, C, lang, act }: ScreenProps) {
               <Eraser size={18} />
               <span>
                 <b>{ko ? '흔적 세탁' : 'Scrub Trace'}</b>
-                <small>{ko ? 'IX의 탐지 기록을 지운다' : 'Wipe part of IX’s record of you'}</small>
+                <small>{ko ? 'IX의 추적 기록 일부를 지운다' : 'Wipe part of IX’s record of you'}</small>
               </span>
               <Price value={stock.scrubPrice} credits={credits} />
             </button>

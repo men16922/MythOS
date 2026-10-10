@@ -13,7 +13,7 @@ from playwright.sync_api import sync_playwright
 from mythos_api.app import create_app
 
 
-APP_URL = "http://127.0.0.1:8080/?fallback=1&image=0"
+APP_URL = "http://127.0.0.1:8080/?classic=1&fallback=1&image=0"
 OUTPUT_DIR = Path(__file__).parent.parent / "outputs"
 
 

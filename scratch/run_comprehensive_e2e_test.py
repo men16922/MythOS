@@ -89,7 +89,7 @@ def run_test():
 
             # --- STEP 1: Onboarding ---
             print("[2/10] Navigating to http://127.0.0.1:8080...")
-            page.goto("http://127.0.0.1:8080/?fallback=1&image=0")
+            page.goto("http://127.0.0.1:8080/?classic=1&fallback=1&image=0")
             assert "세계" in page.title() or "MythOS" in page.title(), "Title mismatch!"
 
             # First-entry boot intro overlay — dismiss it to reach onboarding.
@@ -240,7 +240,7 @@ def run_test():
 
             # Navigate again
             print("Re-navigating to homepage...")
-            page.goto("http://127.0.0.1:8080/?fallback=1&image=0")
+            page.goto("http://127.0.0.1:8080/?classic=1&fallback=1&image=0")
 
             # Inject session data back to ensure it is present on landing page
             page.evaluate(f"() => localStorage.setItem('mythos.session', '{saved_session}')")

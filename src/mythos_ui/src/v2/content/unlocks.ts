@@ -31,30 +31,6 @@ export const UNLOCKS: MetaUnlockDef[] = [
   },
   // ------------------------------------------------------------ companions
   {
-    id: 'unlock_tae_o',
-    kind: 'companion',
-    name: { ko: '태오 — 사냥개', en: 'Tae-o — The Hound' },
-    text: {
-      ko: '탈주 집행관. 2막 합류 후보에 오르고, 시작 동료로 고를 수 있다.',
-      en: 'A deserter enforcer. Joins the Act 2 recruit pool and can be your starting companion.',
-    },
-    cost: 25,
-    grants: 'tae_o',
-    icon: 'characters/tae-o.png',
-  },
-  {
-    id: 'unlock_han',
-    kind: 'companion',
-    name: { ko: '한 — 신호 파괴자', en: 'Han — The Signal Breaker' },
-    text: {
-      ko: '태어나서 한 번도 접속한 적 없는 해커. 2막 합류 후보에 오르고, 시작 동료로 고를 수 있다.',
-      en: 'A hacker who has never once been connected. Joins the Act 2 recruit pool and can be your starting companion.',
-    },
-    cost: 30,
-    grants: 'han',
-    icon: 'characters/han.png',
-  },
-  {
     id: 'unlock_su_ah',
     kind: 'companion',
     name: { ko: '수아 — 기억의 대장장이', en: 'Su-ah — The Memory Smith' },

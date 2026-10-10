@@ -640,6 +640,16 @@ export function updateCombat(run: RunState, combat: CombatState, C: ContentRegis
   } else if (nodeKind === 'boss') {
     next.tally.bosses += 1
     next.echoes += BOSS_ECHOES
+    // Surviving a boss together deepens every bond (companions still standing at the end).
+    for (const m of next.party) {
+      if (combat.units.some((u) => u.uid === m.id && u.side === 'party' && u.hp > 0)) raiseBond(next, m.id, 1, C)
+    }
+    // After the final boss nothing is left to spend loot on: straight to the ending choice.
+    if (next.act >= 3) {
+      clearCurrentNode(next)
+      next.screen = { kind: 'final_choice' }
+      return next
+    }
   }
   next.screen = { kind: 'reward', reward: buildReward(next, combat, nodeKind, C) }
   return next

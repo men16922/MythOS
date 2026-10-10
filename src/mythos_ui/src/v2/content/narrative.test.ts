@@ -117,10 +117,11 @@ test('quotas', () => {
   const ixTotal = Object.values(IX_LINES).reduce((s, xs) => s + xs.length, 0)
   assert.ok(ixTotal >= 16, `IX lines ${ixTotal}`)
   for (const [k, xs] of Object.entries(IX_LINES)) assert.ok(xs.length >= 2, `ixLines.${k}`)
-  assert.ok(UNLOCKS.length >= 20)
+  assert.ok(UNLOCKS.length >= 18)
   const kinds = (k: string) => UNLOCKS.filter((u) => u.kind === k)
   assert.equal(kinds('archetype').length, 2)
-  assert.equal(kinds('companion').length, 5)
+  // Se-rin, Tae-o and Han start unlocked (loop 1's Act 2 recruit needs real candidates); the other three are bought.
+  assert.equal(kinds('companion').length, 3)
   assert.equal(kinds('card_pack').length, 3)
   assert.equal(kinds('implant_pack').length, 2)
   assert.ok(kinds('thread').length >= 8)
@@ -312,7 +313,7 @@ test('endings: ids, gates and echo bonuses', () => {
     assert.ok(v.echoBonus <= sacrifice.echoBonus, 'noble sacrifice has the biggest bonus')
   }
   assert.ok((refuge.requires?.minBondTotal ?? 0) >= 4)
-  assert.ok((rewrite.requires?.minCodex ?? 0) >= 4)
+  assert.ok((rewrite.requires?.minCodex ?? 0) >= 3)
   // A knowledge run must be able to reach the codex gate within one act's events or so.
   const codexEvents = EVENTS.filter((e) => effects(e).some((fx) => fx.kind === 'codex')).length
   assert.ok(codexEvents >= (rewrite.requires?.minCodex ?? 0) * 3)

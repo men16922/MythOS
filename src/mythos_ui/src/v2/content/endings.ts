@@ -25,7 +25,7 @@ export const ENDINGS: EndingDef[] = [
       en: 'Everything you gathered becomes a single sentence. IX’s voice sinks into static. Your code runs down the Spire’s white screens. That night a moon no one calculated rises over Neo-Seoul.',
     },
     // Knowledge run: codex entries come only from event choices (one per event at most).
-    requires: { minCodex: 4 },
+    requires: { minCodex: 3 },
     choice: { ko: 'IX의 코드를 다시 쓴다', en: 'Rewrite IX’s code' },
     echoBonus: 50,
   },

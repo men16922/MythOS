@@ -46,7 +46,7 @@ import {
 } from './run.ts'
 import type { CardInstance, ContentRegistry, MapNode, MetaProfile, Outcome, RunEffect, RunScreen, RunState } from './types.ts'
 
-export type SimPolicy = 'greedy' | 'basic'
+export type SimPolicy = 'greedy' | 'basic' | 'mixed'
 
 export interface RunSimResult {
   won: boolean
@@ -63,7 +63,22 @@ export interface RunSimResult {
   echoes: number
 }
 
+/** Per-fight balance telemetry (see RunSimOptions.onFight). */
+export interface FightTelemetry {
+  encounterId: string
+  nodeKind: string
+  act: number
+  won: boolean
+  turns: number
+  hpBefore: number
+  hpAfter: number
+  maxHp: number
+  deckSize: number
+}
+
 export interface RunSimOptions {
+  /** Called after every fight — used by balance reports. */
+  onFight?: (f: FightTelemetry) => void
   paradox?: number
   profile?: MetaProfile
   /** Combat turn cap per fight; a fight still running after it counts as lost. */
@@ -282,13 +297,40 @@ function decideCardPick(run: RunState, s: ScreenOf<'card_pick'>, C: ContentRegis
   return target ? pickCard(run, target.uid, C) : run
 }
 
-function decideCombat(run: RunState, s: ScreenOf<'combat'>, C: ContentRegistry, policy: SimPolicy, maxTurns: number): RunState {
+function decideCombat(
+  run: RunState,
+  s: ScreenOf<'combat'>,
+  C: ContentRegistry,
+  policy: SimPolicy,
+  maxTurns: number,
+  onFight?: (f: FightTelemetry) => void,
+): RunState {
   let end = autoPlay(s.combat, C, policy, maxTurns)
   if (end.phase === 'player') end = { ...end, phase: 'lost' } // stalled fights count as losses
+  if (onFight) {
+    const connector = end.units.find((u) => u.uid === 'connector')
+    onFight({
+      encounterId: s.combat.encounterId,
+      nodeKind: s.nodeKind,
+      act: run.act,
+      won: end.phase === 'won',
+      turns: end.turn,
+      hpBefore: run.hp,
+      hpAfter: connector?.hp ?? 0,
+      maxHp: run.maxHp,
+      deckSize: run.deck.length,
+    })
+  }
   return updateCombat(run, end, C)
 }
 
-function decide(run: RunState, C: ContentRegistry, policy: SimPolicy, maxTurns: number): RunState {
+function decide(
+  run: RunState,
+  C: ContentRegistry,
+  policy: SimPolicy,
+  maxTurns: number,
+  onFight?: (f: FightTelemetry) => void,
+): RunState {
   const s = run.screen
   switch (s.kind) {
     case 'act_intro':
@@ -296,7 +338,7 @@ function decide(run: RunState, C: ContentRegistry, policy: SimPolicy, maxTurns: 
     case 'map':
       return decideMap(run, C)
     case 'combat':
-      return decideCombat(run, s, C, policy, maxTurns)
+      return decideCombat(run, s, C, policy, maxTurns, onFight)
     case 'reward':
       return decideReward(run, s, C)
     case 'event':
@@ -337,7 +379,7 @@ export function simulateRun(
   let run = newRun(profile, { archetype, paradox: opts.paradox ?? 0, seed, now: SIM_EPOCH }, C)
   for (let step = 0; run.screen.kind !== 'ended'; step++) {
     if (step >= MAX_STEPS) throw new Error(`runSim: step limit on ${run.screen.kind} (seed ${seed})`)
-    const next = decide(run, C, policy, maxTurns)
+    const next = decide(run, C, policy, maxTurns, opts.onFight)
     if (next === run) throw new Error(`runSim: stuck on ${run.screen.kind} (seed ${seed}, act ${run.act})`)
     run = next
   }

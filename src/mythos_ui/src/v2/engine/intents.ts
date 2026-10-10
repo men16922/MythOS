@@ -64,7 +64,12 @@ export function effectiveIntentDamage(u: UnitState, move: EnemyMove): number {
   return Math.max(0, move.damage + dmgBonusOf(u) - ((u.statuses.weak ?? 0) > 0 ? WEAK_PENALTY : 0))
 }
 
-export function intentGeometry(c: CombatState, u: UnitState, move: EnemyMove, intent: { dir?: Dir; target?: Pos }): IntentGeometry {
+export function intentGeometry(
+  c: CombatState,
+  u: UnitState,
+  move: EnemyMove,
+  intent: { dir?: Dir; target?: Pos; targetUid?: string },
+): IntentGeometry {
   const dir = intent.dir ?? u.facing
   switch (move.pattern) {
     case 'melee': {
@@ -117,6 +122,11 @@ export function intentGeometry(c: CombatState, u: UnitState, move: EnemyMove, in
       return { tiles: areaTiles(u.pos, move.area ?? 'adjacent').filter((p) => !samePos(p, u.pos)), path: [] }
     case 'lob':
       return intent.target ? { tiles: areaTiles(intent.target, move.area), path: [], impact: { ...intent.target } } : { tiles: [], path: [] }
+    case 'track': {
+      const locked = intent.targetUid ? c.units.find((t) => t.uid === intent.targetUid && t.hp > 0) : undefined
+      if (!locked) return { tiles: [], path: [] }
+      return { tiles: areaTiles(locked.pos, move.area), path: [], impact: { ...locked.pos } }
+    }
     case 'buff':
     case 'summon':
       return { tiles: [], path: [] }
@@ -191,6 +201,7 @@ export function fireIntent(c: CombatState, C: ContentRegistry, u: UnitState): vo
 interface Orientation {
   dir?: Dir
   target?: Pos
+  targetUid?: string
 }
 
 interface Spot {
@@ -458,6 +469,10 @@ function orientations(c: CombatState, u: UnitState, move: EnemyMove, ctx: AiCont
       }
       return out
     }
+    case 'track': {
+      const range = move.range ?? DEFAULT_RANGE.lob + 2
+      return ctx.targets.filter((t) => manhattan(u.pos, t.pos) <= range).map((t) => ({ targetUid: t.uid }))
+    }
     case 'nova':
     case 'buff':
     case 'summon':
@@ -515,11 +530,14 @@ export function planIntent(c: CombatState, C: ContentRegistry, u: UnitState, can
   }
   const move = pick.move
   if (!move) return
-  const facing = pick.o.dir ?? (pick.o.target ? dirToward(u.pos, pick.o.target) : undefined)
+  const lockedPos = pick.o.targetUid ? c.units.find((t) => t.uid === pick.o.targetUid)?.pos : undefined
+  const aim = pick.o.target ?? lockedPos
+  const facing = pick.o.dir ?? (aim ? dirToward(u.pos, aim) : undefined)
   if (facing) u.facing = facing
   const intent: IntentState = { moveId: move.id, windupLeft: move.windup ?? 0 }
   if (pick.o.dir) intent.dir = pick.o.dir
   if (pick.o.target) intent.target = { ...pick.o.target }
+  if (pick.o.targetUid) intent.targetUid = pick.o.targetUid
   u.intent = intent
   if (move.cooldown) {
     u.cooldowns ??= {}

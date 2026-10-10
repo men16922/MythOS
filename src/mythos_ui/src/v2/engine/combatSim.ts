@@ -24,18 +24,30 @@ import {
 import { getUnit, livingEnemies, livingParty, tileAt, unitAt } from './effects.ts'
 import { effectiveIntentDamage, findMove, intentGeometry } from './intents.ts'
 
-export type BotPolicy = 'greedy' | 'basic'
+/**
+ * greedy – one-ply exhaustive search (an expert who never misreads a telegraph);
+ * basic  – walks in and swings (a player ignoring telegraphs);
+ * mixed  – greedy on ~3/4 of turns, basic on the rest (a decent player: reads most telegraphs, blunders some).
+ */
+export type BotPolicy = 'greedy' | 'basic' | 'mixed'
 
 /** Play the fight to the end (or `maxTurns`) with a bot. The event log of the result is truncated. */
 export function autoPlay(c0: CombatState, C: ContentRegistry, policy: BotPolicy, maxTurns = 25): CombatState {
   const c = leanClone(c0)
   while (c.phase === 'player' && c.turn <= maxTurns) {
-    if (policy === 'greedy') greedyTurn(c, C)
+    if (policy === 'greedy' || (policy === 'mixed' && mixedRoll(c) < 0.75)) greedyTurn(c, C)
     else basicTurn(c, C)
     if (c.phase === 'player') endTurnInPlace(c, C)
     c.events = []
   }
   return c
+}
+
+/** Deterministic per-turn coin for the mixed policy (does not advance the combat RNG). */
+function mixedRoll(c: CombatState): number {
+  let h = (Math.imul(c.turn + 1, 0x9e3779b1) ^ c.rng) >>> 0
+  h = Math.imul(h ^ (h >>> 15), 0x85ebca6b) >>> 0
+  return (h % 1000) / 1000
 }
 
 /** Fast deep copy for search (drops the event log and undo snapshot; card instances are immutable and shared). */

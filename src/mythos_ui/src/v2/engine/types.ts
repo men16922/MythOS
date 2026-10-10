@@ -208,8 +208,11 @@ export interface ConsumableDef {
  * buff   – no tiles; applies `effects` with scope owner / all_enemies (from the ENEMY's view `all_allies`
  *          means its own side — see note in engine).
  * summon – spawns `summon` units on free tiles near itself.
+ * track  – homing lock-on: hits the targeted UNIT (+ area) wherever it stands when it fires. Cannot be dodged —
+ *          only blocked, redirected (re-locks onto the nearest other enemy), cancelled/shocked, or prevented by
+ *          killing the shooter. The StS-style counterweight to the dodgeable patterns.
  */
-export type IntentPattern = 'melee' | 'line' | 'beam' | 'charge' | 'nova' | 'lob' | 'buff' | 'summon'
+export type IntentPattern = 'melee' | 'line' | 'beam' | 'charge' | 'nova' | 'lob' | 'buff' | 'summon' | 'track'
 
 export interface EnemyMove {
   id: string
@@ -297,6 +300,8 @@ export interface IntentState {
   dir?: Dir
   /** Absolute target tile for lob. */
   target?: Pos
+  /** Locked unit for track. */
+  targetUid?: string
   /** Remaining extra telegraph rounds before firing. */
   windupLeft: number
 }

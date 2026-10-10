@@ -734,6 +734,18 @@ export function redirectIntent(c: CombatState, C: ContentRegistry, u: UnitState)
   if (!intent) return
   const move = C.enemies[u.defId]?.moves.find((m) => m.id === intent.moveId)
   if (!move) return
+  if (move.pattern === 'track') {
+    // The lock jumps to the nearest other enemy (or fizzles if it is alone).
+    const other = livingEnemies(c)
+      .filter((e) => e !== u)
+      .sort((a, b) => Math.abs(a.pos.x - u.pos.x) + Math.abs(a.pos.y - u.pos.y) - (Math.abs(b.pos.x - u.pos.x) + Math.abs(b.pos.y - u.pos.y)) || byUid(a, b))[0]
+    if (other) intent.targetUid = other.uid
+    else {
+      u.intent = null
+      emit(c, { t: 'fizzle', uid: u.uid })
+    }
+    return
+  }
   if (move.pattern === 'lob') {
     const others = livingEnemies(c)
       .filter((e) => e !== u)

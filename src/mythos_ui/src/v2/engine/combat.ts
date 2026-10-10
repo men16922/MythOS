@@ -90,6 +90,8 @@ export interface IntentInfo {
   dir?: Dir
   /** Lob target tile. */
   target?: Pos
+  /** Track (homing lock-on) target unit. */
+  targetUid?: string
 }
 
 const T = (ko: string, en: string): Text => ({ ko, en })
@@ -781,6 +783,7 @@ export function intentInfo(c: CombatState, C: ContentRegistry, uid: string): Int
   const dir = u.intent.dir ?? (move.pattern === 'lob' ? undefined : u.facing)
   if (dir) info.dir = dir
   if (u.intent.target) info.target = { ...u.intent.target }
+  if (u.intent.targetUid) info.targetUid = u.intent.targetUid
   return info
 }
 

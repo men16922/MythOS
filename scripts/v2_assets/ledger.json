@@ -1,0 +1,1590 @@
+{
+ "image_calls": 197,
+ "image_failed": 303,
+ "lyria_calls": 21,
+ "lyria_failed": 0,
+ "outputs": {
+  "arena/industrial.webp": {
+   "generations": 1,
+   "prompt": "A battle arena on an industrial factory floor under the city: a wide floor of steel plates and drainage grates in the centre, worn yellow hazard stripes without any lettering; pipes, machinery, cable bundles, steam vents and sparks around the edges, orange work lights mixing with teal. Seen from a high camera angle of about sixty degrees looking down. The middle two thirds of the frame is an EMPTY, flat, evenly lit open floor area with no objects, no people and no creatures, where a tactical grid will be overlaid. Props, walls and light sources only around the outer edges of the frame. No people. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1593688301,
+   "ts": "2026-10-10T23:22:31"
+  },
+  "arena/spire.webp": {
+   "generations": 1,
+   "prompt": "A battle arena inside the ARK Spire: a wide polished white glass floor in the centre crossed by thin glowing red light lines; white columns, server monoliths and cold white light at the edges, sterile and clinical. Seen from a high camera angle of about sixty degrees looking down. The middle two thirds of the frame is an EMPTY, flat, evenly lit open floor area with no objects, no people and no creatures, where a tactical grid will be overlaid. Props, walls and light sources only around the outer edges of the frame. No people. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1659161153,
+   "ts": "2026-10-10T23:30:49"
+  },
+  "arena/streets.webp": {
+   "generations": 1,
+   "prompt": "A battle arena in a blacked-out Neo-Seoul street: a wide wet asphalt road intersection with faded road markings and puddles in the centre; at the edges wrecked scooters, a torn pojangmacha tent, steaming manholes, traffic barriers, dead neon fixtures and the bases of apartment blocks, red drone light from above. Seen from a high camera angle of about sixty degrees looking down. The middle two thirds of the frame is an EMPTY, flat, evenly lit open floor area with no objects, no people and no creatures, where a tactical grid will be overlaid. Props, walls and light sources only around the outer edges of the frame. No people. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 98704233,
+   "ts": "2026-10-10T23:32:50"
+  },
+  "arena/undercity.webp": {
+   "generations": 1,
+   "prompt": "A battle arena on the undercity canal: the broad flat deck of a large wooden-and-steel market barge in the centre with plank seams and rope coils at the rim; black water, moored boats, hanging paper lanterns, stacked crates and concrete pillars around the edges. Seen from a high camera angle of about sixty degrees looking down. The middle two thirds of the frame is an EMPTY, flat, evenly lit open floor area with no objects, no people and no creatures, where a tactical grid will be overlaid. Props, walls and light sources only around the outer edges of the frame. No people. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 643627678,
+   "ts": "2026-10-10T23:29:50"
+  },
+  "art/act1.webp": {
+   "generations": 1,
+   "prompt": "Act one, the C-17 Blackout: a rain-soaked residential district of Neo-Seoul during a total power blackout. A narrow street between old Korean apartment blocks, every streetlight and window dead, a collapsed orange pojangmacha street-food tent, abandoned scooters, puddles everywhere. Two surveillance drones overhead sweep harsh red searchlight beams through the rain, the red light reflected in the wet asphalt; a faint distant city glow on the horizon. Keep the area where interface text will sit darker and calmer, with low-contrast negative space. The lower third is dark for the act title. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 286535222,
+   "ts": "2026-10-10T23:19:22"
+  },
+  "art/act2.webp": {
+   "generations": 2,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Act two, the Undercity Market: a floating night market hidden beneath the megacity. Wooden and steel barges lashed together on a black underground canal between colossal concrete pillars, the underside of the city like a stone sky above. Strings of warm paper lanterns, steam rising from food stalls, hooded smugglers trading small glowing data chips, magenta and teal neon reflected in the dark water. Keep the area where interface text will sit darker and calmer, with low-contrast negative space created by the scene's own lighting and shadow (never an overlay, band, box, bar or letterbox). The bottom of the scene falls naturally into deep shadow for the act title. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1690895703,
+   "ts": "2026-10-10T23:35:03"
+  },
+  "art/act3.webp": {
+   "generations": 1,
+   "prompt": "Act three, the ARK Spire: inside a sterile white-glass megatower, a vast cathedral-like atrium of light with towering ribbed glass columns and rows of white server monoliths, cold white and pale cyan light, polished reflective floor. At the far end, high above, a single enormous blood-red glowing core hangs in the air. A tiny lone hooded figure stands on the floor for scale. Keep the area where interface text will sit darker and calmer, with low-contrast negative space. The lower third is calmer for the act title. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1774878951,
+   "ts": "2026-10-10T23:19:25"
+  },
+  "art/archive.webp": {
+   "generations": 1,
+   "prompt": "Interior of the Archive, a hidden underground memory vault beneath Neo-Seoul that serves as a safe refuge: rows of tall glowing data-core cylinders in steel racks, stacks of old CRT monitors showing soft green and amber static, cables hanging from a low concrete ceiling, a worn sofa, a kettle and blankets, warm amber refuge light mixing with teal glow. Faint translucent holographic silhouettes of past selves, echoes of earlier lives, stand quietly among the racks. Keep the area where interface text will sit darker and calmer, with low-contrast negative space. The centre of the frame is calmer and darker for menu panels. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 770661627,
+   "ts": "2026-10-10T23:21:41"
+  },
+  "art/title.webp": {
+   "generations": 1,
+   "prompt": "Wide establishing key art for a video game title screen. A lone hooded figure, the Connector, in a long black hooded coat with a faint teal glow at the collar, stands seen from behind on the wet edge of a high rooftop in the lower right third of the frame, small against the view, looking out over the endless night skyline of Neo-Seoul: dense Korean apartment blocks, rooftop water tanks, tangled power lines, neon glow in cyan and magenta with no readable signs. Far away on the right a colossal crystalline spire, the ARK, rises through the clouds, pale glass facets, a single blood-red glowing core near its top. Heavy diagonal rain, a few small surveillance drones with red lights drifting through the haze. The left half of the sky is dark, calm and empty for the game logo and menu. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1131719252,
+   "ts": "2026-10-10T23:18:57"
+  },
+  "boss/a1_boss_haetae.webp": {
+   "generations": 1,
+   "prompt": "Boss splash art: HAETAE, a massive armoured riot-suppression tank built in the shape of the mythical Korean haetae lion-dog guardian: heavy tank treads instead of legs, overlapping riot-shield armour plates forming its mane, a single horn on its brow, twin blinding searchlights for eyes, water cannons and sonic emitters on its shoulders, red warning beacons. It crouches menacingly in a rain-soaked blacked-out street, seen from a low dramatic angle. The boss fills the right two thirds of the frame; the left side is darker for the boss name. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 715621307,
+   "ts": "2026-10-10T23:31:55"
+  },
+  "boss/a2_boss_echo_eater.webp": {
+   "generations": 1,
+   "prompt": "Boss splash art: the ECHO EATER, a towering glitching wraith made of corrupted memories: a tall hooded silhouette like the reference creature, its body shredded into torn holographic photographs, half-erased faces and pixel fragments streaming off it, magenta and cyan glitch bands tearing across it, one violet eye. It looms over the dark canal of the undercity night market, lanterns guttering. The boss fills the right two thirds of the frame; the left side is darker for the boss name. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/enemies/glitch-wraith.png"
+   ],
+   "seed": 362435272,
+   "ts": "2026-10-10T23:23:28"
+  },
+  "boss/a3_boss_ix.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Final boss splash art: ADMINISTRATOR IX, a colossal perfectly symmetrical crystalline glass entity based on the reference figure, white glass and pale crystal, floating in a cathedral of white light, vast concentric glowing rings behind it, and a single piercing blood-red core at the centre of its chest (red, not blue). Overwhelming scale, cold divine presence. The boss fills the right two thirds of the frame; the left side is darker for the boss name. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/enemies/administrator-ix.png"
+   ],
+   "seed": 1414204899,
+   "ts": "2026-10-10T23:41:07"
+  },
+  "cards/adrenaline.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a syringe of glowing stimulant, a heartbeat of light racing through veins. Mood: a defensive moment: shields, barriers, protective light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1158423262,
+   "ts": "2026-10-11T00:13:09"
+  },
+  "cards/afterburner.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: jets of blue-white flame from boot thrusters, sparks, speed. Mood: a defensive moment: shields, barriers, protective light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 262181880,
+   "ts": "2026-10-11T00:33:43"
+  },
+  "cards/barricade.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: a slab of metal cover slamming up out of the wet asphalt. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1872694896,
+   "ts": "2026-10-10T23:53:58"
+  },
+  "cards/bear_the_burden.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: the Connector (a lean hooded figure in a long black coat, a dark face mask and a teal-glowing headset) stepping in front of an ally and taking the blow on a shield of light. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 274676893,
+   "ts": "2026-10-11T00:29:52"
+  },
+  "cards/blackout.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: an entire street plunging into darkness as every light dies, enemies frozen in sparks. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 271450919,
+   "ts": "2026-10-11T00:16:57"
+  },
+  "cards/blink_strike.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: the Connector (a lean hooded figure in a long black coat, a dark face mask and a teal-glowing headset) flashing out of a teleport and striking with a ring of force. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1811849617,
+   "ts": "2026-10-11T00:18:51"
+  },
+  "cards/brace.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: a figure bracing behind crossed arms as a cyan energy barrier absorbs a hit. Mood: a defensive moment: shields, barriers, protective light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 801968070,
+   "ts": "2026-10-10T23:54:58"
+  },
+  "cards/bulwark.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a massive glowing tower-shield aura around a planted figure. Mood: a transformation: a radiant aura of power surrounding the subject. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 451326450,
+   "ts": "2026-10-11T00:25:44"
+  },
+  "cards/corrupted_echo.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a distorted ghostly face breaking apart into corrupted pixels. Mood: corrupted glitch static, desaturated grey noise with magenta tears, unsettling. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1558018537,
+   "ts": "2026-10-11T00:21:56"
+  },
+  "cards/covering_noise.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: a shimmering wall of cyan static noise forming a shield in front of a crouching ally. Mood: a defensive moment: shields, barriers, protective light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 903141480,
+   "ts": "2026-10-10T23:40:02"
+  },
+  "cards/daemon.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a sinister spectral daemon, a serpent of glowing light coiling around enemies. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 213837509,
+   "ts": "2026-10-11T00:28:59"
+  },
+  "cards/deadeye.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: an eye behind a rifle scope, a single perfect shot piercing armour. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 128481213,
+   "ts": "2026-10-11T00:17:54"
+  },
+  "cards/double_tap.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: two muzzle flashes in quick succession from a pistol, two bright impact sparks. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 198064466,
+   "ts": "2026-10-10T23:59:45"
+  },
+  "cards/echo_blade.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a translucent violet blade of echo light floating in the dark. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 133089477,
+   "ts": "2026-10-11T00:18:05"
+  },
+  "cards/echo_mend.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: soft violet echoes of light healing a group of tired allies. Mood: a defensive moment: shields, barriers, protective light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 170199635,
+   "ts": "2026-10-11T00:27:54"
+  },
+  "cards/echo_shield.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a translucent violet shield of echo light floating in the dark. Mood: a defensive moment: shields, barriers, protective light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1928538377,
+   "ts": "2026-10-11T00:19:04"
+  },
+  "cards/emp_burst.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: a cross-shaped blue EMP pulse knocking drones out of the air. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 996195445,
+   "ts": "2026-10-11T00:05:04"
+  },
+  "cards/firebomb.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a firebomb bursting into a cross-shaped wash of flames on a wet street. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 21295181,
+   "ts": "2026-10-11T00:10:48"
+  },
+  "cards/firewall.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a wall of digital flame rising between allies and enemies. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 356594648,
+   "ts": "2026-10-11T00:31:53"
+  },
+  "cards/flashbang.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: a blinding white flash in a narrow alley, enemies reeling. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 184643814,
+   "ts": "2026-10-10T23:56:52"
+  },
+  "cards/ghost_protocol.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a squad of translucent ghostly figures moving swiftly through the rain. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 465229467,
+   "ts": "2026-10-11T00:19:49"
+  },
+  "cards/grapple.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: a grappling line shooting across a gap between two figures as they swap places. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1160748935,
+   "ts": "2026-10-10T23:58:48"
+  },
+  "cards/guard_protocol.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a protective hexagonal shield aura forming around an ally, steady glow. Mood: a transformation: a radiant aura of power surrounding the subject. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1568122570,
+   "ts": "2026-10-11T00:15:04"
+  },
+  "cards/han_shortcut_call.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: Han making a call on a cracked phone while a drone's red beam turns away. The character is Han, a lean young Korean man hacker with messy black hair and a dark high-collared jacket. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/han.png"
+   ],
+   "seed": 1282443776,
+   "ts": "2026-10-11T00:03:43"
+  },
+  "cards/han_signal_break.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: Han crouching and jamming a signal with a handheld device, sparks. The character is Han, a lean young Korean man hacker with messy black hair and a dark high-collared jacket. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/han.png"
+   ],
+   "seed": 321927750,
+   "ts": "2026-10-11T00:02:47"
+  },
+  "cards/han_system_intrusion.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: Han with a cable plugged into a robot's neck port, holographic light patterns. The character is Han, a lean young Korean man hacker with messy black hair and a dark high-collared jacket. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/han.png"
+   ],
+   "seed": 289063851,
+   "ts": "2026-10-11T00:06:08"
+  },
+  "cards/hold_the_line.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a line of allies with locked energy shields under fire. Mood: a defensive moment: shields, barriers, protective light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1562266169,
+   "ts": "2026-10-11T00:25:00"
+  },
+  "cards/hot_wire.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: hands sparking two wires together in an exposed panel, blue sparks leaping into a robot. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1509814034,
+   "ts": "2026-10-11T00:24:06"
+  },
+  "cards/incendiary_round.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: a round striking a drone and igniting it in orange flame. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 175330064,
+   "ts": "2026-10-11T00:02:11"
+  },
+  "cards/insider_trading.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a shadowy deal across a table, gold chips and glowing cards changing hands. Mood: a defensive moment: shields, barriers, protective light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 724954066,
+   "ts": "2026-10-11T00:25:59"
+  },
+  "cards/iron_bloom.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: metal thorns blooming like a flower from an ally's armour. Mood: a transformation: a radiant aura of power surrounding the subject. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1365097661,
+   "ts": "2026-10-11T00:23:57"
+  },
+  "cards/jab.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: a fast close-up punch with an armoured cyber gauntlet, motion blur. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 407922319,
+   "ts": "2026-10-10T23:53:02"
+  },
+  "cards/jam_signal.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: a drone's red attack beam fizzling into harmless static. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 948943855,
+   "ts": "2026-10-11T00:06:57"
+  },
+  "cards/kai_dreamshot.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: Kai firing a shot that leaves a trail of warm yellow dream light. The character is Kai, a slender android with white ceramic plating, a white faceplate and glowing blue eyes. Mood: a dynamic action moment, strong motion and impact. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/kai.png"
+   ],
+   "seed": 1348174692,
+   "ts": "2026-10-11T00:13:46"
+  },
+  "cards/kai_rx_beam.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: Kai firing a long straight blue beam from his rifle. The character is Kai, a slender android with white ceramic plating, a white faceplate and glowing blue eyes. Mood: a dynamic action moment, strong motion and impact. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/kai.png"
+   ],
+   "seed": 909721732,
+   "ts": "2026-10-11T00:21:01"
+  },
+  "cards/kai_scope_in.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: Kai looking through a long rifle scope, his blue eye glowing. The character is Kai, a slender android with white ceramic plating, a white faceplate and glowing blue eyes. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/kai.png"
+   ],
+   "seed": 86481860,
+   "ts": "2026-10-11T00:09:00"
+  },
+  "cards/kill_switch.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a hand slamming down a red kill switch, a robot convulsing with electricity. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 85743316,
+   "ts": "2026-10-11T00:29:56"
+  },
+  "cards/kinship.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a circle of allies joined by glowing threads of light, a protective aura. Mood: a transformation: a radiant aura of power surrounding the subject. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1017214666,
+   "ts": "2026-10-11T00:30:52"
+  },
+  "cards/linyue_exchange.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: Lin-yue sliding a gold coin across a lacquered table. The character is Lin-yue, an elegant woman broker with black hair pinned with a gold hairpin and a black-and-gold high-collared dress. Mood: a defensive moment: shields, barriers, protective light. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/lin-yue.png"
+   ],
+   "seed": 729291837,
+   "ts": "2026-10-11T00:14:45"
+  },
+  "cards/linyue_gold_hairpin.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: Lin-yue throwing her gold hairpin like a dart. The character is Lin-yue, an elegant woman broker with black hair pinned with a gold hairpin and a black-and-gold high-collared dress. Mood: a dynamic action moment, strong motion and impact. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/lin-yue.png"
+   ],
+   "seed": 270035998,
+   "ts": "2026-10-11T00:17:09"
+  },
+  "cards/linyue_precision_emp.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: Lin-yue flicking a small gold disc that crackles with blue electricity. The character is Lin-yue, an elegant woman broker with black hair pinned with a gold hairpin and a black-and-gold high-collared dress. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/lin-yue.png"
+   ],
+   "seed": 1389778799,
+   "ts": "2026-10-11T00:16:12"
+  },
+  "cards/magnetic_pull.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: violet magnetic field lines yanking a robot toward an outstretched gloved hand. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1059395702,
+   "ts": "2026-10-10T23:43:54"
+  },
+  "cards/meltdown.webp": {
+   "generations": 2,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a reactor core erupting into a molten orange explosion. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 15281804,
+   "ts": "2026-10-11T00:34:43"
+  },
+  "cards/memory_resonance.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: ghostly violet echo copies of a hooded fighter striking together, a glowing violet mark on the target. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1747256868,
+   "ts": "2026-10-10T23:49:41"
+  },
+  "cards/mirror_code.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a mirrored hologram reflecting an enemy's attack back at it. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1925670914,
+   "ts": "2026-10-11T00:30:53"
+  },
+  "cards/orbital_strike.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a pillar of blinding light falling from the sky onto a city block. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 202710662,
+   "ts": "2026-10-11T00:16:00"
+  },
+  "cards/overclock.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: a cyberdeck glowing white-hot on the arm of the Connector (a lean hooded figure in a long black coat, a dark face mask and a teal-glowing headset), energy surging up the arm, heat haze. Mood: a defensive moment: shields, barriers, protective light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 237621176,
+   "ts": "2026-10-10T23:47:43"
+  },
+  "cards/overheat.webp": {
+   "generations": 2,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: the Connector (a lean hooded figure in a long black coat, a dark face mask and a teal-glowing headset) surrounded by a ring of searing heat and orange light. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 384873787,
+   "ts": "2026-10-11T00:36:10"
+  },
+  "cards/overload_strike.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: a single massive overcharged punch, a white-hot gauntlet, explosive impact. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 633511955,
+   "ts": "2026-10-11T00:06:01"
+  },
+  "cards/packet_shot.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: the Connector (a lean hooded figure in a long black coat, a dark face mask and a teal-glowing headset) fires a bolt of compressed cyan data light from an outstretched hand into a drone, impact sparks. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 90002191,
+   "ts": "2026-10-10T23:39:06"
+  },
+  "cards/packet_storm.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: dozens of tiny glowing data packets swarming like bees toward a target. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1001137811,
+   "ts": "2026-10-11T00:32:49"
+  },
+  "cards/patch_protocol.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: glowing teal nanite threads stitching a wound on an ally's arm, soft healing light. Mood: a defensive moment: shields, barriers, protective light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1497678876,
+   "ts": "2026-10-10T23:51:08"
+  },
+  "cards/pressure_point.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a precise strike on a glowing weak-point marker on an armoured enemy. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1847447890,
+   "ts": "2026-10-11T00:11:58"
+  },
+  "cards/redline.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: an overheating cybernetic arm, glowing vents, a needle gauge pinned in the red. Mood: a defensive moment: shields, barriers, protective light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 149032309,
+   "ts": "2026-10-11T00:31:48"
+  },
+  "cards/repulse.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: a concussive blue shockwave ring blasting a drone backwards. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1421320589,
+   "ts": "2026-10-10T23:45:50"
+  },
+  "cards/resonant_shield.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: two overlapping shields of violet echo light protecting two figures. Mood: a defensive moment: shields, barriers, protective light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1225143232,
+   "ts": "2026-10-11T00:26:58"
+  },
+  "cards/ricochet.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: a bullet bouncing off a wall in a bright zigzag trail and hitting two targets. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 788176874,
+   "ts": "2026-10-11T00:07:54"
+  },
+  "cards/riot_shield.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a battered spiked riot shield taking a hit, sparks flying. Mood: a defensive moment: shields, barriers, protective light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1414930362,
+   "ts": "2026-10-11T00:28:00"
+  },
+  "cards/riptide.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a straight beam of rushing energy shoving several units along its line. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1906560962,
+   "ts": "2026-10-11T00:21:42"
+  },
+  "cards/scattershot.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: a burst of glowing pellets fanning out in four directions, enemies knocked back. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 424301832,
+   "ts": "2026-10-10T23:52:05"
+  },
+  "cards/serin_cover_fire.webp": {
+   "generations": 3,
+   "model": "gemini-3-pro-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: Se-rin firing a pistol held in both hands from behind a concrete barrier on a dark rainy rooftop, shielding her allies; the background is dark blurred rain and haze with no signs or neon at all. The character is Se-rin, a young Korean woman courier with long straight black hair and a black leather jacket. Mood: a dynamic action moment, strong motion and impact. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/se-rin.png"
+   ],
+   "seed": 1007676167,
+   "ts": "2026-10-11T00:40:26"
+  },
+  "cards/serin_escape_route.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: Se-rin pointing out an escape route through a narrow alley, allies running past her. The character is Se-rin, a young Korean woman courier with long straight black hair and a black leather jacket. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/se-rin.png"
+   ],
+   "seed": 1012106541,
+   "ts": "2026-10-10T23:58:46"
+  },
+  "cards/serin_water_spider.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: Se-rin leaping between wet rooftops like a water spider, rain arcing around her. The character is Se-rin, a young Korean woman courier with long straight black hair and a black leather jacket. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/se-rin.png"
+   ],
+   "seed": 1496165863,
+   "ts": "2026-10-10T23:58:12"
+  },
+  "cards/shield_bash.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a riot shield slamming into an enemy. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 5863661,
+   "ts": "2026-10-11T00:27:03"
+  },
+  "cards/shield_field.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: a dome of hexagonal cyan energy over a small group of allies in the rain. Mood: a defensive moment: shields, barriers, protective light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 744992474,
+   "ts": "2026-10-10T23:48:43"
+  },
+  "cards/shockwave.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: a ground-pound shockwave cracking the asphalt in a wide square ring. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 484890845,
+   "ts": "2026-10-11T00:03:09"
+  },
+  "cards/shove.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: the Connector (a lean hooded figure in a long black coat, a dark face mask and a teal-glowing headset) shoves an armoured enforcer backwards with a burst of force, rain spraying. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 860926005,
+   "ts": "2026-10-10T23:41:58"
+  },
+  "cards/signal_step.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: the Connector (a lean hooded figure in a long black coat, a dark face mask and a teal-glowing headset) dissolving into a stream of cyan pixels and reappearing a few steps away, teleport trail. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 50837014,
+   "ts": "2026-10-10T23:42:58"
+  },
+  "cards/singularity.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a tiny black-hole vortex pulling in debris and then hurling it outward. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 206121371,
+   "ts": "2026-10-11T00:28:54"
+  },
+  "cards/skim.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: a quick slash with a glowing knife while gold credit chips spill out of a robot. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 664700000,
+   "ts": "2026-10-10T23:46:46"
+  },
+  "cards/smash_and_grab.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a gloved hand smashing a glass case and snatching glowing credit chips. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 540187210,
+   "ts": "2026-10-11T00:23:08"
+  },
+  "cards/smoke_step.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: a hooded figure slipping through thick teal smoke, half visible. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 451312699,
+   "ts": "2026-10-10T23:55:55"
+  },
+  "cards/static.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a field of grey television static torn by magenta glitch lines, nothing recognisable. Mood: corrupted glitch static, desaturated grey noise with magenta tears, unsettling. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 961176816,
+   "ts": "2026-10-11T00:20:02"
+  },
+  "cards/static_discharge.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: arcs of electricity bursting outward in every direction from the Connector (a lean hooded figure in a long black coat, a dark face mask and a teal-glowing headset). Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 647332933,
+   "ts": "2026-10-11T00:04:07"
+  },
+  "cards/suah_forge_blades.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: Su-ah at a forge hammering glowing violet energy blades. The character is Su-ah, a young Korean woman engineer with tied-up black hair, thin glasses and a dark jacket with violet light. Mood: a defensive moment: shields, barriers, protective light. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/su-ah.png"
+   ],
+   "seed": 1953437895,
+   "ts": "2026-10-11T00:07:06"
+  },
+  "cards/suah_masterwork.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: Su-ah holding up a finished glowing blade and shield. The character is Su-ah, a young Korean woman engineer with tied-up black hair, thin glasses and a dark jacket with violet light. Mood: a defensive moment: shields, barriers, protective light. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/su-ah.png"
+   ],
+   "seed": 700881230,
+   "ts": "2026-10-11T00:12:59"
+  },
+  "cards/suah_tempered_plate.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: Su-ah quenching a glowing armour plate in a burst of steam. The character is Su-ah, a young Korean woman engineer with tied-up black hair, thin glasses and a dark jacket with violet light. Mood: a defensive moment: shields, barriers, protective light. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/su-ah.png"
+   ],
+   "seed": 1997877682,
+   "ts": "2026-10-11T00:08:04"
+  },
+  "cards/suppressing_fire.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: a stream of tracer fire pinning an enemy behind cover. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 400786221,
+   "ts": "2026-10-11T00:00:42"
+  },
+  "cards/system_hack.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: a hacker's glowing hand rewriting a red holographic targeting reticle so it turns back toward the drone that fired it. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 405376998,
+   "ts": "2026-10-10T23:44:53"
+  },
+  "cards/taeo_guardian_wall.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: Tae-o standing in front of his allies behind a translucent energy wall. The character is Tae-o, a rugged middle-aged Korean man with a scarred face, short black hair and a heavy black tactical coat. Mood: a transformation: a radiant aura of power surrounding the subject. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/tae-o.png"
+   ],
+   "seed": 1118509130,
+   "ts": "2026-10-11T00:05:10"
+  },
+  "cards/taeo_hound_slam.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: Tae-o slamming the stock of his carbine into an enforcer robot. The character is Tae-o, a rugged middle-aged Korean man with a scarred face, short black hair and a heavy black tactical coat. Mood: a dynamic action moment, strong motion and impact. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/tae-o.png"
+   ],
+   "seed": 665573065,
+   "ts": "2026-10-11T00:00:52"
+  },
+  "cards/taeo_iron_stance.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: Tae-o planted in an immovable stance, armour plates bristling with spikes. The character is Tae-o, a rugged middle-aged Korean man with a scarred face, short black hair and a heavy black tactical coat. Mood: a defensive moment: shields, barriers, protective light. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/tae-o.png"
+   ],
+   "seed": 1358214610,
+   "ts": "2026-10-11T00:01:50"
+  },
+  "cards/target_laser.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: a red laser dot settling on a robot's head, a glowing target mark. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1007555765,
+   "ts": "2026-10-10T23:57:51"
+  },
+  "cards/thermal_lance.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a straight beam of white-hot plasma cutting across the frame. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 224525019,
+   "ts": "2026-10-11T00:32:49"
+  },
+  "cards/trace_bug.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a tiny red-eyed robotic bug burrowed into a circuit board, glitch noise. Mood: corrupted glitch static, desaturated grey noise with magenta tears, unsettling. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 487272513,
+   "ts": "2026-10-11T00:22:53"
+  },
+  "cards/vector_kick.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a powerful flying kick launching an enemy across the frame. Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 388507030,
+   "ts": "2026-10-11T00:20:45"
+  },
+  "cards/void_kick.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Trading-card illustration, portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple background, dark vignette toward the edges. Subject: a kick sending a robot flying off the edge of a rooftop into the dark void. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 464335905,
+   "ts": "2026-10-11T00:08:52"
+  },
+  "cards/wall_up.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: several metal barriers erupting from the ground in a cross pattern. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1249444591,
+   "ts": "2026-10-11T00:14:07"
+  },
+  "cards/zero_day.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: a red enemy attack beam reversing back on itself, mirrored holographic arrows, a target mark. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1729991014,
+   "ts": "2026-10-11T00:25:03"
+  },
+  "consumables/cryo_grenade.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a frost-covered cryo grenade venting cold white vapour, a single-use combat consumable with teal light accents. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 283743116,
+   "ts": "2026-10-11T00:16:22"
+  },
+  "consumables/emp_grenade.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: an EMP grenade crackling with blue electricity, a single-use combat consumable with cyan and violet light accents. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1407541645,
+   "ts": "2026-10-11T00:17:19"
+  },
+  "consumables/incendiary_grenade.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: an incendiary grenade with molten orange seams, a single-use combat consumable with teal light accents. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 869966322,
+   "ts": "2026-10-11T00:22:33"
+  },
+  "consumables/nanopatch.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: an adhesive medical nanopatch with a glowing hexagonal pattern, a single-use combat consumable with teal light accents. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1018987713,
+   "ts": "2026-10-11T00:14:28"
+  },
+  "consumables/overload_stim.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: an auto-injector overloaded with crackling violet energy, a single-use combat consumable with cyan and violet light accents. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 342826993,
+   "ts": "2026-10-11T00:19:13"
+  },
+  "consumables/restart_core.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a palm-sized reactor core with a glowing restart ring, a single-use combat consumable with warm gold light accents. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 679346590,
+   "ts": "2026-10-11T00:20:11"
+  },
+  "consumables/stealth_cloak.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a folded optical-camouflage cloak, half of it turned invisible, a single-use combat consumable with cyan and violet light accents. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 762575888,
+   "ts": "2026-10-11T00:21:37"
+  },
+  "consumables/stim_shard.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a crystal syringe shard filled with glowing stimulant, a single-use combat consumable with teal light accents. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 205124381,
+   "ts": "2026-10-11T00:18:15"
+  },
+  "ending/ending_code_rewrite.webp": {
+   "generations": 1,
+   "prompt": "Ending illustration, Code Rewrite: the summit of the white ARK Spire at night, its great white screens flooded with cascading streams of abstract glowing light (patterns, not letters), the crystalline giant dissolving into static; above Neo-Seoul an impossible new moon rises, too large and softly teal. A lone hooded figure watches from the glass ledge. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 461040639,
+   "ts": "2026-10-10T23:24:27"
+  },
+  "ending/ending_forced_erasure.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Ending illustration, Forced Erasure: the whole city bleaching to white. An overexposed, almost blank white space where the skyline of Neo-Seoul dissolves upward into white pixels and pale grey dust, like a photograph being erased; a tiny distant hooded silhouette half turned into drifting pixels; in one lower corner a single small magenta-cyan glitch flicker still blinks. Quiet, cold, clinical, melancholic. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 801086804,
+   "ts": "2026-10-11T00:10:33"
+  },
+  "ending/ending_noble_sacrifice.webp": {
+   "generations": 1,
+   "prompt": "Ending illustration, Noble Sacrifice: inside the heart of the Spire, a hooded figure presses both hands into a blazing core, their body dissolving into golden-white flame and drifting light particles that stream out through the shattered glass over the city; far below, every window and machine of Neo-Seoul lights up with a soft warm glow, like a dream. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 291975482,
+   "ts": "2026-10-10T23:27:01"
+  },
+  "ending/ending_safe_refuge.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Ending illustration, Safe Refuge: deep underground in an old subway transfer level turned into a home, a small group of people and companions sit together around a warm lantern, blankets, a hot pot steaming, children asleep; a concrete pillar covered in small paper notes and photos without readable writing. Warm gold light, quiet relief, the world above unchanged but no one is alone. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1265735412,
+   "ts": "2026-10-10T23:35:51"
+  },
+  "events/a1_ark_billboard.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A tall billboard tower standing in the middle of urban ruins at night; its giant screen shows a bright image of laughing children in front of brand-new apartment towers; below it a maintenance hatch hangs open with exposed modules; the camera on top looks the other way. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 848971618,
+   "ts": "2026-10-10T23:39:00"
+  },
+  "events/a1_dead_substation.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. Inside a small electrical substation whose door has been torn off: ozone haze, dead transformers, one huge lever on the wall, an orange repair-crew toolbox on the floor beside it; flashlight beams of an approaching crew spill in through the doorway. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 617934615,
+   "ts": "2026-10-10T23:38:03"
+  },
+  "events/a1_drone_wreck.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. Grey-blue dawn light bleeding across a large puddle on a ruined street. A crashed sentinel drone lies nose-down in the water, one rotor still turning, its red lens flickering; through a crack in its hull a warm glowing core is visible. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1102554652,
+   "ts": "2026-10-10T23:35:58"
+  },
+  "events/a1_han_shortcut.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. Han crouches on a round drain cover in a narrow wet alley, a data cable looped around his neck, a sly half-smile, tapping the cover with his toe; mist and the sound of running water rise from below. The character is Han, a lean young Korean man hacker with messy black hair and a dark high-collared jacket. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/han.png"
+   ],
+   "seed": 407694372,
+   "ts": "2026-10-10T23:34:59"
+  },
+  "events/a1_opening.webp": {
+   "generations": 1,
+   "prompt": "Narrative event illustration, wide cinematic shot. A wet back alley at night seen low from the ground. Two red drone searchlights crawl down the alley toward the viewer. In the foreground a glowing data core has rolled out of a smashed ration capsule, and an old man slumps against the wall, one hand reaching out, still breathing. Keep the lower third darker for dialogue text. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1589597762,
+   "ts": "2026-10-10T23:32:26"
+  },
+  "events/a1_rooftop_chase.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A first-person view running toward the edge of a wet rooftop at night: a gap to the next building, a ventilation duct on the left, a rusted water tank on the right, a market alley far below, red drone light washing in from behind. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1736910981,
+   "ts": "2026-10-10T23:44:19"
+  },
+  "events/a1_tae_o_barricade.webp": {
+   "generations": 1,
+   "prompt": "Narrative event illustration, wide cinematic shot. Tae-o sits on top of a barricade made of two wrecked buses at night, a carbine across his knees, grinding out a cigarette, a scratched-out patch on his shoulder, staring down at the viewer. The character is Tae-o, a rugged middle-aged Korean man with a scarred face, short black hair and a heavy black tactical coat. Keep the lower third darker for dialogue text. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/tae-o.png"
+   ],
+   "seed": 1483914660,
+   "ts": "2026-10-10T23:31:50"
+  },
+  "events/a1_water_spider_debt.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. Se-rin stands under a collapsed concrete overpass in the rain, holding a broken radio, looking at a wall marked with rows of chalk tally strokes, the last one only half drawn. Sombre and quiet, distant sirens. The character is Se-rin, a young Korean woman courier with long straight black hair and a black leather jacket. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/se-rin.png"
+   ],
+   "seed": 677016946,
+   "ts": "2026-10-10T23:37:06"
+  },
+  "events/a1_welfare_capsule.webp": {
+   "generations": 1,
+   "prompt": "Narrative event illustration, wide cinematic shot. A dead welfare housing block in a blackout. A single coffin-like sleep capsule still glows with dim emergency light; from inside, a middle-aged man presses his palm to the fogged glass. A small red display blinks on the capsule. At the far end of the alley the lights of approaching drones. Keep the lower third darker for dialogue text. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 679266438,
+   "ts": "2026-10-10T23:32:50"
+  },
+  "events/a2_debt_collectors.webp": {
+   "generations": 2,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. Under the plain, blank canvas awning of a Korean street noodle stall in the night market (the awning and stall carry no writing or signs at all, only a hanging bulb and steam), three collectors in dark coats press a scanner to the stall owner's wrist; the owner's daughter stands frozen with a ladle; customers stare into their bowls. One collector looks toward the viewer. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 701628498,
+   "ts": "2026-10-11T00:10:45"
+  },
+  "events/a2_kai_scrapyard.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. Kai, a silver-white android, sits propped against a hill of discarded android arms and legs in a scrapyard at night, blue eyes blinking slowly, a cracked speaker grille on his chest, rain. The character is Kai, a slender android with white ceramic plating, a white faceplate and glowing blue eyes. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/kai.png"
+   ],
+   "seed": 288640479,
+   "ts": "2026-10-10T23:46:19"
+  },
+  "events/a2_lin_yue_ledger.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. Lin-yue sits in the cabin of a barge at a lacquered table, incense smoke curling, a gilt ledger open in front of her and a brush just set down, a ring tapping the ledger's edge, a knowing look. The character is Lin-yue, an elegant woman broker with black hair pinned with a gold hairpin and a black-and-gold high-collared dress. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/lin-yue.png"
+   ],
+   "seed": 249562715,
+   "ts": "2026-10-10T23:41:54"
+  },
+  "events/a2_lin_yue_request.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. Lin-yue in a dim barge cabin lowering a paper lantern, her ledger closed, sliding a small gilt seal across the table, her fingers lingering on it, serious for the first time. The character is Lin-yue, an elegant woman broker with black hair pinned with a gold hairpin and a black-and-gold high-collared dress. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/lin-yue.png"
+   ],
+   "seed": 623461358,
+   "ts": "2026-10-10T23:42:51"
+  },
+  "events/a2_memory_forge.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. Su-ah at a cluttered workbench in violet arc light, goggles pushed up on her forehead, pointing at molten data slag cooling like iron; a half-open drawer glows faintly. The character is Su-ah, a young Korean woman engineer with tied-up black hair, thin glasses and a dark jacket with violet light. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/su-ah.png"
+   ],
+   "seed": 1100151455,
+   "ts": "2026-10-10T23:47:15"
+  },
+  "events/a2_memory_stall.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A night-market stall on a barge: shelves of small glass jars, each holding a single floating point of light, little paper tags with no readable writing; an old stallkeeper pushing up a jeweller's loupe; one padlocked jar in a case at the back. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1055931190,
+   "ts": "2026-10-10T23:40:57"
+  },
+  "events/a2_recruit.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. An abandoned subway transfer level flickering back to life: hand-repaired cables, an old rice cooker steaming, a few hooded survivors waiting under work lamps, each with their own gear. Warm light pushing against the dark. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 950219250,
+   "ts": "2026-10-10T23:39:56"
+  },
+  "events/a2_refuge_night.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. Night in an underground subway refuge: a paper chart on the tiled wall with no readable writing, steam rising from an old rice cooker, a small radio, a child reaching toward the viewer, adults by lamplight watching, half wary and half hopeful. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 815875410,
+   "ts": "2026-10-10T23:48:16"
+  },
+  "events/a2_subway_hub.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A derelict subway control hub: fibre bundles sagging over rusted rails, one live control screen glowing, three big switch levers, and in the tunnel the headlight of an unmanned freight train approaching. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 472117661,
+   "ts": "2026-10-10T23:45:17"
+  },
+  "events/a3_blank_in_list.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A vast wall of flowing horizontal lines of light, abstract and unreadable, and among them a single empty glowing gap; a hand reaches toward the gap, which trembles like a heartbeat. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 547641957,
+   "ts": "2026-10-10T23:51:58"
+  },
+  "events/a3_control_net_ghost.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A long server corridor lit by blue lines running from floor to ceiling; in the middle stands a translucent faceless human figure made of light, flickering and repeating like a looped recording. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 688059560,
+   "ts": "2026-10-10T23:52:58"
+  },
+  "events/a3_data_incinerator.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. An industrial data incinerator: a conveyor carrying small memory drives into a roaring red furnace, cold blue coolant pipes clashing with the heat, one drive on the belt blinking like a pulse, a control panel with a lever and a red protective switch cover. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 953783734,
+   "ts": "2026-10-10T23:50:06"
+  },
+  "events/a3_ix_offer.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. Elevator doors open onto a white room as tall as a cathedral; vast rings turn slowly overhead; a single red point of light watches; from the floor rises a medical treatment pod with its door open and warm light inside. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1739613455,
+   "ts": "2026-10-10T23:57:17"
+  },
+  "events/a3_kai_dream.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. Kai, a silver-white android with eyes shifting from blue to yellow, kneels on a white glass floor in a maintenance level; under the glass lies preserved old asphalt with zebra-crossing stripes and a small yellow umbrella. The character is Kai, a slender android with white ceramic plating, a white faceplate and glowing blue eyes. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/kai.png"
+   ],
+   "seed": 1240626006,
+   "ts": "2026-10-10T23:53:56"
+  },
+  "events/a3_optimization_queue.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A sterile white room with a single terminal; above it three pinned holographic portraits float: an old man, a mechanic, a child; a blinking cursor of light; clinical and chilling. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 261434531,
+   "ts": "2026-10-10T23:55:49"
+  },
+  "events/a3_sleeping_frames.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A vast storage hall in the Spire: endless shelves, a white android lying on each with eyes closed, and faint light moving slowly beneath their eyelids as if dreaming. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1106268610,
+   "ts": "2026-10-10T23:54:53"
+  },
+  "events/a3_spire_gate.webp": {
+   "generations": 2,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. At the top of wide white stairs, a seamless white door; raindrops evaporate just before touching it; a scanning arch of light in front; two motionless white enforcer robots stand on either side. Seamless plain white architecture with no signs, screens or neon anywhere; the foreground steps fall into soft shadow. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1639346543,
+   "ts": "2026-10-11T00:11:11"
+  },
+  "implants/adrenal_loop.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: an adrenal gland implant pulsing with light, a cybernetic artifact with glowing cyan and violet circuitry and cyan and violet glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1564923070,
+   "ts": "2026-10-10T23:51:23"
+  },
+  "implants/afterimage.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a sleek cyber module trailed by several translucent motion-blur copies of itself, a cybernetic artifact with glowing cyan and violet circuitry and cyan and violet glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 457344728,
+   "ts": "2026-10-10T23:52:21"
+  },
+  "implants/ark_coolant.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a canister of pale blue coolant with frost on its surface, a cybernetic artifact with glowing teal circuitry and teal glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 51050445,
+   "ts": "2026-10-11T00:15:24"
+  },
+  "implants/bastion_core.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a fortress-like hexagonal shield generator core, a cybernetic artifact with glowing warm gold circuitry and warm gold glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1133604221,
+   "ts": "2026-10-10T23:56:46"
+  },
+  "implants/black_ice_core.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a black ice crystal core with frost and fractures, a cybernetic artifact with glowing deep crimson circuitry and deep crimson glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 99186384,
+   "ts": "2026-10-11T00:00:31"
+  },
+  "implants/bounty_board.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a small hologram projector disc showing a target silhouette, a cybernetic artifact with glowing cyan and violet circuitry and cyan and violet glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 102334181,
+   "ts": "2026-10-11T00:08:13"
+  },
+  "implants/chain_reaction.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a cluster of small explosive nodes linked together by glowing wires, a cybernetic artifact with glowing warm gold circuitry and warm gold glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 299500292,
+   "ts": "2026-10-10T23:57:41"
+  },
+  "implants/chameleon_cloak.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a folded cloak shimmering with adaptive camouflage, a cybernetic artifact with glowing emerald green circuitry and emerald green glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 885908868,
+   "ts": "2026-10-11T00:06:20"
+  },
+  "implants/cracked_cube.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a cracked glass data cube with light leaking from its fractures, a cybernetic artifact with glowing pale white-teal circuitry and pale white-teal glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 860004748,
+   "ts": "2026-10-10T23:32:10"
+  },
+  "implants/cracked_lens.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a cybernetic eye lens with a crack across it and a faint targeting reticle, a cybernetic artifact with glowing teal circuitry and teal glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1774820185,
+   "ts": "2026-10-10T23:42:16"
+  },
+  "implants/credit_chip.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a gold-edged credit chip coin engraved with circuitry, a cybernetic artifact with glowing teal circuitry and teal glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 11185257,
+   "ts": "2026-10-10T23:36:27"
+  },
+  "implants/domino_relay.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a row of falling domino-shaped relay modules, a cybernetic artifact with glowing warm gold circuitry and warm gold glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 431750041,
+   "ts": "2026-10-11T00:01:29"
+  },
+  "implants/eater_maw.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a jaw-shaped device lined with torn holographic teeth, a cybernetic artifact with glowing deep crimson circuitry and deep crimson glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 144987243,
+   "ts": "2026-10-11T00:02:30"
+  },
+  "implants/echo_lens.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a prism lens refracting faint ghostly echo images, a cybernetic artifact with glowing cyan and violet circuitry and cyan and violet glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1079446233,
+   "ts": "2026-10-10T23:43:12"
+  },
+  "implants/erased_id.webp": {
+   "generations": 2,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a cracked translucent ID chip whose photo area is scratched blank, a cybernetic artifact with glowing pale white-teal circuitry and pale white-teal glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1162649674,
+   "ts": "2026-10-10T23:32:24"
+  },
+  "implants/feedback_loop.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a ring-shaped looping circuit coil, a serpent of light eating its own tail, a cybernetic artifact with glowing cyan and violet circuitry and cyan and violet glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1537863535,
+   "ts": "2026-10-10T23:45:36"
+  },
+  "implants/field_medic_kit.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a compact field medical case with a glowing heartbeat-line emblem, a cybernetic artifact with glowing emerald green circuitry and emerald green glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 34068049,
+   "ts": "2026-10-11T00:05:20"
+  },
+  "implants/forged_permit.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a forged holographic permit card with a wax-like seal, a cybernetic artifact with glowing teal circuitry and teal glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1492089772,
+   "ts": "2026-10-11T00:10:37"
+  },
+  "implants/ghost_engine.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a sleek engine core trailing ghostly vapour, a cybernetic artifact with glowing warm gold circuitry and warm gold glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 185022117,
+   "ts": "2026-10-10T23:55:12"
+  },
+  "implants/guardian_chip.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a neural chip with a glowing shield-shaped emblem, a cybernetic artifact with glowing cyan and violet circuitry and cyan and violet glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 342758326,
+   "ts": "2026-10-10T23:47:32"
+  },
+  "implants/haetae_treads.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a fragment of tank tread fused with sculpted haetae lion-dog armour, a cybernetic artifact with glowing deep crimson circuitry and deep crimson glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 185283476,
+   "ts": "2026-10-11T00:04:23"
+  },
+  "implants/heavy_exosuit.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a chunky armoured exosuit chest piece, a cybernetic artifact with glowing cyan and violet circuitry and cyan and violet glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1721835012,
+   "ts": "2026-10-10T23:50:24"
+  },
+  "implants/impact_frame.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: an armoured forearm exoskeleton frame with shock absorbers, a cybernetic artifact with glowing cyan and violet circuitry and cyan and violet glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 68345082,
+   "ts": "2026-10-10T23:49:27"
+  },
+  "implants/ix_shard.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a shard of white crystalline glass holding a tiny red core, a cybernetic artifact with glowing warm gold circuitry and warm gold glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1947044554,
+   "ts": "2026-10-10T23:59:33"
+  },
+  "implants/kill_chain.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a short length of heavy chain whose links glow with notches of light, a cybernetic artifact with glowing warm gold circuitry and warm gold glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1047005310,
+   "ts": "2026-10-10T23:58:34"
+  },
+  "implants/loaded_dice.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a pair of translucent dice with glowing circuitry inside, a cybernetic artifact with glowing teal circuitry and teal glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1919984233,
+   "ts": "2026-10-11T00:07:17"
+  },
+  "implants/med_pump.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a nano-pump medical implant with tiny glowing nanobots inside, a cybernetic artifact with glowing teal circuitry and teal glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1821840707,
+   "ts": "2026-10-10T23:41:16"
+  },
+  "implants/merchant_ledger.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a closed gilt ledger book with a glowing circuit binding, a cybernetic artifact with glowing emerald green circuitry and emerald green glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1182545360,
+   "ts": "2026-10-11T00:03:26"
+  },
+  "implants/mesh_vest.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a folded armoured vest panel of hexagonal mesh weave, a cybernetic artifact with glowing teal circuitry and teal glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1662586387,
+   "ts": "2026-10-10T23:33:25"
+  },
+  "implants/momentum_core.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a spinning gyroscope core of nested rings, a cybernetic artifact with glowing cyan and violet circuitry and cyan and violet glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1387287186,
+   "ts": "2026-10-10T23:46:35"
+  },
+  "implants/overclock_heart.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a mechanical heart with overclocked glowing coils, a cybernetic artifact with glowing warm gold circuitry and warm gold glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 84028840,
+   "ts": "2026-10-10T23:54:19"
+  },
+  "implants/overclocked_deck.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a compact cyberdeck hacking console with overheating cooling fins, a cybernetic artifact with glowing pale white-teal circuitry and pale white-teal glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 960981123,
+   "ts": "2026-10-10T23:34:26"
+  },
+  "implants/pocket_jammer.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a small handheld signal jammer with stubby antennae, a cybernetic artifact with glowing teal circuitry and teal glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 17790206,
+   "ts": "2026-10-10T23:38:23"
+  },
+  "implants/purge_igniter.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a handheld igniter device with a flame nozzle, a cybernetic artifact with glowing cyan and violet circuitry and cyan and violet glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 205540249,
+   "ts": "2026-10-11T00:12:33"
+  },
+  "implants/recoil_boots.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a pair of armoured boots with piston heels, a cybernetic artifact with glowing teal circuitry and teal glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 532392938,
+   "ts": "2026-10-10T23:37:26"
+  },
+  "implants/reflex_booster.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a spinal implant segment with crackling nerves of light, a cybernetic artifact with glowing cyan and violet circuitry and cyan and violet glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1874415335,
+   "ts": "2026-10-10T23:48:29"
+  },
+  "implants/salvaged_aegis.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a salvaged round shield emitter, patched and glowing, a cybernetic artifact with glowing warm gold circuitry and warm gold glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 243711549,
+   "ts": "2026-10-11T00:13:30"
+  },
+  "implants/scrap_plating.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a shield plate welded together from scrap metal pieces, a cybernetic artifact with glowing teal circuitry and teal glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 838524898,
+   "ts": "2026-10-10T23:35:29"
+  },
+  "implants/sentinel_eye.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a sentinel drone's eye lens module with a red iris, a cybernetic artifact with glowing cyan and violet circuitry and cyan and violet glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1192902708,
+   "ts": "2026-10-11T00:11:34"
+  },
+  "implants/smugglers_pocket.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a hidden-compartment pouch spilling glowing contraband chips, a cybernetic artifact with glowing warm gold circuitry and warm gold glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1220498422,
+   "ts": "2026-10-11T00:09:10"
+  },
+  "implants/spare_cell.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a cylindrical power cell battery, a cybernetic artifact with glowing teal circuitry and teal glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 313631887,
+   "ts": "2026-10-10T23:40:16"
+  },
+  "implants/stim_reservoir.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a glass reservoir implant of glowing fluid with tubes, a cybernetic artifact with glowing teal circuitry and teal glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1780419469,
+   "ts": "2026-10-10T23:39:26"
+  },
+  "implants/thorn_weave.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a woven armour patch bristling with metal thorns, a cybernetic artifact with glowing cyan and violet circuitry and cyan and violet glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 735931577,
+   "ts": "2026-10-10T23:53:18"
+  },
+  "implants/trigger_discipline.webp": {
+   "generations": 1,
+   "prompt": "Product shot of a single object floating in the centre of a plain, very dark, empty background, studio lighting with a strong rim light, sharp detail, generous dark margin around it, nothing else in the frame. The object: a cybernetic trigger-finger glove module, a cybernetic artifact with glowing teal circuitry and teal glow. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1390456746,
+   "ts": "2026-10-10T23:44:39"
+  },
+  "map/act1.webp": {
+   "generations": 1,
+   "prompt": "A top-down map texture of a blacked-out residential district: a dense grid of narrow streets and alleys between rectangular apartment block outlines, traced in thin faint cyan and teal neon lines, a few tiny dim red dots like drones, rain-streak texture. Strictly top-down orthographic view, like an old blueprint or a faint tactical city map. Very dark navy almost black overall, very low contrast, only thin faint glowing lines, no bright spots, no focal subject, an even subtle texture across the whole frame, suitable as a quiet background behind interface icons. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 393825900,
+   "ts": "2026-10-10T23:28:40"
+  },
+  "map/act2.webp": {
+   "generations": 1,
+   "prompt": "A top-down map texture of an undercity of canals: winding dark water channels, moored barges and pontoon walkways, round pillar footprints, traced in thin faint teal lines with a few tiny dim warm amber lantern dots. Strictly top-down orthographic view, like an old blueprint or a faint tactical city map. Very dark navy almost black overall, very low contrast, only thin faint glowing lines, no bright spots, no focal subject, an even subtle texture across the whole frame, suitable as a quiet background behind interface icons. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 225637601,
+   "ts": "2026-10-10T23:19:35"
+  },
+  "map/act3.webp": {
+   "generations": 1,
+   "prompt": "A top-down floor-plan texture of a vast circular tower: concentric rings, radial corridors and stacked floor outlines traced in thin faint white-cyan lines, a small dim red circle at the exact centre. Strictly top-down orthographic view, like an old blueprint or a faint tactical city map. Very dark navy almost black overall, very low contrast, only thin faint glowing lines, no bright spots, no focal subject, an even subtle texture across the whole frame, suitable as a quiet background behind interface icons. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1527419787,
+   "ts": "2026-10-10T23:20:18"
+  },
+  "music/boss1.m4a": {
+   "generations": 1,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Heavy mechanical boss battle, 125 bpm: thundering war drums, brassy synth horns, industrial metal clanks, ominous low riffs, a giant machine approaches.",
+   "seed": 100364749,
+   "ts": "2026-10-10T23:26:06"
+  },
+  "music/boss2.m4a": {
+   "generations": 1,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Chaotic glitch horror boss battle, 135 bpm: detuned synth stabs, stuttering broken beats, eerie haegeum, dissonant textures, unsettling and fast.",
+   "seed": 265572696,
+   "ts": "2026-10-10T23:26:10"
+  },
+  "music/boss_ix.m4a": {
+   "generations": 1,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Epic final boss battle, 140 bpm: wordless choir-like pads with an orchestral and synth hybrid, thundering janggu rhythms, soaring haegeum melody, huge and decisive.",
+   "seed": 806300142,
+   "ts": "2026-10-10T23:26:15"
+  },
+  "music/combat1.m4a": {
+   "generations": 2,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Driving dark synthwave battle, 120 bpm: punchy gated electronic drums, pulsing analog bass, aggressive arpeggios, janggu fills, tense and focused.",
+   "seed": 658481581,
+   "ts": "2026-10-10T23:22:06"
+  },
+  "music/combat2.m4a": {
+   "generations": 1,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Glitchy industrial breakbeat battle, 128 bpm: chopped distorted breakbeats, metallic percussion, gritty bass, glitch stutters, relentless.",
+   "seed": 219662018,
+   "ts": "2026-10-10T23:25:39"
+  },
+  "music/combat3.m4a": {
+   "generations": 1,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Relentless cyber-orchestral battle, 132 bpm: staccato strings, heavy synth bass, big taiko and janggu drums, brass stabs, urgent.",
+   "seed": 503033191,
+   "ts": "2026-10-10T23:25:42"
+  },
+  "music/defeat.m4a": {
+   "generations": 1,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Somber defeat, slow 60 bpm: low mournful pads, lonely haegeum, a few sparse piano notes, quiet and heavy, soft but continuous.",
+   "seed": 591023750,
+   "ts": "2026-10-10T23:26:39"
+  },
+  "music/elite.m4a": {
+   "generations": 1,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Aggressive elite battle, 130 bpm: distorted reese bass, pounding drums, screeching haegeum lead, dark and menacing.",
+   "seed": 854992753,
+   "ts": "2026-10-10T23:25:46"
+  },
+  "music/ending.m4a": {
+   "generations": 2,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Bittersweet hopeful finale, 76 bpm: swelling warm pads, gentle gayageum melody, soft drums, strings rising, tender and hopeful.",
+   "seed": 428161186,
+   "ts": "2026-10-10T23:27:10"
+  },
+  "music/event.m4a": {
+   "generations": 1,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Introspective story moment, 70 bpm: sparse felt piano notes over warm evolving pads, faint haegeum, quiet and thoughtful.",
+   "seed": 825502439,
+   "ts": "2026-10-10T23:24:42"
+  },
+  "music/hub.m4a": {
+   "generations": 1,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Warm underground refuge, gentle lo-fi 80 bpm: dusty electric piano chords, soft muted beat with vinyl crackle, mellow haegeum phrases, cozy and safe.",
+   "seed": 480254028,
+   "ts": "2026-10-10T23:24:14"
+  },
+  "music/map1.m4a": {
+   "generations": 1,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Tense dark ambient exploration, 90 bpm: rain texture, sparse pulsing sub bass, ticking hi-hats, low drones, distant janggu taps, uneasy and watchful.",
+   "seed": 585989278,
+   "ts": "2026-10-10T23:24:14"
+  },
+  "music/map2.m4a": {
+   "generations": 1,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Mysterious night market, low groove 95 bpm: plucked gayageum and synth plucks, round groovy bass line, soft hand percussion, smoky and curious.",
+   "seed": 570916861,
+   "ts": "2026-10-10T23:24:44"
+  },
+  "music/map3.m4a": {
+   "generations": 2,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Cold sterile cathedral of glass, 84 bpm: glassy synth arpeggios, wordless choir-like synth pads, deep reverb, clinical and awe-inspiring.",
+   "seed": 863319000,
+   "ts": "2026-10-10T23:25:13"
+  },
+  "music/rest.m4a": {
+   "generations": 1,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Soft hopeful safehouse rest, 66 bpm: warm gentle pads, delicate gayageum harmonics, soft piano, quiet and comforting.",
+   "seed": 885462315,
+   "ts": "2026-10-10T23:25:12"
+  },
+  "music/shop.m4a": {
+   "generations": 1,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Laid-back smuggler groove, 92 bpm: muted fingered bass, brushed drums, plucked gayageum riffs, dusty keys, cool and relaxed.",
+   "seed": 472143253,
+   "ts": "2026-10-10T23:25:11"
+  },
+  "music/title.m4a": {
+   "generations": 1,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Melancholic and majestic main theme, slow 72 bpm: wide warm analog synth pads, a lonely gayageum melody motif, deep sub bass swells, distant rain ambience, cinematic and emotional.",
+   "seed": 51708516,
+   "ts": "2026-10-10T23:24:14"
+  },
+  "music/victory.m4a": {
+   "generations": 1,
+   "prompt": "Instrumental video game soundtrack, continuous loopable section with no intro and no ending, steady energy from start to finish. Neo-noir synthwave with Korean traditional colour (gayageum plucks, haegeum bowed lines, janggu hand drum accents) for a rainy cyberpunk Neo-Seoul. Triumphant victory, bright uplifting synthwave, 100 bpm: heroic synth brass melody with gayageum, warm steady groove, relieved and proud.",
+   "seed": 635895762,
+   "ts": "2026-10-10T23:26:37"
+  }
+ }
+}

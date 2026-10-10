@@ -1,6 +1,6 @@
 // Mythos 2.0 — persistent run HUD: HP, credits, Trace, act/floor, party, implants, consumables, deck, settings.
 import { art } from '../components/art.ts'
-import { Coins, Heart, Layers, LogOut, Settings } from 'lucide-react'
+import { BookOpen, Coins, Heart, Layers, LogOut, Settings } from 'lucide-react'
 import { useEffect } from 'react'
 import type { ContentRegistry, Lang, RunState } from '../../engine/types.ts'
 import { portrait } from '../common/assets.ts'
@@ -38,6 +38,8 @@ export function TopBar({ run, C, lang, onDeck, onSettings, onAbandon, onDiscard 
   const archetype = C.archetypes[run.archetype]
   const floor = run.nodeId ? (run.map.nodes[run.nodeId]?.row ?? 0) + 1 : 0
   const actDef = C.acts[run.act]
+  // Codex entries the Code Rewrite ending asks for (content/endings.ts).
+  const CODEX_GOAL = Math.max(0, ...Object.values(C.endings).map((e) => e.requires?.minCodex ?? 0))
   return (
     <header className="m2-topbar">
       <div className="m2-topbar__who">
@@ -61,6 +63,26 @@ export function TopBar({ run, C, lang, onDeck, onSettings, onAbandon, onDiscard 
       </Tooltip>
 
       <TraceMeter trace={run.trace} lang={lang} />
+
+      {/* Codex entries gate the Code Rewrite ending — keep the count visible all run. */}
+      {CODEX_GOAL > 0 && (
+      <Tooltip
+        content={
+          lang === 'ko'
+            ? `이번 루프에서 찾은 코덱스 기록. ${CODEX_GOAL}개를 모으면 마지막에 'IX의 코드를 다시 쓴다'를 고를 수 있다.`
+            : `Codex entries found this loop. Collect ${CODEX_GOAL} to unlock “Rewrite IX’s code” at the end.`
+        }
+        placement="bottom"
+      >
+        <div className={`m2-topbar__credits m2-topbar__codex${run.codex.length >= CODEX_GOAL ? ' is-met' : ''}`}>
+          <BookOpen size={15} />
+          <span className="m2-mono">
+            {run.codex.length}
+            <small>/{CODEX_GOAL}</small>
+          </span>
+        </div>
+      </Tooltip>
+      )}
 
       <Tooltip content={actDef ? tr(actDef.subtitle, lang) : null} placement="bottom">
         <div className="m2-topbar__act">

@@ -14,6 +14,7 @@ export const ENDINGS: EndingDef[] = [
     // Bond is 0..3 per companion, so a total of 4 needs two companions who trust you.
     requires: { minBondTotal: 4 },
     choice: { ko: '동료들과 함께 지하로 돌아간다', en: 'Go home underground with your people' },
+    stakes: { ko: 'IX는 남는다. 대신 당신도, 동료들도 살아서 내려간다.', en: 'IX stays online. You and your people walk out alive.' },
     echoBonus: 45,
   },
   {
@@ -27,6 +28,7 @@ export const ENDINGS: EndingDef[] = [
     // Knowledge run: codex entries come only from event choices (one per event at most).
     requires: { minCodex: 3 },
     choice: { ko: 'IX의 코드를 다시 쓴다', en: 'Rewrite IX’s code' },
+    stakes: { ko: '모은 기록으로 IX의 규칙을 고쳐 쓴다. 도시가 바뀐다.', en: 'Your records rewrite IX’s rules. The city changes.' },
     echoBonus: 50,
   },
   {
@@ -38,6 +40,7 @@ export const ENDINGS: EndingDef[] = [
       en: 'You burn everything you have left and drive it into the Spire’s core. You are gone. The flame leaves a dream in every machine in the city. The next night, in a wet alley, someone calls your name.',
     },
     choice: { ko: '모든 것을 태워 꿈을 남긴다', en: 'Burn everything to leave a dream behind' },
+    stakes: { ko: '당신은 사라진다. 다음 루프에 가장 많은 에코가 남는다.', en: 'You are gone. The next loop inherits the most Echoes.' },
     echoBonus: 60,
   },
   {

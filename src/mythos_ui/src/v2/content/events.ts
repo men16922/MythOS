@@ -377,7 +377,7 @@ const A1: EventDef[] = [
     options: [
       {
         label: t('무전기를 고쳐 주파수를 따라간다', 'Fix the radio and follow the frequency'),
-        hint: t('유대 +1 · 코덱스 · 실패 시 추적', 'Bond +1 · codex · fail Trace'),
+        hint: t('유대 +1 · 코덱스 · 실패 시 추적 +10', 'Bond +1 · codex · fail +10 Trace'),
         check: { stat: 'int', dc: 4 },
         success: {
           text: t(
@@ -601,7 +601,7 @@ const A1: EventDef[] = [
       },
       {
         label: t('덕트 안으로 숨는다', 'Hide in the duct'),
-        hint: t('추적 −6 · 소모품 · 실패 시 추적', '−6 Trace · consumable · fail Trace'),
+        hint: t('추적 −6 · 소모품 · 실패 시 추적 +10', '−6 Trace · consumable · fail +10 Trace'),
         check: { stat: 'obs', dc: 4 },
         success: {
           text: t(
@@ -876,7 +876,7 @@ const A2: EventDef[] = [
       },
       {
         label: t('낙찰서를 위조한다', 'Forge a winning bid'),
-        hint: t('유대 +1 · +30 ₵ · 실패 시 추적', 'Bond +1 · +30 ₵ · fail Trace'),
+        hint: t('유대 +1 · +30 ₵ · 실패 시 추적 +12', 'Bond +1 · +30 ₵ · fail +12 Trace'),
         check: { stat: 'int', dc: 5 },
         success: {
           text: t(
@@ -1212,7 +1212,7 @@ const A2: EventDef[] = [
     options: [
       {
         label: t('이 밤을 전에도 살았다고 말한다', 'Tell them you’ve lived this night before'),
-        hint: t('코덱스 · ◈ +5 · 실패 시 추적', 'Codex · +5 ◈ · fail Trace'),
+        hint: t('코덱스 · ◈ +5 · 실패 시 추적 +8', 'Codex · +5 ◈ · fail +8 Trace'),
         check: { stat: 'cha', dc: 4 },
         success: {
           text: t(
@@ -1396,7 +1396,7 @@ const A3: EventDef[] = [
       },
       {
         label: t('로그만 빼낸다', 'Grab only the logs'),
-        hint: t('코덱스 · 추적 −5 · 실패 시 추적', 'Codex · −5 Trace · fail Trace'),
+        hint: t('코덱스 · 추적 −5 · 실패 시 추적 +12', 'Codex · −5 Trace · fail +12 Trace'),
         check: { stat: 'agi', dc: 5 },
         success: {
           text: t(
@@ -1856,7 +1856,7 @@ const A3: EventDef[] = [
       },
       {
         label: t('조건이 뭔지 묻는다', 'Ask what the condition is'),
-        hint: t('코덱스 · 추적 −15 · 실패 시 추적', 'Codex · −15 Trace · fail Trace'),
+        hint: t('코덱스 · 추적 −15 · 실패 시 추적 +15', 'Codex · −15 Trace · fail +15 Trace'),
         check: { stat: 'cha', dc: 6 },
         success: {
           text: t(

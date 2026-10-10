@@ -39,6 +39,7 @@ export function FinalChoice({ run, C, lang, act }: ScreenProps) {
             <span className="m2-ending-opt__shade" />
             <span className="m2-ending-opt__text">
               <b>{tr(def.choice ?? def.title, lang)}</b>
+              {def.stakes && <span className="m2-ending-opt__stakes">{tr(def.stakes, lang)}</span>}
               <small>
                 {tr(def.title, lang)}
                 {def.echoBonus > 0 && <span className="m2-ending-opt__echo m2-mono"> · ◈ +{def.echoBonus}</span>}

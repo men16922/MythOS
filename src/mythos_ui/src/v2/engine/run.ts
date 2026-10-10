@@ -1223,7 +1223,7 @@ export function availableEndings(run: RunState, C: ContentRegistry): EndingView[
       if (req.minBondTotal !== undefined && bondTotal < req.minBondTotal)
         return { ending, available: false, reason: t(`유대 합계 ${req.minBondTotal} 필요`, `Needs total bond ${req.minBondTotal}`) }
       if (req.minCodex !== undefined && run.codex.length < req.minCodex)
-        return { ending, available: false, reason: t(`기록 ${req.minCodex}개 필요`, `Needs ${req.minCodex} codex entries`) }
+        return { ending, available: false, reason: t(`코덱스 기록 ${req.minCodex}개 필요`, `Needs ${req.minCodex} codex entries`) }
       return { ending, available: true }
     })
 }

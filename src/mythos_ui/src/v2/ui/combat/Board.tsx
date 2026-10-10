@@ -5,7 +5,7 @@ import { memo } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { ChevronsRight, Crosshair, Hourglass, LocateFixed, Plus, Skull, Sparkles, Swords, Target, Zap, CircleDot, Radiation } from 'lucide-react'
 import type { CombatPreview, IntentInfo } from '../../engine/combat.ts'
-import { dirToward, posKey } from '../../engine/grid.ts'
+import { add, dirToward, posKey } from '../../engine/grid.ts'
 import { GRID_H, GRID_W } from '../../engine/types.ts'
 import type { CombatState, ContentRegistry, Dir, EnemyMove, Lang, Pos, StatusKind, Tile, UnitState } from '../../engine/types.ts'
 import { STATUS_ICON, sprite } from '../common/assets.ts'
@@ -424,17 +424,21 @@ interface TileMark {
   wind: number
   uids: string[]
   push: Dir | null
+  /** The unit standing here gets pushed into the void by this intent (enemy-on-enemy kills included). */
+  drops: boolean
 }
 
 /** Aggregate intent damage per tile (labels) and incoming damage per party unit. */
-function aggregateIntents(intents: IntentView[], units: UnitState[]): { tileDmg: Map<string, TileMark>; danger: Record<string, number> } {
+function aggregateIntents(intents: IntentView[], c: CombatState): { tileDmg: Map<string, TileMark>; danger: Record<string, number> } {
+  const units = c.units
   const tileDmg = new Map<string, TileMark>()
   for (const iv of intents) {
-    const pushes = iv.info.move.effects?.find((e) => e.kind === 'push')
+    // A charge always shoves what it hits one tile on (engine/intents.ts fireIntent).
+    const pushes = iv.info.move.pattern === 'charge' ? ({ kind: 'push', dir: 'away' } as const) : iv.info.move.effects?.find((e) => e.kind === 'push')
     for (const p of iv.info.tiles) {
       if (p.x === iv.unit.pos.x && p.y === iv.unit.pos.y) continue
       const key = posKey(p)
-      const cur = tileDmg.get(key) ?? { p, dmg: 0, wind: 0, uids: [], push: null, labelled: false }
+      const cur = tileDmg.get(key) ?? { p, dmg: 0, wind: 0, uids: [], push: null, labelled: false, drops: false }
       if (iv.info.move.pattern !== 'track') cur.labelled = true
       if (iv.info.windupLeft > 0) cur.wind = Math.max(cur.wind, iv.info.windupLeft + 1)
       else cur.dmg += iv.info.damage
@@ -444,6 +448,11 @@ function aggregateIntents(intents: IntentView[], units: UnitState[]): { tileDmg:
           iv.info.dir && iv.info.move.pattern !== 'lob' && iv.info.move.pattern !== 'nova' ? iv.info.dir : dirToward(iv.info.target ?? iv.unit.pos, p)
         const d = away && pushes.dir === 'toward' ? ({ up: 'down', down: 'up', left: 'right', right: 'left' } as const)[away] : away
         cur.push = d ?? null
+        // Mirrors engine pushUnit: a grounded enemy shoved onto a void tile falls (allies stop at the rim).
+        const victim = units.find((u) => u.hp > 0 && u.pos.x === p.x && u.pos.y === p.y)
+        const dest = d ? add(p, d) : null
+        if (victim && dest && victim.side === 'enemy' && !victim.flying && c.tiles[dest.y]?.[dest.x]?.kind === 'void' && !units.some((u) => u.hp > 0 && u.pos.x === dest.x && u.pos.y === dest.y))
+          cur.drops = true
       }
       tileDmg.set(key, cur)
     }
@@ -461,7 +470,7 @@ export function Board({ registerBoard, ...props }: BoardProps) {
   const { g, vc, C, intents, preview } = props
   // The animator removes the dead after their death beat; never drop a unit just because hp hit 0 mid-hit.
   const units = vc.units
-  const { tileDmg, danger } = aggregateIntents(intents, vc.units)
+  const { tileDmg, danger } = aggregateIntents(intents, vc)
   const intentByUid: Record<string, IntentInfo> = {}
   for (const iv of intents) intentByUid[iv.uid] = iv.info
   const previewByUid: Record<string, CombatPreview['units'][number]> = {}
@@ -651,6 +660,16 @@ export function Board({ registerBoard, ...props }: BoardProps) {
                 style={{ left: c.x, top: c.y, transform: `translate(-50%,-50%) rotate(${ang}deg)` }}
               >
                 <ChevronsRight size={18} strokeWidth={3} />
+              </div>
+            )
+          })}
+        {[...tileDmg.values()]
+          .filter((t) => t.drops && !props.dimIntents)
+          .map((t) => {
+            const c = tileCenter(g, t.p)
+            return (
+              <div key={`d${posKey(t.p)}`} className="m2c-tdrop" style={{ left: c.x, top: c.y - g.tw * 0.62 }}>
+                <Skull size={15} strokeWidth={2.6} />
               </div>
             )
           })}

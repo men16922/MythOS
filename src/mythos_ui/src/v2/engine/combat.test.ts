@@ -768,6 +768,26 @@ test('boss enters its phase below the threshold and unlocks phase moves', () => 
   assert.ok(unit(after, 'e1').intent)
 })
 
+test('killing the boss shuts down its remaining minions and wins the fight', () => {
+  const C2 = withEncounter({ ...C.encounters.boss!, id: 'boss_court', enemies: [{ id: 'boss', pos: { x: 4, y: 2 } }, { id: 'minion', pos: { x: 6, y: 0 } }, { id: 'drone', pos: { x: 6, y: 4 } }] })
+  const c = startCombat(makeRun(), 'boss_court', C2)
+  const credits = c.credits
+  dealDamage(c, C2, unit(c, 'e1'), 999, { source: 'party' })
+  assert.equal(c.phase, 'won')
+  assert.equal(c.units.filter((u) => u.side === 'enemy').length, 0)
+  assert.equal(c.events.filter((e) => e.t === 'death' && e.cause === 'collapse').length, 2)
+  assert.equal(c.stats.enemiesKilled, 1, 'only the boss counts as a kill')
+  assert.equal(c.credits - credits, C2.enemies.boss!.bounty ?? 0, 'collapsed minions pay no bounty')
+})
+
+test('killing a minion in a boss fight does not collapse anything', () => {
+  const C2 = withEncounter({ ...C.encounters.boss!, id: 'boss_court', enemies: [{ id: 'boss', pos: { x: 4, y: 2 } }, { id: 'minion', pos: { x: 6, y: 0 } }] })
+  const c = startCombat(makeRun(), 'boss_court', C2)
+  dealDamage(c, C2, unit(c, 'e2'), 999, { source: 'party' })
+  assert.equal(c.phase, 'player')
+  assert.ok(unit(c, 'e1').hp > 0)
+})
+
 // ---------------------------------------------------------------- AI
 
 test('brawler closes in and telegraphs onto the connector', () => {

@@ -400,7 +400,10 @@ export function CombatScreen(props: CombatScreenProps) {
         : k
           ? '커넥터의 신호가 끊겼다'
           : 'The Connector has gone dark'
-      anim.banner({ kind: won ? 'victory' : 'defeat', title: won ? (k ? '승리' : 'VICTORY') : k ? '신호 소실' : 'SIGNAL LOST', sub }, 4000)
+      // A boss fight ends on the boss: name it ("관리자 IX 정지") instead of a generic VICTORY.
+      const boss = (enc?.enemies ?? []).map((e) => C.enemies[e.id]).find((d) => d?.tier === 'boss')
+      const winTitle = boss ? (k ? `${tr(boss.name, lang)} 정지` : `${tr(boss.name, lang).toUpperCase()} DOWN`) : k ? '승리' : 'VICTORY'
+      anim.banner({ kind: won ? 'victory' : 'defeat', title: won ? winTitle : k ? '신호 소실' : 'SIGNAL LOST', sub }, 4000)
       sfx(won ? 'victory' : 'defeat')
       setMusicDuck(true)
       const t = window.setTimeout(
@@ -412,7 +415,7 @@ export function CombatScreen(props: CombatScreenProps) {
       )
       timers.current.push(t)
     },
-    [anim, k, props],
+    [anim, k, props, enc, C, lang],
   )
 
   const commitAction = useCallback(

@@ -425,8 +425,9 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
       const lastSource = new Map<string, 'party' | 'enemy' | 'environment'>()
       const lastDeathIdx = (() => {
         let idx = -1
+        // A boss's collapsing minions die after it: the final-kill punch stays on the boss.
         events.forEach((e, i) => {
-          if (e.t === 'death') idx = i
+          if (e.t === 'death' && e.cause !== 'collapse') idx = i
         })
         return idx
       })()
@@ -787,12 +788,34 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
             const uid = ev.uid
             const isFinal = finalKill && evIdx === lastDeathIdx
             const isVoid = ev.cause === 'void'
+            if (ev.cause === 'collapse') {
+              // The boss fell: its summons power down one after another (no kill text, no shake).
+              steps.push({
+                dur: 260,
+                run: () => {
+                  const u = unitOf(uid)
+                  if (!u) return
+                  updFx(uid, { dying: 'damage', pose: 'hit', moveMs: 0 })
+                  addFx({ kind: 'text', at: { x: u.pos.x, y: u.pos.y - 0.45 }, text: k ? '정지' : 'SHUTDOWN', tone: 'fizzle', ms: S(1100) })
+                  addFx({ kind: 'pixels', at: u.pos, tone: 'enemy', ms: S(600) })
+                  sfx('status_shock', { pan: panOf(u.pos.x), volume: 0.5 })
+                },
+              })
+              steps.push({
+                dur: 0,
+                run: () => {
+                  const v = shadow.current
+                  commit({ ...v, units: v.units.filter((x) => x.uid !== uid) })
+                },
+              })
+              break
+            }
             steps.push({
               dur: (isVoid ? 720 : 560) + (isFinal ? 520 : 0),
               run: () => {
                 const u = unitOf(uid)
                 if (!u) return
-                updFx(uid, { dying: ev.cause, pose: 'hit', moveMs: 0 })
+                updFx(uid, { dying: isVoid ? 'void' : 'damage', pose: 'hit', moveMs: 0 })
                 const src = lastSource.get(uid)
                 const friendly = u.side === 'enemy' && src === 'enemy'
                 const word = isVoid

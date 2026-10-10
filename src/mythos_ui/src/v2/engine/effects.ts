@@ -288,10 +288,24 @@ export function killUnit(c: CombatState, C: ContentRegistry, u: UnitState, cause
     }
     fireTrigger(c, C, 'enemy_killed', u.pos)
     if (environmental) fireTrigger(c, C, 'environment_kill', u.pos)
+    if (C.enemies[u.defId]?.tier === 'boss') collapseWithBoss(c, C)
   } else if (u.side === 'neutral' && c.bonus?.def.kind === 'protect') {
     c.bonus.failed = true
   }
   checkEnd(c, C)
+}
+
+/** The boss is the signal source: once no boss stands, its summons and guards shut down with it (no bounty,
+ *  no kill triggers) — the fight ends on the boss, not on a 5-hp drone chase. */
+function collapseWithBoss(c: CombatState, C: ContentRegistry): void {
+  const rest = livingEnemies(c)
+  if (rest.some((e) => C.enemies[e.defId]?.tier === 'boss')) return
+  for (const e of rest) {
+    e.hp = 0
+    emit(c, { t: 'death', uid: e.uid, cause: 'collapse' })
+  }
+  c.units = c.units.filter((x) => !rest.includes(x))
+  c.incoming = []
 }
 
 // ---------------------------------------------------------------- damage

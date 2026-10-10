@@ -49,7 +49,23 @@ export function RewardScreen({ run, C, lang, settings, act }: ScreenProps) {
       <div className="m2-reward__glow" />
       <div className="m2-reward__panel">
         <div className="m2-reward__kicker">{enc ? tr(enc.name, lang) : ko ? '교전 종료' : 'Fight won'}</div>
-        <h1 className="m2-reward__title">{elite ? (ko ? '전리품' : 'Spoils') : ko ? '제압 완료' : 'Area secured'}</h1>
+        <h1 className="m2-reward__title">
+          {afterBoss
+            ? ko
+              ? '격파'
+              : 'Boss down'
+            : elite
+              ? ko
+                ? '전리품'
+                : 'Spoils'
+              : enc?.objective?.kind === 'survive'
+                ? ko
+                  ? '버텨 냈다'
+                  : 'Held the line'
+                : ko
+                  ? '제압 완료'
+                  : 'Area secured'}
+        </h1>
 
         <div className="m2-reward__list">
           {reward.credits > 0 && (

@@ -341,7 +341,7 @@ export type CombatEvent =
   | { t: 'block'; uid: string; amount: number }
   | { t: 'push'; uid: string; from: Pos; to: Pos; dir: Dir; bumped?: string | 'wall' | 'cover' }
   | { t: 'status'; uid: string; status: StatusKind; amount: number }
-  | { t: 'death'; uid: string; cause: 'damage' | 'void' }
+  | { t: 'death'; uid: string; cause: 'damage' | 'void' | 'collapse' }
   | { t: 'spawn'; uid: string }
   | { t: 'tile'; pos: Pos; kind: TileKind }
   | { t: 'fizzle'; uid: string }
@@ -730,6 +730,8 @@ export interface EndingDef {
   requires?: Condition & { minBondTotal?: number; minCodex?: number }
   /** Label on the final-choice button. */
   choice?: Text
+  /** One line under the choice: what this ending costs and keeps. */
+  stakes?: Text
   echoBonus: number
 }
 

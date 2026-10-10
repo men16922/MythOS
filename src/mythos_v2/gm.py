@@ -288,13 +288,17 @@ _KIND_SYSTEM: dict[NarrateKind, dict[Lang, str]] = {
         "conclusion.'",
     },
     "chronicle": {
-        "ko": "이번 회차를 기록 보관소의 연대기 항목처럼 3~6문장으로 요약한다. 과거 시제, 건조한 "
-        "기록체. 맥락에 주어진 사실(동료, 하이라이트, 막, 끝난 방식, 처치한 상대)만 쓴다. 맥락에 "
-        "없는 장소·행동·대사·인물은 절대 지어내지 않는다. 사실이 적으면 짧게 끝낸다.",
-        "en": "Summarise this loop as an archive chronicle entry in 3-6 sentences. Past tense, dry "
-        "record-keeping voice. Use ONLY the facts in the context (companions, highlights, act, how "
-        "it ended, who ended it). Never invent places, actions, dialogue or people that are not in "
-        "the context; if there are few facts, keep it short.",
+        "ko": "이번 회차를 기록 보관소의 연대기 항목처럼 3~5문장으로 쓴다. 과거 시제, 건조하지만 "
+        "읽히는 기록체('~했다'). 첫 문장은 누가 누구와 길을 나섰는지, 가운데는 하이라이트 중 가장 "
+        "결정적인 두세 개만 골라 한 흐름으로 잇고(목록처럼 나열하지 않는다), 마지막 문장은 회차가 "
+        "끝난 방식으로 맺는다. 문장 길이를 섞는다. 맥락에 주어진 사실(동료, 하이라이트, 막, 끝난 "
+        "방식, 처치한 상대)만 쓴다. 맥락에 없는 장소·행동·대사·인물은 절대 지어내지 않는다.",
+        "en": "Write this loop as an archive chronicle entry in 3-5 sentences. Past tense, a dry but "
+        "readable record-keeping voice. Open with who set out and with whom; in the middle, pick "
+        "only the two or three most decisive highlights and join them into one line of events (do "
+        "not list them); close on how the loop ended. Vary sentence length. Use ONLY the facts in "
+        "the context (companions, highlights, act, how it ended, who ended it). Never invent "
+        "places, actions, dialogue or people that are not in the context.",
     },
     "boss": {
         "ko": "보스가 나타나거나 형태를 바꾸는 순간을 1~3문장으로 묘사한다. 보스의 짧은 대사 한 줄을 "
@@ -351,6 +355,24 @@ def _context_notes(kind: NarrateKind, lang: Lang, ctx: Mapping[str, Any]) -> str
             if lang == "ko":
                 return "\n- 참고: 첫 접속이다. 지난 회차는 없다."
             return "\n- note: this is the very first connection; there is no previous loop."
+    if kind == "chronicle":
+        # The model skipped the climax ("stopping IX") or buried it mid-paragraph; state it as the last line.
+        result = _ctx_str(ctx, "result").lower()
+        ending = _ctx_str(ctx, "ending", "endingTitle")
+        if result == "victory":
+            if lang == "ko":
+                tail = f" 그리고 결말 '{ending}'을(를) 택했다" if ending else ""
+                return (
+                    f"\n- 마지막 문장: 접속자는 ARK 첨탑 꼭대기에서 관리자 IX를 정지시켰다{tail}."
+                )
+            tail = f", then chose the ending '{ending}'" if ending else ""
+            return f"\n- last sentence: the connector stopped Administrator IX atop the ARK Spire{tail}."
+        killed_by = _ctx_str(ctx, "killedBy")
+        if result != "abandoned" and killed_by:
+            place = _act_name(ctx, lang)
+            if lang == "ko":
+                return f"\n- 마지막 문장: 접속자는 {place}에서 {killed_by}에게 쓰러졌다."
+            return f"\n- last sentence: the connector fell to {killed_by} in {place}."
     return ""
 
 
@@ -533,7 +555,7 @@ def _fallback_chronicle(ctx: Mapping[str, Any], lang: Lang) -> str:
         if archetype:
             who += f"({archetype})"
         if result == "victory":
-            parts.append(f"{who}, ARK 첨탑 꼭대기에서 IX와 마주했다.")
+            parts.append(f"{who}, ARK 첨탑 꼭대기에서 관리자 IX를 정지시켰다.")
         elif result == "abandoned":
             parts.append(f"{who}, {place}에서 스스로 접속을 끊었다.")
         else:
@@ -556,7 +578,7 @@ def _fallback_chronicle(ctx: Mapping[str, Any], lang: Lang) -> str:
         if archetype:
             who += f" ({archetype})"
         if result == "victory":
-            parts.append(f"{who} reached the top of the ARK Spire and faced IX.")
+            parts.append(f"{who} reached the top of the ARK Spire and stopped Administrator IX.")
         elif result == "abandoned":
             parts.append(f"{who} cut the connection in {place}.")
         else:

@@ -778,6 +778,17 @@ body {
   font-size: 18px;
   font-weight: 700;
 }
+.m2-topbar__codex {
+  color: var(--m2-mute);
+  font-size: 16px;
+}
+.m2-topbar__codex small {
+  font-size: 11px;
+  opacity: 0.7;
+}
+.m2-topbar__codex.is-met {
+  color: var(--m2-cyan, #5ee7ff);
+}
 .m2-topbar__act {
   display: flex;
   align-items: baseline;
@@ -4250,6 +4261,14 @@ body {
   margin-top: 4px;
   font-size: 15px;
   color: var(--m2-ink-2);
+}
+.m2-ending-opt__stakes {
+  display: block;
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--m2-ink);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
 }
 .m2-ending-opt__echo {
   color: var(--m2-echo);

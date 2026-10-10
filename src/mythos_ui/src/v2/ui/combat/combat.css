@@ -3086,3 +3086,20 @@
     animation: none;
   }
 }
+/* An enemy intent will shove the unit on this tile into the void. */
+.m2c-tdrop {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  color: #ff5a7a;
+  filter: drop-shadow(0 0 4px #ff3d6e) drop-shadow(0 1px 1px #000);
+  animation: m2c-tdrop-pulse 0.9s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes m2c-tdrop-pulse {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 1;
+  }
+}

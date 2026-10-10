@@ -109,10 +109,10 @@ test('ids are unique', () => {
 test('quotas', () => {
   for (const act of [1, 2, 3] as const) {
     const n = EVENTS.filter((e) => !SCRIPTED.has(e.id) && e.acts.includes(act)).length
-    assert.ok(n >= 8, `act ${act} has ${n} events`)
+    assert.ok(n >= 12, `act ${act} has ${n} events`)
   }
-  assert.ok(EVENTS.length >= 26)
-  assert.ok(LORE.length >= 15)
+  assert.ok(EVENTS.length >= 38)
+  assert.ok(LORE.length >= 23)
   assert.equal(ENDINGS.length, 4)
   const ixTotal = Object.values(IX_LINES).reduce((s, xs) => s + xs.length, 0)
   assert.ok(ixTotal >= 16, `IX lines ${ixTotal}`)
@@ -216,6 +216,7 @@ test('effect references point at known ids', () => {
     const conds = [e.requires, ...e.options.map((o) => o.requires)]
     for (const c of conds) {
       if (c?.companion) assert.ok(COMPANIONS.includes(c.companion), `${e.id}: requires ${c.companion}`)
+      for (const id of c?.companions ?? []) assert.ok(COMPANIONS.includes(id), `${e.id}: requires ${id}`)
       if (c?.noCompanion) assert.ok(COMPANIONS.includes(c.noCompanion), `${e.id}: noCompanion ${c.noCompanion}`)
     }
     for (const fx of effects(e)) {
@@ -255,11 +256,13 @@ test('effect references point at known ids', () => {
 test('companion-gated bond options only bond the gating companion', () => {
   for (const e of EVENTS) {
     for (const o of e.options) {
-      const gate = o.requires?.companion ?? e.requires?.companion
+      const gates = new Set(
+        [o.requires, e.requires].flatMap((c) => [...(c?.companion ? [c.companion] : []), ...(c?.companions ?? [])]),
+      )
       const bonds = [o.success, ...(o.failure ? [o.failure] : [])].flatMap((out) =>
         out.effects.filter((fx): fx is Extract<RunEffect, { kind: 'bond' }> => fx.kind === 'bond'),
       )
-      for (const b of bonds) assert.equal(b.id, gate, `${e.id} / ${o.label.en}: bond ${b.id} without gating on it`)
+      for (const b of bonds) assert.ok(gates.has(b.id), `${e.id} / ${o.label.en}: bond ${b.id} without gating on it`)
     }
   }
 })
@@ -356,6 +359,31 @@ test('unlocks: requires resolve, grants are known, threads have passives, costs 
   // Every granted pack / companion / archetype is unlockable exactly once.
   const grants = UNLOCKS.flatMap((u) => (u.grants ? [u.grants] : []))
   assert.equal(new Set(grants).size, grants.length)
+})
+
+test('variety: every act has a gamble, a companion conflict, an IX contact and an uncanny event', () => {
+  const TAGS = ['gamble', 'companion conflict', 'IX contact', 'uncanny']
+  for (const act of [1, 2, 3] as const) {
+    for (const tag of TAGS) {
+      const hits = EVENTS.filter((e) => !SCRIPTED.has(e.id) && e.acts.includes(act) && e.gmHints?.[0] === tag)
+      assert.ok(hits.length >= 1, `act ${act} lacks a '${tag}' event`)
+    }
+  }
+  for (const e of EVENTS.filter((x) => x.gmHints?.[0] === 'companion conflict')) {
+    const both = e.requires?.companions ?? []
+    if (e.acts.includes(1)) {
+      // Act 1 has one companion: the conflict is with someone asking to join, who can be recruited on the spot.
+      assert.ok(e.requires?.companion && e.requires.noCompanion && e.requires.partySizeAtMost === 1, e.id)
+      const joins = effects(e).filter((fx) => fx.kind === 'companion')
+      assert.ok(joins.length === 1 && joins[0]?.kind === 'companion' && joins[0].id === e.requires.noCompanion, e.id)
+    } else {
+      assert.equal(both.length, 2, `${e.id}: a conflict needs both companions`)
+      // Each side of the argument gets a bond option.
+      for (const id of both) {
+        assert.ok(effects(e).some((fx) => fx.kind === 'bond' && fx.id === id), `${e.id}: no bond for ${id}`)
+      }
+    }
+  }
 })
 
 test('cross-check against the assembled registry (when it loads)', async (t) => {

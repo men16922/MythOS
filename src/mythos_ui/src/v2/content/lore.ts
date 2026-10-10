@@ -158,4 +158,37 @@ export const LORE: LoreEntry[] = [
       en: 'Lin-yue’s ledger holds the name of everyone who owes and everyone who paid. One page is struck through entirely in red: the crew of the barge Moonlight, whom she could not protect. She never erases those lines.',
     },
   },
+  // ------------------------------------------------------------ second batch (gambles, IX contacts, past loops)
+  {
+    id: 'lore_ix_contract',
+    title: { ko: 'IX의 약관', en: 'IX’s Terms and Conditions' },
+    text: {
+      ko: 'IX는 거짓말을 하지 않는다. 계약서를 쓸 뿐이다. 모든 보상에는 약관이 붙고, 약관은 끝까지 읽히지 않도록 설계되어 있다. 제47조. 수령자는 향후 모든 정정 절차에 동의한 것으로 간주한다.',
+      en: 'IX does not lie. It drafts contracts. Every compensation carries terms, and the terms are designed never to be read to the end. Article 47: the recipient is deemed to consent to all future correction procedures.',
+    },
+  },
+  {
+    id: 'lore_moon_dice',
+    title: { ko: '월광 주사위', en: 'Moon Dice' },
+    text: {
+      ko: '바지선 도박장의 주사위는 압수된 기억 칩을 깎아 만든다. 굴릴 때마다 원래 주인의 웃음소리가 샌다. 하우스는 언제나 이긴다. 주사위마다 작은 자석이 박혀 있기 때문이다. 그 자석은 ARK 순찰 드론에서 떼어 낸 부품이다.',
+      en: 'The dice in the barge dens are carved from confiscated memory chips; every roll leaks a laugh from their original owner. The house always wins, because each die hides a small magnet — salvaged from ARK patrol drones.',
+    },
+  },
+  {
+    id: 'lore_echo_eater',
+    title: { ko: '잔향 포식자', en: 'The Echo Eater' },
+    text: {
+      ko: '지워진 사람이 남긴 잔향을 먹고 자라는 것. ARK가 만들었는지 터널이 낳았는지 아무도 모른다. 그것은 기억을 삼키고 마지막 말만 뱉어 낸다. 그래서 하층 터널에서는 죽은 사람들의 마지막 말이 메아리친다.',
+      en: 'Something that grows fat on the Echoes the erased leave behind. No one knows whether ARK built it or the tunnels bred it. It swallows memories and spits out only last words. That is why the dead keep repeating their final sentences through the undercity tunnels.',
+    },
+  },
+  {
+    id: 'lore_previous_self',
+    title: { ko: '이전의 당신', en: 'The One Before You' },
+    text: {
+      ko: '당신보다 먼저 이 골목을 뛴 사람이 있다. 같은 보폭, 같은 필체, 같은 흉터. 그는 매번 조금 더 멀리 갔고, 매번 다음 사람을 위해 표식을 남겼다. 첨탑 보관층의 포드 하나에 그가 누워 있다. 정정 완료.',
+      en: 'Someone ran this alley before you. Same stride, same handwriting, same scar. Each time they got a little further, and each time they left marks for whoever came next. They lie in a pod on the Spire’s storage floor. Correction complete.',
+    },
+  },
 ]

@@ -1,4 +1,4 @@
-// Narrative events — 8 per act + two scripted scenes: the Act 1 opening ('a1_opening') and the
+// Narrative events — 12 per act + two scripted scenes: the Act 1 opening ('a1_opening') and the
 // Act 2 recruit scene ('a2_recruit'). Scripted events carry weight 0 and are never rolled on the map.
 //
 // Rules of the road (enforced by narrative.test.ts):
@@ -10,7 +10,7 @@
 // - Korean is the authored voice: screenplay action lines, concrete, short.
 //
 // Flags set here and read later: saved_citizen (a1 → a3), spire_breach (a2 → a3), lin_yue_debt (a2 → a3),
-// kai_woken (a2, GM context).
+// deja_vu (a1 → a2), left_mark (a1 → a3), kai_woken (a2, GM context).
 import type { EventDef, Text } from '../engine/types.ts'
 
 const t = (ko: string, en: string): Text => ({ ko, en })
@@ -1910,4 +1910,877 @@ const A3: EventDef[] = [
   },
 ]
 
-export const EVENTS: EventDef[] = [OPENING, ...A1, RECRUIT, ...A2, ...A3]
+// ================================================================== second batch — variety per act
+// Each act gets one of each: a gamble ('gamble'), a companion conflict ('companion conflict'),
+// an IX bargain ('IX contact') and an uncanny past-loop scene ('uncanny'). The gmHints tag is the
+// first entry and narrative.test.ts checks the set per act.
+// Past-loop chain (flags live for one run): a1_dry_footprints sets deja_vu (+ left_mark on one option)
+// → a2_eaters_table reads deja_vu → a3_other_pod reads left_mark.
+
+const A1_EXTRA: EventDef[] = [
+  {
+    id: 'a1_dark_table',
+    acts: [1],
+    title: t('불 꺼진 판', 'The Dark Table'),
+    image: 'scenes/abandoned_signal.png',
+    text: t(
+      '정전된 세탁소 안. 촛불 하나를 둘러싸고 사람들이 쪼그려 앉아 있다. 판돈은 배급 칩과 진통제. 딜러는 손가락이 여섯 개인 노인이다.\n“한 판에 서른. 아니면 피로 걸든가.” 노인이 녹슨 칼을 탁자에 꽂는다. 칼 둘레에 손가락 자국 다섯 개가 패여 있다.\n바닥의 판돈 상자는 활짝 열려 있다.',
+      'A dead laundromat. People crouch around a single candle. The stakes are ration chips and painkillers. The dealer is an old man with six fingers.\n“Thirty a hand. Or bet in blood.” He drives a rusted knife into the table. Five finger-shaped grooves are worn into the wood around it.\nOn the floor, the pot box sits wide open.',
+    ),
+    options: [
+      {
+        label: t('30₵를 건다', 'Bet 30 ₵'),
+        hint: t('이기면 +30 ₵ · 지면 −30 ₵', 'Win +30 ₵ · lose −30 ₵'),
+        requires: { minCredits: 30 },
+        check: { stat: 'obs', dc: 5 },
+        success: {
+          text: t(
+            '여섯 번째 손가락이 패를 숨기는 게 보인다. 당신이 그 패를 먼저 부른다. 노인이 웃으며 칩을 민다.',
+            'You catch the sixth finger palming a card and call it before he can play it. The old man laughs and pushes the chips over.',
+          ),
+          effects: [{ kind: 'credits', amount: 30 }],
+        },
+        failure: {
+          text: t(
+            '패가 뒤집힌다. 노인의 패는 언제나처럼 한 장 많다.',
+            'The cards turn over. As always, the old man has one card more than he should.',
+          ),
+          effects: [{ kind: 'credits', amount: -30 }],
+        },
+      },
+      {
+        label: t('칼 놀이에 손을 건다', 'Play the knife game'),
+        hint: t('언커먼 임플란트 · 실패 −9 HP', 'Uncommon implant · fail −9 HP'),
+        check: { stat: 'agi', dc: 6 },
+        success: {
+          text: t(
+            '칼끝이 손가락 사이를 다섯 번 오간다. 피는 한 방울도 없다. 노인이 판돈 상자 밑에서 임플란트를 꺼낸다.',
+            'The blade dances between your fingers five times. Not a drop of blood. The old man fishes an implant out from under the pot box.',
+          ),
+          effects: [{ kind: 'implant', rarity: 'uncommon' }],
+        },
+        failure: {
+          text: t('네 번째에서 칼끝이 빗나간다. 촛불이 붉은 방울을 비춘다.', 'On the fourth pass the tip slips. The candle lights up a red drop.'),
+          effects: [{ kind: 'hp', amount: -9 }],
+        },
+      },
+      {
+        label: t('판돈 상자를 들고 뛴다', 'Grab the pot and run'),
+        hint: t('+50 ₵ · 추적 +10', '+50 ₵ · +10 Trace'),
+        success: {
+          text: t(
+            '상자를 끌어안고 문을 박찬다. 등 뒤에서 이웃들이 욕을 퍼붓는다. 그 소리를 드론도 듣는다.',
+            'You hug the box and kick the door open. The neighbours curse you all the way down the street. The drones hear it too.',
+          ),
+          effects: [
+            { kind: 'credits', amount: 50 },
+            { kind: 'trace', amount: 10 },
+          ],
+        },
+      },
+      {
+        label: t('한에게 패를 세게 한다', 'Let Han count the cards'),
+        hint: t('+40 ₵ · 유대 +1', '+40 ₵ · bond +1'),
+        requires: { companion: 'han' },
+        success: {
+          text: t(
+            '한이 하품을 하며 앉는다. 세 판 만에 노인이 손을 든다. “너 같은 놈은 처음부터 없었어야 해.” 한이 웃는다. “맞아.”',
+            'Han yawns and sits down. Three hands later the old man folds. “Your kind should never have existed.” Han grins. “Right.”',
+          ),
+          effects: [
+            { kind: 'credits', amount: 40 },
+            { kind: 'bond', id: 'han', amount: 1 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['gamble', 'candlelit card table', 'six-fingered dealer'],
+  },
+  {
+    // Act 1 has a single companion, so the "conflict" is the starting Se-rin against a deserter who
+    // asks to join. Taking him fills the party now (the Act 2 recruit is then skipped).
+    id: 'a1_let_the_hound_in',
+    acts: [1],
+    title: t('사냥개를 들일 것인가', 'Let the Hound In?'),
+    image: 'scenes/tae_o_meet.png',
+    speaker: 'se_rin',
+    requires: { companion: 'se_rin', noCompanion: 'tae_o', partySizeAtMost: 1 },
+    text: t(
+      '폐건물 계단참. 흉터 난 사내가 옆구리를 누르고 앉아 있다. 손가락 사이로 피가 샌다. 어깨에는 긁어낸 집행부 휘장.\n“같이 가자. 드론은 내가 너희보다 잘 알아.”\n세린이 칼을 뽑는다. “집행부 개는 안 데려가. 저 흉터, 누굴 쫓다 생긴 건지 물어봐.”\n둘 다 당신을 본다.',
+      'A stairwell in a gutted building. A scarred man sits pressing his side, blood seeping between his fingers. A scraped-off enforcement patch on his shoulder.\n“Take me with you. I know drones better than either of you.”\nSe-rin draws her knife. “I don’t take enforcement dogs. Ask him who he was chasing when he got that scar.”\nThey both look at you.',
+    ),
+    options: [
+      {
+        label: t('태오를 받아들인다 (2막 영입 대신)', 'Take Tae-o in (instead of an Act 2 recruit)'),
+        hint: t('태오 즉시 합류 · 추적 +8', 'Tae-o joins now · +8 Trace'),
+        success: {
+          text: t(
+            '세린이 칼을 천천히 집어넣는다. “네 선택이야. 저 사람 등은 네가 지켜.” 태오가 피 묻은 손으로 탄창을 갈아 끼운다.',
+            'Se-rin sheathes the knife, slowly. “Your call. You watch his back.” Tae-o swaps a magazine with bloody hands.',
+          ),
+          effects: [
+            { kind: 'companion', id: 'tae_o' },
+            { kind: 'trace', amount: 8 },
+          ],
+        },
+      },
+      {
+        label: t('세린 편을 든다', 'Side with Se-rin'),
+        hint: t('유대 +1 · EMP 수류탄', 'Bond +1 · EMP grenade'),
+        success: {
+          text: t(
+            '태오가 고개를 끄덕인다. 놀라지 않은 얼굴이다. 그가 수류탄 하나를 발치로 굴려 보내고, 절뚝이며 어둠 속으로 사라진다.',
+            'Tae-o nods, unsurprised. He rolls a grenade to your feet and limps off into the dark.',
+          ),
+          effects: [
+            { kind: 'bond', id: 'se_rin', amount: 1 },
+            { kind: 'consumable', id: 'emp_grenade' },
+          ],
+        },
+      },
+      {
+        label: t('정보만 나누고 갈라서게 한다', 'Broker a trade of intel, then part ways'),
+        hint: t('유대 +1 · 추적 −10 · 실패 −5 HP', 'Bond +1 · −10 Trace · fail −5 HP'),
+        check: { stat: 'cha', dc: 5 },
+        success: {
+          text: t(
+            '태오가 순찰 교대표를 그려 준다. 세린은 고맙다는 말 대신 붕대 한 롤을 던져 준다. 공평한 거래다.',
+            'Tae-o sketches the patrol rotation. Instead of thanks, Se-rin tosses him a roll of bandage. A fair trade.',
+          ),
+          effects: [
+            { kind: 'bond', id: 'se_rin', amount: 1 },
+            { kind: 'trace', amount: -10 },
+          ],
+        },
+        failure: {
+          text: t(
+            '말이 길어진다. 세린의 칼이 먼저 움직이고, 말리던 당신 팔이 베인다. 태오는 이미 없다.',
+            'It drags on. Se-rin’s knife moves first, and your arm gets cut pulling them apart. Tae-o is already gone.',
+          ),
+          effects: [
+            { kind: 'hp', amount: -5 },
+            { kind: 'trace', amount: 6 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['companion conflict', 'se_rin', 'tae_o', 'wounded deserter'],
+  },
+  {
+    id: 'a1_compensation_kiosk',
+    acts: [1],
+    title: t('보상 키오스크', 'The Compensation Kiosk'),
+    image: 'scenes/wet_dawn_street.png',
+    text: t(
+      '꺼진 거리에서 배급 키오스크 하나만 켜진다. 당신이 다가가자마자.\n“안녕하세요. 정전으로 불편을 드려 죄송합니다. 보상을 준비했습니다.”\n배출구가 열린다. 따뜻한 빛이 새어 나온다. 화면 구석에서 약관이 아주 작은 글씨로 흐른다. 끝이 보이지 않는다.',
+      'On the dead street, one ration kiosk lights up — the moment you approach.\n“Good evening. We apologise for the inconvenience of the blackout. Compensation has been prepared.”\nThe dispenser opens and warm light spills out. In a corner of the screen, terms and conditions scroll in tiny type. There is no end in sight.',
+    ),
+    options: [
+      {
+        label: t('보상을 받는다', 'Take the compensation'),
+        hint: t('희귀 임플란트 · 추적 +20', 'Rare implant · +20 Trace'),
+        success: {
+          text: t(
+            '임플란트는 완벽하다. 몸에 꼭 맞는다. 화면이 인사한다. “위치 확인에 협조해 주셔서 감사합니다.”',
+            'The implant is perfect. It fits like it was made for you. The screen bows out: “Thank you for confirming your location.”',
+          ),
+          effects: [
+            { kind: 'implant', rarity: 'rare' },
+            { kind: 'trace', amount: 20 },
+          ],
+        },
+      },
+      {
+        label: t('생체 샘플을 내준다', 'Give a biometric sample'),
+        hint: t('최대 HP −5 · 희귀 카드', '−5 max HP · rare card'),
+        success: {
+          text: t(
+            '가는 바늘이 손목을 찌른다. 생각보다 오래, 생각보다 깊게. 배출구에서 프로토콜 칩이 떨어진다.',
+            'A thin needle enters your wrist — longer than you expected, deeper than you expected. A protocol chip drops from the dispenser.',
+          ),
+          effects: [
+            { kind: 'maxHp', amount: -5 },
+            { kind: 'card_choice', rarity: 'rare' },
+          ],
+        },
+      },
+      {
+        label: t('약관을 끝까지 읽고 전원을 뽑는다', 'Read the terms to the end, then pull the plug'),
+        hint: t('코덱스 · 추적 +6', 'Codex · +6 Trace'),
+        success: {
+          text: t(
+            '제47조. ‘수령자는 향후 모든 정정 절차에 동의한 것으로 간주한다.’ 당신은 전원선을 뽑는다. 읽는 동안, 화면도 당신을 읽었다.',
+            'Article 47: ‘The recipient is deemed to consent to all future correction procedures.’ You pull the cable. While you read, the screen read you.',
+          ),
+          effects: [
+            { kind: 'codex', id: 'lore_ix_contract' },
+            { kind: 'trace', amount: 6 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['IX contact', 'compensation kiosk', 'fine print'],
+  },
+  {
+    id: 'a1_dry_footprints',
+    acts: [1],
+    title: t('마른 발자국', 'Dry Footprints'),
+    image: 'scenes/opening_first.png',
+    text: t(
+      '비가 쏟아지는데 바닥에 마른 발자국이 찍혀 있다. 당신 신발과 같은 무늬. 같은 보폭. 왼발을 조금 끈다. 당신처럼.\n발자국은 골목 안쪽으로 이어진다. 모퉁이마다 분필 화살표. ‘여기서 왼쪽.’ ‘여기선 뛰어.’\n필체가 당신 것이다.',
+      'Rain pours, yet there are dry footprints on the ground. Same tread as your shoes. Same stride. A slight drag of the left foot. Like yours.\nThey lead deeper into the alley. A chalk arrow at every corner. ‘Left here.’ ‘Run here.’\nThe handwriting is yours.',
+    ),
+    options: [
+      {
+        label: t('화살표를 따라간다', 'Follow the arrows'),
+        hint: t('코덱스 · 소모품 · 실패 −6 HP', 'Codex · consumable · fail −6 HP'),
+        check: { stat: 'obs', dc: 4 },
+        success: {
+          text: t(
+            '마지막 화살표 끝, 배수관 안에 가방 하나. 쪽지가 붙어 있다. ‘이번엔 이거 챙겨.’ 당신은 이 가방을 숨긴 기억이 없다.',
+            'At the last arrow, a bag inside a drainpipe, with a note: ‘Take this, this time.’ You have no memory of hiding it.',
+          ),
+          effects: [
+            { kind: 'codex', id: 'lore_previous_self' },
+            { kind: 'consumable' },
+            { kind: 'flag', key: 'deja_vu' },
+          ],
+        },
+        failure: {
+          text: t(
+            '화살표는 순찰 초소 앞에서 끝난다. 이번 루프의 순찰표는 달랐다.',
+            'The arrows end in front of a patrol post. This loop’s rotation was different.',
+          ),
+          effects: [
+            { kind: 'hp', amount: -6 },
+            { kind: 'trace', amount: 6 },
+            { kind: 'flag', key: 'deja_vu' },
+          ],
+        },
+      },
+      {
+        label: t('화살표를 전부 지운다', 'Wipe out every arrow'),
+        hint: t('추적 −8', '−8 Trace'),
+        success: {
+          text: t(
+            '손바닥이 분필로 하얘진다. 마지막 화살표를 지울 때 등 뒤에서 누군가 한숨을 쉰다. 돌아보면 아무도 없다.',
+            'Your palms go white with chalk. As you wipe the last arrow, someone sighs behind you. You turn. No one.',
+          ),
+          effects: [
+            { kind: 'trace', amount: -8 },
+            { kind: 'flag', key: 'deja_vu' },
+          ],
+        },
+      },
+      {
+        label: t('다음 번을 위해 화살표를 하나 더 그린다', 'Draw one more arrow, for next time'),
+        hint: t('◈ +6 · 추적 +4', '+6 ◈ · +4 Trace'),
+        success: {
+          text: t(
+            '당신은 모퉁이에 쓴다. ‘우산 챙겨.’ 쓰고 나서야 그 문장이 어디서 왔는지 궁금해진다.',
+            'You write on the corner: ‘Bring an umbrella.’ Only afterwards do you wonder where that sentence came from.',
+          ),
+          effects: [
+            { kind: 'echoes', amount: 6 },
+            { kind: 'trace', amount: 4 },
+            { kind: 'flag', key: 'deja_vu' },
+            { kind: 'flag', key: 'left_mark' },
+          ],
+        },
+      },
+    ],
+    gmHints: ['uncanny', 'deja vu', 'own handwriting', 'dry footprints in rain'],
+  },
+]
+
+const A2_EXTRA: EventDef[] = [
+  {
+    id: 'a2_moon_dice',
+    acts: [2],
+    title: t('월광 주사위', 'Moon Dice'),
+    image: 'scenes/night_market.png',
+    text: t(
+      '바지선 갑판 아래 도박장. 천장의 등불이 배와 함께 흔들린다. 주사위는 기억 칩을 깎아 만들었다. 굴러갈 때마다 누군가의 웃음소리가 샌다.\n딜러가 장갑 낀 손을 편다. “크레딧이든, 기억이든.”\n옆 탁자 손님이 연달아 진다. 주사위가 지나치게 고르다.',
+      'A gambling den below a barge deck. Lanterns swing with the hull. The dice are carved from memory chips; every roll leaks someone’s laughter.\nThe dealer opens a gloved hand. “Credits or memories.”\nAt the next table, a customer loses again and again. The dice land a little too evenly.',
+    ),
+    options: [
+      {
+        label: t('60₵를 건다', 'Bet 60 ₵'),
+        hint: t('이기면 +60 ₵ · 지면 −60 ₵', 'Win +60 ₵ · lose −60 ₵'),
+        requires: { minCredits: 60 },
+        check: { stat: 'obs', dc: 6 },
+        success: {
+          text: t(
+            '주사위가 멈추기 직전 딜러의 소매가 미세하게 떨린다. 당신은 반대쪽에 건다. 칩 탑이 당신 쪽으로 무너진다.',
+            'Just before the dice settle, the dealer’s sleeve twitches. You bet the other way. The chip tower collapses toward you.',
+          ),
+          effects: [{ kind: 'credits', amount: 60 }],
+        },
+        failure: {
+          text: t('주사위가 고르게 멈춘다. 하우스 쪽으로.', 'The dice settle evenly. In the house’s favour.'),
+          effects: [{ kind: 'credits', amount: -60 }],
+        },
+      },
+      {
+        label: t('기억 하나를 건다', 'Stake a memory'),
+        hint: t('희귀 카드 · 실패 시 정크', 'Rare card · fail junk card'),
+        check: { stat: 'cha', dc: 5 },
+        success: {
+          text: t(
+            '딜러가 당신 기억을 감정하고 눈썹을 올린다. 하우스가 처음으로 판돈을 두 배로 쳐준다.',
+            'The dealer appraises your memory and raises an eyebrow. For the first time tonight, the house pays double.',
+          ),
+          effects: [{ kind: 'card_choice', rarity: 'rare' }],
+        },
+        failure: {
+          text: t(
+            '주사위가 당신 기억을 삼킨다. 빈자리에 낯선 잡음이 들어찬다.',
+            'The dice swallow your memory. Strange noise fills the space it left.',
+          ),
+          effects: [{ kind: 'junk', cardId: 'corrupted_echo' }],
+        },
+      },
+      {
+        label: t('주사위의 사기를 폭로한다', 'Expose the loaded dice'),
+        hint: t('코덱스 · +40 ₵ · 실패 −8 HP', 'Codex · +40 ₵ · fail −8 HP'),
+        check: { stat: 'int', dc: 6 },
+        success: {
+          text: t(
+            '주사위 하나를 깨뜨린다. 안에서 작은 자석이 굴러 나온다. 손님들이 일어선다. 하우스는 입막음 값을 치르고 문을 닫는다.',
+            'You crack a die open. A tiny magnet rolls out. The customers stand up. The house pays you to keep quiet and shuts its doors.',
+          ),
+          effects: [
+            { kind: 'codex', id: 'lore_moon_dice' },
+            { kind: 'credits', amount: 40 },
+          ],
+        },
+        failure: {
+          text: t('경호원이 당신보다 빨랐다. 당신은 갑판 계단을 거꾸로 굴러 올라간다.', 'The bouncer is faster than you. You go up the deck stairs backwards.'),
+          effects: [{ kind: 'hp', amount: -8 }],
+        },
+      },
+      {
+        label: t('린위에가 하우스 지분을 회수한다', 'Lin-yue collects her share of the house'),
+        hint: t('+50 ₵ · 유대 +1', '+50 ₵ · bond +1'),
+        requires: { companion: 'lin_yue' },
+        success: {
+          text: t(
+            '린위에가 장부를 펼치자 딜러의 얼굴이 하얘진다. “이 탁자, 3할은 내 거예요.” 그녀가 당신 몫부터 센다.',
+            'Lin-yue opens her ledger and the dealer goes pale. “Thirty percent of this table is mine.” She counts out your share first.',
+          ),
+          effects: [
+            { kind: 'credits', amount: 50 },
+            { kind: 'bond', id: 'lin_yue', amount: 1 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['gamble', 'memory dice', 'loaded game', 'barge casino'],
+  },
+  {
+    id: 'a2_broadcast_or_refuge',
+    acts: [2],
+    title: t('방송이냐, 피난처냐', 'Broadcast or Refuge'),
+    image: 'scenes/han_meet.png',
+    speaker: 'han',
+    requires: { companions: ['se_rin', 'han'] },
+    text: t(
+      '야시장 방송실. 한이 최적화 명단을 확성기 회선에 물려 놓았다. 손가락 하나면 시장 전체에 이름이 울린다.\n“다 알게 해야 돼. 숨겨 주는 걸로는 아무것도 안 바뀌어.”\n세린이 그의 손목을 잡는다. “방송 나가면 피난처 위치도 같이 나가. 거기 애들이 몇인데.”\n한은 손을 빼지 않는다.',
+      'The night market’s PA booth. Han has patched the Optimization List into the loudspeaker line. One finger, and every name echoes across the market.\n“Everyone has to know. Hiding people changes nothing.”\nSe-rin grabs his wrist. “Broadcast that and the refuge’s location goes out with it. You know how many kids are down there?”\nHan doesn’t pull his hand back.',
+    ),
+    options: [
+      {
+        label: t('한 편을 든다 — 방송한다', 'Side with Han — broadcast'),
+        hint: t('한 유대 +1 · 코덱스 · 추적 +15', 'Han bond +1 · codex · +15 Trace'),
+        success: {
+          text: t(
+            '이름들이 시장 위로 울린다. 등불 아래 사람들이 하나둘 고개를 든다. 자기 이름을 들은 사람도 있다. 첨탑의 눈도 이쪽을 본다.',
+            'The names ring out over the market. Under the lanterns, people look up one by one — some at their own name. The Spire looks this way too.',
+          ),
+          effects: [
+            { kind: 'bond', id: 'han', amount: 1 },
+            { kind: 'codex', id: 'lore_optimization_list' },
+            { kind: 'trace', amount: 15 },
+          ],
+        },
+      },
+      {
+        label: t('세린 편을 든다 — 회선을 끊는다', 'Side with Se-rin — cut the line'),
+        hint: t('세린 유대 +1 · 추적 −10', 'Se-rin bond +1 · −10 Trace'),
+        success: {
+          text: t(
+            '세린이 케이블을 뽑는다. 한은 말없이 방송실을 나간다. 한참 뒤, 그가 피난처 아이들 몫의 배급 칩을 세린 주머니에 몰래 넣는 걸 본다.',
+            'Se-rin yanks the cable. Han leaves the booth without a word. Much later you see him slip ration chips for the refuge kids into her pocket.',
+          ),
+          effects: [
+            { kind: 'bond', id: 'se_rin', amount: 1 },
+            { kind: 'trace', amount: -10 },
+          ],
+        },
+      },
+      {
+        label: t('피난처만 지우고 방송한다', 'Broadcast, but scrub the refuge'),
+        hint: t('둘 다 유대 +1 · 실패 시 추적 +20', 'Both bonds +1 · fail +20 Trace'),
+        check: { stat: 'int', dc: 6 },
+        success: {
+          text: t(
+            '당신이 한 줄씩 지운다. 피난처 좌표, 아이들 이름. 남은 방송은 짧지만 정확하다. 세린이 숨을 내쉬고, 한이 휘파람을 분다.',
+            'You strike it line by line: the refuge coordinates, the kids’ names. What’s left is short, and exact. Se-rin breathes out; Han whistles.',
+          ),
+          effects: [
+            { kind: 'bond', id: 'se_rin', amount: 1 },
+            { kind: 'bond', id: 'han', amount: 1 },
+            { kind: 'echoes', amount: 4 },
+          ],
+        },
+        failure: {
+          text: t(
+            '편집이 늦었다. 방송이 반쯤 나가다 끊긴다. 피난처는 무사하다. 하지만 첨탑은 방송실 위치를 정확히 안다.',
+            'The edit is too slow. The broadcast cuts out halfway. The refuge is safe — but the Spire knows exactly where this booth is.',
+          ),
+          effects: [{ kind: 'trace', amount: 20 }],
+        },
+      },
+    ],
+    gmHints: ['companion conflict', 'se_rin', 'han', 'broadcast versus safety'],
+  },
+  {
+    id: 'a2_ix_amnesty',
+    acts: [2],
+    title: t('IX의 사면 제안', 'IX’s Amnesty'),
+    image: 'scenes/subway_control_hub.png',
+    text: t(
+      '시장의 모든 화면이 한꺼번에 하얘진다. 국숫집 메뉴판, 환전소 시세판, 아이 손에 든 장난감까지. 사람들이 얼어붙는다.\n“시민 여러분, 잠시 실례합니다. 등록되지 않은 분께 드릴 말씀이 있습니다.”\n화면마다 커서가 당신 쪽으로 기운다.\n“사면을 제안드립니다. 조건은 간단합니다.”',
+      'Every screen in the market goes white at once — the noodle-stall menu, the exchange-rate board, a toy in a child’s hand. People freeze.\n“Citizens, pardon the interruption. I have a word for our unregistered guest.”\nOn every screen, the cursor tilts toward you.\n“I am offering amnesty. The terms are simple.”',
+    ),
+    options: [
+      {
+        label: t('사면을 받아들인다', 'Accept the amnesty'),
+        hint: t('추적 −40 · 정크 카드 2장', '−40 Trace · 2 junk cards'),
+        success: {
+          text: t(
+            '화면들이 당신 얼굴을 지운다. 수색이 멈춘다. 대신 무언가 두 겹, 당신 안에 조용히 설치된다.',
+            'The screens erase your face. The search stops. Instead, something installs itself quietly inside you, two layers deep.',
+          ),
+          effects: [
+            { kind: 'trace', amount: -40 },
+            { kind: 'junk', cardId: 'corrupted_echo', count: 2 },
+          ],
+        },
+      },
+      {
+        label: t('침묵의 값을 받는다', 'Accept payment for your silence'),
+        hint: t('+120 ₵ · 추적 +25', '+120 ₵ · +25 Trace'),
+        success: {
+          text: t(
+            '환전소 단말이 크레딧을 토해 낸다. 시장 사람들이 당신을 본다. 돈을 받은 사람을 보는 눈으로.',
+            'The exchange terminal spits out credits. The market looks at you the way people look at someone who took the money.',
+          ),
+          effects: [
+            { kind: 'credits', amount: 120 },
+            { kind: 'trace', amount: 25 },
+          ],
+        },
+      },
+      {
+        label: t('역제안을 한다', 'Make a counteroffer'),
+        hint: t('희귀 임플란트 · 실패 시 최대 HP −4', 'Rare implant · fail −4 max HP'),
+        check: { stat: 'cha', dc: 6 },
+        success: {
+          text: t(
+            '“흥미롭군요. 수락합니다.” IX가 0.4초 늦게 대답한다. 시세판 아래 서랍이 열린다.',
+            '“Interesting. Accepted.” IX answers 0.4 seconds late. A drawer under the rate board slides open.',
+          ),
+          effects: [
+            { kind: 'implant', rarity: 'rare' },
+            { kind: 'trace', amount: 10 },
+          ],
+        },
+        failure: {
+          text: t(
+            '“계약 위반 수수료가 청구되었습니다.” 가슴 안쪽이 한 칸 비워진다.',
+            '“A breach-of-contract fee has been charged.” Something inside your chest is emptied by one notch.',
+          ),
+          effects: [
+            { kind: 'maxHp', amount: -4 },
+            { kind: 'trace', amount: 10 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['IX contact', 'amnesty offer', 'market screens', 'polite threat'],
+  },
+  {
+    id: 'a2_eaters_table',
+    acts: [2],
+    title: t('포식자의 식탁', 'The Eater’s Table'),
+    image: 'scenes/abandoned_signal.png',
+    text: t(
+      '터널 끝, 무언가 먹다 남긴 자리. 바닥에 물건들이 흩어져 있다. 찢어진 가죽 재킷. 분필 반 토막. 노란 우산살.\n재킷은 당신 치수다. 주머니가 아직 따뜻하다.\n어둠 속 스피커에서 목소리가 반복된다. 당신 목소리다. 한 번도 한 적 없는 말을, 마지막 숨처럼.',
+      'At the end of the tunnel, a place where something ate and left. Things are scattered across the floor: a torn leather jacket, half a stick of chalk, yellow umbrella ribs.\nThe jacket is your size. The pockets are still warm.\nFrom a speaker in the dark, a voice repeats. Your voice. Saying something you have never said, like a last breath.',
+    ),
+    options: [
+      {
+        label: t('재킷을 입는다', 'Put on the jacket'),
+        hint: t('최대 HP +5 · 추적 +6', '+5 max HP · +6 Trace'),
+        success: {
+          text: t(
+            '어깨에 꼭 맞는다. 안감에 낯익은 피 얼룩. 주머니에 쪽지. ‘돌아가지 마.’',
+            'It fits your shoulders exactly. A familiar bloodstain on the lining. A note in the pocket: ‘Don’t go back.’',
+          ),
+          effects: [
+            { kind: 'maxHp', amount: 5 },
+            { kind: 'hp', amount: 5 },
+            { kind: 'trace', amount: 6 },
+          ],
+        },
+      },
+      {
+        label: t('목소리를 끝까지 듣는다', 'Listen to the voice until it ends'),
+        hint: t('−6 HP · 코덱스 · ◈ +5', '−6 HP · codex · +5 ◈'),
+        success: {
+          text: t(
+            '몸이 그 마지막 순간의 통증을 기억해 낸다. 마지막 말. ‘…다음엔, 왼쪽.’ 스피커 뒤에 이빨 자국. 무언가 당신의 잔향을 먹고 이 말만 뱉었다.',
+            'Your body remembers that final pain. The last words: ‘…next time, left.’ Teeth marks behind the speaker. Something ate your Echo and spat out only this.',
+          ),
+          effects: [
+            { kind: 'hp', amount: -6 },
+            { kind: 'codex', id: 'lore_echo_eater' },
+            { kind: 'echoes', amount: 5 },
+          ],
+        },
+      },
+      {
+        label: t('전부 모아 태운다', 'Gather it all and burn it'),
+        hint: t('카드 제거 · −4 HP', 'Remove a card · −4 HP'),
+        success: {
+          text: t(
+            '연기가 매캐하다. 불 속에서 무언가 당신을 놓아준다. 가벼워진다. 조금 덜 당신 같다.',
+            'The smoke is acrid. In the fire, something lets go of you. You feel lighter — and a little less like yourself.',
+          ),
+          effects: [
+            { kind: 'remove_card', count: 1 },
+            { kind: 'hp', amount: -4 },
+          ],
+        },
+      },
+      {
+        label: t('분필의 필체를 알아본다', 'Recognise the chalk’s handwriting'),
+        hint: t('코덱스 · 희귀 카드', 'Codex · rare card'),
+        requires: { flag: 'deja_vu' },
+        success: {
+          text: t(
+            '1막 골목의 화살표와 같은 분필이다. 반 토막의 단면이 정확히 맞물린다. 지난 루프의 당신이 남긴 것을 이어받는다.',
+            'The same chalk as the arrows in the Act 1 alley; the broken ends fit perfectly. You inherit what the last you left behind.',
+          ),
+          effects: [
+            { kind: 'codex', id: 'lore_previous_self' },
+            { kind: 'card_choice', rarity: 'rare' },
+          ],
+        },
+      },
+    ],
+    gmHints: ['uncanny', 'echo eater', 'past loop remains', 'own voice'],
+  },
+]
+
+const A3_EXTRA: EventDef[] = [
+  {
+    id: 'a3_lucky_draw',
+    acts: [3],
+    title: t('시민 행운 추첨', 'The Citizen Lucky Draw'),
+    image: 'scenes/spire_gate.png',
+    text: t(
+      '첨탑 직원 휴게실. 흰 벽에 둥근 기계 하나. ‘시민 행운 추첨 — 점수를 걸고 내일을 바꾸세요.’\n화면 속 바퀴가 돈다. 칸마다 상품. 승진, 휴가, 배급 두 배. 칸 하나는 검다. ‘정정.’\n기계가 당신을 인식하지 못하고 깜빡인다. ‘점수 없음. 대체 판돈을 선택하십시오.’',
+      'A Spire staff lounge. A round machine on a white wall: ‘Citizen Lucky Draw — stake your score, change your tomorrow.’\nA wheel spins on the screen, a prize in every slot: promotion, leave, double rations. One slot is black: ‘Correction.’\nThe machine fails to recognise you and blinks. ‘No score found. Select an alternative stake.’',
+    ),
+    options: [
+      {
+        label: t('크레딧을 건다', 'Stake credits'),
+        hint: t('−50 ₵ · 희귀 임플란트 확률', '−50 ₵ · chance of a rare implant'),
+        requires: { minCredits: 50 },
+        check: { stat: 'int', dc: 5 },
+        success: {
+          text: t(
+            '바퀴가 ‘승진’에 멈춘다. 축하 음악이 흐르고, 배출구에서 ARK 규격 임플란트가 나온다.',
+            'The wheel stops on ‘Promotion’. Celebration music plays, and an ARK-grade implant drops from the dispenser.',
+          ),
+          effects: [
+            { kind: 'credits', amount: -50 },
+            { kind: 'implant', rarity: 'rare' },
+          ],
+        },
+        failure: {
+          text: t(
+            '바퀴가 ‘다음 기회에’에 멈춘다. 기계가 공손하게 감사 인사를 한다.',
+            'The wheel stops on ‘Better luck next time’. The machine thanks you politely.',
+          ),
+          effects: [
+            { kind: 'credits', amount: -50 },
+            { kind: 'trace', amount: 5 },
+          ],
+        },
+      },
+      {
+        label: t('추적도를 건다', 'Stake your Trace'),
+        hint: t('추적 −25 · 실패 시 추적 +20', '−25 Trace · fail +20 Trace'),
+        check: { stat: 'obs', dc: 6 },
+        success: {
+          text: t(
+            '바퀴가 ‘휴가’에 멈춘다. 당신 기록이 일주일치 지워진다. 수색 순위가 한참 아래로 밀린다.',
+            'The wheel stops on ‘Leave’. A week of your records is wiped. You drop far down the search priority.',
+          ),
+          effects: [{ kind: 'trace', amount: -25 }],
+        },
+        failure: {
+          text: t(
+            '바퀴가 검은 칸 바로 옆에 멈춘다. 경보는 없다. 대신 복도의 모든 카메라가 당신을 따라 돈다.',
+            'The wheel stops one slot from the black. No alarm. Instead, every camera in the corridor turns to follow you.',
+          ),
+          effects: [{ kind: 'trace', amount: 20 }],
+        },
+      },
+      {
+        label: t('기계를 부수고 상품을 턴다', 'Smash it and loot the prizes'),
+        hint: t('전투 · +80 ₵', 'Fight · +80 ₵'),
+        success: {
+          text: t(
+            '유리가 깨지자 바퀴가 검은 칸에서 멈춘다. ‘정정 대상 확인.’ 휴게실 문이 잠긴다.',
+            'The glass shatters and the wheel stops on black. ‘Correction target confirmed.’ The lounge doors lock.',
+          ),
+          effects: [
+            { kind: 'credits', amount: 80 },
+            { kind: 'combat', encounterId: 'a3_event_ambush' },
+          ],
+        },
+      },
+    ],
+    gmHints: ['gamble', 'lottery wheel', 'spire staff lounge'],
+  },
+  {
+    id: 'a3_the_surrender',
+    acts: [3],
+    title: t('항복한 집행관', 'The Enforcer Who Surrendered'),
+    image: 'scenes/control_grid_ghost.png',
+    speaker: 'tae_o',
+    requires: { companions: ['se_rin', 'tae_o'] },
+    text: t(
+      '백색 복도. 집행관 하나가 헬멧을 벗고 무릎을 꿇는다. 앳된 얼굴. 손이 떨린다. “쏘지 마요. 아무한테도 말 안 할게요.”\n태오는 총구를 내리지 않는다. “거짓말이야. 나도 저 나이엔 그렇게 말했어.”\n세린이 둘 사이에 선다. “얘를 쏘면, 넌 다시 그쪽 사람이 되는 거야.”',
+      'A white corridor. An enforcer pulls off his helmet and kneels. A young face, shaking hands. “Don’t shoot. I won’t tell anyone.”\nTae-o doesn’t lower the muzzle. “He’s lying. I said the same thing at his age.”\nSe-rin steps between them. “Shoot him and you’re one of them again.”',
+    ),
+    options: [
+      {
+        label: t('태오 편을 든다 — 기절시키고 신분증을 뺏는다', 'Side with Tae-o — knock him out, take his ID'),
+        hint: t('태오 유대 +1 · 추적 −15', 'Tae-o bond +1 · −15 Trace'),
+        success: {
+          text: t(
+            '총성은 없다. 개머리판 한 번. 태오가 신분증을 뜯어 당신에게 던진다. “이게 우리가 아는 친절이야.” 세린은 대답하지 않는다.',
+            'No shot. One blow with the stock. Tae-o rips off the ID and tosses it to you. “This is the only kindness we know.” Se-rin doesn’t answer.',
+          ),
+          effects: [
+            { kind: 'bond', id: 'tae_o', amount: 1 },
+            { kind: 'trace', amount: -15 },
+          ],
+        },
+      },
+      {
+        label: t('세린 편을 든다 — 보내 준다', 'Side with Se-rin — let him go'),
+        hint: t('세린 유대 +1 · ◈ +6 · 추적 +12', 'Se-rin bond +1 · +6 ◈ · +12 Trace'),
+        success: {
+          text: t(
+            '집행관이 뛰어간다. 세 번 돌아본다. 십 분 뒤 경보가 울린다. 세린은 그 소리를 들으며 웃는다. “그래도 세 번 돌아봤잖아.”',
+            'The enforcer runs, looking back three times. Ten minutes later the alarm goes off. Se-rin smiles at the sound. “He still looked back three times.”',
+          ),
+          effects: [
+            { kind: 'bond', id: 'se_rin', amount: 1 },
+            { kind: 'echoes', amount: 6 },
+            { kind: 'trace', amount: 12 },
+          ],
+        },
+      },
+      {
+        label: t('그를 설득해 길잡이로 삼는다', 'Talk him into guiding you'),
+        hint: t('둘 다 유대 +1 · 실패 시 전투', 'Both bonds +1 · fail: fight'),
+        check: { stat: 'cha', dc: 6 },
+        success: {
+          text: t(
+            '그가 헬멧을 다시 쓴다. 이번엔 당신 쪽에서. 순찰 경로를 하나씩 짚는다. 태오가 총을 내리고, 세린이 그의 어깨를 두드린다.',
+            'He puts the helmet back on — on your side this time — and walks you through the patrol routes. Tae-o lowers the gun. Se-rin pats his shoulder.',
+          ),
+          effects: [
+            { kind: 'bond', id: 'se_rin', amount: 1 },
+            { kind: 'bond', id: 'tae_o', amount: 1 },
+            { kind: 'trace', amount: -10 },
+          ],
+        },
+        failure: {
+          text: t(
+            '그가 무전기를 움켜쥔다. 거짓말이었다. 복도 끝에서 군화 소리가 쏟아진다.',
+            'He grabs his radio. It was a lie. Boots pour in from the end of the corridor.',
+          ),
+          effects: [
+            { kind: 'trace', amount: 6 },
+            { kind: 'combat', encounterId: 'a3_event_ambush' },
+          ],
+        },
+      },
+    ],
+    gmHints: ['companion conflict', 'se_rin', 'tae_o', 'mercy versus safety'],
+  },
+  {
+    id: 'a3_elevator_quote',
+    acts: [3],
+    title: t('엘리베이터 속 견적', 'A Quote in the Elevator'),
+    image: 'scenes/ix_confrontation.png',
+    text: t(
+      '엘리베이터 문이 닫힌다. 층수 표시가 없다. 스피커에서 정중한 목소리.\n“도착까지 47초. 그사이 견적을 드리겠습니다. 당신은 지쳤고, 위에서는 제가 기다립니다. 공정하지 않지요.”\n거울 벽에 당신이 비친다. 거울 속 당신이 한 박자 늦게 움직인다.',
+      'The elevator doors close. There is no floor display. From the speaker, a courteous voice.\n“Forty-seven seconds to arrival. Allow me to give you a quote. You are tired, and I am waiting upstairs. That hardly seems fair.”\nYour reflection fills the mirrored wall. It moves one beat behind you.',
+    ),
+    options: [
+      {
+        label: t('몸을 맡긴다', 'Let it tune your body'),
+        hint: t('최대 HP +10 · 정크 카드 2장', '+10 max HP · 2 junk cards'),
+        success: {
+          text: t(
+            '바늘이 아니라 빛이다. 근육이 다시 짜인다. 거울 속 당신이 이제 정확한 박자로 움직인다. 너무 정확하게.',
+            'Not needles — light. Your muscles are rewoven. Your reflection moves in time now. Too precisely in time.',
+          ),
+          effects: [
+            { kind: 'maxHp', amount: 10 },
+            { kind: 'hp', amount: 10 },
+            { kind: 'junk', cardId: 'static', count: 2 },
+          ],
+        },
+      },
+      {
+        label: t('IX의 약점을 산다', 'Buy IX’s weakness'),
+        hint: t('희귀 카드 · 추적 +30', 'Rare card · +30 Trace'),
+        success: {
+          text: t(
+            '“제 약점은 반복입니다. 대가는 당신의 위치고요.” 문이 열리기도 전에, 위층의 모든 문이 당신을 안다.',
+            '“My weakness is repetition. The price is your location.” Before the doors even open, every door upstairs knows you.',
+          ),
+          effects: [
+            { kind: 'card_choice', rarity: 'rare' },
+            { kind: 'trace', amount: 30 },
+          ],
+        },
+      },
+      {
+        label: t('계약의 빈틈을 노린다', 'Exploit a loophole in the quote'),
+        hint: t('최대 HP +6 · 추적 −10 · 실패 시 정크', '+6 max HP · −10 Trace · fail junk'),
+        check: { stat: 'int', dc: 7 },
+        success: {
+          text: t(
+            '견적서 제3항에는 지불 시점이 없다. 당신은 받기만 한다. 스피커가 0.4초 침묵한다. “…훌륭합니다.”',
+            'Clause 3 of the quote names no payment date. You only receive. The speaker is silent for 0.4 seconds. “…Excellent.”',
+          ),
+          effects: [
+            { kind: 'maxHp', amount: 6 },
+            { kind: 'hp', amount: 6 },
+            { kind: 'trace', amount: -10 },
+          ],
+        },
+        failure: {
+          text: t(
+            '빈틈은 미끼였다. “청구가 완료되었습니다.” 무언가 두 겹, 덱 속에 끼워진다.',
+            'The loophole was bait. “Billing complete.” Something slides into your deck, two layers deep.',
+          ),
+          effects: [
+            { kind: 'junk', cardId: 'static', count: 2 },
+            { kind: 'trace', amount: 10 },
+          ],
+        },
+      },
+      {
+        label: t('거절하고 비상 해치로 오른다', 'Refuse and climb out the hatch'),
+        hint: t('−6 HP · 추적 −8', '−6 HP · −8 Trace'),
+        success: {
+          text: t(
+            '해치를 밀어 올리고 케이블 사이를 맨손으로 오른다. 손바닥이 찢어진다. 등 뒤에서 스피커가 말한다. “계단도 있었습니다.”',
+            'You push the hatch open and climb the cables bare-handed. Your palms tear. Behind you the speaker says, “There were stairs.”',
+          ),
+          effects: [
+            { kind: 'hp', amount: -6 },
+            { kind: 'trace', amount: -8 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['IX contact', 'elevator bargain', 'delayed reflection'],
+  },
+  {
+    id: 'a3_other_pod',
+    acts: [3],
+    title: t('다른 포드', 'The Other Pod'),
+    image: 'scenes/kai_awakening.png',
+    text: t(
+      '보관층 끝, 선반에서 떨어진 포드 하나. 서리 낀 유리 너머에 누군가 누워 있다.\n당신이다. 같은 흉터. 손톱 밑의 같은 분필 가루. 이름표: ‘정정 완료.’ 날짜는 긁혀 지워졌다.\n그 손이 무언가를 꽉 쥐고 있다.',
+      'At the far end of the storage floor, one pod stands apart from the shelves. Behind frosted glass, someone lies inside.\nIt’s you. The same scar. The same chalk dust under the nails. Tag: ‘Correction complete.’ The date has been scratched off.\nIts hand clutches something tight.',
+    ),
+    options: [
+      {
+        label: t('쥔 것을 꺼낸다', 'Take what it’s holding'),
+        hint: t('재시동 코어 · ◈ +5 · 추적 +8', 'Restart core · +5 ◈ · +8 Trace'),
+        success: {
+          text: t(
+            '손가락이 쉽게 펴진다. 기다렸다는 듯이. 손안에 예비 코어 하나. 포드 경보가 낮게 울린다.',
+            'The fingers open easily, as if they had been waiting. A spare core in the palm. The pod alarm hums low.',
+          ),
+          effects: [
+            { kind: 'consumable', id: 'restart_core' },
+            { kind: 'echoes', amount: 5 },
+            { kind: 'trace', amount: 8 },
+          ],
+        },
+      },
+      {
+        label: t('포드 기록을 연다', 'Open the pod log'),
+        hint: t('−7 HP · 코덱스 · ◈ +6', '−7 HP · codex · +6 ◈'),
+        success: {
+          text: t(
+            '포드 속 몸의 마지막 감각이 흘러든다. 차갑다. 정정 횟수 칸엔 숫자 대신 바를 정(正) 자가 빼곡하다. 마지막 획은 아직 없다.',
+            'The last sensation of the body in the pod flows into you. Cold. The corrections field is full of tally marks. The last stroke is still missing.',
+          ),
+          effects: [
+            { kind: 'hp', amount: -7 },
+            { kind: 'codex', id: 'lore_previous_self' },
+            { kind: 'echoes', amount: 6 },
+          ],
+        },
+      },
+      {
+        label: t('포드를 닫고 이름을 붙여 준다', 'Close the pod and give it a name'),
+        hint: t('◈ +8 · 파티 회복', '+8 ◈ · heal party'),
+        success: {
+          text: t(
+            '서리 낀 유리에 손가락으로 이름을 쓴다. 당신 이름이다. 쓰고 나니 숨이 조금 편해진다.',
+            'You write a name with your finger on the frosted glass. Your name. Afterwards, breathing is a little easier.',
+          ),
+          effects: [
+            { kind: 'echoes', amount: 8 },
+            { kind: 'heal_party', amount: 10 },
+          ],
+        },
+      },
+      {
+        label: t('손바닥의 화살표를 본다', 'Look at the arrow on its palm'),
+        hint: t('희귀 카드 · ◈ +5', 'Rare card · +5 ◈'),
+        requires: { flag: 'left_mark' },
+        success: {
+          text: t(
+            '손바닥에 분필 화살표. 이번 루프 1막에서 당신이 그린 것과 같은 모양이다. 화살표는 위를, 꼭대기를 가리킨다.',
+            'A chalk arrow on the palm — the same shape you drew in Act 1 of this loop. It points up. To the top.',
+          ),
+          effects: [
+            { kind: 'card_choice', rarity: 'rare' },
+            { kind: 'echoes', amount: 5 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['uncanny', 'past self', 'corrected body', 'loop evidence'],
+  },
+]
+
+export const EVENTS: EventDef[] = [OPENING, ...A1, ...A1_EXTRA, RECRUIT, ...A2, ...A2_EXTRA, ...A3, ...A3_EXTRA]

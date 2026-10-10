@@ -39,7 +39,26 @@ EVENT_SCENES: dict[str, str] = {
     "a3_sleeping_frames": "A vast storage hall in the Spire: endless shelves, a white android lying on each with eyes closed, and faint light moving slowly beneath their eyelids as if dreaming.",
     "a3_optimization_queue": "A sterile white room with a single terminal; above it three pinned holographic portraits float: an old man, a mechanic, a child; a blinking cursor of light; clinical and chilling.",
     "a3_ix_offer": "Elevator doors open onto a white room as tall as a cathedral; vast rings turn slowly overhead; a single red point of light watches; from the floor rises a medical treatment pod with its door open and warm light inside.",
+    # batch 2 (2026-10-11)
+    "a1_dark_table": "A dead laundromat with rows of broken washing machines. People crouch around a single candle on a makeshift card table, ration chips and painkiller packets as stakes. An old dealer, one hand with six fingers, drives a rusted knife into the table; five finger-shaped grooves are worn into the wood around it. An open cash box sits on the floor. Candlelight, tense, desperate.",
+    "a1_let_the_hound_in": "A stairwell in a gutted concrete building at night. Tae-o sits on the steps pressing a bleeding wound in his side, a scraped-off patch on his shoulder, looking up. Se-rin stands over him with her knife drawn, glaring down at him. Both turn toward the viewer, waiting for a decision.",
+    "a1_compensation_kiosk": "On a dark, dead street in a blackout, a single ration kiosk lights up as the viewer approaches; its dispenser hatch hangs open and warm golden light spills out onto the wet pavement; its screen shows only endless columns of tiny grey marks, far too small to read. Rain, empty street, eerie politeness.",
+    "a1_dry_footprints": "A rain-soaked back alley at night. Rain pours down, yet a trail of perfectly dry footprints leads deeper into the alley, one foot dragging slightly. At each corner a simple chalk arrow is drawn on the wet wall. Uncanny deja vu, quiet dread.",
+    "a2_moon_dice": "A smoky gambling den below a barge deck, lanterns swinging with the hull. A dealer in black gloves opens a hand holding dice carved from glowing memory chips, a faint ghostly light escaping from them. At the next table a customer slumps after losing again. Suspicious, seductive.",
+    "a2_broadcast_or_refuge": "A cramped public-address booth in the night market, full of cables and old loudspeakers. Han holds one finger over a glowing switch, defiant. Se-rin grips his wrist hard, urgent and angry. A tense standoff between the two of them, the market lights beyond the booth window.",
+    "a2_ix_amnesty": "The undercity night market frozen in place: every screen at once, a noodle-stall menu board, a currency board and a toy in a child's hand, has gone blank glowing white, each showing only a single tilted cursor. People stand frozen in the white glow. Polite menace.",
+    "a2_eaters_table": "The end of a dark tunnel where something has fed. Scattered on the floor: a torn leather jacket, half a stick of chalk, the bent ribs of a yellow umbrella; faint warmth steams from the jacket pockets. An old speaker sits in the dark. Violet glitch residue on the walls, horror stillness.",
+    "a3_lucky_draw": "A sterile white staff lounge in the Spire. On the white wall hangs a round game machine with a glowing prize wheel; each slot of the wheel shows a simple pictogram (a star, a sun, a rice bowl, a suitcase) and one slot is solid black. The machine blinks red. Clinical and absurd.",
+    "a3_the_surrender": "A white corridor in the Spire. A young enforcer with his helmet off kneels on the floor, shaking hands raised. Tae-o aims his carbine at him, unmoved. Se-rin steps between them with her arms spread wide. A tense standoff in cold white light.",
+    "a3_elevator_quote": "Inside a sealed elevator with mirrored walls and no floor display, soft white light falling from a ceiling speaker grille. A tired hooded figure stands in the middle; in the mirrored wall their reflection is caught a beat out of sync, turned slightly differently from them. Unsettling calm.",
+    "a3_other_pod": "At the far end of a white storage floor, a single sleep pod stands apart from endless shelves. Behind frosted glass lies a sleeping figure identical to the hooded Connector, a scar on the face and chalk dust under the nails, one fist clenched around something. A small blank tag on the pod. Cold, uncanny.",
 }
+
+
+def _first_mention(scene: str, companion_id: str) -> int:
+    name = COMPANIONS[companion_id][1].split(",")[0]
+    pos = scene.find(name)
+    return pos if pos >= 0 else len(scene)
 
 
 def events_jobs() -> list[ImageJob]:
@@ -51,7 +70,15 @@ def events_jobs() -> list[ImageJob]:
         if not scene:
             scene = f"A story moment titled '{ev['title']['en']}': {ev['text']['en'][:500]}"
         refs = []
-        if speaker in COMPANIONS:
+        hints = ev.get("gmHints") or []
+        pair = [h for h in hints if h in COMPANIONS] if "companion conflict" in hints else []
+        if len(pair) >= 2:
+            # Companion-conflict events show both companions; references follow the order they are named in.
+            pair = sorted(pair[:2], key=lambda cid: _first_mention(scene, cid))
+            refs = [portrait(cid) for cid in pair]
+            who = "; ".join(COMPANIONS[cid][1] for cid in pair)
+            scene = f"{scene} The characters, in this order: {who}."
+        elif speaker in COMPANIONS:
             refs = [portrait(speaker)]
             scene = f"{scene} The character is {COMPANIONS[speaker][1]}."
         prompt = f"Narrative event illustration, wide cinematic shot. {scene} The bottom of the scene falls naturally into shadow (no overlay, band or letterbox)."

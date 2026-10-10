@@ -165,8 +165,14 @@ class ImageJob:
 
     def full_prompt(self) -> str:
         ref = ""
-        if self.refs:
+        if len(self.refs) == 1:
             ref = " Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene."
+        elif self.refs:
+            ref = (
+                " The reference images are given in the order the characters are named above: keep each character's "
+                "face, hair and outfit the same as in their own reference image (same characters as the reference "
+                "images), but redraw them together in this scene."
+            )
         return f"{self.prompt.strip()}{ref} Style: {STYLE}."
 
 

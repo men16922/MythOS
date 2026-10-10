@@ -1,6 +1,6 @@
 {
- "image_calls": 197,
- "image_failed": 303,
+ "image_calls": 209,
+ "image_failed": 316,
  "lyria_calls": 21,
  "lyria_failed": 0,
  "outputs": {
@@ -936,6 +936,22 @@
    "seed": 848971618,
    "ts": "2026-10-10T23:39:00"
   },
+  "events/a1_compensation_kiosk.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. On a dark, dead street in a blackout, a single ration kiosk lights up as the viewer approaches; its dispenser hatch hangs open and warm golden light spills out onto the wet pavement; its screen shows only endless columns of tiny grey marks, far too small to read. Rain, empty street, eerie politeness. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1298357616,
+   "ts": "2026-10-11T01:06:39"
+  },
+  "events/a1_dark_table.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A dead laundromat with rows of broken washing machines. People crouch around a single candle on a makeshift card table, ration chips and painkiller packets as stakes. An old dealer, one hand with six fingers, drives a rusted knife into the table; five finger-shaped grooves are worn into the wood around it. An open cash box sits on the floor. Candlelight, tense, desperate. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1013170255,
+   "ts": "2026-10-11T01:05:22"
+  },
   "events/a1_dead_substation.webp": {
    "generations": 1,
    "model": "gemini-3-pro-image",
@@ -952,6 +968,14 @@
    "seed": 1102554652,
    "ts": "2026-10-10T23:35:58"
   },
+  "events/a1_dry_footprints.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A rain-soaked back alley at night. Rain pours down, yet a trail of perfectly dry footprints leads deeper into the alley, one foot dragging slightly. At each corner a simple chalk arrow is drawn on the wet wall. Uncanny deja vu, quiet dread. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1598604190,
+   "ts": "2026-10-11T01:08:47"
+  },
   "events/a1_han_shortcut.webp": {
    "generations": 1,
    "model": "gemini-3-pro-image",
@@ -961,6 +985,17 @@
    ],
    "seed": 407694372,
    "ts": "2026-10-10T23:34:59"
+  },
+  "events/a1_let_the_hound_in.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A stairwell in a gutted concrete building at night. Tae-o sits on the steps pressing a bleeding wound in his side, a scraped-off patch on his shoulder, looking up. Se-rin stands over him with her knife drawn, glaring down at him. Both turn toward the viewer, waiting for a decision. The characters, in this order: Tae-o, a rugged middle-aged Korean man with a scarred face, short black hair and a heavy black tactical coat; Se-rin, a young Korean woman courier with long straight black hair and a black leather jacket. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). The reference images are given in the order the characters are named above: keep each character's face, hair and outfit the same as in their own reference image (same characters as the reference images), but redraw them together in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/tae-o.png",
+    "resources/neo-seoul/characters/se-rin.png"
+   ],
+   "seed": 1078015030,
+   "ts": "2026-10-11T01:05:24"
   },
   "events/a1_opening.webp": {
    "generations": 1,
@@ -1003,6 +1038,17 @@
    "seed": 679266438,
    "ts": "2026-10-10T23:32:50"
   },
+  "events/a2_broadcast_or_refuge.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A cramped public-address booth in the night market, full of cables and old loudspeakers. Han holds one finger over a glowing switch, defiant. Se-rin grips his wrist hard, urgent and angry. A tense standoff between the two of them, the market lights beyond the booth window. The characters, in this order: Han, a lean young Korean man hacker with messy black hair and a dark high-collared jacket; Se-rin, a young Korean woman courier with long straight black hair and a black leather jacket. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). The reference images are given in the order the characters are named above: keep each character's face, hair and outfit the same as in their own reference image (same characters as the reference images), but redraw them together in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/han.png",
+    "resources/neo-seoul/characters/se-rin.png"
+   ],
+   "seed": 1718540611,
+   "ts": "2026-10-11T01:10:41"
+  },
   "events/a2_debt_collectors.webp": {
    "generations": 2,
    "model": "gemini-3-pro-image",
@@ -1010,6 +1056,22 @@
    "refs": [],
    "seed": 701628498,
    "ts": "2026-10-11T00:10:45"
+  },
+  "events/a2_eaters_table.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. The end of a dark tunnel where something has fed. Scattered on the floor: a torn leather jacket, half a stick of chalk, the bent ribs of a yellow umbrella; faint warmth steams from the jacket pockets. An old speaker sits in the dark. Violet glitch residue on the walls, horror stillness. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 875854480,
+   "ts": "2026-10-11T01:12:36"
+  },
+  "events/a2_ix_amnesty.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. The undercity night market frozen in place: every screen at once, a noodle-stall menu board, a currency board and a toy in a child's hand, has gone blank glowing white, each showing only a single tilted cursor. People stand frozen in the white glow. Polite menace. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 880934386,
+   "ts": "2026-10-11T01:09:43"
   },
   "events/a2_kai_scrapyard.webp": {
    "generations": 1,
@@ -1059,6 +1121,14 @@
    "seed": 1055931190,
    "ts": "2026-10-10T23:40:57"
   },
+  "events/a2_moon_dice.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A smoky gambling den below a barge deck, lanterns swinging with the hull. A dealer in black gloves opens a hand holding dice carved from glowing memory chips, a faint ghostly light escaping from them. At the next table a customer slumps after losing again. Suspicious, seductive. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 696689901,
+   "ts": "2026-10-11T01:07:35"
+  },
   "events/a2_recruit.webp": {
    "generations": 1,
    "model": "gemini-3-pro-image",
@@ -1107,6 +1177,14 @@
    "seed": 953783734,
    "ts": "2026-10-10T23:50:06"
   },
+  "events/a3_elevator_quote.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. Inside a sealed elevator with mirrored walls and no floor display, soft white light falling from a ceiling speaker grille. A tired hooded figure stands in the middle; in the mirrored wall their reflection is caught a beat out of sync, turned slightly differently from them. Unsettling calm. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 860320276,
+   "ts": "2026-10-11T01:13:32"
+  },
   "events/a3_ix_offer.webp": {
    "generations": 1,
    "model": "gemini-3-pro-image",
@@ -1125,6 +1203,14 @@
    "seed": 1240626006,
    "ts": "2026-10-10T23:53:56"
   },
+  "events/a3_lucky_draw.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A sterile white staff lounge in the Spire. On the white wall hangs a round game machine with a glowing prize wheel; each slot of the wheel shows a simple pictogram (a star, a sun, a rice bowl, a suitcase) and one slot is solid black. The machine blinks red. Clinical and absurd. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1292712306,
+   "ts": "2026-10-11T01:11:38"
+  },
   "events/a3_optimization_queue.webp": {
    "generations": 1,
    "model": "gemini-3-pro-image",
@@ -1132,6 +1218,14 @@
    "refs": [],
    "seed": 261434531,
    "ts": "2026-10-10T23:55:49"
+  },
+  "events/a3_other_pod.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. At the far end of a white storage floor, a single sleep pod stands apart from endless shelves. Behind frosted glass lies a sleeping figure identical to the hooded Connector, a scar on the face and chalk dust under the nails, one fist clenched around something. A small blank tag on the pod. Cold, uncanny. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 251496686,
+   "ts": "2026-10-11T01:15:30"
   },
   "events/a3_sleeping_frames.webp": {
    "generations": 1,
@@ -1148,6 +1242,17 @@
    "refs": [],
    "seed": 1639346543,
    "ts": "2026-10-11T00:11:11"
+  },
+  "events/a3_the_surrender.webp": {
+   "generations": 1,
+   "model": "gemini-3-pro-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A white corridor in the Spire. A young enforcer with his helmet off kneels on the floor, shaking hands raised. Tae-o aims his carbine at him, unmoved. Se-rin steps between them with her arms spread wide. A tense standoff in cold white light. The characters, in this order: Tae-o, a rugged middle-aged Korean man with a scarred face, short black hair and a heavy black tactical coat; Se-rin, a young Korean woman courier with long straight black hair and a black leather jacket. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). The reference images are given in the order the characters are named above: keep each character's face, hair and outfit the same as in their own reference image (same characters as the reference images), but redraw them together in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/tae-o.png",
+    "resources/neo-seoul/characters/se-rin.png"
+   ],
+   "seed": 1207435885,
+   "ts": "2026-10-11T01:14:35"
   },
   "implants/adrenal_loop.webp": {
    "generations": 1,

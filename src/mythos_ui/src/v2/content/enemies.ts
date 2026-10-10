@@ -18,7 +18,7 @@ const ACT1: EnemyDef[] = [
   {
     id: 'scrap_drone',
     name: t('고철 드론', 'Scrap Drone'),
-    sprite: 'maintenance-drone',
+    sprite: 'scrap-drone',
     tier: 'minion',
     hp: 8,
     move: 3,
@@ -85,7 +85,7 @@ const ACT1: EnemyDef[] = [
   {
     id: 'spiderling',
     name: t('새끼 거미', 'Spiderling'),
-    sprite: 'tracker-spider',
+    sprite: 'spiderling',
     tier: 'minion',
     hp: 6,
     move: 4,
@@ -255,7 +255,7 @@ const ACT2: EnemyDef[] = [
   {
     id: 'glitch_echo',
     name: t('잔상', 'Glitch Echo'),
-    sprite: 'glitch-wraith',
+    sprite: 'glitch-echo',
     tier: 'minion',
     hp: 8,
     move: 4,
@@ -505,7 +505,7 @@ const ACT3: EnemyDef[] = [
   {
     id: 'ark_sentry',
     name: t('ARK 초병', 'ARK Sentry'),
-    sprite: 'sentinel-drone',
+    sprite: 'ark-sentry',
     tier: 'minion',
     hp: 9,
     move: 3,
@@ -521,7 +521,7 @@ const ACT3: EnemyDef[] = [
   {
     id: 'ark_warden',
     name: t('ARK 감시자', 'ARK Warden'),
-    sprite: 'sentinel-drone',
+    sprite: 'ark-warden',
     tier: 'normal',
     hp: 18,
     move: 3,
@@ -545,7 +545,7 @@ const ACT3: EnemyDef[] = [
   {
     id: 'ark_executor',
     name: t('ARK 집행관', 'ARK Executor'),
-    sprite: 'enforcer-unit',
+    sprite: 'ark-executor',
     tier: 'normal',
     hp: 26,
     armor: 2,
@@ -567,7 +567,7 @@ const ACT3: EnemyDef[] = [
   {
     id: 'ark_assaulter',
     name: t('ARK 강습병', 'ARK Assaulter'),
-    sprite: 'shock-trooper',
+    sprite: 'ark-assaulter',
     tier: 'normal',
     hp: 23,
     armor: 1,
@@ -591,7 +591,7 @@ const ACT3: EnemyDef[] = [
   {
     id: 'hunter_spider',
     name: t('사냥 거미', 'Hunter Spider'),
-    sprite: 'tracker-spider',
+    sprite: 'hunter-spider',
     tier: 'normal',
     hp: 18,
     move: 5,

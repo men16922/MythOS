@@ -80,6 +80,46 @@ export const V2_SPRITES: Record<string, Partial<Record<V2SpritePose, string>>> =
     attack: 'v2/sprites/incinerator-attack.webp',
     hit: 'v2/sprites/incinerator-hit.webp',
   },
+  'scrap-drone': {
+    idle: 'v2/sprites/scrap-drone-idle.webp',
+    attack: 'v2/sprites/scrap-drone-attack.webp',
+    hit: 'v2/sprites/scrap-drone-hit.webp',
+  },
+  spiderling: {
+    idle: 'v2/sprites/spiderling-idle.webp',
+    attack: 'v2/sprites/spiderling-attack.webp',
+    hit: 'v2/sprites/spiderling-hit.webp',
+  },
+  'hunter-spider': {
+    idle: 'v2/sprites/hunter-spider-idle.webp',
+    attack: 'v2/sprites/hunter-spider-attack.webp',
+    hit: 'v2/sprites/hunter-spider-hit.webp',
+  },
+  'glitch-echo': {
+    idle: 'v2/sprites/glitch-echo-idle.webp',
+    attack: 'v2/sprites/glitch-echo-attack.webp',
+    hit: 'v2/sprites/glitch-echo-hit.webp',
+  },
+  'ark-sentry': {
+    idle: 'v2/sprites/ark-sentry-idle.webp',
+    attack: 'v2/sprites/ark-sentry-attack.webp',
+    hit: 'v2/sprites/ark-sentry-hit.webp',
+  },
+  'ark-warden': {
+    idle: 'v2/sprites/ark-warden-idle.webp',
+    attack: 'v2/sprites/ark-warden-attack.webp',
+    hit: 'v2/sprites/ark-warden-hit.webp',
+  },
+  'ark-assaulter': {
+    idle: 'v2/sprites/ark-assaulter-idle.webp',
+    attack: 'v2/sprites/ark-assaulter-attack.webp',
+    hit: 'v2/sprites/ark-assaulter-hit.webp',
+  },
+  'ark-executor': {
+    idle: 'v2/sprites/ark-executor-idle.webp',
+    attack: 'v2/sprites/ark-executor-attack.webp',
+    hit: 'v2/sprites/ark-executor-hit.webp',
+  },
 }
 
 /** EnemyDef id -> V2_SPRITES key. */
@@ -95,6 +135,14 @@ export const V2_SPRITE_FOR_ENEMY: Record<string, string> = {
   aegis_drone: 'aegis-drone',
   sentinel_overseer: 'sentinel-overseer',
   incinerator: 'incinerator',
+  scrap_drone: 'scrap-drone',
+  spiderling: 'spiderling',
+  hunter_spider: 'hunter-spider',
+  glitch_echo: 'glitch-echo',
+  ark_sentry: 'ark-sentry',
+  ark_warden: 'ark-warden',
+  ark_assaulter: 'ark-assaulter',
+  ark_executor: 'ark-executor',
 }
 
 /** ArchetypeDef id -> V2_SPRITES key. */

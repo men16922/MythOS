@@ -4,7 +4,7 @@ COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
-.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback narrative-smoke-fallback-en visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny connect-demo sim-boss smoke smoke-local streamlit streamlit-stop api api-stop api-cloud cloud-image cloud-run-local dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build test-v2 test-e2e-v2 validate-content check check-skills sync-skills check-auto _harness-guard _overnight-clean-tree overnight-env-doctor overnight-where overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-ledger-check overnight-ledger-state overnight-trajectory overnight-resume overnight-provenance-compare overnight-graph-smoke overnight-graph-measure overnight-clean overnight-claude overnight-claude-watch overnight-claude-once overnight-codex overnight-codex-watch overnight-codex-once overnight-opencode overnight-opencode-watch overnight-opencode-once overnight-agy overnight-agy-watch overnight-agy-once overnight-kiro overnight-kiro-watch overnight-kiro-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review image-regen eval-narrative eval-narrative-promotion experiment
+.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback narrative-smoke-fallback-en visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny connect-demo sim-boss smoke smoke-local streamlit streamlit-stop api api-stop api-cloud cloud-image cloud-run-local deploy-preview dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build test-v2 test-e2e-v2 validate-content check check-skills sync-skills check-auto _harness-guard _overnight-clean-tree overnight-env-doctor overnight-where overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-ledger-check overnight-ledger-state overnight-trajectory overnight-resume overnight-provenance-compare overnight-graph-smoke overnight-graph-measure overnight-clean overnight-claude overnight-claude-watch overnight-claude-once overnight-codex overnight-codex-watch overnight-codex-once overnight-opencode overnight-opencode-watch overnight-opencode-once overnight-agy overnight-agy-watch overnight-agy-once overnight-kiro overnight-kiro-watch overnight-kiro-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review image-regen eval-narrative eval-narrative-promotion experiment
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -417,6 +417,17 @@ deploy:
 	test -n "$$PROJECT_ID" || { echo "ERROR: PROJECT_ID not set in .env"; exit 1; }; \
 	echo "Deploying mythos-api to project [$$PROJECT_ID] region [$(REGION)] (env-preserving; timeout=$(CLOUD_RUN_TIMEOUT)s; IMAGEN_MODEL=$(IMAGEN_MODEL), IMAGEN_LOCATION=$(IMAGEN_LOCATION))…"; \
 	gcloud run deploy mythos-api --source . --region $(REGION) --project "$$PROJECT_ID" --timeout $(CLOUD_RUN_TIMEOUT) --update-env-vars IMAGEN_MODEL=$(IMAGEN_MODEL),IMAGEN_LOCATION=$(IMAGEN_LOCATION) --quiet
+
+# Preview deploy for Mythos 2.0: a NEW revision with ZERO traffic, reachable only at its tag URL
+# (https://v2---<service-url>). CBT testers keep the current revision. Promote later with
+# `gcloud run services update-traffic mythos-api --to-tags v2=100` (owner call). Note: the preview
+# shares the service env, so its first /api/v2 request creates the `v2_saves` tables in that DB.
+deploy-preview:
+	@test -f .env || { echo "ERROR: .env not found"; exit 1; }
+	@PROJECT_ID=$$(grep -E '^PROJECT_ID=' .env | cut -d= -f2- | tr -d '"'); \
+	test -n "$$PROJECT_ID" || { echo "ERROR: PROJECT_ID not set in .env"; exit 1; }; \
+	echo "Deploying a NO-TRAFFIC preview revision (tag v2) of mythos-api to [$$PROJECT_ID] [$(REGION)]…"; \
+	gcloud run deploy mythos-api --source . --region $(REGION) --project "$$PROJECT_ID" --timeout $(CLOUD_RUN_TIMEOUT) --update-env-vars IMAGEN_MODEL=$(IMAGEN_MODEL),IMAGEN_LOCATION=$(IMAGEN_LOCATION) --no-traffic --tag v2 --quiet
 
 # One-command dev stack: docker infra + db migrate + API(foreground).
 # Ollama is host-side (not docker); start it separately with `ollama serve`.

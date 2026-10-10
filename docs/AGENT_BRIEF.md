@@ -1,60 +1,48 @@
 # Agent Brief
 
-Last updated: 2026-09-08
+Last updated: 2026-10-11
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Prod = `mythos-api-00090-ww4` (2026-09-08, `d4a87da` deployed; 0 WARNING+). The commits since are lint/type locks (M87) and the 2026-09-08 serving-research/eval tooling (M89: `mlx` adapter row measured, judge pinned to `EVAL_JUDGE_MODEL`, judge resolution = 1 point overall / 2 on `register` on one dev sample, 0 on the other — `docs/reference/2026-09-08-judge-resolution.md`) — all behaviour-neutral for prod, no redeploy needed.** Live: the opening-cinematic/build-offer order fix and status-effect stacking (2026-09-06; `docs/plans/2026-09-06-status-effect-stacking.md`)** — owner feel verdict on caps 3/2/2 + pip legibility is `[manual]`, and **boss stack resistance shipped 2026-09-07** (`BOSS_STACK_CAP = 2`, agent call under the continue directive — DECISIONS; IX solo ×3 0.82→0.68, tick-kills 33%→15%; one constant to reverse), **live on `00090`**. Migration `008` is applied on prod (2026-09-07, owner-run `make db-migrate-prod`). Everything else open in NEXT_PLAN is owner-gated (§3 verdict, stack/boss-cap feel verdict — both play on `00090`) or `[blocked]` (P2 bench port needs `labs/wsl2-vllm-baseline/`; `vllm`/`llamacpp` rows need an engine — `mlx` is done). `[auto]` backlog is **0** (09-08 seed batch + survey leftovers closed, M87; `exactOptionalPropertyTypes` declined) — seed only from a new owner decision, do not manufacture. `main` ahead of `origin/main` — owner `git push`. **P4-3 (median-over-N judge rule) is now the owner call that unblocks both the §3 track and P5.** **Do not**: build a stream-stall watchdog; add keyword inflections on principle; decay stacks per turn (only with expiry — design §Stack decay); put `experiments/`/`scripts/<other>` paths in `[auto:claude]` seeds.
+> ▶ NEXT SESSION: **Mythos 2.0 is built on branch `mythos-2.0` (undeployed; prod is still 1.x `mythos-api-00090-ww4`).** Wait for the owner's first-play verdict (`docs/test/mythos2_first_play.md`, D–S grade) before tuning; then the ship decision (merge → no-traffic tagged Cloud Run revision or full rollout — owner call, it changes what CBT testers see). Tune with the sim harness, not by feel: `simulateRun(seed, archetype, CONTENT, policy, { onFight })` (P0 baseline greedy 95 % · mixed 45 % · basic 0 %). **Test with sound off** (`?mute=1` / localStorage `mythos2.mute=1`; owner directive) and **one browser tab only** (owner complaint). 1.x tracks (§3 verdict, serving research, Dev Graph holds) are paused behind the 2.0 verdict. `git push` stays owner.
 
 ## Snapshot
 
-Project MythOS is a single-player SF loop-based TRPG/CRPG on a Python 3.11+ local runtime. An AI GM (Ollama) drives scenes; tactical combat is adjudicated by a separate deterministic combat engine.
+Project MythOS (`세계:접속`) — single-player SF roguelite. Since 2026-10-10 the default game is **Mythos 2.0 "Signal Run"**: Into the Breach-style telegraphed tactics on a 7×5 board + Slay the Spire deck/implants + Hades-style Archive meta, AI GM off the critical path. The 1.x AI-narrated loop TRPG stays reachable at `/?classic=1`.
 
-Current baseline:
-- `RuntimeSessionService` handles shared orchestration for CLI/Streamlit/FastAPI.
-- React+TS SPA + FastAPI `/api/v1` REST/WS adapter, and Streamlit demo all call the same runtime service.
-- PostgreSQL/MinIO/OTel/Jaeger local infra (Redis removed 2026-07-04; images generate synchronously in-request).
-- Neo-Seoul 01 is the primary scenario, `glass-library` is an extension sample.
-- Story Bible, Codex, Run History, Meta Progression, Save/Load, Ending Resolver implemented.
-- Tactical combat (full-body action pose, role/tags skill animations, compact image action bar, direct party control, 3 new allies and 4 enemy types with 35 new combat sprites mapped into scenario.json), Tactical Board direct key/tile inspector/folded learning goal, Playwright E2E implemented.
-- Operation map route-node-ified (deterministic DAG + multi-perspective anchors `route_map.py`/`route_runtime.py`) + session memory (`session_memory.py` beat ledger + rolling synopsis, not RAG).
-- Progression unlock (archetype gates, insight investment tree, rank pips/upgrade banner, epiphany banner, Run History + Echo/Shard dashboard, cross-scenario unlock, data-driven grant).
-- Persistent objective/stakes display and choice value-axis/expected-result/actual-result summary UX.
-- mflux/FLUX (local) / Vertex Gemini Image (cloud, `gemini-3.1-flash-image` via `global`) generate sync in-request; Redux character consistency; MinIO/GCS asset paths verified.
-- Narrative is dual-model: storyteller `OLLAMA_MODEL_STORY`=`gemma4:latest` (8B, free text) → parser `OLLAMA_MODEL_PARSER`=`qwen2.5:3b-instruct` (JSON structuring). Streaming path runs a regex parser in parallel.
-- Opening sequence consistency (5 cuts: awakening→se_rin appears→approaching hand→first contact→pursuit+combat). Prompt-layer separation in progress (authored directives→`resources/<scenario>/directives/*.md`, `docs/PROMPT_LAYER.md`). Detailed state in `STATUS.md`.
+2.0 layout:
+- `src/mythos_ui/src/v2/engine` — pure TS, seeded RNG, JSON state, reducers; tests `node --test` (`make test-v2`). Combat (`combat.ts`/`effects.ts`/`intents.ts`), run/map/meta (`run.ts`/`map.ts`/`meta.ts`), bots + sim (`combatSim.ts`/`runSim.ts`). Contract: `types.ts`.
+- `v2/content` — typed data: cards, enemies, encounters, implants, consumables, companions, archetypes, events, lore, endings, IX lines, acts, unlocks, paradox. `content.test.ts`/`narrative.test.ts` guard integrity and quotas.
+- `v2/ui` — shell screens (`ui/shell`), combat board/animator (`ui/combat`), shared components, `ui/common` (assets, `sfx.ts` procedural WebAudio, `audio.ts` buffer-looped music + hard mute, generated `artManifest.ts`/`spriteManifest.ts`).
+- `src/mythos_v2` — `/api/v2` (profile/run saves in `v2_saves`, memory fallback; GM `narrate`/`improvise` via Ollama/Gemini with authored fallbacks). Client `v2/net/api.ts` mirrors to localStorage.
+- `resources/neo-seoul/v2/` — all-new 2.0 art/music/sprites (Gemini image, Lyria, Codex image); regenerate via `scripts/v2_assets/` (idempotent, `--force`).
 
 ## Active Work
 
-`docs/NEXT_PLAN.md` is authoritative for next priorities.
-
-1. **§3 human re-sign-off** — the 47/47 arm is banked, admitted to the frozen promotion bank and scored; **only the owner's ending/overall feel verdict remains**, and it is now the sole usable basis because judge variance (~1 point) is as large as the score gap.
-2. **MythOS Dev Graph** — repair rollout closed at strict-contract 0/3; repair remains 0 and bank v1 stays frozen. Remote publication/fan-out remain separately owner-gated.
-3. **Serving-research track (new 2026-08-30, unblocked)** — `docs/plans/2026-08-30-...-research-workload.md`; P1–P3 need no owner call; P4-1/P4-2 done 2026-09-08 (pin + measured resolution), P4-3 is the same judge-noise decision as §3. Local sampler/timeout defects found and fixed by its first experiments (degradation 44%→0%; `repeat_penalty` had never applied locally).
-4. **Manual residuals/hold**: S4 copy tone, variant intro feel, G2 twist tone, EN fresh-loop retest; `glass-library` held.
+`docs/NEXT_PLAN.md` is authoritative.
+1. Owner first play + grade → post-verdict tuning (numbers live in content files; measure before/after).
+2. Ship decision (merge, deploy shape, push) — owner.
+3. Candidates after the verdict: 2.0-style companion sprites, phone-width combat, more Act 2–3 events, daily seed, Cloud Run smoke of `/api/v2` + Vertex GM.
 
 ## Read Order
 
 1. Current state: `docs/STATUS.md`
 2. Next work: `docs/NEXT_PLAN.md`
 3. Latest log: `docs/PROGRESS_LOG.md`
-4. Before structural changes: `docs/DESIGN.md`
-5. Before game-rule changes: `docs/GAMEPLAY.md`
-6. Before scenario changes: `docs/scenarios/*` or `resources/<scenario>/story_bible/*`
+4. 2.0 rules: `docs/GAMEPLAY.md`; 2.0 design/contract: `docs/plans/2026-10-10-mythos-2.0.md`
+5. 1.x architecture (classic): `docs/DESIGN.md`
 
 ## Commands
 
-- Basic verify: `make test`
-- Python quality: `make lint`, `make typecheck`
-- React quality: `make frontend-lint`, `make frontend-build`
-- Browser E2E: `make test-e2e`
-- Runtime smoke: `make smoke-local`
-- Persistence/MinIO: `make smoke`, `make test-db`
-- Full local dev: `make dev-up` / `make dev-down`
+- Full gate: `make check` (skills, doc budget, content, ruff/eslint, mypy + tsc/vite build, `test-v2`, `test-e2e-v2`, `test`)
+- 2.0 engine/content tests: `make test-v2`; 2.0 browser smoke: `make test-e2e-v2`; classic browser E2E: `make test-e2e`
+- Local play: `make api` (port busy → `MYTHOS_API_PORT=8010 make api`), Vite dev `cd src/mythos_ui && npx vite`; combat sandbox `/?sandbox=combat&mute=1`
+- Infra: `make dev-up` / `make dev-down`
 
 ## Guardrails
 
-- Keep runtime orchestration in `RuntimeSessionService`; do not duplicate it into UI/API.
-- Keep pure unit tests Docker-free. DB tests go through `MYTHOS_RUN_DB_TESTS=1`.
-- Do not treat generated outputs, `.env`, tokens, `.docker/` data as source artifacts.
-- Keep current docs short; move detailed records to `bin/docs/archive/` or dated plans.
+- 2.0 rules live only in `v2/engine`; content is data in `v2/content` (no rules in UI). Never `Math.random` in engine/content.
+- Engine/content imports use explicit `.ts` extensions (Node type stripping).
+- Classic 1.x: keep orchestration in `RuntimeSessionService`; don't break `/?classic=1`.
+- Don't treat generated outputs, `.env`, tokens, `.docker/` data as source artifacts.
+- Keep entry docs short; move detail to `bin/docs/archive/`, dated plans or COMPLETED_SUMMARY.

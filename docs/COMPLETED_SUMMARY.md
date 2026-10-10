@@ -393,6 +393,13 @@
 - **Folded entries** (detail: PROGRESS_LOG archives + M86–M89): MLX adapter row measured + judge pinned/resolution declared (M89) · directive KO/EN lock + `noUncheckedIndexedAccess` (`1daa83e`/`0b0f153`) · quality-ladder batch 2 (M87) · deploy `00090` (boss stack resistance, strict-mypy batch) · boss stack resistance `BOSS_STACK_CAP = 2` (M88) · 09-05/09-06 deploys `00085`→`00089` (M86/M88) · per-turn token usage logging · §3 sample admitted and scored — judge variance ≈ 1 point, so the owner feel verdict is the only usable basis.
 - **Still open on the 1.x line** (now paused behind the 2.0 verdict): §3 ending/overall feel verdict, stack/boss-cap feel verdict, P4-3 judge rule, upstream repetition.
 
+## M91 — Mythos 2.0 "Signal Run" built overnight (2026-10-10..11, branch `mythos-2.0`)
+
+- **Purpose**: owner mandate — fun D → S, rebuild anything by morning. Replaced the LLM-gated narrative loop with a client-side tactical deck-building roguelite; AI GM moved off the critical path (DECISIONS 2026-10-10).
+- **Output**: TS engine (`v2/engine`: telegraph combat incl. track lock-ons, push/bump/void/friendly fire, enemy AI, triggers, bonus objectives; StS map, events + bounded Improvise, shop/rest/treasure, endings, Archive meta, Paradox 1–5; greedy/mixed/basic bots + run sim), content (89 cards, 27 enemies, 37 encounters, 44 implants, 26 events, 20 unlocks), UI (shell + juicy combat board, procedural SFX, looped music, coach marks), `/api/v2` saves + GM, ~31 MB generated assets (Gemini image, Lyria, Codex sprites). Classic kept at `/?classic=1`.
+- **Evidence**: `node --test src/v2` 131 pass; `make test` pass; `test-e2e` (classic) + `test-e2e-v2` pass; sim P0 greedy 95 % / mixed 45 % / basic 0 %; two muted agent playtests with fixes.
+- **Open**: owner first-play grade, ship decision, push.
+
 ## Archive Reference
 
 M0-M10의 상세 체크리스트, work log, verification log는 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`에 보존한다.

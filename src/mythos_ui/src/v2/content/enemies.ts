@@ -96,7 +96,7 @@ const ACT1: EnemyDef[] = [
   {
     id: 'enforcer_unit',
     name: t('집행 유닛', 'Enforcer'),
-    sprite: 'enforcer-unit',
+    sprite: 'enforcer-elite',
     tier: 'elite',
     hp: 36,
     armor: 1,
@@ -127,7 +127,7 @@ const ACT1: EnemyDef[] = [
   {
     id: 'spider_matriarch',
     name: t('거미 여왕', 'Brood Mother'),
-    sprite: 'tracker-spider',
+    sprite: 'brood-mother',
     tier: 'elite',
     hp: 34,
     move: 2,
@@ -151,7 +151,7 @@ const ACT1: EnemyDef[] = [
   {
     id: 'sentinel_overseer',
     name: t('감시 지휘기', 'Overseer'),
-    sprite: 'sentinel-drone',
+    sprite: 'sentinel-overseer',
     tier: 'elite',
     hp: 32,
     move: 3,
@@ -343,7 +343,7 @@ const ACT2: EnemyDef[] = [
   {
     id: 'glitch_reaver',
     name: t('글리치 약탈자', 'Glitch Reaver'),
-    sprite: 'glitch-wraith',
+    sprite: 'glitch-reaver',
     tier: 'elite',
     hp: 38,
     move: 4,
@@ -370,7 +370,7 @@ const ACT2: EnemyDef[] = [
   {
     id: 'trooper_captain',
     name: t('특전대장', 'Trooper Captain'),
-    sprite: 'shock-trooper',
+    sprite: 'trooper-captain',
     tier: 'elite',
     hp: 40,
     armor: 2,
@@ -402,7 +402,7 @@ const ACT2: EnemyDef[] = [
   {
     id: 'incinerator',
     name: t('소각로', 'Incinerator'),
-    sprite: 'purge-drone',
+    sprite: 'incinerator',
     tier: 'elite',
     hp: 36,
     armor: 1,
@@ -645,7 +645,7 @@ const ACT3: EnemyDef[] = [
   {
     id: 'aegis_drone',
     name: t('이지스 드론', 'Aegis Drone'),
-    sprite: 'sentinel-drone',
+    sprite: 'aegis-drone',
     tier: 'elite',
     hp: 42,
     move: 3,
@@ -668,7 +668,7 @@ const ACT3: EnemyDef[] = [
   {
     id: 'purge_seraph',
     name: t('소각 세라프', 'Purge Seraph'),
-    sprite: 'purge-drone',
+    sprite: 'purge-seraph',
     tier: 'elite',
     hp: 46,
     move: 3,

@@ -1,4 +1,3 @@
-# ruff: noqa: I001
 """Mythos 2.0 browser smoke: title → setup → prologue → act intro → opening event → map → first fight.
 
 Headless Chromium against a throwaway uvicorn on :8082, always with ``?mute=1`` (no audio graph is
@@ -61,7 +60,11 @@ def main() -> int:
             page.on("pageerror", lambda exc: errors.append(f"pageerror: {exc}"))
             page.on(
                 "console",
-                lambda msg: errors.append(f"console.{msg.type}: {msg.text}") if msg.type == "error" else None,
+                lambda msg: (
+                    errors.append(f"console.{msg.type}: {msg.text}")
+                    if msg.type == "error"
+                    else None
+                ),
             )
 
             page.goto(APP_URL)
@@ -95,7 +98,9 @@ def main() -> int:
 
             page.wait_for_selector(".m2-node.is-reach", timeout=10000)
             shot(page, "map")
-            page.locator(".m2-node.is-reach").first.click(force=True)  # reachable nodes pulse forever
+            page.locator(".m2-node.is-reach").first.click(
+                force=True
+            )  # reachable nodes pulse forever
             page.wait_for_selector(".m2c-root", timeout=15000)
             page.wait_for_timeout(2500)  # boss/encounter intro + coach marks
             shot(page, "combat")
@@ -109,7 +114,10 @@ def main() -> int:
                 page.keyboard.press("e")
                 page.wait_for_timeout(3500)
             shot(page, "combat_after_turns")
-            if page.locator(".m2c-root").count() == 0 and page.locator(".m2-choice, .m2-ending").count() == 0:
+            if (
+                page.locator(".m2c-root").count() == 0
+                and page.locator(".m2-choice, .m2-ending").count() == 0
+            ):
                 errors.append("combat screen vanished without a reward/ending screen")
             browser.close()
     finally:

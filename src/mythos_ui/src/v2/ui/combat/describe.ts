@@ -1,0 +1,137 @@
+// Human-readable combat text (bilingual). No raw ids ever reach the screen.
+
+import type { BonusObjective, CombatState, Effect, EncounterDef, EnemyMove, Lang, StatusKind, Text } from '../../engine/types.ts'
+import { L, tr } from '../common/lang.ts'
+
+export const STATUS_NAME: Record<StatusKind, Text> = {
+  burn: L('화상', 'Burn'),
+  shock: L('감전', 'Shock'),
+  mark: L('표식', 'Mark'),
+  weak: L('약화', 'Weak'),
+  guard: L('방호', 'Guard'),
+  thorns: L('가시', 'Thorns'),
+}
+
+export const STATUS_TEXT: Record<StatusKind, Text> = {
+  burn: L('적 페이즈가 끝날 때 수치만큼 피해(방어 무시), 이후 1 감소.', 'Takes N damage at the end of each enemy phase (ignores block), then N − 1.'),
+  shock: L('적: 공격이 불발되고 이동하지 않음. 아군: 이동 불가.', 'Enemy: its attack fizzles and it does not move. Party: cannot move.'),
+  mark: L('다음에 받는 피해가 수치만큼 증가.', 'The next hit taken deals N extra damage.'),
+  weak: L('가하는 피해 −2.', 'Deals 2 less damage.'),
+  guard: L('매 턴 시작 시 방어도 획득.', 'Gains N block at the start of each turn.'),
+  thorns: L('근접·돌진 공격자에게 수치만큼 반격.', 'Melee/charge attackers take N damage.'),
+}
+
+const PATTERN: Record<EnemyMove['pattern'], Text> = {
+  melee: L('근접', 'Melee'),
+  line: L('사격', 'Shot'),
+  beam: L('관통 빔', 'Beam'),
+  charge: L('돌진', 'Charge'),
+  nova: L('충격파', 'Nova'),
+  lob: L('포격', 'Artillery'),
+  buff: L('강화', 'Buff'),
+  summon: L('호출', 'Summon'),
+  track: L('추적 조준', 'Lock-on'),
+}
+
+export const TRACK_NOTE = L('추적 조준 — 피할 수 없음 (방어·해킹·처치로 대응)', "Lock-on — can't be dodged (block, hack or kill)")
+
+export function patternLabel(p: EnemyMove['pattern'], lang: Lang): string {
+  return tr(PATTERN[p], lang)
+}
+
+function effectBit(e: Effect, lang: Lang): string | null {
+  const k = lang === 'ko'
+  switch (e.kind) {
+    case 'push':
+      return e.dir === 'toward' ? (k ? `끌어당김 ${e.distance ?? 1}` : `Pull ${e.distance ?? 1}`) : k ? `밀어냄 ${e.distance ?? 1}` : `Push ${e.distance ?? 1}`
+    case 'status':
+      return `${tr(STATUS_NAME[e.status], lang)} ${e.amount}`
+    case 'block':
+      return k ? `방어 +${e.amount}` : `Block +${e.amount}`
+    case 'heal':
+      return k ? `회복 ${e.amount}` : `Heal ${e.amount}`
+    case 'damage':
+      return k ? `피해 ${e.amount}` : `${e.amount} damage`
+    default:
+      return null
+  }
+}
+
+/** "사격 · 피해 3 · 밀어냄 1 · 2턴 충전" */
+export function describeMove(move: EnemyMove, damage: number | undefined, windupLeft: number, lang: Lang): string {
+  const k = lang === 'ko'
+  const bits: string[] = [patternLabel(move.pattern, lang)]
+  const dmg = damage ?? move.damage
+  if (dmg && dmg > 0) bits.push(k ? `피해 ${dmg}` : `${dmg} damage`)
+  if (move.range && (move.pattern === 'line' || move.pattern === 'beam')) bits.push(k ? `사거리 ${move.range}` : `range ${move.range}`)
+  for (const e of move.effects ?? []) {
+    const b = effectBit(e, lang)
+    if (b) bits.push(b)
+  }
+  if (move.summon) bits.push(k ? `증원 ${move.summon.count}` : `${move.summon.count} reinforcement${move.summon.count > 1 ? 's' : ''}`)
+  if (windupLeft > 0) bits.push(k ? `${windupLeft + 1}턴 뒤 발사` : `fires in ${windupLeft + 1} turns`)
+  return bits.join(' · ')
+}
+
+export function bonusText(b: BonusObjective, lang: Lang): string {
+  const k = lang === 'ko'
+  switch (b.kind) {
+    case 'turn_limit':
+      return k ? `${b.turns}턴 안에 승리` : `Win within ${b.turns} turns`
+    case 'untouched':
+      return k ? '커넥터 무피해' : 'Connector untouched'
+    case 'environment':
+      return k ? `환경으로 ${b.count}명 처치` : `${b.count} environment kills`
+    case 'protect':
+      return k ? '보호 대상 생존' : 'Keep the civilian alive'
+  }
+}
+
+export function bonusProgress(c: CombatState): string | null {
+  const b = c.bonus
+  if (!b) return null
+  switch (b.def.kind) {
+    case 'turn_limit':
+      return `${Math.min(c.turn, b.def.turns)}/${b.def.turns}`
+    case 'environment':
+      return `${Math.min(b.progress, b.def.count)}/${b.def.count}`
+    default:
+      return null
+  }
+}
+
+export function objectiveText(enc: EncounterDef | undefined, c: CombatState, lang: Lang): string {
+  const k = lang === 'ko'
+  const o = enc?.objective
+  if (o && o.kind === 'survive') {
+    const left = Math.max(0, o.turns - (c.turn - 1))
+    return k ? `${o.turns}턴 버티기 · 남은 ${left}` : `Survive ${o.turns} turns · ${left} left`
+  }
+  return k ? '적 전멸' : 'Eliminate all hostiles'
+}
+
+export function kindTag(kind: EncounterDef['kind'] | undefined, lang: Lang): string | null {
+  if (kind === 'elite') return lang === 'ko' ? '정예' : 'ELITE'
+  if (kind === 'boss') return lang === 'ko' ? '보스' : 'BOSS'
+  return null
+}
+
+// ---------------------------------------------------------------- first-combat tutorial flag
+
+export const TUTORIAL_KEY = 'mythos2.tutorialDone'
+
+export function tutorialDone(): boolean {
+  try {
+    return window.localStorage.getItem(TUTORIAL_KEY) === '1'
+  } catch {
+    return true
+  }
+}
+
+export function markTutorialDone(): void {
+  try {
+    window.localStorage.setItem(TUTORIAL_KEY, '1')
+  } catch {
+    // storage blocked — the tips simply show again next time
+  }
+}

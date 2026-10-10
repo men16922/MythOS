@@ -714,3 +714,11 @@ test('final boss goes straight to the ending choice; boss wins raise surviving b
   }
   assert.ok(finalBossSeen)
 })
+
+test('Condition.companions requires every listed companion', () => {
+  const run = start(3)
+  const has = run.party.map((m) => m.id)
+  assert.ok(conditionMet(run, { companions: has }, C).ok)
+  const missing = conditionMet(run, { companions: [...has, 'comp_missing'] }, C)
+  assert.equal(missing.ok, false)
+})

@@ -478,6 +478,7 @@ export interface Condition {
   minCredits?: number
   minHp?: number
   companion?: string // must have this companion in the party
+  companions?: string[] // every one of these companions must be in the party
   noCompanion?: string
   partySizeAtMost?: number
   flag?: string

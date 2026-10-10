@@ -311,6 +311,11 @@ export function conditionMet(run: RunState, cond: Condition | undefined, C: Cont
     const n = name(cond.companion)
     return fail(`${n.ko} 동행 필요`, `Requires ${n.en}`)
   }
+  for (const id of cond.companions ?? []) {
+    if (run.party.some((m) => m.id === id)) continue
+    const n = name(id)
+    return fail(`${n.ko} 동행 필요`, `Requires ${n.en}`)
+  }
   if (cond.noCompanion && run.party.some((m) => m.id === cond.noCompanion)) {
     const n = name(cond.noCompanion)
     return fail(`${n.ko} 동행 중 불가`, `Not with ${n.en}`)

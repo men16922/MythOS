@@ -83,7 +83,7 @@ export type EffectScope = 'target' | 'owner' | 'connector' | 'all_enemies' | 'al
 export type AreaShape = 'single' | 'cross' | 'adjacent' | 'square' | 'row'
 
 export type Effect =
-  /** Damage. `bonusPerStatus` adds damage per stack of that status on the victim (e.g. burn synergy). */
+  /** Damage. `bonusVsMarked` adds damage when the victim is marked (on top of mark itself). */
   | { kind: 'damage'; amount: number; to?: EffectScope; area?: AreaShape; pierce?: boolean; bonusVsMarked?: number }
   /**
    * Push 1+ tiles. 'away' = away from the owner (for area effects: away from the impact centre),
@@ -165,6 +165,8 @@ export interface CardDef extends CardFace {
   icon?: string
   /** Synergy tags: 'push', 'hack', 'burn', 'block', 'mark', 'draw', 'move', 'loud', 'companion'. */
   tags?: string[]
+  /** Effects applied at the end of the player turn while this card is still in hand (junk with teeth, e.g. Trace Bug). */
+  heldEffects?: Effect[]
   /** Meta-unlock pack id. Undefined = in the base pool from the first loop. */
   pack?: string
   /** Archetype id if this is an archetype-exclusive card (only offered when playing that archetype). */

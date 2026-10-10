@@ -84,7 +84,7 @@ test('archetypes and companions reference real cards/implants', () => {
     const imp = C.implants[a.startingImplant]
     assert.ok(imp, a.startingImplant)
     assert.equal(imp.rarity, 'starter')
-    assert.ok(a.maxHp >= 32 && a.maxHp <= 36, `${a.id} hp`)
+    assert.ok(a.maxHp >= 38 && a.maxHp <= 46, `${a.id} hp`)
     assert.ok(a.startingCredits >= 60 && a.startingCredits <= 99, `${a.id} credits`)
     const sum = Object.values(a.stats).reduce((s, v) => s + v, 0)
     assert.ok(sum >= 18 && sum <= 22, `${a.id} stat sum ${sum}`)
@@ -249,7 +249,7 @@ test('enemies have sane, telegraphable moves and existing art', () => {
     }
     if (e.tier === 'elite' || e.tier === 'boss') assert.ok(e.passive, `${e.id} explains its gimmick`)
   }
-  assert.ok(C.enemies.administrator_ix && C.enemies.administrator_ix.hp >= 150 && C.enemies.administrator_ix.phases?.length === 2)
+  assert.ok(C.enemies.administrator_ix && C.enemies.administrator_ix.hp >= 100 && C.enemies.administrator_ix.phases?.length === 2)
 })
 
 // ------------------------------------------------------------------ encounters

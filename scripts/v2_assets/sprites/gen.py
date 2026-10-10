@@ -29,8 +29,8 @@ from specs import BY_KEY, RAW_DIR, ROOT, build_prompt, raw_path
 CODEX_IMG = Path.home() / ".codex" / "generated_images"
 LEDGER = Path(__file__).resolve().parent / "ledger.json"
 LOG_DIR = RAW_DIR / "logs"
-# batch 1 (bosses/archetypes/elites) was capped at 70; batch 2 (normal/minion variants) raised it.
-BUDGET = int(os.getenv("V2_SPRITE_BUDGET", "80"))
+# batch 1 (bosses/archetypes/elites) was capped at 70; batches 2-3 (variants, companions) raised it.
+BUDGET = int(os.getenv("V2_SPRITE_BUDGET", "99"))
 _lock = threading.Lock()
 
 
@@ -64,6 +64,7 @@ def gen_one(key: str, pose: str, extra: str = "") -> tuple[str, bool, str]:
         if not idle.exists():
             return f"{key}:{pose}", False, "idle raw missing"
         refs.append(idle)
+    refs += [ROOT / r for r in s.extra_refs]
     prompt = build_prompt(s, pose, has_ref=bool(refs))
     if extra:
         prompt += f" IMPORTANT CORRECTION: {extra}"

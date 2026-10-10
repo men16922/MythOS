@@ -54,6 +54,8 @@ class Sprite:
     size: str = "1024x1536"  # codex canvas (WxH)
     idle_ref: str | None = None  # optional reference image (repo-relative) for the idle generation
     idle_ref_note: str = ""  # how to use the idle reference
+    # identity references appended to EVERY pose (e.g. a companion portrait); the pose prompt says so
+    extra_refs: tuple[str, ...] = ()
     poses: dict[str, str] = field(default_factory=dict)  # pose -> pose description (non-idle)
     enemy_ids: tuple[str, ...] = ()
     archetype_ids: tuple[str, ...] = ()
@@ -83,6 +85,13 @@ CONNECTOR_NOTE = (
     "The reference image shows the Connector, the protagonist (a young Korean man, short black hair, black "
     "face mask, lean build). Keep the SAME person (face, hair, mask, build) and the same painterly rendering, "
     "but re-dress him in this new loadout."
+)
+
+COMPANION_NOTE = (
+    "Reference images: the FIRST is this character's old full-body combat sprite (outfit, weapon, build, "
+    "signature colours); the SECOND is a close-up portrait (face, hair). Draw the SAME character — identical "
+    "face, hairstyle, outfit and signature colours — as a fresh full-body combat sprite in the rendering style "
+    "below, turned to face RIGHT."
 )
 
 SPRITES: list[Sprite] = [
@@ -402,6 +411,64 @@ SPRITES: list[Sprite] = [
         poses=_enemy_poses(),
         enemy_ids=("ark_executor",),
     ),
+    # ------------------------------------------------------------------ companions (face RIGHT)
+    # Same key names as the classic sprites (resources/neo-seoul/characters/combat/<key>-<pose>.png), so the
+    # UI's sprite() resolves the v2 version first. Identity comes from the old idle sprite + the portrait.
+    *[
+        Sprite(
+            key=key,
+            kind="party",
+            idle_ref=f"resources/neo-seoul/characters/combat/{key}-idle.png",
+            idle_ref_note=COMPANION_NOTE,
+            extra_refs=(f"resources/neo-seoul/characters/{key}.png",),
+            subject=subject,
+            poses=_party_poses(attack=attack),
+        )
+        for key, subject, attack in [
+            (
+                "se-rin",
+                "SE-RIN, a young Korean woman courier/smuggler: long straight black hair, red lips, a fitted black "
+                "leather biker jacket, black leather pants, tall black boots, a compact submachine gun",
+                "now in an ATTACK pose toward the RIGHT edge of the frame: firing the compact submachine gun with "
+                "both hands, a small muzzle flash, hair swinging",
+            ),
+            (
+                "tae-o",
+                "TAE-O, a rugged middle-aged Korean man, a deserter enforcer: short black hair, a scar across his "
+                "cheek, stern face, a heavy black tactical long coat over an armoured vest, an assault rifle",
+                "now in an ATTACK pose toward the RIGHT edge of the frame: firing the assault rifle from the "
+                "shoulder, braced wide stance, a small muzzle flash",
+            ),
+            (
+                "han",
+                "HAN, a lean young Korean man, an unplugged hacker: messy black hair, a dark high-collared "
+                "techwear jacket with cyan accent lights, a handheld cyan-glowing hacking pistol/deck",
+                "now in an ATTACK pose toward the RIGHT edge of the frame: aiming the hacking pistol forward, a "
+                "compact crackling cyan electric pulse at its muzzle",
+            ),
+            (
+                "su-ah",
+                "SU-AH, a young Korean woman engineer (echo smith): black hair tied up in a bun, thin glasses, a "
+                "dark jacket and tool belt with violet/magenta light accents, a glowing violet energy blade-tool",
+                "now in an ATTACK pose toward the RIGHT edge of the frame: slashing the glowing violet "
+                "blade-tool forward, a compact violet energy arc trailing it",
+            ),
+            (
+                "kai",
+                "KAI, a slender discarded android: white ceramic body plating with black joints, a smooth white "
+                "faceplate with glowing blue eyes, an exposed mechanical right arm with copper/orange components",
+                "now in an ATTACK pose toward the RIGHT edge of the frame: thrusting the mechanical arm forward, "
+                "its forearm opened into a compact charged blue energy blast at the fist",
+            ),
+            (
+                "lin-yue",
+                "LIN-YUE, an elegant woman night-market broker: black hair pinned up with a gold hairpin, red "
+                "lips, a long black-and-gold brocade high-collared coat-dress, a small ornate pistol",
+                "now in an ATTACK pose toward the RIGHT edge of the frame: extending one arm to fire the small "
+                "ornate pistol with precision, a tiny muzzle flash, coat-dress flowing",
+            ),
+        ]
+    ],
 ]
 
 BY_KEY = {s.key: s for s in SPRITES}
@@ -435,8 +502,15 @@ def build_prompt(s: Sprite, pose: str, *, has_ref: bool) -> str:
         ref = f" {s.idle_ref_note}" if has_ref and s.idle_ref_note else ""
         body = f"{ref} Subject: {s.subject}. Idle combat-ready stance. {facing}"
     else:
+        extra = (
+            " Reference images: the FIRST is this character's full-body idle sprite; the others are close-up "
+            "portraits of the same character for face/hair identity only."
+            if s.extra_refs
+            else ""
+        )
         body = (
-            " Draw the EXACT same character/design as the reference image (same proportions, colours, armour, "
+            f"{extra} Draw the EXACT same character/design as the {'first ' if s.extra_refs else ''}reference image "
+            "(same face, hair, proportions, colours, armour, "
             f"clothing and details) — {s.poses[pose]}. Same rendering style, same facing ({side}), transparent "
             f"background. Subject for context: {s.subject}. {facing}"
         )

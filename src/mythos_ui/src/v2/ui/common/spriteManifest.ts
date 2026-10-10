@@ -120,6 +120,42 @@ export const V2_SPRITES: Record<string, Partial<Record<V2SpritePose, string>>> =
     attack: 'v2/sprites/ark-executor-attack.webp',
     hit: 'v2/sprites/ark-executor-hit.webp',
   },
+  'se-rin': {
+    idle: 'v2/sprites/se-rin-idle.webp',
+    attack: 'v2/sprites/se-rin-attack.webp',
+    hit: 'v2/sprites/se-rin-hit.webp',
+    guard: 'v2/sprites/se-rin-guard.webp',
+  },
+  'tae-o': {
+    idle: 'v2/sprites/tae-o-idle.webp',
+    attack: 'v2/sprites/tae-o-attack.webp',
+    hit: 'v2/sprites/tae-o-hit.webp',
+    guard: 'v2/sprites/tae-o-guard.webp',
+  },
+  han: {
+    idle: 'v2/sprites/han-idle.webp',
+    attack: 'v2/sprites/han-attack.webp',
+    hit: 'v2/sprites/han-hit.webp',
+    guard: 'v2/sprites/han-guard.webp',
+  },
+  'su-ah': {
+    idle: 'v2/sprites/su-ah-idle.webp',
+    attack: 'v2/sprites/su-ah-attack.webp',
+    hit: 'v2/sprites/su-ah-hit.webp',
+    guard: 'v2/sprites/su-ah-guard.webp',
+  },
+  kai: {
+    idle: 'v2/sprites/kai-idle.webp',
+    attack: 'v2/sprites/kai-attack.webp',
+    hit: 'v2/sprites/kai-hit.webp',
+    guard: 'v2/sprites/kai-guard.webp',
+  },
+  'lin-yue': {
+    idle: 'v2/sprites/lin-yue-idle.webp',
+    attack: 'v2/sprites/lin-yue-attack.webp',
+    hit: 'v2/sprites/lin-yue-hit.webp',
+    guard: 'v2/sprites/lin-yue-guard.webp',
+  },
 }
 
 /** EnemyDef id -> V2_SPRITES key. */

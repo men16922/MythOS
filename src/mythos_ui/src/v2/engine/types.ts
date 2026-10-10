@@ -339,7 +339,7 @@ export type CombatEvent =
   | { t: 'damage'; uid: string; amount: number; blocked: number; source: 'party' | 'enemy' | 'environment' }
   | { t: 'heal'; uid: string; amount: number }
   | { t: 'block'; uid: string; amount: number }
-  | { t: 'push'; uid: string; from: Pos; to: Pos; bumped?: string | 'wall' | 'cover' }
+  | { t: 'push'; uid: string; from: Pos; to: Pos; dir: Dir; bumped?: string | 'wall' | 'cover' }
   | { t: 'status'; uid: string; status: StatusKind; amount: number }
   | { t: 'death'; uid: string; cause: 'damage' | 'void' }
   | { t: 'spawn'; uid: string }

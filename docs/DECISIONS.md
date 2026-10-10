@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-10-10 — Mythos 2.0: the game is rebuilt as a client-side tactical deck-building roguelite; 1.x stays at `/?classic=1`
+
+Decision: under the owner's mandate ("fun is D, make it S, rebuild anything, by morning") the playable game becomes **Mythos 2.0 "Signal Run"** — Into the Breach-style telegraphed tactics on a 7×5 board + Slay the Spire deckbuilding + a Hades-style meta loop, with the AI GM moved off the critical path (authored text first, GM line layered on; free-text Improvise adjudicated inside engine-clamped bounds). The rules engine is **pure TypeScript in the client** (`src/mythos_ui/src/v2/engine`, seeded RNG, JSON state, `node --test`), content is typed data (`v2/content`), and the server only persists profile/run blobs and serves GM text (`src/mythos_v2`, `/api/v2`, table `v2_saves`, memory fallback). All 2.0 art and music are newly generated (Gemini image + Lyria on Vertex, Codex image for transparent sprites) under `resources/neo-seoul/v2/`. The 1.x runtime, API and SPA are untouched and remain reachable at `/?classic=1`.
+
+Reason/impact: the 2026-10-10 audit (PROGRESS_LOG) traced the D rating to structure, not polish — every click blocked on a 10–60 s LLM wall of text, choices had no defined consequences, a run was ~46 turns/1 h with no failure before the boss, and combat was won by basic-attack spam. Those are properties of the server-authoritative narrative loop itself, so the fix is a new core loop rather than another tuning pass. A client-side engine gives instant previews/undo (the heart of telegraph tactics) and makes balance measurable headlessly (bots: greedy 97 % / mixed 40 % / basic 0 % at Paradox 0). Trade-offs accepted: rules are client-trusted (single-player, no competitive stakes); 1.x systems (Narrative Director, combat engine, route map, progression) are no longer on the 2.0 path but are kept, not deleted, until the owner decides the classic build's fate. Deploying 2.0 to Cloud Run (which would change what CBT testers see) stays an owner call.
+
 ## 2026-09-07 — Bosses resist status stacking above ×2 (`BOSS_STACK_CAP`)
 
 Decision: a unit with `ai == "boss"` holds at most **2** stacks of any status (`status_rules.BOSS_STACK_CAP`), so burn tops out at ×2 on IX while every non-boss keeps the full 3/2/2 caps. A refused stack still refreshes the status's turns and is logged (`status_stack_resisted`), mirroring the 2026-07-14 boss stun guard.

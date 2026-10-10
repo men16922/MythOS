@@ -416,7 +416,7 @@ export function pushUnit(c: CombatState, C: ContentRegistry, u: UnitState, dir: 
     if (t.kind === 'void') {
       if (u.side === 'enemy' && !u.flying) {
         u.pos = next
-        emit(c, { t: 'push', uid: u.uid, from, to: { ...next } })
+        emit(c, { t: 'push', uid: u.uid, from, to: { ...next }, dir })
         u.lastHitBy = 'environment'
         killUnit(c, C, u, 'void')
         return
@@ -428,7 +428,7 @@ export function pushUnit(c: CombatState, C: ContentRegistry, u: UnitState, dir: 
   }
   const moved = !samePos(from, u.pos)
   if (!moved && !bumped) return
-  emit(c, bumped ? { t: 'push', uid: u.uid, from, to: { ...u.pos }, bumped } : { t: 'push', uid: u.uid, from, to: { ...u.pos } })
+  emit(c, bumped ? { t: 'push', uid: u.uid, from, to: { ...u.pos }, dir, bumped } : { t: 'push', uid: u.uid, from, to: { ...u.pos }, dir })
   if (bumped) {
     const extra = activePassive(c, C, 'bumpDamage')
     dealDamage(c, C, u, BUMP_DAMAGE + (u.side === 'party' ? 0 : extra), { source: 'environment' })

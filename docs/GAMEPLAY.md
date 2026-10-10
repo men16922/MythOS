@@ -1,104 +1,66 @@
-# Gameplay Design
+# Gameplay Design — Mythos 2.0 "Signal Run"
 
-최종 갱신: 2026-06-06
+최종 갱신: 2026-10-10. 1.x(AI 서사 루프형 TRPG) 규칙은 `bin/docs/archive/GAMEPLAY_1x_2026-10-10.md`.
+설계·빌드 계약 원문: `docs/plans/2026-10-10-mythos-2.0.md`. 1.x는 `/?classic=1`로 계속 열린다.
 
-이 파일은 현재 게임 규칙의 압축본이다. 장문 원문은
-`bin/docs/archive/GAMEPLAY_FULL_2026-06-06.md`를 본다.
+## 한 줄
 
-## One-Line
+예고형 전술 보드(Into the Breach) × 덱빌딩 로그라이트(Slay the Spire) × 루프 메타(Hades) × 막지 않는 AI GM.
+한 판(루프) ≈ 30분, 3막 × 8노드. 모든 입력은 결과가 보이는 결정이다.
 
-AI가 게임마스터인 1인용 루프형 TRPG/CRPG. 플레이어는 데이터 세계에 접속한 Connector이며, 루프마다 생존·단서·관계·전투 결과를 남겨 다음 루프의 세계를 바꾼다.
+## 기둥
 
-## Design Pillars
+1. **모든 클릭이 결정** — 선택지마다 비용·보상·확률이 먼저 보인다. 분위기용 선택지는 없다.
+2. **완전 정보 전술** — 적은 다음에 칠 칸을 예고한다. 피하고, 막고, 밀어서 적끼리 치게 하고, 공허로 떨어뜨린다.
+3. **빌드** — 덱(프로토콜 카드), 임플란트(유물), 동료 카드. 아키타입마다 2~3개 빌드가 성립한다.
+4. **실제 위험** — 연결자 HP 0이면 루프 종료(강제 최적화). 에코로 해금하고 다시 접속한다.
+5. **AI GM은 반응하지 막지 않는다** — 작성된 문장이 즉시 뜨고, GM 한 줄은 그 위에 얹힌다. 자유 행동(즉흥)은 엔진 범위 안에서만 판정된다.
 
-- **AI GM**: Narrative Director가 장면 묘사, 선택지, 판정 서사를 만든다.
-- **Loop memory**: Echo, Run Summary, Narrative Shard, World/Player Memory가 다음 루프에 반영된다.
-- **Survival + mystery**: stability/tension은 단기 생존 압력, Codex/lore는 장기 미스터리 진행도다.
-- **Engine-authoritative combat**: 전투 판정은 deterministic combat engine이 담당한다.
-- **Hybrid presentation**: 평소에는 읽기 좋은 서사 UI, 접속/붕괴/해금/전투는 디제틱 연출.
+## 런 구조
 
-## Core Loop
+- 아카이브(허브) → 아키타입·시작 동료·패러독스 선택 → 1막 인트로(루프 1은 프롤로그 컷).
+- 막마다 7행 지도 + 보스. 0행 전투, 6행 휴식처, 3행에 보급 상자, 엘리트는 2~5행, 상점 ≥1.
+  노드: 전투 · 엘리트 · 사건 · 암시장 · 휴식처 · 보급 상자 · 보스.
+- 1막 C-17 블랙아웃(보스 해태) · 2막 야시장 하층(보스 에코 포식자, 시작 시 동료 영입) · 3막 ARK 첨탑(보스 관리자 IX, 3페이즈).
+- IX 격파 후 엔딩 선택: 안전한 피난처(유대) · 코드 재작성(코덱스) · 고결한 희생(항상 가능). 패배 = 강제 최적화.
 
-1. Player begins or resumes a loop.
-2. AI GM presents a scene and choices/free-action affordance.
-3. Player chooses or declares an action.
-4. Runtime validates world delta, updates stability/tension/flags/memory.
-5. Scene may trigger clues, NPC state, travel, combat, ending pressure, or visual generation.
-6. Loop archives into run summary/echo/progression on ending or collapse.
+## 자원
 
-## Phases
+- **HP**(연결자 40~44) — 전투 사이에 유지. 동료가 쓰러지면 그 전투만 이탈, 이후 HP 1로 복귀.
+- **크레딧 ₵** — 전투·사건·보물로 얻고 암시장에서 쓴다.
+- **추적도 0~100** — 노드마다 +3, 시끄러운 카드·탐욕 선택지로 상승. 33 경계(적 HP+15%) · 66 추적(+25%, 피해+1) · 100 숙청(매 전투 소각 드론 추가). 휴식처·암시장·사건으로 낮춘다.
+- **스탯** 근력·민첩·지능·매력·관찰 — 사건 판정 전용. 성공률 = clamp(5, 95, 50 + (스탯 − 난이도)×10).
+- **소모품** 최대 3 — 전투 중 무료 사용.
+- **에코 ◈** — 메타 화폐(노드 +1, 엘리트 +4, 보스 +12, 승리 +25, 엔딩 보너스).
 
-`CONNECT -> EXPLORE -> INTERACT -> REWRITE -> ARCHIVE -> ENDED`
+## 전투 ("브리치 프로토콜")
 
-Phases are narrative framing and runtime state. The AI can color transitions, but runtime validation owns legal state changes.
+- 보드 7×5. 파티는 왼쪽(x 0~1), 적은 오른쪽. 타일: 바닥 · 엄폐(이동·탄 차단, 내구 2) · 위험(전기, 2 피해) · 공허(적이 밀려 들어가면 삭제, 파티에겐 벽).
+- **턴 순서**: 적이 이동·예고 → 내 턴(에너지 3, 손패 5, 유닛마다 1회 무료 이동, 공격하면 그 턴은 이동 불가) → 턴 종료 → 적이 예고대로 실행(그 칸에 있는 누구든 맞는다 — 아군 오사 포함) → 화상·위험 타일·증원 → 다시 이동·예고.
+- **예고 패턴**: 근접 · 직선탄(첫 유닛/엄폐) · 광선(관통) · 돌진 · 주변 폭발 · 포격(고정 칸) · 강화 · 소환 · **추적 조준**(피할 수 없음 — 방어·방향 전환·취소·처치로만 대응).
+  상대 패턴(근접/직선/광선/돌진/폭발)은 적을 밀면 따라 움직인다.
+- **피해**: 수치 + 표식 − 약화(2) − 장갑 → 방어도 먼저 → HP. 밀쳐서 막히면 양쪽 1 피해(충돌).
+- **승리**: 적 전멸(또는 생존 N턴). 보너스 목표(턴 제한·무피해·환경 처치·보호)는 추가 보상.
+- 카드 소유자: `any`(선택한 유닛이 사용) · `connector` · 동료 전용(쓰러지면 사용 불가). 손에 쥔 정크(추적 버그·오염된 잔향)는 턴 종료 시 불이익.
 
-## Player Systems
+## 빌드
 
-- 5 stats: Strength, Intelligence, Charisma, Agility, Perception.
-- Archetype/persona affects initial stats, prose bias, and eventually unlock gating.
-- Autonomy level gates how far the character can resist/alter the world.
-- Stability low or tension high means collapse pressure and possible loop end.
+- 아키타입: **유령 신호**(밀치기·충돌·공허 처치·순간이동) · **데이터 밀수꾼**(방향 전환·취소·감전·표식·크레딧/에너지) · **잔향 수집가**(방어·가드·가시·치유·동료 지원).
+- 동료 6: 세린(기동·보호막) · 태오(탱커·돌진·가시) · 한(해킹) · 수아(강화·카드 생성) · 카이(저격·관통·표식) · 린위에(에너지·드로우·크레딧).
+  휴식처에서 유대 +1 → 유대 2에 전용 카드, 유대 3에 대표 카드 강화.
+- 보상: 일반 전투 카드 1/3, 엘리트 카드 + 임플란트, 보스 희귀 카드 + 보스 임플란트 1/3.
 
-## Codex / Progression
+## 메타 (아카이브)
 
-Current implemented concepts:
+- 해금 22종: 아키타입 2 · 동료 5 · 카드 팩 3 · 임플란트 팩 2 · 기억의 실(영구 강화) 10.
+- 패러독스 1~5(승리 시 다음 단계 개방): 엘리트·보스 HP+20% · 시작 정크 · 추적도 가속 · 적 피해+1 · 휴식 회복 20%.
+- 코덱스(로어 19), 엔딩 도감, 런 기록. IX는 지난 루프의 죽음을 기억해 말을 건다.
 
-- Narrative Shards as clues.
-- Lore/codex unlocks.
-- Run History and run summaries.
-- Meta progression with traits/allies/items/codex unlocks.
-- Save/load for active loops; ended loops belong to history.
-- Archetype gates, skill unlock epiphanies, insight points, Codex Skill tree learning/rank-up.
+## 밸런스 기준선 (시뮬, 2026-10-10)
 
-Current focus:
+`engine/runSim.ts` + 전투 봇(`combatSim.ts`): greedy(전 수 탐색) P0 97% · mixed(¾ 정확) P0 40% · basic(예고 무시) 0%.
+패러독스 5: greedy 81% · mixed 11%. 1막 일반전 3~5턴, 보스 9~14턴.
 
-- Tune insight/skill rewards inside `neo-seoul` so progression improves replay motivation and combat choices.
+## UI 규칙
 
-## Combat
-
-Combat is a tactical submode:
-
-- Scenario data defines weapons, skills, allies, bestiary, encounters, loot.
-- Engine handles initiative, movement, range, accuracy, damage, crit, skills/items, flee, AI, outcome.
-- LLM may introduce encounters but does not decide hit/damage/outcome.
-- React renders tactical board, drag/drop movement, rosters, controls, log, VFX.
-- Streamlit uses a local JSON bridge to avoid per-action iframe remount.
-
-Current combat direction:
-
-- Character-art board sprites.
-- role/tags-driven skill animations.
-- Icon action bar.
-- Controllable party allies.
-
-Party survivability rules (2026-07-04):
-
-- A downed ally (hp<=0) sits out only the current fight; the next encounter rebuilds them at max(1, max_hp//4) (`combat_service._build_allies`).
-- Every narrative scene commit heals the player + living members `REST_RECOVERY_HP` (2) toward max — the rest beat between fights. Downed members are not rest-healed.
-- Heal/shield support skills (role healing/defense) can be directed at any friendly in range: engine `friendly_targets` + the SUPPORT TARGET row in `CombatControls` (default = most wounded).
-- `restart_core` (재기동 코어, rare consumable; market 5 scrap) revives the first downed ally mid-combat at max(bonus, max_hp//3); not consumed when nobody is down.
-- LLM scenes may grant carriable items via `world_delta.grant_items` (e.g. salvaging drone wreckage → drone_scrap): ids whitelisted to kinds consumable/material and capped 2/scene at commit (`session._filter_grant_items`), then materialized to full item defs for the inventory UI.
-
-Status effects (2026-07-12 base, 2026-09-06 intensity stacking — owner "option 2"):
-
-- Six persistent statuses, one rule row each in `mythos_combat/status_rules.py`: burn (DoT at the victim's turn start), corrode (armor down), acid (defense down), freeze (no movement, can still act), shock (no focus regen, cooldowns frozen), hacked (spends its next turn attacking its own side).
-- Reapplying a status **accumulates turns** up to its cap (burn 3, the rest 6) **and raises its stack count** where the status has a magnitude: burn `1d4 × stacks` (cap 3), corrode `-2 armor × stacks` (cap 2), acid `-2 defense × stacks` (cap 2). freeze/shock/hacked are binary gates pinned at one stack.
-- Stacks never decay per turn; they clear with the status (expiry, hacked consumption, revive — a revived unit comes back clean). The log says ` (중첩 ×N)`, the roster chip and board badge show `×N`.
-- **Boss stack resistance** (2026-09-07): a unit with `ai == "boss"` holds at most `BOSS_STACK_CAP = 2` stacks of any status (so burn tops out at ×2 on IX); the turns still refresh and the refused stack is logged (`중첩 저항!` / `stacking resisted!`). Same intent as the stun guard below — one constant in `status_rules.py`.
-- Stun is a separate ledger (`stunned_turns`, cap 3, boss follow-up stun halved) and does not stack in intensity.
-
-Current focus:
-
-- Tune Neo-Seoul encounters so each fight has a gameplay purpose: movement, focus use, ally protection, recovery, or escape pressure.
-
-## Scenario / Story Bible
-
-- `scenario.json` contains runtime data and scenario-specific GM policy.
-- `story_bible/bible.json` contains author-written snippets.
-- Only relevant snippets should enter the prompt based on phase/location/flags/NPC state.
-- Neo-Seoul 01 is primary; `glass-library` is next expansion target.
-- As of 2026-06-07, `glass-library` expansion is on hold. Current priority is making Neo-Seoul 01 feel like a complete playable scenario.
-
-## UI Rule
-
-Player UI hides raw ids, provider details, repair metrics, and infra internals. Developer UI may expose metrics, memories, flags, endings, infra links, and asset diagnostics.
+플레이어 UI에 원시 id·개발자 라벨·인프라 정보 노출 금지. KO/EN 동시 작성. 모든 피해·결과는 실행 전에 미리보기로 보인다.

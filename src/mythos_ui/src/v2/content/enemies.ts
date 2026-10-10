@@ -175,7 +175,7 @@ const ACT1: EnemyDef[] = [
   {
     id: 'haetae',
     name: t('해태', 'HAETAE'),
-    sprite: 'suppression-mech',
+    sprite: 'haetae',
     tier: 'boss',
     hp: 58,
     armor: 1,
@@ -433,7 +433,7 @@ const ACT2: EnemyDef[] = [
   {
     id: 'echo_eater',
     name: t('잔향 포식자', 'Echo Eater'),
-    sprite: 'glitch-wraith',
+    sprite: 'echo_eater',
     tier: 'boss',
     hp: 72,
     move: 3,
@@ -701,7 +701,7 @@ const ACT3: EnemyDef[] = [
   {
     id: 'administrator_ix',
     name: t('관리자 IX', 'Administrator IX'),
-    sprite: 'administrator-ix',
+    sprite: 'ix_avatar',
     tier: 'boss',
     hp: 112,
     armor: 1,

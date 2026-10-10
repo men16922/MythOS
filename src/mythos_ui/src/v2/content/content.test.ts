@@ -38,7 +38,8 @@ test('ids are unique per collection', () => {
 test('fixed ids other modules depend on exist', () => {
   for (const id of ['ghost', 'smuggler', 'echo_collector']) assert.ok(C.archetypes[id], id)
   assert.equal(C.archetypes.ghost?.startUnlocked, true)
-  for (const a of ARCHETYPES) assert.equal(a.sprite, 'player-noise')
+  // 2.0 Connector sprites (v2/sprites/<archetype>-<pose>.webp, generated) — one per archetype.
+  for (const a of ARCHETYPES) assert.ok(exists(`v2/sprites/${a.sprite}-idle.webp`), `${a.id} sprite`)
   const comps: Record<string, string> = { se_rin: 'se-rin', tae_o: 'tae-o', han: 'han', su_ah: 'su-ah', kai: 'kai', lin_yue: 'lin-yue' }
   for (const [id, sprite] of Object.entries(comps)) {
     const c = C.companions[id]
@@ -221,7 +222,10 @@ test('implants and consumables are well-formed', () => {
 test('enemies have sane, telegraphable moves and existing art', () => {
   const poses = ['idle', 'attack', 'hit', 'guard', 'skill']
   for (const e of ENEMIES) {
-    for (const pose of poses) assert.ok(exists(`enemies/combat/${e.sprite}-${pose}.png`), `${e.id} sprite ${pose}`)
+    for (const pose of poses) {
+      const v2Pose = pose === 'guard' || pose === 'skill' ? 'idle' : pose
+      assert.ok(exists(`enemies/combat/${e.sprite}-${pose}.png`) || exists(`v2/sprites/${e.sprite}-${v2Pose}.webp`), `${e.id} sprite ${pose}`)
+    }
     assert.ok(e.hp > 0 && e.hp <= 200, `${e.id} hp`)
     assert.ok(e.moves.length > 0, `${e.id} moves`)
     const ids = e.moves.map((m) => m.id)

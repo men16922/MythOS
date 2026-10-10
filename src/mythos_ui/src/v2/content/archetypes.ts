@@ -26,7 +26,7 @@ export const ARCHETYPES: ArchetypeDef[] = [
     startingImplant: 'erased_id',
     startingCredits: 80,
     startUnlocked: true,
-    sprite: 'player-noise',
+    sprite: 'ghost',
   },
   {
     id: 'smuggler',
@@ -41,7 +41,7 @@ export const ARCHETYPES: ArchetypeDef[] = [
     startingDeck: [...BASICS, 'system_hack', 'skim', 'overclock'],
     startingImplant: 'overclocked_deck',
     startingCredits: 99,
-    sprite: 'player-noise',
+    sprite: 'smuggler',
   },
   {
     id: 'echo_collector',
@@ -56,6 +56,6 @@ export const ARCHETYPES: ArchetypeDef[] = [
     startingDeck: [...BASICS, 'patch_protocol', 'shield_field', 'memory_resonance'],
     startingImplant: 'cracked_cube',
     startingCredits: 60,
-    sprite: 'player-noise',
+    sprite: 'echo_collector',
   },
 ]

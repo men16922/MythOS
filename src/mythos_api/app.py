@@ -52,6 +52,7 @@ from mythos_runtime.progression import (
 from mythos_runtime.scenario import load_scenario, load_scenario_i18n
 from mythos_runtime.session import RuntimeSessionService
 from mythos_runtime.visual_service import VisualGenerationResult
+from mythos_v2.api import create_v2_router
 
 API_PREFIX = "/api/v1"
 STATIC_DIR = Path(__file__).parent / "static"
@@ -1223,6 +1224,10 @@ def create_app() -> FastAPI:
                         close()
         except WebSocketDisconnect:
             return
+
+    # Mythos 2.0 saves + AI GM under /api/v2. The router applies the invite-key rule
+    # itself (the middleware above gates /api/v1 only). Before the "/" static mount.
+    app.include_router(create_v2_router())
 
     # Serve the PoC reference client at "/" (design slice 4 option B). Mounted
     # last so the API/WebSocket routes above take precedence over the catch-all.

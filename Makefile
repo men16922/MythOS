@@ -44,6 +44,7 @@ python-typecheck:
 	$(VENV)/bin/mypy --strict src/mythos_combat
 	$(VENV)/bin/mypy --strict src/mythos_api
 	$(VENV)/bin/mypy --strict src/mythos_runtime
+	$(VENV)/bin/mypy --strict src/mythos_v2
 
 frontend-build:
 	cd $(FRONTEND_DIR) && npm run build
@@ -282,6 +283,7 @@ test:
 
 test-db:
 	MYTHOS_LOG_LEVEL=ERROR MYTHOS_RUN_DB_TESTS=1 $(VENV)/bin/python -m unittest discover -s tests -p 'test_postgres_store.py'
+	MYTHOS_LOG_LEVEL=ERROR MYTHOS_RUN_DB_TESTS=1 $(VENV)/bin/python -m unittest discover -s tests -p 'test_v2_store.py'
 
 test-e2e:
 	$(VENV)/bin/python scratch/run_playwright_test.py

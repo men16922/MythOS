@@ -4,7 +4,7 @@ COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
-.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback narrative-smoke-fallback-en visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny connect-demo sim-boss smoke smoke-local streamlit streamlit-stop api api-stop api-cloud cloud-image cloud-run-local dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build validate-content check check-skills sync-skills check-auto _harness-guard _overnight-clean-tree overnight-env-doctor overnight-where overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-ledger-check overnight-ledger-state overnight-trajectory overnight-resume overnight-provenance-compare overnight-graph-smoke overnight-graph-measure overnight-clean overnight-claude overnight-claude-watch overnight-claude-once overnight-codex overnight-codex-watch overnight-codex-once overnight-opencode overnight-opencode-watch overnight-opencode-once overnight-agy overnight-agy-watch overnight-agy-once overnight-kiro overnight-kiro-watch overnight-kiro-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review image-regen eval-narrative eval-narrative-promotion experiment
+.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback narrative-smoke-fallback-en visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny connect-demo sim-boss smoke smoke-local streamlit streamlit-stop api api-stop api-cloud cloud-image cloud-run-local dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build test-v2 validate-content check check-skills sync-skills check-auto _harness-guard _overnight-clean-tree overnight-env-doctor overnight-where overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-ledger-check overnight-ledger-state overnight-trajectory overnight-resume overnight-provenance-compare overnight-graph-smoke overnight-graph-measure overnight-clean overnight-claude overnight-claude-watch overnight-claude-once overnight-codex overnight-codex-watch overnight-codex-once overnight-opencode overnight-opencode-watch overnight-opencode-once overnight-agy overnight-agy-watch overnight-agy-once overnight-kiro overnight-kiro-watch overnight-kiro-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review image-regen eval-narrative eval-narrative-promotion experiment
 
 setup:
 	$(PYTHON) -m venv $(VENV)
@@ -48,6 +48,10 @@ python-typecheck:
 frontend-build:
 	cd $(FRONTEND_DIR) && npm run build
 
+# Mythos 2.0 engine/content tests (pure TS, Node native type stripping — no bundler, no browser).
+test-v2:
+	cd $(FRONTEND_DIR) && node --test src/v2/
+
 validate-content:
 	PYTHONPATH=src $(VENV)/bin/python -c 'from mythos_runtime.route_content import main; raise SystemExit(main())'
 
@@ -57,6 +61,7 @@ check:
 	$(MAKE) validate-content
 	$(MAKE) lint
 	$(MAKE) typecheck
+	$(MAKE) test-v2
 	$(MAKE) test
 
 # MythOS-only skills SSOT: .claude/skills is canonical; .agents/skills (codex + agy) is the

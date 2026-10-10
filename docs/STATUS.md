@@ -4,7 +4,7 @@ Last updated: 2026-10-11
 
 ## Current Baseline
 
-**Mythos 2.0 "Signal Run" (2026-10-10, branch `mythos-2.0`) is the active game**: a client-side TypeScript tactical deck-building roguelite (Into the Breach telegraphs on a 7×5 board + Slay the Spire deck/implants + Hades-style meta loop) with the AI GM off the critical path. Engine `src/mythos_ui/src/v2/engine` (pure TS, seeded, `node --test`), content `v2/content` (89 cards, 27 enemies, 37 encounters, 44 implants, 26 events, 22 unlocks), UI `v2/ui`, server `src/mythos_v2` (`/api/v2` saves + GM narrate/improvise, `v2_saves` table with memory fallback), new art/music under `resources/neo-seoul/v2/`. Rules: `docs/GAMEPLAY.md`. The 1.x runtime below is unchanged and reachable at `/?classic=1`.
+**Mythos 2.0 "Signal Run" (2026-10-10, branch `mythos-2.0`) is the active game**: a client-side TypeScript tactical deck-building roguelite (Into the Breach telegraphs on a 7×5 board + Slay the Spire deck/implants + Hades-style meta loop) with the AI GM off the critical path. Engine `src/mythos_ui/src/v2/engine` (pure TS, seeded, `node --test`), content `v2/content` (89 cards, 27 enemies, 37 encounters, 44 implants, 38 events, 23 lore, 20 unlocks), UI `v2/ui`, server `src/mythos_v2` (`/api/v2` saves + GM narrate/improvise, `v2_saves` table with memory fallback), new art/music under `resources/neo-seoul/v2/`. Rules: `docs/GAMEPLAY.md`. The 1.x runtime below is unchanged and reachable at `/?classic=1`.
 
 The 1.x line is past local-playable MVP into a state where a React SPA + FastAPI API + Streamlit demo coexist. The core runtime is shared through a single `RuntimeSessionService`.
 
@@ -22,7 +22,7 @@ Major implemented axes:
 
 Latest verified baseline:
 
-- **2026-10-10..11 MYTHOS 2.0 BUILT (branch `mythos-2.0`, UNDEPLOYED)** — the default `/` is now 2.0; 1.x unchanged at `/?classic=1`. Gates: `node --test src/v2` (engine/content), `make test` (Python incl. `/api/v2`), tsc/eslint/vite build. Sim: greedy 97 % · mixed 40 % · basic 0 % (P0). Detail: PROGRESS_LOG 2026-10-11, `docs/plans/2026-10-10-mythos-2.0.md`, DECISIONS 2026-10-10.
+- **2026-10-10..11 MYTHOS 2.0 BUILT (branch `mythos-2.0`, UNDEPLOYED)** — the default `/` is now 2.0; 1.x unchanged at `/?classic=1`. Gates: `node --test src/v2` (engine/content), `make test` (Python incl. `/api/v2`), tsc/eslint/vite build. Sim: greedy 93 % · mixed 52 % · basic 0 % (P0); P5 92 / 11. Detail: PROGRESS_LOG 2026-10-11, `docs/plans/2026-10-10-mythos-2.0.md`, DECISIONS 2026-10-10.
 - **1.x line** — last verified state (prod `00090`, 1404 tests, 2026-09-08) folded into COMPLETED_SUMMARY M90.
 
 ## Active Focus

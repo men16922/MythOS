@@ -4,7 +4,7 @@ Last updated: 2026-10-11
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Mythos 2.0 is built on branch `mythos-2.0` (undeployed; prod is still 1.x `mythos-api-00090-ww4`).** Wait for the owner's first-play verdict (`docs/test/mythos2_first_play.md`, D–S grade) before tuning; then the ship decision (merge → no-traffic tagged Cloud Run revision or full rollout — owner call, it changes what CBT testers see). Tune with the sim harness, not by feel: `simulateRun(seed, archetype, CONTENT, policy, { onFight })` (P0 baseline greedy 95 % · mixed 45 % · basic 0 %). **Test with sound off** (`?mute=1` / localStorage `mythos2.mute=1`; owner directive) and **one browser tab only** (owner complaint). 1.x tracks (§3 verdict, serving research, Dev Graph holds) are paused behind the 2.0 verdict. `git push` stays owner.
+> ▶ NEXT SESSION: **Mythos 2.0 is built on branch `mythos-2.0` (undeployed; prod is still 1.x `mythos-api-00090-ww4`).** Wait for the owner's first-play verdict (`docs/test/mythos2_first_play.md`, D–S grade) before tuning; then the ship decision (merge → no-traffic tagged Cloud Run revision or full rollout — owner call, it changes what CBT testers see). Tune with the sim harness, not by feel: `simulateRun(seed, archetype, CONTENT, policy, { onFight })` (P0 baseline greedy 93 % · mixed 52 % · basic 0 %; P5 92 / 11). **Test with sound off** (`?mute=1` / localStorage `mythos2.mute=1`; owner directive) and **one browser tab only** (owner complaint). 1.x tracks (§3 verdict, serving research, Dev Graph holds) are paused behind the 2.0 verdict. `git push` stays owner.
 
 ## Snapshot
 
@@ -22,7 +22,7 @@ Project MythOS (`세계:접속`) — single-player SF roguelite. Since 2026-10-1
 `docs/NEXT_PLAN.md` is authoritative.
 1. Owner first play + grade → post-verdict tuning (numbers live in content files; measure before/after).
 2. Ship decision (merge, deploy shape, push) — owner.
-3. Candidates after the verdict: 2.0-style companion sprites, phone-width combat, more Act 2–3 events, daily seed, Cloud Run smoke of `/api/v2` + Vertex GM.
+3. Candidates after the verdict: phone-width combat, Act 2 normal-fight tension (skilled play takes ~0 damage), Act 3 burst cards, daily seed, Cloud Run smoke of `/api/v2` + Vertex GM.
 
 ## Read Order
 
@@ -34,7 +34,7 @@ Project MythOS (`세계:접속`) — single-player SF roguelite. Since 2026-10-1
 
 ## Commands
 
-- Full gate: `make check` (skills, doc budget, content, ruff/eslint, mypy + tsc/vite build, `test-v2`, `test-e2e-v2`, `test`)
+- Full gate: `make check` (skills, doc budget, content, ruff/eslint, mypy + tsc/vite build, `test-v2`, `test`); browser smokes run separately (`make test-e2e-v2`, `make test-e2e`) after `make frontend-build`
 - 2.0 engine/content tests: `make test-v2`; 2.0 browser smoke: `make test-e2e-v2`; classic browser E2E: `make test-e2e`
 - Local play: `make api` (port busy → `MYTHOS_API_PORT=8010 make api`), Vite dev `cd src/mythos_ui && npx vite`; combat sandbox `/?sandbox=combat&mute=1`
 - Infra: `make dev-up` / `make dev-down`

@@ -13,7 +13,7 @@ Design/contract: `docs/plans/2026-10-10-mythos-2.0.md` · rules: `docs/GAMEPLAY.
 - `[ ]` `[manual]` **Owner first play + D–S grade** — the five judgements in the guide. Every 1.x item below is paused behind this.
 - `[ ]` `[manual]` **Ship decision** — merge `mythos-2.0` → `main`, then either a no-traffic tagged Cloud Run revision for the owner/admins or a full rollout (changes what CBT testers see). Push stays owner.
 - `[ ]` **Post-verdict tuning** — numbers live in `v2/content/enemies.ts`/`encounters.ts`/`archetypes.ts`; measure with the runSim harness (`simulateRun(..., { onFight })`, policies greedy/mixed/basic) before and after. Baseline P0: 97 / 40 / 0 %.
-- `[ ]` **Candidates once the verdict lands** (not seeds yet): companion combat sprites regenerated in the 2.0 style, phone-width combat layout, more Act 2–3 events, daily-seed mode, Cloud Run smoke of `/api/v2` + GM on Vertex.
+- `[ ]` **Candidates once the verdict lands** (not seeds yet): phone-width combat layout, Act 2 normal-fight tension (a careful player takes ~0 damage there), more Act 3 burst cards, daily-seed mode, Cloud Run smoke of `/api/v2` + GM on Vertex.
 
 ## Hold — MythOS Dev Graph post-baseline owner gates
 

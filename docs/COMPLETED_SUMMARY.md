@@ -396,8 +396,8 @@
 ## M91 — Mythos 2.0 "Signal Run" built overnight (2026-10-10..11, branch `mythos-2.0`)
 
 - **Purpose**: owner mandate — fun D → S, rebuild anything by morning. Replaced the LLM-gated narrative loop with a client-side tactical deck-building roguelite; AI GM moved off the critical path (DECISIONS 2026-10-10).
-- **Output**: TS engine (`v2/engine`: telegraph combat incl. track lock-ons, push/bump/void/friendly fire, enemy AI, triggers, bonus objectives; StS map, events + bounded Improvise, shop/rest/treasure, endings, Archive meta, Paradox 1–5; greedy/mixed/basic bots + run sim), content (89 cards, 27 enemies, 37 encounters, 44 implants, 26 events, 20 unlocks), UI (shell + juicy combat board, procedural SFX, looped music, coach marks), `/api/v2` saves + GM, ~31 MB generated assets (Gemini image, Lyria, Codex sprites). Classic kept at `/?classic=1`.
-- **Evidence**: `node --test src/v2` 131 pass; `make test` pass; `test-e2e` (classic) + `test-e2e-v2` pass; sim P0 greedy 95 % / mixed 45 % / basic 0 %; two muted agent playtests with fixes.
+- **Output**: TS engine (`v2/engine`: telegraph combat incl. track lock-ons, push/bump/void/friendly fire, enemy AI, triggers, bonus objectives; StS map, events + bounded Improvise, shop/rest/treasure, endings, Archive meta, Paradox 1–5; greedy/mixed/basic bots + run sim), content (89 cards, 27 enemies, 37 encounters, 44 implants, 38 events, 23 lore, 20 unlocks), UI (shell + juicy combat board, procedural SFX, looped music, coach marks), `/api/v2` saves + GM, ~33 MB generated assets (Gemini image, Lyria, Codex sprites). Classic kept at `/?classic=1`.
+- **Evidence**: `node --test src/v2` 138 pass; `make test` pass; `test-e2e` (classic) + `test-e2e-v2` pass; sim P0 greedy 93 % / mixed 52 % / basic 0 % (P5 92 / 11); three muted agent playtests (the last through IX → ending → Archive) with fixes.
 - **Open**: owner first-play grade, ship decision, push.
 
 ## Archive Reference

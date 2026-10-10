@@ -1,10 +1,19 @@
 # Project MythOS Next Plan
 
-Last updated: 2026-09-08
+Last updated: 2026-10-11
 
 This file keeps only upcoming (open) work as a rolling plan. Completed tracks live in
 `docs/COMPLETED_SUMMARY.md`, detailed logs in `bin/docs/archive/progress-2026-0*.md`, individual designs in
 `docs/plans/` (completed plans move to `bin/docs/plans/`).
+
+## Priority 0 — Mythos 2.0 (branch `mythos-2.0`, built 2026-10-10..11)
+
+Design/contract: `docs/plans/2026-10-10-mythos-2.0.md` · rules: `docs/GAMEPLAY.md` · owner guide: `docs/test/mythos2_first_play.md`.
+
+- `[ ]` `[manual]` **Owner first play + D–S grade** — the five judgements in the guide. Every 1.x item below is paused behind this.
+- `[ ]` `[manual]` **Ship decision** — merge `mythos-2.0` → `main`, then either a no-traffic tagged Cloud Run revision for the owner/admins or a full rollout (changes what CBT testers see). Push stays owner.
+- `[ ]` **Post-verdict tuning** — numbers live in `v2/content/enemies.ts`/`encounters.ts`/`archetypes.ts`; measure with the runSim harness (`simulateRun(..., { onFight })`, policies greedy/mixed/basic) before and after. Baseline P0: 97 / 40 / 0 %.
+- `[ ]` **Candidates once the verdict lands** (not seeds yet): companion combat sprites regenerated in the 2.0 style, phone-width combat layout, more Act 2–3 events, daily-seed mode, Cloud Run smoke of `/api/v2` + GM on Vertex.
 
 ## Hold — MythOS Dev Graph post-baseline owner gates
 
@@ -12,7 +21,7 @@ Authority: `docs/reports/2026-07-28-heldout-v1-clean-repair0-baseline.md`. Owner
 
 - `[ ]` `[manual]` **Harness remote publication** — push upstream commit/tag and update the public marketplace only on explicit approval; not required for local P2 evidence.
 
-## Priority 0 — §3 HOLD follow-through before another promotion sample
+## Paused behind 2.0 — §3 HOLD follow-through before another promotion sample
 
 Closed items are folded out of this file (its rule: open work only) — 2026-08 defect sweep, 2026-09-05 review residuals, serving-research P0/P0-2/P1-2/T4, status-effect stacking, `_weapon_in_range`, the 2026-09-06 seed batch: see `COMPLETED_SUMMARY.md` M79–M80 and PROGRESS_LOG.
 

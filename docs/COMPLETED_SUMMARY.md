@@ -1,6 +1,6 @@
 # Completed Summary
 
-최종 갱신: 2026-09-06
+최종 갱신: 2026-10-11
 
 이 문서는 완료된 milestone의 압축 요약이다. 세부 작업 로그와 검증 기록은 `bin/docs/archive/IMPLEMENTATION_M0_M10.md`, `bin/docs/archive/progress-2026-05.md`, `bin/docs/archive/progress-2026-06.md`를 참고한다. 최신 짧은 로그만 `PROGRESS_LOG.md`에 남긴다.
 
@@ -386,6 +386,12 @@
 - **Output**: `exp_option_matrix.py --engine {ollama,mlx,vllm,llamacpp}` with four families (delivery form · logit penalties sent twice · truncation samplers at T=1.0 · JSON mode); `engine_options.py` `mlx` row measured and rewritten (`top_k`/`repetition_penalty` top-level, `json_object` dropped + reported); Ollama row re-confirmed with `top_p` now measured. `narrative_judge.py` `--model` pin (`EVAL_JUDGE_MODEL` = critic pin), `scripts/eval/judge_resolution.py` + tests, 5-run resolution on the development split: overall 1 point / `register` 2 on one sample, 0 on the other (lower bound — floor effect).
 - **Facts recorded**: mlx-lm 0.31.3 first-penalised-request processor drop; gemma4 reasoning tokens eat `max_tokens` on Ollama; anaconda mlx-lm broken vs transformers 5.13. Refs: `docs/reference/2026-09-06-mlx-lm-server-capability-check.md` (addendum), `docs/reference/2026-09-08-judge-resolution.md`, `experiments/results/20260908-142007/142102-option-matrix`.
 - **Boundary**: `vllm`/`llamacpp` rows remain unverified (no engine here); the promotion bank was not rescored; P4-3 (median rule / drop the gate) is the owner's, as is any director change for the MLX penalty quirk.
+
+## M90 — 1.x final verified baseline, folded out of STATUS when 2.0 took the active slot (2026-08-13..09-08)
+
+- **Purpose**: keep the last 1.x state findable after STATUS switched to Mythos 2.0 (2026-10-10). Prod = `mythos-api-00090-ww4` (2026-09-08, 0 WARNING+), 1404 tests at the time.
+- **Folded entries** (detail: PROGRESS_LOG archives + M86–M89): MLX adapter row measured + judge pinned/resolution declared (M89) · directive KO/EN lock + `noUncheckedIndexedAccess` (`1daa83e`/`0b0f153`) · quality-ladder batch 2 (M87) · deploy `00090` (boss stack resistance, strict-mypy batch) · boss stack resistance `BOSS_STACK_CAP = 2` (M88) · 09-05/09-06 deploys `00085`→`00089` (M86/M88) · per-turn token usage logging · §3 sample admitted and scored — judge variance ≈ 1 point, so the owner feel verdict is the only usable basis.
+- **Still open on the 1.x line** (now paused behind the 2.0 verdict): §3 ending/overall feel verdict, stack/boss-cap feel verdict, P4-3 judge rule, upstream repetition.
 
 ## Archive Reference
 

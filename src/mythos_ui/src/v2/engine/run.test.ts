@@ -688,3 +688,29 @@ test('abandonRun ends the run; ended runs ignore actions', () => {
   const p = applyRunEnd(P0, run, C)
   assert.equal(p.history[0]?.result, 'abandoned')
 })
+
+test('final boss goes straight to the ending choice; boss wins raise surviving bonds', () => {
+  let run = start(7, unlocked('comp_tae_o'))
+  let finalBossSeen = false
+  for (let steps = 0; run.screen.kind !== 'ended' && steps < 600; steps++) {
+    const before = run.screen
+    const bondsBefore = run.party.map((m) => m.bond)
+    const next = autoStep(run)
+    if (before.kind === 'combat' && before.nodeKind === 'boss' && next.screen.kind !== 'combat') {
+      if (run.act === 3) {
+        finalBossSeen = true
+        assert.equal(next.screen.kind, 'final_choice', 'no loot screen after the final boss')
+      } else {
+        assert.equal(next.screen.kind, 'reward')
+      }
+      const survivors = before.combat.units.filter((u) => u.side === 'party' && u.uid !== 'connector' && u.hp > 0)
+      // autoStep may resolve the fight itself; compare against the party as it stood before the step.
+      for (const [i, m] of run.party.entries()) {
+        const after = next.party.find((p) => p.id === m.id)
+        if (after && survivors.some((u) => u.uid === m.id)) assert.ok(after.bond >= Math.min(3, (bondsBefore[i] ?? 0) + 1), `${m.id} bond`)
+      }
+    }
+    run = next
+  }
+  assert.ok(finalBossSeen)
+})

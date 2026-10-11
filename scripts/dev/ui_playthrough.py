@@ -174,7 +174,7 @@ def act_once(page: Page, state: dict) -> bool:
         for sel in (
             ".m2-rpick__opt:not([disabled])",
             ".m2-rrow--implant:not([disabled])",
-            ".m2-rrow:not([disabled]):not(.is-taken)",
+            "button.m2-rrow:not([disabled]):not(.is-taken)",  # the echo row is a plain div: not clickable,
         ):
             if click_first(page, sel):
                 return True
@@ -192,13 +192,17 @@ def act_once(page: Page, state: dict) -> bool:
             return True
         return click_first(page, ".m2-rest__done .m2-btn--primary")
     if kind == "treasure":
-        return click_first(page, ".m2-treasure .m2-btn--primary, .m2-treasure button")
+        if click_first(page, ".m2-treasure__loot .m2-btn--primary"):
+            return True
+        return click_first(page, ".m2-cache")  # the chest opens on click
     if kind == "card_pick":
-        if click_first(page, ".m2-pick, .m2-cardpick__card, .m2-cardpick .m2-card"):
-            page.wait_for_timeout(200)
-        return click_first(page, ".m2-btn--primary:not([disabled])") or click_first(
-            page, "button:has-text('취소')"
-        )
+        # Confirm when a card is selected; otherwise select the first one (a second click would deselect it).
+        if click_first(
+            page,
+            ".m2-pick__actions .m2-btn--primary:not([disabled]), .m2-pick__actions .m2-btn--danger:not([disabled])",
+        ):
+            return True
+        return click_first(page, ".m2-cardgrid > *")
     if kind == "final_choice":
         return click_first(page, ".m2-final button:not([disabled])")
     return False
@@ -348,6 +352,15 @@ def play_one(
         if sig != last_sig:
             last_sig, last_change = sig, time.time()
         elif time.time() - last_change > STUCK_SECONDS:
+            shot = os.environ.get("PLAYTHROUGH_SHOT")
+            if shot:
+                page.screenshot(path=f"{shot}/stuck_{st['kind']}.png")
+                print(
+                    "   stuck buttons:",
+                    page.evaluate(
+                        "() => [...document.querySelectorAll('button')].filter((b) => b.offsetParent).map((b) => (b.className.split(' ')[0] + (b.disabled ? '[disabled]' : '') + ':' + b.textContent.trim().slice(0, 24)))"
+                    ),
+                )
             return False, f"stuck on {st['kind']} for {STUCK_SECONDS}s: {st}", seen
         if not act_once(page, st):
             page.wait_for_timeout(500)

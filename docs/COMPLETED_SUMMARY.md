@@ -393,6 +393,13 @@
 - **Folded entries** (detail: PROGRESS_LOG archives + M86–M89): MLX adapter row measured + judge pinned/resolution declared (M89) · directive KO/EN lock + `noUncheckedIndexedAccess` (`1daa83e`/`0b0f153`) · quality-ladder batch 2 (M87) · deploy `00090` (boss stack resistance, strict-mypy batch) · boss stack resistance `BOSS_STACK_CAP = 2` (M88) · 09-05/09-06 deploys `00085`→`00089` (M86/M88) · per-turn token usage logging · §3 sample admitted and scored — judge variance ≈ 1 point, so the owner feel verdict is the only usable basis.
 - **Still open on the 1.x line** (now paused behind the 2.0 verdict): §3 ending/overall feel verdict, stack/boss-cap feel verdict, P4-3 judge rule, upstream repetition.
 
+## M92 — 2.0 feedback round: battlefield effects, sound, companion identity, AI presence, visible save (2026-10-11)
+
+- **Purpose**: owner's first-session feedback on 2.0 ("feel is good"): AoE/wall impact, weak sound, invisible DoT/passives, character cards, natural Korean, visible save, the LLM conversation back.
+- **Output**: ground layer (burning / live tiles) + board FX by element, wall slams, punchier SFX bus; companion combat passives + 12 companion reward cards (art) + weighted rewards; safehouse companion chat, GM narration card, IX combat comms (`/api/v2/gm/talk`); pause menu + autosave indicator + Continue detail; Korean pass across content/UI.
+- **Evidence**: `node --test src/v2` 161 pass; `test_v2_*.py` 103 pass; ruff/mypy-strict/tsc/eslint clean; sim P0 greedy 93 % / mixed 38 % / basic 0 % (P5 83 / 6); headless save/continue check; FX loudness measured offline (no audible playback).
+- **Open**: owner listen-test of the new SFX; boss narration has no UI call site (only IX comms); IX LLM lines are generic vs authored.
+
 ## M91 — Mythos 2.0 "Signal Run" built overnight (2026-10-10..11, branch `mythos-2.0`)
 
 - **Purpose**: owner mandate — fun D → S, rebuild anything by morning. Replaced the LLM-gated narrative loop with a client-side tactical deck-building roguelite; AI GM moved off the critical path (DECISIONS 2026-10-10).

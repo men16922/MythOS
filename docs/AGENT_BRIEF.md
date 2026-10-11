@@ -4,7 +4,7 @@ Last updated: 2026-10-11
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Mythos 2.0 is built on branch `mythos-2.0` (undeployed; prod is still 1.x `mythos-api-00090-ww4`).** Wait for the owner's first-play verdict (`docs/test/mythos2_first_play.md`, D–S grade) before tuning; then the ship decision (merge → no-traffic tagged Cloud Run revision or full rollout — owner call, it changes what CBT testers see). Tune with the sim harness, not by feel: `simulateRun(seed, archetype, CONTENT, policy, { onFight })` (P0 baseline greedy 93 % · mixed 52 % · basic 0 %; P5 92 / 11). **Test with sound off** (`?mute=1` / localStorage `mythos2.mute=1`; owner directive) and **one browser tab only** (owner complaint). 1.x tracks (§3 verdict, serving research, Dev Graph holds) are paused behind the 2.0 verdict. `git push` stays owner.
+> ▶ NEXT SESSION: **Mythos 2.0 is built on branch `mythos-2.0` (undeployed; prod is still 1.x `mythos-api-00090-ww4`).** Wait for the owner's first-play verdict (`docs/test/mythos2_first_play.md`, D–S grade) before tuning; then the ship decision (merge → no-traffic tagged Cloud Run revision or full rollout — owner call, it changes what CBT testers see). Tune with the sim harness, not by feel: `simulateRun(seed, archetype, CONTENT, policy, { onFight })` (P0 baseline greedy 93 % · mixed 38 % · basic 0 %; P5 83 / 6 — after the 2026-10-11 ground-effects round). **Test with sound off** (`?mute=1` / localStorage `mythos2.mute=1`; owner directive) and **one browser tab only** (owner complaint). 1.x tracks (§3 verdict, serving research, Dev Graph holds) are paused behind the 2.0 verdict. `git push` stays owner.
 
 ## Snapshot
 
@@ -14,7 +14,7 @@ Project MythOS (`세계:접속`) — single-player SF roguelite. Since 2026-10-1
 - `src/mythos_ui/src/v2/engine` — pure TS, seeded RNG, JSON state, reducers; tests `node --test` (`make test-v2`). Combat (`combat.ts`/`effects.ts`/`intents.ts`), run/map/meta (`run.ts`/`map.ts`/`meta.ts`), bots + sim (`combatSim.ts`/`runSim.ts`). Contract: `types.ts`.
 - `v2/content` — typed data: cards, enemies, encounters, implants, consumables, companions, archetypes, events, lore, endings, IX lines, acts, unlocks, paradox. `content.test.ts`/`narrative.test.ts` guard integrity and quotas.
 - `v2/ui` — shell screens (`ui/shell`), combat board/animator (`ui/combat`), shared components, `ui/common` (assets, `sfx.ts` procedural WebAudio, `audio.ts` buffer-looped music + hard mute, generated `artManifest.ts`/`spriteManifest.ts`).
-- `src/mythos_v2` — `/api/v2` (profile/run saves in `v2_saves`, memory fallback; GM `narrate`/`improvise` via Ollama/Gemini with authored fallbacks). Client `v2/net/api.ts` mirrors to localStorage.
+- `src/mythos_v2` — `/api/v2` (profile/run saves in `v2_saves`, memory fallback; GM `narrate`/`improvise` + `talk` (companion chat, IX comms; `talk.py`) via Ollama/Gemini with authored fallbacks). Client `v2/net/api.ts` mirrors to localStorage; authored talk pools are duplicated in `ui/shell/talkLines.ts` (keep in sync).
 - `resources/neo-seoul/v2/` — all-new 2.0 art/music/sprites (Gemini image, Lyria, Codex image); regenerate via `scripts/v2_assets/` (idempotent, `--force`).
 
 ## Active Work

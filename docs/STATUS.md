@@ -22,6 +22,7 @@ Major implemented axes:
 
 Latest verified baseline:
 
+- **2026-10-11 2.0 feedback round** — ground effects + board FX, punchier SFX, companion passives/cards, AI companion chat + GM card + IX comms, visible autosave. Sim P0 greedy 93 % · mixed 38 % (P5 83 / 6). Detail: PROGRESS_LOG 2026-10-11, DECISIONS 2026-10-11.
 - **2026-10-10..11 MYTHOS 2.0 BUILT (branch `mythos-2.0`, UNDEPLOYED)** — the default `/` is now 2.0; 1.x unchanged at `/?classic=1`. Gates: `node --test src/v2` (engine/content), `make test` (Python incl. `/api/v2`), tsc/eslint/vite build. Sim: greedy 93 % · mixed 52 % · basic 0 % (P0); P5 92 / 11. Detail: PROGRESS_LOG 2026-10-11, `docs/plans/2026-10-10-mythos-2.0.md`, DECISIONS 2026-10-10.
 - **1.x line** — last verified state (prod `00090`, 1404 tests, 2026-09-08) folded into COMPLETED_SUMMARY M90.
 

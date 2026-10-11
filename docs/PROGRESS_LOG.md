@@ -2,6 +2,17 @@
 
 Last updated: 2026-10-11
 
+## 2026-10-11 — 2.0 feedback round: battlefield effects, punchier sound, companion identity, AI back in front, visible auto-save
+
+- Owner played 2.0 ("feel is good") and asked for: AoE impact on the area itself, wall-bump impact, stronger sound, visible DoT/passives, stronger character cards, turn-to-target before casting, more natural/expressive Korean, a visible save/continue, and the LLM conversation back. All addressed (three parallel agents: combat FX + SFX, Korean writing pass, AI presence; lead: engine/content/save).
+- **Engine**: ground layer (`ignite` → burning tiles, `electrify` → temporary live wire; burn floor ≥ 2, enemy-lit ground survives into the player's turn; AI avoids both), `area` / `fire` / `passive` events and `damage.cause` (burn/hazard/bump) for the board, `push.slam` (extra bump damage), area redirect/cancel, casters keep facing their target, companion combat passives (`combatPassive`, owner-only triggers), companion reward cards gated to the party + weighted rewards.
+- **Content**: 12 new companion cards (2 each, Gemini art), fire/electric on 9 cards/items and 4 enemy types, companion card buffs; 101 cards. Korean pass over events/lore/acts/endings/IX/cards/enemies/UI (voice per character, '~한다' rules text, unified terms: 수호, 접속자, 은신처, 정예, 붕괴 구역, 전기 바닥).
+- **Board/sound**: per-tile eruptions by element with scorch, flames/arcs on live tiles with turn badges, burning-unit flames, wall/cover/unit slams ("쾅!", hit-stop, cracks), turn-before-cast; SFX bus with its own punchier compressor + limiter (push +23 dB, burn +7, hits +4; stacked hits no longer clip: 1.34 → 0.98 peak), new cues explosion/ignite/zap/wall_slam/….
+- **AI presence**: safehouse companion chat (LLM in voice, injection-hardened, authored fallbacks), GM narration card on events + act intros, IX comms in combat (7 triggers). `POST /api/v2/gm/talk`.
+- **Save**: every action auto-saves (already true); now visible — HUD "자동 저장" pulse, pause menu in HUD + combat (save & quit / settings / abandon), Continue shows place + time. Headless check: turn 2 before quit = after Continue = after reload.
+- Sim P0 (60 runs): greedy 93 % · mixed 38 % · basic 0 %; P5 83 / 6.
+- Verified: `node --test src/v2` 161 pass, `test_v2_*.py` 103 pass, ruff/mypy-strict/tsc/eslint clean, `make check` (see commit), `make test-e2e-v2`.
+
 ## 2026-10-10..11 — Mythos 2.0 "Signal Run" built overnight (branch `mythos-2.0`, undeployed)
 
 - Status: the owner rated the 1.x game's fun "D" and authorised a full rebuild by morning ("rebuild anything; keep what's fun"). Audit (two read-only sweeps + a local play session): every click waited 10–60 s on an LLM wall of text; choices had no defined consequences; a run was ~46 turns / 1 h with no failure before the boss; combat was won by basic-attack spam; builds were flat stat boons; the UI was a dev console. Decision + trade-offs: DECISIONS 2026-10-10; design/contract `docs/plans/2026-10-10-mythos-2.0.md`; rules `docs/GAMEPLAY.md`.

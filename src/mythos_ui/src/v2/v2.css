@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
+/* Latin display/mono faces are bundled (@fontsource, imported in App2.tsx); only Korean comes from Google Fonts. */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
 
 /* =====================================================================
    Mythos 2.0 — "Signal Run" visual system.

@@ -1,4 +1,5 @@
 // Dev-only combat sandbox entry at /?sandbox=combat (see SandboxApp.tsx).
+import '../../fonts.ts'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { CombatSandbox } from './SandboxApp.tsx'

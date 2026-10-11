@@ -146,7 +146,7 @@ export function damageCover(c: CombatState, p: Pos, amount: number): void {
     t.kind = 'floor'
     delete t.hp
     emit(c, { t: 'tile', pos: { ...p }, kind: 'floor' })
-  }
+  } else emit(c, { t: 'cover', pos: { ...p }, hp: t.hp })
 }
 
 /** Nearest unoccupied standable tile to `from` (BFS over the board; floor preferred over hazard). */
@@ -501,7 +501,7 @@ export function decayGround(c: CombatState): void {
             t.kind = 'floor'
             emit(c, { t: 'tile', pos: { x, y }, kind: 'floor' })
           }
-        }
+        } else emit(c, { t: 'ttl', pos: { x, y }, turns: t.ttl })
       }
     }),
   )
@@ -852,7 +852,10 @@ function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resol
           t.kind = 'hazard'
           t.ttl = turns
           emit(c, { t: 'tile', pos: { ...p }, kind: 'hazard' })
-        } else if (t.kind === 'hazard' && t.ttl !== undefined) t.ttl = Math.max(t.ttl, turns)
+        } else if (t.kind === 'hazard' && t.ttl !== undefined && turns > t.ttl) {
+          t.ttl = turns
+          emit(c, { t: 'ttl', pos: { ...p }, turns })
+        }
       }
       return
     }

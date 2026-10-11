@@ -4,8 +4,11 @@
 // Pure: every function returns a new profile (or a derived value) and never touches
 // storage. A RunState is self-contained, so banking reads only the run + content.
 
+import { DAILY_CAP, isBetterDaily, isDateKey } from './daily.ts'
 import type {
   ContentRegistry,
+  DailyRecord,
+  DailyResult,
   ImplantPassive,
   Lang,
   MetaProfile,
@@ -68,6 +71,7 @@ export function newProfile(name: string, settings: Partial<MetaProfile['settings
     companionsMet: [],
     history: [],
     settings: { lang: 'ko', sfx: true, bgm: true, fastAnim: false, ...settings },
+    daily: {},
   }
 }
 
@@ -97,7 +101,39 @@ function migrateRecord(raw: unknown): RunRecord | null {
   }
   if (typeof raw.killedBy === 'string') rec.killedBy = raw.killedBy
   if (typeof raw.chronicle === 'string') rec.chronicle = raw.chronicle
+  if (isDateKey(raw.daily)) rec.daily = raw.daily
   return rec
+}
+
+function migrateDailyResult(raw: unknown): DailyResult | null {
+  if (!isObj(raw)) return null
+  const res: DailyResult = {
+    archetype: str(raw.archetype),
+    won: raw.won === true,
+    act: int(raw.act, 1, 3),
+    floors: int(raw.floors, 0),
+    echoes: int(raw.echoes, 0),
+    kills: int(raw.kills, 0),
+  }
+  if (typeof raw.secs === 'number' && Number.isFinite(raw.secs) && raw.secs >= 0) res.secs = Math.floor(raw.secs)
+  return res
+}
+
+/** Newest DAILY_CAP days, valid date keys only. */
+function capDaily(daily: Record<string, DailyRecord>): Record<string, DailyRecord> {
+  const keep = Object.keys(daily).filter(isDateKey).sort().reverse().slice(0, DAILY_CAP)
+  return Object.fromEntries(keep.map((k) => [k, daily[k] as DailyRecord]))
+}
+
+function migrateDaily(raw: unknown): Record<string, DailyRecord> {
+  if (!isObj(raw)) return {}
+  const out: Record<string, DailyRecord> = {}
+  for (const [key, rec] of Object.entries(raw)) {
+    if (!isDateKey(key) || !isObj(rec)) continue
+    const best = migrateDailyResult(rec.best)
+    if (best) out[key] = { attempts: int(rec.attempts, 1), best }
+  }
+  return capDaily(out)
 }
 
 /** Coerce anything (old saves, garbage, partial JSON) into a valid profile. Never throws. */
@@ -129,6 +165,7 @@ export function migrateProfile(raw: unknown): MetaProfile {
       bgm: bool(settings.bgm, base.settings.bgm),
       fastAnim: bool(settings.fastAnim, base.settings.fastAnim),
     },
+    daily: migrateDaily(r.daily),
   }
   const death = r.lastDeath
   if (isObj(death) && typeof death.killedBy === 'string') {
@@ -279,9 +316,32 @@ export function runKilledBy(run: RunState): string | undefined {
 
 const union = (a: readonly string[], b: readonly string[]): string[] => [...new Set([...a, ...b])]
 
+/** A finished run as a daily result (echoes = what it banked). */
+export function dailyResultOf(run: RunState, echoes: number): DailyResult {
+  const res: DailyResult = {
+    archetype: run.archetype,
+    won: run.screen.kind === 'ended' && run.screen.result === 'victory',
+    act: run.act,
+    floors: run.tally.floors,
+    echoes,
+    kills: run.tally.kills,
+  }
+  const secs = (Date.parse(run.endedAt ?? '') - Date.parse(run.startedAt)) / 1000
+  if (Number.isFinite(secs) && secs >= 0) res.secs = Math.round(secs)
+  return res
+}
+
+/** Count one more attempt on `date` and keep the better of the old best and `result`. */
+export function recordDaily(daily: MetaProfile['daily'], date: string, result: DailyResult): Record<string, DailyRecord> {
+  const prev = daily?.[date]
+  const best = prev && !isBetterDaily(result, prev.best) ? prev.best : result
+  return capDaily({ ...(daily ?? {}), [date]: { attempts: (prev?.attempts ?? 0) + 1, best } })
+}
+
 /**
  * Bank a finished run into the profile: echoes (+ending bonus, +victory), history (capped),
- * totals, paradox unlock, codex/endings/companions met, last death, loops + 1.
+ * totals, paradox unlock, codex/endings/companions met, last death, loops + 1, and for a
+ * daily-seed run that day's record (attempts + 1, best kept).
  * Idempotent per run id; a run that has not ended returns the profile unchanged.
  */
 export function applyRunEnd(profile: MetaProfile, run: RunState, C: ContentRegistry, chronicle?: string): MetaProfile {
@@ -306,6 +366,7 @@ export function applyRunEnd(profile: MetaProfile, run: RunState, C: ContentRegis
   }
   if (killedBy) record.killedBy = killedBy
   if (chronicle) record.chronicle = chronicle
+  if (isDateKey(run.daily)) record.daily = run.daily
 
   const next: MetaProfile = {
     ...profile,
@@ -324,5 +385,6 @@ export function applyRunEnd(profile: MetaProfile, run: RunState, C: ContentRegis
     settings: { ...profile.settings },
   }
   if (!victory && !abandoned && killedBy) next.lastDeath = { killedBy, act: run.act, loop: run.loop }
+  if (isDateKey(run.daily)) next.daily = recordDaily(profile.daily, run.daily, dailyResultOf(run, earned))
   return next
 }

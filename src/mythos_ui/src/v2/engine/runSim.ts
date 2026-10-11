@@ -83,6 +83,8 @@ export interface RunSimOptions {
   profile?: MetaProfile
   /** Combat turn cap per fight; a fight still running after it counts as lost. */
   maxTurns?: number
+  /** Play that date's daily-seed run instead (the `seed` argument is then ignored). */
+  daily?: string
 }
 
 const SIM_EPOCH = '2026-01-01T00:00:00.000Z'
@@ -376,7 +378,7 @@ export function simulateRun(
 ): RunSimResult {
   const profile = opts.profile ?? newProfile('sim')
   const maxTurns = opts.maxTurns ?? 30
-  let run = newRun(profile, { archetype, paradox: opts.paradox ?? 0, seed, now: SIM_EPOCH }, C)
+  let run = newRun(profile, { archetype, paradox: opts.paradox ?? 0, seed, now: SIM_EPOCH, daily: opts.daily }, C)
   for (let step = 0; run.screen.kind !== 'ended'; step++) {
     if (step >= MAX_STEPS) throw new Error(`runSim: step limit on ${run.screen.kind} (seed ${seed})`)
     const next = decide(run, C, policy, maxTurns, opts.onFight)

@@ -1,5 +1,5 @@
 {
- "image_calls": 221,
+ "image_calls": 224,
  "image_failed": 325,
  "lyria_calls": 21,
  "lyria_failed": 0,
@@ -109,6 +109,14 @@
    "refs": [],
    "seed": 262181880,
    "ts": "2026-10-11T00:33:43"
+  },
+  "cards/armor_breaker.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: an image for the ability 'Armor Breaker' (Deal 5, ignoring armor and block.). Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 198907405,
+   "ts": "2026-10-11T10:12:54"
   },
   "cards/barricade.webp": {
    "generations": 1,
@@ -229,6 +237,14 @@
    "refs": [],
    "seed": 996195445,
    "ts": "2026-10-11T00:05:04"
+  },
+  "cards/execution_protocol.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: an image for the ability 'Execution Protocol' (Deal 8. +8 against a marked target.). Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 386522808,
+   "ts": "2026-10-11T10:12:56"
   },
   "cards/firebomb.webp": {
    "generations": 1,
@@ -539,6 +555,14 @@
    "refs": [],
    "seed": 202710662,
    "ts": "2026-10-11T00:16:00"
+  },
+  "cards/overcharge_lance.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: an image for the ability 'Overcharge Lance' (Beam 5: deal 10 to each unit, ignoring armor and block. Exhaust.). Mood: a dynamic action moment, strong motion and impact. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1231776731,
+   "ts": "2026-10-11T10:13:00"
   },
   "cards/overclock.webp": {
    "generations": 1,

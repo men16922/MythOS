@@ -1758,6 +1758,57 @@ const COMPANION_CARDS: CardDef[] = [
     icon: 'items/data_fragment.png',
     tags: ['credits', 'companion'],
   },
+  // ---------------------------------------------------------------- burst (answers to Act 3 armor / block walls)
+  {
+    id: 'armor_breaker',
+    name: t('장갑 파쇄탄', 'Armor Breaker'),
+    type: 'attack',
+    rarity: 'common',
+    owner: 'any',
+    cost: 1,
+    target: { mode: 'line', range: 4 },
+    effects: [{ kind: 'damage', amount: 5, pierce: true }],
+    text: t('장갑과 방어막을 무시하고 피해 5.', 'Deal 5, ignoring armor and block.'),
+    upgrade: {
+      effects: [{ kind: 'damage', amount: 7, pierce: true }],
+      text: t('장갑과 방어막을 무시하고 피해 7.', 'Deal 7, ignoring armor and block.'),
+    },
+    icon: 'skills/packet_shot.png',
+  },
+  {
+    id: 'execution_protocol',
+    name: t('처형 프로토콜', 'Execution Protocol'),
+    type: 'attack',
+    rarity: 'uncommon',
+    owner: 'any',
+    cost: 2,
+    target: { mode: 'melee' },
+    effects: [{ kind: 'damage', amount: 8, bonusVsMarked: 8 }],
+    text: t('피해 8. 표식이 있으면 +8.', 'Deal 8. +8 against a marked target.'),
+    upgrade: {
+      effects: [{ kind: 'damage', amount: 10, bonusVsMarked: 10 }],
+      text: t('피해 10. 표식이 있으면 +10.', 'Deal 10. +10 against a marked target.'),
+    },
+    icon: 'skills/overload_strike.png',
+    tags: ['mark'],
+  },
+  {
+    id: 'overcharge_lance',
+    name: t('과충전 창', 'Overcharge Lance'),
+    type: 'attack',
+    rarity: 'rare',
+    owner: 'any',
+    cost: 2,
+    target: { mode: 'beam', range: 5 },
+    effects: [{ kind: 'damage', amount: 10, pierce: true }],
+    exhaust: true,
+    text: t('직선 5칸을 꿰뚫어 장갑·방어막 무시 피해 10. 소멸.', 'Beam 5: deal 10 to each unit, ignoring armor and block. Exhaust.'),
+    upgrade: {
+      effects: [{ kind: 'damage', amount: 14, pierce: true }],
+      text: t('직선 5칸을 꿰뚫어 장갑·방어막 무시 피해 14. 소멸.', 'Beam 5: deal 14 to each unit, ignoring armor and block. Exhaust.'),
+    },
+    icon: 'skills/signal_overdrive.png',
+  },
   // ---------------------------------------------------------------- companion reward cards
   // Offered in rewards only while that companion is in the party (engine/run.ts offerable + weighting).
   {

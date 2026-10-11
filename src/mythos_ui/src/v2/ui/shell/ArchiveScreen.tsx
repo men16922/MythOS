@@ -1,7 +1,9 @@
-// Mythos 2.0 — the Archive (meta hub): Echo balance, unlock tree, codex, endings, run history, IX.
+// Mythos 2.0 — the Archive (meta hub): Echo balance, unlock tree, codex, endings, run history
+// (with the last 7 days of the daily seed), IX.
 import { art } from '../components/art.ts'
-import { BookOpen, Check, ChevronLeft, History, Lock, Play, Sparkles, Trophy } from 'lucide-react'
+import { BookOpen, CalendarDays, Check, ChevronLeft, History, Lock, Play, Sparkles, Trophy } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { attemptsLabel, dailyLabel, dateLabel, recentDateKeys } from '../../engine/daily.ts'
 import type { ContentRegistry, Lang, MetaProfile, MetaUnlockDef, MetaUnlockKind, Text } from '../../engine/types.ts'
 import { asset, portrait } from '../common/assets.ts'
 import { L, tr } from '../common/lang.ts'
@@ -61,6 +63,34 @@ function unlockIcon(u: MetaUnlockDef, C: ContentRegistry): string {
   return asset('items/data_fragment.png')
 }
 
+const DAILY_DAYS = 7
+
+/** The daily seed's last week, newest first: best result and attempts per day. */
+function DailyWeek({ profile, today, C, lang }: { profile: MetaProfile; today: string; C: ContentRegistry; lang: Lang }) {
+  const ko = lang === 'ko'
+  return (
+    <div className="m2-dailyweek">
+      <div className="m2-dailyweek__head">
+        <CalendarDays size={13} /> {ko ? '오늘의 시드 · 최근 7일' : 'Daily Signal · last 7 days'}
+      </div>
+      {recentDateKeys(today, DAILY_DAYS).map((day) => {
+        const rec = profile.daily?.[day]
+        const arch = rec ? C.archetypes[rec.best.archetype] : undefined
+        return (
+          <div key={day} className={`m2-dailyweek__row${day === today ? ' is-today' : ''}${rec?.best.won ? ' is-won' : rec ? ' is-tried' : ''}`}>
+            <span className="m2-dailyweek__date">{day === today ? (ko ? '오늘' : 'Today') : tr(dateLabel(day), lang)}</span>
+            <span className="m2-dailyweek__res">
+              {tr(dailyLabel(rec), lang)}
+              {arch && <small> · {tr(arch.name, lang)}</small>}
+            </span>
+            <span className="m2-dailyweek__meta">{rec ? tr(attemptsLabel(rec.attempts), lang) : ''}</span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 export interface ArchiveScreenProps {
   profile: MetaProfile
   C: ContentRegistry
@@ -71,9 +101,11 @@ export interface ArchiveScreenProps {
   activeLoop?: number | null
   onContinue?: () => void
   onAbandon?: () => void
+  /** Today's KST date key (for the daily-seed week in History). */
+  today?: string
 }
 
-export function ArchiveScreen({ profile, C, onProfile, onBegin, onBack, activeLoop, onContinue, onAbandon }: ArchiveScreenProps) {
+export function ArchiveScreen({ profile, C, onProfile, onBegin, onBack, activeLoop, onContinue, onAbandon, today }: ArchiveScreenProps) {
   const lang = profile.settings.lang
   const ko = lang === 'ko'
   const [kind, setKind] = useState<MetaUnlockKind>('companion')
@@ -313,6 +345,7 @@ export function ArchiveScreen({ profile, C, onProfile, onBegin, onBack, activeLo
                 })}
               </div>
             )}
+            {side === 'history' && today && <DailyWeek profile={profile} today={today} C={C} lang={lang} />}
             {side === 'history' &&
               (profile.history.length === 0 ? (
                 <div className="m2-empty">{ko ? '아직 끝난 루프가 없다.' : 'No finished loops yet.'}</div>
@@ -326,6 +359,7 @@ export function ArchiveScreen({ profile, C, onProfile, onBegin, onBack, activeLo
                       <div className="m2-hist__top">
                         <b className="m2-mono">#{h.loop}</b>
                         <span>{tr(arch?.name, lang)}</span>
+                        {h.daily && <span className="m2-hist__daily">{ko ? `오늘의 시드 · ${tr(dateLabel(h.daily), lang)}` : `Daily · ${tr(dateLabel(h.daily), lang)}`}</span>}
                         <span className="m2-hist__res">
                           {h.result === 'victory' ? tr(ending?.title, lang) || (ko ? '탈출' : 'Escaped') : h.result === 'abandoned' ? (ko ? '포기' : 'Abandoned') : ko ? '삭제됨' : 'Erased'}
                         </span>

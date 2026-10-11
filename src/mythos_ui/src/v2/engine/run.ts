@@ -16,6 +16,7 @@
 // Victory/ending bonuses are added only when banking (see meta.computeEchoes).
 
 import { startCombat } from './combat.ts'
+import { dailySeed, isDateKey } from './daily.ts'
 import { actEventPool, generateActMap, mapEncounters } from './map.ts'
 import {
   ABANDONED_FLAG,
@@ -27,6 +28,7 @@ import {
   PASSIVE_NUMBERS,
   cardPool,
   implantPool,
+  newProfile,
   threadPassive,
   unlockedCompanions,
 } from './meta.ts'
@@ -365,7 +367,17 @@ export interface NewRunOptions {
   seed?: number
   /** ISO timestamp for `startedAt` (defaults to now; pass one for reproducible saves). */
   now?: string
+  /**
+   * Daily-seed run for this KST date key ('YYYY-MM-DD', see engine/daily.ts). The run then
+   * depends only on the date, the archetype and the content: the seed comes from the date +
+   * archetype (`seed` is ignored), paradox is 0, pools are the base (no-unlock) content,
+   * Archive threads do not apply and Se-rin always starts with you (`companion` is ignored).
+   */
+  daily?: string
 }
+
+/** Stand-in profile for a daily run's content: nothing unlocked, no threads. */
+const DAILY_BASE: MetaProfile = newProfile('daily')
 
 function findStaticCard(C: ContentRegistry): string | undefined {
   if (C.cards[STATIC_CARD]) return STATIC_CARD
@@ -375,9 +387,16 @@ function findStaticCard(C: ContentRegistry): string | undefined {
 export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegistry): RunState {
   const arch = C.archetypes[opts.archetype]
   if (!arch) throw new Error(`newRun: unknown archetype "${opts.archetype}"`)
+  if (opts.daily !== undefined && !isDateKey(opts.daily)) throw new Error(`newRun: bad daily date "${opts.daily}"`)
+  const daily = opts.daily
+  // Everything below that shapes the run reads `unlockSource`, never `profile`, so a daily is
+  // the same for every player. `profile` still numbers the loop (bookkeeping only, never rolled on).
+  const unlockSource = daily ? DAILY_BASE : profile
   const loop = profile.loops + 1
-  const paradox = clamp(0, 5, Math.floor(opts.paradox))
-  const seed = (opts.seed ?? hashSeed(`${profile.playerName}|${loop}|${profile.totalEchoes}|${arch.id}|${paradox}`)) >>> 0
+  const paradox = daily ? 0 : clamp(0, 5, Math.floor(opts.paradox))
+  const seed = daily
+    ? dailySeed(daily, arch.id)
+    : (opts.seed ?? hashSeed(`${profile.playerName}|${loop}|${profile.totalEchoes}|${arch.id}|${paradox}`)) >>> 0
   const run: RunState = {
     version: 2,
     id: `run-${loop}-${seed.toString(36)}`,
@@ -400,9 +419,9 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
     consumables: [],
     party: [],
     pools: {
-      cards: cardPool(profile, arch.id, C),
-      implants: implantPool(profile, C),
-      companions: unlockedCompanions(profile, C),
+      cards: cardPool(unlockSource, arch.id, C),
+      implants: implantPool(unlockSource, C),
+      companions: unlockedCompanions(unlockSource, C),
     },
     flags: {},
     codex: [],
@@ -414,10 +433,11 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
     tally: { kills: 0, elites: 0, bosses: 0, environmentKills: 0, damageTaken: 0, cardsPlayed: 0, floors: 0 },
     startedAt: opts.now ?? nowIso(),
   }
+  if (daily) run.daily = daily
   for (const id of arch.startingDeck) addCard(run, id, C)
 
   // Archive threads: concrete perks now, run-level multipliers frozen as flags.
-  const thread = threadPassive(profile, C)
+  const thread = threadPassive(unlockSource, C)
   applyConcretePassive(run, thread)
   run.hp = run.maxHp
   run.credits += thread.startCredits ?? 0
@@ -428,15 +448,16 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
   }
 
   gainImplant(run, arch.startingImplant, C)
-  const companion = loop === 1 ? FIRST_COMPANION : opts.companion
-  if (companion && (loop === 1 || run.pools.companions.includes(companion))) joinCompanion(run, companion, C)
+  const fixedCompanion = daily !== undefined || loop === 1
+  const companion = fixedCompanion ? FIRST_COMPANION : opts.companion
+  if (companion && (fixedCompanion || run.pools.companions.includes(companion))) joinCompanion(run, companion, C)
   if (paradox >= 2) {
     const junk = findStaticCard(C)
     if (junk) addCard(run, junk, C)
   }
 
   run.map = generateActMap(1, run, C, { paradox })
-  log(run, 'start', t(`루프 ${loop} 시작`, `Loop ${loop} begins`))
+  log(run, 'start', daily ? t(`오늘의 시드 ${daily} 시작`, `Daily Signal ${daily} begins`) : t(`루프 ${loop} 시작`, `Loop ${loop} begins`))
   if (thread.startRemove && run.deck.length > 0) {
     run.screen = { kind: 'card_pick', purpose: 'remove', count: 1, returnTo: { kind: 'act_intro' } }
   }

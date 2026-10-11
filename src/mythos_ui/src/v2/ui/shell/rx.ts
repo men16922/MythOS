@@ -31,7 +31,8 @@ const REST_SCRUB = 30
 
 export const rx = {
   // ---------------------------------------------------------- loop start / map
-  newRun: (p: MetaProfile, o: { archetype: string; companion?: string | null; paradox: number }, C: C): R => Run.newRun(p, o, C),
+  /** `daily` = KST date key for a daily-seed run (same run for everyone that day; see engine/daily.ts). */
+  newRun: (p: MetaProfile, o: { archetype: string; companion?: string | null; paradox: number; daily?: string }, C: C): R => Run.newRun(p, o, C),
   continueActIntro: (r: R, C: C): R => Run.startAct(r, C),
   enterNode: (r: R, id: string, C: C): R => Run.enterNode(r, id, C),
   reachable: (r: R): string[] => (r.screen.kind === 'map' ? Run.reachableNodes(r) : []),

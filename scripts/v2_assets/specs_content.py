@@ -193,6 +193,10 @@ TYPE_MOOD = {
     "tactic": "a tactical moment: hacking, movement, repositioning, holographic light",
     "power": "a transformation: a radiant aura of power surrounding the subject",
     "junk": "corrupted glitch static, desaturated grey noise with magenta tears, unsettling",
+    # burst answers to Act 3 armour (2026-10-11)
+    "armor_breaker": f"{C} firing a single tungsten round that punches clean through an armoured riot shield, metal petals bursting outward",
+    "execution_protocol": f"{C} driving a glowing data blade into a marked target's red crosshair at point blank, the mark shattering",
+    "overcharge_lance": "an overloaded white-violet energy lance tearing straight through three armoured units in a line, shields shattering like glass",
     # companion reward cards (2.0 character pass)
     "serin_slipstream": "a woman in a dark smuggler's coat vaulting past an ally as both swap places in a streak of cyan water-like light, shields flaring",
     "serin_undertow": "a woman yanking a glowing cyan tether that drags two armoured drones across wet asphalt toward her, spray and sparks",

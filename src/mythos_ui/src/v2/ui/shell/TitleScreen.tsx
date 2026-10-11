@@ -1,8 +1,9 @@
-// Mythos 2.0 — title: the city in the rain, the wordmark, and three ways in.
+// Mythos 2.0 — title: the city in the rain, the wordmark, and the ways in (continue, new loop, today's seed, archive).
 import { art } from '../components/art.ts'
-import { Archive, Play, RotateCcw, Settings } from 'lucide-react'
+import { Archive, CalendarDays, Play, RotateCcw, Settings } from 'lucide-react'
 import logoUrl from '../../../assets/mythos-logo-concept.png'
-import type { ContentRegistry, Lang, MetaProfile, RunState } from '../../engine/types.ts'
+import { attemptsLabel, dailyLabel, dateLabel } from '../../engine/daily.ts'
+import type { ContentRegistry, DailyRecord, Lang, MetaProfile, RunState } from '../../engine/types.ts'
 import { tr } from '../common/lang.ts'
 import { SCREEN_LABEL, savedAgo } from '../components/format.ts'
 import { sound } from '../components/sound.ts'
@@ -13,14 +14,19 @@ export interface TitleScreenProps {
   /** When that run was last auto-saved (shown under Continue). */
   savedAt?: number | null
   C: ContentRegistry
+  /** Today's KST date key and its daily-seed record, if any. */
+  today: string
+  daily?: DailyRecord
   onContinue: () => void
   onNewLoop: () => void
+  /** Open the setup screen in daily-seed mode (the shell asks first if a run is live). */
+  onDaily: () => void
   onArchive: () => void
   onSettings: () => void
   onLang: (lang: Lang) => void
 }
 
-export function TitleScreen({ profile, run, savedAt, C, onContinue, onNewLoop, onArchive, onSettings, onLang }: TitleScreenProps) {
+export function TitleScreen({ profile, run, savedAt, C, today, daily, onContinue, onNewLoop, onDaily, onArchive, onSettings, onLang }: TitleScreenProps) {
   const lang = profile.settings.lang
   const ko = lang === 'ko'
   const arch = run ? C.archetypes[run.archetype] : undefined
@@ -63,7 +69,7 @@ export function TitleScreen({ profile, run, savedAt, C, onContinue, onNewLoop, o
               <span>
                 <b>{ko ? '이어하기' : 'Continue'}</b>
                 <small>
-                  {ko ? `루프 ${run.loop}` : `Loop ${run.loop}`} · {tr(arch?.name, lang)} · {tr(actDef?.name, lang)} · {tr(SCREEN_LABEL[run.screen.kind], lang)}
+                  {run.daily ? `${ko ? '오늘의 시드' : 'Daily Signal'} ${tr(dateLabel(run.daily), lang)}` : ko ? `루프 ${run.loop}` : `Loop ${run.loop}`} · {tr(arch?.name, lang)} · {tr(actDef?.name, lang)} · {tr(SCREEN_LABEL[run.screen.kind], lang)}
                 </small>
                 {savedAt && <small className="m2-title__saved">{ko ? `자동 저장 · ${savedAgo(savedAt, lang)}` : `Auto-saved · ${savedAgo(savedAt, lang)}`}</small>}
               </span>
@@ -81,6 +87,24 @@ export function TitleScreen({ profile, run, savedAt, C, onContinue, onNewLoop, o
             <span>
               <b>{ko ? '새 루프' : 'New loop'}</b>
               <small>{profile.loops === 0 ? (ko ? '첫 접속' : 'Connect for the first time') : ko ? `지금까지 ${profile.loops}번 접속했다` : `${profile.loops} loops so far`}</small>
+            </span>
+          </button>
+          <button
+            className="m2-menu-item m2-menu-item--daily"
+            onMouseEnter={hover}
+            onClick={() => {
+              sound('ui_click')
+              onDaily()
+            }}
+          >
+            <CalendarDays size={18} />
+            <span>
+              <b>{ko ? '오늘의 시드' : 'Daily Signal'}</b>
+              <small>
+                {tr(dateLabel(today), lang)} ·{' '}
+                <em className={`m2-daily-best${daily?.best.won ? ' is-won' : daily ? ' is-tried' : ''}`}>{tr(dailyLabel(daily), lang)}</em>
+                {daily && ` · ${tr(attemptsLabel(daily.attempts), lang)}`}
+              </small>
             </span>
           </button>
           <button

@@ -92,3 +92,16 @@ test('bump damage is tagged so the board can show the slam', () => {
   assert.ok(hit && hit.t === 'damage' && hit.cause === 'bump')
   assert.ok(c.events.some((e) => e.t === 'push' && e.bumped === 'wall'))
 })
+
+test('a live wire announces its countdown; chipped cover announces its hp', () => {
+  const c = fresh('terrain')
+  silence(c)
+  applyEffects(c, C, [{ kind: 'electrify', turns: 2 }], { side: 'party', impact: { x: 2, y: 2 }, tiles: [{ x: 2, y: 2 }], source: 'party' })
+  const after = endTurn(c, C)
+  assert.ok(after.events.some((e) => e.t === 'ttl' && e.pos.x === 2 && e.pos.y === 2 && e.turns === 1))
+  assert.equal(after.tiles[2]?.[2]?.ttl, 1)
+
+  c.events = []
+  applyEffects(c, C, [{ kind: 'damage', amount: 3 }], { side: 'party', impact: { x: 3, y: 0 }, tiles: [{ x: 3, y: 0 }], source: 'party' })
+  assert.ok(c.events.some((e) => e.t === 'cover' && e.hp === 1), 'cover (2 hp) chipped to 1')
+})

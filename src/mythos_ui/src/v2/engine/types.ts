@@ -372,6 +372,10 @@ export type CombatEvent =
   | { t: 'area'; tiles: Pos[]; center: Pos; element: 'fire' | 'shock' | 'blast' | 'force' | 'shield' | 'heal'; side: 'party' | 'enemy' }
   /** Burning ground changed on a tile (0 = went out). */
   | { t: 'fire'; pos: Pos; turns: number }
+  /** A temporary hazard's countdown changed (it reverts with a 'tile' floor event at 0). */
+  | { t: 'ttl'; pos: Pos; turns: number }
+  /** Cover took damage but still stands (absolute hp left; destruction is a 'tile' floor event). */
+  | { t: 'cover'; pos: Pos; hp: number }
   /** A companion's combat passive fired (show its name on that unit). */
   | { t: 'passive'; uid: string; companionId: string }
 
@@ -691,9 +695,29 @@ export interface RunState {
   tally: { kills: number; elites: number; bosses: number; environmentKills: number; damageTaken: number; cardsPlayed: number; floors: number }
   startedAt: string
   endedAt?: string
+  /** Daily-seed run ("오늘의 시드"): the KST date key 'YYYY-MM-DD' it was seeded from. */
+  daily?: string
 }
 
 // ---------------------------------------------------------------- meta profile
+
+/** One finished daily run, as kept for that day's best (see engine/daily.ts). */
+export interface DailyResult {
+  archetype: string
+  won: boolean
+  act: number
+  floors: number
+  echoes: number
+  kills: number
+  /** Wall-clock seconds from start to end (when both stamps are known). */
+  secs?: number
+}
+
+export interface DailyRecord {
+  /** Finished (or abandoned) daily runs that day. */
+  attempts: number
+  best: DailyResult
+}
 
 export interface RunRecord {
   id: string
@@ -708,6 +732,8 @@ export interface RunRecord {
   killedBy?: string
   endedAt: string
   chronicle?: string
+  /** Set for a daily-seed run: its date key ('2026-10-11'). */
+  daily?: string
 }
 
 export interface MetaProfile {
@@ -726,6 +752,8 @@ export interface MetaProfile {
   history: RunRecord[] // newest first, capped at 30
   lastDeath?: { killedBy: string; act: number; loop: number }
   settings: { lang: Lang; sfx: boolean; bgm: boolean; fastAnim: boolean }
+  /** Daily-seed records by KST date key, newest kept (capped at DAILY_CAP days). */
+  daily?: Record<string, DailyRecord>
 }
 
 export type MetaUnlockKind = 'archetype' | 'companion' | 'card_pack' | 'implant_pack' | 'thread'

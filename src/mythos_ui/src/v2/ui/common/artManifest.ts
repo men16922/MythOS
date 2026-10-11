@@ -89,6 +89,7 @@ export const ART: {
 export const CARD_ART: Record<string, string> = {
   adrenaline: 'v2/cards/adrenaline.webp',
   afterburner: 'v2/cards/afterburner.webp',
+  armor_breaker: 'v2/cards/armor_breaker.webp',
   barricade: 'v2/cards/barricade.webp',
   bear_the_burden: 'v2/cards/bear_the_burden.webp',
   blackout: 'v2/cards/blackout.webp',
@@ -104,6 +105,7 @@ export const CARD_ART: Record<string, string> = {
   echo_mend: 'v2/cards/echo_mend.webp',
   echo_shield: 'v2/cards/echo_shield.webp',
   emp_burst: 'v2/cards/emp_burst.webp',
+  execution_protocol: 'v2/cards/execution_protocol.webp',
   firebomb: 'v2/cards/firebomb.webp',
   firewall: 'v2/cards/firewall.webp',
   flashbang: 'v2/cards/flashbang.webp',
@@ -139,6 +141,7 @@ export const CARD_ART: Record<string, string> = {
   memory_resonance: 'v2/cards/memory_resonance.webp',
   mirror_code: 'v2/cards/mirror_code.webp',
   orbital_strike: 'v2/cards/orbital_strike.webp',
+  overcharge_lance: 'v2/cards/overcharge_lance.webp',
   overclock: 'v2/cards/overclock.webp',
   overheat: 'v2/cards/overheat.webp',
   overload_strike: 'v2/cards/overload_strike.webp',

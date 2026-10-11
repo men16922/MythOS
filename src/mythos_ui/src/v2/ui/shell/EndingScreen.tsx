@@ -4,6 +4,7 @@ import { Sparkles } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { computeEchoes } from '../../engine/meta.ts'
 import type { Lang, RunState } from '../../engine/types.ts'
+import { dateLabel, isDateKey } from '../../engine/daily.ts'
 import { tr } from '../common/lang.ts'
 import { CountUp } from '../components/CountUp.tsx'
 import { sound } from '../components/sound.ts'
@@ -24,10 +25,12 @@ function authoredChronicle(run: RunState, lang: Lang, C: ScreenProps['C']): stri
   const won = run.screen.kind === 'ended' && run.screen.result === 'victory'
   const lines: string[] = []
   const who = tr(arch?.name, lang) || '접속자'
+  // A daily run is named by its date, not by the loop counter.
+  const label = isDateKey(run.daily) ? (ko ? `오늘의 시드 ${tr(dateLabel(run.daily), lang)}` : `Daily Signal ${tr(dateLabel(run.daily), lang)}`) : ko ? `루프 ${run.loop}` : `Loop ${run.loop}`
   lines.push(
     ko
-      ? `루프 ${run.loop}. ${who}${hasBatchim(who) ? '은' : '는'} ${run.act}막까지 ${run.tally.floors}개 구역을 지났다.`
-      : `Loop ${run.loop}. The ${tr(arch?.name, lang) || 'connector'} crossed ${run.tally.floors} sectors, reaching Act ${run.act}.`,
+      ? `${label}. ${who}${hasBatchim(who) ? '은' : '는'} ${run.act}막까지 ${run.tally.floors}개 구역을 지났다.`
+      : `${label}. The ${tr(arch?.name, lang) || 'connector'} crossed ${run.tally.floors} sectors, reaching Act ${run.act}.`,
   )
   if (party.length) {
     const last = party[party.length - 1] ?? ''
@@ -124,7 +127,10 @@ export function EndingScreen({ run, C, lang, settings, onDone, onChronicle }: En
       <div className="m2-ending__shade" />
       <div className="m2-ending__inner">
         <div className="m2-ending__main">
-          <div className="m2-ending__kicker">{victory ? (ko ? '루프 완료' : 'Loop complete') : ko ? '접속 종료' : 'Connection lost'}</div>
+          <div className="m2-ending__kicker">
+            {isDateKey(run.daily) ? (ko ? '오늘의 시드 · ' : 'Daily Signal · ') : ''}
+            {victory ? (ko ? '루프 완료' : 'Loop complete') : ko ? '접속 종료' : 'Connection lost'}
+          </div>
           <h1 className="m2-ending__title">{tr(ending?.title, lang) || (ko ? '강제 삭제' : 'Forced Erasure')}</h1>
           <Typewriter className="m2-ending__text" text={tr(ending?.text, lang)} cps={settings.fastAnim ? 500 : 80} />
           <div className="m2-ending__chron">

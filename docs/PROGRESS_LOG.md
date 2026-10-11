@@ -2,6 +2,12 @@
 
 Last updated: 2026-10-11
 
+## 2026-10-11 — Su-ah arc: the voice in the drawer (3 events)
+
+- Su-ah (the 4th companion) had the fewest dedicated events, and the Memory Forge leaves her "mother's voice in the drawer" as a thread nobody picks up. `content/eventsMore.ts` `SUAH_ARC`: `a2_suah_first_pour` (add a memory / pay 45 ₵ / tell her to stop) → sets `suah_voice`; `a3_suah_voice_archive` (listen needs `suah_voice`; or copy the file; or pull the plug) → sets `suah_voice_heard`; `a3_suah_last_pour` (only after the voice was heard: forge defence / edge / just stay). All three are event-level gated on Su-ah being in the party, so they never roll for other parties. 3 scene images (portrait-referenced), SPA rebuilt.
+- New `engine/suah-arc.test.ts` drives the real reducers: gating by companion, the flag chain, bond/credit/max-HP effects.
+- Verified: `make test-v2`, `make test-e2e-v2`. Pool is now 53 events.
+
 ## 2026-10-11 — Durable AI GM usage counters (dashboard)
 
 - The GM counters lived in process memory (lost on every Cloud Run restart), so there was no basis to decide on a cost guard. `v2_gm_usage` (migration 013, also in `SCHEMA_STATEMENTS`) counts calls per KST day / route / outcome; `log_gm` writes it best-effort (2 s cap, never fails or delays a reply beyond that). Dashboard: "AI GM 일별 호출" — total, LLM, fallback and the fallback rate, plus the outcome mix (timeout / rate_limited / rejected …).

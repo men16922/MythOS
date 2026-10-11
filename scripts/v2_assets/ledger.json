@@ -1,6 +1,6 @@
 {
- "image_calls": 236,
- "image_failed": 335,
+ "image_calls": 239,
+ "image_failed": 337,
  "lyria_calls": 21,
  "lyria_failed": 0,
  "outputs": {
@@ -1345,6 +1345,16 @@
    "seed": 1361013942,
    "ts": "2026-10-11T21:33:07"
   },
+  "events/a2_suah_first_pour.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A back alley of an underground refuge: Su-ah pours glowing molten slag into a small clay mould on a workbench, violet arc-light, a fine crack running through the cooling metal; an open drawer beside her with a faint soft glow coming out of it. The character is Su-ah, a young Korean woman engineer with tied-up black hair, thin glasses and a dark jacket with violet light. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/su-ah.png"
+   ],
+   "seed": 346453614,
+   "ts": "2026-10-11T21:50:46"
+  },
   "events/a2_subway_hub.webp": {
    "generations": 1,
    "model": "gemini-3-pro-image",
@@ -1474,6 +1484,26 @@
    "refs": [],
    "seed": 1639346543,
    "ts": "2026-10-11T00:11:11"
+  },
+  "events/a3_suah_last_pour.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. An emergency stairwell landing with a small portable furnace glowing orange; Su-ah lowers a small palm-sized chip into the molten metal, calm and focused, sparks rising, warm light on her face against the cold concrete. The character is Su-ah, a young Korean woman engineer with tied-up black hair, thin glasses and a dark jacket with violet light. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/su-ah.png"
+   ],
+   "seed": 1680517960,
+   "ts": "2026-10-11T21:50:48"
+  },
+  "events/a3_suah_voice_archive.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A cold server hall deep in a skyscraper, thousands of small speakers on racks glowing faintly; Su-ah stands frozen before one speaker with her hand half raised, as if she has forgotten to breathe. The character is Su-ah, a young Korean woman engineer with tied-up black hair, thin glasses and a dark jacket with violet light. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/su-ah.png"
+   ],
+   "seed": 1613094486,
+   "ts": "2026-10-11T21:51:45"
   },
   "events/a3_the_surrender.webp": {
    "generations": 1,

@@ -12,7 +12,7 @@
 // Flags set here and read later: saved_citizen (a1 → a3), spire_breach (a2 → a3), lin_yue_debt (a2 → a3),
 // deja_vu (a1 → a2), left_mark (a1 → a3), kai_woken (a2, GM context).
 import type { EventDef, Text } from '../engine/types.ts'
-import { A1_MORE, A2_MORE, A3_MORE } from './eventsMore.ts'
+import { A1_MORE, A2_MORE, A3_MORE, SUAH_ARC } from './eventsMore.ts'
 
 const t = (ko: string, en: string): Text => ({ ko, en })
 
@@ -2796,4 +2796,5 @@ export const EVENTS: EventDef[] = [
   ...A3,
   ...A3_EXTRA,
   ...A3_MORE,
+  ...SUAH_ARC,
 ]

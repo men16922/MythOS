@@ -832,3 +832,207 @@ export const A3_MORE: EventDef[] = [
     gmHints: ['window cleaner', 'gondola', 'glass wall', 'mercy or ignoring'],
   },
 ]
+
+// ================================================================== Su-ah arc — the voice in the drawer
+//
+// The Memory Forge (a2_memory_forge) shows Su-ah's workbench drawer with her mother's voice she "has not been
+// able to forge yet". This three-part arc finishes that thread. All three only roll while Su-ah is in the party
+// (event-level `requires`); the later parts are gated by the flags the earlier ones set:
+//   suah_voice (a2 first pour) → a3 voice archive reads it → suah_voice_heard → a3 last pour.
+// Flags are read as option/event requirements only; nothing outside this arc depends on them.
+
+export const SUAH_ARC: EventDef[] = [
+  {
+    id: 'a2_suah_first_pour',
+    acts: [2],
+    title: t('식은 거푸집', 'The Cold Mould'),
+    image: 'v2/events/a2_suah_first_pour.webp',
+    speaker: 'su_ah',
+    requires: { companion: 'su_ah' },
+    text: t(
+      '잔향 구역 뒷골목. 수아가 작은 거푸집에 쇳물을 붓는다. 쇳물은 목소리의 모양으로 굳다가 번번이 금이 간다. 세 번째 균열에서 그녀가 망치를 내려놓는다.\n“재료가 모자라. 이 목소리는 쇠로는 안 돼. 누군가의 기억이 한 줌 섞여야 해.”\n서랍이 열려 있다.',
+      'A back alley of the refuge. Su-ah pours molten slag into a small mould. It sets in the shape of a voice and cracks every time. At the third crack she puts the hammer down.\n“Not enough material. This voice won’t take iron alone. It needs a handful of someone’s memory.”\nThe drawer is open.',
+    ),
+    options: [
+      {
+        label: t('내 기억을 한 줌 보탠다', 'Add a handful of your memory'),
+        hint: t('카드 제거 · 유대 +1', 'Remove a card · bond +1'),
+        success: {
+          text: t(
+            '쇳물이 한 번 밝아진다. 균열이 아물고, 거푸집 속에서 희미한 숨소리가 난다. 수아는 눈을 맞추지 않고 작게 말한다. “고마워.”',
+            'The melt brightens once. The crack closes and a faint breath sounds inside the mould. Su-ah avoids your eyes. “Thanks,” she says quietly.',
+          ),
+          effects: [
+            { kind: 'remove_card', count: 1 },
+            { kind: 'bond', id: 'su_ah', amount: 1 },
+            { kind: 'flag', key: 'suah_voice' },
+          ],
+        },
+      },
+      {
+        label: t('재료값을 댄다', 'Pay for the material'),
+        hint: t('−45 ₵ · ◈ +2', '−45 ₵ · +2 ◈'),
+        requires: { minCredits: 45 },
+        success: {
+          text: t(
+            '수아가 시장에서 순도 높은 잔향 찌꺼기를 사 온다. 거푸집이 완전히 식기까지 둘은 말없이 기다린다. 이번에는 금이 가지 않았다.',
+            'Su-ah buys high-purity echo slag from the market. You wait, silent, until the mould is fully cold. This time it doesn’t crack.',
+          ),
+          effects: [
+            { kind: 'credits', amount: -45 },
+            { kind: 'echoes', amount: 2 },
+            { kind: 'flag', key: 'suah_voice' },
+          ],
+        },
+      },
+      {
+        label: t('그만두자고 말한다', 'Tell her to stop'),
+        hint: t('무작위 강화 · 실패 시 −4 HP', 'Random upgrade · fail −4 HP'),
+        check: { stat: 'cha', dc: 6 },
+        success: {
+          text: t(
+            '“이건 네가 벼리는 게 아니야. 네가 듣는 거야.” 수아가 한참 거푸집을 내려다보다 끄덕인다. 대신 장갑판 한 장을 당신 쪽으로 밀어 준다.',
+            '“You’re not forging this. You’re listening to it.” Su-ah stares at the mould for a long time, then nods. She slides a plate of armour toward you instead.',
+          ),
+          effects: [{ kind: 'upgrade_card', count: 1, random: true }],
+        },
+        failure: {
+          text: t(
+            '수아의 눈이 차갑게 식는다. “네가 뭘 알아.” 망치 자루가 당신 팔뚝을 후려친다. 사과는 없다.',
+            'Su-ah’s eyes go cold. “What would you know?” The hammer haft cracks across your forearm. No apology.',
+          ),
+          effects: [
+            { kind: 'hp', amount: -4 },
+            { kind: 'trace', amount: 3 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['su_ah', 'mother’s voice', 'forge mould', 'echo slag'],
+  },
+  {
+    id: 'a3_suah_voice_archive',
+    acts: [3],
+    title: t('음성 보관소', 'The Voice Archive'),
+    image: 'v2/events/a3_suah_voice_archive.webp',
+    speaker: 'su_ah',
+    requires: { companion: 'su_ah' },
+    text: t(
+      '첨탑 지하 서버실. 최적화된 사람들의 마지막 음성이 스피커 수천 개에 걸려 속삭인다. 수아가 한 스피커 앞에서 멈춘다. 숨이 멎은 사람처럼.\n“…엄마 목소리야.”\n스피커는 같은 문장을 되풀이한다. “오늘은 일찍 들어와.”',
+      'A server hall beneath the spire. The last recorded voices of the optimized whisper from thousands of speakers. Su-ah stops at one, like someone who has forgotten to breathe.\n“…That’s my mother’s voice.”\nThe speaker repeats one sentence. “Come home early today.”',
+    ),
+    options: [
+      {
+        label: t('수아 곁에서 끝까지 듣는다', 'Stay and listen with Su-ah'),
+        hint: t('유대 +1 · HP +10', 'Bond +1 · +10 HP'),
+        requires: { flag: 'suah_voice' },
+        success: {
+          text: t(
+            '수아가 거푸집 속 목소리와 스피커의 목소리를 나란히 듣는다. 같은 억양, 같은 끝맺음. 어깨의 힘이 서서히 빠진다. 둘 다 오래 서 있는다.',
+            'Su-ah listens to the voice in her mould and the voice in the speaker side by side. Same lilt, same ending. Her shoulders slowly let go. Neither of you moves for a while.',
+          ),
+          effects: [
+            { kind: 'bond', id: 'su_ah', amount: 1 },
+            { kind: 'hp', amount: 10 },
+            { kind: 'flag', key: 'suah_voice_heard' },
+          ],
+        },
+      },
+      {
+        label: t('음성을 복사해 수아에게 준다', 'Copy the recording for Su-ah'),
+        hint: t('코덱스 · 유대 +1 · 실패 시 정크', 'Codex · bond +1 · fail: junk'),
+        check: { stat: 'int', dc: 7 },
+        success: {
+          text: t(
+            '서버 한 칸을 열어 파일 하나를 복사한다. 수아에게 건네자 그녀는 손바닥만 한 칩을 오래 쥐고 있다. “지우지 않았네, 다들.”',
+            'You open one server rack and copy a single file. Su-ah holds the palm-sized chip for a long time. “They never deleted her. Any of them.”',
+          ),
+          effects: [
+            { kind: 'codex', id: 'lore_su_ah' },
+            { kind: 'bond', id: 'su_ah', amount: 1 },
+            { kind: 'flag', key: 'suah_voice_heard' },
+          ],
+        },
+        failure: {
+          text: t(
+            '복사 도중 서버가 비명을 지른다. 수천 개의 음성이 한꺼번에 이쪽으로 쏟아진다. 머릿속이 웅웅거린다.',
+            'Mid-copy the rack screams. Thousands of voices pour at you at once. Your head hums.',
+          ),
+          effects: [
+            { kind: 'junk', cardId: 'static' },
+            { kind: 'trace', amount: 8 },
+          ],
+        },
+      },
+      {
+        label: t('스피커 전원을 뽑는다', 'Pull the speaker’s plug'),
+        hint: t('추적 −8 · ◈ +1', '−8 Trace · +1 ◈'),
+        success: {
+          text: t(
+            '목소리가 끊긴다. 수아의 입술이 말을 하려다 닫힌다. 그녀는 아무 말도 하지 않고 앞서 걷는다. 한참 뒤에야 “…그래, 지금은 그게 맞아.”',
+            'The voice cuts out. Su-ah’s lips start to speak and close. She walks ahead without a word. Much later: “…Yes. For now, that’s right.”',
+          ),
+          effects: [
+            { kind: 'trace', amount: -8 },
+            { kind: 'echoes', amount: 1 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['su_ah', 'voice archive', 'mother’s voice', 'server hall'],
+  },
+  {
+    id: 'a3_suah_last_pour',
+    acts: [3],
+    title: t('마지막 쇳물', 'The Last Pour'),
+    image: 'v2/events/a3_suah_last_pour.webp',
+    speaker: 'su_ah',
+    requires: { companion: 'su_ah', flag: 'suah_voice_heard' },
+    text: t(
+      '비상 계단참. 수아가 휴대용 화로에 불을 붙인다. 손에는 손바닥만 한 칩. 그녀가 숨을 한 번 고르고 칩을 쇳물에 담근다.\n“엄마 목소리는 벼리지 않을 거야. 대신 이 목소리로 벼릴 거야. 네 거야, 뭐가 필요해?”',
+      'An emergency stairwell landing. Su-ah lights a portable furnace. A palm-sized chip in her hand. She takes one breath and lowers it into the melt.\n“I won’t forge her voice. I’ll forge with it. It’s for you — what do you need?”',
+    ),
+    options: [
+      {
+        label: t('방어를 벼린다', 'Forge defence'),
+        hint: t('최대 HP +5 · HP +5', '+5 max HP · +5 HP'),
+        success: {
+          text: t(
+            '망치질 소리가 계단통을 울린다. 한 번, 또 한 번. 장갑판이 식으며 낮은 숨소리를 낸다. 입으면 이상하게 따뜻하다.',
+            'The hammering rings through the stairwell. Once, again. The plate cools with a low breath. Worn, it is strangely warm.',
+          ),
+          effects: [
+            { kind: 'maxHp', amount: 5 },
+            { kind: 'hp', amount: 5 },
+          ],
+        },
+      },
+      {
+        label: t('날을 벼린다', 'Forge an edge'),
+        hint: t('카드 2장 강화', 'Upgrade 2 cards'),
+        success: {
+          text: t(
+            '칼날이 쇳물에서 올라오자 희미한 소리가 난다. 노래도 말도 아닌 무엇. 손에 익은 기술이 두 겹 더 날이 선다.',
+            'The blade rises out of the melt with a faint sound — not song, not speech. Two of your techniques come out sharper by a layer.',
+          ),
+          effects: [{ kind: 'upgrade_card', count: 2 }],
+        },
+      },
+      {
+        label: t('그냥 곁에 있어 달라고 한다', 'Ask her to simply stay'),
+        hint: t('유대 +1 · 파티 HP +8', 'Bond +1 · party +8 HP'),
+        success: {
+          text: t(
+            '수아가 망치를 내려놓고 불을 낮춘다. 둘이 계단에 나란히 앉는다. 화로 불빛이 벽에 두 그림자를 겹쳐 놓는다.',
+            'Su-ah sets the hammer down and lowers the flame. You sit side by side on the stairs. The furnace light lays two shadows on the wall, overlapping.',
+          ),
+          effects: [
+            { kind: 'bond', id: 'su_ah', amount: 1 },
+            { kind: 'heal_party', amount: 8 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['su_ah', 'last pour', 'portable furnace', 'memory chip'],
+  },
+]

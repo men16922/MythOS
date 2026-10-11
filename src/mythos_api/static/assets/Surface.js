@@ -1,1 +1,0 @@
-import{n as e}from"./react.js";var t=e();function n({as:e=`div`,variant:n=`surface`,size:r=2,density:i=`comfortable`,className:a,children:o,...s}){return(0,t.jsx)(e,{className:[`surface`,`surface-${n}`,`surface-size-${r}`,`surface-density-${i}`,a].filter(Boolean).join(` `),...s,children:o})}export{n as t};

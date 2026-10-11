@@ -2,6 +2,14 @@
 
 Last updated: 2026-10-11
 
+## 2026-10-11 — 1.x archived (main = 2.0 only), Android app, frontend refactor
+
+- Owner: "2.0 정리 + 1.x는 아카이브", "현재 2.0을 main 브랜치로 올리고, 기존 내용은 1.0 브랜치에 archive", plus an Android app version via Google's tooling (Capacitor + Firebase chosen; iOS out of scope).
+- **Archive**: branch `1.0` = the last 1.x `main` (`edb5b53`). `main` drops the 1.x runtime packages, classic client, `/api/v1`, 116 tests, 1.x scripts/experiments/scratch, migrations 001–008, MinIO/OTel infra and 1.x docs; `mythos_api` is the 2.0 server (SPA + `/api/v2` + CORS); `mythos_v2` owns its config/logging. Package `mythos` 2.0.0 with lean deps. Resources 338 → 117 MB (`content/art.test.ts` guarantees 100 % 2.0 art); content art fields repointed to 2.0 files; a FinalChoice broken-image bug found and fixed.
+- **Android**: Capacitor 8.5 app `com.projectmythos.signalrun` (offline play, cloud saves/GM online, back button, immersive, invite-code setting); Firebase app + Crashlytics + an App Distribution upload (no testers); SDK/emulator installed; `make android-*`; `docs/android.md`. Debug APK ≈130 MB; verified on a headless, silent emulator (offline resume, online sync).
+- **Refactor**: giant UI files split into modules with pixel-parity screenshots (see M94).
+- Verified: `make check`, `make test-e2e-v2`, emulator smoke; see the commits.
+
 ## 2026-10-11 — 2.0 residuals: boss narration, sharper IX, daily seed, phone combat, Act 3 burst cards
 
 - Owner: "잔여 작업 전부 수행해". Closed every open item from the feedback round plus the post-verdict candidates that need no owner call.

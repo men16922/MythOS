@@ -8,6 +8,13 @@
 
 The AI-narrated loop TRPG: Python runtime (loop engine, Narrative Director on Ollama/Gemini, PostgreSQL memory, FLUX/Imagen visuals), React SPA + Streamlit + CLI, tactical combat, CBT on Cloud Run (`00090`), the overnight agent harness and Dev Graph experiments. Full milestone table, verification records and plans are on branch **`1.0`** (`docs/COMPLETED_SUMMARY.md` there).
 
+## M94 — main = Mythos 2.0 only; 1.x archived on branch `1.0`; Android app (2026-10-11)
+
+- **Purpose**: owner — clean up and archive 1.x, make 2.0 `main`, ship an Android version.
+- **Output**: branch `1.0` (last 1.x main); ~143k lines and 205 MB of 1.x code/assets/docs removed from `main`; 2.0-only server, Makefile, Docker image, docs and harness; Capacitor Android app with Firebase Crashlytics + App Distribution; giant UI files split into modules.
+- **Evidence**: `make check` (v2 + Python), headless muted e2e, emulator smoke (offline resume, online sync), refactor pixel parity.
+- **Open (owner)**: `git push` of `main` + `1.0`; deploy (CORS for the app goes live with it); Play Console + upload key; App Distribution testers.
+
 ## M93 — 2.0 residuals closed: boss narration, sharper IX, daily seed, phone combat, Act 3 burst (2026-10-11)
 
 - **Purpose**: owner "잔여 작업 전부 수행해" — every open item from M92 plus the no-owner-call candidates from NEXT_PLAN.

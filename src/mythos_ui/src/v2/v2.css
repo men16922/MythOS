@@ -9,9 +9,6 @@
 :root {
   --m2-void: #03090b;
   --m2-deep: #061216;
-  --m2-panel: #0a191e;
-  --m2-panel-2: #0f2329;
-  --m2-raise: #143038;
   --m2-line: #1d3f46;
   --m2-line-2: #2b5a62;
   --m2-cyan: #4ef2e3;
@@ -171,9 +168,6 @@ body {
 .m2-btn--danger {
   --b: var(--m2-threat);
 }
-.m2-btn--gold {
-  --b: var(--m2-gold);
-}
 .m2-btn--ghost::before {
   opacity: 0.25;
 }
@@ -181,11 +175,6 @@ body {
   min-height: 54px;
   padding: 0 32px;
   font-size: 18px;
-}
-.m2-btn--sm {
-  min-height: 32px;
-  padding: 0 12px;
-  font-size: 13px;
 }
 .m2-iconbtn {
   display: inline-flex;
@@ -923,10 +912,6 @@ body {
 }
 .m2-deckbtn:active {
   transform: scale(0.96);
-}
-.m2-iconbtn--danger:hover {
-  color: var(--m2-threat-2);
-  border-color: var(--m2-threat);
 }
 
 /* --------------------------------------------------------------- hp bar */
@@ -3894,35 +3879,6 @@ body {
   font-size: 18px;
   color: var(--m2-ink);
 }
-.m2-bondscene {
-  display: flex;
-  gap: 18px;
-  align-items: center;
-  max-width: 640px;
-  padding: 18px 22px;
-  text-align: left;
-  border-left: 3px solid var(--m2-amber);
-  background: rgba(30, 20, 6, 0.55);
-}
-.m2-bondscene img {
-  width: 92px;
-  height: 92px;
-  flex: none;
-  border-radius: 50%;
-  object-fit: cover;
-  object-position: 50% 15%;
-  border: 2px solid var(--m2-amber);
-}
-.m2-bondscene b {
-  font-family: var(--m2-display);
-  color: var(--m2-amber);
-  font-size: 18px;
-}
-.m2-bondscene .m2-type {
-  font-size: 16px;
-  line-height: 1.7;
-}
-
 /* =====================================================================
    Treasure
    ===================================================================== */

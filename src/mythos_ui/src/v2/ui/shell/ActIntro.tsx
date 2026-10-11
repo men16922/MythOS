@@ -1,6 +1,7 @@
 // Mythos 2.0 — act title card: full-bleed art, numeral, name, intro lines revealed one by one.
 import { art } from '../components/art.ts'
 import { useEffect, useState } from 'react'
+import { openingLines } from '../../content/openings.ts'
 import { tr } from '../common/lang.ts'
 import { sound } from '../components/sound.ts'
 import { GmCard } from './GmCard.tsx'
@@ -11,7 +12,10 @@ import './actintro.css'
 
 export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
   const actDef = C.acts[run.act]
-  const lines = tr(actDef?.intro, lang).split('\n').filter(Boolean)
+  const introLines = tr(actDef?.intro, lang).split('\n').filter(Boolean)
+  // Re-entries end with how this loop's starting companion found you (content/openings.ts).
+  const opening = openingLines(run).map((l) => tr(l, lang))
+  const lines = [...introLines, ...opening]
   const [shown, setShown] = useState(0)
   const all = shown >= lines.length
   const [gmLine, setGmLine] = useState<string | null>(null)
@@ -72,7 +76,9 @@ export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
         </div>
         <div className="m2-actintro__lines">
           {lines.slice(0, shown).map((l, i) => (
-            <p key={i}>{l}</p>
+            <p key={i} className={i >= introLines.length ? 'm2-actintro__opening' : undefined}>
+              {l}
+            </p>
           ))}
         </div>
         <button

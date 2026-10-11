@@ -541,3 +541,32 @@ test('IX mirror: picks the run’s own choices by priority, caps at three, and c
   assert.equal(loud.closing, null)
   assert.deepEqual(ixMirror({ flags: {}, trace: 5 }).ids, ['quiet'])
 })
+
+// ---------------------------------------------------------------- run-start vignettes (1.x port #6)
+
+import { OPENINGS, openingLines } from './openings.ts'
+
+test('openings: every companion has three bilingual lines, the last one spoken in their register', () => {
+  assert.deepEqual(Object.keys(OPENINGS).sort(), [...COMPANIONS].sort())
+  for (const [id, lines] of Object.entries(OPENINGS)) {
+    assert.equal(lines.length, 3, `${id}: sensation, entrance, one spoken line`)
+    for (const l of lines) {
+      assert.ok(l.ko.trim().length >= 8 && l.en.trim().length >= 8, `${id}: empty line`)
+      assert.ok(l.ko.length <= 130, `${id}: ko too long (${l.ko.length})`)
+    }
+    assert.match(lines[2]!.ko, /^“.+”|“.+”/, `${id}: the last line is dialogue`)
+    const said = lines[2]!.ko
+    if (id === 'kai') assert.match(said, /요|니다/, 'Kai speaks 해요체')
+    else assert.doesNotMatch(said, /(습니다|세요)/, `${id} must not speak politely`)
+  }
+})
+
+test('openings: shown only on a re-entry of Act 1 that is not the daily', () => {
+  const run = (over: Record<string, unknown>) => ({ loop: 2, act: 1, party: [{ id: 'han' }], ...over })
+  assert.equal(openingLines(run({})).length, 3)
+  assert.equal(openingLines(run({ loop: 1 })).length, 0, 'loop 1 has the prologue')
+  assert.equal(openingLines(run({ act: 2 })).length, 0, 'Act 1 only')
+  assert.equal(openingLines(run({ daily: '2026-10-12' })).length, 0, 'the daily is the same for everyone')
+  assert.equal(openingLines(run({ party: [] })).length, 0)
+  assert.equal(openingLines(run({ party: [{ id: 'nobody' }] })).length, 0)
+})

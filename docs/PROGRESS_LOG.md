@@ -2,6 +2,10 @@
 
 Last updated: 2026-10-11
 
+## 2026-10-12 — Run-start vignettes (1.x port #6)
+
+- On a re-entry (loop 2+, not the daily) the Act 1 intro now ends with how this loop's starting companion found you: three short authored lines each (a sensation, their entrance, one line in their own register) for Se-rin, Tae-o, Han, Su-ah, Kai and Lin-yue (`content/openings.ts`; adapted from 1.x `opening_<who>.md`, whose "their signal arrives first" became "how they reached you" because 2.0 companions have already joined). Set apart by a rule under the act text. No new art. Verified in the browser for Han and Kai; the loop-1 / daily / non-Act-1 exclusions are in `narrative.test.ts`.
+
 ## 2026-10-12 — Daily mutators (#5) and companion bond cutscenes (#3)
 
 - **Daily mutators** (`engine/mutators.ts`): one per KST day, the same for everybody, frozen on the run (`RunState.mutator`) at `newRun`; each is a readable trade built from dials the engine already had — patrol surge (trace +5/node, fight credits +35 %), market boom (shop −30 %, credits −30 %), iron week (+10 max HP, enemies +20 %), glass loop (+80 ₵, −8 max HP), long night (heal +15 pts, trace +4), cold boot (+1 consumable, +30 ₵, one Static), tight wire (trace +2, elites/bosses +35 %), scrap season (credits +25 %, heal +10 pts, shop +25 %). Shown as a card in "today's rules" on the daily setup screen and as a HUD chip with the trade in its tooltip. Balance: same dates with and without the mutator, mixed bot, 240 days (≈ 90 runs per mutator): every mutator within −5…+5 pp, all together 38 % → 36 %; `tight_wire` was +14 pp at +25 % elite HP and −1 pp at +35 %. `engine/mutators.test.ts` drives each dial through the real reducers (start dials, shop prices, node trace, fight credits, enemy HP, safehouse heal).

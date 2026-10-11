@@ -108,3 +108,14 @@
     filter: drop-shadow(0 0 12px rgba(78, 242, 227, 0.7));
   }
 }
+
+/* The companion re-entry lines that close an Act 1 intro: a touch warmer and set apart. */
+.m2-actintro__lines p.m2-actintro__opening {
+  color: var(--m2-text, #fff);
+}
+.m2-actintro__lines p.m2-actintro__opening:first-of-type,
+.m2-actintro__lines p:not(.m2-actintro__opening) + p.m2-actintro__opening {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+}

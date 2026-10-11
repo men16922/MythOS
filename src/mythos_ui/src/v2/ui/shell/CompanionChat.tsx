@@ -85,6 +85,7 @@ export function CompanionChat({ run, C, lang, settings, companionId, opening }: 
             .map((e) => tr(e.note, lang))
             .filter(Boolean),
           archetype: tr(C.archetypes[run.archetype]?.name, lang),
+          party: run.party.map((m) => tr(C.companions[m.id]?.name, lang)).filter(Boolean),
         },
       },
       abort.signal,

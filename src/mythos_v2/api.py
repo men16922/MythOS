@@ -710,6 +710,8 @@ def create_v2_router(
                     timeout=cfg.narrate_timeout,
                 )
                 text = gm.clean_narration(raw, body.kind, body.lang)
+                if text and talk.absent_companion_named(text, context):
+                    text = None
                 outcome = "llm" if text else "rejected"
             except Exception as exc:
                 outcome = _outcome_for(exc)

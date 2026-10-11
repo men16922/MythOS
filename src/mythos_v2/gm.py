@@ -247,6 +247,8 @@ _BASE_SYSTEM: dict[Lang, str] = {
         "- 같은 SF 용어를 반복하지 않는다. 설명하지 말고 보여준다.\n"
         "- 숫자, 수치, 확률, 체력, 피해량, 크레딧 액수를 절대 말하지 않는다.\n"
         "- 보상, 아이템, 능력을 새로 지어내지 않는다. 맥락에 있는 것만 언급한다.\n"
+        "- 이름은 맥락에 나온 인물만 쓴다. 동료(세린·태오·한·수아·카이·린위에)는 맥락에 없으면 이름을 "
+        "부르지 않고, 꿈·회상 속 인물이나 새 인물에게 그 이름을 붙이지 않는다.\n"
         "- 마크다운, 제목, 따옴표로 감싸기, 해설 없이 본문만 출력한다.\n"
         "- 한국어로만 쓴다."
     ),
@@ -260,6 +262,9 @@ _BASE_SYSTEM: dict[Lang, str] = {
         "- Do not repeat sci-fi jargon. Show, do not explain.\n"
         "- Never mention numbers, stats, odds, hit points, damage or credit amounts.\n"
         "- Never invent rewards, items or abilities. Only mention what the context gives.\n"
+        "- Use only names the context gives. Never name a companion (Se-rin, Tae-o, Han, Su-ah, Kai, "
+        "Lin Yue) who is not in the context, and never give those names to dream or memory figures "
+        "or new characters.\n"
         "- Output only the prose: no markdown, no title, no wrapping quotes, no commentary.\n"
         "- Write in English only."
     ),

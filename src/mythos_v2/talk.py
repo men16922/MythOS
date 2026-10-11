@@ -305,7 +305,78 @@ def clean_companion_reply(
     # clean_line first (labels, markdown, wrapping quotes, mechanics numbers), then the meta/rules filter.
     pre = clean_line(text, max_sentences=6, max_chars=1200)
     filtered = _drop_sentences(pre, _META_SENTENCE_RE, _SELF_AI_RE, _RULES_RE, _LEVEL_RE)
-    return _finish(filtered, lang, companion_limits(lang))
+    filtered = drop_polite_sentences(filtered, lang, companion)
+    cleaned = _finish(filtered, lang, companion_limits(lang))
+    if cleaned and absent_companion_named(cleaned, context, speaker=companion):
+        return None
+    return cleaned
+
+
+# ---------------------------------------------------------------- naming + register guard (1.x port #1)
+#
+# 1.x's judge rubric found the most common real failure was a companion named when absent (or a name borrowed
+# for a dream child / bystander), and a companion slipping into the wrong speech register. Both are cheap to
+# detect after the fact, and the cost of a false reject is just the authored line.
+
+#: companion id -> (Korean name tokens, English name pattern). 한 is omitted in Korean: it is also an ordinary
+#: word ("한 번", "한이 맺힌"), so only the English "Han" is checked for him.
+_NAME_PATTERNS: dict[str, tuple[tuple[str, ...], str]] = {
+    "se_rin": (("세린",), r"\bSe[- ]?rin\b|\bSerin\b"),
+    "tae_o": (("태오",), r"\bTae[- ]?o\b"),
+    "han": ((), r"\bHan\b"),
+    "su_ah": (("수아",), r"\bSu[- ]?ah\b"),
+    "kai": (("카이",), r"\bKai\b"),
+    "lin_yue": (("린위에",), r"\bLin[- ]?Yue\b"),
+}
+
+
+def companions_named(text: str) -> set[str]:
+    """Ids of the companions whose name appears in ``text``."""
+    found: set[str] = set()
+    for cid, (ko_names, en_pattern) in _NAME_PATTERNS.items():
+        if any(name in text for name in ko_names) or re.search(en_pattern, text, re.IGNORECASE):
+            found.add(cid)
+    return found
+
+
+def _context_text(context: Mapping[str, Any]) -> str:
+    """Every string in a (sanitised, at most one level nested) context, joined — names the model may use."""
+    parts: list[str] = []
+    for value in context.values():
+        if isinstance(value, str):
+            parts.append(value)
+        elif isinstance(value, list):
+            parts.extend(item for item in value if isinstance(item, str))
+        elif isinstance(value, Mapping):
+            parts.extend(item for item in value.values() if isinstance(item, str))
+    return " ".join(parts)
+
+
+def absent_companion_named(
+    text: str, context: Mapping[str, Any], *, speaker: str | None = None
+) -> bool:
+    """True when ``text`` names a companion the context never mentions (not in ``party`` or any other fact).
+
+    A companion who is the speaker is always allowed. A name that appears anywhere in the context (the event
+    title, the chosen action, the player's own name) is allowed too, so scripted scenes that talk about an
+    absent companion are not blocked."""
+    allowed = companions_named(_context_text(context))
+    if speaker:
+        allowed.add(speaker)
+    return bool(companions_named(text) - allowed)
+
+
+_POLITE_END_RE = re.compile(
+    r"(?:합니다|입니다|습니다|십시오|세요|네요|군요|니까|죠|지요|[해에예이가나아어]요)[\s.!?…\"”’']*$"
+)
+
+
+def drop_polite_sentences(text: str, lang: Lang, companion: str) -> str:
+    """Korean replies of every companion except Kai (the only 해요체 speaker) must not end in a polite form;
+    Se-rin and the rest speak 반말 / plain declaratives. Offending sentences are dropped."""
+    if lang != "ko" or companion == "kai":
+        return text
+    return " ".join(s for s in split_sentences(text) if not _POLITE_END_RE.search(s.strip()))
 
 
 _QUOTED_RE = re.compile(r"['‘\"“「『]([^'’\"”」』]{1,24})['’\"”」』]")
@@ -328,6 +399,8 @@ def clean_ix_line(raw: str, lang: Lang, context: Mapping[str, Any] | None = None
     filtered = _drop_sentences(pre, _META_SENTENCE_RE, _RULES_RE, _WARM_RE)
     cleaned = _finish(filtered, lang, ix_limits(lang))
     if cleaned and lang == "ko" and not _HONORIFIC_RE.search(cleaned):
+        return None
+    if cleaned and absent_companion_named(cleaned, context or {}):
         return None
     return cleaned
 
@@ -701,8 +774,40 @@ def persona_for(companion: str) -> Persona:
 
 # ---------------------------------------------------------------- companion prompt
 
+#: What each companion is quietly after (1.x port #8, `npc_agendas`, rewritten for the 2.0 companion arcs). Two short
+#: sentences each, injected as an inner goal the voice may colour but never state — it keeps replies in character between
+#: events without adding facts the player has not seen.
+AGENDAS: dict[str, dict[Lang, str]] = {
+    "se_rin": {
+        "ko": "놓고 온 사람을 다시 찾고 싶다. 접속자가 사람을 버리지 않는 선택을 하면 말없이 가까워진다.",
+        "en": "She wants to find the person she left behind. She warms, silently, when the connector refuses to abandon someone.",
+    },
+    "tae_o": {
+        "ko": "놓아준 소녀가 무사한지, 스스로 용서받을 수 있는지가 마음에 걸려 있다. 끝까지 버티는 모습을 보이고 싶어 한다.",
+        "en": "He wonders whether the girl he let go is safe, and whether he can forgive himself. He wants to prove he can hold the line to the end.",
+    },
+    "han": {
+        "ko": "시스템이 자기를 한 번도 본 적 없다는 사실을 가볍게 농담으로 돌린다. 누군가 자신을 '있는 사람'으로 대해 주면 은근히 기뻐한다.",
+        "en": "He jokes about the system never having seen him. He is quietly glad when someone treats him as present.",
+    },
+    "su_ah": {
+        "ko": "어머니의 목소리를 끝내 벼리지 못한 것이 마음에 남아 있다. 손을 바쁘게 놀리는 것으로 말을 대신한다.",
+        "en": "She cannot let go of the mother's voice she never managed to forge. She lets her busy hands speak for her.",
+    },
+    "kai": {
+        "ko": "자신이 사람인지 장비인지, 노란 우산의 꿈이 누구의 것인지 알고 싶다. 꿈을 존중해 주면 마음을 연다.",
+        "en": "He wants to know whether he is a person or equipment, and whose yellow-umbrella dream it is. He opens up when the dream is respected.",
+    },
+    "lin_yue": {
+        "ko": "月光호 선원들의 이름 옆에 '돌아옴'을 적고 싶다. 값을 따지는 척하지만 빚진 사람을 잊지 않는다.",
+        "en": "She wants to write 'Returned' beside the Moonlight crew's names. She pretends to haggle, but never forgets who she owes.",
+    },
+}
 
-def _companion_system(persona: Persona, lang: Lang, ctx: Mapping[str, Any]) -> str:
+
+def _companion_system(
+    persona: Persona, lang: Lang, ctx: Mapping[str, Any], persona_id: str = ""
+) -> str:
     name = _ctx_str(ctx, "name") or persona.name[lang]
     alias = _ctx_str(ctx, "alias") or persona.alias[lang]
     role = _ctx_str(ctx, "role")
@@ -721,6 +826,8 @@ def _companion_system(persona: Persona, lang: Lang, ctx: Mapping[str, Any]) -> s
             f"성격: {persona.voice['ko']}",
             f"말투: {persona.register['ko']}.",
         ]
+        if agenda := AGENDAS.get(persona_id, {}).get("ko"):
+            parts.append(f"마음속 목표(직접 말하지 말고 말투와 태도에만 묻어나게): {agenda}")
         if lines:
             parts.append("네가 전에 접속자에게 한 말: " + " / ".join(f'"{x}"' for x in lines))
         if bond is not None:
@@ -756,6 +863,8 @@ def _companion_system(persona: Persona, lang: Lang, ctx: Mapping[str, Any]) -> s
         f"Personality: {persona.voice['en']}",
         f"Voice: {persona.register['en']}.",
     ]
+    if agenda := AGENDAS.get(persona_id, {}).get("en"):
+        parts.append(f"Inner goal (never state it; let it colour tone and attitude only): {agenda}")
     if lines:
         parts.append(
             "Things you said to the connector before: " + " / ".join(f'"{x}"' for x in lines)
@@ -795,7 +904,7 @@ def companion_messages(
     message: str,
 ) -> tuple[str, str]:
     persona = persona_for(companion)
-    system = _companion_system(persona, lang, context)
+    system = _companion_system(persona, lang, context, companion)
     name = _ctx_str(context, "name") or persona.name[lang]
     player = "접속자" if lang == "ko" else "Connector"
     transcript: list[str] = []

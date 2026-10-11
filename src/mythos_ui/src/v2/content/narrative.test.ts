@@ -301,6 +301,32 @@ test('a flag can be read only in the same act or later than some event that sets
   }
 })
 
+test('a flag reader is reachable: some setter can share its party (max two companions) and act order', () => {
+  // The act-order test above proves a setter exists early enough. This one proves it can happen in the same
+  // run: a flag set only by an event that needs Kai, read only by an event that needs Su-ah and Tae-o, could
+  // never fire (a party holds two companions).
+  const PARTY_MAX = 2
+  const needs = (e: EventDef): string[] => [e.requires?.companion, ...(e.requires?.companions ?? [])].filter((c): c is string => !!c)
+  const setters = new Map<string, EventDef[]>()
+  for (const e of EVENTS) {
+    for (const fx of effects(e)) {
+      if (fx.kind === 'flag' && (fx.value ?? 1) > 0) setters.set(fx.key, [...(setters.get(fx.key) ?? []), e])
+    }
+  }
+  for (const e of EVENTS) {
+    const reads = [e.requires?.flag, ...e.options.map((o) => o.requires?.flag)].filter((f): f is string => !!f)
+    for (const flag of reads) {
+      const ok = (setters.get(flag) ?? []).some((setter) => {
+        if (setter.id === e.id) return false
+        const party = new Set([...needs(e), ...needs(setter)])
+        const early = Math.min(...setter.acts) <= Math.max(...e.acts)
+        return party.size <= PARTY_MAX && early
+      })
+      assert.ok(ok, `${e.id}: no setter of ${flag} can share its party within ${PARTY_MAX} companions`)
+    }
+  }
+})
+
 test('writing budget: event text ≤ 320 chars (ko), act intro ≤ 400, outcomes short', () => {
   for (const e of EVENTS) {
     assert.ok(e.text.ko.length <= 320, `${e.id}: ${e.text.ko.length} chars`)

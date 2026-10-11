@@ -480,3 +480,73 @@ class ClientPoolSyncTest(unittest.TestCase):
                     client["ix"][trigger][lang], list(pools[lang]), f"{trigger}/{lang}"
                 )
         self.assertEqual(set(client["ix"]), set(talk.IX_LINES))
+
+
+class NamingRegisterGuardTest(unittest.TestCase):
+    """1.x port #1: a line may only name companions the context gives; non-Kai companions never use polite endings."""
+
+    def test_companions_named_ko_and_en(self) -> None:
+        self.assertEqual(
+            talk.companions_named("세린이 문을 민다. 태오는 말이 없다."), {"se_rin", "tae_o"}
+        )
+        self.assertEqual(
+            talk.companions_named("Han grins. Lin Yue counts coins."), {"han", "lin_yue"}
+        )
+        # "한" is an ordinary word in Korean: never read as the companion.
+        self.assertEqual(talk.companions_named("한 번 더, 한참 걸었다."), set())
+
+    def test_absent_companion_is_flagged_but_context_names_are_allowed(self) -> None:
+        ctx = {"party": ["세린"], "title": "기억 좌판", "playerName": "수아"}
+        self.assertFalse(talk.absent_companion_named("세린이 고개를 든다.", ctx))
+        self.assertTrue(talk.absent_companion_named("태오가 방패를 든다.", ctx))
+        # The player may be called anything, including a companion's name.
+        self.assertFalse(talk.absent_companion_named("수아는 멈춘다.", ctx))
+        self.assertFalse(talk.absent_companion_named("카이가 말한다.", {}, speaker="kai"))
+        self.assertTrue(talk.absent_companion_named("Kai waits.", {"party": ["Se-rin"]}))
+
+    def test_polite_sentences_dropped_for_everyone_but_kai(self) -> None:
+        text = "비켜. 지나가겠습니다. 가자. 먼저 가세요."
+        self.assertEqual(talk.drop_polite_sentences(text, "ko", "se_rin"), "비켜. 가자.")
+        self.assertEqual(talk.drop_polite_sentences(text, "ko", "kai"), text)
+        self.assertEqual(talk.drop_polite_sentences("Step aside.", "en", "se_rin"), "Step aside.")
+        # Nouns ending in 요 are not polite verb endings.
+        self.assertEqual(talk.drop_polite_sentences("그게 필요.", "ko", "se_rin"), "그게 필요.")
+
+    def test_companion_reply_rejects_absent_names_and_wrong_register(self) -> None:
+        ctx = {"name": "세린", "party": ["세린"]}
+        self.assertIsNone(talk.clean_companion_reply("태오가 오고 있어.", "se_rin", "ko", ctx))
+        self.assertIsNone(talk.clean_companion_reply("그렇게 하겠습니다.", "se_rin", "ko", ctx))
+        self.assertEqual(
+            talk.clean_companion_reply("그래, 가자.", "se_rin", "ko", ctx), "그래, 가자."
+        )
+        kai = {"name": "카이", "party": ["카이"]}
+        self.assertEqual(talk.clean_companion_reply("괜찮아요.", "kai", "ko", kai), "괜찮아요.")
+
+    def test_ix_line_may_not_name_an_absent_companion(self) -> None:
+        self.assertIsNone(
+            talk.clean_ix_line("세린의 신호를 확인했습니다.", "ko", {"killedBy": "소각로"})
+        )
+        self.assertTrue(
+            talk.clean_ix_line("세린의 신호를 확인했습니다.", "ko", {"party": ["세린"]})
+        )
+
+
+class AgendaTest(unittest.TestCase):
+    """1.x port #8: each companion's prompt carries a quiet inner goal, in both languages, and never states it as a rule."""
+
+    def test_every_companion_has_a_two_sentence_agenda(self) -> None:
+        self.assertEqual(set(talk.AGENDAS), set(talk.PERSONAS))
+        for cid, by_lang in talk.AGENDAS.items():
+            for lang in ("ko", "en"):
+                text = by_lang[lang]
+                self.assertTrue(10 < len(text) < 260, f"{cid}/{lang}: {len(text)} chars")
+                self.assertLessEqual(len(talk.split_sentences(text)), 2, f"{cid}/{lang}")
+
+    def test_agenda_reaches_the_prompt(self) -> None:
+        for lang, marker in (("ko", "마음속 목표"), ("en", "Inner goal")):
+            system, _user = talk.companion_messages("su_ah", lang, {"name": "수아"}, [], "안녕")
+            self.assertIn(marker, system)
+            self.assertIn(talk.AGENDAS["su_ah"][lang][:12], system)
+        # Not the speaker's agenda for someone else.
+        system, _ = talk.companion_messages("kai", "en", {}, [], "hi")
+        self.assertNotIn(talk.AGENDAS["su_ah"]["en"][:20], system)

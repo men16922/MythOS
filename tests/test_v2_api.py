@@ -376,6 +376,16 @@ class NarrateTest(unittest.TestCase):
         self.assertIn("killedBy: HAETAE", call["user"])
         self.assertIsNone(call["json"])
 
+    def test_absent_companion_name_falls_back(self) -> None:
+        body = {"kind": "event", "lang": "ko", "context": {"party": ["세린"], "title": "우산 가판"}}
+        named = FakeLLM("태오가 방패를 들고 앞서 걷는다. 비가 그친다.")
+        out = self.post(_client(llm=named), body)
+        self.assertEqual(
+            out["source"], "fallback"
+        )  # 태오 is not in the party and not in the context
+        present = FakeLLM("세린이 우산을 접는다. 비가 그친다.")
+        self.assertEqual(self.post(_client(llm=present), body)["source"], "llm")
+
     def test_provider_error_falls_back(self) -> None:
         out = self.post(_client(llm=FakeLLM(exc=RuntimeError("connection refused"))))
         self.assertEqual(out["source"], "fallback")

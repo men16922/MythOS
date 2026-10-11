@@ -294,3 +294,75 @@
   color: var(--m2-gold);
   font-weight: 700;
 }
+
+/* --------------------------------------------------------------- daily row: the item + its leaderboard button */
+
+.m2-menu-row {
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+}
+.m2-menu-row > .m2-menu-item {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.m2-menu-side {
+  flex: none;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  width: 60px;
+  border: 0;
+  border-left: 1px solid var(--m2-line);
+  background: linear-gradient(90deg, rgba(10, 30, 34, 0.55), rgba(10, 30, 34, 0.25));
+  color: var(--m2-gold);
+  cursor: pointer;
+  transition:
+    background 0.16s,
+    color 0.16s;
+}
+.m2-menu-side small {
+  font-size: 11px;
+  color: var(--m2-mute);
+  letter-spacing: 0.04em;
+}
+.m2-menu-side:hover {
+  background: linear-gradient(90deg, rgba(60, 50, 20, 0.6), rgba(60, 50, 20, 0.2));
+  color: #ffe3a0;
+}
+.m2-menu-side:hover small {
+  color: var(--m2-gold);
+}
+/* arrived from the daily notification: the row pulses a few times */
+.m2-menu-row.is-flagged > .m2-menu-item {
+  border-left-color: var(--m2-echo);
+  animation: m2-daily-flag 1.1s ease-in-out 4;
+}
+@keyframes m2-daily-flag {
+  50% {
+    background: linear-gradient(90deg, rgba(90, 70, 160, 0.55), rgba(90, 70, 160, 0.1));
+  }
+}
+
+/* --------------------------------------------------------------- the account chip (top-right corner) */
+
+.m2-title__account {
+  position: absolute;
+  top: max(16px, env(safe-area-inset-top));
+  right: max(16px, env(safe-area-inset-right));
+  z-index: 2;
+  animation: m2-fade 0.8s 1s both;
+}
+
+/* phone portrait: the chip sits above the wordmark, so the column starts lower */
+@media (max-width: 560px) {
+  .m2-title__inner {
+    padding-top: 84px;
+  }
+  .m2-title__account {
+    top: 12px;
+    right: 12px;
+    max-width: calc(100% - 24px);
+  }
+}

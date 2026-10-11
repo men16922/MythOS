@@ -1,12 +1,14 @@
 // Mythos 2.0 — ending + run summary: ending art, text, Echo tally count-up, stats, chronicle.
 import { art } from '../components/art.ts'
-import { Sparkles } from 'lucide-react'
+import { Sparkles, Trophy } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { computeEchoes } from '../../engine/meta.ts'
 import type { Lang, RunState } from '../../engine/types.ts'
-import { dateLabel, isDateKey } from '../../engine/daily.ts'
+import { dateLabel, isDateKey, shiftDateKey } from '../../engine/daily.ts'
+import type { SubmitOutcome } from '../../net/daily.ts'
 import { tr } from '../common/lang.ts'
 import { CountUp } from '../components/CountUp.tsx'
+import { dayOf, IMPROVED, submitLine } from '../components/dailyBoard.ts'
 import { sound } from '../components/sound.ts'
 import { Typewriter } from '../components/Typewriter.tsx'
 import { narrate } from './gm.ts'
@@ -57,11 +59,33 @@ function authoredChronicle(run: RunState, lang: Lang, C: ScreenProps['C']): stri
 export interface EndingScreenProps extends ScreenProps {
   onDone: () => void
   onChronicle: (text: string) => void
+  /** A daily-seed run: its leaderboard submit (outcome null while sending), today's KST date and the board opener. */
+  daily?: { outcome: SubmitOutcome | null; today: string; onBoard: () => void }
+}
+
+/** The daily run's leaderboard line: rank / total, "기록 갱신!", or why it is waiting. */
+function DailyRank({ date, daily, lang }: { date: string; daily: NonNullable<EndingScreenProps['daily']>; lang: Lang }) {
+  const ko = lang === 'ko'
+  const line = submitLine(daily.outcome, dayOf(date, daily.today, shiftDateKey(daily.today, -1)))
+  return (
+    <div className={`m2-ending__daily is-${line.tone}`}>
+      <div className="m2-ending__daily-line" role="status">
+        <Trophy size={16} />
+        <span>
+          {tr(line.text, lang)}
+          {line.improved && <em>{tr(IMPROVED, lang)}</em>}
+        </span>
+      </div>
+      <button className="m2-btn m2-btn--ghost" onClick={daily.onBoard}>
+        {ko ? '순위표' : 'Leaderboard'}
+      </button>
+    </div>
+  )
 }
 
 const CHRONICLE_WAIT_MS = 8000
 
-export function EndingScreen({ run, C, lang, settings, onDone, onChronicle }: EndingScreenProps) {
+export function EndingScreen({ run, C, lang, settings, onDone, onChronicle, daily }: EndingScreenProps) {
   const ended = run.screen.kind === 'ended' ? run.screen : null
   const ending = ended ? C.endings[ended.endingId] : undefined
   const breakdown = useMemo(() => computeEchoes(run, C), [run, C])
@@ -196,6 +220,7 @@ export function EndingScreen({ run, C, lang, settings, onDone, onChronicle }: En
               <small>{ko ? '덱' : 'Deck'}</small>
             </div>
           </div>
+          {daily && isDateKey(run.daily) && <DailyRank date={run.daily} daily={daily} lang={lang} />}
           <button
             className="m2-btn m2-btn--primary m2-btn--lg"
             onClick={() => {

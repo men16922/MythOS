@@ -11,5 +11,5 @@ const params = new URLSearchParams(window.location.search)
 if (params.get('sandbox') === 'combat') {
   void import('./v2/ui/combat/CombatSandbox.tsx').then((m) => m.mountCombatSandbox(rootElement))
 } else {
-  void import('./v2/App2.tsx').then((m) => m.mountApp2(rootElement))
+  void Promise.all([import('./v2/App2.tsx'), import('./v2/net/authWeb.ts')]).then(([m, a]) => m.mountApp2(rootElement, a.webAuthPlatform))
 }

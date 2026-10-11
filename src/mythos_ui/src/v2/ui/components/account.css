@@ -1,0 +1,161 @@
+/* =====================================================================
+   Account control (AccountControl.tsx): the title-screen chip, the account sheet, the Settings section.
+   ===================================================================== */
+
+.m2-account {
+  display: grid;
+  justify-items: end;
+  gap: 6px;
+  max-width: min(320px, 100%);
+}
+.m2-account__chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  max-width: 100%;
+  padding: 6px 14px 6px 8px;
+  border: 1px solid var(--m2-line-2);
+  background: linear-gradient(90deg, rgba(6, 18, 22, 0.86), rgba(6, 18, 22, 0.62));
+  backdrop-filter: blur(3px);
+  color: var(--m2-ink-2);
+  text-align: left;
+  cursor: pointer;
+  clip-path: var(--m2-cut-sm);
+  transition:
+    border-color 0.15s,
+    color 0.15s,
+    background 0.15s;
+}
+.m2-account__chip:hover:not(:disabled) {
+  border-color: var(--m2-cyan-dim);
+  color: var(--m2-cyan);
+  background: linear-gradient(90deg, rgba(14, 44, 50, 0.92), rgba(10, 30, 34, 0.7));
+}
+.m2-account__chip:disabled {
+  cursor: progress;
+  opacity: 0.75;
+}
+.m2-account__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--m2-cyan-dim);
+  color: var(--m2-cyan);
+}
+.m2-account__text {
+  display: grid;
+  min-width: 0;
+}
+.m2-account__text b {
+  font-family: var(--m2-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--m2-ink);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.m2-account__text small {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  color: var(--m2-mute);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.m2-account__chip.is-in small {
+  color: var(--m2-cyan-2);
+  opacity: 0.85;
+}
+.m2-account__note {
+  margin: 0;
+  max-width: 320px;
+  padding: 6px 10px;
+  border-left: 2px solid var(--m2-cyan-dim);
+  background: rgba(4, 12, 14, 0.82);
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--m2-ink-2);
+  text-align: left;
+  animation: m2-fade 0.2s ease-out;
+}
+.m2-account__note.is-warn {
+  border-left-color: var(--m2-amber);
+  color: #ffd9a0;
+}
+
+/* avatar: the Google photo, or the name's first letter */
+.m2-avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  overflow: hidden;
+  border: 1px solid var(--m2-cyan-dim);
+  background: #0d2a2e;
+  color: var(--m2-cyan);
+  clip-path: var(--m2-cut-sm);
+}
+.m2-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.m2-avatar b {
+  font-family: var(--m2-display);
+  font-weight: 700;
+}
+
+/* the account sheet / settings summary */
+.m2-account__who {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.m2-account__who > span {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.m2-account__who b {
+  font-family: var(--m2-display);
+  font-size: 17px;
+  color: #fff;
+}
+.m2-account__who small {
+  font-size: 12.5px;
+  color: var(--m2-mute);
+  overflow-wrap: anywhere;
+}
+.m2-account__who .m2-account__on {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--m2-cyan-2);
+}
+
+.m2-account-section {
+  cursor: default;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+.m2-account-section .m2-toggle__text b {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.m2-account-section__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.m2-account-section .m2-account__note {
+  max-width: none;
+}

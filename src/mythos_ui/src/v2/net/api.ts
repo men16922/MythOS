@@ -1,4 +1,4 @@
-// Mythos 2.0 — browser client for `/api/v2` (saves + AI GM). Backend: src/mythos_v2/api.py.
+// Mythos 2.0 — browser client for `/api/v2` (saves + AI GM + config). Backend: src/mythos_v2/api.py.
 //
 // Contract for callers: NOTHING here throws or blocks the game.
 //  - Every call has an AbortController timeout (narrate 12 s, improvise 15 s, talk 11 s, saves 5 s) and resolves
@@ -10,12 +10,13 @@
 //  - `narrate` / `improvise` return the server's text (LLM or the server's authored fallback); on
 //    `null` the caller shows its own authored text. Never await them before rendering.
 //
-// Identity: `X-Player-Id` = `player_<cyrb53(inviteKey)>` when an invite key is present (the same
-// stable id the classic client derives, so saves follow the key across devices), otherwise a random
-// uuid persisted under localStorage `mythos2.playerId`. The invite key is read exactly like the
-// classic client (`?invite=` → localStorage `mythos_invite`) and sent as `X-Invite-Key`; the Android app
-// (no URL) sets it from Settings via `setInviteKey`. Base URL: same-origin `/api` on the web, `VITE_API_BASE`
-// in the app build (cross-origin; the API allows the Capacitor origins via MYTHOS_CORS_ORIGINS).
+// Identity (contract: scratchpad/online/CONTRACT.md "Identity"): signed in (net/auth.ts installs itself with
+// `setAuthSource`) → `Authorization: Bearer <Firebase ID token>`; otherwise `X-Player-Id` = a random uuid persisted
+// under localStorage `mythos2.playerId`. `GET /config` says whether the server runs `auth: 'google'`: then a signed-out
+// player makes NO save / history / GM / leaderboard-write requests at all (cloud = unavailable, the GM falls back to
+// authored lines silently). Sign-in is an identity switch (`adoptAccount`): the account's cloud copy wins if it has
+// one, else this device's progress is pushed up. Base URL: same-origin `/api` on the web, `VITE_API_BASE` in the app
+// build (cross-origin; the API allows the Capacitor origins via MYTHOS_CORS_ORIGINS).
 
 import type { Improvisation, Lang, MetaProfile, RunRecord, RunState, Stats, StatKey } from '../engine/types.ts'
 
@@ -41,7 +42,9 @@ const KEEPALIVE_MAX_BYTES = 60_000
 const MAX_ACTION_CHARS = 200
 
 const PLAYER_ID_KEY = 'mythos2.playerId'
-const INVITE_STORAGE_KEY = 'mythos_invite' // shared with the classic client (src/api.ts)
+const CONFIG_KEY = 'mythos2.config'
+/** Set while a sign-in identity switch has not finished adopting the account's saves (retried at the next boot). */
+const ADOPT_KEY = 'mythos2.adopt'
 const PENDING_HISTORY_KEY = 'mythos2.pendingHistory'
 const RUN_TOMBSTONE_KEY = 'mythos2.run.cleared'
 const PLAYER_ID_RE = /^[A-Za-z0-9_-]{8,64}$/
@@ -87,56 +90,6 @@ function utf8Bytes(text: string): number {
 
 // ---------------------------------------------------------------- identity
 
-/** Invite key from `?invite=` (persisted) or localStorage — same rule as the classic client. */
-export function getInviteKey(): string | null {
-  try {
-    const fromUrl = new URLSearchParams(window.location.search).get('invite')
-    if (fromUrl) {
-      storageSet(INVITE_STORAGE_KEY, fromUrl)
-      return fromUrl
-    }
-  } catch {
-    /* no window/location */
-  }
-  return storageGet(INVITE_STORAGE_KEY)
-}
-
-/**
- * Store (or clear, with an empty value) the invite key typed into Settings — the app has no `?invite=` URL.
- * The key picks the player id, so this is a sign-in: pending saves go out under the old id first, then
- * the local mirrors are marked synced so the next load prefers the cloud copy for the new id when one
- * exists (a fresh key still receives this device's progress). Reload the page afterwards so the game
- * store boots from that copy instead of saving the in-memory profile over it.
- */
-export async function setInviteKey(key: string | null): Promise<void> {
-  await flushSaves()
-  const next = key?.trim() ?? ''
-  if (next) storageSet(INVITE_STORAGE_KEY, next)
-  else storageRemove(INVITE_STORAGE_KEY)
-  cachedPlayerId = null
-  for (const slot of ['profile', 'run'] as const) {
-    const mirror = readMirror(slot)
-    if (mirror) storageSet(SYNCED_KEY[slot], String(mirror.rev))
-  }
-}
-
-// cyrb53 — identical to src/api.ts and mythos_api.limits._cyrb53 (same input → same player id).
-function cyrb53(str: string, seed = 0): string {
-  let h1 = 0xdeadbeef ^ seed
-  let h2 = 0x41c6ce57 ^ seed
-  for (let i = 0; i < str.length; i++) {
-    const ch = str.charCodeAt(i)
-    h1 = Math.imul(h1 ^ ch, 2654435761)
-    h2 = Math.imul(h2 ^ ch, 1597334677)
-  }
-  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507)
-  h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909)
-  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507)
-  h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909)
-  const n = 4294967296 * (2097151 & h2) + (h1 >>> 0)
-  return n.toString(16).padStart(14, '0')
-}
-
 function newUuid(): string {
   try {
     if (typeof crypto.randomUUID === 'function') return crypto.randomUUID()
@@ -157,19 +110,139 @@ function newUuid(): string {
 
 let cachedPlayerId: string | null = null
 
-/** Stable player id for this browser (invite-derived when a key is present). */
+/** Stable anonymous player id for this browser (`X-Player-Id`; the server only uses it in `auth: 'open'` mode). */
 export function getPlayerId(): string {
   if (cachedPlayerId) return cachedPlayerId
-  const key = getInviteKey()
-  let id: string | null = key ? `player_${cyrb53(key)}` : null
-  if (!id) {
-    const stored = storageGet(PLAYER_ID_KEY)
-    if (stored && PLAYER_ID_RE.test(stored)) id = stored
-  }
-  if (!id) id = newUuid()
+  const stored = storageGet(PLAYER_ID_KEY)
+  // `g_…` ids are reserved for signed-in accounts (the server answers 400); uuids never start that way.
+  const id = stored && PLAYER_ID_RE.test(stored) && !stored.startsWith('g_') ? stored : newUuid()
   storageSet(PLAYER_ID_KEY, id)
   cachedPlayerId = id
   return id
+}
+
+/**
+ * The signed-in session, as net/auth.ts exposes it. Kept as a seam so this module never imports the auth code
+ * (and its lazily loaded Firebase SDK): auth.ts installs itself with `setAuthSource` at boot.
+ */
+export interface AuthSource {
+  /** Resolves once a persisted session has been restored or ruled out. */
+  ready(): Promise<void>
+  signedIn(): boolean
+  /** The current ID token (cached; refreshed ahead of expiry), or null when it cannot be had right now. */
+  getIdToken(force?: boolean): Promise<string | null>
+  /** The server rejected even a freshly refreshed token: end the session (local progress stays). */
+  tokenRejected?(): void
+}
+
+let authSource: AuthSource | null = null
+const AUTH_READY_WAIT_MS = 4000
+
+export function setAuthSource(source: AuthSource | null): void {
+  authSource = source
+}
+
+// ---------------------------------------------------------------- server config (GET /config)
+
+export interface FirebaseWebConfig {
+  apiKey: string
+  authDomain: string
+  projectId: string
+  appId: string
+  messagingSenderId?: string
+}
+
+export interface ServerConfig {
+  /** 'google': saves / GM / leaderboard writes need a signed-in player. 'open': local dev, X-Player-Id works. */
+  auth: 'open' | 'google'
+  /** Public Firebase web config, or null when the server has none (sign-in unavailable). */
+  firebase: FirebaseWebConfig | null
+  leaderboard: boolean
+}
+
+/** Validate a `/config` reply (or its cached copy). */
+export function parseServerConfig(raw: unknown): ServerConfig | null {
+  if (!isRecord(raw) || (raw.auth !== 'open' && raw.auth !== 'google')) return null
+  let firebase: FirebaseWebConfig | null = null
+  const fb = raw.firebase
+  if (isRecord(fb) && ['apiKey', 'authDomain', 'projectId', 'appId'].every((k) => typeof fb[k] === 'string' && fb[k])) {
+    firebase = { apiKey: String(fb.apiKey), authDomain: String(fb.authDomain), projectId: String(fb.projectId), appId: String(fb.appId) }
+    if (typeof fb.messagingSenderId === 'string') firebase.messagingSenderId = fb.messagingSenderId
+  }
+  return { auth: raw.auth, firebase, leaderboard: raw.leaderboard !== false }
+}
+
+let config: ServerConfig | null = null
+let configFetch: Promise<ServerConfig | null> | null = null
+let configFailedAt = 0
+const CONFIG_RETRY_MS = 30_000
+const CONFIG_WAIT_MS = 3000
+
+/** The last known server config (this session's fetch, else the copy cached on this device), or null. */
+export function cachedConfig(): ServerConfig | null {
+  if (config) return config
+  const raw = storageGet(CONFIG_KEY)
+  if (!raw) return null
+  try {
+    return parseServerConfig(JSON.parse(raw))
+  } catch {
+    return null
+  }
+}
+
+/**
+ * `GET /config` once per session (retried at most every 30 s after a failure). Resolves to the fresh config, or the
+ * cached copy when the server is unreachable, or null when neither exists. Never rejects.
+ */
+export function loadConfig(): Promise<ServerConfig | null> {
+  if (config) return Promise.resolve(config)
+  if (configFetch) return configFetch
+  if (configFailedAt && Date.now() - configFailedAt < CONFIG_RETRY_MS) return Promise.resolve(cachedConfig())
+  configFetch = (async () => {
+    const res = await send('GET', '/config', { timeoutMs: TIMEOUT_MS.save, headers: {} })
+    const fresh = res.kind === 'http' && res.status === 200 ? parseServerConfig(res.body) : null
+    if (fresh) {
+      config = fresh
+      storageSet(CONFIG_KEY, JSON.stringify(fresh))
+      return fresh
+    }
+    configFailedAt = Date.now()
+    return cachedConfig()
+  })().finally(() => {
+    configFetch = null
+  })
+  return configFetch
+}
+
+function within<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return Promise.race([promise, new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms))])
+}
+
+/** Can this player use the server's saves / GM / leaderboard writes right now? (Sync; for the UI.) */
+export function cloudAvailable(): boolean {
+  if (authSource?.signedIn()) return true
+  return cachedConfig()?.auth !== 'google'
+}
+
+type Access = 'public' | 'identity'
+
+/**
+ * Identity headers for one request, or null when the request must not be sent: a signed-in player whose token
+ * cannot be had (never fall back to another identity), or a signed-out player on an `auth: 'google'` server.
+ */
+async function identityHeaders(access: Access, forceToken = false): Promise<Record<string, string> | null> {
+  const source = authSource
+  if (source) await within(source.ready(), AUTH_READY_WAIT_MS, undefined)
+  if (source?.signedIn()) {
+    const token = await source.getIdToken(forceToken).catch(() => null)
+    if (token) return { Authorization: `Bearer ${token}` }
+    return access === 'identity' ? null : {}
+  }
+  if (access === 'identity') {
+    const cfg = config ?? (await within(loadConfig(), CONFIG_WAIT_MS, cachedConfig()))
+    if (cfg?.auth === 'google') return null
+  }
+  return { 'X-Player-Id': getPlayerId() }
 }
 
 // ---------------------------------------------------------------- transport
@@ -179,9 +252,14 @@ interface RequestOptions {
   timeoutMs: number
   signal?: AbortSignal
   keepalive?: boolean
+  /** 'identity' (default): saves, GM, leaderboard writes. 'public': config, health, leaderboard reads. */
+  access?: Access
 }
 
-async function request<T>(method: string, path: string, opts: RequestOptions): Promise<T | null> {
+/** Outcome of one HTTP exchange: `skipped` = not sent (no usable identity), `network` = no reply (offline/timeout). */
+export type SendResult = { kind: 'skipped' } | { kind: 'network' } | { kind: 'http'; status: number; body: unknown }
+
+async function send(method: string, path: string, opts: RequestOptions & { headers: Record<string, string> }): Promise<SendResult> {
   const ctrl = new AbortController()
   const timer = setTimeout(() => ctrl.abort(), opts.timeoutMs)
   const relay = (): void => ctrl.abort()
@@ -190,9 +268,7 @@ async function request<T>(method: string, path: string, opts: RequestOptions): P
     else opts.signal.addEventListener('abort', relay, { once: true })
   }
   try {
-    const headers: Record<string, string> = { 'X-Player-Id': getPlayerId() }
-    const invite = getInviteKey()
-    if (invite) headers['X-Invite-Key'] = invite
+    const headers = { ...opts.headers }
     if (opts.body !== undefined) headers['Content-Type'] = 'application/json'
     const res = await fetch(`${API_V2}${path}`, {
       method,
@@ -202,14 +278,53 @@ async function request<T>(method: string, path: string, opts: RequestOptions): P
       keepalive: opts.keepalive === true,
       cache: 'no-store',
     })
-    if (!res.ok) return null
-    return (await res.json()) as T
+    let body: unknown = null
+    try {
+      body = await res.json()
+    } catch {
+      body = null
+    }
+    return { kind: 'http', status: res.status, body }
   } catch {
-    return null
+    return { kind: 'network' }
   } finally {
     clearTimeout(timer)
     opts.signal?.removeEventListener('abort', relay)
   }
+}
+
+/**
+ * One `/api/v2` call with this player's identity. The server answers 401 to any request carrying a token it cannot
+ * verify (even the public reads), so a signed-in 401 is retried once with a force-refreshed token; if that is
+ * rejected too, the session ends (`tokenRejected`: shown as signed out, local progress kept) and the request is
+ * re-evaluated as the signed-out player it now is — never by quietly dropping the header while still "signed in".
+ * A 503 to a signed-in request means the server cannot check tokens right now: treated as offline.
+ */
+export async function apiSend(method: string, path: string, opts: RequestOptions): Promise<SendResult> {
+  const access = opts.access ?? 'identity'
+  let headers = await identityHeaders(access)
+  if (!headers) return { kind: 'skipped' }
+  let res = await send(method, path, { ...opts, headers })
+  const rejected = (r: SendResult, h: Record<string, string>): boolean => r.kind === 'http' && r.status === 401 && !!h.Authorization && !opts.signal?.aborted
+  if (rejected(res, headers)) {
+    headers = await identityHeaders(access, true)
+    if (!headers) return { kind: 'skipped' }
+    res = await send(method, path, { ...opts, headers })
+    if (rejected(res, headers)) {
+      authSource?.tokenRejected?.()
+      headers = authSource?.signedIn() ? null : await identityHeaders(access)
+      if (!headers) return { kind: 'skipped' }
+      res = await send(method, path, { ...opts, headers })
+    }
+  }
+  if (res.kind === 'http' && res.status === 503 && headers.Authorization) return { kind: 'network' }
+  return res
+}
+
+async function request<T>(method: string, path: string, opts: RequestOptions): Promise<T | null> {
+  const res = await apiSend(method, path, opts)
+  if (res.kind !== 'http' || res.status < 200 || res.status >= 300) return null
+  return res.body as T
 }
 
 export interface V2Health {
@@ -220,7 +335,7 @@ export interface V2Health {
 
 /** Server reachability + which store/GM backend is live. */
 export async function checkHealth(): Promise<V2Health | null> {
-  const res = await request<unknown>('GET', '/health', { timeoutMs: TIMEOUT_MS.save })
+  const res = await request<unknown>('GET', '/health', { timeoutMs: TIMEOUT_MS.save, access: 'public' })
   if (!isRecord(res) || typeof res.status !== 'string') return null
   return { status: res.status, store: String(res.store ?? ''), gm: String(res.gm ?? '') }
 }
@@ -355,6 +470,84 @@ async function loadSlot(slot: Slot): Promise<Record<string, unknown> | null> {
   return localData
 }
 
+// ---------------------------------------------------------------- sign-in identity switch
+
+/** What a sign-in does with one save slot: take the account's cloud copy, push this device's copy, or nothing. */
+export type AdoptAction = 'take-remote' | 'push-local' | 'none'
+
+/** The identity-switch rule: the account's cloud copy wins when it has one; otherwise this device's copy goes up. */
+export function adoptDecision(hasLocal: boolean, hasRemote: boolean): AdoptAction {
+  if (hasRemote) return 'take-remote'
+  return hasLocal ? 'push-local' : 'none'
+}
+
+/** Result of `adoptAccount`: what happened per slot (null = the server could not be reached; retried later). */
+export interface AdoptSummary {
+  profile: AdoptAction | null
+  run: AdoptAction | null
+}
+
+/** Cloud copies the store must switch to after a sign-in (the store subscribes with `onAdopt`). */
+export interface AdoptedCopies {
+  profile?: MetaProfile
+  run?: RunState
+}
+
+const adoptListeners = new Set<(copies: AdoptedCopies) => void>()
+
+/** Subscribe to account switches (sign-in adoption). Returns the unsubscribe function. */
+export function onAdopt(listener: (copies: AdoptedCopies) => void): () => void {
+  adoptListeners.add(listener)
+  return () => adoptListeners.delete(listener)
+}
+
+/** True when a sign-in has not finished adopting the account's saves (an offline sign-in; retried at boot). */
+export function adoptPending(): boolean {
+  return storageGet(ADOPT_KEY) === '1'
+}
+
+async function adoptSlot(slot: Slot): Promise<{ action: AdoptAction | null; data: Record<string, unknown> | null }> {
+  const remote = await request<{ data?: unknown }>('GET', `/${slot}`, { timeoutMs: TIMEOUT_MS.save })
+  if (remote === null) return { action: null, data: null }
+  const remoteData = isSave(remote.data) ? remote.data : null
+  const local = readMirror(slot)
+  const localData = local && isSave(local.data) && !(slot === 'run' && storageGet(RUN_TOMBSTONE_KEY)) ? local.data : null
+  const action = adoptDecision(localData !== null, remoteData !== null)
+  if (action === 'take-remote' && remoteData) {
+    const entry = pending[slot]
+    if (entry) {
+      // A debounced save of the old identity's state must not land on the account after this.
+      if (entry.timer) clearTimeout(entry.timer)
+      pending[slot] = null
+      for (const resolve of entry.waiters) resolve(false)
+    }
+    const rev = nextRev()
+    writeMirror(slot, JSON.stringify(remoteData), rev)
+    storageSet(SYNCED_KEY[slot], String(rev))
+    if (slot === 'run') storageRemove(RUN_TOMBSTONE_KEY)
+    return { action, data: remoteData }
+  }
+  if (action === 'push-local' && localData) void scheduleSave(slot, localData, 0)
+  return { action, data: null }
+}
+
+/**
+ * Sign-in identity switch, after the account became active (net/auth.ts calls it; pending saves of the old identity
+ * were flushed before the switch). Per slot: the account's cloud copy wins if it exists (mirrored locally and handed
+ * to the `onAdopt` listeners), else this device's progress is pushed up. Until both slots succeed the switch stays
+ * pending (`adoptPending`) and is retried at the next boot.
+ */
+export async function adoptAccount(): Promise<AdoptSummary> {
+  storageSet(ADOPT_KEY, '1')
+  const [profile, run] = await Promise.all([adoptSlot('profile'), adoptSlot('run')])
+  const copies: AdoptedCopies = {}
+  if (profile.data) copies.profile = profile.data as unknown as MetaProfile
+  if (run.data) copies.run = run.data as unknown as RunState
+  if (copies.profile || copies.run) for (const listener of adoptListeners) listener(copies)
+  if (profile.action !== null && run.action !== null) storageRemove(ADOPT_KEY)
+  return { profile: profile.action, run: run.action }
+}
+
 /** Meta profile: best available copy (see header), or null for a first-time player. */
 export async function loadProfile(): Promise<MetaProfile | null> {
   return (await loadSlot('profile')) as MetaProfile | null
@@ -440,11 +633,12 @@ async function flushHistory(): Promise<boolean> {
   const queue = readPendingHistory()
   const failed: RunRecord[] = []
   for (const record of queue) {
-    const res = await request<{ ok?: boolean }>('POST', '/history', {
-      body: JSON.stringify(record),
-      timeoutMs: TIMEOUT_MS.save,
-    })
-    if (res?.ok !== true) failed.push(record)
+    const res = await apiSend('POST', '/history', { body: JSON.stringify(record), timeoutMs: TIMEOUT_MS.save })
+    const ok = res.kind === 'http' && res.status >= 200 && res.status < 300
+    // A refusal that can never change (e.g. 409: that record id belongs to another player) is dropped, not retried
+    // forever; offline, signed out (401), throttled (429) and server errors stay queued.
+    const permanent = res.kind === 'http' && res.status >= 400 && res.status < 500 && ![401, 408, 429].includes(res.status)
+    if (!ok && !permanent) failed.push(record)
   }
   // Keep records queued after this flush started, plus the ones that failed.
   const sent = new Set(queue.filter((r) => !failed.includes(r)).map((r) => r.id))

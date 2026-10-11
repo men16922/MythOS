@@ -1,8 +1,11 @@
-"""Generate the Android launcher icons and splash images from the MythOS logo art.
+"""Generate the Android launcher icons, splash images and notification icon from the MythOS logo art.
 
 Source: src/mythos_ui/src/assets/mythos-logo-concept.png (glyph on a near-black field). Writes into the
-Capacitor project's res/ dirs (mipmap-*/ic_launcher*.png, drawable*/splash.png) and the icon background
-color. Re-run after changing the logo: `.venv/bin/python scripts/android/make_icons.py` (needs Pillow).
+Capacitor project's res/ dirs (mipmap-*/ic_launcher*.png, drawable*/splash.png, the icon background color) and
+the monochrome status-bar icon of the daily notification (drawable-*dpi/ic_stat_mythos.png: white glyph on
+transparent, as Android requires). Re-run after changing the logo (needs Pillow):
+  .venv/bin/python scripts/android/make_icons.py            # everything
+  .venv/bin/python scripts/android/make_icons.py stat       # only the notification icon
 """
 
 from __future__ import annotations
@@ -10,7 +13,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageChops, ImageDraw
 
 ROOT = Path(__file__).resolve().parents[2]
 LOGO = ROOT / "src/mythos_ui/src/assets/mythos-logo-concept.png"
@@ -70,7 +73,52 @@ def masked(img: Image.Image, shape: str) -> Image.Image:
     return out
 
 
+# Notification small icon: 24dp canvas, glyph inside the 20dp live area (Android's status-bar icon keyline).
+STAT_DP = 24
+STAT_LIVE_DP = 20
+
+
+def stat_icons() -> None:
+    """White-on-transparent glyph (both logo colors become white; the gaps between the strokes stay open)."""
+    logo = Image.open(LOGO).convert("RGB")
+    r, g, b = logo.split()
+    lit = ImageChops.lighter(ImageChops.lighter(r, g), b)
+    mask = lit.point(
+        lambda v: 255 if v > 90 else 0
+    )  # hard edge: the dots' glow is not part of the shape
+    box = mask.getbbox()
+    if box is None:
+        sys.exit("logo has no visible glyph")
+    glyph = mask.crop(box)
+    for name, k in DENSITIES.items():
+        size = round(STAT_DP * k)
+        big = size * 8  # draw large, then downsample once for clean anti-aliased edges
+        live = STAT_LIVE_DP / STAT_DP * big
+        scale = live / max(glyph.size)
+        g_big = glyph.resize(
+            (max(1, round(glyph.width * scale)), max(1, round(glyph.height * scale))), Image.LANCZOS
+        )
+        alpha = Image.new("L", (big, big), 0)
+        alpha.paste(g_big, ((big - g_big.width) // 2, (big - g_big.height) // 2))
+        icon = Image.new("RGBA", (size, size), (255, 255, 255, 0))
+        icon.putalpha(alpha.resize((size, size), Image.LANCZOS))
+        d = RES / f"drawable-{name}"
+        d.mkdir(parents=True, exist_ok=True)
+        icon.save(d / "ic_stat_mythos.png", optimize=True)
+    print(f"notification icon written: {RES.relative_to(ROOT)}/drawable-*dpi/ic_stat_mythos.png")
+
+
 def main() -> None:
+    what = sys.argv[1] if len(sys.argv) > 1 else "all"
+    if what not in ("all", "launcher", "stat"):
+        sys.exit("usage: make_icons.py [all|launcher|stat]")
+    if what in ("all", "stat"):
+        stat_icons()
+    if what in ("all", "launcher"):
+        launcher_icons()
+
+
+def launcher_icons() -> None:
     glyph, bg = load_glyph()
     for name, k in DENSITIES.items():
         d = RES / f"mipmap-{name}"

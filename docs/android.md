@@ -16,9 +16,13 @@ The Mythos 2.0 client (`src/mythos_ui/src/v2`) packaged as an Android app with C
   `VITE_API_BASE` for the API origin (default: the Cloud Run URL in `vite.config.ts`).
 - All game art and music: `resources/neo-seoul/` is copied to `dist-app/resources/neo-seoul/` and loaded from the
   APK (`VITE_ASSET_BASE`, see `src/v2/ui/common/assets.ts`).
-- The game engine is client-side TypeScript, so a run plays fully offline. Only saves/sync and the AI GM
-  (narrate / improvise / talk) go to `/api/v2`, and all of them fall back when the API is unreachable: saves keep a
-  localStorage mirror and sync on the next successful load, and the GM falls back to authored text.
+- The game engine is client-side TypeScript, so a run plays fully offline. Only saves/sync, the AI GM
+  (narrate / improvise / talk) and the daily leaderboard go to `/api/v2`, and all of them fall back when the API is
+  unreachable: saves keep a localStorage mirror and sync on the next successful load, the GM falls back to authored
+  text, and a daily result waits in a queue until it can be posted.
+- Google sign-in (Firebase Auth) turns on cloud saves, the AI GM and posting to the leaderboard. A signed-out player
+  plays everything offline on the device; on the production API (`MYTHOS_AUTH=google`) the client then makes no
+  save/GM requests at all.
 - Exception: the UI fonts load from Google Fonts. Offline the game falls back to system fonts.
 
 The web build (`make frontend-build` → `src/mythos_api/static`) does not change. It keeps same-origin `/api` and
@@ -32,7 +36,8 @@ The web build (`make frontend-build` → `src/mythos_api/static`) does not chang
 | Immersive fullscreen (swipe from an edge to see the bars for a moment) and keep-screen-on while in the foreground | `android/app/src/main/java/.../MainActivity.java` |
 | Music suspends when the app goes to the background; pending saves are pushed | `src/v2/native/init.ts` |
 | Both orientations (the combat screen has phone portrait and landscape layouts) | default manifest |
-| Invite code field (stores `mythos_invite`, the key is never displayed; saving reloads the game under the new identity) | `src/v2/ui/components/SettingsPanel.tsx`, `setInviteKey` in `src/v2/net/api.ts` |
+| Google sign-in (native account picker, then the native Firebase SDK holds the session and issues ID tokens). Title chip + Settings account section; sign-in adopts the account's cloud save (else uploads this device's), sign-out keeps local progress | `src/v2/native/authNative.ts`, `src/v2/net/auth.ts`, `src/v2/ui/components/AccountControl.tsx` |
+| "오늘의 시드 알림" (Settings, app build only, default off): FCM topic `daily-ko` / `daily-en`, channel `daily`; a tap opens the title with today's leaderboard | `src/v2/native/push.ts` |
 | Crashlytics: native crashes plus JS errors (window errors, unhandled rejections, React errors) as non-fatals, at most 20 per launch, with no player data. Players can turn it off in Settings ("오류 보고 보내기", app build only) | `src/v2/native/crash.ts` |
 
 ## Toolchain (macOS, one time)
@@ -54,18 +59,60 @@ and `minSdk` 24 (`android/variables.gradle`).
 ```bash
 scripts/android/fetch-firebase-config.sh   # once per machine: registers the app if needed, writes android/app/google-services.json (gitignored)
 scripts/android/build-apk.sh               # web build + copy resources + cap sync + ./gradlew assembleDebug
-# → src/mythos_ui/android/app/build/outputs/apk/debug/app-debug.apk (~124 MiB, mostly art/music)
+# → src/mythos_ui/android/app/build/outputs/apk/debug/app-debug.apk (~127 MiB, mostly art/music)
 ```
 
-- Without `google-services.json` the app still builds and runs, but without Firebase (Gradle prints a warning).
+- Without `google-services.json` the app still builds and runs, but without Firebase (Gradle prints a warning), and
+  `cap sync` leaves the sign-in and push plugins out (`capacitor.config.ts`: Firebase Auth's native SDK would abort
+  the app at start without a Firebase config).
+- `build-web.sh` prints `native Google sign-in: on|off`. It is on only when `google-services.json` carries a Google
+  web OAuth client (see [Google sign-in](#google-sign-in)); while it is off the app answers a sign-in tap with
+  "Google 로그인은 아직 열리지 않았다…" instead of calling the plugin.
 - `VERSION_CODE` / `VERSION_NAME` are passed to Gradle as `-PversionCode` / `-PversionName` (defaults: 1 / 2.0.0).
 - `scripts/android/build-web.sh` runs the web half only (`dist-app` + `cap sync`) when you open the project in
   Android Studio instead.
-- Regenerate the icons and splash after a logo change: `.venv/bin/python scripts/android/make_icons.py`.
+- Regenerate the icons, splash and the notification icon after a logo change:
+  `.venv/bin/python scripts/android/make_icons.py` (`… make_icons.py stat` redraws only `ic_stat_mythos`, the white-on-
+  transparent status-bar glyph in `drawable-*dpi/`).
 
 Firebase auth for the scripts: run `firebase login`, or use Application Default Credentials for an account with
 access to the project (`gcloud auth application-default login`). `env.sh` sets `GOOGLE_CLOUD_QUOTA_PROJECT` to the
 project, which the App Distribution API needs when it is called with ADC.
+
+## Google sign-in
+
+Native Google sign-in uses `@capacitor-firebase/authentication` (Credential Manager account picker,
+`skipNativeAuth: false`; `rgcfaIncludeGoogle = true` in `android/variables.gradle` bundles the Google SDKs). The
+server verifies the Firebase ID token (`Authorization: Bearer`). Google sign-in only works for an APK whose signing
+key's SHA-1 is registered on the Firebase Android app, and only once Google is enabled as a provider:
+
+1. **Owner, once:** Firebase console → Authentication → *Get started*, then Sign-in method → Google → *Enable*
+   (pick the support email). Until then every sign-in ends in the graceful "not open yet" line (web and app).
+2. **SHA-1 per signing key.** The debug keystore of this build machine is registered (`make firebase-sha`). The
+   release **upload key** and Play's **app signing key** (Play Console → App integrity) are owner items: add their
+   SHA-1 (and SHA-256) to the Firebase Android app before testing a release build.
+3. **Re-fetch the config** after step 1 (and after adding a SHA): `make android-firebase` writes a new
+   `google-services.json` that now carries the Google web OAuth client; rebuild (`scripts/android/build-apk.sh`
+   prints `native Google sign-in: on`).
+
+A key that is not registered shows up as a "Developer console is not set up correctly" error, which the app also
+reports as "not open yet". The web client signs in with a Google popup; the deployed origin must be an authorized
+domain in Firebase Auth (`make firebase-auth-domains`, owner-run).
+
+## Daily notification (push)
+
+- **Topics, not tokens.** The server stores no device tokens: Cloud Scheduler sends one FCM message a day to the topic
+  `daily-ko` / `daily-en` (default 19:00 KST; created and updated by the owner with `make push-schedule`).
+- **Opt-in.** Settings → "오늘의 시드 알림" (default off). Turning it on asks for the notification permission
+  (Android 13+), creates the channel `daily` ("오늘의 시드" / "Daily Signal", default importance, no vibration),
+  subscribes `daily-<game language>` and unsubscribes the other. A language change moves the subscription; turning
+  it off unsubscribes both. A denied permission leaves it off with a hint to allow it in system settings.
+- **Message.** Title/body per language, `data.open = "daily"`, channel `daily`, small icon `ic_stat_mythos`, accent
+  `#3ef0ff` (the manifest also sets these as FCM defaults). A tap (app in the background or not running) opens the
+  title with today's leaderboard and the daily item flagged. A push that arrives while the game is open shows only a
+  small toast.
+- **Test send:** `make push-test PUSH_TOPIC=<topic> PUSH_LANG=ko` (`scripts/firebase/push-test.sh`, your gcloud
+  credentials). `daily-ko` / `daily-en` reach every subscribed player, so once testers exist use a private topic.
 
 ## Emulator smoke test (headless, silent)
 
@@ -80,6 +127,13 @@ scripts/android/emulator.sh stop
 
 - Debug builds are WebView-debuggable. Run `adb -s emulator-5580 forward tcp:9337 localabstract:webview_devtools_remote_$(adb -s emulator-5580 shell pidof com.projectmythos.signalrun)`, then open `chrome://inspect` or use CDP on `:9337`.
 - To test offline, run `adb -s emulator-5580 shell cmd connectivity airplane-mode enable` (use `disable` to go back online).
+- Push on the emulator (the `google_apis` image has Play services): turn the toggle on (accept the permission dialog),
+  press Home, send one test message, check `adb -s emulator-5580 shell dumpsys notification --noredact | grep -A30
+  signalrun` (channel `daily`, title "오늘의 시드가 열렸다"), then tap it from the shade
+  (`adb -s emulator-5580 shell cmd statusbar expand-notifications`): the app opens on today's leaderboard. Turn the
+  toggle off afterwards so the emulator does not stay subscribed.
+- Point the app at a private local API with `VITE_API_BASE=http://10.0.2.2:<port>`; never stop the owner's servers to
+  free a port (`make api` kills every running `mythos_api`).
 - An `http://` `VITE_API_BASE` also turns on WebView mixed content (`capacitor.config.ts`), because the app page is
   `https://localhost`. Release builds must use the https Cloud Run URL.
 
@@ -126,7 +180,9 @@ No signing key exists in the repo or on the build machine. These steps are the o
 4. **Play Console** (owner account, one-time US$25 registration): create the app with the package id above, turn on
    **Play App Signing** (Google holds the app signing key and your keystore is only the upload key), then upload the AAB to
    Internal testing first. Play needs a privacy policy URL, the Data safety form (crash data through Crashlytics,
-   gameplay saves and the AI GM text through the API) and a content rating.
+   the Google account (Firebase Auth: account id, email, name), gameplay saves, the AI GM text and the daily
+   leaderboard name through the API, and the FCM topic subscription) and a content rating. Register the upload and
+   app-signing keys' SHA-1 for Google sign-in first (see [Google sign-in](#google-sign-in)).
 5. **Size.** The AAB base module must stay under Play's 200 MB compressed download limit. Today it is about 125 MB
    (art and music are already webp/m4a). If it grows, move the art into a Play Asset Delivery install-time pack.
 
@@ -135,5 +191,7 @@ No signing key exists in the repo or on the build machine. These steps are the o
 - **Production CORS.** The Cloud Run API must allow the app origin `https://localhost` (`MYTHOS_CORS_ORIGINS`,
   `src/mythos_api/app.py`). Until that deploy, the Cloud Run build plays offline only: saves stay on the device and the GM uses
   authored text.
-- **Invite code.** Players type it in Settings. Without one the production API rejects saves and GM calls, and the game
-  plays offline.
+- **Sign-in on the server.** Production runs `MYTHOS_AUTH=google`: saves, the GM and leaderboard posts need a signed-in
+  player, and a signed-out client does not even try (it plays offline with authored lines). Invite codes are gone.
+- **Firebase Auth enabled** (owner, see [Google sign-in](#google-sign-in)) and the daily push schedule created
+  (`make push-schedule`, owner).

@@ -1,6 +1,6 @@
 // Crash reporting for the Android app (Firebase Crashlytics via @capacitor-firebase/crashlytics).
 // Native crashes are captured by the SDK itself; the game is TypeScript in a WebView, so uncaught JS errors,
-// unhandled rejections and errors React catches are sent as non-fatal reports. No player data or invite key is
+// unhandled rejections and errors React catches are sent as non-fatal reports. No player data, account or token is
 // attached: only the error message/stack and the app build. Opt-out lives in Settings (app build only) and is
 // persisted both here and by Crashlytics (setCrashlyticsCollectionEnabled survives restarts).
 import { FirebaseCrashlytics } from '@capacitor-firebase/crashlytics'

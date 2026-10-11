@@ -1,7 +1,9 @@
-// Mythos 2.0 — settings modal (language, BGM, SFX, fast animations, invite code; crash reports in the Android app).
-import { useState, type CSSProperties } from 'react'
+// Mythos 2.0 — settings modal (language, BGM, SFX, fast animations, the Google account; daily notification and crash
+// reports in the Android app).
+import { useState } from 'react'
 import type { Lang, MetaProfile } from '../../engine/types.ts'
-import { getInviteKey, setInviteKey } from '../../net/api.ts'
+import { pushControl } from '../common/nativeBridge.ts'
+import { AccountSection } from './AccountControl.tsx'
 import { Modal } from './Modal.tsx'
 
 type Settings = MetaProfile['settings']
@@ -32,85 +34,42 @@ function Toggle({ on, label, hint, onClick }: { on: boolean; label: string; hint
   )
 }
 
-const INVITE_BOX: CSSProperties = { cursor: 'default', flexDirection: 'column', alignItems: 'stretch', gap: 10 }
-const INVITE_INPUT: CSSProperties = {
-  flex: 1,
-  minWidth: 0,
-  height: 40,
-  padding: '0 12px',
-  font: 'inherit',
-  fontSize: 15,
-  color: 'var(--m2-ink)',
-  background: 'rgba(3, 10, 12, 0.85)',
-  border: '1px solid var(--m2-line-2)',
-  outline: 'none',
-}
-
-/**
- * Invite code (the production API's access key). The web client also takes it from `?invite=`; the Android app
- * has no URL, so it is typed here. Saving reloads the game so saves follow the new identity (see setInviteKey).
- * The stored key is never shown back.
- */
-function InviteField({ ko }: { ko: boolean }) {
-  const [hasKey] = useState(() => getInviteKey() !== null)
-  const [draft, setDraft] = useState('')
+/** Android app only: "오늘의 시드 알림" (default off). native/push.ts does the work through the nativeBridge seam. */
+function DailyPushToggle({ lang }: { lang: Lang }) {
+  const ko = lang === 'ko'
+  const control = pushControl()
+  const [on, setOn] = useState(() => control?.enabled() ?? false)
   const [busy, setBusy] = useState(false)
-  const apply = async (key: string | null) => {
-    setBusy(true)
-    await setInviteKey(key)
-    try {
-      const url = new URL(window.location.href)
-      url.searchParams.delete('invite')
-      window.location.replace(url.toString())
-    } catch {
-      window.location.reload()
-    }
-  }
+  const [hint, setHint] = useState<string | null>(null)
+  if (!control) return null
+  const base = ko ? '매일 저녁, 오늘의 시드가 열렸다고 알려 준다' : 'An evening nudge when the Daily Signal opens'
   return (
-    <div className="m2-toggle" style={INVITE_BOX}>
-      <span className="m2-toggle__text">
-        <b>{ko ? '초대 코드' : 'Invite code'}</b>
-        <small>
-          {hasKey
-            ? ko
-              ? '등록됨. 바꾸면 그 코드의 클라우드 저장을 불러온다.'
-              : 'Saved. Changing it loads that code’s cloud save.'
-            : ko
-              ? '받은 코드를 넣으면 클라우드 저장과 AI GM이 켜진다. 없어도 오프라인으로 플레이할 수 있다.'
-              : 'Enter your code to turn on cloud saves and the AI GM. You can play offline without one.'}
-        </small>
-      </span>
-      <form
-        className="m2-improv__row"
-        onSubmit={(e) => {
-          e.preventDefault()
-          if (draft.trim() && !busy) void apply(draft)
-        }}
-      >
-        <input
-          type="password"
-          value={draft}
-          maxLength={128}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder={hasKey ? (ko ? '새 코드' : 'New code') : ko ? '초대 코드' : 'Invite code'}
-          aria-label={ko ? '초대 코드' : 'Invite code'}
-          autoComplete="off"
-          autoCapitalize="off"
-          autoCorrect="off"
-          spellCheck={false}
-          disabled={busy}
-          style={INVITE_INPUT}
-        />
-        <button className="m2-btn" type="submit" disabled={!draft.trim() || busy}>
-          {ko ? '저장' : 'Save'}
-        </button>
-        {hasKey && (
-          <button className="m2-btn m2-btn--ghost" type="button" disabled={busy} onClick={() => void apply(null)}>
-            {ko ? '지우기' : 'Clear'}
-          </button>
-        )}
-      </form>
-    </div>
+    <Toggle
+      on={on}
+      label={ko ? '오늘의 시드 알림' : 'Daily Signal alerts'}
+      hint={hint ?? base}
+      onClick={() => {
+        if (busy) return
+        setBusy(true)
+        const next = !on
+        setOn(next) // optimistic; settled below
+        void control.set(next, lang).then((res) => {
+          setBusy(false)
+          setOn(res === 'on')
+          setHint(
+            res === 'denied'
+              ? ko
+                ? '알림 권한이 꺼져 있다. 기기 설정에서 허용해라.'
+                : 'Notifications are blocked. Allow them in system settings.'
+              : res === 'unavailable'
+                ? ko
+                  ? '이 기기에서는 알림을 켤 수 없다.'
+                  : 'Notifications aren’t available on this device.'
+                : null,
+          )
+        })
+      }}
+    />
   )
 }
 
@@ -144,7 +103,15 @@ export function SettingsPanel({ settings, onChange, onClose }: SettingsPanelProp
   const lang: Lang = settings.lang
   const ko = lang === 'ko'
   return (
-    <Modal onClose={onClose} title={ko ? '설정' : 'Settings'} actions={<button className="m2-btn" onClick={onClose}>{ko ? '닫기' : 'Close'}</button>}>
+    <Modal
+      onClose={onClose}
+      title={ko ? '설정' : 'Settings'}
+      actions={
+        <button className="m2-btn" onClick={onClose}>
+          {ko ? '닫기' : 'Close'}
+        </button>
+      }
+    >
       <div className="m2-settings">
         <div className="m2-langswitch" role="radiogroup">
           {(['ko', 'en'] as const).map((l) => (
@@ -161,7 +128,8 @@ export function SettingsPanel({ settings, onChange, onClose }: SettingsPanelProp
           hint={ko ? '텍스트와 전투 연출을 빠르게 넘긴다' : 'Text and combat animations play faster'}
           onClick={() => onChange({ ...settings, fastAnim: !settings.fastAnim })}
         />
-        <InviteField ko={ko} />
+        <AccountSection lang={lang} />
+        {APP_BUILD && <DailyPushToggle lang={lang} />}
         {APP_BUILD && <CrashReportsToggle ko={ko} />}
       </div>
     </Modal>

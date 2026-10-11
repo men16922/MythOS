@@ -136,3 +136,36 @@
     transform: translate(-50%, -6px);
   }
 }
+
+/* --------------------------------------------------------------- Android: a daily push that arrives mid-game */
+
+.m2-push-toast {
+  position: fixed;
+  left: 50%;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  z-index: 90;
+  max-width: min(520px, calc(100% - 32px));
+  padding: 8px 16px;
+  border: 1px solid rgba(183, 166, 255, 0.45);
+  background: rgba(10, 8, 22, 0.92);
+  color: var(--m2-ink-2);
+  font-size: 13px;
+  clip-path: var(--m2-cut-sm);
+  transform: translateX(-50%);
+  pointer-events: none;
+  animation: m2-push-toast 5s ease-out both;
+}
+@keyframes m2-push-toast {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, 8px);
+  }
+  8%,
+  88% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  100% {
+    opacity: 0;
+  }
+}

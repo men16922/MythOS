@@ -1,10 +1,12 @@
-// Mythos 2.0 — title: the city in the rain, the wordmark, and the ways in (continue, new loop, today's seed, archive).
+// Mythos 2.0 — title: the city in the rain, the wordmark, and the ways in (continue, new loop, today's seed + its
+// leaderboard, archive), with the Google account chip in the corner.
 import { art } from '../components/art.ts'
-import { Archive, CalendarDays, Play, RotateCcw, Settings } from 'lucide-react'
+import { Archive, CalendarDays, Play, RotateCcw, Settings, Trophy } from 'lucide-react'
 import logoUrl from '../../../assets/mythos-logo-concept.png'
 import { attemptsLabel, dailyLabel, dateLabel } from '../../engine/daily.ts'
 import type { ContentRegistry, DailyRecord, Lang, MetaProfile, RunState } from '../../engine/types.ts'
 import { tr } from '../common/lang.ts'
+import { AccountChip } from '../components/AccountControl.tsx'
 import { SCREEN_LABEL, savedAgo } from '../components/format.ts'
 import { sound } from '../components/sound.ts'
 import './title.css'
@@ -22,12 +24,16 @@ export interface TitleScreenProps {
   onNewLoop: () => void
   /** Open the setup screen in daily-seed mode (the shell asks first if a run is live). */
   onDaily: () => void
+  /** Open today's leaderboard. */
+  onBoard: () => void
+  /** Draw the eye to the daily item (arrived from the daily notification). */
+  highlightDaily?: boolean
   onArchive: () => void
   onSettings: () => void
   onLang: (lang: Lang) => void
 }
 
-export function TitleScreen({ profile, run, savedAt, C, today, daily, onContinue, onNewLoop, onDaily, onArchive, onSettings, onLang }: TitleScreenProps) {
+export function TitleScreen({ profile, run, savedAt, C, today, daily, onContinue, onNewLoop, onDaily, onBoard, highlightDaily, onArchive, onSettings, onLang }: TitleScreenProps) {
   const lang = profile.settings.lang
   const ko = lang === 'ko'
   const arch = run ? C.archetypes[run.archetype] : undefined
@@ -39,6 +45,9 @@ export function TitleScreen({ profile, run, savedAt, C, today, daily, onContinue
       <div className="m2-title__bg" style={{ backgroundImage: `url(${art.title()})` }} />
       <div className="m2-title__rain" />
       <div className="m2-title__shade" />
+      <div className="m2-title__account">
+        <AccountChip lang={lang} />
+      </div>
 
       <div className="m2-title__inner">
         <div className="m2-title__mark">
@@ -89,23 +98,38 @@ export function TitleScreen({ profile, run, savedAt, C, today, daily, onContinue
               <small>{profile.loops === 0 ? (ko ? '첫 접속' : 'Connect for the first time') : ko ? `지금까지 ${profile.loops}번 접속했다` : `${profile.loops} loops so far`}</small>
             </span>
           </button>
-          <button
-            className="m2-menu-item m2-menu-item--daily"
-            onMouseEnter={hover}
-            onClick={() => {
-              sound('ui_click')
-              onDaily()
-            }}
-          >
-            <CalendarDays size={18} />
-            <span>
-              <b>{ko ? '오늘의 시드' : 'Daily Signal'}</b>
-              <small>
-                {tr(dateLabel(today), lang)} · <em className={`m2-daily-best${daily?.best.won ? ' is-won' : daily ? ' is-tried' : ''}`}>{tr(dailyLabel(daily), lang)}</em>
-                {daily && ` · ${tr(attemptsLabel(daily.attempts), lang)}`}
-              </small>
-            </span>
-          </button>
+          <div className={`m2-menu-row${highlightDaily ? ' is-flagged' : ''}`}>
+            <button
+              className="m2-menu-item m2-menu-item--daily"
+              onMouseEnter={hover}
+              onClick={() => {
+                sound('ui_click')
+                onDaily()
+              }}
+            >
+              <CalendarDays size={18} />
+              <span>
+                <b>{ko ? '오늘의 시드' : 'Daily Signal'}</b>
+                <small>
+                  {tr(dateLabel(today), lang)} · <em className={`m2-daily-best${daily?.best.won ? ' is-won' : daily ? ' is-tried' : ''}`}>{tr(dailyLabel(daily), lang)}</em>
+                  {daily && ` · ${tr(attemptsLabel(daily.attempts), lang)}`}
+                </small>
+              </span>
+            </button>
+            <button
+              className="m2-menu-side"
+              onMouseEnter={hover}
+              onClick={() => {
+                sound('ui_click')
+                onBoard()
+              }}
+              title={ko ? '오늘의 순위표' : 'Today’s leaderboard'}
+              aria-label={ko ? '오늘의 순위표' : 'Today’s leaderboard'}
+            >
+              <Trophy size={18} />
+              <small>{ko ? '순위' : 'Board'}</small>
+            </button>
+          </div>
           <button
             className="m2-menu-item"
             onMouseEnter={hover}

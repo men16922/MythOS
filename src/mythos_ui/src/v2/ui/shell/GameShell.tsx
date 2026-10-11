@@ -1,5 +1,6 @@
 // Mythos 2.0 game shell: title → archive → setup → run screens (by run.screen.kind) → ending → archive.
-// Title → 오늘의 시드 opens the setup screen in daily mode (view 'daily').
+// Title → 오늘의 시드 opens the setup screen in daily mode (view 'daily'); its trophy (and a daily run's end screen, and
+// a tap on the daily notification in the Android app) opens the leaderboard (DailyBoard).
 
 // Stylesheet order matters: the base first (every screen / component sheet overrides it), then the settings panel's
 // (the title screen's KO/EN switch builds on it); each screen imports its own sheet; phone.css comes last.
@@ -8,9 +9,13 @@ import '../components/settings.css'
 import { Suspense, lazy, useCallback, useEffect, useRef, useState, useSyncExternalStore, type ComponentType, type ReactNode } from 'react'
 import { CONTENT } from '../../content/index.ts'
 import { dateKeyAt } from '../../engine/daily.ts'
+import { getAuth } from '../../net/auth.ts'
+import { flushDailyQueue } from '../../net/daily.ts'
 import type { CombatState, ContentRegistry, Lang, MetaProfile, RunState } from '../../engine/types.ts'
 import { configureAudio, playBgm, unlockAudio, type Bgm } from '../common/audio.ts'
 import { tr } from '../common/lang.ts'
+import { onNative, pushControl } from '../common/nativeBridge.ts'
+import { DailyBoard } from '../components/DailyBoard.tsx'
 import { DeckModal } from '../components/DeckModal.tsx'
 import { ErrorBoundary } from '../components/ErrorBoundary.tsx'
 import { SCREEN_LABEL, TRACE_EFFECT, TRACE_LABEL, savedAgo, traceTier, type TraceTier } from '../components/format.ts'
@@ -135,6 +140,10 @@ export function GameShell() {
   const [ixFinal, setIxFinal] = useState<CombatState | null>(null)
   const [prologueSeen, setPrologueSeen] = useState(() => readFlag(PROLOGUE_KEY))
   const today = useToday()
+  // The daily leaderboard (date + the tab to open on) and the title's "look here" flag after a notification tap.
+  const [board, setBoard] = useState<{ date: string; archetype?: string } | null>(null)
+  const [flagDaily, setFlagDaily] = useState(false)
+  const [toast, setToast] = useState<{ text: string; key: number } | null>(null)
   const audioUnlocked = useRef(false)
   const lastTier = useRef<string | null>(null)
 
@@ -148,7 +157,52 @@ export function GameShell() {
   }, [bgm])
   useEffect(() => {
     document.documentElement.lang = lang
+    // Android: the daily notification follows the game language (topic daily-ko / daily-en).
+    void pushControl()?.syncLang(lang)
   }, [lang])
+
+  // Daily submits that could not go out (offline, signed out) are retried at boot, when the connection returns
+  // and after a sign-in.
+  useEffect(() => {
+    const auth = getAuth()
+    const retry = () => void flushDailyQueue(dateKeyAt(Date.now())).catch(() => undefined)
+    void auth.ready().then(retry)
+    let wasIn = auth.signedIn()
+    const unsub = auth.subscribe(() => {
+      const isIn = auth.signedIn()
+      if (isIn && !wasIn) retry()
+      wasIn = isIn
+    })
+    window.addEventListener('online', retry)
+    return () => {
+      unsub()
+      window.removeEventListener('online', retry)
+    }
+  }, [])
+
+  // Android: a tap on the daily notification lands on the title with today's leaderboard open; a push that arrives
+  // while playing is only a small toast.
+  useEffect(
+    () =>
+      onNative((e) => {
+        if (e.kind === 'open-daily') {
+          setMenuOpen(false)
+          setSettingsOpen(false)
+          setDeckOpen(false)
+          setView('title')
+          setFlagDaily(true)
+          setBoard({ date: dateKeyAt(Date.now()) })
+        } else if (e.kind === 'daily-received') {
+          setToast({ text: [e.title, e.body].filter(Boolean).join(' · '), key: Date.now() })
+        }
+      }),
+    [],
+  )
+  useEffect(() => {
+    if (!toast) return
+    const t = window.setTimeout(() => setToast(null), 5000)
+    return () => window.clearTimeout(t)
+  }, [toast])
 
   // Alarm + banner when Trace crosses into a higher tier (the rule change must be seen, not just heard).
   const tier = run ? traceTier(run.trace) : null
@@ -184,7 +238,7 @@ export function GameShell() {
   }, [run, profile, setRun, setProfile, C])
 
   const openMenu = useCallback(() => setMenuOpen(true), [])
-  const modalOpen = deckOpen || settingsOpen || menuOpen || confirm !== null || discardIdx !== null
+  const modalOpen = deckOpen || settingsOpen || menuOpen || board !== null || confirm !== null || discardIdx !== null
   useEffect(() => {
     duckMusic(modalOpen)
   }, [modalOpen])
@@ -241,7 +295,16 @@ export function GameShell() {
         daily={profile.daily?.[today]}
         onContinue={() => setView('run')}
         onNewLoop={() => (game.hasRun ? setConfirm('newloop') : setView(profile.loops === 0 ? 'setup' : 'archive'))}
-        onDaily={() => (game.hasRun ? setConfirm('daily') : setView('daily'))}
+        onDaily={() => {
+          setFlagDaily(false)
+          if (game.hasRun) setConfirm('daily')
+          else setView('daily')
+        }}
+        onBoard={() => {
+          setFlagDaily(false)
+          setBoard({ date: today })
+        }}
+        highlightDaily={flagDaily}
         onArchive={() => setView('archive')}
         onSettings={() => setSettingsOpen(true)}
         onLang={(l) => setSettings({ ...profile.settings, lang: l })}
@@ -316,6 +379,11 @@ export function GameShell() {
         screen = (
           <EndingScreen
             {...props}
+            daily={
+              game.dailySubmit && game.dailySubmit.runId === run.id
+                ? { outcome: game.dailySubmit.outcome, today, onBoard: () => setBoard({ date: game.dailySubmit?.date ?? today, archetype: run.archetype }) }
+                : undefined
+            }
             onChronicle={(text) => game.attachChronicle(run.id, text)}
             onDone={() => {
               game.closeRun()
@@ -474,6 +542,23 @@ export function GameShell() {
           </Modal>
         )}
         {settingsOpen && <SettingsPanel settings={profile.settings} onChange={setSettings} onClose={() => setSettingsOpen(false)} />}
+        {board && (
+          <DailyBoard
+            lang={lang}
+            C={C}
+            date={board.date}
+            today={today}
+            archetype={board.archetype}
+            profile={profile}
+            onRename={(name) => setProfile((p) => ({ ...p, playerName: name }))}
+            onClose={() => setBoard(null)}
+          />
+        )}
+        {toast && (
+          <div key={toast.key} className="m2-push-toast" role="status">
+            {toast.text}
+          </div>
+        )}
         {confirm && (
           <Modal
             tone="danger"

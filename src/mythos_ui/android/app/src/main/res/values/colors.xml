@@ -5,4 +5,6 @@
     <color name="colorPrimary">#030307</color>
     <color name="colorPrimaryDark">#030307</color>
     <color name="colorAccent">#4EF2E3</color>
+    <!-- Daily notification accent (the FCM message sets the same color; this is the fallback). -->
+    <color name="notification_accent">#3EF0FF</color>
 </resources>

@@ -2,6 +2,14 @@
 
 Last updated: 2026-10-11
 
+## 2026-10-11 — Event balance audit + guard (and a correction)
+
+- **Correction**: the wave-4 entry says "the sim does not resolve events". It does — `runSim.decideEvent` picks the best expected-value option with `outcomeValue`; I had read a field that doesn't exist. Balance of events was therefore measurable all along.
+- Audit (`outcomeValue` per option at a mid-run state, stats 4 and 6): the new street-level events sat at the bottom of their acts — 5 had every open option net-negative, i.e. a pure tax. Retuned `a1_bus_stop_scan`, `a1_hand_crank_lamp`, `a2_toll_bridge_kids`, `a2_lantern_ferry`, `a2_face_stall`, `a3_name_archive`, `a3_maintenance_priest`, `a3_serin_inside_line` (small credit / ◈ / HP gains, lighter failures, a few DCs 7→6); all open-option bests are now ≥ 0.7. The five arc finales intentionally tie at 10 (gated behind two earlier parts); `a3_ix_offer` (21.7) is the deliberate outlier.
+- New `engine/event-balance.test.ts` locks it: best open option ≥ 0.5 and ≤ 12 for every rolled event, with two named exceptions (`a3_blank_in_list` — an authored heavy-trade twist the scale undervalues; `a3_ix_offer`) and a check that exemptions don't go stale. `runSim.outcomeValue` is now exported for it.
+- Sim A/B on identical seeds (mixed bot, 3 blocks × 60): before any event wave 72/180 (40 %) → after the waves 74/180 (41 %) → after this retune 78/180 (43 %). Differences are inside the ±5 pp noise; the 30 extra events did not move difficulty.
+- Continuity fix: `a3_kai_name_given` no longer assumes the umbrella was bought (touch-only path).
+
 ## 2026-10-11 — Companion arcs for Tae-o, Han, Se-rin, Kai and Lin-yue (15 events)
 
 - Same shape as the Su-ah arc (`content/eventsArcs.ts`): three events per companion (Act 2 → Act 3 → Act 3), event-level gated on that companion being in the party, later parts read the flag the earlier one set; each picks up the thread their lore entry leaves open. **Tae-o** "처리 대기" (the wanted board → the pending file → holding the line; flags `taeo_trail`, `taeo_cleared`) · **Han** "구경하는 버그" (the blank registration booth → the first poke at IX → the empty reply "user unrecognized"; `han_probe`, `han_poked`) · **Se-rin** "열세 번째 선" (the radio that answers → the hidden line inside → finishing the chalk line; `serin_signal`, `serin_line`).

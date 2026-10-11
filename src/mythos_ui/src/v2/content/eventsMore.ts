@@ -77,8 +77,8 @@ export const A1_MORE: EventDef[] = [
             'The man beside you grabs your wrist. In the scuffle the soup pot tips over. Scalding.',
           ),
           effects: [
-            { kind: 'hp', amount: -6 },
-            { kind: 'trace', amount: 4 },
+            { kind: 'hp', amount: -5 },
+            { kind: 'trace', amount: 3 },
           ],
         },
       },
@@ -97,7 +97,7 @@ export const A1_MORE: EventDef[] = [
     options: [
       {
         label: t('크랭크를 대신 돌린다', 'Take over the crank'),
-        hint: t('◈ +3 · 실패 시 −5 HP', '+3 ◈ · fail −5 HP'),
+        hint: t('◈ +3 · HP +4 · 실패 시 −4 HP', '+3 ◈ · +4 HP · fail −4 HP'),
         check: { stat: 'str', dc: 5 },
         success: {
           text: t(
@@ -107,6 +107,7 @@ export const A1_MORE: EventDef[] = [
           effects: [
             { kind: 'echoes', amount: 3 },
             { kind: 'trace', amount: -3 },
+            { kind: 'hp', amount: 4 },
           ],
         },
         failure: {
@@ -114,7 +115,7 @@ export const A1_MORE: EventDef[] = [
             '크랭크가 손에서 튄다. 손목이 꺾이고 등이 깜빡 꺼진다. 어둠 속에서 누군가 흐느낀다.',
             'The crank jerks out of your grip. Your wrist bends back and the lamp gutters out. Someone sobs in the dark.',
           ),
-          effects: [{ kind: 'hp', amount: -5 }],
+          effects: [{ kind: 'hp', amount: -4 }],
         },
       },
       {
@@ -133,7 +134,7 @@ export const A1_MORE: EventDef[] = [
       },
       {
         label: t('위층 노인을 살피러 간다', 'Check on the old woman upstairs'),
-        hint: t('코덱스 · 추적 +4', 'Codex · +4 Trace'),
+        hint: t('코덱스 · ◈ +2 · 추적 +2', 'Codex · +2 ◈ · +2 Trace'),
         success: {
           text: t(
             '노인은 벽의 한 점만 본다. “사람들이 한 줄로 걸어가. 이름이 하나씩 지워지면서.” 그리고 당신 얼굴을 알아본다.',
@@ -141,7 +142,8 @@ export const A1_MORE: EventDef[] = [
           ),
           effects: [
             { kind: 'codex', id: 'lore_c17_blackout' },
-            { kind: 'trace', amount: 4 },
+            { kind: 'echoes', amount: 2 },
+            { kind: 'trace', amount: 2 },
           ],
         },
       },
@@ -223,30 +225,31 @@ export const A1_MORE: EventDef[] = [
     options: [
       {
         label: t('끝자리에 선다', 'Take the end spot'),
-        hint: t('◈ +4 · 추적 +10', '+4 ◈ · +10 Trace'),
+        hint: t('◈ +5 · 추적 +8', '+5 ◈ · +8 Trace'),
         success: {
           text: t(
             '빔이 당신 얼굴에서 한 박자 멈춘다. 세 사람이 숨을 죽인다. 빔이 지나가자 누군가 당신 소매를 한 번 쥐었다 놓는다.',
             'The beam pauses on your face for a beat. The three hold their breath. When it moves on, someone squeezes your sleeve once and lets go.',
           ),
           effects: [
-            { kind: 'echoes', amount: 4 },
-            { kind: 'trace', amount: 10 },
+            { kind: 'echoes', amount: 5 },
+            { kind: 'trace', amount: 8 },
           ],
         },
       },
       {
         label: t('가운데로 파고든다', 'Wedge into the middle'),
-        hint: t('추적 −4 · 실패 시 −5 HP', '−4 Trace · fail −5 HP'),
+        hint: t('추적 −4 · +20 ₵ · 실패 −4 HP', '−4 Trace · +20 ₵ · fail −4 HP'),
         check: { stat: 'agi', dc: 5 },
         success: {
           text: t(
-            '몸을 접어 두 사람 사이로 미끄러진다. 빔이 셋을 하나의 그림자로 읽고 넘어간다.',
-            'You fold yourself between two bodies. The beam reads the three of you as one shadow and moves on.',
+            '몸을 접어 두 사람 사이로 미끄러진다. 빔이 셋을 하나로 읽고 넘어간다. 옆 사람이 지폐를 쥐여 준다.',
+            'You fold yourself between two bodies. The beam reads three as one and moves on. The man beside you presses some bills into your hand.',
           ),
           effects: [
             { kind: 'trace', amount: -4 },
             { kind: 'echoes', amount: 1 },
+            { kind: 'credits', amount: 20 },
           ],
         },
         failure: {
@@ -255,14 +258,14 @@ export const A1_MORE: EventDef[] = [
             'The man you bump shoves you out. You catch the beam’s edge. Your forearm stings.',
           ),
           effects: [
-            { kind: 'hp', amount: -5 },
-            { kind: 'trace', amount: 5 },
+            { kind: 'hp', amount: -4 },
+            { kind: 'trace', amount: 4 },
           ],
         },
       },
       {
         label: t('빔의 주기를 계산한다', 'Work out the beam’s cycle'),
-        hint: t('코덱스 · 실패 시 추적 +8', 'Codex · fail +8 Trace'),
+        hint: t('코덱스 · ◈ +2 · 실패 시 추적 +8', 'Codex · +2 ◈ · fail +8 Trace'),
         check: { stat: 'obs', dc: 7 },
         success: {
           text: t(
@@ -271,7 +274,8 @@ export const A1_MORE: EventDef[] = [
           ),
           effects: [
             { kind: 'codex', id: 'lore_citizen_score' },
-            { kind: 'trace', amount: -2 },
+            { kind: 'trace', amount: -4 },
+            { kind: 'echoes', amount: 2 },
           ],
         },
         failure: {
@@ -317,14 +321,17 @@ export const A2_MORE: EventDef[] = [
       },
       {
         label: t('장대를 빼앗아 직접 젓는다', 'Take the pole and punt yourself'),
-        hint: t('+15 ₵ · 실패 시 −8 HP', '+15 ₵ · fail −8 HP'),
+        hint: t('+30 ₵ · 실패 시 −5 HP', '+30 ₵ · fail −5 HP'),
         check: { stat: 'str', dc: 6 },
         success: {
           text: t(
             '사공이 어이없다는 듯 웃고는 노를 놓는다. 반대편에서 짐을 지던 이가 삯의 절반을 돌려준다. 솜씨 값이란다.',
             'The ferryman laughs in disbelief and lets go. On the far side, a porter hands back half the fare as a skill bonus.',
           ),
-          effects: [{ kind: 'credits', amount: 15 }],
+          effects: [
+            { kind: 'credits', amount: 30 },
+            { kind: 'echoes', amount: 1 },
+          ],
         },
         failure: {
           text: t(
@@ -332,28 +339,32 @@ export const A2_MORE: EventDef[] = [
             'The pole jams in the bottom. The boat spins and only you go in. The water is ice.',
           ),
           effects: [
-            { kind: 'hp', amount: -8 },
+            { kind: 'hp', amount: -6 },
             { kind: 'trace', amount: 4 },
           ],
         },
       },
       {
         label: t('반대편 사정을 캐묻는다', 'Press him about the far shore'),
-        hint: t('코덱스 · 실패 시 추적 +6', 'Codex · fail +6 Trace'),
+        hint: t('코덱스 · ◈ +2 · +10 ₵ · 실패 추적 +4', 'Codex · +2 ◈ · +10 ₵ · fail +4 Trace'),
         check: { stat: 'int', dc: 6 },
         success: {
           text: t(
             '“건너편에 피난처가 있다는 소문? 반은 맞아. 문이 열리는 건 한 사람씩이고, 닫히는 건 한꺼번에야.”',
             '“A refuge on the far side? Half true. The door opens one at a time, and shuts all at once.”',
           ),
-          effects: [{ kind: 'codex', id: 'lore_refuge' }],
+          effects: [
+            { kind: 'codex', id: 'lore_refuge' },
+            { kind: 'echoes', amount: 2 },
+            { kind: 'credits', amount: 10 },
+          ],
         },
         failure: {
           text: t(
             '사공의 표정이 굳는다. “누가 보냈나.” 그의 등불이 당신 얼굴을 오래 비춘다.',
             'His face closes. “Who sent you?” His lantern lingers on your face.',
           ),
-          effects: [{ kind: 'trace', amount: 6 }],
+          effects: [{ kind: 'trace', amount: 4 }],
         },
       },
     ],
@@ -371,23 +382,24 @@ export const A2_MORE: EventDef[] = [
     options: [
       {
         label: t('얼굴 하나를 산다', 'Buy a face'),
-        hint: t('−40 ₵ · 추적 −15', '−40 ₵ · −15 Trace'),
-        requires: { minCredits: 40 },
+        hint: t('−35 ₵ · 추적 −15 · ◈ +2', '−35 ₵ · −15 Trace · +2 ◈'),
+        requires: { minCredits: 35 },
         success: {
           text: t(
             '가면이 피부에 달라붙는다. 거울 속 얼굴은 낯설고 평범하다. 이름이 없어도 되는 얼굴이다.',
             'The mask clings to your skin. The mirror shows a plain stranger — a face that needs no name.',
           ),
           effects: [
-            { kind: 'credits', amount: -40 },
+            { kind: 'credits', amount: -35 },
             { kind: 'trace', amount: -15 },
+            { kind: 'echoes', amount: 2 },
           ],
         },
       },
       {
         label: t('가면의 접합 패턴을 베낀다', 'Copy the mask’s seam pattern'),
         hint: t('임플란트 · 실패 시 추적 +10', 'Implant · fail +10 Trace'),
-        check: { stat: 'int', dc: 7 },
+        check: { stat: 'int', dc: 6 },
         success: {
           text: t(
             '이음새마다 미세 회로가 숨어 있다. 도안을 외워 두자 주인이 눈치채고 인상을 쓴다. 이미 늦었다.',
@@ -408,7 +420,7 @@ export const A2_MORE: EventDef[] = [
       },
       {
         label: t('죽은 이의 얼굴을 쓴다', 'Wear a dead man’s face'),
-        hint: t('추적 −8 · 최대 HP −3', '−8 Trace · −3 max HP'),
+        hint: t('추적 −8 · 최대 HP −2', '−8 Trace · −2 max HP'),
         success: {
           text: t(
             '“공짜다. 임자가 안 찾아가서.” 가면에서 희미하게 소독약 냄새가 난다. 숨 쉴 때마다 누군가의 호흡을 빌려 쓰는 기분이다.',
@@ -416,7 +428,7 @@ export const A2_MORE: EventDef[] = [
           ),
           effects: [
             { kind: 'trace', amount: -8 },
-            { kind: 'maxHp', amount: -3 },
+            { kind: 'maxHp', amount: -2 },
           ],
         },
       },
@@ -435,29 +447,33 @@ export const A2_MORE: EventDef[] = [
     options: [
       {
         label: t('통행료를 낸다', 'Pay the toll'),
-        hint: t('−12 ₵ · 추적 −6', '−12 ₵ · −6 Trace'),
-        requires: { minCredits: 12 },
+        hint: t('−10 ₵ · 추적 −6 · ◈ +1', '−10 ₵ · −6 Trace · +1 ◈'),
+        requires: { minCredits: 10 },
         success: {
           text: t(
             '장부에 줄이 하나 그어진다. 제일 큰 아이가 귓속말한다. “아래 노점 순찰은 오늘 둘이야. 오른쪽으로 가.”',
             'A tally mark goes in the ledger. The oldest kid whispers, “Two patrols on the stalls below today. Go right.”',
           ),
           effects: [
-            { kind: 'credits', amount: -12 },
+            { kind: 'credits', amount: -10 },
             { kind: 'trace', amount: -6 },
+            { kind: 'echoes', amount: 1 },
           ],
         },
       },
       {
         label: t('허세로 밀어붙인다', 'Bluff your way through'),
-        hint: t('◈ +2 · 실패 시 −4 HP', '+2 ◈ · fail −4 HP'),
+        hint: t('◈ +2 · +10 ₵ · 실패 −4 HP', '+2 ◈ · +10 ₵ · fail −4 HP'),
         check: { stat: 'cha', dc: 6 },
         success: {
           text: t(
             '“형한테 전해라, 내가 왔다고.” 아이들이 서로를 본다. 봉이 내려가고 길이 열린다. 제일 작은 아이가 엄지를 든다.',
             '“Tell your big brother I said hi.” The kids look at one another. The baton drops and the path opens. The smallest gives a thumbs-up.',
           ),
-          effects: [{ kind: 'echoes', amount: 2 }],
+          effects: [
+            { kind: 'echoes', amount: 2 },
+            { kind: 'credits', amount: 10 },
+          ],
         },
         failure: {
           text: t(
@@ -472,7 +488,7 @@ export const A2_MORE: EventDef[] = [
       },
       {
         label: t('봉을 빼앗아 압수한다', 'Confiscate the baton'),
-        hint: t('소모품 · 추적 +7', 'Consumable · +7 Trace'),
+        hint: t('소모품 · +10 ₵ · 추적 +7', 'Consumable · +10 ₵ · +7 Trace'),
         success: {
           text: t(
             '아이들은 순순히 물러서지만, 눈빛이 식는다. 봉의 손잡이 안에 진압용 스턴 셀이 남아 있다.',
@@ -480,6 +496,7 @@ export const A2_MORE: EventDef[] = [
           ),
           effects: [
             { kind: 'consumable' },
+            { kind: 'credits', amount: 10 },
             { kind: 'trace', amount: 7 },
           ],
         },
@@ -639,8 +656,8 @@ export const A3_MORE: EventDef[] = [
     options: [
       {
         label: t('내 이름을 찾는다', 'Search for your own name'),
-        hint: t('코덱스 · ◈ +3 · 실패 시 정크', 'Codex · +3 ◈ · fail: junk'),
-        check: { stat: 'obs', dc: 7 },
+        hint: t('코덱스 · 카드 강화 · 실패 시 −5 HP', 'Codex · upgrade · fail −5 HP'),
+        check: { stat: 'obs', dc: 6 },
         success: {
           text: t(
             '이름표 하나가 서가 맨 아래, 당신 손이 닿는 높이에 걸려 있다. 새것 같다. 뒷면에 날짜가 새겨져 있다. 아직 오지 않은 날짜.',
@@ -649,6 +666,7 @@ export const A3_MORE: EventDef[] = [
           effects: [
             { kind: 'codex', id: 'lore_previous_self' },
             { kind: 'echoes', amount: 3 },
+            { kind: 'upgrade_card', count: 1, random: true },
           ],
         },
         failure: {
@@ -657,14 +675,14 @@ export const A3_MORE: EventDef[] = [
             'Thousands of names flood in at once. The more you read, the more they blur — and the headache spreads.',
           ),
           effects: [
-            { kind: 'hp', amount: -6 },
-            { kind: 'junk', cardId: 'static' },
+            { kind: 'hp', amount: -5 },
+            { kind: 'trace', amount: 2 },
           ],
         },
       },
       {
         label: t('낯선 이름표 하나를 챙긴다', 'Pocket a stranger’s tag'),
-        hint: t('매력 +1 · 추적 +6', '+1 CHA · +6 Trace'),
+        hint: t('매력 +1 · ◈ +1 · 추적 +6', '+1 CHA · +1 ◈ · +6 Trace'),
         success: {
           text: t(
             '이름표가 주머니에서 달그락거린다. 이 이름을 가진 사람이 어떻게 말했을지 상상하면, 말투가 조금 바뀐다.',
@@ -672,20 +690,21 @@ export const A3_MORE: EventDef[] = [
           ),
           effects: [
             { kind: 'stat', stat: 'cha', amount: 1 },
+            { kind: 'echoes', amount: 1 },
             { kind: 'trace', amount: 6 },
           ],
         },
       },
       {
         label: t('서가 한 줄을 불태운다', 'Burn a whole shelf'),
-        hint: t('◈ +5 · 추적 +12', '+5 ◈ · +12 Trace'),
+        hint: t('◈ +6 · 추적 +12', '+6 ◈ · +12 Trace'),
         success: {
           text: t(
             '금속은 타지 않는다. 대신 이름표들이 열을 받아 하나씩 울린다. 종소리 같다. 경보가 울릴 때까지 오래 걸리지 않는다.',
             'Metal doesn’t burn. The tags heat up and ring one by one, like bells. It won’t be long before the alarms answer.',
           ),
           effects: [
-            { kind: 'echoes', amount: 5 },
+            { kind: 'echoes', amount: 6 },
             { kind: 'trace', amount: 12 },
           ],
         },
@@ -705,14 +724,17 @@ export const A3_MORE: EventDef[] = [
     options: [
       {
         label: t('함께 무릎을 꿇는다', 'Kneel beside him'),
-        hint: t('추적 −12 · 실패 시 −5 HP', '−12 Trace · fail −5 HP'),
+        hint: t('추적 −12 · ◈ +2 · 실패 −5 HP', '−12 Trace · +2 ◈ · fail −5 HP'),
         check: { stat: 'cha', dc: 5 },
         success: {
           text: t(
             '남자가 당신 어깨를 짚고 해치를 열어 준다. “믿는 사람은 센서가 못 읽어요. 믿을 때만.” 그 말이 이상하게 들어맞는다.',
             'He grips your shoulder and opens the hatch. “Sensors can’t read believers. Only while you believe.” Strangely, it holds.',
           ),
-          effects: [{ kind: 'trace', amount: -12 }],
+          effects: [
+            { kind: 'trace', amount: -12 },
+            { kind: 'echoes', amount: 2 },
+          ],
         },
         failure: {
           text: t(

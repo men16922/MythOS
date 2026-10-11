@@ -553,7 +553,7 @@ const SERIN: EventDef[] = [
       },
       {
         label: t('회선을 끊는다', 'Cut the line'),
-        hint: t('추적 −10 · 최대 HP −2', '−10 Trace · −2 max HP'),
+        hint: t('추적 −10 · ◈ +1 · −3 HP', '−10 Trace · +1 ◈ · −3 HP'),
         success: {
           text: t(
             '선을 자르자 통신기의 램프가 꺼진다. 세린이 오래 서 있다가 한마디만 한다. “…고마워. 그리고 미안.”',
@@ -561,7 +561,8 @@ const SERIN: EventDef[] = [
           ),
           effects: [
             { kind: 'trace', amount: -10 },
-            { kind: 'maxHp', amount: -2 },
+            { kind: 'echoes', amount: 1 },
+            { kind: 'hp', amount: -3 },
           ],
         },
       },
@@ -775,8 +776,8 @@ const KAI: EventDef[] = [
     speaker: 'kai',
     requires: { companion: 'kai', flag: 'kai_found' },
     text: t(
-      '비상 계단참. 카이가 노란 우산을 펼친다. 실내인데도. 천 위로 어디선가 빗소리가 들리는 것 같다.\n“그 아이가요, 저를 ‘카이’라고 불렀어요. 제 번호는 RX-09였는데.” 푸른 눈이 처음으로 흔들리지 않는다. “지금은 알아요. 제가 누구 것이었는지.”',
-      'An emergency landing. Kai opens the yellow umbrella — indoors. Somewhere above the canopy there seems to be rain.\n“That child called me ‘Kai’. My number was RX-09.” His blue eyes do not waver for the first time. “Now I know whose I was.”',
+      '비상 계단참. 카이가 노란 우산을 펼친다. 시장에서 보았던 것과 같은 색이다. 실내인데도 천 위로 어디선가 빗소리가 들리는 것 같다.\n“그 아이가요, 저를 ‘카이’라고 불렀어요. 제 번호는 RX-09였는데.” 푸른 눈이 처음으로 흔들리지 않는다. “지금은 알아요. 제가 누구 것이었는지.”',
+      'An emergency landing. Kai opens a yellow umbrella — the same colour as the one at the market, and indoors. Somewhere above the canopy there seems to be rain.\n“That child called me ‘Kai’. My number was RX-09.” His blue eyes do not waver for the first time. “Now I know whose I was.”',
     ),
     options: [
       {

@@ -174,7 +174,7 @@ function effectValue(run: RunState, e: RunEffect, C: ContentRegistry): number {
   }
 }
 
-const outcomeValue = (run: RunState, o: Outcome | undefined, C: ContentRegistry): number =>
+export const outcomeValue = (run: RunState, o: Outcome | undefined, C: ContentRegistry): number =>
   (o?.effects ?? []).reduce((s, e) => s + effectValue(run, e, C), 0)
 
 function nodeScore(run: RunState, node: MapNode | undefined): number {

@@ -13,7 +13,7 @@ Last updated: 2026-10-11
 - **Android** `src/mythos_ui/android` — Capacitor app with Firebase: Crashlytics, App Distribution, native Google sign-in, FCM daily-seed push (see `docs/android.md`).
 - **Online UI** — account chip/settings, `DailyBoard` leaderboard (auto-submit at daily run end), anonymous play stays fully offline.
 
-Latest verified baseline (2026-10-11): `make check` green (`node --test src/v2` 221 + Python unittest 210), `make test-db` 20, `make test-e2e-v2` (headless, muted, incl. sign-in note + leaderboard submit), headless save/continue/reload, emulator push delivery. Sim P0 over 360 runs: greedy 100 % · mixed ≈ 35 % (28–41 % by seed block) · basic 0 %; P5: 78 / 3.
+Latest verified baseline (2026-10-11): `make check` green (`node --test src/v2` 221 + Python unittest 210), `make test-db` 20, `make test-e2e-v2` (headless, muted, incl. sign-in note + leaderboard submit), headless save/continue/reload, emulator push delivery; real Google sign-in on the web (token verified server-side, `g_` save) and the native sign-in sheet on Android. Sim P0 over 360 runs: greedy 100 % · mixed ≈ 35 % (28–41 % by seed block) · basic 0 %; P5: 78 / 3.
 
 Production: Cloud Run `mythos-api` still serves the 1.x revision `00090` until the owner deploys 2.0.
 
@@ -21,7 +21,7 @@ Production: Cloud Run `mythos-api` still serves the 1.x revision `00090` until t
 
 Authority plan: `docs/NEXT_PLAN.md`.
 
-1. **Owner calls** — enable Google in Firebase Auth (sign-in shows "not open yet" until then), deploy 2.0 (`make deploy-preview` → promote; sets `MYTHOS_AUTH=google`), push service account + `make push-schedule`, Play Console + upload key, SFX listen-test, `git push` (`main` = 2.0, `1.0` = archive). Ordered checklist: `docs/online.md`.
+1. **Owner calls** — deploy 2.0 (`make deploy-preview` → promote; sets `MYTHOS_AUTH=google`), push service account + `make push-schedule`, Play Console + upload key, SFX listen-test, `git push` (`main` = 2.0, `1.0` = archive). Ordered checklist: `docs/online.md`.
 2. **After deploy** — smoke `/api/v2` + Vertex GM on Cloud Run; the first `/api/v2` request creates `v2_saves` in the production DB.
 
 ## Open Risks

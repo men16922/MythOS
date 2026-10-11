@@ -4,7 +4,7 @@ Last updated: 2026-10-11
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **`main` is Mythos 2.0 only; 1.x is archived on branch `1.0`.** Pending owner calls (ordered list in `docs/online.md`): enable Google in Firebase Auth, deploy (`make deploy-preview` → promote; sets `MYTHOS_AUTH=google`), push SA + `make push-schedule`, Android release (Play Console + upload key; App Distribution testers), SFX listen-test, `git push`. After a deploy, smoke `/api/v2` + Vertex GM on Cloud Run. Tune balance with the simulator on fixed seed blocks, not by feel. **Test muted (`?mute=1`) with one browser tab at most.**
+> ▶ NEXT SESSION: **`main` is Mythos 2.0 only; 1.x is archived on branch `1.0`.** Pending owner calls (ordered list in `docs/online.md`): deploy (`make deploy-preview` → promote; sets `MYTHOS_AUTH=google`), push SA + `make push-schedule`, Android release (Play Console + upload key; App Distribution testers), SFX listen-test, `git push`. After a deploy, smoke `/api/v2` + Vertex GM on Cloud Run. Tune balance with the simulator on fixed seed blocks, not by feel. **Test muted (`?mute=1`) with one browser tab at most.**
 
 ## Snapshot
 

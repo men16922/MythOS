@@ -2,6 +2,11 @@
 
 Last updated: 2026-10-11
 
+## 2026-10-11 — Firebase Auth enabled; real Google sign-in verified
+
+- Owner: "Google 로그인까지 체크해. 그리고 Firebase console도 직접수행해" (Chrome profile chosen by the owner). Console: Authentication → Get started → Google enabled (public name MythOS). `make firebase-auth-domains` added the 4 Cloud Run hosts; `google-services.json` refreshed (Android + web OAuth clients) — `fetch-firebase-config.sh` now uses the Firebase REST API first (the npx CLI path failed on an unwritable npm cache).
+- Verified: web sign-in on `localhost:8010` (account chip shows the Google name; a run saved under `g_…`, no 401s); Android build reports `native Google sign-in: on` and opens the Google sign-in sheet on the emulator (completing it needs a Google account on the device — owner); cancelling returns to the title signed out.
+
 ## 2026-10-11 — Google sign-in, daily leaderboard, Android daily push
 
 - Owner: "Play Games Services랑 푸시 알림도 붙여줘. 근데 꼭 초대코드가 필요한가? Gmail로 로그인 시키는 기능으로 대체하자" → leaderboard on our server first (Play Games once a Play developer account exists); no GM cost caps for now.

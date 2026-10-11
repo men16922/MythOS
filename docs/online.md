@@ -83,6 +83,10 @@ credentials; use a private test topic, since `daily-ko` / `daily-en` reach every
 
 ## Owner checklist (in order)
 
+Done 2026-10-11 (lead agent, owner-approved): steps 1–3 — Google provider enabled (public name "MythOS"), Cloud Run
+hosts authorized, `google-services.json` refreshed; a real web sign-in on `localhost:8010` stored a save under a
+`g_` id, and the Android build opens the native Google sign-in sheet.
+
 1. Firebase console → Authentication → **Get started** → Sign-in method → **Google** → Enable (pick the support
    email) → Save. Until then sign-in cannot work and `make firebase-auth-domains` stops with
    CONFIGURATION_NOT_FOUND.

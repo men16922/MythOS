@@ -701,6 +701,8 @@ export interface RunState {
   daily?: string
   /** Daily runs only: id of that day's mutator (engine/mutators.ts), frozen at newRun. */
   mutator?: string
+  /** Companion mastery tier (0–2) per companion id, frozen at newRun from the profile (never on a daily). */
+  mastery?: Record<string, number>
 }
 
 // ---------------------------------------------------------------- meta profile
@@ -760,6 +762,8 @@ export interface MetaProfile {
   daily?: Record<string, DailyRecord>
   /** Companion bond cutscenes seen (content/cutscenes.ts ids); replayable from the Archive gallery. */
   cutscenes?: string[]
+  /** Normal-run victories with each companion in the party at the end (daily and abandoned runs do not count). */
+  companionWins?: Record<string, number>
 }
 
 export type MetaUnlockKind = 'archetype' | 'companion' | 'card_pack' | 'implant_pack' | 'thread'

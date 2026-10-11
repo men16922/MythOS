@@ -73,7 +73,26 @@ export function newProfile(name: string, settings: Partial<MetaProfile['settings
     settings: { lang: 'ko', sfx: true, bgm: true, fastAnim: false, ...settings },
     daily: {},
     cutscenes: [],
+    companionWins: {},
   }
+}
+
+/** Joint victories needed for companion mastery I and II. */
+export const MASTERY_WINS = [2, 5] as const
+
+/** 0, 1 or 2: how well this companion knows you, from the victories you share. */
+export function masteryTier(wins: number): 0 | 1 | 2 {
+  return wins >= MASTERY_WINS[1] ? 2 : wins >= MASTERY_WINS[0] ? 1 : 0
+}
+
+/** Mastery tier per companion for a new run (empty for a daily: it must be identical for everybody). */
+export function masteryFor(profile: Pick<MetaProfile, 'companionWins'>): Record<string, number> {
+  const out: Record<string, number> = {}
+  for (const [id, wins] of Object.entries(profile.companionWins ?? {})) {
+    const tier = masteryTier(wins)
+    if (tier > 0) out[id] = tier
+  }
+  return out
 }
 
 /** Record a seen bond cutscene (idempotent; returns the same profile when it was already there). */
@@ -144,6 +163,17 @@ function migrateDaily(raw: unknown): Record<string, DailyRecord> {
 }
 
 /** Coerce anything (old saves, garbage, partial JSON) into a valid profile. Never throws. */
+/** `{ id: n }` with n a non-negative integer; anything else is dropped. */
+function migrateCounts(raw: unknown): Record<string, number> {
+  const out: Record<string, number> = {}
+  if (!isObj(raw)) return out
+  for (const [k, v] of Object.entries(raw)) {
+    const n = int(v, 0, 9999)
+    if (k && n > 0) out[k] = n
+  }
+  return out
+}
+
 export function migrateProfile(raw: unknown): MetaProfile {
   const r: Loose = isObj(raw) ? raw : {}
   const settings: Loose = isObj(r.settings) ? r.settings : {}
@@ -174,6 +204,7 @@ export function migrateProfile(raw: unknown): MetaProfile {
     },
     daily: migrateDaily(r.daily),
     cutscenes: strList(r.cutscenes),
+    companionWins: migrateCounts(r.companionWins),
   }
   const death = r.lastDeath
   if (isObj(death) && typeof death.killedBy === 'string') {
@@ -352,6 +383,12 @@ export function recordDaily(daily: MetaProfile['daily'], date: string, result: D
  * daily-seed run that day's record (attempts + 1, best kept).
  * Idempotent per run id; a run that has not ended returns the profile unchanged.
  */
+function addWins(prev: Record<string, number> | undefined, ids: string[]): Record<string, number> {
+  const next = { ...(prev ?? {}) }
+  for (const id of ids) next[id] = (next[id] ?? 0) + 1
+  return next
+}
+
 export function applyRunEnd(profile: MetaProfile, run: RunState, C: ContentRegistry, chronicle?: string): MetaProfile {
   const end = run.screen
   if (end.kind !== 'ended') return profile
@@ -390,6 +427,7 @@ export function applyRunEnd(profile: MetaProfile, run: RunState, C: ContentRegis
     endingsSeen: union(profile.endingsSeen, [end.endingId]),
     companionsMet: union(profile.companionsMet, run.party.map((m) => m.id)),
     history: [record, ...profile.history].slice(0, HISTORY_CAP),
+    companionWins: victory && !run.daily ? addWins(profile.companionWins, run.party.map((m) => m.id)) : { ...(profile.companionWins ?? {}) },
     settings: { ...profile.settings },
   }
   if (!victory && !abandoned && killedBy) next.lastDeath = { killedBy, act: run.act, loop: run.loop }

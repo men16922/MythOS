@@ -85,6 +85,8 @@ export interface RunSimOptions {
   maxTurns?: number
   /** Play that date's daily-seed run instead (the `seed` argument is then ignored). */
   daily?: string
+  /** Starting companion for a non-daily run after loop 1 (default: none, as before). */
+  companion?: string
 }
 
 const SIM_EPOCH = '2026-01-01T00:00:00.000Z'
@@ -378,7 +380,7 @@ export function simulateRun(
 ): RunSimResult {
   const profile = opts.profile ?? newProfile('sim')
   const maxTurns = opts.maxTurns ?? 30
-  let run = newRun(profile, { archetype, paradox: opts.paradox ?? 0, seed, now: SIM_EPOCH, daily: opts.daily }, C)
+  let run = newRun(profile, { archetype, paradox: opts.paradox ?? 0, seed, now: SIM_EPOCH, daily: opts.daily, companion: opts.companion }, C)
   for (let step = 0; run.screen.kind !== 'ended'; step++) {
     if (step >= MAX_STEPS) throw new Error(`runSim: step limit on ${run.screen.kind} (seed ${seed})`)
     const next = decide(run, C, policy, maxTurns, opts.onFight)

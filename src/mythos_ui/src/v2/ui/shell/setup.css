@@ -410,3 +410,29 @@
 .m2-daily-rules p {
   word-break: keep-all;
 }
+
+/* Companion mastery badge on the starting-companion picker. */
+.m2-comp {
+  position: relative;
+}
+.m2-comp__mastery {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  min-width: 18px;
+  padding: 0 4px;
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+  font-weight: 700;
+  color: #03120f;
+  background: var(--m2-accent, #5cf2d8);
+}
+.m2-mastery b {
+  display: block;
+  margin-top: 6px;
+}
+.m2-mastery small {
+  display: block;
+  opacity: 0.7;
+}

@@ -28,6 +28,7 @@ import {
   PASSIVE_NUMBERS,
   cardPool,
   implantPool,
+  masteryFor,
   newProfile,
   threadPassive,
   unlockedCompanions,
@@ -226,9 +227,16 @@ function gainConsumable(run: RunState, id: string, C: ContentRegistry): boolean 
 function joinCompanion(run: RunState, id: string, C: ContentRegistry): boolean {
   const def = C.companions[id]
   if (!def || run.party.length >= MAX_PARTY || run.party.some((m) => m.id === id)) return false
-  run.party.push({ id, hp: def.maxHp, maxHp: def.maxHp, bond: 0 })
+  const tier = run.mastery?.[id] ?? 0
+  // Mastery II: you already know each other — start at bond 1 (the bond card is one safehouse closer).
+  run.party.push({ id, hp: def.maxHp, maxHp: def.maxHp, bond: tier >= 2 ? 1 : 0 })
   for (const card of def.cards) addCard(run, card, C)
   applyConcretePassive(run, def.passive)
+  // Mastery I: their signature card starts upgraded (what bond 3 would otherwise earn).
+  if (tier >= 1 && def.cards[0]) {
+    const sig = run.deck.find((c) => c.defId === def.cards[0] && !c.upgraded)
+    if (sig) sig.upgraded = true
+  }
   return true
 }
 
@@ -435,6 +443,11 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
     startedAt: opts.now ?? nowIso(),
   }
   if (daily) run.daily = daily
+  // Companion mastery comes from the profile, never on a daily (it must be the same run for everybody).
+  if (!daily) {
+    const mastery = masteryFor(profile)
+    if (Object.keys(mastery).length > 0) run.mastery = mastery
+  }
   for (const id of arch.startingDeck) addCard(run, id, C)
 
   // Archive threads: concrete perks now, run-level multipliers frozen as flags.

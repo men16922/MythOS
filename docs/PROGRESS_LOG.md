@@ -2,6 +2,11 @@
 
 Last updated: 2026-10-11
 
+## 2026-10-12 — Companion mastery (1.x port #13) and the plan's final verdicts
+
+- **Mastery** (`MetaProfile.companionWins`, `RunState.mastery`): a normal-run victory counts for every companion in the party at the end (defeats, abandons and dailies do not). Two shared wins → mastery I: their signature card starts upgraded; five → mastery II: they start at bond 1. Frozen at `newRun` and applied wherever the companion joins (start or mid-run recruit); a daily ignores the profile so it stays identical for everybody. Badge (Ⅰ/Ⅱ) and a tooltip with the shared-victory count and the next tier on the starting-companion picker. Sim: 180 runs per arm, same seeds — mixed 57 / 53 / 54 % (none / I / II), greedy 98 % for all, i.e. no power creep; it is felt as history, not strength. `runSim` gained a `companion` option for this.
+- **Port plan closed**: every one of the 22 candidates now has a verdict in `docs/plans/2026-10-11-port-from-1x.md` — done, already in 2.0, covered, not ported (with the reason), deferred (voice-over, implant set bonuses) or blocked (trailer, on the Play account).
+
 ## 2026-10-12 — Run-start vignettes (1.x port #6)
 
 - On a re-entry (loop 2+, not the daily) the Act 1 intro now ends with how this loop's starting companion found you: three short authored lines each (a sensation, their entrance, one line in their own register) for Se-rin, Tae-o, Han, Su-ah, Kai and Lin-yue (`content/openings.ts`; adapted from 1.x `opening_<who>.md`, whose "their signal arrives first" became "how they reached you" because 2.0 companions have already joined). Set apart by a rule under the act text. No new art. Verified in the browser for Han and Kai; the loop-1 / daily / non-Act-1 exclusions are in `narrative.test.ts`.

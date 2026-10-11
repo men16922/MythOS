@@ -3,9 +3,10 @@
 import { CalendarDays, ChevronLeft, Heart, Lock, Play } from 'lucide-react'
 import { useState } from 'react'
 import { attemptsLabel, dailyLabel, dateLabel } from '../../engine/daily.ts'
+import { MASTERY_WINS, masteryTier } from '../../engine/meta.ts'
 import { mutatorForDate } from '../../engine/mutators.ts'
 import { MutatorCard } from '../components/MutatorCard.tsx'
-import type { ContentRegistry, MetaProfile, StatKey } from '../../engine/types.ts'
+import type { ContentRegistry, MetaProfile, StatKey, Lang } from '../../engine/types.ts'
 import { asset, portrait } from '../common/assets.ts'
 import { STAT_LABEL, tr } from '../common/lang.ts'
 import { CardView } from '../components/CardView.tsx'
@@ -24,6 +25,23 @@ export interface SetupScreenProps {
   onBack: () => void
   /** KST date key: set up today's daily-seed run instead of a normal loop. */
   daily?: string
+}
+
+/** What shared victories have earned with a companion, and what the next tier is. */
+function MasteryNote({ wins, lang }: { wins: number; lang: Lang }) {
+  const ko = lang === 'ko'
+  const tier = masteryTier(wins)
+  const next: number | undefined = (MASTERY_WINS as readonly number[])[tier] // undefined once both tiers are earned
+  return (
+    <div className="m2-tip__text m2-mastery">
+      <b>{ko ? `함께한 승리 ${wins}회` : `${wins} shared ${wins === 1 ? 'victory' : 'victories'}`}</b>
+      {tier >= 1 && <div>{ko ? '숙련 Ⅰ · 시그니처 카드가 강화된 채로 시작' : 'Mastery I · their signature card starts upgraded'}</div>}
+      {tier >= 2 && <div>{ko ? '숙련 Ⅱ · 유대 1에서 시작' : 'Mastery II · starts at bond 1'}</div>}
+      {next !== undefined && (
+        <small>{ko ? `다음 숙련까지 승리 ${next - wins}회` : `${next - wins} more ${next - wins === 1 ? 'victory' : 'victories'} to the next mastery`}</small>
+      )}
+    </div>
+  )
 }
 
 export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenProps) {
@@ -194,6 +212,7 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
                           {tr(def.name, lang)} <em>{tr(def.role, lang)}</em>
                         </div>
                         <div className="m2-tip__text">{unlocked ? tr(def.passiveText, lang) : ko ? '아카이브에서 해금' : 'Unlock in the Archive'}</div>
+                        {unlocked && <MasteryNote wins={profile.companionWins?.[def.id] ?? 0} lang={lang} />}
                       </div>
                     }
                   >
@@ -207,6 +226,11 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
                     >
                       <img src={portrait(def.sprite)} alt={tr(def.name, lang)} />
                       {!unlocked && <Lock size={14} />}
+                      {unlocked && masteryTier(profile.companionWins?.[def.id] ?? 0) > 0 && (
+                        <span className="m2-comp__mastery" aria-label={ko ? '숙련' : 'Mastery'}>
+                          {masteryTier(profile.companionWins?.[def.id] ?? 0) >= 2 ? 'Ⅱ' : 'Ⅰ'}
+                        </span>
+                      )}
                     </button>
                   </Tooltip>
                 ))}

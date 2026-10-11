@@ -15,7 +15,7 @@ Last updated: 2026-10-11
 
 Latest verified baseline (2026-10-11): `make check` green (`node --test src/v2` 221 + Python unittest 210), `make test-db` 20, `make test-e2e-v2` (headless, muted, incl. sign-in note + leaderboard submit), headless save/continue/reload, emulator push delivery; real Google sign-in on the web (token verified server-side, `g_` save) and the native sign-in sheet on Android. Sim P0 over 360 runs: greedy 100 % · mixed ≈ 35 % (28–41 % by seed block) · basic 0 %; P5: 78 / 3.
 
-Production (2026-10-11): Cloud Run `mythos-api` serves 2.0 — revision `00113` at 100 % (includes the `/admin` dashboard; `MYTHOS_ADMIN_EMAILS` set) (`MYTHOS_AUTH=google`, production Postgres, Vertex `gemini-3.5-flash`); the 1.x revision `00090` stays available for rollback. Daily push: Cloud Scheduler `mythos-daily-push-{ko,en}` at 19:00 KST as `mythos-push@` (FCM role only).
+Production (2026-10-11): Cloud Run `mythos-api` serves 2.0 — revision `00115` at 100 % (includes the `/admin` dashboard; `MYTHOS_ADMIN_EMAILS` set) (`MYTHOS_AUTH=google`, production Postgres, Vertex `gemini-3.5-flash`); the 1.x revision `00090` stays available for rollback. Daily push: Cloud Scheduler `mythos-daily-push-{ko,en}` at 19:00 KST as `mythos-push@` (FCM role only).
 
 ## Active Focus
 

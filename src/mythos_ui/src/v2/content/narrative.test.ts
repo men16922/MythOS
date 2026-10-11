@@ -280,6 +280,27 @@ test('flags read by conditions are set by some event', () => {
   }
 })
 
+test('a flag can be read only in the same act or later than some event that sets it', () => {
+  // A reader in act N is reachable only if a setter exists in an act <= N (or a setter in the same act, which
+  // can roll first). A flag that is only ever set in a LATER act would leave its reader permanently locked.
+  const setters = new Map<string, number>() // flag -> earliest act any event sets it in
+  for (const e of EVENTS) {
+    for (const fx of effects(e)) {
+      if (fx.kind !== 'flag' || (fx.value ?? 1) <= 0) continue
+      const act = Math.min(...e.acts)
+      setters.set(fx.key, Math.min(setters.get(fx.key) ?? 9, act))
+    }
+  }
+  for (const e of EVENTS) {
+    const reads = [e.requires?.flag, ...e.options.map((o) => o.requires?.flag)].filter((f): f is string => !!f)
+    for (const flag of reads) {
+      const earliest = setters.get(flag)
+      assert.ok(earliest !== undefined, `${e.id}: flag ${flag} is never set`)
+      assert.ok(earliest <= Math.max(...e.acts), `${e.id} (act ${e.acts.join('/')}) reads ${flag}, first set in act ${earliest}`)
+    }
+  }
+})
+
 test('writing budget: event text ≤ 320 chars (ko), act intro ≤ 400, outcomes short', () => {
   for (const e of EVENTS) {
     assert.ok(e.text.ko.length <= 320, `${e.id}: ${e.text.ko.length} chars`)

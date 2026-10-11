@@ -11,6 +11,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from mythos_api.app import create_app
+from mythos_v2.admin import MAX_DAYS, AdminRun, build_overview, run_from_fields
 from mythos_v2.api import V2Settings, create_v2_router
 from mythos_v2.auth import (
     AuthConfig,
@@ -281,6 +282,73 @@ class AdminOverviewTest(unittest.TestCase):
         server = self.data["server"]
         self.assertEqual((server["auth"], server["store"]), ("google", "memory"))
         self.assertEqual(server["gm_stats"]["total"], 0)
+
+
+class OverviewEdgeCaseTest(unittest.TestCase):
+    """``build_overview`` directly: empty inputs, clamping and the KST day boundary."""
+
+    def _build(self, runs: list[AdminRun], *, now: datetime, days: int = 3) -> dict[str, Any]:
+        return build_overview([], runs, [], [], now=now, days=days, server={})
+
+    def test_empty_inputs_are_all_zero(self) -> None:
+        data = self._build([], now=NOW)
+        self.assertEqual(data["totals"]["players"], 0)
+        self.assertIsNone(data["totals"]["win_rate_in_window"])
+        self.assertEqual(data["players"], [])
+        self.assertEqual(data["archetypes"], [])
+        self.assertEqual(len(data["per_day"]), 3)
+        self.assertTrue(all(row["runs"] == 0 for row in data["per_day"]))
+
+    def test_days_are_clamped(self) -> None:
+        self.assertEqual(self._build([], now=NOW, days=0)["days"], 1)
+        self.assertEqual(len(self._build([], now=NOW, days=500)["per_day"]), MAX_DAYS)
+
+    def test_kst_midnight_splits_the_days(self) -> None:
+        # 14:59 UTC = 23:59 KST (day D); 15:00 UTC = 00:00 KST (day D+1).
+        now = datetime(2026, 10, 12, 3, 0, tzinfo=UTC)  # 12:00 KST on the 12th
+        before = AdminRun(
+            "g_x",
+            datetime(2026, 10, 11, 14, 59, tzinfo=UTC),
+            "victory",
+            "ghost",
+            3,
+            9,
+            4,
+            "",
+            "",
+            False,
+        )
+        after = AdminRun(
+            "g_x",
+            datetime(2026, 10, 11, 15, 0, tzinfo=UTC),
+            "defeat",
+            "ghost",
+            2,
+            5,
+            2,
+            "",
+            "x",
+            False,
+        )
+        rows = {r["day"]: r for r in self._build([before, after], now=now)["per_day"]}
+        self.assertEqual(rows["2026-10-11"]["wins"], 1)
+        self.assertEqual(rows["2026-10-12"]["defeats"], 1)
+        self.assertEqual(rows["2026-10-11"]["defeats"], 0)
+
+    def test_unknown_result_counts_as_abandoned(self) -> None:
+        odd = run_from_fields(
+            "g_x",
+            NOW,
+            result="weird",
+            archetype=None,
+            act="2",
+            floors=True,
+            echoes=None,
+            ending=None,
+            killed_by=None,
+            daily=None,
+        )
+        self.assertEqual((odd.result, odd.archetype, odd.act, odd.floors), ("abandoned", "?", 2, 0))
 
 
 class AdminPageTest(unittest.TestCase):

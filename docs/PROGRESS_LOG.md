@@ -2,6 +2,11 @@
 
 Last updated: 2026-10-11
 
+## 2026-10-11 — Stat inner voices (1.x port #2)
+
+- After a stat check resolves (event option or Improvise), the stat that was rolled talks back in one authored line under the outcome text, once the text has finished typing: 근력 rough and loyal, 민첩 a jumpy kid, 지능 a cold 합쇼체 analyst, 매력 a soft teasing older sister, 관측 an old dry watcher. 5 stats × 4 success + 4 failure lines, KO/EN, no numbers (the chips already carry them). Picked by a stable hash of (stat, outcome, event:option), so the same moment always sounds the same; no LLM, no balance effect. Each voice has its own colour.
+- `Typewriter` gained an `onDone` callback; the voice mounts on completion. Verified in a real browser against the dev server (success path and failure path, console clean) and by `narrative.test.ts` (counts, length, no digits, distinct registers, deterministic spread).
+
 ## 2026-10-11 — 1.x port, Wave 1 (naming guard, agendas, flag reachability, boss stacking)
 
 - Owner directive: "포팅 계획까지 포함하여 잔여 작업 전부 검증 완료시까지 수행 … 개선사항은 스스로 판단 … 게임의 재미 최우선". Executing `docs/plans/2026-10-11-port-from-1x.md` wave by wave.

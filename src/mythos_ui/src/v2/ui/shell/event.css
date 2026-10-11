@@ -329,6 +329,43 @@
   line-height: 1.75;
   margin-bottom: 12px;
 }
+.m2-voice {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding: 6px 12px;
+  max-width: 100%;
+  border-left: 2px solid var(--v, var(--o));
+  background: color-mix(in srgb, var(--v, var(--o)) 8%, transparent);
+  font-size: 14px;
+  line-height: 1.6;
+  font-style: italic;
+  animation: m2-rise 0.45s var(--m2-ease) both;
+}
+.m2-voice__tag {
+  flex: none;
+  font-family: var(--m2-display);
+  font-style: normal;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--v, var(--o));
+}
+.m2-voice__line {
+  color: var(--m2-text-dim, rgba(255, 255, 255, 0.78));
+}
+/* Five distinct voices: a colour each, so the player learns who is talking. */
+.m2-voice--str { --v: #ff8a5c; }
+.m2-voice--agi { --v: #ffd45c; }
+.m2-voice--int { --v: #5cc8ff; }
+.m2-voice--cha { --v: #ff7ab8; }
+.m2-voice--obs { --v: #a98bff; }
+@media (prefers-reduced-motion: reduce) {
+  .m2-voice {
+    animation: none;
+  }
+}
 .m2-outcome .m2-btn {
   margin-top: 16px;
 }

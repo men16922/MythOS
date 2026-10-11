@@ -9,6 +9,7 @@ import { effectChips, statLabel, type EffectChip } from '../components/format.ts
 import { RollMeter } from '../components/RollMeter.tsx'
 import { sound } from '../components/sound.ts'
 import { Typewriter } from '../components/Typewriter.tsx'
+import { statVoiceLine } from '../../content/statVoices.ts'
 import { GmCard } from './GmCard.tsx'
 import { improvise, narrate } from './gm.ts'
 import { rx } from './rx.ts'
@@ -26,6 +27,17 @@ const RISK_LABEL: Record<Improvisation['risk'], { ko: string; en: string }> = {
   hp: L('HP 손실', 'Lose HP'),
   trace: L('추적도 증가', 'More Trace'),
   credits: L('크레딧 손실', 'Lose credits'),
+}
+
+/** One inner-voice line from the stat that was just rolled (authored, deterministic, no numbers). */
+function StatVoice({ stat, success, seed, lang }: { stat: StatKey; success: boolean; seed: string; lang: Lang }) {
+  const { tag, line } = statVoiceLine(stat, success, seed)
+  return (
+    <p className={`m2-voice m2-voice--${stat}`} data-testid="stat-voice">
+      <span className="m2-voice__tag">{tr(tag, lang)}</span>
+      <span className="m2-voice__line">“{tr(line, lang)}”</span>
+    </p>
+  )
 }
 
 /** Exact stakes; mirrors the bounded formulas in engine/run.ts applyImprovisation. */
@@ -90,6 +102,7 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
   const [action, setAction] = useState('')
   const [pending, setPending] = useState<Improvisation | null>(null)
   const [judging, setJudging] = useState(false)
+  const [typedKey, setTypedKey] = useState('')
   const [rolling, setRolling] = useState<{ chance: number; success: boolean; land: number; next: RunState; label: string } | null>(null)
   // The option list can change once an option resolves (e.g. a recruit leaves the candidate pool), so the
   // outcome reads the option that was actually clicked, not whatever now sits at that index.
@@ -347,7 +360,8 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
         {resolved && (
           <div className={`m2-outcome ${resolved.success ? 'is-win' : 'is-loss'}`}>
             {resolvedOpt?.check && <div className="m2-outcome__tag">{resolved.success ? (ko ? '성공' : 'Success') : ko ? '실패' : 'Failed'}</div>}
-            <Typewriter className="m2-outcome__text" text={tr(resolved.text, lang)} cps={settings.fastAnim ? 400 : 120} />
+            <Typewriter className="m2-outcome__text" text={tr(resolved.text, lang)} cps={settings.fastAnim ? 400 : 120} onDone={() => setTypedKey(`${ev.id}:opt${resolved.optionIndex}:${resolved.success ? 1 : 0}:${run.rng}`)} />
+            {resolvedOpt?.check && typedKey === `${ev.id}:opt${resolved.optionIndex}:${resolved.success ? 1 : 0}:${run.rng}` && <StatVoice stat={resolvedOpt.check.stat} success={resolved.success} seed={`${ev.id}:${resolved.optionIndex}`} lang={lang} />}
             <Chips chips={effectChips((resolved.success ? resolvedOpt?.success.effects : resolvedOpt?.failure?.effects) ?? [], C, lang)} />
             <button
               className="m2-btn m2-btn--primary m2-btn--lg"
@@ -368,7 +382,8 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
               <span className="m2-mono"> · {rolled.rolled?.roll}</span>
             </div>
             <div className="m2-outcome__action">“{rolled.action}”</div>
-            <Typewriter className="m2-outcome__text" text={tr(rolled.rolled?.success ? rolled.successText : rolled.failureText, lang)} cps={settings.fastAnim ? 400 : 120} />
+            <Typewriter className="m2-outcome__text" text={tr(rolled.rolled?.success ? rolled.successText : rolled.failureText, lang)} cps={settings.fastAnim ? 400 : 120} onDone={() => setTypedKey(`${ev.id}:improv:${run.rng}`)} />
+            {typedKey === `${ev.id}:improv:${run.rng}` && <StatVoice stat={rolled.stat} success={!!rolled.rolled?.success} seed={`${ev.id}:improv:${rolled.action}`} lang={lang} />}
             <span className="m2-chips">
               {rolled.rolled?.success ? (
                 <span className="m2-chip m2-chip--good" title={tr(REWARD_LABEL[rolled.reward], lang)}>

@@ -12,9 +12,11 @@ export interface TypewriterProps {
   /** Play the soft typing tick (default true). */
   tick?: boolean
   className?: string
+  /** Called once each time the text has been fully revealed (also for instant / already-complete text). */
+  onDone?: () => void
 }
 
-export function Typewriter({ text, cps = 90, instant, className, tick = true }: TypewriterProps) {
+export function Typewriter({ text, cps = 90, instant, className, tick = true, onDone }: TypewriterProps) {
   const [state, setState] = useState({ text, n: instant ? text.length : 0 })
   // Reset when the text changes (derived during render, no effect needed).
   let n = state.n
@@ -23,6 +25,10 @@ export function Typewriter({ text, cps = 90, instant, className, tick = true }: 
     setState({ text, n })
   }
   const done = n >= text.length
+  useEffect(() => {
+    if (done) onDone?.()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only the completion edge matters, not the callback identity
+  }, [done, text])
   useEffect(() => {
     if (done) return
     const id = window.setInterval(() => {

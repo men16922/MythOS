@@ -459,3 +459,44 @@ test('cross-check against the assembled registry (when it loads)', async (t) => 
     }
   }
 })
+
+// ---------------------------------------------------------------- stat voices (1.x port #2)
+
+import { STAT_VOICES, statVoiceLine } from './statVoices.ts'
+
+test('stat voices: five stats × 4 success + 4 failure lines, short, number-free, bilingual and distinct', () => {
+  const stats = ['str', 'agi', 'int', 'cha', 'obs'] as const
+  assert.deepEqual(Object.keys(STAT_VOICES).sort(), [...stats].sort())
+  const seen = new Set<string>()
+  for (const stat of stats) {
+    const v = STAT_VOICES[stat]
+    assert.equal(v.success.length, 4, `${stat} success lines`)
+    assert.equal(v.failure.length, 4, `${stat} failure lines`)
+    assert.ok(v.tag.ko && v.tag.en)
+    for (const line of [...v.success, ...v.failure]) {
+      assert.ok(line.ko.length >= 6 && line.ko.length <= 48, `${stat}: ko length ${line.ko.length} "${line.ko}"`)
+      assert.ok(line.en.length >= 6 && line.en.length <= 80, `${stat}: en length "${line.en}"`)
+      assert.ok(!/\d/.test(line.ko + line.en), `${stat}: no numbers in "${line.ko}"`)
+      assert.ok(!seen.has(line.ko), `duplicate line "${line.ko}"`)
+      seen.add(line.ko)
+    }
+  }
+})
+
+test('stat voices: Korean registers stay distinct (int is formal, str/agi/cha informal, obs plain)', () => {
+  const formal = /(니다|십시오)/ // intelligence speaks 합쇼체 somewhere in every line (a trailing fragment like '이번에는.' is fine)
+  for (const line of [...STAT_VOICES.int.success, ...STAT_VOICES.int.failure]) assert.match(line.ko, formal, line.ko)
+  for (const stat of ['str', 'agi', 'obs'] as const) {
+    for (const line of [...STAT_VOICES[stat].success, ...STAT_VOICES[stat].failure]) assert.doesNotMatch(line.ko, formal, `${stat}: ${line.ko}`)
+  }
+  for (const line of [...STAT_VOICES.agi.success, ...STAT_VOICES.agi.failure]) assert.match(line.ko, /[!?]|…/, `agi should be jumpy: ${line.ko}`)
+})
+
+test('stat voice pick is deterministic per (stat, outcome, seed) and spreads over the pool', () => {
+  assert.deepEqual(statVoiceLine('cha', true, 'a1_x:0'), statVoiceLine('cha', true, 'a1_x:0'))
+  const picked = new Set<string>()
+  for (let i = 0; i < 40; i++) picked.add(statVoiceLine('str', false, `e${i}:0`).line.ko)
+  assert.equal(picked.size, 4, 'all four lines get used across events')
+  assert.ok(STAT_VOICES.str.success.some((l) => l.ko === statVoiceLine('str', true, 'z:1').line.ko))
+  assert.ok(STAT_VOICES.str.failure.some((l) => l.ko === statVoiceLine('str', false, 'z:1').line.ko))
+})

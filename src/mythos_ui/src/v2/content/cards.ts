@@ -23,7 +23,7 @@ const STARTER_SHARED: CardDef[] = [
     effects: [{ kind: 'damage', amount: 5 }],
     text: t('피해 5.', 'Deal 5.'),
     upgrade: { effects: [{ kind: 'damage', amount: 7 }], text: t('피해 7.', 'Deal 7.') },
-    icon: 'skills/packet_shot.png',
+    icon: 'v2/cards/packet_shot.webp',
   },
   {
     id: 'covering_noise',
@@ -36,7 +36,7 @@ const STARTER_SHARED: CardDef[] = [
     effects: [{ kind: 'block', amount: 6 }],
     text: t('아군 하나 방어막 6.', 'An ally gains 6 block.'),
     upgrade: { effects: [{ kind: 'block', amount: 9 }], text: t('아군 하나 방어막 9.', 'An ally gains 9 block.') },
-    icon: 'skills/covering_noise.png',
+    icon: 'v2/cards/covering_noise.webp',
     tags: ['block'],
   },
   {
@@ -59,7 +59,7 @@ const STARTER_SHARED: CardDef[] = [
       ],
       text: t('피해 4. 2칸 밀어낸다.', 'Deal 4. Push 2.'),
     },
-    icon: 'items/heavy_exosuit.png',
+    icon: 'v2/cards/shove.webp',
     tags: ['push'],
   },
 ]
@@ -83,7 +83,7 @@ const STARTER_GHOST: CardDef[] = [
       effects: [{ kind: 'teleport' }, { kind: 'draw', amount: 1 }],
       text: t('빈 칸으로 순간이동한다. 카드 1장을 뽑는다.', 'Teleport to an empty tile. Draw 1.'),
     },
-    icon: 'skills/signal_step.png',
+    icon: 'v2/cards/signal_step.webp',
     tags: ['move'],
   },
   {
@@ -108,7 +108,7 @@ const STARTER_GHOST: CardDef[] = [
       ],
       text: t('피해 3. 2칸 밀어낸다.', 'Deal 3. Push 2.'),
     },
-    icon: 'skills/magnetic_repulse.png',
+    icon: 'v2/cards/repulse.webp',
     tags: ['push'],
   },
   {
@@ -126,7 +126,7 @@ const STARTER_GHOST: CardDef[] = [
     ],
     text: t('피해 2. 2칸 끌어당긴다.', 'Deal 2. Pull 2.'),
     upgrade: { cost: 0, text: t('피해 2. 2칸 끌어당긴다.', 'Deal 2. Pull 2.') },
-    icon: 'skills/magnetic_pull.png',
+    icon: 'v2/cards/magnetic_pull.webp',
     tags: ['push'],
   },
 ]
@@ -144,7 +144,7 @@ const STARTER_SMUGGLER: CardDef[] = [
     effects: [{ kind: 'redirect' }],
     text: t('적의 공격 방향을 뒤집는다.', "Turn an enemy's attack around."),
     upgrade: { cost: 0 },
-    icon: 'skills/system_hack.png',
+    icon: 'v2/cards/system_hack.webp',
     tags: ['hack'],
   },
   {
@@ -168,7 +168,7 @@ const STARTER_SMUGGLER: CardDef[] = [
       ],
       text: t('피해 6. 4₵ 획득.', 'Deal 6. Gain 4₵.'),
     },
-    icon: 'items/data_fragment.png',
+    icon: 'v2/cards/skim.webp',
     tags: ['credits'],
   },
   {
@@ -194,7 +194,7 @@ const STARTER_SMUGGLER: CardDef[] = [
       ],
       text: t('에너지 +2. 카드 1장을 뽑는다. 추적 +3. 소멸.', 'Gain 2 energy. Draw 1. Trace +3. Exhaust.'),
     },
-    icon: 'skills/signal_overdrive.png',
+    icon: 'v2/cards/overclock.webp',
     tags: ['energy', 'loud'],
   },
 ]
@@ -221,7 +221,7 @@ const STARTER_ECHO: CardDef[] = [
       ],
       text: t('아군 하나 회복 4, 방어막 5.', 'An ally heals 4 and gains 5 block.'),
     },
-    icon: 'skills/patch_protocol.png',
+    icon: 'v2/cards/patch_protocol.webp',
     tags: ['heal', 'block'],
   },
   {
@@ -239,7 +239,7 @@ const STARTER_ECHO: CardDef[] = [
       effects: [{ kind: 'block', amount: 7, to: 'all_allies' }],
       text: t('모든 아군 방어막 7.', 'All allies gain 7 block.'),
     },
-    icon: 'skills/shield_field.png',
+    icon: 'v2/cards/shield_field.webp',
     tags: ['block', 'companion'],
   },
   {
@@ -263,7 +263,7 @@ const STARTER_ECHO: CardDef[] = [
       ],
       text: t('피해 4. 표식 4.', 'Deal 4. Mark 4.'),
     },
-    icon: 'skills/memory_resonance.png',
+    icon: 'v2/cards/memory_resonance.webp',
     tags: ['mark'],
   },
 ]
@@ -282,7 +282,7 @@ const POOL_COMMON: CardDef[] = [
     effects: [{ kind: 'damage', amount: 3 }],
     text: t('피해 3.', 'Deal 3.'),
     upgrade: { effects: [{ kind: 'damage', amount: 5 }], text: t('피해 5.', 'Deal 5.') },
-    icon: 'items/signal_blade.png',
+    icon: 'v2/cards/jab.webp',
   },
   {
     id: 'scattershot',
@@ -304,7 +304,7 @@ const POOL_COMMON: CardDef[] = [
       ],
       text: t('십자 범위에 피해 3, 바깥쪽으로 1칸 밀어낸다.', 'Cross area: deal 3, push 1 outward.'),
     },
-    icon: 'items/drone_scrap.png',
+    icon: 'v2/cards/scattershot.webp',
     tags: ['push'],
   },
   {
@@ -318,7 +318,7 @@ const POOL_COMMON: CardDef[] = [
     effects: [{ kind: 'create_cover' }, { kind: 'block', amount: 3, to: 'owner' }],
     text: t('빈 칸에 엄폐물을 세운다. 방어막 3.', 'Create cover on an empty tile. Gain 3 block.'),
     upgrade: { cost: 0 },
-    icon: 'skills/guardian_wall.png',
+    icon: 'v2/cards/barricade.webp',
     tags: ['block'],
   },
   {
@@ -332,7 +332,7 @@ const POOL_COMMON: CardDef[] = [
     effects: [{ kind: 'block', amount: 7 }],
     text: t('방어막 7.', 'Gain 7 block.'),
     upgrade: { effects: [{ kind: 'block', amount: 10 }], text: t('방어막 10.', 'Gain 10 block.') },
-    icon: 'items/mesh_vest.png',
+    icon: 'v2/cards/brace.webp',
     tags: ['block'],
   },
   {
@@ -349,7 +349,7 @@ const POOL_COMMON: CardDef[] = [
       effects: [{ kind: 'block', amount: 7 }, { kind: 'refund_move' }],
       text: t('방어막 7. 다시 이동할 수 있다.', 'Gain 7 block. You may move again.'),
     },
-    icon: 'items/stealth_cloak.png',
+    icon: 'v2/cards/smoke_step.webp',
     tags: ['move', 'block'],
   },
   {
@@ -363,7 +363,7 @@ const POOL_COMMON: CardDef[] = [
     effects: [{ kind: 'status', status: 'mark', amount: 3 }],
     text: t('표식 3.', 'Mark 3.'),
     upgrade: { effects: [{ kind: 'status', status: 'mark', amount: 5 }], text: t('표식 5.', 'Mark 5.') },
-    icon: 'status/acid.png',
+    icon: 'v2/cards/target_laser.webp',
     tags: ['mark'],
   },
   {
@@ -383,7 +383,7 @@ const POOL_COMMON: CardDef[] = [
       ],
       text: t('십자 범위에 피해 2, 약화 2.', 'Cross area: deal 2, Weak 2.'),
     },
-    icon: 'status/stunned.png',
+    icon: 'v2/cards/flashbang.webp',
     tags: ['hack'],
   },
   {
@@ -397,7 +397,7 @@ const POOL_COMMON: CardDef[] = [
     effects: [{ kind: 'swap' }],
     text: t('유닛 하나와 자리를 바꾼다.', 'Swap places with a unit.'),
     upgrade: { cost: 0 },
-    icon: 'skills/backdoor_route.png',
+    icon: 'v2/cards/grapple.webp',
     tags: ['move'],
   },
   {
@@ -420,7 +420,7 @@ const POOL_COMMON: CardDef[] = [
       ],
       text: t('피해 4씩 2회.', 'Deal 4 twice.'),
     },
-    icon: 'skills/packet_shot.png',
+    icon: 'v2/cards/double_tap.webp',
   },
   {
     id: 'incendiary_round',
@@ -444,7 +444,7 @@ const POOL_COMMON: CardDef[] = [
       ],
       text: t('피해 3, 화상 3. 맞은 칸 십자 범위에 2턴 동안 불길이 남는다.', 'Deal 3, Burn 3. A cross around the impact burns for 2 turns.'),
     },
-    icon: 'status/burn.png',
+    icon: 'v2/cards/incendiary_round.webp',
     tags: ['burn'],
   },
   {
@@ -467,7 +467,7 @@ const POOL_COMMON: CardDef[] = [
       ],
       text: t('피해 4. 약화 2.', 'Deal 4. Weak 2.'),
     },
-    icon: 'status/corrode.png',
+    icon: 'v2/cards/suppressing_fire.webp',
   },
   {
     id: 'static_discharge',
@@ -491,7 +491,7 @@ const POOL_COMMON: CardDef[] = [
       ],
       text: t('주변 4칸에 피해 4, 1칸 밀어낸다. 그 칸에 1턴 동안 전류가 흐른다. 아군도 맞는다.', 'Adjacent tiles: deal 4, push 1; they carry current for 1 turn. Hits allies too.'),
     },
-    icon: 'skills/emp_pulse.png',
+    icon: 'v2/cards/static_discharge.webp',
     tags: ['push'],
   },
 ]
@@ -511,7 +511,7 @@ const POOL_UNCOMMON: CardDef[] = [
       effects: [{ kind: 'damage', amount: 6, area: 'square' }],
       text: t('3×3 범위에 피해 6. 아군도 맞는다.', '3×3 area: deal 6. Hits allies too.'),
     },
-    icon: 'skills/ix_purge_field.png',
+    icon: 'v2/cards/shockwave.webp',
   },
   {
     id: 'emp_burst',
@@ -527,7 +527,7 @@ const POOL_UNCOMMON: CardDef[] = [
     ],
     text: t('십자 범위에 감전 1. 그 칸에 2턴 동안 전류가 흐른다.', 'Cross area: Shock 1. The floor carries current for 2 turns.'),
     upgrade: { cost: 1 },
-    icon: 'skills/emp_pulse.png',
+    icon: 'v2/cards/emp_burst.webp',
     tags: ['hack'],
   },
   {
@@ -541,7 +541,7 @@ const POOL_UNCOMMON: CardDef[] = [
     effects: [{ kind: 'damage', amount: 12 }],
     text: t('피해 12.', 'Deal 12.'),
     upgrade: { effects: [{ kind: 'damage', amount: 16 }], text: t('피해 16.', 'Deal 16.') },
-    icon: 'skills/overload_strike.png',
+    icon: 'v2/cards/overload_strike.webp',
   },
   {
     id: 'void_kick',
@@ -557,7 +557,7 @@ const POOL_UNCOMMON: CardDef[] = [
     ],
     text: t('피해 1. 3칸 밀어낸다.', 'Deal 1. Push 3.'),
     upgrade: { cost: 0 },
-    icon: 'skills/magnetic_repulse.png',
+    icon: 'v2/cards/void_kick.webp',
     tags: ['push'],
   },
   {
@@ -574,7 +574,7 @@ const POOL_UNCOMMON: CardDef[] = [
       effects: [{ kind: 'cancel_intent' }, { kind: 'draw', amount: 1 }],
       text: t('적의 이번 공격을 취소한다. 카드 1장을 뽑는다.', "Cancel an enemy's attack. Draw 1."),
     },
-    icon: 'status/hacked.png',
+    icon: 'v2/cards/jam_signal.webp',
     tags: ['hack'],
   },
   {
@@ -597,7 +597,7 @@ const POOL_UNCOMMON: CardDef[] = [
       ],
       text: t('피해 5. 무작위 적에게 피해 4.', 'Deal 5. Deal 4 to a random enemy.'),
     },
-    icon: 'items/signal_blade.png',
+    icon: 'v2/cards/ricochet.webp',
   },
   {
     id: 'guard_protocol',
@@ -614,7 +614,7 @@ const POOL_UNCOMMON: CardDef[] = [
       effects: [{ kind: 'status', status: 'guard', amount: 4 }],
       text: t('아군 하나 수호 4 (매 턴 방어막 4). 소멸.', 'An ally gains Guard 4 (4 block each turn). Exhaust.'),
     },
-    icon: 'skills/nanoshield_projector.png',
+    icon: 'v2/cards/guard_protocol.webp',
     tags: ['block'],
   },
   {
@@ -637,7 +637,7 @@ const POOL_UNCOMMON: CardDef[] = [
       ],
       text: t('십자 범위에 화상 4. 그 칸에 3턴 동안 불길이 남는다.', 'Cross area: Burn 4. The area burns for 3 turns.'),
     },
-    icon: 'items/incendiary_grenade.png',
+    icon: 'v2/cards/firebomb.webp',
     tags: ['burn'],
   },
   {
@@ -654,7 +654,7 @@ const POOL_UNCOMMON: CardDef[] = [
       effects: [{ kind: 'damage', amount: 7, bonusVsMarked: 6 }],
       text: t('피해 7. 표식 대상에게 +6.', 'Deal 7. +6 against a marked target.'),
     },
-    icon: 'skills/precision_emp.png',
+    icon: 'v2/cards/pressure_point.webp',
     tags: ['mark'],
   },
   {
@@ -678,7 +678,7 @@ const POOL_UNCOMMON: CardDef[] = [
       ],
       text: t('에너지 +2. 카드 1장을 뽑는다. 소멸.', 'Gain 2 energy. Draw 1. Exhaust.'),
     },
-    icon: 'items/stim_shard.png',
+    icon: 'v2/cards/adrenaline.webp',
     tags: ['energy', 'draw'],
   },
   {
@@ -692,7 +692,7 @@ const POOL_UNCOMMON: CardDef[] = [
     effects: [{ kind: 'create_cover', area: 'cross' }],
     text: t('십자 범위의 빈 칸에 엄폐물을 세운다.', 'Create cover on empty tiles in a cross.'),
     upgrade: { cost: 1 },
-    icon: 'skills/nanoshield_projector.png',
+    icon: 'v2/cards/wall_up.webp',
     tags: ['block'],
   },
 ]
@@ -718,7 +718,7 @@ const POOL_RARE: CardDef[] = [
       ],
       text: t('3×3 범위에 피해 12. 추적 +5.', '3×3 area: deal 12. Trace +5.'),
     },
-    icon: 'skills/ix_purge_list.png',
+    icon: 'v2/cards/orbital_strike.webp',
     tags: ['loud'],
   },
   {
@@ -736,7 +736,7 @@ const POOL_RARE: CardDef[] = [
     exhaust: true,
     text: t('모든 적 감전 1. 추적 +8. 소멸.', 'Shock 1 to all enemies. Trace +8. Exhaust.'),
     upgrade: { cost: 2 },
-    icon: 'status/shock.png',
+    icon: 'v2/cards/blackout.webp',
     tags: ['hack', 'loud'],
   },
   {
@@ -753,7 +753,7 @@ const POOL_RARE: CardDef[] = [
     ],
     text: t('모든 아군이 다시 이동할 수 있다. 카드 2장을 뽑는다.', 'All allies may move again. Draw 2.'),
     upgrade: { cost: 0 },
-    icon: 'skills/glitch_blink.png',
+    icon: 'v2/cards/ghost_protocol.webp',
     tags: ['move', 'draw'],
   },
   {
@@ -767,7 +767,7 @@ const POOL_RARE: CardDef[] = [
     effects: [{ kind: 'damage', amount: 12, pierce: true }],
     text: t('장갑·방어막 무시 피해 12.', 'Deal 12, ignoring armor and block.'),
     upgrade: { effects: [{ kind: 'damage', amount: 16, pierce: true }], text: t('장갑·방어막 무시 피해 16.', 'Deal 16, ignoring armor and block.') },
-    icon: 'skills/precision_emp.png',
+    icon: 'v2/cards/deadeye.webp',
   },
 ]
 
@@ -797,7 +797,7 @@ const POOL_GHOST: CardDef[] = [
       ],
       text: t('순간이동한 뒤 주변 4칸에 피해 4, 1칸 밀어낸다.', 'Teleport, then adjacent tiles: deal 4, push 1.'),
     },
-    icon: 'skills/glitch_blink.png',
+    icon: 'v2/cards/blink_strike.webp',
     tags: ['move', 'push'],
   },
   {
@@ -821,7 +821,7 @@ const POOL_GHOST: CardDef[] = [
       ],
       text: t('피해 6. 2칸 밀어낸다.', 'Deal 6. Push 2.'),
     },
-    icon: 'skills/signal_step.png',
+    icon: 'v2/cards/vector_kick.webp',
     tags: ['push'],
   },
   {
@@ -845,7 +845,7 @@ const POOL_GHOST: CardDef[] = [
       ],
       text: t('직선 4칸 관통: 피해 3, 2칸 밀어낸다.', 'Beam 4: deal 3 and push 2 to each unit.'),
     },
-    icon: 'skills/magnetic_repulse.png',
+    icon: 'v2/cards/riptide.webp',
     tags: ['push'],
   },
   {
@@ -869,7 +869,7 @@ const POOL_GHOST: CardDef[] = [
       ],
       text: t('십자 범위에 피해 5. 바깥 칸의 유닛을 2칸 밀어낸다.', 'Cross area: deal 5. Push the outer tiles 2 outward.'),
     },
-    icon: 'skills/magnetic_pull.png',
+    icon: 'v2/cards/singularity.webp',
     tags: ['push'],
   },
 ]
@@ -898,7 +898,7 @@ const POOL_SMUGGLER: CardDef[] = [
       ],
       text: t('피해 7. 3₵ 획득. 다시 이동할 수 있다.', 'Deal 7. Gain 3₵. You may move again.'),
     },
-    icon: 'items/access_key.png',
+    icon: 'v2/cards/smash_and_grab.webp',
     tags: ['credits', 'move'],
   },
   {
@@ -923,7 +923,7 @@ const POOL_SMUGGLER: CardDef[] = [
       ],
       text: t('피해 4. 감전 1.', 'Deal 4. Shock 1.'),
     },
-    icon: 'status/shock.png',
+    icon: 'v2/cards/hot_wire.webp',
     tags: ['hack', 'loud'],
   },
   {
@@ -938,7 +938,7 @@ const POOL_SMUGGLER: CardDef[] = [
     effects: [{ kind: 'redirect' }, { kind: 'status', status: 'mark', amount: 3 }],
     text: t('적의 공격 방향을 뒤집는다. 표식 3.', "Turn an enemy's attack around. Mark 3."),
     upgrade: { cost: 0 },
-    icon: 'skills/system_intrusion.png',
+    icon: 'v2/cards/zero_day.webp',
     tags: ['hack', 'mark'],
   },
   {
@@ -958,7 +958,7 @@ const POOL_SMUGGLER: CardDef[] = [
     exhaust: true,
     text: t('카드 3장을 뽑는다. 에너지 +1. 6₵ 획득. 소멸.', 'Draw 3. Gain 1 energy. Gain 6₵. Exhaust.'),
     upgrade: { cost: 0 },
-    icon: 'items/data_fragment.png',
+    icon: 'v2/cards/insider_trading.webp',
     tags: ['draw', 'energy', 'credits'],
   },
 ]
@@ -985,7 +985,7 @@ const POOL_ECHO: CardDef[] = [
       ],
       text: t('아군 하나 방어막 7. 자신 방어막 4.', 'An ally gains 7 block. You gain 4 block.'),
     },
-    icon: 'skills/shield_field.png',
+    icon: 'v2/cards/resonant_shield.webp',
     tags: ['block', 'companion'],
   },
   {
@@ -1004,7 +1004,7 @@ const POOL_ECHO: CardDef[] = [
       effects: [{ kind: 'heal', amount: 5, to: 'all_allies' }],
       text: t('모든 아군 회복 5. 소멸.', 'All allies heal 5. Exhaust.'),
     },
-    icon: 'items/nanopatch.png',
+    icon: 'v2/cards/echo_mend.webp',
     tags: ['heal', 'companion'],
   },
   {
@@ -1020,7 +1020,7 @@ const POOL_ECHO: CardDef[] = [
     exhaust: true,
     text: t('모든 아군 수호 2. 소멸.', 'All allies gain Guard 2. Exhaust.'),
     upgrade: { cost: 1 },
-    icon: 'status/freeze.png',
+    icon: 'v2/cards/kinship.webp',
     tags: ['block', 'companion'],
   },
   {
@@ -1038,7 +1038,7 @@ const POOL_ECHO: CardDef[] = [
       effects: [{ kind: 'swap' }, { kind: 'block', amount: 14, to: 'owner' }],
       text: t('아군 하나와 자리를 바꾼다. 자신 방어막 14.', 'Swap places with an ally. You gain 14 block.'),
     },
-    icon: 'skills/guardian_wall.png',
+    icon: 'v2/cards/bear_the_burden.webp',
     tags: ['block', 'move', 'companion'],
   },
 ]
@@ -1068,7 +1068,7 @@ const PACK_OVERCLOCK: CardDef[] = [
       ],
       text: t('에너지 +1. 카드 1장을 뽑는다. 추적 +3.', 'Gain 1 energy. Draw 1. Trace +3.'),
     },
-    icon: 'skills/signal_overdrive.png',
+    icon: 'v2/cards/redline.webp',
     tags: ['energy', 'loud'],
   },
   {
@@ -1094,7 +1094,7 @@ const PACK_OVERCLOCK: CardDef[] = [
       ],
       text: t('주변 4칸에 피해 7, 1턴 동안 불길이 남는다. 추적 +2. 아군도 맞는다.', 'Adjacent tiles: deal 7 and burn for 1 turn. Trace +2. Hits allies too.'),
     },
-    icon: 'status/burn.png',
+    icon: 'v2/cards/overheat.webp',
     tags: ['loud'],
   },
   {
@@ -1120,7 +1120,7 @@ const PACK_OVERCLOCK: CardDef[] = [
       ],
       text: t('직선 4칸 관통: 피해 7, 화상 2. 지나간 칸에 1턴 동안 불길이 남는다.', 'Beam 4: deal 7 and Burn 2 to each unit. Its path burns for 1 turn.'),
     },
-    icon: 'items/incendiary_grenade.png',
+    icon: 'v2/cards/thermal_lance.webp',
     tags: ['burn'],
   },
   {
@@ -1138,7 +1138,7 @@ const PACK_OVERCLOCK: CardDef[] = [
     ],
     text: t('카드 3장을 뽑는다. 버린 더미에 잡음 1장을 넣는다.', 'Draw 3. Add a Static to your discard.'),
     upgrade: { cost: 0 },
-    icon: 'items/overload_stim.png',
+    icon: 'v2/cards/afterburner.webp',
     tags: ['draw'],
   },
   {
@@ -1167,7 +1167,7 @@ const PACK_OVERCLOCK: CardDef[] = [
       ],
       text: t('3×3 범위에 피해 11, 화상 3. 2턴 동안 불길이 남는다. 추적 +6. 소멸.', '3×3 area: deal 11, Burn 3; it burns for 2 turns. Trace +6. Exhaust.'),
     },
-    icon: 'skills/ix_optimize_overload.png',
+    icon: 'v2/cards/meltdown.webp',
     tags: ['burn', 'loud'],
   },
 ]
@@ -1195,7 +1195,7 @@ const PACK_NETRUNNER: CardDef[] = [
       ],
       text: t('무작위 적에게 피해 3씩 3회.', 'Deal 3 to a random enemy 3 times.'),
     },
-    icon: 'skills/system_intrusion.png',
+    icon: 'v2/cards/packet_storm.webp',
   },
   {
     id: 'firewall',
@@ -1212,7 +1212,7 @@ const PACK_NETRUNNER: CardDef[] = [
       effects: [{ kind: 'create_cover' }, { kind: 'block', amount: 5, to: 'all_allies' }],
       text: t('빈 칸에 엄폐물을 세운다. 모든 아군 방어막 5.', 'Create cover on an empty tile. All allies gain 5 block.'),
     },
-    icon: 'skills/backdoor_route.png',
+    icon: 'v2/cards/firewall.webp',
     tags: ['block'],
   },
   {
@@ -1227,7 +1227,7 @@ const PACK_NETRUNNER: CardDef[] = [
     effects: [{ kind: 'redirect' }, { kind: 'draw', amount: 1 }],
     text: t('적의 공격 방향을 뒤집는다. 카드 1장을 뽑는다.', "Turn an enemy's attack around. Draw 1."),
     upgrade: { cost: 0 },
-    icon: 'skills/system_hack.png',
+    icon: 'v2/cards/mirror_code.webp',
     tags: ['hack', 'draw'],
   },
   {
@@ -1251,7 +1251,7 @@ const PACK_NETRUNNER: CardDef[] = [
       ],
       text: t('피해 6. 감전 2.', 'Deal 6. Shock 2.'),
     },
-    icon: 'status/hacked.png',
+    icon: 'v2/cards/kill_switch.webp',
     tags: ['hack'],
   },
   {
@@ -1271,7 +1271,7 @@ const PACK_NETRUNNER: CardDef[] = [
     exhaust: true,
     text: t('모든 적 표식 3, 약화 1. 카드 1장을 뽑는다. 소멸.', 'All enemies: Mark 3, Weak 1. Draw 1. Exhaust.'),
     upgrade: { cost: 1 },
-    icon: 'skills/ix_optimization_protocol.png',
+    icon: 'v2/cards/daemon.webp',
     tags: ['hack', 'mark'],
   },
 ]
@@ -1298,7 +1298,7 @@ const PACK_BASTION: CardDef[] = [
       ],
       text: t('방어막 8. 가시 2.', 'Gain 8 block. Thorns 2.'),
     },
-    icon: 'items/mesh_vest.png',
+    icon: 'v2/cards/riot_shield.webp',
     tags: ['block'],
   },
   {
@@ -1324,7 +1324,7 @@ const PACK_BASTION: CardDef[] = [
       ],
       text: t('방어막 5. 피해 5. 1칸 밀어낸다.', 'Gain 5 block. Deal 5. Push 1.'),
     },
-    icon: 'skills/guardian_wall.png',
+    icon: 'v2/cards/shield_bash.webp',
     tags: ['block', 'push'],
   },
   {
@@ -1343,7 +1343,7 @@ const PACK_BASTION: CardDef[] = [
       effects: [{ kind: 'status', status: 'guard', amount: 6 }],
       text: t('수호 6 (매 턴 방어막 6). 소멸.', 'Gain Guard 6 (6 block each turn). Exhaust.'),
     },
-    icon: 'status/freeze.png',
+    icon: 'v2/cards/bulwark.webp',
     tags: ['block'],
   },
   {
@@ -1367,7 +1367,7 @@ const PACK_BASTION: CardDef[] = [
       ],
       text: t('모든 아군 방어막 8. 카드 1장을 뽑는다.', 'All allies gain 8 block. Draw 1.'),
     },
-    icon: 'skills/shield_field.png',
+    icon: 'v2/cards/hold_the_line.webp',
     tags: ['block', 'companion'],
   },
   {
@@ -1386,7 +1386,7 @@ const PACK_BASTION: CardDef[] = [
       effects: [{ kind: 'status', status: 'thorns', amount: 4, to: 'all_allies' }],
       text: t('모든 아군 가시 4. 소멸.', 'All allies gain Thorns 4. Exhaust.'),
     },
-    icon: 'status/hacked.png',
+    icon: 'v2/cards/iron_bloom.webp',
     tags: ['block', 'companion'],
   },
 ]
@@ -1409,7 +1409,7 @@ const COMPANION_CARDS: CardDef[] = [
       effects: [{ kind: 'teleport' }, { kind: 'block', amount: 8, to: 'owner' }],
       text: t('세린이 빈 칸으로 순간이동한다. 방어막 8.', 'Se-rin teleports to an empty tile and gains 8 block.'),
     },
-    icon: 'skills/signal_step.png',
+    icon: 'v2/cards/serin_water_spider.webp',
     tags: ['move', 'block', 'companion'],
   },
   {
@@ -1432,7 +1432,7 @@ const COMPANION_CARDS: CardDef[] = [
       ],
       text: t('피해 6. 모든 아군 방어막 4.', 'Deal 6. All allies gain 4 block.'),
     },
-    icon: 'skills/covering_noise.png',
+    icon: 'v2/cards/serin_cover_fire.webp',
     tags: ['block', 'companion'],
   },
   {
@@ -1449,7 +1449,7 @@ const COMPANION_CARDS: CardDef[] = [
     ],
     text: t('모든 아군 방어막 4. 모두 다시 이동할 수 있다.', 'All allies gain 4 block and may move again.'),
     upgrade: { cost: 0 },
-    icon: 'skills/backdoor_route.png',
+    icon: 'v2/cards/serin_escape_route.webp',
     tags: ['move', 'block', 'companion'],
   },
   // Tae-o — tank: slam, thorns, guard
@@ -1473,7 +1473,7 @@ const COMPANION_CARDS: CardDef[] = [
       ],
       text: t('피해 7, 2칸 밀어낸다. 무언가에 처박히면 충돌 피해 +3.', 'Deal 7, push 2. If it slams into something, +3 bump damage.'),
     },
-    icon: 'skills/overload_strike.png',
+    icon: 'v2/cards/taeo_hound_slam.webp',
     tags: ['push', 'companion'],
   },
   {
@@ -1496,7 +1496,7 @@ const COMPANION_CARDS: CardDef[] = [
       ],
       text: t('태오 방어막 8. 가시 3.', 'Tae-o gains 8 block and Thorns 3.'),
     },
-    icon: 'items/heavy_exosuit.png',
+    icon: 'v2/cards/taeo_iron_stance.webp',
     tags: ['block', 'companion'],
   },
   {
@@ -1520,7 +1520,7 @@ const COMPANION_CARDS: CardDef[] = [
       ],
       text: t('모든 아군 방어막 7. 태오 수호 4. 소멸.', 'All allies gain 7 block. Tae-o gains Guard 4. Exhaust.'),
     },
-    icon: 'skills/guardian_wall.png',
+    icon: 'v2/cards/taeo_guardian_wall.webp',
     tags: ['block', 'companion'],
   },
   // Han — hacks: redirect / shock
@@ -1546,7 +1546,7 @@ const COMPANION_CARDS: CardDef[] = [
       ],
       text: t('피해 4, 감전 1. 맞은 칸에 2턴 동안 전류가 흐른다.', 'Deal 4, Shock 1. The tile stays live for 2 turns.'),
     },
-    icon: 'skills/emp_pulse.png',
+    icon: 'v2/cards/han_signal_break.webp',
     tags: ['hack', 'companion'],
   },
   {
@@ -1561,7 +1561,7 @@ const COMPANION_CARDS: CardDef[] = [
     exhaust: true,
     text: t('적의 공격 방향을 뒤집는다. 소멸.', "Turn an enemy's attack around. Exhaust."),
     upgrade: { exhaust: false, text: t('적의 공격 방향을 뒤집는다.', "Turn an enemy's attack around.") },
-    icon: 'skills/shortcut_call.png',
+    icon: 'v2/cards/han_shortcut_call.webp',
     tags: ['hack', 'companion'],
   },
   {
@@ -1575,7 +1575,7 @@ const COMPANION_CARDS: CardDef[] = [
     effects: [{ kind: 'redirect' }, { kind: 'status', status: 'mark', amount: 3 }, { kind: 'draw', amount: 1 }],
     text: t('적의 공격 방향을 뒤집는다. 표식 3. 카드 1장을 뽑는다.', "Turn an enemy's attack around. Mark 3. Draw 1."),
     upgrade: { cost: 0 },
-    icon: 'skills/system_intrusion.png',
+    icon: 'v2/cards/han_system_intrusion.webp',
     tags: ['hack', 'mark', 'companion'],
   },
   // Su-ah — forge: makes cards, plates allies
@@ -1593,7 +1593,7 @@ const COMPANION_CARDS: CardDef[] = [
       effects: [{ kind: 'add_card', cardId: 'echo_blade', pile: 'hand', count: 3 }],
       text: t('잔향 칼날 3장을 손에 벼려 낸다.', 'Add 3 Echo Blades to your hand.'),
     },
-    icon: 'items/signal_blade.png',
+    icon: 'v2/cards/suah_forge_blades.webp',
     tags: ['companion'],
   },
   {
@@ -1616,7 +1616,7 @@ const COMPANION_CARDS: CardDef[] = [
       ],
       text: t('아군 하나 방어막 6, 수호 2.', 'An ally gains 6 block and Guard 2.'),
     },
-    icon: 'skills/nanoshield_projector.png',
+    icon: 'v2/cards/suah_tempered_plate.webp',
     tags: ['block', 'companion'],
   },
   {
@@ -1633,7 +1633,7 @@ const COMPANION_CARDS: CardDef[] = [
     ],
     text: t('잔향 칼날 1장, 잔향 방패 2장을 손에 벼려 낸다.', 'Add 1 Echo Blade and 2 Echo Shields to your hand.'),
     upgrade: { cost: 0 },
-    icon: 'skills/memory_resonance.png',
+    icon: 'v2/cards/suah_masterwork.webp',
     tags: ['block', 'companion'],
   },
   // Kai — sniper: beam, pierce, mark
@@ -1648,7 +1648,7 @@ const COMPANION_CARDS: CardDef[] = [
     effects: [{ kind: 'status', status: 'mark', amount: 4 }],
     text: t('표식 4.', 'Mark 4.'),
     upgrade: { effects: [{ kind: 'status', status: 'mark', amount: 6 }], text: t('표식 6.', 'Mark 6.') },
-    icon: 'status/acid.png',
+    icon: 'v2/cards/kai_scope_in.webp',
     tags: ['mark', 'companion'],
   },
   {
@@ -1665,7 +1665,7 @@ const COMPANION_CARDS: CardDef[] = [
       effects: [{ kind: 'damage', amount: 10, pierce: true }],
       text: t('직선 5칸 관통: 장갑·방어막 무시 피해 10.', 'Beam 5: deal 10 to each unit, ignoring armor and block.'),
     },
-    icon: 'skills/ix_optimization_protocol.png',
+    icon: 'v2/cards/kai_rx_beam.webp',
     tags: ['companion'],
   },
   {
@@ -1682,7 +1682,7 @@ const COMPANION_CARDS: CardDef[] = [
       effects: [{ kind: 'damage', amount: 8, pierce: true, bonusVsMarked: 8 }],
       text: t('장갑·방어막 무시 피해 8. 표식 대상에게 +8.', 'Deal 8, ignoring armor and block. +8 against a marked target.'),
     },
-    icon: 'skills/packet_shot.png',
+    icon: 'v2/cards/kai_dreamshot.webp',
     tags: ['mark', 'companion'],
   },
   // Lin Yue — economy: energy / draw / credits, precision stun
@@ -1706,7 +1706,7 @@ const COMPANION_CARDS: CardDef[] = [
       ],
       text: t('카드 3장을 뽑는다. 에너지 +1.', 'Draw 3. Gain 1 energy.'),
     },
-    icon: 'items/access_key.png',
+    icon: 'v2/cards/linyue_exchange.webp',
     tags: ['draw', 'energy', 'companion'],
   },
   {
@@ -1731,7 +1731,7 @@ const COMPANION_CARDS: CardDef[] = [
       ],
       text: t('피해 5, 감전 1. 맞은 칸에 2턴 동안 전류가 흐른다.', 'Deal 5, Shock 1. The tile stays live for 2 turns.'),
     },
-    icon: 'skills/precision_emp.png',
+    icon: 'v2/cards/linyue_precision_emp.webp',
     tags: ['hack', 'companion'],
   },
   {
@@ -1755,7 +1755,7 @@ const COMPANION_CARDS: CardDef[] = [
       ],
       text: t('피해 8. 8₵ 획득. 소멸.', 'Deal 8. Gain 8₵. Exhaust.'),
     },
-    icon: 'items/data_fragment.png',
+    icon: 'v2/cards/linyue_gold_hairpin.webp',
     tags: ['credits', 'companion'],
   },
   // ---------------------------------------------------------------- burst (answers to Act 3 armor / block walls)
@@ -1773,7 +1773,7 @@ const COMPANION_CARDS: CardDef[] = [
       effects: [{ kind: 'damage', amount: 7, pierce: true }],
       text: t('장갑과 방어막을 무시하고 피해 7.', 'Deal 7, ignoring armor and block.'),
     },
-    icon: 'skills/packet_shot.png',
+    icon: 'v2/cards/armor_breaker.webp',
   },
   {
     id: 'execution_protocol',
@@ -1789,7 +1789,7 @@ const COMPANION_CARDS: CardDef[] = [
       effects: [{ kind: 'damage', amount: 10, bonusVsMarked: 10 }],
       text: t('피해 10. 표식이 있으면 +10.', 'Deal 10. +10 against a marked target.'),
     },
-    icon: 'skills/overload_strike.png',
+    icon: 'v2/cards/execution_protocol.webp',
     tags: ['mark'],
   },
   {
@@ -1807,7 +1807,7 @@ const COMPANION_CARDS: CardDef[] = [
       effects: [{ kind: 'damage', amount: 14, pierce: true }],
       text: t('직선 5칸을 꿰뚫어 장갑·방어막 무시 피해 14. 소멸.', 'Beam 5: deal 14 to each unit, ignoring armor and block. Exhaust.'),
     },
-    icon: 'skills/signal_overdrive.png',
+    icon: 'v2/cards/overcharge_lance.webp',
   },
   // ---------------------------------------------------------------- companion reward cards
   // Offered in rewards only while that companion is in the party (engine/run.ts offerable + weighting).
@@ -1835,7 +1835,7 @@ const COMPANION_CARDS: CardDef[] = [
       ],
       text: t('세린이 아군 하나와 자리를 바꾼다. 둘 다 방어막 6. 그 아군은 다시 이동할 수 있다.', 'Se-rin trades places with an ally. Both gain 6 block; the ally may move again.'),
     },
-    icon: 'skills/signal_step.png',
+    icon: 'v2/cards/serin_slipstream.webp',
     tags: ['move', 'block', 'companion'],
   },
   {
@@ -1858,7 +1858,7 @@ const COMPANION_CARDS: CardDef[] = [
       ],
       text: t('직선 4칸 관통: 피해 6. 맞은 대상을 모두 세린 쪽으로 2칸 끌어당긴다. 부딪히면 충돌 피해 +3.', 'Beam 4: deal 6, then drag every unit hit 2 tiles toward Se-rin. +3 bump damage on a collision.'),
     },
-    icon: 'skills/magnetic_pull.png',
+    icon: 'v2/cards/serin_undertow.webp',
     tags: ['push', 'companion'],
   },
   {
@@ -1881,7 +1881,7 @@ const COMPANION_CARDS: CardDef[] = [
       ],
       text: t('피해 5, 3칸 밀어낸다. 벽·엄폐물·유닛에 처박히면 양쪽 모두 충돌 피해 +6.', 'Deal 5 and drive the target back 3 tiles. If it slams into a wall, cover or unit, both take +6 bump damage.'),
     },
-    icon: 'skills/magnetic_repulse.png',
+    icon: 'v2/cards/taeo_breach_drive.webp',
     tags: ['push', 'companion'],
   },
   {
@@ -1906,7 +1906,7 @@ const COMPANION_CARDS: CardDef[] = [
       ],
       text: t('피해 12, 2칸 밀어낸다(충돌 피해 +4). 태오 방어막 8.', 'Deal 12 and hurl the target 2 tiles (+4 on a collision). Tae-o gains 8 block.'),
     },
-    icon: 'skills/overload_strike.png',
+    icon: 'v2/cards/taeo_rampage.webp',
     tags: ['push', 'block', 'companion'],
   },
   {
@@ -1929,7 +1929,7 @@ const COMPANION_CARDS: CardDef[] = [
       ],
       text: t('십자 범위에 감전 1. 그 칸에 3턴 동안 전류가 흐른다. 아군도 감전된다.', 'Cross area: Shock 1, and the floor stays live for 3 turns. Allies get shocked too.'),
     },
-    icon: 'skills/emp_pulse.png',
+    icon: 'v2/cards/han_short_circuit.webp',
     tags: ['hack', 'companion'],
   },
   {
@@ -1944,7 +1944,7 @@ const COMPANION_CARDS: CardDef[] = [
     exhaust: true,
     text: t('3×3 범위 안 모든 적의 공격 방향을 뒤집는다. 소멸.', 'Turn around every enemy attack inside a 3×3 area. Exhaust.'),
     upgrade: { cost: 1 },
-    icon: 'skills/system_intrusion.png',
+    icon: 'v2/cards/han_backdoor.webp',
     tags: ['hack', 'companion'],
   },
   {
@@ -1967,7 +1967,7 @@ const COMPANION_CARDS: CardDef[] = [
       ],
       text: t('아군 하나 방어막 9. 잔향 방패 1장을 손에 벼려 낸다.', 'An ally gains 9 block. Forge an Echo Shield into your hand.'),
     },
-    icon: 'skills/nanoshield_projector.png',
+    icon: 'v2/cards/suah_reforge.webp',
     tags: ['block', 'companion'],
   },
   {
@@ -1981,7 +1981,7 @@ const COMPANION_CARDS: CardDef[] = [
     effects: [{ kind: 'status', status: 'guard', amount: 2, to: 'all_allies' }],
     text: t('모든 아군 수호 2 (전투 내내 매 턴 방어막 2).', 'All allies gain Guard 2: 2 block at the start of every turn for the rest of the fight.'),
     upgrade: { cost: 1 },
-    icon: 'skills/guardian_wall.png',
+    icon: 'v2/cards/suah_living_metal.webp',
     tags: ['block', 'companion'],
   },
   {
@@ -2004,7 +2004,7 @@ const COMPANION_CARDS: CardDef[] = [
       ],
       text: t('표식 5. 카드 1장을 뽑는다.', 'Mark 5. Draw 1 card.'),
     },
-    icon: 'skills/precision_emp.png',
+    icon: 'v2/cards/kai_spotter.webp',
     tags: ['mark', 'draw', 'companion'],
   },
   {
@@ -2021,7 +2021,7 @@ const COMPANION_CARDS: CardDef[] = [
       effects: [{ kind: 'damage', amount: 11, pierce: true, bonusVsMarked: 5 }],
       text: t('한 줄 끝까지 관통: 장갑·방어막 무시 피해 11. 표식 대상에게 +5.', 'Pierce a whole row: 11 damage ignoring armor and block, +5 against marked targets.'),
     },
-    icon: 'skills/signal_overdrive.png',
+    icon: 'v2/cards/kai_railgun.webp',
     tags: ['mark', 'companion'],
   },
   {
@@ -2038,7 +2038,7 @@ const COMPANION_CARDS: CardDef[] = [
     ],
     text: t('적 하나에게 뒷돈을 찔러 준다. 예고된 공격을 취소한다. 거스름돈 6₵ 획득.', "Slip an enemy a bribe: its telegraphed attack is cancelled, and you pocket +6 ₵ in change."),
     upgrade: { cost: 0 },
-    icon: 'items/data_fragment.png',
+    icon: 'v2/cards/linyue_bribe.webp',
     tags: ['hack', 'credits', 'companion'],
   },
   {
@@ -2065,7 +2065,7 @@ const COMPANION_CARDS: CardDef[] = [
       ],
       text: t('십자 범위에 피해 6, 화상 3. 그 칸에 2턴 동안 불길이 남는다. 6₵ 획득.', 'Cross area: deal 6, Burn 3; sparks burn the ground for 2 turns. +6 ₵.'),
     },
-    icon: 'items/incendiary_grenade.png',
+    icon: 'v2/cards/linyue_firecracker.webp',
     tags: ['burn', 'credits', 'companion'],
   },
 ]
@@ -2085,7 +2085,7 @@ const TOKENS: CardDef[] = [
     exhaust: true,
     text: t('피해 4. 소멸.', 'Deal 4. Exhaust.'),
     upgrade: { effects: [{ kind: 'damage', amount: 6 }], text: t('피해 6. 소멸.', 'Deal 6. Exhaust.') },
-    icon: 'items/signal_blade.png',
+    icon: 'v2/cards/echo_blade.webp',
     tags: ['companion'],
   },
   {
@@ -2100,7 +2100,7 @@ const TOKENS: CardDef[] = [
     exhaust: true,
     text: t('아군 하나 방어막 4. 소멸.', 'An ally gains 4 block. Exhaust.'),
     upgrade: { effects: [{ kind: 'block', amount: 6 }], text: t('아군 하나 방어막 6. 소멸.', 'An ally gains 6 block. Exhaust.') },
-    icon: 'skills/shield_field.png',
+    icon: 'v2/cards/echo_shield.webp',
     tags: ['block', 'companion'],
   },
 ]
@@ -2119,7 +2119,7 @@ const JUNK: CardDef[] = [
     effects: [],
     text: t('사용 불가. 손패만 차지한다.', 'Unplayable. Takes up a slot.'),
     upgrade: {},
-    icon: 'status/stunned.png',
+    icon: 'v2/cards/static.webp',
   },
   {
     id: 'trace_bug',
@@ -2133,7 +2133,7 @@ const JUNK: CardDef[] = [
     heldEffects: [{ kind: 'trace', amount: 3 }],
     text: t('사용 불가. 턴이 끝날 때 손패에 있으면 추적 +3.', 'Unplayable. If held at end of turn: +3 Trace.'),
     upgrade: {},
-    icon: 'status/hacked.png',
+    icon: 'v2/cards/trace_bug.webp',
   },
   {
     id: 'corrupted_echo',
@@ -2147,7 +2147,7 @@ const JUNK: CardDef[] = [
     heldEffects: [{ kind: 'damage', amount: 2, to: 'connector', pierce: true }],
     text: t('사용 불가. 턴이 끝날 때 손패에 있으면 피해 2를 받는다.', 'Unplayable. If held at end of turn: take 2 damage.'),
     upgrade: {},
-    icon: 'status/corrode.png',
+    icon: 'v2/cards/corrupted_echo.webp',
   },
 ]
 

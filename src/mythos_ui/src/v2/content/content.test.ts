@@ -4,6 +4,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync } from 'node:fs'
+import { V2_SPRITES } from '../ui/common/spriteManifest.ts'
 import { fileURLToPath } from 'node:url'
 import { GRID_H, GRID_W } from '../engine/types.ts'
 import type { Effect, EncounterDef, Pos, RunEffect, Condition } from '../engine/types.ts'
@@ -334,11 +335,14 @@ test('first Act 1 fights are the gentlest', () => {
 // ------------------------------------------------------------------ art & text
 
 test('companion and archetype art exists', () => {
+  // Combat sprites come from the 2.0 sprite sets (spriteManifest.ts); portraits are painted face art.
   for (const comp of COMPANIONS) {
     assert.ok(exists(comp.portrait), comp.portrait)
-    for (const pose of ['idle', 'attack', 'hit', 'guard', 'skill']) assert.ok(exists(`characters/combat/${comp.sprite}-${pose}.png`), `${comp.id} ${pose}`)
+    const set = V2_SPRITES[comp.sprite]
+    assert.ok(set?.idle && exists(set.idle), `${comp.id} idle sprite`)
+    for (const pose of ['attack', 'hit', 'guard'] as const) assert.ok(set?.[pose] && exists(set[pose]), `${comp.id} ${pose}`)
   }
-  assert.ok(exists('characters/combat/player-noise-idle.png'))
+  for (const a of ARCHETYPES) assert.ok(V2_SPRITES[a.sprite]?.idle, `${a.id} sprite`)
 })
 
 function walkText(node: unknown, path: string, out: string[]): void {

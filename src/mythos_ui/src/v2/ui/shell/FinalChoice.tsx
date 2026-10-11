@@ -1,6 +1,6 @@
 // Mythos 2.0 — after the final boss: choose an ending (some are gated by bonds / codex / trace).
 import { Lock } from 'lucide-react'
-import { asset } from '../common/assets.ts'
+import { art } from '../components/art.ts'
 import { tr } from '../common/lang.ts'
 import { sound } from '../components/sound.ts'
 import { rx } from './rx.ts'
@@ -35,7 +35,7 @@ export function FinalChoice({ run, C, lang, act }: ScreenProps) {
               act(rx.chooseEnding(run, def.id, C))
             }}
           >
-            <img src={asset(def.image)} alt="" />
+            <img src={art.ending(def.id, def.image)} alt="" />
             <span className="m2-ending-opt__shade" />
             <span className="m2-ending-opt__text">
               <b>{tr(def.choice ?? def.title, lang)}</b>

@@ -804,7 +804,6 @@ export interface ActDef {
   intro: Text
   backdrop: Backdrop
   image: string
-  bgm: string
 }
 
 export interface ContentRegistry {

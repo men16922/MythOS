@@ -189,9 +189,9 @@ export const FIXTURE: ContentRegistry = {
     },
   },
   acts: {
-    1: { act: 1, name: t('a1'), subtitle: t('a1'), intro: t('a1'), backdrop: 'streets', image: '', bgm: '' },
-    2: { act: 2, name: t('a2'), subtitle: t('a2'), intro: t('a2'), backdrop: 'undercity', image: '', bgm: '' },
-    3: { act: 3, name: t('a3'), subtitle: t('a3'), intro: t('a3'), backdrop: 'spire', image: '', bgm: '' },
+    1: { act: 1, name: t('a1'), subtitle: t('a1'), intro: t('a1'), backdrop: 'streets', image: '' },
+    2: { act: 2, name: t('a2'), subtitle: t('a2'), intro: t('a2'), backdrop: 'undercity', image: '' },
+    3: { act: 3, name: t('a3'), subtitle: t('a3'), intro: t('a3'), backdrop: 'spire', image: '' },
   },
   endings: {},
   unlocks: {},

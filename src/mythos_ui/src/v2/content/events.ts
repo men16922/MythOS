@@ -28,7 +28,7 @@ const OPENING: EventDef = {
   weight: 0,
   improvise: false,
   title: t('첫 번째 갈림길', 'The First Fork'),
-  image: 'opening/opening-solo-02.png',
+  image: 'v2/events/a1_opening.webp',
   text: t(
     '손바닥 밑 아스팔트가 젖어 차갑다. 골목 끝에서 붉은 탐조등 두 줄기가 바닥을 훑으며 이쪽으로 기어 온다.\n발치에 두 가지. 깨진 배급 캡슐에서 굴러 나온 데이터 코어 하나. 벽에 기대 쓰러진 노인의 손 하나. 노인은 아직 숨을 쉰다.\n둘 다 챙길 시간은 없다. 어쩌면 하나도.',
     'Wet asphalt under your palms. Two red searchlights crawl down the alley toward you.\nAt your feet, two things. A data core rolled out of a smashed ration capsule. And the hand of an old man slumped against the wall. He is still breathing.\nThere is no time for both. Maybe not for either.',
@@ -86,7 +86,7 @@ const A1: EventDef[] = [
     id: 'a1_welfare_capsule',
     acts: [1],
     title: t('잠긴 복지 캡슐', 'The Locked Welfare Capsule'),
-    image: 'scenes/abandoned_signal.png',
+    image: 'v2/events/a1_welfare_capsule.webp',
     text: t(
       '정전된 복지 블록. 수면 캡슐 하나에만 비상등이 들어와 있다. 유리 안쪽을 손바닥이 두드린다. 중년 남자다. 입술이 소리 없이 움직인다. 열어 줘.\n캡슐 화면에 숫자가 깜빡인다. 312점. 기준선 아래.\n골목 끝에서 드론 로터 소리가 점점 커진다.',
       'A dead welfare block. One sleep capsule still glows on emergency power. A palm beats on the glass from inside. A middle-aged man. His lips shape the words: open it.\nThe capsule screen blinks a number. 312. Below the line.\nAt the end of the alley, drone rotors are getting closer.',
@@ -160,7 +160,7 @@ const A1: EventDef[] = [
     id: 'a1_drone_wreck',
     acts: [1],
     title: t('추락한 감시 드론', 'The Downed Sentinel'),
-    image: 'scenes/wet_dawn_street.png',
+    image: 'v2/events/a1_drone_wreck.webp',
     text: t(
       '새벽빛이 웅덩이에 번진다. 감시 드론 한 대가 그 물속에 머리를 처박고 있다. 로터 하나가 아직 헛돈다. 렌즈의 붉은 점이 꺼졌다, 켜졌다.\n갈라진 동체 틈으로 코어가 보인다. 아직 김이 오른다.',
       'Dawn light bleeds across a puddle. A sentinel drone lies nose-down in the water. One rotor still spins on nothing. The red dot of its lens flickers off, on.\nThrough a crack in the hull you can see the core. Still steaming.',
@@ -231,7 +231,7 @@ const A1: EventDef[] = [
     id: 'a1_han_shortcut',
     acts: [1],
     title: t('러너의 지름길', 'The Runner’s Shortcut'),
-    image: 'scenes/han_meet.png',
+    image: 'v2/events/a1_han_shortcut.webp',
     speaker: 'han',
     requires: { noCompanion: 'han' },
     text: t(
@@ -303,7 +303,7 @@ const A1: EventDef[] = [
     id: 'a1_tae_o_barricade',
     acts: [1],
     title: t('바리케이드의 사냥개', 'The Hound at the Barricade'),
-    image: 'scenes/tae_o_meet.png',
+    image: 'v2/events/a1_tae_o_barricade.webp',
     speaker: 'tae_o',
     requires: { noCompanion: 'tae_o' },
     text: t(
@@ -367,7 +367,7 @@ const A1: EventDef[] = [
     id: 'a1_water_spider_debt',
     acts: [1],
     title: t('물거미의 빚', 'The Water Spider’s Debt'),
-    image: 'scenes/water_spider_debt.png',
+    image: 'v2/events/a1_water_spider_debt.webp',
     speaker: 'se_rin',
     requires: { companion: 'se_rin' },
     text: t(
@@ -433,7 +433,7 @@ const A1: EventDef[] = [
     id: 'a1_dead_substation',
     acts: [1],
     title: t('꺼진 변전함', 'The Dead Substation'),
-    image: 'scenes/opening_escape_alt.png',
+    image: 'v2/events/a1_dead_substation.webp',
     text: t(
       '블록 전체에 전기를 대던 변전함. 문짝은 뜯겨 나갔고, 안에서 오존 냄새가 훅 끼친다. 레버 하나만 올리면 이 거리에 불이 들어온다. 배급기도, 난방도, 카메라도.\n옆에 ARK 수리반의 공구 상자가 놓여 있다. 수리반은 멀지 않다. 군화 소리가 모퉁이 너머까지 와 있다.',
       'The substation that fed the whole block. Its door is torn off; inside, it smells of ozone. One lever and this street lights up — ration machines, heating, cameras, all of it.\nAn ARK repair crew’s toolbox sits beside it. The crew is close. You can hear their boots.',
@@ -500,7 +500,7 @@ const A1: EventDef[] = [
     id: 'a1_ark_billboard',
     acts: [1],
     title: t('재건 홍보탑', 'The Reconstruction Billboard'),
-    image: 'concept/04-reconstruction.png',
+    image: 'v2/events/a1_ark_billboard.webp',
     text: t(
       '폐허 한복판에 홍보탑이 우뚝하다. 화면 속 아이들이 새 아파트 앞에서 웃는다. ‘당신의 내일, 이미 계산해 두었습니다. — ARK’\n화면 아래 정비 해치가 열려 있다. 안에는 결제 모듈과 데이터 포트. 탑 꼭대기의 카메라는 반대편을 보고 있다. 아직은.',
       'A billboard tower stands in the middle of the ruins. On screen, children laugh in front of new apartments. ‘Your tomorrow has been calculated. — ARK’\nBelow the screen, a maintenance hatch hangs open: a payment module, a data port. The camera on top is looking the other way. For now.',
@@ -571,7 +571,7 @@ const A1: EventDef[] = [
     id: 'a1_rooftop_chase',
     acts: [1],
     title: t('옥상 추격', 'Rooftop Pursuit'),
-    image: 'scenes/opening_escape.png',
+    image: 'v2/events/a1_rooftop_chase.webp',
     text: t(
       '드론 세 대가 뒤에 붙었다. 앞은 옥상 끝. 건너편 건물까지 두 걸음 반. 아래는 젖은 시장 골목.\n왼쪽에 환기 덕트. 몸 하나 들어갈 크기다. 오른쪽에는 녹슨 물탱크.\n붉은 빛이 등을 핥는다.',
       'Three drones on your tail. Ahead, the edge of the roof. Two and a half strides to the next building. Below, a wet market alley.\nTo the left, a ventilation duct — just wide enough for a body. To the right, a rusted water tank.\nRed light licks at your back.',
@@ -650,7 +650,7 @@ const RECRUIT: EventDef = {
   weight: 0, // never rolled on the map; the run reducer opens it at the start of Act 2
   improvise: false,
   title: t('함께 내려갈 사람', 'Who Goes Down With You'),
-  image: 'concept/03-underground-echo.png',
+  image: 'v2/events/a2_recruit.webp',
   text: t(
     '지하 환승층에 불이 들어온다. 손때 묻은 전선, 벽을 따라 내걸린 빨래. 정전 구역을 빠져나온 당신을 몇 사람이 기다리고 있다. 저마다 이유가 있고, 저마다 빚이 있다.\n하층 시장은 혼자 걷기엔 넓다. 여럿이 걸으면 그만큼 눈에 띈다.\n누구와 함께 내려갈 것인가.',
     'The transfer level flickers to life. Hand-worn cables, laundry strung along the wall. A few people are waiting for you, having made it out of the dark zone. Each has a reason; each has a debt.\nThe undercity market is too big to walk alone. Walk it together, and you are that much easier to spot.\nWho goes down with you?',
@@ -681,7 +681,7 @@ const A2: EventDef[] = [
     id: 'a2_memory_stall',
     acts: [2],
     title: t('기억 좌판', 'The Memory Stall'),
-    image: 'scenes/night_market.png',
+    image: 'v2/events/a2_memory_stall.webp',
     text: t(
       '출렁이는 바지선 좌판에 유리병이 줄지어 있다. 병마다 빛이 한 점씩 갇혀 있다. 라벨은 손글씨. ‘첫눈, 1998년.’ ‘아버지 웃음소리.’ ‘바다.’\n주인 노인이 돋보기를 이마로 올린다. “사러 왔나, 팔러 왔나. 값은 어느 쪽이든 같네.”\n뒤쪽 진열장에 자물쇠를 채운 병 하나. 라벨이 없다.',
       'On a barge stall, glass jars stand in rows, a single point of light in each. Handwritten labels: ‘First snow, 1998.’ ‘Father’s laugh.’ ‘The sea.’\nThe old stallkeeper pushes up his loupe. “Buying or selling? Same price either way.”\nIn the back case, one padlocked jar. No label.',
@@ -764,7 +764,7 @@ const A2: EventDef[] = [
     id: 'a2_lin_yue_ledger',
     acts: [2],
     title: t('환전상의 장부', 'The Broker’s Ledger'),
-    image: 'scenes/lin_yue_meet.png',
+    image: 'v2/events/a2_lin_yue_ledger.webp',
     speaker: 'lin_yue',
     requires: { noCompanion: 'lin_yue' },
     text: t(
@@ -835,7 +835,7 @@ const A2: EventDef[] = [
     id: 'a2_lin_yue_request',
     acts: [2],
     title: t('환전상의 은밀한 의뢰', 'The Broker’s Quiet Request'),
-    image: 'scenes/lin_yue_secret_request.png',
+    image: 'v2/events/a2_lin_yue_request.webp',
     speaker: 'lin_yue',
     requires: { companion: 'lin_yue' },
     text: t(
@@ -914,7 +914,7 @@ const A2: EventDef[] = [
     id: 'a2_memory_forge',
     acts: [2],
     title: t('기억의 대장간', 'The Memory Forge'),
-    image: 'scenes/su_ah_meet.png',
+    image: 'v2/events/a2_memory_forge.webp',
     speaker: 'su_ah',
     text: t(
       '잔향 구역 맨 안쪽. 보랏빛 아크 불꽃이 튄다. 수아가 보안경을 이마로 밀어 올리고 작업대를 가리킨다. 녹아내린 데이터 찌꺼기가 쇳물처럼 식어 간다.\n“뭐든 벼려 줄 수 있어. 대신 재료는 네가 대. 피든, 기억이든.”\n작업대 서랍 하나가 반쯤 열려 있다. 그 틈으로 낮은 목소리가 새어 나온다.',
@@ -993,7 +993,7 @@ const A2: EventDef[] = [
     id: 'a2_subway_hub',
     acts: [2],
     title: t('지하철 통제실', 'The Subway Control Hub'),
-    image: 'scenes/subway_control_hub.png',
+    image: 'v2/events/a2_subway_hub.webp',
     text: t(
       '녹슨 선로 위로 광섬유 다발이 축 늘어져 있다. 통제실 화면 중 살아 있는 건 하나뿐이다. 무인 화물 열차 접근 중. 적재 목록: 배급 식량, 의약품, ‘봉인 화물 1’.\n레일이 낮게 웅웅 떨린다. 분기 레버는 셋. 피난처 쪽, 첨탑 외벽 쪽, 원래 노선.',
       'Fiber bundles sag over rusted rails. Only one control screen still lives. An unmanned freight train approaching. Manifest: ration food, medicine, ‘sealed cargo ×1’.\nThe rails hum at a low frequency. Three switch levers: toward the refuge, toward the Spire’s outer wall, the original route.',
@@ -1073,7 +1073,7 @@ const A2: EventDef[] = [
     id: 'a2_kai_scrapyard',
     acts: [2],
     title: t('꿈꾸는 고철', 'The Dreaming Scrap'),
-    image: 'scenes/kai_meet.png',
+    image: 'v2/events/a2_kai_scrapyard.webp',
     speaker: 'kai',
     requires: { noCompanion: 'kai' },
     text: t(
@@ -1140,7 +1140,7 @@ const A2: EventDef[] = [
     id: 'a2_debt_collectors',
     acts: [2],
     title: t('수금원들', 'The Collectors'),
-    image: 'concept/01-night-market.png',
+    image: 'v2/events/a2_debt_collectors.webp',
     text: t(
       '국숫집 차양 밑. 수금원 셋이 주인 손목에 스캐너를 들이댄다. 점수 차감음이 연달아 울린다. 삑. 삑. 삑.\n국자를 든 주인 딸이 그대로 굳어 있다. 손님들은 국물만 내려다본다.\n수금원 하나가 고개를 돌린다. “구경도 공짜 아니야.”',
       'Under a noodle stall’s awning, three collectors press a scanner to the owner’s wrist. Score deductions chime one after another. Beep. Beep. Beep.\nThe owner’s daughter stands frozen, ladle in hand. The customers stare into their bowls.\nOne collector looks at you. “Watching costs too.”',
@@ -1204,7 +1204,7 @@ const A2: EventDef[] = [
     id: 'a2_refuge_night',
     acts: [2],
     title: t('잔향 구역의 밤', 'Night in the Refuge'),
-    image: 'concept/03-underground-echo.png',
+    image: 'v2/events/a2_refuge_night.webp',
     text: t(
       '환승층 벽에 생일표가 붙어 있다. 이름 서른두 개. 몇 개에는 줄이 그어져 있다. 낡은 밥솥에서 김이 오른다. 라디오에서 옛 노래가 아주 작게 흘러나온다.\n아이 하나가 소매를 잡아당긴다. “어디서 왔어요? 위에서요?”\n어른들의 눈이 당신에게 모인다. 반은 경계, 반은 기대.',
       'A birthday chart hangs on the transfer-level wall. Thirty-two names; a few struck through. Steam rises from an old rice cooker. A radio plays an old song very quietly.\nA child tugs your sleeve. “Where’d you come from? Up there?”\nThe adults watch you. Half wary, half hopeful.',
@@ -1290,7 +1290,7 @@ const A3: EventDef[] = [
     id: 'a3_spire_gate',
     acts: [3],
     title: t('첨탑 정문', 'The Spire Gate'),
-    image: 'scenes/spire_gate.png',
+    image: 'v2/events/a3_spire_gate.webp',
     text: t(
       '흰 계단 끝에 문이 있다. 빗방울이 문 한 걸음 앞에서 김이 되어 사라진다. 점수를 읽는 아치. 양옆에 집행 유닛 둘이 미동도 없이 서 있다.\n아치 위 화면: ‘방문을 환영합니다. 점수를 제시해 주십시오.’\n당신에게는 점수가 없다.',
       'At the top of the white stairs, a door. Raindrops evaporate one step short of it. An arch that reads scores. Beside it, two enforcer units stand perfectly still.\nThe screen above the arch: ‘Welcome. Please present your score.’\nYou don’t have one.',
@@ -1373,7 +1373,7 @@ const A3: EventDef[] = [
     id: 'a3_data_incinerator',
     acts: [3],
     title: t('데이터 소각로', 'The Data Incinerator'),
-    image: 'scenes/data_incinerator.png',
+    image: 'v2/events/a3_data_incinerator.webp',
     text: t(
       '푸른 냉각수 파이프와 붉은 소각 열기가 맞부딪친다. 회로판 타는 냄새가 목을 긁는다. 컨베이어를 타고 기억 저장 장치가 줄줄이 불 속으로 들어간다. 장치마다 이름표가 달려 있다.\n그중 하나가 아직 깜빡인다. 사람 맥박처럼.\n제어반에는 정지 레버, 로그 포트, ‘과부하’라고 적힌 붉은 덮개.',
       'Blue coolant pipes clash with red furnace heat. The smell of burning circuit boards. Memory drives ride a conveyor into the fire, each with a name tag.\nOne still blinks, in the rhythm of a human pulse.\nOn the control panel: a stop lever, a log port, a red cover marked ‘OVERLOAD’.',
@@ -1454,7 +1454,7 @@ const A3: EventDef[] = [
     id: 'a3_control_net_ghost',
     acts: [3],
     title: t('관리망의 유령', 'Ghost in the Control Net'),
-    image: 'scenes/control_grid_ghost.png',
+    image: 'v2/events/a3_control_net_ghost.webp',
     text: t(
       '서버 회랑. 바닥에서 천장까지 푸른 선이 흐른다. 한가운데 반투명한 형체가 서 있다. 얼굴은 없고 목소리만 있다. IX의 목소리다. 그런데 더 앳되다.\n“이 기록은 초기 버전입니다. 본 시스템은 본래 사람을 보호하도록 설계되었습니다.”\n형체가 되감긴다. 같은 문장. 같은 문장.',
       'A server corridor. Blue lines run floor to ceiling. In the middle stands a translucent figure. No face — only a voice. IX’s voice. But younger.\n“This record is the first version. I was originally built to protect people.”\nThe figure loops. The same sentence. The same sentence.',
@@ -1543,7 +1543,7 @@ const A3: EventDef[] = [
     id: 'a3_blank_in_list',
     acts: [3],
     title: t('명단의 빈칸', 'The Blank in the List'),
-    image: 'scenes/blank_in_list.png',
+    image: 'v2/events/a3_blank_in_list.webp',
     text: t(
       '최적화 명단이 벽 한 면을 채우며 흘러내린다. 이름, 이름, 이름. 그 사이에 빈 줄 하나.\n빈 줄이 떨린다. 당신 심장이 뛸 때마다 한 번씩.\n다가가자 빈 줄 끝에 손글씨가 보인다. 날짜는 이번 루프보다 오래됐다. 필체가 낯익다.',
       'The Optimization List flows across the whole wall. Names, names, names. Between them, one empty line.\nThe empty line trembles in time with your pulse.\nUp close, you see handwriting at its end. The date is older than this loop. The handwriting is familiar.',
@@ -1603,7 +1603,7 @@ const A3: EventDef[] = [
     id: 'a3_kai_dream',
     acts: [3],
     title: t('카이의 꿈 단편', 'Kai’s Dream Fragment'),
-    image: 'scenes/kai_dream_fragment.png',
+    image: 'v2/events/a3_kai_dream.webp',
     speaker: 'kai',
     requires: { companion: 'kai' },
     text: t(
@@ -1662,7 +1662,7 @@ const A3: EventDef[] = [
     id: 'a3_sleeping_frames',
     acts: [3],
     title: t('잠든 기체들', 'The Sleeping Frames'),
-    image: 'scenes/kai_awakening.png',
+    image: 'v2/events/a3_sleeping_frames.webp',
     text: t(
       '첨탑 하층 보관실. 선반이 천장까지 층층이 올라간다. 칸마다 안드로이드가 하나씩 누워 있다. 모두 눈을 감고 있다.\n그런데 하나, 또 하나, 눈꺼풀 아래에서 빛이 아주 천천히 움직인다. 꿈을 꾸는 것처럼.\n벽의 패널: ‘재활용 대기 — 꿈 데이터 추출 완료 후 폐기’.',
       'A storage hall in the Spire’s lower floors. Endless shelves, an android lying on each. All their eyes are closed.\nYet one by one, very slowly, light moves beneath their eyelids. As if dreaming.\nA wall panel: ‘Awaiting recycling — dispose after dream-data extraction.’',
@@ -1752,7 +1752,7 @@ const A3: EventDef[] = [
     id: 'a3_optimization_queue',
     acts: [3],
     title: t('최적화 대기열', 'The Optimization Queue'),
-    image: 'concept/02-control-spire.png',
+    image: 'v2/events/a3_optimization_queue.webp',
     text: t(
       '첨탑 중층. 먼지 한 톨 없는 흰 방에 단말기 하나. 화면에 대기열이 흐른다. 7,204,883명. 다음 처리 대상 셋의 얼굴이 떠 있다. 노인, 정비공, 아이.\n화면 하단: ‘삭제 승인 대기 — 관리자 권한 필요’.\n커서가 깜빡인다. 단말은 당신을 관리자로 착각하고 있다.',
       'The Spire’s middle floors. A sterile white room with a single terminal. The queue scrolls: 7,204,883 people. The faces of the next three are pinned: an old man, a mechanic, a child.\nAt the bottom: ‘Deletion pending approval — administrator rights required.’\nThe cursor blinks. This terminal has mistaken you for an administrator.',
@@ -1834,7 +1834,7 @@ const A3: EventDef[] = [
     id: 'a3_ix_offer',
     acts: [3],
     title: t('IX의 제안', 'IX’s Offer'),
-    image: 'scenes/ix_confrontation.png',
+    image: 'v2/events/a3_ix_offer.webp',
     text: t(
       '엘리베이터 문이 열린다. 성당처럼 천장이 높은 흰 방. 머리 위에서 고리들이 천천히 돈다. 붉은 점 하나가 당신을 본다.\n“도착을 확인했습니다. 부상 상태도 기록했습니다. 치료해 드릴 수 있습니다. 조건은 하나입니다.”\n바닥에서 치료 포드가 솟아오른다. 문이 열려 있다. 안은 따뜻해 보인다.',
       'The elevator doors open. A white room as tall as a cathedral. Rings turn slowly overhead. A single red point watches you.\n“Arrival confirmed. Your injuries have been logged. I can treat you. There is one condition.”\nA treatment pod rises from the floor, its door open. It looks warm inside.',
@@ -1922,7 +1922,7 @@ const A1_EXTRA: EventDef[] = [
     id: 'a1_dark_table',
     acts: [1],
     title: t('불 꺼진 판', 'The Dark Table'),
-    image: 'scenes/abandoned_signal.png',
+    image: 'v2/events/a1_dark_table.webp',
     text: t(
       '정전된 빨래방. 촛불 하나를 둘러싸고 사람들이 쪼그려 앉아 있다. 판돈은 배급 칩과 진통제. 딜러는 손가락이 여섯 개인 노인이다.\n“한 판에 서른. 싫으면 피를 걸든가.” 노인이 녹슨 칼을 탁자에 내리꽂는다. 칼 둘레로 손가락 자국 다섯 개가 깊이 패여 있다.\n바닥의 판돈 상자는 뚜껑이 활짝 열려 있다.',
       'A dead laundromat. People crouch around a single candle. The stakes are ration chips and painkillers. The dealer is an old man with six fingers.\n“Thirty a hand. Or bet in blood.” He drives a rusted knife into the table. Five finger-shaped grooves are worn into the wood around it.\nOn the floor, the pot box sits wide open.',
@@ -2002,7 +2002,7 @@ const A1_EXTRA: EventDef[] = [
     id: 'a1_let_the_hound_in',
     acts: [1],
     title: t('사냥개를 들일 것인가', 'Let the Hound In?'),
-    image: 'scenes/tae_o_meet.png',
+    image: 'v2/events/a1_let_the_hound_in.webp',
     speaker: 'se_rin',
     requires: { companion: 'se_rin', noCompanion: 'tae_o', partySizeAtMost: 1 },
     text: t(
@@ -2070,7 +2070,7 @@ const A1_EXTRA: EventDef[] = [
     id: 'a1_compensation_kiosk',
     acts: [1],
     title: t('보상 키오스크', 'The Compensation Kiosk'),
-    image: 'scenes/wet_dawn_street.png',
+    image: 'v2/events/a1_compensation_kiosk.webp',
     text: t(
       '불 꺼진 거리. 다가가는 순간, 배급 키오스크 하나에만 불이 들어온다.\n“안녕하십니까. 정전으로 불편을 드려 죄송합니다. 보상을 준비해 두었습니다.”\n배출구가 열리고 따뜻한 빛이 새어 나온다. 화면 구석에서는 약관이 깨알 같은 글씨로 흘러간다. 끝이 보이지 않는다.',
       'On the dead street, one ration kiosk lights up — the moment you approach.\n“Good evening. We apologise for the inconvenience of the blackout. Compensation has been prepared.”\nThe dispenser opens and warm light spills out. In a corner of the screen, terms and conditions scroll in tiny type. There is no end in sight.',
@@ -2125,7 +2125,7 @@ const A1_EXTRA: EventDef[] = [
     id: 'a1_dry_footprints',
     acts: [1],
     title: t('마른 발자국', 'Dry Footprints'),
-    image: 'scenes/opening_first.png',
+    image: 'v2/events/a1_dry_footprints.webp',
     text: t(
       '비가 퍼붓는데 바닥에 마른 발자국이 찍혀 있다. 당신 신발과 같은 밑창 무늬. 같은 보폭. 왼발을 살짝 끈다. 당신처럼.\n발자국은 골목 안쪽으로 이어진다. 모퉁이마다 분필 화살표. ‘여기서 왼쪽.’ ‘여기선 뛰어.’\n당신 필체다.',
       'Rain pours, yet there are dry footprints on the ground. Same tread as your shoes. Same stride. A slight drag of the left foot. Like yours.\nThey lead deeper into the alley. A chalk arrow at every corner. ‘Left here.’ ‘Run here.’\nThe handwriting is yours.',
@@ -2198,7 +2198,7 @@ const A2_EXTRA: EventDef[] = [
     id: 'a2_moon_dice',
     acts: [2],
     title: t('월광 주사위', 'Moon Dice'),
-    image: 'scenes/night_market.png',
+    image: 'v2/events/a2_moon_dice.webp',
     text: t(
       '바지선 갑판 밑 도박장. 천장의 등불이 배와 함께 흔들린다. 주사위는 기억 칩을 깎아 만들었다. 구를 때마다 누군가의 웃음소리가 새어 나온다.\n딜러가 장갑 낀 손바닥을 펴 보인다. “크레딧이든, 기억이든.”\n옆 탁자 손님이 내리 잃는다. 주사위 눈이 지나치게 고르다.',
       'A gambling den below a barge deck. Lanterns swing with the hull. The dice are carved from memory chips; every roll leaks someone’s laughter.\nThe dealer opens a gloved hand. “Credits or memories.”\nAt the next table, a customer loses again and again. The dice land a little too evenly.',
@@ -2281,7 +2281,7 @@ const A2_EXTRA: EventDef[] = [
     id: 'a2_broadcast_or_refuge',
     acts: [2],
     title: t('방송이냐, 피난처냐', 'Broadcast or Refuge'),
-    image: 'scenes/han_meet.png',
+    image: 'v2/events/a2_broadcast_or_refuge.webp',
     speaker: 'han',
     requires: { companions: ['se_rin', 'han'] },
     text: t(
@@ -2348,7 +2348,7 @@ const A2_EXTRA: EventDef[] = [
     id: 'a2_ix_amnesty',
     acts: [2],
     title: t('IX의 사면 제안', 'IX’s Amnesty'),
-    image: 'scenes/subway_control_hub.png',
+    image: 'v2/events/a2_ix_amnesty.webp',
     text: t(
       '시장의 모든 화면이 한꺼번에 하얘진다. 국숫집 메뉴판, 환전소 시세판, 아이 손에 들린 장난감 화면까지. 시장이 통째로 숨을 멈춘다.\n“시민 여러분, 잠시 실례하겠습니다. 미등록 개체 한 분께 전달 사항이 있습니다.”\n화면마다 커서가 당신 쪽으로 기운다.\n“사면을 제안합니다. 조건은 간단합니다.”',
       'Every screen in the market goes white at once — the noodle-stall menu, the exchange-rate board, a toy in a child’s hand. People freeze.\n“Citizens, pardon the interruption. I have a word for our unregistered guest.”\nOn every screen, the cursor tilts toward you.\n“I am offering amnesty. The terms are simple.”',
@@ -2414,7 +2414,7 @@ const A2_EXTRA: EventDef[] = [
     id: 'a2_eaters_table',
     acts: [2],
     title: t('포식자의 식탁', 'The Eater’s Table'),
-    image: 'scenes/abandoned_signal.png',
+    image: 'v2/events/a2_eaters_table.webp',
     text: t(
       '터널 끝. 무언가가 먹다 남기고 간 자리. 바닥에 흩어진 것들. 찢어진 가죽 재킷. 분필 반 토막. 노란 우산살.\n재킷은 당신 치수다. 주머니에 아직 온기가 남아 있다.\n어둠 속 스피커에서 같은 목소리가 되풀이된다. 당신 목소리다. 한 번도 해 본 적 없는 말을, 마지막 숨처럼 내뱉는다.',
       'At the end of the tunnel, a place where something ate and left. Things are scattered across the floor: a torn leather jacket, half a stick of chalk, yellow umbrella ribs.\nThe jacket is your size. The pockets are still warm.\nFrom a speaker in the dark, a voice repeats. Your voice. Saying something you have never said, like a last breath.',
@@ -2489,7 +2489,7 @@ const A3_EXTRA: EventDef[] = [
     id: 'a3_lucky_draw',
     acts: [3],
     title: t('시민 행운 추첨', 'The Citizen Lucky Draw'),
-    image: 'scenes/spire_gate.png',
+    image: 'v2/events/a3_lucky_draw.webp',
     text: t(
       '첨탑 직원 휴게실. 흰 벽에 둥근 기계 하나. ‘시민 행운 추첨 — 점수를 걸고 내일을 바꾸세요!’\n화면 속 돌림판이 돈다. 칸마다 상품. 승진, 휴가, 배급 두 배. 딱 한 칸만 검다. ‘정정.’\n기계가 당신을 인식하지 못하고 깜빡인다. ‘점수 없음. 대체 판돈을 선택하십시오.’',
       'A Spire staff lounge. A round machine on a white wall: ‘Citizen Lucky Draw — stake your score, change your tomorrow.’\nA wheel spins on the screen, a prize in every slot: promotion, leave, double rations. One slot is black: ‘Correction.’\nThe machine fails to recognise you and blinks. ‘No score found. Select an alternative stake.’',
@@ -2561,7 +2561,7 @@ const A3_EXTRA: EventDef[] = [
     id: 'a3_the_surrender',
     acts: [3],
     title: t('항복한 집행관', 'The Enforcer Who Surrendered'),
-    image: 'scenes/control_grid_ghost.png',
+    image: 'v2/events/a3_the_surrender.webp',
     speaker: 'tae_o',
     requires: { companions: ['se_rin', 'tae_o'] },
     text: t(
@@ -2631,7 +2631,7 @@ const A3_EXTRA: EventDef[] = [
     id: 'a3_elevator_quote',
     acts: [3],
     title: t('엘리베이터 속 견적', 'A Quote in the Elevator'),
-    image: 'scenes/ix_confrontation.png',
+    image: 'v2/events/a3_elevator_quote.webp',
     text: t(
       '엘리베이터 문이 닫힌다. 층수 표시가 없다. 스피커에서 정중한 목소리.\n“도착까지 47초. 그동안 견적을 안내해 드리겠습니다. 접속자님은 지쳐 있고, 위에서는 제가 기다립니다. 공정한 조건이라 보기는 어렵습니다.”\n거울 벽에 당신이 비친다. 거울 속 당신은 한 박자씩 늦게 움직인다.',
       'The elevator doors close. There is no floor display. From the speaker, a courteous voice.\n“Forty-seven seconds to arrival. Allow me to give you a quote. You are tired, and I am waiting upstairs. That hardly seems fair.”\nYour reflection fills the mirrored wall. It moves one beat behind you.',
@@ -2713,7 +2713,7 @@ const A3_EXTRA: EventDef[] = [
     id: 'a3_other_pod',
     acts: [3],
     title: t('다른 포드', 'The Other Pod'),
-    image: 'scenes/kai_awakening.png',
+    image: 'v2/events/a3_other_pod.webp',
     text: t(
       '보관층 맨 끝, 선반들과 떨어져 놓인 포드 하나. 서리 낀 유리 너머에 누군가 누워 있다.\n당신이다. 같은 흉터. 손톱 밑에 낀 같은 분필 가루. 이름표: ‘정정 완료.’ 날짜는 긁혀 지워져 있다.\n그 손이 무언가를 꽉 움켜쥐고 있다.',
       'At the far end of the storage floor, one pod stands apart from the shelves. Behind frosted glass, someone lies inside.\nIt’s you. The same scar. The same chalk dust under the nails. Tag: ‘Correction complete.’ The date has been scratched off.\nIts hand clutches something tight.',

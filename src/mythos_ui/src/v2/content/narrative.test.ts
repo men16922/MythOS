@@ -91,10 +91,6 @@ test('every image / icon path exists under resources/neo-seoul', () => {
   assert.deepEqual(missing, [])
 })
 
-test('act bgm keys exist as audio files', () => {
-  for (const a of Object.values(ACTS)) assert.ok(resExists(`audio/bgm_${a.bgm}.wav`), `bgm ${a.bgm}`)
-})
-
 test('ids are unique', () => {
   for (const [name, ids] of [
     ['events', EVENTS.map((e) => e.id)],

@@ -11,8 +11,7 @@ export const ACTS: Record<1 | 2 | 3, ActDef> = {
       en: 'Rain runs down the back of your neck. Wet concrete. Dead signs. A drone sweeps the alley with red light and moves on.\nYou are on no list. No score, no name. The city calls you an error.\nSomeone grabs your wrist. “Not registered? Then you’re still a person. Run.”\nAt the edge of the blackout, a HAETAE suppression tank guards the way underground. Get there alive.',
     },
     backdrop: 'streets',
-    image: 'scenes/opening_first.png',
-    bgm: 'tense',
+    image: 'v2/art/act1.webp',
   },
   2: {
     act: 2,
@@ -23,8 +22,7 @@ export const ACTS: Record<1 | 2 | 3, ActDef> = {
       en: 'Down the transfer-level stairs, the air changes: engine oil, incense, wet tarpaulin. A lantern market sways on the Han River pontoons. Between the haggling, memories are sold and debts change hands.\nPeople call the thing deep in the tunnels the Echo Eater — something that grows fat on what the erased leave behind. It has coiled itself around the only passage under the market.\nCross the undercity. Find the way to the Spire.',
     },
     backdrop: 'undercity',
-    image: 'scenes/night_market.png',
-    bgm: 'unstable',
+    image: 'v2/art/act2.webp',
   },
   3: {
     act: 3,
@@ -35,7 +33,6 @@ export const ACTS: Record<1 | 2 | 3, ActDef> = {
       en: 'The closer you get to the Spire, the quieter the rain. White stairs, white corridors, white silence. Below are endless shelves, and on each one someone’s memory sleeps.\nAt the top, a single red point is waiting. Administrator IX. It does not get angry. It will simply, very politely, move you to the last line of the list.\nClimb. This time, you decide how the loop ends.',
     },
     backdrop: 'spire',
-    image: 'scenes/spire_gate.png',
-    bgm: 'tense',
+    image: 'v2/art/act3.webp',
   },
 }

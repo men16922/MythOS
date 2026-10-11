@@ -254,9 +254,9 @@ export const FIXTURE: ContentRegistry = {
     },
   },
   acts: {
-    1: { act: 1, name: tx('Act 1'), subtitle: tx('s'), intro: tx('i'), backdrop: 'streets', image: 'x', bgm: 'x' },
-    2: { act: 2, name: tx('Act 2'), subtitle: tx('s'), intro: tx('i'), backdrop: 'undercity', image: 'x', bgm: 'x' },
-    3: { act: 3, name: tx('Act 3'), subtitle: tx('s'), intro: tx('i'), backdrop: 'spire', image: 'x', bgm: 'x' },
+    1: { act: 1, name: tx('Act 1'), subtitle: tx('s'), intro: tx('i'), backdrop: 'streets', image: 'x' },
+    2: { act: 2, name: tx('Act 2'), subtitle: tx('s'), intro: tx('i'), backdrop: 'undercity', image: 'x' },
+    3: { act: 3, name: tx('Act 3'), subtitle: tx('s'), intro: tx('i'), backdrop: 'spire', image: 'x' },
   },
   endings: byId([
     { id: 'ending_forced_erasure', title: tx('erasure'), image: 'x', text: tx('t'), echoBonus: 5 },

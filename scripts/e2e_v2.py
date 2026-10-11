@@ -99,12 +99,28 @@ def online_flow(page: Page, errors: list[str]) -> None:
 
     # A daily run: set up, connect, reach the first event, abandon it from the pause menu.
     page.locator(".m2-menu-item--daily").click()
+    # Today's mutator: a card on the setup screen naming one boon and one burden, the same one as the HUD chip.
+    card = page.locator("[data-testid=mutator-card]")
+    card.wait_for(timeout=8000)
+    card_text = card.inner_text()
+    if "오늘의 변형" not in card_text or "▲" not in card_text or "▼" not in card_text:
+        errors.append(f"mutator card lacks its title/boon/burden: {card_text!r}")
+    mutator_name = card.locator(".m2-mutator__name").inner_text().strip()
+    shot(page, "daily_mutator_card")
+    print(f"daily setup → mutator card ({mutator_name})")
     page.get_by_role("button", name=re.compile(r"^\s*(접속|Connect)\s*$")).first.click()
     page.wait_for_timeout(600)
     page.keyboard.press("Escape")  # skip the loop-1 prologue
     page.wait_for_selector(".m2-actintro", timeout=10000)
     click_through_act_intro(page)
     page.wait_for_selector(".m2-options .m2-option", timeout=10000)
+    chip = page.locator("[data-testid=mutator-chip]")
+    chip.wait_for(timeout=8000)
+    if mutator_name not in chip.inner_text():
+        errors.append(
+            f"HUD mutator chip {chip.inner_text()!r} does not match the setup card {mutator_name!r}"
+        )
+    print("daily run → HUD mutator chip matches the card")
     page.locator("button[title^='메뉴']").first.click()
     page.get_by_role("button", name=re.compile("루프 포기")).click()
     page.get_by_role("button", name=re.compile(r"^\s*포기한다\s*$")).click()

@@ -2,6 +2,11 @@
 
 Last updated: 2026-10-11
 
+## 2026-10-12 — In-game verification of the mutator and mastery paths
+
+- Closing a gap: the daily mutator had only engine tests and sims, and mastery only a scripted profile + badge check. Now driven through the real UI: `make test-e2e-v2` asserts the daily setup screen shows the mutator card (title + ▲ boon + ▼ burden) and that the HUD chip of the run actually played carries the same name (today: 유리 루프). By hand against the dev server: the daily's run state matched the card (max HP 42 − 8 = 34, credits 80 + 80 = 160, HUD identical); a normal run started from the setup screen with Tae-o picked at five shared wins began with `mastery {tae_o: 2}`, his signature card upgraded and bond 1, with no mutator and no daily flag. Console clean in all of it.
+- What automation cannot decide is whether it is fun: the owner play guide (`docs/test/mythos2_first_play.md`) now lists what to feel for (stat voices, the companion stories and the Memories tab, IX's mirror, today's twist).
+
 ## 2026-10-12 — Companion mastery (1.x port #13) and the plan's final verdicts
 
 - **Mastery** (`MetaProfile.companionWins`, `RunState.mastery`): a normal-run victory counts for every companion in the party at the end (defeats, abandons and dailies do not). Two shared wins → mastery I: their signature card starts upgraded; five → mastery II: they start at bond 1. Frozen at `newRun` and applied wherever the companion joins (start or mid-run recruit); a daily ignores the profile so it stays identical for everybody. Badge (Ⅰ/Ⅱ) and a tooltip with the shared-victory count and the next tier on the starting-companion picker. Sim: 180 runs per arm, same seeds — mixed 57 / 53 / 54 % (none / I / II), greedy 98 % for all, i.e. no power creep; it is felt as history, not strength. `runSim` gained a `companion` option for this.

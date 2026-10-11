@@ -27,7 +27,12 @@ from mythos_v2.store import (
 )
 
 MIGRATIONS = Path(__file__).resolve().parents[1] / "migrations"
-V2_MIGRATIONS = ("009_v2_saves.sql", "010_v2_daily_scores.sql", "011_v2_history_per_player.sql")
+V2_MIGRATIONS = (
+    "009_v2_saves.sql",
+    "010_v2_daily_scores.sql",
+    "011_v2_history_per_player.sql",
+    "012_v2_saves_created_at.sql",
+)
 DAY = date(2026, 10, 11)
 
 
@@ -206,6 +211,9 @@ class MemoryStoreTest(_StoreContract, unittest.TestCase):
         assert mine[0].run is not None
         self.assertEqual((mine[0].run["archetype"], mine[0].run["floors"]), ("ghost", 6))
         self.assertIsNotNone(mine[0].last_active)
+        first_seen, last_active = mine[0].first_seen, mine[0].last_active
+        assert first_seen is not None and last_active is not None
+        self.assertLessEqual(first_seen, last_active)
         past = datetime.now(UTC) - timedelta(days=1)
         runs = [r for r in self.store.admin_runs(past) if r.player_id == self.player]
         self.assertEqual([(r.result, r.killed_by, r.act) for r in runs], [("defeat", "drone", 2)])
@@ -290,7 +298,7 @@ class PostgresStoreTest(_StoreContract, unittest.TestCase):
 
 
 class SchemaParityTest(unittest.TestCase):
-    def test_embedded_ddl_matches_migrations_009_to_011(self) -> None:
+    def test_embedded_ddl_matches_migrations_009_to_012(self) -> None:
         migrations = ";".join(
             (MIGRATIONS / name).read_text(encoding="utf-8") for name in V2_MIGRATIONS
         )

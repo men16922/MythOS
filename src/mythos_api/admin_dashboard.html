@@ -156,14 +156,14 @@ function render(d) {
   const fb = gm.total - gm.llm;
   let h = '<div class="kpis">';
   h += kpi('클라우드 저장 플레이어', t.players, `Google ${t.signed_in} · 익명 ${t.anonymous}`);
+  h += kpi('신규 (24시간)', t.new_24h, `7일 ${t.new_7d}`);
   h += kpi('활성 24시간', t.active_24h, `7일 ${t.active_7d} · 30일 ${t.active_30d}`);
   h += kpi('진행 중인 런', t.with_active_run, '저장된 미완료 런');
   h += kpi(`최근 ${d.days}일 완료 런`, t.finished_in_window, `승 ${t.victories_in_window} · 패 ${t.defeats_in_window} · 포기 ${t.abandoned_in_window}`);
   h += kpi('승률 (포기 제외)', pct(t.win_rate_in_window), `승 ${t.victories_in_window} / 승+패 ${t.victories_in_window + t.defeats_in_window}`);
-  h += kpi('누적 런 시작', t.runs_started, `승리 ${t.wins_lifetime}`);
-  h += '</div><div class="grid">';
+    h += '</div><div class="grid">';
 
-  h += `<div class="card wide"><h2>일별 완료 런 (KST)</h2>${dayChart(d.per_day)}</div>`;
+  h += `<div class="card wide"><h2>일별 완료 런 (KST)</h2>${dayChart(d.per_day)}<div class="dim" style="font-size:11px;margin-top:8px">신규 가입: ${d.per_day.slice(-7).map((r) => `${esc(r.day.slice(5))} <b>${r.new_players}</b>`).join(' · ')} · 누적 런 시작 ${t.runs_started} (승리 ${t.wins_lifetime})</div></div>`;
 
   h += '<div class="card"><h2>아키타입</h2>';
   h += d.archetypes.length ? `<table><tr><th>아키타입</th><th class="num">런</th><th class="num">승</th><th class="num">패</th><th class="num">승률</th><th class="num">평균 층</th></tr>${d.archetypes.map((a) => `<tr><td>${esc(a.id)}</td><td class="num">${a.runs}</td><td class="num">${a.wins}</td><td class="num">${a.defeats}</td><td class="num">${pct(a.win_rate)}</td><td class="num">${a.avg_floors}</td></tr>`).join('')}</table>` : '<div class="empty">아직 완료된 런 없음</div>';
@@ -187,11 +187,11 @@ function render(d) {
     <div class="dim" style="font-size:11px;margin-top:8px">Cloud Run은 인스턴스가 여러 개이거나 재시작될 수 있어 이 카운터는 참고용입니다. 정확한 기록은 <span class="mono">v2 gm</span> 로그.</div></div>`;
 
   h += '<div class="card wide"><h2>플레이어</h2>';
-  h += d.players.length ? `<table><tr><th>플레이어</th><th>마지막 활동</th><th class="num">런</th><th class="num">승</th><th class="num">최고 막</th><th class="num">패러독스</th><th class="num">에코</th><th class="num">해금</th><th class="num">엔딩</th><th>진행 중</th><th>최근 런</th></tr>${d.players.map((p) => {
+  h += d.players.length ? `<table><tr><th>플레이어</th><th>가입</th><th>마지막 활동</th><th class="num">런</th><th class="num">승</th><th class="num">최고 막</th><th class="num">패러독스</th><th class="num">에코</th><th class="num">해금</th><th class="num">엔딩</th><th>진행 중</th><th>최근 런</th></tr>${d.players.map((p) => {
     const live = p.last_active && Date.now() - new Date(p.last_active).getTime() < 15 * 60000;
     const ar = p.active_run;
     const lr = p.last_run;
-    return `<tr><td><span class="dot ${live ? 'on' : ''}"></span>${esc(p.name)} <span class="dim mono" style="font-size:10px">${esc(p.ref)}</span></td><td class="dim">${ago(p.last_active)}</td><td class="num">${p.runs}</td><td class="num">${p.wins}</td><td class="num">${p.best_act}</td><td class="num">${p.paradox}</td><td class="num">${p.total_echoes}</td><td class="num">${p.unlocks}</td><td class="num">${p.endings}</td><td>${ar ? `<span class="chip chip-blue">${esc(ar.archetype)}</span> ${ar.act}막 ${ar.floors}층 · HP ${ar.hp}/${ar.max_hp}${ar.daily ? ' <span class="chip chip-amber">시드</span>' : ''}` : '<span class="dim">—</span>'}</td><td>${lr ? `${resultChip(lr.result)} <span class="dim">${esc(lr.archetype)} ${lr.act}막 · ${ago(lr.ended_at)}</span>` : '<span class="dim">—</span>'}</td></tr>`;
+    return `<tr><td><span class="dot ${live ? 'on' : ''}"></span>${esc(p.name)} <span class="dim mono" style="font-size:10px">${esc(p.ref)}</span></td><td class="dim">${ago(p.first_seen)}</td><td class="dim">${ago(p.last_active)}</td><td class="num">${p.runs}</td><td class="num">${p.wins}</td><td class="num">${p.best_act}</td><td class="num">${p.paradox}</td><td class="num">${p.total_echoes}</td><td class="num">${p.unlocks}</td><td class="num">${p.endings}</td><td>${ar ? `<span class="chip chip-blue">${esc(ar.archetype)}</span> ${ar.act}막 ${ar.floors}층 · HP ${ar.hp}/${ar.max_hp}${ar.daily ? ' <span class="chip chip-amber">시드</span>' : ''}` : '<span class="dim">—</span>'}</td><td>${lr ? `${resultChip(lr.result)} <span class="dim">${esc(lr.archetype)} ${lr.act}막 · ${ago(lr.ended_at)}</span>` : '<span class="dim">—</span>'}</td></tr>`;
   }).join('')}</table>` : '<div class="empty">아직 클라우드에 저장한 플레이어가 없습니다.</div>';
   h += '</div></div>';
 

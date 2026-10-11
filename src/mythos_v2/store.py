@@ -48,7 +48,7 @@ SLOTS: tuple[Slot, ...] = ("profile", "run")
 
 DEFAULT_DATABASE_URL = "postgresql://mythos:mythos@localhost:5432/mythos"
 
-#: Same statements as migrations/009_v2_saves.sql + 010_v2_daily_scores.sql + 011_v2_history_per_player.sql (those files are
+#: Same statements as migrations/009_v2_saves.sql + 010_v2_daily_scores.sql + 011_v2_history_per_player.sql + 012_v2_saves_created_at.sql (those files are
 #: canonical; a test asserts they match). Every statement is idempotent.
 SCHEMA_STATEMENTS: tuple[str, ...] = (
     """CREATE TABLE IF NOT EXISTS v2_saves (
@@ -96,6 +96,8 @@ BEGIN
     ALTER TABLE v2_run_history ADD CONSTRAINT v2_run_history_pkey PRIMARY KEY (player_id, id);
   END IF;
 END $$""",
+    # When a player first saved (operator dashboard: new players per day); see migration 012.
+    "ALTER TABLE v2_saves ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT now()",
 )
 
 #: Per-player history kept by the in-memory store (Postgres keeps everything).
@@ -191,6 +193,7 @@ class MemoryV2Store(V2Store):
     def __init__(self) -> None:
         self._lock = threading.Lock()
         self._saves: dict[tuple[str, str], SaveBlob] = {}
+        self._first_saved: dict[tuple[str, str], datetime] = {}
         # record id -> (player_id, created_at, data)
         self._history: dict[tuple[str, str], tuple[datetime, dict[str, Any]]] = {}
         # (day, archetype) -> player_id -> best entry
@@ -214,6 +217,7 @@ class MemoryV2Store(V2Store):
         now = utc_now()
         with self._lock:
             self._saves[(player_id, slot)] = SaveBlob(copy.deepcopy(data), now)
+            self._first_saved.setdefault((player_id, slot), now)
         return now
 
     def delete_save(self, player_id: str, slot: Slot) -> bool:
@@ -275,6 +279,7 @@ class MemoryV2Store(V2Store):
                 key: (copy.deepcopy(blob.data), blob.updated_at)
                 for key, blob in self._saves.items()
             }
+            first = dict(self._first_saved)
         ids = {player for player, _ in saves}
         rows = []
         for player in ids:
@@ -287,6 +292,9 @@ class MemoryV2Store(V2Store):
                     profile_updated_at=profile[1] if profile else None,
                     run=run_summary(run[0]) if run else None,
                     run_updated_at=run[1] if run else None,
+                    first_seen=min(
+                        (t for (pid, _), t in first.items() if pid == player), default=None
+                    ),
                 )
             )
         epoch = datetime.min.replace(tzinfo=UTC)
@@ -587,6 +595,7 @@ class PostgresV2Store(V2Store):
                 SELECT player_id,
                   max(updated_at) FILTER (WHERE slot = 'profile') AS profile_at,
                   max(updated_at) FILTER (WHERE slot = 'run') AS run_at,
+                  min(created_at) AS first_seen,
                   (array_agg(jsonb_build_object(
                     'playerName', data->'playerName', 'loops', data->'loops', 'wins', data->'wins',
                     'bestAct', data->'bestAct', 'totalEchoes', data->'totalEchoes',
@@ -615,6 +624,7 @@ class PostgresV2Store(V2Store):
                 profile_updated_at=row["profile_at"],
                 run=run_summary(dict(row["run"])) if row["run"] else None,
                 run_updated_at=row["run_at"],
+                first_seen=row["first_seen"],
             )
             for row in rows
         ]

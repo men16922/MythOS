@@ -70,6 +70,8 @@ class AdminPlayer:
     #: ``run`` slot subset (an unfinished run): archetype, act, paradox, hp, maxHp, floors, daily. None = no run.
     run: dict[str, Any] | None
     run_updated_at: datetime | None
+    #: When this player first saved anything (``v2_saves.created_at``).
+    first_seen: datetime | None = None
 
     @property
     def last_active(self) -> datetime | None:
@@ -200,6 +202,7 @@ class _DayBucket:
     defeats: int = 0
     abandoned: int = 0
     daily_runs: int = 0
+    new_players: int = 0
     players: set[str] = field(default_factory=set)
     daily_players: set[str] = field(default_factory=set)
 
@@ -219,6 +222,12 @@ def build_overview(
     first_day = today - timedelta(days=days - 1)
     day_keys = [first_day + timedelta(days=i) for i in range(days)]
     buckets = {key: _DayBucket() for key in day_keys}
+
+    for p in players:
+        if p.first_seen is not None:
+            joined = buckets.get(p.first_seen.astimezone(KST).date())
+            if joined is not None:
+                joined.new_players += 1
 
     names = {p.player_id: _text(p.profile.get("name"), 16) or "익명" for p in players}
     by_archetype: dict[str, dict[str, Any]] = {}
@@ -304,6 +313,7 @@ def build_overview(
                 "signed_in": p.player_id.startswith("g_"),
                 "name": names[p.player_id],
                 "last_active": _iso(p.last_active),
+                "first_seen": _iso(p.first_seen),
                 "runs": _int(p.profile.get("runs")),
                 "wins": _int(p.profile.get("wins")),
                 "best_act": _int(p.profile.get("best_act")),
@@ -341,6 +351,12 @@ def build_overview(
             "active_24h": active_within(24),
             "active_7d": active_within(24 * 7),
             "active_30d": active_within(24 * 30),
+            "new_24h": sum(
+                1 for p in players if p.first_seen is not None and p.first_seen >= cutoff(24)
+            ),
+            "new_7d": sum(
+                1 for p in players if p.first_seen is not None and p.first_seen >= cutoff(24 * 7)
+            ),
             "with_active_run": sum(1 for p in players if p.run is not None),
             "runs_started": sum(_int(p.profile.get("runs")) for p in players),
             "wins_lifetime": sum(_int(p.profile.get("wins")) for p in players),
@@ -353,6 +369,7 @@ def build_overview(
         "per_day": [
             {
                 "day": key.isoformat(),
+                "new_players": b.new_players,
                 "runs": b.runs,
                 "wins": b.wins,
                 "defeats": b.defeats,

@@ -203,6 +203,7 @@ class AdminOverviewTest(unittest.TestCase):
     def test_totals(self) -> None:
         t = self.data["totals"]
         self.assertEqual((t["players"], t["signed_in"], t["anonymous"]), (2, 2, 0))
+        self.assertEqual((t["new_24h"], t["new_7d"]), (2, 2))
         self.assertEqual(t["with_active_run"], 1)
         self.assertEqual(t["runs_started"], 6)
         self.assertEqual(t["wins_lifetime"], 2)
@@ -218,6 +219,7 @@ class AdminOverviewTest(unittest.TestCase):
         self.assertEqual(len(rows), 7)
         self.assertEqual(rows[-1]["day"], TODAY.isoformat())
         self.assertEqual(rows[0]["runs"], 0)
+        self.assertEqual((rows[-1]["new_players"], rows[0]["new_players"]), (2, 0))
         today = rows[-1]
         self.assertEqual(
             (today["runs"], today["wins"], today["defeats"], today["abandoned"]), (4, 1, 2, 1)

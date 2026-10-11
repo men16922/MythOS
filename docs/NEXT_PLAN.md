@@ -19,6 +19,8 @@ Rules: `docs/GAMEPLAY.md` · design/contract: `docs/plans/2026-10-10-mythos-2.0.
 - `[ ]` GM cost guard (per-player daily AI-call cap or a cheaper model) if traffic grows — ≈ $0.085 per run on gemini-3.5-flash (measured 2026-10-11).
 - `[ ]` Companion arcs are done for all six (3-event flag chains); a further event wave only if players report repetition (each act now rolls from 16 events; scenes with art cost one image call each — see `scripts/v2_assets/ledger.json`).
 
+- `[ ]` `[manual]` **Review the 1.x port proposal** — `docs/plans/2026-10-11-port-from-1x.md` (22 candidates, 3 waves; Wave 1 is small and needs no art or owner decision). Owner picks the waves and the art-style call.
+
 ## Agent operations
 
 - `[ ]` `[manual]` Re-seed the overnight harness against the 2.0 tree: `scripts/overnight/heldout-bank.md` is the owner-ratified frozen v1 and its 3 tasks target 1.x code (branch `1.0`) — a replacement bank needs a recorded owner decision. Until then, run unattended loops only with explicit 2.0 seeds.

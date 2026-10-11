@@ -578,6 +578,8 @@ export interface EventDef {
   improvise?: boolean
   /** Context hints for the AI GM narrator. */
   gmHints?: string[]
+  /** Show IX's mirror under the text: it politely quotes this run's real choices back (content/ixMirror.ts). */
+  ixMirror?: boolean
 }
 
 // ---------------------------------------------------------------- map & run

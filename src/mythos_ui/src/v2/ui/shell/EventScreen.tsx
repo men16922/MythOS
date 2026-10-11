@@ -9,6 +9,7 @@ import { effectChips, statLabel, type EffectChip } from '../components/format.ts
 import { RollMeter } from '../components/RollMeter.tsx'
 import { sound } from '../components/sound.ts'
 import { Typewriter } from '../components/Typewriter.tsx'
+import { ixMirror } from '../../content/ixMirror.ts'
 import { statVoiceLine } from '../../content/statVoices.ts'
 import { GmCard } from './GmCard.tsx'
 import { improvise, narrate } from './gm.ts'
@@ -27,6 +28,22 @@ const RISK_LABEL: Record<Improvisation['risk'], { ko: string; en: string }> = {
   hp: L('HP 손실', 'Lose HP'),
   trace: L('추적도 증가', 'More Trace'),
   credits: L('크레딧 손실', 'Lose credits'),
+}
+
+/** IX quotes this run's real choices back at the player (polite, impersonal, unsettlingly accurate). */
+function IxMirrorBlock({ run, lang }: { run: RunState; lang: Lang }) {
+  const mirror = ixMirror(run)
+  return (
+    <div className="m2-mirror" data-testid="ix-mirror" aria-label={lang === 'ko' ? 'IX의 거울' : 'IX’s mirror'}>
+      <span className="m2-mirror__eye" aria-hidden="true" />
+      <div className="m2-mirror__lines">
+        {mirror.lines.map((line, i) => (
+          <p key={i}>“{tr(line, lang)}”</p>
+        ))}
+        {mirror.closing && <p className="m2-mirror__closing">“{tr(mirror.closing, lang)}”</p>}
+      </div>
+    </div>
+  )
 }
 
 /** One inner-voice line from the stat that was just rolled (authored, deterministic, no numbers). */
@@ -103,6 +120,7 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
   const [pending, setPending] = useState<Improvisation | null>(null)
   const [judging, setJudging] = useState(false)
   const [typedKey, setTypedKey] = useState('')
+  const [introDone, setIntroDone] = useState('') // event id whose body text has finished typing
   const [rolling, setRolling] = useState<{ chance: number; success: boolean; land: number; next: RunState; label: string } | null>(null)
   // The option list can change once an option resolves (e.g. a recruit leaves the candidate pool), so the
   // outcome reads the option that was actually clicked, not whatever now sits at that index.
@@ -261,7 +279,8 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
 
       <div className="m2-event__panel">
         <h1 className="m2-event__title">{tr(ev.title, lang)}</h1>
-        <Typewriter className="m2-event__text" text={tr(ev.text, lang)} cps={settings.fastAnim ? 400 : 110} />
+        <Typewriter className="m2-event__text" text={tr(ev.text, lang)} cps={settings.fastAnim ? 400 : 110} onDone={() => setIntroDone(`${ev.id}:${run.rng}`)} />
+        {ev.ixMirror && introDone === `${ev.id}:${run.rng}` && <IxMirrorBlock run={run} lang={lang} />}
 
         {rolling && (
           <RollMeter

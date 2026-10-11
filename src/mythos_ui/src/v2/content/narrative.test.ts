@@ -500,3 +500,44 @@ test('stat voice pick is deterministic per (stat, outcome, seed) and spreads ove
   assert.ok(STAT_VOICES.str.success.some((l) => l.ko === statVoiceLine('str', true, 'z:1').line.ko))
   assert.ok(STAT_VOICES.str.failure.some((l) => l.ko === statVoiceLine('str', false, 'z:1').line.ko))
 })
+
+// ---------------------------------------------------------------- IX mirror (1.x port: ix_temptation_mirror)
+
+import { IX_MIRROR_CLOSING, IX_MIRROR_EMPTY, IX_MIRROR_LINES, IX_MIRROR_MAX, ixMirror } from './ixMirror.ts'
+
+test('IX mirror: every quoted flag is set by some event (no dead lines), ids unique, lines short and number-free', () => {
+  const set = new Set(EVENTS.flatMap(effects).flatMap((fx) => (fx.kind === 'flag' ? [fx.key] : [])))
+  const ids = new Set<string>()
+  for (const l of IX_MIRROR_LINES) {
+    assert.ok(!ids.has(l.id), `duplicate id ${l.id}`)
+    ids.add(l.id)
+    assert.ok(l.flag || l.when, `${l.id}: needs a flag or a condition`)
+    if (l.flag) assert.ok(set.has(l.flag), `${l.id}: flag ${l.flag} is never set by any event`)
+    assert.ok(l.line.ko.length <= 130 && l.line.en.length <= 200, `${l.id}: too long`)
+    assert.ok(!/\d/.test(l.line.ko.replaceAll('C-17', '').replaceAll('RX-09', '')), `${l.id}: no game numbers (C-17 is a district, RX-09 is Kai's unit name)`)
+    assert.match(l.line.ko, /(니다|까)[.?]$/, `${l.id}: IX speaks 합쇼체`)
+  }
+  assert.ok(EVENTS.find((e) => e.id === 'a3_ix_offer')?.ixMirror, 'the IX offer shows the mirror')
+})
+
+test('IX mirror: picks the run’s own choices by priority, caps at three, and closes with the verdict', () => {
+  const blank = ixMirror({ flags: {}, trace: 30 })
+  assert.deepEqual(blank.ids, [])
+  assert.equal(blank.closing, IX_MIRROR_EMPTY, 'nothing to quote → the clean-record line')
+
+  const some = ixMirror({ flags: { saved_citizen: 1, lin_yue_debt: 1 }, trace: 30 })
+  assert.deepEqual(some.ids, ['saved_citizen', 'lin_yue_debt'], 'higher priority first')
+  assert.equal(some.closing, IX_MIRROR_CLOSING)
+
+  const many = ixMirror({ flags: { taeo_cleared: 1, han_poked: 1, kai_found: 1, saved_citizen: 1, deja_vu: 1 }, trace: 80 })
+  assert.equal(many.ids.length, IX_MIRROR_MAX)
+  assert.ok(many.ids.every((id) => ['taeo_cleared', 'han_poked', 'kai_found'].includes(id)), `companion-arc payoffs outrank the rest: ${many.ids}`)
+
+  // A flag explicitly cleared (value 0, as lin_yue_debt is when the debt is paid) is not quoted.
+  assert.deepEqual(ixMirror({ flags: { lin_yue_debt: 0 }, trace: 30 }).ids, [])
+  // Trace remarks fire alone, and never claim "you already optimised".
+  const loud = ixMirror({ flags: {}, trace: 90 })
+  assert.deepEqual(loud.ids, ['loud'])
+  assert.equal(loud.closing, null)
+  assert.deepEqual(ixMirror({ flags: {}, trace: 5 }).ids, ['quiet'])
+})

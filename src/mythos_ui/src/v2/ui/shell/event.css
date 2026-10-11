@@ -393,3 +393,43 @@
     padding: 10px 14px;
   }
 }
+
+/* IX's mirror: a cold, tidy quotation block under the event text. */
+.m2-mirror {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  max-width: 720px;
+  margin: 14px 0 6px;
+  padding: 12px 16px;
+  border-left: 2px solid var(--m2-threat);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--m2-threat) 10%, transparent), transparent);
+  animation: m2-rise 0.5s var(--m2-ease) both;
+}
+.m2-mirror__eye {
+  flex: none;
+  width: 9px;
+  height: 9px;
+  margin-top: 8px;
+  border-radius: 50%;
+  background: var(--m2-threat);
+  box-shadow: 0 0 10px var(--m2-threat);
+}
+.m2-mirror__lines p {
+  margin: 0 0 8px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--m2-text-dim, rgba(255, 255, 255, 0.82));
+}
+.m2-mirror__lines p:last-child {
+  margin-bottom: 0;
+}
+.m2-mirror__closing {
+  font-weight: 600;
+  color: var(--m2-text, #fff);
+}
+@media (prefers-reduced-motion: reduce) {
+  .m2-mirror {
+    animation: none;
+  }
+}

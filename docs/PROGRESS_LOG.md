@@ -2,6 +2,11 @@
 
 Last updated: 2026-10-11
 
+## 2026-10-11 — IX's mirror (1.x port #9) and the twist bank (#7, closed)
+
+- 1.x's story bible had one thing 2.0 lacked: `ix_temptation_mirror` — IX's strongest attack is not force but an accurate, polite quotation of what the player really did ("you already optimised; I merely scaled it"). `content/ixMirror.ts` + `EventDef.ixMirror` (set on `a3_ix_offer`): IX quotes up to three of the run's real choices, highest priority first (the five companion-arc payoffs outrank the older flags, then saved citizen, woken Kai, Lin-yue's ledger, the opened Spire door, the left mark, déjà vu, and a loud/quiet-run remark), closes with the verdict, or says "a very clean connection" when there is nothing to quote. Authored and deterministic, shown after the event text finishes typing. Browser-checked with four flags set and with none; `narrative.test.ts` proves every quoted flag is set by some event, IX stays 합쇼체, priorities and the cap.
+- #7 twist bank: nothing to port — all three twists already exist in 2.0 (Se-rin's hidden line, the grid collecting rather than deleting, the player's earlier self).
+
 ## 2026-10-11 — Stat inner voices (1.x port #2)
 
 - After a stat check resolves (event option or Improvise), the stat that was rolled talks back in one authored line under the outcome text, once the text has finished typing: 근력 rough and loyal, 민첩 a jumpy kid, 지능 a cold 합쇼체 analyst, 매력 a soft teasing older sister, 관측 an old dry watcher. 5 stats × 4 success + 4 failure lines, KO/EN, no numbers (the chips already carry them). Picked by a stable hash of (stat, outcome, event:option), so the same moment always sounds the same; no LLM, no balance effect. Each voice has its own colour.

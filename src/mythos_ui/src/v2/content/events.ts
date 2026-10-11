@@ -1837,6 +1837,7 @@ const A3: EventDef[] = [
     acts: [3],
     title: t('IX의 제안', 'IX’s Offer'),
     image: 'v2/events/a3_ix_offer.webp',
+    ixMirror: true,
     text: t(
       '엘리베이터 문이 열린다. 성당처럼 천장이 높은 흰 방. 머리 위에서 고리들이 천천히 돈다. 붉은 점 하나가 당신을 본다.\n“도착을 확인했습니다. 부상 상태도 기록했습니다. 치료해 드릴 수 있습니다. 조건은 하나입니다.”\n바닥에서 치료 포드가 솟아오른다. 문이 열려 있다. 안은 따뜻해 보인다.',
       'The elevator doors open. A white room as tall as a cathedral. Rings turn slowly overhead. A single red point watches you.\n“Arrival confirmed. Your injuries have been logged. I can treat you. There is one condition.”\nA treatment pod rises from the floor, its door open. It looks warm inside.',

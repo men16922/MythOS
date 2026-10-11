@@ -1,27 +1,19 @@
-# MythOS gameplay QA routes
+# Mythos 2.0 QA routes
 
-Run commands from the repository root.
+## Deterministic layers
+- Engine + content: `make test-v2` (= `cd src/mythos_ui && node --test src/v2/`). Single file: `node --test src/v2/engine/combat.test.ts`.
+- Fixtures: `engine/combat.fixture.test.ts` (`FIXTURE`, `makeRun`, `place`, `aim`, `silence`, `setHand`, `unit`).
+- Real-content checks: import `CONTENT` from `src/v2/content/index.ts` (see `engine/passive.test.ts`).
+- Backend (saves + GM): `make test` (Python `unittest`, `tests/test_v2_*.py`).
 
-## Deterministic gate
+## Run simulator (balance)
+- `simulateRun(seed, archetype, CONTENT, policy, { paradox, onFight })` in `engine/runSim.ts`; policies `greedy` (1-ply exhaustive), `mixed` (greedy ~75 % of turns), `basic` (ignores telegraphs).
+- Baseline 2026-10-11, P0 over 360 runs: greedy 100 % · mixed ≈ 35 % (28–41 % by seed block) · basic 0 %; P5: 78 / 3.
+- A/B a change on identical seed blocks; report per-act turns and HP lost from `onFight` telemetry.
+- Daily-seed determinism: `engine/daily.test.ts`.
 
-- Narrow combat tests: `./.venv/bin/python -m unittest tests.test_combat_engine` or the smallest relevant `tests/test_combat_*.py` module.
-- Full local gate: `make check`.
-- Existing browser regression: `make test-e2e`; use it for broad boot-to-combat coverage, not as a substitute for a feature-specific assertion.
-
-## Local interactive combat
-
-1. Start the local API in a separate terminal: `make api` (default `http://127.0.0.1:8000`).
-2. Open the boot screen and select the combat simulator. Do not add `fallback=1` when inspecting animation or VFX.
-3. Start a simulator combat with `test_kit=true`: it unlocks the full skill pool and grants EMP, incendiary, cryo grenades, and nanopatches.
-4. Select the exact party needed for coverage. `party_members=[]` is intentionally a solo run; an explicit roster never silently adds story allies.
-5. Use browser DevTools or Playwright to capture a screenshot, console errors, failed requests, and the interaction result. Stop the API after ad-hoc testing with `make api-stop`.
-
-## Evidence boundary
-
-- API/unit state establishes combat rules, logs, and serialization.
-- A non-fallback rendered session establishes targeting affordances, board effects, cinema, and input behavior.
-- `docs/test/neo_seoul_live_qa.md` owns subjective verdicts such as impact, readability, balance, and fun. Never convert automated evidence into a human pass.
-
-## Automation integration
-
-The overnight runner already calls `scripts/overnight/browser-qa.sh` for browser-observable commits. It delegates browser activity to `scripts/live-qa/run-agy.sh`, writes ignored evidence under `outputs/live-qa/`, and stops on FAIL/NEEDS_HUMAN. Do not run it casually as a replacement for focused local QA.
+## Browser layers (always muted, headless preferred)
+- Combat sandbox: `/?sandbox=combat&mute=1&enc=<encounterId>` (e.g. `a1_n2_nest`, `a2_elite_incinerator`, `a3_boss_ix`); `vw`/`vh` params size the stage.
+- Full game: Vite dev (`cd src/mythos_ui && npx vite`, proxies `/api` and `/resources` to `make api`) and the dev hook `window.__m2` (`run`, `setRun`, `setView`, `C`) to jump to a screen or fight.
+- Smoke: `make frontend-build && make test-e2e-v2` (title → setup → act intro → event → map → fight, fails on console errors).
+- Phones: Playwright context `viewport 390×844, is_mobile=True, has_touch=True`.

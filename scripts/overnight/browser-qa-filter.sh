@@ -39,8 +39,7 @@ classify_path() {
     # --- browser-relevant: directly drives or shapes the playable UI ---
     src/mythos_ui/*)          printf 'ui:%s' "$1" ;;
     src/mythos_api/*)         printf 'api:%s' "$1" ;;
-    src/mythos_runtime/*|src/mythos_loop/*|src/mythos_narrative/*|src/mythos_core/*|src/mythos_memory/*|src/mythos_combat/*|src/mythos_image_agent/*)
-                              printf 'runtime:%s' "$1" ;;
+    src/mythos_v2/*)          printf 'runtime:%s' "$1" ;;   # 2.0 backend (saves + AI GM); 1.x runtime archived on branch 1.0
     resources/*)              printf 'scenario:%s' "$1" ;;   # scenario.json / directives / story_bible / curated assets
     tests/playwright/*)       printf 'e2e:%s' "$1" ;;        # browser-facing selectors/test-ids
     # --- recognized non-browser: safe to skip ---

@@ -1,113 +1,25 @@
-# Project MythOS Next Plan
+# Next Plan
 
 Last updated: 2026-10-11
 
-This file keeps only upcoming (open) work as a rolling plan. Completed tracks live in
-`docs/COMPLETED_SUMMARY.md`, detailed logs in `bin/docs/archive/progress-2026-0*.md`, individual designs in
-`docs/plans/` (completed plans move to `bin/docs/plans/`).
+Open work only. Finished tracks are in `COMPLETED_SUMMARY.md`; the 1.x plan (paused tracks, Dev Graph holds, serving research) is archived with the 1.x code on branch `1.0`.
 
-## Priority 0 — Mythos 2.0 (branch `mythos-2.0`, built 2026-10-10..11)
+## Priority 0 — ship Mythos 2.0
 
-Design/contract: `docs/plans/2026-10-10-mythos-2.0.md` · rules: `docs/GAMEPLAY.md` · owner guide: `docs/test/mythos2_first_play.md`.
+Rules: `docs/GAMEPLAY.md` · design/contract: `docs/plans/2026-10-10-mythos-2.0.md` · owner guide: `docs/test/mythos2_first_play.md` · Android: `docs/android.md`.
 
-- `[ ]` `[manual]` **Owner first play + D–S grade** — the five judgements in the guide. Every 1.x item below is paused behind this.
-- `[ ]` `[manual]` **Ship decision** — merge `mythos-2.0` → `main`, then either a no-traffic tagged Cloud Run revision for the owner/admins or a full rollout (changes what CBT testers see). Push stays owner.
-- `[x]` **Post-verdict tuning (round 1, 2026-10-11)** — owner verdict "feel is good"; feedback round + residuals done (M92–M93). Baseline P0: greedy 100 % · mixed ≈ 35 % (28–41 % by seed block) · basic 0 %; P5 78 / 3. Compare A/B on the same seed blocks (noise is ±6 %).
-- `[x]` **Post-verdict candidates** — phone-width combat, Act 2 tension (fire ground), Act 3 burst cards, daily-seed mode, local Vertex GM smoke: done 2026-10-11 (M93).
-- `[ ]` `[manual]` **SFX listen-test** — the new impact layers were tuned by offline measurement only (tests are always muted).
-- `[ ]` `[manual]` **Cloud Run smoke of `/api/v2` + Vertex GM** — after the ship decision (needs a deploy).
+- `[ ]` `[manual]` **SFX listen-test** — the impact layers were tuned by offline measurement only (all tests are muted).
+- `[ ]` `[manual]` **Deploy 2.0** — `make deploy-preview` (no-traffic tag `v2`) then promote, or `make deploy`. Replaces what CBT testers see; the first `/api/v2` request creates `v2_saves` in the production DB.
+- `[ ]` **Cloud smoke after deploy** — `/api/health`, `/api/v2/health`, a save round-trip and GM narrate/talk on Vertex through the deployed URL; confirm CORS for the Android origin.
+- `[ ]` `[manual]` **Android release** — Play Console developer account, an upload keystore (owner-held), package id check (`com.projectmythos.signalrun` is permanent once uploaded), then an internal-testing AAB. Tester list for Firebase App Distribution.
+- `[ ]` `[manual]` **`git push`** — `main` (2.0) and `1.0` (archive).
 
-## Hold — MythOS Dev Graph post-baseline owner gates
+## After the first wave of players
 
-Authority: `docs/reports/2026-07-28-heldout-v1-clean-repair0-baseline.md`. Owner retained strict 12-turn acceptance and stopped repair rollout on 2026-07-28 after the valid clean arm returned 0/3; `OVERNIGHT_REPAIR=0`, bank v1 is never tuned/retried, and reopening requires preregistration + unseen bank v2 + fresh approval.
+- `[ ]` Balance from real play (numbers live in `v2/content`; measure with `simulateRun` on fixed seed blocks before/after).
+- `[ ]` Daily-seed leaderboard (Play Games Services or `/api/v2`), if players want comparison.
+- `[ ]` More events per act and a fourth companion arc, if runs start to feel repetitive.
 
-- `[ ]` `[manual]` **Harness remote publication** — push upstream commit/tag and update the public marketplace only on explicit approval; not required for local P2 evidence.
+## Agent operations
 
-## Paused behind 2.0 — §3 HOLD follow-through before another promotion sample
-
-Closed items are folded out of this file (its rule: open work only) — 2026-08 defect sweep, 2026-09-05 review residuals, serving-research P0/P0-2/P1-2/T4, status-effect stacking, `_weapon_in_range`, the 2026-09-06 seed batch: see `COMPLETED_SUMMARY.md` M79–M80 and PROGRESS_LOG.
-
-Authority QA: `docs/test/neo_seoul_live_qa.md`; scope: `docs/reports/2026-07-31-late-loop-repetition-scope.md`. **Latest deploy = `mythos-api-00090-ww4` (2026-09-08; adds boss stack resistance `BOSS_STACK_CAP = 2` + the strict-mypy/ruff batch on top of `00089`).** Typed fallback evidence, combat pacing, structural novelty enforcement, and Gemini 3.1 image migration are live. The 2026-08-01 fresh-arm attempt (`loop_8b7a…60dc2`) was excluded at 13/14 (`parse_error`); it and the partial QA loop are evidence only.
-
-- `[/]` **Owner rulings on the banked arm** — `[x]` the 22+25 two-build split does not disqualify it (owner, 2026-08-13, DECISIONS); `[x]` rubric scored (`outputs/evals/20260814-005948/`: new sample 3/5, both 07-28 samples 2/5). `[ ]` `[manual]` the subjective **ending/overall feel verdict** is still open — and is now the *only* usable basis, since the score cannot carry the decision (below).
-- `[ ]` `[manual]` **Upstream repetition** — with the reviser corrected, the residual 59% is the model genuinely reusing locations/motifs (title repeats 32%, location streak 33% measured independently). This is narrative prompt/context work and must wait for the owner's §3 verdict, since it changes generation.
-- `[~]` **Stream-stall watchdog — DO NOT BUILD** — the runaway trickle was Chrome hidden-tab timer throttling of the client reveal (5–31 chars/min hidden vs 2,147 visible; server 7–26s). Withdrawn as a candidate; automated play must foreground the tab or reload to resync.
-
-### Narrative clarity / content follow-ups (mostly `[manual]`)
-- `[/]` `[manual]` **Full-3.5 live sign-off residuals**: fresh-loop prose/tone/length verdict, Audrey EN retest, IX/companion/equipment/growth feel, authenticated production turn. Objective save/load/map/idempotency/support/loot/equip already passed via three AGY runs.
-- `[/]` **CBT P1 residuals** (design `docs/plans/2026-07-05-cbt-onboarding-replay-density-plan.md`; P1-A..E + S1-S4 all DONE): `[ ]` `[manual]` S4 카피 톤 검수(anchor/goal + 12 beat prose) · 6 variant intros in-game feel · decisions G2 twist tone(3 `twist_bank`)/in-layer pacing(C2)/overload-strike range(D5) · EN fresh-loop coherence retest.
-- `[ ]` `[manual]` **Archetype-variant openings (long-term, 2026-07-04)**: author per-archetype opening variations (directive-layer, `resources/neo-seoul/directives/opening.md` + KO/EN), gated on CBT priorities.
-
-## Review residuals (2026-09-05 repo-wide review; verified but not yet done)
-
-- `[/]` **Lesser substring matches** — `serializers._calculate_zone_risk` done 2026-09-05; `ending_resolver.py:111`/`audio_service.py:63` deliberately left (scoring semantics / no boss ids exist) — `[manual]` owner call if wanted.
-
-## Serving-research track — open, needs no owner decision (design `docs/plans/2026-08-30-mythos-as-serving-research-workload.md`)
-
-Scope is a research bench, **not** production self-hosting — the evidence puts that far out of range (`docs/reference/2026-08-30-self-hosted-inference-and-mythos-as-research-platform.md`). Two benches: 12GB CUDA (mechanism) and the 48GB M4 Max (quality/capacity).
-
-- `[/]` **Verify the unverified adapter rows** — `[x]` `mlx` measured 2026-09-08 (`experiments/results/20260908-*-option-matrix`, mlx-lm 0.31.3 in a scratch venv; row rewritten — `top_k`/`repetition_penalty` top-level, `json_object` dropped and reported; the first-request penalty drop is documented in `docs/reference/2026-09-06-mlx-lm-server-capability-check.md`). `[ ]` `[blocked]` `vllm`/`llamacpp` — no such engine on this machine. *Done when `make experiment ARGS="option-matrix --engine <id> …"` has been run against that engine and its row matches.*
-- `[ ]` **P2 bench port** — add a `mythos` trace-replay scenario to `labs/wsl2-vllm-baseline/` so results sit in the same table as the study's `prefill`/`decode`.
-- `[ ]` **P3 mechanism experiments** (bench A, vLLM): E-A prefix caching on real partial sharing · E-B ngram acceptance split between JSON scaffolding and prose · E-C structured-output mode vs schema-valid rate.
-- `[/]` **P4 judge noise floor** — `[x]` P4-1 judge pinned 2026-09-08 (`narrative_judge.py` `--model` from `EVAL_JUDGE_MODEL`, default = the critic pin `claude-fable-5-1`, recorded in provenance). `[x]` P4-2 resolution measured 2026-09-08 on the development split, N=5 (`scripts/eval/judge_resolution.py`; numbers in `docs/reference/2026-09-08-judge-resolution.md`). `[ ]` `[manual]` P4-3 adopt the rule — **the same open decision the §3 promotion track carries** (median over N / sub-resolution differences reported as indistinguishable / drop the numeric gate). Gates every quality experiment; doing it once serves both tracks.
-- `[ ]` **P5 quality × cost** (bench B, 48GB): quantization ladder, model ladder to 30B-class, Gemini-vs-local Pareto on the frozen bank. Blocked on P4.
-
-## Engineering maintenance track — WS0-3 done (COMPLETED_SUMMARY M43)
-
-- `[/]` **WS5 harness operation** — V2 cutover + repair-rollout closure detail in `COMPLETED_SUMMARY` M63/M78; local pin now 1.4.0 (remote marketplace remains 1.2.0), `OVERNIGHT_REPAIR` stays **0**. Remaining:
-  - `[ ]` `[manual]` **Model-B 3-lane demonstration** — first run one objective `make overnight-<engine>-once`, then arm+observe `make overnight-worktrees-setup` + 3 engines (burns real quota, owner-armed).
-  - `[/]` **cross-engine critic** — first same-diff smoke run 2026-07-25 on commit `046edc8`: **codex REPAIR vs claude PASS (1/1 disagreement)**; the codex objection (blank_output classification) was intended design → clarifying comment added to `_classify_fallback_reason`. Remaining `[ ]` `[manual]` full 1-night trial `make overnight OVERNIGHT_CRITIC_ENGINE=codex` (needs seeded `[auto]` backlog; lane currently drained) — morning: REVIEW_QUEUE + disagreement rate.
-  - `[ ]` `[manual]` **Graph P2 bounded read-only scatter/gather experiment (upstream)**: only after held-out-bank ratification and explicit multi-agent authorization; compare 2–3 immutable-input scouts against one agent on wall time/tokens/valid defects/duplication. P0-A/P0-B/P1-A/P1-B/P1-C are in the local 1.3.0 release (116/116); no write-lane fan-out.
-
-## Overnight seeds
-- **Seed judgment 2026-09-06 (supervised survey, nothing recorded)**: `[auto]` backlog is 0 and the deterministic debt the runner could consume is essentially gone — 0 TODO/FIXME, eslint clean, ruff ignores only E501, 6 skipped tests are all opt-in/optional-dep, the 6 `visual_service.py` `type: ignore`s were dead (removed in-session, mypy clean) and the 3 left in `pipeline_cache.py` are live diffusers typing gaps, and the one skip-prone harness test was fixed in-session (`experiments/harness.py` counter suffix). Larger candidates (`session.py` 3.9k lines, `combatCanvas.ts` 1.5k) need a `docs/plans/` snapshot first and are not unattended-safe. **Do not manufacture seeds** for the next run; seed only from a new owner decision (boss stack resistance, `_weapon_in_range`, migration `008`) once made.
-
-- `[x]` **2026-09-08 seed batch (6 seeds, owner `/goal 최대한 수행` on the recommended list) — all closed 2026-09-08, supervised**: STATUS fold → M86 · RUF100 · frontend `strict` lock · ruff RET/PIE/FURB/FLY/PYI/G · N+RUF005/007/012/022/059 · PTH (`COMPLETED_SUMMARY.md` M87). Survey leftovers then taken under "계속해": directive KO/EN parity test `1daa83e`, `noUncheckedIndexedAccess` `0b0f153` (77 sites). Declined for good: `exactOptionalPropertyTypes` (43 × optional-prop churn), ERA001 (explanatory comments only), RUF001–003 (Korean text).
-- `[x]` **2026-09-06 seed batch (owner-approved, 16 seeds) — all closed 2026-09-06..07**: `mypy --strict` on all 8 packages via Makefile lines (`COMPLETED_SUMMARY.md` M81–M83) · status-effect data-closure, i18n key-parity and E2E selector source-lock tests · ruff `C4`/`SIM`/`PERF`/`B` enabled with per-file-ignores for out-of-lane dirs · test-side mypy suppressions removed (M84–M85) · closed plan docs moved to `bin/docs/plans/` (supervised, since `bin/` is outside the claude-lane scope — LESSONS 2026-09-07). Detail: PROGRESS_LOG + git log `49f0d68..HEAD`.
-
-## Rules
-
-- Before starting work, read `docs/AGENT_BRIEF.md` -> `docs/STATUS.md` -> this file in order · Leave a design snapshot for large work in `docs/plans/YYYY-MM-DD-<topic>.md` · After completion, keep only the latest summary in `docs/PROGRESS_LOG.md`; compress completed tracks into `COMPLETED_SUMMARY.md` · Record hard-to-reverse choices in `docs/DECISIONS.md`.
-
-### Automation tags (for the overnight loop)
-
-Inline tags (separate axis from `[x]`/`[/]`/`[ ]`/`[~]`) mark unattended-loop consumability (`scripts/overnight/`, `docs/engineering/mythos/LOOP.md`).
-
-- `[auto]` — only locally/deterministically/offline verifiable (`make check`/`make smoke-local`); **must carry a 1-line completion criterion**.
-- `[manual]` — human play-feel QA, content/Story-Bible authoring, balance/prompt-feel tuning, etc.; not unattended-verifiable.
-- `[blocked]` — Blocker accumulated twice on the same item (runner appends automatically). Remove after human review. Also covers unmet prerequisites.
-- **No tag = not an unattended target** (safe default). The runner consumes only `[auto*]` and never promotes untagged items.
-- **MythOS live-QA verifier (repo-specific, not a tag)** — browser-observable commits route through `30-browser-objective`; objective failure rejects and unavailable/uncertain evidence becomes `needs_human`. Subjective feel stays `[manual]`. Detail `docs/engineering/mythos/LOOP.md` §4 · `VERIFICATION.md` §4.
-
-**Engine lanes** (design `docs/engineering/mythos/AGENTIC.md`): engine suffix on `[auto]`; each engine consumes only its own lane.
-- `[auto]` / `[auto:claude]` — claude lane (src/tests/harness/complex refactor·invariant). claude consumes both · `[auto:codex]` — codex lane (deterministic docs/scenario/story_bible refactor·verify; make check gate).
-- `[auto:agy]` — agy lane (image draft + simple verify; resources/ image dirs only, integrity gate) · Codex consumes the Claude lane only with explicit operator `OVERNIGHT_CLAUDE_FAILOVER=1`; there is no silent cross-engine failover.
-
-## P1.5 — CBT feedback #3: Clarity & Responsiveness (design `docs/plans/2026-07-08-cbt-feedback3-clarity-plan.md`)
-
-T1-T4a + T5/T6 + Track M + T5a/T5b DONE 2026-07-08 → `COMPLETED_SUMMARY.md` M58. Open slice:
-- `[ ]` `[blocked]` **T5c** (LARGE) 2D top-down toggle = second orthogonal render path. Precondition (human): owner confirms isometric still illegible @390px after T5a/b. NOT unattended-consumable — do not build on a guess. Promote to `[auto:claude]` after that judgment.
-
-## Priority 1 — Neo-Seoul Playability Upgrade
-
-Status: `[/]` in progress behind Priority 0, mostly `[manual]` human play feel. Goal: raise `neo-seoul` from a tech demo to a primary scenario playable satisfyingly for 30-60 min (design `bin/docs/plans/2026-06-07-neo-seoul-playability-upgrade.md` + `...-live-feedback-action-plan.md`). Key criteria: 5-min goal/risk clarity · choices reveal the value axis · combat = consequence of pursuit/rescue/protection · progression informs the next loop · endings state saved/lost/carried.
-
-### Live QA / play-feel (authority `docs/test/neo_seoul_live_qa.md`) — mostly `[manual]` live feel
-- `[ ]` `[manual]` IX and route lifecycle live feel: boss fires end-to-end; Night Market→Kai feels causal; no visually locked node is entered.
-- `[/]` `[manual]` #2 ending narrativization + #5 post-combat callback (code merged; remaining = live feel).
-- `[/]` `[manual]` D narrative repetition + F streaming speed (mitigations wired; remaining = multi-turn feel).
-- `[ ]` Opening montage repositioning + turn1 polish · P2 archetype meaning · Phase 4/5 RC. Detail → COMPLETED_SUMMARY M35-M40 + archive.
-
-### Combat — status-effect stacking rework (owner decision 2026-08-15; design snapshot `docs/plans/2026-09-06-status-effect-stacking.md`)
-
-- `[ ]` `[manual]` **Stack feel verdict** — are caps 3/2/2, the burn `1d4 × stacks` curve and the **boss cap 2** (`BOSS_STACK_CAP`, agent call 2026-09-07 — DECISIONS) right in play, and is the badge pip legible at 390px? Owner call after a live loop. Evidence: `docs/reference/2026-09-06-status-stacking-balance.md` — defensive side 11/12 cells unchanged; offensive side with the boss cap: IX solo ×3 0.68 (was 0.82 uncapped), burn-tick boss kills 15% (was 33%), non-boss fights untouched. Lever: one constant / one `StatusRule` row.
-
-## Hold — Scenario Expansion / Glass Library
-
-- `[~]` parity + Story Bible done (M38); held until Neo-Seoul satisfaction. `[ ]` main_arcs/endings·reward meta + combat art/skill depth expansion.
-
-## Maintenance
-
-- `[ ]` `[manual]` long-play Flux1 + Flux1Redux simultaneous-load memory monitor.
-- `[ ]` `[blocked]` `_map` removal cleanup (held until route-node track done; engine records every scene + encounter_map coords·story_bible location·glass-library fallback minimap depend on it). Prereq: all scenarios converted to route_map. When met, promote to `[auto]` (codemod + `make check` green).
-- One-time DB cleanups available on request (not scheduled): players wrongly promoted by the old ally-writeback bug (fixed `efa1c8f` 07-09) · simulator-born active loops occupying tester caps (sim admin-gated since 07-05).
+- `[ ]` Re-seed the overnight harness against the 2.0 tree (the held-out task bank and Dev Graph missions targeted 1.x). Until then, run unattended loops only with explicit 2.0 seeds.

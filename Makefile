@@ -1,19 +1,31 @@
+# Mythos 2.0 (세계:접속 — Signal Run). The game runs in the browser (src/mythos_ui/src/v2); the Python side is the
+# web server (src/mythos_api: SPA + /resources) and /api/v2 (src/mythos_v2: saves + AI GM). The 1.x runtime is
+# archived on branch `1.0`.
 PYTHON ?= python3
 VENV ?= .venv
 COMPOSE ?= docker compose
 COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
-.PHONY: setup frontend-setup run doctor hf-login clean infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell test test-db test-e2e test-e2e-full narrative-smoke narrative-smoke-fallback narrative-smoke-fallback-en visual-smoke visual-smoke-minio-db visual-smoke-disabled visual-smoke-flux-tiny connect-demo sim-boss smoke smoke-local streamlit streamlit-stop api api-stop api-cloud cloud-image cloud-run-local deploy-preview dev-up dev-down lint python-lint frontend-lint format typecheck python-typecheck frontend-build test-v2 test-e2e-v2 validate-content check check-skills sync-skills check-auto _harness-guard _overnight-clean-tree overnight-env-doctor overnight-where overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-ledger-check overnight-ledger-state overnight-trajectory overnight-resume overnight-provenance-compare overnight-graph-smoke overnight-graph-measure overnight-clean overnight-claude overnight-claude-watch overnight-claude-once overnight-codex overnight-codex-watch overnight-codex-once overnight-opencode overnight-opencode-watch overnight-opencode-once overnight-agy overnight-agy-watch overnight-agy-once overnight-kiro overnight-kiro-watch overnight-kiro-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review image-regen eval-narrative eval-narrative-promotion experiment
+.PHONY: setup frontend-setup clean lint python-lint frontend-lint format typecheck python-typecheck frontend-build \
+	test test-v2 test-db test-e2e-v2 check check-auto check-skills sync-skills check-doc-budget \
+	api api-stop api-cloud cloud-image cloud-run-local deploy deploy-preview \
+	dev-up dev-down infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell \
+	_harness-guard _overnight-clean-tree overnight-env-doctor overnight-where overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-ledger-check overnight-ledger-state overnight-trajectory overnight-resume overnight-provenance-compare overnight-graph-smoke overnight-graph-measure overnight-clean overnight-claude overnight-claude-watch overnight-claude-once overnight-codex overnight-codex-watch overnight-codex-once overnight-opencode overnight-opencode-watch overnight-opencode-once overnight-agy overnight-agy-watch overnight-agy-once overnight-kiro overnight-kiro-watch overnight-kiro-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review
 
 setup:
 	$(PYTHON) -m venv $(VENV)
 	$(VENV)/bin/python -m pip install --upgrade pip
-	$(VENV)/bin/pip install -e ".[dev,web]"
+	$(VENV)/bin/pip install -e ".[dev]"
 	$(MAKE) frontend-setup
 
 frontend-setup:
 	cd $(FRONTEND_DIR) && npm ci
+
+clean:
+	rm -rf __pycache__ src/**/__pycache__ src/*.egg-info .pytest_cache .ruff_cache .mypy_cache
+
+# --- gates ---------------------------------------------------------------------------------------------------
 
 lint:
 	$(MAKE) python-lint
@@ -36,32 +48,39 @@ typecheck:
 
 python-typecheck:
 	$(VENV)/bin/mypy src tests
-	$(VENV)/bin/mypy --strict src/mythos_core
-	$(VENV)/bin/mypy --strict src/mythos_loop
-	$(VENV)/bin/mypy --strict src/mythos_narrative
-	$(VENV)/bin/mypy --strict src/mythos_image_agent
-	$(VENV)/bin/mypy --strict src/mythos_memory
-	$(VENV)/bin/mypy --strict src/mythos_combat
-	$(VENV)/bin/mypy --strict src/mythos_api
-	$(VENV)/bin/mypy --strict src/mythos_runtime
-	$(VENV)/bin/mypy --strict src/mythos_v2
+	$(VENV)/bin/mypy --strict src/mythos_api src/mythos_v2
 
+# Builds the SPA into src/mythos_api/static (committed: Cloud Run serves it without a Node build).
 frontend-build:
 	cd $(FRONTEND_DIR) && npm run build
 
-# Mythos 2.0 engine/content tests (pure TS, Node native type stripping — no bundler, no browser).
+# Engine/content tests (pure TS, Node native type stripping — no bundler, no browser).
 test-v2:
 	cd $(FRONTEND_DIR) && node --test src/v2/
 
-validate-content:
-	PYTHONPATH=src $(VENV)/bin/python -c 'from mythos_runtime.route_content import main; raise SystemExit(main())'
+# Python: /api/v2 (saves, GM, talk) + the overnight-harness scripts.
+test:
+	PYTHONPATH=src:. MYTHOS_LOG_LEVEL=ERROR $(VENV)/bin/python -m unittest discover -s tests
+
+test-db:
+	MYTHOS_LOG_LEVEL=ERROR MYTHOS_RUN_DB_TESTS=1 $(VENV)/bin/python -m unittest discover -s tests -p 'test_v2_store.py'
+
+# Browser smoke (headless, always muted): title → setup → act intro → event → map → first fight. Needs a built SPA.
+test-e2e-v2:
+	$(VENV)/bin/python scripts/e2e_v2.py
 
 check:
 	$(MAKE) check-skills
 	$(MAKE) check-doc-budget
-	$(MAKE) validate-content
 	$(MAKE) lint
 	$(MAKE) typecheck
+	$(MAKE) test-v2
+	$(MAKE) test
+
+# Faster gate without mypy.
+check-auto:
+	$(MAKE) lint
+	$(MAKE) frontend-build
 	$(MAKE) test-v2
 	$(MAKE) test
 
@@ -73,17 +92,8 @@ sync-skills:
 	@bash harness/sync-skills.sh
 
 # Entry-doc context-budget caps (AGENT_BRIEF <=60, STATUS/NEXT_PLAN/PROGRESS_LOG <=120).
-# These docs load every session/overnight iteration; this fails the gate if they grow over budget.
 check-doc-budget:
 	@bash harness/check-doc-budget.sh
-
-# Faster offline gate variant: same coverage as `check` MINUS python-typecheck (mypy).
-# The overnight loop (scripts/overnight/) now defaults to full `make check` (mypy debt cleared
-# 2026-06-14); keep this as a quicker option for runtime-flow-heavy iterations.
-check-auto:
-	$(MAKE) lint
-	$(MAKE) frontend-build
-	$(MAKE) smoke-local
 
 # --- Overnight V2: plugin = controller SoT, this repo = policy/state/verifiers ---
 ENGINE ?= claude
@@ -95,9 +105,7 @@ CLAUDE_MODEL ?= claude-sonnet-5
 CLAUDE_EFFORT ?=
 OVERNIGHT_CRITIC_MODEL ?= claude-fable-5-1
 CLAUDE_CRITIC_EFFORT ?=
-# The narrative-eval judge (scripts/eval/narrative_judge.py) rides the critic pin.
-EVAL_JUDGE_MODEL ?= $(OVERNIGHT_CRITIC_MODEL)
-export CLAUDE_MODEL CLAUDE_EFFORT OVERNIGHT_CRITIC_MODEL CLAUDE_CRITIC_EFFORT EVAL_JUDGE_MODEL
+export CLAUDE_MODEL CLAUDE_EFFORT OVERNIGHT_CRITIC_MODEL CLAUDE_CRITIC_EFFORT
 
 HARNESS_ROOT ?= $(shell \
 	if [ -n "$$OVERNIGHT_HARNESS_ROOT" ] && [ -d "$$OVERNIGHT_HARNESS_ROOT/templates/scripts/overnight" ]; then echo "$$OVERNIGHT_HARNESS_ROOT"; \
@@ -254,184 +262,60 @@ overnight-merge:            # loop/* → loop/integration 통합 + 게이트 재
 overnight-review:           # codex 가 통합 diff 를 읽기전용 리뷰(생성자≠리뷰어) → logs/review-latest.md
 	@scripts/overnight/review.sh $(RANGE)
 
-# WS4 이미지 재생성 루프(opt-in, 사람 가동): agy 생성→claude 비전 판정→codex 프롬프트 정제→FLUX 폴백.
-# 실제 생성 비용 발생(야간 드레인 비포함). 설계: bin/docs/plans/2026-06-20-ws4-image-regen-loop.md
-image-regen:
-	@scripts/overnight/image-regen.sh
+# --- local server ----------------------------------------------------------------------------------------------
 
-# Live-QA AGY hook is now invoked automatically by the overnight runner
-# (OVERNIGHT_BROWSER_QA=auto, scripts/overnight/browser-qa.sh). For diagnosis run
-# the script directly: `scripts/live-qa/run-agy.sh`. No standalone make target —
-# the existing `make overnight*` commands stay the only operator flow.
-
-doctor:
-	$(VENV)/bin/python agent.py --doctor
-
-hf-login:
-	$(VENV)/bin/hf auth login
-
-run:
-	$(VENV)/bin/python agent.py "메인 서버룸 안에서 홀로그램 인프라 창을 띄워놓고 모니터링하는 사이버 요원. 보안팀 소속마크가 옷에 붙어있음."
-
-clean:
-	rm -rf __pycache__ src/**/__pycache__ src/*.egg-info .pytest_cache .ruff_cache
-
-# PYTHONPATH carries the repo root too, so tests can import experiments/ (a
-# root-level package, not part of the installed src layout).
-test:
-	PYTHONPATH=src:. MYTHOS_LOG_LEVEL=ERROR $(VENV)/bin/python -m unittest discover -s tests
-
-test-db:
-	MYTHOS_LOG_LEVEL=ERROR MYTHOS_RUN_DB_TESTS=1 $(VENV)/bin/python -m unittest discover -s tests -p 'test_postgres_store.py'
-	MYTHOS_LOG_LEVEL=ERROR MYTHOS_RUN_DB_TESTS=1 $(VENV)/bin/python -m unittest discover -s tests -p 'test_v2_store.py'
-
-test-e2e:
-	$(VENV)/bin/python scratch/run_playwright_test.py
-
-# Mythos 2.0 browser smoke (headless, muted): title → setup → act intro → event → map → first fight.
-test-e2e-v2:
-	$(VENV)/bin/python scratch/run_v2_e2e.py
-
-test-e2e-full:
-	$(VENV)/bin/python scratch/run_comprehensive_e2e_test.py
-
-narrative-smoke:
-	$(VENV)/bin/python -m mythos_narrative.smoke
-
-# LLM-judge rubric eval over banked golden loop transcripts (scripts/eval/).
-# Judge = claude CLI pinned to EVAL_JUDGE_MODEL (override the whole command with
-# EVAL_JUDGE_CMD). Bank loops via scripts/eval/bank_loop.py.
-eval-narrative:
-	$(VENV)/bin/python scripts/eval/narrative_judge.py
-
-# Serving-research experiments. NOT part of `make check` — these call live
-# engines, take minutes, and are non-deterministic. Each run writes a stamped
-# report under experiments/results/. `make experiment` with no ARGS lists them.
-experiment:
-	PYTHONPATH=src:. $(VENV)/bin/python -m experiments.run $(ARGS)
-
-eval-narrative-promotion:
-	@test -n "$(EVAL_PROMOTION_METRICS)" || (echo "EVAL_PROMOTION_METRICS is required" && exit 2)
-	$(VENV)/bin/python scripts/eval/narrative_judge.py --promotion --metrics "$(EVAL_PROMOTION_METRICS)"
-
-narrative-smoke-fallback:
-	$(VENV)/bin/python -m mythos_narrative.smoke --fallback-only
-
-narrative-smoke-fallback-en:
-	$(VENV)/bin/python -m mythos_narrative.smoke --fallback-only --language en
-
-visual-smoke:
-	$(VENV)/bin/python -m mythos_runtime.visual_smoke
-
-visual-smoke-minio-db:
-	$(VENV)/bin/python -m mythos_runtime.visual_smoke --storage minio --db
-
-visual-smoke-disabled:
-	$(VENV)/bin/python -m mythos_runtime.visual_smoke --disabled --db
-
-visual-smoke-flux-tiny:
-	$(VENV)/bin/python -m mythos_runtime.visual_smoke --real-flux
-
-connect-demo:
-	$(VENV)/bin/python -m mythos_runtime.connect_cli new-player "Demo Connector" --player-id player_demo
-	$(VENV)/bin/python -m mythos_runtime.connect_cli connect --player-id player_demo --fallback
-
-# Headless combat sim — watch the IX boss fight (skills + phase) straight through the engine.
-# `make sim-boss`            → 1 verbose IX boss playthrough
-# `make sim-boss ARGS="--trials 60"`  → win-rate over 60 seeds
-# `make sim-boss ARGS="--encounter mech_siege --party se_rin"`
-sim-boss:
-	$(VENV)/bin/python scripts/sim_boss.py $(ARGS)
-
-smoke-local:
-	$(VENV)/bin/python -m compileall agent.py src tests
-	$(MAKE) test
-	$(MAKE) narrative-smoke-fallback
-	$(MAKE) visual-smoke
-
-smoke:
-	$(MAKE) smoke-local
-	$(MAKE) test-db
-	$(MAKE) visual-smoke-minio-db
-
-streamlit:
-	@pkill -f "streamlit run streamlit_app.py" 2>/dev/null && echo "stopped previous streamlit" || true
-	@echo "logs: set MYTHOS_DEBUG=1 or MYTHOS_LOG_LEVEL=DEBUG; speed: MYTHOS_FAST_MODE=1"
-	$(VENV)/bin/streamlit run streamlit_app.py --server.port=8501
-
-streamlit-stop:
-	@pkill -f "streamlit run streamlit_app.py" && echo "streamlit stopped" || echo "no streamlit running"
-
-# FastAPI backend adapter (P3 Web UI). Serves REST + WebSocket at /api/v1 and
-# the PoC client at /. Image generation is synchronous in-request (infra-up for MinIO).
+# Plain `make api` stays local and free: GM = Ollama (falls back to authored text when Ollama is down), saves = the
+# local Postgres or memory. Port busy? MYTHOS_API_PORT=8010 make api.
 api:
 	@pkill -f "mythos_api" 2>/dev/null && echo "stopped previous api" || true
-	@echo "API: http://$${MYTHOS_API_HOST:-127.0.0.1}:$${MYTHOS_API_PORT:-8000}  (PoC client at /, endpoints under /api/v1)"
-	@echo "      구조화 JSON 로그가 콘솔에 출력됨(턴마다 최종 narration+latency, INFO). uvicorn은 INFO 고정(토큰 프레임 스팸 없음)."
-	DEFAULT_BGM_ON=false $(VENV)/bin/python -m mythos_api
+	@echo "Mythos 2.0: http://$${MYTHOS_API_HOST:-127.0.0.1}:$${MYTHOS_API_PORT:-8000}  (SPA at /, API under /api/v2)"
+	$(VENV)/bin/python -m mythos_api
 
 api-stop:
 	@pkill -f "mythos_api" && echo "api stopped" || echo "no api running"
 
-# Like `api` but with the CLOUD providers: narrative=Vertex Gemini, image=Vertex Imagen.
-# Needs ADC (`gcloud auth application-default login`) + the Google Cloud settings in .env.
-# Storage stays local (minio); set MYTHOS_STORAGE_BACKEND=gcs + a bucket for full cloud.
-# WARNING: this calls Vertex AI and is BILLED to your GCP project (~$0.003/narrative turn,
-# ~$0.04/image). Plain `make api` stays fully local (Ollama, free).
+# Like `api` but the GM runs on Vertex Gemini (BILLED to the GCP project) and saves go to the PRODUCTION DB.
 api-cloud:
 	@pkill -f "mythos_api" 2>/dev/null && echo "stopped previous api" || true
-	@echo "API (CLOUD): http://$${MYTHOS_API_HOST:-127.0.0.1}:$${MYTHOS_API_PORT:-8000}"
-	@echo "      서사=Vertex Gemini · 이미지=Vertex Imagen · ⚠️ Vertex 호출은 GCP 프로젝트에 과금됨."
-	@echo "      🔴 DB=PRODUCTION Neon (MYTHOS_DEPLOY_DATABASE_URL) — DEV 콘솔이 실서비스 데이터에 붙음. 쓰기 주의!"
+	@echo "Mythos 2.0 (CLOUD GM): http://$${MYTHOS_API_HOST:-127.0.0.1}:$${MYTHOS_API_PORT:-8000}"
+	@echo "      GM=Vertex Gemini (과금) · 🔴 DB=PRODUCTION (MYTHOS_DEPLOY_DATABASE_URL) — 쓰기 주의!"
 	@DB=$$(grep -E '^MYTHOS_DEPLOY_DATABASE_URL=' .env | cut -d= -f2-); \
-	MYTHOS_NARRATIVE_PROVIDER=gemini MYTHOS_VISUAL_PROVIDER=vertex DATABASE_URL="$$DB" DEFAULT_BGM_ON=false $(VENV)/bin/python -m mythos_api
+	MYTHOS_NARRATIVE_PROVIDER=vertex DATABASE_URL="$$DB" $(VENV)/bin/python -m mythos_api
 
-# --- GCP Cloud Run container (lean: narrative=Gemini, image=Imagen are API calls) ---
+# --- Cloud Run -------------------------------------------------------------------------------------------------
+
 CLOUD_IMAGE ?= mythos-api:local
 cloud-image:
 	docker build -t $(CLOUD_IMAGE) .
 	@echo "built $(CLOUD_IMAGE)  ($$(docker image inspect $(CLOUD_IMAGE) --format '{{.Size}}' | awk '{printf \"%.0f MB\", $$1/1048576}'))"
 
-# Run the container locally as Cloud Run would (PORT injected, host 0.0.0.0). Pass
-# cloud env via a file: make cloud-run-local ENVFILE=.env  (DB/creds optional to boot).
+# Run the container locally as Cloud Run would (PORT injected, host 0.0.0.0): make cloud-run-local ENVFILE=.env
 ENVFILE ?= .env
 cloud-run-local:
 	docker run --rm -p 8080:8080 -e PORT=8080 $$( [ -f $(ENVFILE) ] && echo --env-file $(ENVFILE) ) $(CLOUD_IMAGE)
 
-# Deploy to Cloud Run, ALWAYS targeting .env's PROJECT_ID via --project (never
-# the ambient `gcloud config` project — that once drifted to the wrong project
-# and a deploy landed a stray service elsewhere). Env-preserving `--source .`:
-# no --set-env-vars, so the existing revision's env (MODEL, DATABASE_URL, invite
-# keys, …) is kept — EXCEPT the image model/location pair, pinned via
-# --update-env-vars because Gemini 3 image is global-only and stale revision
-# values would override the code defaults.
-# Overridable: make deploy REGION=us-central1 IMAGEN_MODEL=<id> IMAGEN_LOCATION=<location>.
+# Deploy to Cloud Run, ALWAYS targeting .env's PROJECT_ID via --project (never the ambient gcloud project).
+# Env-preserving `--source .`: the existing revision's env (GM provider, DATABASE_URL, invite keys, …) is kept.
 REGION ?= us-central1
-IMAGEN_MODEL ?= gemini-3.1-flash-image
-IMAGEN_LOCATION ?= global
 CLOUD_RUN_TIMEOUT ?= 3600
-.PHONY: deploy
 deploy:
 	@test -f .env || { echo "ERROR: .env not found"; exit 1; }
 	@PROJECT_ID=$$(grep -E '^PROJECT_ID=' .env | cut -d= -f2- | tr -d '"'); \
 	test -n "$$PROJECT_ID" || { echo "ERROR: PROJECT_ID not set in .env"; exit 1; }; \
-	echo "Deploying mythos-api to project [$$PROJECT_ID] region [$(REGION)] (env-preserving; timeout=$(CLOUD_RUN_TIMEOUT)s; IMAGEN_MODEL=$(IMAGEN_MODEL), IMAGEN_LOCATION=$(IMAGEN_LOCATION))…"; \
-	gcloud run deploy mythos-api --source . --region $(REGION) --project "$$PROJECT_ID" --timeout $(CLOUD_RUN_TIMEOUT) --update-env-vars IMAGEN_MODEL=$(IMAGEN_MODEL),IMAGEN_LOCATION=$(IMAGEN_LOCATION) --quiet
+	echo "Deploying mythos-api (2.0) to project [$$PROJECT_ID] region [$(REGION)] (env-preserving)…"; \
+	gcloud run deploy mythos-api --source . --region $(REGION) --project "$$PROJECT_ID" --timeout $(CLOUD_RUN_TIMEOUT) --quiet
 
-# Preview deploy for Mythos 2.0: a NEW revision with ZERO traffic, reachable only at its tag URL
-# (https://v2---<service-url>). CBT testers keep the current revision. Promote later with
-# `gcloud run services update-traffic mythos-api --to-tags v2=100` (owner call). Note: the preview
-# shares the service env, so its first /api/v2 request creates the `v2_saves` tables in that DB.
+# A NEW revision with ZERO traffic, reachable only at its tag URL (https://v2---<service-url>). Promote later with
+# `gcloud run services update-traffic mythos-api --to-tags v2=100` (owner call).
 deploy-preview:
 	@test -f .env || { echo "ERROR: .env not found"; exit 1; }
 	@PROJECT_ID=$$(grep -E '^PROJECT_ID=' .env | cut -d= -f2- | tr -d '"'); \
 	test -n "$$PROJECT_ID" || { echo "ERROR: PROJECT_ID not set in .env"; exit 1; }; \
 	echo "Deploying a NO-TRAFFIC preview revision (tag v2) of mythos-api to [$$PROJECT_ID] [$(REGION)]…"; \
-	gcloud run deploy mythos-api --source . --region $(REGION) --project "$$PROJECT_ID" --timeout $(CLOUD_RUN_TIMEOUT) --update-env-vars IMAGEN_MODEL=$(IMAGEN_MODEL),IMAGEN_LOCATION=$(IMAGEN_LOCATION) --no-traffic --tag v2 --quiet
+	gcloud run deploy mythos-api --source . --region $(REGION) --project "$$PROJECT_ID" --timeout $(CLOUD_RUN_TIMEOUT) --no-traffic --tag v2 --quiet
 
-# One-command dev stack: docker infra + db migrate + API(foreground).
-# Ollama is host-side (not docker); start it separately with `ollama serve`.
-# Ctrl+C stops the API; infra keeps running. Tear everything down: make dev-down.
+# --- local infra (Postgres for /api/v2 saves; the API also runs without it on an in-memory store) ----------------
+
 dev-up:
 	$(COMPOSE) -f $(COMPOSE_FILE) up -d
 	@echo "Waiting for Postgres to be ready..."
@@ -440,10 +324,7 @@ dev-up:
 		sleep 1; \
 	done
 	@$(MAKE) db-migrate || echo "db-migrate skipped/failed (이미 적용됐을 수 있음)"
-	@(curl -s -m 2 http://localhost:11434/api/tags >/dev/null 2>&1 && echo "Ollama: 실행 중") || echo "⚠ Ollama 미실행 — 별도 터미널에서 'ollama serve' (또는 온보딩에서 fallback 사용)"
-	@echo "------------------------------------------------------------"
-	@echo "▶ API 기동. Ctrl+C로 API만 종료(인프라/워커 유지). 전체 정리: make dev-down"
-	@echo "------------------------------------------------------------"
+	@(curl -s -m 2 http://localhost:11434/api/tags >/dev/null 2>&1 && echo "Ollama: 실행 중") || echo "⚠ Ollama 미실행 — GM은 미리 쓴 문장으로 대신한다('ollama serve'로 켜기)"
 	@$(MAKE) api
 
 dev-down:
@@ -469,17 +350,6 @@ infra-reset:
 
 db-migrate:
 	$(COMPOSE) -f $(COMPOSE_FILE) exec -T postgres sh -c 'for file in /migrations/*.sql; do echo "Applying $$file"; psql -v ON_ERROR_STOP=1 -U "$$POSTGRES_USER" -d "$$POSTGRES_DB" -f "$$file"; done'
-
-# Apply ONE migration file to the PRODUCTION Neon DB (MYTHOS_DEPLOY_DATABASE_URL in .env).
-# psql-free (mythos_memory.migrate); the URL is never echoed. Owner-run, e.g.
-#   make db-migrate-prod FILE=migrations/008_narrative_shards_player_index.sql VERIFY_INDEX=idx_narrative_shards_player_created
-db-migrate-prod:
-	@test -n "$(FILE)" || { echo "usage: make db-migrate-prod FILE=migrations/NNN_name.sql [VERIFY_INDEX=name]"; exit 1; }
-	@test -f "$(FILE)" || { echo "ERROR: $(FILE) not found"; exit 1; }
-	@DB=$$(grep -E '^MYTHOS_DEPLOY_DATABASE_URL=' .env | cut -d= -f2- | tr -d '"'); \
-	test -n "$$DB" || { echo "ERROR: MYTHOS_DEPLOY_DATABASE_URL not set in .env"; exit 1; }; \
-	echo "🔴 PRODUCTION Neon — applying $(FILE)…"; \
-	MYTHOS_MIGRATION_URL="$$DB" $(VENV)/bin/python -m mythos_memory.migrate "$(FILE)" $(if $(VERIFY_INDEX),--verify-index $(VERIFY_INDEX),)
 
 # Drops and recreates the public schema, then reapplies migrations. Destructive.
 db-reset:

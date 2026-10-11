@@ -1,17 +1,17 @@
-# Project MythOS Docs
+# Mythos 2.0 Docs
 
-Last updated: 2026-07-19
+Last updated: 2026-10-11
 
-This directory separates current docs from archive to keep the working context small.
-Agents do not read all of `docs/`; follow only the order below.
+Current docs only; 1.x history (design, CBT ops, cloud, scenarios, reports) lives on branch `1.0`.
+Agents do not read all of `docs/`; follow the order below.
 
 ## Read Path
 
 1. `AGENT_BRIEF.md` — 1-minute compressed context.
 2. `STATUS.md` — current baseline, active focus, risks.
 3. `NEXT_PLAN.md` — rolling plan with open work only.
-4. `PROGRESS_LOG.md` — latest incremental summary; long logs go to archive.
-5. Only when needed: `DESIGN.md`, `GAMEPLAY.md`, scenario/story bible, dated plans.
+4. `PROGRESS_LOG.md` — latest increments (newest on top).
+5. Only when needed: `GAMEPLAY.md` (rules), `plans/2026-10-10-mythos-2.0.md` (design/build contract), `android.md`.
 
 ## Current Docs
 
@@ -19,46 +19,29 @@ Agents do not read all of `docs/`; follow only the order below.
 | --- | --- |
 | `AGENT_BRIEF.md` | Agent entry point |
 | `STATUS.md` | Current state and verification baseline |
-| `NEXT_PLAN.md` | Next implementation priorities |
+| `NEXT_PLAN.md` | Open work |
 | `PROGRESS_LOG.md` | Latest short work log |
-| `DESIGN.md` | Compressed summary of current architecture |
-| `GAMEPLAY.md` | Gameplay/TRPG design |
-| `API.md` | FastAPI REST/WS contract |
+| `GAMEPLAY.md` | Game rules (Korean) |
+| `android.md` | Android app (Capacitor + Firebase) build/release |
 | `COMPLETED_SUMMARY.md` | Compressed record of completed milestones |
 | `DECISIONS.md` | Hard-to-reverse decisions |
+| `LESSONS.md` | Repo-specific traps for future (unattended) iterations |
 | `DOCS_POLICY.md` | Doc operating rules |
-| `IMAGE_POLICY.md` | Image-generation rules · local pipeline |
-| `PROMPT_LAYER.md` | Narrative prompt architecture (code↔prompt layer split, directives/*.md) |
-| `NARRATIVE_ARCHITECTURE.md` | End-to-end narrative/storybook/bible composition (data→assembly→LLM→parse→route/memory→persistence) |
-| `REFERENCES.md` | Design-reference games and application points |
+| `REFERENCES.md` | Design-reference games |
 
 ## On-Demand Docs
 
-- `docs/engineering/`: **the 6 agent-operations harness concepts** (HARNESS/LOOP/AGENTIC/CONTEXT/PROMPT/VERIFICATION). Start from `docs/engineering/README.md` for unattended-loop · multi-agent · context · prompt · verification work. (`LOOP_ENGINEERING.md` · `AGENTIC_ENGINEERING.md` moved from the old `docs/LOOP_ENGINEERING.md` · `docs/MULTI_AGENT.md`.)
-- `docs/test/`: **checklists humans run by hand** (not default agent context — the user opens them).
-  - `neo_seoul_live_qa.md`: Neo-Seoul human play-QA checklist.
-  - `bible/overnight-review-checklist.md`: the human review-checklist **bible (static template)** after an overnight loop ends.
-  - `history/<MMDD-HHMM>-overnight-review-checklist.md`: the **per-run instance** `$overnight-harness:overnight-report` generates each run (fills bible B~E with that run's facts). gitignore — a regenerable artifact.
-- `docs/cbt/`: CBT recruitment, feedback, invite, and teaser publication material. Open only for CBT operations/content changes.
-- `docs/cloud/`: Cloud Run deployment, closed-beta operations, and GCP planning. Open only for cloud/deploy work.
-- `docs/plans/`: dated design snapshots of active work (currently CBT onboarding, feedback-3 clarity, WS4 authored-content, and Harness V2 rollout). Completed/retired plans move to `bin/docs/plans/`. May be stale, so prefer `NEXT_PLAN.md`.
-- `docs/scenarios/`: scenario design docs. Read only when changing content.
-- `docs/reference/`: external-tech reference analyses (verified claims + what MythOS should/shouldn't borrow). Read on demand.
-- `bin/docs/archive/`: store for long-form design/logs/past planning. Not in default context.
-- `bin/docs/feedback/`: past feedback source.
+- `engineering/`: the agent-operations harness concepts (HARNESS/LOOP/AGENTIC/CONTEXT/PROMPT/VERIFICATION) and this repo's interpretation (`engineering/mythos/`).
+- `plans/`: dated design snapshots of active work (may be stale — prefer `NEXT_PLAN.md`).
+- `test/`: checklists the owner runs by hand (`mythos2_first_play.md`).
+- `../bin/docs/archive/`: retired long-form docs from the 2.0 era (pre-2.0 material is on branch `1.0`).
 
 ## Update Rules
 
-- Keep only decisions/state currently needed in current docs.
-- Compress completed checklists into `COMPLETED_SUMMARY.md`.
-- Keep only the newest 3-5 entries in `PROGRESS_LOG.md` and move the rest to a monthly archive.
-- `DESIGN.md` is a summary of current structure, not a detailed design spec. Long-form source stays in archive.
-- `plans/` files are historical snapshots and may be stale. Confirm with `STATUS.md` and `NEXT_PLAN.md` before implementing.
+- Keep only decisions/state currently needed in current docs; compress finished work into `COMPLETED_SUMMARY.md`.
+- Keep `PROGRESS_LOG.md` to the newest entries; move older ones to `bin/docs/archive/progress-YYYY-MM.md`.
+- Entry-doc budgets are enforced by `make check-doc-budget`.
 
 ## Status Tags
 
-- `[ ]` Not started
-- `[/]` In progress
-- `[x]` Done
-- `[!]` Blocked
-- `[~]` Deferred
+- `[ ]` Not started · `[/]` In progress · `[x]` Done · `[!]` Blocked · `[~]` Deferred · `[manual]` needs the owner · `[auto:<engine>]` unattended-loop seed

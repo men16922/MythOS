@@ -29,7 +29,7 @@ be deleted and new suppression markers are rejected by `10-diff-scope`.
 
 The repo prompt extends the generic critic with MythOS invariants:
 
-1. Runtime transitions stay behind `RuntimeSessionService` rather than being duplicated by adapters.
+1. Game rules stay in the pure-TS engine (`src/mythos_ui/src/v2/engine`) rather than being duplicated in the UI or server.
 2. Existing migrations are immutable; schema changes add a compatible migration.
 3. API payload changes update serializers, frontend contracts/call sites, or contract tests.
 4. Generated frontend bundles are never the only edited behavior source.

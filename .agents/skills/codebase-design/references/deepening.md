@@ -13,13 +13,13 @@ deepened module is tested across its seam.
 ### 1. In-process
 
 Pure computation, in-memory state, no I/O. Always deepenable — merge the modules and test through
-the new interface directly, no adapter needed. Most `mythos_core` (`models.py`, `seed.py`,
-`ids.py`) and `mythos_loop` validation logic is here; so are pure React view-model hooks.
+the new interface directly, no adapter needed. The whole 2.0 engine (`src/mythos_ui/src/v2/engine`:
+combat, intents, run, map, meta — pure TS reducers over JSON state) is here; so are pure React view-model hooks.
 
 ### 2. Local-substitutable
 
-Dependencies with local test stand-ins. MythOS Postgres tests run against a real container behind
-`MYTHOS_RUN_DB_TESTS=1`; the filesystem `StorageAdapter` stands in for MinIO. Deepenable when the
+Dependencies with local test stand-ins. The `/api/v2` save store runs against a real Postgres container
+behind `MYTHOS_RUN_DB_TESTS=1`; `MemoryV2Store` stands in for it everywhere else. Deepenable when the
 stand-in exists — the seam is internal, no port at the module's external interface.
 
 ### 3. Remote but owned (Ports & Adapters)

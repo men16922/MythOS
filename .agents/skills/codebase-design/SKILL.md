@@ -1,14 +1,14 @@
 ---
 name: codebase-design
-description: Shared vocabulary for designing deep modules in Project MythOS — small interface, lots of behaviour behind a clean seam, testable through that interface. Use on "모듈 설계", "인터페이스 설계", "리팩토링 경계", "seam/deep module", "테스트하기 쉽게", or when reshaping a module (e.g. the App.tsx/CombatCinema god-component decomposition) or when another skill needs the deep-module vocabulary. Adapted from mattpocock/skills.
+description: Shared vocabulary for designing deep modules in Project MythOS — small interface, lots of behaviour behind a clean seam, testable through that interface. Use on "모듈 설계", "인터페이스 설계", "리팩토링 경계", "seam/deep module", "테스트하기 쉽게", or when reshaping a module (e.g. splitting CombatScreen/animator into hooks and modules) or when another skill needs the deep-module vocabulary. Adapted from mattpocock/skills.
 ---
 
 # /codebase-design — Deep-module design vocabulary
 
 Design **deep modules**: a lot of behaviour behind a small interface, placed at a clean seam,
 testable through that interface. Use this language and these principles wherever MythOS code is
-being designed or restructured — the shared runtime boundary, a new provider seam, or a slice of
-the `App.tsx`/`CombatCinema` decomposition track (`docs/NEXT_PLAN.md` Maintenance). The aim is
+being designed or restructured — the engine's reducer boundary, a new GM/store seam, or a slice of a
+large UI module (CombatScreen, animator, Board). The aim is
 leverage for callers, locality for maintainers, and testability for everyone.
 
 MythOS already runs this pattern in places — name them consistently so design discussions and
@@ -20,16 +20,16 @@ Use these terms exactly — don't substitute "component," "service," "API," or "
 Consistent language is the whole point.
 
 **Module** — anything with an interface and an implementation. Scale-agnostic: a function, a
-dataclass, a package, or a tier-spanning slice. `RuntimeSessionService` is a module; so is a single
-`useCombatBoard` hook. _Avoid_: unit, component, service.
+dataclass, a package, or a tier-spanning slice. The 2.0 combat engine (`engine/combat.ts`) is a module; so is a single
+`useCombatAnimator` hook. _Avoid_: unit, component, service.
 
 **Interface** — everything a caller must know to use the module correctly: the type signature, but
 also invariants, ordering constraints, error modes, required configuration, and performance
-characteristics. `RuntimeSessionService`'s interface includes "one DB transaction per transition,"
-not just the method names. _Avoid_: API, signature (too narrow — type-level surface only).
+characteristics. The engine's interface includes "reducers clone the state and never mutate the input; all randomness
+comes from the seeded RNG in state," not just the function names. _Avoid_: API, signature (too narrow — type-level surface only).
 
 **Implementation** — what's inside a module. Distinct from **Adapter**: a thing can be a small
-adapter with a large implementation (`PostgresStore`) or a large adapter with a small
+adapter with a large implementation (`PostgresV2Store`) or a large adapter with a small
 implementation (an in-memory fake store in tests). Reach for "adapter" when the seam is the topic;
 "implementation" otherwise.
 
@@ -38,19 +38,19 @@ of interface they have to learn. **Deep** = a lot of behaviour behind a small in
 **shallow** = the interface is nearly as complex as the implementation.
 
 **Seam** _(Michael Feathers)_ — a place where you can alter behaviour without editing in that
-place; the *location* at which a module's interface lives. `VisualProvider`/`StorageAdapter` are
+place; the *location* at which a module's interface lives. `TextLLM` (`mythos_v2/llm.py`) and `V2Store` are
 seams. Where to put the seam is its own decision, distinct from what goes behind it. _Avoid_:
 boundary (overloaded with DDD's bounded context).
 
 **Adapter** — a concrete thing that satisfies an interface at a seam. Describes *role* (what slot
-it fills), not substance. `LocalFluxProvider`, `Filesystem`/`MinIO` storage, `OllamaJSONProvider`,
+it fills), not substance. `OpenAICompatTextLLM`, `GeminiTextLLM`, `PostgresV2Store`, `MemoryV2Store`
 and the test fakes are all adapters.
 
 **Leverage** — what callers get from depth: more capability per unit of interface learned. One
-`RuntimeSessionService` pays back across CLI, Streamlit, FastAPI REST/WS, and every test.
+engine pays back across the UI, the bots, the run simulator and every test.
 
 **Locality** — what maintainers get from depth: change, bugs, and verification concentrate in one
-place. Fix a transition rule in `RuntimeSessionService` once; CLI/UI/API all get it.
+place. Fix a push rule in `effects.ts` once; the board, the previews, the bots and the simulator all get it.
 
 ## Deep vs shallow
 
@@ -79,16 +79,16 @@ Can I hide more complexity inside?
   interface.
 - **The deletion test.** Imagine deleting the module. If complexity vanishes, it was a pass-through.
   If complexity reappears across N callers, it was earning its keep.
-- **The interface is the test surface.** Callers and tests cross the same seam. MythOS tests inject
-  a fake `VisualProvider` and drive `RuntimeSessionService` — they test *through* the interface. If
+- **The interface is the test surface.** Callers and tests cross the same seam. MythOS tests drive the
+  engine through `startCombat`/`playCard`/`endTurn` and the server through a fake `TextLLM` — they test *through* the interface. If
   you want to test *past* the interface, the module is probably the wrong shape.
-- **One adapter means a hypothetical seam. Two adapters means a real one.** `StorageAdapter` earns
-  its seam (Filesystem + MinIO). Don't introduce a seam unless something actually varies across it.
+- **One adapter means a hypothetical seam. Two adapters means a real one.** `V2Store` earns
+  its seam (Postgres + memory). Don't introduce a seam unless something actually varies across it.
 
 ## Designing for testability
 
-1. **Accept dependencies, don't create them.** `RuntimeSessionService` takes store + director +
-   visual provider; it doesn't `new` them. That's why tests can inject fakes.
+1. **Accept dependencies, don't create them.** `create_v2_router` takes its store and LLM runner; the engine
+   takes the content registry (`C`) as an argument. That's why tests can inject fakes and fixture content.
 2. **Return results, don't produce side effects** where you can — a function that returns a value is
    trivially testable; one that mutates shared state needs setup/teardown.
 3. **Small surface area.** Fewer methods = fewer tests; fewer params = simpler setup.
@@ -111,7 +111,7 @@ produces **Leverage** for callers and **Locality** for maintainers.
 
 - **Deepening a cluster given its dependencies** — see [references/deepening.md](references/deepening.md):
   dependency categories, seam discipline, replace-don't-layer testing. Use when picking the next
-  `App.tsx`/`CombatCinema` decomposition slice.
+  slice of a large module to deepen.
 - **Exploring alternative interfaces** — see [references/design-it-twice.md](references/design-it-twice.md):
   spin up parallel sub-agents (the `docs/engineering/mythos/AGENTIC.md` lane vocabulary) to design an
   interface several radically different ways, then compare on depth, locality, and seam placement.

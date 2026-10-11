@@ -1,36 +1,32 @@
-# Project MythOS: Core Engineering Mandates
+# Mythos 2.0: Core Engineering Mandates
 
 The top-level design and engineering standard shared by all AI agents (Gemini, Claude, Cursor, etc.). This file and `docs/AGENT_BRIEF.md` take precedence over per-agent docs.
 
 ## 1. Runtime Principles
 
-- **Language**: Python 3.11+ with explicit type hints and small dataclass-first domain boundaries.
-- **Local-first inference**: model inference (Ollama, mflux/FLUX, audio generation) defaults to running locally on the Apple Silicon host.
-- **Shared orchestration**: business logic for the CLI, Streamlit, and FastAPI/React paths lives in `RuntimeSessionService`. Do not duplicate loop orchestration in entrypoints or the UI layer.
-- **Frontend split**: React + TypeScript SPA is the recommended active play path. Streamlit remains a playable/demo path and compatibility surface.
+- **Game in the browser**: Mythos 2.0's rules run client-side in `src/mythos_ui/src/v2/engine` — pure TypeScript, seeded RNG stored in state, JSON-serialisable state, reducers that clone → mutate → return. No `Math.random`, no I/O, no React in the engine. Content is typed data in `v2/content`; rules never live in the UI.
+- **Server is thin**: `src/mythos_api` serves the SPA/art and mounts `/api/v2` (`src/mythos_v2`): saves (offline-first; the client mirrors to localStorage) and the AI GM. The server never decides game outcomes.
+- **AI off the critical path**: authored text shows first; LLM lines (narrate, improvise, companion chat, IX comms) arrive later, are cleaned/validated, and every call has an authored fallback. Improvise outcomes are clamped by the engine. Chat never changes game state.
+- **Python** 3.11+ with type hints; `mypy --strict` on `mythos_api` and `mythos_v2`.
 
 ## 2. Data, Media, And Infra
 
-- **RDBMS**: PostgreSQL with JSONB state/memory records.
-- **Object storage**: MinIO/S3-compatible storage for generated assets and large media.
-- **Queue/cache**: Redis for visual job queue, worker heartbeat, and transient locks.
-- **Observability**: structured logs and OpenTelemetry/Jaeger spans should stay wired for runtime flows.
-- **Generated assets**: `outputs/`, `.docker/`, `.env`, Hugging Face tokens, and generated model outputs are not source artifacts.
+- **Saves**: PostgreSQL `v2_saves` (JSONB blobs, self-creating DDL = `migrations/009_v2_saves.sql`) with an in-memory fallback; the browser mirror is authoritative for offline play.
+- **Art/music**: generated 2.0 assets under `resources/neo-seoul/v2/` (Vertex Gemini image, Codex sprites, Lyria loops) via `scripts/v2_assets/` with a call-budget ledger; `content/art.test.ts` requires 100 % coverage.
+- **Generated outputs**: `outputs/`, `.docker/`, `.env`, keys/keystores and `google-services.json` are not source artifacts.
 
 ## 3. Generation And Validation
 
-- **Narrative validation**: LLM-generated scenes must pass the Myth Protocol parser/validator path before state mutation.
-- **Fallback path**: narrative, visual, and summary generation failures need deterministic or user-visible fallback behavior.
-- **Context selection**: do not inject full Story Bible, full scenario, or full narrative shard history into prompts. Use phase/location/flags snippets and rolled-up `causality_summary`.
-- **Visual consistency**: character scenes should use the existing mflux Redux portrait reference route when available.
+- **GM output** goes through `gm.clean_*` / `talk.clean_*` (sentence caps, language check, byte-token decoding, meta/AI-claim and number stripping); anything unusable falls back to authored text.
+- **Prompt injection**: player text (improvise, companion chat) is capped and screened; companions deflect in character, never reveal they are models, never state rules or numbers.
+- **Determinism**: anything gameplay-relevant is seeded (`run.rng`); the daily seed is a pure function of the KST date and archetype.
 
 ## 4. Code And Test Discipline
 
-- Prefer composition and provider/service protocols over inheritance-heavy designs.
-- Complexity is a timing problem, not a correctness one: introduce a pattern when a second real case exists, not in anticipation of one.
-- Keep pure unit tests independent of Docker. Gate DB tests behind `MYTHOS_RUN_DB_TESTS=1`.
-- For runtime flow changes, run at least `make test`; use `make smoke-local` for broader local runtime changes and `make smoke` for persistence/MinIO behavior.
-- For React/API UI changes, run `make frontend-build` or `make test-e2e` when the change touches user flow.
+- Prefer composition and small modules; introduce a pattern when a second real case exists, not in anticipation of one.
+- Engine/content changes: a `node --test` regression test first (`make test-v2`); balance changes: measure with the run simulator before/after on the same seed blocks.
+- Server changes: `make test` (stdlib `unittest`); DB tests behind `MYTHOS_RUN_DB_TESTS=1`.
+- UI/flow changes: `make frontend-build` + `make test-e2e-v2`, and rendered evidence for visual work — always muted, one browser tab at most.
 
 ## 5. Agent Operations Discipline
 
@@ -40,7 +36,7 @@ Operating rules against failure patterns repeatedly observed in usage-insights r
 - **Name the fork before implementing**: when a request admits more than one reading, or when the cheap fix and the correct fix differ, state the interpretations and your recommendation before writing code instead of choosing silently. A plan entry built on an unverified assumption is a defect — the 2026-08-08 "stream stall watchdog" was queued as the next deterministic candidate before anyone measured whether the stall was server-side, and measurement withdrew it.
 - **Measure on the path the user reads**: a stored record or an intermediate artifact is a proxy, and a proxy can bypass a layer the player never skips. Scope a defect from the served output, not from whatever is easiest to query — the 2026-08-08 EN-localization item was sized at "34/59 scenes" from a banked transcript, but `bank_loop.py` reads the store while the API localizes at the serving boundary, so the real player-facing residue was 11/59.
 - **Surgical changes**: a change touches only what the request demands. Preserve the surrounding file's style even where you would write it differently, remove only the imports and functions YOUR edit orphaned, and report pre-existing dead code rather than deleting it. Reformatting, type-hint additions, and adjacent cleanups never ride along with a fix; they are separate work with separate verification. (Adapted from `multica-ai/andrej-karpathy-skills`, MIT.)
-- **Gameplay changes verify through `/gameplay-qa`** (`$gameplay-qa` on Codex/agy): any change to combat mechanics, skills, items, status effects, tactical-board interaction, or combat VFX/cinema runs that skill's layering before claiming done — narrow unit tests → `make check` → non-fallback rendered evidence (interactive sessions; unattended lanes rely on the post-commit AGY browser hook instead) → leave the feel verdict manual. Never judge combat VFX under `?fallback=1` (static by design).
+- **Gameplay changes verify through `/gameplay-qa`** (`$gameplay-qa` on Codex/agy): any change to combat rules, cards, enemies, implants, status/ground effects, tactical-board interaction, combat FX or balance runs that skill's layering before claiming done — narrow `node --test` → simulator numbers when balance moves → `make check` → muted rendered evidence → leave the feel verdict manual.
 - **Docs-first status**: answer project-status questions from the current docs (`AGENT_BRIEF` → `STATUS` → `NEXT_PLAN`) first, not the git working tree or code search.
 - **Confirm structural moves**: confirm scope and strategy with the user before directory moves/renames/reclassification (`scratch/`, `bin/`, etc.) and large refactors. Do not move folders arbitrarily.
 - **Shell discipline**: use absolute paths in shell commands (especially `.venv/bin/python`). Do not rely on cwd left by a prior `cd` — cwd dependence has caused silent failures.
@@ -51,7 +47,7 @@ Operating rules against failure patterns repeatedly observed in usage-insights r
 ## 6. Documentation And Handoff
 
 - Start with `docs/AGENT_BRIEF.md`, then `docs/STATUS.md`, then `docs/NEXT_PLAN.md`. Do not bulk-read `docs/` unless the task explicitly requires an audit.
-- Open `docs/DESIGN.md`, `docs/GAMEPLAY.md`, scenario docs, dated plans, and archive files only on demand.
+- Open `docs/GAMEPLAY.md`, `docs/plans/2026-10-10-mythos-2.0.md`, dated plans and archive files only on demand. 1.x history lives on branch `1.0`.
 - Work completion should update the smallest relevant current docs. Use `PROGRESS_LOG.md` for short Changed/Verified/Next notes, and archive long history instead of expanding current docs indefinitely.
 - Update `harness/CONTEXT_BRIDGE.md` when the next agent's active context, risks, or next recommended task changes materially.
 - New global rules belong here, not in an agent-specific file.

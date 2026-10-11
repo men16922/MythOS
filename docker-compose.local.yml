@@ -1,15 +1,12 @@
-# Local MythOS infrastructure.
-#
-# Stateful stores and developer tooling only. Ollama and the FLUX worker run on
-# the Mac host (Metal/MPS), not in Docker. See docs/DESIGN.md sections 3 and 6.
+# Local Mythos 2.0 infrastructure: Postgres for the /api/v2 save store (+ Adminer to look at it).
+# The API also runs without it (in-memory saves). Ollama (the local AI GM) runs on the host, not in Docker.
 #
 #   make infra-up      bring everything up
 #   make infra-ps      see status
 #   make infra-down    stop and remove containers
 #   make infra-reset   stop and wipe .docker/ volume data
 #
-# Defaults below mirror docs/DESIGN.md and .env.example. They can be overridden
-# from .env (Compose loads it automatically from this directory).
+# Defaults can be overridden from .env (Compose loads it automatically from this directory).
 
 name: mythos-local
 
@@ -42,66 +39,3 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-
-  minio:
-    image: minio/minio
-    restart: unless-stopped
-    command: server /data --console-address ":9001"
-    environment:
-      MINIO_ROOT_USER: ${S3_ACCESS_KEY:-mythos}
-      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY:-mythos-local-secret}
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    volumes:
-      - ./.docker/minio:/data
-    healthcheck:
-      test: ["CMD", "mc", "ready", "local"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
-  # One-shot bucket bootstrap. Runs after MinIO is healthy, creates the buckets,
-  # then exits. Decision: bucket creation lives here as a mc init container so the
-  # stack is self-contained (no separate host bootstrap script to remember).
-  minio-init:
-    image: minio/mc
-    depends_on:
-      minio:
-        condition: service_healthy
-    environment:
-      S3_ACCESS_KEY: ${S3_ACCESS_KEY:-mythos}
-      S3_SECRET_KEY: ${S3_SECRET_KEY:-mythos-local-secret}
-      S3_BUCKET_ASSETS: ${S3_BUCKET_ASSETS:-mythos-assets}
-      S3_BUCKET_EXPORTS: ${S3_BUCKET_EXPORTS:-mythos-session-exports}
-    entrypoint: >
-      /bin/sh -c "
-      mc alias set local http://minio:9000 \"$$S3_ACCESS_KEY\" \"$$S3_SECRET_KEY\" &&
-      mc mb --ignore-existing local/\"$$S3_BUCKET_ASSETS\" &&
-      mc mb --ignore-existing local/\"$$S3_BUCKET_EXPORTS\" &&
-      echo 'minio buckets ready'
-      "
-    restart: "no"
-
-  otel-collector:
-    image: otel/opentelemetry-collector-contrib
-    restart: unless-stopped
-    command: ["--config=/etc/otel-collector-config.yaml"]
-    volumes:
-      - ./docker/otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
-    ports:
-      - "4317:4317" # OTLP gRPC
-      - "4318:4318" # OTLP HTTP
-    depends_on:
-      - jaeger
-
-  jaeger:
-    image: jaegertracing/all-in-one
-    restart: unless-stopped
-    environment:
-      COLLECTOR_OTLP_ENABLED: "true"
-    ports:
-      - "16686:16686" # Jaeger UI
-    # OTLP receivers (4317/4318) stay internal; the otel-collector forwards to
-    # jaeger:4317 over the compose network so the host ports are free for the
-    # collector itself.

@@ -33,4 +33,4 @@ Declare all three layers in one place. Push each check as far DOWN this list as 
 
 ## PROMPT — Prompt Layer (Bible `PROMPT_ENGINEERING.md`)
 - harness prompt: required WorkContract compiled by MythOS and rendered by the plugin.
-- runtime/domain prompt: `src/mythos_narrative/` (separate product surface).
+- runtime/domain prompt: `src/mythos_v2/gm.py`, `src/mythos_v2/talk.py` (separate product surface).

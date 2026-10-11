@@ -3,72 +3,32 @@ requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mythos-local-image-agent"
-version = "0.1.0"
-description = "Local Ollama + FLUX.1 schnell image generation agent for Project MythOS."
+name = "mythos"
+version = "2.0.0"
+description = "Mythos 2.0 (세계:접속 — Signal Run): web server for the browser game (SPA + /api/v2 saves and AI GM)."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "accelerate>=0.33.0",
-    "boto3>=1.34.0",
-    "diffusers>=0.31.0",
-    "huggingface-hub>=1.0.0",
-    "mflux>=0.17.0",
-    "numpy<2.5",
-    "openai>=1.40.0",
-    "opentelemetry-api>=1.26.0",
-    "opentelemetry-exporter-otlp-proto-http>=1.26.0",
-    "opentelemetry-sdk>=1.26.0",
-    "pillow>=10.4.0",
-    "psycopg[binary]>=3.2.0",
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.29.0",
+    "httpx>=0.27.0",
+    "openai>=1.40.0",          # OpenAI-compatible local GM endpoint (Ollama / MLX / vLLM)
+    "google-genai>=1.0.0",     # Gemini / Vertex GM (MYTHOS_NARRATIVE_PROVIDER=vertex)
+    "psycopg[binary]>=3.2.0",  # v2_saves (Postgres; falls back to memory without a DB)
     "psycopg-pool>=3.2.0",
-    "protobuf>=4.25.0",
-    "redis>=5.0.0",
     "python-dotenv>=1.0.1",
-    "safetensors>=0.4.4",
-    "sentencepiece>=0.2.0",
-    "streamlit>=1.36.0",
-    "torch>=2.4.0",
-    "torchvision>=0.19.0",
-    "transformers>=4.44.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "ruff>=0.4.0",
     "mypy>=1.10.0",
-    "playwright>=1.40.0",
-    "google-genai>=1.0.0",
-    "google-cloud-storage>=2.18.0",
-]
-# P3 Web UI decoupling: FastAPI backend adapter over RuntimeSessionService.
-# Optional so the core runtime / image agent install stays lean.
-web = [
-    "fastapi>=0.110.0",
-    "uvicorn[standard]>=0.29.0",
-    "httpx>=0.27.0",
-]
-# Cloud product LLM (GCP closed beta): Gemini / Vertex AI narrative provider.
-# Optional so the local dev install (Ollama path) needs no Google SDK or creds.
-# Selected at runtime via MYTHOS_NARRATIVE_PROVIDER=gemini|vertex. google-genai
-# also powers the Vertex Imagen image path (MYTHOS_VISUAL_PROVIDER=vertex).
-gemini = [
-    "google-genai>=1.0.0",
-]
-# Cloud asset storage: Google Cloud Storage adapter (MYTHOS_STORAGE_BACKEND=gcs).
-gcs = [
-    "google-cloud-storage>=2.18.0",
-]
-# Convenience aggregate for the full GCP closed-beta deploy (Gemini + Imagen + GCS +
-# Cloud Trace). MYTHOS_TRACE_BACKEND=gcp uses the Cloud Trace exporter.
-gcp = [
-    "google-genai>=1.0.0",
-    "google-cloud-storage>=2.18.0",
-    "opentelemetry-exporter-gcp-trace>=1.7.0",
+    "playwright>=1.40.0",      # headless browser smoke (scripts/e2e_v2.py)
+    "pillow>=10.4.0",          # asset pipeline (scripts/v2_assets)
+    "numpy>=1.26",
 ]
 
 [project.scripts]
-mythos-image-agent = "mythos_image_agent.cli:main"
 mythos-api = "mythos_api.__main__:main"
 
 [tool.setuptools.packages.find]
@@ -80,24 +40,10 @@ mythos_api = ["static/*", "static/assets/*"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-extend-exclude = ["scripts/gen_bgm.py"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "C4", "SIM", "PERF", "B", "RUF100", "RET", "PIE", "FURB", "FLY", "PYI", "G", "N", "RUF005", "RUF007", "RUF012", "RUF022", "RUF059", "PTH"]
 ignore = ["E501"]
-
-[tool.ruff.lint.per-file-ignores]
-# One-off dev/render-check scripts outside the claude-lane WorkContract scope
-# (src/ tests/ harness/ scripts/overnight/ docs/ Makefile pyproject.toml) —
-# not touched by the SIM/PERF/B cleanups.
-"scratch/*" = ["SIM", "PERF", "B"]
-"scripts/cbt/*" = ["SIM", "B"]
-"experiments/*" = ["PERF"]
-"scripts/eval/*" = ["PERF", "B"]
-"scripts/live-qa/*" = ["PERF", "B"]
-"streamlit_app.py" = ["PERF", "B"]
-# FastAPI's Depends(...)-as-default-argument is the framework's own DI convention.
-"src/mythos_api/**" = ["B008"]
 
 [tool.mypy]
 python_version = "3.11"

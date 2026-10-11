@@ -4,8 +4,7 @@ The v2 game runs entirely in the browser; the server is a dumb, size-bounded
 mirror so a profile/run survives a cleared browser or follows an invite key to
 another device. Two implementations behind one small interface:
 
-* ``PostgresV2Store`` — psycopg pool on ``DATABASE_URL`` (same default as
-  ``mythos_memory.PostgresMythOSStore``). On open it runs the idempotent DDL in
+* ``PostgresV2Store`` — psycopg pool on ``DATABASE_URL``. On open it runs the idempotent DDL in
   ``SCHEMA_STATEMENTS`` (identical to ``migrations/009_v2_saves.sql``) because the
   Cloud Run image ships no ``migrations/`` and prod migrations are owner-run.
 * ``MemoryV2Store`` — process-local dicts. Used by tests, by
@@ -27,11 +26,10 @@ from abc import ABC, abstractmethod
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any, Literal
 
-from mythos_core.clock import utc_now
-from mythos_runtime.observability import get_logger
+from mythos_v2.log import get_logger
 
 Slot = Literal["profile", "run"]
 SLOTS: tuple[Slot, ...] = ("profile", "run")
@@ -62,6 +60,10 @@ SCHEMA_STATEMENTS: tuple[str, ...] = (
 MEMORY_HISTORY_CAP = 100
 
 _logger = get_logger("mythos.v2.store")
+
+
+def utc_now() -> datetime:
+    return datetime.now(UTC)
 
 
 class StoreUnavailableError(RuntimeError):

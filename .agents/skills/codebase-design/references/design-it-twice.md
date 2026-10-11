@@ -12,9 +12,8 @@ the vocabulary in [../SKILL.md](../SKILL.md) — **module**, **interface**, **se
 Before spawning sub-agents, write a user-facing explanation of the problem space for the chosen
 candidate:
 
-- The constraints any new interface would need to satisfy (MythOS invariants: shared runtime
-  boundary stays in `RuntimeSessionService`, one DB transaction per transition, no torch import on
-  the runtime path, etc.).
+- The constraints any new interface would need to satisfy (MythOS invariants: game rules stay in the
+  pure-TS engine, state stays JSON-serialisable and seeded, AI calls never block play, etc.).
 - The dependencies it relies on, and which category they fall into (see [deepening.md](deepening.md)).
 - A rough illustrative code sketch to ground the constraints — not a proposal, just a way to make
   the constraints concrete.

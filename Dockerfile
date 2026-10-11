@@ -1,10 +1,7 @@
-# GCP Cloud Run container for the MythOS FastAPI backend (REST + WebSocket).
+# GCP Cloud Run container for the Mythos 2.0 web server (prebuilt SPA + /api/v2 saves and AI GM).
 #
-# LEAN by design: narrative=Gemini and image=Imagen are API calls, so this image
-# omits the heavy local ML stack (torch/diffusers/mflux/...) and streamlit — see
-# requirements-cloud.txt. Cloud Run runs the cloud config:
-#   MYTHOS_NARRATIVE_PROVIDER=gemini  MYTHOS_VISUAL_PROVIDER=vertex  MYTHOS_STORAGE_BACKEND=gcs
-# The React SPA is prebuilt into src/mythos_api/static (committed), so no Node build here.
+# The game runs in the browser; this image serves the SPA (src/mythos_api/static, committed — no Node build
+# here), the game art (/resources) and /api/v2. The GM calls Vertex Gemini (MYTHOS_NARRATIVE_PROVIDER=vertex).
 
 FROM python:3.11-slim AS runtime
 

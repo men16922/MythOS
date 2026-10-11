@@ -12,8 +12,8 @@ check test -d src/mythos_ui/node_modules
 check test -x scripts/overnight/compile-contract.sh
 check test -x scripts/overnight/verifiers.d/10-diff-scope.sh
 if [ -x .venv/bin/python ]; then
-  check .venv/bin/python -c 'import mythos_runtime, mythos_loop'
-  check .venv/bin/python -c 'import google.auth, google.cloud.storage, google.genai'
+  check .venv/bin/python -c 'import mythos_api, mythos_v2'
+  check .venv/bin/python -c 'import google.genai'
 fi
 if [ -x .venv/bin/mypy ]; then
   # Burn no model quota when the immutable base already fails the Python gate. This also

@@ -21,7 +21,7 @@
       "make lint": "allow",
       "make typecheck": "allow",
       "make build": "allow",
-      "make smoke-local": "allow",
+      "make test-v2": "allow",
       "git add *": "allow",
       "git commit *": "allow",
       "git status*": "allow",

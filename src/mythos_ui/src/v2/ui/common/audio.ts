@@ -48,26 +48,6 @@ const LEGACY: Record<string, string> = {
   combat_crisis: 'elite',
   combat_boss: 'boss1',
 }
-const LEGACY_FILE: Record<string, string> = {
-  hub: 'audio/bgm_calm.wav',
-  event: 'audio/bgm_main.wav',
-  map1: 'audio/bgm_tense.wav',
-  map2: 'audio/bgm_unstable.wav',
-  map3: 'audio/bgm_tense.wav',
-  combat1: 'audio/bgm_combat_normal.wav',
-  combat2: 'audio/bgm_combat_normal.wav',
-  combat3: 'audio/bgm_combat_crisis.wav',
-  elite: 'audio/bgm_combat_crisis.wav',
-  boss1: 'audio/bgm_combat_boss.wav',
-  boss2: 'audio/bgm_combat_boss.wav',
-  boss_ix: 'audio/bgm_combat_boss.wav',
-  title: 'audio/bgm_main.wav',
-  shop: 'audio/bgm_calm.wav',
-  rest: 'audio/bgm_calm.wav',
-  victory: 'audio/bgm_calm.wav',
-  defeat: 'audio/bgm_unstable.wav',
-  ending: 'audio/bgm_calm.wav',
-}
 
 export type Sfx =
   | 'alarm'
@@ -159,7 +139,8 @@ export function playSfx(key: Sfx, volume = 0.6): void {
 }
 
 function trackPath(key: string): string | null {
-  return MUSIC[key] ?? LEGACY_FILE[key] ?? null
+  // Every cue has a generated loop (content/art.test.ts guards it).
+  return MUSIC[key] ?? null
 }
 
 function loadBuffer(ctx: AudioContext, path: string): Promise<AudioBuffer | null> {

@@ -3,10 +3,8 @@
 Mounted by ``mythos_api.app.create_app`` via ``app.include_router(create_v2_router())``.
 
 Identity: ``X-Player-Id`` header (client-generated uuid, or ``player_<cyrb53>``
-derived from the invite key exactly like the classic SPA). Access: when
-``MYTHOS_INVITE_KEYS`` is set, every route except ``/health`` requires a valid
-``X-Invite-Key`` header or ``?invite=`` param — the same rule
-``mythos_api.invite.InviteGateMiddleware`` applies to ``/api/v1``.
+derived from the invite key). Access: when ``MYTHOS_INVITE_KEYS`` is set, every
+route except ``/health`` requires a valid ``X-Invite-Key`` header or ``?invite=`` param.
 
 Routes
   GET  /health                     open; store kind + GM backend
@@ -47,7 +45,7 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 from starlette.concurrency import run_in_threadpool
 
-from mythos_runtime.observability import get_logger
+from mythos_v2.log import get_logger
 
 from . import gm, talk
 from .llm import TextLLM, build_text_llm
@@ -243,10 +241,9 @@ def _outcome_for(exc: BaseException) -> str:
 
 
 def _default_invite_keys() -> set[str]:
-    # Lazy: mythos_api.app imports this module, so a module-level import would cycle.
-    from mythos_api.invite import allowed_invite_keys
-
-    return allowed_invite_keys()
+    """Closed-beta keys from ``MYTHOS_INVITE_KEYS`` (comma-separated); empty = open."""
+    raw = os.getenv("MYTHOS_INVITE_KEYS", "")
+    return {k.strip() for k in raw.split(",") if k.strip()}
 
 
 def _norm_stats(raw: dict[str, Any]) -> dict[str, int]:

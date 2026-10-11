@@ -418,4 +418,6 @@ class CorsTest(unittest.TestCase):
             "/api/v2/health",
             headers={"Origin": "https://evil.example", "Access-Control-Request-Method": "GET"},
         )
-        self.assertNotEqual(other.headers.get("access-control-allow-origin"), "https://evil.example")
+        self.assertNotEqual(
+            other.headers.get("access-control-allow-origin"), "https://evil.example"
+        )

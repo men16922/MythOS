@@ -1,11 +1,9 @@
 """Plain-text LLM access for the v2 AI GM.
 
-The classic providers in ``mythos_narrative`` are built around the scene JSON
-schema (Gemini is pinned to ``SCENE_JSON_SCHEMA``), so the GM uses this thin,
-plain-text seam instead — same backends, same env:
+A thin plain-text seam over the two GM backends (config in ``mythos_v2.config``):
 
 * ``MYTHOS_NARRATIVE_PROVIDER=gemini|vertex`` → ``GeminiTextLLM`` (Vertex/Gemini,
-  ``mythos_narrative.gemini_provider.GeminiConfig`` env: ``MODEL``/``GEMINI_MODEL``,
+  ``mythos_v2.config.GeminiConfig`` env: ``MODEL``/``GEMINI_MODEL``,
   ``GOOGLE_CLOUD_PROJECT``/``PROJECT_ID``, …). The SDK is imported lazily.
 * anything else → ``OpenAICompatTextLLM`` against ``OLLAMA_BASE_URL`` (Ollama by
   default; ``MYTHOS_LLM_ENGINE`` = mlx/vllm also work). Model:
@@ -52,11 +50,11 @@ class OpenAICompatTextLLM:
         model: str | None = None,
         engine: str | None = None,
     ) -> None:
-        from mythos_image_agent.config import AgentConfig
+        from mythos_v2.config import OllamaConfig
 
-        config = AgentConfig()
-        self.base_url = base_url or config.ollama_base_url
-        self.model = model or os.getenv("MYTHOS_V2_GM_MODEL") or config.ollama_model_story
+        config = OllamaConfig()
+        self.base_url = base_url or config.base_url
+        self.model = model or os.getenv("MYTHOS_V2_GM_MODEL") or config.model
         self.engine = (engine or os.getenv("MYTHOS_LLM_ENGINE") or "ollama").strip().lower()
         self.name = f"{self.engine}:{self.model}"
 
@@ -96,7 +94,7 @@ class GeminiTextLLM:
     """Gemini / Vertex AI, plain text (or schema-constrained JSON for improvise)."""
 
     def __init__(self, *, model: str | None = None, client: Any = None) -> None:
-        from mythos_narrative.gemini_provider import GeminiConfig
+        from mythos_v2.config import GeminiConfig
 
         self.config = GeminiConfig()
         self.model = model or os.getenv("MYTHOS_V2_GM_GEMINI_MODEL") or self.config.model
@@ -138,7 +136,7 @@ class GeminiTextLLM:
             "thinking_config": {"thinking_budget": self.config.thinking_budget},
         }
         if json_schema is not None:
-            from mythos_narrative.gemini_provider import to_gemini_schema
+            from mythos_v2.config import to_gemini_schema
 
             config["response_mime_type"] = "application/json"
             config["response_schema"] = to_gemini_schema(json_schema)

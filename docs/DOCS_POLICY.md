@@ -1,12 +1,12 @@
 # Documentation Policy
 
-Last updated: 2026-06-14
+Last updated: 2026-10-11
 
 This doc is the operating rule for keeping Project MythOS docs current. The goal is to read current state fast while not losing dated plans and completion history. A separate compressed entry point is kept for agents to reduce token use.
 
 ## Language
 
-Agent-facing operational docs (`CLAUDE.md`, `harness/*`, `docs/engineering/**`, the `$overnight-harness:sync` entry docs, repo-skill bodies, and WorkContract policy) are authored in English; user-facing and narrative content (scenarios, `story_bible`, directives, `docs/test` live-QA) stays Korean.
+Agent-facing operational docs (`CLAUDE.md`, `harness/*`, `docs/engineering/**`, the `$overnight-harness:sync` entry docs, repo-skill bodies, and WorkContract policy) are authored in English; user-facing and narrative content (game text in `src/mythos_ui/src/v2/content`, `GAMEPLAY.md`, `docs/test` play guides) stays Korean.
 
 ## Core Principle
 
@@ -28,10 +28,9 @@ Even with many docs, an agent's starting context must stay small. The default re
 Rules:
 
 - Do not auto bulk-read all of `docs/`.
-- Treat `plans/`, `bin/docs/archive/`, and `feedback/` as on-demand docs.
-- Open `DESIGN.md`, `GAMEPLAY.md`, and scenario docs only when actually changing the related code/content.
+- Treat `plans/` and `bin/docs/archive/` as on-demand docs. Pre-2.0 (1.x) docs live on branch `1.0`.
+- Open `GAMEPLAY.md`, `android.md` and dated plans only when actually changing the related code/content.
 - `AGENT_BRIEF.md` ≤ 60 lines; `STATUS.md` and `NEXT_PLAN.md` ≤ 120 lines each. These budgets are ENFORCED by a `make check` gate (`harness/check-doc-budget.sh`), not merely a target.
-- Keep `DESIGN.md` a compressed architecture summary. Preserve long-form design source in `bin/docs/archive/`.
 - When `PROGRESS_LOG.md` exceeds 120 lines, keep only the newest 3-5 entries and split the rest into `bin/docs/archive/progress-YYYY-MM.md`.
 - When a completed task checklist lingers in current docs, compress it into `COMPLETED_SUMMARY.md` and keep only a link in the current docs.
 
@@ -135,7 +134,7 @@ Do not delete a no-longer-needed doc outright.
 
 Procedure:
 
-1. Summarize the doc's core content into the right place among `COMPLETED_SUMMARY.md`, `DECISIONS.md`, `DESIGN.md`, or `STATUS.md`.
+1. Summarize the doc's core content into the right place among `COMPLETED_SUMMARY.md`, `DECISIONS.md`, `GAMEPLAY.md`, or `STATUS.md`.
 2. Mark the doc's status as `Retired` or `Archive` in `docs/README.md`.
 3. Check for leftover links with `rg "<doc name>"`.
 4. Move it to `bin/docs/archive/` if it has preservation value.

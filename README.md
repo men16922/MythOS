@@ -1,189 +1,46 @@
-# Project MythOS Local Runtime
+# Mythos 2.0 — 세계:접속 "Signal Run"
 
-Project MythOS / 세계:접속은 Python 3.11+ 로컬 런타임 기반 1인용 SF 루프형 TRPG/CRPG다. 현재 FastAPI-served React SPA, Streamlit demo, CLI가 모두 같은 `RuntimeSessionService`를 호출한다.
+정전과 감시의 도시 네오서울. 관리자 AI **IX**의 첨탑을 향해 세 개의 막을 돌파하는 1인용 **전술 덱빌딩 로그라이트**다.
 
-## Docs
+- **전투**: 적이 다음에 칠 칸을 미리 보여 주는 7×5 보드(Into the Breach 방식). 피하고, 막고, 밀어서 적끼리 치게 하고, 붕괴 구역에 빠뜨린다. 불길·전기 바닥이 지형을 바꾼다.
+- **빌드**: 카드 덱(Slay the Spire 방식) + 임플란트 + 동료 6명(전투 패시브·전용 카드).
+- **루프**: 한 판 약 30분. 쓰러지면 모은 에코로 아카이브에서 해금하고 다시 접속한다. 매일 모두가 같은 런을 하는 **오늘의 시드**.
+- **AI GM**: 사건 내레이션, 은신처 동료 대화, 전투 중 IX 통신. 미리 쓴 글이 먼저 나오고 AI는 진행을 막지 않는다.
 
-에이전트/개발자는 아래 순서만 먼저 읽는다.
+웹(Cloud Run)과 안드로이드 앱(Capacitor)으로 배포한다. 이전 1.x(AI 내레이션 루프 TRPG)는 **`1.0` 브랜치**에 보존돼 있다.
 
-1. `docs/AGENT_BRIEF.md`
-2. `docs/STATUS.md`
-3. `docs/NEXT_PLAN.md`
-4. 필요한 경우 `docs/DESIGN.md`, `docs/GAMEPLAY.md`, `docs/API.md`
-
-문서 운영 원칙은 `docs/README.md`와 `docs/DOCS_POLICY.md`를 따른다. 장문 설계/로그는 `bin/docs/archive/`에 보존한다.
-
-## Requirements
-
-- Apple Silicon Mac with MPS support
-- Python 3.11+
-- Ollama
-- Docker Desktop
-- Hugging Face access/token for `black-forest-labs/FLUX.1-schnell`
-- 35GB+ free disk space
-
-## Setup
+## 시작하기
 
 ```bash
-cp .env.example .env
-make setup
-make infra-up
-make db-migrate
+make setup                 # Python venv + npm 의존성
+make api                   # http://127.0.0.1:8000  (포트가 쓰이고 있으면 MYTHOS_API_PORT=8010 make api)
 ```
 
-Ollama:
+- 로컬 AI GM은 Ollama(`OLLAMA_MODEL_STORY`)를 쓴다. 없으면 미리 쓴 문장으로 대신한다.
+- 저장은 브라우저에 즉시, 서버(Postgres 또는 메모리)에 이어서 동기화된다. Postgres까지 띄우려면 `make dev-up`.
+- 개발 화면(HMR): `cd src/mythos_ui && npx vite` → `http://127.0.0.1:5173` (API는 로컬 서버로 프록시).
+- 안드로이드: `docs/android.md`.
+
+## 검사
 
 ```bash
-ollama pull gemma4
-ollama serve
+make check          # 전체 게이트 (lint · 타입 · 엔진/콘텐츠 테스트 · Python 테스트 · 문서 예산)
+make test-v2        # 엔진/콘텐츠 테스트 (node --test)
+make test-e2e-v2    # 헤드리스 브라우저 스모크 (항상 무음; make frontend-build 먼저)
 ```
 
-FLUX is a gated Hugging Face model. Accept access terms and set `HF_TOKEN` in `.env` or run:
+## 구조
 
-```bash
-source .venv/bin/activate
-hf auth login
-```
+| 경로 | 내용 |
+|---|---|
+| `src/mythos_ui/src/v2/engine` | 순수 TS 게임 엔진 (시드 RNG, JSON 상태, 리듀서, 봇·시뮬레이터) |
+| `src/mythos_ui/src/v2/content` | 카드·적·조우·사건·동료·엔딩 등 게임 데이터 |
+| `src/mythos_ui/src/v2/ui` | 화면, 전투 보드·연출, 사운드 |
+| `src/mythos_ui/android` | 안드로이드 앱 (Capacitor) |
+| `src/mythos_api` | 웹 서버 (SPA, `/resources`, CORS) |
+| `src/mythos_v2` | `/api/v2` — 저장 + AI GM (내레이션, 자유 행동, 동료 대화, IX 통신) |
+| `resources/neo-seoul` | 그림·음악 (`scripts/v2_assets`로 재생성) |
 
-## Play React App
+## 문서
 
-Recommended local path:
-
-```bash
-ollama serve
-make dev-up
-```
-
-Open `http://localhost:8000`.
-
-`make dev-up` starts docker infra, waits for Postgres, migrates DB, starts the visual worker in the background, then runs the API/React server in foreground.
-
-Stop:
-
-```bash
-make dev-down
-```
-
-Dev console links:
-
-- Adminer: `http://localhost:8080`
-- MinIO Console: `http://localhost:9001`
-- Redis Commander: `http://localhost:8081`
-- Jaeger: `http://localhost:16686`
-
-## Play Streamlit Demo
-
-```bash
-make infra-up
-make db-migrate
-make streamlit
-```
-
-Open `http://localhost:8501`.
-
-## CLI Demo
-
-```bash
-make connect-demo
-```
-
-Manual fallback flow:
-
-```bash
-python -m mythos_runtime.connect_cli new-player "첫 번째 접속자" --player-id player_001
-python -m mythos_runtime.connect_cli connect --player-id player_001 --fallback
-python -m mythos_runtime.connect_cli choose --loop-id <loop_id> --choice-id <choice_id> --fallback
-python -m mythos_runtime.connect_cli resume --loop-id <loop_id>
-```
-
-## Checks
-
-```bash
-make test
-make lint
-make typecheck
-make frontend-lint
-make frontend-build
-make test-e2e
-make smoke-local
-```
-
-Use `make smoke` or `make test-db` when persistence/MinIO behavior changes.
-
-## Overnight Loop (자율 무인 루프)
-
-헤드리스 에이전트가 밤새 `NEXT_PLAN`의 `[auto]` 작업을 스스로 구현·검증·기록·커밋한다. 회차마다
-로컬 커밋하므로 언제 멈춰도 손실은 1회차. 설계: `docs/engineering/mythos/LOOP.md`(루프) ·
-`docs/engineering/mythos/AGENTIC.md`(3엔진 병렬). 개념 바이블: `docs/engineering/`.
-
-> 핵심: `overnight`/`overnight-watch`가 **가동기**, `overnight-logs`/`overnight-dashboard`/`overnight-status`는
-> 이미 도는 루프를 보는 **관찰자**(루프를 시작하지 않는다).
-
-**1. 저녁 — 사전 준비**
-
-```bash
-# (a) NEXT_PLAN 에 [auto]/[auto:claude] 작업을 완료기준 1줄씩 seeding ← 없으면 즉시 DONE 으로 끝난다
-# (b) 워킹트리 clean 확인 (dirty 면 1회차가 잔여물 복구로 빠짐)
-git status
-make check                    # (c) 현재 HEAD 에서 게이트 green 확인
-brew install coreutils        # (d, 권장) gtimeout → 회차 타임아웃 활성
-brew install tmux             # (e, 대시보드 쓸 때만) 없으면 dashboard 는 트리 1회 폴백
-```
-
-**2. 1회차 체인 테스트** — 첫 가동 전 항상 한 번 (포그라운드, 토큰 거의 안 씀)
-
-```bash
-make overnight-once           # plugin sync → 잔여물점검 → [auto] 1개 → 게이트 → plugin checkpoint → 커밋 → 종료
-                              #   ([auto] 가 없으면 DONE 만 찍고 정상 종료 — 그게 맞는 동작)
-```
-
-**3. 실가동 + 관찰** — 보통 터미널 2개
-
-```bash
-make overnight-watch          # 터미널 1: 가동 + 로그 follow 한 방에 (Ctrl+C 로 빠져도 루프는 계속)
-make overnight-dashboard      # 터미널 2: tmux 트리(2s) + lane 별 runner.log (tmux 없으면 트리 1회)
-# 변형: MAX_ITER=12 make overnight-watch   ·   make overnight (백그라운드 fire-and-forget)
-make overnight-status         # 빠른 lane 트리 1회
-make overnight-stop           # graceful 중단(현재 회차 마치고 종료)
-```
-
-**4. 다음날 아침 — 검수**
-
-```bash
-# agent 세션에서: $overnight-harness:overnight-report  # 종료사유·커밋·게이트 재실측·잔여 [auto]
-.venv/bin/python scripts/overnight/report-evidence.py  # MythOS objective evidence projection
-# 그다음 사람 검수:  docs/test/bible/overnight-review-checklist.md
-make overnight-clean          # STOP/DONE 제어 파일 정리(다음 가동 준비)
-```
-
-**3엔진 병렬(claude/codex/agy)**: 각자 worktree+브랜치에서 동시에 — `make overnight-worktrees` 준비 후
-엔진별 가동, 아침에 `make overnight-merge` + `make overnight-review`. 상세 `docs/engineering/mythos/AGENTIC.md`.
-
-```bash
-make overnight-codex-once     # 코덱스 엔진 1회차 (codex 레인 [auto:codex] 소비)
-make overnight-agy-once       # agy 엔진 1회차 (이미지 초안 레인 [auto:agy])
-```
-
-런타임 산출물(`scripts/overnight/logs/`·`STOP`·`DONE`·`status.tsv`)은 gitignore — 머신 로컬이다.
-
-## Image Backend
-
-Default backend is `mflux` with FLUX.1-schnell on Apple Silicon. Character scenes can use mflux Redux for reference-image identity steering.
-
-`.env`:
-
-```bash
-IMAGE_BACKEND=mflux
-MFLUX_QUANTIZE=8   # use 4 for lower memory
-```
-
-Useful checks:
-
-```bash
-make doctor
-make visual-smoke-flux-tiny
-make visual-worker
-make visual-worker-logs
-```
-
-Generated outputs belong in `outputs/` and are not source artifacts.
+먼저 `docs/AGENT_BRIEF.md` → `docs/STATUS.md` → `docs/NEXT_PLAN.md`. 규칙은 `docs/GAMEPLAY.md`, 설계 계약은 `docs/plans/2026-10-10-mythos-2.0.md`. 문서 운영 원칙은 `docs/README.md`와 `docs/DOCS_POLICY.md`.

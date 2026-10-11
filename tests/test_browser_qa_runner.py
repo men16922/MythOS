@@ -150,7 +150,7 @@ class BrowserQARunnerTest(unittest.TestCase):
         self.assertEqual(self._call_count(), 1)
 
     def test_needs_human_stops(self) -> None:
-        rng = self._commit("src/mythos_runtime/session.py")
+        rng = self._commit("src/mythos_v2/api.py")
         out, code = self._run(
             "maybe_browser_qa", "post-commit", rng, self._head(), outcome="NEEDS_HUMAN"
         )

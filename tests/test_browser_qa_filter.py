@@ -123,7 +123,7 @@ class BrowserQAFilterTest(unittest.TestCase):
         self._assert_verdict({"src/mythos_api/serializers.py": "x\n"}, "CANDIDATE")
 
     def test_runtime_session_is_candidate(self) -> None:
-        self._assert_verdict({"src/mythos_runtime/session.py": "x\n"}, "CANDIDATE")
+        self._assert_verdict({"src/mythos_v2/api.py": "x\n"}, "CANDIDATE")
 
     def test_combat_is_candidate(self) -> None:
         self._assert_verdict({"src/mythos_combat/engine.py": "x\n"}, "CANDIDATE")

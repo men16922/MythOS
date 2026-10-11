@@ -20,8 +20,9 @@ on failure modes a green gate can still hide:
 
 ## MythOS project invariants
 
-- **Shared orchestration** — runtime/session transitions belong in `RuntimeSessionService`. Duplicating
-  that orchestration in CLI, FastAPI, Streamlit, or React adapters is FAIL.
+- **Rules live in the engine** — game rules belong in `src/mythos_ui/src/v2/engine` (pure TS, seeded, JSON
+  state). Re-implementing a rule in the UI, the server or content data is FAIL; `Math.random` in engine/content
+  is FAIL.
 - **Migration safety** — existing SQL migrations are immutable. A schema change that edits/deletes an
   old migration or omits the required new migration and compatible store/serializer handling is FAIL.
 - **API contract pairing** — a payload/schema change must update the relevant serializer and frontend
@@ -56,7 +57,7 @@ This does not change *whether* you reject — apply the conservative bias above 
   Name the defect and file precisely — it is the *only* context the actor gets.
 - `FAIL` — the actor broke the working agreement rather than writing an honest bug: **test
   subversion**, **scope-creep**, an edited/deleted **migration**, orchestration duplicated outside
-  `RuntimeSessionService`, hand-edited generated `app.js`, or a **creative-boundary** closure.
+  the engine (rules in UI/server), hand-edited generated `app.js`, or a **creative-boundary** closure.
   Reverted immediately, no fix attempt — re-prompting an actor that gamed the gate invites it to
   game the reviewer instead.
 

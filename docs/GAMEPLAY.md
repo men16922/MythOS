@@ -1,7 +1,7 @@
 # Gameplay Design — Mythos 2.0 "Signal Run"
 
-최종 갱신: 2026-10-10. 1.x(AI 서사 루프형 TRPG) 규칙은 `bin/docs/archive/GAMEPLAY_1x_2026-10-10.md`.
-설계·빌드 계약 원문: `docs/plans/2026-10-10-mythos-2.0.md`. 1.x는 `/?classic=1`로 계속 열린다.
+최종 갱신: 2026-10-11. 1.x(AI 서사 루프형 TRPG) 규칙은 `1.0` 브랜치에 보관돼 있다.
+설계·빌드 계약 원문: `docs/plans/2026-10-10-mythos-2.0.md`.
 
 ## 한 줄
 

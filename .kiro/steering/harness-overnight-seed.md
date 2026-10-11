@@ -11,7 +11,7 @@ exists for the night and fill the shortfall**. Morning review is `/overnight-rep
 ## Config
 
 Read `.claude/harness-config.json` for `gate`/`smoke` and the plan doc. Defaults: `plan=docs/NEXT_PLAN.md`,
-`gate=make check`, `smoke=make smoke-local`.
+`gate=make check`, `smoke=make test-e2e-v2`.
 
 > **Correct the framing every time (tell the user):** this loop is not a "run for N hours" device.
 > One iteration = one `[auto]` = one commit, on the order of a few minutes each (gate + pause). When the

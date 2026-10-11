@@ -1,56 +1,31 @@
 # Repository Guidelines
 
-## Project Structure & Module Organization
+Thin entry point for Codex / other agents. The canonical guide is `CLAUDE.md`; design invariants are in `harness/CORE_MANDATES.md`; the current hand-off is `harness/CONTEXT_BRIDGE.md`. Do not duplicate them here.
 
-This is a Python 3.11+ local runtime for Project MythOS. Source packages live under `src/`:
+## Project Structure
 
-- `src/mythos_core`: pure domain models, IDs, clocks, and seed helpers.
-- `src/mythos_memory`: PostgreSQL store interfaces and implementations.
-- `src/mythos_narrative`: Ollama-backed narrative generation, prompts, schemas, and parsing.
-- `src/mythos_loop`: validation, events, and loop state transitions.
-- `src/mythos_runtime`: CLI, Streamlit session service, visual generation, and observability.
-- `src/mythos_image_agent`: standalone local Ollama + FLUX image agent.
+**Mythos 2.0 (세계:접속 — Signal Run)**: a browser tactics deck-builder roguelite with an AI GM off the critical path. The 1.x runtime is archived on branch `1.0`.
 
-Tests are in `tests/`. Local infra files are in `docker/`, `docker-compose.local.yml`, and `migrations/`. Runtime outputs belong in `outputs/` and should not be treated as source artifacts. Project planning and design docs are in `docs/`.
+- `src/mythos_ui/src/v2/engine` — pure-TS game engine (seeded, JSON state, reducers); `node --test` tests.
+- `src/mythos_ui/src/v2/content` — typed game data; `src/v2/ui` — React screens, combat board, audio.
+- `src/mythos_api` — FastAPI server (SPA + `/resources` + CORS); `src/mythos_v2` — `/api/v2` saves + AI GM.
+- `src/mythos_ui/android` — Capacitor Android app (`docs/android.md`).
+- `resources/neo-seoul/` — game art/music (regenerate with `scripts/v2_assets/`). `scripts/overnight/` — overnight harness policy.
 
-## Build, Test, and Development Commands
+## Commands
 
-Use the Makefile targets from the repository root:
+- `make setup`, `make api` (port busy → `MYTHOS_API_PORT=8010 make api`), `make dev-up` (Postgres + api).
+- `make check` (full gate), `make test-v2` (engine/content), `make test` (Python), `make test-e2e-v2` (headless muted smoke after `make frontend-build`).
 
-- `make setup`: create `.venv` and install the package editable.
-- `make infra-up`: start PostgreSQL, MinIO, Redis, OTel, Jaeger, and Adminer.
-- `make db-migrate`: apply SQL migrations from `migrations/`.
-- `make test`: run standard `unittest` tests.
-- `make test-db`: run PostgreSQL integration tests.
-- `make smoke-local`: run compile, tests, fallback narrative smoke, and visual smoke.
-- `make smoke`: run local smoke plus DB and MinIO checks.
-- `make connect-demo`: create a demo player and start a fallback loop.
-- `make streamlit`: launch the playable Streamlit demo at `http://localhost:8501`.
+## Conventions
 
-## Coding Style & Naming Conventions
+- Engine: no `Math.random`, explicit `.ts` import extensions, rules only in `v2/engine`, data only in `v2/content`.
+- Python: 4-space indent, type hints, `mypy --strict` on `mythos_api` / `mythos_v2`, stdlib `unittest`.
+- Browser tests are always muted (`?mute=1`) and use at most one tab.
+- Commits: concise, scoped imperative subjects. Never commit `.env`, keys, keystores or `google-services.json`.
 
-Use 4-space indentation, type hints, and small functions with explicit boundaries. Follow the existing dataclass-first style in domain code. Module and function names use `snake_case`; classes use `PascalCase`; constants use `UPPER_SNAKE_CASE`. Keep runtime orchestration in `RuntimeSessionService` rather than duplicating logic in CLI or Streamlit.
+## Agent Operations
 
-## Code Navigation
-
-Use Serena's LSP tools first for symbol-oriented navigation such as definitions, references, types, call hierarchies, and workspace symbols. The repository's `.serena/project.yml` configures Pyright for Python and Vtsls for TypeScript. Use `rg` for literals, configuration, comments, and as the fallback when semantic tooling is unavailable; avoid broad file reads when a targeted symbol or text query is sufficient.
-
-## Testing Guidelines
-
-Tests use Python `unittest` and are named `tests/test_*.py`. Keep pure unit tests independent of Docker. Gate DB tests behind `MYTHOS_RUN_DB_TESTS=1`, as `make test-db` does. For changes touching runtime flows, run at least `make smoke-local`; run `make smoke` when persistence or MinIO behavior changes.
-
-## Commit & Pull Request Guidelines
-
-Use concise, scoped imperative commit subjects (Conventional-Commits style is used in history, e.g. `feat(combat): ...`, `docs: ...`, `chore: ...`). PRs should include a short summary, verification commands, linked issue or task context, and screenshots for UI changes.
-
-## Security & Configuration Tips
-
-Do not commit `.env`, Hugging Face tokens, generated model outputs, or `.docker/` data. Copy `.env.example` to `.env` locally. Ollama and FLUX run on the Mac host; Docker is only for local infrastructure.
-
-## Agent Operations & Context
-
-- Operating mandates live in `harness/CORE_MANDATES.md` (§4 testing, §5 agent discipline: measure-before-perf-fix, docs-first status, confirm structural moves, absolute paths, read-back after writes). Follow them.
-- Agent-operation engineering (harness / loop / multi-agent / context / prompt) is defined in `docs/engineering/README.md` — generic bibles (`*_ENGINEERING.md`) plus this repo's interpretation in `docs/engineering/mythos/`.
-- Generic harness workflows are plugin-owned. Use the namespaced Overnight Harness skills: `$overnight-harness:sync`, `$overnight-harness:checkpoint`, `$overnight-harness:tidy-docs`, `$overnight-harness:diagnose`, `$overnight-harness:overnight-report`, and `$overnight-harness:overnight-seed`. They read `.claude/harness-config.json` for this repo's docs, gate, and budgets. Do not bulk-read `docs/`.
-- Repo-local skills are limited to MythOS-specific behavior: `$gameplay-qa` and `$codebase-design`. `.claude/skills/` is their source and `harness/sync-skills.sh` mirrors them into `.agents/skills/`; do not recreate plugin-owned skills locally.
-- This repo runs an unattended overnight loop for `[auto]` tasks (`docs/engineering/mythos/LOOP.md`). The controller is resolved from the plugin (`make overnight-where`); launch with `make overnight-<engine>-once` (single round) / `make overnight-<engine>-watch`.
+- Operating mandates: `harness/CORE_MANDATES.md` (§5 agent discipline). Engineering bibles: `docs/engineering/README.md` + `docs/engineering/mythos/`.
+- Generic workflows are plugin-owned (`$overnight-harness:sync`, `checkpoint`, `tidy-docs`, `diagnose`, `overnight-report`, `overnight-seed`). Repo skills: `$gameplay-qa`, `$codebase-design` (source `.claude/skills/`, mirrored by `harness/sync-skills.sh`).
+- Unattended loop: `make overnight-<engine>-once` / `make overnight-<engine>-watch` (`docs/engineering/mythos/LOOP.md`).

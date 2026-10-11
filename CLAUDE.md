@@ -2,12 +2,12 @@
 
 Guide for the Claude Code agent in this repo. Ground all design in `harness/CORE_MANDATES.md`; read current task context from `harness/CONTEXT_BRIDGE.md` first. The agent operations harness (loop / multi-agent / context / prompt) lives in `docs/engineering/README.md` (universal bible) + `docs/engineering/mythos/` (this repo's interpretation).
 
-**Doc language:** agent-facing operational docs (this file, `harness/*`, `docs/engineering/**`, the `/sync` entry docs, skill bodies, `scripts/overnight/PROMPT*.md`) are authored in **English**. User-facing and narrative content (scenarios, `story_bible`, `directives`, `docs/test` live-QA) stays **Korean**.
+**Doc language:** agent-facing operational docs (this file, `harness/*`, `docs/engineering/**`, the `/sync` entry docs, skill bodies, `scripts/overnight/PROMPT*.md`) are authored in **English**. User-facing and narrative content (game text in `src/v2/content`, `docs/test` play guides) stays **Korean**.
 
 ## Skills (plugin-owned harness + repo-owned domain skills)
 
 - **`overnight-harness:`-prefixed** (`sync`, `checkpoint`, `tidy-docs`, `overnight-report`, `overnight-seed`, `diagnose`) — the plugin is the only source of these generic workflows. They become repo-aware through `.claude/harness-config.json`. Always use the namespaced form in MythOS; do not add no-prefix copies.
-- **No-prefix repo skills** (`gameplay-qa`, `codebase-design`) — MythOS-only domain workflows that the generic plugin does not provide. Any combat/gameplay change verifies via `gameplay-qa` before claiming done (`harness/CORE_MANDATES.md` §5).
+- **No-prefix repo skills** (`gameplay-qa`, `codebase-design`) — MythOS-only domain workflows that the generic plugin does not provide. Any combat/gameplay/balance change verifies via `gameplay-qa` before claiming done (`harness/CORE_MANDATES.md` §5).
 
 `.claude/skills/` is the source only for repo-owned domain skills. Run `bash harness/sync-skills.sh` to project them into `.agents/skills/` for Codex/AGY; `make check` rejects drift or reintroduced plugin duplicates. Plugin lifecycle skills are installed/versioned outside this repository and are never mirrored here.
 
@@ -18,109 +18,54 @@ Guide for the Claude Code agent in this repo. Ground all design in `harness/CORE
 
 ## What this is
 
-The local MVP runtime for Project MythOS (`세계:접속`) — an AI-run, loop-based narrative simulation. The runnable vertical: create a player, start a loop, make a choice, resume, archive a loop into an "Echo", and carry that Echo into the next loop as a player memory. Loop state persists to PostgreSQL, representative images go to MinIO (or filesystem), runs emit structured JSON logs (stderr) + OpenTelemetry traces to Jaeger. Everything is local; an Ollama LLM drives narrative and a Diffusers FLUX pipeline renders images on Apple Silicon MPS. The standalone **image agent** (`mythos_image_agent`) is retained: Ollama expands a (usually Korean) idea into an English prompt, then `black-forest-labs/FLUX.1-schnell` renders on MPS (only network dep: first-time HF model download).
+**Mythos 2.0 — 세계:접속 "Signal Run"**: a single-player cyberpunk tactics deck-builder roguelite. Into the Breach-style telegraphed combat on a 7×5 board + Slay the Spire deck/implants + a Hades-style Archive meta loop, set in Neo-Seoul under the administrator AI IX. The game runs entirely in the browser (pure-TS engine); an AI GM (Ollama locally, Vertex Gemini in the cloud) adds narration, companion chat and IX comms **off the critical path** — authored text always shows first and every AI call has an authored fallback. Ships as a web app on Cloud Run and as an Android app (Capacitor). The 1.x AI-narrated loop runtime is archived on branch **`1.0`**.
 
-**Docs by role** (`docs/README.md` = map, `docs/DOCS_POLICY.md` = rules). Vision/design: `bin/docs/archive/DRAFT.md` (game vision/세계관; its cloud stack is aspirational) and `DESIGN.md` (authoritative system design — components, runtime sequences, PostgreSQL schema, principles §17, risks §18, diagrams §19, hardware/stack §20). Living trackers: `STATUS.md` (current state/focus/risks — read first), `NEXT_PLAN.md` (rolling plan), `PROGRESS_LOG.md` (dated increments, newest on top), `COMPLETED_SUMMARY.md`, `DECISIONS.md`. Dated snapshots in `docs/plans/YYYY-MM-DD-<topic>.md`. **Read `STATUS.md` + `NEXT_PLAN.md` before working**; on progress append `PROGRESS_LOG.md` then update `STATUS.md` (+ `COMPLETED_SUMMARY.md`/`DECISIONS.md` as warranted). Authoritative schema source is `migrations/001_init.sql`.
+**Docs by role** (`docs/README.md` = map, `docs/DOCS_POLICY.md` = rules). Rules: `docs/GAMEPLAY.md`. Design/build contract: `docs/plans/2026-10-10-mythos-2.0.md`. Living trackers: `STATUS.md` (read first), `NEXT_PLAN.md`, `PROGRESS_LOG.md` (newest on top), `COMPLETED_SUMMARY.md`, `DECISIONS.md`. Android: `docs/android.md`. Owner play guide: `docs/test/mythos2_first_play.md`.
 
 ## Commands
 
 ```bash
-make setup        # create .venv, pip install -e .
-make doctor       # python agent.py --doctor (env preflight; does NOT load FLUX)
-make hf-login     # hf auth login
-make run          # image agent: generate from a sample Korean prompt
-make clean        # remove caches and build artifacts
-make streamlit    # streamlit run streamlit_app.py
+make setup            # .venv + pip install -e ".[dev]" + npm ci
+make api              # local server: SPA at /, API under /api/v2 (port busy → MYTHOS_API_PORT=8010 make api)
+make dev-up           # Postgres (docker) + migrate + api; the API also runs without a DB (in-memory saves)
+cd src/mythos_ui && npx vite      # dev UI with HMR; proxies /api and /resources to the local api
+make frontend-build   # build the SPA into src/mythos_api/static (committed; Cloud Run serves it)
 ```
 
-### Playing the runtime (CLI)
+### Tests & gates
 
 ```bash
-make connect-demo   # fast fallback demo: new-player + connect --fallback
-
-python -m mythos_runtime.connect_cli new-player "이름" --player-id player_001
-python -m mythos_runtime.connect_cli connect --player-id player_001 --fallback   # no Ollama
-python -m mythos_runtime.connect_cli connect --player-id player_001              # real Narrative Director (needs Ollama)
-python -m mythos_runtime.connect_cli choose --loop-id <id> --choice-id <id> --fallback
-python -m mythos_runtime.connect_cli resume --loop-id <id>
-python -m mythos_runtime.connect_cli archive --loop-id <id>
+make check            # skills mirror, doc budget, ruff/eslint, mypy (+strict on mythos_api/mythos_v2), tsc/vite build, test-v2, test
+make test-v2          # engine/content tests: node --test src/v2/ (Node native TS)
+make test             # Python unittest: /api/v2 (saves, GM, talk) + overnight-harness scripts
+make test-e2e-v2      # headless muted browser smoke (needs make frontend-build)
+make test-db          # Postgres save-store tests (MYTHOS_RUN_DB_TESTS=1; needs make dev-up)
 ```
 
-`--fallback` skips Ollama (canned narrative); default calls the Ollama-backed Narrative Director. `--with-image` (+ optional `--filesystem-image`/`--image-width`/`--image-height`/`--image-steps`) generates a representative image; without `--filesystem-image` it uploads to MinIO. Default image 1024×1024 / 4 steps.
+Browser testing is **always silent** (`?mute=1` / localStorage `mythos2.mute=1`) and uses **at most one browser tab** (owner directive); prefer headless Playwright. Combat sandbox: `/?sandbox=combat&mute=1&enc=<encounterId>`. Balance: `simulateRun()` in `engine/runSim.ts` (see `.claude/skills/gameplay-qa/references/qa-routes.md`).
 
-### Image agent (direct)
+### Deploy
 
-Activate the venv first (`source .venv/bin/activate`):
-
-```bash
-python agent.py "한글 아이디어"                  # expand + generate
-python agent.py "english prompt" --no-enhance     # skip LLM expansion, pass straight to FLUX
-python agent.py "아이디어" --expand-only          # print expanded prompt only; never loads FLUX
-python agent.py "아이디어" --output outputs/foo.png
-python agent.py --help
-```
-
-Key flags: `--steps` (default 4), `--seed` (42), `--width`/`--height` (1024), `--model-id`, `--ollama-model`.
-
-### Tests & smoke
-
-```bash
-make test         # unittest discover -s tests   (MYTHOS_LOG_LEVEL=ERROR)
-make test-db      # postgres integration tests (MYTHOS_RUN_DB_TESTS=1; needs infra-up + db-migrate)
-make smoke-local  # compileall + test + narrative-smoke-fallback + visual-smoke (no external services)
-make smoke        # smoke-local + test-db + visual-smoke-minio-db (needs full infra)
-
-make narrative-smoke           # python -m mythos_narrative.smoke (uses Ollama)
-make narrative-smoke-fallback  # canned, no Ollama
-make visual-smoke              # fake-PNG visual path, no FLUX
-make visual-smoke-minio-db     # visual path -> MinIO + Postgres
-make visual-smoke-flux-tiny    # real FLUX at 128x128, 1 step
-```
-
-Single module: `MYTHOS_LOG_LEVEL=ERROR .venv/bin/python -m unittest discover -s tests -p 'test_loop_engine.py'`. DB tests (`tests/test_postgres_store.py`) skip unless `MYTHOS_RUN_DB_TESTS=1` + Postgres up/migrated. Quality: ruff (`[tool.ruff]` in `pyproject.toml`) + mypy (dev deps via `pip install -e .[dev]`), eslint on frontend; `make lint`/`typecheck`/`check`/`check-auto` wire them. `make check` also runs `check-skills` (mirror drift) + `check-doc-budget` (entry-doc line caps). CI (`.github/workflows/ci.yml`) runs `make lint`/`typecheck`/`test` on push/PR to `main`. Tests use stdlib `unittest` (not pytest).
-
-### Local infra (stateful stores + dev tooling; Ollama and FLUX stay on the host)
-
-```bash
-make infra-up     # docker compose -f docker-compose.local.yml up -d
-make infra-ps     # service status
-make infra-logs   # follow logs
-make infra-down   # stop and remove containers
-make infra-reset  # down -v AND wipe .docker/ volume data (destructive)
-make db-migrate   # apply migrations/*.sql inside the postgres container
-make db-reset     # DROP/CREATE public schema, then re-migrate (destructive)
-make db-shell     # psql into the postgres container
-```
-
-`docker-compose.local.yml`: postgres:5432, adminer:8080, minio:9000/9001 (`minio-init` bootstraps buckets), otel-collector:4317/4318, jaeger:16686. (Redis was removed 2026-07-04 — image generation is synchronous in-request everywhere.) Volume data under `.docker/` (gitignored). OTel config `docker/otel-collector-config.yaml`; the collector owns the host OTLP ports and forwards to Jaeger internally.
+`make deploy` (Cloud Run, env-preserving, `.env` `PROJECT_ID`) / `make deploy-preview` (no-traffic tagged revision). Deploys are owner decisions; `git push` is owner-only.
 
 ## Architecture
 
-Source under `src/` (setuptools src-layout; `pip install -e .` exposes packages; `agent.py` also prepends `src/` to `sys.path`). Small packages — see `DESIGN.md` for full specs:
-
-- **`mythos_core`** — shared domain layer. `models.py` (frozen dataclasses: `PlayerProfile`/`LoopState`/`Scene`/`Choice`/`WorldEvent`/`Echo`/`PlayerMemory`/`WorldMemory`/`AssetRecord`, `LoopPhase`/`Actor` `StrEnum`s, generic `to_json_dict`/`from_json_dict`); `ids.py` (prefixed UUIDs); `seed.py` (deterministic loop seed = sha256 of player+loop_index+memory snapshot); `clock.py` (`utc_now()`).
-- **`mythos_memory`** — persistence. `store.py` = `MythOSStore` ABC (+ `transaction()`); `postgres_store.py` = psycopg impl, `DATABASE_URL` default `postgresql://mythos:mythos@localhost:5432/mythos`, reentrant transactions. Loop `active_echoes` live in `loops.state` JSON under `_active_echoes`. Schema `migrations/001_init.sql`.
-- **`mythos_narrative`** — Narrative Director. `director.py` `NarrativeDirector` calls an LLM `JSONProvider` (default `OllamaJSONProvider`) → JSON `ScenePayload`. Flow: generate → `parser.parse_scene_payload` → one LLM **repair** on parse failure → deterministic **fallback** (also `--fallback`). `schemas.py` limits: `MAX_NARRATION_CHARS=2200`, `MAX_VISUAL_BRIEF_CHARS=700`, `MAX_CHOICES=4`. `prompts.py` builds messages; `smoke.py` standalone entry.
-- **`mythos_loop`** — state machine. `LoopPhase`: `CONNECT → EXPLORE → INTERACT → REWRITE → ARCHIVE → ENDED`. `engine.py` `apply_scene_payload()` validates, advances phase, clamps `stability`/`tension` 0–100, merges `world_delta` flags, mints an `Echo` on ARCHIVE/ENDED. Auto-archives at `stability<=10` / `tension>=90` / payload `end_condition`. `validator.py` enforces transitions + clamps world-delta to ±25; `events.py` builds `WorldEvent`s.
-- **`mythos_runtime`** — orchestration. `session.py` `RuntimeSessionService` = core API (`create_player`/`start_loop`/`choose`/`resume`/`archive`), wiring store+director+engine, one DB transaction per transition. `connect_cli.py` = CLI; `streamlit_app.py` = UI; `visual_service.py` = pluggable `VisualProvider` (`LocalFluxProvider` → `mythos_image_agent.generate_image`) + `StorageAdapter` (`Filesystem`/`MinIO` via boto3), recording an `AssetRecord` per attempt (tests inject a fake provider). `observability.py` = JSON logger, OTLP/Jaeger `span()`, `timed()`.
-- **`mythos_image_agent`** — standalone two-stage image pipeline (below).
-
-### Image agent pipeline
-
-1. **`prompting.py`** — `expand_prompt()` calls Ollama (OpenAI-compatible endpoint). System prompt → one clean English paragraph <70 words. Only stage needing Ollama.
-2. **`generator.py`** — `generate_image()` loads `FluxPipeline` on MPS (`bfloat16`), VAE tiling, saves PNG; translates `GatedRepoError`/`HfHubHTTPError` into actionable `RuntimeError`s about HF access.
-
-`cli.py` orchestrates: args → `AgentConfig` → optional expand → optional generate. **Heavy imports (`torch`, `diffusers`, `prompting`) are deferred inside `main()`/function bodies**, so `--help`/`--doctor`/`--expand-only` stay fast without torch. `mythos_runtime.visual_service` imports `generate_image` at module level but torch only loads when it runs — **preserve this lazy-import pattern** so importing the runtime never pulls in torch. `config.py` `AgentConfig` = frozen dataclass, defaults from env (`.env` at import); `hf_auth_token` returns token or `True`. `doctor.py` `run_doctor()` checks Python/arch, MPS, packages, Ollama + model, and HF gated access (dry-run `hf_hub_download` of `model_index.json`); never loads FLUX weights.
+- **`src/mythos_ui/src/v2/engine`** — pure TypeScript, seeded RNG stored in state, JSON-serialisable state, reducers clone→mutate→return. `types.ts` is the contract. Combat (`combat.ts`, `effects.ts`, `intents.ts`: telegraphs, push/bump/void, ground fire/live wire, triggers, companion passives), run/map/meta (`run.ts`, `map.ts`, `meta.ts`, `daily.ts`), bots + simulator (`combatSim.ts`, `runSim.ts`). Never `Math.random` here; imports use explicit `.ts` extensions.
+- **`src/v2/content`** — typed game data (cards, enemies, encounters, implants, consumables, companions, archetypes, events, lore, endings, IX lines, unlocks, paradox). `content.test.ts` / `narrative.test.ts` / `art.test.ts` guard integrity, quotas and 100 % art coverage.
+- **`src/v2/ui`** — React 19 screens (`shell/`), combat board/animator/FX (`combat/`), shared components, `common/` (assets, procedural `sfx.ts`, looped `audio.ts` with hard mute, generated `artManifest.ts`/`spriteManifest.ts`). `src/v2/net/api.ts` = offline-first client for `/api/v2` (localStorage mirror). `src/v2/native/` = Capacitor bridge (Android).
+- **`src/mythos_api`** — FastAPI app: CORS, `/api/health`, mounts `/api/v2`, serves `/resources` and the SPA.
+- **`src/mythos_v2`** — `/api/v2` router (`api.py`), save store (`store.py`: Postgres `v2_saves` with memory fallback, self-creating DDL = `migrations/009_v2_saves.sql`), AI GM (`gm.py` narrate/improvise, `talk.py` companion chat + IX comms, `llm.py` Ollama/Gemini seam, `config.py`, `log.py`).
+- **`resources/neo-seoul/`** — game art/music (2.0 generated set under `v2/`; regenerate via `scripts/v2_assets/`).
+- **`src/mythos_ui/android/`** — Capacitor Android project (see `docs/android.md`).
 
 ## Environment & constraints
 
-- **Apple Silicon / MPS only** for image generation. `generator.py` hard-fails if MPS unavailable. `PYTORCH_ENABLE_MPS_FALLBACK=1` default. Non-image paths (`--fallback`, fake-PNG visual smoke) need no MPS.
-- **FLUX.1-schnell is a gated HF repo** — accept access + `HF_TOKEN` in `.env` or local `hf auth login`. `make doctor` fails if access missing.
-- Config via `.env` (copy `.env.example`): Ollama (`OLLAMA_BASE_URL`, `OLLAMA_MODEL` default `gemma4:latest`), `IMAGE_MODEL_ID`, `OUTPUT_DIR`, `HF_TOKEN`, + PostgreSQL/MinIO/OTel. OOM mitigation: `PYTORCH_MPS_HIGH_WATERMARK_RATIO=0.0` (removes MPS guardrail — can swap heavily).
-- `MYTHOS_LOG_LEVEL` controls runtime log verbosity (tests use `ERROR`). `MYTHOS_RUN_DB_TESTS=1` opts into Postgres tests. `outputs/` is gitignored except `.gitkeep` (default `outputs/mythos-output.png`).
+- Config via `.env`: `OLLAMA_BASE_URL`, `OLLAMA_MODEL_STORY` (local GM; `gemma4:8b-64k` is the locally installed model), `MYTHOS_NARRATIVE_PROVIDER=vertex` + `PROJECT_ID` (cloud GM via ADC), `DATABASE_URL`, `MYTHOS_INVITE_KEYS` (closed beta), `MYTHOS_CORS_ORIGINS`. Never print or commit `.env` values.
+- `MYTHOS_LOG_LEVEL` controls server log verbosity (tests use `ERROR`). `MYTHOS_RUN_DB_TESTS=1` opts into Postgres tests. `outputs/` is gitignored.
+- Asset generation: Vertex Gemini image (scenes/cards), Codex image (transparent sprites), Vertex Lyria (music loops) — `scripts/v2_assets/`, with a call budget ledger.
 
 ## Agent execution constraints (from /insights 2026-07-05 — recurring friction)
 
 - **Gate commands**: run `make check`/`make test`/… from the repo root exactly as listed in Commands. Never chain with `cd && <cmd>` (sandbox blocks compound forms); use absolute paths or Makefile targets.
-- **Permission-classifier hard blocks — do not retry; hand the user the exact command to run via the `!` prefix instead**: `git push` (private repo), IAM/role grants (`gcloud iam …`), printing or materializing credentials (admin keys, tokens, `INVITE_KEY.md`; subshell injection without echoing is acceptable), editing shell profiles (`~/.zshrc`) or creating launchd/system services, plugin-marketplace config edits, launching agents with `--dangerously-skip-permissions`.
+- **Permission-classifier hard blocks — do not retry; hand the user the exact command to run via the `!` prefix instead**: `git push` (private repo), IAM/role grants (`gcloud iam …`), printing or materializing credentials (admin keys, tokens, invite keys, signing keystores; subshell injection without echoing is acceptable), editing shell profiles (`~/.zshrc`) or creating launchd/system services, plugin-marketplace config edits, launching agents with `--dangerously-skip-permissions`.
 - **Destructive cleanup**: prefer explicit file-by-file removal over broad `rm -rf` on source/tool directories; confirm before deleting anything you did not create.

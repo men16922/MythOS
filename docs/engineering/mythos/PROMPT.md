@@ -25,9 +25,10 @@ integration-diff reviewer, not the unattended actor prompt.
 
 ## Runtime narrative prompt
 
-Runtime narrative prompt/schema code remains under `src/mythos_narrative/`. It is a product surface,
-not part of the harness contract. Controlled generation, repair/fallback, context selection, and
-register evaluation remain governed by `docs/DESIGN.md`, `harness/CORE_MANDATES.md`, and human play QA.
+The 2.0 AI GM prompts live in `src/mythos_v2/gm.py` (narrate / improvise) and `src/mythos_v2/talk.py`
+(companion chat, IX comms). They are a product surface, not part of the harness contract; authored
+fallbacks, output cleaning and register are governed by `docs/GAMEPLAY.md`, `harness/CORE_MANDATES.md`
+and human play QA.
 
 Narrative tone, repetition feel, pacing, and story-bible authoring do not compile as unattended work.
 Deterministic subproblems may be split into objective `[auto:<lane>]` items with named tests.

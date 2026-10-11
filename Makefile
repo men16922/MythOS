@@ -334,9 +334,9 @@ deploy-preview:
 	gcloud run deploy mythos-api --source . --region $(REGION) --project "$$PROJECT_ID" --timeout $(CLOUD_RUN_TIMEOUT) --update-env-vars "$$AUTH_ENV" --no-traffic --tag v2-preview --quiet
 
 # Whole-run UI bot: plays map -> events -> fights -> rewards through the real buttons (headless, muted, private ports),
-# then tours shop / safehouse / treasure / final choice -> ending. Fails on a stuck screen or any console error. ~9 min.
+# then tours shop / safehouse / treasure / final choice -> ending. Fails on a stuck screen or any console error. ~20 min.
 playthrough:
-	$(VENV)/bin/python scripts/dev/ui_playthrough.py --runs 1 --max-minutes 10
+	$(VENV)/bin/python scripts/dev/ui_playthrough.py --runs 1 --max-minutes 45
 
 # Store trailer: records the real game (headless, muted, private ports) and cuts it with ffmpeg → outputs/trailer/mythos2_trailer.mp4.
 # `make trailer-cut` re-cuts the kept recordings only (captions, timing) without re-recording.

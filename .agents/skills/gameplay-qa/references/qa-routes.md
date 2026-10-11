@@ -11,6 +11,9 @@
 - Baseline 2026-10-11, P0 over 360 runs: greedy 100 % · mixed ≈ 35 % (28–41 % by seed block) · basic 0 %; P5: 78 / 3.
 - A/B a change on identical seed blocks; report per-act turns and HP lost from `onFight` telemetry.
 - Daily-seed determinism: `engine/daily.test.ts`.
+- Card value (standalone): `node --experimental-strip-types src/mythos_ui/src/v2/engine/card-value.report.ts [cardId …]` (env `ACT=2|3`, `POLICY=greedy|mixed`, `SEEDS`, `OFF`). Adds two copies of each card to a starter deck and compares HP lost / turns / losses on the same seeds. Use `POLICY=mixed` (the `greedy` bot rarely takes damage, so defence looks worthless), run two `OFF` values, and treat it as a watch list: setup/engine/synergy cards score low by construction.
+- Per-encounter telemetry: `simulateRun(…, { onFight })` → per-encounter loss rate / turns / HP lost; isolate one fight with `autoPlay(startCombat(run, id, C), C, policy)` on starter decks (`combat-content.test.ts` shows the shape).
+- Event balance: `engine/event-balance.test.ts` (best open option 0.5–12 on the simulator's own scale).
 
 ## Browser layers (always muted, headless preferred)
 - Combat sandbox: `/?sandbox=combat&mute=1&enc=<encounterId>` (e.g. `a1_n2_nest`, `a2_elite_incinerator`, `a3_boss_ix`); `vw`/`vh` params size the stage.

@@ -1,5 +1,6 @@
-"""/api/v2 router: saves round trip, size/identity/invite checks, and the AI GM's
-LLM path, guard rails and fallbacks — memory store + fake LLM, no Docker/Ollama."""
+"""/api/v2 router: saves round trip, size/identity checks, sign-in modes (open | google), /config,
+and the AI GM's LLM path, guard rails and fallbacks — memory store + fake LLM + fake token verifier,
+no Docker/Ollama/network."""
 
 from __future__ import annotations
 
@@ -15,10 +16,44 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from mythos_v2.api import V2Settings, create_v2_router
+from mythos_v2.auth import (
+    AuthConfig,
+    AuthMode,
+    CertsUnavailableError,
+    TokenError,
+    player_id_for_uid,
+)
 from mythos_v2.store import MemoryV2Store, Slot, StoreUnavailableError, V2Store
 
 PLAYER = "player_0123456789abcd"
 HEADERS = {"X-Player-Id": PLAYER}
+WEB_CONFIG = {
+    "apiKey": "AIza-test-key",
+    "authDomain": "demo-mythos.firebaseapp.com",
+    "projectId": "demo-mythos",
+    "appId": "1:42:web:abc",
+    "messagingSenderId": "42",
+}
+
+
+class FakeVerifier:
+    """``good:<uid>`` verifies as ``uid``; ``down`` means Google's certs are unreachable; anything else
+    is rejected."""
+
+    def __init__(self) -> None:
+        self.calls = 0
+
+    def verify(self, token: str) -> str:
+        self.calls += 1
+        if token == "down":
+            raise CertsUnavailableError("down")
+        if token.startswith("good:") and len(token) > 5:
+            return token[5:]
+        raise TokenError("bad signature")
+
+
+def bearer(uid: str) -> dict[str, str]:
+    return {"Authorization": f"Bearer good:{uid}"}
 
 
 class FakeLLM:
@@ -61,7 +96,9 @@ def _client(
     *,
     llm: FakeLLM | None = None,
     store_factory: Callable[[], V2Store] = MemoryV2Store,
-    keys: set[str] | None = None,
+    mode: AuthMode = "open",
+    web_config: dict[str, str] | None = None,
+    verifier: FakeVerifier | None = None,
     **settings: Any,
 ) -> TestClient:
     app = FastAPI()
@@ -70,7 +107,8 @@ def _client(
             store_factory=store_factory,
             llm_factory=lambda: llm,
             settings=V2Settings(**settings),
-            invite_keys=lambda: set(keys or ()),
+            auth=AuthConfig(mode=mode, project_id="demo-mythos", web_config=web_config),
+            verifier=verifier or FakeVerifier(),
         )
     )
     return TestClient(app)
@@ -129,7 +167,15 @@ class SavesTest(unittest.TestCase):
 
     def test_player_id_validation(self) -> None:
         self.assertEqual(self.client.get("/api/v2/profile").status_code, 400)
-        for bad in ("short", "has space in it", "bad/chars/here", "x" * 65, "dots.are.not.ok"):
+        signed_in_id = player_id_for_uid("someone")  # the g_ namespace is not claimable by header
+        for bad in (
+            "short",
+            "has space in it",
+            "bad/chars/here",
+            "x" * 65,
+            "dots.are.not.ok",
+            signed_in_id,
+        ):
             with self.subTest(bad=bad):
                 res = self.client.get("/api/v2/profile", headers={"X-Player-Id": bad})
                 self.assertEqual(res.status_code, 400)
@@ -150,10 +196,14 @@ class SavesTest(unittest.TestCase):
         self.assertTrue(minted["id"].startswith("run_"))
         records = self.client.get("/api/v2/history", headers=HEADERS).json()["records"]
         self.assertEqual({r["id"] for r in records}, {"run_abc", minted["id"]})
-        stolen = self.client.post(
+        # another player posting the same id stores their own record and leaves this one alone
+        theirs = self.client.post(
             "/api/v2/history", headers={"X-Player-Id": "another-player-9"}, json=record
         )
-        self.assertEqual(stolen.status_code, 409)
+        self.assertEqual(theirs.status_code, 200)
+        self.assertEqual(
+            len(self.client.get("/api/v2/history", headers=HEADERS).json()["records"]), 2
+        )
 
     def test_write_rate_limit(self) -> None:
         client = _client(writes_per_minute=2)
@@ -172,25 +222,133 @@ class SavesTest(unittest.TestCase):
         self.assertEqual(res.json(), {"status": "ok", "store": "memory", "gm": "off"})
 
 
-class InviteGateTest(unittest.TestCase):
+# Every route that needs an identity, with a minimal valid request.
+IDENTITY_ROUTES: list[tuple[str, str, dict[str, Any] | None]] = [
+    ("GET", "/api/v2/profile", None),
+    ("PUT", "/api/v2/profile", {"version": 2}),
+    ("GET", "/api/v2/run", None),
+    ("PUT", "/api/v2/run", {"version": 2}),
+    ("DELETE", "/api/v2/run", None),
+    ("GET", "/api/v2/history", None),
+    ("POST", "/api/v2/history", {"loop": 1}),
+    ("POST", "/api/v2/gm/narrate", {"kind": "boss", "lang": "en"}),
+    ("POST", "/api/v2/gm/improvise", {"lang": "en", "action": "look around"}),
+    ("POST", "/api/v2/gm/talk", {"mode": "ix", "lang": "en", "trigger": "boss_start"}),
+]
+
+
+class GoogleModeTest(unittest.TestCase):
     def setUp(self) -> None:
-        self.client = _client(keys={"alpha", "beta"})
+        self.verifier = FakeVerifier()
+        self.client = _client(mode="google", verifier=self.verifier, web_config=WEB_CONFIG)
 
-    def test_gated_routes_need_a_valid_key(self) -> None:
-        self.assertEqual(self.client.get("/api/v2/profile", headers=HEADERS).status_code, 401)
-        wrong = {**HEADERS, "X-Invite-Key": "gamma"}
-        self.assertEqual(self.client.get("/api/v2/profile", headers=wrong).status_code, 401)
-        good = {**HEADERS, "X-Invite-Key": "alpha"}
-        self.assertEqual(self.client.get("/api/v2/profile", headers=good).status_code, 200)
-        by_query = self.client.get("/api/v2/profile?invite=beta", headers=HEADERS)
-        self.assertEqual(by_query.status_code, 200)
-        narrate = self.client.post(
-            "/api/v2/gm/narrate", headers=HEADERS, json={"kind": "boss", "lang": "en"}
-        )
-        self.assertEqual(narrate.status_code, 401)
+    def call(
+        self, method: str, path: str, body: dict[str, Any] | None, headers: dict[str, str]
+    ) -> Any:
+        return self.client.request(method, path, headers=headers, json=body)
 
-    def test_health_stays_open(self) -> None:
+    def test_every_identity_route_needs_a_valid_token(self) -> None:
+        for method, path, body in IDENTITY_ROUTES:
+            with self.subTest(method=method, path=path):
+                for headers in ({}, HEADERS, {**HEADERS, "Authorization": "Bearer nope"}):
+                    res = self.call(method, path, body, headers)
+                    self.assertEqual(res.status_code, 401, (headers, res.text))
+                    self.assertEqual(res.json(), {"detail": "sign-in required"})
+                    self.assertEqual(res.headers.get("www-authenticate"), "Bearer")
+                ok = self.call(method, path, body, bearer("uid-1"))
+                self.assertEqual(ok.status_code, 200, ok.text)
+
+    def test_token_identity_is_a_hashed_uid_and_wins_over_x_player_id(self) -> None:
+        put = self.client.put("/api/v2/profile", headers={**HEADERS, **bearer("u1")}, json={"a": 1})
+        self.assertEqual(put.status_code, 200)
+        got = self.client.get("/api/v2/profile", headers=bearer("u1")).json()
+        self.assertEqual(got["data"], {"a": 1})
+        self.assertIsNone(self.client.get("/api/v2/profile", headers=bearer("u2")).json()["data"])
+        # stored under g_<sha256(uid)[:32]>, not under the header's id
+        open_client = _client()
+        self.assertIsNone(open_client.get("/api/v2/profile", headers=HEADERS).json()["data"])
+
+    def test_public_routes_need_no_token(self) -> None:
         self.assertEqual(self.client.get("/api/v2/health").status_code, 200)
+        cfg = self.client.get("/api/v2/config")
+        self.assertEqual(cfg.status_code, 200)
+        self.assertEqual(
+            cfg.json(), {"auth": "google", "firebase": WEB_CONFIG, "leaderboard": True}
+        )
+        self.assertEqual(self.verifier.calls, 0)
+
+    def test_cert_outage_is_503_not_401(self) -> None:
+        res = self.client.get("/api/v2/profile", headers={"Authorization": "Bearer down"})
+        self.assertEqual(res.status_code, 503)
+
+    def test_non_bearer_authorization_is_not_a_sign_in(self) -> None:
+        res = self.client.get("/api/v2/profile", headers={"Authorization": "Basic dTpw"})
+        self.assertEqual(res.status_code, 401)
+
+
+class OpenModeTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.client = _client()
+
+    def test_x_player_id_still_works(self) -> None:
+        for method, path, body in IDENTITY_ROUTES:
+            with self.subTest(method=method, path=path):
+                res = self.client.request(method, path, headers=HEADERS, json=body)
+                self.assertEqual(res.status_code, 200, res.text)
+
+    def test_a_failing_token_is_401_even_with_a_player_id(self) -> None:
+        res = self.client.get(
+            "/api/v2/profile", headers={**HEADERS, "Authorization": "Bearer expired"}
+        )
+        self.assertEqual(res.status_code, 401)
+        self.assertEqual(res.json(), {"detail": "sign-in required"})
+        empty = self.client.get("/api/v2/profile", headers={**HEADERS, "Authorization": "Bearer "})
+        self.assertEqual(empty.status_code, 401)
+
+    def test_a_valid_token_wins_over_x_player_id(self) -> None:
+        self.client.put("/api/v2/run", headers={**HEADERS, **bearer("u9")}, json={"hp": 1})
+        self.assertIsNone(self.client.get("/api/v2/run", headers=HEADERS).json()["data"])
+        self.assertEqual(
+            self.client.get("/api/v2/run", headers=bearer("u9")).json()["data"], {"hp": 1}
+        )
+
+    def test_config(self) -> None:
+        res = self.client.get("/api/v2/config")
+        self.assertEqual(res.json(), {"auth": "open", "firebase": None, "leaderboard": True})
+        with_web = _client(web_config=WEB_CONFIG).get("/api/v2/config").json()
+        self.assertEqual(with_web["firebase"], WEB_CONFIG)
+
+
+class InviteKeysRemovedTest(unittest.TestCase):
+    """The closed-beta invite gate is gone: no env, header, query param or router argument."""
+
+    def test_router_has_no_invite_parameter(self) -> None:
+        with self.assertRaises(TypeError):
+            create_v2_router(invite_keys=lambda: {"alpha"})  # type: ignore[call-arg]
+
+    def test_invite_env_and_headers_are_ignored(self) -> None:
+        from mythos_api.app import create_app
+
+        env = {"MYTHOS_V2_STORE": "memory", "MYTHOS_V2_GM": "off", "MYTHOS_INVITE_KEYS": "alpha"}
+        with mock.patch.dict(os.environ, env):
+            os.environ.pop("MYTHOS_AUTH", None)
+            client = TestClient(create_app())
+            self.assertEqual(client.get("/api/v2/run", headers=HEADERS).status_code, 200)
+            wrong = client.get("/api/v2/run?invite=nope", headers={**HEADERS, "X-Invite-Key": "x"})
+            self.assertEqual(wrong.status_code, 200)
+
+    def test_cors_no_longer_allows_the_invite_header(self) -> None:
+        from mythos_api.app import create_app
+
+        res = TestClient(create_app()).options(
+            "/api/v2/profile",
+            headers={
+                "Origin": "https://localhost",
+                "Access-Control-Request-Method": "GET",
+                "Access-Control-Request-Headers": "X-Invite-Key",
+            },
+        )
+        self.assertEqual(res.status_code, 400)
 
 
 class NarrateTest(unittest.TestCase):
@@ -370,25 +528,38 @@ class ImproviseTest(unittest.TestCase):
 
 
 class AppIntegrationTest(unittest.TestCase):
-    """The real app factory mounts /api/v2 ahead of the static catch-all and the
-    router honours MYTHOS_INVITE_KEYS through mythos_api.invite."""
+    """The real app factory mounts /api/v2 ahead of the static catch-all and reads the sign-in mode
+    and the Firebase web config from the environment."""
 
     def test_mounted_in_create_app(self) -> None:
         from mythos_api.app import create_app
 
-        env = {"MYTHOS_V2_STORE": "memory", "MYTHOS_V2_GM": "off"}
+        env = {"MYTHOS_V2_STORE": "memory", "MYTHOS_V2_GM": "off", "MYTHOS_AUTH": "open"}
+        with mock.patch.dict(os.environ, env), TestClient(create_app()) as client:
+            health = client.get("/api/v2/health")
+            self.assertEqual(health.json(), {"status": "ok", "store": "memory", "gm": "off"})
+            put = client.put("/api/v2/profile", headers=HEADERS, json={"version": 2})
+            self.assertEqual(put.status_code, 200)
+
+    def test_google_mode_from_env(self) -> None:
+        from mythos_api.app import create_app
+
+        extra = {**WEB_CONFIG, "storageBucket": "demo.appspot.com", "measurementId": "G-1"}
+        env = {
+            "MYTHOS_V2_STORE": "memory",
+            "MYTHOS_V2_GM": "off",
+            "MYTHOS_AUTH": "google",
+            "MYTHOS_FIREBASE_PROJECT": "demo-mythos",
+            "MYTHOS_FIREBASE_WEB_CONFIG": json.dumps(extra),
+        }
         with mock.patch.dict(os.environ, env):
-            os.environ.pop("MYTHOS_INVITE_KEYS", None)
-            with TestClient(create_app()) as client:
-                health = client.get("/api/v2/health")
-                self.assertEqual(health.json(), {"status": "ok", "store": "memory", "gm": "off"})
-                put = client.put("/api/v2/profile", headers=HEADERS, json={"version": 2})
-                self.assertEqual(put.status_code, 200)
-            with mock.patch.dict(os.environ, {"MYTHOS_INVITE_KEYS": "alpha"}):
-                client = TestClient(create_app())
-                self.assertEqual(client.get("/api/v2/run", headers=HEADERS).status_code, 401)
-                ok = client.get("/api/v2/run", headers={**HEADERS, "X-Invite-Key": "alpha"})
-                self.assertEqual(ok.status_code, 200)
+            client = TestClient(create_app())
+            self.assertEqual(client.get("/api/v2/run", headers=HEADERS).status_code, 401)
+            cfg = client.get("/api/v2/config").json()
+            self.assertEqual(cfg, {"auth": "google", "firebase": WEB_CONFIG, "leaderboard": True})
+            # health and config carry nothing beyond the public web config
+            health = client.get("/api/v2/health").text
+            self.assertNotIn("demo-mythos", health)
 
 
 if __name__ == "__main__":
@@ -409,10 +580,12 @@ class CorsTest(unittest.TestCase):
             headers={
                 "Origin": "https://localhost",
                 "Access-Control-Request-Method": "PUT",
-                "Access-Control-Request-Headers": "X-Player-Id, Content-Type",
+                "Access-Control-Request-Headers": "X-Player-Id, Content-Type, Authorization",
             },
         )
         self.assertEqual(res.status_code, 200)
+        allowed = res.headers.get("access-control-allow-headers", "").lower()
+        self.assertIn("authorization", allowed)
         self.assertEqual(res.headers.get("access-control-allow-origin"), "https://localhost")
         other = client.options(
             "/api/v2/health",

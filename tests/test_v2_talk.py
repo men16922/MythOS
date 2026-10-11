@@ -18,6 +18,7 @@ from fastapi.testclient import TestClient
 
 from mythos_v2 import gm, talk
 from mythos_v2.api import V2Settings, create_v2_router
+from mythos_v2.auth import AuthConfig
 from mythos_v2.gm import Lang
 from mythos_v2.store import MemoryV2Store
 
@@ -74,7 +75,7 @@ def _client(*, llm: FakeLLM | None = None, **settings: Any) -> TestClient:
             store_factory=MemoryV2Store,
             llm_factory=lambda: llm,
             settings=V2Settings(**settings),
-            invite_keys=set,
+            auth=AuthConfig(),
         )
     )
     return TestClient(app)

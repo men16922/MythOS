@@ -1,5 +1,5 @@
-"""Mythos 2.0 save store: memory semantics, DDL parity with migration 009,
-store selection/fallback, and (opt-in) the Postgres implementation."""
+"""Mythos 2.0 store: saves/history/daily-leaderboard semantics, DDL parity with migrations 009 + 010,
+store selection/fallback, and (opt-in, MYTHOS_RUN_DB_TESTS=1) the Postgres implementation."""
 
 from __future__ import annotations
 
@@ -8,16 +8,17 @@ import os
 import re
 import unittest
 import uuid
+from datetime import date
 from pathlib import Path
 from unittest import mock
 
 from psycopg_pool import PoolTimeout
 
+from mythos_v2.daily import DailyResult
 from mythos_v2.store import (
     DEFAULT_DATABASE_URL,
     MEMORY_HISTORY_CAP,
     SCHEMA_STATEMENTS,
-    HistoryConflictError,
     MemoryV2Store,
     PostgresV2Store,
     StoreHolder,
@@ -25,7 +26,23 @@ from mythos_v2.store import (
     build_store,
 )
 
-MIGRATION = Path(__file__).resolve().parents[1] / "migrations" / "009_v2_saves.sql"
+MIGRATIONS = Path(__file__).resolve().parents[1] / "migrations"
+V2_MIGRATIONS = ("009_v2_saves.sql", "010_v2_daily_scores.sql", "011_v2_history_per_player.sql")
+DAY = date(2026, 10, 11)
+
+
+def _result(archetype: str, **overrides: object) -> DailyResult:
+    base: dict[str, object] = {
+        "archetype": archetype,
+        "won": False,
+        "act": 2,
+        "floors": 10,
+        "echoes": 30,
+        "kills": 12,
+        "secs": 900,
+    }
+    base.update(overrides)
+    return DailyResult(**base)  # type: ignore[arg-type]
 
 
 def _normalize_sql(sql: str) -> list[str]:
@@ -44,8 +61,10 @@ class _StoreContract:
         raise NotImplementedError
 
     def setUp(self) -> None:
-        self.store = self.make_store()
         self.player = f"tp_{uuid.uuid4().hex[:12]}"
+        # a board of our own (shared Postgres boards may hold other rows): letters only, like ids
+        self.archetype = "t_" + "".join(chr(ord("a") + int(c, 16)) for c in uuid.uuid4().hex[:12])
+        self.store = self.make_store()
 
     def test_save_round_trip_and_upsert(self) -> None:
         case = self._case()
@@ -82,8 +101,57 @@ class _StoreContract:
         case.assertEqual({r["id"] for r in records}, {rid1, rid2})
         case.assertEqual(next(r for r in records if r["id"] == rid1)["n"], 10)
         case.assertEqual(len(self.store.list_history(self.player, 1)), 1)
-        with case.assertRaises(HistoryConflictError):
-            self.store.append_history(f"{self.player}_x", rid1, {"id": rid1})
+        # the same record id under another player is that player's own record (daily runs share ids)
+        other = f"{self.player}_x"
+        self.store.append_history(other, rid1, {"id": rid1, "n": 99})
+        case.assertEqual(
+            next(r for r in self.store.list_history(self.player, 10) if r["id"] == rid1)["n"], 10
+        )
+        case.assertEqual([r["n"] for r in self.store.list_history(other, 10)], [99])
+
+    def test_daily_keep_best_and_rename(self) -> None:
+        case = self._case()
+        p = self.player
+        first = self.store.submit_daily(DAY, p, "first", _result(self.archetype, floors=20))
+        case.assertEqual((first.rank, first.total, first.improved), (1, 1, True))
+        worse = self.store.submit_daily(DAY, p, "renamed", _result(self.archetype, floors=5))
+        case.assertFalse(worse.improved)
+        case.assertEqual(worse.best, _result(self.archetype, floors=20))
+        equal = self.store.submit_daily(DAY, p, "renamed", _result(self.archetype, floors=20))
+        case.assertFalse(equal.improved)
+        better = self.store.submit_daily(
+            DAY, p, "renamed", _result(self.archetype, floors=20, secs=None, won=True)
+        )
+        case.assertTrue(better.improved)
+        case.assertEqual(better.best, _result(self.archetype, floors=20, secs=None, won=True))
+        board = self.store.daily_board(DAY, self.archetype, 10, p)
+        case.assertEqual(board.total, 1)
+        case.assertEqual(board.entries[0][1].name, "renamed")
+        case.assertIsNone(board.entries[0][1].result.secs)
+        case.assertEqual(board.me, board.entries[0])
+
+    def test_daily_ranks_ties_and_me(self) -> None:
+        case = self._case()
+        a, b, c, d = (f"{self.player}_{s}" for s in "abcd")
+        self.store.submit_daily(DAY, a, "A", _result(self.archetype, floors=10))
+        self.store.submit_daily(DAY, b, "B", _result(self.archetype, floors=12))
+        self.store.submit_daily(DAY, c, "C", _result(self.archetype, floors=10))  # ties A, later
+        sub = self.store.submit_daily(DAY, d, "D", _result(self.archetype, floors=11, secs=None))
+        case.assertEqual((sub.rank, sub.total), (2, 4))
+        # A re-submitting the same result keeps its earlier achievement (still ahead of C)
+        case.assertEqual(
+            self.store.submit_daily(DAY, a, "A", _result(self.archetype, floors=10)).rank, 3
+        )
+        board = self.store.daily_board(DAY, self.archetype, 2, c)
+        case.assertEqual(board.total, 4)
+        case.assertEqual([(r, e.name) for r, e in board.entries], [(1, "B"), (2, "D")])
+        assert board.me is not None
+        case.assertEqual((board.me[0], board.me[1].name), (4, "C"))
+        case.assertIsNone(self.store.daily_board(DAY, self.archetype, 2, None).me)
+        case.assertIsNone(self.store.daily_board(DAY, self.archetype, 2, f"{self.player}_z").me)
+        # other dates/archetypes are separate boards
+        case.assertEqual(self.store.daily_board(date(2026, 10, 10), self.archetype, 5, a).total, 0)
+        case.assertEqual(self.store.daily_board(DAY, self.archetype + "x", 5, a).total, 0)
 
     def _case(self) -> unittest.TestCase:
         assert isinstance(self, unittest.TestCase)
@@ -124,10 +192,10 @@ class PostgresStoreTest(_StoreContract, unittest.TestCase):
 
     def _purge(self, store: PostgresV2Store) -> None:
         with store._pool.connection() as conn:
-            for table in ("v2_saves", "v2_run_history"):
+            for table in ("v2_saves", "v2_run_history", "v2_daily_scores"):
                 conn.execute(f"DELETE FROM {table} WHERE player_id LIKE %s", (f"{self.player}%",))
 
-    def test_open_creates_schema_when_migration_009_is_missing(self) -> None:
+    def test_open_creates_schema_when_migrations_are_missing(self) -> None:
         import psycopg
 
         base = os.getenv("DATABASE_URL") or DEFAULT_DATABASE_URL
@@ -143,24 +211,43 @@ class PostgresStoreTest(_StoreContract, unittest.TestCase):
                 blob = store.get_save(self.player, "profile")
                 assert blob is not None
                 self.assertEqual(blob.data, {"version": 2})
+                sub = store.submit_daily(DAY, self.player, "n", _result(self.archetype))
+                self.assertEqual((sub.rank, sub.total), (1, 1))
             finally:
                 store.close()
             with psycopg.connect(base) as conn:
                 row = conn.execute(
                     "SELECT count(*) FROM information_schema.tables "
-                    "WHERE table_schema = %s AND table_name IN ('v2_saves', 'v2_run_history')",
+                    "WHERE table_schema = %s "
+                    "AND table_name IN ('v2_saves', 'v2_run_history', 'v2_daily_scores')",
                     (schema,),
                 ).fetchone()
-            self.assertEqual(row[0] if row else 0, 2)
+            self.assertEqual(row[0] if row else 0, 3)
         finally:
             with psycopg.connect(base, autocommit=True) as admin:
                 admin.execute(f"DROP SCHEMA {schema} CASCADE")
 
+    def test_board_query_uses_the_board_index(self) -> None:
+        store = self.store
+        assert isinstance(store, PostgresV2Store)
+        with store._pool.connection() as conn:
+            conn.execute("SET LOCAL enable_seqscan = off")
+            plan = conn.execute(
+                "EXPLAIN SELECT player_id FROM v2_daily_scores WHERE day = %s AND archetype = %s "
+                "ORDER BY score DESC, achieved_at, player_id LIMIT 20",
+                (DAY, self.archetype),
+            ).fetchall()
+        text = "\n".join(str(next(iter(row.values()))) for row in plan)
+        self.assertIn("idx_v2_daily_scores_board", text)
+
 
 class SchemaParityTest(unittest.TestCase):
-    def test_embedded_ddl_matches_migration_009(self) -> None:
+    def test_embedded_ddl_matches_migrations_009_to_011(self) -> None:
+        migrations = ";".join(
+            (MIGRATIONS / name).read_text(encoding="utf-8") for name in V2_MIGRATIONS
+        )
         self.assertEqual(
-            _normalize_sql(MIGRATION.read_text(encoding="utf-8")),
+            _normalize_sql(migrations),
             _normalize_sql(";".join(SCHEMA_STATEMENTS)),
         )
 

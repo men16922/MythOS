@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "mythos"
 version = "2.0.0"
-description = "Mythos 2.0 (세계:접속 — Signal Run): web server for the browser game (SPA + /api/v2 saves and AI GM)."
+description = "Mythos 2.0 (세계:접속 — Signal Run): web server for the browser game (SPA + /api/v2 saves, AI GM, sign-in, daily leaderboard)."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -14,6 +14,7 @@ dependencies = [
     "httpx>=0.27.0",
     "openai>=1.40.0",          # OpenAI-compatible local GM endpoint (Ollama / MLX / vLLM)
     "google-genai>=1.0.0",     # Gemini / Vertex GM (MYTHOS_NARRATIVE_PROVIDER=vertex)
+    "google-auth>=2.40.0",     # Firebase ID-token signature check (mythos_v2.auth; no firebase-admin)
     "psycopg[binary]>=3.2.0",  # v2_saves (Postgres; falls back to memory without a DB)
     "psycopg-pool>=3.2.0",
     "python-dotenv>=1.0.1",
@@ -26,6 +27,7 @@ dev = [
     "playwright>=1.40.0",      # headless browser smoke (scripts/e2e_v2.py)
     "pillow>=10.4.0",          # asset pipeline (scripts/v2_assets)
     "numpy>=1.26",
+    "cryptography>=42.0",      # test RSA keys + self-signed certs (tests/test_v2_auth.py)
 ]
 
 [project.scripts]

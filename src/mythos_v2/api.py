@@ -1,19 +1,26 @@
-"""``/api/v2`` — Mythos 2.0 saves + AI GM (FastAPI ``APIRouter``).
+"""``/api/v2`` — Mythos 2.0 saves, AI GM and the daily-seed leaderboard (FastAPI ``APIRouter``).
 
 Mounted by ``mythos_api.app.create_app`` via ``app.include_router(create_v2_router())``.
 
-Identity: ``X-Player-Id`` header (client-generated uuid, or ``player_<cyrb53>``
-derived from the invite key). Access: when ``MYTHOS_INVITE_KEYS`` is set, every
-route except ``/health`` requires a valid ``X-Invite-Key`` header or ``?invite=`` param.
+Identity (``mythos_v2.auth``; mode from ``MYTHOS_AUTH``, default ``open``):
+  * ``Authorization: Bearer <Firebase ID token>`` (Google sign-in) → player ``g_<sha256(uid)[:32]>``.
+    A token always wins over ``X-Player-Id``; a token that fails verification is a 401 in both modes.
+  * mode ``open`` without a token: the ``X-Player-Id`` header (client-generated id; the ``g_`` prefix is
+    reserved for signed-in players).
+  * mode ``google``: saves, GM and leaderboard writes need a valid token, else 401
+    ``{"detail": "sign-in required"}``.
 
 Routes
-  GET  /health                     open; store kind + GM backend
+  GET  /health                     public; store kind + GM backend
+  GET  /config                     public; {auth, firebase web config | null, leaderboard}
   GET/PUT /profile                 MetaProfile JSON blob
   GET/PUT/DELETE /run              RunState JSON blob
   POST /history, GET /history      finished-run records (RunRecord)
   POST /gm/narrate                 {kind, lang, context} → {text, source}
   POST /gm/improvise               {lang, event, action, stats, act} → Improvisation + source
   POST /gm/talk                    {mode: companion|ix, lang, …} → {text, source}
+  PUT  /daily/{date}               {name, result} → {rank, total, best, improved}  (identity required)
+  GET  /daily/{date}?archetype=&limit=   public board; ``me`` when the caller is identified
 
 The GM never blocks the game: every LLM call has a hard wall-clock timeout, a
 global concurrency cap and a per-player rate budget; any miss serves the
@@ -23,7 +30,8 @@ Env: MYTHOS_V2_STORE (auto|postgres|memory), MYTHOS_V2_MAX_BLOB_BYTES (524288),
 MYTHOS_V2_NARRATE_TIMEOUT (10), MYTHOS_V2_IMPROVISE_TIMEOUT (12),
 MYTHOS_V2_TALK_TIMEOUT (10), MYTHOS_V2_IX_TIMEOUT (4),
 MYTHOS_V2_GM_PER_MINUTE (20), MYTHOS_V2_GM_PER_DAY (400),
-MYTHOS_V2_WRITES_PER_MINUTE (120), MYTHOS_V2_GM_CONCURRENCY (4), MYTHOS_V2_GM (on|off).
+MYTHOS_V2_WRITES_PER_MINUTE (120), MYTHOS_V2_DAILY_PER_MINUTE (10), MYTHOS_V2_GM_CONCURRENCY (4),
+MYTHOS_V2_GM (on|off), MYTHOS_AUTH (open|google), MYTHOS_FIREBASE_PROJECT, MYTHOS_FIREBASE_WEB_CONFIG.
 """
 
 # No ``from __future__ import annotations`` here: the route signatures use a
@@ -39,19 +47,29 @@ import uuid
 from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
+from datetime import UTC, date, datetime
 from typing import Annotated, Any, Literal, TypeVar
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt
 from starlette.concurrency import run_in_threadpool
 
 from mythos_v2.log import get_logger
 
-from . import gm, talk
+from . import daily, gm, talk
+from .auth import (
+    GOOGLE_PLAYER_PREFIX,
+    AuthConfig,
+    CertsUnavailableError,
+    TokenError,
+    TokenVerifier,
+    bearer_token,
+    build_verifier,
+    player_id_for_uid,
+)
 from .llm import TextLLM, build_text_llm
 from .ratelimit import RateLimiter
 from .store import (
-    HistoryConflictError,
     Slot,
     StoreHolder,
     StoreUnavailableError,
@@ -59,6 +77,7 @@ from .store import (
 )
 
 API_V2_PREFIX = "/api/v2"
+#: Any identity: client ids from ``X-Player-Id`` and the ``g_<32 hex>`` ids of signed-in players.
 PLAYER_ID_RE = re.compile(r"^[A-Za-z0-9_-]{8,64}$")
 RECORD_ID_RE = re.compile(r"^[A-Za-z0-9_.:-]{1,80}$")
 
@@ -93,6 +112,7 @@ class V2Settings:
     gm_per_minute: int = 20
     gm_per_day: int = 400
     writes_per_minute: int = 120
+    daily_per_minute: int = 10
     gm_concurrency: int = 4
 
     @classmethod
@@ -106,6 +126,7 @@ class V2Settings:
             gm_per_minute=_env_int("MYTHOS_V2_GM_PER_MINUTE", 20),
             gm_per_day=_env_int("MYTHOS_V2_GM_PER_DAY", 400),
             writes_per_minute=_env_int("MYTHOS_V2_WRITES_PER_MINUTE", 120),
+            daily_per_minute=_env_int("MYTHOS_V2_DAILY_PER_MINUTE", 10),
             gm_concurrency=max(1, _env_int("MYTHOS_V2_GM_CONCURRENCY", 4)),
         )
 
@@ -149,6 +170,37 @@ class TalkBody(BaseModel):
     history: list[TalkTurn] = Field(default_factory=list, max_length=talk.MAX_HISTORY_TURNS)
     trigger: talk.IxTrigger | None = None
     context: dict[str, Any] = Field(default_factory=dict)
+
+
+class DailyResultBody(BaseModel):
+    """``engine/types.ts`` ``DailyResult`` — client-reported; these ranges are the only plausibility check.
+    Strict types: no bool-as-int, no numeric strings. Unknown keys are ignored."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    archetype: str = Field(pattern=daily.ARCHETYPE_PATTERN)
+    won: StrictBool
+    act: StrictInt = Field(ge=1, le=3)
+    floors: StrictInt = Field(ge=0, le=80)
+    echoes: StrictInt = Field(ge=0, le=999)
+    kills: StrictInt = Field(ge=0, le=999)
+    secs: StrictInt | None = Field(default=None, ge=1, le=86_400)
+
+    def to_result(self) -> daily.DailyResult:
+        return daily.DailyResult(
+            archetype=self.archetype,
+            won=self.won,
+            act=self.act,
+            floors=self.floors,
+            echoes=self.echoes,
+            kills=self.kills,
+            secs=self.secs,
+        )
+
+
+class DailySubmitBody(BaseModel):
+    name: str | None = Field(default=None, max_length=200)
+    result: DailyResultBody
 
 
 # --- GM runner -----------------------------------------------------------------
@@ -240,10 +292,22 @@ def _outcome_for(exc: BaseException) -> str:
     return "error"
 
 
-def _default_invite_keys() -> set[str]:
-    """Closed-beta keys from ``MYTHOS_INVITE_KEYS`` (comma-separated); empty = open."""
-    raw = os.getenv("MYTHOS_INVITE_KEYS", "")
-    return {k.strip() for k in raw.split(",") if k.strip()}
+def _unauthorized() -> HTTPException:
+    return HTTPException(
+        status_code=401, detail="sign-in required", headers={"WWW-Authenticate": "Bearer"}
+    )
+
+
+def _client_player_id(raw: str | None) -> str | None:
+    """A valid ``X-Player-Id`` (the signed-in ``g_`` namespace cannot be claimed by header), else None."""
+    player_id = (raw or "").strip()
+    if not PLAYER_ID_RE.fullmatch(player_id) or player_id.startswith(GOOGLE_PLAYER_PREFIX):
+        return None
+    return player_id
+
+
+def _entry_dict(rank: int, entry: daily.DailyEntry) -> dict[str, Any]:
+    return {"rank": rank, "name": entry.name, "result": entry.result.to_dict()}
 
 
 def _norm_stats(raw: dict[str, Any]) -> dict[str, int]:
@@ -263,16 +327,22 @@ def create_v2_router(
     store_factory: Callable[[], V2Store] | None = None,
     llm_factory: Callable[[], TextLLM | None] | None = None,
     settings: V2Settings | None = None,
-    invite_keys: Callable[[], set[str]] | None = None,
+    auth: AuthConfig | None = None,
+    verifier: TokenVerifier | None = None,
+    now: Callable[[], datetime] | None = None,
 ) -> APIRouter:
     """Build the ``/api/v2`` router. Defaults read the environment; tests inject
-    ``store_factory=MemoryV2Store`` and a fake ``llm_factory``."""
+    ``store_factory=MemoryV2Store``, a fake ``llm_factory``, an ``AuthConfig``, a token ``verifier``
+    and a ``now`` clock (for the KST date windows)."""
     cfg = settings or V2Settings.from_env()
+    auth_cfg = auth or AuthConfig.from_env()
+    token_verifier = verifier or build_verifier(auth_cfg.project_id)
+    clock = now or (lambda: datetime.now(UTC))
     holder = StoreHolder(store_factory)
     runner = _GMRunner(llm_factory or build_text_llm, cfg.gm_concurrency)
     gm_limiter = RateLimiter(cfg.gm_per_minute, cfg.gm_per_day)
     write_limiter = RateLimiter(cfg.writes_per_minute)
-    keys_of = invite_keys or _default_invite_keys
+    daily_limiter = RateLimiter(cfg.daily_per_minute)
 
     @asynccontextmanager
     async def _lifespan(_app: Any) -> AsyncIterator[None]:
@@ -282,21 +352,42 @@ def create_v2_router(
 
     router = APIRouter(prefix=API_V2_PREFIX, tags=["v2"], lifespan=_lifespan)
 
-    def require_player(
+    async def signed_in_player(request: Request) -> str | None:
+        """The player of a verified Bearer token; None without one; 401 for a token that fails."""
+        token = bearer_token(request.headers.get("authorization"))
+        if token is None:
+            return None
+        try:
+            uid = await run_in_threadpool(token_verifier.verify, token)
+        except TokenError as exc:
+            _logger.info("v2 auth: token rejected", extra={"outcome": exc.reason})
+            raise _unauthorized() from None
+        except CertsUnavailableError:
+            raise HTTPException(status_code=503, detail="sign-in check unavailable") from None
+        return player_id_for_uid(uid)
+
+    async def require_player(
         request: Request,
         x_player_id: Annotated[str | None, Header()] = None,
     ) -> str:
-        keys = keys_of()
-        if keys:
-            key = (
-                request.headers.get("x-invite-key") or request.query_params.get("invite") or ""
-            ).strip()
-            if key not in keys:
-                raise HTTPException(status_code=401, detail="invalid or missing invite key")
-        player_id = (x_player_id or "").strip()
-        if not PLAYER_ID_RE.fullmatch(player_id):
+        player_id = await signed_in_player(request)
+        if player_id is not None:
+            return player_id
+        if auth_cfg.mode == "google":
+            raise _unauthorized()
+        client_id = _client_player_id(x_player_id)
+        if client_id is None:
             raise HTTPException(status_code=400, detail="missing or invalid X-Player-Id")
-        return player_id
+        return client_id
+
+    async def optional_player(
+        request: Request,
+        x_player_id: Annotated[str | None, Header()] = None,
+    ) -> str | None:
+        player_id = await signed_in_player(request)
+        if player_id is not None or auth_cfg.mode == "google":
+            return player_id
+        return _client_player_id(x_player_id)
 
     def limit_gm_body(request: Request) -> None:
         declared = request.headers.get("content-length", "")
@@ -304,6 +395,7 @@ def create_v2_router(
             raise HTTPException(status_code=413, detail="request too large")
 
     player_dep = Annotated[str, Depends(require_player)]
+    optional_player_dep = Annotated[str | None, Depends(optional_player)]
 
     async def store_call(fn: Callable[[V2Store], T]) -> T:
         def _run() -> T:
@@ -347,6 +439,12 @@ def create_v2_router(
         except Exception:
             kind = "unavailable"
         return {"status": "ok", "store": kind, "gm": runner.name}
+
+    @router.get("/config")
+    async def v2_config() -> dict[str, Any]:
+        """What the client needs before sign-in: the auth mode and the public Firebase web config."""
+        firebase = dict(auth_cfg.web_config) if auth_cfg.web_config else None
+        return {"auth": auth_cfg.mode, "firebase": firebase, "leaderboard": True}
 
     # --- saves -------------------------------------------------------------------
 
@@ -393,10 +491,7 @@ def create_v2_router(
             data = {**data, "id": record_id}
         check_write_rate(player_id)
         rid: str = record_id
-        try:
-            await store_call(lambda s: s.append_history(player_id, rid, data))
-        except HistoryConflictError as exc:
-            raise HTTPException(status_code=409, detail="record id already used") from exc
+        await store_call(lambda s: s.append_history(player_id, rid, data))
         return {"ok": True, "id": rid}
 
     @router.get("/history")
@@ -405,6 +500,57 @@ def create_v2_router(
     ) -> dict[str, Any]:
         records = await store_call(lambda s: s.list_history(player_id, limit))
         return {"records": records}
+
+    # --- daily-seed leaderboard ----------------------------------------------------------------------
+
+    def board_day(day_key: str, window_days: int) -> date:
+        day = daily.parse_day(day_key)
+        if day is None or not daily.in_window(day, daily.today_kst(clock()), window_days):
+            raise HTTPException(
+                status_code=422,
+                detail=f"date must be a real YYYY-MM-DD within the last {window_days} days (KST)",
+            )
+        return day
+
+    @router.put("/daily/{day_key}")
+    async def v2_put_daily(
+        day_key: str, body: DailySubmitBody, player_id: player_dep
+    ) -> dict[str, Any]:
+        day = board_day(day_key, daily.SUBMIT_WINDOW_DAYS)
+        if not daily_limiter.allow(player_id):
+            raise HTTPException(status_code=429, detail="too many writes")
+        result = body.result.to_result()
+        name = daily.clean_name(body.name)
+        sub = await store_call(lambda s: s.submit_daily(day, player_id, name, result))
+        return {
+            "rank": sub.rank,
+            "total": sub.total,
+            "best": sub.best.to_dict(),
+            "improved": sub.improved,
+        }
+
+    @router.get("/daily/{day_key}")
+    async def v2_get_daily(
+        day_key: str,
+        archetype: Annotated[str, Query(pattern=daily.ARCHETYPE_PATTERN)],
+        player_id: optional_player_dep,
+        limit: Annotated[int, Query(ge=1, le=50)] = 20,
+    ) -> dict[str, Any]:
+        day = board_day(day_key, daily.READ_WINDOW_DAYS)
+        board = await store_call(lambda s: s.daily_board(day, archetype, limit, player_id))
+        return {
+            "date": day.isoformat(),
+            "archetype": archetype,
+            "total": board.total,
+            "entries": [
+                {
+                    **_entry_dict(rank, entry),
+                    "me": player_id is not None and entry.player_id == player_id,
+                }
+                for rank, entry in board.entries
+            ],
+            "me": _entry_dict(*board.me) if board.me is not None else None,
+        }
 
     # --- AI GM -------------------------------------------------------------------
 

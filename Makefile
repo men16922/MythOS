@@ -11,6 +11,7 @@ FRONTEND_DIR ?= src/mythos_ui
 	test test-v2 test-db test-e2e-v2 check check-auto check-skills sync-skills check-doc-budget \
 	api api-stop api-cloud cloud-image cloud-run-local deploy deploy-preview \
 	android-web android-apk android-firebase android-emulator android-distribute android-icons \
+	firebase-web firebase-sha firebase-auth-domains push-schedule push-test \
 	dev-up dev-down infra-up infra-down infra-logs infra-ps infra-reset db-migrate db-reset db-shell \
 	_harness-guard _overnight-clean-tree overnight-env-doctor overnight-where overnight overnight-watch overnight-once overnight-stop overnight-logs overnight-status overnight-dashboard overnight-ledger-check overnight-ledger-state overnight-trajectory overnight-resume overnight-provenance-compare overnight-graph-smoke overnight-graph-measure overnight-clean overnight-claude overnight-claude-watch overnight-claude-once overnight-codex overnight-codex-watch overnight-codex-once overnight-opencode overnight-opencode-watch overnight-opencode-once overnight-agy overnight-agy-watch overnight-agy-once overnight-kiro overnight-kiro-watch overnight-kiro-once overnight-worktrees overnight-worktrees-setup overnight-worktrees-status overnight-worktrees-down overnight-merge overnight-review
 
@@ -266,7 +267,8 @@ overnight-review:           # codex 가 통합 diff 를 읽기전용 리뷰(생�
 # --- local server ----------------------------------------------------------------------------------------------
 
 # Plain `make api` stays local and free: GM = Ollama (falls back to authored text when Ollama is down), saves = the
-# local Postgres or memory. Port busy? MYTHOS_API_PORT=8010 make api.
+# local Postgres or memory, sign-in mode open (X-Player-Id; a Google token is still verified when the client sends
+# one, and /api/v2/config serves .firebase/web-config.json when present). Port busy? MYTHOS_API_PORT=8010 make api.
 api:
 	@pkill -f "mythos_api" 2>/dev/null && echo "stopped previous api" || true
 	@echo "Mythos 2.0: http://$${MYTHOS_API_HOST:-127.0.0.1}:$${MYTHOS_API_PORT:-8000}  (SPA at /, API under /api/v2)"
@@ -296,24 +298,35 @@ cloud-run-local:
 	docker run --rm -p 8080:8080 -e PORT=8080 $$( [ -f $(ENVFILE) ] && echo --env-file $(ENVFILE) ) $(CLOUD_IMAGE)
 
 # Deploy to Cloud Run, ALWAYS targeting .env's PROJECT_ID via --project (never the ambient gcloud project).
-# Env-preserving `--source .`: the existing revision's env (GM provider, DATABASE_URL, invite keys, …) is kept.
+# Env-preserving `--source .`: the existing revision's env (GM provider, DATABASE_URL, …) is kept; sign-in is set on
+# every deploy: MYTHOS_AUTH=google, MYTHOS_FIREBASE_PROJECT and MYTHOS_FIREBASE_WEB_CONFIG (compacted from the
+# gitignored .firebase/web-config.json — `make firebase-web` — inside a subshell, never echoed).
 REGION ?= us-central1
 CLOUD_RUN_TIMEOUT ?= 3600
+FIREBASE_WEB_CONFIG ?= .firebase/web-config.json
+# Prints the gcloud --update-env-vars value (custom ^@@^ delimiter: the JSON holds commas) for the sign-in env.
+define AUTH_ENV_VARS
+python3 -c 'import json, sys; c = json.load(open(sys.argv[1])); k = ("apiKey", "authDomain", "projectId", "appId", "messagingSenderId"); assert all(isinstance(c.get(x), str) and c[x] for x in k), "web config incomplete"; v = json.dumps({x: c[x] for x in k}, separators=(",", ":")); assert "@@" not in v; print("^@@^MYTHOS_AUTH=google@@MYTHOS_FIREBASE_PROJECT=" + sys.argv[2] + "@@MYTHOS_FIREBASE_WEB_CONFIG=" + v)' $(FIREBASE_WEB_CONFIG)
+endef
 deploy:
 	@test -f .env || { echo "ERROR: .env not found"; exit 1; }
+	@test -f $(FIREBASE_WEB_CONFIG) || { echo "ERROR: $(FIREBASE_WEB_CONFIG) missing — run make firebase-web first"; exit 1; }
 	@PROJECT_ID=$$(grep -E '^PROJECT_ID=' .env | cut -d= -f2- | tr -d '"'); \
 	test -n "$$PROJECT_ID" || { echo "ERROR: PROJECT_ID not set in .env"; exit 1; }; \
-	echo "Deploying mythos-api (2.0) to project [$$PROJECT_ID] region [$(REGION)] (env-preserving)…"; \
-	gcloud run deploy mythos-api --source . --region $(REGION) --project "$$PROJECT_ID" --timeout $(CLOUD_RUN_TIMEOUT) --quiet
+	AUTH_ENV=$$($(AUTH_ENV_VARS) "$$PROJECT_ID" 2>/dev/null) || { echo "ERROR: $(FIREBASE_WEB_CONFIG) is not a complete Firebase web config — re-run make firebase-web"; exit 1; }; \
+	echo "Deploying mythos-api (2.0) to project [$$PROJECT_ID] region [$(REGION)] (env-preserving, MYTHOS_AUTH=google)…"; \
+	gcloud run deploy mythos-api --source . --region $(REGION) --project "$$PROJECT_ID" --timeout $(CLOUD_RUN_TIMEOUT) --update-env-vars "$$AUTH_ENV" --quiet
 
 # A NEW revision with ZERO traffic, reachable only at its tag URL (https://v2---<service-url>). Promote later with
 # `gcloud run services update-traffic mythos-api --to-tags v2=100` (owner call).
 deploy-preview:
 	@test -f .env || { echo "ERROR: .env not found"; exit 1; }
+	@test -f $(FIREBASE_WEB_CONFIG) || { echo "ERROR: $(FIREBASE_WEB_CONFIG) missing — run make firebase-web first"; exit 1; }
 	@PROJECT_ID=$$(grep -E '^PROJECT_ID=' .env | cut -d= -f2- | tr -d '"'); \
 	test -n "$$PROJECT_ID" || { echo "ERROR: PROJECT_ID not set in .env"; exit 1; }; \
-	echo "Deploying a NO-TRAFFIC preview revision (tag v2) of mythos-api to [$$PROJECT_ID] [$(REGION)]…"; \
-	gcloud run deploy mythos-api --source . --region $(REGION) --project "$$PROJECT_ID" --timeout $(CLOUD_RUN_TIMEOUT) --no-traffic --tag v2 --quiet
+	AUTH_ENV=$$($(AUTH_ENV_VARS) "$$PROJECT_ID" 2>/dev/null) || { echo "ERROR: $(FIREBASE_WEB_CONFIG) is not a complete Firebase web config — re-run make firebase-web"; exit 1; }; \
+	echo "Deploying a NO-TRAFFIC preview revision (tag v2) of mythos-api to [$$PROJECT_ID] [$(REGION)] (MYTHOS_AUTH=google)…"; \
+	gcloud run deploy mythos-api --source . --region $(REGION) --project "$$PROJECT_ID" --timeout $(CLOUD_RUN_TIMEOUT) --update-env-vars "$$AUTH_ENV" --no-traffic --tag v2 --quiet
 
 # --- Android app (Capacitor; docs/android.md) ---------------------------------------------------------------------
 
@@ -329,6 +342,21 @@ android-distribute:  # upload the debug APK to Firebase App Distribution (no tes
 	@scripts/android/distribute.sh
 android-icons:       # regenerate launcher icons and splash from the logo
 	$(VENV)/bin/python scripts/android/make_icons.py
+
+# --- Firebase sign-in + daily push (docs/online.md) ---------------------------------------------------------------
+
+firebase-web:            # register the Firebase web app (once) + write .firebase/web-config.json (gitignored, not printed)
+	@scripts/firebase/web-app.sh
+firebase-sha:            # register the debug keystore SHA-1 on the Firebase Android app (Google sign-in on Android)
+	@scripts/firebase/android-sha.sh
+firebase-auth-domains:   # OWNER: add the Cloud Run hosts to Firebase Auth authorized domains (after enabling Google)
+	@scripts/firebase/auth-domains.sh
+push-schedule:           # OWNER: create/update the daily FCM topic jobs in Cloud Scheduler (DRY_RUN=1 to preview)
+	@scripts/firebase/push-schedule.sh
+PUSH_TOPIC ?= daily-ko
+PUSH_LANG ?=
+push-test:               # send one daily notification to a topic: make push-test PUSH_TOPIC=<topic> [PUSH_LANG=ko|en]
+	@scripts/firebase/push-test.sh "$(PUSH_TOPIC)" $(PUSH_LANG)
 
 # --- local infra (Postgres for /api/v2 saves; the API also runs without it on an in-memory store) ----------------
 

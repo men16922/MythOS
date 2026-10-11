@@ -2,7 +2,8 @@
 
 The game itself runs in the browser (`src/mythos_ui/src/v2`); this process only
 - serves the prebuilt SPA (`src/mythos_api/static`, committed) and the game art (`/resources`),
-- mounts `/api/v2` (`mythos_v2.create_v2_router`: profile/run saves, GM narrate/improvise/talk),
+- mounts `/api/v2` (`mythos_v2.create_v2_router`: profile/run saves, GM narrate/improvise/talk, the
+  daily-seed leaderboard, Google sign-in via Firebase ID tokens),
 - answers CORS for the Android app (Capacitor WebView, origin https://localhost).
 
 The 1.x runtime that used to live here (`/api/v1`, WebSocket loops, admin dashboard) is archived on
@@ -49,12 +50,13 @@ def _cors_origins() -> list[str]:
 
 def create_app() -> FastAPI:
     app = FastAPI(title="Mythos 2.0", version="2.0.0")
-    # The Android app calls /api/v2 cross-origin; the router applies the invite-key rule itself.
+    # The Android app calls /api/v2 cross-origin; the router applies the sign-in rule itself
+    # (Authorization: Bearer <Firebase ID token>, or X-Player-Id in open mode). No cookies are used.
     app.add_middleware(
         CORSMiddleware,
         allow_origins=_cors_origins(),
         allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-        allow_headers=["Content-Type", "X-Player-Id", "X-Invite-Key"],
+        allow_headers=["Content-Type", "X-Player-Id", "Authorization"],
         max_age=600,
     )
 

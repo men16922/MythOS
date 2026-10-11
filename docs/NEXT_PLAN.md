@@ -19,7 +19,7 @@ Rules: `docs/GAMEPLAY.md` · design/contract: `docs/plans/2026-10-10-mythos-2.0.
 - `[ ]` GM cost guard (per-player daily AI-call cap or a cheaper model) if traffic grows — ≈ $0.085 per run on gemini-3.5-flash (measured 2026-10-11).
 - `[ ]` Companion arcs are done for all six (3-event flag chains); a further event wave only if players report repetition (each act now rolls from 16 events; scenes with art cost one image call each — see `scripts/v2_assets/ledger.json`).
 
-- `[x]` **1.x port** — executed under the owner's "포팅 계획까지 포함하여 잔여 작업 전부" directive; verdicts for all 22 candidates are in `docs/plans/2026-10-11-port-from-1x.md`. Still open from it: static voice-over (after the Play release) and the store trailer (after the Play account).
+- `[x]` **1.x port** — executed under the owner's "포팅 계획까지 포함하여 잔여 작업 전부" directive; verdicts for all 22 candidates are in `docs/plans/2026-10-11-port-from-1x.md`. Still open from it: static voice-over (needs a person to audition and pin Korean voices; the ElevenLabs key is already in `.env`). The trailer is built (`make trailer` → `outputs/trailer/mythos2_trailer.mp4`, 39.8 s) — only its Play Console upload is waiting on the account.
 
 ## Agent operations
 

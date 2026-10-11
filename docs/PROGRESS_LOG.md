@@ -2,6 +2,11 @@
 
 Last updated: 2026-10-11
 
+## 2026-10-12 — Store trailer (1.x port #16, reopened and done)
+
+- The "blocked on the Play account" verdict was wrong: only the upload needs it. `scripts/trailer/record_trailer.py` (`make trailer`, `make trailer-cut`) starts a throwaway API + vite on private ports, records seven scenes of the real game headless and muted — title, a stat check with its voice, a scripted UI-bot fight against the Incinerator (cards played by number key and unit click, `E` to end turns; the sandbox toolbar is hidden), a bond cutscene, IX's mirror, today's twist, the Memories tab — and cuts `outputs/trailer/mythos2_trailer.mp4` (39.8 s, 1280×720, 30 fps, H.264 + AAC 6.9 MB, Korean captions on a dark strip, the game's own title loop as the bed, outro card). Captions are PIL-rendered PNG overlays because this ffmpeg build has no `drawtext`. Checked frame by frame on a contact sheet; two defects found and fixed (sandbox toolbar visible, captions unreadable over the busy UI).
+- Voice-over (#21) stays open for a real reason: an ElevenLabs key exists, but 1.x's own guide makes voice casting a listening task and generated lines need an ear too; an assistant cannot do that, and unreviewed voices would hurt the game.
+
 ## 2026-10-12 — Implant sets (1.x port #19, reopened and done)
 
 - Earlier verdict "needs real-play data" was wrong: the simulator can bound it. `engine/implantSets.ts`: six sets over 39 of the 44 implants (방벽 bulwark, 회복 vitality, 충돌 impact, 교란 signal, 속도 tempo, 거래 trade; boss relics and the two stealth pieces stay out). Two pieces give a small bonus, three a bigger one, built only from passives the engine already reads (max HP, bump damage, trace, credits, shop price, safehouse heal, move, stats — never energy or hand size). Summed live in both `runPassive` and `activePassive`; the max-HP / stat part lands once, when the tier is reached. Reward rolls lean ×1.6 toward a set already held (600-roll test: holding a Bulwark piece offers Bulwark measurably more). Shown as a set card on reward and shop offers (what this pickup would unlock) and in the top-bar tooltip.

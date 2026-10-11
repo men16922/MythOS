@@ -8,7 +8,7 @@ COMPOSE_FILE ?= docker-compose.local.yml
 FRONTEND_DIR ?= src/mythos_ui
 
 .PHONY: setup frontend-setup clean lint python-lint frontend-lint format typecheck python-typecheck frontend-build \
-	test test-v2 test-db test-e2e-v2 check check-auto check-skills sync-skills check-doc-budget \
+	test test-v2 test-db test-e2e-v2 trailer trailer-cut check check-auto check-skills sync-skills check-doc-budget \
 	api api-stop api-cloud cloud-image cloud-run-local deploy deploy-preview \
 	android-web android-apk android-firebase android-emulator android-distribute android-icons \
 	firebase-web firebase-sha firebase-auth-domains push-schedule push-test \
@@ -332,6 +332,14 @@ deploy-preview:
 	test -z "$$ADMIN_EMAILS" || AUTH_ENV="$$AUTH_ENV@@MYTHOS_ADMIN_EMAILS=$$ADMIN_EMAILS"; \
 	echo "Deploying a NO-TRAFFIC preview revision (tag v2-preview) of mythos-api to [$$PROJECT_ID] [$(REGION)] (MYTHOS_AUTH=google)…"; \
 	gcloud run deploy mythos-api --source . --region $(REGION) --project "$$PROJECT_ID" --timeout $(CLOUD_RUN_TIMEOUT) --update-env-vars "$$AUTH_ENV" --no-traffic --tag v2-preview --quiet
+
+# Store trailer: records the real game (headless, muted, private ports) and cuts it with ffmpeg → outputs/trailer/mythos2_trailer.mp4.
+# `make trailer-cut` re-cuts the kept recordings only (captions, timing) without re-recording.
+trailer:
+	$(VENV)/bin/python scripts/trailer/record_trailer.py --keep-raw
+
+trailer-cut:
+	$(VENV)/bin/python scripts/trailer/record_trailer.py --cut-only --keep-raw
 
 # --- Android app (Capacitor; docs/android.md) ---------------------------------------------------------------------
 

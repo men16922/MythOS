@@ -13,11 +13,24 @@
 // Identity: `X-Player-Id` = `player_<cyrb53(inviteKey)>` when an invite key is present (the same
 // stable id the classic client derives, so saves follow the key across devices), otherwise a random
 // uuid persisted under localStorage `mythos2.playerId`. The invite key is read exactly like the
-// classic client (`?invite=` → localStorage `mythos_invite`) and sent as `X-Invite-Key`.
+// classic client (`?invite=` → localStorage `mythos_invite`) and sent as `X-Invite-Key`; the Android app
+// (no URL) sets it from Settings via `setInviteKey`. Base URL: same-origin `/api` on the web, `VITE_API_BASE`
+// in the app build (cross-origin; the API allows the Capacitor origins via MYTHOS_CORS_ORIGINS).
 
 import type { Improvisation, Lang, MetaProfile, RunRecord, RunState, Stats, StatKey } from '../engine/types.ts'
 
-const API_V2 = '/api/v2'
+/**
+ * Build-time env (Vite replaces `import.meta.env`; undefined under `node --test`). The web build leaves
+ * VITE_API_BASE unset → same-origin `/api`; the Android app build (`vite build --mode app`) sets it to the
+ * Cloud Run origin (or `VITE_API_BASE=http://10.0.2.2:8010` for an emulator against a local server).
+ */
+function buildEnv(key: string): string {
+  const env = (import.meta as unknown as { env?: Record<string, unknown> }).env
+  const value = env?.[key]
+  return typeof value === 'string' ? value : ''
+}
+
+const API_V2 = `${buildEnv('VITE_API_BASE').replace(/\/+$/, '')}/api/v2`
 
 export const SAVE_DEBOUNCE_MS = 800
 const TIMEOUT_MS = { narrate: 12_000, improvise: 15_000, talk: 11_000, save: 5_000 } as const
@@ -86,6 +99,25 @@ export function getInviteKey(): string | null {
     /* no window/location */
   }
   return storageGet(INVITE_STORAGE_KEY)
+}
+
+/**
+ * Store (or clear, with an empty value) the invite key typed into Settings — the app has no `?invite=` URL.
+ * The key picks the player id, so this is a sign-in: pending saves go out under the old id first, then
+ * the local mirrors are marked synced so the next load prefers the cloud copy for the new id when one
+ * exists (a fresh key still receives this device's progress). Reload the page afterwards so the game
+ * store boots from that copy instead of saving the in-memory profile over it.
+ */
+export async function setInviteKey(key: string | null): Promise<void> {
+  await flushSaves()
+  const next = key?.trim() ?? ''
+  if (next) storageSet(INVITE_STORAGE_KEY, next)
+  else storageRemove(INVITE_STORAGE_KEY)
+  cachedPlayerId = null
+  for (const slot of ['profile', 'run'] as const) {
+    const mirror = readMirror(slot)
+    if (mirror) storageSet(SYNCED_KEY[slot], String(mirror.rev))
+  }
 }
 
 // cyrb53 — identical to src/api.ts and mythos_api.limits._cyrb53 (same input → same player id).

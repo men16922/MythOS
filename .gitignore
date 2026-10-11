@@ -60,3 +60,18 @@ INVITE_KEY.md
 # CBT teaser videos — distributed via YouTube, too large for git (docs/posts/PNGs stay tracked)
 docs/cbt/**/*.mp4
 docs/cbt/**/*.mov
+
+# Android app (Capacitor, src/mythos_ui/android): app bundle build output, per-project Firebase config,
+# release signing material (owner-held, never in the repo). Gradle outputs: src/mythos_ui/android/.gitignore.
+src/mythos_ui/dist-app/
+src/mythos_ui/android/app/google-services.json
+# (also listed here, not only in android/.gitignore, so tools that read just the root file, e.g. gcloud's default
+# source-upload ignore, skip the Gradle outputs and the copied web assets)
+src/mythos_ui/android/.gradle/
+src/mythos_ui/android/build/
+src/mythos_ui/android/app/build/
+src/mythos_ui/android/app/src/main/assets/public/
+src/mythos_ui/android/local.properties
+*.jks
+*.keystore
+keystore.properties

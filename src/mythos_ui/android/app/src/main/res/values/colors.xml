@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Mythos 2.0 near-black (the logo field / game backdrop): no white flash before the WebView paints. -->
+    <color name="mythos_bg">#030307</color>
+    <color name="colorPrimary">#030307</color>
+    <color name="colorPrimaryDark">#030307</color>
+    <color name="colorAccent">#4EF2E3</color>
+</resources>

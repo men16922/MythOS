@@ -32,3 +32,6 @@ src/mythos_ui/public
 src/mythos_ui/*.json
 src/mythos_ui/*.ts
 src/mythos_ui/*.html
+# The Android app (Capacitor project + its app bundle) never ships in the API image.
+src/mythos_ui/android
+src/mythos_ui/dist-app

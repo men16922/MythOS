@@ -1,8 +1,12 @@
-// Asset URL helpers. FastAPI mounts the repo `resources/` dir at `/resources`.
+// Asset URL helpers. Web build: FastAPI mounts the repo `resources/` dir at `/resources`. Android app build
+// (`vite build --mode app`): `resources/neo-seoul/` is copied into the APK next to index.html and
+// VITE_ASSET_BASE points there (`./resources/neo-seoul/`), so art and music load offline.
 
 import { V2_SPRITES } from './spriteManifest.ts'
 
-const BASE = '/resources/neo-seoul/'
+/** Vite replaces `import.meta.env` at build time; it is undefined under `node --test`. */
+const ENV_BASE = (import.meta as unknown as { env?: Record<string, unknown> }).env?.VITE_ASSET_BASE
+const BASE = typeof ENV_BASE === 'string' && ENV_BASE ? ENV_BASE : '/resources/neo-seoul/'
 
 /** Path relative to resources/neo-seoul/ → URL. */
 export function asset(path: string | undefined | null): string {

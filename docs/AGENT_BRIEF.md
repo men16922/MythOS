@@ -4,7 +4,7 @@ Last updated: 2026-10-11
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **`main` is Mythos 2.0 only; 1.x is archived on branch `1.0`.** Production runs 2.0 (Cloud Run rev `00097`, /admin dashboard live, Google sign-in required, daily push at 19:00 KST). Pending owner calls: Play Console account + upload key (Play Store, Play Games), App Distribution testers, SFX listen-test. Deploy = `make deploy-preview` → smoke the `v2-preview---` URL → `gcloud run services update-traffic mythos-api --to-latest`. Tune balance with the simulator on fixed seed blocks, not by feel. **Test muted (`?mute=1`) with one browser tab at most.**
+> ▶ NEXT SESSION: **`main` is Mythos 2.0 only; 1.x is archived on branch `1.0`.** Production runs 2.0 (Cloud Run rev `00099`, /admin dashboard live, Google sign-in required, daily push at 19:00 KST). Pending owner calls: Play Console account + upload key (Play Store, Play Games), App Distribution testers, SFX listen-test. Deploy = `make deploy-preview` → smoke the `v2-preview---` URL → `gcloud run services update-traffic mythos-api --to-latest`. Tune balance with the simulator on fixed seed blocks, not by feel. **Test muted (`?mute=1`) with one browser tab at most.**
 
 ## Snapshot
 

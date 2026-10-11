@@ -33,6 +33,7 @@ V2_MIGRATIONS = (
     "011_v2_history_per_player.sql",
     "012_v2_saves_created_at.sql",
     "013_v2_gm_usage.sql",
+    "014_v2_gm_usage_tokens.sql",
 )
 DAY = date(2026, 10, 11)
 
@@ -233,13 +234,18 @@ class MemoryStoreTest(_StoreContract, unittest.TestCase):
     def test_gm_usage_counters(self) -> None:
         day = date(2099, 1, 2)
         self.addCleanup(self._drop_usage, day)
-        for outcome in ("llm", "llm", "timeout"):
-            self.store.record_gm_usage(day, "narrate", outcome)
-        self.store.record_gm_usage(day, "talk", "llm")
+        self.store.record_gm_usage(day, "narrate", "llm", 100, 20)
+        self.store.record_gm_usage(day, "narrate", "llm", 50, 10)
+        self.store.record_gm_usage(day, "narrate", "timeout")
+        self.store.record_gm_usage(day, "talk", "llm", 7, 3)
         rows = sorted(self.store.admin_gm_usage(day))
         self.assertEqual(
             rows,
-            [(day, "narrate", "llm", 2), (day, "narrate", "timeout", 1), (day, "talk", "llm", 1)],
+            [
+                (day, "narrate", "llm", 2, 150, 30),
+                (day, "narrate", "timeout", 1, 0, 0),
+                (day, "talk", "llm", 1, 7, 3),
+            ],
         )
         self.assertEqual(self.store.admin_gm_usage(date(2099, 1, 3)), [])
 
@@ -318,7 +324,7 @@ class PostgresStoreTest(_StoreContract, unittest.TestCase):
 
 
 class SchemaParityTest(unittest.TestCase):
-    def test_embedded_ddl_matches_migrations_009_to_013(self) -> None:
+    def test_embedded_ddl_matches_migrations_009_to_014(self) -> None:
         migrations = ";".join(
             (MIGRATIONS / name).read_text(encoding="utf-8") for name in V2_MIGRATIONS
         )

@@ -39,6 +39,7 @@ MYTHOS_V2_GM (on|off), MYTHOS_AUTH (open|google), MYTHOS_FIREBASE_PROJECT, MYTHO
 # closure-local ``Annotated`` alias that FastAPI must evaluate eagerly.
 import asyncio
 import concurrent.futures
+import contextvars
 import json
 import os
 import re
@@ -70,7 +71,7 @@ from .auth import (
     build_verifier,
     player_id_for_uid,
 )
-from .llm import TextLLM, build_text_llm
+from .llm import TextLLM, Usage, build_text_llm, take_last_usage
 from .ratelimit import RateLimiter
 from .store import (
     Slot,
@@ -102,6 +103,16 @@ def _env_float(name: str, default: float) -> float:
         return default
 
 
+def _env_price() -> tuple[float, float] | None:
+    """``MYTHOS_GM_PRICE_IN_PER_M`` / ``MYTHOS_GM_PRICE_OUT_PER_M`` (USD per million tokens), both or neither."""
+    try:
+        price_in = float(os.getenv("MYTHOS_GM_PRICE_IN_PER_M", ""))
+        price_out = float(os.getenv("MYTHOS_GM_PRICE_OUT_PER_M", ""))
+    except ValueError:
+        return None
+    return (price_in, price_out) if price_in >= 0 and price_out >= 0 else None
+
+
 @dataclass(frozen=True)
 class V2Settings:
     max_blob_bytes: int = 512 * 1024
@@ -118,6 +129,8 @@ class V2Settings:
     daily_per_minute: int = 10
     admin_per_minute: int = 30
     gm_concurrency: int = 4
+    #: USD per million (prompt, output) tokens for the dashboard's cost estimate; None = show tokens only.
+    gm_price: tuple[float, float] | None = None
 
     @classmethod
     def from_env(cls) -> "V2Settings":
@@ -133,6 +146,7 @@ class V2Settings:
             daily_per_minute=_env_int("MYTHOS_V2_DAILY_PER_MINUTE", 10),
             admin_per_minute=_env_int("MYTHOS_V2_ADMIN_PER_MINUTE", 30),
             gm_concurrency=max(1, _env_int("MYTHOS_V2_GM_CONCURRENCY", 4)),
+            gm_price=_env_price(),
         )
 
 
@@ -211,6 +225,13 @@ class DailySubmitBody(BaseModel):
 # --- GM runner -----------------------------------------------------------------
 
 
+#: Billed tokens of the LLM call made by the current request (set by ``_GMRunner.complete`` in the handler's own
+#: task, read and cleared by ``log_gm``). Unset when no model answered (fallback paths) or the call timed out.
+_CALL_USAGE: contextvars.ContextVar[Usage | None] = contextvars.ContextVar(
+    "mythos_v2_gm_call_usage", default=None
+)
+
+
 class _NoLLMError(RuntimeError):
     pass
 
@@ -265,11 +286,12 @@ class _GMRunner:
         if llm is None:
             raise _NoLLMError
 
-        def _run() -> str:
+        def _run() -> tuple[str, Usage | None]:
             if not self._slots.acquire(timeout=1.0):
                 raise _BusyError
             try:
-                return llm.complete(
+                take_last_usage()  # drop anything a previous call on this worker thread left behind
+                text = llm.complete(
                     system,
                     user,
                     max_tokens=max_tokens,
@@ -277,11 +299,16 @@ class _GMRunner:
                     timeout=timeout,
                     json_schema=json_schema,
                 )
+                return text, take_last_usage()
             finally:
                 self._slots.release()
 
         loop = asyncio.get_running_loop()
-        return await asyncio.wait_for(loop.run_in_executor(self._executor, _run), timeout=timeout)
+        text, usage = await asyncio.wait_for(
+            loop.run_in_executor(self._executor, _run), timeout=timeout
+        )
+        _CALL_USAGE.set(usage)
+        return text
 
     def close(self) -> None:
         self._executor.shutdown(wait=False, cancel_futures=True)
@@ -614,7 +641,14 @@ def create_v2_router(
             "gm_stats": gm_stats.snapshot(),
         }
         return admin.build_overview(
-            players, runs, daily_rows, gm_usage, now=moment, days=days, server=server
+            players,
+            runs,
+            daily_rows,
+            gm_usage,
+            now=moment,
+            days=days,
+            server=server,
+            gm_price=cfg.gm_price,
         )
 
     # --- AI GM -------------------------------------------------------------------
@@ -623,12 +657,22 @@ def create_v2_router(
         route: str, player_id: str, outcome: str, started: float, **extra: Any
     ) -> None:
         gm_stats.record(route, outcome)
+        used = _CALL_USAGE.get()
+        _CALL_USAGE.set(None)
         # Durable per-day counter for the operator dashboard. Best effort and bounded: a slow or failing
         # store never delays or fails the reply (the authored/LLM text is already decided).
         day = daily.today_kst(clock())
         try:
             await asyncio.wait_for(
-                run_in_threadpool(lambda: holder.get().record_gm_usage(day, route, outcome)),
+                run_in_threadpool(
+                    lambda: holder.get().record_gm_usage(
+                        day,
+                        route,
+                        outcome,
+                        used.prompt_tokens if used else 0,
+                        used.output_tokens if used else 0,
+                    )
+                ),
                 timeout=2.0,
             )
         except Exception as exc:

@@ -63,6 +63,10 @@ tester dashboard is archived on branch `1.0`.
 - **Data**: read-only queries over `v2_saves`, `v2_run_history`, `v2_daily_scores`, plus `v2_gm_usage` (one counter row per
   KST day / route / outcome — no player ids or text; written best-effort, 2 s cap, after the GM reply is decided). The
   "서버 · AI GM" counters are per Cloud Run instance since it started; the daily table is the durable record.
+  Each row also sums the billed tokens (`prompt_tokens`, `output_tokens`; thinking counts as output) that the Gemini / OpenAI-compat
+  backend reported for the call (`llm.take_last_usage`, read on the worker thread). Calls abandoned by the wall-clock timeout are
+  counted but their tokens are lost, so tokens slightly under-count. The dashboard shows an estimated USD cost only when the server
+  has `MYTHOS_GM_PRICE_IN_PER_M` and `MYTHOS_GM_PRICE_OUT_PER_M` (USD per million tokens, both); no price is assumed.
 
 ## Leaderboard ordering and trust
 

@@ -48,7 +48,7 @@ SLOTS: tuple[Slot, ...] = ("profile", "run")
 
 DEFAULT_DATABASE_URL = "postgresql://mythos:mythos@localhost:5432/mythos"
 
-#: Same statements as migrations/009_v2_saves.sql + 010_v2_daily_scores.sql + 011_v2_history_per_player.sql + 012_v2_saves_created_at.sql + 013_v2_gm_usage.sql (those files are
+#: Same statements as migrations/009_v2_saves.sql + 010_v2_daily_scores.sql + 011_v2_history_per_player.sql + 012_v2_saves_created_at.sql + 013_v2_gm_usage.sql + 014_v2_gm_usage_tokens.sql (those files are
 #: canonical; a test asserts they match). Every statement is idempotent.
 SCHEMA_STATEMENTS: tuple[str, ...] = (
     """CREATE TABLE IF NOT EXISTS v2_saves (
@@ -105,6 +105,8 @@ END $$""",
   calls INTEGER NOT NULL DEFAULT 0,
   PRIMARY KEY (day, route, outcome)
 )""",
+    "ALTER TABLE v2_gm_usage ADD COLUMN IF NOT EXISTS prompt_tokens BIGINT NOT NULL DEFAULT 0",
+    "ALTER TABLE v2_gm_usage ADD COLUMN IF NOT EXISTS output_tokens BIGINT NOT NULL DEFAULT 0",
 )
 
 #: Per-player history kept by the in-memory store (Postgres keeps everything).
@@ -191,13 +193,16 @@ class V2Store(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def record_gm_usage(self, day: date, route: str, outcome: str) -> None:
-        """Count one AI GM call (``outcome`` 'llm' = a model answered, else the authored fallback)."""
+    def record_gm_usage(
+        self, day: date, route: str, outcome: str, prompt_tokens: int = 0, output_tokens: int = 0
+    ) -> None:
+        """Count one AI GM call (``outcome`` 'llm' = a model answered, else the authored fallback) and
+        add the tokens it was billed."""
         raise NotImplementedError
 
     @abstractmethod
-    def admin_gm_usage(self, since: date) -> list[tuple[date, str, str, int]]:
-        """(day, route, outcome, calls) rows for days ``>= since``."""
+    def admin_gm_usage(self, since: date) -> list[tuple[date, str, str, int, int, int]]:
+        """(day, route, outcome, calls, prompt_tokens, output_tokens) rows for days ``>= since``."""
         raise NotImplementedError
 
     def close(self) -> None:  # noqa: B027 - optional hook, default no-op
@@ -211,7 +216,7 @@ class MemoryV2Store(V2Store):
         self._lock = threading.Lock()
         self._saves: dict[tuple[str, str], SaveBlob] = {}
         self._first_saved: dict[tuple[str, str], datetime] = {}
-        self._gm_usage: dict[tuple[date, str, str], int] = {}
+        self._gm_usage: dict[tuple[date, str, str], tuple[int, int, int]] = {}
         # record id -> (player_id, created_at, data)
         self._history: dict[tuple[str, str], tuple[datetime, dict[str, Any]]] = {}
         # (day, archetype) -> player_id -> best entry
@@ -343,14 +348,19 @@ class MemoryV2Store(V2Store):
             for player, created, data in items[: max(0, limit)]
         ]
 
-    def record_gm_usage(self, day: date, route: str, outcome: str) -> None:
+    def record_gm_usage(
+        self, day: date, route: str, outcome: str, prompt_tokens: int = 0, output_tokens: int = 0
+    ) -> None:
         with self._lock:
             key = (day, route, outcome)
-            self._gm_usage[key] = self._gm_usage.get(key, 0) + 1
+            calls, prompt, output = self._gm_usage.get(key, (0, 0, 0))
+            self._gm_usage[key] = (calls + 1, prompt + prompt_tokens, output + output_tokens)
 
-    def admin_gm_usage(self, since: date) -> list[tuple[date, str, str, int]]:
+    def admin_gm_usage(self, since: date) -> list[tuple[date, str, str, int, int, int]]:
         with self._lock:
-            return [(d, r, o, n) for (d, r, o), n in self._gm_usage.items() if d >= since]
+            return [
+                (d, r, o, n, p, t) for (d, r, o), (n, p, t) in self._gm_usage.items() if d >= since
+            ]
 
     def admin_daily(self, since: date) -> list[tuple[date, DailyEntry]]:
         with self._lock:
@@ -684,22 +694,42 @@ class PostgresV2Store(V2Store):
             for row in rows
         ]
 
-    def record_gm_usage(self, day: date, route: str, outcome: str) -> None:
+    def record_gm_usage(
+        self, day: date, route: str, outcome: str, prompt_tokens: int = 0, output_tokens: int = 0
+    ) -> None:
         with self._conn() as conn:
             conn.execute(
                 """
-                INSERT INTO v2_gm_usage (day, route, outcome, calls) VALUES (%s, %s, %s, 1)
-                ON CONFLICT (day, route, outcome) DO UPDATE SET calls = v2_gm_usage.calls + 1
+                INSERT INTO v2_gm_usage (day, route, outcome, calls, prompt_tokens, output_tokens)
+                VALUES (%s, %s, %s, 1, %s, %s)
+                ON CONFLICT (day, route, outcome) DO UPDATE SET
+                  calls = v2_gm_usage.calls + 1,
+                  prompt_tokens = v2_gm_usage.prompt_tokens + EXCLUDED.prompt_tokens,
+                  output_tokens = v2_gm_usage.output_tokens + EXCLUDED.output_tokens
                 """,
-                (day, route, outcome),
+                (day, route, outcome, prompt_tokens, output_tokens),
             )
 
-    def admin_gm_usage(self, since: date) -> list[tuple[date, str, str, int]]:
+    def admin_gm_usage(self, since: date) -> list[tuple[date, str, str, int, int, int]]:
         with self._conn() as conn:
             rows = conn.execute(
-                "SELECT day, route, outcome, calls FROM v2_gm_usage WHERE day >= %s", (since,)
+                """
+                SELECT day, route, outcome, calls, prompt_tokens, output_tokens
+                FROM v2_gm_usage WHERE day >= %s
+                """,
+                (since,),
             ).fetchall()
-        return [(r["day"], str(r["route"]), str(r["outcome"]), int(r["calls"])) for r in rows]
+        return [
+            (
+                r["day"],
+                str(r["route"]),
+                str(r["outcome"]),
+                int(r["calls"]),
+                int(r["prompt_tokens"]),
+                int(r["output_tokens"]),
+            )
+            for r in rows
+        ]
 
     def admin_daily(self, since: date) -> list[tuple[date, DailyEntry]]:
         with self._conn() as conn:

@@ -211,11 +211,12 @@ def build_overview(
     players: list[AdminPlayer],
     runs: list[AdminRun],
     daily_rows: list[tuple[date, DailyEntry]],
-    gm_usage: list[tuple[date, str, str, int]],
+    gm_usage: list[tuple[date, str, str, int, int, int]],
     *,
     now: datetime,
     days: int,
     server: dict[str, Any],
+    gm_price: tuple[float, float] | None = None,
 ) -> dict[str, Any]:
     """The whole dashboard payload. ``runs``/``daily_rows`` are expected to cover the last ``days`` days."""
     days = max(1, min(MAX_DAYS, days))
@@ -340,13 +341,24 @@ def build_overview(
             }
         )
 
-    gm_days: dict[date, dict[str, int]] = {key: {"llm": 0, "fallback": 0} for key in day_keys}
+    gm_days: dict[date, dict[str, int]] = {
+        key: {"llm": 0, "fallback": 0, "prompt_tokens": 0, "output_tokens": 0} for key in day_keys
+    }
     gm_outcomes: Counter[str] = Counter()
-    for day, _route, outcome, calls in gm_usage:
+    for day, _route, outcome, calls, prompt_tokens, output_tokens in gm_usage:
         if day not in gm_days:
             continue
         gm_days[day]["llm" if outcome == "llm" else "fallback"] += calls
+        gm_days[day]["prompt_tokens"] += prompt_tokens
+        gm_days[day]["output_tokens"] += output_tokens
         gm_outcomes[outcome] += calls
+
+    def gm_cost(row: dict[str, int]) -> float | None:
+        if gm_price is None:
+            return None
+        return round(
+            (row["prompt_tokens"] * gm_price[0] + row["output_tokens"] * gm_price[1]) / 1_000_000, 4
+        )
 
     return {
         "generated_at": _iso(now),
@@ -406,7 +418,12 @@ def build_overview(
         "deaths": {"killed_by": _top(killed_by), "by_act": dict(sorted(deaths_by_act.items()))},
         "endings": _top(endings),
         "gm_daily": [
-            {"day": key.isoformat(), **gm_days[key], "total": sum(gm_days[key].values())}
+            {
+                "day": key.isoformat(),
+                **gm_days[key],
+                "total": gm_days[key]["llm"] + gm_days[key]["fallback"],
+                "est_cost_usd": gm_cost(gm_days[key]),
+            }
             for key in day_keys
         ],
         "gm_outcomes": _top(gm_outcomes, 12),

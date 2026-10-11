@@ -2,6 +2,13 @@
 
 Last updated: 2026-10-11
 
+## 2026-10-11 — GM token usage + cost in the dashboard (1.x port #4, first of Wave 1)
+
+- The GM cost guard decision had no number to stand on: `v2_gm_usage` counted calls but not tokens. `llm.py` backends now report the billed tokens of the call they just made (`Usage`, thread-local `take_last_usage`; Gemini adds thinking tokens to output), `_GMRunner` hands them to `log_gm` through a request-scoped ContextVar, and `record_gm_usage` adds them to the day/route/outcome row (migration 014 + `SCHEMA_STATEMENTS`). `/admin` "AI GM 일별 호출" gained input/output tokens and an estimated cost.
+- No price is assumed: cost shows only when the server has `MYTHOS_GM_PRICE_IN_PER_M` / `MYTHOS_GM_PRICE_OUT_PER_M` (USD per million). **Owner**: set both on the Cloud Run service (from the current Vertex price list) to turn the cost column on; until then it reads "—" and tokens are the signal.
+- Tests: `tests/test_v2_llm_usage.py` (both backends' usage extraction against fake clients, missing metadata → zero, price math, env parsing), store contract (token sums on memory + Postgres), API → dashboard end to end. Known undercount: calls abandoned by the timeout are counted, their tokens are not.
+- The GM cost guard itself stays off (owner) — the per-player 400 calls/day cap still applies; decide on a tighter cap once a few days of real tokens/day are visible.
+
 ## 2026-10-11 — Combat balance pass: Incinerator tuned; card audit (no change)
 
 - Per-encounter telemetry (mixed bot, 4 seed blocks × 60 runs): the curve is as designed (Act 1 ≈ 0–3 % losses, Act 2 elites/boss 0–8 %, Act 3 6–27 %, IX 26 %), with one outlier — `a2_elite_incinerator` lost 20 % of the time and cost 15.7 HP per fight vs 0–5 % and ≈ 4 HP for the other Act 2 elites. In isolation (starter decks × 60 seeds × 3 archetypes): mixed 91 % win / 15.5 HP lost, greedy 5.0 HP lost vs 0.4–0.7 for Reaver and Captain.

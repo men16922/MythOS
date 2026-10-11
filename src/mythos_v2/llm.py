@@ -19,7 +19,37 @@ a generous cap so an engine that ignores the flag still has room to answer.
 from __future__ import annotations
 
 import os
+import threading
+from dataclasses import dataclass
 from typing import Any, Protocol
+
+
+@dataclass(frozen=True)
+class Usage:
+    """Billed tokens of one completion (output includes any thinking tokens)."""
+
+    prompt_tokens: int = 0
+    output_tokens: int = 0
+
+
+# A backend reports the usage of the completion it just made on the SAME thread (the GM runner calls
+# ``complete`` and then ``take_last_usage`` inside one worker call), so the ``TextLLM`` protocol and every fake
+# LLM keep their plain ``-> str`` shape.
+_last = threading.local()
+
+
+def set_last_usage(prompt_tokens: object, output_tokens: object) -> None:
+    def count(value: object) -> int:
+        return value if isinstance(value, int) and not isinstance(value, bool) and value > 0 else 0
+
+    _last.usage = Usage(count(prompt_tokens), count(output_tokens))
+
+
+def take_last_usage() -> Usage | None:
+    """The usage reported by the last ``complete`` on this thread (cleared by reading), if any."""
+    usage: Usage | None = getattr(_last, "usage", None)
+    _last.usage = None
+    return usage
 
 
 class TextLLM(Protocol):
@@ -86,6 +116,8 @@ class OpenAICompatTextLLM:
             # Disable the reasoning pass on thinking models (gemma4/qwen3).
             kwargs["extra_body"] = {"reasoning_effort": "none"}
         response = client.chat.completions.create(**kwargs)
+        usage = getattr(response, "usage", None)
+        set_last_usage(getattr(usage, "prompt_tokens", 0), getattr(usage, "completion_tokens", 0))
         content = response.choices[0].message.content if response.choices else None
         return content.strip() if isinstance(content, str) else ""
 
@@ -143,6 +175,14 @@ class GeminiTextLLM:
         response = self._get_client(timeout).models.generate_content(
             model=self.model, contents=user, config=config
         )
+        meta = getattr(response, "usage_metadata", None)
+        thoughts = getattr(meta, "thoughts_token_count", 0)
+        output = getattr(meta, "candidates_token_count", 0)
+        set_last_usage(
+            getattr(meta, "prompt_token_count", 0),
+            (output if isinstance(output, int) else 0)
+            + (thoughts if isinstance(thoughts, int) else 0),
+        )
         text = getattr(response, "text", None)
         return text.strip() if isinstance(text, str) else ""
 
@@ -160,4 +200,12 @@ def build_text_llm() -> TextLLM | None:
     return OpenAICompatTextLLM()
 
 
-__all__ = ["GeminiTextLLM", "OpenAICompatTextLLM", "TextLLM", "build_text_llm"]
+__all__ = [
+    "GeminiTextLLM",
+    "OpenAICompatTextLLM",
+    "TextLLM",
+    "Usage",
+    "build_text_llm",
+    "set_last_usage",
+    "take_last_usage",
+]

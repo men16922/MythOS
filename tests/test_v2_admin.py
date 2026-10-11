@@ -21,6 +21,7 @@ from mythos_v2.auth import (
     parse_admin_emails,
 )
 from mythos_v2.daily import DailyResult, today_kst
+from mythos_v2.llm import set_last_usage
 from mythos_v2.store import MemoryV2Store
 
 ADMIN_EMAIL = "Owner@Example.com"
@@ -52,6 +53,7 @@ class _FakeLLM:
     name = "fake"
 
     def complete(self, system: str, user: str, **_kw: Any) -> str:
+        set_last_usage(120, 18)  # what a real backend reports for the call it just made
         return "Containment holds. Proceed."
 
 
@@ -277,6 +279,10 @@ class AdminOverviewTest(unittest.TestCase):
         self.assertEqual(today["llm"] + today["fallback"], 2)
         self.assertEqual(sum(row["count"] for row in data["gm_outcomes"]), 2)
         self.assertEqual(data["gm_daily"][0]["total"], 0)
+        # Tokens come from the backend's own report, summed per day; no price configured -> no cost.
+        self.assertEqual((today["prompt_tokens"], today["output_tokens"]), (240, 36))
+        self.assertIsNone(today["est_cost_usd"])
+        self.assertEqual(data["gm_daily"][0]["prompt_tokens"], 0)
 
     def test_server_block_counts_gm_calls(self) -> None:
         server = self.data["server"]

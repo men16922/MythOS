@@ -76,14 +76,14 @@ credentials; use a private test topic, since `daily-ko` / `daily-en` reach every
 | --- | --- | --- |
 | `make firebase-web` | done 2026-10-11 | Registers the Firebase web app "MythOS (Web)" (idempotent) and writes `.firebase/web-config.json` (mode 600, never printed). |
 | `make firebase-sha` | done 2026-10-11 | Registers this Mac's debug keystore SHA-1 on `com.projectmythos.signalrun`. Re-run on another dev machine; release/upload keys later via `KEYSTORE=… KEY_ALIAS=… STOREPASS_FILE=…`. |
-| `make firebase-auth-domains` | owner | Adds the Cloud Run hosts (`mythos-api` URLs + `v2---` preview hosts; `EXTRA_DOMAINS=` for more) to Firebase Auth authorized domains. |
+| `make firebase-auth-domains` | owner | Adds the Cloud Run hosts (`mythos-api` URLs + `v2-preview---` preview hosts; `EXTRA_DOMAINS=` for more) to Firebase Auth authorized domains. |
 | `make push-schedule` | owner | Creates/updates the two scheduler jobs (`DRY_RUN=1` prints the commands; `PUSH_CRON`, `PUSH_TZ`, `PUSH_SA`). Never grants IAM; prints the grant if needed. |
 | `make push-test` | anyone with FCM access | One test message to a topic. |
 | `make deploy` / `deploy-preview` | owner | Also set `MYTHOS_AUTH=google`, `MYTHOS_FIREBASE_PROJECT`, `MYTHOS_FIREBASE_WEB_CONFIG` (from `.firebase/web-config.json`; fails if missing). |
 
 ## Owner checklist (in order)
 
-Done 2026-10-11 (lead agent, owner-approved): steps 1–3 — Google provider enabled (public name "MythOS"), Cloud Run
+Done 2026-10-11 (lead agent, owner-approved): steps 1–6 — deployed (rev `00091`, promoted with `--to-latest`), `mythos-push@` created with the FCM role only, scheduler jobs live (a manual run got HTTP 200 from FCM). Steps 1–3 — Google provider enabled (public name "MythOS"), Cloud Run
 hosts authorized, `google-services.json` refreshed; a real web sign-in on `localhost:8010` stored a save under a
 `g_` id, and the Android build opens the native Google sign-in sheet.
 
@@ -94,8 +94,8 @@ hosts authorized, `google-services.json` refreshed; a real web sign-in on `local
 3. `make android-firebase` again (the client side's script, `scripts/android/fetch-firebase-config.sh`): with Google
    enabled and the SHA-1 registered, `google-services.json` now carries the OAuth client Android sign-in needs.
    Rebuild the APK.
-4. Deploy: `make deploy-preview`, check the `v2---` URL (sign in, finish a daily, see the board), then promote
-   with `gcloud run services update-traffic mythos-api --to-tags v2=100 --region us-central1 --project <PROJECT_ID>`.
+4. Deploy: `make deploy-preview`, check the `v2-preview---` URL (sign in, finish a daily, see the board), then promote
+   with `gcloud run services update-traffic mythos-api --to-tags v2-preview=100 --region us-central1 --project <PROJECT_ID>`.
    From here every save, GM call and leaderboard write needs Google sign-in.
 5. Push sender account (least privilege — the default compute account also runs Cloud Run, so give FCM rights to
    a push-only account instead):

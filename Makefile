@@ -317,16 +317,16 @@ deploy:
 	echo "Deploying mythos-api (2.0) to project [$$PROJECT_ID] region [$(REGION)] (env-preserving, MYTHOS_AUTH=google)…"; \
 	gcloud run deploy mythos-api --source . --region $(REGION) --project "$$PROJECT_ID" --timeout $(CLOUD_RUN_TIMEOUT) --update-env-vars "$$AUTH_ENV" --quiet
 
-# A NEW revision with ZERO traffic, reachable only at its tag URL (https://v2---<service-url>). Promote later with
-# `gcloud run services update-traffic mythos-api --to-tags v2=100` (owner call).
+# A NEW revision with ZERO traffic, reachable only at its tag URL (https://v2-preview---<service-url>; tags need ≥ 3 characters). Promote later with
+# `gcloud run services update-traffic mythos-api --to-tags v2-preview=100` (owner call).
 deploy-preview:
 	@test -f .env || { echo "ERROR: .env not found"; exit 1; }
 	@test -f $(FIREBASE_WEB_CONFIG) || { echo "ERROR: $(FIREBASE_WEB_CONFIG) missing — run make firebase-web first"; exit 1; }
 	@PROJECT_ID=$$(grep -E '^PROJECT_ID=' .env | cut -d= -f2- | tr -d '"'); \
 	test -n "$$PROJECT_ID" || { echo "ERROR: PROJECT_ID not set in .env"; exit 1; }; \
 	AUTH_ENV=$$($(AUTH_ENV_VARS) "$$PROJECT_ID" 2>/dev/null) || { echo "ERROR: $(FIREBASE_WEB_CONFIG) is not a complete Firebase web config — re-run make firebase-web"; exit 1; }; \
-	echo "Deploying a NO-TRAFFIC preview revision (tag v2) of mythos-api to [$$PROJECT_ID] [$(REGION)] (MYTHOS_AUTH=google)…"; \
-	gcloud run deploy mythos-api --source . --region $(REGION) --project "$$PROJECT_ID" --timeout $(CLOUD_RUN_TIMEOUT) --update-env-vars "$$AUTH_ENV" --no-traffic --tag v2 --quiet
+	echo "Deploying a NO-TRAFFIC preview revision (tag v2-preview) of mythos-api to [$$PROJECT_ID] [$(REGION)] (MYTHOS_AUTH=google)…"; \
+	gcloud run deploy mythos-api --source . --region $(REGION) --project "$$PROJECT_ID" --timeout $(CLOUD_RUN_TIMEOUT) --update-env-vars "$$AUTH_ENV" --no-traffic --tag v2-preview --quiet
 
 # --- Android app (Capacitor; docs/android.md) ---------------------------------------------------------------------
 

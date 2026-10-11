@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # OWNER-RUN. Add the Cloud Run host(s) of mythos-api to Firebase Auth's authorized domains (idempotent), so
 # web Google sign-in works on the deployed game: the service URL(s), every traffic-tag URL, and the preview
-# tag host (`<PREVIEW_TAG>---<host>`, default tag v2) even before that tag exists. EXTRA_DOMAINS (comma-
+# tag host (`<PREVIEW_TAG>---<host>`, default tag v2-preview) even before that tag exists. EXTRA_DOMAINS (comma-
 # separated) adds more, e.g. a custom domain. Uses the Identity Toolkit admin v2 config API.
 # Needs Firebase Authentication initialised first (console → Authentication → Get started); before that the
 # API answers CONFIGURATION_NOT_FOUND and this script says so and changes nothing.
@@ -9,7 +9,7 @@ set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 fb_require_project
 
-PREVIEW_TAG="${PREVIEW_TAG:-v2}"
+PREVIEW_TAG="${PREVIEW_TAG:-v2-preview}"
 CONFIG_URL="https://identitytoolkit.googleapis.com/admin/v2/projects/$PROJECT_ID/config"
 
 status="$(fb_api GET "$CONFIG_URL")"

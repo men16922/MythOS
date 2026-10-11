@@ -2,6 +2,12 @@
 
 Last updated: 2026-10-11
 
+## 2026-10-11 — 2.0 live on Cloud Run; daily push scheduled
+
+- Owner: "나머지는 수행하라고" (deploy, push account + schedule, git push; Play account = owner's $25).
+- `make deploy-preview` never worked: Cloud Run tags need ≥ 3 characters → tag renamed `v2-preview` (Makefile, `auth-domains.sh`, docs) and its hosts authorized. Preview rev `00091` smoke: health, `store: postgres`, `gm: gemini:gemini-3.5-flash`, `/config` auth google, unsigned PUT and forged token → 401, public board 200, CORS for `https://localhost`; real Google sign-in on the preview URL, a run saved (PUT 200) and a Vertex narrate (`llm`, 3.4 s). Promoted with `update-traffic --to-latest` (100 %); both service URLs serve 2.0.
+- Push: service account `mythos-push@` + `roles/firebasecloudmessaging.admin` only; `PUSH_SA=… make push-schedule` → `mythos-daily-push-{ko,en}` 19:00 Asia/Seoul; a manual run of the ko job got HTTP 200 from FCM (no subscribers yet).
+
 ## 2026-10-11 — Firebase Auth enabled; real Google sign-in verified
 
 - Owner: "Google 로그인까지 체크해. 그리고 Firebase console도 직접수행해" (Chrome profile chosen by the owner). Console: Authentication → Get started → Google enabled (public name MythOS). `make firebase-auth-domains` added the 4 Cloud Run hosts; `google-services.json` refreshed (Android + web OAuth clients) — `fetch-firebase-config.sh` now uses the Firebase REST API first (the npx CLI path failed on an unwritable npm cache).

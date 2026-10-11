@@ -8,10 +8,7 @@ Open work only. Finished tracks are in `COMPLETED_SUMMARY.md`; the 1.x plan (pau
 
 Rules: `docs/GAMEPLAY.md` · design/contract: `docs/plans/2026-10-10-mythos-2.0.md` · owner guide: `docs/test/mythos2_first_play.md` · Android: `docs/android.md`.
 
-- `[ ]` `[manual]` **Daily push** — a push-only service account with `roles/firebasecloudmessaging.admin`, then `PUSH_SA=<that SA> make push-schedule` (19:00 KST; `DRY_RUN=1` previews). See `docs/online.md`.
 - `[ ]` `[manual]` **SFX listen-test** — the impact layers were tuned by offline measurement only (all tests are muted).
-- `[ ]` `[manual]` **Deploy 2.0** — `make deploy-preview` (no-traffic tag `v2`) then promote, or `make deploy`. Sets `MYTHOS_AUTH=google` + the Firebase web config (needs `.firebase/web-config.json`, `make firebase-web`). Replaces what CBT testers see (invite keys no longer work — testers sign in with Google); the first `/api/v2` request creates the v2 tables in the production DB.
-- `[ ]` **Cloud smoke after deploy** — `/api/health`, `/api/v2/health`, a save round-trip and GM narrate/talk on Vertex through the deployed URL; confirm CORS for the Android origin.
 - `[ ]` `[manual]` **Android release** — Play Console developer account ($25), an upload keystore (owner-held), package id check (`com.projectmythos.signalrun` is permanent once uploaded), register the upload-key and Play app-signing SHA-1s in Firebase (Google sign-in), then an internal-testing AAB. Tester list for Firebase App Distribution.
 - `[ ]` `[manual]` **`git push`** — `main` (2.0) and `1.0` (archive).
 

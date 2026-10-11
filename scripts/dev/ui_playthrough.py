@@ -91,6 +91,15 @@ def centers(page: Page, selector: str) -> list[tuple[float, float]]:
     return [(x, y) for x, y in page.evaluate(CENTERS_JS, selector)]
 
 
+DEBUG_STEPS = {"on": False}
+
+
+def shot_step(page: Page, name: str) -> None:
+    d = os.environ.get("PLAYTHROUGH_SHOT")
+    if d and DEBUG_STEPS["on"]:
+        page.screenshot(path=f"{d}/step_{name}.png")
+
+
 def play_combat_turn(page: Page) -> None:
     """Step toward the nearest foe, then play each card on its first legal target (or any unit), then end the turn."""
     uids = page.evaluate(
@@ -103,9 +112,18 @@ def play_combat_turn(page: Page) -> None:
         bx, by = min(steps, key=lambda c: (c[0] - fx) ** 2 + (c[1] - fy) ** 2)
         page.mouse.click(bx, by)
         page.wait_for_timeout(500)
+        shot_step(page, "0_move")
     for slot in range(1, 6):
         page.keyboard.press(str(slot))
         page.wait_for_timeout(150)
+        shot_step(page, f"{slot}_selected")
+        arrows = centers(page, ".m2c-dir")
+        if arrows and foes:  # a directional card: aim at the arrow that points to the nearest foe
+            fx, fy = foes[0]
+            ax, ay = min(arrows, key=lambda c: (c[0] - fx) ** 2 + (c[1] - fy) ** 2)
+            page.mouse.click(ax, ay)
+            page.wait_for_timeout(500)
+            continue
         targets = centers(page, ".m2c-target")
         if targets:
             page.mouse.click(*targets[0])
@@ -149,13 +167,18 @@ def act_once(page: Page, state: dict) -> bool:
         page.wait_for_timeout(700)
         return True
     if kind == "reward":
-        for sel in (".m2-rrow--implant:not([disabled])", ".m2-rrow:not([disabled]):not(.is-taken)"):
+        # An open card-choice overlay comes first (pick the first card), then an implant pick, then the plain rows, then leave.
+        if page.locator(".m2-overlay .m2-choice").count():
+            page.wait_for_timeout(700)  # the fan animates in
+            return click_first(page, ".m2-choice__slot:not(.is-picked)")
+        for sel in (
+            ".m2-rpick__opt:not([disabled])",
+            ".m2-rrow--implant:not([disabled])",
+            ".m2-rrow:not([disabled]):not(.is-taken)",
+        ):
             if click_first(page, sel):
                 return True
-        return click_first(
-            page,
-            ".m2-reward .m2-btn, .m2-reward__leave, button:has-text('떠나'), button:has-text('Leave')",
-        )
+        return click_first(page, ".m2-reward__foot .m2-btn")
     if kind == "card_reward":
         if click_first(page, ".m2-cardchoice:not([disabled]), .m2-rcard:not([disabled])"):
             return True
@@ -299,7 +322,17 @@ def play_one(
             if os.environ.get("PLAYTHROUGH_DEBUG"):
                 print("   god:", res)
         seen[st["kind"]] += 1
-        if st["kind"] == "combat" and (st.get("combatTurn") or 0) > 30:
+        if god and st["kind"] == "combat" and (st.get("combatTurn") or 0) % 1000 in (12, 24):
+            # The bot hits too softly to finish some fights (the engine's own bots win them in ~6 turns). Wear the foes
+            # down to 1 HP through the dev hook (bumping `turn` makes the screen adopt the edited state), so the fight
+            # is still ended by a real card played with real clicks.
+            page.evaluate(
+                """() => { const r = window.__m2.run; const c = r.screen.combat;
+                  const units = c.units.map((u) => u.side === 'enemy' ? { ...u, hp: 1, block: 0, armor: 0 } : u);
+                  window.__m2.setRun({ ...r, screen: { ...r.screen, combat: { ...c, units, turn: c.turn + 1000 } } }) }"""
+            )
+        DEBUG_STEPS["on"] = st["kind"] == "combat" and (st.get("combatTurn") or 0) % 1000 == 14
+        if st["kind"] == "combat" and (st.get("combatTurn") or 0) % 1000 > 30:
             return (
                 True,
                 f"bot stalled in a fight (turn {st['combatTurn']}, {st['foes']} foe HP) — a bot limit, not a stuck screen",

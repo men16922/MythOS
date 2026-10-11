@@ -20,7 +20,7 @@ Guide for the Claude Code agent in this repo. Ground all design in `harness/CORE
 
 **Mythos 2.0 — 세계:접속 "Signal Run"**: a single-player cyberpunk tactics deck-builder roguelite. Into the Breach-style telegraphed combat on a 7×5 board + Slay the Spire deck/implants + a Hades-style Archive meta loop, set in Neo-Seoul under the administrator AI IX. The game runs entirely in the browser (pure-TS engine); an AI GM (Ollama locally, Vertex Gemini in the cloud) adds narration, companion chat and IX comms **off the critical path** — authored text always shows first and every AI call has an authored fallback. Ships as a web app on Cloud Run and as an Android app (Capacitor). The 1.x AI-narrated loop runtime is archived on branch **`1.0`**.
 
-**Docs by role** (`docs/README.md` = map, `docs/DOCS_POLICY.md` = rules). Rules: `docs/GAMEPLAY.md`. Design/build contract: `docs/plans/2026-10-10-mythos-2.0.md`. Living trackers: `STATUS.md` (read first), `NEXT_PLAN.md`, `PROGRESS_LOG.md` (newest on top), `COMPLETED_SUMMARY.md`, `DECISIONS.md`. Android: `docs/android.md`. Owner play guide: `docs/test/mythos2_first_play.md`.
+**Docs by role** (`docs/README.md` = map, `docs/DOCS_POLICY.md` = rules). Rules: `docs/GAMEPLAY.md`. Design/build contract: `docs/plans/2026-10-10-mythos-2.0.md`. Living trackers: `STATUS.md` (read first), `NEXT_PLAN.md`, `PROGRESS_LOG.md` (newest on top), `COMPLETED_SUMMARY.md`, `DECISIONS.md`. Android: `docs/android.md`. Online (sign-in, leaderboard, push): `docs/online.md`. Owner play guide: `docs/test/mythos2_first_play.md`.
 
 ## Commands
 
@@ -60,12 +60,12 @@ Browser testing is **always silent** (`?mute=1` / localStorage `mythos2.mute=1`)
 
 ## Environment & constraints
 
-- Config via `.env`: `OLLAMA_BASE_URL`, `OLLAMA_MODEL_STORY` (local GM; `gemma4:8b-64k` is the locally installed model), `MYTHOS_NARRATIVE_PROVIDER=vertex` + `PROJECT_ID` (cloud GM via ADC), `DATABASE_URL`, `MYTHOS_INVITE_KEYS` (closed beta), `MYTHOS_CORS_ORIGINS`. Never print or commit `.env` values.
+- Config via `.env`: `OLLAMA_BASE_URL`, `OLLAMA_MODEL_STORY` (local GM; `gemma4:8b-64k` is the locally installed model), `MYTHOS_NARRATIVE_PROVIDER=vertex` + `PROJECT_ID` (cloud GM via ADC), `DATABASE_URL`, `MYTHOS_AUTH` (`open` locally; `google` on Cloud Run = Firebase Google sign-in required for cloud saves/GM/leaderboard, see `docs/online.md`), `MYTHOS_CORS_ORIGINS`. Never print or commit `.env` values.
 - `MYTHOS_LOG_LEVEL` controls server log verbosity (tests use `ERROR`). `MYTHOS_RUN_DB_TESTS=1` opts into Postgres tests. `outputs/` is gitignored.
 - Asset generation: Vertex Gemini image (scenes/cards), Codex image (transparent sprites), Vertex Lyria (music loops) — `scripts/v2_assets/`, with a call budget ledger.
 
 ## Agent execution constraints (from /insights 2026-07-05 — recurring friction)
 
 - **Gate commands**: run `make check`/`make test`/… from the repo root exactly as listed in Commands. Never chain with `cd && <cmd>` (sandbox blocks compound forms); use absolute paths or Makefile targets.
-- **Permission-classifier hard blocks — do not retry; hand the user the exact command to run via the `!` prefix instead**: `git push` (private repo), IAM/role grants (`gcloud iam …`), printing or materializing credentials (admin keys, tokens, invite keys, signing keystores; subshell injection without echoing is acceptable), editing shell profiles (`~/.zshrc`) or creating launchd/system services, plugin-marketplace config edits, launching agents with `--dangerously-skip-permissions`.
+- **Permission-classifier hard blocks — do not retry; hand the user the exact command to run via the `!` prefix instead**: `git push` (private repo), IAM/role grants (`gcloud iam …`), printing or materializing credentials (admin keys, tokens, Firebase configs, signing keystores; subshell injection without echoing is acceptable), editing shell profiles (`~/.zshrc`) or creating launchd/system services, plugin-marketplace config edits, launching agents with `--dangerously-skip-permissions`.
 - **Destructive cleanup**: prefer explicit file-by-file removal over broad `rm -rf` on source/tool directories; confirm before deleting anything you did not create.

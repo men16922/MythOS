@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-10-11 — Google sign-in replaces invite keys; daily leaderboard on our own server; daily push by topic
+
+- **Context**: owner — "꼭 초대코드가 필요한가? Gmail로 로그인 시키는 기능으로 대체하자", plus Play Games Services and push. No Play developer account exists yet.
+- **Decision**: Firebase Auth (Google provider) is the only cloud identity: Cloud Run runs `MYTHOS_AUTH=google`, the server verifies Firebase ID tokens itself (RS256 against Google's securetoken certs, no firebase-admin) and keys data on `g_<sha256(uid)>`. Anonymous play stays fully offline with authored lines. The daily-seed leaderboard lives in `/api/v2/daily` (`v2_daily_scores`), ordered like `isBetterDaily`; Play Games leaderboards mirror it later. Push = FCM topics `daily-ko`/`daily-en` sent by Cloud Scheduler straight to the FCM API (no device tokens stored). GM cost caps: none for now (owner).
+- **Trade-off**: results are client-reported (plausibility checks only), acceptable for a single-player daily board; old pre-sign-in cloud saves are not claimable (2.0 had none in production). Owner steps: enable Google in Firebase Auth, authorized domains, deploy, scheduler + an FCM role for its service account (`docs/online.md`).
+
 ## 2026-10-11 — `main` becomes 2.0-only; 1.x is archived on branch `1.0`
 
 Decision: owner ("2.0 정리 + 1.x는 아카이브", then "현재 2.0을 main 브랜치로 올리고, 기존 내용은 1.0 브랜치에 archive"). Branch `1.0` points at the last 1.x `main` (`edb5b53`); `main` fast-forwards to the 2.0 line and drops the 1.x runtime packages (`mythos_core/memory/loop/narrative/runtime/combat/image_agent`), the classic React client (`/?classic=1`), the 1.x `/api/v1` + WebSocket API, 1.x tests/scripts/experiments, migrations 001–008, MinIO/OTel/Jaeger infra, and 205 MB of art used only by 1.x or as dead fallbacks. `mythos_v2` gains its own `config.py` / `log.py`; the server is `mythos_api` (SPA + `/api/v2` + CORS).

@@ -2,6 +2,13 @@
 
 Last updated: 2026-10-11
 
+## 2026-10-11 — Google sign-in, daily leaderboard, Android daily push
+
+- Owner: "Play Games Services랑 푸시 알림도 붙여줘. 근데 꼭 초대코드가 필요한가? Gmail로 로그인 시키는 기능으로 대체하자" → leaderboard on our server first (Play Games once a Play developer account exists); no GM cost caps for now.
+- **Server**: `MYTHOS_AUTH=open|google`; Firebase ID tokens verified in-process (`mythos_v2/auth.py`); invite keys removed; `GET /api/v2/config`; `PUT/GET /api/v2/daily/{date}` (`daily.py`, `v2_daily_scores`); run history keyed per player (migration 011 — a shared daily run id used to 409 the second player). `scripts/firebase/*` + `make firebase-*`, `push-schedule`, `push-test`; `docs/online.md`. Firebase web app + debug SHA-1 registered.
+- **Client**: `net/auth.ts` (lazy Firebase popup on web, native plugin on Android), Bearer identity, account chip + settings section, `DailyBoard` with name editor, automatic daily submit with a retry queue; boot no longer re-saves the local mirror (a stale device could overwrite newer cloud progress). Android FCM topic toggle, channel `daily`, `ic_stat_mythos`, notification tap → today's board.
+- Verified: `make check` (node 221, Python 210), `make test-db` 20, `make test-e2e-v2` incl. the online flow, headless save → continue → reload, emulator: one real push on `daily-ko` delivered and the tap cold-starts into the board. Google sign-in ends in the graceful "not open yet" path until the owner enables the provider.
+
 ## 2026-10-11 — 1.x archived (main = 2.0 only), Android app, frontend refactor
 
 - Owner: "2.0 정리 + 1.x는 아카이브", "현재 2.0을 main 브랜치로 올리고, 기존 내용은 1.0 브랜치에 archive", plus an Android app version via Google's tooling (Capacitor + Firebase chosen; iOS out of scope).

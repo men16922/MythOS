@@ -93,11 +93,13 @@ credentials; use a private test topic, since `daily-ko` / `daily-en` reach every
 4. Deploy: `make deploy-preview`, check the `v2---` URL (sign in, finish a daily, see the board), then promote
    with `gcloud run services update-traffic mythos-api --to-tags v2=100 --region us-central1 --project <PROJECT_ID>`.
    From here every save, GM call and leaderboard write needs Google sign-in.
-5. `make push-schedule` (preview first with `DRY_RUN=1 make push-schedule`).
-6. If `make push-schedule` printed it (the default compute service account has no FCM role as of 2026-10-11), run
-   `gcloud projects add-iam-policy-binding <PROJECT_ID> --member=serviceAccount:<PROJECT_NUMBER>-compute@developer.gserviceaccount.com --role=roles/firebasecloudmessaging.admin --condition=None`.
-   Then `gcloud scheduler jobs run mythos-daily-push-ko --location us-central1 --project <PROJECT_ID>` fires one
-   for real (every `daily-ko` subscriber gets it).
+5. Push sender account (least privilege — the default compute account also runs Cloud Run, so give FCM rights to
+   a push-only account instead):
+   `gcloud iam service-accounts create mythos-push --display-name "Mythos daily push" --project <PROJECT_ID>`
+   `gcloud projects add-iam-policy-binding <PROJECT_ID> --member=serviceAccount:mythos-push@<PROJECT_ID>.iam.gserviceaccount.com --role=roles/firebasecloudmessaging.admin --condition=None`
+6. `PUSH_SA=mythos-push@<PROJECT_ID>.iam.gserviceaccount.com make push-schedule` (preview first with `DRY_RUN=1`).
+   `gcloud scheduler jobs run mythos-daily-push-ko --location us-central1 --project <PROJECT_ID>` fires one for real
+   (every `daily-ko` subscriber gets it).
 
 Local: `make api` stays `open`; `/api/v2/config` already serves the web config from `.firebase/web-config.json`, so
 web sign-in can be tried locally once step 1 is done (`localhost` is authorized by default).

@@ -4,7 +4,7 @@ Last updated: 2026-10-11
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **`main` is Mythos 2.0 only; 1.x is archived on branch `1.0`.** Pending owner calls: SFX listen-test, deploy (`make deploy-preview` → promote), Android release (Play Console + upload key; Firebase App Distribution testers), `git push`. After a deploy, smoke `/api/v2` + Vertex GM on Cloud Run. Tune balance with the simulator on fixed seed blocks, not by feel. **Test muted (`?mute=1`) with one browser tab at most.**
+> ▶ NEXT SESSION: **`main` is Mythos 2.0 only; 1.x is archived on branch `1.0`.** Pending owner calls (ordered list in `docs/online.md`): enable Google in Firebase Auth, deploy (`make deploy-preview` → promote; sets `MYTHOS_AUTH=google`), push SA + `make push-schedule`, Android release (Play Console + upload key; App Distribution testers), SFX listen-test, `git push`. After a deploy, smoke `/api/v2` + Vertex GM on Cloud Run. Tune balance with the simulator on fixed seed blocks, not by feel. **Test muted (`?mute=1`) with one browser tab at most.**
 
 ## Snapshot
 
@@ -14,7 +14,7 @@ Layout:
 - `src/mythos_ui/src/v2/engine` — pure TS, seeded RNG, JSON state, reducers; `node --test` (`make test-v2`). Combat (`combat.ts`/`effects.ts`/`intents.ts`), run/map/meta/daily (`run.ts`/`map.ts`/`meta.ts`/`daily.ts`), bots + sim (`combatSim.ts`/`runSim.ts`). Contract: `types.ts`.
 - `v2/content` — typed data; `content.test.ts` / `narrative.test.ts` / `art.test.ts` guard integrity, quotas, art coverage.
 - `v2/ui` — `shell/` screens (GameShell, TopBar, events, chat, IX comms, boss narration), `combat/` board/animator/FX + phone layouts, `common/` (assets, `sfx.ts`, `audio.ts` + hard mute, generated manifests), `v2/net/api.ts` (offline-first client), `v2/native/` (Capacitor bridge).
-- `src/mythos_api` — FastAPI: SPA, `/resources`, CORS, `/api/health`. `src/mythos_v2` — `/api/v2` saves + GM (`gm.py`, `talk.py`, `llm.py`, `config.py`, `log.py`, `store.py`).
+- `src/mythos_api` — FastAPI: SPA, `/resources`, CORS, `/api/health`. `src/mythos_v2` — `/api/v2` sign-in (`auth.py`, `MYTHOS_AUTH`), saves, daily leaderboard (`daily.py`), GM (`gm.py`, `talk.py`, `llm.py`), `config.py`, `log.py`, `store.py`. Online design + owner checklist: `docs/online.md`.
 - `src/mythos_ui/android` — Capacitor Android project (`docs/android.md`). `resources/neo-seoul/` — art/music (`scripts/v2_assets/`).
 
 ## Read Order
@@ -32,4 +32,4 @@ Layout:
 
 - Rules only in `v2/engine`, data only in `v2/content`; never `Math.random` in engine/content; explicit `.ts` imports.
 - AI lines never block play and never change game state beyond the engine's clamped Improvise outcomes.
-- Don't commit `.env`, keys, keystores, `google-services.json`, or generated outputs. `git push` and deploys are the owner's.
+- Don't commit `.env`, keys, keystores, `google-services.json`, `.firebase/`, or generated outputs. `make api` pkills every `mythos_api` process — for a second server use a private uvicorn on another port. `git push` and deploys are the owner's.

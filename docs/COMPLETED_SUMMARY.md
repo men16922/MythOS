@@ -8,6 +8,13 @@
 
 The AI-narrated loop TRPG: Python runtime (loop engine, Narrative Director on Ollama/Gemini, PostgreSQL memory, FLUX/Imagen visuals), React SPA + Streamlit + CLI, tactical combat, CBT on Cloud Run (`00090`), the overnight agent harness and Dev Graph experiments. Full milestone table, verification records and plans are on branch **`1.0`** (`docs/COMPLETED_SUMMARY.md` there).
 
+## M95 — Google sign-in, daily-seed leaderboard, Android daily push (2026-10-11)
+
+- **Purpose**: owner — replace invite codes with Gmail sign-in; leaderboard + push (Play Games later).
+- **Output**: Firebase-token auth on `/api/v2` (`MYTHOS_AUTH`), `/config`, `/daily` leaderboard, per-player run history; web + Android sign-in, DailyBoard, daily submit queue, FCM topic push with notification deep-link; owner scripts under `scripts/firebase/`.
+- **Evidence**: `make check`, `make test-db`, e2e online flow, save/continue, emulator push delivery + tap.
+- **Open (owner)**: enable Google in Firebase Auth, authorized domains, deploy, push service account + `make push-schedule`, Play Console.
+
 ## M94 — main = Mythos 2.0 only; 1.x archived on branch `1.0`; Android app (2026-10-11)
 
 - **Purpose**: owner — clean up and archive 1.x, make 2.0 `main`, ship an Android version.

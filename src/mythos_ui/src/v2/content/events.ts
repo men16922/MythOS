@@ -1,4 +1,4 @@
-// Narrative events — 12 per act + two scripted scenes: the Act 1 opening ('a1_opening') and the
+// Narrative events — 16 per act (12 here + 4 in eventsMore.ts) + two scripted scenes: the Act 1 opening ('a1_opening') and the
 // Act 2 recruit scene ('a2_recruit'). Scripted events carry weight 0 and are never rolled on the map.
 //
 // Rules of the road (enforced by narrative.test.ts):
@@ -12,6 +12,7 @@
 // Flags set here and read later: saved_citizen (a1 → a3), spire_breach (a2 → a3), lin_yue_debt (a2 → a3),
 // deja_vu (a1 → a2), left_mark (a1 → a3), kai_woken (a2, GM context).
 import type { EventDef, Text } from '../engine/types.ts'
+import { A1_MORE, A2_MORE, A3_MORE } from './eventsMore.ts'
 
 const t = (ko: string, en: string): Text => ({ ko, en })
 
@@ -2783,4 +2784,16 @@ const A3_EXTRA: EventDef[] = [
   },
 ]
 
-export const EVENTS: EventDef[] = [OPENING, ...A1, ...A1_EXTRA, RECRUIT, ...A2, ...A2_EXTRA, ...A3, ...A3_EXTRA]
+export const EVENTS: EventDef[] = [
+  OPENING,
+  ...A1,
+  ...A1_EXTRA,
+  ...A1_MORE,
+  RECRUIT,
+  ...A2,
+  ...A2_EXTRA,
+  ...A2_MORE,
+  ...A3,
+  ...A3_EXTRA,
+  ...A3_MORE,
+]

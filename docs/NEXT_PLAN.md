@@ -17,7 +17,7 @@ Rules: `docs/GAMEPLAY.md` · design/contract: `docs/plans/2026-10-10-mythos-2.0.
 - `[ ]` Balance from real play (numbers live in `v2/content`; measure with `simulateRun` on fixed seed blocks before/after).
 - `[ ]` Play Games Services (after the Play account): game + daily leaderboard ids, mirror `/api/v2/daily` bests, achievements.
 - `[ ]` GM cost guard (per-player daily AI-call cap or a cheaper model) if traffic grows — ≈ $0.085 per run on gemini-3.5-flash (measured 2026-10-11).
-- `[ ]` More events per act and a fourth companion arc, if runs start to feel repetitive.
+- `[ ]` A fourth companion arc, and a further event wave only if players report repetition (each act now rolls from 16 events; scenes with art cost one image call each — see `scripts/v2_assets/ledger.json`).
 
 ## Agent operations
 

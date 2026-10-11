@@ -2,6 +2,12 @@
 
 Last updated: 2026-10-11
 
+## 2026-10-11 — Event wave 4: 12 new street-level events (16 per act)
+
+- Goal from the owner: "계속해서 2.0의 퀼리티 업그레이드 및 잔여작업 수행해". A veteran meets ~3 events per act from a pool of 12, so repeats showed up after a few runs; each act now rolls from 16.
+- `content/eventsMore.ts`: 4 per act (noodle stall, hand-crank lamp, courier lockbox, bus-stop scan beam · lantern ferry, face stall, toll kids, stalled maglev · glass atrium, name-tag archive, maintenance priest, window cleaner). Each has a stat-check option with a stinging failure, a no-risk option and a trade-off; no companion conflict and no new flags, so they roll in any order. 12 scene images (`scripts/v2_assets`, 12 calls, 0 failures; `V2_IMAGE_BUDGET=250` for the run since the ledger was already past the old 220), art manifest rebuilt, SPA rebuilt.
+- Verified: `make test-v2` 221, `make test-e2e-v2`, sim mixed bot 35/90 = 39 % (inside the 28–41 % band; the sim does not resolve events, so event balance rests on the narrative tests and the numbers matching existing events' ranges).
+
 ## 2026-10-11 — Operator dashboard for 2.0 (`/admin`)
 
 - Owner: "Admin용 대시보드는 어디갔어?" → "내 계정으로 admin을 잡고, 2.0용으로 새로 만들고싶어". The 1.x invite-key dashboard stayed on branch `1.0`; 2.0 gets a new one.

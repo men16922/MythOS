@@ -1,6 +1,6 @@
 {
- "image_calls": 224,
- "image_failed": 325,
+ "image_calls": 236,
+ "image_failed": 335,
  "lyria_calls": 21,
  "lyria_failed": 0,
  "outputs": {
@@ -1080,6 +1080,14 @@
    "seed": 848971618,
    "ts": "2026-10-10T23:39:00"
   },
+  "events/a1_bus_stop_scan.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. An empty bus shelter at night with three silhouetted strangers avoiding each other's eyes. Across the street a sweeping surveillance beam of cold white light moves along the wet road from a lamp post toward them. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 424734968,
+   "ts": "2026-10-11T21:30:32"
+  },
   "events/a1_compensation_kiosk.webp": {
    "generations": 1,
    "model": "gemini-3-pro-image",
@@ -1087,6 +1095,14 @@
    "refs": [],
    "seed": 1298357616,
    "ts": "2026-10-11T01:06:39"
+  },
+  "events/a1_courier_lockbox.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A delivery scooter lying on its side under a rusted drainpipe in the rain at night. A sealed lockbox peeks out of the delivery bag, a small shipping label on it; no rider anywhere; a faint warm glow from inside the bag. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1333454687,
+   "ts": "2026-10-11T21:30:31"
   },
   "events/a1_dark_table.webp": {
    "generations": 1,
@@ -1129,6 +1145,22 @@
    ],
    "seed": 407694372,
    "ts": "2026-10-10T23:34:59"
+  },
+  "events/a1_hand_crank_lamp.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A concrete stairwell landing in a blackout. A teenage girl in an oversized jacket cranks a hand-powered lamp on the wall with a trembling arm; neighbours sit quietly on the steps in the dim yellow glow, blankets over their knees. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 154127484,
+   "ts": "2026-10-11T21:30:31"
+  },
+  "events/a1_last_noodle_stand.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A single lit noodle stall on a blacked-out wet street at night: steam rising from a big pot, a vendor in an apron holding a ladle, a loud little generator beside the stall, warm amber light spilling on the rain-slick asphalt, dark empty buildings all around. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1994218391,
+   "ts": "2026-10-11T21:30:28"
   },
   "events/a1_let_the_hound_in.webp": {
    "generations": 1,
@@ -1209,6 +1241,14 @@
    "seed": 875854480,
    "ts": "2026-10-11T01:12:36"
   },
+  "events/a2_face_stall.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A canvas-covered stall in an underground night market filled with rows of mannequin heads each wearing a different lifelike face mask, neon pink and cyan light on them; a grinning shopkeeper holds up one mask toward the viewer. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 344947748,
+   "ts": "2026-10-11T21:31:00"
+  },
   "events/a2_ix_amnesty.webp": {
    "generations": 1,
    "model": "gemini-3-pro-image",
@@ -1226,6 +1266,14 @@
    ],
    "seed": 288640479,
    "ts": "2026-10-10T23:46:19"
+  },
+  "events/a2_lantern_ferry.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A flooded subway transfer tunnel. A ferryman in a rain cape poles a small flat boat toward the viewer; a single paper lantern at the bow lights the black water; the far platform is only a distant point of light, water dripping from the ceiling. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1072662274,
+   "ts": "2026-10-11T21:30:58"
   },
   "events/a2_lin_yue_ledger.webp": {
    "generations": 1,
@@ -1289,6 +1337,14 @@
    "seed": 815875410,
    "ts": "2026-10-10T23:48:16"
   },
+  "events/a2_stalled_maglev.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A single maglev train car stopped on its track in a dim tunnel, doors half open, passengers frozen mid-commute holding straps with their faces turned slightly toward the viewer, cold blue-white interior light, an eerie stillness. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1361013942,
+   "ts": "2026-10-11T21:33:07"
+  },
   "events/a2_subway_hub.webp": {
    "generations": 1,
    "model": "gemini-3-pro-image",
@@ -1296,6 +1352,14 @@
    "refs": [],
    "seed": 472117661,
    "ts": "2026-10-10T23:45:17"
+  },
+  "events/a2_toll_bridge_kids.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A narrow overhead pedestrian walkway under a neon-lit underground ceiling. Four kids block the path, the tallest holding a stolen riot baton like a toll barrier, the smallest clutching a ledger book; mischievous, not menacing. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 15544242,
+   "ts": "2026-10-11T21:35:21"
   },
   "events/a3_blank_in_list.webp": {
    "generations": 1,
@@ -1329,6 +1393,14 @@
    "seed": 860320276,
    "ts": "2026-10-11T01:13:32"
   },
+  "events/a3_glass_atrium.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A glass greenhouse inside a skyscraper with real soil and bright warm grow lamps, a small gardener robot endlessly trimming one tiny bonsai whose cut branch is regrowing, the city skyline far below through the glass. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 972832197,
+   "ts": "2026-10-11T21:37:19"
+  },
   "events/a3_ix_offer.webp": {
    "generations": 1,
    "model": "gemini-3-pro-image",
@@ -1354,6 +1426,22 @@
    "refs": [],
    "seed": 1292712306,
    "ts": "2026-10-11T01:11:38"
+  },
+  "events/a3_maintenance_priest.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A man in grey coveralls kneeling in prayer with his forehead to the floor in front of a steel service hatch in a bare corridor of a skyscraper, an access card swinging from his belt, a single cold overhead light, humble and strange. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 44871276,
+   "ts": "2026-10-11T21:34:40"
+  },
+  "events/a3_name_archive.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A vast library-like hall with shelves rising to the ceiling, every shelf hung with rows of polished metal name tags catching cold light; an empty front desk with an open visitor log in the foreground; quiet, sterile, vaguely sacred. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1545038530,
+   "ts": "2026-10-11T21:32:19"
   },
   "events/a3_optimization_queue.webp": {
    "generations": 1,
@@ -1397,6 +1485,14 @@
    ],
    "seed": 1207435885,
    "ts": "2026-10-11T01:14:35"
+  },
+  "events/a3_window_cleaner.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A window cleaner hanging in a small gondola outside a huge glass wall of a skyscraper high above a neon city under clouds, tapping on the glass and pleading with the viewer; his toolbox dangles beneath; wind and vertigo. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [],
+   "seed": 1423978931,
+   "ts": "2026-10-11T21:36:20"
   },
   "implants/adrenal_loop.webp": {
    "generations": 1,

@@ -2,11 +2,11 @@
 
 Last updated: 2026-10-11
 
-## 2026-10-11 — Companion arcs for Tae-o, Han and Se-rin (9 events)
+## 2026-10-11 — Companion arcs for Tae-o, Han, Se-rin, Kai and Lin-yue (15 events)
 
 - Same shape as the Su-ah arc (`content/eventsArcs.ts`): three events per companion (Act 2 → Act 3 → Act 3), event-level gated on that companion being in the party, later parts read the flag the earlier one set; each picks up the thread their lore entry leaves open. **Tae-o** "처리 대기" (the wanted board → the pending file → holding the line; flags `taeo_trail`, `taeo_cleared`) · **Han** "구경하는 버그" (the blank registration booth → the first poke at IX → the empty reply "user unrecognized"; `han_probe`, `han_poked`) · **Se-rin** "열세 번째 선" (the radio that answers → the hidden line inside → finishing the chalk line; `serin_signal`, `serin_line`).
 - 9 scene images (portrait-referenced; 9 calls, 0 failures, ledger 248), manifest + SPA rebuilt. `engine/suah-arc.test.ts` now drives all four arcs through the real reducers (companion gating, a sure no-check path to the first flag, the second flag opening the payoff). Pool: 62 events.
-- Left: Kai and Lin-yue (Lin-yue already has a short a2 → a3 `lin_yue_debt` chain; Kai has a2/a3 one-offs).
+- **Kai** "노란 우산" (umbrella stall → crosswalk footage → the day he was named; `kai_clue`, `kai_found`) and **Lin-yue** "붉은 페이지" (crew roll → the Moonlight lot → the last entry; `linyue_crew`, `linyue_names`) followed in the same pass (6 more images, ledger 254) — every companion now has a 3-event arc; pool 68 events. The arc test table covers all five in `engine/suah-arc.test.ts`.
 
 ## 2026-10-11 — Su-ah arc: the voice in the drawer (3 events)
 

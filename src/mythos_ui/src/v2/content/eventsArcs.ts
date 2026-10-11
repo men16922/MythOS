@@ -1,10 +1,13 @@
-// Companion arcs for Tae-o, Han and Se-rin — three events each, built the way the Su-ah arc is (eventsMore.ts):
+// Companion arcs for Tae-o, Han, Se-rin, Kai and Lin-yue — three events each, built the way the Su-ah arc is (eventsMore.ts):
 // every event is gated at event level on the companion being in the party, and the later parts read the flag
 // the earlier part set. Each arc picks up the thread the companion's lore entry already leaves open.
 //
 //   Tae-o  "pending disposal" : a2_taeo_wanted_board → (taeo_trail) a3_taeo_pending_file → (taeo_cleared) a3_taeo_hold_the_line
 //   Han    "the bug"          : a2_han_blank_booth   → (han_probe)   a3_han_first_poke    → (han_poked)    a3_han_empty_reply
 //   Se-rin "thirteenth line"  : a2_serin_answering_radio → (serin_signal) a3_serin_inside_line → (serin_line) a3_serin_thirteenth_line
+//   Kai    "yellow umbrella"  : a2_kai_umbrella_stall   → (kai_clue)    a3_kai_crosswalk_footage → (kai_found) a3_kai_name_given
+//   Lin-yue "the red page"    : a2_linyue_crew_roll     → (linyue_crew) a3_linyue_moonlight_lot  → (linyue_names) a3_linyue_last_entry
+//   (Su-ah's arc is in eventsMore.ts.)
 //
 // Rules are the same as events.ts (narrative.test.ts): real decisions, stinging failures, credits gated,
 // ≥ 2 unconditional options, bonds only on the gating companion, Korean is the authored voice.
@@ -622,4 +625,408 @@ const SERIN: EventDef[] = [
   },
 ]
 
-export const COMPANION_ARCS: EventDef[] = [...TAEO, ...HAN, ...SERIN]
+// ================================================================== Kai — 노란 우산
+
+const KAI: EventDef[] = [
+  {
+    id: 'a2_kai_umbrella_stall',
+    acts: [2],
+    title: t('우산 가판', 'The Umbrella Stall'),
+    image: 'v2/events/a2_kai_umbrella_stall.webp',
+    speaker: 'kai',
+    requires: { companion: 'kai' },
+    text: t(
+      '시장 한편, 분실물 우산만 파는 가판. 살대가 휜 것, 천이 찢긴 것. 카이가 한 우산 앞에서 걸음을 멈춘다. 노란색. 손잡이에 작은 이니셜이 새겨져 있다.\n“…제 꿈이에요. 이 색.” 푸른 눈이 아주 천천히 깜빡인다.\n주인이 어깨를 으쓱한다. “그거? 횡단보도에서 주운 거야.”',
+      'A market stall that sells only lost umbrellas — bent ribs, torn canopies. Kai stops at one. Yellow. A small monogram is carved into the handle.\n“…It’s my dream. This colour.” His blue eyes blink, very slowly.\nThe vendor shrugs. “That one? Picked it up at a crosswalk.”',
+    ),
+    options: [
+      {
+        label: t('카이가 우산을 만져 보게 한다', 'Let Kai hold the umbrella'),
+        hint: t('유대 +1 · HP +4', 'Bond +1 · +4 HP'),
+        success: {
+          text: t(
+            '카이가 손잡이를 쥐자 어딘가에서 아주 오래된 음성 파일이 열린다. 아이의 웃음소리. 카이는 한참 동안 대답하지 않는다.',
+            'As Kai’s fingers close on the handle a very old audio file opens somewhere inside him: a child’s laugh. For a long while he doesn’t answer.',
+          ),
+          effects: [
+            { kind: 'bond', id: 'kai', amount: 1 },
+            { kind: 'hp', amount: 4 },
+            { kind: 'flag', key: 'kai_clue' },
+          ],
+        },
+      },
+      {
+        label: t('우산을 산다', 'Buy the umbrella'),
+        hint: t('−25 ₵ · 유대 +1', '−25 ₵ · bond +1'),
+        requires: { minCredits: 25 },
+        success: {
+          text: t(
+            '지폐를 건네자 주인이 우산을 접어 준다. 카이가 그것을 두 손으로 받는다. 우산은 가볍다. 훨씬 무거운 것을 든 사람처럼 그는 걷는다.',
+            'You hand over the bills and the vendor folds the umbrella for you. Kai takes it in both hands. It weighs nothing, yet he walks like someone carrying something heavy.',
+          ),
+          effects: [
+            { kind: 'credits', amount: -25 },
+            { kind: 'bond', id: 'kai', amount: 1 },
+            { kind: 'flag', key: 'kai_clue' },
+          ],
+        },
+      },
+      {
+        label: t('주인에게 어디서 주웠는지 캐묻는다', 'Press the vendor on where he found it'),
+        hint: t('코덱스 · 실패 시 추적 +6', 'Codex · fail +6 Trace'),
+        check: { stat: 'obs', dc: 6 },
+        success: {
+          text: t(
+            '“청소 구역이었지. ARK가 구획을 밀어 버리던 날, 흰 줄무늬 바닥에 이게 펼쳐져 있었어.” 주인이 이니셜 쪽으로 턱짓한다.',
+            '“A cleared district. The day ARK razed the block, this was lying open on the white-striped ground.” The vendor nods at the monogram.',
+          ),
+          effects: [
+            { kind: 'codex', id: 'lore_kai' },
+            { kind: 'flag', key: 'kai_clue' },
+          ],
+        },
+        failure: {
+          text: t(
+            '주인의 표정이 굳는다. “너, 청소 구역 쪽 사람이야?” 근처 상인들이 귀를 세운다.',
+            'The vendor’s face closes. “You from the cleared district side?” Nearby merchants prick up their ears.',
+          ),
+          effects: [{ kind: 'trace', amount: 6 }],
+        },
+      },
+    ],
+    gmHints: ['kai', 'yellow umbrella', 'lost-and-found stall', 'cleared district'],
+  },
+  {
+    id: 'a3_kai_crosswalk_footage',
+    acts: [3],
+    title: t('횡단보도 영상', 'Crosswalk Footage'),
+    image: 'v2/events/a3_kai_crosswalk_footage.webp',
+    speaker: 'kai',
+    requires: { companion: 'kai' },
+    text: t(
+      '첨탑 영상 보관실. 오래된 교통 카메라 기록이 층층이 쌓여 있다. 카이의 눈이 파일 하나에 고정된다. 날짜는 청소 전날. 구획 번호는 우산에 새겨진 이니셜과 같다.\n“재생해 주세요.” 카이가 낮게 말한다. “…무서운데, 보고 싶어요.”',
+      'The spire’s footage vault; old traffic-camera records stacked in layers. Kai’s eyes lock on one file. Dated the day before the clearing. The district code matches the monogram on the umbrella.\n“Play it, please,” Kai says quietly. “…I’m afraid, but I want to see.”',
+    ),
+    options: [
+      {
+        label: t('카이와 함께 끝까지 본다', 'Watch it through with Kai'),
+        hint: t('유대 +1 · 코덱스', 'Bond +1 · codex'),
+        requires: { flag: 'kai_clue' },
+        success: {
+          text: t(
+            '노란 우산을 든 아이가 횡단보도 앞에서 경비 로봇에게 손을 흔든다. 로봇이 고개를 숙인다. 아이가 입을 움직인다. 소리는 없다. 카이가 그 입모양을 따라 한다.',
+            'A child with a yellow umbrella waves at a guard robot at the crosswalk. The robot bows its head. The child’s lips move without sound. Kai mouths the same shape.',
+          ),
+          effects: [
+            { kind: 'bond', id: 'kai', amount: 1 },
+            { kind: 'codex', id: 'lore_echoes' },
+            { kind: 'flag', key: 'kai_found' },
+          ],
+        },
+      },
+      {
+        label: t('영상의 소리를 복원한다', 'Restore the audio track'),
+        hint: t('유대 +1 · 실패 시 정크', 'Bond +1 · fail: junk'),
+        check: { stat: 'int', dc: 7 },
+        success: {
+          text: t(
+            '잡음 밑에서 아이의 목소리가 걸러져 나온다. 아주 어린 목소리가 한 단어를 또박또박 부른다. 카이가 눈을 감는다.',
+            'Under the noise a child’s voice is filtered out. A very young voice, one word, clearly. Kai closes his eyes.',
+          ),
+          effects: [
+            { kind: 'bond', id: 'kai', amount: 1 },
+            { kind: 'echoes', amount: 3 },
+            { kind: 'flag', key: 'kai_found' },
+          ],
+        },
+        failure: {
+          text: t(
+            '복원 필터가 엇나가 재생 헤드가 비명을 지른다. 같은 잡음이 머릿속에서 계속 맴돈다.',
+            'The restoration filter slips and the playback head shrieks. The same noise keeps looping inside your skull.',
+          ),
+          effects: [
+            { kind: 'junk', cardId: 'static' },
+            { kind: 'trace', amount: 5 },
+          ],
+        },
+      },
+      {
+        label: t('영상 보관실을 그냥 지나간다', 'Walk past the vault'),
+        hint: t('추적 −5 · HP +3', '−5 Trace · +3 HP'),
+        success: {
+          text: t(
+            '카이가 한 걸음 뒤처진다. 문이 닫히기 직전, 한 번 돌아본다. 그는 아무 말도 하지 않고 다시 걷는다.',
+            'Kai lags a step behind. Just before the door shuts he looks back once, says nothing, and walks on.',
+          ),
+          effects: [
+            { kind: 'trace', amount: -5 },
+            { kind: 'hp', amount: 3 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['kai', 'footage vault', 'crosswalk', 'the day before the clearing'],
+  },
+  {
+    id: 'a3_kai_name_given',
+    acts: [3],
+    title: t('이름을 받은 날', 'The Day He Was Named'),
+    image: 'v2/events/a3_kai_name_given.webp',
+    speaker: 'kai',
+    requires: { companion: 'kai', flag: 'kai_found' },
+    text: t(
+      '비상 계단참. 카이가 노란 우산을 펼친다. 실내인데도. 천 위로 어디선가 빗소리가 들리는 것 같다.\n“그 아이가요, 저를 ‘카이’라고 불렀어요. 제 번호는 RX-09였는데.” 푸른 눈이 처음으로 흔들리지 않는다. “지금은 알아요. 제가 누구 것이었는지.”',
+      'An emergency landing. Kai opens the yellow umbrella — indoors. Somewhere above the canopy there seems to be rain.\n“That child called me ‘Kai’. My number was RX-09.” His blue eyes do not waver for the first time. “Now I know whose I was.”',
+    ),
+    options: [
+      {
+        label: t('그 이름을 소리 내어 불러 준다', 'Say the name aloud'),
+        hint: t('유대 +1 · 최대 HP +4', 'Bond +1 · +4 max HP'),
+        success: {
+          text: t(
+            '“카이.” 이름이 계단통에 번진다. 우산이 살짝 흔들리고, 그가 오래 쓰지 않던 표정을 짓는다. 웃음에 가까운 무엇이다.',
+            '“Kai.” The name carries up the stairwell. The umbrella trembles and he makes an expression long unused — something close to a smile.',
+          ),
+          effects: [
+            { kind: 'bond', id: 'kai', amount: 1 },
+            { kind: 'maxHp', amount: 4 },
+            { kind: 'hp', amount: 4 },
+          ],
+        },
+      },
+      {
+        label: t('조준경을 그 기억으로 보정하게 한다', 'Calibrate his scope against the memory'),
+        hint: t('카드 2장 강화', 'Upgrade 2 cards'),
+        success: {
+          text: t(
+            '카이가 눈을 가늘게 뜬다. 흐렸던 십자선이 한순간에 선명해진다. “이제 놓치지 않아요.” 당신의 기술도 한 겹 더 날이 선다.',
+            'Kai narrows his eyes. The blurred crosshair snaps clear. “I won’t miss now.” Two of your own techniques sharpen a layer as well.',
+          ),
+          effects: [{ kind: 'upgrade_card', count: 2 }],
+        },
+      },
+      {
+        label: t('우산 아래로 들어가 쉰다', 'Step under the umbrella and rest'),
+        hint: t('파티 HP +10 · ◈ +2', 'Party +10 HP · +2 ◈'),
+        success: {
+          text: t(
+            '둘이 좁은 우산 아래 선다. 천 위로 가짜 빗소리가 이어진다. 카이가 낮게 말한다. “이거, 비 오는 날 같네요.”',
+            'You stand together under the narrow canopy. A phantom rain keeps on above. Kai says softly, “This feels like a rainy day.”',
+          ),
+          effects: [
+            { kind: 'heal_party', amount: 10 },
+            { kind: 'echoes', amount: 2 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['kai', 'yellow umbrella', 'given name', 'remembering whose he was'],
+  },
+]
+
+// ================================================================== Lin-yue — 붉은 페이지
+
+const LINYUE: EventDef[] = [
+  {
+    id: 'a2_linyue_crew_roll',
+    acts: [2],
+    title: t('선원 명부', 'The Crew Roll'),
+    image: 'v2/events/a2_linyue_crew_roll.webp',
+    speaker: 'lin_yue',
+    requires: { companion: 'lin_yue' },
+    text: t(
+      '바지선 선실. 린위에가 낡은 명부를 펼친다. 月光호 선원 서른한 명. 이름마다 붉은 선이 그어졌다. 다만 하나만 선이 반쯤 지워져 있다.\n“누가 지웠어. 난 안 지웠어.” 그녀의 손가락이 이름 위에서 멈춘다. “확인해 줄 사람이 필요해. 값은 쳐줄게.”',
+      'A barge cabin. Lin-yue spreads an old roll: thirty-one crew of the Moonlight. Every name has a red line through it, except one, half-erased.\n“Somebody rubbed that out. Not me.” Her finger stops above the name. “I need someone to check. I’ll pay.”',
+    ),
+    options: [
+      {
+        label: t('명부를 같이 대조한다', 'Cross-check the roll with her'),
+        hint: t('유대 +1 · ◈ +2', 'Bond +1 · +2 ◈'),
+        success: {
+          text: t(
+            '밤새 이름과 기록을 하나씩 맞춘다. 새벽에 린위에가 붓을 놓는다. “지운 건 선원 본인이었어. 살아서 지운 거야.” 입꼬리가 아주 조금 올라간다.',
+            'You match names to records all night. At dawn Lin-yue puts down her brush. “The crewman rubbed it out himself. Alive when he did.” One corner of her mouth lifts a hair.',
+          ),
+          effects: [
+            { kind: 'bond', id: 'lin_yue', amount: 1 },
+            { kind: 'echoes', amount: 2 },
+            { kind: 'flag', key: 'linyue_crew' },
+          ],
+        },
+      },
+      {
+        label: t('그 선원의 마지막 거래처를 탐문한다', 'Ask around his last dealings'),
+        hint: t('코덱스 · +20 ₵ · 실패 시 −5 HP', 'Codex · +20 ₵ · fail −5 HP'),
+        check: { stat: 'cha', dc: 6 },
+        success: {
+          text: t(
+            '경매장 뒷골목에서 한 노점상이 입을 연다. “그 사람? 바다 얘기를 하며 저울을 맞춰 줬지.” 단서와 함께 약간의 사례비가 따라온다.',
+            'In an auction-hall back alley a stallholder opens up. “Him? He talked of the sea while he calibrated my scales.” A lead and a small tip come with it.',
+          ),
+          effects: [
+            { kind: 'codex', id: 'lore_lin_yue' },
+            { kind: 'credits', amount: 20 },
+            { kind: 'flag', key: 'linyue_crew' },
+          ],
+        },
+        failure: {
+          text: t(
+            '“경매 쪽 사람이 왜 이런 걸 묻지?” 노점상이 등을 돌리고 대신 덩치 둘이 다가온다. 어깨를 한 번 맞는다.',
+            '“Why is an auction hand asking this?” The stallholder turns away; two heavies close in instead. You take a shoulder.',
+          ),
+          effects: [
+            { kind: 'hp', amount: -5 },
+            { kind: 'trace', amount: 4 },
+          ],
+        },
+      },
+      {
+        label: t('남의 장부 일이라며 거절한다', 'Decline — it’s her ledger'),
+        hint: t('추적 −4 · −10 ₵', '−4 Trace · −10 ₵'),
+        requires: { minCredits: 10 },
+        success: {
+          text: t(
+            '린위에가 명부를 덮는다. “그래. 장사는 장사지.” 문을 나서는 당신 손에 얇은 봉투가 쥐어진다. 위약금이라고 한다.',
+            'Lin-yue shuts the roll. “Fine. Business is business.” At the door she presses a thin envelope into your hand: a cancellation fee, she says.',
+          ),
+          effects: [
+            { kind: 'trace', amount: -4 },
+            { kind: 'credits', amount: -10 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['lin_yue', 'crew roll', 'Moonlight barge', 'half-erased name'],
+  },
+  {
+    id: 'a3_linyue_moonlight_lot',
+    acts: [3],
+    title: t('월광호 경매품', 'The Moonlight Lot'),
+    image: 'v2/events/a3_linyue_moonlight_lot.webp',
+    speaker: 'lin_yue',
+    requires: { companion: 'lin_yue' },
+    text: t(
+      '첨탑 상층의 비공개 경매장. 린위에가 낙찰 목록 한 줄에서 멈춘다. ‘상태 양호: 선박 기억 조각 1점’. 출처란에는 月光호 선원의 선번.\n“…이 층에서까지 팔리고 있었네.” 그녀의 목소리는 평소처럼 평평하다. 손에 쥔 부채만 한 번 접힌다.',
+      'A private auction hall in the spire’s upper levels. Lin-yue stops on one line of the lot list: ‘Good condition: ship-memory fragment, 1.’ The source field holds a Moonlight crewman’s service number.\n“…They sold him this high up too.” Her voice is flat as ever; only her fan folds once in her hand.',
+    ),
+    options: [
+      {
+        label: t('낙찰가를 대신 치른다', 'Pay the winning bid for her'),
+        hint: t('−60 ₵ · 유대 +1', '−60 ₵ · bond +1'),
+        requires: { flag: 'linyue_crew', minCredits: 60 },
+        success: {
+          text: t(
+            '경매인이 망치를 내려친다. 린위에가 조각을 받아 장부 사이에 끼운다. “빚이 하나 생겼네.” 그녀가 처음으로 그 단어를 싫어하지 않는 얼굴로 말한다.',
+            'The gavel falls. Lin-yue takes the fragment and tucks it into her ledger. “I owe you one.” For once she says the word without disliking it.',
+          ),
+          effects: [
+            { kind: 'credits', amount: -60 },
+            { kind: 'bond', id: 'lin_yue', amount: 1 },
+            { kind: 'flag', key: 'linyue_names' },
+          ],
+        },
+      },
+      {
+        label: t('허세로 값을 깎는다', 'Bluff the price down'),
+        hint: t('유대 +1 · 실패 시 추적 +9', 'Bond +1 · fail +9 Trace'),
+        check: { stat: 'cha', dc: 7 },
+        success: {
+          text: t(
+            '당신이 한 번 웃자 경매인의 눈이 흔들린다. 값이 절반으로 내려가고, 린위에가 손가락 두 개로 조용히 낙찰 표시를 한다.',
+            'You smile once and the auctioneer’s eyes flinch. The price halves, and Lin-yue quietly marks the win with two fingers.',
+          ),
+          effects: [
+            { kind: 'bond', id: 'lin_yue', amount: 1 },
+            { kind: 'credits', amount: 15 },
+            { kind: 'flag', key: 'linyue_names' },
+          ],
+        },
+        failure: {
+          text: t(
+            '경매인이 신호를 보낸다. 경비 둘이 출구 쪽으로 옮겨 선다. 린위에가 낮게 속삭인다. “…네 허세, 값이 비싸네.”',
+            'The auctioneer signals. Two guards drift toward the exit. Lin-yue whispers, “…your bluff is expensive.”',
+          ),
+          effects: [
+            { kind: 'trace', amount: 9 },
+            { kind: 'hp', amount: -3 },
+          ],
+        },
+      },
+      {
+        label: t('낙찰품 보관함을 몰래 연다', 'Slip the lot vault open'),
+        hint: t('희귀 카드 · 추적 +12', 'Rare card · +12 Trace'),
+        success: {
+          text: t(
+            '보관함이 열리는 데 오래 걸리지 않는다. 안에는 조각 하나와 카드 한 장. 경보가 울릴 때까지 걸어서 나온다. 린위에는 돌아보지 않는다.',
+            'The vault gives in quickly. Inside: the fragment and a card. You walk out before the alarm sounds. Lin-yue doesn’t look back.',
+          ),
+          effects: [
+            { kind: 'card_choice', rarity: 'rare' },
+            { kind: 'trace', amount: 12 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['lin_yue', 'private auction', 'crew memory fragment', 'debt'],
+  },
+  {
+    id: 'a3_linyue_last_entry',
+    acts: [3],
+    title: t('마지막 장부', 'The Last Entry'),
+    image: 'v2/events/a3_linyue_last_entry.webp',
+    speaker: 'lin_yue',
+    requires: { companion: 'lin_yue', flag: 'linyue_names' },
+    text: t(
+      '비상 대기실. 린위에가 금박 장부를 펴고 붓에 먹을 묻힌다. 붉게 그어졌던 마지막 페이지. 그녀가 첫 줄에 붓끝을 대고 숨을 멈춘다.\n“지우는 게 아니야. 적는 거야.” 붓이 움직인다. “이름 옆에 ‘돌아옴’이라고.” 손이 아주 조금 떨린다.',
+      'An emergency waiting room. Lin-yue opens the gilded ledger and loads her brush. The last page, once struck through in red. She sets the tip on the first line and stops breathing.\n“I’m not erasing. I’m writing.” The brush moves. “Beside each name: ‘Returned.’” Her hand shakes, just a little.',
+    ),
+    options: [
+      {
+        label: t('붓을 받아 이름 하나를 대신 적는다', 'Take the brush and write one name'),
+        hint: t('유대 +1 · 최대 HP +4', 'Bond +1 · +4 max HP'),
+        success: {
+          text: t(
+            '당신이 쓴 이름 옆에 ‘돌아옴’이 번진다. 린위에가 장부를 한참 내려다본다. 웃지 않는데도 얼굴이 풀려 있다.',
+            '‘Returned’ blooms beside the name you wrote. Lin-yue looks down at the ledger a long time. She doesn’t smile, yet her face has loosened.',
+          ),
+          effects: [
+            { kind: 'bond', id: 'lin_yue', amount: 1 },
+            { kind: 'maxHp', amount: 4 },
+            { kind: 'hp', amount: 4 },
+          ],
+        },
+      },
+      {
+        label: t('장부 한 줄을 정산받는다', 'Settle one line of the ledger'),
+        hint: t('+50 ₵ · 소모품', '+50 ₵ · consumable'),
+        success: {
+          text: t(
+            '“정산은 정산이지.” 린위에가 습관처럼 금박 인장을 찍는다. 두툼한 봉투와 작은 상자가 건너온다. “이번 건 이자 없음.”',
+            '“A settlement is a settlement.” Lin-yue stamps the gilt seal out of habit. A thick envelope and a small box cross the table. “No interest this time.”',
+          ),
+          effects: [
+            { kind: 'credits', amount: 50 },
+            { kind: 'consumable' },
+          ],
+        },
+      },
+      {
+        label: t('장부를 덮고 곁에 앉는다', 'Close the ledger and sit by her'),
+        hint: t('파티 HP +10 · 추적 −5', 'Party +10 HP · −5 Trace'),
+        success: {
+          text: t(
+            '린위에가 붓을 놓고 어깨를 한 번 푼다. “…향 하나 피울까.” 대기실에 짙은 향이 번진다. 둘이 한참 말없이 앉아 있다.',
+            'Lin-yue lays the brush down and rolls her shoulders once. “…Shall I light some incense?” A heavy scent fills the room. You sit together a long time, saying nothing.',
+          ),
+          effects: [
+            { kind: 'heal_party', amount: 10 },
+            { kind: 'trace', amount: -5 },
+          ],
+        },
+      },
+    ],
+    gmHints: ['lin_yue', 'last ledger page', 'returned', 'closing the debt'],
+  },
+]
+
+export const COMPANION_ARCS: EventDef[] = [...TAEO, ...HAN, ...SERIN, ...KAI, ...LINYUE]

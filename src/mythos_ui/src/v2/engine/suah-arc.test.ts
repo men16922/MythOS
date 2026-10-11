@@ -80,10 +80,10 @@ test('paying for the first pour needs the credits', () => {
   assert.ok((ok.flags.suah_voice ?? 0) > 0)
 })
 
-// ---------------------------------------------------------------- Tae-o / Han / Se-rin arcs (content/eventsArcs.ts)
+// ---------------------------------------------------------------- Tae-o / Han / Se-rin / Kai / Lin-yue arcs (content/eventsArcs.ts)
 
 interface Arc {
-  who: 'tae_o' | 'han' | 'se_rin'
+  who: 'tae_o' | 'han' | 'se_rin' | 'kai' | 'lin_yue'
   events: [string, string, string]
   /** Flag the first part sets, and the flag the second part sets (which opens the third). */
   flags: [string, string]
@@ -92,6 +92,8 @@ const ARCS: Arc[] = [
   { who: 'tae_o', events: ['a2_taeo_wanted_board', 'a3_taeo_pending_file', 'a3_taeo_hold_the_line'], flags: ['taeo_trail', 'taeo_cleared'] },
   { who: 'han', events: ['a2_han_blank_booth', 'a3_han_first_poke', 'a3_han_empty_reply'], flags: ['han_probe', 'han_poked'] },
   { who: 'se_rin', events: ['a2_serin_answering_radio', 'a3_serin_inside_line', 'a3_serin_thirteenth_line'], flags: ['serin_signal', 'serin_line'] },
+  { who: 'kai', events: ['a2_kai_umbrella_stall', 'a3_kai_crosswalk_footage', 'a3_kai_name_given'], flags: ['kai_clue', 'kai_found'] },
+  { who: 'lin_yue', events: ['a2_linyue_crew_roll', 'a3_linyue_moonlight_lot', 'a3_linyue_last_entry'], flags: ['linyue_crew', 'linyue_names'] },
 ]
 
 function partyOf(who: string): RunState {
@@ -107,7 +109,7 @@ for (const arc of ARCS) {
     assert.deepEqual(C.events[first]?.acts, [2])
     assert.deepEqual(C.events[second]?.acts, [3])
     assert.deepEqual(C.events[third]?.acts, [3])
-    const other = arc.who === 'han' ? 'tae_o' : 'han'
+    const other: 'tae_o' | 'han' = arc.who === 'han' ? 'tae_o' : 'han'
     for (const id of arc.events) {
       assert.equal(conditionMet(partyOf(other), C.events[id]?.requires, C).ok, false, `${id} must not roll for ${other}`)
     }

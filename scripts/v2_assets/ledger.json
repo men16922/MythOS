@@ -1,6 +1,6 @@
 {
- "image_calls": 248,
- "image_failed": 347,
+ "image_calls": 254,
+ "image_failed": 354,
  "lyria_calls": 21,
  "lyria_failed": 0,
  "outputs": {
@@ -1277,6 +1277,16 @@
    "seed": 288640479,
    "ts": "2026-10-10T23:46:19"
   },
+  "events/a2_kai_umbrella_stall.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A lost-umbrella stall in an underground night market, bent and torn umbrellas hanging in rows; Kai, a silver-white android with glowing blue eyes, holds a single bright yellow umbrella with a small monogram on its handle, a stunned still expression, a vendor shrugging nearby. The character is Kai, a slender android with white ceramic plating, a white faceplate and glowing blue eyes. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/kai.png"
+   ],
+   "seed": 1120104221,
+   "ts": "2026-10-11T22:17:55"
+  },
   "events/a2_lantern_ferry.webp": {
    "generations": 1,
    "model": "gemini-3.1-flash-image",
@@ -1304,6 +1314,16 @@
    ],
    "seed": 623461358,
    "ts": "2026-10-10T23:42:51"
+  },
+  "events/a2_linyue_crew_roll.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A cabin of a barge at night with incense smoke and gilded lamps; Lin-yue, an elegant night-market broker in a dark silk jacket with rings and a folding fan, studies an old crew roll with a brush in hand, one name on it half rubbed out. The character is Lin-yue, an elegant woman broker with black hair pinned with a gold hairpin and a black-and-gold high-collared dress. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/lin-yue.png"
+   ],
+   "seed": 102185232,
+   "ts": "2026-10-11T22:20:04"
   },
   "events/a2_memory_forge.webp": {
    "generations": 1,
@@ -1469,6 +1489,16 @@
    "seed": 1739613455,
    "ts": "2026-10-10T23:57:17"
   },
+  "events/a3_kai_crosswalk_footage.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A dark footage vault inside a skyscraper with a large glowing screen showing an old grainy video of a child with a yellow umbrella waving at a guard robot on a white-striped crosswalk in rain; Kai watches it, blue eyes reflecting the screen. The character is Kai, a slender android with white ceramic plating, a white faceplate and glowing blue eyes. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/kai.png"
+   ],
+   "seed": 56528494,
+   "ts": "2026-10-11T22:17:59"
+  },
   "events/a3_kai_dream.webp": {
    "generations": 1,
    "model": "gemini-3-pro-image",
@@ -1478,6 +1508,36 @@
    ],
    "seed": 1240626006,
    "ts": "2026-10-10T23:53:56"
+  },
+  "events/a3_kai_name_given.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. An emergency stairwell landing: Kai, a silver-white android with blue eyes, stands holding an open bright yellow umbrella indoors, faint soft rain-light on the canopy, a quiet half-smile, the viewer standing close beside him. The character is Kai, a slender android with white ceramic plating, a white faceplate and glowing blue eyes. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/kai.png"
+   ],
+   "seed": 1607251656,
+   "ts": "2026-10-11T22:21:54"
+  },
+  "events/a3_linyue_last_entry.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A small emergency waiting room with a low lamp; Lin-yue sits at a low table writing carefully in a gilded ledger with a brush, the last page of it, an unlit incense stick beside her, soft golden light on her calm focused face. The character is Lin-yue, an elegant woman broker with black hair pinned with a gold hairpin and a black-and-gold high-collared dress. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/lin-yue.png"
+   ],
+   "seed": 170927116,
+   "ts": "2026-10-11T22:20:59"
+  },
+  "events/a3_linyue_moonlight_lot.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A hushed private auction hall high in a skyscraper with a gavel on a podium and a glass display holding a single tiny glowing memory fragment; Lin-yue stands very still with her folding fan half folded in her hand, reading a lot list. The character is Lin-yue, an elegant woman broker with black hair pinned with a gold hairpin and a black-and-gold high-collared dress. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/lin-yue.png"
+   ],
+   "seed": 1537965985,
+   "ts": "2026-10-11T22:19:05"
   },
   "events/a3_lucky_draw.webp": {
    "generations": 1,

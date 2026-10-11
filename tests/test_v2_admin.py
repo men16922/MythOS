@@ -47,9 +47,17 @@ class AdminVerifier:
         raise TokenError("bad signature")
 
 
+class _FakeLLM:
+    name = "fake"
+
+    def complete(self, system: str, user: str, **_kw: Any) -> str:
+        return "Containment holds. Proceed."
+
+
 def _client(
     store: MemoryV2Store,
     *,
+    llm: Any = None,
     admin_emails: str = ADMIN_EMAIL,
     admin_open: bool = False,
     mode: str = "google",
@@ -59,7 +67,7 @@ def _client(
     app.include_router(
         create_v2_router(
             store_factory=lambda: store,
-            llm_factory=lambda: None,
+            llm_factory=lambda: llm,
             settings=V2Settings(),
             auth=AuthConfig(
                 mode="google" if mode == "google" else "open",
@@ -250,6 +258,24 @@ class AdminOverviewTest(unittest.TestCase):
         self.assertEqual(len(board), 1)
         self.assertEqual(board[0]["archetype"], "ghost")
         self.assertEqual(board[0]["top"][0]["name"], "Nova")
+
+    def test_gm_usage_is_persisted_per_day_and_reported(self) -> None:
+        store = MemoryV2Store()
+        llm = _FakeLLM()
+        client = _client(store, llm=llm)
+        body = {"mode": "ix", "lang": "en", "trigger": "boss_start"}
+        headers = bearer("good:player-1")
+        for _ in range(2):
+            self.assertEqual(
+                client.post("/api/v2/gm/talk", json=body, headers=headers).status_code, 200
+            )
+        data = client.get("/api/v2/admin/overview?days=3", headers=bearer("admin")).json()
+        today = data["gm_daily"][-1]
+        self.assertEqual(today["day"], TODAY.isoformat())
+        self.assertEqual(today["total"], 2)
+        self.assertEqual(today["llm"] + today["fallback"], 2)
+        self.assertEqual(sum(row["count"] for row in data["gm_outcomes"]), 2)
+        self.assertEqual(data["gm_daily"][0]["total"], 0)
 
     def test_server_block_counts_gm_calls(self) -> None:
         server = self.data["server"]

@@ -211,6 +211,7 @@ def build_overview(
     players: list[AdminPlayer],
     runs: list[AdminRun],
     daily_rows: list[tuple[date, DailyEntry]],
+    gm_usage: list[tuple[date, str, str, int]],
     *,
     now: datetime,
     days: int,
@@ -339,6 +340,14 @@ def build_overview(
             }
         )
 
+    gm_days: dict[date, dict[str, int]] = {key: {"llm": 0, "fallback": 0} for key in day_keys}
+    gm_outcomes: Counter[str] = Counter()
+    for day, _route, outcome, calls in gm_usage:
+        if day not in gm_days:
+            continue
+        gm_days[day]["llm" if outcome == "llm" else "fallback"] += calls
+        gm_outcomes[outcome] += calls
+
     return {
         "generated_at": _iso(now),
         "today": today.isoformat(),
@@ -396,6 +405,11 @@ def build_overview(
         ),
         "deaths": {"killed_by": _top(killed_by), "by_act": dict(sorted(deaths_by_act.items()))},
         "endings": _top(endings),
+        "gm_daily": [
+            {"day": key.isoformat(), **gm_days[key], "total": sum(gm_days[key].values())}
+            for key in day_keys
+        ],
+        "gm_outcomes": _top(gm_outcomes, 12),
         "daily_today": daily_today,
         "players": roster,
     }

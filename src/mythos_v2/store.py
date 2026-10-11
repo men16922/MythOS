@@ -48,7 +48,7 @@ SLOTS: tuple[Slot, ...] = ("profile", "run")
 
 DEFAULT_DATABASE_URL = "postgresql://mythos:mythos@localhost:5432/mythos"
 
-#: Same statements as migrations/009_v2_saves.sql + 010_v2_daily_scores.sql + 011_v2_history_per_player.sql + 012_v2_saves_created_at.sql (those files are
+#: Same statements as migrations/009_v2_saves.sql + 010_v2_daily_scores.sql + 011_v2_history_per_player.sql + 012_v2_saves_created_at.sql + 013_v2_gm_usage.sql (those files are
 #: canonical; a test asserts they match). Every statement is idempotent.
 SCHEMA_STATEMENTS: tuple[str, ...] = (
     """CREATE TABLE IF NOT EXISTS v2_saves (
@@ -98,6 +98,13 @@ BEGIN
 END $$""",
     # When a player first saved (operator dashboard: new players per day); see migration 012.
     "ALTER TABLE v2_saves ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT now()",
+    """CREATE TABLE IF NOT EXISTS v2_gm_usage (
+  day DATE NOT NULL,
+  route TEXT NOT NULL,
+  outcome TEXT NOT NULL,
+  calls INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY (day, route, outcome)
+)""",
 )
 
 #: Per-player history kept by the in-memory store (Postgres keeps everything).
@@ -183,6 +190,16 @@ class V2Store(ABC):
         """Daily-board rows (every archetype) for days ``>= since``."""
         raise NotImplementedError
 
+    @abstractmethod
+    def record_gm_usage(self, day: date, route: str, outcome: str) -> None:
+        """Count one AI GM call (``outcome`` 'llm' = a model answered, else the authored fallback)."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def admin_gm_usage(self, since: date) -> list[tuple[date, str, str, int]]:
+        """(day, route, outcome, calls) rows for days ``>= since``."""
+        raise NotImplementedError
+
     def close(self) -> None:  # noqa: B027 - optional hook, default no-op
         """Release resources (pool); no-op for the memory store."""
 
@@ -194,6 +211,7 @@ class MemoryV2Store(V2Store):
         self._lock = threading.Lock()
         self._saves: dict[tuple[str, str], SaveBlob] = {}
         self._first_saved: dict[tuple[str, str], datetime] = {}
+        self._gm_usage: dict[tuple[date, str, str], int] = {}
         # record id -> (player_id, created_at, data)
         self._history: dict[tuple[str, str], tuple[datetime, dict[str, Any]]] = {}
         # (day, archetype) -> player_id -> best entry
@@ -324,6 +342,15 @@ class MemoryV2Store(V2Store):
             )
             for player, created, data in items[: max(0, limit)]
         ]
+
+    def record_gm_usage(self, day: date, route: str, outcome: str) -> None:
+        with self._lock:
+            key = (day, route, outcome)
+            self._gm_usage[key] = self._gm_usage.get(key, 0) + 1
+
+    def admin_gm_usage(self, since: date) -> list[tuple[date, str, str, int]]:
+        with self._lock:
+            return [(d, r, o, n) for (d, r, o), n in self._gm_usage.items() if d >= since]
 
     def admin_daily(self, since: date) -> list[tuple[date, DailyEntry]]:
         with self._lock:
@@ -656,6 +683,23 @@ class PostgresV2Store(V2Store):
             )
             for row in rows
         ]
+
+    def record_gm_usage(self, day: date, route: str, outcome: str) -> None:
+        with self._conn() as conn:
+            conn.execute(
+                """
+                INSERT INTO v2_gm_usage (day, route, outcome, calls) VALUES (%s, %s, %s, 1)
+                ON CONFLICT (day, route, outcome) DO UPDATE SET calls = v2_gm_usage.calls + 1
+                """,
+                (day, route, outcome),
+            )
+
+    def admin_gm_usage(self, since: date) -> list[tuple[date, str, str, int]]:
+        with self._conn() as conn:
+            rows = conn.execute(
+                "SELECT day, route, outcome, calls FROM v2_gm_usage WHERE day >= %s", (since,)
+            ).fetchall()
+        return [(r["day"], str(r["route"]), str(r["outcome"]), int(r["calls"])) for r in rows]
 
     def admin_daily(self, since: date) -> list[tuple[date, DailyEntry]]:
         with self._conn() as conn:

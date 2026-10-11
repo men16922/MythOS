@@ -21,4 +21,4 @@ Rules: `docs/GAMEPLAY.md` · design/contract: `docs/plans/2026-10-10-mythos-2.0.
 
 ## Agent operations
 
-- `[ ]` Re-seed the overnight harness against the 2.0 tree (the held-out task bank and Dev Graph missions targeted 1.x). Until then, run unattended loops only with explicit 2.0 seeds.
+- `[ ]` `[manual]` Re-seed the overnight harness against the 2.0 tree: `scripts/overnight/heldout-bank.md` is the owner-ratified frozen v1 and its 3 tasks target 1.x code (branch `1.0`) — a replacement bank needs a recorded owner decision. Until then, run unattended loops only with explicit 2.0 seeds.

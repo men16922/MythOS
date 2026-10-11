@@ -2,6 +2,12 @@
 
 Last updated: 2026-10-11
 
+## 2026-10-11 — Durable AI GM usage counters (dashboard)
+
+- The GM counters lived in process memory (lost on every Cloud Run restart), so there was no basis to decide on a cost guard. `v2_gm_usage` (migration 013, also in `SCHEMA_STATEMENTS`) counts calls per KST day / route / outcome; `log_gm` writes it best-effort (2 s cap, never fails or delays a reply beyond that). Dashboard: "AI GM 일별 호출" — total, LLM, fallback and the fallback rate, plus the outcome mix (timeout / rate_limited / rejected …).
+- Decision: the GM cost guard stays off (owner: none for now); revisit when this table shows real volume (≈ $0.085 per run measured).
+- Not done on purpose: re-seeding the overnight held-out bank — `scripts/overnight/heldout-bank.md` is the owner-ratified frozen v1 and its three tasks target 1.x code that now lives on branch `1.0`; replacing it needs a recorded owner decision.
+
 ## 2026-10-11 — Event wave 4: 12 new street-level events (16 per act)
 
 - Goal from the owner: "계속해서 2.0의 퀼리티 업그레이드 및 잔여작업 수행해". A veteran meets ~3 events per act from a pool of 12, so repeats showed up after a few runs; each act now rolls from 16.

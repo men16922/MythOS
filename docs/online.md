@@ -60,8 +60,9 @@ tester dashboard is archived on branch `1.0`.
   service without a rebuild: `gcloud run services update mythos-api --region us-central1 --update-env-vars MYTHOS_ADMIN_EMAILS=<email>`.
 - **Privacy**: the Google email is only compared in memory (never stored or logged); players appear as their chosen name +
   a short `ref` of the opaque id. Anonymous (not signed-in) play never reaches the server, so it is not counted.
-- **Data**: read-only queries over `v2_saves`, `v2_run_history`, `v2_daily_scores` (no new tables). GM counters are per
-  Cloud Run instance since it started; the durable record is the `v2 gm` log line.
+- **Data**: read-only queries over `v2_saves`, `v2_run_history`, `v2_daily_scores`, plus `v2_gm_usage` (one counter row per
+  KST day / route / outcome — no player ids or text; written best-effort, 2 s cap, after the GM reply is decided). The
+  "서버 · AI GM" counters are per Cloud Run instance since it started; the daily table is the durable record.
 
 ## Leaderboard ordering and trust
 

@@ -32,6 +32,7 @@ V2_MIGRATIONS = (
     "010_v2_daily_scores.sql",
     "011_v2_history_per_player.sql",
     "012_v2_saves_created_at.sql",
+    "013_v2_gm_usage.sql",
 )
 DAY = date(2026, 10, 11)
 
@@ -229,6 +230,25 @@ class MemoryStoreTest(_StoreContract, unittest.TestCase):
             [],
         )
 
+    def test_gm_usage_counters(self) -> None:
+        day = date(2099, 1, 2)
+        self.addCleanup(self._drop_usage, day)
+        for outcome in ("llm", "llm", "timeout"):
+            self.store.record_gm_usage(day, "narrate", outcome)
+        self.store.record_gm_usage(day, "talk", "llm")
+        rows = sorted(self.store.admin_gm_usage(day))
+        self.assertEqual(
+            rows,
+            [(day, "narrate", "llm", 2), (day, "narrate", "timeout", 1), (day, "talk", "llm", 1)],
+        )
+        self.assertEqual(self.store.admin_gm_usage(date(2099, 1, 3)), [])
+
+    def _drop_usage(self, day: date) -> None:
+        drop = getattr(self.store, "_pool", None)
+        if drop is not None:
+            with drop.connection() as conn:
+                conn.execute("DELETE FROM v2_gm_usage WHERE day = %s", (day,))
+
     def test_history_cap(self) -> None:
         for i in range(MEMORY_HISTORY_CAP + 5):
             self.store.append_history(self.player, f"r{i}", {"id": f"r{i}"})
@@ -298,7 +318,7 @@ class PostgresStoreTest(_StoreContract, unittest.TestCase):
 
 
 class SchemaParityTest(unittest.TestCase):
-    def test_embedded_ddl_matches_migrations_009_to_012(self) -> None:
+    def test_embedded_ddl_matches_migrations_009_to_013(self) -> None:
         migrations = ";".join(
             (MIGRATIONS / name).read_text(encoding="utf-8") for name in V2_MIGRATIONS
         )

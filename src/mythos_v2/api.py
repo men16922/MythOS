@@ -597,22 +597,42 @@ def create_v2_router(
         first_day = daily.today_kst(moment) - timedelta(days=days - 1)
         since = datetime.combine(first_day, dtime.min, tzinfo=daily.KST)
 
-        def _load(s: V2Store) -> tuple[Any, Any, Any, str]:
-            return s.admin_players(), s.admin_runs(since), s.admin_daily(first_day), s.kind
+        def _load(s: V2Store) -> tuple[Any, Any, Any, Any, str]:
+            return (
+                s.admin_players(),
+                s.admin_runs(since),
+                s.admin_daily(first_day),
+                s.admin_gm_usage(first_day),
+                s.kind,
+            )
 
-        players, runs, daily_rows, store_kind = await store_call(_load)
+        players, runs, daily_rows, gm_usage, store_kind = await store_call(_load)
         server = {
             "auth": auth_cfg.mode,
             "store": store_kind,
             "gm": runner.name,
             "gm_stats": gm_stats.snapshot(),
         }
-        return admin.build_overview(players, runs, daily_rows, now=moment, days=days, server=server)
+        return admin.build_overview(
+            players, runs, daily_rows, gm_usage, now=moment, days=days, server=server
+        )
 
     # --- AI GM -------------------------------------------------------------------
 
-    def log_gm(route: str, player_id: str, outcome: str, started: float, **extra: Any) -> None:
+    async def log_gm(
+        route: str, player_id: str, outcome: str, started: float, **extra: Any
+    ) -> None:
         gm_stats.record(route, outcome)
+        # Durable per-day counter for the operator dashboard. Best effort and bounded: a slow or failing
+        # store never delays or fails the reply (the authored/LLM text is already decided).
+        day = daily.today_kst(clock())
+        try:
+            await asyncio.wait_for(
+                run_in_threadpool(lambda: holder.get().record_gm_usage(day, route, outcome)),
+                timeout=2.0,
+            )
+        except Exception as exc:
+            _logger.debug("v2 gm usage not recorded: %s", type(exc).__name__)
         _logger.info(
             "v2 gm %s",
             route,
@@ -655,7 +675,7 @@ def create_v2_router(
         if text is None:
             text = gm.fallback_narration(body.kind, body.lang, context)
             source = "fallback"
-        log_gm("narrate", player_id, outcome, started, status=body.kind)
+        await log_gm("narrate", player_id, outcome, started, status=body.kind)
         return {"text": text, "source": source}
 
     @router.post("/gm/improvise", dependencies=[Depends(limit_gm_body)])
@@ -695,7 +715,7 @@ def create_v2_router(
                     _logger.warning("v2 gm improvise failed: %s", type(exc).__name__)
         if verdict is None:
             verdict = gm.fallback_improvisation(action, cls)
-        log_gm("improvise", player_id, outcome, started)
+        await log_gm("improvise", player_id, outcome, started)
         return verdict.to_dict()
 
     async def talk_companion(
@@ -780,7 +800,7 @@ def create_v2_router(
         else:
             text, source, outcome = await talk_ix(body, player_id, context)
             status = f"ix:{body.trigger}"
-        log_gm("talk", player_id, outcome, started, status=status)
+        await log_gm("talk", player_id, outcome, started, status=status)
         return {"text": text, "source": source}
 
     return router

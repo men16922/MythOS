@@ -129,7 +129,7 @@ const ACT1: EnemyDef[] = [
     name: t('거미 여왕', 'Brood Mother'),
     sprite: 'brood-mother',
     tier: 'elite',
-    hp: 34,
+    hp: 40,
     move: 2,
     ai: 'support',
     moves: [
@@ -420,7 +420,7 @@ const ACT2: EnemyDef[] = [
         area: 'cross',
         cooldown: 1,
         effects: [
-          { kind: 'status', status: 'burn', amount: 3 },
+          { kind: 'status', status: 'burn', amount: 2 },
           { kind: 'ignite', turns: 2 },
         ],
       },

@@ -21,6 +21,7 @@ Routes
   POST /gm/talk                    {mode: companion|ix, lang, …} → {text, source}
   PUT  /daily/{date}               {name, result} → {rank, total, best, improved}  (identity required)
   GET  /daily/{date}?archetype=&limit=   public board; ``me`` when the caller is identified
+  GET  /admin/overview?days=       operator dashboard data (the ``/admin`` page); admin Google accounts only
 
 The GM never blocks the game: every LLM call has a hard wall-clock timeout, a
 global concurrency cap and a per-player rate budget; any miss serves the
@@ -47,7 +48,8 @@ import uuid
 from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
+from datetime import time as dtime
 from typing import Annotated, Any, Literal, TypeVar
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
@@ -56,11 +58,12 @@ from starlette.concurrency import run_in_threadpool
 
 from mythos_v2.log import get_logger
 
-from . import daily, gm, talk
+from . import admin, daily, gm, talk
 from .auth import (
     GOOGLE_PLAYER_PREFIX,
     AuthConfig,
     CertsUnavailableError,
+    Identity,
     TokenError,
     TokenVerifier,
     bearer_token,
@@ -113,6 +116,7 @@ class V2Settings:
     gm_per_day: int = 400
     writes_per_minute: int = 120
     daily_per_minute: int = 10
+    admin_per_minute: int = 30
     gm_concurrency: int = 4
 
     @classmethod
@@ -127,6 +131,7 @@ class V2Settings:
             gm_per_day=_env_int("MYTHOS_V2_GM_PER_DAY", 400),
             writes_per_minute=_env_int("MYTHOS_V2_WRITES_PER_MINUTE", 120),
             daily_per_minute=_env_int("MYTHOS_V2_DAILY_PER_MINUTE", 10),
+            admin_per_minute=_env_int("MYTHOS_V2_ADMIN_PER_MINUTE", 30),
             gm_concurrency=max(1, _env_int("MYTHOS_V2_GM_CONCURRENCY", 4)),
         )
 
@@ -343,6 +348,8 @@ def create_v2_router(
     gm_limiter = RateLimiter(cfg.gm_per_minute, cfg.gm_per_day)
     write_limiter = RateLimiter(cfg.writes_per_minute)
     daily_limiter = RateLimiter(cfg.daily_per_minute)
+    admin_limiter = RateLimiter(cfg.admin_per_minute)
+    gm_stats = admin.GMStats(clock())
 
     @asynccontextmanager
     async def _lifespan(_app: Any) -> AsyncIterator[None]:
@@ -388,6 +395,31 @@ def create_v2_router(
         if player_id is not None or auth_cfg.mode == "google":
             return player_id
         return _client_player_id(x_player_id)
+
+    async def require_admin(request: Request) -> str:
+        """An allow-listed Google account (verified email), else 401/403. Returns a rate-limit key.
+
+        ``MYTHOS_ADMIN_EMAILS`` is the allow-list; nothing about the caller is logged. In mode ``open`` with
+        ``MYTHOS_ADMIN_OPEN=1`` (local dev) no sign-in is needed."""
+        if auth_cfg.admin_open:
+            return "admin:dev"
+        token = bearer_token(request.headers.get("authorization"))
+        if token is None:
+            raise _unauthorized()
+        identify = getattr(token_verifier, "verify_identity", None)
+        if identify is None:
+            raise HTTPException(status_code=403, detail="admin only")
+        try:
+            who: Identity = await run_in_threadpool(identify, token)
+        except TokenError as exc:
+            _logger.info("v2 admin: token rejected", extra={"outcome": exc.reason})
+            raise _unauthorized() from None
+        except CertsUnavailableError:
+            raise HTTPException(status_code=503, detail="sign-in check unavailable") from None
+        if not (who.email_verified and who.email and who.email in auth_cfg.admin_emails):
+            _logger.info("v2 admin: not an admin", extra={"outcome": "forbidden"})
+            raise HTTPException(status_code=403, detail="admin only")
+        return "admin:" + player_id_for_uid(who.uid)
 
     def limit_gm_body(request: Request) -> None:
         declared = request.headers.get("content-length", "")
@@ -552,9 +584,35 @@ def create_v2_router(
             "me": _entry_dict(*board.me) if board.me is not None else None,
         }
 
+    # --- operator dashboard ----------------------------------------------------------------------------
+
+    @router.get("/admin/overview")
+    async def v2_admin_overview(
+        admin_key: Annotated[str, Depends(require_admin)],
+        days: Annotated[int, Query(ge=1, le=admin.MAX_DAYS)] = admin.DEFAULT_DAYS,
+    ) -> dict[str, Any]:
+        if not admin_limiter.allow(admin_key):
+            raise HTTPException(status_code=429, detail="too many requests")
+        moment = clock()
+        first_day = daily.today_kst(moment) - timedelta(days=days - 1)
+        since = datetime.combine(first_day, dtime.min, tzinfo=daily.KST)
+
+        def _load(s: V2Store) -> tuple[Any, Any, Any, str]:
+            return s.admin_players(), s.admin_runs(since), s.admin_daily(first_day), s.kind
+
+        players, runs, daily_rows, store_kind = await store_call(_load)
+        server = {
+            "auth": auth_cfg.mode,
+            "store": store_kind,
+            "gm": runner.name,
+            "gm_stats": gm_stats.snapshot(),
+        }
+        return admin.build_overview(players, runs, daily_rows, now=moment, days=days, server=server)
+
     # --- AI GM -------------------------------------------------------------------
 
     def log_gm(route: str, player_id: str, outcome: str, started: float, **extra: Any) -> None:
+        gm_stats.record(route, outcome)
         _logger.info(
             "v2 gm %s",
             route,

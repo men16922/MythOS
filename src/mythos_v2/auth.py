@@ -79,6 +79,15 @@ class CertsUnavailableError(RuntimeError):
     """Google's signing certs could not be fetched and none are cached (mapped to HTTP 503)."""
 
 
+@dataclass(frozen=True)
+class Identity:
+    """A verified Google sign-in. ``email`` is only ever compared (admin allow-list), never stored or logged."""
+
+    uid: str
+    email: str = ""
+    email_verified: bool = False
+
+
 class TokenVerifier(Protocol):
     def verify(self, token: str) -> str:
         """Return the Firebase uid, or raise ``TokenError`` / ``CertsUnavailableError``."""
@@ -233,7 +242,7 @@ class FirebaseTokenVerifier:
         self._leeway = leeway
         self._certs = _CertCache(fetcher or fetch_securetoken_certs, clock)
 
-    def verify(self, token: str) -> str:
+    def verify_identity(self, token: str) -> Identity:
         if not token or len(token) > MAX_TOKEN_CHARS:
             raise TokenError("malformed")
         parts = token.split(".")
@@ -255,7 +264,10 @@ class FirebaseTokenVerifier:
             raise TokenError("bad signature")
         return self._check_claims(claims)
 
-    def _check_claims(self, claims: Mapping[str, Any]) -> str:
+    def verify(self, token: str) -> str:
+        return self.verify_identity(token).uid
+
+    def _check_claims(self, claims: Mapping[str, Any]) -> Identity:
         now = self._clock()
         if claims.get("aud") != self.project_id:
             raise TokenError("bad aud")
@@ -274,13 +286,21 @@ class FirebaseTokenVerifier:
         provider = firebase.get("sign_in_provider") if isinstance(firebase, dict) else None
         if provider != GOOGLE_PROVIDER:
             raise TokenError("not a Google sign-in")
-        return uid
+        email = claims.get("email")
+        return Identity(
+            uid=uid,
+            email=email.strip().lower() if isinstance(email, str) else "",
+            email_verified=claims.get("email_verified") is True,
+        )
 
 
 class _UnconfiguredVerifier:
     """No Firebase project configured: every token is rejected."""
 
     def verify(self, token: str) -> str:
+        raise TokenError("no firebase project configured")
+
+    def verify_identity(self, token: str) -> Identity:
         raise TokenError("no firebase project configured")
 
 
@@ -335,11 +355,20 @@ def load_web_config(raw: str | None = None, path: Path | None = None) -> dict[st
     return {key: str(value) for key, value in picked.items()}
 
 
+def parse_admin_emails(raw: str | None) -> frozenset[str]:
+    """``MYTHOS_ADMIN_EMAILS``: comma/space separated, case-insensitive."""
+    return frozenset(part.lower() for part in re.split(r"[,\s]+", raw or "") if "@" in part)
+
+
 @dataclass(frozen=True)
 class AuthConfig:
     mode: AuthMode = "open"
     project_id: str | None = None
     web_config: dict[str, str] | None = None
+    #: Google accounts (verified email) allowed into ``/admin``. Empty = nobody.
+    admin_emails: frozenset[str] = frozenset()
+    #: Local dev only (``MYTHOS_ADMIN_OPEN=1`` and mode ``open``): ``/admin`` data needs no sign-in.
+    admin_open: bool = False
 
     @classmethod
     def from_env(cls) -> AuthConfig:
@@ -349,7 +378,14 @@ class AuthConfig:
             _logger.error(
                 "MYTHOS_AUTH=google without MYTHOS_FIREBASE_PROJECT/PROJECT_ID: every sign-in fails"
             )
-        return cls(mode=mode, project_id=project, web_config=load_web_config())
+        admin_open = mode == "open" and (os.getenv("MYTHOS_ADMIN_OPEN") or "").strip() == "1"
+        return cls(
+            mode=mode,
+            project_id=project,
+            web_config=load_web_config(),
+            admin_emails=parse_admin_emails(os.getenv("MYTHOS_ADMIN_EMAILS")),
+            admin_open=admin_open,
+        )
 
 
 __all__ = [
@@ -362,6 +398,7 @@ __all__ = [
     "CertFetcher",
     "CertsUnavailableError",
     "FirebaseTokenVerifier",
+    "Identity",
     "TokenError",
     "TokenVerifier",
     "bearer_token",
@@ -369,6 +406,7 @@ __all__ = [
     "cache_max_age",
     "fetch_securetoken_certs",
     "load_web_config",
+    "parse_admin_emails",
     "parse_auth_mode",
     "player_id_for_uid",
 ]

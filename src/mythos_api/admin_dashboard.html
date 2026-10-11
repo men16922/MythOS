@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>MythOS — 운영 대시보드</title>
+<style>
+:root {
+  --bg: #0a0f0d;
+  --card: rgba(0, 20, 17, 0.6);
+  --term: #00ffaa;
+  --term-dim: #00cc88;
+  --ink: #d6fff6;
+  --ink-dim: #6b8f85;
+  --line: rgba(0, 255, 170, 0.15);
+  --line-soft: rgba(255, 255, 255, 0.08);
+  --green: #4ade80;
+  --blue: #60a5fa;
+  --pink: #f472b6;
+  --amber: #fbbf24;
+  --mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; padding: 24px 16px 48px; min-height: 100vh; }
+.wrap { max-width: 1180px; margin: 0 auto; }
+.header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.header h1 { font-size: 20px; color: var(--term); font-family: var(--mono); font-weight: 600; }
+.tools { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-size: 12px; color: var(--ink-dim); }
+.btn, select { background: rgba(0, 255, 170, 0.1); border: 1px solid var(--term); border-radius: 4px; color: var(--term); font-size: 12px; padding: 5px 12px; cursor: pointer; font-family: var(--mono); }
+.btn:hover { background: rgba(0, 255, 170, 0.2); }
+select option { background: #06120f; }
+.btn.big { font-size: 14px; padding: 10px 22px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.kpi { background: rgba(0,0,0,0.3); border: 1px solid var(--line-soft); border-radius: 6px; padding: 12px; }
+.kpi .label { font-size: 11px; color: var(--ink-dim); }
+.kpi .value { font-size: 24px; font-weight: bold; font-family: var(--mono); margin-top: 4px; }
+.kpi .sub { font-size: 11px; color: var(--ink-dim); margin-top: 2px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 14px; margin-bottom: 14px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 14px; overflow-x: auto; }
+.card h2 { font-size: 11px; color: var(--term-dim); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; }
+.card.wide { grid-column: 1 / -1; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { text-align: left; font-weight: normal; color: var(--ink-dim); font-size: 11px; padding: 4px 8px 6px 0; white-space: nowrap; }
+td { padding: 5px 8px 5px 0; border-top: 1px solid var(--line-soft); white-space: nowrap; }
+td.num, th.num { text-align: right; font-family: var(--mono); }
+.chip { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-family: var(--mono); display: inline-block; }
+.chip-blue { background: rgba(96,165,250,0.15); border: 1px solid rgba(96,165,250,0.3); color: var(--blue); }
+.chip-green { background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.3); color: var(--green); }
+.chip-pink { background: rgba(244,114,182,0.15); border: 1px solid rgba(244,114,182,0.3); color: var(--pink); }
+.chip-amber { background: rgba(251,191,36,0.15); border: 1px solid rgba(251,191,36,0.3); color: var(--amber); }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--ink-dim); margin-right: 6px; }
+.dot.on { background: var(--green); box-shadow: 0 0 6px #4ade8088; }
+.dim { color: var(--ink-dim); }
+.mono { font-family: var(--mono); }
+.empty { color: var(--ink-dim); font-size: 12px; padding: 6px 0; }
+.note { font-size: 11px; color: var(--ink-dim); margin-top: 18px; line-height: 1.6; }
+.center { text-align: center; padding: 56px 12px; color: var(--ink-dim); font-size: 14px; line-height: 1.8; }
+.error { color: var(--pink); }
+.bar { display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 3px 0; }
+.bar .name { width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar .track { flex: 1; height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
+.bar .fill { height: 100%; background: var(--term-dim); }
+.bar .n { width: 36px; text-align: right; font-family: var(--mono); color: var(--ink-dim); }
+.legend { display: flex; gap: 14px; font-size: 11px; color: var(--ink-dim); margin-top: 6px; }
+.legend i { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+svg text { fill: #6b8f85; font-size: 10px; font-family: var(--mono); }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1>MYTHOS · 운영 대시보드</h1>
+    <div class="tools" id="tools" hidden>
+      <span id="who"></span>
+      <label>기간 <select id="days"><option value="7">7일</option><option value="14" selected>14일</option><option value="30">30일</option><option value="60">60일</option></select></label>
+      <button class="btn" id="refresh" type="button">↻ 새로고침</button>
+      <span id="updated"></span>
+      <button class="btn" id="signout" type="button">로그아웃</button>
+    </div>
+  </div>
+  <div id="main"><div class="center">불러오는 중…</div></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script>
+'use strict';
+const $ = (id) => document.getElementById(id);
+const main = $('main');
+let auth = null;
+let timer = null;
+
+function esc(v) {
+  return String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+function pct(v) { return v == null ? '—' : Math.round(v * 100) + '%'; }
+function ago(iso) {
+  if (!iso) return '—';
+  const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+  if (mins < 1) return '방금';
+  if (mins < 60) return mins + '분 전';
+  const h = Math.floor(mins / 60);
+  if (h < 24) return h + '시간 전';
+  return Math.floor(h / 24) + '일 전';
+}
+function mmss(s) { return s == null ? '—' : Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+const RESULT = { victory: ['승리', 'chip-green'], defeat: ['패배', 'chip-pink'], abandoned: ['포기', 'chip-amber'] };
+function resultChip(r) { const [t, c] = RESULT[r] || [r, 'chip-blue']; return `<span class="chip ${c}">${esc(t)}</span>`; }
+
+function showMessage(html) {
+  main.innerHTML = `<div class="center">${html}</div>`;
+  $('tools').hidden = true;
+}
+function showSignIn(msg) {
+  showMessage(`${msg ? `<div class="error">${esc(msg)}</div><br>` : ''}관리자 Google 계정으로 로그인하세요.<br><br><button class="btn big" id="signin" type="button">Google로 로그인</button>`);
+  $('signin').onclick = async () => {
+    try { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+    catch (e) { showSignIn('로그인 실패: ' + (e.code || e.message)); }
+  };
+}
+
+function dayChart(rows) {
+  const W = 1100, H = 170, pad = { l: 28, r: 6, t: 8, b: 22 };
+  const max = Math.max(1, ...rows.map((r) => r.runs));
+  const bw = (W - pad.l - pad.r) / rows.length;
+  const y = (v) => pad.t + (H - pad.t - pad.b) * (1 - v / max);
+  const base = H - pad.b;
+  let out = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="일별 런 수">`;
+  out += `<line x1="${pad.l}" y1="${base}" x2="${W - pad.r}" y2="${base}" stroke="rgba(255,255,255,0.12)"/>`;
+  out += `<text x="2" y="${pad.t + 8}">${max}</text><text x="2" y="${base}">0</text>`;
+  rows.forEach((r, i) => {
+    const x = pad.l + i * bw + bw * 0.15, w = bw * 0.7;
+    let top = base;
+    for (const [n, col] of [[r.wins, '#4ade80'], [r.defeats, '#f472b6'], [r.abandoned, '#fbbf24']]) {
+      if (!n) continue;
+      const h = base - y(n);
+      top -= h;
+      out += `<rect x="${x.toFixed(1)}" y="${top.toFixed(1)}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" fill="${col}"><title>${esc(r.day)} · ${n}</title></rect>`;
+    }
+    if (rows.length <= 16 || i % Math.ceil(rows.length / 10) === 0) out += `<text x="${(x + w / 2).toFixed(1)}" y="${H - 6}" text-anchor="middle">${esc(r.day.slice(5))}</text>`;
+  });
+  return out + '</svg><div class="legend"><span><i style="background:#4ade80"></i>승리</span><span><i style="background:#f472b6"></i>패배</span><span><i style="background:#fbbf24"></i>포기</span></div>';
+}
+function bars(items, labelOf) {
+  if (!items.length) return '<div class="empty">아직 데이터 없음</div>';
+  const max = Math.max(...items.map((i) => i.count));
+  return items.map((i) => `<div class="bar"><span class="name" title="${esc(labelOf(i))}">${esc(labelOf(i))}</span><span class="track"><span class="fill" style="width:${(i.count / max) * 100}%;display:block"></span></span><span class="n">${i.count}</span></div>`).join('');
+}
+function kpi(label, value, sub) { return `<div class="kpi"><div class="label">${esc(label)}</div><div class="value">${esc(value)}</div>${sub ? `<div class="sub">${esc(sub)}</div>` : ''}</div>`; }
+
+function render(d) {
+  const t = d.totals;
+  const gm = d.server.gm_stats;
+  const fb = gm.total - gm.llm;
+  let h = '<div class="kpis">';
+  h += kpi('클라우드 저장 플레이어', t.players, `Google ${t.signed_in} · 익명 ${t.anonymous}`);
+  h += kpi('활성 24시간', t.active_24h, `7일 ${t.active_7d} · 30일 ${t.active_30d}`);
+  h += kpi('진행 중인 런', t.with_active_run, '저장된 미완료 런');
+  h += kpi(`최근 ${d.days}일 완료 런`, t.finished_in_window, `승 ${t.victories_in_window} · 패 ${t.defeats_in_window} · 포기 ${t.abandoned_in_window}`);
+  h += kpi('승률 (포기 제외)', pct(t.win_rate_in_window), `승 ${t.victories_in_window} / 승+패 ${t.victories_in_window + t.defeats_in_window}`);
+  h += kpi('누적 런 시작', t.runs_started, `승리 ${t.wins_lifetime}`);
+  h += '</div><div class="grid">';
+
+  h += `<div class="card wide"><h2>일별 완료 런 (KST)</h2>${dayChart(d.per_day)}</div>`;
+
+  h += '<div class="card"><h2>아키타입</h2>';
+  h += d.archetypes.length ? `<table><tr><th>아키타입</th><th class="num">런</th><th class="num">승</th><th class="num">패</th><th class="num">승률</th><th class="num">평균 층</th></tr>${d.archetypes.map((a) => `<tr><td>${esc(a.id)}</td><td class="num">${a.runs}</td><td class="num">${a.wins}</td><td class="num">${a.defeats}</td><td class="num">${pct(a.win_rate)}</td><td class="num">${a.avg_floors}</td></tr>`).join('')}</table>` : '<div class="empty">아직 완료된 런 없음</div>';
+  h += '</div>';
+
+  h += `<div class="card"><h2>사망 원인 TOP</h2>${bars(d.deaths.killed_by, (i) => i.id)}<h2 style="margin-top:14px">막별 패배</h2>${['1', '2', '3'].map((a) => `<span class="chip chip-pink" style="margin-right:6px">${a}막 ${d.deaths.by_act[a] || 0}</span>`).join('')}</div>`;
+
+  h += `<div class="card"><h2>엔딩</h2>${bars(d.endings, (i) => i.id)}</div>`;
+
+  h += '<div class="card"><h2>오늘의 시드 (오늘, KST)</h2>';
+  h += d.daily_today.length ? d.daily_today.map((b) => `<div class="dim" style="font-size:11px;margin:6px 0 2px">${esc(b.archetype)} · 참가 ${b.total}</div><table>${b.top.map((e) => `<tr><td class="num dim">${e.rank}</td><td>${esc(e.name)}</td><td>${e.won ? '<span class="chip chip-green">클리어</span>' : `<span class="chip chip-pink">${e.act}막</span>`}</td><td class="num">${e.floors}층</td><td class="num">${e.kills}킬</td><td class="num dim">${mmss(e.secs)}</td></tr>`).join('')}</table>`).join('') : '<div class="empty">오늘 참가자 없음</div>';
+  h += `<div class="dim" style="font-size:11px;margin-top:8px">일별 참가자: ${d.per_day.slice(-7).map((r) => `${esc(r.day.slice(5))} <b>${r.daily_players}</b>`).join(' · ')}</div></div>`;
+
+  h += `<div class="card"><h2>서버 · AI GM</h2><table>
+    <tr><td class="dim">인증</td><td>${esc(d.server.auth)}</td></tr>
+    <tr><td class="dim">저장소</td><td>${esc(d.server.store)}</td></tr>
+    <tr><td class="dim">GM 백엔드</td><td>${esc(d.server.gm)}</td></tr>
+    <tr><td class="dim">GM 호출 (이 인스턴스)</td><td>${gm.total} <span class="dim">· LLM ${gm.llm} · 대체 ${fb}</span></td></tr>
+    <tr><td class="dim">집계 시작</td><td>${ago(gm.since)}</td></tr></table>
+    ${Object.entries(gm.by_route).map(([r, o]) => `<div class="dim" style="font-size:11px;margin-top:6px">${esc(r)}: ${Object.entries(o).map(([k, v]) => `${esc(k)} ${v}`).join(' · ')}</div>`).join('')}
+    <div class="dim" style="font-size:11px;margin-top:8px">Cloud Run은 인스턴스가 여러 개이거나 재시작될 수 있어 이 카운터는 참고용입니다. 정확한 기록은 <span class="mono">v2 gm</span> 로그.</div></div>`;
+
+  h += '<div class="card wide"><h2>플레이어</h2>';
+  h += d.players.length ? `<table><tr><th>플레이어</th><th>마지막 활동</th><th class="num">런</th><th class="num">승</th><th class="num">최고 막</th><th class="num">패러독스</th><th class="num">에코</th><th class="num">해금</th><th class="num">엔딩</th><th>진행 중</th><th>최근 런</th></tr>${d.players.map((p) => {
+    const live = p.last_active && Date.now() - new Date(p.last_active).getTime() < 15 * 60000;
+    const ar = p.active_run;
+    const lr = p.last_run;
+    return `<tr><td><span class="dot ${live ? 'on' : ''}"></span>${esc(p.name)} <span class="dim mono" style="font-size:10px">${esc(p.ref)}</span></td><td class="dim">${ago(p.last_active)}</td><td class="num">${p.runs}</td><td class="num">${p.wins}</td><td class="num">${p.best_act}</td><td class="num">${p.paradox}</td><td class="num">${p.total_echoes}</td><td class="num">${p.unlocks}</td><td class="num">${p.endings}</td><td>${ar ? `<span class="chip chip-blue">${esc(ar.archetype)}</span> ${ar.act}막 ${ar.floors}층 · HP ${ar.hp}/${ar.max_hp}${ar.daily ? ' <span class="chip chip-amber">시드</span>' : ''}` : '<span class="dim">—</span>'}</td><td>${lr ? `${resultChip(lr.result)} <span class="dim">${esc(lr.archetype)} ${lr.act}막 · ${ago(lr.ended_at)}</span>` : '<span class="dim">—</span>'}</td></tr>`;
+  }).join('')}</table>` : '<div class="empty">아직 클라우드에 저장한 플레이어가 없습니다.</div>';
+  h += '</div></div>';
+
+  h += `<div class="note">이 대시보드는 <b>Google로 로그인한 플레이어</b>만 집계합니다 — 비로그인(익명) 플레이는 서버에 저장되지 않아 보이지 않습니다. 런·오늘의 시드 결과는 클라이언트가 보고한 값(서버는 범위만 검증)이라 참고용입니다. 이메일/계정 ID는 저장하지 않으며 플레이어는 닉네임과 짧은 ref로만 표시됩니다. 통계 기준일은 KST입니다.</div>`;
+  main.innerHTML = h;
+  $('updated').textContent = '갱신 ' + new Date().toLocaleTimeString('ko-KR');
+}
+
+async function load() {
+  const user = auth.currentUser;
+  if (!user) return;
+  try {
+    const token = await user.getIdToken();
+    const res = await fetch('/api/v2/admin/overview?days=' + $('days').value, { headers: { Authorization: 'Bearer ' + token }, cache: 'no-store' });
+    if (res.status === 401) { showSignIn('인증이 만료되었습니다. 다시 로그인하세요.'); return; }
+    if (res.status === 403) { showMessage(`<div class="error">관리자 계정이 아닙니다.</div>${esc(user.email || '')}<br><br><button class="btn" id="so2" type="button">다른 계정으로 로그인</button>`); $('so2').onclick = () => auth.signOut(); return; }
+    if (res.status === 429) return;
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    $('tools').hidden = false;
+    $('who').textContent = user.email || '';
+    render(await res.json());
+  } catch (e) {
+    if (!$('tools').hidden) $('updated').textContent = '불러오기 실패: ' + e.message;
+    else showMessage(`<div class="error">불러오기 실패: ${esc(e.message)}</div>`);
+  }
+}
+
+async function boot() {
+  try {
+    const cfg = await (await fetch('/api/v2/config', { cache: 'no-store' })).json();
+    if (!cfg.firebase) { showMessage('이 서버에는 Firebase 로그인이 설정되어 있지 않습니다.'); return; }
+    firebase.initializeApp(cfg.firebase);
+    auth = firebase.auth();
+  } catch (e) { showMessage(`<div class="error">초기화 실패: ${esc(e.message)}</div>`); return; }
+  $('refresh').onclick = load;
+  $('days').onchange = load;
+  $('signout').onclick = () => auth.signOut();
+  auth.onAuthStateChanged((user) => {
+    clearInterval(timer);
+    if (!user) { showSignIn(''); return; }
+    showMessage('불러오는 중…');
+    load();
+    timer = setInterval(load, 30000);
+  });
+}
+boot();
+</script>
+</body>
+</html>

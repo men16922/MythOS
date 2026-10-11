@@ -2,6 +2,12 @@
 
 이 문서는 되돌리기 어렵거나 이후 구현 방향에 영향을 주는 결정을 기록한다. 최신 항목을 위에 추가한다.
 
+## 2026-10-11 — Operator dashboard is rebuilt for 2.0 (`/admin`), gated by a Google email allow-list
+
+- **Context**: owner — "Admin용 대시보드는 어디갔어?" then "내 계정으로 admin을 잡고, 2.0용으로 새로 만들고싶어". The 1.x dashboard was invite-key based and went to branch `1.0` with the archive.
+- **Decision**: `GET /api/v2/admin/overview` + a static `/admin` page. Admin = a verified Google email in `MYTHOS_ADMIN_EMAILS` (env, not committed). No new tables: the numbers are read-only aggregates over saves, run history and daily scores; the email is compared in memory and never stored, so the roster shows names + short refs only.
+- **Trade-off**: anonymous play is invisible (it never reaches the server by design); figures are client-reported; GM counters are per instance. No GM cost figure (would need persisted per-call usage).
+
 ## 2026-10-11 — Google sign-in replaces invite keys; daily leaderboard on our own server; daily push by topic
 
 - **Context**: owner — "꼭 초대코드가 필요한가? Gmail로 로그인 시키는 기능으로 대체하자", plus Play Games Services and push. No Play developer account exists yet.

@@ -31,6 +31,15 @@ from dataclasses import replace as dc_replace
 from datetime import UTC, date, datetime, timedelta
 from typing import Any, Literal
 
+from mythos_v2.admin import (
+    MAX_PLAYERS,
+    MAX_RUN_ROWS,
+    AdminPlayer,
+    AdminRun,
+    profile_summary,
+    run_from_fields,
+    run_summary,
+)
 from mythos_v2.daily import DailyBoard, DailyEntry, DailyResult, DailySubmission
 from mythos_v2.log import get_logger
 
@@ -155,6 +164,23 @@ class V2Store(ABC):
         """Top ``limit`` entries (best first), the board size, and ``player_id``'s own entry."""
         raise NotImplementedError
 
+    # --- operator dashboard (read-only; see ``admin.build_overview``) -------------------------------------
+
+    @abstractmethod
+    def admin_players(self, limit: int = MAX_PLAYERS) -> list[AdminPlayer]:
+        """Every player with a saved profile or run, most recently active first."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def admin_runs(self, since: datetime, limit: int = MAX_RUN_ROWS) -> list[AdminRun]:
+        """Finished-run records that arrived at or after ``since``."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def admin_daily(self, since: date) -> list[tuple[date, DailyEntry]]:
+        """Daily-board rows (every archetype) for days ``>= since``."""
+        raise NotImplementedError
+
     def close(self) -> None:  # noqa: B027 - optional hook, default no-op
         """Release resources (pool); no-op for the memory store."""
 
@@ -242,6 +268,63 @@ class MemoryV2Store(V2Store):
         ranked = list(enumerate(ordered, start=1))
         me = next((pair for pair in ranked if pair[1].player_id == player_id), None)
         return DailyBoard(len(ordered), ranked[: max(0, limit)], me)
+
+    def admin_players(self, limit: int = MAX_PLAYERS) -> list[AdminPlayer]:
+        with self._lock:
+            saves = {
+                key: (copy.deepcopy(blob.data), blob.updated_at)
+                for key, blob in self._saves.items()
+            }
+        ids = {player for player, _ in saves}
+        rows = []
+        for player in ids:
+            profile = saves.get((player, "profile"))
+            run = saves.get((player, "run"))
+            rows.append(
+                AdminPlayer(
+                    player_id=player,
+                    profile=profile_summary(profile[0]) if profile else {},
+                    profile_updated_at=profile[1] if profile else None,
+                    run=run_summary(run[0]) if run else None,
+                    run_updated_at=run[1] if run else None,
+                )
+            )
+        epoch = datetime.min.replace(tzinfo=UTC)
+        rows.sort(key=lambda row: row.last_active or epoch, reverse=True)
+        return rows[: max(0, limit)]
+
+    def admin_runs(self, since: datetime, limit: int = MAX_RUN_ROWS) -> list[AdminRun]:
+        with self._lock:
+            items = [
+                (key[0], created, copy.deepcopy(data))
+                for key, (created, data) in self._history.items()
+                if created >= since
+            ]
+        items.sort(key=lambda item: item[1], reverse=True)
+        return [
+            run_from_fields(
+                player,
+                created,
+                result=data.get("result"),
+                archetype=data.get("archetype"),
+                act=data.get("act"),
+                floors=data.get("floors"),
+                echoes=data.get("echoes"),
+                ending=data.get("endingId"),
+                killed_by=data.get("killedBy"),
+                daily=data.get("daily"),
+            )
+            for player, created, data in items[: max(0, limit)]
+        ]
+
+    def admin_daily(self, since: date) -> list[tuple[date, DailyEntry]]:
+        with self._lock:
+            return [
+                (day, entry)
+                for (day, _archetype), board in self._daily.items()
+                if day >= since
+                for entry in board.values()
+            ]
 
 
 class PostgresV2Store(V2Store):
@@ -493,6 +576,87 @@ class PostgresV2Store(V2Store):
             ).fetchone()
         total = int(total_row["total"]) if total_row is not None else 0
         return DailyBoard(total, ranked, me)
+
+    # --- operator dashboard ----------------------------------------------------------------------------
+
+    def admin_players(self, limit: int = MAX_PLAYERS) -> list[AdminPlayer]:
+        # Pull only the handful of fields the dashboard shows (full blobs are up to 512 KB each).
+        with self._conn() as conn:
+            rows = conn.execute(
+                """
+                SELECT player_id,
+                  max(updated_at) FILTER (WHERE slot = 'profile') AS profile_at,
+                  max(updated_at) FILTER (WHERE slot = 'run') AS run_at,
+                  (array_agg(jsonb_build_object(
+                    'playerName', data->'playerName', 'loops', data->'loops', 'wins', data->'wins',
+                    'bestAct', data->'bestAct', 'totalEchoes', data->'totalEchoes',
+                    'paradoxUnlocked', data->'paradoxUnlocked',
+                    'unlocks_n', CASE WHEN jsonb_typeof(data->'unlocks') = 'array'
+                                 THEN jsonb_array_length(data->'unlocks') END,
+                    'endings_n', CASE WHEN jsonb_typeof(data->'endingsSeen') = 'array'
+                                 THEN jsonb_array_length(data->'endingsSeen') END
+                  )) FILTER (WHERE slot = 'profile'))[1] AS profile,
+                  (array_agg(jsonb_build_object(
+                    'archetype', data->'archetype', 'act', data->'act', 'paradox', data->'paradox',
+                    'hp', data->'hp', 'maxHp', data->'maxHp', 'daily', data->'daily',
+                    'floors', data->'tally'->'floors'
+                  )) FILTER (WHERE slot = 'run'))[1] AS run
+                FROM v2_saves GROUP BY player_id
+                ORDER BY greatest(max(updated_at) FILTER (WHERE slot = 'profile'),
+                                  max(updated_at) FILTER (WHERE slot = 'run')) DESC
+                LIMIT %s
+                """,
+                (max(0, limit),),
+            ).fetchall()
+        return [
+            AdminPlayer(
+                player_id=str(row["player_id"]),
+                profile=profile_summary(dict(row["profile"])) if row["profile"] else {},
+                profile_updated_at=row["profile_at"],
+                run=run_summary(dict(row["run"])) if row["run"] else None,
+                run_updated_at=row["run_at"],
+            )
+            for row in rows
+        ]
+
+    def admin_runs(self, since: datetime, limit: int = MAX_RUN_ROWS) -> list[AdminRun]:
+        with self._conn() as conn:
+            rows = conn.execute(
+                """
+                SELECT player_id, created_at, data->>'result' AS result, data->>'archetype' AS archetype,
+                  data->>'act' AS act, data->>'floors' AS floors, data->>'echoes' AS echoes,
+                  data->>'endingId' AS ending, data->>'killedBy' AS killed_by, data->>'daily' AS daily
+                FROM v2_run_history WHERE created_at >= %s
+                ORDER BY created_at DESC LIMIT %s
+                """,
+                (since, max(0, limit)),
+            ).fetchall()
+        return [
+            run_from_fields(
+                str(row["player_id"]),
+                row["created_at"],
+                result=row["result"],
+                archetype=row["archetype"],
+                act=row["act"],
+                floors=row["floors"],
+                echoes=row["echoes"],
+                ending=row["ending"],
+                killed_by=row["killed_by"],
+                daily=row["daily"],
+            )
+            for row in rows
+        ]
+
+    def admin_daily(self, since: date) -> list[tuple[date, DailyEntry]]:
+        with self._conn() as conn:
+            rows = conn.execute(
+                f"""
+                SELECT day, archetype, {self._DAILY_COLUMNS} FROM v2_daily_scores
+                WHERE day >= %s
+                """,
+                (since,),
+            ).fetchall()
+        return [(row["day"], self._daily_entry(str(row["archetype"]), row)) for row in rows]
 
 
 def build_store() -> V2Store:

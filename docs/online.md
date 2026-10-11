@@ -36,6 +36,7 @@ else the gitignored `.firebase/web-config.json` from `make firebase-web`). CORS 
 | saves / history / GM | identity | unchanged shapes |
 | `PUT /daily/{date}` | identity (both modes) | body `{"name", "result": DailyResult}` → `{"rank", "total", "best", "improved"}` |
 | `GET /daily/{date}?archetype=&limit=` | public; `me` when identified | `{"date", "archetype", "total", "entries": [{"rank", "name", "result", "me"}], "me": {"rank", "name", "result"} \| null}` |
+| `GET /admin/overview?days=` | admin Google account | operator dashboard payload (see "Admin dashboard") |
 
 `DailyResult` = `{archetype /^[a-z_]{1,32}$/, won: bool, act 1..3, floors 0..80, echoes 0..999, kills 0..999,
 secs?: 1..86400}`; strict JSON types (no `"2"`, `true` or `2.0` for an int); unknown keys ignored; violations → 422.
@@ -43,6 +44,24 @@ Submit date: today or yesterday in KST; read date: today and the 29 days before 
 `detail`. `limit` 1..50 (default 20). Names: NFC, control/format characters dropped, whitespace collapsed, at most
 16 characters, empty → `익명` (over 200 raw characters → 422). Writes are limited per player
 (`MYTHOS_V2_DAILY_PER_MINUTE`, default 10/min) → 429.
+
+## Admin dashboard (`/admin`)
+
+Operator page for the owner: players, activity, runs per day (KST), win rate by archetype, killers, endings, today's
+daily board, per-player roster (active run, last run) and AI GM outcome counters. New in 2.0 — the 1.x invite-key
+tester dashboard is archived on branch `1.0`.
+
+- **Access**: `MYTHOS_ADMIN_EMAILS` (comma-separated Google accounts, case-insensitive, **verified email required**;
+  empty = nobody). `/admin` is public static HTML that signs in with Firebase Google; every data call
+  (`GET /api/v2/admin/overview`) is checked server-side → 401 without a valid token, 403 for any other account.
+  `X-Player-Id` never grants admin. Limit `MYTHOS_V2_ADMIN_PER_MINUTE` (default 30) → 429.
+- **Local dev**: `MYTHOS_AUTH=open MYTHOS_ADMIN_OPEN=1` serves the overview without sign-in (ignored in `google` mode).
+- **Deploy**: `make deploy` / `make deploy-preview` pass `.env`'s `MYTHOS_ADMIN_EMAILS` along. To set it on the running
+  service without a rebuild: `gcloud run services update mythos-api --region us-central1 --update-env-vars MYTHOS_ADMIN_EMAILS=<email>`.
+- **Privacy**: the Google email is only compared in memory (never stored or logged); players appear as their chosen name +
+  a short `ref` of the opaque id. Anonymous (not signed-in) play never reaches the server, so it is not counted.
+- **Data**: read-only queries over `v2_saves`, `v2_run_history`, `v2_daily_scores` (no new tables). GM counters are per
+  Cloud Run instance since it started; the durable record is the `v2 gm` log line.
 
 ## Leaderboard ordering and trust
 

@@ -300,7 +300,8 @@ cloud-run-local:
 # Deploy to Cloud Run, ALWAYS targeting .env's PROJECT_ID via --project (never the ambient gcloud project).
 # Env-preserving `--source .`: the existing revision's env (GM provider, DATABASE_URL, …) is kept; sign-in is set on
 # every deploy: MYTHOS_AUTH=google, MYTHOS_FIREBASE_PROJECT and MYTHOS_FIREBASE_WEB_CONFIG (compacted from the
-# gitignored .firebase/web-config.json — `make firebase-web` — inside a subshell, never echoed).
+# gitignored .firebase/web-config.json — `make firebase-web` — inside a subshell, never echoed). `.env`'s
+# MYTHOS_ADMIN_EMAILS (comma-separated Google accounts allowed into /admin) is passed along when set.
 REGION ?= us-central1
 CLOUD_RUN_TIMEOUT ?= 3600
 FIREBASE_WEB_CONFIG ?= .firebase/web-config.json
@@ -314,6 +315,8 @@ deploy:
 	@PROJECT_ID=$$(grep -E '^PROJECT_ID=' .env | cut -d= -f2- | tr -d '"'); \
 	test -n "$$PROJECT_ID" || { echo "ERROR: PROJECT_ID not set in .env"; exit 1; }; \
 	AUTH_ENV=$$($(AUTH_ENV_VARS) "$$PROJECT_ID" 2>/dev/null) || { echo "ERROR: $(FIREBASE_WEB_CONFIG) is not a complete Firebase web config — re-run make firebase-web"; exit 1; }; \
+	ADMIN_EMAILS=$$(grep -E '^MYTHOS_ADMIN_EMAILS=' .env | cut -d= -f2- | tr -d '"'); \
+	test -z "$$ADMIN_EMAILS" || AUTH_ENV="$$AUTH_ENV@@MYTHOS_ADMIN_EMAILS=$$ADMIN_EMAILS"; \
 	echo "Deploying mythos-api (2.0) to project [$$PROJECT_ID] region [$(REGION)] (env-preserving, MYTHOS_AUTH=google)…"; \
 	gcloud run deploy mythos-api --source . --region $(REGION) --project "$$PROJECT_ID" --timeout $(CLOUD_RUN_TIMEOUT) --update-env-vars "$$AUTH_ENV" --quiet
 
@@ -325,6 +328,8 @@ deploy-preview:
 	@PROJECT_ID=$$(grep -E '^PROJECT_ID=' .env | cut -d= -f2- | tr -d '"'); \
 	test -n "$$PROJECT_ID" || { echo "ERROR: PROJECT_ID not set in .env"; exit 1; }; \
 	AUTH_ENV=$$($(AUTH_ENV_VARS) "$$PROJECT_ID" 2>/dev/null) || { echo "ERROR: $(FIREBASE_WEB_CONFIG) is not a complete Firebase web config — re-run make firebase-web"; exit 1; }; \
+	ADMIN_EMAILS=$$(grep -E '^MYTHOS_ADMIN_EMAILS=' .env | cut -d= -f2- | tr -d '"'); \
+	test -z "$$ADMIN_EMAILS" || AUTH_ENV="$$AUTH_ENV@@MYTHOS_ADMIN_EMAILS=$$ADMIN_EMAILS"; \
 	echo "Deploying a NO-TRAFFIC preview revision (tag v2-preview) of mythos-api to [$$PROJECT_ID] [$(REGION)] (MYTHOS_AUTH=google)…"; \
 	gcloud run deploy mythos-api --source . --region $(REGION) --project "$$PROJECT_ID" --timeout $(CLOUD_RUN_TIMEOUT) --update-env-vars "$$AUTH_ENV" --no-traffic --tag v2-preview --quiet
 

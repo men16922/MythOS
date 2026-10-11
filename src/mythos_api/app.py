@@ -4,10 +4,12 @@ The game itself runs in the browser (`src/mythos_ui/src/v2`); this process only
 - serves the prebuilt SPA (`src/mythos_api/static`, committed) and the game art (`/resources`),
 - mounts `/api/v2` (`mythos_v2.create_v2_router`: profile/run saves, GM narrate/improvise/talk, the
   daily-seed leaderboard, Google sign-in via Firebase ID tokens),
+- serves the operator dashboard page at ``/admin`` (its data comes from ``/api/v2/admin/overview``, which only
+  allow-listed Google accounts may read),
 - answers CORS for the Android app (Capacitor WebView, origin https://localhost).
 
-The 1.x runtime that used to live here (`/api/v1`, WebSocket loops, admin dashboard) is archived on
-branch `1.0`.
+The 1.x runtime that used to live here (`/api/v1`, WebSocket loops, the invite-key tester dashboard) is
+archived on branch `1.0`; the 2.0 dashboard is new.
 """
 
 from __future__ import annotations
@@ -18,11 +20,13 @@ from typing import Any
 
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
 from mythos_v2.api import create_v2_router
 
 STATIC_DIR = Path(__file__).parent / "static"
+ADMIN_PAGE = Path(__file__).parent / "admin_dashboard.html"
 RESOURCES_DIR = Path(__file__).resolve().parent.parent.parent / "resources"
 
 
@@ -66,6 +70,19 @@ def create_app() -> FastAPI:
         return {"status": "ok"}
 
     app.include_router(create_v2_router())
+
+    # The page is public static HTML; it signs in with Google itself and every data call is checked
+    # server-side against MYTHOS_ADMIN_EMAILS, so the page alone reveals nothing.
+    @app.get("/admin", include_in_schema=False)
+    def admin_page() -> HTMLResponse:
+        return HTMLResponse(
+            ADMIN_PAGE.read_text(encoding="utf-8"),
+            headers={
+                "Cache-Control": "no-store",
+                "X-Robots-Tag": "noindex, nofollow",
+                "Referrer-Policy": "no-referrer",
+            },
+        )
 
     if RESOURCES_DIR.is_dir():
         app.mount("/resources", StaticFiles(directory=RESOURCES_DIR), name="resources")

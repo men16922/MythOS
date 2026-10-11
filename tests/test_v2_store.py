@@ -8,7 +8,7 @@ import os
 import re
 import unittest
 import uuid
-from datetime import date
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from unittest import mock
 
@@ -172,6 +172,54 @@ class MemoryStoreTest(_StoreContract, unittest.TestCase):
         again = self.store.get_save(self.player, "run")
         assert again is not None
         self.assertEqual(again.data, {"deck": [1, 2]})
+
+    def test_admin_reads(self) -> None:
+        self.store.put_save(
+            self.player,
+            "profile",
+            {
+                "playerName": "Nova",
+                "loops": 3,
+                "wins": 1,
+                "unlocks": ["a", "b"],
+                "endingsSeen": ["e"],
+            },
+        )
+        self.store.put_save(
+            self.player,
+            "run",
+            {"archetype": "ghost", "act": 2, "hp": 20, "maxHp": 50, "tally": {"floors": 6}},
+        )
+        self.store.append_history(
+            self.player,
+            "r1",
+            {"result": "defeat", "archetype": "ghost", "act": 2, "floors": 6, "killedBy": "drone"},
+        )
+        self.store.submit_daily(DAY, self.player, "Nova", _result(self.archetype))
+        mine = [p for p in self.store.admin_players() if p.player_id == self.player]
+        self.assertEqual(len(mine), 1)
+        self.assertEqual(
+            (mine[0].profile["name"], mine[0].profile["runs"], mine[0].profile["unlocks"]),
+            ("Nova", 3, 2),
+        )
+        self.assertEqual(mine[0].profile["endings"], 1)
+        assert mine[0].run is not None
+        self.assertEqual((mine[0].run["archetype"], mine[0].run["floors"]), ("ghost", 6))
+        self.assertIsNotNone(mine[0].last_active)
+        past = datetime.now(UTC) - timedelta(days=1)
+        runs = [r for r in self.store.admin_runs(past) if r.player_id == self.player]
+        self.assertEqual([(r.result, r.killed_by, r.act) for r in runs], [("defeat", "drone", 2)])
+        self.assertEqual(self.store.admin_runs(datetime.now(UTC) + timedelta(days=1)), [])
+        rows = [row for row in self.store.admin_daily(DAY) if row[1].player_id == self.player]
+        self.assertEqual([(day, e.name) for day, e in rows], [(DAY, "Nova")])
+        self.assertEqual(
+            [
+                r
+                for r in self.store.admin_daily(date(2026, 10, 12))
+                if r[1].player_id == self.player
+            ],
+            [],
+        )
 
     def test_history_cap(self) -> None:
         for i in range(MEMORY_HISTORY_CAP + 5):

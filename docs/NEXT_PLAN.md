@@ -12,8 +12,10 @@ Design/contract: `docs/plans/2026-10-10-mythos-2.0.md` · rules: `docs/GAMEPLAY.
 
 - `[ ]` `[manual]` **Owner first play + D–S grade** — the five judgements in the guide. Every 1.x item below is paused behind this.
 - `[ ]` `[manual]` **Ship decision** — merge `mythos-2.0` → `main`, then either a no-traffic tagged Cloud Run revision for the owner/admins or a full rollout (changes what CBT testers see). Push stays owner.
-- `[ ]` **Post-verdict tuning** — numbers live in `v2/content/enemies.ts`/`encounters.ts`/`archetypes.ts`; measure with the runSim harness (`simulateRun(..., { onFight })`, policies greedy/mixed/basic) before and after. Baseline P0: 97 / 40 / 0 %.
-- `[ ]` **Candidates once the verdict lands** (not seeds yet): phone-width combat layout, Act 2 normal-fight tension (a careful player takes ~0 damage there), more Act 3 burst cards, daily-seed mode, Cloud Run smoke of `/api/v2` + GM on Vertex.
+- `[x]` **Post-verdict tuning (round 1, 2026-10-11)** — owner verdict "feel is good"; feedback round + residuals done (M92–M93). Baseline P0: greedy 100 % · mixed ≈ 35 % (28–41 % by seed block) · basic 0 %; P5 78 / 3. Compare A/B on the same seed blocks (noise is ±6 %).
+- `[x]` **Post-verdict candidates** — phone-width combat, Act 2 tension (fire ground), Act 3 burst cards, daily-seed mode, local Vertex GM smoke: done 2026-10-11 (M93).
+- `[ ]` `[manual]` **SFX listen-test** — the new impact layers were tuned by offline measurement only (tests are always muted).
+- `[ ]` `[manual]` **Cloud Run smoke of `/api/v2` + Vertex GM** — after the ship decision (needs a deploy).
 
 ## Hold — MythOS Dev Graph post-baseline owner gates
 

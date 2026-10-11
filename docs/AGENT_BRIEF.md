@@ -4,7 +4,7 @@ Last updated: 2026-10-11
 
 This file is compressed startup context. Open linked docs only when needed.
 
-> ▶ NEXT SESSION: **Mythos 2.0 is built on branch `mythos-2.0` (undeployed; prod is still 1.x `mythos-api-00090-ww4`).** Wait for the owner's first-play verdict (`docs/test/mythos2_first_play.md`, D–S grade) before tuning; then the ship decision (merge → no-traffic tagged Cloud Run revision or full rollout — owner call, it changes what CBT testers see). Tune with the sim harness, not by feel: `simulateRun(seed, archetype, CONTENT, policy, { onFight })` (P0 baseline greedy 93 % · mixed 38 % · basic 0 %; P5 83 / 6 — after the 2026-10-11 ground-effects round). **Test with sound off** (`?mute=1` / localStorage `mythos2.mute=1`; owner directive) and **one browser tab only** (owner complaint). 1.x tracks (§3 verdict, serving research, Dev Graph holds) are paused behind the 2.0 verdict. `git push` stays owner.
+> ▶ NEXT SESSION: **Mythos 2.0 is built on branch `mythos-2.0` (undeployed; prod is still 1.x `mythos-api-00090-ww4`).** Wait for the owner's first-play verdict (`docs/test/mythos2_first_play.md`, D–S grade) before tuning; then the ship decision (merge → no-traffic tagged Cloud Run revision or full rollout — owner call, it changes what CBT testers see). Tune with the sim harness, not by feel: `simulateRun(seed, archetype, CONTENT, policy, { onFight })` (P0 baseline greedy 100 % · mixed ≈ 35 % (28–41 % by seed block — compare A/B on the same blocks) · basic 0 %; P5 78 / 3). **Test with sound off** (`?mute=1` / localStorage `mythos2.mute=1`; owner directive) and **one browser tab only** (owner complaint). 1.x tracks (§3 verdict, serving research, Dev Graph holds) are paused behind the 2.0 verdict. `git push` stays owner.
 
 ## Snapshot
 
@@ -22,7 +22,7 @@ Project MythOS (`세계:접속`) — single-player SF roguelite. Since 2026-10-1
 `docs/NEXT_PLAN.md` is authoritative.
 1. Owner first play + grade → post-verdict tuning (numbers live in content files; measure before/after).
 2. Ship decision (merge, deploy shape, push) — owner.
-3. Candidates after the verdict: phone-width combat, Act 2 normal-fight tension (skilled play takes ~0 damage), Act 3 burst cards, daily seed, Cloud Run smoke of `/api/v2` + Vertex GM.
+3. Done 2026-10-11: phone-width combat, Act 2 tension (fire), Act 3 burst cards, daily seed, local Vertex GM smoke. Remaining owner calls: SFX listen-test, deploy (then Cloud Run smoke of `/api/v2`), push.
 
 ## Read Order
 

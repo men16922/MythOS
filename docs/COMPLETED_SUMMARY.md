@@ -393,6 +393,13 @@
 - **Folded entries** (detail: PROGRESS_LOG archives + M86–M89): MLX adapter row measured + judge pinned/resolution declared (M89) · directive KO/EN lock + `noUncheckedIndexedAccess` (`1daa83e`/`0b0f153`) · quality-ladder batch 2 (M87) · deploy `00090` (boss stack resistance, strict-mypy batch) · boss stack resistance `BOSS_STACK_CAP = 2` (M88) · 09-05/09-06 deploys `00085`→`00089` (M86/M88) · per-turn token usage logging · §3 sample admitted and scored — judge variance ≈ 1 point, so the owner feel verdict is the only usable basis.
 - **Still open on the 1.x line** (now paused behind the 2.0 verdict): §3 ending/overall feel verdict, stack/boss-cap feel verdict, P4-3 judge rule, upstream repetition.
 
+## M93 — 2.0 residuals closed: boss narration, sharper IX, daily seed, phone combat, Act 3 burst (2026-10-11)
+
+- **Purpose**: owner "잔여 작업 전부 수행해" — every open item from M92 plus the no-owner-call candidates from NEXT_PLAN.
+- **Output**: `BossNarration` (GM card on boss entrance/phases); IX prompt rewrite + event-opening brief; `ttl`/`cover` engine events; talk-pool sync test; 3 Act 3 burst cards (art); daily-seed mode (`engine/daily.ts`, title/setup/archive, history tags); phone-width combat layout + touch inspector; side-column placement for IX/boss overlays.
+- **Evidence**: v2 + Python gates green (see commit); card overflow 0/101; Vertex + local gemma4 samples; sim P0 greedy 100 % / mixed ≈ 35 % / basic 0 % (P5 78 / 3).
+- **Open (owner only)**: listen-test of SFX, ship/deploy decision (incl. Cloud Run smoke of `/api/v2`), `git push`.
+
 ## M92 — 2.0 feedback round: battlefield effects, sound, companion identity, AI presence, visible save (2026-10-11)
 
 - **Purpose**: owner's first-session feedback on 2.0 ("feel is good"): AoE/wall impact, weak sound, invisible DoT/passives, character cards, natural Korean, visible save, the LLM conversation back.

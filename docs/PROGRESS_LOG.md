@@ -2,6 +2,15 @@
 
 Last updated: 2026-10-11
 
+## 2026-10-11 — 2.0 residuals: boss narration, sharper IX, daily seed, phone combat, Act 3 burst cards
+
+- Owner: "잔여 작업 전부 수행해". Closed every open item from the feedback round plus the post-verdict candidates that need no owner call.
+- **AI**: boss entrance/phase narration (`BossNarration.tsx`, GM card over combat; authored first, one LLM swap); IX prompt sharpened (concrete subject + ruling, ≤ 60 자, no place boilerplate) — local gemma4 and Vertex `gemini-3.5-flash` samples now name the unit/companion and end on a verdict; separate event-opening brief (`gm.is_event_opening`); client/server authored-pool sync test (caught one drifted apostrophe); IX comms + boss card moved to the side columns on wide screens (no longer over the back row).
+- **Engine**: `ttl` / `cover` events (live-wire countdown, chipped cover) replace animator guesswork; 3 burst cards vs Act 3 armor (`armor_breaker`, `execution_protocol`, `overcharge_lance`; art) — Act 3 elite fights 9.0 → 7.7 turns (greedy), careless-bot rate unchanged within seed noise.
+- **Daily seed** (`engine/daily.ts`): KST date × archetype seed, base pools/no threads/paradox 0, per-day best + attempts, title/setup/archive UI, history rows tagged; determinism tested across a fresh and a veteran profile.
+- **Phone combat**: see the agent report folded into M93 (portrait/landscape, touch inspector).
+- Verified: card text overflow 0/101 (base + upgraded); Vertex smoke of talk/narrate (0.9–2.2 s); sim P0 greedy 100 % · mixed ≈ 35 % (28–41 % by seed block, 360 runs) · basic 0 %; P5 78 / 3.
+
 ## 2026-10-11 — 2.0 feedback round: battlefield effects, punchier sound, companion identity, AI back in front, visible auto-save
 
 - Owner played 2.0 ("feel is good") and asked for: AoE impact on the area itself, wall-bump impact, stronger sound, visible DoT/passives, stronger character cards, turn-to-target before casting, more natural/expressive Korean, a visible save/continue, and the LLM conversation back. All addressed (three parallel agents: combat FX + SFX, Korean writing pass, AI presence; lead: engine/content/save).

@@ -12,6 +12,7 @@ const wanted = {
   events: ['events.ts', 'EVENTS'],
   companions: ['companions.ts', 'COMPANIONS'],
   endings: ['endings.ts', 'ENDINGS'],
+  cutscenes: ['cutscenes.ts', 'CUTSCENES'],
 }
 const out = {}
 const errors = {}

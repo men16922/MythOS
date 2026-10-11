@@ -11,6 +11,7 @@ import { CONTENT } from '../../content/index.ts'
 import { dateKeyAt } from '../../engine/daily.ts'
 import { getAuth } from '../../net/auth.ts'
 import { flushDailyQueue } from '../../net/daily.ts'
+import { markCutsceneSeen } from '../../engine/meta.ts'
 import type { CombatState, ContentRegistry, Lang, MetaProfile, RunState } from '../../engine/types.ts'
 import { configureAudio, playBgm, unlockAudio, type Bgm } from '../common/audio.ts'
 import { tr } from '../common/lang.ts'
@@ -329,7 +330,15 @@ export function GameShell() {
   } else if (view === 'daily') {
     screen = <SetupScreen profile={profile} C={C} daily={today} onStart={startRun} onBack={() => setView('title')} />
   } else if (run) {
-    const props: ScreenProps = { run, C, lang, settings: profile.settings, act }
+    const props: ScreenProps = {
+      run,
+      C,
+      lang,
+      settings: profile.settings,
+      act,
+      seenCutscenes: profile.cutscenes ?? [],
+      onCutsceneSeen: (id) => setProfile((p) => markCutsceneSeen(p, id)),
+    }
     const s = run.screen
     screenKey = `run:${s.kind}:${run.act}:${s.kind === 'event' ? s.eventId : (run.nodeId ?? '')}`
     switch (s.kind) {

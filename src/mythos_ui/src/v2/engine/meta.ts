@@ -72,7 +72,14 @@ export function newProfile(name: string, settings: Partial<MetaProfile['settings
     history: [],
     settings: { lang: 'ko', sfx: true, bgm: true, fastAnim: false, ...settings },
     daily: {},
+    cutscenes: [],
   }
+}
+
+/** Record a seen bond cutscene (idempotent; returns the same profile when it was already there). */
+export function markCutsceneSeen(profile: MetaProfile, id: string): MetaProfile {
+  const seen = profile.cutscenes ?? []
+  return seen.includes(id) ? profile : { ...profile, cutscenes: [...seen, id] }
 }
 
 type Loose = Record<string, unknown>
@@ -166,6 +173,7 @@ export function migrateProfile(raw: unknown): MetaProfile {
       fastAnim: bool(settings.fastAnim, base.settings.fastAnim),
     },
     daily: migrateDaily(r.daily),
+    cutscenes: strList(r.cutscenes),
   }
   const death = r.lastDeath
   if (isObj(death) && typeof death.killedBy === 'string') {

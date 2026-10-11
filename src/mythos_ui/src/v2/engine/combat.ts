@@ -10,6 +10,7 @@
 //   c. enemies without a pending windup move and telegraph (and next reinforcements are announced)
 //   d. win/lose → next player turn (party block clears, guard, energy, draw, turn_start triggers)
 
+import { mutatorMods } from './mutators.ts'
 import type {
   CardDef,
   CardFace,
@@ -136,9 +137,10 @@ function requirePlayer(c: CombatState): void {
 function scalingFor(run: RunState): CombatScaling {
   const hunted = run.trace >= 66
   const alert = run.trace >= 33
+  const mut = mutatorMods(run)
   return {
-    hpPct: hunted ? 25 : alert ? 15 : 0,
-    elitePct: run.paradox >= 1 ? 20 : 0,
+    hpPct: (hunted ? 25 : alert ? 15 : 0) + (mut.enemyHpPct ?? 0),
+    elitePct: (run.paradox >= 1 ? 20 : 0) + (mut.eliteHpPct ?? 0),
     dmg: (hunted ? 1 : 0) + (run.paradox >= 4 ? 1 : 0),
   }
 }

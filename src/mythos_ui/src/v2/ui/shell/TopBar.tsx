@@ -1,6 +1,6 @@
 // Mythos 2.0 — persistent run HUD: HP, credits, Trace, act/floor, party, implants, consumables, deck, settings.
 import { art } from '../components/art.ts'
-import { BookOpen, CloudCheck, Coins, Heart, Layers, Menu, Settings } from 'lucide-react'
+import { BookOpen, CloudCheck, Coins, Heart, Layers, Menu, Settings, Shuffle } from 'lucide-react'
 import { useEffect } from 'react'
 import type { ContentRegistry, Lang, RunState } from '../../engine/types.ts'
 import { portrait } from '../common/assets.ts'
@@ -9,8 +9,10 @@ import { CountUp } from '../components/CountUp.tsx'
 import { companionSprite, savedAgo } from '../components/format.ts'
 import { HpBar } from '../components/HpBar.tsx'
 import { ImplantIcon } from '../components/ImplantIcon.tsx'
+import { mutatorById } from '../../engine/mutators.ts'
 import { Tooltip } from '../components/Tooltip.tsx'
 import { TraceMeter } from '../components/TraceMeter.tsx'
+import '../components/mutator.css'
 import './topbar.css'
 
 /** Implants already shown once (module-level so it survives the bar unmounting during combat). */
@@ -67,6 +69,18 @@ export function TopBar({ run, C, lang, onDeck, onSettings, onMenu, savedAt, onDi
       </Tooltip>
 
       <TraceMeter trace={run.trace} lang={lang} />
+
+      {run.mutator && mutatorById(run.mutator) && (
+        <Tooltip
+          content={`${tr(mutatorById(run.mutator)!.blurb, lang)} ▲ ${tr(mutatorById(run.mutator)!.boon, lang)} · ▼ ${tr(mutatorById(run.mutator)!.burden, lang)}`}
+          placement="bottom"
+        >
+          <div className="m2-topbar__mutator" data-testid="mutator-chip">
+            <Shuffle size={13} aria-hidden="true" />
+            <span>{tr(mutatorById(run.mutator)!.name, lang)}</span>
+          </div>
+        </Tooltip>
+      )}
 
       {/* Codex entries gate the Code Rewrite ending — keep the count visible all run. */}
       {CODEX_GOAL > 0 && (

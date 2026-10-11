@@ -32,6 +32,7 @@ import {
   threadPassive,
   unlockedCompanions,
 } from './meta.ts'
+import { mutatorForDate, mutatorMods } from './mutators.ts'
 import { hashSeed, pick, pickWeighted, rand, randInt, sample, shuffle } from './rng.ts'
 import type {
   CardDef,
@@ -439,8 +440,11 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
   // Archive threads: concrete perks now, run-level multipliers frozen as flags.
   const thread = threadPassive(unlockSource, C)
   applyConcretePassive(run, thread)
+  if (daily) run.mutator = mutatorForDate(daily).id
+  const mut = mutatorMods(run)
+  run.maxHp = Math.max(20, run.maxHp + (mut.maxHp ?? 0))
   run.hp = run.maxHp
-  run.credits += thread.startCredits ?? 0
+  run.credits += (thread.startCredits ?? 0) + (mut.startCredits ?? 0)
   if (thread.startConsumable) gainConsumable(run, thread.startConsumable, C)
   for (const k of PASSIVE_NUMBERS) {
     const v = thread[k]
@@ -454,6 +458,14 @@ export function newRun(profile: MetaProfile, opts: NewRunOptions, C: ContentRegi
   if (paradox >= 2) {
     const junk = findStaticCard(C)
     if (junk) addCard(run, junk, C)
+  }
+  for (let i = 0; i < (mut.startStatic ?? 0); i++) {
+    const junk = findStaticCard(C)
+    if (junk) addCard(run, junk, C)
+  }
+  for (let i = 0; i < (mut.startConsumable ?? 0); i++) {
+    const id = rollConsumable(run, C)
+    if (id) gainConsumable(run, id, C)
   }
 
   run.map = generateActMap(1, run, C, { paradox })
@@ -544,7 +556,7 @@ export function enterNode(run: RunState, nodeId: string, C: ContentRegistry): Ru
   next.nodeId = nodeId
   next.visited.push(nodeId)
   next.tally.floors += 1
-  gainTrace(next, next.paradox >= 3 ? NODE_TRACE_PARADOX : NODE_TRACE, C)
+  gainTrace(next, mutatorMods(next).traceStep ?? (next.paradox >= 3 ? NODE_TRACE_PARADOX : NODE_TRACE), C)
 
   switch (node.kind) {
     case 'combat':
@@ -608,7 +620,8 @@ function bonusAchieved(c: CombatState): boolean {
 function buildReward(run: RunState, combat: CombatState, nodeKind: NodeKind, C: ContentRegistry): RewardState {
   const tier = nodeKind === 'boss' ? 'boss' : nodeKind === 'elite' ? 'elite' : 'normal'
   const base = tier === 'boss' ? 60 : tier === 'elite' ? randInt(run, 30, 40) : randInt(run, 12, 20)
-  let credits = Math.round(base * Math.max(0, 1 + runPassive(run, C, 'creditMult'))) + Math.max(0, combat.credits)
+  const creditScale = Math.max(0, 1 + runPassive(run, C, 'creditMult')) * (1 + (mutatorMods(run).rewardCreditsPct ?? 0) / 100)
+  let credits = Math.round(base * creditScale) + Math.max(0, combat.credits)
   const choiceCount = 3 + Math.max(0, Math.round(runPassive(run, C, 'rewardChoices')))
   const cardChoices: string[][] = []
   const first = rollCards(run, C, choiceCount, CARD_WEIGHTS[tier])
@@ -1040,12 +1053,14 @@ export function continueEvent(run: RunState, C: ContentRegistry): RunState {
 
 // ---------------------------------------------------------------- shop
 
-function price(base: number, discount: number): number {
+function priceBase(base: number, discount: number): number {
   return Math.max(1, Math.round(base * (1 - clamp(0, 0.9, discount))))
 }
 
 export function generateShop(run: RunState, C: ContentRegistry): ShopStock {
   const discount = runPassive(run, C, 'shopDiscount')
+  const mult = 1 + (mutatorMods(run).shopPct ?? 0) / 100
+  const price = (base: number, off: number): number => priceBase(base * mult, off)
   const jitter = (base: number): number => price(base * (1 + (randInt(run, -10, 10) / 100)), discount)
   const cards: ShopStock['cards'] = []
   const plan: PoolRarity[] = ['common', 'common', 'uncommon', 'uncommon', 'rare']
@@ -1154,7 +1169,7 @@ export const leaveShop: SimpleReducer = (run) =>
 
 /** Heal % at the safehouse: 30 (paradox 5: 20) + restHeal passives. */
 export function restHealPercent(run: RunState, C: ContentRegistry): number {
-  return (run.paradox >= 5 ? PARADOX_REST_HEAL : BASE_REST_HEAL) + asPercent(runPassive(run, C, 'restHeal'))
+  return (run.paradox >= 5 ? PARADOX_REST_HEAL : BASE_REST_HEAL) + asPercent(runPassive(run, C, 'restHeal')) + (mutatorMods(run).restHeal ?? 0)
 }
 
 export function restHeal(run: RunState, C: ContentRegistry): RunState {

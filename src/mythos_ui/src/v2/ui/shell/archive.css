@@ -528,3 +528,56 @@
   color: #061015;
   background: var(--m2-gold);
 }
+
+/* Memories tab: replayable companion cutscenes. */
+.m2-memories__lead {
+  margin: 0 0 12px;
+  font-size: 13px;
+  opacity: 0.8;
+}
+.m2-memgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+.m2-memcard {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0;
+  text-align: left;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+}
+.m2-memcard:hover:not(:disabled),
+.m2-memcard:focus-visible:not(:disabled) {
+  border-color: var(--m2-accent, #5cf2d8);
+}
+.m2-memcard:disabled {
+  cursor: default;
+}
+.m2-memcard img,
+.m2-memcard__blank {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: #0a1218;
+}
+.m2-memcard.is-hidden img,
+.m2-memcard.is-hidden .m2-memcard__blank {
+  opacity: 0.4;
+}
+.m2-memcard__who {
+  padding: 0 8px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  opacity: 0.75;
+}
+.m2-memcard__title {
+  padding: 0 8px 8px;
+  font-size: 13px;
+  font-weight: 600;
+}

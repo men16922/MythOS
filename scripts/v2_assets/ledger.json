@@ -1,6 +1,6 @@
 {
- "image_calls": 254,
- "image_failed": 354,
+ "image_calls": 266,
+ "image_failed": 362,
  "lyria_calls": 21,
  "lyria_failed": 0,
  "outputs": {
@@ -1041,6 +1041,126 @@
    "refs": [],
    "seed": 205124381,
    "ts": "2026-10-11T00:18:15"
+  },
+  "cutscenes/han_dead_channel.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Quiet emotional cutscene illustration, wide cinematic shot. A cramped dark room lit only by a laptop screen showing a single flat line of static; Han sits cross-legged, headphones around his neck, one hand on the keyboard, an unguarded quiet look toward the viewer. The character is Han, a lean young Korean man hacker with messy black hair and a dark high-collared jacket. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/han.png"
+   ],
+   "seed": 998678839,
+   "ts": "2026-10-12T00:11:29"
+  },
+  "cutscenes/han_name_field.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Quiet emotional cutscene illustration, wide cinematic shot. An abandoned old terminal in a dusty corridor glowing green, showing a single blinking name field; Han types with a grin, finger hovering over the Save key, a faint teasing smile, warm monitor light on his face. The character is Han, a lean young Korean man hacker with messy black hair and a dark high-collared jacket. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/han.png"
+   ],
+   "seed": 161503175,
+   "ts": "2026-10-12T00:11:34"
+  },
+  "cutscenes/kai_counting_stars.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Quiet emotional cutscene illustration, wide cinematic shot. An abandoned subway platform at night; a dark ad panel shows seventeen tiny bright dead pixels like stars; Kai, a silver-white android with glowing blue eyes, points at one of them, curious and gentle. The character is Kai, a slender android with white ceramic plating, a white faceplate and glowing blue eyes. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/kai.png"
+   ],
+   "seed": 989709097,
+   "ts": "2026-10-12T00:15:31"
+  },
+  "cutscenes/kai_rain_sound.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Quiet emotional cutscene illustration, wide cinematic shot. A corner of a dim safehouse; Kai, a silver-white android with glowing blue eyes now tinged warm yellow, holds one palm turned upward as if feeling rain, a small old speaker beside him, soft rain-streaked window light. The character is Kai, a slender android with white ceramic plating, a white faceplate and glowing blue eyes. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/kai.png"
+   ],
+   "seed": 451583201,
+   "ts": "2026-10-12T00:16:29"
+  },
+  "cutscenes/lin_yue_incense.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Quiet emotional cutscene illustration, wide cinematic shot. A dim barge cabin; Lin-yue lights a stick of incense beside an empty cup, smoke curling upward in lantern light, and slides a second stick toward the viewer with a slippery half-smile and eyes that linger on the smoke. The character is Lin-yue, an elegant woman broker with black hair pinned with a gold hairpin and a black-and-gold high-collared dress. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/lin-yue.png"
+   ],
+   "seed": 916669468,
+   "ts": "2026-10-12T00:14:29"
+  },
+  "cutscenes/lin_yue_margin.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Quiet emotional cutscene illustration, wide cinematic shot. A closed night market at night, lanterns dimmed; Lin-yue, an elegant broker in a dark silk jacket with rings, strikes a line on a floating holographic ledger and looks aside with feigned indifference; a faint timestamp glows beside the struck line. The character is Lin-yue, an elegant woman broker with black hair pinned with a gold hairpin and a black-and-gold high-collared dress. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/lin-yue.png"
+   ],
+   "seed": 1609758815,
+   "ts": "2026-10-12T00:13:22"
+  },
+  "cutscenes/se_rin_first_light.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Quiet emotional cutscene illustration, wide cinematic shot. Under a flickering pink neon sign on a rain-wet backstreet at night, Se-rin hands a small paper cup of coffee toward the viewer with a guarded half-glance; steam rising; distant blurred chase lights a block behind her. The character is Se-rin, a young Korean woman courier with long straight black hair and a black leather jacket. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/se-rin.png"
+   ],
+   "seed": 673469249,
+   "ts": "2026-10-12T00:11:12"
+  },
+  "cutscenes/se_rin_promise.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Quiet emotional cutscene illustration, wide cinematic shot. The top of a concrete emergency stairwell at night, a distant glowing skyscraper behind; Se-rin has taken off her helmet and holds out her little finger toward the viewer, serious and a little shy, cold rim light on her profile. The character is Se-rin, a young Korean woman courier with long straight black hair and a black leather jacket. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/se-rin.png"
+   ],
+   "seed": 823506330,
+   "ts": "2026-10-12T00:11:24"
+  },
+  "cutscenes/su_ah_hammer_rhythm.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Quiet emotional cutscene illustration, wide cinematic shot. A workbench with a low orange ember in a violet-lit workshop; Su-ah rests her hand over the viewer's hand holding a small hammer above a glowing piece of metal, teaching a rhythm, gentle encouraging smile. The character is Su-ah, a young Korean woman engineer with tied-up black hair, thin glasses and a dark jacket with violet light. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/su-ah.png"
+   ],
+   "seed": 258100515,
+   "ts": "2026-10-12T00:12:30"
+  },
+  "cutscenes/su_ah_warm_crystal.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Quiet emotional cutscene illustration, wide cinematic shot. Su-ah, a young engineer with tied-up black hair and thin glasses, gently places a tiny softly glowing memory crystal into the viewer's open palm in a violet-lit workshop; the crystal melts into warm light. The character is Su-ah, a young Korean woman engineer with tied-up black hair, thin glasses and a dark jacket with violet light. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/su-ah.png"
+   ],
+   "seed": 1138033277,
+   "ts": "2026-10-12T00:11:37"
+  },
+  "cutscenes/tae_o_dawn_watch.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Quiet emotional cutscene illustration, wide cinematic shot. A dim safehouse at dawn; Tae-o sits with his back against the door, alert, a cold cup of tea nudged toward the viewer; a thin line of dawn light through the shutter, sleeping shapes under blankets behind him. The character is Tae-o, a rugged middle-aged Korean man with a scarred face, short black hair and a heavy black tactical coat. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/tae-o.png"
+   ],
+   "seed": 1369425355,
+   "ts": "2026-10-12T00:11:17"
+  },
+  "cutscenes/tae_o_unlatched.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Quiet emotional cutscene illustration, wide cinematic shot. A dim stairwell landing with no cameras; Tae-o has torn the insignia patch off his enforcer uniform and holds it out in his scarred open palm toward the viewer, his holster unlatched at his hip, quiet and heavy. The character is Tae-o, a rugged middle-aged Korean man with a scarred face, short black hair and a heavy black tactical coat. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/tae-o.png"
+   ],
+   "seed": 178355369,
+   "ts": "2026-10-12T00:11:18"
   },
   "ending/ending_code_rewrite.webp": {
    "generations": 1,

@@ -1,10 +1,13 @@
 // Mythos 2.0 — the Archive (meta hub): Echo balance, unlock tree, codex, endings, run history
 // (with the last 7 days of the daily seed), IX.
+import { CUTSCENES, type CutsceneDef } from '../../content/cutscenes.ts'
+import { Cutscene } from '../components/Cutscene.tsx'
 import { art } from '../components/art.ts'
-import { BookOpen, CalendarDays, Check, ChevronLeft, History, Lock, Play, Sparkles, Trophy } from 'lucide-react'
+import { BookOpen, CalendarDays, Check, ChevronLeft, History, Heart, Lock, Play, Sparkles, Trophy } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { attemptsLabel, dailyLabel, dateLabel, recentDateKeys } from '../../engine/daily.ts'
 import type { ContentRegistry, Lang, MetaProfile, MetaUnlockDef, MetaUnlockKind, Text } from '../../engine/types.ts'
+import { ART } from '../common/artManifest.ts'
 import { asset, portrait } from '../common/assets.ts'
 import { L, tr } from '../common/lang.ts'
 import { CountUp } from '../components/CountUp.tsx'
@@ -27,7 +30,7 @@ const KINDS: { kind: MetaUnlockKind; label: Text; hint: Text }[] = [
   { kind: 'thread', label: L('기억의 실', 'Memory threads'), hint: L('모든 루프에 영구히 따라붙는 작은 이점.', 'Small permanent edges for every loop.') },
 ]
 
-type SideTab = 'codex' | 'endings' | 'history'
+type SideTab = 'codex' | 'endings' | 'memories' | 'history'
 
 /** Who killed the connector, as IX would name it: an enemy, not a map label. `killedBy` may be an
  *  encounter id ("Behind Cover") — then name its toughest enemy instead. */
@@ -115,6 +118,7 @@ export function ArchiveScreen({ profile, C, onProfile, onBegin, onBack, activeLo
   const ko = lang === 'ko'
   const [kind, setKind] = useState<MetaUnlockKind>('companion')
   const [side, setSide] = useState<SideTab>('codex')
+  const [replay, setReplay] = useState<CutsceneDef | null>(null)
   const [charging, setCharging] = useState<string | null>(null)
   const [burst, setBurst] = useState<string | null>(null)
   const authoredIx = useMemo(() => ixLine(profile, C, lang), [profile, C, lang])
@@ -174,6 +178,7 @@ export function ArchiveScreen({ profile, C, onProfile, onBegin, onBack, activeLo
 
   return (
     <div className="m2-archive">
+      {replay && <Cutscene scene={replay} lang={lang} fast={profile.settings.fastAnim} onDone={() => setReplay(null)} />}
       <div className="m2-archive__bg" style={{ backgroundImage: `url(${art.archive()})` }} />
       <header className="m2-archive__head">
         <button className="m2-iconbtn" onClick={onBack} title={ko ? '타이틀로' : 'Back to title'}>
@@ -317,6 +322,12 @@ export function ArchiveScreen({ profile, C, onProfile, onBegin, onBack, activeLo
                 {profile.endingsSeen.length}/{endings.length}
               </small>
             </button>
+            <button className={side === 'memories' ? 'is-on' : ''} onClick={() => setSide('memories')}>
+              <Heart size={14} /> {ko ? '기억' : 'Memories'}
+              <small className="m2-mono">
+                {(profile.cutscenes ?? []).length}/{CUTSCENES.length}
+              </small>
+            </button>
             <button className={side === 'history' ? 'is-on' : ''} onClick={() => setSide('history')}>
               <History size={14} /> {ko ? '이력' : 'History'}
             </button>
@@ -356,6 +367,33 @@ export function ArchiveScreen({ profile, C, onProfile, onBegin, onBack, activeLo
                   )
                 })}
               </div>
+            )}
+            {side === 'memories' && (
+              <>
+                <p className="m2-memories__lead">
+                  {ko ? '동료와 유대가 깊어진 날의 조용한 장면들. 안가에서 유대 2, 3이 되면 열린다.' : 'Quiet scenes from the days a companion let you closer. They unlock at Safehouse bond 2 and 3.'}
+                </p>
+                <div className="m2-memgrid">
+                  {CUTSCENES.map((c) => {
+                    const seen = (profile.cutscenes ?? []).includes(c.id)
+                    const who = C.companions[c.companion]
+                    return (
+                      <button
+                        key={c.id}
+                        className={`m2-memcard${seen ? '' : ' is-hidden'}`}
+                        disabled={!seen}
+                        onClick={() => seen && setReplay(c)}
+                        title={seen ? tr(c.title, lang) : ko ? '아직 열리지 않은 기억' : 'Not unlocked yet'}
+                        data-testid="memory-card"
+                      >
+                        {seen ? <img src={asset(ART.cutscenes[c.id] ?? '')} alt="" loading="lazy" /> : <span className="m2-memcard__blank" aria-hidden="true" />}
+                        <span className="m2-memcard__who">{who ? tr(who.name, lang) : ''} · {ko ? `유대 ${c.tier}` : `Bond ${c.tier}`}</span>
+                        <span className="m2-memcard__title">{seen ? tr(c.title, lang) : '???'}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+              </>
             )}
             {side === 'history' && today && <DailyWeek profile={profile} today={today} C={C} lang={lang} />}
             {side === 'history' &&

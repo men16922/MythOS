@@ -8,4 +8,7 @@ export interface ScreenProps {
   settings: MetaProfile['settings']
   /** Commit the next run state (screens never mutate). */
   act: (next: RunState) => void
+  /** Bond cutscene ids already seen (profile), and the callback that records one as seen. */
+  seenCutscenes?: readonly string[]
+  onCutsceneSeen?: (id: string) => void
 }

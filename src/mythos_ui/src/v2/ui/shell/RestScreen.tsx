@@ -5,6 +5,8 @@ import { asset, portrait } from '../common/assets.ts'
 import { tr } from '../common/lang.ts'
 import { companionSprite } from '../components/format.ts'
 import { sound } from '../components/sound.ts'
+import { cutsceneAtBond } from '../../content/cutscenes.ts'
+import { Cutscene } from '../components/Cutscene.tsx'
 import { CompanionChat } from './CompanionChat.tsx'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
@@ -12,8 +14,9 @@ import './rest.css'
 
 type Choice = { kind: 'heal' | 'upgrade' | 'scrub' } | { kind: 'bond'; id: string }
 
-export function RestScreen({ run, C, lang, settings, act }: ScreenProps) {
+export function RestScreen({ run, C, lang, settings, act, seenCutscenes, onCutsceneSeen }: ScreenProps) {
   const [chosen, setChosen] = useState<Choice | null>(null)
+  const [closedScene, setClosedScene] = useState('')
   const [bondPick, setBondPick] = useState(false)
   if (run.screen.kind !== 'rest') return null
   const done = run.screen.done
@@ -43,10 +46,24 @@ export function RestScreen({ run, C, lang, settings, act }: ScreenProps) {
 
   const bonded = chosen?.kind === 'bond' ? run.party.find((m) => m.id === chosen.id) : undefined
   const bondDef = bonded ? C.companions[bonded.id] : undefined
+  // The first time a tier-2 / tier-3 bond is reached, that companion's quiet scene plays before the chat.
+  const scene = bonded ? cutsceneAtBond(bonded.id, bonded.bond) : undefined
+  const playScene = scene && done && !(seenCutscenes ?? []).includes(scene.id) && closedScene !== scene.id ? scene : undefined
   const bondLine = bondDef && bonded ? bondDef.bondLines[Math.max(0, Math.min(bondDef.bondLines.length - 1, bonded.bond - 1))] : undefined
 
   return (
     <div className="m2-rest">
+      {playScene && (
+        <Cutscene
+          scene={playScene}
+          lang={lang}
+          fast={settings.fastAnim}
+          onDone={() => {
+            setClosedScene(playScene.id)
+            onCutsceneSeen?.(playScene.id)
+          }}
+        />
+      )}
       <div className="m2-rest__bg" style={{ backgroundImage: `url(${asset('scenes/abandoned_signal.png')})` }} />
       <div className="m2-rest__inner">
         <div className="m2-rest__kicker">{ko ? '은신처' : 'Safehouse'}</div>

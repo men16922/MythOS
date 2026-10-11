@@ -118,6 +118,44 @@ def events_jobs() -> list[ImageJob]:
     return jobs
 
 
+CUTSCENE_SCENES: dict[str, str] = {
+    "se_rin_first_light": "Under a flickering pink neon sign on a rain-wet backstreet at night, Se-rin hands a small paper cup of coffee toward the viewer with a guarded half-glance; steam rising; distant blurred chase lights a block behind her.",
+    "se_rin_promise": "The top of a concrete emergency stairwell at night, a distant glowing skyscraper behind; Se-rin has taken off her helmet and holds out her little finger toward the viewer, serious and a little shy, cold rim light on her profile.",
+    "tae_o_unlatched": "A dim stairwell landing with no cameras; Tae-o has torn the insignia patch off his enforcer uniform and holds it out in his scarred open palm toward the viewer, his holster unlatched at his hip, quiet and heavy.",
+    "tae_o_dawn_watch": "A dim safehouse at dawn; Tae-o sits with his back against the door, alert, a cold cup of tea nudged toward the viewer; a thin line of dawn light through the shutter, sleeping shapes under blankets behind him.",
+    "han_dead_channel": "A cramped dark room lit only by a laptop screen showing a single flat line of static; Han sits cross-legged, headphones around his neck, one hand on the keyboard, an unguarded quiet look toward the viewer.",
+    "han_name_field": "An abandoned old terminal in a dusty corridor glowing green, showing a single blinking name field; Han types with a grin, finger hovering over the Save key, a faint teasing smile, warm monitor light on his face.",
+    "su_ah_warm_crystal": "Su-ah, a young engineer with tied-up black hair and thin glasses, gently places a tiny softly glowing memory crystal into the viewer's open palm in a violet-lit workshop; the crystal melts into warm light.",
+    "su_ah_hammer_rhythm": "A workbench with a low orange ember in a violet-lit workshop; Su-ah rests her hand over the viewer's hand holding a small hammer above a glowing piece of metal, teaching a rhythm, gentle encouraging smile.",
+    "kai_counting_stars": "An abandoned subway platform at night; a dark ad panel shows seventeen tiny bright dead pixels like stars; Kai, a silver-white android with glowing blue eyes, points at one of them, curious and gentle.",
+    "kai_rain_sound": "A corner of a dim safehouse; Kai, a silver-white android with glowing blue eyes now tinged warm yellow, holds one palm turned upward as if feeling rain, a small old speaker beside him, soft rain-streaked window light.",
+    "lin_yue_margin": "A closed night market at night, lanterns dimmed; Lin-yue, an elegant broker in a dark silk jacket with rings, strikes a line on a floating holographic ledger and looks aside with feigned indifference; a faint timestamp glows beside the struck line.",
+    "lin_yue_incense": "A dim barge cabin; Lin-yue lights a stick of incense beside an empty cup, smoke curling upward in lantern light, and slides a second stick toward the viewer with a slippery half-smile and eyes that linger on the smoke.",
+}
+
+
+def cutscenes_jobs() -> list[ImageJob]:
+    jobs = []
+    for sc in content_json().get("cutscenes", []):
+        sid = sc["id"]
+        who = sc["companion"]
+        scene = (
+            CUTSCENE_SCENES.get(sid)
+            or f"A quiet moment: {sc['title']['en']}. {sc['text']['en'][:400]}"
+        )
+        refs = []
+        if who in COMPANIONS:
+            refs = [portrait(who)]
+            scene = f"{scene} The character is {COMPANIONS[who][1]}."
+        prompt = f"Quiet emotional cutscene illustration, wide cinematic shot. {scene} The bottom of the scene falls naturally into shadow (no overlay, band or letterbox)."
+        jobs.append(
+            ImageJob(
+                f"cutscenes/{sid}.webp", prompt, "16:9", (1600, 900), refs=refs, image_size="2K"
+            )
+        )
+    return jobs
+
+
 # ------------------------------------------------------------------------------------------- cards
 
 C = CONNECTOR

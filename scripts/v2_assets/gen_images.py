@@ -22,7 +22,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from common import ImageJob, repost_image_job, run_image_jobs
 
-GROUPS = ("static", "events", "cards", "implants", "consumables")
+GROUPS = ("static", "events", "cutscenes", "cards", "implants", "consumables")
 
 
 def jobs_for(group: str) -> list[ImageJob]:

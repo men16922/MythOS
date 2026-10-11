@@ -3,6 +3,8 @@
 import { CalendarDays, ChevronLeft, Heart, Lock, Play } from 'lucide-react'
 import { useState } from 'react'
 import { attemptsLabel, dailyLabel, dateLabel } from '../../engine/daily.ts'
+import { mutatorForDate } from '../../engine/mutators.ts'
+import { MutatorCard } from '../components/MutatorCard.tsx'
 import type { ContentRegistry, MetaProfile, StatKey } from '../../engine/types.ts'
 import { asset, portrait } from '../common/assets.ts'
 import { STAT_LABEL, tr } from '../common/lang.ts'
@@ -156,6 +158,7 @@ export function SetupScreen({ profile, C, onStart, onBack, daily }: SetupScreenP
           <section className="m2-setup__paradox m2-daily-rules">
             <div className="m2-setup__label">{ko ? '오늘의 규칙' : "Today's rules"}</div>
             <p className="m2-daily-rules__lead">{ko ? '모두 같은 지도, 같은 사건. 오늘 하루 동안만.' : 'Same map, same events for everyone. Today only.'}</p>
+            <MutatorCard id={mutatorForDate(daily).id} lang={lang} />
             <p className="m2-daily-rules__fine">
               {ko
                 ? '패러독스는 0으로 고정된다. 해금한 프로토콜 묶음, 임플란트 보급, 기억의 실은 적용되지 않는다.'

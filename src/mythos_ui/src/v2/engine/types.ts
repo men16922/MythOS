@@ -699,6 +699,8 @@ export interface RunState {
   endedAt?: string
   /** Daily-seed run ("오늘의 시드"): the KST date key 'YYYY-MM-DD' it was seeded from. */
   daily?: string
+  /** Daily runs only: id of that day's mutator (engine/mutators.ts), frozen at newRun. */
+  mutator?: string
 }
 
 // ---------------------------------------------------------------- meta profile
@@ -756,6 +758,8 @@ export interface MetaProfile {
   settings: { lang: Lang; sfx: boolean; bgm: boolean; fastAnim: boolean }
   /** Daily-seed records by KST date key, newest kept (capped at DAILY_CAP days). */
   daily?: Record<string, DailyRecord>
+  /** Companion bond cutscenes seen (content/cutscenes.ts ids); replayable from the Archive gallery. */
+  cutscenes?: string[]
 }
 
 export type MetaUnlockKind = 'archetype' | 'companion' | 'card_pack' | 'implant_pack' | 'thread'

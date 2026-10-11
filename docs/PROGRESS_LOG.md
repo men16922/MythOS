@@ -2,6 +2,11 @@
 
 Last updated: 2026-10-11
 
+## 2026-10-12 — Daily mutators (#5) and companion bond cutscenes (#3)
+
+- **Daily mutators** (`engine/mutators.ts`): one per KST day, the same for everybody, frozen on the run (`RunState.mutator`) at `newRun`; each is a readable trade built from dials the engine already had — patrol surge (trace +5/node, fight credits +35 %), market boom (shop −30 %, credits −30 %), iron week (+10 max HP, enemies +20 %), glass loop (+80 ₵, −8 max HP), long night (heal +15 pts, trace +4), cold boot (+1 consumable, +30 ₵, one Static), tight wire (trace +2, elites/bosses +35 %), scrap season (credits +25 %, heal +10 pts, shop +25 %). Shown as a card in "today's rules" on the daily setup screen and as a HUD chip with the trade in its tooltip. Balance: same dates with and without the mutator, mixed bot, 240 days (≈ 90 runs per mutator): every mutator within −5…+5 pp, all together 38 % → 36 %; `tight_wire` was +14 pp at +25 % elite HP and −1 pp at +35 %. `engine/mutators.test.ts` drives each dial through the real reducers (start dials, shop prices, node trace, fight credits, enemy HP, safehouse heal).
+- **Bond cutscenes** (`content/cutscenes.ts`, ported from 1.x `directives/companions/*`): 12 quiet scenes, one at bond 2 and one at bond 3 per companion (6 adapted to each speech register, 6 new), 12 stills via the portrait-referenced pipeline (12 calls). Plays once, before the safehouse chat, the first time that bond tier is reached; recorded in `MetaProfile.cutscenes` (migration-safe, optional) and replayable from the Archive "기억" tab (locked cards read `???`). The first press of the button shows all the text, the second continues. Browser-checked end to end: plays once, recorded, never auto-replays, gallery 12 cards with 1 open, replay works, console clean.
+
 ## 2026-10-11 — IX's mirror (1.x port #9) and the twist bank (#7, closed)
 
 - 1.x's story bible had one thing 2.0 lacked: `ix_temptation_mirror` — IX's strongest attack is not force but an accurate, polite quotation of what the player really did ("you already optimised; I merely scaled it"). `content/ixMirror.ts` + `EventDef.ixMirror` (set on `a3_ix_offer`): IX quotes up to three of the run's real choices, highest priority first (the five companion-arc payoffs outrank the older flags, then saved citizen, woken Kai, Lin-yue's ledger, the opened Spire door, the left mark, déjà vu, and a loud/quiet-run remark), closes with the verdict, or says "a very clean connection" when there is nothing to quote. Authored and deterministic, shown after the event text finishes typing. Browser-checked with four flags set and with none; `narrative.test.ts` proves every quoted flag is set by some event, IX stays 합쇼체, priorities and the cap.
@@ -56,26 +61,4 @@ Last updated: 2026-10-11
 - Guard rails added with it: a content invariant (a flag may be read only in the act where it can already have been set — a flag set only in a later act would lock its reader forever) and `build_overview` edge-case tests (empty input, `days` clamp, the KST midnight split, odd run fields).
 - Verified: `make test-v2`, `make test-e2e-v2`. Pool is now 53 events.
 
-## 2026-10-11 — Durable AI GM usage counters (dashboard)
-
-- The GM counters lived in process memory (lost on every Cloud Run restart), so there was no basis to decide on a cost guard. `v2_gm_usage` (migration 013, also in `SCHEMA_STATEMENTS`) counts calls per KST day / route / outcome; `log_gm` writes it best-effort (2 s cap, never fails or delays a reply beyond that). Dashboard: "AI GM 일별 호출" — total, LLM, fallback and the fallback rate, plus the outcome mix (timeout / rate_limited / rejected …).
-- Decision: the GM cost guard stays off (owner: none for now); revisit when this table shows real volume (≈ $0.085 per run measured).
-- Not done on purpose: re-seeding the overnight held-out bank — `scripts/overnight/heldout-bank.md` is the owner-ratified frozen v1 and its three tasks target 1.x code that now lives on branch `1.0`; replacing it needs a recorded owner decision.
-
-## 2026-10-11 — Event wave 4: 12 new street-level events (16 per act)
-
-- Goal from the owner: "계속해서 2.0의 퀼리티 업그레이드 및 잔여작업 수행해". A veteran meets ~3 events per act from a pool of 12, so repeats showed up after a few runs; each act now rolls from 16.
-- `content/eventsMore.ts`: 4 per act (noodle stall, hand-crank lamp, courier lockbox, bus-stop scan beam · lantern ferry, face stall, toll kids, stalled maglev · glass atrium, name-tag archive, maintenance priest, window cleaner). Each has a stat-check option with a stinging failure, a no-risk option and a trade-off; no companion conflict and no new flags, so they roll in any order. 12 scene images (`scripts/v2_assets`, 12 calls, 0 failures; `V2_IMAGE_BUDGET=250` for the run since the ledger was already past the old 220), art manifest rebuilt, SPA rebuilt.
-- **Deployed** as rev `00095` together with the new-players metric (migration 012 ran on first use; preview smoke: health postgres, bundle + art served, overview 401 unsigned) and promoted to 100 %.
-- Verified: `make test-v2` 221, `make test-e2e-v2`, sim mixed bot 35/90 = 39 % (inside the 28–41 % band; the sim does not resolve events, so event balance rests on the narrative tests and the numbers matching existing events' ranges).
-
-## 2026-10-11 — Operator dashboard for 2.0 (`/admin`)
-
-- Owner: "Admin용 대시보드는 어디갔어?" → "내 계정으로 admin을 잡고, 2.0용으로 새로 만들고싶어". The 1.x invite-key dashboard stayed on branch `1.0`; 2.0 gets a new one.
-- **Server**: `mythos_v2/admin.py` (pure aggregation + `GMStats`), `V2Store.admin_players/admin_runs/admin_daily` (Memory + Postgres, field-subset SQL so full blobs are never pulled), `auth.Identity` / `verify_identity` (email + email_verified), `MYTHOS_ADMIN_EMAILS`, `GET /api/v2/admin/overview?days=` (401/403/429), `GET /admin` (no-store, noindex). Local shortcut `MYTHOS_ADMIN_OPEN=1` in `open` mode only. `make deploy*` pass `.env`'s `MYTHOS_ADMIN_EMAILS`.
-- **Page**: KPIs, per-day stacked chart, archetype win rates, killers/endings, today's daily board, GM/server block, player roster with active run + last run; 30 s refresh; every string escaped.
-- **Deployed** (owner: "일단 배포해"): `make deploy-preview` → rev `00093`; smoke on the preview URL (health postgres + gemini, `/admin` 200 no-store, overview 401 for no/forged token and `X-Player-Id`) → `update-traffic --to-latest` (100 %). A real Google sign-in on `/admin` is still the owner's check.
-- **Follow-up (not yet deployed)**: `v2_saves.created_at` (migration 012, also in `SCHEMA_STATEMENTS`, so the self-creating DDL adds it on first use) → dashboard "신규 가입" (24 h / 7 d KPI, per-day, roster join age). Existing rows read as the migration time.
-- Verified: `tests/test_v2_admin.py` (access matrix, aggregation, page), store contract on memory + Postgres (`make test-db`), headless render of the real payload with a stubbed Firebase. **Not verified**: a real Google sign-in on `/admin` (needs the owner's browser) and production (not deployed).
-
-Older entries: `bin/docs/archive/progress-2026-*.md` (2.0 build: `progress-2026-10-10-mythos2-overnight-build.md`; 2.0 feedback round + residuals: `progress-2026-10-11-mythos2-early.md`; sign-in, leaderboard, Android, 1.x archive: `progress-2026-10-11-mythos2-online.md`); 1.x: branch `1.0`.
+Older entries: `bin/docs/archive/progress-2026-*.md` (2.0 build: `progress-2026-10-10-mythos2-overnight-build.md`; 2.0 feedback round + residuals: `progress-2026-10-11-mythos2-early.md`; sign-in, leaderboard, Android, 1.x archive: `progress-2026-10-11-mythos2-online.md`; event waves, arcs, balance audits: `progress-2026-10-11-mythos2-balance.md`); 1.x: branch `1.0`.

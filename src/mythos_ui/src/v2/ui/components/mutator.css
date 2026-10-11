@@ -1,0 +1,49 @@
+.m2-mutator {
+  margin: 10px 0 8px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--m2-accent, #5cf2d8) 35%, transparent);
+  background: color-mix(in srgb, var(--m2-accent, #5cf2d8) 7%, transparent);
+}
+.m2-mutator__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.m2-mutator__kicker {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--m2-accent, #5cf2d8);
+}
+.m2-mutator__name {
+  font-family: var(--m2-display);
+  font-size: 15px;
+}
+.m2-mutator__blurb {
+  margin: 4px 0 6px !important;
+  font-size: 13px;
+  opacity: 0.85;
+}
+.m2-mutator__trade {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.m2-mutator__boon {
+  color: var(--m2-heal, #5cf29a);
+}
+.m2-mutator__burden {
+  color: var(--m2-threat, #ff5c7a);
+}
+/* The HUD chip: just the name, the trade in the tooltip. */
+.m2-topbar__mutator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  font-size: 12px;
+  border: 1px solid color-mix(in srgb, var(--m2-accent, #5cf2d8) 40%, transparent);
+  color: var(--m2-accent, #5cf2d8);
+}

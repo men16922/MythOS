@@ -11,6 +11,7 @@ export const ART: {
   bosses: Record<string, string>
   endings: Record<string, string>
   events: Record<string, string>
+  cutscenes: Record<string, string>
 } = {
   title: 'v2/art/title.webp',
   archive: 'v2/art/archive.webp',
@@ -113,6 +114,20 @@ export const ART: {
     a3_taeo_pending_file: 'v2/events/a3_taeo_pending_file.webp',
     a3_the_surrender: 'v2/events/a3_the_surrender.webp',
     a3_window_cleaner: 'v2/events/a3_window_cleaner.webp',
+  },
+  cutscenes: {
+    han_dead_channel: 'v2/cutscenes/han_dead_channel.webp',
+    han_name_field: 'v2/cutscenes/han_name_field.webp',
+    kai_counting_stars: 'v2/cutscenes/kai_counting_stars.webp',
+    kai_rain_sound: 'v2/cutscenes/kai_rain_sound.webp',
+    lin_yue_incense: 'v2/cutscenes/lin_yue_incense.webp',
+    lin_yue_margin: 'v2/cutscenes/lin_yue_margin.webp',
+    se_rin_first_light: 'v2/cutscenes/se_rin_first_light.webp',
+    se_rin_promise: 'v2/cutscenes/se_rin_promise.webp',
+    su_ah_hammer_rhythm: 'v2/cutscenes/su_ah_hammer_rhythm.webp',
+    su_ah_warm_crystal: 'v2/cutscenes/su_ah_warm_crystal.webp',
+    tae_o_dawn_watch: 'v2/cutscenes/tae_o_dawn_watch.webp',
+    tae_o_unlatched: 'v2/cutscenes/tae_o_unlatched.webp',
   },
 }
 

@@ -543,7 +543,8 @@ class AgendaTest(unittest.TestCase):
                 self.assertLessEqual(len(talk.split_sentences(text)), 2, f"{cid}/{lang}")
 
     def test_agenda_reaches_the_prompt(self) -> None:
-        for lang, marker in (("ko", "마음속 목표"), ("en", "Inner goal")):
+        cases: list[tuple[Lang, str]] = [("ko", "마음속 목표"), ("en", "Inner goal")]
+        for lang, marker in cases:
             system, _user = talk.companion_messages("su_ah", lang, {"name": "수아"}, [], "안녕")
             self.assertIn(marker, system)
             self.assertIn(talk.AGENDAS["su_ah"][lang][:12], system)

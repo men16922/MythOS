@@ -20,7 +20,7 @@ const STEPS: StepDef[] = [
     fallback: '.m2c-board',
     title: ['붉은 칸 = 적의 공격', 'Red tiles = incoming hits'],
     text: [
-      '턴을 끝내면 적이 붉은 칸을 공격한다. 빠져나가거나, 적을 그 칸으로 밀어 넣어라.',
+      '턴을 끝내면 적이 붉은 칸을 친다. 그 칸에서 빠져나오거나, 적을 그 칸으로 밀어 넣어라.',
       'When your turn ends, enemies hit the red tiles. Step out — or shove an enemy into them.',
     ],
     place: 'right',
@@ -29,15 +29,15 @@ const STEPS: StepDef[] = [
     anchor: '[data-uid="connector"] .m2c-u-hit',
     fallback: '.m2c-board',
     title: ['이동은 무료', 'Moving is free'],
-    text: ['대원을 클릭하고 파란 칸을 눌러 턴마다 한 번 이동한다. Z로 되돌릴 수 있다.', 'Click a unit, then a blue tile — once per turn. Z undoes it.'],
+    text: ['대원을 누르고 파란 칸을 누르면 이동한다. 턴마다 한 번이고, Z로 되돌릴 수 있다.', 'Click a unit, then a blue tile — once per turn. Z undoes it.'],
     place: 'right',
   },
   {
     anchor: '[data-coach="hand"]',
     fallback: '.m2c-bottom',
-    title: ['카드는 에너지를 쓴다', 'Cards cost energy'],
+    title: ['카드엔 에너지가 든다', 'Cards cost energy'],
     text: [
-      '대상 위에 커서를 올리면 결과가 미리 보인다. 적을 다른 적·벽·붕괴 구역으로 밀어붙이는 게 최고의 수다.',
+      '대상에 커서를 올리면 결과가 미리 보인다. 적을 다른 적·벽·붕괴 구역에 처박는 것이 최고의 수다.',
       'Hover a target to see the exact result first. Pushing enemies into each other, walls or the void is your strongest play.',
     ],
     place: 'above',
@@ -46,7 +46,7 @@ const STEPS: StepDef[] = [
     anchor: '[data-coach="endturn"]',
     fallback: '.m2c-bottom',
     title: ['턴 종료 (E)', 'End Turn (E)'],
-    text: ['적들이 예고한 공격을 그대로 실행한다. 붉은 칸을 다시 확인하라.', 'Enemies fire exactly what they telegraphed. Check the red tiles first.'],
+    text: ['적이 예고한 공격을 그대로 실행한다. 누르기 전에 붉은 칸을 한 번 더 확인하라.', 'Enemies fire exactly what they telegraphed. Check the red tiles first.'],
     place: 'above',
   },
 ]
@@ -110,7 +110,7 @@ export function Coach({ root, lang, onClose }: { root: HTMLElement | null; lang:
             else setStep(step + 1)
           }}
         >
-          {step + 1 >= STEPS.length ? (k ? '시작' : 'Got it') : k ? '다음' : 'Next'}
+          {step + 1 >= STEPS.length ? (k ? '확인' : 'Got it') : k ? '다음' : 'Next'}
         </button>
       </div>
     </div>

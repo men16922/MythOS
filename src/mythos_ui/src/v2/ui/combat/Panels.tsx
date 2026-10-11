@@ -1,13 +1,14 @@
 // Combat HUD panels: top strip, party roster, unit/tile detail, pile viewer.
 
-import { memo } from 'react'
-import { Hourglass, Footprints, Zap as ZapIcon, Shield as ShieldIcon } from 'lucide-react'
+import { memo, useContext } from 'react'
+import { Hourglass, Footprints, Menu, Zap as ZapIcon, Shield as ShieldIcon } from 'lucide-react'
 import type { IntentInfo } from '../../engine/combat.ts'
 import { GRID_W } from '../../engine/types.ts'
 import type { CardInstance, CombatState, ContentRegistry, EncounterDef, Lang, StatusKind, Tile, UnitState } from '../../engine/types.ts'
 import { STATUS_ICON, portrait } from '../common/assets.ts'
 import { V2_SPRITES } from '../common/spriteManifest.ts'
 import { tr } from '../common/lang.ts'
+import { ShellMenu } from '../common/shellMenu.ts'
 import { CardView } from '../components/CardView.tsx'
 import { ImplantIcon } from '../components/ImplantIcon.tsx'
 import { Modal } from '../components/Modal.tsx'
@@ -37,6 +38,7 @@ export const TopStrip = memo(function TopStrip(p: {
   const { c, enc, lang } = p
   const tag = kindTag(enc?.kind, lang)
   const prog = bonusProgress(c)
+  const openMenu = useContext(ShellMenu)
   return (
     <div className="m2c-top">
       <div className={`m2c-turn${p.enemyPhase ? ' is-enemy' : ''}`}>
@@ -71,6 +73,11 @@ export const TopStrip = memo(function TopStrip(p: {
         <button type="button" className="m2c-chip" onClick={p.onLegend}>
           ?
         </button>
+        {openMenu && (
+          <button type="button" className="m2c-chip" onClick={openMenu} title={ko(lang, '메뉴 · 저장하고 나가기 (자동 저장 중)', 'Menu · save & quit (auto-saved)')}>
+            <Menu size={14} />
+          </button>
+        )}
       </div>
     </div>
   )
@@ -137,7 +144,7 @@ export const PartyPanel = memo(function PartyPanel(p: {
                 {u.side === 'party' && !down && (
                   <span className={`m2c-pu-move${u.moved || shocked ? ' is-spent' : ''}`}>
                     <Footprints size={11} strokeWidth={2.5} />
-                    {shocked ? ko(lang, '감전', 'shocked') : u.moved ? ko(lang, '이동함', 'moved') : ko(lang, '이동 가능', 'can move')}
+                    {shocked ? ko(lang, '감전', 'shocked') : u.moved ? ko(lang, '이동 완료', 'moved') : ko(lang, '이동 가능', 'can move')}
                   </span>
                 )}
                 {dmg > 0 && <span className="m2c-pu-warn">⚠ -{dmg}</span>}
@@ -153,25 +160,25 @@ export const PartyPanel = memo(function PartyPanel(p: {
 // ---------------------------------------------------------------- detail
 
 const TILE_INFO: Record<Tile['kind'], { name: [string, string]; text: [string, string] }> = {
-  floor: { name: ['바닥', 'Floor'], text: ['이동 가능한 일반 지형.', 'Open ground.'] },
+  floor: { name: ['바닥', 'Floor'], text: ['아무 제약 없는 평지.', 'Open ground.'] },
   cover: {
     name: ['엄폐물', 'Cover'],
-    text: ['이동과 투사체를 막는다. 밀려 부딪히면 양쪽 모두 1 피해, 엄폐물 내구도 −1.', 'Blocks movement and shots. Units pushed into it take 1 bump damage; cover loses 1 hp.'],
+    text: ['이동과 투사체를 막는다. 밀려 부딪힌 유닛은 충돌 피해 1, 엄폐물은 내구도 −1.', 'Blocks movement and shots. Units pushed into it take 1 bump damage; cover loses 1 hp.'],
   },
   hazard: {
-    name: ['감전 지대', 'Live Wire'],
-    text: ['적 페이즈가 끝날 때 또는 밀려 들어오면 2 피해.', 'Deals 2 damage to a unit that ends the enemy phase on it or is pushed onto it.'],
+    name: ['전기 바닥', 'Live Wire'],
+    text: ['이 위에서 적 페이즈를 마치거나 밀려 들어오면 피해 2.', 'Deals 2 damage to a unit that ends the enemy phase on it or is pushed onto it.'],
   },
   void: {
     name: ['붕괴 구역', 'Void'],
-    text: ['적을 밀어 넣으면 즉시 삭제된다. 아군에게는 벽.', 'Push an enemy in and it is deleted. A wall for your squad.'],
+    text: ['적을 밀어 넣으면 그 자리에서 삭제된다. 아군에게는 벽이다.', 'Push an enemy in and it is deleted. A wall for your squad.'],
   },
 }
 
 export const DetailPanel = memo(function DetailPanel(p: {
   unit: UnitState | null
   intent: IntentInfo | null
-  tile: { kind: Tile['kind']; hp?: number } | null
+  tile: { kind: Tile['kind']; hp?: number; fire?: number; ttl?: number } | null
   C: ContentRegistry
   lang: Lang
   threats: number
@@ -182,7 +189,7 @@ export const DetailPanel = memo(function DetailPanel(p: {
       return (
         <div className="m2c-detail is-empty">
           <div className="m2c-panel-h">{ko(lang, '정보', 'INTEL')}</div>
-          <p>{ko(lang, '유닛이나 타일 위에 커서를 올리면 상세 정보가 표시된다.', 'Hover a unit or tile for details.')}</p>
+          <p>{ko(lang, '유닛이나 칸 위에 커서를 올리면 자세한 정보가 뜬다.', 'Hover a unit or tile for details.')}</p>
         </div>
       )
     }
@@ -196,6 +203,18 @@ export const DetailPanel = memo(function DetailPanel(p: {
           <p className="m2c-d-sub">
             {ko(lang, '내구도', 'Durability')} {p.tile.hp ?? 2}
           </p>
+        )}
+        {(p.tile.fire ?? 0) > 0 && (
+          <p className="m2c-d-warn">
+            {ko(
+              lang,
+              `불길 · ${p.tile.fire}턴 더 탄다. 들어서거나 이 위에서 적 페이즈를 마치면 화상 2.`,
+              `Fire · burns ${p.tile.fire} more turn(s). Entering it, or ending the enemy phase on it, inflicts Burn 2.`,
+            )}
+          </p>
+        )}
+        {p.tile.ttl !== undefined && (
+          <p className="m2c-d-sub">{ko(lang, `임시 전류 · ${p.tile.ttl}턴 뒤 꺼진다.`, `Temporary · shorts out in ${p.tile.ttl} turn(s).`)}</p>
         )}
         {p.threats > 0 && <p className="m2c-d-warn">{ko(lang, `이 칸에 예고된 피해 ${p.threats}`, `${p.threats} damage incoming here`)}</p>}
       </div>
@@ -252,7 +271,7 @@ export const DetailPanel = memo(function DetailPanel(p: {
               </span>
             )}
             {u.armor > 0 && (
-              <span title={ko(lang, '장갑: 받는 피해 감소', 'Armor: reduces each hit')}>
+              <span title={ko(lang, '장갑: 맞을 때마다 피해 감소', 'Armor: reduces each hit')}>
                 <ShieldIcon size={11} /> {ko(lang, '장갑', 'Armor')} {u.armor}
               </span>
             )}
@@ -290,6 +309,11 @@ export const DetailPanel = memo(function DetailPanel(p: {
           <ZapIcon size={11} /> {tr(enemyDef.passive, lang)}
         </div>
       )}
+      {comp?.combatPassive && (
+        <div className="m2c-d-passive is-combat">
+          <ZapIcon size={11} /> <b>{tr(comp.combatPassive.name, lang)}</b> {tr(comp.combatPassive.text, lang)}
+        </div>
+      )}
       {comp && <div className="m2c-d-passive">{tr(comp.passiveText, lang)}</div>}
       {statuses.length > 0 && (
         <ul className="m2c-d-statuses">
@@ -305,7 +329,7 @@ export const DetailPanel = memo(function DetailPanel(p: {
         </ul>
       )}
       {u.side === 'enemy' && u.pos.x < GRID_W && (
-        <div className="m2c-d-tip">{ko(lang, '적을 밀어 다른 적·벽·붕괴 구역에 부딪히게 하라.', 'Push it into others, walls or the void.')}</div>
+        <div className="m2c-d-tip">{ko(lang, '다른 적이나 벽에 밀어 부딪히게 하거나, 붕괴 구역에 빠뜨려라.', 'Push it into others, walls or the void.')}</div>
       )}
     </div>
   )

@@ -1,10 +1,11 @@
 // The tactical board: tilted 7×5 plane (SVG), y-sorted unit sprites (DOM), intent/target
 // overlays, number labels and the board FX layer. Pure view — all decisions live in CombatScreen.
 
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
-import { ChevronsRight, Crosshair, Hourglass, LocateFixed, Plus, Skull, Sparkles, Swords, Target, Zap, CircleDot, Radiation } from 'lucide-react'
+import { ChevronsRight, Crosshair, Flame, Hourglass, LocateFixed, Plus, Skull, Sparkles, Swords, Target, Zap, CircleDot, Radiation } from 'lucide-react'
 import type { CombatPreview, IntentInfo } from '../../engine/combat.ts'
+import { COVER_HP, FIRE_BURN } from '../../engine/effects.ts'
 import { add, dirToward, posKey } from '../../engine/grid.ts'
 import { GRID_H, GRID_W } from '../../engine/types.ts'
 import type { CombatState, ContentRegistry, Dir, EnemyMove, Lang, Pos, StatusKind, Tile, UnitState } from '../../engine/types.ts'
@@ -115,12 +116,19 @@ function TileShape({ g, p, t }: { g: BoardGeom; p: Pos; t: Tile }) {
       { x: c.x + w * 0.4, y: c.y + w * 0.18 },
       { x: c.x + w, y: c.y - w * 0.15 },
     ]
+    // A temporary (electrified) hazard crackles harder: extra arcs jumping between the tile's corners.
+    const temp = t.ttl !== undefined
+    const arcs = temp ? crackleArcs(g, p, r) : []
     return (
-      <g className="m2c-t-haz">
+      <g className={temp ? 'm2c-t-haz is-temp' : 'm2c-t-haz'}>
         <polygon points={pts(q)} className="m2c-haz-base" />
         <polygon points={pts(q)} fill="url(#m2c-haz-stripes)" />
         <polygon points={pts(tileQuad(g, p, 0.07))} className="m2c-haz-edge" />
         <polyline points={pts(zig)} className="m2c-zap" style={{ animationDelay: `${-r * 2}s` }} />
+        {arcs.map((a, i) => (
+          <polyline key={i} points={pts(a)} className="m2c-zap is-arc" style={{ animationDelay: `${-r * 3 - i * 0.37}s` }} />
+        ))}
+        {!!t.fire && <FireBase g={g} p={p} />}
       </g>
     )
   }
@@ -128,8 +136,48 @@ function TileShape({ g, p, t }: { g: BoardGeom; p: Pos; t: Tile }) {
     <g>
       <polygon points={pts(q)} className={checker ? 'm2c-t-floor is-a' : 'm2c-t-floor'} />
       <polygon points={pts(tileQuad(g, p, 0.09))} className="m2c-t-bevel" />
+      {!!t.fire && <FireBase g={g} p={p} />}
     </g>
   )
+}
+
+/** Burning ground, static part (the flames themselves are DOM, see GroundFire): a charred, glowing tile. */
+function FireBase({ g, p }: { g: BoardGeom; p: Pos }) {
+  return (
+    <g className="m2c-t-fire">
+      <polygon points={pts(tileQuad(g, p, 0.02))} fill="url(#m2c-fire-grad)" className="m2c-fire-floor" />
+      <polygon points={pts(tileQuad(g, p, 0.06))} className="m2c-fire-edge" />
+    </g>
+  )
+}
+
+/** Three jagged arcs between random points on the tile's rim (electrified tile). */
+function crackleArcs(g: BoardGeom, p: Pos, seed: number): Pt[][] {
+  const out: Pt[][] = []
+  for (let i = 0; i < 3; i++) {
+    const r1 = hash(`${seed}:${i}:a`)
+    const r2 = hash(`${seed}:${i}:b`)
+    const a = rim(g, p, r1)
+    const b = rim(g, p, (r1 + 0.35 + r2 * 0.3) % 1)
+    const line: Pt[] = [a]
+    for (let k = 1; k < 4; k++) {
+      const t = k / 4
+      const j = (hash(`${seed}:${i}:${k}`) - 0.5) * g.tw * 0.16
+      line.push({ x: a.x + (b.x - a.x) * t + j, y: a.y + (b.y - a.y) * t - Math.abs(j) * 0.6 })
+    }
+    line.push(b)
+    out.push(line)
+  }
+  return out
+}
+
+/** Point at fraction `u` (0..1) around tile `p`'s rim, slightly inset. */
+function rim(g: BoardGeom, p: Pos, u: number): Pt {
+  const side = Math.floor(u * 4)
+  const f = u * 4 - side
+  const i = 0.12
+  const xy = side === 0 ? [i + f * (1 - 2 * i), i] : side === 1 ? [1 - i, i + f * (1 - 2 * i)] : side === 2 ? [1 - i - f * (1 - 2 * i), 1 - i] : [i, 1 - i - f * (1 - 2 * i)]
+  return g.project(p.x + (xy[0] as number), p.y + (xy[1] as number))
 }
 
 function CoverBlock({ g, p, hp }: { g: BoardGeom; p: Pos; hp: number }) {
@@ -153,6 +201,14 @@ function CoverBlock({ g, p, hp }: { g: BoardGeom; p: Pos; hp: number }) {
       {Array.from({ length: Math.max(0, Math.min(4, hp)) }, (_, i) => (
         <rect key={i} x={nl.x + pipW * (0.6 + i * 1.05)} y={tnl.y + h * 0.42} width={pipW * 0.8} height={Math.max(3, h * 0.16)} className="m2c-cover-pip" />
       ))}
+      {hp < COVER_HP && (
+        // Damaged: cracks split the front face and the top.
+        <g className="m2c-cover-cracks">
+          <polyline points={pts([{ x: tnl.x + (tnr.x - tnl.x) * 0.38, y: tnl.y }, { x: tnl.x + (tnr.x - tnl.x) * 0.46, y: tnl.y + h * 0.35 }, { x: tnl.x + (tnr.x - tnl.x) * 0.36, y: tnl.y + h * 0.62 }, { x: nl.x + (nr.x - nl.x) * 0.44, y: nl.y }])} />
+          <polyline points={pts([{ x: tnl.x + (tnr.x - tnl.x) * 0.46, y: tnl.y + h * 0.35 }, { x: tnl.x + (tnr.x - tnl.x) * 0.66, y: tnl.y + h * 0.5 }, { x: tnl.x + (tnr.x - tnl.x) * 0.74, y: tnl.y + h * 0.8 }])} />
+          <polyline points={pts([{ x: tnl.x + (tnr.x - tnl.x) * 0.38, y: tnl.y }, { x: tfl.x + (tfr.x - tfl.x) * 0.5, y: (tfl.y + tnl.y) / 2 }, { x: tfl.x + (tfr.x - tfl.x) * 0.62, y: tfl.y }])} />
+        </g>
+      )}
     </g>
   )
 }
@@ -282,15 +338,23 @@ const UnitSprite = memo(function UnitSprite(p: UnitProps) {
   const s = tileScale(g, u.pos)
   const pose = fx?.pose ?? 'idle'
   const nativeRight = u.side !== 'enemy'
-  const flip = nativeRight ? u.facing === 'left' : u.facing === 'right'
+  // Sprites only look left or right. Facing up/down keeps the last horizontal look (or the side of an off-axis
+  // target the animator turned toward), so a unit that aims up the board does not snap back to its native side.
+  const horiz = u.facing === 'left' || u.facing === 'right' ? u.facing : (fx?.faceX ?? null)
+  const [lastHoriz, setLastHoriz] = useState<'left' | 'right'>(horiz ?? (nativeRight ? 'right' : 'left'))
+  if (horiz && horiz !== lastHoriz) setLastHoriz(horiz)
+  const lookLeft = (horiz ?? lastHoriz) === 'left'
+  const flip = nativeRight ? lookLeft : !lookLeft
   const tw = g.tw
   const down = u.hp <= 0 && u.side !== 'enemy' && !fx?.dying
   const moveMs = fx?.moveMs ?? 0
+  const ease = fx?.ease === 'out' ? 'cubic-bezier(.15,.85,.3,1)' : fx?.ease === 'in' ? 'cubic-bezier(.55,0,.95,.55)' : 'linear'
   const wrapStyle: CSSProperties = {
     transform: `translate3d(${c.x.toFixed(1)}px, ${c.y.toFixed(1)}px, 0)`,
     zIndex: 100 + u.pos.y * 10 + u.pos.x,
-    transition: moveMs > 0 ? `transform ${moveMs}ms ${fx?.ease === 'out' ? 'cubic-bezier(.15,.85,.3,1)' : 'linear'}` : 'none',
+    transition: moveMs > 0 ? `transform ${moveMs}ms ${ease}` : 'none',
   }
+  const burning = (u.statuses.burn ?? 0) > 0 && u.hp > 0 && !fx?.dying
   const box = spriteBox(u.sprite, tw)
   const figW = box.w
   const figH = box.h
@@ -312,6 +376,7 @@ const UnitSprite = memo(function UnitSprite(p: UnitProps) {
     fx?.vanish ? 'is-vanish' : '',
     down ? 'is-down' : '',
     u.moved && u.side === 'party' ? 'is-moved' : '',
+    burning ? 'is-burning' : '',
   ]
     .filter(Boolean)
     .join(' ')
@@ -324,10 +389,13 @@ const UnitSprite = memo(function UnitSprite(p: UnitProps) {
           <div className="m2c-u-ring" style={{ width: tw * 0.78, height: tw * 0.36, left: -tw * 0.39, top: -tw * 0.18 }}>
             {u.side === 'enemy' && <i className={`m2c-u-facing to-${u.facing}`} />}
           </div>
+          {burning && <div className="m2c-u-burnglow" style={{ width: tw * 0.95, height: tw * 0.4, left: -tw * 0.475, top: -tw * 0.2 }} />}
           <div className="m2c-fig" ref={(el) => p.registerFigure(u.uid, el)} style={{ width: figW, height: figH, left: -figW / 2, top: -figH * box.feet }}>
+            {burning && <BurnFlames feet={box.feet} seed={p.bobSeed} tw={tw} w={figW} layer="back" />}
             <div className="m2c-bob" style={{ animationDelay: `${-p.bobSeed * 3}s`, animationDuration: `${2.6 + p.bobSeed}s` }}>
               <img src={sprite(u.sprite, pose)} alt="" draggable={false} className={flip ? 'is-flip' : undefined} />
             </div>
+            {burning && <BurnFlames feet={box.feet} seed={p.bobSeed} tw={tw} w={figW} layer="front" />}
           </div>
         </div>
       )}
@@ -406,6 +474,77 @@ const UnitSprite = memo(function UnitSprite(p: UnitProps) {
   )
 })
 
+/** Small flames licking up around a burning unit (inside the figure box, so they follow every lunge). Most sit
+ *  behind the sprite so the unit stays readable for the turns the status lasts; one tiny tongue licks in front. */
+function BurnFlames({ feet, seed, tw, w, layer }: { feet: number; seed: number; tw: number; w: number; layer: 'back' | 'front' }) {
+  const spots = layer === 'back' ? [-0.22, 0.2, -0.02] : [0.08]
+  return (
+    <div className={`m2c-u-burn is-${layer}`} style={{ top: `${feet * 100}%` }}>
+      {spots.map((dx, i) => {
+        const h = tw * (layer === 'back' ? 0.34 : 0.2) * (0.8 + hash(`${seed}:${layer}:${i}`) * 0.4)
+        return <i key={i} className="m2c-flame" style={{ left: w / 2 + dx * tw, top: -tw * (layer === 'back' ? 0.06 : 0), width: h * 0.55, height: h, animationDelay: `${-(seed * 3 + i * 0.29)}s` }} />
+      })}
+      {layer === 'back' &&
+        [0, 1].map((i) => <i key={`e${i}`} className="m2c-fire-ember" style={{ left: w / 2 + (i - 0.5) * tw * 0.3, top: -tw * 0.3, animationDelay: `${-(seed * 2 + i * 0.8)}s` }} />)}
+    </div>
+  )
+}
+
+/** Burning ground, animated part (DOM above the floor, below units): a warm glow that spills onto neighbouring
+ *  tiles, layered flickering tongues spread over the tile and rising embers. Fewer, lower flames on the last turn. */
+const GroundFire = memo(function GroundFire({ g, p, turns }: { g: BoardGeom; p: Pos; turns: number }) {
+  const c = tileCenter(g, p)
+  const s = tileScale(g, p)
+  const tw = g.tw
+  const r = hash(`fire:${p.x}:${p.y}`)
+  const strong = turns > 1
+  // Back sheet: a few big, dim, slow tongues along the far half; front: smaller bright ones over the near half.
+  const back: [number, number][] = strong
+    ? [
+        [-0.22, -0.18],
+        [0.06, -0.24],
+        [0.26, -0.1],
+      ]
+    : [[0, -0.16]]
+  const front: [number, number][] = strong
+    ? [
+        [-0.28, 0.06],
+        [-0.06, 0.12],
+        [0.16, 0.04],
+        [0.3, 0.22],
+        [-0.16, 0.28],
+      ]
+    : [
+        [-0.2, 0.1],
+        [0.12, 0.16],
+        [0.0, -0.02],
+      ]
+  const tongue = (u: number, v: number, i: number, big: boolean) => {
+    const at = g.project(p.x + 0.5 + u, p.y + 0.5 + v)
+    const k = hash(`fire:${p.x}:${p.y}:${i}`)
+    const h = tw * s * (big ? 0.62 : 0.4) * (strong ? 1 : 0.75) * (0.7 + k * 0.6)
+    return (
+      <i
+        key={i}
+        className={big ? 'm2c-flame is-back' : 'm2c-flame'}
+        style={{ left: at.x, top: at.y, width: h * (big ? 0.72 : 0.62), height: h, animationDelay: `${-(r * 2 + i * 0.23)}s`, animationDuration: `${(big ? 1.05 : 0.7) + k * 0.3}s` }}
+      />
+    )
+  }
+  return (
+    <>
+      <i className="m2c-fire-glow" style={{ left: c.x, top: c.y, width: tw * 2.3 * s, height: tw * 1.55 * s, animationDelay: `${-r * 2}s` }} />
+      <i className="m2c-fire-pool" style={{ left: c.x, top: c.y, width: tw * 0.95 * s, height: tw * 0.6 * s, animationDelay: `${-r * 1.3}s` }} />
+      {back.map(([u, v], i) => tongue(u, v, i, true))}
+      {front.map(([u, v], i) => tongue(u, v, i + 10, false))}
+      {[0, 1, 2, 3].map((i) => {
+        const at = g.project(p.x + 0.5 + (hash(`fe:${p.x}:${p.y}:${i}`) - 0.5) * 0.6, p.y + 0.5 + (hash(`fe:${p.y}:${p.x}:${i}`) - 0.5) * 0.4)
+        return <i key={`e${i}`} className="m2c-fire-ember" style={{ left: at.x, top: at.y, animationDelay: `${-(r * 3 + i * 0.47)}s` }} />
+      })}
+    </>
+  )
+})
+
 export function ShieldGlyph() {
   return (
     <svg viewBox="0 0 16 16" width="11" height="11" aria-hidden>
@@ -476,6 +615,16 @@ export function Board({ registerBoard, ...props }: BoardProps) {
   const previewByUid: Record<string, CombatPreview['units'][number]> = {}
   for (const r of preview?.units ?? []) previewByUid[r.uid] = r
 
+  // Ground effects with a countdown: burning ground and temporary (electrified) hazards.
+  const ground: { p: Pos; fire: number; ttl: number }[] = []
+  vc.tiles.forEach((row, y) =>
+    row.forEach((t, x) => {
+      const fire = t.fire ?? 0
+      const ttl = t.kind === 'hazard' ? (t.ttl ?? 0) : 0
+      if (fire > 0 || ttl > 0) ground.push({ p: { x, y }, fire, ttl })
+    }),
+  )
+
   const hover = props.hoverPos
   const label = (p: Pos, dx: number, dy: number) => g.project(p.x + dx, p.y + dy)
   const moveSet = new Set(props.moves.map(posKey))
@@ -543,6 +692,12 @@ export function Board({ registerBoard, ...props }: BoardProps) {
           <pattern id="m2c-haz-stripes" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(40)">
             <rect width="3.2" height="9" fill="rgba(255,190,70,0.16)" />
           </pattern>
+          <radialGradient id="m2c-fire-grad" cx="50%" cy="50%" r="62%">
+            <stop offset="0%" stopColor="#ffb347" stopOpacity="0.8" />
+            <stop offset="38%" stopColor="#d9430e" stopOpacity="0.62" />
+            <stop offset="78%" stopColor="#5a1404" stopOpacity="0.78" />
+            <stop offset="100%" stopColor="#2a0801" stopOpacity="0.9" />
+          </radialGradient>
           <radialGradient id="m2c-void-grad" cx="50%" cy="45%" r="60%">
             <stop offset="0%" stopColor="#000" />
             <stop offset="70%" stopColor="#05030a" />
@@ -616,12 +771,42 @@ export function Board({ registerBoard, ...props }: BoardProps) {
         </g>
       </svg>
 
+      {ground.length > 0 && (
+        <div className="m2c-ground">
+          {ground
+            .filter((t) => t.fire > 0)
+            .map((t) => (
+              <GroundFire key={posKey(t.p)} g={g} p={t.p} turns={t.fire} />
+            ))}
+        </div>
+      )}
+
       <div className="m2c-units" onContextMenu={(e) => (e.preventDefault(), props.onTileContext())}>
         {renderUnits('body')}
       </div>
       <div className="m2c-huds">{renderUnits('hud')}</div>
 
       <div className="m2c-labels">
+        {/* burning ground / electrified tiles: turns left */}
+        {ground.map((t) => {
+          const at = label(t.p, 0.86, 0.84)
+          return (
+            <div key={`gb${posKey(t.p)}`} className="m2c-tbadges" style={{ left: at.x, top: at.y }}>
+              {t.fire > 0 && (
+                <span className="m2c-tbadge is-fire">
+                  <Flame size={10} strokeWidth={2.8} />
+                  {t.fire}
+                </span>
+              )}
+              {t.ttl > 0 && (
+                <span className="m2c-tbadge is-shock">
+                  <Zap size={10} strokeWidth={2.8} />
+                  {t.ttl}
+                </span>
+              )}
+            </div>
+          )
+        })}
         {/* intent damage per tile */}
         {[...tileDmg.values()]
           .filter((t) => t.labelled)
@@ -787,11 +972,15 @@ export function Board({ registerBoard, ...props }: BoardProps) {
                     .reduce((n, iv) => n + iv.info.damage, 0)
                 : 0)
             const dmg = Math.max(0, tileHit) + locked.reduce((n, iv) => n + iv.info.damage, 0) + (haz ? 2 : 0)
+            // Walking into burning ground sets you on fire.
+            const burn = (vc.tiles[at.y]?.[at.x]?.fire ?? 0) > 0 && !mu.flying ? FIRE_BURN : 0
+            const ko = props.lang === 'ko'
+            const parts = [dmg > 0 ? (ko ? `위험 -${dmg}` : `DANGER -${dmg}`) : '', burn > 0 ? (ko ? `화상 +${burn}` : `BURN +${burn}`) : ''].filter(Boolean)
             return (
               <>
                 <Ghost g={g} u={mu} at={at} scale={1} move />
-                <div className={dmg > 0 ? 'm2c-movechip is-bad' : 'm2c-movechip'} style={{ left: c.x, top: c.y - g.tw * 1.25 * sc }}>
-                  {dmg > 0 ? (props.lang === 'ko' ? `위험 -${dmg}` : `DANGER -${dmg}`) : props.lang === 'ko' ? '안전' : 'SAFE'}
+                <div className={parts.length ? 'm2c-movechip is-bad' : 'm2c-movechip'} style={{ left: c.x, top: c.y - g.tw * 1.25 * sc }}>
+                  {parts.length ? parts.join(' · ') : ko ? '안전' : 'SAFE'}
                 </div>
               </>
             )

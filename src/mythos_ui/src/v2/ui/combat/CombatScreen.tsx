@@ -398,7 +398,7 @@ export function CombatScreen(props: CombatScreenProps) {
           ? `처치 ${st.enemiesKilled} · 환경 처치 ${st.environmentKills} · 받은 피해 ${st.damageTaken}${bonusOk ? ' · ★ 보너스 달성' : ''}`
           : `${st.enemiesKilled} kills · ${st.environmentKills} environment · ${st.damageTaken} damage taken${bonusOk ? ' · ★ bonus met' : ''}`
         : k
-          ? '커넥터의 신호가 끊겼다'
+          ? '접속자의 신호가 끊겼다'
           : 'The Connector has gone dark'
       // A boss fight ends on the boss: name it ("관리자 IX 정지") instead of a generic VICTORY.
       const boss = (enc?.enemies ?? []).map((e) => C.enemies[e.id]).find((d) => d?.tier === 'boss')

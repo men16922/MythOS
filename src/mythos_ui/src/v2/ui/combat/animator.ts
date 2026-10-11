@@ -13,6 +13,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { cardFace } from '../../engine/combat.ts'
+import { COVER_HP } from '../../engine/effects.ts'
 import { dirToward } from '../../engine/grid.ts'
 import { GRID_H, GRID_W } from '../../engine/types.ts'
 import type { CombatEvent, CombatState, ContentRegistry, Dir, Lang, Pos, Tile, UnitState } from '../../engine/types.ts'
@@ -25,7 +26,10 @@ export interface UnitFx {
   pose: SpritePose
   /** Transition time for position changes (0 = jump). */
   moveMs: number
-  ease?: 'linear' | 'out'
+  /** 'in' accelerates into the end (a push about to slam into something). */
+  ease?: 'linear' | 'out' | 'in'
+  /** Horizontal side the sprite looks to while its facing is up/down (turned toward a target off-axis). */
+  faceX?: 'left' | 'right'
   dying?: 'damage' | 'void'
   spawning?: boolean
   vanish?: boolean
@@ -61,15 +65,33 @@ export interface BPt {
   y: number
 }
 
-export type FxTone = 'party' | 'enemy' | 'env' | 'heal' | 'block' | 'warn' | 'neutral'
-export type TextTone = 'dmg' | 'crit' | 'heal' | 'block' | 'word' | 'kill' | 'status' | 'fizzle'
+export type FxTone = 'party' | 'enemy' | 'env' | 'heal' | 'block' | 'warn' | 'neutral' | 'fire' | 'shock' | 'gold'
+export type TextTone = 'dmg' | 'crit' | 'heal' | 'block' | 'word' | 'kill' | 'status' | 'fizzle' | 'burn' | 'zap' | 'slam' | 'passive'
+export type AreaElement = Extract<CombatEvent, { t: 'area' }>['element']
+export type ImpactSurface = 'wall' | 'cover' | 'unit'
 
 export type FxItem =
   | { id: number; kind: 'text'; at: BPt; text: string; tone: TextTone; icon?: string; ms: number }
   | { id: number; kind: 'bolt' | 'beam' | 'arc'; from: BPt; to: BPt; tone: FxTone; ms: number }
-  | { id: number; kind: 'slash' | 'spark' | 'nova' | 'burst' | 'shield' | 'debris' | 'dust' | 'star' | 'pixels' | 'ring'; at: BPt; tone: FxTone; ms: number; dir?: Dir }
+  | {
+      id: number
+      kind: 'slash' | 'spark' | 'nova' | 'burst' | 'shield' | 'debris' | 'dust' | 'star' | 'pixels' | 'ring' | 'flame' | 'zap' | 'smoke' | 'flare'
+      at: BPt
+      tone: FxTone
+      ms: number
+      dir?: Dir
+    }
   | { id: number; kind: 'tiles'; tiles: Pos[]; tone: FxTone | 'pre'; ms: number }
   | { id: number; kind: 'card'; cardId: string; upgraded: boolean; rect: RectLike; to: BPt; ms: number }
+  /** An area resolution erupting tile by tile, ring by ring outward from `center` (`ring` ms per ring). */
+  | { id: number; kind: 'area'; tiles: Pos[]; center: Pos; element: AreaElement; side: 'party' | 'enemy'; ring: number; ms: number }
+  /** Char marks left on the floor by fire / blasts (fade out). */
+  | { id: number; kind: 'scorch'; tiles: Pos[]; element: 'fire' | 'blast'; ms: number }
+  /** Ground shockwave ring; `radius` in tiles. */
+  | { id: number; kind: 'wave'; at: BPt; radius: number; tone: FxTone; ms: number }
+  /** A pushed unit slamming into the board edge / a cover block / another unit. `edge` (board coordinates, not
+   *  tile-centred) is the wall segment that lights up. */
+  | { id: number; kind: 'impact'; at: BPt; dir: Dir; surface: ImpactSurface; edge?: [BPt, BPt]; ms: number }
 
 /** Omit distributed over a union (so each FX variant keeps its own fields). */
 export type FxInput = FxItem extends unknown ? (FxItem extends infer T ? (T extends FxItem ? Omit<T, 'id'> : never) : never) : never
@@ -228,7 +250,7 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
       const id = ids.current++
       const full = { ...item, id } as FxItem
       setFx((list) => [...list, full])
-      later(() => setFx((list) => list.filter((f) => f.id !== id)), item.ms + 80)
+      later(() => setFx((list) => list.filter((f) => f.id !== id)), fxLife(full) + 80)
     },
     [later],
   )
@@ -352,6 +374,42 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
     [S, animFig],
   )
 
+  /** Turn to face `d` (sprite flips; `side` keeps the look left/right when `d` is up/down), with a quick pivot
+   *  squash that doubles as the anticipation beat before the action. */
+  const turnTo = useCallback(
+    (uid: string, d: Dir, side: 'left' | 'right' | undefined) => {
+      updUnit(uid, (x) => ({ ...x, facing: d }))
+      if (side) updFx(uid, { faceX: side })
+      animFig(
+        uid,
+        [{ transform: 'scale(0.25, 1.04)' }, { transform: 'scale(1.08, 0.9)', offset: 0.55 }, { transform: 'scale(0.98, 1.03)', offset: 0.8 }, { transform: 'scale(1, 1)' }],
+        S(TURN_MS + 50),
+        'cubic-bezier(.2,.8,.3,1)',
+      )
+    },
+    [S, animFig, updFx, updUnit],
+  )
+
+  /** Pushed into something: drive into it, squash flat against it, bounce back. */
+  const slam = useCallback(
+    (uid: string, d: Dir) => {
+      const [vx, vy] = DIR_PCT[d]
+      animFig(
+        uid,
+        [
+          { transform: 'translate(0,0) rotate(0) scale(1,1)' },
+          { transform: `translate(${vx * 24}%, ${vy * 24}%) rotate(${vx * 7}deg) scale(${vx ? 0.8 : 1.12}, ${vx ? 1.1 : 0.84})`, offset: 0.16 },
+          { transform: `translate(${-vx * 9}%, ${-vy * 9}%) rotate(${-vx * 4}deg) scale(1.04, 0.97)`, offset: 0.48 },
+          { transform: `translate(${vx * 2}%, ${vy * 2}%) rotate(0) scale(1,1)`, offset: 0.75 },
+          { transform: 'translate(0,0) rotate(0) scale(1,1)' },
+        ],
+        S(460),
+        'cubic-bezier(.2,.7,.3,1)',
+      )
+    },
+    [S, animFig],
+  )
+
   const zoomPunch = useCallback(
     (uid: string) => {
       const el = board.current
@@ -432,6 +490,9 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
         return idx
       })()
       const finalKill = next.phase === 'won'
+      // Planning-time context: inside an area resolution (its hits ripple), and burning ground as of each event.
+      let inArea = false
+      const planFire = new Map<string, number>()
 
       const start: ViewState = { ...viewFrom(prev), handHidden: !!opts.endTurn, enemyPhase: !!opts.endTurn }
       if (opts.endTurn) start.pendingIntents = prev.units.filter((u) => u.side === 'enemy' && u.intent && u.hp > 0).map((u) => u.uid)
@@ -440,6 +501,7 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
         kind === 'bolt' ? 150 : kind === 'beam' ? 190 : kind === 'arc' ? 360 : kind === 'nova' ? 160 : 110
 
       events.forEach((ev, evIdx) => {
+        if (ev.t === 'card' || ev.t === 'attack' || ev.t === 'turn' || ev.t === 'move' || ev.t === 'teleport' || ev.t === 'phase') inArea = false
         switch (ev.t) {
           case 'turn':
             if (ev.side === 'enemy') {
@@ -474,8 +536,14 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
             const def = cardDef ?? (item ? { id: item.id, type: item.effects.some((e) => e.kind === 'damage') ? 'attack' : 'skill', icon: item.icon } : undefined)
             const mode = face?.target.mode ?? 'none'
             const kind = mode === 'line' ? 'bolt' : mode === 'beam' ? 'beam' : mode === 'lob' ? 'arc' : mode === 'melee' ? 'slash' : 'burst'
+            // The caster turns toward its target first (a short pivot beat), then acts.
+            const owner0 = prev.units.find((u) => u.uid === ev.owner)
+            const want = owner0 ? (ev.dir ?? (ev.target ? dirToward(owner0.pos, ev.target) : undefined)) : undefined
+            const turning = !!owner0 && !!want && needsTurn(owner0.facing, want, sideOf(owner0.pos, want, ev.target))
+            // A lob that sets off no area (single tile) still lands with a small blast.
+            const landsAlone = kind === 'arc' && nextOfKind(events, evIdx, 'area', ['card', 'attack', 'turn']) === undefined
             steps.push({
-              dur: 170 + travel(kind),
+              dur: 170 + travel(kind) + (turning ? TURN_MS : 0),
               run: () => {
                 const u = unitOf(ev.owner)
                 const tgt = ev.target ?? u?.pos
@@ -487,6 +555,7 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
                 const d = ev.dir ?? (ev.target ? dirToward(u.pos, ev.target) : undefined)
                 ctxDir = d
                 ctxFrom = u.pos
+                if (turning && d) turnTo(ev.owner, d, sideOf(u.pos, d, ev.target))
                 later(() => {
                   pose(ev.owner, isAttack ? 'attack' : hasBlock ? 'guard' : 'skill', S(560))
                   if (isAttack && d) lunge(ev.owner, d)
@@ -504,8 +573,16 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
                     addFx({ kind: 'beam', from, to: { x: ex, y: ey }, tone: 'party', ms: S(460) })
                     sfx('beam', { pan })
                   } else if (kind === 'arc' && ev.target) {
-                    addFx({ kind: 'arc', from, to: ev.target, tone: 'party', ms: S(380) })
+                    const at = ev.target
+                    addFx({ kind: 'arc', from, to: at, tone: 'party', ms: S(380) })
                     sfx('lob', { pan })
+                    if (landsAlone)
+                      later(() => {
+                        addFx({ kind: 'flare', at, tone: 'party', ms: S(520) })
+                        addFx({ kind: 'wave', at, radius: 0.7, tone: 'party', ms: S(480) })
+                        trauma(0.22)
+                        sfx('explosion', { pan: panOf(at.x), intensity: 0.5, volume: 0.6 })
+                      }, S(370))
                   } else if (kind === 'slash' && ev.target) {
                     addFx({ kind: 'slash', at: ev.target, tone: 'party', ms: S(360), dir: d })
                     sfx('swing', { pan })
@@ -513,7 +590,7 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
                     addFx({ kind: 'burst', at: ev.target ?? u.pos, tone: hasBlock ? 'block' : 'party', ms: S(480) })
                     if (!hasBlock) sfx('energy', { pan, volume: 0.6 })
                   }
-                }, S(150))
+                }, S(150 + (turning ? TURN_MS : 0)))
               },
             })
             break
@@ -527,16 +604,30 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
             const support = pattern === 'buff' || pattern === 'summon'
             const kind = pattern === 'line' || pattern === 'track' ? 'bolt' : pattern === 'beam' ? 'beam' : pattern === 'lob' ? 'arc' : pattern === 'nova' ? 'nova' : support ? 'burst' : 'slash'
             if (u0?.side !== 'enemy') break
+            // Face the attack first: the intent's direction, or toward the struck area (lobs).
+            const aim = ev.tiles[Math.floor(ev.tiles.length / 2)]
+            const wantDir = support || pattern === 'nova' ? undefined : (u0.intent?.dir ?? (pattern === 'lob' && aim ? dirToward(u0.pos, aim) : u0.facing))
+            const wantSide = wantDir ? sideOf(u0.pos, wantDir, pattern === 'lob' ? aim : undefined) : undefined
+            const turnBeat = !!wantDir && needsTurn(u0.facing, wantDir, wantSide)
+            // An area attack erupts on the board itself ('area' event) — no separate landing ring.
+            const erupts = nextOfKind(events, evIdx, 'area', ['attack', 'turn', 'card']) !== undefined
             // Wind-up: the doomed tiles flash hot, the enemy leans back.
             steps.push({
-              dur: 240,
+              dur: 240 + (turnBeat ? TURN_MS : 0),
               run: () => {
                 const u = unitOf(uid)
                 patch({ firing: uid })
                 if (!u) return
                 if (ev.tiles.length) addFx({ kind: 'tiles', tiles: ev.tiles, tone: 'pre', ms: S(560) })
-                const [vx] = DIR_PCT[u.facing]
-                animFig(uid, [{ transform: 'translate(0,0)' }, { transform: `translate(${-vx * 8}%, 0) scale(1.03, 0.96)` }], S(280), 'ease-out')
+                if (turnBeat && wantDir) turnTo(uid, wantDir, wantSide)
+                const face = wantDir ?? u.facing
+                later(
+                  () => {
+                    const [vx] = DIR_PCT[face]
+                    animFig(uid, [{ transform: 'translate(0,0)' }, { transform: `translate(${-vx * 8}%, 0) scale(1.03, 0.96)` }], S(280), 'ease-out')
+                  },
+                  turnBeat ? S(TURN_MS) : 0,
+                )
                 sfx('telegraph', { pan: panOf(u.pos.x), volume: 0.7 })
               },
             })
@@ -563,7 +654,7 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
                 } else if (kind === 'arc' && last) {
                   const mid = ev.tiles[Math.floor(ev.tiles.length / 2)] ?? last
                   addFx({ kind: 'arc', from, to: mid, tone: 'enemy', ms: S(400) })
-                  later(() => addFx({ kind: 'ring', at: mid, tone: 'enemy', ms: S(520) }), S(360))
+                  if (!erupts) later(() => addFx({ kind: 'ring', at: mid, tone: 'enemy', ms: S(520) }), S(360))
                   sfx('lob', { pan })
                 } else if (kind === 'nova') {
                   addFx({ kind: 'nova', at: from, tone: 'enemy', ms: S(520) })
@@ -658,12 +749,18 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
             const uid = ev.uid
             lastSource.set(uid, ev.source)
             const amt = ev.amount
+            const cause = ev.cause
             const big = amt >= 6
             const pre = unitOf(uid) ?? prev.units.find((u) => u.uid === uid)
             const lethal = !!pre && amt > 0 && pre.hp - amt <= 0
-            const stop = amt <= 0 ? 0 : lethal ? 110 : Math.min(90, 50 + amt * 7)
+            // Hits inside an area resolution land as a quick ripple; bump hits ride on the slam's own hit-stop
+            // (both bodies' numbers pop together).
+            const compact = inArea || cause === 'bump'
+            const stop = amt <= 0 || cause === 'bump' ? 0 : lethal ? 110 : compact ? 45 : Math.min(90, 50 + amt * 7)
+            const nextEv = events[evIdx + 1]
+            const tail = cause === 'bump' ? (nextEv?.t === 'damage' && nextEv.cause === 'bump' ? 40 : 160) : compact ? 110 : big || lethal ? 250 : 170
             steps.push({
-              dur: stop + (big || lethal ? 250 : 170),
+              dur: stop + tail,
               run: () => {
                 const u = unitOf(uid)
                 if (!u) return
@@ -679,13 +776,30 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
                     const isConnector = u.uid === 'connector'
                     whiteFlash(uid, isConnector || u.side === 'party')
                     pose(uid, 'hit', S(420))
-                    const d = ctxFrom ? dirToward(ctxFrom, u.pos) : ctxDir
-                    recoil(uid, d, big || lethal)
-                    addFx({ kind: 'text', at, text: `${amt}`, tone: big ? 'crit' : 'dmg', ms: S(big ? 1250 : 1000) })
-                    const tone: FxTone = ev.source === 'environment' ? 'env' : ev.source === 'party' ? 'party' : 'enemy'
-                    addFx({ kind: 'spark', at, tone, ms: S(big ? 560 : 440) })
-                    trauma(Math.min(0.75, (big ? 0.38 : 0.18) + amt * 0.025 + (lethal ? 0.15 : 0)))
-                    sfx(big || lethal ? 'hit_heavy' : 'hit_light', { pan, intensity: Math.min(2, 0.5 + amt / 6) })
+                    const numTone: TextTone = cause === 'burn' ? 'burn' : cause === 'hazard' ? 'zap' : big ? 'crit' : 'dmg'
+                    addFx({ kind: 'text', at, text: `${amt}`, tone: numTone, ms: S(big ? 1250 : 1000) })
+                    if (cause === 'burn') {
+                      // Burn tick: the flames on the body flare up.
+                      squash(uid)
+                      addFx({ kind: 'flame', at, tone: 'fire', ms: S(720) })
+                      trauma(Math.min(0.4, 0.12 + amt * 0.03))
+                      sfx('fire_tick', { pan, intensity: Math.min(2, 0.7 + amt / 5) })
+                    } else if (cause === 'hazard') {
+                      squash(uid)
+                      addFx({ kind: 'zap', at, tone: 'shock', ms: S(560) })
+                      trauma(0.2)
+                      sfx('zap', { pan })
+                    } else if (cause === 'bump') {
+                      addFx({ kind: 'spark', at, tone: 'warn', ms: S(380) })
+                      sfx('hit_light', { pan, volume: 0.55 })
+                    } else {
+                      const d = ctxFrom ? dirToward(ctxFrom, u.pos) : ctxDir
+                      recoil(uid, d, big || lethal)
+                      const tone: FxTone = ev.source === 'environment' ? 'env' : ev.source === 'party' ? 'party' : 'enemy'
+                      addFx({ kind: 'spark', at, tone, ms: S(big ? 560 : 440) })
+                      trauma(Math.min(0.75, (big ? 0.38 : 0.18) + amt * 0.025 + (lethal ? 0.15 : 0)))
+                      sfx(big || lethal ? 'hit_heavy' : 'hit_light', { pan, intensity: Math.min(2, 0.5 + amt / 6) })
+                    }
                     if (u.side === 'party') hurtFlash()
                     if (ev.blocked > 0) addFx({ kind: 'text', at: { x: at.x + 0.3, y: at.y - 0.15 }, text: `⛨${ev.blocked}`, tone: 'block', ms: S(900) })
                   }, S(stop))
@@ -735,34 +849,58 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
             const uid = ev.uid
             const moved = ev.from.x !== ev.to.x || ev.from.y !== ev.to.y
             const voidDrop = moved && events[evIdx + 1]?.t === 'death' && (events[evIdx + 1] as { uid: string }).uid === uid
+            const bumped = ev.bumped
+            const d = ev.dir
+            // A push that ends in a slam accelerates into the obstacle instead of easing out.
+            const slide = bumped ? 150 : 190
             if (moved)
               steps.push({
-                dur: 190,
+                dur: slide,
                 run: () => {
-                  updFx(uid, { moveMs: S(190), ease: 'out' })
+                  updFx(uid, { moveMs: S(slide), ease: bumped ? 'in' : 'out' })
                   updUnit(uid, (x) => ({ ...x, pos: ev.to }))
                   addFx({ kind: 'dust', at: ev.from, tone: 'neutral', ms: S(500) })
                   sfx('push', { pan: panOf(ev.to.x) })
                 },
               })
-            if (ev.bumped) {
-              const bumped = ev.bumped
+            if (bumped) {
+              const surface: ImpactSurface = bumped === 'wall' ? 'wall' : bumped === 'cover' ? 'cover' : 'unit'
               steps.push({
-                dur: 250,
+                dur: 330,
                 run: () => {
                   updFx(uid, { moveMs: 0 })
-                  const other = bumped !== 'wall' && bumped !== 'cover' ? unitOf(bumped) : undefined
-                  const d = (moved ? dirToward(ev.from, ev.to) : undefined) ?? (other ? dirToward(ev.to, other.pos) : ctxDir)
-                  const v = d ? DIR_VEC[d] : { x: 0, y: 0 }
+                  const other = surface === 'unit' ? unitOf(bumped) : undefined
+                  const v = DIR_VEC[d]
                   const at = { x: ev.to.x + v.x * 0.5, y: ev.to.y + v.y * 0.5 }
-                  addFx({ kind: 'star', at, tone: 'warn', ms: S(520) })
-                  addFx({ kind: 'dust', at, tone: 'neutral', ms: S(560) })
-                  addFx({ kind: 'text', at: { x: at.x, y: at.y - 0.25 }, text: k ? '쾅!' : 'BUMP!', tone: 'word', ms: S(950) })
-                  lunge(uid, d, 0.5)
-                  if (other) recoil(other.uid, d, false)
-                  trauma(bumped === 'wall' || bumped === 'cover' ? 0.5 : 0.42)
-                  hitStop(S(70))
-                  sfx('bump', { pan: panOf(ev.to.x), intensity: 1.3 })
+                  const pan = panOf(at.x)
+                  slam(uid, d)
+                  // Contact lands ~16 % into the slam: everything hits on that frame, then the board freezes.
+                  later(() => {
+                    whiteFlash(uid, false)
+                    pose(uid, 'hit', S(480))
+                    if (other) {
+                      whiteFlash(other.uid, false)
+                      pose(other.uid, 'hit', S(480))
+                      recoil(other.uid, d, true)
+                    }
+                    if (surface === 'cover') {
+                      // The block cracks right away (the engine's hp loss has no event of its own).
+                      const cp = { x: ev.to.x + v.x, y: ev.to.y + v.y }
+                      const vw = shadow.current
+                      const cur = vw.tiles[cp.y]?.[cp.x]
+                      if (cur?.kind === 'cover') {
+                        const hp = Math.max(1, (cur.hp ?? COVER_HP) - 1)
+                        commit({ ...vw, tiles: vw.tiles.map((row, y) => (y === cp.y ? row.map((t, x) => (x === cp.x ? { ...t, hp } : t)) : row)) })
+                      }
+                    }
+                    addFx({ kind: 'impact', at, dir: d, surface, ...(surface === 'wall' ? { edge: edgeOf(ev.to, d) } : {}), ms: S(780) })
+                    addFx({ kind: 'debris', at, tone: surface === 'cover' ? 'block' : 'neutral', ms: S(820) })
+                    addFx({ kind: 'dust', at, tone: 'neutral', ms: S(760) })
+                    addFx({ kind: 'text', at: { x: at.x, y: at.y - 0.3 }, text: k ? '쾅!' : 'SLAM!', tone: 'slam', ms: S(1150) })
+                    trauma(surface === 'unit' ? 0.42 : 0.47)
+                    hitStop(S(72))
+                    sfx(surface === 'unit' ? 'bump' : 'wall_slam', { pan, intensity: 1.5 })
+                  }, S(70))
                 },
               })
             } else if (moved && !voidDrop) steps.push({ dur: 20, run: () => updFx(uid, { moveMs: 0 }) })
@@ -772,7 +910,7 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
           case 'status':
             if (ev.amount > 0)
               steps.push({
-                dur: 170,
+                dur: inArea ? 70 : 170,
                 run: () => {
                   const u = unitOf(ev.uid)
                   if (!u) return
@@ -884,25 +1022,160 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
             break
           }
 
-          case 'tile':
+          case 'tile': {
+            // Runs of tile changes (an electrified cross, a whole board reverting) ripple instead of queueing.
+            const runIdx = runIndex(events, evIdx)
+            const more = events[evIdx + 1]?.t === 'tile'
             steps.push({
-              dur: 150,
+              dur: more ? 35 : 150,
               run: () => {
                 const v = shadow.current
-                const prevKind = v.tiles[ev.pos.y]?.[ev.pos.x]?.kind
+                const cur = v.tiles[ev.pos.y]?.[ev.pos.x]
+                const prevKind = cur?.kind
                 const nt = next.tiles[ev.pos.y]?.[ev.pos.x]
-                const tile: Tile = nt && nt.kind === ev.kind ? nt : { kind: ev.kind }
+                // Kind/hp/ttl from the committed tile; burning ground stays as the timeline has it.
+                const tile: Tile = { ...(nt && nt.kind === ev.kind ? nt : { kind: ev.kind }) }
+                delete tile.fire
+                if (cur?.fire && (ev.kind === 'floor' || ev.kind === 'hazard')) tile.fire = cur.fire
                 const tiles = v.tiles.map((row, y) => (y === ev.pos.y ? row.map((t, x) => (x === ev.pos.x ? tile : t)) : row))
                 commit({ ...v, tiles })
+                const pan = panOf(ev.pos.x)
                 if (prevKind === 'cover' && ev.kind !== 'cover') {
-                  addFx({ kind: 'debris', at: ev.pos, tone: 'neutral', ms: S(700) })
-                  trauma(0.25)
-                  sfx('bump', { pan: panOf(ev.pos.x), intensity: 0.8 })
+                  // Cover shatters: chips, dust, a heavy crack.
+                  addFx({ kind: 'debris', at: ev.pos, tone: 'block', ms: S(820) })
+                  addFx({ kind: 'debris', at: ev.pos, tone: 'neutral', ms: S(900) })
+                  addFx({ kind: 'dust', at: ev.pos, tone: 'neutral', ms: S(900) })
+                  trauma(0.32)
+                  sfx('wall_slam', { pan, intensity: 0.8, volume: 0.8 })
                 }
                 if (ev.kind === 'cover') {
                   addFx({ kind: 'ring', at: ev.pos, tone: 'block', ms: S(460) })
-                  sfx('block', { pan: panOf(ev.pos.x) })
+                  sfx('block', { pan })
                 }
+                if (prevKind === 'floor' && ev.kind === 'hazard') {
+                  // Electrified: the tile crackles to life.
+                  later(() => addFx({ kind: 'zap', at: ev.pos, tone: 'shock', ms: S(520) }), S(runIdx * 30))
+                  if (runIdx === 0) sfx('zap', { pan, intensity: 0.8 })
+                }
+                if (prevKind === 'hazard' && ev.kind === 'floor') {
+                  addFx({ kind: 'spark', at: ev.pos, tone: 'shock', ms: S(380) })
+                  if (runIdx === 0) sfx('status_shock', { pan, volume: 0.4 })
+                }
+              },
+            })
+            break
+          }
+
+          case 'area': {
+            inArea = true
+            const n = ev.tiles.length
+            const rings = ev.tiles.reduce((m, p) => Math.max(m, Math.abs(p.x - ev.center.x) + Math.abs(p.y - ev.center.y)), 0)
+            const harmful = ev.element === 'fire' || ev.element === 'shock' || ev.element === 'blast' || ev.element === 'force'
+            const big = harmful && n >= 5
+            // The ground this resolution sets on fire catches during the eruption itself, so its flames hand over to
+            // the burning tiles without a gap (the later 'fire' events then only confirm the count).
+            const ignites: { pos: Pos; turns: number }[] = []
+            for (let j = evIdx + 1; j < events.length; j++) {
+              const e = events[j] as CombatEvent
+              if (e.t === 'card' || e.t === 'attack' || e.t === 'turn' || e.t === 'area') break
+              if (e.t === 'fire' && e.turns > 0) {
+                ignites.push(e)
+                planFire.set(`${e.pos.x},${e.pos.y}`, e.turns)
+              }
+            }
+            steps.push({
+              dur: rings * RING_MS + (harmful ? 210 : 150) + (big ? 80 : 0),
+              run: () => {
+                // Hits that follow recoil away from the centre of the blast.
+                ctxFrom = ev.center
+                ctxDir = undefined
+                const pan = panOf(ev.center.x)
+                const tone: FxTone = ev.element === 'fire' ? 'fire' : ev.element === 'shock' ? 'shock' : ev.element === 'heal' ? 'heal' : ev.element === 'shield' ? 'block' : ev.element === 'force' ? 'neutral' : ev.side === 'enemy' ? 'enemy' : 'warn'
+                addFx({ kind: 'area', tiles: ev.tiles, center: ev.center, element: ev.element, side: ev.side, ring: S(RING_MS), ms: S(harmful ? 950 : 850) })
+                if (harmful) addFx({ kind: 'wave', at: ev.center, radius: rings + 0.65, tone, ms: S(560 + rings * 60) })
+                if (ev.element === 'fire' || ev.element === 'blast') addFx({ kind: 'scorch', tiles: ev.tiles, element: ev.element, ms: S(3100) })
+                if (ignites.length)
+                  later(() => {
+                    const vw = shadow.current
+                    const at = new Map(ignites.map((e) => [`${e.pos.x},${e.pos.y}`, e.turns]))
+                    const tiles = vw.tiles.map((row, y) => row.map((t, x) => (at.has(`${x},${y}`) ? { ...t, fire: Math.max(t.fire ?? 0, at.get(`${x},${y}`) ?? 0) } : t)))
+                    commit({ ...vw, tiles })
+                  }, S(rings * RING_MS + 260))
+                if (harmful) {
+                  trauma(Math.min(0.85, 0.3 + 0.05 * n))
+                  // Freeze on the bloom of the centre flash.
+                  if (big) later(() => hitStop(S(n >= 9 ? 90 : 65)), S(45))
+                }
+                const kSize = Math.min(2, 0.7 + n * 0.12)
+                switch (ev.element) {
+                  case 'fire':
+                    sfx('explosion', { pan, intensity: kSize * 0.8 })
+                    sfx('ignite', { pan, volume: 0.9 })
+                    break
+                  case 'shock':
+                    sfx('zap', { pan, intensity: kSize })
+                    sfx('explosion', { pan, intensity: 0.5, volume: 0.55 })
+                    break
+                  case 'blast':
+                    sfx('explosion', { pan, intensity: kSize })
+                    break
+                  case 'force':
+                    sfx('shockwave', { pan, intensity: kSize })
+                    break
+                  case 'shield':
+                    sfx('block', { pan })
+                    break
+                  case 'heal':
+                    sfx('heal', { pan })
+                    break
+                }
+              },
+            })
+            break
+          }
+
+          case 'fire': {
+            const runIdx = runIndex(events, evIdx)
+            const more = events[evIdx + 1]?.t === 'fire'
+            const fk = `${ev.pos.x},${ev.pos.y}`
+            const prevFire = planFire.get(fk) ?? prev.tiles[ev.pos.y]?.[ev.pos.x]?.fire ?? 0
+            planFire.set(fk, ev.turns)
+            steps.push({
+              // Burning down a turn is silent bookkeeping; igniting / going out gets a beat at the end of the run.
+              dur: more ? 0 : ev.turns > prevFire ? 150 : ev.turns === 0 ? 110 : 0,
+              run: () => {
+                const v = shadow.current
+                const cur = v.tiles[ev.pos.y]?.[ev.pos.x]
+                if (!cur) return
+                const was = cur.fire ?? 0
+                const tile: Tile = { ...cur }
+                if (ev.turns > 0) tile.fire = ev.turns
+                else delete tile.fire
+                commit({ ...v, tiles: v.tiles.map((row, y) => (y === ev.pos.y ? row.map((t, x) => (x === ev.pos.x ? tile : t)) : row)) })
+                const pan = panOf(ev.pos.x)
+                if (ev.turns > was) {
+                  later(() => addFx({ kind: 'flare', at: ev.pos, tone: 'fire', ms: S(720) }), S(runIdx * 35))
+                  if (runIdx === 0) sfx('ignite', { pan, volume: 0.75 })
+                } else if (ev.turns === 0 && was > 0) {
+                  later(() => addFx({ kind: 'smoke', at: ev.pos, tone: 'neutral', ms: S(1200) }), S(runIdx * 30))
+                  if (runIdx === 0) sfx('extinguish', { pan })
+                }
+              },
+            })
+            break
+          }
+
+          case 'passive':
+            steps.push({
+              dur: 420,
+              run: () => {
+                const u = unitOf(ev.uid)
+                if (!u) return
+                const name = Cn.companions[ev.companionId]?.combatPassive?.name
+                if (name) addFx({ kind: 'text', at: { x: u.pos.x, y: u.pos.y - 0.55 }, text: tr(name, lg), tone: 'passive', ms: S(1450) })
+                addFx({ kind: 'ring', at: u.pos, tone: 'gold', ms: S(640) })
+                addFx({ kind: 'burst', at: u.pos, tone: 'gold', ms: S(560) })
+                sfx('passive', { pan: panOf(u.pos.x) })
               },
             })
             break
@@ -981,7 +1254,7 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
       }
       tick()
     },
-    [S, addFx, animFig, commit, figImg, hitStop, hurtFlash, later, lunge, patch, pose, recoil, showBanner, squash, trauma, unitOf, updFx, updUnit, whiteFlash, zoomPunch],
+    [S, addFx, animFig, commit, figImg, hitStop, hurtFlash, later, lunge, patch, pose, recoil, showBanner, slam, squash, trauma, turnTo, unitOf, updFx, updUnit, whiteFlash, zoomPunch],
   )
 
   const registerFigure = useCallback((uid: string, el: HTMLElement | null) => {
@@ -1008,5 +1281,73 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
 
 /** Timeline pace while the player fast-forwards an enemy phase. */
 const HURRY_SPEED = 0.3
+/** Turn-to-face beat before a cast / an enemy wind-up. */
+const TURN_MS = 110
+/** Area eruptions spread outward one Manhattan ring per RING_MS. */
+const RING_MS = 45
 
 const DIR_VEC: Record<Dir, Pos> = { up: { x: 0, y: -1 }, down: { x: 0, y: 1 }, left: { x: -1, y: 0 }, right: { x: 1, y: 0 } }
+
+/** Which way the sprite should look when facing `d` toward `target` (up/down only keep a side if the target is off-axis). */
+function sideOf(from: Pos, d: Dir, target: Pos | undefined): 'left' | 'right' | undefined {
+  if (target && target.x !== from.x) return target.x > from.x ? 'right' : 'left'
+  return d === 'left' || d === 'right' ? d : undefined
+}
+
+/** How long an FX item stays mounted: its `ms`, plus the ring stagger and particle jitter some kinds add on top. */
+function fxLife(f: FxItem): number {
+  if (f.kind === 'area') return f.ms * 1.3 + f.tiles.reduce((m, p) => Math.max(m, Math.abs(p.x - f.center.x) + Math.abs(p.y - f.center.y)), 0) * f.ring
+  if (f.kind === 'flame' || f.kind === 'smoke' || f.kind === 'flare' || f.kind === 'zap' || f.kind === 'impact') return f.ms * 1.35
+  return f.ms
+}
+
+/** A turn beat plays when the facing changes, or when a unit already facing up/down must look to a given side
+ *  (its current horizontal look lives in the board view, so that case always gets the beat). */
+function needsTurn(facing: Dir, want: Dir, side: 'left' | 'right' | undefined): boolean {
+  if (want !== facing) return true
+  return !!side && (facing === 'up' || facing === 'down')
+}
+
+/** Index of the next event of kind `t` after `i`, stopping at any of `stop` (undefined when none). */
+function nextOfKind(events: CombatEvent[], i: number, t: CombatEvent['t'], stop: CombatEvent['t'][]): number | undefined {
+  for (let j = i + 1; j < events.length; j++) {
+    const e = events[j] as CombatEvent
+    if (e.t === t) return j
+    if (stop.includes(e.t)) return undefined
+  }
+  return undefined
+}
+
+/** Position of event `i` inside its run of consecutive same-kind events (staggers ripples). */
+function runIndex(events: CombatEvent[], i: number): number {
+  const t = events[i]?.t
+  let n = 0
+  while (i - n - 1 >= 0 && events[i - n - 1]?.t === t) n++
+  return n
+}
+
+/** The edge of tile `p` facing `d`, in board coordinates (for the wall a pushed unit hits). */
+function edgeOf(p: Pos, d: Dir): [BPt, BPt] {
+  switch (d) {
+    case 'right':
+      return [
+        { x: p.x + 1, y: p.y },
+        { x: p.x + 1, y: p.y + 1 },
+      ]
+    case 'left':
+      return [
+        { x: p.x, y: p.y },
+        { x: p.x, y: p.y + 1 },
+      ]
+    case 'up':
+      return [
+        { x: p.x, y: p.y },
+        { x: p.x + 1, y: p.y },
+      ]
+    case 'down':
+      return [
+        { x: p.x, y: p.y + 1 },
+        { x: p.x + 1, y: p.y + 1 },
+      ]
+  }
+}

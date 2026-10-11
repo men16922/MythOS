@@ -8,17 +8,17 @@ export const STATUS_NAME: Record<StatusKind, Text> = {
   shock: L('감전', 'Shock'),
   mark: L('표식', 'Mark'),
   weak: L('약화', 'Weak'),
-  guard: L('방호', 'Guard'),
+  guard: L('수호', 'Guard'),
   thorns: L('가시', 'Thorns'),
 }
 
 export const STATUS_TEXT: Record<StatusKind, Text> = {
-  burn: L('적 페이즈가 끝날 때 수치만큼 피해(방어 무시), 이후 1 감소.', 'Takes N damage at the end of each enemy phase (ignores block), then N − 1.'),
-  shock: L('적: 공격이 불발되고 이동하지 않음. 아군: 이동 불가.', 'Enemy: its attack fizzles and it does not move. Party: cannot move.'),
-  mark: L('다음에 받는 피해가 수치만큼 증가.', 'The next hit taken deals N extra damage.'),
-  weak: L('가하는 피해 −2.', 'Deals 2 less damage.'),
-  guard: L('매 턴 시작 시 방어도 획득.', 'Gains N block at the start of each turn.'),
-  thorns: L('근접·돌진 공격자에게 수치만큼 반격.', 'Melee/charge attackers take N damage.'),
+  burn: L('적 페이즈가 끝날 때 수치만큼 피해(방어막 무시). 그 뒤 1 줄어든다.', 'Takes N damage at the end of each enemy phase (ignores block), then N − 1.'),
+  shock: L('적: 공격이 불발되고 움직이지 못한다. 아군: 이동할 수 없다.', 'Enemy: its attack fizzles and it does not move. Party: cannot move.'),
+  mark: L('다음에 받는 피해가 수치만큼 늘어난다.', 'The next hit taken deals N extra damage.'),
+  weak: L('주는 피해 −2.', 'Deals 2 less damage.'),
+  guard: L('매 턴 시작 시 수치만큼 방어막을 얻는다.', 'Gains N block at the start of each turn.'),
+  thorns: L('근접·돌진으로 공격한 상대는 수치만큼 피해를 받는다.', 'Melee/charge attackers take N damage.'),
 }
 
 const PATTERN: Record<EnemyMove['pattern'], Text> = {
@@ -33,7 +33,7 @@ const PATTERN: Record<EnemyMove['pattern'], Text> = {
   track: L('추적 조준', 'Lock-on'),
 }
 
-export const TRACK_NOTE = L('추적 조준 — 피할 수 없음 (방어·해킹·처치로 대응)', "Lock-on — can't be dodged (block, hack or kill)")
+export const TRACK_NOTE = L('추적 조준 — 회피 불가 (방어·해킹·처치로 대응)', "Lock-on — can't be dodged (block, hack or kill)")
 
 export function patternLabel(p: EnemyMove['pattern'], lang: Lang): string {
   return tr(PATTERN[p], lang)
@@ -43,21 +43,25 @@ function effectBit(e: Effect, lang: Lang): string | null {
   const k = lang === 'ko'
   switch (e.kind) {
     case 'push':
-      return e.dir === 'toward' ? (k ? `끌어당김 ${e.distance ?? 1}` : `Pull ${e.distance ?? 1}`) : k ? `밀어냄 ${e.distance ?? 1}` : `Push ${e.distance ?? 1}`
+      return e.dir === 'toward' ? (k ? `끌어당기기 ${e.distance ?? 1}` : `Pull ${e.distance ?? 1}`) : k ? `밀쳐내기 ${e.distance ?? 1}` : `Push ${e.distance ?? 1}`
     case 'status':
       return `${tr(STATUS_NAME[e.status], lang)} ${e.amount}`
     case 'block':
-      return k ? `방어 +${e.amount}` : `Block +${e.amount}`
+      return k ? `방어막 +${e.amount}` : `Block +${e.amount}`
     case 'heal':
       return k ? `회복 ${e.amount}` : `Heal ${e.amount}`
     case 'damage':
       return k ? `피해 ${e.amount}` : `${e.amount} damage`
+    case 'ignite':
+      return k ? `불길 ${e.turns}턴` : `Fire ${e.turns}t`
+    case 'electrify':
+      return k ? `전기 바닥 ${e.turns}턴` : `Live wire ${e.turns}t`
     default:
       return null
   }
 }
 
-/** "사격 · 피해 3 · 밀어냄 1 · 2턴 충전" */
+/** "사격 · 피해 3 · 밀쳐내기 1 · 2턴 뒤 발사" */
 export function describeMove(move: EnemyMove, damage: number | undefined, windupLeft: number, lang: Lang): string {
   const k = lang === 'ko'
   const bits: string[] = [patternLabel(move.pattern, lang)]
@@ -79,7 +83,7 @@ export function bonusText(b: BonusObjective, lang: Lang): string {
     case 'turn_limit':
       return k ? `${b.turns}턴 안에 승리` : `Win within ${b.turns} turns`
     case 'untouched':
-      return k ? '커넥터 무피해' : 'Connector untouched'
+      return k ? '접속자 무피해' : 'Connector untouched'
     case 'environment':
       return k ? `환경으로 ${b.count}명 처치` : `${b.count} environment kills`
     case 'protect':
@@ -105,7 +109,7 @@ export function objectiveText(enc: EncounterDef | undefined, c: CombatState, lan
   const o = enc?.objective
   if (o && o.kind === 'survive') {
     const left = Math.max(0, o.turns - (c.turn - 1))
-    return k ? `${o.turns}턴 버티기 · 남은 ${left}` : `Survive ${o.turns} turns · ${left} left`
+    return k ? `${o.turns}턴 버티기 · 남은 턴 ${left}` : `Survive ${o.turns} turns · ${left} left`
   }
   return k ? '적 전멸' : 'Eliminate all hostiles'
 }

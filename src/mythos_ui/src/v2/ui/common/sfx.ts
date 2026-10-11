@@ -6,6 +6,13 @@
 //   setMusicDuck(true)    // muffle + lower the BGM (enemy phase, modals)
 //
 // The context is created lazily on the first user gesture (`initSfx`, called by unlockAudio).
+//
+// Graph:  voices → panner → sfxBus → sfxComp (slow attack: transients punch through) ─┐
+//         reverb send → convolver ──────────────────────────────────────────────────┤→ master → limiter → soft clip → out
+//         music → musicFilter → musicGain → impactDuck → musicComp (the original glue) ┘
+// Impacts layer a saturated sub thump (pitch-dropping sine whose harmonics survive laptop speakers), a
+// transient click and a noise body. Big ones dip the music for a beat (impactDuck). The limiter + soft clip
+// keep a whole AoE turn of stacked cues below full scale.
 
 import { asset } from './assets.ts'
 
@@ -52,6 +59,14 @@ export type SfxName =
   | 'alarm'
   | 'type_tick'
   | 'unlock'
+  | 'explosion'
+  | 'shockwave'
+  | 'ignite'
+  | 'fire_tick'
+  | 'extinguish'
+  | 'zap'
+  | 'wall_slam'
+  | 'passive'
 
 export interface SfxOpts {
   /** 0.3 … 2 — scales loudness, pitch drop and body of impact sounds. Default 1. */
@@ -68,7 +83,9 @@ let sfxBus: GainNode | null = null
 let reverbSend: GainNode | null = null
 let musicFilter: BiquadFilterNode | null = null
 let musicGain: GainNode | null = null
+let impactDuck: GainNode | null = null
 let noiseBuf: AudioBuffer | null = null
+let driveCurve: Float32Array<ArrayBuffer> | null = null
 let enabled = true
 const samples = new Map<string, AudioBuffer | 'loading' | 'failed'>()
 const lastPlayed = new Map<string, number>()
@@ -103,34 +120,43 @@ export function initSfx(): AudioContext | null {
   const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
   if (!Ctor) return null
   ctx = new Ctor()
-  const comp = ctx.createDynamicsCompressor()
-  comp.threshold.value = -14
-  comp.knee.value = 10
-  comp.ratio.value = 4
-  comp.attack.value = 0.003
-  comp.release.value = 0.18
+  // Output stage: a fast limiter (≈ -1 dBFS ceiling once its automatic makeup gain is cancelled by `master`)
+  // and a soft clip that is transparent below -1.4 dBFS and never reaches full scale.
+  const limiter = compressor(ctx, LIMIT_THRESHOLD, 0, 20, 0.001, 0.09)
+  const clipIn = ctx.createGain()
+  clipIn.gain.value = 0.5
+  const clip = ctx.createWaveShaper()
+  clip.curve = softClipCurve()
   master = ctx.createGain()
-  master.gain.value = 0.9
-  master.connect(comp).connect(ctx.destination)
+  master.gain.value = 1 / makeupGain(LIMIT_THRESHOLD, 20)
+  master.connect(limiter).connect(clipIn).connect(clip).connect(ctx.destination)
 
+  // SFX bus: a slower-attack compressor lets each transient through before it clamps the body — punch
+  // instead of the old shared glue compressor squashing every hit.
+  const sfxComp = compressor(ctx, -20, 6, 3.5, 0.012, 0.14)
   sfxBus = ctx.createGain()
-  sfxBus.gain.value = 0.85
-  sfxBus.connect(master)
+  sfxBus.gain.value = SFX_LEVEL
+  sfxBus.connect(sfxComp).connect(master)
 
   // Short synthetic room so impacts sit in a space instead of clicking dry.
   const convolver = ctx.createConvolver()
   convolver.buffer = makeImpulse(ctx, 1.1, 3.2)
   reverbSend = ctx.createGain()
-  reverbSend.gain.value = 0.22
-  reverbSend.connect(convolver).connect(master)
+  reverbSend.gain.value = 0.2
+  reverbSend.connect(convolver).connect(sfxComp)
 
+  // Music keeps the original master chain (0.9 gain → glue compressor) so it sounds exactly as before.
   musicFilter = ctx.createBiquadFilter()
   musicFilter.type = 'lowpass'
   musicFilter.frequency.value = 20000
   musicFilter.Q.value = 0.7
   musicGain = ctx.createGain()
   musicGain.gain.value = 1
-  musicFilter.connect(musicGain).connect(master)
+  impactDuck = ctx.createGain()
+  impactDuck.gain.value = 1
+  const musicLevel = ctx.createGain()
+  musicLevel.gain.value = 0.9
+  musicFilter.connect(musicGain).connect(impactDuck).connect(musicLevel).connect(compressor(ctx, -14, 10, 4, 0.003, 0.18)).connect(master)
 
   noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate)
   const data = noiseBuf.getChannelData(0)
@@ -154,6 +180,17 @@ export function setMusicDuck(on: boolean): void {
   musicGain.gain.cancelScheduledValues(t)
   musicFilter.frequency.setTargetAtTime(on ? 900 : 20000, t, on ? 0.12 : 0.35)
   musicGain.gain.setTargetAtTime(on ? 0.62 : 1, t, 0.2)
+}
+
+/** Dip the music under a big impact for a beat (independent of the enemy-phase duck). */
+function duckForImpact(db: number, hold: number): void {
+  if (!ctx || !impactDuck) return
+  const t = ctx.currentTime
+  const g = impactDuck.gain
+  g.cancelScheduledValues(t)
+  g.setValueAtTime(Math.min(1, Math.max(0.05, g.value || 1)), t)
+  g.linearRampToValueAtTime(Math.pow(10, -db / 20), t + 0.012)
+  g.setTargetAtTime(1, t + hold, 0.14)
 }
 
 export function sfx(name: SfxName, opts: SfxOpts = {}): void {
@@ -206,7 +243,10 @@ export function sfx(name: SfxName, opts: SfxOpts = {}): void {
       v.sample('step', 0.25)
       break
     case 'push':
-      v.noise('bandpass', 300, 0.01, 0.18, 0.3, 1800)
+      // Shove: a rising whoosh over a short scrape and a soft shoulder thump.
+      v.noise('bandpass', 380, 0.012, 0.2, 1.1, 2400)
+      v.noise('lowpass', 700, 0.004, 0.13, 0.45)
+      v.thump(150, 62, 0.04, 0.1, 0.45, 0, true)
       break
     case 'swing':
       v.noise('bandpass', 900, 0.005, 0.12, 0.35, 4200)
@@ -221,37 +261,115 @@ export function sfx(name: SfxName, opts: SfxOpts = {}): void {
       v.noise('bandpass', 2400, 0.02, 0.4, 0.14)
       break
     case 'lob':
-      v.tone(900, 'sine', 0.01, 0.4, 0.07, 300)
-      v.tone(90, 'sine', 0.002, 0.12, 0.3, 50)
+      // Mortar "thoomp" + a falling whistle.
+      v.thump(230, 95, 0.05, 0.12, 0.5, 0, true)
+      v.noise('bandpass', 900, 0.003, 0.08, 0.35)
+      v.tone(1500, 'sine', 0.02, 0.38, 0.07, 500, 0.05)
       break
     case 'hit_light':
-      v.tone(170 * (1.1 - 0.1 * k), 'sine', 0.001, 0.11 * k, 0.55 * k, 60)
-      v.noise('bandpass', 2200, 0.001, 0.06, 0.4 * k)
-      v.sample('attack', 0.3 * k)
+      v.thump(200 * (1.1 - 0.1 * k), 70, 0.045, 0.1 + 0.04 * k, 0.6 * k, 0, true)
+      v.click(0.4 * k, 3200)
+      v.noise('bandpass', 1900, 0.001, 0.07, 0.5 * k)
+      v.sample('attack', 0.32 * k)
       break
     case 'hit_heavy':
-      v.tone(130 * (1.1 - 0.1 * k), 'sine', 0.001, 0.24 * k, 0.9 * k, 38)
-      v.noise('lowpass', 1100, 0.001, 0.18 * k, 0.55 * k)
+      v.thump(170 * (1.1 - 0.1 * k), 44, 0.07, 0.22 + 0.11 * k, 0.95, 0, true)
+      v.click(0.55 * k, 2800)
+      v.noise('lowpass', 1500, 0.001, 0.2 * k, 0.6 * k, 300)
       v.tone(2200, 'square', 0.001, 0.018, 0.12)
-      v.crunch(0.16 * k, 0.35 * k)
-      v.sample('attack', 0.45 * k)
+      v.crunch(0.16 * k, 0.4 * k)
+      v.sample('attack', 0.48 * k)
+      duckForImpact(2.5 * k, 0.12)
       break
     case 'kill':
-      v.tone(110, 'sine', 0.001, 0.32, 1, 32)
-      v.tone(620, 'sawtooth', 0.004, 0.24, 0.16, 70)
-      v.stutter(6, 0.03, 0.22)
-      v.crunch(0.22, 0.4)
-      v.sample('glitch', 0.4)
+      v.thump(160, 32, 0.09, 0.42, 1, 0, true)
+      v.click(0.55, 2600)
+      v.tone(620, 'sawtooth', 0.004, 0.24, 0.18, 70)
+      v.noise('bandpass', 1100, 0.002, 0.26, 0.4, 180)
+      v.stutter(6, 0.03, 0.24)
+      v.crunch(0.26, 0.45)
+      v.sample('glitch', 0.48)
+      duckForImpact(4, 0.2)
       break
     case 'bump':
-      v.tone(95, 'sine', 0.001, 0.16 * k, 0.85 * k, 42)
-      v.tone(420, 'triangle', 0.001, 0.035, 0.2)
-      v.noise('lowpass', 700, 0.001, 0.1, 0.4 * k)
+      // Body into body: a knock with weight.
+      v.thump(190 * (1.1 - 0.1 * k), 48, 0.06, 0.14 + 0.06 * k, 0.95, 0, true)
+      v.click(0.5 * k, 2600)
+      v.tone(420, 'triangle', 0.001, 0.05, 0.28)
+      v.noise('lowpass', 1000, 0.001, 0.13, 0.55 * k, 260)
+      v.crunch(0.1 * k, 0.32 * k)
+      duckForImpact(2.5, 0.12)
+      break
+    case 'wall_slam':
+      // Into the board edge / a cover block: the heaviest single impact in the game.
+      v.thump(180, 36, 0.085, 0.3 + 0.08 * k, 1, 0, true)
+      v.click(0.65 * k, 2300)
+      v.noise('lowpass', 1600, 0.001, 0.2 * k, 0.75 * k, 220)
+      v.crunch(0.2 * k, 0.55 * k)
+      // Inharmonic panel ring + scattered debris.
+      v.tone(523, 'sine', 0.001, 0.32, 0.1)
+      v.tone(1187, 'sine', 0.001, 0.22, 0.07)
+      v.tone(1843, 'sine', 0.001, 0.16, 0.05)
+      v.crackle(7, 0.3, 0.2, 0.04)
+      v.sample('attack', 0.42 * k)
+      duckForImpact(4.5, 0.18)
       break
     case 'void':
+      v.thump(150, 28, 0.25, 0.5, 0.85, 0, true)
       v.tone(900, 'sine', 0.005, 0.7, 0.3, 45)
-      v.stutter(10, 0.035, 0.25)
-      v.sample('glitch', 0.6)
+      v.noise('bandpass', 2200, 0.01, 0.6, 0.45, 120)
+      v.stutter(10, 0.035, 0.28)
+      v.sample('glitch', 0.62)
+      duckForImpact(4, 0.3)
+      break
+    case 'explosion':
+      // Boom: sub drop + crack + a low-passed noise body that closes down, crunch, a rumble tail and debris.
+      v.thump(150, 30, 0.1, 0.4 + 0.12 * k, 1, 0, true)
+      v.click(0.7, 1800)
+      v.noise('lowpass', 3600, 0.002, 0.35 + 0.2 * k, 0.65 + 0.2 * k, 150)
+      v.crunch(0.25 + 0.08 * k, 0.4 + 0.12 * k)
+      v.noise('bandpass', 260, 0.03, 0.7 + 0.25 * k, 0.5, 120, 0.04)
+      v.crackle(5 + Math.round(3 * k), 0.45, 0.2, 0.08)
+      v.sample('attack', 0.4)
+      duckForImpact(3.5 + 2 * k, 0.3)
+      break
+    case 'shockwave':
+      // Force wave: a pressure thump under a broad whoosh.
+      v.thump(140, 40, 0.1, 0.25 + 0.1 * k, 0.9, 0, true)
+      v.noise('bandpass', 240, 0.012, 0.32, 1.2, 1900)
+      v.click(0.35, 2400)
+      duckForImpact(2.5 + k, 0.18)
+      break
+    case 'ignite':
+      // Flare: a rising whoosh into a roar with crackle.
+      v.noise('bandpass', 280, 0.04, 0.32, 1.1, 2600)
+      v.noise('lowpass', 1000, 0.015, 0.5, 0.45, 400)
+      v.thump(120, 55, 0.08, 0.18, 0.5, 0.02, true)
+      v.crackle(9, 0.5, 0.22, 0.06)
+      break
+    case 'fire_tick':
+      // Burn damage: a hissing pop and crackle.
+      v.thump(170, 70, 0.04, 0.1, 0.55, 0, true)
+      v.noise('bandpass', 1300, 0.004, 0.14, 0.6, 500)
+      v.crackle(6, 0.2, 0.3, 0.01)
+      break
+    case 'extinguish':
+      v.noise('bandpass', 3000, 0.03, 0.45, 0.22, 900)
+      v.crackle(3, 0.2, 0.1)
+      break
+    case 'zap':
+      // Electric discharge: snap, buzz, sparks.
+      v.click(0.55, 4200)
+      v.tone(2600, 'square', 0.001, 0.05, 0.13, 500)
+      v.zap(0.16 + 0.08 * k, 0.24)
+      v.thump(190, 60, 0.04, 0.1 + 0.04 * k, 0.55 * k, 0, true)
+      v.crackle(5, 0.22, 0.2, 0.02, 5200)
+      break
+    case 'passive':
+      v.tone(784, 'sine', 0.004, 0.32, 0.12)
+      v.tone(1175, 'sine', 0.004, 0.4, 0.1, undefined, 0.06)
+      v.tone(1568, 'sine', 0.004, 0.5, 0.08, undefined, 0.12)
+      v.shimmer(3, 0.05, 0.1)
       break
     case 'block':
       v.tone(1400, 'triangle', 0.001, 0.28, 0.14)
@@ -265,11 +383,12 @@ export function sfx(name: SfxName, opts: SfxOpts = {}): void {
       v.tone(784, 'sine', 0.01, 0.3, 0.12, undefined, 0.14)
       break
     case 'status_burn':
-      for (let i = 0; i < 6; i++) v.noise('highpass', 2500, 0.001, 0.025, 0.18, undefined, i * 0.035 + Math.random() * 0.02)
-      v.noise('lowpass', 600, 0.02, 0.3, 0.14)
+      v.crackle(6, 0.2, 0.28)
+      v.noise('lowpass', 800, 0.02, 0.3, 0.3)
       break
     case 'status_shock':
-      v.zap(0.28)
+      v.zap(0.28, 0.22)
+      v.click(0.3, 4500)
       break
     case 'status_mark':
       v.tone(1200, 'sine', 0.002, 0.16, 0.12, 1800)
@@ -442,7 +561,43 @@ class Voice {
     }
   }
 
-  zap(dur: number): void {
+  /**
+   * Kick-style thump: a sine that drops from `f0` to `f1` in `drop` s, then decays. `drive` saturates it so the
+   * body has harmonics above ~150 Hz (laptop speakers cannot play the fundamental).
+   */
+  thump(f0: number, f1: number, drop: number, decay: number, peak: number, delay = 0, drive = false): void {
+    const t = this.ac.currentTime + delay
+    const osc = this.ac.createOscillator()
+    osc.type = 'sine'
+    osc.frequency.setValueAtTime(f0, t)
+    osc.frequency.exponentialRampToValueAtTime(Math.max(20, f1), t + drop)
+    const g = this.ac.createGain()
+    this.env(g, t, 0.0015, decay, peak)
+    if (drive) {
+      const shaper = this.ac.createWaveShaper()
+      driveCurve ??= saturationCurve()
+      shaper.curve = driveCurve
+      osc.connect(shaper).connect(g)
+    } else osc.connect(g)
+    this.route(g, decay > 0.2)
+    osc.start(t)
+    osc.stop(t + decay + 0.06)
+  }
+
+  /** Transient: a few ms of bright noise — the crack at the front of an impact. */
+  click(peak: number, freq = 3000, delay = 0): void {
+    this.noise('highpass', freq, 0.0006, 0.014, peak, undefined, delay)
+  }
+
+  /** Scattered crackle: short bright ticks spread over `spread` s (fire, debris, sparks). */
+  crackle(count: number, spread: number, peak: number, delay = 0, freq = 2600): void {
+    for (let i = 0; i < count; i++) {
+      const at = delay + Math.random() * spread
+      this.noise('highpass', freq + Math.random() * 2000, 0.0008, 0.012 + Math.random() * 0.02, peak * (0.45 + Math.random() * 0.55), undefined, at)
+    }
+  }
+
+  zap(dur: number, peak = 0.16): void {
     const t = this.ac.currentTime
     const osc = this.ac.createOscillator()
     osc.type = 'sawtooth'
@@ -453,7 +608,7 @@ class Voice {
     lfoGain.gain.value = 900
     lfo.connect(lfoGain).connect(osc.frequency)
     const g = this.ac.createGain()
-    this.env(g, t, 0.003, dur, 0.16)
+    this.env(g, t, 0.003, dur, peak)
     const f = this.ac.createBiquadFilter()
     f.type = 'highpass'
     f.frequency.value = 500
@@ -517,6 +672,54 @@ function distortionCurve(amount: number): Float32Array<ArrayBuffer> {
   for (let i = 0; i < n; i++) {
     const x = (i * 2) / n - 1
     curve[i] = ((3 + amount) * x * 20 * (Math.PI / 180)) / (Math.PI + amount * Math.abs(x))
+  }
+  return curve
+}
+
+/** SFX bus level into its compressor (measured offline: single hits ≈ -12…-7 LUFS-M, stacked AoE peaks < 1). */
+const SFX_LEVEL = 0.95
+/** Output limiter threshold, dBFS. */
+const LIMIT_THRESHOLD = -2.5
+
+function compressor(ac: AudioContext, threshold: number, knee: number, ratio: number, attack: number, release: number): DynamicsCompressorNode {
+  const c = ac.createDynamicsCompressor()
+  c.threshold.value = threshold
+  c.knee.value = knee
+  c.ratio.value = ratio
+  c.attack.value = attack
+  c.release.value = release
+  return c
+}
+
+/** The automatic makeup gain WebAudio applies to a hard-knee compressor: (1 / gain at 0 dBFS)^0.6. */
+function makeupGain(thresholdDb: number, ratio: number): number {
+  const fullRangeDb = thresholdDb - thresholdDb / ratio
+  return Math.pow(Math.pow(10, -fullRangeDb / 20), 0.6)
+}
+
+/** Output soft clip. Fed at half gain, so the curve spans ±2 (+6 dBFS): linear up to 0.85, then a tanh knee
+ *  toward 0.985 — anything the limiter lets through never reaches full scale. */
+function softClipCurve(): Float32Array<ArrayBuffer> {
+  const n = 4096
+  const curve = new Float32Array(new ArrayBuffer(n * 4))
+  const knee = 0.85
+  const room = 0.985 - knee
+  for (let i = 0; i < n; i++) {
+    const x = ((i * 2) / (n - 1) - 1) * 2
+    const a = Math.abs(x)
+    curve[i] = a <= knee ? x : Math.sign(x) * (knee + room * Math.tanh((a - knee) / room))
+  }
+  return curve
+}
+
+/** Gentle tanh saturation for thumps (adds 2nd/3rd harmonics, keeps the level). */
+function saturationCurve(): Float32Array<ArrayBuffer> {
+  const n = 1024
+  const curve = new Float32Array(new ArrayBuffer(n * 4))
+  const drive = 1.8
+  for (let i = 0; i < n; i++) {
+    const x = (i * 2) / (n - 1) - 1
+    curve[i] = Math.tanh(x * drive) / Math.tanh(drive)
   }
   return curve
 }

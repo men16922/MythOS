@@ -38,7 +38,7 @@ const ACT1: EnemyDef[] = [
       { id: 'cutter', name: t('절단기', 'Cutter'), pattern: 'melee', damage: 5 },
       { id: 'spark', name: t('불꽃 방전', 'Spark Burst'), pattern: 'nova', damage: 3, cooldown: 2, weight: 0.7 },
     ],
-    passive: t('불꽃 방전은 주변 4칸을 모두 친다. 동료도.', 'Spark Burst hits all 4 neighbours — friends included.'),
+    passive: t('불꽃 방전은 주변 4칸을 전부 친다. 제 편도 가리지 않는다.', 'Spark Burst hits all 4 neighbours — friends included.'),
     bounty: 2,
   },
   {
@@ -79,7 +79,7 @@ const ACT1: EnemyDef[] = [
         effects: [{ kind: 'status', status: 'weak', amount: 1 }],
       },
     ],
-    passive: t('덮치기: 막힐 때까지 돌진해 부딪힌 것을 1칸 밀쳐냄.', 'Pounce: dashes until blocked, hits and pushes whatever stopped it.'),
+    passive: t('덮치기: 막힐 때까지 돌진해, 부딪힌 대상을 1칸 밀어낸다.', 'Pounce: dashes until blocked, hits and pushes whatever stopped it.'),
     bounty: 2,
   },
   {
@@ -145,7 +145,7 @@ const ACT1: EnemyDef[] = [
       },
       { id: 'lunge', name: t('도약', 'Lunge'), pattern: 'charge', damage: 6 },
     ],
-    passive: t('3턴마다 새끼 거미 둘을 깐다. 산성 침은 던진 자리에 떨어진다.', 'Hatches two spiderlings every few turns. Acid Spit lands where it was aimed.'),
+    passive: t('3턴마다 새끼 거미 두 마리를 깐다. 산성 침은 노린 칸에 그대로 떨어진다.', 'Hatches two spiderlings every few turns. Acid Spit lands where it was aimed.'),
     bounty: 6,
   },
   {
@@ -185,7 +185,7 @@ const ACT1: EnemyDef[] = [
       { id: 'tread_charge', name: t('궤도 돌진', 'Tread Charge'), pattern: 'charge', damage: 6, cooldown: 1 },
       { id: 'main_cannon', name: t('주포', 'Main Cannon'), pattern: 'line', damage: 5, range: 6 },
       { id: 'fire_control', name: t('사격 통제', 'Fire Control'), pattern: 'track', damage: 3, range: 7, cooldown: 2 },
-      { id: 'mortar', name: t('박격 포격', 'Mortar'), pattern: 'lob', damage: 4, area: 'cross', cooldown: 2 },
+      { id: 'mortar', name: t('박격포', 'Mortar'), pattern: 'lob', damage: 4, area: 'cross', cooldown: 2 },
       { id: 'riot_siren', name: t('진압 사이렌', 'Riot Siren'), pattern: 'summon', summon: { enemyId: 'scrap_drone', count: 2 }, cooldown: 4 },
       {
         id: 'suppression_beam',
@@ -219,7 +219,7 @@ const ACT1: EnemyDef[] = [
       },
     ],
     passive: t(
-      '장갑 1. 절반 이하: 가시 3 + 진압 광선(한 턴 충전, 한 줄 전체 10). 광선 앞에 놈의 드론을 세워라.',
+      '장갑 1. 체력 절반 이하: 가시 3 + 진압 광선(한 턴 충전, 한 줄 전체에 10). 광선 앞에 놈의 드론을 세워라.',
       'Armor 1. Below half: Thorns 3 + Suppression Beam (1-turn charge, 10 to a whole row). Park its drones in front.',
     ),
     bounty: 0,
@@ -249,12 +249,12 @@ const ACT2: EnemyDef[] = [
         effects: [{ kind: 'add_card', cardId: 'static', pile: 'discard', count: 1 }],
       },
     ],
-    passive: t('비행: 허공으로 밀어도 떨어지지 않는다. 비명은 덱에 잡음을 섞는다.', 'Flying: void cannot take it. Its scream shuffles Static into your deck.'),
+    passive: t('비행: 붕괴 구역으로 밀어도 떨어지지 않는다. 비명은 덱에 잡음을 섞는다.', 'Flying: void cannot take it. Its scream shuffles Static into your deck.'),
     bounty: 3,
   },
   {
     id: 'glitch_echo',
-    name: t('잔상', 'Glitch Echo'),
+    name: t('글리치 잔상', 'Glitch Echo'),
     sprite: 'glitch-echo',
     tier: 'minion',
     hp: 9,
@@ -281,10 +281,13 @@ const ACT2: EnemyDef[] = [
         pattern: 'beam',
         damage: 2,
         range: 2,
-        effects: [{ kind: 'status', status: 'burn', amount: 2 }],
+        effects: [
+          { kind: 'status', status: 'burn', amount: 2 },
+          { kind: 'ignite', turns: 1 },
+        ],
       },
     ],
-    passive: t('비행. 화염은 2칸을 태우고 화상 2를 남긴다.', 'Flying. Its flame scorches 2 tiles and leaves Burn 2.'),
+    passive: t('비행. 화염이 2칸을 핥고 지나가며 화상 2. 그 칸에 1턴 동안 불길이 남는다.', 'Flying. Its flame licks 2 tiles: Burn 2, and the ground burns for 1 turn.'),
     bounty: 2,
   },
   {
@@ -309,7 +312,7 @@ const ACT2: EnemyDef[] = [
         effects: [{ kind: 'status', status: 'shock', amount: 1 }],
       },
     ],
-    passive: t('장갑 1. 수류탄은 던진 자리에 떨어져 감전시킨다(이동 불가).', 'Armor 1. Grenades land where thrown and Shock (no moving).'),
+    passive: t('장갑 1. 수류탄은 노린 칸에 그대로 떨어져 감전시킨다(이동 불가).', 'Armor 1. Grenades land where thrown and Shock (no moving).'),
     bounty: 3,
   },
   {
@@ -364,7 +367,7 @@ const ACT2: EnemyDef[] = [
         effects: [{ kind: 'add_card', cardId: 'static', pile: 'discard', count: 2 }],
       },
     ],
-    passive: t('비행. 울부짖음(한 턴 충전): 3×3 피해 6 + 덱에 잡음 2장.', 'Flying. Void Howl (1-turn charge): 6 in a 3×3 + 2 Static into your deck.'),
+    passive: t('비행. 울부짖음(한 턴 충전): 3×3 범위 피해 6 + 덱에 잡음 2장.', 'Flying. Void Howl (1-turn charge): 6 in a 3×3 + 2 Static into your deck.'),
     bounty: 8,
   },
   {
@@ -396,7 +399,7 @@ const ACT2: EnemyDef[] = [
         weight: 1.5,
       },
     ],
-    passive: t('장갑 2. 분대 전체에 방어막 6. 돌파 폭약은 한 턴 뒤 3×3을 날린다.', 'Armor 2. Shields the squad for 6. Breach Charge blows a 3×3 one turn later.'),
+    passive: t('장갑 2. 분대 전체에 방어막 6. 돌파 폭약은 한 턴 뒤 3×3 범위를 날려 버린다.', 'Armor 2. Shields the squad for 6. Breach Charge blows a 3×3 one turn later.'),
     bounty: 8,
   },
   {
@@ -416,7 +419,10 @@ const ACT2: EnemyDef[] = [
         damage: 3,
         area: 'cross',
         cooldown: 1,
-        effects: [{ kind: 'status', status: 'burn', amount: 3 }],
+        effects: [
+          { kind: 'status', status: 'burn', amount: 3 },
+          { kind: 'ignite', turns: 2 },
+        ],
       },
       { id: 'deploy', name: t('소각 드론 사출', 'Deploy Drone'), pattern: 'summon', summon: { enemyId: 'purge_drone', count: 1 }, cooldown: 3 },
       {
@@ -424,10 +430,13 @@ const ACT2: EnemyDef[] = [
         name: t('배기 분출', 'Vent'),
         pattern: 'nova',
         damage: 6,
-        effects: [{ kind: 'status', status: 'burn', amount: 2 }],
+        effects: [
+          { kind: 'status', status: 'burn', amount: 2 },
+          { kind: 'ignite', turns: 1 },
+        ],
       },
     ],
-    passive: t('장갑 1. 멀리서 불을 던진다. 붙으면 배기 분출로 주변을 태운다.', 'Armor 1. Lobs fire from afar. Get close and it vents on everything adjacent.'),
+    passive: t('장갑 1. 멀리서 불덩이를 던져, 떨어진 칸에 2턴 동안 불길을 남긴다. 가까이 붙으면 배기 분출로 주변 칸을 불길로 덮는다.', 'Armor 1. Lobs fire that leaves the ground burning for 2 turns. Get close and it vents, setting everything adjacent alight.'),
     bounty: 8,
   },
   {
@@ -492,7 +501,7 @@ const ACT2: EnemyDef[] = [
       },
     ],
     passive: t(
-      '비행. 포식은 체력을 회복한다 — 근접을 허용하지 마라. 기억 누출은 덱에 오염된 잔향을 섞는다.',
+      '비행. 포식으로 체력을 회복한다 — 붙게 두지 마라. 기억 누출은 덱에 오염된 잔향을 섞는다.',
       'Flying. Devour heals it — deny it melee. Memory Leak shuffles Corrupted Echoes into your deck.',
     ),
     bounty: 0,
@@ -512,7 +521,7 @@ const ACT3: EnemyDef[] = [
     flying: true,
     ai: 'shooter',
     moves: [
-      { id: 'needle', name: t('침 사격', 'Needle Shot'), pattern: 'line', damage: 4, range: 5 },
+      { id: 'needle', name: t('바늘 사격', 'Needle Shot'), pattern: 'line', damage: 4, range: 5 },
       { id: 'lock', name: t('추적 조준', 'Lock-On'), pattern: 'track', damage: 3, range: 7, cooldown: 2 },
     ],
     passive: t('비행. 추적 조준은 피할 수 없다.', 'Flying. Lock-On cannot be dodged.'),
@@ -582,10 +591,13 @@ const ACT3: EnemyDef[] = [
         damage: 3,
         area: 'cross',
         cooldown: 2,
-        effects: [{ kind: 'status', status: 'shock', amount: 1 }],
+        effects: [
+          { kind: 'status', status: 'shock', amount: 1 },
+          { kind: 'electrify', turns: 1 },
+        ],
       },
     ],
-    passive: t('장갑 1. 레일 카빈은 멀리서도 6을 꽂는다. 엄폐물 뒤로.', 'Armor 1. The rail carbine hits for 6 at any range. Get behind cover.'),
+    passive: t('장갑 1. 레일 카빈은 멀리서도 5를 꽂는다. 엄폐물 뒤로.', 'Armor 1. The rail carbine hits for 5 at any range. Get behind cover.'),
     bounty: 4,
   },
   {
@@ -606,7 +618,7 @@ const ACT3: EnemyDef[] = [
         effects: [{ kind: 'status', status: 'weak', amount: 2 }],
       },
     ],
-    passive: t('빠르다. 덮치기는 막힐 때까지 달린다 — 그 끝에 동료를 세워라.', 'Fast. Pounce runs until blocked — put one of its friends at the end.'),
+    passive: t('빠르다. 덮치기는 막힐 때까지 달린다 — 그 끝에 놈의 동료를 세워라.', 'Fast. Pounce runs until blocked — put one of its friends at the end.'),
     bounty: 3,
   },
   {
@@ -627,7 +639,10 @@ const ACT3: EnemyDef[] = [
         damage: 5,
         area: 'cross',
         cooldown: 1,
-        effects: [{ kind: 'status', status: 'burn', amount: 2 }],
+        effects: [
+          { kind: 'status', status: 'burn', amount: 2 },
+          { kind: 'ignite', turns: 1 },
+        ],
       },
       {
         id: 'stomp',
@@ -639,7 +654,7 @@ const ACT3: EnemyDef[] = [
         cooldown: 3,
       },
     ],
-    passive: t('장갑 3. 정면으로는 안 뚫린다. 관통하거나, 표식을 쌓아 한 방에.', "Armor 3. Chip damage won't get through. Pierce it, or stack Mark for one big hit."),
+    passive: t('장갑 3. 잔타격은 먹히지 않는다. 관통하거나, 표식을 쌓아 한 방에 끝내라.', "Armor 3. Chip damage won't get through. Pierce it, or stack Mark for one big hit."),
     bounty: 10,
   },
   {
@@ -662,7 +677,7 @@ const ACT3: EnemyDef[] = [
       { id: 'purge_ray', name: t('숙청 광선', 'Purge Ray'), pattern: 'line', damage: 6, range: 6 },
       { id: 'recall', name: t('감시자 호출', 'Recall Wardens'), pattern: 'summon', summon: { enemyId: 'ark_warden', count: 1 }, cooldown: 4 },
     ],
-    passive: t('비행. 격턴으로 모든 적에게 방어막 6. 방어막은 허공 추락과 관통을 막지 못한다.', 'Flying. Every other turn, all enemies gain 6 block. Block does not stop void or pierce.'),
+    passive: t('비행. 한 턴 걸러 모든 적에게 방어막 6. 방어막으로는 붕괴 구역 추락도, 관통도 막지 못한다.', 'Flying. Every other turn, all enemies gain 6 block. Block does not stop void or pierce.'),
     bounty: 10,
   },
   {
@@ -695,7 +710,7 @@ const ACT3: EnemyDef[] = [
       },
       { id: 'ember_line', name: t('불씨 사격', 'Ember Shot'), pattern: 'line', damage: 5, range: 6 },
     ],
-    passive: t('비행. 정화의 불: 한 턴 충전 후 한 줄 전체 8 + 화상. 그 줄에 그 편을 세워라.', 'Flying. Holy Fire: 1-turn charge, then 8 + Burn down a whole row. Line its friends up in it.'),
+    passive: t('비행. 정화의 불: 한 턴 충전 후 한 줄 전체에 8 + 화상. 그 줄에 놈의 동료들을 몰아넣어라.', 'Flying. Holy Fire: 1-turn charge, then 8 + Burn down a whole row. Line its friends up in it.'),
     bounty: 10,
   },
   {
@@ -739,7 +754,7 @@ const ACT3: EnemyDef[] = [
       },
       {
         id: 'purge_field',
-        name: t('숙청장', 'Purge Field'),
+        name: t('숙청 구역', 'Purge Field'),
         pattern: 'nova',
         area: 'square',
         damage: 14,
@@ -764,17 +779,17 @@ const ACT3: EnemyDef[] = [
     phases: [
       {
         hpBelow: 0.66,
-        text: t('최적화 실패. 변수를 재분류한다. 너는 이제 오류가 아니라 위협이다.', 'Optimization failed. Reclassifying variable. You are no longer an error. You are a threat.'),
+        text: t('최적화 실패. 변수를 재분류합니다. 접속자님은 이제 오류가 아니라 위협입니다.', 'Optimization failed. Reclassifying variable. You are no longer an error. You are a threat.'),
         effects: [{ kind: 'block', amount: 12, to: 'owner' }],
       },
       {
         hpBelow: 0.33,
-        text: t('관리망 전권 회수. 접속자, 말소를 집행한다.', 'Reclaiming full network authority. Connector: erasure in progress.'),
+        text: t('관리망 전권을 회수합니다. 접속자님, 말소를 집행하겠습니다.', 'Reclaiming full network authority. Connector: erasure in progress.'),
         effects: [{ kind: 'status', status: 'thorns', amount: 2, to: 'owner' }],
       },
     ],
     passive: t(
-      '비행·장갑 1. 2단계: 숙청장(3×3, 한 턴 충전). 3단계: 말소(한 줄 전체 16, 한 턴 충전). 충전 중엔 다른 짓을 못 한다.',
+      '비행·장갑 1. 2단계: 숙청 구역(3×3, 한 턴 충전). 3단계: 말소(한 줄 전체에 16, 한 턴 충전). 충전하는 턴에는 다른 행동을 하지 않는다.',
       'Flying, Armor 1. Phase 2: Purge Field (3×3, 1-turn charge). Phase 3: Erasure (16 down a row, 1-turn charge). Charging is all it does that turn.',
     ),
     bounty: 0,

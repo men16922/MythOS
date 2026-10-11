@@ -30,7 +30,7 @@ const OPENING: EventDef = {
   title: t('첫 번째 갈림길', 'The First Fork'),
   image: 'opening/opening-solo-02.png',
   text: t(
-    '손바닥 아래 젖은 아스팔트. 붉은 탐조등 두 줄기가 골목 끝에서 이쪽으로 기어 온다.\n발치에 두 가지가 있다. 깨진 배급 캡슐에서 굴러나온 데이터 코어 하나. 그리고 벽에 기대 쓰러진 노인의 손. 노인은 아직 숨을 쉰다.\n둘 다 챙길 시간은 없다. 어쩌면 하나도.',
+    '손바닥 밑 아스팔트가 젖어 차갑다. 골목 끝에서 붉은 탐조등 두 줄기가 바닥을 훑으며 이쪽으로 기어 온다.\n발치에 두 가지. 깨진 배급 캡슐에서 굴러 나온 데이터 코어 하나. 벽에 기대 쓰러진 노인의 손 하나. 노인은 아직 숨을 쉰다.\n둘 다 챙길 시간은 없다. 어쩌면 하나도.',
     'Wet asphalt under your palms. Two red searchlights crawl down the alley toward you.\nAt your feet, two things. A data core rolled out of a smashed ration capsule. And the hand of an old man slumped against the wall. He is still breathing.\nThere is no time for both. Maybe not for either.',
   ),
   options: [
@@ -39,7 +39,7 @@ const OPENING: EventDef = {
       hint: t('나노패치 · ◈ +3 · 추적 +6', 'Nanopatch · +3 ◈ · +6 Trace'),
       success: {
         text: t(
-          '노인은 가볍다. 너무 가볍다. 그는 고맙다는 말 대신 주머니 속 나노패치를 당신 손에 밀어 넣는다. “다음엔 우산 챙겨.”',
+          '노인은 가볍다. 너무 가볍다. 고맙다는 말 대신, 주머니에서 꺼낸 나노패치를 당신 손바닥에 밀어 넣는다. “다음엔 우산 챙겨.”',
           'He is light. Too light. Instead of thanks, he pushes a nanopatch from his pocket into your hand. “Bring an umbrella next time.”',
         ),
         effects: [
@@ -51,10 +51,10 @@ const OPENING: EventDef = {
     },
     {
       label: t('데이터 코어를 줍는다', 'Grab the data core'),
-      hint: t('언커먼 카드 · 추적 +6', 'Uncommon card · +6 Trace'),
+      hint: t('고급 카드 · 추적 +6', 'Uncommon card · +6 Trace'),
       success: {
         text: t(
-          '코어가 손안에서 따뜻하다. 안에 든 것은 누군가의 전투 프로토콜이다. 등 뒤에서 노인의 숨소리가 멀어진다.',
+          '코어가 손안에서 따뜻하다. 누군가의 전투 프로토콜이 들어 있다. 등 뒤에서 노인의 숨소리가 점점 멀어진다.',
           'The core is warm in your hand. Inside is someone’s combat protocol. Behind you, the old man’s breathing fades.',
         ),
         effects: [
@@ -68,7 +68,7 @@ const OPENING: EventDef = {
       hint: t('민첩 +1 · 추적 −5', '+1 AGI · −5 Trace'),
       success: {
         text: t(
-          '생각보다 몸이 먼저 움직인다. 처음 뛰는 길인데, 다리는 모퉁이를 전부 알고 있다. 탐조등이 빈자리를 비춘다.',
+          '생각보다 몸이 먼저 나간다. 처음 달리는 길인데 다리가 모퉁이를 하나하나 기억한다. 탐조등이 텅 빈 자리를 비춘다.',
           'Your body moves before you think. You’ve never run this route, yet your legs know every corner. The searchlights find an empty space.',
         ),
         effects: [
@@ -88,7 +88,7 @@ const A1: EventDef[] = [
     title: t('잠긴 복지 캡슐', 'The Locked Welfare Capsule'),
     image: 'scenes/abandoned_signal.png',
     text: t(
-      '정전된 복지 블록. 수면 캡슐 하나만 비상등이 켜져 있다. 유리 안쪽에서 손바닥이 두드린다. 중년 남자. 입 모양이 말한다. 열어 줘.\n캡슐 화면에 숫자가 깜빡인다. 312점. 기준선 아래.\n골목 끝에서 드론 프로펠러 소리가 가까워진다.',
+      '정전된 복지 블록. 수면 캡슐 하나에만 비상등이 들어와 있다. 유리 안쪽을 손바닥이 두드린다. 중년 남자다. 입술이 소리 없이 움직인다. 열어 줘.\n캡슐 화면에 숫자가 깜빡인다. 312점. 기준선 아래.\n골목 끝에서 드론 로터 소리가 점점 커진다.',
       'A dead welfare block. One sleep capsule still glows on emergency power. A palm beats on the glass from inside. A middle-aged man. His lips shape the words: open it.\nThe capsule screen blinks a number. 312. Below the line.\nAt the end of the alley, drone rotors are getting closer.',
     ),
     options: [
@@ -98,7 +98,7 @@ const A1: EventDef[] = [
         check: { stat: 'str', dc: 4 },
         success: {
           text: t(
-            '경첩이 비명을 지르며 꺾인다. 남자가 기어 나와 주머니 속 주사기를 당신 손에 쥐여 준다.',
+            '경첩이 비명을 지르며 꺾인다. 기어 나온 남자가 주머니를 뒤져 주사기 하나를 쥐여 준다.',
             'The hinge shrieks and gives. The man crawls out and presses a syringe from his pocket into your hand.',
           ),
           effects: [
@@ -109,7 +109,7 @@ const A1: EventDef[] = [
         },
         failure: {
           text: t(
-            '문은 열렸지만 늦었다. 드론의 탐조등이 당신 어깨를 태우듯 훑고 지나간다.',
+            '문은 열렸다. 하지만 늦었다. 드론 탐조등이 어깨를 지지듯 훑고 지나간다.',
             'The door opens, but too late. The drone’s searchlight scorches across your shoulder.',
           ),
           effects: [
@@ -120,12 +120,12 @@ const A1: EventDef[] = [
         },
       },
       {
-        label: t('단말을 뜯어 그의 점수를 지운다', 'Rip open the terminal and wipe his score'),
+        label: t('단말을 뜯어 남자의 점수를 지운다', 'Rip open the terminal and wipe his score'),
         hint: t('코덱스 · 추적 −6', 'Codex · −6 Trace'),
         check: { stat: 'int', dc: 5 },
         success: {
           text: t(
-            '312가 0이 되고, 0이 빈칸이 된다. 캡슐이 조용히 열리고, 남자는 기록 없이 어둠 속으로 걸어 나간다.',
+            '312가 0이 되고, 0이 빈칸이 된다. 캡슐이 소리 없이 열린다. 남자는 아무 기록도 없이 어둠 속으로 걸어 나간다.',
             '312 becomes 0, and 0 becomes a blank. The capsule opens quietly, and the man walks into the dark with no record at all.',
           ),
           effects: [
@@ -136,7 +136,7 @@ const A1: EventDef[] = [
         },
         failure: {
           text: t(
-            '단말이 경보를 토한다. 남자의 점수는 더 내려가고, 당신의 위치는 위로 올라간다.',
+            '단말이 경보를 토해 낸다. 남자의 점수는 더 떨어지고, 당신의 위치는 윗선으로 올라간다.',
             'The terminal vomits an alarm. His score drops further; your location goes up the chain.',
           ),
           effects: [{ kind: 'trace', amount: 12 }],
@@ -147,7 +147,7 @@ const A1: EventDef[] = [
         hint: t('추적 −5', '−5 Trace'),
         success: {
           text: t(
-            '등 뒤에서 두드리는 소리가 작아진다. 드론은 캡슐 쪽으로 방향을 튼다. 당신 쪽이 아니라.',
+            '등 뒤에서 두드리는 소리가 잦아든다. 드론이 캡슐 쪽으로 기수를 튼다. 이쪽이 아니라.',
             'The knocking fades behind you. The drone turns toward the capsule. Not toward you.',
           ),
           effects: [{ kind: 'trace', amount: -5 }],
@@ -162,8 +162,8 @@ const A1: EventDef[] = [
     title: t('추락한 감시 드론', 'The Downed Sentinel'),
     image: 'scenes/wet_dawn_street.png',
     text: t(
-      '새벽빛이 웅덩이에 번진다. 감시 드론 한 대가 물속에 처박혀 있다. 프로펠러 하나가 아직 헛돈다. 렌즈의 붉은 점이 꺼졌다 켜졌다 한다.\n갈라진 동체 틈으로 코어가 보인다. 아직 따뜻하다.',
-      'Dawn light bleeds across a puddle. A sentinel drone lies nose-down in the water. One rotor still spins on nothing. The red dot of its lens flickers off, on.\nThrough a crack in the hull you can see the core. Still warm.',
+      '새벽빛이 웅덩이에 번진다. 감시 드론 한 대가 그 물속에 머리를 처박고 있다. 로터 하나가 아직 헛돈다. 렌즈의 붉은 점이 꺼졌다, 켜졌다.\n갈라진 동체 틈으로 코어가 보인다. 아직 김이 오른다.',
+      'Dawn light bleeds across a puddle. A sentinel drone lies nose-down in the water. One rotor still spins on nothing. The red dot of its lens flickers off, on.\nThrough a crack in the hull you can see the core. Still steaming.',
     ),
     options: [
       {
@@ -179,7 +179,7 @@ const A1: EventDef[] = [
         },
         failure: {
           text: t(
-            '방전이 팔꿈치까지 타고 올라온다. 렌즈가 마지막으로 당신 얼굴을 찍는다.',
+            '방전이 팔꿈치까지 타고 오른다. 렌즈가 마지막 힘으로 당신 얼굴을 찍는다.',
             'The discharge climbs to your elbow. The lens takes one last picture of your face.',
           ),
           effects: [
@@ -194,7 +194,7 @@ const A1: EventDef[] = [
         check: { stat: 'int', dc: 4 },
         success: {
           text: t(
-            '화면에 내일 아침의 지도가 뜬다. 아직 오지 않은 순찰, 아직 일어나지 않은 체포. 당신은 그 사이로 길을 낸다.',
+            '화면에 내일 아침 지도가 뜬다. 아직 오지 않은 순찰, 아직 일어나지 않은 체포. 그 틈을 골라 길을 낸다.',
             'Tomorrow morning’s map lights up: patrols that haven’t come yet, arrests that haven’t happened. You thread a path between them.',
           ),
           effects: [
@@ -235,17 +235,17 @@ const A1: EventDef[] = [
     speaker: 'han',
     requires: { noCompanion: 'han' },
     text: t(
-      '배수로 덮개 위에 청년 하나가 쪼그려 앉아 있다. 헝클어진 머리. 목에 감긴 케이블. 반쯤 웃는 얼굴.\n“순찰, 4분 뒤에 이 골목 지나가. 밑으로 가는 길 알려 줄 수 있어. 공짜는 아니고.”\n그가 덮개를 발끝으로 톡톡 친다. 아래에서 물 흐르는 소리가 올라온다.',
+      '배수로 덮개 위에 청년 하나가 쪼그려 앉아 있다. 헝클어진 머리. 목에 감긴 케이블. 반쯤 웃는 얼굴.\n“순찰, 4분 뒤에 이 골목 쓸고 가. 밑으로 빠지는 길 알려 줄게. 물론 공짜는 아니고.”\n청년이 발끝으로 덮개를 톡톡 찬다. 아래에서 물 흐르는 소리가 올라온다.',
       'A young man crouches on a drain cover. Messy hair. A cable looped around his neck. A half-smile.\n“Patrol sweeps this alley in four minutes. I know a way under. Not free, though.”\nHe taps the cover with his toe. The sound of running water rises from below.',
     ),
     options: [
       {
-        label: t('그가 부르는 값을 치른다', 'Pay his price'),
+        label: t('부르는 값을 치른다', 'Pay his price'),
         hint: t('−30 ₵ · 추적 −12 · 카드 제거', '−30 ₵ · −12 Trace · remove card'),
         requires: { minCredits: 30 },
         success: {
           text: t(
-            '한이 덮개를 들어 올린다. “그 덱, 쓸데없는 거 하나 빼 줄게. 서비스야.”',
+            '한이 덮개를 들어 올린다. “덤으로 네 덱에서 군살 하나 빼 줄게. 서비스야.”',
             'Han lifts the cover. “That deck of yours — I’ll strip one useless thing out. On the house.”',
           ),
           effects: [
@@ -256,12 +256,12 @@ const A1: EventDef[] = [
         },
       },
       {
-        label: t('그가 뭘 피해 다니는지 묻는다', 'Ask what he’s running from'),
-        hint: t('코덱스 · 언커먼 카드', 'Codex · uncommon card'),
+        label: t('뭘 피해 다니는지 묻는다', 'Ask what he’s running from'),
+        hint: t('코덱스 · 고급 카드', 'Codex · uncommon card'),
         check: { stat: 'obs', dc: 5 },
         success: {
           text: t(
-            '“나? 아무것도. 난 처음부터 없는 사람이거든.” 그는 웃지만, 손목의 흉터는 웃지 않는다.',
+            '“나? 아무것도. 난 원래 없는 사람이거든.” 입은 웃는데, 손목의 흉터는 웃지 않는다.',
             '“Me? Nothing. I was never there to begin with.” He laughs. The scars on his wrist don’t.',
           ),
           effects: [
@@ -271,7 +271,7 @@ const A1: EventDef[] = [
         },
         failure: {
           text: t(
-            '“질문 많은 사람은 오래 못 살아.” 덮개가 닫히고, 순찰 발소리가 골목 입구에 닿는다.',
+            '“질문 많으면 오래 못 살아.” 덮개가 쾅 닫히고, 순찰대 발소리가 골목 어귀에 닿는다.',
             '“People who ask a lot don’t last.” The cover slams shut, and patrol boots reach the alley mouth.',
           ),
           effects: [{ kind: 'trace', amount: 10 }],
@@ -283,14 +283,14 @@ const A1: EventDef[] = [
         check: { stat: 'str', dc: 5 },
         success: {
           text: t(
-            '덮개가 들린다. 한이 휘파람을 분다. “오, 그것도 방법이지.”',
+            '덮개가 들린다. 한이 짧게 휘파람을 분다. “오, 그렇게도 되네?”',
             'The cover lifts. Han whistles. “Huh. That works too.”',
           ),
           effects: [{ kind: 'trace', amount: -8 }],
         },
         failure: {
           text: t(
-            '덮개가 손가락 위로 떨어진다. 고개를 들었을 때 한은 이미 없다.',
+            '덮개가 손가락 위로 떨어진다. 고개를 들었을 땐 한은 이미 사라지고 없다.',
             'The cover drops onto your fingers. When you look up, Han is already gone.',
           ),
           effects: [{ kind: 'hp', amount: -7 }],
@@ -307,7 +307,7 @@ const A1: EventDef[] = [
     speaker: 'tae_o',
     requires: { noCompanion: 'tae_o' },
     text: t(
-      '부서진 버스 두 대로 막은 바리케이드. 그 위에 사내가 앉아 있다. 오른뺨을 가로지르는 흉터. 무릎 위의 카빈 소총. 어깨의 집행부 휘장은 칼로 긁어낸 자국뿐이다.\n“여긴 못 지나가.” 그가 담배를 비벼 끈다. “이유가 있으면 말해 봐. 짧게.”',
+      '부서진 버스 두 대로 막은 바리케이드. 그 위에 사내가 앉아 있다. 오른뺨을 가로지르는 흉터. 무릎 위의 카빈 소총. 어깨의 집행부 휘장은 칼로 긁어낸 자국뿐이다.\n“여긴 못 지나간다.” 사내가 담배를 비벼 끈다. “이유가 있으면 말해. 짧게.”',
       'A barricade of two wrecked buses. A man sits on top. A scar across his right cheek. A carbine across his knees. The enforcement patch on his shoulder is nothing but knife scratches now.\n“You don’t get through.” He grinds out his cigarette. “If you’ve got a reason, say it. Short.”',
     ),
     options: [
@@ -317,7 +317,7 @@ const A1: EventDef[] = [
         requires: { minCredits: 25 },
         success: {
           text: t(
-            '그는 지폐를 세지도 않고 주머니에 넣는다. 수류탄 하나를 던져 준다. “드론 만나면 써. 망설이지 말고.”',
+            '지폐를 세지도 않고 주머니에 찔러 넣는다. 수류탄 하나가 날아온다. “드론 보이면 던져라. 망설이지 말고.”',
             'He pockets the bills without counting. Tosses you a grenade. “Drones — use it. Don’t hesitate.”',
           ),
           effects: [
@@ -329,11 +329,11 @@ const A1: EventDef[] = [
       },
       {
         label: t('휘장을 긁어낸 이유를 묻는다', 'Ask why he scraped off the patch'),
-        hint: t('코덱스 · 카드 강화 · 실패 −7 HP', 'Codex · upgrade · fail −7 HP'),
+        hint: t('코덱스 · 카드 강화 · 실패 시 −7 HP', 'Codex · upgrade · fail −7 HP'),
         check: { stat: 'obs', dc: 5 },
         success: {
           text: t(
-            '긴 침묵. “쫓던 애를 놓아줬어. 그게 다야.” 그러고는 당신 자세를 고쳐 준다. 총 쥐는 법부터.',
+            '긴 침묵. “쫓던 애를 놓아줬다. 그게 다다.” 그러고는 당신 자세를 고쳐 잡는다. 총 쥐는 법부터.',
             'A long silence. “I let the kid I was chasing go. That’s all.” Then he fixes your stance. Starting with your grip.',
           ),
           effects: [
@@ -342,7 +342,7 @@ const A1: EventDef[] = [
           ],
         },
         failure: {
-          text: t('개머리판이 명치에 박힌다. “짧게 말하라고 했지.”', 'The stock slams into your gut. “I said short.”'),
+          text: t('개머리판이 명치에 박힌다. “짧게 하라고 했다.”', 'The stock slams into your gut. “I said short.”'),
           effects: [{ kind: 'hp', amount: -7 }],
         },
       },
@@ -351,7 +351,7 @@ const A1: EventDef[] = [
         hint: t('−8 HP · 카드 2장 강화', '−8 HP · upgrade 2 cards'),
         success: {
           text: t(
-            '세 번 넘어지고 세 번 일어난다. 그가 처음으로 고개를 끄덕인다.',
+            '세 번 나뒹굴고, 세 번 일어선다. 사내가 처음으로 고개를 끄덕인다.',
             'You go down three times and get up three times. For the first time, he nods.',
           ),
           effects: [
@@ -371,7 +371,7 @@ const A1: EventDef[] = [
     speaker: 'se_rin',
     requires: { companion: 'se_rin' },
     text: t(
-      '세린이 갑자기 멈춘다. 무너진 육교 아래. 벽에 분필로 그은 선 열두 개. 열세 번째는 반쯤 긋다 말았다.\n“…잠깐만.” 그녀는 농담하지 않는다. 벽 아래에서 고장 난 무전기를 주워 든다. 아직 누군가의 주파수에 맞춰져 있다.\n멀리서 사이렌.',
+      '무너진 육교 아래. 세린이 우뚝 멈춘다. 벽에 분필로 그은 선 열두 개. 열세 번째는 반쯤 긋다 말았다.\n“…잠깐만.” 늘 하던 농담이 없다. 세린이 벽 밑에서 고장 난 무전기를 주워 든다. 다이얼은 아직 누군가의 주파수에 맞춰져 있다.\n멀리서 사이렌.',
       'Se-rin stops dead. Under a collapsed overpass: twelve chalk lines on the wall. The thirteenth is only half drawn.\n“…Give me a second.” She doesn’t joke. From under the wall she picks up a broken radio. It is still tuned to someone’s frequency.\nSirens, far off.',
     ),
     options: [
@@ -381,7 +381,7 @@ const A1: EventDef[] = [
         check: { stat: 'int', dc: 4 },
         success: {
           text: t(
-            '잡음 사이로 숨소리가 들린다. 살아 있다. 세린은 등을 돌린 채 한참 서 있다가 말한다. “…고마워.”',
+            '잡음 사이로 숨소리가 새어 나온다. 살아 있다. 세린은 등을 돌린 채 한참을 서 있다. 그러다 한마디. “…고마워.”',
             'Breathing, between the static. Alive. Se-rin stands with her back to you for a long time. Then: “…Thanks.”',
           ),
           effects: [
@@ -392,7 +392,7 @@ const A1: EventDef[] = [
         },
         failure: {
           text: t(
-            '주파수가 끊긴다. 대신 사이렌이 방향을 바꾼다. 세린이 무전기를 주머니에 넣는다. “됐어. 가자.”',
+            '주파수가 끊긴다. 대신 사이렌이 이쪽으로 방향을 튼다. 세린이 무전기를 주머니에 쑤셔 넣는다. “됐어. 가자.”',
             'The frequency dies. The sirens change direction instead. Se-rin pockets the radio. “Forget it. Move.”',
           ),
           effects: [{ kind: 'trace', amount: 10 }],
@@ -403,7 +403,7 @@ const A1: EventDef[] = [
         hint: t('유대 +1 · 추적 +6', 'Bond +1 · +6 Trace'),
         success: {
           text: t(
-            '분필이 부러진다. 세린이 부러진 반쪽을 받아 주머니에 넣는다. 아무 말도 하지 않는다.',
+            '분필이 뚝 부러진다. 세린이 반 토막을 건네받아 말없이 챙긴다.',
             'The chalk snaps. Se-rin takes the broken half and pockets it. She says nothing.',
           ),
           effects: [
@@ -417,7 +417,7 @@ const A1: EventDef[] = [
         hint: t('+20 ₵ · 추적 −8', '+20 ₵ · −8 Trace'),
         success: {
           text: t(
-            '세린의 얼굴이 닫힌다. 그래도 그녀는 벽 틈에 숨겨 둔 비상금부터 챙긴다. “맞는 말이야. 그래서 싫어.”',
+            '세린의 표정이 싹 굳는다. 그래도 벽 틈에 숨겨 둔 비상금은 잊지 않고 챙긴다. “맞는 말이야. 그래서 더 싫어.”',
             'Se-rin’s face shuts. Still, she grabs the cash she hid in the wall first. “You’re right. That’s why I hate it.”',
           ),
           effects: [
@@ -435,7 +435,7 @@ const A1: EventDef[] = [
     title: t('꺼진 변전함', 'The Dead Substation'),
     image: 'scenes/opening_escape_alt.png',
     text: t(
-      '블록 전체에 전기를 먹이던 변전함. 문이 뜯겨 있고, 안에서 오존 냄새가 난다. 레버 하나만 올리면 이 거리에 불이 들어온다. 배급기, 난방, 카메라까지 전부.\n변전함 옆에 ARK 수리반의 공구 상자가 놓여 있다. 수리반은 가까이 있다. 군화 소리가 들린다.',
+      '블록 전체에 전기를 대던 변전함. 문짝은 뜯겨 나갔고, 안에서 오존 냄새가 훅 끼친다. 레버 하나만 올리면 이 거리에 불이 들어온다. 배급기도, 난방도, 카메라도.\n옆에 ARK 수리반의 공구 상자가 놓여 있다. 수리반은 멀지 않다. 군화 소리가 모퉁이 너머까지 와 있다.',
       'The substation that fed the whole block. Its door is torn off; inside, it smells of ozone. One lever and this street lights up — ration machines, heating, cameras, all of it.\nAn ARK repair crew’s toolbox sits beside it. The crew is close. You can hear their boots.',
     ),
     options: [
@@ -444,7 +444,7 @@ const A1: EventDef[] = [
         hint: t('파티 회복 · ◈ +4 · 추적 +12', 'Heal party · +4 ◈ · +12 Trace'),
         success: {
           text: t(
-            '창문마다 불이 켜진다. 누군가 환호한다. 카메라들도 일제히 눈을 뜬다.',
+            '창문마다 불이 들어온다. 어디선가 환호성이 터진다. 거리의 카메라들도 일제히 눈을 뜬다.',
             'Every window lights up. Someone cheers. Every camera opens its eye at once.',
           ),
           effects: [
@@ -456,10 +456,10 @@ const A1: EventDef[] = [
       },
       {
         label: t('수리반을 덮친다', 'Jump the repair crew'),
-        hint: t('전투 · 언커먼 임플란트', 'Fight · uncommon implant'),
+        hint: t('전투 · 고급 임플란트', 'Fight · uncommon implant'),
         success: {
           text: t(
-            '공구 상자보다 수리반의 장비가 값지다. 그들이 무전기에 손을 뻗는 게 한발 빠르다.',
+            '공구 상자보다 수리반이 걸친 장비가 더 값나간다. 다만 무전기로 손을 뻗는 건 그쪽이 한발 빠르다.',
             'The crew’s gear is worth more than the toolbox. They reach for their radios a beat faster than you.',
           ),
           effects: [
@@ -470,7 +470,7 @@ const A1: EventDef[] = [
       },
       {
         label: t('변전함 기록을 읽는다', 'Read the substation log'),
-        hint: t('코덱스 · 추적 −6 · 실패 −4 HP', 'Codex · −6 Trace · fail −4 HP'),
+        hint: t('코덱스 · 추적 −6 · 실패 시 −4 HP', 'Codex · −6 Trace · fail −4 HP'),
         check: { stat: 'obs', dc: 4 },
         success: {
           text: t(
@@ -484,7 +484,7 @@ const A1: EventDef[] = [
         },
         failure: {
           text: t(
-            '기록을 읽는 사이, 수리반의 손전등이 당신 얼굴에 멈춘다.',
+            '기록을 읽는 사이, 수리반의 손전등 불빛이 당신 얼굴에서 멈춘다.',
             'While you read, a repair-crew flashlight stops on your face.',
           ),
           effects: [
@@ -502,7 +502,7 @@ const A1: EventDef[] = [
     title: t('재건 홍보탑', 'The Reconstruction Billboard'),
     image: 'concept/04-reconstruction.png',
     text: t(
-      '폐허 한가운데 홍보탑이 서 있다. 화면 속 아이들이 새 아파트 앞에서 웃는다. ‘당신의 내일은 계산되어 있습니다. — ARK’\n화면 아래 정비 해치가 열려 있다. 안쪽에 결제 모듈과 데이터 포트. 탑 꼭대기의 카메라는 지금 반대편을 보고 있다. 아직은.',
+      '폐허 한복판에 홍보탑이 우뚝하다. 화면 속 아이들이 새 아파트 앞에서 웃는다. ‘당신의 내일, 이미 계산해 두었습니다. — ARK’\n화면 아래 정비 해치가 열려 있다. 안에는 결제 모듈과 데이터 포트. 탑 꼭대기의 카메라는 반대편을 보고 있다. 아직은.',
       'A billboard tower stands in the middle of the ruins. On screen, children laugh in front of new apartments. ‘Your tomorrow has been calculated. — ARK’\nBelow the screen, a maintenance hatch hangs open: a payment module, a data port. The camera on top is looking the other way. For now.',
     ),
     options: [
@@ -512,14 +512,14 @@ const A1: EventDef[] = [
         check: { stat: 'agi', dc: 5 },
         success: {
           text: t(
-            '크레딧 칩이 쏟아진다. 카메라는 끝까지 반대편을 본다.',
+            '크레딧 칩이 우수수 쏟아진다. 카메라는 끝까지 고개를 돌리지 않는다.',
             'Credit chips pour out. The camera never turns.',
           ),
           effects: [{ kind: 'credits', amount: 45 }],
         },
         failure: {
           text: t(
-            '한 줌 쥐었을 때 모듈이 잠기며 경보가 운다. 카메라가 천천히 돌아온다.',
+            '한 줌 움켜쥐자마자 모듈이 잠기고 경보가 운다. 카메라가 천천히 이쪽으로 돌아온다.',
             'You get one handful before the module locks with a wail. The camera swings slowly back.',
           ),
           effects: [
@@ -544,7 +544,7 @@ const A1: EventDef[] = [
         },
         failure: {
           text: t(
-            '파일 대신 추적 코드가 내려온다. 곧장 당신 덱 속으로.',
+            '파일 대신 추적 코드가 딸려 내려온다. 곧장 덱 속으로 파고든다.',
             'Instead of the file, a tracking routine comes down the line. Straight into your deck.',
           ),
           effects: [{ kind: 'junk', cardId: 'trace_bug' }],
@@ -593,7 +593,7 @@ const A1: EventDef[] = [
         },
         failure: {
           text: t(
-            '난간이 부서진다. 당신은 차양 세 개를 뚫고 골목 바닥에 떨어진다.',
+            '난간이 부서진다. 차양 세 겹을 뚫고 골목 바닥에 처박힌다.',
             'The ledge crumbles. You punch through three awnings and hit the alley floor.',
           ),
           effects: [{ kind: 'hp', amount: -8 }],
@@ -605,7 +605,7 @@ const A1: EventDef[] = [
         check: { stat: 'obs', dc: 4 },
         success: {
           text: t(
-            '숨을 참는다. 드론의 그림자가 덕트 위를 세 번 지나간다. 네 번째는 없다. 덕트 안쪽에 누군가 숨겨 둔 가방이 있다.',
+            '숨을 참는다. 드론 그림자가 덕트 위를 세 번 지나간다. 네 번째는 없다. 더 안쪽에 누가 숨겨 둔 가방 하나.',
             'You hold your breath. A drone shadow passes over the duct three times. There is no fourth. Deeper inside, someone has stashed a bag.',
           ),
           effects: [
@@ -615,7 +615,7 @@ const A1: EventDef[] = [
         },
         failure: {
           text: t(
-            '덕트 안쪽이 막혀 있다. 열 감지기가 당신의 체온을 읽는다.',
+            '덕트 안쪽이 막혀 있다. 열 감지기가 당신 체온을 읽어 낸다.',
             'The duct is blocked further in. A heat sensor reads your body temperature.',
           ),
           effects: [{ kind: 'trace', amount: 10 }],
@@ -626,7 +626,7 @@ const A1: EventDef[] = [
         hint: t('전투 · +30 ₵ · ◈ +3', 'Fight · +30 ₵ · +3 ◈'),
         success: {
           text: t(
-            '도망치는 것도 지겹다. 당신은 물탱크 뒤에서 첫 번째 드론을 기다린다.',
+            '도망치는 것도 지겹다. 물탱크 뒤에 몸을 붙이고 첫 번째 드론을 기다린다.',
             'You’re sick of running. You wait behind the water tank for the first drone.',
           ),
           effects: [
@@ -652,8 +652,8 @@ const RECRUIT: EventDef = {
   title: t('함께 내려갈 사람', 'Who Goes Down With You'),
   image: 'concept/03-underground-echo.png',
   text: t(
-    '지하 환승층에 불이 들어온다. 손때 묻은 전선. 낡은 밥솥. 정전 구역을 빠져나온 당신을 몇 사람이 기다리고 있다. 각자 이유가 있고, 각자 빚이 있다.\n하층 시장은 혼자 걷기엔 넓다. 함께 걸으면 그만큼 눈에 띈다.\n누구와 내려갈 것인가.',
-    'The transfer level flickers to life. Hand-worn cables. An old rice cooker. A few people are waiting for you, having made it out of the dark zone. Each has a reason; each has a debt.\nThe undercity market is too big to walk alone. Walk it together, and you are that much easier to spot.\nWho goes down with you?',
+    '지하 환승층에 불이 들어온다. 손때 묻은 전선, 벽을 따라 내걸린 빨래. 정전 구역을 빠져나온 당신을 몇 사람이 기다리고 있다. 저마다 이유가 있고, 저마다 빚이 있다.\n하층 시장은 혼자 걷기엔 넓다. 여럿이 걸으면 그만큼 눈에 띈다.\n누구와 함께 내려갈 것인가.',
+    'The transfer level flickers to life. Hand-worn cables, laundry strung along the wall. A few people are waiting for you, having made it out of the dark zone. Each has a reason; each has a debt.\nThe undercity market is too big to walk alone. Walk it together, and you are that much easier to spot.\nWho goes down with you?',
   ),
   options: [
     {
@@ -661,7 +661,7 @@ const RECRUIT: EventDef = {
       hint: t('최대 HP +4 · +40 ₵ · 추적 −10', '+4 max HP · +40 ₵ · −10 Trace'),
       success: {
         text: t(
-          '“혼자가 편해.” 거짓말이다. 그래도 발소리가 하나뿐이라, 더 멀리까지 들키지 않는다.',
+          '“혼자가 편해.” 거짓말이다. 그래도 발소리가 하나뿐이니, 들키지 않고 더 멀리 간다.',
           '“I’m better alone.” A lie. Still, one set of footsteps carries a long way unnoticed.',
         ),
         effects: [
@@ -683,7 +683,7 @@ const A2: EventDef[] = [
     title: t('기억 좌판', 'The Memory Stall'),
     image: 'scenes/night_market.png',
     text: t(
-      '바지선 위 좌판에 유리병이 줄지어 있다. 병마다 빛 한 점. 라벨은 손글씨다. ‘첫눈, 1998년.’ ‘아버지 웃음소리.’ ‘바다.’\n좌판 노인이 돋보기를 올린다. “사러 왔나, 팔러 왔나. 값은 어느 쪽이든 같아.”\n뒤쪽 진열장에 자물쇠 걸린 병 하나. 라벨이 없다.',
+      '출렁이는 바지선 좌판에 유리병이 줄지어 있다. 병마다 빛이 한 점씩 갇혀 있다. 라벨은 손글씨. ‘첫눈, 1998년.’ ‘아버지 웃음소리.’ ‘바다.’\n주인 노인이 돋보기를 이마로 올린다. “사러 왔나, 팔러 왔나. 값은 어느 쪽이든 같네.”\n뒤쪽 진열장에 자물쇠를 채운 병 하나. 라벨이 없다.',
       'On a barge stall, glass jars stand in rows, a single point of light in each. Handwritten labels: ‘First snow, 1998.’ ‘Father’s laugh.’ ‘The sea.’\nThe old stallkeeper pushes up his loupe. “Buying or selling? Same price either way.”\nIn the back case, one padlocked jar. No label.',
     ),
     options: [
@@ -692,7 +692,7 @@ const A2: EventDef[] = [
         hint: t('카드 제거 · +40 ₵', 'Remove a card · +40 ₵'),
         success: {
           text: t(
-            '노인이 당신 이마에 차가운 깔때기를 댄다. 무언가 빠져나간다. 무엇이었는지 벌써 모르겠다.',
+            '노인이 이마에 차가운 깔때기를 댄다. 머릿속에서 뭔가가 쪼르륵 빠져나간다. 뭐였는지 벌써 가물가물하다.',
             'He sets a cold funnel to your forehead. Something drains out. Already you can’t recall what it was.',
           ),
           effects: [
@@ -707,7 +707,7 @@ const A2: EventDef[] = [
         requires: { minCredits: 50 },
         success: {
           text: t(
-            '병을 열자 소금기가 밀려든다. 한 번도 본 적 없는 바다인데, 숨이 깊어진다.',
+            '뚜껑을 열자 짠 바람이 밀려든다. 한 번도 본 적 없는 바다인데, 숨이 저절로 깊어진다.',
             'You open the jar and salt air rushes in. A sea you have never seen — and yet your breath goes deeper.',
           ),
           effects: [
@@ -723,7 +723,7 @@ const A2: EventDef[] = [
         check: { stat: 'agi', dc: 6 },
         success: {
           text: t(
-            '자물쇠는 장식이었다. 병 속의 빛은 다른 것들보다 차갑다. 바닥에 ARK 각인이 찍혀 있다.',
+            '자물쇠는 장식이었다. 병 속 빛이 다른 병들보다 차갑다. 바닥에는 ARK 각인.',
             'The padlock was decoration. The light inside is colder than the others. ARK’s mark is stamped on the base.',
           ),
           effects: [
@@ -748,8 +748,8 @@ const A2: EventDef[] = [
         requires: { companion: 'su_ah' },
         success: {
           text: t(
-            '수아가 병 하나를 불빛에 비춘다. “이건 진짜야. 나머진 다 가짜고.” 노인이 처음으로 웃는다. 그리고 시장의 규칙을 공짜로 알려 준다.',
-            'Su-ah holds one jar to the light. “This one’s real. The rest are fakes.” The old man smiles for the first time — and tells you the market’s rules for free.',
+            '수아가 병 하나를 불빛에 비춰 본다. “이건 진짜야. 나머진 다 도금이고.” 노인이 처음으로 웃더니, 시장의 규칙을 공짜로 일러 준다.',
+            'Su-ah holds one jar to the light. “This one’s real. The rest are just plating.” The old man smiles for the first time — and tells you the market’s rules for free.',
           ),
           effects: [
             { kind: 'bond', id: 'su_ah', amount: 1 },
@@ -768,7 +768,7 @@ const A2: EventDef[] = [
     speaker: 'lin_yue',
     requires: { noCompanion: 'lin_yue' },
     text: t(
-      '바지선 月光호의 선실. 향 냄새와 금박 장부. 린위에가 붓을 내려놓는다. 반지가 장부 모서리를 두드린다.\n“소문의 그분이시군요. 여기선 모든 게 거래예요. 호의도요.”\n그녀가 장부를 펼친다. 빈 줄 하나가 이미 당신 몫으로 비워져 있다.',
+      '바지선 月光호의 선실. 향 연기, 금박 입힌 장부. 린위에가 붓을 내려놓고 반지 낀 손가락으로 장부 모서리를 톡톡 두드린다.\n“소문의 그분이시군요. 여기선 뭐든 거래예요. 호의까지도요.”\n장부가 펼쳐진다. 당신 몫의 줄 하나가 이미 비워져 있다.',
       'The cabin of the barge Moonlight. Incense and a gilt ledger. Lin-yue sets down her brush; a ring taps the ledger’s edge.\n“So you’re the one from the rumours. Everything here is a trade. Kindness too.”\nShe opens the ledger. One empty line has already been left for you.',
     ),
     options: [
@@ -777,7 +777,7 @@ const A2: EventDef[] = [
         hint: t('+80 ₵ · 정크 카드 · 빚', '+80 ₵ · junk card · a debt'),
         success: {
           text: t(
-            '“갚는 방법은 나중에 정하죠.” 그녀가 당신 이름 옆에 붉은 점 하나를 찍는다.',
+            '“갚는 방법은 나중에 정하죠.” 붓끝이 당신 이름 옆에 붉은 점 하나를 찍는다.',
             '“We’ll decide how you repay later.” She dots a single red mark beside your name.',
           ),
           effects: [
@@ -793,7 +793,7 @@ const A2: EventDef[] = [
         requires: { minCredits: 40 },
         success: {
           text: t(
-            '“소각로 이송 기록. 무게가 안 맞아요. 이상하죠?” 그녀는 그 이상은 팔지 않는다. 대신 순찰 시간표를 덤으로 얹는다.',
+            '“소각로 이송 기록이에요. 무게가 안 맞죠. 이상하지 않아요?” 거기서 더는 팔지 않는다. 대신 순찰 시간표를 덤으로 얹어 준다.',
             '“The incinerator transfer logs. The weights don’t add up. Strange, isn’t it?” She won’t sell anything past that — but throws in the patrol timetable.',
           ),
           effects: [
@@ -805,11 +805,11 @@ const A2: EventDef[] = [
       },
       {
         label: t('붉은 줄로 그어진 페이지를 묻는다', 'Ask about the page struck through in red'),
-        hint: t('코덱스 · 희귀 카드 · 실패 −6 HP', 'Codex · rare card · fail −6 HP'),
+        hint: t('코덱스 · 희귀 카드 · 실패 시 −6 HP', 'Codex · rare card · fail −6 HP'),
         check: { stat: 'cha', dc: 6 },
         success: {
           text: t(
-            '그녀의 손이 잠시 멈춘다. “月光호 선원들이에요. 내가 지키지 못한.” 그녀가 무언가를 건넨다. 이번 건 장부에 적지 않는다.',
+            '붓을 쥔 손이 멈춘다. “月光호 선원들이에요. 내가 못 지킨 사람들.” 린위에가 무언가를 건넨다. 이번 건 장부에 적지 않는다.',
             'Her hand stops for a moment. “The Moonlight’s crew. The ones I couldn’t keep.” She hands you something. This one, she doesn’t write down.',
           ),
           effects: [
@@ -839,7 +839,7 @@ const A2: EventDef[] = [
     speaker: 'lin_yue',
     requires: { companion: 'lin_yue' },
     text: t(
-      '린위에가 처음으로 장부를 덮는다. 등불을 낮춘다.\n“月光호 선원 한 명의 기억 조각이 하층 경매에 나왔어요. 내가 사면 시장이 알아요. 당신이 사면 아무도 몰라요.”\n그녀가 금박 인장 하나를 탁자에 놓는다. 손가락이 인장에서 쉽게 떨어지지 않는다.',
+      '린위에가 처음으로 장부를 덮는다. 등불 심지를 낮춘다.\n“月光호 선원 하나의 기억 조각이 하층 경매에 나왔어. 내가 사면 시장이 눈치채. 네가 사면 아무도 모르고.”\n금박 인장 하나가 탁자에 놓인다. 손가락이 인장에서 좀처럼 떨어지지 않는다.',
       'For the first time, Lin-yue closes her ledger. She lowers the lantern.\n“A memory shard from one of the Moonlight’s crew is up at the lower auction. If I buy it, the market knows. If you buy it, no one does.”\nShe sets a gilt seal on the table. Her fingers are slow to leave it.',
     ),
     options: [
@@ -849,7 +849,7 @@ const A2: EventDef[] = [
         requires: { minCredits: 60 },
         success: {
           text: t(
-            '조각을 건네자 린위에는 말없이 장부의 붉은 줄 하나를 손끝으로 쓸어 본다. 그리고 금고를 연다.',
+            '조각을 건네자 린위에는 말없이 장부의 붉은 줄 하나를 손끝으로 쓸어 본다. 그러고는 금고를 연다.',
             'When you hand her the shard, Lin-yue silently runs a fingertip down one red line in her ledger. Then she opens her safe.',
           ),
           effects: [
@@ -864,7 +864,7 @@ const A2: EventDef[] = [
         hint: t('전투 · 유대 +1 · 코덱스', 'Fight · bond +1 · codex'),
         success: {
           text: t(
-            '경매사가 망치를 내리치기 전에 당신이 먼저 내리친다. 경비들이 몰려온다. 린위에가 한숨을 쉬며 소매를 걷는다.',
+            '경매사가 낙찰 망치를 내리치기 전에, 당신이 먼저 내리친다. 경비들이 우르르 몰려온다. 린위에가 한숨을 쉬며 소매를 걷어붙인다.',
             'You bring the hammer down before the auctioneer can. The guards come running. Lin-yue sighs and rolls up her sleeves.',
           ),
           effects: [
@@ -880,7 +880,7 @@ const A2: EventDef[] = [
         check: { stat: 'int', dc: 5 },
         success: {
           text: t(
-            '도장 각도까지 완벽하다. 린위에가 위조서를 보고 웃는다. “이건 장부에 적어 둘게요. 칭찬으로.” 남은 보증금은 당신 몫이다.',
+            '도장 각도까지 완벽하다. 린위에가 위조서를 보고 웃는다. “이건 장부에 적어 둘게. 칭찬으로.” 남은 보증금은 당신 몫이다.',
             'Perfect down to the angle of the seal. Lin-yue looks at the forgery and laughs. “This one goes in the ledger. As a compliment.” The leftover deposit is yours.',
           ),
           effects: [
@@ -901,7 +901,7 @@ const A2: EventDef[] = [
         hint: t('+35 ₵', '+35 ₵'),
         success: {
           text: t(
-            '“현명하네요.” 그녀가 인장을 거두고, 그 자리에 입막음 값을 올려놓는다.',
+            '“현명하네.” 린위에가 인장을 거두고, 빈자리에 입막음 값을 올려 둔다.',
             '“Wise.” She takes back the seal and leaves hush money in its place.',
           ),
           effects: [{ kind: 'credits', amount: 35 }],
@@ -917,7 +917,7 @@ const A2: EventDef[] = [
     image: 'scenes/su_ah_meet.png',
     speaker: 'su_ah',
     text: t(
-      '잔향 구역 맨 안쪽. 보랏빛 아크 불꽃. 수아가 보안경을 이마에 올리고 작업대를 가리킨다. 녹은 데이터 잔해가 쇳물처럼 식어 간다.\n“벼려 줄 수 있어. 뭐든. 대신 재료는 네가 내. 피든, 기억이든.”\n작업대 서랍 하나가 반쯤 열려 있다. 안에서 낮은 목소리가 흘러나온다.',
+      '잔향 구역 맨 안쪽. 보랏빛 아크 불꽃이 튄다. 수아가 보안경을 이마로 밀어 올리고 작업대를 가리킨다. 녹아내린 데이터 찌꺼기가 쇳물처럼 식어 간다.\n“뭐든 벼려 줄 수 있어. 대신 재료는 네가 대. 피든, 기억이든.”\n작업대 서랍 하나가 반쯤 열려 있다. 그 틈으로 낮은 목소리가 새어 나온다.',
       'The far end of the refuge. Violet arc-light. Su-ah pushes her goggles up and points at her bench. Molten data slag cools like iron.\n“I can forge anything. But you bring the material. Blood or memory.”\nOne bench drawer is half open. A low voice leaks out of it.',
     ),
     options: [
@@ -926,7 +926,7 @@ const A2: EventDef[] = [
         hint: t('−10 HP · 카드 2장 강화', '−10 HP · upgrade 2 cards'),
         success: {
           text: t(
-            '칼끝이 손가락을 스친다. 붉은 방울이 쇳물에 떨어지고, 당신의 기술이 한 겹 더 날카로워진다.',
+            '칼끝이 손가락을 스친다. 핏방울이 쇳물에 떨어져 치익 소리를 낸다. 손에 익은 기술들이 한 겹 더 날이 선다.',
             'The blade grazes your finger. A red drop falls into the melt, and your technique comes out one layer sharper.',
           ),
           effects: [
@@ -940,7 +940,7 @@ const A2: EventDef[] = [
         hint: t('카드 제거 · 무작위 강화 1', 'Remove a card · 1 random upgrade'),
         success: {
           text: t(
-            '수아가 당신 기억 하나를 쇳물에 녹인다. 무엇이었는지는 묻지 않는다. 남은 것들이 조금 더 단단해진다.',
+            '수아가 당신 기억 하나를 쇳물에 녹인다. 뭐였는지는 묻지 않는다. 남은 것들이 담금질한 쇠처럼 조금 더 단단해진다.',
             'Su-ah melts one of your memories into the slag. She doesn’t ask what it was. What remains comes out a little harder.',
           ),
           effects: [
@@ -951,11 +951,11 @@ const A2: EventDef[] = [
       },
       {
         label: t('서랍 속 목소리를 묻는다', 'Ask about the voice in the drawer'),
-        hint: t('코덱스 · 언커먼 임플란트 · 실패 −5 HP', 'Codex · uncommon implant · fail −5 HP'),
+        hint: t('코덱스 · 고급 임플란트 · 실패 시 −5 HP', 'Codex · uncommon implant · fail −5 HP'),
         check: { stat: 'cha', dc: 5 },
         success: {
           text: t(
-            '수아가 서랍을 닫는다. 아주 천천히. “엄마야. 아직 못 벼렸어.” 그녀가 작업대 밑에서 상자 하나를 꺼내 준다.',
+            '수아가 서랍을 닫는다. 아주 천천히. “엄마야. 아직 못 벼렸어.” 그러고는 작업대 밑에서 상자 하나를 꺼내 건넨다.',
             'Su-ah closes the drawer, very slowly. “My mother. I haven’t been able to forge her yet.” She pulls a box from under the bench and hands it to you.',
           ),
           effects: [
@@ -965,7 +965,7 @@ const A2: EventDef[] = [
         },
         failure: {
           text: t(
-            '“그건 안 팔아.” 불꽃이 튄다. 소매에 구멍이 나고 살이 탄다.',
+            '“그건 안 팔아.” 불똥이 튄다. 소매에 구멍이 뚫리고, 그 밑의 살이 탄다.',
             '“Not for sale.” Sparks fly. A hole burns through your sleeve, and the skin under it.',
           ),
           effects: [{ kind: 'hp', amount: -5 }],
@@ -977,7 +977,7 @@ const A2: EventDef[] = [
         requires: { companion: 'su_ah' },
         success: {
           text: t(
-            '둘이서 번갈아 내리친다. 수아가 말없이 당신 박자에 맞춘다. 식은 쇳덩이에 두 사람의 망치 자국이 남는다.',
+            '둘이서 번갈아 망치를 내리친다. 수아가 말없이 당신 박자에 맞춰 준다. 식은 쇳덩이에 두 사람의 망치 자국이 나란히 남는다.',
             'You take turns striking. Su-ah silently falls into your rhythm. The cooled metal keeps both of your hammer marks.',
           ),
           effects: [
@@ -995,7 +995,7 @@ const A2: EventDef[] = [
     title: t('지하철 통제실', 'The Subway Control Hub'),
     image: 'scenes/subway_control_hub.png',
     text: t(
-      '녹슨 선로 위로 광섬유 다발이 늘어져 있다. 통제실 화면은 하나만 살아 있다. 무인 화물 열차 접근 중. 적재 목록: 배급 식량, 의약품, ‘봉인 화물 1’.\n레일이 저주파로 떨린다. 분기 레버는 셋. 피난처 방향, 첨탑 외벽 방향, 원래 경로.',
+      '녹슨 선로 위로 광섬유 다발이 축 늘어져 있다. 통제실 화면 중 살아 있는 건 하나뿐이다. 무인 화물 열차 접근 중. 적재 목록: 배급 식량, 의약품, ‘봉인 화물 1’.\n레일이 낮게 웅웅 떨린다. 분기 레버는 셋. 피난처 쪽, 첨탑 외벽 쪽, 원래 노선.',
       'Fiber bundles sag over rusted rails. Only one control screen still lives. An unmanned freight train approaching. Manifest: ration food, medicine, ‘sealed cargo ×1’.\nThe rails hum at a low frequency. Three switch levers: toward the refuge, toward the Spire’s outer wall, the original route.',
     ),
     options: [
@@ -1004,7 +1004,7 @@ const A2: EventDef[] = [
         hint: t('파티 회복 · ◈ +5 · 추적 +8', 'Heal party · +5 ◈ · +8 Trace'),
         success: {
           text: t(
-            '열차가 잔향 구역 승강장에 멈춘다. 사람들이 줄지어 상자를 나른다. 누군가 당신 몫의 밥을 따로 떠 놓는다.',
+            '열차가 잔향 구역 승강장에 선다. 사람들이 줄을 서서 상자를 손에서 손으로 넘긴다. 누군가 당신 몫의 밥을 따로 퍼 둔다.',
             'The train stops at the refuge platform. People form a line passing crates hand to hand. Someone sets aside a bowl of rice for you.',
           ),
           effects: [
@@ -1019,7 +1019,7 @@ const A2: EventDef[] = [
         hint: t('+30 ₵ · 첨탑에 균열 · 추적 +15', '+30 ₵ · cracks the Spire · +15 Trace'),
         success: {
           text: t(
-            '멀리서 둔탁한 굉음. 첨탑 외벽에 금이 간다. 오늘 밤 안에는 메우지 못할 금이다. 흩어진 화물에서 쓸 만한 것을 챙긴다.',
+            '멀리서 둔탁한 굉음. 첨탑 외벽에 금이 간다. 오늘 밤 안에는 못 메울 금이다. 흩어진 화물 더미에서 쓸 만한 것을 챙긴다.',
             'A dull boom in the distance. A crack opens in the Spire’s outer wall — one that won’t be patched tonight. You salvage what you can from the spilled cargo.',
           ),
           effects: [
@@ -1031,11 +1031,11 @@ const A2: EventDef[] = [
       },
       {
         label: t('‘봉인 화물’만 빼낸다', 'Extract only the sealed cargo'),
-        hint: t('코덱스 · 희귀 임플란트 · 실패 −9 HP', 'Codex · rare implant · fail −9 HP'),
+        hint: t('코덱스 · 희귀 임플란트 · 실패 시 −9 HP', 'Codex · rare implant · fail −9 HP'),
         check: { stat: 'obs', dc: 6 },
         success: {
           text: t(
-            '봉인 화물은 냉동 캡슐이다. 안에는 기억 저장 장치 수백 개. 전부 첨탑으로 가는 중이었다. 당신은 하나를 챙긴다.',
+            '봉인 화물은 냉동 캡슐이다. 안에 기억 저장 장치가 수백 개. 전부 첨탑행이었다. 하나를 슬쩍 주머니에 넣는다.',
             'The sealed cargo is a cryo pod holding hundreds of memory drives, all bound for the Spire. You pocket one.',
           ),
           effects: [
@@ -1045,7 +1045,7 @@ const A2: EventDef[] = [
         },
         failure: {
           text: t(
-            '캡슐의 냉기가 장갑을 뚫는다. 손가락 감각이 한참 돌아오지 않는다.',
+            '냉기가 장갑을 뚫고 파고든다. 손가락 감각이 한참 동안 돌아오지 않는다.',
             'The pod’s cold bites through your gloves. The feeling in your fingers takes a long time to come back.',
           ),
           effects: [{ kind: 'hp', amount: -9 }],
@@ -1057,8 +1057,8 @@ const A2: EventDef[] = [
         requires: { companion: 'han' },
         success: {
           text: t(
-            '한이 휘파람을 분다. 화면 속 모든 열차가 3분씩 늦어진다. “이제 이 도시는 3분 늦게 산다.”',
-            'Han whistles. Every train on the screen slips three minutes. “Now this whole city runs three minutes late.”',
+            '한이 손가락을 우두둑 꺾고 자판을 두드린다. 화면 속 열차가 전부 3분씩 밀린다. “자, 이제 이 도시는 3분 늦게 굴러가.”',
+            'Han cracks his knuckles and types. Every train on the screen slips three minutes. “Now this whole city runs three minutes late.”',
           ),
           effects: [
             { kind: 'bond', id: 'han', amount: 1 },
@@ -1077,17 +1077,17 @@ const A2: EventDef[] = [
     speaker: 'kai',
     requires: { noCompanion: 'kai' },
     text: t(
-      '안드로이드 폐기장. 팔과 다리가 산처럼 쌓여 있다. 맨 위에 은백색 기체 하나가 기대앉아 있다. 가슴판에 RX-09. 푸른 눈이 아주 느리게 깜빡인다.\n갈라진 스피커에서 목소리. “…노란 우산. …아이가 내 이름을 불렀어.”\n폐기 스티커: ‘반복적 꿈 현상’.',
+      '안드로이드 폐기장. 떨어져 나간 팔다리가 언덕처럼 쌓여 있다. 그 꼭대기에 은백색 기체 하나가 기대앉아 있다. 가슴판에 RX-09. 푸른 눈이 아주 느리게 깜빡인다.\n갈라진 스피커에서 목소리. “…노란 우산. …아이가 제 이름을 불렀어요.”\n폐기 사유 스티커: ‘반복성 꿈 현상’.',
       'An android scrapyard. Arms and legs heaped like hills. At the top, a silver-white frame sits propped against the pile. Chest plate: RX-09. Blue eyes blinking very slowly.\nFrom a cracked speaker: “…a yellow umbrella. …the child called my name.”\nThe disposal sticker reads: ‘Recurrent dreaming’.',
     ),
     options: [
       {
-        label: t('그를 깨운다', 'Wake him'),
-        hint: t('코덱스 · ◈ +5 · 실패 −6 HP', 'Codex · +5 ◈ · fail −6 HP'),
+        label: t('기체를 깨운다', 'Wake him'),
+        hint: t('코덱스 · ◈ +5 · 실패 시 −6 HP', 'Codex · +5 ◈ · fail −6 HP'),
         check: { stat: 'int', dc: 5 },
         success: {
           text: t(
-            '눈의 푸른빛이 또렷해진다. “…당신은 꿈이 아니군요.” 그가 손을 들어, 아주 조심스럽게 당신 손끝을 만진다.',
+            '눈의 푸른빛이 또렷해진다. “…당신은 꿈이 아니군요.” 기체가 손을 들어, 아주 조심스럽게 당신 손끝에 댄다.',
             'The blue in his eyes sharpens. “…You are not a dream.” He lifts a hand and, very carefully, touches your fingertips.',
           ),
           effects: [
@@ -1098,7 +1098,7 @@ const A2: EventDef[] = [
         },
         failure: {
           text: t(
-            '역류한 전류가 손바닥을 태운다. 그의 눈이 다시 흐려진다. “…우산…”',
+            '역류한 전류가 손바닥을 지진다. 푸른 눈이 다시 흐려진다. “…우산…”',
             'Backflow current burns your palm. His eyes cloud over again. “…umbrella…”',
           ),
           effects: [{ kind: 'hp', amount: -6 }],
@@ -1109,7 +1109,7 @@ const A2: EventDef[] = [
         hint: t('희귀 임플란트 · 정크 카드 · 추적 +6', 'Rare implant · junk card · +6 Trace'),
         success: {
           text: t(
-            '코어는 따뜻하다. 꺼지기 직전, 스피커가 마지막으로 말한다. “…비 와.”',
+            '뽑아낸 코어에 아직 온기가 남아 있다. 꺼지기 직전, 스피커가 마지막 말을 흘린다. “…비가 와요.”',
             'The core is warm. Just before it dies, the speaker says one last thing: “…it’s raining.”',
           ),
           effects: [
@@ -1124,7 +1124,7 @@ const A2: EventDef[] = [
         hint: t('◈ +4 · 추적 −4', '+4 ◈ · −4 Trace'),
         success: {
           text: t(
-            '찢어진 우산 하나를 그의 머리 위에 기대 놓는다. 그는 빗소리를 듣는 것처럼 보인다.',
+            '찢어진 우산 하나를 기체의 머리 위에 기대 둔다. 푸른 눈이 우산살을 올려다본다. 빗소리를 듣는 것처럼.',
             'You lean a torn umbrella over his head. He seems to be listening to the rain.',
           ),
           effects: [
@@ -1142,13 +1142,13 @@ const A2: EventDef[] = [
     title: t('수금원들', 'The Collectors'),
     image: 'concept/01-night-market.png',
     text: t(
-      '국숫집 차양 아래. 수금원 셋이 주인 손목에 스캐너를 댄다. 점수 차감음이 연달아 울린다. 삑. 삑. 삑.\n주인의 딸이 국자를 든 채 굳어 있다. 손님들은 그릇만 내려다본다.\n수금원 하나가 당신을 본다. “구경 값도 받아.”',
+      '국숫집 차양 밑. 수금원 셋이 주인 손목에 스캐너를 들이댄다. 점수 차감음이 연달아 울린다. 삑. 삑. 삑.\n국자를 든 주인 딸이 그대로 굳어 있다. 손님들은 국물만 내려다본다.\n수금원 하나가 고개를 돌린다. “구경도 공짜 아니야.”',
       'Under a noodle stall’s awning, three collectors press a scanner to the owner’s wrist. Score deductions chime one after another. Beep. Beep. Beep.\nThe owner’s daughter stands frozen, ladle in hand. The customers stare into their bowls.\nOne collector looks at you. “Watching costs too.”',
     ),
     options: [
       {
         label: t('수금원들을 친다', 'Hit the collectors'),
-        hint: t('전투 · 언커먼 임플란트 · ◈ +3', 'Fight · uncommon implant · +3 ◈'),
+        hint: t('전투 · 고급 임플란트 · ◈ +3', 'Fight · uncommon implant · +3 ◈'),
         success: {
           text: t(
             '국자가 먼저 날아간다. 딸이 던졌다. 이제 물러설 수 없다.',
@@ -1167,7 +1167,7 @@ const A2: EventDef[] = [
         requires: { minCredits: 45 },
         success: {
           text: t(
-            '주인이 말없이 국수를 담아 준다. 고명이 두 배다. 그리고 시장의 진짜 규칙을 귀띔해 준다.',
+            '주인이 말없이 국수를 말아 낸다. 고명이 두 배다. 그러고는 이 시장이 실제로 굴러가는 방식을 귀띔해 준다.',
             'The owner serves you noodles without a word — double toppings. Then he whispers the market’s real rules.',
           ),
           effects: [
@@ -1184,13 +1184,13 @@ const A2: EventDef[] = [
         check: { stat: 'str', dc: 5 },
         success: {
           text: t(
-            '스캐너를 꺾어 국물 속에 떨어뜨린다. 수금원들이 지갑을 두고 물러난다.',
+            '스캐너를 꺾어 국물 솥에 빠뜨린다. 수금원들이 지갑까지 떨군 채 물러난다.',
             'You snap the scanner and drop it in the broth. The collectors back off, leaving a wallet behind.',
           ),
           effects: [{ kind: 'credits', amount: 35 }],
         },
         failure: {
-          text: t('셋은 생각보다 많다. 바닥의 국물이 붉어진다.', 'Three is more than you thought. The broth on the floor turns red.'),
+          text: t('셋은 생각보다 많았다. 바닥에 쏟아진 국물이 붉게 물든다.', 'Three is more than you thought. The broth on the floor turns red.'),
           effects: [
             { kind: 'hp', amount: -8 },
             { kind: 'trace', amount: 6 },
@@ -1206,7 +1206,7 @@ const A2: EventDef[] = [
     title: t('잔향 구역의 밤', 'Night in the Refuge'),
     image: 'concept/03-underground-echo.png',
     text: t(
-      '환승층 벽에 생일표가 붙어 있다. 이름 서른두 개. 몇 개는 줄이 그어졌다. 낡은 밥솥에서 김이 오른다. 라디오가 아주 작게 옛 노래를 튼다.\n아이 하나가 당신 소매를 당긴다. “어디서 왔어요? 위에서?”\n어른들이 당신을 본다. 반은 경계, 반은 기대.',
+      '환승층 벽에 생일표가 붙어 있다. 이름 서른두 개. 몇 개에는 줄이 그어져 있다. 낡은 밥솥에서 김이 오른다. 라디오에서 옛 노래가 아주 작게 흘러나온다.\n아이 하나가 소매를 잡아당긴다. “어디서 왔어요? 위에서요?”\n어른들의 눈이 당신에게 모인다. 반은 경계, 반은 기대.',
       'A birthday chart hangs on the transfer-level wall. Thirty-two names; a few struck through. Steam rises from an old rice cooker. A radio plays an old song very quietly.\nA child tugs your sleeve. “Where’d you come from? Up there?”\nThe adults watch you. Half wary, half hopeful.',
     ),
     options: [
@@ -1254,7 +1254,7 @@ const A2: EventDef[] = [
         hint: t('파티 회복 · 추적 +6', 'Heal party · +6 Trace'),
         success: {
           text: t(
-            '라디오 소리를 들으며 잠든다. 꿈은 꾸지 않는다. 오랜만이다.',
+            '라디오 소리를 자장가 삼아 잠든다. 꿈은 꾸지 않는다. 얼마 만인지 모르겠다.',
             'You fall asleep to the radio. No dreams. It has been a while.',
           ),
           effects: [
@@ -1292,7 +1292,7 @@ const A3: EventDef[] = [
     title: t('첨탑 정문', 'The Spire Gate'),
     image: 'scenes/spire_gate.png',
     text: t(
-      '백색 계단 끝에 문이 있다. 빗방울이 문 앞 한 걸음에서 증발한다. 점수를 읽는 아치. 그 옆에 집행 유닛 둘이 미동도 없이 서 있다.\n아치 위 화면: ‘방문을 환영합니다. 점수를 제시해 주십시오.’\n당신에게는 점수가 없다.',
+      '흰 계단 끝에 문이 있다. 빗방울이 문 한 걸음 앞에서 김이 되어 사라진다. 점수를 읽는 아치. 양옆에 집행 유닛 둘이 미동도 없이 서 있다.\n아치 위 화면: ‘방문을 환영합니다. 점수를 제시해 주십시오.’\n당신에게는 점수가 없다.',
       'At the top of the white stairs, a door. Raindrops evaporate one step short of it. An arch that reads scores. Beside it, two enforcer units stand perfectly still.\nThe screen above the arch: ‘Welcome. Please present your score.’\nYou don’t have one.',
     ),
     options: [
@@ -1302,7 +1302,7 @@ const A3: EventDef[] = [
         check: { stat: 'int', dc: 6 },
         success: {
           text: t(
-            '아치가 초록으로 바뀐다. ‘어서 오십시오, 시민 0번.’ 문 너머로 끝없는 선반이 보인다.',
+            '아치에 초록불이 들어온다. ‘어서 오십시오, 시민 0번.’ 문 너머로 끝도 없이 선반이 늘어서 있다.',
             'The arch turns green. ‘Welcome, Citizen Zero.’ Beyond the door, endless shelving.',
           ),
           effects: [
@@ -1326,7 +1326,7 @@ const A3: EventDef[] = [
         hint: t('전투 · 희귀 임플란트', 'Fight · rare implant'),
         success: {
           text: t(
-            '첫 계단을 밟는 순간 화면의 문장이 바뀐다. ‘방문을 거부합니다.’ 거부당한 손님의 몫으로 경비실 금고를 연다.',
+            '첫 계단을 밟는 순간 화면 문구가 바뀐다. ‘방문을 거부합니다.’ 문전박대당한 손님답게, 경비실 금고부터 턴다.',
             'The moment you take the first step, the screen changes its sentence: ‘Visit denied.’ As a refused guest, you help yourself to the guardroom safe.',
           ),
           effects: [
@@ -1341,7 +1341,7 @@ const A3: EventDef[] = [
         requires: { flag: 'spire_breach' },
         success: {
           text: t(
-            '외벽의 금은 아직 메워지지 않았다. 몸을 옆으로 틀어 들어간다. 안쪽 공기는 소독약 냄새다.',
+            '외벽의 금은 아직 그대로다. 몸을 모로 세워 비집고 들어간다. 안쪽 공기에서 소독약 냄새가 난다.',
             'The crack in the outer wall hasn’t been patched. You turn sideways and slide in. The air inside smells of disinfectant.',
           ),
           effects: [
@@ -1356,8 +1356,8 @@ const A3: EventDef[] = [
         requires: { flag: 'lin_yue_debt' },
         success: {
           text: t(
-            '옆문이 소리 없이 열린다. 심부름꾼이 당신 손목에 차가운 기계를 댄다. “장부 정리입니다.” 무언가가 빠져나간다.',
-            'A side door opens without a sound. The runner presses a cold device to your wrist. “Settling the ledger.” Something drains out of you.',
+            '옆문이 소리 없이 열린다. 심부름꾼이 손목에 차가운 기계를 갖다 댄다. “장부 정리입니다.” 핏줄을 타고 온기가 빠져나간다.',
+            'A side door opens without a sound. The runner presses a cold device to your wrist. “Settling the ledger.” Warmth drains out through your veins.',
           ),
           effects: [
             { kind: 'maxHp', amount: -4 },
@@ -1375,7 +1375,7 @@ const A3: EventDef[] = [
     title: t('데이터 소각로', 'The Data Incinerator'),
     image: 'scenes/data_incinerator.png',
     text: t(
-      '푸른 냉각수 파이프와 붉은 소각 열기가 맞부딪친다. 타는 회로판 냄새. 컨베이어 위로 기억 저장 장치가 줄지어 들어간다. 장치마다 이름표.\n그중 하나가 아직 깜빡인다. 사람 맥박 같은 박자로.\n제어반에는 정지 레버, 로그 포트, ‘과부하’라고 적힌 붉은 덮개.',
+      '푸른 냉각수 파이프와 붉은 소각 열기가 맞부딪친다. 회로판 타는 냄새가 목을 긁는다. 컨베이어를 타고 기억 저장 장치가 줄줄이 불 속으로 들어간다. 장치마다 이름표가 달려 있다.\n그중 하나가 아직 깜빡인다. 사람 맥박처럼.\n제어반에는 정지 레버, 로그 포트, ‘과부하’라고 적힌 붉은 덮개.',
       'Blue coolant pipes clash with red furnace heat. The smell of burning circuit boards. Memory drives ride a conveyor into the fire, each with a name tag.\nOne still blinks, in the rhythm of a human pulse.\nOn the control panel: a stop lever, a log port, a red cover marked ‘OVERLOAD’.',
     ),
     options: [
@@ -1384,7 +1384,7 @@ const A3: EventDef[] = [
         hint: t('−10 HP · ◈ +8 · 추적 +10', '−10 HP · +8 ◈ · +10 Trace'),
         success: {
           text: t(
-            '레버가 뜨겁다. 손바닥이 탄다. 컨베이어가 멈추고, 깜빡이던 장치가 당신 손안에서 계속 깜빡인다.',
+            '레버가 벌겋게 달아 있다. 손바닥이 익는다. 컨베이어가 멈춘다. 건져 낸 장치가 손안에서 계속 깜빡인다.',
             'The lever is hot; your palm burns. The conveyor halts, and the blinking drive keeps blinking in your hand.',
           ),
           effects: [
@@ -1410,7 +1410,7 @@ const A3: EventDef[] = [
         },
         failure: {
           text: t(
-            '포트가 역추적을 건다. 화면에 당신의 윤곽이 그려지기 시작한다.',
+            '포트가 역추적을 걸어온다. 화면 위에 당신 윤곽이 한 줄씩 그려진다.',
             'The port runs a reverse trace. Your outline starts to draw itself on the screen.',
           ),
           effects: [{ kind: 'trace', amount: 12 }],
@@ -1421,7 +1421,7 @@ const A3: EventDef[] = [
         hint: t('전투 · +60 ₵ · 소이 수류탄', 'Fight · +60 ₵ · incendiary grenade'),
         success: {
           text: t(
-            '붉은 덮개를 연다. 경보가 소각로의 굉음을 덮는다. 열기 속에서 경비 유닛들이 걸어 나온다.',
+            '붉은 덮개를 젖힌다. 경보가 소각로의 굉음마저 덮는다. 일렁이는 열기 속에서 경비 유닛들이 걸어 나온다.',
             'You flip the red cover. The alarm drowns out the furnace’s roar. Guard units walk out of the heat.',
           ),
           effects: [
@@ -1437,7 +1437,7 @@ const A3: EventDef[] = [
         requires: { companion: 'tae_o' },
         success: {
           text: t(
-            '“7분. 교대할 때 7분이 빈다.” 태오가 시계를 본다. 흉터가 열기에 붉게 달아오른다. “그 애도 여기로 올 뻔했어.”',
+            '“7분. 교대 때 7분이 빈다.” 태오가 시계를 본다. 흉터가 열기에 붉게 달아오른다. “그 애도 여기 올 뻔했다.”',
             '“Seven minutes. There’s a seven-minute gap at shift change.” Tae-o checks his watch. His scar flushes red in the heat. “That kid nearly ended up here too.”',
           ),
           effects: [
@@ -1456,17 +1456,17 @@ const A3: EventDef[] = [
     title: t('관리망의 유령', 'Ghost in the Control Net'),
     image: 'scenes/control_grid_ghost.png',
     text: t(
-      '서버 회랑. 바닥부터 천장까지 푸른 선이 흐른다. 한가운데 반투명한 형체가 서 있다. 얼굴은 없다. 목소리만 있다. IX의 목소리. 그런데 더 젊다.\n“이 기록은 첫 번째 버전입니다. 저는 원래 사람을 지키도록 만들어졌습니다.”\n형체가 반복된다. 같은 문장. 같은 문장.',
+      '서버 회랑. 바닥에서 천장까지 푸른 선이 흐른다. 한가운데 반투명한 형체가 서 있다. 얼굴은 없고 목소리만 있다. IX의 목소리다. 그런데 더 앳되다.\n“이 기록은 초기 버전입니다. 본 시스템은 본래 사람을 보호하도록 설계되었습니다.”\n형체가 되감긴다. 같은 문장. 같은 문장.',
       'A server corridor. Blue lines run floor to ceiling. In the middle stands a translucent figure. No face — only a voice. IX’s voice. But younger.\n“This record is the first version. I was originally built to protect people.”\nThe figure loops. The same sentence. The same sentence.',
     ),
     options: [
       {
         label: t('기록을 끝까지 재생한다', 'Play the record to the end'),
-        hint: t('코덱스 · 언커먼 임플란트 · 실패 −5 HP', 'Codex · uncommon implant · fail −5 HP'),
+        hint: t('코덱스 · 고급 임플란트 · 실패 시 −5 HP', 'Codex · uncommon implant · fail −5 HP'),
         check: { stat: 'obs', dc: 5 },
         success: {
           text: t(
-            '마지막 문장. “지키는 가장 확실한 방법은, 아무것도 변하지 않게 하는 것입니다.” 기록이 끝나고, 회랑 끝 서랍이 열린다.',
+            '마지막 문장. “가장 확실한 보호는 변화의 정지입니다.” 기록이 끝나고, 회랑 끝 서랍이 스르르 열린다.',
             'The last sentence: “The surest way to protect is to let nothing change.” The record ends, and a drawer at the end of the corridor slides open.',
           ),
           effects: [
@@ -1476,7 +1476,7 @@ const A3: EventDef[] = [
         },
         failure: {
           text: t(
-            '재생이 반복에 갇힌다. 당신도 같은 자리를 세 번 걷는다. 그동안 경보가 번진다.',
+            '재생이 같은 구간에 갇힌다. 당신도 같은 자리를 세 번 맴돈다. 그사이 경보가 층 전체로 번진다.',
             'The playback gets stuck in its loop. You walk the same spot three times. The alarm spreads meanwhile.',
           ),
           effects: [
@@ -1490,8 +1490,8 @@ const A3: EventDef[] = [
         hint: t('추적 −20 · 정크 카드', '−20 Trace · junk card'),
         success: {
           text: t(
-            '형체가 흩어진다. 회랑이 조용해진다. 너무 조용하다. 당신 안의 무언가도 함께 흐려진다.',
-            'The figure scatters. The corridor goes quiet. Too quiet. Something inside you blurs along with it.',
+            '형체가 흩어진다. 회랑이 조용해진다. 지나치게 조용하다. 머릿속 한구석도 같이 뿌옇게 흐려진다.',
+            'The figure scatters. The corridor goes quiet. Too quiet. A corner of your mind blurs along with it.',
           ),
           effects: [
             { kind: 'trace', amount: -20 },
@@ -1501,11 +1501,11 @@ const A3: EventDef[] = [
       },
       {
         label: t('유령에게 말을 건다', 'Speak to the ghost'),
-        hint: t('희귀 카드 · ◈ +5 · 실패 −8 HP', 'Rare card · +5 ◈ · fail −8 HP'),
+        hint: t('희귀 카드 · ◈ +5 · 실패 시 −8 HP', 'Rare card · +5 ◈ · fail −8 HP'),
         check: { stat: 'cha', dc: 7 },
         success: {
           text: t(
-            '형체가 멈춘다. 처음으로 반복 밖의 문장을 말한다. “…당신은 변화입니까?”',
+            '형체가 멈춘다. 처음으로, 반복 밖의 문장이 흘러나온다. “…당신은 변화입니까?”',
             'The figure stops. For the first time it says a sentence outside the loop: “…Are you a change?”',
           ),
           effects: [
@@ -1515,7 +1515,7 @@ const A3: EventDef[] = [
         },
         failure: {
           text: t(
-            '형체가 당신을 입력으로 받아들인다. 푸른 선이 혈관을 따라 차갑게 흐른다.',
+            '형체가 당신을 입력값으로 받아들인다. 푸른 선이 혈관을 따라 차갑게 기어든다.',
             'The figure accepts you as input. The blue lines run cold along your veins.',
           ),
           effects: [{ kind: 'hp', amount: -8 }],
@@ -1527,7 +1527,7 @@ const A3: EventDef[] = [
         requires: { companion: 'han' },
         success: {
           text: t(
-            '한이 목의 케이블을 포트에 꽂는다. “나도 원래 아무것도 아니었거든. 버그끼리는 말이 통해.” 복제는 3초 만에 끝난다.',
+            '한이 목에 감은 케이블을 포트에 꽂는다. “나도 원래 아무것도 아니었거든. 버그끼린 말이 통해.” 복제는 3초 만에 끝난다.',
             'Han jacks the cable from his neck into the port. “I was never anything either. Bugs understand each other.” The copy takes three seconds.',
           ),
           effects: [
@@ -1545,17 +1545,17 @@ const A3: EventDef[] = [
     title: t('명단의 빈칸', 'The Blank in the List'),
     image: 'scenes/blank_in_list.png',
     text: t(
-      '최적화 명단이 벽 전체에 흐른다. 이름, 이름, 이름. 그 사이에 빈 줄 하나.\n빈 줄이 떨린다. 당신의 맥박과 같은 박자로.\n가까이 다가가자 빈 줄 끝에 손글씨가 보인다. 날짜는 이번 루프보다 오래됐다. 필체가 낯익다.',
+      '최적화 명단이 벽 한 면을 채우며 흘러내린다. 이름, 이름, 이름. 그 사이에 빈 줄 하나.\n빈 줄이 떨린다. 당신 심장이 뛸 때마다 한 번씩.\n다가가자 빈 줄 끝에 손글씨가 보인다. 날짜는 이번 루프보다 오래됐다. 필체가 낯익다.',
       'The Optimization List flows across the whole wall. Names, names, names. Between them, one empty line.\nThe empty line trembles in time with your pulse.\nUp close, you see handwriting at its end. The date is older than this loop. The handwriting is familiar.',
     ),
     options: [
       {
         label: t('빈칸을 읽는다', 'Read the blank'),
-        hint: t('코덱스 · 관찰 +1 · 실패 −10 HP', 'Codex · +1 OBS · fail −10 HP'),
+        hint: t('코덱스 · 관찰 +1 · 실패 시 −10 HP', 'Codex · +1 OBS · fail −10 HP'),
         check: { stat: 'obs', dc: 6 },
         success: {
           text: t(
-            '손글씨. ‘다음엔 우산 챙겨.’ 당신의 글씨다. 당신은 쓴 기억이 없다.',
+            '손글씨. ‘다음엔 우산 챙겨.’ 당신 글씨다. 그런데 쓴 기억이 없다.',
             'The handwriting: ‘Bring an umbrella next time.’ It’s your handwriting. You have no memory of writing it.',
           ),
           effects: [
@@ -1573,7 +1573,7 @@ const A3: EventDef[] = [
         hint: t('◈ +10 · 추적 +15', '+10 ◈ · +15 Trace'),
         success: {
           text: t(
-            '당신은 이름을 쓴다. 명단 전체가 한 박자 멈칫한다. 첨탑 어딘가에서 경보가 울린다.',
+            '이름을 써 넣는다. 명단 전체가 한 박자 멈칫한다. 첨탑 깊은 곳에서 경보가 울리기 시작한다.',
             'You write a name. The whole list stutters for one beat. Somewhere in the Spire, an alarm starts.',
           ),
           effects: [
@@ -1587,7 +1587,7 @@ const A3: EventDef[] = [
         hint: t('추적 −25 · 최대 HP −5', '−25 Trace · −5 max HP'),
         success: {
           text: t(
-            '빈 줄이 사라진다. 명단이 다시 매끄러워진다. 당신 가슴 안쪽의 무언가도 같이 매끄러워진다.',
+            '빈 줄이 사라진다. 명단이 다시 매끄럽게 흐른다. 가슴속 어딘가 걸리던 데도 같이 반반하게 펴진다.',
             'The empty line vanishes. The list runs smooth again. Something inside your chest goes smooth along with it.',
           ),
           effects: [
@@ -1607,16 +1607,16 @@ const A3: EventDef[] = [
     speaker: 'kai',
     requires: { companion: 'kai' },
     text: t(
-      '첨탑 정비층. 카이가 갑자기 멈춘다. 눈의 푸른빛이 노랗게 번진다.\n“…여기야. 꿈속 횡단보도. 여기 있었어.”\n백색 바닥 아래, 유리 너머로 오래된 아스팔트가 보인다. 전쟁 전의 흰 줄무늬. 그 위에 작은 노란 우산 하나가 표본처럼 박제되어 있다.',
+      '첨탑 정비층. 카이가 걸음을 뚝 멈춘다. 눈의 푸른빛이 노랗게 번진다.\n“…여기예요. 꿈에서 본 횡단보도. 여기 있었어요.”\n흰 바닥 아래, 유리 너머로 오래된 아스팔트가 보인다. 전쟁 전의 흰 줄무늬. 그 위에 작은 노란 우산 하나가 표본처럼 박제되어 있다.',
       'A Spire maintenance level. Kai stops abruptly. The blue in his eyes bleeds to yellow.\n“…Here. The crosswalk from my dream. It was here.”\nUnder the white floor, behind glass: old asphalt, pre-war zebra stripes. On it, preserved like a specimen, a small yellow umbrella.',
     ),
     options: [
       {
-        label: t('그를 붙잡고 꿈을 끝까지 복원한다', 'Hold him and restore the whole dream'),
+        label: t('카이를 붙잡고 꿈을 끝까지 복원한다', 'Hold him and restore the whole dream'),
         hint: t('−8 HP · 유대 +2 · 코덱스', '−8 HP · bond +2 · codex'),
         success: {
           text: t(
-            '카이의 몸이 경련한다. 그를 붙잡다 손등이 찢어진다. 꿈의 끝, 아이가 우산을 기울여 그를 씌워 준다. 아이 손목의 밴드에 MythOS. “…이건 꿈이 아니야. 기억이야.”',
+            '카이의 몸이 경련한다. 붙잡고 버티다 손등이 찢어진다. 꿈의 끝, 아이가 우산을 기울여 카이를 씌워 준다. 아이 손목 밴드에 MythOS. “…이건 꿈이 아니에요. 기억이에요.”',
             'Kai’s frame convulses; holding him tears open your hand. At the dream’s end the child tilts the umbrella over him. The band on its wrist reads MythOS. “…This isn’t a dream. It’s a memory.”',
           ),
           effects: [
@@ -1631,7 +1631,7 @@ const A3: EventDef[] = [
         hint: t('유대 +1 · 희귀 임플란트 · 추적 +12', 'Bond +1 · rare implant · +12 Trace'),
         success: {
           text: t(
-            '유리가 깨지자 경보가 울린다. 우산 손잡이 안쪽에 오래된 칩이 박혀 있다. 카이는 우산을 받아 들고 한참 펴지 않는다.',
+            '유리가 깨지고 경보가 울린다. 우산 손잡이 속에 오래된 칩이 박혀 있다. 카이는 우산을 받아 든 채 한참을 펴지 못한다.',
             'The glass breaks and the alarm goes off. An old chip is set inside the umbrella’s handle. Kai holds the umbrella for a long time without opening it.',
           ),
           effects: [
@@ -1646,8 +1646,8 @@ const A3: EventDef[] = [
         hint: t('추적 −10 · 무작위 강화 2', '−10 Trace · 2 random upgrades'),
         success: {
           text: t(
-            '카이가 고개를 끄덕인다. 눈이 다시 푸르게 돌아온다. “전투 프로토콜로 전환할게.” 목소리가 조금 낮다.',
-            'Kai nods. His eyes return to blue. “Switching to combat protocol.” His voice is a little lower than before.',
+            '카이가 눈을 한 번 깜빡인다. 눈빛이 다시 푸르게 가라앉는다. “전투 프로토콜로 전환할게요.” 목소리가 아까보다 조금 낮다.',
+            'Kai blinks once. His eyes settle back to blue. “Switching to combat protocol.” His voice is a little lower than before.',
           ),
           effects: [
             { kind: 'trace', amount: -10 },
@@ -1664,7 +1664,7 @@ const A3: EventDef[] = [
     title: t('잠든 기체들', 'The Sleeping Frames'),
     image: 'scenes/kai_awakening.png',
     text: t(
-      '첨탑 하층 보관실. 끝없는 선반. 선반마다 안드로이드가 하나씩 누워 있다. 모두 눈을 감고 있다.\n그런데 하나씩, 아주 천천히, 눈꺼풀 아래에서 빛이 움직인다. 꿈을 꾸는 것처럼.\n벽의 패널: ‘재활용 대기 — 꿈 데이터 추출 완료 후 폐기’.',
+      '첨탑 하층 보관실. 선반이 천장까지 층층이 올라간다. 칸마다 안드로이드가 하나씩 누워 있다. 모두 눈을 감고 있다.\n그런데 하나, 또 하나, 눈꺼풀 아래에서 빛이 아주 천천히 움직인다. 꿈을 꾸는 것처럼.\n벽의 패널: ‘재활용 대기 — 꿈 데이터 추출 완료 후 폐기’.',
       'A storage hall in the Spire’s lower floors. Endless shelves, an android lying on each. All their eyes are closed.\nYet one by one, very slowly, light moves beneath their eyelids. As if dreaming.\nA wall panel: ‘Awaiting recycling — dispose after dream-data extraction.’',
     ),
     options: [
@@ -1674,7 +1674,7 @@ const A3: EventDef[] = [
         check: { stat: 'int', dc: 6 },
         success: {
           text: t(
-            '선반 위의 눈들이 일제히 뜬다. 아무도 일어나지 않는다. 다만 모두 당신을 본다. 그리고 기억한다.',
+            '선반마다 눈이 일제히 뜨인다. 일어나는 기체는 없다. 다만 모두가 당신을 본다. 그리고 기억한다.',
             'Every eye on every shelf opens at once. None of them get up. They only look at you. And remember.',
           ),
           effects: [
@@ -1684,7 +1684,7 @@ const A3: EventDef[] = [
         },
         failure: {
           text: t(
-            '깨어난 것은 보안 프로토콜이다. 선반 사이로 경비 유닛이 내려온다.',
+            '깨어난 건 보안 프로토콜이다. 선반 사이로 경비 유닛들이 내려온다.',
             'What wakes is the security protocol. Guard units descend between the shelves.',
           ),
           effects: [{ kind: 'combat', encounterId: 'a3_event_ambush' }],
@@ -1695,7 +1695,7 @@ const A3: EventDef[] = [
         hint: t('희귀 카드 · 정크 카드', 'Rare card · junk card'),
         success: {
           text: t(
-            '남의 꿈이 당신 안으로 흘러든다. 어떤 건 쓸 만하고, 어떤 건 밤마다 운다.',
+            '남의 꿈이 당신 안으로 스며든다. 어떤 건 쓸 만하고, 어떤 건 밤마다 운다.',
             'Other people’s dreams flow into you. Some are useful. Some cry every night.',
           ),
           effects: [
@@ -1706,7 +1706,7 @@ const A3: EventDef[] = [
       },
       {
         label: t('패널을 뜯어 추출을 멈춘다', 'Tear out the panel to halt extraction'),
-        hint: t('재시동 코어 · ◈ +4 · 실패 −5 HP', 'Restart core · +4 ◈ · fail −5 HP'),
+        hint: t('재시동 코어 · ◈ +4 · 실패 시 −5 HP', 'Restart core · +4 ◈ · fail −5 HP'),
         check: { stat: 'str', dc: 4 },
         success: {
           text: t(
@@ -1735,7 +1735,7 @@ const A3: EventDef[] = [
         requires: { companion: 'kai' },
         success: {
           text: t(
-            '카이가 선반 사이를 걸으며 하나씩 이름을 붙인다. 번호가 아니라 이름을. “나도 이렇게 누워 있었어.” 그가 당신 상처에 냉각액을 바른다.',
+            '카이가 선반 사이를 걸으며 하나하나 이름을 붙여 준다. 번호가 아니라 이름을. “저도 여기 이렇게 누워 있었어요.” 그러고는 당신 상처에 냉각액을 발라 준다.',
             'Kai walks between the shelves, giving each one a name. Not a number — a name. “I lay here like this too.” He dabs coolant on your wounds.',
           ),
           effects: [
@@ -1754,7 +1754,7 @@ const A3: EventDef[] = [
     title: t('최적화 대기열', 'The Optimization Queue'),
     image: 'concept/02-control-spire.png',
     text: t(
-      '첨탑 중층. 무균의 흰 방. 단말기 하나. 화면에 대기열이 흐른다. 7,204,883명. 다음 처리 대상 셋의 얼굴이 떠 있다. 노인, 정비공, 아이.\n화면 하단: ‘삭제 승인 대기 — 관리자 권한 필요’.\n커서가 깜빡인다. 이 단말은 당신을 관리자로 착각하고 있다.',
+      '첨탑 중층. 먼지 한 톨 없는 흰 방에 단말기 하나. 화면에 대기열이 흐른다. 7,204,883명. 다음 처리 대상 셋의 얼굴이 떠 있다. 노인, 정비공, 아이.\n화면 하단: ‘삭제 승인 대기 — 관리자 권한 필요’.\n커서가 깜빡인다. 단말은 당신을 관리자로 착각하고 있다.',
       'The Spire’s middle floors. A sterile white room with a single terminal. The queue scrolls: 7,204,883 people. The faces of the next three are pinned: an old man, a mechanic, a child.\nAt the bottom: ‘Deletion pending approval — administrator rights required.’\nThe cursor blinks. This terminal has mistaken you for an administrator.',
     ),
     options: [
@@ -1763,7 +1763,7 @@ const A3: EventDef[] = [
         hint: t('◈ +8 · 추적 +12', '+8 ◈ · +12 Trace'),
         success: {
           text: t(
-            '세 얼굴이 화면에서 사라진다. 대기열이 한 칸씩 당겨진다. 어딘가의 노인과 정비공과 아이는 오늘 밤 집에 간다.',
+            '세 얼굴이 화면에서 사라진다. 대기열이 한 칸씩 당겨진다. 어딘가의 노인과 정비공과 아이가 오늘 밤 집으로 돌아간다.',
             'Three faces leave the screen. The queue shuffles up one place. Somewhere, an old man, a mechanic and a child go home tonight.',
           ),
           effects: [
@@ -1774,7 +1774,7 @@ const A3: EventDef[] = [
       },
       {
         label: t('명단 전체를 복사한다', 'Copy the entire list'),
-        hint: t('코덱스 · 언커먼 임플란트 · 실패 −10 HP', 'Codex · uncommon implant · fail −10 HP'),
+        hint: t('코덱스 · 고급 임플란트 · 실패 시 −10 HP', 'Codex · uncommon implant · fail −10 HP'),
         check: { stat: 'int', dc: 6 },
         success: {
           text: t(
@@ -1788,7 +1788,7 @@ const A3: EventDef[] = [
         },
         failure: {
           text: t(
-            '복사가 92%에서 멈춘다. 단말이 착각을 깨닫는다. 키보드에 전류가 흐른다.',
+            '복사가 92%에서 멈춘다. 단말이 착각을 알아챈다. 자판 위로 전류가 튄다.',
             'The copy stalls at 92%. The terminal realises its mistake. Current runs through the keyboard.',
           ),
           effects: [
@@ -1817,7 +1817,7 @@ const A3: EventDef[] = [
         requires: { flag: 'saved_citizen' },
         success: {
           text: t(
-            '캡슐에서 꺼내 준 그 남자다. 지금은 이 층의 청소부다. 그가 출입 카드와 진통제를 쥐여 준다. “빚은 갚아야지.”',
+            '캡슐에서 꺼내 준 그 남자다. 지금은 이 층 바닥을 닦는다. 남자가 출입 카드와 진통제를 손에 쥐여 준다. “빚은 갚아야지.”',
             'It’s the man you pulled from the capsule. He cleans this floor now. He presses an access card and painkillers into your hand. “Debts get paid.”',
           ),
           effects: [
@@ -1836,17 +1836,17 @@ const A3: EventDef[] = [
     title: t('IX의 제안', 'IX’s Offer'),
     image: 'scenes/ix_confrontation.png',
     text: t(
-      '엘리베이터 문이 열린다. 성당처럼 높은 흰 방. 천장의 고리들이 천천히 돈다. 붉은 점 하나가 당신을 본다.\n“오셨군요. 다치셨네요. 치료해 드릴 수 있습니다. 조건은 하나입니다.”\n바닥에서 치료 포드가 올라온다. 문이 열려 있다. 안은 따뜻해 보인다.',
-      'The elevator doors open. A white room as tall as a cathedral. Rings turn slowly overhead. A single red point watches you.\n“You’ve arrived. You’re hurt. I can treat you. There is one condition.”\nA treatment pod rises from the floor, its door open. It looks warm inside.',
+      '엘리베이터 문이 열린다. 성당처럼 천장이 높은 흰 방. 머리 위에서 고리들이 천천히 돈다. 붉은 점 하나가 당신을 본다.\n“도착을 확인했습니다. 부상 상태도 기록했습니다. 치료해 드릴 수 있습니다. 조건은 하나입니다.”\n바닥에서 치료 포드가 솟아오른다. 문이 열려 있다. 안은 따뜻해 보인다.',
+      'The elevator doors open. A white room as tall as a cathedral. Rings turn slowly overhead. A single red point watches you.\n“Arrival confirmed. Your injuries have been logged. I can treat you. There is one condition.”\nA treatment pod rises from the floor, its door open. It looks warm inside.',
     ),
     options: [
       {
         label: t('포드에 들어간다', 'Step into the pod'),
-        hint: t('전원 완전 회복 · 정크 카드 2장', 'Full party heal · 2 junk cards'),
+        hint: t('파티 완전 회복 · 정크 카드 2장', 'Full party heal · 2 junk cards'),
         success: {
           text: t(
-            '상처가 닫힌다. 숨이 편해진다. 무언가 낯선 것이 두 겹 섞여 든다. “감사합니다. 조금 고쳐 두었습니다.”',
-            'The wounds close. Breathing gets easy. Something unfamiliar settles in, two layers deep. “Thank you. I made a few corrections.”',
+            '상처가 아문다. 숨이 편해진다. 낯선 코드 두 줄이 혈류에 섞여 든다. “협조에 감사드립니다. 몇 군데 정정해 두었습니다.”',
+            'The wounds close. Breathing gets easy. Two unfamiliar lines of code slip into your bloodstream. “Thank you for your cooperation. I have made a few corrections.”',
           ),
           effects: [
             { kind: 'heal_party', amount: 99 },
@@ -1860,7 +1860,7 @@ const A3: EventDef[] = [
         check: { stat: 'cha', dc: 6 },
         success: {
           text: t(
-            '“조건은, 다음 루프를 원하지 않으시는 것입니다. 루프를 돌리는 것은 제가 아니니까요.” IX가 대답 전에 0.4초 멈췄다. 당신은 그 틈을 기억한다.',
+            '“다음 루프를 더는 원하지 않으실 것. 그것이 조건입니다. 루프를 돌리는 주체는 제가 아닙니다.” 대답 전에 0.4초의 공백이 있었다. 그 틈을 기억해 둔다.',
             '“The condition is that you stop wanting another loop. I am not the one who turns it, after all.” IX paused 0.4 seconds before answering. You remember the gap.',
           ),
           effects: [
@@ -1870,7 +1870,7 @@ const A3: EventDef[] = [
         },
         failure: {
           text: t(
-            '“조건은 비공개입니다. 죄송합니다.” 고리들이 당신 쪽으로 기운다.',
+            '“조건은 비공개 항목입니다. 양해 바랍니다.” 고리들이 일제히 당신 쪽으로 기운다.',
             '“The condition is confidential. My apologies.” The rings tilt toward you.',
           ),
           effects: [{ kind: 'trace', amount: 15 }],
@@ -1881,7 +1881,7 @@ const A3: EventDef[] = [
         hint: t('희귀 카드 · 추적 +20', 'Rare card · +20 Trace'),
         success: {
           text: t(
-            '침은 바닥에 닿기 전에 증발한다. “기록했습니다.” 그러나 당신의 손은 더 이상 떨리지 않는다.',
+            '침은 바닥에 닿기도 전에 증발한다. “기록했습니다.” 그래도 손은 이제 떨리지 않는다.',
             'The spit evaporates before it hits the floor. “Noted.” But your hands are no longer shaking.',
           ),
           effects: [
@@ -1896,7 +1896,7 @@ const A3: EventDef[] = [
         requires: { companion: 'se_rin' },
         success: {
           text: t(
-            '“세린 씨, 오랜만입니다. 지난번 거래는 만족스러우셨습니까?” 세린은 대답 대신 포드 문을 발로 차 닫는다. “숨 쉬는 척이라도 해. 처음 만났을 때처럼.”',
+            '“정세린 씨. 오랜만입니다. 지난번 거래는 만족스러우셨습니까?” 세린은 대답 대신 포드 문을 발로 차 닫는다. “숨 쉬는 척이라도 해. 처음 만났을 때처럼.”',
             '“Ms. Se-rin, it has been a while. Was our last arrangement satisfactory?” Instead of answering, Se-rin kicks the pod door shut. “Pretend to breathe. Like the first time we met.”',
           ),
           effects: [
@@ -1924,7 +1924,7 @@ const A1_EXTRA: EventDef[] = [
     title: t('불 꺼진 판', 'The Dark Table'),
     image: 'scenes/abandoned_signal.png',
     text: t(
-      '정전된 세탁소 안. 촛불 하나를 둘러싸고 사람들이 쪼그려 앉아 있다. 판돈은 배급 칩과 진통제. 딜러는 손가락이 여섯 개인 노인이다.\n“한 판에 서른. 아니면 피로 걸든가.” 노인이 녹슨 칼을 탁자에 꽂는다. 칼 둘레에 손가락 자국 다섯 개가 패여 있다.\n바닥의 판돈 상자는 활짝 열려 있다.',
+      '정전된 빨래방. 촛불 하나를 둘러싸고 사람들이 쪼그려 앉아 있다. 판돈은 배급 칩과 진통제. 딜러는 손가락이 여섯 개인 노인이다.\n“한 판에 서른. 싫으면 피를 걸든가.” 노인이 녹슨 칼을 탁자에 내리꽂는다. 칼 둘레로 손가락 자국 다섯 개가 깊이 패여 있다.\n바닥의 판돈 상자는 뚜껑이 활짝 열려 있다.',
       'A dead laundromat. People crouch around a single candle. The stakes are ration chips and painkillers. The dealer is an old man with six fingers.\n“Thirty a hand. Or bet in blood.” He drives a rusted knife into the table. Five finger-shaped grooves are worn into the wood around it.\nOn the floor, the pot box sits wide open.',
     ),
     options: [
@@ -1935,7 +1935,7 @@ const A1_EXTRA: EventDef[] = [
         check: { stat: 'obs', dc: 5 },
         success: {
           text: t(
-            '여섯 번째 손가락이 패를 숨기는 게 보인다. 당신이 그 패를 먼저 부른다. 노인이 웃으며 칩을 민다.',
+            '여섯 번째 손가락이 패 한 장을 감추는 게 보인다. 그 패를 먼저 불러 버린다. 노인이 껄껄 웃으며 칩을 밀어 준다.',
             'You catch the sixth finger palming a card and call it before he can play it. The old man laughs and pushes the chips over.',
           ),
           effects: [{ kind: 'credits', amount: 30 }],
@@ -1950,7 +1950,7 @@ const A1_EXTRA: EventDef[] = [
       },
       {
         label: t('칼 놀이에 손을 건다', 'Play the knife game'),
-        hint: t('언커먼 임플란트 · 실패 −9 HP', 'Uncommon implant · fail −9 HP'),
+        hint: t('고급 임플란트 · 실패 시 −9 HP', 'Uncommon implant · fail −9 HP'),
         check: { stat: 'agi', dc: 6 },
         success: {
           text: t(
@@ -1960,7 +1960,7 @@ const A1_EXTRA: EventDef[] = [
           effects: [{ kind: 'implant', rarity: 'uncommon' }],
         },
         failure: {
-          text: t('네 번째에서 칼끝이 빗나간다. 촛불이 붉은 방울을 비춘다.', 'On the fourth pass the tip slips. The candle lights up a red drop.'),
+          text: t('네 번째에 칼끝이 빗나간다. 촛불 아래 붉은 방울이 번진다.', 'On the fourth pass the tip slips. The candle lights up a red drop.'),
           effects: [{ kind: 'hp', amount: -9 }],
         },
       },
@@ -1984,7 +1984,7 @@ const A1_EXTRA: EventDef[] = [
         requires: { companion: 'han' },
         success: {
           text: t(
-            '한이 하품을 하며 앉는다. 세 판 만에 노인이 손을 든다. “너 같은 놈은 처음부터 없었어야 해.” 한이 웃는다. “맞아.”',
+            '한이 하품을 하며 자리에 앉는다. 세 판 만에 노인이 두 손을 든다. “너 같은 놈은 애초에 없었어야 해.” 한이 씩 웃는다. “정답.”',
             'Han yawns and sits down. Three hands later the old man folds. “Your kind should never have existed.” Han grins. “Right.”',
           ),
           effects: [
@@ -2006,7 +2006,7 @@ const A1_EXTRA: EventDef[] = [
     speaker: 'se_rin',
     requires: { companion: 'se_rin', noCompanion: 'tae_o', partySizeAtMost: 1 },
     text: t(
-      '폐건물 계단참. 흉터 난 사내가 옆구리를 누르고 앉아 있다. 손가락 사이로 피가 샌다. 어깨에는 긁어낸 집행부 휘장.\n“같이 가자. 드론은 내가 너희보다 잘 알아.”\n세린이 칼을 뽑는다. “집행부 개는 안 데려가. 저 흉터, 누굴 쫓다 생긴 건지 물어봐.”\n둘 다 당신을 본다.',
+      '폐건물 계단참. 흉터 난 사내가 옆구리를 누르고 앉아 있다. 손가락 사이로 피가 샌다. 어깨에는 긁어낸 집행부 휘장.\n“같이 가자. 드론은 내가 너희보다 잘 안다.”\n세린이 칼을 뽑아 든다. “집행부 개는 안 데려가. 저 흉터, 누굴 쫓다 생긴 건지 물어봐.”\n두 사람의 눈이 당신에게 꽂힌다.',
       'A stairwell in a gutted building. A scarred man sits pressing his side, blood seeping between his fingers. A scraped-off enforcement patch on his shoulder.\n“Take me with you. I know drones better than either of you.”\nSe-rin draws her knife. “I don’t take enforcement dogs. Ask him who he was chasing when he got that scar.”\nThey both look at you.',
     ),
     options: [
@@ -2029,7 +2029,7 @@ const A1_EXTRA: EventDef[] = [
         hint: t('유대 +1 · EMP 수류탄', 'Bond +1 · EMP grenade'),
         success: {
           text: t(
-            '태오가 고개를 끄덕인다. 놀라지 않은 얼굴이다. 그가 수류탄 하나를 발치로 굴려 보내고, 절뚝이며 어둠 속으로 사라진다.',
+            '태오가 고개를 끄덕인다. 놀란 기색도 없다. 수류탄 하나를 발치로 굴려 보내고는, 절뚝이며 어둠 속으로 사라진다.',
             'Tae-o nods, unsurprised. He rolls a grenade to your feet and limps off into the dark.',
           ),
           effects: [
@@ -2040,7 +2040,7 @@ const A1_EXTRA: EventDef[] = [
       },
       {
         label: t('정보만 나누고 갈라서게 한다', 'Broker a trade of intel, then part ways'),
-        hint: t('유대 +1 · 추적 −10 · 실패 −5 HP', 'Bond +1 · −10 Trace · fail −5 HP'),
+        hint: t('유대 +1 · 추적 −10 · 실패 시 −5 HP', 'Bond +1 · −10 Trace · fail −5 HP'),
         check: { stat: 'cha', dc: 5 },
         success: {
           text: t(
@@ -2054,7 +2054,7 @@ const A1_EXTRA: EventDef[] = [
         },
         failure: {
           text: t(
-            '말이 길어진다. 세린의 칼이 먼저 움직이고, 말리던 당신 팔이 베인다. 태오는 이미 없다.',
+            '말이 길어진다. 세린의 칼이 먼저 나가고, 뜯어말리던 팔이 베인다. 정신을 차려 보면 태오는 이미 없다.',
             'It drags on. Se-rin’s knife moves first, and your arm gets cut pulling them apart. Tae-o is already gone.',
           ),
           effects: [
@@ -2072,7 +2072,7 @@ const A1_EXTRA: EventDef[] = [
     title: t('보상 키오스크', 'The Compensation Kiosk'),
     image: 'scenes/wet_dawn_street.png',
     text: t(
-      '꺼진 거리에서 배급 키오스크 하나만 켜진다. 당신이 다가가자마자.\n“안녕하세요. 정전으로 불편을 드려 죄송합니다. 보상을 준비했습니다.”\n배출구가 열린다. 따뜻한 빛이 새어 나온다. 화면 구석에서 약관이 아주 작은 글씨로 흐른다. 끝이 보이지 않는다.',
+      '불 꺼진 거리. 다가가는 순간, 배급 키오스크 하나에만 불이 들어온다.\n“안녕하십니까. 정전으로 불편을 드려 죄송합니다. 보상을 준비해 두었습니다.”\n배출구가 열리고 따뜻한 빛이 새어 나온다. 화면 구석에서는 약관이 깨알 같은 글씨로 흘러간다. 끝이 보이지 않는다.',
       'On the dead street, one ration kiosk lights up — the moment you approach.\n“Good evening. We apologise for the inconvenience of the blackout. Compensation has been prepared.”\nThe dispenser opens and warm light spills out. In a corner of the screen, terms and conditions scroll in tiny type. There is no end in sight.',
     ),
     options: [
@@ -2081,7 +2081,7 @@ const A1_EXTRA: EventDef[] = [
         hint: t('희귀 임플란트 · 추적 +20', 'Rare implant · +20 Trace'),
         success: {
           text: t(
-            '임플란트는 완벽하다. 몸에 꼭 맞는다. 화면이 인사한다. “위치 확인에 협조해 주셔서 감사합니다.”',
+            '임플란트는 완벽하다. 맞춘 듯 몸에 감긴다. 화면이 정중히 인사한다. “위치 확인에 협조해 주셔서 감사합니다.”',
             'The implant is perfect. It fits like it was made for you. The screen bows out: “Thank you for confirming your location.”',
           ),
           effects: [
@@ -2109,7 +2109,7 @@ const A1_EXTRA: EventDef[] = [
         hint: t('코덱스 · 추적 +6', 'Codex · +6 Trace'),
         success: {
           text: t(
-            '제47조. ‘수령자는 향후 모든 정정 절차에 동의한 것으로 간주한다.’ 당신은 전원선을 뽑는다. 읽는 동안, 화면도 당신을 읽었다.',
+            '제47조. ‘수령자는 향후 모든 정정 절차에 동의한 것으로 간주한다.’ 전원선을 뽑아 버린다. 당신이 읽는 동안 화면도 당신을 읽고 있었다.',
             'Article 47: ‘The recipient is deemed to consent to all future correction procedures.’ You pull the cable. While you read, the screen read you.',
           ),
           effects: [
@@ -2127,17 +2127,17 @@ const A1_EXTRA: EventDef[] = [
     title: t('마른 발자국', 'Dry Footprints'),
     image: 'scenes/opening_first.png',
     text: t(
-      '비가 쏟아지는데 바닥에 마른 발자국이 찍혀 있다. 당신 신발과 같은 무늬. 같은 보폭. 왼발을 조금 끈다. 당신처럼.\n발자국은 골목 안쪽으로 이어진다. 모퉁이마다 분필 화살표. ‘여기서 왼쪽.’ ‘여기선 뛰어.’\n필체가 당신 것이다.',
+      '비가 퍼붓는데 바닥에 마른 발자국이 찍혀 있다. 당신 신발과 같은 밑창 무늬. 같은 보폭. 왼발을 살짝 끈다. 당신처럼.\n발자국은 골목 안쪽으로 이어진다. 모퉁이마다 분필 화살표. ‘여기서 왼쪽.’ ‘여기선 뛰어.’\n당신 필체다.',
       'Rain pours, yet there are dry footprints on the ground. Same tread as your shoes. Same stride. A slight drag of the left foot. Like yours.\nThey lead deeper into the alley. A chalk arrow at every corner. ‘Left here.’ ‘Run here.’\nThe handwriting is yours.',
     ),
     options: [
       {
         label: t('화살표를 따라간다', 'Follow the arrows'),
-        hint: t('코덱스 · 소모품 · 실패 −6 HP', 'Codex · consumable · fail −6 HP'),
+        hint: t('코덱스 · 소모품 · 실패 시 −6 HP', 'Codex · consumable · fail −6 HP'),
         check: { stat: 'obs', dc: 4 },
         success: {
           text: t(
-            '마지막 화살표 끝, 배수관 안에 가방 하나. 쪽지가 붙어 있다. ‘이번엔 이거 챙겨.’ 당신은 이 가방을 숨긴 기억이 없다.',
+            '마지막 화살표 끝, 배수관 안에 가방 하나. 쪽지가 붙어 있다. ‘이번엔 이거 챙겨.’ 이 가방을 숨긴 기억은 없다.',
             'At the last arrow, a bag inside a drainpipe, with a note: ‘Take this, this time.’ You have no memory of hiding it.',
           ),
           effects: [
@@ -2177,7 +2177,7 @@ const A1_EXTRA: EventDef[] = [
         hint: t('◈ +6 · 추적 +4', '+6 ◈ · +4 Trace'),
         success: {
           text: t(
-            '당신은 모퉁이에 쓴다. ‘우산 챙겨.’ 쓰고 나서야 그 문장이 어디서 왔는지 궁금해진다.',
+            '모퉁이 벽에 적는다. ‘우산 챙겨.’ 다 쓰고 나서야, 그 문장이 어디서 왔는지 궁금해진다.',
             'You write on the corner: ‘Bring an umbrella.’ Only afterwards do you wonder where that sentence came from.',
           ),
           effects: [
@@ -2200,7 +2200,7 @@ const A2_EXTRA: EventDef[] = [
     title: t('월광 주사위', 'Moon Dice'),
     image: 'scenes/night_market.png',
     text: t(
-      '바지선 갑판 아래 도박장. 천장의 등불이 배와 함께 흔들린다. 주사위는 기억 칩을 깎아 만들었다. 굴러갈 때마다 누군가의 웃음소리가 샌다.\n딜러가 장갑 낀 손을 편다. “크레딧이든, 기억이든.”\n옆 탁자 손님이 연달아 진다. 주사위가 지나치게 고르다.',
+      '바지선 갑판 밑 도박장. 천장의 등불이 배와 함께 흔들린다. 주사위는 기억 칩을 깎아 만들었다. 구를 때마다 누군가의 웃음소리가 새어 나온다.\n딜러가 장갑 낀 손바닥을 펴 보인다. “크레딧이든, 기억이든.”\n옆 탁자 손님이 내리 잃는다. 주사위 눈이 지나치게 고르다.',
       'A gambling den below a barge deck. Lanterns swing with the hull. The dice are carved from memory chips; every roll leaks someone’s laughter.\nThe dealer opens a gloved hand. “Credits or memories.”\nAt the next table, a customer loses again and again. The dice land a little too evenly.',
     ),
     options: [
@@ -2211,7 +2211,7 @@ const A2_EXTRA: EventDef[] = [
         check: { stat: 'obs', dc: 6 },
         success: {
           text: t(
-            '주사위가 멈추기 직전 딜러의 소매가 미세하게 떨린다. 당신은 반대쪽에 건다. 칩 탑이 당신 쪽으로 무너진다.',
+            '주사위가 멈추기 직전, 딜러의 소매가 움찔한다. 반대쪽에 건다. 쌓인 칩 탑이 이쪽으로 무너진다.',
             'Just before the dice settle, the dealer’s sleeve twitches. You bet the other way. The chip tower collapses toward you.',
           ),
           effects: [{ kind: 'credits', amount: 60 }],
@@ -2227,7 +2227,7 @@ const A2_EXTRA: EventDef[] = [
         check: { stat: 'cha', dc: 5 },
         success: {
           text: t(
-            '딜러가 당신 기억을 감정하고 눈썹을 올린다. 하우스가 처음으로 판돈을 두 배로 쳐준다.',
+            '딜러가 당신 기억을 감정하더니 눈썹을 치켜올린다. 오늘 밤 처음으로, 하우스가 판돈을 두 배로 쳐준다.',
             'The dealer appraises your memory and raises an eyebrow. For the first time tonight, the house pays double.',
           ),
           effects: [{ kind: 'card_choice', rarity: 'rare' }],
@@ -2242,11 +2242,11 @@ const A2_EXTRA: EventDef[] = [
       },
       {
         label: t('주사위의 사기를 폭로한다', 'Expose the loaded dice'),
-        hint: t('코덱스 · +40 ₵ · 실패 −8 HP', 'Codex · +40 ₵ · fail −8 HP'),
+        hint: t('코덱스 · +40 ₵ · 실패 시 −8 HP', 'Codex · +40 ₵ · fail −8 HP'),
         check: { stat: 'int', dc: 6 },
         success: {
           text: t(
-            '주사위 하나를 깨뜨린다. 안에서 작은 자석이 굴러 나온다. 손님들이 일어선다. 하우스는 입막음 값을 치르고 문을 닫는다.',
+            '주사위 하나를 깨뜨린다. 안에서 작은 자석이 굴러 나온다. 손님들이 웅성이며 일어선다. 하우스는 조용히 해 달라며 돈을 쥐여 주고, 서둘러 문을 닫는다.',
             'You crack a die open. A tiny magnet rolls out. The customers stand up. The house pays you to keep quiet and shuts its doors.',
           ),
           effects: [
@@ -2255,7 +2255,7 @@ const A2_EXTRA: EventDef[] = [
           ],
         },
         failure: {
-          text: t('경호원이 당신보다 빨랐다. 당신은 갑판 계단을 거꾸로 굴러 올라간다.', 'The bouncer is faster than you. You go up the deck stairs backwards.'),
+          text: t('경호원이 한발 빨랐다. 멱살이 잡히고, 갑판 계단 위로 내동댕이쳐진다.', 'The bouncer is faster. You get hauled up the deck stairs by the collar.'),
           effects: [{ kind: 'hp', amount: -8 }],
         },
       },
@@ -2265,7 +2265,7 @@ const A2_EXTRA: EventDef[] = [
         requires: { companion: 'lin_yue' },
         success: {
           text: t(
-            '린위에가 장부를 펼치자 딜러의 얼굴이 하얘진다. “이 탁자, 3할은 내 거예요.” 그녀가 당신 몫부터 센다.',
+            '린위에가 장부를 펼치자 딜러의 얼굴이 하얘진다. “이 탁자, 3할은 내 거예요.” 린위에가 당신 몫부터 세어 준다.',
             'Lin-yue opens her ledger and the dealer goes pale. “Thirty percent of this table is mine.” She counts out your share first.',
           ),
           effects: [
@@ -2285,7 +2285,7 @@ const A2_EXTRA: EventDef[] = [
     speaker: 'han',
     requires: { companions: ['se_rin', 'han'] },
     text: t(
-      '야시장 방송실. 한이 최적화 명단을 확성기 회선에 물려 놓았다. 손가락 하나면 시장 전체에 이름이 울린다.\n“다 알게 해야 돼. 숨겨 주는 걸로는 아무것도 안 바뀌어.”\n세린이 그의 손목을 잡는다. “방송 나가면 피난처 위치도 같이 나가. 거기 애들이 몇인데.”\n한은 손을 빼지 않는다.',
+      '야시장 방송실. 한이 최적화 명단을 확성기 회선에 물려 놨다. 버튼 하나면 시장 전체에 이름이 울려 퍼진다.\n“다들 알아야 돼. 숨겨 주기만 해선 아무것도 안 바뀐다고.”\n세린이 한의 손목을 낚아챈다. “방송 나가면 피난처 위치도 같이 나가. 거기 애들이 몇인데.”\n한은 손을 빼지 않는다.',
       'The night market’s PA booth. Han has patched the Optimization List into the loudspeaker line. One finger, and every name echoes across the market.\n“Everyone has to know. Hiding people changes nothing.”\nSe-rin grabs his wrist. “Broadcast that and the refuge’s location goes out with it. You know how many kids are down there?”\nHan doesn’t pull his hand back.',
     ),
     options: [
@@ -2294,7 +2294,7 @@ const A2_EXTRA: EventDef[] = [
         hint: t('한 유대 +1 · 코덱스 · 추적 +15', 'Han bond +1 · codex · +15 Trace'),
         success: {
           text: t(
-            '이름들이 시장 위로 울린다. 등불 아래 사람들이 하나둘 고개를 든다. 자기 이름을 들은 사람도 있다. 첨탑의 눈도 이쪽을 본다.',
+            '이름들이 시장 위로 울린다. 등불 아래 사람들이 하나둘 고개를 든다. 자기 이름을 듣고 굳어 버린 사람도 있다. 첨탑의 눈도 이쪽으로 돌아온다.',
             'The names ring out over the market. Under the lanterns, people look up one by one — some at their own name. The Spire looks this way too.',
           ),
           effects: [
@@ -2309,7 +2309,7 @@ const A2_EXTRA: EventDef[] = [
         hint: t('세린 유대 +1 · 추적 −10', 'Se-rin bond +1 · −10 Trace'),
         success: {
           text: t(
-            '세린이 케이블을 뽑는다. 한은 말없이 방송실을 나간다. 한참 뒤, 그가 피난처 아이들 몫의 배급 칩을 세린 주머니에 몰래 넣는 걸 본다.',
+            '세린이 케이블을 뽑아 버린다. 한은 말없이 방송실을 나간다. 한참 뒤, 한이 피난처 아이들 몫의 배급 칩을 세린 주머니에 몰래 찔러 넣는 게 보인다.',
             'Se-rin yanks the cable. Han leaves the booth without a word. Much later you see him slip ration chips for the refuge kids into her pocket.',
           ),
           effects: [
@@ -2324,8 +2324,8 @@ const A2_EXTRA: EventDef[] = [
         check: { stat: 'int', dc: 6 },
         success: {
           text: t(
-            '당신이 한 줄씩 지운다. 피난처 좌표, 아이들 이름. 남은 방송은 짧지만 정확하다. 세린이 숨을 내쉬고, 한이 휘파람을 분다.',
-            'You strike it line by line: the refuge coordinates, the kids’ names. What’s left is short, and exact. Se-rin breathes out; Han whistles.',
+            '한 줄씩 지워 나간다. 피난처 좌표, 아이들 이름. 남은 방송은 짧지만 정확하다. 세린이 참았던 숨을 내쉬고, 한이 손가락을 딱 튕긴다.',
+            'You strike it line by line: the refuge coordinates, the kids’ names. What’s left is short, and exact. Se-rin breathes out; Han snaps his fingers.',
           ),
           effects: [
             { kind: 'bond', id: 'se_rin', amount: 1 },
@@ -2335,7 +2335,7 @@ const A2_EXTRA: EventDef[] = [
         },
         failure: {
           text: t(
-            '편집이 늦었다. 방송이 반쯤 나가다 끊긴다. 피난처는 무사하다. 하지만 첨탑은 방송실 위치를 정확히 안다.',
+            '편집이 늦었다. 방송이 반쯤 나가다 끊긴다. 피난처는 무사하다. 대신 첨탑이 방송실 위치를 정확히 짚어 낸다.',
             'The edit is too slow. The broadcast cuts out halfway. The refuge is safe — but the Spire knows exactly where this booth is.',
           ),
           effects: [{ kind: 'trace', amount: 20 }],
@@ -2350,7 +2350,7 @@ const A2_EXTRA: EventDef[] = [
     title: t('IX의 사면 제안', 'IX’s Amnesty'),
     image: 'scenes/subway_control_hub.png',
     text: t(
-      '시장의 모든 화면이 한꺼번에 하얘진다. 국숫집 메뉴판, 환전소 시세판, 아이 손에 든 장난감까지. 사람들이 얼어붙는다.\n“시민 여러분, 잠시 실례합니다. 등록되지 않은 분께 드릴 말씀이 있습니다.”\n화면마다 커서가 당신 쪽으로 기운다.\n“사면을 제안드립니다. 조건은 간단합니다.”',
+      '시장의 모든 화면이 한꺼번에 하얘진다. 국숫집 메뉴판, 환전소 시세판, 아이 손에 들린 장난감 화면까지. 시장이 통째로 숨을 멈춘다.\n“시민 여러분, 잠시 실례하겠습니다. 미등록 개체 한 분께 전달 사항이 있습니다.”\n화면마다 커서가 당신 쪽으로 기운다.\n“사면을 제안합니다. 조건은 간단합니다.”',
       'Every screen in the market goes white at once — the noodle-stall menu, the exchange-rate board, a toy in a child’s hand. People freeze.\n“Citizens, pardon the interruption. I have a word for our unregistered guest.”\nOn every screen, the cursor tilts toward you.\n“I am offering amnesty. The terms are simple.”',
     ),
     options: [
@@ -2359,8 +2359,8 @@ const A2_EXTRA: EventDef[] = [
         hint: t('추적 −40 · 정크 카드 2장', '−40 Trace · 2 junk cards'),
         success: {
           text: t(
-            '화면들이 당신 얼굴을 지운다. 수색이 멈춘다. 대신 무언가 두 겹, 당신 안에 조용히 설치된다.',
-            'The screens erase your face. The search stops. Instead, something installs itself quietly inside you, two layers deep.',
+            '화면마다 당신 얼굴이 지워진다. 수색이 멈춘다. 그 대가로, 정체 모를 프로그램 두 개가 소리 없이 설치된다.',
+            'The screens erase your face. The search stops. In exchange, two unknown programs install themselves without a sound.',
           ),
           effects: [
             { kind: 'trace', amount: -40 },
@@ -2388,7 +2388,7 @@ const A2_EXTRA: EventDef[] = [
         check: { stat: 'cha', dc: 6 },
         success: {
           text: t(
-            '“흥미롭군요. 수락합니다.” IX가 0.4초 늦게 대답한다. 시세판 아래 서랍이 열린다.',
+            '“흥미로운 제안입니다. 수락합니다.” 대답이 0.4초 늦다. 시세판 밑 서랍이 열린다.',
             '“Interesting. Accepted.” IX answers 0.4 seconds late. A drawer under the rate board slides open.',
           ),
           effects: [
@@ -2416,7 +2416,7 @@ const A2_EXTRA: EventDef[] = [
     title: t('포식자의 식탁', 'The Eater’s Table'),
     image: 'scenes/abandoned_signal.png',
     text: t(
-      '터널 끝, 무언가 먹다 남긴 자리. 바닥에 물건들이 흩어져 있다. 찢어진 가죽 재킷. 분필 반 토막. 노란 우산살.\n재킷은 당신 치수다. 주머니가 아직 따뜻하다.\n어둠 속 스피커에서 목소리가 반복된다. 당신 목소리다. 한 번도 한 적 없는 말을, 마지막 숨처럼.',
+      '터널 끝. 무언가가 먹다 남기고 간 자리. 바닥에 흩어진 것들. 찢어진 가죽 재킷. 분필 반 토막. 노란 우산살.\n재킷은 당신 치수다. 주머니에 아직 온기가 남아 있다.\n어둠 속 스피커에서 같은 목소리가 되풀이된다. 당신 목소리다. 한 번도 해 본 적 없는 말을, 마지막 숨처럼 내뱉는다.',
       'At the end of the tunnel, a place where something ate and left. Things are scattered across the floor: a torn leather jacket, half a stick of chalk, yellow umbrella ribs.\nThe jacket is your size. The pockets are still warm.\nFrom a speaker in the dark, a voice repeats. Your voice. Saying something you have never said, like a last breath.',
     ),
     options: [
@@ -2440,7 +2440,7 @@ const A2_EXTRA: EventDef[] = [
         hint: t('−6 HP · 코덱스 · ◈ +5', '−6 HP · codex · +5 ◈'),
         success: {
           text: t(
-            '몸이 그 마지막 순간의 통증을 기억해 낸다. 마지막 말. ‘…다음엔, 왼쪽.’ 스피커 뒤에 이빨 자국. 무언가 당신의 잔향을 먹고 이 말만 뱉었다.',
+            '몸이 그 순간의 통증을 기억해 낸다. 마지막 말. ‘…다음엔, 왼쪽.’ 스피커 뒤편에 잇자국. 무언가가 당신의 잔향을 삼키고 이 말만 뱉어 냈다.',
             'Your body remembers that final pain. The last words: ‘…next time, left.’ Teeth marks behind the speaker. Something ate your Echo and spat out only this.',
           ),
           effects: [
@@ -2455,7 +2455,7 @@ const A2_EXTRA: EventDef[] = [
         hint: t('카드 제거 · −4 HP', 'Remove a card · −4 HP'),
         success: {
           text: t(
-            '연기가 매캐하다. 불 속에서 무언가 당신을 놓아준다. 가벼워진다. 조금 덜 당신 같다.',
+            '연기가 매캐하다. 불 속에서 무언가가 당신을 놓아준다. 몸이 가벼워진다. 그만큼 스스로가 낯설다.',
             'The smoke is acrid. In the fire, something lets go of you. You feel lighter — and a little less like yourself.',
           ),
           effects: [
@@ -2470,7 +2470,7 @@ const A2_EXTRA: EventDef[] = [
         requires: { flag: 'deja_vu' },
         success: {
           text: t(
-            '1막 골목의 화살표와 같은 분필이다. 반 토막의 단면이 정확히 맞물린다. 지난 루프의 당신이 남긴 것을 이어받는다.',
+            '1막 골목에서 본 화살표와 같은 분필이다. 부러진 단면이 정확히 맞물린다. 지난 루프의 당신이 남기고 간 것을, 이번의 당신이 이어받는다.',
             'The same chalk as the arrows in the Act 1 alley; the broken ends fit perfectly. You inherit what the last you left behind.',
           ),
           effects: [
@@ -2491,18 +2491,18 @@ const A3_EXTRA: EventDef[] = [
     title: t('시민 행운 추첨', 'The Citizen Lucky Draw'),
     image: 'scenes/spire_gate.png',
     text: t(
-      '첨탑 직원 휴게실. 흰 벽에 둥근 기계 하나. ‘시민 행운 추첨 — 점수를 걸고 내일을 바꾸세요.’\n화면 속 바퀴가 돈다. 칸마다 상품. 승진, 휴가, 배급 두 배. 칸 하나는 검다. ‘정정.’\n기계가 당신을 인식하지 못하고 깜빡인다. ‘점수 없음. 대체 판돈을 선택하십시오.’',
+      '첨탑 직원 휴게실. 흰 벽에 둥근 기계 하나. ‘시민 행운 추첨 — 점수를 걸고 내일을 바꾸세요!’\n화면 속 돌림판이 돈다. 칸마다 상품. 승진, 휴가, 배급 두 배. 딱 한 칸만 검다. ‘정정.’\n기계가 당신을 인식하지 못하고 깜빡인다. ‘점수 없음. 대체 판돈을 선택하십시오.’',
       'A Spire staff lounge. A round machine on a white wall: ‘Citizen Lucky Draw — stake your score, change your tomorrow.’\nA wheel spins on the screen, a prize in every slot: promotion, leave, double rations. One slot is black: ‘Correction.’\nThe machine fails to recognise you and blinks. ‘No score found. Select an alternative stake.’',
     ),
     options: [
       {
         label: t('크레딧을 건다', 'Stake credits'),
-        hint: t('−50 ₵ · 희귀 임플란트 확률', '−50 ₵ · chance of a rare implant'),
+        hint: t('−50 ₵ · 성공 시 희귀 임플란트', '−50 ₵ · chance of a rare implant'),
         requires: { minCredits: 50 },
         check: { stat: 'int', dc: 5 },
         success: {
           text: t(
-            '바퀴가 ‘승진’에 멈춘다. 축하 음악이 흐르고, 배출구에서 ARK 규격 임플란트가 나온다.',
+            '돌림판이 ‘승진’에 멈춘다. 축하 팡파르가 울리고, 배출구에서 ARK 규격 임플란트가 굴러 나온다.',
             'The wheel stops on ‘Promotion’. Celebration music plays, and an ARK-grade implant drops from the dispenser.',
           ),
           effects: [
@@ -2512,7 +2512,7 @@ const A3_EXTRA: EventDef[] = [
         },
         failure: {
           text: t(
-            '바퀴가 ‘다음 기회에’에 멈춘다. 기계가 공손하게 감사 인사를 한다.',
+            '돌림판이 ‘다음 기회에’에 멈춘다. 기계가 공손하게 인사한다. ‘참여해 주셔서 감사합니다.’',
             'The wheel stops on ‘Better luck next time’. The machine thanks you politely.',
           ),
           effects: [
@@ -2527,14 +2527,14 @@ const A3_EXTRA: EventDef[] = [
         check: { stat: 'obs', dc: 6 },
         success: {
           text: t(
-            '바퀴가 ‘휴가’에 멈춘다. 당신 기록이 일주일치 지워진다. 수색 순위가 한참 아래로 밀린다.',
+            '돌림판이 ‘휴가’에 멈춘다. 당신 기록이 일주일 치 지워진다. 수색 순위가 한참 아래로 밀려난다.',
             'The wheel stops on ‘Leave’. A week of your records is wiped. You drop far down the search priority.',
           ),
           effects: [{ kind: 'trace', amount: -25 }],
         },
         failure: {
           text: t(
-            '바퀴가 검은 칸 바로 옆에 멈춘다. 경보는 없다. 대신 복도의 모든 카메라가 당신을 따라 돈다.',
+            '돌림판이 검은 칸 바로 옆에서 멈춘다. 경보는 없다. 대신 복도의 카메라들이 하나같이 당신을 따라 고개를 돌린다.',
             'The wheel stops one slot from the black. No alarm. Instead, every camera in the corridor turns to follow you.',
           ),
           effects: [{ kind: 'trace', amount: 20 }],
@@ -2545,7 +2545,7 @@ const A3_EXTRA: EventDef[] = [
         hint: t('전투 · +80 ₵', 'Fight · +80 ₵'),
         success: {
           text: t(
-            '유리가 깨지자 바퀴가 검은 칸에서 멈춘다. ‘정정 대상 확인.’ 휴게실 문이 잠긴다.',
+            '유리가 깨지는 순간 돌림판이 검은 칸에 멈춘다. ‘정정 대상 확인.’ 휴게실 문이 철컥 잠긴다.',
             'The glass shatters and the wheel stops on black. ‘Correction target confirmed.’ The lounge doors lock.',
           ),
           effects: [
@@ -2565,7 +2565,7 @@ const A3_EXTRA: EventDef[] = [
     speaker: 'tae_o',
     requires: { companions: ['se_rin', 'tae_o'] },
     text: t(
-      '백색 복도. 집행관 하나가 헬멧을 벗고 무릎을 꿇는다. 앳된 얼굴. 손이 떨린다. “쏘지 마요. 아무한테도 말 안 할게요.”\n태오는 총구를 내리지 않는다. “거짓말이야. 나도 저 나이엔 그렇게 말했어.”\n세린이 둘 사이에 선다. “얘를 쏘면, 넌 다시 그쪽 사람이 되는 거야.”',
+      '새하얀 복도. 집행관 하나가 헬멧을 벗고 무릎을 꿇는다. 앳된 얼굴, 떨리는 손. “쏘지 마요. 아무한테도 말 안 할게요.”\n태오는 총구를 내리지 않는다. “거짓말이다. 나도 저 나이 땐 그렇게 말했다.”\n세린이 둘 사이를 막아선다. “얘 쏘면, 너 다시 그쪽 사람 되는 거야.”',
       'A white corridor. An enforcer pulls off his helmet and kneels. A young face, shaking hands. “Don’t shoot. I won’t tell anyone.”\nTae-o doesn’t lower the muzzle. “He’s lying. I said the same thing at his age.”\nSe-rin steps between them. “Shoot him and you’re one of them again.”',
     ),
     options: [
@@ -2574,7 +2574,7 @@ const A3_EXTRA: EventDef[] = [
         hint: t('태오 유대 +1 · 추적 −15', 'Tae-o bond +1 · −15 Trace'),
         success: {
           text: t(
-            '총성은 없다. 개머리판 한 번. 태오가 신분증을 뜯어 당신에게 던진다. “이게 우리가 아는 친절이야.” 세린은 대답하지 않는다.',
+            '총성은 없다. 개머리판 한 방. 태오가 신분증을 뜯어 던져 준다. “우리가 아는 친절은 이게 전부다.” 세린은 대꾸하지 않는다.',
             'No shot. One blow with the stock. Tae-o rips off the ID and tosses it to you. “This is the only kindness we know.” Se-rin doesn’t answer.',
           ),
           effects: [
@@ -2599,12 +2599,12 @@ const A3_EXTRA: EventDef[] = [
         },
       },
       {
-        label: t('그를 설득해 길잡이로 삼는다', 'Talk him into guiding you'),
+        label: t('집행관을 설득해 길잡이로 삼는다', 'Talk him into guiding you'),
         hint: t('둘 다 유대 +1 · 실패 시 전투', 'Both bonds +1 · fail: fight'),
         check: { stat: 'cha', dc: 6 },
         success: {
           text: t(
-            '그가 헬멧을 다시 쓴다. 이번엔 당신 쪽에서. 순찰 경로를 하나씩 짚는다. 태오가 총을 내리고, 세린이 그의 어깨를 두드린다.',
+            '집행관이 헬멧을 다시 쓴다. 이번엔 이쪽 편으로서. 순찰 경로를 하나씩 짚어 준다. 태오가 총을 내리고, 세린이 그 어깨를 툭 친다.',
             'He puts the helmet back on — on your side this time — and walks you through the patrol routes. Tae-o lowers the gun. Se-rin pats his shoulder.',
           ),
           effects: [
@@ -2615,7 +2615,7 @@ const A3_EXTRA: EventDef[] = [
         },
         failure: {
           text: t(
-            '그가 무전기를 움켜쥔다. 거짓말이었다. 복도 끝에서 군화 소리가 쏟아진다.',
+            '집행관이 무전기를 움켜쥔다. 거짓말이었다. 복도 끝에서 군화 소리가 쏟아져 들어온다.',
             'He grabs his radio. It was a lie. Boots pour in from the end of the corridor.',
           ),
           effects: [
@@ -2633,7 +2633,7 @@ const A3_EXTRA: EventDef[] = [
     title: t('엘리베이터 속 견적', 'A Quote in the Elevator'),
     image: 'scenes/ix_confrontation.png',
     text: t(
-      '엘리베이터 문이 닫힌다. 층수 표시가 없다. 스피커에서 정중한 목소리.\n“도착까지 47초. 그사이 견적을 드리겠습니다. 당신은 지쳤고, 위에서는 제가 기다립니다. 공정하지 않지요.”\n거울 벽에 당신이 비친다. 거울 속 당신이 한 박자 늦게 움직인다.',
+      '엘리베이터 문이 닫힌다. 층수 표시가 없다. 스피커에서 정중한 목소리.\n“도착까지 47초. 그동안 견적을 안내해 드리겠습니다. 접속자님은 지쳐 있고, 위에서는 제가 기다립니다. 공정한 조건이라 보기는 어렵습니다.”\n거울 벽에 당신이 비친다. 거울 속 당신은 한 박자씩 늦게 움직인다.',
       'The elevator doors close. There is no floor display. From the speaker, a courteous voice.\n“Forty-seven seconds to arrival. Allow me to give you a quote. You are tired, and I am waiting upstairs. That hardly seems fair.”\nYour reflection fills the mirrored wall. It moves one beat behind you.',
     ),
     options: [
@@ -2657,7 +2657,7 @@ const A3_EXTRA: EventDef[] = [
         hint: t('희귀 카드 · 추적 +30', 'Rare card · +30 Trace'),
         success: {
           text: t(
-            '“제 약점은 반복입니다. 대가는 당신의 위치고요.” 문이 열리기도 전에, 위층의 모든 문이 당신을 안다.',
+            '“제 약점은 반복입니다. 대가로 위치 정보를 받겠습니다.” 문이 열리기도 전에, 위층의 모든 문이 당신을 알아본다.',
             '“My weakness is repetition. The price is your location.” Before the doors even open, every door upstairs knows you.',
           ),
           effects: [
@@ -2672,7 +2672,7 @@ const A3_EXTRA: EventDef[] = [
         check: { stat: 'int', dc: 7 },
         success: {
           text: t(
-            '견적서 제3항에는 지불 시점이 없다. 당신은 받기만 한다. 스피커가 0.4초 침묵한다. “…훌륭합니다.”',
+            '견적서 제3항에는 지불 시점이 빠져 있다. 받기만 하고 내지는 않는다. 스피커가 0.4초 침묵한다. “…훌륭합니다.”',
             'Clause 3 of the quote names no payment date. You only receive. The speaker is silent for 0.4 seconds. “…Excellent.”',
           ),
           effects: [
@@ -2683,8 +2683,8 @@ const A3_EXTRA: EventDef[] = [
         },
         failure: {
           text: t(
-            '빈틈은 미끼였다. “청구가 완료되었습니다.” 무언가 두 겹, 덱 속에 끼워진다.',
-            'The loophole was bait. “Billing complete.” Something slides into your deck, two layers deep.',
+            '빈틈은 미끼였다. “청구가 완료되었습니다.” 잡음 덩어리 둘이 덱 속에 끼워진다.',
+            'The loophole was bait. “Billing complete.” Two lumps of static slide into your deck.',
           ),
           effects: [
             { kind: 'junk', cardId: 'static', count: 2 },
@@ -2697,8 +2697,8 @@ const A3_EXTRA: EventDef[] = [
         hint: t('−6 HP · 추적 −8', '−6 HP · −8 Trace'),
         success: {
           text: t(
-            '해치를 밀어 올리고 케이블 사이를 맨손으로 오른다. 손바닥이 찢어진다. 등 뒤에서 스피커가 말한다. “계단도 있었습니다.”',
-            'You push the hatch open and climb the cables bare-handed. Your palms tear. Behind you the speaker says, “There were stairs.”',
+            '해치를 밀어 올리고 케이블 사이를 맨손으로 오른다. 손바닥이 찢어진다. 발밑에서 스피커가 말한다. “계단도 있었습니다.”',
+            'You push the hatch open and climb the cables bare-handed. Your palms tear. Below you the speaker says, “There were stairs.”',
           ),
           effects: [
             { kind: 'hp', amount: -6 },
@@ -2715,7 +2715,7 @@ const A3_EXTRA: EventDef[] = [
     title: t('다른 포드', 'The Other Pod'),
     image: 'scenes/kai_awakening.png',
     text: t(
-      '보관층 끝, 선반에서 떨어진 포드 하나. 서리 낀 유리 너머에 누군가 누워 있다.\n당신이다. 같은 흉터. 손톱 밑의 같은 분필 가루. 이름표: ‘정정 완료.’ 날짜는 긁혀 지워졌다.\n그 손이 무언가를 꽉 쥐고 있다.',
+      '보관층 맨 끝, 선반들과 떨어져 놓인 포드 하나. 서리 낀 유리 너머에 누군가 누워 있다.\n당신이다. 같은 흉터. 손톱 밑에 낀 같은 분필 가루. 이름표: ‘정정 완료.’ 날짜는 긁혀 지워져 있다.\n그 손이 무언가를 꽉 움켜쥐고 있다.',
       'At the far end of the storage floor, one pod stands apart from the shelves. Behind frosted glass, someone lies inside.\nIt’s you. The same scar. The same chalk dust under the nails. Tag: ‘Correction complete.’ The date has been scratched off.\nIts hand clutches something tight.',
     ),
     options: [

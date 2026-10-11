@@ -115,7 +115,8 @@ export function incomingDamage(c: CombatState, C: ContentRegistry): Map<string, 
   for (const u of c.units) {
     if (u.hp <= 0) continue
     if (!u.flying && tileAt(c, u.pos)?.kind === 'hazard') addTo(u, 2)
-    if (u.side !== 'enemy' && (u.statuses.burn ?? 0) > 0) addTo(u, u.statuses.burn ?? 0)
+    const fire = !u.flying && (tileAt(c, u.pos)?.fire ?? 0) > 0 ? 2 : 0
+    if (u.side !== 'enemy' && (u.statuses.burn ?? 0) + fire > 0) addTo(u, (u.statuses.burn ?? 0) + fire)
   }
   return inc
 }

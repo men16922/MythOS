@@ -248,8 +248,25 @@ function raiseBond(run: RunState, id: string, amount: number, C: ContentRegistry
 
 // ---------------------------------------------------------------- rolls
 
+/** A companion's own cards are only offered while that companion travels with you. */
+function offerable(run: RunState, C: ContentRegistry, id: string): boolean {
+  const def = C.cards[id]
+  if (!def) return false
+  return def.owner === 'any' || def.owner === 'connector' || run.party.some((m) => m.id === def.owner)
+}
+
+/** Character identity: party-companion cards and own-archetype cards come up more often than generic ones. */
+const COMPANION_CARD_WEIGHT = 2.5
+const ARCHETYPE_CARD_WEIGHT = 1.8
+function cardWeight(run: RunState, C: ContentRegistry, id: string): number {
+  const def = C.cards[id]
+  if (!def) return 0
+  if (def.owner !== 'any' && def.owner !== 'connector') return COMPANION_CARD_WEIGHT
+  return def.archetype === run.archetype ? ARCHETYPE_CARD_WEIGHT : 1
+}
+
 function rollCards(run: RunState, C: ContentRegistry, count: number, weights: RarityWeights): string[] {
-  const pool = run.pools.cards.filter((id) => C.cards[id])
+  const pool = run.pools.cards.filter((id) => offerable(run, C, id))
   const out: string[] = []
   const rarities: PoolRarity[] = ['common', 'uncommon', 'rare']
   for (let i = 0; i < count; i++) {
@@ -261,7 +278,7 @@ function rollCards(run: RunState, C: ContentRegistry, count: number, weights: Ra
     const fallback = ['rare', 'uncommon', 'common']
       .map((r) => left.filter((id) => C.cards[id]?.rarity === r))
       .find((l) => l.length > 0)
-    out.push(pick(run, exact.length > 0 ? exact : (fallback ?? left)))
+    out.push(pickWeighted(run, exact.length > 0 ? exact : (fallback ?? left), (id) => cardWeight(run, C, id)))
   }
   return out
 }
@@ -1013,10 +1030,10 @@ export function generateShop(run: RunState, C: ContentRegistry): ShopStock {
   const plan: PoolRarity[] = ['common', 'common', 'uncommon', 'uncommon', 'rare']
   const picked = new Set<string>()
   for (const r of plan) {
-    const left = run.pools.cards.filter((id) => C.cards[id] && !picked.has(id))
+    const left = run.pools.cards.filter((id) => offerable(run, C, id) && !picked.has(id))
     const exact = left.filter((id) => C.cards[id]?.rarity === r)
     if (left.length === 0) break
-    const id = pick(run, exact.length > 0 ? exact : left)
+    const id = pickWeighted(run, exact.length > 0 ? exact : left, (cid) => cardWeight(run, C, cid))
     picked.add(id)
     const rarity = C.cards[id]?.rarity
     cards.push({ cardId: id, price: jitter(CARD_PRICE[rarity === 'uncommon' || rarity === 'rare' ? rarity : 'common']), sold: false })

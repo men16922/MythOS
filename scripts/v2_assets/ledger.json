@@ -1,6 +1,6 @@
 {
- "image_calls": 209,
- "image_failed": 316,
+ "image_calls": 221,
+ "image_failed": 325,
  "lyria_calls": 21,
  "lyria_failed": 0,
  "outputs": {
@@ -278,6 +278,26 @@
    "seed": 1568122570,
    "ts": "2026-10-11T00:15:04"
   },
+  "cards/han_backdoor.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: an image for the ability 'Backdoor' (Turn around every enemy attack inside a 3×3 area. Exhaust.). The character is Han, a lean young Korean man hacker with messy black hair and a dark high-collared jacket. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/han.png"
+   ],
+   "seed": 1469709920,
+   "ts": "2026-10-11T09:05:03"
+  },
+  "cards/han_short_circuit.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: an image for the ability 'Short Circuit' (Cross area: Shock 1, and the floor stays live for 2 turns. Allies get shocked too.). The character is Han, a lean young Korean man hacker with messy black hair and a dark high-collared jacket. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/han.png"
+   ],
+   "seed": 39311142,
+   "ts": "2026-10-11T09:05:00"
+  },
   "cards/han_shortcut_call.webp": {
    "generations": 1,
    "model": "gemini-3-pro-image",
@@ -374,6 +394,16 @@
    "seed": 1348174692,
    "ts": "2026-10-11T00:13:46"
   },
+  "cards/kai_railgun.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: an image for the ability 'Railgun' (Pierce a whole row: 8 damage ignoring armor and block, +4 against marked targets.). The character is Kai, a slender android with white ceramic plating, a white faceplate and glowing blue eyes. Mood: a dynamic action moment, strong motion and impact. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/kai.png"
+   ],
+   "seed": 377659013,
+   "ts": "2026-10-11T09:07:01"
+  },
   "cards/kai_rx_beam.webp": {
    "generations": 1,
    "model": "gemini-3-pro-image",
@@ -394,6 +424,16 @@
    "seed": 86481860,
    "ts": "2026-10-11T00:09:00"
   },
+  "cards/kai_spotter.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: an image for the ability 'Spotter' (Mark 3. Draw 1 card.). The character is Kai, a slender android with white ceramic plating, a white faceplate and glowing blue eyes. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/kai.png"
+   ],
+   "seed": 1968209260,
+   "ts": "2026-10-11T09:09:07"
+  },
   "cards/kill_switch.webp": {
    "generations": 1,
    "model": "gemini-3-pro-image",
@@ -410,6 +450,16 @@
    "seed": 1017214666,
    "ts": "2026-10-11T00:30:52"
   },
+  "cards/linyue_bribe.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: an image for the ability 'Bribe' (Slip an enemy a bribe: its telegraphed attack is cancelled, and you pocket +6 ₵ in change.). The character is Lin-yue, an elegant woman broker with black hair pinned with a gold hairpin and a black-and-gold high-collared dress. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/lin-yue.png"
+   ],
+   "seed": 825224040,
+   "ts": "2026-10-11T09:08:10"
+  },
   "cards/linyue_exchange.webp": {
    "generations": 1,
    "model": "gemini-3-pro-image",
@@ -419,6 +469,16 @@
    ],
    "seed": 729291837,
    "ts": "2026-10-11T00:14:45"
+  },
+  "cards/linyue_firecracker.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: an image for the ability 'Night-Market Firecracker' (Cross area: deal 4, Burn 2; sparks burn the ground for 1 turn. +4 ₵.). The character is Lin-yue, an elegant woman broker with black hair pinned with a gold hairpin and a black-and-gold high-collared dress. Mood: a dynamic action moment, strong motion and impact. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/lin-yue.png"
+   ],
+   "seed": 1975665086,
+   "ts": "2026-10-11T09:10:08"
   },
   "cards/linyue_gold_hairpin.webp": {
    "generations": 1,
@@ -612,6 +672,26 @@
    "seed": 1012106541,
    "ts": "2026-10-10T23:58:46"
   },
+  "cards/serin_slipstream.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: an image for the ability 'Slipstream' (Se-rin trades places with an ally. Both gain 4 block; the ally may move again.). The character is Se-rin, a young Korean woman courier with long straight black hair and a black leather jacket. Mood: a tactical moment: hacking, movement, repositioning, holographic light. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/se-rin.png"
+   ],
+   "seed": 394043879,
+   "ts": "2026-10-11T09:04:46"
+  },
+  "cards/serin_undertow.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: an image for the ability 'Undertow' (Beam 4: deal 4, then drag every unit hit 2 tiles toward Se-rin. +2 bump damage on a collision.). The character is Se-rin, a young Korean woman courier with long straight black hair and a black leather jacket. Mood: a dynamic action moment, strong motion and impact. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/se-rin.png"
+   ],
+   "seed": 1339508410,
+   "ts": "2026-10-11T09:04:46"
+  },
   "cards/serin_water_spider.webp": {
    "generations": 1,
    "model": "gemini-3-pro-image",
@@ -720,6 +800,16 @@
    "seed": 1953437895,
    "ts": "2026-10-11T00:07:06"
   },
+  "cards/suah_living_metal.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: an image for the ability 'Living Metal' (All allies gain Guard 2: 2 block at the start of every turn for the rest of the fight.). The character is Su-ah, a young Korean woman engineer with tied-up black hair, thin glasses and a dark jacket with violet light. Mood: a transformation: a radiant aura of power surrounding the subject. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/su-ah.png"
+   ],
+   "seed": 871417424,
+   "ts": "2026-10-11T09:11:07"
+  },
   "cards/suah_masterwork.webp": {
    "generations": 1,
    "model": "gemini-3-pro-image",
@@ -729,6 +819,16 @@
    ],
    "seed": 700881230,
    "ts": "2026-10-11T00:12:59"
+  },
+  "cards/suah_reforge.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: an image for the ability 'Reforge' (An ally gains 6 block. Forge an Echo Shield into your hand.). The character is Su-ah, a young Korean woman engineer with tied-up black hair, thin glasses and a dark jacket with violet light. Mood: a defensive moment: shields, barriers, protective light. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/su-ah.png"
+   ],
+   "seed": 1392263422,
+   "ts": "2026-10-11T09:06:04"
   },
   "cards/suah_tempered_plate.webp": {
    "generations": 1,
@@ -755,6 +855,16 @@
    "refs": [],
    "seed": 405376998,
    "ts": "2026-10-10T23:44:53"
+  },
+  "cards/taeo_breach_drive.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: an image for the ability 'Breach Drive' (Deal 4 and drive the target back 3 tiles. If it slams into a wall, cover or unit, both take +4 bump damage.). The character is Tae-o, a rugged middle-aged Korean man with a scarred face, short black hair and a heavy black tactical coat. Mood: a dynamic action moment, strong motion and impact. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/tae-o.png"
+   ],
+   "seed": 1833429843,
+   "ts": "2026-10-11T09:04:48"
   },
   "cards/taeo_guardian_wall.webp": {
    "generations": 1,
@@ -785,6 +895,16 @@
    ],
    "seed": 1358214610,
    "ts": "2026-10-11T00:01:50"
+  },
+  "cards/taeo_rampage.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Full-bleed illustration for the picture window of a game card: the artwork only, edge to edge, with no card frame, no border, no rounded corners and no text box. Portrait format. Single clear focal subject in the centre, bold silhouette that reads at a small size, simple uncluttered background (any distant neon signs are blank abstract shapes), darker toward the edges. Subject: an image for the ability 'Rampage' (Deal 9 and hurl the target 2 tiles (+3 on a collision). Tae-o gains 6 block.). The character is Tae-o, a rugged middle-aged Korean man with a scarred face, short black hair and a heavy black tactical coat. Mood: a dynamic action moment, strong motion and impact. Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/tae-o.png"
+   ],
+   "seed": 216605987,
+   "ts": "2026-10-11T09:04:59"
   },
   "cards/target_laser.webp": {
    "generations": 1,

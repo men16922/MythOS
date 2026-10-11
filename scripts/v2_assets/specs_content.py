@@ -193,6 +193,19 @@ TYPE_MOOD = {
     "tactic": "a tactical moment: hacking, movement, repositioning, holographic light",
     "power": "a transformation: a radiant aura of power surrounding the subject",
     "junk": "corrupted glitch static, desaturated grey noise with magenta tears, unsettling",
+    # companion reward cards (2.0 character pass)
+    "serin_slipstream": "a woman in a dark smuggler's coat vaulting past an ally as both swap places in a streak of cyan water-like light, shields flaring",
+    "serin_undertow": "a woman yanking a glowing cyan tether that drags two armoured drones across wet asphalt toward her, spray and sparks",
+    "taeo_breach_drive": "a hulking ex-enforcer driving his shoulder into an armoured trooper and slamming him back into a concrete wall that cracks, dust and debris",
+    "taeo_rampage": "a hulking ex-enforcer mid-charge, a riot unit flying backwards off its feet, a blue energy shield blazing on his arm",
+    "han_short_circuit": "a young hacker crouched by an exposed junction box as blue-white lightning arcs across a cross-shaped patch of wet floor",
+    "han_backdoor": "a young hacker with a cracked phone rig flipping three hostile red targeting lasers around so they point back at their own drones",
+    "suah_reforge": "a blacksmith woman hammering a glowing shield of light on an anvil of scrap, sparks showering, warm orange forge glow",
+    "suah_living_metal": "liquid silver metal flowing over three allies and hardening into plate armour, glowing seams",
+    "kai_spotter": "a slim android with a glowing optical eye painting a red crosshair mark onto a distant drone through the rain",
+    "kai_railgun": "a slim android firing a long rail rifle, a perfectly straight white-hot beam piercing a line of three enemies",
+    "linyue_bribe": "a night-market broker's elegant hand slipping a gold credit chip into an enforcer robot's slot, its red targeting laser switching off",
+    "linyue_firecracker": "a night-market broker tossing a string of red-gold firecrackers that burst into a cross of flames on the street",
 }
 
 CARD_FRAME = (

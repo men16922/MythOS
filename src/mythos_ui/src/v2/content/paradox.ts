@@ -6,7 +6,7 @@ export const PARADOX: ParadoxDef[] = [
   {
     level: 1,
     name: { ko: '두꺼운 장갑', en: 'Hardened Shells' },
-    text: { ko: '엘리트와 보스의 체력 +20%.', en: 'Elites and bosses have +20% HP.' },
+    text: { ko: '정예와 보스의 체력 +20%.', en: 'Elites and bosses have +20% HP.' },
   },
   {
     level: 2,
@@ -20,7 +20,7 @@ export const PARADOX: ParadoxDef[] = [
     level: 3,
     name: { ko: '먼저 온 시선', en: 'Watched from the Start' },
     text: {
-      ko: '추적도가 20에서 시작하고, 노드에 들어설 때마다 +5 오른다.',
+      ko: '추적도가 20에서 시작하고, 노드에 들어설 때마다 5씩 오른다.',
       en: 'Trace starts at 20 and rises +5 per node.',
     },
   },

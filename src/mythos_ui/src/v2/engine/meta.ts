@@ -170,7 +170,8 @@ export function cardPool(profile: MetaProfile, archetype: string, C: ContentRegi
       (c) =>
         (c.rarity === 'common' || c.rarity === 'uncommon' || c.rarity === 'rare') &&
         c.type !== 'junk' &&
-        (c.owner === 'any' || c.owner === 'connector') &&
+        // Companion-owned reward cards ride along; the run only offers them while that companion is in the party.
+        (c.owner === 'any' || c.owner === 'connector' || !!C.companions[c.owner]) &&
         (c.archetype === undefined || c.archetype === archetype) &&
         packOpen(profile, C, c.pack, 'card_pack'),
     )

@@ -44,7 +44,11 @@ import {
   checkEnd,
   connectorOf,
   dealDamage,
+  decayGround,
   decayStatus,
+  enterGround,
+  FIRE_BURN,
+  igniteStanding,
   drawCards,
   effectTargets,
   effectTiles,
@@ -332,6 +336,7 @@ export function moveUnit(c0: CombatState, _C: ContentRegistry, uid: string, to: 
   const dir = dirToward(path[path.length - 2] ?? path[0] ?? to, to)
   if (dir) u.facing = dir
   emit(c, { t: 'move', uid, path })
+  enterGround(c, u)
   return c
 }
 
@@ -550,6 +555,12 @@ export function rootsOrigin(face: CardFace): boolean {
   return !face.effects.some((e) => e.kind === 'teleport' || e.kind === 'swap' || e.kind === 'refund_move')
 }
 
+/** The caster turns toward what it aims at (kept after the play — the board shows it facing that way). */
+function faceTarget(origin: UnitState, dir: Dir | undefined, at: Pos | undefined): void {
+  if (dir) origin.facing = dir
+  else if (at && !samePos(at, origin.pos)) origin.facing = dirToward(origin.pos, at) ?? origin.facing
+}
+
 function cardsPlayedThisTurn(c: CombatState): number {
   return c.triggered[`t${c.turn}:__cards`] ?? 0
 }
@@ -569,7 +580,7 @@ export function playCardInPlace(c: CombatState, C: ContentRegistry, cardUid: str
   c.energy -= face.cost
   c.hand = c.hand.filter((k) => k !== card)
   const res = resolutionFor(origin, face.target, opt)
-  if (res.dir) origin.facing = res.dir
+  faceTarget(origin, res.dir, opt.impact ?? opt.pos)
   const ev: { t: 'card'; owner: string; cardId: string; target?: Pos; dir?: Dir } = { t: 'card', owner: origin.uid, cardId: def.id }
   if (opt.impact ?? opt.pos) ev.target = { ...((opt.impact ?? opt.pos) as Pos) }
   if (opt.dir) ev.dir = opt.dir
@@ -584,10 +595,10 @@ export function playCardInPlace(c: CombatState, C: ContentRegistry, cardUid: str
   const key = `t${c.turn}:__cards`
   c.triggered[key] = (c.triggered[key] ?? 0) + 1
   if (c.phase === 'lost') return
-  if (cardsPlayedThisTurn(c) === 1) fireTrigger(c, C, 'first_card')
-  if (def.type === 'attack') fireTrigger(c, C, 'play_attack')
-  else if (def.type === 'skill') fireTrigger(c, C, 'play_skill')
-  else if (def.type === 'tactic') fireTrigger(c, C, 'play_tactic')
+  if (cardsPlayedThisTurn(c) === 1) fireTrigger(c, C, 'first_card', undefined, origin.uid)
+  if (def.type === 'attack') fireTrigger(c, C, 'play_attack', undefined, origin.uid)
+  else if (def.type === 'skill') fireTrigger(c, C, 'play_skill', undefined, origin.uid)
+  else if (def.type === 'tactic') fireTrigger(c, C, 'play_tactic', undefined, origin.uid)
   checkEnd(c, C)
 }
 
@@ -641,6 +652,7 @@ export function consumeInPlace(c: CombatState, C: ContentRegistry, index: number
   c.undo = null
   c.consumables = c.consumables.filter((_, i) => i !== index)
   const res = resolutionFor(origin, def.target, opt)
+  faceTarget(origin, res.dir, opt.impact ?? opt.pos)
   const ev: { t: 'card'; owner: string; cardId: string; target?: Pos; dir?: Dir } = { t: 'card', owner: origin.uid, cardId: def.id }
   if (opt.impact ?? opt.pos) ev.target = { ...((opt.impact ?? opt.pos) as Pos) }
   if (opt.dir) ev.dir = opt.dir
@@ -676,18 +688,20 @@ function enemyPhase(c: CombatState, C: ContentRegistry): void {
   }
   if (c.phase !== 'player') return
 
-  // b. burn, hazards, decay, reinforcements
+  // b. fire catches, burn ticks, hazards, ground decays, statuses decay, reinforcements
+  igniteStanding(c)
   for (const u of c.units.slice().sort(byUid)) {
     const burn = u.statuses.burn ?? 0
     if (burn <= 0 || u.hp <= 0) continue
-    dealDamage(c, C, u, burn, { source: u.side === 'enemy' ? 'party' : 'enemy', ignoreBlock: true })
+    dealDamage(c, C, u, burn, { source: u.side === 'enemy' ? 'party' : 'enemy', ignoreBlock: true, cause: 'burn' })
     decayStatus(u, 'burn')
     if (c.phase !== 'player') return
   }
   for (const u of c.units.slice().sort(byUid)) {
-    if (u.hp > 0 && !u.flying && tileAt(c, u.pos)?.kind === 'hazard') dealDamage(c, C, u, HAZARD_DAMAGE, { source: 'environment' })
+    if (u.hp > 0 && !u.flying && tileAt(c, u.pos)?.kind === 'hazard') dealDamage(c, C, u, HAZARD_DAMAGE, { source: 'environment', cause: 'hazard' })
     if (c.phase !== 'player') return
   }
+  decayGround(c)
   for (const e of livingEnemies(c)) {
     decayStatus(e, 'shock')
     decayStatus(e, 'weak')
@@ -805,7 +819,12 @@ export function threatMap(c: CombatState, C: ContentRegistry): Record<string, nu
     if (dmg <= 0) continue
     for (const p of intentGeometry(c, e, move, intent).tiles) if (!samePos(p, e.pos)) addAt(p, dmg)
   }
-  for (const p of allTiles()) if (tileAt(c, p)?.kind === 'hazard') addAt(p, HAZARD_DAMAGE)
+  for (const p of allTiles()) {
+    const t = tileAt(c, p)
+    if (t?.kind === 'hazard') addAt(p, HAZARD_DAMAGE)
+    // Standing in fire at the end of the enemy phase: Burn 2 that ticks right away.
+    if ((t?.fire ?? 0) > 0) addAt(p, FIRE_BURN)
+  }
   return out
 }
 

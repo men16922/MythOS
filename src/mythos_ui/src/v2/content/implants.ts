@@ -20,7 +20,7 @@ const STARTER: ImplantDef[] = [
   {
     id: 'erased_id',
     name: t('말소된 ID', 'Erased ID'),
-    text: t('충돌 피해 +1. 턴마다 첫 환경 처치 시 카드 1장 뽑기.', 'Bumps deal +1. First environment kill each turn: draw 1.'),
+    text: t('충돌 피해 +1. 턴마다 첫 환경 처치 시 카드 1장을 뽑는다.', 'Bumps deal +1. First environment kill each turn: draw 1.'),
     rarity: 'starter',
     icon: 'items/access_key.png',
     passive: { bumpDamage: 1 },
@@ -67,15 +67,15 @@ const COMMON: ImplantDef[] = [
   },
   {
     id: 'scrap_plating',
-    name: t('고철 장갑', 'Scrap Plating'),
-    text: t('적을 처치할 때마다 방어막 3.', 'Whenever an enemy dies, gain 3 block.'),
+    name: t('고철 장갑판', 'Scrap Plating'),
+    text: t('적이 쓰러질 때마다 방어막 3.', 'Whenever an enemy dies, gain 3 block.'),
     rarity: 'common',
     icon: 'items/drone_scrap.png',
     triggers: [{ on: 'enemy_killed', effects: [{ kind: 'block', amount: 3, to: 'connector' }] }],
   },
   {
     id: 'credit_chip',
-    name: t('신용 칩', 'Credit Chip'),
+    name: t('크레딧 칩', 'Credit Chip'),
     text: t('크레딧 획득 +30%.', 'Credits gained +30%.'),
     rarity: 'common',
     icon: 'items/data_fragment.png',
@@ -108,7 +108,7 @@ const COMMON: ImplantDef[] = [
   {
     id: 'spare_cell',
     name: t('예비 전지', 'Spare Cell'),
-    text: t('전투 첫 턴, 카드 2장 더 뽑기.', 'First turn of each combat: draw 2 more.'),
+    text: t('전투 첫 턴, 카드를 2장 더 뽑는다.', 'First turn of each combat: draw 2 more.'),
     rarity: 'common',
     icon: 'items/restart_core.png',
     triggers: [{ on: 'turn_start', effects: [{ kind: 'draw', amount: 2 }], limit: 'combat' }],
@@ -124,7 +124,7 @@ const COMMON: ImplantDef[] = [
   {
     id: 'trigger_discipline',
     name: t('사격 규율', 'Trigger Discipline'),
-    text: t('턴마다 첫 공격 카드를 쓰면 방어막 4.', 'First attack card each turn: gain 4 block.'),
+    text: t('턴마다 공격 카드를 처음 쓰면 방어막 4.', 'First attack card each turn: gain 4 block.'),
     rarity: 'common',
     icon: 'items/signal_blade.png',
     triggers: [{ on: 'play_attack', effects: [{ kind: 'block', amount: 4, to: 'connector' }], limit: 'turn' }],
@@ -175,7 +175,7 @@ const UNCOMMON: ImplantDef[] = [
   {
     id: 'reflex_booster',
     name: t('반사 증폭기', 'Reflex Booster'),
-    text: t('턴마다 첫 카드를 쓰면 카드 1장 뽑기.', 'First card each turn: draw 1.'),
+    text: t('턴마다 첫 카드를 쓰면 카드 1장을 뽑는다.', 'First card each turn: draw 1.'),
     rarity: 'uncommon',
     icon: 'skills/signal_overdrive.png',
     triggers: [{ on: 'first_card', effects: [{ kind: 'draw', amount: 1 }] }],
@@ -235,7 +235,7 @@ const RARE: ImplantDef[] = [
   {
     id: 'chain_reaction',
     name: t('연쇄 반응', 'Chain Reaction'),
-    text: t('적이 죽으면 그 주변 4칸에 피해 3. 아군도 맞음.', 'When an enemy dies, deal 3 to its 4 neighbours. Hits allies too.'),
+    text: t('적이 쓰러지면 그 주변 4칸에 피해 3. 아군도 맞는다.', 'When an enemy dies, deal 3 to its 4 neighbours. Hits allies too.'),
     rarity: 'rare',
     icon: 'items/incendiary_grenade.png',
     triggers: [{ on: 'enemy_killed', effects: [{ kind: 'damage', amount: 3, area: 'adjacent' }] }],
@@ -251,7 +251,7 @@ const RARE: ImplantDef[] = [
   {
     id: 'kill_chain',
     name: t('킬 체인', 'Kill Chain'),
-    text: t('턴마다 첫 처치 시 에너지 +1, 카드 1장 뽑기.', 'First kill each turn: +1 energy, draw 1.'),
+    text: t('턴마다 첫 처치 시 에너지 +1, 카드 1장을 뽑는다.', 'First kill each turn: +1 energy, draw 1.'),
     rarity: 'rare',
     icon: 'items/signal_blade.png',
     triggers: [
@@ -331,7 +331,7 @@ const SHOP: ImplantDef[] = [
   {
     id: 'field_medic_kit',
     name: t('야전 의무 키트', 'Field Medic Kit'),
-    text: t('안전가옥 회복 +20%. 전투에서 이기면 회복 3.', 'Safehouse heals 20% more. On victory, heal 3.'),
+    text: t('은신처 회복량 +20%. 전투에서 이기면 회복 3.', 'Safehouse heals 20% more. On victory, heal 3.'),
     rarity: 'shop',
     icon: 'items/nanopatch.png',
     passive: { restHeal: 20 },
@@ -351,7 +351,7 @@ const PACK_BLACK_MARKET: ImplantDef[] = [
   },
   {
     id: 'loaded_dice',
-    name: t('장전된 주사위', 'Loaded Dice'),
+    name: t('조작된 주사위', 'Loaded Dice'),
     text: t('매력 +2, 관찰 +1.', 'CHA +2, OBS +1.'),
     rarity: 'common',
     icon: 'items/data_fragment.png',
@@ -361,7 +361,7 @@ const PACK_BLACK_MARKET: ImplantDef[] = [
   {
     id: 'bounty_board',
     name: t('현상금 게시판', 'Bounty Board'),
-    text: t('적을 처치할 때마다 3₵.', 'Whenever an enemy dies, gain 3₵.'),
+    text: t('적이 쓰러질 때마다 3₵ 획득.', 'Whenever an enemy dies, gain 3₵.'),
     rarity: 'uncommon',
     icon: 'items/drone_scrap.png',
     triggers: [{ on: 'enemy_killed', effects: [{ kind: 'credits', amount: 3 }] }],
@@ -400,7 +400,7 @@ const PACK_ARK_SALVAGE: ImplantDef[] = [
   {
     id: 'purge_igniter',
     name: t('소각 점화기', 'Purge Igniter'),
-    text: t('턴마다 첫 공격 카드를 쓰면 무작위 적 화상 3.', 'First attack card each turn: Burn 3 on a random enemy.'),
+    text: t('턴마다 공격 카드를 처음 쓰면 무작위 적 하나에 화상 3.', 'First attack card each turn: Burn 3 on a random enemy.'),
     rarity: 'uncommon',
     icon: 'status/burn.png',
     triggers: [{ on: 'play_attack', effects: [{ kind: 'status', status: 'burn', amount: 3, to: 'random_enemy' }], limit: 'turn' }],

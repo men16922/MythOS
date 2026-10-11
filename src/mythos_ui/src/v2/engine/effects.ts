@@ -34,6 +34,8 @@ export const HAND_MAX = 10
 export const COVER_HP = 2
 export const HAZARD_DAMAGE = 2
 export const BUMP_DAMAGE = 1
+/** Burn a grounded unit gains when it enters burning ground or ends the enemy phase on it. */
+export const FIRE_BURN = 2
 export const WEAK_PENALTY = 2
 export const BLOCKED_ARRIVAL_DAMAGE = 2
 
@@ -320,6 +322,8 @@ export interface HitOpts {
   /** Melee/charge hit (triggers the victim's thorns). */
   melee?: boolean
   bonusVsMarked?: number
+  /** Tag for the board (burn tick / hazard zap / bump). */
+  cause?: 'burn' | 'hazard' | 'bump'
 }
 
 /** Apply one damage instance. Returns hp actually lost. */
@@ -345,7 +349,7 @@ export function dealDamage(c: CombatState, C: ContentRegistry, victim: UnitState
   const lost = Math.min(victim.hp, dmg)
   victim.hp -= lost
   victim.lastHitBy = o.source
-  emit(c, { t: 'damage', uid: victim.uid, amount: dmg, blocked, source: o.source })
+  emit(c, o.cause ? { t: 'damage', uid: victim.uid, amount: dmg, blocked, source: o.source, cause: o.cause } : { t: 'damage', uid: victim.uid, amount: dmg, blocked, source: o.source })
   if (victim.side === 'enemy' && o.source === 'party') c.stats.damageDealt += lost
   if (victim.uid === 'connector' && lost > 0) {
     c.stats.damageTaken += lost
@@ -402,7 +406,7 @@ export function decayStatus(u: UnitState, status: StatusKind): void {
  * passive for non-party units), cover loses 1 hp. A non-flying enemy pushed into void is deleted.
  * `stopBefore` (a uid) ends a pull silently in front of the puller instead of bumping into it.
  */
-export function pushUnit(c: CombatState, C: ContentRegistry, u: UnitState, dir: Dir, distance: number, stopBefore?: string): void {
+export function pushUnit(c: CombatState, C: ContentRegistry, u: UnitState, dir: Dir, distance: number, stopBefore?: string, slam = 0): void {
   if (u.hp <= 0 || distance <= 0) return
   const from = { ...u.pos }
   let bumped: string | undefined
@@ -445,17 +449,62 @@ export function pushUnit(c: CombatState, C: ContentRegistry, u: UnitState, dir: 
   emit(c, bumped ? { t: 'push', uid: u.uid, from, to: { ...u.pos }, dir, bumped } : { t: 'push', uid: u.uid, from, to: { ...u.pos }, dir })
   if (bumped) {
     const extra = activePassive(c, C, 'bumpDamage')
-    dealDamage(c, C, u, BUMP_DAMAGE + (u.side === 'party' ? 0 : extra), { source: 'environment' })
+    dealDamage(c, C, u, BUMP_DAMAGE + slam + (u.side === 'party' ? 0 : extra), { source: 'environment', cause: 'bump' })
     if (bumped === 'cover' && bumpPos) damageCover(c, bumpPos, 1)
     else if (bumped !== 'wall') {
       const other = getUnit(c, bumped)
-      if (other) dealDamage(c, C, other, BUMP_DAMAGE + (other.side === 'party' ? 0 : extra), { source: 'environment' })
+      if (other) dealDamage(c, C, other, BUMP_DAMAGE + slam + (other.side === 'party' ? 0 : extra), { source: 'environment', cause: 'bump' })
     }
     fireTrigger(c, C, 'bump', u.hp > 0 ? u.pos : bumpPos)
   }
   if (moved && u.hp > 0 && !u.flying && tileAt(c, u.pos)?.kind === 'hazard') {
-    dealDamage(c, C, u, HAZARD_DAMAGE, { source: 'environment' })
+    dealDamage(c, C, u, HAZARD_DAMAGE, { source: 'environment', cause: 'hazard' })
   }
+  if (moved) enterGround(c, u)
+}
+
+/** A unit just arrived on its tile (move / push / teleport / swap end): burning ground sets it alight. */
+export function enterGround(c: CombatState, u: UnitState): void {
+  if (u.hp <= 0 || u.flying) return
+  if ((tileAt(c, u.pos)?.fire ?? 0) > 0) catchFire(c, u)
+}
+
+/** Fire keeps a unit burning at FIRE_BURN or more; it does not stack on top of a fiercer burn. */
+function catchFire(c: CombatState, u: UnitState): void {
+  const gap = FIRE_BURN - (u.statuses.burn ?? 0)
+  if (gap > 0) addStatus(c, u, 'burn', gap)
+}
+
+/**
+ * End of the enemy phase, before burn ticks: grounded units standing in fire catch (more) fire.
+ * After the ticks, `decayGround` burns the fires down and lets temporary hazards revert.
+ */
+export function igniteStanding(c: CombatState): void {
+  for (const u of c.units.slice().sort(byUid)) {
+    if (u.hp > 0 && !u.flying && (tileAt(c, u.pos)?.fire ?? 0) > 0) catchFire(c, u)
+  }
+}
+
+export function decayGround(c: CombatState): void {
+  c.tiles.forEach((row, y) =>
+    row.forEach((t, x) => {
+      if (t.fire !== undefined) {
+        t.fire -= 1
+        if (t.fire <= 0) delete t.fire
+        emit(c, { t: 'fire', pos: { x, y }, turns: t.fire ?? 0 })
+      }
+      if (t.ttl !== undefined) {
+        t.ttl -= 1
+        if (t.ttl <= 0) {
+          delete t.ttl
+          if (t.kind === 'hazard') {
+            t.kind = 'floor'
+            emit(c, { t: 'tile', pos: { x, y }, kind: 'floor' })
+          }
+        }
+      }
+    }),
+  )
 }
 
 // ---------------------------------------------------------------- cards in combat
@@ -545,6 +594,10 @@ function areaOf(eff: Effect): AreaShape | undefined {
     case 'push':
     case 'status':
     case 'create_cover':
+    case 'ignite':
+    case 'electrify':
+    case 'redirect':
+    case 'cancel_intent':
       return eff.area
     default:
       return undefined
@@ -624,10 +677,42 @@ function pushDirFor(eff: Extract<Effect, { kind: 'push' }>, res: Resolution, u: 
 
 /** Apply effects in order; each effect resolves against all of its targets before the next one. */
 export function applyEffects(c: CombatState, C: ContentRegistry, effects: readonly Effect[], res: Resolution): void {
+  emitArea(c, effects, res)
   for (const eff of effects) {
     if (c.phase === 'lost') return
     applyEffect(c, C, eff, res)
   }
+}
+
+/** Dominant flavour of an area resolution (see the 'area' event). */
+function areaElement(effects: readonly Effect[]): Extract<CombatEvent, { t: 'area' }>['element'] | null {
+  const has = (f: (e: Effect) => boolean) => effects.some(f)
+  if (has((e) => e.kind === 'ignite' || (e.kind === 'status' && e.status === 'burn'))) return 'fire'
+  if (has((e) => e.kind === 'electrify' || (e.kind === 'status' && e.status === 'shock'))) return 'shock'
+  if (has((e) => e.kind === 'damage')) return 'blast'
+  if (has((e) => e.kind === 'push')) return 'force'
+  if (has((e) => e.kind === 'block')) return 'shield'
+  if (has((e) => e.kind === 'heal')) return 'heal'
+  return null
+}
+
+/**
+ * One 'area' event per multi-tile resolution — an effect with its own area, or an enemy area attack (nova /
+ * area lob, which carry a `centre`) — so the board can light up the whole footprint, empty tiles included.
+ */
+function emitArea(c: CombatState, effects: readonly Effect[], res: Resolution): void {
+  const targeted = effects.filter((e) => scopeOf(e) === 'target')
+  const shaped = targeted.filter((e) => {
+    const a = areaOf(e)
+    return a !== undefined && a !== 'single'
+  })
+  if (shaped.length === 0 && !res.centre) return
+  const tiles = uniqPositions((shaped.length > 0 ? shaped : targeted).flatMap((e) => effectTiles(e, res)))
+  const element = areaElement(effects)
+  if (tiles.length < 2 || !element) return
+  const center = res.centre ?? res.impact ?? tiles[0]
+  if (!center) return
+  emit(c, { t: 'area', tiles, center: { ...center }, element, side: res.side === 'enemy' ? 'enemy' : 'party' })
 }
 
 function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resolution): void {
@@ -661,7 +746,7 @@ function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resol
       }
       plans.sort((a, b) => lead(b) - lead(a))
       const stopBefore = eff.dir === 'toward' ? res.origin?.uid : undefined
-      for (const { u, d } of plans) pushUnit(c, C, u, d, eff.distance ?? 1, stopBefore)
+      for (const { u, d } of plans) pushUnit(c, C, u, d, eff.distance ?? 1, stopBefore, eff.slam ?? 0)
       return
     }
     case 'block':
@@ -694,6 +779,7 @@ function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resol
       const from = { ...o.pos }
       o.pos = { ...to }
       emit(c, { t: 'teleport', uid: o.uid, from, to: { ...to } })
+      enterGround(c, o)
       return
     }
     case 'swap': {
@@ -706,6 +792,8 @@ function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resol
       other.pos = a
       emit(c, { t: 'teleport', uid: o.uid, from: a, to: { ...b } })
       emit(c, { t: 'teleport', uid: other.uid, from: b, to: { ...a } })
+      enterGround(c, o)
+      enterGround(c, other)
       return
     }
     case 'redirect':
@@ -744,6 +832,30 @@ function applyEffect(c: CombatState, C: ContentRegistry, eff: Effect, res: Resol
     case 'credits':
       c.credits += eff.amount
       return
+    case 'ignite': {
+      // Lit during the enemy phase, it also has to survive that phase's own burn-down to reach the player's turn.
+      const turns = eff.turns + ((c as CombatStateExt).inEnemyPhase ? 1 : 0)
+      for (const p of effectTiles(eff, res)) {
+        const t = tileAt(c, p)
+        if (!t || !isStandable(t) || eff.turns <= 0) continue
+        t.fire = Math.max(t.fire ?? 0, turns)
+        emit(c, { t: 'fire', pos: { ...p }, turns: t.fire })
+      }
+      return
+    }
+    case 'electrify': {
+      const turns = eff.turns + ((c as CombatStateExt).inEnemyPhase ? 1 : 0)
+      for (const p of effectTiles(eff, res)) {
+        const t = tileAt(c, p)
+        if (!t || eff.turns <= 0) continue
+        if (t.kind === 'floor') {
+          t.kind = 'hazard'
+          t.ttl = turns
+          emit(c, { t: 'tile', pos: { ...p }, kind: 'hazard' })
+        } else if (t.kind === 'hazard' && t.ttl !== undefined) t.ttl = Math.max(t.ttl, turns)
+      }
+      return
+    }
   }
 }
 
@@ -789,13 +901,42 @@ export function redirectIntent(c: CombatState, C: ContentRegistry, u: UnitState)
 let triggerDepth = 0
 const MAX_TRIGGER_DEPTH = 8
 
-export function fireTrigger(c: CombatState, C: ContentRegistry, on: TriggerEvent, at?: Pos): void {
+/** `by` = the party unit that caused it (card plays): companion passives marked `ownerOnly` need it to match. */
+export function fireTrigger(c: CombatState, C: ContentRegistry, on: TriggerEvent, at?: Pos, by?: string): void {
   if (c.phase === 'lost' || triggerDepth >= MAX_TRIGGER_DEPTH) return
   triggerDepth += 1
   try {
     fireTriggerUnguarded(c, C, on, at)
+    firePassives(c, C, on, at, by)
   } finally {
     triggerDepth -= 1
+  }
+}
+
+/** Companion combat passives: like implant triggers, but each standing companion is the origin of its own. */
+function firePassives(c: CombatState, C: ContentRegistry, on: TriggerEvent, at: Pos | undefined, by: string | undefined): void {
+  const mates = c.units.filter((u) => u.side === 'party' && u.uid !== 'connector' && u.hp > 0).sort(byUid)
+  for (const m of mates) {
+    const passive = C.companions[m.defId]?.combatPassive
+    if (!passive) continue
+    passive.triggers.forEach((t, i) => {
+      if (t.on !== on || m.hp <= 0 || c.phase === 'lost') return
+      if (t.ownerOnly && by !== m.uid) return
+      if (t.limit) {
+        const key = t.limit === 'turn' ? `t${c.turn}:p:${m.uid}#${i}` : `c:p:${m.uid}#${i}`
+        if ((c.triggered[key] ?? 0) >= 1) return
+        c.triggered[key] = (c.triggered[key] ?? 0) + 1
+      }
+      emit(c, { t: 'passive', uid: m.uid, companionId: m.defId })
+      applyEffects(c, C, t.effects, {
+        origin: m,
+        side: 'party',
+        impact: at ? { ...at } : { ...m.pos },
+        tiles: [{ ...m.pos }],
+        source: 'party',
+        attack: true,
+      })
+    })
   }
 }
 

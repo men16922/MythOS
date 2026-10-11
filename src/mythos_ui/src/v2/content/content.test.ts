@@ -110,8 +110,13 @@ test('quotas (design doc §5)', () => {
   const count = (r: string) => basePool.filter((c) => c.rarity === r).length
   assert.ok(basePool.length >= 30, `pool ${basePool.length}`)
   assert.ok(count('common') >= 14 && count('uncommon') >= 11 && count('rare') >= 7, 'pool rarity mix')
-  const companionCards = CARDS.filter((c) => C.companions[c.owner])
-  assert.equal(companionCards.length, 18)
+  // Each companion: 2 join cards + 1 bond card (special) and 2 reward cards (uncommon + rare) offered while they travel with you.
+  for (const m of Object.values(C.companions)) {
+    const own = CARDS.filter((c) => c.owner === m.id)
+    assert.equal(own.filter((c) => c.rarity === 'special').length, 3, `${m.id} join/bond cards`)
+    assert.ok(own.some((c) => c.rarity === 'uncommon') && own.some((c) => c.rarity === 'rare'), `${m.id} reward cards`)
+    assert.ok(m.combatPassive && m.combatPassive.triggers.length > 0, `${m.id} combat passive`)
+  }
   for (const a of ARCHETYPES) {
     const builds = CARDS.filter((c) => c.archetype === a.id && c.rarity !== 'starter').length
     assert.ok(builds >= 3, `${a.id} has ${builds} exclusive pool cards`)

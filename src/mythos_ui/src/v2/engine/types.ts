@@ -39,11 +39,21 @@ export type Rarity = 'starter' | 'common' | 'uncommon' | 'rare' | 'special'
  * hazard – electrified: a unit that ends the enemy phase on it, or is pushed onto it, takes 2 damage.
  * void   – broken grid: an ENEMY (non-flying) pushed into it is destroyed ("deleted").
  *          Party units can never enter void (it acts like a wall for them: bump damage).
+ *
+ * Ground effects (on floor/hazard tiles, from `ignite` / `electrify` effects):
+ * fire N  – burning ground for N more enemy phases. A grounded unit that ENTERS it (move/push/teleport/swap end)
+ *           or stands on it when the enemy phase ends gains Burn 2 (FIRE_BURN). Goes out at 0.
+ * ttl N   – a temporary hazard (electrified by `electrify`): reverts to floor after N more enemy phases.
+ *           Permanent (authored) hazards have no ttl.
  */
 export type TileKind = 'floor' | 'cover' | 'hazard' | 'void'
 export interface Tile {
   kind: TileKind
   hp?: number
+  /** Burning ground: enemy phases left (see above). */
+  fire?: number
+  /** Temporary hazard: enemy phases left before it reverts to floor. */
+  ttl?: number
 }
 
 // ---------------------------------------------------------------- statuses
@@ -90,7 +100,8 @@ export type Effect =
    * 'toward' = toward the owner (pull). A push into cover/unit/wall/edge stops the unit and BOTH take 1
    * bump damage (cover loses 1 hp). Enemies pushed into void are destroyed; party units treat void as a wall.
    */
-  | { kind: 'push'; dir: 'away' | 'toward'; distance?: number; to?: EffectScope; area?: AreaShape }
+  /** `slam` adds that much to the bump damage when this push ends against a wall / cover / unit (both sides). */
+  | { kind: 'push'; dir: 'away' | 'toward'; distance?: number; to?: EffectScope; area?: AreaShape; slam?: number }
   | { kind: 'block'; amount: number; to?: EffectScope }
   | { kind: 'heal'; amount: number; to?: EffectScope }
   | { kind: 'status'; status: StatusKind; amount: number; to?: EffectScope; area?: AreaShape }
@@ -101,9 +112,9 @@ export type Effect =
   /** Owner swaps positions with the target unit (any side). */
   | { kind: 'swap' }
   /** Target enemy's intent is turned around 180° (relative patterns) or re-aimed at the nearest other enemy (lob). */
-  | { kind: 'redirect' }
+  | { kind: 'redirect'; area?: AreaShape }
   /** Target enemy's current intent is cancelled (it still re-telegraphs next enemy phase). */
-  | { kind: 'cancel_intent' }
+  | { kind: 'cancel_intent'; area?: AreaShape }
   /** Target empty tile becomes cover with 2 hp. */
   | { kind: 'create_cover'; area?: AreaShape }
   /** Owner may move again this turn. */
@@ -114,6 +125,10 @@ export type Effect =
   | { kind: 'add_card'; cardId: string; pile: 'hand' | 'draw' | 'discard'; count?: number }
   /** Gain credits immediately (in combat: banked into the reward). */
   | { kind: 'credits'; amount: number }
+  /** Set the ground on fire for `turns` enemy phases (floor/hazard tiles only; never void/cover). */
+  | { kind: 'ignite'; turns: number; to?: EffectScope; area?: AreaShape }
+  /** Electrify floor tiles into temporary hazards for `turns` enemy phases. */
+  | { kind: 'electrify'; turns: number; to?: EffectScope; area?: AreaShape }
 
 // ---------------------------------------------------------------- cards
 
@@ -336,7 +351,8 @@ export type CombatEvent =
   | { t: 'move'; uid: string; path: Pos[] }
   | { t: 'teleport'; uid: string; from: Pos; to: Pos }
   | { t: 'attack'; uid: string; moveId: string; tiles: Pos[] }
-  | { t: 'damage'; uid: string; amount: number; blocked: number; source: 'party' | 'enemy' | 'environment' }
+  /** `cause` tags non-attack damage so the board can show it: burn tick, hazard zap, bump (wall/cover/unit). */
+  | { t: 'damage'; uid: string; amount: number; blocked: number; source: 'party' | 'enemy' | 'environment'; cause?: 'burn' | 'hazard' | 'bump' }
   | { t: 'heal'; uid: string; amount: number }
   | { t: 'block'; uid: string; amount: number }
   | { t: 'push'; uid: string; from: Pos; to: Pos; dir: Dir; bumped?: string | 'wall' | 'cover' }
@@ -350,6 +366,14 @@ export type CombatEvent =
   | { t: 'energy'; amount: number }
   | { t: 'draw'; count: number }
   | { t: 'trigger'; implantId: string }
+  /** An area effect resolved (card, consumable, enemy move, trigger): every tile of its footprint, for board FX.
+   *  `element` is the dominant flavour: fire (burn/ignite) › shock (shock/electrify) › blast (damage) › force (push)
+   *  › shield (block) › heal. Emitted once per resolution, before its damage/status events. */
+  | { t: 'area'; tiles: Pos[]; center: Pos; element: 'fire' | 'shock' | 'blast' | 'force' | 'shield' | 'heal'; side: 'party' | 'enemy' }
+  /** Burning ground changed on a tile (0 = went out). */
+  | { t: 'fire'; pos: Pos; turns: number }
+  /** A companion's combat passive fired (show its name on that unit). */
+  | { t: 'passive'; uid: string; companionId: string }
 
 export interface CombatState {
   encounterId: string
@@ -420,6 +444,14 @@ export interface ImplantPassive {
   bumpDamage?: number // extra bump damage
 }
 
+/** A companion's in-combat trait. Triggers work like implant triggers but only while the companion is alive and
+ *  their effects originate from the companion (scope 'owner' = the companion). */
+export interface CombatPassive {
+  name: Text
+  text: Text
+  triggers: { on: TriggerEvent; effects: Effect[]; limit?: 'turn' | 'combat'; ownerOnly?: boolean }[]
+}
+
 export interface ImplantDef {
   id: string
   name: Text
@@ -450,6 +482,8 @@ export interface CompanionDef {
   /** Passive the companion brings (Text shown on the party panel). */
   passiveText: Text
   passive?: ImplantPassive
+  /** In-combat trait while the companion stands (fires `passive` events). Effects with scope 'owner' hit the companion. */
+  combatPassive?: CombatPassive
   /** Short lines for the safehouse bond scene, by bond level 1..3. */
   bondLines: Text[]
   /** Combat barks (random pick). */

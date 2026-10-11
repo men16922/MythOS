@@ -19,6 +19,11 @@ export const COMPANIONS: CompanionDef[] = [
     bondCards: ['serin_escape_route'],
     passiveText: t('밀수 경로: 추적 증가 −10%, 민첩 +1.', 'Smuggling routes: Trace gained −10%, AGI +1.'),
     passive: { traceMult: -0.1, stats: { agi: 1 } },
+    combatPassive: {
+      name: t('물거미', 'Water Spider'),
+      text: t('세린이 전술 카드를 쓰면 방어막 3을 얻고, 다시 이동할 수 있다. (턴당 1회)', 'When Se-rin plays a tactic, she gains 3 block and may move again. (Once per turn)'),
+      triggers: [{ on: 'play_tactic', ownerOnly: true, limit: 'turn', effects: [{ kind: 'block', amount: 3, to: 'owner' }, { kind: 'refund_move', to: 'owner' }] }],
+    },
     bondLines: [
       t('빚진 건 갚는 거야. 그게 다야.', "I pay my debts. That's all this is."),
       t('물거미가 왜 물거미인지 알아? 가라앉는 법을 몰라서.', "Know why they call me Water Spider? I never learned how to sink."),
@@ -46,6 +51,14 @@ export const COMPANIONS: CompanionDef[] = [
     bondCards: ['taeo_guardian_wall'],
     passiveText: t('전직 집행관: 접속자 최대 HP +5, 근력 +1.', 'Ex-enforcer: connector max HP +5, STR +1.'),
     passive: { maxHp: 5, stats: { str: 1 } },
+    combatPassive: {
+      name: t('사냥개의 방패', "Hound's Shield"),
+      text: t('전투가 시작되면 가시 2. 태오가 공격 카드를 쓰면 방어막 4. (턴당 1회)', 'Starts each fight with Thorns 2. When Tae-o plays an attack, he gains 4 block. (Once per turn)'),
+      triggers: [
+        { on: 'combat_start', effects: [{ kind: 'status', status: 'thorns', amount: 2, to: 'owner' }] },
+        { on: 'play_attack', ownerOnly: true, limit: 'turn', effects: [{ kind: 'block', amount: 4, to: 'owner' }] },
+      ],
+    },
     bondLines: [
       t('난 명령을 따랐다. 그게 변명이 안 된다는 것도 안다.', "I followed orders. I know that's no excuse."),
       t('이 흉터? 마지막으로 사람을 지킨 날 생긴 거다.', 'This scar? Got it the last time I protected someone.'),
@@ -72,15 +85,20 @@ export const COMPANIONS: CompanionDef[] = [
     bondCards: ['han_system_intrusion'],
     passiveText: t('흔적 지우기: 추적 증가 −20%, 지능 +1.', 'Scrubbed logs: Trace gained −20%, INT +1.'),
     passive: { traceMult: -0.2, stats: { int: 1 } },
+    combatPassive: {
+      name: t('역추적', 'Backtrace'),
+      text: t('한이 전술 카드를 쓰면 카드 1장을 뽑는다. (턴당 1회)', 'When Han plays a tactic, draw 1 card. (Once per turn)'),
+      triggers: [{ on: 'play_tactic', ownerOnly: true, limit: 'turn', effects: [{ kind: 'draw', amount: 1 }] }],
+    },
     bondLines: [
       t('난 접속 안 해. 밖에서 뚫는 게 더 재밌거든.', "I don't plug in. Breaking in from outside is more fun."),
-      t('IX는 완벽하지 않아. 그냥 아무도 안 찔러봤을 뿐이지.', "IX isn't perfect. Nobody's ever poked it, that's all."),
+      t('IX도 완벽하진 않아. 그냥 찔러 본 놈이 없었을 뿐이지.', "IX isn't perfect. Nobody's ever poked it, that's all."),
       t('네 신호, 내가 지켜줄게. 아무도 못 찾게.', "I'll guard your signal. Nobody will ever find it."),
     ],
     barks: [
       t('방향 뒤집었다!', 'Flipped it!'),
       t('저거 내 거야.', "That one's mine."),
-      t('회로 태웠어.', 'Fried the circuit.'),
+      t('회로 튀겨 버렸어.', 'Fried the circuit.'),
       t('너무 쉬운데?', 'Too easy.'),
     ],
   },
@@ -88,7 +106,7 @@ export const COMPANIONS: CompanionDef[] = [
     id: 'su_ah',
     name: t('수아', 'Su-ah'),
     alias: t('기억의 대장장이', 'Memory Smith'),
-    role: t('잔향 가공사 · 생성과 강화', 'Echo smith · forging & plating'),
+    role: t('잔향 가공사 · 단조와 방어막', 'Echo smith · forging & plating'),
     sprite: 'su-ah',
     portrait: 'characters/su-ah.png',
     maxHp: 20,
@@ -97,6 +115,14 @@ export const COMPANIONS: CompanionDef[] = [
     bondCards: ['suah_masterwork'],
     passiveText: t('감정안: 카드 보상 선택지 +1.', "Appraiser's eye: card rewards offer +1 choice."),
     passive: { rewardChoices: 1 },
+    combatPassive: {
+      name: t('대장간 불씨', 'Forge Ember'),
+      text: t('전투가 시작되면 잔향 칼날 1장을 손에 넣는다. 수아가 기술 카드를 쓰면 모든 아군 방어막 2. (턴당 1회)', 'Each fight starts with an Echo Blade in hand. When Su-ah plays a skill, all allies gain 2 block. (Once per turn)'),
+      triggers: [
+        { on: 'combat_start', effects: [{ kind: 'add_card', cardId: 'echo_blade', pile: 'hand', count: 1 }] },
+        { on: 'play_skill', ownerOnly: true, limit: 'turn', effects: [{ kind: 'block', amount: 2, to: 'all_allies' }] },
+      ],
+    },
     bondLines: [
       t('기억도 쇠처럼 두드리면 모양이 잡혀.', 'Memories are like iron. Hammer them and they take shape.'),
       t('네 잔향, 금이 많이 갔네. 내가 손봐줄게.', "Your echo's cracked all over. Let me fix it."),
@@ -105,8 +131,8 @@ export const COMPANIONS: CompanionDef[] = [
     barks: [
       t('새로 벼렸어, 받아!', 'Fresh off the anvil — catch!'),
       t('흠, 쓸 만하네.', 'Hm. That’ll do.'),
-      t('장갑 덧댔어.', 'Plated you up.'),
-      t('부서지면 다시 만들면 돼.', 'If it breaks, I make another.'),
+      t('장갑판 덧댔어.', 'Plated you up.'),
+      t('부서지면 다시 벼리면 돼.', 'If it breaks, I make another.'),
     ],
   },
   {
@@ -122,6 +148,11 @@ export const COMPANIONS: CompanionDef[] = [
     bondCards: ['kai_dreamshot'],
     passiveText: t('광학 센서: 관찰 +2, 근력 +1.', 'Optical sensors: OBS +2, STR +1.'),
     passive: { stats: { obs: 2, str: 1 } },
+    combatPassive: {
+      name: t('광학 조준', 'Optical Lock'),
+      text: t('매 턴 시작 시 무작위 적 하나에 표식 2.', 'At the start of each of your turns, Mark 2 on a random enemy.'),
+      triggers: [{ on: 'turn_start', effects: [{ kind: 'status', status: 'mark', amount: 2, to: 'random_enemy' }] }],
+    },
     bondLines: [
       t('폐기 판정을 받은 날, 처음으로 꿈을 꿨어요.', 'The day I was marked for disposal, I dreamed for the first time.'),
       t('꿈속에서 당신을 봤어요. 그래서 따라왔어요.', 'I saw you in that dream. So I followed.'),
@@ -147,6 +178,14 @@ export const COMPANIONS: CompanionDef[] = [
     bondCards: ['linyue_gold_hairpin'],
     passiveText: t('거래처: 크레딧 획득 +20%, 상점 가격 −10%.', 'Connections: credits gained +20%, shop prices −10%.'),
     passive: { creditMult: 0.2, shopDiscount: 0.1 },
+    combatPassive: {
+      name: t('환전 수수료', 'Exchange Fee'),
+      text: t('적이 쓰러질 때마다 3₵ 획득. 턴마다 첫 처치 시 에너지 +1.', 'Every kill pays +3 ₵. The first kill each turn also gives 1 energy.'),
+      triggers: [
+        { on: 'enemy_killed', effects: [{ kind: 'credits', amount: 3 }] },
+        { on: 'enemy_killed', limit: 'turn', effects: [{ kind: 'energy', amount: 1 }] },
+      ],
+    },
     bondLines: [
       t('세상에 공짜는 없어. 나도 마찬가지고.', "Nothing in this world is free. Me included."),
       t('이 비녀, 어머니 거야. 팔 생각은 없어.', "This hairpin was my mother's. It's not for sale."),

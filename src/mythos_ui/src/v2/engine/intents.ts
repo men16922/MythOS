@@ -22,6 +22,7 @@ import { rand } from './rng.ts'
 import {
   applyEffects,
   byUid,
+  enterGround,
   dmgBonusOf,
   emit,
   isStandable,
@@ -176,6 +177,7 @@ export function fireIntent(c: CombatState, C: ContentRegistry, u: UnitState): vo
   if (move.pattern === 'charge' && geo.dashTo && !samePos(geo.dashTo, u.pos)) {
     emit(c, { t: 'move', uid: u.uid, path: [{ ...u.pos }, ...geo.path.map((p) => ({ ...p }))] })
     u.pos = { ...geo.dashTo }
+    enterGround(c, u)
   }
   const effects: Effect[] = []
   // Weak is applied per hit by dealDamage (the attacker is the origin).
@@ -282,7 +284,7 @@ export function enemyReach(c: CombatState, u: UnitState): Spot[] {
     if (path.length > 0) {
       const t = tileAt(c, pos)
       if (!isStandable(t) || unitAt(c, pos)) continue
-      if (t?.kind === 'hazard' && !u.flying) continue
+      if ((t?.kind === 'hazard' || (t?.fire ?? 0) > 0) && !u.flying) continue
     }
     out.push({ pos, path })
   }
@@ -349,6 +351,10 @@ function positionScore(c: CombatState, u: UnitState, def: EnemyDef, p: Pos, ctx:
   }
   if (!u.flying) {
     for (const d of DIRS) if (tileAt(c, add(p, d))?.kind === 'void') s -= 0.5
+    // Only reachable when it already stands there (move spots skip them): get out of fire / off a live hazard.
+    const here = tileAt(c, p)
+    if ((here?.fire ?? 0) > 0) s -= 6
+    if (here?.kind === 'hazard') s -= 3
   }
   s -= 1.2 * (ctx.threat.get(posKey(p)) ?? 0)
   if (ctx.incoming.has(posKey(p))) s -= 4
@@ -532,6 +538,7 @@ export function planIntent(c: CombatState, C: ContentRegistry, u: UnitState, can
   if (pick.spot.path.length > 0) {
     emit(c, { t: 'move', uid: u.uid, path: [{ ...home }, ...pick.spot.path.map((p) => ({ ...p }))] })
     u.pos = { ...pick.spot.pos }
+    enterGround(c, u)
   }
   const move = pick.move
   if (!move) return

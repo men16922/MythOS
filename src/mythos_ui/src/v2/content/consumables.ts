@@ -7,7 +7,7 @@ const t = (ko: string, en: string): Text => ({ ko, en })
 export const CONSUMABLES: ConsumableDef[] = [
   {
     id: 'nanopatch',
-    name: t('나노 패치', 'Nanopatch'),
+    name: t('나노패치', 'Nanopatch'),
     text: t('아군 하나 회복 8.', 'An ally heals 8.'),
     icon: 'items/nanopatch.png',
     target: { mode: 'ally', range: 3 },
@@ -18,12 +18,13 @@ export const CONSUMABLES: ConsumableDef[] = [
   {
     id: 'emp_grenade',
     name: t('EMP 수류탄', 'EMP Grenade'),
-    text: t('십자 범위: 피해 2, 감전 1.', 'Cross area: deal 2, Shock 1.'),
+    text: t('십자 범위에 피해 2, 감전 1. 그 칸에 2턴 동안 전류가 흐른다.', 'Cross area: deal 2, Shock 1; the floor carries current for 2 turns.'),
     icon: 'items/emp_grenade.png',
     target: { mode: 'lob', minRange: 1, range: 4 },
     effects: [
       { kind: 'damage', amount: 2, area: 'cross' },
       { kind: 'status', status: 'shock', amount: 1, area: 'cross' },
+      { kind: 'electrify', turns: 2, area: 'cross' },
     ],
     price: 55,
     rarity: 'uncommon',
@@ -31,7 +32,7 @@ export const CONSUMABLES: ConsumableDef[] = [
   {
     id: 'cryo_grenade',
     name: t('냉각 수류탄', 'Cryo Grenade'),
-    text: t('십자 범위: 피해 3, 약화 2.', 'Cross area: deal 3, Weak 2.'),
+    text: t('십자 범위에 피해 3, 약화 2.', 'Cross area: deal 3, Weak 2.'),
     icon: 'items/cryo_grenade.png',
     target: { mode: 'lob', minRange: 1, range: 4 },
     effects: [
@@ -44,10 +45,13 @@ export const CONSUMABLES: ConsumableDef[] = [
   {
     id: 'incendiary_grenade',
     name: t('소이 수류탄', 'Incendiary Grenade'),
-    text: t('십자 범위 화상 4.', 'Cross area: Burn 4.'),
+    text: t('십자 범위에 화상 3. 그 칸에 2턴 동안 불길이 남는다.', 'Cross area: Burn 3, and the area burns for 2 turns.'),
     icon: 'items/incendiary_grenade.png',
     target: { mode: 'lob', minRange: 1, range: 4 },
-    effects: [{ kind: 'status', status: 'burn', amount: 4, area: 'cross' }],
+    effects: [
+      { kind: 'status', status: 'burn', amount: 3, area: 'cross' },
+      { kind: 'ignite', turns: 2, area: 'cross' },
+    ],
     price: 50,
     rarity: 'common',
   },
@@ -64,7 +68,7 @@ export const CONSUMABLES: ConsumableDef[] = [
   {
     id: 'overload_stim',
     name: t('과부하 자극제', 'Overload Stim'),
-    text: t('카드 3장 뽑기. 에너지 +1.', 'Draw 3. Gain 1 energy.'),
+    text: t('카드 3장을 뽑는다. 에너지 +1.', 'Draw 3. Gain 1 energy.'),
     icon: 'items/overload_stim.png',
     target: { mode: 'none' },
     effects: [
@@ -87,7 +91,7 @@ export const CONSUMABLES: ConsumableDef[] = [
   {
     id: 'stealth_cloak',
     name: t('은신 망토', 'Stealth Cloak'),
-    text: t('모든 아군 방어막 6. 모두 다시 이동 가능.', 'All allies gain 6 block and may move again.'),
+    text: t('모든 아군 방어막 6. 모두 다시 이동할 수 있다.', 'All allies gain 6 block and may move again.'),
     icon: 'items/stealth_cloak.png',
     target: { mode: 'none' },
     effects: [

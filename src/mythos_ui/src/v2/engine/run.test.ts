@@ -677,7 +677,8 @@ test('full run: newRun → three acts → final choice → ended, deterministic 
     a = autoStep(a)
     b = autoStep(b)
   }
-  assert.deepEqual(b, a)
+  // endedAt is wall-clock (the two copies can end a millisecond apart); everything else must match.
+  assert.deepEqual({ ...b, endedAt: a.endedAt }, a)
 })
 
 test('abandonRun ends the run; ended runs ignore actions', () => {

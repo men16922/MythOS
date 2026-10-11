@@ -393,3 +393,29 @@ class AppIntegrationTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CorsTest(unittest.TestCase):
+    """The Android app (Capacitor, origin https://localhost) calls /api/v2 cross-origin."""
+
+    def test_preflight_from_the_app_origin_is_allowed(self) -> None:
+        from fastapi.testclient import TestClient
+
+        from mythos_api.app import create_app
+
+        client = TestClient(create_app())
+        res = client.options(
+            "/api/v2/health",
+            headers={
+                "Origin": "https://localhost",
+                "Access-Control-Request-Method": "PUT",
+                "Access-Control-Request-Headers": "X-Player-Id, Content-Type",
+            },
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.headers.get("access-control-allow-origin"), "https://localhost")
+        other = client.options(
+            "/api/v2/health",
+            headers={"Origin": "https://evil.example", "Access-Control-Request-Method": "GET"},
+        )
+        self.assertNotEqual(other.headers.get("access-control-allow-origin"), "https://evil.example")

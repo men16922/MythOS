@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any
 
 from fastapi import Depends, FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.concurrency import iterate_in_threadpool
@@ -535,12 +536,31 @@ def _localized_scenario_prose(s: Any, lang: str) -> _ScenarioProseL10n:
     )
 
 
+def _cors_origins() -> list[str]:
+    """Origins allowed to call the API cross-origin (env ``MYTHOS_CORS_ORIGINS``, comma-separated)."""
+    import os
+
+    raw = os.getenv(
+        "MYTHOS_CORS_ORIGINS", "https://localhost,http://localhost,capacitor://localhost"
+    )
+    return [o.strip() for o in raw.split(",") if o.strip()]
+
+
 def create_app() -> FastAPI:
     app = FastAPI(title="Project MythOS API", version="0.1.0", lifespan=_lifespan)
 
     # Closed-beta invite gate (no-op unless MYTHOS_INVITE_KEYS is set). Outermost so it
     # guards /api/v1/* (REST + WS) before any handler; /health and static stay open.
     app.add_middleware(InviteGateMiddleware)
+    # The Android app (Capacitor WebView, origin https://localhost) calls /api/v2 cross-origin. Added after the
+    # invite gate so it wraps it: CORS preflights are answered before the gate sees them.
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=_cors_origins(),
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=["Content-Type", "X-Player-Id", "X-Invite-Key"],
+        max_age=600,
+    )
 
     @app.get("/api/v1/health")
     def health() -> dict[str, str]:

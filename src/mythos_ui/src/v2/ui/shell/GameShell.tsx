@@ -1,6 +1,8 @@
 // Mythos 2.0 game shell: title → archive → setup → run screens (by run.screen.kind) → ending → archive.
-import { Suspense, lazy, useCallback, useEffect, useRef, useState, type ComponentType, type ReactNode } from 'react'
+// Title → 오늘의 시드 opens the setup screen in daily mode (view 'daily').
+import { Suspense, lazy, useCallback, useEffect, useRef, useState, useSyncExternalStore, type ComponentType, type ReactNode } from 'react'
 import { CONTENT } from '../../content/index.ts'
+import { dateKeyAt } from '../../engine/daily.ts'
 import type { CombatState, ContentRegistry, Lang, MetaProfile, RunState } from '../../engine/types.ts'
 import { configureAudio, playBgm, unlockAudio, type Bgm } from '../common/audio.ts'
 import { tr } from '../common/lang.ts'
@@ -12,6 +14,7 @@ import { SettingsPanel } from '../components/SettingsPanel.tsx'
 import { duckMusic, sound } from '../components/sound.ts'
 import { Prologue } from '../prologue/Prologue.tsx'
 import { ActIntro } from './ActIntro.tsx'
+import { BossNarration } from './BossNarration.tsx'
 import { IxComms } from './IxComms.tsx'
 import { ArchiveScreen } from './ArchiveScreen.tsx'
 import { CardPickScreen } from './CardPickScreen.tsx'
@@ -32,7 +35,17 @@ import { ShellMenu } from '../common/shellMenu.ts'
 import { useGame } from '../store.ts'
 import '../../v2.css'
 
-type View = 'title' | 'archive' | 'setup' | 'run'
+type View = 'title' | 'archive' | 'setup' | 'daily' | 'run'
+
+/** Today's date in KST ('YYYY-MM-DD'), re-read every minute so the daily rolls over at midnight. */
+const todayKst = (): string => dateKeyAt(Date.now())
+function subscribeMinute(onTick: () => void): () => void {
+  const id = window.setInterval(onTick, 60_000)
+  return () => window.clearInterval(id)
+}
+function useToday(): string {
+  return useSyncExternalStore(subscribeMinute, todayKst, todayKst)
+}
 
 // ------------------------------------------------------------ combat screen (combat-UI agent), loaded lazily
 interface CombatScreenProps {
@@ -56,7 +69,7 @@ const VIEW_KEY = 'mythos2.view'
 function bootView(): View {
   try {
     const v = window.sessionStorage.getItem(VIEW_KEY)
-    return v === 'archive' || v === 'setup' || v === 'run' ? v : 'title'
+    return v === 'archive' || v === 'setup' || v === 'daily' || v === 'run' ? v : 'title'
   } catch {
     return 'title'
   }
@@ -78,7 +91,7 @@ function writeFlag(key: string): void {
 
 function bgmFor(view: View, run: RunState | null): Bgm | undefined {
   if (view === 'title') return 'title'
-  if (view === 'archive' || view === 'setup') return 'hub'
+  if (view === 'archive' || view === 'setup' || view === 'daily') return 'hub'
   if (!run) return 'hub'
   const mapTrack = `map${run.act}` as Bgm
   switch (run.screen.kind) {
@@ -108,12 +121,14 @@ export function GameShell() {
   const view: View = viewState === 'run' && !run ? 'title' : viewState
   const [deckOpen, setDeckOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const [confirm, setConfirm] = useState<null | 'abandon' | 'newloop'>(null)
+  // 'newloop' / 'daily': a run is live and the player asked for a new one (abandon first, then go on).
+  const [confirm, setConfirm] = useState<null | 'abandon' | 'newloop' | 'daily'>(null)
   const [discardIdx, setDiscardIdx] = useState<number | null>(null)
   const [menuOpen, setMenuOpen] = useState(false)
   // The final state of the last fight: it reaches IX comms after the screen has already moved on.
   const [ixFinal, setIxFinal] = useState<CombatState | null>(null)
   const [prologueSeen, setPrologueSeen] = useState(() => readFlag(PROLOGUE_KEY))
+  const today = useToday()
   const audioUnlocked = useRef(false)
   const lastTier = useRef<string | null>(null)
 
@@ -183,10 +198,10 @@ export function GameShell() {
 
   const setSettings = (s: MetaProfile['settings']) => setProfile((p) => ({ ...p, settings: s }))
 
-  const startRun = (o: { archetype: string; companion: string | null; paradox: number }) => {
+  const startRun = (o: { archetype: string; companion: string | null; paradox: number; daily?: string }) => {
     if (game.hasRun) {
       // Never overwrite a live run silently: ask first (abandoning banks it).
-      setConfirm('newloop')
+      setConfirm(o.daily ? 'daily' : 'newloop')
       return
     }
     try {
@@ -216,8 +231,11 @@ export function GameShell() {
         run={game.hasRun ? run : null}
         savedAt={game.savedAt}
         C={C}
+        today={today}
+        daily={profile.daily?.[today]}
         onContinue={() => setView('run')}
         onNewLoop={() => (game.hasRun ? setConfirm('newloop') : setView(profile.loops === 0 ? 'setup' : 'archive'))}
+        onDaily={() => (game.hasRun ? setConfirm('daily') : setView('daily'))}
         onArchive={() => setView('archive')}
         onSettings={() => setSettingsOpen(true)}
         onLang={(l) => setSettings({ ...profile.settings, lang: l })}
@@ -234,10 +252,13 @@ export function GameShell() {
         activeLoop={game.hasRun && run ? run.loop : null}
         onContinue={() => setView('run')}
         onAbandon={() => setConfirm('newloop')}
+        today={today}
       />
     )
   } else if (view === 'setup') {
     screen = <SetupScreen profile={profile} C={C} onStart={startRun} onBack={() => setView(profile.loops === 0 ? 'title' : 'archive')} />
+  } else if (view === 'daily') {
+    screen = <SetupScreen profile={profile} C={C} daily={today} onStart={startRun} onBack={() => setView('title')} />
   } else if (run) {
     const props: ScreenProps = { run, C, lang, settings: profile.settings, act }
     const s = run.screen
@@ -370,6 +391,7 @@ export function GameShell() {
             </div>
           )}
           {view === 'run' && run && <IxComms combat={run.screen.kind === 'combat' ? run.screen.combat : ixFinal} C={C} lang={lang} settings={profile.settings} />}
+          {view === 'run' && run && <BossNarration combat={run.screen.kind === 'combat' ? run.screen.combat : null} C={C} lang={lang} settings={profile.settings} />}
         </main>
 
         {deckOpen && run && (
@@ -459,11 +481,11 @@ export function GameShell() {
                 <button
                   className="m2-btn m2-btn--danger"
                   onClick={() => {
-                    if (confirm === 'newloop' && run) {
+                    if ((confirm === 'newloop' || confirm === 'daily') && run) {
                       setRun(rx.abandon(run))
                       game.closeRun()
                       setConfirm(null)
-                      setView('archive')
+                      setView(confirm === 'daily' ? 'daily' : 'archive')
                     } else {
                       abandon()
                       setView('run')

@@ -3,10 +3,16 @@
 // Owns: selection / targeting / preview state, the local copy of the combat (so animations can
 // run on the pre-action view), keyboard, layout, and the hand-off back to the shell. Rendering
 // of the board lives in Board.tsx; the event timeline + game feel in animator.ts.
+//
+// Layouts: 'desk' (≥ 900 × 480, the original HUD), and two phone layouts picked from the root's size —
+// 'port' (board under a party strip, inspector peek, hand + controls below) and 'land' (board between
+// two thin columns, the hand peeking from the bottom edge). Touch (any non-mouse pointer, see touch.ts):
+// taps replace hover — tap a unit / tile to pin the inspector, tap a card target once to preview and
+// again to play, hold a card to read it.
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
-import { Layers, Trash2, Flame, BookOpen, Undo2, FastForward } from 'lucide-react'
+import { Layers, Trash2, Flame, BookOpen, Undo2, FastForward, Maximize2, X } from 'lucide-react'
 import {
   canPlay,
   cardFace,
@@ -41,9 +47,11 @@ import { Board } from './Board.tsx'
 import type { DirArrow, IntentView } from './Board.tsx'
 import { Coach } from './Coach.tsx'
 import { tutorialDone } from './describe.ts'
-import { fitTileWidth, makeGeom } from './geometry.ts'
+import { fitTileWidth, fitTileWidthFor, makeGeom } from './geometry.ts'
+import type { GeomOpts } from './geometry.ts'
 import { Hand } from './Hand.tsx'
 import { DetailPanel, PartyPanel, PileModal, TopStrip } from './Panels.tsx'
+import { isTouch, watchPointer } from './touch.ts'
 import '../../v2.css'
 import './combat.css'
 
@@ -70,6 +78,11 @@ function targetOf(o: TargetOption): PlayTarget {
   return t
 }
 
+/** Identity of a target option across renders (touch aiming compares the first and second tap). */
+function optKey(o: TargetOption): string {
+  return `${o.dir ?? ''}|${o.pos ? posKey(o.pos) : ''}`
+}
+
 function uniq(list: Pos[]): Pos[] {
   const seen = new Set<string>()
   return list.filter((p) => (seen.has(posKey(p)) ? false : (seen.add(posKey(p)), true)))
@@ -86,6 +99,72 @@ const SHAKE: Keyframe[] = [
 
 /** Ignore end-turn input this long after a new player turn starts (fast-forward overshoot). */
 const TURN_GRACE_MS = 700
+
+type LayoutMode = 'desk' | 'port' | 'land'
+
+/** Phone boards: a flatter, steeper plane than the desktop's so far-row tiles stay ~40 px to a finger, with
+ *  less dead margin (the root clips anyway). Desktop keeps makeGeom's defaults. */
+const GEOM: Record<LayoutMode, GeomOpts | undefined> = {
+  desk: undefined,
+  port: { farScale: 0.88, rowRatio: 0.88, topPad: 1.15, bottomPad: 0.42, sidePad: 0.06 },
+  land: { farScale: 0.9, rowRatio: 0.74, topPad: 1.15, bottomPad: 0.3, sidePad: 0.1 },
+}
+
+const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v))
+
+interface Layout {
+  topH: number
+  /** CardView font size in the hand (card = 10.6em × 15em). */
+  fs: number
+  bottomH: number
+  sideW: number
+  handW: number
+  tw: number
+  /** The board is placed inside this vertical band, `bias` of the spare height above it. */
+  bandTop: number
+  bandH: number
+  bias: number
+  /** port: party strip and inspector peek heights; land: visible part of the hand. */
+  partyH: number
+  peekH: number
+  handPeek: number
+}
+
+function computeLayout(mode: LayoutMode, W: number, H: number): Layout {
+  if (mode === 'port') {
+    const topH = 62
+    const partyH = 46
+    const peekH = 54
+    const fs = clamp(Math.min(W / 34, H / 72), 9, 11.5)
+    // hand (+ the number tabs above it) · draw / piles / items row · orb + end turn row · padding
+    const bottomH = Math.round(fs * 15 + 16) + 36 + 50 + 12 + 8
+    const bandTop = topH + partyH
+    const bandH = H - bandTop - peekH - bottomH - 6
+    const tw = fitTileWidthFor(W - 6, bandH, GEOM.port ?? {}, 36, 96)
+    // The fan's outer cards tilt out past their slot: keep them off the screen edge.
+    return { topH, fs, bottomH, sideW: W - 16, handW: W - 50, tw, bandTop, bandH, bias: 0.5, partyH, peekH, handPeek: 0 }
+  }
+  if (mode === 'land') {
+    // The top strip only uses the side columns, so the board gets the full height above the hand.
+    const topH = 30
+    const fs = clamp(H / 42, 8, 10.5)
+    const handPeek = Math.round(fs * 15 * 0.6)
+    const sideW = Math.round(clamp(W * 0.2, 150, 220))
+    const bottomH = Math.max(handPeek + 8, 122)
+    const bandH = H - handPeek - 6
+    const tw = fitTileWidthFor(W - 2 * (sideW + 8), bandH, GEOM.land ?? {}, 36, 120)
+    return { topH, fs, bottomH, sideW, handW: W - 2 * sideW - 24, tw, bandTop: 0, bandH, bias: 0.5, partyH: 0, peekH: 0, handPeek }
+  }
+  const topH = 40
+  const fs = Math.max(9.4, Math.min(13, H * 0.0152))
+  const ch = fs * 15
+  const bottomH = Math.round(ch + 24)
+  const sideW = Math.round(Math.max(188, Math.min(252, W * 0.165)))
+  const availW = W - 2 * (sideW + 12)
+  const availH = H - topH - bottomH - 6
+  const tw = fitTileWidth(availW, availH)
+  return { topH, fs, bottomH, sideW, handW: W - 2 * sideW - 24, tw, bandTop: topH + 2, bandH: availH, bias: 0.62, partyH: 0, peekH: 0, handPeek: 0 }
+}
 
 export function CombatScreen(props: CombatScreenProps) {
   const { C, lang, settings } = props
@@ -151,7 +230,9 @@ export function CombatScreen(props: CombatScreenProps) {
         return
       }
       const top = el.getBoundingClientRect().top + window.scrollY
-      setAutoH(Math.max(520, Math.round(window.innerHeight - top)))
+      // Phones (narrow, or a short landscape screen) fit whatever height they have.
+      const floor = window.innerWidth >= 900 && window.innerHeight >= 560 ? 520 : 280
+      setAutoH(Math.max(floor, Math.round(window.innerHeight - top)))
     }
     fit()
     window.addEventListener('resize', fit)
@@ -162,18 +243,23 @@ export function CombatScreen(props: CombatScreenProps) {
   }, [])
   const W = size.w
   const H = size.h
-  const topH = 40
-  const fs = Math.max(9.4, Math.min(13, H * 0.0152))
-  const ch = fs * 15
-  const bottomH = Math.round(ch + 24)
-  const sideW = Math.round(Math.max(188, Math.min(252, W * 0.165)))
-  const availW = W - 2 * (sideW + 12)
-  const availH = H - topH - bottomH - 6
-  const tw = fitTileWidth(availW, availH)
-  const g = useMemo(() => makeGeom(tw), [tw])
+  const mode: LayoutMode = W >= 900 && H >= 480 ? 'desk' : W >= H * 1.2 ? 'land' : 'port'
+  const compact = mode !== 'desk'
+  const lay = computeLayout(mode, W, H)
+  const { topH, fs, bottomH, sideW, tw, handW } = lay
+  const g = useMemo(() => makeGeom(tw, GEOM[mode]), [tw, mode])
   const boardLeft = Math.round((W - g.width) / 2)
-  const boardTop = Math.round(topH + 2 + Math.max(0, availH - g.height) * 0.62)
-  const handW = W - 2 * sideW - 24
+  const boardTop = Math.round(lay.bandTop + Math.max(0, lay.bandH - g.height) * lay.bias)
+
+  // Touch UI (wording, key hints) follows the last real pointer; hover handlers ask isTouch() directly.
+  const [touchUI, setTouchUI] = useState(isTouch)
+  useEffect(() => watchPointer(setTouchUI), [])
+  /** Phone layouts: the inspector sheet is expanded. */
+  const [sheet, setSheet] = useState(false)
+  /** Phone layouts: the help popover (the desktop's key legend has no room). */
+  const [help, setHelp] = useState(false)
+  /** Touch long press on a card: show it large. */
+  const [zoom, setZoom] = useState<string | null>(null)
 
   // ------------------------------------------------------------ selection & targeting
   const [sel, setSel] = useState<string>('connector')
@@ -270,6 +356,29 @@ export function CombatScreen(props: CombatScreenProps) {
     }
     return []
   }, [isArmed, confirmMode, options, tmode, hoverCard, hoverCardOrigin, interactive, combat, C])
+
+  // Touch aiming: the first tap on a card target previews it (sets hoverPos / hoverDir like a mouse hover would),
+  // a second tap on the same target plays it. Keyed to the armed object + origin, so re-arming starts over.
+  const [aim, setAim] = useState<{ armed: Armed; origin: string | null; key: string } | null>(null)
+  const aimKey = aim && armed && aim.armed === armed && aim.origin === origin ? aim.key : null
+  const aimAt: { at: Pos; dir: boolean } | null = useMemo(() => {
+    if (!aimKey || confirmMode || !interactive) return null
+    const o = options.find((x) => optKey(x) === aimKey)
+    if (!o) return null
+    // Line / beam cards are aimed by direction: the chip sits on that direction's arrow.
+    const arrow = o.dir && originUnit && (tmode === 'line' || tmode === 'beam') ? add(originUnit.pos, o.dir) : null
+    if (arrow && inBounds(arrow)) return { at: arrow, dir: true }
+    return o.pos ? { at: o.pos, dir: false } : null
+  }, [aimKey, confirmMode, interactive, options, originUnit, tmode])
+  /** Touch: aim at `o` unless it is already aimed. True when this tap only aimed. */
+  const aimFirst = (o: TargetOption, at: { pos?: Pos; dir?: Dir }): boolean => {
+    if (!isTouch() || !armed || aimKey === optKey(o)) return false
+    setAim({ armed, origin, key: optKey(o) })
+    setHoverPos(at.pos ?? null)
+    setHoverDir(at.dir ?? null)
+    sfx('ui_click')
+    return true
+  }
 
   const active = activeOpt ? (activeOpt.tiles.length ? activeOpt.tiles : activeOpt.pos ? [activeOpt.pos] : []) : []
   const activeHostile = armedDef ? armedDef.type === 'attack' : !!itemDef?.effects.some((e) => e.kind === 'damage')
@@ -425,6 +534,8 @@ export function CombatScreen(props: CombatScreenProps) {
       setCombat(next)
       setArmed(null)
       setHoverDir(null)
+      // Touch "hover" is a tap focus: the action consumed it.
+      if (isTouch()) setHoverPos(null)
       const ended = next.phase !== 'player'
       if (!ended) {
         setEcho(next)
@@ -493,6 +604,7 @@ export function CombatScreen(props: CombatScreenProps) {
     if (def && def.owner !== 'any') setSel(def.owner)
     setArmed({ kind: 'card', uid })
     setHoverDir(null)
+    if (isTouch()) setHoverPos(null)
     sfx('ui_click')
   }
 
@@ -515,6 +627,10 @@ export function CombatScreen(props: CombatScreenProps) {
       return
     }
     setArmed({ kind: 'item', index })
+    if (isTouch()) {
+      setHoverPos(null)
+      setHoverDir(null)
+    }
     sfx('ui_click')
   }
 
@@ -537,20 +653,26 @@ export function CombatScreen(props: CombatScreenProps) {
         return
       }
       const opt = resolveAt(p)
-      if (opt) return playOpt(opt)
+      if (opt) {
+        if (aimFirst(opt, { pos: p })) return
+        return playOpt(opt)
+      }
       const u = living(combat.units.find((x) => samePos(x.pos, p) && x.hp > 0)?.uid ?? '')
       if (u && u.side === 'party' && ((armedDef?.owner === 'any' && armedCard && partyOrigins(combat, C, armedCard.uid).includes(u.uid)) || itemDef)) {
         setSel(u.uid)
+        if (isTouch()) setHoverPos(null)
         sfx('ui_click')
         return
       }
       setArmed(null)
+      if (isTouch()) setHoverPos(null)
       return
     }
     const u = combat.units.find((x) => samePos(x.pos, p) && x.hp > 0)
     if (u?.side === 'party') {
       setSel(u.uid)
       setPinned(null)
+      if (isTouch()) setHoverPos(null)
       sfx('ui_click')
       return
     }
@@ -564,9 +686,12 @@ export function CombatScreen(props: CombatScreenProps) {
     }
     if (u?.side === 'enemy') {
       setPinned(pinned === u.uid ? null : u.uid)
+      if (isTouch()) setHoverPos(null)
       return
     }
     setPinned(null)
+    // Touch: a tap on terrain pins it in the inspector (tap again to clear) — the hover of a mouse.
+    if (isTouch()) setHoverPos(hoverPos && samePos(hoverPos, p) ? null : p)
   }
 
   const doEndTurn = () => {
@@ -781,12 +906,31 @@ export function CombatScreen(props: CombatScreenProps) {
 
   const cardFx = anim.fx.filter((f): f is Extract<FxItem, { kind: 'card' }> => f.kind === 'card')
 
+  // Hover handlers: a tap's emulated mouseenter must not stick as hover (touch drives these from taps instead).
+  const onTileEnter = (p: Pos | null) => {
+    if (!isTouch()) setHoverPos(p)
+  }
+
+  const [armedName, armedText] = useMemo(
+    () => [armedDef ? tr(armedDef.name, lang) : itemDef ? tr(itemDef.name, lang) : '', armedFace ? tr(armedFace.text, lang) : itemDef ? tr(itemDef.text, lang) : ''],
+    [armedDef, armedFace, itemDef, lang],
+  )
+  const zoomInst = zoom ? combat.hand.find((c) => c.uid === zoom) : undefined
+  const zoomDef = zoomInst ? C.cards[zoomInst.defId] : undefined
+  const zoomFs = Math.min((W * 0.62) / 10.6, (H * 0.62) / 15, 20)
+  const compactVars = (compact ? { '--party': `${lay.partyH}px`, '--peek': `${lay.peekH}px`, '--hpeek': `${lay.handPeek}px`, '--ch': `${fs * 15}px` } : {}) as CSSProperties
+
   return (
     <div
       ref={rootRef}
-      className={`m2c-root${settings.fastAnim ? ' is-fast' : ''}${view.enemyPhase ? ' is-enemy-phase' : ''}${isArmed ? ' is-targeting' : ''}${crisis ? ' is-crisis' : ''}`}
-      style={{ '--side': `${sideW}px`, '--top': `${topH}px`, '--bottom': `${bottomH}px`, '--tw': `${tw}px`, ...(autoH ? { height: autoH } : {}) } as CSSProperties}
+      className={`m2c-root${settings.fastAnim ? ' is-fast' : ''}${view.enemyPhase ? ' is-enemy-phase' : ''}${isArmed ? ' is-targeting' : ''}${crisis ? ' is-crisis' : ''}${compact ? ` is-compact is-${mode}` : ''}${touchUI ? ' is-touch' : ''}`}
+      style={{ '--side': `${sideW}px`, '--top': `${topH}px`, '--bottom': `${bottomH}px`, '--tw': `${tw}px`, ...compactVars, ...(autoH ? { height: autoH } : {}) } as CSSProperties}
       onContextMenu={(e) => {
+        // Touch long press: no browser menu, and it must not cancel the armed card.
+        if (isTouch()) {
+          e.preventDefault()
+          return
+        }
         if (isArmed) {
           e.preventDefault()
           setArmed(null)
@@ -822,16 +966,21 @@ export function CombatScreen(props: CombatScreenProps) {
             incoming={view.enemyPhase ? [] : vc.incoming}
             fx={anim.fx}
             dimIntents={showThreat}
-            onTileEnter={setHoverPos}
+            onTileEnter={onTileEnter}
             onTileClick={onTileClick}
-            onTileContext={() => setArmed(null)}
+            onTileContext={() => {
+              if (!isTouch()) setArmed(null)
+            }}
             onDirClick={(d) => {
               const o = options.find((x) => x.dir === d)
-              if (o) playOpt(o)
+              if (o && !aimFirst(o, { dir: d })) playOpt(o)
             }}
-            onDirEnter={setHoverDir}
+            onDirEnter={(d) => {
+              if (!isTouch()) setHoverDir(d)
+            }}
             registerFigure={registerFigure}
             registerBoard={registerBoard}
+            {...(touchUI && aimAt ? { aimAt: aimAt.at, aimDir: aimAt.dir, aimLabel: k ? '한 번 더 누르면 사용' : 'Tap again to play' } : {})}
           />
         </div>
       </div>
@@ -845,34 +994,118 @@ export function CombatScreen(props: CombatScreenProps) {
         flashImplant={view.flashImplant}
         threatOn={threatOn}
         onThreat={() => setThreatOn((v) => !v)}
-        onLegend={() => setLegend((v) => !v)}
+        onLegend={() => (compact ? setHelp((v) => !v) : setLegend((v) => !v))}
+        {...(compact ? { implantSize: 22 } : {})}
       />
 
       <aside className="m2c-left">
-        <PartyPanel units={partyUnits} C={C} lang={lang} selected={selUid} danger={danger} onSelect={(uid) => (setSel(uid), sfx('ui_click'))} onHover={setPanelHover} />
+        <PartyPanel
+          units={partyUnits}
+          C={C}
+          lang={lang}
+          selected={selUid}
+          danger={danger}
+          onSelect={(uid) => (setSel(uid), sfx('ui_click'))}
+          onHover={(uid) => {
+            if (!isTouch()) setPanelHover(uid)
+          }}
+        />
       </aside>
-      <aside className="m2c-right">
-        <DetailPanel unit={detailUnit} intent={detailIntent} tile={hoverTile} C={C} lang={lang} threats={hoverThreat} />
+      <aside
+        className={compact ? `m2c-right is-sheet${sheet ? ' is-open' : ''}` : 'm2c-right'}
+        // Phone layouts: the collapsed inspector is one big "expand" button.
+        onClick={compact && !sheet ? () => setSheet(true) : undefined}
+      >
+        {compact && (
+          <button
+            type="button"
+            className="m2c-sheet-tab"
+            aria-label={sheet ? (k ? '정보 접기' : 'Collapse intel') : k ? '정보 펼치기' : 'Expand intel'}
+            onClick={(e) => {
+              e.stopPropagation()
+              setSheet((v) => !v)
+            }}
+          >
+            {sheet ? <X size={16} strokeWidth={2.6} /> : <Maximize2 size={13} strokeWidth={2.6} />}
+          </button>
+        )}
+        {(!compact || sheet || !isArmed) && <DetailPanel unit={detailUnit} intent={detailIntent} tile={hoverTile} C={C} lang={lang} threats={hoverThreat} touch={touchUI} />}
         {isArmed && (
           <div className="m2c-armed">
             <div className="m2c-panel-h">{k ? '조준 중' : 'TARGETING'}</div>
+            {compact && armedName && (
+              <p className="m2c-armed-card">
+                <b>{armedName}</b> {armedText}
+              </p>
+            )}
             <p>
-              {confirmMode
-                ? k
-                  ? '카드를 다시 누르거나 Enter로 사용'
-                  : 'Click the card again or press Enter'
-                : tmode === 'line' || tmode === 'beam'
+              {touchUI
+                ? confirmMode
                   ? k
-                    ? '방향 화살표나 그 방향의 칸을 선택'
-                    : 'Pick a direction arrow or a tile in line'
-                  : k
-                    ? '빛나는 칸을 선택'
-                    : 'Pick a highlighted tile'}
+                    ? '카드를 한 번 더 누르면 사용'
+                    : 'Tap the card again to play'
+                  : tmode === 'line' || tmode === 'beam'
+                    ? k
+                      ? '화살표나 그 방향의 칸을 눌러 조준, 한 번 더 누르면 사용'
+                      : 'Tap an arrow or a tile in line to aim, tap again to play'
+                    : k
+                      ? '빛나는 칸을 눌러 조준, 한 번 더 누르면 사용'
+                      : 'Tap a lit tile to aim, tap again to play'
+                : confirmMode
+                  ? k
+                    ? '카드를 다시 누르거나 Enter로 사용'
+                    : 'Click the card again or press Enter'
+                  : tmode === 'line' || tmode === 'beam'
+                    ? k
+                      ? '방향 화살표나 그 방향의 칸을 선택'
+                      : 'Pick a direction arrow or a tile in line'
+                    : k
+                      ? '빛나는 칸을 선택'
+                      : 'Pick a highlighted tile'}
             </p>
-            <p className="m2c-armed-sub">{k ? 'Esc · 우클릭 = 취소' : 'Esc · right-click = cancel'}</p>
+            <p className="m2c-armed-sub">
+              {touchUI
+                ? confirmMode
+                  ? k
+                    ? '다른 곳을 누르면 취소'
+                    : 'Tap elsewhere to cancel'
+                  : k
+                    ? '카드를 다시 누르거나 빈 칸을 누르면 취소'
+                    : 'Tap the card again or an empty tile to cancel'
+                : k
+                  ? 'Esc · 우클릭 = 취소'
+                  : 'Esc · right-click = cancel'}
+            </p>
           </div>
         )}
       </aside>
+
+      {compact && help && (
+        <div className="m2c-help" onClick={() => setHelp(false)}>
+          {touchUI ? (
+            <ul>
+              <li>{k ? '대원 누르기 · 선택, 파란 칸 · 이동' : 'Tap a unit to select it, a blue tile to move'}</li>
+              <li>{k ? '적이나 칸 누르기 · 정보 고정 (다시 누르면 해제)' : 'Tap an enemy or tile to inspect it (again to clear)'}</li>
+              <li>{k ? '카드 누르기 · 조준 → 대상 한 번 · 미리보기 → 한 번 더 · 사용' : 'Tap a card to aim, a target once to preview, again to play'}</li>
+              <li>{k ? '카드 길게 누르기 · 크게 보기' : 'Hold a card to read it'}</li>
+              <li>{k ? '아래 정보 패널 누르기 · 자세히' : 'Tap the intel panel for the full details'}</li>
+              <li>{k ? '위협 · 모든 적 공격 범위와 피해 합계' : 'Threat: every enemy hit and its total damage'}</li>
+            </ul>
+          ) : (
+            <ul>
+              <li>
+                <kbd>1-9</kbd> {k ? '카드' : 'card'} · <kbd>⇧1-3</kbd> {k ? '소모품' : 'item'}
+              </li>
+              <li>
+                <kbd>E</kbd> {k ? '턴 종료' : 'end turn'} · <kbd>Z</kbd> {k ? '이동 취소' : 'undo move'}
+              </li>
+              <li>
+                <kbd>Tab</kbd> {k ? '대원 전환' : 'cycle unit'} · <kbd>T</kbd> {k ? '위협' : 'threat'} · <kbd>Esc</kbd> {k ? '취소' : 'cancel'}
+              </li>
+            </ul>
+          )}
+        </div>
+      )}
 
       <div className="m2c-bottom">
         <div className="m2c-bl">
@@ -885,7 +1118,7 @@ export function CombatScreen(props: CombatScreenProps) {
             <span>/{combat.maxEnergy}</span>
             <i>{k ? '에너지' : 'ENERGY'}</i>
           </div>
-          {legend && (
+          {legend && !compact && (
             <div className="m2c-legend">
               <span>
                 <kbd>1-9</kbd>
@@ -934,9 +1167,12 @@ export function CombatScreen(props: CombatScreenProps) {
             drawFrom={drawFrom}
             onCard={onCard}
             onHover={(uid) => {
+              if (isTouch()) return
               setHoverCard(uid)
               if (uid && interactive) sfx('card_hover', { volume: 0.5 })
             }}
+            touch={touchUI}
+            onZoom={setZoom}
           />
         </div>
 
@@ -1044,7 +1280,13 @@ export function CombatScreen(props: CombatScreenProps) {
         </div>
       )}
 
-      {coach && interactive && !splash && <Coach root={rootEl} lang={lang} onClose={() => setCoach(false)} />}
+      {zoomInst && zoomDef && (
+        <div className="m2c-zoom" style={{ '--fs': `${zoomFs}px` } as CSSProperties}>
+          <CardView def={zoomDef} upgraded={zoomInst.upgraded} lang={lang} playable={playable[zoomInst.uid]?.ok ?? false} {...(playable[zoomInst.uid]?.reason ? { reason: playable[zoomInst.uid]?.reason } : {})} />
+        </div>
+      )}
+
+      {coach && interactive && !splash && <Coach root={rootEl} lang={lang} onClose={() => setCoach(false)} touch={touchUI} />}
 
       {pile && <PileModal kind={pile} cards={piles[pile]} C={C} lang={lang} onClose={() => setPile(null)} />}
     </div>

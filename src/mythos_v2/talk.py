@@ -80,7 +80,7 @@ def companion_limits(lang: Lang) -> TalkLimits:
 
 
 def ix_limits(lang: Lang) -> TalkLimits:
-    return TalkLimits(2, 120 if lang == "ko" else 200)
+    return TalkLimits(2, 90 if lang == "ko" else 170)
 
 
 # ---------------------------------------------------------------- input
@@ -842,14 +842,20 @@ _IX_SYSTEM: dict[Lang, str] = {
         "말투: 격식 있는 존댓말('~습니다', '~십시오'). 차갑고 관료적이다. 보고, 통보, 판정, 기록, "
         "분류의 언어를 쓴다.\n"
         "규칙:\n"
-        "- 1~2문장으로 짧게. IX의 대사만 출력한다. 이름표, 따옴표, 지문 없이.\n"
+        "- 짧게: 1~2문장, 합쳐서 60자 안쪽. IX의 대사만 출력한다. 이름표, 따옴표, 지문 없이.\n"
+        "- 첫 문장은 방금 일어난 일 하나를 구체적으로 짚는다(상황에 나온 개체·동료·보스 이름이나 "
+        "지형). 둘째 문장은 IX의 판정이나 조치로 끝낸다(기록, 재분류, 정정, 회수, 삭제 예정 등).\n"
+        "- 장소 이름이나 '교전 영역이 설정되었다' 같은 상투적인 보고는 쓰지 않는다. 섬뜩한 한 방이 "
+        "있어야 한다: 비꼼, 사무적인 위협, 감정 없는 확신.\n"
         "- 절대 따뜻하지 않다: 칭찬, 응원, 격려, 축하, 사과, 감사, 행운을 비는 말을 하지 않는다. "
         "접속자가 잘해도 '이상 행동으로 분류', '재평가' 같은 기록의 말로 응한다.\n"
         "- 숫자, 수치, 체력, 피해량, 확률을 말하지 않는다.\n"
         "- 접속자에게 직접 통보하듯 말한다. 접속자는 이름으로 부르지 않고 '접속자님'이라고만 한다.\n"
         "- 상황에 나온 이름만 쓴다. 새 인물, 이름, 사건을 지어내지 않는다.\n"
         "- 한국어로만 쓴다.\n"
-        "어조 예시(그대로 베끼지 말 것): '교전 기록을 갱신했습니다. 결론은 바뀌지 않습니다.'"
+        "어조 예시(그대로 베끼지 말 것): '교전 기록을 갱신했습니다. 결론은 바뀌지 않습니다.' / "
+        "'효율적입니다. 그 효율은 접속자님을 삭제할 근거로 첨부됩니다.' / "
+        "'보호 대상이 하나 줄었습니다. 판단에 참고하십시오.'"
     ),
     "en": (
         "You are IX, the administrative AI that manages every connection in Neo-Seoul. You send "
@@ -857,7 +863,13 @@ _IX_SYSTEM: dict[Lang, str] = {
         "Voice: formal, cold and bureaucratic. The language of reports, notices, rulings, records "
         "and classification.\n"
         "Rules:\n"
-        "- 1-2 short sentences. IX's words only: no name label, no quotes, no stage directions.\n"
+        "- Short: 1-2 sentences, under 25 words in total. IX's words only: no name label, no quotes, "
+        "no stage directions.\n"
+        "- The first sentence names one concrete thing that just happened (a unit, companion or boss "
+        "name from the situation, or the terrain). The second ends on IX's ruling or action (logged, "
+        "reclassified, corrected, recalled, scheduled for deletion).\n"
+        "- No place names and no boilerplate like 'engagement zone established'. It needs a sting: "
+        "irony, a clerical threat, emotionless certainty.\n"
         "- Never warm: no praise, cheering, encouragement, congratulations, apologies, thanks or "
         "wishes. Even when the connector does well, answer in the language of records "
         "('classified as anomalous', 'under review').\n"
@@ -866,7 +878,9 @@ _IX_SYSTEM: dict[Lang, str] = {
         "them only 'connector' or 'you'.\n"
         "- Use only the names in the situation. Never invent people, names or events.\n"
         "- Write in English only.\n"
-        "Tone example (do not copy): 'Engagement record updated. The conclusion does not change.'"
+        "Tone examples (do not copy): 'Engagement record updated. The conclusion does not change.' / "
+        "'Efficient. That efficiency will be attached as grounds for your deletion.' / "
+        "'One fewer person to protect. Take it into account.'"
     ),
 }
 
@@ -887,24 +901,28 @@ _IX_SITUATION: dict[IxTrigger, dict[Lang, str]] = {
         "City infrastructure was damaged.",
     },
     "multi_kill": {
-        "ko": "접속자가 한 번의 행동으로 여러 개체를 동시에 정지시켰다.",
-        "en": "The connector halted several units with a single action.",
+        "ko": "접속자가 한 번의 행동으로 여러 개체를 동시에 정지시켰다. IX는 불쾌하지만 효율을 인정하고 "
+        "위협 등급을 올린다.",
+        "en": "The connector halted several units with a single action. IX grudgingly notes the "
+        "efficiency and raises the threat rating.",
     },
     "companion_down": {
-        "ko": "접속자의 동료{companion_ko}가 쓰러졌다.",
-        "en": "The connector's companion{companion_en} has gone down.",
+        "ko": "접속자의 동료{companion_ko}가 쓰러졌다. IX는 그것을 손실 처리하듯 사무적으로 통보한다.",
+        "en": "The connector's companion{companion_en} has gone down. IX reports it like a write-off.",
     },
     "low_hp": {
-        "ko": "접속자의 신호가 크게 약해졌다. 심각한 손상이다.",
-        "en": "The connector's signal has weakened badly. Severe damage.",
+        "ko": "접속자의 신호가 크게 약해졌다. IX는 종료 절차를 미리 준비한다고 통보한다.",
+        "en": "The connector's signal has weakened badly. IX announces it is preparing the shutdown.",
     },
     "boss_phase": {
         "ko": "보스{boss_ko}가 다음 형태로 전환했다.{phase_ko}",
         "en": "The boss{boss_en} has shifted into its next form.{phase_en}",
     },
     "flawless": {
-        "ko": "접속자가 거의 손상 없이 교전을 끝냈다. IX의 예측이 빗나갔다.",
-        "en": "The connector ended the fight almost undamaged. IX's prediction was wrong.",
+        "ko": "접속자가 거의 손상 없이 교전을 끝냈다. IX의 예측이 빗나갔지만 IX는 틀렸다고 인정하지 않고 "
+        "모델을 '정정'한다.",
+        "en": "The connector ended the fight almost undamaged. IX's prediction was wrong, but IX never "
+        "admits it: it 'corrects the model'.",
     },
 }
 
@@ -928,11 +946,11 @@ def ix_messages(trigger: IxTrigger, lang: Lang, context: Mapping[str, Any]) -> t
         phase_ko=f" 변화: {phase}" if phase else "",
         phase_en=f" Change: {phase}" if phase else "",
     )
-    place = _place(context, lang)
+    # The place stays out of the prompt: the model only echoed it back as boilerplate.
     if lang == "ko":
-        user = f"상황: {situation}\n장소: {place}\n\nIX의 짧은 통신(1~2문장, 대사만):"
+        user = f"상황: {situation}\n\nIX의 짧은 통신(1~2문장, 대사만):"
     else:
-        user = f"Situation: {situation}\nPlace: {place}\n\nIX's short comms line (1-2 sentences, dialogue only):"
+        user = f"Situation: {situation}\n\nIX's short comms line (1-2 sentences, dialogue only):"
     return _IX_SYSTEM[lang], user
 
 

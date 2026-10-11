@@ -5,8 +5,12 @@ and ``POST /api/v2/gm/talk`` through TestClient with a fake LLM (no Ollama)."""
 
 from __future__ import annotations
 
+import json
+import shutil
+import subprocess
 import time
 import unittest
+from pathlib import Path
 from typing import Any, ClassVar
 
 from fastapi import FastAPI
@@ -14,6 +18,7 @@ from fastapi.testclient import TestClient
 
 from mythos_v2 import gm, talk
 from mythos_v2.api import V2Settings, create_v2_router
+from mythos_v2.gm import Lang
 from mythos_v2.store import MemoryV2Store
 
 PLAYER = "player_0123456789abcd"
@@ -180,7 +185,8 @@ class PromptTest(unittest.TestCase):
         self.assertIn("IX", system)
         self.assertIn("존댓말", system)
         self.assertIn("정세린", user)
-        self.assertIn("C-17", user)
+        # The place stays out: the model only echoed it back as boilerplate ("C-17 구역의 교전 영역…").
+        self.assertNotIn("C-17", user)
         _, phase = talk.ix_messages(
             "boss_phase", "en", {"boss": "HAETAE", "phaseText": "The shell splits."}
         )
@@ -442,3 +448,34 @@ class TalkEndpointTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+SYNC_LANGS: tuple[Lang, ...] = ("ko", "en")
+
+
+@unittest.skipUnless(shutil.which("node"), "node is needed to read the client pools")
+class ClientPoolSyncTest(unittest.TestCase):
+    """The client shows authored lines instantly from ui/shell/talkLines.ts; they must match the server's."""
+
+    def test_talk_lines_ts_mirrors_talk_py(self) -> None:
+        path = Path(__file__).resolve().parent.parent / "src/mythos_ui/src/v2/ui/shell/talkLines.ts"
+        script = (
+            f"import({json.dumps(path.as_uri())}).then((m) => "
+            "process.stdout.write(JSON.stringify({c: m.COMPANION_REPLIES, ix: m.IX_LINES})))"
+        )
+        out = subprocess.run(
+            ["node", "-e", script], capture_output=True, text=True, timeout=60, check=True
+        )
+        client = json.loads(out.stdout)
+        for cid, persona in talk.PERSONAS.items():
+            for lang in SYNC_LANGS:
+                self.assertEqual(
+                    client["c"][cid][lang], list(persona.replies[lang]), f"{cid}/{lang}"
+                )
+        self.assertEqual(set(client["c"]), set(talk.PERSONAS))
+        for trigger, pools in talk.IX_LINES.items():
+            for lang in SYNC_LANGS:
+                self.assertEqual(
+                    client["ix"][trigger][lang], list(pools[lang]), f"{trigger}/{lang}"
+                )
+        self.assertEqual(set(client["ix"]), set(talk.IX_LINES))

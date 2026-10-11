@@ -376,13 +376,39 @@ def _context_notes(kind: NarrateKind, lang: Lang, ctx: Mapping[str, Any]) -> str
     return ""
 
 
+# An 'event' call with no choice/outcome yet is the scene opening (the client asks twice: on arrival and
+# after the pick). The aftermath brief would make the model narrate a result that has not happened.
+_EVENT_OPENING: dict[Lang, tuple[str, str]] = {
+    "ko": (
+        "사건 장면에 막 들어선 순간을 1~3문장으로 묘사한다. 장소의 공기, 빛, 소리, 눈에 들어오는 "
+        "것 하나. 아직 아무것도 선택하지 않았다: 결과를 예상하거나 선택을 권하지 않는다.",
+        "사건 장면의 첫인상",
+    ),
+    "en": (
+        "Describe the moment the connector walks into the event scene in 1-3 sentences: the air, "
+        "the light, a sound, one thing that catches the eye. Nothing has been chosen yet: do not "
+        "predict an outcome or suggest a choice.",
+        "the first impression of the scene",
+    ),
+}
+
+
+def is_event_opening(kind: NarrateKind, context: Mapping[str, Any]) -> bool:
+    return kind == "event" and not _ctx_str(context, "choice", "outcome")
+
+
 def narrate_messages(kind: NarrateKind, lang: Lang, context: Mapping[str, Any]) -> tuple[str, str]:
-    system = f"{_BASE_SYSTEM[lang]}\n\n{_KIND_SYSTEM[kind][lang]}"
+    brief, ask = (
+        _EVENT_OPENING[lang]
+        if is_event_opening(kind, context)
+        else (_KIND_SYSTEM[kind][lang], _KIND_ASK[kind][lang])
+    )
+    system = f"{_BASE_SYSTEM[lang]}\n\n{brief}"
     facts = render_context(context) + _context_notes(kind, lang, context)
     if lang == "ko":
-        user = f"맥락:\n{facts}\n\n위 맥락으로 {_KIND_ASK[kind][lang]}을(를) 써라."
+        user = f"맥락:\n{facts}\n\n위 맥락으로 {ask}을(를) 써라."
     else:
-        user = f"Context:\n{facts}\n\nWrite {_KIND_ASK[kind][lang]}."
+        user = f"Context:\n{facts}\n\nWrite {ask}."
     return system, user
 
 

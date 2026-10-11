@@ -3794,3 +3794,722 @@
     animation: none;
   }
 }
+
+/* =====================================================================
+   PHONE LAYOUTS + TOUCH (2026-10-11)
+   CombatScreen adds .is-compact + .is-port / .is-land below 900 × 480 (root size), and .is-touch while the
+   last pointer was a finger. Desktop never gets these classes: nothing in this section reaches it.
+   ===================================================================== */
+
+/* A phone (or a short landscape window) fits whatever height it has. */
+@media (max-width: 899px), (max-height: 559px) {
+  .m2c-root {
+    min-height: 0;
+  }
+}
+.m2c-root.is-compact {
+  min-height: 0;
+  font-size: 13px;
+}
+
+/* ---------------------------------------------------------------- touch */
+
+.m2c-root.is-touch {
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation; /* no double-tap zoom: aim + confirm is two quick taps */
+}
+.m2c-root.is-touch .m2c-hand {
+  touch-action: none; /* a held card must not turn into a page gesture */
+}
+/* keyboard hints mean nothing to a finger */
+.m2c-root.is-touch .m2c-key,
+.m2c-root.is-touch .m2c-end kbd,
+.m2c-root.is-touch .m2c-item kbd,
+.m2c-root.is-touch .m2c-pilebtn kbd,
+.m2c-root.is-touch .m2c-chip .m2c-kbd {
+  display: none;
+}
+
+/* the aimed card target waits for a second tap */
+.m2c-aimchip {
+  position: absolute;
+  z-index: 6;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  white-space: nowrap;
+  pointer-events: none;
+  background: var(--c-cyan);
+  color: #02181a;
+  font-size: 11px;
+  font-weight: 800;
+  clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
+  box-shadow: 0 0 12px rgba(78, 242, 227, 0.7);
+  animation: m2c-blink 0.9s ease-in-out infinite;
+}
+.m2c-aimchip.is-dir {
+  transform: translate(-50%, -100%);
+}
+
+/* long press on a card: read it large */
+.m2c-zoom {
+  position: absolute;
+  inset: 0;
+  z-index: 760;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  background: rgba(2, 8, 10, 0.6);
+  animation: m2c-zoomin 0.14s ease-out both;
+}
+.m2c-root .m2c-zoom .m2-card {
+  --fs: inherit;
+}
+@keyframes m2c-zoomin {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+
+/* ---------------------------------------------------------------- compact: shared */
+
+.is-compact .m2c-panel-h {
+  margin-bottom: 4px;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+}
+.is-compact .m2c-party,
+.is-compact .m2c-detail,
+.is-compact .m2c-armed {
+  padding: 6px 7px;
+  clip-path: polygon(0 0, calc(100% - 7px) 0, 100% 7px, 100% 100%, 7px 100%, 0 calc(100% - 7px));
+}
+
+/* top strip */
+.is-compact .m2c-turn b {
+  font-size: 20px;
+}
+.is-compact .m2c-turn-k {
+  font-size: 10px;
+}
+.is-compact .m2c-phase {
+  margin-left: 3px;
+  padding: 2px 7px;
+  font-size: 10px;
+}
+.is-compact .m2c-enc-name {
+  flex: 0 1 auto;
+  min-width: 0;
+  font-size: 14px;
+}
+.is-compact .m2c-obj {
+  font-size: 11px;
+}
+.is-compact .m2c-tag {
+  padding: 0 5px;
+  font-size: 9.5px;
+}
+.is-compact .m2c-bonus {
+  padding: 1px 7px;
+  gap: 4px;
+  font-size: 10.5px;
+}
+.is-compact .m2c-top-r {
+  gap: 6px;
+  min-width: 0;
+}
+.is-compact .m2c-implants {
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.is-compact .m2c-chip {
+  flex: none;
+  height: 32px;
+  min-width: 34px;
+  padding: 0 9px;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+/* party chips */
+.is-compact .m2c-party > .m2c-panel-h {
+  display: none;
+}
+.is-compact .m2c-pu {
+  grid-template-columns: 30px 1fr;
+  gap: 6px;
+  margin: 0;
+  padding: 3px 5px 3px 3px;
+}
+.is-compact .m2c-pu-face {
+  width: 30px;
+  height: 30px;
+}
+.is-compact .m2c-pu-main {
+  gap: 2px;
+}
+.is-compact .m2c-pu-name {
+  font-size: 11.5px;
+  line-height: 1.15;
+}
+.is-compact .m2c-pu-name em {
+  margin-left: 3px;
+  padding: 0 3px;
+  font-size: 8.5px;
+}
+.is-compact .m2c-pu-hp {
+  height: 9px;
+}
+.is-compact .m2c-pu-hp b {
+  font-size: 8.5px;
+}
+.is-compact .m2c-pu-row {
+  flex-wrap: nowrap;
+  gap: 3px;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 9.5px;
+  line-height: 1.2;
+}
+.is-compact .m2c-pu-st img {
+  width: 11px;
+  height: 11px;
+}
+.is-compact .m2c-pu-move {
+  font-size: 0; /* the footprints icon alone: green = can still move */
+}
+
+/* inspector (the DetailPanel inside the sheet / column) */
+.m2c-sheet-tab {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 2;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(78, 242, 227, 0.4);
+  background: rgba(4, 18, 22, 0.92);
+  color: var(--c-cyan-2);
+}
+.is-compact .m2c-right {
+  cursor: pointer;
+}
+.is-compact .m2c-right.is-open {
+  z-index: 32;
+  cursor: default;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+.is-compact .m2c-right.is-open .m2c-detail,
+.is-compact .m2c-right.is-open .m2c-armed {
+  flex: none;
+  background: rgba(4, 14, 17, 0.96);
+}
+.is-compact .m2c-detail,
+.is-compact .m2c-armed {
+  padding-right: 38px; /* the expand / close tab */
+}
+.is-compact .m2c-d-head {
+  grid-template-columns: 40px 1fr;
+  gap: 7px;
+}
+.is-compact .m2c-d-face {
+  width: 40px;
+  height: 40px;
+}
+.is-compact .m2c-d-name {
+  font-size: 13.5px;
+}
+.is-compact .m2c-d-hp {
+  height: 10px;
+  margin: 3px 0;
+}
+.is-compact .m2c-d-hp b {
+  font-size: 9px;
+}
+.is-compact .m2c-d-stats {
+  gap: 6px;
+  font-size: 10px;
+}
+.is-compact .m2c-d-intent {
+  margin-top: 6px;
+  padding: 5px 6px;
+}
+.is-compact .m2c-d-ih {
+  font-size: 12px;
+}
+.is-compact .m2c-d-it,
+.is-compact .m2c-d-passive,
+.is-compact .m2c-d-sub,
+.is-compact .m2c-d-phase,
+.is-compact .m2c-d-text,
+.is-compact .m2c-d-warn,
+.is-compact .m2c-detail.is-empty p {
+  font-size: 11px;
+}
+.is-compact .m2c-d-statuses li {
+  font-size: 10.5px;
+}
+.is-compact .m2c-d-tip {
+  font-size: 10px;
+}
+.is-compact .m2c-armed p {
+  font-size: 11.5px;
+}
+.m2c-armed .m2c-armed-card {
+  margin: 0 0 3px;
+  color: var(--c-ink);
+}
+.m2c-armed .m2c-armed-card b {
+  color: var(--c-cyan-2);
+}
+
+/* help popover (the ? chip) */
+.m2c-help {
+  position: absolute;
+  top: calc(var(--top) + 4px);
+  right: 8px;
+  z-index: 40;
+  max-width: min(330px, calc(100% - 16px));
+  padding: 10px 12px;
+  background: rgba(4, 14, 17, 0.97);
+  border: 1px solid rgba(78, 242, 227, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.m2c-help ul {
+  margin: 0;
+  padding-left: 16px;
+}
+.m2c-help li + li {
+  margin-top: 4px;
+}
+
+/* bottom controls */
+.is-compact .m2c-orb i {
+  display: none;
+}
+.is-compact .m2c-item {
+  width: 34px;
+  height: 34px;
+  padding: 2px;
+}
+.is-compact .m2c-pilebtn {
+  height: 34px;
+  min-width: 38px;
+  gap: 3px;
+  padding: 0 7px;
+}
+.is-compact .m2c-end {
+  gap: 8px;
+  font-size: 16px;
+}
+/* An armed card only nudges up: lifted any higher it would cover the tiles it is aimed at. */
+.is-compact .m2c-slot.is-armed .m2c-lift {
+  transform: perspective(900px) translateY(-12px) scale(1.05);
+}
+.is-compact .m2c-confirm {
+  top: -28px;
+  font-size: 11px;
+}
+
+/* board HUD: a phone tile is ~50 px (desktop 90-118) */
+.is-compact .m2c-hp {
+  height: 12px;
+}
+.is-compact .m2c-hp-num {
+  font-size: 9.5px;
+}
+.is-compact .m2c-hp-num small {
+  font-size: 7.5px;
+}
+.is-compact .m2c-hp-block,
+.is-compact .m2c-hp-armor {
+  font-size: 9px;
+}
+.is-compact .m2c-st {
+  height: 14px;
+  font-size: 9px;
+}
+.is-compact .m2c-st img {
+  width: 11px;
+  height: 11px;
+}
+.is-compact .m2c-u-intent {
+  gap: 2px;
+  padding: 1px 5px 6px 4px;
+  font-size: 12px;
+}
+.is-compact .m2c-tdmg {
+  padding: 0 4px 0 3px;
+  font-size: 11px;
+}
+.is-compact .m2c-inc {
+  padding: 1px 4px;
+  font-size: 9.5px;
+  white-space: nowrap;
+}
+.is-compact .m2c-pv {
+  padding: 2px 6px;
+  font-size: 12px;
+}
+.is-compact .m2c-movechip {
+  font-size: 10px;
+}
+.is-compact .m2c-heatnum {
+  font-size: 14px;
+}
+
+/* banners / boss splash */
+.is-compact .m2c-banner-title {
+  font-size: 28px;
+  letter-spacing: 0.1em;
+}
+.is-compact .m2c-banner.is-player .m2c-banner-title,
+.is-compact .m2c-banner.is-intro .m2c-banner-title {
+  font-size: 24px;
+}
+.is-compact .m2c-banner.is-phase .m2c-banner-title,
+.is-compact .m2c-banner.is-defeat .m2c-banner-title {
+  font-size: 32px;
+}
+.is-compact .m2c-banner.is-victory .m2c-banner-title {
+  font-size: 36px;
+}
+.is-compact .m2c-banner-sub {
+  padding: 0 14px;
+  font-size: 12.5px;
+}
+.is-compact .m2c-splash-name {
+  right: 6%;
+}
+.is-compact .m2c-splash-name em {
+  font-size: 11px;
+}
+.is-compact .m2c-splash-name b {
+  font-size: 40px;
+}
+
+/* ---------------------------------------------------------------- portrait */
+
+/* top strip: turn + chips, then the encounter line */
+.is-port .m2c-top {
+  flex-wrap: wrap;
+  align-content: center;
+  gap: 0 8px;
+  padding: 2px 8px 0;
+}
+.is-port .m2c-turn {
+  order: 1;
+}
+.is-port .m2c-top-r {
+  order: 2;
+  margin-left: auto;
+}
+.is-port .m2c-enc {
+  order: 3;
+  flex: 1 0 100%;
+  justify-content: flex-start;
+  gap: 6px;
+  height: 24px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+/* party: one strip under the top bar */
+.is-port .m2c-left {
+  top: calc(var(--top) + 2px);
+  left: 6px;
+  right: 6px;
+  width: auto;
+  height: var(--party);
+  max-height: none;
+}
+.is-port .m2c-party {
+  height: 100%;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.is-port .m2c-pu {
+  flex: 1 1 0;
+  min-width: 96px;
+}
+
+/* inspector: a one-line peek between board and hand; tap it to open a sheet over the hand */
+.is-port .m2c-right {
+  left: 6px;
+  right: 6px;
+  top: calc(100% - var(--bottom) - var(--peek) - 4px);
+  width: auto;
+  height: var(--peek);
+  max-height: none;
+  gap: 4px;
+  z-index: 26;
+}
+.is-port .m2c-right.is-open {
+  height: auto;
+  bottom: 6px;
+}
+.is-port .m2c-right:not(.is-open) .m2c-detail,
+.is-port .m2c-right:not(.is-open) .m2c-armed {
+  height: 100%;
+  flex: none;
+}
+.is-port .m2c-right:not(.is-open) .m2c-detail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+.is-port .m2c-right:not(.is-open) .m2c-detail > * {
+  display: none;
+}
+.is-port .m2c-right:not(.is-open) .m2c-detail > .m2c-d-head {
+  display: grid;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.is-port .m2c-right:not(.is-open) .m2c-d-name {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.is-port .m2c-right:not(.is-open) .m2c-d-stats {
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+.is-port .m2c-right:not(.is-open) .m2c-detail > .m2c-d-intent {
+  display: block;
+  flex: 0 1 50%;
+  min-width: 0;
+  margin: 0;
+  padding: 3px 6px;
+}
+.is-port .m2c-right:not(.is-open) .m2c-d-it {
+  margin-top: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.is-port .m2c-right:not(.is-open) .m2c-d-track,
+.is-port .m2c-right:not(.is-open) .m2c-d-wind {
+  display: none;
+}
+/* terrain / empty: name + one line */
+.is-port .m2c-right:not(.is-open) .m2c-detail > .m2c-d-name {
+  display: block;
+  flex: none;
+}
+.is-port .m2c-right:not(.is-open) .m2c-detail > .m2c-d-text,
+.is-port .m2c-right:not(.is-open) .m2c-detail > .m2c-d-warn,
+.is-port .m2c-right:not(.is-open) .m2c-detail.is-empty > p {
+  display: -webkit-box;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.is-port .m2c-right:not(.is-open) .m2c-armed {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+.is-port .m2c-right:not(.is-open) .m2c-armed .m2c-panel-h,
+.is-port .m2c-right:not(.is-open) .m2c-armed-sub {
+  display: none;
+}
+.is-port .m2c-right:not(.is-open) .m2c-armed p {
+  margin: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* bottom: hand, then draw / piles / items, then energy + end turn */
+.is-port .m2c-bottom {
+  display: grid;
+  grid-template-columns: 50px auto 1fr auto;
+  grid-template-rows: minmax(0, 1fr) 36px 50px;
+  grid-template-areas:
+    'hand hand hand hand'
+    'draw piles . items'
+    'orb end end end';
+  gap: 6px;
+  align-items: center;
+  padding: 0 8px 8px;
+  background: linear-gradient(180deg, transparent, rgba(2, 8, 10, 0.7) 22%, rgba(2, 8, 10, 0.94));
+}
+.is-port .m2c-bl,
+.is-port .m2c-br {
+  display: contents;
+}
+.is-port .m2c-bc {
+  grid-area: hand;
+  align-self: stretch;
+  justify-self: center; /* an explicit-width grid item would sit at the start */
+  height: auto;
+}
+.is-port .m2c-bl .m2c-pilebtn.is-draw {
+  grid-area: draw;
+  justify-self: stretch;
+  height: 34px;
+  flex-direction: row;
+  gap: 4px;
+  padding: 0 6px;
+}
+.is-port .m2c-orb {
+  grid-area: orb;
+  justify-self: center;
+  width: 50px;
+  height: 50px;
+}
+.is-port .m2c-orb b {
+  font-size: 24px;
+}
+.is-port .m2c-orb span {
+  margin-top: 6px;
+  font-size: 11px;
+}
+.is-port .m2c-piles {
+  grid-area: piles;
+  gap: 5px;
+}
+.is-port .m2c-items {
+  grid-area: items;
+  justify-self: end;
+  gap: 5px;
+}
+.is-port .m2c-end {
+  grid-area: end;
+  height: 50px;
+}
+.is-port .m2c-item {
+  width: 32px;
+  height: 32px;
+}
+.is-port .m2c-br .m2c-pilebtn {
+  min-width: 34px;
+  padding: 0 5px;
+}
+
+/* ---------------------------------------------------------------- landscape */
+
+/* the top strip lives in the side columns; the board takes the middle up to the top edge */
+.is-land .m2c-top {
+  gap: 8px;
+  padding: 0 8px;
+  background: none;
+  border-bottom: 0;
+  pointer-events: none;
+}
+.is-land .m2c-top > * {
+  pointer-events: auto;
+}
+.is-land .m2c-top-r {
+  margin-left: auto;
+  max-width: var(--side);
+  justify-content: flex-end;
+}
+.is-land .m2c-enc {
+  position: absolute;
+  left: 8px;
+  top: var(--top);
+  width: var(--side);
+  height: 38px;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  justify-content: flex-start;
+  gap: 0 6px;
+  overflow: hidden;
+  text-shadow: 0 1px 3px #000;
+}
+.is-land .m2c-enc-name {
+  max-width: 100%;
+}
+
+/* party: the left column under the encounter line */
+.is-land .m2c-left {
+  top: calc(var(--top) + 42px);
+  left: 8px;
+  max-height: calc(100% - var(--top) - 42px - var(--bottom) - 8px);
+}
+.is-land .m2c-party {
+  padding: 4px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.is-land .m2c-pu + .m2c-pu {
+  margin-top: 3px;
+}
+
+/* inspector: the right column; open = full height over the controls */
+.is-land .m2c-right {
+  top: calc(var(--top) + 6px);
+  right: 8px;
+}
+.is-land .m2c-right.is-open {
+  bottom: 6px;
+  max-height: none;
+}
+
+/* bottom: energy left, end turn right, the hand peeking between them */
+.is-land .m2c-bottom {
+  padding: 0 8px 6px;
+  background: linear-gradient(180deg, transparent, rgba(2, 8, 10, 0.5) 45%, rgba(2, 8, 10, 0.88));
+}
+.is-land .m2c-bl {
+  grid-template-columns: auto auto;
+  justify-content: start;
+  column-gap: 8px;
+}
+.is-land .m2c-orb {
+  width: 60px;
+  height: 60px;
+}
+.is-land .m2c-orb b {
+  font-size: 28px;
+}
+.is-land .m2c-orb span {
+  margin-top: 8px;
+  font-size: 12px;
+}
+.is-land .m2c-br {
+  gap: 5px;
+}
+.is-land .m2c-end {
+  height: 42px;
+}
+.is-land .m2c-hand {
+  bottom: calc(var(--hpeek) - var(--ch));
+}
+
+/* pile viewer (portalled outside the root): on a short landscape phone the grid scrolls inside the modal */
+@media (max-height: 480px) {
+  .m2c-pile-grid {
+    max-height: calc(100dvh - 150px);
+  }
+}
+
+/* Touch slide-to-pick: while a finger slides along the fan, the lifted card rises above the inspector peek
+   (the hand lives in .m2c-bottom's stacking context, so the whole bottom HUD lifts for the slide). */
+.m2c-hand.is-sliding {
+  z-index: 30;
+}
+.m2c-bottom:has(.m2c-hand.is-sliding) {
+  z-index: 27;
+}

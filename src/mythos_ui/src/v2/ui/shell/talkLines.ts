@@ -89,7 +89,7 @@ export const COMPANION_REPLIES: Record<string, Pool> = {
       '계산으로는 설명이 안 돼요. 그래서 더 궁금해요.',
     ],
     en: [
-      'Hearing that… something in my chest feels warm. Strange, isn’t it?',
+      "Hearing that… something in my chest feels warm. Strange, isn't it?",
       "I'm not sure. But I don't mind not knowing.",
       'Am I allowed to rest too? This is all new to me.',
       'I want to record your voice. No… I just want to remember it.',

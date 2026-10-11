@@ -34,6 +34,8 @@ export const TopStrip = memo(function TopStrip(p: {
   threatOn: boolean
   onThreat: () => void
   onLegend: () => void
+  /** Implant icon size (phone layouts shrink it). */
+  implantSize?: number
 }) {
   const { c, enc, lang } = p
   const tag = kindTag(enc?.kind, lang)
@@ -63,7 +65,7 @@ export const TopStrip = memo(function TopStrip(p: {
         <div className="m2c-implants">
           {c.implants.map((id) => {
             const def = p.C.implants[id]
-            return def ? <ImplantIcon key={id} def={def} lang={lang} size={30} flash={p.flashImplant === id} /> : null
+            return def ? <ImplantIcon key={id} def={def} lang={lang} size={p.implantSize ?? 30} flash={p.flashImplant === id} /> : null
           })}
         </div>
         <button type="button" className={`m2c-chip${p.threatOn ? ' is-on' : ''}`} onClick={p.onThreat} title={ko(lang, '위협 지도 (T / Alt)', 'Threat map (T / hold Alt)')}>
@@ -182,6 +184,8 @@ export const DetailPanel = memo(function DetailPanel(p: {
   C: ContentRegistry
   lang: Lang
   threats: number
+  /** Touch UI: "tap" wording for the empty state. */
+  touch?: boolean
 }) {
   const { unit: u, lang, C } = p
   if (!u) {
@@ -189,7 +193,11 @@ export const DetailPanel = memo(function DetailPanel(p: {
       return (
         <div className="m2c-detail is-empty">
           <div className="m2c-panel-h">{ko(lang, '정보', 'INTEL')}</div>
-          <p>{ko(lang, '유닛이나 칸 위에 커서를 올리면 자세한 정보가 뜬다.', 'Hover a unit or tile for details.')}</p>
+          <p>
+            {p.touch
+              ? ko(lang, '유닛이나 칸을 누르면 자세한 정보가 뜬다.', 'Tap a unit or tile for details.')
+              : ko(lang, '유닛이나 칸 위에 커서를 올리면 자세한 정보가 뜬다.', 'Hover a unit or tile for details.')}
+          </p>
         </div>
       )
     }

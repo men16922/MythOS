@@ -2870,35 +2870,6 @@ body {
   line-height: 1.1;
   color: #fff;
 }
-/* GM line: a narrator caption over the scene art (absolute, so its late arrival never moves the options). */
-.m2-gmline {
-  position: absolute;
-  left: 24px;
-  right: 24px;
-  bottom: 24px;
-  max-width: 52ch;
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-  padding: 10px 14px;
-  border-left: 2px solid var(--m2-echo);
-  background: rgba(6, 10, 18, 0.72);
-  backdrop-filter: blur(4px);
-  font-size: 15px;
-  line-height: 1.6;
-  font-style: italic;
-  color: #e2dbff;
-  text-shadow: 0 1px 4px #000;
-  animation: m2-rise 0.5s var(--m2-ease) both;
-}
-.m2-gmline.has-speaker {
-  bottom: 124px;
-}
-.m2-gmline svg {
-  flex: none;
-  margin-top: 4px;
-  color: var(--m2-echo);
-}
 .m2-event__text {
   max-width: 62ch;
   font-size: 16.5px;
@@ -5191,5 +5162,347 @@ body {
   .m2-gmcard__dots i,
   .m2-chat__dots i {
     animation: none;
+  }
+}
+
+/* ---------------------------------------------------------------- boss narration (BossNarration.tsx) */
+/* Right edge of the combat screen, above the consumables / end turn, clear of IX's comms; click-through. */
+.m2-gmcard.m2-bossgm {
+  position: fixed;
+  right: 16px;
+  bottom: 250px;
+  z-index: 87;
+  width: min(280px, calc(100vw - 32px));
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.m2-gmcard.m2-bossgm.is-leaving {
+  opacity: 0;
+}
+@media (max-width: 720px) {
+  .m2-gmcard.m2-bossgm {
+    right: auto;
+    left: 16px;
+    bottom: 34%;
+  }
+}
+/* Wide screens: IX speaks from the empty column under the squad panel instead of over the board's back row
+   (it grazed tall sprites like Haetae). Not after a fight (the reward screen has its top bar back). */
+@media (min-width: 1100px) {
+  .m2-ixcomms:not(.is-after) {
+    top: auto;
+    left: 16px;
+    bottom: 220px;
+    width: 272px;
+    transform: none;
+    animation-name: m2-ix-in-side;
+  }
+  .m2-ixcomms.is-leaving:not(.is-after) {
+    animation-name: m2-ix-out-side;
+  }
+}
+@keyframes m2-ix-in-side {
+  0% {
+    opacity: 0;
+    transform: translateX(-14px);
+    filter: brightness(2.2);
+  }
+  60% {
+    filter: brightness(1.3);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+@keyframes m2-ix-out-side {
+  to {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+}
+
+/* =====================================================================
+   Daily seed ("오늘의 시드" / Daily Signal) — title item, setup rules, Archive week.
+   Appended by the daily-seed change; self-contained, safe to move as a block.
+   ===================================================================== */
+
+.m2-menu-item--daily > svg {
+  color: var(--m2-echo);
+}
+.m2-menu-item--daily:hover {
+  border-left-color: var(--m2-echo);
+}
+.m2-daily-best {
+  font-style: normal;
+  color: var(--m2-ink-2);
+}
+.m2-daily-best.is-tried {
+  color: var(--m2-cyan-2);
+}
+.m2-daily-best.is-won {
+  color: var(--m2-gold);
+  font-weight: 700;
+}
+.m2-setup__kicker--daily {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--m2-echo);
+}
+.m2-daily-rules p {
+  margin: 0;
+}
+.m2-daily-rules__lead {
+  font-family: var(--m2-display);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--m2-ink);
+}
+.m2-daily-rules .m2-daily-rules__fine {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--m2-ink-2);
+}
+.m2-daily-rules .m2-daily-rules__best {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--m2-line);
+  font-size: 13px;
+  color: var(--m2-mute);
+}
+.m2-dailyweek {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 1px solid var(--m2-line);
+  border-left: 3px solid var(--m2-echo);
+  background: rgba(8, 22, 26, 0.7);
+}
+.m2-dailyweek__head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  font-family: var(--m2-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--m2-echo);
+}
+.m2-dailyweek__row {
+  display: grid;
+  grid-template-columns: 7.5em minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: baseline;
+  padding: 2px 0;
+  font-size: 12.5px;
+  color: var(--m2-mute);
+}
+.m2-dailyweek__row.is-today .m2-dailyweek__date {
+  color: var(--m2-cyan);
+  font-weight: 700;
+}
+.m2-dailyweek__row.is-tried .m2-dailyweek__res {
+  color: var(--m2-ink-2);
+}
+.m2-dailyweek__row.is-won .m2-dailyweek__res {
+  color: var(--m2-gold);
+  font-weight: 700;
+}
+.m2-dailyweek__res {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.m2-dailyweek__res small {
+  font-size: inherit;
+  font-weight: 400;
+  color: var(--m2-mute);
+}
+.m2-dailyweek__meta {
+  font-family: var(--m2-mono);
+  font-size: 11.5px;
+}
+/* Korean headings wrap between words on narrow screens ("오늘은 누구로 / 접속할까"), not inside one. */
+.m2-setup__head h1,
+.m2-daily-rules p {
+  word-break: keep-all;
+}
+
+/* History row tag for a daily-seed run. */
+.m2-hist__daily {
+  padding: 0 6px;
+  font-size: 12px;
+  color: #061015;
+  background: var(--m2-gold);
+}
+
+/* =====================================================================
+   PHONE WIDTH (≤ 560px) — shell fixes for the phone-width combat pass (2026-10-11).
+   Owned by the combat/mobile pass; desktop and tablet widths are untouched.
+   ===================================================================== */
+
+@media (max-width: 560px) {
+  /* Top bar: two rows (stats, then implants · consumables · tools). One row cannot fit: the tools
+     (deck / settings / menu) ran off the right edge and the implants collapsed to zero width. */
+  .m2-topbar {
+    height: 92px;
+    flex-wrap: wrap;
+    align-content: center;
+    gap: 4px 8px;
+    padding: 0 8px;
+  }
+  .m2-topbar > * {
+    order: 1;
+    flex: none;
+  }
+  .m2-topbar::before {
+    content: '';
+    order: 2;
+    flex-basis: 100%;
+    height: 0;
+  }
+  .m2-topbar > .m2-topbar__implants,
+  .m2-topbar > .m2-topbar__cons,
+  .m2-topbar > .m2-topbar__tools {
+    order: 3;
+  }
+  .m2-topbar > .m2-topbar__implants {
+    flex: 1 1 0;
+  }
+  .m2-topbar__who {
+    gap: 6px;
+  }
+  .m2-topbar__avatar {
+    width: 32px;
+    height: 32px;
+  }
+  .m2-topbar__hp {
+    width: 68px;
+  }
+  .m2-topbar__credits {
+    font-size: 16px;
+  }
+  .m2-topbar__codex {
+    font-size: 14px;
+  }
+  .m2-topbar__actnum {
+    font-size: 19px;
+  }
+  .m2-trace {
+    width: 84px;
+  }
+  .m2-trace__label {
+    display: none;
+  }
+  .m2-topbar__cons {
+    display: flex;
+  }
+  .m2-cons {
+    width: 30px;
+    height: 30px;
+  }
+  .m2-topbar__tools {
+    margin-left: auto;
+    gap: 4px;
+  }
+  .m2-deckbtn {
+    height: 32px;
+    padding: 0 9px;
+  }
+  .m2-topbar__tools .m2-iconbtn {
+    width: 32px;
+    height: 32px;
+  }
+  .m2-autosave span {
+    display: none;
+  }
+  /* everything sized against the 64 px bar */
+  .m2-stage.has-bar {
+    padding-top: 92px;
+  }
+  .m2-stage.has-bar .m2-screen {
+    min-height: calc(100dvh - 92px);
+  }
+  .m2-map {
+    height: calc(100dvh - 92px);
+  }
+  .m2-reward,
+  .m2-shop,
+  .m2-rest,
+  .m2-treasure,
+  .m2-final {
+    min-height: calc(100dvh - 92px);
+  }
+
+  /* Map: the act title on one line (the trace meter is in the top bar), and the 600 px node board scaled to
+     the width so every column is on screen. The scroll box itself is zoomed, so MapScreen's scroll-to-node
+     math stays in one coordinate space. */
+  .m2-map__side {
+    display: block;
+    padding: 8px 12px;
+  }
+  .m2-map__side .m2-map__trace {
+    display: none;
+  }
+  .m2-map__actnum,
+  .m2-map__title,
+  .m2-map__sub {
+    display: inline;
+  }
+  .m2-map__title {
+    margin: 0 6px;
+    font-size: 18px;
+  }
+  .m2-map__sub {
+    font-size: 12px;
+  }
+  .m2-map__scroll {
+    zoom: 0.64;
+  }
+
+  /* Modals: the grid track grew to the action row's width (the pause menu came out 508 px wide). */
+  .m2-modal-back {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px 10px;
+  }
+  .m2-modal__actions {
+    flex-wrap: wrap;
+    padding: 12px 16px 16px;
+  }
+}
+@media (max-width: 380px) {
+  .m2-topbar__avatar {
+    display: none;
+  }
+  .m2-map__scroll {
+    zoom: 0.6;
+  }
+}
+
+/* Phone map: the node board is zoomed to 0.64, which left 29 px tap targets. Grow each node button by 24 px and
+   inset its octagon by the same amount, so it looks identical but takes a ~45 px tap. */
+@media (max-width: 560px) {
+  .m2-map__scroll .m2-node:not(.m2-node--boss) {
+    width: 70px;
+    height: 70px;
+  }
+  .m2-map__scroll .m2-node--elite {
+    width: 78px;
+    height: 78px;
+  }
+  .m2-map__scroll .m2-node:not(.m2-node--boss)::before {
+    inset: 12px;
+  }
+  .m2-map__scroll .m2-node:not(.m2-node--boss)::after {
+    inset: 14px;
+  }
+  /* "you are here" sits under the drawn octagon, not under the grown hit box. */
+  .m2-map__scroll .m2-node__you {
+    margin-top: -9px;
   }
 }

@@ -333,3 +333,17 @@ class ByteTokenCleanupTest(unittest.TestCase):
         self.assertNotIn(
             "<0x", clean_line("녹슨 <0xEC><0x87><0xB3>소리가 난다.", max_sentences=3, max_chars=200)
         )
+
+
+class EventOpeningPromptTest(unittest.TestCase):
+    def test_opening_uses_the_arrival_brief_and_aftermath_the_result_brief(self) -> None:
+        opening, ask = gm.narrate_messages(
+            "event", "ko", {"title": "추락한 드론", "text": "젖은 골목."}
+        )
+        self.assertIn("막 들어선", opening)
+        self.assertIn("첫인상", ask)
+        after, ask2 = gm.narrate_messages(
+            "event", "ko", {"title": "추락한 드론", "choice": "줍는다", "outcome": "손에 쥔다"}
+        )
+        self.assertIn("여운", after)
+        self.assertNotIn("첫인상", ask2)

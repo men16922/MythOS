@@ -58,6 +58,11 @@ export interface BoardProps {
   onDirEnter: (d: Dir | null) => void
   registerFigure: (uid: string, el: HTMLElement | null) => void
   registerBoard: (el: HTMLElement | null) => void
+  /** Touch aiming: the target picked by the first tap; a second tap there plays the card. */
+  aimAt?: Pos | null
+  aimLabel?: string
+  /** The aim is a direction arrow (the chip goes above the button instead of under the tile centre). */
+  aimDir?: boolean
 }
 
 export function PatternIcon({ p, size = 14 }: { p: EnemyMove['pattern']; size?: number }) {
@@ -1005,6 +1010,18 @@ export function Board({ registerBoard, ...props }: BoardProps) {
             </button>
           )
         })}
+        {/* touch: the aimed target waits for a second tap */}
+        {props.aimAt &&
+          props.aimLabel &&
+          (() => {
+            const c = tileCenter(g, props.aimAt)
+            const top = props.aimDir ? c.y - 24 : c.y + g.tw * 0.34 * tileScale(g, props.aimAt)
+            return (
+              <div className={props.aimDir ? 'm2c-aimchip is-dir' : 'm2c-aimchip'} style={{ left: c.x, top }}>
+                {props.aimLabel}
+              </div>
+            )
+          })()}
       </div>
 
       <BoardFx g={g} fx={props.fx} />

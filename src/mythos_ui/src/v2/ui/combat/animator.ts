@@ -884,7 +884,7 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
                       recoil(other.uid, d, true)
                     }
                     if (surface === 'cover') {
-                      // The block cracks right away (the engine's hp loss has no event of its own).
+                      // The block cracks on impact; the engine's 'cover' event that follows confirms the same hp.
                       const cp = { x: ev.to.x + v.x, y: ev.to.y + v.y }
                       const vw = shadow.current
                       const cur = vw.tiles[cp.y]?.[cp.x]
@@ -1129,6 +1129,25 @@ export function useCombatAnimator(C: ContentRegistry, initial: CombatState, fast
                     sfx('heal', { pan })
                     break
                 }
+              },
+            })
+            break
+          }
+
+          case 'ttl':
+          case 'cover': {
+            // Bookkeeping on a standing tile: a live wire's countdown, or cover chipped by a hit.
+            const pos = ev.pos
+            steps.push({
+              dur: 0,
+              run: () => {
+                const v = shadow.current
+                const cur = v.tiles[pos.y]?.[pos.x]
+                if (!cur) return
+                const tile: Tile = ev.t === 'ttl' ? { ...cur, ttl: ev.turns } : { ...cur, hp: ev.hp }
+                // A bump already cracked this block at impact: only chip it when the hit is news.
+                if (ev.t === 'cover' && cur.hp !== ev.hp) addFx({ kind: 'debris', at: pos, tone: 'block', ms: S(620) })
+                commit({ ...v, tiles: v.tiles.map((row, y) => (y === pos.y ? row.map((t, x) => (x === pos.x ? tile : t)) : row)) })
               },
             })
             break

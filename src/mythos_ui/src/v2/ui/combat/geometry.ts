@@ -31,16 +31,30 @@ const FAR_SCALE = 0.84
 /** Near row's on-screen height as a fraction of tile width. */
 const ROW_RATIO = 0.76
 
-export function makeGeom(tw: number): BoardGeom {
-  const k = (1 / FAR_SCALE - 1) / GRID_H
+/** Projection tweaks for the phone layouts (CombatScreen). Every field defaults to the desktop board. */
+export interface GeomOpts {
+  /** Far edge width as a fraction of the near edge (0.84). Higher = flatter perspective, bigger far rows. */
+  farScale?: number
+  /** Near row height as a fraction of tile width (0.76). Higher = steeper view, taller rows. */
+  rowRatio?: number
+  /** Room above the far edge for far-row sprites and intent badges, in tile widths (1.25). */
+  topPad?: number
+  /** Room below the near edge, in tile widths (0.5). */
+  bottomPad?: number
+  /** Margin left and right of the grid, in tile widths per side (0.2). */
+  sidePad?: number
+}
+
+export function makeGeom(tw: number, o: GeomOpts = {}): BoardGeom {
+  const k = (1 / (o.farScale ?? FAR_SCALE) - 1) / GRID_H
   const s = (y: number) => 1 / (1 + (GRID_H - y) * k)
-  const th = tw * ROW_RATIO
+  const th = tw * (o.rowRatio ?? ROW_RATIO)
   const K = th / (1 - s(GRID_H - 1))
-  const topPad = tw * 1.25
+  const topPad = tw * (o.topPad ?? 1.25)
   const depth = K * (1 - s(0))
   const nearY = topPad + depth
-  const bottomPad = tw * 0.5
-  const width = Math.ceil(GRID_W * tw + tw * 0.4)
+  const bottomPad = tw * (o.bottomPad ?? 0.5)
+  const width = Math.ceil(GRID_W * tw + tw * ((o.sidePad ?? 0.2) * 2))
   const cx = width / 2
   const project = (x: number, y: number): Pt => {
     const sc = s(y)
@@ -86,6 +100,13 @@ export function fitTileWidth(availW: number, availH: number): number {
   const hPerTw = probe.height / 100
   const wPerTw = probe.width / 100
   return Math.max(56, Math.min(148, Math.floor(Math.min(availW / wPerTw, availH / hPerTw))))
+}
+
+/** Phone layouts: the tile width that fits a board built with `o` into the area (no 56 px floor — a phone
+ *  board is ~50 px a tile; `min` only keeps a hopeless viewport from collapsing it). */
+export function fitTileWidthFor(availW: number, availH: number, o: GeomOpts, min = 36, max = 148): number {
+  const probe = makeGeom(100, o)
+  return Math.max(min, Math.min(max, Math.floor(Math.min(availW / (probe.width / 100), availH / (probe.height / 100)))))
 }
 
 const TIER_SCALE = { minion: 0.84, normal: 1, elite: 1.14, boss: 1.42 } as const

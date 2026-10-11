@@ -2,6 +2,12 @@
 
 Last updated: 2026-10-11
 
+## 2026-10-12 — Implant sets (1.x port #19, reopened and done)
+
+- Earlier verdict "needs real-play data" was wrong: the simulator can bound it. `engine/implantSets.ts`: six sets over 39 of the 44 implants (방벽 bulwark, 회복 vitality, 충돌 impact, 교란 signal, 속도 tempo, 거래 trade; boss relics and the two stealth pieces stay out). Two pieces give a small bonus, three a bigger one, built only from passives the engine already reads (max HP, bump damage, trace, credits, shop price, safehouse heal, move, stats — never energy or hand size). Summed live in both `runPassive` and `activePassive`; the max-HP / stat part lands once, when the tier is reached. Reward rolls lean ×1.6 toward a set already held (600-roll test: holding a Bulwark piece offers Bulwark measurably more). Shown as a set card on reward and shop offers (what this pickup would unlock) and in the top-bar tooltip.
+- Balance: sets on vs off, same seeds, bot that does not chase sets — mixed 41 → 45 %, greedy 100 → 99 % (noise). Upper bound with a full three-piece set held from the first turn (mixed, 180 runs): first cut +6…+20 pp (signal +20, bulwark/tempo +17, impact +6); tuned (bulwark 4+4 HP, signal −10 %+−10 %, impact 1 then +2 bump) to +10…+16 pp (bulwark +16, signal +16, tempo +14, trade +12, impact +11, vitality +10). Real runs reach three pieces late, so the live effect is a fraction of that.
+- `runSim` gained `startImplants`, `run.ts` an exported `grantImplant`, for this kind of experiment. Browser-checked: a reward offering a second Bulwark piece shows "방벽 2/10 · ✓ 최대 HP +4" and taking it raised max HP once.
+
 ## 2026-10-12 — In-game verification of the mutator and mastery paths
 
 - Closing a gap: the daily mutator had only engine tests and sims, and mastery only a scripted profile + badge check. Now driven through the real UI: `make test-e2e-v2` asserts the daily setup screen shows the mutator card (title + ▲ boon + ▼ burden) and that the HUD chip of the run actually played carries the same name (today: 유리 루프). By hand against the dev server: the daily's run state matched the card (max HP 42 − 8 = 34, credits 80 + 80 = 160, HUD identical); a normal run started from the setup screen with Tae-o picked at five shared wins began with `mastery {tae_o: 2}`, his signature card upgraded and bond 1, with no mutator and no daily flag. Console clean in all of it.
@@ -61,18 +67,5 @@ Last updated: 2026-10-11
 - New `engine/event-balance.test.ts` locks it: best open option ≥ 0.5 and ≤ 12 for every rolled event, with two named exceptions (`a3_blank_in_list` — an authored heavy-trade twist the scale undervalues; `a3_ix_offer`) and a check that exemptions don't go stale. `runSim.outcomeValue` is now exported for it.
 - Sim A/B on identical seeds (mixed bot, 3 blocks × 60): before any event wave 72/180 (40 %) → after the waves 74/180 (41 %) → after this retune 78/180 (43 %). Differences are inside the ±5 pp noise; the 30 extra events did not move difficulty.
 - Continuity fix: `a3_kai_name_given` no longer assumes the umbrella was bought (touch-only path).
-
-## 2026-10-11 — Companion arcs for Tae-o, Han, Se-rin, Kai and Lin-yue (15 events)
-
-- Same shape as the Su-ah arc (`content/eventsArcs.ts`): three events per companion (Act 2 → Act 3 → Act 3), event-level gated on that companion being in the party, later parts read the flag the earlier one set; each picks up the thread their lore entry leaves open. **Tae-o** "처리 대기" (the wanted board → the pending file → holding the line; flags `taeo_trail`, `taeo_cleared`) · **Han** "구경하는 버그" (the blank registration booth → the first poke at IX → the empty reply "user unrecognized"; `han_probe`, `han_poked`) · **Se-rin** "열세 번째 선" (the radio that answers → the hidden line inside → finishing the chalk line; `serin_signal`, `serin_line`).
-- 9 scene images (portrait-referenced; 9 calls, 0 failures, ledger 248), manifest + SPA rebuilt. `engine/suah-arc.test.ts` now drives all four arcs through the real reducers (companion gating, a sure no-check path to the first flag, the second flag opening the payoff). Pool: 62 events.
-- **Kai** "노란 우산" (umbrella stall → crosswalk footage → the day he was named; `kai_clue`, `kai_found`) and **Lin-yue** "붉은 페이지" (crew roll → the Moonlight lot → the last entry; `linyue_crew`, `linyue_names`) followed in the same pass (6 more images, ledger 254) — every companion now has a 3-event arc; pool 68 events. The arc test table covers all five in `engine/suah-arc.test.ts`.
-
-## 2026-10-11 — Su-ah arc: the voice in the drawer (3 events)
-
-- Su-ah (the 4th companion) had the fewest dedicated events, and the Memory Forge leaves her "mother's voice in the drawer" as a thread nobody picks up. `content/eventsMore.ts` `SUAH_ARC`: `a2_suah_first_pour` (add a memory / pay 45 ₵ / tell her to stop) → sets `suah_voice`; `a3_suah_voice_archive` (listen needs `suah_voice`; or copy the file; or pull the plug) → sets `suah_voice_heard`; `a3_suah_last_pour` (only after the voice was heard: forge defence / edge / just stay). All three are event-level gated on Su-ah being in the party, so they never roll for other parties. 3 scene images (portrait-referenced), SPA rebuilt.
-- New `engine/suah-arc.test.ts` drives the real reducers: gating by companion, the flag chain, bond/credit/max-HP effects.
-- Guard rails added with it: a content invariant (a flag may be read only in the act where it can already have been set — a flag set only in a later act would lock its reader forever) and `build_overview` edge-case tests (empty input, `days` clamp, the KST midnight split, odd run fields).
-- Verified: `make test-v2`, `make test-e2e-v2`. Pool is now 53 events.
 
 Older entries: `bin/docs/archive/progress-2026-*.md` (2.0 build: `progress-2026-10-10-mythos2-overnight-build.md`; 2.0 feedback round + residuals: `progress-2026-10-11-mythos2-early.md`; sign-in, leaderboard, Android, 1.x archive: `progress-2026-10-11-mythos2-online.md`; event waves, arcs, balance audits: `progress-2026-10-11-mythos2-balance.md`); 1.x: branch `1.0`.

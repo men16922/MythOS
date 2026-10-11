@@ -33,6 +33,7 @@ import {
   threadPassive,
   unlockedCompanions,
 } from './meta.ts'
+import { SET_PULL, implantSetOf, newlyReached, setCounts, setPassives } from './implantSets.ts'
 import { mutatorForDate, mutatorMods } from './mutators.ts'
 import { hashSeed, pick, pickWeighted, rand, randInt, sample, shuffle } from './rng.ts'
 import type {
@@ -158,6 +159,7 @@ export const threadFlag = (key: string): string => `thread_${key}`
 export function runPassive(run: RunState, C: ContentRegistry, key: RunNumber): number {
   let sum = run.flags[threadFlag(key)] ?? 0
   for (const id of run.implants) sum += C.implants[id]?.passive?.[key] ?? 0
+  for (const p of setPassives(run.implants)) sum += p[key] ?? 0
   for (const m of run.party) sum += C.companions[m.id]?.passive?.[key] ?? 0
   return sum
 }
@@ -213,9 +215,19 @@ export function canUpgrade(def: CardDef | undefined): boolean {
 function gainImplant(run: RunState, id: string, C: ContentRegistry): boolean {
   const def = C.implants[id]
   if (!def || run.implants.includes(id)) return false
+  const reached = newlyReached(run.implants, id)
   run.implants.push(id)
   applyConcretePassive(run, def.passive)
+  // A set tier reached by this pickup: its max-HP / stat part applies once, now (the rest is summed live).
+  for (const { tier } of reached) applyConcretePassive(run, { maxHp: tier.passive.maxHp, stats: tier.passive.stats })
   return true
+}
+
+/** Add an implant to a copy of the run through the same path a pickup uses (set tiers included) — balance tooling and tests. */
+export function grantImplant(run: RunState, id: string, C: ContentRegistry): RunState {
+  const next = clone(run)
+  gainImplant(next, id, C)
+  return next
 }
 
 function gainConsumable(run: RunState, id: string, C: ContentRegistry): boolean {
@@ -303,7 +315,13 @@ function rollImplant(
   const pool = run.pools.implants.filter((id) => C.implants[id] && !run.implants.includes(id) && !exclude.includes(id))
   const of = (r: ImplantRarity): string[] => pool.filter((id) => C.implants[id]?.rarity === r)
   const tiers = (Object.keys(weights) as ImplantRarity[]).filter((r) => (weights[r] ?? 0) > 0 && of(r).length > 0)
-  if (tiers.length > 0) return pick(run, of(pickWeighted(run, tiers, (r) => weights[r] ?? 0)))
+  // Build commitment: within the chosen rarity, a piece of a set you already hold is more likely to be offered.
+  const held = setCounts(run.implants)
+  const lean = (ids: string[]): string => {
+    const set = (id: string): number => ((held[implantSetOf(id)?.id ?? ''] ?? 0) > 0 ? SET_PULL : 1)
+    return pickWeighted(run, ids, set)
+  }
+  if (tiers.length > 0) return lean(of(pickWeighted(run, tiers, (r) => weights[r] ?? 0)))
   const regular = pool.filter((id) => {
     const r = C.implants[id]?.rarity
     return r === 'common' || r === 'uncommon' || r === 'rare'

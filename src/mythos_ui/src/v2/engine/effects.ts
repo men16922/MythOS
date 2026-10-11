@@ -7,6 +7,7 @@
 // 'status' / 'block' / 'heal' / 'energy' carry the positive delta that was applied. Decay and consumption
 // are not evented — the UI reads the resulting numbers from state.
 
+import { setPassives } from './implantSets.ts'
 import type {
   AreaShape,
   CardInstance,
@@ -132,6 +133,7 @@ export function activePassive(c: CombatState, C: ContentRegistry, key: keyof Imp
     if (typeof v === 'number') total += v
   }
   for (const id of c.implants) read(C.implants[id]?.passive)
+  for (const p of setPassives(c.implants)) read(p)
   for (const u of livingParty(c)) if (u.uid !== 'connector') read(C.companions[u.defId]?.passive)
   return total
 }

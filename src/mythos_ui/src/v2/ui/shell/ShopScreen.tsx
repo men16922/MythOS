@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { asset } from '../common/assets.ts'
 import { tr } from '../common/lang.ts'
 import { CardView } from '../components/CardView.tsx'
+import { ImplantSetNote } from '../components/ImplantSetNote.tsx'
 import { ImplantIcon } from '../components/ImplantIcon.tsx'
 import { sound } from '../components/sound.ts'
 import { Tooltip } from '../components/Tooltip.tsx'
@@ -100,6 +101,7 @@ export function ShopScreen({ run, C, lang, act }: ScreenProps) {
                       <div>
                         <div className="m2-tip__title">{tr(def.name, lang)}</div>
                         <div className="m2-tip__text">{tr(def.text, lang)}</div>
+                        <ImplantSetNote implantId={def.id} owned={run.implants} lang={lang} />
                       </div>
                     }
                   >

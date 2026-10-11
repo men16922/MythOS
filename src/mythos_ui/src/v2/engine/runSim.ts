@@ -17,6 +17,7 @@ import {
   continueEvent,
   enterNode,
   eventOptions,
+  grantImplant,
   leaveReward,
   leaveRest,
   leaveShop,
@@ -87,6 +88,8 @@ export interface RunSimOptions {
   daily?: string
   /** Starting companion for a non-daily run after loop 1 (default: none, as before). */
   companion?: string
+  /** Implants to hold from the start (balance experiments, e.g. a full set). */
+  startImplants?: string[]
 }
 
 const SIM_EPOCH = '2026-01-01T00:00:00.000Z'
@@ -381,6 +384,7 @@ export function simulateRun(
   const profile = opts.profile ?? newProfile('sim')
   const maxTurns = opts.maxTurns ?? 30
   let run = newRun(profile, { archetype, paradox: opts.paradox ?? 0, seed, now: SIM_EPOCH, daily: opts.daily, companion: opts.companion }, C)
+  for (const id of opts.startImplants ?? []) run = grantImplant(run, id, C)
   for (let step = 0; run.screen.kind !== 'ended'; step++) {
     if (step >= MAX_STEPS) throw new Error(`runSim: step limit on ${run.screen.kind} (seed ${seed})`)
     const next = decide(run, C, policy, maxTurns, opts.onFight)

@@ -166,7 +166,7 @@ export function TopBar({ run, C, lang, onDeck, onSettings, onMenu, savedAt, onDi
           const def = C.implants[id]
           const key = `${run.id}:${id}:${i}`
           const fresh = shownImplants.size > 0 && !shownImplants.has(key)
-          return def ? <ImplantIcon key={key} def={def} lang={lang} size={30} flash={fresh} /> : null
+          return def ? <ImplantIcon key={key} def={def} lang={lang} size={30} flash={fresh} owned={run.implants} /> : null
         })}
       </div>
 

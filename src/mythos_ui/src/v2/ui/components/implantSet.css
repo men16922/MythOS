@@ -1,0 +1,38 @@
+.m2-setnote {
+  margin-top: 8px;
+  padding: 6px 8px;
+  border-left: 2px solid var(--m2-accent, #5cf2d8);
+  background: color-mix(in srgb, var(--m2-accent, #5cf2d8) 7%, transparent);
+  font-size: 12px;
+  line-height: 1.5;
+  text-align: left;
+}
+.m2-setnote__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+}
+.m2-setnote__head b {
+  color: var(--m2-accent, #5cf2d8);
+}
+.m2-setnote__head small {
+  flex-basis: 100%;
+  opacity: 0.75;
+}
+.m2-setnote ul {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.m2-setnote li {
+  opacity: 0.6;
+}
+.m2-setnote li.is-on {
+  opacity: 1;
+  color: var(--m2-heal, #5cf29a);
+  font-weight: 600;
+}
+.m2-setnote li.is-on::before {
+  content: '✓ ';
+}

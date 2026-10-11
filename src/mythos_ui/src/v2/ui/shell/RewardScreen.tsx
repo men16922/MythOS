@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { BACKDROPS } from '../common/assets.ts'
 import { tr } from '../common/lang.ts'
 import { CardChoice } from '../components/CardChoice.tsx'
+import { ImplantSetNote } from '../components/ImplantSetNote.tsx'
 import { ImplantIcon } from '../components/ImplantIcon.tsx'
 import { sound } from '../components/sound.ts'
 import { rx } from './rx.ts'
@@ -140,6 +141,7 @@ export function RewardScreen({ run, C, lang, settings, act }: ScreenProps) {
                   <span className="m2-rrow__label">
                     {tr(def.name, lang)}
                     <small>{tr(def.text, lang)}</small>
+                    <ImplantSetNote implantId={id} owned={run.implants} lang={lang} />
                   </span>
                   <span className="m2-rrow__state">{reward.taken.implant ? (ko ? '완료' : 'Installed') : ko ? '장착' : 'Install'}</span>
                 </button>

@@ -6,12 +6,13 @@ import { configureAudio, playBgm, unlockAudio, type Bgm } from '../common/audio.
 import { tr } from '../common/lang.ts'
 import { DeckModal } from '../components/DeckModal.tsx'
 import { ErrorBoundary } from '../components/ErrorBoundary.tsx'
-import { TRACE_EFFECT, TRACE_LABEL, traceTier, type TraceTier } from '../components/format.ts'
+import { SCREEN_LABEL, TRACE_EFFECT, TRACE_LABEL, savedAgo, traceTier, type TraceTier } from '../components/format.ts'
 import { Modal } from '../components/Modal.tsx'
 import { SettingsPanel } from '../components/SettingsPanel.tsx'
 import { duckMusic, sound } from '../components/sound.ts'
 import { Prologue } from '../prologue/Prologue.tsx'
 import { ActIntro } from './ActIntro.tsx'
+import { IxComms } from './IxComms.tsx'
 import { ArchiveScreen } from './ArchiveScreen.tsx'
 import { CardPickScreen } from './CardPickScreen.tsx'
 import { EndingScreen } from './EndingScreen.tsx'
@@ -27,6 +28,7 @@ import { TitleScreen } from './TitleScreen.tsx'
 import { TopBar } from './TopBar.tsx'
 import { TreasureScreen } from './TreasureScreen.tsx'
 import type { ScreenProps } from './types.ts'
+import { ShellMenu } from '../common/shellMenu.ts'
 import { useGame } from '../store.ts'
 import '../../v2.css'
 
@@ -108,6 +110,9 @@ export function GameShell() {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [confirm, setConfirm] = useState<null | 'abandon' | 'newloop'>(null)
   const [discardIdx, setDiscardIdx] = useState<number | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
+  // The final state of the last fight: it reaches IX comms after the screen has already moved on.
+  const [ixFinal, setIxFinal] = useState<CombatState | null>(null)
   const [prologueSeen, setPrologueSeen] = useState(() => readFlag(PROLOGUE_KEY))
   const audioUnlocked = useRef(false)
   const lastTier = useRef<string | null>(null)
@@ -157,7 +162,8 @@ export function GameShell() {
     if (import.meta.env.DEV) (window as unknown as Record<string, unknown>).__m2 = { run, profile, setRun, setProfile, setView, C }
   }, [run, profile, setRun, setProfile, C])
 
-  const modalOpen = deckOpen || settingsOpen || confirm !== null || discardIdx !== null
+  const openMenu = useCallback(() => setMenuOpen(true), [])
+  const modalOpen = deckOpen || settingsOpen || menuOpen || confirm !== null || discardIdx !== null
   useEffect(() => {
     duckMusic(modalOpen)
   }, [modalOpen])
@@ -208,6 +214,7 @@ export function GameShell() {
       <TitleScreen
         profile={profile}
         run={game.hasRun ? run : null}
+        savedAt={game.savedAt}
         C={C}
         onContinue={() => setView('run')}
         onNewLoop={() => (game.hasRun ? setConfirm('newloop') : setView(profile.loops === 0 ? 'setup' : 'archive'))}
@@ -299,7 +306,10 @@ export function GameShell() {
               C={C}
               lang={lang}
               settings={profile.settings}
-              onCombatChange={(c) => setRun(rx.updateCombat(run, c, C))}
+              onCombatChange={(c) => {
+                if (c.phase !== 'player') setIxFinal(c)
+                setRun(rx.updateCombat(run, c, C))
+              }}
               onOpenDeck={() => setDeckOpen(true)}
             />
           </Suspense>
@@ -315,120 +325,164 @@ export function GameShell() {
   }
 
   return (
-    <div className={`m2-app${profile.settings.fastAnim ? ' is-fast' : ''}`} onPointerDownCapture={firstGesture} onKeyDownCapture={firstGesture} lang={lang}>
-      {showBar && run && (
-        <TopBar
-          run={run}
-          C={C}
-          lang={lang}
-          onDeck={() => setDeckOpen(true)}
-          onSettings={() => setSettingsOpen(true)}
-          onAbandon={() => setConfirm('abandon')}
-          onDiscard={(i) => setDiscardIdx(i)}
-        />
-      )}
-      <main className={`m2-stage${showBar ? ' has-bar' : ''}`}>
-        <div key={screenKey} className="m2-screen">
-          <ErrorBoundary
-            resetKey={screenKey}
-            fallback={(_e, reset) => (
-              <div className="m2-loading m2-crash">
-                <p>{lang === 'ko' ? '신호가 끊겼다. 이 화면을 다시 불러온다.' : 'Signal lost. Reload this screen.'}</p>
-                <div className="m2-crash__actions">
-                  <button className="m2-btn m2-btn--primary" onClick={reset}>
-                    {lang === 'ko' ? '다시 시도' : 'Retry'}
-                  </button>
-                  <button className="m2-btn m2-btn--ghost" onClick={() => setView('title')}>
-                    {lang === 'ko' ? '타이틀로' : 'Title screen'}
-                  </button>
-                </div>
-              </div>
-            )}
-          >
-            {screen}
-          </ErrorBoundary>
-        </div>
-        <div key={`curtain-${screenKey}`} className="m2-curtain" aria-hidden="true" />
-        {tierAlert && view === 'run' && (
-          <div key={tierAlert} className={`m2-tier-alert m2-tier-alert--${tierAlert}${tierAlertLate ? ' is-late' : ''}`} role="status">
-            <b>
-              {lang === 'ko' ? '추적도' : 'Trace'} · {tr(TRACE_LABEL[tierAlert], lang)}
-            </b>
-            <span>{tr(TRACE_EFFECT[tierAlert], lang)}</span>
-          </div>
+    <ShellMenu.Provider value={view === 'run' && game.hasRun ? openMenu : null}>
+      <div className={`m2-app${profile.settings.fastAnim ? ' is-fast' : ''}`} onPointerDownCapture={firstGesture} onKeyDownCapture={firstGesture} lang={lang}>
+        {showBar && run && (
+          <TopBar
+            run={run}
+            C={C}
+            lang={lang}
+            onDeck={() => setDeckOpen(true)}
+            onSettings={() => setSettingsOpen(true)}
+            onMenu={() => setMenuOpen(true)}
+            savedAt={game.savedAt}
+            onDiscard={(i) => setDiscardIdx(i)}
+          />
         )}
-      </main>
+        <main className={`m2-stage${showBar ? ' has-bar' : ''}`}>
+          <div key={screenKey} className="m2-screen">
+            <ErrorBoundary
+              resetKey={screenKey}
+              fallback={(_e, reset) => (
+                <div className="m2-loading m2-crash">
+                  <p>{lang === 'ko' ? '신호가 끊겼다. 이 화면을 다시 불러온다.' : 'Signal lost. Reload this screen.'}</p>
+                  <div className="m2-crash__actions">
+                    <button className="m2-btn m2-btn--primary" onClick={reset}>
+                      {lang === 'ko' ? '다시 시도' : 'Retry'}
+                    </button>
+                    <button className="m2-btn m2-btn--ghost" onClick={() => setView('title')}>
+                      {lang === 'ko' ? '타이틀로' : 'Title screen'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            >
+              {screen}
+            </ErrorBoundary>
+          </div>
+          <div key={`curtain-${screenKey}`} className="m2-curtain" aria-hidden="true" />
+          {tierAlert && view === 'run' && (
+            <div key={tierAlert} className={`m2-tier-alert m2-tier-alert--${tierAlert}${tierAlertLate ? ' is-late' : ''}`} role="status">
+              <b>
+                {lang === 'ko' ? '추적도' : 'Trace'} · {tr(TRACE_LABEL[tierAlert], lang)}
+              </b>
+              <span>{tr(TRACE_EFFECT[tierAlert], lang)}</span>
+            </div>
+          )}
+          {view === 'run' && run && <IxComms combat={run.screen.kind === 'combat' ? run.screen.combat : ixFinal} C={C} lang={lang} settings={profile.settings} />}
+        </main>
 
-      {deckOpen && run && (
-        <DeckModal
-          cards={run.screen.kind === 'combat' ? [...run.screen.combat.draw, ...run.screen.combat.hand, ...run.screen.combat.discard, ...run.screen.combat.exhaust] : run.deck}
-          C={C}
-          lang={lang}
-          onClose={() => setDeckOpen(false)}
-        />
-      )}
-      {discardIdx !== null && run && run.consumables[discardIdx] && (
-        <Modal
-          onClose={() => setDiscardIdx(null)}
-          title={lang === 'ko' ? '소모품을 버릴까?' : 'Discard this consumable?'}
-          actions={
-            <>
-              <button className="m2-btn m2-btn--ghost" onClick={() => setDiscardIdx(null)}>
-                {lang === 'ko' ? '그대로 둔다' : 'Keep it'}
-              </button>
-              <button
-                className="m2-btn m2-btn--danger"
-                onClick={() => {
-                  sound('ui_click')
-                  setRun(rx.discardConsumable(run, discardIdx, C))
-                  setDiscardIdx(null)
-                }}
-              >
-                {lang === 'ko' ? '버린다' : 'Discard'}
-              </button>
-            </>
-          }
-        >
-          <p className="m2-modal__text">{tr(C.consumables[run.consumables[discardIdx] ?? '']?.name, lang)}</p>
-        </Modal>
-      )}
-      {settingsOpen && <SettingsPanel settings={profile.settings} onChange={setSettings} onClose={() => setSettingsOpen(false)} />}
-      {confirm && (
-        <Modal
-          tone="danger"
-          onClose={() => setConfirm(null)}
-          title={lang === 'ko' ? '이 루프를 포기할까?' : 'Abandon this loop?'}
-          actions={
-            <>
-              <button className="m2-btn m2-btn--ghost" onClick={() => setConfirm(null)}>
-                {lang === 'ko' ? '계속 달린다' : 'Keep running'}
-              </button>
-              <button
-                className="m2-btn m2-btn--danger"
-                onClick={() => {
-                  if (confirm === 'newloop' && run) {
-                    setRun(rx.abandon(run))
-                    game.closeRun()
-                    setConfirm(null)
-                    setView('archive')
-                  } else {
-                    abandon()
-                    setView('run')
-                  }
-                }}
-              >
-                {lang === 'ko' ? '포기한다' : 'Abandon'}
-              </button>
-            </>
-          }
-        >
-          <p className="m2-modal__text">
-            {lang === 'ko'
-              ? '접속이 끊기고 이번 루프는 끝난다. 지금까지 모은 에코는 아카이브에 남는다.'
-              : 'The connection drops and this loop ends. Echoes earned so far are kept in the Archive.'}
-          </p>
-        </Modal>
-      )}
-    </div>
+        {deckOpen && run && (
+          <DeckModal
+            cards={run.screen.kind === 'combat' ? [...run.screen.combat.draw, ...run.screen.combat.hand, ...run.screen.combat.discard, ...run.screen.combat.exhaust] : run.deck}
+            C={C}
+            lang={lang}
+            onClose={() => setDeckOpen(false)}
+          />
+        )}
+        {discardIdx !== null && run && run.consumables[discardIdx] && (
+          <Modal
+            onClose={() => setDiscardIdx(null)}
+            title={lang === 'ko' ? '소모품을 버릴까?' : 'Discard this consumable?'}
+            actions={
+              <>
+                <button className="m2-btn m2-btn--ghost" onClick={() => setDiscardIdx(null)}>
+                  {lang === 'ko' ? '그대로 둔다' : 'Keep it'}
+                </button>
+                <button
+                  className="m2-btn m2-btn--danger"
+                  onClick={() => {
+                    sound('ui_click')
+                    setRun(rx.discardConsumable(run, discardIdx, C))
+                    setDiscardIdx(null)
+                  }}
+                >
+                  {lang === 'ko' ? '버린다' : 'Discard'}
+                </button>
+              </>
+            }
+          >
+            <p className="m2-modal__text">{tr(C.consumables[run.consumables[discardIdx] ?? '']?.name, lang)}</p>
+          </Modal>
+        )}
+        {menuOpen && run && (
+          <Modal
+            wide
+            onClose={() => setMenuOpen(false)}
+            title={lang === 'ko' ? '잠시 멈춤' : 'Paused'}
+            actions={
+              <>
+                <button className="m2-btn m2-btn--danger" onClick={() => (setMenuOpen(false), setConfirm('abandon'))}>
+                  {lang === 'ko' ? '루프 포기' : 'Abandon loop'}
+                </button>
+                <button className="m2-btn m2-btn--ghost" onClick={() => (setMenuOpen(false), setSettingsOpen(true))}>
+                  {lang === 'ko' ? '설정' : 'Settings'}
+                </button>
+                <button
+                  className="m2-btn m2-btn--ghost"
+                  onClick={() => {
+                    sound('ui_click')
+                    setMenuOpen(false)
+                    void game.flush()
+                    setView('title')
+                  }}
+                >
+                  {lang === 'ko' ? '저장하고 타이틀로' : 'Save & quit to title'}
+                </button>
+                <button className="m2-btn m2-btn--primary" onClick={() => setMenuOpen(false)}>
+                  {lang === 'ko' ? '계속하기' : 'Resume'}
+                </button>
+              </>
+            }
+          >
+            <p className="m2-modal__text">
+              {lang === 'ko'
+                ? '행동할 때마다 자동으로 저장된다. 언제 나가도 타이틀의 이어하기로 바로 이 순간에 돌아온다.'
+                : 'Progress saves after every action. Leave any time; Continue on the title brings you back to this exact moment.'}
+            </p>
+            <p className="m2-modal__text m2-mono" style={{ opacity: 0.75 }}>
+              {lang === 'ko' ? '마지막 저장' : 'Last save'} · {game.savedAt ? savedAgo(game.savedAt, lang) : '—'} · {tr(SCREEN_LABEL[run.screen.kind], lang)}
+            </p>
+          </Modal>
+        )}
+        {settingsOpen && <SettingsPanel settings={profile.settings} onChange={setSettings} onClose={() => setSettingsOpen(false)} />}
+        {confirm && (
+          <Modal
+            tone="danger"
+            onClose={() => setConfirm(null)}
+            title={lang === 'ko' ? '이 루프를 포기할까?' : 'Abandon this loop?'}
+            actions={
+              <>
+                <button className="m2-btn m2-btn--ghost" onClick={() => setConfirm(null)}>
+                  {lang === 'ko' ? '계속 달린다' : 'Keep running'}
+                </button>
+                <button
+                  className="m2-btn m2-btn--danger"
+                  onClick={() => {
+                    if (confirm === 'newloop' && run) {
+                      setRun(rx.abandon(run))
+                      game.closeRun()
+                      setConfirm(null)
+                      setView('archive')
+                    } else {
+                      abandon()
+                      setView('run')
+                    }
+                  }}
+                >
+                  {lang === 'ko' ? '포기한다' : 'Abandon'}
+                </button>
+              </>
+            }
+          >
+            <p className="m2-modal__text">
+              {lang === 'ko'
+                ? '접속이 끊기고 이번 루프는 끝난다. 지금까지 모은 에코는 아카이브에 남는다.'
+                : 'The connection drops and this loop ends. Echoes earned so far are kept in the Archive.'}
+            </p>
+          </Modal>
+        )}
+      </div>
+    </ShellMenu.Provider>
   )
 }

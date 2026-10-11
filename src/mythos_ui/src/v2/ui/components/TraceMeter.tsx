@@ -17,7 +17,7 @@ export function TraceMeter({ trace, lang, compact }: { trace: number; lang: Lang
           </div>
           <div className="m2-tip__text">
             {lang === 'ko'
-              ? 'IX가 당신을 얼마나 쫓고 있는지. 노드 이동, 시끄러운 카드, 욕심낸 선택으로 오른다. 은신처와 암시장에서 낮출 수 있다.'
+              ? 'IX가 당신을 얼마나 바짝 쫓는지 보여 준다. 노드를 옮길 때, 시끄러운 카드를 쓸 때, 욕심을 부릴 때 오른다. 은신처와 암시장에서 낮출 수 있다.'
               : 'How closely IX is watching. Rises with every node, loud cards and greedy choices. Scrub it at safehouses and the black market.'}
           </div>
           <div className="m2-trace-tips">

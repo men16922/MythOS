@@ -5,7 +5,7 @@ import { asset, portrait } from '../common/assets.ts'
 import { tr } from '../common/lang.ts'
 import { companionSprite } from '../components/format.ts'
 import { sound } from '../components/sound.ts'
-import { Typewriter } from '../components/Typewriter.tsx'
+import { CompanionChat } from './CompanionChat.tsx'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
 
@@ -48,8 +48,8 @@ export function RestScreen({ run, C, lang, settings, act }: ScreenProps) {
     <div className="m2-rest">
       <div className="m2-rest__bg" style={{ backgroundImage: `url(${asset('scenes/abandoned_signal.png')})` }} />
       <div className="m2-rest__inner">
-        <div className="m2-rest__kicker">{ko ? '안전 가옥' : 'Safehouse'}</div>
-        <h1 className="m2-rest__title">{ko ? '잠시, 숨을 고른다' : 'A moment to breathe'}</h1>
+        <div className="m2-rest__kicker">{ko ? '은신처' : 'Safehouse'}</div>
+        <h1 className="m2-rest__title">{ko ? '잠시 숨을 고른다' : 'A moment to breathe'}</h1>
         <p className="m2-rest__sub">{ko ? '여기서는 한 가지만 할 수 있다.' : 'There is time for one thing here.'}</p>
 
         {!done && !bondPick && (
@@ -111,14 +111,8 @@ export function RestScreen({ run, C, lang, settings, act }: ScreenProps) {
 
         {done && (
           <div className="m2-rest__done">
-            {bondDef && bondLine ? (
-              <div className="m2-bondscene">
-                <img src={portrait(bondDef.sprite)} alt="" />
-                <div>
-                  <b>{tr(bondDef.name, lang)}</b>
-                  <Typewriter text={`“${tr(bondLine, lang)}”`} cps={settings.fastAnim ? 400 : 70} />
-                </div>
-              </div>
+            {bonded && bondDef && bondLine ? (
+              <CompanionChat run={run} C={C} lang={lang} settings={settings} companionId={bonded.id} opening={tr(bondLine, lang)} />
             ) : (
               <p className="m2-rest__note">
                 {chosen?.kind === 'heal'
@@ -127,7 +121,7 @@ export function RestScreen({ run, C, lang, settings, act }: ScreenProps) {
                     : 'Shallow sleep. The wounds close anyway.'
                   : chosen?.kind === 'scrub'
                     ? ko
-                      ? '로그를 덮어쓰고, 신호를 끊었다.'
+                      ? '로그를 덮어쓰고 신호를 끊었다.'
                       : 'Logs overwritten. Signal cut.'
                     : ko
                       ? '준비는 끝났다.'

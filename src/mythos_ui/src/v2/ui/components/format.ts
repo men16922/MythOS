@@ -1,5 +1,5 @@
 // Mythos 2.0 — small pure UI helpers shared by shell screens (no React here).
-import type { CardDef, ContentRegistry, Lang, NodeKind, RunEffect, StatKey, Text } from '../../engine/types.ts'
+import type { CardDef, ContentRegistry, Lang, NodeKind, RunEffect, RunScreen, StatKey, Text } from '../../engine/types.ts'
 import { L, STAT_LABEL, tr } from '../common/lang.ts'
 
 export type TraceTier = 'quiet' | 'alert' | 'hunted' | 'purge'
@@ -124,7 +124,7 @@ export function effectChips(effects: RunEffect[], C: ContentRegistry, lang: Lang
         break
       case 'junk': {
         const def = C.cards[e.cardId]
-        out.push({ text: `+ ${def ? tr(def.name, lang) : s('잡음', 'junk')}${(e.count ?? 1) > 1 ? ` ×${e.count}` : ''}`, tone: 'bad' })
+        out.push({ text: `+ ${def ? tr(def.name, lang) : s('정크', 'junk')}${(e.count ?? 1) > 1 ? ` ×${e.count}` : ''}`, tone: 'bad' })
         break
       }
       case 'combat':
@@ -155,4 +155,31 @@ export function fmtText(t: Text | string, lang: Lang, vars: Record<string, strin
   let s = typeof t === 'string' ? t : tr(t, lang)
   for (const [k, v] of Object.entries(vars)) s = s.replaceAll(`{${k}}`, String(v))
   return s
+}
+
+/** "방금 전" / "3분 전" — how long ago the run was auto-saved. */
+export function savedAgo(at: number, lang: Lang, now: number = Date.now()): string {
+  const min = Math.floor(Math.max(0, now - at) / 60_000)
+  if (min < 1) return lang === 'ko' ? '방금 전' : 'just now'
+  if (min < 60) return lang === 'ko' ? `${min}분 전` : `${min} min ago`
+  const h = Math.floor(min / 60)
+  if (h < 24) return lang === 'ko' ? `${h}시간 전` : `${h} h ago`
+  const d = Math.floor(h / 24)
+  return lang === 'ko' ? `${d}일 전` : `${d} d ago`
+}
+
+/** Where the saved run stands ("전투 중", "지도") for the Continue button. */
+export const SCREEN_LABEL: Record<RunScreen['kind'], Text> = {
+  act_intro: { ko: '막 시작', en: 'Act opening' },
+  map: { ko: '지도', en: 'Map' },
+  event: { ko: '사건 중', en: 'In an event' },
+  combat: { ko: '전투 중', en: 'Mid-fight' },
+  reward: { ko: '전리품', en: 'Rewards' },
+  card_pick: { ko: '카드 선택', en: 'Picking a card' },
+  card_reward: { ko: '카드 보상', en: 'Card reward' },
+  shop: { ko: '암시장', en: 'Black market' },
+  rest: { ko: '은신처', en: 'Safehouse' },
+  treasure: { ko: '보급 상자', en: 'Supply cache' },
+  final_choice: { ko: '마지막 선택', en: 'Final choice' },
+  ended: { ko: '종료', en: 'Ended' },
 }

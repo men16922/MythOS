@@ -35,10 +35,10 @@ function authoredChronicle(run: RunState, lang: Lang, C: ScreenProps['C']): stri
   }
   lines.push(
     ko
-      ? `처치 ${run.tally.kills}, 지형을 이용한 처치 ${run.tally.environmentKills}. 받은 피해 ${run.tally.damageTaken}.`
+      ? `처치 ${run.tally.kills}, 환경 처치 ${run.tally.environmentKills}. 받은 피해 ${run.tally.damageTaken}.`
       : `${run.tally.kills} kills, ${run.tally.environmentKills} of them by the terrain. ${run.tally.damageTaken} damage taken.`,
   )
-  lines.push(won ? (ko ? '이번에는, 도시가 대답했다.' : 'This time, the city answered.') : ko ? 'IX는 이 루프를 기억한다. 당신도 그렇다.' : 'IX remembers this loop. So do you.')
+  lines.push(won ? (ko ? '이번에는 도시가 대답했다.' : 'This time, the city answered.') : ko ? 'IX는 이 루프를 기억한다. 당신도 잊지 않는다.' : 'IX remembers this loop. So do you.')
   return lines.join(' ')
 }
 
@@ -166,7 +166,7 @@ export function EndingScreen({ run, C, lang, settings, onDone, onChronicle }: En
             </div>
             <div>
               <b className="m2-mono">{run.tally.environmentKills}</b>
-              <small>{ko ? '지형 처치' : 'Terrain kills'}</small>
+              <small>{ko ? '환경 처치' : 'Terrain kills'}</small>
             </div>
             <div>
               <b className="m2-mono">{run.tally.cardsPlayed}</b>

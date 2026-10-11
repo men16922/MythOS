@@ -1,5 +1,5 @@
 // Mythos 2.0 — Protocol card face. Used by combat (hand), rewards, shop, deck viewer, card pick.
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import '../../v2.css'
 import { cardFace } from '../../engine/combat.ts'
 import type { CardDef, CardType, Lang, Rarity, TargetMode } from '../../engine/types.ts'
@@ -25,13 +25,13 @@ const TYPE_LABEL: Record<CardType, { ko: string; en: string }> = {
   skill: L('기술', 'Skill'),
   tactic: L('전술', 'Tactic'),
   power: L('강화', 'Power'),
-  junk: L('잡음', 'Junk'),
+  junk: L('정크', 'Junk'),
 }
 
 const RARITY_LABEL: Record<Rarity, { ko: string; en: string }> = {
   starter: L('기본', 'Starter'),
   common: L('일반', 'Common'),
-  uncommon: L('특수', 'Uncommon'),
+  uncommon: L('고급', 'Uncommon'),
   rare: L('희귀', 'Rare'),
   special: L('고유', 'Special'),
 }
@@ -72,6 +72,16 @@ function richText(text: string, upgraded: boolean): ReactNode[] {
   )
 }
 
+/** Character cards wear their owner's colour and name, so a hand reads as "whose move is this". */
+const OWNER_STYLE: Record<string, { color: string; ko: string; en: string }> = {
+  se_rin: { color: '#4ef2e3', ko: '세린', en: 'Se-rin' },
+  tae_o: { color: '#ff9a4d', ko: '태오', en: 'Tae-o' },
+  han: { color: '#6aa8ff', ko: '한', en: 'Han' },
+  su_ah: { color: '#ffcf5a', ko: '수아', en: 'Su-ah' },
+  kai: { color: '#ff5d7a', ko: '카이', en: 'Kai' },
+  lin_yue: { color: '#7dffa8', ko: '린위에', en: 'Lin Yue' },
+}
+
 export function CardView(props: CardViewProps) {
   const { def, upgraded, lang, playable = true, selected = false, size = 'md', reason } = props
   const face = cardFace(def, upgraded)
@@ -88,13 +98,16 @@ export function CardView(props: CardViewProps) {
     playable ? '' : 'is-unplayable',
     selected ? 'is-selected' : '',
     props.onClick ? 'is-clickable' : '',
+    companionOwner ? 'm2-card--owned' : '',
   ]
     .filter(Boolean)
     .join(' ')
+  const own = companionOwner ? OWNER_STYLE[companionOwner] : undefined
 
   return (
     <div
       className={classes}
+      style={own ? ({ '--own': own.color } as CSSProperties) : undefined}
       role={props.onClick ? 'button' : undefined}
       tabIndex={props.onClick ? 0 : undefined}
       onClick={props.onClick}
@@ -121,7 +134,7 @@ export function CardView(props: CardViewProps) {
           <span>{unplayableCost ? '✕' : face.cost}</span>
         </div>
         {companionOwner && (
-          <div className="m2-card__owner" title={companionOwner}>
+          <div className="m2-card__owner" title={own ? (lang === 'ko' ? own.ko : own.en) : companionOwner}>
             <img src={portrait(companionOwner.replaceAll('_', '-'))} alt="" draggable={false} />
           </div>
         )}
@@ -132,6 +145,7 @@ export function CardView(props: CardViewProps) {
           </div>
           <div className="m2-card__meta">
             <span className="m2-card__type">{tr(TYPE_LABEL[def.type], lang)}</span>
+            {own && <span className="m2-card__ownertag">{lang === 'ko' ? `${own.ko} 전용` : own.en}</span>}
             {tgt && <span className="m2-card__tgt">{tgt}</span>}
             <span className="m2-card__gem" title={tr(RARITY_LABEL[def.rarity], lang)} />
           </div>

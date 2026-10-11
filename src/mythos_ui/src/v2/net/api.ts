@@ -1,7 +1,7 @@
 // Mythos 2.0 — browser client for `/api/v2` (saves + AI GM). Backend: src/mythos_v2/api.py.
 //
 // Contract for callers: NOTHING here throws or blocks the game.
-//  - Every call has an AbortController timeout (narrate 12 s, improvise 15 s, saves 5 s) and resolves
+//  - Every call has an AbortController timeout (narrate 12 s, improvise 15 s, talk 11 s, saves 5 s) and resolves
 //    to `null` / `false` on any failure (network, 4xx/5xx, timeout, malformed reply).
 //  - Saves are offline-first: `saveProfile` / `saveRun` write a localStorage mirror synchronously and
 //    PUT to the server debounced (800 ms, coalesced). `loadProfile` / `loadRun` return the best copy:
@@ -20,7 +20,7 @@ import type { Improvisation, Lang, MetaProfile, RunRecord, RunState, Stats, Stat
 const API_V2 = '/api/v2'
 
 export const SAVE_DEBOUNCE_MS = 800
-const TIMEOUT_MS = { narrate: 12_000, improvise: 15_000, save: 5_000 } as const
+const TIMEOUT_MS = { narrate: 12_000, improvise: 15_000, talk: 11_000, save: 5_000 } as const
 /** Server limit (MYTHOS_V2_MAX_BLOB_BYTES). Bigger blobs stay local-only. */
 const MAX_BLOB_BYTES = 512 * 1024
 /** Browsers cap in-flight keepalive bodies at 64 KB. */
@@ -354,6 +354,13 @@ export function loadRunLocal(): RunState | null {
   return local && isSave(local.data) ? (local.data as unknown as RunState) : null
 }
 
+/** When the in-progress run was last written to this device (ms epoch), or null. */
+export function runSavedAt(): number | null {
+  if (storageGet(RUN_TOMBSTONE_KEY)) return null
+  const local = readMirror('run')
+  return local && local.savedAt > 0 ? local.savedAt : null
+}
+
 export function saveRun(run: RunState): Promise<boolean> {
   return scheduleSave('run', run)
 }
@@ -545,6 +552,64 @@ export async function improvise(req: ImproviseRequest, signal?: AbortSignal): Pr
     failureText,
     source: res.source === 'llm' ? 'llm' : 'fallback',
   }
+}
+
+// ---------------------------------------------------------------- companion chat + IX comms
+
+/** Server caps (src/mythos_v2/talk.py); the client trims to them so a request is never rejected. */
+export const TALK_LIMITS = { message: 200, historyTurns: 8, turnChars: 300, playerMessages: 4 } as const
+
+/** Notable combat moments IX comments on (must match `talk.IX_TRIGGERS`). */
+export type IxTrigger = 'elite_start' | 'boss_start' | 'env_kill' | 'multi_kill' | 'companion_down' | 'low_hp' | 'boss_phase' | 'flawless'
+
+export interface TalkTurn {
+  role: 'player' | 'companion'
+  text: string
+}
+
+export type TalkRequest =
+  | {
+      mode: 'companion'
+      lang: Lang
+      /** Companion id (`se_rin`, `kai`, …): picks the server-side persona voice. */
+      companion: string
+      message: string
+      /** Earlier turns, oldest first (the authored opening line is the first companion turn). */
+      history?: TalkTurn[]
+      /** name, alias, role, bondLines, bond, act, actName, log, archetype. */
+      context?: NarrateContext
+    }
+  | {
+      mode: 'ix'
+      lang: Lang
+      trigger: IxTrigger
+      /** act, actName, enemy, boss, companion, phaseText, loop. */
+      context?: NarrateContext
+    }
+
+export type TalkResult = NarrateResult
+
+/** One companion reply or IX comms line (LLM or the server's authored fallback); null on any failure. */
+export async function talk(req: TalkRequest, opts: { signal?: AbortSignal; timeoutMs?: number } = {}): Promise<TalkResult | null> {
+  const body =
+    req.mode === 'companion'
+      ? {
+          ...req,
+          message: req.message.trim().slice(0, TALK_LIMITS.message),
+          history: (req.history ?? [])
+            .map((t) => ({ role: t.role, text: t.text.trim().slice(0, TALK_LIMITS.turnChars) }))
+            .filter((t) => t.text)
+            .slice(-TALK_LIMITS.historyTurns),
+          context: req.context ?? {},
+        }
+      : { ...req, context: req.context ?? {} }
+  const res = await request<unknown>('POST', '/gm/talk', {
+    body: JSON.stringify(body),
+    timeoutMs: opts.timeoutMs ?? TIMEOUT_MS.talk,
+    signal: opts.signal,
+  })
+  if (!isRecord(res) || typeof res.text !== 'string' || !res.text.trim()) return null
+  return { text: res.text, source: res.source === 'llm' ? 'llm' : 'fallback' }
 }
 
 // ---------------------------------------------------------------- lifecycle

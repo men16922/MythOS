@@ -140,7 +140,7 @@ export function RewardScreen({ run, C, lang, settings, act }: ScreenProps) {
                     {tr(def.name, lang)}
                     <small>{tr(def.text, lang)}</small>
                   </span>
-                  <span className="m2-rrow__state">{reward.taken.implant ? (ko ? '장착' : 'Installed') : ko ? '장착' : 'Install'}</span>
+                  <span className="m2-rrow__state">{reward.taken.implant ? (ko ? '완료' : 'Installed') : ko ? '장착' : 'Install'}</span>
                 </button>
               )
             })}

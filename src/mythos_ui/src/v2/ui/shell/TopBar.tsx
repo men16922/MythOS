@@ -1,12 +1,12 @@
 // Mythos 2.0 — persistent run HUD: HP, credits, Trace, act/floor, party, implants, consumables, deck, settings.
 import { art } from '../components/art.ts'
-import { BookOpen, Coins, Heart, Layers, LogOut, Settings } from 'lucide-react'
+import { BookOpen, CloudCheck, Coins, Heart, Layers, Menu, Settings } from 'lucide-react'
 import { useEffect } from 'react'
 import type { ContentRegistry, Lang, RunState } from '../../engine/types.ts'
 import { portrait } from '../common/assets.ts'
 import { tr } from '../common/lang.ts'
 import { CountUp } from '../components/CountUp.tsx'
-import { companionSprite } from '../components/format.ts'
+import { companionSprite, savedAgo } from '../components/format.ts'
 import { HpBar } from '../components/HpBar.tsx'
 import { ImplantIcon } from '../components/ImplantIcon.tsx'
 import { Tooltip } from '../components/Tooltip.tsx'
@@ -21,12 +21,15 @@ export interface TopBarProps {
   lang: Lang
   onDeck: () => void
   onSettings: () => void
-  onAbandon: () => void
+  /** Pause menu: save & quit / settings / abandon. */
+  onMenu: () => void
+  /** Last auto-save of this run (ms epoch). */
+  savedAt: number | null
   /** Drop a consumable from the belt (asks first). */
   onDiscard?: (index: number) => void
 }
 
-export function TopBar({ run, C, lang, onDeck, onSettings, onAbandon, onDiscard }: TopBarProps) {
+export function TopBar({ run, C, lang, onDeck, onSettings, onMenu, savedAt, onDiscard }: TopBarProps) {
   // Mark implants as seen after their pulse has played.
   const implantKey = run.implants.join('|')
   useEffect(() => {
@@ -55,7 +58,7 @@ export function TopBar({ run, C, lang, onDeck, onSettings, onAbandon, onDiscard 
         </div>
       </div>
 
-      <Tooltip content={lang === 'ko' ? '크레딧. 암시장에서 쓴다.' : 'Credits. Spend them at the black market.'} placement="bottom">
+      <Tooltip content={lang === 'ko' ? '크레딧. 암시장에서 쓸 수 있다.' : 'Credits. Spend them at the black market.'} placement="bottom">
         <div className="m2-topbar__credits">
           <Coins size={15} />
           <CountUp value={run.credits} className="m2-mono" />
@@ -119,6 +122,11 @@ export function TopBar({ run, C, lang, onDeck, onSettings, onAbandon, onDiscard 
                   <div className="m2-tip__title">
                     {tr(def.name, lang)} <em>{tr(def.role, lang)}</em>
                   </div>
+                  {def.combatPassive && (
+                    <div className="m2-tip__text">
+                      <b>{tr(def.combatPassive.name, lang)}</b> · {tr(def.combatPassive.text, lang)}
+                    </div>
+                  )}
                   <div className="m2-tip__text">{tr(def.passiveText, lang)}</div>
                   <div className="m2-tip__text" style={{ marginTop: 4 }}>
                     HP {m.hp}/{m.maxHp} · {lang === 'ko' ? '유대' : 'Bond'} {m.bond}/3
@@ -162,7 +170,7 @@ export function TopBar({ run, C, lang, onDeck, onSettings, onAbandon, onDiscard 
                   <div className="m2-tip__title">{tr(def.name, lang)}</div>
                   <div className="m2-tip__text">{tr(def.text, lang)}</div>
                   <div className="m2-tip__text" style={{ marginTop: 4, color: 'var(--m2-mute)' }}>
-                    {lang === 'ko' ? '전투 중 무료로 사용 · 클릭해서 버리기' : 'Free to use in combat · click to discard'}
+                    {lang === 'ko' ? '전투 중 에너지 없이 사용 · 클릭하면 버린다' : 'Free to use in combat · click to discard'}
                   </div>
                 </div>
               }
@@ -185,8 +193,15 @@ export function TopBar({ run, C, lang, onDeck, onSettings, onAbandon, onDiscard 
         <button className="m2-iconbtn" onClick={onSettings} title={lang === 'ko' ? '설정' : 'Settings'}>
           <Settings size={16} />
         </button>
-        <button className="m2-iconbtn m2-iconbtn--danger" onClick={onAbandon} title={lang === 'ko' ? '루프 포기' : 'Abandon loop'}>
-          <LogOut size={16} />
+        {savedAt && (
+          // Re-keyed on every save so the check pulses: progress is written after every action.
+          <span key={savedAt} className="m2-autosave" title={lang === 'ko' ? `자동 저장됨 · ${savedAgo(savedAt, lang)}` : `Auto-saved · ${savedAgo(savedAt, lang)}`}>
+            <CloudCheck size={15} />
+            <span>{lang === 'ko' ? '자동 저장' : 'Saved'}</span>
+          </span>
+        )}
+        <button className="m2-iconbtn" onClick={onMenu} title={lang === 'ko' ? '메뉴 · 저장하고 나가기' : 'Menu · save & quit'}>
+          <Menu size={16} />
         </button>
       </div>
     </header>

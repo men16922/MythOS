@@ -32,7 +32,7 @@ export function CardPickScreen({ run, C, lang, act }: ScreenProps) {
     <div className="m2-pick">
       <header className="m2-pick__head">
         <div>
-          <div className="m2-pick__kicker">{purpose === 'upgrade' ? (ko ? '정비' : 'Upgrade') : ko ? '삭제' : 'Remove'}</div>
+          <div className="m2-pick__kicker">{purpose === 'upgrade' ? (ko ? '정비' : 'Upgrade') : ko ? '제거' : 'Remove'}</div>
           <h1 className="m2-pick__title">
             {purpose === 'upgrade' ? (ko ? '강화할 카드를 고른다' : 'Choose a card to upgrade') : ko ? '덱에서 지울 카드를 고른다' : 'Choose a card to remove'}
             {count > 1 && <span className="m2-mono"> ×{count}</span>}

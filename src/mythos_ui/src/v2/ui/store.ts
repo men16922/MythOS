@@ -49,6 +49,10 @@ export interface GameStore {
   attachChronicle: (runId: string, chronicle: string) => void
   /** Drop the in-memory run (after the summary screen) without touching the profile. */
   closeRun: () => void
+  /** When the live run was last auto-saved on this device (every state change writes it). */
+  savedAt: number | null
+  /** Push pending saves to the server now (save & quit). */
+  flush: () => Promise<void>
 }
 
 export function useGame(C: ContentRegistry): GameStore {
@@ -58,6 +62,7 @@ export function useGame(C: ContentRegistry): GameStore {
   const runRef = useRef(run)
   const hadLocalProfile = useRef(safe(() => net.loadProfileLocal() !== null, false))
   const savedRun = useRef(run !== null)
+  const [savedAt, setSavedAt] = useState<number | null>(() => safe(() => net.runSavedAt(), null))
 
   // Profile: mirror + debounced server save on every change.
   useEffect(() => {
@@ -70,6 +75,7 @@ export function useGame(C: ContentRegistry): GameStore {
     runRef.current = run
     if (isLiveRun(run)) {
       savedRun.current = true
+      // The localStorage mirror is written synchronously inside saveRun; the server copy follows (debounced).
       void safe(() => net.saveRun(run), Promise.resolve(false))
     } else if (savedRun.current) {
       savedRun.current = false
@@ -127,6 +133,8 @@ export function useGame(C: ContentRegistry): GameStore {
           if (rec) void safe(() => net.appendHistory(rec), Promise.resolve(false))
         }
       }
+      // Every live state change is auto-saved by the effect below; stamp it for the HUD / title.
+      if (isLiveRun(next)) setSavedAt(Date.now())
       setRunState(next)
     },
     [C],
@@ -159,5 +167,7 @@ export function useGame(C: ContentRegistry): GameStore {
     setRun,
     attachChronicle,
     closeRun,
+    savedAt: isLiveRun(run) ? savedAt : null,
+    flush: () => safe(() => net.flushSaves(), Promise.resolve()),
   }
 }

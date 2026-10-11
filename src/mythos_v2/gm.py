@@ -403,20 +403,20 @@ _ACT_NAMES: dict[int, dict[Lang, str]] = {
 
 _ACT_INTRO: dict[int, dict[Lang, str]] = {
     1: {
-        "ko": "C-17 블록 전체가 정전이다. 비상등만 붉게 숨 쉬고, 골목마다 단속 드론의 탐조등이 "
-        "지나간다.",
+        "ko": "C-17 블록 전체가 정전이다. 비상등만 붉게 숨을 쉬고, 골목마다 단속 드론의 탐조등이 "
+        "훑고 지나간다.",
         "en": "The whole C-17 block is blacked out. Only the emergency lights breathe red, and "
         "patrol-drone searchlights sweep every alley.",
     },
     2: {
-        "ko": "야시장 하층. 기름 냄새와 위조 칩의 불빛이 뒤섞인다. 여기선 모두가 무언가를 판다, "
-        "기억까지도.",
+        "ko": "야시장 하층, 기름 냄새에 위조 칩의 불빛이 엉겨 붙는다. 여기선 누구나 뭔가를 판다. "
+        "기억마저도.",
         "en": "The Undercity Market. Engine oil and the glow of forged chips. Down here everyone "
         "sells something, even memories.",
     },
     3: {
-        "ko": "ARK 첨탑. 소음이 없다. 엘리베이터 층수 표시가 하나씩 꺼지고, 꼭대기에서 누군가 "
-        "기다린다.",
+        "ko": "ARK 첨탑. 아무 소리도 없다. 엘리베이터 층수 표시가 하나씩 꺼지고, 꼭대기에서 "
+        "누군가 기다린다.",
         "en": "The ARK Spire. No noise at all. The elevator's floor numbers go dark one by one, "
         "and someone is waiting at the top.",
     },
@@ -445,21 +445,20 @@ def _fallback_event(ctx: Mapping[str, Any], lang: Lang, seed: str) -> str:
         place = title or "거리"
         if success is True:
             options = [
-                f"{place}의 소음이 가라앉는다. 일은 생각보다 깔끔하게 끝났고, 네온 간판이 한 번 "
+                f"{place}의 소란이 가라앉는다. 생각보다 깔끔하게 끝났다. 머리 위 간판이 한 번 "
                 "깜빡인다.",
-                "손에 남은 감각이 아직 생생하다. 골목 끝에서 단속 드론의 불빛이 다른 쪽으로 "
-                "멀어진다.",
+                "손끝에 감각이 아직 생생하다. 골목 끝, 단속 드론의 불빛이 반대쪽으로 멀어진다.",
             ]
         elif success is False:
             options = [
-                f"계획은 첫 박자에서 어긋난다. {place}의 공기가 순식간에 식는다.",
-                "발밑의 물웅덩이가 붉게 번진다. 누군가 이 장면을 기록하고 있다는 느낌이 "
-                "목덜미를 스친다.",
+                f"첫 박자부터 어긋난다. {place}의 공기가 순식간에 싸늘해진다.",
+                "발밑 물웅덩이에 붉은빛이 번진다. 누군가 이 장면을 기록하고 있다. 목덜미가 "
+                "서늘해진다.",
             ]
         else:
             options = [
-                f"{place}. 결정은 끝났다. 귀 뒤에서 낮은 전자음이 울리다 멎는다.",
-                "비가 다시 내리기 시작한다. 방금의 선택이 어떤 값을 치를지는 아직 아무도 모른다.",
+                f"{place}. 선택은 끝났다. 귀 뒤에서 낮은 전자음이 울리다 뚝 멎는다.",
+                "빗방울이 다시 떨어진다. 그 선택의 값이 얼마일지, 아직 아무도 모른다.",
             ]
     else:
         place = title or "the street"
@@ -491,27 +490,27 @@ def _fallback_ix(ctx: Mapping[str, Any], lang: Lang, seed: str) -> str:
     if lang == "ko":
         if last == "victory":
             options = [
-                "흥미롭군요. 당신은 한 번 저를 지나갔습니다. 같은 방법이 두 번 통할 거라 "
-                "생각하지 마십시오.",
-                "돌아오셨습니다. 승리는 기록됐고, 기록은 수정할 수 있습니다.",
+                "흥미로운 기록입니다. 접속자님은 한 차례 저를 넘어섰습니다. 같은 방법이 두 번 "
+                "통한다고 판단하지 마십시오.",
+                "복귀를 확인했습니다. 승리는 기록됐고, 기록은 수정할 수 있습니다.",
             ]
         elif killed_by:
             options = [
-                f"다시 오셨군요. 지난 기록은 {killed_by} 앞에서 끊겼습니다. 같은 자리에서 "
-                "끝나고 싶으시다면, 막지 않겠습니다.",
+                f"재접속을 확인했습니다. 지난 기록은 {killed_by} 앞에서 끊겼습니다. 같은 "
+                "자리에서 끝내시겠다면 막지 않겠습니다.",
                 f"{killed_by}, 기억하십니까? 저는 기억합니다. 아주 정확하게.",
             ]
         elif loop is None or loop <= 1:
             options = [
-                "접속을 확인했습니다. 이곳의 규칙은 단순합니다. 당신이 무엇을 하든, 저는 "
+                "접속을 확인했습니다. 이곳의 규칙은 단순합니다. 접속자님이 무엇을 하든 저는 "
                 "기록합니다.",
-                "환영합니다, 접속자님. 네오서울의 모든 문은 제 승인을 거칩니다. 당신의 문도 "
-                "마찬가지입니다.",
+                "등록을 마쳤습니다, 접속자님. Neo-Seoul의 모든 문은 제 승인을 거쳐 열립니다. "
+                "접속자님의 문도 예외가 아닙니다.",
             ]
         else:
             options = [
-                f"{loop}번째 접속입니다. 기록은 남아 있습니다. 당신의 기억과는 달리.",
-                "또 오셨군요. 이번 회차의 마지막 줄은 제가 미리 써 두었습니다.",
+                f"{loop}번째 접속입니다. 기록은 남아 있습니다. 접속자님의 기억과는 달리.",
+                "또 오셨군요. 이번 회차의 마지막 줄은 이미 작성해 두었습니다.",
             ]
     elif last == "victory":
         options = [
@@ -527,7 +526,8 @@ def _fallback_ix(ctx: Mapping[str, Any], lang: Lang, seed: str) -> str:
     elif loop is None or loop <= 1:
         options = [
             "Connection confirmed. The rules here are simple. Whatever you do, I keep the record.",
-            "Welcome, connector. Every door in Neo-Seoul opens with my approval. Yours included.",
+            "Registration complete, connector. Every door in Neo-Seoul opens with my approval. "
+            "Yours is no exception.",
         ]
     else:
         options = [
@@ -561,7 +561,7 @@ def _fallback_chronicle(ctx: Mapping[str, Any], lang: Lang) -> str:
         else:
             parts.append(f"{who}, {place}에서 쓰러졌다.")
             if killed_by:
-                parts.append(f"마지막으로 본 것은 {killed_by}.")
+                parts.append(f"마지막으로 마주한 상대: {killed_by}.")
         parts.append(f"동행: {', '.join(party)}." if party else "동행은 없었다.")
         parts.extend(highlights)
         if result == "victory":
@@ -569,7 +569,7 @@ def _fallback_chronicle(ctx: Mapping[str, Any], lang: Lang) -> str:
         elif result == "abandoned":
             parts.append("미완의 기록으로 보관한다.")
         else:
-            parts.append("기록은 여기서 끊기고, 다음 접속이 이어받는다.")
+            parts.append("기록은 여기서 끊기고, 뒤는 다음 접속이 잇는다.")
     else:
         parts = []
         who = f"Connector {name}" if name else "The connector"
@@ -603,14 +603,14 @@ def _fallback_boss(ctx: Mapping[str, Any], lang: Lang, seed: str) -> str:
         boss = _ctx_str(ctx, "boss") or "그것"
         if phase > 0:
             options = [
-                f"{boss}의 외피가 갈라지고, 그 틈으로 다른 무언가가 깨어난다.",
-                f"{boss}, 잠시 멈춘다. 다음 순간, 움직임의 박자가 완전히 바뀐다.",
+                f"{boss}의 외피가 쩍 갈라진다. 그 틈에서 다른 무언가가 깨어난다.",
+                f"{boss}, 뚝 멈춘다. 다시 움직일 때는 박자가 완전히 다르다.",
             ]
         else:
             options = [
-                f"조명이 한꺼번에 꺼지고, 육중한 기척이 바닥을 울린다. {boss}, 어둠 속에서 "
+                f"조명이 한꺼번에 꺼지고, 육중한 무게가 바닥을 울린다. 어둠 속에 {boss}의 "
                 "붉은 표시등이 켜진다.",
-                f"{boss}, 시야를 가득 채운다. 공기에서 쇠 맛이 난다.",
+                f"{boss}의 그림자가 시야를 가득 메운다. 공기에서 쇠 맛이 난다.",
             ]
     else:
         boss = _ctx_str(ctx, "boss") or "It"
@@ -622,9 +622,9 @@ def _fallback_boss(ctx: Mapping[str, Any], lang: Lang, seed: str) -> str:
             ]
         else:
             options = [
-                f"Every light dies at once, and something heavy shakes the floor. {boss}: a red "
-                "indicator blinks on in the dark.",
-                f"{boss} fills the whole field of view. The air tastes of iron.",
+                "Every light dies at once, and something heavy shakes the floor. In the dark, "
+                f"{boss}'s red indicator blinks on.",
+                f"{boss}'s shadow fills the whole field of view. The air tastes of iron.",
             ]
     line = _pick(options, seed)
     if phase_text:
@@ -639,7 +639,7 @@ def _fallback_bond(ctx: Mapping[str, Any], lang: Lang, seed: str) -> str:
         if authored:
             return f'{who}, 잠시 말이 없다가 입을 연다. "{authored}"'
         options = [
-            f'{who}, 식은 컵라면을 내밀며 시선을 피한다. "…먹어 둬. 내일은 길어."',
+            f'{who}, 식은 컵라면을 쓱 내밀며 시선을 피한다. "…먹어 둬. 내일 길 거야."',
             f'{who}, 창밖의 탐조등을 세다가 고개를 돌린다. "다음엔 내가 먼저 들어갈게."',
         ]
     else:
@@ -647,8 +647,8 @@ def _fallback_bond(ctx: Mapping[str, Any], lang: Lang, seed: str) -> str:
         if authored:
             return f'{who} is quiet for a moment, then speaks. "{authored}"'
         options = [
-            f'{who} pushes a cold cup of noodles your way without looking up. "Eat. Tomorrow '
-            'is long."',
+            f"{who} pushes a cold cup of noodles your way without looking up. \"Eat. Tomorrow's "
+            'going to be long."',
             f'{who} stops counting the searchlights outside and turns around. "Next time, I go '
             'in first."',
         ]
@@ -663,7 +663,7 @@ def _fallback_act_intro(ctx: Mapping[str, Any], lang: Lang) -> str:
     if not name:
         return _ACT_INTRO[1][lang]
     if lang == "ko":
-        return f"{name}. 새 구역의 공기는 낯설고 차갑다."
+        return f"{name}. 처음 밟는 구역, 공기가 낯설고 차갑다."
     return f"{name}. The air in the new district is strange and cold."
 
 
@@ -898,12 +898,12 @@ _SUCCESS_TEXT: dict[str, dict[str, str]] = {
         "en": "Your breathing evens out. The throbbing wound goes quiet.",
     },
     "card": {
-        "ko": "방금의 움직임이 몸에 새겨진다. 다음엔 생각보다 손이 먼저 나갈 것이다.",
+        "ko": "방금 그 동작이 몸에 새겨진다. 다음엔 생각보다 손이 먼저 나간다.",
         "en": "The move settles into your muscles. Next time your hands will act before you think.",
     },
     "trace_down": {
-        "ko": "감시망의 붉은 점 하나가 꺼진다. 잠시, 당신은 아무도 아니다.",
-        "en": "One red dot on the surveillance grid goes dark. For a moment, you are nobody.",
+        "ko": "감시망의 붉은 점 하나가 꺼진다. 잠깐이지만, 지도 위에서 당신이 지워진다.",
+        "en": "One red dot on the surveillance grid goes dark. For a moment, you drop off the map.",
     },
     "implant": {
         "ko": "떼어 낸 부품이 아직 따뜻하다. 신경에 물리는 순간, 시야 가장자리가 선명해진다.",
@@ -917,7 +917,7 @@ _FAILURE_TEXT: dict[str, dict[str, str]] = {
         "en": "Your footing goes, and a sharp pain cuts along your side.",
     },
     "trace": {
-        "ko": "어딘가에서 경보음이 짧게 울린다. IX의 시선이 이쪽을 향한다.",
+        "ko": "어딘가에서 경보음이 짧게 운다. IX의 시선이 이쪽으로 돌아선다.",
         "en": "Somewhere an alarm chirps once. IX's attention turns your way.",
     },
     "credits": {
@@ -931,7 +931,7 @@ _ABUSIVE_TEXT: dict[str, dict[str, str]] = {
         "en": "Nothing happens. Still, your head clears for a moment.",
     },
     "failure": {
-        "ko": "허공에 던진 말은 소음에 묻힌다. 어딘가에서 누군가 그 소리를 기록한다.",
+        "ko": "허공에 던진 말이 소음에 묻힌다. 어딘가에서 누군가 그 말을 받아 적는다.",
         "en": "Words thrown at nothing sink into the noise. Somewhere, someone logs them.",
     },
 }

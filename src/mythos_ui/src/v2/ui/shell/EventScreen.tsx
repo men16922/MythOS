@@ -1,6 +1,6 @@
 // Mythos 2.0 — event screen: scene art, speaker, authored text (+ optional GM line), options, Improvise.
 import { art } from '../components/art.ts'
-import { Dices, Sparkles } from 'lucide-react'
+import { Dices } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import type { EventDef, EventOption, Improvisation, Lang, RunState, StatKey } from '../../engine/types.ts'
 import { asset, portrait } from '../common/assets.ts'
@@ -9,6 +9,7 @@ import { effectChips, statLabel, type EffectChip } from '../components/format.ts
 import { RollMeter } from '../components/RollMeter.tsx'
 import { sound } from '../components/sound.ts'
 import { Typewriter } from '../components/Typewriter.tsx'
+import { GmCard } from './GmCard.tsx'
 import { improvise, narrate } from './gm.ts'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
@@ -83,6 +84,8 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
   const screen = run.screen.kind === 'event' ? run.screen : null
   const ev: EventDef | undefined = screen ? C.events[screen.eventId] : undefined
   const [gmLine, setGmLine] = useState<{ id: string; text: string } | null>(null)
+  /** Event id while the GM's opening line is on its way (the card shows a quiet "reading" state). */
+  const [gmWait, setGmWait] = useState<string | null>(null)
   const [action, setAction] = useState('')
   const [pending, setPending] = useState<Improvisation | null>(null)
   const [judging, setJudging] = useState(false)
@@ -95,6 +98,7 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
   useEffect(() => {
     if (!ev) return
     let alive = true
+    const waitTimer = window.setTimeout(() => alive && setGmWait(ev.id), 700)
     void narrate('event', lang, {
       eventId: ev.id,
       title: tr(ev.title, lang),
@@ -105,14 +109,46 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
       trace: run.trace,
       hints: ev.gmHints ?? [],
     }).then((text) => {
+      window.clearTimeout(waitTimer)
+      if (!alive) return
+      setGmWait(null)
+      if (text) setGmLine({ id: ev.id, text })
+    })
+    return () => {
+      alive = false
+      window.clearTimeout(waitTimer)
+    }
+    // Only when the event itself changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [eventId])
+
+  // Once the choice resolves, the GM narrates its aftermath in the same card (over the art, never the options).
+  const outcomeKey = screen?.resolved && screen.resolved.optionIndex >= 0 ? `opt${screen.resolved.optionIndex}` : screen?.improvised?.rolled ? 'improv' : ''
+  useEffect(() => {
+    if (!ev || !screen || !outcomeKey) return
+    let alive = true
+    const res = screen.resolved && screen.resolved.optionIndex >= 0 ? screen.resolved : null
+    const imp = !res ? (screen.improvised ?? null) : null
+    const opt = res ? (picked && picked.eventId === ev.id && picked.index === res.optionIndex ? picked.opt : rx.eventOptions(run, C)[res.optionIndex]?.option) : undefined
+    const checked = !!opt?.check || !!imp?.rolled
+    void narrate('event', lang, {
+      eventId: ev.id,
+      title: tr(ev.title, lang),
+      act: run.act,
+      loop: run.loop,
+      party: run.party.map((m) => tr(C.companions[m.id]?.name, lang)),
+      choice: opt ? tr(opt.label, lang) : imp ? imp.action : undefined,
+      outcome: res ? tr(res.text, lang) : imp ? tr(imp.rolled?.success ? imp.successText : imp.failureText, lang) : undefined,
+      success: checked ? (res ? res.success : !!imp?.rolled?.success) : undefined,
+    }).then((text) => {
       if (alive && text) setGmLine({ id: ev.id, text })
     })
     return () => {
       alive = false
     }
-    // Only when the event itself changes.
+    // Once per resolution.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eventId])
+  }, [eventId, outcomeKey])
 
   // Keyboard: 1-9 pick an option, Enter continues / rolls (clicks the visible button, so all rules stay in one place).
   useEffect(() => {
@@ -202,14 +238,15 @@ export function EventScreen({ run, C, lang, settings, act }: ScreenProps) {
             {speakerName && <span>{tr(speakerName, lang)}</span>}
           </div>
         )}
-        {/* The GM line arrives late (LLM). It lives over the scene art, never in the option column, so
+        {/* The GM card arrives late (LLM). It lives over the scene art, never in the option column, so
             its arrival cannot shift the options under the player's cursor. */}
-        {gmLine && gmLine.id === ev.id && (
-          <div className={`m2-gmline${speaker ? ' has-speaker' : ''}`}>
-            <Sparkles size={14} />
-            <Typewriter text={gmLine.text} cps={60} instant={settings.fastAnim} />
-          </div>
-        )}
+        <GmCard
+          className={speaker ? 'has-speaker' : undefined}
+          text={gmLine && gmLine.id === ev.id ? gmLine.text : null}
+          pending={gmWait === ev.id}
+          lang={lang}
+          fast={settings.fastAnim}
+        />
       </div>
 
       <div className="m2-event__panel">

@@ -40,7 +40,7 @@ export function SetupScreen({ profile, C, onStart, onBack }: SetupScreenProps) {
         </button>
         <div>
           <div className="m2-setup__kicker">{ko ? `루프 ${profile.loops + 1}` : `Loop ${profile.loops + 1}`}</div>
-          <h1>{ko ? '누구로 접속하는가' : 'Who connects this time'}</h1>
+          <h1>{ko ? '이번엔 누구로 접속할까' : 'Who connects this time'}</h1>
         </div>
       </header>
 

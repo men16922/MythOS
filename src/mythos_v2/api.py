@@ -15,6 +15,7 @@ Routes
   POST /history, GET /history      finished-run records (RunRecord)
   POST /gm/narrate                 {kind, lang, context} → {text, source}
   POST /gm/improvise               {lang, event, action, stats, act} → Improvisation + source
+  POST /gm/talk                    {mode: companion|ix, lang, …} → {text, source}
 
 The GM never blocks the game: every LLM call has a hard wall-clock timeout, a
 global concurrency cap and a per-player rate budget; any miss serves the
@@ -22,6 +23,7 @@ deterministic authored fallback with HTTP 200 (``source: "fallback"``).
 
 Env: MYTHOS_V2_STORE (auto|postgres|memory), MYTHOS_V2_MAX_BLOB_BYTES (524288),
 MYTHOS_V2_NARRATE_TIMEOUT (10), MYTHOS_V2_IMPROVISE_TIMEOUT (12),
+MYTHOS_V2_TALK_TIMEOUT (10), MYTHOS_V2_IX_TIMEOUT (4),
 MYTHOS_V2_GM_PER_MINUTE (20), MYTHOS_V2_GM_PER_DAY (400),
 MYTHOS_V2_WRITES_PER_MINUTE (120), MYTHOS_V2_GM_CONCURRENCY (4), MYTHOS_V2_GM (on|off).
 """
@@ -47,7 +49,7 @@ from starlette.concurrency import run_in_threadpool
 
 from mythos_runtime.observability import get_logger
 
-from . import gm
+from . import gm, talk
 from .llm import TextLLM, build_text_llm
 from .ratelimit import RateLimiter
 from .store import (
@@ -88,6 +90,8 @@ class V2Settings:
     max_context_bytes: int = 8 * 1024
     narrate_timeout: float = 10.0
     improvise_timeout: float = 12.0
+    talk_timeout: float = 10.0
+    ix_timeout: float = 4.0
     gm_per_minute: int = 20
     gm_per_day: int = 400
     writes_per_minute: int = 120
@@ -99,6 +103,8 @@ class V2Settings:
             max_blob_bytes=_env_int("MYTHOS_V2_MAX_BLOB_BYTES", 512 * 1024),
             narrate_timeout=_env_float("MYTHOS_V2_NARRATE_TIMEOUT", 10.0),
             improvise_timeout=_env_float("MYTHOS_V2_IMPROVISE_TIMEOUT", 12.0),
+            talk_timeout=_env_float("MYTHOS_V2_TALK_TIMEOUT", 10.0),
+            ix_timeout=_env_float("MYTHOS_V2_IX_TIMEOUT", 4.0),
             gm_per_minute=_env_int("MYTHOS_V2_GM_PER_MINUTE", 20),
             gm_per_day=_env_int("MYTHOS_V2_GM_PER_DAY", 400),
             writes_per_minute=_env_int("MYTHOS_V2_WRITES_PER_MINUTE", 120),
@@ -127,6 +133,24 @@ class ImproviseBody(BaseModel):
     action: str = Field(default="", max_length=2000)
     stats: dict[str, Any] = Field(default_factory=dict)
     act: int = 1
+
+
+class TalkTurn(BaseModel):
+    role: Literal["player", "companion"]
+    text: str = Field(default="", max_length=talk.MAX_TURN_CHARS)
+
+
+class TalkBody(BaseModel):
+    """Companion chat (``companion`` + ``message`` + ``history``) or an IX comms line (``trigger``).
+    ``context`` carries the content-side facts (see ``mythos_v2.talk``)."""
+
+    mode: Literal["companion", "ix"]
+    lang: Literal["ko", "en"] = "ko"
+    companion: str = Field(default="", max_length=32)
+    message: str = Field(default="", max_length=talk.MAX_MESSAGE_CHARS)
+    history: list[TalkTurn] = Field(default_factory=list, max_length=talk.MAX_HISTORY_TURNS)
+    trigger: talk.IxTrigger | None = None
+    context: dict[str, Any] = Field(default_factory=dict)
 
 
 # --- GM runner -----------------------------------------------------------------
@@ -472,6 +496,91 @@ def create_v2_router(
             verdict = gm.fallback_improvisation(action, cls)
         log_gm("improvise", player_id, outcome, started)
         return verdict.to_dict()
+
+    async def talk_companion(
+        body: TalkBody, player_id: str, context: dict[str, Any]
+    ) -> tuple[str, str, str]:
+        companion = body.companion.strip()
+        if not talk.valid_companion_id(companion):
+            raise HTTPException(status_code=422, detail="companion id is required")
+        message = talk.normalize_message(body.message)
+        if not message:
+            raise HTTPException(status_code=422, detail="message is required")
+        history = talk.normalize_history([(turn.role, turn.text) for turn in body.history])
+        deflect = talk.screen_message(message) != "ok"
+        text: str | None = None
+        if deflect:
+            outcome = "deflected"
+        elif talk.player_turns(history) >= talk.MAX_PLAYER_MESSAGES:
+            outcome = "turn_cap"
+        elif not gm_limiter.allow(player_id):
+            outcome = "rate_limited"
+        else:
+            system, user = talk.companion_messages(companion, body.lang, context, history, message)
+            try:
+                raw = await runner.complete(
+                    system,
+                    user,
+                    max_tokens=talk.COMPANION_MAX_TOKENS,
+                    temperature=0.85,
+                    timeout=cfg.talk_timeout,
+                )
+                text = talk.clean_companion_reply(raw, companion, body.lang, context)
+                outcome = "llm" if text else "rejected"
+            except Exception as exc:
+                outcome = _outcome_for(exc)
+                if outcome == "error":
+                    _logger.warning("v2 gm talk failed: %s", type(exc).__name__)
+        if text is not None:
+            return text, "llm", outcome
+        fallback = talk.fallback_companion(companion, body.lang, message, history, deflect=deflect)
+        return fallback, "fallback", outcome
+
+    async def talk_ix(
+        body: TalkBody, player_id: str, context: dict[str, Any]
+    ) -> tuple[str, str, str]:
+        trigger = body.trigger
+        if trigger is None:
+            raise HTTPException(status_code=422, detail="trigger is required")
+        text: str | None = None
+        if not gm_limiter.allow(player_id):
+            outcome = "rate_limited"
+        else:
+            system, user = talk.ix_messages(trigger, body.lang, context)
+            try:
+                raw = await runner.complete(
+                    system,
+                    user,
+                    max_tokens=talk.IX_MAX_TOKENS,
+                    temperature=0.7,
+                    timeout=cfg.ix_timeout,
+                )
+                text = talk.clean_ix_line(raw, body.lang, context)
+                outcome = "llm" if text else "rejected"
+            except Exception as exc:
+                outcome = _outcome_for(exc)
+                if outcome == "error":
+                    _logger.warning("v2 gm talk failed: %s", type(exc).__name__)
+        if text is not None:
+            return text, "llm", outcome
+        return talk.fallback_ix(trigger, body.lang, context), "fallback", outcome
+
+    @router.post("/gm/talk", dependencies=[Depends(limit_gm_body)])
+    async def v2_gm_talk(body: TalkBody, player_id: player_dep) -> dict[str, Any]:
+        """Companion chat reply or one IX comms line. Never changes game state; any miss
+        serves an authored line (``source: "fallback"``)."""
+        if len(json.dumps(body.context, default=str)) > cfg.max_context_bytes:
+            raise HTTPException(status_code=413, detail="context too large")
+        started = time.perf_counter()
+        context = gm.sanitize_context(body.context)
+        if body.mode == "companion":
+            text, source, outcome = await talk_companion(body, player_id, context)
+            status = f"companion:{body.companion.strip()}"
+        else:
+            text, source, outcome = await talk_ix(body, player_id, context)
+            status = f"ix:{body.trigger}"
+        log_gm("talk", player_id, outcome, started, status=status)
+        return {"text": text, "source": source}
 
     return router
 

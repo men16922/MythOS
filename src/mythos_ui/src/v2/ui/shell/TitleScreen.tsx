@@ -4,11 +4,14 @@ import { Archive, Play, RotateCcw, Settings } from 'lucide-react'
 import logoUrl from '../../../assets/mythos-logo-concept.png'
 import type { ContentRegistry, Lang, MetaProfile, RunState } from '../../engine/types.ts'
 import { tr } from '../common/lang.ts'
+import { SCREEN_LABEL, savedAgo } from '../components/format.ts'
 import { sound } from '../components/sound.ts'
 
 export interface TitleScreenProps {
   profile: MetaProfile
   run: RunState | null
+  /** When that run was last auto-saved (shown under Continue). */
+  savedAt?: number | null
   C: ContentRegistry
   onContinue: () => void
   onNewLoop: () => void
@@ -17,7 +20,7 @@ export interface TitleScreenProps {
   onLang: (lang: Lang) => void
 }
 
-export function TitleScreen({ profile, run, C, onContinue, onNewLoop, onArchive, onSettings, onLang }: TitleScreenProps) {
+export function TitleScreen({ profile, run, savedAt, C, onContinue, onNewLoop, onArchive, onSettings, onLang }: TitleScreenProps) {
   const lang = profile.settings.lang
   const ko = lang === 'ko'
   const arch = run ? C.archetypes[run.archetype] : undefined
@@ -60,8 +63,9 @@ export function TitleScreen({ profile, run, C, onContinue, onNewLoop, onArchive,
               <span>
                 <b>{ko ? '이어하기' : 'Continue'}</b>
                 <small>
-                  {ko ? `루프 ${run.loop}` : `Loop ${run.loop}`} · {tr(arch?.name, lang)} · {tr(actDef?.name, lang)}
+                  {ko ? `루프 ${run.loop}` : `Loop ${run.loop}`} · {tr(arch?.name, lang)} · {tr(actDef?.name, lang)} · {tr(SCREEN_LABEL[run.screen.kind], lang)}
                 </small>
+                {savedAt && <small className="m2-title__saved">{ko ? `자동 저장 · ${savedAgo(savedAt, lang)}` : `Auto-saved · ${savedAgo(savedAt, lang)}`}</small>}
               </span>
             </button>
           )}
@@ -76,7 +80,7 @@ export function TitleScreen({ profile, run, C, onContinue, onNewLoop, onArchive,
             <RotateCcw size={18} />
             <span>
               <b>{ko ? '새 루프' : 'New loop'}</b>
-              <small>{profile.loops === 0 ? (ko ? '처음 접속한다' : 'Connect for the first time') : ko ? `지금까지 ${profile.loops}번 접속했다` : `${profile.loops} loops so far`}</small>
+              <small>{profile.loops === 0 ? (ko ? '첫 접속' : 'Connect for the first time') : ko ? `지금까지 ${profile.loops}번 접속했다` : `${profile.loops} loops so far`}</small>
             </span>
           </button>
           <button
@@ -91,7 +95,7 @@ export function TitleScreen({ profile, run, C, onContinue, onNewLoop, onArchive,
             <span>
               <b>{ko ? '아카이브' : 'Archive'}</b>
               <small>
-                ◈ {profile.echoes} · {ko ? '해금, 기록, 결말' : 'Unlocks, codex, endings'}
+                ◈ {profile.echoes} · {ko ? '해금, 코덱스, 결말' : 'Unlocks, codex, endings'}
               </small>
             </span>
           </button>

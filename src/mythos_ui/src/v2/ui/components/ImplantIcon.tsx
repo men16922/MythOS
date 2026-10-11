@@ -7,7 +7,7 @@ import { Tooltip } from './Tooltip.tsx'
 const RARITY = {
   starter: L('기본', 'Starter'),
   common: L('일반', 'Common'),
-  uncommon: L('특수', 'Uncommon'),
+  uncommon: L('고급', 'Uncommon'),
   rare: L('희귀', 'Rare'),
   boss: L('보스', 'Boss'),
   shop: L('상점', 'Shop'),

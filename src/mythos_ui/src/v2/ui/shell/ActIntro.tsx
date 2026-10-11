@@ -3,6 +3,8 @@ import { art } from '../components/art.ts'
 import { useEffect, useState } from 'react'
 import { tr } from '../common/lang.ts'
 import { sound } from '../components/sound.ts'
+import { GmCard } from './GmCard.tsx'
+import { narrate } from './gm.ts'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
 
@@ -12,10 +14,31 @@ export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
   const lines = tr(actDef?.intro, lang).split('\n').filter(Boolean)
   const [shown, setShown] = useState(0)
   const all = shown >= lines.length
+  const [gmLine, setGmLine] = useState<string | null>(null)
 
   useEffect(() => {
     sound('transition', { intensity: 1.6 })
   }, [])
+
+  // The GM opens the act in its own words; it appears over the art once the authored lines have started.
+  useEffect(() => {
+    let alive = true
+    void narrate('act_intro', lang, {
+      act: run.act,
+      actName: tr(actDef?.name, lang),
+      subtitle: tr(actDef?.subtitle, lang),
+      loop: run.loop,
+      party: run.party.map((m) => tr(C.companions[m.id]?.name, lang)),
+      archetype: tr(C.archetypes[run.archetype]?.name, lang),
+    }).then((text) => {
+      if (alive && text) setGmLine(text)
+    })
+    return () => {
+      alive = false
+    }
+    // Once per act card.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [run.act])
 
   useEffect(() => {
     if (all) return
@@ -36,6 +59,7 @@ export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {
     <div className="m2-actintro" onClick={go}>
       <div className="m2-actintro__art" style={{ backgroundImage: `url(${art.act(run.act, actDef?.image)})` }} />
       <div className="m2-actintro__shade" />
+      <GmCard className="m2-actintro__gm" text={shown > 0 ? gmLine : null} lang={lang} fast={settings.fastAnim} />
       <div className="m2-actintro__inner">
         <div className="m2-actintro__num">
           {run.act}

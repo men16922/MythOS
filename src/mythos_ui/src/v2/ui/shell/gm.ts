@@ -1,8 +1,9 @@
-// Mythos 2.0 — AI GM calls (narrate / improvise) with authored/local fallbacks.
+// Mythos 2.0 — AI GM calls (narrate / improvise / companion chat / IX comms) with authored/local fallbacks.
 // Never blocks the UI: callers render authored text first and swap/add the GM line when it arrives.
 
 import type { Improvisation, Lang, StatKey } from '../../engine/types.ts'
 import * as net from '../../net/api.ts'
+import { pickCompanionReply } from './talkLines.ts'
 
 type NarrateKind = 'event' | 'ix_loop_start' | 'chronicle' | 'boss' | 'bond' | 'act_intro'
 type Ctx = Record<string, string | number | boolean | string[] | null | undefined>
@@ -46,6 +47,40 @@ export async function narrate(kind: NarrateKind, lang: Lang, context: Ctx, timeo
     if (!res) return null
     if (res.source === 'fallback' && !acceptFallback) return null
     return res.text ? cleanGmText(res.text) || null : null
+  } catch {
+    return null
+  }
+}
+
+export interface CompanionReplyReq {
+  lang: Lang
+  companion: string
+  message: string
+  history: net.TalkTurn[]
+  context: Ctx
+}
+
+/** A companion's chat reply. Always resolves: the LLM line, the server's authored fallback, or (backend
+ *  unreachable / ~11 s timeout) the client's own in-voice pool. Never changes game state. */
+export async function companionReply(req: CompanionReplyReq, signal?: AbortSignal): Promise<{ text: string; source: 'llm' | 'fallback' | 'local' }> {
+  try {
+    const res = await withTimeout(net.talk({ mode: 'companion', ...req }, { signal }), 11500)
+    const text = res ? cleanGmText(res.text) : ''
+    if (res && text) return { text, source: res.source }
+  } catch {
+    /* fall through to the local pool */
+  }
+  const said = req.history.filter((t) => t.role === 'companion').map((t) => t.text)
+  return { text: pickCompanionReply(req.companion, req.lang, said, req.history.length + req.message.length), source: 'local' }
+}
+
+/** IX's LLM comms line for a combat moment, or null (timeout, no backend, server fallback). The caller is
+ *  already showing an authored line and swaps this in once. */
+export async function ixLine(trigger: net.IxTrigger, lang: Lang, context: Ctx, timeoutMs = 4000, signal?: AbortSignal): Promise<string | null> {
+  try {
+    const res = await withTimeout(net.talk({ mode: 'ix', lang, trigger, context }, { signal, timeoutMs }), timeoutMs)
+    if (!res || res.source !== 'llm') return null
+    return cleanGmText(res.text) || null
   } catch {
     return null
   }

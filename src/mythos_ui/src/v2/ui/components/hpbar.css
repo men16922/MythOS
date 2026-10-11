@@ -1,0 +1,38 @@
+/* =====================================================================
+   HP bar (HpBar.tsx).
+   ===================================================================== */
+
+.m2-hp {
+  position: relative;
+  height: 17px;
+  background: #1a0a10;
+  border: 1px solid #44202b;
+  overflow: hidden;
+}
+.m2-hp--sm {
+  height: 5px;
+}
+.m2-hp__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(180deg, #ff7f9c, var(--m2-threat));
+  transition: width 0.5s var(--m2-ease);
+  box-shadow: 0 0 8px rgba(255, 61, 110, 0.5);
+}
+.m2-hp--mid .m2-hp__fill {
+  background: linear-gradient(180deg, #ffc777, #e88b2a);
+}
+.m2-hp--ok .m2-hp__fill {
+  background: linear-gradient(180deg, #8af7b1, #2dbb6a);
+  box-shadow: 0 0 8px rgba(110, 245, 154, 0.35);
+}
+.m2-hp__txt {
+  position: relative;
+  display: block;
+  text-align: center;
+  font-size: 13px;
+  line-height: 15px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 2px #000;
+}

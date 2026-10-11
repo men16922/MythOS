@@ -1,5 +1,6 @@
 // Mythos 2.0 — number that ticks toward its value (rewards, echo tally, credits).
 import { useEffect, useRef, useState } from 'react'
+import './countup.css'
 
 export interface CountUpProps {
   value: number

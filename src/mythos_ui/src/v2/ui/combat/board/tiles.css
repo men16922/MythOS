@@ -1,0 +1,297 @@
+/* =====================================================================
+   Terrain (board/tiles.tsx): slab, floor / void / hazard tiles, cover blocks, burning ground
+   (the shared flame tongue is also used by burning units) and turns-left badges.
+   ===================================================================== */
+
+/* slab */
+.m2c-slab-top {
+  fill: rgba(3, 12, 15, 0.7);
+}
+.m2c-slab-front {
+  fill: rgba(8, 26, 30, 0.95);
+  stroke: rgba(78, 242, 227, 0.35);
+  stroke-width: 1;
+}
+.m2c-slab-rim {
+  fill: none;
+  stroke: rgba(120, 255, 242, 0.55);
+  stroke-width: 1.6;
+  filter: drop-shadow(0 0 6px rgba(78, 242, 227, 0.55));
+}
+/* tiles */
+.m2c-t-floor {
+  fill: rgba(16, 44, 50, 0.66);
+  stroke: rgba(78, 242, 227, 0.2);
+  stroke-width: 1;
+}
+.m2c-t-floor.is-a {
+  fill: rgba(20, 52, 58, 0.66);
+}
+.m2c-t-bevel {
+  fill: none;
+  stroke: rgba(160, 255, 248, 0.07);
+  stroke-width: 1;
+}
+.m2c-void-rim {
+  fill: #07040b;
+  stroke: rgba(255, 61, 110, 0.4);
+  stroke-width: 1.2;
+}
+.m2c-void-hole {
+  fill: url(#m2c-void-grad);
+  stroke: rgba(255, 61, 110, 0.18);
+  stroke-dasharray: 3 4;
+}
+.m2c-void-crack {
+  fill: none;
+  stroke: rgba(255, 110, 160, 0.55);
+  stroke-width: 1;
+}
+.m2c-void-shard {
+  fill: rgba(255, 61, 110, 0.55);
+  animation: m2c-shard 4.5s linear infinite;
+}
+@keyframes m2c-shard {
+  0% {
+    transform: translateY(-6px);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(22px);
+    opacity: 0;
+  }
+}
+.m2c-haz-base {
+  fill: rgba(64, 44, 6, 0.75);
+  stroke: rgba(255, 182, 72, 0.55);
+  stroke-width: 1.2;
+}
+.m2c-haz-edge {
+  fill: none;
+  stroke: rgba(255, 210, 110, 0.45);
+  stroke-width: 1;
+  stroke-dasharray: 5 4;
+  animation: m2c-ants 1.4s linear infinite;
+}
+.m2c-zap {
+  fill: none;
+  stroke: #fff1b8;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 4px #ffb648) drop-shadow(0 0 8px rgba(255, 182, 72, 0.7));
+  animation: m2c-zap 2.2s steps(1) infinite;
+}
+@keyframes m2c-zap {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  8% {
+    opacity: 1;
+  }
+  12% {
+    opacity: 0.2;
+  }
+  16% {
+    opacity: 0.95;
+  }
+  30% {
+    opacity: 0.1;
+  }
+  62% {
+    opacity: 0.7;
+  }
+  66% {
+    opacity: 0.05;
+  }
+}
+/* cover */
+.m2c-cover-shadow {
+  fill: rgba(0, 0, 0, 0.5);
+}
+.m2c-cover-top {
+  fill: #33494f;
+  stroke: rgba(170, 250, 244, 0.55);
+  stroke-width: 1;
+}
+.m2c-cover-front {
+  fill: #18282c;
+  stroke: rgba(120, 200, 200, 0.28);
+  stroke-width: 1;
+}
+.m2c-cover-side {
+  fill: #0f1d21;
+  stroke: rgba(120, 200, 200, 0.18);
+}
+.m2c-cover-lip {
+  stroke: rgba(180, 255, 250, 0.85);
+  stroke-width: 1.4;
+}
+.m2c-cover-pip {
+  fill: var(--c-cyan);
+  filter: drop-shadow(0 0 3px var(--c-cyan));
+}
+
+/* --------------------------------------------------------------- ground effects (burning / electrified tiles) */
+
+.m2c-fire-floor {
+  stroke: none;
+}
+.m2c-fire-edge {
+  fill: none;
+  stroke: rgba(255, 170, 70, 0.9);
+  stroke-width: 1.4;
+  filter: drop-shadow(0 0 4px #ff6a14);
+}
+/* Shared flame tongue: base at (left, top), grows up from it. */
+.m2c-flame {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  transform-origin: 50% 100%;
+  border-radius: 50% 50% 45% 45% / 64% 64% 36% 36%;
+  background: radial-gradient(ellipse 50% 62% at 50% 80%, #fff8d2 0%, #ffd34a 20%, #ff8a1e 46%, rgba(232, 56, 6, 0.6) 68%, rgba(200, 30, 0, 0) 84%);
+}
+.m2c-flame {
+  animation: m2c-flame 0.82s ease-in-out infinite;
+}
+@keyframes m2c-flame {
+  0%,
+  100% {
+    transform: translate(-50%, -100%) scale(1, 1) skewX(0deg);
+    opacity: 0.92;
+  }
+  22% {
+    transform: translate(-50%, -100%) scale(0.84, 1.2) skewX(-6deg);
+    opacity: 1;
+  }
+  48% {
+    transform: translate(-50%, -100%) scale(1.08, 0.86) skewX(4deg);
+    opacity: 0.78;
+  }
+  74% {
+    transform: translate(-50%, -100%) scale(0.9, 1.1) skewX(-3deg);
+    opacity: 0.96;
+  }
+}
+.m2c-flame.is-back {
+  opacity: 0.85;
+  background: radial-gradient(ellipse 50% 62% at 50% 80%, #ffe08a 0%, #ff9a2a 22%, #f0520e 48%, rgba(190, 30, 0, 0.5) 70%, rgba(160, 20, 0, 0) 86%);
+}
+.m2c-fire-glow {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 170, 70, 0.5), rgba(255, 100, 25, 0.28) 40%, rgba(255, 60, 0, 0.1) 70%, rgba(255, 60, 0, 0) 100%);
+  animation: m2c-fireglow 1.3s ease-in-out infinite;
+}
+/* the hot bed under the tongues */
+.m2c-fire-pool {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 236, 160, 0.75), rgba(255, 150, 40, 0.5) 45%, rgba(255, 80, 10, 0) 100%);
+  animation: m2c-fireglow 0.9s ease-in-out infinite;
+}
+@keyframes m2c-fireglow {
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  40% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+  70% {
+    opacity: 0.68;
+    transform: translate(-50%, -50%) scale(0.97);
+  }
+}
+.m2c-fire-ember {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  margin: -1.5px 0 0 -1.5px;
+  border-radius: 50%;
+  background: #ffd98a;
+  box-shadow:
+    0 0 4px #ff8a2a,
+    0 0 8px rgba(255, 100, 20, 0.6);
+  animation: m2c-ember 1.9s linear infinite;
+}
+@keyframes m2c-ember {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(7px, -54px) scale(0.35);
+    opacity: 0;
+  }
+}
+/* turns-left badges (labels layer, always above units) */
+.m2c-tbadges {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  gap: 2px;
+}
+.m2c-tbadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  height: 15px;
+  padding: 0 4px 0 3px;
+  border-radius: 8px;
+  font: 700 11px/1 'Chakra Petch', var(--m2-display, sans-serif);
+  color: #fff;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.6);
+}
+.m2c-tbadge.is-fire {
+  background: linear-gradient(#ff8a2a, #c2370a);
+  border: 1px solid #ffd27a;
+  box-shadow: 0 0 8px rgba(255, 110, 30, 0.85);
+}
+.m2c-tbadge.is-shock {
+  background: linear-gradient(#5fd3ff, #1a6fb8);
+  border: 1px solid #d6f6ff;
+  box-shadow: 0 0 8px rgba(95, 211, 255, 0.85);
+}
+/* temporary (electrified) hazard: the same hazard plate, charged blue, with arcs jumping across it */
+.m2c-t-haz.is-temp .m2c-haz-base {
+  fill: rgba(12, 44, 70, 0.8);
+  stroke: rgba(130, 225, 255, 0.8);
+}
+.m2c-t-haz.is-temp .m2c-haz-edge {
+  stroke: rgba(170, 238, 255, 0.65);
+}
+.m2c-t-haz.is-temp .m2c-zap {
+  stroke: #eafcff;
+  filter: drop-shadow(0 0 4px #5fd3ff) drop-shadow(0 0 8px rgba(95, 211, 255, 0.7));
+}
+.m2c-zap.is-arc {
+  stroke-width: 1.5;
+  animation-duration: 1.15s;
+}
+.m2c-cover-cracks polyline {
+  fill: none;
+  stroke: rgba(2, 10, 12, 0.85);
+  stroke-width: 1.6;
+  stroke-linejoin: miter;
+}
+
+/* --------------------------------------------------------------- reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .m2c-flame,
+  .m2c-fire-glow,
+  .m2c-fire-ember {
+    animation: none;
+  }
+}

@@ -1,0 +1,88 @@
+/* =====================================================================
+   Roll meter (RollMeter.tsx): the stat check of an event option, needle + stamp.
+   ===================================================================== */
+
+/* roll meter */
+.m2-roll {
+  position: relative;
+  max-width: 720px;
+  padding: 22px 22px 18px;
+  border: 1px solid var(--m2-line-2);
+  background: rgba(4, 12, 14, 0.92);
+  animation: m2-modal-in 0.25s var(--m2-ease);
+}
+.m2-roll__label {
+  font-family: var(--m2-display);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--m2-ink-2);
+  margin-bottom: 10px;
+}
+.m2-roll__bar {
+  position: relative;
+  height: 40px;
+  background: repeating-linear-gradient(90deg, rgba(255, 61, 110, 0.32) 0 6px, rgba(255, 61, 110, 0.22) 6px 12px);
+  border: 1px solid rgba(255, 61, 110, 0.5);
+}
+.m2-roll__win {
+  position: absolute;
+  inset: 0 auto 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 6px;
+  background: linear-gradient(90deg, rgba(110, 245, 154, 0.25), rgba(110, 245, 154, 0.55));
+  border-right: 2px solid var(--m2-heal);
+}
+.m2-roll__win span {
+  font-size: 16px;
+  font-weight: 700;
+  color: #eafff1;
+}
+.m2-roll__needle {
+  position: absolute;
+  top: -8px;
+  bottom: -8px;
+  width: 3px;
+  margin-left: -1.5px;
+  background: #fff;
+  box-shadow: 0 0 10px #fff, 0 0 20px var(--m2-cyan);
+}
+.m2-roll__scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--m2-mute);
+}
+.m2-roll__stamp {
+  position: absolute;
+  right: 22px;
+  top: 50%;
+  padding: 4px 18px;
+  font-family: var(--m2-display);
+  font-weight: 700;
+  font-size: 34px;
+  letter-spacing: 0.1em;
+  border: 3px solid currentColor;
+  transform: translateY(-50%) rotate(-8deg);
+  animation: m2-stamp 0.32s cubic-bezier(0.2, 1.6, 0.4, 1) both;
+  background: rgba(3, 9, 11, 0.85);
+}
+.m2-roll.is-win .m2-roll__stamp {
+  color: var(--m2-heal);
+  text-shadow: 0 0 20px rgba(110, 245, 154, 0.7);
+}
+.m2-roll.is-loss .m2-roll__stamp {
+  color: var(--m2-threat);
+  text-shadow: 0 0 20px rgba(255, 61, 110, 0.7);
+}
+.m2-roll.is-loss {
+  animation: m2-shake 0.3s linear;
+}
+@keyframes m2-stamp {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) rotate(-8deg) scale(2.4);
+  }
+}

@@ -5,6 +5,7 @@ import { ImplantIcon } from '../components/ImplantIcon.tsx'
 import { sound } from '../components/sound.ts'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
+import './treasure.css'
 
 export function TreasureScreen({ run, C, lang, settings, act }: ScreenProps) {
   const [cracking, setCracking] = useState(false)

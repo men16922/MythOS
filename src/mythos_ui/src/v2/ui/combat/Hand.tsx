@@ -10,6 +10,7 @@ import type { CardInstance, ContentRegistry, Lang } from '../../engine/types.ts'
 import { sfx } from '../common/sfx.ts'
 import { CardView } from '../components/CardView.tsx'
 import { isTouch } from './touch.ts'
+import './hand.css'
 
 export interface HandProps {
   cards: CardInstance[]

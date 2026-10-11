@@ -1,0 +1,65 @@
+/* =====================================================================
+   Card pick (CardPickScreen.tsx): remove / upgrade a card.
+   ===================================================================== */
+
+.m2-pick {
+  padding: 20px clamp(16px, 3vw, 40px) 32px;
+}
+.m2-pick__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.m2-pick__kicker {
+  font-family: var(--m2-display);
+  color: var(--m2-cyan);
+  font-weight: 600;
+}
+.m2-pick__title {
+  margin: 0;
+  font-family: var(--m2-display);
+  font-size: 28px;
+}
+.m2-pick__actions {
+  display: flex;
+  gap: 8px;
+}
+.m2-pick__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 20px;
+  align-items: start;
+}
+.m2-pick__preview {
+  position: sticky;
+  top: 84px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid var(--m2-line);
+  background: rgba(6, 16, 20, 0.85);
+  min-width: 300px;
+  max-width: 420px;
+}
+.m2-pick__preview p {
+  color: var(--m2-mute);
+  font-size: 14px;
+}
+.m2-pick__arrow {
+  color: var(--m2-heal);
+  flex: none;
+}
+
+/* --------------------------------------------------------------- responsive */
+
+@media (max-width: 960px) {
+  .m2-pick__body {
+    grid-template-columns: 1fr;
+  }
+  .m2-pick__preview {
+    display: none;
+  }
+}

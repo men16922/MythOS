@@ -1,0 +1,38 @@
+/* =====================================================================
+   Tooltip (Tooltip.tsx): the anchor, the bubble and its title / text lines.
+   ===================================================================== */
+
+.m2-tip-anchor {
+  display: inline-flex;
+}
+.m2-tip {
+  position: fixed;
+  z-index: 1000;
+  pointer-events: none;
+  padding: 10px 12px;
+  font-family: var(--m2-body);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--m2-ink);
+  background: rgba(5, 16, 19, 0.97);
+  border: 1px solid var(--m2-cyan-dim);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(0, 0, 0, 0.6);
+  transition: opacity 0.12s;
+}
+.m2-tip__title {
+  font-family: var(--m2-display);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--m2-cyan-2);
+  margin-bottom: 3px;
+}
+.m2-tip__title em {
+  font-style: normal;
+  font-family: var(--m2-body);
+  font-weight: 500;
+  font-size: 11px;
+  margin-left: 6px;
+}
+.m2-tip__text {
+  color: var(--m2-ink-2);
+}

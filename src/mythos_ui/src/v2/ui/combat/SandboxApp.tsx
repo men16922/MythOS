@@ -9,6 +9,7 @@ import type { CombatState, Lang, RunState } from '../../engine/types.ts'
 import { configureAudio, unlockAudio } from '../common/audio.ts'
 import { CombatScreen } from './CombatScreen.tsx'
 import { TUTORIAL_KEY } from './describe.ts'
+import './sandbox.css'
 
 const C = CONTENT
 

@@ -1,0 +1,403 @@
+/* =====================================================================
+   Setup (SetupScreen.tsx): archetype, companion and paradox for the next loop.
+   ===================================================================== */
+
+.m2-setup {
+  position: relative;
+  min-height: 100dvh;
+  padding: 20px clamp(16px, 4vw, 56px) 32px;
+  overflow: hidden;
+}
+.m2-setup__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.16;
+  filter: saturate(0.6);
+  mask-image: linear-gradient(180deg, #000 10%, transparent 90%);
+}
+.m2-setup > * {
+  position: relative;
+}
+.m2-setup__head {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.m2-setup__head h1 {
+  margin: 0;
+  font-family: var(--m2-display);
+  font-size: 32px;
+  line-height: 1.1;
+}
+.m2-setup__kicker,
+.m2-setup__label {
+  font-size: 13px;
+  color: var(--m2-cyan);
+  font-family: var(--m2-display);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.m2-setup__label {
+  margin-bottom: 8px;
+}
+.m2-archs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.m2-arch {
+  position: relative;
+  display: grid;
+  grid-template-columns: clamp(130px, 12vw, 190px) 1fr;
+  min-height: clamp(220px, 30vh, 320px);
+  padding: 0;
+  border: 1px solid var(--m2-line);
+  background: rgba(8, 22, 26, 0.85);
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  clip-path: var(--m2-cut);
+  transition: border-color 0.18s, transform 0.18s var(--m2-ease), box-shadow 0.18s;
+}
+.m2-arch:hover {
+  transform: translateY(-3px);
+  border-color: var(--m2-line-2);
+}
+.m2-arch.is-on {
+  border-color: var(--m2-cyan);
+  box-shadow: inset 0 0 0 1px var(--m2-cyan), inset 0 0 50px rgba(78, 242, 227, 0.12);
+}
+.m2-arch.is-locked {
+  cursor: not-allowed;
+}
+.m2-arch.is-locked .m2-arch__art img {
+  filter: grayscale(1) brightness(0.35);
+}
+.m2-arch__art {
+  overflow: hidden;
+  background: #000;
+}
+.m2-arch__art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 15%;
+  transition: transform 0.4s var(--m2-ease);
+}
+.m2-arch:hover .m2-arch__art img {
+  transform: scale(1.05);
+}
+.m2-arch__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+}
+.m2-arch__name {
+  font-family: var(--m2-display);
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: #fff;
+}
+.m2-arch__tag {
+  font-size: 13px;
+  color: var(--m2-ink-2);
+}
+.m2-arch__hp {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--m2-threat-2);
+  font-size: 14px;
+}
+.m2-arch__cr {
+  margin-left: 10px;
+  color: var(--m2-gold);
+}
+.m2-arch__stats {
+  display: grid;
+  gap: 2px;
+  margin-top: 2px;
+}
+.m2-stat {
+  display: grid;
+  grid-template-columns: 40px 1fr 20px;
+  gap: 8px;
+  align-items: center;
+  font-size: 13px;
+  line-height: 1.35;
+}
+.m2-stat small {
+  font-size: 13px;
+  color: var(--m2-ink-2);
+}
+.m2-stat > i {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.07);
+}
+.m2-stat > i > i {
+  display: block;
+  height: 100%;
+  background: var(--m2-cyan);
+}
+.m2-stat b {
+  font-size: 13px;
+  text-align: right;
+}
+.m2-arch__lock {
+  margin-top: auto;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  color: var(--m2-echo);
+  font-size: 13px;
+}
+.m2-setup__detail {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 20px;
+  padding: 14px 18px;
+  border: 1px solid var(--m2-line);
+  background: rgba(6, 18, 22, 0.75);
+}
+.m2-setup__desc {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--m2-ink-2);
+}
+.m2-minideck {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.m2-minicard {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px 3px 3px;
+  font-size: 12.5px;
+  border: 1px solid var(--m2-line-2);
+  background: rgba(12, 30, 36, 0.9);
+  cursor: help;
+}
+.m2-minicard i {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 700;
+  color: #02201d;
+  background: var(--m2-cyan);
+}
+.m2-minicard em {
+  font-style: normal;
+  font-size: 11px;
+  color: var(--m2-cyan);
+}
+.m2-minicard--attack {
+  border-left: 2px solid var(--m2-threat-2);
+}
+.m2-minicard--skill {
+  border-left: 2px solid var(--m2-cyan);
+}
+.m2-minicard--tactic {
+  border-left: 2px solid var(--m2-violet);
+}
+.m2-minicard--power {
+  border-left: 2px solid var(--m2-amber);
+}
+.m2-setup__implant {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--m2-ink-2);
+}
+.m2-setup__row {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+}
+.m2-setup__comp,
+.m2-setup__paradox {
+  padding: 14px 18px;
+  border: 1px solid var(--m2-line);
+  background: rgba(6, 18, 22, 0.75);
+}
+.m2-compfixed {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.m2-compfixed img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  object-position: 50% 15%;
+  border-radius: 50%;
+  border: 2px solid var(--m2-amber);
+}
+.m2-compfixed b {
+  display: block;
+  font-family: var(--m2-display);
+  font-size: 17px;
+}
+.m2-compfixed small {
+  color: var(--m2-ink-2);
+}
+.m2-comps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.m2-comp {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid var(--m2-line-2);
+  background: #000;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.15s var(--m2-ease), border-color 0.15s;
+}
+.m2-comp img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 15%;
+}
+.m2-comp:hover {
+  transform: scale(1.08);
+}
+.m2-comp.is-on {
+  border-color: var(--m2-amber);
+  box-shadow: 0 0 14px rgba(255, 182, 72, 0.55);
+}
+.m2-comp.is-locked img {
+  filter: grayscale(1) brightness(0.3);
+}
+.m2-comp.is-locked svg {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  color: var(--m2-mute);
+}
+.m2-comps__name {
+  margin-left: 8px;
+  font-family: var(--m2-display);
+  color: var(--m2-amber);
+}
+.m2-paradox {
+  display: flex;
+  gap: 4px;
+}
+.m2-paradox button {
+  width: 42px;
+  height: 38px;
+  border: 1px solid var(--m2-line-2);
+  background: rgba(10, 25, 30, 0.8);
+  color: var(--m2-ink-2);
+  font-family: var(--m2-mono);
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.m2-paradox button.is-on {
+  background: var(--m2-threat);
+  border-color: var(--m2-threat);
+  color: #fff;
+}
+.m2-paradox button.is-on:first-child {
+  background: var(--m2-cyan);
+  border-color: var(--m2-cyan);
+  color: #022;
+}
+.m2-paradox button.is-locked {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.m2-paradox__text {
+  margin-top: 10px;
+  display: grid;
+  gap: 3px;
+  font-size: 13px;
+  color: var(--m2-ink-2);
+}
+.m2-paradox__text b {
+  color: var(--m2-threat-2);
+  margin-right: 4px;
+}
+.m2-setup__foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 18px;
+}
+
+/* --------------------------------------------------------------- responsive */
+
+@media (max-width: 1100px) {
+  .m2-archs {
+    grid-template-columns: 1fr;
+  }
+  .m2-arch {
+    min-height: 0;
+    grid-template-columns: 100px 1fr;
+  }
+}
+@media (max-width: 960px) {
+  .m2-setup__detail,
+  .m2-setup__row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* --------------------------------------------------------------- daily seed: setup rules */
+
+.m2-setup__kicker--daily {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--m2-echo);
+}
+.m2-daily-rules p {
+  margin: 0;
+}
+.m2-daily-rules__lead {
+  font-family: var(--m2-display);
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--m2-ink);
+}
+.m2-daily-rules .m2-daily-rules__fine {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--m2-ink-2);
+}
+.m2-daily-rules .m2-daily-rules__best {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--m2-line);
+  font-size: 13px;
+  color: var(--m2-mute);
+}
+/* Korean headings wrap between words on narrow screens ("오늘은 누구로 / 접속할까"), not inside one. */
+.m2-setup__head h1,
+.m2-daily-rules p {
+  word-break: keep-all;
+}

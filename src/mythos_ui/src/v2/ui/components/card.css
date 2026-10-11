@@ -1,0 +1,296 @@
+/* =====================================================================
+   Card (CardView.tsx): the card face used in the hand, rewards, the shop and the deck.
+   ===================================================================== */
+
+.m2-card {
+  --fs: 16px;
+  --rim-a: #4a6a70;
+  --rim-b: #22383d;
+  --type: var(--m2-cyan);
+  position: relative;
+  flex: none;
+  font-size: var(--fs);
+  width: 10.6em;
+  height: 15em;
+  font-family: var(--m2-body);
+  color: var(--m2-ink);
+  user-select: none;
+  transition: transform 0.16s var(--m2-ease), filter 0.16s, opacity 0.16s;
+  filter: drop-shadow(0 0.4em 0.7em rgba(0, 0, 0, 0.55));
+}
+.m2-card--sm {
+  --fs: 11.5px;
+}
+.m2-card--lg {
+  --fs: 20px;
+}
+.m2-card--attack {
+  --type: var(--m2-threat-2);
+}
+.m2-card--skill {
+  --type: var(--m2-cyan);
+}
+.m2-card--tactic {
+  --type: var(--m2-violet);
+}
+.m2-card--power {
+  --type: var(--m2-amber);
+}
+.m2-card--junk {
+  --type: #8a8f92;
+}
+.m2-rar--common {
+  --rim-a: #78b9c1;
+  --rim-b: #2c4c52;
+}
+.m2-rar--uncommon {
+  --rim-a: #5ff6ff;
+  --rim-b: #1a6b74;
+}
+.m2-rar--rare {
+  --rim-a: #ffe39a;
+  --rim-b: #9b6d1d;
+}
+.m2-rar--special {
+  --rim-a: #ff8fb3;
+  --rim-b: #7a1c42;
+}
+.m2-card__frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  clip-path: polygon(0 0, calc(100% - 0.9em) 0, 100% 0.9em, 100% 100%, 0.9em 100%, 0 calc(100% - 0.9em));
+  background: linear-gradient(160deg, var(--rim-a), var(--rim-b) 45%, var(--rim-b) 60%, var(--rim-a));
+}
+.m2-card__frame::before {
+  content: '';
+  position: absolute;
+  inset: 0.13em;
+  clip-path: polygon(0 0, calc(100% - 0.82em) 0, 100% 0.82em, 100% 100%, 0.82em 100%, 0 calc(100% - 0.82em));
+  background: linear-gradient(180deg, #0d2026, #071115 60%);
+}
+.m2-card__art {
+  position: absolute;
+  left: 0.13em;
+  right: 0.13em;
+  top: 0.13em;
+  height: 52%;
+  overflow: hidden;
+  clip-path: polygon(0 0, calc(100% - 0.82em) 0, 100% 0.82em, 100% 100%, 0 100%);
+  background: #0b1d22;
+}
+.m2-card__art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 30%;
+  display: block;
+  transition: transform 0.4s var(--m2-ease);
+}
+.m2-card__art-empty {
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(45deg, #0d2228 0 6px, #0a1a1f 6px 12px);
+}
+.m2-card__art-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 55%, rgba(7, 17, 21, 0.95));
+}
+.m2-card__cost {
+  position: absolute;
+  top: 0.4em;
+  left: 0.4em;
+  z-index: 2;
+  width: 2.05em;
+  height: 2.05em;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #c9fffa, var(--m2-cyan) 45%, #0b6e68 100%);
+  box-shadow: 0 0 0 0.12em #03110f, 0 0 0.8em rgba(78, 242, 227, 0.55);
+  font-family: var(--m2-mono);
+  font-weight: 700;
+  font-size: 1em;
+  color: #02201d;
+}
+.m2-card__cost.is-x {
+  background: radial-gradient(circle at 35% 30%, #c8c8c8, #6a6f72 60%, #2a2d2f);
+  box-shadow: 0 0 0 0.12em #03110f;
+}
+.m2-card__owner {
+  position: absolute;
+  top: 1.05em;
+  right: 0.4em;
+  z-index: 2;
+  width: 1.9em;
+  height: 1.9em;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 0.1em solid var(--m2-amber);
+  box-shadow: 0 0 0.5em rgba(255, 182, 72, 0.5);
+  background: #000;
+}
+.m2-card__owner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 15%;
+}
+.m2-card__body {
+  position: absolute;
+  left: 0.13em;
+  right: 0.13em;
+  top: 48.5%;
+  bottom: 0.13em;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0 0.55em 0.55em;
+}
+.m2-card__name {
+  font-family: var(--m2-display);
+  font-weight: 700;
+  font-size: 0.92em;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  color: #fff;
+  text-shadow: 0 1px 0 #000, 0 0 0.6em rgba(0, 0, 0, 0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.m2-card__plus {
+  color: var(--m2-heal);
+  margin-left: 0.1em;
+}
+.is-upgraded .m2-card__name {
+  color: #e6fff0;
+}
+.m2-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  margin: 0.25em 0 0.35em;
+  font-size: 0.6em;
+  line-height: 1.5;
+}
+.m2-card__type {
+  color: var(--type);
+  font-weight: 700;
+  padding: 0 0.5em;
+  border: 1px solid color-mix(in srgb, var(--type) 55%, transparent);
+  background: color-mix(in srgb, var(--type) 12%, transparent);
+}
+.m2-card__tgt {
+  color: var(--m2-ink-2);
+  font-family: var(--m2-mono);
+  padding: 0 0.4em;
+  border: 1px solid var(--m2-line-2);
+}
+.m2-card__gem {
+  margin-left: auto;
+  width: 0.8em;
+  height: 0.8em;
+  transform: rotate(45deg);
+  background: linear-gradient(135deg, var(--rim-a), var(--rim-b));
+  box-shadow: 0 0 0.4em color-mix(in srgb, var(--rim-a) 60%, transparent);
+}
+.m2-card__text {
+  flex: 1;
+  font-size: 0.7em;
+  line-height: 1.42;
+  color: var(--m2-ink);
+  overflow: hidden;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.m2-card__text .m2-num {
+  font-weight: 700;
+  color: #fff;
+}
+.m2-card__text .m2-num--up {
+  color: var(--m2-heal);
+}
+.m2-card__keys {
+  display: flex;
+  gap: 0.4em;
+  font-size: 0.58em;
+  color: var(--m2-amber);
+  font-weight: 700;
+}
+.m2-card__keys span {
+  border-bottom: 1px dotted currentColor;
+}
+.m2-card__reason {
+  position: absolute;
+  left: 50%;
+  bottom: 0.8em;
+  transform: translateX(-50%);
+  z-index: 3;
+  max-width: 92%;
+  padding: 0.15em 0.6em;
+  font-size: 0.62em;
+  font-weight: 700;
+  color: #2a0710;
+  background: var(--m2-threat-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.m2-card.is-clickable {
+  cursor: pointer;
+}
+.m2-card.is-clickable:hover {
+  transform: translateY(-0.4em);
+  filter: drop-shadow(0 0.8em 1.1em rgba(0, 0, 0, 0.7)) drop-shadow(0 0 0.5em color-mix(in srgb, var(--rim-a) 45%, transparent));
+}
+.m2-card.is-clickable:hover .m2-card__art img {
+  transform: scale(1.06);
+}
+.m2-card.is-clickable:active {
+  transform: translateY(-0.2em) scale(0.98);
+}
+.m2-card.is-selected {
+  transform: translateY(-0.6em);
+  filter: drop-shadow(0 0 0.15em var(--m2-cyan)) drop-shadow(0 0 0.9em rgba(78, 242, 227, 0.7));
+}
+.m2-card.is-unplayable {
+  opacity: 0.62;
+}
+.m2-card.is-unplayable .m2-card__frame {
+  filter: saturate(0.25) brightness(0.8);
+}
+.m2-card.is-unplayable.is-clickable:hover {
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .m2-card,
+  .m2-card__art img {
+    transition: none;
+  }
+}
+
+/* --------------------------------------------------------------- character cards */
+
+/* Character cards: the owner's colour runs through the rim, the badge and a "<name> 전용" tag. */
+.m2-card--owned {
+  --rim-a: var(--own);
+  filter: drop-shadow(0 0 0.35em color-mix(in srgb, var(--own) 45%, transparent));
+}
+.m2-card--owned .m2-card__owner {
+  width: 2.5em;
+  height: 2.5em;
+  top: 0.85em;
+  border: 0.13em solid var(--own);
+  box-shadow:
+    0 0 0.6em color-mix(in srgb, var(--own) 70%, transparent),
+    0 0 0 0.12em rgba(0, 0, 0, 0.7);
+}
+.m2-card__ownertag {
+  color: #061015;
+  font-weight: 800;
+  padding: 0 0.45em;
+  background: var(--own);
+  letter-spacing: 0.02em;
+}

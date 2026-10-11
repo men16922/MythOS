@@ -1,0 +1,292 @@
+/* =====================================================================
+   Title (TitleScreen.tsx): key art, wordmark, the menu.
+   ===================================================================== */
+
+.m2-langswitch--sm button {
+  padding: 4px 12px;
+  font-size: 13px;
+}
+
+.m2-title {
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+.m2-title__bg {
+  position: absolute;
+  inset: -4%;
+  background-size: cover;
+  background-position: 70% 40%;
+  animation: m2-kenburns 38s ease-in-out infinite alternate;
+  filter: saturate(1.1) contrast(1.05);
+}
+@keyframes m2-kenburns {
+  from {
+    transform: scale(1.02) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.12) translate3d(-2%, -1.5%, 0);
+  }
+}
+.m2-title__rain {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(104deg, transparent 0 22px, rgba(160, 230, 230, 0.07) 22px 23px, transparent 23px 61px);
+  background-size: 200% 200%;
+  animation: m2-rain 0.9s linear infinite;
+  mix-blend-mode: screen;
+  opacity: 0.7;
+}
+@keyframes m2-rain {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -40px 220px;
+  }
+}
+.m2-title__shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(3, 9, 11, 0.97) 0%, rgba(3, 9, 11, 0.86) 34%, rgba(3, 9, 11, 0.25) 64%, rgba(3, 9, 11, 0.5) 100%),
+    linear-gradient(0deg, rgba(3, 9, 11, 0.9), transparent 40%);
+}
+.m2-title__inner {
+  position: relative;
+  width: min(560px, 100%);
+  padding: 64px 16px 48px clamp(16px, 7vw, 120px);
+}
+.m2-title__mark {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 20px;
+  mix-blend-mode: screen;
+  animation: m2-mark-in 1.2s var(--m2-ease) both;
+}
+.m2-title__mark img {
+  width: 100%;
+  height: 100%;
+  -webkit-mask-image: radial-gradient(circle, #000 52%, transparent 70%);
+  mask-image: radial-gradient(circle, #000 52%, transparent 70%);
+}
+@keyframes m2-mark-in {
+  from {
+    opacity: 0;
+    transform: scale(0.7) rotate(-20deg);
+    filter: blur(6px);
+  }
+}
+.m2-title__word {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+.m2-title__ko {
+  position: relative;
+  font-family: var(--m2-body);
+  font-weight: 900;
+  font-size: clamp(56px, 8vw, 104px);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  color: #f2fffd;
+  white-space: nowrap;
+  text-shadow: 0 0 40px rgba(78, 242, 227, 0.35);
+  animation: m2-title-in 1s 0.1s var(--m2-ease) both;
+}
+.m2-title__ko::before,
+.m2-title__ko::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.8;
+}
+.m2-title__ko::before {
+  color: var(--m2-threat);
+  mix-blend-mode: screen;
+  animation: m2-glitch-a 5.5s infinite steps(1);
+}
+.m2-title__ko::after {
+  color: var(--m2-cyan);
+  mix-blend-mode: screen;
+  animation: m2-glitch-b 5.5s infinite steps(1);
+}
+@keyframes m2-glitch-a {
+  0%,
+  86%,
+  100% {
+    transform: none;
+    clip-path: inset(0 0 100% 0);
+  }
+  87% {
+    transform: translate(-4px, 1px);
+    clip-path: inset(12% 0 60% 0);
+  }
+  89% {
+    transform: translate(3px, -1px);
+    clip-path: inset(58% 0 18% 0);
+  }
+  91% {
+    transform: translate(-2px, 0);
+    clip-path: inset(36% 0 40% 0);
+  }
+}
+@keyframes m2-glitch-b {
+  0%,
+  86%,
+  100% {
+    transform: none;
+    clip-path: inset(0 0 100% 0);
+  }
+  88% {
+    transform: translate(4px, -1px);
+    clip-path: inset(66% 0 8% 0);
+  }
+  90% {
+    transform: translate(-3px, 1px);
+    clip-path: inset(8% 0 72% 0);
+  }
+}
+.m2-title__en {
+  margin-top: 10px;
+  font-family: var(--m2-display);
+  font-weight: 600;
+  font-size: 20px;
+  letter-spacing: 0.62em;
+  color: var(--m2-cyan);
+  animation: m2-fade 0.9s 0.45s both;
+}
+.m2-title__tag {
+  margin: 22px 0 36px;
+  max-width: 36ch;
+  font-size: 16px;
+  color: var(--m2-ink-2);
+  animation: m2-fade 0.8s 0.6s both;
+}
+.m2-title__menu {
+  display: grid;
+  gap: 10px;
+  animation: m2-rise 0.7s 0.65s var(--m2-ease) both;
+}
+.m2-menu-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 12px 18px;
+  border: 0;
+  border-left: 2px solid var(--m2-line-2);
+  background: linear-gradient(90deg, rgba(10, 30, 34, 0.75), rgba(10, 30, 34, 0.15));
+  text-align: left;
+  cursor: pointer;
+  color: var(--m2-ink-2);
+  transition: transform 0.16s var(--m2-ease), border-color 0.16s, background 0.16s, color 0.16s;
+}
+.m2-menu-item b {
+  display: block;
+  font-family: var(--m2-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--m2-ink);
+  letter-spacing: 0.02em;
+}
+.m2-menu-item small {
+  display: block;
+  font-size: 12.5px;
+  color: var(--m2-mute);
+}
+.m2-menu-item:hover {
+  transform: translateX(8px);
+  border-left-color: var(--m2-cyan);
+  background: linear-gradient(90deg, rgba(20, 70, 74, 0.85), rgba(20, 70, 74, 0.1));
+  color: var(--m2-cyan);
+}
+.m2-menu-item:active {
+  transform: translateX(8px) scale(0.99);
+}
+.m2-menu-item--primary {
+  border-left-color: var(--m2-cyan);
+  color: var(--m2-cyan);
+}
+.m2-menu-item--primary b {
+  color: #fff;
+}
+.m2-title__foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 36px;
+  animation: m2-fade 0.8s 0.9s both;
+}
+
+/* --------------------------------------------------------------- responsive */
+
+/* short viewports (laptops with browser chrome, 1280×720 and below) */
+@media (max-height: 760px) {
+  .m2-title__inner {
+    padding-top: 28px;
+    padding-bottom: 24px;
+  }
+  .m2-title__mark {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 10px;
+  }
+  .m2-title__ko {
+    font-size: clamp(48px, 6.5vw, 80px);
+  }
+  .m2-title__tag {
+    margin: 12px 0 18px;
+  }
+  .m2-menu-item {
+    padding: 8px 16px;
+  }
+  .m2-menu-item b {
+    font-size: 18px;
+  }
+  .m2-title__foot {
+    margin-top: 18px;
+  }
+}
+
+/* Version tag beside the MYTHOS wordmark on the title screen. */
+.m2-title__ver {
+  margin-left: 0.9em;
+  padding: 0.15em 0.55em;
+  border: 1px solid rgba(95, 242, 224, 0.45);
+  color: #5ff2e0;
+  font-size: 0.55em;
+  letter-spacing: 0.18em;
+  vertical-align: middle;
+  text-shadow: 0 0 10px rgba(95, 242, 224, 0.5);
+}
+.m2-title__saved {
+  display: block;
+  margin-top: 2px;
+  color: var(--m2-cyan);
+  opacity: 0.85;
+}
+
+/* --------------------------------------------------------------- daily seed: the menu item and its best-result tag */
+
+.m2-menu-item--daily > svg {
+  color: var(--m2-echo);
+}
+.m2-menu-item--daily:hover {
+  border-left-color: var(--m2-echo);
+}
+.m2-daily-best {
+  font-style: normal;
+  color: var(--m2-ink-2);
+}
+.m2-daily-best.is-tried {
+  color: var(--m2-cyan-2);
+}
+.m2-daily-best.is-won {
+  color: var(--m2-gold);
+  font-weight: 700;
+}

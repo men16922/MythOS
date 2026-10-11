@@ -1,0 +1,75 @@
+/* =====================================================================
+   Combat sandbox page (SandboxApp.tsx, /?sandbox=combat).
+   ===================================================================== */
+
+.m2c-sandbox {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.m2c-sb-bar {
+  flex: none;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 10px;
+  font-size: 12px;
+  background: #020809;
+  border-bottom: 1px solid #1d3f46;
+  color: #a9c9c8;
+  position: relative;
+  z-index: 100;
+}
+.m2c-sb-bar select,
+.m2c-sb-bar button {
+  background: #0a191e;
+  color: #dcf3f0;
+  border: 1px solid #2b5a62;
+  font-size: 12px;
+  padding: 2px 6px;
+}
+.m2c-sb-result {
+  color: #f0cd75;
+  font-weight: 700;
+}
+.m2c-sb-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  --m2c-h: 100%;
+}
+.m2c-sb-stage .m2c-root {
+  min-height: 0;
+}
+/* ?free=1: no pinned height — exercises the auto-fit used under the shell's fixed top bar. */
+.m2c-sb-stage.is-free {
+  --m2c-h: initial;
+  overflow: auto;
+}
+.m2c-sb-msg {
+  padding: 40px;
+  color: #9ff;
+  font-family: monospace;
+}
+.m2c-sb-over {
+  position: absolute;
+  right: 20px;
+  top: 60px;
+  z-index: 1000;
+  padding: 14px 18px;
+  background: rgba(2, 8, 10, 0.92);
+  border: 1px solid #4ef2e3;
+}
+.m2c-sb-over p {
+  margin: 0 0 8px;
+  font-weight: 700;
+}
+.m2c-sb-over button {
+  background: #4ef2e3;
+  color: #02181a;
+  border: none;
+  padding: 4px 12px;
+  font-weight: 700;
+}

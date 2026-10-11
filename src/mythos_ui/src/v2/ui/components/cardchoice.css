@@ -1,0 +1,63 @@
+/* =====================================================================
+   Card choice (CardChoice.tsx): pick one of N cards — a fan of slots, the picked one rises.
+   ===================================================================== */
+
+.m2-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+}
+.m2-choice__title {
+  font-family: var(--m2-display);
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  animation: m2-fade 0.4s both;
+}
+.m2-choice__fan {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 26px;
+  perspective: 1200px;
+}
+.m2-choice__slot {
+  opacity: 0;
+  transform: translateY(60px) rotateY(80deg) scale(0.8);
+  transition: transform 0.55s cubic-bezier(0.2, 1.2, 0.4, 1), opacity 0.35s;
+}
+.m2-choice__slot.is-in {
+  opacity: 1;
+  transform: rotate(calc(var(--i) * 2.5deg)) translateY(calc(var(--i) * var(--i) * 8px));
+}
+.m2-choice__slot.is-rare.is-in .m2-card__frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 236, 170, 0.55) 45%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 236, 170, 0.55) 55%, transparent 70%);
+  background-size: 250% 100%;
+  animation: m2-shimmer 2.4s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+.m2-choice__slot.is-rare.is-in .m2-card {
+  filter: drop-shadow(0 0 18px rgba(240, 205, 117, 0.55));
+}
+@keyframes m2-shimmer {
+  from {
+    background-position: 120% 0;
+  }
+  to {
+    background-position: -120% 0;
+  }
+}
+.m2-choice__slot.is-picked {
+  transform: translateY(-40px) scale(1.12);
+  filter: drop-shadow(0 0 30px rgba(78, 242, 227, 0.8));
+}
+.m2-choice__slot.is-dropped {
+  opacity: 0;
+  transform: translateY(80px) scale(0.85);
+}

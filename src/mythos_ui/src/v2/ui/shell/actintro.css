@@ -1,0 +1,111 @@
+/* =====================================================================
+   Act intro (ActIntro.tsx).
+   ===================================================================== */
+
+.m2-actintro {
+  position: relative;
+  min-height: 100dvh;
+  overflow: hidden;
+  cursor: pointer;
+}
+.m2-actintro__art {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  animation: m2-actzoom 18s ease-out both;
+}
+.m2-actintro__shade {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(0deg, rgba(3, 9, 11, 0.98) 0%, rgba(3, 9, 11, 0.75) 38%, rgba(3, 9, 11, 0.1) 70%),
+    radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.6));
+}
+.m2-actintro__inner {
+  position: absolute;
+  left: clamp(16px, 7vw, 120px);
+  right: 16px;
+  bottom: clamp(32px, 8vh, 90px);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas: 'num titles' 'lines lines' 'go go';
+  column-gap: 28px;
+  max-width: 980px;
+}
+.m2-actintro__num {
+  grid-area: num;
+  font-family: var(--m2-display);
+  font-weight: 700;
+  font-size: clamp(110px, 16vw, 200px);
+  line-height: 0.8;
+  color: transparent;
+  -webkit-text-stroke: 2px var(--m2-cyan);
+  text-shadow: 0 0 40px rgba(78, 242, 227, 0.3);
+  animation: m2-num-in 1.1s 0.2s var(--m2-ease) both;
+}
+.m2-actintro__num small {
+  font-size: 0.22em;
+  -webkit-text-stroke: 0;
+  color: var(--m2-cyan-dim);
+  margin-left: 0.1em;
+}
+.m2-actintro__titles {
+  grid-area: titles;
+  align-self: end;
+  animation: m2-rise 1s 0.5s var(--m2-ease) both;
+}
+.m2-actintro__kicker {
+  font-family: var(--m2-display);
+  color: var(--m2-cyan);
+  font-size: 16px;
+  font-weight: 600;
+}
+.m2-actintro__name {
+  margin: 2px 0 4px;
+  font-family: var(--m2-display);
+  font-weight: 700;
+  font-size: clamp(38px, 5vw, 64px);
+  line-height: 1;
+  color: #fff;
+}
+.m2-actintro__sub {
+  margin: 0;
+  font-size: 17px;
+  color: var(--m2-ink-2);
+}
+.m2-actintro__lines {
+  grid-area: lines;
+  margin-top: 26px;
+  max-width: 72ch;
+  min-height: 7.5em;
+}
+.m2-actintro__lines p {
+  margin: 0 0 10px;
+  font-size: 17px;
+  line-height: 1.75;
+  color: var(--m2-ink);
+  animation: m2-line-in 0.8s var(--m2-ease) both;
+}
+@keyframes m2-line-in {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+    filter: blur(4px);
+  }
+}
+.m2-actintro__go {
+  grid-area: go;
+  justify-self: start;
+  margin-top: 16px;
+  opacity: 0.55;
+}
+.m2-actintro__go.is-ready {
+  opacity: 1;
+  animation: m2-ready 1.8s ease-in-out infinite;
+}
+@keyframes m2-ready {
+  50% {
+    filter: drop-shadow(0 0 12px rgba(78, 242, 227, 0.7));
+  }
+}

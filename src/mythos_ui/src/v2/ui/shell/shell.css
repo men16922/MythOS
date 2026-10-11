@@ -1,0 +1,138 @@
+/* =====================================================================
+   Shell (GameShell.tsx): stage, screen transitions, loading / crash states, modal text,
+   and the Trace tier-up alert.
+   ===================================================================== */
+
+.m2-stage {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+.m2-stage.has-bar {
+  padding-top: 64px;
+}
+.m2-screen {
+  position: relative;
+  min-height: inherit;
+  animation: m2-screen-in 0.42s var(--m2-ease) both;
+}
+.m2-stage.has-bar .m2-screen {
+  min-height: calc(100dvh - 64px);
+}
+@keyframes m2-screen-in {
+  0% {
+    opacity: 0;
+    filter: brightness(1.8) saturate(0.4);
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    filter: none;
+  }
+}
+.m2-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  pointer-events: none;
+  background: linear-gradient(180deg, var(--m2-void) 0 44%, rgba(78, 242, 227, 0.55) 46%, rgba(78, 242, 227, 0.08) 48%, transparent 54%);
+  background-size: 100% 240%;
+  animation: m2-wipe 0.46s cubic-bezier(0.6, 0, 0.3, 1) forwards;
+}
+@keyframes m2-wipe {
+  from {
+    background-position: 0 0%;
+  }
+  to {
+    background-position: 0 100%;
+    visibility: hidden;
+  }
+}
+.is-fast .m2-curtain {
+  animation-duration: 0.2s;
+}
+.is-fast .m2-screen {
+  animation-duration: 0.2s;
+}
+.m2-loading {
+  display: grid;
+  place-items: center;
+  min-height: 60vh;
+  font-family: var(--m2-display);
+  color: var(--m2-cyan);
+  letter-spacing: 0.08em;
+}
+.m2-crash {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  text-align: center;
+}
+.m2-crash__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.m2-modal__text {
+  margin: 0;
+  color: var(--m2-ink-2);
+}
+
+/* --------------------------------------------------------------- trace tier-up alert */
+
+.m2-tier-alert {
+  --t: var(--m2-amber);
+  position: fixed;
+  top: 72px;
+  left: 50%;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 28px 12px;
+  border: 1px solid var(--t);
+  background: rgba(20, 10, 4, 0.92);
+  box-shadow: 0 0 34px color-mix(in srgb, var(--t) 45%, transparent);
+  clip-path: var(--m2-cut-sm);
+  transform: translateX(-50%);
+  pointer-events: none;
+  animation: m2-tier-alert 4.2s var(--m2-ease) both;
+}
+.m2-tier-alert.is-late {
+  animation-delay: 1.7s;
+}
+.m2-tier-alert b {
+  font-family: var(--m2-display);
+  font-size: 19px;
+  letter-spacing: 0.08em;
+  color: var(--t);
+}
+.m2-tier-alert span {
+  font-size: 15px;
+  color: var(--m2-ink);
+}
+.m2-tier-alert--hunted,
+.m2-tier-alert--purge {
+  --t: var(--m2-threat);
+  background: rgba(26, 4, 10, 0.92);
+}
+@keyframes m2-tier-alert {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -14px) scale(1.06);
+  }
+  8%,
+  86% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -6px);
+  }
+}

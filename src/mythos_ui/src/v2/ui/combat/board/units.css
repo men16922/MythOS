@@ -1,0 +1,549 @@
+/* =====================================================================
+   Units (board/units.tsx): the sprite body, rings and facing, bars and statuses, intent badge,
+   death / spawn, burning flames, preview ghosts and push arrows.
+   ===================================================================== */
+
+.m2c-unit {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform;
+}
+.m2c-u-body {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+}
+.m2c-u-shadow {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.75), transparent);
+}
+.m2c-u-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid rgba(78, 242, 227, 0.55);
+  box-shadow:
+    0 0 10px rgba(78, 242, 227, 0.35),
+    inset 0 0 10px rgba(78, 242, 227, 0.25);
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+}
+.m2c-unit.is-enemy .m2c-u-ring {
+  border-color: rgba(255, 61, 110, 0.6);
+  box-shadow:
+    0 0 10px rgba(255, 61, 110, 0.35),
+    inset 0 0 10px rgba(255, 61, 110, 0.25);
+}
+.m2c-unit.is-neutral .m2c-u-ring {
+  border-color: rgba(255, 182, 72, 0.65);
+  box-shadow: 0 0 10px rgba(255, 182, 72, 0.35);
+}
+.m2c-unit.is-selected .m2c-u-ring {
+  border: 3px solid var(--c-cyan-2);
+  box-shadow:
+    0 0 18px rgba(78, 242, 227, 0.8),
+    inset 0 0 14px rgba(78, 242, 227, 0.5);
+}
+.m2c-unit.is-selected .m2c-u-ring::after,
+.m2c-unit.is-origin .m2c-u-ring::after {
+  content: '';
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  border: 2px dashed rgba(143, 250, 240, 0.8);
+  animation: m2c-spin 6s linear infinite;
+}
+.m2c-unit.is-origin .m2c-u-ring {
+  border: 3px solid #fff;
+  box-shadow:
+    0 0 24px rgba(78, 242, 227, 1),
+    inset 0 0 16px rgba(78, 242, 227, 0.6);
+  animation: m2c-originpulse 0.9s ease-in-out infinite;
+}
+@keyframes m2c-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes m2c-originpulse {
+  50% {
+    box-shadow:
+      0 0 40px rgba(78, 242, 227, 1),
+      inset 0 0 20px rgba(78, 242, 227, 0.9);
+  }
+}
+.m2c-unit.is-danger:not(.is-enemy) .m2c-u-ring {
+  border-color: #ff3d6e;
+  animation: m2c-danger 0.8s ease-in-out infinite;
+}
+@keyframes m2c-danger {
+  50% {
+    box-shadow:
+      0 0 26px rgba(255, 61, 110, 0.95),
+      inset 0 0 14px rgba(255, 61, 110, 0.7);
+  }
+}
+.m2c-unit.is-hovered.is-enemy .m2c-u-ring {
+  border-color: #fff;
+  border-width: 3px;
+}
+.m2c-u-facing {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 11px solid rgba(255, 61, 110, 0.95);
+  filter: drop-shadow(0 0 3px rgba(255, 61, 110, 0.9));
+}
+.m2c-u-facing.to-left {
+  transform: translate(-50%, -50%) translateX(-260%) rotate(-90deg);
+}
+.m2c-u-facing.to-right {
+  transform: translate(-50%, -50%) translateX(260%) rotate(90deg);
+}
+.m2c-u-facing.to-up {
+  transform: translate(-50%, -50%) translateY(-150%);
+}
+.m2c-u-facing.to-down {
+  transform: translate(-50%, -50%) translateY(150%) rotate(180deg);
+}
+.m2c-fig {
+  position: absolute;
+  transform-origin: 50% 93%;
+  transition: opacity 0.18s;
+}
+.m2c-bob {
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 93%;
+  animation: m2c-breathe 3s ease-in-out infinite;
+}
+@keyframes m2c-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  50% {
+    transform: translateY(-0.7%) scale(0.996, 1.016);
+  }
+}
+.m2c-fig img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 100%;
+  filter: drop-shadow(0 0 1.5px rgba(190, 255, 252, 1)) drop-shadow(0 0 9px rgba(78, 242, 227, 0.45)) brightness(1.38) contrast(1.08);
+}
+.m2c-unit.is-enemy .m2c-fig img {
+  filter: drop-shadow(0 0 1.5px rgba(255, 150, 175, 1)) drop-shadow(0 0 9px rgba(255, 61, 110, 0.42)) brightness(1.3) contrast(1.06);
+}
+.m2c-unit.is-neutral .m2c-fig img {
+  filter: drop-shadow(0 0 1px rgba(255, 220, 160, 0.9)) drop-shadow(0 0 6px rgba(255, 182, 72, 0.3)) brightness(1.2);
+}
+.m2c-fig img.is-flip {
+  transform: scaleX(-1);
+}
+.m2c-unit.is-xray .m2c-fig {
+  opacity: 0.3;
+}
+/* A unit or terrain sits right behind this one: keep its feet/body solid (you still see where it stands) but
+   fade the head/shoulders that would otherwise hide the unit behind. Hovering it shows it in full. */
+.m2c-unit.is-occluding:not(.is-hovered) .m2c-fig img {
+  -webkit-mask-image: linear-gradient(to top, #000 34%, rgba(0, 0, 0, 0.42) 52%, rgba(0, 0, 0, 0.32));
+  mask-image: linear-gradient(to top, #000 34%, rgba(0, 0, 0, 0.42) 52%, rgba(0, 0, 0, 0.32));
+}
+.m2c-unit.is-vanish .m2c-fig {
+  opacity: 0;
+}
+.m2c-unit.is-down .m2c-fig {
+  opacity: 0.35;
+  filter: grayscale(1);
+}
+.m2c-unit.is-spawning .m2c-fig {
+  animation: m2c-spawn 0.42s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes m2c-spawn {
+  0% {
+    clip-path: inset(100% 0 0 0);
+    filter: brightness(4) saturate(0);
+  }
+  60% {
+    clip-path: inset(0 0 0 0);
+    filter: brightness(2.2) saturate(0.4);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    filter: none;
+  }
+}
+.m2c-unit.is-dying-damage .m2c-fig {
+  animation: m2c-die 0.56s ease-in forwards;
+}
+.m2c-unit.is-dying-damage .m2c-u-hud,
+.m2c-unit.is-dying-void .m2c-u-hud,
+.m2c-unit.is-dying-damage .m2c-u-ring,
+.m2c-unit.is-dying-void .m2c-u-ring {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+@keyframes m2c-die {
+  0% {
+    filter: brightness(3.5) saturate(0);
+    clip-path: inset(0 0 0 0);
+  }
+  25% {
+    filter: brightness(1.8) hue-rotate(-40deg) saturate(3);
+    transform: translateX(-3%) skewX(-6deg);
+    clip-path: inset(0 0 0 0);
+  }
+  45% {
+    transform: translateX(4%) skewX(8deg);
+    clip-path: inset(18% 0 30% 0);
+  }
+  60% {
+    transform: translateX(-2%);
+    clip-path: inset(40% 0 8% 0);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(4%) scaleY(0.2);
+    clip-path: inset(85% 0 0 0);
+    opacity: 0;
+    filter: brightness(3) saturate(0);
+  }
+}
+.m2c-unit.is-dying-void .m2c-fig {
+  animation: m2c-void 0.72s cubic-bezier(0.5, 0, 0.9, 0.4) forwards;
+}
+@keyframes m2c-void {
+  0% {
+    filter: brightness(2.5) hue-rotate(0deg);
+  }
+  20% {
+    transform: translateX(6%) skewX(12deg);
+    filter: hue-rotate(120deg) saturate(4) brightness(1.6);
+    clip-path: inset(0 0 40% 0);
+  }
+  35% {
+    transform: translateX(-6%) skewX(-10deg);
+    clip-path: inset(30% 0 0 0);
+  }
+  100% {
+    transform: translateY(70%) scale(0.35);
+    filter: hue-rotate(280deg) brightness(0.2);
+    clip-path: inset(0 0 0 0);
+    opacity: 0;
+  }
+}
+.m2c-u-hud {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+}
+.m2c-u-bars {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.m2c-u-status {
+  display: flex;
+  gap: 2px;
+  justify-content: center;
+  order: 2;
+}
+.m2c-st {
+  display: inline-flex;
+  align-items: center;
+  height: 17px;
+  padding: 0 3px 0 1px;
+  border-radius: 3px;
+  background: rgba(3, 10, 12, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  font-family: var(--m2-mono, monospace);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #fff;
+  animation: m2c-pop 0.3s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+.m2c-st img {
+  width: 14px;
+  height: 14px;
+}
+.m2c-st--burn {
+  border-color: rgba(255, 130, 60, 0.7);
+}
+.m2c-st--shock {
+  border-color: rgba(120, 200, 255, 0.7);
+}
+.m2c-st--mark {
+  border-color: rgba(190, 255, 90, 0.7);
+}
+.m2c-st--weak {
+  border-color: rgba(200, 160, 255, 0.6);
+}
+.m2c-st--guard,
+.m2c-st--thorns {
+  border-color: rgba(78, 242, 227, 0.6);
+}
+@keyframes m2c-pop {
+  0% {
+    transform: scale(0.2);
+  }
+}
+.m2c-hp {
+  position: relative;
+  width: 100%;
+  height: 14px;
+  background: rgba(2, 8, 10, 0.92);
+  border: 1px solid rgba(160, 255, 248, 0.32);
+  clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+.m2c-unit.is-enemy .m2c-hp {
+  border-color: rgba(255, 123, 156, 0.4);
+}
+.m2c-hp-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, #8ffaf0, #2fc9ba);
+  transition: width 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.m2c-unit.is-enemy .m2c-hp-fill {
+  background: linear-gradient(180deg, #ff7b9c, #c41d4c);
+}
+.m2c-unit.is-neutral .m2c-hp-fill {
+  background: linear-gradient(180deg, #ffd38c, #d18a1c);
+}
+.m2c-hp-loss,
+.m2c-hp-threat {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(-45deg, #fff 0 3px, #ff3d6e 3px 6px);
+  animation: m2c-blink 0.5s steps(2) infinite;
+}
+.m2c-hp-threat {
+  background: repeating-linear-gradient(-45deg, rgba(255, 61, 110, 0.95) 0 3px, rgba(60, 0, 15, 0.9) 3px 6px);
+  animation-duration: 0.9s;
+}
+.m2c-hp-num {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--m2-mono, monospace);
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow:
+    0 0 2px #000,
+    0 1px 2px #000;
+  letter-spacing: 0.02em;
+}
+.m2c-hp-num small {
+  font-size: 8.5px;
+  opacity: 0.75;
+}
+.m2c-hp-block {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  padding: 0 4px 0 3px;
+  background: linear-gradient(180deg, #7fb8ff, #3a6fd0);
+  color: #fff;
+  font-family: var(--m2-mono, monospace);
+  font-size: 10px;
+  font-weight: 800;
+  text-shadow: 0 1px 1px #000;
+}
+.m2c-hp-armor {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  padding: 0 4px;
+  background: #5a6b70;
+  color: #fff;
+  font-family: var(--m2-mono, monospace);
+  font-size: 10px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+}
+.m2c-u-intent {
+  position: absolute;
+  left: 0;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px 2px 5px;
+  background: linear-gradient(180deg, #ff4d7a, #b5163f);
+  color: #fff;
+  font-family: var(--m2-mono, monospace);
+  font-size: 15px;
+  font-weight: 800;
+  clip-path: polygon(0 0, 100% 0, 100% 75%, 55% 75%, 50% 100%, 45% 75%, 0 75%);
+  padding-bottom: 7px;
+  filter: drop-shadow(0 0 6px rgba(255, 61, 110, 0.8));
+  transition: opacity 0.18s;
+  white-space: nowrap;
+}
+.m2c-u-intent.is-wind {
+  background: linear-gradient(180deg, #ffd38c, #d9881a);
+  color: #241400;
+  filter: drop-shadow(0 0 6px rgba(255, 182, 72, 0.8));
+  animation: m2c-windbeat 1.1s ease-in-out infinite;
+}
+@keyframes m2c-windbeat {
+  0%,
+  100% {
+    transform: translateX(-50%) scale(1);
+  }
+  14% {
+    transform: translateX(-50%) scale(1.14);
+  }
+  28% {
+    transform: translateX(-50%) scale(1);
+  }
+  42% {
+    transform: translateX(-50%) scale(1.08);
+  }
+}
+.m2c-u-intent.is-dim {
+  opacity: 0.2;
+}
+.m2c-u-wind {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  margin-left: 2px;
+  padding-left: 4px;
+  border-left: 1px solid rgba(0, 0, 0, 0.35);
+  font-size: 13px;
+}
+.m2c-u-moved {
+  position: absolute;
+  transform: translateY(-1px);
+}
+.m2c-u-moved::after {
+  content: '✓';
+  display: block;
+  padding: 0 5px;
+  border-radius: 7px;
+  background: rgba(3, 10, 12, 0.85);
+  border: 1px solid rgba(130, 195, 255, 0.5);
+  color: #9cc9ff;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 13px;
+}
+.m2c-u-hit {
+  position: absolute;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* --------------------------------------------------------------- preview ghost + push arrow */
+
+.m2c-pusharrow {
+  position: absolute;
+  height: 0;
+  transform-origin: 0 0;
+  border-top: 3px dashed var(--c-amber);
+  filter: drop-shadow(0 0 4px rgba(255, 182, 72, 0.9));
+}
+.m2c-pusharrow i {
+  position: absolute;
+  right: -4px;
+  top: -9px;
+  width: 0;
+  height: 0;
+  border-top: 7.5px solid transparent;
+  border-bottom: 7.5px solid transparent;
+  border-left: 13px solid var(--c-amber);
+}
+.m2c-ghost {
+  position: absolute;
+  transform-origin: 0 0;
+  opacity: 0.42;
+  pointer-events: none;
+  filter: grayscale(1) brightness(1.6) sepia(1) hue-rotate(5deg) saturate(3);
+  animation: m2c-blink 0.9s ease-in-out infinite;
+}
+.m2c-ghost.is-move {
+  opacity: 0.55;
+  filter: brightness(1.3) drop-shadow(0 0 6px rgba(120, 190, 255, 0.9));
+  animation: none;
+}
+.m2c-ghost img {
+  position: absolute;
+  object-fit: contain;
+}
+.m2c-ghost img.is-flip {
+  transform: scaleX(-1);
+}
+
+/* --------------------------------------------------------------- reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .m2c-bob {
+    animation: none;
+  }
+}
+
+/* --------------------------------------------------------------- burning unit */
+
+/* burning unit: flames on the lower body (inside the figure box) and a warm pool under the feet */
+.m2c-u-burn {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 0;
+  pointer-events: none;
+}
+.m2c-u-burn .m2c-flame {
+  opacity: 0.8;
+}
+.m2c-u-burn.is-front .m2c-flame {
+  opacity: 0.7;
+  animation-duration: 0.66s;
+}
+/* The bob wrapper must stack over the back flames. */
+.m2c-unit.is-burning .m2c-bob {
+  position: relative;
+}
+.m2c-u-burnglow {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 120, 30, 0.6), rgba(255, 80, 10, 0) 100%);
+  animation: m2c-burnglow 1.1s ease-in-out infinite;
+}
+@keyframes m2c-burnglow {
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .m2c-u-burnglow {
+    animation: none;
+  }
+}

@@ -8,6 +8,7 @@ import type { CombatState, ContentRegistry, Dir, Pos } from '../../../engine/typ
 import type { BoardGeom, Pt } from '../geometry.ts'
 import { dirAngle, pts, tileCenter, tileQuad, tileScale, unitScale } from '../geometry.ts'
 import type { IntentView, TileMark } from './marks.ts'
+import './intents.css'
 
 function arrowHead(at: Pt, angleDeg: number, size: number): string {
   const a = (angleDeg * Math.PI) / 180

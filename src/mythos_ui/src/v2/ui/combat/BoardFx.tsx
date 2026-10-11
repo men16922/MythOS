@@ -10,6 +10,7 @@ import { STATUS_ICON } from '../common/assets.ts'
 import type { AreaElement, BPt, FxItem } from './animator.ts'
 import type { BoardGeom, Pt } from './geometry.ts'
 import { pts, tileCenter, tileQuad, tileScale } from './geometry.ts'
+import './boardfx.css'
 
 function rnd(seed: number, i: number): number {
   const x = Math.sin(seed * 9301 + i * 49297) * 233280

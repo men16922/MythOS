@@ -1,6 +1,7 @@
 // Mythos 2.0 — fast typewriter reveal; click to complete instantly.
 import { useEffect, useState } from 'react'
 import { sound } from './sound.ts'
+import './typewriter.css'
 
 export interface TypewriterProps {
   text: string

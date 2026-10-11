@@ -1,0 +1,154 @@
+/* =====================================================================
+   PHONE WIDTH (≤ 560px) — shell fixes for the phone-width combat pass (2026-10-11).
+   Owned by the combat/mobile pass; desktop and tablet widths are untouched. Imported last by
+   GameShell so it overrides every shell sheet (the modal's phone rules live in components/modal.css).
+   ===================================================================== */
+
+@media (max-width: 560px) {
+  /* Top bar: two rows (stats, then implants · consumables · tools). One row cannot fit: the tools
+     (deck / settings / menu) ran off the right edge and the implants collapsed to zero width. */
+  .m2-topbar {
+    height: 92px;
+    flex-wrap: wrap;
+    align-content: center;
+    gap: 4px 8px;
+    padding: 0 8px;
+  }
+  .m2-topbar > * {
+    order: 1;
+    flex: none;
+  }
+  .m2-topbar::before {
+    content: '';
+    order: 2;
+    flex-basis: 100%;
+    height: 0;
+  }
+  .m2-topbar > .m2-topbar__implants,
+  .m2-topbar > .m2-topbar__cons,
+  .m2-topbar > .m2-topbar__tools {
+    order: 3;
+  }
+  .m2-topbar > .m2-topbar__implants {
+    flex: 1 1 0;
+  }
+  .m2-topbar__who {
+    gap: 6px;
+  }
+  .m2-topbar__avatar {
+    width: 32px;
+    height: 32px;
+  }
+  .m2-topbar__hp {
+    width: 68px;
+  }
+  .m2-topbar__credits {
+    font-size: 16px;
+  }
+  .m2-topbar__codex {
+    font-size: 14px;
+  }
+  .m2-topbar__actnum {
+    font-size: 19px;
+  }
+  .m2-trace {
+    width: 84px;
+  }
+  .m2-trace__label {
+    display: none;
+  }
+  .m2-topbar__cons {
+    display: flex;
+  }
+  .m2-cons {
+    width: 30px;
+    height: 30px;
+  }
+  .m2-topbar__tools {
+    margin-left: auto;
+    gap: 4px;
+  }
+  .m2-deckbtn {
+    height: 32px;
+    padding: 0 9px;
+  }
+  .m2-topbar__tools .m2-iconbtn {
+    width: 32px;
+    height: 32px;
+  }
+  .m2-autosave span {
+    display: none;
+  }
+  /* everything sized against the 64 px bar */
+  .m2-stage.has-bar {
+    padding-top: 92px;
+  }
+  .m2-stage.has-bar .m2-screen {
+    min-height: calc(100dvh - 92px);
+  }
+  .m2-map {
+    height: calc(100dvh - 92px);
+  }
+  .m2-reward,
+  .m2-shop,
+  .m2-rest,
+  .m2-treasure,
+  .m2-final {
+    min-height: calc(100dvh - 92px);
+  }
+  /* Map: the act title on one line (the trace meter is in the top bar), and the 600 px node board scaled to
+     the width so every column is on screen. The scroll box itself is zoomed, so MapScreen's scroll-to-node
+     math stays in one coordinate space. */
+  .m2-map__side {
+    display: block;
+    padding: 8px 12px;
+  }
+  .m2-map__side .m2-map__trace {
+    display: none;
+  }
+  .m2-map__actnum,
+  .m2-map__title,
+  .m2-map__sub {
+    display: inline;
+  }
+  .m2-map__title {
+    margin: 0 6px;
+    font-size: 18px;
+  }
+  .m2-map__sub {
+    font-size: 12px;
+  }
+  .m2-map__scroll {
+    zoom: 0.64;
+  }
+}
+@media (max-width: 380px) {
+  .m2-topbar__avatar {
+    display: none;
+  }
+  .m2-map__scroll {
+    zoom: 0.6;
+  }
+}
+/* Phone map: the node board is zoomed to 0.64, which left 29 px tap targets. Grow each node button by 24 px and
+   inset its octagon by the same amount, so it looks identical but takes a ~45 px tap. */
+@media (max-width: 560px) {
+  .m2-map__scroll .m2-node:not(.m2-node--boss) {
+    width: 70px;
+    height: 70px;
+  }
+  .m2-map__scroll .m2-node--elite {
+    width: 78px;
+    height: 78px;
+  }
+  .m2-map__scroll .m2-node:not(.m2-node--boss)::before {
+    inset: 12px;
+  }
+  .m2-map__scroll .m2-node:not(.m2-node--boss)::after {
+    inset: 14px;
+  }
+  /* "you are here" sits under the drawn octagon, not under the grown hit box. */
+  .m2-map__scroll .m2-node__you {
+    margin-top: -9px;
+  }
+}

@@ -11,6 +11,7 @@ import { tr } from '../common/lang.ts'
 import { sound } from '../components/sound.ts'
 import { Typewriter } from '../components/Typewriter.tsx'
 import { companionReply } from './gm.ts'
+import './voices.css'
 
 interface Msg {
   id: number

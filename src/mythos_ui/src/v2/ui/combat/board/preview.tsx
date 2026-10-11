@@ -11,6 +11,7 @@ import { tileCenter, tileScale, unitScale } from '../geometry.ts'
 import { ShieldGlyph } from './glyphs.tsx'
 import type { IntentView, TileMark } from './marks.ts'
 import { Ghost, PushArrow } from './units.tsx'
+import './preview.css'
 
 export function PreviewChips({ g, vc, C, preview }: { g: BoardGeom; vc: CombatState; C: ContentRegistry; preview: CombatPreview | null }) {
   return preview?.units.map((r) => {

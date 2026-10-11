@@ -14,6 +14,7 @@ import { ImplantIcon } from '../components/ImplantIcon.tsx'
 import { Modal } from '../components/Modal.tsx'
 import { PatternIcon, ShieldGlyph } from './board/glyphs.tsx'
 import { STATUS_NAME, STATUS_TEXT, TRACK_NOTE, bonusProgress, bonusText, describeMove, kindTag, objectiveText } from './describe.ts'
+import './panels.css'
 
 const ko = (lang: Lang, a: string, b: string) => (lang === 'ko' ? a : b)
 const STATUS_ORDER: StatusKind[] = ['burn', 'shock', 'mark', 'weak', 'guard', 'thorns']

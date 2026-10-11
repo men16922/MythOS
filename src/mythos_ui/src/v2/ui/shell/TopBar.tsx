@@ -11,6 +11,7 @@ import { HpBar } from '../components/HpBar.tsx'
 import { ImplantIcon } from '../components/ImplantIcon.tsx'
 import { Tooltip } from '../components/Tooltip.tsx'
 import { TraceMeter } from '../components/TraceMeter.tsx'
+import './topbar.css'
 
 /** Implants already shown once (module-level so it survives the bar unmounting during combat). */
 const shownImplants = new Set<string>()

@@ -1,4 +1,7 @@
 // Mythos 2.0 — compact HP bar.
+
+import './hpbar.css'
+
 export function HpBar({ hp, max, small, label }: { hp: number; max: number; small?: boolean; label?: boolean }) {
   const pct = max > 0 ? Math.max(0, Math.min(100, (hp / max) * 100)) : 0
   const tone = pct <= 30 ? 'low' : pct <= 60 ? 'mid' : 'ok'

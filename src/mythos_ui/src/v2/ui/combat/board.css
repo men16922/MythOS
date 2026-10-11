@@ -1,0 +1,168 @@
+/* =====================================================================
+   Board (Board.tsx): the board box and its layers, threat heat, move / target / hover
+   overlays, direction picker, reinforcement markers.
+   ===================================================================== */
+
+.m2c-board {
+  position: relative;
+}
+.m2c-plane {
+  position: absolute;
+  left: 0;
+  top: 0;
+  overflow: visible;
+}
+.m2c-plane {
+  z-index: 1;
+}
+.m2c-units {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+.m2c-huds {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+.m2c-labels {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+.m2c-heat {
+  fill: rgba(255, 61, 110, calc(0.12 + var(--heat) * 0.5));
+  stroke: rgba(255, 123, 156, 0.6);
+  stroke-width: 1;
+}
+.m2c-intents {
+  transition: opacity 0.2s;
+}
+.m2c-intents.is-faded {
+  opacity: 0.3;
+}
+.m2c-incoming {
+  fill: rgba(255, 182, 72, 0.12);
+  stroke: var(--c-amber);
+  stroke-width: 2;
+  stroke-dasharray: 2 5;
+  animation:
+    m2c-ants 1.2s linear infinite,
+    m2c-blink 1.2s ease-in-out infinite;
+}
+.m2c-move {
+  fill: rgba(70, 160, 255, 0.13);
+  stroke: rgba(130, 195, 255, 0.8);
+  stroke-width: 1.5;
+  transition: fill 0.12s;
+}
+.m2c-move.is-hover {
+  fill: rgba(90, 175, 255, 0.45);
+  stroke: #d6ebff;
+  stroke-width: 2.2;
+}
+.m2c-target {
+  fill: rgba(78, 242, 227, 0.14);
+  stroke: rgba(120, 255, 244, 0.85);
+  stroke-width: 1.8;
+  stroke-dasharray: 6 4;
+  animation: m2c-ants 1.4s linear infinite;
+}
+.m2c-active {
+  fill: rgba(78, 242, 227, 0.3);
+  stroke: var(--c-cyan-2);
+  stroke-width: 2.4;
+  animation: m2c-activepulse 0.9s ease-in-out infinite;
+}
+.m2c-active.is-hostile {
+  fill: rgba(78, 242, 227, 0.22);
+  stroke: #e9fffd;
+}
+@keyframes m2c-activepulse {
+  50% {
+    fill-opacity: 0.55;
+  }
+}
+.m2c-hover {
+  fill: rgba(255, 255, 255, 0.05);
+  stroke: rgba(255, 255, 255, 0.55);
+  stroke-width: 1.5;
+}
+.m2c-hover.is-move {
+  stroke: #cfe6ff;
+}
+.m2c-hitgrid polygon {
+  fill: transparent;
+  pointer-events: all;
+  cursor: pointer;
+}
+
+/* --------------------------------------------------------------- labels layer */
+
+.m2c-heatnum {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-family: var(--m2-mono, monospace);
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  text-shadow:
+    0 0 6px #ff3d6e,
+    0 1px 2px #000;
+}
+.m2c-inc {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  background: rgba(30, 18, 0, 0.88);
+  border: 1px solid var(--c-amber);
+  color: var(--c-amber);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  animation: m2c-blink 1.2s ease-in-out infinite;
+}
+.m2c-dir {
+  position: absolute;
+  pointer-events: auto;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 2px solid var(--c-cyan);
+  background: rgba(4, 18, 22, 0.88);
+  color: var(--c-cyan-2);
+  box-shadow: 0 0 12px rgba(78, 242, 227, 0.55);
+  transition:
+    transform 0.12s,
+    background 0.12s;
+  z-index: 3;
+}
+.m2c-dir span {
+  display: grid;
+  place-items: center;
+}
+.m2c-dir:hover,
+.m2c-dir.is-active {
+  background: var(--c-cyan);
+  color: #02181a;
+  transform: translate(-50%, -50%) scale(1.15);
+}
+
+/* --------------------------------------------------------------- ground layer */
+
+/* DOM layer between the floor (plane z 1) and the units (z 3); the FX tile plane (z 2) comes later in the DOM. */
+.m2c-ground {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}

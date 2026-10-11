@@ -13,6 +13,7 @@ import { sound } from '../components/sound.ts'
 import { Typewriter } from '../components/Typewriter.tsx'
 import { narrate } from './gm.ts'
 import { rx } from './rx.ts'
+import './archive.css'
 
 const KINDS: { kind: MetaUnlockKind; label: Text; hint: Text }[] = [
   { kind: 'archetype', label: L('접속자', 'Archetypes'), hint: L('새로운 방식으로 루프를 시작한다.', 'New ways to start a loop.') },

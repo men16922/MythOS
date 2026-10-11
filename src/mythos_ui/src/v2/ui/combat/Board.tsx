@@ -19,6 +19,7 @@ import { BoardPlane, GroundBadges, GroundFire, TileDefs } from './board/tiles.ts
 import { UnitSprite } from './board/units.tsx'
 import type { BoardGeom } from './geometry.ts'
 import { dirAngle, hash, pts, tileCenter, tileQuad, tileScale, unitScale } from './geometry.ts'
+import './board.css'
 
 export type { IntentView } from './board/marks.ts'
 

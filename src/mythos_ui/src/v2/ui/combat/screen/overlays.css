@@ -1,0 +1,223 @@
+/* =====================================================================
+   Overlays (screen/overlays.tsx): card ghosts, turn / phase / result banners, boss splash,
+   held-card zoom.
+   ===================================================================== */
+
+/* card ghost: snaps to the target, then burns away */
+.m2c-ghostcard {
+  position: absolute;
+  z-index: 700;
+  pointer-events: none;
+  animation: m2c-cardfly cubic-bezier(0.3, 0.7, 0.2, 1) forwards;
+  transform-origin: 50% 50%;
+}
+.m2c-root .m2c-ghostcard .m2-card {
+  --fs: inherit;
+}
+@keyframes m2c-cardfly {
+  0% {
+    transform: translate(0, 0) scale(1.05);
+    filter: brightness(1.2);
+  }
+  38% {
+    transform: translate(var(--tx), var(--ty)) scale(0.42) rotate(-4deg);
+    filter: brightness(1.4) drop-shadow(0 0 12px #4ef2e3);
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+  52% {
+    transform: translate(var(--tx), var(--ty)) scale(0.46) rotate(-2deg);
+    filter: brightness(2.2) sepia(1) hue-rotate(-20deg) saturate(3) drop-shadow(0 0 16px #ffb648);
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) scale(0.5) rotate(0);
+    filter: brightness(3) sepia(1) saturate(4) blur(1px) drop-shadow(0 0 20px #ff8a3d);
+    clip-path: inset(0 0 100% 0);
+    opacity: 0.2;
+  }
+}
+
+/* --------------------------------------------------------------- banners */
+
+.m2c-banner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 36%;
+  z-index: 800;
+  pointer-events: none;
+  text-align: center;
+  animation: m2c-bannerin 0.34s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+@keyframes m2c-bannerin {
+  0% {
+    transform: translateX(-30%) skewX(-12deg);
+    opacity: 0;
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+.m2c-banner-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -14px;
+  bottom: -14px;
+  background: linear-gradient(90deg, transparent, rgba(4, 30, 34, 0.92) 20%, rgba(4, 30, 34, 0.92) 80%, transparent);
+  border-top: 1px solid rgba(78, 242, 227, 0.5);
+  border-bottom: 1px solid rgba(78, 242, 227, 0.5);
+  animation: m2c-barin 0.4s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+@keyframes m2c-barin {
+  from {
+    transform: scaleY(0);
+  }
+}
+.m2c-banner-title {
+  position: relative;
+  font-family: 'Chakra Petch', var(--m2-display, sans-serif);
+  font-weight: 700;
+  font-size: 50px;
+  letter-spacing: 0.16em;
+  line-height: 1.05;
+  color: var(--c-cyan-2);
+  text-shadow:
+    0 0 18px rgba(78, 242, 227, 0.8),
+    0 3px 0 #02181a;
+}
+.m2c-banner-sub {
+  position: relative;
+  margin-top: 4px;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  color: rgba(220, 243, 240, 0.85);
+}
+.m2c-banner.is-enemy .m2c-banner-bar,
+.m2c-banner.is-phase .m2c-banner-bar,
+.m2c-banner.is-defeat .m2c-banner-bar {
+  background: linear-gradient(90deg, transparent, rgba(50, 4, 18, 0.94) 20%, rgba(50, 4, 18, 0.94) 80%, transparent);
+  border-color: rgba(255, 61, 110, 0.7);
+}
+.m2c-banner.is-enemy .m2c-banner-title,
+.m2c-banner.is-phase .m2c-banner-title,
+.m2c-banner.is-defeat .m2c-banner-title {
+  color: #ffd0dc;
+  text-shadow:
+    0 0 20px rgba(255, 61, 110, 0.95),
+    0 3px 0 #3a0010;
+}
+.m2c-banner.is-phase .m2c-banner-title {
+  font-size: 64px;
+  animation: m2c-glitch 0.25s steps(2) 4;
+}
+@keyframes m2c-glitch {
+  0% {
+    transform: translateX(-4px);
+    text-shadow:
+      4px 0 #ff3d6e,
+      -4px 0 #4ef2e3;
+  }
+  100% {
+    transform: translateX(3px);
+    text-shadow:
+      -3px 0 #ff3d6e,
+      3px 0 #4ef2e3;
+  }
+}
+.m2c-banner.is-victory .m2c-banner-title {
+  font-size: 72px;
+  color: #fff6d8;
+  text-shadow:
+    0 0 26px rgba(255, 210, 120, 0.95),
+    0 0 60px rgba(78, 242, 227, 0.6),
+    0 4px 0 #3a2a00;
+  animation: m2c-victory 0.6s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+}
+.m2c-banner.is-victory .m2c-banner-bar {
+  border-color: rgba(255, 210, 120, 0.8);
+}
+@keyframes m2c-victory {
+  0% {
+    transform: scale(2.2);
+    opacity: 0;
+    letter-spacing: 0.6em;
+  }
+}
+.m2c-banner.is-defeat .m2c-banner-title {
+  font-size: 64px;
+}
+.m2c-banner.is-player .m2c-banner-title,
+.m2c-banner.is-intro .m2c-banner-title {
+  font-size: 40px;
+}
+.m2c-banner.is-intro {
+  top: 30%;
+}
+.m2c-splash {
+  position: absolute;
+  inset: 0;
+  z-index: 850;
+  background: #000;
+  overflow: hidden;
+  animation: m2c-splash 1.7s ease both;
+}
+.m2c-splash img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: m2c-splashzoom 1.7s ease-out both;
+}
+.m2c-splash-noart {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 50% at 50% 50%, rgba(255, 61, 110, 0.35), transparent),
+    repeating-linear-gradient(0deg, rgba(255, 61, 110, 0.07) 0 2px, transparent 2px 6px);
+}
+.m2c-splash-name {
+  position: absolute;
+  left: 6%;
+  bottom: 14%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: m2c-bannerin 0.5s 0.2s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+.m2c-splash-name em {
+  font-style: normal;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  color: var(--c-threat);
+}
+.m2c-splash-name b {
+  font-family: 'Chakra Petch', var(--m2-display, sans-serif);
+  font-size: 76px;
+  line-height: 1;
+  color: #fff;
+  text-shadow:
+    0 0 30px rgba(255, 61, 110, 0.9),
+    0 5px 0 #3a0010;
+}
+@keyframes m2c-splash {
+  0% {
+    opacity: 0;
+  }
+  10%,
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes m2c-splashzoom {
+  from {
+    transform: scale(1.15);
+  }
+}

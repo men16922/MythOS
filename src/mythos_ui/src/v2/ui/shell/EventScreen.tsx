@@ -13,6 +13,7 @@ import { GmCard } from './GmCard.tsx'
 import { improvise, narrate } from './gm.ts'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
+import './event.css'
 
 const REWARD_LABEL: Record<Improvisation['reward'], { ko: string; en: string }> = {
   credits: L('크레딧', 'Credits'),

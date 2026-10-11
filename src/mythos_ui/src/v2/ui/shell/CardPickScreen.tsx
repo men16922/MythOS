@@ -7,6 +7,7 @@ import { cardSort } from '../components/format.ts'
 import { sound } from '../components/sound.ts'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
+import './cardpick.css'
 
 export function CardPickScreen({ run, C, lang, act }: ScreenProps) {
   const [sel, setSel] = useState<string | null>(null)

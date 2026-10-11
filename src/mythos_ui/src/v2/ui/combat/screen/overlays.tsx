@@ -8,6 +8,7 @@ import { tr } from '../../common/lang.ts'
 import { CardView } from '../../components/CardView.tsx'
 import type { Banner, FxItem } from '../animator.ts'
 import type { BoardGeom } from '../geometry.ts'
+import './overlays.css'
 
 type CardFx = Extract<FxItem, { kind: 'card' }>
 

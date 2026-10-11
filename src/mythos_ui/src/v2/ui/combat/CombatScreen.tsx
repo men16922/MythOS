@@ -11,6 +11,10 @@
 // taps replace hover — tap a unit / tile to pin the inspector, tap a card target once to preview and
 // again to play, hold a card to read it.
 
+// Stylesheet order matters: the base sheets first (every combat component imports its own sheet, which overrides
+// them), phone.css last (the phone layouts override everything).
+import '../../v2.css'
+import './combat.css'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { Layers, Maximize2, X } from 'lucide-react'
@@ -38,8 +42,7 @@ import { partyDanger, useIntentViews } from './screen/threat.ts'
 import { useCombatInput } from './screen/useCombatInput.ts'
 import { useEndTurnQueue } from './screen/useEndTurnQueue.ts'
 import { isTouch, watchPointer } from './touch.ts'
-import '../../v2.css'
-import './combat.css'
+import './phone.css'
 
 export interface CombatScreenProps {
   run: RunState

@@ -12,6 +12,7 @@ import type { UnitFx } from '../animator.ts'
 import type { BoardGeom } from '../geometry.ts'
 import { hash, tileCenter, tileScale } from '../geometry.ts'
 import { PatternIcon, ShieldGlyph } from './glyphs.tsx'
+import './units.css'
 
 interface UnitProps {
   /** 'body' = sprite + ring + hit box (y-sorted); 'hud' = bars/intent badge (always above every sprite). */

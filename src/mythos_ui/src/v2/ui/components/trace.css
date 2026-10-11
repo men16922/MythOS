@@ -1,0 +1,99 @@
+/* =====================================================================
+   Trace meter (TraceMeter.tsx): the run's Trace with its tier ticks and tier tips.
+   ===================================================================== */
+
+.m2-trace {
+  --t: var(--m2-cyan);
+  width: 168px;
+  cursor: default;
+}
+.m2-trace--alert {
+  --t: var(--m2-amber);
+}
+.m2-trace--hunted {
+  --t: #ff6a3d;
+}
+.m2-trace--purge {
+  --t: var(--m2-threat);
+}
+.m2-trace__head {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 12px;
+  margin-bottom: 3px;
+}
+.m2-trace__label {
+  color: var(--m2-mute);
+}
+.m2-trace__tier {
+  color: var(--t);
+  font-family: var(--m2-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.m2-trace__val {
+  margin-left: auto;
+  color: var(--t);
+  font-weight: 700;
+  font-size: 14px;
+}
+.m2-trace__bar {
+  position: relative;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.m2-trace__bar i {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.25);
+}
+.m2-trace__fill {
+  height: 100%;
+  background: var(--t);
+  box-shadow: 0 0 10px var(--t);
+  transition: width 0.7s var(--m2-ease), background 0.4s;
+}
+.m2-trace--purge .m2-trace__fill,
+.m2-trace--hunted .m2-trace__fill {
+  animation: m2-pulse-glow 1.2s ease-in-out infinite;
+}
+.m2-trace-tips {
+  margin-top: 8px;
+  display: grid;
+  gap: 3px;
+  font-size: 12px;
+}
+.m2-trace-tip {
+  color: var(--m2-mute);
+}
+.m2-trace-tip b {
+  font-weight: 700;
+  margin-right: 4px;
+}
+.m2-trace-tip.is-on {
+  color: var(--m2-ink);
+}
+.m2-trace-tip--alert b {
+  color: var(--m2-amber);
+}
+.m2-trace-tip--hunted b {
+  color: #ff6a3d;
+}
+.m2-trace-tip--purge b {
+  color: var(--m2-threat);
+}
+.m2-trace-tip--quiet b {
+  color: var(--m2-cyan);
+}
+
+/* --------------------------------------------------------------- responsive */
+
+@media (max-width: 1100px) {
+  .m2-trace {
+    width: 130px;
+  }
+}

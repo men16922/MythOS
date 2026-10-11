@@ -11,6 +11,7 @@ import { sound } from '../components/sound.ts'
 import { Typewriter } from '../components/Typewriter.tsx'
 import { narrate } from './gm.ts'
 import type { ScreenProps } from './types.ts'
+import './ending.css'
 
 /** True when the word's last Hangul syllable has a final consonant (받침); non-Hangul counts as yes. */
 function hasBatchim(word: string): boolean {

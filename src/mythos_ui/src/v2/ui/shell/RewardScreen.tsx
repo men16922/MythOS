@@ -9,6 +9,7 @@ import { ImplantIcon } from '../components/ImplantIcon.tsx'
 import { sound } from '../components/sound.ts'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
+import './reward.css'
 
 export function RewardScreen({ run, C, lang, settings, act }: ScreenProps) {
   const [openGroup, setOpenGroup] = useState<number | null>(null)

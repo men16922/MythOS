@@ -1,11 +1,11 @@
 // Mythos 2.0 — Protocol card face. Used by combat (hand), rewards, shop, deck viewer, card pick.
 import type { CSSProperties, ReactNode } from 'react'
-import '../../v2.css'
 import { cardFace } from '../../engine/combat.ts'
 import type { CardDef, CardType, Lang, Rarity, TargetMode } from '../../engine/types.ts'
 import { portrait } from '../common/assets.ts'
 import { L, tr } from '../common/lang.ts'
 import { art } from './art.ts'
+import './card.css'
 
 export interface CardViewProps {
   def: CardDef

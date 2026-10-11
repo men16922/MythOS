@@ -10,6 +10,7 @@ import { sound } from '../components/sound.ts'
 import { Tooltip } from '../components/Tooltip.tsx'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
+import './map.css'
 
 const W = 600
 const ROW_GAP = 92

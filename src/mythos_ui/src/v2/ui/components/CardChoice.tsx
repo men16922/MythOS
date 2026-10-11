@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import type { ContentRegistry, Lang } from '../../engine/types.ts'
 import { CardView } from './CardView.tsx'
 import { sound } from './sound.ts'
+import './cardchoice.css'
 
 export interface CardChoiceProps {
   choices: string[]

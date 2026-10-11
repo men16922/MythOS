@@ -11,6 +11,7 @@ import { ImplantIcon } from '../components/ImplantIcon.tsx'
 import { sound } from '../components/sound.ts'
 import { Tooltip } from '../components/Tooltip.tsx'
 import { rx } from './rx.ts'
+import './setup.css'
 
 const STATS: StatKey[] = ['str', 'agi', 'int', 'cha', 'obs']
 

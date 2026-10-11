@@ -1,0 +1,14 @@
+/* =====================================================================
+   Count-up number (CountUp.tsx): bumps when it changes.
+   ===================================================================== */
+
+.m2-countup.is-bump {
+  display: inline-block;
+  animation: m2-bump 0.35s var(--m2-ease);
+}
+@keyframes m2-bump {
+  40% {
+    transform: scale(1.2);
+    filter: brightness(1.6);
+  }
+}

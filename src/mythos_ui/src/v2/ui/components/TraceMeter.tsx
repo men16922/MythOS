@@ -3,6 +3,7 @@ import type { Lang } from '../../engine/types.ts'
 import { tr } from '../common/lang.ts'
 import { TRACE_EFFECT, TRACE_LABEL, traceTier } from './format.ts'
 import { Tooltip } from './Tooltip.tsx'
+import './trace.css'
 
 export function TraceMeter({ trace, lang, compact }: { trace: number; lang: Lang; compact?: boolean }) {
   const tier = traceTier(trace)

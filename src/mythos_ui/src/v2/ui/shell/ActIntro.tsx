@@ -7,6 +7,7 @@ import { GmCard } from './GmCard.tsx'
 import { narrate } from './gm.ts'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
+import './actintro.css'
 
 
 export function ActIntro({ run, C, lang, settings, act }: ScreenProps) {

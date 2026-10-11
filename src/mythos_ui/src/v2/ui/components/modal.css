@@ -1,0 +1,95 @@
+/* =====================================================================
+   Modal (Modal.tsx) and the deck viewer inside it (DeckModal.tsx).
+   ===================================================================== */
+
+.m2-modal-back {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 24px 16px;
+  background: rgba(1, 5, 6, 0.78);
+  backdrop-filter: blur(4px);
+  animation: m2-fade 0.18s ease-out;
+}
+.m2-modal {
+  position: relative;
+  width: min(480px, 100%);
+  max-height: calc(100dvh - 48px);
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #0c1d22, #071316);
+  border: 1px solid var(--m2-line-2);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(78, 242, 227, 0.12);
+  clip-path: var(--m2-cut);
+  animation: m2-modal-in 0.26s var(--m2-ease);
+}
+.m2-modal--wide {
+  width: min(1180px, 100%);
+}
+.m2-modal--danger {
+  border-color: rgba(255, 61, 110, 0.55);
+}
+.m2-modal__close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  z-index: 2;
+}
+.m2-modal__title {
+  padding: 18px 64px 10px 24px;
+  font-family: var(--m2-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+}
+.m2-modal--danger .m2-modal__title {
+  color: var(--m2-threat-2);
+}
+.m2-modal__body {
+  padding: 4px 24px 18px;
+  overflow-y: auto;
+}
+.m2-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 24px 20px;
+  border-top: 1px solid var(--m2-line);
+}
+.m2-deckmodal__head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.m2-deckmodal__n {
+  font-size: 16px;
+  color: var(--m2-cyan);
+}
+.m2-cardgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(176px, 1fr));
+  gap: 22px 14px;
+  justify-items: center;
+  padding: 10px 4px;
+}
+
+.m2-modal__actions .m2-btn {
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------- phone width (≤ 560px) */
+/* The combat pile viewer uses this modal too, so these live here rather than in shell/phone.css. */
+
+@media (max-width: 560px) {
+  /* Modals: the grid track grew to the action row's width (the pause menu came out 508 px wide). */
+  .m2-modal-back {
+    grid-template-columns: minmax(0, 1fr);
+    padding: 16px 10px;
+  }
+  .m2-modal__actions {
+    flex-wrap: wrap;
+    padding: 12px 16px 16px;
+  }
+}

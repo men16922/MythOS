@@ -1,0 +1,182 @@
+/* =====================================================================
+   Safehouse (RestScreen.tsx): the four options and the companion pick.
+   ===================================================================== */
+
+.m2-rest {
+  position: relative;
+  min-height: calc(100dvh - 64px);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.m2-rest__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.35;
+  filter: saturate(0.9) hue-rotate(-10deg);
+  animation: m2-scene-drift 40s ease-in-out infinite alternate;
+}
+.m2-rest::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 60%, rgba(255, 170, 80, 0.12), transparent 60%), radial-gradient(ellipse at center, transparent 30%, rgba(3, 9, 11, 0.9) 85%);
+}
+.m2-rest__inner {
+  position: relative;
+  width: min(980px, 100%);
+  padding: 32px 16px;
+  text-align: center;
+}
+.m2-rest__kicker {
+  font-family: var(--m2-display);
+  color: var(--m2-heal);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+.m2-rest__title {
+  margin: 4px 0;
+  font-family: var(--m2-display);
+  font-size: 40px;
+  line-height: 1.05;
+}
+.m2-rest__sub {
+  margin: 0 0 28px;
+  color: var(--m2-ink-2);
+}
+.m2-rest__opts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+.m2-restopt {
+  --c: var(--m2-heal);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 28px 14px 22px;
+  border: 1px solid color-mix(in srgb, var(--c) 35%, transparent);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c) 9%, rgba(6, 16, 20, 0.92)), rgba(6, 16, 20, 0.92));
+  color: var(--c);
+  cursor: pointer;
+  clip-path: var(--m2-cut);
+  animation: m2-row-in 0.5s var(--m2-ease) both;
+  transition: transform 0.18s var(--m2-ease), border-color 0.18s, box-shadow 0.18s;
+}
+.m2-restopt:nth-child(2) {
+  animation-delay: 70ms;
+}
+.m2-restopt:nth-child(3) {
+  animation-delay: 140ms;
+}
+.m2-restopt:nth-child(4) {
+  animation-delay: 210ms;
+}
+.m2-restopt b {
+  font-family: var(--m2-display);
+  font-size: 22px;
+  color: #fff;
+}
+.m2-restopt span {
+  font-size: 13px;
+  color: var(--m2-ink-2);
+}
+.m2-restopt:hover:not(:disabled) {
+  transform: translateY(-5px);
+  border-color: var(--c);
+  box-shadow: inset 0 0 40px color-mix(in srgb, var(--c) 18%, transparent);
+}
+.m2-restopt:hover:not(:disabled) svg {
+  filter: drop-shadow(0 0 10px var(--c));
+}
+.m2-restopt:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.m2-restopt--upgrade {
+  --c: var(--m2-cyan);
+}
+.m2-restopt--scrub {
+  --c: var(--m2-violet);
+}
+.m2-restopt--bond {
+  --c: var(--m2-amber);
+}
+.m2-rest__bond {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+.m2-bondpick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 180px;
+  padding: 18px 12px;
+  border: 1px solid rgba(255, 182, 72, 0.35);
+  background: rgba(30, 20, 6, 0.6);
+  cursor: pointer;
+  transition: transform 0.18s var(--m2-ease), border-color 0.18s;
+}
+.m2-bondpick:hover:not(:disabled) {
+  transform: translateY(-4px);
+  border-color: var(--m2-amber);
+}
+.m2-bondpick img {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 15%;
+  border: 2px solid var(--m2-amber);
+}
+.m2-bondpick b {
+  font-family: var(--m2-display);
+  font-size: 18px;
+}
+.m2-bondpick small {
+  font-size: 12px;
+  color: var(--m2-ink-2);
+}
+.m2-bondpips {
+  display: flex;
+  gap: 6px;
+}
+.m2-bondpips i.is-next {
+  border-color: var(--m2-amber);
+  animation: m2-blink 0.9s steps(1) infinite;
+}
+.m2-rest__done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+.m2-rest__note {
+  font-size: 18px;
+  color: var(--m2-ink);
+}
+
+/* --------------------------------------------------------------- responsive */
+
+@media (max-width: 1100px) {
+  .m2-rest__opts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-height: 760px) {
+  .m2-rest__title {
+    font-size: 32px;
+  }
+}
+@media (max-height: 760px) {
+  .m2-restopt {
+    padding: 18px 12px 16px;
+  }
+}

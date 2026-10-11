@@ -1,0 +1,173 @@
+/* =====================================================================
+   Treasure (TreasureScreen.tsx): the locked cache.
+   ===================================================================== */
+
+.m2-treasure {
+  position: relative;
+  min-height: calc(100dvh - 64px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  text-align: center;
+  background: radial-gradient(ellipse at 50% 55%, rgba(255, 182, 72, 0.1), transparent 60%);
+}
+.m2-treasure__kicker {
+  font-family: var(--m2-display);
+  color: var(--m2-amber);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+.m2-treasure__title {
+  margin: 4px 0 30px;
+  font-family: var(--m2-display);
+  font-size: 38px;
+}
+.m2-cache {
+  position: relative;
+  width: 260px;
+  height: 200px;
+  margin-top: 40px;
+  cursor: pointer;
+  outline: none;
+  transition: transform 0.2s var(--m2-ease);
+}
+.m2-cache:hover {
+  transform: scale(1.04);
+}
+.is-open .m2-cache {
+  cursor: default;
+  transform: none;
+}
+.m2-cache__body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 130px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 34px, rgba(0, 0, 0, 0.35) 34px 36px),
+    linear-gradient(180deg, #2b3a3e, #121c1f);
+  border: 2px solid #4b6a70;
+  clip-path: var(--m2-cut-sm);
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.6);
+}
+.m2-cache__lock {
+  position: absolute;
+  left: 50%;
+  top: 22px;
+  width: 34px;
+  height: 34px;
+  margin-left: -17px;
+  border: 2px solid var(--m2-amber);
+  background: #1a1306;
+  box-shadow: 0 0 18px rgba(255, 182, 72, 0.6);
+  animation: m2-pulse-glow 1.4s ease-in-out infinite;
+}
+.m2-cache__lid {
+  position: absolute;
+  left: -6px;
+  right: -6px;
+  bottom: 124px;
+  height: 52px;
+  background: linear-gradient(180deg, #3b5056, #1b2a2e);
+  border: 2px solid #5a7e85;
+  clip-path: polygon(0 100%, 6% 0, 94% 0, 100% 100%);
+  transform-origin: 50% 100%;
+  transition: transform 0.6s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.is-cracking .m2-cache {
+  animation: m2-shake 0.2s linear infinite;
+}
+.is-open .m2-cache__lid {
+  transform: translateY(-34px) rotate(-14deg);
+}
+.is-open .m2-cache__lock {
+  border-color: var(--m2-heal);
+  box-shadow: 0 0 18px rgba(110, 245, 154, 0.6);
+  animation: none;
+}
+.m2-cache__burst {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  width: 10px;
+  height: 10px;
+  margin: -5px;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+}
+.is-open .m2-cache__burst {
+  animation: m2-chest-burst 1.2s ease-out forwards;
+}
+.is-open .m2-cache::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 120px;
+  width: 340px;
+  height: 340px;
+  margin-left: -170px;
+  background: conic-gradient(from 0deg, transparent 0 8%, rgba(255, 214, 140, 0.18) 10%, transparent 13% 25%, rgba(255, 214, 140, 0.14) 28%, transparent 31% 45%, rgba(255, 214, 140, 0.18) 48%, transparent 51% 65%, rgba(255, 214, 140, 0.14) 68%, transparent 71% 85%, rgba(255, 214, 140, 0.18) 88%, transparent 91%);
+  border-radius: 50%;
+  mask-image: radial-gradient(circle, #000 20%, transparent 70%);
+  animation: m2-rays 14s linear infinite, m2-fade 0.8s ease-out;
+  pointer-events: none;
+}
+@keyframes m2-rays {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes m2-chest-burst {
+  0% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(255, 230, 160, 1), 0 0 60px 30px rgba(255, 210, 120, 0.9);
+  }
+  100% {
+    opacity: 0;
+    box-shadow: 0 0 0 260px rgba(255, 230, 160, 0), 0 0 200px 120px rgba(255, 210, 120, 0);
+  }
+}
+.m2-cache__loot {
+  position: absolute;
+  left: 50%;
+  top: -70px;
+  z-index: 2;
+  transform: translateX(-50%);
+  animation: m2-loot-rise 0.9s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+@keyframes m2-loot-rise {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 70px) scale(0.4);
+  }
+}
+.m2-treasure__hint {
+  margin-top: 18px;
+  color: var(--m2-mute);
+  animation: m2-blink 1.4s steps(1) infinite;
+}
+.m2-treasure__loot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  max-width: 460px;
+  margin-top: 36px;
+  animation: m2-rise 0.6s 0.3s var(--m2-ease) both;
+}
+.m2-treasure__loot b {
+  font-family: var(--m2-display);
+  font-size: 24px;
+  color: var(--m2-gold);
+}
+.m2-treasure__loot p {
+  margin: 0 0 6px;
+  color: var(--m2-ink-2);
+}
+.m2-treasure__loot .m2-btn {
+  margin-top: 14px;
+}

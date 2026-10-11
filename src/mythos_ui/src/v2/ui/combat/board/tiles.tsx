@@ -11,6 +11,7 @@ import type { Pos, Tile } from '../../../engine/types.ts'
 import type { BoardGeom, Pt } from '../geometry.ts'
 import { hash, pts, tileCenter, tileQuad, tileScale } from '../geometry.ts'
 import type { GroundMark } from './marks.ts'
+import './tiles.css'
 
 function TileShape({ g, p, t }: { g: BoardGeom; p: Pos; t: Tile }) {
   const q = tileQuad(g, p, 0.025)

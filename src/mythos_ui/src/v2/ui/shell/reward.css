@@ -1,0 +1,216 @@
+/* =====================================================================
+   Reward (RewardScreen.tsx): loot rows, card / implant picks, the card reward overlay.
+   ===================================================================== */
+
+.m2-rrow__bonus {
+  color: var(--m2-amber);
+  font-weight: 700;
+}
+.m2-reward {
+  position: relative;
+  min-height: calc(100dvh - 64px);
+  display: grid;
+  place-items: center;
+  padding: 32px 16px;
+  overflow: hidden;
+}
+.m2-reward__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.3;
+  filter: saturate(0.8) blur(2px);
+  transform: scale(1.05);
+  mask-image: radial-gradient(ellipse at center, #000 20%, transparent 75%);
+}
+.m2-reward__glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 35%, rgba(240, 205, 117, 0.12), transparent 70%),
+    radial-gradient(ellipse 80% 60% at 50% 100%, rgba(78, 242, 227, 0.08), transparent 70%);
+  pointer-events: none;
+}
+.m2-reward__panel {
+  position: relative;
+  width: min(560px, 100%);
+}
+.m2-reward__kicker {
+  text-align: center;
+  font-family: var(--m2-display);
+  color: var(--m2-gold);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  animation: m2-fade 0.6s both;
+}
+.m2-reward__title {
+  margin: 2px 0 22px;
+  text-align: center;
+  font-family: var(--m2-display);
+  font-size: 52px;
+  text-shadow: 0 0 30px rgba(240, 205, 117, 0.35);
+  line-height: 1;
+  animation: m2-num-in 0.7s var(--m2-ease) both;
+}
+.m2-reward__list {
+  display: grid;
+  gap: 8px;
+}
+.m2-rrow {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--m2-line-2);
+  background: linear-gradient(90deg, rgba(16, 38, 44, 0.95), rgba(8, 20, 24, 0.92));
+  text-align: left;
+  cursor: pointer;
+  clip-path: var(--m2-cut-sm);
+  animation: m2-row-in 0.45s var(--m2-ease) both;
+  transition: transform 0.15s var(--m2-ease), border-color 0.15s, opacity 0.3s, filter 0.3s;
+}
+.m2-rrow:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.01);
+  border-color: var(--m2-gold);
+}
+.m2-rrow:active:not(:disabled) {
+  transform: scale(0.99);
+}
+.m2-rrow.is-taken {
+  opacity: 0.4;
+  filter: grayscale(0.8);
+  cursor: default;
+}
+.m2-rrow:disabled:not(.is-taken) {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.m2-rrow__ico {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--m2-line-2);
+  color: var(--m2-cyan);
+  background: rgba(3, 10, 12, 0.7);
+  font-size: 22px;
+  overflow: hidden;
+}
+.m2-rrow__ico--gold {
+  color: var(--m2-gold);
+}
+.m2-rrow__ico--echo {
+  color: var(--m2-echo);
+}
+.m2-rrow__ico--img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.m2-rrow__ico--implant {
+  border: 0;
+  background: transparent;
+}
+.m2-rrow__label {
+  font-size: 15px;
+  font-weight: 600;
+}
+.m2-rrow__label b {
+  font-size: 20px;
+  color: var(--m2-gold);
+}
+.m2-rrow__label small {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--m2-ink-2);
+}
+.m2-rrow__state {
+  font-family: var(--m2-display);
+  font-weight: 700;
+  font-size: 13px;
+  color: var(--m2-cyan);
+}
+.m2-rrow--echo {
+  cursor: default;
+  border-color: rgba(183, 166, 255, 0.3);
+}
+.m2-rrow--echo .m2-rrow__label b {
+  color: var(--m2-echo);
+}
+.m2-rpick {
+  padding: 12px;
+  border: 1px solid rgba(240, 205, 117, 0.4);
+  background: rgba(30, 24, 8, 0.4);
+  animation: m2-row-in 0.45s var(--m2-ease) both;
+}
+.m2-rpick__head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--m2-display);
+  font-weight: 700;
+  color: var(--m2-gold);
+  margin-bottom: 10px;
+}
+.m2-rpick__row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+}
+.m2-rpick__opt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 8px;
+  border: 1px solid var(--m2-line-2);
+  background: rgba(8, 20, 24, 0.9);
+  cursor: pointer;
+  text-align: center;
+  transition: transform 0.15s var(--m2-ease), border-color 0.15s;
+}
+.m2-rpick__opt:hover:not(:disabled) {
+  transform: translateY(-3px);
+  border-color: var(--m2-gold);
+}
+.m2-rpick__opt b {
+  font-family: var(--m2-display);
+  font-size: 14px;
+}
+.m2-rpick__opt small {
+  font-size: 12px;
+  color: var(--m2-ink-2);
+  line-height: 1.45;
+}
+.m2-rpick__opt:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.m2-rpick__opt.is-mine {
+  opacity: 1;
+  border-color: var(--m2-gold);
+  box-shadow: 0 0 20px rgba(240, 205, 117, 0.3);
+}
+.m2-reward__foot {
+  display: flex;
+  justify-content: center;
+  margin-top: 22px;
+}
+.m2-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(2, 6, 8, 0.86);
+  backdrop-filter: blur(5px);
+  animation: m2-fade 0.2s ease-out;
+}
+.m2-reward--cards {
+  align-content: center;
+}

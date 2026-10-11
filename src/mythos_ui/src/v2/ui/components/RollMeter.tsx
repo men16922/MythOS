@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Lang } from '../../engine/types.ts'
 import { sound } from './sound.ts'
+import './rollmeter.css'
 
 export interface RollMeterProps {
   /** Success chance 0-100. */

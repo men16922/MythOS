@@ -4,6 +4,7 @@
 import { Sparkles } from 'lucide-react'
 import type { Lang } from '../../engine/types.ts'
 import { Typewriter } from '../components/Typewriter.tsx'
+import './voices.css'
 
 interface Props {
   /** The line; null while the GM is still composing (shows a quiet "receiving" state when `pending`). */

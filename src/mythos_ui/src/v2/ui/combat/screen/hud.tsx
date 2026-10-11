@@ -7,6 +7,7 @@ import { CONSUMABLE_ART } from '../../common/artManifest.ts'
 import { asset } from '../../common/assets.ts'
 import { tr } from '../../common/lang.ts'
 import { Tooltip } from '../../components/Tooltip.tsx'
+import './hud.css'
 
 /** Phone layouts: the controls in a popover (the desktop's key legend has no room). */
 export function HelpPopover({ k, touch, onClose }: { k: boolean; touch: boolean; onClose: () => void }) {

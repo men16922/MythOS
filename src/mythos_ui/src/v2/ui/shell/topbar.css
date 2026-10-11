@@ -1,0 +1,278 @@
+/* =====================================================================
+   Top bar (TopBar.tsx): run HUD over every run screen except combat.
+   ===================================================================== */
+
+.m2-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 16px;
+  background: linear-gradient(180deg, rgba(4, 13, 16, 0.96), rgba(4, 13, 16, 0.86));
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--m2-line);
+  box-shadow: 0 1px 0 rgba(78, 242, 227, 0.08), 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+.m2-topbar::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--m2-cyan-dim) 20%, var(--m2-cyan-dim) 80%, transparent);
+  opacity: 0.6;
+}
+.m2-topbar__who {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.m2-topbar__avatar {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  overflow: hidden;
+  clip-path: var(--m2-cut-sm);
+  border: 1px solid var(--m2-line-2);
+  background: #000;
+}
+.m2-topbar__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 18%;
+}
+.m2-topbar__hp {
+  width: 150px;
+}
+.m2-topbar__name {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--m2-display);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--m2-ink-2);
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.m2-ico-hp {
+  color: var(--m2-threat-2);
+  flex: none;
+}
+.m2-topbar__credits {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--m2-gold);
+  font-size: 18px;
+  font-weight: 700;
+}
+.m2-topbar__codex {
+  color: var(--m2-mute);
+  font-size: 16px;
+}
+.m2-topbar__codex small {
+  font-size: 11px;
+  opacity: 0.7;
+}
+.m2-topbar__codex.is-met {
+  color: var(--m2-cyan, #5ee7ff);
+}
+.m2-topbar__act {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  white-space: nowrap;
+}
+.m2-topbar__actnum {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+  font-family: var(--m2-display);
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--m2-cyan);
+  line-height: 1;
+}
+.m2-topbar__actnum small {
+  font-size: 11px;
+  color: var(--m2-cyan-dim);
+}
+.m2-topbar__actname {
+  font-family: var(--m2-display);
+  font-size: 13px;
+  color: var(--m2-ink-2);
+}
+.m2-topbar__floor {
+  font-size: 12px;
+  color: var(--m2-mute);
+}
+.m2-topbar__party {
+  display: flex;
+  gap: 8px;
+}
+.m2-mate {
+  position: relative;
+  width: 40px;
+}
+.m2-mate img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  object-position: 50% 15%;
+  border-radius: 50%;
+  border: 1.5px solid var(--m2-amber);
+  background: #000;
+}
+.m2-mate .m2-hp {
+  margin-top: 2px;
+}
+.m2-mate.is-down img {
+  filter: grayscale(1) brightness(0.5);
+  border-color: var(--m2-threat);
+}
+.m2-mate__bond {
+  position: absolute;
+  top: -3px;
+  right: -4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.m2-mate__bond i,
+.m2-bondpips i {
+  display: block;
+  width: 6px;
+  height: 6px;
+  transform: rotate(45deg);
+  background: #213a3e;
+  border: 1px solid #3a5b60;
+}
+.m2-mate__bond i.is-on,
+.m2-bondpips i.is-on {
+  background: var(--m2-amber);
+  border-color: #ffe0a8;
+  box-shadow: 0 0 6px rgba(255, 182, 72, 0.7);
+}
+.m2-topbar__implants {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 4px 0;
+}
+.m2-topbar__cons {
+  display: flex;
+  gap: 5px;
+}
+.m2-cons {
+  display: block;
+  padding: 0;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--m2-line-2);
+  background: rgba(10, 25, 30, 0.9);
+  clip-path: var(--m2-cut-sm);
+  overflow: hidden;
+}
+.m2-cons img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.m2-cons.is-empty {
+  border-style: dashed;
+  opacity: 0.4;
+}
+.m2-topbar__tools {
+  display: flex;
+  gap: 6px;
+}
+.m2-deckbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--m2-cyan-dim);
+  background: rgba(20, 60, 64, 0.6);
+  color: var(--m2-cyan-2);
+  font-size: 14px;
+  cursor: pointer;
+  clip-path: var(--m2-cut-sm);
+  transition: background 0.15s, transform 0.1s;
+}
+.m2-deckbtn:hover {
+  background: rgba(30, 90, 94, 0.8);
+}
+.m2-deckbtn:active {
+  transform: scale(0.96);
+}
+
+/* --------------------------------------------------------------- responsive */
+
+@media (max-width: 1280px) {
+  .m2-topbar {
+    gap: 12px;
+  }
+  .m2-topbar__actname {
+    display: none;
+  }
+}
+@media (max-width: 1100px) {
+  .m2-topbar__hp {
+    width: 110px;
+  }
+}
+@media (max-width: 1100px) {
+  .m2-topbar__cons {
+    display: none;
+  }
+}
+@media (max-width: 960px) {
+  .m2-topbar__party {
+    display: none;
+  }
+  .m2-topbar__who .m2-topbar__name {
+    display: none;
+  }
+}
+
+/* Auto-save chip in the run HUD: pulses once per save (re-keyed). */
+.m2-autosave {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-right: 4px;
+  font-size: 12px;
+  color: var(--m2-mute);
+  animation: m2-autosave-pulse 1.2s ease-out;
+}
+.m2-autosave svg {
+  color: var(--m2-cyan);
+}
+@keyframes m2-autosave-pulse {
+  0% {
+    color: var(--m2-cyan-2);
+    text-shadow: 0 0 8px var(--m2-cyan);
+  }
+  100% {
+    color: var(--m2-mute);
+    text-shadow: none;
+  }
+}

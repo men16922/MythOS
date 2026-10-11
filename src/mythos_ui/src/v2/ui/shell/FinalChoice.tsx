@@ -5,6 +5,7 @@ import { tr } from '../common/lang.ts'
 import { sound } from '../components/sound.ts'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
+import './ending.css'
 
 export function FinalChoice({ run, C, lang, act }: ScreenProps) {
   const ko = lang === 'ko'

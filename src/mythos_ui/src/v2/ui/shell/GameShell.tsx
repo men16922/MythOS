@@ -1,5 +1,10 @@
 // Mythos 2.0 game shell: title → archive → setup → run screens (by run.screen.kind) → ending → archive.
 // Title → 오늘의 시드 opens the setup screen in daily mode (view 'daily').
+
+// Stylesheet order matters: the base first (every screen / component sheet overrides it), then the settings panel's
+// (the title screen's KO/EN switch builds on it); each screen imports its own sheet; phone.css comes last.
+import '../../v2.css'
+import '../components/settings.css'
 import { Suspense, lazy, useCallback, useEffect, useRef, useState, useSyncExternalStore, type ComponentType, type ReactNode } from 'react'
 import { CONTENT } from '../../content/index.ts'
 import { dateKeyAt } from '../../engine/daily.ts'
@@ -33,7 +38,8 @@ import { TreasureScreen } from './TreasureScreen.tsx'
 import type { ScreenProps } from './types.ts'
 import { ShellMenu } from '../common/shellMenu.ts'
 import { useGame } from '../store.ts'
-import '../../v2.css'
+import './shell.css'
+import './phone.css'
 
 type View = 'title' | 'archive' | 'setup' | 'daily' | 'run'
 

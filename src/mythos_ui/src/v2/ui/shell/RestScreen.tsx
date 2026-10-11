@@ -8,6 +8,7 @@ import { sound } from '../components/sound.ts'
 import { CompanionChat } from './CompanionChat.tsx'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
+import './rest.css'
 
 type Choice = { kind: 'heal' | 'upgrade' | 'scrub' } | { kind: 'bond'; id: string }
 

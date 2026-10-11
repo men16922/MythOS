@@ -7,6 +7,7 @@ import type { ContentRegistry, DailyRecord, Lang, MetaProfile, RunState } from '
 import { tr } from '../common/lang.ts'
 import { SCREEN_LABEL, savedAgo } from '../components/format.ts'
 import { sound } from '../components/sound.ts'
+import './title.css'
 
 export interface TitleScreenProps {
   profile: MetaProfile

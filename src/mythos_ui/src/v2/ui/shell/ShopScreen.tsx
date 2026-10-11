@@ -10,6 +10,7 @@ import { sound } from '../components/sound.ts'
 import { Tooltip } from '../components/Tooltip.tsx'
 import { rx } from './rx.ts'
 import type { ScreenProps } from './types.ts'
+import './shop.css'
 
 function Price({ value, credits }: { value: number; credits: number }) {
   return <span className={`m2-price m2-mono${credits < value ? ' is-short' : ''}`}>{value} ₵</span>

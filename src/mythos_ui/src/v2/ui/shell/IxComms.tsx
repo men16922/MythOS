@@ -15,6 +15,7 @@ import { sound } from '../components/sound.ts'
 import { ixLine } from './gm.ts'
 import { detectMoment, newMemo, turnAllows, type FightMemo, type IxMoment } from './ixMoments.ts'
 import { pickIxLine } from './talkLines.ts'
+import './voices.css'
 
 const SHOW_MS = 5000
 /** After a swap the LLM line stays at least this long (total still bounded by MAX_SHOW_MS). */

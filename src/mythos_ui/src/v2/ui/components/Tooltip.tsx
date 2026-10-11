@@ -1,6 +1,7 @@
 // Mythos 2.0 — hover/focus tooltip rendered in a portal (never clipped by overflow containers).
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import './tooltip.css'
 
 export interface TooltipProps {
   /** Tooltip body. Falsy = no tooltip. */

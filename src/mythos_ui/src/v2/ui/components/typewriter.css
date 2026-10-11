@@ -1,0 +1,23 @@
+/* =====================================================================
+   Typewriter text (Typewriter.tsx).
+   ===================================================================== */
+
+.m2-type {
+  white-space: pre-wrap;
+}
+.m2-type.is-typing {
+  cursor: pointer;
+}
+.m2-type__rest {
+  visibility: hidden;
+}
+.m2-type__caret {
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.12em;
+  margin-right: -0.5em;
+  background: var(--m2-cyan);
+  animation: m2-blink 0.7s steps(1) infinite;
+}

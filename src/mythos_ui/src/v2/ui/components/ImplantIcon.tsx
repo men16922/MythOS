@@ -3,6 +3,7 @@ import type { ImplantDef, Lang } from '../../engine/types.ts'
 import { L, tr } from '../common/lang.ts'
 import { art } from './art.ts'
 import { Tooltip } from './Tooltip.tsx'
+import './implant.css'
 
 const RARITY = {
   starter: L('기본', 'Starter'),

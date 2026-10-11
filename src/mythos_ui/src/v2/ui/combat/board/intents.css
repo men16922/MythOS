@@ -1,0 +1,287 @@
+/* =====================================================================
+   Intent marks (board/intents.tsx): struck tiles and lanes, per-tile damage labels, push
+   arrows, void-drop skulls, lock-on lasers and reticles.
+   ===================================================================== */
+
+.m2c-intent {
+  transition: opacity 0.18s;
+  animation: m2c-intentin 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes m2c-intentin {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+    filter: brightness(2.2);
+  }
+  100% {
+    filter: none;
+  }
+}
+.m2c-intent.is-dim {
+  opacity: 0.1;
+}
+.m2c-int-tile {
+  fill: rgba(255, 28, 60, calc(0.22 + var(--int) * 0.26));
+  stroke: #ff3d6e;
+  stroke-width: 2;
+  stroke-dasharray: 8 5;
+  animation: m2c-ants 0.9s linear infinite;
+}
+.m2c-intent.is-hot .m2c-int-tile {
+  fill: rgba(255, 60, 100, 0.48);
+  stroke: #fff;
+  animation-duration: 0.35s;
+}
+.m2c-intent.is-wind .m2c-int-tile {
+  fill: rgba(255, 182, 72, 0.15);
+  stroke: var(--c-amber);
+  stroke-dasharray: 3 5;
+  animation:
+    m2c-ants 1.6s linear infinite,
+    m2c-heartbeat 1.1s ease-in-out infinite;
+}
+@keyframes m2c-heartbeat {
+  0%,
+  100% {
+    fill-opacity: 0.5;
+  }
+  14% {
+    fill-opacity: 1.4;
+  }
+  28% {
+    fill-opacity: 0.6;
+  }
+  42% {
+    fill-opacity: 1.2;
+  }
+}
+.m2c-lane-glow {
+  stroke: rgba(255, 61, 110, 0.32);
+  stroke-width: 9;
+  stroke-linecap: round;
+}
+.m2c-lane-core {
+  stroke: #ff8aa8;
+  stroke-width: 2.4;
+  stroke-dasharray: 7 6;
+  stroke-linecap: round;
+  animation: m2c-ants 0.6s linear infinite;
+}
+.m2c-lane--beam .m2c-lane-glow {
+  stroke-width: 14;
+  stroke: rgba(255, 61, 110, 0.4);
+}
+.m2c-lane--beam .m2c-lane-core {
+  stroke-dasharray: none;
+  stroke-width: 3;
+  stroke: #ffc2d1;
+}
+.m2c-lane--charge .m2c-lane-core {
+  stroke-width: 5;
+  stroke-dasharray: 3 9;
+}
+.m2c-lane-head {
+  fill: #ff3d6e;
+  stroke: #fff;
+  stroke-width: 1;
+}
+.m2c-lane-arc {
+  fill: none;
+  stroke: #ff8aa8;
+  stroke-width: 2.2;
+  stroke-dasharray: 5 6;
+  animation: m2c-ants 0.8s linear infinite;
+  filter: drop-shadow(0 0 4px rgba(255, 61, 110, 0.8));
+}
+.m2c-reticle {
+  fill: rgba(255, 61, 110, 0.18);
+  stroke: #ff3d6e;
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+  animation: m2c-ants 1s linear infinite;
+}
+.m2c-reticle.is-inner {
+  fill: #ff3d6e;
+  stroke: #fff;
+  stroke-dasharray: none;
+}
+.m2c-intent.is-wind .m2c-lane-glow {
+  stroke: rgba(255, 182, 72, 0.3);
+}
+.m2c-intent.is-wind .m2c-lane-core,
+.m2c-intent.is-wind .m2c-lane-arc {
+  stroke: #ffd38c;
+}
+.m2c-intent.is-wind .m2c-lane-head,
+.m2c-intent.is-wind .m2c-reticle.is-inner {
+  fill: var(--c-amber);
+}
+.m2c-intent.is-wind .m2c-reticle {
+  stroke: var(--c-amber);
+  fill: rgba(255, 182, 72, 0.15);
+}
+
+/* lock-on (track) */
+.m2c-intent.is-track .m2c-int-tile {
+  fill: rgba(255, 28, 60, 0.16);
+  stroke: rgba(255, 61, 110, 0.55);
+  stroke-dasharray: 2 4;
+}
+.m2c-lock {
+  transition: opacity 0.18s;
+}
+.m2c-lock.is-dim {
+  opacity: 0.15;
+}
+.m2c-lock-laser {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 0;
+  transform-origin: 0 0;
+  border-top: 1.5px dashed rgba(255, 70, 110, 0.95);
+  filter: drop-shadow(0 0 3px #ff3d6e);
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    width 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: m2c-laser 0.12s steps(2) infinite;
+}
+@keyframes m2c-laser {
+  50% {
+    opacity: 0.55;
+  }
+}
+.m2c-lock-ret {
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin: 0;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.m2c-lock-ring,
+.m2c-lock-ticks {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+}
+.m2c-lock-ring {
+  border: 2px solid #ff3d6e;
+  box-shadow:
+    0 0 12px rgba(255, 61, 110, 0.8),
+    inset 0 0 10px rgba(255, 61, 110, 0.5);
+  animation: m2c-lockpulse 0.9s ease-in-out infinite;
+}
+.m2c-lock-ticks {
+  border: 3px dashed rgba(255, 210, 220, 0.95);
+  border-left-color: transparent;
+  border-right-color: transparent;
+  animation: m2c-lockspin 2.4s linear infinite;
+}
+@keyframes m2c-lockspin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg) scale(1.18);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg) scale(1.18);
+  }
+}
+@keyframes m2c-lockpulse {
+  50% {
+    transform: translate(-50%, -50%) scale(0.86);
+    box-shadow:
+      0 0 22px rgba(255, 61, 110, 1),
+      inset 0 0 14px rgba(255, 61, 110, 0.8);
+  }
+}
+.m2c-lock-ret b {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(calc(-50% + var(--nth, 0) * 30px), calc(-50% + var(--nth, 0) * 20px));
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 6px;
+  background: #ff3d6e;
+  color: #fff;
+  font-family: var(--m2-mono, monospace);
+  font-size: 14px;
+  font-weight: 800;
+  border-radius: 3px;
+  box-shadow: 0 0 10px rgba(255, 61, 110, 0.9);
+}
+.m2c-lock.is-wind .m2c-lock-ring {
+  border-color: var(--c-amber);
+  box-shadow: 0 0 12px rgba(255, 182, 72, 0.8);
+}
+.m2c-lock.is-wind .m2c-lock-ret b {
+  background: var(--c-amber);
+  color: #241400;
+}
+.m2c-lock.is-wind .m2c-lock-laser {
+  border-top-color: rgba(255, 182, 72, 0.9);
+}
+.m2c-lock.is-hot .m2c-lock-ring {
+  border-color: #fff;
+  animation-duration: 0.25s;
+}
+
+/* --------------------------------------------------------------- labels */
+
+.m2c-tdmg {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 6px 1px 4px;
+  background: #ff3d6e;
+  color: #fff;
+  font-family: var(--m2-mono, monospace);
+  font-size: 13px;
+  font-weight: 800;
+  clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
+  box-shadow: 0 0 10px rgba(255, 61, 110, 0.7);
+  transition: opacity 0.18s;
+}
+.m2c-tdmg.is-wind {
+  background: var(--c-amber);
+  color: #241400;
+}
+.m2c-tdmg.is-dim {
+  opacity: 0.15;
+}
+.m2c-tpush {
+  position: absolute;
+  color: #fff;
+  opacity: 0.92;
+  filter: drop-shadow(0 0 3px #ff3d6e) drop-shadow(0 1px 1px #000);
+  transition: opacity 0.18s;
+}
+.m2c-tpush.is-dim {
+  opacity: 0.25;
+}
+
+/* An enemy intent will shove the unit on this tile into the void. */
+.m2c-tdrop {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  color: #ff5a7a;
+  filter: drop-shadow(0 0 4px #ff3d6e) drop-shadow(0 1px 1px #000);
+  animation: m2c-tdrop-pulse 0.9s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes m2c-tdrop-pulse {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 1;
+  }
+}

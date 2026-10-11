@@ -1,0 +1,118 @@
+/* =====================================================================
+   Hand (Hand.tsx): the fanned, overlapping arc of cards.
+   ===================================================================== */
+
+.m2c-root .m2c-hand .m2-card {
+  --fs: inherit;
+}
+
+/* hand */
+.m2c-hand {
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  width: 0;
+  height: var(--ch);
+  transition:
+    transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.4s,
+    filter 0.4s;
+}
+.m2c-hand.is-hidden {
+  transform: translateY(62%);
+  opacity: 0.35;
+  filter: grayscale(0.8) brightness(0.6);
+  pointer-events: none;
+}
+.m2c-hand-h {
+  display: none;
+}
+.m2c-slot {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: var(--cw);
+  height: var(--ch);
+  transform-origin: 50% 130%;
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.m2c-deal {
+  width: 100%;
+  height: 100%;
+  animation: m2c-deal 0.52s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes m2c-deal {
+  0% {
+    transform: translate(var(--fx), var(--fy)) scale(0.28) rotate(-28deg);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+}
+.m2c-lift {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transform-origin: 50% 100%;
+  transition: transform 0.16s cubic-bezier(0.2, 0.8, 0.2, 1);
+  cursor: pointer;
+}
+.m2c-slot.is-hover .m2c-lift {
+  transform: perspective(900px) translateY(calc(var(--ch) * -0.3)) scale(1.24) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+}
+.m2c-slot.is-armed .m2c-lift {
+  transform: perspective(900px) translateY(calc(var(--ch) * -0.22)) scale(1.12);
+}
+.m2c-slot.is-armed.is-hover .m2c-lift {
+  transform: perspective(900px) translateY(calc(var(--ch) * -0.3)) scale(1.24) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+}
+.m2c-lift .m2-card {
+  width: 100%;
+  height: 100%;
+}
+.m2c-slot.is-hover .m2c-lift::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--gx, 50%) var(--gy, 30%), rgba(255, 255, 255, 0.22), transparent 55%);
+  mix-blend-mode: screen;
+  clip-path: polygon(0 0, calc(100% - 0.9em) 0, 100% 0.9em, 100% 100%, 0.9em 100%, 0 calc(100% - 0.9em));
+}
+.m2c-key {
+  position: absolute;
+  left: 50%;
+  top: -10px;
+  transform: translateX(-50%);
+  z-index: 4;
+  min-width: 18px;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: rgba(2, 14, 16, 0.92);
+  border: 1px solid rgba(78, 242, 227, 0.4);
+  color: var(--c-cyan-2);
+  font-family: var(--m2-mono, monospace);
+  font-size: 10.5px;
+  font-weight: 800;
+  text-align: center;
+  line-height: 16px;
+}
+.m2c-key:empty {
+  display: none;
+}
+.m2c-confirm {
+  position: absolute;
+  left: 50%;
+  top: -34px;
+  transform: translateX(-50%);
+  z-index: 5;
+  padding: 3px 10px;
+  white-space: nowrap;
+  background: var(--c-cyan);
+  color: #02181a;
+  font-size: 12px;
+  font-weight: 800;
+  animation: m2c-blink 0.9s ease-in-out infinite;
+}

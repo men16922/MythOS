@@ -1,0 +1,592 @@
+/* =====================================================================
+   HUD panels (Panels.tsx): top strip, party roster, unit / tile inspector, targeting hint,
+   pile viewer — and the side columns CombatScreen places them in.
+   ===================================================================== */
+
+/* Companion combat passive line in the unit inspector. */
+.m2c-d-passive.is-combat b {
+  color: var(--m2-gold);
+  margin-right: 4px;
+}
+
+.m2c-d-track {
+  margin-top: 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #ffb3c5;
+}
+
+/* --------------------------------------------------------------- top strip */
+
+.m2c-top {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--top);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 14px;
+  background: linear-gradient(180deg, rgba(2, 8, 10, 0.95), rgba(2, 8, 10, 0.6) 75%, transparent);
+  border-bottom: 1px solid rgba(78, 242, 227, 0.12);
+}
+.m2c-turn {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex: none;
+}
+.m2c-turn-k {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: var(--c-mute);
+}
+.m2c-turn b {
+  font-family: 'Chakra Petch', var(--m2-display, sans-serif);
+  font-size: 24px;
+  line-height: 1;
+  color: var(--c-cyan-2);
+}
+.m2c-phase {
+  align-self: center;
+  margin-left: 6px;
+  padding: 2px 9px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #02181a;
+  background: var(--c-cyan);
+  clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+}
+.m2c-turn.is-enemy .m2c-phase {
+  background: var(--c-threat);
+  color: #fff;
+  animation: m2c-blink 0.7s ease-in-out infinite;
+}
+.m2c-enc {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+  justify-content: center;
+}
+.m2c-enc-name {
+  font-family: 'Chakra Petch', var(--m2-display, sans-serif);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.m2c-obj {
+  font-size: 12.5px;
+  color: var(--c-mute);
+  white-space: nowrap;
+}
+.m2c-tag {
+  font-style: normal;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  padding: 1px 7px;
+  border: 1px solid currentColor;
+  color: var(--c-amber);
+}
+.m2c-tag.is-boss {
+  color: var(--c-threat);
+}
+.m2c-tag.is-minion {
+  color: var(--c-mute);
+}
+.m2c-bonus {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border: 1px solid rgba(240, 205, 117, 0.6);
+  background: rgba(40, 30, 6, 0.75);
+  color: #f0cd75;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.m2c-bonus i {
+  font-style: normal;
+}
+.m2c-bonus b {
+  font-family: var(--m2-mono, monospace);
+  color: #fff;
+}
+.m2c-bonus.is-failed {
+  border-color: rgba(255, 61, 110, 0.5);
+  color: rgba(255, 123, 156, 0.75);
+  text-decoration: line-through;
+  background: rgba(30, 4, 10, 0.7);
+}
+.m2c-bonus.is-failed b {
+  text-decoration: none;
+  color: var(--c-threat-2);
+}
+.m2c-top-r {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+.m2c-implants {
+  display: flex;
+  gap: 4px;
+}
+.m2c-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid rgba(78, 242, 227, 0.3);
+  background: rgba(4, 18, 22, 0.8);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c-ink);
+}
+.m2c-chip.is-on {
+  background: var(--c-threat);
+  border-color: var(--c-threat);
+  color: #fff;
+}
+.m2c-kbd {
+  font-family: var(--m2-mono, monospace);
+  font-size: 10px;
+  padding: 0 4px;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  opacity: 0.8;
+}
+
+/* --------------------------------------------------------------- side panels */
+
+.m2c-left,
+.m2c-right {
+  position: absolute;
+  top: calc(var(--top) + 8px);
+  width: var(--side);
+  max-height: calc(100% - var(--top) - var(--bottom) - 14px);
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+}
+.m2c-left {
+  left: 12px;
+}
+.m2c-right {
+  right: 12px;
+}
+.m2c-panel-h {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  color: var(--c-mute);
+}
+.m2c-panel-h::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(78, 242, 227, 0.35), transparent);
+}
+.m2c-party,
+.m2c-detail,
+.m2c-armed {
+  padding: 10px 10px 8px;
+  background: var(--c-panel);
+  border: 1px solid var(--c-line);
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  backdrop-filter: blur(6px);
+}
+.m2c-pu {
+  position: relative;
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  padding: 5px;
+  margin-bottom: 4px;
+  text-align: left;
+  border: 1px solid transparent;
+  background: rgba(10, 30, 35, 0.5);
+  transition:
+    border-color 0.12s,
+    background 0.12s;
+}
+.m2c-pu:hover {
+  background: rgba(20, 50, 56, 0.7);
+}
+.m2c-pu.is-sel {
+  border-color: var(--c-cyan);
+  background: rgba(20, 70, 72, 0.55);
+  box-shadow: inset 0 0 14px rgba(78, 242, 227, 0.2);
+}
+.m2c-pu.is-down {
+  filter: grayscale(1);
+  opacity: 0.55;
+}
+.m2c-pu.is-danger::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--c-threat);
+  animation: m2c-blink 0.8s ease-in-out infinite;
+}
+.m2c-pu-face {
+  width: 42px;
+  height: 42px;
+  overflow: hidden;
+  border: 1px solid rgba(78, 242, 227, 0.35);
+  background: #061216;
+}
+.m2c-pu.is-neutral .m2c-pu-face {
+  border-color: rgba(255, 182, 72, 0.5);
+}
+.m2c-pu-face.is-body img,
+.m2c-d-face.is-body img {
+  object-fit: contain;
+  object-position: 50% 0;
+  transform: scale(2.3);
+  transform-origin: 50% 6%;
+}
+.m2c-pu-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 12%;
+}
+.m2c-pu-main {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.m2c-pu-name {
+  font-weight: 700;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.m2c-pu-name em {
+  margin-left: 5px;
+  font-style: normal;
+  font-size: 9.5px;
+  color: var(--c-amber);
+  border: 1px solid currentColor;
+  padding: 0 4px;
+}
+.m2c-pu-hp {
+  position: relative;
+  height: 11px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(160, 255, 248, 0.25);
+  overflow: hidden;
+}
+.m2c-pu-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, #8ffaf0, #2fc9ba);
+  transition: width 0.3s;
+}
+.m2c-pu.is-neutral .m2c-pu-fill {
+  background: linear-gradient(180deg, #ffd38c, #d18a1c);
+}
+.m2c-pu-threat {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(-45deg, rgba(255, 61, 110, 0.95) 0 3px, rgba(60, 0, 15, 0.9) 3px 6px);
+  animation: m2c-blink 0.9s steps(2) infinite;
+}
+.m2c-pu-hp b {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--m2-mono, monospace);
+  font-size: 9.5px;
+  color: #fff;
+  text-shadow: 0 0 2px #000;
+}
+.m2c-pu-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  font-size: 10.5px;
+}
+.m2c-pu-block {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--c-block);
+  font-weight: 800;
+  font-family: var(--m2-mono, monospace);
+}
+.m2c-pu-st {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  font-family: var(--m2-mono, monospace);
+  font-weight: 700;
+}
+.m2c-pu-st img {
+  width: 13px;
+  height: 13px;
+}
+.m2c-pu-move {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #9cc9ff;
+}
+.m2c-pu-move.is-spent {
+  color: var(--c-mute);
+}
+.m2c-pu-down {
+  color: var(--c-threat-2);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+.m2c-pu-warn {
+  color: var(--c-threat-2);
+  font-weight: 800;
+}
+.m2c-detail.is-empty p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--c-mute);
+}
+.m2c-detail.is-enemy {
+  border-color: rgba(255, 61, 110, 0.35);
+}
+.m2c-d-head {
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  gap: 9px;
+  align-items: center;
+}
+.m2c-d-face {
+  width: 54px;
+  height: 54px;
+  overflow: hidden;
+  border: 1px solid rgba(78, 242, 227, 0.35);
+  background: #061216;
+}
+.m2c-detail.is-enemy .m2c-d-face {
+  border-color: rgba(255, 61, 110, 0.5);
+}
+.m2c-d-face img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 12%;
+}
+.m2c-d-name {
+  display: block;
+  font-family: 'Chakra Petch', var(--m2-display, sans-serif);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.m2c-d-hp {
+  position: relative;
+  display: block;
+  height: 12px;
+  margin: 4px 0;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(160, 255, 248, 0.25);
+  overflow: hidden;
+}
+.m2c-d-hp span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, #8ffaf0, #2fc9ba);
+}
+.m2c-detail.is-enemy .m2c-d-hp span {
+  background: linear-gradient(180deg, #ff7b9c, #c41d4c);
+}
+.m2c-d-hp b {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--m2-mono, monospace);
+  font-size: 10px;
+  color: #fff;
+  text-shadow: 0 0 2px #000;
+}
+.m2c-d-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--c-ink);
+}
+.m2c-d-stats span {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.m2c-d-stats .is-block {
+  color: var(--c-block);
+  font-weight: 800;
+}
+.m2c-d-intent {
+  margin-top: 9px;
+  padding: 7px 8px;
+  border-left: 3px solid var(--c-threat);
+  background: rgba(60, 4, 20, 0.55);
+}
+.m2c-d-intent.is-wind {
+  border-left-color: var(--c-amber);
+  background: rgba(50, 32, 4, 0.55);
+}
+.m2c-d-ih {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffd0dc;
+  font-size: 13.5px;
+}
+.m2c-d-intent.is-wind .m2c-d-ih {
+  color: #ffe2b0;
+}
+.m2c-d-wind {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--c-amber);
+  font-family: var(--m2-mono, monospace);
+  font-weight: 800;
+}
+.m2c-d-it {
+  margin-top: 3px;
+  font-size: 12px;
+  color: rgba(255, 220, 228, 0.88);
+}
+.m2c-d-passive {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--c-ink);
+  opacity: 0.88;
+}
+.m2c-d-sub {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--c-mute);
+}
+/* boss phase thresholds still ahead, marked on the inspector hp bar */
+.m2c-d-hp-tick {
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  width: 2px;
+  margin-left: -1px;
+  background: #ffd36b;
+  box-shadow: 0 0 4px rgba(255, 211, 107, 0.8);
+}
+.m2c-d-phase {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #ffd36b;
+}
+.m2c-d-phase b {
+  font-weight: 700;
+}
+.m2c-d-text {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+}
+.m2c-d-warn {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  color: var(--c-threat-2);
+  font-weight: 700;
+}
+.m2c-d-statuses {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.m2c-d-statuses li {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  column-gap: 6px;
+  font-size: 11.5px;
+}
+.m2c-d-statuses img {
+  width: 18px;
+  height: 18px;
+  grid-row: span 2;
+}
+.m2c-d-statuses span {
+  color: var(--c-mute);
+}
+.m2c-d-tip {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--c-amber);
+  opacity: 0.8;
+}
+.m2c-armed {
+  border-color: rgba(78, 242, 227, 0.6);
+  box-shadow: inset 0 0 20px rgba(78, 242, 227, 0.12);
+}
+.m2c-armed p {
+  margin: 0;
+  font-size: 12.5px;
+}
+.m2c-armed .m2c-armed-sub {
+  margin-top: 4px;
+  color: var(--c-mute);
+  font-size: 11px;
+}
+
+/* --------------------------------------------------------------- pile modal */
+
+.m2c-pile-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  max-height: 64vh;
+  overflow: auto;
+  padding: 6px;
+}
+.m2c-pile-note {
+  margin: 0 0 8px;
+  color: var(--m2-mute, #6f9496);
+  font-size: 13px;
+  text-align: center;
+}

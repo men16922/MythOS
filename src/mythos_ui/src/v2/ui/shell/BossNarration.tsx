@@ -10,6 +10,7 @@ import type { CombatState, ContentRegistry, Lang, MetaProfile } from '../../engi
 import { tr } from '../common/lang.ts'
 import { GmCard } from './GmCard.tsx'
 import { narrate, type Ctx } from './gm.ts'
+import './voices.css'
 
 const SHOW_MS = 9000
 const LLM_WAIT_MS = 6000

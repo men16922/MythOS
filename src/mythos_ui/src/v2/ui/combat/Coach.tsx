@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import type { Lang } from '../../engine/types.ts'
 import { sfx } from '../common/sfx.ts'
 import { markTutorialDone as markDone } from './describe.ts'
+import './coach.css'
 
 
 interface StepDef {

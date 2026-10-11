@@ -1,4 +1,4 @@
-// Combat HUD panels: top strip, party roster, unit/tile detail, pile viewer.
+// Combat HUD panels: top strip, party roster, unit/tile detail, the armed card's targeting hint, pile viewer.
 
 import { memo, useContext } from 'react'
 import { Hourglass, Footprints, Menu, Zap as ZapIcon, Shield as ShieldIcon } from 'lucide-react'
@@ -12,7 +12,7 @@ import { ShellMenu } from '../common/shellMenu.ts'
 import { CardView } from '../components/CardView.tsx'
 import { ImplantIcon } from '../components/ImplantIcon.tsx'
 import { Modal } from '../components/Modal.tsx'
-import { PatternIcon, ShieldGlyph } from './Board.tsx'
+import { PatternIcon, ShieldGlyph } from './board/glyphs.tsx'
 import { STATUS_NAME, STATUS_TEXT, TRACK_NOTE, bonusProgress, bonusText, describeMove, kindTag, objectiveText } from './describe.ts'
 
 const ko = (lang: Lang, a: string, b: string) => (lang === 'ko' ? a : b)
@@ -342,6 +342,61 @@ export const DetailPanel = memo(function DetailPanel(p: {
     </div>
   )
 })
+
+// ---------------------------------------------------------------- targeting
+
+/** While a card or consumable is armed: what it is (phones) and how to aim / play / cancel it. */
+export function ArmedPanel(p: { k: boolean; compact: boolean; touch: boolean; name: string; text: string; confirmMode: boolean; dirAimed: boolean }) {
+  const { k, touch, confirmMode } = p
+  return (
+    <div className="m2c-armed">
+      <div className="m2c-panel-h">{k ? '조준 중' : 'TARGETING'}</div>
+      {p.compact && p.name && (
+        <p className="m2c-armed-card">
+          <b>{p.name}</b> {p.text}
+        </p>
+      )}
+      <p>
+        {touch
+          ? confirmMode
+            ? k
+              ? '카드를 한 번 더 누르면 사용'
+              : 'Tap the card again to play'
+            : p.dirAimed
+              ? k
+                ? '화살표나 그 방향의 칸을 눌러 조준, 한 번 더 누르면 사용'
+                : 'Tap an arrow or a tile in line to aim, tap again to play'
+              : k
+                ? '빛나는 칸을 눌러 조준, 한 번 더 누르면 사용'
+                : 'Tap a lit tile to aim, tap again to play'
+          : confirmMode
+            ? k
+              ? '카드를 다시 누르거나 Enter로 사용'
+              : 'Click the card again or press Enter'
+            : p.dirAimed
+              ? k
+                ? '방향 화살표나 그 방향의 칸을 선택'
+                : 'Pick a direction arrow or a tile in line'
+              : k
+                ? '빛나는 칸을 선택'
+                : 'Pick a highlighted tile'}
+      </p>
+      <p className="m2c-armed-sub">
+        {touch
+          ? confirmMode
+            ? k
+              ? '다른 곳을 누르면 취소'
+              : 'Tap elsewhere to cancel'
+            : k
+              ? '카드를 다시 누르거나 빈 칸을 누르면 취소'
+              : 'Tap the card again or an empty tile to cancel'
+          : k
+            ? 'Esc · 우클릭 = 취소'
+            : 'Esc · right-click = cancel'}
+      </p>
+    </div>
+  )
+}
 
 // ---------------------------------------------------------------- piles
 

@@ -149,6 +149,10 @@ def act_once(page: Page, state: dict) -> bool:
             return True
         return False
     if kind == "map":
+        # Like a careful player: safehouse, shop, chest and street events before plain fights, elites last (unless hurt-free).
+        for k in ("rest", "shop", "treasure", "event", "combat", "elite", "boss"):
+            if click_first(page, f".m2-node--{k}.is-reach"):
+                return True
         return click_first(page, ".m2-node.is-reach")
     if kind == "event":
         if state.get("resolved"):

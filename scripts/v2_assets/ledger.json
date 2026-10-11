@@ -1,6 +1,6 @@
 {
- "image_calls": 239,
- "image_failed": 337,
+ "image_calls": 248,
+ "image_failed": 347,
  "lyria_calls": 21,
  "lyria_failed": 0,
  "outputs": {
@@ -1249,6 +1249,16 @@
    "seed": 344947748,
    "ts": "2026-10-11T21:31:00"
   },
+  "events/a2_han_blank_booth.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A worn registration booth in a corner of an underground night market glowing with a welcoming screen and a single empty name field; Han, a lean young hacker in a dark high-collared jacket with a cable around his neck, stands before it with one hand resting on the screen, uncharacteristically quiet. The character is Han, a lean young Korean man hacker with messy black hair and a dark high-collared jacket. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/han.png"
+   ],
+   "seed": 1924060580,
+   "ts": "2026-10-11T22:04:10"
+  },
   "events/a2_ix_amnesty.webp": {
    "generations": 1,
    "model": "gemini-3-pro-image",
@@ -1337,6 +1347,16 @@
    "seed": 815875410,
    "ts": "2026-10-10T23:48:16"
   },
+  "events/a2_serin_answering_radio.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. An underground market passage with dripping pipes; Se-rin, a young woman courier with long straight black hair and a black leather jacket, grips an old broken radio whose dial glows, listening intently, one hand half raised to her mouth. The character is Se-rin, a young Korean woman courier with long straight black hair and a black leather jacket. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/se-rin.png"
+   ],
+   "seed": 1843472482,
+   "ts": "2026-10-11T22:04:47"
+  },
   "events/a2_stalled_maglev.webp": {
    "generations": 1,
    "model": "gemini-3.1-flash-image",
@@ -1362,6 +1382,16 @@
    "refs": [],
    "seed": 472117661,
    "ts": "2026-10-10T23:45:17"
+  },
+  "events/a2_taeo_wanted_board.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A weathered wanted-notice board at the gate of an underground night market, layers of pasted face photos; Tae-o, a rugged scarred middle-aged man in a heavy black tactical coat, stands before one notice of a teenage girl with a red stamp across it, his hand rising to the scar on his cheek. The character is Tae-o, a rugged middle-aged Korean man with a scarred face, short black hair and a heavy black tactical coat. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/tae-o.png"
+   ],
+   "seed": 245019105,
+   "ts": "2026-10-11T22:02:45"
   },
   "events/a2_toll_bridge_kids.webp": {
    "generations": 1,
@@ -1410,6 +1440,26 @@
    "refs": [],
    "seed": 972832197,
    "ts": "2026-10-11T21:37:19"
+  },
+  "events/a3_han_empty_reply.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A sterile skyscraper corridor with a small speaker on the wall; Han laughs with his head thrown back and happy tears at his eyes, hands clapped, while sensor cameras in the ceiling turn away from him. The character is Han, a lean young Korean man hacker with messy black hair and a dark high-collared jacket. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/han.png"
+   ],
+   "seed": 1569574208,
+   "ts": "2026-10-11T22:07:53"
+  },
+  "events/a3_han_first_poke.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A maintenance terminal on a mid-level corridor of a skyscraper, glowing cyan; Han has taken off one glove and holds one fingertip just before the screen, half smiling, hand slightly trembling. The character is Han, a lean young Korean man hacker with messy black hair and a dark high-collared jacket. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/han.png"
+   ],
+   "seed": 1296888571,
+   "ts": "2026-10-11T22:09:50"
   },
   "events/a3_ix_offer.webp": {
    "generations": 1,
@@ -1469,6 +1519,26 @@
    "seed": 251496686,
    "ts": "2026-10-11T01:15:30"
   },
+  "events/a3_serin_inside_line.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A comms room in a skyscraper with banks of dark panels; Se-rin stands holding a handset that has switched itself on with a single glowing line, looking away from it with guilt and tension. The character is Se-rin, a young Korean woman courier with long straight black hair and a black leather jacket. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/se-rin.png"
+   ],
+   "seed": 561586045,
+   "ts": "2026-10-11T22:05:55"
+  },
+  "events/a3_serin_thirteenth_line.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A grey emergency stairwell wall at night; Se-rin kneels and draws a long chalk line across the wall, twelve short chalk strokes already beside it, a small calm smile, soft light from a stairwell lamp. The character is Se-rin, a young Korean woman courier with long straight black hair and a black leather jacket. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/se-rin.png"
+   ],
+   "seed": 439972525,
+   "ts": "2026-10-11T22:06:51"
+  },
   "events/a3_sleeping_frames.webp": {
    "generations": 1,
    "model": "gemini-3-pro-image",
@@ -1504,6 +1574,26 @@
    ],
    "seed": 1613094486,
    "ts": "2026-10-11T21:51:45"
+  },
+  "events/a3_taeo_hold_the_line.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A narrow emergency passage in a skyscraper: Tae-o stands in front with a battered tactical shield raised against a hulking quadruped enforcement hound robot, sparks flying from its claws on the shield, the viewer behind him. The character is Tae-o, a rugged middle-aged Korean man with a scarred face, short black hair and a heavy black tactical coat. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/tae-o.png"
+   ],
+   "seed": 1687978727,
+   "ts": "2026-10-11T22:08:50"
+  },
+  "events/a3_taeo_pending_file.webp": {
+   "generations": 1,
+   "model": "gemini-3.1-flash-image",
+   "prompt": "Narrative event illustration, wide cinematic shot. A cold records room inside a skyscraper with rows of steel filing drawers; Tae-o holds one open drawer with a single worn paper file in it, his face lit by the faint red glow of an indicator, quiet and heavy. The character is Tae-o, a rugged middle-aged Korean man with a scarred face, short black hair and a heavy black tactical coat. The bottom of the scene falls naturally into shadow (no overlay, band or letterbox). Keep the character's face, hair and outfit the same as in the reference image (same character as the reference image), but redraw them in this scene. Style: cinematic painterly concept art, cyberpunk Neo-Seoul noir, rain-slick surfaces, deep navy and teal shadows, cyan and magenta neon accents, warm gold highlights, volumetric haze, strong rim light, subtle film grain, high detail, absolutely no text, no letters, no signage lettering, no logos, no watermark, no UI elements, no frame or border.",
+   "refs": [
+    "resources/neo-seoul/characters/tae-o.png"
+   ],
+   "seed": 1968351520,
+   "ts": "2026-10-11T22:02:46"
   },
   "events/a3_the_surrender.webp": {
    "generations": 1,
